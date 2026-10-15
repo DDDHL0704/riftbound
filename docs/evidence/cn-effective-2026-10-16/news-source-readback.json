@@ -1,0 +1,27 @@
+{
+  "status": "OFFICIAL_NEWS_BODY_ACQUISITION_AND_OPEN_OBLIGATIONS",
+  "region": "CN",
+  "language": "zh-CN",
+  "applicableAsOf": "2026-10-16",
+  "metadataReported": 138,
+  "metadataReturned": 138,
+  "metadataFieldsUnchangedFromPreviousDate": true,
+  "candidateCount": 20,
+  "articleBodiesRetrieved": 16,
+  "ruleHubResponsesNotIndependentQa": 1,
+  "sourceGaps": 3,
+  "textBlocks": 124,
+  "imageReferences": 43,
+  "uniqueImagePayloads": 41,
+  "visualImagesInspectedThisIntake": 9,
+  "allBodyAndImageSemanticsAndCurrentApplicability": "OPEN",
+  "firstFailuresRetained": true,
+  "initialTruncatedExtractionRetainedPrivatelyAndSupersededByTagStackV2": "var/qa/cn-effective-20261016/news/article-extraction-v2.json",
+  "obligations": {
+    "path": "docs/evidence/cn-effective-2026-10-16/news-obligations.json",
+    "sha256": "852848590b04939d8780cb3dbd0e7c6e6ebca16eedfbe22a5163e95b353e8762"
+  },
+  "semanticCoverageCertified": false,
+  "unclassifiedMetadataBodiesRemainOpen": 118,
+  "unifiedNewsObligationsIncludingUnclassified": 305
+}

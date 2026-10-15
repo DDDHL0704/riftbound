@@ -1,0 +1,19 @@
+{
+  "cn": {
+    "addedIds": [],
+    "unreturnedPriorIds": [],
+    "changed": [],
+    "oldEntriesNeverImportedIntoCurrentResponse": true,
+    "semanticsCertified": false
+  },
+  "en": {
+    "addedIds": [],
+    "unreturnedPriorIds": [],
+    "changed": [],
+    "oldEntriesNeverImportedIntoCurrentResponse": true,
+    "semanticsCertified": false
+  },
+  "activeRuntimeOrRuleInputsChanged": false,
+  "perPrintingApplicabilityAndSemanticReview": "OPEN",
+  "sourceUniverseReductionPermitted": false
+}

@@ -1,0 +1,107 @@
+{
+  "status": "SOURCE_READING_IMPACT_TRIAGE_NOT_BEHAVIOR_CERTIFICATION",
+  "region": "CN",
+  "language": "zh-CN",
+  "applicableAsOf": "2026-10-16",
+  "ledger": {
+    "path": "docs/evidence/cn-effective-2026-10-16/news-obligations.json",
+    "sha256": "852848590b04939d8780cb3dbd0e7c6e6ebca16eedfbe22a5163e95b353e8762"
+  },
+  "items": [
+    {
+      "id": "SOURCE_VERSION_FURNACE_TARGET_SELECTION",
+      "sourceBranches": [
+        "CN-NEWS-1e862b4c0ddb4241-T039",
+        "CN-NEWS-75c3e527d06ebee1-T002"
+      ],
+      "observation": "The earlier Guangzhou case allows returning the sacrificed Furnace; the later national case explicitly disallows selecting it before costs. Preserve both and reconcile against the current confirmation/choice rules.",
+      "currentApplicability": "OPEN",
+      "implementationReview": "OPEN",
+      "tests": "OPEN",
+      "fixedCommitCi": "OPEN",
+      "productAcceptance": "OPEN",
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "POOLED_DAMAGE_EXCESS_LAST_TARGET",
+      "sourceBranches": [
+        "CN-NEWS-f180bb603da914e0-T005"
+      ],
+      "observation": "The old event summary must not be read as an unconditional ban on excess assignment. Current DOC04 465.2.c and DOC01 467.2.c require the full total and restrict excess while other targets remain. In live 8317 native play, two of five was not submittable; five to the sole target was accepted. This is source reconciliation, not a newly discovered client defect.",
+      "currentApplicability": "OPEN",
+      "implementationReview": "OPEN",
+      "tests": "OPEN",
+      "fixedCommitCi": "OPEN",
+      "productAcceptance": "OPEN",
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "HOOK_DESTROYED_REFERENCE_REPLACED",
+      "sourceBranches": [
+        "CN-NEWS-c9afef242b29c83e-T009"
+      ],
+      "observation": "The Suzhou case says Hourglass replacement leaves no destroyed-unit might reference for Hook. Existing hook-deck-play-2026-10-14 evidence already describes the corresponding negative branch; new-source/printing/trace comparison remains open.",
+      "currentApplicability": "OPEN",
+      "implementationReview": "OPEN",
+      "tests": "OPEN",
+      "fixedCommitCi": "OPEN",
+      "productAcceptance": "OPEN",
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "PENDING_STANDBY_TEEMO_TARGET_LOCATION",
+      "sourceBranches": [
+        "CN-NEWS-e3423780ce3aad29-T002"
+      ],
+      "observation": "Retain both Teemo subquestions: source moved to base before resolution still shows/recycles five, and source destroyed before confirmation removes a choice-dependent pending trigger. Reconcile with DOC01 811.1.d and source-lifecycle rules.",
+      "currentApplicability": "OPEN",
+      "implementationReview": "OPEN",
+      "tests": "OPEN",
+      "fixedCommitCi": "OPEN",
+      "productAcceptance": "OPEN",
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "SPELL_CONTROL_REMAKE_WARD",
+      "sourceBranches": [
+        "CN-NEWS-5bb5334bbf2c8df2-T003"
+      ],
+      "observation": "Shenyang reports no new Spellshield fee when Mirror obtains spell control and remakes its target. Compare the current confirmation/remake implementation and independent rejection tests before any behavioral conclusion.",
+      "currentApplicability": "OPEN",
+      "implementationReview": "OPEN",
+      "tests": "OPEN",
+      "fixedCommitCi": "OPEN",
+      "productAcceptance": "OPEN",
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "SWAP_MODIFIERS_AND_CONFIRMED_HISTORY",
+      "sourceBranches": [
+        "CN-NEWS-5bb5334bbf2c8df2-T004",
+        "CN-NEWS-5bb5334bbf2c8df2-T005",
+        "CN-NEWS-1e862b4c0ddb4241-T025"
+      ],
+      "observation": "Keep the Swap/Moon power case and Heron/control/countered-spell-history cases separate. Current 420.4 distinguishes successful-play triggers from non-triggered/conditional confirmed-history checks; old broad wording is not a universal current definition.",
+      "currentApplicability": "OPEN",
+      "implementationReview": "OPEN",
+      "tests": "OPEN",
+      "fixedCommitCi": "OPEN",
+      "productAcceptance": "OPEN",
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "MOVEMENT_TRIGGER_VERSUS_DEATH_CLEANUP",
+      "sourceBranches": [
+        "CN-NEWS-5bb5334bbf2c8df2-T002"
+      ],
+      "observation": "The official Shenyang correction distinguishes a movement trigger during an effect from a Last Breath trigger during later cleanup. Preserve the order and hidden-information consequence for a real command/replay test.",
+      "currentApplicability": "OPEN",
+      "implementationReview": "OPEN",
+      "tests": "OPEN",
+      "fixedCommitCi": "OPEN",
+      "productAcceptance": "OPEN",
+      "wholePrintingCertified": false
+    }
+  ],
+  "semanticCoverageCertified": false
+}

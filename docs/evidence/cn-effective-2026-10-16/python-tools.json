@@ -1,0 +1,10 @@
+{
+  "status": "ALL_55_PYTHON_VALIDATION_TESTS_PASS",
+  "prior46TestsPreserved": true,
+  "newTests": 9,
+  "newScope": "Original HTML identity, all body text and images, candidate and unclassified metadata coverage, source gaps, counterfeit content and unsupported certification rejection",
+  "log": {
+    "path": "var/qa/cn-effective-20261016/python-tools-final.log",
+    "sha256": "66aaf0dccc62efb89d2e727add4e42e37357b994d0e49f958a1c0b10ad0fbffa"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "state": "OPEN",
+  "issue": "https://github.com/DDDHL0704/riftbound/issues/37",
+  "category": "bug",
+  "triageState": "ready-for-agent",
+  "observedFixedCandidate": "83179358af4b22e08cab274e287357c924f776b4",
+  "nativeViewport": [
+    1440,
+    964
+  ],
+  "symptoms": [
+    "Lobby heading and field labels clipped at the left window edge",
+    "Deck preview partly occludes reconnect and ready controls"
+  ],
+  "actualControlEvidence": "docs/evidence/cn-effective-2026-10-16/prior-private-insight-manual-reconnect.json",
+  "repairImplemented": false,
+  "windowsPhysicalAcceptance": "OPEN"
+}

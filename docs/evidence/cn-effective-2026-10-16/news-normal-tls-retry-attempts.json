@@ -1,0 +1,44 @@
+[
+  {
+    "id": "CN-NEWS-92d3cd4106bc1173",
+    "titleAsListed": "起源系列丨勘误汇总",
+    "publishedAsListed": "2025-10-28",
+    "url": "https://lol.playloltcg.com/rules/rules_1026.html",
+    "fetchedAtUtc": "2026-10-15T16:41:36.006178+00:00",
+    "attempt": 2,
+    "normalTls": true,
+    "previousReceipt": "body-fetch-receipts.json",
+    "status": "SOURCE_GAP_FETCH_ERROR",
+    "error": "URLError: <urlopen error [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1010)>",
+    "receivedAtUtc": "2026-10-15T16:41:41.018878+00:00"
+  },
+  {
+    "id": "CN-NEWS-baf84eaf1a3284a3",
+    "titleAsListed": "核心规则｜符文战场官方规则书",
+    "publishedAsListed": "2025-10-24",
+    "url": "https://lol.playloltcg.com/rules/game-rules.html",
+    "fetchedAtUtc": "2026-10-15T16:41:41.018948+00:00",
+    "attempt": 2,
+    "normalTls": true,
+    "previousReceipt": "body-fetch-receipts.json",
+    "status": "SOURCE_GAP_FETCH_ERROR",
+    "error": "URLError: <urlopen error [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1010)>",
+    "receivedAtUtc": "2026-10-15T16:41:46.022334+00:00"
+  },
+  {
+    "id": "CN-NEWS-19bead1944fcb5ec",
+    "titleAsListed": "赛事规则上线，赛事详情全解析",
+    "publishedAsListed": "2025-08-13",
+    "url": "https://mp.weixin.qq.com/s/RxhUnZEhtc43WyuTAYV6dA",
+    "fetchedAtUtc": "2026-10-15T16:41:46.022422+00:00",
+    "attempt": 2,
+    "normalTls": true,
+    "previousReceipt": "body-fetch-receipts.json",
+    "receivedAtUtc": "2026-10-15T16:41:47.395357+00:00",
+    "status": "RETRIEVED_REQUIRES_EXTRACTION",
+    "sha256": "322f59d2a164829cea361be79b05b6e561a03676e4a0fc2c4966d9b8a9c0ba4a",
+    "bytes": 18164,
+    "finalUrl": "https://mp.weixin.qq.com/mp/wappoc_appmsgcaptcha?poc_token=HEsC0WqjPqtx_x7YGYWRMfFZNln87OfrckNz32dB&target_url=https%3A%2F%2Fmp.weixin.qq.com%2Fs%2FRxhUnZEhtc43WyuTAYV6dA",
+    "rawPath": "var/qa/cn-effective-20261016/news/CN-NEWS-19bead1944fcb5ec-retry.html"
+  }
+]

@@ -1,0 +1,695 @@
+[
+  {
+    "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+    "request": {
+      "pageNum": 1,
+      "pageSize": 100,
+      "searchContent": "",
+      "cardCategoryList": [],
+      "cardColorList": [],
+      "rarityList": [],
+      "productCodeList": []
+    },
+    "fetchedAtUtc": "2026-10-15T16:05:23.857127+00:00",
+    "path": "data/official/upstream/2026-10-16/source-refresh-20261015T160523Z/cn-page-001.json",
+    "sha256": "301c199f7fca85bfce9a71ee9741bcfc246a29bb6858e5911f8da90b1d686366",
+    "bytes": 95051,
+    "responseHeaders": {
+      "Date": "Thu, 15 Oct 2026 16:05:23 GMT"
+    },
+    "priorAttempts": [],
+    "downloadedAtPath": "var/qa/cn-effective-20261016/whole-card-source-readback-v2/cn-page-001.json"
+  },
+  {
+    "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+    "request": {
+      "pageNum": 2,
+      "pageSize": 100,
+      "searchContent": "",
+      "cardCategoryList": [],
+      "cardColorList": [],
+      "rarityList": [],
+      "productCodeList": []
+    },
+    "fetchedAtUtc": "2026-10-15T16:05:28.125584+00:00",
+    "path": "data/official/upstream/2026-10-16/source-refresh-20261015T160523Z/cn-page-002.json",
+    "sha256": "af488bc7a61a3e1ce39463f116eb3aa8f382f3b336f62f07d6ea699954512adc",
+    "bytes": 95625,
+    "responseHeaders": {
+      "Date": "Thu, 15 Oct 2026 16:05:24 GMT"
+    },
+    "priorAttempts": [],
+    "downloadedAtPath": "var/qa/cn-effective-20261016/whole-card-source-readback-v2/cn-page-002.json"
+  },
+  {
+    "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+    "request": {
+      "pageNum": 3,
+      "pageSize": 100,
+      "searchContent": "",
+      "cardCategoryList": [],
+      "cardColorList": [],
+      "rarityList": [],
+      "productCodeList": []
+    },
+    "fetchedAtUtc": "2026-10-15T16:05:24.100278+00:00",
+    "path": "data/official/upstream/2026-10-16/source-refresh-20261015T160523Z/cn-page-003.json",
+    "sha256": "5d563304ce91e46da0b05f5b182402e8eec0b6ba6f879375657c6d9fc77fe250",
+    "bytes": 97981,
+    "responseHeaders": {
+      "Date": "Thu, 15 Oct 2026 16:05:23 GMT"
+    },
+    "priorAttempts": [],
+    "downloadedAtPath": "var/qa/cn-effective-20261016/whole-card-source-readback-v2/cn-page-003.json"
+  },
+  {
+    "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+    "request": {
+      "pageNum": 4,
+      "pageSize": 100,
+      "searchContent": "",
+      "cardCategoryList": [],
+      "cardColorList": [],
+      "rarityList": [],
+      "productCodeList": []
+    },
+    "fetchedAtUtc": "2026-10-15T16:05:27.423268+00:00",
+    "path": "data/official/upstream/2026-10-16/source-refresh-20261015T160523Z/cn-page-004.json",
+    "sha256": "d7c0ea87f94787fdfab6bbe167ea4572aa901dbab233bb7edaceef42d7567dfe",
+    "bytes": 106111,
+    "responseHeaders": {
+      "Date": "Thu, 15 Oct 2026 16:05:25 GMT"
+    },
+    "priorAttempts": [],
+    "downloadedAtPath": "var/qa/cn-effective-20261016/whole-card-source-readback-v2/cn-page-004.json"
+  },
+  {
+    "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+    "request": {
+      "pageNum": 5,
+      "pageSize": 100,
+      "searchContent": "",
+      "cardCategoryList": [],
+      "cardColorList": [],
+      "rarityList": [],
+      "productCodeList": []
+    },
+    "fetchedAtUtc": "2026-10-15T16:05:27.641106+00:00",
+    "path": "data/official/upstream/2026-10-16/source-refresh-20261015T160523Z/cn-page-005.json",
+    "sha256": "65b4bdc518e4df90b77e0cfd036b76144b607bea825fe40e3cf53d3490c6a876",
+    "bytes": 96082,
+    "responseHeaders": {
+      "Date": "Thu, 15 Oct 2026 16:05:27 GMT"
+    },
+    "priorAttempts": [],
+    "downloadedAtPath": "var/qa/cn-effective-20261016/whole-card-source-readback-v2/cn-page-005.json"
+  },
+  {
+    "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+    "request": {
+      "pageNum": 6,
+      "pageSize": 100,
+      "searchContent": "",
+      "cardCategoryList": [],
+      "cardColorList": [],
+      "rarityList": [],
+      "productCodeList": []
+    },
+    "fetchedAtUtc": "2026-10-15T16:05:30.668152+00:00",
+    "path": "data/official/upstream/2026-10-16/source-refresh-20261015T160523Z/cn-page-006.json",
+    "sha256": "017fd11c3e8c2a612217a0ab990fe0f13467a2bcd506fdcf27b06bda79433aff",
+    "bytes": 109502,
+    "responseHeaders": {
+      "Date": "Thu, 15 Oct 2026 16:05:28 GMT"
+    },
+    "priorAttempts": [],
+    "downloadedAtPath": "var/qa/cn-effective-20261016/whole-card-source-readback-v2/cn-page-006.json"
+  },
+  {
+    "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+    "request": {
+      "pageNum": 7,
+      "pageSize": 100,
+      "searchContent": "",
+      "cardCategoryList": [],
+      "cardColorList": [],
+      "rarityList": [],
+      "productCodeList": []
+    },
+    "fetchedAtUtc": "2026-10-15T16:05:28.465013+00:00",
+    "path": "data/official/upstream/2026-10-16/source-refresh-20261015T160523Z/cn-page-007.json",
+    "sha256": "7dedb1556bd00736fb8f40775513800ef16f83fb06f6c81568c8ff9375936206",
+    "bytes": 107777,
+    "responseHeaders": {
+      "Date": "Thu, 15 Oct 2026 16:05:28 GMT"
+    },
+    "priorAttempts": [],
+    "downloadedAtPath": "var/qa/cn-effective-20261016/whole-card-source-readback-v2/cn-page-007.json"
+  },
+  {
+    "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+    "request": {
+      "pageNum": 8,
+      "pageSize": 100,
+      "searchContent": "",
+      "cardCategoryList": [],
+      "cardColorList": [],
+      "rarityList": [],
+      "productCodeList": []
+    },
+    "fetchedAtUtc": "2026-10-15T16:05:31.301390+00:00",
+    "path": "data/official/upstream/2026-10-16/source-refresh-20261015T160523Z/cn-page-008.json",
+    "sha256": "c3a13564a8297f46fe5c548fb306264ad64b529cb494cc5295649613eebe2006",
+    "bytes": 101806,
+    "responseHeaders": {
+      "Date": "Thu, 15 Oct 2026 16:05:29 GMT"
+    },
+    "priorAttempts": [],
+    "downloadedAtPath": "var/qa/cn-effective-20261016/whole-card-source-readback-v2/cn-page-008.json"
+  },
+  {
+    "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+    "request": {
+      "pageNum": 9,
+      "pageSize": 100,
+      "searchContent": "",
+      "cardCategoryList": [],
+      "cardColorList": [],
+      "rarityList": [],
+      "productCodeList": []
+    },
+    "fetchedAtUtc": "2026-10-15T16:05:30.933485+00:00",
+    "path": "data/official/upstream/2026-10-16/source-refresh-20261015T160523Z/cn-page-009.json",
+    "sha256": "91c34545496e92529e780997ebf850577385d5bbd6e06347cdfd6cb538bf824b",
+    "bytes": 108292,
+    "responseHeaders": {
+      "Date": "Thu, 15 Oct 2026 16:05:30 GMT"
+    },
+    "priorAttempts": [],
+    "downloadedAtPath": "var/qa/cn-effective-20261016/whole-card-source-readback-v2/cn-page-009.json"
+  },
+  {
+    "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+    "request": {
+      "pageNum": 10,
+      "pageSize": 100,
+      "searchContent": "",
+      "cardCategoryList": [],
+      "cardColorList": [],
+      "rarityList": [],
+      "productCodeList": []
+    },
+    "fetchedAtUtc": "2026-10-15T16:05:31.161057+00:00",
+    "path": "data/official/upstream/2026-10-16/source-refresh-20261015T160523Z/cn-page-010.json",
+    "sha256": "e97ab75668a589f7849e8de8bc63fba562d1a052fea96b9423766bc41aeea7ef",
+    "bytes": 107159,
+    "responseHeaders": {
+      "Date": "Thu, 15 Oct 2026 16:05:31 GMT"
+    },
+    "priorAttempts": [],
+    "downloadedAtPath": "var/qa/cn-effective-20261016/whole-card-source-readback-v2/cn-page-010.json"
+  },
+  {
+    "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+    "request": {
+      "pageNum": 11,
+      "pageSize": 100,
+      "searchContent": "",
+      "cardCategoryList": [],
+      "cardColorList": [],
+      "rarityList": [],
+      "productCodeList": []
+    },
+    "fetchedAtUtc": "2026-10-15T16:05:31.391239+00:00",
+    "path": "data/official/upstream/2026-10-16/source-refresh-20261015T160523Z/cn-page-011.json",
+    "sha256": "d4c569275a11e0a5aeaa0c0cb9487b0b8a47331a1e111bb6d583195088abe421",
+    "bytes": 103519,
+    "responseHeaders": {
+      "Date": "Thu, 15 Oct 2026 16:05:31 GMT"
+    },
+    "priorAttempts": [],
+    "downloadedAtPath": "var/qa/cn-effective-20261016/whole-card-source-readback-v2/cn-page-011.json"
+  },
+  {
+    "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+    "request": {
+      "pageNum": 12,
+      "pageSize": 100,
+      "searchContent": "",
+      "cardCategoryList": [],
+      "cardColorList": [],
+      "rarityList": [],
+      "productCodeList": []
+    },
+    "fetchedAtUtc": "2026-10-15T16:05:31.651583+00:00",
+    "path": "data/official/upstream/2026-10-16/source-refresh-20261015T160523Z/cn-page-012.json",
+    "sha256": "4c83f7e82a01f101cc1625c11b5d7ac91144e0ec5085839bd0fb1e95a6c4c899",
+    "bytes": 98395,
+    "responseHeaders": {
+      "Date": "Thu, 15 Oct 2026 16:05:31 GMT"
+    },
+    "priorAttempts": [],
+    "downloadedAtPath": "var/qa/cn-effective-20261016/whole-card-source-readback-v2/cn-page-012.json"
+  },
+  {
+    "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+    "request": {
+      "pageNum": 13,
+      "pageSize": 100,
+      "searchContent": "",
+      "cardCategoryList": [],
+      "cardColorList": [],
+      "rarityList": [],
+      "productCodeList": []
+    },
+    "fetchedAtUtc": "2026-10-15T16:05:31.594462+00:00",
+    "path": "data/official/upstream/2026-10-16/source-refresh-20261015T160523Z/cn-page-013.json",
+    "sha256": "e8b678ef2a25d527b7ed4b6be2ed73de31c1d5a6df2db8901ce11394eb8360e5",
+    "bytes": 103302,
+    "responseHeaders": {
+      "Date": "Thu, 15 Oct 2026 16:05:31 GMT"
+    },
+    "priorAttempts": [],
+    "downloadedAtPath": "var/qa/cn-effective-20261016/whole-card-source-readback-v2/cn-page-013.json"
+  },
+  {
+    "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+    "request": {
+      "pageNum": 14,
+      "pageSize": 100,
+      "searchContent": "",
+      "cardCategoryList": [],
+      "cardColorList": [],
+      "rarityList": [],
+      "productCodeList": []
+    },
+    "fetchedAtUtc": "2026-10-15T16:05:31.803258+00:00",
+    "path": "data/official/upstream/2026-10-16/source-refresh-20261015T160523Z/cn-page-014.json",
+    "sha256": "fb47d2dd162c9d7cc0d227774b79261d6aa3df583d09e7bdbcd0d9a76bb8e5b8",
+    "bytes": 103240,
+    "responseHeaders": {
+      "Date": "Thu, 15 Oct 2026 16:05:31 GMT"
+    },
+    "priorAttempts": [],
+    "downloadedAtPath": "var/qa/cn-effective-20261016/whole-card-source-readback-v2/cn-page-014.json"
+  },
+  {
+    "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+    "request": {
+      "pageNum": 15,
+      "pageSize": 100,
+      "searchContent": "",
+      "cardCategoryList": [],
+      "cardColorList": [],
+      "rarityList": [],
+      "productCodeList": []
+    },
+    "fetchedAtUtc": "2026-10-15T16:05:31.998512+00:00",
+    "path": "data/official/upstream/2026-10-16/source-refresh-20261015T160523Z/cn-page-015.json",
+    "sha256": "790567af90ca02c8526cd38146b4d4148d6311e18bfc29dfd12c470e0c0fbb24",
+    "bytes": 102482,
+    "responseHeaders": {
+      "Date": "Thu, 15 Oct 2026 16:05:31 GMT"
+    },
+    "priorAttempts": [],
+    "downloadedAtPath": "var/qa/cn-effective-20261016/whole-card-source-readback-v2/cn-page-015.json"
+  },
+  {
+    "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+    "request": {
+      "pageNum": 16,
+      "pageSize": 100,
+      "searchContent": "",
+      "cardCategoryList": [],
+      "cardColorList": [],
+      "rarityList": [],
+      "productCodeList": []
+    },
+    "fetchedAtUtc": "2026-10-15T16:05:31.934903+00:00",
+    "path": "data/official/upstream/2026-10-16/source-refresh-20261015T160523Z/cn-page-016.json",
+    "sha256": "52c4084a1e343e2e3b1292223d3d519e8db549c2b847b65a980353aedf029a36",
+    "bytes": 3494,
+    "responseHeaders": {
+      "Date": "Thu, 15 Oct 2026 16:05:31 GMT"
+    },
+    "priorAttempts": [],
+    "downloadedAtPath": "var/qa/cn-effective-20261016/whole-card-source-readback-v2/cn-page-016.json"
+  },
+  {
+    "url": "https://playriftbound.com/en-us/card-gallery/",
+    "request": null,
+    "fetchedAtUtc": "2026-10-15T16:06:04.185276+00:00",
+    "path": "data/official/upstream/2026-10-16/source-refresh-20261015T160523Z/en-gallery.html",
+    "sha256": "3930121c146315872e7c3bf691ae8faf92aea1cac04e94c72c01f3276fd58fd0",
+    "bytes": 3982984,
+    "responseHeaders": {
+      "Date": "Thu, 15 Oct 2026 16:06:01 GMT",
+      "ETag": "\"jnc4qh75392dc71\"",
+      "Age": "8",
+      "Cache-Control": "public,max-age=0,must-revalidate"
+    },
+    "priorAttempts": [],
+    "downloadedAtPath": "var/qa/cn-effective-20261016/whole-card-source-readback-v2/en-gallery.html"
+  },
+  {
+    "url": "https://content.publishing.riotgames.com/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=en_US&limit=100&from=0",
+    "request": null,
+    "fetchedAtUtc": "2026-10-15T16:05:40.617204+00:00",
+    "path": "data/official/upstream/2026-10-16/source-refresh-20261015T160523Z/en-narrow-0000.json",
+    "sha256": "ab23b83cedcecb4b3756705e11e192c846b301c8e949162988f44f88562ee7f9",
+    "bytes": 281105,
+    "responseHeaders": {
+      "Date": "Thu, 15 Oct 2026 16:05:40 GMT",
+      "Cache-Control": "no-cache, private"
+    },
+    "priorAttempts": [],
+    "downloadedAtPath": "var/qa/cn-effective-20261016/whole-card-source-readback-v2/en-narrow-0000.json"
+  },
+  {
+    "url": "https://content.publishing.riotgames.com/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=en_US&limit=100&from=100",
+    "request": null,
+    "fetchedAtUtc": "2026-10-15T16:05:42.024352+00:00",
+    "path": "data/official/upstream/2026-10-16/source-refresh-20261015T160523Z/en-narrow-0100.json",
+    "sha256": "e01820a584f5712e8ddddd57f759dd6b77b9b07717e58d84aade6eebfaf58773",
+    "bytes": 256619,
+    "responseHeaders": {
+      "Date": "Thu, 15 Oct 2026 16:05:40 GMT",
+      "Cache-Control": "no-cache, private"
+    },
+    "priorAttempts": [],
+    "downloadedAtPath": "var/qa/cn-effective-20261016/whole-card-source-readback-v2/en-narrow-0100.json"
+  },
+  {
+    "url": "https://content.publishing.riotgames.com/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=en_US&limit=100&from=200",
+    "request": null,
+    "fetchedAtUtc": "2026-10-15T16:05:42.249584+00:00",
+    "path": "data/official/upstream/2026-10-16/source-refresh-20261015T160523Z/en-narrow-0200.json",
+    "sha256": "ac57572caa19b41404c094c181f20f7dbc3e0f472c52892f21327c92caba5f6e",
+    "bytes": 274390,
+    "responseHeaders": {
+      "Date": "Thu, 15 Oct 2026 16:05:41 GMT",
+      "Cache-Control": "no-cache, private"
+    },
+    "priorAttempts": [],
+    "downloadedAtPath": "var/qa/cn-effective-20261016/whole-card-source-readback-v2/en-narrow-0200.json"
+  },
+  {
+    "url": "https://content.publishing.riotgames.com/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=en_US&limit=100&from=300",
+    "request": null,
+    "fetchedAtUtc": "2026-10-15T16:05:42.817290+00:00",
+    "path": "data/official/upstream/2026-10-16/source-refresh-20261015T160523Z/en-narrow-0300.json",
+    "sha256": "9689513abdcf7412d936452b1e8390c22aed345b15092b9afdf17e68b455c3cb",
+    "bytes": 272203,
+    "responseHeaders": {
+      "Date": "Thu, 15 Oct 2026 16:05:42 GMT",
+      "Cache-Control": "no-cache, private"
+    },
+    "priorAttempts": [],
+    "downloadedAtPath": "var/qa/cn-effective-20261016/whole-card-source-readback-v2/en-narrow-0300.json"
+  },
+  {
+    "url": "https://content.publishing.riotgames.com/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=en_US&limit=100&from=400",
+    "request": null,
+    "fetchedAtUtc": "2026-10-15T16:05:43.074218+00:00",
+    "path": "data/official/upstream/2026-10-16/source-refresh-20261015T160523Z/en-narrow-0400.json",
+    "sha256": "73edc8ab65c3e3f114e4b80211eae59e98d4c2d673f86da81451ef78a87f095c",
+    "bytes": 255587,
+    "responseHeaders": {
+      "Date": "Thu, 15 Oct 2026 16:05:42 GMT",
+      "Cache-Control": "no-cache, private"
+    },
+    "priorAttempts": [],
+    "downloadedAtPath": "var/qa/cn-effective-20261016/whole-card-source-readback-v2/en-narrow-0400.json"
+  },
+  {
+    "url": "https://content.publishing.riotgames.com/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=en_US&limit=100&from=500",
+    "request": null,
+    "fetchedAtUtc": "2026-10-15T16:05:44.998625+00:00",
+    "path": "data/official/upstream/2026-10-16/source-refresh-20261015T160523Z/en-narrow-0500.json",
+    "sha256": "62a5f9b3a5c98c369e92a45ae126ab6723eefd4b688d40cc5b0da23815ae3441",
+    "bytes": 275161,
+    "responseHeaders": {
+      "Date": "Thu, 15 Oct 2026 16:05:44 GMT",
+      "Cache-Control": "no-cache, private"
+    },
+    "priorAttempts": [],
+    "downloadedAtPath": "var/qa/cn-effective-20261016/whole-card-source-readback-v2/en-narrow-0500.json"
+  },
+  {
+    "url": "https://content.publishing.riotgames.com/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=en_US&limit=100&from=600",
+    "request": null,
+    "fetchedAtUtc": "2026-10-15T16:05:44.006209+00:00",
+    "path": "data/official/upstream/2026-10-16/source-refresh-20261015T160523Z/en-narrow-0600.json",
+    "sha256": "39ec42ecb651f5c55d8b82b2ecb3e3157078912cc98cb45f6444f7ffa8b8f322",
+    "bytes": 299472,
+    "responseHeaders": {
+      "Date": "Thu, 15 Oct 2026 16:05:43 GMT",
+      "Cache-Control": "no-cache, private"
+    },
+    "priorAttempts": [],
+    "downloadedAtPath": "var/qa/cn-effective-20261016/whole-card-source-readback-v2/en-narrow-0600.json"
+  },
+  {
+    "url": "https://content.publishing.riotgames.com/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=en_US&limit=100&from=700",
+    "request": null,
+    "fetchedAtUtc": "2026-10-15T16:05:44.975843+00:00",
+    "path": "data/official/upstream/2026-10-16/source-refresh-20261015T160523Z/en-narrow-0700.json",
+    "sha256": "aad22f285b45ad8bef9dfbe380219b9714f9c793a1f495954588d31c24aea4cc",
+    "bytes": 268817,
+    "responseHeaders": {
+      "Date": "Thu, 15 Oct 2026 16:05:44 GMT",
+      "Cache-Control": "no-cache, private"
+    },
+    "priorAttempts": [],
+    "downloadedAtPath": "var/qa/cn-effective-20261016/whole-card-source-readback-v2/en-narrow-0700.json"
+  },
+  {
+    "url": "https://content.publishing.riotgames.com/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=en_US&limit=100&from=800",
+    "request": null,
+    "fetchedAtUtc": "2026-10-15T16:05:45.877633+00:00",
+    "path": "data/official/upstream/2026-10-16/source-refresh-20261015T160523Z/en-narrow-0800.json",
+    "sha256": "8c1248eaf54897b748f596ffae2f3a0e25e7f40c5e7ff95b9ae34eac4dd8364d",
+    "bytes": 263390,
+    "responseHeaders": {
+      "Date": "Thu, 15 Oct 2026 16:05:45 GMT",
+      "Cache-Control": "no-cache, private"
+    },
+    "priorAttempts": [],
+    "downloadedAtPath": "var/qa/cn-effective-20261016/whole-card-source-readback-v2/en-narrow-0800.json"
+  },
+  {
+    "url": "https://content.publishing.riotgames.com/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=en_US&limit=100&from=900",
+    "request": null,
+    "fetchedAtUtc": "2026-10-15T16:05:45.864225+00:00",
+    "path": "data/official/upstream/2026-10-16/source-refresh-20261015T160523Z/en-narrow-0900.json",
+    "sha256": "84157ab9887198b1603e75327f98bc582dece91bb3169246cf4633134a952d19",
+    "bytes": 273747,
+    "responseHeaders": {
+      "Date": "Thu, 15 Oct 2026 16:05:45 GMT",
+      "Cache-Control": "no-cache, private"
+    },
+    "priorAttempts": [],
+    "downloadedAtPath": "var/qa/cn-effective-20261016/whole-card-source-readback-v2/en-narrow-0900.json"
+  },
+  {
+    "url": "https://content.publishing.riotgames.com/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=en_US&limit=100&from=1000",
+    "request": null,
+    "fetchedAtUtc": "2026-10-15T16:05:46.551811+00:00",
+    "path": "data/official/upstream/2026-10-16/source-refresh-20261015T160523Z/en-narrow-1000.json",
+    "sha256": "3dc579d23622ebc7c8c0bb02f42e427dce45d8df969c2f59093f6db81ab5b32a",
+    "bytes": 267066,
+    "responseHeaders": {
+      "Date": "Thu, 15 Oct 2026 16:05:46 GMT",
+      "Cache-Control": "no-cache, private"
+    },
+    "priorAttempts": [],
+    "downloadedAtPath": "var/qa/cn-effective-20261016/whole-card-source-readback-v2/en-narrow-1000.json"
+  },
+  {
+    "url": "https://content.publishing.riotgames.com/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=en_US&limit=100&from=1100",
+    "request": null,
+    "fetchedAtUtc": "2026-10-15T16:05:46.729153+00:00",
+    "path": "data/official/upstream/2026-10-16/source-refresh-20261015T160523Z/en-narrow-1100.json",
+    "sha256": "f8dc4090e4b8bb8669823291595676a2c4aa62e961f328009e7b1c60afe48e18",
+    "bytes": 275121,
+    "responseHeaders": {
+      "Date": "Thu, 15 Oct 2026 16:05:46 GMT",
+      "Cache-Control": "no-cache, private"
+    },
+    "priorAttempts": [],
+    "downloadedAtPath": "var/qa/cn-effective-20261016/whole-card-source-readback-v2/en-narrow-1100.json"
+  },
+  {
+    "url": "https://content.publishing.riotgames.com/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=en_US&limit=100&from=1200",
+    "request": null,
+    "fetchedAtUtc": "2026-10-15T16:05:48.644597+00:00",
+    "path": "data/official/upstream/2026-10-16/source-refresh-20261015T160523Z/en-narrow-1200.json",
+    "sha256": "dd2fa821558226a41cfc4d1b8aab826c05503e7bc78a700a2162e4d1d8959d75",
+    "bytes": 262424,
+    "responseHeaders": {
+      "Date": "Thu, 15 Oct 2026 16:05:48 GMT",
+      "Cache-Control": "no-cache, private"
+    },
+    "priorAttempts": [],
+    "downloadedAtPath": "var/qa/cn-effective-20261016/whole-card-source-readback-v2/en-narrow-1200.json"
+  },
+  {
+    "url": "https://content.publishing.riotgames.com/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=en_US&limit=100&from=1300",
+    "request": null,
+    "fetchedAtUtc": "2026-10-15T16:05:51.998020+00:00",
+    "path": "data/official/upstream/2026-10-16/source-refresh-20261015T160523Z/en-narrow-1300.json",
+    "sha256": "28cfc7bcc0c936de435d38cf32760cf1e4ff34cf7a210140df46f63ac5314ce7",
+    "bytes": 277136,
+    "responseHeaders": {
+      "Date": "Thu, 15 Oct 2026 16:05:51 GMT",
+      "Cache-Control": "no-cache, private"
+    },
+    "priorAttempts": [],
+    "downloadedAtPath": "var/qa/cn-effective-20261016/whole-card-source-readback-v2/en-narrow-1300.json"
+  },
+  {
+    "url": "https://content.publishing.riotgames.com/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=en_US&limit=100&from=1400",
+    "request": null,
+    "fetchedAtUtc": "2026-10-15T16:05:49.593057+00:00",
+    "path": "data/official/upstream/2026-10-16/source-refresh-20261015T160523Z/en-narrow-1400.json",
+    "sha256": "2a9155d021ea25fcce85b0ac3088ed40fd8a2ba2dcc55526a26f15feb12fc668",
+    "bytes": 48268,
+    "responseHeaders": {
+      "Date": "Thu, 15 Oct 2026 16:05:49 GMT",
+      "Cache-Control": "no-cache, private"
+    },
+    "priorAttempts": [],
+    "downloadedAtPath": "var/qa/cn-effective-20261016/whole-card-source-readback-v2/en-narrow-1400.json"
+  },
+  {
+    "url": "https://content.publishing.riotgames.com/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=en_US&limit=200&from=0",
+    "request": null,
+    "fetchedAtUtc": "2026-10-15T16:05:33.986474+00:00",
+    "path": "data/official/upstream/2026-10-16/source-refresh-20261015T160523Z/en-page-0000.json",
+    "sha256": "22022d92e3b890b17c0ed3aac18e2535f679e43d7c07f95fa14aa11e349e5dc4",
+    "bytes": 536790,
+    "responseHeaders": {
+      "Date": "Thu, 15 Oct 2026 16:05:33 GMT",
+      "Cache-Control": "no-cache, private"
+    },
+    "priorAttempts": [],
+    "downloadedAtPath": "var/qa/cn-effective-20261016/whole-card-source-readback-v2/en-page-0000.json"
+  },
+  {
+    "url": "https://content.publishing.riotgames.com/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=en_US&limit=200&from=200",
+    "request": null,
+    "fetchedAtUtc": "2026-10-15T16:05:36.321686+00:00",
+    "path": "data/official/upstream/2026-10-16/source-refresh-20261015T160523Z/en-page-0200.json",
+    "sha256": "6c5f8451d07afd6a81c311275be208f073ddf62ea6e36e8fe8e83c1e5123b8a8",
+    "bytes": 545643,
+    "responseHeaders": {
+      "Date": "Thu, 15 Oct 2026 16:05:35 GMT",
+      "Cache-Control": "no-cache, private"
+    },
+    "priorAttempts": [],
+    "downloadedAtPath": "var/qa/cn-effective-20261016/whole-card-source-readback-v2/en-page-0200.json"
+  },
+  {
+    "url": "https://content.publishing.riotgames.com/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=en_US&limit=200&from=400",
+    "request": null,
+    "fetchedAtUtc": "2026-10-15T16:05:34.932980+00:00",
+    "path": "data/official/upstream/2026-10-16/source-refresh-20261015T160523Z/en-page-0400.json",
+    "sha256": "b87ca3f8f5c3cb87f3bd6f0572f75cb10a22c6ef1abc7d816cb1c89fdbe6ed62",
+    "bytes": 529824,
+    "responseHeaders": {
+      "Date": "Thu, 15 Oct 2026 16:05:34 GMT",
+      "Cache-Control": "no-cache, private"
+    },
+    "priorAttempts": [],
+    "downloadedAtPath": "var/qa/cn-effective-20261016/whole-card-source-readback-v2/en-page-0400.json"
+  },
+  {
+    "url": "https://content.publishing.riotgames.com/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=en_US&limit=200&from=600",
+    "request": null,
+    "fetchedAtUtc": "2026-10-15T16:05:36.538926+00:00",
+    "path": "data/official/upstream/2026-10-16/source-refresh-20261015T160523Z/en-page-0600.json",
+    "sha256": "1decf138d752a5f34b5190187bc5a110c69d5ecca231f725d6b5306701aef139",
+    "bytes": 567142,
+    "responseHeaders": {
+      "Date": "Thu, 15 Oct 2026 16:05:35 GMT",
+      "Cache-Control": "no-cache, private"
+    },
+    "priorAttempts": [],
+    "downloadedAtPath": "var/qa/cn-effective-20261016/whole-card-source-readback-v2/en-page-0600.json"
+  },
+  {
+    "url": "https://content.publishing.riotgames.com/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=en_US&limit=200&from=800",
+    "request": null,
+    "fetchedAtUtc": "2026-10-15T16:05:37.345024+00:00",
+    "path": "data/official/upstream/2026-10-16/source-refresh-20261015T160523Z/en-page-0800.json",
+    "sha256": "c9ca65a0f41fc6916031273fd75f2c109f95f21854206807b3f83c7070c9f6fa",
+    "bytes": 536014,
+    "responseHeaders": {
+      "Date": "Thu, 15 Oct 2026 16:05:36 GMT",
+      "Cache-Control": "no-cache, private"
+    },
+    "priorAttempts": [],
+    "downloadedAtPath": "var/qa/cn-effective-20261016/whole-card-source-readback-v2/en-page-0800.json"
+  },
+  {
+    "url": "https://content.publishing.riotgames.com/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=en_US&limit=200&from=1000",
+    "request": null,
+    "fetchedAtUtc": "2026-10-15T16:05:39.385050+00:00",
+    "path": "data/official/upstream/2026-10-16/source-refresh-20261015T160523Z/en-page-1000.json",
+    "sha256": "fa6b315a4ebe6c98ca2a7329651bc7365efb7e5f4b575dd44e634adcb45bc668",
+    "bytes": 541235,
+    "responseHeaders": {
+      "Date": "Thu, 15 Oct 2026 16:05:38 GMT",
+      "Cache-Control": "no-cache, private"
+    },
+    "priorAttempts": [],
+    "downloadedAtPath": "var/qa/cn-effective-20261016/whole-card-source-readback-v2/en-page-1000.json"
+  },
+  {
+    "url": "https://content.publishing.riotgames.com/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=en_US&limit=200&from=1200",
+    "request": null,
+    "fetchedAtUtc": "2026-10-15T16:05:39.091736+00:00",
+    "path": "data/official/upstream/2026-10-16/source-refresh-20261015T160523Z/en-page-1200.json",
+    "sha256": "f9ce07cec42c50babeec6e4d16ab94be9bb3e1a87599ed153d885b21b8ae90ca",
+    "bytes": 538608,
+    "responseHeaders": {
+      "Date": "Thu, 15 Oct 2026 16:05:38 GMT",
+      "Cache-Control": "no-cache, private"
+    },
+    "priorAttempts": [],
+    "downloadedAtPath": "var/qa/cn-effective-20261016/whole-card-source-readback-v2/en-page-1200.json"
+  },
+  {
+    "url": "https://content.publishing.riotgames.com/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=en_US&limit=200&from=1400",
+    "request": null,
+    "fetchedAtUtc": "2026-10-15T16:05:39.715891+00:00",
+    "path": "data/official/upstream/2026-10-16/source-refresh-20261015T160523Z/en-page-1400.json",
+    "sha256": "05011bd7ab1a3d5a1b251748693722a1c8458cabfb22e09694bceb912b0188fa",
+    "bytes": 48267,
+    "responseHeaders": {
+      "Date": "Thu, 15 Oct 2026 16:05:39 GMT",
+      "Cache-Control": "no-cache, private"
+    },
+    "priorAttempts": [],
+    "downloadedAtPath": "var/qa/cn-effective-20261016/whole-card-source-readback-v2/en-page-1400.json"
+  },
+  {
+    "url": "https://content.publishing.riotgames.com/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=en_US&limit=2000&from=0",
+    "request": null,
+    "fetchedAtUtc": "2026-10-15T16:06:00.940936+00:00",
+    "path": "data/official/upstream/2026-10-16/source-refresh-20261015T160523Z/en-whole.json",
+    "sha256": "74afe986b9ffed153a9d39209f36dd00a5583017e171718de67b156b1c288756",
+    "bytes": 3837068,
+    "responseHeaders": {
+      "Date": "Thu, 15 Oct 2026 16:05:59 GMT",
+      "Cache-Control": "no-cache, private"
+    },
+    "priorAttempts": [
+      {
+        "attemptedAtUtc": "2026-10-15T16:05:56.039055+00:00",
+        "error": "URLError: <urlopen error [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1010)>"
+      }
+    ],
+    "downloadedAtPath": "var/qa/cn-effective-20261016/whole-card-source-readback-v2/en-whole.json"
+  }
+]

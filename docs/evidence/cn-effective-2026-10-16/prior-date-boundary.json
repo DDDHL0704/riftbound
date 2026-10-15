@@ -1,0 +1,21 @@
+{
+  "commit": "83179358af4b22e08cab274e287357c924f776b4",
+  "certificationRegion": "CN",
+  "certificationSourceIndexAsOf": "2026-10-15",
+  "actualRuntimeRuleApplicabilityDate": "2026-10-14",
+  "localCalendarNow": "2026-10-16",
+  "scheduledNewRuleSources": [
+    "DOC-01",
+    "DOC-02",
+    "DOC-03"
+  ],
+  "oldCandidateNotCurrentCn16Certification": true,
+  "oldMatchInputsNotChanged": true,
+  "fullCiResultPreserved": true,
+  "newLocalDateSourceReview": "IN_PROGRESS",
+  "originalOpeningCheckpoint": "first-independent-combat-full-replay-checkpoint.json",
+  "currentTick": 46,
+  "commands": 47,
+  "events": 178,
+  "normalScoreProductAcceptance": "OPEN"
+}

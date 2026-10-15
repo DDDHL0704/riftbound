@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "semanticCoverageCertified": false,
   "certificationScope": {
-    "id": "CN-2026-10-15-current-source-obligations",
+    "id": "CN-2026-10-16-current-source-obligations",
     "region": "CN",
     "language": "zh-CN",
-    "applicableAsOf": "2026-10-15",
+    "applicableAsOf": "2026-10-16",
     "allOfficialObligationsRetained": true,
     "sourceDates": {
       "cards": "2026-10-15",
@@ -13,14 +13,25 @@
       "corpus": "2026-10-11",
       "summary": "2026-10-15"
     },
-    "primaryCoreSha256": "d0e36d00c954b9802c7f6e2889124a3cc4f2001a2fb6178d6c54f4ec98e25f64",
+    "primaryCoreSha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11",
     "ruleSourcesRetainedWithOriginalConfirmationDates": true,
     "productPlayers": 2,
     "priorScope": {
-      "path": "docs/evidence/source-listing-2026-10-15/prior-certification-scope.json",
-      "sha256": "339f4b842f0b721f895d01626639d757284bc8ddbbd8d8766a0900eaea9af5dd"
+      "path": "docs/evidence/cn-effective-2026-10-16/prior-certification-scope.json",
+      "sha256": "e15657c578b85e2ff4bcb6979fcb9b945c306b348b2eb96b9f663aab06fdf96f"
     },
-    "runtimeRuleInputScopeUnchanged": "CN-2026-10-14 active rule-input manifest retained; current-source indexing does not adopt title-changed Oct16 documents before explicit applicability closure."
+    "runtimeRuleInputScopeUnchanged": "Actual runtime remains pinned CN2026-10-14/DOC04. Scheduled CN16 target is now separate and OPEN for affected-family review and explicit new identity; no old-match migration or relabeling.",
+    "role": "CURRENT_OFFICIAL_AUDIT_TARGET_NOT_RUNTIME_OR_SEMANTIC_CERTIFICATION",
+    "currentApplicablePrimaryCoreId": "DOC-01",
+    "currentApplicableRuleSourceIds": [
+      "DOC-01",
+      "DOC-02",
+      "DOC-03"
+    ],
+    "newDateSourceReadback": {
+      "path": "docs/evidence/cn-effective-2026-10-16/source-manifest.json",
+      "sha256": "8360eaf91f08561d5ee108c450b6f30c9c62811bd3abb4755be22d38de6345e1"
+    }
   },
   "cardCoverageManifest": {
     "path": "docs/evidence/source-listing-2026-10-15/source-coverage.json",
@@ -32,16 +43,16 @@
       "sha256": "08cef841f62d21812542d0429c12be8853fe91174962e2c428564d03420041d1"
     },
     "cn": {
-      "path": "data/official/upstream/2026-10-15/source-refresh-20261015T113103Z/card-catalog.zh-CN.json",
-      "sha256": "7ba4cfc2310d92c05e8868641dbc83054871e7d3c6f3a735c1ef16c26a7158e3"
+      "path": "data/official/upstream/2026-10-16/source-refresh-20261015T160523Z/card-catalog.zh-CN.json",
+      "sha256": "4f6a981a51d95e395820c1980f734645e1a5b56e454dbb8758ac3ce331162624"
     },
     "en": {
-      "path": "data/official/upstream/2026-10-15/source-refresh-20261015T113103Z/card-gallery.en-US.json",
-      "sha256": "0f921e3d5feda2ecdbf366c3af940efb5021fd7fc5d154a3d92851156824be43"
+      "path": "data/official/upstream/2026-10-16/source-refresh-20261015T160523Z/card-gallery.en-US.json",
+      "sha256": "4392c13622cff66c32d0a31b63919af9522e16991883758df79cdbfd20daa289"
     },
     "qa": {
-      "path": "docs/evidence/source-listing-2026-10-15/card-qa-bound.zh-CN.json",
-      "sha256": "a8f13a0fcb2e79d5e02ca8aaa5cb00f2a419d81e190b56c12104e3558246a4d6"
+      "path": "docs/evidence/cn-effective-2026-10-16/card-qa-bound.zh-CN.json",
+      "sha256": "be4b3cbba9eb3de8b2bc1b2dfe3b74e8d511bc2e77421bb40fabebf35024fb0b"
     },
     "rules": {
       "path": "docs/evidence/rules-reaudit-2026-10-11/all-rule-ledger.json",
@@ -7404,6 +7415,23 @@
       "wholeRetainedRuleSourceRefresh": {
         "path": "docs/evidence/source-listing-2026-10-15/whole-rule-summary.json",
         "sha256": "4e8fa67ffa3b34be6ac8deaef327423714c7a9263b7c017a5d70205b47b3fa3b"
+      },
+      "newRegionalDateSourceReadback": {
+        "path": "docs/evidence/cn-effective-2026-10-16/source-manifest.json",
+        "sha256": "8360eaf91f08561d5ee108c450b6f30c9c62811bd3abb4755be22d38de6345e1",
+        "state": "OPEN",
+        "remaining": "All clause/printing semantics and applicability; 3 news-source acquisition gaps, 16 article semantic/applicability reviews and 8 unidentified EN count gap; no runtime adoption inferred"
+      },
+      "scopedRadColorMarkerVisualInspection": {
+        "path": "docs/evidence/cn-effective-2026-10-16/rad-color-marker-visual-review-2026-10-15.json",
+        "sha256": "dfc56cc35975845086729a8c859bfd94286e32006dd3de357195d78acd82f1b7",
+        "reviewAsOf": "2026-10-15",
+        "exactPrintingsInspected": 14,
+        "namedSymbolPositions": 15,
+        "newDateExactApiRecordFieldsUnchanged": true,
+        "wholeCardSemanticReview": "OPEN",
+        "rad105RemainingGenericToken": "Second draw-payment C appears purple in the retained official image; annotation recorded without general C-token certification",
+        "runtimeAdopted": false
       }
     },
     {
@@ -7425,7 +7453,8 @@
         }
       },
       "currentContinuationRepairRequiresFreshFixedProductBinding": true,
-      "currentOptionalManaNaturalDeclarationRepairRequiresFreshFixedProductBinding": true
+      "currentOptionalManaNaturalDeclarationRepairRequiresFreshFixedProductBinding": true,
+      "cn16ActualRuleInputAdoptionAndWrongVersionRejection": "OPEN_NO_OLD_MATCH_MIGRATION"
     },
     {
       "id": "DECK_OBSERVATION_FAMILY",
@@ -7589,19 +7618,37 @@
         "currentRepairAwaitingNewFixedFull": true
       },
       "latestSuccessfulFixedCandidate": {
-        "path": "docs/evidence/native-trigger-payment-2026-10-15/full-ci-d1c2b4d3.json",
-        "sha256": "77636a1064a369a8e3adf1f4f15e774df6e6ef626120a5f5a1379d0d93689891",
-        "commit": "d1c2b4d351ca32862ee52ab7bc45cd7d581fca2c",
-        "runId": 38737073503,
-        "cases": 12022,
-        "methods": 7338,
-        "actualSqlScenarios": 65,
+        "path": "docs/evidence/cn-effective-2026-10-16/prior-full-ci-83179358.json",
+        "sha256": "e0c464fee61ce7d8145cdcd731f12421dc18c485487e5238784621d51070a515",
+        "commit": "83179358af4b22e08cab274e287357c924f776b4",
+        "runId": 38756325986,
+        "cases": 12040,
+        "methods": 7341,
+        "actualSqlScenarios": 67,
         "originalGames": 143,
         "pairs": 110,
         "seed": 424242,
-        "currentImplementationCovered": false,
-        "reopenedReason": "Optional-mana prompt binding and natural combat declaration inputs changed after this exact successful d1 candidate."
-      }
+        "gameplayInputs": 466,
+        "currentRuntimeGameplayInputsCovered": true,
+        "coversCn16AuditTarget": false,
+        "scope": "Exact831 CN14 runtime/CN15 source review only; scheduled CN16 adoption and full semantics remain OPEN"
+      },
+      "previousSuccessfulFixedCandidateHistory": [
+        {
+          "path": "docs/evidence/native-trigger-payment-2026-10-15/full-ci-d1c2b4d3.json",
+          "sha256": "77636a1064a369a8e3adf1f4f15e774df6e6ef626120a5f5a1379d0d93689891",
+          "commit": "d1c2b4d351ca32862ee52ab7bc45cd7d581fca2c",
+          "runId": 38737073503,
+          "cases": 12022,
+          "methods": 7338,
+          "actualSqlScenarios": 65,
+          "originalGames": 143,
+          "pairs": 110,
+          "seed": 424242,
+          "currentImplementationCovered": false,
+          "reopenedReason": "Optional-mana prompt binding and natural combat declaration inputs changed after this exact successful d1 candidate."
+        }
+      ]
     },
     {
       "id": "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
@@ -7674,7 +7721,33 @@
           "currentCandidateVerified": false,
           "originalFailedHistoryPreserved": true
         }
-      ]
+      ],
+      "ongoingFrozenPriorSourceCandidate831": {
+        "commit": "83179358af4b22e08cab274e287357c924f776b4",
+        "status": "PARTIAL_NATIVE_SQL_AUTO_AND_COLD_PRIVATE_RECONNECT_ORIGINAL_OPENING_REPLAY_ONLY",
+        "tick": 95,
+        "commands": 96,
+        "events": 443,
+        "checkpoint": {
+          "path": "docs/evidence/cn-effective-2026-10-16/prior-private-insight-full-replay-checkpoint.json",
+          "sha256": "8a8ac31ddbe34520332b34f7404c068ba5c07b5e2183cc4a17a2d193da7a9b9d"
+        },
+        "automaticReconnect": {
+          "path": "docs/evidence/cn-effective-2026-10-16/prior-automatic-reconnect.json",
+          "sha256": "6eb787f4fd7bb68b0c386d75b2afcc419c961f190c2dfe60d8e6bb5715635523"
+        },
+        "normalScoreFinish": "OPEN",
+        "privateChoiceManualReconnect": {
+          "path": "docs/evidence/cn-effective-2026-10-16/prior-private-insight-manual-reconnect.json",
+          "sha256": "c8a70dba08a7e1ccc4eddfe6cc399921b8735672433f5d12b7310ba64a97c616"
+        },
+        "actualSourceScope": "CN14 runtime/CN15 source review, not current CN16 acceptance",
+        "earlierFirstCombatCheckpoint": {
+          "path": "docs/evidence/cn-effective-2026-10-16/prior-first-independent-combat-full-replay-checkpoint.json",
+          "sha256": "47e6a9760a084cdcfbbea746020b436fd97281980fcad7c49a197bd2f75cd3c8"
+        },
+        "echoAndVisibleOptionalManaPayment": "OPEN"
+      }
     },
     {
       "id": "USER_WINDOWS_RUNTIME",
@@ -7777,7 +7850,14 @@
             "path": "docs/evidence/source-listing-2026-10-15/official-rule-news-candidates.json",
             "sha256": "65a19685124ac21ed37ee2c54bbf5ae8aa3bff85c1c322a58e9bc799b3cd6ac9"
           },
-          "initialBodyAccessStatus": "SOURCE_GAP_FETCH_ERROR"
+          "initialBodyAccessStatus": "SOURCE_GAP_FETCH_ERROR",
+          "currentReadbackAsOf": "2026-10-16",
+          "currentBodyAccessState": "ARTICLE_RETRIEVED",
+          "currentApplicability": "OPEN",
+          "currentSourceLedger": {
+            "path": "docs/evidence/cn-effective-2026-10-16/news-obligations.json",
+            "sha256": "852848590b04939d8780cb3dbd0e7c6e6ebca16eedfbe22a5163e95b353e8762"
+          }
         },
         {
           "id": "CN-NEWS-e3423780ce3aad29",
@@ -7791,7 +7871,14 @@
             "path": "docs/evidence/source-listing-2026-10-15/official-rule-news-candidates.json",
             "sha256": "65a19685124ac21ed37ee2c54bbf5ae8aa3bff85c1c322a58e9bc799b3cd6ac9"
           },
-          "initialBodyAccessStatus": "SOURCE_GAP_FETCH_ERROR"
+          "initialBodyAccessStatus": "SOURCE_GAP_FETCH_ERROR",
+          "currentReadbackAsOf": "2026-10-16",
+          "currentBodyAccessState": "ARTICLE_RETRIEVED",
+          "currentApplicability": "OPEN",
+          "currentSourceLedger": {
+            "path": "docs/evidence/cn-effective-2026-10-16/news-obligations.json",
+            "sha256": "852848590b04939d8780cb3dbd0e7c6e6ebca16eedfbe22a5163e95b353e8762"
+          }
         },
         {
           "id": "CN-NEWS-edff34f774e4ef51",
@@ -7805,7 +7892,14 @@
             "path": "docs/evidence/source-listing-2026-10-15/official-rule-news-candidates.json",
             "sha256": "65a19685124ac21ed37ee2c54bbf5ae8aa3bff85c1c322a58e9bc799b3cd6ac9"
           },
-          "initialBodyAccessStatus": "SOURCE_GAP_FETCH_ERROR"
+          "initialBodyAccessStatus": "SOURCE_GAP_FETCH_ERROR",
+          "currentReadbackAsOf": "2026-10-16",
+          "currentBodyAccessState": "ARTICLE_RETRIEVED",
+          "currentApplicability": "OPEN",
+          "currentSourceLedger": {
+            "path": "docs/evidence/cn-effective-2026-10-16/news-obligations.json",
+            "sha256": "852848590b04939d8780cb3dbd0e7c6e6ebca16eedfbe22a5163e95b353e8762"
+          }
         },
         {
           "id": "CN-NEWS-1c3bc93cde7f68e1",
@@ -7819,7 +7913,14 @@
             "path": "docs/evidence/source-listing-2026-10-15/official-rule-news-candidates.json",
             "sha256": "65a19685124ac21ed37ee2c54bbf5ae8aa3bff85c1c322a58e9bc799b3cd6ac9"
           },
-          "initialBodyAccessStatus": "SOURCE_GAP_FETCH_ERROR"
+          "initialBodyAccessStatus": "SOURCE_GAP_FETCH_ERROR",
+          "currentReadbackAsOf": "2026-10-16",
+          "currentBodyAccessState": "ARTICLE_RETRIEVED",
+          "currentApplicability": "OPEN",
+          "currentSourceLedger": {
+            "path": "docs/evidence/cn-effective-2026-10-16/news-obligations.json",
+            "sha256": "852848590b04939d8780cb3dbd0e7c6e6ebca16eedfbe22a5163e95b353e8762"
+          }
         },
         {
           "id": "CN-NEWS-7b5fe85db30616cf",
@@ -7833,7 +7934,14 @@
             "path": "docs/evidence/source-listing-2026-10-15/official-rule-news-candidates.json",
             "sha256": "65a19685124ac21ed37ee2c54bbf5ae8aa3bff85c1c322a58e9bc799b3cd6ac9"
           },
-          "initialBodyAccessStatus": "SOURCE_GAP_FETCH_ERROR"
+          "initialBodyAccessStatus": "SOURCE_GAP_FETCH_ERROR",
+          "currentReadbackAsOf": "2026-10-16",
+          "currentBodyAccessState": "ARTICLE_RETRIEVED",
+          "currentApplicability": "OPEN",
+          "currentSourceLedger": {
+            "path": "docs/evidence/cn-effective-2026-10-16/news-obligations.json",
+            "sha256": "852848590b04939d8780cb3dbd0e7c6e6ebca16eedfbe22a5163e95b353e8762"
+          }
         },
         {
           "id": "CN-NEWS-c9afef242b29c83e",
@@ -7847,7 +7955,14 @@
             "path": "docs/evidence/source-listing-2026-10-15/official-rule-news-candidates.json",
             "sha256": "65a19685124ac21ed37ee2c54bbf5ae8aa3bff85c1c322a58e9bc799b3cd6ac9"
           },
-          "initialBodyAccessStatus": "SOURCE_GAP_FETCH_ERROR"
+          "initialBodyAccessStatus": "SOURCE_GAP_FETCH_ERROR",
+          "currentReadbackAsOf": "2026-10-16",
+          "currentBodyAccessState": "ARTICLE_RETRIEVED",
+          "currentApplicability": "OPEN",
+          "currentSourceLedger": {
+            "path": "docs/evidence/cn-effective-2026-10-16/news-obligations.json",
+            "sha256": "852848590b04939d8780cb3dbd0e7c6e6ebca16eedfbe22a5163e95b353e8762"
+          }
         },
         {
           "id": "CN-NEWS-9a6a07c522280c06",
@@ -7861,7 +7976,14 @@
             "path": "docs/evidence/source-listing-2026-10-15/official-rule-news-candidates.json",
             "sha256": "65a19685124ac21ed37ee2c54bbf5ae8aa3bff85c1c322a58e9bc799b3cd6ac9"
           },
-          "initialBodyAccessStatus": "SOURCE_GAP_FETCH_ERROR"
+          "initialBodyAccessStatus": "SOURCE_GAP_FETCH_ERROR",
+          "currentReadbackAsOf": "2026-10-16",
+          "currentBodyAccessState": "ARTICLE_RETRIEVED",
+          "currentApplicability": "OPEN",
+          "currentSourceLedger": {
+            "path": "docs/evidence/cn-effective-2026-10-16/news-obligations.json",
+            "sha256": "852848590b04939d8780cb3dbd0e7c6e6ebca16eedfbe22a5163e95b353e8762"
+          }
         },
         {
           "id": "CN-NEWS-190b5721e319c0e3",
@@ -7875,7 +7997,14 @@
             "path": "docs/evidence/source-listing-2026-10-15/official-rule-news-candidates.json",
             "sha256": "65a19685124ac21ed37ee2c54bbf5ae8aa3bff85c1c322a58e9bc799b3cd6ac9"
           },
-          "initialBodyAccessStatus": "SOURCE_GAP_FETCH_ERROR"
+          "initialBodyAccessStatus": "SOURCE_GAP_FETCH_ERROR",
+          "currentReadbackAsOf": "2026-10-16",
+          "currentBodyAccessState": "ARTICLE_RETRIEVED",
+          "currentApplicability": "OPEN",
+          "currentSourceLedger": {
+            "path": "docs/evidence/cn-effective-2026-10-16/news-obligations.json",
+            "sha256": "852848590b04939d8780cb3dbd0e7c6e6ebca16eedfbe22a5163e95b353e8762"
+          }
         },
         {
           "id": "CN-NEWS-75c3e527d06ebee1",
@@ -7889,7 +8018,14 @@
             "path": "docs/evidence/source-listing-2026-10-15/official-rule-news-candidates.json",
             "sha256": "65a19685124ac21ed37ee2c54bbf5ae8aa3bff85c1c322a58e9bc799b3cd6ac9"
           },
-          "initialBodyAccessStatus": "SOURCE_GAP_FETCH_ERROR"
+          "initialBodyAccessStatus": "SOURCE_GAP_FETCH_ERROR",
+          "currentReadbackAsOf": "2026-10-16",
+          "currentBodyAccessState": "ARTICLE_RETRIEVED",
+          "currentApplicability": "OPEN",
+          "currentSourceLedger": {
+            "path": "docs/evidence/cn-effective-2026-10-16/news-obligations.json",
+            "sha256": "852848590b04939d8780cb3dbd0e7c6e6ebca16eedfbe22a5163e95b353e8762"
+          }
         },
         {
           "id": "CN-NEWS-92d3cd4106bc1173",
@@ -7903,7 +8039,14 @@
             "path": "docs/evidence/source-listing-2026-10-15/official-rule-news-candidates.json",
             "sha256": "65a19685124ac21ed37ee2c54bbf5ae8aa3bff85c1c322a58e9bc799b3cd6ac9"
           },
-          "initialBodyAccessStatus": "SOURCE_GAP_FETCH_ERROR"
+          "initialBodyAccessStatus": "SOURCE_GAP_FETCH_ERROR",
+          "currentReadbackAsOf": "2026-10-16",
+          "currentBodyAccessState": "SOURCE_GAP",
+          "currentApplicability": "OPEN",
+          "currentSourceLedger": {
+            "path": "docs/evidence/cn-effective-2026-10-16/news-obligations.json",
+            "sha256": "852848590b04939d8780cb3dbd0e7c6e6ebca16eedfbe22a5163e95b353e8762"
+          }
         },
         {
           "id": "CN-NEWS-baf84eaf1a3284a3",
@@ -7917,7 +8060,14 @@
             "path": "docs/evidence/source-listing-2026-10-15/official-rule-news-candidates.json",
             "sha256": "65a19685124ac21ed37ee2c54bbf5ae8aa3bff85c1c322a58e9bc799b3cd6ac9"
           },
-          "initialBodyAccessStatus": "SOURCE_GAP_FETCH_ERROR"
+          "initialBodyAccessStatus": "SOURCE_GAP_FETCH_ERROR",
+          "currentReadbackAsOf": "2026-10-16",
+          "currentBodyAccessState": "SOURCE_GAP",
+          "currentApplicability": "OPEN",
+          "currentSourceLedger": {
+            "path": "docs/evidence/cn-effective-2026-10-16/news-obligations.json",
+            "sha256": "852848590b04939d8780cb3dbd0e7c6e6ebca16eedfbe22a5163e95b353e8762"
+          }
         },
         {
           "id": "CN-NEWS-57e4da7a5605ca98",
@@ -7931,7 +8081,14 @@
             "path": "docs/evidence/source-listing-2026-10-15/official-rule-news-candidates.json",
             "sha256": "65a19685124ac21ed37ee2c54bbf5ae8aa3bff85c1c322a58e9bc799b3cd6ac9"
           },
-          "initialBodyAccessStatus": "SOURCE_GAP_FETCH_ERROR"
+          "initialBodyAccessStatus": "SOURCE_GAP_FETCH_ERROR",
+          "currentReadbackAsOf": "2026-10-16",
+          "currentBodyAccessState": "ARTICLE_RETRIEVED",
+          "currentApplicability": "OPEN",
+          "currentSourceLedger": {
+            "path": "docs/evidence/cn-effective-2026-10-16/news-obligations.json",
+            "sha256": "852848590b04939d8780cb3dbd0e7c6e6ebca16eedfbe22a5163e95b353e8762"
+          }
         },
         {
           "id": "CN-NEWS-0683cfee5fdc40c0",
@@ -7945,7 +8102,14 @@
             "path": "docs/evidence/source-listing-2026-10-15/official-rule-news-candidates.json",
             "sha256": "65a19685124ac21ed37ee2c54bbf5ae8aa3bff85c1c322a58e9bc799b3cd6ac9"
           },
-          "initialBodyAccessStatus": "SOURCE_GAP_FETCH_ERROR"
+          "initialBodyAccessStatus": "SOURCE_GAP_FETCH_ERROR",
+          "currentReadbackAsOf": "2026-10-16",
+          "currentBodyAccessState": "ARTICLE_RETRIEVED",
+          "currentApplicability": "OPEN",
+          "currentSourceLedger": {
+            "path": "docs/evidence/cn-effective-2026-10-16/news-obligations.json",
+            "sha256": "852848590b04939d8780cb3dbd0e7c6e6ebca16eedfbe22a5163e95b353e8762"
+          }
         },
         {
           "id": "CN-NEWS-f180bb603da914e0",
@@ -7959,7 +8123,14 @@
             "path": "docs/evidence/source-listing-2026-10-15/official-rule-news-candidates.json",
             "sha256": "65a19685124ac21ed37ee2c54bbf5ae8aa3bff85c1c322a58e9bc799b3cd6ac9"
           },
-          "initialBodyAccessStatus": "SOURCE_GAP_FETCH_ERROR"
+          "initialBodyAccessStatus": "SOURCE_GAP_FETCH_ERROR",
+          "currentReadbackAsOf": "2026-10-16",
+          "currentBodyAccessState": "ARTICLE_RETRIEVED",
+          "currentApplicability": "OPEN",
+          "currentSourceLedger": {
+            "path": "docs/evidence/cn-effective-2026-10-16/news-obligations.json",
+            "sha256": "852848590b04939d8780cb3dbd0e7c6e6ebca16eedfbe22a5163e95b353e8762"
+          }
         },
         {
           "id": "CN-NEWS-4e27346f125d4c84",
@@ -7973,7 +8144,14 @@
             "path": "docs/evidence/source-listing-2026-10-15/official-rule-news-candidates.json",
             "sha256": "65a19685124ac21ed37ee2c54bbf5ae8aa3bff85c1c322a58e9bc799b3cd6ac9"
           },
-          "initialBodyAccessStatus": "SOURCE_GAP_FETCH_ERROR"
+          "initialBodyAccessStatus": "SOURCE_GAP_FETCH_ERROR",
+          "currentReadbackAsOf": "2026-10-16",
+          "currentBodyAccessState": "ARTICLE_RETRIEVED",
+          "currentApplicability": "OPEN",
+          "currentSourceLedger": {
+            "path": "docs/evidence/cn-effective-2026-10-16/news-obligations.json",
+            "sha256": "852848590b04939d8780cb3dbd0e7c6e6ebca16eedfbe22a5163e95b353e8762"
+          }
         },
         {
           "id": "CN-NEWS-1e862b4c0ddb4241",
@@ -7987,7 +8165,14 @@
             "path": "docs/evidence/source-listing-2026-10-15/official-rule-news-candidates.json",
             "sha256": "65a19685124ac21ed37ee2c54bbf5ae8aa3bff85c1c322a58e9bc799b3cd6ac9"
           },
-          "initialBodyAccessStatus": "SOURCE_GAP_FETCH_ERROR"
+          "initialBodyAccessStatus": "SOURCE_GAP_FETCH_ERROR",
+          "currentReadbackAsOf": "2026-10-16",
+          "currentBodyAccessState": "ARTICLE_RETRIEVED",
+          "currentApplicability": "OPEN",
+          "currentSourceLedger": {
+            "path": "docs/evidence/cn-effective-2026-10-16/news-obligations.json",
+            "sha256": "852848590b04939d8780cb3dbd0e7c6e6ebca16eedfbe22a5163e95b353e8762"
+          }
         },
         {
           "id": "CN-NEWS-2f839dcbfd979cc9",
@@ -8001,7 +8186,14 @@
             "path": "docs/evidence/source-listing-2026-10-15/official-rule-news-candidates.json",
             "sha256": "65a19685124ac21ed37ee2c54bbf5ae8aa3bff85c1c322a58e9bc799b3cd6ac9"
           },
-          "initialBodyAccessStatus": "SOURCE_GAP_FETCH_ERROR"
+          "initialBodyAccessStatus": "SOURCE_GAP_FETCH_ERROR",
+          "currentReadbackAsOf": "2026-10-16",
+          "currentBodyAccessState": "ARTICLE_RETRIEVED",
+          "currentApplicability": "OPEN",
+          "currentSourceLedger": {
+            "path": "docs/evidence/cn-effective-2026-10-16/news-obligations.json",
+            "sha256": "852848590b04939d8780cb3dbd0e7c6e6ebca16eedfbe22a5163e95b353e8762"
+          }
         },
         {
           "id": "CN-NEWS-3ca6f28b5c257454",
@@ -8015,7 +8207,14 @@
             "path": "docs/evidence/source-listing-2026-10-15/official-rule-news-candidates.json",
             "sha256": "65a19685124ac21ed37ee2c54bbf5ae8aa3bff85c1c322a58e9bc799b3cd6ac9"
           },
-          "initialBodyAccessStatus": "SOURCE_GAP_FETCH_ERROR"
+          "initialBodyAccessStatus": "SOURCE_GAP_FETCH_ERROR",
+          "currentReadbackAsOf": "2026-10-16",
+          "currentBodyAccessState": "ARTICLE_RETRIEVED",
+          "currentApplicability": "OPEN",
+          "currentSourceLedger": {
+            "path": "docs/evidence/cn-effective-2026-10-16/news-obligations.json",
+            "sha256": "852848590b04939d8780cb3dbd0e7c6e6ebca16eedfbe22a5163e95b353e8762"
+          }
         },
         {
           "id": "CN-NEWS-4316592c21720ace",
@@ -8024,7 +8223,7 @@
           "publishedDateAsListed": "2025-08-21",
           "region": "CN",
           "language": "zh-CN",
-          "bodyAndApplicability": "CONFIRMED_RULE_HUB_ALIAS_REPRESENTED_BY_EXISTING_RULE_LISTING_SOURCE_NOT_INDEPENDENT_QA",
+          "bodyAndApplicability": "OPEN",
           "inventorySource": {
             "path": "docs/evidence/source-listing-2026-10-15/official-rule-news-candidates.json",
             "sha256": "65a19685124ac21ed37ee2c54bbf5ae8aa3bff85c1c322a58e9bc799b3cd6ac9"
@@ -8033,6 +8232,13 @@
           "aliasEvidence": {
             "path": "docs/evidence/source-listing-2026-10-15/news-rule-hub-alias.json",
             "sha256": "e7887269a31f3e1c732dd1cb274dcb9b35b5979592dbfb469d7523df260978f0"
+          },
+          "currentReadbackAsOf": "2026-10-16",
+          "currentBodyAccessState": "RULES_HUB_RESPONSE_NOT_INDEPENDENT_QA",
+          "currentApplicability": "OPEN",
+          "currentSourceLedger": {
+            "path": "docs/evidence/cn-effective-2026-10-16/news-obligations.json",
+            "sha256": "852848590b04939d8780cb3dbd0e7c6e6ebca16eedfbe22a5163e95b353e8762"
           }
         },
         {
@@ -8047,7 +8253,14 @@
             "path": "docs/evidence/source-listing-2026-10-15/official-rule-news-candidates.json",
             "sha256": "65a19685124ac21ed37ee2c54bbf5ae8aa3bff85c1c322a58e9bc799b3cd6ac9"
           },
-          "initialBodyAccessStatus": "SOURCE_GAP_FETCH_ERROR"
+          "initialBodyAccessStatus": "SOURCE_GAP_FETCH_ERROR",
+          "currentReadbackAsOf": "2026-10-16",
+          "currentBodyAccessState": "SOURCE_GAP",
+          "currentApplicability": "OPEN",
+          "currentSourceLedger": {
+            "path": "docs/evidence/cn-effective-2026-10-16/news-obligations.json",
+            "sha256": "852848590b04939d8780cb3dbd0e7c6e6ebca16eedfbe22a5163e95b353e8762"
+          }
         }
       ],
       "initialBodyAccessAttempts": {
@@ -8060,7 +8273,21 @@
         "path": "docs/evidence/source-listing-2026-10-15/news-system-curl-probe.json",
         "sha256": "f2340cb9dc63323a60d1a2fd17fad9bc8b8e8e6988f272371badbf52d3b8b58c"
       },
-      "issue": "https://github.com/DDDHL0704/riftbound/issues/34"
+      "issue": "https://github.com/DDDHL0704/riftbound/issues/34",
+      "currentReadback": {
+        "path": "docs/evidence/cn-effective-2026-10-16/news-source-readback.json",
+        "sha256": "b8e096d78607a7070fa23df3e64dfe662aaf087df46259951a30958afe020f7f"
+      },
+      "unifiedObligations": {
+        "path": "docs/evidence/cn-effective-2026-10-16/news-obligations.json",
+        "sha256": "852848590b04939d8780cb3dbd0e7c6e6ebca16eedfbe22a5163e95b353e8762"
+      },
+      "sourceImpactTriage": {
+        "path": "docs/evidence/cn-effective-2026-10-16/news-impact-triage.json",
+        "sha256": "1fbcf28ceea648fa96f738193c293545755c4e03cf0c8cdec13f8860297db2fe"
+      },
+      "sourceGapCount": 3,
+      "articleBodiesRetrieved": 16
     },
     {
       "id": "CONQUEST_DECLARATION_AND_ELIGIBLE_UNIT_CONTINUATION",
@@ -8082,7 +8309,41 @@
         "path": "docs/evidence/native-trigger-payment-2026-10-15/native.json",
         "sha256": "840cdaead44ade57cbf0906d4f0c4e909a239dbe913343609084326bcd8679c9"
       }
+    },
+    {
+      "id": "CN_2026_10_16_EFFECTIVE_RULE_INPUT_AND_FAMILY_ACCEPTANCE",
+      "state": "OPEN",
+      "requirement": "Explicitly adopt actual CN16 applicable core/tournament/errata inputs after bounded family impact review; preserve all old source identities/dates and separately validate changed implementation/tests/fixed full/current-source native product. CN14/15 evidence cannot be relabeled CN16.",
+      "sourceManifest": {
+        "path": "docs/evidence/cn-effective-2026-10-16/source-manifest.json",
+        "sha256": "8360eaf91f08561d5ee108c450b6f30c9c62811bd3abb4755be22d38de6345e1"
+      },
+      "primaryCore": "DOC-01",
+      "ruleFamilySemanticReview": "OPEN",
+      "runtimeRuleInputIdentity": "STILL_CN14_DOC04",
+      "fixedCurrentSourceFull": "PENDING_NEW_IDENTITY",
+      "nativeCurrentSourceProduct": "OPEN",
+      "oldAcceptedHistoryMustNeverBeMigrated": true
+    },
+    {
+      "id": "NATIVE_LOBBY_CLIPPING_AND_OCCLUDED_ACTIONS",
+      "state": "OPEN",
+      "requirement": "Fix and visibly validate clipped native lobby text and card preview occlusion of reconnect/ready controls at1440x964 and supported smaller native viewports; preserve current design and authority. Windows physical separately.",
+      "observedCandidate": "83179358af4b22e08cab274e287357c924f776b4",
+      "evidence": {
+        "path": "docs/evidence/cn-effective-2026-10-16/prior-private-insight-manual-reconnect.json",
+        "sha256": "c8a70dba08a7e1ccc4eddfe6cc399921b8735672433f5d12b7310ba64a97c616"
+      },
+      "issue": "https://github.com/DDDHL0704/riftbound/issues/37",
+      "implementation": "OPEN",
+      "tests": "OPEN",
+      "fixedCi": "OPEN_FOR_REPAIR",
+      "productAcceptance": "OPEN"
     }
   ],
-  "note": "Current inventory and remaining obligations, with independently dated rule sources and separately recorded source deltas. No source fetch or semantic certification by this checker."
+  "note": "Current inventory and remaining obligations, with independently dated rule sources and separately recorded source deltas. No source fetch or semantic certification by this checker.",
+  "officialNewsObligations": {
+    "path": "docs/evidence/cn-effective-2026-10-16/news-obligations.json",
+    "sha256": "852848590b04939d8780cb3dbd0e7c6e6ebca16eedfbe22a5163e95b353e8762"
+  }
 }

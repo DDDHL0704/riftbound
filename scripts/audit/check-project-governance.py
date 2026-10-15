@@ -7,7 +7,9 @@ ledger rewrites or inheritance of scoped PASS into whole-card coverage.
 import argparse
 from collections import Counter
 from datetime import date
+import gzip
 import hashlib
+from html.parser import HTMLParser
 import json
 from pathlib import Path
 import re
@@ -217,14 +219,160 @@ def check_documents(root):
     return errors
 
 
-def read_pin(root, ref):
+def read_pin_bytes(root, ref):
     path = (root/ref['path']).resolve()
     if not path.is_relative_to(root.resolve()) or not path.is_file() or (root/ref['path']).is_symlink():
         raise ValueError('Missing or escaped pinned input: '+ref['path'])
     raw = path.read_bytes()
     if not HASH.fullmatch(ref['sha256']) or hashlib.sha256(raw).hexdigest() != ref['sha256']:
         raise ValueError('Pinned input hash mismatch: '+ref['path'])
-    return json.loads(raw)
+    return raw
+
+
+def read_pin(root, ref):
+    return json.loads(read_pin_bytes(root, ref))
+
+
+def official_news_article(raw):
+    class Article(HTMLParser):
+        void = {'area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta',
+                'param', 'source', 'track', 'wbr'}
+
+        def __init__(self):
+            super().__init__()
+            self.stack, self.text, self.images = [], [], []
+            self.found = self.closed = False
+
+        def handle_starttag(self, tag, attrs):
+            attrs = dict(attrs)
+            if not self.stack:
+                if not self.closed and attrs.get('id') == 'js_content':
+                    self.found, self.stack = True, [tag]
+                return
+            if tag == 'img' and (url := attrs.get('data-src') or attrs.get('src')):
+                self.images.append(url)
+            if tag not in self.void:
+                self.stack.append(tag)
+
+        def handle_endtag(self, tag):
+            if tag not in self.void and tag in self.stack:
+                self.stack = self.stack[:len(self.stack)-1-self.stack[::-1].index(tag)]
+                self.closed = not self.stack
+
+        def handle_startendtag(self, tag, attrs):
+            self.handle_starttag(tag, attrs)
+            if tag not in self.void:
+                self.handle_endtag(tag)
+
+        def handle_data(self, value):
+            if self.stack and not {'script', 'style'}.intersection(self.stack) and value.strip():
+                self.text.append(value.strip())
+
+    article = Article()
+    article.feed(raw.decode('utf-8'))
+    if not article.found or not article.closed or not (article.text or article.images):
+        raise ValueError('Official news article root missing, incomplete or empty')
+    return '\n'.join(article.text), article.images
+
+
+def official_news_obligations(root, ref, scope, card_source, card_ids):
+    """Retain each acquired paragraph/image and each unresolved source separately.
+
+    This intake cannot certify behavior. Semantic decisions still need the
+    existing review, implementation, test, fixed-CI and product evidence paths.
+    """
+    ledger = read_pin(root, ref)
+    if (ledger.get('schemaVersion') != 1 or ledger.get('kind') != 'OFFICIAL_CN_NEWS_SOURCE_OBLIGATIONS'
+        or ledger.get('semanticCoverageCertified') is not False or ledger.get('cardSource') != card_source
+        or any(ledger.get(k) != scope[k] for k in ('region', 'language', 'applicableAsOf'))):
+        raise ValueError('News ledger scope, source pin or certification claim mismatch')
+    inventory = read_pin(root, ledger['candidateInventory'])['rulesCaseCandidates']
+    expected = {'CN-NEWS-'+hashlib.sha256(r['jumpUrl'].encode()).hexdigest()[:16]:r for r in inventory}
+    listings = [read_pin(root, item)['result'] for item in ledger['newsListingResponses']]
+    listed_rows = [row for page in listings for row in page['list']]
+    all_news = {'CN-NEWS-'+hashlib.sha256(row['jumpUrl'].encode()).hexdigest()[:16]:row for row in listed_rows}
+    if (not listings or any(page['total'] != len(listed_rows) for page in listings)
+        or len(all_news) != len(listed_rows) or any(all_news.get(k) != row for k, row in expected.items())):
+        raise ValueError('Official news listing is incomplete, duplicated or differs from candidate metadata')
+    documents = index(ledger['documents'], 'official news documents')
+    if len(expected) != len(inventory) or set(expected) != set(documents):
+        raise ValueError('Official news source universe lost or gained an identity')
+    remaining = []
+    for identity, row in all_news.items():
+        if identity not in expected:
+            remaining.append(dict(id='NEWS:'+identity, kind='OFFICIAL_NEWS_UNCLASSIFIED_SOURCE',
+                                  state='OPEN', sourceLedger=ref, sourceDocument=identity, sourceRecord=row,
+                                  region=ledger['region'], language=ledger['language'],
+                                  applicability='OPEN_BODY_AND_RULE_RELEVANCE_NOT_REVIEWED',
+                                  semanticReview='OPEN', implementationEvidence=[], testEvidence=[],
+                                  fixedCommitCi='OPEN_FOR_APPLICABLE_BEHAVIOR', productAcceptance='OPEN',
+                                  wholePrintingCertified=False, globalCertification=False))
+    for identity, doc in documents.items():
+        listed = expected[identity]
+        if (doc['url'] != listed['jumpUrl'] or doc['titleAsListed'] != listed['name']
+            or doc['publishedAsListed'] != listed['pushDate']
+            or any(doc.get(k) != scope[k] for k in ('region', 'language'))
+            or doc.get('auditApplicableAsOf') != scope['applicableAsOf']
+            or doc.get('semanticReview') != 'OPEN' or doc.get('wholePrintingCertified') is not False):
+            raise ValueError('News source metadata or bounded-claim mismatch: '+identity)
+        acquisition = doc['acquisitionState']
+        if acquisition not in {'ARTICLE_RETRIEVED', 'SOURCE_GAP', 'RULES_HUB_RESPONSE_NOT_INDEPENDENT_QA'}:
+            raise ValueError('Unsupported news acquisition disposition: '+identity)
+        if acquisition != 'SOURCE_GAP':
+            archive = doc['archivedHtml']
+            raw = gzip.decompress(read_pin_bytes(root, archive['gzip']))
+            if hashlib.sha256(raw).hexdigest() != archive['rawSha256'] or len(raw) != archive['rawBytes']:
+                raise ValueError('News original HTML byte identity mismatch: '+identity)
+        if acquisition != 'ARTICLE_RETRIEVED' and (doc['blocks'] or doc['images']):
+            raise ValueError('Unretrieved news body cannot acquire paragraph or image evidence: '+identity)
+        if acquisition == 'RULES_HUB_RESPONSE_NOT_INDEPENDENT_QA' and doc.get('independentFaqBodyRetrieved') is not False:
+            raise ValueError('Rules hub response cannot certify an independent FAQ body')
+        common = dict(sourceLedger=ref, sourceDocument=identity, url=doc['url'], region=doc['region'],
+                      language=doc['language'], applicability=doc['applicability'], semanticReview='OPEN',
+                      implementationEvidence=[], testEvidence=[], fixedCommitCi='OPEN_FOR_APPLICABLE_BEHAVIOR',
+                      productAcceptance='OPEN', wholePrintingCertified=False, globalCertification=False)
+        remaining.append(dict(common, id='NEWS:'+identity, kind='OFFICIAL_NEWS_SOURCE',
+                              acquisitionState=acquisition, state='OPEN'))
+        blocks = index(doc['blocks'], 'news text blocks: '+identity)
+        images = index(doc['images'], 'news image references: '+identity)
+        if acquisition == 'ARTICLE_RETRIEVED':
+            text, image_urls = official_news_article(raw)
+            if text != read_pin_bytes(root, doc['bodyText']).decode('utf-8'):
+                raise ValueError('News text extraction differs from original HTML: '+identity)
+            if [i['url'] for i in images.values()] != image_urls:
+                raise ValueError('News image extraction differs from original HTML: '+identity)
+            lines = text.splitlines()
+            covered = []
+            for block in blocks.values():
+                first, last = block['firstLine'], block['lastLine']
+                if (not isinstance(first, int) or not isinstance(last, int) or not 1 <= first <= last <= len(lines)
+                    or block.get('semanticReview') != 'OPEN' or block.get('wholePrintingCertified') is not False
+                    or block.get('implementationEvidence') or block.get('testEvidence')):
+                    raise ValueError('Invalid news text range or intake certification claim: '+block['id'])
+                text = '\n'.join(lines[first-1:last])
+                if hashlib.sha256(text.encode()).hexdigest() != block['textSha256']:
+                    raise ValueError('News paragraph identity mismatch: '+block['id'])
+                if any(p['printing'] not in card_ids for p in block['exactNamePrintingCandidates']):
+                    raise ValueError('News paragraph references an unknown printing: '+block['id'])
+                covered.extend(range(first, last+1))
+                remaining.append(dict(common, id='NEWS:'+block['id'], kind='OFFICIAL_NEWS_TEXT_BRANCH',
+                                      sourceVersion=doc['bodyText'], sourceRecord=block, state='OPEN'))
+            if sorted(covered) != list(range(1, len(lines)+1)):
+                raise ValueError('News text was dropped or covered more than once: '+identity)
+            if not lines and not images:
+                raise ValueError('Retrieved article has no text or image evidence: '+identity)
+        if sorted(image['ordinal'] for image in images.values()) != list(range(1, len(images)+1)):
+            raise ValueError('News image ordinals were dropped or duplicated: '+identity)
+        for item in images.values():
+            if (not item['url'].startswith('https://')
+                or item.get('semanticReview') not in {'OPEN', 'OPEN_CURRENT_VERSION_RECONCILIATION'}):
+                raise ValueError('News image requires an exact HTTPS source URL: '+item['id'])
+            read_pin_bytes(root, item['bytes'])
+            remaining.append(dict(common, id='NEWS:'+item['id'], kind='OFFICIAL_NEWS_IMAGE_BRANCH',
+                                  sourceVersion=item['bytes'], sourceRecord=item, state='OPEN'))
+    if len({row['id'] for row in remaining}) != len(remaining):
+        raise ValueError('Duplicate unified news obligation identity')
+    return remaining
 
 
 def source_delta(before, after, kind):
@@ -431,6 +579,9 @@ def current_audit(root, manifest):
     for ordinal, delta in enumerate(deltas):
         remaining.append(dict(id='DELTA:'+str(ordinal),kind='LATER_SOURCE_VERSION',state='OPEN',sourceDelta=delta))
     remaining += branch_rows
+    if 'officialNewsObligations' in manifest:
+        remaining += official_news_obligations(root, manifest['officialNewsObligations'], scope,
+                                              manifest['inputs']['cn'], set(cards))
     result['errors'].extend(check_documents(root))
     result.update(governanceValid=not result['errors'],executionScope='CURRENT_MANIFEST_INDEX_AND_REMAINING_OBLIGATIONS_ONLY',
                   certificationScope=scope, historicalReviewPinCount=len(historical['reviews']),
