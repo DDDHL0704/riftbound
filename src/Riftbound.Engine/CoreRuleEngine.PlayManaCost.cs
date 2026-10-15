@@ -12,7 +12,8 @@ public sealed partial class CoreRuleEngine
     internal static PlayManaCost CalculatePlayManaCost(
         MatchState state, string playerId, CardBehaviorDefinition behavior,
         int additionalMana = 0, int optionalReduction = 0,
-        IReadOnlyList<string>? optionalCosts = null, IReadOnlyList<string>? targets = null)
+        IReadOnlyList<string>? optionalCosts = null, IReadOnlyList<string>? targets = null,
+        string? sourceObjectId = null)
     {
         if (EffectPlayIgnoresAllCosts(state, playerId)) return new(0, 0, 0, 0, 0, 0, 0, 0, 0);
         var echoReduction = ResolveBattlefieldEchoCostReductionMana(state, playerId, behavior, optionalCosts ?? []);
@@ -30,7 +31,7 @@ public sealed partial class CoreRuleEngine
                 .Select(source => ("spell", source.StaticSpellCostReductionMana, source.StaticSpellCostReductionMinimumManaCost)));
             reductions.Add(("next", SourceNextSpellCostReductionEffects(state, playerId).Sum(effect => effect.Mana), 0));
         }
-        reductions.Add(("card", ResolveCostReductionMana(state, playerId, behavior), 0));
+        reductions.Add(("card", ResolveCostReductionMana(state, playerId, behavior, sourceObjectId), 0));
         if (!string.IsNullOrEmpty(behavior.TargetTraitsManaReductionTags)
             && (targets ?? []).Any(id => state.CardObjects.TryGetValue(id, out var card)
                 && behavior.TargetTraitsManaReductionTags.Split('|').Any(tag => card.Tags.Contains(tag))))
@@ -66,6 +67,7 @@ public sealed partial class CoreRuleEngine
                 && IsTargetManaCostAllowed(state, playerId, id, behavior)
                 && behavior.TargetTraitsManaReductionTags.Split('|').Any(tag => card.Tags.Contains(tag))))
             optionalReduction += behavior.TargetTraitsManaReduction;
-        return CalculatePlayManaCost(state, playerId, behavior, additionalMana, optionalReduction);
+        return CalculatePlayManaCost(state, playerId, behavior, additionalMana, optionalReduction,
+            sourceObjectId: sourceObjectId);
     }
 }

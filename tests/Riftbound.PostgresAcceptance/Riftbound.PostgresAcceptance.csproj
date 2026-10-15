@@ -8,5 +8,9 @@
              Link="Fixtures/confirmed-play-origin-hand-cn16.json" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="../Riftbound.ConformanceTests/Fixtures/confirmed-play-origin-standby-cn16.json"
              Link="Fixtures/confirmed-play-origin-standby-cn16.json" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="../Riftbound.ConformanceTests/Fixtures/physical-origin-cost-unit.json"
+             Link="Fixtures/physical-origin-cost-unit.json" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="../Riftbound.ConformanceTests/Fixtures/physical-origin-cost-spell.json"
+             Link="Fixtures/physical-origin-cost-spell.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

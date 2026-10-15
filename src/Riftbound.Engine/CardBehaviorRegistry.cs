@@ -383,6 +383,7 @@ public static class CardCostReductionConditionKinds
     public const string OpponentWithinThreeOfWinningScore = "OPPONENT_WITHIN_THREE_OF_WINNING_SCORE";
     public const string ControllerControlsTaggedUnit = "CONTROLLER_CONTROLS_TAGGED_UNIT";
     public const string ControllerPlayedAnotherCardThisTurn = "CONTROLLER_PLAYED_ANOTHER_CARD_THIS_TURN";
+    public const string PlayedOutsideOwnHand = "PLAYED_OUTSIDE_OWN_HAND";
 }
 
 public static class CardSourceBoonConditionKinds
@@ -1021,7 +1022,9 @@ public static class CardBehaviorRegistry
             "QUICKSAND_PIT_DESTROY_BATTLEFIELD_UNIT",
             0,
             1,
-            DestroysTarget: true),
+            DestroysTarget: true,
+            CostReductionConditionKind: CardCostReductionConditionKinds.PlayedOutsideOwnHand,
+            CostReductionMana: 2),
         new(
             "OGN·213/298",
             "暗刃",
@@ -3872,7 +3875,9 @@ public static class CardBehaviorRegistry
             0,
             0,
             PlaysSourceToBaseAsUnit: true,
-            SourceUnitPower: 3),
+            SourceUnitPower: 3,
+            CostReductionConditionKind: CardCostReductionConditionKinds.PlayedOutsideOwnHand,
+            CostReductionMana: 2),
         new(
             "SFD·014/221",
             "牛头人清算者",

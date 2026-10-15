@@ -1,0 +1,84 @@
+{
+  "status": "SCOPED_COST_RULE_CONTEXT_NOT_WHOLE_CLAUSE_CERTIFICATION",
+  "corpus": {
+    "path": "docs/evidence/rules-reaudit-2026-10-11/official-corpus.json",
+    "sha256": "b97836ed4e1c5c6e13a08e443011a0a96e4549a30613afa6dd01e21c440f382f"
+  },
+  "document": {
+    "id": "DOC-01",
+    "title": "《符文战场：英雄联盟对战卡牌》核心规则（10.16生效）",
+    "url": "https://cdn.playloltcg.com/lol/2026/10/2026-10-10/a21ead876c6b44d6abe386b6ae54ea28.pdf",
+    "sha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11",
+    "updated": "2026-10-10",
+    "effectiveDate": null
+  },
+  "applicabilityDate": "2026-10-16",
+  "currentVersionObservation": "All16 CN PDFs re-fetched this logical run, DOC01 hash unchanged; original first-publication/effective-time uncertainty retained.",
+  "currentObservationManifest": {
+    "path": "docs/evidence/cn16-play-origin-2026-10-16/source-manifest.json",
+    "sha256": "5bb4afb732e94c3063c776848ae696950e7990d8f2906522693c12c8653b2382"
+  },
+  "records": [
+    {
+      "id": "DOC-01-P032-B016",
+      "document": "DOC-01",
+      "page": 32,
+      "clauseAnchors": [
+        "206"
+      ],
+      "text": "206.         任何需要判定卡牌或指示物费用的效果,一律以该卡牌卡面上印刷或复制(由复制效果复制而来)的费用为准,即使该费用在\n             卡牌被打出时增加、减少或被无视,也不受影响。\n                  举例:“霹天雳地”是一张费用为[8]的法术牌,其部分描述为“将此牌的法力费用减去你所控制单位中的最高战力值,\n                 即为打出此法术所需的法力”。“拉克丝 明丽光华”是一张单位牌,效果为“每当你打出费用不低于[5]的法术时,让我\n                 本回合内[M]+3”。如果一名控制着“拉克丝”的玩家打出了“霹天雳地”,则无论该玩家实际为“霹天雳地”支付了多少费",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P050-B001",
+      "document": "DOC-01",
+      "page": 50,
+      "clauseAnchors": [
+        "356.4.b"
+      ],
+      "text": "356.4.b.                 减费效果的描述可能是卡牌的“费用减少[数额]”,或是“将费用减去[数额引用]......”。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P050-B007",
+      "document": "DOC-01",
+      "page": 50,
+      "clauseAnchors": [
+        "356.4.e"
+      ],
+      "text": "356.4.e.                 如果某个减费效果设定了最低费用,则此费用下限仅适用于该减费效果。\n                              举例:“踊跃的学徒”的效果为“如果我位于战场上,则你打出法术所需的法力费用减少[1],不得\n                              低于[1]”。如果一名玩家控制了“踊跃的学徒”和一个战力为 7 的单位,然后打出了“霹天雳地”,\n                              一张费用为 8 法力的法术牌,效果为“将此牌的法力费用减去你所控制单位中的最高战力值,即\n                              为打出我所需的法力”,该玩家可以选择先施加“踊跃的学徒”的减费效果,将“霹天雳地”的法力\n                              费用减至 7,再施加“霹天雳地”的减费效果,将法力费用减至 0。如果按相反顺序施加这些减费\n                              效果,“霹天雳地”的法力费用将为 1。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P050-B008",
+      "document": "DOC-01",
+      "page": 50,
+      "clauseAnchors": [
+        "356.4.f"
+      ],
+      "text": "356.4.f.                 减费效果可以减少额外费用,包括将费用减至 0。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P050-B010",
+      "document": "DOC-01",
+      "page": 50,
+      "clauseAnchors": [
+        "356.4.g"
+      ],
+      "text": "356.4.g.                 如果减费效果对该卡牌施加的是减少费用可变的效果,则此时检查该减少费用的数值。\n                              举例:“裂魂者喇煞”的描述为:“你的废牌堆中每有一张牌,我的费用便减少[1]。”该减费效果的\n                              数值取决于废牌堆中的卡牌数量。将该减费效果施加到喇煞的费用时,会在此步骤中检查该数\n                              值。如果其控制者废牌堆中的卡牌数量在确认过程的后续阶段发生变化,并不会影响本步骤中\n                              检查出的数值,也不会影响本步骤中计算出的总费用。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    }
+  ],
+  "scope": "Printed cost remains unchanged. This batch certifies only the two recorded physical-origin conditions; stacked reduction order/additional costs/waivers and complete clause semantics remain OPEN."
+}

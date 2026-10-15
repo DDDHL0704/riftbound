@@ -1,0 +1,56 @@
+{
+  "status": "SINGLE_BATCH_CHECK_PRIOR_CASE_METHOD_AND_COMPLETE_PRELAUNCH_INPUT_PRESERVATION_PASS",
+  "verifiedAtUtc": "2026-10-15T23:48:22.534279+00:00",
+  "baseCommit": "903cbca2becfd9b142a6b6a86d77b8fbf3d080ef",
+  "cases": 11911,
+  "methods": 7211,
+  "wholeSuiteDiscoveredMethods": 7352,
+  "seconds": 372.46,
+  "failed": 0,
+  "skipped": 0,
+  "allPrior11903CasesAnd7207MethodsRetained": true,
+  "addedCases": [
+    "Riftbound.ConformanceTests.PhysicalOriginCostReductionTests.ARealEmptyOpeningRecoversThePhysicalSourceAndQuotedCost(card: \"SFD·010/221\", mana: 1)",
+    "Riftbound.ConformanceTests.PhysicalOriginCostReductionTests.ARealEmptyOpeningRecoversThePhysicalSourceAndQuotedCost(card: \"SFD·164/221\", mana: 3)",
+    "Riftbound.ConformanceTests.PhysicalOriginCostReductionTests.ARealHandPlayKeepsTheFullPrintedManaCost(card: \"SFD·010/221\", printedMana: 3)",
+    "Riftbound.ConformanceTests.PhysicalOriginCostReductionTests.ARealHandPlayKeepsTheFullPrintedManaCost(card: \"SFD·164/221\", printedMana: 5)",
+    "Riftbound.ConformanceTests.PhysicalOriginCostReductionTests.RealRevealedDeckPlayQuotesOffersAndPaysTheNonHandReduction(card: \"SFD·010/221\", mana: 1)",
+    "Riftbound.ConformanceTests.PhysicalOriginCostReductionTests.RealRevealedDeckPlayQuotesOffersAndPaysTheNonHandReduction(card: \"SFD·164/221\", mana: 3)",
+    "Riftbound.ConformanceTests.PhysicalOriginCostReductionTests.ReducedCostStillRejectsOneMissingManaWithoutMutatingThePendingPlay(card: \"SFD·010/221\", mana: 1)",
+    "Riftbound.ConformanceTests.PhysicalOriginCostReductionTests.ReducedCostStillRejectsOneMissingManaWithoutMutatingThePendingPlay(card: \"SFD·164/221\", mana: 3)"
+  ],
+  "addedMethods": [
+    "Riftbound.ConformanceTests.PhysicalOriginCostReductionTests.ARealEmptyOpeningRecoversThePhysicalSourceAndQuotedCost",
+    "Riftbound.ConformanceTests.PhysicalOriginCostReductionTests.ARealHandPlayKeepsTheFullPrintedManaCost",
+    "Riftbound.ConformanceTests.PhysicalOriginCostReductionTests.RealRevealedDeckPlayQuotesOffersAndPaysTheNonHandReduction",
+    "Riftbound.ConformanceTests.PhysicalOriginCostReductionTests.ReducedCostStillRejectsOneMissingManaWithoutMutatingThePendingPlay"
+  ],
+  "all426PriorConformanceSourcesByteIdentical": true,
+  "all468PriorGameplayPathsRetained": true,
+  "completePrelaunchInputFreeze": {
+    "path": "var/qa/nonhand-cost-20261016/batch-check-inputs.json",
+    "sha256": "432099fffe374c094c73889e98ba8f8a452b031a0831fb9b447a1cb324d8547e"
+  },
+  "capturedInputs": 11919,
+  "allCapturedInputsUnchangedThroughRunnerCompletion": true,
+  "testAssemblySha256": "76d50249b977182f3b0a06ecd130608da5c9d9294d53369b6a367eb177b8b45e",
+  "trx": [
+    {
+      "path": "var/qa/nonhand-cost-20261016/check/check/results.trx",
+      "sha256": "0b87f1060500b6f926cf163b783436857f4093d6b49b657de1b2352b23f231be"
+    }
+  ],
+  "pythonTools": {
+    "tests": 55,
+    "seconds": 2.798,
+    "log": {
+      "path": "var/qa/nonhand-cost-20261016/python-tools.log",
+      "sha256": "e6681187fd8807e35d5bc469cec745c2051944a0684085f7c795dc598e2274c9"
+    }
+  },
+  "wholePrintingOrOfficialSemanticCertification": false,
+  "fixedNewCommitFull": "PENDING",
+  "currentVisibleProduct": "OPEN",
+  "windowsPhysical": "OPEN",
+  "postCheckWrites": "Only generated receipts and explicit result references after successful through-completion verification. No engine/test/data/build inputs changed."
+}

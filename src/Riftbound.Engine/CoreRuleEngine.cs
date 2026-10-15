@@ -18938,7 +18938,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
         var paymentTargets = repeatExecutions is null ? Enumerable.Range(0, effectRepeatCount).SelectMany(_ => targetObjectIds).ToArray() : repeatExecutions.SelectMany(e => e.TargetObjectIds).ToArray();
         var manaCost = CalculatePlayManaCost(state, intent.PlayerId, behavior, extraManaCost,
-            optionalCostManaReduction, optionalCosts, paymentTargets);
+            optionalCostManaReduction, optionalCosts, paymentTargets, command.SourceObjectId);
         var battlefieldEchoCostReductionMana = manaCost.EchoReduction;
         var costReductionMana = manaCost.CardReduction;
         optionalCostManaReduction = manaCost.OptionalReduction;
@@ -23246,7 +23246,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     private static int ResolveCostReductionMana(
         MatchState state,
         string playerId,
-        CardBehaviorDefinition behavior)
+        CardBehaviorDefinition behavior,
+        string? sourceObjectId)
     {
         var selfReduction = CardStaticAbilitySpecRules.TryGetStaticAbility(behavior.CardNo,
                 CardStaticAbilitySpecRules.IsSourcePowerfulUnitCostReduction, out var selfCost)
@@ -23272,6 +23273,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     : 0,
             CardCostReductionConditionKinds.ControllerPlayedAnotherCardThisTurn
                 => ControllerPlayedAnotherCardThisTurn(state, playerId) ? behavior.CostReductionMana : 0,
+            CardCostReductionConditionKinds.PlayedOutsideOwnHand
+                => sourceObjectId is not null && state.CardObjects.TryGetValue(sourceObjectId, out var source)
+                    && source.CardNo == behavior.CardNo && state.PlayerZones.TryGetValue(playerId, out var own)
+                    && !own.Hand.Contains(sourceObjectId, StringComparer.Ordinal) ? behavior.CostReductionMana : 0,
             _ => 0
         });
     }

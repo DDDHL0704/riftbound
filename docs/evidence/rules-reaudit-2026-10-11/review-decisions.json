@@ -20698,6 +20698,73 @@
           "sha256": "69ddb115af91c465337ea58ba82cdd9edad0ee0c36d32e0af100aada60b33167"
         }
       }
+    },
+    {
+      "id": "physical-origin-self-cost-reduction-2026-10-16",
+      "status": "SCOPED_PHYSICAL_ORIGIN_COST_FOCUS_SQL_CHECK_PASS_FIXED_CI_PRODUCT_OPEN",
+      "scope": "ExactCN id33082/SFD010 and id33258/SFD164, actual own-hand versus deck pending physical IDs, quoted/minimum/committed mana, rejection invariance, original-opening cold recovery and actual cost-event tamper rejection. Other permissions and whole-printing semantics remain OPEN.",
+      "subjects": [
+        "SFD-010/221",
+        "SFD-164/221"
+      ],
+      "ruleRecords": [
+        "DOC-01-P050-B001",
+        "DOC-01-P050-B007",
+        "DOC-01-P050-B008",
+        "DOC-01-P050-B010",
+        "DOC-01-P032-B016"
+      ],
+      "auditDocument": "docs/PHYSICAL_ORIGIN_COST_AUDIT_2026-10-16.md",
+      "evidence": "docs/evidence/physical-origin-cost-2026-10-16",
+      "semanticReview": {
+        "state": "SCOPED",
+        "wholeCardCertified": false,
+        "region": "CN",
+        "language": "zh-CN",
+        "sourceIndexAsOf": "2026-10-16",
+        "runtimeRuleInputDate": "2026-10-16",
+        "exactSourceRecordIds": [
+          33082,
+          33258
+        ]
+      },
+      "implementation": [
+        "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+        "src/Riftbound.Engine/CoreRuleEngine.cs",
+        "src/Riftbound.Engine/CoreRuleEngine.PlayManaCost.cs"
+      ],
+      "remaining": [
+        "Other origin/controller/payment-waiver/combined-cost branches and the remaining text-located consumers remain separately unreviewed; no whole-card/family certification.",
+        "New fixed commit fullCI and current-candidate visible paired SQL/reconnect/private choice/normal8/full original replay and next-room lifecycle.",
+        "Independent Windows physical acceptance and native custom deck editing/lobby issues.",
+        "All official source gaps, article/media/FAQ and global-regional applicability obligations remain."
+      ],
+      "wholeCardCertification": false,
+      "testExecution": {
+        "newCases": 8,
+        "newMethods": 4,
+        "initialGreenCases": 6,
+        "adjacentCases": 162,
+        "adjacentMethods": 93,
+        "originalFullGameMethods": 5,
+        "actualSqlScenarios": 71,
+        "newCostEventTamperRejections": 4,
+        "check": {
+          "cases": 11911,
+          "methods": 7211,
+          "seconds": 372.46,
+          "failed": 0,
+          "skipped": 0,
+          "allPrior11903CasesAnd7207MethodsRetained": true,
+          "receipt": {
+            "path": "docs/evidence/physical-origin-cost-2026-10-16/batch-check-result.json",
+            "sha256": "785120288ca9b161b5510d9201103809f8133cbb86443114dc8bf3d75aa35755"
+          }
+        },
+        "fixedFull": "PENDING",
+        "product": "OPEN",
+        "finalAll8Focus": "PASS"
+      }
     }
   ]
 }

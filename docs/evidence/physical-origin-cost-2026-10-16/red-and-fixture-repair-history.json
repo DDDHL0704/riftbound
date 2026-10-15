@@ -1,0 +1,200 @@
+{
+  "status": "ALL_FAILED_PREPARATION_ATTEMPTS_RETAINED_SEPARATE_FROM_RUNTIME_RULE_RED",
+  "runtimeBugRed": "4actual nonhand cost rows expected1/3 but observed3/5;2 own-hand controls passed.",
+  "attempts": [
+    {
+      "attempt": "normal-opening",
+      "results": [
+        {
+          "name": "Riftbound.ConformanceTests.PhysicalOriginCostReductionTests.ARealEmptyOpeningRecoversThePhysicalSourceAndQuotedCost(card: \"SFD·010/221\", mana: 1)",
+          "outcome": "Failed",
+          "message": "MOVE_UNIT: 精确战场移动路径暂未开放。"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.PhysicalOriginCostReductionTests.ARealEmptyOpeningRecoversThePhysicalSourceAndQuotedCost(card: \"SFD·164/221\", mana: 3)",
+          "outcome": "Failed",
+          "message": "MOVE_UNIT: 精确战场移动路径暂未开放。"
+        }
+      ],
+      "buildLog": {
+        "path": "var/qa/nonhand-cost-20261016/normal-opening/build.log",
+        "sha256": "d485ce0f9a5d4c0647d65b3434989f651e0e44f258da29df049bd38e34faf9e6"
+      },
+      "trx": [
+        {
+          "path": "var/qa/nonhand-cost-20261016/normal-opening/focus/results.trx",
+          "sha256": "8d1a1add85b83cbcab3e92ea6fe09347090802ca0c95d70832680e27c3f1350a"
+        }
+      ]
+    },
+    {
+      "attempt": "normal-opening-v2",
+      "results": [
+        {
+          "name": "Riftbound.ConformanceTests.PhysicalOriginCostReductionTests.ARealEmptyOpeningRecoversThePhysicalSourceAndQuotedCost(card: \"SFD·164/221\", mana: 3)",
+          "outcome": "Failed",
+          "message": "Assert.Equal() Failure: Strings differ\n           ↓ (pos 0)\nExpected: \"IN_PROGRESS\"\nActual:   \"FINISHED\"\n           ↑ (pos 0)"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.PhysicalOriginCostReductionTests.ARealEmptyOpeningRecoversThePhysicalSourceAndQuotedCost(card: \"SFD·010/221\", mana: 1)",
+          "outcome": "Failed",
+          "message": "Assert.Equal() Failure: Strings differ\n           ↓ (pos 0)\nExpected: \"IN_PROGRESS\"\nActual:   \"FINISHED\"\n           ↑ (pos 0)"
+        }
+      ],
+      "buildLog": {
+        "path": "var/qa/nonhand-cost-20261016/normal-opening-v2/build.log",
+        "sha256": "4b7378eac02e3d6b66a0d5cea1c2030ab604bd26a2d4dc46e40c176a2807c8b3"
+      },
+      "trx": [
+        {
+          "path": "var/qa/nonhand-cost-20261016/normal-opening-v2/focus/results.trx",
+          "sha256": "82111b55f7d463d15b0329b0ffacc3622f63b029e37aed730ae72fe53ed1a22b"
+        }
+      ]
+    },
+    {
+      "attempt": "normal-opening-v3",
+      "results": [],
+      "buildLog": {
+        "path": "var/qa/nonhand-cost-20261016/normal-opening-v3/build.log",
+        "sha256": "9700b97985fe46974aaf5824e8a7b4f793bd2d5faa388826e05768fd8fe1c2d6"
+      },
+      "trx": []
+    },
+    {
+      "attempt": "normal-opening-v4",
+      "results": [
+        {
+          "name": "Riftbound.ConformanceTests.PhysicalOriginCostReductionTests.ARealEmptyOpeningRecoversThePhysicalSourceAndQuotedCost(card: \"SFD·010/221\", mana: 1)",
+          "outcome": "Passed",
+          "message": ""
+        },
+        {
+          "name": "Riftbound.ConformanceTests.PhysicalOriginCostReductionTests.ARealEmptyOpeningRecoversThePhysicalSourceAndQuotedCost(card: \"SFD·164/221\", mana: 3)",
+          "outcome": "Failed",
+          "message": "Assert.Equal() Failure: Strings differ\n           ↓ (pos 0)\nExpected: \"IN_PROGRESS\"\nActual:   \"FINISHED\"\n           ↑ (pos 0)"
+        }
+      ],
+      "buildLog": {
+        "path": "var/qa/nonhand-cost-20261016/normal-opening-v4/build.log",
+        "sha256": "3d71c17ba86dbbf6ee9834b6e35f0d192678b077039d46c3dc55470850519fe1"
+      },
+      "trx": [
+        {
+          "path": "var/qa/nonhand-cost-20261016/normal-opening-v4/focus/results.trx",
+          "sha256": "31144a0d54f4671060a9b4b7b8e22fb1525e0ee3f5073ad6f5bea91974806e48"
+        }
+      ]
+    },
+    {
+      "attempt": "normal-opening-v5",
+      "results": [
+        {
+          "name": "Riftbound.ConformanceTests.PhysicalOriginCostReductionTests.ARealEmptyOpeningRecoversThePhysicalSourceAndQuotedCost(card: \"SFD·164/221\", mana: 3)",
+          "outcome": "Failed",
+          "message": "Assert.Equal() Failure: Strings differ\n           ↓ (pos 0)\nExpected: \"IN_PROGRESS\"\nActual:   \"FINISHED\"\n           ↑ (pos 0)"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.PhysicalOriginCostReductionTests.ARealEmptyOpeningRecoversThePhysicalSourceAndQuotedCost(card: \"SFD·010/221\", mana: 1)",
+          "outcome": "Passed",
+          "message": ""
+        }
+      ],
+      "buildLog": {
+        "path": "var/qa/nonhand-cost-20261016/normal-opening-v5/build.log",
+        "sha256": "881b8ba2da20edbf38e87219cf93370cfafad92afa80af13dc3241d7bfc4cee7"
+      },
+      "trx": [
+        {
+          "path": "var/qa/nonhand-cost-20261016/normal-opening-v5/focus/results.trx",
+          "sha256": "cb45ea3e9e34f8e87e7f5507e6058c29cd40b31a9cdd709bfe4285f0e2607b44"
+        }
+      ]
+    },
+    {
+      "attempt": "normal-opening-v6",
+      "results": [
+        {
+          "name": "Riftbound.ConformanceTests.PhysicalOriginCostReductionTests.ARealEmptyOpeningRecoversThePhysicalSourceAndQuotedCost(card: \"SFD·164/221\", mana: 3)",
+          "outcome": "Failed",
+          "message": "Assert.Equal() Failure: Strings differ\n           ↓ (pos 0)\nExpected: \"IN_PROGRESS\"\nActual:   \"FINISHED\"\n           ↑ (pos 0)"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.PhysicalOriginCostReductionTests.ARealEmptyOpeningRecoversThePhysicalSourceAndQuotedCost(card: \"SFD·010/221\", mana: 1)",
+          "outcome": "Passed",
+          "message": ""
+        }
+      ],
+      "buildLog": {
+        "path": "var/qa/nonhand-cost-20261016/normal-opening-v6/build.log",
+        "sha256": "f29d826e103092b937b619c8da2b44ebd859f00415157bc701946ef62a0ad472"
+      },
+      "trx": [
+        {
+          "path": "var/qa/nonhand-cost-20261016/normal-opening-v6/focus/results.trx",
+          "sha256": "5a8a4cd3eb93d736bc3fca560e6415157eb6f36b749648e6e6a386bdb70ae069"
+        }
+      ]
+    },
+    {
+      "attempt": "normal-opening-v7",
+      "results": [
+        {
+          "name": "Riftbound.ConformanceTests.PhysicalOriginCostReductionTests.ARealEmptyOpeningRecoversThePhysicalSourceAndQuotedCost(card: \"SFD·010/221\", mana: 1)",
+          "outcome": "Failed",
+          "message": "Assert.Equal() Failure: Strings differ\n           ↓ (pos 0)\nExpected: \"IN_PROGRESS\"\nActual:   \"FINISHED\"\n           ↑ (pos 0)"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.PhysicalOriginCostReductionTests.ARealEmptyOpeningRecoversThePhysicalSourceAndQuotedCost(card: \"SFD·164/221\", mana: 3)",
+          "outcome": "Failed",
+          "message": "Riftbound.Engine.MatchSessionException : 对局已经结束，不能继续提交行动。"
+        }
+      ],
+      "buildLog": {
+        "path": "var/qa/nonhand-cost-20261016/normal-opening-v7/build.log",
+        "sha256": "e18fd287703064f9621a9129c38d022b9009a53ba8aff94ecbe07d1e4892c87c"
+      },
+      "trx": [
+        {
+          "path": "var/qa/nonhand-cost-20261016/normal-opening-v7/focus/results.trx",
+          "sha256": "3a970dda027bcff6c62072246e9c84872b28d9893bafd135be7ee242b74c79b3"
+        }
+      ]
+    },
+    {
+      "attempt": "normal-opening-v8",
+      "results": [
+        {
+          "name": "Riftbound.ConformanceTests.PhysicalOriginCostReductionTests.ARealEmptyOpeningRecoversThePhysicalSourceAndQuotedCost(card: \"SFD·164/221\", mana: 3)",
+          "outcome": "Passed",
+          "message": ""
+        },
+        {
+          "name": "Riftbound.ConformanceTests.PhysicalOriginCostReductionTests.ARealEmptyOpeningRecoversThePhysicalSourceAndQuotedCost(card: \"SFD·010/221\", mana: 1)",
+          "outcome": "Passed",
+          "message": ""
+        }
+      ],
+      "buildLog": {
+        "path": "var/qa/nonhand-cost-20261016/normal-opening-v8/build.log",
+        "sha256": "12d534547bc470aca6df4409599468b139106d1fd542953fb273ef0ed1b0a70e"
+      },
+      "trx": [
+        {
+          "path": "var/qa/nonhand-cost-20261016/normal-opening-v8/focus/results.trx",
+          "sha256": "36443c94518efdae714bf1ae0744bb3fb48990a456ed51a62e206fcf2cbd81b1"
+        }
+      ]
+    }
+  ],
+  "repairs": [
+    "Use the already supported BATTLEFIELD-to-BASE ordinary command shape; do not relax the unsupported precise-route guard.",
+    "Pay the existing RekSai legend exhaustion option through its real source-object choice.",
+    "Keep internal engine constants private; the test driver uses the actual public choice-window string.",
+    "Trials with interleaved recipe and ready spells did not expose the spell before normal scoring ended and remain retained.",
+    "Final test fixture recipe returns to the original legal deck, fixes unit room normal-physical-cost-unit and spell room normal-physical-cost-spell-case-1, both initialSeed0. The new spell case room was selected during fixture preparation; original143 game/110pair seeds are unchanged.",
+    "Fixture generation decisions inspect actual hands and disclosed deck-choice IDs, never future deck order. These are controlled automated fixtures, separate from untouched visible native72 candidate."
+  ],
+  "nativeCandidateRngOrAcceptedHistoriesChanged": false,
+  "productionCausalRecoveryGuardChanged": false
+}

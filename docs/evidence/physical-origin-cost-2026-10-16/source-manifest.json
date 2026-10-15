@@ -1,0 +1,231 @@
+{
+  "status": "EXACT2_CN_PRINTINGS_AND_LIVE_IMAGE_TEXT_BOUNDED_SOURCE_REVIEW",
+  "recordedAtUtc": "2026-10-15T23:35:14.585460+00:00",
+  "region": "CN",
+  "language": "zh-CN",
+  "applicabilityDate": "2026-10-16",
+  "records": [
+    {
+      "id": 33082,
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "虚空蜢",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "attemptedAtUtc": "2026-10-15T22:34:50.666696+00:00",
+      "fetchedAtUtc": "2026-10-15T22:34:50.786059+00:00",
+      "rawSha256": "3720b4aa2b252ab3af49e2963a9e76ff5ba7c3fb979c277fb3215f4767041a64",
+      "rawPath": "var/qa/nonhand-cost-20261016/33082-raw.json",
+      "card": {
+        "id": 33082,
+        "cardCategoryList": [
+          "unit"
+        ],
+        "cardCategoryNameList": [
+          "单位"
+        ],
+        "cardNo": "SFD·010/221",
+        "cardName": "虚空蜢",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "red"
+        ],
+        "hero": "",
+        "region": "虚空之地",
+        "tag": "",
+        "artist": "Wild Blue Studio",
+        "cardEffect": "如果我从你手牌以外的位置被打出，则我的费用减少{{2}}。",
+        "flavorText": "雷克塞的孩子们总是会毫无征兆地突然出现，从恕瑞玛的沙土中对猎物发动袭击。",
+        "energy": 3,
+        "returnEnergy": null,
+        "power": 3,
+        "productCodeList": [
+          "SFD(标准补充包)",
+          "SFD(进阶补充包)"
+        ],
+        "productNameList": [
+          "铸魂淬炼 标准补充包",
+          "铸魂淬炼 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_dust",
+        "rarityName": "普通",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20251217/552c798f8b794a9a829243c83b68f54c.png",
+        "backImage": "",
+        "listSort": 991,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "allFieldsUnchangedFromCurrentPinnedSource": true,
+      "changedFields": [],
+      "region": "CN",
+      "language": "zh-CN",
+      "applicabilityDateUnderAudit": "2026-10-16",
+      "wholePrintingCertified": false,
+      "rawArchive": {
+        "path": "docs/evidence/physical-origin-cost-2026-10-16/33082-api-raw.json",
+        "sha256": "3720b4aa2b252ab3af49e2963a9e76ff5ba7c3fb979c277fb3215f4767041a64"
+      },
+      "imageAcquisition": {
+        "id": 33082,
+        "cardNo": "SFD·010/221",
+        "url": "https://cdn.playloltcg.com/lol/card/20251217/552c798f8b794a9a829243c83b68f54c.png",
+        "attemptedAtUtc": "2026-10-15T22:38:16.803835+00:00",
+        "fetchedAtUtc": "2026-10-15T22:38:16.990861+00:00",
+        "path": "/Users/dinghaolin/MyProjects/riftbound/var/qa/nonhand-cost-20261016/33082-current-cn.source",
+        "sha256": "39d179a5fd2df17b7be02e9c8e3d2893b1bf67ce37bbafa807ce2fdcefe90c39",
+        "bytes": 195445,
+        "dimensions": {
+          "width": 744,
+          "height": 1039,
+          "format": "PNG"
+        },
+        "contentType": "image/png",
+        "visualReview": "RECORDED_FOR_PRINTED_CONDITION_AND_COST_ONLY",
+        "region": "CN",
+        "language": "zh-CN",
+        "visualReviewAtAcquisition": "OPEN"
+      },
+      "archivedOriginalImage": {
+        "path": "docs/evidence/physical-origin-cost-2026-10-16/33082-current-cn.png",
+        "sha256": "39d179a5fd2df17b7be02e9c8e3d2893b1bf67ce37bbafa807ce2fdcefe90c39"
+      },
+      "imageVisuallyRead": true,
+      "imageBytesUnchanged": true,
+      "firstPublicationDate": null,
+      "effectiveDate": null,
+      "sourceVersion": "CurrentCN16 exact response compared unchanged to pinned whole-catalog source",
+      "visualReviewScope": "Original CN image was read; confirms exact identity, printed cost and outside-own-hand text. No whole-card certification."
+    },
+    {
+      "id": 33258,
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "流沙陷坑",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "attemptedAtUtc": "2026-10-15T22:34:50.667188+00:00",
+      "fetchedAtUtc": "2026-10-15T22:34:50.795394+00:00",
+      "rawSha256": "a6aa726c218e7204a4c7025d222931b4d9006499ab1775ade84b2fd9c7f4e4ad",
+      "rawPath": "var/qa/nonhand-cost-20261016/33258-raw.json",
+      "card": {
+        "id": 33258,
+        "cardCategoryList": [
+          "spell"
+        ],
+        "cardCategoryNameList": [
+          "法术"
+        ],
+        "cardNo": "SFD·164/221",
+        "cardName": "流沙陷坑",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "yellow"
+        ],
+        "hero": "",
+        "region": "",
+        "tag": "",
+        "artist": "Kudos Productions",
+        "cardEffect": "{{迅捷}}（可在你的回合或法术对决中打出。）\n如果你将我从手牌以外的位置打出，则我的费用减少{{2}}。\n摧毁战场上的一名单位。",
+        "flavorText": "“加快速度的话，天黑前就能抵达绿洲。”\n——常见遗言",
+        "energy": 5,
+        "returnEnergy": 1,
+        "power": null,
+        "productCodeList": [
+          "SFD(标准补充包)",
+          "SFD(进阶补充包)"
+        ],
+        "productNameList": [
+          "铸魂淬炼 标准补充包",
+          "铸魂淬炼 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_glimmer",
+        "rarityName": "不凡",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20251217/2975cb8aaa96448499b1374dd1ffbdcd.png",
+        "backImage": "",
+        "listSort": 815,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "allFieldsUnchangedFromCurrentPinnedSource": true,
+      "changedFields": [],
+      "region": "CN",
+      "language": "zh-CN",
+      "applicabilityDateUnderAudit": "2026-10-16",
+      "wholePrintingCertified": false,
+      "rawArchive": {
+        "path": "docs/evidence/physical-origin-cost-2026-10-16/33258-api-raw.json",
+        "sha256": "a6aa726c218e7204a4c7025d222931b4d9006499ab1775ade84b2fd9c7f4e4ad"
+      },
+      "imageAcquisition": {
+        "id": 33258,
+        "cardNo": "SFD·164/221",
+        "url": "https://cdn.playloltcg.com/lol/card/20251217/2975cb8aaa96448499b1374dd1ffbdcd.png",
+        "attemptedAtUtc": "2026-10-15T22:38:16.804657+00:00",
+        "fetchedAtUtc": "2026-10-15T22:38:16.990877+00:00",
+        "path": "/Users/dinghaolin/MyProjects/riftbound/var/qa/nonhand-cost-20261016/33258-current-cn.source",
+        "sha256": "32885a3208ecadb5f9a6adde34846bf88f9c58ec1b635f83a59b8c08b3b44f82",
+        "bytes": 185887,
+        "dimensions": {
+          "width": 744,
+          "height": 1039,
+          "format": "PNG"
+        },
+        "contentType": "image/png",
+        "visualReview": "RECORDED_FOR_PRINTED_CONDITION_AND_COST_ONLY",
+        "region": "CN",
+        "language": "zh-CN",
+        "visualReviewAtAcquisition": "OPEN"
+      },
+      "archivedOriginalImage": {
+        "path": "docs/evidence/physical-origin-cost-2026-10-16/33258-current-cn.png",
+        "sha256": "32885a3208ecadb5f9a6adde34846bf88f9c58ec1b635f83a59b8c08b3b44f82"
+      },
+      "imageVisuallyRead": true,
+      "imageBytesUnchanged": true,
+      "firstPublicationDate": null,
+      "effectiveDate": null,
+      "sourceVersion": "CurrentCN16 exact response compared unchanged to pinned whole-catalog source",
+      "visualReviewScope": "Original CN image was read; confirms exact identity, printed cost and outside-own-hand text. No whole-card certification."
+    }
+  ],
+  "ruleCorpus": "docs/evidence/rules-reaudit-2026-10-11/official-corpus.json",
+  "sourceUniverse": 1740,
+  "runtimeCatalog": 1033,
+  "actualRuleInputScope": {
+    "path": "data/official/rule-input-scope.json",
+    "sha256": "cc07cf3eef6a9af403454642a0435d061544400b5e01d08d3fdc65869bdad180"
+  },
+  "wholePrintingCertification": false,
+  "selectedRuleClauseEvidence": {
+    "path": "docs/evidence/physical-origin-cost-2026-10-16/rule-clause-source.json",
+    "sha256": "b071d6921a020b725087fd8f21ecff6fd5fdf6e56e92a89114ac6e0793ff9d70"
+  }
+}
