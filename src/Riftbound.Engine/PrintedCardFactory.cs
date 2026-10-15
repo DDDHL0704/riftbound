@@ -42,27 +42,27 @@ internal static class PrintedCardFactory
     private static IReadOnlyList<string> OfficialCardTags(OfficialCard card)
     {
         var tags = new List<string>();
-        if (card.CardCategoryName.Contains("单位", StringComparison.Ordinal))
+        if (card.CardCategoryNameList.Any(name => name.Contains("单位", StringComparison.Ordinal)))
         {
             tags.Add(CardObjectTags.UnitCard);
         }
-        else if (card.CardCategoryName.Contains("装备", StringComparison.Ordinal))
+        if (card.CardCategoryNameList.Any(name => name.Contains("装备", StringComparison.Ordinal)))
         {
             tags.Add(CardObjectTags.EquipmentCard);
         }
-        else if (card.CardCategoryName.Contains("法术", StringComparison.Ordinal))
+        if (card.CardCategoryNameList.Any(name => name.Contains("法术", StringComparison.Ordinal)))
         {
             tags.Add(CardObjectTags.SpellCard);
         }
-        else if (string.Equals(card.CardCategoryName, "符文", StringComparison.Ordinal))
+        if (card.CardCategoryNameList.Contains("符文", StringComparer.Ordinal))
         {
             tags.Add(CardObjectTags.RuneCard);
         }
-        else if (string.Equals(card.CardCategoryName, "传奇", StringComparison.Ordinal))
+        if (card.CardCategoryNameList.Contains("传奇", StringComparer.Ordinal))
         {
             tags.Add("CARD_TYPE:LEGEND");
         }
-        else if (string.Equals(card.CardCategoryName, "战场", StringComparison.Ordinal))
+        if (card.CardCategoryNameList.Contains("战场", StringComparer.Ordinal))
         {
             tags.Add("CARD_TYPE:BATTLEFIELD");
         }

@@ -1,0 +1,29 @@
+{
+  "status": "FOUR_ORIGINAL_FULL_SCORE_AND_REPLAY_GAMES_PASS",
+  "execution": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 36.58,
+    "total": 4,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 4,
+        "passed": 4,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 32.76
+      }
+    ]
+  },
+  "methods": [
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.DistinctOfficialLowCurveDecksReachScoreVictoryAfterRealBattleThroughServerPrompts",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgamePaysRumbleReducedGraveyardMechanicalPaymentAndScoreVictoryActionLogReplaysToFinalStateHash",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialLowCurveDecksReachScoreVictoryAfterRealBattleThroughServerPrompts",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.StandbyHeavyOfficialLowCurveDecksReachScoreVictoryAfterRealBattleThroughServerPrompts"
+  ],
+  "trxPath": "var/qa/multitype-20261015/original-games/focus/results.trx",
+  "trxSha256": "512fdb8e77bdec1365ace174dee88868e90111c908974192e65ef04fabc5fbd4",
+  "assertions": "Original ordinary score victory, action/event replay and complete final-state assertions retained."
+}

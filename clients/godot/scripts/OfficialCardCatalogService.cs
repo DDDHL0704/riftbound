@@ -36,7 +36,7 @@ public sealed class OfficialCardCatalogService
             entries[cardNo] = new CardCatalogEntry(
                 cardNo,
                 ReadString(card, "cardName"),
-                ReadString(card, "cardCategoryName"),
+                ReadCategoryName(card),
                 ReadString(card, "frontImage"),
                 ReadString(card, "backImage"),
                 ReadInt(card, "energy"),
@@ -48,6 +48,17 @@ public sealed class OfficialCardCatalogService
         }
 
         return entries;
+    }
+
+    private static string ReadCategoryName(JsonElement card)
+    {
+        if (card.TryGetProperty("cardCategoryNameList", out var names) && names.ValueKind == JsonValueKind.Array)
+        {
+            var categories = names.EnumerateArray().Where(n => n.ValueKind == JsonValueKind.String)
+                .Select(n => n.GetString()!).Where(n => !string.IsNullOrWhiteSpace(n)).ToArray();
+            if (categories.Length > 0) return string.Join(" / ", categories);
+        }
+        return ReadString(card, "cardCategoryName");
     }
 
     private static string ReadString(JsonElement element, string propertyName)

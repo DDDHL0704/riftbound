@@ -58,7 +58,7 @@
     },
     "reviews": {
       "path": "docs/evidence/rules-reaudit-2026-10-11/review-decisions.json",
-      "sha256": "c1d1cca190e831272fca983fc6babbcade62a1eb682864a75c04f21892e97cde"
+      "sha256": "391e71d91e1573ee530bebf5a9ed18f08d971befc623df0683d39d09b0327990"
     },
     "summary": {
       "path": "docs/evidence/audit-obligations-2026-10-14/index-summary.json",
@@ -600,7 +600,7 @@
         },
         {
           "path": "clients/godot/scripts/OfficialCardCatalogService.cs",
-          "sha256": "a7cbcc26fdfe93a24ce47f167fb835e718307f29501eb898c255e4c119c52e39"
+          "sha256": "d7cb7de6ceac43799361ee254d1a7f46ef0234dd45aa0810ab667fc35b27907f"
         }
       ],
       "branches": [
@@ -1174,7 +1174,7 @@
         }
       ],
       "evidenceCommit": "03f88a7ee1b109b2cb906fbdc457316f93c08fda",
-      "currentImplementationCommit": "eb3c4281c94c8d41d315cd574bdfa597cd10c30b",
+      "currentImplementationCommit": "4ef4db144b1825f8b05f1b0b1605a8b99c49ac84",
       "currentImplementationIncludesUncommittedChanges": true
     },
     "static-granted-predict-entry-2026-10-15": {
@@ -4354,9 +4354,16 @@
           "role": "check"
         }
       ],
-      "ciState": "PENDING",
-      "ciReceipts": [],
-      "evidenceCommit": "eb5d9b75b360088c95c367ce9e7c1ff44416f928",
+      "ciState": "VERIFIED",
+      "ciReceipts": [
+        {
+          "path": "docs/evidence/recycle-printing-2026-10-15/full-ci-09ac.json",
+          "sha256": "8eedbe551f5c0d1f000231acc93a5e2cd44ebc7d7a9282f011c1112555a29399",
+          "commit": "09ac000ec5dcfb3fe2404d7da235b4e7c91bfeba",
+          "runId": 38656654632
+        }
+      ],
+      "evidenceCommit": "09ac000ec5dcfb3fe2404d7da235b4e7c91bfeba",
       "currentImplementationCommit": "eb5d9b75b360088c95c367ce9e7c1ff44416f928",
       "currentImplementationIncludesUncommittedChanges": true
     },
@@ -4601,6 +4608,94 @@
           "state": "OPEN",
           "remaining": [
             "CONFIRMED_VS_COMPLETED_HISTORY_ADJUDICATION_AND_EXECUTABLE_COUNTERED_PENDING_SUCCESS_CASES"
+          ]
+        }
+      ]
+    },
+    "official-multitype-factory-deck-and-native-metadata-2026-10-15": {
+      "implementation": [
+        {
+          "path": "src/Riftbound.Engine/PrintedCardFactory.cs",
+          "sha256": "8b069d25dacb16ce512411fdd9ee25e98907247591bcb818756b5838922ba98e"
+        },
+        {
+          "path": "src/Riftbound.Engine/OfficialDeckRules.cs",
+          "sha256": "80ce7cd7b37241e95298538c75c1aa0372157b16dc9740de2991e3b7cb6a0714"
+        },
+        {
+          "path": "src/Riftbound.Engine/PreconstructedDeckCatalog.cs",
+          "sha256": "cb7ef66cfac26e6f6dfed92fe4206fdb3571c2916ec1d697310efa0f209a913a"
+        },
+        {
+          "path": "clients/godot/scripts/OfficialCardCatalogService.cs",
+          "sha256": "d7cb7de6ceac43799361ee254d1a7f46ef0234dd45aa0810ab667fc35b27907f"
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/evidence/multitype-2026-10-15/focus.json",
+          "sha256": "443310a7e8e4af4b30624471130940435430255047e839f9e82d226bf1ad13ab",
+          "role": "focus"
+        },
+        {
+          "path": "docs/evidence/multitype-2026-10-15/source.json",
+          "sha256": "118b92bd918dde37fe7740fa26636345de5399dbc981980f29f9ae7a3a9112a6",
+          "role": "source"
+        },
+        {
+          "path": "docs/evidence/multitype-2026-10-15/native.json",
+          "sha256": "a3f6b02975a05754369be06bac7b26e7cd92148ed6f5b328e3db3dabffc5f6dc",
+          "role": "native"
+        },
+        {
+          "path": "docs/evidence/multitype-2026-10-15/check-parity.json",
+          "sha256": "0594e06409f519cb4fb18f983f1b048b0fd659446d495ecee1c188b9946e4b97",
+          "role": "check"
+        },
+        {
+          "path": "docs/evidence/multitype-2026-10-15/original-games.json",
+          "sha256": "ff82fbebad0f5165dc475f67e8f37eacac6c85c8e1be1c1db8ef175d65b11cb8",
+          "role": "original-games"
+        }
+      ],
+      "ciState": "PENDING",
+      "ciReceipts": [],
+      "evidenceCommit": "4ef4db144b1825f8b05f1b0b1605a8b99c49ac84",
+      "currentImplementationCommit": "4ef4db144b1825f8b05f1b0b1605a8b99c49ac84",
+      "currentImplementationIncludesUncommittedChanges": true,
+      "branches": [
+        {
+          "id": "official-multiple-type-factory",
+          "sourceRefs": [
+            "VEN-058",
+            "DOC-04-P024-B012",
+            "DOC-04-P024-B020"
+          ],
+          "state": "RECORDED",
+          "remaining": [
+            "CARD_BEHAVIOR_PROMOTION_COPIED_ATTACHED_AND_WHOLE_PRINTING_SEMANTICS"
+          ]
+        },
+        {
+          "id": "multi-category-deck-legality",
+          "sourceRefs": [
+            "VEN-058",
+            "DOC-04-P024-B017"
+          ],
+          "state": "RECORDED",
+          "remaining": [
+            "EXACT_FIXED_CI_AND_RUNTIME_CARD_IMPLEMENTATION"
+          ]
+        },
+        {
+          "id": "native-multiple-category-preview",
+          "sourceRefs": [
+            "VEN-058",
+            "DOC-06-P012-B004"
+          ],
+          "state": "RECORDED",
+          "remaining": [
+            "VISIBLE_CARD_GAMEPLAY_AND_PRODUCT_ACCEPTANCE"
           ]
         }
       ]

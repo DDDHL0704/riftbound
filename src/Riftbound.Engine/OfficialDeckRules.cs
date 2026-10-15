@@ -142,7 +142,7 @@ public static class OfficialDeckValidator
             }
 
             cards.Add(card);
-            if (!MainDeckCategories.Contains(card.CardCategoryName))
+            if (card.CardCategoryNameList.Count == 0 || !card.CardCategoryNameList.All(MainDeckCategories.Contains))
             {
                 errors.Add($"主牌堆中的 {card.CardNo} 不能使用类别：{card.CardCategoryName}。");
             }
@@ -313,7 +313,7 @@ public static class OfficialDeckValidator
 
     private static bool IsExclusive(OfficialCard card)
     {
-        return card.CardCategoryName.StartsWith("专属", StringComparison.Ordinal);
+        return card.CardCategoryNameList.Any(name => name.StartsWith("专属", StringComparison.Ordinal));
     }
 
     private static bool IsUniqueCard(OfficialCard card)

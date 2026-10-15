@@ -291,8 +291,8 @@ public static class PreconstructedDeckCatalog
 
     private static bool IsMainDeckCandidate(OfficialCard card, HashSet<string> allowedColors)
     {
-        return card.CardCategoryName is "单位" or "英雄单位"
-            && !card.CardCategoryName.StartsWith("专属", StringComparison.Ordinal)
+        return card.CardCategoryNameList.Any(name => name is "单位" or "英雄单位")
+            && card.CardCategoryNameList.All(name => name is "单位" or "英雄单位" or "装备" or "法术")
             && card.CardGroupLimit != 1
             && !card.CardEffect.Contains("{{唯我}}", StringComparison.Ordinal)
             && !card.CardEffect.Contains("{{急速}}", StringComparison.Ordinal)
@@ -315,12 +315,14 @@ public static class PreconstructedDeckCatalog
 
     private static bool IsRequiredMainDeckCategoryAllowed(OfficialCard card, OfficialCard legend)
     {
-        if (!card.CardCategoryName.StartsWith("专属", StringComparison.Ordinal))
+        if (!card.CardCategoryNameList.Any(name => name.StartsWith("专属", StringComparison.Ordinal)))
         {
-            return card.CardCategoryName is "单位" or "英雄单位" or "装备" or "法术";
+            return card.CardCategoryNameList.Count > 0
+                && card.CardCategoryNameList.All(name => name is "单位" or "英雄单位" or "装备" or "法术");
         }
 
-        return card.CardCategoryName is "专属单位" or "专属装备" or "专属法术"
+        return card.CardCategoryNameList.All(name => name is "单位" or "英雄单位" or "装备" or "法术"
+                or "专属单位" or "专属装备" or "专属法术")
             && !string.IsNullOrWhiteSpace(card.Hero)
             && string.Equals(card.Hero, legend.Hero, StringComparison.Ordinal);
     }

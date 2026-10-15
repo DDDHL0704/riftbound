@@ -19987,6 +19987,52 @@
         "Patched Porobot VEN·058 remains absent from runtime and is an explicit dependency of the exact official FAQ example."
       ],
       "wholeCardCertification": false
+    },
+    {
+      "id": "official-multitype-factory-deck-and-native-metadata-2026-10-15",
+      "status": "SCOPED_MULTITYPE_IDENTITY_FIX_RUNTIME_CARD_BEHAVIORS_OPEN",
+      "scope": "Live official VEN058 Unit-Gear record retains both factory types, legal multi-category main deck while rejecting illegal additional types, exclusive restrictions, preconstructed candidate category handling and actual Godot category/preview metadata. No Porobot/Swain card behavior promotion or whole-card certification.",
+      "subjects": [
+        "VEN-058"
+      ],
+      "ruleRecords": [
+        "DOC-04-P024-B011",
+        "DOC-04-P024-B012",
+        "DOC-04-P024-B014",
+        "DOC-04-P024-B015",
+        "DOC-04-P024-B017",
+        "DOC-04-P024-B020",
+        "DOC-06-P012-B004"
+      ],
+      "auditDocument": "docs/OFFICIAL_MULTITYPE_IDENTITY_AUDIT_2026-10-15.md",
+      "evidence": "docs/evidence/multitype-2026-10-15",
+      "semanticReview": {
+        "state": "SCOPED",
+        "wholeCardCertified": false,
+        "source": "docs/evidence/multitype-2026-10-15/source.json",
+        "region": "CN",
+        "applicableAsOf": "2026-10-14"
+      },
+      "testExecution": {
+        "status": "FOCUS_PASSED",
+        "newMethods": 6,
+        "newCases": 16,
+        "receipt": "docs/evidence/multitype-2026-10-15/focus.json",
+        "batchCheck": "docs/evidence/multitype-2026-10-15/check-parity.json"
+      },
+      "implementation": [
+        "src/Riftbound.Engine/PrintedCardFactory.cs",
+        "src/Riftbound.Engine/OfficialDeckRules.cs",
+        "src/Riftbound.Engine/PreconstructedDeckCatalog.cs",
+        "clients/godot/scripts/OfficialCardCatalogService.cs"
+      ],
+      "remaining": [
+        "Patched Porobot entry draw skill and runtime promotion",
+        "Both Swain printings, typed play history and conditional conquest scoring",
+        "All other card semantics, copied/attached histories and final product acceptance",
+        "Windows real runtime"
+      ],
+      "wholeCardCertification": false
     }
   ]
 }
