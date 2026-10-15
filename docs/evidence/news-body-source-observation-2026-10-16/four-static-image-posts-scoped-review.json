@@ -1,0 +1,176 @@
+{
+  "status": "ALL4_DECLARED_PRIMARY_IMAGES_AND_CAPTIONS_SCOPED_CLASSIFICATION_ONLY",
+  "reviewedAtUtc": "2026-10-15T22:25:10.266631+00:00",
+  "records": [
+    {
+      "id": "CN-NEWS-7d1c1f8719440ac4",
+      "url": "https://mp.weixin.qq.com/s/0IsHz8ixDiKtFdBCweUMcA",
+      "publishedAsListed": [
+        "2025-11-11"
+      ],
+      "firstPublicationIndependentlyConfirmed": false,
+      "region": "CN",
+      "language": "zh-CN",
+      "effectiveDate": null,
+      "rawSha256": "21cb10c0c9abb1aa91a39b816676f56cfefee1cf95e2f45a40050c463cdf894d",
+      "literalListSha256": "b007f1cf295b25390f086d11260229e62a09d765b80ee61c71830ded95ba5437",
+      "captionSha256": "1cdd5d672d3518baf91ca732084c8f9e09c50dff7b8d00028a092bb3ed6fb157",
+      "image": {
+        "url": "https://mmecoa.qpic.cn/mmecoa_jpg/M9v64QVNlqIgxesUP6IRGYy6OOgz8t8BoCTMjOo5QicaLCGia8Q7Bt7ia7QlWvS4wMZWe84R5pLwJYHDppxVpCX2A/0?wx_fmt=jpeg&from=appmsg",
+        "attemptedAtUtc": "2026-10-15T22:17:26.582669+00:00",
+        "visualReview": "OPEN",
+        "semanticReview": "OPEN",
+        "region": "CN",
+        "language": "zh-CN",
+        "resolvedUrl": "https://mmecoa.qpic.cn/mmecoa_jpg/M9v64QVNlqIgxesUP6IRGYy6OOgz8t8BoCTMjOo5QicaLCGia8Q7Bt7ia7QlWvS4wMZWe84R5pLwJYHDppxVpCX2A/0?wx_fmt=jpeg&from=appmsg",
+        "httpStatus": 200,
+        "contentType": "image/jpeg",
+        "responseDate": "Mon, 05 Jan 2026 00:47:51 GMT",
+        "status": "ORIGINAL_IMAGE_FETCHED_NOT_SEMANTICALLY_REVIEWED",
+        "completedAtUtc": "2026-10-15T22:17:27.090353+00:00",
+        "path": "/Users/dinghaolin/MyProjects/riftbound/var/qa/official-news-body-20261016/complete-image-acquisition/9b39b28d5b973828c4ba370b.source",
+        "sha256": "a1f10079655ef5b3e3b5f979b75c6b0bcfc85f43aa310f1169d2a678b20d8574",
+        "bytes": 327350,
+        "dimensions": {
+          "width": 1280,
+          "height": 1706,
+          "format": "JPEG",
+          "frames": 1
+        }
+      },
+      "reviewedSurface": "All declared primary images (1) at original view and full static caption; image-post template recognized without executing JavaScript.",
+      "disposition": "Historical SFD preview/release calendar; no legible exact card face or operative gameplay rule.",
+      "newRuntimeGameplayNeededForThisSurface": false,
+      "currentReleaseLegalityOrPrintingCertified": false,
+      "otherRuntimeOrTemplateSurface": "OPEN"
+    },
+    {
+      "id": "CN-NEWS-9028e683b9db5aec",
+      "url": "https://mp.weixin.qq.com/s/t12HwcGC5bAr34BwYLaK0g",
+      "publishedAsListed": [
+        "2025-06-09"
+      ],
+      "firstPublicationIndependentlyConfirmed": false,
+      "region": "CN",
+      "language": "zh-CN",
+      "effectiveDate": null,
+      "rawSha256": "da8f72710560f528f215e8a6be8cf5b4c0ffa718822eaa49017cacffd6011df5",
+      "literalListSha256": "200ebe3b1f8d3ae33c47fe4391259db773f125d56aebe616f85af4c4d715cbff",
+      "captionSha256": "5b61b05f6bd2112c73230fb7141b6328bdfc70ac6016a1bf28667462280323da",
+      "image": {
+        "url": "https://mmecoa.qpic.cn/mmecoa_jpg/M9v64QVNlqISVy2F0Ed4LyxwVzlrgajsCwyHFfeTCZWQPVNbZOicOIvibXqblcmlUZrly8m5Piaibpm3eFQFSqnlIg/0?wx_fmt=jpeg&from=appmsg",
+        "attemptedAtUtc": "2026-10-15T22:17:23.553969+00:00",
+        "visualReview": "OPEN",
+        "semanticReview": "OPEN",
+        "region": "CN",
+        "language": "zh-CN",
+        "resolvedUrl": "https://mmecoa.qpic.cn/mmecoa_jpg/M9v64QVNlqISVy2F0Ed4LyxwVzlrgajsCwyHFfeTCZWQPVNbZOicOIvibXqblcmlUZrly8m5Piaibpm3eFQFSqnlIg/0?wx_fmt=jpeg&from=appmsg",
+        "httpStatus": 200,
+        "contentType": "image/jpeg",
+        "responseDate": "Mon, 02 Feb 2026 02:04:30 GMT",
+        "status": "ORIGINAL_IMAGE_FETCHED_NOT_SEMANTICALLY_REVIEWED",
+        "completedAtUtc": "2026-10-15T22:17:23.777970+00:00",
+        "path": "/Users/dinghaolin/MyProjects/riftbound/var/qa/official-news-body-20261016/complete-image-acquisition/07d3a089cc2cdf095d651b56.source",
+        "sha256": "dbc96850f32fdd9adb07af3c7884feccdbb13e5f766511975b74640bcaa9d10f",
+        "bytes": 178820,
+        "dimensions": {
+          "width": 1280,
+          "height": 960,
+          "format": "JPEG",
+          "frames": 1
+        }
+      },
+      "reviewedSurface": "All declared primary images (1) at original view and full static caption; image-post template recognized without executing JavaScript.",
+      "disposition": "Historical June2025 region lore/preview and sample-deck giveaway; no legible exact card face or operative gameplay rule.",
+      "newRuntimeGameplayNeededForThisSurface": false,
+      "currentReleaseLegalityOrPrintingCertified": false,
+      "otherRuntimeOrTemplateSurface": "OPEN"
+    },
+    {
+      "id": "CN-NEWS-a22278a3803fe2ea",
+      "url": "https://mp.weixin.qq.com/s/A2RILu_IhePj4CAPvGDaew",
+      "publishedAsListed": [
+        "2025-06-08"
+      ],
+      "firstPublicationIndependentlyConfirmed": false,
+      "region": "CN",
+      "language": "zh-CN",
+      "effectiveDate": null,
+      "rawSha256": "9ed5e4cab96d7dc40135b6bcebe80c6a189d57cffbdefe5acb8c961532096748",
+      "literalListSha256": "cf880943454f9911eed433f697fb6383e0f396c751bfb89c7658b017dec692d2",
+      "captionSha256": "83d6b06930b71da1ddd8a49b72de4078b9dc4b09081b5e1eb8d431daf4a25576",
+      "image": {
+        "url": "https://mmecoa.qpic.cn/mmecoa_jpg/M9v64QVNlqKDQvlX1Sd2ibhSdHhzFSj7WLxP7Jc5TYK8xsGNVsUF8Y7XyhwxjL2ce2eVY6zRSOLavic3A7iclfxRQ/0?wx_fmt=jpeg&from=appmsg",
+        "attemptedAtUtc": "2026-10-15T22:17:33.570688+00:00",
+        "visualReview": "OPEN",
+        "semanticReview": "OPEN",
+        "region": "CN",
+        "language": "zh-CN",
+        "resolvedUrl": "https://mmecoa.qpic.cn/mmecoa_jpg/M9v64QVNlqKDQvlX1Sd2ibhSdHhzFSj7WLxP7Jc5TYK8xsGNVsUF8Y7XyhwxjL2ce2eVY6zRSOLavic3A7iclfxRQ/0?wx_fmt=jpeg&from=appmsg",
+        "httpStatus": 200,
+        "contentType": "image/jpeg",
+        "responseDate": "Mon, 08 Jun 2026 11:38:08 GMT",
+        "status": "ORIGINAL_IMAGE_FETCHED_NOT_SEMANTICALLY_REVIEWED",
+        "completedAtUtc": "2026-10-15T22:17:33.770735+00:00",
+        "path": "/Users/dinghaolin/MyProjects/riftbound/var/qa/official-news-body-20261016/complete-image-acquisition/904eb8b40eb2d8e55a80d8da.source",
+        "sha256": "16f48b5df3ff67131366149185cd253ffe769cee5847540469bfd3efab2dab6a",
+        "bytes": 173055,
+        "dimensions": {
+          "width": 1280,
+          "height": 960,
+          "format": "JPEG",
+          "frames": 1
+        }
+      },
+      "reviewedSurface": "All declared primary images (1) at original view and full static caption; image-post template recognized without executing JavaScript.",
+      "disposition": "Historical June2025 region lore/preview and sample-deck giveaway; no legible exact card face or operative gameplay rule.",
+      "newRuntimeGameplayNeededForThisSurface": false,
+      "currentReleaseLegalityOrPrintingCertified": false,
+      "otherRuntimeOrTemplateSurface": "OPEN"
+    },
+    {
+      "id": "CN-NEWS-e13207b2ccdfd6ee",
+      "url": "https://mp.weixin.qq.com/s/5oNBSj8r40O1PLmUg_NP4A",
+      "publishedAsListed": [
+        "2025-06-07"
+      ],
+      "firstPublicationIndependentlyConfirmed": false,
+      "region": "CN",
+      "language": "zh-CN",
+      "effectiveDate": null,
+      "rawSha256": "0ac1fbada00ae834b077d9f572cbf425a66b0ad9ad77aac7fca5c5755b94cbc5",
+      "literalListSha256": "ffad2fa800cad7172622c90bcfe474a912a7107dd4f8461e497a6670048f8bfb",
+      "captionSha256": "151b0b429e61dae031a12c4c27d9f5139ef8f4479775ae15abb2c3d78eabb7d2",
+      "image": {
+        "url": "https://mmecoa.qpic.cn/mmecoa_jpg/M9v64QVNlqKDQvlX1Sd2ibhSdHhzFSj7Wglq8LMSfICyYHXOrSbGqSTiaEGjZFZ0qu3lGbmgNuxS4GVCOlfz8SoA/0?wx_fmt=jpeg&from=appmsg",
+        "attemptedAtUtc": "2026-10-15T22:17:33.642259+00:00",
+        "visualReview": "OPEN",
+        "semanticReview": "OPEN",
+        "region": "CN",
+        "language": "zh-CN",
+        "resolvedUrl": "https://mmecoa.qpic.cn/mmecoa_jpg/M9v64QVNlqKDQvlX1Sd2ibhSdHhzFSj7Wglq8LMSfICyYHXOrSbGqSTiaEGjZFZ0qu3lGbmgNuxS4GVCOlfz8SoA/0?wx_fmt=jpeg&from=appmsg",
+        "httpStatus": 200,
+        "contentType": "image/jpeg",
+        "responseDate": "Mon, 08 Jun 2026 11:38:08 GMT",
+        "status": "ORIGINAL_IMAGE_FETCHED_NOT_SEMANTICALLY_REVIEWED",
+        "completedAtUtc": "2026-10-15T22:17:33.841453+00:00",
+        "path": "/Users/dinghaolin/MyProjects/riftbound/var/qa/official-news-body-20261016/complete-image-acquisition/357c65bd7f40723e2a0c830d.source",
+        "sha256": "816d1b833eedee7ae531d7a5ad3beb7c5a36cdc37f0785e3562ed3c1e46557db",
+        "bytes": 162091,
+        "dimensions": {
+          "width": 1280,
+          "height": 960,
+          "format": "JPEG",
+          "frames": 1
+        }
+      },
+      "reviewedSurface": "All declared primary images (1) at original view and full static caption; image-post template recognized without executing JavaScript.",
+      "disposition": "Historical June2025 region lore/preview and sample-deck giveaway; no legible exact card face or operative gameplay rule.",
+      "newRuntimeGameplayNeededForThisSurface": false,
+      "currentReleaseLegalityOrPrintingCertified": false,
+      "otherRuntimeOrTemplateSurface": "OPEN"
+    }
+  ],
+  "wholeSourceSemanticCertification": false,
+  "allOriginalSourceObligationsRetained": true
+}

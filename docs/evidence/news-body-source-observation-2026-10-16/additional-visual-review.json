@@ -1,0 +1,86 @@
+{
+  "status": "ADDITIONAL_BOUNDED_SOURCE_VISUAL_READS_NO_RUNTIME_CERTIFICATION",
+  "readAtUtc": "2026-10-15T21:25:27.845287+00:00",
+  "region": "CN",
+  "language": "zh-CN",
+  "applicabilityDateUnderAudit": "2026-10-16",
+  "records": [
+    {
+      "document": "CN-NEWS-df83d2b84e2dce2f",
+      "title": "「辉耀群星」预览指南",
+      "url": "https://mp.weixin.qq.com/s/dxkQyF46gS4_RE7iJ83eow?token=760186298&lang=zh_CN",
+      "textCharactersRead": 1809,
+      "textSha256": "c49a65fa5571e9cb5547a40549700b94e93664db9b64275c6ec87e5e4987906b",
+      "imageOrdinal": 1,
+      "image": {
+        "url": "https://mmecoa.qpic.cn/mmecoa_jpg/QD913GwJEgAl3pEdNTo7SuxOnm84PTusVvcHgIdiaqMQJ73fXCCAtvUe9VCcmVItlpffEa8HTRt6jXdNFozxdqgxUA6CZDZWfWVaP0kHPIAE/640?wx_fmt=jpeg&from=appmsg",
+        "attemptedAtUtc": "2026-10-15T21:10:55.866928+00:00",
+        "region": "CN",
+        "language": "zh-CN",
+        "visualReview": "OPEN",
+        "semanticReview": "OPEN",
+        "status": "FETCHED_ORIGINAL_IMAGE_REQUIRES_VISUAL_REVIEW",
+        "fetchedAtUtc": "2026-10-15T21:10:56.065345+00:00",
+        "resolvedUrl": "https://mmecoa.qpic.cn/mmecoa_jpg/QD913GwJEgAl3pEdNTo7SuxOnm84PTusVvcHgIdiaqMQJ73fXCCAtvUe9VCcmVItlpffEa8HTRt6jXdNFozxdqgxUA6CZDZWfWVaP0kHPIAE/640?wx_fmt=jpeg&from=appmsg",
+        "contentType": "image/jpeg",
+        "responseDate": "Tue, 22 Sep 2026 04:02:12 GMT",
+        "path": "/Users/dinghaolin/MyProjects/riftbound/var/qa/official-news-body-20261016/images/6c9330fc243d67af352d.source",
+        "sha256": "7d932823c6fe100bfb598c63d60375b28f148998634fdb3e0efd5e4088e490ad",
+        "bytes": 55403,
+        "dimensions": {
+          "width": 1080,
+          "height": 608,
+          "format": "JPEG",
+          "frames": 1
+        }
+      },
+      "visual": "Actual1080x608 single image read: CN exclusive RAD artwork teaser, national open Oct10 reveal.",
+      "boundedFinding": "Preview beginsSep25; official social channels summarize prior-day previews daily9am Beijing fromSep26; official card encyclopedia collects disclosed cards. One CN exclusive art promised forOct10; this article does not identify its exact printing.",
+      "remaining": [
+        "Exact exclusive-art printing/source identity and all fresh-source coverage reconciliation",
+        "Rendered DOM/CSS/script omission audit and regional current applicability",
+        "This source supplies publication-channel/schedule facts, not a whole-card/rule semantic certificate"
+      ]
+    },
+    {
+      "document": "CN-NEWS-9c06e3313fa827da",
+      "title": " 赛事手册｜第四赛季成都全国公开赛",
+      "url": "https://mp.weixin.qq.com/s/b7JJyQDftkp__JmSoTf0OA",
+      "imageOrdinal": 5,
+      "image": {
+        "url": "https://mmecoa.qpic.cn/sz_mmecoa_png/QD913GwJEgDhBDNYNibDHibcmQicaBL8rfLz3t1mydfzeLAoXBgAPiar2tL2Vic2MYnYwu6HjicKFxicxK4q0atoqjjFeFWxiasbALz4nq5oKQqVicfo/640?wx_fmt=png&from=appmsg",
+        "attemptedAtUtc": "2026-10-15T21:10:50.854566+00:00",
+        "region": "CN",
+        "language": "zh-CN",
+        "visualReview": "OPEN",
+        "semanticReview": "OPEN",
+        "status": "FETCHED_ORIGINAL_IMAGE_REQUIRES_VISUAL_REVIEW",
+        "fetchedAtUtc": "2026-10-15T21:10:52.144434+00:00",
+        "resolvedUrl": "https://mmecoa.qpic.cn/sz_mmecoa_png/QD913GwJEgDhBDNYNibDHibcmQicaBL8rfLz3t1mydfzeLAoXBgAPiar2tL2Vic2MYnYwu6HjicKFxicxK4q0atoqjjFeFWxiasbALz4nq5oKQqVicfo/640?wx_fmt=png&from=appmsg",
+        "contentType": "image/png",
+        "responseDate": "Tue, 22 Sep 2026 07:33:29 GMT",
+        "path": "/Users/dinghaolin/MyProjects/riftbound/var/qa/official-news-body-20261016/images/aacc3f04b943d7451705.source",
+        "sha256": "1cae99a8beb6b6f224a116bd1541843370b9da10e95271bacdb4e07aeab0baa0",
+        "bytes": 1254862,
+        "dimensions": {
+          "width": 1080,
+          "height": 7037,
+          "format": "PNG",
+          "frames": 1
+        }
+      },
+      "visual": "Requested original1080x7037; tool explicitly reported921x6000 display resize. Tournament table and registration text visually read; original file bytes remain unchanged.",
+      "boundedFinding": "Event Swiss BO3,60minutes including5minute sideboarding; after current turn ends,3extra turns. Undecided game uses score difference>1 versus<=1, with game1/2/3 and existing series wins handled separately. Elimination BO3 has no fixed time and5minute sideboarding.",
+      "remaining": [
+        "Remaining8images and event-wide source review",
+        "Exact event-date/older tournament/currentDOC02 supersession and time-expiry/series-consumer mapping",
+        "No inference from this event to all current matches, no replacement of normal8point victory/replay assertions"
+      ]
+    }
+  ],
+  "total36ImagesVisuallyReadAtThisPoint": 3,
+  "other33ImagesVisualReview": "OPEN",
+  "officialNewsPrior138Metadata20Candidates118UnclassifiedIdentities": "RETAINED",
+  "runtimeScopeAndAcceptedHistoriesChanged": false,
+  "wholeSourceOrCardCertified": false
+}

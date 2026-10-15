@@ -1,0 +1,147 @@
+{
+  "status": "EXPLICIT_SOURCE_ACQUISITION_DELTA_ONE_PRIOR_GAP_RECOVERED_SEMANTICS_STILL_OPEN",
+  "recordedAtUtc": "2026-10-15T22:09:21.354074+00:00",
+  "region": "CN",
+  "language": "zh-CN",
+  "applicabilityDateUnderAudit": "2026-10-16",
+  "sourceId": "CN-NEWS-19bead1944fcb5ec",
+  "title": "赛事规则上线，赛事详情全解析",
+  "publishedAsListed": "2025-08-13",
+  "effectiveDate": null,
+  "firstPublicationIndependentlyConfirmed": false,
+  "url": "https://mp.weixin.qq.com/s/RxhUnZEhtc43WyuTAYV6dA",
+  "originalAcquisitionStateRetained": "SOURCE_GAP",
+  "oldGapReason": "ARTICLE_ROOT_MISSING_ENVIRONMENT_VERIFICATION_PAGE",
+  "newAttempt": {
+    "status": "PREVIOUS_WECHAT_ACCESS_GAP_CLOSED_BY_ORDINARY_TLS_FETCH_CONTENT_REVIEW_OPEN",
+    "recordedAtUtc": "2026-10-15T22:08:28.471051+00:00",
+    "sourceAttempt": {
+      "id": "CN-NEWS-19bead1944fcb5ec",
+      "title": "赛事规则上线，赛事详情全解析",
+      "url": "https://mp.weixin.qq.com/s/RxhUnZEhtc43WyuTAYV6dA",
+      "region": "CN",
+      "language": "zh-CN",
+      "attemptedAtUtc": "2026-10-15T22:05:57.511192+00:00",
+      "completedAtUtc": "2026-10-15T22:06:00.307742+00:00",
+      "curlExit": 0,
+      "httpAndResolvedUrl": "200 https://mp.weixin.qq.com/s/RxhUnZEhtc43WyuTAYV6dA",
+      "normalTlsOnly": true,
+      "oldAttemptsAndDatesRetained": true,
+      "sourceSemanticReview": "OPEN",
+      "errorPath": "/Users/dinghaolin/MyProjects/riftbound/var/qa/official-news-body-20261016/previous-three-gaps-retry/CN-NEWS-19bead1944fcb5ec.stderr",
+      "headersPath": "/Users/dinghaolin/MyProjects/riftbound/var/qa/official-news-body-20261016/previous-three-gaps-retry/CN-NEWS-19bead1944fcb5ec.headers",
+      "rawPath": "/Users/dinghaolin/MyProjects/riftbound/var/qa/official-news-body-20261016/previous-three-gaps-retry/CN-NEWS-19bead1944fcb5ec.html",
+      "rawSha256": "8c37ac90d303363624c4eb79d0cca245c2fd6bd9025fddb0c8573dd3ce53170e",
+      "rawBytes": 3743053,
+      "articleRootFound": true,
+      "articleRootClosed": true,
+      "textCharacters": 5495,
+      "imageReferences": 11,
+      "challengeMarkers": [],
+      "staticImagePostLiteralPresent": true,
+      "status": "RAW_HTTP_SOURCE_FETCHED_CONTENT_REVIEW_REQUIRED"
+    },
+    "articleRootFound": true,
+    "articleRootClosed": true,
+    "bodyPath": "var/qa/official-news-body-20261016/previous-three-gaps-retry/CN-NEWS-19bead1944fcb5ec-actual-body.txt",
+    "bodySha256": "42f07f7bc83d64bdb1d45b41a45ffbf25d0ad62c470ff59db9aff99015752ca2",
+    "bodyCharacters": 5495,
+    "images": [
+      {
+        "url": "https://mmecoa.qpic.cn/mmecoa_gif/M9v64QVNlqKo4bLW1FAHpHdMe2V9K9e901jX8er62HRHsKrvnPIk1QRfhk7PVxxm6YibTwXfQbNIHR4icEbONLpw/640?wx_fmt=gif",
+        "data-src": "https://mmecoa.qpic.cn/mmecoa_gif/M9v64QVNlqKo4bLW1FAHpHdMe2V9K9e901jX8er62HRHsKrvnPIk1QRfhk7PVxxm6YibTwXfQbNIHR4icEbONLpw/640?wx_fmt=gif",
+        "data-w": "900",
+        "data-ratio": "0.3444444"
+      },
+      {
+        "url": "https://mmecoa.qpic.cn/mmecoa_png/M9v64QVNlqLEurcyx7pf33KiaPbknQLtiaoAdHEiczibGH2WjQdbkZkib07o8EMM6FYRefSm4gJrQ5SAHY6kC5UobwA/640?wx_fmt=png",
+        "data-src": "https://mmecoa.qpic.cn/mmecoa_png/M9v64QVNlqLEurcyx7pf33KiaPbknQLtiaoAdHEiczibGH2WjQdbkZkib07o8EMM6FYRefSm4gJrQ5SAHY6kC5UobwA/640?wx_fmt=png",
+        "data-w": "947",
+        "data-ratio": "0.4973601"
+      },
+      {
+        "url": "https://mmecoa.qpic.cn/mmecoa_jpg/M9v64QVNlqLEurcyx7pf33KiaPbknQLtia5dauhBYh7sYvJJJwpRAEQEQAFI95dq7gfOtLL9wlS8u0BO7nVf8Ehg/640?wx_fmt=jpeg",
+        "data-src": "https://mmecoa.qpic.cn/mmecoa_jpg/M9v64QVNlqLEurcyx7pf33KiaPbknQLtia5dauhBYh7sYvJJJwpRAEQEQAFI95dq7gfOtLL9wlS8u0BO7nVf8Ehg/640?wx_fmt=jpeg",
+        "data-w": "1080",
+        "data-ratio": "0.7703704"
+      },
+      {
+        "url": "https://mmecoa.qpic.cn/mmecoa_jpg/M9v64QVNlqLEurcyx7pf33KiaPbknQLtiaWJa6hKrdGNYrQywxJvmXGNVmY3Dl76S116lHTqqMt4Vs6Rh6TcuMTA/640?wx_fmt=jpeg",
+        "data-src": "https://mmecoa.qpic.cn/mmecoa_jpg/M9v64QVNlqLEurcyx7pf33KiaPbknQLtiaWJa6hKrdGNYrQywxJvmXGNVmY3Dl76S116lHTqqMt4Vs6Rh6TcuMTA/640?wx_fmt=jpeg",
+        "data-w": "1060",
+        "data-ratio": "1.0613208"
+      },
+      {
+        "url": "https://mmecoa.qpic.cn/mmecoa_png/M9v64QVNlqLEurcyx7pf33KiaPbknQLtiaK1TlAuLqfw0iapWHuF8j2sZPbH8MCdxzC0TtZY3g85Eo2NxIm0CS4iaw/640?wx_fmt=png",
+        "data-src": "https://mmecoa.qpic.cn/mmecoa_png/M9v64QVNlqLEurcyx7pf33KiaPbknQLtiaK1TlAuLqfw0iapWHuF8j2sZPbH8MCdxzC0TtZY3g85Eo2NxIm0CS4iaw/640?wx_fmt=png",
+        "data-w": "980",
+        "data-ratio": "0.4959184"
+      },
+      {
+        "url": "https://mmecoa.qpic.cn/mmecoa_png/M9v64QVNlqLEurcyx7pf33KiaPbknQLtia9wIcicRF1DufsjicrHNjo17Heur5E5SwFnEAEJLq6cqqzpWRpovLHzZw/640?wx_fmt=png",
+        "data-src": "https://mmecoa.qpic.cn/mmecoa_png/M9v64QVNlqLEurcyx7pf33KiaPbknQLtia9wIcicRF1DufsjicrHNjo17Heur5E5SwFnEAEJLq6cqqzpWRpovLHzZw/640?wx_fmt=png",
+        "data-w": "990",
+        "data-ratio": "0.5494949"
+      },
+      {
+        "url": "https://mmecoa.qpic.cn/mmecoa_png/M9v64QVNlqLEurcyx7pf33KiaPbknQLtiaKzwLYaibeaFclic7ulxttfymydjDice9giajZWKoYrib7T67nKG4rf7JTIQ/640?wx_fmt=png",
+        "data-src": "https://mmecoa.qpic.cn/mmecoa_png/M9v64QVNlqLEurcyx7pf33KiaPbknQLtiaKzwLYaibeaFclic7ulxttfymydjDice9giajZWKoYrib7T67nKG4rf7JTIQ/640?wx_fmt=png",
+        "data-w": "979",
+        "data-ratio": "0.494382"
+      },
+      {
+        "url": "https://mmecoa.qpic.cn/mmecoa_png/M9v64QVNlqLEurcyx7pf33KiaPbknQLtia5j1H5JJwAFedYDE2pP0RAqicPx85PVBdvRNCHXwZ8Gqrgjh9DowLb9w/640?wx_fmt=png",
+        "data-src": "https://mmecoa.qpic.cn/mmecoa_png/M9v64QVNlqLEurcyx7pf33KiaPbknQLtia5j1H5JJwAFedYDE2pP0RAqicPx85PVBdvRNCHXwZ8Gqrgjh9DowLb9w/640?wx_fmt=png",
+        "data-w": "1080",
+        "data-ratio": "0.5324074"
+      },
+      {
+        "url": "https://mmecoa.qpic.cn/mmecoa_png/M9v64QVNlqLEurcyx7pf33KiaPbknQLtiaVKR1km5CRTWDf7HF7VWGhoYoxicOAQ9OjTs5wnSY98wlgMPlSpI0NYQ/640?wx_fmt=png",
+        "data-src": "https://mmecoa.qpic.cn/mmecoa_png/M9v64QVNlqLEurcyx7pf33KiaPbknQLtiaVKR1km5CRTWDf7HF7VWGhoYoxicOAQ9OjTs5wnSY98wlgMPlSpI0NYQ/640?wx_fmt=png",
+        "data-w": "963",
+        "data-ratio": "0.4963655"
+      },
+      {
+        "url": "https://mmecoa.qpic.cn/mmecoa_png/M9v64QVNlqLEurcyx7pf33KiaPbknQLtiaDkO8AlxtUMh5zGGupkWgia5rPmQz9Ytfflbd0G8D3UpUazeyFbGCCgg/640?wx_fmt=png",
+        "data-src": "https://mmecoa.qpic.cn/mmecoa_png/M9v64QVNlqLEurcyx7pf33KiaPbknQLtiaDkO8AlxtUMh5zGGupkWgia5rPmQz9Ytfflbd0G8D3UpUazeyFbGCCgg/640?wx_fmt=png",
+        "data-w": "977",
+        "data-ratio": "0.4974411"
+      },
+      {
+        "url": "https://mmecoa.qpic.cn/mmecoa_gif/M9v64QVNlqKo4bLW1FAHpHdMe2V9K9e9vHjoxVG1UpZpqTWuQibPxcaVK69C3MOp9ialZiavG5jxzcs5wgiajPsnSw/640?wx_fmt=gif",
+        "data-src": "https://mmecoa.qpic.cn/mmecoa_gif/M9v64QVNlqKo4bLW1FAHpHdMe2V9K9e9vHjoxVG1UpZpqTWuQibPxcaVK69C3MOp9ialZiavG5jxzcs5wgiajPsnSw/640?wx_fmt=gif",
+        "data-w": "1080",
+        "data-ratio": "0.3444444"
+      }
+    ],
+    "links": [],
+    "allSourceSemanticImageMediaAndCurrentApplicability": "OPEN",
+    "originalChallengeAndGapReceiptsRetained": true,
+    "noCaptchaOrTlsBypass": true
+  },
+  "newBodyTextCharacters": 5495,
+  "newImageReferences": 11,
+  "scopeObservation": "Article describes the initial CN organized-play system and explicitly points CN-specific information/rules to the official mini-program. Historical publication/current supersession and all11images still require review; acquisition today does not make historical claims current.",
+  "currentAccessGaps": [
+    {
+      "id": "CN-NEWS-92d3cd4106bc1173",
+      "url": "https://lol.playloltcg.com/rules/rules_1026.html",
+      "state": "NORMAL_TLS_CURL_EXIT35_NO_SOURCE_BYTES"
+    },
+    {
+      "id": "CN-NEWS-baf84eaf1a3284a3",
+      "url": "https://lol.playloltcg.com/rules/game-rules.html",
+      "state": "NORMAL_TLS_CURL_EXIT35_NO_SOURCE_BYTES"
+    },
+    {
+      "id": "CN-NEWS-e27c9267fb11ea99",
+      "url": "/subPackages/marketing/T1-giftbox-activity",
+      "state": "MINIAPP_INTERNAL_ROUTE_NOT_HTTP_ARTICLE_UNRESOLVED"
+    }
+  ],
+  "independentFaqAtRulesHubAlias": "SEPARATE_OPEN_RECONCILIATION_NOT_COUNTED_AS_RETRIEVED_FAQ",
+  "priorAll118IndexPreviousThreeGapsField": "Earlier point-in-time receipt retained unchanged; this explicit later delta supersedes only the recovered access state.",
+  "allOriginalSourceIdsAndDatesRetained": true,
+  "runtimeCatalogRuleInputScopeOrAcceptedHistoryChanged": false,
+  "wholeSourceOrCardSemanticCertification": false
+}

@@ -44,7 +44,7 @@
       "primaryCoreId": "DOC-01",
       "adoptedSources": 26,
       "qaEntries": 1504,
-      "status": "CURRENT_SOURCE_VERSION_DECLARED_BOUNDED_FOCUS_SQL_CHECK_PASS_FIXED_FULL_PRODUCT_OPEN",
+      "status": "CURRENT_CN16_DECLARED_FIXED72_FULL_PASS_CURRENT_VISIBLE_PRODUCT_OPEN",
       "newFixedFullAndCurrentSourceProduct": "OPEN",
       "oldDevelopmentMatchesMigrated": false,
       "sourceManifest": {
@@ -9090,8 +9090,14 @@
         "path": "docs/evidence/cn16-play-origin-2026-10-16/sql.json",
         "sha256": "5232c86d758a710b213494740c4a312df4b779a7a0bdbfa39cd353b62faf1d31"
       },
-      "fixedCommitCi": "PENDING",
-      "productAcceptance": "OPEN",
+      "fixedCommitCi": {
+        "state": "FIXED72_FULL_SUCCESS_AND_ARTIFACT_PARITY_VERIFIED",
+        "evidence": {
+          "path": "docs/evidence/news-body-source-observation-2026-10-16/full-ci-72f8bdc2.json",
+          "sha256": "36852492820f208ae0f611ce00ca95328f042c79a02b47a98949768342230fd8"
+        }
+      },
+      "productAcceptance": "OPEN_NATIVE_TOOL_REPORTED_MAC_LOCKED",
       "remainingConsumers": {
         "path": "docs/evidence/cn16-play-origin-2026-10-16/hand-origin-consumer-inventory.json",
         "sha256": "11c3ebc43d998f722e8444b16c893f59b4facaee70405f18b718c5e98a7bccbe"
@@ -9100,6 +9106,169 @@
         "path": "docs/evidence/cn16-play-origin-2026-10-16/check-result.json",
         "sha256": "69ddb115af91c465337ea58ba82cdd9edad0ee0c36d32e0af100aada60b33167"
       }
+    },
+    {
+      "id": "CN_NEWS_SEALED_EVENT_AND_UNCLASSIFIED_IMAGE_SOURCE_SCOPE_2026_10_16",
+      "state": "OPEN",
+      "requirement": "Review all138 original metadata identities,130 acquired article roots,4 static image posts and all associated IMG/CSS/SVG/animated/video surfaces. Keep2 historic TLS failures,1miniapp internal route and historical standaloneQA content gap explicit. Reconcile CN event exact25/promo-pool constraints with current regional tournament sources and new global event article; map exact applicable clauses/printings to finite shared consumers. All original118 classification obligations remain; no RAD standard activation or whole-source certification from acquisition.",
+      "sourceObservation": {
+        "path": "docs/evidence/news-body-source-observation-2026-10-16/source-observation.json",
+        "sha256": "df2eb91581fca50affe08470ceb8b7df26d6d4f2ab792f252a6aed6470e87db9"
+      },
+      "semanticReview": "SCOPED_POSTER_ONLY_OTHER_TEXT_IMAGE_AND_APPLICABILITY_OPEN",
+      "implementation": "NO_RUNTIME_SOURCE_OR_GAMEPLAY_CHANGE",
+      "tests": "NOT_A_NEW_BEHAVIOR_CERTIFICATION",
+      "fixedCommitCi": "PENDING_RELEVANT_IMPLEMENTATION_AND_SOURCE_DISPOSITION",
+      "productAcceptance": "OPEN",
+      "additionalVisualEvidence": {
+        "path": "docs/evidence/news-body-source-observation-2026-10-16/additional-visual-review.json",
+        "sha256": "81cf0724ebaac3afc9eae4999f8df18b98b14b57523c2c4b8108b8e18564584c"
+      },
+      "currentDoc02DateAndConflictEvidence": {
+        "path": "docs/evidence/news-body-source-observation-2026-10-16/current-doc02-date-and-format-reconciliation.json",
+        "sha256": "6283bf8e22fbe3766b8a0738288da4c71deb380ef0aaa33c83539fe1c3cf53fb"
+      },
+      "radReleaseDateSourceFact": "CONFIRMED_CN_DOC02_601_3_C_6_A_2026_10_23_WITH_REPRINT_MODE_CONDITIONS_OPEN",
+      "eventMinimumVsExact25Conflict": "OPEN_NO_RUNTIME_OVERRIDE",
+      "all118BodyAcquisition": {
+        "path": "docs/evidence/news-body-source-observation-2026-10-16/all-118-new-body-acquisition-index.json",
+        "sha256": "0f79979b6be6c2e6c2528497393424ea9ac1a7742cbb94cd2eb40645c2b1b627"
+      },
+      "unclassifiedContentAfterAcquisition": "Original118 semantic identities retained;113 article roots+4 image-posts acquired,1miniapp route gap; prior19bead access later recovered;2oldTLS pages and historical independentQA remain OPEN.",
+      "laterAccessRecoveryDelta": {
+        "path": "docs/evidence/news-body-source-observation-2026-10-16/recovered-historical-source-access-delta.json",
+        "sha256": "67e596b95eca01bca81cd053c20a7ca05515c59079a2650dd1d37edf757a4369"
+      },
+      "currentAccessGaps": "2 standardTLS webpage failures +1 miniapp internal route; historical19bead article ordinary fetch recovered, all semantics/media/supersession stillOPEN; separateFAQhub alias stillOPEN.",
+      "all118OriginalRawAttempts": {
+        "path": "docs/evidence/news-body-source-observation-2026-10-16/all-118-article-archive-index.json",
+        "sha256": "01094e73ebbc81fc12f4bf85d2e81249c01088c1cad32a8c959eec6d2f1ec7d1"
+      },
+      "allKnownImgAcquisition": {
+        "path": "docs/evidence/news-body-source-observation-2026-10-16/all-known-news-img-acquisition.json",
+        "sha256": "3c36c08b4c97277409cb28476847074f0ef705f8961097c680b0a5b9c77aab8a"
+      },
+      "currentRulesHubAliasMapping": {
+        "path": "docs/evidence/news-body-source-observation-2026-10-16/cn-rules-hub-alias-reconciliation.json",
+        "sha256": "c03db08471721a3582ecae127ee89f517d40fbf51be790d85bc9fdf7d8139027"
+      },
+      "additionalReminderVisualReview": {
+        "path": "docs/evidence/news-body-source-observation-2026-10-16/chengdu-prereminder-five-image-review.json",
+        "sha256": "64bcf2336638bf186f1d3323b8e3d04c2355fca57867e773b01cdf86126ed68b"
+      },
+      "fourStaticImagePostReviews": {
+        "path": "docs/evidence/news-body-source-observation-2026-10-16/four-static-image-posts-scoped-review.json",
+        "sha256": "a7dfee4d32b6dc5786c22a45b498f5826c50ab5a151936ccb636abb464e9f54b"
+      },
+      "allKnownImgState": "1031refs/986unique source bytes;65animations/allframes and remaining visual/SVG/CSS/video/dynamic/current applicability OPEN",
+      "staticTransitiveMediaInventory": {
+        "path": "docs/evidence/news-body-source-observation-2026-10-16/static-transitive-media-inventory.json",
+        "sha256": "577a436736ee85d8375edb9103116e5c4a55ba29c2b9b4469b9187b3b75c89ab"
+      },
+      "all130StaticTransitiveMediaInventory": {
+        "path": "docs/evidence/news-body-source-observation-2026-10-16/all-130-article-transitive-media-inventory.json",
+        "sha256": "ded540275dc646a216904ddbf74534f50e507db2cf3518aef221943e55595558"
+      },
+      "prior43ImgAndStaticCssAcquisition": {
+        "path": "docs/evidence/news-body-source-observation-2026-10-16/additional-prior-img-and-css-acquisition.json",
+        "sha256": "a9d1921e3df00e637c07eef617cfc93af91ab8424a79253b1f40b3c9069e525f"
+      },
+      "sourceEvidenceIntegrity": {
+        "path": "docs/evidence/news-body-source-observation-2026-10-16/source-evidence-integrity.json",
+        "sha256": "fbd1e6e0a03e83300f822fc79fac9dbd0ca691da947a181ff68298438495a21c"
+      },
+      "batchCheck": {
+        "path": "docs/evidence/news-body-source-observation-2026-10-16/batch-check-result.json",
+        "sha256": "f496b55dacfda44c31feea2b6d7a0cf71e60e67b6ceb63b16d3ee7125c1d7648"
+      }
+    },
+    {
+      "id": "GLOBAL-PRERIFT-RADIANCE-20261012-QA01",
+      "state": "OPEN",
+      "requirement": "Reconcile this exact official FAQ source version and visually read EN printings with regional applicability, current errata, shared consumers and independent implementation/test/fixed-CI/product evidence; bounded source fact does not certify the whole printing.",
+      "source": {
+        "path": "docs/evidence/news-body-source-observation-2026-10-16/global-prerift-source-delta.json",
+        "sha256": "7e90a96206d941cacb0299e5e62412b0bcf56ae3cba02641f3a4d580e46aa100"
+      },
+      "sourceFaqIdentity": "GLOBAL-PRERIFT-RADIANCE-20261012-QA01",
+      "exactPrintingLedgerIds": [
+        "RAD-147/167",
+        "RAD-088/167"
+      ],
+      "semanticReview": "SCOPED_SOURCE_FACT_ONLY",
+      "implementation": "NOT_CERTIFIED",
+      "tests": "OPEN",
+      "fixedCommitCi": "NO_NEW_IMPLEMENTATION_CLAIM",
+      "productAcceptance": "OPEN"
+    },
+    {
+      "id": "GLOBAL-PRERIFT-RADIANCE-20261012-QA02",
+      "state": "OPEN",
+      "requirement": "Reconcile this exact official FAQ source version and visually read EN printings with regional applicability, current errata, shared consumers and independent implementation/test/fixed-CI/product evidence; bounded source fact does not certify the whole printing.",
+      "source": {
+        "path": "docs/evidence/news-body-source-observation-2026-10-16/global-prerift-source-delta.json",
+        "sha256": "7e90a96206d941cacb0299e5e62412b0bcf56ae3cba02641f3a4d580e46aa100"
+      },
+      "sourceFaqIdentity": "GLOBAL-PRERIFT-RADIANCE-20261012-QA02",
+      "exactPrintingLedgerIds": [
+        "RAD-167/167"
+      ],
+      "semanticReview": "SCOPED_SOURCE_FACT_ONLY",
+      "implementation": "NOT_CERTIFIED",
+      "tests": "OPEN",
+      "fixedCommitCi": "NO_NEW_IMPLEMENTATION_CLAIM",
+      "productAcceptance": "OPEN"
+    },
+    {
+      "id": "GLOBAL-PRERIFT-RADIANCE-20261012-QA03",
+      "state": "OPEN",
+      "requirement": "Reconcile this exact official FAQ source version and visually read EN printings with regional applicability, current errata, shared consumers and independent implementation/test/fixed-CI/product evidence; bounded source fact does not certify the whole printing.",
+      "source": {
+        "path": "docs/evidence/news-body-source-observation-2026-10-16/global-prerift-source-delta.json",
+        "sha256": "7e90a96206d941cacb0299e5e62412b0bcf56ae3cba02641f3a4d580e46aa100"
+      },
+      "sourceFaqIdentity": "GLOBAL-PRERIFT-RADIANCE-20261012-QA03",
+      "exactPrintingLedgerIds": [
+        "RAD-152/167"
+      ],
+      "semanticReview": "SCOPED_SOURCE_FACT_ONLY",
+      "implementation": "NOT_CERTIFIED",
+      "tests": "OPEN",
+      "fixedCommitCi": "NO_NEW_IMPLEMENTATION_CLAIM",
+      "productAcceptance": "OPEN"
+    },
+    {
+      "id": "GLOBAL-PRERIFT-RADIANCE-20261012-QA04",
+      "state": "OPEN",
+      "requirement": "Reconcile this exact official FAQ source version and visually read EN printings with regional applicability, current errata, shared consumers and independent implementation/test/fixed-CI/product evidence; bounded source fact does not certify the whole printing.",
+      "source": {
+        "path": "docs/evidence/news-body-source-observation-2026-10-16/global-prerift-source-delta.json",
+        "sha256": "7e90a96206d941cacb0299e5e62412b0bcf56ae3cba02641f3a4d580e46aa100"
+      },
+      "sourceFaqIdentity": "GLOBAL-PRERIFT-RADIANCE-20261012-QA04",
+      "exactPrintingLedgerIds": [
+        "RAD-150/167",
+        "RAD-145/167"
+      ],
+      "semanticReview": "SCOPED_SOURCE_FACT_ONLY",
+      "implementation": "NOT_CERTIFIED",
+      "tests": "OPEN",
+      "fixedCommitCi": "NO_NEW_IMPLEMENTATION_CLAIM",
+      "productAcceptance": "OPEN"
+    },
+    {
+      "id": "GLOBAL_PRERIFT_20261012_SOURCE_SCOPE_AND_CN_EVENT_PRECEDENCE",
+      "state": "OPEN",
+      "requirement": "Keep prior20 global sources and explicitly add this21st event article; reconcile sealed25 minimum versus CN exact25 and excluded versus included Heimer promo pool, all14 images and current regional/event/card applicability. Do not activate RAD standard from prerelease evidence.",
+      "source": {
+        "path": "docs/evidence/news-body-source-observation-2026-10-16/global-prerift-source-delta.json",
+        "sha256": "7e90a96206d941cacb0299e5e62412b0bcf56ae3cba02641f3a4d580e46aa100"
+      },
+      "semanticReview": "SCOPED4_FAQ_IMAGES_AND_FACTS_ONLY_REST_OPEN",
+      "implementation": "NO_RUNTIME_CHANGE",
+      "tests": "NO_BEHAVIOR_CERTIFICATION",
+      "fixedCommitCi": "SEPARATE_FIXED72_RECEIPT_DOES_NOT_COVER_NEW_SOURCE_SEMANTICS",
+      "productAcceptance": "OPEN"
     }
   ],
   "note": "Current inventory and remaining obligations, with independently dated rule sources and separately recorded source deltas. No source fetch or semantic certification by this checker.",

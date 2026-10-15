@@ -1,0 +1,382 @@
+{
+  "status": "EXACT_CURRENT_CN_SOURCE_DATE_CONFIRMED_OTHER_LEGALITY_AND_EVENT_CONFLICTS_OPEN",
+  "reviewedAtUtc": "2026-10-15T21:47:51.279905+00:00",
+  "region": "CN",
+  "language": "zh-CN",
+  "applicabilityDateUnderAudit": "2026-10-16",
+  "sourceDocument": {
+    "id": "DOC-02",
+    "url": "https://cdn.playloltcg.com/lol/2026/10/2026-10-10/0d5c26b5535345d48e1afafb3e2a0018.pdf",
+    "sha256": "4d50574d355d57ba4de766243717320a9471951976e230bb9f91b78ab1dde74d",
+    "fetchedAtUtc": "2026-10-15T19:13:02.187862+00:00",
+    "versionDateAsListed": "2026-10-10",
+    "scheduledEffectiveDateFromOriginalListing": "2026-10-16",
+    "effectiveHour": null,
+    "firstPublicationIndependentlyConfirmed": null
+  },
+  "boundedConfirmedFact": {
+    "radReleaseDate": "2026-10-23",
+    "sourceClause": "601.3.c.6.a",
+    "sourceRecord": "DOC-02-P022-B010",
+    "directlyPrintedYearMonthDay": true,
+    "wholeSetOrPrintingSemanticCertification": false
+  },
+  "formatAndPrintingConditions": {
+    "constructedMainDeck": "601.1.b exactly40; not a sealed-deck size rule",
+    "regionalDates": "601.2.b explicitly ties regional card legality to official product release dates",
+    "sameNameAndOutOfRangeReprints": "601.2.a/c require independent name/set/collector-number review; release date alone does not certify or uniformly exclude all236RAD printings",
+    "lowTierUnmodifiedPreconBanException": "601.2.d.2 permits exact unchanged official precons in low-tier events; modifications or sideboard remove the exception. Current product-level/mode consumer mapping remains OPEN.",
+    "limitedPoolPromo": "602.1.a.1.a says some supplied promos may be declared outside the legal pool; the event poster explicitly includes its Heimerdinger promo, exact printing binding remains OPEN.",
+    "blankBattlefieldAndCopyRules": "602.3.d and602.4.a.6/6.a define blank fields and unlimited pool-based same-name copies/noSole usage; no current implementation certification"
+  },
+  "conflicts": [
+    {
+      "id": "SEALED_MINIMUM25_VS_EVENT_EXACT25",
+      "normativeSourceRecord": "DOC-02-P023-B019",
+      "normativeObservation": "At least25, and more than25 is allowed.",
+      "eventSource": "CN-NEWS-aa0f91460ccc801c image1",
+      "eventObservation": "Poster requires exactly25.",
+      "disposition": "OPEN_AUTHORIZED_EVENT_VARIATION_OR_OLDER_GUIDE_OR_SOURCE_INCONSISTENCY_REQUIRES_CONFIRMATION",
+      "noGeneralExact25OverrideApplied": true
+    },
+    {
+      "id": "SEALED_POOL_SIX_BOOSTERS_VS_PRERELEASE_KIT",
+      "normativeSourceRecord": "DOC-02-P023-B018",
+      "normativeObservation": "Six unopened boosters.",
+      "eventObservation": "One mini-precon+five advanced boosters+explicitly included promo.",
+      "disposition": "OPEN_EVENT_SPECIFIC_PRODUCT_POOL_RECONCILIATION"
+    }
+  ],
+  "exactCorpusRecords": [
+    {
+      "id": "DOC-02-P021-B004",
+      "document": "DOC-02",
+      "page": 21,
+      "clauseAnchors": [
+        "601.1.b"
+      ],
+      "text": "601.1.b.                比赛中,玩家的主牌堆必须包含 40 张卡牌,且仅包含 40 张卡牌。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-02-P021-B013",
+      "document": "DOC-02",
+      "page": 21,
+      "clauseAnchors": [
+        "601.2.a"
+      ],
+      "text": "601.2.a.                只有当卡牌出自该赛制允许使用的系列,或是它与某张出自该系列的卡牌同名时,才能将其\n                        纳入卡组。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-02-P021-B014",
+      "document": "DOC-02",
+      "page": 21,
+      "clauseAnchors": [
+        "601.2.b"
+      ],
+      "text": "601.2.b.                系列达到平衡前,各地区举办赛事时,将根据官方产品的发布日期各自执行对卡牌合法性的\n                        限制。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-02-P021-B015",
+      "document": "DOC-02",
+      "page": 21,
+      "clauseAnchors": [
+        "601.2.c"
+      ],
+      "text": "601.2.c.                如果现有卡牌在新系列中进行了重印,但其收藏编号并不属于该新系列的常规编号,则不会\n                        影响卡牌在正式比赛中的合法性。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-02-P021-B016",
+      "document": "DOC-02",
+      "page": 21,
+      "clauseAnchors": [
+        "601.2.c.1"
+      ],
+      "text": "601.2.c.1.                   举例:收藏编号为 300/250 的卡牌,将不会自动视为在该系列标准赛制中拥有合法\n                             性。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-02-P021-B019",
+      "document": "DOC-02",
+      "page": 21,
+      "clauseAnchors": [
+        "601.2.d.2"
+      ],
+      "text": "601.2.d.2.                   在低级别赛事中,如果玩家使用的是与《符文战场》预组卡组完全相同的卡组配\n                             置,则可使用禁卡表上的卡牌。举例:",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-02-P021-B020",
+      "document": "DOC-02",
+      "page": 21,
+      "clauseAnchors": [
+        "601.2.d.2.a"
+      ],
+      "text": "601.2.d.2.a.                     在“符文之夜”中,如果玩家使用的卡组与金克丝英雄预组的内容完全一\n                                 致,则可使用该卡组中的禁卡,例如“战或逃”、“废料堆”和“劫掠船巷”。如\n                                 果该玩家进行任何更改或添加备牌,就必须移除禁卡。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-02-P022-B009",
+      "document": "DOC-02",
+      "page": 22,
+      "clauseAnchors": [
+        "601.3.c.6"
+      ],
+      "text": "601.3.c.6.                     “辉耀群星”系列(RAD)",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-02-P022-B010",
+      "document": "DOC-02",
+      "page": 22,
+      "clauseAnchors": [
+        "601.3.c.6.a"
+      ],
+      "text": "601.3.c.6.a.                        发售日期:2026 年 10 月 23 日",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-02-P022-B015",
+      "document": "DOC-02",
+      "page": 22,
+      "clauseAnchors": [
+        "602.1.a.1.a"
+      ],
+      "text": "602.1.a.1.a.                        在某些限制赛中,玩家可能会获得额外的推广卡,主裁判会说明这些卡牌\n                                    不属于该玩家的限制卡池,且不得在该赛事中使用。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-02-P023-B003",
+      "document": "DOC-02",
+      "page": 23,
+      "clauseAnchors": [
+        "602.3.d"
+      ],
+      "text": "602.3.d.             限制赛卡组可以使用来自玩家获发卡池的战场牌,或任意数量的“空白”战场牌。玩家可以选\n                     择使用“空白”战场牌来代替他们在获发卡池中所得的战场牌。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-02-P023-B004",
+      "document": "DOC-02",
+      "page": 23,
+      "clauseAnchors": [
+        "602.3.d.1"
+      ],
+      "text": "602.3.d.1.                 “空白”战场牌的功能相当于没有任何规则文本的战场牌。除此之外,它们须遵守核\n                           心规则中定义的所有其他常规战场规则。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-02-P023-B010",
+      "document": "DOC-02",
+      "page": 23,
+      "clauseAnchors": [
+        "602.3.e.3"
+      ],
+      "text": "602.3.e.3.                 在“单局制”比赛中,玩家必须登记三个战场(含玩家要使用的任意“空白”战场牌),\n                           以便在对局开始流程中进行随机抽选。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-02-P023-B011",
+      "document": "DOC-02",
+      "page": 23,
+      "clauseAnchors": [
+        "602.3.e.4"
+      ],
+      "text": "602.3.e.4.                 在“三局两胜”比赛中,玩家可于对局开始流程期间,自主选择其卡池中的任意战场\n                           牌或“空白”战场牌进行使用。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-02-P023-B018",
+      "document": "DOC-02",
+      "page": 23,
+      "clauseAnchors": [
+        "602.4.a.1"
+      ],
+      "text": "602.4.a.1.                 现开赛是一种限制赛,每名玩家会获得 6 个未开封的《符文战场》补充包,开封后\n                           可将其中卡牌用于构筑自己的卡组。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-02-P023-B019",
+      "document": "DOC-02",
+      "page": 23,
+      "clauseAnchors": [
+        "602.4.a.2"
+      ],
+      "text": "602.4.a.2.                 现开卡组的主牌堆卡牌数不得低于 25 张,但可以超过该张数。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-02-P023-B020",
+      "document": "DOC-02",
+      "page": 23,
+      "clauseAnchors": [
+        "602.4.a.3"
+      ],
+      "text": "602.4.a.3.                 现开卡组的符文特性由任意三种符文特性组成,也可以是任一特性外加卡组传奇卡\n                           牌的特性。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-02-P024-B001",
+      "document": "DOC-02",
+      "page": 24,
+      "clauseAnchors": [
+        "602.4.a.3.a"
+      ],
+      "text": "602.4.a.3.a.         现开卡组可以将任何符合其符文特性的英雄单位作为选定英雄,即使该英\n                     雄单位并不具有与传奇卡牌相符的英雄标签(如果该传奇卡牌拥有标\n                     签)。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-02-P024-B002",
+      "document": "DOC-02",
+      "page": 24,
+      "clauseAnchors": [
+        "602.4.a.3.b"
+      ],
+      "text": "602.4.a.3.b.         现开卡组中可以包含完全符合其符文特性的任意专属法术,即使卡组不包\n                     含对应的英雄也不造成影响。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-02-P024-B004",
+      "document": "DOC-02",
+      "page": 24,
+      "clauseAnchors": [
+        "602.4.a.4"
+      ],
+      "text": "602.4.a.4.       玩家只可将符合其现开卡组符文特性的符文(来源不限)纳入其符文牌堆。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-02-P024-B005",
+      "document": "DOC-02",
+      "page": 24,
+      "clauseAnchors": [
+        "602.4.a.5"
+      ],
+      "text": "602.4.a.5.       即使不包含传奇卡牌或选定英雄,现开卡组依旧视为合法。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-02-P024-B007",
+      "document": "DOC-02",
+      "page": 24,
+      "clauseAnchors": [
+        "602.4.a.5.b"
+      ],
+      "text": "602.4.a.5.b.         如果玩家的卡组中缺少传奇卡牌和/或选定英雄,则该玩家在每局游戏的首\n                     个回合开始阶段抽一张牌。(即使两者皆缺少,依旧只抽一张牌。)",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-02-P024-B008",
+      "document": "DOC-02",
+      "page": 24,
+      "clauseAnchors": [
+        "602.4.a.6"
+      ],
+      "text": "602.4.a.6.       对同名卡牌或专属卡牌的常规数量限制不适用于现开卡组。例如,如果玩家在获发\n                 卡池中收到了 10 张“呸呸魄罗”,则可以选择在主牌堆中使用全部 10 张。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-02-P024-B009",
+      "document": "DOC-02",
+      "page": 24,
+      "clauseAnchors": [
+        "602.4.a.6.a"
+      ],
+      "text": "602.4.a.6.a.         “唯我”关键词不适用于现开赛。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    }
+  ],
+  "visualPages": [
+    {
+      "physicalPage": 21,
+      "path": "docs/evidence/news-body-source-observation-2026-10-16/DOC-02-p21.png",
+      "sha256": "4dde4deaf083014ed59cf3b9a4432501349455dca18cc1f20e04a3984741553a",
+      "render": "Poppler26.03.0 scale-to1700; actual complete page visually read"
+    },
+    {
+      "physicalPage": 22,
+      "path": "docs/evidence/news-body-source-observation-2026-10-16/DOC-02-p22.png",
+      "sha256": "3adc4155a2dedd7a977a1923a8b24846fe67862ffff0aea764eabe2c7684f046",
+      "render": "Poppler26.03.0 scale-to1700; actual complete page visually read"
+    },
+    {
+      "physicalPage": 23,
+      "path": "docs/evidence/news-body-source-observation-2026-10-16/DOC-02-p23.png",
+      "sha256": "ff1654abcc7141a185a4fa13d22e62ae7058bf993b09b1d29f4c8e3e456f782d",
+      "render": "Poppler26.03.0 scale-to1700; actual complete page visually read"
+    },
+    {
+      "physicalPage": 24,
+      "path": "docs/evidence/news-body-source-observation-2026-10-16/DOC-02-p24.png",
+      "sha256": "4d9b3ee7186782aa38ee8c313fd9e49b0bb25e4b3a0932c8e265295d4978fcc5",
+      "render": "Poppler26.03.0 scale-to1700; actual complete page visually read"
+    }
+  ],
+  "embeddedBanlistTarget": "https://riftbound.leagueoflegends.com/en-us/rules-hub/",
+  "embeddedBanlistTargetRegionAndCurrentCnPrecedence": "OPEN_REFERENCES_GLOBAL_HUB_NOT_ITSELF_A_NEW_CN_BANLIST",
+  "observedCurrentImplementationFormats": {
+    "source": "src/Riftbound.Engine/OfficialDeckFormat.cs",
+    "sourceSha256": "5fd4506e2204a27b44a06af5eb86711146097e357b610634a4ffad897c84f36f",
+    "enumMembers": [
+      "CoreRules",
+      "ChinaStandard20260724"
+    ],
+    "namedSealedModePresent": false,
+    "existingStandard40ValidationUnchanged": true
+  },
+  "originalAllSourceUniverseAndUnknownPrintingsRetained": true,
+  "runtimeScopeCatalogOrAcceptedHistoriesChanged": false,
+  "currentFixedNativeCandidate": "72f8bdc2e0318938fe323ba66462a323aa02ec8c",
+  "allOtherCardClauseImplementationTestCiProductObligations": "OPEN"
+}
