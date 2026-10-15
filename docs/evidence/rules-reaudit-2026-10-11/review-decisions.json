@@ -20091,6 +20091,67 @@
         "Same fixed candidate visible paired SQL/network/normal score/full replay and Windows real runtime"
       ],
       "wholeCardCertification": false
+    },
+    {
+      "id": "porobot-source-play-other-equipment-conditional-draw-2026-10-15",
+      "status": "SCOPED_SOURCE_PLAY_CONDITIONAL_DRAW_PRODUCT_AND_FULL_OPEN",
+      "scope": "CN VEN·058 real exhausted unit/equipment play; count three other controlled public-field equipment at play, capture independent draw, retain after source return or counted Gold consumption. Actual later Image copy does not retroactively trigger entry. Shared category-array validation is bounded to known consistent categories.",
+      "subjects": [
+        "VEN-058",
+        "UNL-200/219"
+      ],
+      "ruleRecords": [
+        "DOC-04-P024-B012",
+        "DOC-04-P024-B014",
+        "DOC-04-P024-B015",
+        "DOC-04-P024-B017",
+        "DOC-04-P024-B018",
+        "DOC-04-P024-B019",
+        "DOC-04-P024-B020",
+        "DOC-04-P059-B003",
+        "DOC-04-P059-B004",
+        "DOC-04-P059-B007",
+        "DOC-04-P059-B010",
+        "DOC-04-P071-B014",
+        "DOC-06-P012-B004"
+      ],
+      "auditDocument": "docs/POROBOT_CONDITIONAL_DRAW_AUDIT_2026-10-15.md",
+      "evidence": "docs/evidence/porobot-2026-10-15",
+      "semanticReview": {
+        "state": "SCOPED",
+        "wholeCardCertified": false,
+        "region": "CN",
+        "language": "zh-CN",
+        "applicableAsOf": "2026-10-15",
+        "source": "docs/evidence/porobot-2026-10-15/source-refresh-continued.json"
+      },
+      "testExecution": {
+        "status": "SINGLE_CHECK_TWO_COUNT_FAILURES_RETAINED_65_CORRECTION_FOCUS_PASS_FIXED_FULL_PENDING",
+        "newMethods": 10,
+        "newCases": 30,
+        "receipt": "docs/evidence/porobot-2026-10-15/focus.json",
+        "batchCheck": "docs/evidence/porobot-2026-10-15/check-result.json"
+      },
+      "implementation": [
+        "src/Riftbound.Engine/CoreRuleEngine.SourcePlayDraw.cs",
+        "src/Riftbound.Engine/CoreRuleEngine.UnitEntryTriggers.cs",
+        "src/Riftbound.Engine/CoreRuleEngine.cs",
+        "src/Riftbound.Engine/CoreRuleEngine.PermanentConfirmation.cs",
+        "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+        "src/Riftbound.Engine/MatchSession.cs",
+        "src/Riftbound.Engine/MatchRecovery.cs",
+        "src/Riftbound.CardCatalog/RuleTextParsers.cs",
+        "src/Riftbound.CardCatalog/OfficialCardSchemaValidator.cs",
+        "src/Riftbound.Contracts/BehaviorSpecs.cs"
+      ],
+      "remaining": [
+        "Both Swain printings and conquest history query/scoring remain OPEN",
+        "Other copied/attached rule-text instances, entry producers and whole-card behavior remain separately unaudited",
+        "Whole-history causal deletion/replacement/controller forgery beyond structural witnesses remains OPEN",
+        "Current fixed full CI and same-candidate visible paired SQL/network/normal score/full replay remain OPEN",
+        "Independent Windows real runtime and every other full-universe obligation remain OPEN"
+      ],
+      "wholeCardCertification": false
     }
   ]
 }

@@ -18,13 +18,13 @@
     "productPlayers": 2
   },
   "cardCoverageManifest": {
-    "path": "docs/evidence/rules-reaudit-2026-10-14/source-refresh-20261013T164814Z/source-coverage.json",
-    "sha256": "7d2b5a1b4656daca394ff9ed4d2c13464572e3d25574cda610383f7ab61ca097"
+    "path": "docs/evidence/porobot-2026-10-15/source-coverage.json",
+    "sha256": "f5aa9ed421740174410b0b5bc256be8ebe447eff2a0dd8df4aaaf88bd1083c59"
   },
   "inputs": {
     "cards": {
-      "path": "docs/evidence/rules-reaudit-2026-10-14/source-refresh-20261013T164814Z/all-card-ledger.json",
-      "sha256": "501f4635f66afcf5b4a922bc3c56e11686bcee49ea9dd4e47cd02de9005b34e6"
+      "path": "docs/evidence/porobot-2026-10-15/all-card-ledger.json",
+      "sha256": "0a24088863ea19d00c9543e2651fb8782cca43b20115422a2bb95dc49ab7a7fd"
     },
     "cn": {
       "path": "data/official/upstream/2026-10-14/source-refresh-20261013T164814Z/card-catalog.zh-CN.json",
@@ -54,15 +54,15 @@
     },
     "active": {
       "path": "data/official/card-catalog.zh-CN.json",
-      "sha256": "bb23aba67c233762352425cf44b6ffdc336f31d5cc7099e2006f61ee4c4f532e"
+      "sha256": "7008f461cba5916c0e8ccb3ddb85d000a2966b0f7b0a089fc85e57111b66cc1d"
     },
     "reviews": {
       "path": "docs/evidence/rules-reaudit-2026-10-11/review-decisions.json",
-      "sha256": "7a52501c1fe5cf5c9e9c4b8509c793c14287a23d97bc6924868363fe631a059a"
+      "sha256": "880b4e835223a53871dff24645cfcd01b32798ba8fbf13d5772a560255daf8b4"
     },
     "summary": {
-      "path": "docs/evidence/audit-obligations-2026-10-14/index-summary.json",
-      "sha256": "3f61657f622a8e413018721d1d4fe59e9d11808cb59cfe219b8467ead9db3fab"
+      "path": "docs/evidence/porobot-2026-10-15/index-summary.json",
+      "sha256": "e2a765505f376e71a02f2957a5781dde3c7748074baf617489ab3e8a49f40e30"
     }
   },
   "historicalReviewPin": {
@@ -119,7 +119,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "aaf45f0f66daca3b955dc8462379dd59e76a70b0d23809ddaed6914d5fc3aaf3"
+          "sha256": "ca2589e6d1052bad055cea4b02758bb7d47733d4a12307295445ca62b8dc57af"
         }
       ],
       "branches": [
@@ -247,9 +247,21 @@
         }
       ],
       "evidenceCommit": "e54f3084662e2c2e00c521d232b4a11baaea7d91",
-      "currentImplementationCommit": "4b4bd545c32ccf5b9d91810337327d7ca23c07d1",
+      "currentImplementationCommit": "342187cb732ea37a616d3fb125be6e9e5096ead1",
       "currentImplementationIncludesUncommittedChanges": true,
-      "revalidationReason": "Shared self-copy recovery changes require current fixed-full proof; previous exact receipts are retained."
+      "revalidationReason": "Shared self-copy recovery changes require current fixed-full proof; previous exact receipts are retained.",
+      "implementationPinUpdates": [
+        {
+          "batch": "porobot-source-play-other-equipment-conditional-draw-2026-10-15",
+          "changes": [
+            {
+              "path": "src/Riftbound.Engine/MatchRecovery.cs",
+              "previousSha256": "aaf45f0f66daca3b955dc8462379dd59e76a70b0d23809ddaed6914d5fc3aaf3",
+              "currentSha256": "ca2589e6d1052bad055cea4b02758bb7d47733d4a12307295445ca62b8dc57af"
+            }
+          ]
+        }
+      ]
     },
     "candlelit-conquest-private-look-recycle-order-2026-10-14": {
       "implementation": [
@@ -267,11 +279,11 @@
         },
         {
           "path": "src/Riftbound.CardCatalog/RuleTextParsers.cs",
-          "sha256": "4a4a88d178904ad5499c5c1dde30486a08b8eaa288cdfc523a947b2921dc7f6a"
+          "sha256": "bda2365b3a71d35adbc59ef59abb99212fe1d7f3e270d25cb10f781a039e582e"
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "aaf45f0f66daca3b955dc8462379dd59e76a70b0d23809ddaed6914d5fc3aaf3"
+          "sha256": "ca2589e6d1052bad055cea4b02758bb7d47733d4a12307295445ca62b8dc57af"
         }
       ],
       "branches": [
@@ -560,9 +572,26 @@
         }
       ],
       "evidenceCommit": "e61745f5cc704f2aa0326d84f22416e04ecbf139",
-      "currentImplementationCommit": "4b4bd545c32ccf5b9d91810337327d7ca23c07d1",
+      "currentImplementationCommit": "342187cb732ea37a616d3fb125be6e9e5096ead1",
       "currentImplementationIncludesUncommittedChanges": true,
-      "revalidationReason": "Shared self-copy recovery changes require current fixed-full proof; previous exact receipts are retained."
+      "revalidationReason": "Shared self-copy recovery changes require current fixed-full proof; previous exact receipts are retained.",
+      "implementationPinUpdates": [
+        {
+          "batch": "porobot-source-play-other-equipment-conditional-draw-2026-10-15",
+          "changes": [
+            {
+              "path": "src/Riftbound.CardCatalog/RuleTextParsers.cs",
+              "previousSha256": "4a4a88d178904ad5499c5c1dde30486a08b8eaa288cdfc523a947b2921dc7f6a",
+              "currentSha256": "bda2365b3a71d35adbc59ef59abb99212fe1d7f3e270d25cb10f781a039e582e"
+            },
+            {
+              "path": "src/Riftbound.Engine/MatchRecovery.cs",
+              "previousSha256": "aaf45f0f66daca3b955dc8462379dd59e76a70b0d23809ddaed6914d5fc3aaf3",
+              "currentSha256": "ca2589e6d1052bad055cea4b02758bb7d47733d4a12307295445ca62b8dc57af"
+            }
+          ]
+        }
+      ]
     },
     "masked-attendant-reflexive-self-copy-2026-10-14": {
       "implementation": [
@@ -580,7 +609,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.PermanentConfirmation.cs",
-          "sha256": "cfab10d52eff48679a39ab43b79ca9ea1a8af0777168c55bfdb3a70486b38e42"
+          "sha256": "d9ae35eee39d3c424c252eaa2462af07216b1186aa750a3b4b648bb401a75e16"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.TokenReplacement.cs",
@@ -588,11 +617,11 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "aaf45f0f66daca3b955dc8462379dd59e76a70b0d23809ddaed6914d5fc3aaf3"
+          "sha256": "ca2589e6d1052bad055cea4b02758bb7d47733d4a12307295445ca62b8dc57af"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "dada00843736c1d200b86b442cb33a958526654a3def709afcc3c77b1dd5502c"
+          "sha256": "23186177b6d37b6765bfd17dd747c7965d5770b7faf4889452bec6fd610ebb77"
         },
         {
           "path": "src/Riftbound.CardCatalog/ReviewedCardErrata.cs",
@@ -1174,8 +1203,30 @@
         }
       ],
       "evidenceCommit": "03f88a7ee1b109b2cb906fbdc457316f93c08fda",
-      "currentImplementationCommit": "4b4bd545c32ccf5b9d91810337327d7ca23c07d1",
-      "currentImplementationIncludesUncommittedChanges": true
+      "currentImplementationCommit": "342187cb732ea37a616d3fb125be6e9e5096ead1",
+      "currentImplementationIncludesUncommittedChanges": true,
+      "implementationPinUpdates": [
+        {
+          "batch": "porobot-source-play-other-equipment-conditional-draw-2026-10-15",
+          "changes": [
+            {
+              "path": "src/Riftbound.Engine/CoreRuleEngine.PermanentConfirmation.cs",
+              "previousSha256": "cfab10d52eff48679a39ab43b79ca9ea1a8af0777168c55bfdb3a70486b38e42",
+              "currentSha256": "d9ae35eee39d3c424c252eaa2462af07216b1186aa750a3b4b648bb401a75e16"
+            },
+            {
+              "path": "src/Riftbound.Engine/MatchRecovery.cs",
+              "previousSha256": "aaf45f0f66daca3b955dc8462379dd59e76a70b0d23809ddaed6914d5fc3aaf3",
+              "currentSha256": "ca2589e6d1052bad055cea4b02758bb7d47733d4a12307295445ca62b8dc57af"
+            },
+            {
+              "path": "src/Riftbound.Engine/MatchSession.cs",
+              "previousSha256": "dada00843736c1d200b86b442cb33a958526654a3def709afcc3c77b1dd5502c",
+              "currentSha256": "23186177b6d37b6765bfd17dd747c7965d5770b7faf4889452bec6fd610ebb77"
+            }
+          ]
+        }
+      ]
     },
     "static-granted-predict-entry-2026-10-15": {
       "implementation": [
@@ -1189,7 +1240,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEntryTriggers.cs",
-          "sha256": "323c93a0a6c28e74200a964fc4f55312e8e500c2981969f8d0dd67bfab7e7307"
+          "sha256": "2ba5ef50ed6c569af3ba1239b935d39bb96eff4cf289e5674ac4bf4e19bdf544"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.DeckObservation.cs",
@@ -1201,15 +1252,15 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "aaf45f0f66daca3b955dc8462379dd59e76a70b0d23809ddaed6914d5fc3aaf3"
+          "sha256": "ca2589e6d1052bad055cea4b02758bb7d47733d4a12307295445ca62b8dc57af"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "a2a46a0185e16203d2696ac490df5ecd43b85f645a5579c327d0868fb9d07cd9"
+          "sha256": "b90b747b7d45b85267a648cc9b8baa6c07db2927795f6445b30bf0278ba25db0"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "dada00843736c1d200b86b442cb33a958526654a3def709afcc3c77b1dd5502c"
+          "sha256": "23186177b6d37b6765bfd17dd747c7965d5770b7faf4889452bec6fd610ebb77"
         },
         {
           "path": "src/Riftbound.Engine/OfficialPrintedTimingRules.cs",
@@ -1792,12 +1843,39 @@
       "ciState": "PENDING",
       "ciReceipts": [],
       "evidenceCommit": "03f88a7ee1b109b2cb906fbdc457316f93c08fda",
-      "currentImplementationCommit": "4b4bd545c32ccf5b9d91810337327d7ca23c07d1",
+      "currentImplementationCommit": "342187cb732ea37a616d3fb125be6e9e5096ead1",
       "currentImplementationIncludesUncommittedChanges": true,
       "lastFixedCiFailure": {
         "path": "docs/evidence/granted-predict-2026-10-15/full-ci-c74853be-failed.json",
         "sha256": "90d0c6a7fe540c1f1473ec3f5faad62092131aaf4c332a2a0e165fb0be84802e"
-      }
+      },
+      "implementationPinUpdates": [
+        {
+          "batch": "porobot-source-play-other-equipment-conditional-draw-2026-10-15",
+          "changes": [
+            {
+              "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEntryTriggers.cs",
+              "previousSha256": "323c93a0a6c28e74200a964fc4f55312e8e500c2981969f8d0dd67bfab7e7307",
+              "currentSha256": "2ba5ef50ed6c569af3ba1239b935d39bb96eff4cf289e5674ac4bf4e19bdf544"
+            },
+            {
+              "path": "src/Riftbound.Engine/MatchRecovery.cs",
+              "previousSha256": "aaf45f0f66daca3b955dc8462379dd59e76a70b0d23809ddaed6914d5fc3aaf3",
+              "currentSha256": "ca2589e6d1052bad055cea4b02758bb7d47733d4a12307295445ca62b8dc57af"
+            },
+            {
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "a2a46a0185e16203d2696ac490df5ecd43b85f645a5579c327d0868fb9d07cd9",
+              "currentSha256": "b90b747b7d45b85267a648cc9b8baa6c07db2927795f6445b30bf0278ba25db0"
+            },
+            {
+              "path": "src/Riftbound.Engine/MatchSession.cs",
+              "previousSha256": "dada00843736c1d200b86b442cb33a958526654a3def709afcc3c77b1dd5502c",
+              "currentSha256": "23186177b6d37b6765bfd17dd747c7965d5770b7faf4889452bec6fd610ebb77"
+            }
+          ]
+        }
+      ]
     },
     "printed-predict-permanent-entry-2026-10-15": {
       "implementation": [
@@ -1811,7 +1889,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEntryTriggers.cs",
-          "sha256": "323c93a0a6c28e74200a964fc4f55312e8e500c2981969f8d0dd67bfab7e7307"
+          "sha256": "2ba5ef50ed6c569af3ba1239b935d39bb96eff4cf289e5674ac4bf4e19bdf544"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.Insight.cs",
@@ -1823,15 +1901,15 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "aaf45f0f66daca3b955dc8462379dd59e76a70b0d23809ddaed6914d5fc3aaf3"
+          "sha256": "ca2589e6d1052bad055cea4b02758bb7d47733d4a12307295445ca62b8dc57af"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "a2a46a0185e16203d2696ac490df5ecd43b85f645a5579c327d0868fb9d07cd9"
+          "sha256": "b90b747b7d45b85267a648cc9b8baa6c07db2927795f6445b30bf0278ba25db0"
         },
         {
           "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
-          "sha256": "143355c220349ae7197cffb984cede56b59565d9f68120b94276074acb7c5328"
+          "sha256": "4d67c02d8025045cc8f8024ecf66fc200a5fabd7eadea8424a188449c4841a27"
         },
         {
           "path": "src/Riftbound.Engine/CardLifecycleKeywordRules.cs",
@@ -2417,8 +2495,35 @@
         }
       ],
       "evidenceCommit": "74353e405fd2242ece0bae05972f209950b2c9de",
-      "currentImplementationCommit": "4b4bd545c32ccf5b9d91810337327d7ca23c07d1",
-      "currentImplementationIncludesUncommittedChanges": true
+      "currentImplementationCommit": "342187cb732ea37a616d3fb125be6e9e5096ead1",
+      "currentImplementationIncludesUncommittedChanges": true,
+      "implementationPinUpdates": [
+        {
+          "batch": "porobot-source-play-other-equipment-conditional-draw-2026-10-15",
+          "changes": [
+            {
+              "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEntryTriggers.cs",
+              "previousSha256": "323c93a0a6c28e74200a964fc4f55312e8e500c2981969f8d0dd67bfab7e7307",
+              "currentSha256": "2ba5ef50ed6c569af3ba1239b935d39bb96eff4cf289e5674ac4bf4e19bdf544"
+            },
+            {
+              "path": "src/Riftbound.Engine/MatchRecovery.cs",
+              "previousSha256": "aaf45f0f66daca3b955dc8462379dd59e76a70b0d23809ddaed6914d5fc3aaf3",
+              "currentSha256": "ca2589e6d1052bad055cea4b02758bb7d47733d4a12307295445ca62b8dc57af"
+            },
+            {
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "a2a46a0185e16203d2696ac490df5ecd43b85f645a5579c327d0868fb9d07cd9",
+              "currentSha256": "b90b747b7d45b85267a648cc9b8baa6c07db2927795f6445b30bf0278ba25db0"
+            },
+            {
+              "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+              "previousSha256": "143355c220349ae7197cffb984cede56b59565d9f68120b94276074acb7c5328",
+              "currentSha256": "4d67c02d8025045cc8f8024ecf66fc200a5fabd7eadea8424a188449c4841a27"
+            }
+          ]
+        }
+      ]
     },
     "sivir-optional-rune-recycle-2026-10-15": {
       "implementation": [
@@ -2432,7 +2537,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "a2a46a0185e16203d2696ac490df5ecd43b85f645a5579c327d0868fb9d07cd9"
+          "sha256": "b90b747b7d45b85267a648cc9b8baa6c07db2927795f6445b30bf0278ba25db0"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.Insight.cs",
@@ -2460,11 +2565,11 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "dada00843736c1d200b86b442cb33a958526654a3def709afcc3c77b1dd5502c"
+          "sha256": "23186177b6d37b6765bfd17dd747c7965d5770b7faf4889452bec6fd610ebb77"
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "aaf45f0f66daca3b955dc8462379dd59e76a70b0d23809ddaed6914d5fc3aaf3"
+          "sha256": "ca2589e6d1052bad055cea4b02758bb7d47733d4a12307295445ca62b8dc57af"
         },
         {
           "path": "src/Riftbound.Engine/StackObjectRules.cs",
@@ -2776,18 +2881,40 @@
         }
       ],
       "evidenceCommit": "7649d573f884ffd7517a502f7eebe01d0aa186c4",
-      "currentImplementationCommit": "4b4bd545c32ccf5b9d91810337327d7ca23c07d1",
-      "currentImplementationIncludesUncommittedChanges": true
+      "currentImplementationCommit": "342187cb732ea37a616d3fb125be6e9e5096ead1",
+      "currentImplementationIncludesUncommittedChanges": true,
+      "implementationPinUpdates": [
+        {
+          "batch": "porobot-source-play-other-equipment-conditional-draw-2026-10-15",
+          "changes": [
+            {
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "a2a46a0185e16203d2696ac490df5ecd43b85f645a5579c327d0868fb9d07cd9",
+              "currentSha256": "b90b747b7d45b85267a648cc9b8baa6c07db2927795f6445b30bf0278ba25db0"
+            },
+            {
+              "path": "src/Riftbound.Engine/MatchSession.cs",
+              "previousSha256": "dada00843736c1d200b86b442cb33a958526654a3def709afcc3c77b1dd5502c",
+              "currentSha256": "23186177b6d37b6765bfd17dd747c7965d5770b7faf4889452bec6fd610ebb77"
+            },
+            {
+              "path": "src/Riftbound.Engine/MatchRecovery.cs",
+              "previousSha256": "aaf45f0f66daca3b955dc8462379dd59e76a70b0d23809ddaed6914d5fc3aaf3",
+              "currentSha256": "ca2589e6d1052bad055cea4b02758bb7d47733d4a12307295445ca62b8dc57af"
+            }
+          ]
+        }
+      ]
     },
     "battlefield-conquer-rune-destination-2026-10-15": {
       "implementation": [
         {
           "path": "src/Riftbound.Contracts/BehaviorSpecs.cs",
-          "sha256": "597c7f38b2fdeaa6f43cc664069a594968122fefe1d7ecb1c36011a5048bcb35"
+          "sha256": "e8c37b72c8805bdc095c9ea982d9b5d57d4d18a22c174f4513f20f5064a61075"
         },
         {
           "path": "src/Riftbound.CardCatalog/RuleTextParsers.cs",
-          "sha256": "4a4a88d178904ad5499c5c1dde30486a08b8eaa288cdfc523a947b2921dc7f6a"
+          "sha256": "bda2365b3a71d35adbc59ef59abb99212fe1d7f3e270d25cb10f781a039e582e"
         },
         {
           "path": "src/Riftbound.Engine/BattlefieldTriggerSpecRules.cs",
@@ -2795,7 +2922,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "a2a46a0185e16203d2696ac490df5ecd43b85f645a5579c327d0868fb9d07cd9"
+          "sha256": "b90b747b7d45b85267a648cc9b8baa6c07db2927795f6445b30bf0278ba25db0"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.Conquest.cs",
@@ -2936,8 +3063,30 @@
         }
       ],
       "evidenceCommit": "dd8884ba1e443138264b9b0e971ab8da3c5480ee",
-      "currentImplementationCommit": "4b4bd545c32ccf5b9d91810337327d7ca23c07d1",
-      "currentImplementationIncludesUncommittedChanges": true
+      "currentImplementationCommit": "342187cb732ea37a616d3fb125be6e9e5096ead1",
+      "currentImplementationIncludesUncommittedChanges": true,
+      "implementationPinUpdates": [
+        {
+          "batch": "porobot-source-play-other-equipment-conditional-draw-2026-10-15",
+          "changes": [
+            {
+              "path": "src/Riftbound.Contracts/BehaviorSpecs.cs",
+              "previousSha256": "597c7f38b2fdeaa6f43cc664069a594968122fefe1d7ecb1c36011a5048bcb35",
+              "currentSha256": "e8c37b72c8805bdc095c9ea982d9b5d57d4d18a22c174f4513f20f5064a61075"
+            },
+            {
+              "path": "src/Riftbound.CardCatalog/RuleTextParsers.cs",
+              "previousSha256": "4a4a88d178904ad5499c5c1dde30486a08b8eaa288cdfc523a947b2921dc7f6a",
+              "currentSha256": "bda2365b3a71d35adbc59ef59abb99212fe1d7f3e270d25cb10f781a039e582e"
+            },
+            {
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "a2a46a0185e16203d2696ac490df5ecd43b85f645a5579c327d0868fb9d07cd9",
+              "currentSha256": "b90b747b7d45b85267a648cc9b8baa6c07db2927795f6445b30bf0278ba25db0"
+            }
+          ]
+        }
+      ]
     },
     "sivir-payment-trigger-and-ward-event-2026-10-15": {
       "implementation": [
@@ -2963,11 +3112,11 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "a2a46a0185e16203d2696ac490df5ecd43b85f645a5579c327d0868fb9d07cd9"
+          "sha256": "b90b747b7d45b85267a648cc9b8baa6c07db2927795f6445b30bf0278ba25db0"
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "aaf45f0f66daca3b955dc8462379dd59e76a70b0d23809ddaed6914d5fc3aaf3"
+          "sha256": "ca2589e6d1052bad055cea4b02758bb7d47733d4a12307295445ca62b8dc57af"
         }
       ],
       "branches": [
@@ -3141,8 +3290,25 @@
         }
       ],
       "evidenceCommit": "00420e2a2b453918e611812d18fda9f62632e15f",
-      "currentImplementationCommit": "4b4bd545c32ccf5b9d91810337327d7ca23c07d1",
-      "currentImplementationIncludesUncommittedChanges": true
+      "currentImplementationCommit": "342187cb732ea37a616d3fb125be6e9e5096ead1",
+      "currentImplementationIncludesUncommittedChanges": true,
+      "implementationPinUpdates": [
+        {
+          "batch": "porobot-source-play-other-equipment-conditional-draw-2026-10-15",
+          "changes": [
+            {
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "a2a46a0185e16203d2696ac490df5ecd43b85f645a5579c327d0868fb9d07cd9",
+              "currentSha256": "b90b747b7d45b85267a648cc9b8baa6c07db2927795f6445b30bf0278ba25db0"
+            },
+            {
+              "path": "src/Riftbound.Engine/MatchRecovery.cs",
+              "previousSha256": "aaf45f0f66daca3b955dc8462379dd59e76a70b0d23809ddaed6914d5fc3aaf3",
+              "currentSha256": "ca2589e6d1052bad055cea4b02758bb7d47733d4a12307295445ca62b8dc57af"
+            }
+          ]
+        }
+      ]
     },
     "unit-conquest-gold-response-2026-10-15": {
       "implementation": [
@@ -3156,15 +3322,15 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "a2a46a0185e16203d2696ac490df5ecd43b85f645a5579c327d0868fb9d07cd9"
+          "sha256": "b90b747b7d45b85267a648cc9b8baa6c07db2927795f6445b30bf0278ba25db0"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "dada00843736c1d200b86b442cb33a958526654a3def709afcc3c77b1dd5502c"
+          "sha256": "23186177b6d37b6765bfd17dd747c7965d5770b7faf4889452bec6fd610ebb77"
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "aaf45f0f66daca3b955dc8462379dd59e76a70b0d23809ddaed6914d5fc3aaf3"
+          "sha256": "ca2589e6d1052bad055cea4b02758bb7d47733d4a12307295445ca62b8dc57af"
         },
         {
           "path": "src/Riftbound.Engine/StackObjectRules.cs",
@@ -3385,8 +3551,30 @@
         }
       ],
       "evidenceCommit": "eb3c4281c94c8d41d315cd574bdfa597cd10c30b",
-      "currentImplementationCommit": "4b4bd545c32ccf5b9d91810337327d7ca23c07d1",
-      "currentImplementationIncludesUncommittedChanges": true
+      "currentImplementationCommit": "342187cb732ea37a616d3fb125be6e9e5096ead1",
+      "currentImplementationIncludesUncommittedChanges": true,
+      "implementationPinUpdates": [
+        {
+          "batch": "porobot-source-play-other-equipment-conditional-draw-2026-10-15",
+          "changes": [
+            {
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "a2a46a0185e16203d2696ac490df5ecd43b85f645a5579c327d0868fb9d07cd9",
+              "currentSha256": "b90b747b7d45b85267a648cc9b8baa6c07db2927795f6445b30bf0278ba25db0"
+            },
+            {
+              "path": "src/Riftbound.Engine/MatchSession.cs",
+              "previousSha256": "dada00843736c1d200b86b442cb33a958526654a3def709afcc3c77b1dd5502c",
+              "currentSha256": "23186177b6d37b6765bfd17dd747c7965d5770b7faf4889452bec6fd610ebb77"
+            },
+            {
+              "path": "src/Riftbound.Engine/MatchRecovery.cs",
+              "previousSha256": "aaf45f0f66daca3b955dc8462379dd59e76a70b0d23809ddaed6914d5fc3aaf3",
+              "currentSha256": "ca2589e6d1052bad055cea4b02758bb7d47733d4a12307295445ca62b8dc57af"
+            }
+          ]
+        }
+      ]
     },
     "own-main-deck-recycle-card-boon-2026-10-15": {
       "implementation": [
@@ -3428,11 +3616,11 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "a2a46a0185e16203d2696ac490df5ecd43b85f645a5579c327d0868fb9d07cd9"
+          "sha256": "b90b747b7d45b85267a648cc9b8baa6c07db2927795f6445b30bf0278ba25db0"
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "aaf45f0f66daca3b955dc8462379dd59e76a70b0d23809ddaed6914d5fc3aaf3"
+          "sha256": "ca2589e6d1052bad055cea4b02758bb7d47733d4a12307295445ca62b8dc57af"
         }
       ],
       "branches": [
@@ -4086,8 +4274,25 @@
         }
       ],
       "evidenceCommit": "a0406e1d878598b3c0fd88f5bfa7f9831d6a2cc6",
-      "currentImplementationCommit": "4b4bd545c32ccf5b9d91810337327d7ca23c07d1",
-      "currentImplementationIncludesUncommittedChanges": true
+      "currentImplementationCommit": "342187cb732ea37a616d3fb125be6e9e5096ead1",
+      "currentImplementationIncludesUncommittedChanges": true,
+      "implementationPinUpdates": [
+        {
+          "batch": "porobot-source-play-other-equipment-conditional-draw-2026-10-15",
+          "changes": [
+            {
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "a2a46a0185e16203d2696ac490df5ecd43b85f645a5579c327d0868fb9d07cd9",
+              "currentSha256": "b90b747b7d45b85267a648cc9b8baa6c07db2927795f6445b30bf0278ba25db0"
+            },
+            {
+              "path": "src/Riftbound.Engine/MatchRecovery.cs",
+              "previousSha256": "aaf45f0f66daca3b955dc8462379dd59e76a70b0d23809ddaed6914d5fc3aaf3",
+              "currentSha256": "ca2589e6d1052bad055cea4b02758bb7d47733d4a12307295445ca62b8dc57af"
+            }
+          ]
+        }
+      ]
     },
     "copied-recycle-boon-ceased-source-2026-10-15": {
       "implementation": [
@@ -4552,11 +4757,11 @@
       "implementation": [
         {
           "path": "src/Riftbound.CardCatalog/RuleTextParsers.cs",
-          "sha256": "4a4a88d178904ad5499c5c1dde30486a08b8eaa288cdfc523a947b2921dc7f6a"
+          "sha256": "bda2365b3a71d35adbc59ef59abb99212fe1d7f3e270d25cb10f781a039e582e"
         },
         {
           "path": "src/Riftbound.Contracts/BehaviorSpecs.cs",
-          "sha256": "597c7f38b2fdeaa6f43cc664069a594968122fefe1d7ecb1c36011a5048bcb35"
+          "sha256": "e8c37b72c8805bdc095c9ea982d9b5d57d4d18a22c174f4513f20f5064a61075"
         }
       ],
       "evidence": [
@@ -4586,7 +4791,7 @@
         }
       ],
       "evidenceCommit": "4ef4db144b1825f8b05f1b0b1605a8b99c49ac84",
-      "currentImplementationCommit": "5faa9012c305e8fc76b5b79d8b798597beee08df",
+      "currentImplementationCommit": "342187cb732ea37a616d3fb125be6e9e5096ead1",
       "currentImplementationIncludesUncommittedChanges": true,
       "branches": [
         {
@@ -4622,6 +4827,23 @@
           "state": "OPEN",
           "remaining": [
             "CONFIRMED_VS_COMPLETED_HISTORY_ADJUDICATION_AND_EXECUTABLE_COUNTERED_PENDING_SUCCESS_CASES"
+          ]
+        }
+      ],
+      "implementationPinUpdates": [
+        {
+          "batch": "porobot-source-play-other-equipment-conditional-draw-2026-10-15",
+          "changes": [
+            {
+              "path": "src/Riftbound.CardCatalog/RuleTextParsers.cs",
+              "previousSha256": "4a4a88d178904ad5499c5c1dde30486a08b8eaa288cdfc523a947b2921dc7f6a",
+              "currentSha256": "bda2365b3a71d35adbc59ef59abb99212fe1d7f3e270d25cb10f781a039e582e"
+            },
+            {
+              "path": "src/Riftbound.Contracts/BehaviorSpecs.cs",
+              "previousSha256": "597c7f38b2fdeaa6f43cc664069a594968122fefe1d7ecb1c36011a5048bcb35",
+              "currentSha256": "e8c37b72c8805bdc095c9ea982d9b5d57d4d18a22c174f4513f20f5064a61075"
+            }
           ]
         }
       ]
@@ -4722,7 +4944,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "a2a46a0185e16203d2696ac490df5ecd43b85f645a5579c327d0868fb9d07cd9"
+          "sha256": "b90b747b7d45b85267a648cc9b8baa6c07db2927795f6445b30bf0278ba25db0"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.SpellCompletion.cs",
@@ -4730,15 +4952,15 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEntryTriggers.cs",
-          "sha256": "323c93a0a6c28e74200a964fc4f55312e8e500c2981969f8d0dd67bfab7e7307"
+          "sha256": "2ba5ef50ed6c569af3ba1239b935d39bb96eff4cf289e5674ac4bf4e19bdf544"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "dada00843736c1d200b86b442cb33a958526654a3def709afcc3c77b1dd5502c"
+          "sha256": "23186177b6d37b6765bfd17dd747c7965d5770b7faf4889452bec6fd610ebb77"
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "aaf45f0f66daca3b955dc8462379dd59e76a70b0d23809ddaed6914d5fc3aaf3"
+          "sha256": "ca2589e6d1052bad055cea4b02758bb7d47733d4a12307295445ca62b8dc57af"
         }
       ],
       "evidence": [
@@ -4776,7 +4998,7 @@
       "ciState": "PENDING",
       "ciReceipts": [],
       "evidenceCommit": "4b4bd545c32ccf5b9d91810337327d7ca23c07d1",
-      "currentImplementationCommit": "4b4bd545c32ccf5b9d91810337327d7ca23c07d1",
+      "currentImplementationCommit": "342187cb732ea37a616d3fb125be6e9e5096ead1",
       "currentImplementationIncludesUncommittedChanges": true,
       "branches": [
         {
@@ -4867,6 +5089,207 @@
             "All remaining copy/attached and source-life consumers",
             "Whole-history causal deletion/replacement/valid-seat forgery protection beyond structural validation; full action/event/state replay remains required",
             "Same fixed candidate visible paired SQL/network/normal score/full replay and Windows real runtime"
+          ]
+        }
+      ],
+      "implementationPinUpdates": [
+        {
+          "batch": "porobot-source-play-other-equipment-conditional-draw-2026-10-15",
+          "changes": [
+            {
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "a2a46a0185e16203d2696ac490df5ecd43b85f645a5579c327d0868fb9d07cd9",
+              "currentSha256": "b90b747b7d45b85267a648cc9b8baa6c07db2927795f6445b30bf0278ba25db0"
+            },
+            {
+              "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEntryTriggers.cs",
+              "previousSha256": "323c93a0a6c28e74200a964fc4f55312e8e500c2981969f8d0dd67bfab7e7307",
+              "currentSha256": "2ba5ef50ed6c569af3ba1239b935d39bb96eff4cf289e5674ac4bf4e19bdf544"
+            },
+            {
+              "path": "src/Riftbound.Engine/MatchSession.cs",
+              "previousSha256": "dada00843736c1d200b86b442cb33a958526654a3def709afcc3c77b1dd5502c",
+              "currentSha256": "23186177b6d37b6765bfd17dd747c7965d5770b7faf4889452bec6fd610ebb77"
+            },
+            {
+              "path": "src/Riftbound.Engine/MatchRecovery.cs",
+              "previousSha256": "aaf45f0f66daca3b955dc8462379dd59e76a70b0d23809ddaed6914d5fc3aaf3",
+              "currentSha256": "ca2589e6d1052bad055cea4b02758bb7d47733d4a12307295445ca62b8dc57af"
+            }
+          ]
+        }
+      ]
+    },
+    "porobot-source-play-other-equipment-conditional-draw-2026-10-15": {
+      "implementation": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.SourcePlayDraw.cs",
+          "sha256": "75e9ded811383b8e5506d2cc975dbcaee150475b2e61c3af9abd495c6af8855c"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEntryTriggers.cs",
+          "sha256": "2ba5ef50ed6c569af3ba1239b935d39bb96eff4cf289e5674ac4bf4e19bdf544"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "sha256": "b90b747b7d45b85267a648cc9b8baa6c07db2927795f6445b30bf0278ba25db0"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.PermanentConfirmation.cs",
+          "sha256": "d9ae35eee39d3c424c252eaa2462af07216b1186aa750a3b4b648bb401a75e16"
+        },
+        {
+          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "sha256": "4d67c02d8025045cc8f8024ecf66fc200a5fabd7eadea8424a188449c4841a27"
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchSession.cs",
+          "sha256": "23186177b6d37b6765bfd17dd747c7965d5770b7faf4889452bec6fd610ebb77"
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.cs",
+          "sha256": "ca2589e6d1052bad055cea4b02758bb7d47733d4a12307295445ca62b8dc57af"
+        },
+        {
+          "path": "src/Riftbound.CardCatalog/RuleTextParsers.cs",
+          "sha256": "bda2365b3a71d35adbc59ef59abb99212fe1d7f3e270d25cb10f781a039e582e"
+        },
+        {
+          "path": "src/Riftbound.CardCatalog/OfficialCardSchemaValidator.cs",
+          "sha256": "1d4414af2d1d35fa770ae6db8b7b1042006caa3bd87773b889550d5572ee0cfb"
+        },
+        {
+          "path": "src/Riftbound.Contracts/BehaviorSpecs.cs",
+          "sha256": "e8c37b72c8805bdc095c9ea982d9b5d57d4d18a22c174f4513f20f5064a61075"
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/evidence/porobot-2026-10-15/source-refresh-continued.json",
+          "sha256": "9194ba7a92a219a706e5224e3298fa8947800d920cebc9cee25fcd7d6402e9e9",
+          "role": "source"
+        },
+        {
+          "path": "docs/evidence/porobot-2026-10-15/focus.json",
+          "sha256": "5439b48facba2ec10fbf28a3c9ab16e9fa83c3e1fff884d3e4c7ba2ce61b8ade",
+          "role": "focus"
+        },
+        {
+          "path": "docs/evidence/porobot-2026-10-15/native.json",
+          "sha256": "d70022294bc02cf722e90ac77098f3604246a458afcc316ff5e4ae5ec6fa4960",
+          "role": "native"
+        },
+        {
+          "path": "docs/evidence/porobot-2026-10-15/sql.json",
+          "sha256": "f46c069ae02ffedc5d684161999bd61f029d3b6e12d4f419fc1047516569d6b6",
+          "role": "sql"
+        },
+        {
+          "path": "docs/evidence/porobot-2026-10-15/original-games.json",
+          "sha256": "9b6ce47614701a076f3b6161bee3dc134fadf61cb8f17e7eeb9860aacaeda990",
+          "role": "original-games"
+        },
+        {
+          "path": "docs/evidence/porobot-2026-10-15/retained-development-failures.json",
+          "sha256": "0306dba49690c3ea8e31a352d22d67256976c33b7e09f5b91ac09d1b20e23911",
+          "role": "development-failures"
+        },
+        {
+          "path": "docs/evidence/porobot-2026-10-15/check-result.json",
+          "sha256": "d93868b458af15c4db51df0672bbdd31b9159d829c60c4352a3ce0792edcca41",
+          "role": "check"
+        }
+      ],
+      "evidenceCommit": "342187cb732ea37a616d3fb125be6e9e5096ead1",
+      "currentImplementationCommit": "342187cb732ea37a616d3fb125be6e9e5096ead1",
+      "currentImplementationIncludesUncommittedChanges": true,
+      "ciState": "PENDING",
+      "ciReceipts": [],
+      "certificationScope": {
+        "region": "CN",
+        "language": "zh-CN",
+        "applicableAsOf": "2026-10-15"
+      },
+      "branches": [
+        {
+          "id": "real-dual-type-play-and-additional-condition-capture",
+          "sourceRefs": [
+            "VEN-058",
+            "DOC-04-P024-B012",
+            "DOC-04-P024-B014",
+            "DOC-04-P024-B015",
+            "DOC-04-P024-B017",
+            "DOC-04-P024-B018",
+            "DOC-04-P024-B019",
+            "DOC-04-P024-B020",
+            "DOC-04-P059-B003",
+            "DOC-04-P059-B004",
+            "DOC-04-P059-B007",
+            "DOC-04-P059-B010",
+            "DOC-04-P071-B014",
+            "DOC-06-P012-B004"
+          ],
+          "state": "RECORDED",
+          "remaining": [
+            "Both Swain printings and conquest history query/scoring remain OPEN",
+            "Other copied/attached rule-text instances, entry producers and whole-card behavior remain separately unaudited",
+            "Whole-history causal deletion/replacement/controller forgery beyond structural witnesses remains OPEN",
+            "Current fixed full CI and same-candidate visible paired SQL/network/normal score/full replay remain OPEN",
+            "Independent Windows real runtime and every other full-universe obligation remain OPEN"
+          ]
+        },
+        {
+          "id": "independent-response-source-life-and-nonretroactive-copy",
+          "sourceRefs": [
+            "VEN-058",
+            "DOC-04-P024-B012",
+            "DOC-04-P024-B014",
+            "DOC-04-P024-B015",
+            "DOC-04-P024-B017",
+            "DOC-04-P024-B018",
+            "DOC-04-P024-B019",
+            "DOC-04-P024-B020",
+            "DOC-04-P059-B003",
+            "DOC-04-P059-B004",
+            "DOC-04-P059-B007",
+            "DOC-04-P059-B010",
+            "DOC-04-P071-B014",
+            "DOC-06-P012-B004"
+          ],
+          "state": "RECORDED",
+          "remaining": [
+            "Both Swain printings and conquest history query/scoring remain OPEN",
+            "Other copied/attached rule-text instances, entry producers and whole-card behavior remain separately unaudited",
+            "Whole-history causal deletion/replacement/controller forgery beyond structural witnesses remains OPEN",
+            "Current fixed full CI and same-candidate visible paired SQL/network/normal score/full replay remain OPEN",
+            "Independent Windows real runtime and every other full-universe obligation remain OPEN"
+          ]
+        },
+        {
+          "id": "cold-recovery-native-controls-and-real-sql",
+          "sourceRefs": [
+            "VEN-058",
+            "DOC-04-P024-B012",
+            "DOC-04-P024-B014",
+            "DOC-04-P024-B015",
+            "DOC-04-P024-B017",
+            "DOC-04-P024-B018",
+            "DOC-04-P024-B019",
+            "DOC-04-P024-B020",
+            "DOC-04-P059-B003",
+            "DOC-04-P059-B004",
+            "DOC-04-P059-B007",
+            "DOC-04-P059-B010",
+            "DOC-04-P071-B014",
+            "DOC-06-P012-B004"
+          ],
+          "state": "RECORDED",
+          "remaining": [
+            "Both Swain printings and conquest history query/scoring remain OPEN",
+            "Other copied/attached rule-text instances, entry producers and whole-card behavior remain separately unaudited",
+            "Whole-history causal deletion/replacement/controller forgery beyond structural witnesses remains OPEN",
+            "Current fixed full CI and same-candidate visible paired SQL/network/normal score/full replay remain OPEN",
+            "Independent Windows real runtime and every other full-universe obligation remain OPEN"
           ]
         }
       ]

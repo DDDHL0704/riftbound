@@ -343,6 +343,14 @@ public static class TriggerParser
                 PayPlayPowerCosts: true, Optional: true, PlayUnitAtSourceLocation: true));
         var hasAttachmentModes = TryParseAttachmentModes(text, out var attachmentModes);
         if (hasAttachmentModes) triggers.Add(attachmentModes);
+        var equipmentDraw = Regex.Match(text,
+            @"当你打出我时，如果你控制着不少于(?<equipment>[0-9一两二三四五六七八九十]+)件其他装备，则抽(?<draw>[0-9一两二三四五六七八九十]+)张牌。?",
+            RegexOptions.CultureInvariant);
+        if (equipmentDraw.Success)
+            triggers.Add(new(TriggerKinds.SourceUnitPlayedOtherEquipmentDraw, TriggerTimings.SourceUnitPlayed,
+                equipmentDraw.Value, "Additional equipment condition captured at play, not rechecked at resolution (CN 383.2.a.1).",
+                DrawCount: ParseChineseNumber(equipmentDraw.Groups["draw"].Value),
+                RequiredOtherControlledEquipment: ParseChineseNumber(equipmentDraw.Groups["equipment"].Value)));
         var hasBattlefieldConquerRevealRecycleTrigger =
             TryParseBattlefieldConquerRevealRecycle(text, out var battlefieldConquerRevealRecycleTrigger);
         if (hasBattlefieldConquerRevealRecycleTrigger)
@@ -432,6 +440,7 @@ public static class TriggerParser
         }
 
         triggers.AddRange(TargetParser.SplitRulesText(text)
+            .Where(segment => !equipmentDraw.Success || !segment.Contains(equipmentDraw.Value.TrimEnd('。'), StringComparison.Ordinal))
             .Where(segment => !hasAttackDeck || !segment.StartsWith("当我进攻时，你可以选择展示你主牌堆顶部", StringComparison.Ordinal))
             .Where(segment => !hasAttachmentModes || !segment.Contains("当你为我贴附", StringComparison.Ordinal))
             .Where(segment => segment.Contains("当", StringComparison.Ordinal)

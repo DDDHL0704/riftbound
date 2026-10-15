@@ -162,6 +162,7 @@ public static class TriggerKinds
         "UNIT_CONQUEST_RECYCLE_FRIENDLY_PLAY_GRAVEYARD_MECHANICAL_UNIT";
     public const string SourceUnitPlayedPlayLowCostGraveyardSpellRecycle =
         "SOURCE_UNIT_PLAYED_PLAY_LOW_COST_GRAVEYARD_SPELL_RECYCLE";
+    public const string SourceUnitPlayedOtherEquipmentDraw = "SOURCE_UNIT_PLAYED_OTHER_EQUIPMENT_DRAW";
     public const string UnitMovedCreateUnitToken = "UNIT_MOVED_CREATE_UNIT_TOKEN";
     public const string OpponentMovedToOtherBattlefieldDraw = "OPPONENT_MOVED_TO_OTHER_BATTLEFIELD_DRAW";
     public const string UnitMovedDraw = "UNIT_MOVED_DRAW";
@@ -620,7 +621,9 @@ public sealed record TriggerSpec(
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     bool? PlayUnitAtSourceLocation = null,
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
-    bool? RequiresSourceBattlefieldAtTrigger = null);
+    bool? RequiresSourceBattlefieldAtTrigger = null,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    int? RequiredOtherControlledEquipment = null);
 
 public sealed record ReplacementSpec(
     string Kind,

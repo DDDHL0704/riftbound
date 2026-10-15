@@ -93,7 +93,8 @@ public sealed class OfficialMultiTypeIdentityTests
         var deck = PreconstructedDeckCatalog.Build(current).Single(d => d.Id == "jhin-lowcurve").Decklist;
         var main = deck.MainDeck.ToArray();
         main[Array.FindIndex(main, n => n != deck.ChampionCardNo)] = source.CardNo;
-        return (current with { Cards = current.Cards.Append(source).ToArray(), Total = current.Total + 1 },
+        var cards = current.Cards.Where(c => c.CardNo != source.CardNo).Append(source).ToArray();
+        return (current with { Cards = cards, Total = cards.Length },
             deck with { MainDeck = main }, source);
     }
 

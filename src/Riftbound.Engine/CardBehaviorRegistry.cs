@@ -5080,6 +5080,10 @@ public static class CardBehaviorRegistry
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 4),
         new(
+            "VEN·058", "散装机械魄罗", 2, "PATCHED_POROBOT_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 2,
+            SourceUnitTags: "机械|魄罗|CARD_TYPE:EQUIPMENT"),
+        new(
             "UNL-097/219",
             "均衡门徒",
             3,

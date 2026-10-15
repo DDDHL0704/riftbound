@@ -1,0 +1,26 @@
+{
+  "cnOfficialPrintings": 1502,
+  "enReturnedPrintings": 1407,
+  "enReportedTotal": 1415,
+  "enSourceCountGap": 8,
+  "combinedExactPrintingNumbers": 1738,
+  "activeCatalogEntries": 1032,
+  "outsideActiveCatalog": 706,
+  "cnQaFields": 1502,
+  "cnNonemptyQaFields": 0,
+  "date": "2026-10-14",
+  "sourceDocuments": 36,
+  "sourceBlocks": 14293,
+  "verifiedByIndexing": 0,
+  "goalStatus": "IN_PROGRESS_NOT_READY",
+  "sourceFetchErrors": [],
+  "activeBindingUpdate": {
+    "date": "2026-10-15",
+    "previousSummary": {
+      "path": "docs/evidence/audit-obligations-2026-10-14/index-summary.json",
+      "sha256": "3f61657f622a8e413018721d1d4fe59e9d11808cb59cfe219b8467ead9db3fab"
+    },
+    "sourceDatesUnchanged": true,
+    "wholeUniverseUnchanged": true
+  }
+}

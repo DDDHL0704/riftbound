@@ -16,7 +16,10 @@ public partial class GrantedPredictInteractionProof : Control
             Check(catalog["SFD·065/221"].EffectText.Contains("机械") && catalog["OGN·100/298"].EffectText.Contains("其他友方单位"),"Native catalog retains both applicable grant texts");
             var root=OS.GetCmdlineUserArgs().Single(a=>a.StartsWith("--evidence="))[11..]; var count=0;
             var printed = OS.GetCmdlineUserArgs().Contains("--printed-predict");
-            foreach(var branch in printed ? new[]{"unit-keep","unit-recycle","equipment-keep","equipment-recycle"} : new[]{"keep","recycle"}) {
+            var porobot = OS.GetCmdlineUserArgs().Contains("--porobot");
+            if (porobot) Check(catalog["VEN·058"].CardCategoryName.Contains("单位") && catalog["VEN·058"].CardCategoryName.Contains("装备"), "Native Porobot retains both official types");
+            foreach(var branch in porobot ? new[]{"equipment-0","equipment-2","equipment-3","equipment-4"}
+                : printed ? new[]{"unit-keep","unit-recycle","equipment-keep","equipment-recycle"} : new[]{"keep","recycle"}) {
                 var dir=Path.Combine(root,branch);
                 foreach(var step in JsonSerializer.Deserialize<string[]>(File.ReadAllText(Path.Combine(dir,"steps.json")))!.Where(s=>!s.StartsWith("setup-"))) { Produce(dir,step);count++; }
             }

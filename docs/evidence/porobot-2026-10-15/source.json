@@ -1,0 +1,120 @@
+{
+  "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+  "query": {
+    "pageNum": 1,
+    "pageSize": 100,
+    "searchContent": "散装机械魄罗",
+    "cardCategoryList": [],
+    "cardColorList": [],
+    "rarityList": [],
+    "productCodeList": []
+  },
+  "fetchedAtUtc": "2026-10-15T01:57:14.716594+00:00",
+  "sha256": "0df526c6a43e9b7c5c3c16d26ce7ff3a4fce5b16d3ad6709be962c36a31c7559",
+  "card": {
+    "id": 37943,
+    "cardCategoryList": [
+      "unit",
+      "equipment"
+    ],
+    "cardCategoryNameList": [
+      "单位",
+      "装备"
+    ],
+    "cardNo": "VEN·058",
+    "cardName": "散装机械魄罗",
+    "subTitle": "",
+    "extendType": null,
+    "extendTypeName": "",
+    "cardColorList": [
+      "blue"
+    ],
+    "hero": "",
+    "region": "皮尔特沃夫",
+    "tag": "机械|魄罗",
+    "artist": "Six More Vodka",
+    "cardEffect": "（我以休眠状态进场。）\n当你打出我时，如果你控制着不少于三件其他装备，则抽一张牌。",
+    "flavorText": "想要人工还原魄罗调皮可爱的本色……但还是差亿点意思。",
+    "energy": 2,
+    "returnEnergy": null,
+    "power": 2,
+    "productCodeList": [
+      "VEN(标准补充包)",
+      "VEN(进阶补充包)"
+    ],
+    "productNameList": [
+      "化神争锋 标准补充包",
+      "化神争锋 进阶补充包"
+    ],
+    "cardQaList": null,
+    "craftLevel": 0,
+    "rarity": "rune_glimmer",
+    "rarityName": "不凡",
+    "extendRarity": "base_inscript",
+    "extendRarityName": "平卡",
+    "frontImage": "https://cdn.playloltcg.com/lol/card/20260709/9c6a8522027d49b8944b8da62da246e1.png",
+    "backImage": "",
+    "listSort": 1937,
+    "status": 1,
+    "cardGroupLimit": null,
+    "isPreview": false,
+    "errata": "",
+    "otherDesc": 0
+  },
+  "frozenRecordUnchanged": true,
+  "region": "CN",
+  "language": "zh-CN",
+  "applicableAsOf": "2026-10-14",
+  "publicationDate": null,
+  "effectiveDate": null,
+  "dateBoundary": "API does not publish a per-printing date; previously recorded Vendetta applicability remains scoped to non-preview CN printing. No new date inferred.",
+  "documents": [
+    {
+      "id": "DOC-04",
+      "url": "https://cdn.playloltcg.com/lol/2026/07/2026-07-23/6f47b6ebe57341a5bb5f4bed5548d051.pdf",
+      "sha256": "d0e36d00c954b9802c7f6e2889124a3cc4f2001a2fb6178d6c54f4ec98e25f64",
+      "updated": "2026-07-17",
+      "effectiveDate": null,
+      "sameDayFreshReadbackPath": "var/qa/ven-swain-20261015/core-cn.pdf",
+      "fetchedAtUtc": "2026-10-15T01:58:13.747441+00:00",
+      "path": "var/qa/porobot-20261015/DOC-04.pdf",
+      "frozenUnchanged": true
+    },
+    {
+      "id": "DOC-06",
+      "url": "https://cdn.playloltcg.com/lol/2026/08/2026-08-13/612b1cd53f9f41baaf3c8734c1881a3b.pdf",
+      "sha256": "59bd828207564540aa3c9885f9dfc39764034f633eb6fb84d49440c9edef4742",
+      "updated": "2026-08-14",
+      "effectiveDate": null,
+      "sameDayFreshReadbackPath": "var/qa/ven-swain-20261015/faq-cn.pdf",
+      "fetchedAtUtc": "2026-10-15T01:58:17.851877+00:00",
+      "path": "var/qa/porobot-20261015/DOC-06.pdf",
+      "frozenUnchanged": true
+    }
+  ],
+  "ruleAnchors": [
+    "DOC-04-P024-B012",
+    "DOC-04-P024-B014",
+    "DOC-04-P024-B015",
+    "DOC-04-P024-B017",
+    "DOC-04-P024-B018",
+    "DOC-04-P024-B019",
+    "DOC-04-P024-B020",
+    "DOC-04-P059-B003",
+    "DOC-04-P059-B004",
+    "DOC-04-P059-B007",
+    "DOC-04-P059-B010",
+    "DOC-04-P071-B014",
+    "DOC-06-P012-B004"
+  ],
+  "runtimeCatalogBefore": 1031,
+  "runtimeCatalogAfter": 1032,
+  "sourceUniverseReduced": false,
+  "semanticCoverageCertified": false,
+  "remaining": [
+    "Both Swain printings and exact conquest history-query/scoring semantics",
+    "Every other applicable printing, shared rule and FAQ obligation",
+    "Current fixed full, visible paired SQL/network/score/replay and independent Windows runtime",
+    "Whole-history causal provenance beyond structural captured witness checks"
+  ]
+}

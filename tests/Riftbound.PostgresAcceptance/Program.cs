@@ -111,6 +111,7 @@ await RecycledCardBoonSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "r
 await RecycleBoonLifecycleSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "recycle-boon-lifecycle"));
 await AttachedRecycleLifecycleSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "attached-recycle-lifecycle"));
 await CardPlayHistorySqlAcceptance.RunAsync(dataSource, Path.Combine(output, "typed-play-history"));
+await PatchedPorobotSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "porobot"));
 
 JsonElement Raw(GameCommand command) => JsonSerializer.SerializeToElement(command, command.GetType(), json);
 async Task Submit(string actor, string intent, GameCommand command, bool accepted = true) {

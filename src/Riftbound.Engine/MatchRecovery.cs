@@ -23642,6 +23642,12 @@ public static class MatchRecoveryValidator
             && !CoreRuleEngine.ValidTokenReplacementChoice(state, tokenChoice)) errors.Add("invalid token replacement choice");
 
         foreach (var trigger in state.TriggerQueue)
+            if (!CoreRuleEngine.ValidSourcePlayDraw(state, trigger.SourcePlayDraw, trigger.EffectKind, trigger.SourceObjectId))
+                errors.Add("invalid source play draw trigger");
+        foreach (var item in state.StackItems)
+            if (!CoreRuleEngine.ValidSourcePlayDraw(state, item.SourcePlayDraw, item.EffectKind, item.SourceObjectId, item.CardNo))
+                errors.Add("invalid source play draw stack");
+        foreach (var trigger in state.TriggerQueue)
             if (trigger.UnitEntryContext is { } entry ? !CoreRuleEngine.ValidUnitEntryTrigger(entry, trigger.EffectKind, trigger.ControllerId)
                 || !state.Seats.ContainsKey(entry.EnteringPlayerId) : trigger.EffectKind == CoreRuleEngine.EnemyUnitEntryEffect) errors.Add("invalid unit entry trigger");
         foreach (var item in state.StackItems)
@@ -24857,7 +24863,7 @@ public static class MatchRecoveryValidator
                 || item.TargetGenerations is not { Count: 1 }
                 || !item.TargetGenerations.TryGetValue(item.TargetObjectIds[0], out var targetGeneration) || targetGeneration < 0
                 || item.SpellContext is not null || item.AzirMovement is not null || item.DamageDistribution is not null
-                || item.ReflexiveCopy is not null || item.UnitEntryContext is not null || item.TriggerCost is not null
+                || item.ReflexiveCopy is not null || item.UnitEntryContext is not null || item.SourcePlayDraw is not null || item.TriggerCost is not null
                 || item.Equip is not null || item.AttachmentObserver is not null || item.Tempered is not null
                 || item.LegendAttachment is not null || item.TokenEntryPlan is not null || item.RepeatExecutions is not null
                 || item.MovementDestinations is not null || item.TargetStackSources is not null
@@ -27123,6 +27129,7 @@ public static class MatchRecoveryValidator
                 && !(stackItem.MovementObserver is { } movement && CoreRuleEngine.ValidMovementObserver(movement,stackItem.EffectKind,stackItem.ControllerId,stackItem.SourceObjectId,stackItem.CardNo))
                 && !(stackItem.DelayedDestruction is { } delayed && CoreRuleEngine.ValidDelayedDestruction(authoritativeState, delayed, stackItem.SourceObjectId, stackItem.ControllerId))
                 && !(stackItem.DeathObserver is { } death && CoreRuleEngine.ValidDeathObserver(death,stackItem.EffectKind,stackItem.ControllerId,stackItem.SourceObjectId,stackItem.CardNo))
+                && !(stackItem.SourcePlayDraw is not null && CoreRuleEngine.ValidSourcePlayDraw(authoritativeState, stackItem.SourcePlayDraw, stackItem.EffectKind, stackItem.SourceObjectId, stackItem.CardNo))
                 && !(stackItem.UnitEntryContext is { } entry && CoreRuleEngine.ValidUnitEntryTrigger(entry,
                     stackItem.EffectKind, stackItem.ControllerId, stackItem.CardNo))
                 && !UnitDestroyedTriggerSpecRules.TryGetTrigger(stackItem.CardNo,
@@ -27236,6 +27243,7 @@ public static class MatchRecoveryValidator
                 && !(trigger.MovementObserver is { } movement && CoreRuleEngine.ValidMovementObserver(movement,trigger.EffectKind,trigger.ControllerId,trigger.SourceObjectId))
                 && !(trigger.DelayedDestruction is { } delayed && CoreRuleEngine.ValidDelayedDestruction(authoritativeState, delayed, trigger.SourceObjectId, trigger.ControllerId))
                 && !(trigger.DeathObserver is { } death && CoreRuleEngine.ValidDeathObserver(death,trigger.EffectKind,trigger.ControllerId,trigger.SourceObjectId))
+                && !(trigger.SourcePlayDraw is not null && CoreRuleEngine.ValidSourcePlayDraw(authoritativeState, trigger.SourcePlayDraw, trigger.EffectKind, trigger.SourceObjectId))
                 && !(trigger.UnitEntryContext is { } entry && CoreRuleEngine.ValidUnitEntryTrigger(entry, trigger.EffectKind, trigger.ControllerId))
                 && !(trigger.TriggeredByEventKind == "UNIT_DESTROYED"
                 && UnitDestroyedTriggerSpecRules.TryGetTrigger(trigger.SourceCardNo,

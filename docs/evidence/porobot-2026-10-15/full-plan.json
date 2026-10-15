@@ -1,0 +1,12 @@
+{
+  "status": "FULL_PLAN_PRESERVES_ALL_METHODS_AND_ORIGINAL_FULL_GAME_SOURCE",
+  "methods": 7295,
+  "originalFullGameMethods": 143,
+  "expectedCases": 11881,
+  "expectedMatrixPairs": 110,
+  "matrixSeed": 424242,
+  "originalFullGameSourceUnchanged": true,
+  "fullGameSourceSha256": "12352222c34e756c41508400e7f24a4877807dcd3681320d5854a4e23e0b688e",
+  "planSha256": "cc3add78f86eb9b0694a72f2c42f106c45bd804c3b45b87fd0132109229a593f",
+  "fullExecuted": false
+}

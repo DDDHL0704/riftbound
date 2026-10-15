@@ -1,0 +1,154 @@
+{
+  "status": "ORIGINAL_FAILURES_RETAINED_WITH_CORRECTIONS",
+  "runs": [
+    {
+      "run": "focus-compiled",
+      "trx": "var/qa/porobot-20261015/focus-compiled/focus/results.trx",
+      "sha256": "2cc7b7a334f3d192c7219b0feea80685add2e806a60bfbf9b98bfdc6ac960b29",
+      "failed": 2,
+      "failures": [
+        {
+          "case": "Riftbound.ConformanceTests.PatchedPorobotTests.DestroyingCountedEquipmentInResponseDoesNotRecheckTheAdditionalTriggerCondition",
+          "message": "PLAY_CARD is not allowed in the current timing window."
+        },
+        {
+          "case": "Riftbound.ConformanceTests.PatchedPorobotTests.ThirdObjectMustBeAnotherControlledPublicFieldEquipment(invalid: \"hand\")",
+          "message": "Assert.Empty() Failure: Collection was not empty\nCollection: [StackItemState { ObservedDeckPlay = , ObservedPlayPermission = , EndAbility = , DestroyDeckPlay = , TurnUnitPlayBoon = , DeckPlaySequence = , DeckPlayPendingCard = , ResolutionDamageChoice = , MovementFollowUp = , SourceReplay = , SourceReplayDecisionCompleted = False, StandbyObserver = , PlayedFromStandby = , LastBreathMight = , DelayedDestruction = , MightySkill = , BattlefieldConquestMight = , TargetedPowerAbility = , EmpowerActivation = , DamageDistribution = , AttachmentObserver = , Tempered = , LegendAttachment = , AzirMovement = , Equip = , MovementDestinations = , TriggerCost = , TokenEntryPlan = , CompletedRepeatExecutions = 0, ReflexiveCopy = , SelfCopySource = , UnitEntryContext = , SourcePlayDraw = SourcePlayDrawContext { CardNo = VEN·058, SourceGeneration = 1, FaceRevision = 0, CapturedTick = 1, OtherEquipment = Riftbound.Engine.PlayedEquipmentWitness[], TokenFactoryCardNo = , Origin =  }, SivirRuneRecycle = , ConquestToken = , AfterPlayRecycle = , RecycledUnit = , PlayCost = , RecastContext = , SpellContext = , RepeatExecutions = , TargetStackSources = , CompletedHandExecutions = 0, CompletedDeckExecutions = 0, DeckChoiceCompleted = False, InsightCompleted = False, StackItemId = ordered-source-play-draw-1-3-0, ControllerId = P1, SourceObjectId = UNIT, HeldContext = , InsightContext = , DeathRevealContext = , DeathObserver = , MovementObserver = , FieldContext = , LegendConquest = , ReflexiveDuel = , BattlefieldStart = , EphemeralStart = , BeginningRecycle = , BeginningDraw = , LocationDamage = , UnitConquest = , EffectKind = CAPTURED_SOURCE_PLAY_EQUIPMENT_DRAW, CardNo = VEN·058, TargetObjectIds = System.String[], DamageAmount = 0, EffectRepeatCount = 1, OptionalCosts = System.String[], PlayedAfterAnotherCardThisTurn = False, Destination = , TimingContext = ORDERED_TRIGGER, TargetGenerations = , SourceConfirmed = False, PermanentPlayTargetsPending = False, EffectPlayCompleted = False }]"
+        }
+      ]
+    },
+    {
+      "run": "focus-shared",
+      "trx": "var/qa/porobot-20261015/focus-shared/focus/results.trx",
+      "sha256": "acfe7e279187b6d45f7844cfcff8966b0f2ccab6809aab9865c7f10a659eb039",
+      "failed": 1,
+      "failures": [
+        {
+          "case": "Riftbound.ConformanceTests.PatchedPorobotTests.RealImageCopiesTheDualTypeFaceAndTriggersItsOwnDrawWithoutANonTokenPlayRecord",
+          "message": "镜花水月 requires 1 unit target(s)."
+        }
+      ]
+    },
+    {
+      "run": "focus-copy-fix",
+      "trx": "var/qa/porobot-20261015/focus-copy-fix/focus/results.trx",
+      "sha256": "d7af23fb487483f6a918906b29ddb62239c201e9e736aa94e2f83ecc7e8cc99c",
+      "failed": 1,
+      "failures": [
+        {
+          "case": "Riftbound.ConformanceTests.PatchedPorobotTests.RealImageCopiesTheDualTypeFaceAndTriggersItsOwnDrawWithoutANonTokenPlayRecord",
+          "message": "Assert.Equal() Failure: Strings differ\n           ↓ (pos 0)\nExpected: \"VEN·058\"\nActual:   \"UNL·T06\"\n           ↑ (pos 0)"
+        }
+      ]
+    },
+    {
+      "run": "focus-catalog",
+      "trx": "var/qa/porobot-20261015/focus-catalog/focus/results.trx",
+      "sha256": "e6fef44c6f03968ee20dd4e174dcf49c3c5ba4662e664ddce777c3f73ead7521",
+      "failed": 11,
+      "failures": [
+        {
+          "case": "Riftbound.ConformanceTests.CardCatalogBaselineTests.P6FunctionalUnitCoverageAuditsSameTextVariantsAndReprints",
+          "message": "Assert.Equal() Failure: Values differ\nExpected: 830\nActual:   831"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.CardCatalogBaselineTests.OfficialCatalogSchemaValidationCoversAllSnapshotCards",
+          "message": "CatalogSchemaViolation { CardNo = VEN·058, Field = CardCategoryName, Reason = Unknown official category '单位 / 装备'. }"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.CardCatalogBaselineTests.OfficialCatalogLoadsAllSnapshotCards",
+          "message": "Assert.Equal() Failure: Values differ\nExpected: 1031\nActual:   1032"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.CardCatalogBaselineTests.KeywordCoverageReportExposesDeferredKeywordFamilies",
+          "message": "Assert.Equal() Failure: Values differ\nExpected: 1031\nActual:   1032"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.CardCatalogBaselineTests.FunctionalUnitIdsAreStableUniqueAndComplete",
+          "message": "Assert.Equal() Failure: Values differ\nExpected: 1031\nActual:   1032"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.CardCatalogBaselineTests.BehaviorSpecsCoverEveryOfficialCardWithExplicitStatusAndReason",
+          "message": "Assert.Equal() Failure: Values differ\nExpected: 1031\nActual:   1032"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.CardCatalogBaselineTests.P79ProductCatalogExposesRepresentativesWithoutClaimingFullOfficialRulePass",
+          "message": "Assert.Equal() Failure: Values differ\nExpected: 1031\nActual:   1032"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.CardCatalogBaselineTests.P6LifecycleTriggerReplacementFamiliesReportSpecAndExecutionBoundaryCoverage",
+          "message": "Assert.Equal() Failure: Values differ\nExpected: 548\nActual:   549"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.CardCatalogBaselineTests.FunctionalUnitsMatchCurrentBaselineCounts",
+          "message": "Assert.Equal() Failure: Values differ\nExpected: 1031\nActual:   1032"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.CardCatalogBaselineTests.P6CompletionAuditKeepsEveryFunctionalUnitImplementedOrExplicitlyDeferred",
+          "message": "Assert.Equal() Failure: Values differ\nExpected: 1031\nActual:   1032"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.CardCatalogBaselineTests.P6HighFrequencyTemplateFamiliesReportEntryAndFunctionalUnitCoverage",
+          "message": "Assert.Equal() Failure: Values differ\nExpected: 136\nActual:   137"
+        }
+      ]
+    },
+    {
+      "run": "focus-resume",
+      "trx": "var/qa/porobot-20261015/focus-resume/focus/results.trx",
+      "sha256": "d578b0c84aee43de1fd22745fbd85739971766c89be69d40fb0202fe7f7911a9",
+      "failed": 7,
+      "failures": [
+        {
+          "case": "Riftbound.ConformanceTests.OfficialMultiTypeIdentityTests.ActualUnitGearIsLegalInAMatchingLegendMainDeck",
+          "message": "System.ArgumentException : An item with the same key has already been added. Key: VEN·058"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.OfficialMultiTypeIdentityTests.AUnitTypeCannotHideAnIllegalAdditionalMainDeckCategory(forbidden: \"未知\")",
+          "message": "System.ArgumentException : An item with the same key has already been added. Key: VEN·058"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.OfficialMultiTypeIdentityTests.AUnitTypeCannotHideAnIllegalAdditionalMainDeckCategory(forbidden: \"战场\")",
+          "message": "System.ArgumentException : An item with the same key has already been added. Key: VEN·058"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.OfficialMultiTypeIdentityTests.AUnitTypeCannotHideAnIllegalAdditionalMainDeckCategory(forbidden: \"符文\")",
+          "message": "System.ArgumentException : An item with the same key has already been added. Key: VEN·058"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.OfficialMultiTypeIdentityTests.AUnitTypeCannotHideAnIllegalAdditionalMainDeckCategory(forbidden: \"指示物单位\")",
+          "message": "System.ArgumentException : An item with the same key has already been added. Key: VEN·058"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.OfficialMultiTypeIdentityTests.ExclusiveCategoryInTheSecondPositionStillRequiresTheLegendHero",
+          "message": "System.ArgumentException : An item with the same key has already been added. Key: VEN·058"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.OfficialMultiTypeIdentityTests.AUnitTypeCannotHideAnIllegalAdditionalMainDeckCategory(forbidden: \"传奇\")",
+          "message": "System.ArgumentException : An item with the same key has already been added. Key: VEN·058"
+        }
+      ]
+    }
+  ],
+  "corrections": [
+    "Hand fixture removed the object from the public base as well as updating its location",
+    "Use an actually legal Gold resource response instead of normal-speed Sigil Burst",
+    "Copy target selection accepts a real unit/equipment; resolve the later copy instruction separately and do not invent a retroactive entry trigger",
+    "Validate exact category arrays and update only derived runtime inventory counts",
+    "Replace the now-promoted card in the older multi-type deck fixture without inserting a duplicate printing"
+  ],
+  "originalAssertionsPreserved": true,
+  "databaseFirstAttempt": {
+    "path": "var/qa/porobot-20261015/postgres.log",
+    "reason": "Wrong local test role; no SQL validation executed. Retry uses the existing dedicated audit role."
+  },
+  "databaseSecondAttempt": {
+    "path": "var/qa/porobot-20261015/postgres-correct.log",
+    "originalScenariosPassed": 40,
+    "newBranchesPassedBeforeFailure": [
+      "below",
+      "threshold"
+    ],
+    "failure": "ACTIVATE_ABILITY optionalCosts:null is correctly rejected by cold recovery; fixture changed to the actual explicit empty array. No validator relaxation."
+  }
+}

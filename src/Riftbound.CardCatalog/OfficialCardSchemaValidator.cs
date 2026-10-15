@@ -99,7 +99,10 @@ public static class OfficialCardSchemaValidator
         AddIfBlank(violations, cardNo, nameof(card.ExtendRarityName), card.ExtendRarityName);
         AddIfBlank(violations, cardNo, nameof(card.FrontImage), card.FrontImage);
 
-        if (!KnownCategories.Contains(card.CardCategoryName))
+        if (card.CardCategoryNameList.Count == 0
+            || card.CardCategoryNameList.Any(category => !KnownCategories.Contains(category))
+            || card.CardCategoryNameList.Distinct(StringComparer.Ordinal).Count() != card.CardCategoryNameList.Count
+            || !string.Equals(card.CardCategoryName, string.Join(" / ", card.CardCategoryNameList), StringComparison.Ordinal))
         {
             violations.Add(new CatalogSchemaViolation(
                 cardNo,
