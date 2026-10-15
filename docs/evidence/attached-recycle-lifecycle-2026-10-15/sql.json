@@ -1,0 +1,71 @@
+{
+  "status": "ACTUAL_SQL_ATTACHED_RECYCLE_ORDER_CONFIRMATION_AND_CEASED_HOST_PASS",
+  "records": [
+    {
+      "branch": "alternate-forward",
+      "card": "SFD\u00b7237/221",
+      "reverse": false,
+      "commands": 22,
+      "events": 58,
+      "coldRecoveries": 22,
+      "tamperRejections": 8,
+      "sha256": "6ce5dbdfaeb98c5799cb39212f2d58b983505b058f37c82de62a931898889532"
+    },
+    {
+      "branch": "alternate-reverse",
+      "card": "SFD\u00b7237/221",
+      "reverse": true,
+      "commands": 22,
+      "events": 58,
+      "coldRecoveries": 22,
+      "tamperRejections": 8,
+      "sha256": "86c4630aa888cf48132087358bdae5936fef3df9476084a49070894977fbf9d7"
+    },
+    {
+      "branch": "primary-forward",
+      "card": "OGN\u00b7235/298",
+      "reverse": false,
+      "commands": 22,
+      "events": 58,
+      "coldRecoveries": 22,
+      "tamperRejections": 8,
+      "sha256": "cd0f43c0b9b2655834fabab85149b9f0c7f6e5be4470ac588027200d9cc93631"
+    },
+    {
+      "branch": "primary-reverse",
+      "card": "OGN\u00b7235/298",
+      "reverse": true,
+      "commands": 22,
+      "events": 58,
+      "coldRecoveries": 22,
+      "tamperRejections": 8,
+      "sha256": "5b763ab41959e2beb468b770a49cffcadc73f615f3515e4cad076edb10dabb14"
+    },
+    {
+      "branch": "promo-forward",
+      "card": "SFD\u00b7237*/221",
+      "reverse": false,
+      "commands": 22,
+      "events": 58,
+      "coldRecoveries": 22,
+      "tamperRejections": 8,
+      "sha256": "79f9c1474eea533d8c9b7a09bae2f2bc6db9da8f05b7267debcce95e852f79b5"
+    },
+    {
+      "branch": "promo-reverse",
+      "card": "SFD\u00b7237*/221",
+      "reverse": true,
+      "commands": 22,
+      "events": 58,
+      "coldRecoveries": 22,
+      "tamperRejections": 8,
+      "sha256": "029533a6f935dbb80fd32bf78b4e70492e5831d1fa0cb5133226e07e350d109c"
+    }
+  ],
+  "commands": 132,
+  "events": 348,
+  "coldRecoveries": 132,
+  "tamperRejections": 48,
+  "actualDatabaseConnection": true,
+  "cleanup": "Own isolated fixture rooms removed and dedicated PostgreSQL stopped; prior visible match history retained."
+}

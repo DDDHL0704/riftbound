@@ -12,8 +12,8 @@ public partial class RecycleBoonLifecycleInteractionProof : Control
     {
         try {
             var root = OS.GetCmdlineUserArgs().Single(a => a.StartsWith("--evidence="))[11..]; var count = 0;
-            foreach (var branch in new[] { "primary", "alternate", "promo" }) {
-                var dir = Path.Combine(root, branch);
+            foreach (var dir in Directory.GetDirectories(root).SelectMany(path => File.Exists(Path.Combine(path, "steps.json"))
+                ? new[] { path } : Directory.GetDirectories(path)).Order(StringComparer.Ordinal)) {
                 foreach (var step in JsonSerializer.Deserialize<string[]>(File.ReadAllText(Path.Combine(dir, "steps.json")))!) {
                     Produce(dir, step); count++;
                 }
@@ -29,6 +29,24 @@ public partial class RecycleBoonLifecycleInteractionProof : Control
         if (action == "PLAY_CARD") { Play(dir, step); return; }
         var candidate = prompt.GetProperty("candidates").EnumerateArray().Single(c => c.GetProperty("action").GetString() == action);
         var view = (Godot.Collections.Dictionary)typeof(Main).GetMethod("BuildPromptView", BindingFlags.Static | BindingFlags.NonPublic)!.Invoke(null, [prompt])!;
+        if (action == "ORDER_TRIGGERS") {
+            var orderAction = view["actions"].AsGodotArray().Select(v => v.AsGodotDictionary()).Single(a => a["action"].AsString() == action);
+            var overlay = GD.Load<PackedScene>("res://scenes/overlays/TriggerOrderOverlay.tscn").Instantiate<TriggerOrderOverlay>(); AddChild(overlay);
+            Check(overlay.ShowPrompt(orderAction, out var reason), reason);
+            var ids = fallback.GetProperty("orderedTriggerIds").EnumerateArray().Select(v => v.GetString()!).ToArray();
+            Check(overlay.OrderedTriggerIds.Count == ids.Length && ids.Distinct(StringComparer.Ordinal).Count() == ids.Length, "Each trigger appears once");
+            for (var position = 0; position < ids.Length; position++) {
+                var current = overlay.OrderedTriggerIds.ToList().IndexOf(ids[position]); Check(current >= position, "Offered trigger belongs to order");
+                while (current > position) { overlay.GetNode<VBoxContainer>("%TriggerRows").GetChild(current).GetNode<Button>("MoveUpButton").EmitSignal(BaseButton.SignalName.Pressed); current--; }
+            }
+            Dictionary<string, object?>? ordered = null;
+            overlay.Confirmed += selectedIds => {
+                Check(SpecialPromptCommandBuilder.TryBuildOrderTriggersPayload(orderAction, selectedIds, out var payload, out _, out var error), error);
+                payload["promptId"] = prompt.GetProperty("promptId").GetString(); payload["snapshotTick"] = prompt.GetProperty("snapshotTick").GetInt64(); ordered = payload;
+            };
+            overlay.GetNode<Button>("%ConfirmButton").EmitSignal(BaseButton.SignalName.Pressed); Check(ordered is not null, "Order control emitted command");
+            File.WriteAllText(Path.Combine(dir, step + "-command.json"), JsonSerializer.Serialize(ordered)); overlay.Free(); return;
+        }
         var controller = new PromptInteractionController(); controller.Load(view);
         var bar = GD.Load<PackedScene>("res://scenes/components/ActionBar.tscn").Instantiate<ActionBar>(); AddChild(bar);
         void Refresh() => bar.ShowSelection(controller.Current!, controller.CurrentChoices, controller.CurrentStepLabel, controller.CurrentStepRequired);
@@ -42,9 +60,11 @@ public partial class RecycleBoonLifecycleInteractionProof : Control
             var label = controller.Actions.Single(a => a.Name == action).Label;
             bar.GetNode<HBoxContainer>("%ActionChoices").GetChildren().OfType<Button>().Single(b => b.Text == label).EmitSignal(BaseButton.SignalName.Pressed);
             var picks = action == "ACTIVATE_ABILITY" ? new[] { fallback.GetProperty("sourceObjectId").GetString()! }.Concat(fallback.GetProperty("targetObjectIds").EnumerateArray().Select(v => v.GetString()!)).ToArray()
+                : action == "ASSEMBLE_EQUIPMENT" ? new[] { fallback.GetProperty("sourceObjectId").GetString()!, fallback.GetProperty("targetObjectId").GetString()! }
+                    .Concat(fallback.GetProperty("optionalCosts").EnumerateArray().Select(v => v.GetString()!)).ToArray()
                 : fallback.GetProperty("chosenObjectIds").EnumerateArray().Select(v => v.GetString()!).ToArray();
             foreach (var pick in picks) {
-                if (controller.Current!.SourceId == pick || controller.Current.TargetIds.Contains(pick)) continue;
+                if (controller.Current!.SourceId == pick || controller.Current.TargetIds.Contains(pick) || controller.Current.OptionalCostIds.Contains(pick)) continue;
                 var choices = controller.CurrentChoices.ToArray(); var index = Array.FindIndex(choices, c => c.Id == pick);
                 Check(index >= 0, "Requested object is offered by the server");
                 bar.GetNode<HBoxContainer>("%StepChoices").GetChildren().OfType<Button>().ElementAt(index).EmitSignal(BaseButton.SignalName.Pressed);

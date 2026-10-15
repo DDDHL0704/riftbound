@@ -1,0 +1,126 @@
+{
+  "region": "CN",
+  "language": "zh-CN",
+  "applicableAsOf": "2026-10-14",
+  "cards": [
+    {
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "fetchedAtUtc": "2026-10-14T23:55:34.238980+00:00",
+      "sha256": "bde7897f78e192d752f01da1ab9149e8679f957302e8031d557666f85b7bf8a4",
+      "file": "api-bf4be268.json",
+      "card": {
+        "id": 31473,
+        "cardNo": "OGN·235/298",
+        "cardName": "卡尔玛",
+        "cardEffect": "{{预知}}（当你打出我时，查看主牌堆顶部的一张牌，你可以选择将其回收。）\n每当你回收任意数量的卡牌时，给予一名友方单位增益。（如果该单位未拥有增益，则获得一个{{S}}+1增益。符文不被视为卡牌。）",
+        "errata": "{{预知}}（当你打出我时，查看主牌堆顶部的一张牌，你可以选择将其回收。）\n每当你将任意数量的卡牌回收到自己的主牌堆时，给予一名友方单位增益。（如果该单位未拥有增益，则获得一个{{S}}+1增益。符文不被视为卡牌。）",
+        "cardQaList": null
+      },
+      "publicationDate": null,
+      "effectiveDate": null
+    },
+    {
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "fetchedAtUtc": "2026-10-14T23:55:34.238980+00:00",
+      "sha256": "bde7897f78e192d752f01da1ab9149e8679f957302e8031d557666f85b7bf8a4",
+      "file": "api-bf4be268.json",
+      "card": {
+        "id": 33346,
+        "cardNo": "SFD·237/221",
+        "cardName": "卡尔玛",
+        "cardEffect": "{{预知}}（当你打出我时，查看主牌堆顶部的一张牌，你可以选择将其回收。）\n每当你回收任意数量的卡牌时，给予一名友方单位增益。（如果该单位未拥有增益，则获得一个{{S}}+1增益。符文不被视为卡牌。）",
+        "errata": "{{预知}}（当你打出我时，查看主牌堆顶部的一张牌，你可以选择将其回收。）\n每当你将任意数量的卡牌回收到自己的主牌堆时，给予一名友方单位增益。（如果该单位未拥有增益，则获得一个{{S}}+1增益。符文不被视为卡牌。）",
+        "cardQaList": null
+      },
+      "publicationDate": null,
+      "effectiveDate": null
+    },
+    {
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "fetchedAtUtc": "2026-10-14T23:55:34.238980+00:00",
+      "sha256": "bde7897f78e192d752f01da1ab9149e8679f957302e8031d557666f85b7bf8a4",
+      "file": "api-bf4be268.json",
+      "card": {
+        "id": 33347,
+        "cardNo": "SFD·237*/221",
+        "cardName": "卡尔玛",
+        "cardEffect": "{{预知}}（当你打出我时，查看主牌堆顶部的一张牌，你可以选择将其回收。）\n每当你回收任意数量的卡牌时，给予一名友方单位增益。（如果该单位未拥有增益，则获得一个{{S}}+1增益。符文不被视为卡牌。）",
+        "errata": "{{预知}}（当你打出我时，查看主牌堆顶部的一张牌，你可以选择将其回收。）\n每当你将任意数量的卡牌回收到自己的主牌堆时，给予一名友方单位增益。（如果该单位未拥有增益，则获得一个{{S}}+1增益。符文不被视为卡牌。）",
+        "cardQaList": null
+      },
+      "publicationDate": null,
+      "effectiveDate": null
+    },
+    {
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "fetchedAtUtc": "2026-10-14T23:55:34.344265+00:00",
+      "sha256": "2124d56f3d6e6eef831e4927f723bfa4c61d34d8501a5dfd231f909bbe9e12ad",
+      "file": "api-2b325175.json",
+      "card": {
+        "id": 34753,
+        "cardNo": "UNL-200/219",
+        "cardName": "镜花水月",
+        "cardEffect": "选择一名单位。将一名活跃状态的“映像”打出到你的基地。该“映像”变为所选单位的复制体。并让其获得{{瞬息}}。（在其控制者的开始阶段开始时，结算得分之前将其摧毁。）",
+        "errata": "选择一名单位。将一名活跃状态的“映像”打出到你的基地。然后进行一次：该“映像”变为所选单位的复制体。让其获得{{瞬息}}。（在其控制者的开始阶段开始时，结算得分之前将其摧毁。）",
+        "cardQaList": null
+      },
+      "publicationDate": null,
+      "effectiveDate": null
+    },
+    {
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "fetchedAtUtc": "2026-10-14T23:55:34.236073+00:00",
+      "sha256": "24c114d175883f009bd4e9384493df90c9058eddd5592b8f1bb90ac4b6e7f427",
+      "file": "api-ffe068d9.json",
+      "card": {
+        "id": 31322,
+        "cardNo": "OGN·104/298",
+        "cardName": "择日再战",
+        "cardEffect": "{{反应}}（可在任意时机打出，甚至先于其他法术和技能的结算。）\n让一名友方单位返回其所属的手牌，然后让其拥有者召出一枚休眠的符文。",
+        "errata": "",
+        "cardQaList": null
+      },
+      "publicationDate": null,
+      "effectiveDate": null
+    },
+    {
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "fetchedAtUtc": "2026-10-14T23:55:34.233446+00:00",
+      "sha256": "6c245e2d917748464eca428af883f6a7ffc3cccc0e35b8f38cbf5635c914e7f2",
+      "file": "api-3808f640.json",
+      "card": {
+        "id": 34596,
+        "cardNo": "UNL-063/219",
+        "cardName": "月蚀",
+        "cardEffect": "{{反应}}（可在任意时机打出，甚至先于其他法术和技能的结算。）\n让一名单位在本回合内{{S}}-4。\n进行{{洞察}}。（查看你主牌堆顶部的一张牌。你可以选择将其回收。）",
+        "errata": "",
+        "cardQaList": null
+      },
+      "publicationDate": null,
+      "effectiveDate": null
+    },
+    {
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "fetchedAtUtc": "2026-10-14T23:55:34.231654+00:00",
+      "sha256": "6f53dc0e4ed4abf2151e3408df1e87e2a0fd07b404de23b957a28c39fa8d972a",
+      "file": "api-7b439f35.json",
+      "card": {
+        "id": 33139,
+        "cardNo": "SFD·059/221",
+        "cardName": "斯弗尔尚歌",
+        "cardEffect": "{{装配}}{{1}}{{绿色}}（支付{{1}}和{{绿色}}：将此牌贴附到你控制的一名单位上。）\n在此牌贴附于单位期间，复制该单位的技能描述到此武装的效果文字，在贴附期间持续生效。",
+        "errata": "",
+        "cardQaList": null
+      },
+      "publicationDate": null,
+      "effectiveDate": null
+    }
+  ],
+  "core": {
+    "url": "https://cdn.playloltcg.com/lol/2026/07/2026-07-23/6f47b6ebe57341a5bb5f4bed5548d051.pdf",
+    "sha256": "d0e36d00c954b9802c7f6e2889124a3cc4f2001a2fb6178d6c54f4ec98e25f64",
+    "fetchedAtUtc": "2026-10-14T23:55:45.777210+00:00",
+    "publicationDate": null,
+    "effectiveDate": null
+  }
+}

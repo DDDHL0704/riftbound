@@ -1,0 +1,81 @@
+{
+  "status": "NATIVE_PRODUCTION_AND_BACKEND_FULL_JOURNAL_READBACK_PASS",
+  "records": [
+    {
+      "branch": "alternate-forward",
+      "card": "SFD\u00b7237/221",
+      "reverse": false,
+      "productionCommands": 22,
+      "loggedCommands": 44,
+      "events": 59,
+      "coldRecoveries": 22,
+      "sha256": "432cecb0bc3b4211b85c7e9ba56b67386bbf1ec5aebdcebb620569382ec5c136",
+      "fullReplayMatch": true
+    },
+    {
+      "branch": "alternate-reverse",
+      "card": "SFD\u00b7237/221",
+      "reverse": true,
+      "productionCommands": 22,
+      "loggedCommands": 44,
+      "events": 59,
+      "coldRecoveries": 22,
+      "sha256": "8e5a02fd4a93ee56c763d17a71ff39173f642181b512d0ff91e4ffa189482ea7",
+      "fullReplayMatch": true
+    },
+    {
+      "branch": "primary-forward",
+      "card": "OGN\u00b7235/298",
+      "reverse": false,
+      "productionCommands": 22,
+      "loggedCommands": 44,
+      "events": 59,
+      "coldRecoveries": 22,
+      "sha256": "337dc3b5006f273b8c397d4354d29edc391dcd0c258d546c46366a4c747eeedf",
+      "fullReplayMatch": true
+    },
+    {
+      "branch": "primary-reverse",
+      "card": "OGN\u00b7235/298",
+      "reverse": true,
+      "productionCommands": 22,
+      "loggedCommands": 44,
+      "events": 59,
+      "coldRecoveries": 22,
+      "sha256": "26483c1109baf7f4491fe143801625ccf4b573301c18f8799837f80f73b2a6e1",
+      "fullReplayMatch": true
+    },
+    {
+      "branch": "promo-forward",
+      "card": "SFD\u00b7237*/221",
+      "reverse": false,
+      "productionCommands": 22,
+      "loggedCommands": 44,
+      "events": 59,
+      "coldRecoveries": 22,
+      "sha256": "4b716267c301b85a7d33fab02ec10af47f989b129a3a46b543083d5e389c9394",
+      "fullReplayMatch": true
+    },
+    {
+      "branch": "promo-reverse",
+      "card": "SFD\u00b7237*/221",
+      "reverse": true,
+      "productionCommands": 22,
+      "loggedCommands": 44,
+      "events": 59,
+      "coldRecoveries": 22,
+      "sha256": "3181f54e361954dbb8677d71c72e3d1f456e14b4abe3a166a366012270eddbc3",
+      "fullReplayMatch": true
+    }
+  ],
+  "productionCommands": 132,
+  "loggedCommands": 264,
+  "events": 354,
+  "coldRecoveries": 132,
+  "deduplicateAndStalePromptRejection": true,
+  "fullActionAndEventReplayMatched": true,
+  "godotLogSha256": "bf4eefed6c2363134b30d406d05c8137d511a955d3693e6aaf213addc90c976c",
+  "oldThreeBranchProductionCommands": 45,
+  "oldProductionProofLogSha256": "6026d45736772e2c1051d020eb66f957c557a38bd0b6ee8826f582f639826b10",
+  "oldReadbackPassed": true
+}

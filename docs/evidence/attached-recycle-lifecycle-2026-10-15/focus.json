@@ -1,0 +1,28 @@
+{
+  "status": "FOCUS_PASS",
+  "newCaseCount": 12,
+  "newMethodCount": 2,
+  "newCases": [
+    "Riftbound.ConformanceTests.AttachedRecycleLifecycleNativeTests.ProductionAttachmentOrderTargetsAndCeasedHostColdRecoverDeduplicateAndReplay(card: \"OGN\u00b7235/298\", reverse: False)",
+    "Riftbound.ConformanceTests.AttachedRecycleLifecycleNativeTests.ProductionAttachmentOrderTargetsAndCeasedHostColdRecoverDeduplicateAndReplay(card: \"OGN\u00b7235/298\", reverse: True)",
+    "Riftbound.ConformanceTests.AttachedRecycleLifecycleNativeTests.ProductionAttachmentOrderTargetsAndCeasedHostColdRecoverDeduplicateAndReplay(card: \"SFD\u00b7237*/221\", reverse: False)",
+    "Riftbound.ConformanceTests.AttachedRecycleLifecycleNativeTests.ProductionAttachmentOrderTargetsAndCeasedHostColdRecoverDeduplicateAndReplay(card: \"SFD\u00b7237*/221\", reverse: True)",
+    "Riftbound.ConformanceTests.AttachedRecycleLifecycleNativeTests.ProductionAttachmentOrderTargetsAndCeasedHostColdRecoverDeduplicateAndReplay(card: \"SFD\u00b7237/221\", reverse: False)",
+    "Riftbound.ConformanceTests.AttachedRecycleLifecycleNativeTests.ProductionAttachmentOrderTargetsAndCeasedHostColdRecoverDeduplicateAndReplay(card: \"SFD\u00b7237/221\", reverse: True)",
+    "Riftbound.ConformanceTests.AttachedRecycleLifecycleTests.ActualAttachedCopyOrdersConfirmsAndSurvivesItsCopiedHostCeasing(card: \"OGN\u00b7235/298\", reverse: False)",
+    "Riftbound.ConformanceTests.AttachedRecycleLifecycleTests.ActualAttachedCopyOrdersConfirmsAndSurvivesItsCopiedHostCeasing(card: \"OGN\u00b7235/298\", reverse: True)",
+    "Riftbound.ConformanceTests.AttachedRecycleLifecycleTests.ActualAttachedCopyOrdersConfirmsAndSurvivesItsCopiedHostCeasing(card: \"SFD\u00b7237*/221\", reverse: False)",
+    "Riftbound.ConformanceTests.AttachedRecycleLifecycleTests.ActualAttachedCopyOrdersConfirmsAndSurvivesItsCopiedHostCeasing(card: \"SFD\u00b7237*/221\", reverse: True)",
+    "Riftbound.ConformanceTests.AttachedRecycleLifecycleTests.ActualAttachedCopyOrdersConfirmsAndSurvivesItsCopiedHostCeasing(card: \"SFD\u00b7237/221\", reverse: False)",
+    "Riftbound.ConformanceTests.AttachedRecycleLifecycleTests.ActualAttachedCopyOrdersConfirmsAndSurvivesItsCopiedHostCeasing(card: \"SFD\u00b7237/221\", reverse: True)"
+  ],
+  "newMethodNames": [
+    "Riftbound.ConformanceTests.AttachedRecycleLifecycleNativeTests.ProductionAttachmentOrderTargetsAndCeasedHostColdRecoverDeduplicateAndReplay",
+    "Riftbound.ConformanceTests.AttachedRecycleLifecycleTests.ActualAttachedCopyOrdersConfirmsAndSurvivesItsCopiedHostCeasing"
+  ],
+  "selectedCases": 54,
+  "nativeReadbackCases": 6,
+  "trxSha256": "d0885cfb1578206b0edd75209d9cdf26fdd0eb8ed41ccf03a1f69b6b17020785",
+  "nativeReadbackTrxSha256": "47a4c109dd23cb7fb9ebb7e6964e51d7fa3d13f024346c391a096509090f77ae",
+  "initialFixtureCorrection": "Initial ally power is 3; expected total 2 was incorrect. Independent expectation is exactly initial power plus one, with the second boon not stacking. All six initial failures were fixture expectation failures, not production defects."
+}

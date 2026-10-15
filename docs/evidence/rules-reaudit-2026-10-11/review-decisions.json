@@ -19866,6 +19866,78 @@
         "FIXED_CURRENT_FULL",
         "FINAL_PRODUCT_ACCEPTANCE"
       ]
+    },
+    {
+      "id": "attached-recycle-order-confirmation-and-ceased-host-2026-10-15",
+      "status": "SCOPED_BEHAVIOR_VERIFIED",
+      "scope": "Three current Karma faces with actually assembled Song: two independent recycle instances, both order directions, mandatory target confirmations in insertion order, atomic rejection of ordinary reaction/wrong actor/duplicate ordering/decline, real copied-host cease and independent nonstacking boon resolution. Captured attached source identity/tick/revision tampering rejects; other lifecycle consumers remain open.",
+      "subjects": [
+        "OGN-235/298",
+        "SFD-237/221",
+        "SFD-237*/221",
+        "SFD-059/221"
+      ],
+      "ruleRecords": [
+        "DOC-04-P026-B007",
+        "DOC-04-P039-B023",
+        "DOC-04-P040-B002",
+        "DOC-04-P040-B003",
+        "DOC-04-P044-B004",
+        "DOC-04-P060-B006",
+        "DOC-04-P093-B011",
+        "DOC-04-P104-B010",
+        "DOC-04-P104-B017"
+      ],
+      "auditDocument": "docs/ATTACHED_RECYCLE_LIFECYCLE_AUDIT_2026-10-15.md",
+      "evidence": "docs/evidence/attached-recycle-lifecycle-2026-10-15",
+      "semanticReview": {
+        "state": "SCOPED",
+        "wholeCardCertified": false,
+        "source": "docs/evidence/attached-recycle-lifecycle-2026-10-15/source.json",
+        "region": "CN",
+        "applicableAsOf": "2026-10-14"
+      },
+      "testExecution": {
+        "status": "PASSED",
+        "newMethods": 2,
+        "newCases": 12,
+        "newMethodNames": [
+          "Riftbound.ConformanceTests.AttachedRecycleLifecycleNativeTests.ProductionAttachmentOrderTargetsAndCeasedHostColdRecoverDeduplicateAndReplay",
+          "Riftbound.ConformanceTests.AttachedRecycleLifecycleTests.ActualAttachedCopyOrdersConfirmsAndSurvivesItsCopiedHostCeasing"
+        ],
+        "cases": [
+          "Riftbound.ConformanceTests.AttachedRecycleLifecycleNativeTests.ProductionAttachmentOrderTargetsAndCeasedHostColdRecoverDeduplicateAndReplay(card: \"OGN·235/298\", reverse: False)",
+          "Riftbound.ConformanceTests.AttachedRecycleLifecycleNativeTests.ProductionAttachmentOrderTargetsAndCeasedHostColdRecoverDeduplicateAndReplay(card: \"OGN·235/298\", reverse: True)",
+          "Riftbound.ConformanceTests.AttachedRecycleLifecycleNativeTests.ProductionAttachmentOrderTargetsAndCeasedHostColdRecoverDeduplicateAndReplay(card: \"SFD·237*/221\", reverse: False)",
+          "Riftbound.ConformanceTests.AttachedRecycleLifecycleNativeTests.ProductionAttachmentOrderTargetsAndCeasedHostColdRecoverDeduplicateAndReplay(card: \"SFD·237*/221\", reverse: True)",
+          "Riftbound.ConformanceTests.AttachedRecycleLifecycleNativeTests.ProductionAttachmentOrderTargetsAndCeasedHostColdRecoverDeduplicateAndReplay(card: \"SFD·237/221\", reverse: False)",
+          "Riftbound.ConformanceTests.AttachedRecycleLifecycleNativeTests.ProductionAttachmentOrderTargetsAndCeasedHostColdRecoverDeduplicateAndReplay(card: \"SFD·237/221\", reverse: True)",
+          "Riftbound.ConformanceTests.AttachedRecycleLifecycleTests.ActualAttachedCopyOrdersConfirmsAndSurvivesItsCopiedHostCeasing(card: \"OGN·235/298\", reverse: False)",
+          "Riftbound.ConformanceTests.AttachedRecycleLifecycleTests.ActualAttachedCopyOrdersConfirmsAndSurvivesItsCopiedHostCeasing(card: \"OGN·235/298\", reverse: True)",
+          "Riftbound.ConformanceTests.AttachedRecycleLifecycleTests.ActualAttachedCopyOrdersConfirmsAndSurvivesItsCopiedHostCeasing(card: \"SFD·237*/221\", reverse: False)",
+          "Riftbound.ConformanceTests.AttachedRecycleLifecycleTests.ActualAttachedCopyOrdersConfirmsAndSurvivesItsCopiedHostCeasing(card: \"SFD·237*/221\", reverse: True)",
+          "Riftbound.ConformanceTests.AttachedRecycleLifecycleTests.ActualAttachedCopyOrdersConfirmsAndSurvivesItsCopiedHostCeasing(card: \"SFD·237/221\", reverse: False)",
+          "Riftbound.ConformanceTests.AttachedRecycleLifecycleTests.ActualAttachedCopyOrdersConfirmsAndSurvivesItsCopiedHostCeasing(card: \"SFD·237/221\", reverse: True)"
+        ]
+      },
+      "fixedCommitCi": {
+        "state": "PENDING",
+        "implementationBaseCommit": "09ac000ec5dcfb3fe2404d7da235b4e7c91bfeba",
+        "includesUncommittedChanges": true
+      },
+      "productAcceptance": {
+        "nativeControls": "SCOPED_PASS",
+        "actualSql": "SCOPED_PASS",
+        "visiblePairedScoreFinish": "OPEN",
+        "WindowsRuntime": "OPEN"
+      },
+      "remaining": [
+        "OTHER_RECYCLE_CONSUMERS_AND_LIFECYCLE_BRANCHES",
+        "MULTIPLE_ATTACHMENT_AND_REENTRY_CAUSALITY",
+        "WHOLE_PRINTING_SEMANTICS",
+        "FIXED_CURRENT_FULL",
+        "FINAL_PRODUCT_ACCEPTANCE"
+      ]
     }
   ]
 }

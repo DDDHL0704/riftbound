@@ -58,7 +58,7 @@
     },
     "reviews": {
       "path": "docs/evidence/rules-reaudit-2026-10-11/review-decisions.json",
-      "sha256": "2d26c2b5e7363f9944ff9ee671f3f329fa9fef7aa16e82c60ba742c7eab9d878"
+      "sha256": "9304292a77c851f50a133054bb168b59bfbab83b247f3b546a60267d91ece4fd"
     },
     "summary": {
       "path": "docs/evidence/audit-obligations-2026-10-14/index-summary.json",
@@ -4358,6 +4358,180 @@
       "ciReceipts": [],
       "evidenceCommit": "eb5d9b75b360088c95c367ce9e7c1ff44416f928",
       "currentImplementationCommit": "eb5d9b75b360088c95c367ce9e7c1ff44416f928",
+      "currentImplementationIncludesUncommittedChanges": true
+    },
+    "attached-recycle-order-confirmation-and-ceased-host-2026-10-15": {
+      "implementation": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.RecycledCardBoons.cs",
+          "sha256": "69e8c0380f74de4031ed8f6b90345f0defe5ab0f2a2e563f90d4f3c357a8472e"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.FieldTriggers.cs",
+          "sha256": "b7f9f46bbd4b17af5dd40dc9705b45d41b999609e01d12ef1d4fb80e2774cbc6"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.TriggerHandoff.cs",
+          "sha256": "38f39a18d97a7c17c514da1757e0f1fe57d7be0ab64047e83b52e69dd8318357"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.Tokens.cs",
+          "sha256": "ff62da8c082b0ef4ef7e5a97665df0a67a06845dac15b9f4d2317ee290c2827d"
+        },
+        {
+          "path": "src/Riftbound.Engine/AttachedRuleText.cs",
+          "sha256": "139afb763aed7b3abcba6417da197fdb2c3c12a4eb25c02710daa9b4c44418c2"
+        },
+        {
+          "path": "clients/godot/scripts/debug/RecycleBoonLifecycleInteractionProof.cs",
+          "sha256": "fd0c9085141a1dc593525c29b3ad298bbbd1cfa9b3f01e98c10e5e2a5851505d"
+        }
+      ],
+      "branches": [
+        {
+          "id": "ProductionAttachmentOrderTargetsAndCeasedHostColdRecoverDeduplicateAndReplay",
+          "sourceRefs": [
+            "OGN-235/298",
+            "SFD-237/221",
+            "SFD-237*/221",
+            "SFD-059/221",
+            "UNL-200/219",
+            "OGN-104/298",
+            "UNL-063/219",
+            "DOC-04-P026-B007",
+            "DOC-04-P039-B023",
+            "DOC-04-P040-B002",
+            "DOC-04-P040-B003",
+            "DOC-04-P044-B004",
+            "DOC-04-P060-B006",
+            "DOC-04-P093-B011",
+            "DOC-04-P104-B010",
+            "DOC-04-P104-B017"
+          ],
+          "state": "RECORDED",
+          "remaining": [
+            "OTHER_RECYCLE_CONSUMERS_AND_LIFECYCLE_BRANCHES",
+            "MULTIPLE_ATTACHMENT_AND_REENTRY_CAUSALITY",
+            "WHOLE_PRINTING_SEMANTICS",
+            "FIXED_CURRENT_FULL",
+            "FINAL_PRODUCT_ACCEPTANCE"
+          ],
+          "decision": {
+            "state": "VERIFIED",
+            "reason": "Three current Karma faces with actually assembled Song: two independent recycle instances, both order directions, mandatory target confirmations in insertion order, atomic rejection of ordinary reaction/wrong actor/duplicate ordering/decline, real copied-host cease and independent nonstacking boon resolution. Captured attached source identity/tick/revision tampering rejects; other lifecycle consumers remain open.",
+            "sourceFingerprints": {
+              "OGN-235/298": "b82425bcd5c10222750567ec544c4484dfb345f449678c63a55bd6faca1173ac",
+              "SFD-237/221": "892213cbb5305ea23983354e5ee0ac17de179ba083b86d19994df52b99d61c1c",
+              "SFD-237*/221": "af2863661b675d04e28b316acc6a734b71600fbb2d452782331b2ccfaabb9e07",
+              "SFD-059/221": "e916bdbab7fd6cf01a9315b301664204f3a2b9e9ded9674bd3acef93807353dd",
+              "UNL-200/219": "427c0f444b359f6cb5375504da641b72673f21a3235acac19934e8cee68be3ae",
+              "OGN-104/298": "a040220a338943b6b6c82bc83edc5ed04ba7f9eb72fbedb327bf938924873c71",
+              "UNL-063/219": "085cc2e7ac436dd5f433839b5f7b4db1d63ebd61732c5024c9c65116ea966158",
+              "DOC-04-P026-B007": "f88d425cc0293e97bfabcfd24ad28c42a771ffacdab4ac9b8f75c9088367edf6",
+              "DOC-04-P039-B023": "6027c4f450ef2fb2b66001767ab957d24113373127ef07752214b44c7ff5501a",
+              "DOC-04-P040-B002": "21ca62477fe5d0038f49c8f4e59bcb0d1d94f3b97afe1e130d635a227568a094",
+              "DOC-04-P040-B003": "fdd7342532f35f908614b7530d47554711521951f02cbe1546b25f0fb2f575cd",
+              "DOC-04-P044-B004": "6e590425e030220c2049d7a6c8afcc484ae8591f1ceddbac877f71c2a37bc614",
+              "DOC-04-P060-B006": "c9ca4e5d6d1e6b2fe21a8a33b1c4c9f243d5065e3dbc461b6e28edeea75a80cf",
+              "DOC-04-P093-B011": "c85fb18d6adb0a9fdcb3ad92dae93984df58782a3845815c6622a855df9480fd",
+              "DOC-04-P104-B010": "2312c074ab06bedd3b48b6a157aa3acd74991677ed0c9957728bc7f64af7872f",
+              "DOC-04-P104-B017": "e9129274edf5ae8342a8804253a5bf10071524163956ea1526938f5f1ad9c150"
+            },
+            "requiredMethods": [
+              "Riftbound.ConformanceTests.AttachedRecycleLifecycleNativeTests.ProductionAttachmentOrderTargetsAndCeasedHostColdRecoverDeduplicateAndReplay"
+            ],
+            "requiredNativeBranches": [
+              "alternate-forward",
+              "alternate-reverse",
+              "primary-forward",
+              "primary-reverse",
+              "promo-forward",
+              "promo-reverse"
+            ]
+          }
+        },
+        {
+          "id": "ActualAttachedCopyOrdersConfirmsAndSurvivesItsCopiedHostCeasing",
+          "sourceRefs": [
+            "OGN-235/298",
+            "SFD-237/221",
+            "SFD-237*/221",
+            "SFD-059/221",
+            "UNL-200/219",
+            "OGN-104/298",
+            "UNL-063/219",
+            "DOC-04-P026-B007",
+            "DOC-04-P039-B023",
+            "DOC-04-P040-B002",
+            "DOC-04-P040-B003",
+            "DOC-04-P044-B004",
+            "DOC-04-P060-B006",
+            "DOC-04-P093-B011",
+            "DOC-04-P104-B010",
+            "DOC-04-P104-B017"
+          ],
+          "state": "RECORDED",
+          "remaining": [
+            "OTHER_RECYCLE_CONSUMERS_AND_LIFECYCLE_BRANCHES",
+            "MULTIPLE_ATTACHMENT_AND_REENTRY_CAUSALITY",
+            "WHOLE_PRINTING_SEMANTICS",
+            "FIXED_CURRENT_FULL",
+            "FINAL_PRODUCT_ACCEPTANCE"
+          ],
+          "decision": {
+            "state": "VERIFIED",
+            "reason": "Three current Karma faces with actually assembled Song: two independent recycle instances, both order directions, mandatory target confirmations in insertion order, atomic rejection of ordinary reaction/wrong actor/duplicate ordering/decline, real copied-host cease and independent nonstacking boon resolution. Captured attached source identity/tick/revision tampering rejects; other lifecycle consumers remain open.",
+            "sourceFingerprints": {
+              "OGN-235/298": "b82425bcd5c10222750567ec544c4484dfb345f449678c63a55bd6faca1173ac",
+              "SFD-237/221": "892213cbb5305ea23983354e5ee0ac17de179ba083b86d19994df52b99d61c1c",
+              "SFD-237*/221": "af2863661b675d04e28b316acc6a734b71600fbb2d452782331b2ccfaabb9e07",
+              "SFD-059/221": "e916bdbab7fd6cf01a9315b301664204f3a2b9e9ded9674bd3acef93807353dd",
+              "UNL-200/219": "427c0f444b359f6cb5375504da641b72673f21a3235acac19934e8cee68be3ae",
+              "OGN-104/298": "a040220a338943b6b6c82bc83edc5ed04ba7f9eb72fbedb327bf938924873c71",
+              "UNL-063/219": "085cc2e7ac436dd5f433839b5f7b4db1d63ebd61732c5024c9c65116ea966158",
+              "DOC-04-P026-B007": "f88d425cc0293e97bfabcfd24ad28c42a771ffacdab4ac9b8f75c9088367edf6",
+              "DOC-04-P039-B023": "6027c4f450ef2fb2b66001767ab957d24113373127ef07752214b44c7ff5501a",
+              "DOC-04-P040-B002": "21ca62477fe5d0038f49c8f4e59bcb0d1d94f3b97afe1e130d635a227568a094",
+              "DOC-04-P040-B003": "fdd7342532f35f908614b7530d47554711521951f02cbe1546b25f0fb2f575cd",
+              "DOC-04-P044-B004": "6e590425e030220c2049d7a6c8afcc484ae8591f1ceddbac877f71c2a37bc614",
+              "DOC-04-P060-B006": "c9ca4e5d6d1e6b2fe21a8a33b1c4c9f243d5065e3dbc461b6e28edeea75a80cf",
+              "DOC-04-P093-B011": "c85fb18d6adb0a9fdcb3ad92dae93984df58782a3845815c6622a855df9480fd",
+              "DOC-04-P104-B010": "2312c074ab06bedd3b48b6a157aa3acd74991677ed0c9957728bc7f64af7872f",
+              "DOC-04-P104-B017": "e9129274edf5ae8342a8804253a5bf10071524163956ea1526938f5f1ad9c150"
+            },
+            "requiredMethods": [
+              "Riftbound.ConformanceTests.AttachedRecycleLifecycleTests.ActualAttachedCopyOrdersConfirmsAndSurvivesItsCopiedHostCeasing"
+            ],
+            "requiredNativeBranches": []
+          }
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/evidence/attached-recycle-lifecycle-2026-10-15/focus.json",
+          "sha256": "4a26b3c86a036944acaaf998b7b904077dec6f9b5f1dfee216a733694eba4786",
+          "role": "focus"
+        },
+        {
+          "path": "docs/evidence/attached-recycle-lifecycle-2026-10-15/native-replay.json",
+          "sha256": "c492a4df39b443c5f30b4d230bdd03c9a30e209646b930c2da424a42997086df",
+          "role": "native"
+        },
+        {
+          "path": "docs/evidence/attached-recycle-lifecycle-2026-10-15/sql.json",
+          "sha256": "b6c4487d06e9850f596a12e39866ee123530a78715115e4e80355d80b5c6485b",
+          "role": "sql"
+        },
+        {
+          "path": "docs/evidence/attached-recycle-lifecycle-2026-10-15/check-parity.json",
+          "sha256": "c8d2a31e8db66eae13609b3dc877c465b8e9e1dba848a7e8bb960e9ac7d760c4",
+          "role": "check"
+        }
+      ],
+      "ciState": "PENDING",
+      "ciReceipts": [],
+      "evidenceCommit": "09ac000ec5dcfb3fe2404d7da235b4e7c91bfeba",
+      "currentImplementationCommit": "09ac000ec5dcfb3fe2404d7da235b4e7c91bfeba",
       "currentImplementationIncludesUncommittedChanges": true
     }
   },
