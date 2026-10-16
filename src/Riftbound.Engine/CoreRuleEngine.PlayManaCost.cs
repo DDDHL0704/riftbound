@@ -37,6 +37,7 @@ public sealed partial class CoreRuleEngine
                 && behavior.TargetTraitsManaReductionTags.Split('|').Any(tag => card.Tags.Contains(tag))))
             reductions.Add(("card", behavior.TargetTraitsManaReduction, 0));
         reductions.Add(("optional", optionalReduction, 0));
+        reductions.Add(("optional", SelectedSacrificeCostReduction(state, playerId, behavior, optionalCosts ?? []).Mana, 0));
         reductions.Add(("equipment", ResolveBattlefieldEquipmentCostReductionMana(state, playerId, behavior), 0));
         var applied = new Dictionary<string, int>();
         foreach (var reduction in reductions.OrderByDescending(item => item.Floor))
@@ -55,6 +56,9 @@ public sealed partial class CoreRuleEngine
     internal static PlayManaCost MinimumPlayManaCost(
         MatchState state, string playerId, CardBehaviorDefinition behavior, string? sourceObjectId, int additionalMana = 0)
     {
+        if (behavior.MaySacrificeUnitForPrintedCostReduction)
+            return OptionalSacrificePlayCosts(state, playerId, behavior, sourceObjectId, additionalMana)
+                .MinBy(cost => cost.Mana.Total)!.Mana;
         var optionalReduction = 0;
         if (behavior.OptionalExperienceCost > 0 && state.PlayerExperience.GetValueOrDefault(playerId) >= behavior.OptionalExperienceCost)
             optionalReduction += behavior.ManaReductionIfExperiencePaid;

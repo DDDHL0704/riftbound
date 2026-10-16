@@ -1,0 +1,145 @@
+{
+  "status": "OPTIONAL_SACRIFICE_SCOPED_FOCUS_ORIGINAL_GAMES_AND_TWO_REAL_EMPTY_OPENINGS_PASS",
+  "recordedAtUtc": "2026-10-16T06:59:22.508547+00:00",
+  "newUnitCases": 21,
+  "newUnitMethods": 7,
+  "newOpeningCases": 2,
+  "newOpeningMethods": 1,
+  "expanded": {
+    "summary": {
+      "status": "PASSED",
+      "profile": "focus",
+      "seconds": 64.92,
+      "total": 87,
+      "caseParityVerified": false,
+      "shards": [
+        {
+          "shard": "focus",
+          "total": 87,
+          "passed": 87,
+          "failed": 0,
+          "notExecuted": 0,
+          "seconds": 30.37
+        }
+      ]
+    },
+    "methods": 40,
+    "assemblySha256": "f821ee363348f75c5cbb81aa3cce3338e7ed51dbb890a98cc1b36763898c1c7b",
+    "trxSha256": "9da8ac709a90e77d20ca06100e467e3e9ce50be727aed14d0345c71bac7bdaf2"
+  },
+  "adjacent": {
+    "summary": {
+      "status": "PASSED",
+      "profile": "focus",
+      "seconds": 213.15,
+      "total": 2056,
+      "caseParityVerified": false,
+      "shards": [
+        {
+          "shard": "focus",
+          "total": 2056,
+          "passed": 2056,
+          "failed": 0,
+          "notExecuted": 0,
+          "seconds": 208.39
+        }
+      ]
+    },
+    "methods": 1186,
+    "assemblySha256": "2cdafee9ce658656d5a0adb89c6d2f33444b3028559e578f0fd028b2aa191a2c",
+    "trxSha256": "d1928c9763ecbd0daa87b86b5240a51bba23c153e323eeb539fb1afa73e6756a"
+  },
+  "originalFullGames": {
+    "summary": {
+      "status": "PASSED",
+      "profile": "focus",
+      "seconds": 55.93,
+      "total": 3,
+      "caseParityVerified": false,
+      "shards": [
+        {
+          "shard": "focus",
+          "total": 3,
+          "passed": 3,
+          "failed": 0,
+          "notExecuted": 0,
+          "seconds": 36.7
+        }
+      ]
+    },
+    "methods": 3,
+    "assemblySha256": "1cc5a23ff6296e6082a9f544c67ff964cd041d8bb61f367baaaba4017a4f33f0",
+    "trxSha256": "252595a68f1862573e3120c1c4b545fba1235c11cf75cbc3e5c97a0906dd73fb"
+  },
+  "opening": {
+    "summary": {
+      "status": "PASSED",
+      "profile": "focus",
+      "seconds": 136.63,
+      "total": 2,
+      "caseParityVerified": false,
+      "shards": [
+        {
+          "shard": "focus",
+          "total": 2,
+          "passed": 2,
+          "failed": 0,
+          "notExecuted": 0,
+          "seconds": 122.4
+        }
+      ]
+    },
+    "methods": 1,
+    "assemblySha256": "dfda37bfa7d545622081399063a988c8dc2422b4c87262046881c88d83a9c92f",
+    "trxSha256": "11d06af5a44bd495e4f55bf07073fbf97b533bd3b52134b55fb2c36bb550d1ef"
+  },
+  "nativeBackend": {
+    "summary": {
+      "status": "PASSED",
+      "profile": "focus",
+      "seconds": 129.96,
+      "total": 2,
+      "caseParityVerified": false,
+      "shards": [
+        {
+          "shard": "focus",
+          "total": 2,
+          "passed": 2,
+          "failed": 0,
+          "notExecuted": 0,
+          "seconds": 125.29
+        }
+      ]
+    },
+    "methods": 1,
+    "assemblySha256": "2cdafee9ce658656d5a0adb89c6d2f33444b3028559e578f0fd028b2aa191a2c",
+    "trxSha256": "8d25a58f268d67ba91ff2a7ba3aad69243383a87a9440aaa4f6831a6446fd012"
+  },
+  "originalRed": {
+    "cases": 6,
+    "passed": 1,
+    "failed": 5,
+    "trxSha256": "623709d07cd069999d2f3e5bac6d48aae1ef6702ca2b9635160f3cf3bde99de6"
+  },
+  "oldConformanceSourcesRetained": 431,
+  "originalFullGameMethodsRetained": 143,
+  "originalPairsRetained": 110,
+  "originalSeedRetained": 424242,
+  "scopedLimitations": [
+    "New tests are bounded; owner-transfer, ordinary zero-cost-token, destruction replacement and every source permission remain separate branches.",
+    "Backend tests named Native without Godot enabled are not counted as controls; only the2 independently generated Godot commands are counted."
+  ],
+  "fixedCommitCi": "PENDING_NEW_COMMIT",
+  "actualSql": {
+    "scenarios": 77,
+    "newEventTamperRejections": 8,
+    "receipt": {
+      "path": "docs/evidence/optional-sacrifice-cost-2026-10-16/sql.json",
+      "sha256": "8ae9e078b15f0713dc5ea8dc2693ce06e9d44f7474322183110d6c663d929809"
+    }
+  },
+  "batchCheck": {
+    "path": "docs/evidence/optional-sacrifice-cost-2026-10-16/check.json",
+    "sha256": "574b0efb8e78e90df3985bd633bf4f8df50a1d6abe81accb8defc61567ccc7ea"
+  }
+}

@@ -12497,6 +12497,21 @@ internal static class ActionPromptBuilder
         string? sourceObjectId = null, int additionalMana = 0)
         => CoreRuleEngine.MinimumPlayManaCost(state, playerId, behavior, sourceObjectId, additionalMana).Total;
 
+    private static IReadOnlyList<CoreRuleEngine.OptionalSacrificePlayCost> AffordableOptionalSacrificePlayCosts(
+        MatchState state, string playerId, CardBehaviorDefinition behavior, string? source,
+        int additionalMana = 0, int additionalPower = 0, string additionalTrait = "")
+    {
+        var pool = state.RunePools.GetValueOrDefault(playerId) ?? RunePool.Empty;
+        var resources = PlayCardPaymentResourcePowerByTraitForBehavior(state, playerId, behavior, source);
+        var available = pool with {
+            Power = pool.Power + resources.GetValueOrDefault(string.Empty),
+            PowerByTrait = PlayCardAvailablePowerByTrait(pool, resources)
+        };
+        return CoreRuleEngine.OptionalSacrificePlayCosts(state, playerId, behavior, source,
+                additionalMana, additionalPower, additionalTrait)
+            .Where(cost => cost.CanPay(available)).ToArray();
+    }
+
     private static bool PromptCardObjectHasTags(
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
         string objectId,
@@ -12568,6 +12583,8 @@ internal static class ActionPromptBuilder
             .Where(behavior => CardPermissionKeywordRules.EvaluatePlayTiming(state, playerId, behavior).IsAllowed)
             .Where(behavior => state.PendingEffectPlay is not null || PromptAvailableManaWithLuxSpellOnlyResource(state, playerId, behavior, objectId)
                 >= PromptMinimumManaCost(state, playerId, behavior, objectId))
+            .Where(behavior => !behavior.MaySacrificeUnitForPrintedCostReduction
+                || AffordableOptionalSacrificePlayCosts(state, playerId, behavior, objectId).Count > 0)
             .Where(behavior => PromptHasRequiredDestinationChoices(state, playerId, behavior))
             .ToArray();
         if (ShouldPreferModeSpecificPlayCardBehaviors(state, playerId, behaviors))
@@ -14291,6 +14308,14 @@ internal static class ActionPromptBuilder
                 return new ActionPromptChoiceDto(cost, $"{label}：{choice.Label}", choice.Reason);
             }));
 
+        if (behavior.MaySacrificeUnitForPrintedCostReduction)
+            choices.AddRange(AffordableOptionalSacrificePlayCosts(state, playerId, behavior, sourceObjectId)
+                .Where(cost => cost.Choice is not null).Select(cost => {
+                    var target = ObjectChoice(state, cost.Choice!.Split(':', 2)[1], "可选额外费用；不是技能目标");
+                    return new ActionPromptChoiceDto(cost.Choice!, $"摧毁友方单位：{target.Label}",
+                        $"支付后 {cost.Mana.Total} 法力 / {cost.GenericPower + cost.TypedPower.Values.Sum()} 符能");
+                }));
+
         if (CanPromptSourceStealEnemyEquipmentOptionalCost(
                 state,
                 playerId,
@@ -14332,7 +14357,10 @@ internal static class ActionPromptBuilder
         foreach (var haste in CardPermissionKeywordRules.HasteReadyCostChoices(behavior))
         {
             var hasteReadyPowerTrait = haste.Value;
-            if (runePool.Mana < PromptMinimumManaCost(state, playerId, behavior, sourceObjectId, behavior.HasteReadyManaCost)
+            if (behavior.MaySacrificeUnitForPrintedCostReduction
+                ? AffordableOptionalSacrificePlayCosts(state, playerId, behavior, sourceObjectId,
+                    behavior.HasteReadyManaCost, behavior.HasteReadyPowerCost, hasteReadyPowerTrait).Count == 0
+                : runePool.Mana < PromptMinimumManaCost(state, playerId, behavior, sourceObjectId, behavior.HasteReadyManaCost)
                 || !CanPayHasteReadyPowerCost(runePool, paymentResourcePowerByTrait,
                     behavior with { HasteReadyPowerTrait = hasteReadyPowerTrait })) continue;
             var powerLabel = string.IsNullOrWhiteSpace(hasteReadyPowerTrait)
@@ -16225,6 +16253,14 @@ internal static class ActionPromptBuilder
 
         PrintedPowerCostRules.TrySelect(behavior.IgnorePrintedPowerCost ? "" : behavior.CardNo, null, runePool, CoreRuleEngine.SourceReplayPowerCost(state, playerId), new Dictionary<string, int>(),
             out var printedGenericCost, out var printedTypedCost);
+        if (behavior.MaySacrificeUnitForPrintedCostReduction
+            && AffordableOptionalSacrificePlayCosts(state, playerId, behavior, sourceObjectId).MinBy(cost => cost.Mana.Total) is { } sacrifice)
+        {
+            manaCost = sacrifice.Mana;
+            minimumManaCost = manaCost.Total;
+            printedGenericCost = sacrifice.GenericPower;
+            printedTypedCost = sacrifice.TypedPower;
+        }
         var printedPowerShortfall = PaymentCostRules.PowerDeficit(runePool, printedGenericCost, printedTypedCost);
 
         return new Dictionary<string, object?>

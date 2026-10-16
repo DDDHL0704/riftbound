@@ -1,0 +1,307 @@
+{
+  "region": "CN",
+  "language": "zh-CN",
+  "applicabilityDate": "2026-10-16",
+  "firstPublicationDate": null,
+  "effectiveDate": null,
+  "baselinePin": {
+    "path": "data/official/upstream/2026-10-16/source-refresh-20261015T160523Z/card-catalog.zh-CN.json",
+    "sha256": "4f6a981a51d95e395820c1980f734645e1a5b56e454dbb8758ac3ce331162624"
+  },
+  "acquisitions": [
+    {
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "暴走萝莉",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "attemptedAtUtc": "2026-10-16T01:14:35.410640+00:00",
+      "fetchedAtUtc": "2026-10-16T01:14:35.560519+00:00",
+      "path": "var/qa/doc11-reference-revalidation-20261016/beginning-31493-api-raw.json",
+      "sha256": "0b89f29a0088c774ed78fa28070470525d891ded3e7314a8a8a18b0d50e03674",
+      "records": [
+        {
+          "card": {
+            "id": 31493,
+            "cardCategoryList": [
+              "legendary"
+            ],
+            "cardCategoryNameList": [
+              "传奇"
+            ],
+            "cardNo": "OGN·251/298",
+            "cardName": "暴走萝莉",
+            "subTitle": "",
+            "extendType": null,
+            "extendTypeName": "",
+            "cardColorList": [
+              "red",
+              "purple"
+            ],
+            "hero": "金克丝",
+            "region": "",
+            "tag": "",
+            "artist": "Sugar Free",
+            "cardEffect": "在你的回合开始阶段，如果你的手牌不足两张，则再抽一张牌。",
+            "flavorText": "",
+            "energy": null,
+            "returnEnergy": null,
+            "power": null,
+            "productCodeList": [
+              "OGN(英雄预组 金克丝)",
+              "OGN(标准补充包)",
+              "OGN(进阶补充包)"
+            ],
+            "productNameList": [
+              "起源 英雄预组 金克丝",
+              "起源 标准补充包",
+              "起源 进阶补充包"
+            ],
+            "cardQaList": null,
+            "craftLevel": 0,
+            "rarity": "rune_shard",
+            "rarityName": "稀有",
+            "extendRarity": "base_inscript",
+            "extendRarityName": "平卡",
+            "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/d03e4a32810c474fbd7fbaed0c4ec583.png",
+            "backImage": "",
+            "listSort": 212,
+            "status": 1,
+            "cardGroupLimit": null,
+            "isPreview": false,
+            "errata": "",
+            "otherDesc": 0
+          },
+          "allFieldsUnchanged": true
+        },
+        {
+          "card": {
+            "id": 31549,
+            "cardCategoryList": [
+              "legendary"
+            ],
+            "cardCategoryNameList": [
+              "传奇"
+            ],
+            "cardNo": "OGN·301/298",
+            "cardName": "暴走萝莉",
+            "subTitle": "",
+            "extendType": null,
+            "extendTypeName": "",
+            "cardColorList": [
+              "red",
+              "purple"
+            ],
+            "hero": "金克丝",
+            "region": "",
+            "tag": "",
+            "artist": "Sean Yang",
+            "cardEffect": "在你的回合开始阶段，如果你的手牌不足两张，则再抽一张牌。",
+            "flavorText": "",
+            "energy": null,
+            "returnEnergy": null,
+            "power": null,
+            "productCodeList": [
+              "OGN(标准补充包)",
+              "OGN(进阶补充包)"
+            ],
+            "productNameList": [
+              "起源 标准补充包",
+              "起源 进阶补充包"
+            ],
+            "cardQaList": null,
+            "craftLevel": 0,
+            "rarity": "rune_legend",
+            "rarityName": "异画",
+            "extendRarity": "exalted_script",
+            "extendRarityName": "超编",
+            "frontImage": "https://cdn.playloltcg.com/lol/card/20250801/6b880ba9fcad44dfb51b77019eea9c18.png",
+            "backImage": "",
+            "listSort": 156,
+            "status": 1,
+            "cardGroupLimit": null,
+            "isPreview": false,
+            "errata": "",
+            "otherDesc": 0
+          },
+          "allFieldsUnchanged": true
+        },
+        {
+          "card": {
+            "id": 31550,
+            "cardCategoryList": [
+              "legendary"
+            ],
+            "cardCategoryNameList": [
+              "传奇"
+            ],
+            "cardNo": "OGN·301*/298",
+            "cardName": "暴走萝莉",
+            "subTitle": "",
+            "extendType": null,
+            "extendTypeName": "",
+            "cardColorList": [
+              "red",
+              "purple"
+            ],
+            "hero": "金克丝",
+            "region": "",
+            "tag": "",
+            "artist": "Sean Yang",
+            "cardEffect": "在你的回合开始阶段，如果你的手牌不足两张，则再抽一张牌。",
+            "flavorText": "",
+            "energy": null,
+            "returnEnergy": null,
+            "power": null,
+            "productCodeList": [
+              "OGN(标准补充包)",
+              "OGN(进阶补充包)"
+            ],
+            "productNameList": [
+              "起源 标准补充包",
+              "起源 进阶补充包"
+            ],
+            "cardQaList": null,
+            "craftLevel": 0,
+            "rarity": "rune_legend",
+            "rarityName": "异画",
+            "extendRarity": "runemaster_mark",
+            "extendRarityName": "签名超编",
+            "frontImage": "https://cdn.playloltcg.com/lol/card/20250801/8ef8d8705d6a48449ea98c3cd1a876e5.png",
+            "backImage": "",
+            "listSort": 155,
+            "status": 1,
+            "cardGroupLimit": null,
+            "isPreview": false,
+            "errata": "",
+            "otherDesc": 0
+          },
+          "allFieldsUnchanged": true
+        },
+        {
+          "card": {
+            "id": 31577,
+            "cardCategoryList": [
+              "legendary"
+            ],
+            "cardCategoryNameList": [
+              "传奇"
+            ],
+            "cardNo": "FND-251/298",
+            "cardName": "暴走萝莉",
+            "subTitle": "",
+            "extendType": null,
+            "extendTypeName": "",
+            "cardColorList": [
+              "red",
+              "purple"
+            ],
+            "hero": "金克丝",
+            "region": "",
+            "tag": "",
+            "artist": "-",
+            "cardEffect": "在你的回合开始阶段，如果你的手牌不足两张，则再抽一张牌。",
+            "flavorText": "",
+            "energy": null,
+            "returnEnergy": null,
+            "power": null,
+            "productCodeList": [],
+            "productNameList": [],
+            "cardQaList": null,
+            "craftLevel": 0,
+            "rarity": "rune_shard",
+            "rarityName": "稀有",
+            "extendRarity": "base_inscript",
+            "extendRarityName": "平卡",
+            "frontImage": "https://cdn.playloltcg.com/lol/card/20250810/79739028e67b4882919387898b3f7489.png",
+            "backImage": "",
+            "listSort": 128,
+            "status": 1,
+            "cardGroupLimit": null,
+            "isPreview": false,
+            "errata": "",
+            "otherDesc": 0
+          },
+          "allFieldsUnchanged": true
+        }
+      ]
+    },
+    {
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "蘑菇袋",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "attemptedAtUtc": "2026-10-16T01:14:35.411436+00:00",
+      "fetchedAtUtc": "2026-10-16T01:14:35.529313+00:00",
+      "path": "var/qa/doc11-reference-revalidation-20261016/beginning-31319-api-raw.json",
+      "sha256": "f13ac523a2e67c5d16ced8b340f2fe28a1a4b618b996d4319ee2cee67cf70319",
+      "records": [
+        {
+          "card": {
+            "id": 31319,
+            "cardCategoryList": [
+              "equipment"
+            ],
+            "cardCategoryNameList": [
+              "装备"
+            ],
+            "cardNo": "OGN·101/298",
+            "cardName": "蘑菇袋",
+            "subTitle": "",
+            "extendType": null,
+            "extendTypeName": "",
+            "cardColorList": [
+              "blue"
+            ],
+            "hero": "",
+            "region": "",
+            "tag": "",
+            "artist": "Polar Engine Studio",
+            "cardEffect": "在你的回合开始阶段，如果你在战场上控制着一张正面朝下的待命牌，则抽一张牌。",
+            "flavorText": "“班德尔斥候永远有备而来。”\n——提莫",
+            "energy": 2,
+            "returnEnergy": null,
+            "power": null,
+            "productCodeList": [
+              "OGN(英雄预组 维克托)",
+              "OGN(标准补充包)",
+              "OGN(进阶补充包)"
+            ],
+            "productNameList": [
+              "起源 英雄预组 维克托",
+              "起源 标准补充包",
+              "起源 进阶补充包"
+            ],
+            "cardQaList": null,
+            "craftLevel": 0,
+            "rarity": "rune_glimmer",
+            "rarityName": "不凡",
+            "extendRarity": "base_inscript",
+            "extendRarityName": "平卡",
+            "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/c7969c8058974bf08282d637abfc6aad.png",
+            "backImage": "",
+            "listSort": 386,
+            "status": 1,
+            "cardGroupLimit": null,
+            "isPreview": false,
+            "errata": "",
+            "otherDesc": 0
+          },
+          "allFieldsUnchanged": true
+        }
+      ]
+    }
+  ],
+  "wholePrintingCertified": false
+}

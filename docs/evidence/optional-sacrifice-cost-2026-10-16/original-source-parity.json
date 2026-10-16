@@ -1,0 +1,12 @@
+{
+  "recordedAtUtc": "2026-10-16T06:33:52.033081+00:00",
+  "baseCommit": "8d7571c5a5572b1ed542a5ff1d8eaeb533bac1bc",
+  "oldConformanceCSharpCount": 431,
+  "changedOldSources": [],
+  "allOldConformanceSourcesByteEqual": true,
+  "newConformanceSources": [
+    "tests/Riftbound.ConformanceTests/OptionalSacrificePlayCostTests.cs",
+    "tests/Riftbound.ConformanceTests/OptionalSacrificeOpeningTests.cs"
+  ],
+  "scope": "New source additions remain mutable during focus development. Original methods/Theory rows/fullgame/seed assertions are retained byte-for-byte."
+}

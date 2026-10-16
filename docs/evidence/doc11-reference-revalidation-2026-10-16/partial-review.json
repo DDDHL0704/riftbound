@@ -1,0 +1,1020 @@
+{
+  "status": "THREE_DIRECT_HISTORICAL_REVIEWS_PARTIAL_CURRENT_AUTHORITY_REVALIDATION",
+  "recordedAtUtc": "2026-10-16T06:10:16.249021+00:00",
+  "region": "CN",
+  "language": "zh-CN",
+  "applicabilityDate": "2026-10-16",
+  "sourceManifest": {
+    "path": "docs/audit/current-manifest.json",
+    "sha256": "bd6103d5012d86d0e396d4476bc3a4abed979dc3524fb88ac889bb40f90f8a90",
+    "atCommit": "8d7571c5a5572b1ed542a5ff1d8eaeb533bac1bc"
+  },
+  "currentCoreSha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11",
+  "sourceCorpus": {
+    "path": "docs/evidence/rules-reaudit-2026-10-11/official-corpus.json",
+    "sha256": "b97836ed4e1c5c6e13a08e443011a0a96e4549a30613afa6dd01e21c440f382f",
+    "atCommit": "4a2b4d4659ae36f18e4ab104efd2f1523d04b602"
+  },
+  "freshCardAcquisitions": [
+    {
+      "path": "docs/evidence/doc11-reference-revalidation-2026-10-16/elder-source.json",
+      "sha256": "28743c2a79823bdff3cf585dd0e2f918188eea33e0a8c032e357fe1eccfff57c"
+    },
+    {
+      "path": "docs/evidence/doc11-reference-revalidation-2026-10-16/beginning-sources.json",
+      "sha256": "b20a37f98453e22dc1aac7f7813cfe333942956ec96519c0459f16281eafc5ef"
+    },
+    {
+      "path": "docs/evidence/doc11-reference-revalidation-2026-10-16/ephemeral-sources.json",
+      "sha256": "45d9b0c1aac9c5fea4585f70923405236882bb0a3c4882517ae1cfdb087459c7"
+    }
+  ],
+  "newImageReadbacks": {
+    "path": "docs/evidence/doc11-reference-revalidation-2026-10-16/other-images-readback.json",
+    "sha256": "15481dc0ab1c27207f7bb39dc69694d2b45dadc1511081b42e3b9f0f9b9e7813"
+  },
+  "scopes": [
+    {
+      "reviewId": "beginning-draw-2026-10-11",
+      "scope": "Jinx resolution hand threshold vs Mushroom captured facedown condition only.",
+      "currentCoreClauses": [
+        {
+          "id": "DOC-01-P062-B007",
+          "document": "DOC-01",
+          "page": 62,
+          "clauseAnchors": [
+            "383.2.a.1"
+          ],
+          "text": "383.2.a.1.              如果某个附加条件分句紧跟在条件之后,则只有该附加条件成立时,该条件才视为满足。此类\n                        条件分句属于触发条件的一部分,而非效果的一部分。\n                                举例:“娑娜 - 清心谐律”的描述为:“在你回合结束时,如果我位于战场上,则让最多\n                                四枚友方符文变为活跃状态。”虽然一到回合结束步骤就会满足她的触发式技能条\n                                件,但只有她在触发条件满足时位于战场上时,她的触发式技能才会进入结算链。如\n                                果她因该触发式技能受到反应而被移出战场,该技能仍会结算。",
+          "reviewStatus": "NOT_REVIEWED",
+          "implementation": [],
+          "tests": []
+        },
+        {
+          "id": "DOC-01-P062-B008",
+          "document": "DOC-01",
+          "page": 62,
+          "clauseAnchors": [],
+          "text": "举例:“暴走萝莉”的描述为:“在你的回合开始阶段,如果你的手牌不足两张,则再抽\n                                一张牌。”英文版中的“如果你的手牌不足两张”这一条件分句并非紧跟在触发条件之\n                                后,因此它属于效果的一部分,而非条件。",
+          "reviewStatus": "NOT_REVIEWED",
+          "implementation": [],
+          "tests": []
+        },
+        {
+          "id": "DOC-01-P062-B009",
+          "document": "DOC-01",
+          "page": 62,
+          "clauseAnchors": [
+            "383.2.b"
+          ],
+          "text": "383.2.b.          效果 是指不属于条件 部分的指示 。",
+          "reviewStatus": "NOT_REVIEWED",
+          "implementation": [],
+          "tests": []
+        }
+      ]
+    },
+    {
+      "reviewId": "ephemeral-start-2026-10-11",
+      "scope": "Controller beginning before scoring; single trigger; printed attachment deactivation vs granted Ephemeral only.",
+      "currentCoreClauses": [
+        {
+          "id": "DOC-01-P015-B007",
+          "document": "DOC-01",
+          "page": 15,
+          "clauseAnchors": [
+            "135.4"
+          ],
+          "text": "135.4.                当一张卡牌贴附于另一张卡牌时,其卡面上印刷的规则文本处于未激活状态。\n                           想获取更多有关信息,请查阅规则 716.贴附。\n                           想获取更多有关信息,请查阅规则 720.未激活。",
+          "reviewStatus": "NOT_REVIEWED",
+          "implementation": [],
+          "tests": []
+        },
+        {
+          "id": "DOC-01-P015-B009",
+          "document": "DOC-01",
+          "page": 15,
+          "clauseAnchors": [
+            "135.4.b"
+          ],
+          "text": "135.4.b.                   即使一张卡牌已贴附于另一张卡牌,赋予或添加在前者上的任何规则文本依然会生效。",
+          "reviewStatus": "NOT_REVIEWED",
+          "implementation": [],
+          "tests": []
+        },
+        {
+          "id": "DOC-01-P107-B005",
+          "document": "DOC-01",
+          "page": 107,
+          "clauseAnchors": [
+            "718.2"
+          ],
+          "text": "718.2.          处于此状态时,该卡牌卡面上印刷的规则文本为未激活状态。\n                     想获取更多有关信息,请查阅规则 720.未激活。",
+          "reviewStatus": "NOT_REVIEWED",
+          "implementation": [],
+          "tests": []
+        },
+        {
+          "id": "DOC-01-P120-B022",
+          "document": "DOC-01",
+          "page": 120,
+          "clauseAnchors": [
+            "816.1"
+          ],
+          "text": "816.1.            [瞬息]是一种触发式技能关键词。",
+          "reviewStatus": "NOT_REVIEWED",
+          "implementation": [],
+          "tests": []
+        },
+        {
+          "id": "DOC-01-P120-B023",
+          "document": "DOC-01",
+          "page": 120,
+          "clauseAnchors": [
+            "816.1.a"
+          ],
+          "text": "816.1.a.              这个关键词会出现在常驻牌上。",
+          "reviewStatus": "NOT_REVIEWED",
+          "implementation": [],
+          "tests": []
+        },
+        {
+          "id": "DOC-01-P120-B024",
+          "document": "DOC-01",
+          "page": 120,
+          "clauseAnchors": [
+            "816.1.b"
+          ],
+          "text": "816.1.b.              该关键词为以下功能的简称:“在此常驻牌控制者的回合开始阶段,计算得分之前将此牌摧毁。”",
+          "reviewStatus": "NOT_REVIEWED",
+          "implementation": [],
+          "tests": []
+        },
+        {
+          "id": "DOC-01-P120-B025",
+          "document": "DOC-01",
+          "page": 120,
+          "clauseAnchors": [
+            "816.1.c"
+          ],
+          "text": "816.1.c.              触发条件为该常驻牌的控制者的开始阶段开始。",
+          "reviewStatus": "NOT_REVIEWED",
+          "implementation": [],
+          "tests": []
+        },
+        {
+          "id": "DOC-01-P121-B001",
+          "document": "DOC-01",
+          "page": 121,
+          "clauseAnchors": [
+            "816.2"
+          ],
+          "text": "816.2.            即使拥有多个[瞬息],也只会生效一次。",
+          "reviewStatus": "NOT_REVIEWED",
+          "implementation": [],
+          "tests": []
+        },
+        {
+          "id": "DOC-01-P121-B002",
+          "document": "DOC-01",
+          "page": 121,
+          "clauseAnchors": [
+            "816.2.a"
+          ],
+          "text": "816.2.a.              无论拥有多少个[瞬息],该技能只会触发一次。",
+          "reviewStatus": "NOT_REVIEWED",
+          "implementation": [],
+          "tests": []
+        },
+        {
+          "id": "DOC-01-P121-B003",
+          "document": "DOC-01",
+          "page": 121,
+          "clauseAnchors": [
+            "816.3"
+          ],
+          "text": "816.3.            [瞬息],以及单位是否拥有[瞬息],是常驻牌的一个特性,其他游戏效果可以检查或引用该特性。",
+          "reviewStatus": "NOT_REVIEWED",
+          "implementation": [],
+          "tests": []
+        }
+      ]
+    },
+    {
+      "reviewId": "elder-dragon-2026-10-11",
+      "scope": "Damage responsibility and nonzero lethal threshold including combat assignment only.",
+      "currentCoreClauses": [
+        {
+          "id": "DOC-01-P017-B007",
+          "document": "DOC-01",
+          "page": 17,
+          "clauseAnchors": [
+            "142.3"
+          ],
+          "text": "142.3.          伤害 由玩家标记在单位上。",
+          "reviewStatus": "NOT_REVIEWED",
+          "implementation": [],
+          "tests": []
+        },
+        {
+          "id": "DOC-01-P017-B008",
+          "document": "DOC-01",
+          "page": 17,
+          "clauseAnchors": [
+            "142.3.a"
+          ],
+          "text": "142.3.a.               如果某个造成伤害的行动导致伤害被标记,则负责执行该行动的玩家视为标记该伤害的玩家。",
+          "reviewStatus": "NOT_REVIEWED",
+          "implementation": [],
+          "tests": []
+        },
+        {
+          "id": "DOC-01-P017-B009",
+          "document": "DOC-01",
+          "page": 17,
+          "clauseAnchors": [
+            "142.3.b"
+          ],
+          "text": "142.3.b.               游戏效果 可能会引用该玩家的伤害 。这里指的是由该玩家标记的伤害 。\n                             举例:某名单位的部分描述为:“你的伤害无法被抵挡。”这里的“你的伤害”指的便是由该玩家标\n                             记的伤害。",
+          "reviewStatus": "NOT_REVIEWED",
+          "implementation": [],
+          "tests": []
+        },
+        {
+          "id": "DOC-01-P017-B010",
+          "document": "DOC-01",
+          "page": 17,
+          "clauseAnchors": [
+            "142.4"
+          ],
+          "text": "142.4.          伤害 反映的是单位 接近被摧毁 的程度。\n                       想获取更多有关信息,请查阅规则 429.摧毁。",
+          "reviewStatus": "NOT_REVIEWED",
+          "implementation": [],
+          "tests": []
+        },
+        {
+          "id": "DOC-01-P017-B011",
+          "document": "DOC-01",
+          "page": 17,
+          "clauseAnchors": [
+            "142.4.a"
+          ],
+          "text": "142.4.a.               致命伤害 是指在清理期间会导致单位被摧毁的标记伤害 数值。",
+          "reviewStatus": "NOT_REVIEWED",
+          "implementation": [],
+          "tests": []
+        },
+        {
+          "id": "DOC-01-P017-B012",
+          "document": "DOC-01",
+          "page": 17,
+          "clauseAnchors": [
+            "142.4.b"
+          ],
+          "text": "142.4.b.               一名单位的致命伤害是指大于或等同于该单位战力的非零数值。\n                             举例:一名单位拥有 5[M],并已标记受到 3 点伤害。有玩家打出了“封冻”,并以该单位为目\n                             标。结算时,该单位的战力变为 3,因此会被标记致命伤害。",
+          "reviewStatus": "NOT_REVIEWED",
+          "implementation": [],
+          "tests": []
+        },
+        {
+          "id": "DOC-01-P017-B014",
+          "document": "DOC-01",
+          "page": 17,
+          "clauseAnchors": [
+            "142.4.c"
+          ],
+          "text": "142.4.c.               部分效果可能会改变该数值。这些效果会提及摧毁一名单位所需的伤害数值。\n                             举例:“远古巨龙”的被动技能的描述为:“你对敌方单位造成任意数量的伤害,都足以将其摧\n                             毁。”这个效果会改变被你标记伤害的敌方单位的致命伤害数值。",
+          "reviewStatus": "NOT_REVIEWED",
+          "implementation": [],
+          "tests": []
+        },
+        {
+          "id": "DOC-01-P093-B007",
+          "document": "DOC-01",
+          "page": 93,
+          "clauseAnchors": [
+            "467.2.c"
+          ],
+          "text": "467.2.c.                从进攻方开始,每名玩家将等同于其战力总和的伤害量分配给对方的单位。",
+          "reviewStatus": "NOT_REVIEWED",
+          "implementation": [],
+          "tests": []
+        },
+        {
+          "id": "DOC-01-P093-B008",
+          "document": "DOC-01",
+          "page": 93,
+          "clauseAnchors": [
+            "467.2.c.1"
+          ],
+          "text": "467.2.c.1.                   分配伤害并非造成伤害。",
+          "reviewStatus": "NOT_REVIEWED",
+          "implementation": [],
+          "tests": []
+        },
+        {
+          "id": "DOC-01-P093-B009",
+          "document": "DOC-01",
+          "page": 93,
+          "clauseAnchors": [
+            "467.2.c.1.a"
+          ],
+          "text": "467.2.c.1.a.                     当所有伤害分配完毕后,这些伤害将同时造成。这两个行动并非同义词。",
+          "reviewStatus": "NOT_REVIEWED",
+          "implementation": [],
+          "tests": []
+        },
+        {
+          "id": "DOC-01-P093-B010",
+          "document": "DOC-01",
+          "page": 93,
+          "clauseAnchors": [
+            "467.2.c.2"
+          ],
+          "text": "467.2.c.2.                   技能或效果可能会影响伤害的分配顺序。提示:致命伤害是指等同于或超过单位战力的非零伤\n                             害。",
+          "reviewStatus": "NOT_REVIEWED",
+          "implementation": [],
+          "tests": []
+        },
+        {
+          "id": "DOC-01-P093-B011",
+          "document": "DOC-01",
+          "page": 93,
+          "clauseAnchors": [
+            "467.2.c.3"
+          ],
+          "text": "467.2.c.3.                   在其它单位承担伤害之前,必须先向一个单位分配可以将其摧毁的致命伤害。\n                                 举例:如果玩家有 5 点伤害要分配给四名战力为 3 的单位,则不可选择将 2 点伤害\n                                 分配给其中一名单位,再向其余 3 名单位各分配 1 点伤害。必须将 3 点伤害分配给其\n                                 中一名单位,再将剩余的 2 点伤害分配给另一名单位。",
+          "reviewStatus": "NOT_REVIEWED",
+          "implementation": [],
+          "tests": []
+        },
+        {
+          "id": "DOC-01-P093-B012",
+          "document": "DOC-01",
+          "page": 93,
+          "clauseAnchors": [
+            "467.2.c.4"
+          ],
+          "text": "467.2.c.4.                   在尚有其他单位可供分配伤害时,为一个单位所分配的伤害不得超过其致命伤害所需的最小\n                             值。\n                                 如果一名玩家需要将 5 点伤害分配给四个战力均为 3,并且这些单位每个都已经被标\n                                 记了 1 点伤害,则该玩家不能为其中任何一个单位分配超过 2 点伤害。",
+          "reviewStatus": "NOT_REVIEWED",
+          "implementation": [],
+          "tests": []
+        },
+        {
+          "id": "DOC-01-P093-B013",
+          "document": "DOC-01",
+          "page": 93,
+          "clauseAnchors": [
+            "467.2.c.4.a"
+          ],
+          "text": "467.2.c.4.a.                     如果分配给一个单位的伤害被调整或被替换为一个高于初始值的伤害值,分配伤害的\n                                 玩家必须选择能够使该单位受到致命伤害的最小适用数值。\n                                      举例:要在战斗伤害步骤中为一个 3[M]单位分配伤害。该单位的控制者还\n                                      控制着其他尚未被分配伤害的单位。该单位还被施加了一个延迟替换效\n                                      果:“在本回合内,该单位受到的所有伤害翻倍。”在分配伤害时,分配伤害\n                                      的玩家只能选择为该单位分配 1 点或 2 点伤害——进行此行动时,分配的\n                                      伤害分别翻倍为 2 点或 4 点伤害。在这种情况下,能够使该单位受到致命\n                                      伤害的最小适用数值为 4 点伤害。",
+          "reviewStatus": "NOT_REVIEWED",
+          "implementation": [],
+          "tests": []
+        },
+        {
+          "id": "DOC-01-P093-B014",
+          "document": "DOC-01",
+          "page": 93,
+          "clauseAnchors": [
+            "467.2.c.5"
+          ],
+          "text": "467.2.c.5.                   以这种方式分配战斗伤害时,影响最终伤害的被动技能和替换效果将转而在分配伤害时生效。\n                                 举例:要在战斗伤害阶段中为一个 2[M]单位分配伤害。该单位拥有“抵挡我在每次战\n                                 斗中承受的前 3 点伤害。因此需要为该单位分配 5 点伤害,才算是为其分配了达致\n                                 命伤害数量的数值。",
+          "reviewStatus": "NOT_REVIEWED",
+          "implementation": [],
+          "tests": []
+        }
+      ]
+    }
+  ],
+  "all40OriginalDirectReferencesRetained": true,
+  "directCitationDispositions": [
+    {
+      "originalReviewId": "elder-dragon-2026-10-11",
+      "oldReferenceId": "DOC-11-P008-B001",
+      "oldTextSha256": "acb018977aef9a08c64739646e97aa751e2b1e5e73b1c9cb0cf5f8ab4a710810",
+      "disposition": "CONTEXT_OR_OTHER_CONSUMER_SEMANTICS_OPEN",
+      "currentCoreReferences": [],
+      "wholeClauseCertified": false
+    },
+    {
+      "originalReviewId": "elder-dragon-2026-10-11",
+      "oldReferenceId": "DOC-11-P008-B002",
+      "oldTextSha256": "f560c15f8ef41367798edace54e24d7110c75911e5078861958e226f8b3d9940",
+      "disposition": "CONTEXT_OR_OTHER_CONSUMER_SEMANTICS_OPEN",
+      "currentCoreReferences": [],
+      "wholeClauseCertified": false
+    },
+    {
+      "originalReviewId": "elder-dragon-2026-10-11",
+      "oldReferenceId": "DOC-11-P008-B003",
+      "oldTextSha256": "e8c20aeb3dfe2cef9f89023d1480015db59fc8064ede707cca72d154ef149f6c",
+      "disposition": "PARTIAL_CURRENT_SOURCE_FOOTING_RECONFIRMED",
+      "currentCoreReferences": [
+        "DOC-01-P017-B007",
+        "DOC-01-P017-B008",
+        "DOC-01-P017-B009",
+        "DOC-01-P017-B010",
+        "DOC-01-P017-B011",
+        "DOC-01-P017-B012",
+        "DOC-01-P017-B014",
+        "DOC-01-P093-B007",
+        "DOC-01-P093-B008",
+        "DOC-01-P093-B009",
+        "DOC-01-P093-B010",
+        "DOC-01-P093-B011",
+        "DOC-01-P093-B012",
+        "DOC-01-P093-B013",
+        "DOC-01-P093-B014"
+      ],
+      "wholeClauseCertified": false
+    },
+    {
+      "originalReviewId": "elder-dragon-2026-10-11",
+      "oldReferenceId": "DOC-11-P009-B001",
+      "oldTextSha256": "01ff71273ce1308f9517acc180b4f5ff3e118063922b48d8d82dc49a5bb266af",
+      "disposition": "PARTIAL_CURRENT_SOURCE_FOOTING_RECONFIRMED",
+      "currentCoreReferences": [
+        "DOC-01-P017-B007",
+        "DOC-01-P017-B008",
+        "DOC-01-P017-B009",
+        "DOC-01-P017-B010",
+        "DOC-01-P017-B011",
+        "DOC-01-P017-B012",
+        "DOC-01-P017-B014",
+        "DOC-01-P093-B007",
+        "DOC-01-P093-B008",
+        "DOC-01-P093-B009",
+        "DOC-01-P093-B010",
+        "DOC-01-P093-B011",
+        "DOC-01-P093-B012",
+        "DOC-01-P093-B013",
+        "DOC-01-P093-B014"
+      ],
+      "wholeClauseCertified": false
+    },
+    {
+      "originalReviewId": "elder-dragon-2026-10-11",
+      "oldReferenceId": "DOC-11-P009-B002",
+      "oldTextSha256": "8c308783c6a57695065efa0a4392854f6bc7d4c6d9e51b5f1b8e22e6c70ab88e",
+      "disposition": "PARTIAL_CURRENT_SOURCE_FOOTING_RECONFIRMED",
+      "currentCoreReferences": [
+        "DOC-01-P017-B007",
+        "DOC-01-P017-B008",
+        "DOC-01-P017-B009",
+        "DOC-01-P017-B010",
+        "DOC-01-P017-B011",
+        "DOC-01-P017-B012",
+        "DOC-01-P017-B014",
+        "DOC-01-P093-B007",
+        "DOC-01-P093-B008",
+        "DOC-01-P093-B009",
+        "DOC-01-P093-B010",
+        "DOC-01-P093-B011",
+        "DOC-01-P093-B012",
+        "DOC-01-P093-B013",
+        "DOC-01-P093-B014"
+      ],
+      "wholeClauseCertified": false
+    },
+    {
+      "originalReviewId": "elder-dragon-2026-10-11",
+      "oldReferenceId": "DOC-11-P009-B003",
+      "oldTextSha256": "4ed4c6892d9bdc7e06ffcb1717f931b554d402926ffd1dbae1b77a695a5e1d38",
+      "disposition": "PARTIAL_CURRENT_SOURCE_FOOTING_RECONFIRMED",
+      "currentCoreReferences": [
+        "DOC-01-P017-B007",
+        "DOC-01-P017-B008",
+        "DOC-01-P017-B009",
+        "DOC-01-P017-B010",
+        "DOC-01-P017-B011",
+        "DOC-01-P017-B012",
+        "DOC-01-P017-B014",
+        "DOC-01-P093-B007",
+        "DOC-01-P093-B008",
+        "DOC-01-P093-B009",
+        "DOC-01-P093-B010",
+        "DOC-01-P093-B011",
+        "DOC-01-P093-B012",
+        "DOC-01-P093-B013",
+        "DOC-01-P093-B014"
+      ],
+      "wholeClauseCertified": false
+    },
+    {
+      "originalReviewId": "elder-dragon-2026-10-11",
+      "oldReferenceId": "DOC-11-P009-B004",
+      "oldTextSha256": "daad090b4cc9900974a78ba6e7ca356cbcd772b734820c0c2ebd48cfcd4dba61",
+      "disposition": "PARTIAL_CURRENT_SOURCE_FOOTING_RECONFIRMED",
+      "currentCoreReferences": [
+        "DOC-01-P017-B007",
+        "DOC-01-P017-B008",
+        "DOC-01-P017-B009",
+        "DOC-01-P017-B010",
+        "DOC-01-P017-B011",
+        "DOC-01-P017-B012",
+        "DOC-01-P017-B014",
+        "DOC-01-P093-B007",
+        "DOC-01-P093-B008",
+        "DOC-01-P093-B009",
+        "DOC-01-P093-B010",
+        "DOC-01-P093-B011",
+        "DOC-01-P093-B012",
+        "DOC-01-P093-B013",
+        "DOC-01-P093-B014"
+      ],
+      "wholeClauseCertified": false
+    },
+    {
+      "originalReviewId": "elder-dragon-2026-10-11",
+      "oldReferenceId": "DOC-11-P009-B005",
+      "oldTextSha256": "c844bc7f7e2622f73a85702234837313d72e31f0dc4c8d0054edea2fac2d58f8",
+      "disposition": "CONTEXT_OR_OTHER_CONSUMER_SEMANTICS_OPEN",
+      "currentCoreReferences": [],
+      "wholeClauseCertified": false
+    },
+    {
+      "originalReviewId": "elder-dragon-2026-10-11",
+      "oldReferenceId": "DOC-11-P009-B006",
+      "oldTextSha256": "710e484e70147fbe1426893092d222a402687f1f806252f2be500b9f4c750264",
+      "disposition": "CONTEXT_OR_OTHER_CONSUMER_SEMANTICS_OPEN",
+      "currentCoreReferences": [],
+      "wholeClauseCertified": false
+    },
+    {
+      "originalReviewId": "elder-dragon-2026-10-11",
+      "oldReferenceId": "DOC-11-P009-B007",
+      "oldTextSha256": "dc8e2f3d0f067d2d3c5e4cdd149a6982eace1ba6de978297b17e5fc679503650",
+      "disposition": "CONTEXT_OR_OTHER_CONSUMER_SEMANTICS_OPEN",
+      "currentCoreReferences": [],
+      "wholeClauseCertified": false
+    },
+    {
+      "originalReviewId": "elder-dragon-2026-10-11",
+      "oldReferenceId": "DOC-11-P019-B001",
+      "oldTextSha256": "f925ae5eb507073a9b525819f93633965680c695a91fb6b75eb94b904439b8de",
+      "disposition": "CONTEXT_OR_OTHER_CONSUMER_SEMANTICS_OPEN",
+      "currentCoreReferences": [],
+      "wholeClauseCertified": false
+    },
+    {
+      "originalReviewId": "elder-dragon-2026-10-11",
+      "oldReferenceId": "DOC-11-P019-B002",
+      "oldTextSha256": "084ab4e83997142be8ee169a0ebb8c8a6ab856e40061fe6f090a853a37565792",
+      "disposition": "CONTEXT_OR_OTHER_CONSUMER_SEMANTICS_OPEN",
+      "currentCoreReferences": [],
+      "wholeClauseCertified": false
+    },
+    {
+      "originalReviewId": "elder-dragon-2026-10-11",
+      "oldReferenceId": "DOC-11-P019-B003",
+      "oldTextSha256": "a1e047ee15474df4423230eabe76dab0ea3c43a601ba5dbb96d09985a15c14b4",
+      "disposition": "PARTIAL_CURRENT_SOURCE_FOOTING_RECONFIRMED",
+      "currentCoreReferences": [
+        "DOC-01-P017-B007",
+        "DOC-01-P017-B008",
+        "DOC-01-P017-B009",
+        "DOC-01-P017-B010",
+        "DOC-01-P017-B011",
+        "DOC-01-P017-B012",
+        "DOC-01-P017-B014",
+        "DOC-01-P093-B007",
+        "DOC-01-P093-B008",
+        "DOC-01-P093-B009",
+        "DOC-01-P093-B010",
+        "DOC-01-P093-B011",
+        "DOC-01-P093-B012",
+        "DOC-01-P093-B013",
+        "DOC-01-P093-B014"
+      ],
+      "wholeClauseCertified": false
+    },
+    {
+      "originalReviewId": "elder-dragon-2026-10-11",
+      "oldReferenceId": "DOC-11-P019-B004",
+      "oldTextSha256": "ac58ce3990b52caa2595636459ae49225b651d586dd3fbb5de7263dd090c5452",
+      "disposition": "PARTIAL_CURRENT_SOURCE_FOOTING_RECONFIRMED",
+      "currentCoreReferences": [
+        "DOC-01-P017-B007",
+        "DOC-01-P017-B008",
+        "DOC-01-P017-B009",
+        "DOC-01-P017-B010",
+        "DOC-01-P017-B011",
+        "DOC-01-P017-B012",
+        "DOC-01-P017-B014",
+        "DOC-01-P093-B007",
+        "DOC-01-P093-B008",
+        "DOC-01-P093-B009",
+        "DOC-01-P093-B010",
+        "DOC-01-P093-B011",
+        "DOC-01-P093-B012",
+        "DOC-01-P093-B013",
+        "DOC-01-P093-B014"
+      ],
+      "wholeClauseCertified": false
+    },
+    {
+      "originalReviewId": "elder-dragon-2026-10-11",
+      "oldReferenceId": "DOC-11-P019-B005",
+      "oldTextSha256": "9298a5f96e4ba36b0247046e70681e229c662d505d4f2d06606339bc09af1911",
+      "disposition": "CONTEXT_OR_OTHER_CONSUMER_SEMANTICS_OPEN",
+      "currentCoreReferences": [],
+      "wholeClauseCertified": false
+    },
+    {
+      "originalReviewId": "elder-dragon-2026-10-11",
+      "oldReferenceId": "DOC-11-P019-B006",
+      "oldTextSha256": "f4407521d467e686d23ee54317a9d2aaae987cf774531cfcdc844cc7031391c2",
+      "disposition": "CONTEXT_OR_OTHER_CONSUMER_SEMANTICS_OPEN",
+      "currentCoreReferences": [],
+      "wholeClauseCertified": false
+    },
+    {
+      "originalReviewId": "elder-dragon-2026-10-11",
+      "oldReferenceId": "DOC-11-P020-B001",
+      "oldTextSha256": "bb61863a41fd994a0cbba992151c0e79f0b838c9e315229a755ed1926d8278a2",
+      "disposition": "CONTEXT_OR_OTHER_CONSUMER_SEMANTICS_OPEN",
+      "currentCoreReferences": [],
+      "wholeClauseCertified": false
+    },
+    {
+      "originalReviewId": "elder-dragon-2026-10-11",
+      "oldReferenceId": "DOC-11-P020-B002",
+      "oldTextSha256": "bd8ea3ca8d207bf15e009d6a907c15d243f468bf420cd6f2547816e9e9f684ce",
+      "disposition": "CONTEXT_OR_OTHER_CONSUMER_SEMANTICS_OPEN",
+      "currentCoreReferences": [],
+      "wholeClauseCertified": false
+    },
+    {
+      "originalReviewId": "elder-dragon-2026-10-11",
+      "oldReferenceId": "DOC-11-P020-B003",
+      "oldTextSha256": "a620aea16ac30cad0f062e4e94ede514a216fcb7b2a2bd8eed5ca0bafecf9f4f",
+      "disposition": "CONTEXT_OR_OTHER_CONSUMER_SEMANTICS_OPEN",
+      "currentCoreReferences": [],
+      "wholeClauseCertified": false
+    },
+    {
+      "originalReviewId": "elder-dragon-2026-10-11",
+      "oldReferenceId": "DOC-11-P020-B004",
+      "oldTextSha256": "73ceaa03977e031155a63ad0f67515574c89b18343da8aebd3d71a7ee2db4b95",
+      "disposition": "CONTEXT_OR_OTHER_CONSUMER_SEMANTICS_OPEN",
+      "currentCoreReferences": [],
+      "wholeClauseCertified": false
+    },
+    {
+      "originalReviewId": "elder-dragon-2026-10-11",
+      "oldReferenceId": "DOC-11-P020-B005",
+      "oldTextSha256": "571026e7e3978297695bc15ccb6a00fdda5036ab8b4e71b5e7402fbf716b70fe",
+      "disposition": "CONTEXT_OR_OTHER_CONSUMER_SEMANTICS_OPEN",
+      "currentCoreReferences": [],
+      "wholeClauseCertified": false
+    },
+    {
+      "originalReviewId": "ephemeral-start-2026-10-11",
+      "oldReferenceId": "DOC-11-P014-B001",
+      "oldTextSha256": "4596ea29514b5b213e853b10207f64d71a09becfd3b9145e94347be349e03225",
+      "disposition": "PARTIAL_CURRENT_SOURCE_FOOTING_RECONFIRMED",
+      "currentCoreReferences": [
+        "DOC-01-P015-B007",
+        "DOC-01-P015-B009",
+        "DOC-01-P107-B005",
+        "DOC-01-P120-B022",
+        "DOC-01-P120-B023",
+        "DOC-01-P120-B024",
+        "DOC-01-P120-B025",
+        "DOC-01-P121-B001",
+        "DOC-01-P121-B002",
+        "DOC-01-P121-B003"
+      ],
+      "wholeClauseCertified": false
+    },
+    {
+      "originalReviewId": "ephemeral-start-2026-10-11",
+      "oldReferenceId": "DOC-11-P014-B002",
+      "oldTextSha256": "841a57a2488d65f3cbdfb55ad718ac21f5b63a655c9817990baf63f65e9ca09a",
+      "disposition": "PARTIAL_CURRENT_SOURCE_FOOTING_RECONFIRMED",
+      "currentCoreReferences": [
+        "DOC-01-P015-B007",
+        "DOC-01-P015-B009",
+        "DOC-01-P107-B005",
+        "DOC-01-P120-B022",
+        "DOC-01-P120-B023",
+        "DOC-01-P120-B024",
+        "DOC-01-P120-B025",
+        "DOC-01-P121-B001",
+        "DOC-01-P121-B002",
+        "DOC-01-P121-B003"
+      ],
+      "wholeClauseCertified": false
+    },
+    {
+      "originalReviewId": "ephemeral-start-2026-10-11",
+      "oldReferenceId": "DOC-11-P014-B003",
+      "oldTextSha256": "39aa6c268748cead9e854f427a3dda400bbc008ff0e99fb5d2ec258d68002380",
+      "disposition": "PARTIAL_CURRENT_SOURCE_FOOTING_RECONFIRMED",
+      "currentCoreReferences": [
+        "DOC-01-P015-B007",
+        "DOC-01-P015-B009",
+        "DOC-01-P107-B005",
+        "DOC-01-P120-B022",
+        "DOC-01-P120-B023",
+        "DOC-01-P120-B024",
+        "DOC-01-P120-B025",
+        "DOC-01-P121-B001",
+        "DOC-01-P121-B002",
+        "DOC-01-P121-B003"
+      ],
+      "wholeClauseCertified": false
+    },
+    {
+      "originalReviewId": "ephemeral-start-2026-10-11",
+      "oldReferenceId": "DOC-11-P014-B004",
+      "oldTextSha256": "751ea0e9483fdea63d4dc7ef362ebfb3e7a9ceb5cd10b87aed3b28e6fe1ef4db",
+      "disposition": "PARTIAL_CURRENT_SOURCE_FOOTING_RECONFIRMED",
+      "currentCoreReferences": [
+        "DOC-01-P015-B007",
+        "DOC-01-P015-B009",
+        "DOC-01-P107-B005",
+        "DOC-01-P120-B022",
+        "DOC-01-P120-B023",
+        "DOC-01-P120-B024",
+        "DOC-01-P120-B025",
+        "DOC-01-P121-B001",
+        "DOC-01-P121-B002",
+        "DOC-01-P121-B003"
+      ],
+      "wholeClauseCertified": false
+    },
+    {
+      "originalReviewId": "ephemeral-start-2026-10-11",
+      "oldReferenceId": "DOC-11-P014-B005",
+      "oldTextSha256": "e74a7c40d518d3b482f6f8f54b9e761b7e297a2bc521a79925694908fc08ef8b",
+      "disposition": "PARTIAL_CURRENT_SOURCE_FOOTING_RECONFIRMED",
+      "currentCoreReferences": [
+        "DOC-01-P015-B007",
+        "DOC-01-P015-B009",
+        "DOC-01-P107-B005",
+        "DOC-01-P120-B022",
+        "DOC-01-P120-B023",
+        "DOC-01-P120-B024",
+        "DOC-01-P120-B025",
+        "DOC-01-P121-B001",
+        "DOC-01-P121-B002",
+        "DOC-01-P121-B003"
+      ],
+      "wholeClauseCertified": false
+    },
+    {
+      "originalReviewId": "ephemeral-start-2026-10-11",
+      "oldReferenceId": "DOC-11-P014-B006",
+      "oldTextSha256": "04740e65081d931d63c6d2f8a2260e2a303c0bac3cf30a95439eba0a82ba89db",
+      "disposition": "PARTIAL_CURRENT_SOURCE_FOOTING_RECONFIRMED",
+      "currentCoreReferences": [
+        "DOC-01-P015-B007",
+        "DOC-01-P015-B009",
+        "DOC-01-P107-B005",
+        "DOC-01-P120-B022",
+        "DOC-01-P120-B023",
+        "DOC-01-P120-B024",
+        "DOC-01-P120-B025",
+        "DOC-01-P121-B001",
+        "DOC-01-P121-B002",
+        "DOC-01-P121-B003"
+      ],
+      "wholeClauseCertified": false
+    },
+    {
+      "originalReviewId": "ephemeral-start-2026-10-11",
+      "oldReferenceId": "DOC-11-P014-B007",
+      "oldTextSha256": "447eed560c9548760ba273e583c8243081f32319c7659cf427346a9738bb46b0",
+      "disposition": "PARTIAL_CURRENT_SOURCE_FOOTING_RECONFIRMED",
+      "currentCoreReferences": [
+        "DOC-01-P015-B007",
+        "DOC-01-P015-B009",
+        "DOC-01-P107-B005",
+        "DOC-01-P120-B022",
+        "DOC-01-P120-B023",
+        "DOC-01-P120-B024",
+        "DOC-01-P120-B025",
+        "DOC-01-P121-B001",
+        "DOC-01-P121-B002",
+        "DOC-01-P121-B003"
+      ],
+      "wholeClauseCertified": false
+    },
+    {
+      "originalReviewId": "ephemeral-start-2026-10-11",
+      "oldReferenceId": "DOC-11-P015-B001",
+      "oldTextSha256": "d62782f9023af0f6c5ac768ad6b4c6e33074a01ac5e0a8b94f74336b97570acd",
+      "disposition": "PARTIAL_CURRENT_SOURCE_FOOTING_RECONFIRMED",
+      "currentCoreReferences": [
+        "DOC-01-P015-B007",
+        "DOC-01-P015-B009",
+        "DOC-01-P107-B005",
+        "DOC-01-P120-B022",
+        "DOC-01-P120-B023",
+        "DOC-01-P120-B024",
+        "DOC-01-P120-B025",
+        "DOC-01-P121-B001",
+        "DOC-01-P121-B002",
+        "DOC-01-P121-B003"
+      ],
+      "wholeClauseCertified": false
+    },
+    {
+      "originalReviewId": "ephemeral-start-2026-10-11",
+      "oldReferenceId": "DOC-11-P015-B002",
+      "oldTextSha256": "9a1a226c23efd1af1773f67137a71aa1e3aac0a31d1e9e355f9da6eea2dfc10d",
+      "disposition": "PARTIAL_CURRENT_SOURCE_FOOTING_RECONFIRMED",
+      "currentCoreReferences": [
+        "DOC-01-P015-B007",
+        "DOC-01-P015-B009",
+        "DOC-01-P107-B005",
+        "DOC-01-P120-B022",
+        "DOC-01-P120-B023",
+        "DOC-01-P120-B024",
+        "DOC-01-P120-B025",
+        "DOC-01-P121-B001",
+        "DOC-01-P121-B002",
+        "DOC-01-P121-B003"
+      ],
+      "wholeClauseCertified": false
+    },
+    {
+      "originalReviewId": "ephemeral-start-2026-10-11",
+      "oldReferenceId": "DOC-11-P015-B003",
+      "oldTextSha256": "ab1f86b2dffbbd24bb458290adb447bfc42552a5a86f1a5dadba727399c1583b",
+      "disposition": "PARTIAL_CURRENT_SOURCE_FOOTING_RECONFIRMED",
+      "currentCoreReferences": [
+        "DOC-01-P015-B007",
+        "DOC-01-P015-B009",
+        "DOC-01-P107-B005",
+        "DOC-01-P120-B022",
+        "DOC-01-P120-B023",
+        "DOC-01-P120-B024",
+        "DOC-01-P120-B025",
+        "DOC-01-P121-B001",
+        "DOC-01-P121-B002",
+        "DOC-01-P121-B003"
+      ],
+      "wholeClauseCertified": false
+    },
+    {
+      "originalReviewId": "ephemeral-start-2026-10-11",
+      "oldReferenceId": "DOC-11-P015-B004",
+      "oldTextSha256": "c97db625e484744283fbd421574587b583c4e0edb3415e5e9e664683e181fa3f",
+      "disposition": "PARTIAL_CURRENT_SOURCE_FOOTING_RECONFIRMED",
+      "currentCoreReferences": [
+        "DOC-01-P015-B007",
+        "DOC-01-P015-B009",
+        "DOC-01-P107-B005",
+        "DOC-01-P120-B022",
+        "DOC-01-P120-B023",
+        "DOC-01-P120-B024",
+        "DOC-01-P120-B025",
+        "DOC-01-P121-B001",
+        "DOC-01-P121-B002",
+        "DOC-01-P121-B003"
+      ],
+      "wholeClauseCertified": false
+    },
+    {
+      "originalReviewId": "ephemeral-start-2026-10-11",
+      "oldReferenceId": "DOC-11-P015-B005",
+      "oldTextSha256": "2db35f2a2c45f1f59e3909826129e46469efcf6f4b745fabe17d0ed238bdd83a",
+      "disposition": "CONTEXT_OR_OTHER_CONSUMER_SEMANTICS_OPEN",
+      "currentCoreReferences": [],
+      "wholeClauseCertified": false
+    },
+    {
+      "originalReviewId": "ephemeral-start-2026-10-11",
+      "oldReferenceId": "DOC-11-P015-B006",
+      "oldTextSha256": "d607c10cc89511ea570a5f2983bd37e1216afde90845df15c2d22aac826ac749",
+      "disposition": "CONTEXT_OR_OTHER_CONSUMER_SEMANTICS_OPEN",
+      "currentCoreReferences": [],
+      "wholeClauseCertified": false
+    },
+    {
+      "originalReviewId": "ephemeral-start-2026-10-11",
+      "oldReferenceId": "DOC-11-P015-B007",
+      "oldTextSha256": "64bc2afcb168867aa4d38eb52fbd28249e0bea9fdbeb7bc85e3d1be467bf7e02",
+      "disposition": "CONTEXT_OR_OTHER_CONSUMER_SEMANTICS_OPEN",
+      "currentCoreReferences": [],
+      "wholeClauseCertified": false
+    },
+    {
+      "originalReviewId": "ephemeral-start-2026-10-11",
+      "oldReferenceId": "DOC-11-P015-B008",
+      "oldTextSha256": "e258f460cab6a8c8f9620dc767dc3d06d32a98e6911735b3056f47e43036e01a",
+      "disposition": "CONTEXT_OR_OTHER_CONSUMER_SEMANTICS_OPEN",
+      "currentCoreReferences": [],
+      "wholeClauseCertified": false
+    },
+    {
+      "originalReviewId": "ephemeral-start-2026-10-11",
+      "oldReferenceId": "DOC-11-P015-B009",
+      "oldTextSha256": "729bb6fa949765e430b066746f9b0ba542cacc6728b12024a51606b4dcbfb07c",
+      "disposition": "CONTEXT_OR_OTHER_CONSUMER_SEMANTICS_OPEN",
+      "currentCoreReferences": [],
+      "wholeClauseCertified": false
+    },
+    {
+      "originalReviewId": "beginning-draw-2026-10-11",
+      "oldReferenceId": "DOC-11-P004-B001",
+      "oldTextSha256": "ddd864f5bc0aee9ee0bb1c4e507e07558982725a3314f0b87ab6b21e533e7c9c",
+      "disposition": "CONTEXT_OR_OTHER_CONSUMER_SEMANTICS_OPEN",
+      "currentCoreReferences": [],
+      "wholeClauseCertified": false
+    },
+    {
+      "originalReviewId": "beginning-draw-2026-10-11",
+      "oldReferenceId": "DOC-11-P004-B002",
+      "oldTextSha256": "ee567302a618a786aa32590c9319804435394c4748e73b080431d13af6b3ac43",
+      "disposition": "CONTEXT_OR_OTHER_CONSUMER_SEMANTICS_OPEN",
+      "currentCoreReferences": [],
+      "wholeClauseCertified": false
+    },
+    {
+      "originalReviewId": "beginning-draw-2026-10-11",
+      "oldReferenceId": "DOC-11-P004-B003",
+      "oldTextSha256": "0fcbb71e7830fe9a19f320df227cca37f1347cdfc2cf33347b0c16af9311c648",
+      "disposition": "PARTIAL_CURRENT_SOURCE_FOOTING_RECONFIRMED",
+      "currentCoreReferences": [
+        "DOC-01-P062-B007",
+        "DOC-01-P062-B008",
+        "DOC-01-P062-B009"
+      ],
+      "wholeClauseCertified": false
+    }
+  ],
+  "tests": {
+    "commit": "8d7571c5a5572b1ed542a5ff1d8eaeb533bac1bc",
+    "cases": 101,
+    "methods": 49,
+    "passed": 101,
+    "trx": {
+      "path": "var/qa/doc11-reference-revalidation-20261016/current-8d-focus/focus/results.trx",
+      "sha256": "3031c88dcb2bd4619f7a9bcef6b74473abb9149c9d19bf61994334bf1150f9cb"
+    },
+    "plan": {
+      "path": "var/qa/doc11-reference-revalidation-20261016/current-8d-focus/plan.json",
+      "sha256": "f629467769d117dcf2f680851822b6fc2f53e64bbf28016f1409cbc228bcb576"
+    },
+    "assemblySha256": "e88809ffe07c58debcda55207d9ac287ac7d986c9f49b89daaba12fa1ae283ce",
+    "summary": {
+      "status": "PASSED",
+      "profile": "focus",
+      "seconds": 49.31,
+      "total": 101,
+      "caseParityVerified": false,
+      "shards": [
+        {
+          "shard": "focus",
+          "total": 101,
+          "passed": 101,
+          "failed": 0,
+          "notExecuted": 0,
+          "seconds": 10.81
+        }
+      ]
+    },
+    "actualNativeControlsExecuted": false,
+    "note": "Backend focus at8d before Atakhan code/test edits. Native-named classes do not count as actual Godot controls with native environment unset. Does not cover the later working tree."
+  },
+  "printingLiteralDifferences": [
+    {
+      "id": 31577,
+      "printing": "FND-251/298",
+      "originalImage": "回合开始时",
+      "currentApi": "回合开始阶段",
+      "treatment": "Exact identities/literal difference retained; current core explicit Jinx interpretation used only for bounded behavior."
+    },
+    {
+      "id": 34603,
+      "printing": "UNL-070/219",
+      "originalReminder": "控制者的开始阶段开始时",
+      "otherReminderPrints": "控制者的下个回合开始阶段",
+      "treatment": "Exact literal difference retained; current816 timing used; no whole-printing equivalence claim."
+    }
+  ],
+  "fixedCommitCi": "OPEN_FOR_NEW_CANDIDATE",
+  "productAcceptance": "OPEN_FOR_NEW_CANDIDATE",
+  "allOldReviewDictionariesUntouched": true,
+  "remaining": [
+    "Complete indirect consumer/reference graph of expired DOC11, including historical DOC14 ANY-trait consumers.",
+    "Elder per-location target restrictions and response invalidation, and unrelated privacy/battlefield-control/Jhin scope in old broad page references remain separately OPEN.",
+    "General granted attached keywords beyond recorded Ephemeral and all alternate-printing behavior branches remain OPEN.",
+    "Actual native paired/SQL/network/Windows acceptance remains separately commit scoped."
+  ],
+  "wholePrintingCertified": false,
+  "wholeClauseOrOfficialSemanticsCertified": false,
+  "laterWorkingTreeBackendCoverage": {
+    "receipt": {
+      "path": "docs/evidence/optional-sacrifice-cost-2026-10-16/check.json",
+      "sha256": "574b0efb8e78e90df3985bd633bf4f8df50a1d6abe81accb8defc61567ccc7ea"
+    },
+    "includedCases": 101,
+    "includedMethods": 49,
+    "scope": "Later batch nonfull check includes all101 named backend cases, no native/product or whole semantic promotion."
+  }
+}

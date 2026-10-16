@@ -1,0 +1,446 @@
+{
+  "region": "CN",
+  "language": "zh-CN",
+  "applicabilityDate": "2026-10-16",
+  "firstPublicationDate": null,
+  "effectiveDate": null,
+  "baselinePin": {
+    "path": "data/official/upstream/2026-10-16/source-refresh-20261015T160523Z/card-catalog.zh-CN.json",
+    "sha256": "4f6a981a51d95e395820c1980f734645e1a5b56e454dbb8758ac3ce331162624"
+  },
+  "acquisitions": [
+    {
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "旋转飞斧",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "attemptedAtUtc": "2026-10-16T01:15:46.165179+00:00",
+      "fetchedAtUtc": "2026-10-16T01:15:46.283399+00:00",
+      "path": "var/qa/doc11-reference-revalidation-20261016/ephemeral-33284-api-raw.json",
+      "sha256": "3581622fe0784ea731e248defcc42e0db5ab52bbb81ef48c3306f434dfededfa",
+      "records": [
+        {
+          "card": {
+            "id": 33284,
+            "cardCategoryList": [
+              "exclusive_equipment"
+            ],
+            "cardCategoryNameList": [
+              "专属装备"
+            ],
+            "cardNo": "SFD·186/221",
+            "cardName": "旋转飞斧",
+            "subTitle": "",
+            "extendType": null,
+            "extendTypeName": "",
+            "cardColorList": [
+              "red",
+              "purple"
+            ],
+            "hero": "德莱文",
+            "region": "",
+            "tag": "武装",
+            "artist": "Six More Vodka",
+            "cardEffect": "{{灵便}}（此牌获得{{反应}}。当你打出此牌时，将它贴附到你控制的一名单位上。）\n{{装配}}{{A}}（支付{{A}}：将此牌贴附到你控制的一名单位上。）\n{{瞬息}}（如果此牌未贴附，则在其控制者的下个回合开始阶段，结算得分之前将其摧毁。）",
+            "flavorText": "“斧头在手，只欠猎物。”\n——德莱文",
+            "energy": 2,
+            "returnEnergy": 1,
+            "power": null,
+            "productCodeList": [
+              "SFD(标准补充包)",
+              "SFD(进阶补充包)"
+            ],
+            "productNameList": [
+              "铸魂淬炼 标准补充包",
+              "铸魂淬炼 进阶补充包"
+            ],
+            "cardQaList": null,
+            "craftLevel": 0,
+            "rarity": "rune_core",
+            "rarityName": "史诗",
+            "extendRarity": "base_inscript",
+            "extendRarityName": "平卡",
+            "frontImage": "https://cdn.playloltcg.com/lol/card/20251217/0639abe218a74627b49ab15846218ea6.png",
+            "backImage": "",
+            "listSort": 789,
+            "status": 1,
+            "cardGroupLimit": null,
+            "isPreview": false,
+            "errata": "",
+            "otherDesc": 0
+          },
+          "allFieldsUnchanged": true
+        }
+      ]
+    },
+    {
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "化为灰烬",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "attemptedAtUtc": "2026-10-16T01:15:46.166055+00:00",
+      "fetchedAtUtc": "2026-10-16T01:15:46.283225+00:00",
+      "path": "var/qa/doc11-reference-revalidation-20261016/ephemeral-34603-api-raw.json",
+      "sha256": "3f1299fdd6f939dc1c0872d3f03764fa5f5f00d9d3cb31efd5b01412c290e9d6",
+      "records": [
+        {
+          "card": {
+            "id": 34603,
+            "cardCategoryList": [
+              "spell"
+            ],
+            "cardCategoryNameList": [
+              "法术"
+            ],
+            "cardNo": "UNL-070/219",
+            "cardName": "化为灰烬",
+            "subTitle": "",
+            "extendType": null,
+            "extendTypeName": "",
+            "cardColorList": [
+              "blue"
+            ],
+            "hero": "",
+            "region": "",
+            "tag": "",
+            "artist": "Kudos Productions",
+            "cardEffect": "让一件装备获得{{瞬息}}。（在其控制者的开始阶段开始时，结算得分之前将其摧毁。）",
+            "flavorText": "万物终有沉寂的一天。",
+            "energy": 2,
+            "returnEnergy": null,
+            "power": null,
+            "productCodeList": [
+              "UNL(进阶补充包)",
+              "UNL(标准补充包)"
+            ],
+            "productNameList": [
+              "破限系列 进阶补充包",
+              "破限系列 基础补充包"
+            ],
+            "cardQaList": null,
+            "craftLevel": 0,
+            "rarity": "rune_dust",
+            "rarityName": "普通",
+            "extendRarity": "base_inscript",
+            "extendRarityName": "平卡",
+            "frontImage": "https://cdn.playloltcg.com/lol/card/20260321/fc885595ef224c8bb20ff5caf68ddf04.webp",
+            "backImage": "",
+            "listSort": 1421,
+            "status": 1,
+            "cardGroupLimit": null,
+            "isPreview": false,
+            "errata": "",
+            "otherDesc": 0
+          },
+          "allFieldsUnchanged": true
+        }
+      ]
+    },
+    {
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "乐芙兰",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "attemptedAtUtc": "2026-10-16T01:15:46.170952+00:00",
+      "fetchedAtUtc": "2026-10-16T01:15:46.278317+00:00",
+      "path": "var/qa/doc11-reference-revalidation-20261016/ephemeral-34627-api-raw.json",
+      "sha256": "bd3d1d2369198a0aa0395840f1960ffa504688eda0b7da98766a231f2fc286b4",
+      "records": [
+        {
+          "card": {
+            "id": 34627,
+            "cardCategoryList": [
+              "hero_unit"
+            ],
+            "cardCategoryNameList": [
+              "英雄单位"
+            ],
+            "cardNo": "UNL-090/219",
+            "cardName": "乐芙兰",
+            "subTitle": "万象归宗",
+            "extendType": null,
+            "extendTypeName": "",
+            "cardColorList": [
+              "blue"
+            ],
+            "hero": "乐芙兰",
+            "region": "诺克萨斯",
+            "tag": "",
+            "artist": "Envar Studio",
+            "cardEffect": "{{后排}}（我在战斗中最后承担伤害。）\n你在我所处战场的{{瞬息}}效果不会触发。",
+            "flavorText": "“远谋、武力、狡诈。历史不过是一个可笑的循环。”",
+            "energy": 4,
+            "returnEnergy": null,
+            "power": 4,
+            "productCodeList": [
+              "UNL(进阶补充包)",
+              "UNL(标准补充包)"
+            ],
+            "productNameList": [
+              "破限系列 进阶补充包",
+              "破限系列 基础补充包"
+            ],
+            "cardQaList": null,
+            "craftLevel": 0,
+            "rarity": "rune_core",
+            "rarityName": "史诗",
+            "extendRarity": "base_inscript",
+            "extendRarityName": "平卡",
+            "frontImage": "https://cdn.playloltcg.com/lol/card/20260319/74103242c2df4924a49f24b023cb4c39.webp",
+            "backImage": "",
+            "listSort": 1397,
+            "status": 1,
+            "cardGroupLimit": null,
+            "isPreview": false,
+            "errata": "",
+            "otherDesc": 0
+          },
+          "allFieldsUnchanged": true
+        },
+        {
+          "card": {
+            "id": 34628,
+            "cardCategoryList": [
+              "hero_unit"
+            ],
+            "cardCategoryNameList": [
+              "英雄单位"
+            ],
+            "cardNo": "UNL-090a/219",
+            "cardName": "乐芙兰",
+            "subTitle": "万象归宗",
+            "extendType": null,
+            "extendTypeName": "",
+            "cardColorList": [
+              "blue"
+            ],
+            "hero": "乐芙兰",
+            "region": "诺克萨斯",
+            "tag": "",
+            "artist": "League Splash Team",
+            "cardEffect": "{{后排}}\n你在我所处战场的{{瞬息}}效果不会触发。",
+            "flavorText": "“远谋、武力、狡诈。历史不过是一个可笑的循环。”",
+            "energy": 4,
+            "returnEnergy": null,
+            "power": 4,
+            "productCodeList": [
+              "UNL(进阶补充包)",
+              "UNL(标准补充包)"
+            ],
+            "productNameList": [
+              "破限系列 进阶补充包",
+              "破限系列 基础补充包"
+            ],
+            "cardQaList": null,
+            "craftLevel": 0,
+            "rarity": "rune_legend",
+            "rarityName": "异画",
+            "extendRarity": "legacy_etching",
+            "extendRarityName": "异画",
+            "frontImage": "https://cdn.playloltcg.com/lol/card/20260319/d0f341017f864a3b9330919411c6f6c6.webp",
+            "backImage": "",
+            "listSort": 1396,
+            "status": 1,
+            "cardGroupLimit": null,
+            "isPreview": false,
+            "errata": "",
+            "otherDesc": 0
+          },
+          "allFieldsUnchanged": true
+        },
+        {
+          "card": {
+            "id": 34720,
+            "cardCategoryList": [
+              "hero_unit"
+            ],
+            "cardCategoryNameList": [
+              "英雄单位"
+            ],
+            "cardNo": "UNL-172/219",
+            "cardName": "乐芙兰",
+            "subTitle": "残影之殇",
+            "extendType": null,
+            "extendTypeName": "",
+            "cardColorList": [
+              "yellow"
+            ],
+            "hero": "乐芙兰",
+            "region": "诺克萨斯",
+            "tag": "",
+            "artist": "League Splash Team",
+            "cardEffect": "{{强攻}}（如果我是进攻方，则{{S}}+1。）\n{{绝念>}} 抽一张牌。若此时是你的开始阶段，则改为抽两张牌。（当我被摧毁后，发动此效果。）",
+            "flavorText": "“也许我赢在有太多个我了……”",
+            "energy": 3,
+            "returnEnergy": 1,
+            "power": 3,
+            "productCodeList": [
+              "UNL(进阶补充包)",
+              "UNL(标准补充包)"
+            ],
+            "productNameList": [
+              "破限系列 进阶补充包",
+              "破限系列 基础补充包"
+            ],
+            "cardQaList": null,
+            "craftLevel": 0,
+            "rarity": "rune_shard",
+            "rarityName": "稀有",
+            "extendRarity": "base_inscript",
+            "extendRarityName": "平卡",
+            "frontImage": "https://cdn.playloltcg.com/lol/card/20260325/fc8ffbfa138e43b4a99c2fa08879c732.webp",
+            "backImage": "",
+            "listSort": 1304,
+            "status": 1,
+            "cardGroupLimit": null,
+            "isPreview": false,
+            "errata": "",
+            "otherDesc": 0
+          },
+          "allFieldsUnchanged": true
+        },
+        {
+          "card": {
+            "id": 34721,
+            "cardCategoryList": [
+              "hero_unit"
+            ],
+            "cardCategoryNameList": [
+              "英雄单位"
+            ],
+            "cardNo": "UNL-172a/219",
+            "cardName": "乐芙兰",
+            "subTitle": "残影之殇",
+            "extendType": null,
+            "extendTypeName": "",
+            "cardColorList": [
+              "yellow"
+            ],
+            "hero": "乐芙兰",
+            "region": "诺克萨斯",
+            "tag": "",
+            "artist": "League Splash Team",
+            "cardEffect": "{{强攻}}\n{{绝念>}} 抽一张牌。若此时是你的开始阶段，则改为抽两张牌。",
+            "flavorText": "“也许我赢在有太多个我了……”",
+            "energy": 3,
+            "returnEnergy": 1,
+            "power": 3,
+            "productCodeList": [
+              "UNL(进阶补充包)",
+              "UNL(标准补充包)"
+            ],
+            "productNameList": [
+              "破限系列 进阶补充包",
+              "破限系列 基础补充包"
+            ],
+            "cardQaList": null,
+            "craftLevel": 0,
+            "rarity": "rune_legend",
+            "rarityName": "异画",
+            "extendRarity": "legacy_etching",
+            "extendRarityName": "异画",
+            "frontImage": "https://cdn.playloltcg.com/lol/card/20260325/e4af87b765154a2dbc15f8425cc80c58.webp",
+            "backImage": "",
+            "listSort": 1303,
+            "status": 1,
+            "cardGroupLimit": null,
+            "isPreview": false,
+            "errata": "",
+            "otherDesc": 0
+          },
+          "allFieldsUnchanged": true
+        }
+      ]
+    },
+    {
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "逝水如镜",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "attemptedAtUtc": "2026-10-16T01:15:46.173186+00:00",
+      "fetchedAtUtc": "2026-10-16T01:15:46.277581+00:00",
+      "path": "var/qa/doc11-reference-revalidation-20261016/ephemeral-31410-api-raw.json",
+      "sha256": "aee53441682bbac83411ae1def86c2c3d2c98f3b5879be0dc5b50857ab076b57",
+      "records": [
+        {
+          "card": {
+            "id": 31410,
+            "cardCategoryList": [
+              "spell"
+            ],
+            "cardCategoryNameList": [
+              "法术"
+            ],
+            "cardNo": "OGN·180/298",
+            "cardName": "逝水如镜",
+            "subTitle": "",
+            "extendType": null,
+            "extendTypeName": "",
+            "cardColorList": [
+              "purple"
+            ],
+            "hero": "",
+            "region": "",
+            "tag": "",
+            "artist": "Kudos Productions",
+            "cardEffect": "让一名战场上的单位或一件装备变为{{瞬息}}。（在其控制者的下个回合开始阶段，结算得分之前将其摧毁。）",
+            "flavorText": "你也将消逝，如水月镜花。",
+            "energy": 4,
+            "returnEnergy": 1,
+            "power": null,
+            "productCodeList": [
+              "OGN(英雄预组 金克丝)",
+              "OGN(标准补充包)",
+              "OGN(进阶补充包)"
+            ],
+            "productNameList": [
+              "起源 英雄预组 金克丝",
+              "起源 标准补充包",
+              "起源 进阶补充包"
+            ],
+            "cardQaList": null,
+            "craftLevel": 0,
+            "rarity": "rune_glimmer",
+            "rarityName": "不凡",
+            "extendRarity": "base_inscript",
+            "extendRarityName": "平卡",
+            "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/cf608e01354c44928cf471919f7b42d6.png",
+            "backImage": "",
+            "listSort": 295,
+            "status": 1,
+            "cardGroupLimit": null,
+            "isPreview": false,
+            "errata": "",
+            "otherDesc": 0
+          },
+          "allFieldsUnchanged": true
+        }
+      ]
+    }
+  ],
+  "wholePrintingCertified": false
+}

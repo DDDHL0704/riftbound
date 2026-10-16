@@ -1,0 +1,132 @@
+{
+  "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+  "request": {
+    "pageNum": 1,
+    "pageSize": 100,
+    "searchContent": "远古巨龙",
+    "cardCategoryList": [],
+    "cardColorList": [],
+    "rarityList": [],
+    "productCodeList": []
+  },
+  "attemptedAtUtc": "2026-10-16T01:08:04.386477+00:00",
+  "fetchedAtUtc": "2026-10-16T01:08:04.506891+00:00",
+  "rawPath": "var/qa/doc11-reference-revalidation-20261016/elder-api-raw.json",
+  "rawSha256": "8542732745d84859b4056020ff28126555ea52cad08f446c251fd962d23d15c9",
+  "baselinePin": {
+    "path": "data/official/upstream/2026-10-16/source-refresh-20261015T160523Z/card-catalog.zh-CN.json",
+    "sha256": "4f6a981a51d95e395820c1980f734645e1a5b56e454dbb8758ac3ce331162624"
+  },
+  "region": "CN",
+  "language": "zh-CN",
+  "applicabilityDate": "2026-10-16",
+  "firstPublicationDate": null,
+  "effectiveDate": null,
+  "records": [
+    {
+      "card": {
+        "id": 34658,
+        "cardCategoryList": [
+          "unit"
+        ],
+        "cardCategoryNameList": [
+          "单位"
+        ],
+        "cardNo": "UNL-118/219",
+        "cardName": "远古巨龙",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "orange"
+        ],
+        "hero": "",
+        "region": "德玛西亚",
+        "tag": "龙",
+        "artist": "Sugar Free",
+        "cardEffect": "你造成的任意数量伤害，都足以将敌方单位摧毁。\n当你打出我时，在每个位置选择最多一名敌方单位。对其造成1点伤害。",
+        "flavorText": "把龙逐出山谷，只不过是为更大的龙腾出了空间。",
+        "energy": 12,
+        "returnEnergy": 4,
+        "power": 10,
+        "productCodeList": [
+          "UNL(进阶补充包)",
+          "UNL(标准补充包)"
+        ],
+        "productNameList": [
+          "破限系列 进阶补充包",
+          "破限系列 基础补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_core",
+        "rarityName": "史诗",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260320/73d1b11449e247c2ad8747f697f6c851.webp",
+        "backImage": "",
+        "listSort": 1366,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "changedFields": [],
+      "allFieldsUnchanged": true
+    },
+    {
+      "card": {
+        "id": 34659,
+        "cardCategoryList": [
+          "unit"
+        ],
+        "cardCategoryNameList": [
+          "单位"
+        ],
+        "cardNo": "UNL-118a/219",
+        "cardName": "远古巨龙",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "orange"
+        ],
+        "hero": "",
+        "region": "",
+        "tag": "龙",
+        "artist": "TUTU",
+        "cardEffect": "你造成的任意数量伤害，都足以将敌方单位摧毁。\n当你打出我时，在每个位置选择最多一名敌方单位。对其造成1点伤害。",
+        "flavorText": "把龙逐出山谷，只不过是为更大的龙腾出了空间。",
+        "energy": 12,
+        "returnEnergy": 4,
+        "power": 10,
+        "productCodeList": [
+          "UNL(进阶补充包)",
+          "UNL(标准补充包)"
+        ],
+        "productNameList": [
+          "破限系列 进阶补充包",
+          "破限系列 基础补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_legend",
+        "rarityName": "异画",
+        "extendRarity": "legacy_etching",
+        "extendRarityName": "异画",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260320/271bbef061fd4bf5945ccfe30ffc3a2e.webp",
+        "backImage": "",
+        "listSort": 1365,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "changedFields": [],
+      "allFieldsUnchanged": true
+    }
+  ],
+  "wholePrintingCertified": false
+}

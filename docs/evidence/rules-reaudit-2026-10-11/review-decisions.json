@@ -20905,6 +20905,71 @@
         "product": "OPEN",
         "newSqlEventTamperRejections": 4
       }
+    },
+    {
+      "id": "optional-sacrifice-printed-cost-and-paid-entry-2026-10-16",
+      "status": "SCOPED_CURRENT_SOURCE_FOCUS_NATIVE_SQL_SINGLE_CHECK_PASS_FIXED_CI_PRODUCT_OPEN",
+      "scope": "ExactCN34718 optional single visible friendly-unit sacrifice, same-victim printed/copied mana and yellow power reduction; selected granted Haste survives grant departure, including zero actual typed payment. Only executed branches are recorded.",
+      "subjects": [
+        "UNL-170/219"
+      ],
+      "ruleRecords": [
+        "DOC-01-P032-B016",
+        "DOC-01-P033-B003",
+        "DOC-01-P049-B007",
+        "DOC-01-P049-B013",
+        "DOC-01-P049-B014",
+        "DOC-01-P049-B017",
+        "DOC-01-P049-B018",
+        "DOC-01-P050-B008",
+        "DOC-01-P050-B009",
+        "DOC-01-P050-B010",
+        "DOC-01-P050-B012",
+        "DOC-01-P050-B013",
+        "DOC-01-P050-B016"
+      ],
+      "auditDocument": "docs/OPTIONAL_SACRIFICE_COST_AUDIT_2026-10-16.md",
+      "evidence": "docs/evidence/optional-sacrifice-cost-2026-10-16",
+      "semanticReview": {
+        "state": "SCOPED",
+        "wholeCardCertified": false,
+        "region": "CN",
+        "language": "zh-CN",
+        "sourceIndexAsOf": "2026-10-16",
+        "runtimeRuleInputDate": "2026-10-16",
+        "exactSourceRecordIds": [
+          34718
+        ]
+      },
+      "remaining": [
+        "New fixed candidate full CI and visible paired/network/score/replay and Windows physical acceptance remain OPEN.",
+        "Opponent-owned friendly sacrifice, temporary control transfer, zero-cost ordinary tokens, destruction replacements and further source permissions require explicit branch evidence.",
+        "Atakhan attack-trigger forced opposing destruction, all other printing semantics and other optional reducers are separately OPEN.",
+        "All source gaps/global semantics/media/FAQ/QA and remaining DOC11 indirect obligations retained."
+      ],
+      "wholeCardCertification": false,
+      "testExecution": {
+        "newCases": 23,
+        "newMethods": 8,
+        "adjacentCases": 2056,
+        "adjacentMethods": 1186,
+        "earlyOriginalFullGameMethods": 3,
+        "nativeCommands": 2,
+        "nativeSourceScope": "Actual headless Godot commands, backend readback/cold restore/complete empty-opening replay; not visible product.",
+        "singleCheck": {
+          "cases": 11987,
+          "methods": 7231,
+          "singleRun": true,
+          "receipt": {
+            "path": "docs/evidence/optional-sacrifice-cost-2026-10-16/check.json",
+            "sha256": "574b0efb8e78e90df3985bd633bf4f8df50a1d6abe81accb8defc61567ccc7ea"
+          }
+        },
+        "fixedFull": "PENDING_NEW_COMMIT",
+        "product": "OPEN",
+        "actualSqlScenarios": 77,
+        "newSqlEventTamperRejections": 8
+      }
     }
   ]
 }

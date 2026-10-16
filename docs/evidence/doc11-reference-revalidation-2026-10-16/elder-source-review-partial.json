@@ -1,0 +1,276 @@
+{
+  "status": "ELDER_CURRENT_SOURCE_FOOTING_RECONFIRMED_FOR_DAMAGE_MARKS_AND_LETHAL_THRESHOLD_ONLY",
+  "recordedAtUtc": "2026-10-16T01:12:09.042144+00:00",
+  "implementationCommit": "3ced0126ac20a07c2909e7b44f3733a9e3aa044a",
+  "region": "CN",
+  "language": "zh-CN",
+  "applicabilityDate": "2026-10-16",
+  "exactCnSourceIds": [
+    34658,
+    34659
+  ],
+  "printingNumbers": [
+    "UNL-118/219",
+    "UNL-118A/219"
+  ],
+  "freshSource": {
+    "path": "var/qa/doc11-reference-revalidation-20261016/elder-source.json",
+    "sha256": "28743c2a79823bdff3cf585dd0e2f918188eea33e0a8c032e357fe1eccfff57c"
+  },
+  "originalImages": [
+    {
+      "id": 34658,
+      "cardNo": "UNL-118/219",
+      "url": "https://cdn.playloltcg.com/lol/card/20260320/73d1b11449e247c2ad8747f697f6c851.webp",
+      "attemptedAtUtc": "2026-10-16T01:09:33.733277+00:00",
+      "fetchedAtUtc": "2026-10-16T01:09:33.830616+00:00",
+      "path": "var/qa/doc11-reference-revalidation-20261016/34658-current-cn.png",
+      "sha256": "df6bb00f60a6176efd495a07219d3c4c4b8e6f09401d19b0b745fcffd29b01ef",
+      "bytes": 85938,
+      "visualReview": "ORIGINAL_CN_PRINTING_READ_IDENTITY_TEXT_AND_COST_ONLY"
+    },
+    {
+      "id": 34659,
+      "cardNo": "UNL-118a/219",
+      "url": "https://cdn.playloltcg.com/lol/card/20260320/271bbef061fd4bf5945ccfe30ffc3a2e.webp",
+      "attemptedAtUtc": "2026-10-16T01:09:33.734014+00:00",
+      "fetchedAtUtc": "2026-10-16T01:09:33.866185+00:00",
+      "path": "var/qa/doc11-reference-revalidation-20261016/34659-current-cn.png",
+      "sha256": "164336b3c76f16a42f772b2f14618d64730c01b9d479edac8439a0fd695272dc",
+      "bytes": 101922,
+      "visualReview": "ORIGINAL_CN_PRINTING_READ_IDENTITY_TEXT_AND_COST_ONLY"
+    }
+  ],
+  "currentCoreClauses": [
+    {
+      "id": "DOC-01-P017-B007",
+      "document": "DOC-01",
+      "page": 17,
+      "clauseAnchors": [
+        "142.3"
+      ],
+      "text": "142.3.          伤害 由玩家标记在单位上。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P017-B008",
+      "document": "DOC-01",
+      "page": 17,
+      "clauseAnchors": [
+        "142.3.a"
+      ],
+      "text": "142.3.a.               如果某个造成伤害的行动导致伤害被标记,则负责执行该行动的玩家视为标记该伤害的玩家。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P017-B009",
+      "document": "DOC-01",
+      "page": 17,
+      "clauseAnchors": [
+        "142.3.b"
+      ],
+      "text": "142.3.b.               游戏效果 可能会引用该玩家的伤害 。这里指的是由该玩家标记的伤害 。\n                             举例:某名单位的部分描述为:“你的伤害无法被抵挡。”这里的“你的伤害”指的便是由该玩家标\n                             记的伤害。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P017-B010",
+      "document": "DOC-01",
+      "page": 17,
+      "clauseAnchors": [
+        "142.4"
+      ],
+      "text": "142.4.          伤害 反映的是单位 接近被摧毁 的程度。\n                       想获取更多有关信息,请查阅规则 429.摧毁。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P017-B011",
+      "document": "DOC-01",
+      "page": 17,
+      "clauseAnchors": [
+        "142.4.a"
+      ],
+      "text": "142.4.a.               致命伤害 是指在清理期间会导致单位被摧毁的标记伤害 数值。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P017-B012",
+      "document": "DOC-01",
+      "page": 17,
+      "clauseAnchors": [
+        "142.4.b"
+      ],
+      "text": "142.4.b.               一名单位的致命伤害是指大于或等同于该单位战力的非零数值。\n                             举例:一名单位拥有 5[M],并已标记受到 3 点伤害。有玩家打出了“封冻”,并以该单位为目\n                             标。结算时,该单位的战力变为 3,因此会被标记致命伤害。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P017-B014",
+      "document": "DOC-01",
+      "page": 17,
+      "clauseAnchors": [
+        "142.4.c"
+      ],
+      "text": "142.4.c.               部分效果可能会改变该数值。这些效果会提及摧毁一名单位所需的伤害数值。\n                             举例:“远古巨龙”的被动技能的描述为:“你对敌方单位造成任意数量的伤害,都足以将其摧\n                             毁。”这个效果会改变被你标记伤害的敌方单位的致命伤害数值。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P093-B007",
+      "document": "DOC-01",
+      "page": 93,
+      "clauseAnchors": [
+        "467.2.c"
+      ],
+      "text": "467.2.c.                从进攻方开始,每名玩家将等同于其战力总和的伤害量分配给对方的单位。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P093-B008",
+      "document": "DOC-01",
+      "page": 93,
+      "clauseAnchors": [
+        "467.2.c.1"
+      ],
+      "text": "467.2.c.1.                   分配伤害并非造成伤害。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P093-B009",
+      "document": "DOC-01",
+      "page": 93,
+      "clauseAnchors": [
+        "467.2.c.1.a"
+      ],
+      "text": "467.2.c.1.a.                     当所有伤害分配完毕后,这些伤害将同时造成。这两个行动并非同义词。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P093-B010",
+      "document": "DOC-01",
+      "page": 93,
+      "clauseAnchors": [
+        "467.2.c.2"
+      ],
+      "text": "467.2.c.2.                   技能或效果可能会影响伤害的分配顺序。提示:致命伤害是指等同于或超过单位战力的非零伤\n                             害。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P093-B011",
+      "document": "DOC-01",
+      "page": 93,
+      "clauseAnchors": [
+        "467.2.c.3"
+      ],
+      "text": "467.2.c.3.                   在其它单位承担伤害之前,必须先向一个单位分配可以将其摧毁的致命伤害。\n                                 举例:如果玩家有 5 点伤害要分配给四名战力为 3 的单位,则不可选择将 2 点伤害\n                                 分配给其中一名单位,再向其余 3 名单位各分配 1 点伤害。必须将 3 点伤害分配给其\n                                 中一名单位,再将剩余的 2 点伤害分配给另一名单位。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P093-B012",
+      "document": "DOC-01",
+      "page": 93,
+      "clauseAnchors": [
+        "467.2.c.4"
+      ],
+      "text": "467.2.c.4.                   在尚有其他单位可供分配伤害时,为一个单位所分配的伤害不得超过其致命伤害所需的最小\n                             值。\n                                 如果一名玩家需要将 5 点伤害分配给四个战力均为 3,并且这些单位每个都已经被标\n                                 记了 1 点伤害,则该玩家不能为其中任何一个单位分配超过 2 点伤害。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P093-B013",
+      "document": "DOC-01",
+      "page": 93,
+      "clauseAnchors": [
+        "467.2.c.4.a"
+      ],
+      "text": "467.2.c.4.a.                     如果分配给一个单位的伤害被调整或被替换为一个高于初始值的伤害值,分配伤害的\n                                 玩家必须选择能够使该单位受到致命伤害的最小适用数值。\n                                      举例:要在战斗伤害步骤中为一个 3[M]单位分配伤害。该单位的控制者还\n                                      控制着其他尚未被分配伤害的单位。该单位还被施加了一个延迟替换效\n                                      果:“在本回合内,该单位受到的所有伤害翻倍。”在分配伤害时,分配伤害\n                                      的玩家只能选择为该单位分配 1 点或 2 点伤害——进行此行动时,分配的\n                                      伤害分别翻倍为 2 点或 4 点伤害。在这种情况下,能够使该单位受到致命\n                                      伤害的最小适用数值为 4 点伤害。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P093-B014",
+      "document": "DOC-01",
+      "page": 93,
+      "clauseAnchors": [
+        "467.2.c.5"
+      ],
+      "text": "467.2.c.5.                   以这种方式分配战斗伤害时,影响最终伤害的被动技能和替换效果将转而在分配伤害时生效。\n                                 举例:要在战斗伤害阶段中为一个 2[M]单位分配伤害。该单位拥有“抵挡我在每次战\n                                 斗中承受的前 3 点伤害。因此需要为该单位分配 5 点伤害,才算是为其分配了达致\n                                 命伤害数量的数值。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    }
+  ],
+  "currentCorePagesActuallyRead": [
+    {
+      "page": 17,
+      "path": "var/qa/doc11-reference-revalidation-20261016/DOC-01-page17.png",
+      "sha256": "177285dd4f0aa62812c3935d499a3eeab2f92a1c5758e406a0e2f6d6921c7f58"
+    },
+    {
+      "page": 93,
+      "path": "var/qa/doc11-reference-revalidation-20261016/DOC-01-page93.png",
+      "sha256": "54c068bb6a1525964cc9459352107ec5c17e5ccd408d74aaf6c0c24123178036"
+    }
+  ],
+  "semanticReview": "SCOPED_CURRENT_CORE_AND_CARD_TEXT_ONLY_NOT_WHOLE_REVIEW_OR_SOURCE_GATE_CLOSURE",
+  "tests": {
+    "cases": 35,
+    "methods": 19,
+    "summary": {
+      "status": "PASSED",
+      "profile": "focus",
+      "seconds": 52.49,
+      "total": 35,
+      "caseParityVerified": false,
+      "shards": [
+        {
+          "shard": "focus",
+          "total": 35,
+          "passed": 35,
+          "failed": 0,
+          "notExecuted": 0,
+          "seconds": 11.82
+        }
+      ]
+    },
+    "testAssemblySha256": "dfeacbbf55401f97abb1715e1fa8d3aafdc840b2ad92a7e660480f4e5cd6ee22",
+    "trx": [
+      {
+        "path": "var/qa/doc11-reference-revalidation-20261016/elder-focus/focus/results.trx",
+        "sha256": "f7700caf910bf68459ed4540caffd470da6d8776b4758e8932d4928810de64f3"
+      }
+    ],
+    "scope": "Backend fallback only; native-named test classes were not a new actual Godot run."
+  },
+  "fixedCommitCi": "3ced0126 CI38832654597 pending, not replaced by local focus",
+  "productAcceptance": "OPEN",
+  "remaining": [
+    "Per-location target/Ward/control/resolution branches and all unrelated old DOC11 blocks require precise current source disposition.",
+    "Other two directly referenced reviews and all indirect DOC11 authority consumers remain OPEN.",
+    "No all-source, whole-printing, visible paired, Windows or whole-rule-family certification."
+  ],
+  "allOldReviewRecordsAndSourceDatesUnchanged": true
+}

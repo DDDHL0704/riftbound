@@ -1,0 +1,68 @@
+{
+  "status": "ACTUAL_GODOT_2_OPTIONAL_SACRIFICE_COMMANDS_NORMAL_OPENING_BACKEND_READBACK_COLD_RESTORE_AND_FULL_REPLAY_PASS",
+  "verifiedAtUtc": "2026-10-16T06:51:11.815119+00:00",
+  "nativeCommands": 2,
+  "branches": {
+    "hand": {
+      "nativeCommands": 1,
+      "accepted": 1,
+      "coldRestores": 2,
+      "originalOpeningTick": 0,
+      "fullOriginalActionEventStateReplayMatched": true,
+      "finalHash": "9e9b19ee4fd6a398631b02010e50a41c9f93c593cb49c6a7dfcb5de62ab0ae6c",
+      "expectedMana": 7,
+      "expectedPower": 3,
+      "expectedReady": false
+    },
+    "haste": {
+      "nativeCommands": 1,
+      "accepted": 1,
+      "coldRestores": 2,
+      "originalOpeningTick": 0,
+      "fullOriginalActionEventStateReplayMatched": true,
+      "finalHash": "134eaf098a154d31f69d744a94b946c01a1ddc60d8aece4e077e3a7f3cd5d8f6",
+      "expectedMana": 8,
+      "expectedPower": 4,
+      "expectedReady": true
+    }
+  },
+  "commands": {
+    "hand": {
+      "commandSha256": "5bd0db10f667f3c65e78c9cdf2f7f8b9dca48dc9374f89c454529602f1efdc15",
+      "selectedCosts": [
+        "DESTROY_FRIENDLY_UNIT:P1-CHAMPION-SFD-029-221-01"
+      ],
+      "snapshotTick": 79
+    },
+    "haste": {
+      "commandSha256": "017e8ffbc8ee2df1220ed86ba7f31d456e46131d79bca09030b8d9f9a9f97cca",
+      "selectedCosts": [
+        "DESTROY_FRIENDLY_UNIT:P1-CHAMPION-SFD-029-221-01",
+        "HASTE_READY"
+      ],
+      "snapshotTick": 43
+    }
+  },
+  "sourceFiles": 375,
+  "runtimeFiles": 23,
+  "stableInputFrames": 10,
+  "allInputHashesStable": true,
+  "drift": [],
+  "prelaunchManifest": {
+    "path": "var/qa/atakhan-cost-20261016/native-prelaunch-inputs.json",
+    "sha256": "5a1604150eb6c4506f2802befbe49cea44f9f62594e27ebadb9e9e53bd9b698e"
+  },
+  "explicitExpectedMutableOutputsCapturedInOriginalPrelaunchFrameList": [
+    "var/qa/atakhan-cost-20261016/native/hand/replay.json",
+    "var/qa/atakhan-cost-20261016/native/haste/replay.json"
+  ],
+  "mutableOutputExplanation": "These two records were backend-export receipts with nativeCommands0, then became backend-readback receipts with nativeCommands1. They are output records, not prompt/snapshot/selection/quote/steps inputs. The original prelaunch manifest is retained unchanged.",
+  "godot": {
+    "path": "/Users/dinghaolin/.local/share/riftbound-tools/godot-4.7.2/Godot_mono.app/Contents/MacOS/Godot",
+    "sha256": "b57152bfab17c9e7bc6ecccd9096ede39b64d65f1edc1257f0cd6a24a68062a9"
+  },
+  "assemblySha256": "2cdafee9ce658656d5a0adb89c6d2f33444b3028559e578f0fd028b2aa191a2c",
+  "proofLogSha256": "3e67e84be652aa03683d1df38e0f25988930020757956fb86ca3f9d17fb9cba3",
+  "backendTrxSha256": "8d25a58f268d67ba91ff2a7ba3aad69243383a87a9440aaa4f6831a6446fd012",
+  "scope": "Actual Godot controls on normal empty-opening frames, headless only. No current visible paired/Windows physical/product certification."
+}

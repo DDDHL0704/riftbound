@@ -281,7 +281,8 @@ public sealed record CardBehaviorDefinition(
     bool EffectPlayIgnoreAllCosts = false,
     bool CreatedBaseUnitTokensCopySource = false,
     bool GrantsHasteToFriendlyUnitsPlayedOutsideHand = false,
-    IReadOnlyList<string>? GrantedHastePowerTraits = null)
+    IReadOnlyList<string>? GrantedHastePowerTraits = null,
+    bool MaySacrificeUnitForPrintedCostReduction = false)
 {
     public bool PerformsInsight => InsightCount > 0;
 }
@@ -7316,7 +7317,8 @@ public static class CardBehaviorRegistry
             0,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 7,
-            SourceUnitTags: "游走"),
+            SourceUnitTags: "游走",
+            MaySacrificeUnitForPrintedCostReduction: true),
         new(
             "UNL-177/219",
             "艾翁",

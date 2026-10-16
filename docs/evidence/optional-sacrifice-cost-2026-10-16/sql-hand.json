@@ -1,0 +1,58 @@
+{
+  "status": "REAL_POSTGRES_OPTIONAL_SACRIFICE_PRINTED_COST_COLD_RESTORE_AND_EVENT_REJECTION_PASS",
+  "room": "normal-optional-sacrifice-hand-case-1",
+  "cardNo": "UNL-170/219",
+  "sourceObjectId": "P1-MAIN-UNL-170-219-01",
+  "sacrificeObjectId": "P1-CHAMPION-SFD-029-221-01",
+  "expectedReady": false,
+  "expectedMana": 7,
+  "expectedPower": 3,
+  "quoteMana": 7,
+  "originalOpeningTick": 0,
+  "originalOpeningSeed": 0,
+  "originalOpeningCards": 0,
+  "prefixCommands": 80,
+  "prefixEvents": 491,
+  "finalCommands": 81,
+  "finalEvents": 496,
+  "checks": [
+    {
+      "mutation": "mana",
+      "eventSequence": 493,
+      "originalReplayRejected": true,
+      "productionRegistryRejected": true
+    },
+    {
+      "mutation": "power",
+      "eventSequence": 493,
+      "originalReplayRejected": true,
+      "productionRegistryRejected": true
+    },
+    {
+      "mutation": "entry-exhaustion",
+      "eventSequence": 496,
+      "originalReplayRejected": true,
+      "productionRegistryRejected": true
+    },
+    {
+      "mutation": "selected-haste",
+      "eventSequence": 496,
+      "originalReplayRejected": true,
+      "productionRegistryRejected": true
+    }
+  ],
+  "finalHash": "251330eb05d16c2fc45877b0101d0ac63650373d03360a80b3941374b95ad538",
+  "ruleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+    "implementationSha256": "6b9c1b03d4be70a4b344ae2022e0678812e87f2f31445f391c477b90836815b7",
+    "identitySha256": "90f453080092223f5c1001fb8121435176612aa9c88315637c5f6af7028c3ab0"
+  },
+  "originalHistoryRestoredExactly": true,
+  "fullOriginalActionEventStateReplayMatched": true,
+  "fixtureSha256": "4a24c789e3f0011b70f30bc742ffb6000bdedff746bcf3c9695f04b2566e9ead",
+  "scope": "Actual UNL170 with SFD029 sacrificed from legal empty openings, hand7/3 and outside-hand Haste8/4. Attack destruction, other consumers, visible product and Windows remain separate."
+}

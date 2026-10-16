@@ -99,7 +99,7 @@
     },
     "reviews": {
       "path": "docs/evidence/rules-reaudit-2026-10-11/review-decisions.json",
-      "sha256": "a32f2a70c03f7a95211e91c8b24f27f27de43a2724fc8287039b04d2c6d5af7c"
+      "sha256": "7f0cb009e7a197b8b59aa3f74b760e0a0365b504e0c57dd6f69e9af82f0230cd"
     },
     "summary": {
       "path": "docs/evidence/source-listing-2026-10-15/index-summary.json",
@@ -757,7 +757,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "701657b70b623f7c9fe1ccbe4cf5eb42a7ea1e91e0716d1ece78be4d5e1f3f61"
+          "sha256": "f270f8fefd5d9e5f0af46f625d5b95378b0745adf62b7f4a09b466c0f7ea6cf9"
         },
         {
           "path": "src/Riftbound.CardCatalog/ReviewedCardErrata.cs",
@@ -811,7 +811,7 @@
               "decline"
             ]
           },
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -851,7 +851,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -891,7 +891,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -931,7 +931,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -971,7 +971,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -1011,7 +1011,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -1051,7 +1051,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -1091,7 +1091,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -1131,7 +1131,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -1171,7 +1171,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -1211,7 +1211,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -1251,7 +1251,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -1291,7 +1291,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -1331,7 +1331,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN"
         }
       ],
@@ -1367,7 +1367,7 @@
         }
       ],
       "evidenceCommit": "03f88a7ee1b109b2cb906fbdc457316f93c08fda",
-      "currentImplementationCommit": "4ad7fe204adee28c4138f18bdde4c4cbcdea21f0",
+      "currentImplementationCommit": "8d7571c5a5572b1ed542a5ff1d8eaeb533bac1bc",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -1434,7 +1434,15 @@
           "oldEvidenceScopeRetained": true
         }
       ],
-      "revalidationReason": "Explicit shared implementation/verification input changes; prior CI retained only at its fixed old source scope."
+      "revalidationReason": "Explicit shared implementation/verification input changes; prior CI retained only at its fixed old source scope.",
+      "latestInputChange": {
+        "date": "2026-10-16",
+        "scope": "Optional single-unit printed-cost reduction and MessagePack clean-build repair; previous sources/tests/CI receipts retain original candidate scope.",
+        "receipt": {
+          "path": "docs/evidence/optional-sacrifice-cost-2026-10-16/prior-context-input-updates.json",
+          "sha256": "0216238207caa93ad8cca201c558acd6130a86f11a20ad0d4d0e2383dd7df4d6"
+        }
+      }
     },
     "static-granted-predict-entry-2026-10-15": {
       "implementation": [
@@ -1464,11 +1472,11 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "1852a4f8230e24a9d0e17889741bc25ed8000fc4a1247cd0629a7d018a3637ae"
+          "sha256": "d64d5af2acf493b1ac0865e37605ba36431233b3a15d0df2aa5238843ed175a6"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "701657b70b623f7c9fe1ccbe4cf5eb42a7ea1e91e0716d1ece78be4d5e1f3f61"
+          "sha256": "f270f8fefd5d9e5f0af46f625d5b95378b0745adf62b7f4a09b466c0f7ea6cf9"
         },
         {
           "path": "src/Riftbound.Engine/OfficialPrintedTimingRules.cs",
@@ -1520,7 +1528,7 @@
               "recycle"
             ]
           },
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -1564,7 +1572,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -1608,7 +1616,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -1652,7 +1660,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -1696,7 +1704,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -1740,7 +1748,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -1784,7 +1792,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -1828,7 +1836,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -1872,7 +1880,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -1916,7 +1924,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -1960,7 +1968,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -2004,7 +2012,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -2048,7 +2056,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN"
         }
       ],
@@ -2077,7 +2085,7 @@
       "ciState": "PENDING",
       "ciReceipts": [],
       "evidenceCommit": "03f88a7ee1b109b2cb906fbdc457316f93c08fda",
-      "currentImplementationCommit": "3ced0126ac20a07c2909e7b44f3733a9e3aa044a",
+      "currentImplementationCommit": "8d7571c5a5572b1ed542a5ff1d8eaeb533bac1bc",
       "currentImplementationIncludesUncommittedChanges": true,
       "lastFixedCiFailure": {
         "path": "docs/evidence/granted-predict-2026-10-15/full-ci-c74853be-failed.json",
@@ -2256,7 +2264,15 @@
           "oldEvidenceScopeRetained": true
         }
       ],
-      "revalidationReason": "Actual battlefield-controller entry fix changes shared Core and SQL verification inputs; earlier fixed CI remains limited to its original source scope."
+      "revalidationReason": "Actual battlefield-controller entry fix changes shared Core and SQL verification inputs; earlier fixed CI remains limited to its original source scope.",
+      "latestInputChange": {
+        "date": "2026-10-16",
+        "scope": "Optional single-unit printed-cost reduction and MessagePack clean-build repair; previous sources/tests/CI receipts retain original candidate scope.",
+        "receipt": {
+          "path": "docs/evidence/optional-sacrifice-cost-2026-10-16/prior-context-input-updates.json",
+          "sha256": "0216238207caa93ad8cca201c558acd6130a86f11a20ad0d4d0e2383dd7df4d6"
+        }
+      }
     },
     "printed-predict-permanent-entry-2026-10-15": {
       "implementation": [
@@ -2286,11 +2302,11 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "1852a4f8230e24a9d0e17889741bc25ed8000fc4a1247cd0629a7d018a3637ae"
+          "sha256": "d64d5af2acf493b1ac0865e37605ba36431233b3a15d0df2aa5238843ed175a6"
         },
         {
           "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
-          "sha256": "059c7bdb07d3419815898f8ac729eaff109b08b8d10b9c5d5cd5926fb2d2a18b"
+          "sha256": "eef5a3bf22b83c75005cafefc7edf1de80375ca173a3929789300cb6d130b402"
         },
         {
           "path": "src/Riftbound.Engine/CardLifecycleKeywordRules.cs",
@@ -2357,7 +2373,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -2419,7 +2435,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -2481,7 +2497,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -2543,7 +2559,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -2605,7 +2621,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -2667,7 +2683,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -2729,7 +2745,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -2791,7 +2807,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -2858,7 +2874,7 @@
               "equipment-recycle"
             ]
           },
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN"
         }
       ],
@@ -2894,7 +2910,7 @@
         }
       ],
       "evidenceCommit": "74353e405fd2242ece0bae05972f209950b2c9de",
-      "currentImplementationCommit": "3ced0126ac20a07c2909e7b44f3733a9e3aa044a",
+      "currentImplementationCommit": "8d7571c5a5572b1ed542a5ff1d8eaeb533bac1bc",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -3075,7 +3091,15 @@
           "oldEvidenceScopeRetained": true
         }
       ],
-      "revalidationReason": "Actual battlefield-controller entry fix changes shared Core and SQL verification inputs; earlier fixed CI remains limited to its original source scope."
+      "revalidationReason": "Actual battlefield-controller entry fix changes shared Core and SQL verification inputs; earlier fixed CI remains limited to its original source scope.",
+      "latestInputChange": {
+        "date": "2026-10-16",
+        "scope": "Optional single-unit printed-cost reduction and MessagePack clean-build repair; previous sources/tests/CI receipts retain original candidate scope.",
+        "receipt": {
+          "path": "docs/evidence/optional-sacrifice-cost-2026-10-16/prior-context-input-updates.json",
+          "sha256": "0216238207caa93ad8cca201c558acd6130a86f11a20ad0d4d0e2383dd7df4d6"
+        }
+      }
     },
     "sivir-optional-rune-recycle-2026-10-15": {
       "implementation": [
@@ -3089,7 +3113,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "1852a4f8230e24a9d0e17889741bc25ed8000fc4a1247cd0629a7d018a3637ae"
+          "sha256": "d64d5af2acf493b1ac0865e37605ba36431233b3a15d0df2aa5238843ed175a6"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.Insight.cs",
@@ -3117,7 +3141,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "701657b70b623f7c9fe1ccbe4cf5eb42a7ea1e91e0716d1ece78be4d5e1f3f61"
+          "sha256": "f270f8fefd5d9e5f0af46f625d5b95378b0745adf62b7f4a09b466c0f7ea6cf9"
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
@@ -3162,7 +3186,7 @@
               "alternate-decline"
             ]
           },
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -3193,7 +3217,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -3224,7 +3248,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -3255,7 +3279,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -3291,7 +3315,7 @@
               "alternate-decline"
             ]
           },
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -3322,7 +3346,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -3353,7 +3377,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -3384,7 +3408,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -3415,7 +3439,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN"
         }
       ],
@@ -3451,7 +3475,7 @@
         }
       ],
       "evidenceCommit": "7649d573f884ffd7517a502f7eebe01d0aa186c4",
-      "currentImplementationCommit": "3ced0126ac20a07c2909e7b44f3733a9e3aa044a",
+      "currentImplementationCommit": "8d7571c5a5572b1ed542a5ff1d8eaeb533bac1bc",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -3616,7 +3640,15 @@
           "oldEvidenceScopeRetained": true
         }
       ],
-      "revalidationReason": "Actual battlefield-controller entry fix changes shared Core and SQL verification inputs; earlier fixed CI remains limited to its original source scope."
+      "revalidationReason": "Actual battlefield-controller entry fix changes shared Core and SQL verification inputs; earlier fixed CI remains limited to its original source scope.",
+      "latestInputChange": {
+        "date": "2026-10-16",
+        "scope": "Optional single-unit printed-cost reduction and MessagePack clean-build repair; previous sources/tests/CI receipts retain original candidate scope.",
+        "receipt": {
+          "path": "docs/evidence/optional-sacrifice-cost-2026-10-16/prior-context-input-updates.json",
+          "sha256": "0216238207caa93ad8cca201c558acd6130a86f11a20ad0d4d0e2383dd7df4d6"
+        }
+      }
     },
     "battlefield-conquer-rune-destination-2026-10-15": {
       "implementation": [
@@ -3634,7 +3666,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "1852a4f8230e24a9d0e17889741bc25ed8000fc4a1247cd0629a7d018a3637ae"
+          "sha256": "d64d5af2acf493b1ac0865e37605ba36431233b3a15d0df2aa5238843ed175a6"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.Conquest.cs",
@@ -3679,7 +3711,7 @@
               "multiple"
             ]
           },
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -3712,7 +3744,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -3745,7 +3777,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN"
         }
       ],
@@ -3781,7 +3813,7 @@
         }
       ],
       "evidenceCommit": "dd8884ba1e443138264b9b0e971ab8da3c5480ee",
-      "currentImplementationCommit": "3ced0126ac20a07c2909e7b44f3733a9e3aa044a",
+      "currentImplementationCommit": "8d7571c5a5572b1ed542a5ff1d8eaeb533bac1bc",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -3900,7 +3932,15 @@
           "oldEvidenceScopeRetained": true
         }
       ],
-      "revalidationReason": "Actual battlefield-controller entry fix changes shared Core and SQL verification inputs; earlier fixed CI remains limited to its original source scope."
+      "revalidationReason": "Actual battlefield-controller entry fix changes shared Core and SQL verification inputs; earlier fixed CI remains limited to its original source scope.",
+      "latestInputChange": {
+        "date": "2026-10-16",
+        "scope": "Optional single-unit printed-cost reduction and MessagePack clean-build repair; previous sources/tests/CI receipts retain original candidate scope.",
+        "receipt": {
+          "path": "docs/evidence/optional-sacrifice-cost-2026-10-16/prior-context-input-updates.json",
+          "sha256": "0216238207caa93ad8cca201c558acd6130a86f11a20ad0d4d0e2383dd7df4d6"
+        }
+      }
     },
     "sivir-payment-trigger-and-ward-event-2026-10-15": {
       "implementation": [
@@ -3926,7 +3966,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "1852a4f8230e24a9d0e17889741bc25ed8000fc4a1247cd0629a7d018a3637ae"
+          "sha256": "d64d5af2acf493b1ac0865e37605ba36431233b3a15d0df2aa5238843ed175a6"
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
@@ -3971,7 +4011,7 @@
               "deferred-decline"
             ]
           },
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -4006,7 +4046,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -4041,7 +4081,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -4076,7 +4116,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN"
         }
       ],
@@ -4112,7 +4152,7 @@
         }
       ],
       "evidenceCommit": "00420e2a2b453918e611812d18fda9f62632e15f",
-      "currentImplementationCommit": "3ced0126ac20a07c2909e7b44f3733a9e3aa044a",
+      "currentImplementationCommit": "8d7571c5a5572b1ed542a5ff1d8eaeb533bac1bc",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -4226,7 +4266,15 @@
           "oldEvidenceScopeRetained": true
         }
       ],
-      "revalidationReason": "Actual battlefield-controller entry fix changes shared Core and SQL verification inputs; earlier fixed CI remains limited to its original source scope."
+      "revalidationReason": "Actual battlefield-controller entry fix changes shared Core and SQL verification inputs; earlier fixed CI remains limited to its original source scope.",
+      "latestInputChange": {
+        "date": "2026-10-16",
+        "scope": "Optional single-unit printed-cost reduction and MessagePack clean-build repair; previous sources/tests/CI receipts retain original candidate scope.",
+        "receipt": {
+          "path": "docs/evidence/optional-sacrifice-cost-2026-10-16/prior-context-input-updates.json",
+          "sha256": "0216238207caa93ad8cca201c558acd6130a86f11a20ad0d4d0e2383dd7df4d6"
+        }
+      }
     },
     "unit-conquest-gold-response-2026-10-15": {
       "implementation": [
@@ -4240,11 +4288,11 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "1852a4f8230e24a9d0e17889741bc25ed8000fc4a1247cd0629a7d018a3637ae"
+          "sha256": "d64d5af2acf493b1ac0865e37605ba36431233b3a15d0df2aa5238843ed175a6"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "701657b70b623f7c9fe1ccbe4cf5eb42a7ea1e91e0716d1ece78be4d5e1f3f61"
+          "sha256": "f270f8fefd5d9e5f0af46f625d5b95378b0745adf62b7f4a09b466c0f7ea6cf9"
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
@@ -4295,7 +4343,7 @@
               "alternate-reaction"
             ]
           },
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -4332,7 +4380,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -4369,7 +4417,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -4406,7 +4454,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -4443,7 +4491,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN"
         }
       ],
@@ -4479,7 +4527,7 @@
         }
       ],
       "evidenceCommit": "eb3c4281c94c8d41d315cd574bdfa597cd10c30b",
-      "currentImplementationCommit": "3ced0126ac20a07c2909e7b44f3733a9e3aa044a",
+      "currentImplementationCommit": "8d7571c5a5572b1ed542a5ff1d8eaeb533bac1bc",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -4619,7 +4667,15 @@
           "oldEvidenceScopeRetained": true
         }
       ],
-      "revalidationReason": "Actual battlefield-controller entry fix changes shared Core and SQL verification inputs; earlier fixed CI remains limited to its original source scope."
+      "revalidationReason": "Actual battlefield-controller entry fix changes shared Core and SQL verification inputs; earlier fixed CI remains limited to its original source scope.",
+      "latestInputChange": {
+        "date": "2026-10-16",
+        "scope": "Optional single-unit printed-cost reduction and MessagePack clean-build repair; previous sources/tests/CI receipts retain original candidate scope.",
+        "receipt": {
+          "path": "docs/evidence/optional-sacrifice-cost-2026-10-16/prior-context-input-updates.json",
+          "sha256": "0216238207caa93ad8cca201c558acd6130a86f11a20ad0d4d0e2383dd7df4d6"
+        }
+      }
     },
     "own-main-deck-recycle-card-boon-2026-10-15": {
       "implementation": [
@@ -4661,7 +4717,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "1852a4f8230e24a9d0e17889741bc25ed8000fc4a1247cd0629a7d018a3637ae"
+          "sha256": "d64d5af2acf493b1ac0865e37605ba36431233b3a15d0df2aa5238843ed175a6"
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
@@ -4730,7 +4786,7 @@
               "promo-hook"
             ]
           },
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -4787,7 +4843,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -4844,7 +4900,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -4901,7 +4957,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -4958,7 +5014,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -5015,7 +5071,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -5072,7 +5128,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -5129,7 +5185,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -5186,7 +5242,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -5243,7 +5299,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -5300,7 +5356,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN"
         }
       ],
@@ -5341,7 +5397,7 @@
         }
       ],
       "evidenceCommit": "a0406e1d878598b3c0fd88f5bfa7f9831d6a2cc6",
-      "currentImplementationCommit": "3ced0126ac20a07c2909e7b44f3733a9e3aa044a",
+      "currentImplementationCommit": "8d7571c5a5572b1ed542a5ff1d8eaeb533bac1bc",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -5485,7 +5541,15 @@
           "oldEvidenceScopeRetained": true
         }
       ],
-      "revalidationReason": "Actual battlefield-controller entry fix changes shared Core and SQL verification inputs; earlier fixed CI remains limited to its original source scope."
+      "revalidationReason": "Actual battlefield-controller entry fix changes shared Core and SQL verification inputs; earlier fixed CI remains limited to its original source scope.",
+      "latestInputChange": {
+        "date": "2026-10-16",
+        "scope": "Optional single-unit printed-cost reduction and MessagePack clean-build repair; previous sources/tests/CI receipts retain original candidate scope.",
+        "receipt": {
+          "path": "docs/evidence/optional-sacrifice-cost-2026-10-16/prior-context-input-updates.json",
+          "sha256": "0216238207caa93ad8cca201c558acd6130a86f11a20ad0d4d0e2383dd7df4d6"
+        }
+      }
     },
     "copied-recycle-boon-ceased-source-2026-10-15": {
       "implementation": [
@@ -6160,7 +6224,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "1852a4f8230e24a9d0e17889741bc25ed8000fc4a1247cd0629a7d018a3637ae"
+          "sha256": "d64d5af2acf493b1ac0865e37605ba36431233b3a15d0df2aa5238843ed175a6"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.SpellCompletion.cs",
@@ -6172,7 +6236,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "701657b70b623f7c9fe1ccbe4cf5eb42a7ea1e91e0716d1ece78be4d5e1f3f61"
+          "sha256": "f270f8fefd5d9e5f0af46f625d5b95378b0745adf62b7f4a09b466c0f7ea6cf9"
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
@@ -6221,7 +6285,7 @@
         }
       ],
       "evidenceCommit": "342187cb732ea37a616d3fb125be6e9e5096ead1",
-      "currentImplementationCommit": "3ced0126ac20a07c2909e7b44f3733a9e3aa044a",
+      "currentImplementationCommit": "8d7571c5a5572b1ed542a5ff1d8eaeb533bac1bc",
       "currentImplementationIncludesUncommittedChanges": true,
       "branches": [
         {
@@ -6253,7 +6317,7 @@
             "Snapshot-only causal forgery has bounded production-registry and real SQL evidence in typed-card-play-history-causal-production-recovery-2026-10-15; coordinated accepted-log replacement and all untested consumers remain OPEN",
             "Same fixed candidate visible paired SQL/network/normal score/full replay and Windows real runtime"
           ],
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -6285,7 +6349,7 @@
             "Snapshot-only causal forgery has bounded production-registry and real SQL evidence in typed-card-play-history-causal-production-recovery-2026-10-15; coordinated accepted-log replacement and all untested consumers remain OPEN",
             "Same fixed candidate visible paired SQL/network/normal score/full replay and Windows real runtime"
           ],
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -6317,7 +6381,7 @@
             "Snapshot-only causal forgery has bounded production-registry and real SQL evidence in typed-card-play-history-causal-production-recovery-2026-10-15; coordinated accepted-log replacement and all untested consumers remain OPEN",
             "Same fixed candidate visible paired SQL/network/normal score/full replay and Windows real runtime"
           ],
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN"
         }
       ],
@@ -6464,7 +6528,15 @@
         "review": "typed-card-play-history-causal-production-recovery-2026-10-15",
         "scope": "Only snapshot modifications against unchanged accepted action/event history; all other obligations retained."
       },
-      "revalidationReason": "Actual battlefield-controller entry fix changes shared Core and SQL verification inputs; earlier fixed CI remains limited to its original source scope."
+      "revalidationReason": "Actual battlefield-controller entry fix changes shared Core and SQL verification inputs; earlier fixed CI remains limited to its original source scope.",
+      "latestInputChange": {
+        "date": "2026-10-16",
+        "scope": "Optional single-unit printed-cost reduction and MessagePack clean-build repair; previous sources/tests/CI receipts retain original candidate scope.",
+        "receipt": {
+          "path": "docs/evidence/optional-sacrifice-cost-2026-10-16/prior-context-input-updates.json",
+          "sha256": "0216238207caa93ad8cca201c558acd6130a86f11a20ad0d4d0e2383dd7df4d6"
+        }
+      }
     },
     "porobot-source-play-other-equipment-conditional-draw-2026-10-15": {
       "implementation": [
@@ -6478,7 +6550,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "1852a4f8230e24a9d0e17889741bc25ed8000fc4a1247cd0629a7d018a3637ae"
+          "sha256": "d64d5af2acf493b1ac0865e37605ba36431233b3a15d0df2aa5238843ed175a6"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.PermanentConfirmation.cs",
@@ -6486,11 +6558,11 @@
         },
         {
           "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
-          "sha256": "059c7bdb07d3419815898f8ac729eaff109b08b8d10b9c5d5cd5926fb2d2a18b"
+          "sha256": "eef5a3bf22b83c75005cafefc7edf1de80375ca173a3929789300cb6d130b402"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "701657b70b623f7c9fe1ccbe4cf5eb42a7ea1e91e0716d1ece78be4d5e1f3f61"
+          "sha256": "f270f8fefd5d9e5f0af46f625d5b95378b0745adf62b7f4a09b466c0f7ea6cf9"
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
@@ -6547,7 +6619,7 @@
         }
       ],
       "evidenceCommit": "339c6168f704684477354365988d7448cb0e7a10",
-      "currentImplementationCommit": "3ced0126ac20a07c2909e7b44f3733a9e3aa044a",
+      "currentImplementationCommit": "8d7571c5a5572b1ed542a5ff1d8eaeb533bac1bc",
       "currentImplementationIncludesUncommittedChanges": true,
       "ciState": "PENDING",
       "ciReceipts": [
@@ -6590,7 +6662,7 @@
             "Current fixed full CI and same-candidate visible paired SQL/network/normal score/full replay remain OPEN",
             "Independent Windows real runtime and every other full-universe obligation remain OPEN"
           ],
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -6619,7 +6691,7 @@
             "Current fixed full CI and same-candidate visible paired SQL/network/normal score/full replay remain OPEN",
             "Independent Windows real runtime and every other full-universe obligation remain OPEN"
           ],
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -6648,7 +6720,7 @@
             "Current fixed full CI and same-candidate visible paired SQL/network/normal score/full replay remain OPEN",
             "Independent Windows real runtime and every other full-universe obligation remain OPEN"
           ],
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN"
         }
       ],
@@ -6801,11 +6873,19 @@
           "oldEvidenceScopeRetained": true
         }
       ],
-      "revalidationReason": "Actual battlefield-controller entry fix changes shared Core and SQL verification inputs; earlier fixed CI remains limited to its original source scope."
+      "revalidationReason": "Actual battlefield-controller entry fix changes shared Core and SQL verification inputs; earlier fixed CI remains limited to its original source scope.",
+      "latestInputChange": {
+        "date": "2026-10-16",
+        "scope": "Optional single-unit printed-cost reduction and MessagePack clean-build repair; previous sources/tests/CI receipts retain original candidate scope.",
+        "receipt": {
+          "path": "docs/evidence/optional-sacrifice-cost-2026-10-16/prior-context-input-updates.json",
+          "sha256": "0216238207caa93ad8cca201c558acd6130a86f11a20ad0d4d0e2383dd7df4d6"
+        }
+      }
     },
     "typed-card-play-history-causal-production-recovery-2026-10-15": {
       "evidenceCommit": "6bc546259eed61d5988bf8e8df5081cd8502c614",
-      "currentImplementationCommit": "4ad7fe204adee28c4138f18bdde4c4cbcdea21f0",
+      "currentImplementationCommit": "8d7571c5a5572b1ed542a5ff1d8eaeb533bac1bc",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact6bc fullCI/45SQL/case-method-pair preservation verified. Current workingtree has newer counted Insight/catalog dependencies; this prior full is not current gameplay coverage.",
       "ciState": "PENDING",
@@ -6828,7 +6908,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "701657b70b623f7c9fe1ccbe4cf5eb42a7ea1e91e0716d1ece78be4d5e1f3f61"
+          "sha256": "f270f8fefd5d9e5f0af46f625d5b95378b0745adf62b7f4a09b466c0f7ea6cf9"
         },
         {
           "path": "src/Riftbound.Persistence/PostgresMatchRecoveryStore.cs",
@@ -6879,7 +6959,7 @@
             "New test/fixture/SQL inputs require their own fixed-commit complete CI",
             "Independent Windows real runtime and all full-universe source/semantic gaps remain OPEN"
           ],
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -6898,7 +6978,7 @@
             "New test/fixture/SQL inputs require their own fixed-commit complete CI",
             "Independent Windows real runtime and all full-universe source/semantic gaps remain OPEN"
           ],
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -6917,7 +6997,7 @@
             "New test/fixture/SQL inputs require their own fixed-commit complete CI",
             "Independent Windows real runtime and all full-universe source/semantic gaps remain OPEN"
           ],
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN"
         }
       ],
@@ -6966,11 +7046,19 @@
           "oldEvidenceScopeRetained": true
         }
       ],
-      "revalidationReason": "Explicit shared implementation/verification input changes; prior CI retained only at its fixed old source scope."
+      "revalidationReason": "Explicit shared implementation/verification input changes; prior CI retained only at its fixed old source scope.",
+      "latestInputChange": {
+        "date": "2026-10-16",
+        "scope": "Optional single-unit printed-cost reduction and MessagePack clean-build repair; previous sources/tests/CI receipts retain original candidate scope.",
+        "receipt": {
+          "path": "docs/evidence/optional-sacrifice-cost-2026-10-16/prior-context-input-updates.json",
+          "sha256": "0216238207caa93ad8cca201c558acd6130a86f11a20ad0d4d0e2383dd7df4d6"
+        }
+      }
     },
     "counted-insight-post-choice-draw-clairvoyance-2026-10-15": {
       "evidenceCommit": "6bc546259eed61d5988bf8e8df5081cd8502c614",
-      "currentImplementationCommit": "4ad7fe204adee28c4138f18bdde4c4cbcdea21f0",
+      "currentImplementationCommit": "8d7571c5a5572b1ed542a5ff1d8eaeb533bac1bc",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Base commit plus explicitly uncommitted gameplay/test inputs; own fixed CI remains pending. Earlier6bc full cannot certify this new gameplay batch.",
       "ciState": "PENDING",
@@ -6978,7 +7066,7 @@
       "implementation": [
         {
           "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
-          "sha256": "059c7bdb07d3419815898f8ac729eaff109b08b8d10b9c5d5cd5926fb2d2a18b"
+          "sha256": "eef5a3bf22b83c75005cafefc7edf1de80375ca173a3929789300cb6d130b402"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.Insight.cs",
@@ -7069,7 +7157,7 @@
             "New gameplay candidate exact fixed full CI and final visible paired SQL/network/normal score/full replay",
             "Independent Windows real runtime, ENsource gap/effective deltas and every full-universe obligation"
           ],
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -7095,7 +7183,7 @@
             "New gameplay candidate exact fixed full CI and final visible paired SQL/network/normal score/full replay",
             "Independent Windows real runtime, ENsource gap/effective deltas and every full-universe obligation"
           ],
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -7121,7 +7209,7 @@
             "New gameplay candidate exact fixed full CI and final visible paired SQL/network/normal score/full replay",
             "Independent Windows real runtime, ENsource gap/effective deltas and every full-universe obligation"
           ],
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN"
         }
       ],
@@ -7181,7 +7269,15 @@
           "oldEvidenceScopeRetained": true
         }
       ],
-      "revalidationReason": "Explicit shared implementation/verification input changes; prior CI retained only at its fixed old source scope."
+      "revalidationReason": "Explicit shared implementation/verification input changes; prior CI retained only at its fixed old source scope.",
+      "latestInputChange": {
+        "date": "2026-10-16",
+        "scope": "Optional single-unit printed-cost reduction and MessagePack clean-build repair; previous sources/tests/CI receipts retain original candidate scope.",
+        "receipt": {
+          "path": "docs/evidence/optional-sacrifice-cost-2026-10-16/prior-context-input-updates.json",
+          "sha256": "0216238207caa93ad8cca201c558acd6130a86f11a20ad0d4d0e2383dd7df4d6"
+        }
+      }
     },
     "untargeted-counted-insight-echo-resumption-2026-10-15": {
       "evidenceCommit": "a8f0b1dd1797997390d34ec77a84455a4ddb8911",
@@ -7744,7 +7840,7 @@
     },
     "combat-event-journal-wire-and-single-defender-choice-2026-10-15": {
       "evidenceCommit": "9e426a31386aefa980bf2d48f02b237098cb2914",
-      "currentImplementationCommit": "3ced0126ac20a07c2909e7b44f3733a9e3aa044a",
+      "currentImplementationCommit": "8d7571c5a5572b1ed542a5ff1d8eaeb533bac1bc",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact9e base plus explicitly hashed current journal/combat/native-fixture verification inputs; old full does not cover this repair.",
       "ciState": "PENDING",
@@ -7756,7 +7852,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "1852a4f8230e24a9d0e17889741bc25ed8000fc4a1247cd0629a7d018a3637ae"
+          "sha256": "d64d5af2acf493b1ac0865e37605ba36431233b3a15d0df2aa5238843ed175a6"
         },
         {
           "path": "clients/godot/scripts/ClientCommandSerializer.cs",
@@ -7842,7 +7938,7 @@
             "Native custom deck editor and independent Windows real runtime",
             "Every official source gap and newly effective applicability change; full-universe semantic certification"
           ],
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -7868,7 +7964,7 @@
             "Native custom deck editor and independent Windows real runtime",
             "Every official source gap and newly effective applicability change; full-universe semantic certification"
           ],
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -7894,7 +7990,7 @@
             "Native custom deck editor and independent Windows real runtime",
             "Every official source gap and newly effective applicability change; full-universe semantic certification"
           ],
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN"
         }
       ],
@@ -7989,11 +8085,19 @@
         }
       ],
       "revalidationReason": "Actual battlefield-controller entry fix changes shared Core and SQL verification inputs; earlier fixed CI remains limited to its original source scope.",
-      "latestFixedEvidenceStatus": "EXACT_0CBEE_FULL_FAILED_THREE_ORIGINAL_GAMES_CURRENT_CONTINUATION_REPAIR_PENDING"
+      "latestFixedEvidenceStatus": "EXACT_0CBEE_FULL_FAILED_THREE_ORIGINAL_GAMES_CURRENT_CONTINUATION_REPAIR_PENDING",
+      "latestInputChange": {
+        "date": "2026-10-16",
+        "scope": "Optional single-unit printed-cost reduction and MessagePack clean-build repair; previous sources/tests/CI receipts retain original candidate scope.",
+        "receipt": {
+          "path": "docs/evidence/optional-sacrifice-cost-2026-10-16/prior-context-input-updates.json",
+          "sha256": "0216238207caa93ad8cca201c558acd6130a86f11a20ad0d4d0e2383dd7df4d6"
+        }
+      }
     },
     "combat-declaration-provenance-and-single-eligible-unit-conquest-2026-10-15": {
       "evidenceCommit": "0cbee9e22c81bec21ea416fdb45dc1c16f78e7d4",
-      "currentImplementationCommit": "3ced0126ac20a07c2909e7b44f3733a9e3aa044a",
+      "currentImplementationCommit": "8d7571c5a5572b1ed542a5ff1d8eaeb533bac1bc",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact0cbee failed base plus two explicitly pinned source repairs and new verification/source-intake evidence; new fixed SHA required.",
       "ciState": "PENDING",
@@ -8005,7 +8109,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "1852a4f8230e24a9d0e17889741bc25ed8000fc4a1247cd0629a7d018a3637ae"
+          "sha256": "d64d5af2acf493b1ac0865e37605ba36431233b3a15d0df2aa5238843ed175a6"
         }
       ],
       "evidence": [
@@ -8076,7 +8180,7 @@
           "state": "RECORDED",
           "semanticReview": "SCOPED_ONLY",
           "tests": "FOCUS_NATIVE_SQL_PASS",
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN",
           "remaining": [
             "Multiple optional unit conquest returns, additional activations, mixed battlefield/unit payments and player ordering",
@@ -8095,7 +8199,7 @@
           "state": "RECORDED",
           "semanticReview": "SCOPED_ONLY",
           "tests": "FOCUS_NATIVE_SQL_PASS",
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN",
           "remaining": [
             "Multiple optional unit conquest returns, additional activations, mixed battlefield/unit payments and player ordering",
@@ -8115,7 +8219,7 @@
           "state": "RECORDED",
           "semanticReview": "SCOPED_ONLY",
           "tests": "FOCUS_NATIVE_SQL_PASS",
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN",
           "remaining": [
             "Multiple optional unit conquest returns, additional activations, mixed battlefield/unit payments and player ordering",
@@ -8205,11 +8309,19 @@
         }
       ],
       "revalidationReason": "Actual battlefield-controller entry fix changes shared Core and SQL verification inputs; earlier fixed CI remains limited to its original source scope.",
-      "latestFixedEvidenceStatus": "EXACT_D1_FULL_SUCCESS_NATIVE_PAYMENT_FAILURE_NEW_PROMPT_CONTEXT_REPAIR_PENDING"
+      "latestFixedEvidenceStatus": "EXACT_D1_FULL_SUCCESS_NATIVE_PAYMENT_FAILURE_NEW_PROMPT_CONTEXT_REPAIR_PENDING",
+      "latestInputChange": {
+        "date": "2026-10-16",
+        "scope": "Optional single-unit printed-cost reduction and MessagePack clean-build repair; previous sources/tests/CI receipts retain original candidate scope.",
+        "receipt": {
+          "path": "docs/evidence/optional-sacrifice-cost-2026-10-16/prior-context-input-updates.json",
+          "sha256": "0216238207caa93ad8cca201c558acd6130a86f11a20ad0d4d0e2383dd7df4d6"
+        }
+      }
     },
     "optional-mana-trigger-native-and-natural-declaration-order-2026-10-15": {
       "evidenceCommit": "d1c2b4d351ca32862ee52ab7bc45cd7d581fca2c",
-      "currentImplementationCommit": "3ced0126ac20a07c2909e7b44f3733a9e3aa044a",
+      "currentImplementationCommit": "8d7571c5a5572b1ed542a5ff1d8eaeb533bac1bc",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact d1 actual full-success/native-failure base plus three pinned source repairs, new verification and source readback; new fixed SHA required.",
       "ciState": "PENDING",
@@ -8221,11 +8333,11 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "1852a4f8230e24a9d0e17889741bc25ed8000fc4a1247cd0629a7d018a3637ae"
+          "sha256": "d64d5af2acf493b1ac0865e37605ba36431233b3a15d0df2aa5238843ed175a6"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "701657b70b623f7c9fe1ccbe4cf5eb42a7ea1e91e0716d1ece78be4d5e1f3f61"
+          "sha256": "f270f8fefd5d9e5f0af46f625d5b95378b0745adf62b7f4a09b466c0f7ea6cf9"
         }
       ],
       "evidence": [
@@ -8310,7 +8422,7 @@
           "state": "RECORDED",
           "semanticReview": "SCOPED_ONLY",
           "tests": "FOCUS_NATIVE_SQL_PASS",
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN",
           "remaining": [
             "Multiple optional conquest triggers, mixed payments, player ordering and other unreviewed consumers",
@@ -8329,7 +8441,7 @@
           "state": "RECORDED",
           "semanticReview": "SCOPED_ONLY",
           "tests": "FOCUS_NATIVE_SQL_PASS",
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN",
           "remaining": [
             "Multiple optional conquest triggers, mixed payments, player ordering and other unreviewed consumers",
@@ -8413,11 +8525,19 @@
           "oldEvidenceScopeRetained": true
         }
       ],
-      "revalidationReason": "Actual battlefield-controller entry fix changes shared Core and SQL verification inputs; earlier fixed CI remains limited to its original source scope."
+      "revalidationReason": "Actual battlefield-controller entry fix changes shared Core and SQL verification inputs; earlier fixed CI remains limited to its original source scope.",
+      "latestInputChange": {
+        "date": "2026-10-16",
+        "scope": "Optional single-unit printed-cost reduction and MessagePack clean-build repair; previous sources/tests/CI receipts retain original candidate scope.",
+        "receipt": {
+          "path": "docs/evidence/optional-sacrifice-cost-2026-10-16/prior-context-input-updates.json",
+          "sha256": "0216238207caa93ad8cca201c558acd6130a86f11a20ad0d4d0e2383dd7df4d6"
+        }
+      }
     },
     "cn16-confirmed-play-origin-and-required-causal-fact-2026-10-16": {
       "evidenceCommit": "56d1ee2eed9dcbf48ed54175867cd93ac58d92d8",
-      "currentImplementationCommit": "3ced0126ac20a07c2909e7b44f3733a9e3aa044a",
+      "currentImplementationCommit": "8d7571c5a5572b1ed542a5ff1d8eaeb533bac1bc",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact56 baseline plus explicitly pinned CN16 source selection and bounded confirmed hand-origin repair; new fixed SHA required.",
       "ciState": "PENDING",
@@ -8425,15 +8545,15 @@
       "implementation": [
         {
           "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
-          "sha256": "059c7bdb07d3419815898f8ac729eaff109b08b8d10b9c5d5cd5926fb2d2a18b"
+          "sha256": "eef5a3bf22b83c75005cafefc7edf1de80375ca173a3929789300cb6d130b402"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "1852a4f8230e24a9d0e17889741bc25ed8000fc4a1247cd0629a7d018a3637ae"
+          "sha256": "d64d5af2acf493b1ac0865e37605ba36431233b3a15d0df2aa5238843ed175a6"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "701657b70b623f7c9fe1ccbe4cf5eb42a7ea1e91e0716d1ece78be4d5e1f3f61"
+          "sha256": "f270f8fefd5d9e5f0af46f625d5b95378b0745adf62b7f4a09b466c0f7ea6cf9"
         },
         {
           "path": "data/official/rule-input-scope.json",
@@ -8455,11 +8575,11 @@
         },
         {
           "path": "tests/Riftbound.PostgresAcceptance/Program.cs",
-          "sha256": "deac1ba029ac3b9432169d223b1ab64931bf29d0b3af30aee0da692c3196561c"
+          "sha256": "03258f9133992dca4681bdd77b2ac888be4dfec618e71e5e3bd73b7305f72825"
         },
         {
           "path": "tests/Riftbound.PostgresAcceptance/Riftbound.PostgresAcceptance.csproj",
-          "sha256": "558dca73981e3fba1e40bebc1ba407407ca1b2052d0e4f133acbac8203fec350"
+          "sha256": "01d92ff3884c21d04e2cc6b6e36c62ebf3467afc2dfaf6e84fbf5d1d371a9c18"
         },
         {
           "path": "tests/Riftbound.ConformanceTests/Fixtures/confirmed-play-origin-hand-cn16.json",
@@ -8535,7 +8655,7 @@
           "semanticReview": "SCOPED_ONLY",
           "implementation": "LOCAL_COMPLETE_FOR_RECORDED_BRANCH",
           "tests": "CN16_FOCUS_AND_REAL_SQL_PASS",
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN",
           "remaining": [
             "All unreviewed exact printing/target/permission/cost/repeat branches and the text-located consumer inventory; no whole-card certification",
@@ -8556,7 +8676,7 @@
           "semanticReview": "SCOPED_ONLY",
           "implementation": "LOCAL_COMPLETE_FOR_RECORDED_BRANCH",
           "tests": "ACTUAL_PERMISSION_PLAY_FOCUS_REPLAY_PASS",
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN",
           "remaining": [
             "All unreviewed exact printing/target/permission/cost/repeat branches and the text-located consumer inventory; no whole-card certification",
@@ -8577,7 +8697,7 @@
           "semanticReview": "SCOPED_ONLY",
           "implementation": "NO_DEFAULT_MIGRATION_OR_CAUSAL_GUARD_RELAXATION",
           "tests": "EMPTY_OPENING_FORGED_VIEW_AND_REAL_SQL_FLIP_MISSING_REJECTION_PASS",
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN",
           "remaining": [
             "All unreviewed exact printing/target/permission/cost/repeat branches and the text-located consumer inventory; no whole-card certification",
@@ -8693,11 +8813,19 @@
           "oldEvidenceScopeRetained": true
         }
       ],
-      "revalidationReason": "Actual battlefield-controller entry fix changes shared Core and SQL verification inputs; earlier fixed CI remains limited to its original source scope."
+      "revalidationReason": "Actual battlefield-controller entry fix changes shared Core and SQL verification inputs; earlier fixed CI remains limited to its original source scope.",
+      "latestInputChange": {
+        "date": "2026-10-16",
+        "scope": "Optional single-unit printed-cost reduction and MessagePack clean-build repair; previous sources/tests/CI receipts retain original candidate scope.",
+        "receipt": {
+          "path": "docs/evidence/optional-sacrifice-cost-2026-10-16/prior-context-input-updates.json",
+          "sha256": "0216238207caa93ad8cca201c558acd6130a86f11a20ad0d4d0e2383dd7df4d6"
+        }
+      }
     },
     "physical-origin-self-cost-reduction-2026-10-16": {
       "evidenceCommit": "903cbca2becfd9b142a6b6a86d77b8fbf3d080ef",
-      "currentImplementationCommit": "3ced0126ac20a07c2909e7b44f3733a9e3aa044a",
+      "currentImplementationCommit": "8d7571c5a5572b1ed542a5ff1d8eaeb533bac1bc",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact903 baseline plus pinned3engine changes and new8cases/SQL fixtures; fixed newSHA required.",
       "ciState": "PENDING",
@@ -8705,15 +8833,15 @@
       "implementation": [
         {
           "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
-          "sha256": "059c7bdb07d3419815898f8ac729eaff109b08b8d10b9c5d5cd5926fb2d2a18b"
+          "sha256": "eef5a3bf22b83c75005cafefc7edf1de80375ca173a3929789300cb6d130b402"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "1852a4f8230e24a9d0e17889741bc25ed8000fc4a1247cd0629a7d018a3637ae"
+          "sha256": "d64d5af2acf493b1ac0865e37605ba36431233b3a15d0df2aa5238843ed175a6"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.PlayManaCost.cs",
-          "sha256": "97eff9c99122ba66b93b109f807daf7aca559d348a27eea4c59c18715bc16db8"
+          "sha256": "b46b63f34d74f2861f42114bad8ed16f2030bccb83bc1b45300e9afe9dd79219"
         }
       ],
       "verificationSources": [
@@ -8727,11 +8855,11 @@
         },
         {
           "path": "tests/Riftbound.PostgresAcceptance/Program.cs",
-          "sha256": "deac1ba029ac3b9432169d223b1ab64931bf29d0b3af30aee0da692c3196561c"
+          "sha256": "03258f9133992dca4681bdd77b2ac888be4dfec618e71e5e3bd73b7305f72825"
         },
         {
           "path": "tests/Riftbound.PostgresAcceptance/Riftbound.PostgresAcceptance.csproj",
-          "sha256": "558dca73981e3fba1e40bebc1ba407407ca1b2052d0e4f133acbac8203fec350"
+          "sha256": "01d92ff3884c21d04e2cc6b6e36c62ebf3467afc2dfaf6e84fbf5d1d371a9c18"
         },
         {
           "path": "tests/Riftbound.ConformanceTests/Fixtures/physical-origin-cost-unit.json",
@@ -8800,7 +8928,7 @@
           "semanticReview": "SCOPED_ONLY",
           "implementation": "LOCAL_COMPLETE_FOR_RECORDED_BRANCH",
           "tests": "ALL8_FINAL_CASES_AND_ADJACENT162_PASS",
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN",
           "remaining": [
             "Other origin/controller/payment-waiver/combined-cost branches and the remaining text-located consumers remain separately unreviewed; no whole-card/family certification.",
@@ -8824,7 +8952,7 @@
           "semanticReview": "SCOPED_ONLY",
           "implementation": "LOCAL_COMPLETE_FOR_RECORDED_BRANCH",
           "tests": "2_NORMAL_FRAMES_AND_ALL71_SQL_PASS",
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN",
           "remaining": [
             "Other origin/controller/payment-waiver/combined-cost branches and the remaining text-located consumers remain separately unreviewed; no whole-card/family certification.",
@@ -8917,11 +9045,19 @@
           "path": "docs/evidence/physical-origin-cost-2026-10-16/full-ci-4ad7fe20.json",
           "sha256": "d95f62c357abe153fc26f0fbb06c5cf11533d0f4058599c10f0a79ee73142963"
         }
-      ]
+      ],
+      "latestInputChange": {
+        "date": "2026-10-16",
+        "scope": "Optional single-unit printed-cost reduction and MessagePack clean-build repair; previous sources/tests/CI receipts retain original candidate scope.",
+        "receipt": {
+          "path": "docs/evidence/optional-sacrifice-cost-2026-10-16/prior-context-input-updates.json",
+          "sha256": "0216238207caa93ad8cca201c558acd6130a86f11a20ad0d4d0e2383dd7df4d6"
+        }
+      }
     },
     "granted-origin-haste-and-paid-entry-replacement-2026-10-16": {
       "evidenceCommit": "4ad7fe204adee28c4138f18bdde4c4cbcdea21f0",
-      "currentImplementationCommit": "3ced0126ac20a07c2909e7b44f3733a9e3aa044a",
+      "currentImplementationCommit": "8d7571c5a5572b1ed542a5ff1d8eaeb533bac1bc",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact4ad7 baseline plus pinned5engine inputs,24cases, native readback and73SQL. NewfixedSHA full required. Printed-Haste dispatch restored after the singlecheck;213 current focus passed. Prior SQL/native exact inputs remain pre-repair, not relabeled.",
       "ciState": "PENDING",
@@ -8929,7 +9065,7 @@
       "implementation": [
         {
           "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
-          "sha256": "059c7bdb07d3419815898f8ac729eaff109b08b8d10b9c5d5cd5926fb2d2a18b"
+          "sha256": "eef5a3bf22b83c75005cafefc7edf1de80375ca173a3929789300cb6d130b402"
         },
         {
           "path": "src/Riftbound.Engine/CardPermissionKeywordRules.cs",
@@ -8937,11 +9073,11 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "1852a4f8230e24a9d0e17889741bc25ed8000fc4a1247cd0629a7d018a3637ae"
+          "sha256": "d64d5af2acf493b1ac0865e37605ba36431233b3a15d0df2aa5238843ed175a6"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "701657b70b623f7c9fe1ccbe4cf5eb42a7ea1e91e0716d1ece78be4d5e1f3f61"
+          "sha256": "f270f8fefd5d9e5f0af46f625d5b95378b0745adf62b7f4a09b466c0f7ea6cf9"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.PlayKeywords.cs",
@@ -8963,11 +9099,11 @@
         },
         {
           "path": "tests/Riftbound.PostgresAcceptance/Program.cs",
-          "sha256": "deac1ba029ac3b9432169d223b1ab64931bf29d0b3af30aee0da692c3196561c"
+          "sha256": "03258f9133992dca4681bdd77b2ac888be4dfec618e71e5e3bd73b7305f72825"
         },
         {
           "path": "tests/Riftbound.PostgresAcceptance/Riftbound.PostgresAcceptance.csproj",
-          "sha256": "558dca73981e3fba1e40bebc1ba407407ca1b2052d0e4f133acbac8203fec350"
+          "sha256": "01d92ff3884c21d04e2cc6b6e36c62ebf3467afc2dfaf6e84fbf5d1d371a9c18"
         },
         {
           "path": "tests/Riftbound.ConformanceTests/Fixtures/granted-origin-haste-unit.json",
@@ -9056,7 +9192,7 @@
           "semanticReview": "SCOPED_ONLY",
           "implementation": "LOCAL_COMPLETE_FOR_RECORDED_BRANCH",
           "tests": "24_CASES_394_ADJACENT112_NATIVE_COMMANDS73_REAL_SQL_PASS",
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN",
           "remaining": [
             "Actual Atakhan optional sacrifice, generated Sand Soldier play, copied/attached/nonunit sources, controller-transfer and continuing in-play keyword characteristic consumers remain OPEN.",
@@ -9090,7 +9226,7 @@
           "semanticReview": "SCOPED_ONLY",
           "implementation": "LOCAL_COMPLETE_FOR_RECORDED_BRANCH",
           "tests": "24_CASES_394_ADJACENT112_NATIVE_COMMANDS73_REAL_SQL_PASS",
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN",
           "remaining": [
             "Actual Atakhan optional sacrifice, generated Sand Soldier play, copied/attached/nonunit sources, controller-transfer and continuing in-play keyword characteristic consumers remain OPEN.",
@@ -9124,7 +9260,7 @@
           "semanticReview": "SCOPED_ONLY",
           "implementation": "LOCAL_COMPLETE_FOR_RECORDED_BRANCH",
           "tests": "24_CASES_394_ADJACENT112_NATIVE_COMMANDS73_REAL_SQL_PASS",
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN",
           "remaining": [
             "Actual Atakhan optional sacrifice, generated Sand Soldier play, copied/attached/nonunit sources, controller-transfer and continuing in-play keyword characteristic consumers remain OPEN.",
@@ -9185,11 +9321,19 @@
           "path": "docs/evidence/granted-origin-haste-2026-10-16/full-ci-3ced0126.json",
           "sha256": "1e1ee89df7e0465a429b4257c472e9615685c419159bea1a6005543b73aaa99f"
         }
-      ]
+      ],
+      "latestInputChange": {
+        "date": "2026-10-16",
+        "scope": "Optional single-unit printed-cost reduction and MessagePack clean-build repair; previous sources/tests/CI receipts retain original candidate scope.",
+        "receipt": {
+          "path": "docs/evidence/optional-sacrifice-cost-2026-10-16/prior-context-input-updates.json",
+          "sha256": "0216238207caa93ad8cca201c558acd6130a86f11a20ad0d4d0e2383dd7df4d6"
+        }
+      }
     },
     "opponent-battlefield-current-control-entry-2026-10-16": {
       "evidenceCommit": "3ced0126ac20a07c2909e7b44f3733a9e3aa044a",
-      "currentImplementationCommit": "3ced0126ac20a07c2909e7b44f3733a9e3aa044a",
+      "currentImplementationCommit": "8d7571c5a5572b1ed542a5ff1d8eaeb533bac1bc",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact3ced baseline plus pinned Core fix and29new cases/3methods; old72 product and prior fixedfull evidence are separately bounded. New fixed SHA full required.",
       "ciState": "PENDING",
@@ -9197,7 +9341,7 @@
       "implementation": [
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "1852a4f8230e24a9d0e17889741bc25ed8000fc4a1247cd0629a7d018a3637ae"
+          "sha256": "d64d5af2acf493b1ac0865e37605ba36431233b3a15d0df2aa5238843ed175a6"
         }
       ],
       "verificationSources": [
@@ -9223,11 +9367,11 @@
         },
         {
           "path": "tests/Riftbound.PostgresAcceptance/Program.cs",
-          "sha256": "deac1ba029ac3b9432169d223b1ab64931bf29d0b3af30aee0da692c3196561c"
+          "sha256": "03258f9133992dca4681bdd77b2ac888be4dfec618e71e5e3bd73b7305f72825"
         },
         {
           "path": "tests/Riftbound.PostgresAcceptance/Riftbound.PostgresAcceptance.csproj",
-          "sha256": "558dca73981e3fba1e40bebc1ba407407ca1b2052d0e4f133acbac8203fec350"
+          "sha256": "01d92ff3884c21d04e2cc6b6e36c62ebf3467afc2dfaf6e84fbf5d1d371a9c18"
         }
       ],
       "evidence": [
@@ -9289,7 +9433,7 @@
           "semanticReview": "SCOPED_ENTRY_CONDITION_ONLY",
           "implementation": "LOCAL_COMPLETE",
           "tests": "29_NEW_1093_ADJACENT_1_ORIGINAL_GAME_75_REAL_SQL_4_EVENT_REJECTIONS_11964_SINGLE_CHECK_PASS",
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN_NEW_CANDIDATE",
           "remaining": [
             "New exact fixed-commit full CI and necessary visible candidate/Windows physical acceptance remain OPEN.",
@@ -9314,7 +9458,7 @@
           "semanticReview": "SCOPED_ENTRY_CONDITION_ONLY",
           "implementation": "LOCAL_COMPLETE",
           "tests": "29_NEW_1093_ADJACENT_1_ORIGINAL_GAME_75_REAL_SQL_4_EVENT_REJECTIONS_11964_SINGLE_CHECK_PASS",
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN_NEW_CANDIDATE",
           "remaining": [
             "New exact fixed-commit full CI and necessary visible candidate/Windows physical acceptance remain OPEN.",
@@ -9339,13 +9483,269 @@
           "semanticReview": "SCOPED_ENTRY_CONDITION_ONLY",
           "implementation": "LOCAL_COMPLETE",
           "tests": "29_NEW_1093_ADJACENT_1_ORIGINAL_GAME_75_REAL_SQL_4_EVENT_REJECTIONS_11964_SINGLE_CHECK_PASS",
-          "fixedCommitCi": "PENDING",
+          "fixedCommitCi": "PENDING_NEW_CANDIDATE_AFTER_SHARED_COST_CHANGE",
           "productAcceptance": "OPEN_NEW_CANDIDATE",
           "remaining": [
             "New exact fixed-commit full CI and necessary visible candidate/Windows physical acceptance remain OPEN.",
             "Only the current-controller entry condition for three exact CN printings is reviewed; every Assault, trait, copied/attached, control-transfer timing and optional return branch still needs its own evidence.",
             "The old72 native normal8:5, SQL/network/private choice and lifecycle evidence stays at old72; its entry bug is retained and not migrated.",
             "All global/card/rule/FAQ/QA/source-gap obligations, DOC11 expiry/direct and indirect impact, image/media and regional/effective changes remain."
+          ]
+        }
+      ],
+      "latestInputChange": {
+        "date": "2026-10-16",
+        "scope": "Optional single-unit printed-cost reduction and MessagePack clean-build repair; previous sources/tests/CI receipts retain original candidate scope.",
+        "receipt": {
+          "path": "docs/evidence/optional-sacrifice-cost-2026-10-16/prior-context-input-updates.json",
+          "sha256": "0216238207caa93ad8cca201c558acd6130a86f11a20ad0d4d0e2383dd7df4d6"
+        }
+      },
+      "historicalFixedCiReceipts": [
+        {
+          "path": "docs/evidence/opponent-battlefield-control-2026-10-16/full-ci-8d7571c5.json",
+          "sha256": "c6c8730f8e704c913c45ee2e0684bb4a8d30fa091272360d5adec3c45d71207a",
+          "commit": "8d7571c5a5572b1ed542a5ff1d8eaeb533bac1bc",
+          "runId": 38851939967
+        }
+      ]
+    },
+    "optional-sacrifice-printed-cost-and-paid-entry-2026-10-16": {
+      "evidenceCommit": "8d7571c5a5572b1ed542a5ff1d8eaeb533bac1bc",
+      "currentImplementationCommit": "8d7571c5a5572b1ed542a5ff1d8eaeb533bac1bc",
+      "currentImplementationIncludesUncommittedChanges": true,
+      "evidenceCommitScope": "Fixed8d baseline plus exact15 executable/fixture patch files. Earlier full8d,113 old review dictionaries, source dates and original143/110/424242 remain retained. New candidate full required.",
+      "ciState": "PENDING",
+      "ciReceipts": [],
+      "implementation": [
+        {
+          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "sha256": "eef5a3bf22b83c75005cafefc7edf1de80375ca173a3929789300cb6d130b402"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "sha256": "d64d5af2acf493b1ac0865e37605ba36431233b3a15d0df2aa5238843ed175a6"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.PlayManaCost.cs",
+          "sha256": "b46b63f34d74f2861f42114bad8ed16f2030bccb83bc1b45300e9afe9dd79219"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.OptionalSacrificeCost.cs",
+          "sha256": "278a31427669b02c89a4ccbcdf1aa80da0c764fbde44d96d18acc31f961cba5e"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.PlayCostPreview.cs",
+          "sha256": "90ab334881984c5d0886e1405ae0bcce34868dba18d2f00df0d460178a4f57ee"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.EffectPlay.cs",
+          "sha256": "cfd1ecd7030e3c6496346e33d1299bf6db988d33a3233e9db895fbe8f2343af8"
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchSession.cs",
+          "sha256": "f270f8fefd5d9e5f0af46f625d5b95378b0745adf62b7f4a09b466c0f7ea6cf9"
+        },
+        {
+          "path": "src/Riftbound.Api/Riftbound.Api.csproj",
+          "sha256": "98cefe0bc7f292856462fa5bb394f2b8490cd2c328998d42c22acd8ee22468dd"
+        }
+      ],
+      "verificationSources": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/OptionalSacrificePlayCostTests.cs",
+          "sha256": "997eb1d30694258d20dcb49e38d539f3c0c824f3e21f73faa19d20939457cf7e"
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/OptionalSacrificeOpeningTests.cs",
+          "sha256": "c07f911b4b0c900ccdc84d88393123b584fc9f224f5f0462b18b40a351bd23f3"
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/Fixtures/optional-sacrifice-hand.json",
+          "sha256": "4a24c789e3f0011b70f30bc742ffb6000bdedff746bcf3c9695f04b2566e9ead"
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/Fixtures/optional-sacrifice-haste.json",
+          "sha256": "942cac52e64eda794440ae4f624a9b930c3da7dbd4d1c2fa4b250c595d2c3713"
+        },
+        {
+          "path": "tests/Riftbound.PostgresAcceptance/OptionalSacrificeSqlAcceptance.cs",
+          "sha256": "198991021b2bfcd875eea729be9d05e20168861b4278c1a74f723969d492c749"
+        },
+        {
+          "path": "tests/Riftbound.PostgresAcceptance/Program.cs",
+          "sha256": "03258f9133992dca4681bdd77b2ac888be4dfec618e71e5e3bd73b7305f72825"
+        },
+        {
+          "path": "tests/Riftbound.PostgresAcceptance/Riftbound.PostgresAcceptance.csproj",
+          "sha256": "01d92ff3884c21d04e2cc6b6e36c62ebf3467afc2dfaf6e84fbf5d1d371a9c18"
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/evidence/optional-sacrifice-cost-2026-10-16/source-manifest.json",
+          "sha256": "b01427c18ff74100c200f36251ba5284e9d273edda6623f0dc5b7aade9a2dec5",
+          "role": "source-manifest"
+        },
+        {
+          "path": "docs/evidence/optional-sacrifice-cost-2026-10-16/focus.json",
+          "sha256": "4da243e1561428d72d0f8cb343c3eb5120d55ebec8c8b10abd5a8cc20a8aaf1a",
+          "role": "focus"
+        },
+        {
+          "path": "docs/evidence/optional-sacrifice-cost-2026-10-16/native.json",
+          "sha256": "4a7fef84d67ef7a0e8ba9d077230a0ae142a2ff813887c195628b5b4c576b1d5",
+          "role": "native"
+        },
+        {
+          "path": "docs/evidence/optional-sacrifice-cost-2026-10-16/messagepack-remediation.json",
+          "sha256": "b9b2c176f6bf5122e995ab6b6c429fc830d3067914eae04be9611c04415ee22c",
+          "role": "messagepack-remediation"
+        },
+        {
+          "path": "docs/evidence/optional-sacrifice-cost-2026-10-16/prior-context-input-updates.json",
+          "sha256": "0216238207caa93ad8cca201c558acd6130a86f11a20ad0d4d0e2383dd7df4d6",
+          "role": "prior-context-input-updates"
+        },
+        {
+          "path": "docs/evidence/optional-sacrifice-cost-2026-10-16/original-source-parity.json",
+          "sha256": "6fa44326ebca09b8b5f72ae89a052f0f5c2cbc0d0973e91a7178b12be3d0405a",
+          "role": "original-source-parity"
+        },
+        {
+          "path": "docs/evidence/optional-sacrifice-cost-2026-10-16/sql.json",
+          "sha256": "8ae9e078b15f0713dc5ea8dc2693ce06e9d44f7474322183110d6c663d929809",
+          "role": "real-sql77"
+        },
+        {
+          "path": "docs/evidence/optional-sacrifice-cost-2026-10-16/regression-history.json",
+          "sha256": "88f3069289d9dbf0d0a73f96d991952cd5778d3be848863f4d55390866e22bc6",
+          "role": "all-failures-retained"
+        },
+        {
+          "path": "docs/evidence/optional-sacrifice-cost-2026-10-16/check.json",
+          "sha256": "574b0efb8e78e90df3985bd633bf4f8df50a1d6abe81accb8defc61567ccc7ea",
+          "role": "single-batch-check"
+        }
+      ],
+      "branches": [
+        {
+          "id": "same-victim-printed-mana-and-yellow-power",
+          "sourceRefs": [
+            "UNL-170/219",
+            "DOC-01-P032-B016",
+            "DOC-01-P033-B003",
+            "DOC-01-P049-B007",
+            "DOC-01-P049-B013",
+            "DOC-01-P049-B014",
+            "DOC-01-P049-B017",
+            "DOC-01-P049-B018",
+            "DOC-01-P050-B008",
+            "DOC-01-P050-B009",
+            "DOC-01-P050-B010",
+            "DOC-01-P050-B012",
+            "DOC-01-P050-B013",
+            "DOC-01-P050-B016"
+          ],
+          "state": "RECORDED",
+          "semanticReview": "SCOPED_COST_ONLY",
+          "implementation": "LOCAL_COMPLETE",
+          "tests": "23_NEW_2056_ADJACENT_3_ORIGINAL_GAMES_2_NATIVE_77_REAL_SQL_8_EVENT_REJECTIONS_11987_SINGLE_CHECK_PASS",
+          "fixedCommitCi": "PENDING",
+          "productAcceptance": "OPEN_NEW_CANDIDATE",
+          "remaining": [
+            "New fixed candidate full CI and visible paired/network/score/replay and Windows physical acceptance remain OPEN.",
+            "Opponent-owned friendly sacrifice, temporary control transfer, zero-cost ordinary tokens, destruction replacements and further source permissions require explicit branch evidence.",
+            "Atakhan attack-trigger forced opposing destruction, all other printing semantics and other optional reducers are separately OPEN.",
+            "All source gaps/global semantics/media/FAQ/QA and remaining DOC11 indirect obligations retained."
+          ]
+        },
+        {
+          "id": "optional-sacrifice-with-granted-haste-and-source-departure",
+          "sourceRefs": [
+            "UNL-170/219",
+            "DOC-01-P032-B016",
+            "DOC-01-P033-B003",
+            "DOC-01-P049-B007",
+            "DOC-01-P049-B013",
+            "DOC-01-P049-B014",
+            "DOC-01-P049-B017",
+            "DOC-01-P049-B018",
+            "DOC-01-P050-B008",
+            "DOC-01-P050-B009",
+            "DOC-01-P050-B010",
+            "DOC-01-P050-B012",
+            "DOC-01-P050-B013",
+            "DOC-01-P050-B016"
+          ],
+          "state": "RECORDED",
+          "semanticReview": "SCOPED_COST_ONLY",
+          "implementation": "LOCAL_COMPLETE",
+          "tests": "23_NEW_2056_ADJACENT_3_ORIGINAL_GAMES_2_NATIVE_77_REAL_SQL_8_EVENT_REJECTIONS_11987_SINGLE_CHECK_PASS",
+          "fixedCommitCi": "PENDING",
+          "productAcceptance": "OPEN_NEW_CANDIDATE",
+          "remaining": [
+            "New fixed candidate full CI and visible paired/network/score/replay and Windows physical acceptance remain OPEN.",
+            "Opponent-owned friendly sacrifice, temporary control transfer, zero-cost ordinary tokens, destruction replacements and further source permissions require explicit branch evidence.",
+            "Atakhan attack-trigger forced opposing destruction, all other printing semantics and other optional reducers are separately OPEN.",
+            "All source gaps/global semantics/media/FAQ/QA and remaining DOC11 indirect obligations retained."
+          ]
+        },
+        {
+          "id": "zero-yellow-haste-payment-and-actual-image-copy",
+          "sourceRefs": [
+            "UNL-170/219",
+            "DOC-01-P032-B016",
+            "DOC-01-P033-B003",
+            "DOC-01-P049-B007",
+            "DOC-01-P049-B013",
+            "DOC-01-P049-B014",
+            "DOC-01-P049-B017",
+            "DOC-01-P049-B018",
+            "DOC-01-P050-B008",
+            "DOC-01-P050-B009",
+            "DOC-01-P050-B010",
+            "DOC-01-P050-B012",
+            "DOC-01-P050-B013",
+            "DOC-01-P050-B016"
+          ],
+          "state": "RECORDED",
+          "semanticReview": "SCOPED_COST_ONLY",
+          "implementation": "LOCAL_COMPLETE",
+          "tests": "23_NEW_2056_ADJACENT_3_ORIGINAL_GAMES_2_NATIVE_77_REAL_SQL_8_EVENT_REJECTIONS_11987_SINGLE_CHECK_PASS",
+          "fixedCommitCi": "PENDING",
+          "productAcceptance": "OPEN_NEW_CANDIDATE",
+          "remaining": [
+            "New fixed candidate full CI and visible paired/network/score/replay and Windows physical acceptance remain OPEN.",
+            "Opponent-owned friendly sacrifice, temporary control transfer, zero-cost ordinary tokens, destruction replacements and further source permissions require explicit branch evidence.",
+            "Atakhan attack-trigger forced opposing destruction, all other printing semantics and other optional reducers are separately OPEN.",
+            "All source gaps/global semantics/media/FAQ/QA and remaining DOC11 indirect obligations retained."
+          ]
+        },
+        {
+          "id": "owner-transfer-token-replacement-and-other-permissions",
+          "sourceRefs": [
+            "UNL-170/219",
+            "DOC-01-P032-B016",
+            "DOC-01-P033-B003",
+            "DOC-01-P049-B007",
+            "DOC-01-P049-B013",
+            "DOC-01-P049-B014",
+            "DOC-01-P049-B017",
+            "DOC-01-P049-B018",
+            "DOC-01-P050-B008",
+            "DOC-01-P050-B009",
+            "DOC-01-P050-B010",
+            "DOC-01-P050-B012",
+            "DOC-01-P050-B013",
+            "DOC-01-P050-B016"
+          ],
+          "state": "OPEN",
+          "remaining": [
+            "New fixed candidate full CI and visible paired/network/score/replay and Windows physical acceptance remain OPEN.",
+            "Opponent-owned friendly sacrifice, temporary control transfer, zero-cost ordinary tokens, destruction replacements and further source permissions require explicit branch evidence.",
+            "Atakhan attack-trigger forced opposing destruction, all other printing semantics and other optional reducers are separately OPEN.",
+            "All source gaps/global semantics/media/FAQ/QA and remaining DOC11 indirect obligations retained."
           ]
         }
       ]
@@ -10874,7 +11274,15 @@
       "rawSourceBytesChanged": false,
       "exactExpiryTimestamp": null,
       "runtimeRecordRole": "RETAINED_REFERENCE_NOT_WHOLE_SOURCE_CURRENT_AUTHORITY_CERTIFICATION",
-      "allOriginalObligationsRetained": true
+      "allOriginalObligationsRetained": true,
+      "partialCurrentAuthorityReview": {
+        "path": "docs/evidence/doc11-reference-revalidation-2026-10-16/partial-review.json",
+        "sha256": "840340a800a461d56e9cf904671a1c86db87cecdf0bf3fa9d6afacf408e6b4ac"
+      },
+      "directReferenceIdentitiesRetained": 40,
+      "partialSourceFootingsReconfirmed": 19,
+      "remainingCrossContextReferences": 21,
+      "interpretation": "Partial source-footing only; all3 original reviews, complete indirect consumer graph and full semantic/product obligations remain OPEN."
     },
     {
       "id": "OPPONENT_BATTLEFIELD_CURRENT_CONTROLLER_ENTRY",
@@ -10893,8 +11301,8 @@
         "path": "docs/evidence/opponent-battlefield-control-2026-10-16/focus.json",
         "sha256": "9c0e9a99c478f1949850b2be741f08f8be215a3368b2903c6e6e9bc0fc944a14"
       },
-      "fixedCommitCi": "PENDING_NEW_FIXED_SHA",
-      "productAcceptance": "OPEN_NEW_FIXED_CANDIDATE",
+      "fixedCommitCi": "VERIFIED_AT_8D_ONLY_NEW_SHARED_COST_CANDIDATE_PENDING",
+      "productAcceptance": "OPEN_NEW_CANDIDATE",
       "actualSql": {
         "path": "docs/evidence/opponent-battlefield-control-2026-10-16/sql.json",
         "sha256": "35a6a20ea76fa96ace44da2e764b6459e46c47e24d6add4005baf1e2c4f5ff75"
@@ -10902,7 +11310,68 @@
       "batchCheck": {
         "path": "docs/evidence/opponent-battlefield-control-2026-10-16/check.json",
         "sha256": "94b2343c0c6c25a7852188c028a9498907ef6c9e2a22b863e7424fb1798ce0da"
+      },
+      "historicalFixedFull": {
+        "path": "docs/evidence/opponent-battlefield-control-2026-10-16/full-ci-8d7571c5.json",
+        "sha256": "c6c8730f8e704c913c45ee2e0684bb4a8d30fa091272360d5adec3c45d71207a",
+        "commit": "8d7571c5a5572b1ed542a5ff1d8eaeb533bac1bc",
+        "runId": 38851939967
       }
+    },
+    {
+      "id": "OPTIONAL_SACRIFICE_PRINTED_COST_AND_GRANTED_ENTRY",
+      "state": "OPEN",
+      "requirement": "ExactCN34718 optional single-unit cost and paid Haste entry, separate semantic/implementation/tests/fixedfull/product branches; no whole-card promotion.",
+      "issue": "https://github.com/DDDHL0704/riftbound/issues/43",
+      "source": {
+        "path": "docs/evidence/optional-sacrifice-cost-2026-10-16/source-manifest.json",
+        "sha256": "b01427c18ff74100c200f36251ba5284e9d273edda6623f0dc5b7aade9a2dec5"
+      },
+      "focus": {
+        "path": "docs/evidence/optional-sacrifice-cost-2026-10-16/focus.json",
+        "sha256": "4da243e1561428d72d0f8cb343c3eb5120d55ebec8c8b10abd5a8cc20a8aaf1a"
+      },
+      "native": {
+        "path": "docs/evidence/optional-sacrifice-cost-2026-10-16/native.json",
+        "sha256": "4a7fef84d67ef7a0e8ba9d077230a0ae142a2ff813887c195628b5b4c576b1d5"
+      },
+      "actualSql": {
+        "path": "docs/evidence/optional-sacrifice-cost-2026-10-16/sql.json",
+        "sha256": "8ae9e078b15f0713dc5ea8dc2693ce06e9d44f7474322183110d6c663d929809"
+      },
+      "batchCheck": {
+        "path": "docs/evidence/optional-sacrifice-cost-2026-10-16/check.json",
+        "sha256": "574b0efb8e78e90df3985bd633bf4f8df50a1d6abe81accb8defc61567ccc7ea"
+      },
+      "fixedCommitCi": "PENDING_NEW_FIXED_SHA",
+      "productAcceptance": "OPEN_NEW_CANDIDATE",
+      "remaining": [
+        "New fixed candidate full CI and visible paired/network/score/replay and Windows physical acceptance remain OPEN.",
+        "Opponent-owned friendly sacrifice, temporary control transfer, zero-cost ordinary tokens, destruction replacements and further source permissions require explicit branch evidence.",
+        "Atakhan attack-trigger forced opposing destruction, all other printing semantics and other optional reducers are separately OPEN.",
+        "All source gaps/global semantics/media/FAQ/QA and remaining DOC11 indirect obligations retained."
+      ],
+      "allInputFilesStableBeforeLaunchThroughSqlCompletion": {
+        "source": 11978,
+        "runtime": 45
+      }
+    },
+    {
+      "id": "MESSAGEPACK_PATCHED_DEPENDENCY_CLEAN_BUILD",
+      "state": "OPEN",
+      "requirement": "Retain the actual NU1902 failure and upstream scope, use patched3.1.9 without audit suppression, verify clean build/API/complete candidate CI and product separately.",
+      "issue": "https://github.com/DDDHL0704/riftbound/issues/44",
+      "evidence": {
+        "path": "docs/evidence/optional-sacrifice-cost-2026-10-16/messagepack-remediation.json",
+        "sha256": "b9b2c176f6bf5122e995ab6b6c429fc830d3067914eae04be9611c04415ee22c"
+      },
+      "project": {
+        "path": "src/Riftbound.Api/Riftbound.Api.csproj",
+        "sha256": "98cefe0bc7f292856462fa5bb394f2b8490cd2c328998d42c22acd8ee22468dd"
+      },
+      "fixedCommitCi": "PENDING_NEW_FIXED_SHA",
+      "applicationExploitReachability": "NOT_PROVEN",
+      "productAcceptance": "OPEN_NEW_CANDIDATE"
     }
   ],
   "note": "Current inventory and remaining obligations, with independently dated rule sources and separately recorded source deltas. No source fetch or semantic certification by this checker.",

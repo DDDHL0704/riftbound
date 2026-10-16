@@ -20,5 +20,9 @@
              Link="Fixtures/opponent-battlefield-control-neutral.json" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="../Riftbound.ConformanceTests/Fixtures/opponent-battlefield-control-swapped.json"
              Link="Fixtures/opponent-battlefield-control-swapped.json" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="../Riftbound.ConformanceTests/Fixtures/optional-sacrifice-hand.json"
+             Link="Fixtures/optional-sacrifice-hand.json" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="../Riftbound.ConformanceTests/Fixtures/optional-sacrifice-haste.json"
+             Link="Fixtures/optional-sacrifice-haste.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

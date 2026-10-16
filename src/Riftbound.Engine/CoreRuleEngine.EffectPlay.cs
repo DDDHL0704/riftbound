@@ -106,6 +106,7 @@ public sealed partial class CoreRuleEngine
         => state.PendingEffectPlay is { } pending && pending.PlayerId == playerId
             ? pending.IgnoreAllCosts ? behavior with {
                 IgnorePrintedPowerCost = true,
+                MaySacrificeUnitForPrintedCostReduction = false,
                 RequiresDestroyFriendlyUnitAdditionalCost = false,
                 RequiresDestroyFriendlyPowerfulUnitAdditionalCost = false,
                 RequiresDestroyFriendlyTraitUnitAdditionalCost = false,

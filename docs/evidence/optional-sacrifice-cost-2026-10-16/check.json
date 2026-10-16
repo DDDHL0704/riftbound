@@ -1,0 +1,90 @@
+{
+  "status": "SINGLE_BATCH_CHECK_ALL11964_PRIOR_CASES_7223_METHODS_RETAINED_AND11987_CASES_7231_METHODS_PASS",
+  "verifiedAtUtc": "2026-10-16T07:18:41.132468+00:00",
+  "summary": {
+    "status": "PASSED",
+    "profile": "check",
+    "seconds": 489.47,
+    "total": 11987,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "check",
+        "total": 11987,
+        "passed": 11987,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 485.22
+      }
+    ]
+  },
+  "cases": 11987,
+  "methods": 7231,
+  "singleCheckRun": true,
+  "allPriorCaseMultisetRetained": true,
+  "allPriorMethodsRetained": true,
+  "missingCases": [],
+  "missingMethods": [],
+  "newCases": [
+    "Riftbound.ConformanceTests.OptionalSacrificeOpeningTests.AnEmptyOpeningColdRecoversAndPaysTheSameOptionalSacrificeForHandOrGrantedHaste(outsideHand: False)",
+    "Riftbound.ConformanceTests.OptionalSacrificeOpeningTests.AnEmptyOpeningColdRecoversAndPaysTheSameOptionalSacrificeForHandOrGrantedHaste(outsideHand: True)",
+    "Riftbound.ConformanceTests.OptionalSacrificePlayCostTests.ACurrentlyAffordableSacrificeMakesTheHandPlayAndVictimChoiceAvailable",
+    "Riftbound.ConformanceTests.OptionalSacrificePlayCostTests.ARealCopiedImageUsesItsCopiedPrintedCostsAndCeasesAfterSacrifice",
+    "Riftbound.ConformanceTests.OptionalSacrificePlayCostTests.InvalidSacrificesCannotQuotePayOrMutateTheMatch(branch: \"duplicate\")",
+    "Riftbound.ConformanceTests.OptionalSacrificePlayCostTests.InvalidSacrificesCannotQuotePayOrMutateTheMatch(branch: \"enemy\")",
+    "Riftbound.ConformanceTests.OptionalSacrificePlayCostTests.InvalidSacrificesCannotQuotePayOrMutateTheMatch(branch: \"equipment\")",
+    "Riftbound.ConformanceTests.OptionalSacrificePlayCostTests.InvalidSacrificesCannotQuotePayOrMutateTheMatch(branch: \"face-down\")",
+    "Riftbound.ConformanceTests.OptionalSacrificePlayCostTests.InvalidSacrificesCannotQuotePayOrMutateTheMatch(branch: \"graveyard\")",
+    "Riftbound.ConformanceTests.OptionalSacrificePlayCostTests.InvalidSacrificesCannotQuotePayOrMutateTheMatch(branch: \"no-controller\")",
+    "Riftbound.ConformanceTests.OptionalSacrificePlayCostTests.InvalidSacrificesCannotQuotePayOrMutateTheMatch(branch: \"source-in-hand\")",
+    "Riftbound.ConformanceTests.OptionalSacrificePlayCostTests.InvalidSacrificesCannotQuotePayOrMutateTheMatch(branch: \"stale-location\")",
+    "Riftbound.ConformanceTests.OptionalSacrificePlayCostTests.InvalidSacrificesCannotQuotePayOrMutateTheMatch(branch: \"two-units\")",
+    "Riftbound.ConformanceTests.OptionalSacrificePlayCostTests.InvalidSacrificesCannotQuotePayOrMutateTheMatch(branch: \"unknown\")",
+    "Riftbound.ConformanceTests.OptionalSacrificePlayCostTests.OptionalSacrificeQuoteAndPaymentUseTheVictimsPrintedCosts(victimCard: \"OGN\u00b7231/298\", mana: 4, power: 0)",
+    "Riftbound.ConformanceTests.OptionalSacrificePlayCostTests.OptionalSacrificeQuoteAndPaymentUseTheVictimsPrintedCosts(victimCard: \"SFD\u00b7029/221\", mana: 7, power: 3)",
+    "Riftbound.ConformanceTests.OptionalSacrificePlayCostTests.OptionalSacrificeQuoteAndPaymentUseTheVictimsPrintedCosts(victimCard: \"UNL-118/219\", mana: 0, power: 0)",
+    "Riftbound.ConformanceTests.OptionalSacrificePlayCostTests.OptionalSacrificeQuoteAndPaymentUseTheVictimsPrintedCosts(victimCard: \"UNL-170/219\", mana: 0, power: 0)",
+    "Riftbound.ConformanceTests.OptionalSacrificePlayCostTests.OptionalSacrificeQuoteAndPaymentUseTheVictimsPrintedCosts(victimCard: null, mana: 10, power: 3)",
+    "Riftbound.ConformanceTests.OptionalSacrificePlayCostTests.SacrificingTheOutsideHandHasteGrantRetainsThePaidEntry(grantCard: \"SFD\u00b7029/221\")",
+    "Riftbound.ConformanceTests.OptionalSacrificePlayCostTests.SacrificingTheOutsideHandHasteGrantRetainsThePaidEntry(grantCard: \"SFD\u00b7029a/221\")",
+    "Riftbound.ConformanceTests.OptionalSacrificePlayCostTests.ThePromptCannotCombineDifferentVictimsManaAndPowerReductions",
+    "Riftbound.ConformanceTests.OptionalSacrificePlayCostTests.YellowReductionCanPayAllHastePowerAndTheSelectedHasteStillReadiesTheUnit"
+  ],
+  "newMethods": [
+    "Riftbound.ConformanceTests.OptionalSacrificeOpeningTests.AnEmptyOpeningColdRecoversAndPaysTheSameOptionalSacrificeForHandOrGrantedHaste",
+    "Riftbound.ConformanceTests.OptionalSacrificePlayCostTests.ACurrentlyAffordableSacrificeMakesTheHandPlayAndVictimChoiceAvailable",
+    "Riftbound.ConformanceTests.OptionalSacrificePlayCostTests.ARealCopiedImageUsesItsCopiedPrintedCostsAndCeasesAfterSacrifice",
+    "Riftbound.ConformanceTests.OptionalSacrificePlayCostTests.InvalidSacrificesCannotQuotePayOrMutateTheMatch",
+    "Riftbound.ConformanceTests.OptionalSacrificePlayCostTests.OptionalSacrificeQuoteAndPaymentUseTheVictimsPrintedCosts",
+    "Riftbound.ConformanceTests.OptionalSacrificePlayCostTests.SacrificingTheOutsideHandHasteGrantRetainsThePaidEntry",
+    "Riftbound.ConformanceTests.OptionalSacrificePlayCostTests.ThePromptCannotCombineDifferentVictimsManaAndPowerReductions",
+    "Riftbound.ConformanceTests.OptionalSacrificePlayCostTests.YellowReductionCanPayAllHastePowerAndTheSelectedHasteStillReadiesTheUnit"
+  ],
+  "assemblySha256": "2cdafee9ce658656d5a0adb89c6d2f33444b3028559e578f0fd028b2aa191a2c",
+  "trxSha256": "4e2f1080f361d00bb80c515272ee9ace5b75012e4bf59d201a97dd6ffb8319ae",
+  "execution": {
+    "completedAtUtc": "2026-10-16T07:16:04.511765+00:00",
+    "exitCode": 0,
+    "sourceInputs": 12010,
+    "drift": [],
+    "addedInputsDuringCheck": [],
+    "missingInputsDuringCheck": [],
+    "allInputsStableBeforeLaunchThroughCompletion": true,
+    "prelaunchManifestSha256": "4599440b36d4ab7c33ce0d2fc15788e223ef3c3bd469154299c6566e01ad65f0",
+    "singleBatchCheck": true
+  },
+  "prelaunchOriginalSha256": "4599440b36d4ab7c33ce0d2fc15788e223ef3c3bd469154299c6566e01ad65f0",
+  "sourceInputsFrozenBeforeLaunch": 12010,
+  "pythonTests": {
+    "cases": 55,
+    "passed": 55,
+    "logSha256": "20d45204c7d16c34e622c9b28ad9703cd4ad577cc4980c22d54f1da57912b470"
+  },
+  "actualSqlScenarios": 77,
+  "newSqlEventRejections": 8,
+  "headlessNativeCommands": 2,
+  "originalFullGameMethods": 143,
+  "originalPairs": 110,
+  "originalSeed": 424242,
+  "scope": "One coherent-batch check. 431 oldConformanceCSharp byte-equal. All raw failures retained. New fixed full and current visible/Windows product remain separate."
+}

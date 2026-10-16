@@ -38,7 +38,7 @@ public sealed partial class CoreRuleEngine
         else if (state.PendingEffectPlay is { } effect && effect.IgnoreBaseMana) Adjust("效果忽略基础法力", -plan.Behavior.ManaCost);
         Adjust("额外费用", plan.AdditionalManaCost, plan.OptionalPowerCost);
         Adjust("卡牌减费", -plan.CostReductionMana);
-        Adjust("所选额外费用带来的减免", -plan.OptionalCostManaReduction);
+        Adjust("所选额外费用带来的减免", -plan.OptionalCostManaReduction, -plan.OptionalCostPowerReduction);
         Adjust("回响部分减费", -plan.BattlefieldEchoCostReductionMana);
         Adjust("装备减费", -plan.BattlefieldEquipmentCostReductionMana);
         Adjust("单位静态减费", -plan.DragonUnitCostReductionMana);

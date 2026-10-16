@@ -18842,7 +18842,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return false;
         }
 
-        if (behavior.RequiresDestroyFriendlyUnitAdditionalCost
+        if ((behavior.RequiresDestroyFriendlyUnitAdditionalCost || behavior.MaySacrificeUnitForPrintedCostReduction)
             && destroyedAdditionalCostTargetObjectIds.Any(targetObjectId =>
                 !CanDestroyFriendlyUnitAsAdditionalCost(state, intent.PlayerId, targetObjectId)))
         {
@@ -18970,6 +18970,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             rejection = Reject(state, "Invalid printed power allocation.", ErrorCodes.InvalidTarget);
             return false;
         }
+        var powerBeforeSacrificeReduction = totalPowerCostByTrait.Values.Sum();
+        totalPowerCostByTrait = ApplySacrificePowerReduction(totalPowerCostByTrait,
+            SelectedSacrificeCostReduction(state, intent.PlayerId, behavior, optionalCosts).Power);
+        var optionalCostPowerReduction = powerBeforeSacrificeReduction - totalPowerCostByTrait.Values.Sum();
         var totalPowerCost = totalGenericPowerCost + totalPowerCostByTrait.Values.Sum();
         if (!AreRecycleRunePaymentResourceActionsRequired(
                 currentPool,
@@ -19085,7 +19089,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             paymentPlan,
             paymentAdjustedPool,
             currentExperience,
-            extraManaCost) { RepeatExecutions = repeatExecutions };
+            extraManaCost) { RepeatExecutions = repeatExecutions, OptionalCostPowerReduction = optionalCostPowerReduction };
         var paymentAuthorization = PaymentCostRules.AuthorizePayment(
             paymentPlan,
             paymentAdjustedPool,
@@ -22618,16 +22622,20 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return true;
         }
 
-        // A mandatory nonstandard cost coexists with independently selected
+        // A declared nonstandard cost coexists with independently selected
         // resource/Echo costs. It is paid during play, never once per repeat.
-        if (behavior.RequiresDestroyFriendlyUnitAdditionalCost)
+        if (behavior.RequiresDestroyFriendlyUnitAdditionalCost
+            || behavior.MaySacrificeUnitForPrintedCostReduction && normalizedOptionalCosts.Any(cost =>
+                cost.StartsWith(DestroyFriendlyUnitAdditionalCostPrefix, StringComparison.Ordinal)))
         {
             var required = normalizedOptionalCosts.Where(cost =>
                 cost.StartsWith(DestroyFriendlyUnitAdditionalCostPrefix, StringComparison.Ordinal)).ToArray();
             if (required.Length != 1 || !TryParseDestroyFriendlyUnitAdditionalCost(required[0], out var target)) return false;
+            if (behavior.MaySacrificeUnitForPrintedCostReduction
+                && !TrySacrificeUnitCost(state, playerId, target, out _, out _)) return false;
             var otherCosts = normalizedOptionalCosts.Where(cost => !string.Equals(cost, required[0], StringComparison.Ordinal)).ToArray();
             if (!TryBuildOptionalCostPlan(state, playerId, otherCosts,
-                    behavior with { RequiresDestroyFriendlyUnitAdditionalCost = false }, out _,
+                    behavior with { RequiresDestroyFriendlyUnitAdditionalCost = false, MaySacrificeUnitForPrintedCostReduction = false }, out _,
                     out extraManaCost, out extraPowerCost, out extraPowerCostByTrait, out experienceCost,
                     out optionalCostManaReduction, out effectRepeatCount, out exhaustedOptionalCostTargetObjectIds,
                     out destroyedAdditionalCostTargetObjectIds, out returnedAdditionalCostTargetObjectIds,
@@ -35152,6 +35160,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         int AdditionalManaCost)
     {
         public IReadOnlyList<SpellExecutionState>? RepeatExecutions { get; init; }
+        public int OptionalCostPowerReduction { get; init; }
     }
 
     private sealed record SourceNextSpellCostReductionEffect(

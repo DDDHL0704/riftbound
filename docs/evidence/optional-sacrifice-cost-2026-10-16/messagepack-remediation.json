@@ -1,0 +1,121 @@
+{
+  "status": "PATCHED_MESSAGEPACK_CLEAN_BUILD_AND_THREE_ORIGINAL_FULL_GAMES_PASS",
+  "recordedAtUtc": "2026-10-16T06:53:34.312415+00:00",
+  "issue": "https://github.com/DDDHL0704/riftbound/issues/44",
+  "sources": {
+    "sources": [
+      {
+        "url": "https://github.com/MessagePack-CSharp/MessagePack-CSharp/security/advisories/GHSA-qhrr-8q5h-9q3h",
+        "apiEndpoint": "advisories/GHSA-qhrr-8q5h-9q3h",
+        "attemptedAtUtc": "2026-10-16T06:50:30.730336+00:00",
+        "fetchedAtUtc": "2026-10-16T06:50:31.641233+00:00",
+        "path": "var/qa/atakhan-cost-20261016/messagepack-advisory.json",
+        "publishedAt": "2026-10-15T18:35:46Z",
+        "updatedAt": "2026-10-15T18:35:48Z",
+        "affectedOrPatchedVersions": [
+          {
+            "package": {
+              "ecosystem": "nuget",
+              "name": "MessagePack"
+            },
+            "vulnerable_version_range": "< 2.5.303",
+            "first_patched_version": "2.5.303",
+            "vulnerable_functions": []
+          },
+          {
+            "package": {
+              "ecosystem": "nuget",
+              "name": "MessagePack"
+            },
+            "vulnerable_version_range": ">= 3.0.0, < 3.1.9",
+            "first_patched_version": "3.1.9",
+            "vulnerable_functions": []
+          }
+        ],
+        "originalSha256": "99c61b52bb28e0b6e37c10feacca3b4ce9da380321bdc1c1fbb156765a7860a6",
+        "rawArchive": {
+          "path": "docs/evidence/optional-sacrifice-cost-2026-10-16/messagepack-advisory.json.gz",
+          "sha256": "824a2f91cd3ebc093787930306e4e4de9d2e6785e8ca75cd95ffac1136ac5d63"
+        }
+      },
+      {
+        "url": "https://github.com/MessagePack-CSharp/MessagePack-CSharp/releases/tag/v3.1.9",
+        "apiEndpoint": "repos/MessagePack-CSharp/MessagePack-CSharp/releases/tags/v3.1.9",
+        "attemptedAtUtc": "2026-10-16T06:50:31.641306+00:00",
+        "fetchedAtUtc": "2026-10-16T06:50:32.347845+00:00",
+        "path": "var/qa/atakhan-cost-20261016/messagepack-release-3.1.9.json",
+        "publishedAt": "2026-09-17T19:20:33Z",
+        "updatedAt": "2026-09-17T19:20:33Z",
+        "affectedOrPatchedVersions": null,
+        "originalSha256": "e5c236f9b5750ae4a552edd998ecd296af9e05af2d0400bd2bf06a05fb35d675",
+        "rawArchive": {
+          "path": "docs/evidence/optional-sacrifice-cost-2026-10-16/messagepack-release-3.1.9.json.gz",
+          "sha256": "db6e13910dedcdc49cd6c178059a995333f1948858174c342846b49844847218"
+        }
+      }
+    ],
+    "applicationExploitReachability": "NOT_PROVEN",
+    "confirmedFailure": "NU1902 on clean archive restore",
+    "currentFix": "MessagePack3.1.9 without audit suppression"
+  },
+  "oldDependency": "MessagePack3.1.7",
+  "newDependency": "MessagePack3.1.9",
+  "noNugetAuditSuppression": true,
+  "applicationExploitReachability": "NOT_PROVEN",
+  "oldCleanBuildFailure": {
+    "path": "var/qa/atakhan-cost-20261016/early-affected-fullgames-v2/build.log",
+    "sha256": "ce8cffae7fc956cc912b76dd0c3f747dad97d1f84cd661a4991f6cc4b2c49553"
+  },
+  "newCleanBuild": {
+    "path": "var/qa/atakhan-cost-20261016/early-affected-fullgames-v3/build.log",
+    "sha256": "58b1f9fcf8e60a6bdefc534994d19d332474f67602c532fd80562fcd5a4396f7"
+  },
+  "fixedPatchManifest": {
+    "path": "var/qa/atakhan-cost-20261016/early-fixed-v3-inputs.json",
+    "sha256": "ae4019c411f4b41be23adcc2793fb14120a0c6e6f1f7855a84cdce87b03e1f16"
+  },
+  "newResolvedAssets": {
+    "path": "var/qa/atakhan-cost-20261016/early-fixed/src/Riftbound.Api/obj/project.assets.json",
+    "sha256": "7b23ac3c51c9e4f51fca4ee069e8fe5f10017e6b6d18fed8d6bde3cfe6c4e1ef",
+    "MessagePack/3.1.9": {
+      "sha512": "9IuUiOycxveb2R4RER5yQl7qYHMeRRMghOFuI/c+A8aX8j0zEzJ9QJD0u3Sr3MrNewUUkqOcTVLW9Zn6odZyIQ==",
+      "type": "package",
+      "path": "messagepack/3.1.9",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "lib/net472/MessagePack.dll",
+        "lib/net472/MessagePack.xml",
+        "lib/net8.0/MessagePack.dll",
+        "lib/net8.0/MessagePack.xml",
+        "lib/net9.0/MessagePack.dll",
+        "lib/net9.0/MessagePack.xml",
+        "lib/netstandard2.0/MessagePack.dll",
+        "lib/netstandard2.0/MessagePack.xml",
+        "lib/netstandard2.1/MessagePack.dll",
+        "lib/netstandard2.1/MessagePack.xml",
+        "messagepack.3.1.9.nupkg.sha512",
+        "messagepack.nuspec"
+      ]
+    }
+  },
+  "threeOriginalFullGames": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 55.93,
+    "total": 3,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 3,
+        "passed": 3,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 36.7
+      }
+    ]
+  },
+  "finalCurrentFixedCi": "PENDING",
+  "productAcceptance": "OPEN_NEW_CANDIDATE"
+}

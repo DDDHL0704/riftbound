@@ -1,0 +1,452 @@
+{
+  "status": "ALL_DEVELOPMENT_FAILURES_AND_SCOPE_LIMITS_RETAINED",
+  "runs": [
+    {
+      "run": "red-focus",
+      "plan.json": {
+        "path": "var/qa/atakhan-cost-20261016/red-focus/plan.json",
+        "sha256": "66a19f2740207be2dc5a2a85e25f75f270500093693376c9ebcd44f768ebb923"
+      },
+      "build.log": {
+        "path": "var/qa/atakhan-cost-20261016/red-focus/build.log",
+        "sha256": "ed9849dc1f31bf590380304045abd82159bb3610647fb237da5d950d230bc905"
+      },
+      "focus/results.trx": {
+        "path": "var/qa/atakhan-cost-20261016/red-focus/focus/results.trx",
+        "sha256": "623709d07cd069999d2f3e5bac6d48aae1ef6702ca2b9635160f3cf3bde99de6"
+      },
+      "counters": {
+        "total": "6",
+        "executed": "6",
+        "passed": "1",
+        "failed": "5",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      }
+    },
+    {
+      "run": "green-focus",
+      "summary.json": {
+        "path": "var/qa/atakhan-cost-20261016/green-focus/summary.json",
+        "sha256": "b64a87625c9739a97eaa366cdb4eb58d1aa905c0ad88dd73ae1645df5c872100"
+      },
+      "plan.json": {
+        "path": "var/qa/atakhan-cost-20261016/green-focus/plan.json",
+        "sha256": "2310d96d4be02d333f231a97557085ea58a283ec0ad6f77ce2bed135b15e49ea"
+      },
+      "build.log": {
+        "path": "var/qa/atakhan-cost-20261016/green-focus/build.log",
+        "sha256": "98b148dd29d975ae5a46b26b004b2f9f33f29519bc1cdd3924075a2790582016"
+      },
+      "focus/results.trx": {
+        "path": "var/qa/atakhan-cost-20261016/green-focus/focus/results.trx",
+        "sha256": "de307247e3470e180819b5a320f49b4203afb373c2b16698ba139cf4973b7db2"
+      },
+      "counters": {
+        "total": "58",
+        "executed": "58",
+        "passed": "58",
+        "failed": "0",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      }
+    },
+    {
+      "run": "expanded-focus",
+      "build.log": {
+        "path": "var/qa/atakhan-cost-20261016/expanded-focus/build.log",
+        "sha256": "dc6af3139babae0770d7c24a5b6662b726c882860d937e7e3c71f3a054506896"
+      }
+    },
+    {
+      "run": "expanded-focus-v2",
+      "plan.json": {
+        "path": "var/qa/atakhan-cost-20261016/expanded-focus-v2/plan.json",
+        "sha256": "eacb64c89e6e508ee7955a14be6294a4d00141d08365cadc8eccee95b19c85e7"
+      },
+      "build.log": {
+        "path": "var/qa/atakhan-cost-20261016/expanded-focus-v2/build.log",
+        "sha256": "392587915f009405da524417a2d22bdc711858b2f25c5f47726c05ac682621a4"
+      },
+      "focus/results.trx": {
+        "path": "var/qa/atakhan-cost-20261016/expanded-focus-v2/focus/results.trx",
+        "sha256": "b96696b81c12565d5525f1dabed1e317cf4c80792b53e4f8a0898eee6f4b9b50"
+      },
+      "counters": {
+        "total": "20",
+        "executed": "20",
+        "passed": "18",
+        "failed": "2",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      }
+    },
+    {
+      "run": "expanded-focus-v3",
+      "summary.json": {
+        "path": "var/qa/atakhan-cost-20261016/expanded-focus-v3/summary.json",
+        "sha256": "fbefedcaa4ab9093e277d335a8f5ac0e26fbbcaec6da9ea44e4d6a7748f82fcd"
+      },
+      "plan.json": {
+        "path": "var/qa/atakhan-cost-20261016/expanded-focus-v3/plan.json",
+        "sha256": "1e6df96d024ebce6d8284b811459e2007ef910cd1f17450faef1cba450df70c3"
+      },
+      "build.log": {
+        "path": "var/qa/atakhan-cost-20261016/expanded-focus-v3/build.log",
+        "sha256": "efc23a1a950cb79fe56a4849b12c790fae40664746eb09af86085fd034a29787"
+      },
+      "focus/results.trx": {
+        "path": "var/qa/atakhan-cost-20261016/expanded-focus-v3/focus/results.trx",
+        "sha256": "9da8ac709a90e77d20ca06100e467e3e9ce50be727aed14d0345c71bac7bdaf2"
+      },
+      "counters": {
+        "total": "87",
+        "executed": "87",
+        "passed": "87",
+        "failed": "0",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      }
+    },
+    {
+      "run": "opening-focus",
+      "plan.json": {
+        "path": "var/qa/atakhan-cost-20261016/opening-focus/plan.json",
+        "sha256": "1be1037440d9d510ae856d75e8d1fd2fff0fe70feb5428db07d71cec3f865411"
+      },
+      "build.log": {
+        "path": "var/qa/atakhan-cost-20261016/opening-focus/build.log",
+        "sha256": "dcae37a6d1ce86996c36ed312d06cbfd196c115e77e0b0014fdadf3ff85f6bf1"
+      },
+      "focus/results.trx": {
+        "path": "var/qa/atakhan-cost-20261016/opening-focus/focus/results.trx",
+        "sha256": "48b6219fa9c9e4d5f5ef0ad567cc5260b4f0be2d076de48c83af25ad010105e0"
+      },
+      "counters": {
+        "total": "2",
+        "executed": "2",
+        "passed": "1",
+        "failed": "1",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      }
+    },
+    {
+      "run": "opening-focus-v2",
+      "plan.json": {
+        "path": "var/qa/atakhan-cost-20261016/opening-focus-v2/plan.json",
+        "sha256": "c5740ab1687866c02af9fb1ef59ea853a6440fa250f46e260205a3d1751a21e3"
+      },
+      "build.log": {
+        "path": "var/qa/atakhan-cost-20261016/opening-focus-v2/build.log",
+        "sha256": "08a1de12a2d24a8c44f128cc54eacdaa02855a146b8aa4d6cee7a61f40ac6ada"
+      },
+      "focus/results.trx": {
+        "path": "var/qa/atakhan-cost-20261016/opening-focus-v2/focus/results.trx",
+        "sha256": "d8859fb931f4bf009b19e6d6fb55dee446c6350bd8a5b5bb09fd632734cb8e5f"
+      },
+      "counters": {
+        "total": "2",
+        "executed": "2",
+        "passed": "1",
+        "failed": "1",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      }
+    },
+    {
+      "run": "opening-focus-v3",
+      "plan.json": {
+        "path": "var/qa/atakhan-cost-20261016/opening-focus-v3/plan.json",
+        "sha256": "ecec14e2a455f74723f37308b8827fc6bbcdad382969c02303d37b39c1beaafb"
+      },
+      "build.log": {
+        "path": "var/qa/atakhan-cost-20261016/opening-focus-v3/build.log",
+        "sha256": "e31f611181cd484d55a807d76a6841d3d6edd152db723d03bf9ad2eb5688121a"
+      },
+      "focus/results.trx": {
+        "path": "var/qa/atakhan-cost-20261016/opening-focus-v3/focus/results.trx",
+        "sha256": "8ca653f16a66e2ba5b2107aa445dd41e789961d1c849c3c751f76ee4f9f6ddf9"
+      },
+      "counters": {
+        "total": "2",
+        "executed": "2",
+        "passed": "1",
+        "failed": "1",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      }
+    },
+    {
+      "run": "opening-focus-v4",
+      "plan.json": {
+        "path": "var/qa/atakhan-cost-20261016/opening-focus-v4/plan.json",
+        "sha256": "1887a8591e5c59728d761e3052d2b1de292b9e4192ecde12bc91e1174a51379f"
+      },
+      "build.log": {
+        "path": "var/qa/atakhan-cost-20261016/opening-focus-v4/build.log",
+        "sha256": "d27893b681b2f7aefce8320d9890f852e5a92edd0af5332bb075807bd83b0822"
+      },
+      "focus/results.trx": {
+        "path": "var/qa/atakhan-cost-20261016/opening-focus-v4/focus/results.trx",
+        "sha256": "188ccaebb9a2cc0b649d714c7acf0866a5281c16c89ad49d3b7eea9e5ef3bd15"
+      },
+      "counters": {
+        "total": "2",
+        "executed": "2",
+        "passed": "1",
+        "failed": "1",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      }
+    },
+    {
+      "run": "opening-focus-v5",
+      "summary.json": {
+        "path": "var/qa/atakhan-cost-20261016/opening-focus-v5/summary.json",
+        "sha256": "5c80f7e5346f801a61bdcd74a0e93f057d8f86a22025ac3451cf8d0925450ea0"
+      },
+      "plan.json": {
+        "path": "var/qa/atakhan-cost-20261016/opening-focus-v5/plan.json",
+        "sha256": "0cebe79365436ddf19ed66905fe32264604d46b902ed85160f211f5f9fa32d7b"
+      },
+      "build.log": {
+        "path": "var/qa/atakhan-cost-20261016/opening-focus-v5/build.log",
+        "sha256": "0b16db0987ff61f2d6903a2da603b5b487a58b8cf590ebe2f82e17ed268792f2"
+      },
+      "focus/results.trx": {
+        "path": "var/qa/atakhan-cost-20261016/opening-focus-v5/focus/results.trx",
+        "sha256": "11d06af5a44bd495e4f55bf07073fbf97b533bd3b52134b55fb2c36bb550d1ef"
+      },
+      "counters": {
+        "total": "2",
+        "executed": "2",
+        "passed": "2",
+        "failed": "0",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      }
+    },
+    {
+      "run": "native-export",
+      "summary.json": {
+        "path": "var/qa/atakhan-cost-20261016/native-export/summary.json",
+        "sha256": "a10e26ce575a3b02bc1f86cee3fef2bd81afd515e47efd0f732b1d3d065345d7"
+      },
+      "plan.json": {
+        "path": "var/qa/atakhan-cost-20261016/native-export/plan.json",
+        "sha256": "a9eaeeeb649bf4d31bd206f94ff517a8e7027ecc6dd32876aea094b7d2b27ee9"
+      },
+      "build.log": {
+        "path": "var/qa/atakhan-cost-20261016/native-export/build.log",
+        "sha256": "e27b5607f41a570e7da407fa95065eeabc76a7e1f233d0be70d62c47a19bc11c"
+      },
+      "focus/results.trx": {
+        "path": "var/qa/atakhan-cost-20261016/native-export/focus/results.trx",
+        "sha256": "030b60db0d781fbe7370246b177b5ef086797d2c8b78b5f900686ddfe8fb5fb6"
+      },
+      "counters": {
+        "total": "2",
+        "executed": "2",
+        "passed": "2",
+        "failed": "0",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      }
+    },
+    {
+      "run": "native-readback",
+      "summary.json": {
+        "path": "var/qa/atakhan-cost-20261016/native-readback/summary.json",
+        "sha256": "b5597654d561dc5c153c4954adbad3fcb97ad9f3ed2d0ceb72de0e8ec861241f"
+      },
+      "plan.json": {
+        "path": "var/qa/atakhan-cost-20261016/native-readback/plan.json",
+        "sha256": "a9eaeeeb649bf4d31bd206f94ff517a8e7027ecc6dd32876aea094b7d2b27ee9"
+      },
+      "build.log": {
+        "path": "var/qa/atakhan-cost-20261016/native-readback/build.log",
+        "sha256": "9f06f7ea2fc46ae61b70fb0a1be327885ec787fffaea1e671f5404d59b9110b7"
+      },
+      "focus/results.trx": {
+        "path": "var/qa/atakhan-cost-20261016/native-readback/focus/results.trx",
+        "sha256": "8d25a58f268d67ba91ff2a7ba3aad69243383a87a9440aaa4f6831a6446fd012"
+      },
+      "counters": {
+        "total": "2",
+        "executed": "2",
+        "passed": "2",
+        "failed": "0",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      }
+    },
+    {
+      "run": "early-affected-fullgames-v2",
+      "build.log": {
+        "path": "var/qa/atakhan-cost-20261016/early-affected-fullgames-v2/build.log",
+        "sha256": "ce8cffae7fc956cc912b76dd0c3f747dad97d1f84cd661a4991f6cc4b2c49553"
+      }
+    },
+    {
+      "run": "early-affected-fullgames-v3",
+      "summary.json": {
+        "path": "var/qa/atakhan-cost-20261016/early-affected-fullgames-v3/summary.json",
+        "sha256": "1d766cbb799c9492cb340bac02abb2f5c39fbb91ee09f4d0e4c22142bcbac77b"
+      },
+      "plan.json": {
+        "path": "var/qa/atakhan-cost-20261016/early-affected-fullgames-v3/plan.json",
+        "sha256": "0c0fe0854900a31667e0e89747e34bb3839482b0d8e77151aebec166e22c063e"
+      },
+      "build.log": {
+        "path": "var/qa/atakhan-cost-20261016/early-affected-fullgames-v3/build.log",
+        "sha256": "58b1f9fcf8e60a6bdefc534994d19d332474f67602c532fd80562fcd5a4396f7"
+      },
+      "focus/results.trx": {
+        "path": "var/qa/atakhan-cost-20261016/early-affected-fullgames-v3/focus/results.trx",
+        "sha256": "252595a68f1862573e3120c1c4b545fba1235c11cf75cbc3e5c97a0906dd73fb"
+      },
+      "counters": {
+        "total": "3",
+        "executed": "3",
+        "passed": "3",
+        "failed": "0",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      }
+    }
+  ],
+  "notes": [
+    "First six cases:1 control passed/5 missing-cost or candidate failures; original logs and TRX retained.",
+    "Expanded first build used a nonexistent Restore helper, corrected only new test code. Expandedv2 retained an overbroad Actions assertion and inconsistent graveyard-location fixture; corrected specific source-candidate assertion and canonical/stale-location branches, preserving both rejection requirements.",
+    "Opening attempts1-4 did not naturally observe desired nonhand Atakhan before ordinary score finish; their failures and actually visible choice traces retained. New fixed legal deck/room inputs are explicitly versioned; no future runtime deck inspection, developer state, old match migration or alteration of143/110/424242. No all-seed coverage claim.",
+    "Openingv5/normal-optional-sacrifice-haste-case-3 actually observed UNL170 in first public selection; original empty prefix and entire history retained.",
+    "Initial archive extraction failed before writes under Python3.9; retried against proven empty own directory with Python3.12. Initial clean archive restore blocked by MessagePack3.1.7 NU1902; patched3.1.9 clean build and3 original games passed.",
+    "First native build command named a nonexistent project; actual GodotClient project build, native proof and backend readback logs retained separately.",
+    "At history capture no batch check had run. The later single check11987/7231 passed; its separate receipt preserves12010 frozen inputs and all original cases/methods. No failed run is relabeled."
+  ],
+  "laterSingleCheck": {
+    "path": "docs/evidence/optional-sacrifice-cost-2026-10-16/check.json",
+    "sha256": "574b0efb8e78e90df3985bd633bf4f8df50a1d6abe81accb8defc61567ccc7ea"
+  }
+}
