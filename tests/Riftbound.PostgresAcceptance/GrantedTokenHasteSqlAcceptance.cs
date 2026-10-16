@@ -34,6 +34,7 @@ internal static class GrantedTokenHasteSqlAcceptance
             var players = new PostgresMatchPlayerStore(data); var store = new PostgresMatchRecoveryStore(data);
             IMatchSession session = new MatchSession(initial, engine, journal, players);
             var checks = new List<object>();
+            var requiredHidePlacementPromptsChecked = 0;
             try
             {
                 foreach (var actor in initial.Seats.Keys)
@@ -42,6 +43,16 @@ internal static class GrantedTokenHasteSqlAcceptance
                 {
                     var actor = row.GetProperty("playerId").GetString()!; var intent = row.GetProperty("clientIntentId").GetString()!;
                     var raw = row.GetProperty("rawCommand");
+                    if (row.GetProperty("commandType").GetString() == CommandTypes.HideCard)
+                    {
+                        var hide = session.PromptFor(actor).Candidates!.Single(c => c.Action == CommandTypes.HideCard);
+                        Check(hide.CommandTemplate!.Bindings.Single(b => b.Field == "destination").Required
+                            && hide.CommandTemplate.Bindings.Single(b => b.Field == "optionalCosts").Required
+                            && hide.SelectionSteps!.Single(s => s.Role == "destination").Required
+                            && hide.SelectionSteps!.Single(s => s.Role == "optionalCost").Required,
+                            "Actual empty-opening HIDE must require both location and its authorized placement cost.");
+                        requiredHidePlacementPromptsChecked++;
+                    }
                     var result = row.GetProperty("commandType").GetString() switch {
                         "SUBMIT_DECK" => await session.SubmitDeckAsync(actor, intent, raw.Deserialize<SubmitDeckCommand>(json)!, raw, default),
                         "READY" => await session.ReadyAsync(actor, intent, raw, default),
@@ -63,6 +74,11 @@ internal static class GrantedTokenHasteSqlAcceptance
                 var offeredCost = JsonSerializer.SerializeToElement(offered.Metadata).GetProperty("cost");
                 Check(offered.Label == "指示物急速支付" && offeredCost.GetProperty("mana").GetInt32() == 1
                     && offeredCost.GetProperty("power").GetInt32() == 1, "Persisted checkpoint projects the true1/1 cost and token-specific action label.");
+                var atomic = offered.SelectionSteps!.Single();
+                Check(atomic.Required && atomic.Role == "target"
+                    && atomic.Choices.Select(c => c.Id).Order().SequenceEqual(pending.Request.Options.Select(o => o.Id).Order()),
+                    "Every authoritative atomic decision, including rune recycling, must survive the actual SQL cold-recovered prompt.");
+                Check(requiredHidePlacementPromptsChecked == (standby ? 1 : 0), "Retain the original hand/standby opening paths.");
                 var payment = pending.Request.Options.First(o => o.Id.StartsWith("PAY:TRAIT:", StringComparison.Ordinal)).Id;
                 var trait = payment[10..];
                 var command = new PayCostCommand(pending.Request.Id, "RULE_REPLACEMENT", [payment]);
@@ -131,6 +147,7 @@ internal static class GrantedTokenHasteSqlAcceptance
                     finalCommands = final.Commands.Count, finalEvents = final.Events.Count, checks,
                     finalHash = hash, ruleInputs = state.RuleInputs, originalHistoryRestoredExactly = true,
                     fullOriginalActionEventStateReplayMatched = true,
+                    allAtomicRuleChoicesProjected = true, requiredHidePlacementPromptsChecked,
                     fixtureSha256 = Convert.ToHexString(SHA256.HashData(await File.ReadAllBytesAsync(fixturePath))).ToLowerInvariant(),
                     scope = "Only granted pre-entry token Haste from a hand or standby parent. SFD154 printed post-entry Yellow instruction, legacy consumers, visible product and Windows remain OPEN."
                 }, json));

@@ -21042,6 +21042,78 @@
         "fixedFull": "PENDING_NEW_COMMIT",
         "product": "OPEN"
       }
+    },
+    {
+      "id": "native-rule-choice-prompts-2026-10-16",
+      "status": "SCOPED_NATIVE_PROMPT_CONTRACT_FOCUS_SQL_CHECK_PASS_FIXED_FULL_PRODUCT_PENDING",
+      "scope": "Expose authoritative atomic rune decisions, require HIDE location/authorized fee and render public token-Haste kind; no new permission/whole-printing semantic certification.",
+      "subjects": [
+        "OGN-135/298",
+        "OGN-263/298",
+        "OGN-264/298",
+        "SFD-029/221",
+        "SFD-029A/221",
+        "SFD-154/221",
+        "SFD-T02"
+      ],
+      "ruleRecords": [
+        "DOC-01-P114-B005",
+        "DOC-01-P114-B006",
+        "DOC-01-P114-B007",
+        "DOC-01-P114-B008",
+        "DOC-01-P114-B009",
+        "DOC-01-P114-B010",
+        "DOC-01-P114-B011",
+        "DOC-01-P114-B012",
+        "DOC-01-P114-B013",
+        "DOC-01-P114-B014",
+        "DOC-01-P114-B015",
+        "DOC-01-P114-B016",
+        "DOC-01-P114-B017",
+        "DOC-01-P114-B018",
+        "DOC-14-P019-B003"
+      ],
+      "auditDocument": "docs/NATIVE_RULE_CHOICE_PROMPTS_2026-10-16.md",
+      "evidence": "docs/evidence/native-rule-choice-prompts-2026-10-16",
+      "semanticReview": {
+        "state": "SCOPED_PROTOCOL_CONTRACT_ONLY",
+        "wholeCardCertified": false,
+        "region": "CN",
+        "language": "zh-CN",
+        "sourceIndexAsOf": "2026-10-16",
+        "runtimeRuleInputDate": "2026-10-16",
+        "exactSourceRecordIds": [
+          31359,
+          31505,
+          31507,
+          33104,
+          33105,
+          33248,
+          33364
+        ]
+      },
+      "wholeCardCertification": false,
+      "remaining": [
+        "New fixed-commit full CI for this changed prompt candidate, visible paired controls, normal score/reconnect/replay and Windows physical remain independent OPEN gates.",
+        "Only the existing authoritative prompt contract was corrected; full card/keyword semantics, all legacy token entry consumers and all global cost modifiers remain OPEN.",
+        "SFD154 post-entry Yellow/reflexive behavior, affordable token-Haste decline and other unexecuted branches remain OPEN.",
+        "All1740 source identities,1033 runtime entries and original regional/date/source/media/FAQ/QA gaps and whole-card obligations remain retained.",
+        "Older aa2 visible8:0/48commands209events and cancelled CI evidence remain historical; fixed650full is still independently running."
+      ],
+      "testExecution": {
+        "newCases": 7,
+        "newMethods": 2,
+        "adjacentCases": 191,
+        "adjacentMethods": 80,
+        "earlyOriginalFullGameMethods": 2,
+        "actualNativeCommands": 13,
+        "nativeColdRestores": 28,
+        "actualSql": "ALL79_CURRENT_SOURCE_AND_COLD_PROMPT_ASSERTIONS_PASS",
+        "singleCheckCases": 12027,
+        "singleCheckMethods": 7244,
+        "fixedFull": "PENDING_NEW_FIXED_COMMIT",
+        "product": "OPEN_NEW_VISIBLE_AND_WINDOWS"
+      }
     }
   ]
 }

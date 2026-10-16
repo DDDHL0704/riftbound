@@ -1,0 +1,139 @@
+{
+  "allRawReturnedRowsComparedAgainstFullCnSnapshot": true,
+  "rows": [
+    {
+      "exactApiId": 31359,
+      "cardNo": "OGN·135/298",
+      "knownInOriginalFullCnInventory": true,
+      "changedFields": []
+    },
+    {
+      "exactApiId": 31505,
+      "cardNo": "OGN·263/298",
+      "knownInOriginalFullCnInventory": true,
+      "changedFields": []
+    },
+    {
+      "exactApiId": 31506,
+      "cardNo": "OGN·263a/298",
+      "knownInOriginalFullCnInventory": true,
+      "changedFields": []
+    },
+    {
+      "exactApiId": 31561,
+      "cardNo": "OGN·307/298",
+      "knownInOriginalFullCnInventory": true,
+      "changedFields": []
+    },
+    {
+      "exactApiId": 31562,
+      "cardNo": "OGN·307*/298",
+      "knownInOriginalFullCnInventory": true,
+      "changedFields": []
+    },
+    {
+      "exactApiId": 31507,
+      "cardNo": "OGN·264/298",
+      "knownInOriginalFullCnInventory": true,
+      "changedFields": []
+    },
+    {
+      "exactApiId": 33104,
+      "cardNo": "SFD·029/221",
+      "knownInOriginalFullCnInventory": true,
+      "changedFields": []
+    },
+    {
+      "exactApiId": 33105,
+      "cardNo": "SFD·029a/221",
+      "knownInOriginalFullCnInventory": true,
+      "changedFields": []
+    },
+    {
+      "exactApiId": 33264,
+      "cardNo": "SFD·170/221",
+      "knownInOriginalFullCnInventory": true,
+      "changedFields": []
+    },
+    {
+      "exactApiId": 33265,
+      "cardNo": "SFD·170a/221",
+      "knownInOriginalFullCnInventory": true,
+      "changedFields": []
+    },
+    {
+      "exactApiId": 33285,
+      "cardNo": "SFD·187/221",
+      "knownInOriginalFullCnInventory": true,
+      "changedFields": []
+    },
+    {
+      "exactApiId": 33286,
+      "cardNo": "SFD·188/221",
+      "knownInOriginalFullCnInventory": true,
+      "changedFields": []
+    },
+    {
+      "exactApiId": 33354,
+      "cardNo": "SFD·243/221",
+      "knownInOriginalFullCnInventory": true,
+      "changedFields": []
+    },
+    {
+      "exactApiId": 33248,
+      "cardNo": "SFD·154/221",
+      "knownInOriginalFullCnInventory": true,
+      "changedFields": []
+    },
+    {
+      "exactApiId": 33107,
+      "cardNo": "SFD·031/221",
+      "knownInOriginalFullCnInventory": true,
+      "changedFields": []
+    },
+    {
+      "exactApiId": 33248,
+      "cardNo": "SFD·154/221",
+      "knownInOriginalFullCnInventory": true,
+      "changedFields": []
+    },
+    {
+      "exactApiId": 33251,
+      "cardNo": "SFD·157/221",
+      "knownInOriginalFullCnInventory": true,
+      "changedFields": []
+    },
+    {
+      "exactApiId": 33296,
+      "cardNo": "SFD·197/221",
+      "knownInOriginalFullCnInventory": true,
+      "changedFields": []
+    },
+    {
+      "exactApiId": 33297,
+      "cardNo": "SFD·198/221",
+      "knownInOriginalFullCnInventory": true,
+      "changedFields": []
+    },
+    {
+      "exactApiId": 37990,
+      "cardNo": "SFD·207/221",
+      "knownInOriginalFullCnInventory": true,
+      "changedFields": []
+    },
+    {
+      "exactApiId": 33358,
+      "cardNo": "SFD·247/221",
+      "knownInOriginalFullCnInventory": true,
+      "changedFields": []
+    },
+    {
+      "exactApiId": 33364,
+      "cardNo": "SFD·T02",
+      "knownInOriginalFullCnInventory": true,
+      "changedFields": []
+    }
+  ],
+  "anyUnknownOrChangedIdentities": [],
+  "noImplicitCardActivationOrSourceUniverseReduction": true
+}

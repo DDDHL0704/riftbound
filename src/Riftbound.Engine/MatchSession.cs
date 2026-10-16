@@ -9173,8 +9173,8 @@ internal static class ActionPromptBuilder
                 CommandTypes.HideCard,
                 SourceBinding("sourceObjectId", required: true),
                 RequirementMetadataBinding("cardNo", required: true, "cardNo", "equipmentCardNo"),
-                SelectedDestinationBinding("destination"),
-                SelectedOptionalCostsBinding("optionalCosts")),
+                SelectedDestinationBinding("destination", required: true),
+                SelectedOptionalCostsBinding("optionalCosts", required: true)),
             CommandTypes.RevealCard => CommandTemplate(
                 CommandTypes.RevealCard,
                 SourceBinding("sourceObjectId", required: true),
@@ -9270,9 +9270,9 @@ internal static class ActionPromptBuilder
         return CommandBinding(field, "selectedMode");
     }
 
-    private static ActionPromptCommandBindingDto SelectedOptionalCostsBinding(string field)
+    private static ActionPromptCommandBindingDto SelectedOptionalCostsBinding(string field, bool required = false)
     {
-        return CommandBinding(field, "selectedOptionalCosts", asArray: true);
+        return CommandBinding(field, "selectedOptionalCosts", required, asArray: true);
     }
 
     private static ActionPromptCommandBindingDto RequirementMetadataBinding(
@@ -15576,7 +15576,7 @@ internal static class ActionPromptBuilder
     private static IReadOnlyList<string> PendingPaymentSpendChoiceIds(PendingPaymentState payment)
     {
         return payment.LegalPaymentChoiceIds
-            .Where(choiceId => !IsRecycleRunePaymentActionId(choiceId))
+            .Where(choiceId => payment.PaymentWindow == CoreRuleEngine.RuleChoiceWindow || !IsRecycleRunePaymentActionId(choiceId))
             .ToArray();
     }
 

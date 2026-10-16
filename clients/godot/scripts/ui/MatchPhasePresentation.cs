@@ -73,12 +73,13 @@ internal static class MatchPhasePresentation
         var replacement = Object(timing, "pendingPayment");
         if (Text(replacement, "paymentWindow") == "RULE_REPLACEMENT")
         {
+            var tokenHaste = Text(replacement, "choiceKind") == "TOKEN_HASTE_PAYMENT";
             var movement = Text(replacement, "choiceKind") == "MOVEMENT_SELECTION";
             var groupedTargets = Text(replacement, "choiceKind") == "TARGET_GROUP";
             var firstDeath = Text(replacement, "choiceKind") == "FIRST_DEATH_OCCURRENCE";
-            title = movement ? "法术结算 · 选择移动单位" : groupedTargets ? "法术结算 · 重选目标" : firstDeath ? "首次死亡 · 选择事件" : "摧毁替换 · 等待选择";
+            title = tokenHaste ? "指示物急速 · 支付选择" : movement ? "法术结算 · 选择移动单位" : groupedTargets ? "法术结算 · 重选目标" : firstDeath ? "首次死亡 · 选择事件" : "摧毁替换 · 等待选择";
             actorLine = $"{Side(Text(replacement, "playerId"))}完成选择";
-            detail = movement ? "选择你控制的一名合法单位，移动至效果指定的战场。" : groupedTargets ? "从原目标中移除单位，直到剩余目标满足要求，再确认结算。不能新增目标。" : firstDeath ? "选择同时被摧毁的一名单位，作为本回合首次死亡技能的触发事件。"
+            detail = tokenHaste ? "在单位进场前，按服务端提示选择支付、放弃或先产费；确认后继续打出该单位。" : movement ? "选择你控制的一名合法单位，移动至效果指定的战场。" : groupedTargets ? "从原目标中移除单位，直到剩余目标满足要求，再确认结算。不能新增目标。" : firstDeath ? "选择同时被摧毁的一名单位，作为本回合首次死亡技能的触发事件。"
                 : "选择先执行的替换及对象；可选费用可先产费，强制替换不能放弃。";
             hint = "确认后继续原结算；选择期间不能插入其他行动。";
             activeWindow = true;

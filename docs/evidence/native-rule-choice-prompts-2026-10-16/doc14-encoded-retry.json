@@ -1,0 +1,29 @@
+{
+  "id": "DOC-14",
+  "kind": "OFFICIAL_PDF",
+  "url": "https://cdn.playloltcg.com/lol/2026/04/2026-04-15/铸魂淬炼系列_裁判FAQ.pdf",
+  "encodedRequestUrl": "https://cdn.playloltcg.com/lol/2026/04/2026-04-15/%E9%93%B8%E9%AD%82%E6%B7%AC%E7%82%BC%E7%B3%BB%E5%88%97_%E8%A3%81%E5%88%A4FAQ.pdf",
+  "attemptedAtUtc": "2026-10-16T11:48:05.062196+00:00",
+  "priorAttempt": {
+    "path": "var/qa/rule-choice-native-20261016/source-refresh/manifest.json",
+    "sha256": "08c0abe69fe813287319e8d5a3335ca508e9517af1cb35e36654bb4c5d81be85"
+  },
+  "priorFailureWasClientUrlEncodingNotOfficialSourceUnavailability": true,
+  "region": "CN",
+  "language": "zh-CN",
+  "applicableAsOf": "2026-10-16",
+  "firstPublicationDate": null,
+  "effectiveDate": null,
+  "documentLastUpdatedAsPreviouslyRecorded": "2026-01-14",
+  "urlPathDate": "2026-04-15",
+  "fetchedAtUtc": "2026-10-16T11:48:12.656093+00:00",
+  "status": "FETCHED",
+  "sha256": "16eeeea28baeeee2dae3765876c609f79cc77fdbdd6928d73f1b8fa5d5c277bc",
+  "bytes": 25623614,
+  "unchanged": true,
+  "retainedBody": {
+    "path": "var/qa/colorless-token-haste-20261016/DOC-14-current.pdf",
+    "sha256": "16eeeea28baeeee2dae3765876c609f79cc77fdbdd6928d73f1b8fa5d5c277bc"
+  },
+  "unchangedDuplicateDownloadRemoved": true
+}
