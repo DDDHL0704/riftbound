@@ -11,10 +11,10 @@ internal static class CardPlayHistoryCausalSqlAcceptance
         Directory.CreateDirectory(output);
         var json = new JsonSerializerOptions(JsonSerializerDefaults.Web) { WriteIndented = true };
         using var fixture = JsonDocument.Parse(await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory,
-            "Fixtures", "card-play-history-actual-opening-339c.json")));
+            "Fixtures", "card-play-history-current-opening-20261017.json")));
         var room = fixture.RootElement.GetProperty("sourceRoomId").GetString()!;
-        // This fixture preserves the real opening's room-dependent random seed
-        // and raw prompt identities. Never replace an existing accepted match.
+        // This separately accepted current fixture preserves explicit seed0 and
+        // raw prompt identities. The old339c accepted history remains untouched.
         await using var connection = await source.OpenConnectionAsync();
         await using (var exists = new NpgsqlCommand("select exists(select 1 from matches where match_id=@room)", connection))
         {
@@ -56,7 +56,7 @@ internal static class CardPlayHistoryCausalSqlAcceptance
             var state = original.AuthoritativeState!;
             var history = state.CardPlays;
             var entry = history.Resolved.Single();
-            Check(entry.PlayerId == "paired-339c-a" && entry.CardNo == "SFD·065/221" && entry.Tick == 8
+            Check(entry.PlayerId == "paired-339c-b" && entry.CardNo == "SFD·065/221" && entry.Tick == 8
                 && entry.Types == 1 && entry.Source.Generation == 1 && history.Finalized.Single() == entry,
                 "Independent actual-play history assertions failed.");
             var logBefore = JsonSerializer.Serialize(new { original.Commands, original.Events }, json);
@@ -67,9 +67,9 @@ internal static class CardPlayHistoryCausalSqlAcceptance
             var saved = (string)(await read.ExecuteScalarAsync())!;
             var mutations = new Dictionary<string, TurnCardPlayHistory>
             {
-                ["valid-finalizer"] = history with { Finalized = [entry with { PlayerId = "paired-339c-b" }] },
-                ["valid-resolver"] = history with { Resolved = [entry with { PlayerId = "paired-339c-b" }] },
-                ["valid-both-actors"] = history with { Finalized = [entry with { PlayerId = "paired-339c-b" }], Resolved = [entry with { PlayerId = "paired-339c-b" }] },
+                ["valid-finalizer"] = history with { Finalized = [entry with { PlayerId = "paired-339c-a" }] },
+                ["valid-resolver"] = history with { Resolved = [entry with { PlayerId = "paired-339c-a" }] },
+                ["valid-both-actors"] = history with { Finalized = [entry with { PlayerId = "paired-339c-a" }], Resolved = [entry with { PlayerId = "paired-339c-a" }] },
                 ["delete-finalized"] = history with { Finalized = [] },
                 ["delete-resolved"] = history with { Resolved = [] },
                 ["delete-both"] = history with { Finalized = [], Resolved = [] },

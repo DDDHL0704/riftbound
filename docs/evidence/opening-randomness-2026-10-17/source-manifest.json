@@ -1,0 +1,57 @@
+{
+  "status": "FRESH_CN_INDEX_AND_CURRENT_CORE_UNCHANGED",
+  "region": "CN",
+  "language": "zh-CN",
+  "applicableAsOf": "2026-10-17",
+  "recordedAtUtc": "2026-10-16T22:22:30.737916+00:00",
+  "coreEffectiveDate": "2026-10-16",
+  "index": {
+    "url": "https://lol-api.playloltcg.com/xcx/gameRule/getGameRuleList",
+    "request": {
+      "pageNum": 1,
+      "pageSize": 1000
+    },
+    "attemptedAtUtc": "2026-10-16T22:22:30.642179+00:00",
+    "httpStatus": 200,
+    "rows": 14,
+    "identityFields": [
+      "ruleCategory",
+      "ruleName",
+      "ruleDocUrl"
+    ],
+    "allFullRecordFieldsAndOrderUnchanged": true,
+    "changes": [],
+    "body": {
+      "path": "var/qa/opening-shuffle-probe-20261017/rules-index-v2.json",
+      "sha256": "fd9f6fd956e5d68c4da9ad606206600c2d9644f3a28e8b482f87056e1e85c547"
+    },
+    "fullVolatileEnvelopeRetainedTimestampAndTraceIdNotSemanticChanges": true
+  },
+  "core": {
+    "kind": "OFFICIAL_PDF",
+    "id": "DOC-01",
+    "url": "https://cdn.playloltcg.com/lol/2026/10/2026-10-10/a21ead876c6b44d6abe386b6ae54ea28.pdf",
+    "finalUrl": "https://cdn.playloltcg.com/lol/2026/10/2026-10-10/a21ead876c6b44d6abe386b6ae54ea28.pdf",
+    "attemptedAtUtc": "2026-10-16T22:18:37.338056+00:00",
+    "fetchedAtUtc": "2026-10-16T22:18:49.367757+00:00",
+    "httpStatus": 200,
+    "bytes": 40278538,
+    "sha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11",
+    "unchanged": true,
+    "retainedBody": {
+      "path": "var/qa/colorless-token-haste-20261016/DOC-01-current.pdf",
+      "sha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11"
+    },
+    "duplicateBodyDiscardedOnlyAfterHashMatch": true,
+    "publicationDate": "2026-10-10",
+    "effectiveDate": "2026-10-16"
+  },
+  "firstParserFailure": {
+    "path": "var/qa/opening-shuffle-probe-20261017/source-refresh.json",
+    "sha256": "1fa5700066a3e308c5a036d3e1d8baf01eab3f2ffe9b7d2a739002de8dc8e838",
+    "classification": "Initial wrapper assumed nonexistent id; HTTP body was acquired and retained. Not an official outage or source delta. Correct full identity uses category/name/documentURL; fresh index request independently confirms all14 records."
+  },
+  "coreDuplicateBodyNotDownloadedAgain": true,
+  "fullGlobalSourceUniverseAndOtherGapsRetained": true,
+  "wholeCardOrRuleFamilyCertified": false
+}

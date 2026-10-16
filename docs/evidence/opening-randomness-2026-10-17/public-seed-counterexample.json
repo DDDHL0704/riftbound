@@ -1,0 +1,22 @@
+{
+  "status": "PRIVACY_COUNTEREXAMPLE_CONFIRMED_PUBLIC_INPUTS_PREDICT_ACTUAL_DEFAULT_OPENING_SEED",
+  "verifiedAtUtc": "2026-10-16T22:31:05.629224+00:00",
+  "fixedRuntimeCommit": "39d51649da54ccb77d7945b2bfd52473fd15fda1",
+  "room": "paired-ready-20261017",
+  "publicInputFields": [
+    "roomId",
+    "seatPlayerIds"
+  ],
+  "bothFieldsConfirmedInRecordedActualPlayerProjections": true,
+  "originalEmptyOpeningSeedWasZero": true,
+  "independentlyComputedPublicPredictionMatchesActualAuthoritativeSeed": true,
+  "predictedSeedSha256": "ea5e3b9d06df1b5fa36e1e91dc505a2e03ae5ae266b6b27061af7f11342774eb",
+  "actualSeedSha256": "ea5e3b9d06df1b5fa36e1e91dc505a2e03ae5ae266b6b27061af7f11342774eb",
+  "rawSeedNotPublishedInThisReceipt": true,
+  "privateOriginalFrameSha256": "6ecb71fd02f2e3c4807686a292e3c988b9bb2da0d6258d8b0d06d09e0640f767",
+  "checkPerformedOnlyAfterNativeScore8FinishAndRuntimeShutdown": true,
+  "nativeActionsAndOriginalAcceptedHistoryNeverChangedOrInformedByPrediction": true,
+  "sourceScope": "Default zero-seed opening fallback; explicitly supplied nonzero test/recovery seeds are separate.",
+  "implementationDisposition": "OPEN. Requires fresh private server entropy bound to original replay input and deterministic shuffle; no old development-match migration.",
+  "wholeCardOrGlobalCertification": false
+}

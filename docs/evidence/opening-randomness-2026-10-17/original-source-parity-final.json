@@ -1,0 +1,112 @@
+{
+  "baselineCommit": "a6ccf1952141c69ed4b3cde94695f983c1c28db8",
+  "oldConformanceSources": 438,
+  "byteEqualOldSources": 434,
+  "changedOldSources": [
+    "tests/Riftbound.ConformanceTests/CardPlayHistoryRecoveryGuardTests.cs",
+    "tests/Riftbound.ConformanceTests/GameHubJoinTests.cs",
+    "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "tests/Riftbound.ConformanceTests/OptionalSacrificeOpeningTests.cs"
+  ],
+  "allOriginalMethodsAndFactTheoryInlineDataMemberDataAttributesEqual": true,
+  "all143FullGames110Pairs11Decks424242AndVictoryReplayAssertionsSourceByteEqual": true,
+  "originalFullGameSourceSha256": "12352222c34e756c41508400e7f24a4877807dcd3681320d5854a4e23e0b688e",
+  "all16HistoricalOpeningFixturesByteEqual": true,
+  "submittedDeckMultisets": [
+    {
+      "originalPath": "tests/Riftbound.ConformanceTests/Fixtures/confirmed-play-origin-hand-cn16.json",
+      "currentPath": "tests/Riftbound.ConformanceTests/Fixtures/current-opening-20261017/confirmed-play-origin-hand-cn16.json",
+      "allSubmittedDeckMultisetsEqual": true
+    },
+    {
+      "originalPath": "tests/Riftbound.ConformanceTests/Fixtures/confirmed-play-origin-standby-cn16.json",
+      "currentPath": "tests/Riftbound.ConformanceTests/Fixtures/current-opening-20261017/confirmed-play-origin-standby-cn16.json",
+      "allSubmittedDeckMultisetsEqual": true
+    },
+    {
+      "originalPath": "tests/Riftbound.ConformanceTests/Fixtures/embedded-ready-protect-decline.json",
+      "currentPath": "tests/Riftbound.ConformanceTests/Fixtures/current-opening-20261017/embedded-ready-protect-decline.json",
+      "allSubmittedDeckMultisetsEqual": true
+    },
+    {
+      "originalPath": "tests/Riftbound.ConformanceTests/Fixtures/embedded-ready-protect-pay.json",
+      "currentPath": "tests/Riftbound.ConformanceTests/Fixtures/current-opening-20261017/embedded-ready-protect-pay.json",
+      "allSubmittedDeckMultisetsEqual": true
+    },
+    {
+      "originalPath": "tests/Riftbound.ConformanceTests/Fixtures/embedded-ready-rise-0.json",
+      "currentPath": "tests/Riftbound.ConformanceTests/Fixtures/current-opening-20261017/embedded-ready-rise-0.json",
+      "allSubmittedDeckMultisetsEqual": true
+    },
+    {
+      "originalPath": "tests/Riftbound.ConformanceTests/Fixtures/embedded-ready-rise-2.json",
+      "currentPath": "tests/Riftbound.ConformanceTests/Fixtures/current-opening-20261017/embedded-ready-rise-2.json",
+      "allSubmittedDeckMultisetsEqual": true
+    },
+    {
+      "originalPath": "tests/Riftbound.ConformanceTests/Fixtures/granted-origin-haste-sacrifice.json",
+      "currentPath": "tests/Riftbound.ConformanceTests/Fixtures/current-opening-20261017/granted-origin-haste-sacrifice.json",
+      "allSubmittedDeckMultisetsEqual": true
+    },
+    {
+      "originalPath": "tests/Riftbound.ConformanceTests/Fixtures/granted-origin-haste-unit.json",
+      "currentPath": "tests/Riftbound.ConformanceTests/Fixtures/current-opening-20261017/granted-origin-haste-unit.json",
+      "allSubmittedDeckMultisetsEqual": true
+    },
+    {
+      "originalPath": "tests/Riftbound.ConformanceTests/Fixtures/opponent-battlefield-control-neutral.json",
+      "currentPath": "tests/Riftbound.ConformanceTests/Fixtures/current-opening-20261017/opponent-battlefield-control-neutral.json",
+      "allSubmittedDeckMultisetsEqual": true
+    },
+    {
+      "originalPath": "tests/Riftbound.ConformanceTests/Fixtures/opponent-battlefield-control-swapped.json",
+      "currentPath": "tests/Riftbound.ConformanceTests/Fixtures/current-opening-20261017/opponent-battlefield-control-swapped.json",
+      "allSubmittedDeckMultisetsEqual": true
+    },
+    {
+      "originalPath": "tests/Riftbound.ConformanceTests/Fixtures/optional-sacrifice-hand.json",
+      "currentPath": "tests/Riftbound.ConformanceTests/Fixtures/current-opening-20261017/optional-sacrifice-hand.json",
+      "allSubmittedDeckMultisetsEqual": true
+    },
+    {
+      "originalPath": "tests/Riftbound.ConformanceTests/Fixtures/optional-sacrifice-haste.json",
+      "currentPath": "tests/Riftbound.ConformanceTests/Fixtures/current-opening-20261017/optional-sacrifice-haste.json",
+      "allSubmittedDeckMultisetsEqual": true
+    },
+    {
+      "originalPath": "tests/Riftbound.ConformanceTests/Fixtures/physical-origin-cost-spell.json",
+      "currentPath": "tests/Riftbound.ConformanceTests/Fixtures/current-opening-20261017/physical-origin-cost-spell.json",
+      "allSubmittedDeckMultisetsEqual": true
+    },
+    {
+      "originalPath": "tests/Riftbound.ConformanceTests/Fixtures/physical-origin-cost-unit.json",
+      "currentPath": "tests/Riftbound.ConformanceTests/Fixtures/current-opening-20261017/physical-origin-cost-unit.json",
+      "allSubmittedDeckMultisetsEqual": true
+    },
+    {
+      "originalPath": "tests/Riftbound.ConformanceTests/Fixtures/token-haste-hand.json",
+      "currentPath": "tests/Riftbound.ConformanceTests/Fixtures/current-opening-20261017/token-haste-hand.json",
+      "allSubmittedDeckMultisetsEqual": true
+    },
+    {
+      "originalPath": "tests/Riftbound.ConformanceTests/Fixtures/token-haste-standby.json",
+      "currentPath": "tests/Riftbound.ConformanceTests/Fixtures/current-opening-20261017/token-haste-standby.json",
+      "allSubmittedDeckMultisetsEqual": true
+    }
+  ],
+  "original339cHistory": {
+    "path": "tests/Riftbound.ConformanceTests/Fixtures/card-play-history-actual-opening-339c.json",
+    "sha256": "f3c2a8495ee9dd9eef80badba6222c9f0d9ea49ec19eacb1d62ff4ddb9b12317"
+  },
+  "currentSeparateHistory": {
+    "path": "tests/Riftbound.ConformanceTests/Fixtures/card-play-history-current-opening-20261017.json",
+    "sha256": "b025dd81d7aeb74611edca6027afe9125f265ef1aa7a1b92fa8f35b0eca1a2ca"
+  },
+  "explicitFixtureCorrections": [
+    "Two test-store signatures and one nonleaking seed-rejection message.",
+    "Hub fixture captures actual private original seed and funds its existing trigger-free Vi via legal server-quoted actions; all victory/replay assertions retained.",
+    "Current causal fixture has its own nine accepted commands, actor/source IDs; all original turn1/type1/generation1/tick8/face0 and eight forgery assertions retained. Original339c history unchanged.",
+    "Optional-sacrifice public submitted input positions7/19/31 become29/31/34 before any command, preserving full deck multiset and explicit seed0; first real reveal now precedes accidental score victory."
+  ],
+  "noAcceptedHistoryRewriteOrOldDevelopmentMigration": true
+}

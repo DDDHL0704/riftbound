@@ -38,6 +38,9 @@ public sealed record MatchJournalEntry(
     IReadOnlyList<RuleEvidenceRef>? RulesEvidence = null)
 {
     [System.Text.Json.Serialization.JsonRequired]
+    public long OpeningSeed { get; init; }
+
+    [System.Text.Json.Serialization.JsonRequired]
     public RuleInputIdentity? RuleInputs { get; init; } = AuthoritativeState.RuleInputs;
     public string RulesetVersion { get; init; } = RulesetVersion == RulesetDefaults.RulesetVersion
         ? AuthoritativeState.RuleInputs?.IdentitySha256 ?? RulesetDefaults.RulesetVersion : RulesetVersion;

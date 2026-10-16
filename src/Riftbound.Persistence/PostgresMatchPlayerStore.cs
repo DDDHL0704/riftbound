@@ -1,3 +1,4 @@
+using System.Globalization;
 using Npgsql;
 using NpgsqlTypes;
 using System.Text.Json;
@@ -13,13 +14,14 @@ public sealed class PostgresMatchPlayerStore(NpgsqlDataSource dataSource) : IMat
         string playerId,
         string seat,
         string reconnectTokenHash,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        long openingSeed = 0)
     {
         await using var connection = await dataSource.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
         await using var transaction = await connection.BeginTransactionAsync(cancellationToken).ConfigureAwait(false);
 
         await AcquireMatchPlayerSeatLockAsync(connection, transaction, roomId, cancellationToken).ConfigureAwait(false);
-        await EnsureMatchAsync(connection, transaction, roomId, cancellationToken).ConfigureAwait(false);
+        await EnsureMatchAsync(connection, transaction, roomId, openingSeed, cancellationToken).ConfigureAwait(false);
         try
         {
             await UpsertPlayerAsync(
@@ -67,26 +69,29 @@ public sealed class PostgresMatchPlayerStore(NpgsqlDataSource dataSource) : IMat
         NpgsqlConnection connection,
         NpgsqlTransaction transaction,
         string roomId,
+        long openingSeed,
         CancellationToken cancellationToken)
     {
         const string sql = """
-            insert into matches (match_id, status, updated_at, rule_inputs, ruleset_version, faq_version)
-            values (@match_id, 'SEATING', now(), @rule_inputs, @ruleset_version, @faq_version)
+            insert into matches (match_id, status, updated_at, rule_inputs, ruleset_version, faq_version, seed)
+            values (@match_id, 'SEATING', now(), @rule_inputs, @ruleset_version, @faq_version, @seed)
             on conflict (match_id) do update
             set updated_at = now()
             where matches.rule_inputs = excluded.rule_inputs
               and matches.ruleset_version = excluded.ruleset_version
-              and matches.faq_version = excluded.faq_version;
+              and matches.faq_version = excluded.faq_version
+              and matches.seed = excluded.seed;
             """;
         await using var command = new NpgsqlCommand(sql, connection, transaction);
         command.Parameters.AddWithValue("match_id", roomId);
+        command.Parameters.AddWithValue("seed", openingSeed.ToString(CultureInfo.InvariantCulture));
         command.Parameters.AddWithValue("rule_inputs", NpgsqlDbType.Jsonb,
             JsonSerializer.Serialize(RuleInputIdentity.Current, new JsonSerializerOptions(JsonSerializerDefaults.Web)));
         command.Parameters.AddWithValue("ruleset_version", RuleInputIdentity.Current.IdentitySha256);
         command.Parameters.AddWithValue("faq_version", RuleInputIdentity.Current.AuthoritySha256);
         if (await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false) != 1)
             throw new MatchSessionException(ErrorCodes.RecoveryInconsistent,
-                "stored room rule input identity differs from running inputs");
+                "stored room rule input identity or opening seed differs from running inputs");
     }
 
     private static async Task AcquireMatchPlayerSeatLockAsync(

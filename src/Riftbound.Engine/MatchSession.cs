@@ -1,4 +1,6 @@
+using System.Buffers.Binary;
 using System.Globalization;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -17116,6 +17118,7 @@ public sealed partial class MatchSession : IMatchSession
     private readonly IMatchJournal journal;
     private readonly IMatchPlayerStore playerStore;
     private readonly MatchSessionOptions options;
+    private readonly long openingSeed;
     private readonly object seatGate = new();
     private readonly SemaphoreSlim serialGate = new(1, 1);
     private readonly Dictionary<string, string> seats = new();
@@ -17155,7 +17158,8 @@ public sealed partial class MatchSession : IMatchSession
         this.journal = journal;
         this.playerStore = playerStore;
         this.options = options ?? MatchSessionOptions.Default;
-        state = MatchState.Create(roomId);
+        state = MatchState.Create(roomId) with { Seed = CreatePrivateOpeningSeed() };
+        openingSeed = state.Seed;
     }
 
     public MatchSession(MatchState initialState, IRuleEngine ruleEngine, IMatchJournal journal)
@@ -17183,6 +17187,7 @@ public sealed partial class MatchSession : IMatchSession
             0,
             initialState.Seats,
             [],
+            initialState.Seed,
             ruleEngine,
             journal,
             playerStore,
@@ -17195,6 +17200,7 @@ public sealed partial class MatchSession : IMatchSession
         long restoredLastEventSequence,
         IReadOnlyDictionary<string, string> restoredSeats,
         IReadOnlyList<RecoveredCommand> restoredCommands,
+        long openingSeed,
         IRuleEngine ruleEngine,
         IMatchJournal journal,
         IMatchPlayerStore playerStore,
@@ -17207,6 +17213,7 @@ public sealed partial class MatchSession : IMatchSession
         this.playerStore = playerStore;
         this.options = options ?? MatchSessionOptions.Default;
         state = restoredState;
+        this.openingSeed = openingSeed;
         lastEventSequence = restoredLastEventSequence;
         foreach (var (playerId, seat) in restoredSeats)
         {
@@ -17270,11 +17277,17 @@ public sealed partial class MatchSession : IMatchSession
         }
 
         var state = RestoreState(recovery);
+        if (recovery.ReplayInitialState is { } original && original.Seed != recovery.OpeningSeed
+            || state.Seed != recovery.OpeningSeed && !recovery.Commands.Any(command => command.CommandType == "DEV_SEED_SCENARIO"
+                || command.CommandType.StartsWith("DEV_SEED_SCENARIO:", StringComparison.Ordinal)))
+            throw new MatchSessionException(ErrorCodes.RecoveryInconsistent,
+                "match recovery state seed differs from recorded opening seed");
         return new MatchSession(
             state,
             recovery.LastEventSequence,
             state.Seats,
             recovery.Commands,
+            recovery.OpeningSeed,
             ruleEngine,
             journal,
             playerStore,
@@ -17519,7 +17532,7 @@ public sealed partial class MatchSession : IMatchSession
                     events,
                     result.Snapshots,
                     result.Prompts,
-                    DateTimeOffset.UtcNow),
+                    DateTimeOffset.UtcNow) { OpeningSeed = openingSeed },
                 cancellationToken).ConfigureAwait(false);
             lastEventSequence = completedEventSequence;
 
@@ -17666,7 +17679,7 @@ public sealed partial class MatchSession : IMatchSession
                     result.Events,
                     result.Snapshots,
                     result.Prompts,
-                    DateTimeOffset.UtcNow),
+                    DateTimeOffset.UtcNow) { OpeningSeed = openingSeed },
                 cancellationToken).ConfigureAwait(false);
 
             if (result.Accepted)
@@ -17736,7 +17749,7 @@ public sealed partial class MatchSession : IMatchSession
                         promptRejection.Events,
                         promptRejection.Snapshots,
                         promptRejection.Prompts,
-                        DateTimeOffset.UtcNow),
+                        DateTimeOffset.UtcNow) { OpeningSeed = openingSeed },
                     cancellationToken).ConfigureAwait(false);
                 lastEventSequence = completedEventSequence;
                 intentCache[cacheKey] = new CachedResolution("READY", rawCommandHash, promptRejection);
@@ -17864,7 +17877,7 @@ public sealed partial class MatchSession : IMatchSession
                         events,
                         result.Snapshots,
                         result.Prompts,
-                        DateTimeOffset.UtcNow),
+                        DateTimeOffset.UtcNow) { OpeningSeed = openingSeed },
                     cancellationToken).ConfigureAwait(false);
                 lastEventSequence = completedEventSequence;
             }
@@ -17953,7 +17966,7 @@ public sealed partial class MatchSession : IMatchSession
                     result.Events,
                     result.Snapshots,
                     result.Prompts,
-                    DateTimeOffset.UtcNow),
+                    DateTimeOffset.UtcNow) { OpeningSeed = openingSeed },
                 cancellationToken).ConfigureAwait(false);
 
             if (result.Accepted)
@@ -18264,7 +18277,8 @@ public sealed partial class MatchSession : IMatchSession
             playerSession.PlayerId,
             playerSession.Seat,
             ReconnectTokenHasher.Hash(playerSession.ReconnectToken),
-            cancellationToken);
+            cancellationToken,
+            openingSeed);
     }
 
     private static async ValueTask<OfficialCardCatalog> LoadOfficialCatalogAsync(CancellationToken cancellationToken)
@@ -18306,9 +18320,7 @@ public sealed partial class MatchSession : IMatchSession
         MatchState readyState,
         OfficialCardCatalog catalog)
     {
-        var seed = readyState.Seed == 0
-            ? (long)(StableHash($"{readyState.RoomId}:official-opening:{string.Join(",", readyState.Seats.Keys.Order(StringComparer.Ordinal))}") & long.MaxValue)
-            : readyState.Seed;
+        var seed = readyState.Seed;
         var rngCursor = readyState.RngCursor;
         var seatOrder = readyState.Seats
             .OrderBy(entry => entry.Value, StringComparer.Ordinal)
@@ -18541,32 +18553,38 @@ public sealed partial class MatchSession : IMatchSession
             return values.ToArray();
         }
 
-        return values
-            .Select((value, index) => new
-            {
-                Value = value,
-                Index = index,
-                Order = StableHash($"{seed}:{rngCursor}:{scope}:{value}:{index}")
-            })
-            .OrderBy(entry => entry.Order)
-            .ThenBy(entry => entry.Index)
-            .Select(entry => entry.Value)
-            .ToArray();
+        var shuffled = values.ToArray();
+        ulong sampleIndex = 0;
+        ulong NextSample()
+        {
+            var input = FormattableString.Invariant($"opening-v1:{seed}:{rngCursor}:{scope}:{sampleIndex++}");
+            return BinaryPrimitives.ReadUInt64BigEndian(SHA256.HashData(Encoding.UTF8.GetBytes(input)));
+        }
+        for (var index = shuffled.Length - 1; index > 0; index--)
+        {
+            var selected = NextOpeningIndex(index + 1, NextSample);
+            (shuffled[index], shuffled[selected]) = (shuffled[selected], shuffled[index]);
+        }
+        return shuffled;
     }
 
-    private static ulong StableHash(string value)
+    private static int NextOpeningIndex(int exclusiveMax, Func<ulong> nextSample)
     {
-        const ulong offsetBasis = 14695981039346656037UL;
-        const ulong prime = 1099511628211UL;
+        // Rejection sampling avoids modulo bias. The opening stream excludes
+        // card names/physical IDs and is stable across platforms.
+        var bound = (ulong)exclusiveMax;
+        var threshold = unchecked(0UL - bound) % bound;
+        ulong sample;
+        do { sample = nextSample(); } while (sample < threshold);
+        return (int)(sample % bound);
+    }
 
-        var hash = offsetBasis;
-        foreach (var ch in value)
-        {
-            hash ^= ch;
-            hash *= prime;
-        }
-
-        return hash;
+    private static long CreatePrivateOpeningSeed()
+    {
+        long seed;
+        do { seed = BinaryPrimitives.ReadInt64BigEndian(RandomNumberGenerator.GetBytes(sizeof(long))); }
+        while (seed == 0);
+        return seed;
     }
 
     private sealed record OfficialOpeningBuildResult(

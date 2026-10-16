@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text.Json;
 using Npgsql;
 using NpgsqlTypes;
@@ -26,6 +27,11 @@ public sealed class PostgresMatchRecoveryStore(NpgsqlDataSource dataSource) : IM
         var events = await LoadEventsAsync(connection, roomId, cancellationToken).ConfigureAwait(false);
         var playerViews = await LoadPlayerViewsAsync(connection, roomId, cancellationToken).ConfigureAwait(false);
         var inputErrors = new List<string>();
+        long? openingSeed = long.TryParse(metadata.Seed, NumberStyles.Integer, CultureInfo.InvariantCulture, out var parsedSeed)
+            && metadata.Seed == parsedSeed.ToString(CultureInfo.InvariantCulture)
+            ? parsedSeed : null;
+        if (openingSeed is null)
+            inputErrors.Add("stored match opening seed is missing or invalid");
         if (!RuleInputIdentity.IsCurrent(metadata.RuleInputs)
             || metadata.RulesetVersion != metadata.RuleInputs?.IdentitySha256
             || metadata.FaqVersion != metadata.RuleInputs?.AuthoritySha256)
@@ -48,13 +54,17 @@ public sealed class PostgresMatchRecoveryStore(NpgsqlDataSource dataSource) : IM
         // or replace a damaged authoritative payload.
         if (authoritativeState is null && !invalidStatePayload && commands.Count == 0
             && metadata.CurrentTick == 0 && metadata.LastEventSequence == 0
-            && RuleInputIdentity.IsCurrent(metadata.RuleInputs))
-            authoritativeState = (await LoadReplayInitialStateAsync(connection, roomId, cancellationToken).ConfigureAwait(false))
+            && RuleInputIdentity.IsCurrent(metadata.RuleInputs) && openingSeed is not null)
+            authoritativeState = (await LoadReplayInitialStateAsync(connection, roomId, openingSeed.Value, cancellationToken).ConfigureAwait(false))
                 with { RuleInputs = metadata.RuleInputs };
         if (authoritativeState is null)
             inputErrors.Add("stored match requires authoritative state with recorded rule input identity");
-        var replayInitialState = authoritativeState is not null && commands.Count > 0
-            ? (await LoadReplayInitialStateAsync(connection, roomId, cancellationToken).ConfigureAwait(false))
+        if (authoritativeState is not null && openingSeed is not null && authoritativeState.Seed != openingSeed
+            && !commands.Any(command => command.CommandType == "DEV_SEED_SCENARIO"
+                || command.CommandType.StartsWith("DEV_SEED_SCENARIO:", StringComparison.Ordinal)))
+            inputErrors.Add("authoritative state seed differs from recorded opening seed");
+        var replayInitialState = authoritativeState is not null && commands.Count > 0 && openingSeed is not null
+            ? (await LoadReplayInitialStateAsync(connection, roomId, openingSeed.Value, cancellationToken).ConfigureAwait(false))
                 with { RuleInputs = metadata.RuleInputs }
             : null;
         var spectatorReplayFrame = authoritativeState is null
@@ -85,7 +95,7 @@ public sealed class PostgresMatchRecoveryStore(NpgsqlDataSource dataSource) : IM
             validationErrors,
             authoritativeState,
             replayInitialState,
-            spectatorReplayFrame);
+            spectatorReplayFrame) { OpeningSeed = openingSeed ?? 0 };
     }
 
     private static async Task<MatchRecoveryMetadata?> LoadMetadataAsync(
@@ -94,7 +104,7 @@ public sealed class PostgresMatchRecoveryStore(NpgsqlDataSource dataSource) : IM
         CancellationToken cancellationToken)
     {
         const string sql = """
-            select match_id, current_tick, last_event_sequence, rule_inputs::text, ruleset_version, faq_version
+            select match_id, current_tick, last_event_sequence, rule_inputs::text, ruleset_version, faq_version, seed
             from matches
             where match_id = @match_id;
             """;
@@ -111,7 +121,7 @@ public sealed class PostgresMatchRecoveryStore(NpgsqlDataSource dataSource) : IM
             reader.GetInt64(1),
             reader.GetInt64(2),
             reader.IsDBNull(3) ? null : ReadRuleInputs(reader.GetString(3)),
-            reader.GetString(4), reader.GetString(5));
+            reader.GetString(4), reader.GetString(5), reader.IsDBNull(6) ? null : reader.GetString(6));
     }
 
     private static async Task<IReadOnlyList<RecoveredCommand>> LoadCommandsAsync(
@@ -241,6 +251,7 @@ public sealed class PostgresMatchRecoveryStore(NpgsqlDataSource dataSource) : IM
     private static async Task<MatchState> LoadReplayInitialStateAsync(
         NpgsqlConnection connection,
         string roomId,
+        long openingSeed,
         CancellationToken cancellationToken)
     {
         const string sql = """
@@ -266,7 +277,7 @@ public sealed class PostgresMatchRecoveryStore(NpgsqlDataSource dataSource) : IM
             seats[reader.GetString(0)] = reader.GetString(1);
         }
 
-        return MatchReplayInitialStateBuilder.FromSeats(roomId, seats);
+        return MatchReplayInitialStateBuilder.FromSeats(roomId, seats) with { Seed = openingSeed };
     }
 
     private static async Task<IReadOnlyDictionary<string, RecoveredPrompt>> LoadLatestPromptsAsync(
@@ -321,7 +332,8 @@ public sealed class PostgresMatchRecoveryStore(NpgsqlDataSource dataSource) : IM
         long LastEventSequence,
         RuleInputIdentity? RuleInputs,
         string RulesetVersion,
-        string FaqVersion);
+        string FaqVersion,
+        string? Seed);
 
     private static RuleInputIdentity? ReadRuleInputs(string json)
     {

@@ -53,6 +53,9 @@ public sealed record MatchRecoveryFrame(
     MatchState? ReplayInitialState = null,
     MatchReplayFrame? SpectatorReplayFrame = null)
 {
+    [System.Text.Json.Serialization.JsonRequired]
+    public long OpeningSeed { get; init; }
+
     public bool IsConsistent => ValidationErrors.Count == 0;
 
     public long ReplayFromEventSequence =>
@@ -139,7 +142,8 @@ public static class MatchActionLogReplayer
 
         if (recovery.Commands.Count == 0)
         {
-            return [];
+            return recovery.AuthoritativeState is { } waiting && waiting.Seed != recovery.OpeningSeed
+                ? ["waiting-room state seed differs from recorded opening seed"] : [];
         }
 
         if (recovery.AuthoritativeState is null
@@ -351,9 +355,9 @@ public static class MatchActionLogReplayer
                     $"action-log replay initial state timing state {replayInitialState.TimingState} must be {TimingStates.Room}");
             }
 
-            if (replayInitialState.Seed != 0)
+            if (replayInitialState.Seed != recovery.OpeningSeed)
             {
-                errors.Add($"action-log replay initial state seed {replayInitialState.Seed} must be 0");
+                errors.Add("action-log replay initial state seed differs from recorded opening seed");
             }
 
             if (replayInitialState.RngCursor != 0)

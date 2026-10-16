@@ -1,0 +1,214 @@
+{
+  "recordedAtUtc": "2026-10-16T23:48:39.357970+00:00",
+  "baseCommit": "a6ccf1952141c69ed4b3cde94695f983c1c28db8",
+  "contextsReopened": 9,
+  "changedPins": 26,
+  "changes": [
+    {
+      "reviewId": "cn16-confirmed-play-origin-and-required-causal-fact-2026-10-16",
+      "changedPins": [
+        {
+          "section": "verificationSources",
+          "path": "tests/Riftbound.PostgresAcceptance/ConfirmedPlayOriginSqlAcceptance.cs",
+          "before": "0b39652f7379a1cecfaddcc248eabc713ffa8ff4315d9a13af5416c574fee637",
+          "after": "326f0d0869513d5812cc10d998920896b9da9643672b5a2a46111a4ebad741be"
+        },
+        {
+          "section": "verificationSources",
+          "path": "tests/Riftbound.PostgresAcceptance/Program.cs",
+          "before": "45623c55eebaa8ab00a614eb97704c5a74a24a64008b12682dfb3e24a662bc7a",
+          "after": "8aa37c53f823b082c25b2a16f83e9db1f77faed620019c5bcb3f34caac965c30"
+        },
+        {
+          "section": "verificationSources",
+          "path": "tests/Riftbound.PostgresAcceptance/Riftbound.PostgresAcceptance.csproj",
+          "before": "ca4342df075b1a3bd89d567114900961b5fe3b58edfad9f47d8d4dd9ff7aee9b",
+          "after": "d9716fb317bdde134df16a22a629df812237174f548aa80d4f4afe60c61a91a9"
+        }
+      ]
+    },
+    {
+      "reviewId": "physical-origin-self-cost-reduction-2026-10-16",
+      "changedPins": [
+        {
+          "section": "verificationSources",
+          "path": "tests/Riftbound.PostgresAcceptance/PhysicalOriginCostSqlAcceptance.cs",
+          "before": "9adf5bc3ee25a80d215486a2e02b1b41fd0e422de847a02da785c9e0279a4acf",
+          "after": "edaaa28d0bac4af5b01a6649a3e7ae71bb7ca482bf6944639848737091261280"
+        },
+        {
+          "section": "verificationSources",
+          "path": "tests/Riftbound.PostgresAcceptance/Program.cs",
+          "before": "45623c55eebaa8ab00a614eb97704c5a74a24a64008b12682dfb3e24a662bc7a",
+          "after": "8aa37c53f823b082c25b2a16f83e9db1f77faed620019c5bcb3f34caac965c30"
+        },
+        {
+          "section": "verificationSources",
+          "path": "tests/Riftbound.PostgresAcceptance/Riftbound.PostgresAcceptance.csproj",
+          "before": "ca4342df075b1a3bd89d567114900961b5fe3b58edfad9f47d8d4dd9ff7aee9b",
+          "after": "d9716fb317bdde134df16a22a629df812237174f548aa80d4f4afe60c61a91a9"
+        }
+      ]
+    },
+    {
+      "reviewId": "granted-origin-haste-and-paid-entry-replacement-2026-10-16",
+      "changedPins": [
+        {
+          "section": "verificationSources",
+          "path": "tests/Riftbound.PostgresAcceptance/GrantedOriginHasteSqlAcceptance.cs",
+          "before": "f0052de188b8aafd26d6223cf981253956c8ef403c5334564d7f9611c87f8da9",
+          "after": "2dfa8636b26bd3af37e4f22f901ed5e7a0409b26ff959b4d76193c724721114c"
+        },
+        {
+          "section": "verificationSources",
+          "path": "tests/Riftbound.PostgresAcceptance/Program.cs",
+          "before": "45623c55eebaa8ab00a614eb97704c5a74a24a64008b12682dfb3e24a662bc7a",
+          "after": "8aa37c53f823b082c25b2a16f83e9db1f77faed620019c5bcb3f34caac965c30"
+        },
+        {
+          "section": "verificationSources",
+          "path": "tests/Riftbound.PostgresAcceptance/Riftbound.PostgresAcceptance.csproj",
+          "before": "ca4342df075b1a3bd89d567114900961b5fe3b58edfad9f47d8d4dd9ff7aee9b",
+          "after": "d9716fb317bdde134df16a22a629df812237174f548aa80d4f4afe60c61a91a9"
+        }
+      ]
+    },
+    {
+      "reviewId": "opponent-battlefield-current-control-entry-2026-10-16",
+      "changedPins": [
+        {
+          "section": "verificationSources",
+          "path": "tests/Riftbound.PostgresAcceptance/OpponentBattlefieldControlSqlAcceptance.cs",
+          "before": "296a65e88ebcac3353c982406d89b8d232cc80b8d1793940d643522d80477e72",
+          "after": "2d3e8f079b4000f098482816bf12fe12a6945f2e4aae87a9223722500dcc472c"
+        },
+        {
+          "section": "verificationSources",
+          "path": "tests/Riftbound.PostgresAcceptance/Program.cs",
+          "before": "45623c55eebaa8ab00a614eb97704c5a74a24a64008b12682dfb3e24a662bc7a",
+          "after": "8aa37c53f823b082c25b2a16f83e9db1f77faed620019c5bcb3f34caac965c30"
+        },
+        {
+          "section": "verificationSources",
+          "path": "tests/Riftbound.PostgresAcceptance/Riftbound.PostgresAcceptance.csproj",
+          "before": "ca4342df075b1a3bd89d567114900961b5fe3b58edfad9f47d8d4dd9ff7aee9b",
+          "after": "d9716fb317bdde134df16a22a629df812237174f548aa80d4f4afe60c61a91a9"
+        }
+      ]
+    },
+    {
+      "reviewId": "optional-sacrifice-printed-cost-and-paid-entry-2026-10-16",
+      "changedPins": [
+        {
+          "section": "verificationSources",
+          "path": "tests/Riftbound.ConformanceTests/OptionalSacrificeOpeningTests.cs",
+          "before": "c07f911b4b0c900ccdc84d88393123b584fc9f224f5f0462b18b40a351bd23f3",
+          "after": "75502082511aeafd2307a98307fefc2d56021d258beae8f8cf39d2e6bce91a76"
+        },
+        {
+          "section": "verificationSources",
+          "path": "tests/Riftbound.PostgresAcceptance/OptionalSacrificeSqlAcceptance.cs",
+          "before": "198991021b2bfcd875eea729be9d05e20168861b4278c1a74f723969d492c749",
+          "after": "f3a5bc4951a0ab7f9fe53d4c538edf09bfa6a423631e826ecf945c27b8e7c9e5"
+        },
+        {
+          "section": "verificationSources",
+          "path": "tests/Riftbound.PostgresAcceptance/Program.cs",
+          "before": "45623c55eebaa8ab00a614eb97704c5a74a24a64008b12682dfb3e24a662bc7a",
+          "after": "8aa37c53f823b082c25b2a16f83e9db1f77faed620019c5bcb3f34caac965c30"
+        },
+        {
+          "section": "verificationSources",
+          "path": "tests/Riftbound.PostgresAcceptance/Riftbound.PostgresAcceptance.csproj",
+          "before": "ca4342df075b1a3bd89d567114900961b5fe3b58edfad9f47d8d4dd9ff7aee9b",
+          "after": "d9716fb317bdde134df16a22a629df812237174f548aa80d4f4afe60c61a91a9"
+        }
+      ]
+    },
+    {
+      "reviewId": "granted-colorless-token-haste-payment-2026-10-16",
+      "changedPins": [
+        {
+          "section": "verificationSources",
+          "path": "tests/Riftbound.PostgresAcceptance/GrantedTokenHasteSqlAcceptance.cs",
+          "before": "166b3686bd4b5b625c243deea1cfc760f966385c197d4181d8f8cb7fec5db9d2",
+          "after": "682f906f527be324127b483a9b5ec5e3b7207b4527a58c970841693b42242369"
+        },
+        {
+          "section": "verificationSources",
+          "path": "tests/Riftbound.PostgresAcceptance/Program.cs",
+          "before": "45623c55eebaa8ab00a614eb97704c5a74a24a64008b12682dfb3e24a662bc7a",
+          "after": "8aa37c53f823b082c25b2a16f83e9db1f77faed620019c5bcb3f34caac965c30"
+        },
+        {
+          "section": "verificationSources",
+          "path": "tests/Riftbound.PostgresAcceptance/Riftbound.PostgresAcceptance.csproj",
+          "before": "ca4342df075b1a3bd89d567114900961b5fe3b58edfad9f47d8d4dd9ff7aee9b",
+          "after": "d9716fb317bdde134df16a22a629df812237174f548aa80d4f4afe60c61a91a9"
+        }
+      ]
+    },
+    {
+      "reviewId": "native-rule-choice-prompts-2026-10-16",
+      "changedPins": [
+        {
+          "section": "verificationSources",
+          "path": "tests/Riftbound.PostgresAcceptance/GrantedTokenHasteSqlAcceptance.cs",
+          "before": "166b3686bd4b5b625c243deea1cfc760f966385c197d4181d8f8cb7fec5db9d2",
+          "after": "682f906f527be324127b483a9b5ec5e3b7207b4527a58c970841693b42242369"
+        }
+      ]
+    },
+    {
+      "reviewId": "sand-soldier-embedded-ready-2026-10-17",
+      "changedPins": [
+        {
+          "section": "verificationSources",
+          "path": "tests/Riftbound.PostgresAcceptance/CreatedTokenReadySqlAcceptance.cs",
+          "before": "f976a5aaa72092210a46505ceaedb8f0649a51b9699ba756caa4124e63cf5b45",
+          "after": "8e94138fb3b39bde50ade381f59cb51fa5f2bb3af245d867d957a3fa4622cccb"
+        },
+        {
+          "section": "verificationSources",
+          "path": "tests/Riftbound.PostgresAcceptance/Program.cs",
+          "before": "45623c55eebaa8ab00a614eb97704c5a74a24a64008b12682dfb3e24a662bc7a",
+          "after": "8aa37c53f823b082c25b2a16f83e9db1f77faed620019c5bcb3f34caac965c30"
+        },
+        {
+          "section": "verificationSources",
+          "path": "tests/Riftbound.PostgresAcceptance/Riftbound.PostgresAcceptance.csproj",
+          "before": "ca4342df075b1a3bd89d567114900961b5fe3b58edfad9f47d8d4dd9ff7aee9b",
+          "after": "d9716fb317bdde134df16a22a629df812237174f548aa80d4f4afe60c61a91a9"
+        }
+      ]
+    },
+    {
+      "reviewId": "opening-randomness-2026-10-17",
+      "changedPins": [
+        {
+          "section": "verificationSources",
+          "path": "tests/Riftbound.ConformanceTests/GameHubJoinTests.cs",
+          "before": "87992065f0d413d0a4603f627c92ef793cc3d39d6c8b5b25b8cdd32b615b85c0",
+          "after": "9d5bc33de3a8723ad598301854fd2eb4ed816f1392224abcfdcd3449829ac525"
+        },
+        {
+          "section": "verificationSources",
+          "path": "tests/Riftbound.ConformanceTests/OpeningRandomizationTests.cs",
+          "before": "ea03da0c198cff53fb8c264859e7be4f7fd96b40ab92a90a7c2cd9015f830148",
+          "after": "57bab3a10d17e58584bf808df882dcc3b599e9108de76153f421e6cea29cb30c"
+        },
+        {
+          "section": "verificationSources",
+          "path": "tests/Riftbound.PostgresAcceptance/Program.cs",
+          "before": "45623c55eebaa8ab00a614eb97704c5a74a24a64008b12682dfb3e24a662bc7a",
+          "after": "8aa37c53f823b082c25b2a16f83e9db1f77faed620019c5bcb3f34caac965c30"
+        }
+      ]
+    }
+  ],
+  "all117HistoricalReviewDictionariesRetained": true,
+  "prior22Context36PinUpdateRetained": {
+    "path": "docs/evidence/opening-randomness-2026-10-17/prior-context-input-updates.json",
+    "sha256": "2813ee15ea1765358447f4c2bdf20051353bc18b70bac76fae5a20bb72625873"
+  }
+}

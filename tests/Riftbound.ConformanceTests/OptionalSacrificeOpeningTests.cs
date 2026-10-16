@@ -125,7 +125,9 @@ public sealed class OptionalSacrificeOpeningTests
             // Submit a fixed interleaved decklist; the engine still shuffles it.
             // No future runtime deck order is read to construct or play this room.
             var main = deck.MainDeck.Where(card => card != Atakhan).ToList();
-            foreach (var position in new[] { 7, 19, 31 }) main.Insert(position, Atakhan);
+            // Independent seed0/P1 MAIN_DECK vector: these input positions
+            // put copies at shuffled positions12/18/25, after ordinary setup draws.
+            foreach (var position in new[] { 29, 31, 34 }) main.Insert(position, Atakhan);
             deck = deck with { MainDeck = main };
         }
         Assert.Equal(3, deck.MainDeck.Count(card => card == Atakhan));

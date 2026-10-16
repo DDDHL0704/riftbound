@@ -19,7 +19,7 @@ internal static class ConfirmedPlayOriginSqlAcceptance
     {
         Directory.CreateDirectory(output);
         var json = new JsonSerializerOptions(JsonSerializerDefaults.Web) { WriteIndented = true };
-        var fixturePath = Path.Combine(AppContext.BaseDirectory, "Fixtures",
+        var fixturePath = Path.Combine(AppContext.BaseDirectory, "Fixtures", "current-opening-20261017",
             "confirmed-play-origin-" + (fromHand ? "hand" : "standby") + "-cn16.json");
         using var fixture = JsonDocument.Parse(await File.ReadAllTextAsync(fixturePath));
         var root = fixture.RootElement;

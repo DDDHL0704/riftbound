@@ -1,0 +1,71 @@
+{
+  "status": "ACTUAL_FIXED39_OPENING_METHOD_SYNTHETIC_DISTRIBUTION_MEASURED_NOT_YET_RULE_CERTIFIED",
+  "verifiedAtUtc": "2026-10-16T22:13:06.466556+00:00",
+  "fixedEngineSourceCommit": "39d51649da54ccb77d7945b2bfd52473fd15fda1",
+  "actualLoadedEngineSha256": "5ba50cff4003decfc51fc8e3d6b86985c7d3f0d230ada0eecb8f4fe0bff4409c",
+  "actualLoadedEngineMvid": "f88cd921-343c-4e0d-a0dd-9e574e2baa05",
+  "method": "Riftbound.Engine.MatchSession.RandomizeStable\u003Cstring\u003E",
+  "implementationInvokedThroughReflectionNoReimplementation": true,
+  "publicSubmittedDeckSha256": "a45d071d625702ca34d3639de6356083a16b8f8f730732d24a5e22e58bd1d808",
+  "deckCount": 39,
+  "distinctPhysicalCopiesObserved": 3,
+  "probeSeed": 20261017,
+  "samplesPerRole": 20000,
+  "totalActualProductionInvocations": 40000,
+  "uniformPermutationCombinatorialReference": {
+    "denominatorChoose39By3": 9139,
+    "allThreeInOpeningFourNumeratorChoose4By3": 4,
+    "allThreeInOpeningFourProbability": 0.000437684648210964,
+    "allThreeInTopTenNumeratorChoose10By3": 120,
+    "allThreeInTopTenProbability": 0.01313053944632892,
+    "allThreeContiguousNumerator": 37,
+    "allThreeContiguousProbability": 0.004048582995951417,
+    "expectedMeanCopiesInOpeningFour": 0.3076923076923077,
+    "referenceIndependentOfProductionHashImplementation": true
+  },
+  "results": [
+    {
+      "syntheticPlayerId": "shuffle-probe-a",
+      "rngCursor": 1,
+      "samples": 20000,
+      "allThreeInOpeningFour": 117,
+      "allThreeInOpeningFourRate": 0.00585,
+      "allThreeInTopTen": 2629,
+      "allThreeInTopTenRate": 0.13145,
+      "allThreeContiguous": 881,
+      "allThreeContiguousRate": 0.04405,
+      "meanCopiesInOpeningFour": 0.26735
+    },
+    {
+      "syntheticPlayerId": "shuffle-probe-b",
+      "rngCursor": 4,
+      "samples": 20000,
+      "allThreeInOpeningFour": 106,
+      "allThreeInOpeningFourRate": 0.0053,
+      "allThreeInTopTen": 2526,
+      "allThreeInTopTenRate": 0.1263,
+      "allThreeContiguous": 933,
+      "allThreeContiguousRate": 0.04665,
+      "meanCopiesInOpeningFour": 0.2613
+    }
+  ],
+  "elapsedSeconds": 1.0961122,
+  "syntheticSeedFile": {
+    "path": "/Users/dinghaolin/MyProjects/riftbound/var/qa/opening-shuffle-probe-20261017/independent-synthetic-seeds.txt",
+    "sha256": "2922c2d411901bf27b433ff9d9f72a30fe19cea691c45bb43c60275565cf5cd1"
+  },
+  "observedPositionsFile": {
+    "path": "/Users/dinghaolin/MyProjects/riftbound/var/qa/opening-shuffle-probe-20261017/observed-copy-positions.tsv",
+    "sha256": "5f4bf5fa9e2b57300bb100c68d5f3bc68971a3471d5c14b47bf0b782b9e57603"
+  },
+  "probeSource": {
+    "path": "/Users/dinghaolin/MyProjects/riftbound/var/qa/opening-shuffle-probe-20261017/Program.cs",
+    "sha256": "04f53f8f0f1ebbf3b05ccfb74a5090d644a1601031bc9e75d5657188582102fd"
+  },
+  "noActualMatchSeedOrFutureDeckOrderRead": true,
+  "original143FullGames110PairsAndSeed424242NotModified": true,
+  "originalMistakenNativeCardImageObservationNotUsedAsEvidence": true,
+  "productionFilesAndRunningMatchesNotModified": true,
+  "officialPregameAndShuffleClauseReviewAndImplementationDisposition": "OPEN",
+  "wholeCardOrGlobalCertification": false
+}

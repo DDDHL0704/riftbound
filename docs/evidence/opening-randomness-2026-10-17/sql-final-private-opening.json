@@ -1,0 +1,88 @@
+{
+  "status": "REAL_POSTGRES_PRIVATE_OPENING_SEED_COLD_FULL_ORIGINAL_REPLAY_TAMPER_AND_PROJECTION_PASS",
+  "room": "postgres-private-opening-bd802d44ef8c465eb1f67089e5ceac36",
+  "submitted": 7,
+  "events": 27,
+  "originalTick": 0,
+  "originalCards": 0,
+  "originalSeedSha256": "0e27b2ec9f74af4a956b9f2edea8902f72d4c341c34fea1ab2072b063a61eaa9",
+  "privateSeedRecordedBeforeFirstCommand": true,
+  "allFourOpeningConsumers": true,
+  "coldCheckpoints": [
+    {
+      "label": "before-first-command",
+      "tick": 0,
+      "commands": 0,
+      "events": 0,
+      "stateHash": "0b0118b6f6891ee903c19e0089b35db47f51ca2c512eacb793207b4fcb50af10",
+      "originalSeedSha256": "0e27b2ec9f74af4a956b9f2edea8902f72d4c341c34fea1ab2072b063a61eaa9"
+    },
+    {
+      "label": "both-decks-before-ready",
+      "tick": 2,
+      "commands": 2,
+      "events": 2,
+      "stateHash": "7efeac292d6591ffc7422f389ff0e29192e1febbeee72ea35cb837d49f64ed84",
+      "originalSeedSha256": "0e27b2ec9f74af4a956b9f2edea8902f72d4c341c34fea1ab2072b063a61eaa9"
+    },
+    {
+      "label": "private-mulligan-hands",
+      "tick": 2,
+      "commands": 4,
+      "events": 10,
+      "stateHash": "7121cf3b27729ee3e6487b054901c6cb7cee9cd0e1d1101c65b1a15261fbbb12",
+      "originalSeedSha256": "0e27b2ec9f74af4a956b9f2edea8902f72d4c341c34fea1ab2072b063a61eaa9"
+    },
+    {
+      "label": "second-mulligan-pending",
+      "tick": 3,
+      "commands": 5,
+      "events": 11,
+      "stateHash": "bb042c3a81114818037c2d47744f839b98bee6df68437bb8d51af58e2b2a581a",
+      "originalSeedSha256": "0e27b2ec9f74af4a956b9f2edea8902f72d4c341c34fea1ab2072b063a61eaa9"
+    },
+    {
+      "label": "first-turn-started",
+      "tick": 5,
+      "commands": 6,
+      "events": 18,
+      "stateHash": "642831bbe5f2c0fed8d94682c5a5ca68f982645352f0f969e2a9a53d524d30ea",
+      "originalSeedSha256": "0e27b2ec9f74af4a956b9f2edea8902f72d4c341c34fea1ab2072b063a61eaa9"
+    },
+    {
+      "label": "next-turn",
+      "tick": 6,
+      "commands": 7,
+      "events": 27,
+      "stateHash": "f969c9c8a888bf65bb737f85e2d3493bfcbc0921b83233224946c3cb30714923",
+      "originalSeedSha256": "0e27b2ec9f74af4a956b9f2edea8902f72d4c341c34fea1ab2072b063a61eaa9"
+    },
+    {
+      "label": "after-tamper-restored",
+      "tick": 6,
+      "commands": 7,
+      "events": 27,
+      "stateHash": "f969c9c8a888bf65bb737f85e2d3493bfcbc0921b83233224946c3cb30714923",
+      "originalSeedSha256": "0e27b2ec9f74af4a956b9f2edea8902f72d4c341c34fea1ab2072b063a61eaa9"
+    }
+  ],
+  "tamperRejections": [
+    "missing",
+    "malformed",
+    "noncanonical",
+    "wrong-value"
+  ],
+  "originalSeedAndAcceptedHistoryNeverRewritten": true,
+  "finalHash": "f969c9c8a888bf65bb737f85e2d3493bfcbc0921b83233224946c3cb30714923",
+  "ruleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+    "implementationSha256": "39276459c8964610d10bc8c36efec82e13f5b6dd621fb46716703e263006e862",
+    "identitySha256": "09234f7e8a4d98b4e49702b7288ccb4580fa29d354b356ce2daa5ffc6af54109"
+  },
+  "databaseRoomRetained": true,
+  "scope": "Real fresh production entry, CN legal decks, private seed, exact SQL recovery/replay and four metadata mutations; visible score victory and Windows remain separate."
+}

@@ -16,7 +16,7 @@ internal static class GrantedTokenHasteSqlAcceptance
             var json = new JsonSerializerOptions(JsonSerializerDefaults.Web) {
                 WriteIndented = true, DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull };
             var directory = Path.Combine(output, name); Directory.CreateDirectory(directory);
-            var fixturePath = Path.Combine(AppContext.BaseDirectory, "Fixtures", "token-haste-" + name + ".json");
+            var fixturePath = Path.Combine(AppContext.BaseDirectory, "Fixtures", "current-opening-20261017", "token-haste-" + name + ".json");
             using var document = JsonDocument.Parse(await File.ReadAllTextAsync(fixturePath));
             var fixture = document.RootElement; var room = fixture.GetProperty("sourceRoomId").GetString()!;
             var source = fixture.GetProperty("expectedSourceObjectId").GetString()!;

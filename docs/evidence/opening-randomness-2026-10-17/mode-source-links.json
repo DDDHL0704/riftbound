@@ -1,0 +1,40 @@
+{
+  "recordedAtUtc": "2026-10-16T23:06:10.630020+00:00",
+  "sourceSha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11",
+  "visuallyCheckedPdfPage": 101,
+  "rows": [
+    {
+      "sourceRecord": {
+        "id": "CN-d6fd7140f106f9b5-P101-B009",
+        "document": "CN-d6fd7140f106f9b5",
+        "sourceRecord": "DOC-01-P101-B009",
+        "textHash": "14594cb20e4f48e7f668c2371ecc940293f29ec725de2b5109c94bc3e5a1ab90",
+        "reviewStatus": "NOT_REVIEWED"
+      },
+      "clauseAnchors": [
+        "487.5"
+      ],
+      "page": 101,
+      "text": "487.5.            准备: 每名玩家从自己的三个战场 中随机选出一个。剩余的两个战场将被移除,本局游戏中不予使用。选定的战场\n                  将同时放入战场区域。",
+      "existingRemainingObligation": "RULE:CN-d6fd7140f106f9b5-P101-B009",
+      "textHashIndependentlyMatched": true
+    },
+    {
+      "sourceRecord": {
+        "id": "CN-d6fd7140f106f9b5-P101-B018",
+        "document": "CN-d6fd7140f106f9b5",
+        "sourceRecord": "DOC-01-P101-B018",
+        "textHash": "c13c3ba03831e451da9fa81e2ce834880c12bb1b377e0f9939dcdbefedce8745",
+        "reviewStatus": "NOT_REVIEWED"
+      },
+      "clauseAnchors": [
+        "488.5"
+      ],
+      "page": 101,
+      "text": "488.5.            准备: 每名玩家从自己的三个战场 中选出一个。剩余的两个战场搁置到一边,本局游戏不予使用。选定的战场 将同\n                  时放入战场区域。本局游戏过后,如果有一名玩家获胜,使用的战场将被移除,本次比赛不再选用。之后的对局\n                  中,需要转而从剩余的搁置战场中选择一个。",
+      "existingRemainingObligation": "RULE:CN-d6fd7140f106f9b5-P101-B018",
+      "textHashIndependentlyMatched": true
+    }
+  ],
+  "scope": "487 one-game duel random battlefield consumer only; 488 match chosen battlefields/series remains OPEN; no new source delta or scope cut"
+}

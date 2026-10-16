@@ -1,0 +1,24 @@
+{
+  "sourceParser": "Initial wrapper assumed nonexistent rule id; successful HTTP body and original exception retained. Correct full identity independently re-fetched.",
+  "rawJsonSnapshotComparison": {
+    "firstSqlRunExit": -6,
+    "firstFailure": {
+      "path": "var/qa/opening-shuffle-probe-20261017/sql-v1/execution.json",
+      "sha256": "deccef0bb493f8ad57b3a7cd419fcbd1be7d6ecf3b90ad5481b623c8f9a8dd76"
+    },
+    "correction": "Compare JSON objects without key-order significance; preserve every array index/value. Original failed run/database and both comparison outputs retained.",
+    "independentPythonAndDotnetObjectComparisons": [
+      {
+        "path": "var/qa/opening-shuffle-probe-20261017/sql-v2/evidence/private-opening/both-decks-before-ready-bob-snapshot-comparison.json",
+        "sha256": "9e8bdf4b35d6b18536f408f02efa5ac2159ae3870e6c577b37fa0b394f040da8",
+        "bothIndependentSemanticComparisonsEqual": true
+      },
+      {
+        "path": "var/qa/opening-shuffle-probe-20261017/sql-v2/evidence/private-opening/both-decks-before-ready-alice-snapshot-comparison.json",
+        "sha256": "89c54680364a2599741c5d1dc82ef40ada4ac9d35fc5b9244f325e48efb2eb3b",
+        "bothIndependentSemanticComparisonsEqual": true
+      }
+    ]
+  },
+  "earlierNativeCardImageMisidentificationWithdrawnAndNeverUsedAsShuffleCounterexample": true
+}

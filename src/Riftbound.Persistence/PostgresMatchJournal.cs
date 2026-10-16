@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using Npgsql;
@@ -41,11 +42,11 @@ public sealed class PostgresMatchJournal(NpgsqlDataSource dataSource) : IMatchJo
         const string sql = """
             insert into matches (
                 match_id, status, current_tick, last_event_sequence, ruleset_version, faq_version, rule_inputs,
-                rules_audit_status, rules_evidence, updated_at
+                rules_audit_status, rules_evidence, seed, updated_at
             )
             values (
                 @match_id, @status, @current_tick, @last_event_sequence, @ruleset_version, @faq_version, @rule_inputs,
-                @rules_audit_status, @rules_evidence, now()
+                @rules_audit_status, @rules_evidence, @seed, now()
             )
             on conflict (match_id) do update
             set status = excluded.status,
@@ -56,17 +57,19 @@ public sealed class PostgresMatchJournal(NpgsqlDataSource dataSource) : IMatchJo
                 updated_at = now()
             where matches.rule_inputs = excluded.rule_inputs
               and matches.ruleset_version = excluded.ruleset_version
-              and matches.faq_version = excluded.faq_version;
+              and matches.faq_version = excluded.faq_version
+              and matches.seed = excluded.seed;
             """;
         await using var command = new NpgsqlCommand(sql, connection, transaction);
         command.Parameters.AddWithValue("match_id", entry.RoomId);
+        command.Parameters.AddWithValue("seed", entry.OpeningSeed.ToString(CultureInfo.InvariantCulture));
         command.Parameters.AddWithValue("status", entry.AuthoritativeState.Status);
         command.Parameters.AddWithValue("current_tick", entry.CompletedTick);
         command.Parameters.AddWithValue("last_event_sequence", entry.CompletedEventSequence);
         AddRulesetParameters(command, entry);
         if (await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false) != 1)
             throw new MatchSessionException(ErrorCodes.RecoveryInconsistent,
-                "stored match rule input identity differs from journal inputs");
+                "stored match rule input identity or opening seed differs from journal inputs");
     }
 
     private static async Task InsertCommandAsync(

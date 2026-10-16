@@ -13,7 +13,7 @@ internal static class CreatedTokenReadySqlAcceptance
         var json = new JsonSerializerOptions(JsonSerializerDefaults.Web) { WriteIndented = true };
         foreach (var name in new[] { "protect-pay", "protect-decline", "rise-0", "rise-2" })
         {
-            var path = Path.Combine(AppContext.BaseDirectory, "Fixtures", "embedded-ready-" + name + ".json");
+            var path = Path.Combine(AppContext.BaseDirectory, "Fixtures", "current-opening-20261017", "embedded-ready-" + name + ".json");
             using var document = JsonDocument.Parse(await File.ReadAllTextAsync(path)); var fixture = document.RootElement;
             var room = fixture.GetProperty("sourceRoomId").GetString()!;
             var initial = MatchReplayInitialStateBuilder.FromSeats(room, fixture.GetProperty("seats").Deserialize<Dictionary<string, string>>(json)!);

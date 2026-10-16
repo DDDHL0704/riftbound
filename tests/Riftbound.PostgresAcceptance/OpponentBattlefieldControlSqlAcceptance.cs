@@ -16,7 +16,7 @@ internal static class OpponentBattlefieldControlSqlAcceptance
             var directory = Path.Combine(output, name); Directory.CreateDirectory(directory);
             var json = new JsonSerializerOptions(JsonSerializerDefaults.Web)
             { WriteIndented = true, DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull };
-            var path = Path.Combine(AppContext.BaseDirectory, "Fixtures", "opponent-battlefield-control-" + name + ".json");
+            var path = Path.Combine(AppContext.BaseDirectory, "Fixtures", "current-opening-20261017", "opponent-battlefield-control-" + name + ".json");
             using var document = JsonDocument.Parse(await File.ReadAllTextAsync(path));
             var fixture = document.RootElement; var room = fixture.GetProperty("sourceRoomId").GetString()!;
             var id = fixture.GetProperty("expectedSourceObjectId").GetString()!;

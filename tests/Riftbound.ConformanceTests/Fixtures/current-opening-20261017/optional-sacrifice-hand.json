@@ -1,0 +1,1145 @@
+{
+  "sourceRoomId": "normal-optional-sacrifice-hand-case-1",
+  "seats": {
+    "P1": "P1",
+    "P2": "P2"
+  },
+  "expectedSourceObjectId": "P1-MAIN-UNL-170-219-01",
+  "expectedCardNo": "UNL-170/219",
+  "expectedSacrificeObjectId": "P1-CHAMPION-SFD-029-221-01",
+  "expectedSacrificeCardNo": "SFD\u00B7029/221",
+  "expectedMana": 7,
+  "expectedPower": 3,
+  "expectedReady": false,
+  "acceptedCommands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "normal-optional-sacrifice-0",
+      "commandType": "SUBMIT_DECK",
+      "rawCommand": {
+        "legendCardNo": "SFD\u00B7187/221",
+        "championCardNo": "SFD\u00B7029/221",
+        "mainDeck": [
+          "SFD\u00B7029/221",
+          "UNL-170/219",
+          "UNL-170/219",
+          "UNL-170/219",
+          "ARC-001/006",
+          "ARC-001/006",
+          "ARC-001/006",
+          "OGN\u00B7013/298",
+          "OGN\u00B7013/298",
+          "OGN\u00B7013/298",
+          "OGN\u00B7210/298",
+          "OGN\u00B7210/298",
+          "OGN\u00B7210/298",
+          "OGN\u00B7216/298",
+          "OGN\u00B7216/298",
+          "OGN\u00B7216/298",
+          "OGN\u00B7217/298",
+          "OGN\u00B7217/298",
+          "OGN\u00B7217/298",
+          "SFD\u00B7018/221",
+          "SFD\u00B7018/221",
+          "SFD\u00B7018/221",
+          "SFD\u00B7155/221",
+          "SFD\u00B7155/221",
+          "SFD\u00B7155/221",
+          "SFD\u00B7159/221",
+          "SFD\u00B7159/221",
+          "SFD\u00B7159/221",
+          "SFD\u00B7167/221",
+          "SFD\u00B7167/221",
+          "SFD\u00B7167/221",
+          "UNL-002/219",
+          "UNL-002/219",
+          "UNL-002/219",
+          "UNL-003/219",
+          "UNL-003/219",
+          "UNL-003/219",
+          "UNL-153/219",
+          "UNL-153/219",
+          "UNL-153/219"
+        ],
+        "runeDeck": [
+          "OGN\u00B7214/298",
+          "OGN\u00B7214/298",
+          "OGN\u00B7214/298",
+          "OGN\u00B7214/298",
+          "OGN\u00B7214/298",
+          "OGN\u00B7214/298",
+          "OGN\u00B7007/298",
+          "OGN\u00B7007/298",
+          "OGN\u00B7007/298",
+          "OGN\u00B7007/298",
+          "OGN\u00B7007/298",
+          "OGN\u00B7007/298"
+        ],
+        "battlefields": [
+          "OGN\u00B7277/298",
+          "OGN\u00B7278/298",
+          "OGN\u00B7294/298"
+        ],
+        "cmdType": "SUBMIT_DECK"
+      },
+      "startedTick": 0,
+      "completedTick": 1,
+      "startedEventSequence": 0,
+      "completedEventSequence": 1,
+      "accepted": true,
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "39276459c8964610d10bc8c36efec82e13f5b6dd621fb46716703e263006e862",
+        "identitySha256": "09234f7e8a4d98b4e49702b7288ccb4580fa29d354b356ce2daa5ffc6af54109"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "normal-optional-sacrifice-1",
+      "commandType": "SUBMIT_DECK",
+      "rawCommand": {
+        "legendCardNo": "SFD\u00B7187/221",
+        "championCardNo": "SFD\u00B7029/221",
+        "mainDeck": [
+          "SFD\u00B7029/221",
+          "UNL-170/219",
+          "UNL-170/219",
+          "UNL-170/219",
+          "ARC-001/006",
+          "ARC-001/006",
+          "ARC-001/006",
+          "OGN\u00B7013/298",
+          "OGN\u00B7013/298",
+          "OGN\u00B7013/298",
+          "OGN\u00B7210/298",
+          "OGN\u00B7210/298",
+          "OGN\u00B7210/298",
+          "OGN\u00B7216/298",
+          "OGN\u00B7216/298",
+          "OGN\u00B7216/298",
+          "OGN\u00B7217/298",
+          "OGN\u00B7217/298",
+          "OGN\u00B7217/298",
+          "SFD\u00B7018/221",
+          "SFD\u00B7018/221",
+          "SFD\u00B7018/221",
+          "SFD\u00B7155/221",
+          "SFD\u00B7155/221",
+          "SFD\u00B7155/221",
+          "SFD\u00B7159/221",
+          "SFD\u00B7159/221",
+          "SFD\u00B7159/221",
+          "SFD\u00B7167/221",
+          "SFD\u00B7167/221",
+          "SFD\u00B7167/221",
+          "UNL-002/219",
+          "UNL-002/219",
+          "UNL-002/219",
+          "UNL-003/219",
+          "UNL-003/219",
+          "UNL-003/219",
+          "UNL-153/219",
+          "UNL-153/219",
+          "UNL-153/219"
+        ],
+        "runeDeck": [
+          "OGN\u00B7214/298",
+          "OGN\u00B7214/298",
+          "OGN\u00B7214/298",
+          "OGN\u00B7214/298",
+          "OGN\u00B7214/298",
+          "OGN\u00B7214/298",
+          "OGN\u00B7007/298",
+          "OGN\u00B7007/298",
+          "OGN\u00B7007/298",
+          "OGN\u00B7007/298",
+          "OGN\u00B7007/298",
+          "OGN\u00B7007/298"
+        ],
+        "battlefields": [
+          "OGN\u00B7277/298",
+          "OGN\u00B7278/298",
+          "OGN\u00B7294/298"
+        ],
+        "cmdType": "SUBMIT_DECK"
+      },
+      "startedTick": 1,
+      "completedTick": 2,
+      "startedEventSequence": 1,
+      "completedEventSequence": 2,
+      "accepted": true,
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "39276459c8964610d10bc8c36efec82e13f5b6dd621fb46716703e263006e862",
+        "identitySha256": "09234f7e8a4d98b4e49702b7288ccb4580fa29d354b356ce2daa5ffc6af54109"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "normal-optional-sacrifice-2",
+      "commandType": "READY",
+      "rawCommand": {
+        "cmdType": "READY"
+      },
+      "startedTick": 2,
+      "completedTick": 2,
+      "startedEventSequence": 2,
+      "completedEventSequence": 3,
+      "accepted": true,
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "39276459c8964610d10bc8c36efec82e13f5b6dd621fb46716703e263006e862",
+        "identitySha256": "09234f7e8a4d98b4e49702b7288ccb4580fa29d354b356ce2daa5ffc6af54109"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "normal-optional-sacrifice-3",
+      "commandType": "READY",
+      "rawCommand": {
+        "cmdType": "READY"
+      },
+      "startedTick": 2,
+      "completedTick": 2,
+      "startedEventSequence": 3,
+      "completedEventSequence": 10,
+      "accepted": true,
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "39276459c8964610d10bc8c36efec82e13f5b6dd621fb46716703e263006e862",
+        "identitySha256": "09234f7e8a4d98b4e49702b7288ccb4580fa29d354b356ce2daa5ffc6af54109"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "normal-optional-sacrifice-4",
+      "commandType": "MULLIGAN",
+      "rawCommand": {
+        "handObjectIds": [],
+        "cmdType": "MULLIGAN"
+      },
+      "startedTick": 2,
+      "completedTick": 3,
+      "startedEventSequence": 10,
+      "completedEventSequence": 11,
+      "accepted": true,
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "39276459c8964610d10bc8c36efec82e13f5b6dd621fb46716703e263006e862",
+        "identitySha256": "09234f7e8a4d98b4e49702b7288ccb4580fa29d354b356ce2daa5ffc6af54109"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "normal-optional-sacrifice-5",
+      "commandType": "MULLIGAN",
+      "rawCommand": {
+        "handObjectIds": [],
+        "cmdType": "MULLIGAN"
+      },
+      "startedTick": 3,
+      "completedTick": 5,
+      "startedEventSequence": 11,
+      "completedEventSequence": 18,
+      "accepted": true,
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "39276459c8964610d10bc8c36efec82e13f5b6dd621fb46716703e263006e862",
+        "identitySha256": "09234f7e8a4d98b4e49702b7288ccb4580fa29d354b356ce2daa5ffc6af54109"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "normal-optional-sacrifice-6",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN"
+      },
+      "startedTick": 5,
+      "completedTick": 6,
+      "startedEventSequence": 18,
+      "completedEventSequence": 27,
+      "accepted": true,
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "39276459c8964610d10bc8c36efec82e13f5b6dd621fb46716703e263006e862",
+        "identitySha256": "09234f7e8a4d98b4e49702b7288ccb4580fa29d354b356ce2daa5ffc6af54109"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "normal-optional-sacrifice-7",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN"
+      },
+      "startedTick": 6,
+      "completedTick": 7,
+      "startedEventSequence": 27,
+      "completedEventSequence": 36,
+      "accepted": true,
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "39276459c8964610d10bc8c36efec82e13f5b6dd621fb46716703e263006e862",
+        "identitySha256": "09234f7e8a4d98b4e49702b7288ccb4580fa29d354b356ce2daa5ffc6af54109"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "normal-optional-sacrifice-8",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN"
+      },
+      "startedTick": 7,
+      "completedTick": 8,
+      "startedEventSequence": 36,
+      "completedEventSequence": 45,
+      "accepted": true,
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "39276459c8964610d10bc8c36efec82e13f5b6dd621fb46716703e263006e862",
+        "identitySha256": "09234f7e8a4d98b4e49702b7288ccb4580fa29d354b356ce2daa5ffc6af54109"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "normal-optional-sacrifice-9",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN"
+      },
+      "startedTick": 8,
+      "completedTick": 9,
+      "startedEventSequence": 45,
+      "completedEventSequence": 54,
+      "accepted": true,
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "39276459c8964610d10bc8c36efec82e13f5b6dd621fb46716703e263006e862",
+        "identitySha256": "09234f7e8a4d98b4e49702b7288ccb4580fa29d354b356ce2daa5ffc6af54109"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "normal-optional-sacrifice-10",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN"
+      },
+      "startedTick": 9,
+      "completedTick": 10,
+      "startedEventSequence": 54,
+      "completedEventSequence": 63,
+      "accepted": true,
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "39276459c8964610d10bc8c36efec82e13f5b6dd621fb46716703e263006e862",
+        "identitySha256": "09234f7e8a4d98b4e49702b7288ccb4580fa29d354b356ce2daa5ffc6af54109"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "normal-optional-sacrifice-11",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN"
+      },
+      "startedTick": 10,
+      "completedTick": 11,
+      "startedEventSequence": 63,
+      "completedEventSequence": 72,
+      "accepted": true,
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "39276459c8964610d10bc8c36efec82e13f5b6dd621fb46716703e263006e862",
+        "identitySha256": "09234f7e8a4d98b4e49702b7288ccb4580fa29d354b356ce2daa5ffc6af54109"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "normal-optional-sacrifice-12",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN"
+      },
+      "startedTick": 11,
+      "completedTick": 12,
+      "startedEventSequence": 72,
+      "completedEventSequence": 81,
+      "accepted": true,
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "39276459c8964610d10bc8c36efec82e13f5b6dd621fb46716703e263006e862",
+        "identitySha256": "09234f7e8a4d98b4e49702b7288ccb4580fa29d354b356ce2daa5ffc6af54109"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "normal-optional-sacrifice-13",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN"
+      },
+      "startedTick": 12,
+      "completedTick": 13,
+      "startedEventSequence": 81,
+      "completedEventSequence": 90,
+      "accepted": true,
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "39276459c8964610d10bc8c36efec82e13f5b6dd621fb46716703e263006e862",
+        "identitySha256": "09234f7e8a4d98b4e49702b7288ccb4580fa29d354b356ce2daa5ffc6af54109"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "normal-optional-sacrifice-14",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN"
+      },
+      "startedTick": 13,
+      "completedTick": 14,
+      "startedEventSequence": 90,
+      "completedEventSequence": 99,
+      "accepted": true,
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "39276459c8964610d10bc8c36efec82e13f5b6dd621fb46716703e263006e862",
+        "identitySha256": "09234f7e8a4d98b4e49702b7288ccb4580fa29d354b356ce2daa5ffc6af54109"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "normal-optional-sacrifice-15",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "P1-RUNE-OGN-007-298-11",
+        "cmdType": "TAP_RUNE"
+      },
+      "startedTick": 14,
+      "completedTick": 15,
+      "startedEventSequence": 99,
+      "completedEventSequence": 101,
+      "accepted": true,
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "39276459c8964610d10bc8c36efec82e13f5b6dd621fb46716703e263006e862",
+        "identitySha256": "09234f7e8a4d98b4e49702b7288ccb4580fa29d354b356ce2daa5ffc6af54109"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "normal-optional-sacrifice-16",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "P1-RUNE-OGN-007-298-10",
+        "cmdType": "TAP_RUNE"
+      },
+      "startedTick": 15,
+      "completedTick": 16,
+      "startedEventSequence": 101,
+      "completedEventSequence": 103,
+      "accepted": true,
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "39276459c8964610d10bc8c36efec82e13f5b6dd621fb46716703e263006e862",
+        "identitySha256": "09234f7e8a4d98b4e49702b7288ccb4580fa29d354b356ce2daa5ffc6af54109"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "normal-optional-sacrifice-17",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "P1-RUNE-OGN-214-298-02",
+        "cmdType": "TAP_RUNE"
+      },
+      "startedTick": 16,
+      "completedTick": 17,
+      "startedEventSequence": 103,
+      "completedEventSequence": 105,
+      "accepted": true,
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "39276459c8964610d10bc8c36efec82e13f5b6dd621fb46716703e263006e862",
+        "identitySha256": "09234f7e8a4d98b4e49702b7288ccb4580fa29d354b356ce2daa5ffc6af54109"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "normal-optional-sacrifice-18",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "P1-RUNE-OGN-214-298-04",
+        "cmdType": "TAP_RUNE"
+      },
+      "startedTick": 17,
+      "completedTick": 18,
+      "startedEventSequence": 105,
+      "completedEventSequence": 107,
+      "accepted": true,
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "39276459c8964610d10bc8c36efec82e13f5b6dd621fb46716703e263006e862",
+        "identitySha256": "09234f7e8a4d98b4e49702b7288ccb4580fa29d354b356ce2daa5ffc6af54109"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "normal-optional-sacrifice-19",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "P1-RUNE-OGN-007-298-09",
+        "cmdType": "TAP_RUNE"
+      },
+      "startedTick": 18,
+      "completedTick": 19,
+      "startedEventSequence": 107,
+      "completedEventSequence": 109,
+      "accepted": true,
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "39276459c8964610d10bc8c36efec82e13f5b6dd621fb46716703e263006e862",
+        "identitySha256": "09234f7e8a4d98b4e49702b7288ccb4580fa29d354b356ce2daa5ffc6af54109"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "normal-optional-sacrifice-20",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "P1-RUNE-OGN-007-298-07",
+        "cmdType": "TAP_RUNE"
+      },
+      "startedTick": 19,
+      "completedTick": 20,
+      "startedEventSequence": 109,
+      "completedEventSequence": 111,
+      "accepted": true,
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "39276459c8964610d10bc8c36efec82e13f5b6dd621fb46716703e263006e862",
+        "identitySha256": "09234f7e8a4d98b4e49702b7288ccb4580fa29d354b356ce2daa5ffc6af54109"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "normal-optional-sacrifice-21",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "P1-RUNE-OGN-007-298-08",
+        "cmdType": "TAP_RUNE"
+      },
+      "startedTick": 20,
+      "completedTick": 21,
+      "startedEventSequence": 111,
+      "completedEventSequence": 113,
+      "accepted": true,
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "39276459c8964610d10bc8c36efec82e13f5b6dd621fb46716703e263006e862",
+        "identitySha256": "09234f7e8a4d98b4e49702b7288ccb4580fa29d354b356ce2daa5ffc6af54109"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "normal-optional-sacrifice-22",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "P1-RUNE-OGN-214-298-01",
+        "cmdType": "TAP_RUNE"
+      },
+      "startedTick": 21,
+      "completedTick": 22,
+      "startedEventSequence": 113,
+      "completedEventSequence": 115,
+      "accepted": true,
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "39276459c8964610d10bc8c36efec82e13f5b6dd621fb46716703e263006e862",
+        "identitySha256": "09234f7e8a4d98b4e49702b7288ccb4580fa29d354b356ce2daa5ffc6af54109"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "normal-optional-sacrifice-23",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "P1-RUNE-OGN-214-298-06",
+        "cmdType": "TAP_RUNE"
+      },
+      "startedTick": 22,
+      "completedTick": 23,
+      "startedEventSequence": 115,
+      "completedEventSequence": 117,
+      "accepted": true,
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "39276459c8964610d10bc8c36efec82e13f5b6dd621fb46716703e263006e862",
+        "identitySha256": "09234f7e8a4d98b4e49702b7288ccb4580fa29d354b356ce2daa5ffc6af54109"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "normal-optional-sacrifice-24",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "P1-RUNE-OGN-007-298-12",
+        "cmdType": "TAP_RUNE"
+      },
+      "startedTick": 23,
+      "completedTick": 24,
+      "startedEventSequence": 117,
+      "completedEventSequence": 119,
+      "accepted": true,
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "39276459c8964610d10bc8c36efec82e13f5b6dd621fb46716703e263006e862",
+        "identitySha256": "09234f7e8a4d98b4e49702b7288ccb4580fa29d354b356ce2daa5ffc6af54109"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "normal-optional-sacrifice-25",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "P1-RUNE-OGN-214-298-03",
+        "cmdType": "TAP_RUNE"
+      },
+      "startedTick": 24,
+      "completedTick": 25,
+      "startedEventSequence": 119,
+      "completedEventSequence": 121,
+      "accepted": true,
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "39276459c8964610d10bc8c36efec82e13f5b6dd621fb46716703e263006e862",
+        "identitySha256": "09234f7e8a4d98b4e49702b7288ccb4580fa29d354b356ce2daa5ffc6af54109"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "normal-optional-sacrifice-26",
+      "commandType": "PLAY_CARD",
+      "rawCommand": {
+        "sourceObjectId": "P1-CHAMPION-SFD-029-221-01",
+        "cardNo": "SFD\u00B7029/221",
+        "targetObjectIds": [],
+        "mode": "",
+        "destination": "",
+        "cmdType": "PLAY_CARD"
+      },
+      "startedTick": 25,
+      "completedTick": 26,
+      "startedEventSequence": 121,
+      "completedEventSequence": 125,
+      "accepted": true,
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "39276459c8964610d10bc8c36efec82e13f5b6dd621fb46716703e263006e862",
+        "identitySha256": "09234f7e8a4d98b4e49702b7288ccb4580fa29d354b356ce2daa5ffc6af54109"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "normal-optional-sacrifice-27",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN"
+      },
+      "startedTick": 26,
+      "completedTick": 27,
+      "startedEventSequence": 125,
+      "completedEventSequence": 134,
+      "accepted": true,
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "39276459c8964610d10bc8c36efec82e13f5b6dd621fb46716703e263006e862",
+        "identitySha256": "09234f7e8a4d98b4e49702b7288ccb4580fa29d354b356ce2daa5ffc6af54109"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "normal-optional-sacrifice-28",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN"
+      },
+      "startedTick": 27,
+      "completedTick": 28,
+      "startedEventSequence": 134,
+      "completedEventSequence": 144,
+      "accepted": true,
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "39276459c8964610d10bc8c36efec82e13f5b6dd621fb46716703e263006e862",
+        "identitySha256": "09234f7e8a4d98b4e49702b7288ccb4580fa29d354b356ce2daa5ffc6af54109"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "normal-optional-sacrifice-29",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "P1-RUNE-OGN-007-298-11",
+        "cmdType": "TAP_RUNE"
+      },
+      "startedTick": 28,
+      "completedTick": 29,
+      "startedEventSequence": 144,
+      "completedEventSequence": 146,
+      "accepted": true,
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "39276459c8964610d10bc8c36efec82e13f5b6dd621fb46716703e263006e862",
+        "identitySha256": "09234f7e8a4d98b4e49702b7288ccb4580fa29d354b356ce2daa5ffc6af54109"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "normal-optional-sacrifice-30",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "P1-RUNE-OGN-007-298-10",
+        "cmdType": "TAP_RUNE"
+      },
+      "startedTick": 29,
+      "completedTick": 30,
+      "startedEventSequence": 146,
+      "completedEventSequence": 148,
+      "accepted": true,
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "39276459c8964610d10bc8c36efec82e13f5b6dd621fb46716703e263006e862",
+        "identitySha256": "09234f7e8a4d98b4e49702b7288ccb4580fa29d354b356ce2daa5ffc6af54109"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "normal-optional-sacrifice-31",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "P1-RUNE-OGN-214-298-02",
+        "cmdType": "TAP_RUNE"
+      },
+      "startedTick": 30,
+      "completedTick": 31,
+      "startedEventSequence": 148,
+      "completedEventSequence": 150,
+      "accepted": true,
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "39276459c8964610d10bc8c36efec82e13f5b6dd621fb46716703e263006e862",
+        "identitySha256": "09234f7e8a4d98b4e49702b7288ccb4580fa29d354b356ce2daa5ffc6af54109"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "normal-optional-sacrifice-32",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "P1-RUNE-OGN-214-298-04",
+        "cmdType": "TAP_RUNE"
+      },
+      "startedTick": 31,
+      "completedTick": 32,
+      "startedEventSequence": 150,
+      "completedEventSequence": 152,
+      "accepted": true,
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "39276459c8964610d10bc8c36efec82e13f5b6dd621fb46716703e263006e862",
+        "identitySha256": "09234f7e8a4d98b4e49702b7288ccb4580fa29d354b356ce2daa5ffc6af54109"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "normal-optional-sacrifice-33",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "P1-RUNE-OGN-007-298-09",
+        "cmdType": "TAP_RUNE"
+      },
+      "startedTick": 32,
+      "completedTick": 33,
+      "startedEventSequence": 152,
+      "completedEventSequence": 154,
+      "accepted": true,
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "39276459c8964610d10bc8c36efec82e13f5b6dd621fb46716703e263006e862",
+        "identitySha256": "09234f7e8a4d98b4e49702b7288ccb4580fa29d354b356ce2daa5ffc6af54109"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "normal-optional-sacrifice-34",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "P1-RUNE-OGN-007-298-07",
+        "cmdType": "TAP_RUNE"
+      },
+      "startedTick": 33,
+      "completedTick": 34,
+      "startedEventSequence": 154,
+      "completedEventSequence": 156,
+      "accepted": true,
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "39276459c8964610d10bc8c36efec82e13f5b6dd621fb46716703e263006e862",
+        "identitySha256": "09234f7e8a4d98b4e49702b7288ccb4580fa29d354b356ce2daa5ffc6af54109"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "normal-optional-sacrifice-35",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "P1-RUNE-OGN-007-298-08",
+        "cmdType": "TAP_RUNE"
+      },
+      "startedTick": 34,
+      "completedTick": 35,
+      "startedEventSequence": 156,
+      "completedEventSequence": 158,
+      "accepted": true,
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "39276459c8964610d10bc8c36efec82e13f5b6dd621fb46716703e263006e862",
+        "identitySha256": "09234f7e8a4d98b4e49702b7288ccb4580fa29d354b356ce2daa5ffc6af54109"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "normal-optional-sacrifice-36",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "P1-RUNE-OGN-214-298-01",
+        "cmdType": "TAP_RUNE"
+      },
+      "startedTick": 35,
+      "completedTick": 36,
+      "startedEventSequence": 158,
+      "completedEventSequence": 160,
+      "accepted": true,
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "39276459c8964610d10bc8c36efec82e13f5b6dd621fb46716703e263006e862",
+        "identitySha256": "09234f7e8a4d98b4e49702b7288ccb4580fa29d354b356ce2daa5ffc6af54109"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "normal-optional-sacrifice-37",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "P1-RUNE-OGN-214-298-06",
+        "cmdType": "TAP_RUNE"
+      },
+      "startedTick": 36,
+      "completedTick": 37,
+      "startedEventSequence": 160,
+      "completedEventSequence": 162,
+      "accepted": true,
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "39276459c8964610d10bc8c36efec82e13f5b6dd621fb46716703e263006e862",
+        "identitySha256": "09234f7e8a4d98b4e49702b7288ccb4580fa29d354b356ce2daa5ffc6af54109"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "normal-optional-sacrifice-38",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "P1-RUNE-OGN-007-298-12",
+        "cmdType": "TAP_RUNE"
+      },
+      "startedTick": 37,
+      "completedTick": 38,
+      "startedEventSequence": 162,
+      "completedEventSequence": 164,
+      "accepted": true,
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "39276459c8964610d10bc8c36efec82e13f5b6dd621fb46716703e263006e862",
+        "identitySha256": "09234f7e8a4d98b4e49702b7288ccb4580fa29d354b356ce2daa5ffc6af54109"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "normal-optional-sacrifice-39",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "P1-RUNE-OGN-214-298-03",
+        "cmdType": "TAP_RUNE"
+      },
+      "startedTick": 38,
+      "completedTick": 39,
+      "startedEventSequence": 164,
+      "completedEventSequence": 166,
+      "accepted": true,
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "39276459c8964610d10bc8c36efec82e13f5b6dd621fb46716703e263006e862",
+        "identitySha256": "09234f7e8a4d98b4e49702b7288ccb4580fa29d354b356ce2daa5ffc6af54109"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "normal-optional-sacrifice-40",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "P1-RUNE-OGN-214-298-05",
+        "cmdType": "TAP_RUNE"
+      },
+      "startedTick": 39,
+      "completedTick": 40,
+      "startedEventSequence": 166,
+      "completedEventSequence": 168,
+      "accepted": true,
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "39276459c8964610d10bc8c36efec82e13f5b6dd621fb46716703e263006e862",
+        "identitySha256": "09234f7e8a4d98b4e49702b7288ccb4580fa29d354b356ce2daa5ffc6af54109"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "normal-optional-sacrifice-41",
+      "commandType": "RECYCLE_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "P1-RUNE-OGN-214-298-02",
+        "cmdType": "RECYCLE_RUNE"
+      },
+      "startedTick": 40,
+      "completedTick": 41,
+      "startedEventSequence": 168,
+      "completedEventSequence": 170,
+      "accepted": true,
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "39276459c8964610d10bc8c36efec82e13f5b6dd621fb46716703e263006e862",
+        "identitySha256": "09234f7e8a4d98b4e49702b7288ccb4580fa29d354b356ce2daa5ffc6af54109"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "normal-optional-sacrifice-42",
+      "commandType": "RECYCLE_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "P1-RUNE-OGN-214-298-04",
+        "cmdType": "RECYCLE_RUNE"
+      },
+      "startedTick": 41,
+      "completedTick": 42,
+      "startedEventSequence": 170,
+      "completedEventSequence": 172,
+      "accepted": true,
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "39276459c8964610d10bc8c36efec82e13f5b6dd621fb46716703e263006e862",
+        "identitySha256": "09234f7e8a4d98b4e49702b7288ccb4580fa29d354b356ce2daa5ffc6af54109"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "normal-optional-sacrifice-43",
+      "commandType": "RECYCLE_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "P1-RUNE-OGN-214-298-01",
+        "cmdType": "RECYCLE_RUNE"
+      },
+      "startedTick": 42,
+      "completedTick": 43,
+      "startedEventSequence": 172,
+      "completedEventSequence": 174,
+      "accepted": true,
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "39276459c8964610d10bc8c36efec82e13f5b6dd621fb46716703e263006e862",
+        "identitySha256": "09234f7e8a4d98b4e49702b7288ccb4580fa29d354b356ce2daa5ffc6af54109"
+      }
+    }
+  ],
+  "originalOpeningSeed": 0,
+  "scope": "New legal empty opening, ordinary hand/champion/rune/attack/reveal choices only; original143/110/seed424242 unchanged. No imported state, future deck inspection, developer commands or native-game migration."
+}

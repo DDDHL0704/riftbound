@@ -12,6 +12,8 @@ if (settings.Database != "riftbound_acceptance" || settings.Host is not ("127.0.
     throw new InvalidOperationException("Use the dedicated loopback riftbound_acceptance database; no shared application database is allowed.");
 var output = Environment.GetEnvironmentVariable("RIFTBOUND_POSTGRES_EVIDENCE") ?? "var/qa/postgres-acceptance";
 Directory.CreateDirectory(output);
+var openingRandomnessOnly = args.SequenceEqual(new[] { "--opening-randomness-only" });
+if (args.Length != 0 && !openingRandomnessOnly) throw new ArgumentException("Unknown PostgreSQL acceptance selector.");
 var json = new JsonSerializerOptions(JsonSerializerDefaults.Web) { WriteIndented = true };
 await using var dataSource = NpgsqlDataSource.Create(connectionString);
 await using (var connection = await dataSource.OpenConnectionAsync()) {
@@ -19,6 +21,13 @@ await using (var connection = await dataSource.OpenConnectionAsync()) {
         await using var command = new NpgsqlCommand(await File.ReadAllTextAsync(path), connection);
         await command.ExecuteNonQueryAsync();
     }
+}
+await OpeningRandomnessSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "private-opening"));
+if (openingRandomnessOnly)
+{
+    await CardPlayHistoryCausalSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "card-play-causal"));
+    Console.WriteLine("SCOPED_POSTGRES_ONLY: private-opening and current card-play-causal; the retained complete SQL suite was not requested.");
+    return;
 }
 await CreatedTokenReadySqlAcceptance.RunAsync(dataSource, Path.Combine(output, "created-token-ready"));
 var room = "postgres-core-" + Guid.NewGuid().ToString("N");

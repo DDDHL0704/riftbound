@@ -1,0 +1,12 @@
+{
+  "startedAtUtc": "2026-10-16T23:02:58.033638+00:00",
+  "finishedAtUtc": "2026-10-16T23:03:05.564630+00:00",
+  "exitCode": 0,
+  "sourceFiles": 12121,
+  "runtimeFiles": 51,
+  "allSourceAndRuntimeInputsFrozen": true,
+  "selector": "--opening-randomness-only",
+  "complete83OldSqlScenariosRetainedButNotExecutedByThisSelector": true,
+  "databaseClusterRetained": "/Users/dinghaolin/MyProjects/riftbound/var/qa/opening-shuffle-probe-20261017/postgres",
+  "bytesFree": 43907522560
+}

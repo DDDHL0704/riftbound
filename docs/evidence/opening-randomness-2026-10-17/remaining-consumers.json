@@ -1,0 +1,20 @@
+{
+  "region": "CN",
+  "language": "zh-CN",
+  "applicableAsOf": "2026-10-17",
+  "modeScope": "487 single-game 1v1 duel",
+  "completedLimitedBranches": [
+    "private fresh-production seed persisted before first command",
+    "deterministic explicit0/424242/signed seeds and four opening consumers",
+    "independent vectors, input conservation, physical-name independence and forced unbiased-retry boundary",
+    "actual fresh SQL cold replay, four metadata mutations, required JSON input and private projection/error guards"
+  ],
+  "remaining": [
+    "All non-opening randomness, including recycling417.5 and other rule consumers, remains OPEN; finite samples do not certify every permutation or the entire privacy surface.",
+    "487 single-game duel is this battlefield-randomization scope. 488 match chosen battlefields, series reuse/removal and other modes remain separate OPEN source obligations.",
+    "New fixed complete CI must retain all143 games/110 pairs/11 decks/424242, all83 old SQL paths plus this fresh-production path, network and both desktop jobs. Prior39/older CI is not this implementation.",
+    "Current visible paired clients, network/cold recovery, normal score victory/full original replay and physical Windows are separate OPEN gates for the new candidate.",
+    "All1740 source identities/1033 runtime entries, EN missing8, CN QA/news/media/document/version gaps and all earlier card/rule obligations remain retained."
+  ],
+  "wholeCardOrWholeFamilyCertified": false
+}

@@ -10,7 +10,8 @@ public interface IMatchPlayerStore
         string playerId,
         string seat,
         string reconnectTokenHash,
-        CancellationToken cancellationToken);
+        CancellationToken cancellationToken,
+        long openingSeed = 0);
 
     ValueTask<bool> HasReconnectTokenHashAsync(
         string roomId,
@@ -32,7 +33,8 @@ public sealed class NoopMatchPlayerStore : IMatchPlayerStore
         string playerId,
         string seat,
         string reconnectTokenHash,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        long openingSeed = 0)
     {
         return ValueTask.CompletedTask;
     }

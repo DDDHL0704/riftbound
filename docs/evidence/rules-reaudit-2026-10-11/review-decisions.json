@@ -21188,6 +21188,71 @@
         "singleCheckCases": 12060,
         "singleCheckMethods": 7256
       }
+    },
+    {
+      "id": "opening-randomness-2026-10-17",
+      "status": "SCOPED_CURRENT_CORRECTED_FOCUS_SQL_CORPUS_PASS_SINGLE_CHECK_FAILURE_RETAINED_FIXED_FULL_PRODUCT_PENDING",
+      "scope": "CN single-game487 opening main/rune shuffle, fair turn order, random battlefield consumer and private original seed; 488 and other randomness remain OPEN.",
+      "subjects": [],
+      "ruleRecords": [
+        "CN-d6fd7140f106f9b5-P006-B008",
+        "CN-d6fd7140f106f9b5-P006-B013",
+        "CN-d6fd7140f106f9b5-P007-B013",
+        "CN-d6fd7140f106f9b5-P007-B016",
+        "CN-d6fd7140f106f9b5-P101-B009"
+      ],
+      "pendingRuleRecords": [
+        "CN-d6fd7140f106f9b5-P101-B018"
+      ],
+      "auditDocument": "docs/OPENING_RANDOMNESS_AUDIT_2026-10-17.md",
+      "evidence": "docs/evidence/opening-randomness-2026-10-17",
+      "semanticReview": {
+        "state": "SCOPED",
+        "wholeCardCertified": false,
+        "region": "CN",
+        "language": "zh-CN",
+        "sourceIndexAsOf": "2026-10-17",
+        "coreEffectiveDate": "2026-10-16",
+        "modeScope": "487 single-game 1v1 duel"
+      },
+      "validation": {
+        "wholeCardCertification": false,
+        "finiteStatisticalBoundsAreNotUniformityProof": true
+      },
+      "wholeCardCertification": false,
+      "testExecution": {
+        "newCases": 38,
+        "newMethods": 12,
+        "finalFocusIncludingOldScalarRejection": 38,
+        "earlyAdjacentCases": 641,
+        "earlyOriginalFullGames": 5,
+        "actualSqlCommands": 16,
+        "actualSqlEvents": 55,
+        "actualSqlColdCheckpoints": 7,
+        "actualSqlMetadataTamperRejections": 4,
+        "singleCheck": "12097_CASES_12085_PASS_12_FAIL_FROZEN_INPUTS_ALL12_CORRECTED_FOCUS_PASS_NO_SECOND_CHECK",
+        "fixedFull": "PENDING_NEW_FIXED_COMMIT",
+        "product": "OPEN_CURRENT_VISIBLE_AND_WINDOWS",
+        "finalCorrectedFocusCases": 63,
+        "final17CurrentInputCorpusImports": "PASS",
+        "freshProductionHubRepeats": 8,
+        "actualSqlPaths": 2,
+        "actualSqlCausalTamperRejections": 8
+      },
+      "exclusions": [
+        "All non-opening randomness, including recycling417.5 and other rule consumers, remains OPEN; finite samples do not certify every permutation or the entire privacy surface.",
+        "487 single-game duel is this battlefield-randomization scope. 488 match chosen battlefields, series reuse/removal and other modes remain separate OPEN source obligations.",
+        "New fixed complete CI must retain all143 games/110 pairs/11 decks/424242, all83 old SQL paths plus this fresh-production path, network and both desktop jobs. Prior39/older CI is not this implementation.",
+        "Current visible paired clients, network/cold recovery, normal score victory/full original replay and physical Windows are separate OPEN gates for the new candidate.",
+        "All1740 source identities/1033 runtime entries, EN missing8, CN QA/news/media/document/version gaps and all earlier card/rule obligations remain retained."
+      ],
+      "remaining": [
+        "All non-opening randomness, including recycling417.5 and other rule consumers, remains OPEN; finite samples do not certify every permutation or the entire privacy surface.",
+        "487 single-game duel is this battlefield-randomization scope. 488 match chosen battlefields, series reuse/removal and other modes remain separate OPEN source obligations.",
+        "New fixed complete CI must retain all143 games/110 pairs/11 decks/424242, all83 old SQL paths plus this fresh-production path, network and both desktop jobs. Prior39/older CI is not this implementation.",
+        "Current visible paired clients, network/cold recovery, normal score victory/full original replay and physical Windows are separate OPEN gates for the new candidate.",
+        "All1740 source identities/1033 runtime entries, EN missing8, CN QA/news/media/document/version gaps and all earlier card/rule obligations remain retained."
+      ]
     }
   ]
 }

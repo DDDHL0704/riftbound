@@ -99,7 +99,7 @@
     },
     "reviews": {
       "path": "docs/evidence/rules-reaudit-2026-10-11/review-decisions.json",
-      "sha256": "c21104bf726f699a5637e521da444139767c7b239c81a224f7432b9f6e56ca8c"
+      "sha256": "5fd3c3b42a4fe71fa654c8b98d18d9bd56f4be94928ffb20c7b8edef97d16614"
     },
     "summary": {
       "path": "docs/evidence/source-listing-2026-10-15/index-summary.json",
@@ -160,7 +160,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "fa3d7894a837fbe2a5045dd7243a3040d0478a8c9a2acc9b30b2583c2bf286e7"
+          "sha256": "60f6daa432c808e24524746dbc6a79d98fe86fccb77a4674dab3031750c1d4cd"
         }
       ],
       "branches": [
@@ -288,7 +288,7 @@
         }
       ],
       "evidenceCommit": "e54f3084662e2c2e00c521d232b4a11baaea7d91",
-      "currentImplementationCommit": "8ca4080c9431b981db051a5adad18dace5d85dd5",
+      "currentImplementationCommit": "a6ccf1952141c69ed4b3cde94695f983c1c28db8",
       "currentImplementationIncludesUncommittedChanges": true,
       "revalidationReason": "Journal event serialization comparison and either-side natural allocation gate changed after exact9e; prior receipts retain their exact input scope.",
       "implementationPinUpdates": [
@@ -350,10 +350,10 @@
       ],
       "latestInputChange": {
         "date": "2026-10-17",
-        "scope": "Created-token independent ready triggers and final truthful up-to-two target prompt; historical candidates remain separately pinned.",
+        "scope": "Fresh private opening input, deterministic fair permutation and persisted recovery binding; old evidence keeps its original commit.",
         "receipt": {
-          "path": "docs/evidence/sand-soldier-embedded-ready-2026-10-17/prior-context-input-updates.json",
-          "sha256": "d789954d637ab0d2c721ba5ecccd5e899ef93c66983ae332476704cef096d3a8"
+          "path": "docs/evidence/opening-randomness-2026-10-17/prior-context-input-updates.json",
+          "sha256": "2813ee15ea1765358447f4c2bdf20051353bc18b70bac76fae5a20bb72625873"
         }
       }
     },
@@ -377,7 +377,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "fa3d7894a837fbe2a5045dd7243a3040d0478a8c9a2acc9b30b2583c2bf286e7"
+          "sha256": "60f6daa432c808e24524746dbc6a79d98fe86fccb77a4674dab3031750c1d4cd"
         }
       ],
       "branches": [
@@ -666,7 +666,7 @@
         }
       ],
       "evidenceCommit": "e61745f5cc704f2aa0326d84f22416e04ecbf139",
-      "currentImplementationCommit": "8ca4080c9431b981db051a5adad18dace5d85dd5",
+      "currentImplementationCommit": "a6ccf1952141c69ed4b3cde94695f983c1c28db8",
       "currentImplementationIncludesUncommittedChanges": true,
       "revalidationReason": "Actual fixed0cbee full failed three original games. Accepted declaration provenance and single eligible surviving conquest-return selection changed; prior exact evidence is retained, new fixed full/product required.",
       "implementationPinUpdates": [
@@ -738,10 +738,10 @@
       ],
       "latestInputChange": {
         "date": "2026-10-17",
-        "scope": "Created-token independent ready triggers and final truthful up-to-two target prompt; historical candidates remain separately pinned.",
+        "scope": "Fresh private opening input, deterministic fair permutation and persisted recovery binding; old evidence keeps its original commit.",
         "receipt": {
-          "path": "docs/evidence/sand-soldier-embedded-ready-2026-10-17/prior-context-input-updates.json",
-          "sha256": "d789954d637ab0d2c721ba5ecccd5e899ef93c66983ae332476704cef096d3a8"
+          "path": "docs/evidence/opening-randomness-2026-10-17/prior-context-input-updates.json",
+          "sha256": "2813ee15ea1765358447f4c2bdf20051353bc18b70bac76fae5a20bb72625873"
         }
       }
     },
@@ -769,11 +769,11 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "fa3d7894a837fbe2a5045dd7243a3040d0478a8c9a2acc9b30b2583c2bf286e7"
+          "sha256": "60f6daa432c808e24524746dbc6a79d98fe86fccb77a4674dab3031750c1d4cd"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "65381f59deddda34ca3812a65a649224493c538096ed0120762c61e3f411b88f"
+          "sha256": "4f77b4c099b7d5ec083c4cec6f8d3d83b89a112151e41675e328d208c4a3a285"
         },
         {
           "path": "src/Riftbound.CardCatalog/ReviewedCardErrata.cs",
@@ -827,7 +827,7 @@
               "decline"
             ]
           },
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -867,7 +867,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -907,7 +907,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -947,7 +947,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -987,7 +987,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -1027,7 +1027,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -1067,7 +1067,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -1107,7 +1107,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -1147,7 +1147,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -1187,7 +1187,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -1227,7 +1227,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -1267,7 +1267,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -1307,7 +1307,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -1347,7 +1347,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         }
       ],
@@ -1383,7 +1383,7 @@
         }
       ],
       "evidenceCommit": "03f88a7ee1b109b2cb906fbdc457316f93c08fda",
-      "currentImplementationCommit": "8ca4080c9431b981db051a5adad18dace5d85dd5",
+      "currentImplementationCommit": "a6ccf1952141c69ed4b3cde94695f983c1c28db8",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -1453,10 +1453,10 @@
       "revalidationReason": "Explicit shared implementation/verification input changes; prior CI retained only at its fixed old source scope.",
       "latestInputChange": {
         "date": "2026-10-17",
-        "scope": "Created-token independent ready triggers and final truthful up-to-two target prompt; historical candidates remain separately pinned.",
+        "scope": "Fresh private opening input, deterministic fair permutation and persisted recovery binding; old evidence keeps its original commit.",
         "receipt": {
-          "path": "docs/evidence/sand-soldier-embedded-ready-2026-10-17/prior-context-input-updates.json",
-          "sha256": "d789954d637ab0d2c721ba5ecccd5e899ef93c66983ae332476704cef096d3a8"
+          "path": "docs/evidence/opening-randomness-2026-10-17/prior-context-input-updates.json",
+          "sha256": "2813ee15ea1765358447f4c2bdf20051353bc18b70bac76fae5a20bb72625873"
         }
       },
       "currentProductAcceptance": "OPEN_AFTER_SHARED_NATIVE_PROMPT_INPUT_CHANGE_OLD_VISIBLE_EVIDENCE_RETAINS_EXACT_SCOPE"
@@ -1485,7 +1485,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "fa3d7894a837fbe2a5045dd7243a3040d0478a8c9a2acc9b30b2583c2bf286e7"
+          "sha256": "60f6daa432c808e24524746dbc6a79d98fe86fccb77a4674dab3031750c1d4cd"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
@@ -1493,7 +1493,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "65381f59deddda34ca3812a65a649224493c538096ed0120762c61e3f411b88f"
+          "sha256": "4f77b4c099b7d5ec083c4cec6f8d3d83b89a112151e41675e328d208c4a3a285"
         },
         {
           "path": "src/Riftbound.Engine/OfficialPrintedTimingRules.cs",
@@ -1545,7 +1545,7 @@
               "recycle"
             ]
           },
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -1589,7 +1589,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -1633,7 +1633,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -1677,7 +1677,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -1721,7 +1721,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -1765,7 +1765,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -1809,7 +1809,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -1853,7 +1853,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -1897,7 +1897,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -1941,7 +1941,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -1985,7 +1985,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -2029,7 +2029,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -2073,7 +2073,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         }
       ],
@@ -2102,7 +2102,7 @@
       "ciState": "PENDING",
       "ciReceipts": [],
       "evidenceCommit": "03f88a7ee1b109b2cb906fbdc457316f93c08fda",
-      "currentImplementationCommit": "8ca4080c9431b981db051a5adad18dace5d85dd5",
+      "currentImplementationCommit": "a6ccf1952141c69ed4b3cde94695f983c1c28db8",
       "currentImplementationIncludesUncommittedChanges": true,
       "lastFixedCiFailure": {
         "path": "docs/evidence/granted-predict-2026-10-15/full-ci-c74853be-failed.json",
@@ -2284,10 +2284,10 @@
       "revalidationReason": "Actual battlefield-controller entry fix changes shared Core and SQL verification inputs; earlier fixed CI remains limited to its original source scope.",
       "latestInputChange": {
         "date": "2026-10-17",
-        "scope": "Created-token independent ready triggers and final truthful up-to-two target prompt; historical candidates remain separately pinned.",
+        "scope": "Fresh private opening input, deterministic fair permutation and persisted recovery binding; old evidence keeps its original commit.",
         "receipt": {
-          "path": "docs/evidence/sand-soldier-embedded-ready-2026-10-17/prior-context-input-updates.json",
-          "sha256": "d789954d637ab0d2c721ba5ecccd5e899ef93c66983ae332476704cef096d3a8"
+          "path": "docs/evidence/opening-randomness-2026-10-17/prior-context-input-updates.json",
+          "sha256": "2813ee15ea1765358447f4c2bdf20051353bc18b70bac76fae5a20bb72625873"
         }
       },
       "currentProductAcceptance": "OPEN_AFTER_SHARED_NATIVE_PROMPT_INPUT_CHANGE_OLD_VISIBLE_EVIDENCE_RETAINS_EXACT_SCOPE"
@@ -2316,7 +2316,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "fa3d7894a837fbe2a5045dd7243a3040d0478a8c9a2acc9b30b2583c2bf286e7"
+          "sha256": "60f6daa432c808e24524746dbc6a79d98fe86fccb77a4674dab3031750c1d4cd"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
@@ -2391,7 +2391,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -2453,7 +2453,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -2515,7 +2515,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -2577,7 +2577,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -2639,7 +2639,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -2701,7 +2701,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -2763,7 +2763,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -2825,7 +2825,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -2892,7 +2892,7 @@
               "equipment-recycle"
             ]
           },
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         }
       ],
@@ -2928,7 +2928,7 @@
         }
       ],
       "evidenceCommit": "74353e405fd2242ece0bae05972f209950b2c9de",
-      "currentImplementationCommit": "8ca4080c9431b981db051a5adad18dace5d85dd5",
+      "currentImplementationCommit": "a6ccf1952141c69ed4b3cde94695f983c1c28db8",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -3112,10 +3112,10 @@
       "revalidationReason": "Actual battlefield-controller entry fix changes shared Core and SQL verification inputs; earlier fixed CI remains limited to its original source scope.",
       "latestInputChange": {
         "date": "2026-10-17",
-        "scope": "Created-token independent ready triggers and final truthful up-to-two target prompt; historical candidates remain separately pinned.",
+        "scope": "Fresh private opening input, deterministic fair permutation and persisted recovery binding; old evidence keeps its original commit.",
         "receipt": {
-          "path": "docs/evidence/sand-soldier-embedded-ready-2026-10-17/prior-context-input-updates.json",
-          "sha256": "d789954d637ab0d2c721ba5ecccd5e899ef93c66983ae332476704cef096d3a8"
+          "path": "docs/evidence/opening-randomness-2026-10-17/prior-context-input-updates.json",
+          "sha256": "2813ee15ea1765358447f4c2bdf20051353bc18b70bac76fae5a20bb72625873"
         }
       }
     },
@@ -3159,11 +3159,11 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "65381f59deddda34ca3812a65a649224493c538096ed0120762c61e3f411b88f"
+          "sha256": "4f77b4c099b7d5ec083c4cec6f8d3d83b89a112151e41675e328d208c4a3a285"
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "fa3d7894a837fbe2a5045dd7243a3040d0478a8c9a2acc9b30b2583c2bf286e7"
+          "sha256": "60f6daa432c808e24524746dbc6a79d98fe86fccb77a4674dab3031750c1d4cd"
         },
         {
           "path": "src/Riftbound.Engine/StackObjectRules.cs",
@@ -3204,7 +3204,7 @@
               "alternate-decline"
             ]
           },
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -3235,7 +3235,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -3266,7 +3266,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -3297,7 +3297,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -3333,7 +3333,7 @@
               "alternate-decline"
             ]
           },
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -3364,7 +3364,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -3395,7 +3395,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -3426,7 +3426,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -3457,7 +3457,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         }
       ],
@@ -3493,7 +3493,7 @@
         }
       ],
       "evidenceCommit": "7649d573f884ffd7517a502f7eebe01d0aa186c4",
-      "currentImplementationCommit": "8ca4080c9431b981db051a5adad18dace5d85dd5",
+      "currentImplementationCommit": "a6ccf1952141c69ed4b3cde94695f983c1c28db8",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -3661,10 +3661,10 @@
       "revalidationReason": "Actual battlefield-controller entry fix changes shared Core and SQL verification inputs; earlier fixed CI remains limited to its original source scope.",
       "latestInputChange": {
         "date": "2026-10-17",
-        "scope": "Created-token independent ready triggers and final truthful up-to-two target prompt; historical candidates remain separately pinned.",
+        "scope": "Fresh private opening input, deterministic fair permutation and persisted recovery binding; old evidence keeps its original commit.",
         "receipt": {
-          "path": "docs/evidence/sand-soldier-embedded-ready-2026-10-17/prior-context-input-updates.json",
-          "sha256": "d789954d637ab0d2c721ba5ecccd5e899ef93c66983ae332476704cef096d3a8"
+          "path": "docs/evidence/opening-randomness-2026-10-17/prior-context-input-updates.json",
+          "sha256": "2813ee15ea1765358447f4c2bdf20051353bc18b70bac76fae5a20bb72625873"
         }
       },
       "currentProductAcceptance": "OPEN_AFTER_SHARED_NATIVE_PROMPT_INPUT_CHANGE_OLD_VISIBLE_EVIDENCE_RETAINS_EXACT_SCOPE"
@@ -3989,7 +3989,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "fa3d7894a837fbe2a5045dd7243a3040d0478a8c9a2acc9b30b2583c2bf286e7"
+          "sha256": "60f6daa432c808e24524746dbc6a79d98fe86fccb77a4674dab3031750c1d4cd"
         }
       ],
       "branches": [
@@ -4030,7 +4030,7 @@
               "deferred-decline"
             ]
           },
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -4065,7 +4065,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -4100,7 +4100,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -4135,7 +4135,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         }
       ],
@@ -4171,7 +4171,7 @@
         }
       ],
       "evidenceCommit": "00420e2a2b453918e611812d18fda9f62632e15f",
-      "currentImplementationCommit": "8ca4080c9431b981db051a5adad18dace5d85dd5",
+      "currentImplementationCommit": "a6ccf1952141c69ed4b3cde94695f983c1c28db8",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -4288,10 +4288,10 @@
       "revalidationReason": "Actual battlefield-controller entry fix changes shared Core and SQL verification inputs; earlier fixed CI remains limited to its original source scope.",
       "latestInputChange": {
         "date": "2026-10-17",
-        "scope": "Created-token independent ready triggers and final truthful up-to-two target prompt; historical candidates remain separately pinned.",
+        "scope": "Fresh private opening input, deterministic fair permutation and persisted recovery binding; old evidence keeps its original commit.",
         "receipt": {
-          "path": "docs/evidence/sand-soldier-embedded-ready-2026-10-17/prior-context-input-updates.json",
-          "sha256": "d789954d637ab0d2c721ba5ecccd5e899ef93c66983ae332476704cef096d3a8"
+          "path": "docs/evidence/opening-randomness-2026-10-17/prior-context-input-updates.json",
+          "sha256": "2813ee15ea1765358447f4c2bdf20051353bc18b70bac76fae5a20bb72625873"
         }
       }
     },
@@ -4311,11 +4311,11 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "65381f59deddda34ca3812a65a649224493c538096ed0120762c61e3f411b88f"
+          "sha256": "4f77b4c099b7d5ec083c4cec6f8d3d83b89a112151e41675e328d208c4a3a285"
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "fa3d7894a837fbe2a5045dd7243a3040d0478a8c9a2acc9b30b2583c2bf286e7"
+          "sha256": "60f6daa432c808e24524746dbc6a79d98fe86fccb77a4674dab3031750c1d4cd"
         },
         {
           "path": "src/Riftbound.Engine/StackObjectRules.cs",
@@ -4362,7 +4362,7 @@
               "alternate-reaction"
             ]
           },
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -4399,7 +4399,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -4436,7 +4436,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -4473,7 +4473,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -4510,7 +4510,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         }
       ],
@@ -4546,7 +4546,7 @@
         }
       ],
       "evidenceCommit": "eb3c4281c94c8d41d315cd574bdfa597cd10c30b",
-      "currentImplementationCommit": "8ca4080c9431b981db051a5adad18dace5d85dd5",
+      "currentImplementationCommit": "a6ccf1952141c69ed4b3cde94695f983c1c28db8",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -4689,10 +4689,10 @@
       "revalidationReason": "Actual battlefield-controller entry fix changes shared Core and SQL verification inputs; earlier fixed CI remains limited to its original source scope.",
       "latestInputChange": {
         "date": "2026-10-17",
-        "scope": "Created-token independent ready triggers and final truthful up-to-two target prompt; historical candidates remain separately pinned.",
+        "scope": "Fresh private opening input, deterministic fair permutation and persisted recovery binding; old evidence keeps its original commit.",
         "receipt": {
-          "path": "docs/evidence/sand-soldier-embedded-ready-2026-10-17/prior-context-input-updates.json",
-          "sha256": "d789954d637ab0d2c721ba5ecccd5e899ef93c66983ae332476704cef096d3a8"
+          "path": "docs/evidence/opening-randomness-2026-10-17/prior-context-input-updates.json",
+          "sha256": "2813ee15ea1765358447f4c2bdf20051353bc18b70bac76fae5a20bb72625873"
         }
       },
       "currentProductAcceptance": "OPEN_AFTER_SHARED_NATIVE_PROMPT_INPUT_CHANGE_OLD_VISIBLE_EVIDENCE_RETAINS_EXACT_SCOPE"
@@ -4741,7 +4741,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "fa3d7894a837fbe2a5045dd7243a3040d0478a8c9a2acc9b30b2583c2bf286e7"
+          "sha256": "60f6daa432c808e24524746dbc6a79d98fe86fccb77a4674dab3031750c1d4cd"
         }
       ],
       "branches": [
@@ -4806,7 +4806,7 @@
               "promo-hook"
             ]
           },
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -4863,7 +4863,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -4920,7 +4920,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -4977,7 +4977,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -5034,7 +5034,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -5091,7 +5091,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -5148,7 +5148,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -5205,7 +5205,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -5262,7 +5262,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -5319,7 +5319,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -5376,7 +5376,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         }
       ],
@@ -5417,7 +5417,7 @@
         }
       ],
       "evidenceCommit": "a0406e1d878598b3c0fd88f5bfa7f9831d6a2cc6",
-      "currentImplementationCommit": "8ca4080c9431b981db051a5adad18dace5d85dd5",
+      "currentImplementationCommit": "a6ccf1952141c69ed4b3cde94695f983c1c28db8",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -5564,10 +5564,10 @@
       "revalidationReason": "Actual battlefield-controller entry fix changes shared Core and SQL verification inputs; earlier fixed CI remains limited to its original source scope.",
       "latestInputChange": {
         "date": "2026-10-17",
-        "scope": "Created-token independent ready triggers and final truthful up-to-two target prompt; historical candidates remain separately pinned.",
+        "scope": "Fresh private opening input, deterministic fair permutation and persisted recovery binding; old evidence keeps its original commit.",
         "receipt": {
-          "path": "docs/evidence/sand-soldier-embedded-ready-2026-10-17/prior-context-input-updates.json",
-          "sha256": "d789954d637ab0d2c721ba5ecccd5e899ef93c66983ae332476704cef096d3a8"
+          "path": "docs/evidence/opening-randomness-2026-10-17/prior-context-input-updates.json",
+          "sha256": "2813ee15ea1765358447f4c2bdf20051353bc18b70bac76fae5a20bb72625873"
         }
       }
     },
@@ -6272,11 +6272,11 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "65381f59deddda34ca3812a65a649224493c538096ed0120762c61e3f411b88f"
+          "sha256": "4f77b4c099b7d5ec083c4cec6f8d3d83b89a112151e41675e328d208c4a3a285"
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "fa3d7894a837fbe2a5045dd7243a3040d0478a8c9a2acc9b30b2583c2bf286e7"
+          "sha256": "60f6daa432c808e24524746dbc6a79d98fe86fccb77a4674dab3031750c1d4cd"
         }
       ],
       "evidence": [
@@ -6321,7 +6321,7 @@
         }
       ],
       "evidenceCommit": "342187cb732ea37a616d3fb125be6e9e5096ead1",
-      "currentImplementationCommit": "8ca4080c9431b981db051a5adad18dace5d85dd5",
+      "currentImplementationCommit": "a6ccf1952141c69ed4b3cde94695f983c1c28db8",
       "currentImplementationIncludesUncommittedChanges": true,
       "branches": [
         {
@@ -6353,7 +6353,7 @@
             "Snapshot-only causal forgery has bounded production-registry and real SQL evidence in typed-card-play-history-causal-production-recovery-2026-10-15; coordinated accepted-log replacement and all untested consumers remain OPEN",
             "Same fixed candidate visible paired SQL/network/normal score/full replay and Windows real runtime"
           ],
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -6385,7 +6385,7 @@
             "Snapshot-only causal forgery has bounded production-registry and real SQL evidence in typed-card-play-history-causal-production-recovery-2026-10-15; coordinated accepted-log replacement and all untested consumers remain OPEN",
             "Same fixed candidate visible paired SQL/network/normal score/full replay and Windows real runtime"
           ],
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -6417,7 +6417,7 @@
             "Snapshot-only causal forgery has bounded production-registry and real SQL evidence in typed-card-play-history-causal-production-recovery-2026-10-15; coordinated accepted-log replacement and all untested consumers remain OPEN",
             "Same fixed candidate visible paired SQL/network/normal score/full replay and Windows real runtime"
           ],
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         }
       ],
@@ -6567,10 +6567,10 @@
       "revalidationReason": "Actual battlefield-controller entry fix changes shared Core and SQL verification inputs; earlier fixed CI remains limited to its original source scope.",
       "latestInputChange": {
         "date": "2026-10-17",
-        "scope": "Created-token independent ready triggers and final truthful up-to-two target prompt; historical candidates remain separately pinned.",
+        "scope": "Fresh private opening input, deterministic fair permutation and persisted recovery binding; old evidence keeps its original commit.",
         "receipt": {
-          "path": "docs/evidence/sand-soldier-embedded-ready-2026-10-17/prior-context-input-updates.json",
-          "sha256": "d789954d637ab0d2c721ba5ecccd5e899ef93c66983ae332476704cef096d3a8"
+          "path": "docs/evidence/opening-randomness-2026-10-17/prior-context-input-updates.json",
+          "sha256": "2813ee15ea1765358447f4c2bdf20051353bc18b70bac76fae5a20bb72625873"
         }
       },
       "currentProductAcceptance": "OPEN_AFTER_SHARED_NATIVE_PROMPT_INPUT_CHANGE_OLD_VISIBLE_EVIDENCE_RETAINS_EXACT_SCOPE"
@@ -6599,11 +6599,11 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "65381f59deddda34ca3812a65a649224493c538096ed0120762c61e3f411b88f"
+          "sha256": "4f77b4c099b7d5ec083c4cec6f8d3d83b89a112151e41675e328d208c4a3a285"
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "fa3d7894a837fbe2a5045dd7243a3040d0478a8c9a2acc9b30b2583c2bf286e7"
+          "sha256": "60f6daa432c808e24524746dbc6a79d98fe86fccb77a4674dab3031750c1d4cd"
         },
         {
           "path": "src/Riftbound.CardCatalog/RuleTextParsers.cs",
@@ -6656,7 +6656,7 @@
         }
       ],
       "evidenceCommit": "339c6168f704684477354365988d7448cb0e7a10",
-      "currentImplementationCommit": "8ca4080c9431b981db051a5adad18dace5d85dd5",
+      "currentImplementationCommit": "a6ccf1952141c69ed4b3cde94695f983c1c28db8",
       "currentImplementationIncludesUncommittedChanges": true,
       "ciState": "PENDING",
       "ciReceipts": [
@@ -6699,7 +6699,7 @@
             "Current fixed full CI and same-candidate visible paired SQL/network/normal score/full replay remain OPEN",
             "Independent Windows real runtime and every other full-universe obligation remain OPEN"
           ],
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -6728,7 +6728,7 @@
             "Current fixed full CI and same-candidate visible paired SQL/network/normal score/full replay remain OPEN",
             "Independent Windows real runtime and every other full-universe obligation remain OPEN"
           ],
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -6757,7 +6757,7 @@
             "Current fixed full CI and same-candidate visible paired SQL/network/normal score/full replay remain OPEN",
             "Independent Windows real runtime and every other full-universe obligation remain OPEN"
           ],
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         }
       ],
@@ -6913,17 +6913,17 @@
       "revalidationReason": "Actual battlefield-controller entry fix changes shared Core and SQL verification inputs; earlier fixed CI remains limited to its original source scope.",
       "latestInputChange": {
         "date": "2026-10-17",
-        "scope": "Created-token independent ready triggers and final truthful up-to-two target prompt; historical candidates remain separately pinned.",
+        "scope": "Fresh private opening input, deterministic fair permutation and persisted recovery binding; old evidence keeps its original commit.",
         "receipt": {
-          "path": "docs/evidence/sand-soldier-embedded-ready-2026-10-17/prior-context-input-updates.json",
-          "sha256": "d789954d637ab0d2c721ba5ecccd5e899ef93c66983ae332476704cef096d3a8"
+          "path": "docs/evidence/opening-randomness-2026-10-17/prior-context-input-updates.json",
+          "sha256": "2813ee15ea1765358447f4c2bdf20051353bc18b70bac76fae5a20bb72625873"
         }
       },
       "currentProductAcceptance": "OPEN_AFTER_SHARED_NATIVE_PROMPT_INPUT_CHANGE_OLD_VISIBLE_EVIDENCE_RETAINS_EXACT_SCOPE"
     },
     "typed-card-play-history-causal-production-recovery-2026-10-15": {
       "evidenceCommit": "6bc546259eed61d5988bf8e8df5081cd8502c614",
-      "currentImplementationCommit": "8ca4080c9431b981db051a5adad18dace5d85dd5",
+      "currentImplementationCommit": "a6ccf1952141c69ed4b3cde94695f983c1c28db8",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact6bc fullCI/45SQL/case-method-pair preservation verified. Current workingtree has newer counted Insight/catalog dependencies; this prior full is not current gameplay coverage.",
       "ciState": "PENDING",
@@ -6942,15 +6942,15 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "fa3d7894a837fbe2a5045dd7243a3040d0478a8c9a2acc9b30b2583c2bf286e7"
+          "sha256": "60f6daa432c808e24524746dbc6a79d98fe86fccb77a4674dab3031750c1d4cd"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "65381f59deddda34ca3812a65a649224493c538096ed0120762c61e3f411b88f"
+          "sha256": "4f77b4c099b7d5ec083c4cec6f8d3d83b89a112151e41675e328d208c4a3a285"
         },
         {
           "path": "src/Riftbound.Persistence/PostgresMatchRecoveryStore.cs",
-          "sha256": "0a31754fb4a87b5120b0253c729b7d97c14e08492ee2c2c1741e163f6f487e87"
+          "sha256": "e54bb4f85d83d2d3fedc9fce0ff280ec00483d98216da63a88ffe02853cb3358"
         }
       ],
       "evidence": [
@@ -6997,7 +6997,7 @@
             "New test/fixture/SQL inputs require their own fixed-commit complete CI",
             "Independent Windows real runtime and all full-universe source/semantic gaps remain OPEN"
           ],
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -7016,7 +7016,7 @@
             "New test/fixture/SQL inputs require their own fixed-commit complete CI",
             "Independent Windows real runtime and all full-universe source/semantic gaps remain OPEN"
           ],
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -7035,7 +7035,7 @@
             "New test/fixture/SQL inputs require their own fixed-commit complete CI",
             "Independent Windows real runtime and all full-universe source/semantic gaps remain OPEN"
           ],
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         }
       ],
@@ -7087,10 +7087,10 @@
       "revalidationReason": "Explicit shared implementation/verification input changes; prior CI retained only at its fixed old source scope.",
       "latestInputChange": {
         "date": "2026-10-17",
-        "scope": "Created-token independent ready triggers and final truthful up-to-two target prompt; historical candidates remain separately pinned.",
+        "scope": "Fresh private opening input, deterministic fair permutation and persisted recovery binding; old evidence keeps its original commit.",
         "receipt": {
-          "path": "docs/evidence/sand-soldier-embedded-ready-2026-10-17/prior-context-input-updates.json",
-          "sha256": "d789954d637ab0d2c721ba5ecccd5e899ef93c66983ae332476704cef096d3a8"
+          "path": "docs/evidence/opening-randomness-2026-10-17/prior-context-input-updates.json",
+          "sha256": "2813ee15ea1765358447f4c2bdf20051353bc18b70bac76fae5a20bb72625873"
         }
       },
       "currentProductAcceptance": "OPEN_AFTER_SHARED_NATIVE_PROMPT_INPUT_CHANGE_OLD_VISIBLE_EVIDENCE_RETAINS_EXACT_SCOPE"
@@ -7879,7 +7879,7 @@
     },
     "combat-event-journal-wire-and-single-defender-choice-2026-10-15": {
       "evidenceCommit": "9e426a31386aefa980bf2d48f02b237098cb2914",
-      "currentImplementationCommit": "8ca4080c9431b981db051a5adad18dace5d85dd5",
+      "currentImplementationCommit": "a6ccf1952141c69ed4b3cde94695f983c1c28db8",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact9e base plus explicitly hashed current journal/combat/native-fixture verification inputs; old full does not cover this repair.",
       "ciState": "PENDING",
@@ -7887,7 +7887,7 @@
       "implementation": [
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "fa3d7894a837fbe2a5045dd7243a3040d0478a8c9a2acc9b30b2583c2bf286e7"
+          "sha256": "60f6daa432c808e24524746dbc6a79d98fe86fccb77a4674dab3031750c1d4cd"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
@@ -7977,7 +7977,7 @@
             "Native custom deck editor and independent Windows real runtime",
             "Every official source gap and newly effective applicability change; full-universe semantic certification"
           ],
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -8003,7 +8003,7 @@
             "Native custom deck editor and independent Windows real runtime",
             "Every official source gap and newly effective applicability change; full-universe semantic certification"
           ],
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -8029,7 +8029,7 @@
             "Native custom deck editor and independent Windows real runtime",
             "Every official source gap and newly effective applicability change; full-universe semantic certification"
           ],
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         }
       ],
@@ -8127,10 +8127,10 @@
       "latestFixedEvidenceStatus": "EXACT_0CBEE_FULL_FAILED_THREE_ORIGINAL_GAMES_CURRENT_CONTINUATION_REPAIR_PENDING",
       "latestInputChange": {
         "date": "2026-10-17",
-        "scope": "Created-token independent ready triggers and final truthful up-to-two target prompt; historical candidates remain separately pinned.",
+        "scope": "Fresh private opening input, deterministic fair permutation and persisted recovery binding; old evidence keeps its original commit.",
         "receipt": {
-          "path": "docs/evidence/sand-soldier-embedded-ready-2026-10-17/prior-context-input-updates.json",
-          "sha256": "d789954d637ab0d2c721ba5ecccd5e899ef93c66983ae332476704cef096d3a8"
+          "path": "docs/evidence/opening-randomness-2026-10-17/prior-context-input-updates.json",
+          "sha256": "2813ee15ea1765358447f4c2bdf20051353bc18b70bac76fae5a20bb72625873"
         }
       }
     },
@@ -8360,7 +8360,7 @@
     },
     "optional-mana-trigger-native-and-natural-declaration-order-2026-10-15": {
       "evidenceCommit": "d1c2b4d351ca32862ee52ab7bc45cd7d581fca2c",
-      "currentImplementationCommit": "8ca4080c9431b981db051a5adad18dace5d85dd5",
+      "currentImplementationCommit": "a6ccf1952141c69ed4b3cde94695f983c1c28db8",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact d1 actual full-success/native-failure base plus three pinned source repairs, new verification and source readback; new fixed SHA required.",
       "ciState": "PENDING",
@@ -8376,7 +8376,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "65381f59deddda34ca3812a65a649224493c538096ed0120762c61e3f411b88f"
+          "sha256": "4f77b4c099b7d5ec083c4cec6f8d3d83b89a112151e41675e328d208c4a3a285"
         }
       ],
       "evidence": [
@@ -8461,7 +8461,7 @@
           "state": "RECORDED",
           "semanticReview": "SCOPED_ONLY",
           "tests": "FOCUS_NATIVE_SQL_PASS",
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
           "productAcceptance": "OPEN",
           "remaining": [
             "Multiple optional conquest triggers, mixed payments, player ordering and other unreviewed consumers",
@@ -8480,7 +8480,7 @@
           "state": "RECORDED",
           "semanticReview": "SCOPED_ONLY",
           "tests": "FOCUS_NATIVE_SQL_PASS",
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
           "productAcceptance": "OPEN",
           "remaining": [
             "Multiple optional conquest triggers, mixed payments, player ordering and other unreviewed consumers",
@@ -8567,17 +8567,17 @@
       "revalidationReason": "Actual battlefield-controller entry fix changes shared Core and SQL verification inputs; earlier fixed CI remains limited to its original source scope.",
       "latestInputChange": {
         "date": "2026-10-17",
-        "scope": "Created-token independent ready triggers and final truthful up-to-two target prompt; historical candidates remain separately pinned.",
+        "scope": "Fresh private opening input, deterministic fair permutation and persisted recovery binding; old evidence keeps its original commit.",
         "receipt": {
-          "path": "docs/evidence/sand-soldier-embedded-ready-2026-10-17/prior-context-input-updates.json",
-          "sha256": "d789954d637ab0d2c721ba5ecccd5e899ef93c66983ae332476704cef096d3a8"
+          "path": "docs/evidence/opening-randomness-2026-10-17/prior-context-input-updates.json",
+          "sha256": "2813ee15ea1765358447f4c2bdf20051353bc18b70bac76fae5a20bb72625873"
         }
       },
       "currentProductAcceptance": "OPEN_AFTER_SHARED_NATIVE_PROMPT_INPUT_CHANGE_OLD_VISIBLE_EVIDENCE_RETAINS_EXACT_SCOPE"
     },
     "cn16-confirmed-play-origin-and-required-causal-fact-2026-10-16": {
       "evidenceCommit": "56d1ee2eed9dcbf48ed54175867cd93ac58d92d8",
-      "currentImplementationCommit": "8ca4080c9431b981db051a5adad18dace5d85dd5",
+      "currentImplementationCommit": "a6ccf1952141c69ed4b3cde94695f983c1c28db8",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact56 baseline plus explicitly pinned CN16 source selection and bounded confirmed hand-origin repair; new fixed SHA required.",
       "ciState": "PENDING",
@@ -8593,7 +8593,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "65381f59deddda34ca3812a65a649224493c538096ed0120762c61e3f411b88f"
+          "sha256": "4f77b4c099b7d5ec083c4cec6f8d3d83b89a112151e41675e328d208c4a3a285"
         },
         {
           "path": "data/official/rule-input-scope.json",
@@ -8611,15 +8611,15 @@
         },
         {
           "path": "tests/Riftbound.PostgresAcceptance/ConfirmedPlayOriginSqlAcceptance.cs",
-          "sha256": "0b39652f7379a1cecfaddcc248eabc713ffa8ff4315d9a13af5416c574fee637"
+          "sha256": "326f0d0869513d5812cc10d998920896b9da9643672b5a2a46111a4ebad741be"
         },
         {
           "path": "tests/Riftbound.PostgresAcceptance/Program.cs",
-          "sha256": "635c5f0c640563dae6b3e74bb362f6d9c10ef6043ae2f7f06fae4575fff187d0"
+          "sha256": "8aa37c53f823b082c25b2a16f83e9db1f77faed620019c5bcb3f34caac965c30"
         },
         {
           "path": "tests/Riftbound.PostgresAcceptance/Riftbound.PostgresAcceptance.csproj",
-          "sha256": "ca4342df075b1a3bd89d567114900961b5fe3b58edfad9f47d8d4dd9ff7aee9b"
+          "sha256": "d9716fb317bdde134df16a22a629df812237174f548aa80d4f4afe60c61a91a9"
         },
         {
           "path": "tests/Riftbound.ConformanceTests/Fixtures/confirmed-play-origin-hand-cn16.json",
@@ -8695,7 +8695,7 @@
           "semanticReview": "SCOPED_ONLY",
           "implementation": "LOCAL_COMPLETE_FOR_RECORDED_BRANCH",
           "tests": "CN16_FOCUS_AND_REAL_SQL_PASS",
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_CURRENT_OPENING_FIXTURE_AND_HUB_INPUT_CORRECTION",
           "productAcceptance": "OPEN",
           "remaining": [
             "All unreviewed exact printing/target/permission/cost/repeat branches and the text-located consumer inventory; no whole-card certification",
@@ -8716,7 +8716,7 @@
           "semanticReview": "SCOPED_ONLY",
           "implementation": "LOCAL_COMPLETE_FOR_RECORDED_BRANCH",
           "tests": "ACTUAL_PERMISSION_PLAY_FOCUS_REPLAY_PASS",
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_CURRENT_OPENING_FIXTURE_AND_HUB_INPUT_CORRECTION",
           "productAcceptance": "OPEN",
           "remaining": [
             "All unreviewed exact printing/target/permission/cost/repeat branches and the text-located consumer inventory; no whole-card certification",
@@ -8737,7 +8737,7 @@
           "semanticReview": "SCOPED_ONLY",
           "implementation": "NO_DEFAULT_MIGRATION_OR_CAUSAL_GUARD_RELAXATION",
           "tests": "EMPTY_OPENING_FORGED_VIEW_AND_REAL_SQL_FLIP_MISSING_REJECTION_PASS",
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_CURRENT_OPENING_FIXTURE_AND_HUB_INPUT_CORRECTION",
           "productAcceptance": "OPEN",
           "remaining": [
             "All unreviewed exact printing/target/permission/cost/repeat branches and the text-located consumer inventory; no whole-card certification",
@@ -8856,17 +8856,17 @@
       "revalidationReason": "Actual battlefield-controller entry fix changes shared Core and SQL verification inputs; earlier fixed CI remains limited to its original source scope.",
       "latestInputChange": {
         "date": "2026-10-17",
-        "scope": "Created-token independent ready triggers and final truthful up-to-two target prompt; historical candidates remain separately pinned.",
+        "scope": "Explicit current opening corpus and production-seed test input correction; old accepted history and CI stay historical.",
         "receipt": {
-          "path": "docs/evidence/sand-soldier-embedded-ready-2026-10-17/prior-context-input-updates.json",
-          "sha256": "d789954d637ab0d2c721ba5ecccd5e899ef93c66983ae332476704cef096d3a8"
+          "path": "docs/evidence/opening-randomness-2026-10-17/post-check-context-input-updates.json",
+          "sha256": "088511d681928cc6e299b5f6826475188fdce1c4b0e601c5fe51ca5c819f9bda"
         }
       },
       "currentProductAcceptance": "OPEN_AFTER_SHARED_NATIVE_PROMPT_INPUT_CHANGE_OLD_VISIBLE_EVIDENCE_RETAINS_EXACT_SCOPE"
     },
     "physical-origin-self-cost-reduction-2026-10-16": {
       "evidenceCommit": "903cbca2becfd9b142a6b6a86d77b8fbf3d080ef",
-      "currentImplementationCommit": "8ca4080c9431b981db051a5adad18dace5d85dd5",
+      "currentImplementationCommit": "a6ccf1952141c69ed4b3cde94695f983c1c28db8",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact903 baseline plus pinned3engine changes and new8cases/SQL fixtures; fixed newSHA required.",
       "ciState": "PENDING",
@@ -8892,15 +8892,15 @@
         },
         {
           "path": "tests/Riftbound.PostgresAcceptance/PhysicalOriginCostSqlAcceptance.cs",
-          "sha256": "9adf5bc3ee25a80d215486a2e02b1b41fd0e422de847a02da785c9e0279a4acf"
+          "sha256": "edaaa28d0bac4af5b01a6649a3e7ae71bb7ca482bf6944639848737091261280"
         },
         {
           "path": "tests/Riftbound.PostgresAcceptance/Program.cs",
-          "sha256": "635c5f0c640563dae6b3e74bb362f6d9c10ef6043ae2f7f06fae4575fff187d0"
+          "sha256": "8aa37c53f823b082c25b2a16f83e9db1f77faed620019c5bcb3f34caac965c30"
         },
         {
           "path": "tests/Riftbound.PostgresAcceptance/Riftbound.PostgresAcceptance.csproj",
-          "sha256": "ca4342df075b1a3bd89d567114900961b5fe3b58edfad9f47d8d4dd9ff7aee9b"
+          "sha256": "d9716fb317bdde134df16a22a629df812237174f548aa80d4f4afe60c61a91a9"
         },
         {
           "path": "tests/Riftbound.ConformanceTests/Fixtures/physical-origin-cost-unit.json",
@@ -8969,7 +8969,7 @@
           "semanticReview": "SCOPED_ONLY",
           "implementation": "LOCAL_COMPLETE_FOR_RECORDED_BRANCH",
           "tests": "ALL8_FINAL_CASES_AND_ADJACENT162_PASS",
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_CURRENT_OPENING_FIXTURE_AND_HUB_INPUT_CORRECTION",
           "productAcceptance": "OPEN",
           "remaining": [
             "Other origin/controller/payment-waiver/combined-cost branches and the remaining text-located consumers remain separately unreviewed; no whole-card/family certification.",
@@ -8993,7 +8993,7 @@
           "semanticReview": "SCOPED_ONLY",
           "implementation": "LOCAL_COMPLETE_FOR_RECORDED_BRANCH",
           "tests": "2_NORMAL_FRAMES_AND_ALL71_SQL_PASS",
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_CURRENT_OPENING_FIXTURE_AND_HUB_INPUT_CORRECTION",
           "productAcceptance": "OPEN",
           "remaining": [
             "Other origin/controller/payment-waiver/combined-cost branches and the remaining text-located consumers remain separately unreviewed; no whole-card/family certification.",
@@ -9089,16 +9089,16 @@
       ],
       "latestInputChange": {
         "date": "2026-10-17",
-        "scope": "Created-token independent ready triggers and final truthful up-to-two target prompt; historical candidates remain separately pinned.",
+        "scope": "Explicit current opening corpus and production-seed test input correction; old accepted history and CI stay historical.",
         "receipt": {
-          "path": "docs/evidence/sand-soldier-embedded-ready-2026-10-17/prior-context-input-updates.json",
-          "sha256": "d789954d637ab0d2c721ba5ecccd5e899ef93c66983ae332476704cef096d3a8"
+          "path": "docs/evidence/opening-randomness-2026-10-17/post-check-context-input-updates.json",
+          "sha256": "088511d681928cc6e299b5f6826475188fdce1c4b0e601c5fe51ca5c819f9bda"
         }
       }
     },
     "granted-origin-haste-and-paid-entry-replacement-2026-10-16": {
       "evidenceCommit": "4ad7fe204adee28c4138f18bdde4c4cbcdea21f0",
-      "currentImplementationCommit": "8ca4080c9431b981db051a5adad18dace5d85dd5",
+      "currentImplementationCommit": "a6ccf1952141c69ed4b3cde94695f983c1c28db8",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact4ad7 baseline plus pinned5engine inputs,24cases, native readback and73SQL. NewfixedSHA full required. Printed-Haste dispatch restored after the singlecheck;213 current focus passed. Prior SQL/native exact inputs remain pre-repair, not relabeled.",
       "ciState": "PENDING",
@@ -9118,7 +9118,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "65381f59deddda34ca3812a65a649224493c538096ed0120762c61e3f411b88f"
+          "sha256": "4f77b4c099b7d5ec083c4cec6f8d3d83b89a112151e41675e328d208c4a3a285"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.PlayKeywords.cs",
@@ -9136,15 +9136,15 @@
         },
         {
           "path": "tests/Riftbound.PostgresAcceptance/GrantedOriginHasteSqlAcceptance.cs",
-          "sha256": "f0052de188b8aafd26d6223cf981253956c8ef403c5334564d7f9611c87f8da9"
+          "sha256": "2dfa8636b26bd3af37e4f22f901ed5e7a0409b26ff959b4d76193c724721114c"
         },
         {
           "path": "tests/Riftbound.PostgresAcceptance/Program.cs",
-          "sha256": "635c5f0c640563dae6b3e74bb362f6d9c10ef6043ae2f7f06fae4575fff187d0"
+          "sha256": "8aa37c53f823b082c25b2a16f83e9db1f77faed620019c5bcb3f34caac965c30"
         },
         {
           "path": "tests/Riftbound.PostgresAcceptance/Riftbound.PostgresAcceptance.csproj",
-          "sha256": "ca4342df075b1a3bd89d567114900961b5fe3b58edfad9f47d8d4dd9ff7aee9b"
+          "sha256": "d9716fb317bdde134df16a22a629df812237174f548aa80d4f4afe60c61a91a9"
         },
         {
           "path": "tests/Riftbound.ConformanceTests/Fixtures/granted-origin-haste-unit.json",
@@ -9233,7 +9233,7 @@
           "semanticReview": "SCOPED_ONLY",
           "implementation": "LOCAL_COMPLETE_FOR_RECORDED_BRANCH",
           "tests": "24_CASES_394_ADJACENT112_NATIVE_COMMANDS73_REAL_SQL_PASS",
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_CURRENT_OPENING_FIXTURE_AND_HUB_INPUT_CORRECTION",
           "productAcceptance": "OPEN",
           "remaining": [
             "Actual Atakhan optional sacrifice, generated Sand Soldier play, copied/attached/nonunit sources, controller-transfer and continuing in-play keyword characteristic consumers remain OPEN.",
@@ -9267,7 +9267,7 @@
           "semanticReview": "SCOPED_ONLY",
           "implementation": "LOCAL_COMPLETE_FOR_RECORDED_BRANCH",
           "tests": "24_CASES_394_ADJACENT112_NATIVE_COMMANDS73_REAL_SQL_PASS",
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_CURRENT_OPENING_FIXTURE_AND_HUB_INPUT_CORRECTION",
           "productAcceptance": "OPEN",
           "remaining": [
             "Actual Atakhan optional sacrifice, generated Sand Soldier play, copied/attached/nonunit sources, controller-transfer and continuing in-play keyword characteristic consumers remain OPEN.",
@@ -9301,7 +9301,7 @@
           "semanticReview": "SCOPED_ONLY",
           "implementation": "LOCAL_COMPLETE_FOR_RECORDED_BRANCH",
           "tests": "24_CASES_394_ADJACENT112_NATIVE_COMMANDS73_REAL_SQL_PASS",
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_CURRENT_OPENING_FIXTURE_AND_HUB_INPUT_CORRECTION",
           "productAcceptance": "OPEN",
           "remaining": [
             "Actual Atakhan optional sacrifice, generated Sand Soldier play, copied/attached/nonunit sources, controller-transfer and continuing in-play keyword characteristic consumers remain OPEN.",
@@ -9365,17 +9365,17 @@
       ],
       "latestInputChange": {
         "date": "2026-10-17",
-        "scope": "Created-token independent ready triggers and final truthful up-to-two target prompt; historical candidates remain separately pinned.",
+        "scope": "Explicit current opening corpus and production-seed test input correction; old accepted history and CI stay historical.",
         "receipt": {
-          "path": "docs/evidence/sand-soldier-embedded-ready-2026-10-17/prior-context-input-updates.json",
-          "sha256": "d789954d637ab0d2c721ba5ecccd5e899ef93c66983ae332476704cef096d3a8"
+          "path": "docs/evidence/opening-randomness-2026-10-17/post-check-context-input-updates.json",
+          "sha256": "088511d681928cc6e299b5f6826475188fdce1c4b0e601c5fe51ca5c819f9bda"
         }
       },
       "currentProductAcceptance": "OPEN_AFTER_SHARED_NATIVE_PROMPT_INPUT_CHANGE_OLD_VISIBLE_EVIDENCE_RETAINS_EXACT_SCOPE"
     },
     "opponent-battlefield-current-control-entry-2026-10-16": {
       "evidenceCommit": "3ced0126ac20a07c2909e7b44f3733a9e3aa044a",
-      "currentImplementationCommit": "8ca4080c9431b981db051a5adad18dace5d85dd5",
+      "currentImplementationCommit": "a6ccf1952141c69ed4b3cde94695f983c1c28db8",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact3ced baseline plus pinned Core fix and29new cases/3methods; old72 product and prior fixedfull evidence are separately bounded. New fixed SHA full required.",
       "ciState": "PENDING",
@@ -9405,15 +9405,15 @@
         },
         {
           "path": "tests/Riftbound.PostgresAcceptance/OpponentBattlefieldControlSqlAcceptance.cs",
-          "sha256": "296a65e88ebcac3353c982406d89b8d232cc80b8d1793940d643522d80477e72"
+          "sha256": "2d3e8f079b4000f098482816bf12fe12a6945f2e4aae87a9223722500dcc472c"
         },
         {
           "path": "tests/Riftbound.PostgresAcceptance/Program.cs",
-          "sha256": "635c5f0c640563dae6b3e74bb362f6d9c10ef6043ae2f7f06fae4575fff187d0"
+          "sha256": "8aa37c53f823b082c25b2a16f83e9db1f77faed620019c5bcb3f34caac965c30"
         },
         {
           "path": "tests/Riftbound.PostgresAcceptance/Riftbound.PostgresAcceptance.csproj",
-          "sha256": "ca4342df075b1a3bd89d567114900961b5fe3b58edfad9f47d8d4dd9ff7aee9b"
+          "sha256": "d9716fb317bdde134df16a22a629df812237174f548aa80d4f4afe60c61a91a9"
         }
       ],
       "evidence": [
@@ -9475,7 +9475,7 @@
           "semanticReview": "SCOPED_ENTRY_CONDITION_ONLY",
           "implementation": "LOCAL_COMPLETE",
           "tests": "29_NEW_1093_ADJACENT_1_ORIGINAL_GAME_75_REAL_SQL_4_EVENT_REJECTIONS_11964_SINGLE_CHECK_PASS",
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_CURRENT_OPENING_FIXTURE_AND_HUB_INPUT_CORRECTION",
           "productAcceptance": "OPEN_NEW_CANDIDATE",
           "remaining": [
             "New exact fixed-commit full CI and necessary visible candidate/Windows physical acceptance remain OPEN.",
@@ -9500,7 +9500,7 @@
           "semanticReview": "SCOPED_ENTRY_CONDITION_ONLY",
           "implementation": "LOCAL_COMPLETE",
           "tests": "29_NEW_1093_ADJACENT_1_ORIGINAL_GAME_75_REAL_SQL_4_EVENT_REJECTIONS_11964_SINGLE_CHECK_PASS",
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_CURRENT_OPENING_FIXTURE_AND_HUB_INPUT_CORRECTION",
           "productAcceptance": "OPEN_NEW_CANDIDATE",
           "remaining": [
             "New exact fixed-commit full CI and necessary visible candidate/Windows physical acceptance remain OPEN.",
@@ -9525,7 +9525,7 @@
           "semanticReview": "SCOPED_ENTRY_CONDITION_ONLY",
           "implementation": "LOCAL_COMPLETE",
           "tests": "29_NEW_1093_ADJACENT_1_ORIGINAL_GAME_75_REAL_SQL_4_EVENT_REJECTIONS_11964_SINGLE_CHECK_PASS",
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_CURRENT_OPENING_FIXTURE_AND_HUB_INPUT_CORRECTION",
           "productAcceptance": "OPEN_NEW_CANDIDATE",
           "remaining": [
             "New exact fixed-commit full CI and necessary visible candidate/Windows physical acceptance remain OPEN.",
@@ -9537,10 +9537,10 @@
       ],
       "latestInputChange": {
         "date": "2026-10-17",
-        "scope": "Created-token independent ready triggers and final truthful up-to-two target prompt; historical candidates remain separately pinned.",
+        "scope": "Explicit current opening corpus and production-seed test input correction; old accepted history and CI stay historical.",
         "receipt": {
-          "path": "docs/evidence/sand-soldier-embedded-ready-2026-10-17/prior-context-input-updates.json",
-          "sha256": "d789954d637ab0d2c721ba5ecccd5e899ef93c66983ae332476704cef096d3a8"
+          "path": "docs/evidence/opening-randomness-2026-10-17/post-check-context-input-updates.json",
+          "sha256": "088511d681928cc6e299b5f6826475188fdce1c4b0e601c5fe51ca5c819f9bda"
         }
       },
       "historicalFixedCiReceipts": [
@@ -9554,7 +9554,7 @@
     },
     "optional-sacrifice-printed-cost-and-paid-entry-2026-10-16": {
       "evidenceCommit": "8d7571c5a5572b1ed542a5ff1d8eaeb533bac1bc",
-      "currentImplementationCommit": "8ca4080c9431b981db051a5adad18dace5d85dd5",
+      "currentImplementationCommit": "a6ccf1952141c69ed4b3cde94695f983c1c28db8",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Fixed8d baseline plus exact15 executable/fixture patch files. Earlier full8d,113 old review dictionaries, source dates and original143/110/424242 remain retained. New candidate full required.",
       "ciState": "PENDING",
@@ -9586,7 +9586,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "65381f59deddda34ca3812a65a649224493c538096ed0120762c61e3f411b88f"
+          "sha256": "4f77b4c099b7d5ec083c4cec6f8d3d83b89a112151e41675e328d208c4a3a285"
         },
         {
           "path": "src/Riftbound.Api/Riftbound.Api.csproj",
@@ -9600,7 +9600,7 @@
         },
         {
           "path": "tests/Riftbound.ConformanceTests/OptionalSacrificeOpeningTests.cs",
-          "sha256": "c07f911b4b0c900ccdc84d88393123b584fc9f224f5f0462b18b40a351bd23f3"
+          "sha256": "75502082511aeafd2307a98307fefc2d56021d258beae8f8cf39d2e6bce91a76"
         },
         {
           "path": "tests/Riftbound.ConformanceTests/Fixtures/optional-sacrifice-hand.json",
@@ -9612,15 +9612,15 @@
         },
         {
           "path": "tests/Riftbound.PostgresAcceptance/OptionalSacrificeSqlAcceptance.cs",
-          "sha256": "198991021b2bfcd875eea729be9d05e20168861b4278c1a74f723969d492c749"
+          "sha256": "f3a5bc4951a0ab7f9fe53d4c538edf09bfa6a423631e826ecf945c27b8e7c9e5"
         },
         {
           "path": "tests/Riftbound.PostgresAcceptance/Program.cs",
-          "sha256": "635c5f0c640563dae6b3e74bb362f6d9c10ef6043ae2f7f06fae4575fff187d0"
+          "sha256": "8aa37c53f823b082c25b2a16f83e9db1f77faed620019c5bcb3f34caac965c30"
         },
         {
           "path": "tests/Riftbound.PostgresAcceptance/Riftbound.PostgresAcceptance.csproj",
-          "sha256": "ca4342df075b1a3bd89d567114900961b5fe3b58edfad9f47d8d4dd9ff7aee9b"
+          "sha256": "d9716fb317bdde134df16a22a629df812237174f548aa80d4f4afe60c61a91a9"
         }
       ],
       "evidence": [
@@ -9693,7 +9693,7 @@
           "semanticReview": "SCOPED_COST_ONLY",
           "implementation": "LOCAL_COMPLETE",
           "tests": "23_NEW_2056_ADJACENT_3_ORIGINAL_GAMES_2_NATIVE_77_REAL_SQL_8_EVENT_REJECTIONS_11987_SINGLE_CHECK_PASS",
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_CURRENT_OPENING_FIXTURE_AND_HUB_INPUT_CORRECTION",
           "productAcceptance": "OPEN_NEW_CANDIDATE",
           "remaining": [
             "New fixed candidate full CI and visible paired/network/score/replay and Windows physical acceptance remain OPEN.",
@@ -9724,7 +9724,7 @@
           "semanticReview": "SCOPED_COST_ONLY",
           "implementation": "LOCAL_COMPLETE",
           "tests": "23_NEW_2056_ADJACENT_3_ORIGINAL_GAMES_2_NATIVE_77_REAL_SQL_8_EVENT_REJECTIONS_11987_SINGLE_CHECK_PASS",
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_CURRENT_OPENING_FIXTURE_AND_HUB_INPUT_CORRECTION",
           "productAcceptance": "OPEN_NEW_CANDIDATE",
           "remaining": [
             "New fixed candidate full CI and visible paired/network/score/replay and Windows physical acceptance remain OPEN.",
@@ -9755,7 +9755,7 @@
           "semanticReview": "SCOPED_COST_ONLY",
           "implementation": "LOCAL_COMPLETE",
           "tests": "23_NEW_2056_ADJACENT_3_ORIGINAL_GAMES_2_NATIVE_77_REAL_SQL_8_EVENT_REJECTIONS_11987_SINGLE_CHECK_PASS",
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_CURRENT_OPENING_FIXTURE_AND_HUB_INPUT_CORRECTION",
           "productAcceptance": "OPEN_NEW_CANDIDATE",
           "remaining": [
             "New fixed candidate full CI and visible paired/network/score/replay and Windows physical acceptance remain OPEN.",
@@ -9793,10 +9793,10 @@
       ],
       "latestInputChange": {
         "date": "2026-10-17",
-        "scope": "Created-token independent ready triggers and final truthful up-to-two target prompt; historical candidates remain separately pinned.",
+        "scope": "Explicit current opening corpus and production-seed test input correction; old accepted history and CI stay historical.",
         "receipt": {
-          "path": "docs/evidence/sand-soldier-embedded-ready-2026-10-17/prior-context-input-updates.json",
-          "sha256": "d789954d637ab0d2c721ba5ecccd5e899ef93c66983ae332476704cef096d3a8"
+          "path": "docs/evidence/opening-randomness-2026-10-17/post-check-context-input-updates.json",
+          "sha256": "088511d681928cc6e299b5f6826475188fdce1c4b0e601c5fe51ca5c819f9bda"
         }
       },
       "historicalFixedCiReceipts": [
@@ -9811,7 +9811,7 @@
     },
     "granted-colorless-token-haste-payment-2026-10-16": {
       "evidenceCommit": "daf394e20997ebdb028e91ba9fdfe6c24eb492eb",
-      "currentImplementationCommit": "8ca4080c9431b981db051a5adad18dace5d85dd5",
+      "currentImplementationCommit": "a6ccf1952141c69ed4b3cde94695f983c1c28db8",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Fixeddaf baseline plus exact13 current executable/test/fixture patch files; historical daf full12136/7372 and77SQL do not cover the patch.",
       "ciState": "PENDING",
@@ -9839,7 +9839,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "65381f59deddda34ca3812a65a649224493c538096ed0120762c61e3f411b88f"
+          "sha256": "4f77b4c099b7d5ec083c4cec6f8d3d83b89a112151e41675e328d208c4a3a285"
         }
       ],
       "verificationSources": [
@@ -9861,15 +9861,15 @@
         },
         {
           "path": "tests/Riftbound.PostgresAcceptance/GrantedTokenHasteSqlAcceptance.cs",
-          "sha256": "166b3686bd4b5b625c243deea1cfc760f966385c197d4181d8f8cb7fec5db9d2"
+          "sha256": "682f906f527be324127b483a9b5ec5e3b7207b4527a58c970841693b42242369"
         },
         {
           "path": "tests/Riftbound.PostgresAcceptance/Program.cs",
-          "sha256": "635c5f0c640563dae6b3e74bb362f6d9c10ef6043ae2f7f06fae4575fff187d0"
+          "sha256": "8aa37c53f823b082c25b2a16f83e9db1f77faed620019c5bcb3f34caac965c30"
         },
         {
           "path": "tests/Riftbound.PostgresAcceptance/Riftbound.PostgresAcceptance.csproj",
-          "sha256": "ca4342df075b1a3bd89d567114900961b5fe3b58edfad9f47d8d4dd9ff7aee9b"
+          "sha256": "d9716fb317bdde134df16a22a629df812237174f548aa80d4f4afe60c61a91a9"
         }
       ],
       "evidence": [
@@ -9950,7 +9950,7 @@
           "semanticReview": "SCOPED_PRE_ENTRY_UNMODIFIED_HASTE_COST_ONLY",
           "implementation": "LOCAL_EXECUTED_SCOPE_COMPLETE",
           "tests": "33_NEW_1959_ADJACENT_3_ORIGINAL_GAMES_2_NATIVE_79_SQL_8_EVENT_REJECTIONS_12020_SINGLE_CHECK_PASS",
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_CURRENT_OPENING_FIXTURE_AND_HUB_INPUT_CORRECTION",
           "productAcceptance": "OPEN_NEW_CANDIDATE",
           "remaining": [
             "New fixed-commit full CI, visible paired clients, actual reconnect/normal score/full replay and Windows physical acceptance remain separate OPEN gates.",
@@ -9990,7 +9990,7 @@
           "semanticReview": "SCOPED_PRE_ENTRY_UNMODIFIED_HASTE_COST_ONLY",
           "implementation": "LOCAL_EXECUTED_SCOPE_COMPLETE",
           "tests": "33_NEW_1959_ADJACENT_3_ORIGINAL_GAMES_2_NATIVE_79_SQL_8_EVENT_REJECTIONS_12020_SINGLE_CHECK_PASS",
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_CURRENT_OPENING_FIXTURE_AND_HUB_INPUT_CORRECTION",
           "productAcceptance": "OPEN_NEW_CANDIDATE",
           "remaining": [
             "New fixed-commit full CI, visible paired clients, actual reconnect/normal score/full replay and Windows physical acceptance remain separate OPEN gates.",
@@ -10030,7 +10030,7 @@
           "semanticReview": "SCOPED_PRE_ENTRY_UNMODIFIED_HASTE_COST_ONLY",
           "implementation": "LOCAL_EXECUTED_SCOPE_COMPLETE",
           "tests": "33_NEW_1959_ADJACENT_3_ORIGINAL_GAMES_2_NATIVE_79_SQL_8_EVENT_REJECTIONS_12020_SINGLE_CHECK_PASS",
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_CURRENT_OPENING_FIXTURE_AND_HUB_INPUT_CORRECTION",
           "productAcceptance": "OPEN_NEW_CANDIDATE",
           "remaining": [
             "New fixed-commit full CI, visible paired clients, actual reconnect/normal score/full replay and Windows physical acceptance remain separate OPEN gates.",
@@ -10094,16 +10094,16 @@
       "currentProductAcceptance": "OPEN_AFTER_SHARED_NATIVE_PROMPT_INPUT_CHANGE_OLD_VISIBLE_EVIDENCE_RETAINS_EXACT_SCOPE",
       "latestInputChange": {
         "date": "2026-10-17",
-        "scope": "Created-token independent ready triggers and final truthful up-to-two target prompt; historical candidates remain separately pinned.",
+        "scope": "Explicit current opening corpus and production-seed test input correction; old accepted history and CI stay historical.",
         "receipt": {
-          "path": "docs/evidence/sand-soldier-embedded-ready-2026-10-17/prior-context-input-updates.json",
-          "sha256": "d789954d637ab0d2c721ba5ecccd5e899ef93c66983ae332476704cef096d3a8"
+          "path": "docs/evidence/opening-randomness-2026-10-17/post-check-context-input-updates.json",
+          "sha256": "088511d681928cc6e299b5f6826475188fdce1c4b0e601c5fe51ca5c819f9bda"
         }
       }
     },
     "native-rule-choice-prompts-2026-10-16": {
       "evidenceCommit": "65092fcdea323f9f4b435a91344f76e838fb21b4",
-      "currentImplementationCommit": "8ca4080c9431b981db051a5adad18dace5d85dd5",
+      "currentImplementationCommit": "a6ccf1952141c69ed4b3cde94695f983c1c28db8",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Fixed650 baseline plus exact two implementation and four verification inputs. Fixed650 full does not cover these uncommitted prompt changes.",
       "ciState": "PENDING",
@@ -10111,7 +10111,7 @@
       "implementation": [
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "65381f59deddda34ca3812a65a649224493c538096ed0120762c61e3f411b88f"
+          "sha256": "4f77b4c099b7d5ec083c4cec6f8d3d83b89a112151e41675e328d208c4a3a285"
         },
         {
           "path": "clients/godot/scripts/ui/MatchPhasePresentation.cs",
@@ -10125,7 +10125,7 @@
         },
         {
           "path": "tests/Riftbound.PostgresAcceptance/GrantedTokenHasteSqlAcceptance.cs",
-          "sha256": "166b3686bd4b5b625c243deea1cfc760f966385c197d4181d8f8cb7fec5db9d2"
+          "sha256": "682f906f527be324127b483a9b5ec5e3b7207b4527a58c970841693b42242369"
         },
         {
           "path": "clients/godot/scripts/debug/RuleChoiceNativePromptProof.cs",
@@ -10204,7 +10204,7 @@
           "semanticReview": "SCOPED_EXISTING_AUTHORITATIVE_PROMPT_CONTRACT_ONLY",
           "implementation": "LOCAL_EXECUTED_SCOPE_COMPLETE",
           "tests": "7_NEW_191_ADJACENT_2_ORIGINAL_GAMES_13_NATIVE_79_SQL_12027_SINGLE_CHECK_PASS",
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_CURRENT_OPENING_FIXTURE_AND_HUB_INPUT_CORRECTION",
           "productAcceptance": "OPEN_NEW_VISIBLE_AND_WINDOWS",
           "remaining": [
             "New fixed-commit full CI for this changed prompt candidate, visible paired controls, normal score/reconnect/replay and Windows physical remain independent OPEN gates.",
@@ -10244,7 +10244,7 @@
           "semanticReview": "SCOPED_EXISTING_AUTHORITATIVE_PROMPT_CONTRACT_ONLY",
           "implementation": "LOCAL_EXECUTED_SCOPE_COMPLETE",
           "tests": "7_NEW_191_ADJACENT_2_ORIGINAL_GAMES_13_NATIVE_79_SQL_12027_SINGLE_CHECK_PASS",
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_CURRENT_OPENING_FIXTURE_AND_HUB_INPUT_CORRECTION",
           "productAcceptance": "OPEN_NEW_VISIBLE_AND_WINDOWS",
           "remaining": [
             "New fixed-commit full CI for this changed prompt candidate, visible paired controls, normal score/reconnect/replay and Windows physical remain independent OPEN gates.",
@@ -10284,7 +10284,7 @@
           "semanticReview": "SCOPED_EXISTING_AUTHORITATIVE_PROMPT_CONTRACT_ONLY",
           "implementation": "LOCAL_EXECUTED_SCOPE_COMPLETE",
           "tests": "7_NEW_191_ADJACENT_2_ORIGINAL_GAMES_13_NATIVE_79_SQL_12027_SINGLE_CHECK_PASS",
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_CURRENT_OPENING_FIXTURE_AND_HUB_INPUT_CORRECTION",
           "productAcceptance": "OPEN_NEW_VISIBLE_AND_WINDOWS",
           "remaining": [
             "New fixed-commit full CI for this changed prompt candidate, visible paired controls, normal score/reconnect/replay and Windows physical remain independent OPEN gates.",
@@ -10297,10 +10297,10 @@
       ],
       "latestInputChange": {
         "date": "2026-10-17",
-        "scope": "Created-token independent ready triggers and final truthful up-to-two target prompt; historical candidates remain separately pinned.",
+        "scope": "Explicit current opening corpus and production-seed test input correction; old accepted history and CI stay historical.",
         "receipt": {
-          "path": "docs/evidence/sand-soldier-embedded-ready-2026-10-17/prior-context-input-updates.json",
-          "sha256": "d789954d637ab0d2c721ba5ecccd5e899ef93c66983ae332476704cef096d3a8"
+          "path": "docs/evidence/opening-randomness-2026-10-17/post-check-context-input-updates.json",
+          "sha256": "088511d681928cc6e299b5f6826475188fdce1c4b0e601c5fe51ca5c819f9bda"
         }
       },
       "historicalFixedCiReceipts": [
@@ -10314,7 +10314,7 @@
     },
     "sand-soldier-embedded-ready-2026-10-17": {
       "evidenceCommit": "8ca4080c9431b981db051a5adad18dace5d85dd5",
-      "currentImplementationCommit": "8ca4080c9431b981db051a5adad18dace5d85dd5",
+      "currentImplementationCommit": "a6ccf1952141c69ed4b3cde94695f983c1c28db8",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Fixed8ca source baseline (gameplay5ed) plus explicit current implementation/test/fixture inputs. Prior5ed full/native and local pre-caption SQL are not relabeled as this final candidate.",
       "ciState": "PENDING",
@@ -10350,11 +10350,11 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "fa3d7894a837fbe2a5045dd7243a3040d0478a8c9a2acc9b30b2583c2bf286e7"
+          "sha256": "60f6daa432c808e24524746dbc6a79d98fe86fccb77a4674dab3031750c1d4cd"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "65381f59deddda34ca3812a65a649224493c538096ed0120762c61e3f411b88f"
+          "sha256": "4f77b4c099b7d5ec083c4cec6f8d3d83b89a112151e41675e328d208c4a3a285"
         },
         {
           "path": "src/Riftbound.Engine/StackObjectRules.cs",
@@ -10408,15 +10408,15 @@
         },
         {
           "path": "tests/Riftbound.PostgresAcceptance/CreatedTokenReadySqlAcceptance.cs",
-          "sha256": "f976a5aaa72092210a46505ceaedb8f0649a51b9699ba756caa4124e63cf5b45"
+          "sha256": "8e94138fb3b39bde50ade381f59cb51fa5f2bb3af245d867d957a3fa4622cccb"
         },
         {
           "path": "tests/Riftbound.PostgresAcceptance/Program.cs",
-          "sha256": "635c5f0c640563dae6b3e74bb362f6d9c10ef6043ae2f7f06fae4575fff187d0"
+          "sha256": "8aa37c53f823b082c25b2a16f83e9db1f77faed620019c5bcb3f34caac965c30"
         },
         {
           "path": "tests/Riftbound.PostgresAcceptance/Riftbound.PostgresAcceptance.csproj",
-          "sha256": "ca4342df075b1a3bd89d567114900961b5fe3b58edfad9f47d8d4dd9ff7aee9b"
+          "sha256": "d9716fb317bdde134df16a22a629df812237174f548aa80d4f4afe60c61a91a9"
         }
       ],
       "evidence": [
@@ -10498,7 +10498,7 @@
           "semanticReview": "SCOPED_EXECUTED_BRANCH_ONLY",
           "implementation": "LOCAL_CURRENT_EXECUTED_SCOPE",
           "tests": "33_NEW_192_ADJACENT_4_EMPTY_OPENINGS_34_HEADLESS_NATIVE_SINGLE_CHECK12060_7256_PASS",
-          "fixedCommitCi": "PENDING_NEW_CANDIDATE",
+          "fixedCommitCi": "PENDING_AFTER_CURRENT_OPENING_FIXTURE_AND_HUB_INPUT_CORRECTION",
           "productAcceptance": "OPEN_CURRENT_VISIBLE_AND_WINDOWS",
           "remaining": [
             "New fixed full CI for final input including all83 actual SQL paths, normal143 games/110 pairs/11 decks/424242 and network/packaging remains OPEN until actual terminal artifacts verified.",
@@ -10534,7 +10534,7 @@
           "semanticReview": "SCOPED_EXECUTED_BRANCH_ONLY",
           "implementation": "LOCAL_CURRENT_EXECUTED_SCOPE",
           "tests": "33_NEW_192_ADJACENT_4_EMPTY_OPENINGS_34_HEADLESS_NATIVE_SINGLE_CHECK12060_7256_PASS",
-          "fixedCommitCi": "PENDING_NEW_CANDIDATE",
+          "fixedCommitCi": "PENDING_AFTER_CURRENT_OPENING_FIXTURE_AND_HUB_INPUT_CORRECTION",
           "productAcceptance": "OPEN_CURRENT_VISIBLE_AND_WINDOWS",
           "remaining": [
             "New fixed full CI for final input including all83 actual SQL paths, normal143 games/110 pairs/11 decks/424242 and network/packaging remains OPEN until actual terminal artifacts verified.",
@@ -10570,7 +10570,7 @@
           "semanticReview": "SCOPED_EXECUTED_BRANCH_ONLY",
           "implementation": "LOCAL_CURRENT_EXECUTED_SCOPE",
           "tests": "33_NEW_192_ADJACENT_4_EMPTY_OPENINGS_34_HEADLESS_NATIVE_SINGLE_CHECK12060_7256_PASS",
-          "fixedCommitCi": "PENDING_NEW_CANDIDATE",
+          "fixedCommitCi": "PENDING_AFTER_CURRENT_OPENING_FIXTURE_AND_HUB_INPUT_CORRECTION",
           "productAcceptance": "OPEN_CURRENT_VISIBLE_AND_WINDOWS",
           "remaining": [
             "New fixed full CI for final input including all83 actual SQL paths, normal143 games/110 pairs/11 decks/424242 and network/packaging remains OPEN until actual terminal artifacts verified.",
@@ -10606,7 +10606,7 @@
           "semanticReview": "SCOPED_EXECUTED_BRANCH_ONLY",
           "implementation": "LOCAL_CURRENT_EXECUTED_SCOPE",
           "tests": "33_NEW_192_ADJACENT_4_EMPTY_OPENINGS_34_HEADLESS_NATIVE_SINGLE_CHECK12060_7256_PASS",
-          "fixedCommitCi": "PENDING_NEW_CANDIDATE",
+          "fixedCommitCi": "PENDING_AFTER_CURRENT_OPENING_FIXTURE_AND_HUB_INPUT_CORRECTION",
           "productAcceptance": "OPEN_CURRENT_VISIBLE_AND_WINDOWS",
           "remaining": [
             "New fixed full CI for final input including all83 actual SQL paths, normal143 games/110 pairs/11 decks/424242 and network/packaging remains OPEN until actual terminal artifacts verified.",
@@ -10647,7 +10647,448 @@
             "DOC-01-P067-B016"
           ]
         }
-      ]
+      ],
+      "latestInputChange": {
+        "date": "2026-10-17",
+        "scope": "Explicit current opening corpus and production-seed test input correction; old accepted history and CI stay historical.",
+        "receipt": {
+          "path": "docs/evidence/opening-randomness-2026-10-17/post-check-context-input-updates.json",
+          "sha256": "088511d681928cc6e299b5f6826475188fdce1c4b0e601c5fe51ca5c819f9bda"
+        }
+      }
+    },
+    "opening-randomness-2026-10-17": {
+      "evidenceCommit": "a6ccf1952141c69ed4b3cde94695f983c1c28db8",
+      "currentImplementationCommit": "a6ccf1952141c69ed4b3cde94695f983c1c28db8",
+      "currentImplementationIncludesUncommittedChanges": true,
+      "evidenceCommitScope": "Base plus current explicit implementation/test inputs. Prior39 native/CI is historical and not relabeled current.",
+      "ciState": "PENDING",
+      "ciReceipts": [],
+      "implementation": [
+        {
+          "path": "src/Riftbound.Engine/MatchJournal.cs",
+          "sha256": "f725714a268df7fd237514ad1693eee3603faf61bcb655e5170f11c32e03ca60"
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchPlayers.cs",
+          "sha256": "3c5b5b52cd3c943cdecd666f37d80989372b2cffa84b96c2b2cb39ea5791c30f"
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.cs",
+          "sha256": "60f6daa432c808e24524746dbc6a79d98fe86fccb77a4674dab3031750c1d4cd"
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchSession.cs",
+          "sha256": "4f77b4c099b7d5ec083c4cec6f8d3d83b89a112151e41675e328d208c4a3a285"
+        },
+        {
+          "path": "src/Riftbound.Persistence/PostgresMatchJournal.cs",
+          "sha256": "6f7b87484b8d8102b4824a50936b78ef1a2479de06f4271808368ec6a5fe1a53"
+        },
+        {
+          "path": "src/Riftbound.Persistence/PostgresMatchPlayerStore.cs",
+          "sha256": "687e0fc8709ff3e55f6796837f6fefb773a762b8c77de720a92d0156a86240d3"
+        },
+        {
+          "path": "src/Riftbound.Persistence/PostgresMatchRecoveryStore.cs",
+          "sha256": "e54bb4f85d83d2d3fedc9fce0ff280ec00483d98216da63a88ffe02853cb3358"
+        }
+      ],
+      "verificationSources": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/CardPlayHistoryRecoveryGuardTests.cs",
+          "sha256": "4edeb44e5df59a57e04b72b4259c3e77b36ab37df228186e5fed2dc2497e6554"
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/Fixtures/card-play-history-current-opening-20261017.json",
+          "sha256": "b025dd81d7aeb74611edca6027afe9125f265ef1aa7a1b92fa8f35b0eca1a2ca"
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/Fixtures/current-opening-20261017/confirmed-play-origin-hand-cn16.json",
+          "sha256": "07d215c3627eea38583f2e523ad734aacff683716ad9faf3132698893bc5e384"
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/Fixtures/current-opening-20261017/confirmed-play-origin-standby-cn16.json",
+          "sha256": "ed4d9182e995e5fa9c978319c53beb067aff389d1d605a2cab05ffcc4443ff08"
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/Fixtures/current-opening-20261017/embedded-ready-protect-decline.json",
+          "sha256": "370bedeb03305929989e40da699bbaecd0439f76cb778756301f5c85dad6426e"
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/Fixtures/current-opening-20261017/embedded-ready-protect-pay.json",
+          "sha256": "c8816cef5618206818d691c9eaf35588c24f892d034434590e066ea8467af6e9"
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/Fixtures/current-opening-20261017/embedded-ready-rise-0.json",
+          "sha256": "8b2e74989842c724ee4e121e36ef3e0e928bdad0596fdd13159eec1b8387651c"
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/Fixtures/current-opening-20261017/embedded-ready-rise-2.json",
+          "sha256": "9ebcc40d25cef2300a7b8370b16c62bb554533f5a84340de105ec02a9fefb3f3"
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/Fixtures/current-opening-20261017/granted-origin-haste-sacrifice.json",
+          "sha256": "57395ece74c8ac5d73ff9b6ae1a2e78d709d296355cd37238c9d9a95644d3ff9"
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/Fixtures/current-opening-20261017/granted-origin-haste-unit.json",
+          "sha256": "01de80e59ecc1f9456fa20d2c08944b2e932c79ce671e1272f2e55b965eb7295"
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/Fixtures/current-opening-20261017/opponent-battlefield-control-neutral.json",
+          "sha256": "adeb44c4de45938ebd85ae97adaca39e6d05eac6c4238d2ba69d25491fa9b59c"
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/Fixtures/current-opening-20261017/opponent-battlefield-control-swapped.json",
+          "sha256": "9c4c0f106dc1cd38488b8ade04b7aed56b1cd79a18f8c9db0579f98be02f98dc"
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/Fixtures/current-opening-20261017/optional-sacrifice-hand.json",
+          "sha256": "3bf779fe5c0f6d8660dc15cfc9d242c969ffa5192ba16c92af7bde92ccfc2d8e"
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/Fixtures/current-opening-20261017/optional-sacrifice-haste.json",
+          "sha256": "ad8af13b0ac6d79c04a8d0d47e8788dc9a1bdce7da9b848cc05307b1ad3fad48"
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/Fixtures/current-opening-20261017/physical-origin-cost-spell.json",
+          "sha256": "2c9110fd6711d2605057516015212925882a0c646c1040213d800b8703c89095"
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/Fixtures/current-opening-20261017/physical-origin-cost-unit.json",
+          "sha256": "7c8509b73f3c52c572ce660d9a49945fd8c9b2b54a1e2baa66f4f4c8cfb12875"
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/Fixtures/current-opening-20261017/token-haste-hand.json",
+          "sha256": "9951bd0c23938c0b82dfdcf455d1a7ecf9544fe63efa0297e135f1159c57b16d"
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/Fixtures/current-opening-20261017/token-haste-standby.json",
+          "sha256": "dc24db39455742931b6cb1e97ee792d4965dec9f447c8b91088bc9fdae3e2a82"
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/Fixtures/opening-randomization-v1.json",
+          "sha256": "0c52c5d5b75a2f01a2652f57f4892e3ce8bbcf34fe153badfc3285c503901847"
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/GameHubJoinTests.cs",
+          "sha256": "9d5bc33de3a8723ad598301854fd2eb4ed816f1392224abcfdcd3449829ac525"
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+          "sha256": "5f5f52ed341559d2c1525c5c72a5a8619d9d45897a89b3221f1e6706989ac124"
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/OpeningRandomizationTests.cs",
+          "sha256": "57bab3a10d17e58584bf808df882dcc3b599e9108de76153f421e6cea29cb30c"
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/OptionalSacrificeOpeningTests.cs",
+          "sha256": "75502082511aeafd2307a98307fefc2d56021d258beae8f8cf39d2e6bce91a76"
+        },
+        {
+          "path": "tests/Riftbound.PostgresAcceptance/CardPlayHistoryCausalSqlAcceptance.cs",
+          "sha256": "b1f3554c39cbf04c7c4190fff6847062c732794317ea8a0435db390ebe6a556a"
+        },
+        {
+          "path": "tests/Riftbound.PostgresAcceptance/ConfirmedPlayOriginSqlAcceptance.cs",
+          "sha256": "326f0d0869513d5812cc10d998920896b9da9643672b5a2a46111a4ebad741be"
+        },
+        {
+          "path": "tests/Riftbound.PostgresAcceptance/CreatedTokenReadySqlAcceptance.cs",
+          "sha256": "8e94138fb3b39bde50ade381f59cb51fa5f2bb3af245d867d957a3fa4622cccb"
+        },
+        {
+          "path": "tests/Riftbound.PostgresAcceptance/GrantedOriginHasteSqlAcceptance.cs",
+          "sha256": "2dfa8636b26bd3af37e4f22f901ed5e7a0409b26ff959b4d76193c724721114c"
+        },
+        {
+          "path": "tests/Riftbound.PostgresAcceptance/GrantedPredictSqlAcceptance.cs",
+          "sha256": "daeecba30fca5f38f7b28fd0a60a9f02f3bcaced6b9e37f41ac57beeb44aa7fc"
+        },
+        {
+          "path": "tests/Riftbound.PostgresAcceptance/GrantedTokenHasteSqlAcceptance.cs",
+          "sha256": "682f906f527be324127b483a9b5ec5e3b7207b4527a58c970841693b42242369"
+        },
+        {
+          "path": "tests/Riftbound.PostgresAcceptance/MaskedAttendantSqlAcceptance.cs",
+          "sha256": "26a77dc3f201e83368173d8a10aa67b8e8d67e5d5fdfea825fe398891d0960c0"
+        },
+        {
+          "path": "tests/Riftbound.PostgresAcceptance/OpeningRandomnessSqlAcceptance.cs",
+          "sha256": "52b312a3cff2c0f0df5d0dcc76519cf50b9a5859025ff1940d8e8374c307a48e"
+        },
+        {
+          "path": "tests/Riftbound.PostgresAcceptance/OpponentBattlefieldControlSqlAcceptance.cs",
+          "sha256": "2d3e8f079b4000f098482816bf12fe12a6945f2e4aae87a9223722500dcc472c"
+        },
+        {
+          "path": "tests/Riftbound.PostgresAcceptance/OptionalSacrificeSqlAcceptance.cs",
+          "sha256": "f3a5bc4951a0ab7f9fe53d4c538edf09bfa6a423631e826ecf945c27b8e7c9e5"
+        },
+        {
+          "path": "tests/Riftbound.PostgresAcceptance/PhysicalOriginCostSqlAcceptance.cs",
+          "sha256": "edaaa28d0bac4af5b01a6649a3e7ae71bb7ca482bf6944639848737091261280"
+        },
+        {
+          "path": "tests/Riftbound.PostgresAcceptance/PrintedPredictSqlAcceptance.cs",
+          "sha256": "215f5926defba182d334702294dcb855890524cad08cb7c7eb35e36acec79ada"
+        },
+        {
+          "path": "tests/Riftbound.PostgresAcceptance/Program.cs",
+          "sha256": "8aa37c53f823b082c25b2a16f83e9db1f77faed620019c5bcb3f34caac965c30"
+        },
+        {
+          "path": "tests/Riftbound.PostgresAcceptance/Riftbound.PostgresAcceptance.csproj",
+          "sha256": "d9716fb317bdde134df16a22a629df812237174f548aa80d4f4afe60c61a91a9"
+        },
+        {
+          "path": "tests/Riftbound.PostgresAcceptance/RuneRecycleDestinationSqlAcceptance.cs",
+          "sha256": "0ef5a1aa102d03bb7aa454f99b58cdbfb77fa24237631a8373213e7eeda27c83"
+        },
+        {
+          "path": "tests/Riftbound.PostgresAcceptance/SivirOptionalSqlAcceptance.cs",
+          "sha256": "35a03628a0ed450b9025ae59a251327bc8f6aab39623f98ced1021707d097bfb"
+        },
+        {
+          "path": "tests/Riftbound.PostgresAcceptance/SivirPaymentSqlAcceptance.cs",
+          "sha256": "141a1ecbdae83265d794f294df38f932e2bddb4aa4d5c23d8eae0132308d3dfa"
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/evidence/opening-randomness-2026-10-17/source-manifest.json",
+          "sha256": "316fe6276c164214480fbd558c77a44264075f281992e2dae80f6872ee7dc673",
+          "role": "source-manifest"
+        },
+        {
+          "path": "docs/evidence/opening-randomness-2026-10-17/existing-obligation-links.json",
+          "sha256": "9a362434c25658e8d1185facd9d3b0db7de442dc97b9116f1500d7148a527301",
+          "role": "existing-obligation-links"
+        },
+        {
+          "path": "docs/evidence/opening-randomness-2026-10-17/mode-source-links.json",
+          "sha256": "dbd66f5fe812ba47a5d0e68182ada0c07adbc2fe807c9507454cb2a7d0b64437",
+          "role": "mode-source-links"
+        },
+        {
+          "path": "docs/evidence/opening-randomness-2026-10-17/actual-method-red.json",
+          "sha256": "a5d53cbc4361fb35d42b86cd3ae63e53313dbd546371413abaf76694b7889ae6",
+          "role": "actual-method-red"
+        },
+        {
+          "path": "docs/evidence/opening-randomness-2026-10-17/actual-method-green.json",
+          "sha256": "921557ea97722c9f347db4ac6f1e0838fa0891f4b84214adcf6787bbea94238d",
+          "role": "actual-method-green"
+        },
+        {
+          "path": "docs/evidence/opening-randomness-2026-10-17/public-seed-counterexample.json",
+          "sha256": "cdb77efc10987ec43c7e1e1f32672b1b3ac0fce2f17f9d113101de7d26ce80c6",
+          "role": "public-seed-counterexample"
+        },
+        {
+          "path": "docs/evidence/opening-randomness-2026-10-17/focus.json",
+          "sha256": "f9ebc166aaa1e6bd7f6c78fcbb195f694dac0e7db1fa1b643e566431942d83b1",
+          "role": "focus"
+        },
+        {
+          "path": "docs/evidence/opening-randomness-2026-10-17/sql-execution.json",
+          "sha256": "77b54a1f310f727be9e9b18f1c07f19396e964d42e17548926133ceb9344faca",
+          "role": "sql-execution"
+        },
+        {
+          "path": "docs/evidence/opening-randomness-2026-10-17/sql-receipt.json",
+          "sha256": "6a0803452e821f736f103314263d5f9881050c2724e143d98ee9ab2d39cb19f3",
+          "role": "sql-receipt"
+        },
+        {
+          "path": "docs/evidence/opening-randomness-2026-10-17/sql-runtime-close.json",
+          "sha256": "712d2bb6fadc6aaba6c41dd234c2a27e553a0c14ac7d72c0719c0956ad4bc3ae",
+          "role": "sql-runtime-close"
+        },
+        {
+          "path": "docs/evidence/opening-randomness-2026-10-17/verification-corrections.json",
+          "sha256": "beb81c7357f1aedf956eafc6acdf4c33129a87d48ce7ce826b3cf1b62e6ded65",
+          "role": "verification-corrections"
+        },
+        {
+          "path": "docs/evidence/opening-randomness-2026-10-17/original-source-parity.json",
+          "sha256": "abcb32e7a0614dce3ec7d6dacfd3ba0b0bdd5c8381a2c24b5f083a37e66dd4ca",
+          "role": "original-source-parity"
+        },
+        {
+          "path": "docs/evidence/opening-randomness-2026-10-17/prior-context-input-updates.json",
+          "sha256": "2813ee15ea1765358447f4c2bdf20051353bc18b70bac76fae5a20bb72625873",
+          "role": "prior-context-input-updates"
+        },
+        {
+          "path": "docs/evidence/opening-randomness-2026-10-17/remaining-consumers.json",
+          "sha256": "a2d02790a096df76ec983ce8b9eaeff036c3ed627ba29b625e3e42ac3c8be467",
+          "role": "remaining-consumers"
+        },
+        {
+          "path": "docs/evidence/opening-randomness-2026-10-17/check.json",
+          "sha256": "3b3d6c1ae7c336607d470ae6f8ba030c5e52c0f85ba1b10ac12ddf43319b1905",
+          "role": "check"
+        },
+        {
+          "path": "docs/evidence/opening-randomness-2026-10-17/sql-final-execution.json",
+          "sha256": "a770c467faa28943428a403df53fe025c48f96c9dadc7a7f08c763f673010bbe",
+          "role": "sql-final-execution"
+        },
+        {
+          "path": "docs/evidence/opening-randomness-2026-10-17/sql-final-private-opening.json",
+          "sha256": "a36f7a49caa4f654d7f7f4b4a44bae252a7a807ebe0266b99b7af098d96bcfd8",
+          "role": "sql-final-private-opening"
+        },
+        {
+          "path": "docs/evidence/opening-randomness-2026-10-17/sql-final-causal-history.json",
+          "sha256": "021692e9dfee052b17eb8e82553840225e3da8802470239efcc719df18151b4f",
+          "role": "sql-final-causal-history"
+        },
+        {
+          "path": "docs/evidence/opening-randomness-2026-10-17/sql-final-runtime-close.json",
+          "sha256": "9a841635da28f5b27f4f030d80926326c847170c3880a52c0030e2d8cd0fdf15",
+          "role": "sql-final-runtime-close"
+        },
+        {
+          "path": "docs/evidence/opening-randomness-2026-10-17/current-fixture-links.json",
+          "sha256": "a3dd945ed3939199460d6951e329dff2b71af356b639eb48f717a526588af9cd",
+          "role": "current-fixture-links"
+        },
+        {
+          "path": "docs/evidence/opening-randomness-2026-10-17/current-fixture-import-validation.json",
+          "sha256": "e1a8484b96e2d63f5b8b71b71b50e16e323cf43ce85c6d7a1ad1d17c36ced5e6",
+          "role": "current-fixture-import-validation"
+        },
+        {
+          "path": "docs/evidence/opening-randomness-2026-10-17/fresh-production-hub-repeats.json",
+          "sha256": "878c1c547daef6eeec5845c3573205cf9c4e723267e13d365e747deaaf955e78",
+          "role": "fresh-production-hub-repeats"
+        },
+        {
+          "path": "docs/evidence/opening-randomness-2026-10-17/prior-fixed39-full-ci.json",
+          "sha256": "ae9ab74bae5eb07a3c3867d57d6dd7d4f2dfe94bffbc673186cb9eb16520d93e",
+          "role": "prior-fixed39-full-ci"
+        },
+        {
+          "path": "docs/evidence/opening-randomness-2026-10-17/original-source-parity-final.json",
+          "sha256": "dd2f71bd5ec4eefd16e714eb4673d73968037dac3432a16fd80fe03412d35274",
+          "role": "original-source-parity-final"
+        },
+        {
+          "path": "docs/evidence/opening-randomness-2026-10-17/post-check-corrections.json",
+          "sha256": "8b48828a80d77c9ea11038ed766e395121044891cdda46430663527dfe59cf42",
+          "role": "post-check-corrections"
+        },
+        {
+          "path": "docs/evidence/opening-randomness-2026-10-17/post-check-context-input-updates.json",
+          "sha256": "088511d681928cc6e299b5f6826475188fdce1c4b0e601c5fe51ca5c819f9bda",
+          "role": "post-check-context-input-updates"
+        }
+      ],
+      "branches": [
+        {
+          "id": "private-opening-seed-and-independent-recovery",
+          "sourceRefs": [
+            "CN-d6fd7140f106f9b5-P006-B008",
+            "CN-d6fd7140f106f9b5-P006-B013"
+          ],
+          "state": "RECORDED",
+          "semanticReview": "SCOPED_EXECUTED_ONLY",
+          "implementation": "LOCAL_CURRENT_EXECUTED_SCOPE",
+          "tests": "38_NEW_63_CORRECTED_FOCUS_17_CORPUS_8_FRESH_HUB_2_SQL_PATHS_PASS_SINGLE_CHECK_FAILURE_RETAINED",
+          "fixedCommitCi": "PENDING_AFTER_CURRENT_OPENING_FIXTURE_AND_HUB_INPUT_CORRECTION",
+          "productAcceptance": "OPEN_CURRENT_VISIBLE_AND_WINDOWS",
+          "remaining": [
+            "All non-opening randomness, including recycling417.5 and other rule consumers, remains OPEN; finite samples do not certify every permutation or the entire privacy surface.",
+            "487 single-game duel is this battlefield-randomization scope. 488 match chosen battlefields, series reuse/removal and other modes remain separate OPEN source obligations.",
+            "New fixed complete CI must retain all143 games/110 pairs/11 decks/424242, all83 old SQL paths plus this fresh-production path, network and both desktop jobs. Prior39/older CI is not this implementation.",
+            "Current visible paired clients, network/cold recovery, normal score victory/full original replay and physical Windows are separate OPEN gates for the new candidate.",
+            "All1740 source identities/1033 runtime entries, EN missing8, CN QA/news/media/document/version gaps and all earlier card/rule obligations remain retained."
+          ]
+        },
+        {
+          "id": "main-rune-shuffle-and-unbiased-boundary",
+          "sourceRefs": [
+            "CN-d6fd7140f106f9b5-P007-B013"
+          ],
+          "state": "RECORDED",
+          "semanticReview": "SCOPED_EXECUTED_ONLY",
+          "implementation": "LOCAL_CURRENT_EXECUTED_SCOPE",
+          "tests": "38_NEW_63_CORRECTED_FOCUS_17_CORPUS_8_FRESH_HUB_2_SQL_PATHS_PASS_SINGLE_CHECK_FAILURE_RETAINED",
+          "fixedCommitCi": "PENDING_AFTER_CURRENT_OPENING_FIXTURE_AND_HUB_INPUT_CORRECTION",
+          "productAcceptance": "OPEN_CURRENT_VISIBLE_AND_WINDOWS",
+          "remaining": [
+            "All non-opening randomness, including recycling417.5 and other rule consumers, remains OPEN; finite samples do not certify every permutation or the entire privacy surface.",
+            "487 single-game duel is this battlefield-randomization scope. 488 match chosen battlefields, series reuse/removal and other modes remain separate OPEN source obligations.",
+            "New fixed complete CI must retain all143 games/110 pairs/11 decks/424242, all83 old SQL paths plus this fresh-production path, network and both desktop jobs. Prior39/older CI is not this implementation.",
+            "Current visible paired clients, network/cold recovery, normal score victory/full original replay and physical Windows are separate OPEN gates for the new candidate.",
+            "All1740 source identities/1033 runtime entries, EN missing8, CN QA/news/media/document/version gaps and all earlier card/rule obligations remain retained."
+          ]
+        },
+        {
+          "id": "fair-turn-order",
+          "sourceRefs": [
+            "CN-d6fd7140f106f9b5-P007-B016"
+          ],
+          "state": "RECORDED",
+          "semanticReview": "SCOPED_EXECUTED_ONLY",
+          "implementation": "LOCAL_CURRENT_EXECUTED_SCOPE",
+          "tests": "38_NEW_63_CORRECTED_FOCUS_17_CORPUS_8_FRESH_HUB_2_SQL_PATHS_PASS_SINGLE_CHECK_FAILURE_RETAINED",
+          "fixedCommitCi": "PENDING_AFTER_CURRENT_OPENING_FIXTURE_AND_HUB_INPUT_CORRECTION",
+          "productAcceptance": "OPEN_CURRENT_VISIBLE_AND_WINDOWS",
+          "remaining": [
+            "All non-opening randomness, including recycling417.5 and other rule consumers, remains OPEN; finite samples do not certify every permutation or the entire privacy surface.",
+            "487 single-game duel is this battlefield-randomization scope. 488 match chosen battlefields, series reuse/removal and other modes remain separate OPEN source obligations.",
+            "New fixed complete CI must retain all143 games/110 pairs/11 decks/424242, all83 old SQL paths plus this fresh-production path, network and both desktop jobs. Prior39/older CI is not this implementation.",
+            "Current visible paired clients, network/cold recovery, normal score victory/full original replay and physical Windows are separate OPEN gates for the new candidate.",
+            "All1740 source identities/1033 runtime entries, EN missing8, CN QA/news/media/document/version gaps and all earlier card/rule obligations remain retained."
+          ]
+        },
+        {
+          "id": "487-duel-random-battlefield",
+          "sourceRefs": [
+            "CN-d6fd7140f106f9b5-P101-B009"
+          ],
+          "state": "RECORDED",
+          "semanticReview": "SCOPED_EXECUTED_ONLY",
+          "implementation": "LOCAL_CURRENT_EXECUTED_SCOPE",
+          "tests": "38_NEW_63_CORRECTED_FOCUS_17_CORPUS_8_FRESH_HUB_2_SQL_PATHS_PASS_SINGLE_CHECK_FAILURE_RETAINED",
+          "fixedCommitCi": "PENDING_AFTER_CURRENT_OPENING_FIXTURE_AND_HUB_INPUT_CORRECTION",
+          "productAcceptance": "OPEN_CURRENT_VISIBLE_AND_WINDOWS",
+          "remaining": [
+            "All non-opening randomness, including recycling417.5 and other rule consumers, remains OPEN; finite samples do not certify every permutation or the entire privacy surface.",
+            "487 single-game duel is this battlefield-randomization scope. 488 match chosen battlefields, series reuse/removal and other modes remain separate OPEN source obligations.",
+            "New fixed complete CI must retain all143 games/110 pairs/11 decks/424242, all83 old SQL paths plus this fresh-production path, network and both desktop jobs. Prior39/older CI is not this implementation.",
+            "Current visible paired clients, network/cold recovery, normal score victory/full original replay and physical Windows are separate OPEN gates for the new candidate.",
+            "All1740 source identities/1033 runtime entries, EN missing8, CN QA/news/media/document/version gaps and all earlier card/rule obligations remain retained."
+          ]
+        },
+        {
+          "id": "488-match-other-modes-and-non-opening-randomness",
+          "state": "OPEN",
+          "sourceRefs": [
+            "CN-d6fd7140f106f9b5-P101-B018"
+          ],
+          "remaining": [
+            "All non-opening randomness, including recycling417.5 and other rule consumers, remains OPEN; finite samples do not certify every permutation or the entire privacy surface.",
+            "487 single-game duel is this battlefield-randomization scope. 488 match chosen battlefields, series reuse/removal and other modes remain separate OPEN source obligations.",
+            "New fixed complete CI must retain all143 games/110 pairs/11 decks/424242, all83 old SQL paths plus this fresh-production path, network and both desktop jobs. Prior39/older CI is not this implementation.",
+            "Current visible paired clients, network/cold recovery, normal score victory/full original replay and physical Windows are separate OPEN gates for the new candidate.",
+            "All1740 source identities/1033 runtime entries, EN missing8, CN QA/news/media/document/version gaps and all earlier card/rule obligations remain retained."
+          ]
+        }
+      ],
+      "latestInputChange": {
+        "date": "2026-10-17",
+        "scope": "Explicit current opening corpus and production-seed test input correction; old accepted history and CI stay historical.",
+        "receipt": {
+          "path": "docs/evidence/opening-randomness-2026-10-17/post-check-context-input-updates.json",
+          "sha256": "088511d681928cc6e299b5f6826475188fdce1c4b0e601c5fe51ca5c819f9bda"
+        }
+      }
     }
   },
   "acceptanceGates": [
@@ -11141,7 +11582,7 @@
         },
         "currentImplementationVerified": false
       },
-      "fixedCommitCi": "OPEN_AFTER_CREATED_TOKEN_READY_SHARED_INPUT_CHANGE",
+      "fixedCommitCi": "OPEN_AFTER_OPENING_RANDOMNESS_SHARED_INPUT_CHANGE",
       "currentProductAcceptance": "OPEN_NEW_CANDIDATE"
     },
     {
@@ -11287,7 +11728,7 @@
         },
         "currentImplementationVerified": false
       },
-      "fixedCommitCi": "OPEN_AFTER_CREATED_TOKEN_READY_SHARED_INPUT_CHANGE",
+      "fixedCommitCi": "OPEN_AFTER_OPENING_RANDOMNESS_SHARED_INPUT_CHANGE",
       "currentProductAcceptance": "OPEN_NEW_CANDIDATE"
     },
     {
@@ -12635,6 +13076,59 @@
         "path": "docs/evidence/sand-soldier-embedded-ready-2026-10-17/sql.json",
         "sha256": "8f9ef15b91fce42492224b90761fe5c75f5bc5869e0ef8ce1ed50b11bca2d430"
       }
+    },
+    {
+      "id": "PRIVATE_FAIR_OPENING_RANDOMNESS",
+      "state": "OPEN",
+      "requirement": "Close private original seed, opening permutation consumers, fixed full and separate current native/Windows acceptance without old-match migration.",
+      "issue": "https://github.com/DDDHL0704/riftbound/issues/51",
+      "source": {
+        "path": "docs/evidence/opening-randomness-2026-10-17/source-manifest.json",
+        "sha256": "316fe6276c164214480fbd558c77a44264075f281992e2dae80f6872ee7dc673"
+      },
+      "focus": {
+        "path": "docs/evidence/opening-randomness-2026-10-17/focus.json",
+        "sha256": "f9ebc166aaa1e6bd7f6c78fcbb195f694dac0e7db1fa1b643e566431942d83b1"
+      },
+      "actualSql": {
+        "path": "docs/evidence/opening-randomness-2026-10-17/sql-final-execution.json",
+        "sha256": "a770c467faa28943428a403df53fe025c48f96c9dadc7a7f08c763f673010bbe"
+      },
+      "batchCheck": {
+        "path": "docs/evidence/opening-randomness-2026-10-17/check.json",
+        "sha256": "3b3d6c1ae7c336607d470ae6f8ba030c5e52c0f85ba1b10ac12ddf43319b1905"
+      },
+      "fixedCommitCi": "PENDING_NEW_FIXED_SHA",
+      "productAcceptance": "OPEN_CURRENT_VISIBLE_AND_WINDOWS",
+      "remaining": [
+        "All non-opening randomness, including recycling417.5 and other rule consumers, remains OPEN; finite samples do not certify every permutation or the entire privacy surface.",
+        "487 single-game duel is this battlefield-randomization scope. 488 match chosen battlefields, series reuse/removal and other modes remain separate OPEN source obligations.",
+        "New fixed complete CI must retain all143 games/110 pairs/11 decks/424242, all83 old SQL paths plus this fresh-production path, network and both desktop jobs. Prior39/older CI is not this implementation.",
+        "Current visible paired clients, network/cold recovery, normal score victory/full original replay and physical Windows are separate OPEN gates for the new candidate.",
+        "All1740 source identities/1033 runtime entries, EN missing8, CN QA/news/media/document/version gaps and all earlier card/rule obligations remain retained."
+      ],
+      "corpus": {
+        "path": "docs/evidence/opening-randomness-2026-10-17/current-fixture-import-validation.json",
+        "sha256": "e1a8484b96e2d63f5b8b71b71b50e16e323cf43ce85c6d7a1ad1d17c36ced5e6"
+      },
+      "priorFixed39": {
+        "path": "docs/evidence/opening-randomness-2026-10-17/prior-fixed39-full-ci.json",
+        "sha256": "ae9ab74bae5eb07a3c3867d57d6dd7d4f2dfe94bffbc673186cb9eb16520d93e"
+      }
+    },
+    {
+      "id": "RAW_PLAY_CARD_NULL_OPTIONAL_COSTS_RECOVERY",
+      "state": "OPEN",
+      "requirement": "Unify accepted raw PLAY_CARD optionalCosts:null and independent recovery contract without weakening guards or rewriting accepted history.",
+      "issue": "https://github.com/DDDHL0704/riftbound/issues/52",
+      "evidence": {
+        "path": "docs/evidence/opening-randomness-2026-10-17/post-check-corrections.json",
+        "sha256": "8b48828a80d77c9ea11038ed766e395121044891cdda46430663527dfe59cf42"
+      },
+      "implementation": "OPEN",
+      "tests": "CONFIRMED_LIVE_ACCEPTED_NINE_COMMANDS_THEN_TEN_STRUCTURAL_RECOVERY_FAILURES",
+      "fixedCommitCi": "OPEN",
+      "productAcceptance": "OPEN"
     }
   ],
   "note": "Current inventory and remaining obligations, with independently dated rule sources and separately recorded source deltas. No source fetch or semantic certification by this checker.",

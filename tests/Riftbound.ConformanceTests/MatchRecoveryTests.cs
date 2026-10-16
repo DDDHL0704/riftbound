@@ -175101,7 +175101,7 @@ public sealed class MatchRecoveryTests
             "action-log replay initial state timing state NEUTRAL_OPEN must be ROOM",
             error.Message,
             StringComparison.Ordinal);
-        Assert.Contains("action-log replay initial state seed 42 must be 0", error.Message, StringComparison.Ordinal);
+        Assert.Contains("action-log replay initial state seed differs from recorded opening seed", error.Message, StringComparison.Ordinal);
         Assert.Contains("action-log replay initial state rng cursor 9 must be 0", error.Message, StringComparison.Ordinal);
     }
 
@@ -176641,7 +176641,8 @@ public sealed class MatchRecoveryTests
             string playerId,
             string seat,
             string reconnectTokenHash,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken,
+            long openingSeed = 0)
         {
             hashes[(roomId, playerId)] = reconnectTokenHash;
             return ValueTask.CompletedTask;

@@ -1,0 +1,366 @@
+{
+  "status": "ALL17_CURRENT_INPUT_HISTORY_LIVE_MAPPING_STRUCTURAL_COLD_AND_FULL_ORIGINAL_REPLAY_PASS",
+  "executedAtUtc": "2026-10-16T23:45:59.098471+00:00",
+  "histories": [
+    {
+      "path": "tests/Riftbound.ConformanceTests/Fixtures/card-play-history-current-opening-20261017.json",
+      "sha256": "b025dd81d7aeb74611edca6027afe9125f265ef1aa7a1b92fa8f35b0eca1a2ca",
+      "commands": 9,
+      "events": 28,
+      "initialSeed": 0,
+      "originalOpeningCards": 0,
+      "actualLiveMapperAcceptance": true,
+      "independentStructuralValidation": true,
+      "coldRegistryAndFullOriginalActionEventStateReplay": true,
+      "finalHash": "624f431d1bab9f9a414036cb9fd52ba37ae9a54f4cf34a9f58eea6288a24e0d3",
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "39276459c8964610d10bc8c36efec82e13f5b6dd621fb46716703e263006e862",
+        "identitySha256": "09234f7e8a4d98b4e49702b7288ccb4580fa29d354b356ce2daa5ffc6af54109"
+      }
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/Fixtures/current-opening-20261017/confirmed-play-origin-hand-cn16.json",
+      "sha256": "07d215c3627eea38583f2e523ad734aacff683716ad9faf3132698893bc5e384",
+      "commands": 28,
+      "events": 128,
+      "initialSeed": 0,
+      "originalOpeningCards": 0,
+      "actualLiveMapperAcceptance": true,
+      "independentStructuralValidation": true,
+      "coldRegistryAndFullOriginalActionEventStateReplay": true,
+      "finalHash": "8fb1e2779a43ce981230e8f6fc30a01c5aa9640bcf1806311c0b326a00a259c9",
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "39276459c8964610d10bc8c36efec82e13f5b6dd621fb46716703e263006e862",
+        "identitySha256": "09234f7e8a4d98b4e49702b7288ccb4580fa29d354b356ce2daa5ffc6af54109"
+      }
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/Fixtures/current-opening-20261017/confirmed-play-origin-standby-cn16.json",
+      "sha256": "ed4d9182e995e5fa9c978319c53beb067aff389d1d605a2cab05ffcc4443ff08",
+      "commands": 37,
+      "events": 184,
+      "initialSeed": 0,
+      "originalOpeningCards": 0,
+      "actualLiveMapperAcceptance": true,
+      "independentStructuralValidation": true,
+      "coldRegistryAndFullOriginalActionEventStateReplay": true,
+      "finalHash": "6bf9dd792869b36fb95a747be574b9eccb702c61d661a0211b18c65174f519ef",
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "39276459c8964610d10bc8c36efec82e13f5b6dd621fb46716703e263006e862",
+        "identitySha256": "09234f7e8a4d98b4e49702b7288ccb4580fa29d354b356ce2daa5ffc6af54109"
+      }
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/Fixtures/current-opening-20261017/embedded-ready-protect-decline.json",
+      "sha256": "370bedeb03305929989e40da699bbaecd0439f76cb778756301f5c85dad6426e",
+      "commands": 30,
+      "events": 133,
+      "initialSeed": 0,
+      "originalOpeningCards": 0,
+      "actualLiveMapperAcceptance": true,
+      "independentStructuralValidation": true,
+      "coldRegistryAndFullOriginalActionEventStateReplay": true,
+      "finalHash": "b164537ab64cc709552ed6e7ed4730aef6e8e7854cab2e5bee8f18300b975c02",
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "39276459c8964610d10bc8c36efec82e13f5b6dd621fb46716703e263006e862",
+        "identitySha256": "09234f7e8a4d98b4e49702b7288ccb4580fa29d354b356ce2daa5ffc6af54109"
+      }
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/Fixtures/current-opening-20261017/embedded-ready-protect-pay.json",
+      "sha256": "c8816cef5618206818d691c9eaf35588c24f892d034434590e066ea8467af6e9",
+      "commands": 30,
+      "events": 133,
+      "initialSeed": 0,
+      "originalOpeningCards": 0,
+      "actualLiveMapperAcceptance": true,
+      "independentStructuralValidation": true,
+      "coldRegistryAndFullOriginalActionEventStateReplay": true,
+      "finalHash": "13bab132d15b2b77cf6601f765a8394ad1d164728076b19781a2f8b0cd90bcd6",
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "39276459c8964610d10bc8c36efec82e13f5b6dd621fb46716703e263006e862",
+        "identitySha256": "09234f7e8a4d98b4e49702b7288ccb4580fa29d354b356ce2daa5ffc6af54109"
+      }
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/Fixtures/current-opening-20261017/embedded-ready-rise-0.json",
+      "sha256": "8b2e74989842c724ee4e121e36ef3e0e928bdad0596fdd13159eec1b8387651c",
+      "commands": 30,
+      "events": 133,
+      "initialSeed": 0,
+      "originalOpeningCards": 0,
+      "actualLiveMapperAcceptance": true,
+      "independentStructuralValidation": true,
+      "coldRegistryAndFullOriginalActionEventStateReplay": true,
+      "finalHash": "072464a553644d5aa171a7445509ad65aa30292d2cc54f4ca0400219df117493",
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "39276459c8964610d10bc8c36efec82e13f5b6dd621fb46716703e263006e862",
+        "identitySha256": "09234f7e8a4d98b4e49702b7288ccb4580fa29d354b356ce2daa5ffc6af54109"
+      }
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/Fixtures/current-opening-20261017/embedded-ready-rise-2.json",
+      "sha256": "9ebcc40d25cef2300a7b8370b16c62bb554533f5a84340de105ec02a9fefb3f3",
+      "commands": 51,
+      "events": 225,
+      "initialSeed": 0,
+      "originalOpeningCards": 0,
+      "actualLiveMapperAcceptance": true,
+      "independentStructuralValidation": true,
+      "coldRegistryAndFullOriginalActionEventStateReplay": true,
+      "finalHash": "5b550f0f7256acc3b4f241d68c88b27021ddb3351a645ff85ed4aeb011aa5b1a",
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "39276459c8964610d10bc8c36efec82e13f5b6dd621fb46716703e263006e862",
+        "identitySha256": "09234f7e8a4d98b4e49702b7288ccb4580fa29d354b356ce2daa5ffc6af54109"
+      }
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/Fixtures/current-opening-20261017/granted-origin-haste-sacrifice.json",
+      "sha256": "57395ece74c8ac5d73ff9b6ae1a2e78d709d296355cd37238c9d9a95644d3ff9",
+      "commands": 38,
+      "events": 145,
+      "initialSeed": 0,
+      "originalOpeningCards": 0,
+      "actualLiveMapperAcceptance": true,
+      "independentStructuralValidation": true,
+      "coldRegistryAndFullOriginalActionEventStateReplay": true,
+      "finalHash": "02bcdcb8a604cf82f4fabde64547ca9689394258e7342a1732c20ec84f17b1a2",
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "39276459c8964610d10bc8c36efec82e13f5b6dd621fb46716703e263006e862",
+        "identitySha256": "09234f7e8a4d98b4e49702b7288ccb4580fa29d354b356ce2daa5ffc6af54109"
+      }
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/Fixtures/current-opening-20261017/granted-origin-haste-unit.json",
+      "sha256": "01de80e59ecc1f9456fa20d2c08944b2e932c79ce671e1272f2e55b965eb7295",
+      "commands": 38,
+      "events": 145,
+      "initialSeed": 0,
+      "originalOpeningCards": 0,
+      "actualLiveMapperAcceptance": true,
+      "independentStructuralValidation": true,
+      "coldRegistryAndFullOriginalActionEventStateReplay": true,
+      "finalHash": "3ddd057fe7dc461ac0212b5769785b822123fe8e5e521e5aae8d52cf00e92d15",
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "39276459c8964610d10bc8c36efec82e13f5b6dd621fb46716703e263006e862",
+        "identitySha256": "09234f7e8a4d98b4e49702b7288ccb4580fa29d354b356ce2daa5ffc6af54109"
+      }
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/Fixtures/current-opening-20261017/opponent-battlefield-control-neutral.json",
+      "sha256": "adeb44c4de45938ebd85ae97adaca39e6d05eac6c4238d2ba69d25491fa9b59c",
+      "commands": 27,
+      "events": 123,
+      "initialSeed": 0,
+      "originalOpeningCards": 0,
+      "actualLiveMapperAcceptance": true,
+      "independentStructuralValidation": true,
+      "coldRegistryAndFullOriginalActionEventStateReplay": true,
+      "finalHash": "e567a570f87e5487c5e6cefa3c71f7e2aebf4591b707ed5458b35e2e88be5b7c",
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "39276459c8964610d10bc8c36efec82e13f5b6dd621fb46716703e263006e862",
+        "identitySha256": "09234f7e8a4d98b4e49702b7288ccb4580fa29d354b356ce2daa5ffc6af54109"
+      }
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/Fixtures/current-opening-20261017/opponent-battlefield-control-swapped.json",
+      "sha256": "9c4c0f106dc1cd38488b8ade04b7aed56b1cd79a18f8c9db0579f98be02f98dc",
+      "commands": 65,
+      "events": 254,
+      "initialSeed": 0,
+      "originalOpeningCards": 0,
+      "actualLiveMapperAcceptance": true,
+      "independentStructuralValidation": true,
+      "coldRegistryAndFullOriginalActionEventStateReplay": true,
+      "finalHash": "6ae9722d8954671956e48cc7182cd39b1fc429ece6f3142a5b644bf7f13cba8a",
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "39276459c8964610d10bc8c36efec82e13f5b6dd621fb46716703e263006e862",
+        "identitySha256": "09234f7e8a4d98b4e49702b7288ccb4580fa29d354b356ce2daa5ffc6af54109"
+      }
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/Fixtures/current-opening-20261017/optional-sacrifice-hand.json",
+      "sha256": "3bf779fe5c0f6d8660dc15cfc9d242c969ffa5192ba16c92af7bde92ccfc2d8e",
+      "commands": 44,
+      "events": 174,
+      "initialSeed": 0,
+      "originalOpeningCards": 0,
+      "actualLiveMapperAcceptance": true,
+      "independentStructuralValidation": true,
+      "coldRegistryAndFullOriginalActionEventStateReplay": true,
+      "finalHash": "e2d46c313185ef17a4e42145befefc416cfe59d94edac2928b05696fe403e164",
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "39276459c8964610d10bc8c36efec82e13f5b6dd621fb46716703e263006e862",
+        "identitySha256": "09234f7e8a4d98b4e49702b7288ccb4580fa29d354b356ce2daa5ffc6af54109"
+      }
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/Fixtures/current-opening-20261017/optional-sacrifice-haste.json",
+      "sha256": "ad8af13b0ac6d79c04a8d0d47e8788dc9a1bdce7da9b848cc05307b1ad3fad48",
+      "commands": 72,
+      "events": 253,
+      "initialSeed": 0,
+      "originalOpeningCards": 0,
+      "actualLiveMapperAcceptance": true,
+      "independentStructuralValidation": true,
+      "coldRegistryAndFullOriginalActionEventStateReplay": true,
+      "finalHash": "02783f96dc8af61e580f6c192d3a585db753eb271589796841bf4e7293630a98",
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "39276459c8964610d10bc8c36efec82e13f5b6dd621fb46716703e263006e862",
+        "identitySha256": "09234f7e8a4d98b4e49702b7288ccb4580fa29d354b356ce2daa5ffc6af54109"
+      }
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/Fixtures/current-opening-20261017/physical-origin-cost-spell.json",
+      "sha256": "2c9110fd6711d2605057516015212925882a0c646c1040213d800b8703c89095",
+      "commands": 38,
+      "events": 145,
+      "initialSeed": 0,
+      "originalOpeningCards": 0,
+      "actualLiveMapperAcceptance": true,
+      "independentStructuralValidation": true,
+      "coldRegistryAndFullOriginalActionEventStateReplay": true,
+      "finalHash": "f36f870f422c582be7a2a2954f1f27107dbbe727ebce71a217440a155750953d",
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "39276459c8964610d10bc8c36efec82e13f5b6dd621fb46716703e263006e862",
+        "identitySha256": "09234f7e8a4d98b4e49702b7288ccb4580fa29d354b356ce2daa5ffc6af54109"
+      }
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/Fixtures/current-opening-20261017/physical-origin-cost-unit.json",
+      "sha256": "7c8509b73f3c52c572ce660d9a49945fd8c9b2b54a1e2baa66f4f4c8cfb12875",
+      "commands": 37,
+      "events": 143,
+      "initialSeed": 0,
+      "originalOpeningCards": 0,
+      "actualLiveMapperAcceptance": true,
+      "independentStructuralValidation": true,
+      "coldRegistryAndFullOriginalActionEventStateReplay": true,
+      "finalHash": "ebed9920fbe463813976f13a11936b4ba223e7c1fc197a4628971a76b8a3bef2",
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "39276459c8964610d10bc8c36efec82e13f5b6dd621fb46716703e263006e862",
+        "identitySha256": "09234f7e8a4d98b4e49702b7288ccb4580fa29d354b356ce2daa5ffc6af54109"
+      }
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/Fixtures/current-opening-20261017/token-haste-hand.json",
+      "sha256": "9951bd0c23938c0b82dfdcf455d1a7ecf9544fe63efa0297e135f1159c57b16d",
+      "commands": 45,
+      "events": 175,
+      "initialSeed": 0,
+      "originalOpeningCards": 0,
+      "actualLiveMapperAcceptance": true,
+      "independentStructuralValidation": true,
+      "coldRegistryAndFullOriginalActionEventStateReplay": true,
+      "finalHash": "0d3d63084428735824e050c186e385728e8573e991e7c6335862a82df4d66e36",
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "39276459c8964610d10bc8c36efec82e13f5b6dd621fb46716703e263006e862",
+        "identitySha256": "09234f7e8a4d98b4e49702b7288ccb4580fa29d354b356ce2daa5ffc6af54109"
+      }
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/Fixtures/current-opening-20261017/token-haste-standby.json",
+      "sha256": "dc24db39455742931b6cb1e97ee792d4965dec9f447c8b91088bc9fdae3e2a82",
+      "commands": 53,
+      "events": 215,
+      "initialSeed": 0,
+      "originalOpeningCards": 0,
+      "actualLiveMapperAcceptance": true,
+      "independentStructuralValidation": true,
+      "coldRegistryAndFullOriginalActionEventStateReplay": true,
+      "finalHash": "bdc2cd9e30f689d58b6f5e80abee9cad5acf5fabb93425234a46cebe71634f70",
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "39276459c8964610d10bc8c36efec82e13f5b6dd621fb46716703e263006e862",
+        "identitySha256": "09234f7e8a4d98b4e49702b7288ccb4580fa29d354b356ce2daa5ffc6af54109"
+      }
+    }
+  ],
+  "oldHistoriesNeverRewritten": true,
+  "old143Games110Pairs424242Unchanged": true,
+  "scope": "Current input-corpus validation only; not all84 actual SQL, visible clients or Windows."
+}

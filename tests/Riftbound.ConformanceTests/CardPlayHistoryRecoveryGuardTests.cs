@@ -7,9 +7,9 @@ namespace Riftbound.ConformanceTests;
 
 public sealed class CardPlayHistoryRecoveryGuardTests
 {
-    private const string Actor = "paired-339c-a";
-    private const string Opponent = "paired-339c-b";
-    private const string PlayedObject = "paired-339c-a-MAIN-SFD-065-221-21";
+    private const string Actor = "paired-339c-b";
+    private const string Opponent = "paired-339c-a";
+    private const string PlayedObject = "paired-339c-b-MAIN-SFD-065-221-32";
     private static readonly JsonSerializerOptions WebJson = new(JsonSerializerDefaults.Web);
 
     [Fact]
@@ -115,7 +115,7 @@ public sealed class CardPlayHistoryRecoveryGuardTests
     private static async Task<(MatchState Initial, Journal Journal, MatchSession Session)> ActualOpening()
     {
         using var doc = JsonDocument.Parse(await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory,
-            "Fixtures", "card-play-history-actual-opening-339c.json")));
+            "Fixtures", "card-play-history-current-opening-20261017.json")));
         var fixture = doc.RootElement;
         var initial = MatchReplayInitialStateBuilder.FromSeats(fixture.GetProperty("sourceRoomId").GetString()!,
             fixture.GetProperty("seats").Deserialize<Dictionary<string, string>>()!);

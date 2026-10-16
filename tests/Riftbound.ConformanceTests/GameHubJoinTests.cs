@@ -1982,19 +1982,57 @@ public sealed partial class GameHubJoinTests
         const string roomId = "official-hub-real-deck-play-card-smoke";
         var journal = new RecordingMatchJournal();
         var opening = await StartOfficialDeckGameThroughResourceRecycleAsync(roomId, journal);
-        for (var index = 0; index < 12; index++)
+        var fixtureSession = await opening.Registry.GetOrCreateAsync(roomId, default);
+        var champion = Assert.Single(StringList(ZoneView(PlayerView(
+            SnapshotFor(opening.Clients, opening.ActivePlayerId), opening.ActivePlayerId))["championZone"]));
+        var championPlay = new PlayCardCommand(champion, "UNL-022/219", [], OptionalCosts: []);
+        async Task<PlayCostQuoteDto> Quote()
         {
-            var resourcePrompt = PromptFor(opening.Clients, opening.ActivePlayerId);
-            if (resourcePrompt.Candidates?.Any(c => c.Action == CommandTypes.PlayCard && c.Enabled) == true)
-                break;
-            var source = resourcePrompt.Candidates?.FirstOrDefault(c => c.Action == CommandTypes.TapRune && c.Enabled)?.Sources?.FirstOrDefault()?.Id;
-            if (source is null) break;
+            var prompt = fixtureSession.PromptFor(opening.ActivePlayerId);
+            return await fixtureSession.PreviewPlayCardAsync(opening.ActivePlayerId,
+                new("hub-fixture-vi", prompt.PromptId!, Assert.IsType<long>(prompt.SnapshotTick), championPlay), default);
+        }
+        async Task Resource(string actor, GameCommand command, string id)
+        {
             var clients = new RecordingHubClients();
-            await CreateHub(clients, new RecordingGroupManager(), ConnectionFor(opening.ActivePlayerId), opening.Registry, authenticatedHandle: opening.ActivePlayerId)
-                .SubmitIntent(roomId, opening.ActivePlayerId, $"playable-tap-{index}", JsonSerializer.SerializeToElement(new { cmdType = "TAP_RUNE", sourceObjectId = source }));
+            await CreateHub(clients, new RecordingGroupManager(), ConnectionFor(actor), opening.Registry, authenticatedHandle: actor)
+                .SubmitIntent(roomId, actor, id, JsonSerializer.SerializeToElement(command, command.GetType(), new JsonSerializerOptions(JsonSerializerDefaults.Web)));
             Assert.Empty(clients.CallerClient.Errors);
             opening = opening with { Clients = clients };
         }
+        // A private random opening need not contain a cheap playable hand card.
+        // Fund the fixture's known, trigger-free champion using real hub actions.
+        for (var round = 0; round < 12; round++)
+        {
+            for (var tap = 0; tap < 12; tap++)
+            {
+                var source = fixtureSession.PromptFor(opening.ActivePlayerId).Candidates?
+                    .FirstOrDefault(candidate => candidate.Action == CommandTypes.TapRune && candidate.Enabled)?.Sources?.FirstOrDefault()?.Id;
+                if (source is null) break;
+                await Resource(opening.ActivePlayerId, new TapRuneCommand(source), $"playable-tap-{round}-{tap}");
+            }
+            var quote = await Quote();
+            for (var recycle = 0; !quote.CanPay && quote.Cost is { MissingMana: 0, MissingPower: > 0 } cost && recycle < 12; recycle++)
+            {
+                var state = journal.Entries[^1].AuthoritativeState;
+                var missingTraits = cost.PowerByTrait.Where(entry => cost.AvailablePowerByTrait.GetValueOrDefault(entry.Key)
+                    + cost.AvailableRainbowPower < entry.Value).Select(entry => entry.Key).ToArray();
+                var source = fixtureSession.PromptFor(opening.ActivePlayerId).Candidates?
+                    .FirstOrDefault(candidate => candidate.Action == CommandTypes.RecycleRune && candidate.Enabled)?.Sources?
+                    .FirstOrDefault(source => missingTraits.Length == 0 || PrintedPowerCostRules.ForCard(state.CardObjects[source.Id].CardNo!)
+                        .Traits.Any(trait => missingTraits.Contains(trait)))?.Id;
+                if (source is null) break;
+                await Resource(opening.ActivePlayerId, new RecycleRuneCommand(source), $"playable-recycle-{round}-{recycle}");
+                quote = await Quote();
+            }
+            if (quote.CanPay) break;
+            for (var turn = 0; turn < 2; turn++)
+            {
+                var actor = journal.Entries[^1].AuthoritativeState.TurnPlayerId;
+                await Resource(actor, new EndTurnCommand(), $"playable-wait-{round}-{turn}");
+            }
+        }
+        Assert.True((await Quote()).CanPay, (await Quote()).Message);
         var playPrompt = PromptFor(opening.Clients, opening.ActivePlayerId);
         Assert.True(playPrompt.Actionable);
         var playCandidate = Assert.Single(
@@ -2002,7 +2040,7 @@ public sealed partial class GameHubJoinTests
             candidate => string.Equals(candidate.Action, "PLAY_CARD", StringComparison.Ordinal));
         Assert.True(playCandidate.Enabled);
 
-        var sourceRequirement = FirstPromptPlayableSourceRequirement(playCandidate);
+        var sourceRequirement = FirstPromptPlayableSourceRequirement(playCandidate, champion);
         var sourceObjectId = Assert.IsType<string>(sourceRequirement["sourceObjectId"]);
         var cardNo = Assert.IsType<string>(sourceRequirement["cardNo"]);
         var targetObjectIds = TargetObjectIdsForRequirement(sourceRequirement);
@@ -16540,7 +16578,7 @@ public sealed partial class GameHubJoinTests
 
     private static async Task<OfficialOpeningState> StartOfficialDeckGameThroughResourceRecycleAsync(
         string roomId,
-        IMatchJournal? journal = null)
+        RecordingMatchJournal journal)
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
         var p1Deck = BuildValidDeck(catalog);
@@ -16552,7 +16590,7 @@ public sealed partial class GameHubJoinTests
                 ["P1"] = "P1",
                 ["P2"] = "P2"
             });
-        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), journal ?? NoopMatchJournal.Instance);
+        var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), journal);
         await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
         await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
@@ -16567,6 +16605,7 @@ public sealed partial class GameHubJoinTests
         await CreateHub(p2SubmitClients, new RecordingGroupManager(), "connection-2", registry, authenticatedHandle: "P2")
             .SubmitIntent(roomId, "P2", $"{roomId}-submit-deck-p2", SubmitDeckJson(p2Deck));
         Assert.Empty(p2SubmitClients.CallerClient.Errors);
+        replayInitialState = replayInitialState with { Seed = journal.Entries[0].OpeningSeed };
 
         var p1ReadyClients = new RecordingHubClients();
         await CreateHub(p1ReadyClients, new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
@@ -16668,14 +16707,17 @@ public sealed partial class GameHubJoinTests
         return string.Equals(playerId, "P1", StringComparison.Ordinal) ? "connection-1" : "connection-2";
     }
 
-    private static IReadOnlyDictionary<string, object?> FirstPromptPlayableSourceRequirement(ActionPromptCandidateDto playCandidate)
+    private static IReadOnlyDictionary<string, object?> FirstPromptPlayableSourceRequirement(ActionPromptCandidateDto playCandidate,
+        string? preferredSourceObjectId = null)
     {
         var metadata = Assert.IsType<Dictionary<string, object?>>(playCandidate.Metadata);
         var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
                 metadata["sourceRequirements"])
             .ToArray();
         Assert.NotEmpty(sourceRequirements);
-        var playableRequirement = sourceRequirements.FirstOrDefault(RequirementHasMinimumTargetChoices);
+        var playableRequirement = sourceRequirements.FirstOrDefault(requirement =>
+            (preferredSourceObjectId is null || string.Equals(requirement["sourceObjectId"] as string, preferredSourceObjectId, StringComparison.Ordinal))
+            && RequirementHasMinimumTargetChoices(requirement));
         Assert.NotNull(playableRequirement);
         return playableRequirement!;
     }
@@ -17708,7 +17750,8 @@ public sealed partial class GameHubJoinTests
             string playerId,
             string seat,
             string reconnectTokenHash,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken,
+            long openingSeed = 0)
         {
             Saved.Add(new SavedPlayer(roomId, playerId, seat, reconnectTokenHash));
             return ValueTask.CompletedTask;

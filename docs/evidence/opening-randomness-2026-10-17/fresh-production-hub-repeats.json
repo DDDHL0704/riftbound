@@ -1,0 +1,61 @@
+{
+  "status": "EIGHT_FRESH_PRIVATE_OPENING_HUB_PLAY_SURRENDER_FULL_REPLAY_RUNS_PASS",
+  "completedAtUtc": "2026-10-16T23:48:07.462299+00:00",
+  "runs": [
+    {
+      "run": 1,
+      "trx": "var/qa/opening-shuffle-probe-20261017/hub-fresh-repeats/1/results.trx",
+      "trxSha256": "81b1c9140ff4a6b4a3d93e2d1b6bc669e1cc5dc3d32f922d0794ea5fa702ee1d",
+      "passed": 1
+    },
+    {
+      "run": 2,
+      "trx": "var/qa/opening-shuffle-probe-20261017/hub-fresh-repeats/2/results.trx",
+      "trxSha256": "3825cdb8bc58149a0fe62ddf834f7e8a33fcab12a9f62812ba5132a89eb77b96",
+      "passed": 1
+    },
+    {
+      "run": 3,
+      "trx": "var/qa/opening-shuffle-probe-20261017/hub-fresh-repeats/3/results.trx",
+      "trxSha256": "c9eca935d8239b03f267f6e28710c231dd1d805137400708d01de7cf9e4435d2",
+      "passed": 1
+    },
+    {
+      "run": 4,
+      "trx": "var/qa/opening-shuffle-probe-20261017/hub-fresh-repeats/4/results.trx",
+      "trxSha256": "7c656a988b7ed5a433387716ba5f7e1557d37b47c0b0ef5bc3368ea08fff3478",
+      "passed": 1
+    },
+    {
+      "run": 5,
+      "trx": "var/qa/opening-shuffle-probe-20261017/hub-fresh-repeats/5/results.trx",
+      "trxSha256": "32e59d1bf595d8bbb53c6592f417f262947980dc6b76f3a00f867a57d8e106a5",
+      "passed": 1
+    },
+    {
+      "run": 6,
+      "trx": "var/qa/opening-shuffle-probe-20261017/hub-fresh-repeats/6/results.trx",
+      "trxSha256": "b6d9ab70effd106127f48015beed69e1d1399a32d1d95584e6582e71ee2ad616",
+      "passed": 1
+    },
+    {
+      "run": 7,
+      "trx": "var/qa/opening-shuffle-probe-20261017/hub-fresh-repeats/7/results.trx",
+      "trxSha256": "a110f9a10f125d28d37ba1f6a06c1ee67ead721eb40d149f3f6361ad7a10f04d",
+      "passed": 1
+    },
+    {
+      "run": 8,
+      "trx": "var/qa/opening-shuffle-probe-20261017/hub-fresh-repeats/8/results.trx",
+      "trxSha256": "0d49ea6f376b465e4563053c86eea35fe21be04e551e8af32c6aa74a6511b3b3",
+      "passed": 1
+    }
+  ],
+  "originalPublicRoomFixedSeedAssumptionRemoved": true,
+  "normalServerQuotedResourceFunding": true,
+  "allOriginalVictoryAndReplayAssertionsRetained": true,
+  "sourceInputs": 3191,
+  "actualRuntimeInputs": 3408,
+  "allInputsStableBeforeLaunchThroughCompletion": true,
+  "scope": "Eight fresh production-seed processes; not a claim to exhaustive entropy coverage or visible native acceptance."
+}

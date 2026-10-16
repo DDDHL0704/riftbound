@@ -16,7 +16,7 @@ internal static class PhysicalOriginCostSqlAcceptance
         {
             var directory = Path.Combine(output, name); Directory.CreateDirectory(directory);
             var json = new JsonSerializerOptions(JsonSerializerDefaults.Web) { WriteIndented = true };
-            var fixturePath = Path.Combine(AppContext.BaseDirectory, "Fixtures", "physical-origin-cost-" + name + ".json");
+            var fixturePath = Path.Combine(AppContext.BaseDirectory, "Fixtures", "current-opening-20261017", "physical-origin-cost-" + name + ".json");
             using var document = JsonDocument.Parse(await File.ReadAllTextAsync(fixturePath));
             var fixture = document.RootElement; var room = fixture.GetProperty("sourceRoomId").GetString()!;
             var id = fixture.GetProperty("expectedSourceObjectId").GetString()!;

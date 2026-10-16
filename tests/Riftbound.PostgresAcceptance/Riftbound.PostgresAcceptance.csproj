@@ -8,6 +8,8 @@
     <Content Include="../Riftbound.ConformanceTests/Fixtures/embedded-ready-rise-2.json" Link="Fixtures/embedded-ready-rise-2.json" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="../Riftbound.ConformanceTests/Fixtures/card-play-history-actual-opening-339c.json"
              Link="Fixtures/card-play-history-actual-opening-339c.json" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="../Riftbound.ConformanceTests/Fixtures/card-play-history-current-opening-20261017.json"
+             Link="Fixtures/card-play-history-current-opening-20261017.json" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="../Riftbound.ConformanceTests/Fixtures/confirmed-play-origin-hand-cn16.json"
              Link="Fixtures/confirmed-play-origin-hand-cn16.json" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="../Riftbound.ConformanceTests/Fixtures/confirmed-play-origin-standby-cn16.json"
@@ -32,5 +34,7 @@
              Link="Fixtures/token-haste-hand.json" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="../Riftbound.ConformanceTests/Fixtures/token-haste-standby.json"
              Link="Fixtures/token-haste-standby.json" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="../Riftbound.ConformanceTests/Fixtures/current-opening-20261017/*.json"
+             Link="Fixtures/current-opening-20261017/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>
