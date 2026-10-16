@@ -1,0 +1,11 @@
+{
+  "status": "ALL112_ORIGINAL_REVIEW_DICTIONARIES_RETAINED_APPEND_ONLY",
+  "priorAtCommit": "3ced0126ac20a07c2909e7b44f3733a9e3aa044a",
+  "priorSha256": "813258da07048d0f137d61330d956b11ddc67db43e8f261b824f66b30d7ad037",
+  "originalCount": 112,
+  "newCount": 113,
+  "newInput": {
+    "path": "docs/evidence/rules-reaudit-2026-10-11/review-decisions.json",
+    "sha256": "a32f2a70c03f7a95211e91c8b24f27f27de43a2724fc8287039b04d2c6d5af7c"
+  }
+}

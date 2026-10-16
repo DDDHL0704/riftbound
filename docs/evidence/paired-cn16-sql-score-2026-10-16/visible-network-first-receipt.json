@@ -1,0 +1,29 @@
+{
+  "status": "VISIBLE_BOTH_CLIENTS_AUTO_RECOVERED_SAME_FIXED_RUNTIME_WITH_TRUE_EMPTY_OPENING_SQL_REPLAY",
+  "atUtc": "2026-10-16T01:33:46.185074+00:00",
+  "commit": "72f8bdc2e0318938fe323ba66462a323aa02ec8c",
+  "room": "paired-cn16-20261016",
+  "tick": 12,
+  "commands": 13,
+  "events": 43,
+  "beforeAndAfterStateHash": "6bb0908886861b547d757a1e8fb7d1274fe67d2ee8256cbc7c41d313f09f5041",
+  "ruleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+    "implementationSha256": "a4f5df2a9a8b3bc8f91aa2dbc37b955ba6c4a2f9cc2923ffd5beea954abc67e1",
+    "identitySha256": "38d6dbeeabe7d4d82330c3b2b8248ebe412ab74f3fd45acbdc765bddbb49b32f"
+  },
+  "originalOpeningTick": 0,
+  "originalOpeningCards": 0,
+  "noSurrenderOrDeveloperCommand": true,
+  "observedVia": "cua_repl native screenshots: both displayed connection interrupted/restoring; after identical API restart both resumed automatically without reconnect clicks; B active and A waiting, opponent hands remained counts only",
+  "apiLifecycleFile": "api-lifecycle.jsonl",
+  "checkpoints": [
+    "before-network-full-replay-checkpoint.json",
+    "after-network-full-replay-checkpoint.json"
+  ],
+  "scope": "This exact network interruption at tick12 only; normal8, private pending-choice cold recovery, final replay and Windows physical remain separate OPEN."
+}

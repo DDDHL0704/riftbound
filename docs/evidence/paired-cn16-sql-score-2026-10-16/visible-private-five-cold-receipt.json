@@ -1,0 +1,35 @@
+{
+  "status": "VISIBLE_NATIVE_CLIENT_AND_SERVER_COLD_PRIVATE_INSIGHT5_RECOVERED_WITH_EXACT_SQL_HISTORY",
+  "atUtc": "2026-10-16T01:58:06.131057+00:00",
+  "commit": "72f8bdc2e0318938fe323ba66462a323aa02ec8c",
+  "room": "paired-cn16-20261016",
+  "tick": 41,
+  "commands": 42,
+  "events": 155,
+  "beforeAndAfterStateHash": "6a297023bcf58ffbfecca1bcd23a429c5cde818e124ded5aaabfae7ef38fbc73",
+  "ruleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+    "implementationSha256": "a4f5df2a9a8b3bc8f91aa2dbc37b955ba6c4a2f9cc2923ffd5beea954abc67e1",
+    "identitySha256": "38d6dbeeabe7d4d82330c3b2b8248ebe412ab74f3fd45acbdc765bddbb49b32f"
+  },
+  "fiveCandidateIdsAndOrderExactlyRetained": true,
+  "choiceId": "INSIGHT:STACK-39-paired-cn16-b-MAIN-VEN-056-12",
+  "choiceObjectSha256": "c29477f5295e3a2da1508bbb569ef67a4b6629c87cd51cdfb714bca3953abac9",
+  "actualStoredNonChoosingViewCandidateOccurrences": 0,
+  "actualStoredChoosingViewCandidateOccurrences": 5,
+  "originalEmptyOpeningFullActionEventStateReplayPass": true,
+  "nativeB": "quit normally, original process absent on subsequent AX read; relaunch same signed wrapper and published files; explicit native Join Room; same five candidates visible",
+  "nativeA": "automatic retry exhausted during longer outage, explicit visible Reconnect button used; waiting for opponent, no private candidates or candidate controls visible",
+  "allCommandsEventsAndAuthoritativeStateExactlyEqualBeforeAfter": true,
+  "all12PublishedApiDllHashesVerifiedDuringRestart": true,
+  "checkpoints": [
+    "private-five-before-full-replay-checkpoint.json",
+    "private-five-after-full-replay-checkpoint.json"
+  ],
+  "privateRawFramesExcludedFromCommit": true,
+  "scope": "Exact72f8 fixed published runtime and this private INSIGHT5 checkpoint only. Final normal8, terminal replay, remaining card consumers and Windows physical remain OPEN."
+}

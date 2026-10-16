@@ -30325,30 +30325,25 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         string controllerId)
     {
         var count = 0;
-        foreach (var (playerId, zones) in playerZones)
+        // Battlefield registration does not imply control: a field can be
+        // uncontrolled or controlled by the player across the table.
+        foreach (var objectId in playerZones.Values
+            .SelectMany(zones => zones.Battlefields)
+            .Distinct(StringComparer.Ordinal))
         {
-            if (string.Equals(playerId, controllerId, StringComparison.Ordinal))
+            if (!cardObjects.TryGetValue(objectId, out var candidate)
+                || candidate.IsFaceDown
+                || !IsBattlefieldCardObject(candidate))
             {
                 continue;
             }
 
-            foreach (var objectId in zones.Battlefields.Distinct(StringComparer.Ordinal))
+            var effectiveControllerId = candidate.ControllerId?.Trim();
+            if (!string.IsNullOrEmpty(effectiveControllerId)
+                && playerZones.ContainsKey(effectiveControllerId)
+                && !string.Equals(effectiveControllerId, controllerId, StringComparison.Ordinal))
             {
-                if (!cardObjects.TryGetValue(objectId, out var candidate)
-                    || candidate.IsFaceDown
-                    || !IsBattlefieldCardObject(candidate))
-                {
-                    continue;
-                }
-
-                var effectiveControllerId = string.IsNullOrWhiteSpace(candidate.ControllerId)
-                    ? playerId
-                    : candidate.ControllerId.Trim();
-                if (string.Equals(effectiveControllerId, playerId, StringComparison.Ordinal)
-                    && !string.Equals(effectiveControllerId, controllerId, StringComparison.Ordinal))
-                {
-                    count++;
-                }
+                count++;
             }
         }
 

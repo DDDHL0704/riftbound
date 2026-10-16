@@ -16,5 +16,9 @@
              Link="Fixtures/granted-origin-haste-unit.json" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="../Riftbound.ConformanceTests/Fixtures/granted-origin-haste-sacrifice.json"
              Link="Fixtures/granted-origin-haste-sacrifice.json" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="../Riftbound.ConformanceTests/Fixtures/opponent-battlefield-control-neutral.json"
+             Link="Fixtures/opponent-battlefield-control-neutral.json" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="../Riftbound.ConformanceTests/Fixtures/opponent-battlefield-control-swapped.json"
+             Link="Fixtures/opponent-battlefield-control-swapped.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

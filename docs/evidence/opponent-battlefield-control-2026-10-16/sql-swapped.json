@@ -1,0 +1,47 @@
+{
+  "status": "REAL_POSTGRES_CURRENT_BATTLEFIELD_CONTROLLER_EMPTY_OPENING_COLD_ENTRY_EVENT_REJECTION_PASS",
+  "room": "normal-opponent-battlefield-control-swapped",
+  "cardNo": "OGN·035/298",
+  "sourceObjectId": "P1-MAIN-OGN-035-298-01",
+  "ownField": "P1-BATTLEFIELD-OGN-278-298-01",
+  "otherField": "P2-BATTLEFIELD-OGN-278-298-01",
+  "expectedReady": true,
+  "expectedMana": 4,
+  "quoteMana": 4,
+  "expectedPower": 1,
+  "originalOpeningTick": 0,
+  "originalOpeningSeed": 0,
+  "originalOpeningCards": 0,
+  "prefixCommands": 43,
+  "prefixEvents": 168,
+  "finalCommands": 44,
+  "finalEvents": 172,
+  "checks": [
+    {
+      "mutation": "flipped-entry-exhaustion",
+      "eventSequence": 172,
+      "originalReplayRejected": true,
+      "productionRegistryRejected": true
+    },
+    {
+      "mutation": "missing-entry-ability",
+      "eventSequence": 172,
+      "originalReplayRejected": true,
+      "productionRegistryRejected": true
+    }
+  ],
+  "finalHash": "de1f977f09dc2137346e10af5da094040d7fe75b3f2f0627ff60ea40544ab4c9",
+  "ruleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+    "implementationSha256": "d8c888c11edde94e15194053fa589c1f82625e27ecfefafdd18eaf14782928b9",
+    "identitySha256": "bae6822e06e3ca9f700b5ceb4aa117141bb9a7070abe28a990ac2be7e2877e1d"
+  },
+  "originalHistoryRestoredExactly": true,
+  "fullOriginalActionEventStateReplayMatched": true,
+  "fixtureSha256": "a600c5ea9dc9dd24023baf3b4f76644932f9515ea17c9f2cf1684dcb3433554f",
+  "scope": "Actual OGN035 neutral and swapped owner/controller branches from fresh legal empty openings; no migration of old native matches. Other printing semantics, new visible candidate and Windows remain separate."
+}

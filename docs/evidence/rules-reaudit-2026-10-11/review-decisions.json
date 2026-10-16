@@ -20845,6 +20845,66 @@
         "fixedFull": "PENDING",
         "product": "OPEN"
       }
+    },
+    {
+      "id": "opponent-battlefield-current-control-entry-2026-10-16",
+      "status": "SCOPED_CURRENT_CONTROLLER_ENTRY_FOCUS_OPENING_SQL_SINGLE_CHECK_PASS_FIXED_CI_PRODUCT_OPEN",
+      "scope": "Exact CN31243/33322/33323 ready-entry condition only: neutral fields have no controller; swapped ownership does not hide actual opponent control. Normal legal empty openings, cold restore and full original action/event/state replay.",
+      "subjects": [
+        "OGN-035/298",
+        "SFD-223/221",
+        "SFD-223*/221"
+      ],
+      "ruleRecords": [
+        "DOC-01-P028-B011",
+        "DOC-01-P028-B012",
+        "DOC-01-P028-B013",
+        "DOC-01-P029-B001",
+        "DOC-01-P029-B005"
+      ],
+      "auditDocument": "docs/OPPONENT_BATTLEFIELD_CONTROL_AUDIT_2026-10-16.md",
+      "evidence": "docs/evidence/opponent-battlefield-control-2026-10-16",
+      "semanticReview": {
+        "state": "SCOPED",
+        "wholeCardCertified": false,
+        "region": "CN",
+        "language": "zh-CN",
+        "sourceIndexAsOf": "2026-10-16",
+        "runtimeRuleInputDate": "2026-10-16",
+        "exactSourceRecordIds": [
+          31243,
+          33322,
+          33323
+        ]
+      },
+      "remaining": [
+        "New exact fixed-commit full CI and necessary visible candidate/Windows physical acceptance remain OPEN.",
+        "Only the current-controller entry condition for three exact CN printings is reviewed; every Assault, trait, copied/attached, control-transfer timing and optional return branch still needs its own evidence.",
+        "The old72 native normal8:5, SQL/network/private choice and lifecycle evidence stays at old72; its entry bug is retained and not migrated.",
+        "All global/card/rule/FAQ/QA/source-gap obligations, DOC11 expiry/direct and indirect impact, image/media and regional/effective changes remain."
+      ],
+      "wholeCardCertification": false,
+      "testExecution": {
+        "newCases": 29,
+        "newMethods": 3,
+        "adjacentCases": 1093,
+        "adjacentMethods": 122,
+        "originalFullGameMethods": 1,
+        "nativeInputCandidate": "72f8bdc2 old failure and normal8 evidence retained; no new fixed native acceptance",
+        "actualSqlScenarios": 75,
+        "check": {
+          "cases": 11964,
+          "methods": 7223,
+          "singleRun": true,
+          "receipt": {
+            "path": "docs/evidence/opponent-battlefield-control-2026-10-16/check.json",
+            "sha256": "94b2343c0c6c25a7852188c028a9498907ef6c9e2a22b863e7424fb1798ce0da"
+          }
+        },
+        "fixedFull": "PENDING_NEW_COMMIT",
+        "product": "OPEN",
+        "newSqlEventTamperRejections": 4
+      }
     }
   ]
 }

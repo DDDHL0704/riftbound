@@ -1,0 +1,58 @@
+{
+  "status": "CONFIRMED_OLD_FIXED_RUNTIME_CURRENT_CONTROLLER_ENTRY_DEFECT",
+  "commit": "72f8bdc2e0318938fe323ba66462a323aa02ec8c",
+  "tick": 85,
+  "room": "paired-cn16-20261016",
+  "publicBattlefieldStates": [
+    {
+      "registeredPlayerId": "paired-cn16-a",
+      "objectId": "paired-cn16-a-BATTLEFIELD-OGN-294-298-01",
+      "cardNo": "OGN·294/298",
+      "ownerId": "paired-cn16-a",
+      "controllerId": "paired-cn16-b"
+    },
+    {
+      "registeredPlayerId": "paired-cn16-b",
+      "objectId": "paired-cn16-b-BATTLEFIELD-OGN-278-298-01",
+      "cardNo": "OGN·278/298",
+      "ownerId": "paired-cn16-b",
+      "controllerId": "paired-cn16-a"
+    }
+  ],
+  "entryEvent": {
+    "sequence": 326,
+    "tick": 85,
+    "order": 3,
+    "event": {
+      "kind": "UNIT_PLAYED_TO_BASE",
+      "description": "薇恩打出单位到基地",
+      "payload": {
+        "tags": [
+          "CARD_CATEGORY:英雄单位",
+          "CARD_TYPE:HERO",
+          "CARD_TYPE:UNIT",
+          "COLOR:red",
+          "HERO:薇恩",
+          "强攻3"
+        ],
+        "power": 2,
+        "playerId": "paired-cn16-b",
+        "unitName": "薇恩",
+        "isExhausted": true,
+        "unitObjectId": "paired-cn16-b-MAIN-OGN-035-298-02",
+        "sourceObjectId": "paired-cn16-b-MAIN-OGN-035-298-02",
+        "destinationZone": "BASE"
+      },
+      "objectRefs": null
+    }
+  },
+  "privateOriginalFrame": {
+    "path": "var/qa/cn16-paired-20261016/native-vayne-recast-turn10-private-original-sql-frame.json",
+    "sha256": "d5ebe89ee50f8ccfffd384c6e5212f2ef38284c39c5ddbfbae45b13d12ff68fa",
+    "retainedNotCommitted": true
+  },
+  "originalJournalPreserved": true,
+  "semanticExpectedIsExhausted": false,
+  "issue": "https://github.com/DDDHL0704/riftbound/issues/42",
+  "distinctPhysicalObjects": "Entry/DECLINE used Vayne02; earlier PAY returned Vayne01, still in hand at finish."
+}

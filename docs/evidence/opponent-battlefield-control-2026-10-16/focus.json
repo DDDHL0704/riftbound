@@ -1,0 +1,67 @@
+{
+  "status": "BOUNDED_FOCUS_AND_TWO_ACTUAL_OPENINGS_PASS",
+  "adjacentSummary": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 186.61,
+    "total": 1093,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 1093,
+        "passed": 1093,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 180.08
+      }
+    ]
+  },
+  "adjacentTrx": {
+    "path": "var/qa/opponent-battlefield-control-20261016/adjacent-focus/focus/results.trx",
+    "sha256": "cca0ad3bef11a4ff836d159397b787dce27dcb12e62767f0bfe028c3055f337d"
+  },
+  "allOriginalSources": {
+    "path": "docs/evidence/opponent-battlefield-control-2026-10-16/original-tests-retained.json",
+    "sha256": "c3fe99c86517b55965cdf50455ce681db6a7d052f83aa6d2b7d3a22f5b8a85e2"
+  },
+  "redAndOpeningHistory": {
+    "path": "docs/evidence/opponent-battlefield-control-2026-10-16/regression-history.json",
+    "sha256": "73231abb182f8dc8564854f50f30df3822493c5d61d8154e890b4db639ab19b2"
+  },
+  "implementation": {
+    "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+    "sha256": "1852a4f8230e24a9d0e17889741bc25ed8000fc4a1247cd0629a7d018a3637ae"
+  },
+  "verification": [
+    {
+      "path": "tests/Riftbound.ConformanceTests/OpponentBattlefieldControlEntryTests.cs",
+      "sha256": "2a9175d81242eef88135c6d6ea2a759ef10b5f07f3ad248fca58395ce92cc82c"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/OpponentBattlefieldControlOpeningTests.cs",
+      "sha256": "6121005e44d9198c184a1054b63862c1fb066463f419a9eefedab6b24c882543"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/Fixtures/opponent-battlefield-control-neutral.json",
+      "sha256": "e76d3480321ba420aee8cbdb7c7b4052ad1a4eb7ed8cdf6967843ab73290ce32"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/Fixtures/opponent-battlefield-control-swapped.json",
+      "sha256": "a600c5ea9dc9dd24023baf3b4f76644932f9515ea17c9f2cf1684dcb3433554f"
+    },
+    {
+      "path": "tests/Riftbound.PostgresAcceptance/OpponentBattlefieldControlSqlAcceptance.cs",
+      "sha256": "296a65e88ebcac3353c982406d89b8d232cc80b8d1793940d643522d80477e72"
+    },
+    {
+      "path": "tests/Riftbound.PostgresAcceptance/Program.cs",
+      "sha256": "deac1ba029ac3b9432169d223b1ab64931bf29d0b3af30aee0da692c3196561c"
+    },
+    {
+      "path": "tests/Riftbound.PostgresAcceptance/Riftbound.PostgresAcceptance.csproj",
+      "sha256": "558dca73981e3fba1e40bebc1ba407407ca1b2052d0e4f133acbac8203fec350"
+    }
+  ],
+  "wholeCardCertified": false
+}
