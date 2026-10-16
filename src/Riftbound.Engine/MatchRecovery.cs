@@ -23666,6 +23666,11 @@ public static class MatchRecoveryValidator
             if (item.ReflexiveCopy is { } copy ? !CoreRuleEngine.ValidReflexiveCopy(copy, item.EffectKind, item.CardNo) || !CoreRuleEngine.ValidCopyRecipients(state, copy)
                 || !CoreRuleEngine.ValidReflexiveCopyStack(state, item)
                 : item.EffectKind == CoreRuleEngine.ReflexiveCopyEffect) errors.Add("invalid reflexive copy stack");
+        foreach (var trigger in state.TriggerQueue)
+            if (trigger.CreatedTokenReady is { } ready ? !CoreRuleEngine.ValidCreatedTokenReady(state, ready, trigger.EffectKind, trigger.SourceObjectId)
+                : trigger.EffectKind == CoreRuleEngine.CreatedTokenReadyEffect) errors.Add("invalid created token ready trigger");
+        foreach (var item in state.StackItems)
+            if (!CoreRuleEngine.ValidCreatedTokenReadyStack(state, item)) errors.Add("invalid created token ready stack");
         if (state.FaceDownLookPermissions.Any(p => p is null || !CoreRuleEngine.ValidFaceDownLookPermission(state, p))
             || state.FaceDownLookPermissions.Distinct().Count() != state.FaceDownLookPermissions.Count)
             errors.Add("invalid face-down look permission");
@@ -24869,7 +24874,7 @@ public static class MatchRecoveryValidator
                 || item.TargetGenerations is not { Count: 1 }
                 || !item.TargetGenerations.TryGetValue(item.TargetObjectIds[0], out var targetGeneration) || targetGeneration < 0
                 || item.SpellContext is not null || item.AzirMovement is not null || item.DamageDistribution is not null
-                || item.ReflexiveCopy is not null || item.UnitEntryContext is not null || item.SourcePlayDraw is not null || item.TriggerCost is not null
+                || item.ReflexiveCopy is not null || item.CreatedTokenReady is not null || item.UnitEntryContext is not null || item.SourcePlayDraw is not null || item.TriggerCost is not null
                 || item.Equip is not null || item.AttachmentObserver is not null || item.Tempered is not null
                 || item.LegendAttachment is not null || item.TokenEntryPlan is not null || item.RepeatExecutions is not null
                 || item.MovementDestinations is not null || item.TargetStackSources is not null
@@ -27150,6 +27155,9 @@ public static class MatchRecoveryValidator
             var targetReferences = knownObjectIds.ToHashSet(StringComparer.Ordinal);
             if (stackItem.DestroyDeckPlay is { } destroyDeck && CoreRuleEngine.ValidHistoricalDestroyDeckTarget(authoritativeState, stackItem, destroyDeck.Target.ObjectId))
                 targetReferences.Add(destroyDeck.Target.ObjectId);
+            if (stackItem.CreatedTokenReady is { } ready && CoreRuleEngine.ValidCreatedTokenReadyStack(authoritativeState, stackItem))
+                foreach (var unit in ready.Units)
+                    targetReferences.Add(unit.ObjectId);
             if (CardBehaviorRegistry.TryGetByEffectKind(stackItem.EffectKind, out var behavior)
                 && behavior.TargetScope is CardTargetScopes.StackSpell or CardTargetScopes.FriendlyBattlefieldUnitThenStackSpell or CardTargetScopes.FriendlyUnitThenStackSpell)
             {
@@ -31932,6 +31940,9 @@ public static class MatchRecoveryValidator
             {
                 if (original.DestroyDeckPlay is { } destroyDeck && CoreRuleEngine.ValidHistoricalDestroyDeckTarget(authoritativeState, original, destroyDeck.Target.ObjectId))
                     targetReferences.Add(destroyDeck.Target.ObjectId);
+                if (original.CreatedTokenReady is { } ready && CoreRuleEngine.ValidCreatedTokenReadyStack(authoritativeState, original))
+                    foreach (var unit in ready.Units)
+                        targetReferences.Add(unit.ObjectId);
                 if (VisibleObjectIdsForSpectator(authoritativeState, original.TargetObjectIds).Contains("HIDDEN"))
                     targetReferences.Add("HIDDEN");
                 if (CardBehaviorRegistry.TryGetByEffectKind(original.EffectKind, out var behavior)

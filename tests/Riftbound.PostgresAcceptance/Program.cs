@@ -20,6 +20,7 @@ await using (var connection = await dataSource.OpenConnectionAsync()) {
         await command.ExecuteNonQueryAsync();
     }
 }
+await CreatedTokenReadySqlAcceptance.RunAsync(dataSource, Path.Combine(output, "created-token-ready"));
 var room = "postgres-core-" + Guid.NewGuid().ToString("N");
 var seats = new Dictionary<string, string> { ["P1"] = "P1", ["P2"] = "P2" };
 var initial = MatchReplayInitialStateBuilder.FromSeats(room, seats);

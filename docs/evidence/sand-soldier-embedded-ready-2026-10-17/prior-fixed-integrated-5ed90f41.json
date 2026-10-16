@@ -1,0 +1,28 @@
+{
+  "recordedAtUtc": "2026-10-16T14:57:28.268610+00:00",
+  "commit": "5ed90f415e50dfa23f51bed2e9ced5deaf8c6696",
+  "region": "CN",
+  "language": "zh-CN",
+  "applicableAsOf": "2026-10-16",
+  "scopedNativeAcceptance": {
+    "path": "var/qa/prompt-recovery-paired-20261016/acceptance.json",
+    "sha256": "e31f111d73b80ca97152f55315c466a5811c96b44153685aed1a87c3f6d1b5ac"
+  },
+  "fixedCompleteCi": {
+    "path": "var/qa/prompt-recovery-paired-20261016/full-ci-5ed90f41.json",
+    "sha256": "45a9edb7816e4d191800649d1f1660fe8554741503d6f41e0c1fbd587e14779f"
+  },
+  "scopedIssues": [
+    46,
+    47,
+    48
+  ],
+  "nativeRuleChoiceResourceAndRequiredHideAndHeadingRevalidated": true,
+  "currentCandidateAllOldCasesMethods143Games110Pairs424242Retained": true,
+  "actualRuntimeBinaryIdentitiesSeparatelyRetainedNoCrossBuildEquivalenceClaim": true,
+  "onlyLatestNativePairAndTwoCanonicalPackagesRetained": true,
+  "postEntryReflexiveAndOtherConsumersStillOpen": true,
+  "physicalWindows": "OPEN_USER_HAS_NO_DEVICE_PREVIOUSLY_CONFIRMED_NO_REPEAT_QUESTION",
+  "fullOfficialSemanticsAndSourceGaps": "OPEN",
+  "wholePrintingOrGlobalCertified": false
+}

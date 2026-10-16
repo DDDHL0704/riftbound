@@ -1,23 +1,23 @@
 {
   "schemaVersion": 2,
   "fixtureId": "p2-preflight-play-protect-the-emperor-create-sand-soldier",
-  "description": "Protect the Emperor creates one 2 power Sand Soldier token at the controller's base without the colored optional cost.",
+  "description": "Current CN errata: token enters before an independent optional Yellow ready trigger; decline preserves exhausted token.",
   "source": "manual-pdf-faq-preflight",
-  "auditStatus": "RULE_AUDITED",
-  "rulesVersion": "rules-260330",
-  "faqVersion": "official-pdf-faq-set-2026-04-28",
-  "catalogVersion": "official-2026-04-27",
+  "auditStatus": "SCOPED_CN_CURRENT_ERRATA_REGRESSION_NOT_WHOLE_CARD",
+  "rulesVersion": "CN-DOC01-effective-2026-10-16",
+  "faqVersion": "DOC14-2026-10-17-byte-refresh",
+  "catalogVersion": "CN-exact-printing-2026-10-17-refresh",
   "seed": 2603302091,
   "rulesEvidence": [
     {
-      "source": "official/card-catalog.zh-CN.json",
-      "locator": "SFD·154/221 护驾！",
-      "note": "官方卡面：费用 3；待命；打出一名 2 战力“黄沙士兵”；可以选择支付黄色让其变为活跃状态。当前 fixture 锁定不支付有色可选费用的基础创建路径。"
+      "source": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "locator": "id33248 SFD154 errata",
+      "note": "Current CN errata: token enters before an independent optional Yellow ready trigger; decline preserves exhausted token."
     },
     {
-      "source": "《符文战场》核心规则_260330.pdf",
-      "locator": "p4-p8 rules 107-129; p39-p42 rules 355-356",
-      "note": "基地为公开区域；从手牌支付费用打出法术、加入结算链，双方让过后按卡面创建单位指示物并将法术置入废牌堆。"
+      "source": "https://cdn.playloltcg.com/lol/2026/10/2026-10-10/a21ead876c6b44d6abe386b6ae54ea28.pdf",
+      "locator": "388.2,388.4,389; 355.5.b",
+      "note": "Embedded triggers are independent pending items. An unconditional trigger is created even when no unit was created; optional cost is confirmed before responses."
     }
   ],
   "roomId": "p2-preflight-protect-the-emperor-room",
@@ -61,7 +61,9 @@
         "championZone": ["P2-CHAMPION-001"]
       }
     },
-    "cardObjects": {}
+    "cardObjects": {
+      "P1-SPELL-PROTECT-EMPEROR": {"cardNo": "SFD·154/221", "manaCost": 3, "ownerId": "P1", "controllerId": "P1", "tags": ["CARD_TYPE:SPELL"]}
+    }
   },
   "commands": [
     {
@@ -87,10 +89,22 @@
       "cmd": {
         "cmdType": "PASS_PRIORITY"
       }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "intent-p2-preflight-protect-decline-current-yellow",
+      "cmd": {
+        "cmdType": "PAY_COST",
+        "paymentId": "TRIGGER-COST:ordered-token-ready-3-3",
+        "paymentWindow": "TRIGGER_COST_CONFIRMATION",
+        "paymentChoiceIds": [
+          "DECLINE"
+        ]
+      }
     }
   ],
   "expected": {
-    "finalTick": 3,
+    "finalTick": 4,
     "eventKinds": [
       "CARD_PLAYED",
       "COST_PAID",
@@ -98,10 +112,16 @@
       "PRIORITY_PASSED",
       "PRIORITY_PASSED",
       "STACK_ITEM_RESOLVED",
-      "UNIT_TOKEN_CREATED"
+      "UNIT_TOKEN_CREATED",
+      "TOKEN_READY_TRIGGER_CREATED",
+      "TRIGGER_QUEUED",
+      "TRIGGERS_MOVED_TO_STACK",
+      "TRIGGER_PAYMENT_DECLINED"
     ],
     "events": [
-      { "kind": "CARD_PLAYED" },
+      {
+        "kind": "CARD_PLAYED"
+      },
       {
         "kind": "COST_PAID",
         "payload": {
@@ -120,9 +140,15 @@
           "effectKind": "PROTECT_THE_EMPEROR_CREATE_SAND_SOLDIER"
         }
       },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "STACK_ITEM_RESOLVED" },
+      {
+        "kind": "PRIORITY_PASSED"
+      },
+      {
+        "kind": "PRIORITY_PASSED"
+      },
+      {
+        "kind": "STACK_ITEM_RESOLVED"
+      },
       {
         "kind": "UNIT_TOKEN_CREATED",
         "payload": {
@@ -133,6 +159,18 @@
           "power": 2,
           "destinationZone": "BASE"
         }
+      },
+      {
+        "kind": "TOKEN_READY_TRIGGER_CREATED"
+      },
+      {
+        "kind": "TRIGGER_QUEUED"
+      },
+      {
+        "kind": "TRIGGERS_MOVED_TO_STACK"
+      },
+      {
+        "kind": "TRIGGER_PAYMENT_DECLINED"
       }
     ],
     "promptActions": {
@@ -161,7 +199,7 @@
         }
       },
       "cardObjects": {
-        "P1-SPELL-PROTECT-EMPEROR-TOKEN-001": { "power": 2 }
+        "P1-SPELL-PROTECT-EMPEROR-TOKEN-001": {"power": 2, "isExhausted": true}
       },
       "stackItems": []
     },

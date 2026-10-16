@@ -41,7 +41,7 @@ public sealed partial class CoreRuleEngine
             && (!behavior.PlaysSourceToBaseAsUnit && !behavior.PlaysSourceToBaseAsEquipment || item.SourceConfirmed)
             && ShouldCreateBaseUnitTokens(behavior, item))
             return behavior.CreatedBaseUnitTokensCopySource && SelfCopyTokenLocation(state, item) is null
-                ? 0 : behavior.CreatedBaseUnitTokenCount * item.EffectRepeatCount;
+                ? 0 : BaseUnitTokenInstructionCount(state, item, behavior);
         return 0;
     }
 

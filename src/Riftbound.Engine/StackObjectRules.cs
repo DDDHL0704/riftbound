@@ -7,7 +7,7 @@ internal static class StackObjectRules
     internal static bool IsAbility(StackItemState item)
         => item.EndAbility is not null || item.StandbyObserver is not null || item.EmpowerActivation is not null || item.AzirMovement is not null || item.Equip is not null || item.Tempered is not null
             || item.AttachmentObserver is not null || item.LegendAttachment is not null
-            || item.UnitEntryContext is not null || item.ReflexiveCopy is not null
+            || item.UnitEntryContext is not null || item.ReflexiveCopy is not null || item.CreatedTokenReady is not null
             || item.DeathRevealContext is not null || item.RecastContext is not null
             || item.SpellContext is not null || item.FieldContext is not null || item.InsightContext is not null
             || item.SivirRuneRecycle is not null || item.ConquestToken is not null

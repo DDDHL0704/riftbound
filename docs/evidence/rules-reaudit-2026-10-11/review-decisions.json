@@ -21114,6 +21114,80 @@
         "fixedFull": "PENDING_NEW_FIXED_COMMIT",
         "product": "OPEN_NEW_VISIBLE_AND_WINDOWS"
       }
+    },
+    {
+      "id": "sand-soldier-embedded-ready-2026-10-17",
+      "status": "SCOPED_CURRENT_SOURCE_FOCUS_NATIVE_ORIGINAL_OPENING_PASS_SQL_CHECK_FIXED_FULL_PRODUCT_PENDING",
+      "scope": "Current SFD154 optional Yellow and SFD198 current-equipment-created-unit-only up-to-two independent trigger confirmation/responses; executed Reksai separation and typed recovery; no whole printing or family certification.",
+      "subjects": [
+        "SFD-029/221",
+        "SFD-029A/221",
+        "SFD-154/221",
+        "SFD-198/221",
+        "SFD-T02"
+      ],
+      "ruleRecords": [
+        "DOC-01-P014-B014",
+        "DOC-01-P014-B015",
+        "DOC-01-P014-B016",
+        "DOC-01-P045-B001",
+        "DOC-01-P051-B011",
+        "DOC-01-P067-B007",
+        "DOC-01-P067-B008",
+        "DOC-01-P067-B009",
+        "DOC-01-P067-B011",
+        "DOC-01-P067-B013",
+        "DOC-01-P067-B014",
+        "DOC-01-P067-B015",
+        "DOC-01-P067-B016"
+      ],
+      "auditDocument": "docs/SAND_SOLDIER_EMBEDDED_READY_AUDIT_2026-10-17.md",
+      "evidence": "docs/evidence/sand-soldier-embedded-ready-2026-10-17",
+      "semanticReview": {
+        "state": "SCOPED",
+        "wholeCardCertified": false,
+        "region": "CN",
+        "language": "zh-CN",
+        "sourceIndexAsOf": "2026-10-17",
+        "runtimeRuleInputDate": "2026-10-16",
+        "exactSourceRecordIds": [
+          33104,
+          33105,
+          33248,
+          33297,
+          33364
+        ],
+        "setupOnlyRecordIds": [
+          33273,
+          33296,
+          33109
+        ]
+      },
+      "wholeCardCertification": false,
+      "remaining": [
+        "New fixed full CI for final input including all83 actual SQL paths, normal143 games/110 pairs/11 decks/424242 and network/packaging remains OPEN until actual terminal artifacts verified.",
+        "Current visible paired clients, real reconnect/cold restore, normal score finish/full replay and Windows physical remain separate OPEN gates. Prior5ed evidence retains only its exact original candidate.",
+        "Extra token replacement and Echo combinations, all global cost modifiers, source-control changes through resource actions, all legacy token-entry consumers and other printing semantics remain OPEN.",
+        "All1740 source identities/1033 runtime entries, EN missing8 and all prior regional/date/rule/FAQ/QA/news/media/source gaps and whole-card obligations remain retained.",
+        "A manually advanced generation and actual removal are covered; actual same-transport-ID regeneration while an older ability remains pending still requires a legal-history reproduction. The allocator currently checks only live card objects and zones. This is an unverified interaction risk, not a confirmed reproduced defect or certified identity guarantee."
+      ],
+      "testExecution": {
+        "newCases": 33,
+        "newMethods": 12,
+        "adjacentCases": 192,
+        "adjacentMethods": 94,
+        "earlyOriginalFullGames": 2,
+        "finalCaptionCases": 29,
+        "nativeCommands": 34,
+        "nativeColdRestores": 148,
+        "normalEmptyOpeningCases": 4,
+        "actualSql": "ALL83_REAL_SQL_PASS_3171_SOURCE_51_RUNTIME_STABLE_PRE_FINAL_CAPTION_INPUT_ONLY",
+        "singleCheck": "PASS_FINAL_INPUT_WITH_3171_NON_DOCUMENTATION_FILES_STABLE",
+        "fixedFull": "PENDING_NEW_FIXED_COMMIT",
+        "product": "OPEN_CURRENT_VISIBLE_AND_WINDOWS",
+        "singleCheckCases": 12060,
+        "singleCheckMethods": 7256
+      }
     }
   ]
 }

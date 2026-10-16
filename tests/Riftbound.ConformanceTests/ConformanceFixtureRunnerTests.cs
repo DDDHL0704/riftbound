@@ -25931,11 +25931,12 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        // Retain the historical test identity; current errata excludes preexisting soldiers.
         Assert.Equal(
-            2,
+            0,
             result.EventKinds.Count(kind => string.Equals(kind, "UNIT_READIED", StringComparison.Ordinal)));
-        Assert.False(result.FinalState.CardObjects["P1-SAND-SOLDIER-001"].IsExhausted);
-        Assert.False(result.FinalState.CardObjects["P1-SAND-SOLDIER-002"].IsExhausted);
+        Assert.True(result.FinalState.CardObjects["P1-SAND-SOLDIER-001"].IsExhausted);
+        Assert.True(result.FinalState.CardObjects["P1-SAND-SOLDIER-002"].IsExhausted);
     }
 
     [Fact]

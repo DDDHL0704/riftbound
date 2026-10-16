@@ -1,0 +1,77 @@
+{
+  "recordedAtUtc": "2026-10-16T14:42:33.797964+00:00",
+  "region": "CN",
+  "language": "zh-CN",
+  "applicableAsOf": "2026-10-16",
+  "firstAcquisitionRetained": {
+    "path": "var/qa/protect-emperor-post-entry-20261016/source-intake.json",
+    "sha256": "fdd385c75c6b9d272eb75bb08c28c1c01d59ecbe113f9c80bb8f45e363234fc1"
+  },
+  "firstComparisonIsInvalidSubsetBaselineAndMustNotBeReportedAsOfficialSourceChange": true,
+  "completeResponseComparisons": [
+    {
+      "searchContent": "雷克塞",
+      "baselineCompleteArchive": {
+        "rawSha256": "dd940f23b7417b2ac0cb758c63c49dd41167515542b309c85f47f77ce6322557",
+        "path": "docs/evidence/native-rule-choice-prompts-2026-10-16/api-dd940f23b7417b2a.json.gz",
+        "sha256": "ad3cfdd0310fd909f988aa77dff7276486abd1470b080a207d1122644b4ce668"
+      },
+      "freshCompleteArchive": {
+        "path": "var/qa/protect-emperor-post-entry-20261016/api-f723a86bf66cf688.json.gz",
+        "sha256": "df469b1ff50bff5cf6f1eb8c6f79e3f335715522f3451f2389be3d8dd11225de"
+      },
+      "priorReportedTotal": 7,
+      "freshReportedTotal": 7,
+      "priorCompleteReturned": 7,
+      "freshCompleteReturned": 7,
+      "allFullFieldsCompared": true,
+      "identitySetUnchanged": true,
+      "changes": [],
+      "firstComparisonUsedOnlySelectedExactCardSubsetAndWasNotASourceDelta": true
+    },
+    {
+      "searchContent": "护驾！",
+      "baselineCompleteArchive": {
+        "rawSha256": "b6f2aa4911d372f150cb522d557aeacb990ec6643bd2aa297bb2439e43695a98",
+        "path": "docs/evidence/native-rule-choice-prompts-2026-10-16/api-b6f2aa4911d372f1.json.gz",
+        "sha256": "d64c9e56fa0fd81200dc0780c57adeb73a8b0e5d5611bdb9b5dac141bbdc1c2d"
+      },
+      "freshCompleteArchive": {
+        "path": "var/qa/protect-emperor-post-entry-20261016/api-705fb0ff986715a4.json.gz",
+        "sha256": "551a9b4c8d78e981d11cf4701e069137367380b8bbcdffaa1605a58128b22bf3"
+      },
+      "priorReportedTotal": 1,
+      "freshReportedTotal": 1,
+      "priorCompleteReturned": 1,
+      "freshCompleteReturned": 1,
+      "allFullFieldsCompared": true,
+      "identitySetUnchanged": true,
+      "changes": [],
+      "firstComparisonUsedOnlySelectedExactCardSubsetAndWasNotASourceDelta": true
+    },
+    {
+      "searchContent": "黄沙士兵",
+      "baselineCompleteArchive": {
+        "rawSha256": "e0cea5739cd23b00ba43f67da79594daf3bd3d71a6c3d7558903d25828333fd6",
+        "path": "docs/evidence/native-rule-choice-prompts-2026-10-16/api-e0cea5739cd23b00.json.gz",
+        "sha256": "af5ee0998345edfb0879715d92f768862a573b1cfb1a15f32dcb953f18e2fd8a"
+      },
+      "freshCompleteArchive": {
+        "path": "var/qa/protect-emperor-post-entry-20261016/api-c7912d2859fd2e8d.json.gz",
+        "sha256": "cb05ff588e5c6b98721eaae6c2f816355b27421daf3e4c412746aab8908c0477"
+      },
+      "priorReportedTotal": 8,
+      "freshReportedTotal": 8,
+      "priorCompleteReturned": 8,
+      "freshCompleteReturned": 8,
+      "allFullFieldsCompared": true,
+      "identitySetUnchanged": true,
+      "changes": [],
+      "firstComparisonUsedOnlySelectedExactCardSubsetAndWasNotASourceDelta": true
+    }
+  ],
+  "all16ActualReturnedCardRecordsUnchanged": true,
+  "coreAndFaqBytesUnchanged": true,
+  "wholePrintingOrFamilyCertified": false,
+  "all1740Printings1033RuntimeAndPriorSourcesAndObligationsRetained": true
+}

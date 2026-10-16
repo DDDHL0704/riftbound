@@ -1,0 +1,21 @@
+{
+  "recordedAtUtc": "2026-10-16T20:22:47.499254+00:00",
+  "state": "OPEN_STATIC_RISK_REQUIRES_LEGAL_HISTORY_REPRODUCTION",
+  "scope": [
+    "SFD·154/221",
+    "SFD·198/221"
+  ],
+  "finding": "A manually advanced generation and actual removal are covered; actual same-transport-ID regeneration while an older ability remains pending still requires a legal-history reproduction. The allocator currently checks only live card objects and zones. This is an unverified interaction risk, not a confirmed reproduced defect or certified identity guarantee.",
+  "allocator": {
+    "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+    "sha256": "5e60b623ff023f47ffb06080701ef0d283927f3d7066ed4477393fb49f048925",
+    "method": "NextTokenObjectId",
+    "verifiedCodeFact": "Candidate source-TOKEN-number is checked against current cardObjects and player zones; this alone does not prove global nonreuse after a token ceases."
+  },
+  "currentBinding": {
+    "path": "src/Riftbound.Engine/CoreRuleEngine.CreatedTokenReady.cs",
+    "sha256": "75ce2585bb9fbc85040edd0bf5b17dc9d4b27801df8b8dcd11efee3e7e197fc6",
+    "verifiedExecutedScope": "Actual removal response skips the vanished token; a synthetic later ObjectGeneration with the same ID is not affected. Synthetic generation changes were not inserted into accepted history."
+  },
+  "noFamilyCompletionOrNewIssueAssertedFromStaticRisk": true
+}

@@ -1,0 +1,975 @@
+{
+  "region": "CN",
+  "language": "zh-CN",
+  "applicableAsOf": "2026-10-17",
+  "recordedAtUtc": "2026-10-16T19:22:58.344213+00:00",
+  "sources": [
+    {
+      "kind": "PUBLIC_CN_CARD_API",
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "雷克塞",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "region": "CN",
+      "language": "zh-CN",
+      "applicableAsOf": "2026-10-17",
+      "attemptedAtUtc": "2026-10-16T19:22:38.419992+00:00",
+      "status": "FETCHED",
+      "fetchedAtUtc": "2026-10-16T19:22:38.544302+00:00",
+      "rawSha256": "519202c5edf4af99cb1f5b57d68894f389e63c9f1fdc4d1896ce8f96b2d8440b",
+      "archive": {
+        "path": "var/qa/sand-soldier-embedded-ready-20261017/api-519202c5edf4af99.json.gz",
+        "sha256": "001c912634a59e5ed4cc436dbd3ab85741c3e8fbd75c0e042f692a9914562dab"
+      },
+      "baselineArchive": {
+        "rawSha256": "dd940f23b7417b2ac0cb758c63c49dd41167515542b309c85f47f77ce6322557",
+        "path": "docs/evidence/native-rule-choice-prompts-2026-10-16/api-dd940f23b7417b2a.json.gz",
+        "sha256": "ad3cfdd0310fd909f988aa77dff7276486abd1470b080a207d1122644b4ce668"
+      },
+      "reportedTotal": 7,
+      "returned": 7,
+      "allCompleteFieldsCompared": true,
+      "identitySetEqual": true,
+      "changes": [],
+      "records": [
+        {
+          "id": 33104,
+          "cardCategoryList": [
+            "hero_unit"
+          ],
+          "cardCategoryNameList": [
+            "英雄单位"
+          ],
+          "cardNo": "SFD·029/221",
+          "cardName": "雷克塞",
+          "subTitle": "黄沙噬猎",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "red"
+          ],
+          "hero": "雷克塞",
+          "region": "虚空之地",
+          "tag": "",
+          "artist": "Six More Vodka",
+          "cardEffect": "{{急速}}（你可以选择额外支付{{1}}和{{红色}}，让我以活跃状态进场。）\n{{强攻}}（如果我是进攻方，则{{S}}+1。）\n从手牌以外位置被打出的友方单位获得{{急速}}。",
+          "flavorText": "",
+          "energy": 3,
+          "returnEnergy": null,
+          "power": 3,
+          "productCodeList": [
+            "SFD(标准补充包)",
+            "SFD(进阶补充包)"
+          ],
+          "productNameList": [
+            "铸魂淬炼 标准补充包",
+            "铸魂淬炼 进阶补充包"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_core",
+          "rarityName": "史诗",
+          "extendRarity": "base_inscript",
+          "extendRarityName": "平卡",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20251217/ceade2fb3f224e50921ca8293168ef36.png",
+          "backImage": "",
+          "listSort": 969,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        {
+          "id": 33105,
+          "cardCategoryList": [
+            "hero_unit"
+          ],
+          "cardCategoryNameList": [
+            "英雄单位"
+          ],
+          "cardNo": "SFD·029a/221",
+          "cardName": "雷克塞",
+          "subTitle": "黄沙噬猎",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "red"
+          ],
+          "hero": "雷克塞",
+          "region": "虚空之地",
+          "tag": "",
+          "artist": "League Splash Team",
+          "cardEffect": "{{急速}}（你可以选择额外支付{{1}}和{{红色}}，让我以活跃状态进场。）\n{{强攻}}（如果我是进攻方，则{{S}}+1。）\n从手牌以外位置被打出的友方单位获得{{急速}}。",
+          "flavorText": "",
+          "energy": 3,
+          "returnEnergy": null,
+          "power": 3,
+          "productCodeList": [
+            "SFD(标准补充包)",
+            "SFD(进阶补充包)"
+          ],
+          "productNameList": [
+            "铸魂淬炼 标准补充包",
+            "铸魂淬炼 进阶补充包"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_legend",
+          "rarityName": "异画",
+          "extendRarity": "legacy_etching",
+          "extendRarityName": "异画",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20251217/9a38ae65c48240c697ed28f70ca3e5a0.png",
+          "backImage": "",
+          "listSort": 968,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        {
+          "id": 33264,
+          "cardCategoryList": [
+            "hero_unit"
+          ],
+          "cardCategoryNameList": [
+            "英雄单位"
+          ],
+          "cardNo": "SFD·170/221",
+          "cardName": "雷克塞",
+          "subTitle": "万类女皇",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "yellow"
+          ],
+          "hero": "雷克塞",
+          "region": "虚空之地",
+          "tag": "",
+          "artist": "Six More Vodka",
+          "cardEffect": "当我进攻时，你可以选择展示你主牌堆顶部的两张牌。你可以选择打出其中一张牌，然后回收其余的卡牌。如果以此方式打出的卡牌为单位，则可以选择将其打出到此处。",
+          "flavorText": "“咔咔咔咔！”",
+          "energy": 5,
+          "returnEnergy": 1,
+          "power": 5,
+          "productCodeList": [
+            "SFD(标准补充包)",
+            "SFD(进阶补充包)"
+          ],
+          "productNameList": [
+            "铸魂淬炼 标准补充包",
+            "铸魂淬炼 进阶补充包"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_shard",
+          "rarityName": "稀有",
+          "extendRarity": "base_inscript",
+          "extendRarityName": "平卡",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20251217/99cb8f44ecaa44be88970f93cb94b853.png",
+          "backImage": "",
+          "listSort": 809,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "当我进攻时，你可以选择展示你主牌堆顶部的两张牌。你可以选择放逐其中一张，然后将其打出。如果打出的卡牌为单位，则可以选择将其打出到此处。回收其余的卡牌。",
+          "otherDesc": 0
+        },
+        {
+          "id": 33265,
+          "cardCategoryList": [
+            "hero_unit"
+          ],
+          "cardCategoryNameList": [
+            "英雄单位"
+          ],
+          "cardNo": "SFD·170a/221",
+          "cardName": "雷克塞",
+          "subTitle": "万类女皇",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "yellow"
+          ],
+          "hero": "雷克塞",
+          "region": "虚空之地",
+          "tag": "",
+          "artist": "League Splash Team",
+          "cardEffect": "当我进攻时，你可以选择展示你主牌堆顶部的两张牌。你可以选择打出其中一张牌，然后回收其余的卡牌。如果以此方式打出的卡牌为单位，则可以选择将其打出到此处。",
+          "flavorText": "“咔咔咔咔！”",
+          "energy": 5,
+          "returnEnergy": 1,
+          "power": 5,
+          "productCodeList": [
+            "SFD(标准补充包)",
+            "SFD(进阶补充包)"
+          ],
+          "productNameList": [
+            "铸魂淬炼 标准补充包",
+            "铸魂淬炼 进阶补充包"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_legend",
+          "rarityName": "异画",
+          "extendRarity": "legacy_etching",
+          "extendRarityName": "异画",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20251217/c1b665d543d5440ba637f4474443a3d4.png",
+          "backImage": "",
+          "listSort": 808,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "当我进攻时，你可以选择展示你主牌堆顶部的两张牌。你可以选择放逐其中一张，然后将其打出。如果打出的卡牌为单位，则可以选择将其打出到此处。回收其余的卡牌。",
+          "otherDesc": 0
+        },
+        {
+          "id": 33285,
+          "cardCategoryList": [
+            "legendary"
+          ],
+          "cardCategoryNameList": [
+            "传奇"
+          ],
+          "cardNo": "SFD·187/221",
+          "cardName": "虚空遁地兽",
+          "subTitle": "",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "red",
+            "yellow"
+          ],
+          "hero": "雷克塞",
+          "region": "",
+          "tag": "",
+          "artist": "Pandart Studio",
+          "cardEffect": "当你征服一处战场时，你可以选择让我变为休眠状态，以此展示你主牌堆顶部的两张牌。你可以选择打出其中一张牌，然后回收其余的卡牌。",
+          "flavorText": "",
+          "energy": null,
+          "returnEnergy": null,
+          "power": null,
+          "productCodeList": [
+            "SFD(标准补充包)",
+            "SFD(进阶补充包)"
+          ],
+          "productNameList": [
+            "铸魂淬炼 标准补充包",
+            "铸魂淬炼 进阶补充包"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_shard",
+          "rarityName": "稀有",
+          "extendRarity": "base_inscript",
+          "extendRarityName": "平卡",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20251217/238fcb5ed16343b5bb7fcb933a86769d.png",
+          "backImage": "",
+          "listSort": 788,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        {
+          "id": 33286,
+          "cardCategoryList": [
+            "exclusive_spell"
+          ],
+          "cardCategoryNameList": [
+            "专属法术"
+          ],
+          "cardNo": "SFD·188/221",
+          "cardName": "虚空猛冲",
+          "subTitle": "",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "red",
+            "yellow"
+          ],
+          "hero": "雷克塞",
+          "region": "",
+          "tag": "",
+          "artist": "Kudos Productions",
+          "cardEffect": "展示你主牌堆顶部的两张牌。你可以选择其中一张，将其费用减少{{2}}后打出。抽取其中未以此方式打出的卡牌。",
+          "flavorText": "",
+          "energy": 2,
+          "returnEnergy": 1,
+          "power": null,
+          "productCodeList": [
+            "SFD(标准补充包)",
+            "SFD(进阶补充包)"
+          ],
+          "productNameList": [
+            "铸魂淬炼 标准补充包",
+            "铸魂淬炼 进阶补充包"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_core",
+          "rarityName": "史诗",
+          "extendRarity": "base_inscript",
+          "extendRarityName": "平卡",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20251217/b478472e661d4a9994693e654b18932e.png",
+          "backImage": "",
+          "listSort": 787,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "展示你主牌堆顶部的两张牌。你可以选择放逐其中一张，然后将其打出，其费用减少{{2}}。抽取其中未被放逐的卡牌。",
+          "otherDesc": 0
+        },
+        {
+          "id": 33354,
+          "cardCategoryList": [
+            "legendary"
+          ],
+          "cardCategoryNameList": [
+            "传奇"
+          ],
+          "cardNo": "SFD·243/221",
+          "cardName": "虚空遁地兽",
+          "subTitle": "",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "red",
+            "yellow"
+          ],
+          "hero": "雷克塞",
+          "region": "",
+          "tag": "",
+          "artist": "TSWCK逍",
+          "cardEffect": "当你征服一处战场时，你可以选择让我变为休眠状态，以此展示你主牌堆顶部的两张牌。你可以选择打出其中一张牌，然后回收其余的卡牌。",
+          "flavorText": "",
+          "energy": null,
+          "returnEnergy": null,
+          "power": null,
+          "productCodeList": [
+            "SFD(标准补充包)",
+            "SFD(进阶补充包)"
+          ],
+          "productNameList": [
+            "铸魂淬炼 标准补充包",
+            "铸魂淬炼 进阶补充包"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_legend",
+          "rarityName": "异画",
+          "extendRarity": "exalted_script",
+          "extendRarityName": "超编",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20251217/dcd39cfe98dd49a8a25a01ef9211c014.png",
+          "backImage": "",
+          "listSort": 719,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "当你征服一处战场时，你可以选择让我变为休眠状态，以此展示你主牌堆顶部的两张牌。你可以选择放逐其中一张，然后将其打出。回收其余的卡牌。",
+          "otherDesc": 0
+        }
+      ],
+      "publicationDate": null,
+      "effectiveDate": null
+    },
+    {
+      "kind": "PUBLIC_CN_CARD_API",
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "护驾！",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "region": "CN",
+      "language": "zh-CN",
+      "applicableAsOf": "2026-10-17",
+      "attemptedAtUtc": "2026-10-16T19:22:38.422708+00:00",
+      "status": "FETCHED",
+      "fetchedAtUtc": "2026-10-16T19:22:38.545063+00:00",
+      "rawSha256": "ce0e26f42c129609827759cff9740d13ddb39b50d77fe3cb6f47b06331fa21af",
+      "archive": {
+        "path": "var/qa/sand-soldier-embedded-ready-20261017/api-ce0e26f42c129609.json.gz",
+        "sha256": "a92c84297f199d851b3c0c0e35334a8e0501ab65dcd9ce2c1070ac77cbb737c6"
+      },
+      "baselineArchive": {
+        "rawSha256": "b6f2aa4911d372f150cb522d557aeacb990ec6643bd2aa297bb2439e43695a98",
+        "path": "docs/evidence/native-rule-choice-prompts-2026-10-16/api-b6f2aa4911d372f1.json.gz",
+        "sha256": "d64c9e56fa0fd81200dc0780c57adeb73a8b0e5d5611bdb9b5dac141bbdc1c2d"
+      },
+      "reportedTotal": 1,
+      "returned": 1,
+      "allCompleteFieldsCompared": true,
+      "identitySetEqual": true,
+      "changes": [],
+      "records": [
+        {
+          "id": 33248,
+          "cardCategoryList": [
+            "spell"
+          ],
+          "cardCategoryNameList": [
+            "法术"
+          ],
+          "cardNo": "SFD·154/221",
+          "cardName": "护驾！",
+          "subTitle": "",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "yellow"
+          ],
+          "hero": "",
+          "region": "",
+          "tag": "",
+          "artist": "Kudos Productions",
+          "cardEffect": "{{待命}}（支付{{A}}正面朝下放置此牌，之后可支付{{0}}将其当作反应牌打出。）\n打出一名2{{S}}的“黄沙士兵”。你可以选择支付{{黄色}}，以此让其变为活跃状态。",
+          "flavorText": "“我的帝国存在于每颗沙粒之中。”\n——阿兹尔",
+          "energy": 3,
+          "returnEnergy": null,
+          "power": null,
+          "productCodeList": [
+            "SFD(标准补充包)",
+            "SFD(进阶补充包)"
+          ],
+          "productNameList": [
+            "铸魂淬炼 标准补充包",
+            "铸魂淬炼 进阶补充包"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_dust",
+          "rarityName": "普通",
+          "extendRarity": "base_inscript",
+          "extendRarityName": "平卡",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20251217/6bd81d54c53f4524b628fe55888dbcca.png",
+          "backImage": "",
+          "listSort": 825,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "{{待命}}（支付{{A}}正面朝下放置此牌，之后可支付{{0}}将其当作反应牌打出。）\n打出一名2{{S}}的“黄沙士兵”。然后进行一次：你可以选择支付{{黄色}}，以此让其变为活跃状态。",
+          "otherDesc": 0
+        }
+      ],
+      "publicationDate": null,
+      "effectiveDate": null
+    },
+    {
+      "kind": "PUBLIC_CN_CARD_API",
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "黄沙士兵",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "region": "CN",
+      "language": "zh-CN",
+      "applicableAsOf": "2026-10-17",
+      "attemptedAtUtc": "2026-10-16T19:22:38.424820+00:00",
+      "status": "FETCHED",
+      "fetchedAtUtc": "2026-10-16T19:22:38.546614+00:00",
+      "rawSha256": "6be1512047bfdfb480950994d21aad888ef2fa631db5151f8ae37bed0f437987",
+      "archive": {
+        "path": "var/qa/sand-soldier-embedded-ready-20261017/api-6be1512047bfdfb4.json.gz",
+        "sha256": "2ea3ddc44865617224a0119e2695e2e30032c7de77432856a586c33743d5dcfd"
+      },
+      "baselineArchive": {
+        "rawSha256": "e0cea5739cd23b00ba43f67da79594daf3bd3d71a6c3d7558903d25828333fd6",
+        "path": "docs/evidence/native-rule-choice-prompts-2026-10-16/api-e0cea5739cd23b00.json.gz",
+        "sha256": "af5ee0998345edfb0879715d92f768862a573b1cfb1a15f32dcb953f18e2fd8a"
+      },
+      "reportedTotal": 8,
+      "returned": 8,
+      "allCompleteFieldsCompared": true,
+      "identitySetEqual": true,
+      "changes": [],
+      "records": [
+        {
+          "id": 33107,
+          "cardCategoryList": [
+            "spell"
+          ],
+          "cardCategoryNameList": [
+            "法术"
+          ],
+          "cardNo": "SFD·031/221",
+          "cardName": "点沙成兵",
+          "subTitle": "",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "green"
+          ],
+          "hero": "",
+          "region": "",
+          "tag": "",
+          "artist": "Kudos Productions",
+          "cardEffect": "{{回响2}}（你可以选择支付此额外费用，以重复此法术效果。）\n打出一名2{{S}}的“黄沙士兵”。",
+          "flavorText": "大赛沙漠下埋藏着许多秘密，以及同样多的长矛。",
+          "energy": 2,
+          "returnEnergy": null,
+          "power": null,
+          "productCodeList": [
+            "SFD(标准补充包)",
+            "SFD(进阶补充包)"
+          ],
+          "productNameList": [
+            "铸魂淬炼 标准补充包",
+            "铸魂淬炼 进阶补充包"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_dust",
+          "rarityName": "普通",
+          "extendRarity": "base_inscript",
+          "extendRarityName": "平卡",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20251217/07fc09db3b2549cdb13c8441882758f2.png",
+          "backImage": "",
+          "listSort": 966,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        {
+          "id": 33248,
+          "cardCategoryList": [
+            "spell"
+          ],
+          "cardCategoryNameList": [
+            "法术"
+          ],
+          "cardNo": "SFD·154/221",
+          "cardName": "护驾！",
+          "subTitle": "",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "yellow"
+          ],
+          "hero": "",
+          "region": "",
+          "tag": "",
+          "artist": "Kudos Productions",
+          "cardEffect": "{{待命}}（支付{{A}}正面朝下放置此牌，之后可支付{{0}}将其当作反应牌打出。）\n打出一名2{{S}}的“黄沙士兵”。你可以选择支付{{黄色}}，以此让其变为活跃状态。",
+          "flavorText": "“我的帝国存在于每颗沙粒之中。”\n——阿兹尔",
+          "energy": 3,
+          "returnEnergy": null,
+          "power": null,
+          "productCodeList": [
+            "SFD(标准补充包)",
+            "SFD(进阶补充包)"
+          ],
+          "productNameList": [
+            "铸魂淬炼 标准补充包",
+            "铸魂淬炼 进阶补充包"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_dust",
+          "rarityName": "普通",
+          "extendRarity": "base_inscript",
+          "extendRarityName": "平卡",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20251217/6bd81d54c53f4524b628fe55888dbcca.png",
+          "backImage": "",
+          "listSort": 825,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "{{待命}}（支付{{A}}正面朝下放置此牌，之后可支付{{0}}将其当作反应牌打出。）\n打出一名2{{S}}的“黄沙士兵”。然后进行一次：你可以选择支付{{黄色}}，以此让其变为活跃状态。",
+          "otherDesc": 0
+        },
+        {
+          "id": 33251,
+          "cardCategoryList": [
+            "unit"
+          ],
+          "cardCategoryNameList": [
+            "单位"
+          ],
+          "cardNo": "SFD·157/221",
+          "cardName": "皇家守卫",
+          "subTitle": "",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "yellow"
+          ],
+          "hero": "",
+          "region": "恕瑞玛",
+          "tag": "",
+          "artist": "Kudos Productions",
+          "cardEffect": "当你打出我时，在此处打出一名2{{S}}的“黄沙士兵”。",
+          "flavorText": "统治者的真正力量，源自属下的忠诚。",
+          "energy": 4,
+          "returnEnergy": null,
+          "power": 2,
+          "productCodeList": [
+            "SFD(英雄预组 菲奥娜)",
+            "SFD(标准补充包)",
+            "SFD(进阶补充包)"
+          ],
+          "productNameList": [
+            "铸魂淬炼 英雄预组 菲奥娜",
+            "铸魂淬炼 标准补充包",
+            "铸魂淬炼 进阶补充包"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_dust",
+          "rarityName": "普通",
+          "extendRarity": "base_inscript",
+          "extendRarityName": "平卡",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20251217/0983c61b832240da9a505ae2d402b57e.png",
+          "backImage": "",
+          "listSort": 822,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        {
+          "id": 33296,
+          "cardCategoryList": [
+            "legendary"
+          ],
+          "cardCategoryNameList": [
+            "传奇"
+          ],
+          "cardNo": "SFD·197/221",
+          "cardName": "沙漠皇帝",
+          "subTitle": "",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "green",
+            "yellow"
+          ],
+          "hero": "阿兹尔",
+          "region": "",
+          "tag": "",
+          "artist": "蛋费鸡丁",
+          "cardEffect": "你的“黄沙士兵”获得{{百炼}}。\n支付{{1}}，{{横置}}：打出一名2{{S}}的“黄沙士兵”到你的基地。只能在你本回合打出了一件武装后使用。",
+          "flavorText": "",
+          "energy": null,
+          "returnEnergy": null,
+          "power": null,
+          "productCodeList": [
+            "SFD(标准补充包)",
+            "SFD(进阶补充包)"
+          ],
+          "productNameList": [
+            "铸魂淬炼 标准补充包",
+            "铸魂淬炼 进阶补充包"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_shard",
+          "rarityName": "稀有",
+          "extendRarity": "base_inscript",
+          "extendRarityName": "平卡",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20251217/2b67f437b0174d54ac50b094b51b08f9.png",
+          "backImage": "",
+          "listSort": 777,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        {
+          "id": 33297,
+          "cardCategoryList": [
+            "exclusive_spell"
+          ],
+          "cardCategoryNameList": [
+            "专属法术"
+          ],
+          "cardNo": "SFD·198/221",
+          "cardName": "沙兵现身",
+          "subTitle": "",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "green",
+            "yellow"
+          ],
+          "hero": "阿兹尔",
+          "region": "",
+          "tag": "",
+          "artist": "Kudos Productions",
+          "cardEffect": "你每控制一件武装，便打出一名2{{S}}的“黄沙士兵”。然后让两名“黄沙士兵”变为活跃状态。",
+          "flavorText": "“命令已下达！”\n——阿兹尔",
+          "energy": 6,
+          "returnEnergy": 1,
+          "power": null,
+          "productCodeList": [
+            "SFD(标准补充包)",
+            "SFD(进阶补充包)"
+          ],
+          "productNameList": [
+            "铸魂淬炼 标准补充包",
+            "铸魂淬炼 进阶补充包"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_core",
+          "rarityName": "史诗",
+          "extendRarity": "base_inscript",
+          "extendRarityName": "平卡",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20251217/ed5754d015eb47c8968a0ab57119761b.png",
+          "backImage": "",
+          "listSort": 776,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "你每控制一件武装，便打出一名2{{S}}的“黄沙士兵”。然后进行一次：让其中最多两名“黄沙士兵”变为活跃状态。",
+          "otherDesc": 0
+        },
+        {
+          "id": 37990,
+          "cardCategoryList": [
+            "battlefield"
+          ],
+          "cardCategoryNameList": [
+            "战场"
+          ],
+          "cardNo": "SFD·207/221",
+          "cardName": "帝王神坛",
+          "subTitle": "",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "colorless"
+          ],
+          "hero": "",
+          "region": "",
+          "tag": "",
+          "artist": "Kudos Productions",
+          "cardEffect": "当你征服此处时，你可以选择支付{{1}}并让你在此处控制的一名单位返回其所属的手牌，以此在此处打出一名2{{S}}的“黄沙士兵”。",
+          "flavorText": "",
+          "energy": null,
+          "returnEnergy": null,
+          "power": null,
+          "productCodeList": [
+            "SFD(标准补充包)",
+            "SFD(进阶补充包)"
+          ],
+          "productNameList": [
+            "铸魂淬炼 标准补充包",
+            "铸魂淬炼 进阶补充包"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_glimmer",
+          "rarityName": "不凡",
+          "extendRarity": "base_inscript",
+          "extendRarityName": "平卡",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20251217/ce41926ec83f442991f280484fd4c439.png",
+          "backImage": "",
+          "listSort": 767,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        {
+          "id": 33358,
+          "cardCategoryList": [
+            "legendary"
+          ],
+          "cardCategoryNameList": [
+            "传奇"
+          ],
+          "cardNo": "SFD·247/221",
+          "cardName": "沙漠皇帝",
+          "subTitle": "",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "green",
+            "yellow"
+          ],
+          "hero": "阿兹尔",
+          "region": "",
+          "tag": "",
+          "artist": "Envar Studio",
+          "cardEffect": "你的“黄沙士兵”获得{{百炼}}。\n支付{{1}}，{{横置}}：打出一名2{{S}}的“黄沙士兵”到你的基地。只能在你本回合打出了一件武装后使用。",
+          "flavorText": "",
+          "energy": null,
+          "returnEnergy": null,
+          "power": null,
+          "productCodeList": [
+            "SFD(标准补充包)",
+            "SFD(进阶补充包)"
+          ],
+          "productNameList": [
+            "铸魂淬炼 标准补充包",
+            "铸魂淬炼 进阶补充包"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_legend",
+          "rarityName": "异画",
+          "extendRarity": "exalted_script",
+          "extendRarityName": "超编",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20251217/1446f29994b548848bb06051061da8a7.png",
+          "backImage": "",
+          "listSort": 715,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        },
+        {
+          "id": 33364,
+          "cardCategoryList": [
+            "indicator_unit"
+          ],
+          "cardCategoryNameList": [
+            "指示物单位"
+          ],
+          "cardNo": "SFD·T02",
+          "cardName": "黄沙士兵",
+          "subTitle": "",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "colorless"
+          ],
+          "hero": "",
+          "region": "恕瑞玛",
+          "tag": "",
+          "artist": "Kudos Productions",
+          "cardEffect": "",
+          "flavorText": "它们不歇息；不迟疑；不退缩。",
+          "energy": null,
+          "returnEnergy": null,
+          "power": 2,
+          "productCodeList": [
+            "SFD(英雄预组 菲奥娜)",
+            "SFD(进阶补充包)"
+          ],
+          "productNameList": [
+            "铸魂淬炼 英雄预组 菲奥娜",
+            "铸魂淬炼 进阶补充包"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_dust",
+          "rarityName": "普通",
+          "extendRarity": "base_inscript",
+          "extendRarityName": "平卡",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20251217/ed7625dd888a48d9bd5ec9bd5e17f068.png",
+          "backImage": "",
+          "listSort": 709,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": true,
+          "errata": "",
+          "otherDesc": 0
+        }
+      ],
+      "publicationDate": null,
+      "effectiveDate": null
+    },
+    {
+      "id": "DOC-01",
+      "kind": "OFFICIAL_PDF",
+      "url": "https://cdn.playloltcg.com/lol/2026/10/2026-10-10/a21ead876c6b44d6abe386b6ae54ea28.pdf",
+      "region": "CN",
+      "language": "zh-CN",
+      "applicableAsOf": "2026-10-17",
+      "attemptedAtUtc": "2026-10-16T19:22:38.544713+00:00",
+      "encodedRequestUrl": "https://cdn.playloltcg.com/lol/2026/10/2026-10-10/a21ead876c6b44d6abe386b6ae54ea28.pdf",
+      "publicationDate": "2026-10-10",
+      "effectiveDate": "2026-10-16",
+      "httpStatus": 200,
+      "status": "FETCHED",
+      "fetchedAtUtc": "2026-10-16T19:22:54.626275+00:00",
+      "sha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11",
+      "bytes": 40278538,
+      "unchanged": true,
+      "retainedBody": {
+        "path": "var/qa/colorless-token-haste-20261016/DOC-01-current.pdf",
+        "sha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11"
+      },
+      "duplicateDiscarded": true
+    },
+    {
+      "id": "DOC-14",
+      "kind": "OFFICIAL_PDF",
+      "url": "https://cdn.playloltcg.com/lol/2026/04/2026-04-15/铸魂淬炼系列_裁判FAQ.pdf",
+      "region": "CN",
+      "language": "zh-CN",
+      "applicableAsOf": "2026-10-17",
+      "attemptedAtUtc": "2026-10-16T19:22:38.545119+00:00",
+      "encodedRequestUrl": "https://cdn.playloltcg.com/lol/2026/04/2026-04-15/%E9%93%B8%E9%AD%82%E6%B7%AC%E7%82%BC%E7%B3%BB%E5%88%97_%E8%A3%81%E5%88%A4FAQ.pdf",
+      "publicationDate": null,
+      "effectiveDate": null,
+      "httpStatus": 200,
+      "status": "FETCHED",
+      "fetchedAtUtc": "2026-10-16T19:22:58.208124+00:00",
+      "sha256": "16eeeea28baeeee2dae3765876c609f79cc77fdbdd6928d73f1b8fa5d5c277bc",
+      "bytes": 25623614,
+      "unchanged": true,
+      "retainedBody": {
+        "path": "var/qa/colorless-token-haste-20261016/DOC-14-current.pdf",
+        "sha256": "16eeeea28baeeee2dae3765876c609f79cc77fdbdd6928d73f1b8fa5d5c277bc"
+      },
+      "duplicateDiscarded": true
+    },
+    {
+      "kind": "CN_RULES_INDEX",
+      "url": "https://lol-api.playloltcg.com/xcx/gameRule/getGameRuleList",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 1000
+      },
+      "fetchedAtUtc": "2026-10-16T19:22:58.344055+00:00",
+      "body": {
+        "path": "var/qa/sand-soldier-embedded-ready-20261017/rules-index.json",
+        "sha256": "9f21f23d0ce9bb4a1a6952a26d7068eb2b72a485a65894964597732050054235"
+      },
+      "allFullResultFieldsUnchanged": true,
+      "rows": 14,
+      "publicationDate": null,
+      "effectiveDate": null
+    }
+  ],
+  "exactPrintingApiIds": [
+    33104,
+    33105,
+    33248,
+    33297,
+    33364
+  ],
+  "all16FullCardRecordsUnchanged": true,
+  "bothPdfsUnchanged": true,
+  "rulesIndexAllFieldsUnchanged": true,
+  "globalUniverse1740Runtime1033AndOtherSourceGapsRetained": true,
+  "wholeCardOrFamilyCertified": false,
+  "priorInvalidSubsetComparisonRetainedAndNotASourceDelta": "var/qa/protect-emperor-post-entry-20261016/full-response-comparison-v2.json",
+  "webToolCoreOpenFailedDirectOfficialCdnAcquisitionSeparate": true
+}

@@ -1,0 +1,19 @@
+{
+  "baselineCommit": "8ca4080c9431b981db051a5adad18dace5d85dd5",
+  "oldConformanceFiles": 436,
+  "byteEqualOldFiles": 435,
+  "changedOldFiles": [
+    "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs"
+  ],
+  "oldTestMethodsTheoryRowsAndSeedsRetained": true,
+  "correctionScope": "Only obsolete SandSoldiersRise preexisting-unit readiness assertions corrected; fixture sources/physical spell objects/current confirmation updated explicitly. No old method or Theory row removed.",
+  "legacyCorrection": {
+    "path": "docs/evidence/sand-soldier-embedded-ready-2026-10-17/legacy-fixture-corrections-v2.json",
+    "sha256": "3b38c22af608e22d1952e1859cf7c63a88d2c92be30f5062fb0b579fadec4ba8"
+  },
+  "originalFullGameSourceSha256": "12352222c34e756c41508400e7f24a4877807dcd3681320d5854a4e23e0b688e",
+  "all143OriginalFullGamesSourceAndVictoryReplayAssertionsByteEqual": true,
+  "originalPairs": 110,
+  "originalDecks": 11,
+  "originalSeed": 424242
+}

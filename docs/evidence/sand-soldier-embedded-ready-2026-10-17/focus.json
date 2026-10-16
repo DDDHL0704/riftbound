@@ -1,0 +1,200 @@
+{
+  "newCases": 33,
+  "newMethods": 12,
+  "currentAdjacentCases": 192,
+  "currentAdjacentMethods": 94,
+  "earlyOriginalFullGames": 2,
+  "finalCaptionExportAndReadbackCases": 29,
+  "emptyOriginalOpeningCases": 4,
+  "runs": [
+    {
+      "run": "focus-red",
+      "trx": {
+        "path": "var/qa/sand-soldier-embedded-ready-20261017/focus-red/focus/results.trx",
+        "sha256": "6a44344445a0f19f7f4e2aea939e59edfb6179e512d52e6783968cdfc3a0ccbb"
+      },
+      "cases": 7,
+      "passed": 0,
+      "failed": 7,
+      "notExecuted": 0,
+      "methods": 3,
+      "originalFullGames": []
+    },
+    {
+      "run": "focus-green-1",
+      "trx": {
+        "path": "var/qa/sand-soldier-embedded-ready-20261017/focus-green-1/focus/results.trx",
+        "sha256": "ef1699bdbb84d22704d8e9a7137c7dcf20fcf1e30efa0b84fde108a0c8a372fa"
+      },
+      "cases": 7,
+      "passed": 3,
+      "failed": 4,
+      "notExecuted": 0,
+      "methods": 3,
+      "originalFullGames": []
+    },
+    {
+      "run": "focus-green-2",
+      "trx": {
+        "path": "var/qa/sand-soldier-embedded-ready-20261017/focus-green-2/focus/results.trx",
+        "sha256": "78c0db8993bf0723091b8df59b787277ea38a642fb199e01919f42a0021d5e9e"
+      },
+      "cases": 7,
+      "passed": 7,
+      "failed": 0,
+      "notExecuted": 0,
+      "methods": 3,
+      "originalFullGames": []
+    },
+    {
+      "run": "focus-adjacent-1",
+      "trx": {
+        "path": "var/qa/sand-soldier-embedded-ready-20261017/focus-adjacent-1/focus/results.trx",
+        "sha256": "c9d99d2fe113eda5505321c1d197b1be6ca75637b4f7b0ae3822a406f5dc91dc"
+      },
+      "cases": 89,
+      "passed": 87,
+      "failed": 2,
+      "notExecuted": 0,
+      "methods": 43,
+      "originalFullGames": [
+        {
+          "name": "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameResolvesImperialShrineSandSoldierAndScoreVictoryActionLogReplaysToFinalStateHash",
+          "outcome": "Passed"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameDeclinesImperialShrineSandSoldierAndScoreVictoryActionLogReplaysToFinalStateHash",
+          "outcome": "Passed"
+        }
+      ]
+    },
+    {
+      "run": "focus-branch-3",
+      "trx": {
+        "path": "var/qa/sand-soldier-embedded-ready-20261017/focus-branch-3/focus/results.trx",
+        "sha256": "550089573a8add90e581b274eb9acf199794cacee822396188b654da0e1fc882"
+      },
+      "cases": 31,
+      "passed": 23,
+      "failed": 8,
+      "notExecuted": 0,
+      "methods": 13,
+      "originalFullGames": []
+    },
+    {
+      "run": "focus-export-4",
+      "trx": {
+        "path": "var/qa/sand-soldier-embedded-ready-20261017/focus-export-4/focus/results.trx",
+        "sha256": "d1a7c9dcf9f4ee009ceb31558781df9760c563b2ab2ab9730cea84117b0b54b7"
+      },
+      "cases": 29,
+      "passed": 27,
+      "failed": 2,
+      "notExecuted": 0,
+      "methods": 11,
+      "originalFullGames": []
+    },
+    {
+      "run": "focus-fixtures-5",
+      "trx": {
+        "path": "var/qa/sand-soldier-embedded-ready-20261017/focus-fixtures-5/focus/results.trx",
+        "sha256": "5076c2df0f4c3e3f5265112462bb958aa38301ad98bed2b340743f4ebe6b9615"
+      },
+      "cases": 31,
+      "passed": 31,
+      "failed": 0,
+      "notExecuted": 0,
+      "methods": 13,
+      "originalFullGames": []
+    },
+    {
+      "run": "focus-native-readback",
+      "trx": {
+        "path": "var/qa/sand-soldier-embedded-ready-20261017/focus-native-readback/focus/results.trx",
+        "sha256": "6edfd746a8da3ca5255831a1bdf6380bc7ef81d6f4e0971bb21eaed0c217a4ce"
+      },
+      "cases": 29,
+      "passed": 29,
+      "failed": 0,
+      "notExecuted": 0,
+      "methods": 11,
+      "originalFullGames": []
+    },
+    {
+      "run": "focus-opening-1",
+      "trx": {
+        "path": "var/qa/sand-soldier-embedded-ready-20261017/focus-opening-1/focus/results.trx",
+        "sha256": "73bc1f733f0d9921ab0a1dfab829deeb2f4224591150810d8ce181f5b05a01a5"
+      },
+      "cases": 4,
+      "passed": 0,
+      "failed": 4,
+      "notExecuted": 0,
+      "methods": 1,
+      "originalFullGames": []
+    },
+    {
+      "run": "focus-opening-2",
+      "trx": {
+        "path": "var/qa/sand-soldier-embedded-ready-20261017/focus-opening-2/focus/results.trx",
+        "sha256": "e07a3417e634bb56a7125b0d85839ca969e7b175cd17cd8e9d923508241f8e44"
+      },
+      "cases": 4,
+      "passed": 4,
+      "failed": 0,
+      "notExecuted": 0,
+      "methods": 1,
+      "originalFullGames": []
+    },
+    {
+      "run": "focus-final-adjacent",
+      "trx": {
+        "path": "var/qa/sand-soldier-embedded-ready-20261017/focus-final-adjacent/focus/results.trx",
+        "sha256": "c08abce0aa4f705b6435561eba76a63ad190d33a939b76b31a37d4050a9c8348"
+      },
+      "cases": 192,
+      "passed": 192,
+      "failed": 0,
+      "notExecuted": 0,
+      "methods": 94,
+      "originalFullGames": [
+        {
+          "name": "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameResolvesImperialShrineSandSoldierAndScoreVictoryActionLogReplaysToFinalStateHash",
+          "outcome": "Passed"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameDeclinesImperialShrineSandSoldierAndScoreVictoryActionLogReplaysToFinalStateHash",
+          "outcome": "Passed"
+        }
+      ]
+    },
+    {
+      "run": "focus-final-caption-export",
+      "trx": {
+        "path": "var/qa/sand-soldier-embedded-ready-20261017/focus-final-caption-export/focus/results.trx",
+        "sha256": "59d804108a6f1bd52a8b04ba0587048e3aa17cca221120dce4759cc37bc5faee"
+      },
+      "cases": 29,
+      "passed": 29,
+      "failed": 0,
+      "notExecuted": 0,
+      "methods": 11,
+      "originalFullGames": []
+    },
+    {
+      "run": "focus-final-native-readback",
+      "trx": {
+        "path": "var/qa/sand-soldier-embedded-ready-20261017/focus-final-native-readback/focus/results.trx",
+        "sha256": "628d0e4c69fec21f4eb1c7593a9a7da24e4bbd93711d1d79c38a5559244e627f"
+      },
+      "cases": 29,
+      "passed": 29,
+      "failed": 0,
+      "notExecuted": 0,
+      "methods": 11,
+      "originalFullGames": []
+    }
+  ],
+  "initialWrongPowerScaffoldAndFriendlyOnlyBounceAndIllegalRedGearDeckAttemptsRetained": true,
+  "earlierAdjacentAndFourOpeningProofPrecedesFinalPromptCaptionOnlyDifference": true
+}

@@ -112,6 +112,7 @@ public sealed partial class CoreRuleEngine
         var item = state.StackItems.FirstOrDefault(i =>
             i.EffectKind == EndAbilityEffect && i.EndAbility is { Kind: TriggerKinds.TurnEndReadyRunes or "DELAYED_READY_RUNES" } && i.TargetGenerations is null || i.MightySkill is { Confirmed: false } || NeedsAttachmentModeConfirmation(i) || i.Tempered is { Equipment: null } || i.DamageDistribution is not null && i.TargetGenerations is null || i.LocationDamage is not null && i.TargetGenerations is null || i.ReflexiveDuel is not null && i.TargetGenerations is null || NeedsTriggerCostConfirmation(i) || NeedsHeldTargetConfirmation(i) || i.UnitConquest is not null && i.TargetGenerations is null
             || i.PermanentPlayTargetsPending || i.ReflexiveCopy is { TargetConfirmed: false }
+            || i.CreatedTokenReady is not null && !CreatedTokenReadyHasPayment(i) && i.TargetGenerations is null
             || i.SpellContext is { } spell && NeedsSpellTriggerChoice(spell) && i.TargetGenerations is null
             || i.FieldContext is not null and not { Kind: "ENEMY_ATTACK_MIGHT" or "ATTACK_DECK_PLAY" } && i.TargetGenerations is null
             || i.InsightContext is { Kind: "DUEL", PaymentAccepted: false });
@@ -129,6 +130,7 @@ public sealed partial class CoreRuleEngine
         if (NeedsHeldTargetConfirmation(item)) return PrepareHeldTargetConfirmation(result, item);
         if (NeedsTriggerCostConfirmation(item)) return PrepareTriggerCostConfirmation(result, item);
         if (item.ReflexiveCopy is { TargetConfirmed: false }) return PrepareReflexiveCopyConfirmation(result);
+        if (item.CreatedTokenReady is not null) return PrepareCreatedTokenReady(result, item);
         if (item.SpellContext is not null) return PrepareSpellTriggerConfirmation(result);
         PendingCardChoiceState? choice = null; PendingPaymentState? payment = null;
         if (item.InsightContext is not null)
@@ -189,7 +191,7 @@ public sealed partial class CoreRuleEngine
             && choice.ChoiceId == "TRIGGER-TARGET:" + item.StackItemId && choice.EffectKind == item.EffectKind
             && choice.RequiredCount == (context.Kind == "DEFEND" ? 0 : 1) && choice.MaxCount == 1
             && choice.LegalObjectIds.SequenceEqual(FieldTriggerTargets(state, item))
-            || ValidPermanentPlayTargetChoice(state, choice) || ValidDistributionTargetChoice(state, choice) || ValidLocationDamageChoice(state, choice) || ValidReflexiveDuelChoice(state, choice) || ValidReflexiveCopyChoice(state, choice) || ValidHeldTargetChoice(state, choice) || ValidLegendConquestChoice(state, choice) || ValidConquestTargetChoice(state, choice);
+            || ValidCreatedTokenReadyChoice(state, choice) || ValidPermanentPlayTargetChoice(state, choice) || ValidDistributionTargetChoice(state, choice) || ValidLocationDamageChoice(state, choice) || ValidReflexiveDuelChoice(state, choice) || ValidReflexiveCopyChoice(state, choice) || ValidHeldTargetChoice(state, choice) || ValidLegendConquestChoice(state, choice) || ValidConquestTargetChoice(state, choice);
 
     private static ResolutionResult ResolveTriggerTargetConfirmation(MatchState state, PendingCardChoiceState choice, IReadOnlyList<string> selected, bool advanceTick = true)
     {
@@ -200,7 +202,7 @@ public sealed partial class CoreRuleEngine
         if (item.PermanentPlayTargetsPending && !ValidPermanentPlayTargetSelection(state, item, selected))
             return RejectWithCorePrompts(state, "所选目标组合不满足技能条件。", ErrorCodes.InvalidTarget);
         var next = state with { Tick = state.Tick + (advanceTick ? 1 : 0), PendingCardChoice = null };
-        if (selected.Count == 0) return DiscardUnconfirmedTrigger(new(true, null, next, [], ResolutionResult.BuildSnapshots(next), BuildCorePrompts(next)), item);
+        if (selected.Count == 0 && item.CreatedTokenReady is null) return DiscardUnconfirmedTrigger(new(true, null, next, [], ResolutionResult.BuildSnapshots(next), BuildCorePrompts(next)), item);
         var tax = ResolveSpellshieldTargetTaxPower(state, item.ControllerId, selected, out _);
         var bound = item with { TargetObjectIds = selected.ToArray(), TargetGenerations = selected.ToDictionary(id => id, id => state.CardObjects[id].ObjectGeneration) };
         if (item.LocationDamage is { } locationDamage)
