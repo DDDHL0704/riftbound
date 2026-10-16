@@ -99,7 +99,7 @@
     },
     "reviews": {
       "path": "docs/evidence/rules-reaudit-2026-10-11/review-decisions.json",
-      "sha256": "bdbde63b23b3ffb06071c465a77d398d90019fce582fa672bdcd2a44ff98fab9"
+      "sha256": "813258da07048d0f137d61330d956b11ddc67db43e8f261b824f66b30d7ad037"
     },
     "summary": {
       "path": "docs/evidence/source-listing-2026-10-15/index-summary.json",
@@ -757,7 +757,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "9524dd2f6f0f99ff7565dc99044839616d5cbe7cd8b97b30292daed982097137"
+          "sha256": "701657b70b623f7c9fe1ccbe4cf5eb42a7ea1e91e0716d1ece78be4d5e1f3f61"
         },
         {
           "path": "src/Riftbound.CardCatalog/ReviewedCardErrata.cs",
@@ -1367,7 +1367,7 @@
         }
       ],
       "evidenceCommit": "03f88a7ee1b109b2cb906fbdc457316f93c08fda",
-      "currentImplementationCommit": "56d1ee2eed9dcbf48ed54175867cd93ac58d92d8",
+      "currentImplementationCommit": "4ad7fe204adee28c4138f18bdde4c4cbcdea21f0",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -1419,9 +1419,22 @@
               "currentSha256": "9524dd2f6f0f99ff7565dc99044839616d5cbe7cd8b97b30292daed982097137"
             }
           ]
+        },
+        {
+          "batch": "granted-origin-haste-and-paid-entry-replacement-2026-10-16",
+          "baseCommit": "4ad7fe204adee28c4138f18bdde4c4cbcdea21f0",
+          "changes": [
+            {
+              "role": "implementation",
+              "path": "src/Riftbound.Engine/MatchSession.cs",
+              "previousSha256": "9524dd2f6f0f99ff7565dc99044839616d5cbe7cd8b97b30292daed982097137",
+              "currentSha256": "701657b70b623f7c9fe1ccbe4cf5eb42a7ea1e91e0716d1ece78be4d5e1f3f61"
+            }
+          ],
+          "oldEvidenceScopeRetained": true
         }
       ],
-      "revalidationReason": "CN16 source identity and shared hand-origin fact changed. Exact old evidence and source dates remain; a new fixed commit and scoped product acceptance are required."
+      "revalidationReason": "Explicit shared implementation/verification input changes; prior CI retained only at its fixed old source scope."
     },
     "static-granted-predict-entry-2026-10-15": {
       "implementation": [
@@ -1451,11 +1464,11 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "ec43f90168ba1f9354d6ee3db44756552df6d5dfcff9c1a0688070b356f5e63c"
+          "sha256": "a22a4bf74e119e8fb68c399460f777ee3f53d2da8efd1f9ba32661f21faf5730"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "9524dd2f6f0f99ff7565dc99044839616d5cbe7cd8b97b30292daed982097137"
+          "sha256": "701657b70b623f7c9fe1ccbe4cf5eb42a7ea1e91e0716d1ece78be4d5e1f3f61"
         },
         {
           "path": "src/Riftbound.Engine/OfficialPrintedTimingRules.cs",
@@ -2064,7 +2077,7 @@
       "ciState": "PENDING",
       "ciReceipts": [],
       "evidenceCommit": "03f88a7ee1b109b2cb906fbdc457316f93c08fda",
-      "currentImplementationCommit": "56d1ee2eed9dcbf48ed54175867cd93ac58d92d8",
+      "currentImplementationCommit": "4ad7fe204adee28c4138f18bdde4c4cbcdea21f0",
       "currentImplementationIncludesUncommittedChanges": true,
       "lastFixedCiFailure": {
         "path": "docs/evidence/granted-predict-2026-10-15/full-ci-c74853be-failed.json",
@@ -2196,9 +2209,41 @@
               "currentSha256": "ec43f90168ba1f9354d6ee3db44756552df6d5dfcff9c1a0688070b356f5e63c"
             }
           ]
+        },
+        {
+          "batch": "granted-origin-haste-and-paid-entry-replacement-2026-10-16",
+          "baseCommit": "4ad7fe204adee28c4138f18bdde4c4cbcdea21f0",
+          "changes": [
+            {
+              "role": "implementation",
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "ec43f90168ba1f9354d6ee3db44756552df6d5dfcff9c1a0688070b356f5e63c",
+              "currentSha256": "37d8de8d254424f29b509b2df04ea72519dd77ab2f903941fc6e86133993ce41"
+            },
+            {
+              "role": "implementation",
+              "path": "src/Riftbound.Engine/MatchSession.cs",
+              "previousSha256": "9524dd2f6f0f99ff7565dc99044839616d5cbe7cd8b97b30292daed982097137",
+              "currentSha256": "701657b70b623f7c9fe1ccbe4cf5eb42a7ea1e91e0716d1ece78be4d5e1f3f61"
+            }
+          ],
+          "oldEvidenceScopeRetained": true
+        },
+        {
+          "batch": "granted-origin-haste-and-paid-entry-replacement-2026-10-16-post-check-printed-dispatch-repair",
+          "baseCommit": "4ad7fe204adee28c4138f18bdde4c4cbcdea21f0",
+          "changes": [
+            {
+              "role": "implementation",
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "37d8de8d254424f29b509b2df04ea72519dd77ab2f903941fc6e86133993ce41",
+              "currentSha256": "a22a4bf74e119e8fb68c399460f777ee3f53d2da8efd1f9ba32661f21faf5730"
+            }
+          ],
+          "priorExecutedEvidenceScopeRetained": true
         }
       ],
-      "revalidationReason": "Shared physical-source cost path and/or appended SQL gate changed. Original evidence keeps its prior exact input scope; new limited tests do not recertify previous whole branches."
+      "revalidationReason": "Explicit shared implementation/verification input changes; prior CI retained only at its fixed old source scope."
     },
     "printed-predict-permanent-entry-2026-10-15": {
       "implementation": [
@@ -2228,11 +2273,11 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "ec43f90168ba1f9354d6ee3db44756552df6d5dfcff9c1a0688070b356f5e63c"
+          "sha256": "a22a4bf74e119e8fb68c399460f777ee3f53d2da8efd1f9ba32661f21faf5730"
         },
         {
           "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
-          "sha256": "f3978b40338cf7aaf3095c0b7c82508874f3a61a68a6de3b672512cf62baf216"
+          "sha256": "059c7bdb07d3419815898f8ac729eaff109b08b8d10b9c5d5cd5926fb2d2a18b"
         },
         {
           "path": "src/Riftbound.Engine/CardLifecycleKeywordRules.cs",
@@ -2836,7 +2881,7 @@
         }
       ],
       "evidenceCommit": "74353e405fd2242ece0bae05972f209950b2c9de",
-      "currentImplementationCommit": "56d1ee2eed9dcbf48ed54175867cd93ac58d92d8",
+      "currentImplementationCommit": "4ad7fe204adee28c4138f18bdde4c4cbcdea21f0",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -2970,9 +3015,41 @@
               "currentSha256": "f3978b40338cf7aaf3095c0b7c82508874f3a61a68a6de3b672512cf62baf216"
             }
           ]
+        },
+        {
+          "batch": "granted-origin-haste-and-paid-entry-replacement-2026-10-16",
+          "baseCommit": "4ad7fe204adee28c4138f18bdde4c4cbcdea21f0",
+          "changes": [
+            {
+              "role": "implementation",
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "ec43f90168ba1f9354d6ee3db44756552df6d5dfcff9c1a0688070b356f5e63c",
+              "currentSha256": "37d8de8d254424f29b509b2df04ea72519dd77ab2f903941fc6e86133993ce41"
+            },
+            {
+              "role": "implementation",
+              "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+              "previousSha256": "f3978b40338cf7aaf3095c0b7c82508874f3a61a68a6de3b672512cf62baf216",
+              "currentSha256": "059c7bdb07d3419815898f8ac729eaff109b08b8d10b9c5d5cd5926fb2d2a18b"
+            }
+          ],
+          "oldEvidenceScopeRetained": true
+        },
+        {
+          "batch": "granted-origin-haste-and-paid-entry-replacement-2026-10-16-post-check-printed-dispatch-repair",
+          "baseCommit": "4ad7fe204adee28c4138f18bdde4c4cbcdea21f0",
+          "changes": [
+            {
+              "role": "implementation",
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "37d8de8d254424f29b509b2df04ea72519dd77ab2f903941fc6e86133993ce41",
+              "currentSha256": "a22a4bf74e119e8fb68c399460f777ee3f53d2da8efd1f9ba32661f21faf5730"
+            }
+          ],
+          "priorExecutedEvidenceScopeRetained": true
         }
       ],
-      "revalidationReason": "Shared physical-source cost path and/or appended SQL gate changed. Original evidence keeps its prior exact input scope; new limited tests do not recertify previous whole branches."
+      "revalidationReason": "Explicit shared implementation/verification input changes; prior CI retained only at its fixed old source scope."
     },
     "sivir-optional-rune-recycle-2026-10-15": {
       "implementation": [
@@ -2986,7 +3063,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "ec43f90168ba1f9354d6ee3db44756552df6d5dfcff9c1a0688070b356f5e63c"
+          "sha256": "a22a4bf74e119e8fb68c399460f777ee3f53d2da8efd1f9ba32661f21faf5730"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.Insight.cs",
@@ -3014,7 +3091,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "9524dd2f6f0f99ff7565dc99044839616d5cbe7cd8b97b30292daed982097137"
+          "sha256": "701657b70b623f7c9fe1ccbe4cf5eb42a7ea1e91e0716d1ece78be4d5e1f3f61"
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
@@ -3348,7 +3425,7 @@
         }
       ],
       "evidenceCommit": "7649d573f884ffd7517a502f7eebe01d0aa186c4",
-      "currentImplementationCommit": "56d1ee2eed9dcbf48ed54175867cd93ac58d92d8",
+      "currentImplementationCommit": "4ad7fe204adee28c4138f18bdde4c4cbcdea21f0",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -3466,9 +3543,41 @@
               "currentSha256": "ec43f90168ba1f9354d6ee3db44756552df6d5dfcff9c1a0688070b356f5e63c"
             }
           ]
+        },
+        {
+          "batch": "granted-origin-haste-and-paid-entry-replacement-2026-10-16",
+          "baseCommit": "4ad7fe204adee28c4138f18bdde4c4cbcdea21f0",
+          "changes": [
+            {
+              "role": "implementation",
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "ec43f90168ba1f9354d6ee3db44756552df6d5dfcff9c1a0688070b356f5e63c",
+              "currentSha256": "37d8de8d254424f29b509b2df04ea72519dd77ab2f903941fc6e86133993ce41"
+            },
+            {
+              "role": "implementation",
+              "path": "src/Riftbound.Engine/MatchSession.cs",
+              "previousSha256": "9524dd2f6f0f99ff7565dc99044839616d5cbe7cd8b97b30292daed982097137",
+              "currentSha256": "701657b70b623f7c9fe1ccbe4cf5eb42a7ea1e91e0716d1ece78be4d5e1f3f61"
+            }
+          ],
+          "oldEvidenceScopeRetained": true
+        },
+        {
+          "batch": "granted-origin-haste-and-paid-entry-replacement-2026-10-16-post-check-printed-dispatch-repair",
+          "baseCommit": "4ad7fe204adee28c4138f18bdde4c4cbcdea21f0",
+          "changes": [
+            {
+              "role": "implementation",
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "37d8de8d254424f29b509b2df04ea72519dd77ab2f903941fc6e86133993ce41",
+              "currentSha256": "a22a4bf74e119e8fb68c399460f777ee3f53d2da8efd1f9ba32661f21faf5730"
+            }
+          ],
+          "priorExecutedEvidenceScopeRetained": true
         }
       ],
-      "revalidationReason": "Shared physical-source cost path and/or appended SQL gate changed. Original evidence keeps its prior exact input scope; new limited tests do not recertify previous whole branches."
+      "revalidationReason": "Explicit shared implementation/verification input changes; prior CI retained only at its fixed old source scope."
     },
     "battlefield-conquer-rune-destination-2026-10-15": {
       "implementation": [
@@ -3486,7 +3595,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "ec43f90168ba1f9354d6ee3db44756552df6d5dfcff9c1a0688070b356f5e63c"
+          "sha256": "a22a4bf74e119e8fb68c399460f777ee3f53d2da8efd1f9ba32661f21faf5730"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.Conquest.cs",
@@ -3633,7 +3742,7 @@
         }
       ],
       "evidenceCommit": "dd8884ba1e443138264b9b0e971ab8da3c5480ee",
-      "currentImplementationCommit": "56d1ee2eed9dcbf48ed54175867cd93ac58d92d8",
+      "currentImplementationCommit": "4ad7fe204adee28c4138f18bdde4c4cbcdea21f0",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -3711,9 +3820,35 @@
               "currentSha256": "ec43f90168ba1f9354d6ee3db44756552df6d5dfcff9c1a0688070b356f5e63c"
             }
           ]
+        },
+        {
+          "batch": "granted-origin-haste-and-paid-entry-replacement-2026-10-16",
+          "baseCommit": "4ad7fe204adee28c4138f18bdde4c4cbcdea21f0",
+          "changes": [
+            {
+              "role": "implementation",
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "ec43f90168ba1f9354d6ee3db44756552df6d5dfcff9c1a0688070b356f5e63c",
+              "currentSha256": "37d8de8d254424f29b509b2df04ea72519dd77ab2f903941fc6e86133993ce41"
+            }
+          ],
+          "oldEvidenceScopeRetained": true
+        },
+        {
+          "batch": "granted-origin-haste-and-paid-entry-replacement-2026-10-16-post-check-printed-dispatch-repair",
+          "baseCommit": "4ad7fe204adee28c4138f18bdde4c4cbcdea21f0",
+          "changes": [
+            {
+              "role": "implementation",
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "37d8de8d254424f29b509b2df04ea72519dd77ab2f903941fc6e86133993ce41",
+              "currentSha256": "a22a4bf74e119e8fb68c399460f777ee3f53d2da8efd1f9ba32661f21faf5730"
+            }
+          ],
+          "priorExecutedEvidenceScopeRetained": true
         }
       ],
-      "revalidationReason": "Shared physical-source cost path and/or appended SQL gate changed. Original evidence keeps its prior exact input scope; new limited tests do not recertify previous whole branches."
+      "revalidationReason": "Explicit shared implementation/verification input changes; prior CI retained only at its fixed old source scope."
     },
     "sivir-payment-trigger-and-ward-event-2026-10-15": {
       "implementation": [
@@ -3739,7 +3874,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "ec43f90168ba1f9354d6ee3db44756552df6d5dfcff9c1a0688070b356f5e63c"
+          "sha256": "a22a4bf74e119e8fb68c399460f777ee3f53d2da8efd1f9ba32661f21faf5730"
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
@@ -3925,7 +4060,7 @@
         }
       ],
       "evidenceCommit": "00420e2a2b453918e611812d18fda9f62632e15f",
-      "currentImplementationCommit": "56d1ee2eed9dcbf48ed54175867cd93ac58d92d8",
+      "currentImplementationCommit": "4ad7fe204adee28c4138f18bdde4c4cbcdea21f0",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -3998,9 +4133,35 @@
               "currentSha256": "ec43f90168ba1f9354d6ee3db44756552df6d5dfcff9c1a0688070b356f5e63c"
             }
           ]
+        },
+        {
+          "batch": "granted-origin-haste-and-paid-entry-replacement-2026-10-16",
+          "baseCommit": "4ad7fe204adee28c4138f18bdde4c4cbcdea21f0",
+          "changes": [
+            {
+              "role": "implementation",
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "ec43f90168ba1f9354d6ee3db44756552df6d5dfcff9c1a0688070b356f5e63c",
+              "currentSha256": "37d8de8d254424f29b509b2df04ea72519dd77ab2f903941fc6e86133993ce41"
+            }
+          ],
+          "oldEvidenceScopeRetained": true
+        },
+        {
+          "batch": "granted-origin-haste-and-paid-entry-replacement-2026-10-16-post-check-printed-dispatch-repair",
+          "baseCommit": "4ad7fe204adee28c4138f18bdde4c4cbcdea21f0",
+          "changes": [
+            {
+              "role": "implementation",
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "37d8de8d254424f29b509b2df04ea72519dd77ab2f903941fc6e86133993ce41",
+              "currentSha256": "a22a4bf74e119e8fb68c399460f777ee3f53d2da8efd1f9ba32661f21faf5730"
+            }
+          ],
+          "priorExecutedEvidenceScopeRetained": true
         }
       ],
-      "revalidationReason": "Shared physical-source cost path and/or appended SQL gate changed. Original evidence keeps its prior exact input scope; new limited tests do not recertify previous whole branches."
+      "revalidationReason": "Explicit shared implementation/verification input changes; prior CI retained only at its fixed old source scope."
     },
     "unit-conquest-gold-response-2026-10-15": {
       "implementation": [
@@ -4014,11 +4175,11 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "ec43f90168ba1f9354d6ee3db44756552df6d5dfcff9c1a0688070b356f5e63c"
+          "sha256": "a22a4bf74e119e8fb68c399460f777ee3f53d2da8efd1f9ba32661f21faf5730"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "9524dd2f6f0f99ff7565dc99044839616d5cbe7cd8b97b30292daed982097137"
+          "sha256": "701657b70b623f7c9fe1ccbe4cf5eb42a7ea1e91e0716d1ece78be4d5e1f3f61"
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
@@ -4253,7 +4414,7 @@
         }
       ],
       "evidenceCommit": "eb3c4281c94c8d41d315cd574bdfa597cd10c30b",
-      "currentImplementationCommit": "56d1ee2eed9dcbf48ed54175867cd93ac58d92d8",
+      "currentImplementationCommit": "4ad7fe204adee28c4138f18bdde4c4cbcdea21f0",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -4346,9 +4507,41 @@
               "currentSha256": "ec43f90168ba1f9354d6ee3db44756552df6d5dfcff9c1a0688070b356f5e63c"
             }
           ]
+        },
+        {
+          "batch": "granted-origin-haste-and-paid-entry-replacement-2026-10-16",
+          "baseCommit": "4ad7fe204adee28c4138f18bdde4c4cbcdea21f0",
+          "changes": [
+            {
+              "role": "implementation",
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "ec43f90168ba1f9354d6ee3db44756552df6d5dfcff9c1a0688070b356f5e63c",
+              "currentSha256": "37d8de8d254424f29b509b2df04ea72519dd77ab2f903941fc6e86133993ce41"
+            },
+            {
+              "role": "implementation",
+              "path": "src/Riftbound.Engine/MatchSession.cs",
+              "previousSha256": "9524dd2f6f0f99ff7565dc99044839616d5cbe7cd8b97b30292daed982097137",
+              "currentSha256": "701657b70b623f7c9fe1ccbe4cf5eb42a7ea1e91e0716d1ece78be4d5e1f3f61"
+            }
+          ],
+          "oldEvidenceScopeRetained": true
+        },
+        {
+          "batch": "granted-origin-haste-and-paid-entry-replacement-2026-10-16-post-check-printed-dispatch-repair",
+          "baseCommit": "4ad7fe204adee28c4138f18bdde4c4cbcdea21f0",
+          "changes": [
+            {
+              "role": "implementation",
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "37d8de8d254424f29b509b2df04ea72519dd77ab2f903941fc6e86133993ce41",
+              "currentSha256": "a22a4bf74e119e8fb68c399460f777ee3f53d2da8efd1f9ba32661f21faf5730"
+            }
+          ],
+          "priorExecutedEvidenceScopeRetained": true
         }
       ],
-      "revalidationReason": "Shared physical-source cost path and/or appended SQL gate changed. Original evidence keeps its prior exact input scope; new limited tests do not recertify previous whole branches."
+      "revalidationReason": "Explicit shared implementation/verification input changes; prior CI retained only at its fixed old source scope."
     },
     "own-main-deck-recycle-card-boon-2026-10-15": {
       "implementation": [
@@ -4390,7 +4583,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "ec43f90168ba1f9354d6ee3db44756552df6d5dfcff9c1a0688070b356f5e63c"
+          "sha256": "a22a4bf74e119e8fb68c399460f777ee3f53d2da8efd1f9ba32661f21faf5730"
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
@@ -5070,7 +5263,7 @@
         }
       ],
       "evidenceCommit": "a0406e1d878598b3c0fd88f5bfa7f9831d6a2cc6",
-      "currentImplementationCommit": "56d1ee2eed9dcbf48ed54175867cd93ac58d92d8",
+      "currentImplementationCommit": "4ad7fe204adee28c4138f18bdde4c4cbcdea21f0",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -5173,9 +5366,35 @@
               "currentSha256": "ec43f90168ba1f9354d6ee3db44756552df6d5dfcff9c1a0688070b356f5e63c"
             }
           ]
+        },
+        {
+          "batch": "granted-origin-haste-and-paid-entry-replacement-2026-10-16",
+          "baseCommit": "4ad7fe204adee28c4138f18bdde4c4cbcdea21f0",
+          "changes": [
+            {
+              "role": "implementation",
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "ec43f90168ba1f9354d6ee3db44756552df6d5dfcff9c1a0688070b356f5e63c",
+              "currentSha256": "37d8de8d254424f29b509b2df04ea72519dd77ab2f903941fc6e86133993ce41"
+            }
+          ],
+          "oldEvidenceScopeRetained": true
+        },
+        {
+          "batch": "granted-origin-haste-and-paid-entry-replacement-2026-10-16-post-check-printed-dispatch-repair",
+          "baseCommit": "4ad7fe204adee28c4138f18bdde4c4cbcdea21f0",
+          "changes": [
+            {
+              "role": "implementation",
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "37d8de8d254424f29b509b2df04ea72519dd77ab2f903941fc6e86133993ce41",
+              "currentSha256": "a22a4bf74e119e8fb68c399460f777ee3f53d2da8efd1f9ba32661f21faf5730"
+            }
+          ],
+          "priorExecutedEvidenceScopeRetained": true
         }
       ],
-      "revalidationReason": "Shared physical-source cost path and/or appended SQL gate changed. Original evidence keeps its prior exact input scope; new limited tests do not recertify previous whole branches."
+      "revalidationReason": "Explicit shared implementation/verification input changes; prior CI retained only at its fixed old source scope."
     },
     "copied-recycle-boon-ceased-source-2026-10-15": {
       "implementation": [
@@ -5850,7 +6069,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "ec43f90168ba1f9354d6ee3db44756552df6d5dfcff9c1a0688070b356f5e63c"
+          "sha256": "a22a4bf74e119e8fb68c399460f777ee3f53d2da8efd1f9ba32661f21faf5730"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.SpellCompletion.cs",
@@ -5862,7 +6081,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "9524dd2f6f0f99ff7565dc99044839616d5cbe7cd8b97b30292daed982097137"
+          "sha256": "701657b70b623f7c9fe1ccbe4cf5eb42a7ea1e91e0716d1ece78be4d5e1f3f61"
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
@@ -5911,7 +6130,7 @@
         }
       ],
       "evidenceCommit": "342187cb732ea37a616d3fb125be6e9e5096ead1",
-      "currentImplementationCommit": "56d1ee2eed9dcbf48ed54175867cd93ac58d92d8",
+      "currentImplementationCommit": "4ad7fe204adee28c4138f18bdde4c4cbcdea21f0",
       "currentImplementationIncludesUncommittedChanges": true,
       "branches": [
         {
@@ -6102,6 +6321,38 @@
               "currentSha256": "ec43f90168ba1f9354d6ee3db44756552df6d5dfcff9c1a0688070b356f5e63c"
             }
           ]
+        },
+        {
+          "batch": "granted-origin-haste-and-paid-entry-replacement-2026-10-16",
+          "baseCommit": "4ad7fe204adee28c4138f18bdde4c4cbcdea21f0",
+          "changes": [
+            {
+              "role": "implementation",
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "ec43f90168ba1f9354d6ee3db44756552df6d5dfcff9c1a0688070b356f5e63c",
+              "currentSha256": "37d8de8d254424f29b509b2df04ea72519dd77ab2f903941fc6e86133993ce41"
+            },
+            {
+              "role": "implementation",
+              "path": "src/Riftbound.Engine/MatchSession.cs",
+              "previousSha256": "9524dd2f6f0f99ff7565dc99044839616d5cbe7cd8b97b30292daed982097137",
+              "currentSha256": "701657b70b623f7c9fe1ccbe4cf5eb42a7ea1e91e0716d1ece78be4d5e1f3f61"
+            }
+          ],
+          "oldEvidenceScopeRetained": true
+        },
+        {
+          "batch": "granted-origin-haste-and-paid-entry-replacement-2026-10-16-post-check-printed-dispatch-repair",
+          "baseCommit": "4ad7fe204adee28c4138f18bdde4c4cbcdea21f0",
+          "changes": [
+            {
+              "role": "implementation",
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "37d8de8d254424f29b509b2df04ea72519dd77ab2f903941fc6e86133993ce41",
+              "currentSha256": "a22a4bf74e119e8fb68c399460f777ee3f53d2da8efd1f9ba32661f21faf5730"
+            }
+          ],
+          "priorExecutedEvidenceScopeRetained": true
         }
       ],
       "priorEvidenceCommit": "4b4bd545c32ccf5b9d91810337327d7ca23c07d1",
@@ -6109,7 +6360,7 @@
         "review": "typed-card-play-history-causal-production-recovery-2026-10-15",
         "scope": "Only snapshot modifications against unchanged accepted action/event history; all other obligations retained."
       },
-      "revalidationReason": "Shared physical-source cost path and/or appended SQL gate changed. Original evidence keeps its prior exact input scope; new limited tests do not recertify previous whole branches."
+      "revalidationReason": "Explicit shared implementation/verification input changes; prior CI retained only at its fixed old source scope."
     },
     "porobot-source-play-other-equipment-conditional-draw-2026-10-15": {
       "implementation": [
@@ -6123,7 +6374,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "ec43f90168ba1f9354d6ee3db44756552df6d5dfcff9c1a0688070b356f5e63c"
+          "sha256": "a22a4bf74e119e8fb68c399460f777ee3f53d2da8efd1f9ba32661f21faf5730"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.PermanentConfirmation.cs",
@@ -6131,11 +6382,11 @@
         },
         {
           "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
-          "sha256": "f3978b40338cf7aaf3095c0b7c82508874f3a61a68a6de3b672512cf62baf216"
+          "sha256": "059c7bdb07d3419815898f8ac729eaff109b08b8d10b9c5d5cd5926fb2d2a18b"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "9524dd2f6f0f99ff7565dc99044839616d5cbe7cd8b97b30292daed982097137"
+          "sha256": "701657b70b623f7c9fe1ccbe4cf5eb42a7ea1e91e0716d1ece78be4d5e1f3f61"
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
@@ -6192,7 +6443,7 @@
         }
       ],
       "evidenceCommit": "339c6168f704684477354365988d7448cb0e7a10",
-      "currentImplementationCommit": "56d1ee2eed9dcbf48ed54175867cd93ac58d92d8",
+      "currentImplementationCommit": "4ad7fe204adee28c4138f18bdde4c4cbcdea21f0",
       "currentImplementationIncludesUncommittedChanges": true,
       "ciState": "PENDING",
       "ciReceipts": [
@@ -6393,13 +6644,51 @@
               "currentSha256": "f3978b40338cf7aaf3095c0b7c82508874f3a61a68a6de3b672512cf62baf216"
             }
           ]
+        },
+        {
+          "batch": "granted-origin-haste-and-paid-entry-replacement-2026-10-16",
+          "baseCommit": "4ad7fe204adee28c4138f18bdde4c4cbcdea21f0",
+          "changes": [
+            {
+              "role": "implementation",
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "ec43f90168ba1f9354d6ee3db44756552df6d5dfcff9c1a0688070b356f5e63c",
+              "currentSha256": "37d8de8d254424f29b509b2df04ea72519dd77ab2f903941fc6e86133993ce41"
+            },
+            {
+              "role": "implementation",
+              "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+              "previousSha256": "f3978b40338cf7aaf3095c0b7c82508874f3a61a68a6de3b672512cf62baf216",
+              "currentSha256": "059c7bdb07d3419815898f8ac729eaff109b08b8d10b9c5d5cd5926fb2d2a18b"
+            },
+            {
+              "role": "implementation",
+              "path": "src/Riftbound.Engine/MatchSession.cs",
+              "previousSha256": "9524dd2f6f0f99ff7565dc99044839616d5cbe7cd8b97b30292daed982097137",
+              "currentSha256": "701657b70b623f7c9fe1ccbe4cf5eb42a7ea1e91e0716d1ece78be4d5e1f3f61"
+            }
+          ],
+          "oldEvidenceScopeRetained": true
+        },
+        {
+          "batch": "granted-origin-haste-and-paid-entry-replacement-2026-10-16-post-check-printed-dispatch-repair",
+          "baseCommit": "4ad7fe204adee28c4138f18bdde4c4cbcdea21f0",
+          "changes": [
+            {
+              "role": "implementation",
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "37d8de8d254424f29b509b2df04ea72519dd77ab2f903941fc6e86133993ce41",
+              "currentSha256": "a22a4bf74e119e8fb68c399460f777ee3f53d2da8efd1f9ba32661f21faf5730"
+            }
+          ],
+          "priorExecutedEvidenceScopeRetained": true
         }
       ],
-      "revalidationReason": "Shared physical-source cost path and/or appended SQL gate changed. Original evidence keeps its prior exact input scope; new limited tests do not recertify previous whole branches."
+      "revalidationReason": "Explicit shared implementation/verification input changes; prior CI retained only at its fixed old source scope."
     },
     "typed-card-play-history-causal-production-recovery-2026-10-15": {
       "evidenceCommit": "6bc546259eed61d5988bf8e8df5081cd8502c614",
-      "currentImplementationCommit": "56d1ee2eed9dcbf48ed54175867cd93ac58d92d8",
+      "currentImplementationCommit": "4ad7fe204adee28c4138f18bdde4c4cbcdea21f0",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact6bc fullCI/45SQL/case-method-pair preservation verified. Current workingtree has newer counted Insight/catalog dependencies; this prior full is not current gameplay coverage.",
       "ciState": "PENDING",
@@ -6422,7 +6711,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "9524dd2f6f0f99ff7565dc99044839616d5cbe7cd8b97b30292daed982097137"
+          "sha256": "701657b70b623f7c9fe1ccbe4cf5eb42a7ea1e91e0716d1ece78be4d5e1f3f61"
         },
         {
           "path": "src/Riftbound.Persistence/PostgresMatchRecoveryStore.cs",
@@ -6545,13 +6834,26 @@
               "currentSha256": "9524dd2f6f0f99ff7565dc99044839616d5cbe7cd8b97b30292daed982097137"
             }
           ]
+        },
+        {
+          "batch": "granted-origin-haste-and-paid-entry-replacement-2026-10-16",
+          "baseCommit": "4ad7fe204adee28c4138f18bdde4c4cbcdea21f0",
+          "changes": [
+            {
+              "role": "implementation",
+              "path": "src/Riftbound.Engine/MatchSession.cs",
+              "previousSha256": "9524dd2f6f0f99ff7565dc99044839616d5cbe7cd8b97b30292daed982097137",
+              "currentSha256": "701657b70b623f7c9fe1ccbe4cf5eb42a7ea1e91e0716d1ece78be4d5e1f3f61"
+            }
+          ],
+          "oldEvidenceScopeRetained": true
         }
       ],
-      "revalidationReason": "CN16 source identity and shared hand-origin fact changed. Exact old evidence and source dates remain; a new fixed commit and scoped product acceptance are required."
+      "revalidationReason": "Explicit shared implementation/verification input changes; prior CI retained only at its fixed old source scope."
     },
     "counted-insight-post-choice-draw-clairvoyance-2026-10-15": {
       "evidenceCommit": "6bc546259eed61d5988bf8e8df5081cd8502c614",
-      "currentImplementationCommit": "56d1ee2eed9dcbf48ed54175867cd93ac58d92d8",
+      "currentImplementationCommit": "4ad7fe204adee28c4138f18bdde4c4cbcdea21f0",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Base commit plus explicitly uncommitted gameplay/test inputs; own fixed CI remains pending. Earlier6bc full cannot certify this new gameplay batch.",
       "ciState": "PENDING",
@@ -6559,7 +6861,7 @@
       "implementation": [
         {
           "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
-          "sha256": "f3978b40338cf7aaf3095c0b7c82508874f3a61a68a6de3b672512cf62baf216"
+          "sha256": "059c7bdb07d3419815898f8ac729eaff109b08b8d10b9c5d5cd5926fb2d2a18b"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.Insight.cs",
@@ -6747,9 +7049,22 @@
               "currentSha256": "f3978b40338cf7aaf3095c0b7c82508874f3a61a68a6de3b672512cf62baf216"
             }
           ]
+        },
+        {
+          "batch": "granted-origin-haste-and-paid-entry-replacement-2026-10-16",
+          "baseCommit": "4ad7fe204adee28c4138f18bdde4c4cbcdea21f0",
+          "changes": [
+            {
+              "role": "implementation",
+              "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+              "previousSha256": "f3978b40338cf7aaf3095c0b7c82508874f3a61a68a6de3b672512cf62baf216",
+              "currentSha256": "059c7bdb07d3419815898f8ac729eaff109b08b8d10b9c5d5cd5926fb2d2a18b"
+            }
+          ],
+          "oldEvidenceScopeRetained": true
         }
       ],
-      "revalidationReason": "Shared physical-source cost path and/or appended SQL gate changed. Original evidence keeps its prior exact input scope; new limited tests do not recertify previous whole branches."
+      "revalidationReason": "Explicit shared implementation/verification input changes; prior CI retained only at its fixed old source scope."
     },
     "untargeted-counted-insight-echo-resumption-2026-10-15": {
       "evidenceCommit": "a8f0b1dd1797997390d34ec77a84455a4ddb8911",
@@ -7312,7 +7627,7 @@
     },
     "combat-event-journal-wire-and-single-defender-choice-2026-10-15": {
       "evidenceCommit": "9e426a31386aefa980bf2d48f02b237098cb2914",
-      "currentImplementationCommit": "56d1ee2eed9dcbf48ed54175867cd93ac58d92d8",
+      "currentImplementationCommit": "4ad7fe204adee28c4138f18bdde4c4cbcdea21f0",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact9e base plus explicitly hashed current journal/combat/native-fixture verification inputs; old full does not cover this repair.",
       "ciState": "PENDING",
@@ -7324,7 +7639,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "ec43f90168ba1f9354d6ee3db44756552df6d5dfcff9c1a0688070b356f5e63c"
+          "sha256": "a22a4bf74e119e8fb68c399460f777ee3f53d2da8efd1f9ba32661f21faf5730"
         },
         {
           "path": "clients/godot/scripts/ClientCommandSerializer.cs",
@@ -7515,14 +7830,40 @@
               "currentSha256": "ec43f90168ba1f9354d6ee3db44756552df6d5dfcff9c1a0688070b356f5e63c"
             }
           ]
+        },
+        {
+          "batch": "granted-origin-haste-and-paid-entry-replacement-2026-10-16",
+          "baseCommit": "4ad7fe204adee28c4138f18bdde4c4cbcdea21f0",
+          "changes": [
+            {
+              "role": "implementation",
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "ec43f90168ba1f9354d6ee3db44756552df6d5dfcff9c1a0688070b356f5e63c",
+              "currentSha256": "37d8de8d254424f29b509b2df04ea72519dd77ab2f903941fc6e86133993ce41"
+            }
+          ],
+          "oldEvidenceScopeRetained": true
+        },
+        {
+          "batch": "granted-origin-haste-and-paid-entry-replacement-2026-10-16-post-check-printed-dispatch-repair",
+          "baseCommit": "4ad7fe204adee28c4138f18bdde4c4cbcdea21f0",
+          "changes": [
+            {
+              "role": "implementation",
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "37d8de8d254424f29b509b2df04ea72519dd77ab2f903941fc6e86133993ce41",
+              "currentSha256": "a22a4bf74e119e8fb68c399460f777ee3f53d2da8efd1f9ba32661f21faf5730"
+            }
+          ],
+          "priorExecutedEvidenceScopeRetained": true
         }
       ],
-      "revalidationReason": "Shared physical-source cost path and/or appended SQL gate changed. Original evidence keeps its prior exact input scope; new limited tests do not recertify previous whole branches.",
+      "revalidationReason": "Explicit shared implementation/verification input changes; prior CI retained only at its fixed old source scope.",
       "latestFixedEvidenceStatus": "EXACT_0CBEE_FULL_FAILED_THREE_ORIGINAL_GAMES_CURRENT_CONTINUATION_REPAIR_PENDING"
     },
     "combat-declaration-provenance-and-single-eligible-unit-conquest-2026-10-15": {
       "evidenceCommit": "0cbee9e22c81bec21ea416fdb45dc1c16f78e7d4",
-      "currentImplementationCommit": "56d1ee2eed9dcbf48ed54175867cd93ac58d92d8",
+      "currentImplementationCommit": "4ad7fe204adee28c4138f18bdde4c4cbcdea21f0",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact0cbee failed base plus two explicitly pinned source repairs and new verification/source-intake evidence; new fixed SHA required.",
       "ciState": "PENDING",
@@ -7534,7 +7875,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "ec43f90168ba1f9354d6ee3db44756552df6d5dfcff9c1a0688070b356f5e63c"
+          "sha256": "a22a4bf74e119e8fb68c399460f777ee3f53d2da8efd1f9ba32661f21faf5730"
         }
       ],
       "evidence": [
@@ -7692,14 +8033,40 @@
               "currentSha256": "3b078b9f28c888a3f0197ac144b2702dfa323cc07dbae5c604903cbf3a35c412"
             }
           ]
+        },
+        {
+          "batch": "granted-origin-haste-and-paid-entry-replacement-2026-10-16",
+          "baseCommit": "4ad7fe204adee28c4138f18bdde4c4cbcdea21f0",
+          "changes": [
+            {
+              "role": "implementation",
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "ec43f90168ba1f9354d6ee3db44756552df6d5dfcff9c1a0688070b356f5e63c",
+              "currentSha256": "37d8de8d254424f29b509b2df04ea72519dd77ab2f903941fc6e86133993ce41"
+            }
+          ],
+          "oldEvidenceScopeRetained": true
+        },
+        {
+          "batch": "granted-origin-haste-and-paid-entry-replacement-2026-10-16-post-check-printed-dispatch-repair",
+          "baseCommit": "4ad7fe204adee28c4138f18bdde4c4cbcdea21f0",
+          "changes": [
+            {
+              "role": "implementation",
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "37d8de8d254424f29b509b2df04ea72519dd77ab2f903941fc6e86133993ce41",
+              "currentSha256": "a22a4bf74e119e8fb68c399460f777ee3f53d2da8efd1f9ba32661f21faf5730"
+            }
+          ],
+          "priorExecutedEvidenceScopeRetained": true
         }
       ],
-      "revalidationReason": "Shared physical-source cost path and/or appended SQL gate changed. Original evidence keeps its prior exact input scope; new limited tests do not recertify previous whole branches.",
+      "revalidationReason": "Explicit shared implementation/verification input changes; prior CI retained only at its fixed old source scope.",
       "latestFixedEvidenceStatus": "EXACT_D1_FULL_SUCCESS_NATIVE_PAYMENT_FAILURE_NEW_PROMPT_CONTEXT_REPAIR_PENDING"
     },
     "optional-mana-trigger-native-and-natural-declaration-order-2026-10-15": {
       "evidenceCommit": "d1c2b4d351ca32862ee52ab7bc45cd7d581fca2c",
-      "currentImplementationCommit": "56d1ee2eed9dcbf48ed54175867cd93ac58d92d8",
+      "currentImplementationCommit": "4ad7fe204adee28c4138f18bdde4c4cbcdea21f0",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact d1 actual full-success/native-failure base plus three pinned source repairs, new verification and source readback; new fixed SHA required.",
       "ciState": "PENDING",
@@ -7711,11 +8078,11 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "ec43f90168ba1f9354d6ee3db44756552df6d5dfcff9c1a0688070b356f5e63c"
+          "sha256": "a22a4bf74e119e8fb68c399460f777ee3f53d2da8efd1f9ba32661f21faf5730"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "9524dd2f6f0f99ff7565dc99044839616d5cbe7cd8b97b30292daed982097137"
+          "sha256": "701657b70b623f7c9fe1ccbe4cf5eb42a7ea1e91e0716d1ece78be4d5e1f3f61"
         }
       ],
       "evidence": [
@@ -7856,13 +8223,45 @@
               "currentSha256": "ec43f90168ba1f9354d6ee3db44756552df6d5dfcff9c1a0688070b356f5e63c"
             }
           ]
+        },
+        {
+          "batch": "granted-origin-haste-and-paid-entry-replacement-2026-10-16",
+          "baseCommit": "4ad7fe204adee28c4138f18bdde4c4cbcdea21f0",
+          "changes": [
+            {
+              "role": "implementation",
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "ec43f90168ba1f9354d6ee3db44756552df6d5dfcff9c1a0688070b356f5e63c",
+              "currentSha256": "37d8de8d254424f29b509b2df04ea72519dd77ab2f903941fc6e86133993ce41"
+            },
+            {
+              "role": "implementation",
+              "path": "src/Riftbound.Engine/MatchSession.cs",
+              "previousSha256": "9524dd2f6f0f99ff7565dc99044839616d5cbe7cd8b97b30292daed982097137",
+              "currentSha256": "701657b70b623f7c9fe1ccbe4cf5eb42a7ea1e91e0716d1ece78be4d5e1f3f61"
+            }
+          ],
+          "oldEvidenceScopeRetained": true
+        },
+        {
+          "batch": "granted-origin-haste-and-paid-entry-replacement-2026-10-16-post-check-printed-dispatch-repair",
+          "baseCommit": "4ad7fe204adee28c4138f18bdde4c4cbcdea21f0",
+          "changes": [
+            {
+              "role": "implementation",
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "37d8de8d254424f29b509b2df04ea72519dd77ab2f903941fc6e86133993ce41",
+              "currentSha256": "a22a4bf74e119e8fb68c399460f777ee3f53d2da8efd1f9ba32661f21faf5730"
+            }
+          ],
+          "priorExecutedEvidenceScopeRetained": true
         }
       ],
-      "revalidationReason": "Shared physical-source cost path and/or appended SQL gate changed. Original evidence keeps its prior exact input scope; new limited tests do not recertify previous whole branches."
+      "revalidationReason": "Explicit shared implementation/verification input changes; prior CI retained only at its fixed old source scope."
     },
     "cn16-confirmed-play-origin-and-required-causal-fact-2026-10-16": {
       "evidenceCommit": "56d1ee2eed9dcbf48ed54175867cd93ac58d92d8",
-      "currentImplementationCommit": "56d1ee2eed9dcbf48ed54175867cd93ac58d92d8",
+      "currentImplementationCommit": "4ad7fe204adee28c4138f18bdde4c4cbcdea21f0",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact56 baseline plus explicitly pinned CN16 source selection and bounded confirmed hand-origin repair; new fixed SHA required.",
       "ciState": "PENDING",
@@ -7870,15 +8269,15 @@
       "implementation": [
         {
           "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
-          "sha256": "f3978b40338cf7aaf3095c0b7c82508874f3a61a68a6de3b672512cf62baf216"
+          "sha256": "059c7bdb07d3419815898f8ac729eaff109b08b8d10b9c5d5cd5926fb2d2a18b"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "ec43f90168ba1f9354d6ee3db44756552df6d5dfcff9c1a0688070b356f5e63c"
+          "sha256": "a22a4bf74e119e8fb68c399460f777ee3f53d2da8efd1f9ba32661f21faf5730"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "9524dd2f6f0f99ff7565dc99044839616d5cbe7cd8b97b30292daed982097137"
+          "sha256": "701657b70b623f7c9fe1ccbe4cf5eb42a7ea1e91e0716d1ece78be4d5e1f3f61"
         },
         {
           "path": "data/official/rule-input-scope.json",
@@ -7900,11 +8299,11 @@
         },
         {
           "path": "tests/Riftbound.PostgresAcceptance/Program.cs",
-          "sha256": "e1e6dbfb271003e364e6ecc9083d4cd4235d02c9fc1863825e7709fd15eff566"
+          "sha256": "aa0375f82afa349223156970621cd0829f2495bdf47c59ed956a5ac6920d8451"
         },
         {
           "path": "tests/Riftbound.PostgresAcceptance/Riftbound.PostgresAcceptance.csproj",
-          "sha256": "05075ed4a62126fc61658eb0ad5df362f7db25efb86b808eb146009fde8b9c6c"
+          "sha256": "453fa4bc2b79cd89b202aefe52092441d22a54765de9a55d3c42936ee6a79d64"
         },
         {
           "path": "tests/Riftbound.ConformanceTests/Fixtures/confirmed-play-origin-hand-cn16.json",
@@ -8061,13 +8460,63 @@
               "currentSha256": "05075ed4a62126fc61658eb0ad5df362f7db25efb86b808eb146009fde8b9c6c"
             }
           ]
+        },
+        {
+          "batch": "granted-origin-haste-and-paid-entry-replacement-2026-10-16",
+          "baseCommit": "4ad7fe204adee28c4138f18bdde4c4cbcdea21f0",
+          "changes": [
+            {
+              "role": "implementation",
+              "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+              "previousSha256": "f3978b40338cf7aaf3095c0b7c82508874f3a61a68a6de3b672512cf62baf216",
+              "currentSha256": "059c7bdb07d3419815898f8ac729eaff109b08b8d10b9c5d5cd5926fb2d2a18b"
+            },
+            {
+              "role": "implementation",
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "ec43f90168ba1f9354d6ee3db44756552df6d5dfcff9c1a0688070b356f5e63c",
+              "currentSha256": "37d8de8d254424f29b509b2df04ea72519dd77ab2f903941fc6e86133993ce41"
+            },
+            {
+              "role": "implementation",
+              "path": "src/Riftbound.Engine/MatchSession.cs",
+              "previousSha256": "9524dd2f6f0f99ff7565dc99044839616d5cbe7cd8b97b30292daed982097137",
+              "currentSha256": "701657b70b623f7c9fe1ccbe4cf5eb42a7ea1e91e0716d1ece78be4d5e1f3f61"
+            },
+            {
+              "role": "verification",
+              "path": "tests/Riftbound.PostgresAcceptance/Program.cs",
+              "previousSha256": "e1e6dbfb271003e364e6ecc9083d4cd4235d02c9fc1863825e7709fd15eff566",
+              "currentSha256": "aa0375f82afa349223156970621cd0829f2495bdf47c59ed956a5ac6920d8451"
+            },
+            {
+              "role": "verification",
+              "path": "tests/Riftbound.PostgresAcceptance/Riftbound.PostgresAcceptance.csproj",
+              "previousSha256": "05075ed4a62126fc61658eb0ad5df362f7db25efb86b808eb146009fde8b9c6c",
+              "currentSha256": "453fa4bc2b79cd89b202aefe52092441d22a54765de9a55d3c42936ee6a79d64"
+            }
+          ],
+          "oldEvidenceScopeRetained": true
+        },
+        {
+          "batch": "granted-origin-haste-and-paid-entry-replacement-2026-10-16-post-check-printed-dispatch-repair",
+          "baseCommit": "4ad7fe204adee28c4138f18bdde4c4cbcdea21f0",
+          "changes": [
+            {
+              "role": "implementation",
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "37d8de8d254424f29b509b2df04ea72519dd77ab2f903941fc6e86133993ce41",
+              "currentSha256": "a22a4bf74e119e8fb68c399460f777ee3f53d2da8efd1f9ba32661f21faf5730"
+            }
+          ],
+          "priorExecutedEvidenceScopeRetained": true
         }
       ],
-      "revalidationReason": "Shared physical-source cost path and/or appended SQL gate changed. Original evidence keeps its prior exact input scope; new limited tests do not recertify previous whole branches."
+      "revalidationReason": "Explicit shared implementation/verification input changes; prior CI retained only at its fixed old source scope."
     },
     "physical-origin-self-cost-reduction-2026-10-16": {
       "evidenceCommit": "903cbca2becfd9b142a6b6a86d77b8fbf3d080ef",
-      "currentImplementationCommit": "903cbca2becfd9b142a6b6a86d77b8fbf3d080ef",
+      "currentImplementationCommit": "4ad7fe204adee28c4138f18bdde4c4cbcdea21f0",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact903 baseline plus pinned3engine changes and new8cases/SQL fixtures; fixed newSHA required.",
       "ciState": "PENDING",
@@ -8075,11 +8524,11 @@
       "implementation": [
         {
           "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
-          "sha256": "f3978b40338cf7aaf3095c0b7c82508874f3a61a68a6de3b672512cf62baf216"
+          "sha256": "059c7bdb07d3419815898f8ac729eaff109b08b8d10b9c5d5cd5926fb2d2a18b"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "ec43f90168ba1f9354d6ee3db44756552df6d5dfcff9c1a0688070b356f5e63c"
+          "sha256": "a22a4bf74e119e8fb68c399460f777ee3f53d2da8efd1f9ba32661f21faf5730"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.PlayManaCost.cs",
@@ -8097,11 +8546,11 @@
         },
         {
           "path": "tests/Riftbound.PostgresAcceptance/Program.cs",
-          "sha256": "e1e6dbfb271003e364e6ecc9083d4cd4235d02c9fc1863825e7709fd15eff566"
+          "sha256": "aa0375f82afa349223156970621cd0829f2495bdf47c59ed956a5ac6920d8451"
         },
         {
           "path": "tests/Riftbound.PostgresAcceptance/Riftbound.PostgresAcceptance.csproj",
-          "sha256": "05075ed4a62126fc61658eb0ad5df362f7db25efb86b808eb146009fde8b9c6c"
+          "sha256": "453fa4bc2b79cd89b202aefe52092441d22a54765de9a55d3c42936ee6a79d64"
         },
         {
           "path": "tests/Riftbound.ConformanceTests/Fixtures/physical-origin-cost-unit.json",
@@ -8205,7 +8654,286 @@
         }
       ],
       "checkState": "PASS_SINGLE_BATCH_11911_CASES_7211_METHODS",
-      "checkInputFreeze": "11919_PRELAUNCH_FILES_STABLE_THROUGH_COMPLETION"
+      "checkInputFreeze": "11919_PRELAUNCH_FILES_STABLE_THROUGH_COMPLETION",
+      "implementationPinUpdates": [
+        {
+          "batch": "granted-origin-haste-and-paid-entry-replacement-2026-10-16",
+          "baseCommit": "4ad7fe204adee28c4138f18bdde4c4cbcdea21f0",
+          "changes": [
+            {
+              "role": "implementation",
+              "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+              "previousSha256": "f3978b40338cf7aaf3095c0b7c82508874f3a61a68a6de3b672512cf62baf216",
+              "currentSha256": "059c7bdb07d3419815898f8ac729eaff109b08b8d10b9c5d5cd5926fb2d2a18b"
+            },
+            {
+              "role": "implementation",
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "ec43f90168ba1f9354d6ee3db44756552df6d5dfcff9c1a0688070b356f5e63c",
+              "currentSha256": "37d8de8d254424f29b509b2df04ea72519dd77ab2f903941fc6e86133993ce41"
+            },
+            {
+              "role": "verification",
+              "path": "tests/Riftbound.PostgresAcceptance/Program.cs",
+              "previousSha256": "e1e6dbfb271003e364e6ecc9083d4cd4235d02c9fc1863825e7709fd15eff566",
+              "currentSha256": "aa0375f82afa349223156970621cd0829f2495bdf47c59ed956a5ac6920d8451"
+            },
+            {
+              "role": "verification",
+              "path": "tests/Riftbound.PostgresAcceptance/Riftbound.PostgresAcceptance.csproj",
+              "previousSha256": "05075ed4a62126fc61658eb0ad5df362f7db25efb86b808eb146009fde8b9c6c",
+              "currentSha256": "453fa4bc2b79cd89b202aefe52092441d22a54765de9a55d3c42936ee6a79d64"
+            }
+          ],
+          "oldEvidenceScopeRetained": true
+        },
+        {
+          "batch": "granted-origin-haste-and-paid-entry-replacement-2026-10-16-post-check-printed-dispatch-repair",
+          "baseCommit": "4ad7fe204adee28c4138f18bdde4c4cbcdea21f0",
+          "changes": [
+            {
+              "role": "implementation",
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "37d8de8d254424f29b509b2df04ea72519dd77ab2f903941fc6e86133993ce41",
+              "currentSha256": "a22a4bf74e119e8fb68c399460f777ee3f53d2da8efd1f9ba32661f21faf5730"
+            }
+          ],
+          "priorExecutedEvidenceScopeRetained": true
+        }
+      ],
+      "revalidationReason": "Explicit shared implementation/verification input changes; prior CI retained only at its fixed old source scope."
+    },
+    "granted-origin-haste-and-paid-entry-replacement-2026-10-16": {
+      "evidenceCommit": "4ad7fe204adee28c4138f18bdde4c4cbcdea21f0",
+      "currentImplementationCommit": "4ad7fe204adee28c4138f18bdde4c4cbcdea21f0",
+      "currentImplementationIncludesUncommittedChanges": true,
+      "evidenceCommitScope": "Exact4ad7 baseline plus pinned5engine inputs,24cases, native readback and73SQL. NewfixedSHA full required. Printed-Haste dispatch restored after the singlecheck;213 current focus passed. Prior SQL/native exact inputs remain pre-repair, not relabeled.",
+      "ciState": "PENDING",
+      "ciReceipts": [],
+      "implementation": [
+        {
+          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "sha256": "059c7bdb07d3419815898f8ac729eaff109b08b8d10b9c5d5cd5926fb2d2a18b"
+        },
+        {
+          "path": "src/Riftbound.Engine/CardPermissionKeywordRules.cs",
+          "sha256": "6d9906b4edaee05b13335bc177a573e7974d536ad1b855277ddf0be18674a914"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "sha256": "a22a4bf74e119e8fb68c399460f777ee3f53d2da8efd1f9ba32661f21faf5730"
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchSession.cs",
+          "sha256": "701657b70b623f7c9fe1ccbe4cf5eb42a7ea1e91e0716d1ece78be4d5e1f3f61"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.PlayKeywords.cs",
+          "sha256": "fc90d0400a85c7a82c7a26e9ab1dc912cabe5ecec938859891d73568a8715822"
+        }
+      ],
+      "verificationSources": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/GrantedOriginHasteTests.cs",
+          "sha256": "e0618045b0c2ec3533b82c833f8df671fcfd4ed302624fb3bc0c8b41e8b994cf"
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/GrantedOriginHasteOpeningTests.cs",
+          "sha256": "2218ccc3dbc23b3973b9b22a53efbaca460f25b4f11bf6b42c278edb1ec04bc9"
+        },
+        {
+          "path": "tests/Riftbound.PostgresAcceptance/GrantedOriginHasteSqlAcceptance.cs",
+          "sha256": "f0052de188b8aafd26d6223cf981253956c8ef403c5334564d7f9611c87f8da9"
+        },
+        {
+          "path": "tests/Riftbound.PostgresAcceptance/Program.cs",
+          "sha256": "aa0375f82afa349223156970621cd0829f2495bdf47c59ed956a5ac6920d8451"
+        },
+        {
+          "path": "tests/Riftbound.PostgresAcceptance/Riftbound.PostgresAcceptance.csproj",
+          "sha256": "453fa4bc2b79cd89b202aefe52092441d22a54765de9a55d3c42936ee6a79d64"
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/Fixtures/granted-origin-haste-unit.json",
+          "sha256": "59f714126d330cbc247e26e1e7c53c00e11bb075a87ec4bfbabe2235a9cf1676"
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/Fixtures/granted-origin-haste-sacrifice.json",
+          "sha256": "aebd36e554e057e88c69324d2dabcd671a020e35f8ae7738e0d257209fe245fd"
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/evidence/granted-origin-haste-2026-10-16/source-manifest.json",
+          "sha256": "7f40b1a2fb5365d3c262f4c9919b5c9f044a02e61af8eef498efe9ab761ca07f",
+          "role": "source-manifest"
+        },
+        {
+          "path": "docs/evidence/granted-origin-haste-2026-10-16/source-expiry-and-rule-context.json",
+          "sha256": "8acd9db5e9635a48d64bb573091210490641701b87647583522aa35f898f4bfb",
+          "role": "source-expiry-and-rule-context"
+        },
+        {
+          "path": "docs/evidence/granted-origin-haste-2026-10-16/focus.json",
+          "sha256": "26b2906cd98a3ed6d7ca3553a6744292dbb9d00955a6e7db73f0f3b69dc5a0c2",
+          "role": "focus"
+        },
+        {
+          "path": "docs/evidence/granted-origin-haste-2026-10-16/native.json",
+          "sha256": "97ff9005efb7973d3df949639388c4a7b0efab61338bb5f69b0bfb68b3e0d31d",
+          "role": "native"
+        },
+        {
+          "path": "docs/evidence/granted-origin-haste-2026-10-16/sql.json",
+          "sha256": "415fa785d8f418256503ff61dc32dc46062625c8f0d8a8a155a2aacdbdecdd8b",
+          "role": "sql"
+        },
+        {
+          "path": "docs/evidence/granted-origin-haste-2026-10-16/red-and-fixture-history.json",
+          "sha256": "397f2f7fca1a7ecc51866e1e067f81a4a8f8df552c70a91dca346d1ae23df647",
+          "role": "red-and-fixture-history"
+        },
+        {
+          "path": "docs/evidence/granted-origin-haste-2026-10-16/original-tests-and-inputs.json",
+          "sha256": "c0ed0ebfd60121bc8ee9d94bb54f0ba36b297bc8a029a8270da17a630338cae4",
+          "role": "original-tests-and-inputs"
+        },
+        {
+          "path": "docs/evidence/granted-origin-haste-2026-10-16/prior-context-input-updates.json",
+          "sha256": "65fec006387514a66fc895c550154d69b0b802647812c3edf0dc0ce01304bf76",
+          "role": "prior-context-input-updates"
+        },
+        {
+          "path": "docs/evidence/granted-origin-haste-2026-10-16/batch-check-and-repair.json",
+          "sha256": "683b155356aca5b91fd5b07bc1430b6a210e4a66ed4ba83684020f97ff7740ca",
+          "role": "single-check-failure-and-repair-focus"
+        },
+        {
+          "path": "docs/evidence/granted-origin-haste-2026-10-16/post-check-context-input-updates.json",
+          "sha256": "b7060c26b84cb2cdad5429f2c4f8f5fc819b163d7e88abfd1f3541035eaa3b36",
+          "role": "post-check-explicit-input-reopening"
+        }
+      ],
+      "branches": [
+        {
+          "id": "actual-nonhand-origin-and-live-controller-grant",
+          "sourceRefs": [
+            "SFD-029/221",
+            "SFD-029A/221",
+            "DOC-01-P015-B002",
+            "DOC-01-P114-B005",
+            "DOC-01-P114-B006",
+            "DOC-01-P114-B007",
+            "DOC-01-P114-B008",
+            "DOC-01-P114-B009",
+            "DOC-01-P114-B010",
+            "DOC-01-P114-B011",
+            "DOC-01-P114-B012",
+            "DOC-01-P114-B013",
+            "DOC-01-P114-B014",
+            "DOC-01-P114-B015",
+            "DOC-01-P114-B016",
+            "DOC-01-P114-B017",
+            "DOC-01-P114-B018"
+          ],
+          "state": "RECORDED",
+          "semanticReview": "SCOPED_ONLY",
+          "implementation": "LOCAL_COMPLETE_FOR_RECORDED_BRANCH",
+          "tests": "24_CASES_394_ADJACENT112_NATIVE_COMMANDS73_REAL_SQL_PASS",
+          "fixedCommitCi": "PENDING",
+          "productAcceptance": "OPEN",
+          "remaining": [
+            "Actual Atakhan optional sacrifice, generated Sand Soldier play, copied/attached/nonunit sources, controller-transfer and continuing in-play keyword characteristic consumers remain OPEN.",
+            "All3 located prior DOC11 direct source references and indirect authority/behavior dependencies need current-clause revalidation; original source universe is retained.",
+            "New fixed commit full CI, current visible CN16 paired/SQL/reconnect/private choice/normal8/full original replay/cross-room lifecycle, custom deck and independent Windows physical acceptance.",
+            "All source gaps, article/media/FAQ and regional applicability obligations remain."
+          ]
+        },
+        {
+          "id": "matching-traits-and-single-paid-haste",
+          "sourceRefs": [
+            "SFD-029/221",
+            "SFD-029A/221",
+            "DOC-01-P015-B002",
+            "DOC-01-P114-B005",
+            "DOC-01-P114-B006",
+            "DOC-01-P114-B007",
+            "DOC-01-P114-B008",
+            "DOC-01-P114-B009",
+            "DOC-01-P114-B010",
+            "DOC-01-P114-B011",
+            "DOC-01-P114-B012",
+            "DOC-01-P114-B013",
+            "DOC-01-P114-B014",
+            "DOC-01-P114-B015",
+            "DOC-01-P114-B016",
+            "DOC-01-P114-B017",
+            "DOC-01-P114-B018"
+          ],
+          "state": "RECORDED",
+          "semanticReview": "SCOPED_ONLY",
+          "implementation": "LOCAL_COMPLETE_FOR_RECORDED_BRANCH",
+          "tests": "24_CASES_394_ADJACENT112_NATIVE_COMMANDS73_REAL_SQL_PASS",
+          "fixedCommitCi": "PENDING",
+          "productAcceptance": "OPEN",
+          "remaining": [
+            "Actual Atakhan optional sacrifice, generated Sand Soldier play, copied/attached/nonunit sources, controller-transfer and continuing in-play keyword characteristic consumers remain OPEN.",
+            "All3 located prior DOC11 direct source references and indirect authority/behavior dependencies need current-clause revalidation; original source universe is retained.",
+            "New fixed commit full CI, current visible CN16 paired/SQL/reconnect/private choice/normal8/full original replay/cross-room lifecycle, custom deck and independent Windows physical acceptance.",
+            "All source gaps, article/media/FAQ and regional applicability obligations remain."
+          ]
+        },
+        {
+          "id": "mandatory-sacrifice-delayed-entry-cold-and-full-opening-replay",
+          "sourceRefs": [
+            "SFD-029/221",
+            "SFD-029A/221",
+            "DOC-01-P015-B002",
+            "DOC-01-P114-B005",
+            "DOC-01-P114-B006",
+            "DOC-01-P114-B007",
+            "DOC-01-P114-B008",
+            "DOC-01-P114-B009",
+            "DOC-01-P114-B010",
+            "DOC-01-P114-B011",
+            "DOC-01-P114-B012",
+            "DOC-01-P114-B013",
+            "DOC-01-P114-B014",
+            "DOC-01-P114-B015",
+            "DOC-01-P114-B016",
+            "DOC-01-P114-B017",
+            "DOC-01-P114-B018"
+          ],
+          "state": "RECORDED",
+          "semanticReview": "SCOPED_ONLY",
+          "implementation": "LOCAL_COMPLETE_FOR_RECORDED_BRANCH",
+          "tests": "24_CASES_394_ADJACENT112_NATIVE_COMMANDS73_REAL_SQL_PASS",
+          "fixedCommitCi": "PENDING",
+          "productAcceptance": "OPEN",
+          "remaining": [
+            "Actual Atakhan optional sacrifice, generated Sand Soldier play, copied/attached/nonunit sources, controller-transfer and continuing in-play keyword characteristic consumers remain OPEN.",
+            "All3 located prior DOC11 direct source references and indirect authority/behavior dependencies need current-clause revalidation; original source universe is retained.",
+            "New fixed commit full CI, current visible CN16 paired/SQL/reconnect/private choice/normal8/full original replay/cross-room lifecycle, custom deck and independent Windows physical acceptance.",
+            "All source gaps, article/media/FAQ and regional applicability obligations remain."
+          ]
+        }
+      ],
+      "implementationPinUpdates": [
+        {
+          "batch": "granted-origin-haste-and-paid-entry-replacement-2026-10-16-post-check-printed-dispatch-repair",
+          "baseCommit": "4ad7fe204adee28c4138f18bdde4c4cbcdea21f0",
+          "changes": [
+            {
+              "role": "implementation",
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "37d8de8d254424f29b509b2df04ea72519dd77ab2f903941fc6e86133993ce41",
+              "currentSha256": "a22a4bf74e119e8fb68c399460f777ee3f53d2da8efd1f9ba32661f21faf5730"
+            }
+          ],
+          "priorExecutedEvidenceScopeRetained": true
+        }
+      ],
+      "checkState": "11934_PASS_1_SOURCE_GUARD_FAILURE_REPAIRED213_FOCUS_FIXED_FULL_PENDING"
     }
   },
   "acceptanceGates": [
@@ -9515,6 +10243,10 @@
       "batchCheck": {
         "path": "docs/evidence/news-body-source-observation-2026-10-16/batch-check-result.json",
         "sha256": "f496b55dacfda44c31feea2b6d7a0cf71e60e67b6ceb63b16d3ee7125c1d7648"
+      },
+      "fixed903FullCi": {
+        "path": "docs/evidence/granted-origin-haste-2026-10-16/full-ci-903cbca2.json",
+        "sha256": "2cd294277f3f30cacc1fdf8457aeab71d08a989e003f2539de43aad58523b770"
       }
     },
     {
@@ -9629,6 +10361,53 @@
         "path": "docs/evidence/physical-origin-cost-2026-10-16/batch-check-result.json",
         "sha256": "785120288ca9b161b5510d9201103809f8133cbb86443114dc8bf3d75aa35755"
       }
+    },
+    {
+      "id": "GRANTED_NONHAND_HASTE_EXACT_CN_PRINTINGS",
+      "state": "OPEN",
+      "requirement": "Keep recorded cost/entry scope separate from whole-card/family certification; finish singlecheck/newfixedfull and current product; other consumers remain.",
+      "issue": "https://github.com/DDDHL0704/riftbound/issues/41",
+      "source": {
+        "path": "docs/evidence/granted-origin-haste-2026-10-16/source-manifest.json",
+        "sha256": "7f40b1a2fb5365d3c262f4c9919b5c9f044a02e61af8eef498efe9ab761ca07f"
+      },
+      "focus": {
+        "path": "docs/evidence/granted-origin-haste-2026-10-16/focus.json",
+        "sha256": "26b2906cd98a3ed6d7ca3553a6744292dbb9d00955a6e7db73f0f3b69dc5a0c2"
+      },
+      "actualNative": {
+        "path": "docs/evidence/granted-origin-haste-2026-10-16/native.json",
+        "sha256": "97ff9005efb7973d3df949639388c4a7b0efab61338bb5f69b0bfb68b3e0d31d"
+      },
+      "actualSql": {
+        "path": "docs/evidence/granted-origin-haste-2026-10-16/sql.json",
+        "sha256": "415fa785d8f418256503ff61dc32dc46062625c8f0d8a8a155a2aacdbdecdd8b"
+      },
+      "fixedCommitCi": "PENDING_NEW_SHA",
+      "productAcceptance": "OPEN_NATIVE_MAC_LOCKED",
+      "batchCheckAndRepair": {
+        "path": "docs/evidence/granted-origin-haste-2026-10-16/batch-check-and-repair.json",
+        "sha256": "683b155356aca5b91fd5b07bc1430b6a210e4a66ed4ba83684020f97ff7740ca"
+      }
+    },
+    {
+      "id": "DOC11_SELF_EXPIRY_CURRENT_AUTHORITY_AND_PRIOR_REFERENCE_IMPACT",
+      "state": "OPEN",
+      "requirement": "DOC11 self-expires after a later core update; retain every original record/date, treat it as historical rather than a current override, revalidate the3 directly located prior reviews plus indirect dependencies. Current Haste decisions use DOC01.",
+      "evidence": {
+        "path": "docs/evidence/granted-origin-haste-2026-10-16/source-expiry-and-rule-context.json",
+        "sha256": "8acd9db5e9635a48d64bb573091210490641701b87647583522aa35f898f4bfb"
+      },
+      "locatedPriorReviewIds": [
+        "elder-dragon-2026-10-11",
+        "ephemeral-start-2026-10-11",
+        "beginning-draw-2026-10-11"
+      ],
+      "locationIsNotCompleteConsumerGraph": true,
+      "rawSourceBytesChanged": false,
+      "exactExpiryTimestamp": null,
+      "runtimeRecordRole": "RETAINED_REFERENCE_NOT_WHOLE_SOURCE_CURRENT_AUTHORITY_CERTIFICATION",
+      "allOriginalObligationsRetained": true
     }
   ],
   "note": "Current inventory and remaining obligations, with independently dated rule sources and separately recorded source deltas. No source fetch or semantic certification by this checker.",

@@ -164,18 +164,31 @@ public static class CardPermissionKeywordRules
         extraPowerCost = 0;
         extraPowerTrait = string.Empty;
         if (normalizedOptionalCosts.Count == 1
-            && string.Equals(normalizedOptionalCosts[0], HasteOptionalCostNames.HasteReady, StringComparison.Ordinal)
-            && HasSourceKeyword(behavior, CardPermissionKeywordNames.Haste)
-            && (behavior.HasteReadyManaCost > 0 || behavior.HasteReadyPowerCost > 0))
+            && HasteReadyCostChoices(behavior).TryGetValue(normalizedOptionalCosts[0], out var selectedTrait))
         {
             extraManaCost = behavior.HasteReadyManaCost;
             extraPowerCost = behavior.HasteReadyPowerCost;
-            extraPowerTrait = RuneTrait.Normalize(behavior.HasteReadyPowerTrait);
+            extraPowerTrait = selectedTrait;
             return true;
         }
 
         return false;
     }
+
+    internal static IReadOnlyDictionary<string, string> HasteReadyCostChoices(CardBehaviorDefinition behavior)
+    {
+        if (!HasSourceKeyword(behavior, CardPermissionKeywordNames.Haste)
+            || behavior.HasteReadyManaCost <= 0 && behavior.HasteReadyPowerCost <= 0)
+            return new Dictionary<string, string>();
+        return behavior.GrantedHastePowerTraits is { Count: > 1 } traits
+            ? traits.ToDictionary(trait => HasteOptionalCostNames.HasteReady + ":" + trait, trait => trait, StringComparer.Ordinal)
+            : new Dictionary<string, string> { [HasteOptionalCostNames.HasteReady] = RuneTrait.Normalize(behavior.HasteReadyPowerTrait) };
+    }
+
+    internal static bool IsHasteReadyCostChoice(string choice)
+        => choice == HasteOptionalCostNames.HasteReady
+            || new[] { RuneTrait.Red, RuneTrait.Green, RuneTrait.Blue, RuneTrait.Yellow, RuneTrait.Orange, RuneTrait.Purple }
+                .Any(trait => choice == HasteOptionalCostNames.HasteReady + ":" + trait);
 
     public static bool IsHasteReadyOptionalCostPaid(
         CardBehaviorDefinition behavior,

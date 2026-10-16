@@ -18567,6 +18567,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return false;
         }
         behavior = StandbyPlayBehavior(state, intent.PlayerId, command.SourceObjectId, EffectPlayBehavior(state, intent.PlayerId, behavior));
+        behavior = PlaySourceKeywordBehavior(state, intent.PlayerId, command.SourceObjectId, behavior);
         if (!state.PlayerZones.TryGetValue(intent.PlayerId, out var zones)
             || !EffectPlaySources(state, intent.PlayerId).Contains(command.SourceObjectId, StringComparer.Ordinal))
         {
@@ -22619,6 +22620,22 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         // A mandatory nonstandard cost coexists with independently selected
         // resource/Echo costs. It is paid during play, never once per repeat.
+        if (behavior.RequiresDestroyFriendlyUnitAdditionalCost)
+        {
+            var required = normalizedOptionalCosts.Where(cost =>
+                cost.StartsWith(DestroyFriendlyUnitAdditionalCostPrefix, StringComparison.Ordinal)).ToArray();
+            if (required.Length != 1 || !TryParseDestroyFriendlyUnitAdditionalCost(required[0], out var target)) return false;
+            var otherCosts = normalizedOptionalCosts.Where(cost => !string.Equals(cost, required[0], StringComparison.Ordinal)).ToArray();
+            if (!TryBuildOptionalCostPlan(state, playerId, otherCosts,
+                    behavior with { RequiresDestroyFriendlyUnitAdditionalCost = false }, out _,
+                    out extraManaCost, out extraPowerCost, out extraPowerCostByTrait, out experienceCost,
+                    out optionalCostManaReduction, out effectRepeatCount, out exhaustedOptionalCostTargetObjectIds,
+                    out destroyedAdditionalCostTargetObjectIds, out returnedAdditionalCostTargetObjectIds,
+                    out discardedOptionalCostTargetObjectIds)) return false;
+            destroyedAdditionalCostTargetObjectIds = destroyedAdditionalCostTargetObjectIds.Append(target).ToArray();
+            return true;
+        }
+
         if (behavior.RequiresDestroyFriendlyPowerfulUnitAdditionalCost)
         {
             var required = normalizedOptionalCosts.Where(cost =>
@@ -22697,16 +22714,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             effectRepeatCount = behavior.EffectRepeatCountIfExhaustFriendlyUnitOptionalCost;
             exhaustedOptionalCostTargetObjectIds = [exhaustedTargetObjectId];
-            return true;
-        }
-
-        if (normalizedOptionalCosts.Count == 1
-            && behavior.RequiresDestroyFriendlyUnitAdditionalCost
-            && TryParseDestroyFriendlyUnitAdditionalCost(
-                normalizedOptionalCosts[0],
-                out var destroyedFriendlyUnitTargetObjectId))
-        {
-            destroyedAdditionalCostTargetObjectIds = [destroyedFriendlyUnitTargetObjectId];
             return true;
         }
 
@@ -30491,7 +30498,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         CardBehaviorDefinition behavior,
         IReadOnlyList<string> optionalCosts)
     {
-        return CardPermissionKeywordRules.IsHasteReadyOptionalCostPaid(behavior, optionalCosts);
+        // The accepted optional cost is the delayed replacement fact (805.2.b).
+        // Re-evaluating the aura here would lose it if its source paid a cost.
+        if (!behavior.PlaysSourceToBaseAsUnit) return false;
+        if (CardPermissionKeywordRules.HasSourceKeyword(behavior, CardPermissionKeywordNames.Haste))
+            return CardPermissionKeywordRules.IsHasteReadyOptionalCostPaid(behavior, optionalCosts);
+        return optionalCosts.Any(CardPermissionKeywordRules.IsHasteReadyCostChoice);
     }
 
     private static bool HasHasteReadyEntryCost(CardBehaviorDefinition behavior)

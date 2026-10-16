@@ -20765,6 +20765,86 @@
         "product": "OPEN",
         "finalAll8Focus": "PASS"
       }
+    },
+    {
+      "id": "granted-origin-haste-and-paid-entry-replacement-2026-10-16",
+      "status": "SCOPED_GRANTED_HASTE_SINGLE_CHECK_FAILURE_REPAIRED213_FOCUS_FIXED_FULL_PRODUCT_OPEN",
+      "scope": "ExactCN33104/33105; real hand vs revealed nonhand and live controller source, matching Haste traits/combined printed power, multiple providers, mandatory sacrifice preserving paid entry, original-opening cold restore and actual SQL event rejection. No whole-printing/family certification.",
+      "subjects": [
+        "SFD-029/221",
+        "SFD-029A/221"
+      ],
+      "ruleRecords": [
+        "DOC-01-P015-B002",
+        "DOC-01-P114-B005",
+        "DOC-01-P114-B006",
+        "DOC-01-P114-B007",
+        "DOC-01-P114-B008",
+        "DOC-01-P114-B009",
+        "DOC-01-P114-B010",
+        "DOC-01-P114-B011",
+        "DOC-01-P114-B012",
+        "DOC-01-P114-B013",
+        "DOC-01-P114-B014",
+        "DOC-01-P114-B015",
+        "DOC-01-P114-B016",
+        "DOC-01-P114-B017",
+        "DOC-01-P114-B018"
+      ],
+      "historicalReferencesOnly": [
+        "DOC-11-P001-B003",
+        "DOC-11-P001-B005",
+        "DOC-11-P022-B004",
+        "DOC-11-P022-B005",
+        "DOC-14-P019-B003"
+      ],
+      "auditDocument": "docs/GRANTED_ORIGIN_HASTE_AUDIT_2026-10-16.md",
+      "evidence": "docs/evidence/granted-origin-haste-2026-10-16",
+      "semanticReview": {
+        "state": "SCOPED",
+        "wholeCardCertified": false,
+        "region": "CN",
+        "language": "zh-CN",
+        "sourceIndexAsOf": "2026-10-16",
+        "runtimeRuleInputDate": "2026-10-16",
+        "exactSourceRecordIds": [
+          33104,
+          33105
+        ]
+      },
+      "remaining": [
+        "Actual Atakhan optional sacrifice, generated Sand Soldier play, copied/attached/nonunit sources, controller-transfer and continuing in-play keyword characteristic consumers remain OPEN.",
+        "All3 located prior DOC11 direct source references and indirect authority/behavior dependencies need current-clause revalidation; original source universe is retained.",
+        "New fixed commit full CI, current visible CN16 paired/SQL/reconnect/private choice/normal8/full original replay/cross-room lifecycle, custom deck and independent Windows physical acceptance.",
+        "All source gaps, article/media/FAQ and regional applicability obligations remain."
+      ],
+      "wholeCardCertification": false,
+      "testExecution": {
+        "newCases": 24,
+        "newMethods": 9,
+        "adjacentCases": 394,
+        "adjacentMethods": 167,
+        "originalFullGameMethods": 5,
+        "nativeCommands": 112,
+        "nativePaths": 20,
+        "actualSqlScenarios": 73,
+        "newSqlEventTamperRejections": 4,
+        "check": {
+          "total": 11935,
+          "passed": 11934,
+          "failed": 1,
+          "skipped": 0,
+          "repairFocusCases": 213,
+          "repairFocusMethods": 102,
+          "noSecondCheck": true,
+          "receipt": {
+            "path": "docs/evidence/granted-origin-haste-2026-10-16/batch-check-and-repair.json",
+            "sha256": "683b155356aca5b91fd5b07bc1430b6a210e4a66ed4ba83684020f97ff7740ca"
+          }
+        },
+        "fixedFull": "PENDING",
+        "product": "OPEN"
+      }
     }
   ]
 }

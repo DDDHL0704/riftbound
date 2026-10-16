@@ -279,7 +279,9 @@ public sealed record CardBehaviorDefinition(
     StandbyPlacement? StandbyPlayFrom = null,
     int? DeckPlayMaximumUnitMight = null,
     bool EffectPlayIgnoreAllCosts = false,
-    bool CreatedBaseUnitTokensCopySource = false)
+    bool CreatedBaseUnitTokensCopySource = false,
+    bool GrantsHasteToFriendlyUnitsPlayedOutsideHand = false,
+    IReadOnlyList<string>? GrantedHastePowerTraits = null)
 {
     public bool PerformsInsight => InsightCount > 0;
 }
@@ -2561,7 +2563,8 @@ public static class CardBehaviorRegistry
             SourceUnitTags: "急速|强攻",
             HasteReadyManaCost: 1,
             HasteReadyPowerCost: 1,
-            HasteReadyPowerTrait: RuneTrait.Red),
+            HasteReadyPowerTrait: RuneTrait.Red,
+            GrantsHasteToFriendlyUnitsPlayedOutsideHand: true),
         new(
             "SFD·029a/221",
             "雷克塞",
@@ -2574,7 +2577,8 @@ public static class CardBehaviorRegistry
             SourceUnitTags: "急速|强攻",
             HasteReadyManaCost: 1,
             HasteReadyPowerCost: 1,
-            HasteReadyPowerTrait: RuneTrait.Red),
+            HasteReadyPowerTrait: RuneTrait.Red,
+            GrantsHasteToFriendlyUnitsPlayedOutsideHand: true),
         new(
             "OGN·039/298",
             "卡莎",

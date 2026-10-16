@@ -1,0 +1,325 @@
+{
+  "status": "EXPLICIT_DOC11_SELF_EXPIRY_AND_CURRENT_CORE_TRAIT_SCOPE_OBSERVATION",
+  "observedAtUtc": "2026-10-16T00:04:18.598122+00:00",
+  "region": "CN",
+  "language": "zh-CN",
+  "applicabilityDateUnderAudit": "2026-10-16",
+  "documents": [
+    {
+      "id": "DOC-01",
+      "title": "《符文战场：英雄联盟对战卡牌》核心规则（10.16生效）",
+      "url": "https://cdn.playloltcg.com/lol/2026/10/2026-10-10/a21ead876c6b44d6abe386b6ae54ea28.pdf",
+      "sha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11",
+      "updated": "2026-10-10",
+      "effectiveDate": null
+    },
+    {
+      "id": "DOC-11",
+      "title": "破限系列 官方FAQ",
+      "url": "https://cdn.playloltcg.com/lol/2026/04/2026-04-30/破限系列 官方FAQ.pdf",
+      "sha256": "202ecb8a94af03af024daefcf677991c50db00afeeb36cf2c4b72683b623bd70",
+      "updated": "2026-04-30",
+      "effectiveDate": null
+    },
+    {
+      "id": "DOC-14",
+      "title": "铸魂淬炼系列 裁判FAQ",
+      "url": "https://cdn.playloltcg.com/lol/2026/04/2026-04-15/铸魂淬炼系列_裁判FAQ.pdf",
+      "sha256": "16eeeea28baeeee2dae3765876c609f79cc77fdbdd6928d73f1b8fa5d5c277bc",
+      "updated": "2026-01-14",
+      "effectiveDate": null
+    }
+  ],
+  "allDocumentsPreviouslyRefetchedUnchangedThisLogicalRun": "docs/evidence/cn16-play-origin-2026-10-16/cn-rule-source-receipts.json",
+  "exactRecords": [
+    {
+      "id": "DOC-01-P015-B002",
+      "document": "DOC-01",
+      "page": 15,
+      "clauseAnchors": [],
+      "text": "举例:提伯斯是“炽烈”与“混沌”单位。如果提伯斯获得了[急速]关键词,则\n                                                可选额外费用中的符能部分可以用[R]或[P]支付。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P114-B005",
+      "document": "DOC-01",
+      "page": 114,
+      "clauseAnchors": [
+        "805"
+      ],
+      "text": "805.         急速",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P114-B006",
+      "document": "DOC-01",
+      "page": 114,
+      "clauseAnchors": [
+        "805.1"
+      ],
+      "text": "805.1.            [急速]是一种可选额外费用关键词。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P114-B007",
+      "document": "DOC-01",
+      "page": 114,
+      "clauseAnchors": [
+        "805.1.a"
+      ],
+      "text": "805.1.a.              [急速]会出现在单位上。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P114-B008",
+      "document": "DOC-01",
+      "page": 114,
+      "clauseAnchors": [
+        "805.1.b"
+      ],
+      "text": "805.1.b.              [急速]为以下功能的简称:“打出我时,你可以选择额外支付[1]和[C]。若如此做,则我以活跃状态进场。”",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P114-B009",
+      "document": "DOC-01",
+      "page": 114,
+      "clauseAnchors": [
+        "805.1.b.1"
+      ],
+      "text": "805.1.b.1.                   如果该单位拥有一种或多种特性,则[急速]费用的符能部分仅可使用与该单位其中一种特性相\n                             匹配的符能支付。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P114-B010",
+      "document": "DOC-01",
+      "page": 114,
+      "clauseAnchors": [
+        "805.1.b.2"
+      ],
+      "text": "805.1.b.2.                   如果该单位没有特性,则[急速]费用的符能部分可使用[A](任意特性的符能)进行支付。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P114-B011",
+      "document": "DOC-01",
+      "page": 114,
+      "clauseAnchors": [
+        "805.2"
+      ],
+      "text": "805.2.            [急速]为可选额外费用,需要玩家在打出具有该技能的单位时支付。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P114-B012",
+      "document": "DOC-01",
+      "page": 114,
+      "clauseAnchors": [
+        "805.2.a"
+      ],
+      "text": "805.2.a.              只有作为打出卡牌的步骤时,才能支付[急速]的费用。如果单位已经位于场上,则无法支付该费用。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P114-B013",
+      "document": "DOC-01",
+      "page": 114,
+      "clauseAnchors": [
+        "805.2.b"
+      ],
+      "text": "805.2.b.              支付急速费用会生成延迟替换效果。即使该单位在确认过程中失去了[急速]关键词,只要已支付费用,该\n                      单位仍会以活跃状态进场。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P114-B014",
+      "document": "DOC-01",
+      "page": 114,
+      "clauseAnchors": [
+        "805.3"
+      ],
+      "text": "805.3.            [急速]在场上时没有任何功能。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P114-B015",
+      "document": "DOC-01",
+      "page": 114,
+      "clauseAnchors": [
+        "805.4"
+      ],
+      "text": "805.4.            即使拥有多个[急速],也只会生效一次。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P114-B016",
+      "document": "DOC-01",
+      "page": 114,
+      "clauseAnchors": [
+        "805.5"
+      ],
+      "text": "805.5.            [急速],以及单位是否拥有[急速],是单位的一个特性,其他游戏效果可以检查或引用该特性。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P114-B017",
+      "document": "DOC-01",
+      "page": 114,
+      "clauseAnchors": [
+        "805.6"
+      ],
+      "text": "805.6.            [急速]会生成延迟替换效果,将原本的“单位以休眠状态进场”替换为“单位以活跃状态进场”。单位不是“以休眠状态进\n                  场,然后再进入活跃状态”。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P114-B018",
+      "document": "DOC-01",
+      "page": 114,
+      "clauseAnchors": [
+        "805.6.a"
+      ],
+      "text": "805.6.a.              对于因单位变为活跃状态而受影响的技能,[急速]既不会与其互动,也不会将其触发。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-11-P001-B003",
+      "document": "DOC-11",
+      "page": 1,
+      "clauseAnchors": [],
+      "text": "在本次《常见问题》中,我们先来为大家梳理清楚规则更新中几个令人困惑的点——如果\n你想直接查看常见问题的解答,那么请直接跳至本文后半部分的常见问题解答。如果本文档与\n《核心规则》有任何不一致之处,请以本文档为准。当下一次核心规则更新发布时,本文档将会\n失效。你可以随时访问《符文战场》微信小程序的玩法规则专区,查阅《符文战场》的最新规则\n文档。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-11-P001-B005",
+      "document": "DOC-11",
+      "page": 1,
+      "clauseAnchors": [],
+      "text": "●   [E]代表“休眠”\n ●   [M]代表“战力”\n ●   [A]代表“任意特性的 1 点符能”\n ●   [C]代表“与此牌特性相同的 1 点符能”\n        ○ “急速”费用中的[C]需要与单位拥有相同特性;若单位没有特性或拥有多种特性,则\n          变为[A]。\n        ○ 其他情况下的[C]则会全部视为符合卡面印刷情况的相应符能标志——这种用法是\n          我们在设计过程中采取的简称。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-11-P022-B004",
+      "document": "DOC-11",
+      "page": 22,
+      "clauseAnchors": [],
+      "text": "如果我在场上有雷克塞 - 黄沙噬猎,从牌堆中打出厄塔汗,会发生什么?我可以支付急速费用\n并摧毁雷克塞来支付厄塔汗的额外费用吗?它会以活跃状态进场吗?",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-11-P022-B005",
+      "document": "DOC-11",
+      "page": 22,
+      "clauseAnchors": [],
+      "text": "会,只要你支付了急速费用,厄塔汗就会以活跃状态进场,即使他摧毁了雷克塞来支付自己的额\n外费用也无所谓。这是因为急速会产生延迟替换效果,使厄塔汗以活跃状态进场。虽然他在结算\n时没有急速关键词,但他依然拥有急速产生的延迟替换效果。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-14-P019-B003",
+      "document": "DOC-14",
+      "page": 19,
+      "clauseAnchors": [],
+      "text": "Q:我方基地中存在【雷克塞 -    A:会,“黄沙士兵”\n               黄沙噬猎】,我方打出的“黄沙士     的<急速>费用为\n                 兵”,会获得<急速>吗?        [1][A]。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    }
+  ],
+  "visualPagesRead": [
+    "DOC-01 page15",
+    "DOC-01 page114",
+    "DOC-11 page1",
+    "DOC-11 page22",
+    "DOC-14 page19"
+  ],
+  "doc11CurrentAuthorityDisposition": "HISTORICAL_SELF_EXPIRED_AS_OF_CN16_AFTER_LATER_CORE_UPDATE_NOT_AN_INDEPENDENT_CURRENT_OVERRIDE",
+  "exactFirstPublicationAndExpiryTimestamp": null,
+  "currentDecisionBasis": "DOC01 805.1.b.1 permits one matching trait for multitraits; 805.1.b.2 generic only for no traits; p15 Tibbers explicitR/P. Paid replacement is DOC01 805.2.b. DOC11 p22 is historical corroboration only.",
+  "oldConflictingGuideRetained": "DOC11 p1 [C] guide allowed any trait for multitraits; must not apply it over current core. All original source blocks and dates remain.",
+  "affectedPriorReviewsByDoc11TextReference": [
+    {
+      "reviewId": "elder-dragon-2026-10-11",
+      "statusAsRecorded": "VERIFIED_SCOPED_BEHAVIOR",
+      "scope": "TEXT_REFERENCE_LOCATED_NEEDS_PRECISE_DISPOSITION_NO_AUTOMATIC_INVALIDATION_OF_OTHER_SOURCE_EVIDENCE",
+      "recordSha256": "4e8bc8985561dd8c291d11cdbac5dfa1e95aeaf82db9b95b188aeecc5bd0e301"
+    },
+    {
+      "reviewId": "ephemeral-start-2026-10-11",
+      "statusAsRecorded": "VERIFIED_SCOPED_BEHAVIOR",
+      "scope": "TEXT_REFERENCE_LOCATED_NEEDS_PRECISE_DISPOSITION_NO_AUTOMATIC_INVALIDATION_OF_OTHER_SOURCE_EVIDENCE",
+      "recordSha256": "acf2846467c12810ad7e71df8feb0d1d84cd58a73664e775b55331c293c41f9b"
+    },
+    {
+      "reviewId": "beginning-draw-2026-10-11",
+      "statusAsRecorded": "VERIFIED_SCOPED_BEHAVIOR",
+      "scope": "TEXT_REFERENCE_LOCATED_NEEDS_PRECISE_DISPOSITION_NO_AUTOMATIC_INVALIDATION_OF_OTHER_SOURCE_EVIDENCE",
+      "recordSha256": "cc873d1d833b4fa721f9fce3762d96514471e2c540b6a4addeaec1162431b76f"
+    }
+  ],
+  "allPriorReviewRecordsUntouched": true,
+  "priorRuntimeInputRecordRole": "DOC11 retained as REGIONAL_FAQ_ERRATA_OR_TOURNAMENT_REFERENCE, not certified current authority; no raw source silently deleted or rebadged. Current rules/implementation decisions must be rechecked from current clauses.",
+  "remaining": [
+    "Precise old-review branch-by-branch source authority impact, including references that have independent current-core support.",
+    "Atakhan optional sacrifice reduction itself is unimplemented and remains OPEN; current delayed-entry test uses actual Aristocrat mandatory sacrifice and cannot certify Atakhan.",
+    "Sand Soldier generated-play optional Haste remains OPEN until actual token flow is exercised.",
+    "All whole-printing, source and product obligations remain."
+  ],
+  "renderedPages": [
+    {
+      "path": "docs/evidence/granted-origin-haste-2026-10-16/DOC-01-page15.png",
+      "sha256": "a839f928da589928b3f045923cd427cf014ab5b22c3dc093284ac60b68d7ca11"
+    },
+    {
+      "path": "docs/evidence/granted-origin-haste-2026-10-16/DOC-01-page114.png",
+      "sha256": "0f589d4077e332458129cbdb0b6733e65050780c274afebdcb3999beb2e19a4e"
+    },
+    {
+      "path": "docs/evidence/granted-origin-haste-2026-10-16/DOC-11-page1.png",
+      "sha256": "da391aa0da5f3c0dff3799dbdbf2fa7bed43a1191d0dfd43e5371bb1a1e89dc7"
+    },
+    {
+      "path": "docs/evidence/granted-origin-haste-2026-10-16/DOC-11-page22.png",
+      "sha256": "20d0d430241e52ab61bdd20b906e1dbc302ac2038a80272044b615c1cc25f351"
+    },
+    {
+      "path": "docs/evidence/granted-origin-haste-2026-10-16/DOC-14-page19.png",
+      "sha256": "a400c8debd06236d59ed7b849ffaa179e0a367c75265954803df09fc75848db5"
+    }
+  ]
+}

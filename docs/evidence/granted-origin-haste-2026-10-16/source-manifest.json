@@ -1,0 +1,515 @@
+{
+  "status": "BOUNDED_EXACT_CN_GRANT_PRINTINGS_AND3_CONSUMER_SOURCE_READBACK",
+  "recordedAtUtc": "2026-10-16T00:38:03.770620+00:00",
+  "region": "CN",
+  "language": "zh-CN",
+  "applicabilityDate": "2026-10-16",
+  "request": {
+    "pageNum": 1,
+    "pageSize": 100,
+    "searchContent": "雷克塞",
+    "cardCategoryList": [],
+    "cardColorList": [],
+    "rarityList": [],
+    "productCodeList": []
+  },
+  "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+  "attemptedAtUtc": "2026-10-15T23:44:30.373048+00:00",
+  "fetchedAtUtc": "2026-10-15T23:44:30.503592+00:00",
+  "rawSha256": "f56b398afbf71de4cfcaffddeeb02a636add868e02009fd3ea865174566d4e92",
+  "baselinePin": {
+    "path": "data/official/upstream/2026-10-16/source-refresh-20261015T160523Z/card-catalog.zh-CN.json",
+    "sha256": "4f6a981a51d95e395820c1980f734645e1a5b56e454dbb8758ac3ce331162624"
+  },
+  "grantPrintings": [
+    {
+      "card": {
+        "id": 33104,
+        "cardCategoryList": [
+          "hero_unit"
+        ],
+        "cardCategoryNameList": [
+          "英雄单位"
+        ],
+        "cardNo": "SFD·029/221",
+        "cardName": "雷克塞",
+        "subTitle": "黄沙噬猎",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "red"
+        ],
+        "hero": "雷克塞",
+        "region": "虚空之地",
+        "tag": "",
+        "artist": "Six More Vodka",
+        "cardEffect": "{{急速}}（你可以选择额外支付{{1}}和{{红色}}，让我以活跃状态进场。）\n{{强攻}}（如果我是进攻方，则{{S}}+1。）\n从手牌以外位置被打出的友方单位获得{{急速}}。",
+        "flavorText": "",
+        "energy": 3,
+        "returnEnergy": null,
+        "power": 3,
+        "productCodeList": [
+          "SFD(标准补充包)",
+          "SFD(进阶补充包)"
+        ],
+        "productNameList": [
+          "铸魂淬炼 标准补充包",
+          "铸魂淬炼 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_core",
+        "rarityName": "史诗",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20251217/ceade2fb3f224e50921ca8293168ef36.png",
+        "backImage": "",
+        "listSort": 969,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "changedFields": [],
+      "allFieldsUnchanged": true,
+      "rawArchive": {
+        "path": "docs/evidence/granted-origin-haste-2026-10-16/reksai-api-current-raw.json",
+        "sha256": "f56b398afbf71de4cfcaffddeeb02a636add868e02009fd3ea865174566d4e92"
+      },
+      "image": {
+        "id": 33104,
+        "cardNo": "SFD·029/221",
+        "url": "https://cdn.playloltcg.com/lol/card/20251217/ceade2fb3f224e50921ca8293168ef36.png",
+        "attemptedAtUtc": "2026-10-15T23:44:43.854350+00:00",
+        "fetchedAtUtc": "2026-10-15T23:44:44.078087+00:00",
+        "path": "var/qa/granted-nonhand-haste-20261016/33104-current-cn.png",
+        "sha256": "2e5aa9bcb58079c5f0c7baf9d2f1950ecedc4ee3c8ab34ed1c7660c546cdbd63",
+        "bytes": 321767,
+        "format": "PNG",
+        "width": 744,
+        "height": 1039,
+        "region": "CN",
+        "language": "zh-CN",
+        "visualReview": "RECORDED_FOR_EXACT_IDENTITY_PRINTED_COST_AND_RELEVANT_TEXT_NOT_WHOLE_PRINTING",
+        "archive": {
+          "path": "docs/evidence/granted-origin-haste-2026-10-16/33104-current-cn.png",
+          "sha256": "2e5aa9bcb58079c5f0c7baf9d2f1950ecedc4ee3c8ab34ed1c7660c546cdbd63"
+        }
+      },
+      "firstPublicationDate": null,
+      "effectiveDate": null,
+      "wholePrintingCertified": false
+    },
+    {
+      "card": {
+        "id": 33105,
+        "cardCategoryList": [
+          "hero_unit"
+        ],
+        "cardCategoryNameList": [
+          "英雄单位"
+        ],
+        "cardNo": "SFD·029a/221",
+        "cardName": "雷克塞",
+        "subTitle": "黄沙噬猎",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "red"
+        ],
+        "hero": "雷克塞",
+        "region": "虚空之地",
+        "tag": "",
+        "artist": "League Splash Team",
+        "cardEffect": "{{急速}}（你可以选择额外支付{{1}}和{{红色}}，让我以活跃状态进场。）\n{{强攻}}（如果我是进攻方，则{{S}}+1。）\n从手牌以外位置被打出的友方单位获得{{急速}}。",
+        "flavorText": "",
+        "energy": 3,
+        "returnEnergy": null,
+        "power": 3,
+        "productCodeList": [
+          "SFD(标准补充包)",
+          "SFD(进阶补充包)"
+        ],
+        "productNameList": [
+          "铸魂淬炼 标准补充包",
+          "铸魂淬炼 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_legend",
+        "rarityName": "异画",
+        "extendRarity": "legacy_etching",
+        "extendRarityName": "异画",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20251217/9a38ae65c48240c697ed28f70ca3e5a0.png",
+        "backImage": "",
+        "listSort": 968,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "changedFields": [],
+      "allFieldsUnchanged": true,
+      "rawArchive": {
+        "path": "docs/evidence/granted-origin-haste-2026-10-16/reksai-api-current-raw.json",
+        "sha256": "f56b398afbf71de4cfcaffddeeb02a636add868e02009fd3ea865174566d4e92"
+      },
+      "image": {
+        "id": 33105,
+        "cardNo": "SFD·029a/221",
+        "url": "https://cdn.playloltcg.com/lol/card/20251217/9a38ae65c48240c697ed28f70ca3e5a0.png",
+        "attemptedAtUtc": "2026-10-15T23:44:43.854914+00:00",
+        "fetchedAtUtc": "2026-10-15T23:44:44.077954+00:00",
+        "path": "var/qa/granted-nonhand-haste-20261016/33105-current-cn.png",
+        "sha256": "e83d34cb00222a2f524ac1d9bbcdd21ffa01dd28095ec8b1fb8caf9cbd60601b",
+        "bytes": 279844,
+        "format": "PNG",
+        "width": 744,
+        "height": 1039,
+        "region": "CN",
+        "language": "zh-CN",
+        "visualReview": "RECORDED_FOR_EXACT_IDENTITY_PRINTED_COST_AND_RELEVANT_TEXT_NOT_WHOLE_PRINTING",
+        "archive": {
+          "path": "docs/evidence/granted-origin-haste-2026-10-16/33105-current-cn.png",
+          "sha256": "e83d34cb00222a2f524ac1d9bbcdd21ffa01dd28095ec8b1fb8caf9cbd60601b"
+        }
+      },
+      "firstPublicationDate": null,
+      "effectiveDate": null,
+      "wholePrintingCertified": false
+    }
+  ],
+  "consumers": [
+    {
+      "id": 31444,
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "冷血贵族",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "attemptedAtUtc": "2026-10-15T23:59:01.212134+00:00",
+      "fetchedAtUtc": "2026-10-15T23:59:01.333521+00:00",
+      "rawPath": "var/qa/granted-nonhand-haste-20261016/31444-api-raw.json",
+      "rawSha256": "e14972c0878ab2d49f56a1a0e788b910e1793ce6a937f3225d579868dfd319ee",
+      "card": {
+        "id": 31444,
+        "cardCategoryList": [
+          "unit"
+        ],
+        "cardCategoryNameList": [
+          "单位"
+        ],
+        "cardNo": "OGN·208/298",
+        "cardName": "冷血贵族",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "yellow"
+        ],
+        "hero": "",
+        "region": "诺克萨斯",
+        "tag": "",
+        "artist": "Kudos Productions",
+        "cardEffect": "你必须摧毁一名友方单位，作为打出我的额外费用。",
+        "flavorText": "忠诚是种义务，而不是选择。",
+        "energy": 4,
+        "returnEnergy": null,
+        "power": 6,
+        "productCodeList": [
+          "OGN(英雄预组 维克托)",
+          "OGN(标准补充包)",
+          "OGN(进阶补充包)"
+        ],
+        "productNameList": [
+          "起源 英雄预组 维克托",
+          "起源 标准补充包",
+          "起源 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_dust",
+        "rarityName": "普通",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/b00544775d984fb8b60061e438123271.png",
+        "backImage": "",
+        "listSort": 261,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "allFieldsUnchanged": true,
+      "baselinePin": {
+        "path": "data/official/upstream/2026-10-16/source-refresh-20261015T160523Z/card-catalog.zh-CN.json",
+        "sha256": "4f6a981a51d95e395820c1980f734645e1a5b56e454dbb8758ac3ce331162624"
+      },
+      "region": "CN",
+      "language": "zh-CN",
+      "firstPublicationDate": null,
+      "effectiveDate": null,
+      "rawArchive": {
+        "path": "docs/evidence/granted-origin-haste-2026-10-16/31444-api-raw.json",
+        "sha256": "e14972c0878ab2d49f56a1a0e788b910e1793ce6a937f3225d579868dfd319ee"
+      },
+      "image": {
+        "id": 31444,
+        "cardNo": "OGN·208/298",
+        "url": "https://cdn.playloltcg.com/lol/card/20250731/b00544775d984fb8b60061e438123271.png",
+        "attemptedAtUtc": "2026-10-16T00:20:51.237857+00:00",
+        "fetchedAtUtc": "2026-10-16T00:20:51.493235+00:00",
+        "path": "var/qa/granted-nonhand-haste-20261016/31444-current-cn.png",
+        "sha256": "3dae5967665c87052158aae16a162e262ef9f3580efe6b6967b5e52bdc27b5b2",
+        "bytes": 204778,
+        "dimensions": [
+          744,
+          1040
+        ],
+        "format": "PNG",
+        "region": "CN",
+        "language": "zh-CN",
+        "visualReview": "RECORDED_FOR_EXACT_IDENTITY_PRINTED_COST_AND_RELEVANT_TEXT_NOT_WHOLE_PRINTING",
+        "archive": {
+          "path": "docs/evidence/granted-origin-haste-2026-10-16/31444-current-cn.png",
+          "sha256": "3dae5967665c87052158aae16a162e262ef9f3580efe6b6967b5e52bdc27b5b2"
+        }
+      },
+      "wholePrintingCertified": false
+    },
+    {
+      "id": 31597,
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "提伯斯",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "attemptedAtUtc": "2026-10-15T23:59:01.212693+00:00",
+      "fetchedAtUtc": "2026-10-15T23:59:01.331733+00:00",
+      "rawPath": "var/qa/granted-nonhand-haste-20261016/31597-api-raw.json",
+      "rawSha256": "f2232292047abb166b4b875a3c6e716763bb603a81e71e385b0832f20a243c48",
+      "card": {
+        "id": 31597,
+        "cardCategoryList": [
+          "exclusive_unit"
+        ],
+        "cardCategoryNameList": [
+          "专属单位"
+        ],
+        "cardNo": "OGS·018/024",
+        "cardName": "提伯斯",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "red",
+          "purple"
+        ],
+        "hero": "安妮",
+        "region": "",
+        "tag": "",
+        "artist": "Polar Engine Studio",
+        "cardEffect": "当你打出我时，对所有战场上的单位各造成3点伤害。",
+        "flavorText": "“你看见过我的小熊吗？”\n——安妮",
+        "energy": 8,
+        "returnEnergy": 2,
+        "power": 7,
+        "productCodeList": [
+          "OGS"
+        ],
+        "productNameList": [
+          "起源 试炼之地"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_core",
+        "rarityName": "史诗",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/fc1238b1e6da4dcebc024d6dca76ee38.png",
+        "backImage": "",
+        "listSort": 533,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "allFieldsUnchanged": true,
+      "baselinePin": {
+        "path": "data/official/upstream/2026-10-16/source-refresh-20261015T160523Z/card-catalog.zh-CN.json",
+        "sha256": "4f6a981a51d95e395820c1980f734645e1a5b56e454dbb8758ac3ce331162624"
+      },
+      "region": "CN",
+      "language": "zh-CN",
+      "firstPublicationDate": null,
+      "effectiveDate": null,
+      "rawArchive": {
+        "path": "docs/evidence/granted-origin-haste-2026-10-16/31597-api-raw.json",
+        "sha256": "f2232292047abb166b4b875a3c6e716763bb603a81e71e385b0832f20a243c48"
+      },
+      "image": {
+        "id": 31597,
+        "cardNo": "OGS·018/024",
+        "url": "https://cdn.playloltcg.com/lol/card/20250731/fc1238b1e6da4dcebc024d6dca76ee38.png",
+        "attemptedAtUtc": "2026-10-16T00:20:51.238411+00:00",
+        "fetchedAtUtc": "2026-10-16T00:20:51.541763+00:00",
+        "path": "var/qa/granted-nonhand-haste-20261016/31597-current-cn.png",
+        "sha256": "9d6869c5c5abf4cd0edcf1787f2fee4f816be7331ae4e130109b1a85e30eccb2",
+        "bytes": 309467,
+        "dimensions": [
+          745,
+          1040
+        ],
+        "format": "PNG",
+        "region": "CN",
+        "language": "zh-CN",
+        "visualReview": "RECORDED_FOR_EXACT_IDENTITY_PRINTED_COST_AND_RELEVANT_TEXT_NOT_WHOLE_PRINTING",
+        "archive": {
+          "path": "docs/evidence/granted-origin-haste-2026-10-16/31597-current-cn.png",
+          "sha256": "9d6869c5c5abf4cd0edcf1787f2fee4f816be7331ae4e130109b1a85e30eccb2"
+        }
+      },
+      "wholePrintingCertified": false
+    },
+    {
+      "id": 31314,
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "警觉的哨兵",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "attemptedAtUtc": "2026-10-15T23:59:01.212878+00:00",
+      "fetchedAtUtc": "2026-10-15T23:59:01.348761+00:00",
+      "rawPath": "var/qa/granted-nonhand-haste-20261016/31314-api-raw.json",
+      "rawSha256": "6212bbe57b548532c968f11323528a78b06344f1e0f1c241625397ef0a405c0c",
+      "card": {
+        "id": 31314,
+        "cardCategoryList": [
+          "unit"
+        ],
+        "cardCategoryNameList": [
+          "单位"
+        ],
+        "cardNo": "OGN·096/298",
+        "cardName": "警觉的哨兵",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "blue"
+        ],
+        "hero": "",
+        "region": "弗雷尔卓德",
+        "tag": "",
+        "artist": "Six More Vodka",
+        "cardEffect": "{{绝念}}—抽一张牌。（当我被摧毁后，发动此效果。）",
+        "flavorText": "他也许再也回不了家了。但正因为有他，那家才依然存在。",
+        "energy": 2,
+        "returnEnergy": null,
+        "power": 1,
+        "productCodeList": [
+          "OGN(标准补充包)",
+          "OGN(进阶补充包)"
+        ],
+        "productNameList": [
+          "起源 标准补充包",
+          "起源 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_dust",
+        "rarityName": "普通",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/4e4ca59b4f3b45fbb619a3410532aabb.png",
+        "backImage": "",
+        "listSort": 391,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "allFieldsUnchanged": true,
+      "baselinePin": {
+        "path": "data/official/upstream/2026-10-16/source-refresh-20261015T160523Z/card-catalog.zh-CN.json",
+        "sha256": "4f6a981a51d95e395820c1980f734645e1a5b56e454dbb8758ac3ce331162624"
+      },
+      "region": "CN",
+      "language": "zh-CN",
+      "firstPublicationDate": null,
+      "effectiveDate": null,
+      "rawArchive": {
+        "path": "docs/evidence/granted-origin-haste-2026-10-16/31314-api-raw.json",
+        "sha256": "6212bbe57b548532c968f11323528a78b06344f1e0f1c241625397ef0a405c0c"
+      },
+      "image": {
+        "id": 31314,
+        "cardNo": "OGN·096/298",
+        "url": "https://cdn.playloltcg.com/lol/card/20250731/4e4ca59b4f3b45fbb619a3410532aabb.png",
+        "attemptedAtUtc": "2026-10-16T00:20:51.238542+00:00",
+        "fetchedAtUtc": "2026-10-16T00:20:51.505364+00:00",
+        "path": "var/qa/granted-nonhand-haste-20261016/31314-current-cn.png",
+        "sha256": "88d3cbc8877ad243634afd10039b7c0b54e7c970b708d3cb6ab7a704b466c12b",
+        "bytes": 198320,
+        "dimensions": [
+          744,
+          1040
+        ],
+        "format": "PNG",
+        "region": "CN",
+        "language": "zh-CN",
+        "visualReview": "RECORDED_FOR_EXACT_IDENTITY_PRINTED_COST_AND_RELEVANT_TEXT_NOT_WHOLE_PRINTING",
+        "archive": {
+          "path": "docs/evidence/granted-origin-haste-2026-10-16/31314-current-cn.png",
+          "sha256": "88d3cbc8877ad243634afd10039b7c0b54e7c970b708d3cb6ab7a704b466c12b"
+        }
+      },
+      "wholePrintingCertified": false
+    }
+  ],
+  "initialAcquisitionAndParserRepair": {
+    "archive": {
+      "path": "docs/evidence/granted-origin-haste-2026-10-16/reksai-api-initial-raw.json",
+      "sha256": "9342d206180e7081ad2904396effda59a4657ba1cb56a34e3f6842a7ddda8363"
+    },
+    "initialParserError": "KeyError:data; real API response uses result.list. Initial valid raw body retained and normal HTTPS reacquisition parsed successfully.",
+    "contentSilentlyReplaced": false
+  },
+  "ruleContext": {
+    "path": "docs/evidence/granted-origin-haste-2026-10-16/source-expiry-and-rule-context.json",
+    "sha256": "8acd9db5e9635a48d64bb573091210490641701b87647583522aa35f898f4bfb"
+  },
+  "primaryCurrentRuleInputScope": {
+    "path": "data/official/rule-input-scope.json",
+    "sha256": "cc07cf3eef6a9af403454642a0435d061544400b5e01d08d3fdc65869bdad180"
+  },
+  "currentDecisionAuthority": "DOC01 805 and explicit Tibbers example; DOC11 self-expired historical corroboration only, exact expiry timestamp unknown.",
+  "ruleReadbackAll16": {
+    "path": "docs/evidence/cn16-play-origin-2026-10-16/cn-rule-source-receipts.json",
+    "sha256": "1ea2744b9b63068a890355753c1841a4be7aa783676754bff14c4c5f0b4429d1"
+  },
+  "sourceUniverse": 1740,
+  "runtimeCatalog": 1033,
+  "radRuntimeActivated": false,
+  "wholePrintingOrFamilyCertified": false
+}

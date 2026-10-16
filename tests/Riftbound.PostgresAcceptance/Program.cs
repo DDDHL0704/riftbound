@@ -118,6 +118,7 @@ await InsightRepeatSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "insi
 await CombatAssignmentSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "combat-assignment"));
 await ConfirmedPlayOriginSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "confirmed-play-origin"));
 await PhysicalOriginCostSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "physical-origin-cost"));
+await GrantedOriginHasteSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "granted-origin-haste"));
 
 JsonElement Raw(GameCommand command) => JsonSerializer.SerializeToElement(command, command.GetType(), json);
 async Task Submit(string actor, string intent, GameCommand command, bool accepted = true) {

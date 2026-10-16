@@ -1,0 +1,162 @@
+{
+  "status": "ALL_INITIAL_FAILURES_AND_FIXTURE_REPAIRS_RETAINED",
+  "initialNewTestSource": {
+    "path": "var/qa/granted-nonhand-haste-20261016/GrantedOriginHasteTests.initial.cs",
+    "sha256": "5329eabae81a7b12a3e34d992d77bc660eab278f54f55e7cccde577d06e9a95b"
+  },
+  "graveyardFixtureRepair": "At only supports BASE/BATTLEFIELD. New test passed GRAVEYARD but retained battlefield membership; fixed the new member lists and actual location guard, no old test edit.",
+  "mandatoryCombinationRed": "Expanded18 cases16 passed/2 rejected Unsupported optional cost for Aristocrat; fixed existing mandatory-unit parser to compose independently selected optional costs, with independent legality checks retained.",
+  "normalOpeningAttempts": [
+    {
+      "path": "var/qa/granted-nonhand-haste-20261016/normal-opening-v1",
+      "plan": {
+        "path": "var/qa/granted-nonhand-haste-20261016/normal-opening-v1/plan.json",
+        "sha256": "692afa7620889f2ddca70d12f16ff84ec48d342842fe49cd9a9320df9d6ced01"
+      },
+      "trx": [
+        {
+          "path": "var/qa/granted-nonhand-haste-20261016/normal-opening-v1/focus/results.trx",
+          "sha256": "893bc4f6e598802d965f9a601570380017a54c7ff7d418aa00b2e1f8bd69ece8"
+        }
+      ],
+      "summary": null,
+      "cases": [
+        {
+          "name": "Riftbound.ConformanceTests.GrantedOriginHasteOpeningTests.AnActualEmptyOpeningRecoversAndPaysGrantedHasteEvenWhenTheGrantPaysTheMandatoryCost(card: \"OGN·208/298\", mana: 5, sacrifice: True)",
+          "outcome": "Failed",
+          "message": "主牌堆包含 4 张《雷克塞》，上限为 3 张。"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.GrantedOriginHasteOpeningTests.AnActualEmptyOpeningRecoversAndPaysGrantedHasteEvenWhenTheGrantPaysTheMandatoryCost(card: \"SFD·010/221\", mana: 2, sacrifice: False)",
+          "outcome": "Failed",
+          "message": "主牌堆包含 4 张《雷克塞》，上限为 3 张。"
+        }
+      ],
+      "methods": [
+        "Riftbound.ConformanceTests.GrantedOriginHasteOpeningTests.AnActualEmptyOpeningRecoversAndPaysGrantedHasteEvenWhenTheGrantPaysTheMandatoryCost"
+      ],
+      "attempt": 1
+    },
+    {
+      "path": "var/qa/granted-nonhand-haste-20261016/normal-opening-v2",
+      "plan": {
+        "path": "var/qa/granted-nonhand-haste-20261016/normal-opening-v2/plan.json",
+        "sha256": "38edd744d5f3ba58854920aa4fe6f216398a3f6e423d35ea477300fe8b489558"
+      },
+      "trx": [
+        {
+          "path": "var/qa/granted-nonhand-haste-20261016/normal-opening-v2/focus/results.trx",
+          "sha256": "ec22a7d5319616ff8e7c581427d76344c8e34d81200733d2669973c27411fc24"
+        }
+      ],
+      "summary": null,
+      "cases": [
+        {
+          "name": "Riftbound.ConformanceTests.GrantedOriginHasteOpeningTests.AnActualEmptyOpeningRecoversAndPaysGrantedHasteEvenWhenTheGrantPaysTheMandatoryCost(card: \"OGN·208/298\", mana: 5, sacrifice: True)",
+          "outcome": "Failed",
+          "message": "Assert.Equal() Failure: Strings differ\n           ↓ (pos 0)\nExpected: \"IN_PROGRESS\"\nActual:   \"FINISHED\"\n           ↑ (pos 0)"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.GrantedOriginHasteOpeningTests.AnActualEmptyOpeningRecoversAndPaysGrantedHasteEvenWhenTheGrantPaysTheMandatoryCost(card: \"SFD·010/221\", mana: 2, sacrifice: False)",
+          "outcome": "Failed",
+          "message": "Assert.Equal() Failure: Strings differ\n           ↓ (pos 0)\nExpected: \"IN_PROGRESS\"\nActual:   \"FINISHED\"\n           ↑ (pos 0)"
+        }
+      ],
+      "methods": [
+        "Riftbound.ConformanceTests.GrantedOriginHasteOpeningTests.AnActualEmptyOpeningRecoversAndPaysGrantedHasteEvenWhenTheGrantPaysTheMandatoryCost"
+      ],
+      "attempt": 2
+    },
+    {
+      "path": "var/qa/granted-nonhand-haste-20261016/normal-opening-v3",
+      "plan": {
+        "path": "var/qa/granted-nonhand-haste-20261016/normal-opening-v3/plan.json",
+        "sha256": "b4075cab4fc8792e18700421ad62f613b9fb969728c7b94962d6515a00c6beb8"
+      },
+      "trx": [
+        {
+          "path": "var/qa/granted-nonhand-haste-20261016/normal-opening-v3/focus/results.trx",
+          "sha256": "3c3f9a1ff2d48002aa598e2e086448ac1536e56fae81b3ff54c4237ba1d43a6b"
+        }
+      ],
+      "summary": null,
+      "cases": [
+        {
+          "name": "Riftbound.ConformanceTests.GrantedOriginHasteOpeningTests.AnActualEmptyOpeningRecoversAndPaysGrantedHasteEvenWhenTheGrantPaysTheMandatoryCost(card: \"SFD·010/221\", mana: 2, sacrifice: False)",
+          "outcome": "Failed",
+          "message": "Assert.Contains() Failure: Item not found in collection\nCollection: [\"P1-RUNE-OGN-214-298-06\", \"P1-RUNE-OGN-214-298-04\", \"P1-RUNE-OGN-214-298-05\", \"P1-RUNE-OGN-214-298-02\", \"P1-RUNE-OGN-214-298-03\", ···]\nNot found:  \"P1-CHAMPION-SFD-029-221-01\""
+        },
+        {
+          "name": "Riftbound.ConformanceTests.GrantedOriginHasteOpeningTests.AnActualEmptyOpeningRecoversAndPaysGrantedHasteEvenWhenTheGrantPaysTheMandatoryCost(card: \"OGN·208/298\", mana: 5, sacrifice: True)",
+          "outcome": "Failed",
+          "message": "Assert.Contains() Failure: Item not found in collection\nCollection: [\"P1-RUNE-OGN-007-298-09\", \"P1-RUNE-OGN-007-298-12\", \"P1-RUNE-OGN-007-298-07\", \"P1-RUNE-OGN-007-298-11\", \"P1-RUNE-OGN-214-298-03\", ···]\nNot found:  \"P1-CHAMPION-SFD-029-221-01\""
+        }
+      ],
+      "methods": [
+        "Riftbound.ConformanceTests.GrantedOriginHasteOpeningTests.AnActualEmptyOpeningRecoversAndPaysGrantedHasteEvenWhenTheGrantPaysTheMandatoryCost"
+      ],
+      "attempt": 3
+    },
+    {
+      "path": "var/qa/granted-nonhand-haste-20261016/normal-opening-v4",
+      "plan": {
+        "path": "var/qa/granted-nonhand-haste-20261016/normal-opening-v4/plan.json",
+        "sha256": "6308e865782be4c4f045e6ead4b2d864779a4e14b957fc06537939526f347ee7"
+      },
+      "trx": [
+        {
+          "path": "var/qa/granted-nonhand-haste-20261016/normal-opening-v4/focus/results.trx",
+          "sha256": "e17cdd8c83228e1e6991f135ca418b3f95fc858ac1b2e94bf64f83453fc57696"
+        }
+      ],
+      "summary": {
+        "status": "PASSED",
+        "profile": "focus",
+        "seconds": 184.05,
+        "total": 2,
+        "caseParityVerified": false,
+        "shards": [
+          {
+            "shard": "focus",
+            "total": 2,
+            "passed": 2,
+            "failed": 0,
+            "notExecuted": 0,
+            "seconds": 153.55
+          }
+        ]
+      },
+      "cases": [
+        {
+          "name": "Riftbound.ConformanceTests.GrantedOriginHasteOpeningTests.AnActualEmptyOpeningRecoversAndPaysGrantedHasteEvenWhenTheGrantPaysTheMandatoryCost(card: \"SFD·010/221\", mana: 2, sacrifice: False)",
+          "outcome": "Passed",
+          "message": ""
+        },
+        {
+          "name": "Riftbound.ConformanceTests.GrantedOriginHasteOpeningTests.AnActualEmptyOpeningRecoversAndPaysGrantedHasteEvenWhenTheGrantPaysTheMandatoryCost(card: \"OGN·208/298\", mana: 5, sacrifice: True)",
+          "outcome": "Passed",
+          "message": ""
+        }
+      ],
+      "methods": [
+        "Riftbound.ConformanceTests.GrantedOriginHasteOpeningTests.AnActualEmptyOpeningRecoversAndPaysGrantedHasteEvenWhenTheGrantPaysTheMandatoryCost"
+      ],
+      "attempt": 4
+    }
+  ],
+  "normalOpeningRepairs": {
+    "v1": "Four same-name Reksai in submitted deck violated max3; validator unchanged.",
+    "v2": "Two permitted conquests/hold cycles reached normal score victory before desired reveal. Original trace retained.",
+    "v3": "Chosen champion Reksai guarantees an in-play grant and moves to trigger the legend. New fixed case-1 room chosen during fixture preparation; target appeared and cold recovery passed but old BASE assertion contradicted actual BATTLEFIELD.",
+    "v4": "Correct exact battlefield assertion and retention/destruction expectations;2 passes, original-opening replay retained."
+  },
+  "newControlledRooms": [
+    "normal-granted-origin-haste-unit-case-1",
+    "normal-granted-origin-haste-sacrifice-case-1"
+  ],
+  "roomAndDeckSelectionAffectsOpeningShuffle": true,
+  "original143Games110PairsAnd424242Unchanged": true,
+  "nativeGameOrAcceptedHistoryModified": false,
+  "noFutureDeckInspectionOrDeveloperStateCommand": true,
+  "noClaimOfUnselectedNewFixtureSeed": true
+}

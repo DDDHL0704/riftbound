@@ -1,0 +1,37 @@
+{
+  "status": "ONE_EXPLICIT_SOURCE_REPAIR_PLUS_RESULT_GOVERNANCE_RECORDS_AFTER_FAILED_CHECK",
+  "changedFrozenPaths": {
+    "docs/GRANTED_ORIGIN_HASTE_AUDIT_2026-10-16.md": {
+      "before": "30e7f5ad161abac7295c7f847707491eff8168a816d754f61fc66db34a287130",
+      "after": "49ca7fcfcbcc8313d08fc662ce3420aa9c39958324c3fae4fa7d87468a43e567"
+    },
+    "docs/PROJECT_STATUS.md": {
+      "before": "c38b39db7908adf284c978ca1209db63326aba06dd241c1552acd3b4db907d27",
+      "after": "1eaca40c031d84d218ddc03060625dddc61fa908bed314dabd463b9e430c59fb"
+    },
+    "docs/audit/current-manifest.json": {
+      "before": "564cf9b35ab2163ddb7121ea3feed164cd8b2208a07507e65eaa79cda265e534",
+      "after": "b032f22fc2274222b1ec1b6876693e5de76c1eefbe623d06437dbfa72065355c"
+    },
+    "docs/evidence/granted-origin-haste-2026-10-16/prior-review-records.json": {
+      "before": "714b9247c0abf82996a362ade593fa29932fa74d32494b1c1b4bc301384933c6",
+      "after": "e29df7965ed6333dccb8aa317c4d01d8435a6b43f416571d618ab14eb9883abb"
+    },
+    "docs/evidence/rules-reaudit-2026-10-11/review-decisions.json": {
+      "before": "9bc52bd1e0317fc2ceeebb26bbd77b2d0f1ad7f870ee89c49aa110457cc76bca",
+      "after": "813258da07048d0f137d61330d956b11ddc67db43e8f261b824f66b30d7ad037"
+    },
+    "src/Riftbound.Engine/CoreRuleEngine.cs": {
+      "before": "37d8de8d254424f29b509b2df04ea72519dd77ab2f903941fc6e86133993ce41",
+      "after": "a22a4bf74e119e8fb68c399460f777ee3f53d2da8efd1f9ba32661f21faf5730"
+    }
+  },
+  "sourceRepairPath": "src/Riftbound.Engine/CoreRuleEngine.cs",
+  "noOriginalTestsChanged": true,
+  "noSecondCheck": true,
+  "fullFixedCommitRequired": true,
+  "receipt": {
+    "path": "docs/evidence/granted-origin-haste-2026-10-16/batch-check-and-repair.json",
+    "sha256": "683b155356aca5b91fd5b07bc1430b6a210e4a66ed4ba83684020f97ff7740ca"
+  }
+}

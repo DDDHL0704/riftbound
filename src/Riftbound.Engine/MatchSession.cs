@@ -12563,6 +12563,7 @@ internal static class ActionPromptBuilder
         var behaviors = CardBehaviorRegistry.GetAll()
             .Where(behavior => string.Equals(behavior.CardNo, cardObject.CardNo, StringComparison.Ordinal))
             .Select(behavior => CoreRuleEngine.StandbyPlayBehavior(state, playerId, objectId, CoreRuleEngine.EffectPlayBehavior(state, playerId, behavior)))
+            .Select(behavior => CoreRuleEngine.PlaySourceKeywordBehavior(state, playerId, objectId, behavior))
             .Select(behavior => CoreRuleEngine.PromptAmbushTimingBehavior(state, playerId, behavior))
             .Where(behavior => CardPermissionKeywordRules.EvaluatePlayTiming(state, playerId, behavior).IsAllowed)
             .Where(behavior => state.PendingEffectPlay is not null || PromptAvailableManaWithLuxSpellOnlyResource(state, playerId, behavior, objectId)
@@ -14275,7 +14276,6 @@ internal static class ActionPromptBuilder
         var paymentResourceChoices = PlayCardPaymentResourceChoicesForBehavior(state, playerId, behavior, sourceObjectId);
         var paymentResourcePowerByTrait = PlayCardPaymentResourcePowerByTraitForBehavior(state, playerId, behavior, sourceObjectId);
         var effectivePowerWithRecycle = runePool.TotalPower + paymentResourcePowerByTrait.Values.Sum();
-        var hasteReadyPowerTrait = HasteReadyPowerTrait(behavior);
         var experience = state.PlayerExperience.TryGetValue(playerId, out var currentExperience)
             ? currentExperience
             : 0;
@@ -14329,15 +14329,17 @@ internal static class ActionPromptBuilder
             choices.Add(new ActionPromptChoiceDto(echo.Id, $"{origin}：{string.Join(" + ", parts)}", reason));
         }
 
-        if ((behavior.HasteReadyManaCost > 0 || behavior.HasteReadyPowerCost > 0)
-            && runePool.Mana >= PromptMinimumManaCost(state, playerId, behavior, sourceObjectId, behavior.HasteReadyManaCost)
-            && CanPayHasteReadyPowerCost(runePool, paymentResourcePowerByTrait, behavior))
+        foreach (var haste in CardPermissionKeywordRules.HasteReadyCostChoices(behavior))
         {
+            var hasteReadyPowerTrait = haste.Value;
+            if (runePool.Mana < PromptMinimumManaCost(state, playerId, behavior, sourceObjectId, behavior.HasteReadyManaCost)
+                || !CanPayHasteReadyPowerCost(runePool, paymentResourcePowerByTrait,
+                    behavior with { HasteReadyPowerTrait = hasteReadyPowerTrait })) continue;
             var powerLabel = string.IsNullOrWhiteSpace(hasteReadyPowerTrait)
                 ? $"{behavior.HasteReadyPowerCost} 符能"
                 : $"{behavior.HasteReadyPowerCost} {RuneTraitLabel(hasteReadyPowerTrait)}符能";
             choices.Add(new ActionPromptChoiceDto(
-                HasteOptionalCostNames.HasteReady,
+                haste.Key,
                 $"急速活跃：额外支付 {behavior.HasteReadyManaCost} 法力 / {powerLabel}"));
         }
 
@@ -14709,9 +14711,9 @@ internal static class ActionPromptBuilder
             AddRequirement(runePool.TotalPower + 1);
         }
 
-        if (behavior.HasteReadyPowerCost > 0)
+        foreach (var haste in CardPermissionKeywordRules.HasteReadyCostChoices(behavior))
         {
-            var hasteReadyPowerTrait = HasteReadyPowerTrait(behavior);
+            var hasteReadyPowerTrait = haste.Value;
             AddRequirement(
                 string.IsNullOrWhiteSpace(hasteReadyPowerTrait) ? behavior.HasteReadyPowerCost : 0,
                 string.IsNullOrWhiteSpace(hasteReadyPowerTrait)
