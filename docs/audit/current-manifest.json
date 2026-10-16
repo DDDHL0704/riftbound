@@ -10032,7 +10032,22 @@
             "All1740 source identities,1033 runtime records and global source/media/QA/semantic obligations remain retained."
           ]
         }
-      ]
+      ],
+      "historicalFixedCiReceipts": [
+        {
+          "commit": "aa2f095df2b46689bb75d4155e3411c1cfd86d8b",
+          "runId": 38879419423,
+          "path": "docs/evidence/granted-token-haste-2026-10-16/ci-aa2-timeout.json",
+          "sha256": "3af025350e5c9f513747eb07d62c406dcdfa09485cc99bbab260aea03cd72034",
+          "status": "CANCELLED_FULL_RULE_COMPONENT_ONLY_SQL_PARTIAL_NETWORK_NOT_EXECUTED"
+        }
+      ],
+      "laterScopedVisiblePairedReceipt": {
+        "commit": "aa2f095df2b46689bb75d4155e3411c1cfd86d8b",
+        "path": "docs/evidence/paired-token-haste-2026-10-16/acceptance.json",
+        "sha256": "d61801812a0aa8b2febaa0461dab3267e01721a2ab4815cbba091470a57fc3a3",
+        "status": "SCOPED_VISIBLE_SCORE8_SQL_FULL_ORIGINAL_REPLAY_PASS_REQUIRED_FINDINGS_REMAIN"
+      }
     }
   },
   "acceptanceGates": [
@@ -10469,7 +10484,15 @@
         "path": "docs/evidence/granted-origin-haste-2026-10-16/full-ci-3ced0126.json",
         "sha256": "1e1ee89df7e0465a429b4257c472e9615685c419159bea1a6005543b73aaa99f"
       },
-      "currentUncommittedCandidate": "SHARED_CURRENT_BATTLEFIELD_CONTROLLER_FIX_REQUIRES_NEW_FIXED_FULL"
+      "currentUncommittedCandidate": "SHARED_CURRENT_BATTLEFIELD_CONTROLLER_FIX_REQUIRES_NEW_FIXED_FULL",
+      "latestFixedAttempt": {
+        "commit": "aa2f095df2b46689bb75d4155e3411c1cfd86d8b",
+        "runId": 38879419423,
+        "path": "docs/evidence/granted-token-haste-2026-10-16/ci-aa2-timeout.json",
+        "sha256": "3af025350e5c9f513747eb07d62c406dcdfa09485cc99bbab260aea03cd72034",
+        "status": "CANCELLED_FULL_RULE_COMPONENT_ONLY_SQL_PARTIAL_NETWORK_NOT_EXECUTED"
+      },
+      "currentImplementationVerified": false
     },
     {
       "id": "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
@@ -11698,15 +11721,92 @@
         "path": "docs/evidence/granted-token-haste-2026-10-16/check.json",
         "sha256": "b1e7a773fa52879a124e66bfc7957535362108a5a4f8e1be8dfbce2a01e5672c"
       },
-      "fixedCommitCi": "PENDING_NEW_FIXED_SHA",
-      "productAcceptance": "OPEN_NEW_CANDIDATE",
+      "fixedCommitCi": "AA2_CANCELLED_AT120_MIN_RULE_COMPONENT_PASS_SQL75OF79_NETWORK_SKIPPED",
+      "productAcceptance": "SCOPED_AA2_8TO0_VISIBLE_NETWORK_SQL_FULL_ORIGINAL_REPLAY_PASS_ISSUES46_47_48_AND_WINDOWS_OPEN",
       "remaining": [
         "New fixed-commit full CI, visible paired clients, actual reconnect/normal score/full replay and Windows physical acceptance remain separate OPEN gates.",
         "Five legacy token entry functions remain unhooked; transitive image/self-copy/movement/death-observer consumers of the two hooked functions require explicit exact-printing branch review.",
         "Global token play cost modifiers, taxes/reducers and grant departure/control change during resource actions remain OPEN; executed optional Haste costs are unmodified1mana/1power only.",
         "SFD154 post-entry optional yellow payment/reflexive instruction and all other printing semantics are OPEN.",
         "All1740 source identities,1033 runtime records and global source/media/QA/semantic obligations remain retained."
-      ]
+      ],
+      "latestFixedAttempt": {
+        "commit": "aa2f095df2b46689bb75d4155e3411c1cfd86d8b",
+        "runId": 38879419423,
+        "path": "docs/evidence/granted-token-haste-2026-10-16/ci-aa2-timeout.json",
+        "sha256": "3af025350e5c9f513747eb07d62c406dcdfa09485cc99bbab260aea03cd72034",
+        "status": "CANCELLED_FULL_RULE_COMPONENT_ONLY_SQL_PARTIAL_NETWORK_NOT_EXECUTED"
+      },
+      "visiblePairedAa2": {
+        "commit": "aa2f095df2b46689bb75d4155e3411c1cfd86d8b",
+        "path": "docs/evidence/paired-token-haste-2026-10-16/acceptance.json",
+        "sha256": "d61801812a0aa8b2febaa0461dab3267e01721a2ab4815cbba091470a57fc3a3",
+        "status": "SCOPED_VISIBLE_SCORE8_SQL_FULL_ORIGINAL_REPLAY_PASS_REQUIRED_FINDINGS_REMAIN"
+      }
+    },
+    {
+      "id": "RULE_CHOICE_NATIVE_RECYCLE_ATOMIC_OPTIONS",
+      "state": "OPEN",
+      "requirement": "Expose every authoritative atomic resource decision in RULE_REPLACEMENT; preserve independently validated one-choice intent, ordinary and Mighty payment semantics.",
+      "issue": "https://github.com/DDDHL0704/riftbound/issues/46",
+      "exactObservedCommit": "aa2f095df2b46689bb75d4155e3411c1cfd86d8b",
+      "evidence": {
+        "path": "docs/evidence/paired-token-haste-2026-10-16/acceptance.json",
+        "sha256": "d61801812a0aa8b2febaa0461dab3267e01721a2ab4815cbba091470a57fc3a3"
+      },
+      "semanticReview": "EXISTING_AUTHORITY_AND_PROTOCOL_SCOPE_ONLY_NO_WHOLE_PRINTING_PROMOTION",
+      "implementation": "OPEN",
+      "tests": "SEVEN_NEW_RED_PROMPT_CASES_REPRODUCE46_AND47_NATIVE_HEADER_OBSERVED",
+      "fixedCommitCi": "PENDING_NEW_FIXED_COMMIT",
+      "productAcceptance": "OPEN_WINDOWS_AND_SCOPED_FINDINGS_RETAINED"
+    },
+    {
+      "id": "STANDBY_HIDE_REQUIRED_LOCATION_AND_COST_PROMPT",
+      "state": "OPEN",
+      "requirement": "Require a legal location and exactly one authorized HIDE placement-fee selection before native confirmation; preserve normal, Teemo and actual free permissions.",
+      "issue": "https://github.com/DDDHL0704/riftbound/issues/47",
+      "exactObservedCommit": "aa2f095df2b46689bb75d4155e3411c1cfd86d8b",
+      "evidence": {
+        "path": "docs/evidence/paired-token-haste-2026-10-16/acceptance.json",
+        "sha256": "d61801812a0aa8b2febaa0461dab3267e01721a2ab4815cbba091470a57fc3a3"
+      },
+      "semanticReview": "EXISTING_AUTHORITY_AND_PROTOCOL_SCOPE_ONLY_NO_WHOLE_PRINTING_PROMOTION",
+      "implementation": "OPEN",
+      "tests": "SEVEN_NEW_RED_PROMPT_CASES_REPRODUCE46_AND47_NATIVE_HEADER_OBSERVED",
+      "fixedCommitCi": "PENDING_NEW_FIXED_COMMIT",
+      "productAcceptance": "OPEN_WINDOWS_AND_SCOPED_FINDINGS_RETAINED"
+    },
+    {
+      "id": "TOKEN_HASTE_NATIVE_PHASE_HEADING",
+      "state": "OPEN",
+      "requirement": "Use public TOKEN_HASTE_PAYMENT kind for the native heading; retain true destruction replacement headings and old assertions.",
+      "issue": "https://github.com/DDDHL0704/riftbound/issues/48",
+      "exactObservedCommit": "aa2f095df2b46689bb75d4155e3411c1cfd86d8b",
+      "evidence": {
+        "path": "docs/evidence/paired-token-haste-2026-10-16/acceptance.json",
+        "sha256": "d61801812a0aa8b2febaa0461dab3267e01721a2ab4815cbba091470a57fc3a3"
+      },
+      "semanticReview": "EXISTING_AUTHORITY_AND_PROTOCOL_SCOPE_ONLY_NO_WHOLE_PRINTING_PROMOTION",
+      "implementation": "OPEN",
+      "tests": "SEVEN_NEW_RED_PROMPT_CASES_REPRODUCE46_AND47_NATIVE_HEADER_OBSERVED",
+      "fixedCommitCi": "PENDING_NEW_FIXED_COMMIT",
+      "productAcceptance": "OPEN_WINDOWS_AND_SCOPED_FINDINGS_RETAINED"
+    },
+    {
+      "id": "FIXED_CI_RULES_POSTGRES_NETWORK_JOB_TIMEOUT",
+      "state": "OPEN",
+      "requirement": "Complete all fixed-commit rule/matrix,79 real SQL and network gates with sufficient job headroom; do not reuse component success as whole-CI pass.",
+      "issue": "https://github.com/DDDHL0704/riftbound/issues/49",
+      "exactObservedCommit": "aa2f095df2b46689bb75d4155e3411c1cfd86d8b",
+      "evidence": {
+        "path": "docs/evidence/granted-token-haste-2026-10-16/ci-aa2-timeout.json",
+        "sha256": "3af025350e5c9f513747eb07d62c406dcdfa09485cc99bbab260aea03cd72034"
+      },
+      "semanticReview": "EXISTING_AUTHORITY_AND_PROTOCOL_SCOPE_ONLY_NO_WHOLE_PRINTING_PROMOTION",
+      "implementation": "TIMEOUT180_PREPARED_NEW_FIXED_CI_REQUIRED",
+      "tests": "EXISTING55_PYTHON_PASS",
+      "fixedCommitCi": "PENDING_NEW_FIXED_COMMIT",
+      "productAcceptance": "OPEN_WINDOWS_AND_SCOPED_FINDINGS_RETAINED"
     }
   ],
   "note": "Current inventory and remaining obligations, with independently dated rule sources and separately recorded source deltas. No source fetch or semantic certification by this checker.",
