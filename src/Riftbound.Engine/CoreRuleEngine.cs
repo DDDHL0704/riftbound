@@ -25572,8 +25572,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             && ShouldCreateBaseUnitTokens(behavior, stackItem))
         {
             CreateBaseUnitTokens(
+                state,
                 playerZones,
                 cardObjects,
+                runePools,
                 behavior,
                 stackItem,
                 events,
@@ -26863,8 +26865,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             && behavior.CreatedBaseUnitTokenCopiesFirstTarget)
         {
             CreateBaseUnitTokens(
+                state,
                 playerZones,
                 cardObjects,
+                runePools,
                 behavior,
                 stackItem,
                 events,
@@ -29263,15 +29267,17 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     }
 
     private static void CreateBaseUnitTokens(
+        MatchState state,
         Dictionary<string, PlayerZones> playerZones,
         Dictionary<string, CardObjectState> cardObjects,
+        Dictionary<string, RunePool> runePools,
         CardBehaviorDefinition behavior,
         StackItemState stackItem,
         List<GameEvent> events,
         Dictionary<string, ObjectLocationState>? objectLocations,
         IReadOnlyList<string> turnEffects)
     {
-        if (!playerZones.TryGetValue(stackItem.ControllerId, out var zones))
+        if (!playerZones.ContainsKey(stackItem.ControllerId))
         {
             return;
         }
@@ -29344,6 +29350,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             var entryStaticAbilitySourceObjectId = string.Empty;
             var entryStaticAbilitySourceState = new CardObjectState();
             StaticAbilitySpec entryStaticAbility = default!;
+            var hastePaid = ChooseTokenHaste(state, stackItem.ControllerId, stackItem.SourceObjectId, tokenState,
+                playerZones, cardObjects, runePools, events);
+            if (hastePaid) tokenState = tokenState with { IsExhausted = false };
             if (hasTokenDefinition)
             {
                 tokenState = ApplyUnitTokenEntryStaticAbility(
@@ -29358,6 +29367,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     out entryStaticAbility);
             }
             cardObjects[tokenObjectId] = tokenState;
+            var zones = playerZones[stackItem.ControllerId];
+            playerZones[stackItem.ControllerId] = shadowField is null
+                ? zones with { Base = zones.Base.Append(tokenObjectId).ToArray() }
+                : zones with { Battlefields = zones.Battlefields.Append(tokenObjectId).ToArray() };
             var payload = new Dictionary<string, object?>
             {
                 ["playerId"] = stackItem.ControllerId,
@@ -29397,6 +29410,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             {
                 payload["tokenTags"] = tokenState.Tags.ToArray();
             }
+            AddTokenHastePayload(payload, hastePaid);
 
             events.Add(CaptureUnitEntry(new GameEvent(
                 "UNIT_TOKEN_CREATED",
@@ -29404,11 +29418,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 payload), playerZones, cardObjects, turnEffects));
         }
 
-        playerZones[stackItem.ControllerId] = zones with
-        {
-            Base = shadowField is null ? zones.Base.Concat(createdTokenObjectIds).ToArray() : zones.Base,
-            Battlefields = shadowField is null ? zones.Battlefields : zones.Battlefields.Concat(createdTokenObjectIds).ToArray()
-        };
         if (isImageCopyToken)
             AddReflexiveCopyEvent(events, stackItem.ControllerId, stackItem.SourceObjectId, stackItem.CardNo,
                 copiedTargetState, createdTokenObjectIds.Select(id => cardObjects[id]).ToArray());

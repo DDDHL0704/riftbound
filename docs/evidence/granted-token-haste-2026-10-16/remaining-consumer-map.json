@@ -1,0 +1,119 @@
+{
+  "recordedAtUtc": "2026-10-16T08:24:40.280469+00:00",
+  "region": "CN",
+  "applicabilityDate": "2026-10-16",
+  "issue": "https://github.com/DDDHL0704/riftbound/issues/45",
+  "sourceManifest": "docs/evidence/granted-token-haste-2026-10-16/source-manifest.json",
+  "implementationInputs": [
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+      "sha256": "80747170be0030aecdf366561ac6df43c210fa66ad0f1982f15a95367f8286b7"
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.UnitTokenEntry.cs",
+      "sha256": "3b0603e8a53ac7d3af3b7f9dee4a57ec47c7692720827cef06c941fb7de53aed"
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.PlayKeywords.cs",
+      "sha256": "516089c89cb55d84bafcce6aaf83605f819f9597c850542bcd0259403b7c45f1"
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.TokenHaste.cs",
+      "sha256": "5253c780eeeb772cbd189d8ac941bf51ed867982d9d6b881fc0f413307fbdc51"
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.RuleChoices.cs",
+      "sha256": "2eafed47f13d5740755f3613c0b66a90367689f26b546761a7e609f17bb4f75d"
+    },
+    {
+      "path": "src/Riftbound.Engine/MatchSession.cs",
+      "sha256": "64962291baec6324d35162f234df2e881ecff4a057f624c83bfb252d2f1cc09e"
+    }
+  ],
+  "entryPaths": [
+    {
+      "entry": "CreateBaseUnitTokens",
+      "location": "src/Riftbound.Engine/CoreRuleEngine.cs",
+      "hook": "ChooseTokenHaste",
+      "state": "IMPLEMENTED_SCOPED",
+      "testedNewConsumers": [
+        "SFD·031/221 (two grants x red/blue/any, independent Echo)",
+        "SFD·154/221 (real empty hand/standby parents, only granted pre-entry Haste)"
+      ],
+      "notCertified": [
+        "other ordinary spell/permanent token producers",
+        "copied/attached text and all Image reflexive interactions"
+      ]
+    },
+    {
+      "entry": "CreateUnitTokenBatch",
+      "location": "src/Riftbound.Engine/CoreRuleEngine.UnitTokenEntry.cs",
+      "hook": "ChooseTokenHaste",
+      "state": "IMPLEMENTED_SCOPED",
+      "testedNewConsumers": [
+        "SFD·197/221 actual legend activation with both grant printings"
+      ],
+      "transitiveConsumers": [
+        "LegendTokens",
+        "LegendImage",
+        "SelfCopyTokens",
+        "MovementObservers",
+        "DeathObservers"
+      ],
+      "notCertified": [
+        "every transitive consumer has not been individually semantically re-certified for granted Haste"
+      ]
+    },
+    {
+      "entry": "CreateBaseUnitTokensFromTrigger",
+      "location": "src/Riftbound.Engine/CoreRuleEngine.cs",
+      "state": "OPEN_MISSING_HASTE_HOOK",
+      "family": "last-breath token production"
+    },
+    {
+      "entry": "CreateBattlefieldUnitTokensInBase",
+      "location": "src/Riftbound.Engine/CoreRuleEngine.cs",
+      "state": "OPEN_MISSING_HASTE_HOOK",
+      "family": "holding minion/robot production"
+    },
+    {
+      "entry": "TryResolveBattlefieldConquerOverkillCreateWarhawkTrigger",
+      "location": "src/Riftbound.Engine/CoreRuleEngine.cs",
+      "state": "OPEN_MISSING_HASTE_HOOK",
+      "family": "battlefield conquest overkill"
+    },
+    {
+      "entry": "CreateWarhawkTokenInControllerBase",
+      "location": "src/Riftbound.Engine/CoreRuleEngine.cs",
+      "state": "OPEN_MISSING_HASTE_HOOK",
+      "family": "Fluft Poro ability"
+    },
+    {
+      "entry": "ResolveBattlefieldConquerSandSoldierTriggerPayment",
+      "location": "src/Riftbound.Engine/CoreRuleEngine.cs",
+      "state": "OPEN_MISSING_HASTE_HOOK",
+      "family": "Imperial Shrine optional return then token play"
+    }
+  ],
+  "independentRemaining": [
+    "SFD154 current erratum post-entry optional Yellow/reflexive instruction",
+    "temporary/source loss during resource generation and all other grants/permissions",
+    "fixed candidate full and current visible paired/network/normal score/full replay",
+    "Windows physical and all source/global/card/FAQ/QA/media obligations",
+    "Global unit-play cost modifiers/taxes/reductions and all permitted resource combinations for token plays require explicit planning/consumer review; the fixed1/1 direct helper proof is bounded to tested unmodified costs."
+  ],
+  "scope": "Finite existing entry paths enumerated. Code registration or adjacent green tests do not promote unexecuted consumers or whole cards to certification. Equipment/battlefield tokens are not units and are excluded only from this Haste consumer map, never removed from the global obligation ledger.",
+  "allOriginalTestsMethodsTheory143Games110PairsAndSeed424242Retained": true,
+  "wholePrintingOrFamilyCertified": false,
+  "completedBoundedObligations": [
+    {
+      "formerObligation": "native contract cost metadata current input regeneration",
+      "state": "CURRENT_HEADLESS_ONLY_VERIFIED",
+      "receipt": {
+        "path": "docs/evidence/granted-token-haste-2026-10-16/native.json",
+        "sha256": "6f21a11255e8e23e8c3fb571c7e5fbee234d3eec2cba950034264b6531d02e5b"
+      },
+      "scope": "Two true1mana/1power token-specific prompts and actual outbound commands; visible product and Windows still OPEN."
+    }
+  ]
+}

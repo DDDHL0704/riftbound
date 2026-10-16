@@ -1,0 +1,59 @@
+{
+  "status": "REAL_POSTGRES_GRANTED_TOKEN_HASTE_COLD_RESTORE_AND_EVENT_REJECTION_PASS",
+  "room": "normal-token-haste-hand-case-1",
+  "parentCardNo": "SFD\u00B7154/221",
+  "sourceObjectId": "P1-MAIN-SFD-154-221-01",
+  "tokenObjectId": "P1-MAIN-SFD-154-221-01-TOKEN-001",
+  "tokenCardNo": "SFD\u00B7T02",
+  "expectedMana": 1,
+  "expectedPower": 1,
+  "expectedReady": true,
+  "expectedDestination": "BASE",
+  "originalOpeningTick": 0,
+  "originalOpeningSeed": 0,
+  "originalOpeningCards": 0,
+  "prefixCommands": 68,
+  "prefixEvents": 375,
+  "finalCommands": 69,
+  "finalEvents": 379,
+  "checks": [
+    {
+      "mutation": "mana",
+      "eventSequence": 378,
+      "originalReplayRejected": true,
+      "productionRegistryRejected": true
+    },
+    {
+      "mutation": "power",
+      "eventSequence": 378,
+      "originalReplayRejected": true,
+      "productionRegistryRejected": true
+    },
+    {
+      "mutation": "entry-exhaustion",
+      "eventSequence": 379,
+      "originalReplayRejected": true,
+      "productionRegistryRejected": true
+    },
+    {
+      "mutation": "selected-haste",
+      "eventSequence": 379,
+      "originalReplayRejected": true,
+      "productionRegistryRejected": true
+    }
+  ],
+  "finalHash": "730456968f986bc6859e543da36f37131a67bcc64ae33c3c7d9742887997765c",
+  "ruleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+    "implementationSha256": "56add214836bf5b60389740ac3f17e206caeb628cdda6b06e23589768b590568",
+    "identitySha256": "eecbe8ce32abb3aca18c0673ac9961fa31f75a87e1b01e3217a1c58bde2e7695"
+  },
+  "originalHistoryRestoredExactly": true,
+  "fullOriginalActionEventStateReplayMatched": true,
+  "fixtureSha256": "84fe1cd2eba9b42c73b3cc76218a7bd8c3a92fa99193b6134692bbb1e5a6fe12",
+  "scope": "Only granted pre-entry token Haste from a hand or standby parent. SFD154 printed post-entry Yellow instruction, legacy consumers, visible product and Windows remain OPEN."
+}

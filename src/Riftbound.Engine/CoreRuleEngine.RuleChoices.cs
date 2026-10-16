@@ -5,7 +5,8 @@ namespace Riftbound.Engine;
 
 public sealed record RuleChoiceOption(string Id, string Label, IReadOnlyList<string>? ObjectIds = null);
 public sealed record RuleChoiceRequest(string Id, string PlayerId, string Reason, IReadOnlyList<RuleChoiceOption> Options, int PowerCost = 0, string Kind = "DESTRUCTION_REPLACEMENT", MatchState? Preview = null,
-    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] string? PrivateReason = null);
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] string? PrivateReason = null,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)] int ManaCost = 0);
 public sealed record RuleChoiceAnswer(string RequestHash, string OptionId);
 // Deterministic command checkpoint for synchronous decisions.
 // Until all synchronous replacement decisions are known, the original action is uncommitted.
@@ -31,9 +32,9 @@ public sealed partial class CoreRuleEngine
         public List<ObservedDeckPlayContext> ObservedPlays {get;}=[];
         public HashSet<string> NestedDestroyedOwners { get; } = [];
         private int cursor;
-        public string Choose(string player, string reason, IReadOnlyList<RuleChoiceOption> options, int powerCost = 0, string kind = "DESTRUCTION_REPLACEMENT", MatchState? preview = null, string? privateReason = null)
+        public string Choose(string player, string reason, IReadOnlyList<RuleChoiceOption> options, int powerCost = 0, string kind = "DESTRUCTION_REPLACEMENT", MatchState? preview = null, string? privateReason = null, int manaCost = 0)
         {
-            var request = new RuleChoiceRequest($"REPLACEMENT:{Origin.Tick}:{cursor}", player, reason, options, powerCost, kind, preview, privateReason);
+            var request = new RuleChoiceRequest($"REPLACEMENT:{Origin.Tick}:{cursor}", player, reason, options, powerCost, kind, preview, privateReason, manaCost);
             if (cursor == answers.Count) throw new RuleChoiceRequired(request);
             var answer = answers[cursor++];
             if (answer.RequestHash != MatchStateHasher.HashValue(request) || !options.Any(o => o.Id == answer.OptionId))
@@ -89,7 +90,7 @@ public sealed partial class CoreRuleEngine
         => state.PendingRuleChoice is { } pending ? RuleChoicePayment(pending) : state.PendingPayment;
 
     internal static PendingPaymentState RuleChoicePayment(RuleChoiceContinuation pending)
-        => new(pending.Request.Id, RuleChoiceWindow, pending.Request.PlayerId, powerCost: pending.Request.PowerCost,
+        => new(pending.Request.Id, RuleChoiceWindow, pending.Request.PlayerId, manaCost: pending.Request.ManaCost, powerCost: pending.Request.PowerCost,
             legalPaymentChoiceIds: pending.Request.Options.Select(o => o.Id).ToArray(), reason: pending.Request.Reason);
 
     internal static IReadOnlyDictionary<string, ActionPromptDto> BuildRuleChoicePrompts(MatchState state)

@@ -24,5 +24,9 @@
              Link="Fixtures/optional-sacrifice-hand.json" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="../Riftbound.ConformanceTests/Fixtures/optional-sacrifice-haste.json"
              Link="Fixtures/optional-sacrifice-haste.json" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="../Riftbound.ConformanceTests/Fixtures/token-haste-hand.json"
+             Link="Fixtures/token-haste-hand.json" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="../Riftbound.ConformanceTests/Fixtures/token-haste-standby.json"
+             Link="Fixtures/token-haste-standby.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

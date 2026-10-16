@@ -1,0 +1,29 @@
+{
+  "baselineCommit": "daf394e20997ebdb028e91ba9fdfe6c24eb492eb",
+  "oldConformanceSourceFiles": 433,
+  "changedOldFiles": [],
+  "allOldConformanceSourceBytesRetained": true,
+  "allOldMethodsTheoryRowsAndAssertionsRetained": true,
+  "originalFullGameMethods": 143,
+  "originalPairs": 110,
+  "originalSeed": 424242,
+  "newConformanceFiles": [
+    "tests/Riftbound.ConformanceTests/GrantedTokenHasteTests.cs",
+    "tests/Riftbound.ConformanceTests/GrantedTokenHasteOpeningTests.cs"
+  ],
+  "currentPatchFiles": {
+    "src/Riftbound.Engine/CoreRuleEngine.cs": "80747170be0030aecdf366561ac6df43c210fa66ad0f1982f15a95367f8286b7",
+    "src/Riftbound.Engine/CoreRuleEngine.PlayKeywords.cs": "516089c89cb55d84bafcce6aaf83605f819f9597c850542bcd0259403b7c45f1",
+    "src/Riftbound.Engine/CoreRuleEngine.UnitTokenEntry.cs": "3b0603e8a53ac7d3af3b7f9dee4a57ec47c7692720827cef06c941fb7de53aed",
+    "src/Riftbound.Engine/CoreRuleEngine.TokenHaste.cs": "5253c780eeeb772cbd189d8ac941bf51ed867982d9d6b881fc0f413307fbdc51",
+    "tests/Riftbound.ConformanceTests/GrantedTokenHasteTests.cs": "bcc198e229dd67bef78c410f29fb904ad594fc1c60042b8be890e7c665bd7a2b",
+    "tests/Riftbound.ConformanceTests/GrantedTokenHasteOpeningTests.cs": "b40fbb63be559b8fc5525b77e124134d62e19bc14e1fa3c674e5fb38bcea6ef8",
+    "tests/Riftbound.ConformanceTests/Fixtures/token-haste-hand.json": "84fe1cd2eba9b42c73b3cc76218a7bd8c3a92fa99193b6134692bbb1e5a6fe12",
+    "tests/Riftbound.ConformanceTests/Fixtures/token-haste-standby.json": "10cf2a0b6c2e27bb2e0d543072df7a3adad291dc030fae82d6dec684d0309311",
+    "tests/Riftbound.PostgresAcceptance/GrantedTokenHasteSqlAcceptance.cs": "29da664c552cb8a5a4885059b119ca5e691f40b483743b547969f2cdf07562d3",
+    "tests/Riftbound.PostgresAcceptance/Program.cs": "4b6f4812daa54a6c95be28d2cadebd3c3883d2aa360fb42184443c1c88bf1d0f",
+    "tests/Riftbound.PostgresAcceptance/Riftbound.PostgresAcceptance.csproj": "c24c42ac8223387bf9d51c426d3ca9c70ecffffa1d29d0a0c333f55d95b1367a",
+    "src/Riftbound.Engine/CoreRuleEngine.RuleChoices.cs": "2eafed47f13d5740755f3613c0b66a90367689f26b546761a7e609f17bb4f75d",
+    "src/Riftbound.Engine/MatchSession.cs": "64962291baec6324d35162f234df2e881ecff4a057f624c83bfb252d2f1cc09e"
+  }
+}

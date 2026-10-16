@@ -20970,6 +20970,78 @@
         "actualSqlScenarios": 77,
         "newSqlEventTamperRejections": 8
       }
+    },
+    {
+      "id": "granted-colorless-token-haste-payment-2026-10-16",
+      "status": "SCOPED_CURRENT_SOURCE_FOCUS_NATIVE_79_SQL_SINGLE_CHECK_PASS_FIXED_CI_PRODUCT_PENDING",
+      "scope": "Two exact Reksai grants and executed colorless Sand Soldier pre-entry independent optional Haste decisions, resources, typed/any power, replay/recovery/privacy and truthful public cost metadata; no whole printing/family certification.",
+      "subjects": [
+        "SFD·T02",
+        "SFD·029/221",
+        "SFD·029a/221",
+        "SFD·031/221",
+        "SFD·154/221",
+        "SFD·197/221",
+        "OGN·104/298"
+      ],
+      "ruleRecords": [
+        "DOC-01-P114-B005",
+        "DOC-01-P114-B006",
+        "DOC-01-P114-B007",
+        "DOC-01-P114-B008",
+        "DOC-01-P114-B009",
+        "DOC-01-P114-B010",
+        "DOC-01-P114-B011",
+        "DOC-01-P114-B012",
+        "DOC-01-P114-B013",
+        "DOC-01-P114-B014",
+        "DOC-01-P114-B015",
+        "DOC-01-P114-B016",
+        "DOC-01-P114-B017",
+        "DOC-01-P114-B018",
+        "DOC-14-P019-B003"
+      ],
+      "auditDocument": "docs/GRANTED_TOKEN_HASTE_AUDIT_2026-10-16.md",
+      "evidence": "docs/evidence/granted-token-haste-2026-10-16",
+      "semanticReview": {
+        "state": "SCOPED",
+        "wholeCardCertified": false,
+        "region": "CN",
+        "language": "zh-CN",
+        "sourceIndexAsOf": "2026-10-16",
+        "runtimeRuleInputDate": "2026-10-16",
+        "exactSourceRecordIds": [
+          33364,
+          33104,
+          33105,
+          33107,
+          33248,
+          33296,
+          31322
+        ]
+      },
+      "remaining": [
+        "New fixed-commit full CI, visible paired clients, actual reconnect/normal score/full replay and Windows physical acceptance remain separate OPEN gates.",
+        "Five legacy token entry functions remain unhooked; transitive image/self-copy/movement/death-observer consumers of the two hooked functions require explicit exact-printing branch review.",
+        "Global token play cost modifiers, taxes/reducers and grant departure/control change during resource actions remain OPEN; executed optional Haste costs are unmodified1mana/1power only.",
+        "SFD154 post-entry optional yellow payment/reflexive instruction and all other printing semantics are OPEN.",
+        "All1740 source identities,1033 runtime records and global source/media/QA/semantic obligations remain retained."
+      ],
+      "wholeCardCertification": false,
+      "testExecution": {
+        "newCases": 33,
+        "newMethods": 11,
+        "adjacentCases": 1959,
+        "adjacentMethods": 1033,
+        "earlyOriginalFullGameMethods": 3,
+        "actualNativeCommands": 2,
+        "nativeColdRestores": 4,
+        "nativeScope": "Actual headless Godot controls/backend readback/full original empty-opening replay; visible product remains OPEN.",
+        "actualSql": "79_CURRENT_INPUT_SCENARIOS_8_NEW_EVENT_REJECTIONS_PASS",
+        "singleCheck": "12020_CASES_7242_METHODS_PASS_ONCE",
+        "fixedFull": "PENDING_NEW_COMMIT",
+        "product": "OPEN"
+      }
     }
   ]
 }

@@ -1,0 +1,35 @@
+{
+  "status": "TWO_CURRENT_NATIVE_TOKEN_HASTE_PAYMENT_COMMANDS_BACKEND_COLD_RESTORE_AND_FULL_EMPTY_OPENING_REPLAY_PASS",
+  "verifiedAtUtc": "2026-10-16T08:40:39.051795+00:00",
+  "sourceInputs": 375,
+  "runtimeInputs": 23,
+  "promptInputs": 8,
+  "drift": [],
+  "allCapturedInputsStableBeforeNativeThroughBackendReadback": true,
+  "nativeCommands": 2,
+  "coldRestores": 4,
+  "publicCostManaAndPowerBoth1": true,
+  "branches": [
+    {
+      "branch": "hand",
+      "nativeCommands": 1,
+      "coldRestores": 2,
+      "fullOriginalActionEventStateReplayMatched": true,
+      "finalHash": "6cc279f78a07b63de48b19e34da5da6c493059f02ef250e7b7f1e3687c191c64",
+      "originalOpeningTick": 0,
+      "originalOpeningCards": 0
+    },
+    {
+      "branch": "standby",
+      "nativeCommands": 1,
+      "coldRestores": 2,
+      "fullOriginalActionEventStateReplayMatched": true,
+      "finalHash": "930b655693c216e2e8fecb20e47b634db0e908adcc7f19bf997d093956596071",
+      "originalOpeningTick": 0,
+      "originalOpeningCards": 0
+    }
+  ],
+  "headlessOnly": true,
+  "visiblePairedAndWindowsPhysical": "OPEN",
+  "previousProjectionDefectRetained": "native-before-cost-metadata-fix.json"
+}
