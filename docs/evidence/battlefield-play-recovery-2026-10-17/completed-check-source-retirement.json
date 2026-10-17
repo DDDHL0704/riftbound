@@ -1,0 +1,19 @@
+{
+  "recordedAtUtc": "2026-10-17T09:09:38.351899+00:00",
+  "retiredExactCheckout": "/Users/dinghaolin/MyProjects/riftbound/var/qa/battlefield-play-recovery-20261017/fixed-source",
+  "purpose": "Completed adjacent recovery focus and single successful immutable check; actual SQL also completed using its separate published files.",
+  "all12315FrozenSourceHashesMatchedBeforeRemoval": true,
+  "everySourceByteIndependentlyReconstructableFromGitBasePatchAndFiveSavedNewInputs": true,
+  "baseCommit": "3a8a6f394fc6a8a7e3ea99a2db0799fa35859d31",
+  "patch": "frozen-source.patch",
+  "exactSavedNewInputs": "frozen-new-inputs/",
+  "allCheckFocusTrxLogsManifestsOriginalFailuresAndSqlRuntimeFilesRetained": true,
+  "noOwnedProcessUsesCheckout": true,
+  "activeOriginalsCheckoutNotTouched": true,
+  "allOriginalDatabasesAndVisibleClientsPreserved": true,
+  "logicalRetiredFileBytes": 692664752,
+  "availableBytesBefore": 35542773760,
+  "availableBytesAfter": 35605012480,
+  "observedAvailableBytesDelta": 62238720,
+  "retiredCompiledTestCopiesNoLongerRetained": true
+}

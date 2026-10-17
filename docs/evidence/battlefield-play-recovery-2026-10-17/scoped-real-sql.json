@@ -1,0 +1,85 @@
+{
+  "status": "REAL_POSTGRES_BATTLEFIELD_PLAY_ORIGIN_STRUCTURAL_AND_CAUSAL_GUARDS_PASS",
+  "executedAtUtc": "2026-10-17T08:49:27.257682+00:00",
+  "results": [
+    {
+      "room": "postgres-battlefield-origin-merfolk-218fd4c5b4284d63a0857fcf20e9dea7",
+      "cardNo": "UNL-003/219",
+      "originalExplicitSeed": 0,
+      "commands": 10,
+      "events": 35,
+      "attacks": [
+        {
+          "battlefieldClaim": false,
+          "rebuiltBothPlayerViews": true,
+          "structuralValidationPassed": false,
+          "productionRegistryRejected": true,
+          "acceptedHistoryUnchanged": true,
+          "everySqlRowUnchangedByRejection": true
+        },
+        {
+          "battlefieldClaim": true,
+          "rebuiltBothPlayerViews": true,
+          "structuralValidationPassed": true,
+          "productionRegistryRejected": true,
+          "acceptedHistoryUnchanged": true,
+          "everySqlRowUnchangedByRejection": true
+        }
+      ],
+      "originalNextCommandMatched": true,
+      "finalHash": "fbfc40195531f02c5497604ffab02d7db570a6fa9cc203b20109da2a32711952",
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "8c62839bc38eefb6ce473188d9eeda2224500f195b2825f6430ee35578670f20",
+        "identitySha256": "d60ac0531d0cb487f15f73542f3a107f26848c745232f8c14b5d3c18ab2c1722"
+      },
+      "finalSqlDigest": "0d6829489e2cd762570002d2de9c40fb04619354cded83552cc10b79885dc748",
+      "fixtureSha256": "18bd3f46598f3e89c92073e5d733d3434a16dcb2b3e14e2c6cd623c7a8db6d21",
+      "databaseRoomRetained": true
+    },
+    {
+      "room": "postgres-battlefield-origin-blitzcrank-ca559f6a8a7c4977a07d745b6368267e",
+      "cardNo": "OGN\u00B7067/298",
+      "originalExplicitSeed": 0,
+      "commands": 18,
+      "events": 79,
+      "attacks": [
+        {
+          "battlefieldClaim": false,
+          "rebuiltBothPlayerViews": true,
+          "structuralValidationPassed": false,
+          "productionRegistryRejected": true,
+          "acceptedHistoryUnchanged": true,
+          "everySqlRowUnchangedByRejection": true
+        },
+        {
+          "battlefieldClaim": true,
+          "rebuiltBothPlayerViews": true,
+          "structuralValidationPassed": true,
+          "productionRegistryRejected": true,
+          "acceptedHistoryUnchanged": true,
+          "everySqlRowUnchangedByRejection": true
+        }
+      ],
+      "originalNextCommandMatched": true,
+      "finalHash": "330b01fb7f037c0e4681405c620a9bc1e681ef2c83e9e1d38c0f6521ccfba4a1",
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "8c62839bc38eefb6ce473188d9eeda2224500f195b2825f6430ee35578670f20",
+        "identitySha256": "d60ac0531d0cb487f15f73542f3a107f26848c745232f8c14b5d3c18ab2c1722"
+      },
+      "finalSqlDigest": "15570054e9bac5fc27ab432c3b173331b8a8a7cdf8482c842c71bcc0ce379adc",
+      "fixtureSha256": "c735b71716f70004964a446b5322d8c6d4b98951a277f420d3619292e034c417",
+      "databaseRoomRetained": true
+    }
+  ],
+  "scope": "Two actual blank seed0 openings; four coordinated snapshot/view forgeries; independent structural and original-log rejection, exact seven-table restoration, cold original continuation and complete replay. Positive battlefield effects, visible clients, Windows and whole-card certification remain separate."
+}

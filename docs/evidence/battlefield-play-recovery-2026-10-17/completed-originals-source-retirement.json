@@ -1,0 +1,20 @@
+{
+  "recordedAtUtc": "2026-10-17T09:15:07.975314+00:00",
+  "retiredExactCheckout": "/Users/dinghaolin/MyProjects/riftbound/var/qa/battlefield-play-recovery-20261017/originals-fixed-source",
+  "purpose": "Completed five original full-game methods and all110 directed pairs; every output and final hash remains outside this duplicate checkout.",
+  "all12315FrozenInputHashesAndTestAssemblyVerifiedBeforeRemoval": true,
+  "sameExactSourceMapAsIndependentlyReconstructedCheckInputs": true,
+  "sourceReconstructionProof": "completed-check-source-retirement.json",
+  "baseCommit": "3a8a6f394fc6a8a7e3ea99a2db0799fa35859d31",
+  "patch": "frozen-source.patch",
+  "exactSavedNewInputs": "frozen-new-inputs/",
+  "allSourceAndOriginalTestsRetainedInGitOrExactSavedNewInputFiles": true,
+  "allTrxLogsInputManifestsAndFull110PairHashesRetained": true,
+  "noVerificationProcessUsesRetiredCheckout": true,
+  "allPublishedRuntimeFilesOriginalDatabasesAndVisibleClientsNotTouched": true,
+  "logicalRetiredFileBytes": 650296379,
+  "availableBytesBefore": 35602182144,
+  "availableBytesAfter": 35651018752,
+  "observedAvailableBytesDelta": 48836608,
+  "retiredCompiledCopiesNoLongerRetained": true
+}

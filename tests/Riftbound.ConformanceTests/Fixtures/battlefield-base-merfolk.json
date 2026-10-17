@@ -1,0 +1,289 @@
+{
+  "schemaVersion": 1,
+  "sourceRoomId": "current-card-play-history-20261017-v2",
+  "openingSeed": 0,
+  "seats": {
+    "paired-339c-a": "P1",
+    "paired-339c-b": "P2"
+  },
+  "expectedActor": "paired-339c-b",
+  "expectedCardNo": "UNL-003/219",
+  "expectedPlayedObject": "paired-339c-b-MAIN-UNL-003-219-32",
+  "acceptedCommands": [
+    {
+      "playerId": "paired-339c-a",
+      "clientIntentId": "origin-opening-0",
+      "commandType": "SUBMIT_DECK",
+      "rawCommand": {
+        "legendCardNo": "UNL-181/219",
+        "championCardNo": "UNL-022/219",
+        "mainDeck": [
+          "UNL-022/219",
+          "ARC-001/006",
+          "ARC-001/006",
+          "ARC-001/006",
+          "OGN\u00B7013/298",
+          "OGN\u00B7013/298",
+          "OGN\u00B7013/298",
+          "OGN\u00B7096/298",
+          "OGN\u00B7096/298",
+          "OGN\u00B7096/298",
+          "OGN\u00B7103/298",
+          "OGN\u00B7103/298",
+          "OGN\u00B7103/298",
+          "OGN\u00B7121/298",
+          "OGN\u00B7121/298",
+          "OGN\u00B7121/298",
+          "SFD\u00B7018/221",
+          "SFD\u00B7018/221",
+          "SFD\u00B7018/221",
+          "SFD\u00B7065/221",
+          "SFD\u00B7065/221",
+          "SFD\u00B7065/221",
+          "SFD\u00B7069/221",
+          "SFD\u00B7069/221",
+          "SFD\u00B7069/221",
+          "UNL-002/219",
+          "UNL-002/219",
+          "UNL-002/219",
+          "UNL-003/219",
+          "UNL-003/219",
+          "UNL-003/219",
+          "UNL-065/219",
+          "UNL-065/219",
+          "UNL-065/219",
+          "UNL-076/219",
+          "UNL-076/219",
+          "UNL-076/219",
+          "UNL-081/219",
+          "UNL-081/219",
+          "UNL-081/219"
+        ],
+        "runeDeck": [
+          "OGN\u00B7007/298",
+          "OGN\u00B7007a/298",
+          "OGN\u00B7007b/298",
+          "OGN\u00B7089/298",
+          "OGN\u00B7089a/298",
+          "OGN\u00B7089b/298",
+          "SFD\u00B7R01",
+          "SFD\u00B7R01a",
+          "SFD\u00B7R01b",
+          "SFD\u00B7R03",
+          "SFD\u00B7R03a",
+          "SFD\u00B7R03b"
+        ],
+        "battlefields": [
+          "OGN\u00B7275/298",
+          "OGN\u00B7277/298",
+          "OGN\u00B7278/298"
+        ],
+        "cmdType": "SUBMIT_DECK",
+        "promptId": "current-card-play-history-20261017-v2:0:paired-339c-a:SUBMIT_DECK",
+        "snapshotTick": 0
+      }
+    },
+    {
+      "playerId": "paired-339c-b",
+      "clientIntentId": "origin-opening-1",
+      "commandType": "SUBMIT_DECK",
+      "rawCommand": {
+        "legendCardNo": "SFD\u00B7181/221",
+        "championCardNo": "SFD\u00B7026/221",
+        "mainDeck": [
+          "SFD\u00B7026/221",
+          "SFD\u00B7085/221",
+          "SFD\u00B7008/221",
+          "SFD\u00B7022/221",
+          "ARC-001/006",
+          "ARC-001/006",
+          "ARC-001/006",
+          "OGN\u00B7013/298",
+          "OGN\u00B7013/298",
+          "OGN\u00B7013/298",
+          "OGN\u00B7096/298",
+          "OGN\u00B7096/298",
+          "OGN\u00B7096/298",
+          "OGN\u00B7103/298",
+          "OGN\u00B7103/298",
+          "OGN\u00B7103/298",
+          "OGN\u00B7121/298",
+          "OGN\u00B7121/298",
+          "OGN\u00B7121/298",
+          "SFD\u00B7018/221",
+          "SFD\u00B7018/221",
+          "SFD\u00B7018/221",
+          "SFD\u00B7065/221",
+          "SFD\u00B7065/221",
+          "SFD\u00B7065/221",
+          "SFD\u00B7069/221",
+          "SFD\u00B7069/221",
+          "SFD\u00B7069/221",
+          "UNL-002/219",
+          "UNL-002/219",
+          "UNL-002/219",
+          "UNL-003/219",
+          "UNL-003/219",
+          "UNL-003/219",
+          "UNL-065/219",
+          "UNL-065/219",
+          "UNL-065/219",
+          "UNL-076/219",
+          "UNL-076/219",
+          "UNL-076/219"
+        ],
+        "runeDeck": [
+          "OGN\u00B7007/298",
+          "OGN\u00B7007a/298",
+          "OGN\u00B7007b/298",
+          "OGN\u00B7089/298",
+          "OGN\u00B7089a/298",
+          "OGN\u00B7089b/298",
+          "SFD\u00B7R01",
+          "SFD\u00B7R01a",
+          "SFD\u00B7R01b",
+          "SFD\u00B7R03",
+          "SFD\u00B7R03a",
+          "SFD\u00B7R03b"
+        ],
+        "battlefields": [
+          "OGN\u00B7275/298",
+          "OGN\u00B7277/298",
+          "OGN\u00B7278/298"
+        ],
+        "cmdType": "SUBMIT_DECK",
+        "promptId": "current-card-play-history-20261017-v2:1:paired-339c-b:SUBMIT_DECK",
+        "snapshotTick": 1
+      }
+    },
+    {
+      "playerId": "paired-339c-a",
+      "clientIntentId": "origin-opening-2",
+      "commandType": "READY",
+      "rawCommand": {
+        "cmdType": "READY",
+        "promptId": "current-card-play-history-20261017-v2:2:paired-339c-a:READY",
+        "snapshotTick": 2
+      }
+    },
+    {
+      "playerId": "paired-339c-b",
+      "clientIntentId": "origin-opening-3",
+      "commandType": "READY",
+      "rawCommand": {
+        "cmdType": "READY",
+        "promptId": "current-card-play-history-20261017-v2:2:paired-339c-b:READY",
+        "snapshotTick": 2
+      }
+    },
+    {
+      "playerId": "paired-339c-b",
+      "clientIntentId": "origin-opening-4",
+      "commandType": "MULLIGAN",
+      "rawCommand": {
+        "handObjectIds": [],
+        "cmdType": "MULLIGAN",
+        "promptId": "current-card-play-history-20261017-v2:2:paired-339c-b:MULLIGAN,SURRENDER",
+        "snapshotTick": 2
+      }
+    },
+    {
+      "playerId": "paired-339c-a",
+      "clientIntentId": "origin-opening-5",
+      "commandType": "MULLIGAN",
+      "rawCommand": {
+        "handObjectIds": [],
+        "cmdType": "MULLIGAN",
+        "promptId": "current-card-play-history-20261017-v2:3:paired-339c-a:MULLIGAN,SURRENDER",
+        "snapshotTick": 3
+      }
+    },
+    {
+      "playerId": "paired-339c-b",
+      "clientIntentId": "origin-action-6",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "paired-339c-b-RUNE-OGN-007a-298-02",
+        "sourceObjectIds": null,
+        "cmdType": "TAP_RUNE",
+        "promptId": "current-card-play-history-20261017-v2:5:paired-339c-b:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 5
+      }
+    },
+    {
+      "playerId": "paired-339c-b",
+      "clientIntentId": "origin-action-7",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "paired-339c-b-RUNE-SFD-R03-10",
+        "sourceObjectIds": null,
+        "cmdType": "TAP_RUNE",
+        "promptId": "current-card-play-history-20261017-v2:6:paired-339c-b:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 6
+      }
+    },
+    {
+      "playerId": "paired-339c-b",
+      "clientIntentId": "origin-action-8",
+      "commandType": "PLAY_CARD",
+      "rawCommand": {
+        "sourceObjectId": "paired-339c-b-MAIN-UNL-003-219-32",
+        "cardNo": "UNL-003/219",
+        "targetObjectIds": [],
+        "mode": "",
+        "destination": "BASE",
+        "repeatChoices": null,
+        "movementDestinations": null,
+        "cmdType": "PLAY_CARD",
+        "promptId": "current-card-play-history-20261017-v2:7:paired-339c-b:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 7
+      }
+    }
+  ],
+  "scope": "New legal deck submitted before play, blank SEATING, original explicit seed0, ordinary actions only. The earlier source fixture and all accepted histories remain unchanged. Runtime input identity must be recorded independently by each actual execution.",
+  "forgedPrimaryItem": {
+    "playedFromHand": true,
+    "attachmentObserver": null,
+    "tempered": null,
+    "legendAttachment": null,
+    "azirMovement": null,
+    "equip": null,
+    "movementDestinations": null,
+    "triggerCost": null,
+    "tokenEntryPlan": null,
+    "completedRepeatExecutions": 0,
+    "reflexiveCopy": null,
+    "unitEntryContext": null,
+    "afterPlayRecycle": null,
+    "recycledUnit": null,
+    "playCost": null,
+    "recastContext": null,
+    "spellContext": null,
+    "targetStackSources": {},
+    "completedHandExecutions": 0,
+    "completedDeckExecutions": 0,
+    "deckChoiceCompleted": false,
+    "insightCompleted": false,
+    "stackItemId": "STACK-8-paired-339c-b-MAIN-UNL-003-219-32",
+    "controllerId": "paired-339c-b",
+    "sourceObjectId": "paired-339c-b-MAIN-UNL-003-219-32",
+    "deathRevealContext": null,
+    "deathObserver": null,
+    "movementObserver": null,
+    "legendConquest": null,
+    "ephemeralStart": null,
+    "beginningRecycle": null,
+    "beginningDraw": null,
+    "unitConquest": null,
+    "effectKind": "MERFOLK_RABBLE_ROUSER_STANDBY_BATTLEFIELD_DAMAGE_STATIC",
+    "cardNo": "UNL-003/219",
+    "targetObjectIds": [],
+    "damageAmount": 0,
+    "effectRepeatCount": 1,
+    "optionalCosts": [],
+    "playedAfterAnotherCardThisTurn": false,
+    "destination": "BATTLEFIELD:paired-339c-a-BATTLEFIELD-OGN-277-298-01",
+    "timingContext": "NEUTRAL_OPEN",
+    "sourceConfirmed": true
+  }
+}

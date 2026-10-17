@@ -1,0 +1,18 @@
+{
+  "recordedAtUtc": "2026-10-17T09:17:43.568463+00:00",
+  "machine": "macOS-27.0.1-arm64-arm-64bit",
+  "architecture": "arm64",
+  "python": "3.9.6",
+  "dotnetSdk": "10.0.301",
+  "postgresVersion": "postgres (PostgreSQL) 16.13 (Homebrew)",
+  "profiles": [
+    "focus recovery plus exact matches",
+    "focus include-games exact five original methods",
+    "single check",
+    "scoped actual PostgreSQL selector",
+    "default complete actual PostgreSQL with no selector"
+  ],
+  "sourceBaseCommit": "3a8a6f394fc6a8a7e3ea99a2db0799fa35859d31",
+  "actualPublishedSqlFileCount": 70,
+  "separateRuntimeBinaryIdentityNotEquatedWithOtherBuilds": true
+}

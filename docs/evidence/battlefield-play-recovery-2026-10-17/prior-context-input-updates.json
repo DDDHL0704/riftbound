@@ -1,0 +1,106 @@
+{
+  "recordedAtUtc": "2026-10-17T08:56:30.086307+00:00",
+  "baseCommit": "3a8a6f394fc6a8a7e3ea99a2db0799fa35859d31",
+  "contextsReopenedForCurrentCompiledInputIdentity": 34,
+  "changedExactImplementationPins": 16,
+  "all119HistoricalReviewDecisionsAndAllPreviousCiReceiptsRetained": true,
+  "updates": [
+    {
+      "context": "observed-pending-capture-order-and-earliest-permission-2026-10-14",
+      "path": "src/Riftbound.Engine/MatchRecovery.cs",
+      "beforeSha256": "48dda169917a0c6eb76e05e2e5a8f281f72219090bac2c9ce657826f6fd696b1",
+      "afterSha256": "d60ed0b593c00bc1169931dfcebadb74a61435f8775c18c86272ee216c94ddc4"
+    },
+    {
+      "context": "candlelit-conquest-private-look-recycle-order-2026-10-14",
+      "path": "src/Riftbound.Engine/MatchRecovery.cs",
+      "beforeSha256": "48dda169917a0c6eb76e05e2e5a8f281f72219090bac2c9ce657826f6fd696b1",
+      "afterSha256": "d60ed0b593c00bc1169931dfcebadb74a61435f8775c18c86272ee216c94ddc4"
+    },
+    {
+      "context": "masked-attendant-reflexive-self-copy-2026-10-14",
+      "path": "src/Riftbound.Engine/MatchRecovery.cs",
+      "beforeSha256": "48dda169917a0c6eb76e05e2e5a8f281f72219090bac2c9ce657826f6fd696b1",
+      "afterSha256": "d60ed0b593c00bc1169931dfcebadb74a61435f8775c18c86272ee216c94ddc4"
+    },
+    {
+      "context": "static-granted-predict-entry-2026-10-15",
+      "path": "src/Riftbound.Engine/MatchRecovery.cs",
+      "beforeSha256": "48dda169917a0c6eb76e05e2e5a8f281f72219090bac2c9ce657826f6fd696b1",
+      "afterSha256": "d60ed0b593c00bc1169931dfcebadb74a61435f8775c18c86272ee216c94ddc4"
+    },
+    {
+      "context": "printed-predict-permanent-entry-2026-10-15",
+      "path": "src/Riftbound.Engine/MatchRecovery.cs",
+      "beforeSha256": "48dda169917a0c6eb76e05e2e5a8f281f72219090bac2c9ce657826f6fd696b1",
+      "afterSha256": "d60ed0b593c00bc1169931dfcebadb74a61435f8775c18c86272ee216c94ddc4"
+    },
+    {
+      "context": "sivir-optional-rune-recycle-2026-10-15",
+      "path": "src/Riftbound.Engine/MatchRecovery.cs",
+      "beforeSha256": "48dda169917a0c6eb76e05e2e5a8f281f72219090bac2c9ce657826f6fd696b1",
+      "afterSha256": "d60ed0b593c00bc1169931dfcebadb74a61435f8775c18c86272ee216c94ddc4"
+    },
+    {
+      "context": "sivir-payment-trigger-and-ward-event-2026-10-15",
+      "path": "src/Riftbound.Engine/MatchRecovery.cs",
+      "beforeSha256": "48dda169917a0c6eb76e05e2e5a8f281f72219090bac2c9ce657826f6fd696b1",
+      "afterSha256": "d60ed0b593c00bc1169931dfcebadb74a61435f8775c18c86272ee216c94ddc4"
+    },
+    {
+      "context": "unit-conquest-gold-response-2026-10-15",
+      "path": "src/Riftbound.Engine/MatchRecovery.cs",
+      "beforeSha256": "48dda169917a0c6eb76e05e2e5a8f281f72219090bac2c9ce657826f6fd696b1",
+      "afterSha256": "d60ed0b593c00bc1169931dfcebadb74a61435f8775c18c86272ee216c94ddc4"
+    },
+    {
+      "context": "own-main-deck-recycle-card-boon-2026-10-15",
+      "path": "src/Riftbound.Engine/MatchRecovery.cs",
+      "beforeSha256": "48dda169917a0c6eb76e05e2e5a8f281f72219090bac2c9ce657826f6fd696b1",
+      "afterSha256": "d60ed0b593c00bc1169931dfcebadb74a61435f8775c18c86272ee216c94ddc4"
+    },
+    {
+      "context": "typed-current-turn-card-play-confirmation-and-resolution-history-2026-10-15",
+      "path": "src/Riftbound.Engine/MatchRecovery.cs",
+      "beforeSha256": "48dda169917a0c6eb76e05e2e5a8f281f72219090bac2c9ce657826f6fd696b1",
+      "afterSha256": "d60ed0b593c00bc1169931dfcebadb74a61435f8775c18c86272ee216c94ddc4"
+    },
+    {
+      "context": "porobot-source-play-other-equipment-conditional-draw-2026-10-15",
+      "path": "src/Riftbound.Engine/MatchRecovery.cs",
+      "beforeSha256": "48dda169917a0c6eb76e05e2e5a8f281f72219090bac2c9ce657826f6fd696b1",
+      "afterSha256": "d60ed0b593c00bc1169931dfcebadb74a61435f8775c18c86272ee216c94ddc4"
+    },
+    {
+      "context": "typed-card-play-history-causal-production-recovery-2026-10-15",
+      "path": "src/Riftbound.Engine/MatchRecovery.cs",
+      "beforeSha256": "48dda169917a0c6eb76e05e2e5a8f281f72219090bac2c9ce657826f6fd696b1",
+      "afterSha256": "d60ed0b593c00bc1169931dfcebadb74a61435f8775c18c86272ee216c94ddc4"
+    },
+    {
+      "context": "combat-event-journal-wire-and-single-defender-choice-2026-10-15",
+      "path": "src/Riftbound.Engine/MatchRecovery.cs",
+      "beforeSha256": "48dda169917a0c6eb76e05e2e5a8f281f72219090bac2c9ce657826f6fd696b1",
+      "afterSha256": "d60ed0b593c00bc1169931dfcebadb74a61435f8775c18c86272ee216c94ddc4"
+    },
+    {
+      "context": "sand-soldier-embedded-ready-2026-10-17",
+      "path": "src/Riftbound.Engine/MatchRecovery.cs",
+      "beforeSha256": "48dda169917a0c6eb76e05e2e5a8f281f72219090bac2c9ce657826f6fd696b1",
+      "afterSha256": "d60ed0b593c00bc1169931dfcebadb74a61435f8775c18c86272ee216c94ddc4"
+    },
+    {
+      "context": "opening-randomness-2026-10-17",
+      "path": "src/Riftbound.Engine/MatchRecovery.cs",
+      "beforeSha256": "48dda169917a0c6eb76e05e2e5a8f281f72219090bac2c9ce657826f6fd696b1",
+      "afterSha256": "d60ed0b593c00bc1169931dfcebadb74a61435f8775c18c86272ee216c94ddc4"
+    },
+    {
+      "context": "duel-chain-origins-cold-recovery-2026-10-17",
+      "path": "src/Riftbound.Engine/MatchRecovery.cs",
+      "beforeSha256": "48dda169917a0c6eb76e05e2e5a8f281f72219090bac2c9ce657826f6fd696b1",
+      "afterSha256": "d60ed0b593c00bc1169931dfcebadb74a61435f8775c18c86272ee216c94ddc4"
+    }
+  ],
+  "sourceUniverseAndEveryPriorObligationRetained": true
+}

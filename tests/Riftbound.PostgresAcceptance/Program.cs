@@ -14,7 +14,8 @@ var output = Environment.GetEnvironmentVariable("RIFTBOUND_POSTGRES_EVIDENCE") ?
 Directory.CreateDirectory(output);
 var openingRandomnessOnly = args.SequenceEqual(new[] { "--opening-randomness-only" });
 var optionalCostsOnly = args.SequenceEqual(new[] { "--optional-costs-only" });
-if (args.Length != 0 && !openingRandomnessOnly && !optionalCostsOnly) throw new ArgumentException("Unknown PostgreSQL acceptance selector.");
+var battlefieldPlayRecoveryOnly = args.SequenceEqual(new[] { "--battlefield-play-recovery-only" });
+if (args.Length != 0 && !openingRandomnessOnly && !optionalCostsOnly && !battlefieldPlayRecoveryOnly) throw new ArgumentException("Unknown PostgreSQL acceptance selector.");
 var json = new JsonSerializerOptions(JsonSerializerDefaults.Web) { WriteIndented = true };
 await using var dataSource = NpgsqlDataSource.Create(connectionString);
 await using (var connection = await dataSource.OpenConnectionAsync()) {
@@ -22,6 +23,12 @@ await using (var connection = await dataSource.OpenConnectionAsync()) {
         await using var command = new NpgsqlCommand(await File.ReadAllTextAsync(path), connection);
         await command.ExecuteNonQueryAsync();
     }
+}
+if (battlefieldPlayRecoveryOnly)
+{
+    await BattlefieldPlayRecoverySqlAcceptance.RunAsync(dataSource, Path.Combine(output, "battlefield-play-recovery"));
+    Console.WriteLine("SCOPED_POSTGRES_ONLY: battlefield-play-recovery; the retained complete SQL suite was not requested.");
+    return;
 }
 if (optionalCostsOnly)
 {
@@ -140,6 +147,7 @@ await OpponentBattlefieldControlSqlAcceptance.RunAsync(dataSource, Path.Combine(
 await OptionalSacrificeSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "optional-sacrifice"));
 await GrantedTokenHasteSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "granted-token-haste"));
 await OptionalCostsSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "optional-costs"));
+await BattlefieldPlayRecoverySqlAcceptance.RunAsync(dataSource, Path.Combine(output, "battlefield-play-recovery"));
 
 JsonElement Raw(GameCommand command) => JsonSerializer.SerializeToElement(command, command.GetType(), json);
 async Task Submit(string actor, string intent, GameCommand command, bool accepted = true) {

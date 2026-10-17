@@ -1,0 +1,33 @@
+{
+  "recordedAtUtc": "2026-10-17T09:20:27.002426+00:00",
+  "status": "CURRENT_MANIFEST_ALL_ORIGINAL_OBLIGATIONS_AND_REVIEW_RECORDS_RETAINED",
+  "governanceValid": true,
+  "errors": [],
+  "allPrior16554ObligationIdsExactlyRetained": true,
+  "remainingObligations": 16554,
+  "all119HistoricalReviewDecisionsByteIdentical": true,
+  "allSourceUniverseCountsUnchanged": true,
+  "counts": {
+    "combinedExactPrintingNumbers": 1740,
+    "sourceDocuments": 36,
+    "sourceBlocks": 14293,
+    "cnOfficialPrintings": 1504,
+    "enReturnedPrintings": 1408,
+    "enReportedTotal": 1416,
+    "enSourceCountGap": 8,
+    "activeCatalogEntries": 1033,
+    "outsideActiveCatalog": 707,
+    "cnQaFields": 1504,
+    "cnNonemptyQaFields": 0
+  },
+  "semanticCoverageCertified": false,
+  "manifestSha256": "ec7aa58fc8310d8d9b43d356b7be003a2cf305c9c2bd85f13f0349571fc1aa2f",
+  "actualRawGovernanceSha256": "dab1f606df8d294dafe7feee8df5cac4de9ba25a613642f458adaf92bd5b97c2",
+  "pythonVerificationTools": {
+    "tests": 55,
+    "passed": true,
+    "logSha256": "a57987498641cc9ce121ccbf5c0f73fa08ceafe99bd4d333b4c83110b19fec9c"
+  },
+  "unknownCodeFixtureBuildAndEvidencePathsRequireFullCi": true,
+  "localCheckFocusOriginalsAndSqlNotPromotedToWholePrintingOrNativeWindowsAcceptance": true
+}

@@ -1,0 +1,15 @@
+{
+  "finishedAtUtc": "2026-10-17T08:49:27.302878+00:00",
+  "command": [
+    "/Users/dinghaolin/.dotnet/dotnet",
+    "/Users/dinghaolin/MyProjects/riftbound/var/qa/battlefield-play-recovery-20261017/sql-publish/Riftbound.PostgresAcceptance.dll",
+    "--battlefield-play-recovery-only"
+  ],
+  "exitCode": 0,
+  "seconds": 25.817,
+  "publishedInputsUnchanged": true,
+  "publishedFileCount": 70,
+  "actualPostgres": "16.13 / 127.0.0.1:55478 / riftbound_acceptance",
+  "sourceManifest": "frozen-inputs.json",
+  "status": "PASS"
+}

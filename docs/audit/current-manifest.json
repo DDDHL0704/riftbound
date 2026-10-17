@@ -176,7 +176,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "48dda169917a0c6eb76e05e2e5a8f281f72219090bac2c9ce657826f6fd696b1"
+          "sha256": "d60ed0b593c00bc1169931dfcebadb74a61435f8775c18c86272ee216c94ddc4"
         }
       ],
       "branches": [
@@ -304,7 +304,7 @@
         }
       ],
       "evidenceCommit": "e54f3084662e2c2e00c521d232b4a11baaea7d91",
-      "currentImplementationCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
+      "currentImplementationCommit": "3a8a6f394fc6a8a7e3ea99a2db0799fa35859d31",
       "currentImplementationIncludesUncommittedChanges": true,
       "revalidationReason": "Journal event serialization comparison and either-side natural allocation gate changed after exact9e; prior receipts retain their exact input scope.",
       "implementationPinUpdates": [
@@ -372,7 +372,7 @@
           "sha256": "e5faa62dd7f59f124dd389996a6854660775cd18a2a733c50cbc071f436b990d"
         }
       },
-      "currentInputRevision": "c3bc plus battlefield-only play-trigger condition source pins; new exact fixed full required. Historical semantic decisions and CI receipts retained."
+      "currentInputRevision": "3a8 plus the independent battlefield-only primary-play recovery guard; new exact fixed full required. All prior semantic decisions and CI receipts retained."
     },
     "candlelit-conquest-private-look-recycle-order-2026-10-14": {
       "implementation": [
@@ -394,7 +394,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "48dda169917a0c6eb76e05e2e5a8f281f72219090bac2c9ce657826f6fd696b1"
+          "sha256": "d60ed0b593c00bc1169931dfcebadb74a61435f8775c18c86272ee216c94ddc4"
         }
       ],
       "branches": [
@@ -683,7 +683,7 @@
         }
       ],
       "evidenceCommit": "e61745f5cc704f2aa0326d84f22416e04ecbf139",
-      "currentImplementationCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
+      "currentImplementationCommit": "3a8a6f394fc6a8a7e3ea99a2db0799fa35859d31",
       "currentImplementationIncludesUncommittedChanges": true,
       "revalidationReason": "Actual fixed0cbee full failed three original games. Accepted declaration provenance and single eligible surviving conquest-return selection changed; prior exact evidence is retained, new fixed full/product required.",
       "implementationPinUpdates": [
@@ -761,7 +761,7 @@
           "sha256": "e5faa62dd7f59f124dd389996a6854660775cd18a2a733c50cbc071f436b990d"
         }
       },
-      "currentInputRevision": "c3bc plus battlefield-only play-trigger condition source pins; new exact fixed full required. Historical semantic decisions and CI receipts retained."
+      "currentInputRevision": "3a8 plus the independent battlefield-only primary-play recovery guard; new exact fixed full required. All prior semantic decisions and CI receipts retained."
     },
     "masked-attendant-reflexive-self-copy-2026-10-14": {
       "implementation": [
@@ -787,7 +787,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "48dda169917a0c6eb76e05e2e5a8f281f72219090bac2c9ce657826f6fd696b1"
+          "sha256": "d60ed0b593c00bc1169931dfcebadb74a61435f8775c18c86272ee216c94ddc4"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
@@ -845,7 +845,7 @@
               "decline"
             ]
           },
-          "fixedCommitCi": "PENDING_AFTER_CANONICAL_OPTIONAL_COSTS_SHARED_INGRESS_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -885,7 +885,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_CANONICAL_OPTIONAL_COSTS_SHARED_INGRESS_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -925,7 +925,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_CANONICAL_OPTIONAL_COSTS_SHARED_INGRESS_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -965,7 +965,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_CANONICAL_OPTIONAL_COSTS_SHARED_INGRESS_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -1005,7 +1005,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_CANONICAL_OPTIONAL_COSTS_SHARED_INGRESS_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -1045,7 +1045,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_CANONICAL_OPTIONAL_COSTS_SHARED_INGRESS_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -1085,7 +1085,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_CANONICAL_OPTIONAL_COSTS_SHARED_INGRESS_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -1125,7 +1125,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_CANONICAL_OPTIONAL_COSTS_SHARED_INGRESS_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -1165,7 +1165,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_CANONICAL_OPTIONAL_COSTS_SHARED_INGRESS_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -1205,7 +1205,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_CANONICAL_OPTIONAL_COSTS_SHARED_INGRESS_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -1245,7 +1245,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_CANONICAL_OPTIONAL_COSTS_SHARED_INGRESS_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -1285,7 +1285,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_CANONICAL_OPTIONAL_COSTS_SHARED_INGRESS_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -1325,7 +1325,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_CANONICAL_OPTIONAL_COSTS_SHARED_INGRESS_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -1365,7 +1365,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_CANONICAL_OPTIONAL_COSTS_SHARED_INGRESS_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN"
         }
       ],
@@ -1401,7 +1401,7 @@
         }
       ],
       "evidenceCommit": "03f88a7ee1b109b2cb906fbdc457316f93c08fda",
-      "currentImplementationCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
+      "currentImplementationCommit": "3a8a6f394fc6a8a7e3ea99a2db0799fa35859d31",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -1478,7 +1478,7 @@
         }
       },
       "currentProductAcceptance": "OPEN_AFTER_SHARED_NATIVE_PROMPT_INPUT_CHANGE_OLD_VISIBLE_EVIDENCE_RETAINS_EXACT_SCOPE",
-      "currentInputRevision": "c3bc plus battlefield-only play-trigger condition source pins; new exact fixed full required. Historical semantic decisions and CI receipts retained."
+      "currentInputRevision": "3a8 plus the independent battlefield-only primary-play recovery guard; new exact fixed full required. All prior semantic decisions and CI receipts retained."
     },
     "static-granted-predict-entry-2026-10-15": {
       "implementation": [
@@ -1504,7 +1504,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "48dda169917a0c6eb76e05e2e5a8f281f72219090bac2c9ce657826f6fd696b1"
+          "sha256": "d60ed0b593c00bc1169931dfcebadb74a61435f8775c18c86272ee216c94ddc4"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
@@ -1564,7 +1564,7 @@
               "recycle"
             ]
           },
-          "fixedCommitCi": "PENDING_AFTER_CANONICAL_OPTIONAL_COSTS_SHARED_INGRESS_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -1608,7 +1608,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_CANONICAL_OPTIONAL_COSTS_SHARED_INGRESS_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -1652,7 +1652,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_CANONICAL_OPTIONAL_COSTS_SHARED_INGRESS_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -1696,7 +1696,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_CANONICAL_OPTIONAL_COSTS_SHARED_INGRESS_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -1740,7 +1740,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_CANONICAL_OPTIONAL_COSTS_SHARED_INGRESS_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -1784,7 +1784,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_CANONICAL_OPTIONAL_COSTS_SHARED_INGRESS_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -1828,7 +1828,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_CANONICAL_OPTIONAL_COSTS_SHARED_INGRESS_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -1872,7 +1872,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_CANONICAL_OPTIONAL_COSTS_SHARED_INGRESS_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -1916,7 +1916,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_CANONICAL_OPTIONAL_COSTS_SHARED_INGRESS_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -1960,7 +1960,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_CANONICAL_OPTIONAL_COSTS_SHARED_INGRESS_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -2004,7 +2004,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_CANONICAL_OPTIONAL_COSTS_SHARED_INGRESS_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -2048,7 +2048,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_CANONICAL_OPTIONAL_COSTS_SHARED_INGRESS_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -2092,7 +2092,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_CANONICAL_OPTIONAL_COSTS_SHARED_INGRESS_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN"
         }
       ],
@@ -2121,7 +2121,7 @@
       "ciState": "PENDING",
       "ciReceipts": [],
       "evidenceCommit": "03f88a7ee1b109b2cb906fbdc457316f93c08fda",
-      "currentImplementationCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
+      "currentImplementationCommit": "3a8a6f394fc6a8a7e3ea99a2db0799fa35859d31",
       "currentImplementationIncludesUncommittedChanges": true,
       "lastFixedCiFailure": {
         "path": "docs/evidence/granted-predict-2026-10-15/full-ci-c74853be-failed.json",
@@ -2310,7 +2310,7 @@
         }
       },
       "currentProductAcceptance": "OPEN_AFTER_SHARED_NATIVE_PROMPT_INPUT_CHANGE_OLD_VISIBLE_EVIDENCE_RETAINS_EXACT_SCOPE",
-      "currentInputRevision": "c3bc plus battlefield-only play-trigger condition source pins; new exact fixed full required. Historical semantic decisions and CI receipts retained."
+      "currentInputRevision": "3a8 plus the independent battlefield-only primary-play recovery guard; new exact fixed full required. All prior semantic decisions and CI receipts retained."
     },
     "printed-predict-permanent-entry-2026-10-15": {
       "implementation": [
@@ -2336,7 +2336,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "48dda169917a0c6eb76e05e2e5a8f281f72219090bac2c9ce657826f6fd696b1"
+          "sha256": "d60ed0b593c00bc1169931dfcebadb74a61435f8775c18c86272ee216c94ddc4"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
@@ -2411,7 +2411,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -2473,7 +2473,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -2535,7 +2535,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -2597,7 +2597,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -2659,7 +2659,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -2721,7 +2721,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -2783,7 +2783,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -2845,7 +2845,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -2912,7 +2912,7 @@
               "equipment-recycle"
             ]
           },
-          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN"
         }
       ],
@@ -2948,7 +2948,7 @@
         }
       ],
       "evidenceCommit": "74353e405fd2242ece0bae05972f209950b2c9de",
-      "currentImplementationCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
+      "currentImplementationCommit": "3a8a6f394fc6a8a7e3ea99a2db0799fa35859d31",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -3138,7 +3138,7 @@
           "sha256": "e5faa62dd7f59f124dd389996a6854660775cd18a2a733c50cbc071f436b990d"
         }
       },
-      "currentInputRevision": "c3bc plus battlefield-only play-trigger condition source pins; new exact fixed full required. Historical semantic decisions and CI receipts retained."
+      "currentInputRevision": "3a8 plus the independent battlefield-only primary-play recovery guard; new exact fixed full required. All prior semantic decisions and CI receipts retained."
     },
     "sivir-optional-rune-recycle-2026-10-15": {
       "implementation": [
@@ -3184,7 +3184,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "48dda169917a0c6eb76e05e2e5a8f281f72219090bac2c9ce657826f6fd696b1"
+          "sha256": "d60ed0b593c00bc1169931dfcebadb74a61435f8775c18c86272ee216c94ddc4"
         },
         {
           "path": "src/Riftbound.Engine/StackObjectRules.cs",
@@ -3225,7 +3225,7 @@
               "alternate-decline"
             ]
           },
-          "fixedCommitCi": "PENDING_AFTER_CANONICAL_OPTIONAL_COSTS_SHARED_INGRESS_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -3256,7 +3256,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_CANONICAL_OPTIONAL_COSTS_SHARED_INGRESS_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -3287,7 +3287,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_CANONICAL_OPTIONAL_COSTS_SHARED_INGRESS_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -3318,7 +3318,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_CANONICAL_OPTIONAL_COSTS_SHARED_INGRESS_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -3354,7 +3354,7 @@
               "alternate-decline"
             ]
           },
-          "fixedCommitCi": "PENDING_AFTER_CANONICAL_OPTIONAL_COSTS_SHARED_INGRESS_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -3385,7 +3385,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_CANONICAL_OPTIONAL_COSTS_SHARED_INGRESS_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -3416,7 +3416,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_CANONICAL_OPTIONAL_COSTS_SHARED_INGRESS_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -3447,7 +3447,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_CANONICAL_OPTIONAL_COSTS_SHARED_INGRESS_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -3478,7 +3478,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_CANONICAL_OPTIONAL_COSTS_SHARED_INGRESS_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN"
         }
       ],
@@ -3514,7 +3514,7 @@
         }
       ],
       "evidenceCommit": "7649d573f884ffd7517a502f7eebe01d0aa186c4",
-      "currentImplementationCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
+      "currentImplementationCommit": "3a8a6f394fc6a8a7e3ea99a2db0799fa35859d31",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -3689,7 +3689,7 @@
         }
       },
       "currentProductAcceptance": "OPEN_AFTER_SHARED_NATIVE_PROMPT_INPUT_CHANGE_OLD_VISIBLE_EVIDENCE_RETAINS_EXACT_SCOPE",
-      "currentInputRevision": "c3bc plus battlefield-only play-trigger condition source pins; new exact fixed full required. Historical semantic decisions and CI receipts retained."
+      "currentInputRevision": "3a8 plus the independent battlefield-only primary-play recovery guard; new exact fixed full required. All prior semantic decisions and CI receipts retained."
     },
     "battlefield-conquer-rune-destination-2026-10-15": {
       "implementation": [
@@ -3752,7 +3752,7 @@
               "multiple"
             ]
           },
-          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -3785,7 +3785,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -3818,7 +3818,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN"
         }
       ],
@@ -3854,7 +3854,7 @@
         }
       ],
       "evidenceCommit": "dd8884ba1e443138264b9b0e971ab8da3c5480ee",
-      "currentImplementationCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
+      "currentImplementationCommit": "3a8a6f394fc6a8a7e3ea99a2db0799fa35859d31",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -3982,7 +3982,7 @@
           "sha256": "e5faa62dd7f59f124dd389996a6854660775cd18a2a733c50cbc071f436b990d"
         }
       },
-      "currentInputRevision": "c3bc plus battlefield-only play-trigger condition source pins; new exact fixed full required. Historical semantic decisions and CI receipts retained."
+      "currentInputRevision": "3a8 plus the independent battlefield-only primary-play recovery guard; new exact fixed full required. All prior semantic decisions and CI receipts retained."
     },
     "sivir-payment-trigger-and-ward-event-2026-10-15": {
       "implementation": [
@@ -4012,7 +4012,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "48dda169917a0c6eb76e05e2e5a8f281f72219090bac2c9ce657826f6fd696b1"
+          "sha256": "d60ed0b593c00bc1169931dfcebadb74a61435f8775c18c86272ee216c94ddc4"
         }
       ],
       "branches": [
@@ -4053,7 +4053,7 @@
               "deferred-decline"
             ]
           },
-          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -4088,7 +4088,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -4123,7 +4123,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -4158,7 +4158,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN"
         }
       ],
@@ -4194,7 +4194,7 @@
         }
       ],
       "evidenceCommit": "00420e2a2b453918e611812d18fda9f62632e15f",
-      "currentImplementationCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
+      "currentImplementationCommit": "3a8a6f394fc6a8a7e3ea99a2db0799fa35859d31",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -4317,7 +4317,7 @@
           "sha256": "e5faa62dd7f59f124dd389996a6854660775cd18a2a733c50cbc071f436b990d"
         }
       },
-      "currentInputRevision": "c3bc plus battlefield-only play-trigger condition source pins; new exact fixed full required. Historical semantic decisions and CI receipts retained."
+      "currentInputRevision": "3a8 plus the independent battlefield-only primary-play recovery guard; new exact fixed full required. All prior semantic decisions and CI receipts retained."
     },
     "unit-conquest-gold-response-2026-10-15": {
       "implementation": [
@@ -4339,7 +4339,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "48dda169917a0c6eb76e05e2e5a8f281f72219090bac2c9ce657826f6fd696b1"
+          "sha256": "d60ed0b593c00bc1169931dfcebadb74a61435f8775c18c86272ee216c94ddc4"
         },
         {
           "path": "src/Riftbound.Engine/StackObjectRules.cs",
@@ -4386,7 +4386,7 @@
               "alternate-reaction"
             ]
           },
-          "fixedCommitCi": "PENDING_AFTER_CANONICAL_OPTIONAL_COSTS_SHARED_INGRESS_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -4423,7 +4423,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_CANONICAL_OPTIONAL_COSTS_SHARED_INGRESS_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -4460,7 +4460,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_CANONICAL_OPTIONAL_COSTS_SHARED_INGRESS_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -4497,7 +4497,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_CANONICAL_OPTIONAL_COSTS_SHARED_INGRESS_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -4534,7 +4534,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_CANONICAL_OPTIONAL_COSTS_SHARED_INGRESS_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN"
         }
       ],
@@ -4570,7 +4570,7 @@
         }
       ],
       "evidenceCommit": "eb3c4281c94c8d41d315cd574bdfa597cd10c30b",
-      "currentImplementationCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
+      "currentImplementationCommit": "3a8a6f394fc6a8a7e3ea99a2db0799fa35859d31",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -4720,7 +4720,7 @@
         }
       },
       "currentProductAcceptance": "OPEN_AFTER_SHARED_NATIVE_PROMPT_INPUT_CHANGE_OLD_VISIBLE_EVIDENCE_RETAINS_EXACT_SCOPE",
-      "currentInputRevision": "c3bc plus battlefield-only play-trigger condition source pins; new exact fixed full required. Historical semantic decisions and CI receipts retained."
+      "currentInputRevision": "3a8 plus the independent battlefield-only primary-play recovery guard; new exact fixed full required. All prior semantic decisions and CI receipts retained."
     },
     "own-main-deck-recycle-card-boon-2026-10-15": {
       "implementation": [
@@ -4766,7 +4766,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "48dda169917a0c6eb76e05e2e5a8f281f72219090bac2c9ce657826f6fd696b1"
+          "sha256": "d60ed0b593c00bc1169931dfcebadb74a61435f8775c18c86272ee216c94ddc4"
         }
       ],
       "branches": [
@@ -4831,7 +4831,7 @@
               "promo-hook"
             ]
           },
-          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -4888,7 +4888,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -4945,7 +4945,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -5002,7 +5002,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -5059,7 +5059,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -5116,7 +5116,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -5173,7 +5173,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -5230,7 +5230,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -5287,7 +5287,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -5344,7 +5344,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -5401,7 +5401,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN"
         }
       ],
@@ -5442,7 +5442,7 @@
         }
       ],
       "evidenceCommit": "a0406e1d878598b3c0fd88f5bfa7f9831d6a2cc6",
-      "currentImplementationCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
+      "currentImplementationCommit": "3a8a6f394fc6a8a7e3ea99a2db0799fa35859d31",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -5595,7 +5595,7 @@
           "sha256": "e5faa62dd7f59f124dd389996a6854660775cd18a2a733c50cbc071f436b990d"
         }
       },
-      "currentInputRevision": "c3bc plus battlefield-only play-trigger condition source pins; new exact fixed full required. Historical semantic decisions and CI receipts retained."
+      "currentInputRevision": "3a8 plus the independent battlefield-only primary-play recovery guard; new exact fixed full required. All prior semantic decisions and CI receipts retained."
     },
     "copied-recycle-boon-ceased-source-2026-10-15": {
       "implementation": [
@@ -5779,7 +5779,7 @@
         }
       ],
       "evidenceCommit": "1a5cabfbd5e7e87eb971622506371e57beb96319",
-      "currentImplementationCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
+      "currentImplementationCommit": "3a8a6f394fc6a8a7e3ea99a2db0799fa35859d31",
       "currentImplementationIncludesUncommittedChanges": true,
       "latestInputChange": {
         "date": "2026-10-17",
@@ -5789,7 +5789,7 @@
           "sha256": "d789954d637ab0d2c721ba5ecccd5e899ef93c66983ae332476704cef096d3a8"
         }
       },
-      "currentInputRevision": "c3bc plus battlefield-only play-trigger condition source pins; new exact fixed full required. Historical semantic decisions and CI receipts retained."
+      "currentInputRevision": "3a8 plus the independent battlefield-only primary-play recovery guard; new exact fixed full required. All prior semantic decisions and CI receipts retained."
     },
     "ceased-recycle-source-exact-printing-2026-10-15": {
       "implementation": [
@@ -5881,9 +5881,9 @@
         }
       ],
       "evidenceCommit": "09ac000ec5dcfb3fe2404d7da235b4e7c91bfeba",
-      "currentImplementationCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
+      "currentImplementationCommit": "3a8a6f394fc6a8a7e3ea99a2db0799fa35859d31",
       "currentImplementationIncludesUncommittedChanges": true,
-      "currentInputRevision": "c3bc plus battlefield-only play-trigger condition source pins; new exact fixed full required. Historical semantic decisions and CI receipts retained."
+      "currentInputRevision": "3a8 plus the independent battlefield-only primary-play recovery guard; new exact fixed full required. All prior semantic decisions and CI receipts retained."
     },
     "attached-recycle-order-confirmation-and-ceased-host-2026-10-15": {
       "implementation": [
@@ -6063,7 +6063,7 @@
         }
       ],
       "evidenceCommit": "5faa9012c305e8fc76b5b79d8b798597beee08df",
-      "currentImplementationCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
+      "currentImplementationCommit": "3a8a6f394fc6a8a7e3ea99a2db0799fa35859d31",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -6096,7 +6096,7 @@
           "sha256": "e5faa62dd7f59f124dd389996a6854660775cd18a2a733c50cbc071f436b990d"
         }
       },
-      "currentInputRevision": "c3bc plus battlefield-only play-trigger condition source pins; new exact fixed full required. Historical semantic decisions and CI receipts retained."
+      "currentInputRevision": "3a8 plus the independent battlefield-only primary-play recovery guard; new exact fixed full required. All prior semantic decisions and CI receipts retained."
     },
     "swain-source-identity-and-conquest-clause-classification-2026-10-15": {
       "implementation": [
@@ -6136,7 +6136,7 @@
         }
       ],
       "evidenceCommit": "4ef4db144b1825f8b05f1b0b1605a8b99c49ac84",
-      "currentImplementationCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
+      "currentImplementationCommit": "3a8a6f394fc6a8a7e3ea99a2db0799fa35859d31",
       "currentImplementationIncludesUncommittedChanges": true,
       "branches": [
         {
@@ -6192,7 +6192,7 @@
           ]
         }
       ],
-      "currentInputRevision": "c3bc plus battlefield-only play-trigger condition source pins; new exact fixed full required. Historical semantic decisions and CI receipts retained."
+      "currentInputRevision": "3a8 plus the independent battlefield-only primary-play recovery guard; new exact fixed full required. All prior semantic decisions and CI receipts retained."
     },
     "official-multitype-factory-deck-and-native-metadata-2026-10-15": {
       "implementation": [
@@ -6243,7 +6243,7 @@
       "ciState": "PENDING",
       "ciReceipts": [],
       "evidenceCommit": "4ef4db144b1825f8b05f1b0b1605a8b99c49ac84",
-      "currentImplementationCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
+      "currentImplementationCommit": "3a8a6f394fc6a8a7e3ea99a2db0799fa35859d31",
       "currentImplementationIncludesUncommittedChanges": true,
       "branches": [
         {
@@ -6281,7 +6281,7 @@
           ]
         }
       ],
-      "currentInputRevision": "c3bc plus battlefield-only play-trigger condition source pins; new exact fixed full required. Historical semantic decisions and CI receipts retained."
+      "currentInputRevision": "3a8 plus the independent battlefield-only primary-play recovery guard; new exact fixed full required. All prior semantic decisions and CI receipts retained."
     },
     "typed-current-turn-card-play-confirmation-and-resolution-history-2026-10-15": {
       "implementation": [
@@ -6307,7 +6307,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "48dda169917a0c6eb76e05e2e5a8f281f72219090bac2c9ce657826f6fd696b1"
+          "sha256": "d60ed0b593c00bc1169931dfcebadb74a61435f8775c18c86272ee216c94ddc4"
         }
       ],
       "evidence": [
@@ -6352,7 +6352,7 @@
         }
       ],
       "evidenceCommit": "342187cb732ea37a616d3fb125be6e9e5096ead1",
-      "currentImplementationCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
+      "currentImplementationCommit": "3a8a6f394fc6a8a7e3ea99a2db0799fa35859d31",
       "currentImplementationIncludesUncommittedChanges": true,
       "branches": [
         {
@@ -6384,7 +6384,7 @@
             "Snapshot-only causal forgery has bounded production-registry and real SQL evidence in typed-card-play-history-causal-production-recovery-2026-10-15; coordinated accepted-log replacement and all untested consumers remain OPEN",
             "Same fixed candidate visible paired SQL/network/normal score/full replay and Windows real runtime"
           ],
-          "fixedCommitCi": "PENDING_AFTER_CANONICAL_OPTIONAL_COSTS_SHARED_INGRESS_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -6416,7 +6416,7 @@
             "Snapshot-only causal forgery has bounded production-registry and real SQL evidence in typed-card-play-history-causal-production-recovery-2026-10-15; coordinated accepted-log replacement and all untested consumers remain OPEN",
             "Same fixed candidate visible paired SQL/network/normal score/full replay and Windows real runtime"
           ],
-          "fixedCommitCi": "PENDING_AFTER_CANONICAL_OPTIONAL_COSTS_SHARED_INGRESS_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -6448,7 +6448,7 @@
             "Snapshot-only causal forgery has bounded production-registry and real SQL evidence in typed-card-play-history-causal-production-recovery-2026-10-15; coordinated accepted-log replacement and all untested consumers remain OPEN",
             "Same fixed candidate visible paired SQL/network/normal score/full replay and Windows real runtime"
           ],
-          "fixedCommitCi": "PENDING_AFTER_CANONICAL_OPTIONAL_COSTS_SHARED_INGRESS_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN"
         }
       ],
@@ -6605,7 +6605,7 @@
         }
       },
       "currentProductAcceptance": "OPEN_AFTER_SHARED_NATIVE_PROMPT_INPUT_CHANGE_OLD_VISIBLE_EVIDENCE_RETAINS_EXACT_SCOPE",
-      "currentInputRevision": "c3bc plus battlefield-only play-trigger condition source pins; new exact fixed full required. Historical semantic decisions and CI receipts retained."
+      "currentInputRevision": "3a8 plus the independent battlefield-only primary-play recovery guard; new exact fixed full required. All prior semantic decisions and CI receipts retained."
     },
     "porobot-source-play-other-equipment-conditional-draw-2026-10-15": {
       "implementation": [
@@ -6635,7 +6635,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "48dda169917a0c6eb76e05e2e5a8f281f72219090bac2c9ce657826f6fd696b1"
+          "sha256": "d60ed0b593c00bc1169931dfcebadb74a61435f8775c18c86272ee216c94ddc4"
         },
         {
           "path": "src/Riftbound.CardCatalog/RuleTextParsers.cs",
@@ -6688,7 +6688,7 @@
         }
       ],
       "evidenceCommit": "339c6168f704684477354365988d7448cb0e7a10",
-      "currentImplementationCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
+      "currentImplementationCommit": "3a8a6f394fc6a8a7e3ea99a2db0799fa35859d31",
       "currentImplementationIncludesUncommittedChanges": true,
       "ciState": "PENDING",
       "ciReceipts": [
@@ -6731,7 +6731,7 @@
             "Current fixed full CI and same-candidate visible paired SQL/network/normal score/full replay remain OPEN",
             "Independent Windows real runtime and every other full-universe obligation remain OPEN"
           ],
-          "fixedCommitCi": "PENDING_AFTER_CANONICAL_OPTIONAL_COSTS_SHARED_INGRESS_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -6760,7 +6760,7 @@
             "Current fixed full CI and same-candidate visible paired SQL/network/normal score/full replay remain OPEN",
             "Independent Windows real runtime and every other full-universe obligation remain OPEN"
           ],
-          "fixedCommitCi": "PENDING_AFTER_CANONICAL_OPTIONAL_COSTS_SHARED_INGRESS_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -6789,7 +6789,7 @@
             "Current fixed full CI and same-candidate visible paired SQL/network/normal score/full replay remain OPEN",
             "Independent Windows real runtime and every other full-universe obligation remain OPEN"
           ],
-          "fixedCommitCi": "PENDING_AFTER_CANONICAL_OPTIONAL_COSTS_SHARED_INGRESS_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN"
         }
       ],
@@ -6952,11 +6952,11 @@
         }
       },
       "currentProductAcceptance": "OPEN_AFTER_SHARED_NATIVE_PROMPT_INPUT_CHANGE_OLD_VISIBLE_EVIDENCE_RETAINS_EXACT_SCOPE",
-      "currentInputRevision": "c3bc plus battlefield-only play-trigger condition source pins; new exact fixed full required. Historical semantic decisions and CI receipts retained."
+      "currentInputRevision": "3a8 plus the independent battlefield-only primary-play recovery guard; new exact fixed full required. All prior semantic decisions and CI receipts retained."
     },
     "typed-card-play-history-causal-production-recovery-2026-10-15": {
       "evidenceCommit": "6bc546259eed61d5988bf8e8df5081cd8502c614",
-      "currentImplementationCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
+      "currentImplementationCommit": "3a8a6f394fc6a8a7e3ea99a2db0799fa35859d31",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact6bc fullCI/45SQL/case-method-pair preservation verified. Current workingtree has newer counted Insight/catalog dependencies; this prior full is not current gameplay coverage.",
       "ciState": "PENDING",
@@ -6975,7 +6975,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "48dda169917a0c6eb76e05e2e5a8f281f72219090bac2c9ce657826f6fd696b1"
+          "sha256": "d60ed0b593c00bc1169931dfcebadb74a61435f8775c18c86272ee216c94ddc4"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
@@ -7030,7 +7030,7 @@
             "New test/fixture/SQL inputs require their own fixed-commit complete CI",
             "Independent Windows real runtime and all full-universe source/semantic gaps remain OPEN"
           ],
-          "fixedCommitCi": "PENDING_AFTER_CANONICAL_OPTIONAL_COSTS_SHARED_INGRESS_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -7049,7 +7049,7 @@
             "New test/fixture/SQL inputs require their own fixed-commit complete CI",
             "Independent Windows real runtime and all full-universe source/semantic gaps remain OPEN"
           ],
-          "fixedCommitCi": "PENDING_AFTER_CANONICAL_OPTIONAL_COSTS_SHARED_INGRESS_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -7068,7 +7068,7 @@
             "New test/fixture/SQL inputs require their own fixed-commit complete CI",
             "Independent Windows real runtime and all full-universe source/semantic gaps remain OPEN"
           ],
-          "fixedCommitCi": "PENDING_AFTER_CANONICAL_OPTIONAL_COSTS_SHARED_INGRESS_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN"
         }
       ],
@@ -7127,11 +7127,11 @@
         }
       },
       "currentProductAcceptance": "OPEN_AFTER_SHARED_NATIVE_PROMPT_INPUT_CHANGE_OLD_VISIBLE_EVIDENCE_RETAINS_EXACT_SCOPE",
-      "currentInputRevision": "c3bc plus battlefield-only play-trigger condition source pins; new exact fixed full required. Historical semantic decisions and CI receipts retained."
+      "currentInputRevision": "3a8 plus the independent battlefield-only primary-play recovery guard; new exact fixed full required. All prior semantic decisions and CI receipts retained."
     },
     "counted-insight-post-choice-draw-clairvoyance-2026-10-15": {
       "evidenceCommit": "6bc546259eed61d5988bf8e8df5081cd8502c614",
-      "currentImplementationCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
+      "currentImplementationCommit": "3a8a6f394fc6a8a7e3ea99a2db0799fa35859d31",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Base commit plus explicitly uncommitted gameplay/test inputs; own fixed CI remains pending. Earlier6bc full cannot certify this new gameplay batch.",
       "ciState": "PENDING",
@@ -7230,7 +7230,7 @@
             "New gameplay candidate exact fixed full CI and final visible paired SQL/network/normal score/full replay",
             "Independent Windows real runtime, ENsource gap/effective deltas and every full-universe obligation"
           ],
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -7256,7 +7256,7 @@
             "New gameplay candidate exact fixed full CI and final visible paired SQL/network/normal score/full replay",
             "Independent Windows real runtime, ENsource gap/effective deltas and every full-universe obligation"
           ],
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -7282,7 +7282,7 @@
             "New gameplay candidate exact fixed full CI and final visible paired SQL/network/normal score/full replay",
             "Independent Windows real runtime, ENsource gap/effective deltas and every full-universe obligation"
           ],
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN"
         }
       ],
@@ -7351,11 +7351,11 @@
           "sha256": "d789954d637ab0d2c721ba5ecccd5e899ef93c66983ae332476704cef096d3a8"
         }
       },
-      "currentInputRevision": "c3bc plus battlefield-only play-trigger condition source pins; new exact fixed full required. Historical semantic decisions and CI receipts retained."
+      "currentInputRevision": "3a8 plus the independent battlefield-only primary-play recovery guard; new exact fixed full required. All prior semantic decisions and CI receipts retained."
     },
     "untargeted-counted-insight-echo-resumption-2026-10-15": {
       "evidenceCommit": "a8f0b1dd1797997390d34ec77a84455a4ddb8911",
-      "currentImplementationCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
+      "currentImplementationCommit": "3a8a6f394fc6a8a7e3ea99a2db0799fa35859d31",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact base plus explicitly uncommitted new Insight Echo inputs; own fixed full remains required.",
       "ciState": "PENDING",
@@ -7612,11 +7612,11 @@
         }
       ],
       "revalidationReason": "Declared targeted Insight executions and the production outgoing command serializer changed; earlier exact receipts remain scoped to their own inputs.",
-      "currentInputRevision": "c3bc plus battlefield-only play-trigger condition source pins; new exact fixed full required. Historical semantic decisions and CI receipts retained."
+      "currentInputRevision": "3a8 plus the independent battlefield-only primary-play recovery guard; new exact fixed full required. All prior semantic decisions and CI receipts retained."
     },
     "targeted-insight-repeat-declarations-and-native-wire-2026-10-15": {
       "evidenceCommit": "9e426a31386aefa980bf2d48f02b237098cb2914",
-      "currentImplementationCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
+      "currentImplementationCommit": "3a8a6f394fc6a8a7e3ea99a2db0799fa35859d31",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact base plus explicit new uncommitted targeted rule/client/test inputs; old full cannot certify these inputs.",
       "ciState": "PENDING",
@@ -7912,11 +7912,11 @@
       ],
       "latestFixedEvidenceStatus": "EXACT_9E_FULL_VERIFIED_VISIBLE_SCORE_OBSERVED_BUT_EVENT_REPLAY_FAILED_CURRENT_REPAIR_PENDING",
       "revalidationReason": "Exact9e11990/7330/57SQL passed; visible160-command/839-event normal8:3 failed event replay756/758. Current journal/combat repair has new input identity and requires fresh acceptance.",
-      "currentInputRevision": "c3bc plus battlefield-only play-trigger condition source pins; new exact fixed full required. Historical semantic decisions and CI receipts retained."
+      "currentInputRevision": "3a8 plus the independent battlefield-only primary-play recovery guard; new exact fixed full required. All prior semantic decisions and CI receipts retained."
     },
     "combat-event-journal-wire-and-single-defender-choice-2026-10-15": {
       "evidenceCommit": "9e426a31386aefa980bf2d48f02b237098cb2914",
-      "currentImplementationCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
+      "currentImplementationCommit": "3a8a6f394fc6a8a7e3ea99a2db0799fa35859d31",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact9e base plus explicitly hashed current journal/combat/native-fixture verification inputs; old full does not cover this repair.",
       "ciState": "PENDING",
@@ -7924,7 +7924,7 @@
       "implementation": [
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "48dda169917a0c6eb76e05e2e5a8f281f72219090bac2c9ce657826f6fd696b1"
+          "sha256": "d60ed0b593c00bc1169931dfcebadb74a61435f8775c18c86272ee216c94ddc4"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
@@ -8014,7 +8014,7 @@
             "Native custom deck editor and independent Windows real runtime",
             "Every official source gap and newly effective applicability change; full-universe semantic certification"
           ],
-          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -8040,7 +8040,7 @@
             "Native custom deck editor and independent Windows real runtime",
             "Every official source gap and newly effective applicability change; full-universe semantic certification"
           ],
-          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -8066,7 +8066,7 @@
             "Native custom deck editor and independent Windows real runtime",
             "Every official source gap and newly effective applicability change; full-universe semantic certification"
           ],
-          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN"
         }
       ],
@@ -8170,11 +8170,11 @@
           "sha256": "e5faa62dd7f59f124dd389996a6854660775cd18a2a733c50cbc071f436b990d"
         }
       },
-      "currentInputRevision": "c3bc plus battlefield-only play-trigger condition source pins; new exact fixed full required. Historical semantic decisions and CI receipts retained."
+      "currentInputRevision": "3a8 plus the independent battlefield-only primary-play recovery guard; new exact fixed full required. All prior semantic decisions and CI receipts retained."
     },
     "combat-declaration-provenance-and-single-eligible-unit-conquest-2026-10-15": {
       "evidenceCommit": "0cbee9e22c81bec21ea416fdb45dc1c16f78e7d4",
-      "currentImplementationCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
+      "currentImplementationCommit": "3a8a6f394fc6a8a7e3ea99a2db0799fa35859d31",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact0cbee failed base plus two explicitly pinned source repairs and new verification/source-intake evidence; new fixed SHA required.",
       "ciState": "PENDING",
@@ -8257,7 +8257,7 @@
           "state": "RECORDED",
           "semanticReview": "SCOPED_ONLY",
           "tests": "FOCUS_NATIVE_SQL_PASS",
-          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN",
           "remaining": [
             "Multiple optional unit conquest returns, additional activations, mixed battlefield/unit payments and player ordering",
@@ -8276,7 +8276,7 @@
           "state": "RECORDED",
           "semanticReview": "SCOPED_ONLY",
           "tests": "FOCUS_NATIVE_SQL_PASS",
-          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN",
           "remaining": [
             "Multiple optional unit conquest returns, additional activations, mixed battlefield/unit payments and player ordering",
@@ -8296,7 +8296,7 @@
           "state": "RECORDED",
           "semanticReview": "SCOPED_ONLY",
           "tests": "FOCUS_NATIVE_SQL_PASS",
-          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN",
           "remaining": [
             "Multiple optional unit conquest returns, additional activations, mixed battlefield/unit payments and player ordering",
@@ -8395,11 +8395,11 @@
           "sha256": "e5faa62dd7f59f124dd389996a6854660775cd18a2a733c50cbc071f436b990d"
         }
       },
-      "currentInputRevision": "c3bc plus battlefield-only play-trigger condition source pins; new exact fixed full required. Historical semantic decisions and CI receipts retained."
+      "currentInputRevision": "3a8 plus the independent battlefield-only primary-play recovery guard; new exact fixed full required. All prior semantic decisions and CI receipts retained."
     },
     "optional-mana-trigger-native-and-natural-declaration-order-2026-10-15": {
       "evidenceCommit": "d1c2b4d351ca32862ee52ab7bc45cd7d581fca2c",
-      "currentImplementationCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
+      "currentImplementationCommit": "3a8a6f394fc6a8a7e3ea99a2db0799fa35859d31",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact d1 actual full-success/native-failure base plus three pinned source repairs, new verification and source readback; new fixed SHA required.",
       "ciState": "PENDING",
@@ -8500,7 +8500,7 @@
           "state": "RECORDED",
           "semanticReview": "SCOPED_ONLY",
           "tests": "FOCUS_NATIVE_SQL_PASS",
-          "fixedCommitCi": "PENDING_AFTER_CANONICAL_OPTIONAL_COSTS_SHARED_INGRESS_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN",
           "remaining": [
             "Multiple optional conquest triggers, mixed payments, player ordering and other unreviewed consumers",
@@ -8519,7 +8519,7 @@
           "state": "RECORDED",
           "semanticReview": "SCOPED_ONLY",
           "tests": "FOCUS_NATIVE_SQL_PASS",
-          "fixedCommitCi": "PENDING_AFTER_CANONICAL_OPTIONAL_COSTS_SHARED_INGRESS_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN",
           "remaining": [
             "Multiple optional conquest triggers, mixed payments, player ordering and other unreviewed consumers",
@@ -8613,11 +8613,11 @@
         }
       },
       "currentProductAcceptance": "OPEN_AFTER_SHARED_NATIVE_PROMPT_INPUT_CHANGE_OLD_VISIBLE_EVIDENCE_RETAINS_EXACT_SCOPE",
-      "currentInputRevision": "c3bc plus battlefield-only play-trigger condition source pins; new exact fixed full required. Historical semantic decisions and CI receipts retained."
+      "currentInputRevision": "3a8 plus the independent battlefield-only primary-play recovery guard; new exact fixed full required. All prior semantic decisions and CI receipts retained."
     },
     "cn16-confirmed-play-origin-and-required-causal-fact-2026-10-16": {
       "evidenceCommit": "56d1ee2eed9dcbf48ed54175867cd93ac58d92d8",
-      "currentImplementationCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
+      "currentImplementationCommit": "3a8a6f394fc6a8a7e3ea99a2db0799fa35859d31",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact56 baseline plus explicitly pinned CN16 source selection and bounded confirmed hand-origin repair; new fixed SHA required.",
       "ciState": "PENDING",
@@ -8735,7 +8735,7 @@
           "semanticReview": "SCOPED_ONLY",
           "implementation": "LOCAL_COMPLETE_FOR_RECORDED_BRANCH",
           "tests": "CN16_FOCUS_AND_REAL_SQL_PASS",
-          "fixedCommitCi": "PENDING_AFTER_CANONICAL_OPTIONAL_COSTS_SHARED_INGRESS_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN",
           "remaining": [
             "All unreviewed exact printing/target/permission/cost/repeat branches and the text-located consumer inventory; no whole-card certification",
@@ -8756,7 +8756,7 @@
           "semanticReview": "SCOPED_ONLY",
           "implementation": "LOCAL_COMPLETE_FOR_RECORDED_BRANCH",
           "tests": "ACTUAL_PERMISSION_PLAY_FOCUS_REPLAY_PASS",
-          "fixedCommitCi": "PENDING_AFTER_CANONICAL_OPTIONAL_COSTS_SHARED_INGRESS_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN",
           "remaining": [
             "All unreviewed exact printing/target/permission/cost/repeat branches and the text-located consumer inventory; no whole-card certification",
@@ -8777,7 +8777,7 @@
           "semanticReview": "SCOPED_ONLY",
           "implementation": "NO_DEFAULT_MIGRATION_OR_CAUSAL_GUARD_RELAXATION",
           "tests": "EMPTY_OPENING_FORGED_VIEW_AND_REAL_SQL_FLIP_MISSING_REJECTION_PASS",
-          "fixedCommitCi": "PENDING_AFTER_CANONICAL_OPTIONAL_COSTS_SHARED_INGRESS_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN",
           "remaining": [
             "All unreviewed exact printing/target/permission/cost/repeat branches and the text-located consumer inventory; no whole-card certification",
@@ -8903,11 +8903,11 @@
         }
       },
       "currentProductAcceptance": "OPEN_AFTER_SHARED_NATIVE_PROMPT_INPUT_CHANGE_OLD_VISIBLE_EVIDENCE_RETAINS_EXACT_SCOPE",
-      "currentInputRevision": "c3bc plus battlefield-only play-trigger condition source pins; new exact fixed full required. Historical semantic decisions and CI receipts retained."
+      "currentInputRevision": "3a8 plus the independent battlefield-only primary-play recovery guard; new exact fixed full required. All prior semantic decisions and CI receipts retained."
     },
     "physical-origin-self-cost-reduction-2026-10-16": {
       "evidenceCommit": "903cbca2becfd9b142a6b6a86d77b8fbf3d080ef",
-      "currentImplementationCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
+      "currentImplementationCommit": "3a8a6f394fc6a8a7e3ea99a2db0799fa35859d31",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact903 baseline plus pinned3engine changes and new8cases/SQL fixtures; fixed newSHA required.",
       "ciState": "PENDING",
@@ -9010,7 +9010,7 @@
           "semanticReview": "SCOPED_ONLY",
           "implementation": "LOCAL_COMPLETE_FOR_RECORDED_BRANCH",
           "tests": "ALL8_FINAL_CASES_AND_ADJACENT162_PASS",
-          "fixedCommitCi": "PENDING_AFTER_CANONICAL_OPTIONAL_COSTS_SHARED_INGRESS_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN",
           "remaining": [
             "Other origin/controller/payment-waiver/combined-cost branches and the remaining text-located consumers remain separately unreviewed; no whole-card/family certification.",
@@ -9034,7 +9034,7 @@
           "semanticReview": "SCOPED_ONLY",
           "implementation": "LOCAL_COMPLETE_FOR_RECORDED_BRANCH",
           "tests": "2_NORMAL_FRAMES_AND_ALL71_SQL_PASS",
-          "fixedCommitCi": "PENDING_AFTER_CANONICAL_OPTIONAL_COSTS_SHARED_INGRESS_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN",
           "remaining": [
             "Other origin/controller/payment-waiver/combined-cost branches and the remaining text-located consumers remain separately unreviewed; no whole-card/family certification.",
@@ -9136,11 +9136,11 @@
           "sha256": "2c5b9441fcafac4d26fe1cf622b040535ae4573cc827c4d2d0c0693dacd103a2"
         }
       },
-      "currentInputRevision": "c3bc plus battlefield-only play-trigger condition source pins; new exact fixed full required. Historical semantic decisions and CI receipts retained."
+      "currentInputRevision": "3a8 plus the independent battlefield-only primary-play recovery guard; new exact fixed full required. All prior semantic decisions and CI receipts retained."
     },
     "granted-origin-haste-and-paid-entry-replacement-2026-10-16": {
       "evidenceCommit": "4ad7fe204adee28c4138f18bdde4c4cbcdea21f0",
-      "currentImplementationCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
+      "currentImplementationCommit": "3a8a6f394fc6a8a7e3ea99a2db0799fa35859d31",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact4ad7 baseline plus pinned5engine inputs,24cases, native readback and73SQL. NewfixedSHA full required. Printed-Haste dispatch restored after the singlecheck;213 current focus passed. Prior SQL/native exact inputs remain pre-repair, not relabeled.",
       "ciState": "PENDING",
@@ -9275,7 +9275,7 @@
           "semanticReview": "SCOPED_ONLY",
           "implementation": "LOCAL_COMPLETE_FOR_RECORDED_BRANCH",
           "tests": "24_CASES_394_ADJACENT112_NATIVE_COMMANDS73_REAL_SQL_PASS",
-          "fixedCommitCi": "PENDING_AFTER_CANONICAL_OPTIONAL_COSTS_SHARED_INGRESS_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN",
           "remaining": [
             "Actual Atakhan optional sacrifice, generated Sand Soldier play, copied/attached/nonunit sources, controller-transfer and continuing in-play keyword characteristic consumers remain OPEN.",
@@ -9309,7 +9309,7 @@
           "semanticReview": "SCOPED_ONLY",
           "implementation": "LOCAL_COMPLETE_FOR_RECORDED_BRANCH",
           "tests": "24_CASES_394_ADJACENT112_NATIVE_COMMANDS73_REAL_SQL_PASS",
-          "fixedCommitCi": "PENDING_AFTER_CANONICAL_OPTIONAL_COSTS_SHARED_INGRESS_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN",
           "remaining": [
             "Actual Atakhan optional sacrifice, generated Sand Soldier play, copied/attached/nonunit sources, controller-transfer and continuing in-play keyword characteristic consumers remain OPEN.",
@@ -9343,7 +9343,7 @@
           "semanticReview": "SCOPED_ONLY",
           "implementation": "LOCAL_COMPLETE_FOR_RECORDED_BRANCH",
           "tests": "24_CASES_394_ADJACENT112_NATIVE_COMMANDS73_REAL_SQL_PASS",
-          "fixedCommitCi": "PENDING_AFTER_CANONICAL_OPTIONAL_COSTS_SHARED_INGRESS_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN",
           "remaining": [
             "Actual Atakhan optional sacrifice, generated Sand Soldier play, copied/attached/nonunit sources, controller-transfer and continuing in-play keyword characteristic consumers remain OPEN.",
@@ -9414,11 +9414,11 @@
         }
       },
       "currentProductAcceptance": "OPEN_AFTER_SHARED_NATIVE_PROMPT_INPUT_CHANGE_OLD_VISIBLE_EVIDENCE_RETAINS_EXACT_SCOPE",
-      "currentInputRevision": "c3bc plus battlefield-only play-trigger condition source pins; new exact fixed full required. Historical semantic decisions and CI receipts retained."
+      "currentInputRevision": "3a8 plus the independent battlefield-only primary-play recovery guard; new exact fixed full required. All prior semantic decisions and CI receipts retained."
     },
     "opponent-battlefield-current-control-entry-2026-10-16": {
       "evidenceCommit": "3ced0126ac20a07c2909e7b44f3733a9e3aa044a",
-      "currentImplementationCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
+      "currentImplementationCommit": "3a8a6f394fc6a8a7e3ea99a2db0799fa35859d31",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact3ced baseline plus pinned Core fix and29new cases/3methods; old72 product and prior fixedfull evidence are separately bounded. New fixed SHA full required.",
       "ciState": "PENDING",
@@ -9518,7 +9518,7 @@
           "semanticReview": "SCOPED_ENTRY_CONDITION_ONLY",
           "implementation": "LOCAL_COMPLETE",
           "tests": "29_NEW_1093_ADJACENT_1_ORIGINAL_GAME_75_REAL_SQL_4_EVENT_REJECTIONS_11964_SINGLE_CHECK_PASS",
-          "fixedCommitCi": "PENDING_AFTER_CANONICAL_OPTIONAL_COSTS_SHARED_INGRESS_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN_NEW_CANDIDATE",
           "remaining": [
             "New exact fixed-commit full CI and necessary visible candidate/Windows physical acceptance remain OPEN.",
@@ -9543,7 +9543,7 @@
           "semanticReview": "SCOPED_ENTRY_CONDITION_ONLY",
           "implementation": "LOCAL_COMPLETE",
           "tests": "29_NEW_1093_ADJACENT_1_ORIGINAL_GAME_75_REAL_SQL_4_EVENT_REJECTIONS_11964_SINGLE_CHECK_PASS",
-          "fixedCommitCi": "PENDING_AFTER_CANONICAL_OPTIONAL_COSTS_SHARED_INGRESS_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN_NEW_CANDIDATE",
           "remaining": [
             "New exact fixed-commit full CI and necessary visible candidate/Windows physical acceptance remain OPEN.",
@@ -9568,7 +9568,7 @@
           "semanticReview": "SCOPED_ENTRY_CONDITION_ONLY",
           "implementation": "LOCAL_COMPLETE",
           "tests": "29_NEW_1093_ADJACENT_1_ORIGINAL_GAME_75_REAL_SQL_4_EVENT_REJECTIONS_11964_SINGLE_CHECK_PASS",
-          "fixedCommitCi": "PENDING_AFTER_CANONICAL_OPTIONAL_COSTS_SHARED_INGRESS_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN_NEW_CANDIDATE",
           "remaining": [
             "New exact fixed-commit full CI and necessary visible candidate/Windows physical acceptance remain OPEN.",
@@ -9594,11 +9594,11 @@
           "runId": 38851939967
         }
       ],
-      "currentInputRevision": "c3bc plus battlefield-only play-trigger condition source pins; new exact fixed full required. Historical semantic decisions and CI receipts retained."
+      "currentInputRevision": "3a8 plus the independent battlefield-only primary-play recovery guard; new exact fixed full required. All prior semantic decisions and CI receipts retained."
     },
     "optional-sacrifice-printed-cost-and-paid-entry-2026-10-16": {
       "evidenceCommit": "8d7571c5a5572b1ed542a5ff1d8eaeb533bac1bc",
-      "currentImplementationCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
+      "currentImplementationCommit": "3a8a6f394fc6a8a7e3ea99a2db0799fa35859d31",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Fixed8d baseline plus exact15 executable/fixture patch files. Earlier full8d,113 old review dictionaries, source dates and original143/110/424242 remain retained. New candidate full required.",
       "ciState": "PENDING",
@@ -9737,7 +9737,7 @@
           "semanticReview": "SCOPED_COST_ONLY",
           "implementation": "LOCAL_COMPLETE",
           "tests": "23_NEW_2056_ADJACENT_3_ORIGINAL_GAMES_2_NATIVE_77_REAL_SQL_8_EVENT_REJECTIONS_11987_SINGLE_CHECK_PASS",
-          "fixedCommitCi": "PENDING_AFTER_CANONICAL_OPTIONAL_COSTS_SHARED_INGRESS_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN_NEW_CANDIDATE",
           "remaining": [
             "New fixed candidate full CI and visible paired/network/score/replay and Windows physical acceptance remain OPEN.",
@@ -9768,7 +9768,7 @@
           "semanticReview": "SCOPED_COST_ONLY",
           "implementation": "LOCAL_COMPLETE",
           "tests": "23_NEW_2056_ADJACENT_3_ORIGINAL_GAMES_2_NATIVE_77_REAL_SQL_8_EVENT_REJECTIONS_11987_SINGLE_CHECK_PASS",
-          "fixedCommitCi": "PENDING_AFTER_CANONICAL_OPTIONAL_COSTS_SHARED_INGRESS_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN_NEW_CANDIDATE",
           "remaining": [
             "New fixed candidate full CI and visible paired/network/score/replay and Windows physical acceptance remain OPEN.",
@@ -9799,7 +9799,7 @@
           "semanticReview": "SCOPED_COST_ONLY",
           "implementation": "LOCAL_COMPLETE",
           "tests": "23_NEW_2056_ADJACENT_3_ORIGINAL_GAMES_2_NATIVE_77_REAL_SQL_8_EVENT_REJECTIONS_11987_SINGLE_CHECK_PASS",
-          "fixedCommitCi": "PENDING_AFTER_CANONICAL_OPTIONAL_COSTS_SHARED_INGRESS_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN_NEW_CANDIDATE",
           "remaining": [
             "New fixed candidate full CI and visible paired/network/score/replay and Windows physical acceptance remain OPEN.",
@@ -9852,11 +9852,11 @@
         }
       ],
       "currentProductAcceptance": "OPEN_AFTER_SHARED_NATIVE_PROMPT_INPUT_CHANGE_OLD_VISIBLE_EVIDENCE_RETAINS_EXACT_SCOPE",
-      "currentInputRevision": "c3bc plus battlefield-only play-trigger condition source pins; new exact fixed full required. Historical semantic decisions and CI receipts retained."
+      "currentInputRevision": "3a8 plus the independent battlefield-only primary-play recovery guard; new exact fixed full required. All prior semantic decisions and CI receipts retained."
     },
     "granted-colorless-token-haste-payment-2026-10-16": {
       "evidenceCommit": "daf394e20997ebdb028e91ba9fdfe6c24eb492eb",
-      "currentImplementationCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
+      "currentImplementationCommit": "3a8a6f394fc6a8a7e3ea99a2db0799fa35859d31",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Fixeddaf baseline plus exact13 current executable/test/fixture patch files; historical daf full12136/7372 and77SQL do not cover the patch.",
       "ciState": "PENDING",
@@ -9995,7 +9995,7 @@
           "semanticReview": "SCOPED_PRE_ENTRY_UNMODIFIED_HASTE_COST_ONLY",
           "implementation": "LOCAL_EXECUTED_SCOPE_COMPLETE",
           "tests": "33_NEW_1959_ADJACENT_3_ORIGINAL_GAMES_2_NATIVE_79_SQL_8_EVENT_REJECTIONS_12020_SINGLE_CHECK_PASS",
-          "fixedCommitCi": "PENDING_AFTER_CANONICAL_OPTIONAL_COSTS_SHARED_INGRESS_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN_NEW_CANDIDATE",
           "remaining": [
             "New fixed-commit full CI, visible paired clients, actual reconnect/normal score/full replay and Windows physical acceptance remain separate OPEN gates.",
@@ -10035,7 +10035,7 @@
           "semanticReview": "SCOPED_PRE_ENTRY_UNMODIFIED_HASTE_COST_ONLY",
           "implementation": "LOCAL_EXECUTED_SCOPE_COMPLETE",
           "tests": "33_NEW_1959_ADJACENT_3_ORIGINAL_GAMES_2_NATIVE_79_SQL_8_EVENT_REJECTIONS_12020_SINGLE_CHECK_PASS",
-          "fixedCommitCi": "PENDING_AFTER_CANONICAL_OPTIONAL_COSTS_SHARED_INGRESS_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN_NEW_CANDIDATE",
           "remaining": [
             "New fixed-commit full CI, visible paired clients, actual reconnect/normal score/full replay and Windows physical acceptance remain separate OPEN gates.",
@@ -10075,7 +10075,7 @@
           "semanticReview": "SCOPED_PRE_ENTRY_UNMODIFIED_HASTE_COST_ONLY",
           "implementation": "LOCAL_EXECUTED_SCOPE_COMPLETE",
           "tests": "33_NEW_1959_ADJACENT_3_ORIGINAL_GAMES_2_NATIVE_79_SQL_8_EVENT_REJECTIONS_12020_SINGLE_CHECK_PASS",
-          "fixedCommitCi": "PENDING_AFTER_CANONICAL_OPTIONAL_COSTS_SHARED_INGRESS_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN_NEW_CANDIDATE",
           "remaining": [
             "New fixed-commit full CI, visible paired clients, actual reconnect/normal score/full replay and Windows physical acceptance remain separate OPEN gates.",
@@ -10145,11 +10145,11 @@
           "sha256": "2c5b9441fcafac4d26fe1cf622b040535ae4573cc827c4d2d0c0693dacd103a2"
         }
       },
-      "currentInputRevision": "c3bc plus battlefield-only play-trigger condition source pins; new exact fixed full required. Historical semantic decisions and CI receipts retained."
+      "currentInputRevision": "3a8 plus the independent battlefield-only primary-play recovery guard; new exact fixed full required. All prior semantic decisions and CI receipts retained."
     },
     "native-rule-choice-prompts-2026-10-16": {
       "evidenceCommit": "65092fcdea323f9f4b435a91344f76e838fb21b4",
-      "currentImplementationCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
+      "currentImplementationCommit": "3a8a6f394fc6a8a7e3ea99a2db0799fa35859d31",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Fixed650 baseline plus exact two implementation and four verification inputs. Fixed650 full does not cover these uncommitted prompt changes.",
       "ciState": "PENDING",
@@ -10250,7 +10250,7 @@
           "semanticReview": "SCOPED_EXISTING_AUTHORITATIVE_PROMPT_CONTRACT_ONLY",
           "implementation": "LOCAL_EXECUTED_SCOPE_COMPLETE",
           "tests": "7_NEW_191_ADJACENT_2_ORIGINAL_GAMES_13_NATIVE_79_SQL_12027_SINGLE_CHECK_PASS",
-          "fixedCommitCi": "PENDING_AFTER_CANONICAL_OPTIONAL_COSTS_SHARED_INGRESS_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN_NEW_VISIBLE_AND_WINDOWS",
           "remaining": [
             "New fixed-commit full CI for this changed prompt candidate, visible paired controls, normal score/reconnect/replay and Windows physical remain independent OPEN gates.",
@@ -10290,7 +10290,7 @@
           "semanticReview": "SCOPED_EXISTING_AUTHORITATIVE_PROMPT_CONTRACT_ONLY",
           "implementation": "LOCAL_EXECUTED_SCOPE_COMPLETE",
           "tests": "7_NEW_191_ADJACENT_2_ORIGINAL_GAMES_13_NATIVE_79_SQL_12027_SINGLE_CHECK_PASS",
-          "fixedCommitCi": "PENDING_AFTER_CANONICAL_OPTIONAL_COSTS_SHARED_INGRESS_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN_NEW_VISIBLE_AND_WINDOWS",
           "remaining": [
             "New fixed-commit full CI for this changed prompt candidate, visible paired controls, normal score/reconnect/replay and Windows physical remain independent OPEN gates.",
@@ -10330,7 +10330,7 @@
           "semanticReview": "SCOPED_EXISTING_AUTHORITATIVE_PROMPT_CONTRACT_ONLY",
           "implementation": "LOCAL_EXECUTED_SCOPE_COMPLETE",
           "tests": "7_NEW_191_ADJACENT_2_ORIGINAL_GAMES_13_NATIVE_79_SQL_12027_SINGLE_CHECK_PASS",
-          "fixedCommitCi": "PENDING_AFTER_CANONICAL_OPTIONAL_COSTS_SHARED_INGRESS_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN_NEW_VISIBLE_AND_WINDOWS",
           "remaining": [
             "New fixed-commit full CI for this changed prompt candidate, visible paired controls, normal score/reconnect/replay and Windows physical remain independent OPEN gates.",
@@ -10357,11 +10357,11 @@
           "runId": 38899251618
         }
       ],
-      "currentInputRevision": "c3bc plus battlefield-only play-trigger condition source pins; new exact fixed full required. Historical semantic decisions and CI receipts retained."
+      "currentInputRevision": "3a8 plus the independent battlefield-only primary-play recovery guard; new exact fixed full required. All prior semantic decisions and CI receipts retained."
     },
     "sand-soldier-embedded-ready-2026-10-17": {
       "evidenceCommit": "8ca4080c9431b981db051a5adad18dace5d85dd5",
-      "currentImplementationCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
+      "currentImplementationCommit": "3a8a6f394fc6a8a7e3ea99a2db0799fa35859d31",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Fixed8ca source baseline (gameplay5ed) plus explicit current implementation/test/fixture inputs. Prior5ed full/native and local pre-caption SQL are not relabeled as this final candidate.",
       "ciState": "PENDING",
@@ -10397,7 +10397,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "48dda169917a0c6eb76e05e2e5a8f281f72219090bac2c9ce657826f6fd696b1"
+          "sha256": "d60ed0b593c00bc1169931dfcebadb74a61435f8775c18c86272ee216c94ddc4"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
@@ -10545,7 +10545,7 @@
           "semanticReview": "SCOPED_EXECUTED_BRANCH_ONLY",
           "implementation": "LOCAL_CURRENT_EXECUTED_SCOPE",
           "tests": "33_NEW_192_ADJACENT_4_EMPTY_OPENINGS_34_HEADLESS_NATIVE_SINGLE_CHECK12060_7256_PASS",
-          "fixedCommitCi": "PENDING_AFTER_CANONICAL_OPTIONAL_COSTS_SHARED_INGRESS_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN_CURRENT_VISIBLE_AND_WINDOWS",
           "remaining": [
             "New fixed full CI for final input including all83 actual SQL paths, normal143 games/110 pairs/11 decks/424242 and network/packaging remains OPEN until actual terminal artifacts verified.",
@@ -10581,7 +10581,7 @@
           "semanticReview": "SCOPED_EXECUTED_BRANCH_ONLY",
           "implementation": "LOCAL_CURRENT_EXECUTED_SCOPE",
           "tests": "33_NEW_192_ADJACENT_4_EMPTY_OPENINGS_34_HEADLESS_NATIVE_SINGLE_CHECK12060_7256_PASS",
-          "fixedCommitCi": "PENDING_AFTER_CANONICAL_OPTIONAL_COSTS_SHARED_INGRESS_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN_CURRENT_VISIBLE_AND_WINDOWS",
           "remaining": [
             "New fixed full CI for final input including all83 actual SQL paths, normal143 games/110 pairs/11 decks/424242 and network/packaging remains OPEN until actual terminal artifacts verified.",
@@ -10617,7 +10617,7 @@
           "semanticReview": "SCOPED_EXECUTED_BRANCH_ONLY",
           "implementation": "LOCAL_CURRENT_EXECUTED_SCOPE",
           "tests": "33_NEW_192_ADJACENT_4_EMPTY_OPENINGS_34_HEADLESS_NATIVE_SINGLE_CHECK12060_7256_PASS",
-          "fixedCommitCi": "PENDING_AFTER_CANONICAL_OPTIONAL_COSTS_SHARED_INGRESS_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN_CURRENT_VISIBLE_AND_WINDOWS",
           "remaining": [
             "New fixed full CI for final input including all83 actual SQL paths, normal143 games/110 pairs/11 decks/424242 and network/packaging remains OPEN until actual terminal artifacts verified.",
@@ -10653,7 +10653,7 @@
           "semanticReview": "SCOPED_EXECUTED_BRANCH_ONLY",
           "implementation": "LOCAL_CURRENT_EXECUTED_SCOPE",
           "tests": "33_NEW_192_ADJACENT_4_EMPTY_OPENINGS_34_HEADLESS_NATIVE_SINGLE_CHECK12060_7256_PASS",
-          "fixedCommitCi": "PENDING_AFTER_CANONICAL_OPTIONAL_COSTS_SHARED_INGRESS_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN_CURRENT_VISIBLE_AND_WINDOWS",
           "remaining": [
             "New fixed full CI for final input including all83 actual SQL paths, normal143 games/110 pairs/11 decks/424242 and network/packaging remains OPEN until actual terminal artifacts verified.",
@@ -10703,11 +10703,11 @@
           "sha256": "2c5b9441fcafac4d26fe1cf622b040535ae4573cc827c4d2d0c0693dacd103a2"
         }
       },
-      "currentInputRevision": "c3bc plus battlefield-only play-trigger condition source pins; new exact fixed full required. Historical semantic decisions and CI receipts retained."
+      "currentInputRevision": "3a8 plus the independent battlefield-only primary-play recovery guard; new exact fixed full required. All prior semantic decisions and CI receipts retained."
     },
     "opening-randomness-2026-10-17": {
       "evidenceCommit": "a6ccf1952141c69ed4b3cde94695f983c1c28db8",
-      "currentImplementationCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
+      "currentImplementationCommit": "3a8a6f394fc6a8a7e3ea99a2db0799fa35859d31",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Base plus current explicit implementation/test inputs. Prior39 native/CI is historical and not relabeled current.",
       "ciState": "PENDING",
@@ -10723,7 +10723,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "48dda169917a0c6eb76e05e2e5a8f281f72219090bac2c9ce657826f6fd696b1"
+          "sha256": "d60ed0b593c00bc1169931dfcebadb74a61435f8775c18c86272ee216c94ddc4"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
@@ -11047,7 +11047,7 @@
           "semanticReview": "SCOPED_EXECUTED_ONLY",
           "implementation": "LOCAL_CURRENT_EXECUTED_SCOPE",
           "tests": "38_NEW_63_CORRECTED_FOCUS_17_CORPUS_8_FRESH_HUB_2_SQL_PATHS_PASS_SINGLE_CHECK_FAILURE_RETAINED",
-          "fixedCommitCi": "PENDING_AFTER_CANONICAL_OPTIONAL_COSTS_SHARED_INGRESS_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN_CURRENT_VISIBLE_AND_WINDOWS",
           "remaining": [
             "All non-opening randomness, including recycling417.5 and other rule consumers, remains OPEN; finite samples do not certify every permutation or the entire privacy surface.",
@@ -11066,7 +11066,7 @@
           "semanticReview": "SCOPED_EXECUTED_ONLY",
           "implementation": "LOCAL_CURRENT_EXECUTED_SCOPE",
           "tests": "38_NEW_63_CORRECTED_FOCUS_17_CORPUS_8_FRESH_HUB_2_SQL_PATHS_PASS_SINGLE_CHECK_FAILURE_RETAINED",
-          "fixedCommitCi": "PENDING_AFTER_CANONICAL_OPTIONAL_COSTS_SHARED_INGRESS_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN_CURRENT_VISIBLE_AND_WINDOWS",
           "remaining": [
             "All non-opening randomness, including recycling417.5 and other rule consumers, remains OPEN; finite samples do not certify every permutation or the entire privacy surface.",
@@ -11085,7 +11085,7 @@
           "semanticReview": "SCOPED_EXECUTED_ONLY",
           "implementation": "LOCAL_CURRENT_EXECUTED_SCOPE",
           "tests": "38_NEW_63_CORRECTED_FOCUS_17_CORPUS_8_FRESH_HUB_2_SQL_PATHS_PASS_SINGLE_CHECK_FAILURE_RETAINED",
-          "fixedCommitCi": "PENDING_AFTER_CANONICAL_OPTIONAL_COSTS_SHARED_INGRESS_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN_CURRENT_VISIBLE_AND_WINDOWS",
           "remaining": [
             "All non-opening randomness, including recycling417.5 and other rule consumers, remains OPEN; finite samples do not certify every permutation or the entire privacy surface.",
@@ -11104,7 +11104,7 @@
           "semanticReview": "SCOPED_EXECUTED_ONLY",
           "implementation": "LOCAL_CURRENT_EXECUTED_SCOPE",
           "tests": "38_NEW_63_CORRECTED_FOCUS_17_CORPUS_8_FRESH_HUB_2_SQL_PATHS_PASS_SINGLE_CHECK_FAILURE_RETAINED",
-          "fixedCommitCi": "PENDING_AFTER_CANONICAL_OPTIONAL_COSTS_SHARED_INGRESS_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN_CURRENT_VISIBLE_AND_WINDOWS",
           "remaining": [
             "All non-opening randomness, including recycling417.5 and other rule consumers, remains OPEN; finite samples do not certify every permutation or the entire privacy surface.",
@@ -11137,11 +11137,11 @@
           "sha256": "2c5b9441fcafac4d26fe1cf622b040535ae4573cc827c4d2d0c0693dacd103a2"
         }
       },
-      "currentInputRevision": "c3bc plus battlefield-only play-trigger condition source pins; new exact fixed full required. Historical semantic decisions and CI receipts retained."
+      "currentInputRevision": "3a8 plus the independent battlefield-only primary-play recovery guard; new exact fixed full required. All prior semantic decisions and CI receipts retained."
     },
     "duel-chain-origins-cold-recovery-2026-10-17": {
       "evidenceCommit": "42c89230105573e39ffaf524a7dc21f24d520d4b",
-      "currentImplementationCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
+      "currentImplementationCommit": "3a8a6f394fc6a8a7e3ea99a2db0799fa35859d31",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Base42 plus exact changed implementation/test pins; fixed067 full is a retained failure, not current success.",
       "ciState": "PENDING",
@@ -11165,7 +11165,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "48dda169917a0c6eb76e05e2e5a8f281f72219090bac2c9ce657826f6fd696b1"
+          "sha256": "d60ed0b593c00bc1169931dfcebadb74a61435f8775c18c86272ee216c94ddc4"
         }
       ],
       "verificationSources": [
@@ -11274,7 +11274,7 @@
           "semanticReview": "SCOPED_EXECUTED_ONLY",
           "implementation": "LOCAL_CURRENT_FROZEN_INPUTS",
           "tests": "46_FINAL_FOCUS_23_ORIGINALS_FULL110_PASS_SINGLE_CHECK2_FAILURES_RETAINED_BOTH_CORRECTED_FOCUS_PASS",
-          "fixedCommitCi": "PENDING_AFTER_CANONICAL_OPTIONAL_COSTS_SHARED_INGRESS_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN_CURRENT_SQL_VISIBLE_NETWORK_WINDOWS",
           "remaining": [
             "All1740 source identities/1033 runtime entries and all prior source, printing, clause, QA, news and EN-gap obligations remain; no whole-card or whole-family certification.",
@@ -11297,7 +11297,7 @@
           "semanticReview": "SCOPED_EXECUTED_ONLY",
           "implementation": "LOCAL_CURRENT_FROZEN_INPUTS",
           "tests": "46_FINAL_FOCUS_23_ORIGINALS_FULL110_PASS_SINGLE_CHECK2_FAILURES_RETAINED_BOTH_CORRECTED_FOCUS_PASS",
-          "fixedCommitCi": "PENDING_AFTER_CANONICAL_OPTIONAL_COSTS_SHARED_INGRESS_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN_CURRENT_SQL_VISIBLE_NETWORK_WINDOWS",
           "remaining": [
             "All1740 source identities/1033 runtime entries and all prior source, printing, clause, QA, news and EN-gap obligations remain; no whole-card or whole-family certification.",
@@ -11317,7 +11317,7 @@
           "semanticReview": "SCOPED_EXECUTED_ONLY",
           "implementation": "LOCAL_CURRENT_FROZEN_INPUTS",
           "tests": "46_FINAL_FOCUS_23_ORIGINALS_FULL110_PASS_SINGLE_CHECK2_FAILURES_RETAINED_BOTH_CORRECTED_FOCUS_PASS",
-          "fixedCommitCi": "PENDING_AFTER_CANONICAL_OPTIONAL_COSTS_SHARED_INGRESS_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN_CURRENT_SQL_VISIBLE_NETWORK_WINDOWS",
           "remaining": [
             "All1740 source identities/1033 runtime entries and all prior source, printing, clause, QA, news and EN-gap obligations remain; no whole-card or whole-family certification.",
@@ -11336,7 +11336,7 @@
           "semanticReview": "SCOPED_EXECUTED_ONLY",
           "implementation": "LOCAL_CURRENT_FROZEN_INPUTS",
           "tests": "46_FINAL_FOCUS_23_ORIGINALS_FULL110_PASS_SINGLE_CHECK2_FAILURES_RETAINED_BOTH_CORRECTED_FOCUS_PASS",
-          "fixedCommitCi": "PENDING_AFTER_CANONICAL_OPTIONAL_COSTS_SHARED_INGRESS_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN_CURRENT_SQL_VISIBLE_NETWORK_WINDOWS",
           "remaining": [
             "All1740 source identities/1033 runtime entries and all prior source, printing, clause, QA, news and EN-gap obligations remain; no whole-card or whole-family certification.",
@@ -11356,7 +11356,7 @@
           "semanticReview": "SCOPED_EXECUTED_ONLY",
           "implementation": "LOCAL_CURRENT_FROZEN_INPUTS",
           "tests": "46_FINAL_FOCUS_23_ORIGINALS_FULL110_PASS_SINGLE_CHECK2_FAILURES_RETAINED_BOTH_CORRECTED_FOCUS_PASS",
-          "fixedCommitCi": "PENDING_AFTER_CANONICAL_OPTIONAL_COSTS_SHARED_INGRESS_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_BATTLEFIELD_PLAY_RECOVERY_GUARD_CHANGE",
           "productAcceptance": "OPEN_CURRENT_SQL_VISIBLE_NETWORK_WINDOWS",
           "remaining": [
             "All1740 source identities/1033 runtime entries and all prior source, printing, clause, QA, news and EN-gap obligations remain; no whole-card or whole-family certification.",
@@ -11375,7 +11375,7 @@
           "sha256": "c9549a4bff7430d626a0e3233a8219a0746f9629e632264f9de6705c061d314d"
         }
       },
-      "currentInputRevision": "c3bc plus battlefield-only play-trigger condition source pins; new exact fixed full required. Historical semantic decisions and CI receipts retained."
+      "currentInputRevision": "3a8 plus the independent battlefield-only primary-play recovery guard; new exact fixed full required. All prior semantic decisions and CI receipts retained."
     }
   },
   "acceptanceGates": [
@@ -14089,6 +14089,14 @@
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.PermanentConfirmation.cs",
           "sha256": "89975fbcb3244799badd55e257f1d709133473e10748334bec53d4139798ffb1"
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.cs",
+          "sha256": "d60ed0b593c00bc1169931dfcebadb74a61435f8775c18c86272ee216c94ddc4"
+        },
+        {
+          "path": "src/Riftbound.Engine/PermanentPlayTriggerRecoveryRules.cs",
+          "sha256": "88cc121c293f902e665546e56c56806df66e907356d3c124372f6e5efa4b6b51"
         }
       ],
       "verificationSources": [
@@ -14103,6 +14111,30 @@
         {
           "path": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-merfolk-rabble-rouser-standby-static.fixture.json",
           "sha256": "d50523c1730e6d54ac036eeda4094949feafc5452178f89937d7e2d319b40455"
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/BattlefieldPlayRecoveryGuardTests.cs",
+          "sha256": "24c31a3155493170cf7b1cff73a9612963687d58ff2183663bcfc0b866ba5710"
+        },
+        {
+          "path": "tests/Riftbound.PostgresAcceptance/BattlefieldPlayRecoverySqlAcceptance.cs",
+          "sha256": "3d5c94636e5473047e7b4df32df71c1f71210e447a575cbdf89d1ae9a91a8753"
+        },
+        {
+          "path": "tests/Riftbound.PostgresAcceptance/Program.cs",
+          "sha256": "43dfdc3821780b5153a3163aa6bc221dfd91548c2439b330b31b9804b96ee047"
+        },
+        {
+          "path": "tests/Riftbound.PostgresAcceptance/Riftbound.PostgresAcceptance.csproj",
+          "sha256": "0df2cdb2793b1b45ebf7ce25cc1dc17ffeda50cbaeab51e266ac94f78ded3956"
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/Fixtures/battlefield-base-merfolk.json",
+          "sha256": "18bd3f46598f3e89c92073e5d733d3434a16dcb2b3e14e2c6cd623c7a8db6d21"
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/Fixtures/battlefield-base-blitzcrank.json",
+          "sha256": "c735b71716f70004964a446b5322d8c6d4b98951a277f420d3619292e034c417"
         }
       ],
       "semanticReview": "HAND_TO_BASE_CONDITION_ONLY_NOT_WHOLE_CARD",
@@ -14110,11 +14142,11 @@
         "path": "docs/evidence/battlefield-play-trigger-2026-10-17/focus-and-red-records.json",
         "sha256": "b9593e1fe489da97e9237260ff9deebe54fdacd4d0f6643f2f20c014cc0a2c61"
       },
-      "fixedCommitCi": "PENDING_NEW_FIXED_FULL",
+      "fixedCommitCi": "PENDING_NEW_FIXED_FULL_AFTER_RECOVERY_GUARD",
       "productAcceptance": {
         "priorFixedC3bcNativeBasePlay": "CONFIRMED_RED_NOT_PASS",
         "currentVisibleNative": "OPEN",
-        "realSql": "OPEN_FOR_NEW_CANDIDATE",
+        "realSql": "LOCAL_DEFAULT_ALL88_PATHS_PASS_INCLUDING_TWO_NEW_ORIGIN_RECOVERY_ROOMS_FOUR_FORGERIES_ORIGINAL_COLD_NEXT_REPLAY",
         "windowsPhysical": "OPEN"
       },
       "branches": [
@@ -14129,9 +14161,13 @@
         {
           "id": "independent-legend-trigger",
           "semanticReview": "LIMITED_PRESERVATION_ONLY_MULTIPLE_TRIGGER_ORDER_NOT_CERTIFIED",
-          "tests": "ONE_REAL_LEGEND_TRIGGER_CASE_PASS_WITH_INITIAL_AND_FINAL_RECOVERY",
-          "fixedCommitCi": "PENDING_NEW_FIXED_FULL",
-          "productAcceptance": "OPEN"
+          "tests": "THREE_EXACT_LEGEND_PRINTINGS_PER_UNIT_KEEP_CURRENT_INDEPENDENT_PLUS_ONE_INITIAL_AND_FINAL_RECOVERY_PASS_MULTIPLE_TRIGGER_ORDER_OPEN",
+          "fixedCommitCi": "PENDING_NEW_FIXED_FULL_AFTER_RECOVERY_GUARD",
+          "productAcceptance": "OPEN",
+          "currentSourceManifest": {
+            "path": "docs/evidence/battlefield-play-recovery-2026-10-17/source-manifest.json",
+            "sha256": "9dd06faae7efa8a55059d7d0e67fa254296556cba0e8b0464aca1c1c59d1167f"
+          }
         },
         {
           "id": "effect-generated-play-and-other-entry-consumers",
@@ -14156,13 +14192,44 @@
         },
         {
           "id": "independent-recovery-forged-false-condition-stack",
-          "semanticReview": "OPEN_CURRENT_VERSION_STRUCTURAL_GUARD_NOT_REVIEWED_IN_THIS_BATCH",
-          "tests": "OPEN_FALSE_CONDITION_FORGED_STATE_WITH_REBUILT_VIEWS_AND_REAL_SQL",
-          "fixedCommitCi": "OPEN",
-          "productAcceptance": "OPEN"
+          "semanticReview": "SCOPED_STRUCTURAL_BASE_ORIGIN_AND_CAUSAL_ORIGINAL_LOG_GUARDS_ONLY",
+          "tests": "12_NEW_AND3419_ADJACENT_PASS_FOUR_ACTUAL_SQL_FORGERIES_REJECTED_ORIGINAL_ROWS_COLD_NEXT_REPLAY_PASS",
+          "fixedCommitCi": "PENDING_NEW_FIXED_FULL_AFTER_RECOVERY_GUARD",
+          "productAcceptance": "LOCAL_ACTUAL_SQL_SCOPED_PASS_VISIBLE_CLIENTS_NETWORK_SCORE_WINDOWS_OPEN",
+          "implementation": "INDEPENDENT_IMMUTABLE_PRINTED_SOURCE_CHECK_PLUS_PRODUCTION_ORIGINAL_ACTION_LOG_AUDIT"
         }
       ],
-      "wholePrintingCertified": false
+      "wholePrintingCertified": false,
+      "currentRecoverySourceManifest": {
+        "path": "docs/evidence/battlefield-play-recovery-2026-10-17/source-manifest.json",
+        "sha256": "9dd06faae7efa8a55059d7d0e67fa254296556cba0e8b0464aca1c1c59d1167f"
+      },
+      "currentRecoveryEvidence": {
+        "focus": {
+          "path": "docs/evidence/battlefield-play-recovery-2026-10-17/focus.json",
+          "sha256": "1edf692c9b40c18f8795351331012f017f52e00630fa4bb9bcb1bcbeecffd05a"
+        },
+        "scopedSql": {
+          "path": "docs/evidence/battlefield-play-recovery-2026-10-17/scoped-real-sql.json",
+          "sha256": "2bfc4b2234a781e3fb6e8bbf7c5cf046fef2af5bd07efcf73cb0398b13bcb6bb"
+        },
+        "independentSqlReadback": {
+          "path": "docs/evidence/battlefield-play-recovery-2026-10-17/scoped-independent-sql-readback.json",
+          "sha256": "0cfc00aae2c1f17bcf5f851a4ad29df8bed4aa40d147e06302ce43d51aedc9e1"
+        },
+        "completeDefaultSql": {
+          "path": "docs/evidence/battlefield-play-recovery-2026-10-17/complete-sql.json",
+          "sha256": "d3f15fd779b6d21a62469c18b8fb126f1d15d069fafde0325cabf5c41b337b5f"
+        },
+        "check": {
+          "path": "docs/evidence/battlefield-play-recovery-2026-10-17/check.json",
+          "sha256": "0bb2edcc0470c4442d53e325820fa5456b5cdd009b1016943ab1d42398f47811"
+        },
+        "affectedOriginals": {
+          "path": "docs/evidence/battlefield-play-recovery-2026-10-17/originals.json",
+          "sha256": "a3daef0d680de0c347510a82f5b8b849b1b87dd07a67e7b6d04c31804f615b17"
+        }
+      }
     },
     {
       "id": "BATTLEFIELD_ONLY_PLAY_TRIGGER_BLITZCRANK",
@@ -14193,6 +14260,14 @@
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.PermanentConfirmation.cs",
           "sha256": "89975fbcb3244799badd55e257f1d709133473e10748334bec53d4139798ffb1"
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.cs",
+          "sha256": "d60ed0b593c00bc1169931dfcebadb74a61435f8775c18c86272ee216c94ddc4"
+        },
+        {
+          "path": "src/Riftbound.Engine/PermanentPlayTriggerRecoveryRules.cs",
+          "sha256": "88cc121c293f902e665546e56c56806df66e907356d3c124372f6e5efa4b6b51"
         }
       ],
       "verificationSources": [
@@ -14207,6 +14282,30 @@
         {
           "path": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-merfolk-rabble-rouser-standby-static.fixture.json",
           "sha256": "d50523c1730e6d54ac036eeda4094949feafc5452178f89937d7e2d319b40455"
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/BattlefieldPlayRecoveryGuardTests.cs",
+          "sha256": "24c31a3155493170cf7b1cff73a9612963687d58ff2183663bcfc0b866ba5710"
+        },
+        {
+          "path": "tests/Riftbound.PostgresAcceptance/BattlefieldPlayRecoverySqlAcceptance.cs",
+          "sha256": "3d5c94636e5473047e7b4df32df71c1f71210e447a575cbdf89d1ae9a91a8753"
+        },
+        {
+          "path": "tests/Riftbound.PostgresAcceptance/Program.cs",
+          "sha256": "43dfdc3821780b5153a3163aa6bc221dfd91548c2439b330b31b9804b96ee047"
+        },
+        {
+          "path": "tests/Riftbound.PostgresAcceptance/Riftbound.PostgresAcceptance.csproj",
+          "sha256": "0df2cdb2793b1b45ebf7ce25cc1dc17ffeda50cbaeab51e266ac94f78ded3956"
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/Fixtures/battlefield-base-merfolk.json",
+          "sha256": "18bd3f46598f3e89c92073e5d733d3434a16dcb2b3e14e2c6cd623c7a8db6d21"
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/Fixtures/battlefield-base-blitzcrank.json",
+          "sha256": "c735b71716f70004964a446b5322d8c6d4b98951a277f420d3619292e034c417"
         }
       ],
       "semanticReview": "HAND_TO_BASE_CONDITION_ONLY_NOT_WHOLE_CARD",
@@ -14214,11 +14313,11 @@
         "path": "docs/evidence/battlefield-play-trigger-2026-10-17/focus-and-red-records.json",
         "sha256": "b9593e1fe489da97e9237260ff9deebe54fdacd4d0f6643f2f20c014cc0a2c61"
       },
-      "fixedCommitCi": "PENDING_NEW_FIXED_FULL",
+      "fixedCommitCi": "PENDING_NEW_FIXED_FULL_AFTER_RECOVERY_GUARD",
       "productAcceptance": {
         "priorFixedC3bcNativeBasePlay": "NOT_COVERED",
         "currentVisibleNative": "OPEN",
-        "realSql": "OPEN_FOR_NEW_CANDIDATE",
+        "realSql": "LOCAL_DEFAULT_ALL88_PATHS_PASS_INCLUDING_TWO_NEW_ORIGIN_RECOVERY_ROOMS_FOUR_FORGERIES_ORIGINAL_COLD_NEXT_REPLAY",
         "windowsPhysical": "OPEN"
       },
       "branches": [
@@ -14233,9 +14332,13 @@
         {
           "id": "independent-legend-trigger",
           "semanticReview": "LIMITED_PRESERVATION_ONLY_MULTIPLE_TRIGGER_ORDER_NOT_CERTIFIED",
-          "tests": "ONE_REAL_LEGEND_TRIGGER_CASE_PASS_WITH_INITIAL_AND_FINAL_RECOVERY",
-          "fixedCommitCi": "PENDING_NEW_FIXED_FULL",
-          "productAcceptance": "OPEN"
+          "tests": "THREE_EXACT_LEGEND_PRINTINGS_PER_UNIT_KEEP_CURRENT_INDEPENDENT_PLUS_ONE_INITIAL_AND_FINAL_RECOVERY_PASS_MULTIPLE_TRIGGER_ORDER_OPEN",
+          "fixedCommitCi": "PENDING_NEW_FIXED_FULL_AFTER_RECOVERY_GUARD",
+          "productAcceptance": "OPEN",
+          "currentSourceManifest": {
+            "path": "docs/evidence/battlefield-play-recovery-2026-10-17/source-manifest.json",
+            "sha256": "9dd06faae7efa8a55059d7d0e67fa254296556cba0e8b0464aca1c1c59d1167f"
+          }
         },
         {
           "id": "effect-generated-play-and-other-entry-consumers",
@@ -14260,13 +14363,44 @@
         },
         {
           "id": "independent-recovery-forged-false-condition-stack",
-          "semanticReview": "OPEN_CURRENT_VERSION_STRUCTURAL_GUARD_NOT_REVIEWED_IN_THIS_BATCH",
-          "tests": "OPEN_FALSE_CONDITION_FORGED_STATE_WITH_REBUILT_VIEWS_AND_REAL_SQL",
-          "fixedCommitCi": "OPEN",
-          "productAcceptance": "OPEN"
+          "semanticReview": "SCOPED_STRUCTURAL_BASE_ORIGIN_AND_CAUSAL_ORIGINAL_LOG_GUARDS_ONLY",
+          "tests": "12_NEW_AND3419_ADJACENT_PASS_FOUR_ACTUAL_SQL_FORGERIES_REJECTED_ORIGINAL_ROWS_COLD_NEXT_REPLAY_PASS",
+          "fixedCommitCi": "PENDING_NEW_FIXED_FULL_AFTER_RECOVERY_GUARD",
+          "productAcceptance": "LOCAL_ACTUAL_SQL_SCOPED_PASS_VISIBLE_CLIENTS_NETWORK_SCORE_WINDOWS_OPEN",
+          "implementation": "INDEPENDENT_IMMUTABLE_PRINTED_SOURCE_CHECK_PLUS_PRODUCTION_ORIGINAL_ACTION_LOG_AUDIT"
         }
       ],
-      "wholePrintingCertified": false
+      "wholePrintingCertified": false,
+      "currentRecoverySourceManifest": {
+        "path": "docs/evidence/battlefield-play-recovery-2026-10-17/source-manifest.json",
+        "sha256": "9dd06faae7efa8a55059d7d0e67fa254296556cba0e8b0464aca1c1c59d1167f"
+      },
+      "currentRecoveryEvidence": {
+        "focus": {
+          "path": "docs/evidence/battlefield-play-recovery-2026-10-17/focus.json",
+          "sha256": "1edf692c9b40c18f8795351331012f017f52e00630fa4bb9bcb1bcbeecffd05a"
+        },
+        "scopedSql": {
+          "path": "docs/evidence/battlefield-play-recovery-2026-10-17/scoped-real-sql.json",
+          "sha256": "2bfc4b2234a781e3fb6e8bbf7c5cf046fef2af5bd07efcf73cb0398b13bcb6bb"
+        },
+        "independentSqlReadback": {
+          "path": "docs/evidence/battlefield-play-recovery-2026-10-17/scoped-independent-sql-readback.json",
+          "sha256": "0cfc00aae2c1f17bcf5f851a4ad29df8bed4aa40d147e06302ce43d51aedc9e1"
+        },
+        "completeDefaultSql": {
+          "path": "docs/evidence/battlefield-play-recovery-2026-10-17/complete-sql.json",
+          "sha256": "d3f15fd779b6d21a62469c18b8fb126f1d15d069fafde0325cabf5c41b337b5f"
+        },
+        "check": {
+          "path": "docs/evidence/battlefield-play-recovery-2026-10-17/check.json",
+          "sha256": "0bb2edcc0470c4442d53e325820fa5456b5cdd009b1016943ab1d42398f47811"
+        },
+        "affectedOriginals": {
+          "path": "docs/evidence/battlefield-play-recovery-2026-10-17/originals.json",
+          "sha256": "a3daef0d680de0c347510a82f5b8b849b1b87dd07a67e7b6d04c31804f615b17"
+        }
+      }
     },
     {
       "id": "BATTLEFIELD_ONLY_PLAY_TRIGGER_RAD031_PREVIEW",
@@ -14316,5 +14450,13 @@
   "officialNewsObligations": {
     "path": "docs/evidence/cn-effective-2026-10-16/news-obligations.json",
     "sha256": "852848590b04939d8780cb3dbd0e7c6e6ebca16eedfbe22a5163e95b353e8762"
+  },
+  "currentRecoveryInputChange": {
+    "date": "2026-10-17",
+    "scope": "Independent source-text recovery guard; prior fixed CI is not current implementation identity coverage.",
+    "receipt": {
+      "path": "docs/evidence/battlefield-play-recovery-2026-10-17/prior-context-input-updates.json",
+      "sha256": "2dcd31cf2e7262bf6551f9758beccb097b05622859d3a429d6d554538ea1548f"
+    }
   }
 }

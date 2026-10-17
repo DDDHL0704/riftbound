@@ -1,0 +1,548 @@
+{
+  "recordedAtUtc": "2026-10-17T09:04:32.653100+00:00",
+  "status": "DEFAULT_COMPLETE_REAL_POSTGRES_88_PATHS_PASS",
+  "execution": {
+    "finishedAtUtc": "2026-10-17T09:01:34.740954+00:00",
+    "command": [
+      "/Users/dinghaolin/.dotnet/dotnet",
+      "/Users/dinghaolin/MyProjects/riftbound/var/qa/battlefield-play-recovery-20261017/sql-publish/Riftbound.PostgresAcceptance.dll"
+    ],
+    "exitCode": 0,
+    "seconds": 700.331,
+    "publishedInputsUnchanged": true,
+    "publishedFileCount": 70,
+    "sourceManifest": "frozen-inputs.json",
+    "allDefaultFamiliesRequested": true,
+    "status": "PASS"
+  },
+  "priorFixedCiCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
+  "original85ReceiptPathsAndAll86ScenariosExactlyRetained": true,
+  "allOriginalRunnerFamilyCallsRemainInExactOrder": true,
+  "scopedSelectorsDoNotReplaceDefaultSuite": true,
+  "receiptFiles": 86,
+  "actualSqlPaths": 88,
+  "onlyNewReceipt": "battlefield-play-recovery/receipt.json",
+  "onlyNewPaths": 2,
+  "currentNewFamilyFourForgeriesAllRejectedWithoutWrites": true,
+  "fixtureAndRuntimeIdentityRemainSeparateFromOldCiBinaries": true,
+  "receipts": [
+    {
+      "file": "attached-recycle-lifecycle/alternate/forward/receipt.json",
+      "status": "REAL_POSTGRES_ATTACHED_RECYCLE_COLD_AND_FULL_REPLAY_PASS",
+      "sha256": "be717fe58e8631f907648cb7e00d2a654102f5f0a2f91feaf4adefc5d8c088cc",
+      "actualPaths": 1
+    },
+    {
+      "file": "attached-recycle-lifecycle/alternate/reverse/receipt.json",
+      "status": "REAL_POSTGRES_ATTACHED_RECYCLE_COLD_AND_FULL_REPLAY_PASS",
+      "sha256": "c90b40e9761ececd4bb6ad6c37994bb5ab85391a2cb7c69c41b62e308343e1b9",
+      "actualPaths": 1
+    },
+    {
+      "file": "attached-recycle-lifecycle/primary/forward/receipt.json",
+      "status": "REAL_POSTGRES_ATTACHED_RECYCLE_COLD_AND_FULL_REPLAY_PASS",
+      "sha256": "3f12bb1d5b9f5fd9ffa860e17a2d96ea1cadc57423948841bdeddb75a46f44c5",
+      "actualPaths": 1
+    },
+    {
+      "file": "attached-recycle-lifecycle/primary/reverse/receipt.json",
+      "status": "REAL_POSTGRES_ATTACHED_RECYCLE_COLD_AND_FULL_REPLAY_PASS",
+      "sha256": "518968a5421fc0df51c77c141ae02b861b7d213d6a486d743f0570591c3574fa",
+      "actualPaths": 1
+    },
+    {
+      "file": "attached-recycle-lifecycle/promo/forward/receipt.json",
+      "status": "REAL_POSTGRES_ATTACHED_RECYCLE_COLD_AND_FULL_REPLAY_PASS",
+      "sha256": "a73262b22b2f0cb01fffbc0af7c3bc0549ed7a4205aeec94dc216606f809cf2e",
+      "actualPaths": 1
+    },
+    {
+      "file": "attached-recycle-lifecycle/promo/reverse/receipt.json",
+      "status": "REAL_POSTGRES_ATTACHED_RECYCLE_COLD_AND_FULL_REPLAY_PASS",
+      "sha256": "f57dc146a8643df2fb25b016eb320e9be81c6f1a5fa7ba1f9299e689bbd8a137",
+      "actualPaths": 1
+    },
+    {
+      "file": "battle-history/battle-history-attacker-burnout/result.json",
+      "status": "REAL_POSTGRES_BATTLE_HISTORY_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "bd54f538712d2a07e84ff55d6550203b9c298258c5f6dfd79de8d0dfbcd13f99",
+      "actualPaths": 1
+    },
+    {
+      "file": "battle-history/battle-history-attacker-deck/result.json",
+      "status": "REAL_POSTGRES_BATTLE_HISTORY_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "ba446ea3fdd587b4c8fb088764b8c0b5c898e4cc1171465aafc8bade0502e23d",
+      "actualPaths": 1
+    },
+    {
+      "file": "battle-history/battle-history-burnout/result.json",
+      "status": "REAL_POSTGRES_BATTLE_HISTORY_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "9f78bdc4ede1bab182550da816f850ef39ee2cddb49fa910f73ddfe052aa8001",
+      "actualPaths": 1
+    },
+    {
+      "file": "battle-history/battle-history-deck/result.json",
+      "status": "REAL_POSTGRES_BATTLE_HISTORY_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "fe432fe86fecf11d5f10f3fd707b4697e3ac4264752dd3e443e42ba588ec51f3",
+      "actualPaths": 1
+    },
+    {
+      "file": "battlefield-play-recovery/receipt.json",
+      "status": "REAL_POSTGRES_BATTLEFIELD_PLAY_ORIGIN_STRUCTURAL_AND_CAUSAL_GUARDS_PASS",
+      "sha256": "a18cbcbb86c33061792fbc5493c49f98d0f4707650793e170a2144b1dd206a23",
+      "actualPaths": 2
+    },
+    {
+      "file": "clairvoyance/all/receipt.json",
+      "status": "REAL_POSTGRES_CLAIRVOYANCE_PRIVATE_ORDER_DRAW_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "2cc3d7615985a5d1f2747d29bd2fe3df8193758717047d3ca87da33e8a26483a",
+      "actualPaths": 1
+    },
+    {
+      "file": "clairvoyance/burnout/receipt.json",
+      "status": "REAL_POSTGRES_CLAIRVOYANCE_PRIVATE_ORDER_DRAW_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "3401bca1dc4f4a21d7c9631b2a271af09c82f56643a617a51819f943075b556f",
+      "actualPaths": 1
+    },
+    {
+      "file": "clairvoyance/control/receipt.json",
+      "status": "REAL_POSTGRES_CLAIRVOYANCE_PRIVATE_ORDER_DRAW_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "6dda63c17ce1ba4bbe155f6f754ec2238b53af36d7006628e63b678cddcad518",
+      "actualPaths": 1
+    },
+    {
+      "file": "clairvoyance/keep/receipt.json",
+      "status": "REAL_POSTGRES_CLAIRVOYANCE_PRIVATE_ORDER_DRAW_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "6a3093d1e1c9393048e34c932e62e411f1d2c66e9e511e39fe58a00bf4d070af",
+      "actualPaths": 1
+    },
+    {
+      "file": "clairvoyance/some/receipt.json",
+      "status": "REAL_POSTGRES_CLAIRVOYANCE_PRIVATE_ORDER_DRAW_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "451fdc4876523c43d06246f002d894af4aec6b2bd9c7574218f4b288243ddac3",
+      "actualPaths": 1
+    },
+    {
+      "file": "combat-assignment/choose-first-attacker/receipt.json",
+      "status": "REAL_POSTGRES_COMBAT_ASSIGNMENT_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "6fd4e8ae6e14e38c2684dc13e8ce75568802f4f747d4ff27edade82ef734bfe1",
+      "actualPaths": 1
+    },
+    {
+      "file": "combat-assignment/choose-second-attacker/receipt.json",
+      "status": "REAL_POSTGRES_COMBAT_ASSIGNMENT_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "279514a951d4baead6de5b6c3b9d579f614022e6d1c218a1b3ebc8cb557cea0d",
+      "actualPaths": 1
+    },
+    {
+      "file": "combat-assignment/declared-source-second/receipt.json",
+      "status": "REAL_POSTGRES_COMBAT_ASSIGNMENT_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "e782db9bbbfbdc1751fab25f029915d173c879b3efde0f0ad4851d2dc0fc5641",
+      "actualPaths": 1
+    },
+    {
+      "file": "combat-assignment/multiple-defenders/receipt.json",
+      "status": "REAL_POSTGRES_COMBAT_ASSIGNMENT_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "fed022ddb6249a0fab0df298b38a7100742eeea8637c3c9990ff56bd8fff314b",
+      "actualPaths": 1
+    },
+    {
+      "file": "combat-assignment/natural-source-first/receipt.json",
+      "status": "REAL_POSTGRES_COMBAT_ASSIGNMENT_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "855ff39d10a2a861d47807e29214da2b53853ecf226f5d2b2516d8fd8bd9e8ba",
+      "actualPaths": 1
+    },
+    {
+      "file": "combat-assignment/natural-source-second/receipt.json",
+      "status": "REAL_POSTGRES_COMBAT_ASSIGNMENT_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "11e5f53b92348ab9ddd93e42e2df064f37def77bea2fc3b1eb84c0a1b27152bb",
+      "actualPaths": 1
+    },
+    {
+      "file": "combat-assignment/one-on-one/receipt.json",
+      "status": "REAL_POSTGRES_COMBAT_ASSIGNMENT_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "faf23f78eff55d5243c3efe283abad4fcf909464ed3c34a2b5edfc66db44587b",
+      "actualPaths": 1
+    },
+    {
+      "file": "combat-assignment/vayne-secondary-decline/receipt.json",
+      "status": "REAL_POSTGRES_COMBAT_ASSIGNMENT_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "ae27ac1ef3304ad1eddb063abb84d47839a54b1eaca82dbd3c561c307b38793a",
+      "actualPaths": 1
+    },
+    {
+      "file": "combat-assignment/vayne-secondary-dies/receipt.json",
+      "status": "REAL_POSTGRES_COMBAT_ASSIGNMENT_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "142cab710e7cf46f93e2e92d1687806296fa89078d832a932907a0786e568971",
+      "actualPaths": 1
+    },
+    {
+      "file": "combat-assignment/vayne-secondary-pay/receipt.json",
+      "status": "REAL_POSTGRES_COMBAT_ASSIGNMENT_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "a9a15dd347942b7edead8bd86460ebd0d0c15af898f471d15a5b9d941ccf5021",
+      "actualPaths": 1
+    },
+    {
+      "file": "confirmed-play-origin/hand/receipt.json",
+      "status": "REAL_POSTGRES_CONFIRMED_PLAY_ORIGIN_CAUSAL_RECOVERY_REPLAY_PASS",
+      "sha256": "ed4eefb41b4b3d746d8c2299561492be4442a671a22827e8ca99a7eb19e7a612",
+      "actualPaths": 1
+    },
+    {
+      "file": "confirmed-play-origin/standby/receipt.json",
+      "status": "REAL_POSTGRES_CONFIRMED_PLAY_ORIGIN_CAUSAL_RECOVERY_REPLAY_PASS",
+      "sha256": "0ac21a94541ceb5595ffaf37ce61dd621f97f33e3265adaf84582070355e9a16",
+      "actualPaths": 1
+    },
+    {
+      "file": "conquest-token/alternate-plain/receipt.json",
+      "status": "REAL_POSTGRES_CONQUEST_TOKEN_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "sha256": "ad746667f28efee1a2dcc9823468cd2ba60435978460fa3cf3a438048d66bb57",
+      "actualPaths": 1
+    },
+    {
+      "file": "conquest-token/alternate-reaction/receipt.json",
+      "status": "REAL_POSTGRES_CONQUEST_TOKEN_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "sha256": "4521def162e08a1194a890239cff9d49c5ad29dfe25aa4714ae43cdd6368ba1c",
+      "actualPaths": 1
+    },
+    {
+      "file": "conquest-token/primary-plain/receipt.json",
+      "status": "REAL_POSTGRES_CONQUEST_TOKEN_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "sha256": "e202a256abc25a9d4241130d954975a71c02c397610f5bb9d06c61e7cc72d59a",
+      "actualPaths": 1
+    },
+    {
+      "file": "conquest-token/primary-reaction/receipt.json",
+      "status": "REAL_POSTGRES_CONQUEST_TOKEN_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "sha256": "2e7b933f94f1b3863238957d7ae67993f0fa023b428bb8e9ebecc43768e68acd",
+      "actualPaths": 1
+    },
+    {
+      "file": "created-token-ready/protect-decline/acceptance.json",
+      "status": "PASS",
+      "sha256": "caa89a7d9757670d62e7cf51d3feb525d16048772415313d6c5efef1e9b3b4db",
+      "actualPaths": 1
+    },
+    {
+      "file": "created-token-ready/protect-pay/acceptance.json",
+      "status": "PASS",
+      "sha256": "6cab957d37c2e5ae8d2a165c359103660c2ce8eeaab2fde1d01c0cdf5a2b4530",
+      "actualPaths": 1
+    },
+    {
+      "file": "created-token-ready/rise-0/acceptance.json",
+      "status": "PASS",
+      "sha256": "6d4b1309b09799b735c30267ab3f5b48a53837e7fadda4e4ccd9643d362bb741",
+      "actualPaths": 1
+    },
+    {
+      "file": "created-token-ready/rise-2/acceptance.json",
+      "status": "PASS",
+      "sha256": "187aa6a7625d36cfd07b9a73962af7531f85842b61f49551d2538f36dbd6f1c9",
+      "actualPaths": 1
+    },
+    {
+      "file": "granted-origin-haste/sacrifice/receipt.json",
+      "status": "REAL_POSTGRES_GRANTED_HASTE_ORIGINAL_OPENING_COLD_ENTRY_AND_EVENT_REJECTION_PASS",
+      "sha256": "8bf67b35cb71f9303aeb170114b3c2bf4bf84db5cf96d34c4b4b97f27e8652b2",
+      "actualPaths": 1
+    },
+    {
+      "file": "granted-origin-haste/unit/receipt.json",
+      "status": "REAL_POSTGRES_GRANTED_HASTE_ORIGINAL_OPENING_COLD_ENTRY_AND_EVENT_REJECTION_PASS",
+      "sha256": "d1405c0f12adbaf88291c2e1d22d3dae0d643a3488d83d33375085b7f747a90a",
+      "actualPaths": 1
+    },
+    {
+      "file": "granted-predict/receipt.json",
+      "status": "REAL_POSTGRES_GRANTED_PREDICT_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "sha256": "d4b74c39852b5d2d993bd3d74d6d95b7ce9d0931fedbbc1c87d1e79ef3aa44d4",
+      "actualPaths": 1
+    },
+    {
+      "file": "granted-token-haste/hand/receipt.json",
+      "status": "REAL_POSTGRES_GRANTED_TOKEN_HASTE_COLD_RESTORE_AND_EVENT_REJECTION_PASS",
+      "sha256": "c346d44efe80172992b0b08614f8ee0b966886d00e00e65b6cd7d94415a41246",
+      "actualPaths": 1
+    },
+    {
+      "file": "granted-token-haste/standby/receipt.json",
+      "status": "REAL_POSTGRES_GRANTED_TOKEN_HASTE_COLD_RESTORE_AND_EVENT_REJECTION_PASS",
+      "sha256": "add0a91f83b9e7cd967df9efceecfe319c305f201c57a60f133392718ad72f58",
+      "actualPaths": 1
+    },
+    {
+      "file": "insight-repeat/abandon/receipt.json",
+      "status": "REAL_POSTGRES_INSIGHT_ECHO_ORDER_DRAW_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "18e50358cc274c63f0001da0a0331618ef5a562621ee30598f109933b0dad65e",
+      "actualPaths": 1
+    },
+    {
+      "file": "insight-repeat/all/receipt.json",
+      "status": "REAL_POSTGRES_INSIGHT_ECHO_ORDER_DRAW_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "ac4b38bbd352036331dabe3f5e33baf093705676a5964fca4f16dfa6f248b2fe",
+      "actualPaths": 1
+    },
+    {
+      "file": "insight-repeat/burnout/receipt.json",
+      "status": "REAL_POSTGRES_INSIGHT_ECHO_ORDER_DRAW_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "ad282c8360bfac5b58d8606ada54d78dcbbd1b4df76ef3cd95177985e2f41381",
+      "actualPaths": 1
+    },
+    {
+      "file": "insight-repeat/counter/receipt.json",
+      "status": "REAL_POSTGRES_INSIGHT_ECHO_ORDER_DRAW_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "11b3dcedb550d6851346d075387f1d8bc8df2ad8c2cdf7db4113aa42632baf54",
+      "actualPaths": 1
+    },
+    {
+      "file": "insight-repeat/eclipse/receipt.json",
+      "status": "REAL_POSTGRES_INSIGHT_ECHO_ORDER_DRAW_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "eb7ca8fad8ac4dc28cbf457972181b6a2abf5c3841ddc8407a0390929e2a05e5",
+      "actualPaths": 1
+    },
+    {
+      "file": "insight-repeat/once/receipt.json",
+      "status": "REAL_POSTGRES_INSIGHT_ECHO_ORDER_DRAW_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "dfdd0a4edccc6524dc1c6ebafadf6c294ec71f877c1808d253b83d9abd5f8d60",
+      "actualPaths": 1
+    },
+    {
+      "file": "insight-repeat/twice/receipt.json",
+      "status": "REAL_POSTGRES_INSIGHT_ECHO_ORDER_DRAW_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "28551e0e14a3d8abb702025c0a62b730ad17d34bc0f7895a1a35516dba79fce7",
+      "actualPaths": 1
+    },
+    {
+      "file": "masked-attendant/receipt.json",
+      "status": "REAL_POSTGRES_MASKED_SELF_COPY_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "sha256": "ac0e3d0b1c800fc4e52a00a55ecb696ddc9bb771b0ebcbe345bb356830d72418",
+      "actualPaths": 1
+    },
+    {
+      "file": "opponent-battlefield-control/neutral/receipt.json",
+      "status": "REAL_POSTGRES_CURRENT_BATTLEFIELD_CONTROLLER_EMPTY_OPENING_COLD_ENTRY_EVENT_REJECTION_PASS",
+      "sha256": "da00885c0577922ebedf3b39a24e7bf5de19c7fa2209003223b1a85d8ba605d7",
+      "actualPaths": 1
+    },
+    {
+      "file": "opponent-battlefield-control/swapped/receipt.json",
+      "status": "REAL_POSTGRES_CURRENT_BATTLEFIELD_CONTROLLER_EMPTY_OPENING_COLD_ENTRY_EVENT_REJECTION_PASS",
+      "sha256": "ff1e9976aa734d8bf25247bb263f903a374858acdb0c9a3db4beed1099327f2f",
+      "actualPaths": 1
+    },
+    {
+      "file": "optional-costs/receipt.json",
+      "status": "REAL_POSTGRES_OPTIONAL_COSTS_REJECTION_COLD_RECOVERY_AND_ORIGINAL_REPLAY_PASS",
+      "sha256": "a8315bc7e108c797fcbb133f2e55fab7ffd13177b3a44fa8c28e85e6c5da4b74",
+      "actualPaths": 2
+    },
+    {
+      "file": "optional-sacrifice/hand/receipt.json",
+      "status": "REAL_POSTGRES_OPTIONAL_SACRIFICE_PRINTED_COST_COLD_RESTORE_AND_EVENT_REJECTION_PASS",
+      "sha256": "7ab85663aaf1a091a9583e12878f62f8b36c3f9dd9195de2dc7e9a0d849abfe9",
+      "actualPaths": 1
+    },
+    {
+      "file": "optional-sacrifice/haste/receipt.json",
+      "status": "REAL_POSTGRES_OPTIONAL_SACRIFICE_PRINTED_COST_COLD_RESTORE_AND_EVENT_REJECTION_PASS",
+      "sha256": "38f83b5a78f73d3034af772c42eb54fa19f78746ae2a0003458627aa347567e9",
+      "actualPaths": 1
+    },
+    {
+      "file": "physical-origin-cost/spell/receipt.json",
+      "status": "REAL_POSTGRES_PHYSICAL_ORIGIN_COST_RECOVERY_EVENT_REJECTION_AND_FULL_OPENING_REPLAY_PASS",
+      "sha256": "8bea5a78f2f839cfefccbe41123e9e09018c62d3f66d360b2e3ae58bbb025cc0",
+      "actualPaths": 1
+    },
+    {
+      "file": "physical-origin-cost/unit/receipt.json",
+      "status": "REAL_POSTGRES_PHYSICAL_ORIGIN_COST_RECOVERY_EVENT_REJECTION_AND_FULL_OPENING_REPLAY_PASS",
+      "sha256": "d4ca4c80dced886e8abfc5ffdfb805a7c720207bd8379c3ba06f8b2d039c3fe0",
+      "actualPaths": 1
+    },
+    {
+      "file": "porobot/below/receipt.json",
+      "status": "REAL_POSTGRES_POROBOT_CONDITIONAL_DRAW_COLD_AND_FULL_REPLAY_PASS",
+      "sha256": "44bab36c811e4e424a90fff9be7d844d02956848264b0a6bc5593c582baa0a8b",
+      "actualPaths": 1
+    },
+    {
+      "file": "porobot/gold/receipt.json",
+      "status": "REAL_POSTGRES_POROBOT_CONDITIONAL_DRAW_COLD_AND_FULL_REPLAY_PASS",
+      "sha256": "bd0694a557125fdbd6ba47e47c9ba7bb2874c5751dd9f33f7808b43297babb64",
+      "actualPaths": 1
+    },
+    {
+      "file": "porobot/return/receipt.json",
+      "status": "REAL_POSTGRES_POROBOT_CONDITIONAL_DRAW_COLD_AND_FULL_REPLAY_PASS",
+      "sha256": "d43002438423c2519a20faaef528ec12bd7ef1ee78cb21071ff14750e44ae06c",
+      "actualPaths": 1
+    },
+    {
+      "file": "porobot/threshold/receipt.json",
+      "status": "REAL_POSTGRES_POROBOT_CONDITIONAL_DRAW_COLD_AND_FULL_REPLAY_PASS",
+      "sha256": "100448cf058e312d06cf2a9b67ad30335b4e58d1f0c40bd8f35d23b1a21f1399",
+      "actualPaths": 1
+    },
+    {
+      "file": "printed-predict/receipt.json",
+      "status": "REAL_POSTGRES_PRINTED_PREDICT_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "sha256": "4c57de9d8fc3c24d10a48fbc9fd17f524921c25f28f9ef210aa2d22bf4f4f723",
+      "actualPaths": 1
+    },
+    {
+      "file": "private-opening/receipt.json",
+      "status": "REAL_POSTGRES_PRIVATE_OPENING_SEED_COLD_FULL_ORIGINAL_REPLAY_TAMPER_AND_PROJECTION_PASS",
+      "sha256": "057620451a7414069858128e05d85e0eabdf59994feb67e91917f6be098cdeff",
+      "actualPaths": 1
+    },
+    {
+      "file": "recycle-boon-lifecycle/alternate/receipt.json",
+      "status": "REAL_POSTGRES_RECYCLED_BOON_CEASED_SOURCE_COLD_AND_FULL_REPLAY_PASS",
+      "sha256": "26c1e2325e98578dd81c34bf521115eba6d252f4cfb007c56bbb37d0ef0ccc40",
+      "actualPaths": 1
+    },
+    {
+      "file": "recycle-boon-lifecycle/primary/receipt.json",
+      "status": "REAL_POSTGRES_RECYCLED_BOON_CEASED_SOURCE_COLD_AND_FULL_REPLAY_PASS",
+      "sha256": "583015202be7e5fc281b7205e2c0866be09833a9e1278e2204e8a2044b088d71",
+      "actualPaths": 1
+    },
+    {
+      "file": "recycle-boon-lifecycle/promo/receipt.json",
+      "status": "REAL_POSTGRES_RECYCLED_BOON_CEASED_SOURCE_COLD_AND_FULL_REPLAY_PASS",
+      "sha256": "8f5b1bc4903c0ab9026f72e607d0bc45cf721a7df95f896387089383e9dfe02a",
+      "actualPaths": 1
+    },
+    {
+      "file": "recycled-card-boon/alternate-hook/receipt.json",
+      "status": "REAL_POSTGRES_RECYCLED_CARD_BOON_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "sha256": "71d8c73cc230f70f35fc9b469d67ad9fe3bf52477215f756d9abcef38f73f6de",
+      "actualPaths": 1
+    },
+    {
+      "file": "recycled-card-boon/alternate-predict/receipt.json",
+      "status": "REAL_POSTGRES_RECYCLED_CARD_BOON_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "sha256": "64f9296353e08508718f9d47a65318e87bdc01cf9dfd51a6136190f800b3f2fb",
+      "actualPaths": 1
+    },
+    {
+      "file": "recycled-card-boon/primary-hook/receipt.json",
+      "status": "REAL_POSTGRES_RECYCLED_CARD_BOON_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "sha256": "5b848d9b6c0a4e1f4f852471e4db567e8fba94514f92aad644fdd41de4e27142",
+      "actualPaths": 1
+    },
+    {
+      "file": "recycled-card-boon/primary-predict/receipt.json",
+      "status": "REAL_POSTGRES_RECYCLED_CARD_BOON_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "sha256": "2b9dc749bb0205c07148a19b70b52511a9dfaae9c1c04da4669e31783dea27d2",
+      "actualPaths": 1
+    },
+    {
+      "file": "recycled-card-boon/promo-hook/receipt.json",
+      "status": "REAL_POSTGRES_RECYCLED_CARD_BOON_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "sha256": "e1558e0fc78a399b62a0cbc57473850f6ecdd74eb23b17d7b8ea5e6addf1b664",
+      "actualPaths": 1
+    },
+    {
+      "file": "recycled-card-boon/promo-predict/receipt.json",
+      "status": "REAL_POSTGRES_RECYCLED_CARD_BOON_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "sha256": "41663590be22cb01244f524b33aef9989efa3682e2ef3b09a055a49f4535cd86",
+      "actualPaths": 1
+    },
+    {
+      "file": "result.json",
+      "status": "REAL_POSTGRES_CORE_OPENING_RECOVERY_REPLAY_AND_TAMPER_PASS",
+      "sha256": "df804a2306134e0b192eef497df2def43c5313f1e5e7767df86e20f3f8a552dd",
+      "actualPaths": 1
+    },
+    {
+      "file": "rune-destination/multiple/receipt.json",
+      "status": "REAL_POSTGRES_RUNE_DESTINATION_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "sha256": "e3bebe3015c126ccd3a03a5e6c7edcaca1d0cc65a5f8e69cf1a17b8a5c0806ff",
+      "actualPaths": 1
+    },
+    {
+      "file": "rune-destination/single/receipt.json",
+      "status": "REAL_POSTGRES_RUNE_DESTINATION_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "sha256": "e309f65488cd9be31fd63048f8907a93cf0d437b491ba52151518cfc19f4a3be",
+      "actualPaths": 1
+    },
+    {
+      "file": "sivir-optional/alternate-decline/receipt.json",
+      "status": "REAL_POSTGRES_SIVIR_OPTIONAL_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "sha256": "6d1879b969b76b85e925e1bd702d5defbae63168a8eb01fa15124904ad36464e",
+      "actualPaths": 1
+    },
+    {
+      "file": "sivir-optional/alternate-pay/receipt.json",
+      "status": "REAL_POSTGRES_SIVIR_OPTIONAL_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "sha256": "120cd931815c01cbb35da97a3b71b3cef70395d29ecb9868580b29f8eb4ab96d",
+      "actualPaths": 1
+    },
+    {
+      "file": "sivir-optional/primary-decline/receipt.json",
+      "status": "REAL_POSTGRES_SIVIR_OPTIONAL_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "sha256": "7a9949c4581c4efc3b93d20d9b0c73fb7941dc577719882303eda15d54ea27f3",
+      "actualPaths": 1
+    },
+    {
+      "file": "sivir-optional/primary-pay/receipt.json",
+      "status": "REAL_POSTGRES_SIVIR_OPTIONAL_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "sha256": "2fd9c585a904d6cdbb505b932e6ea958408316c416b68ecfd0cb9937fe4de434",
+      "actualPaths": 1
+    },
+    {
+      "file": "sivir-payment/deferred-decline/receipt.json",
+      "status": "REAL_POSTGRES_SIVIR_PAYMENT_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "sha256": "2b7662b474c9484cbf92741d29be5a0ef5d51926e23b79c5a91520dadcc39c5c",
+      "actualPaths": 1
+    },
+    {
+      "file": "sivir-payment/deferred-pay/receipt.json",
+      "status": "REAL_POSTGRES_SIVIR_PAYMENT_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "sha256": "470e2ad891c0328ac93b6c725f7098b8474a3e9adfa8d4b638c300f98d60b7e8",
+      "actualPaths": 1
+    },
+    {
+      "file": "sivir-payment/inline-decline/receipt.json",
+      "status": "REAL_POSTGRES_SIVIR_PAYMENT_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "sha256": "cdcf78afc6e2247fe79cfa538b9c43ef282358c12ded4fdad3d919a042cce75d",
+      "actualPaths": 1
+    },
+    {
+      "file": "sivir-payment/inline-pay/receipt.json",
+      "status": "REAL_POSTGRES_SIVIR_PAYMENT_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "sha256": "0ca39cd0b0ce1688cdef9f6544ee18f6577d1a4c46cec4bb9877dd02b3513ab4",
+      "actualPaths": 1
+    },
+    {
+      "file": "typed-play-history-causal/receipt.json",
+      "status": "REAL_POSTGRES_TYPED_PLAY_HISTORY_CAUSAL_REGISTRY_PASS",
+      "sha256": "76f659cb4006fa69acd35f918fd669499fc1573f21c7087dcf34992871b23190",
+      "actualPaths": 1
+    },
+    {
+      "file": "typed-play-history/control/receipt.json",
+      "status": "REAL_POSTGRES_TYPED_PLAY_HISTORY_COLD_AND_FULL_REPLAY_PASS",
+      "sha256": "9dc87f9a798cd1ebd35b3f533b1b8467cbefb9ff0aeeb5d324e759cf55f54532",
+      "actualPaths": 1
+    },
+    {
+      "file": "typed-play-history/countered/receipt.json",
+      "status": "REAL_POSTGRES_TYPED_PLAY_HISTORY_COLD_AND_FULL_REPLAY_PASS",
+      "sha256": "716a67c8b7b05ac313390e94d53642657825addbfa002b0e5e34d8606ae610f0",
+      "actualPaths": 1
+    },
+    {
+      "file": "typed-play-history/resolved/receipt.json",
+      "status": "REAL_POSTGRES_TYPED_PLAY_HISTORY_COLD_AND_FULL_REPLAY_PASS",
+      "sha256": "e9dd41b9129c2812dc27e83f8dbca022f3ab7cb88548f63c4701d3a783f20096",
+      "actualPaths": 1
+    }
+  ],
+  "wholeCardOrVisibleClientOrWindowsCertification": false,
+  "firstCollectorFailure": "sql-collector-attempt-1.json"
+}

@@ -1,0 +1,143 @@
+{
+  "recordedAtUtc": "2026-10-17T09:20:27.015005+00:00",
+  "baseCommit": "3a8a6f394fc6a8a7e3ea99a2db0799fa35859d31",
+  "scope": "Independent battlefield-only permanent primary ability recovery origin and actual original-log replay checks; no positive effect or whole card certification.",
+  "entries": [
+    {
+      "path": "docs/evidence/battlefield-play-recovery-2026-10-17/check.json",
+      "sha256": "0bb2edcc0470c4442d53e325820fa5456b5cdd009b1016943ab1d42398f47811",
+      "bytes": 4597
+    },
+    {
+      "path": "docs/evidence/battlefield-play-recovery-2026-10-17/complete-sql.json",
+      "sha256": "d3f15fd779b6d21a62469c18b8fb126f1d15d069fafde0325cabf5c41b337b5f",
+      "bytes": 23737
+    },
+    {
+      "path": "docs/evidence/battlefield-play-recovery-2026-10-17/completed-check-source-retirement.json",
+      "sha256": "4ad27ac11de335e8d05e6798ca0d90db7800a82b6dc975b0f1e4f9d6c4504593",
+      "bytes": 1060
+    },
+    {
+      "path": "docs/evidence/battlefield-play-recovery-2026-10-17/completed-originals-source-retirement.json",
+      "sha256": "830bc464d4d9fd797b56b41da714ff2bda876b5820ee31c0bbabcc38f289f1b1",
+      "bytes": 1181
+    },
+    {
+      "path": "docs/evidence/battlefield-play-recovery-2026-10-17/default-new-family-sql.json",
+      "sha256": "a18cbcbb86c33061792fbc5493c49f98d0f4707650793e170a2144b1dd206a23",
+      "bytes": 3779
+    },
+    {
+      "path": "docs/evidence/battlefield-play-recovery-2026-10-17/environment.json",
+      "sha256": "02e3a4b566ef659c7bfdcaf6bec75f63415550a42b0eae5be964edc6c10fd58a",
+      "bytes": 646
+    },
+    {
+      "path": "docs/evidence/battlefield-play-recovery-2026-10-17/faq-current-first-page.png",
+      "sha256": "29668e3ef4a92ffd25f35dcf628f7b5514f36b3693529d066a2cfb23588bce54",
+      "bytes": 394692
+    },
+    {
+      "path": "docs/evidence/battlefield-play-recovery-2026-10-17/faq-historical-first-page.png",
+      "sha256": "8a1c89bc5c4662584809f3276f9fd08c7243d68b67560e7fddc05d1e88502789",
+      "bytes": 365770
+    },
+    {
+      "path": "docs/evidence/battlefield-play-recovery-2026-10-17/faq-version-readback-and-disposition.json",
+      "sha256": "daac8e4f65a266f5466d9e06ca79572c5326c6c02d529c5d507f8d5e111fec68",
+      "bytes": 3712
+    },
+    {
+      "path": "docs/evidence/battlefield-play-recovery-2026-10-17/focus.json",
+      "sha256": "1edf692c9b40c18f8795351331012f017f52e00630fa4bb9bcb1bcbeecffd05a",
+      "bytes": 28581
+    },
+    {
+      "path": "docs/evidence/battlefield-play-recovery-2026-10-17/governance-and-retention.json",
+      "sha256": "ee7c7bb9ad4ac3e18864f7a69e069d509061677dd22b6b1d1f3f2bb67d44e266",
+      "bytes": 1267
+    },
+    {
+      "path": "docs/evidence/battlefield-play-recovery-2026-10-17/initial-capture-probe-correction.json",
+      "sha256": "85092e26dd9c17c432c11298a8f2a9c043090fbb8687bbf3b985bd460d660002",
+      "bytes": 246
+    },
+    {
+      "path": "docs/evidence/battlefield-play-recovery-2026-10-17/obsolete-owned-service-stop.json",
+      "sha256": "1905b524a813072076e135f94ebd9316bfe9392ce21e1739f3682ef0ad7173d9",
+      "bytes": 723
+    },
+    {
+      "path": "docs/evidence/battlefield-play-recovery-2026-10-17/original-source-retention.json",
+      "sha256": "29c5d5ba5f5669cbc085aa5ef5d9b6cdf9a125b7bf1305f9595f341b757a7be6",
+      "bytes": 79077
+    },
+    {
+      "path": "docs/evidence/battlefield-play-recovery-2026-10-17/originals.json",
+      "sha256": "a3daef0d680de0c347510a82f5b8b849b1b87dd07a67e7b6d04c31804f615b17",
+      "bytes": 15362
+    },
+    {
+      "path": "docs/evidence/battlefield-play-recovery-2026-10-17/previous-fixed-c3bc-full-ci.json",
+      "sha256": "519057c050d12d4c8daa683eec171089bb8085751189b3cffc41264517734424",
+      "bytes": 94599
+    },
+    {
+      "path": "docs/evidence/battlefield-play-recovery-2026-10-17/previous-fixed-c3bc-sql-and-desktop.json",
+      "sha256": "c46fcb54d90741930a7f31cc7d900f6877f18dbf47f3ece383c37c433fc4be80",
+      "bytes": 995
+    },
+    {
+      "path": "docs/evidence/battlefield-play-recovery-2026-10-17/prior-context-input-updates.json",
+      "sha256": "2dcd31cf2e7262bf6551f9758beccb097b05622859d3a429d6d554538ea1548f",
+      "bytes": 5424
+    },
+    {
+      "path": "docs/evidence/battlefield-play-recovery-2026-10-17/rengar-legend.json.gz",
+      "sha256": "26c3afd0fe2792381cbd641ed61d23970a0a36073989daf135271c29a23cf2bd",
+      "bytes": 892
+    },
+    {
+      "path": "docs/evidence/battlefield-play-recovery-2026-10-17/rengar-source-comparison.json",
+      "sha256": "15505374fc08cdcf8283e29eb6ca2060c508eb2a73f6c7dba35356caa2b99c40",
+      "bytes": 1007
+    },
+    {
+      "path": "docs/evidence/battlefield-play-recovery-2026-10-17/rengar-source-manifest.json",
+      "sha256": "60d2be77888e923806ff7e2a9e8db763ca8b7566b617d1a88919792e31c81f0e",
+      "bytes": 4755
+    },
+    {
+      "path": "docs/evidence/battlefield-play-recovery-2026-10-17/scoped-independent-sql-readback.json",
+      "sha256": "0cfc00aae2c1f17bcf5f851a4ad29df8bed4aa40d147e06302ce43d51aedc9e1",
+      "bytes": 831
+    },
+    {
+      "path": "docs/evidence/battlefield-play-recovery-2026-10-17/scoped-real-sql.json",
+      "sha256": "2bfc4b2234a781e3fb6e8bbf7c5cf046fef2af5bd07efcf73cb0398b13bcb6bb",
+      "bytes": 3779
+    },
+    {
+      "path": "docs/evidence/battlefield-play-recovery-2026-10-17/scoped-sql-execution.json",
+      "sha256": "50e9586dd798b5efd772eeac7703adb99e76cd99f15cec541eda5d4eaa21a1a6",
+      "bytes": 524
+    },
+    {
+      "path": "docs/evidence/battlefield-play-recovery-2026-10-17/source-manifest.json",
+      "sha256": "9dd06faae7efa8a55059d7d0e67fa254296556cba0e8b0464aca1c1c59d1167f",
+      "bytes": 3137
+    },
+    {
+      "path": "docs/evidence/battlefield-play-recovery-2026-10-17/sql-collector-correction.json",
+      "sha256": "14e4e13d8efb549a26c0fe7cac1fcea097e0a447cd3114beb2a07cb3600d5d7c",
+      "bytes": 568
+    }
+  ],
+  "allRawLogsTrxSourceManifestsFailedAttemptsAndOriginalDatabasesRetainedLocally": true,
+  "rawFrozenSourceManifestSha256": "e261131a8e673a8d61582bc201dfe47e57a902905e14750fa8880f2c0bee8284",
+  "rawPublishedSqlFilesManifestSha256": "f702cc81eb4b30483573adebb81007109b4876207e84bc87a95d990c9aa0e582",
+  "privateSessionProfilesTokensOrFramesCopied": false,
+  "currentFixedFull": "PENDING_NEW_FIXED_COMMIT",
+  "currentVisibleNativeNetworkScoreAndPhysicalWindows": "OPEN"
+}

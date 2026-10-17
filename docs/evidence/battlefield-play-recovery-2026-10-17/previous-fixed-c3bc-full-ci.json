@@ -1,0 +1,2393 @@
+{
+  "recordedAtUtc": "2026-10-17T08:33:19.479621+00:00",
+  "status": "FIXED_C3BC_FULL_CI_TERMINAL_AND_INDEPENDENT_RETENTION_VERIFIED",
+  "commit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
+  "runId": 39009840702,
+  "conclusion": "success",
+  "jobs": {
+    "scope": "success",
+    "rules": "success",
+    "desktop (macos-latest)": "success",
+    "desktop (windows-latest)": "success"
+  },
+  "cases": 12444,
+  "methods": 7422,
+  "fullGameMethods": 143,
+  "skipped": 0,
+  "testAssemblySha256": "49887049436ba118160aa6edf93b4a70db73e5c2d287838bd96bebe1ef770f7d",
+  "trx": [
+    {
+      "shard": "rules",
+      "cases": 12293,
+      "methods": 7279,
+      "trxSha256": "15dc8098d2d626436e41edd962915ca6fe18b0c4bbb909b49ab5859f7c132b2b"
+    },
+    {
+      "shard": "games-1",
+      "cases": 1,
+      "methods": 1,
+      "trxSha256": "e2979ab68ab430b0755fa369c46fd2b9ff51f6880cfbc2070e271190d57daab7"
+    },
+    {
+      "shard": "games-4",
+      "cases": 52,
+      "methods": 48,
+      "trxSha256": "6698756d990785558ebf6743b62f52b4aaef26a5560c3c3c09116d23e73358f3"
+    },
+    {
+      "shard": "games-2",
+      "cases": 49,
+      "methods": 47,
+      "trxSha256": "71d4c4c92af0f6a670bf1ba52450202ad254ee2393b09c580e835d351e8d5c58"
+    },
+    {
+      "shard": "games-3",
+      "cases": 49,
+      "methods": 47,
+      "trxSha256": "0b7d3ca1e58706b1a6dee69e3145f1693e33f7db97a5a543e960139221a366b4"
+    }
+  ],
+  "original3d70All12259CaseMultisetExactlyRetained": true,
+  "newOptional185ExactlyMatchFinalLocalFocus": true,
+  "runnerCaseParityVerified": false,
+  "independentCaseParityVerified": true,
+  "matrix": {
+    "seed": 424242,
+    "deckCount": 11,
+    "pairCount": 110,
+    "completed": {
+      "jhin-lowcurve-vs-kaisa-red-control": "2b7f2fd6498bf4362af88c027e16d4690ff4b2066eb450eaddf54d88fc70e5e3",
+      "jhin-lowcurve-vs-kaisa-red-tempo": "885debc75611190ee2a4316090515f61e222c255b106fd2cee6da4b0ca62278e",
+      "jhin-lowcurve-vs-lillia-lowcurve": "10444e82df96b8d116902adede470448dbc47d22363a5bd37df035298f110ebd",
+      "jhin-lowcurve-vs-poppy-demacia": "72a7720031cc2e6c465f0cff089809662a83e236884808ab64a76bf251165c70",
+      "jhin-lowcurve-vs-poppy-standby": "b735fa3b2b302385d43b11c821d26a637e65416cecb2d141280692ac0f873918",
+      "jhin-lowcurve-vs-rumble-armaments": "10806df4099bfe145e199afa12955f91eaacfbfa4230bb668498f93b7ccf7c66",
+      "jhin-lowcurve-vs-rumble-lowcurve": "9bd056672b5b50e63e8b62d502300bee93ade063d4d8770c2cf8259fc02570c5",
+      "jhin-lowcurve-vs-vex-battlefields": "22f4dd3de8e18c26762abde2de61e71b221c72b9569b4f3d9f3c7056145ee53e",
+      "jhin-lowcurve-vs-vex-response": "74830ef7d6c97b2193ca514802f7e7e57da3dc9aec97b51c57eecd33c553032a",
+      "jhin-lowcurve-vs-vex-spells": "cc377af9e465b43c907cc2cf4d6ec1e0d21249acdb8c58aebe6cff0999c5ebea",
+      "kaisa-red-control-vs-jhin-lowcurve": "df32741e081e7314af8b7c87bd7cb547eb37d7ec0a1cda4e99d89cf4b44cf7ae",
+      "kaisa-red-control-vs-kaisa-red-tempo": "315cc236ecabd90f385d652d7fcd878d6fe0e29deec043ffd3c10c5b51c0b9ad",
+      "kaisa-red-control-vs-lillia-lowcurve": "412f619c3544c139a54653c7d9f6e7b92a1abd01bdd0ccad4a036fa6da71e37a",
+      "kaisa-red-control-vs-poppy-demacia": "515eb41002a2a7a60eca9990d15cc8ab098883f1cd54806ee749d29c28d8284a",
+      "kaisa-red-control-vs-poppy-standby": "d15b2b9ef62c6d68745b67c31153f7ddb9c92e1d64e9afac22df62b1957d4ecd",
+      "kaisa-red-control-vs-rumble-armaments": "1a3f285ba9e91512e05f202e0fc874af0654c01b04736c3e9446b8d6f4baabb9",
+      "kaisa-red-control-vs-rumble-lowcurve": "5b99c6d7250d06868442fa00282b008f196bd66ccb16bd774023bff246a6ccc0",
+      "kaisa-red-control-vs-vex-battlefields": "b7cc16bb9fcf84fb3872b4f8995df10846bfdef0426f4a21c88998dffce5d15a",
+      "kaisa-red-control-vs-vex-response": "bb31ac77786a97c2fa5844955f10f248722868d8d0f1382ae7afb8c343f573ea",
+      "kaisa-red-control-vs-vex-spells": "9b66a64ac60f32aa18225a1de48f19f58432951146e6858163c3a5a8aab80b28",
+      "kaisa-red-tempo-vs-jhin-lowcurve": "2be587496b013da19933be3c9edd1ce04a98f012e5a27b397efb7531e40eddc4",
+      "kaisa-red-tempo-vs-kaisa-red-control": "d68ac986bc3595787b504f0bbda76ec816b37d275e50b956a73f2eab6291c9d3",
+      "kaisa-red-tempo-vs-lillia-lowcurve": "2ebe57268a3b965156cd5e76d0035e73f6752df6151b0ceba78c49ded3e231b2",
+      "kaisa-red-tempo-vs-poppy-demacia": "93d491bccd8750eb4f9d78c8cf5ff12d3bfbf27bec100fb0e04b4c9d54d5b6ad",
+      "kaisa-red-tempo-vs-poppy-standby": "06f8ed52a41d257a65b332b00448d242386a5b1f9edc56ba9f7ff66e097a38e8",
+      "kaisa-red-tempo-vs-rumble-armaments": "4061b198fc5e4956021387eae1b661505ebd951e98366e5264f436bec74ca652",
+      "kaisa-red-tempo-vs-rumble-lowcurve": "04733b6121c9a2c20b2403071b645388049d7301b1f3e5fa441253578feb07a6",
+      "kaisa-red-tempo-vs-vex-battlefields": "546bb28ec12e341d49e8b1c74ed174afc7f2c43137e874e9b78e77e1c5e9214e",
+      "kaisa-red-tempo-vs-vex-response": "0e3406e8478593241c743fcc517834adfe8e7356e95dad3acc332c8e628278d3",
+      "kaisa-red-tempo-vs-vex-spells": "c5657410d16e10820e403e4a53020e73acbc0f7eafe35cf053b8b6f24ad9260c",
+      "lillia-lowcurve-vs-jhin-lowcurve": "b5844d79ec5d64a1c6ac5610c2af98b2deacd8773a747514b6dda4ea847eb7df",
+      "lillia-lowcurve-vs-kaisa-red-control": "afb4d8d147e71d570af84d01bcfa8cda32291341d8cf870f6b609ad1be7ce33b",
+      "lillia-lowcurve-vs-kaisa-red-tempo": "a7224c678fc42f5d1c5c2c25298366ba8b038754779e61b9f61d16378a87b358",
+      "lillia-lowcurve-vs-poppy-demacia": "646564adb9a6874ab2ad3b519d396628fcb98a4e71c10135cff4ab3a8fa86bd2",
+      "lillia-lowcurve-vs-poppy-standby": "c2a9b5a03d97323f1e93d029068f1b6d6c794fd8f84cf53b86a25801b1d698e7",
+      "lillia-lowcurve-vs-rumble-armaments": "3c8cfb8fc8ecd2003df4e2182d2ccbc299c9bc4144d624e1a0098d2f39594384",
+      "lillia-lowcurve-vs-rumble-lowcurve": "55069c11d42691b2224ae0243fb6ed856f447913c5aea586b4b5db7d9d45c96d",
+      "lillia-lowcurve-vs-vex-battlefields": "6a978ddc50dc1b8735c890eb2e9c3621ae9dfcd89318859b3392e604108378f9",
+      "lillia-lowcurve-vs-vex-response": "114f69cd1a3804fc691c47e1d82c3891e7345aa5ad79b374ba366d533825e0c0",
+      "lillia-lowcurve-vs-vex-spells": "033efcc44b54bd872adb1c87c472c8209cbde28a02988b67885b97e1eb7dbaad",
+      "poppy-demacia-vs-jhin-lowcurve": "5962393f10d9dda01c06c45a98d6d7dfab008ee5c1c2575b0b9a8b8981f530cb",
+      "poppy-demacia-vs-kaisa-red-control": "a14e84fc1127404a397187c7ccea5b2c8daf1475934d12dae9fc05c68a0fd910",
+      "poppy-demacia-vs-kaisa-red-tempo": "4658e6a121ef8c58f5ad92b064cfb3aef9d3589210a06ed7eec116f3bc273ddc",
+      "poppy-demacia-vs-lillia-lowcurve": "620ed5aa188d1de52cfe339b081464b77e2b889323131de1905abee7646ac5f8",
+      "poppy-demacia-vs-poppy-standby": "c943f33baa9024e19a1e014f89fa2d4dc4bfc4c3e5891ba0d8ee133111f26306",
+      "poppy-demacia-vs-rumble-armaments": "10c415bd0b4d33b9dabf632fbf1991ae06b4c71517eac2cf47ef39ea969eb15e",
+      "poppy-demacia-vs-rumble-lowcurve": "a5065a72b44c16daec9f323e9ccd8333614434891f6ff038e8144640fb103523",
+      "poppy-demacia-vs-vex-battlefields": "ae11e45b3caf9bf77c9cd08fdb932d1cd09bcaa2a457f771a3f71ccfa564f47e",
+      "poppy-demacia-vs-vex-response": "1381cbdc14c853991960b12b75d0b95a659af47a4416f033c6578a77758499cc",
+      "poppy-demacia-vs-vex-spells": "1c6a7f8b448c2775cedb79d356d5117cbd822e86651ac723c31585399e1ac0ed",
+      "poppy-standby-vs-jhin-lowcurve": "44f11dc69d254292bbf0dad102e365d6ac23c381ec04f4c81148c1b8cc87d54f",
+      "poppy-standby-vs-kaisa-red-control": "750cf52e250e6904a9dd55ae50d095dab46be49ffa387877d788829e1d96c33e",
+      "poppy-standby-vs-kaisa-red-tempo": "95f52765b88272dfbd0f9df77efb715a82afefe36ed7cb54d7fc607022ce17b9",
+      "poppy-standby-vs-lillia-lowcurve": "19f0a3a559a9ae30c7ae0a9c79833c42c2ab68be6385fc5918c933e73be331c9",
+      "poppy-standby-vs-poppy-demacia": "c3ad7c8be64b03c7cc56d514de45b139793f85ee60360ddfeed8648dc9847c73",
+      "poppy-standby-vs-rumble-armaments": "3d5f28c4fc2e3b76beaeae5b7626e7eecd1ad267d15e8bab8210d36ce4374aeb",
+      "poppy-standby-vs-rumble-lowcurve": "26e2ccd39922a02c3113ba715f5e6b227f8a58304dd6cab778429d400dab3a6c",
+      "poppy-standby-vs-vex-battlefields": "9c764056cd46d75be24ac2d2928f9ace9901e4855065d2b427d231169d8192ae",
+      "poppy-standby-vs-vex-response": "6d8e5e172fc9378b606c4e2e0f0bc024cc7e6c1e929de751d4406e1154c97630",
+      "poppy-standby-vs-vex-spells": "2c078887466b98b78cdd89bdbbeeef67de936a19e9742d545ea27951dd0051bc",
+      "rumble-armaments-vs-jhin-lowcurve": "31a5d2ba301fdb35d9438df26d0f7cda3af4adb185e544328f928aa745c22744",
+      "rumble-armaments-vs-kaisa-red-control": "48e58c763b146c02863b70b578fc3d59b855d7987bf517cb5e9b9ab7c7993f49",
+      "rumble-armaments-vs-kaisa-red-tempo": "2375cfbc9d0a2969b8119acdbd5950556d8c888155f48cdd4c2bc16ddf4bf8c0",
+      "rumble-armaments-vs-lillia-lowcurve": "b6731db6f9ef4281255932d55287ddbc9ac89ef53eb6c575d1cc34134629222f",
+      "rumble-armaments-vs-poppy-demacia": "17abc330b2a0abe224044ad3fff8164c9e72a9eb452fad7358d3b87f4a4488a8",
+      "rumble-armaments-vs-poppy-standby": "91484ebfd835fc1401caab5f49eb218da55673049432586a50ff84499125cc19",
+      "rumble-armaments-vs-rumble-lowcurve": "48bdd9232c7d8070fc4a343b4049b8245f461e10d12ec61bfbf6bfbf9e05be82",
+      "rumble-armaments-vs-vex-battlefields": "c04656b712e61975acce6df95b2c9b79c015a17386e688f84ab2936efe8fc17a",
+      "rumble-armaments-vs-vex-response": "023629dac16c512f1602ee593fb85a421b81c3fd3ac02a3d43cf05bda28bcc05",
+      "rumble-armaments-vs-vex-spells": "886f54c6a8786ab1beec2d000cc30f72e974854cb12d88173aa9b15179dd7258",
+      "rumble-lowcurve-vs-jhin-lowcurve": "dc483c97a0b79d49edb8c8f1a6a228fcbac0b3772ee01fdbc821ac80ead9de5c",
+      "rumble-lowcurve-vs-kaisa-red-control": "d37ecb4358a058274a16f4842a55794f57223d5a25fb4bf1056f21081b928646",
+      "rumble-lowcurve-vs-kaisa-red-tempo": "2723e99e15e4eed1e7e805cc8f42eb93749dc9446296970b51a92bbdb0dc250b",
+      "rumble-lowcurve-vs-lillia-lowcurve": "35dc4e0213df5a72fc6ac7da76c53aac63e8eaaa63a4ad86005e286fd61185c1",
+      "rumble-lowcurve-vs-poppy-demacia": "2bf2f47c0aad783a4e92af5d80f6b0a44c844bf91201fdce1f098720741c1f50",
+      "rumble-lowcurve-vs-poppy-standby": "5de74de6ca02883c8c6d797a4b0bd36f9cba234fc2d65bfa46c7e3a245be1cfd",
+      "rumble-lowcurve-vs-rumble-armaments": "164a71728bf92492a2f401a1f942cdd989e144a04ce153fa33e7b5b0909c5ca1",
+      "rumble-lowcurve-vs-vex-battlefields": "ba0bce645f40af14efb1106b32581240eec3c49d38eb8a5a2d414e8515249ab6",
+      "rumble-lowcurve-vs-vex-response": "6fdd21bc4d5ffc247d97412da836ea6b8f8478e6d8165fa3ec3dcd1e27b497d6",
+      "rumble-lowcurve-vs-vex-spells": "0bf360ec39fcbef0846c4d0982e16d898aec2dfa91901f03e40b61e6d39d4f9f",
+      "vex-battlefields-vs-jhin-lowcurve": "5aa9a2c6e0ec75e18875a688eb0eefdfe0da56b4c462e533bf138e0cbf4736c2",
+      "vex-battlefields-vs-kaisa-red-control": "88baebe32aed1ab57234e4b34b3d34dfcbe80e0bf808e7e6472049419159877c",
+      "vex-battlefields-vs-kaisa-red-tempo": "b3ea14d3d135b0b3a500001c468ae86316131a2b1bffb20fe3f9ad656715b7f3",
+      "vex-battlefields-vs-lillia-lowcurve": "0e1466039024436bc7b1fc1b5220abb891fd446f04b5704088c3775b16f9e641",
+      "vex-battlefields-vs-poppy-demacia": "1361d81cfb601048b7570bf247bb6942e489ae09029bd404e7dcd432cbb361a9",
+      "vex-battlefields-vs-poppy-standby": "703e2987b25a7bc71f0e0f00cfdc9101c8413c904c5e11cb66c47fb463572087",
+      "vex-battlefields-vs-rumble-armaments": "05f5af9ebe61f6e6be65611149c128b5305359c9341b57df5f637c4c1720f299",
+      "vex-battlefields-vs-rumble-lowcurve": "ffec20635afb8d2bb619f48d5b23996fcc84dd57ae8fdf4770b6be2c5630866b",
+      "vex-battlefields-vs-vex-response": "70757c3d780b9988b789a50ec1107a49a782632bb4263cd469a373fd40cc508c",
+      "vex-battlefields-vs-vex-spells": "0a05291679d44624c51cdc62d3e91d1e94dd38c1aeff6fbba7b80537639b1028",
+      "vex-response-vs-jhin-lowcurve": "9a57d0dc0b95f0f7a83cb1b2204838f98aff3c38a6df98db44e4cb32bb767144",
+      "vex-response-vs-kaisa-red-control": "0495403908d90de6cdd0862957362425344295abf2c80b7b0d1b9ab8e1fbd3ac",
+      "vex-response-vs-kaisa-red-tempo": "eb7a86dd334c38026ce01a1baa6644fad196b3131f52bed3129c21047acb8307",
+      "vex-response-vs-lillia-lowcurve": "facd30acb3d7c7b5b44cf11783483b29933f6da70b045e4f71f69fa1e93f6947",
+      "vex-response-vs-poppy-demacia": "5ecfb10dd0251b3c7c637b82c4172d5b3a9e06eef64786e7e54cd7f2cd64e678",
+      "vex-response-vs-poppy-standby": "d5790e9add82a50be58ed0a8834c852d077cff69fc93174ec1343b4cb362147f",
+      "vex-response-vs-rumble-armaments": "aebed778ece6a8aafa2a3df318370b731113c9c51b1afd3f4277fa27e5be02de",
+      "vex-response-vs-rumble-lowcurve": "bba08576b2a393332e21424435ab7ebff61e5af068fccd7299539b1a7997ca27",
+      "vex-response-vs-vex-battlefields": "04c05b3d4243a29ddaac490ebba8bf7a42f7bd5a325b08d66966f9160d170ada",
+      "vex-response-vs-vex-spells": "b9329512676ebe5d7fdebb4acbebd2bc892857c01580d1f2f4c10803066930ef",
+      "vex-spells-vs-jhin-lowcurve": "8bcdd942f57cf3251ad2b5f5e66664b88415e8b9e6187d9a9cea1694d6614550",
+      "vex-spells-vs-kaisa-red-control": "e83ac24c6529557daaebcf59476a425348739fc0875673f7a0b8e98213c51342",
+      "vex-spells-vs-kaisa-red-tempo": "8f62858629d88b49498f785b06359c64352395d74852872f1c03da01003a2d55",
+      "vex-spells-vs-lillia-lowcurve": "ccbecd35aa4f1015ed242cc7fb79d247363efa925553803cf47fbe367f18d020",
+      "vex-spells-vs-poppy-demacia": "9d5ffd65fd4bb8eee9d10499ab8c245da605f358fc245b2e7f3492f47c20ef5c",
+      "vex-spells-vs-poppy-standby": "cccd110e2ca6124a596cf2e52cbc0c1c79df9f146a6c2c581ff53b8987c0b36d",
+      "vex-spells-vs-rumble-armaments": "9edaf2b5b493433ce32b08534cefab1eeffe9995500ce3ee659d20f9330c71a7",
+      "vex-spells-vs-rumble-lowcurve": "92a064231a722fae0f6c758c46fe4ed14b7616bf44638049d9783f394e6e040b",
+      "vex-spells-vs-vex-battlefields": "0adf379042ab6d9c3efbf03c92ec855d47752d41568fbaf515c1382f5e7b19a0",
+      "vex-spells-vs-vex-response": "e9a98372001a1f214b999694b6a1c178b63160d7761474c86b7f2c40e640e081"
+    }
+  },
+  "expectedDeckIds": [
+    "jhin-lowcurve",
+    "rumble-lowcurve",
+    "lillia-lowcurve",
+    "rumble-armaments",
+    "vex-spells",
+    "vex-battlefields",
+    "vex-response",
+    "poppy-standby",
+    "poppy-demacia",
+    "kaisa-red-tempo",
+    "kaisa-red-control"
+  ],
+  "actualAll110DirectedPairsExactlyComplete": true,
+  "realSqlReceiptFiles": 85,
+  "actualRealSqlPaths": 86,
+  "originalSqlPaths": 84,
+  "newOptionalSqlRooms": 2,
+  "sqlReceipts": [
+    {
+      "file": "ci-postgres/result.json",
+      "status": "REAL_POSTGRES_CORE_OPENING_RECOVERY_REPLAY_AND_TAMPER_PASS",
+      "sha256": "789199dfee61b17cd14001fc2bae9a896b462f8a003195b3774d4dfddbd29e28"
+    },
+    {
+      "file": "ci-postgres/rune-destination/multiple/receipt.json",
+      "status": "REAL_POSTGRES_RUNE_DESTINATION_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "sha256": "5d375aedf1b613e89b0f0258927bba5a10cd0e2f23578f88cd11aa28beea521a"
+    },
+    {
+      "file": "ci-postgres/rune-destination/single/receipt.json",
+      "status": "REAL_POSTGRES_RUNE_DESTINATION_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "sha256": "daac28021cd29aab5b936ddb1aef64f3ee5384365c900f9cc7a72b5250c56ee9"
+    },
+    {
+      "file": "ci-postgres/recycled-card-boon/alternate-hook/receipt.json",
+      "status": "REAL_POSTGRES_RECYCLED_CARD_BOON_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "sha256": "da42c1eddc22244f3b2228814ddb9ee9fbee8bbf6776fe1d886c1b9d725b8e7f"
+    },
+    {
+      "file": "ci-postgres/recycled-card-boon/primary-hook/receipt.json",
+      "status": "REAL_POSTGRES_RECYCLED_CARD_BOON_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "sha256": "712c5eff0d6d6d7302763ce8dd4876d8e799a4f548bcc6255aaea6ee85a0b44f"
+    },
+    {
+      "file": "ci-postgres/recycled-card-boon/promo-hook/receipt.json",
+      "status": "REAL_POSTGRES_RECYCLED_CARD_BOON_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "sha256": "e5caa78924deeb549b9ba303362dad470da7496818706cb1672a23929ea55a5c"
+    },
+    {
+      "file": "ci-postgres/recycled-card-boon/promo-predict/receipt.json",
+      "status": "REAL_POSTGRES_RECYCLED_CARD_BOON_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "sha256": "194907bf275ecbdb3f92e30fd3262bb7d7029c6c8444a5217d6bbfbded0bbc8a"
+    },
+    {
+      "file": "ci-postgres/recycled-card-boon/alternate-predict/receipt.json",
+      "status": "REAL_POSTGRES_RECYCLED_CARD_BOON_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "sha256": "b5571777902cc964d4e5107479fff67c1e07d1c1a84f8258674b6b00a5ec8693"
+    },
+    {
+      "file": "ci-postgres/recycled-card-boon/primary-predict/receipt.json",
+      "status": "REAL_POSTGRES_RECYCLED_CARD_BOON_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "sha256": "2c549e00988ffdc4653351c0cd1d1b18cd196cff81f0eddecfe2c5b89011a5ba"
+    },
+    {
+      "file": "ci-postgres/sivir-optional/primary-pay/receipt.json",
+      "status": "REAL_POSTGRES_SIVIR_OPTIONAL_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "sha256": "2fa90b83535afaca1c35051afec93941459f513b2bad5f42b75b0f5e2dcfc83c"
+    },
+    {
+      "file": "ci-postgres/sivir-optional/alternate-decline/receipt.json",
+      "status": "REAL_POSTGRES_SIVIR_OPTIONAL_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "sha256": "5cdfdcf24bc0c42fc4cf00db81162975bd51496b60fbdfab061135efac881c6e"
+    },
+    {
+      "file": "ci-postgres/sivir-optional/primary-decline/receipt.json",
+      "status": "REAL_POSTGRES_SIVIR_OPTIONAL_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "sha256": "b8bc0a1882cddce8363b093a7110d6b152ed801fa4722fb544d3db0fd2126667"
+    },
+    {
+      "file": "ci-postgres/sivir-optional/alternate-pay/receipt.json",
+      "status": "REAL_POSTGRES_SIVIR_OPTIONAL_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "sha256": "1f2d2e8203026c85bee689427afa495ee01b8b7a9cc78cbd3f63b6fee62b2ed4"
+    },
+    {
+      "file": "ci-postgres/masked-attendant/receipt.json",
+      "status": "REAL_POSTGRES_MASKED_SELF_COPY_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "sha256": "ae581e3ae61c3cefbc5e8862c4d9459db684b45c830abf80e76a686b084275f3"
+    },
+    {
+      "file": "ci-postgres/porobot/return/receipt.json",
+      "status": "REAL_POSTGRES_POROBOT_CONDITIONAL_DRAW_COLD_AND_FULL_REPLAY_PASS",
+      "sha256": "ec3de721256d650b7a017768af6c034634f360543db481ee710e367279e1e62f"
+    },
+    {
+      "file": "ci-postgres/porobot/below/receipt.json",
+      "status": "REAL_POSTGRES_POROBOT_CONDITIONAL_DRAW_COLD_AND_FULL_REPLAY_PASS",
+      "sha256": "05ba43a1028df36be76665f5c13d64b8fdd33f66982520bb5762701e682628c2"
+    },
+    {
+      "file": "ci-postgres/porobot/gold/receipt.json",
+      "status": "REAL_POSTGRES_POROBOT_CONDITIONAL_DRAW_COLD_AND_FULL_REPLAY_PASS",
+      "sha256": "92b229051776ee08cc3341dd6aa3cad4eabdf8b59c41734fdee5a498c949c189"
+    },
+    {
+      "file": "ci-postgres/porobot/threshold/receipt.json",
+      "status": "REAL_POSTGRES_POROBOT_CONDITIONAL_DRAW_COLD_AND_FULL_REPLAY_PASS",
+      "sha256": "289178bb4d07bf1ea1a347b2db298e97faf444069a0d9a3cb8d4b0d165f0ea88"
+    },
+    {
+      "file": "ci-postgres/sivir-payment/inline-pay/receipt.json",
+      "status": "REAL_POSTGRES_SIVIR_PAYMENT_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "sha256": "050fda5c78d588aca2eb43f21eaae330079b2a7cd06a382911360058fa258a1c"
+    },
+    {
+      "file": "ci-postgres/sivir-payment/inline-decline/receipt.json",
+      "status": "REAL_POSTGRES_SIVIR_PAYMENT_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "sha256": "3cc7cd5f4b31122987a9f7fd6d6af1b1d46f0af891810374a7d4b6c431df76d9"
+    },
+    {
+      "file": "ci-postgres/sivir-payment/deferred-decline/receipt.json",
+      "status": "REAL_POSTGRES_SIVIR_PAYMENT_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "sha256": "18922bbc6e207002d1ed98586ba36605cd01a8bab74edf5381605294d79b7250"
+    },
+    {
+      "file": "ci-postgres/sivir-payment/deferred-pay/receipt.json",
+      "status": "REAL_POSTGRES_SIVIR_PAYMENT_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "sha256": "5050231969d8fb076620f1934adbafd2f8ad4ddd111f68a865e106ec0f1f5fee"
+    },
+    {
+      "file": "ci-postgres/confirmed-play-origin/hand/receipt.json",
+      "status": "REAL_POSTGRES_CONFIRMED_PLAY_ORIGIN_CAUSAL_RECOVERY_REPLAY_PASS",
+      "sha256": "52014334c5f63097f7c4aa475f16f21e242086f98f69db20909a35bba2acf07f"
+    },
+    {
+      "file": "ci-postgres/confirmed-play-origin/standby/receipt.json",
+      "status": "REAL_POSTGRES_CONFIRMED_PLAY_ORIGIN_CAUSAL_RECOVERY_REPLAY_PASS",
+      "sha256": "cf13e0331cd77714809ed49c38f8c5150e91f67acc2807fb97ddf1d136b5199f"
+    },
+    {
+      "file": "ci-postgres/granted-origin-haste/unit/receipt.json",
+      "status": "REAL_POSTGRES_GRANTED_HASTE_ORIGINAL_OPENING_COLD_ENTRY_AND_EVENT_REJECTION_PASS",
+      "sha256": "68660000d9039fdc0e142ed9b156ef7bfda4cccc434583870f3a140a608ca147"
+    },
+    {
+      "file": "ci-postgres/granted-origin-haste/sacrifice/receipt.json",
+      "status": "REAL_POSTGRES_GRANTED_HASTE_ORIGINAL_OPENING_COLD_ENTRY_AND_EVENT_REJECTION_PASS",
+      "sha256": "10c8e6b76c34a9016f37bde5d0213634864b7cb23c1f983bd78caf61752926f0"
+    },
+    {
+      "file": "ci-postgres/private-opening/receipt.json",
+      "status": "REAL_POSTGRES_PRIVATE_OPENING_SEED_COLD_FULL_ORIGINAL_REPLAY_TAMPER_AND_PROJECTION_PASS",
+      "sha256": "b35019ac33abdc6ba2fa99cf7c2d9d5ecdc96e6b28a4bc617a2d5668bbcce32d"
+    },
+    {
+      "file": "ci-postgres/typed-play-history/countered/receipt.json",
+      "status": "REAL_POSTGRES_TYPED_PLAY_HISTORY_COLD_AND_FULL_REPLAY_PASS",
+      "sha256": "fa95fd47b3234ac764d379a223265d4efb99d5602c88d93ff9db7afb426540d7"
+    },
+    {
+      "file": "ci-postgres/typed-play-history/resolved/receipt.json",
+      "status": "REAL_POSTGRES_TYPED_PLAY_HISTORY_COLD_AND_FULL_REPLAY_PASS",
+      "sha256": "367c5d4ae34c07292df1adfda7b6fd9bf53d18936f193797b39d201bc62e6094"
+    },
+    {
+      "file": "ci-postgres/typed-play-history/control/receipt.json",
+      "status": "REAL_POSTGRES_TYPED_PLAY_HISTORY_COLD_AND_FULL_REPLAY_PASS",
+      "sha256": "893cc08e163542e4e8c2e13a9e8aed57da221511631a1405b8feaec941f57401"
+    },
+    {
+      "file": "ci-postgres/created-token-ready/rise-2/acceptance.json",
+      "status": "PASS",
+      "sha256": "527575d95d4cbbaf6b48ce29a505b2b91c191ee39be5890589801ef2f8640323"
+    },
+    {
+      "file": "ci-postgres/created-token-ready/protect-pay/acceptance.json",
+      "status": "PASS",
+      "sha256": "0caa94f1dfac0b48d0b07ce97960f394747e6076af6ecb90e13f6880b5677726"
+    },
+    {
+      "file": "ci-postgres/created-token-ready/protect-decline/acceptance.json",
+      "status": "PASS",
+      "sha256": "4e97232a970227847149836c41f98fa357af4fd07b7dbf6c8c64764876c2be77"
+    },
+    {
+      "file": "ci-postgres/created-token-ready/rise-0/acceptance.json",
+      "status": "PASS",
+      "sha256": "4cc121bca8daa66a00d51f07b68b92e8ca9182813ead9c0bc33912bcbc5a2b3a"
+    },
+    {
+      "file": "ci-postgres/optional-sacrifice/hand/receipt.json",
+      "status": "REAL_POSTGRES_OPTIONAL_SACRIFICE_PRINTED_COST_COLD_RESTORE_AND_EVENT_REJECTION_PASS",
+      "sha256": "c9fb4994ca17c2843aaf6f8feea1bd46bb5dc855f9c566ea8ef243ba4218b0bf"
+    },
+    {
+      "file": "ci-postgres/optional-sacrifice/haste/receipt.json",
+      "status": "REAL_POSTGRES_OPTIONAL_SACRIFICE_PRINTED_COST_COLD_RESTORE_AND_EVENT_REJECTION_PASS",
+      "sha256": "7f17a0a34fa5415911f17fa63c277c65268473f4e0ae7de8f20643d3234abdbf"
+    },
+    {
+      "file": "ci-postgres/insight-repeat/eclipse/receipt.json",
+      "status": "REAL_POSTGRES_INSIGHT_ECHO_ORDER_DRAW_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "615b332a3f19df5032aee80f85f6f28b699d151486d459611cce1b5600c17696"
+    },
+    {
+      "file": "ci-postgres/insight-repeat/once/receipt.json",
+      "status": "REAL_POSTGRES_INSIGHT_ECHO_ORDER_DRAW_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "5ab0c9d187f7da7a22f55f5310cffaeea99f4e049bd85f0d6f98d9508e9c7435"
+    },
+    {
+      "file": "ci-postgres/insight-repeat/abandon/receipt.json",
+      "status": "REAL_POSTGRES_INSIGHT_ECHO_ORDER_DRAW_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "ca1fb655d99a8b45cc9f360481eca98eff1bfb96d7d01a7a5a3f3f1f6819cd8b"
+    },
+    {
+      "file": "ci-postgres/insight-repeat/all/receipt.json",
+      "status": "REAL_POSTGRES_INSIGHT_ECHO_ORDER_DRAW_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "b07ee75e93716c7955adfa524c94b9696ff032205a943fa975044fdbf9e1a992"
+    },
+    {
+      "file": "ci-postgres/insight-repeat/twice/receipt.json",
+      "status": "REAL_POSTGRES_INSIGHT_ECHO_ORDER_DRAW_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "7a8767445d7824b9cb18b697978610ec659e53ce897ca58577ea20f6d9990870"
+    },
+    {
+      "file": "ci-postgres/insight-repeat/counter/receipt.json",
+      "status": "REAL_POSTGRES_INSIGHT_ECHO_ORDER_DRAW_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "80bf7720209551220310678c35516ba2ff10024756cb7aca80427d05d85dc62d"
+    },
+    {
+      "file": "ci-postgres/insight-repeat/burnout/receipt.json",
+      "status": "REAL_POSTGRES_INSIGHT_ECHO_ORDER_DRAW_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "21b65263236b76a00618a528ecde9bd45c4caa943afb9332c0f715e5cb988e7b"
+    },
+    {
+      "file": "ci-postgres/clairvoyance/keep/receipt.json",
+      "status": "REAL_POSTGRES_CLAIRVOYANCE_PRIVATE_ORDER_DRAW_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "ce9c872d4b218dfce9930b62ad0a2fb06c38c634b406f72dabf05119870aaa88"
+    },
+    {
+      "file": "ci-postgres/clairvoyance/all/receipt.json",
+      "status": "REAL_POSTGRES_CLAIRVOYANCE_PRIVATE_ORDER_DRAW_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "c82a6cf0e5494e0e50bf9f30a3eb3280ca2c52f1181d081750bb87b30746af1b"
+    },
+    {
+      "file": "ci-postgres/clairvoyance/some/receipt.json",
+      "status": "REAL_POSTGRES_CLAIRVOYANCE_PRIVATE_ORDER_DRAW_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "2fee55677d02b0ad598c6b982dd4c41cc6dea66d0d7036620dd564d0c17caaf6"
+    },
+    {
+      "file": "ci-postgres/clairvoyance/control/receipt.json",
+      "status": "REAL_POSTGRES_CLAIRVOYANCE_PRIVATE_ORDER_DRAW_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "3f13c76d593ea9cd2c652e735e15cd3040d612d6fae434b5ef2ebec664df1e86"
+    },
+    {
+      "file": "ci-postgres/clairvoyance/burnout/receipt.json",
+      "status": "REAL_POSTGRES_CLAIRVOYANCE_PRIVATE_ORDER_DRAW_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "9f54320ff00ad3f905912879f41ba6fea69d11acfee487d28deb1105d123bc0e"
+    },
+    {
+      "file": "ci-postgres/typed-play-history-causal/receipt.json",
+      "status": "REAL_POSTGRES_TYPED_PLAY_HISTORY_CAUSAL_REGISTRY_PASS",
+      "sha256": "ffd3b55d64b586f3a2c5c867e815bbdcb9dae9c680dcb45ccf97a937823ee812"
+    },
+    {
+      "file": "ci-postgres/optional-costs/receipt.json",
+      "status": "REAL_POSTGRES_OPTIONAL_COSTS_REJECTION_COLD_RECOVERY_AND_ORIGINAL_REPLAY_PASS",
+      "sha256": "815bf7df4c8c90fe55356e21ee783c9738813b10824fb452e56daa0634b51015"
+    },
+    {
+      "file": "ci-postgres/printed-predict/receipt.json",
+      "status": "REAL_POSTGRES_PRINTED_PREDICT_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "sha256": "106d136b0023481795bff217fe655d33e40f8e174fa32ea2738d42136ef86f46"
+    },
+    {
+      "file": "ci-postgres/physical-origin-cost/unit/receipt.json",
+      "status": "REAL_POSTGRES_PHYSICAL_ORIGIN_COST_RECOVERY_EVENT_REJECTION_AND_FULL_OPENING_REPLAY_PASS",
+      "sha256": "8228338ed30c48aeae43220381703e511a536d3f06dc4d5819d96c87e7595332"
+    },
+    {
+      "file": "ci-postgres/physical-origin-cost/spell/receipt.json",
+      "status": "REAL_POSTGRES_PHYSICAL_ORIGIN_COST_RECOVERY_EVENT_REJECTION_AND_FULL_OPENING_REPLAY_PASS",
+      "sha256": "2c0bc4a2eb7e53246b75285b8610e31e0d167ec5ef3f3f7a2558643d06d8351f"
+    },
+    {
+      "file": "ci-postgres/attached-recycle-lifecycle/alternate/reverse/receipt.json",
+      "status": "REAL_POSTGRES_ATTACHED_RECYCLE_COLD_AND_FULL_REPLAY_PASS",
+      "sha256": "6def4246a60f14310280b4c39d53720dd01195fe95990023f81feeddaa0f4481"
+    },
+    {
+      "file": "ci-postgres/attached-recycle-lifecycle/alternate/forward/receipt.json",
+      "status": "REAL_POSTGRES_ATTACHED_RECYCLE_COLD_AND_FULL_REPLAY_PASS",
+      "sha256": "68ca3d36bff9710d662c1cf7ef922f045cfae6176ab639b30f711466260db29f"
+    },
+    {
+      "file": "ci-postgres/attached-recycle-lifecycle/primary/reverse/receipt.json",
+      "status": "REAL_POSTGRES_ATTACHED_RECYCLE_COLD_AND_FULL_REPLAY_PASS",
+      "sha256": "773fa90b1f3400504eed2a2dcc1db338a0a7fdd7ee7429b47e1a2fd63d051260"
+    },
+    {
+      "file": "ci-postgres/attached-recycle-lifecycle/primary/forward/receipt.json",
+      "status": "REAL_POSTGRES_ATTACHED_RECYCLE_COLD_AND_FULL_REPLAY_PASS",
+      "sha256": "00a8f7f0a7f492c9c2aa44b33ccccaa00a1bd126b72372e687fa7605cd92f63e"
+    },
+    {
+      "file": "ci-postgres/attached-recycle-lifecycle/promo/reverse/receipt.json",
+      "status": "REAL_POSTGRES_ATTACHED_RECYCLE_COLD_AND_FULL_REPLAY_PASS",
+      "sha256": "1e2e628549427f3468c0aebbba72d0e69eb625447711566e454603b6d5bcbcda"
+    },
+    {
+      "file": "ci-postgres/attached-recycle-lifecycle/promo/forward/receipt.json",
+      "status": "REAL_POSTGRES_ATTACHED_RECYCLE_COLD_AND_FULL_REPLAY_PASS",
+      "sha256": "6814ff648a0b6d93aea9d0828914d692e33db4b5a25921792b4e7d113b42b450"
+    },
+    {
+      "file": "ci-postgres/recycle-boon-lifecycle/alternate/receipt.json",
+      "status": "REAL_POSTGRES_RECYCLED_BOON_CEASED_SOURCE_COLD_AND_FULL_REPLAY_PASS",
+      "sha256": "d9b4cf9348ab8787ef07cce209c61c5a186762b53969243350dc18ad34f1eefe"
+    },
+    {
+      "file": "ci-postgres/recycle-boon-lifecycle/primary/receipt.json",
+      "status": "REAL_POSTGRES_RECYCLED_BOON_CEASED_SOURCE_COLD_AND_FULL_REPLAY_PASS",
+      "sha256": "cfe665f444611aee622e23d7e77361ff6d28a24fa6df41e06f750058f922b1d0"
+    },
+    {
+      "file": "ci-postgres/recycle-boon-lifecycle/promo/receipt.json",
+      "status": "REAL_POSTGRES_RECYCLED_BOON_CEASED_SOURCE_COLD_AND_FULL_REPLAY_PASS",
+      "sha256": "1ea463afdc2f729ad813a2f7213136abe6d440cfb97972f49e8a7c1c3f4f3b0b"
+    },
+    {
+      "file": "ci-postgres/battle-history/battle-history-deck/result.json",
+      "status": "REAL_POSTGRES_BATTLE_HISTORY_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "0ec0c64803419f00bf7e1945fd363a60f42d0a54a4fcf7b080fbf02e15029ccf"
+    },
+    {
+      "file": "ci-postgres/battle-history/battle-history-attacker-burnout/result.json",
+      "status": "REAL_POSTGRES_BATTLE_HISTORY_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "f32c3df24e11ddc7e1295b23d4f46842407a3b82a705e3118aa4ab7cf737aea6"
+    },
+    {
+      "file": "ci-postgres/battle-history/battle-history-attacker-deck/result.json",
+      "status": "REAL_POSTGRES_BATTLE_HISTORY_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "a0f1d72f8543f9c46aabc86d5fd43d1db36ff03d52b34ddb0546b0fb45dbf2b2"
+    },
+    {
+      "file": "ci-postgres/battle-history/battle-history-burnout/result.json",
+      "status": "REAL_POSTGRES_BATTLE_HISTORY_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "db7cee2df53d706209ab17d8155fd74a0e62c933e2c22c21284a4d8bf0682bf0"
+    },
+    {
+      "file": "ci-postgres/opponent-battlefield-control/swapped/receipt.json",
+      "status": "REAL_POSTGRES_CURRENT_BATTLEFIELD_CONTROLLER_EMPTY_OPENING_COLD_ENTRY_EVENT_REJECTION_PASS",
+      "sha256": "b3fa6f0d5dd8603724da856da1540c78a3274fcfb75a739c57ff121b8589de36"
+    },
+    {
+      "file": "ci-postgres/opponent-battlefield-control/neutral/receipt.json",
+      "status": "REAL_POSTGRES_CURRENT_BATTLEFIELD_CONTROLLER_EMPTY_OPENING_COLD_ENTRY_EVENT_REJECTION_PASS",
+      "sha256": "29f3a1f9e1fde405960235eb7e761596004a54a32676f8b90d247bd346029613"
+    },
+    {
+      "file": "ci-postgres/granted-predict/receipt.json",
+      "status": "REAL_POSTGRES_GRANTED_PREDICT_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "sha256": "1edd4a4578548d22600232691ff54fbd8db578587d6b42c441fd175317b8a8cb"
+    },
+    {
+      "file": "ci-postgres/granted-token-haste/hand/receipt.json",
+      "status": "REAL_POSTGRES_GRANTED_TOKEN_HASTE_COLD_RESTORE_AND_EVENT_REJECTION_PASS",
+      "sha256": "78b9da7baa3a815cbaf64e04eeb7681fe64d11bfc63847a4c8a795249fb2f66c"
+    },
+    {
+      "file": "ci-postgres/granted-token-haste/standby/receipt.json",
+      "status": "REAL_POSTGRES_GRANTED_TOKEN_HASTE_COLD_RESTORE_AND_EVENT_REJECTION_PASS",
+      "sha256": "3fedc8eb5ec5978f99252eac320cbf5a9e8a2ea645d518be6f20a3fab0af5926"
+    },
+    {
+      "file": "ci-postgres/combat-assignment/vayne-secondary-decline/receipt.json",
+      "status": "REAL_POSTGRES_COMBAT_ASSIGNMENT_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "33faa7a435083796662c981e6c5eb8f193870ff59b1b6028614630c60e2514c5"
+    },
+    {
+      "file": "ci-postgres/combat-assignment/vayne-secondary-dies/receipt.json",
+      "status": "REAL_POSTGRES_COMBAT_ASSIGNMENT_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "bf1314000b1ffe22653a7964dc11a4c3220fdfb9eeae3d343ad47bb189e5d917"
+    },
+    {
+      "file": "ci-postgres/combat-assignment/natural-source-first/receipt.json",
+      "status": "REAL_POSTGRES_COMBAT_ASSIGNMENT_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "dabe28d24f07a4eddcce503940721ef32e5928bf74a6eaa0212fef9195d56c0f"
+    },
+    {
+      "file": "ci-postgres/combat-assignment/multiple-defenders/receipt.json",
+      "status": "REAL_POSTGRES_COMBAT_ASSIGNMENT_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "c1d2beebbb2145a4d863961c3ab95ec104ca357af904f11df4935ab50b4ea7c4"
+    },
+    {
+      "file": "ci-postgres/combat-assignment/declared-source-second/receipt.json",
+      "status": "REAL_POSTGRES_COMBAT_ASSIGNMENT_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "f028ff14b4834d50eb54c20343258242bb31b995c32c960004b3ad7ab9ca9065"
+    },
+    {
+      "file": "ci-postgres/combat-assignment/natural-source-second/receipt.json",
+      "status": "REAL_POSTGRES_COMBAT_ASSIGNMENT_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "1a66b836c57783bdf812a76fa27ee8ca20997b6e80a821316b6c0a7bdf265709"
+    },
+    {
+      "file": "ci-postgres/combat-assignment/choose-first-attacker/receipt.json",
+      "status": "REAL_POSTGRES_COMBAT_ASSIGNMENT_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "78af7a1503fe3e2100b4717f34ebc41156ae0341eaeec1373c8d56013baa1c6c"
+    },
+    {
+      "file": "ci-postgres/combat-assignment/vayne-secondary-pay/receipt.json",
+      "status": "REAL_POSTGRES_COMBAT_ASSIGNMENT_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "45cc7967f99fbe56e6905dd0019d65a634aa98aa8606434430816b9c49c06ccc"
+    },
+    {
+      "file": "ci-postgres/combat-assignment/choose-second-attacker/receipt.json",
+      "status": "REAL_POSTGRES_COMBAT_ASSIGNMENT_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "9188db5ea583575ae2d87e585357e031da4ac11b17bc680bb1a6b44cbc97b939"
+    },
+    {
+      "file": "ci-postgres/combat-assignment/one-on-one/receipt.json",
+      "status": "REAL_POSTGRES_COMBAT_ASSIGNMENT_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "f8298590dbedd51a567c0fa8ecfbbd83e0318ba3cb6d193b1fb4a9582101677f"
+    },
+    {
+      "file": "ci-postgres/conquest-token/alternate-reaction/receipt.json",
+      "status": "REAL_POSTGRES_CONQUEST_TOKEN_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "sha256": "4e5e48a0c3fae6af2e5616898a871ae5bc93533ae88d7c240a8bf622a9e4d05f"
+    },
+    {
+      "file": "ci-postgres/conquest-token/primary-plain/receipt.json",
+      "status": "REAL_POSTGRES_CONQUEST_TOKEN_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "sha256": "55b47ceafb8866873f3fac7524c669e63edfb4743860cb8e6cd43caf8c53f57f"
+    },
+    {
+      "file": "ci-postgres/conquest-token/primary-reaction/receipt.json",
+      "status": "REAL_POSTGRES_CONQUEST_TOKEN_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "sha256": "26e14311175db05f19433f9322eabbd426ebbf75d4f39e56ec89e841365dc701"
+    },
+    {
+      "file": "ci-postgres/conquest-token/alternate-plain/receipt.json",
+      "status": "REAL_POSTGRES_CONQUEST_TOKEN_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "sha256": "0e4b1731c8b149e84ba281d709544c0bd6d97796f64cf4e528dcca90ab139266"
+    }
+  ],
+  "optionalCostsReceipt": {
+    "status": "REAL_POSTGRES_OPTIONAL_COSTS_REJECTION_COLD_RECOVERY_AND_ORIGINAL_REPLAY_PASS",
+    "executedAtUtc": "2026-10-17T08:09:03.4427714+00:00",
+    "fixtureSha256": "b025dd81d7aeb74611edca6027afe9125f265ef1aa7a1b92fa8f35b0eca1a2ca",
+    "originalExplicitSeed": 0,
+    "freshRoomPrefixUsesCurrentPromptIdentity": true,
+    "sourceFixtureNeverRewritten": true,
+    "results": [
+      {
+        "room": "postgres-optional-costs-omitted-b3be3c8892604d058c2880bd18a3e6d1",
+        "shape": "omitted",
+        "submitted": 10,
+        "malformedRequestsRejected": 136,
+        "rejected": [
+          {
+            "kind": "PLAY_CARD",
+            "malformed": "null",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "PLAY_CARD",
+            "malformed": "object",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "PLAY_CARD",
+            "malformed": "number",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "PLAY_CARD",
+            "malformed": "boolean",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "PLAY_CARD",
+            "malformed": "scalar-string",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "PLAY_CARD",
+            "malformed": "null-element",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "PLAY_CARD",
+            "malformed": "number-element",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "PLAY_CARD",
+            "malformed": "empty-element",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "PLAY_CARD",
+            "malformed": "blank-element",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "PLAY_CARD",
+            "malformed": "leading-space",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "PLAY_CARD",
+            "malformed": "trailing-space",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "PLAY_CARD",
+            "malformed": "mixed-elements",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "PLAY_CARD",
+            "malformed": "duplicate-valid",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "PLAY_CARD",
+            "malformed": "duplicate-last-valid",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "PLAY_CARD",
+            "malformed": "property-whitespace",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "ACTIVATE_ABILITY",
+            "malformed": "null",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "ACTIVATE_ABILITY",
+            "malformed": "object",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "ACTIVATE_ABILITY",
+            "malformed": "number",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "ACTIVATE_ABILITY",
+            "malformed": "boolean",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "ACTIVATE_ABILITY",
+            "malformed": "scalar-string",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "ACTIVATE_ABILITY",
+            "malformed": "null-element",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "ACTIVATE_ABILITY",
+            "malformed": "number-element",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "ACTIVATE_ABILITY",
+            "malformed": "empty-element",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "ACTIVATE_ABILITY",
+            "malformed": "blank-element",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "ACTIVATE_ABILITY",
+            "malformed": "leading-space",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "ACTIVATE_ABILITY",
+            "malformed": "trailing-space",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "ACTIVATE_ABILITY",
+            "malformed": "mixed-elements",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "ACTIVATE_ABILITY",
+            "malformed": "duplicate-valid",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "ACTIVATE_ABILITY",
+            "malformed": "duplicate-last-valid",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "ACTIVATE_ABILITY",
+            "malformed": "property-whitespace",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "LEGEND_ACT",
+            "malformed": "null",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "LEGEND_ACT",
+            "malformed": "object",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "LEGEND_ACT",
+            "malformed": "number",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "LEGEND_ACT",
+            "malformed": "boolean",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "LEGEND_ACT",
+            "malformed": "scalar-string",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "LEGEND_ACT",
+            "malformed": "null-element",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "LEGEND_ACT",
+            "malformed": "number-element",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "LEGEND_ACT",
+            "malformed": "empty-element",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "LEGEND_ACT",
+            "malformed": "blank-element",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "LEGEND_ACT",
+            "malformed": "leading-space",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "LEGEND_ACT",
+            "malformed": "trailing-space",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "LEGEND_ACT",
+            "malformed": "mixed-elements",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "LEGEND_ACT",
+            "malformed": "duplicate-valid",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "LEGEND_ACT",
+            "malformed": "duplicate-last-valid",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "LEGEND_ACT",
+            "malformed": "property-whitespace",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "HIDE_CARD",
+            "malformed": "null",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "HIDE_CARD",
+            "malformed": "object",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "HIDE_CARD",
+            "malformed": "number",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "HIDE_CARD",
+            "malformed": "boolean",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "HIDE_CARD",
+            "malformed": "scalar-string",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "HIDE_CARD",
+            "malformed": "null-element",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "HIDE_CARD",
+            "malformed": "number-element",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "HIDE_CARD",
+            "malformed": "empty-element",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "HIDE_CARD",
+            "malformed": "blank-element",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "HIDE_CARD",
+            "malformed": "leading-space",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "HIDE_CARD",
+            "malformed": "trailing-space",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "HIDE_CARD",
+            "malformed": "mixed-elements",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "HIDE_CARD",
+            "malformed": "duplicate-valid",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "HIDE_CARD",
+            "malformed": "duplicate-last-valid",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "HIDE_CARD",
+            "malformed": "property-whitespace",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "REVEAL_CARD",
+            "malformed": "null",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "REVEAL_CARD",
+            "malformed": "object",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "REVEAL_CARD",
+            "malformed": "number",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "REVEAL_CARD",
+            "malformed": "boolean",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "REVEAL_CARD",
+            "malformed": "scalar-string",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "REVEAL_CARD",
+            "malformed": "null-element",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "REVEAL_CARD",
+            "malformed": "number-element",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "REVEAL_CARD",
+            "malformed": "empty-element",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "REVEAL_CARD",
+            "malformed": "blank-element",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "REVEAL_CARD",
+            "malformed": "leading-space",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "REVEAL_CARD",
+            "malformed": "trailing-space",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "REVEAL_CARD",
+            "malformed": "mixed-elements",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "REVEAL_CARD",
+            "malformed": "duplicate-valid",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "REVEAL_CARD",
+            "malformed": "duplicate-last-valid",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "REVEAL_CARD",
+            "malformed": "property-whitespace",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "MOVE_UNIT",
+            "malformed": "null",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "MOVE_UNIT",
+            "malformed": "object",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "MOVE_UNIT",
+            "malformed": "number",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "MOVE_UNIT",
+            "malformed": "boolean",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "MOVE_UNIT",
+            "malformed": "scalar-string",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "MOVE_UNIT",
+            "malformed": "null-element",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "MOVE_UNIT",
+            "malformed": "number-element",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "MOVE_UNIT",
+            "malformed": "empty-element",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "MOVE_UNIT",
+            "malformed": "blank-element",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "MOVE_UNIT",
+            "malformed": "leading-space",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "MOVE_UNIT",
+            "malformed": "trailing-space",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "MOVE_UNIT",
+            "malformed": "mixed-elements",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "MOVE_UNIT",
+            "malformed": "duplicate-valid",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "MOVE_UNIT",
+            "malformed": "duplicate-last-valid",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "MOVE_UNIT",
+            "malformed": "property-whitespace",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "ASSEMBLE_EQUIPMENT",
+            "malformed": "null",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "ASSEMBLE_EQUIPMENT",
+            "malformed": "object",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "ASSEMBLE_EQUIPMENT",
+            "malformed": "number",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "ASSEMBLE_EQUIPMENT",
+            "malformed": "boolean",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "ASSEMBLE_EQUIPMENT",
+            "malformed": "scalar-string",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "ASSEMBLE_EQUIPMENT",
+            "malformed": "null-element",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "ASSEMBLE_EQUIPMENT",
+            "malformed": "number-element",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "ASSEMBLE_EQUIPMENT",
+            "malformed": "empty-element",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "ASSEMBLE_EQUIPMENT",
+            "malformed": "blank-element",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "ASSEMBLE_EQUIPMENT",
+            "malformed": "leading-space",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "ASSEMBLE_EQUIPMENT",
+            "malformed": "trailing-space",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "ASSEMBLE_EQUIPMENT",
+            "malformed": "mixed-elements",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "ASSEMBLE_EQUIPMENT",
+            "malformed": "duplicate-valid",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "ASSEMBLE_EQUIPMENT",
+            "malformed": "duplicate-last-valid",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "ASSEMBLE_EQUIPMENT",
+            "malformed": "property-whitespace",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "DECLARE_BATTLE",
+            "malformed": "null",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "DECLARE_BATTLE",
+            "malformed": "object",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "DECLARE_BATTLE",
+            "malformed": "number",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "DECLARE_BATTLE",
+            "malformed": "boolean",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "DECLARE_BATTLE",
+            "malformed": "scalar-string",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "DECLARE_BATTLE",
+            "malformed": "null-element",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "DECLARE_BATTLE",
+            "malformed": "number-element",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "DECLARE_BATTLE",
+            "malformed": "empty-element",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "DECLARE_BATTLE",
+            "malformed": "blank-element",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "DECLARE_BATTLE",
+            "malformed": "leading-space",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "DECLARE_BATTLE",
+            "malformed": "trailing-space",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "DECLARE_BATTLE",
+            "malformed": "mixed-elements",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "DECLARE_BATTLE",
+            "malformed": "duplicate-valid",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "DECLARE_BATTLE",
+            "malformed": "duplicate-last-valid",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "DECLARE_BATTLE",
+            "malformed": "property-whitespace",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "PLAY_CARD",
+            "malformed": "stale-null",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "ACTIVATE_ABILITY",
+            "malformed": "stale-null",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "LEGEND_ACT",
+            "malformed": "stale-null",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "HIDE_CARD",
+            "malformed": "stale-null",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "REVEAL_CARD",
+            "malformed": "stale-null",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "MOVE_UNIT",
+            "malformed": "stale-null",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "ASSEMBLE_EQUIPMENT",
+            "malformed": "stale-null",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "DECLARE_BATTLE",
+            "malformed": "stale-null",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "PLAY_CARD",
+            "malformed": "after-cold-null",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "ACTIVATE_ABILITY",
+            "malformed": "after-cold-null",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "LEGEND_ACT",
+            "malformed": "after-cold-null",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "HIDE_CARD",
+            "malformed": "after-cold-null",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "REVEAL_CARD",
+            "malformed": "after-cold-null",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "MOVE_UNIT",
+            "malformed": "after-cold-null",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "ASSEMBLE_EQUIPMENT",
+            "malformed": "after-cold-null",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "DECLARE_BATTLE",
+            "malformed": "after-cold-null",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          }
+        ],
+        "checkpoints": [
+          {
+            "label": "original-eight-command-prefix",
+            "tick": 7,
+            "commands": 8,
+            "events": 22,
+            "stateHash": "5cd9d82d4573b1eb26fa9045a3499ebea95a70f5a90d6db6c2d07d791ea84b3c",
+            "sqlRowsUnchangedByRecovery": true,
+            "completeOriginalReplayMatched": true
+          },
+          {
+            "label": "after-128-invalid-payloads",
+            "tick": 7,
+            "commands": 8,
+            "events": 22,
+            "stateHash": "5cd9d82d4573b1eb26fa9045a3499ebea95a70f5a90d6db6c2d07d791ea84b3c",
+            "sqlRowsUnchangedByRecovery": true,
+            "completeOriginalReplayMatched": true
+          },
+          {
+            "label": "legal-play-using-unreserved-intent",
+            "tick": 8,
+            "commands": 9,
+            "events": 28,
+            "stateHash": "0a7a4471297680c115bb96f20a07797e4d5135a1b8aa50d0e081491b03925384",
+            "sqlRowsUnchangedByRecovery": true,
+            "completeOriginalReplayMatched": true
+          },
+          {
+            "label": "original-next-command-after-cold",
+            "tick": 9,
+            "commands": 10,
+            "events": 29,
+            "stateHash": "79118485a8456003fd84007c72b983e87988a1b311f3ed1ce8a6672bb24701e4",
+            "sqlRowsUnchangedByRecovery": true,
+            "completeOriginalReplayMatched": true
+          }
+        ],
+        "events": 29,
+        "finalHash": "79118485a8456003fd84007c72b983e87988a1b311f3ed1ce8a6672bb24701e4",
+        "finalSqlDigest": "92f5bbe4a1cfdc60256a38612659b82b56dbf9eac1d435a9190dbd583f0bc868",
+        "ruleInputs": {
+          "schemaVersion": 1,
+          "region": "CN",
+          "language": "zh-CN",
+          "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+          "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+          "implementationSha256": "4ee2fb65625dd53bb3c83b36144df6ff670a1c807c30bf0098eb29ab42ad8b0c",
+          "identitySha256": "4ea13aa4d81b190d881240f478620feab87970ea6540436c580ac878662a0be5"
+        },
+        "databaseRoomRetained": true
+      },
+      {
+        "room": "postgres-optional-costs-empty-ddd0783228fb4f1cbe3a0a6b57e1eb47",
+        "shape": "empty",
+        "submitted": 10,
+        "malformedRequestsRejected": 136,
+        "rejected": [
+          {
+            "kind": "PLAY_CARD",
+            "malformed": "null",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "PLAY_CARD",
+            "malformed": "object",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "PLAY_CARD",
+            "malformed": "number",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "PLAY_CARD",
+            "malformed": "boolean",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "PLAY_CARD",
+            "malformed": "scalar-string",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "PLAY_CARD",
+            "malformed": "null-element",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "PLAY_CARD",
+            "malformed": "number-element",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "PLAY_CARD",
+            "malformed": "empty-element",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "PLAY_CARD",
+            "malformed": "blank-element",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "PLAY_CARD",
+            "malformed": "leading-space",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "PLAY_CARD",
+            "malformed": "trailing-space",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "PLAY_CARD",
+            "malformed": "mixed-elements",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "PLAY_CARD",
+            "malformed": "duplicate-valid",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "PLAY_CARD",
+            "malformed": "duplicate-last-valid",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "PLAY_CARD",
+            "malformed": "property-whitespace",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "ACTIVATE_ABILITY",
+            "malformed": "null",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "ACTIVATE_ABILITY",
+            "malformed": "object",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "ACTIVATE_ABILITY",
+            "malformed": "number",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "ACTIVATE_ABILITY",
+            "malformed": "boolean",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "ACTIVATE_ABILITY",
+            "malformed": "scalar-string",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "ACTIVATE_ABILITY",
+            "malformed": "null-element",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "ACTIVATE_ABILITY",
+            "malformed": "number-element",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "ACTIVATE_ABILITY",
+            "malformed": "empty-element",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "ACTIVATE_ABILITY",
+            "malformed": "blank-element",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "ACTIVATE_ABILITY",
+            "malformed": "leading-space",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "ACTIVATE_ABILITY",
+            "malformed": "trailing-space",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "ACTIVATE_ABILITY",
+            "malformed": "mixed-elements",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "ACTIVATE_ABILITY",
+            "malformed": "duplicate-valid",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "ACTIVATE_ABILITY",
+            "malformed": "duplicate-last-valid",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "ACTIVATE_ABILITY",
+            "malformed": "property-whitespace",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "LEGEND_ACT",
+            "malformed": "null",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "LEGEND_ACT",
+            "malformed": "object",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "LEGEND_ACT",
+            "malformed": "number",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "LEGEND_ACT",
+            "malformed": "boolean",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "LEGEND_ACT",
+            "malformed": "scalar-string",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "LEGEND_ACT",
+            "malformed": "null-element",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "LEGEND_ACT",
+            "malformed": "number-element",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "LEGEND_ACT",
+            "malformed": "empty-element",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "LEGEND_ACT",
+            "malformed": "blank-element",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "LEGEND_ACT",
+            "malformed": "leading-space",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "LEGEND_ACT",
+            "malformed": "trailing-space",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "LEGEND_ACT",
+            "malformed": "mixed-elements",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "LEGEND_ACT",
+            "malformed": "duplicate-valid",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "LEGEND_ACT",
+            "malformed": "duplicate-last-valid",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "LEGEND_ACT",
+            "malformed": "property-whitespace",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "HIDE_CARD",
+            "malformed": "null",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "HIDE_CARD",
+            "malformed": "object",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "HIDE_CARD",
+            "malformed": "number",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "HIDE_CARD",
+            "malformed": "boolean",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "HIDE_CARD",
+            "malformed": "scalar-string",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "HIDE_CARD",
+            "malformed": "null-element",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "HIDE_CARD",
+            "malformed": "number-element",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "HIDE_CARD",
+            "malformed": "empty-element",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "HIDE_CARD",
+            "malformed": "blank-element",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "HIDE_CARD",
+            "malformed": "leading-space",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "HIDE_CARD",
+            "malformed": "trailing-space",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "HIDE_CARD",
+            "malformed": "mixed-elements",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "HIDE_CARD",
+            "malformed": "duplicate-valid",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "HIDE_CARD",
+            "malformed": "duplicate-last-valid",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "HIDE_CARD",
+            "malformed": "property-whitespace",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "REVEAL_CARD",
+            "malformed": "null",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "REVEAL_CARD",
+            "malformed": "object",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "REVEAL_CARD",
+            "malformed": "number",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "REVEAL_CARD",
+            "malformed": "boolean",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "REVEAL_CARD",
+            "malformed": "scalar-string",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "REVEAL_CARD",
+            "malformed": "null-element",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "REVEAL_CARD",
+            "malformed": "number-element",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "REVEAL_CARD",
+            "malformed": "empty-element",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "REVEAL_CARD",
+            "malformed": "blank-element",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "REVEAL_CARD",
+            "malformed": "leading-space",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "REVEAL_CARD",
+            "malformed": "trailing-space",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "REVEAL_CARD",
+            "malformed": "mixed-elements",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "REVEAL_CARD",
+            "malformed": "duplicate-valid",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "REVEAL_CARD",
+            "malformed": "duplicate-last-valid",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "REVEAL_CARD",
+            "malformed": "property-whitespace",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "MOVE_UNIT",
+            "malformed": "null",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "MOVE_UNIT",
+            "malformed": "object",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "MOVE_UNIT",
+            "malformed": "number",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "MOVE_UNIT",
+            "malformed": "boolean",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "MOVE_UNIT",
+            "malformed": "scalar-string",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "MOVE_UNIT",
+            "malformed": "null-element",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "MOVE_UNIT",
+            "malformed": "number-element",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "MOVE_UNIT",
+            "malformed": "empty-element",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "MOVE_UNIT",
+            "malformed": "blank-element",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "MOVE_UNIT",
+            "malformed": "leading-space",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "MOVE_UNIT",
+            "malformed": "trailing-space",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "MOVE_UNIT",
+            "malformed": "mixed-elements",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "MOVE_UNIT",
+            "malformed": "duplicate-valid",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "MOVE_UNIT",
+            "malformed": "duplicate-last-valid",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "MOVE_UNIT",
+            "malformed": "property-whitespace",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "ASSEMBLE_EQUIPMENT",
+            "malformed": "null",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "ASSEMBLE_EQUIPMENT",
+            "malformed": "object",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "ASSEMBLE_EQUIPMENT",
+            "malformed": "number",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "ASSEMBLE_EQUIPMENT",
+            "malformed": "boolean",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "ASSEMBLE_EQUIPMENT",
+            "malformed": "scalar-string",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "ASSEMBLE_EQUIPMENT",
+            "malformed": "null-element",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "ASSEMBLE_EQUIPMENT",
+            "malformed": "number-element",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "ASSEMBLE_EQUIPMENT",
+            "malformed": "empty-element",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "ASSEMBLE_EQUIPMENT",
+            "malformed": "blank-element",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "ASSEMBLE_EQUIPMENT",
+            "malformed": "leading-space",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "ASSEMBLE_EQUIPMENT",
+            "malformed": "trailing-space",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "ASSEMBLE_EQUIPMENT",
+            "malformed": "mixed-elements",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "ASSEMBLE_EQUIPMENT",
+            "malformed": "duplicate-valid",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "ASSEMBLE_EQUIPMENT",
+            "malformed": "duplicate-last-valid",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "ASSEMBLE_EQUIPMENT",
+            "malformed": "property-whitespace",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "DECLARE_BATTLE",
+            "malformed": "null",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "DECLARE_BATTLE",
+            "malformed": "object",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "DECLARE_BATTLE",
+            "malformed": "number",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "DECLARE_BATTLE",
+            "malformed": "boolean",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "DECLARE_BATTLE",
+            "malformed": "scalar-string",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "DECLARE_BATTLE",
+            "malformed": "null-element",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "DECLARE_BATTLE",
+            "malformed": "number-element",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "DECLARE_BATTLE",
+            "malformed": "empty-element",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "DECLARE_BATTLE",
+            "malformed": "blank-element",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "DECLARE_BATTLE",
+            "malformed": "leading-space",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "DECLARE_BATTLE",
+            "malformed": "trailing-space",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "DECLARE_BATTLE",
+            "malformed": "mixed-elements",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "DECLARE_BATTLE",
+            "malformed": "duplicate-valid",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "DECLARE_BATTLE",
+            "malformed": "duplicate-last-valid",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "DECLARE_BATTLE",
+            "malformed": "property-whitespace",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "PLAY_CARD",
+            "malformed": "stale-null",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "ACTIVATE_ABILITY",
+            "malformed": "stale-null",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "LEGEND_ACT",
+            "malformed": "stale-null",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "HIDE_CARD",
+            "malformed": "stale-null",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "REVEAL_CARD",
+            "malformed": "stale-null",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "MOVE_UNIT",
+            "malformed": "stale-null",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "ASSEMBLE_EQUIPMENT",
+            "malformed": "stale-null",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "DECLARE_BATTLE",
+            "malformed": "stale-null",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "PLAY_CARD",
+            "malformed": "after-cold-null",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "ACTIVATE_ABILITY",
+            "malformed": "after-cold-null",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "LEGEND_ACT",
+            "malformed": "after-cold-null",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "HIDE_CARD",
+            "malformed": "after-cold-null",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "REVEAL_CARD",
+            "malformed": "after-cold-null",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "MOVE_UNIT",
+            "malformed": "after-cold-null",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "ASSEMBLE_EQUIPMENT",
+            "malformed": "after-cold-null",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          },
+          {
+            "kind": "DECLARE_BATTLE",
+            "malformed": "after-cold-null",
+            "errorCode": "INVALID_PAYLOAD",
+            "stateAndEverySqlRowUnchanged": true
+          }
+        ],
+        "checkpoints": [
+          {
+            "label": "original-eight-command-prefix",
+            "tick": 7,
+            "commands": 8,
+            "events": 22,
+            "stateHash": "c33c737ef5114b3a9ceb948821be321cbf33a4be8958e821d5b36065d887788d",
+            "sqlRowsUnchangedByRecovery": true,
+            "completeOriginalReplayMatched": true
+          },
+          {
+            "label": "after-128-invalid-payloads",
+            "tick": 7,
+            "commands": 8,
+            "events": 22,
+            "stateHash": "c33c737ef5114b3a9ceb948821be321cbf33a4be8958e821d5b36065d887788d",
+            "sqlRowsUnchangedByRecovery": true,
+            "completeOriginalReplayMatched": true
+          },
+          {
+            "label": "legal-play-using-unreserved-intent",
+            "tick": 8,
+            "commands": 9,
+            "events": 28,
+            "stateHash": "e65caf66f56f21b757aa0008903454b20b5467fa54100ee76201145a232f41c3",
+            "sqlRowsUnchangedByRecovery": true,
+            "completeOriginalReplayMatched": true
+          },
+          {
+            "label": "original-next-command-after-cold",
+            "tick": 9,
+            "commands": 10,
+            "events": 29,
+            "stateHash": "94d08ec29bb7cf3510a30a3deb1e36551a796113f400049047684a9cf04c9bbf",
+            "sqlRowsUnchangedByRecovery": true,
+            "completeOriginalReplayMatched": true
+          }
+        ],
+        "events": 29,
+        "finalHash": "94d08ec29bb7cf3510a30a3deb1e36551a796113f400049047684a9cf04c9bbf",
+        "finalSqlDigest": "d8b740bce26e0cf4cc59d5ca9638024182929be3a00b06565734f9853443f307",
+        "ruleInputs": {
+          "schemaVersion": 1,
+          "region": "CN",
+          "language": "zh-CN",
+          "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+          "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+          "implementationSha256": "4ee2fb65625dd53bb3c83b36144df6ff670a1c807c30bf0098eb29ab42ad8b0c",
+          "identitySha256": "4ea13aa4d81b190d881240f478620feab87970ea6540436c580ac878662a0be5"
+        },
+        "databaseRoomRetained": true
+      }
+    ],
+    "scope": "Two new seed0 fixture rooms, eight optional-cost consumers, all seven durable tables, canonical omitted/empty play, cold original next command and complete original replay. This is not production entropy, visible clients, Windows, other raw fields or whole-card certification."
+  },
+  "nativeWireRecoveryPass": true,
+  "nativeWireIsolation": {
+    "room": "NETWORK-6e4d84b86914",
+    "rejectedActions": 15,
+    "identities": [
+      "ANONYMOUS",
+      "FAILED_KEY",
+      "OTHER_HANDLE"
+    ],
+    "leakedPrivateMessages": 0,
+    "validReconnectTokenWasSupplied": true
+  },
+  "semanticCertification": false,
+  "knownNativeSemanticRed": "issue59 original c3bc base play wrongly queues battlefield trigger",
+  "windowsPhysical": "OPEN",
+  "later3a8AndCurrentWorkingTreeNotCovered": true
+}

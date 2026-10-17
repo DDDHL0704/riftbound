@@ -1,0 +1,25 @@
+{
+  "recordedAtUtc": "2026-10-17T08:34:17.404317+00:00",
+  "status": "C3BC_ORIGINAL_84_SQL_PATHS_AND_CANONICAL_DESKTOP_ARTIFACTS_RETAINED",
+  "prior84SqlReceiptPathsAllRetained": true,
+  "onlyAddedReceiptRepresentsTwoNewRooms": true,
+  "artifacts": [
+    {
+      "artifactId": 12091818482,
+      "name": "native-macos-latest",
+      "bytes": 142864728,
+      "sha256": "6d484a9644ac063f76e09d9b13f0ea76d27d8f28fdfcd783c17ad1338c94c3c4",
+      "sameAlreadyVerifiedCanonicalArchiveNotDuplicated": true
+    },
+    {
+      "artifactId": 12092212758,
+      "name": "native-windows-latest",
+      "bytes": 89107845,
+      "sha256": "d4e41e017192b2aa75614fc3e2a0c22de889d9fe5ab0684eeb9b474f478d9e81",
+      "sameAlreadyVerifiedCanonicalArchiveNotDuplicated": true
+    }
+  ],
+  "existingPayloadCrcAnd373ManagedPckEachEvidence": "var/qa/optional-costs-paired-20261017/native-artifact-receipts.json and derivative-apps.json",
+  "windowsPhysical": "OPEN",
+  "current3a8AndWorkingTreeStillSeparate": true
+}
