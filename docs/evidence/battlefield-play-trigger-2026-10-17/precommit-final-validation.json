@@ -1,0 +1,13 @@
+{
+  "recordedAtUtc": "2026-10-17T07:53:16.380238+00:00",
+  "governanceValid": true,
+  "errors": [],
+  "remainingObligations": 16554,
+  "prior16551IdsAllRetained": true,
+  "historicalScopedReviews": 119,
+  "semanticCoverageCertified": false,
+  "finalRawGovernanceSha256": "969dbd7d012a960a78010d3bf9bd97bc451411d56070a196108ce6b2f0d5f210",
+  "allNewSourceImplementationVerificationAndFocusPinsMatchFinalFiles": true,
+  "unknownCodeAndFixturePathsRequireCompleteCi": true,
+  "noSecondCheck": true
+}

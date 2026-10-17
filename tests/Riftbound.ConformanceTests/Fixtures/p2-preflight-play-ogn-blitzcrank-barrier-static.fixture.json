@@ -28,6 +28,11 @@
       "source": "data/official/upstream/2026-10-05/rules-manifest.json",
       "locator": "CN 359.2 / 383.4.a.2",
       "note": "Permanent enters during confirmation. Only its play ability waits on the chain. Migrates historical permanent-as-spell timing; gameplay payload and final-state assertions retained."
+    },
+    {
+      "source": "docs/evidence/battlefield-play-trigger-2026-10-17/scope-and-source-manifest.json",
+      "locator": "CN current exact printing; core effective 2026-10-16, 359.2 / 383.2.a / 383.2.c / 383.3",
+      "note": "Current scope is ordinary hand-to-base entry only: the battlefield-only printed trigger does not occur, so no response passes are available. Removes the two obsolete fake-ability passes and their events/ticks. Original seed, initial state, payment, units, tags, exhaustion, scores, empty chain and actionable/wait assertions remain exact. Historical version/status fields and older evidence remain historical; battlefield effects and whole-card certification are OPEN."
     }
   ],
   "roomId": "p2-preflight-ogn-blitzcrank-barrier-room",
@@ -89,21 +94,15 @@
         "cardNo": "OGN·067/298",
         "targetObjectIds": []
       }
-    },
-    { "playerId": "P1", "clientIntentId": "intent-p2-preflight-ogn-blitzcrank-barrier-p1-pass", "cmd": { "cmdType": "PASS_PRIORITY" } },
-    { "playerId": "P2", "clientIntentId": "intent-p2-preflight-ogn-blitzcrank-barrier-p2-pass", "cmd": { "cmdType": "PASS_PRIORITY" } }
+    }
   ],
   "expected": {
-    "finalTick": 3,
+    "finalTick": 1,
     "eventKinds": [
       "CARD_PLAYED",
       "COST_PAID",
       "PERMANENT_CONFIRMED",
-      "UNIT_PLAYED_TO_BASE",
-      "TRIGGER_QUEUED",
-      "PRIORITY_PASSED",
-      "PRIORITY_PASSED",
-      "STACK_ITEM_RESOLVED"
+      "UNIT_PLAYED_TO_BASE"
     ],
     "promptActions": { "P1": ["END_TURN"], "P2": ["WAIT"] },
     "finalState": {

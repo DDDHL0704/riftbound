@@ -304,7 +304,7 @@
         }
       ],
       "evidenceCommit": "e54f3084662e2c2e00c521d232b4a11baaea7d91",
-      "currentImplementationCommit": "42c89230105573e39ffaf524a7dc21f24d520d4b",
+      "currentImplementationCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
       "currentImplementationIncludesUncommittedChanges": true,
       "revalidationReason": "Journal event serialization comparison and either-side natural allocation gate changed after exact9e; prior receipts retain their exact input scope.",
       "implementationPinUpdates": [
@@ -371,7 +371,8 @@
           "path": "docs/evidence/triggered-duel-continuation-2026-10-17/prior-context-input-updates.json",
           "sha256": "e5faa62dd7f59f124dd389996a6854660775cd18a2a733c50cbc071f436b990d"
         }
-      }
+      },
+      "currentInputRevision": "c3bc plus battlefield-only play-trigger condition source pins; new exact fixed full required. Historical semantic decisions and CI receipts retained."
     },
     "candlelit-conquest-private-look-recycle-order-2026-10-14": {
       "implementation": [
@@ -682,7 +683,7 @@
         }
       ],
       "evidenceCommit": "e61745f5cc704f2aa0326d84f22416e04ecbf139",
-      "currentImplementationCommit": "42c89230105573e39ffaf524a7dc21f24d520d4b",
+      "currentImplementationCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
       "currentImplementationIncludesUncommittedChanges": true,
       "revalidationReason": "Actual fixed0cbee full failed three original games. Accepted declaration provenance and single eligible surviving conquest-return selection changed; prior exact evidence is retained, new fixed full/product required.",
       "implementationPinUpdates": [
@@ -759,7 +760,8 @@
           "path": "docs/evidence/triggered-duel-continuation-2026-10-17/prior-context-input-updates.json",
           "sha256": "e5faa62dd7f59f124dd389996a6854660775cd18a2a733c50cbc071f436b990d"
         }
-      }
+      },
+      "currentInputRevision": "c3bc plus battlefield-only play-trigger condition source pins; new exact fixed full required. Historical semantic decisions and CI receipts retained."
     },
     "masked-attendant-reflexive-self-copy-2026-10-14": {
       "implementation": [
@@ -777,7 +779,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.PermanentConfirmation.cs",
-          "sha256": "d9ae35eee39d3c424c252eaa2462af07216b1186aa750a3b4b648bb401a75e16"
+          "sha256": "89975fbcb3244799badd55e257f1d709133473e10748334bec53d4139798ffb1"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.TokenReplacement.cs",
@@ -1399,7 +1401,7 @@
         }
       ],
       "evidenceCommit": "03f88a7ee1b109b2cb906fbdc457316f93c08fda",
-      "currentImplementationCommit": "3d70b1e8d3c8396e7fe7b6d2548e2bae09ae7e84",
+      "currentImplementationCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -1475,7 +1477,8 @@
           "sha256": "2c5b9441fcafac4d26fe1cf622b040535ae4573cc827c4d2d0c0693dacd103a2"
         }
       },
-      "currentProductAcceptance": "OPEN_AFTER_SHARED_NATIVE_PROMPT_INPUT_CHANGE_OLD_VISIBLE_EVIDENCE_RETAINS_EXACT_SCOPE"
+      "currentProductAcceptance": "OPEN_AFTER_SHARED_NATIVE_PROMPT_INPUT_CHANGE_OLD_VISIBLE_EVIDENCE_RETAINS_EXACT_SCOPE",
+      "currentInputRevision": "c3bc plus battlefield-only play-trigger condition source pins; new exact fixed full required. Historical semantic decisions and CI receipts retained."
     },
     "static-granted-predict-entry-2026-10-15": {
       "implementation": [
@@ -1513,7 +1516,7 @@
         },
         {
           "path": "src/Riftbound.Engine/OfficialPrintedTimingRules.cs",
-          "sha256": "2ca0a7b64bfb83a7ee0adbf17afd790023468d097b7f5ded0649e8f3e801b6eb"
+          "sha256": "fd501a2c5745d9782e02f7c9d11f66f0b2c8d40482df175850b55d9d3427e1f1"
         }
       ],
       "branches": [
@@ -2118,7 +2121,7 @@
       "ciState": "PENDING",
       "ciReceipts": [],
       "evidenceCommit": "03f88a7ee1b109b2cb906fbdc457316f93c08fda",
-      "currentImplementationCommit": "3d70b1e8d3c8396e7fe7b6d2548e2bae09ae7e84",
+      "currentImplementationCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
       "currentImplementationIncludesUncommittedChanges": true,
       "lastFixedCiFailure": {
         "path": "docs/evidence/granted-predict-2026-10-15/full-ci-c74853be-failed.json",
@@ -2306,7 +2309,8 @@
           "sha256": "2c5b9441fcafac4d26fe1cf622b040535ae4573cc827c4d2d0c0693dacd103a2"
         }
       },
-      "currentProductAcceptance": "OPEN_AFTER_SHARED_NATIVE_PROMPT_INPUT_CHANGE_OLD_VISIBLE_EVIDENCE_RETAINS_EXACT_SCOPE"
+      "currentProductAcceptance": "OPEN_AFTER_SHARED_NATIVE_PROMPT_INPUT_CHANGE_OLD_VISIBLE_EVIDENCE_RETAINS_EXACT_SCOPE",
+      "currentInputRevision": "c3bc plus battlefield-only play-trigger condition source pins; new exact fixed full required. Historical semantic decisions and CI receipts retained."
     },
     "printed-predict-permanent-entry-2026-10-15": {
       "implementation": [
@@ -2944,7 +2948,7 @@
         }
       ],
       "evidenceCommit": "74353e405fd2242ece0bae05972f209950b2c9de",
-      "currentImplementationCommit": "42c89230105573e39ffaf524a7dc21f24d520d4b",
+      "currentImplementationCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -3133,7 +3137,8 @@
           "path": "docs/evidence/triggered-duel-continuation-2026-10-17/prior-context-input-updates.json",
           "sha256": "e5faa62dd7f59f124dd389996a6854660775cd18a2a733c50cbc071f436b990d"
         }
-      }
+      },
+      "currentInputRevision": "c3bc plus battlefield-only play-trigger condition source pins; new exact fixed full required. Historical semantic decisions and CI receipts retained."
     },
     "sivir-optional-rune-recycle-2026-10-15": {
       "implementation": [
@@ -3509,7 +3514,7 @@
         }
       ],
       "evidenceCommit": "7649d573f884ffd7517a502f7eebe01d0aa186c4",
-      "currentImplementationCommit": "3d70b1e8d3c8396e7fe7b6d2548e2bae09ae7e84",
+      "currentImplementationCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -3683,7 +3688,8 @@
           "sha256": "2c5b9441fcafac4d26fe1cf622b040535ae4573cc827c4d2d0c0693dacd103a2"
         }
       },
-      "currentProductAcceptance": "OPEN_AFTER_SHARED_NATIVE_PROMPT_INPUT_CHANGE_OLD_VISIBLE_EVIDENCE_RETAINS_EXACT_SCOPE"
+      "currentProductAcceptance": "OPEN_AFTER_SHARED_NATIVE_PROMPT_INPUT_CHANGE_OLD_VISIBLE_EVIDENCE_RETAINS_EXACT_SCOPE",
+      "currentInputRevision": "c3bc plus battlefield-only play-trigger condition source pins; new exact fixed full required. Historical semantic decisions and CI receipts retained."
     },
     "battlefield-conquer-rune-destination-2026-10-15": {
       "implementation": [
@@ -3848,7 +3854,7 @@
         }
       ],
       "evidenceCommit": "dd8884ba1e443138264b9b0e971ab8da3c5480ee",
-      "currentImplementationCommit": "42c89230105573e39ffaf524a7dc21f24d520d4b",
+      "currentImplementationCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -3975,7 +3981,8 @@
           "path": "docs/evidence/triggered-duel-continuation-2026-10-17/prior-context-input-updates.json",
           "sha256": "e5faa62dd7f59f124dd389996a6854660775cd18a2a733c50cbc071f436b990d"
         }
-      }
+      },
+      "currentInputRevision": "c3bc plus battlefield-only play-trigger condition source pins; new exact fixed full required. Historical semantic decisions and CI receipts retained."
     },
     "sivir-payment-trigger-and-ward-event-2026-10-15": {
       "implementation": [
@@ -4187,7 +4194,7 @@
         }
       ],
       "evidenceCommit": "00420e2a2b453918e611812d18fda9f62632e15f",
-      "currentImplementationCommit": "42c89230105573e39ffaf524a7dc21f24d520d4b",
+      "currentImplementationCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -4309,7 +4316,8 @@
           "path": "docs/evidence/triggered-duel-continuation-2026-10-17/prior-context-input-updates.json",
           "sha256": "e5faa62dd7f59f124dd389996a6854660775cd18a2a733c50cbc071f436b990d"
         }
-      }
+      },
+      "currentInputRevision": "c3bc plus battlefield-only play-trigger condition source pins; new exact fixed full required. Historical semantic decisions and CI receipts retained."
     },
     "unit-conquest-gold-response-2026-10-15": {
       "implementation": [
@@ -4562,7 +4570,7 @@
         }
       ],
       "evidenceCommit": "eb3c4281c94c8d41d315cd574bdfa597cd10c30b",
-      "currentImplementationCommit": "3d70b1e8d3c8396e7fe7b6d2548e2bae09ae7e84",
+      "currentImplementationCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -4711,7 +4719,8 @@
           "sha256": "2c5b9441fcafac4d26fe1cf622b040535ae4573cc827c4d2d0c0693dacd103a2"
         }
       },
-      "currentProductAcceptance": "OPEN_AFTER_SHARED_NATIVE_PROMPT_INPUT_CHANGE_OLD_VISIBLE_EVIDENCE_RETAINS_EXACT_SCOPE"
+      "currentProductAcceptance": "OPEN_AFTER_SHARED_NATIVE_PROMPT_INPUT_CHANGE_OLD_VISIBLE_EVIDENCE_RETAINS_EXACT_SCOPE",
+      "currentInputRevision": "c3bc plus battlefield-only play-trigger condition source pins; new exact fixed full required. Historical semantic decisions and CI receipts retained."
     },
     "own-main-deck-recycle-card-boon-2026-10-15": {
       "implementation": [
@@ -5433,7 +5442,7 @@
         }
       ],
       "evidenceCommit": "a0406e1d878598b3c0fd88f5bfa7f9831d6a2cc6",
-      "currentImplementationCommit": "42c89230105573e39ffaf524a7dc21f24d520d4b",
+      "currentImplementationCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -5585,7 +5594,8 @@
           "path": "docs/evidence/triggered-duel-continuation-2026-10-17/prior-context-input-updates.json",
           "sha256": "e5faa62dd7f59f124dd389996a6854660775cd18a2a733c50cbc071f436b990d"
         }
-      }
+      },
+      "currentInputRevision": "c3bc plus battlefield-only play-trigger condition source pins; new exact fixed full required. Historical semantic decisions and CI receipts retained."
     },
     "copied-recycle-boon-ceased-source-2026-10-15": {
       "implementation": [
@@ -5769,7 +5779,7 @@
         }
       ],
       "evidenceCommit": "1a5cabfbd5e7e87eb971622506371e57beb96319",
-      "currentImplementationCommit": "8ca4080c9431b981db051a5adad18dace5d85dd5",
+      "currentImplementationCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
       "currentImplementationIncludesUncommittedChanges": true,
       "latestInputChange": {
         "date": "2026-10-17",
@@ -5778,7 +5788,8 @@
           "path": "docs/evidence/sand-soldier-embedded-ready-2026-10-17/prior-context-input-updates.json",
           "sha256": "d789954d637ab0d2c721ba5ecccd5e899ef93c66983ae332476704cef096d3a8"
         }
-      }
+      },
+      "currentInputRevision": "c3bc plus battlefield-only play-trigger condition source pins; new exact fixed full required. Historical semantic decisions and CI receipts retained."
     },
     "ceased-recycle-source-exact-printing-2026-10-15": {
       "implementation": [
@@ -5860,7 +5871,7 @@
           "role": "check"
         }
       ],
-      "ciState": "VERIFIED",
+      "ciState": "PENDING",
       "ciReceipts": [
         {
           "path": "docs/evidence/recycle-printing-2026-10-15/full-ci-09ac.json",
@@ -5870,8 +5881,9 @@
         }
       ],
       "evidenceCommit": "09ac000ec5dcfb3fe2404d7da235b4e7c91bfeba",
-      "currentImplementationCommit": "eb5d9b75b360088c95c367ce9e7c1ff44416f928",
-      "currentImplementationIncludesUncommittedChanges": true
+      "currentImplementationCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
+      "currentImplementationIncludesUncommittedChanges": true,
+      "currentInputRevision": "c3bc plus battlefield-only play-trigger condition source pins; new exact fixed full required. Historical semantic decisions and CI receipts retained."
     },
     "attached-recycle-order-confirmation-and-ceased-host-2026-10-15": {
       "implementation": [
@@ -6051,7 +6063,7 @@
         }
       ],
       "evidenceCommit": "5faa9012c305e8fc76b5b79d8b798597beee08df",
-      "currentImplementationCommit": "42c89230105573e39ffaf524a7dc21f24d520d4b",
+      "currentImplementationCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -6083,7 +6095,8 @@
           "path": "docs/evidence/triggered-duel-continuation-2026-10-17/prior-context-input-updates.json",
           "sha256": "e5faa62dd7f59f124dd389996a6854660775cd18a2a733c50cbc071f436b990d"
         }
-      }
+      },
+      "currentInputRevision": "c3bc plus battlefield-only play-trigger condition source pins; new exact fixed full required. Historical semantic decisions and CI receipts retained."
     },
     "swain-source-identity-and-conquest-clause-classification-2026-10-15": {
       "implementation": [
@@ -6113,7 +6126,7 @@
           "role": "check"
         }
       ],
-      "ciState": "VERIFIED",
+      "ciState": "PENDING",
       "ciReceipts": [
         {
           "path": "docs/evidence/swain-source-2026-10-15/full-ci-4ef4.json",
@@ -6123,7 +6136,7 @@
         }
       ],
       "evidenceCommit": "4ef4db144b1825f8b05f1b0b1605a8b99c49ac84",
-      "currentImplementationCommit": "342187cb732ea37a616d3fb125be6e9e5096ead1",
+      "currentImplementationCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
       "currentImplementationIncludesUncommittedChanges": true,
       "branches": [
         {
@@ -6178,7 +6191,8 @@
             }
           ]
         }
-      ]
+      ],
+      "currentInputRevision": "c3bc plus battlefield-only play-trigger condition source pins; new exact fixed full required. Historical semantic decisions and CI receipts retained."
     },
     "official-multitype-factory-deck-and-native-metadata-2026-10-15": {
       "implementation": [
@@ -6229,7 +6243,7 @@
       "ciState": "PENDING",
       "ciReceipts": [],
       "evidenceCommit": "4ef4db144b1825f8b05f1b0b1605a8b99c49ac84",
-      "currentImplementationCommit": "4ef4db144b1825f8b05f1b0b1605a8b99c49ac84",
+      "currentImplementationCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
       "currentImplementationIncludesUncommittedChanges": true,
       "branches": [
         {
@@ -6266,7 +6280,8 @@
             "VISIBLE_CARD_GAMEPLAY_AND_PRODUCT_ACCEPTANCE"
           ]
         }
-      ]
+      ],
+      "currentInputRevision": "c3bc plus battlefield-only play-trigger condition source pins; new exact fixed full required. Historical semantic decisions and CI receipts retained."
     },
     "typed-current-turn-card-play-confirmation-and-resolution-history-2026-10-15": {
       "implementation": [
@@ -6337,7 +6352,7 @@
         }
       ],
       "evidenceCommit": "342187cb732ea37a616d3fb125be6e9e5096ead1",
-      "currentImplementationCommit": "3d70b1e8d3c8396e7fe7b6d2548e2bae09ae7e84",
+      "currentImplementationCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
       "currentImplementationIncludesUncommittedChanges": true,
       "branches": [
         {
@@ -6589,7 +6604,8 @@
           "sha256": "2c5b9441fcafac4d26fe1cf622b040535ae4573cc827c4d2d0c0693dacd103a2"
         }
       },
-      "currentProductAcceptance": "OPEN_AFTER_SHARED_NATIVE_PROMPT_INPUT_CHANGE_OLD_VISIBLE_EVIDENCE_RETAINS_EXACT_SCOPE"
+      "currentProductAcceptance": "OPEN_AFTER_SHARED_NATIVE_PROMPT_INPUT_CHANGE_OLD_VISIBLE_EVIDENCE_RETAINS_EXACT_SCOPE",
+      "currentInputRevision": "c3bc plus battlefield-only play-trigger condition source pins; new exact fixed full required. Historical semantic decisions and CI receipts retained."
     },
     "porobot-source-play-other-equipment-conditional-draw-2026-10-15": {
       "implementation": [
@@ -6607,7 +6623,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.PermanentConfirmation.cs",
-          "sha256": "d9ae35eee39d3c424c252eaa2462af07216b1186aa750a3b4b648bb401a75e16"
+          "sha256": "89975fbcb3244799badd55e257f1d709133473e10748334bec53d4139798ffb1"
         },
         {
           "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
@@ -6672,7 +6688,7 @@
         }
       ],
       "evidenceCommit": "339c6168f704684477354365988d7448cb0e7a10",
-      "currentImplementationCommit": "3d70b1e8d3c8396e7fe7b6d2548e2bae09ae7e84",
+      "currentImplementationCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
       "currentImplementationIncludesUncommittedChanges": true,
       "ciState": "PENDING",
       "ciReceipts": [
@@ -6935,11 +6951,12 @@
           "sha256": "2c5b9441fcafac4d26fe1cf622b040535ae4573cc827c4d2d0c0693dacd103a2"
         }
       },
-      "currentProductAcceptance": "OPEN_AFTER_SHARED_NATIVE_PROMPT_INPUT_CHANGE_OLD_VISIBLE_EVIDENCE_RETAINS_EXACT_SCOPE"
+      "currentProductAcceptance": "OPEN_AFTER_SHARED_NATIVE_PROMPT_INPUT_CHANGE_OLD_VISIBLE_EVIDENCE_RETAINS_EXACT_SCOPE",
+      "currentInputRevision": "c3bc plus battlefield-only play-trigger condition source pins; new exact fixed full required. Historical semantic decisions and CI receipts retained."
     },
     "typed-card-play-history-causal-production-recovery-2026-10-15": {
       "evidenceCommit": "6bc546259eed61d5988bf8e8df5081cd8502c614",
-      "currentImplementationCommit": "3d70b1e8d3c8396e7fe7b6d2548e2bae09ae7e84",
+      "currentImplementationCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact6bc fullCI/45SQL/case-method-pair preservation verified. Current workingtree has newer counted Insight/catalog dependencies; this prior full is not current gameplay coverage.",
       "ciState": "PENDING",
@@ -7109,11 +7126,12 @@
           "sha256": "2c5b9441fcafac4d26fe1cf622b040535ae4573cc827c4d2d0c0693dacd103a2"
         }
       },
-      "currentProductAcceptance": "OPEN_AFTER_SHARED_NATIVE_PROMPT_INPUT_CHANGE_OLD_VISIBLE_EVIDENCE_RETAINS_EXACT_SCOPE"
+      "currentProductAcceptance": "OPEN_AFTER_SHARED_NATIVE_PROMPT_INPUT_CHANGE_OLD_VISIBLE_EVIDENCE_RETAINS_EXACT_SCOPE",
+      "currentInputRevision": "c3bc plus battlefield-only play-trigger condition source pins; new exact fixed full required. Historical semantic decisions and CI receipts retained."
     },
     "counted-insight-post-choice-draw-clairvoyance-2026-10-15": {
       "evidenceCommit": "6bc546259eed61d5988bf8e8df5081cd8502c614",
-      "currentImplementationCommit": "8ca4080c9431b981db051a5adad18dace5d85dd5",
+      "currentImplementationCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Base commit plus explicitly uncommitted gameplay/test inputs; own fixed CI remains pending. Earlier6bc full cannot certify this new gameplay batch.",
       "ciState": "PENDING",
@@ -7332,11 +7350,12 @@
           "path": "docs/evidence/sand-soldier-embedded-ready-2026-10-17/prior-context-input-updates.json",
           "sha256": "d789954d637ab0d2c721ba5ecccd5e899ef93c66983ae332476704cef096d3a8"
         }
-      }
+      },
+      "currentInputRevision": "c3bc plus battlefield-only play-trigger condition source pins; new exact fixed full required. Historical semantic decisions and CI receipts retained."
     },
     "untargeted-counted-insight-echo-resumption-2026-10-15": {
       "evidenceCommit": "a8f0b1dd1797997390d34ec77a84455a4ddb8911",
-      "currentImplementationCommit": "057589c20fd7620902af66dff61bffbf63d28d17",
+      "currentImplementationCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact base plus explicitly uncommitted new Insight Echo inputs; own fixed full remains required.",
       "ciState": "PENDING",
@@ -7592,11 +7611,12 @@
           ]
         }
       ],
-      "revalidationReason": "Declared targeted Insight executions and the production outgoing command serializer changed; earlier exact receipts remain scoped to their own inputs."
+      "revalidationReason": "Declared targeted Insight executions and the production outgoing command serializer changed; earlier exact receipts remain scoped to their own inputs.",
+      "currentInputRevision": "c3bc plus battlefield-only play-trigger condition source pins; new exact fixed full required. Historical semantic decisions and CI receipts retained."
     },
     "targeted-insight-repeat-declarations-and-native-wire-2026-10-15": {
       "evidenceCommit": "9e426a31386aefa980bf2d48f02b237098cb2914",
-      "currentImplementationCommit": "9e426a31386aefa980bf2d48f02b237098cb2914",
+      "currentImplementationCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact base plus explicit new uncommitted targeted rule/client/test inputs; old full cannot certify these inputs.",
       "ciState": "PENDING",
@@ -7891,11 +7911,12 @@
         }
       ],
       "latestFixedEvidenceStatus": "EXACT_9E_FULL_VERIFIED_VISIBLE_SCORE_OBSERVED_BUT_EVENT_REPLAY_FAILED_CURRENT_REPAIR_PENDING",
-      "revalidationReason": "Exact9e11990/7330/57SQL passed; visible160-command/839-event normal8:3 failed event replay756/758. Current journal/combat repair has new input identity and requires fresh acceptance."
+      "revalidationReason": "Exact9e11990/7330/57SQL passed; visible160-command/839-event normal8:3 failed event replay756/758. Current journal/combat repair has new input identity and requires fresh acceptance.",
+      "currentInputRevision": "c3bc plus battlefield-only play-trigger condition source pins; new exact fixed full required. Historical semantic decisions and CI receipts retained."
     },
     "combat-event-journal-wire-and-single-defender-choice-2026-10-15": {
       "evidenceCommit": "9e426a31386aefa980bf2d48f02b237098cb2914",
-      "currentImplementationCommit": "42c89230105573e39ffaf524a7dc21f24d520d4b",
+      "currentImplementationCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact9e base plus explicitly hashed current journal/combat/native-fixture verification inputs; old full does not cover this repair.",
       "ciState": "PENDING",
@@ -8148,11 +8169,12 @@
           "path": "docs/evidence/triggered-duel-continuation-2026-10-17/prior-context-input-updates.json",
           "sha256": "e5faa62dd7f59f124dd389996a6854660775cd18a2a733c50cbc071f436b990d"
         }
-      }
+      },
+      "currentInputRevision": "c3bc plus battlefield-only play-trigger condition source pins; new exact fixed full required. Historical semantic decisions and CI receipts retained."
     },
     "combat-declaration-provenance-and-single-eligible-unit-conquest-2026-10-15": {
       "evidenceCommit": "0cbee9e22c81bec21ea416fdb45dc1c16f78e7d4",
-      "currentImplementationCommit": "42c89230105573e39ffaf524a7dc21f24d520d4b",
+      "currentImplementationCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact0cbee failed base plus two explicitly pinned source repairs and new verification/source-intake evidence; new fixed SHA required.",
       "ciState": "PENDING",
@@ -8372,11 +8394,12 @@
           "path": "docs/evidence/triggered-duel-continuation-2026-10-17/prior-context-input-updates.json",
           "sha256": "e5faa62dd7f59f124dd389996a6854660775cd18a2a733c50cbc071f436b990d"
         }
-      }
+      },
+      "currentInputRevision": "c3bc plus battlefield-only play-trigger condition source pins; new exact fixed full required. Historical semantic decisions and CI receipts retained."
     },
     "optional-mana-trigger-native-and-natural-declaration-order-2026-10-15": {
       "evidenceCommit": "d1c2b4d351ca32862ee52ab7bc45cd7d581fca2c",
-      "currentImplementationCommit": "3d70b1e8d3c8396e7fe7b6d2548e2bae09ae7e84",
+      "currentImplementationCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact d1 actual full-success/native-failure base plus three pinned source repairs, new verification and source readback; new fixed SHA required.",
       "ciState": "PENDING",
@@ -8589,11 +8612,12 @@
           "sha256": "2c5b9441fcafac4d26fe1cf622b040535ae4573cc827c4d2d0c0693dacd103a2"
         }
       },
-      "currentProductAcceptance": "OPEN_AFTER_SHARED_NATIVE_PROMPT_INPUT_CHANGE_OLD_VISIBLE_EVIDENCE_RETAINS_EXACT_SCOPE"
+      "currentProductAcceptance": "OPEN_AFTER_SHARED_NATIVE_PROMPT_INPUT_CHANGE_OLD_VISIBLE_EVIDENCE_RETAINS_EXACT_SCOPE",
+      "currentInputRevision": "c3bc plus battlefield-only play-trigger condition source pins; new exact fixed full required. Historical semantic decisions and CI receipts retained."
     },
     "cn16-confirmed-play-origin-and-required-causal-fact-2026-10-16": {
       "evidenceCommit": "56d1ee2eed9dcbf48ed54175867cd93ac58d92d8",
-      "currentImplementationCommit": "3d70b1e8d3c8396e7fe7b6d2548e2bae09ae7e84",
+      "currentImplementationCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact56 baseline plus explicitly pinned CN16 source selection and bounded confirmed hand-origin repair; new fixed SHA required.",
       "ciState": "PENDING",
@@ -8878,11 +8902,12 @@
           "sha256": "2c5b9441fcafac4d26fe1cf622b040535ae4573cc827c4d2d0c0693dacd103a2"
         }
       },
-      "currentProductAcceptance": "OPEN_AFTER_SHARED_NATIVE_PROMPT_INPUT_CHANGE_OLD_VISIBLE_EVIDENCE_RETAINS_EXACT_SCOPE"
+      "currentProductAcceptance": "OPEN_AFTER_SHARED_NATIVE_PROMPT_INPUT_CHANGE_OLD_VISIBLE_EVIDENCE_RETAINS_EXACT_SCOPE",
+      "currentInputRevision": "c3bc plus battlefield-only play-trigger condition source pins; new exact fixed full required. Historical semantic decisions and CI receipts retained."
     },
     "physical-origin-self-cost-reduction-2026-10-16": {
       "evidenceCommit": "903cbca2becfd9b142a6b6a86d77b8fbf3d080ef",
-      "currentImplementationCommit": "3d70b1e8d3c8396e7fe7b6d2548e2bae09ae7e84",
+      "currentImplementationCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact903 baseline plus pinned3engine changes and new8cases/SQL fixtures; fixed newSHA required.",
       "ciState": "PENDING",
@@ -9110,11 +9135,12 @@
           "path": "docs/evidence/optional-costs-ingress-2026-10-17/prior-context-input-updates.json",
           "sha256": "2c5b9441fcafac4d26fe1cf622b040535ae4573cc827c4d2d0c0693dacd103a2"
         }
-      }
+      },
+      "currentInputRevision": "c3bc plus battlefield-only play-trigger condition source pins; new exact fixed full required. Historical semantic decisions and CI receipts retained."
     },
     "granted-origin-haste-and-paid-entry-replacement-2026-10-16": {
       "evidenceCommit": "4ad7fe204adee28c4138f18bdde4c4cbcdea21f0",
-      "currentImplementationCommit": "3d70b1e8d3c8396e7fe7b6d2548e2bae09ae7e84",
+      "currentImplementationCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact4ad7 baseline plus pinned5engine inputs,24cases, native readback and73SQL. NewfixedSHA full required. Printed-Haste dispatch restored after the singlecheck;213 current focus passed. Prior SQL/native exact inputs remain pre-repair, not relabeled.",
       "ciState": "PENDING",
@@ -9387,11 +9413,12 @@
           "sha256": "2c5b9441fcafac4d26fe1cf622b040535ae4573cc827c4d2d0c0693dacd103a2"
         }
       },
-      "currentProductAcceptance": "OPEN_AFTER_SHARED_NATIVE_PROMPT_INPUT_CHANGE_OLD_VISIBLE_EVIDENCE_RETAINS_EXACT_SCOPE"
+      "currentProductAcceptance": "OPEN_AFTER_SHARED_NATIVE_PROMPT_INPUT_CHANGE_OLD_VISIBLE_EVIDENCE_RETAINS_EXACT_SCOPE",
+      "currentInputRevision": "c3bc plus battlefield-only play-trigger condition source pins; new exact fixed full required. Historical semantic decisions and CI receipts retained."
     },
     "opponent-battlefield-current-control-entry-2026-10-16": {
       "evidenceCommit": "3ced0126ac20a07c2909e7b44f3733a9e3aa044a",
-      "currentImplementationCommit": "3d70b1e8d3c8396e7fe7b6d2548e2bae09ae7e84",
+      "currentImplementationCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact3ced baseline plus pinned Core fix and29new cases/3methods; old72 product and prior fixedfull evidence are separately bounded. New fixed SHA full required.",
       "ciState": "PENDING",
@@ -9566,11 +9593,12 @@
           "commit": "8d7571c5a5572b1ed542a5ff1d8eaeb533bac1bc",
           "runId": 38851939967
         }
-      ]
+      ],
+      "currentInputRevision": "c3bc plus battlefield-only play-trigger condition source pins; new exact fixed full required. Historical semantic decisions and CI receipts retained."
     },
     "optional-sacrifice-printed-cost-and-paid-entry-2026-10-16": {
       "evidenceCommit": "8d7571c5a5572b1ed542a5ff1d8eaeb533bac1bc",
-      "currentImplementationCommit": "3d70b1e8d3c8396e7fe7b6d2548e2bae09ae7e84",
+      "currentImplementationCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Fixed8d baseline plus exact15 executable/fixture patch files. Earlier full8d,113 old review dictionaries, source dates and original143/110/424242 remain retained. New candidate full required.",
       "ciState": "PENDING",
@@ -9823,11 +9851,12 @@
           "runId": 38866814689
         }
       ],
-      "currentProductAcceptance": "OPEN_AFTER_SHARED_NATIVE_PROMPT_INPUT_CHANGE_OLD_VISIBLE_EVIDENCE_RETAINS_EXACT_SCOPE"
+      "currentProductAcceptance": "OPEN_AFTER_SHARED_NATIVE_PROMPT_INPUT_CHANGE_OLD_VISIBLE_EVIDENCE_RETAINS_EXACT_SCOPE",
+      "currentInputRevision": "c3bc plus battlefield-only play-trigger condition source pins; new exact fixed full required. Historical semantic decisions and CI receipts retained."
     },
     "granted-colorless-token-haste-payment-2026-10-16": {
       "evidenceCommit": "daf394e20997ebdb028e91ba9fdfe6c24eb492eb",
-      "currentImplementationCommit": "3d70b1e8d3c8396e7fe7b6d2548e2bae09ae7e84",
+      "currentImplementationCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Fixeddaf baseline plus exact13 current executable/test/fixture patch files; historical daf full12136/7372 and77SQL do not cover the patch.",
       "ciState": "PENDING",
@@ -10115,11 +10144,12 @@
           "path": "docs/evidence/optional-costs-ingress-2026-10-17/prior-context-input-updates.json",
           "sha256": "2c5b9441fcafac4d26fe1cf622b040535ae4573cc827c4d2d0c0693dacd103a2"
         }
-      }
+      },
+      "currentInputRevision": "c3bc plus battlefield-only play-trigger condition source pins; new exact fixed full required. Historical semantic decisions and CI receipts retained."
     },
     "native-rule-choice-prompts-2026-10-16": {
       "evidenceCommit": "65092fcdea323f9f4b435a91344f76e838fb21b4",
-      "currentImplementationCommit": "3d70b1e8d3c8396e7fe7b6d2548e2bae09ae7e84",
+      "currentImplementationCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Fixed650 baseline plus exact two implementation and four verification inputs. Fixed650 full does not cover these uncommitted prompt changes.",
       "ciState": "PENDING",
@@ -10326,11 +10356,12 @@
           "commit": "5ed90f415e50dfa23f51bed2e9ced5deaf8c6696",
           "runId": 38899251618
         }
-      ]
+      ],
+      "currentInputRevision": "c3bc plus battlefield-only play-trigger condition source pins; new exact fixed full required. Historical semantic decisions and CI receipts retained."
     },
     "sand-soldier-embedded-ready-2026-10-17": {
       "evidenceCommit": "8ca4080c9431b981db051a5adad18dace5d85dd5",
-      "currentImplementationCommit": "3d70b1e8d3c8396e7fe7b6d2548e2bae09ae7e84",
+      "currentImplementationCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Fixed8ca source baseline (gameplay5ed) plus explicit current implementation/test/fixture inputs. Prior5ed full/native and local pre-caption SQL are not relabeled as this final candidate.",
       "ciState": "PENDING",
@@ -10671,11 +10702,12 @@
           "path": "docs/evidence/optional-costs-ingress-2026-10-17/prior-context-input-updates.json",
           "sha256": "2c5b9441fcafac4d26fe1cf622b040535ae4573cc827c4d2d0c0693dacd103a2"
         }
-      }
+      },
+      "currentInputRevision": "c3bc plus battlefield-only play-trigger condition source pins; new exact fixed full required. Historical semantic decisions and CI receipts retained."
     },
     "opening-randomness-2026-10-17": {
       "evidenceCommit": "a6ccf1952141c69ed4b3cde94695f983c1c28db8",
-      "currentImplementationCommit": "3d70b1e8d3c8396e7fe7b6d2548e2bae09ae7e84",
+      "currentImplementationCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Base plus current explicit implementation/test inputs. Prior39 native/CI is historical and not relabeled current.",
       "ciState": "PENDING",
@@ -11104,11 +11136,12 @@
           "path": "docs/evidence/optional-costs-ingress-2026-10-17/prior-context-input-updates.json",
           "sha256": "2c5b9441fcafac4d26fe1cf622b040535ae4573cc827c4d2d0c0693dacd103a2"
         }
-      }
+      },
+      "currentInputRevision": "c3bc plus battlefield-only play-trigger condition source pins; new exact fixed full required. Historical semantic decisions and CI receipts retained."
     },
     "duel-chain-origins-cold-recovery-2026-10-17": {
       "evidenceCommit": "42c89230105573e39ffaf524a7dc21f24d520d4b",
-      "currentImplementationCommit": "3d70b1e8d3c8396e7fe7b6d2548e2bae09ae7e84",
+      "currentImplementationCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Base42 plus exact changed implementation/test pins; fixed067 full is a retained failure, not current success.",
       "ciState": "PENDING",
@@ -11341,7 +11374,8 @@
           "path": "docs/evidence/optional-costs-ingress-2026-10-17/prior-context-input-updates-revision2.json",
           "sha256": "c9549a4bff7430d626a0e3233a8219a0746f9629e632264f9de6705c061d314d"
         }
-      }
+      },
+      "currentInputRevision": "c3bc plus battlefield-only play-trigger condition source pins; new exact fixed full required. Historical semantic decisions and CI receipts retained."
     }
   },
   "acceptanceGates": [
@@ -14025,6 +14059,257 @@
         "path": "docs/evidence/optional-costs-ingress-2026-10-17/scope-and-source-manifest.json",
         "sha256": "0162cfd381851b16ce3ffa007700c50d482e5876f29f3af63a21780409574961"
       }
+    },
+    {
+      "id": "BATTLEFIELD_ONLY_PLAY_TRIGGER_MERFOLK",
+      "state": "OPEN",
+      "requirement": "Close the exact printed conditional play trigger and every applicable behavior/entry/response branch with source, implementation, tests, exact fixed CI and native/SQL/replay/Windows evidence. Base-only pass never certifies the card.",
+      "issue": "https://github.com/DDDHL0704/riftbound/issues/59",
+      "parentObligationId": "CARD:UNL-003/219",
+      "exactPrinting": {
+        "region": "CN",
+        "language": "zh-CN",
+        "sourceId": 34526,
+        "cardNo": "UNL-003/219",
+        "publishedPreview": false,
+        "firstPublicationDate": null,
+        "effectiveDate": null
+      },
+      "applicableAsOf": "2026-10-17",
+      "coreEffectiveDate": "2026-10-16",
+      "sourceManifest": {
+        "path": "docs/evidence/battlefield-play-trigger-2026-10-17/scope-and-source-manifest.json",
+        "sha256": "5c9bab5e8734386315a7c9c07bc806a952fac3b6a576c8271b7ce8cd94cf4bde"
+      },
+      "implementation": [
+        {
+          "path": "src/Riftbound.Engine/OfficialPrintedTimingRules.cs",
+          "sha256": "fd501a2c5745d9782e02f7c9d11f66f0b2c8d40482df175850b55d9d3427e1f1"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.PermanentConfirmation.cs",
+          "sha256": "89975fbcb3244799badd55e257f1d709133473e10748334bec53d4139798ffb1"
+        }
+      ],
+      "verificationSources": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/BattlefieldConditionalPlayTriggerTests.cs",
+          "sha256": "8f1862601890ad2370728df79dfc1a691469d1670399ae02bbbd0b9d17262371"
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ogn-blitzcrank-barrier-static.fixture.json",
+          "sha256": "5ec9eea33ae2fe9c8f2140570c505b43d651f7ee2258494e2d54c95baf6bd628"
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-merfolk-rabble-rouser-standby-static.fixture.json",
+          "sha256": "d50523c1730e6d54ac036eeda4094949feafc5452178f89937d7e2d319b40455"
+        }
+      ],
+      "semanticReview": "HAND_TO_BASE_CONDITION_ONLY_NOT_WHOLE_CARD",
+      "tests": {
+        "path": "docs/evidence/battlefield-play-trigger-2026-10-17/focus-and-red-records.json",
+        "sha256": "b9593e1fe489da97e9237260ff9deebe54fdacd4d0f6643f2f20c014cc0a2c61"
+      },
+      "fixedCommitCi": "PENDING_NEW_FIXED_FULL",
+      "productAcceptance": {
+        "priorFixedC3bcNativeBasePlay": "CONFIRMED_RED_NOT_PASS",
+        "currentVisibleNative": "OPEN",
+        "realSql": "OPEN_FOR_NEW_CANDIDATE",
+        "windowsPhysical": "OPEN"
+      },
+      "branches": [
+        {
+          "id": "ordinary-hand-to-base",
+          "semanticReview": "CURRENT_CN_PRINTED_CONDITION_REVIEWED_ONLY",
+          "tests": "TWO_BASE_DESTINATION_CASES_PASS",
+          "implementation": "SHARED_PRINTED_CONDITION_GATE",
+          "fixedCommitCi": "PENDING_NEW_FIXED_FULL",
+          "productAcceptance": "OPEN_NEW_CANDIDATE_VISIBLE_NATIVE_REQUIRED"
+        },
+        {
+          "id": "independent-legend-trigger",
+          "semanticReview": "LIMITED_PRESERVATION_ONLY_MULTIPLE_TRIGGER_ORDER_NOT_CERTIFIED",
+          "tests": "ONE_REAL_LEGEND_TRIGGER_CASE_PASS_WITH_INITIAL_AND_FINAL_RECOVERY",
+          "fixedCommitCi": "PENDING_NEW_FIXED_FULL",
+          "productAcceptance": "OPEN"
+        },
+        {
+          "id": "effect-generated-play-and-other-entry-consumers",
+          "semanticReview": "OPEN",
+          "tests": "OPEN",
+          "fixedCommitCi": "OPEN",
+          "productAcceptance": "OPEN"
+        },
+        {
+          "id": "battlefield-positive-effect-here-targets-response-ward-counter-and-source-transition",
+          "semanticReview": "OPEN_POSITIVE_PRINTED_EFFECT_NOT_IMPLEMENTED_BY_EXISTING_STATIC_DEFINITION",
+          "tests": "MERFOLK_STANDBY_TRIGGER_QUEUE_ONLY_PASS_DAMAGE_NOT_CERTIFIED",
+          "fixedCommitCi": "OPEN",
+          "productAcceptance": "OPEN"
+        },
+        {
+          "id": "remaining-printed-keyword-and-hold-behavior",
+          "semanticReview": "OPEN_NOT_REVIEWED_BY_THIS_BATCH",
+          "tests": "EXISTING_TESTS_NOT_WHOLE_CARD_CERTIFICATION",
+          "fixedCommitCi": "OPEN",
+          "productAcceptance": "OPEN"
+        },
+        {
+          "id": "independent-recovery-forged-false-condition-stack",
+          "semanticReview": "OPEN_CURRENT_VERSION_STRUCTURAL_GUARD_NOT_REVIEWED_IN_THIS_BATCH",
+          "tests": "OPEN_FALSE_CONDITION_FORGED_STATE_WITH_REBUILT_VIEWS_AND_REAL_SQL",
+          "fixedCommitCi": "OPEN",
+          "productAcceptance": "OPEN"
+        }
+      ],
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "BATTLEFIELD_ONLY_PLAY_TRIGGER_BLITZCRANK",
+      "state": "OPEN",
+      "requirement": "Close the exact printed conditional play trigger and every applicable behavior/entry/response branch with source, implementation, tests, exact fixed CI and native/SQL/replay/Windows evidence. Base-only pass never certifies the card.",
+      "issue": "https://github.com/DDDHL0704/riftbound/issues/59",
+      "parentObligationId": "CARD:OGN-067/298",
+      "exactPrinting": {
+        "region": "CN",
+        "language": "zh-CN",
+        "sourceId": 31280,
+        "cardNo": "OGN·067/298",
+        "publishedPreview": false,
+        "firstPublicationDate": null,
+        "effectiveDate": null
+      },
+      "applicableAsOf": "2026-10-17",
+      "coreEffectiveDate": "2026-10-16",
+      "sourceManifest": {
+        "path": "docs/evidence/battlefield-play-trigger-2026-10-17/scope-and-source-manifest.json",
+        "sha256": "5c9bab5e8734386315a7c9c07bc806a952fac3b6a576c8271b7ce8cd94cf4bde"
+      },
+      "implementation": [
+        {
+          "path": "src/Riftbound.Engine/OfficialPrintedTimingRules.cs",
+          "sha256": "fd501a2c5745d9782e02f7c9d11f66f0b2c8d40482df175850b55d9d3427e1f1"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.PermanentConfirmation.cs",
+          "sha256": "89975fbcb3244799badd55e257f1d709133473e10748334bec53d4139798ffb1"
+        }
+      ],
+      "verificationSources": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/BattlefieldConditionalPlayTriggerTests.cs",
+          "sha256": "8f1862601890ad2370728df79dfc1a691469d1670399ae02bbbd0b9d17262371"
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ogn-blitzcrank-barrier-static.fixture.json",
+          "sha256": "5ec9eea33ae2fe9c8f2140570c505b43d651f7ee2258494e2d54c95baf6bd628"
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-merfolk-rabble-rouser-standby-static.fixture.json",
+          "sha256": "d50523c1730e6d54ac036eeda4094949feafc5452178f89937d7e2d319b40455"
+        }
+      ],
+      "semanticReview": "HAND_TO_BASE_CONDITION_ONLY_NOT_WHOLE_CARD",
+      "tests": {
+        "path": "docs/evidence/battlefield-play-trigger-2026-10-17/focus-and-red-records.json",
+        "sha256": "b9593e1fe489da97e9237260ff9deebe54fdacd4d0f6643f2f20c014cc0a2c61"
+      },
+      "fixedCommitCi": "PENDING_NEW_FIXED_FULL",
+      "productAcceptance": {
+        "priorFixedC3bcNativeBasePlay": "NOT_COVERED",
+        "currentVisibleNative": "OPEN",
+        "realSql": "OPEN_FOR_NEW_CANDIDATE",
+        "windowsPhysical": "OPEN"
+      },
+      "branches": [
+        {
+          "id": "ordinary-hand-to-base",
+          "semanticReview": "CURRENT_CN_PRINTED_CONDITION_REVIEWED_ONLY",
+          "tests": "TWO_BASE_DESTINATION_CASES_PASS",
+          "implementation": "SHARED_PRINTED_CONDITION_GATE",
+          "fixedCommitCi": "PENDING_NEW_FIXED_FULL",
+          "productAcceptance": "OPEN_NEW_CANDIDATE_VISIBLE_NATIVE_REQUIRED"
+        },
+        {
+          "id": "independent-legend-trigger",
+          "semanticReview": "LIMITED_PRESERVATION_ONLY_MULTIPLE_TRIGGER_ORDER_NOT_CERTIFIED",
+          "tests": "ONE_REAL_LEGEND_TRIGGER_CASE_PASS_WITH_INITIAL_AND_FINAL_RECOVERY",
+          "fixedCommitCi": "PENDING_NEW_FIXED_FULL",
+          "productAcceptance": "OPEN"
+        },
+        {
+          "id": "effect-generated-play-and-other-entry-consumers",
+          "semanticReview": "OPEN",
+          "tests": "OPEN",
+          "fixedCommitCi": "OPEN",
+          "productAcceptance": "OPEN"
+        },
+        {
+          "id": "battlefield-positive-effect-here-targets-response-ward-counter-and-source-transition",
+          "semanticReview": "OPEN_POSITIVE_PRINTED_EFFECT_NOT_IMPLEMENTED_BY_EXISTING_STATIC_DEFINITION",
+          "tests": "OPEN_LEGAL_BATTLEFIELD_PULL_BRANCH",
+          "fixedCommitCi": "OPEN",
+          "productAcceptance": "OPEN"
+        },
+        {
+          "id": "remaining-printed-keyword-and-hold-behavior",
+          "semanticReview": "OPEN_NOT_REVIEWED_BY_THIS_BATCH",
+          "tests": "EXISTING_TESTS_NOT_WHOLE_CARD_CERTIFICATION",
+          "fixedCommitCi": "OPEN",
+          "productAcceptance": "OPEN"
+        },
+        {
+          "id": "independent-recovery-forged-false-condition-stack",
+          "semanticReview": "OPEN_CURRENT_VERSION_STRUCTURAL_GUARD_NOT_REVIEWED_IN_THIS_BATCH",
+          "tests": "OPEN_FALSE_CONDITION_FORGED_STATE_WITH_REBUILT_VIEWS_AND_REAL_SQL",
+          "fixedCommitCi": "OPEN",
+          "productAcceptance": "OPEN"
+        }
+      ],
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "BATTLEFIELD_ONLY_PLAY_TRIGGER_RAD031_PREVIEW",
+      "state": "OPEN",
+      "requirement": "Close the exact printed conditional play trigger and every applicable behavior/entry/response branch with source, implementation, tests, exact fixed CI and native/SQL/replay/Windows evidence. Base-only pass never certifies the card.",
+      "issue": "https://github.com/DDDHL0704/riftbound/issues/59",
+      "parentObligationId": "CARD:RAD-031/167",
+      "exactPrinting": {
+        "region": "CN",
+        "language": "zh-CN",
+        "sourceId": 39524,
+        "cardNo": "RAD·031/167",
+        "publishedPreview": true,
+        "firstPublicationDate": null,
+        "effectiveDate": null
+      },
+      "applicableAsOf": "2026-10-17",
+      "coreEffectiveDate": "2026-10-16",
+      "sourceManifest": {
+        "path": "docs/evidence/battlefield-play-trigger-2026-10-17/scope-and-source-manifest.json",
+        "sha256": "5c9bab5e8734386315a7c9c07bc806a952fac3b6a576c8271b7ce8cd94cf4bde"
+      },
+      "implementation": [],
+      "verificationSources": [],
+      "semanticReview": "PUBLISHED_PREVIEW_APPLICABILITY_OPEN",
+      "tests": "OPEN",
+      "fixedCommitCi": "OPEN",
+      "productAcceptance": {
+        "priorFixedC3bcNativeBasePlay": "NOT_COVERED",
+        "currentVisibleNative": "OPEN",
+        "realSql": "OPEN_FOR_NEW_CANDIDATE",
+        "windowsPhysical": "OPEN"
+      },
+      "branches": [
+        {
+          "id": "published-preview-applicability-and-consumer",
+          "semanticReview": "OPEN_OFFICIAL_ISPREVIEW_TRUE_FIRST_PUBLICATION_AND_EFFECTIVE_DATE_UNKNOWN",
+          "tests": "NO_ACTIVE_RUNTIME_CATALOG_ENTRY",
+          "fixedCommitCi": "OPEN",
+          "productAcceptance": "OPEN"
+        }
+      ],
+      "wholePrintingCertified": false
     }
   ],
   "note": "Current inventory and remaining obligations, with independently dated rule sources and separately recorded source deltas. No source fetch or semantic certification by this checker.",

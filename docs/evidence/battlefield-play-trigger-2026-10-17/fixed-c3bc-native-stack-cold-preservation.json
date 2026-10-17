@@ -1,0 +1,72 @@
+{
+  "recordedAtUtc": "2026-10-17T07:03:32.397559+00:00",
+  "status": "ACTUAL_NATIVE_TWO_CLIENT_NONEMPTY_STACK_NETWORK_COLD_STATE_PRESERVATION_PASS_ONLY",
+  "fixedCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
+  "before": {
+    "currentTick": 12,
+    "lastEventSequence": 44,
+    "commands": 13,
+    "events": 44,
+    "finalStateHash": "feb5f3b1aceac2ca5ea49ec7212eb60e8aa3b1840794c6bf5919609132645341",
+    "openingSeedTextSha256": "9ad73aa90830c315ff53a9aa29d17b05b7403c8b1058fd7ee859eeea62c3877d",
+    "ruleInputs": {
+      "schemaVersion": 1,
+      "region": "CN",
+      "language": "zh-CN",
+      "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+      "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+      "implementationSha256": "0f4b9da7caf93fb76dc3be129d20be68fe01d17482ead9c0cae1c12def0eeafd",
+      "identitySha256": "7e9bd48016f79b742da58d866b572f6eeb6410ecdf6e48d0ebf24e51d7ae8b1b"
+    },
+    "scores": {
+      "paired-optional-costs-a": 0,
+      "paired-optional-costs-b": 0
+    },
+    "turnNumber": 2
+  },
+  "after": {
+    "currentTick": 12,
+    "lastEventSequence": 44,
+    "commands": 13,
+    "events": 44,
+    "finalStateHash": "feb5f3b1aceac2ca5ea49ec7212eb60e8aa3b1840794c6bf5919609132645341",
+    "openingSeedTextSha256": "9ad73aa90830c315ff53a9aa29d17b05b7403c8b1058fd7ee859eeea62c3877d",
+    "ruleInputs": {
+      "schemaVersion": 1,
+      "region": "CN",
+      "language": "zh-CN",
+      "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+      "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+      "implementationSha256": "0f4b9da7caf93fb76dc3be129d20be68fe01d17482ead9c0cae1c12def0eeafd",
+      "identitySha256": "7e9bd48016f79b742da58d866b572f6eeb6410ecdf6e48d0ebf24e51d7ae8b1b"
+    },
+    "scores": {
+      "paired-optional-costs-a": 0,
+      "paired-optional-costs-b": 0
+    },
+    "turnNumber": 2
+  },
+  "equality": {
+    "currentTick": true,
+    "lastEventSequence": true,
+    "commands": true,
+    "events": true,
+    "finalStateHash": true,
+    "openingSeedTextSha256": true,
+    "ruleInputs": true,
+    "scores": true,
+    "turnNumber": true
+  },
+  "actualOriginalCommandAndEventArraysIdentical": true,
+  "actualAuthoritativeStateAndAllPlayerSnapshotsPromptsIdentical": true,
+  "strictCompleteOriginalReplayBeforeAndAfter": true,
+  "visibleBothInterruptedAndNoActionsWhileDisconnected": true,
+  "nativeReconnectButtonsClickedOnBoth": true,
+  "visibleBothRestoredWithSameSingleStackItemAndBPriority": true,
+  "same36PublishedRuntimeFilesAndOriginalDatabase": true,
+  "semanticCertification": false,
+  "knownWrongTriggerNotCertified": "https://github.com/DDDHL0704/riftbound/issues/59",
+  "surrenderOrDeveloperCommands": false,
+  "currentNormalScoreVictory": "OPEN_NOT_REACHED",
+  "windowsPhysical": "OPEN"
+}

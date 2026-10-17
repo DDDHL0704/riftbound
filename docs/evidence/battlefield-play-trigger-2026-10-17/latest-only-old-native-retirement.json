@@ -1,0 +1,43 @@
+{
+  "recordedAtUtc": "2026-10-17T06:41:07.747904+00:00",
+  "reason": "New fixedC3bc exact-CI pair visibly booted and new API/SQL identity verified; retain only latest usable pair and two platform archives.",
+  "retiredOldCandidate": "ed6a2ba59ec09c74c28856c6462edd6bc81dca07",
+  "newCandidate": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
+  "old373ManagedPckFilesEachMatchedBeforeRemoval": true,
+  "oldSignaturesVerifiedBeforeRemoval": true,
+  "oldAppsNormallyQuitViaNativeUiAndProcessesGone": true,
+  "exactOwnedOldApiStopped": 7831,
+  "oldPostgres55472StoppedAndOriginalDatabasePreserved": true,
+  "oldSourceTestsLogsAndAcceptanceReceiptsPreserved": true,
+  "targets": [
+    {
+      "path": "/Users/dinghaolin/MyProjects/riftbound/var/qa/duel-chain-paired-20261017/RiftboundDuel-A.app",
+      "kind": "APP_DERIVATIVE",
+      "logicalBytes": 356843630
+    },
+    {
+      "path": "/Users/dinghaolin/MyProjects/riftbound/var/qa/duel-chain-paired-20261017/RiftboundDuel-B.app",
+      "kind": "APP_DERIVATIVE",
+      "logicalBytes": 356843630
+    },
+    {
+      "path": "/Users/dinghaolin/MyProjects/riftbound/var/qa/duel-chain-paired-20261017/native-current/native-windows-latest.zip",
+      "kind": "CANONICAL_OLD_ARCHIVE",
+      "logicalBytes": 89107836
+    },
+    {
+      "path": "/Users/dinghaolin/MyProjects/riftbound/var/qa/duel-chain-paired-20261017/native-current/native-macos-latest.zip",
+      "kind": "CANONICAL_OLD_ARCHIVE",
+      "logicalBytes": 142864657
+    }
+  ],
+  "newApps": [
+    "/Users/dinghaolin/MyProjects/riftbound/var/qa/optional-costs-paired-20261017/RiftboundCosts-A.app",
+    "/Users/dinghaolin/MyProjects/riftbound/var/qa/optional-costs-paired-20261017/RiftboundCosts-B.app"
+  ],
+  "actualFreeBefore": 36745494528,
+  "actualFreeAfter": 37505499136,
+  "actualFreedBytes": 760004608,
+  "availableBytes": 37505499136,
+  "oldBinaryArchivesNoLongerRetainedDoNotClaimTheyRemain": true
+}

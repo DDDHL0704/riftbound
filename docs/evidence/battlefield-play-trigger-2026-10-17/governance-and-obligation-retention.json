@@ -1,0 +1,37 @@
+{
+  "recordedAtUtc": "2026-10-17T07:43:31.966634+00:00",
+  "governanceValid": true,
+  "errors": [],
+  "semanticCoverageCertified": false,
+  "retainedAllPriorObligations": true,
+  "previousCount": 16551,
+  "currentCount": 16554,
+  "newGateIds": [
+    "GATE:BATTLEFIELD_ONLY_PLAY_TRIGGER_BLITZCRANK",
+    "GATE:BATTLEFIELD_ONLY_PLAY_TRIGGER_MERFOLK",
+    "GATE:BATTLEFIELD_ONLY_PLAY_TRIGGER_RAD031_PREVIEW"
+  ],
+  "sourceUniverseAndSourceGapCountsUnchanged": true,
+  "counts": {
+    "combinedExactPrintingNumbers": 1740,
+    "sourceDocuments": 36,
+    "sourceBlocks": 14293,
+    "cnOfficialPrintings": 1504,
+    "enReturnedPrintings": 1408,
+    "enReportedTotal": 1416,
+    "enSourceCountGap": 8,
+    "activeCatalogEntries": 1033,
+    "outsideActiveCatalog": 707,
+    "cnQaFields": 1504,
+    "cnNonemptyQaFields": 0
+  },
+  "historicalScopedReviews": 119,
+  "allPreviousReviewSubjectsAndSourcesRetained": true,
+  "pythonToolTests": {
+    "tests": 55,
+    "status": "PASS"
+  },
+  "rawCurrentGovernanceSha256": "8bb80c4f4008937d73d9b9f342d654a2d9112ada6aec521aacaa240f6e4b85e1",
+  "rawBaselineGovernanceSha256": "26a7ed3d313b08f834f193f67ccfb012acdae1cdd50aa835a4e8d46402289c26",
+  "newConditionalBranchGatesRemainOpen": true
+}

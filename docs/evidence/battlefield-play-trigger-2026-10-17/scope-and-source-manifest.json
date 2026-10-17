@@ -1,0 +1,364 @@
+{
+  "region": "CN",
+  "language": "zh-CN",
+  "applicableAsOf": "2026-10-17",
+  "exactAcquisitions": [
+    {
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "鲛人滋事者",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "receivedAtUtc": "2026-10-17T07:15:06.385699+00:00",
+      "httpDate": "Sat, 17 Oct 2026 07:15:06 GMT",
+      "httpStatus": 200,
+      "file": "merfolk.json.gz",
+      "rawBytes": 1246,
+      "rawSha256": "6e68d7261527ffcbab4e8fef26b561f144c5fdf1f5d0fd4d3c4ef2d79243b271",
+      "gzipSha256": "8edb4fd55ddb2e087896a96705114437d7eb20252b6d622f2a0f66f4d72e9f12",
+      "records": [
+        {
+          "id": 34526,
+          "cardCategoryList": [
+            "unit"
+          ],
+          "cardCategoryNameList": [
+            "单位"
+          ],
+          "cardNo": "UNL-003/219",
+          "cardName": "鲛人滋事者",
+          "subTitle": "",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "red"
+          ],
+          "hero": "",
+          "region": "比尔吉沃特",
+          "tag": "",
+          "artist": "Envar Studio",
+          "cardEffect": "{{待命}}（支付{{A}}正面朝下放置此牌，之后可支付{{0}}将其当作反应牌打出。）\n当你将我打出到一处战场时，对此处的一名敌方单位造成2点伤害。",
+          "flavorText": "如同大海一般反复无常，倾覆一切。",
+          "energy": 2,
+          "returnEnergy": null,
+          "power": 2,
+          "productCodeList": [
+            "UNL(进阶补充包)",
+            "UNL(标准补充包)"
+          ],
+          "productNameList": [
+            "破限系列 进阶补充包",
+            "破限系列 基础补充包"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_dust",
+          "rarityName": "普通",
+          "extendRarity": "base_inscript",
+          "extendRarityName": "平卡",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20260319/1155aa27333d4079806b8bde86f776b1.webp",
+          "backImage": "",
+          "listSort": 1498,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        }
+      ],
+      "publicationDate": null,
+      "effectiveDate": null,
+      "region": "CN",
+      "language": "zh-CN"
+    },
+    {
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "布里茨",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "receivedAtUtc": "2026-10-17T07:15:06.509197+00:00",
+      "httpDate": "Sat, 17 Oct 2026 07:15:06 GMT",
+      "httpStatus": 200,
+      "file": "blitzcrank.json.gz",
+      "rawBytes": 1235,
+      "rawSha256": "4ccf3fd4fdfc1a1fc172c83e386549593a8d64056adc5a4255f8dfb3eed52853",
+      "gzipSha256": "28f5b1f5fb78938abef589f6fccdeffe7adaab881730d1dad44bc3f56a128e85",
+      "records": [
+        {
+          "id": 31280,
+          "cardCategoryList": [
+            "hero_unit"
+          ],
+          "cardCategoryNameList": [
+            "英雄单位"
+          ],
+          "cardNo": "OGN·067/298",
+          "cardName": "布里茨",
+          "subTitle": "钢铁意志",
+          "extendType": null,
+          "extendTypeName": "",
+          "cardColorList": [
+            "green"
+          ],
+          "hero": "布里茨",
+          "region": "祖安",
+          "tag": "机械",
+          "artist": "League Splash Team",
+          "cardEffect": "{{壁垒}}（我在战斗中首先承担伤害。）\n每当你将我打出到一处战场时，你可以选择移动任意一名敌方单位到此处。\n当我据守一处战场时，把我送回所属的手牌。",
+          "flavorText": "",
+          "energy": 5,
+          "returnEnergy": 1,
+          "power": 5,
+          "productCodeList": [
+            "OGN(标准补充包)",
+            "OGN(进阶补充包)"
+          ],
+          "productNameList": [
+            "起源 标准补充包",
+            "起源 进阶补充包"
+          ],
+          "cardQaList": null,
+          "craftLevel": 0,
+          "rarity": "rune_shard",
+          "rarityName": "稀有",
+          "extendRarity": "base_inscript",
+          "extendRarityName": "平卡",
+          "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/1f63c6cd065944329e04831beb2e989f.png",
+          "backImage": "",
+          "listSort": 425,
+          "status": 1,
+          "cardGroupLimit": null,
+          "isPreview": false,
+          "errata": "",
+          "otherDesc": 0
+        }
+      ],
+      "publicationDate": null,
+      "effectiveDate": null,
+      "region": "CN",
+      "language": "zh-CN"
+    }
+  ],
+  "semanticCertification": false,
+  "scope": "printed battlefield-only play trigger condition; battlefield damage and pull remain separately OPEN",
+  "baselineCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
+  "fullUniverseManifest": "docs/audit/current-manifest.json",
+  "priorAllCnSnapshotExactRecordEquality": true,
+  "frozenCnUniverseEntries": 1504,
+  "allPrintingsMatchingThisExactTriggerPhrase": [
+    {
+      "record": {
+        "id": 39524,
+        "cardCategoryList": [
+          "unit"
+        ],
+        "cardCategoryNameList": [
+          "单位"
+        ],
+        "cardNo": "RAD·031/167",
+        "cardName": "冷面摆渡人",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "green"
+        ],
+        "hero": "",
+        "region": "比尔吉沃特",
+        "tag": "哨兵",
+        "artist": "Six More Vodka",
+        "cardEffect": "{{坚守3}}（只要我是防守方，便{{S}}+3。）\n当你将我打出到一处战场时，你可以选择将此处你控制的另一名单位移动到你的基地。",
+        "flavorText": "你付的是船费，不是陪聊费。",
+        "energy": 4,
+        "returnEnergy": null,
+        "power": 2,
+        "productCodeList": [],
+        "productNameList": [],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_dust",
+        "rarityName": "普通",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20261012/d83a28df03c64e3091f7050eb365e27c.png",
+        "backImage": "",
+        "listSort": 2867,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": true,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "frozenFile": "docs/evidence/source-reconfirmation-2026-10-17/full-cn/page-01.json.gz",
+      "disposition": "PUBLISHED_PREVIEW_APPLICABILITY_AND_IMPLEMENTATION_OPEN"
+    },
+    {
+      "record": {
+        "id": 31280,
+        "cardCategoryList": [
+          "hero_unit"
+        ],
+        "cardCategoryNameList": [
+          "英雄单位"
+        ],
+        "cardNo": "OGN·067/298",
+        "cardName": "布里茨",
+        "subTitle": "钢铁意志",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "green"
+        ],
+        "hero": "布里茨",
+        "region": "祖安",
+        "tag": "机械",
+        "artist": "League Splash Team",
+        "cardEffect": "{{壁垒}}（我在战斗中首先承担伤害。）\n每当你将我打出到一处战场时，你可以选择移动任意一名敌方单位到此处。\n当我据守一处战场时，把我送回所属的手牌。",
+        "flavorText": "",
+        "energy": 5,
+        "returnEnergy": 1,
+        "power": 5,
+        "productCodeList": [
+          "OGN(标准补充包)",
+          "OGN(进阶补充包)"
+        ],
+        "productNameList": [
+          "起源 标准补充包",
+          "起源 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_shard",
+        "rarityName": "稀有",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/1f63c6cd065944329e04831beb2e989f.png",
+        "backImage": "",
+        "listSort": 425,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "frozenFile": "docs/evidence/source-reconfirmation-2026-10-17/full-cn/page-13.json.gz",
+      "disposition": "CURRENT_IMPLEMENTED_CONDITION_IN_SCOPE_POSITIVE_EFFECT_OPEN"
+    },
+    {
+      "record": {
+        "id": 34526,
+        "cardCategoryList": [
+          "unit"
+        ],
+        "cardCategoryNameList": [
+          "单位"
+        ],
+        "cardNo": "UNL-003/219",
+        "cardName": "鲛人滋事者",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "red"
+        ],
+        "hero": "",
+        "region": "比尔吉沃特",
+        "tag": "",
+        "artist": "Envar Studio",
+        "cardEffect": "{{待命}}（支付{{A}}正面朝下放置此牌，之后可支付{{0}}将其当作反应牌打出。）\n当你将我打出到一处战场时，对此处的一名敌方单位造成2点伤害。",
+        "flavorText": "如同大海一般反复无常，倾覆一切。",
+        "energy": 2,
+        "returnEnergy": null,
+        "power": 2,
+        "productCodeList": [
+          "UNL(进阶补充包)",
+          "UNL(标准补充包)"
+        ],
+        "productNameList": [
+          "破限系列 进阶补充包",
+          "破限系列 基础补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_dust",
+        "rarityName": "普通",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260319/1155aa27333d4079806b8bde86f776b1.webp",
+        "backImage": "",
+        "listSort": 1498,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "frozenFile": "docs/evidence/source-reconfirmation-2026-10-17/full-cn/page-06.json.gz",
+      "disposition": "CURRENT_IMPLEMENTED_CONDITION_IN_SCOPE_POSITIVE_EFFECT_OPEN"
+    }
+  ],
+  "core": {
+    "url": "https://cdn.playloltcg.com/lol/2026/10/2026-10-10/a21ead876c6b44d6abe386b6ae54ea28.pdf",
+    "attemptedAtUtc": "2026-10-17T04:32:01.602327+00:00",
+    "receivedAtUtc": "2026-10-17T04:32:13.771830+00:00",
+    "bytes": 40278538,
+    "sha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11",
+    "publicationDate": "2026-10-10",
+    "effectiveDate": "2026-10-16",
+    "canonicalRetainedPdf": "var/qa/colorless-token-haste-20261016/DOC-01-current.pdf",
+    "identicalDuplicateNotStored": true
+  },
+  "coreCanonicalPdfActualSha256Verified": true,
+  "coreTextDerivativeSha256": "cafb4f3010c68360f3a8bc39b2b963e6654d6368c193c1d935a77661fb900a6d",
+  "clauses": [
+    {
+      "clause": "359.2",
+      "pdfPageOneBased": 52,
+      "text": "359.2.         常驻牌 离开结算链 ，变为游戏物体 。"
+    },
+    {
+      "clause": "383",
+      "pdfPageOneBased": 61,
+      "text": "383.         触发式技能 是一种可重复效果，在满足特定条件 时即会触发。"
+    },
+    {
+      "clause": "383.1",
+      "pdfPageOneBased": 61,
+      "text": "383.1.           触发式技能 的识别标志为技能描述中出现的“当/每当……时”（中间为一个游戏行动或事件）、“在……时”（中间为回合"
+    },
+    {
+      "clause": "383.2.a",
+      "pdfPageOneBased": 62,
+      "text": "383.2.a.          条件 是指包含“当 /每当 ……时 ”、“在 ……时 ”，或者“（第） N 次 ”的子句。"
+    },
+    {
+      "clause": "383.2.c",
+      "pdfPageOneBased": 62,
+      "text": "383.2.c.          触发条件 会在可能引发它的事件处理完毕后再进行判定。除非该条件 检查的是该触发式技能来源的离场事"
+    },
+    {
+      "clause": "383.3",
+      "pdfPageOneBased": 63,
+      "text": "383.3.         条件 满足时，触发式技能 就会和主动技能 一样行动，被放置到结算链 。"
+    }
+  ],
+  "positiveEffectBranches": {
+    "UNL-003/219": "OPEN_HERE_ENEMY_DAMAGE_2_NOT_IMPLEMENTED_BY_EXISTING_STATIC_DEFINITION",
+    "OGN·067/298": "OPEN_OPTIONAL_PULL_ENEMY_UNIT_NOT_IMPLEMENTED_BY_EXISTING_STATIC_DEFINITION",
+    "RAD·031/167": "OPEN_PUBLISHED_PREVIEW_APPLICABILITY_RELEASE_AND_COMPLETE_BEHAVIOR"
+  },
+  "wholeCardCertification": false,
+  "priorSourceManifestNeverRewritten": true,
+  "priorProbeFailure": "Inventory expected two phrase matches; failed because the retained published-preview RAD031 is a third. No source delta or removal; enumeration repaired to retain all three."
+}

@@ -5,19 +5,28 @@ namespace Riftbound.Engine;
 
 internal static class OfficialPrintedTimingRules
 {
-    private static readonly Lazy<IReadOnlySet<string>> PlayTriggers = new(() =>
+    private static readonly Lazy<IReadOnlyDictionary<string, bool>> PlayTriggers = new(() =>
         OfficialCardCatalog.LoadDefaultAsync().GetAwaiter().GetResult().Cards
             // These keywords have their own entry handling. Their reminder must
             // not also create a legacy permanent play-ability item.
-            .Where(card => Regex.Replace(card.CardEffect, @"\{\{(?:百炼|预知)\}\}[。\s]*[（(][^）)]*[）)]", "").Split('。', '\n').Any(clause =>
+            .Select(card => (card.CardNo, Clauses: Regex.Replace(card.CardEffect, @"\{\{(?:百炼|预知)\}\}[。\s]*[（(][^）)]*[）)]", "").Split('。', '\n').Where(clause =>
                 !clause.Contains("作为额外费用", StringComparison.Ordinal)
                 && (clause.Contains("当你打出我", StringComparison.Ordinal)
                     || clause.Contains("当你打出此牌", StringComparison.Ordinal)
                     || clause.Contains("当你打出此装备", StringComparison.Ordinal)
                     || clause.Contains("当此牌被打出", StringComparison.Ordinal)
-                    || clause.Contains("当你将我打出", StringComparison.Ordinal))))
-            .Select(card => card.CardNo).ToHashSet(StringComparer.Ordinal));
-    internal static bool HasPlayTrigger(string cardNo) => PlayTriggers.Value.Contains(cardNo);
+                    || clause.Contains("当你将我打出", StringComparison.Ordinal))).ToArray()))
+            .Where(card => card.Clauses.Length > 0)
+            // Only the trigger condition is destination-qualified. A keyword's
+            // reminder or a later "if played to a battlefield" instruction must
+            // not suppress an unconditional play ability (e.g. OGN·223/298).
+            .ToDictionary(card => card.CardNo,
+                card => card.Clauses.All(clause => clause.Contains("当你将我打出到一处战场时", StringComparison.Ordinal)),
+                StringComparer.Ordinal));
+    internal static bool HasPlayTrigger(string cardNo) => PlayTriggers.Value.ContainsKey(cardNo);
+    internal static bool HasPlayTrigger(string cardNo, bool playedToBattlefield)
+        => PlayTriggers.Value.TryGetValue(cardNo, out var requiresBattlefield)
+            && (!requiresBattlefield || playedToBattlefield);
     private static readonly Lazy<IReadOnlySet<string>> OtherPlayTargets = new(() =>
         OfficialCardCatalog.LoadDefaultAsync().GetAwaiter().GetResult().Cards
             .Where(card => Regex.IsMatch(card.CardEffect,

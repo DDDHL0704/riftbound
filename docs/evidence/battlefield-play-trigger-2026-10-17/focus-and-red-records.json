@@ -1,0 +1,207 @@
+{
+  "recordedAtUtc": "2026-10-17T07:37:07.082112+00:00",
+  "runs": [
+    {
+      "label": "red-condition",
+      "sourceEvidenceRoot": "var/qa/battlefield-play-trigger-20261017/red-condition",
+      "actualCases": 11,
+      "actualMethods": 4,
+      "passed": 6,
+      "failed": [
+        "Riftbound.ConformanceTests.BattlefieldConditionalPlayTriggerTests.BasePlacementDoesNotQueueTheBattlefieldOnlyPrintedAbility(cardNo: \"UNL-003/219\", destination: \"\")",
+        "Riftbound.ConformanceTests.BattlefieldConditionalPlayTriggerTests.BasePlacementDoesNotQueueTheBattlefieldOnlyPrintedAbility(cardNo: \"OGN·067/298\", destination: \"BASE\")",
+        "Riftbound.ConformanceTests.BattlefieldConditionalPlayTriggerTests.BattlefieldReminderOrLaterInstructionDoesNotSuppressAnUnconditionalPlayAbility(cardNo: \"UNL-021/219\")",
+        "Riftbound.ConformanceTests.BattlefieldConditionalPlayTriggerTests.BasePlacementDoesNotQueueTheBattlefieldOnlyPrintedAbility(cardNo: \"OGN·067/298\", destination: \"\")",
+        "Riftbound.ConformanceTests.BattlefieldConditionalPlayTriggerTests.BasePlacementDoesNotQueueTheBattlefieldOnlyPrintedAbility(cardNo: \"UNL-003/219\", destination: \"BASE\")"
+      ],
+      "allPassed": false,
+      "testAssemblySha256": "a150ece4ba52cfa3b6d01421df69e2de132694c0137b821ebb41478621be9910",
+      "planSha256": "4bae9a050d554fc4d16af1da80caa0a033d978668aa58f560b2c99454405f49f",
+      "trxSha256": "39738a72775a16b8579050505ca660c990e3aba78c3138849d4ddf97e15713a3",
+      "caseMultisetSha256": "8f50e8aa6ee79c95ecacc6d8092559a469b2c092fec4d8c7012d0fa6b07606a2",
+      "summary": null
+    },
+    {
+      "label": "red-condition-v2",
+      "sourceEvidenceRoot": "var/qa/battlefield-play-trigger-20261017/red-condition-v2",
+      "actualCases": 11,
+      "actualMethods": 4,
+      "passed": 7,
+      "failed": [
+        "Riftbound.ConformanceTests.BattlefieldConditionalPlayTriggerTests.BasePlacementDoesNotQueueTheBattlefieldOnlyPrintedAbility(cardNo: \"OGN·067/298\", destination: \"BASE\")",
+        "Riftbound.ConformanceTests.BattlefieldConditionalPlayTriggerTests.BasePlacementDoesNotQueueTheBattlefieldOnlyPrintedAbility(cardNo: \"UNL-003/219\", destination: \"BASE\")",
+        "Riftbound.ConformanceTests.BattlefieldConditionalPlayTriggerTests.BasePlacementDoesNotQueueTheBattlefieldOnlyPrintedAbility(cardNo: \"OGN·067/298\", destination: \"\")",
+        "Riftbound.ConformanceTests.BattlefieldConditionalPlayTriggerTests.BasePlacementDoesNotQueueTheBattlefieldOnlyPrintedAbility(cardNo: \"UNL-003/219\", destination: \"\")"
+      ],
+      "allPassed": false,
+      "testAssemblySha256": "8a99efa9d64727af57b3aedbfa9adbfef03e7f6a7d588f4f6bad500d3865eb9d",
+      "planSha256": "d9eb578b311f0d823c30cc9280d4981084c29e7842991eeee9aa9da96c210af7",
+      "trxSha256": "487d1d97ce2f922a1e92b3e800665f94dc594b499d43b87196bf68ae6d235934",
+      "caseMultisetSha256": "8f50e8aa6ee79c95ecacc6d8092559a469b2c092fec4d8c7012d0fa6b07606a2",
+      "summary": null
+    },
+    {
+      "label": "green-condition",
+      "sourceEvidenceRoot": "var/qa/battlefield-play-trigger-20261017/green-condition",
+      "actualCases": 69,
+      "actualMethods": 19,
+      "passed": 69,
+      "failed": [],
+      "allPassed": true,
+      "testAssemblySha256": "cd4b3e7aed6a4f99e7ac8f41f91c7860a186fee3427a3ff32b91f6f124f0b0e7",
+      "planSha256": "9a8c5a9a346118136bec1e948c9486700b8ad6a4747f9fc6a1fcfcaee3f51392",
+      "trxSha256": "7315900b0f021e5ee9ba37bc7185237934eab1d0e2752084a2665013d8776e1a",
+      "caseMultisetSha256": "470d104c14e8b5b05f95af0757f9c878872835c22d6df6b5733473b0178cf74b",
+      "summary": {
+        "status": "PASSED",
+        "profile": "focus",
+        "seconds": 54.27,
+        "total": 69,
+        "caseParityVerified": false,
+        "shards": [
+          {
+            "shard": "focus",
+            "total": 69,
+            "passed": 69,
+            "failed": 0,
+            "notExecuted": 0,
+            "seconds": 10.5
+          }
+        ]
+      }
+    },
+    {
+      "label": "adjacent-triggers",
+      "sourceEvidenceRoot": "var/qa/battlefield-play-trigger-20261017/adjacent-triggers",
+      "actualCases": 2399,
+      "actualMethods": 1637,
+      "passed": 2399,
+      "failed": [],
+      "allPassed": true,
+      "testAssemblySha256": "cd4b3e7aed6a4f99e7ac8f41f91c7860a186fee3427a3ff32b91f6f124f0b0e7",
+      "planSha256": "f704b4d8694c967e09022bc9024da9215c480f3790796a6caa86ee0797c9a713",
+      "trxSha256": "eae2093f7c085aaa8f413a2be8ef35f7a5e79c676479e4290d4f8f8f9b272268",
+      "caseMultisetSha256": "84f9c5073a83063e0f0ed4c93a60cf08cc5bbf443211b266be2e2ad88df54881",
+      "summary": {
+        "status": "PASSED",
+        "profile": "focus",
+        "seconds": 166.84,
+        "total": 2399,
+        "caseParityVerified": false,
+        "shards": [
+          {
+            "shard": "focus",
+            "total": 2399,
+            "passed": 2399,
+            "failed": 0,
+            "notExecuted": 0,
+            "seconds": 162.34
+          }
+        ]
+      }
+    },
+    {
+      "label": "final-condition-fixtures",
+      "sourceEvidenceRoot": "var/qa/battlefield-play-trigger-20261017/final-condition-fixtures",
+      "actualCases": 11,
+      "actualMethods": 4,
+      "passed": 11,
+      "failed": [],
+      "allPassed": true,
+      "testAssemblySha256": "7920614d4d5edb28a856befe71e7742a44c77f6ea50d685a13024024598959d9",
+      "planSha256": "c8302ec227b8197bdd7fc2a177d3b2c3014018f2e37800a33cc71f9d15bb454a",
+      "trxSha256": "96c695ef7ed82ddbf35fc778a4cb580b52b1fd18d730af2395007f24535c7e1e",
+      "caseMultisetSha256": "8f50e8aa6ee79c95ecacc6d8092559a469b2c092fec4d8c7012d0fa6b07606a2",
+      "summary": {
+        "status": "PASSED",
+        "profile": "focus",
+        "seconds": 47.86,
+        "total": 11,
+        "caseParityVerified": false,
+        "shards": [
+          {
+            "shard": "focus",
+            "total": 11,
+            "passed": 11,
+            "failed": 0,
+            "notExecuted": 0,
+            "seconds": 16.52
+          }
+        ]
+      }
+    },
+    {
+      "label": "red-original-keyword-premise",
+      "sourceEvidenceRoot": "var/qa/battlefield-play-trigger-20261017/red-original-keyword-premise",
+      "actualCases": 232,
+      "actualMethods": 1,
+      "passed": 230,
+      "failed": [
+        "Riftbound.ConformanceTests.ConformanceFixtureRunnerTests.CoreRuleEnginePlaysKeywordOnlySourceUnit(fixtureFileName: \"p2-preflight-play-ogn-blitzcrank-barrier-static.fi\"···, sourceObjectId: \"P1-UNIT-OGN-BLITZCRANK-BARRIER\", expectedPower: 5, expectedTags: \"CARD_TYPE:UNIT|壁垒|机械\")",
+        "Riftbound.ConformanceTests.ConformanceFixtureRunnerTests.CoreRuleEnginePlaysKeywordOnlySourceUnit(fixtureFileName: \"p2-preflight-play-merfolk-rabble-rouser-standby-st\"···, sourceObjectId: \"P1-UNIT-MERFOLK-RABBLE-ROUSER\", expectedPower: 2, expectedTags: \"CARD_TYPE:UNIT|待命\")"
+      ],
+      "allPassed": false,
+      "testAssemblySha256": "7920614d4d5edb28a856befe71e7742a44c77f6ea50d685a13024024598959d9",
+      "planSha256": "f508841f8f65753f399fae003c2c5780751d2f3d1a660a346b1a686885a5699e",
+      "trxSha256": "6603fa9d15badaa6224b6deab87e0a8d4dca366f206a9a73f8dc9f2ffb19c123",
+      "caseMultisetSha256": "1e102ca87b230ed04dba7941d02b455396cdd93de127c5c43f5a662e56231522",
+      "summary": null
+    },
+    {
+      "label": "final-fixture-and-condition",
+      "sourceEvidenceRoot": "var/qa/battlefield-play-trigger-20261017/final-fixture-and-condition",
+      "actualCases": 243,
+      "actualMethods": 5,
+      "passed": 241,
+      "failed": [
+        "Riftbound.ConformanceTests.ConformanceFixtureRunnerTests.CoreRuleEnginePlaysKeywordOnlySourceUnit(fixtureFileName: \"p2-preflight-play-ogn-blitzcrank-barrier-static.fi\"···, sourceObjectId: \"P1-UNIT-OGN-BLITZCRANK-BARRIER\", expectedPower: 5, expectedTags: \"CARD_TYPE:UNIT|壁垒|机械\")",
+        "Riftbound.ConformanceTests.ConformanceFixtureRunnerTests.CoreRuleEnginePlaysKeywordOnlySourceUnit(fixtureFileName: \"p2-preflight-play-merfolk-rabble-rouser-standby-st\"···, sourceObjectId: \"P1-UNIT-MERFOLK-RABBLE-ROUSER\", expectedPower: 2, expectedTags: \"CARD_TYPE:UNIT|待命\")"
+      ],
+      "allPassed": false,
+      "testAssemblySha256": "7920614d4d5edb28a856befe71e7742a44c77f6ea50d685a13024024598959d9",
+      "planSha256": "3d874bedabfc4a188764639b0ea269c6cab487577f0ef6bfa65dfb410b3803d4",
+      "trxSha256": "97e358cbe3e480ca3d5601ff561aec92e73a61495ec8fd3606dc9f80fe032773",
+      "caseMultisetSha256": "ea5d4b6c518014957036ab1b8bf264a990ce5166f5940abd93da25b599ab6fbe",
+      "summary": null
+    },
+    {
+      "label": "final-fixture-and-condition-v2",
+      "sourceEvidenceRoot": "var/qa/battlefield-play-trigger-20261017/final-fixture-and-condition-v2",
+      "actualCases": 243,
+      "actualMethods": 5,
+      "passed": 243,
+      "failed": [],
+      "allPassed": true,
+      "testAssemblySha256": "7920614d4d5edb28a856befe71e7742a44c77f6ea50d685a13024024598959d9",
+      "planSha256": "3d874bedabfc4a188764639b0ea269c6cab487577f0ef6bfa65dfb410b3803d4",
+      "trxSha256": "c4d982adc8f712d62c8b6d4e7a4628d1e71c9d8a207d2f0557166ca7778309cd",
+      "caseMultisetSha256": "ea5d4b6c518014957036ab1b8bf264a990ce5166f5940abd93da25b599ab6fbe",
+      "summary": {
+        "status": "PASSED",
+        "profile": "focus",
+        "seconds": 25.25,
+        "total": 243,
+        "caseParityVerified": false,
+        "shards": [
+          {
+            "shard": "focus",
+            "total": 243,
+            "passed": 243,
+            "failed": 0,
+            "notExecuted": 0,
+            "seconds": 16.16
+          }
+        ]
+      }
+    }
+  ],
+  "all232OriginalTheoryCasesExactlyRetainedInFinal243": true,
+  "newCases": 11,
+  "newMethods": 4,
+  "failedNewUnconditionalTestFixtureWasMissingFriendlyBattlefieldTargetAndWasRepaired": true,
+  "correctedNewLegendFixtureChecksInitialRecoveryBeforePlay": true,
+  "misnamedFinalFixtureRunWasExecutedAfterSyntaxErrorBeforeActualCorrectionAndIsNotPass": true,
+  "currentCheckRemainsItsFrozenOlderFixtureInputNoSecondCheck": true,
+  "positiveDamagePullAndWholeCardSemanticsNotCertified": true,
+  "firstEvidenceScriptStoppedAtPython39CounterComparisonWithoutRewritingCopiedEvidence": true
+}

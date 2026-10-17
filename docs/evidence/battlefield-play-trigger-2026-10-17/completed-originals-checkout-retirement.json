@@ -1,0 +1,17 @@
+{
+  "recordedAtUtc": "2026-10-17T07:45:56.334357+00:00",
+  "retiredCheckout": "/Users/dinghaolin/MyProjects/riftbound/var/qa/battlefield-play-trigger-20261017/fixed-source",
+  "purpose": "Completed immutable five-original-game and full110-pair validation; final fixture corrections are separate focus evidence and require new fixed full",
+  "noOwnedVerificationProcessStillUsesCheckout": true,
+  "all12282FrozenInputsVerifiedBeforeRemoval": true,
+  "sourceReconstructableByGitBasePatchAndSavedNewTest": true,
+  "baseCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
+  "productionPatch": "frozen-source.patch",
+  "savedExactNewTest": "frozen-condition-before-initial-legend-validation.cs",
+  "completeManifestAndTrxLogsAndFull110HashesPreserved": true,
+  "runtimeClientsServicesAndOriginalDatabasesNotTouched": true,
+  "beforeAvailableBytes": 35541479424,
+  "afterAvailableBytes": 36135383040,
+  "actualFreedBytes": 593903616,
+  "generatedTestBinaryAndDuplicateCheckoutNoLongerRetained": true
+}

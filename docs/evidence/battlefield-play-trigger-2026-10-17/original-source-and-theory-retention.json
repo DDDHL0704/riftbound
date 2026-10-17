@@ -1,0 +1,1779 @@
+{
+  "baseCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
+  "allOriginalConformanceSourceFilesByteIdentical": true,
+  "originalSourceFileCount": 442,
+  "newSource": "tests/Riftbound.ConformanceTests/BattlefieldConditionalPlayTriggerTests.cs",
+  "fullGameSourceSha256": "392ff0298f1c128378fe1cf0a7455c964ea96166eea711e8e96ab410919c92b6",
+  "all143OriginalFullGameMethodsAnd110PairsSeed424242AndWinReplayAssertionsRetained": true,
+  "originalFixtureChangesOnly": "The two specific hand-to-base fixtures in fixture-premise-correction.json; seeds/initial states/all other final assertions exact",
+  "originalSourceFiles": [
+    {
+      "path": "tests/Riftbound.ConformanceTests/AbilityCounterAuditTests.cs",
+      "sha256": "ddc543ae98a9f5a386980f749644e970e4c9478ea240e354ecf1e01093942a17"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/AbilityCounterNativeTests.cs",
+      "sha256": "7dd42271238100062355f91a2e6963596172668ea3cd823aec9612bd949a6c21"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/ActivatedAbilitySourceIdentityGuardTests.cs",
+      "sha256": "e1a9de65412ca39bc5822ba9e8288c4daa807136f8b3f8557d4fb485c95fa1c2"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/AgileEquipmentDirectPlayAttachTests.cs",
+      "sha256": "d7fe6394051da7f691b51b03b0b40061ae88458cea7419885d85d7c04ce9032b"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/AhriCombatMightNativeTests.cs",
+      "sha256": "8ba75499835ba0acd132d57972b6e6bdbb2bc9b554f6293f2215ea88ec7d0aee"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/AhriCombatMightTests.cs",
+      "sha256": "f1022bb6e289eed33adf7c530780842800aa0d4f471bcdaa23b77f6f2a1aa9c4"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/AkshanGuardTests.cs",
+      "sha256": "7810bfebe5364a64b9302b4cb22ccf7c749840434d435f3c1bb52c36e4852d05"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/AmbushNativeTests.cs",
+      "sha256": "3a9491cc7542987a77a6d75d63b9439b891a4738db50f7038b2ef1412ad837b3"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/AmbushPermissionTests.cs",
+      "sha256": "d065d2eb8d5e15507f3b0cfe039bd7c69845ae8f646433bf2431bc16afd55e88"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/AnyUnitTargetScopeGuardTests.cs",
+      "sha256": "5f5201ce9adcd60ad49e579b1b81a19b1ceddcf3c3d04cf7e772deca4b241f8a"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/ApiDevUiCorsPolicyTests.cs",
+      "sha256": "ed5ddd9710f9f5e7d1099736a1c79fc68606928cd9660be1912bf34b6ab92127"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/ArmamentMightNativeTests.cs",
+      "sha256": "8fab904e652676dcddc36255e9fa73356f3ded573f4c2f8d9198c9ea16d933c4"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/ArmamentMightTests.cs",
+      "sha256": "f8f08764c83c047a9f8f3986de97f631e91ed1b053cbb47254a65655d7c9c003"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/ArmedAssaulterHasteTemperedTests.cs",
+      "sha256": "afb1fb4cbc47e9a71f108bcd92fef64ab45dd9c30f59a961436cecb91c1f16de"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/AttachedRecycleLifecycleNativeTests.cs",
+      "sha256": "9705d96d69dea1d40a7d5c9e314662c52a69e02e3089380a9c86727ee79066da"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/AttachedRecycleLifecycleTests.cs",
+      "sha256": "5fd43c08e5380c42dba1c6c6b3769d9b89250d869ca844a686806ab886266cec"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/AttachedRuleTextNativeTests.cs",
+      "sha256": "4527af449d5ba5a68b15520c0d9cccea878d464c3d8aa840889eac0972f7a5c4"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/AttachedRuleTextTests.cs",
+      "sha256": "29bb3cb915e0dbb76dfa80b5b8211a8fcc79576158bfb5bbc7f7440f270423a7"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/AttachmentModeNativeTests.cs",
+      "sha256": "c9ee38367e367ea5e2c1d56874c16b8d4491ee6435b41393bc0463a4e0401d82"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/AttachmentModeTests.cs",
+      "sha256": "b1a480d1d5d0e1d71a8abffe5f6df05fca12c910b25c02b75407fcd334a2ecb1"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/AttachmentObserverNativeTests.cs",
+      "sha256": "3b1c578b480ce7c35164c899410df7f1d7b7de6cd3ca2100a23a655d722d6bfc"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/AttachmentObserverTests.cs",
+      "sha256": "3e802e469c267a60fd2c7216a58442f4e25111962959d358fc51ae702ed9a2a6"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/AttachmentTheftCopyTests.cs",
+      "sha256": "2d02e4094627440e36bb13945c822399757e78443f09e299d7398a23a5bc04f5"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/AttachmentTheftNativeTests.cs",
+      "sha256": "572d6892e25ed5d18937b0c27d4fd2b6f82758e872195b7d9a833a745b2463f1"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/AttackDamageDistributionTests.cs",
+      "sha256": "41d14c2a035e9ed3f0e2ed56937b3c619026a2ee221b47b684b6542be553381b"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/AttackDamageNativeTests.cs",
+      "sha256": "184c293cfd9628260126c0f5c4970e70631fd05cd4406c096afc8fa4570c6c17"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/AttackDeckPlayTests.cs",
+      "sha256": "388bb524ff5dbeee06e0d8aec95008e247080bfbcc80606c2803f41eb4bdb19c"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/AzirMovementAuditTests.cs",
+      "sha256": "288b581ca2487d50ddf0c9cdd802e22ed5433fc71693357766b232056a9b4b7e"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/AzirMovementNativeTests.cs",
+      "sha256": "192e60ac4e53469217d3d24429626a200200fcb7b0f8e4348ad0773a58dead0d"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/AzirReferenceConfirmationTests.cs",
+      "sha256": "94be08306fb50265d4c50a507ccaa26c526fa6b5d1a8dadd071323c37820ff6f"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/AzirSwiftSwapActivatedAbilityTests.cs",
+      "sha256": "ebd7bf9a6acb00c5bbd25c081ead1bc0663217c22560a7601763690daf3a2b63"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/AzirTestDriver.cs",
+      "sha256": "321c90ab5cf2f3222ce718cb5851326b03b8d18eafafad317b11d3dbc4e9f5d2"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/BattleDamageAssignmentLifecycleTests.cs",
+      "sha256": "4b32a24640f12521139afb4b5f7360e4b69e9dd99ee60e3d2832bf5194e305d9"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/BattleDamageAssignmentWireTests.cs",
+      "sha256": "6b20f60a8daff30a89c64f5988952d6456ddac7b19d12bde220a4e98b4215850"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/BattleDamageConquestContinuationTests.cs",
+      "sha256": "68b5f6512d1fb3bb348d5837c1d65e7aa09b60359e6634a77adb9555a5b7261e"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/BattleFocusTestDriver.cs",
+      "sha256": "29eada2a0453796a58d0797dbae2df192b8af18a8b9b949d4f9c6ffec6282ebc"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/BattleOrFlightMoveToBaseTests.cs",
+      "sha256": "117802d9e69110df322c27841a3d6fd64f81eb9d9dbb0835bf9d8182b3454cdc"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/BattleStartRoleTests.cs",
+      "sha256": "cdd2f91cb1b991284866b4507379e00b62d8b4e44c98b6a47de3f9597b6c7d0e"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/BattlefieldContestBattleTaskGuardTests.cs",
+      "sha256": "4e1906ca95bfc37dce25438d959585cc29bf3c7b69c0fc64e4367de12c9214bb"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/BattlefieldDestinationSourceUnitActiveEntryStaticAbilityTests.cs",
+      "sha256": "e4fe80e094208b39156f4f656fa86c7d90bf5f5f331cfe099e5dafb3fac2f186"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/BattlefieldIsolatedDefenderKeywordModifierProjectionTests.cs",
+      "sha256": "a5efe1ddaa568221302047cc08dea2410ecc5798116fd03c6e598b1aaddeccc5"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/BattlefieldLocalPermissionTests.cs",
+      "sha256": "4ab807f13aa4ad23c336eb475771da47cdcd416250158f6c20a7949bcd2e4800"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/BattlefieldReplacementNativeTests.cs",
+      "sha256": "5f5ae42793e702391b47595c16081578a0dab4f1504506129cb6e4cc926d18a6"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/BattlefieldStaticAuraSpecRoutingGuardTests.cs",
+      "sha256": "e96738dc3582950c9ec4c630c36ce8231c22bf87ee015c2fcd634afbdcdb7e35"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/BattlefieldStaticSourceIdentityGuardTests.cs",
+      "sha256": "b4f79d5bc6f54ffe12c1fdca65135efdfd66998f6aa55c81134242fa9618b033"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/BeginningDrawNativeTests.cs",
+      "sha256": "cae6b1e1255ba90f30e2175ab38a0a2819415badb1c6d04fdb8b895f770b119f"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/BeginningDrawTests.cs",
+      "sha256": "f3ee43d552a244b6dac65acc11bed89f0cf46b41b020ed4510594b4fe82c909d"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/BerserkImpulseGuardTests.cs",
+      "sha256": "c9e5e3e60136aff8a2cf65fcaeb5e70e67bc46739a2da2348c9d18b8220423df"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/BoardTaskQueueFoundationTests.cs",
+      "sha256": "059af8f43db8911d94299379d1eff256277e67cb5772d88fc9ccd7f5c51407fb"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/BrushStaticAuraReplacementLifecycleTests.cs",
+      "sha256": "8ead11c06dc906df83a661abb6002c81913788f882678372eac910e5bd8d5d3f"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/CandlelitSanctumTests.cs",
+      "sha256": "c6bc227ebde6862f5dfeb06f435f314ea3054100bb82bf19b1bffdbd63739259"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/CanonicalJson.cs",
+      "sha256": "17de2346dbff900ef934c2f9d497e03f49a24d1bc84acb8953f017c45328602b"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/CanonicalJsonTests.cs",
+      "sha256": "ff59044b4f9f1078031b608df62ae88095c1fb7796eb766234cff3952dc76c0c"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/CardCatalogBaselineTests.cs",
+      "sha256": "99fd5fc1127d491b74f49bb332da0feaa43d392231770c7fe49c247f49ec19d6"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/CardPlayHistoryRecoveryGuardTests.cs",
+      "sha256": "4edeb44e5df59a57e04b72b4259c3e77b36ab37df228186e5fed2dc2497e6554"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/CardPlayHistoryTests.cs",
+      "sha256": "2c22213d3bf16e52ae5e2bfd5e35d7a8d146b94a24497d37746b8e0f2524f00a"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/CardZoneTestAssertions.cs",
+      "sha256": "7af014540fe9a29ce20d29a8c0c4113b7baa733431281663ec840ef79d7bbfc2"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/CharmMoveToBaseGuardTests.cs",
+      "sha256": "95b98687a5cbdccca1b5360cb19b08e1e843630a831a21a9d7b7b8bffbb37f0e"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/ChinaStandardLegalityTests.cs",
+      "sha256": "e212d05035fdbd9b46c9cf50bf5d1c418e48b868944b9fd8e8ccea5a8f617055"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/ChosenChampionPlayTests.cs",
+      "sha256": "04ed3ca2d341149f45e0d4519fa5467d802b2e3a0f5ba34a253595d3fa63a012"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/ChosenMovementNativeTests.cs",
+      "sha256": "bcc0e6eb24b73d2419fb96021f386d3b2f56dd858424ba9fd15216c8e9c4d580"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/ChosenMovementTests.cs",
+      "sha256": "987888510edfacf6f45fc2a284fec5260b8ca983bfb4888124fe6942880c2d11"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/ClairvoyanceTests.cs",
+      "sha256": "85edd65de0b1ff25a177ca58a13d86cb1e4f49ac310ce043965c498572d9e406"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/Cn16RuleInputSelectionTests.cs",
+      "sha256": "8710b42d115a7a2d48e776f1f8b200f04206bf94ba32e6e7c43f41dddf1a9e20"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/CombatTestDriver.cs",
+      "sha256": "92425fdce2a193de37c70a8bbbbac76817ad04fe90b5ac69b304c75375a5cb78"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/CommandReceiptFollowupTests.cs",
+      "sha256": "89aee6cf7f04a87bebc1c059fb9e4f1174b85d3c8b938ff0097bd6ddd735992e"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/CommandedMovementNativeTests.cs",
+      "sha256": "02be612dc65804605daa96d6e0b59dae39b73db2b6fd574a5a096967b48cca83"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/CommandedMovementTests.cs",
+      "sha256": "7daf2934e037c372a30f2b41bf2638827664a51792847f0bdb7fc4cf2e3b969c"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/ConfirmedPlayOriginTests.cs",
+      "sha256": "c17b07154480ddb644e0d759efec7c5034e1764a44f0e6d645ee9a6d85cfeb76"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/ConformanceFixture.cs",
+      "sha256": "eabd9ccaa51c305b5e72e91e4be3603c5d5cb6207a79d32623d68bf837faf869"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+      "sha256": "b565777f9dbcaf94afb7ef10d842e0d4132df1421ac164723f7f5294a67085ee"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureShapeTests.cs",
+      "sha256": "6959c33f089c1733de5583ed7eec0c86a0f08cdbac78996255bce8ba5a7e4680"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/ConquestLifecycleRegressionTests.cs",
+      "sha256": "e9dad7c135f30440a8a69649fa7e8308ca5033ff68258eee2f6bfba5fdfa6581"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/ConquestTokenNativeTests.cs",
+      "sha256": "d7fed82d4fc640927f4f6f37246a9de87d71f7bd6912e0c6f0c65f99ba63b406"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/ConquestTokenTriggerTests.cs",
+      "sha256": "911a99f5bcd5d3c4597249e8ee0159005af4262d2f53cf2e6299dea4b2cdca4f"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/ControlledTaggedSourceUnitActiveEntryStaticAbilityTests.cs",
+      "sha256": "c9a8b2e05ce827db99ab6ba962fb9a3454c3a122b63c7ed9b3f908f33b6ecbf7"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/CopiedActivatedAbilityTests.cs",
+      "sha256": "c8c2ba853748bbd8292a20c8d9b9e58040673ced6ab7490ca55fe8a401210077"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/CopiedAttachmentObserverNativeTests.cs",
+      "sha256": "ab49326b71cac19faf65aea34d4c170befa1c8aaa6e3c81b3447e89e36e630b4"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/CopiedAttachmentObserverTests.cs",
+      "sha256": "a5b00be1548b5e1443ba600ec456443c2d3b324e43e971015d149686b4425b37"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/CopiedFaceAuthorityTests.cs",
+      "sha256": "731f2c25de392517e1182a0018f69767718f6a06dfeaa5f777f26aa3165bc065"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/CopiedFaceNativeTests.cs",
+      "sha256": "4a87961a1e6aee15b2c6a6e77924a321a83720bd938c885390b1f10542e6af15"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/CopiedSpellNativeTests.cs",
+      "sha256": "31510cf35d8812ea8e8b38834c6fc71bf18c8cb633a14cb442991adaf1d0e34c"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/CopiedSpellTriggerTests.cs",
+      "sha256": "06b5936cc4e22fc4b35f67106c403bed961b6a17a6e8eea1dd2be22dffbfd1ed"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/CounterHoldContinuationTests.cs",
+      "sha256": "b8f360bb5205b3772d9087286e729dd02b549a187dfc850ce8489c8e4b7060e5"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/CreatedTokenReadyOpeningTests.cs",
+      "sha256": "51d7fb2f4b1b8ca057a0f991c7818fc731fa8044772510bcc5069497119f5329"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/CrimsonRoseActivatedAbilityTests.cs",
+      "sha256": "02af3bae981632b51f450bd528acdebf41829df6cd66912186caf9f04739aba5"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/CurrentPowerTargetNativeTests.cs",
+      "sha256": "b8eadd2ee445c6b222b25922b14dee908422281131d21ba2ed6e09808b4aa0d9"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/CurrentPowerTargetTests.cs",
+      "sha256": "f228589ca063163dcdfea6d7fb98391ee11e6ac434d1c450dafba441bcf8461d"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/DancingGrenadeTests.cs",
+      "sha256": "92c4efd1d925ba0e43d664265035bb8bad4bb34a515bafc16717f8e2cd815129"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/DeadlyFlourishTests.cs",
+      "sha256": "b0856d1d34168fa40ee1e3054cc93077355e74e977c1605ae750e030fb11f86b"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/DeathAndDuelLifecycleTests.cs",
+      "sha256": "bc7679d11f2ab473dfb46761a2614432219db641a8b7e65de07b8aba0ad81020"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/DeathObserverAuditTests.cs",
+      "sha256": "6acf14ab2c612f96e33cfeab81169e91b227f994730d82e2b7491a147f96db1a"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/DeathObserverNativeTests.cs",
+      "sha256": "2c0280a0306b080e113e68889b495106471253e47032213a35c9a20f3deb6984"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/DeckObservationPlayTests.cs",
+      "sha256": "34ceb5e369f618a444cfee324a727b1f3a91425c13bb3dc538b9767b36d2d8a3"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/DeckPlaySequenceTests.cs",
+      "sha256": "4093d18142e009d4f2e16ab9d1e36fefa24baf4a3f78c14bb680077e3fab98f9"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/DeploymentOperationsTests.cs",
+      "sha256": "ed27a7b4bbd59bc97e30b9fa254f74872dc0b59567fd8a4c5bf100090e750d1b"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/DestructionOrderNativeTests.cs",
+      "sha256": "9cf025263fc99a706caafbd2b557751fc2a6021760162c463f703b03f738e4e7"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/DestructionOrderTests.cs",
+      "sha256": "147935319bf9498b00e35bd3ec1f7ae030757410b89e0b843a1b72a8445cc596"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/DevScenarioResetTests.cs",
+      "sha256": "2dd51782be35d6738b56580ae528eb4f01563cbd2a1b49838852f696f605fd25"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/DragonCallerCostStaticTests.cs",
+      "sha256": "1ae5a757b6aedc91b7221fdb59418f81e72fe7adff0592124f4c75cf88eafdad"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/DravenKeywordUnitGuardTests.cs",
+      "sha256": "7553438d2ff719ef11f0a2ccb69bc2907810be6d82469070cbaafc62ad73fe2f"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/DravenVanillaGuardTests.cs",
+      "sha256": "8dc94548353e194cfc7308744478730a197ec57002e86d116c5e5e677803fcad"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/DrawDefenseContinuationTests.cs",
+      "sha256": "30a22ba2d7faa68522a5c278e1e8d415a05be9f5be116c33a73d383cafe47b2f"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/DunehornLowHandActiveEntryStaticAbilityTests.cs",
+      "sha256": "c0062f71d375e237eba43c63a709b45ef74511dccef68c72cbb65030146625bf"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/DuskRoseLabNativeTests.cs",
+      "sha256": "17dd9420a8ec54a7684275d612edfc83b1547ed9a77e2c2d2ed7ae0e325dfd4d"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/DuskRoseLabStartTests.cs",
+      "sha256": "4778b3592bef901a3620641f18aaf606365adedb7ffd6aa4c836545c67b8d63a"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/EchoSingleDestinationNativeTests.cs",
+      "sha256": "9eb0a5ed81d926123d2fbdc14ccf148d861681b6a527ccab72d691fa1348d7cd"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/EchoSingleDestinationTests.cs",
+      "sha256": "cea4de91a3fcc9ad2327fbb1330dbcfaba31b2eaa48c74c08de5ed6c359ca6cd"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/EdgeOfNightAssembleGuardTests.cs",
+      "sha256": "1c52c29695199cbc132511e2eab4bb671eae7a2bf7b3981d94f9371c95ac528f"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/ElderDragonCombatNativeTests.cs",
+      "sha256": "17e37ab499519206c16efd068299faf5b82cc05a54a9e5ec6ff7b33000da0925"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/ElderDragonNativeTests.cs",
+      "sha256": "49dc047a4aca6ede2739453e2a23b54e39beb3997f835766908d0d4e90a17fd5"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/ElderDragonTests.cs",
+      "sha256": "d7e71c1befce2d8fc34e0d61e70e8f974f3c29973ca40d920dd9efea775ae976"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/EmpowerNativeTests.cs",
+      "sha256": "498d758a88cefca54e56052dc2f24fbb94d9b087984a96b76901107b5e57da0d"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/EmpowerParserTests.cs",
+      "sha256": "b315c8c8a5813b2363987044e1b81cff8916ed4ba41a5721e24e346648d527b7"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/EmpowerTests.cs",
+      "sha256": "d222b048e1cce18f3598061c064c1074ec7af347972c852b0d1a25a493fd8c26"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/EndDeckPlayTests.cs",
+      "sha256": "50e1f228df5685d5567255e32b34d2671f79641644dde3314b3146f1fe71abe2"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/EnemyAttackMightNativeTests.cs",
+      "sha256": "a994422e4c5299cad60b87b5d89c22efa56f0537febc39cfd9adfcfc84a25865"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/EnemyAttackMightTests.cs",
+      "sha256": "554f4a770546de0ab7db91fd0812779ce6e70cb331a2ed141831184fd546ac05"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/EnemyBattlefieldUnitTargetScopeGuardTests.cs",
+      "sha256": "1cfa7f59a654e75bebb7c3400f861540550ee0928b8b0ff74c05b332af2915fa"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/EnemySpellSkillTargetProtectionTests.cs",
+      "sha256": "bbba9095ec93e505eb0d1f0c7e678922c3d62e6cdef0e02d0c7c3cb1626e47b1"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/EphemeralStartNativeTests.cs",
+      "sha256": "2ff14be4d28d9a722fc16e0120dca968f11e9d2de3df7633550c3b8c2690204e"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/EphemeralStartTests.cs",
+      "sha256": "cc8e74defb86d8aad5646901f340caf3ad07a68f07b85e6aa73832c5f9364ef5"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/EquipChainTests.cs",
+      "sha256": "d37003fd4ac3434250194097b949626945a450a82e0bc758bf361977f46ee9c2"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/EquipTestDriver.cs",
+      "sha256": "bf233a6708f3f4e7b9b2a027638882f59c32c6ef9cb5db208aa15fa717ca5012"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/EquipmentKeywordRepresentativeBoundaryGuardTests.cs",
+      "sha256": "e32a74d30325be87e1c5b0fc153dc55077150b942fbe015f0bd2f5727a53959e"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/ExactOtherFriendlyHoldTests.cs",
+      "sha256": "4fc795afeff8a1a3a7f1d4f5aa02b90a2b3a0cb22ce1dd0bb4921e968445b1c8"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/EzrealBlueSwiftMoveToBaseActivatedAbilityTests.cs",
+      "sha256": "b3986b2c361ba483e382a390949690c93bb0632df4583a76a79f538824fe8700"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/EzrealCombatDamageTextPlayUnitGuardTests.cs",
+      "sha256": "935d8f8ad1b304a7ddf2ad7aa03260869c6c18350de54c16807662508c62a0d4"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/FaceOffNativeTests.cs",
+      "sha256": "d4b25dc6d78fdf696378b7977876e3c20a25bdf3d25316395dda8863f6c8b703"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/FaceOffTests.cs",
+      "sha256": "65a361d6b42e7d9842f869252c05f5f490490ba589cadb85bff7051f5e0e41cc"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/FirestormEnemyBattlefieldDamageGuardTests.cs",
+      "sha256": "bb7b003c4a060c155598130025ad1517ac46dd02948cc50a6dccbe3906ae55b3"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/FluftPoroActivatedAbilityTests.cs",
+      "sha256": "6529bad5cca9f75d8e9d0830335ca2c46b3e74a2e660efa92bd02b8af8003eb4"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/FrostHoldNativeTests.cs",
+      "sha256": "3248be34465b3aca9be95edd86a1282c561b49b21ce319b39ef8aa4f18824aaa"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/FrostHoldTests.cs",
+      "sha256": "f575161ec5717f1b6998810d84c1f137d5381b5c86229fed7d4163e554df2709"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/FullGameEndToEndTests.AbilityCounters.cs",
+      "sha256": "cb22a9f99b3c7a04b5e43b206bcd6103c354d1104d66c1afe98c65d69c0030c8"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/FullGameEndToEndTests.AttachedRuleText.cs",
+      "sha256": "9060a2f104b644c91a0582b714c1cf84920a9ec65636e968734c93a7c40b31f7"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/FullGameEndToEndTests.AttachmentModes.cs",
+      "sha256": "b2367853c297452804ea2abba698d4091df56e9033b746effe89bb61de87fa39"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/FullGameEndToEndTests.AttackDamage.cs",
+      "sha256": "ebd30b96a75712ddc672b6ee36e9256d21db9afdaaa80c50fa4dad5831ac48b8"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/FullGameEndToEndTests.Azir.cs",
+      "sha256": "1264a5a522abfb7c0b69a018c924b9e7414213d476357de4a2f7dd6e7c0aa710"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/FullGameEndToEndTests.CopiedAttachment.cs",
+      "sha256": "b679ac9beba8839ed89fc0ece94d57f4d5db02623ff5d7a17433653b95a4ae37"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/FullGameEndToEndTests.Tempered.cs",
+      "sha256": "60e4a732bfba46be843c1997ed83cebd620a822cd33e2abdc2122a9a36b28830"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs",
+      "sha256": "392ff0298f1c128378fe1cf0a7455c964ea96166eea711e8e96ab410919c92b6"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/GameHubIdentityBoundaryTests.cs",
+      "sha256": "d464e3bb061bfd391a476aa17fb9f5168da5c42ff04ba965bf133e043fa87635"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/GameHubJoinTests.cs",
+      "sha256": "9d5bc33de3a8723ad598301854fd2eb4ed816f1392224abcfdcd3449829ac525"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/GatekeeperMaduliActivatedAbilityTests.cs",
+      "sha256": "8590be19b8d7642973793c6ad60a37cb0b603eebfcaf85144e7da876c139495f"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/GiantArmKatoGuardTests.cs",
+      "sha256": "f13ac4268cee956cbc5f96eaf7280b7cb85d82ddb39b0ecc52ea7aec76a40dce"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/GrantedOriginHasteOpeningTests.cs",
+      "sha256": "2218ccc3dbc23b3973b9b22a53efbaca460f25b4f11bf6b42c278edb1ec04bc9"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/GrantedOriginHasteTests.cs",
+      "sha256": "e0618045b0c2ec3533b82c833f8df671fcfd4ed302624fb3bc0c8b41e8b994cf"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/GrantedPredictNativeTests.cs",
+      "sha256": "ec2e53d045002020439c176ab6a9fd41c255d4dc5173327c3a4cbd0d9b283f08"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/GrantedPredictTests.cs",
+      "sha256": "0d0c984e8a5aeb8c92dc55c8432fa492d45cf9d696d2d2062be4ab0873d7fbdd"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/GrantedTokenHasteOpeningTests.cs",
+      "sha256": "b40fbb63be559b8fc5525b77e124134d62e19bc14e1fa3c674e5fb38bcea6ef8"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/GrantedTokenHasteTests.cs",
+      "sha256": "bcc198e229dd67bef78c410f29fb904ad594fc1c60042b8be890e7c665bd7a2b"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/GroupedPlayNativeTests.cs",
+      "sha256": "673d491b193e374395910b4dabd4ac9c24f368e8f39ba3684629c1ed2bcf9d69"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/GroupedTargetNativeTests.cs",
+      "sha256": "1c3f35802e90dd10d6aa0bb3187ccaf1171d63e3084167a4af859933b15c9704"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/GroupedTargetTests.cs",
+      "sha256": "a8d335a4a8165deae4e8fdc6efb6224ea5fb1ffa940cdfe03d6c5b6ae59e380e"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/GustReturnToHandTests.cs",
+      "sha256": "8e79474b675401bd2ad2456f1f64ed9268b35d1e28308fc2b446348edf7bc95b"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/HeldConfirmationNativeTests.cs",
+      "sha256": "e582a8cc96daf3357f33d05e787e5769c3467e9ca8fe24d428e17d1a72ff8d95"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/HeldMovementLegalityTests.cs",
+      "sha256": "3a8207a627957f112cb99ac37ba9f334c220ee3f2ecd81b2c0f7f9172b6018ae"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/HighestUnitMightNativeTests.cs",
+      "sha256": "5a699eb91a126b889b14df54b1665aacbbdde05b3414fe49963f023947da0fd3"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/HighestUnitMightTests.cs",
+      "sha256": "f8c0b0b56624add567ebaceb652808f717d6efa61e022fd7ce44c18fbed8b90b"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/HighwayRobberyCurrentTests.cs",
+      "sha256": "1528f024f04a9cc1f80d6ea60b00e87ea88ffd21fe286782f6cccc31f56eb9d1"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/HookDeckPlayTests.cs",
+      "sha256": "3e7fbb0256c6c44edb1d42d7edb55ff0a2a9de1c6f04c4b5688fcf25f6443b5c"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/HostileTakeoverGuardTests.cs",
+      "sha256": "87c9502b35beed0a9af4a022b65b67748e2a6972b51174976544d1e6c7745c3d"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/HuntReadyGuardTests.cs",
+      "sha256": "cb6e943e977a1c2030d18ffef26d7c9dc2bad32b136f12ef3b176df7a96e4335"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/HuntTheWeakDestroyGuardTests.cs",
+      "sha256": "70668ce8f8c50c7d0adc80a2943cb28ba38bf027875112a7caaa873ca8a31abe"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/InformationPermissionContinuationTests.cs",
+      "sha256": "485f899b0b5a01c8bccc76533c2da9aceeeb77d46403e890c906edc3f83bd524"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/InsightContinuationTests.cs",
+      "sha256": "9e7e4afacd5481d58d0ae0c2f29cafb22820863df1231614956b039e35eaf7a9"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/InsightRepeatTests.cs",
+      "sha256": "c5cce902bf3ec6899fcd62ee802a361eb348e990ea639f36490c8381a71b33a3"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/InsightSourceContinuationTests.cs",
+      "sha256": "f99c835f9d0c5f7bd11099a05f81527cea46fd6ed5682749a0fa33db3f316101"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/InsightTriggerContinuationTests.cs",
+      "sha256": "9124ee8fa2826605bf59f812102da6617dd8ea9d8c73d4ae033cd518a4f0eec6"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/IsolateMoveToBaseGuardTests.cs",
+      "sha256": "94e22a897808f1312166106b701390ff1e5742e38be1d3340af3569b67f70fd3"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/JaxTemperedOptionalAttachTests.cs",
+      "sha256": "201255e687ebaef0c6644a357718c46f2b43ba85a19b161b1e406eb52fc20459"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/JhinMovementResourceSkillTests.cs",
+      "sha256": "04641e39ac6bae595725bef0b7d765dd43bdfda336fccdcfa9e13e50feebc8d3"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/LayerEngineTimestampDependencyTests.cs",
+      "sha256": "452f8a558cb356763993521126dabd66b87dd004582f1b5b1ec367c6e61df2c9"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/LegendActionSourceIdentityGuardTests.cs",
+      "sha256": "9715a41bb4ab7527a4e80e449d9ff526355d5407f028603ee73e0cb4a23ee33c"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/LegendAttachmentNativeTests.cs",
+      "sha256": "f713327f3740af5e6daac788aa59745eff6e20c388e9fef72fc42752782fdae6"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/LegendAttachmentTestDriver.cs",
+      "sha256": "69f18e7ba7b38ca294498f3d0167b451055461b176a3ca28c45b961b07392dd8"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/LegendAttachmentTests.cs",
+      "sha256": "5aae5b94f4fa7876bac6088366d7be04e3dd84c4099bbb0c5d06b04b269c44cb"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/LegendConquestNativeTests.cs",
+      "sha256": "74a32797a1618a760b3e6c23e37de82ff98ea3e24bb0771ee00b74a6e7ed237c"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/LegendDeckNativeTests.cs",
+      "sha256": "a29b3f8adc072806c3788f99d961e136ac500cb7db543aa9b3b45b461c57957b"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/LegendResourceBridgeVerifierTests.cs",
+      "sha256": "29cf96206150e91260bf54ab33ad75e27f9e1148ee690f8052ea32832ce7b3e6"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/LegionRearguardHasteReadyEntryTests.cs",
+      "sha256": "2d183eb285b1f9a3943fc6ecd65c49a86b277f2d20aeb93633e19cf0ddfad461"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/LeonaMightNativeTests.cs",
+      "sha256": "35bfbb9b2553dfea2242c838ddc42743398e7d2fc65e27bdbfdc1ebc17332cc9"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/LeonaStunnedMightTests.cs",
+      "sha256": "4b73ee39e26924609e88395ac83b910e5f991b57d7c492f997a1acc70e92b219"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/LobbyPresenceTests.cs",
+      "sha256": "9b4d25ad2050ead4a3421b0df93329c6a524a21e8ffe258418e41ae398f700c6"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/LocalDestructionRecallNativeTests.cs",
+      "sha256": "9409583599bdf171db96afe20b470335b47549c938d1d5e3601e98d9384059ad"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/LocalDestructionRecallTests.cs",
+      "sha256": "46fb1f89ebdcbc5f293e8647cc6d034316ab1c8e6edab5adb349acf1df1a4b5f"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/LocalPlayabilityRuleRegressionTests.cs",
+      "sha256": "6d54af8ce0a4e4ec9333959528b64367e633378d1675e89c33cdc153cfe25acb"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/LoggedBattleHistoryScenarioTests.cs",
+      "sha256": "6b8173970a8c920337a0926c63046f6ce102603bd9a55d2783699b64bb76f567"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/LuxHighCostPaidCostTriggerTests.cs",
+      "sha256": "38860111cd528a21c5ca7af2c8f00ebf28adf1e735fa9b6df715567f28a2da1e"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/LuxResourceSkillTests.cs",
+      "sha256": "f8b1aa62f19c884baa8b1b01a57af8595c9d61fc0d4166d2f0cc407665a96a4a"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/MaskedAttendantNativeTests.cs",
+      "sha256": "48228c9f596f18674304d5915c48e4ee538a614ba504fa0aaaba9c18e51a95fb"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/MaskedAttendantTests.cs",
+      "sha256": "aeb74813166fdb994efadf0685188bcf1d669b0426c8571b73346bc0b24d1dd4"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/MasterYiLegendStaticAuraSpecTests.cs",
+      "sha256": "3e868713682cc95681b4696d5ebc26500d485d623b0a20f01a5b17b69678e5ef"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/MasterYiLevelActiveEntryStaticAbilityTests.cs",
+      "sha256": "fbcd058277c4eb0a99a925e05261410de84d20fe5621789af44d856b601e91ec"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+      "sha256": "3d14d626b49566a9b0191f34739dd7721376c07564d19395f749799a3deb3a5e"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/MatrixOpeningResourceDriverTests.cs",
+      "sha256": "93af79f1a0d1a9f115b38eee1afe7ba1e1f16025a24ca422d5166f849a1a1ef5"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/MechanicalRecastContinuationTests.cs",
+      "sha256": "34048d0a479e3fb62aad304899fcf3fbf8a00fb8531c286f865e028236ff1f85"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/MelNativeTests.cs",
+      "sha256": "a55a1f80847b1869a90a94d4b20bded7dc9e164f462c8c72f7d78117edc8cd2c"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/MelPrivateDeckRecoveryTests.cs",
+      "sha256": "73d1bef3d21358c8b3270992b014c78d56fb8d977d11ead474c1f27c8f25c901"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/MelRulesTests.cs",
+      "sha256": "d1f5daf0d2c0ec072d05b3307769fbe722863762a87fb0fbade51dd6abe2b344"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/MightyExperienceFrameTests.cs",
+      "sha256": "a1d943bfc9bf8d51aab41f41ae1535eec5748463fe49dea6e80f1914f830d61d"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/MightyExperienceNativeTests.cs",
+      "sha256": "53b955630cf1988075da3de3bef07b24d4d96dca691df6318f4e107e91702c40"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/MightyInstructionEventTests.cs",
+      "sha256": "1c1b54dfef1e16acc6ad64ee1a3de55d5e206c2f26b095f8d82e6b80a2ed20f8"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/MightyInstructionNativeTests.cs",
+      "sha256": "5679f85f6e59b2ae1ac6389c44c915db7e4d3acc12f20f3010eb6b4fe622fd9f"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/MightyTransitionNativeTests.cs",
+      "sha256": "2004b00f514bde80575e56c7c14a7432740989c56e47b2b46137b483db82abe4"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/MightyTransitionTests.cs",
+      "sha256": "c65bbcd51b11a9721f536a67c4828fe033bb0e3170a549360cac7669abfc8376"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/MinimumMightAuditTests.cs",
+      "sha256": "bef48f4001d446c864403e528972b57bf066a51297561b125fa1d46b1055e96c"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/MoltenDrakeOtherFriendlyActiveEntryTests.cs",
+      "sha256": "f9ecd6d834b716db85a4a2d4e2694b9f80dedd98ad248be1b66f9068bb9aa06a"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/MoonfallNativeTests.cs",
+      "sha256": "39ff6369660b0aa71b4aaa109e0165a15271677c89fbc96a8bd7d5f1541170fd"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/MoonfallTests.cs",
+      "sha256": "0b18c672e61216d289e458e5448ae92f22d642702178777df8451230b48caca8"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/MorganaNativeTests.cs",
+      "sha256": "114769e62e4eec8ec4a2ae3c24bb7d9405aa67ff0537be513850c742bdd01060"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/MovementBenefitsNativeTests.cs",
+      "sha256": "9a12d463e428263fbd9afc7a99fb66bea437b67a69de15f4f1dd6cc0a1617d7b"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/MovementDiscardDuelContinuationTests.cs",
+      "sha256": "74ed48643b9d7ef6f3a0348ca1c86652507534fca433c985dffa533d9fecc7dd"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/MovementDiscardNativeTests.cs",
+      "sha256": "4ce08eecbbed014f068e9d7aa381ab3c68f67c47d33389c7595fef75e44fda6f"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/MovementDiscardTests.cs",
+      "sha256": "c6e44e88a1cdbe7a65d7e5a157328b4c38a6a711b6f966559757fdbc55284100"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/MovementObserverAuditTests.cs",
+      "sha256": "8e656bf1f49c28a4423c2af6bfff03eb4787fc237f707a9199b6f5b742843989"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/MovementObserverNativeTests.cs",
+      "sha256": "4c7a6c54b453057f975262910b9d0efa0b9d8f2d862f948f0311c554db463b94"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/MovementSimpleTriggerTests.cs",
+      "sha256": "d79f0446e6492af608265dc904bb3eaf465b43e15b0ca7a17f39a5deb86b71f9"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/MovementSourceIdentityGuardTests.cs",
+      "sha256": "3a0acc99a9ea7c670a2a2ca66ef109399aa1eab09ffd88dd0324bbaac4d0a592"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/MovementThresholdNativeTests.cs",
+      "sha256": "bf410d09da401afb5ed2bf270f1d9baabf96615ff2bbc745d1c8832271c56283"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/MovementThresholdTests.cs",
+      "sha256": "0e1a9e65189331bedc0546e7b62de3fc0a7ca37595658450c0b2c67ce77862da"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/MovementTokenNativeTests.cs",
+      "sha256": "e749b26b1e40ccc67abf3b0e7c2a1214615b127f6d7a08942f609fa65ea78dac"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/MovementTokenTests.cs",
+      "sha256": "47eac44477e2960733d707d857d5c1f0bc62fa55b1a4ea6c4e0d26f0a35586ab"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/MultitypeEquipmentNativeTests.cs",
+      "sha256": "c0329229e7568ff01238dd03518500f753d38ad0615d60abbcfa1554ad1d6b55"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/MultitypeEquipmentTests.cs",
+      "sha256": "9d3ede460f2d91e3e12e8073ff78b61224a59c1dbde57f303595b93ad5c8a4ef"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/MundoBeginningNativeTests.cs",
+      "sha256": "031ce63b121313c69152f84fb235bb55270e4fe862b7c93724a21c9be1acceeb"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/MundoBeginningTests.cs",
+      "sha256": "07ff2e9e9d88566a683a2977ccf0e22ecf6d695c8eee81725efc8c22c55e73df"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/NativeCommandSerializationTests.cs",
+      "sha256": "b23550917b8d0b4c1b79450da76e85e1bc8a3f2e6d8f86bc2c797d6a68400615"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/NativePooledDamageSelectionTests.cs",
+      "sha256": "61dbd5507db154a11f0edebf4c03827b85febb54f11c22df756546e3c817bb67"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/NaturalBattleDeclarationOrderTests.cs",
+      "sha256": "f0f8f28eff490b80a24d2ba5ed698c7b6e9dffb23aedf46e6da6f711a46c484a"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/NaturalUnitConquestTriggerTests.cs",
+      "sha256": "da367d7201fdf811b30f8cec5d166483833410b429ff39750fad8004651c543f"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/OfficialBattleParticipationTests.cs",
+      "sha256": "5d593416599aebea39851ddcf9df3a0c08a9ecee6cb09f5c5df345d3c7be5b80"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/OfficialBattlefieldControlTests.cs",
+      "sha256": "9e67548a258cea62a84983dd70168f6f6172d4cf94a0237ea92639068b3e0159"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/OfficialBattlefieldReplacementTests.cs",
+      "sha256": "25436efe988641be52d14fad588ef598f183ef050bcc5921ae8c3dc27e1a6455"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/OfficialCatalogModernSchemaTests.cs",
+      "sha256": "340b6b81a8eada47815fcad30d325f878c2a075b5df8948fdfa9f29d0991024b"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/OfficialChosenChampionReturnTests.cs",
+      "sha256": "00153959c95f0c09ccd39bb1ee56a105b05d4cce532887d6a4263dbc906b5151"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/OfficialCopyIdentityTests.cs",
+      "sha256": "5fc52eb18912f87eaabacac42f6814a10aef2648688e46b57ffcb6b9e5e1fd77"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/OfficialCounterRepeatTests.cs",
+      "sha256": "13e38f33516bbf57a473cc7076b230779975f31b3e221c1d42ce18c36fc6e443"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/OfficialDestructionCostRulesTests.cs",
+      "sha256": "a9ff960f4b6153e8d43db572ef3782a276800a8fd4f1c7184325c7d501333f3c"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/OfficialDrawDefenseTests.cs",
+      "sha256": "80cd41aa02f2779f2b6864436a1ca0183a9e8a880f329dad5499145c816a16c6"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/OfficialEchoCostTests.cs",
+      "sha256": "baa194e50b70cc95a72fd1c1a22e23db5ccc36fc26d2927b175d7c8532924fa6"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/OfficialEchoGrantTests.cs",
+      "sha256": "5492239b5ad8fc02241861f640da76e8ba19137d37e24a0c205a54197b6d3b11"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/OfficialEffectReplayTests.cs",
+      "sha256": "b03c46c5f35105361cdfd0b3dea2570bb900e9f71a58f28d1048334131b9e846"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/OfficialEffectUnitEntryTests.cs",
+      "sha256": "399b274fd8ef14bc14e8cec36664e850820b0a045d7a877628f59752abf30f23"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/OfficialGraveyardRecastTests.cs",
+      "sha256": "dca940392ea2d2dc10efae3b7caf6606e47623cf4beb327239720f0916f816dc"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/OfficialHeldConfirmationTests.cs",
+      "sha256": "76eb20c7e056560867e2dc73b98155260840eb94858133fd117b75f93b42d563"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/OfficialHoldSequenceTests.cs",
+      "sha256": "0fbf045bd998de794cfcc63c503dbadeab402b560158b256fadfdd9a0bccff4d"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/OfficialInformationPermissionTests.cs",
+      "sha256": "341682dcecb03674b156f2387e4618c0265edd090fd231fbdf707328888925d5"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/OfficialInsightAndSpellLockTests.cs",
+      "sha256": "15d73753e890d225d768d186b5a7536a570d2f1fc91ad31d1bc8246e86aebd7f"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/OfficialInsightSourceTests.cs",
+      "sha256": "882cb6ab40ead44d92e62540aa3159cdf7e164c00eed833fd8137aa87737d826"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/OfficialInsightTriggerTests.cs",
+      "sha256": "20703182e950c95b2b74781432b017e2db330141888472d437555e936a68af24"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/OfficialLeblancCreationTests.cs",
+      "sha256": "4130ebc84cfa90841d8ce15f07afcb9b17ca556a48e08f5e1f062636136137d7"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/OfficialLegendConquestTests.cs",
+      "sha256": "49b61cc918df7e9abeb8b482270890bd274a88fca2d70cb354ca57edc6f13f7a"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/OfficialLegendDeckPlayTests.cs",
+      "sha256": "aca98a4b19148b3dbfc298976e7973779545b9f4ddbdd5db6f6b48a9c0586ce8"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/OfficialLegendTokenTests.cs",
+      "sha256": "aef771a47eca4db0351b6df63bea76866c866b50e0309e61fcc6bf17d47de94c"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/OfficialMechanicalRecastTests.cs",
+      "sha256": "9c0d854cf5ad50587b5576dc3512fbdb393ea5dd8373ef4edfdc175a15cd77c6"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/OfficialMultiTypeIdentityTests.cs",
+      "sha256": "55403b6cbd4afb8737aa6cf2e88e274e47c3d98f5e5e8e659623151d1c7d45b2"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/OfficialNonFieldIdentityTests.cs",
+      "sha256": "61ccc2da19c3ab08074bbbdbcd2c2229e76abf636bd167390e301c8d00fe77a4"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/OfficialOpeningTests.cs",
+      "sha256": "02cf6303e825771e620e5de9c1a803a8cb3505b82c524d093da507147433073b"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/OfficialOrnnHoldTests.cs",
+      "sha256": "94464599784a3833ee1681017266f9a0b8f34470af4c579f87d4a79ec396a8f3"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/OfficialPermanentConfirmationTests.cs",
+      "sha256": "798cce80786999fed4b4d0ba8786222e59aa1a5329c493ba4b318ece519032e2"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/OfficialPooledCombatDamageTests.cs",
+      "sha256": "d3685a6c48a22f3d01f487cc8e771d0311844c3a2b1bdefae641a6d845384a5d"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/OfficialPrintedPowerCostTests.cs",
+      "sha256": "555fabbaf24891c7e8907f3f8384c3fb64de5095ccab24eb6e804220ca62b047"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/OfficialPrintedTimingTests.cs",
+      "sha256": "885f26255ba7f6eead85d3fc6639f398b64cc035270240246256a6144fb63a2b"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/OfficialReflexiveCopyTests.cs",
+      "sha256": "04c1d3875c6919deb560af0d6f0242453085012793ba9d02e27cca202285676c"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/OfficialReinforcementsTests.cs",
+      "sha256": "89912f775503af0891bc0829539ffc4bfd0036a9eecb778adf21867f5e1c60fa"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/OfficialRepeatAndDeckChoiceTests.cs",
+      "sha256": "8651bf6933aa48974d4078173489426a7444136e9bcf517e333e407faa500601"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/OfficialResourceAbilityRulesTests.cs",
+      "sha256": "999bb27284828e13b34d90c94649fe1f700548d09db4c6525388a29ec7cbda1e"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/OfficialRevealedHandChoiceTests.cs",
+      "sha256": "cb1d413cd857ff9911034130eb88a742c00831f3f499be99b6ea5fe86d53563e"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/OfficialRevealedHandPlayTests.cs",
+      "sha256": "74681a93619a908717467d05e5589045a85ef0c0a4803578a764227e43fc6ef6"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/OfficialSettReplacementTests.cs",
+      "sha256": "2847433ac2fa9384a0112c021ef009aa38d845a367805b6768d5ce4422d87abc"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/OfficialSpellCompletionTests.cs",
+      "sha256": "0eeffa51c8e5ce49bd9a430fa32bb540e886167410426e4555ac2365d6abd373"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/OfficialStackTargetContinuityTests.cs",
+      "sha256": "de82afd0206f0c3b0f7a63558b7a979cb43e50c46b4ba9efe71ef1eacb5f97cf"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/OfficialStunCombatTests.cs",
+      "sha256": "5141232f16ff3c66de26f3c8426358beb3836a19340f9aa94f950b851c744e92"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/OfficialTokenReplacementTests.cs",
+      "sha256": "25c3df4f7b89bc5402cc9002ab38ea45bc10879ec10e5326aef22b9c7c05087e"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/OfficialTriggerCostTests.cs",
+      "sha256": "4330dfb6abb7f22598b131dd824988b250925f74caef890deec28003e168d639"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/OfficialUnitEntryTriggerTests.cs",
+      "sha256": "a85606c20d4a1d25fdd7ef7d407e693fd9e72d70e55ff9a693d46ccd5ebf8a7d"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/OfficialUnitRevivalTests.cs",
+      "sha256": "e18320edb876ffb2751c9faa44a37005f7715d2935f4539c0ef08854f5461c92"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/OfficialWardCostTests.cs",
+      "sha256": "f54790508661075873d2270b345d1ac537fd506df608343569f22e3ba847ff47"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/OnPlaySourcePowerTriggerSourceGuardTests.cs",
+      "sha256": "7d0cd44d12e480d5dd405bea536104a470e8b0c430b5d16340c5d52c73ef152a"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/OpeningRandomizationTests.cs",
+      "sha256": "57bab3a10d17e58584bf808df882dcc3b599e9108de76153f421e6cea29cb30c"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/OpponentBattlefieldControlEntryTests.cs",
+      "sha256": "2a9175d81242eef88135c6d6ea2a759ef10b5f07f3ad248fca58395ce92cc82c"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/OpponentBattlefieldControlOpeningTests.cs",
+      "sha256": "6121005e44d9198c184a1054b63862c1fb066463f419a9eefedab6b24c882543"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/OpponentBattlefieldSourceUnitActiveEntryStaticAbilityTests.cs",
+      "sha256": "3c0436ec71417e67fcc2f25f774e130d5047db809fef8ce992f6c7a0757ffb23"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/OpponentMovementNativeTests.cs",
+      "sha256": "1996c03e06feed0dea8eadc33585f3f2ec1d136f5b36a2d6e6ef3fa55937c532"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/OpponentMovementTests.cs",
+      "sha256": "9763de47824299d3aec61ece96c02e205ac4d340f6bd6d279ab10ef51d83e72d"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/OptionalCostsIngressTests.cs",
+      "sha256": "3424892d65d9437cf6ba365897213ec112d8b30e3f3e21ff98277859072592c7"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/OptionalManaTriggerPromptTests.cs",
+      "sha256": "0f01403da977c489501a0a45f80c5f65d2852c8c9365216c6d8b9f5393fb0435"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/OptionalSacrificeOpeningTests.cs",
+      "sha256": "75502082511aeafd2307a98307fefc2d56021d258beae8f8cf39d2e6bce91a76"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/OptionalSacrificePlayCostTests.cs",
+      "sha256": "997eb1d30694258d20dcb49e38d539f3c0c824f3e21f73faa19d20939457cf7e"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/OrbOfRegretNativeTests.cs",
+      "sha256": "430b906fe6268ab9a2f7aecada940297e2684b5123c52666d773a14eb8f6b300"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/OrbOfRegretTests.cs",
+      "sha256": "11fb9efa7e75e352dc0b5488a7598db60dc5608da967832e236a53dca30b188d"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/OrnnFriendlyEquipmentStaticPowerTests.cs",
+      "sha256": "be25ed3229c6c607e11c6227fda2a15821779e285c7439a4a9fda942dd98b6da"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/OtherBaseUnitsSourceUnitActiveEntryStaticAbilityTests.cs",
+      "sha256": "4b58c550401ac5f7ac94f2849158cfbd0ffbdc3bf7bfd325252feeeba319e389"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/OverchargedEnergyGuardTests.cs",
+      "sha256": "9212db5fe465922834703089fe730d7d75ccbb18242ea371fef448a6ef592b25"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/PaidSpellReadyTests.cs",
+      "sha256": "14a51222a03964aebb52b8dc677c321edf911c6662e97b71b7b45a8384646952"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/PatchedPorobotTests.cs",
+      "sha256": "b1cbce04fe18dcc1a05b4ab8111ff3111c99196dbf98a439fe0ff9f0521c8744"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/PaymentEngineUnificationTests.cs",
+      "sha256": "80960033ee33292abfcc9603ca25c65d9c636063f4e50654ba65c9dc0c02fb8a"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/PermanentConfirmationAssert.cs",
+      "sha256": "feb3614c4d4497977aec1589568a52f65b46f2b81ba3772e79bfb093a41ae682"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/PermanentPlayTargetTests.cs",
+      "sha256": "306bd9aebdcbd5409f33af811612bfbb230aeaf2589ab56c62737fedccbe0a65"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/PersistenceWiringTests.cs",
+      "sha256": "d472b9fe8a51985b1d07aa50e794dc978dbbba1b117244ecc0a837e67fc4a379"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/PhysicalOriginCostReductionTests.cs",
+      "sha256": "96a1acb69bb578ca74b1d11df1b4f0f051a85e3c9958873eac3dd375e366037e"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/PlaceholderRuleEngine.cs",
+      "sha256": "2fa9c25b30250571114b8e192bb7690048efa30bda199736262e6ee7908a2f65"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/PlayBehaviorSourceIdentityGuardTests.cs",
+      "sha256": "0ec072afdbb83e5657ae79d55312f411e3904048f9101bc03e57c95c549356aa"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/PlayCostPreviewTests.cs",
+      "sha256": "8b43be2349e2979037261d3d0be55103a80fd45adf6fb94c28c2d0a994eed61d"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/PlayerIdentityTests.cs",
+      "sha256": "d824d261f80f895d02a5c2e2dca73d75c9cb6a0ad3934ee5cd95c911b93dabbb"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/PlayerProfileEndpointTests.cs",
+      "sha256": "69e0dbbce0cac59706f24437cf240e3bdba6f1e648ee59192fef6f318c793cda"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/PostgresMatchRecoveryStoreSmokeTests.cs",
+      "sha256": "871ea1bab182b8b9ac58010a190966eb8bafa11c5cd4b04c25fd81d0437fbef3"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/PowerfulConsumerMightTests.cs",
+      "sha256": "79f618d2ddf33047f87586665555fc2c11b99bd712b7e382288871bac245e8a1"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/PowerfulConsumerNativeTests.cs",
+      "sha256": "dba158dde169e5cc7273157f75ddfe825b7ca30e877017220b81b1aa678b9fef"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/PowerfulKeywordLayerTests.cs",
+      "sha256": "b6c4dd15d7982fd9bce437354bbd09d05dab3cbb5ada2874127402bf234094c8"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/PowerfulKeywordNativeTests.cs",
+      "sha256": "dbbe544d7a7748c1a696e95d6cc1a5a192821162aefaedccc648542da28790e3"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/PowerfulLastBreathNativeTests.cs",
+      "sha256": "3f80894389d0ee5cf9ce53ce0eeefb8be2a0a2a85615dd814c621e6bde9dc0a0"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/PowerfulLastBreathTests.cs",
+      "sha256": "e4c7f14922062e20d864a8990f4d56043beac75f0f345fed380a74c65ea3f74c"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/PowerfulSacrificeCostTests.cs",
+      "sha256": "4fec686742039ef0c75bbc26f0f7206330ff8f2f39ba1d7cb08b58d835c64abc"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/PowerfulSacrificeNativeTests.cs",
+      "sha256": "6144dbc76bfd293fe223cb54e3dc246ec27a69d14008c953e481cbb18f984a81"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/PreconstructedDeckCatalogTests.cs",
+      "sha256": "58b7a689324465dc8266ba887e2e1afaec7d073c30414bdebe32aad208271b06"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/PrimitiveTargetGuardSourceTests.cs",
+      "sha256": "0fc3df808f2e45d4b0adf631f18f78dc1b51d1d7e71f98243ec412df46f75d1b"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/PrintedCostFixture.cs",
+      "sha256": "b9b233a172e930d8a6d7e84862319517ad45fc5f5e1cf3dffc129983d89c8e62"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/PrintedPredictEntryTests.cs",
+      "sha256": "81e480e49440e5cbc503335aaa880d801ecf18e30fc8a1c4f2ed3a0d60134d6b"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/PrintedPredictNativeTests.cs",
+      "sha256": "1d443be0cbd34902051e7a18ae724cf24ca9e5ca46833d181e426564143c1298"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/PromptEnabledActions.cs",
+      "sha256": "e5081838fe7fcc87c091b05013a269325eb35af59b0ec0aebe52e5efa53eb72b"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/PromptResponsibilityTests.cs",
+      "sha256": "7e03a8fc66572441fe1aeb1d1e666ad2d53e96a0c2eb3b7d91d58c2fabc5df38"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/PublicBattleHistoryTests.cs",
+      "sha256": "60006e619686c898dbb0c192693fdd0b9beff9b245bf64ed9274f87286e44a97"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/RealTriggerQueueTests.cs",
+      "sha256": "47f64f06137147b2dd15b898d8d385018f6f76229d171efcf8ea3c10fc78b862"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/RebuttalNativeTests.cs",
+      "sha256": "be84e2ad1ebdb6c07cbbaf090abf8101300f1b4d9073a50cfdd37e7078e25504"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/RebuttalRulesTests.cs",
+      "sha256": "f2975458c9e4154eac4a6e027f7b167a3d56f3054796b19b500bca35832fd3ac"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/RecastNativeContinuationTests.cs",
+      "sha256": "661173b7d8320be171fe170c75c2c9cd40db92ea0db1466dd5c4c5667a33cfd6"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/RecastTestDriver.cs",
+      "sha256": "c9edd376ee19a7c64ad640987db6cec942353ff8354fec71fcfceb9df8f1ba89"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/RecoveryEffectivePowerTests.cs",
+      "sha256": "5c9fba9accfcb4831411a45857384d30b19a13565b626d552e1c77e5cdbbf0f9"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/RecycleBoonLifecycleNativeTests.cs",
+      "sha256": "1cf98a255b050836a063aee5a0218311429cd9811ac84b946530e31d20c8245f"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/RecycledCardBoonLifecycleTests.cs",
+      "sha256": "155768c19f820eee2e8f0d6d0384159e0fd0f44435df98d3ca5c6e88108350f0"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/RecycledCardBoonNativeTests.cs",
+      "sha256": "5b0a1063b6fea12c4f58277d3f18f195a26c253a2596f37f283877af72b25517"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/RecycledCardBoonTests.cs",
+      "sha256": "d260b4a74c75b69a42845de803d308d281eeceb0ee24b2efa1957e3f350d6107"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/ReflectionsSwapGuardTests.cs",
+      "sha256": "bc0b8abcb4e348bc20025bd3213b83f17e757e626d59a872c2ce953a4bbbe0de"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/ReflexiveMovementDuelNativeTests.cs",
+      "sha256": "44ebbca8ac4fe490d911552522d624280545c1b259d34cd82ac6bc30be61d3ed"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/ReflexiveMovementDuelTests.cs",
+      "sha256": "d7e78043daeb2e25313850f025428c9d35fa10fed2c8f69895bb6b05cc0003cc"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/ReksaiAttackRevealPlayUnitGuardTests.cs",
+      "sha256": "78937d32f28eb23030739faf100ee2027842008052537d2b47d89d879676bfad"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/ReksaiHasteReadyRedPaymentTests.cs",
+      "sha256": "a7e9c6dce905c697aea00df8c03c916713eb0abfd86388540cf0a193286cb75f"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/ReksaiNoOptionalHasteOverwhelmGuardTests.cs",
+      "sha256": "f36c6154bc89474e1289d81ff402043987ee66ee5abcec2fa9f51d3c090b8495"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/ReliableSiegeDogSameLocationStaticPowerTests.cs",
+      "sha256": "17bf9b6d642beac54300561e40b5a53c6e59f0a8782b68376f162ee04d40677f"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/RenataActivatedAbilityTests.cs",
+      "sha256": "12f53b5436869a6b09bafae2e96d0b6b214fba339a78863175b4fa16db97ec33"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/RenataTokenActiveEntryStaticAbilityTests.cs",
+      "sha256": "eb7fa48c62c6530fc852f7cc044e03856d524034b02ed6fb9877c1bdc96ded7e"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/ReplacementResourceNativeTests.cs",
+      "sha256": "bbc20b1f0f15735171fe6d62fabaade762303d7b81496c1a228cf3ee279e8a80"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/ReplacementResourceTests.cs",
+      "sha256": "edc9034e40a401c8f8b48dc4a8c6870d2ebaef3453298c38860bbf9fc907bbdb"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/ReprimandReturnToHandGuardTests.cs",
+      "sha256": "f55824d69c95fee933e3c3eccd512f3431e81d3db136dc4c35b284836f809ad1"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/RetiredPaymentLedgerTests.cs",
+      "sha256": "46efef85cd6a5b3d6a4d1b8b1aac46511398276c721e9388039c5f444efe7076"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/RevealedHandChoiceContinuationTests.cs",
+      "sha256": "d1281ce74cadf81cbe9ad95e8a7cdaade53d72760ae9640f83ac6ccb8579c112"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/RevealedHandContinuationTests.cs",
+      "sha256": "d1d7ff06db99076d09017cb089fde03e6ac6ab2f0d95b8745069551c5724b611"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/RideTheWindCurrentMovementTests.cs",
+      "sha256": "3efea1fcb42540503005291fb3d8a6b97dec3db924acbeca0abd609dfb3e3c55"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/RideTheWindMoveGuardTests.cs",
+      "sha256": "84524fbb571a4d0328825324c2551680644b988dbd179972663829932cf754fb"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/RuleChoiceNativePromptTests.cs",
+      "sha256": "c5afda6896094e984da61662e8120fe94aff5c01f6772e0ee64c3baec83b04b9"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/RuneBatchTests.cs",
+      "sha256": "2086f13f7096b3b5deedb62c4b8b07f7e6a06aefb843c9d6209be247b575e798"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/RunePoolEventReplayTests.cs",
+      "sha256": "cd8d41fc69450700a0cd347e376f61a9f305a85f756f2db2ac6aabb0f78a6b0b"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/RuneRecycleDestinationNativeTests.cs",
+      "sha256": "e8e086f44df45cd456879f03c5702a01de88a5a076059780275afc279e9fac83"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/RuneRecycleDestinationTests.cs",
+      "sha256": "cc982a905d634bbfe8cd6e6e72bf882ed5605ff772ef48ed89d6e97015db4c7e"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/RuntimeRuleInputIdentityTests.cs",
+      "sha256": "b2ff7cfe1d0ac8837b4afe28b1cb21dbdbadc382e6b912f1b7a0fc6b3b969984"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/RuthlessPursuitTests.cs",
+      "sha256": "c0997521a07f322b261ca5eb11ba6fda6b189597ff3876c541f9c14d6929d5c1"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/SacredProtectorTests.cs",
+      "sha256": "30e610c76c0a14423b104a673608cbb7c6335a1e12d7012d071372fe963d5d08"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/SameBattlefieldOtherFriendlyStaticPowerCardRowTests.cs",
+      "sha256": "3835f2935a4a95da167ae62fe83c79c64307fc570826831f334b395b164ff600"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/SameBattlefieldStaticSpellshieldAuraTests.cs",
+      "sha256": "5f69c42a27aec8c95953e429bf6a0f6e240d685c2b9ee342d4b8de9734e431ee"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/SandSoldierEmbeddedReadyTests.cs",
+      "sha256": "ab6e3cd35f33315d2c46d5c653d9f2656aa0223d6b8ad4bdf607cccb7c4cad13"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/SeaMonsterHookGuardTests.cs",
+      "sha256": "fc4d9b55a502a709cfc845d28f36f3f03be6ff0385cc48815ddd1eb78583d3a5"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/SecretArtMercyBoonGuardTests.cs",
+      "sha256": "9f0b2aa194e6733a40c6e5821a50eeb04e8f8c8f3dedd22dffd2eee0835ddf67"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/SecretArtMercyCurrentTests.cs",
+      "sha256": "249bb1c0d1fb561b9d2bc75f1f3f6444c21122a0282ca189fc9e8ee952a25fc0"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/SequentialMovementNativeTests.cs",
+      "sha256": "19c9f76499434b4c7e2ce13e62aa9c636cc242e3aab81c40f74c9f29f7ac15da"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/SequentialMovementTests.cs",
+      "sha256": "550db3e897a97443683b2d73da83fedc3e6aad905e6314a392fd496a72fd0473"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/SettLegendActionDomainGuardTests.cs",
+      "sha256": "0aa9bce263bf13df0ccb32213c5c5e88f409c58a2dc62c67197fb6901ec35e28"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/SettReplacementNativeTests.cs",
+      "sha256": "06d2b84bc1e75c63579f4e3d9353adc13907ddecfb1c8fc9f4ab82ef8a3b4d74"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/SfurSongGuardTests.cs",
+      "sha256": "6e3358f6cccf9f0d29efc9b04091a340c194e96d89f19d00095b9ef2694b3484"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/ShadowActivatedAbilityTests.cs",
+      "sha256": "893e686e174ca3a2fe51bcb3bf9968c5f1b4e6d2fe29e6b9e421af6ec9cdbdc9"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/ShadySpectaclesNativeTests.cs",
+      "sha256": "c1cbeac708fde751537b6f8ef2cabff9f5a7bfb69a5274185d3035330f976a18"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/ShadySpectaclesTests.cs",
+      "sha256": "d60198e472ef64a367a48a97146aea52aff5641a107372af90f016567cc6f30e"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/ShenDiscipleTests.cs",
+      "sha256": "e80cb871390e8576206131a6dd05dbc9572b0a015e6a4ba899522d77e675027c"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/SingleDeckPlaySequenceTests.cs",
+      "sha256": "4b037a9c5b532594a19712f06ca33c255e2bd95ae24f0ef57050bfceaaa73137"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/SiphonEnergyNativeTests.cs",
+      "sha256": "74bf48952d54662ede6d2e0adff8c0b3b5d2ede52b8535e3ea4b0cc162a2373c"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/SiphonEnergyTests.cs",
+      "sha256": "1215f8d8f9221898a5eef548a3683be2fd41f1bf6298935cedf247bb398e9573"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/SivirOptionalNativeTests.cs",
+      "sha256": "1b0e457561968e66883342434bb643c9f37e17e30555edebc59054536e92da0f"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/SivirOptionalRecycleTests.cs",
+      "sha256": "6e841a3fe5e6347724558eb1e020c7c8586d548ab77096282650628307ef6265"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/SivirPaymentNativeTests.cs",
+      "sha256": "fb68bc1697a80479400298f624de0973947c35fec2080ec4a6b6cd9109d823c8"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/SivirPaymentTriggerTests.cs",
+      "sha256": "71c4ec5c18f404a51d93e4164165520595076e9532cf0f74c7fc1f633fa34baf"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/SnapshotTableProjectionTests.cs",
+      "sha256": "79b33e0f196d27bcd7279ff09b38164cfc3ca232e90e8e3a5a472a054fd16bd1"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/SourceCombatStaticAuraProjectionTests.cs",
+      "sha256": "c89ef1ba0c9ef357d37488f1ab48811127f2b2c00410a7cb82fbd5decc864b61"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/SourceObjectLevelPowerStaticAuraTests.cs",
+      "sha256": "1edf6c85cd544b7d703cf328b65b382f4a8b730491d8e483b3a156f02419fe23"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/SourceUnitLevelActiveEntryStaticAbilityTests.cs",
+      "sha256": "7aeb6ef013ec22004f2827468285c8eeee4494dce2ef6ccb95a16f779e967193"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/SourceUnitPlayedTriggerTests.cs",
+      "sha256": "f746a215dbbc19012ee72dc116e95665043887c634f715b8173910c720d95283"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/SpellCompletionContinuationTests.cs",
+      "sha256": "c9702ee9009e9efafdaf617dc431d94f839f2ef06dde663e32897aaeffac61cd"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/SpellDuelBattleStateMachineTests.cs",
+      "sha256": "873e41ab3a3833c2ff9a4ddf927ec854447ce28733e956f8adda2b5be57d168c"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/SpellResolutionTestDriver.cs",
+      "sha256": "21e6b9cc2509f73548fc2084a2c49b7b2223fca902747bc7e65eec079af2a09e"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/SpiritFireDestroyGuardTests.cs",
+      "sha256": "3a977e6a0058d6ae20816c82d3c8549cfdbd45eb0ede2f4bd2fbfc966e8a5edd"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/StandardGroupMovementTests.cs",
+      "sha256": "1f3f60d43c2d4630467086c9e49e014231bc7857ebd69bfca3f32f9183da38d5"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/StandbyConsumerTests.cs",
+      "sha256": "dfcac905d77a7cb85a7209467f73fd343795c635456879cc5ea1ea2b6f05361d"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/StandbyDefendObserverTests.cs",
+      "sha256": "3b371fbe46fd103155c94e78e3ff9437b572e309810bc086af87d531fda4b6d6"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/StandbyDefendTeemoTests.cs",
+      "sha256": "813cd8eaa060d8ae78eb1a237c2403cc6bb59c2656ecbb4bd40b645f9729da45"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/StandbyNativeTests.cs",
+      "sha256": "93c636361ba0503dfb6cb75e3da52a231ec061191e773c9f0fd5fafe5fc3f46b"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/StandbyPaymentPermissionTests.cs",
+      "sha256": "695b5b3525711c9e24d4e234690f761fc4b13573a405cadf78e7dbdb5bbef7d6"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/StandbyReactionBattleResponseTests.cs",
+      "sha256": "7e76845f1578885a2038b41d41f7b700c0cdf80006a52f5e977fe30dffa9e6f6"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/StandbyReactionSfdTeemoTests.cs",
+      "sha256": "7b316c4c2ad9c9be8e7ebdd9003c783e0ebacfa803272f0244052068532b1188"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/StandbyReactionTideCallerTests.cs",
+      "sha256": "af2b27ce7e80a993363519e6c5e5863cf344400c7ad9d3ee890e8e39b0e3a715"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/StandbySourceRulesTests.cs",
+      "sha256": "5d0351fae794a67997e3416f320e8c9e667e1c89c6aac832adf244e3a536783a"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/StandbyTestDriver.cs",
+      "sha256": "f66d89c41ffb8dc91e653b31f5b2d88f8f3d9345bbccff11c1ac4ab00bf5e167"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/StaticAuraStackingAndModifierTests.cs",
+      "sha256": "ddc3d513896cf4a291c841a7d79741a8b1219bbbd448c9b116124ed8f40c96eb"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/SunkenTempleMightTests.cs",
+      "sha256": "4a5fd25ad34b2eb90c9efff32916da63f16db5dba765ed14da3aeb602d08d3aa"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/SunkenTempleNativeTests.cs",
+      "sha256": "7a2f1617d817a855e2c682a70e6e5667754f2879d0a759117d9b8f4989b7f760"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/SwainSourceClassificationTests.cs",
+      "sha256": "b14c6f8ee76f61ccf9b4470b82caf958e61fd0afad021d420b3da59cc42db405"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/SwiftStackPriorityPlayCardTests.cs",
+      "sha256": "6c45918ced14148597b65cf225bf0e0d665bcbfd781d1ef4e7ebf38b428512e8"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/SwitcherooGuardTests.cs",
+      "sha256": "a35657779e801d42482205d0ed0443d563ed4699aa4714c463889134b5c95ea2"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/TargetedInsightRepeatTests.cs",
+      "sha256": "5c8154ba8340ca6b591863e76bf298ef7cf119defa874b6f033c17239e9bc726"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/TeemoLegendActionDomainGuardTests.cs",
+      "sha256": "75306727ea26b3a5aac876d6dc69795e5f035e43d8bb5d6a2cbbe9a03f61d191"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/TemperedEquipmentOptionalAttachTests.cs",
+      "sha256": "16f5de7edf862a8366a80c20fa26a5f8a73042e4831bda4a319ce6c8107f8a4f"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/TemperedPlayNativeTests.cs",
+      "sha256": "f3bdb09621367e1bfa61ef6805f4906694208ffc5aa37ed39344c03fd2bf3222"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/TemperedPlayTriggerAuditTests.cs",
+      "sha256": "26117b7149a717b90e32953468b0826341c1a244ca64fddc49e2d469b99fb931"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/TemperedTestDriver.cs",
+      "sha256": "4984c42605ee13474447fef4215688580a04b2676fc81cfc0e283a2816a183bb"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/TheCurtainRisesPaymentCostTests.cs",
+      "sha256": "05a5cf2ea2077181cdc3d34852267c9d0d95a595db91df36c4fb5120ee0f64c3"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/TimeGateGuardTests.cs",
+      "sha256": "9e731155f4c04afd24cb6db5a7b135b29baed29245a49aa6d3640e6d41daecf1"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/TokenCreationNativeContinuationTests.cs",
+      "sha256": "ab1a829ddd517543e0e83abab30fdc3d81c69ac14aded3b38fef9b7fbd6eb547"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/TokenDefinitionAuditTests.cs",
+      "sha256": "c332e4f53fde4b6546e1ec252aa38ad2f22b5d9b8c520a34f9cf2707a19ea8fb"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/TokenReplacementNativeContinuationTests.cs",
+      "sha256": "9f066f344b1ef7d99a4140d87b26e94542a4e64ee7e7743bb9638c29126ee329"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/TreasureHunterMoveTriggerTests.cs",
+      "sha256": "3cdfc0e7204acceb9b806cc00b027e4e3eb5d700b194f477eea28bbaf64ee6a4"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/TriggerCostNativeContinuationTests.cs",
+      "sha256": "da81551e18cf98c6e1ec791fcf9943f4931bdfab2702b122cb5d075f8b9406f9"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/TriggerPaymentTests.cs",
+      "sha256": "6835a4e16a68c70647bd30fe4cd4b518a21d4d3c49671f6251b5c5b672b6e3e1"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/TriggerSourceIdentityGuardTests.cs",
+      "sha256": "5e71521790a9f35aa5ed6ef908b078887f0efb0c1a664384b6780ed253f6e8bf"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/TurnSequenceTestDriver.cs",
+      "sha256": "7272788a99f141ebbb0146861f4f9344ca2f233aa5d41c0b1c831f7526754950"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/TurnStartReadiesObjectsTests.cs",
+      "sha256": "86db466338ca7a846d751231840313bfb4d09a0583008c36cca45b8bab183355"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/TurnUnitPlayGrantsTests.cs",
+      "sha256": "18ec3dc06f5cb5449ddbddb9e3b41e38230c701945d347c8350c2bed02bd4a42"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/UnconditionalSourceUnitActiveEntryStaticAbilityTests.cs",
+      "sha256": "d2a28e9dfc7f712aa2424c22e475d92be428c7ba10e4430dfcbf411b38cc33a7"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/UncontrolledConquestNativeTests.cs",
+      "sha256": "634144ed45224603e2d07b9cfd5a5c15347bcb93706c10daaeb0298d501e4172"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/UncontrolledConquestTests.cs",
+      "sha256": "e351a8be3528929a71498dc52288573ad30ccfca4e94221af0b7b09bac951929"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/UndercoverAgentTriggerTests.cs",
+      "sha256": "ca0df72ffd6f39e89a1c2851b6d39a35723bfaae3fd4d61425458cec29fe9011"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/UnitDestroyedThisTurnSourceUnitActiveEntryStaticAbilityTests.cs",
+      "sha256": "a08ee89b9ae99e9c1a2f07a7c8b8bc56d47c46d48d832dd3fe3b3adc09277ee2"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/VendettaAmbushTests.cs",
+      "sha256": "f94b8ebf9ca93c369967cd7072767775dce335fb47ccc87881ad30e4e1775189"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/VengeanceDestroyGuardTests.cs",
+      "sha256": "2885dff8a202ab7af19a9fe08618c8e4971e8054c5f06198d95bccabd11ca2b4"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/VexAltSpellshieldGuardTests.cs",
+      "sha256": "bef9235a9ef2092101689df834ab75283ca7cf0fc20981cb58b3d483aa8b0e40"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/VexSpellshieldGuardTests.cs",
+      "sha256": "73df963212546053e6309c3c431e12f2a4582e4d2eb29472114e454ea4af5f62"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/ViDoublePowerAbilityTests.cs",
+      "sha256": "7d7cea2f0774963228a34b7d42fe831579c329cbd4b3a6ef2c26fcbc1dc3928c"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/VoidBurrowerLegendActionDomainGuardTests.cs",
+      "sha256": "136eb2ff86182a0a7496bc5d3d9e68894d58fd65e57f867fe1d5ea8646c9c6cf"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/WardNativeContinuationTests.cs",
+      "sha256": "4acc7e119df66ac03ecab63b56fbdbe45230fb0765dd95122fd85612e06ceb25"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/WiseElderSourceObjectFilteredPowerTests.cs",
+      "sha256": "94e01d4a2d8d9467effc7932afe3a23c08c8efeb4ec6cbcb16bc42937d1fb017"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/ZenithBladeMovementTests.cs",
+      "sha256": "d1e5dac8765a4811ef5c977744eb03066c1326fc703d5167b20154149b59d636"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/ZenithBladeStunGuardTests.cs",
+      "sha256": "f6d6ff3e1e4b0f588f24454b103116106ab9c787716a82a987792e3438ef5ce9"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/ZhonyasHourglassGuardTests.cs",
+      "sha256": "400541a162d51d3f2e2350f1d24855e0757de2de78e4771a8a1909db352da2e9"
+    }
+  ]
+}

@@ -1,0 +1,68 @@
+{
+  "recordedAtUtc": "2026-10-17T07:37:07.352264+00:00",
+  "evidence": [
+    {
+      "path": "docs/evidence/battlefield-play-trigger-2026-10-17/blitzcrank.json.gz",
+      "sha256": "28f5b1f5fb78938abef589f6fccdeffe7adaab881730d1dad44bc3f56a128e85"
+    },
+    {
+      "path": "docs/evidence/battlefield-play-trigger-2026-10-17/fixed-c3bc-actual-sql-input-identity.json",
+      "sha256": "658b5264571c26ed8e9e0d2396fd0b9e84cc45b43309c7c1b698e91a0a32b090"
+    },
+    {
+      "path": "docs/evidence/battlefield-play-trigger-2026-10-17/fixed-c3bc-api-published-file-inputs.json",
+      "sha256": "569672b2d6794fe5ed290ede6b18b40f4306404a8e16ec86a2692741f47edb64"
+    },
+    {
+      "path": "docs/evidence/battlefield-play-trigger-2026-10-17/fixed-c3bc-native-artifact-receipts.json",
+      "sha256": "8a9cc67638722ed53cbb2c49eb0c4f8918dfacfa5db45909eca0e918d4b96d0e"
+    },
+    {
+      "path": "docs/evidence/battlefield-play-trigger-2026-10-17/fixed-c3bc-native-base-trigger-red.json",
+      "sha256": "7e71373593755bd63163525a2828910d30b0dfaa13bed337760cb72d6da33f67"
+    },
+    {
+      "path": "docs/evidence/battlefield-play-trigger-2026-10-17/fixed-c3bc-native-stack-cold-preservation.json",
+      "sha256": "35236e41bc5d622fdf7ae4230f152a81c64d49ef5ecea7d57bd62a5cc428f5f8"
+    },
+    {
+      "path": "docs/evidence/battlefield-play-trigger-2026-10-17/fixed-c3bc-original-native-replay-checkpoint.json",
+      "sha256": "e034b3f95c0fa2d4ab143b3d4af400898ec421d7fe886e0abf9f6895310bd1bc"
+    },
+    {
+      "path": "docs/evidence/battlefield-play-trigger-2026-10-17/fixture-premise-correction.json",
+      "sha256": "cc65b383c509f95039d6be4b40082ceb539242ec1964776178d03427e0477698"
+    },
+    {
+      "path": "docs/evidence/battlefield-play-trigger-2026-10-17/latest-only-old-native-retirement.json",
+      "sha256": "f00aacfa3706ec3bc8b519172bcdc0c944b2c47460da13b0deac1e27c45cfdbd"
+    },
+    {
+      "path": "docs/evidence/battlefield-play-trigger-2026-10-17/merfolk.json.gz",
+      "sha256": "8edb4fd55ddb2e087896a96705114437d7eb20252b6d622f2a0f66f4d72e9f12"
+    },
+    {
+      "path": "docs/evidence/battlefield-play-trigger-2026-10-17/original-fixture-premises.json",
+      "sha256": "0609d157f447164bfc431f0d96548fb0069ed524d95947ab7d12c067dd36b29a"
+    },
+    {
+      "path": "docs/evidence/battlefield-play-trigger-2026-10-17/previous-fixed-3d70-full-ci.json",
+      "sha256": "0587c3f7a4c24b5c48f526b3e56fddbe14a71dd4b70576c7f4926e433a452cb3"
+    },
+    {
+      "path": "docs/evidence/battlefield-play-trigger-2026-10-17/prior-completed-originals-checkout-retirement.json",
+      "sha256": "342df70bd575cdf059c680d6ff51eae57317193bc3df9601e726f6be521521e2"
+    },
+    {
+      "path": "docs/evidence/battlefield-play-trigger-2026-10-17/prior-optional-costs-final-originals.json",
+      "sha256": "9816b9496f1b9c4ca8f613c25c66b2d456c3c0ed31a5fb4e999bcd2843e140d7"
+    },
+    {
+      "path": "docs/evidence/battlefield-play-trigger-2026-10-17/scope-and-source-manifest.json",
+      "sha256": "5c9bab5e8734386315a7c9c07bc806a952fac3b6a576c8271b7ce8cd94cf4bde"
+    }
+  ],
+  "privateSessionProfilesOrFramesCopied": false,
+  "allHistoricalFullAndNativeEvidenceKeptWithinOwnCommitAndActualRuntimeIdentity": true,
+  "currentCandidateWholeSemanticCertification": false
+}

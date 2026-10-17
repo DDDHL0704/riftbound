@@ -1,0 +1,274 @@
+{
+  "baseCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
+  "fixtures": [
+    {
+      "path": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ogn-blitzcrank-barrier-static.fixture.json",
+      "sourceSha256": "69d730f92792c663b9de731870818171fd9af56f79c0c97da1c5e9f715d64394",
+      "seed": 2603302650,
+      "initialTick": null,
+      "originalCommands": [
+        {
+          "playerId": "P1",
+          "clientIntentId": "intent-p2-preflight-ogn-blitzcrank-barrier-play",
+          "cmd": {
+            "cmdType": "PLAY_CARD",
+            "sourceObjectId": "P1-UNIT-OGN-BLITZCRANK-BARRIER",
+            "cardNo": "OGN·067/298",
+            "targetObjectIds": []
+          }
+        },
+        {
+          "playerId": "P1",
+          "clientIntentId": "intent-p2-preflight-ogn-blitzcrank-barrier-p1-pass",
+          "cmd": {
+            "cmdType": "PASS_PRIORITY"
+          }
+        },
+        {
+          "playerId": "P2",
+          "clientIntentId": "intent-p2-preflight-ogn-blitzcrank-barrier-p2-pass",
+          "cmd": {
+            "cmdType": "PASS_PRIORITY"
+          }
+        }
+      ],
+      "originalExpected": {
+        "finalTick": 3,
+        "eventKinds": [
+          "CARD_PLAYED",
+          "COST_PAID",
+          "PERMANENT_CONFIRMED",
+          "UNIT_PLAYED_TO_BASE",
+          "TRIGGER_QUEUED",
+          "PRIORITY_PASSED",
+          "PRIORITY_PASSED",
+          "STACK_ITEM_RESOLVED"
+        ],
+        "promptActions": {
+          "P1": [
+            "END_TURN"
+          ],
+          "P2": [
+            "WAIT"
+          ]
+        },
+        "finalState": {
+          "turnNumber": 650,
+          "activePlayerId": "P1",
+          "turnPlayerId": "P1",
+          "phase": "MAIN",
+          "timingState": "NEUTRAL_OPEN",
+          "scores": {
+            "P1": 0,
+            "P2": 0
+          },
+          "runePools": {
+            "P1": {
+              "mana": 0,
+              "power": 0
+            },
+            "P2": {
+              "mana": 0,
+              "power": 0
+            }
+          },
+          "players": {
+            "P1": {
+              "mainDeck": [
+                "P1-MAIN-001"
+              ],
+              "hand": [],
+              "base": [
+                "P1-UNIT-OGN-BLITZCRANK-BARRIER"
+              ],
+              "graveyard": []
+            }
+          },
+          "stackItems": [],
+          "cardObjects": {
+            "P1-UNIT-OGN-BLITZCRANK-BARRIER": {
+              "power": 5,
+              "tags": [
+                "CARD_TYPE:UNIT",
+                "壁垒",
+                "机械"
+              ],
+              "isExhausted": true
+            }
+          }
+        },
+        "prompts": {
+          "P1": {
+            "actionable": true,
+            "actions": [
+              "END_TURN"
+            ]
+          },
+          "P2": {
+            "actionable": false,
+            "actions": [
+              "WAIT"
+            ]
+          }
+        }
+      },
+      "originalRulesEvidence": [
+        {
+          "source": "data/official/card-catalog.zh-CN.json",
+          "locator": "OGN·067/298 布里茨",
+          "note": "官方卡面：费用 5；英雄单位；战力 5；机械；壁垒；打出到战场时可移动任意一名敌方单位到此处；据守战场时返回所属手牌。当前 fixture 覆盖普通主阶段从手牌打出后成为基地单位对象并记录机械和壁垒标签；壁垒承伤、战场打出移动敌方单位和据守回手路径暂缓。"
+        },
+        {
+          "source": "《符文战场》核心规则_260330.pdf",
+          "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p39-p42 rules 355-356; p92-p105 keyword rules 800+",
+          "note": "单位是游戏对象并可记录关键词和属性标签；打出卡牌需要支付费用、加入结算链并在双方让过后结算。"
+        },
+        {
+          "source": "data/official/upstream/2026-10-04/rules-manifest.json",
+          "locator": "CN core 143.4 / 143.4.a, p17",
+          "note": "Ordinary units enter exhausted unless an explicit ready-entry effect applies. Corrects the historical ready-by-default expectation only."
+        },
+        {
+          "source": "data/official/upstream/2026-10-05/rules-manifest.json",
+          "locator": "CN 359.2 / 383.4.a.2",
+          "note": "Permanent enters during confirmation. Only its play ability waits on the chain. Migrates historical permanent-as-spell timing; gameplay payload and final-state assertions retained."
+        }
+      ],
+      "initialStateSha256": "17e6d2885de49dff51547e1c08ad09ac6ffa8d988731599c30d7551fae26149c"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-merfolk-rabble-rouser-standby-static.fixture.json",
+      "sourceSha256": "b18ef8eac9f36b5d9c8881a0314201148bd796d17a29a41ca2e1b111c1dd808a",
+      "seed": 2603302734,
+      "initialTick": null,
+      "originalCommands": [
+        {
+          "playerId": "P1",
+          "clientIntentId": "intent-p2-preflight-unl-003-merfolk-rabble-rouser-play",
+          "cmd": {
+            "cmdType": "PLAY_CARD",
+            "sourceObjectId": "P1-UNIT-MERFOLK-RABBLE-ROUSER",
+            "cardNo": "UNL-003/219",
+            "targetObjectIds": []
+          }
+        },
+        {
+          "playerId": "P1",
+          "clientIntentId": "intent-p2-preflight-unl-003-merfolk-rabble-rouser-p1-pass",
+          "cmd": {
+            "cmdType": "PASS_PRIORITY"
+          }
+        },
+        {
+          "playerId": "P2",
+          "clientIntentId": "intent-p2-preflight-unl-003-merfolk-rabble-rouser-p2-pass",
+          "cmd": {
+            "cmdType": "PASS_PRIORITY"
+          }
+        }
+      ],
+      "originalExpected": {
+        "finalTick": 3,
+        "eventKinds": [
+          "CARD_PLAYED",
+          "COST_PAID",
+          "PERMANENT_CONFIRMED",
+          "UNIT_PLAYED_TO_BASE",
+          "TRIGGER_QUEUED",
+          "PRIORITY_PASSED",
+          "PRIORITY_PASSED",
+          "STACK_ITEM_RESOLVED"
+        ],
+        "promptActions": {
+          "P1": [
+            "END_TURN"
+          ],
+          "P2": [
+            "WAIT"
+          ]
+        },
+        "finalState": {
+          "turnNumber": 734,
+          "activePlayerId": "P1",
+          "turnPlayerId": "P1",
+          "phase": "MAIN",
+          "timingState": "NEUTRAL_OPEN",
+          "scores": {
+            "P1": 0,
+            "P2": 0
+          },
+          "runePools": {
+            "P1": {
+              "mana": 0,
+              "power": 0
+            },
+            "P2": {
+              "mana": 0,
+              "power": 0
+            }
+          },
+          "players": {
+            "P1": {
+              "mainDeck": [
+                "P1-MAIN-001"
+              ],
+              "hand": [],
+              "base": [
+                "P1-UNIT-MERFOLK-RABBLE-ROUSER"
+              ],
+              "graveyard": []
+            }
+          },
+          "stackItems": [],
+          "cardObjects": {
+            "P1-UNIT-MERFOLK-RABBLE-ROUSER": {
+              "power": 2,
+              "tags": [
+                "CARD_TYPE:UNIT",
+                "待命"
+              ],
+              "isExhausted": true
+            }
+          }
+        },
+        "prompts": {
+          "P1": {
+            "actionable": true,
+            "actions": [
+              "END_TURN"
+            ]
+          },
+          "P2": {
+            "actionable": false,
+            "actions": [
+              "WAIT"
+            ]
+          }
+        }
+      },
+      "originalRulesEvidence": [
+        {
+          "source": "data/official/card-catalog.zh-CN.json",
+          "locator": "UNL-003/219 鲛人滋事者",
+          "note": "官方卡面：费用 2；单位；战力 2；待命；打出到战场时对同处一名敌方单位造成 2 点伤害。当前 fixture 覆盖普通主阶段从手牌打出后的源单位入场并记录待命标签；待命正面朝下放置、反应打出、战场入场目的地和敌方单位伤害路径暂缓。"
+        },
+        {
+          "source": "《符文战场》核心规则_260330.pdf",
+          "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p39-p42 rules 355-356; p92-p105 keyword rules 800+",
+          "note": "单位是游戏对象并可记录关键词标签；打出卡牌需要支付费用、加入结算链并在双方让过后结算。"
+        },
+        {
+          "source": "data/official/upstream/2026-10-04/rules-manifest.json",
+          "locator": "CN core 143.4 / 143.4.a, p17",
+          "note": "Ordinary units enter exhausted unless an explicit ready-entry effect applies. Corrects the historical ready-by-default expectation only."
+        },
+        {
+          "source": "data/official/upstream/2026-10-05/rules-manifest.json",
+          "locator": "CN 359.2 / 383.4.a.2",
+          "note": "Permanent enters during confirmation. Only its play ability waits on the chain. Migrates historical permanent-as-spell timing; gameplay payload and final-state assertions retained."
+        }
+      ],
+      "initialStateSha256": "4936d50a4d384c69f70a10991da767bbb0bec5066b8303e1af97e683d1f430b2"
+    }
+  ]
+}

@@ -5,7 +5,8 @@ namespace Riftbound.Engine;
 public sealed partial class CoreRuleEngine
 {
     private static bool HasPendingPermanentPlayAbility(MatchState state, StackItemState item, CardBehaviorDefinition behavior)
-        => (OfficialPrintedTimingRules.HasPlayTrigger(behavior.CardNo) && SourcePlayDrawSpec(behavior.CardNo) is null)
+        => (OfficialPrintedTimingRules.HasPlayTrigger(behavior.CardNo, IsStackItemBattlefieldDestination(item))
+                && SourcePlayDrawSpec(behavior.CardNo) is null)
             || HasStandbyCountedPlayAbility(StandbyDefinition(behavior, item.PlayedFromStandby))
             || HasStandbyAttachmentPlayAbility(StandbyDefinition(behavior, item.PlayedFromStandby))
             || (behavior.MainDeckLookCount > 0 && behavior.RecyclesSelectedMainDeckTargets)

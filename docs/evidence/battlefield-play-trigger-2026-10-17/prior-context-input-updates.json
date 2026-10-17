@@ -1,0 +1,1255 @@
+{
+  "recordedAtUtc": "2026-10-17T07:38:06.545789+00:00",
+  "baseCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
+  "contextsReopenedForCurrentCompiledInputIdentity": 34,
+  "changedExactImplementationPins": 3,
+  "all119HistoricalReviewDecisionsAndAllPreviousCiReceiptsRetained": true,
+  "updates": [
+    {
+      "review": "observed-pending-capture-order-and-earliest-permission-2026-10-14",
+      "before": {
+        "ciState": "PENDING",
+        "currentImplementationCommit": "42c89230105573e39ffaf524a7dc21f24d520d4b",
+        "currentImplementationIncludesUncommittedChanges": true,
+        "implementation": [
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.DeckObservation.cs",
+            "sha256": "1919ebfb2e971f32948794c27c2f5e25ed2b1d7ba907f3c616442432a1450fcd"
+          },
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.Insight.cs",
+            "sha256": "978bda84699fd6f7cea811c05aa954e7cda782c6a1a7267c2426847bd684b118"
+          },
+          {
+            "path": "src/Riftbound.Engine/MatchRecovery.cs",
+            "sha256": "48dda169917a0c6eb76e05e2e5a8f281f72219090bac2c9ce657826f6fd696b1"
+          }
+        ]
+      },
+      "changedImplementationPins": [],
+      "newCurrentImplementationBaseCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
+      "newCiState": "PENDING",
+      "historicalEvidenceCommitAndCiReceiptsUnchanged": true
+    },
+    {
+      "review": "candlelit-conquest-private-look-recycle-order-2026-10-14",
+      "before": {
+        "ciState": "PENDING",
+        "currentImplementationCommit": "42c89230105573e39ffaf524a7dc21f24d520d4b",
+        "currentImplementationIncludesUncommittedChanges": true,
+        "implementation": [
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.Conquest.cs",
+            "sha256": "87c139a46b4bfa61701b8bbd714635e38707091ff49b068f643fb2f15c01e0d3"
+          },
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.InsightTriggers.cs",
+            "sha256": "1b408ad28cf53ea84bc5e893c12de30b6d60b17c5354a8463098cb70465fba11"
+          },
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.Insight.cs",
+            "sha256": "978bda84699fd6f7cea811c05aa954e7cda782c6a1a7267c2426847bd684b118"
+          },
+          {
+            "path": "src/Riftbound.CardCatalog/RuleTextParsers.cs",
+            "sha256": "bda2365b3a71d35adbc59ef59abb99212fe1d7f3e270d25cb10f781a039e582e"
+          },
+          {
+            "path": "src/Riftbound.Engine/MatchRecovery.cs",
+            "sha256": "48dda169917a0c6eb76e05e2e5a8f281f72219090bac2c9ce657826f6fd696b1"
+          }
+        ]
+      },
+      "changedImplementationPins": [],
+      "newCurrentImplementationBaseCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
+      "newCiState": "PENDING",
+      "historicalEvidenceCommitAndCiReceiptsUnchanged": true
+    },
+    {
+      "review": "masked-attendant-reflexive-self-copy-2026-10-14",
+      "before": {
+        "ciState": "PENDING",
+        "currentImplementationCommit": "3d70b1e8d3c8396e7fe7b6d2548e2bae09ae7e84",
+        "currentImplementationIncludesUncommittedChanges": true,
+        "implementation": [
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.SelfCopyTokens.cs",
+            "sha256": "e16b7e4b46031d4f4d8da960cc895df22e893af1d27fe41c7cd4213790171363"
+          },
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.ReflexiveCopy.cs",
+            "sha256": "be1312975680ff72280b107ec02b22fa9bf529454fe2686bdba0d3bc0c1d8a57"
+          },
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.ObjectContinuity.cs",
+            "sha256": "db0e7bcc2652e9f88a581da82f51c96b5c5c11797bb6a6552f02789ebbfd5aeb"
+          },
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.PermanentConfirmation.cs",
+            "sha256": "d9ae35eee39d3c424c252eaa2462af07216b1186aa750a3b4b648bb401a75e16"
+          },
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.TokenReplacement.cs",
+            "sha256": "5b36fbdd45d0624bcbde5020d519effd5816db67b3555acd5f572c806b14f9ce"
+          },
+          {
+            "path": "src/Riftbound.Engine/MatchRecovery.cs",
+            "sha256": "48dda169917a0c6eb76e05e2e5a8f281f72219090bac2c9ce657826f6fd696b1"
+          },
+          {
+            "path": "src/Riftbound.Engine/MatchSession.cs",
+            "sha256": "f19995b83f6e94b674781fad1c2c25f19372f204f55e81e9418da828de9310c9"
+          },
+          {
+            "path": "src/Riftbound.CardCatalog/ReviewedCardErrata.cs",
+            "sha256": "e1ccc54102d3b62e09a2d563a36b13d2e8f66a984102fe0b1ab567fa6642ebbd"
+          },
+          {
+            "path": "clients/godot/scripts/OfficialCardCatalogService.cs",
+            "sha256": "d7cb7de6ceac43799361ee254d1a7f46ef0234dd45aa0810ab667fc35b27907f"
+          }
+        ]
+      },
+      "changedImplementationPins": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.PermanentConfirmation.cs",
+          "before": "d9ae35eee39d3c424c252eaa2462af07216b1186aa750a3b4b648bb401a75e16",
+          "after": "89975fbcb3244799badd55e257f1d709133473e10748334bec53d4139798ffb1"
+        }
+      ],
+      "newCurrentImplementationBaseCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
+      "newCiState": "PENDING",
+      "historicalEvidenceCommitAndCiReceiptsUnchanged": true
+    },
+    {
+      "review": "static-granted-predict-entry-2026-10-15",
+      "before": {
+        "ciState": "PENDING",
+        "currentImplementationCommit": "3d70b1e8d3c8396e7fe7b6d2548e2bae09ae7e84",
+        "currentImplementationIncludesUncommittedChanges": true,
+        "implementation": [
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.GrantedPredict.cs",
+            "sha256": "7bed6aff03d7376cf6998d0d71558bc7c49394f9341b99fadcdb8cab21d630ad"
+          },
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.InsightTriggers.cs",
+            "sha256": "1b408ad28cf53ea84bc5e893c12de30b6d60b17c5354a8463098cb70465fba11"
+          },
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEntryTriggers.cs",
+            "sha256": "2ba5ef50ed6c569af3ba1239b935d39bb96eff4cf289e5674ac4bf4e19bdf544"
+          },
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.DeckObservation.cs",
+            "sha256": "1919ebfb2e971f32948794c27c2f5e25ed2b1d7ba907f3c616442432a1450fcd"
+          },
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.Insight.cs",
+            "sha256": "978bda84699fd6f7cea811c05aa954e7cda782c6a1a7267c2426847bd684b118"
+          },
+          {
+            "path": "src/Riftbound.Engine/MatchRecovery.cs",
+            "sha256": "48dda169917a0c6eb76e05e2e5a8f281f72219090bac2c9ce657826f6fd696b1"
+          },
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+            "sha256": "ed79875b5dc4dc61d56ed82d4d299e4b464a0c8a227b46b3834579f21abc18b5"
+          },
+          {
+            "path": "src/Riftbound.Engine/MatchSession.cs",
+            "sha256": "f19995b83f6e94b674781fad1c2c25f19372f204f55e81e9418da828de9310c9"
+          },
+          {
+            "path": "src/Riftbound.Engine/OfficialPrintedTimingRules.cs",
+            "sha256": "2ca0a7b64bfb83a7ee0adbf17afd790023468d097b7f5ded0649e8f3e801b6eb"
+          }
+        ]
+      },
+      "changedImplementationPins": [
+        {
+          "path": "src/Riftbound.Engine/OfficialPrintedTimingRules.cs",
+          "before": "2ca0a7b64bfb83a7ee0adbf17afd790023468d097b7f5ded0649e8f3e801b6eb",
+          "after": "fd501a2c5745d9782e02f7c9d11f66f0b2c8d40482df175850b55d9d3427e1f1"
+        }
+      ],
+      "newCurrentImplementationBaseCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
+      "newCiState": "PENDING",
+      "historicalEvidenceCommitAndCiReceiptsUnchanged": true
+    },
+    {
+      "review": "printed-predict-permanent-entry-2026-10-15",
+      "before": {
+        "ciState": "PENDING",
+        "currentImplementationCommit": "42c89230105573e39ffaf524a7dc21f24d520d4b",
+        "currentImplementationIncludesUncommittedChanges": true,
+        "implementation": [
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.PrintedPredict.cs",
+            "sha256": "04e2c8929a641a31f3e763732f3e397c529cf8c27869030e456845e9ad9c43ba"
+          },
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.InsightTriggers.cs",
+            "sha256": "1b408ad28cf53ea84bc5e893c12de30b6d60b17c5354a8463098cb70465fba11"
+          },
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEntryTriggers.cs",
+            "sha256": "2ba5ef50ed6c569af3ba1239b935d39bb96eff4cf289e5674ac4bf4e19bdf544"
+          },
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.Insight.cs",
+            "sha256": "978bda84699fd6f7cea811c05aa954e7cda782c6a1a7267c2426847bd684b118"
+          },
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.DeckObservation.cs",
+            "sha256": "1919ebfb2e971f32948794c27c2f5e25ed2b1d7ba907f3c616442432a1450fcd"
+          },
+          {
+            "path": "src/Riftbound.Engine/MatchRecovery.cs",
+            "sha256": "48dda169917a0c6eb76e05e2e5a8f281f72219090bac2c9ce657826f6fd696b1"
+          },
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+            "sha256": "ed79875b5dc4dc61d56ed82d4d299e4b464a0c8a227b46b3834579f21abc18b5"
+          },
+          {
+            "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+            "sha256": "ecfe05b082061def9120c3dac1c065427cd3e7a3f07eb8c2647370f49244473b"
+          },
+          {
+            "path": "src/Riftbound.Engine/CardLifecycleKeywordRules.cs",
+            "sha256": "609ba91ab6f7284fd6bab4ebed658c2fe4f0386a45e3b98d39729141dc8def52"
+          }
+        ]
+      },
+      "changedImplementationPins": [],
+      "newCurrentImplementationBaseCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
+      "newCiState": "PENDING",
+      "historicalEvidenceCommitAndCiReceiptsUnchanged": true
+    },
+    {
+      "review": "sivir-optional-rune-recycle-2026-10-15",
+      "before": {
+        "ciState": "PENDING",
+        "currentImplementationCommit": "3d70b1e8d3c8396e7fe7b6d2548e2bae09ae7e84",
+        "currentImplementationIncludesUncommittedChanges": true,
+        "implementation": [
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.SivirRuneRecycle.cs",
+            "sha256": "3c37eb356d57f0b040972eda9f158ea45e8592cd3286fc18c4dfbe747c038cc1"
+          },
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.TriggerCosts.cs",
+            "sha256": "7248aaebc0c824634407054b696275acb6302cb4ea8aedd04173bfcdc8b029e8"
+          },
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+            "sha256": "ed79875b5dc4dc61d56ed82d4d299e4b464a0c8a227b46b3834579f21abc18b5"
+          },
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.Insight.cs",
+            "sha256": "978bda84699fd6f7cea811c05aa954e7cda782c6a1a7267c2426847bd684b118"
+          },
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.DeckChoices.cs",
+            "sha256": "a5008bf2acb0efe32f7da592a178fe233f40768c5dfcb7757eb20c2e968f2727"
+          },
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.DeckPlaySequence.cs",
+            "sha256": "0ba9729fcc7e25c01c99b333fceb03c070fbc00c118fc732805d049c527a8569"
+          },
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.BeginningRecycle.cs",
+            "sha256": "a2eea041471ea417250b512861117d5c4b6ec8daddf02bdc4c7c820085750f7e"
+          },
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.RevealedHandChoices.cs",
+            "sha256": "562d0549967e338af02bc8f6b21178a27e48fac011368018fd1f33d946b0785e"
+          },
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.Tempered.cs",
+            "sha256": "e9863f1bc57fc3ea8ef3da2aa125b62f0abe98f95492ab9f640b48af402a4677"
+          },
+          {
+            "path": "src/Riftbound.Engine/MatchSession.cs",
+            "sha256": "f19995b83f6e94b674781fad1c2c25f19372f204f55e81e9418da828de9310c9"
+          },
+          {
+            "path": "src/Riftbound.Engine/MatchRecovery.cs",
+            "sha256": "48dda169917a0c6eb76e05e2e5a8f281f72219090bac2c9ce657826f6fd696b1"
+          },
+          {
+            "path": "src/Riftbound.Engine/StackObjectRules.cs",
+            "sha256": "d844eb96df256111fdc1de42c00b8706a922d7e445bc286b5a6a5cc960e5c446"
+          }
+        ]
+      },
+      "changedImplementationPins": [],
+      "newCurrentImplementationBaseCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
+      "newCiState": "PENDING",
+      "historicalEvidenceCommitAndCiReceiptsUnchanged": true
+    },
+    {
+      "review": "battlefield-conquer-rune-destination-2026-10-15",
+      "before": {
+        "ciState": "PENDING",
+        "currentImplementationCommit": "42c89230105573e39ffaf524a7dc21f24d520d4b",
+        "currentImplementationIncludesUncommittedChanges": true,
+        "implementation": [
+          {
+            "path": "src/Riftbound.Contracts/BehaviorSpecs.cs",
+            "sha256": "e8c37b72c8805bdc095c9ea982d9b5d57d4d18a22c174f4513f20f5064a61075"
+          },
+          {
+            "path": "src/Riftbound.CardCatalog/RuleTextParsers.cs",
+            "sha256": "bda2365b3a71d35adbc59ef59abb99212fe1d7f3e270d25cb10f781a039e582e"
+          },
+          {
+            "path": "src/Riftbound.Engine/BattlefieldTriggerSpecRules.cs",
+            "sha256": "65a560516237097c0029e3c6ae61a992aa754eeea354513aa4c67e35a684231f"
+          },
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+            "sha256": "ed79875b5dc4dc61d56ed82d4d299e4b464a0c8a227b46b3834579f21abc18b5"
+          },
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.Conquest.cs",
+            "sha256": "87c139a46b4bfa61701b8bbd714635e38707091ff49b068f643fb2f15c01e0d3"
+          },
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.SivirRuneRecycle.cs",
+            "sha256": "3c37eb356d57f0b040972eda9f158ea45e8592cd3286fc18c4dfbe747c038cc1"
+          }
+        ]
+      },
+      "changedImplementationPins": [],
+      "newCurrentImplementationBaseCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
+      "newCiState": "PENDING",
+      "historicalEvidenceCommitAndCiReceiptsUnchanged": true
+    },
+    {
+      "review": "sivir-payment-trigger-and-ward-event-2026-10-15",
+      "before": {
+        "ciState": "PENDING",
+        "currentImplementationCommit": "42c89230105573e39ffaf524a7dc21f24d520d4b",
+        "currentImplementationIncludesUncommittedChanges": true,
+        "implementation": [
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.FieldTriggers.cs",
+            "sha256": "c0e7c9ecf370c734ef783e67e74bdf2c79e94a018508157bc8f1b3d47e57b050"
+          },
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.TriggerTargetPayment.cs",
+            "sha256": "18a574c00c101ff0864aea1e6b2cb7542a8f99913368e455f6a12bdb72e55fe7"
+          },
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.TriggerHandoff.cs",
+            "sha256": "91ff7c748a2fea15064f2ddc49de125acb291ec76827361d7a91d77063f76eb7"
+          },
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.SivirRuneRecycle.cs",
+            "sha256": "3c37eb356d57f0b040972eda9f158ea45e8592cd3286fc18c4dfbe747c038cc1"
+          },
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.TriggerCosts.cs",
+            "sha256": "7248aaebc0c824634407054b696275acb6302cb4ea8aedd04173bfcdc8b029e8"
+          },
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+            "sha256": "ed79875b5dc4dc61d56ed82d4d299e4b464a0c8a227b46b3834579f21abc18b5"
+          },
+          {
+            "path": "src/Riftbound.Engine/MatchRecovery.cs",
+            "sha256": "48dda169917a0c6eb76e05e2e5a8f281f72219090bac2c9ce657826f6fd696b1"
+          }
+        ]
+      },
+      "changedImplementationPins": [],
+      "newCurrentImplementationBaseCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
+      "newCiState": "PENDING",
+      "historicalEvidenceCommitAndCiReceiptsUnchanged": true
+    },
+    {
+      "review": "unit-conquest-gold-response-2026-10-15",
+      "before": {
+        "ciState": "PENDING",
+        "currentImplementationCommit": "3d70b1e8d3c8396e7fe7b6d2548e2bae09ae7e84",
+        "currentImplementationIncludesUncommittedChanges": true,
+        "implementation": [
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.ConquestTokens.cs",
+            "sha256": "5f6ca0aa22e295de01e1bbf109cab0efe50f31b92782e02801d17ff66090ee87"
+          },
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.Conquest.cs",
+            "sha256": "87c139a46b4bfa61701b8bbd714635e38707091ff49b068f643fb2f15c01e0d3"
+          },
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+            "sha256": "ed79875b5dc4dc61d56ed82d4d299e4b464a0c8a227b46b3834579f21abc18b5"
+          },
+          {
+            "path": "src/Riftbound.Engine/MatchSession.cs",
+            "sha256": "f19995b83f6e94b674781fad1c2c25f19372f204f55e81e9418da828de9310c9"
+          },
+          {
+            "path": "src/Riftbound.Engine/MatchRecovery.cs",
+            "sha256": "48dda169917a0c6eb76e05e2e5a8f281f72219090bac2c9ce657826f6fd696b1"
+          },
+          {
+            "path": "src/Riftbound.Engine/StackObjectRules.cs",
+            "sha256": "d844eb96df256111fdc1de42c00b8706a922d7e445bc286b5a6a5cc960e5c446"
+          }
+        ]
+      },
+      "changedImplementationPins": [],
+      "newCurrentImplementationBaseCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
+      "newCiState": "PENDING",
+      "historicalEvidenceCommitAndCiReceiptsUnchanged": true
+    },
+    {
+      "review": "own-main-deck-recycle-card-boon-2026-10-15",
+      "before": {
+        "ciState": "PENDING",
+        "currentImplementationCommit": "42c89230105573e39ffaf524a7dc21f24d520d4b",
+        "currentImplementationIncludesUncommittedChanges": true,
+        "implementation": [
+          {
+            "path": "src/Riftbound.CardCatalog/ReviewedCardErrata.cs",
+            "sha256": "e1ccc54102d3b62e09a2d563a36b13d2e8f66a984102fe0b1ab567fa6642ebbd"
+          },
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.CombatMight.cs",
+            "sha256": "2181eb9089493540eea254eded44301a1c1a0e417d65688309f6703142b7a50f"
+          },
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.DeckPlaySequence.cs",
+            "sha256": "0ba9729fcc7e25c01c99b333fceb03c070fbc00c118fc732805d049c527a8569"
+          },
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.FieldTriggers.cs",
+            "sha256": "c0e7c9ecf370c734ef783e67e74bdf2c79e94a018508157bc8f1b3d47e57b050"
+          },
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.Insight.cs",
+            "sha256": "978bda84699fd6f7cea811c05aa954e7cda782c6a1a7267c2426847bd684b118"
+          },
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.Recast.cs",
+            "sha256": "7adb41ea6a6aedd3e4a668c6013f92d3a527475bd5957d135526d1cf4d3df4b7"
+          },
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.RecycledCardBoons.cs",
+            "sha256": "69e8c0380f74de4031ed8f6b90345f0defe5ab0f2a2e563f90d4f3c357a8472e"
+          },
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.RecyclingChoice.cs",
+            "sha256": "3d93512476fbb60d8ecf4a013bf820380ce7fb3a23790b41fd328af4aa621cd5"
+          },
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.SivirRuneRecycle.cs",
+            "sha256": "3c37eb356d57f0b040972eda9f158ea45e8592cd3286fc18c4dfbe747c038cc1"
+          },
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+            "sha256": "ed79875b5dc4dc61d56ed82d4d299e4b464a0c8a227b46b3834579f21abc18b5"
+          },
+          {
+            "path": "src/Riftbound.Engine/MatchRecovery.cs",
+            "sha256": "48dda169917a0c6eb76e05e2e5a8f281f72219090bac2c9ce657826f6fd696b1"
+          }
+        ]
+      },
+      "changedImplementationPins": [],
+      "newCurrentImplementationBaseCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
+      "newCiState": "PENDING",
+      "historicalEvidenceCommitAndCiReceiptsUnchanged": true
+    },
+    {
+      "review": "copied-recycle-boon-ceased-source-2026-10-15",
+      "before": {
+        "ciState": "PENDING",
+        "currentImplementationCommit": "8ca4080c9431b981db051a5adad18dace5d85dd5",
+        "currentImplementationIncludesUncommittedChanges": true,
+        "implementation": [
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.RecycledCardBoons.cs",
+            "sha256": "69e8c0380f74de4031ed8f6b90345f0defe5ab0f2a2e563f90d4f3c357a8472e"
+          },
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.FieldTriggers.cs",
+            "sha256": "c0e7c9ecf370c734ef783e67e74bdf2c79e94a018508157bc8f1b3d47e57b050"
+          },
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.Tokens.cs",
+            "sha256": "ff62da8c082b0ef4ef7e5a97665df0a67a06845dac15b9f4d2317ee290c2827d"
+          }
+        ]
+      },
+      "changedImplementationPins": [],
+      "newCurrentImplementationBaseCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
+      "newCiState": "PENDING",
+      "historicalEvidenceCommitAndCiReceiptsUnchanged": true
+    },
+    {
+      "review": "ceased-recycle-source-exact-printing-2026-10-15",
+      "before": {
+        "ciState": "VERIFIED",
+        "currentImplementationCommit": "eb5d9b75b360088c95c367ce9e7c1ff44416f928",
+        "currentImplementationIncludesUncommittedChanges": true,
+        "implementation": [
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.RecycledCardBoons.cs",
+            "sha256": "69e8c0380f74de4031ed8f6b90345f0defe5ab0f2a2e563f90d4f3c357a8472e"
+          },
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.Tokens.cs",
+            "sha256": "ff62da8c082b0ef4ef7e5a97665df0a67a06845dac15b9f4d2317ee290c2827d"
+          }
+        ]
+      },
+      "changedImplementationPins": [],
+      "newCurrentImplementationBaseCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
+      "newCiState": "PENDING",
+      "historicalEvidenceCommitAndCiReceiptsUnchanged": true
+    },
+    {
+      "review": "attached-recycle-order-confirmation-and-ceased-host-2026-10-15",
+      "before": {
+        "ciState": "PENDING",
+        "currentImplementationCommit": "42c89230105573e39ffaf524a7dc21f24d520d4b",
+        "currentImplementationIncludesUncommittedChanges": true,
+        "implementation": [
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.RecycledCardBoons.cs",
+            "sha256": "69e8c0380f74de4031ed8f6b90345f0defe5ab0f2a2e563f90d4f3c357a8472e"
+          },
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.FieldTriggers.cs",
+            "sha256": "c0e7c9ecf370c734ef783e67e74bdf2c79e94a018508157bc8f1b3d47e57b050"
+          },
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.TriggerHandoff.cs",
+            "sha256": "91ff7c748a2fea15064f2ddc49de125acb291ec76827361d7a91d77063f76eb7"
+          },
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.Tokens.cs",
+            "sha256": "ff62da8c082b0ef4ef7e5a97665df0a67a06845dac15b9f4d2317ee290c2827d"
+          },
+          {
+            "path": "src/Riftbound.Engine/AttachedRuleText.cs",
+            "sha256": "139afb763aed7b3abcba6417da197fdb2c3c12a4eb25c02710daa9b4c44418c2"
+          },
+          {
+            "path": "clients/godot/scripts/debug/RecycleBoonLifecycleInteractionProof.cs",
+            "sha256": "9da21c0918a8859878e1bce76d47ea891af268f7c7e0841e253a3800e4101e40"
+          }
+        ]
+      },
+      "changedImplementationPins": [],
+      "newCurrentImplementationBaseCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
+      "newCiState": "PENDING",
+      "historicalEvidenceCommitAndCiReceiptsUnchanged": true
+    },
+    {
+      "review": "swain-source-identity-and-conquest-clause-classification-2026-10-15",
+      "before": {
+        "ciState": "VERIFIED",
+        "currentImplementationCommit": "342187cb732ea37a616d3fb125be6e9e5096ead1",
+        "currentImplementationIncludesUncommittedChanges": true,
+        "implementation": [
+          {
+            "path": "src/Riftbound.CardCatalog/RuleTextParsers.cs",
+            "sha256": "bda2365b3a71d35adbc59ef59abb99212fe1d7f3e270d25cb10f781a039e582e"
+          },
+          {
+            "path": "src/Riftbound.Contracts/BehaviorSpecs.cs",
+            "sha256": "e8c37b72c8805bdc095c9ea982d9b5d57d4d18a22c174f4513f20f5064a61075"
+          }
+        ]
+      },
+      "changedImplementationPins": [],
+      "newCurrentImplementationBaseCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
+      "newCiState": "PENDING",
+      "historicalEvidenceCommitAndCiReceiptsUnchanged": true
+    },
+    {
+      "review": "official-multitype-factory-deck-and-native-metadata-2026-10-15",
+      "before": {
+        "ciState": "PENDING",
+        "currentImplementationCommit": "4ef4db144b1825f8b05f1b0b1605a8b99c49ac84",
+        "currentImplementationIncludesUncommittedChanges": true,
+        "implementation": [
+          {
+            "path": "src/Riftbound.Engine/PrintedCardFactory.cs",
+            "sha256": "8b069d25dacb16ce512411fdd9ee25e98907247591bcb818756b5838922ba98e"
+          },
+          {
+            "path": "src/Riftbound.Engine/OfficialDeckRules.cs",
+            "sha256": "80ce7cd7b37241e95298538c75c1aa0372157b16dc9740de2991e3b7cb6a0714"
+          },
+          {
+            "path": "src/Riftbound.Engine/PreconstructedDeckCatalog.cs",
+            "sha256": "cb7ef66cfac26e6f6dfed92fe4206fdb3571c2916ec1d697310efa0f209a913a"
+          },
+          {
+            "path": "clients/godot/scripts/OfficialCardCatalogService.cs",
+            "sha256": "d7cb7de6ceac43799361ee254d1a7f46ef0234dd45aa0810ab667fc35b27907f"
+          }
+        ]
+      },
+      "changedImplementationPins": [],
+      "newCurrentImplementationBaseCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
+      "newCiState": "PENDING",
+      "historicalEvidenceCommitAndCiReceiptsUnchanged": true
+    },
+    {
+      "review": "typed-current-turn-card-play-confirmation-and-resolution-history-2026-10-15",
+      "before": {
+        "ciState": "PENDING",
+        "currentImplementationCommit": "3d70b1e8d3c8396e7fe7b6d2548e2bae09ae7e84",
+        "currentImplementationIncludesUncommittedChanges": true,
+        "implementation": [
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.CardPlayHistory.cs",
+            "sha256": "c26035b7a0e7a928dbd88bcf9ff0ce513908cbb8bd5e7054fa44ed35775aa410"
+          },
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+            "sha256": "ed79875b5dc4dc61d56ed82d4d299e4b464a0c8a227b46b3834579f21abc18b5"
+          },
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.SpellCompletion.cs",
+            "sha256": "664635165fe8d51c54e5fd87732c59fc975332665fa838dc22c95fe929166ac4"
+          },
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEntryTriggers.cs",
+            "sha256": "2ba5ef50ed6c569af3ba1239b935d39bb96eff4cf289e5674ac4bf4e19bdf544"
+          },
+          {
+            "path": "src/Riftbound.Engine/MatchSession.cs",
+            "sha256": "f19995b83f6e94b674781fad1c2c25f19372f204f55e81e9418da828de9310c9"
+          },
+          {
+            "path": "src/Riftbound.Engine/MatchRecovery.cs",
+            "sha256": "48dda169917a0c6eb76e05e2e5a8f281f72219090bac2c9ce657826f6fd696b1"
+          }
+        ]
+      },
+      "changedImplementationPins": [],
+      "newCurrentImplementationBaseCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
+      "newCiState": "PENDING",
+      "historicalEvidenceCommitAndCiReceiptsUnchanged": true
+    },
+    {
+      "review": "porobot-source-play-other-equipment-conditional-draw-2026-10-15",
+      "before": {
+        "ciState": "PENDING",
+        "currentImplementationCommit": "3d70b1e8d3c8396e7fe7b6d2548e2bae09ae7e84",
+        "currentImplementationIncludesUncommittedChanges": true,
+        "implementation": [
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.SourcePlayDraw.cs",
+            "sha256": "75e9ded811383b8e5506d2cc975dbcaee150475b2e61c3af9abd495c6af8855c"
+          },
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEntryTriggers.cs",
+            "sha256": "2ba5ef50ed6c569af3ba1239b935d39bb96eff4cf289e5674ac4bf4e19bdf544"
+          },
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+            "sha256": "ed79875b5dc4dc61d56ed82d4d299e4b464a0c8a227b46b3834579f21abc18b5"
+          },
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.PermanentConfirmation.cs",
+            "sha256": "d9ae35eee39d3c424c252eaa2462af07216b1186aa750a3b4b648bb401a75e16"
+          },
+          {
+            "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+            "sha256": "ecfe05b082061def9120c3dac1c065427cd3e7a3f07eb8c2647370f49244473b"
+          },
+          {
+            "path": "src/Riftbound.Engine/MatchSession.cs",
+            "sha256": "f19995b83f6e94b674781fad1c2c25f19372f204f55e81e9418da828de9310c9"
+          },
+          {
+            "path": "src/Riftbound.Engine/MatchRecovery.cs",
+            "sha256": "48dda169917a0c6eb76e05e2e5a8f281f72219090bac2c9ce657826f6fd696b1"
+          },
+          {
+            "path": "src/Riftbound.CardCatalog/RuleTextParsers.cs",
+            "sha256": "bda2365b3a71d35adbc59ef59abb99212fe1d7f3e270d25cb10f781a039e582e"
+          },
+          {
+            "path": "src/Riftbound.CardCatalog/OfficialCardSchemaValidator.cs",
+            "sha256": "1d4414af2d1d35fa770ae6db8b7b1042006caa3bd87773b889550d5572ee0cfb"
+          },
+          {
+            "path": "src/Riftbound.Contracts/BehaviorSpecs.cs",
+            "sha256": "e8c37b72c8805bdc095c9ea982d9b5d57d4d18a22c174f4513f20f5064a61075"
+          }
+        ]
+      },
+      "changedImplementationPins": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.PermanentConfirmation.cs",
+          "before": "d9ae35eee39d3c424c252eaa2462af07216b1186aa750a3b4b648bb401a75e16",
+          "after": "89975fbcb3244799badd55e257f1d709133473e10748334bec53d4139798ffb1"
+        }
+      ],
+      "newCurrentImplementationBaseCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
+      "newCiState": "PENDING",
+      "historicalEvidenceCommitAndCiReceiptsUnchanged": true
+    },
+    {
+      "review": "typed-card-play-history-causal-production-recovery-2026-10-15",
+      "before": {
+        "ciState": "PENDING",
+        "currentImplementationCommit": "3d70b1e8d3c8396e7fe7b6d2548e2bae09ae7e84",
+        "currentImplementationIncludesUncommittedChanges": true,
+        "implementation": [
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.CardPlayHistory.cs",
+            "sha256": "c26035b7a0e7a928dbd88bcf9ff0ce513908cbb8bd5e7054fa44ed35775aa410"
+          },
+          {
+            "path": "src/Riftbound.Engine/MatchRecovery.cs",
+            "sha256": "48dda169917a0c6eb76e05e2e5a8f281f72219090bac2c9ce657826f6fd696b1"
+          },
+          {
+            "path": "src/Riftbound.Engine/MatchSession.cs",
+            "sha256": "f19995b83f6e94b674781fad1c2c25f19372f204f55e81e9418da828de9310c9"
+          },
+          {
+            "path": "src/Riftbound.Persistence/PostgresMatchRecoveryStore.cs",
+            "sha256": "e54bb4f85d83d2d3fedc9fce0ff280ec00483d98216da63a88ffe02853cb3358"
+          }
+        ]
+      },
+      "changedImplementationPins": [],
+      "newCurrentImplementationBaseCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
+      "newCiState": "PENDING",
+      "historicalEvidenceCommitAndCiReceiptsUnchanged": true
+    },
+    {
+      "review": "counted-insight-post-choice-draw-clairvoyance-2026-10-15",
+      "before": {
+        "ciState": "PENDING",
+        "currentImplementationCommit": "8ca4080c9431b981db051a5adad18dace5d85dd5",
+        "currentImplementationIncludesUncommittedChanges": true,
+        "implementation": [
+          {
+            "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+            "sha256": "ecfe05b082061def9120c3dac1c065427cd3e7a3f07eb8c2647370f49244473b"
+          },
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.Insight.cs",
+            "sha256": "978bda84699fd6f7cea811c05aa954e7cda782c6a1a7267c2426847bd684b118"
+          },
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.DeckObservation.cs",
+            "sha256": "1919ebfb2e971f32948794c27c2f5e25ed2b1d7ba907f3c616442432a1450fcd"
+          },
+          {
+            "path": "data/official/card-catalog.zh-CN.json",
+            "sha256": "68930e34e45385c4bc78c4805aaba46e4b5b57057a25ba957a85b339fe376fc8"
+          }
+        ]
+      },
+      "changedImplementationPins": [],
+      "newCurrentImplementationBaseCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
+      "newCiState": "PENDING",
+      "historicalEvidenceCommitAndCiReceiptsUnchanged": true
+    },
+    {
+      "review": "untargeted-counted-insight-echo-resumption-2026-10-15",
+      "before": {
+        "ciState": "PENDING",
+        "currentImplementationCommit": "057589c20fd7620902af66dff61bffbf63d28d17",
+        "currentImplementationIncludesUncommittedChanges": true,
+        "implementation": [
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.Insight.cs",
+            "sha256": "978bda84699fd6f7cea811c05aa954e7cda782c6a1a7267c2426847bd684b118"
+          },
+          {
+            "path": "src/Riftbound.Engine/EchoCostRules.cs",
+            "sha256": "2fe4e9ebd3289348cb5636251e68bb54f7caa1621af9f567fe0790a1661f1b98"
+          },
+          {
+            "path": "clients/godot/scripts/debug/RecycleBoonLifecycleInteractionProof.cs",
+            "sha256": "9da21c0918a8859878e1bce76d47ea891af268f7c7e0841e253a3800e4101e40"
+          }
+        ]
+      },
+      "changedImplementationPins": [],
+      "newCurrentImplementationBaseCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
+      "newCiState": "PENDING",
+      "historicalEvidenceCommitAndCiReceiptsUnchanged": true
+    },
+    {
+      "review": "targeted-insight-repeat-declarations-and-native-wire-2026-10-15",
+      "before": {
+        "ciState": "PENDING",
+        "currentImplementationCommit": "9e426a31386aefa980bf2d48f02b237098cb2914",
+        "currentImplementationIncludesUncommittedChanges": true,
+        "implementation": [
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.Insight.cs",
+            "sha256": "978bda84699fd6f7cea811c05aa954e7cda782c6a1a7267c2426847bd684b118"
+          },
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.Repeats.cs",
+            "sha256": "7780cd556bfcc8bd960e892b1de212e33f0009da369e0f3aefa79bfe0d9f3916"
+          },
+          {
+            "path": "src/Riftbound.Engine/EchoCostRules.cs",
+            "sha256": "2fe4e9ebd3289348cb5636251e68bb54f7caa1621af9f567fe0790a1661f1b98"
+          },
+          {
+            "path": "clients/godot/scripts/Main.cs",
+            "sha256": "cb4504128a51efd75064c4108e55bce2125a47d3d6d69c9ef95d4831afa8ea19"
+          },
+          {
+            "path": "clients/godot/scripts/ClientCommandSerializer.cs",
+            "sha256": "df49fe4af37433dba11eb4fdd50c1557d48b401be877e4e566ebbbec784888f4"
+          },
+          {
+            "path": "clients/godot/scripts/debug/RecycleBoonLifecycleInteractionProof.cs",
+            "sha256": "9da21c0918a8859878e1bce76d47ea891af268f7c7e0841e253a3800e4101e40"
+          }
+        ]
+      },
+      "changedImplementationPins": [],
+      "newCurrentImplementationBaseCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
+      "newCiState": "PENDING",
+      "historicalEvidenceCommitAndCiReceiptsUnchanged": true
+    },
+    {
+      "review": "combat-event-journal-wire-and-single-defender-choice-2026-10-15",
+      "before": {
+        "ciState": "PENDING",
+        "currentImplementationCommit": "42c89230105573e39ffaf524a7dc21f24d520d4b",
+        "currentImplementationIncludesUncommittedChanges": true,
+        "implementation": [
+          {
+            "path": "src/Riftbound.Engine/MatchRecovery.cs",
+            "sha256": "48dda169917a0c6eb76e05e2e5a8f281f72219090bac2c9ce657826f6fd696b1"
+          },
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+            "sha256": "ed79875b5dc4dc61d56ed82d4d299e4b464a0c8a227b46b3834579f21abc18b5"
+          },
+          {
+            "path": "clients/godot/scripts/ClientCommandSerializer.cs",
+            "sha256": "df49fe4af37433dba11eb4fdd50c1557d48b401be877e4e566ebbbec784888f4"
+          },
+          {
+            "path": "clients/godot/scripts/debug/CombatAssignmentInteractionProof.cs",
+            "sha256": "da1f96c0a866095e14876a386998af7cc30924b5087e3125fc61d67071477ec6"
+          },
+          {
+            "path": "clients/godot/scenes/debug/CombatAssignmentInteractionProof.tscn",
+            "sha256": "29ea3e078ad4aab1390bfd25a23b430ae8e42ad1477295f7c7f00b7c93193d00"
+          }
+        ]
+      },
+      "changedImplementationPins": [],
+      "newCurrentImplementationBaseCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
+      "newCiState": "PENDING",
+      "historicalEvidenceCommitAndCiReceiptsUnchanged": true
+    },
+    {
+      "review": "combat-declaration-provenance-and-single-eligible-unit-conquest-2026-10-15",
+      "before": {
+        "ciState": "PENDING",
+        "currentImplementationCommit": "42c89230105573e39ffaf524a7dc21f24d520d4b",
+        "currentImplementationIncludesUncommittedChanges": true,
+        "implementation": [
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.Conquest.cs",
+            "sha256": "87c139a46b4bfa61701b8bbd714635e38707091ff49b068f643fb2f15c01e0d3"
+          },
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+            "sha256": "ed79875b5dc4dc61d56ed82d4d299e4b464a0c8a227b46b3834579f21abc18b5"
+          }
+        ]
+      },
+      "changedImplementationPins": [],
+      "newCurrentImplementationBaseCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
+      "newCiState": "PENDING",
+      "historicalEvidenceCommitAndCiReceiptsUnchanged": true
+    },
+    {
+      "review": "optional-mana-trigger-native-and-natural-declaration-order-2026-10-15",
+      "before": {
+        "ciState": "PENDING",
+        "currentImplementationCommit": "3d70b1e8d3c8396e7fe7b6d2548e2bae09ae7e84",
+        "currentImplementationIncludesUncommittedChanges": true,
+        "implementation": [
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.BattleStartRoles.cs",
+            "sha256": "ba605131fd9af7ae4ebe1bae38daa86e3b93b9b53cefb4a30e90f62733bb070f"
+          },
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+            "sha256": "ed79875b5dc4dc61d56ed82d4d299e4b464a0c8a227b46b3834579f21abc18b5"
+          },
+          {
+            "path": "src/Riftbound.Engine/MatchSession.cs",
+            "sha256": "f19995b83f6e94b674781fad1c2c25f19372f204f55e81e9418da828de9310c9"
+          }
+        ]
+      },
+      "changedImplementationPins": [],
+      "newCurrentImplementationBaseCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
+      "newCiState": "PENDING",
+      "historicalEvidenceCommitAndCiReceiptsUnchanged": true
+    },
+    {
+      "review": "cn16-confirmed-play-origin-and-required-causal-fact-2026-10-16",
+      "before": {
+        "ciState": "PENDING",
+        "currentImplementationCommit": "3d70b1e8d3c8396e7fe7b6d2548e2bae09ae7e84",
+        "currentImplementationIncludesUncommittedChanges": true,
+        "implementation": [
+          {
+            "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+            "sha256": "ecfe05b082061def9120c3dac1c065427cd3e7a3f07eb8c2647370f49244473b"
+          },
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+            "sha256": "ed79875b5dc4dc61d56ed82d4d299e4b464a0c8a227b46b3834579f21abc18b5"
+          },
+          {
+            "path": "src/Riftbound.Engine/MatchSession.cs",
+            "sha256": "f19995b83f6e94b674781fad1c2c25f19372f204f55e81e9418da828de9310c9"
+          },
+          {
+            "path": "data/official/rule-input-scope.json",
+            "sha256": "cc07cf3eef6a9af403454642a0435d061544400b5e01d08d3fdc65869bdad180"
+          }
+        ]
+      },
+      "changedImplementationPins": [],
+      "newCurrentImplementationBaseCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
+      "newCiState": "PENDING",
+      "historicalEvidenceCommitAndCiReceiptsUnchanged": true
+    },
+    {
+      "review": "physical-origin-self-cost-reduction-2026-10-16",
+      "before": {
+        "ciState": "PENDING",
+        "currentImplementationCommit": "3d70b1e8d3c8396e7fe7b6d2548e2bae09ae7e84",
+        "currentImplementationIncludesUncommittedChanges": true,
+        "implementation": [
+          {
+            "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+            "sha256": "ecfe05b082061def9120c3dac1c065427cd3e7a3f07eb8c2647370f49244473b"
+          },
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+            "sha256": "ed79875b5dc4dc61d56ed82d4d299e4b464a0c8a227b46b3834579f21abc18b5"
+          },
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.PlayManaCost.cs",
+            "sha256": "b46b63f34d74f2861f42114bad8ed16f2030bccb83bc1b45300e9afe9dd79219"
+          }
+        ]
+      },
+      "changedImplementationPins": [],
+      "newCurrentImplementationBaseCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
+      "newCiState": "PENDING",
+      "historicalEvidenceCommitAndCiReceiptsUnchanged": true
+    },
+    {
+      "review": "granted-origin-haste-and-paid-entry-replacement-2026-10-16",
+      "before": {
+        "ciState": "PENDING",
+        "currentImplementationCommit": "3d70b1e8d3c8396e7fe7b6d2548e2bae09ae7e84",
+        "currentImplementationIncludesUncommittedChanges": true,
+        "implementation": [
+          {
+            "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+            "sha256": "ecfe05b082061def9120c3dac1c065427cd3e7a3f07eb8c2647370f49244473b"
+          },
+          {
+            "path": "src/Riftbound.Engine/CardPermissionKeywordRules.cs",
+            "sha256": "6d9906b4edaee05b13335bc177a573e7974d536ad1b855277ddf0be18674a914"
+          },
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+            "sha256": "ed79875b5dc4dc61d56ed82d4d299e4b464a0c8a227b46b3834579f21abc18b5"
+          },
+          {
+            "path": "src/Riftbound.Engine/MatchSession.cs",
+            "sha256": "f19995b83f6e94b674781fad1c2c25f19372f204f55e81e9418da828de9310c9"
+          },
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.PlayKeywords.cs",
+            "sha256": "516089c89cb55d84bafcce6aaf83605f819f9597c850542bcd0259403b7c45f1"
+          }
+        ]
+      },
+      "changedImplementationPins": [],
+      "newCurrentImplementationBaseCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
+      "newCiState": "PENDING",
+      "historicalEvidenceCommitAndCiReceiptsUnchanged": true
+    },
+    {
+      "review": "opponent-battlefield-current-control-entry-2026-10-16",
+      "before": {
+        "ciState": "PENDING",
+        "currentImplementationCommit": "3d70b1e8d3c8396e7fe7b6d2548e2bae09ae7e84",
+        "currentImplementationIncludesUncommittedChanges": true,
+        "implementation": [
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+            "sha256": "ed79875b5dc4dc61d56ed82d4d299e4b464a0c8a227b46b3834579f21abc18b5"
+          }
+        ]
+      },
+      "changedImplementationPins": [],
+      "newCurrentImplementationBaseCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
+      "newCiState": "PENDING",
+      "historicalEvidenceCommitAndCiReceiptsUnchanged": true
+    },
+    {
+      "review": "optional-sacrifice-printed-cost-and-paid-entry-2026-10-16",
+      "before": {
+        "ciState": "PENDING",
+        "currentImplementationCommit": "3d70b1e8d3c8396e7fe7b6d2548e2bae09ae7e84",
+        "currentImplementationIncludesUncommittedChanges": true,
+        "implementation": [
+          {
+            "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+            "sha256": "ecfe05b082061def9120c3dac1c065427cd3e7a3f07eb8c2647370f49244473b"
+          },
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+            "sha256": "ed79875b5dc4dc61d56ed82d4d299e4b464a0c8a227b46b3834579f21abc18b5"
+          },
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.PlayManaCost.cs",
+            "sha256": "b46b63f34d74f2861f42114bad8ed16f2030bccb83bc1b45300e9afe9dd79219"
+          },
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.OptionalSacrificeCost.cs",
+            "sha256": "278a31427669b02c89a4ccbcdf1aa80da0c764fbde44d96d18acc31f961cba5e"
+          },
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.PlayCostPreview.cs",
+            "sha256": "90ab334881984c5d0886e1405ae0bcce34868dba18d2f00df0d460178a4f57ee"
+          },
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.EffectPlay.cs",
+            "sha256": "cfd1ecd7030e3c6496346e33d1299bf6db988d33a3233e9db895fbe8f2343af8"
+          },
+          {
+            "path": "src/Riftbound.Engine/MatchSession.cs",
+            "sha256": "f19995b83f6e94b674781fad1c2c25f19372f204f55e81e9418da828de9310c9"
+          },
+          {
+            "path": "src/Riftbound.Api/Riftbound.Api.csproj",
+            "sha256": "98cefe0bc7f292856462fa5bb394f2b8490cd2c328998d42c22acd8ee22468dd"
+          }
+        ]
+      },
+      "changedImplementationPins": [],
+      "newCurrentImplementationBaseCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
+      "newCiState": "PENDING",
+      "historicalEvidenceCommitAndCiReceiptsUnchanged": true
+    },
+    {
+      "review": "granted-colorless-token-haste-payment-2026-10-16",
+      "before": {
+        "ciState": "PENDING",
+        "currentImplementationCommit": "3d70b1e8d3c8396e7fe7b6d2548e2bae09ae7e84",
+        "currentImplementationIncludesUncommittedChanges": true,
+        "implementation": [
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+            "sha256": "ed79875b5dc4dc61d56ed82d4d299e4b464a0c8a227b46b3834579f21abc18b5"
+          },
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.PlayKeywords.cs",
+            "sha256": "516089c89cb55d84bafcce6aaf83605f819f9597c850542bcd0259403b7c45f1"
+          },
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.UnitTokenEntry.cs",
+            "sha256": "3b0603e8a53ac7d3af3b7f9dee4a57ec47c7692720827cef06c941fb7de53aed"
+          },
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.TokenHaste.cs",
+            "sha256": "5253c780eeeb772cbd189d8ac941bf51ed867982d9d6b881fc0f413307fbdc51"
+          },
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.RuleChoices.cs",
+            "sha256": "2eafed47f13d5740755f3613c0b66a90367689f26b546761a7e609f17bb4f75d"
+          },
+          {
+            "path": "src/Riftbound.Engine/MatchSession.cs",
+            "sha256": "f19995b83f6e94b674781fad1c2c25f19372f204f55e81e9418da828de9310c9"
+          }
+        ]
+      },
+      "changedImplementationPins": [],
+      "newCurrentImplementationBaseCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
+      "newCiState": "PENDING",
+      "historicalEvidenceCommitAndCiReceiptsUnchanged": true
+    },
+    {
+      "review": "native-rule-choice-prompts-2026-10-16",
+      "before": {
+        "ciState": "PENDING",
+        "currentImplementationCommit": "3d70b1e8d3c8396e7fe7b6d2548e2bae09ae7e84",
+        "currentImplementationIncludesUncommittedChanges": true,
+        "implementation": [
+          {
+            "path": "src/Riftbound.Engine/MatchSession.cs",
+            "sha256": "f19995b83f6e94b674781fad1c2c25f19372f204f55e81e9418da828de9310c9"
+          },
+          {
+            "path": "clients/godot/scripts/ui/MatchPhasePresentation.cs",
+            "sha256": "76723ecac561deb446151a23e4376337d65090b1deafd91f890ca0722a136767"
+          }
+        ]
+      },
+      "changedImplementationPins": [],
+      "newCurrentImplementationBaseCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
+      "newCiState": "PENDING",
+      "historicalEvidenceCommitAndCiReceiptsUnchanged": true
+    },
+    {
+      "review": "sand-soldier-embedded-ready-2026-10-17",
+      "before": {
+        "ciState": "PENDING",
+        "currentImplementationCommit": "3d70b1e8d3c8396e7fe7b6d2548e2bae09ae7e84",
+        "currentImplementationIncludesUncommittedChanges": true,
+        "implementation": [
+          {
+            "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+            "sha256": "ecfe05b082061def9120c3dac1c065427cd3e7a3f07eb8c2647370f49244473b"
+          },
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.CreatedTokenReady.cs",
+            "sha256": "75ce2585bb9fbc85040edd0bf5b17dc9d4b27801df8b8dcd11efee3e7e197fc6"
+          },
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.FieldTriggers.cs",
+            "sha256": "c0e7c9ecf370c734ef783e67e74bdf2c79e94a018508157bc8f1b3d47e57b050"
+          },
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.TokenReplacement.cs",
+            "sha256": "5b36fbdd45d0624bcbde5020d519effd5816db67b3555acd5f572c806b14f9ce"
+          },
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.TriggerCosts.cs",
+            "sha256": "7248aaebc0c824634407054b696275acb6302cb4ea8aedd04173bfcdc8b029e8"
+          },
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.TriggerTargetPayment.cs",
+            "sha256": "18a574c00c101ff0864aea1e6b2cb7542a8f99913368e455f6a12bdb72e55fe7"
+          },
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+            "sha256": "ed79875b5dc4dc61d56ed82d4d299e4b464a0c8a227b46b3834579f21abc18b5"
+          },
+          {
+            "path": "src/Riftbound.Engine/MatchRecovery.cs",
+            "sha256": "48dda169917a0c6eb76e05e2e5a8f281f72219090bac2c9ce657826f6fd696b1"
+          },
+          {
+            "path": "src/Riftbound.Engine/MatchSession.cs",
+            "sha256": "f19995b83f6e94b674781fad1c2c25f19372f204f55e81e9418da828de9310c9"
+          },
+          {
+            "path": "src/Riftbound.Engine/StackObjectRules.cs",
+            "sha256": "d844eb96df256111fdc1de42c00b8706a922d7e445bc286b5a6a5cc960e5c446"
+          }
+        ]
+      },
+      "changedImplementationPins": [],
+      "newCurrentImplementationBaseCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
+      "newCiState": "PENDING",
+      "historicalEvidenceCommitAndCiReceiptsUnchanged": true
+    },
+    {
+      "review": "opening-randomness-2026-10-17",
+      "before": {
+        "ciState": "PENDING",
+        "currentImplementationCommit": "3d70b1e8d3c8396e7fe7b6d2548e2bae09ae7e84",
+        "currentImplementationIncludesUncommittedChanges": true,
+        "implementation": [
+          {
+            "path": "src/Riftbound.Engine/MatchJournal.cs",
+            "sha256": "f725714a268df7fd237514ad1693eee3603faf61bcb655e5170f11c32e03ca60"
+          },
+          {
+            "path": "src/Riftbound.Engine/MatchPlayers.cs",
+            "sha256": "3c5b5b52cd3c943cdecd666f37d80989372b2cffa84b96c2b2cb39ea5791c30f"
+          },
+          {
+            "path": "src/Riftbound.Engine/MatchRecovery.cs",
+            "sha256": "48dda169917a0c6eb76e05e2e5a8f281f72219090bac2c9ce657826f6fd696b1"
+          },
+          {
+            "path": "src/Riftbound.Engine/MatchSession.cs",
+            "sha256": "f19995b83f6e94b674781fad1c2c25f19372f204f55e81e9418da828de9310c9"
+          },
+          {
+            "path": "src/Riftbound.Persistence/PostgresMatchJournal.cs",
+            "sha256": "6f7b87484b8d8102b4824a50936b78ef1a2479de06f4271808368ec6a5fe1a53"
+          },
+          {
+            "path": "src/Riftbound.Persistence/PostgresMatchPlayerStore.cs",
+            "sha256": "687e0fc8709ff3e55f6796837f6fefb773a762b8c77de720a92d0156a86240d3"
+          },
+          {
+            "path": "src/Riftbound.Persistence/PostgresMatchRecoveryStore.cs",
+            "sha256": "e54bb4f85d83d2d3fedc9fce0ff280ec00483d98216da63a88ffe02853cb3358"
+          }
+        ]
+      },
+      "changedImplementationPins": [],
+      "newCurrentImplementationBaseCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
+      "newCiState": "PENDING",
+      "historicalEvidenceCommitAndCiReceiptsUnchanged": true
+    },
+    {
+      "review": "duel-chain-origins-cold-recovery-2026-10-17",
+      "before": {
+        "ciState": "PENDING",
+        "currentImplementationCommit": "3d70b1e8d3c8396e7fe7b6d2548e2bae09ae7e84",
+        "currentImplementationIncludesUncommittedChanges": true,
+        "implementation": [
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+            "sha256": "ed79875b5dc4dc61d56ed82d4d299e4b464a0c8a227b46b3834579f21abc18b5"
+          },
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.TriggerHandoff.cs",
+            "sha256": "91ff7c748a2fea15064f2ddc49de125acb291ec76827361d7a91d77063f76eb7"
+          },
+          {
+            "path": "src/Riftbound.Engine/CoreRuleEngine.Standby.cs",
+            "sha256": "71b6a9b19e35b4c1ef46800e185c8174c9abdc960dc7e0bc3d33094591ac6fdd"
+          },
+          {
+            "path": "src/Riftbound.Engine/MatchSession.cs",
+            "sha256": "f19995b83f6e94b674781fad1c2c25f19372f204f55e81e9418da828de9310c9"
+          },
+          {
+            "path": "src/Riftbound.Engine/MatchRecovery.cs",
+            "sha256": "48dda169917a0c6eb76e05e2e5a8f281f72219090bac2c9ce657826f6fd696b1"
+          }
+        ]
+      },
+      "changedImplementationPins": [],
+      "newCurrentImplementationBaseCommit": "c3bcf176e739cdb4f0ea7ca240fc2aab47de34ae",
+      "newCiState": "PENDING",
+      "historicalEvidenceCommitAndCiReceiptsUnchanged": true
+    }
+  ]
+}
