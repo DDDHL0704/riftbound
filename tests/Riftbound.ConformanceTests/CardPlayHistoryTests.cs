@@ -93,7 +93,8 @@ public sealed class CardPlayHistoryTests
         Assert.Equal("P2", done.State.PendingEffectPlay!.PlayerId);
         done = await Act(done.State, "P2", new PlayCardCommand("HOST", "OGN·174/298", [], Destination: "BATTLEFIELD:F"));
         var unit = Assert.Single(done.State.CardPlays.Resolved, e => e.Source.ObjectId == "HOST");
-        Assert.Equal("P2", unit.PlayerId); Assert.Equal(1, unit.Types); Assert.StartsWith("LIMITED-", unit.PlayId);
+        Assert.Equal("P2", unit.PlayerId); Assert.Equal(1, unit.Types); Assert.StartsWith("STACK-", unit.PlayId);
+        Assert.Equal(Assert.Single(done.State.CardPlays.Finalized, e => e.Source.ObjectId == "HOST").PlayId, unit.PlayId);
         Assert.Equal("P2", Assert.Single(done.State.CardPlays.Finalized, e => e.PlayId == unit.PlayId).PlayerId);
         Assert.Equal("P1", Assert.Single(done.State.CardPlays.Resolved, e => e.Source.ObjectId == "HUNT").PlayerId);
         NoPrivateEvents(done); Restore(done.State);

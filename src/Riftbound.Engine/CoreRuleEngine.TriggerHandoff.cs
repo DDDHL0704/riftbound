@@ -61,7 +61,7 @@ public sealed partial class CoreRuleEngine
             var item = BuildStackItemForOrderedTrigger(state, pending[0]);
             state = state with {
                 TriggerQueue = state.TriggerQueue.Where(t => !IsImmediateTrigger(t)).ToArray(),
-                StackItems = state.StackItems.Concat([item]).ToArray(),
+                StackItems = state.StackItems.Where(i => i.StackItemId != pending[0].PermanentPlayStackItemId).Concat([item]).ToArray(),
                 PriorityPlayerId = item.ControllerId, ActivePlayerId = item.ControllerId,
                 FocusPlayerId = null, PassedPriorityPlayerIds = [],
                 TimingState = state.SpellDuelState.IsActive ? TimingStates.SpellDuelClosed : TimingStates.NeutralClosed

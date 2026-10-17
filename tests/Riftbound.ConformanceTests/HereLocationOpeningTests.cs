@@ -15,7 +15,7 @@ public sealed class HereLocationOpeningTests(ITestOutputHelper output)
     {
         const string actor = "here-rengar", opponent = "here-renata";
         const string merfolk = "UNL-003/219", control = "SFD·202/221", guard = "OGN·210/298";
-        var initial = MatchReplayInitialStateBuilder.FromSeats("here-location-opening-20261018",
+        var initial = MatchReplayInitialStateBuilder.FromSeats("here-location-rengar-confirmation-opening-20261018",
             new Dictionary<string, string> { [opponent] = "P1", [actor] = "P2" });
         Assert.Equal(0, initial.Seed); Assert.Empty(initial.CardObjects);
         var journal = new Journal(); var engine = new CoreRuleEngine();
@@ -76,9 +76,22 @@ public sealed class HereLocationOpeningTests(ITestOutputHelper output)
         await Submit(actor, new PlayCardCommand(source, merfolk, [enemy!], Destination: "BASE")); await Drain();
         await Submit(actor, new PlayCardCommand(hunt, BanishEffectPlayTests.Hunt, [source])); await Drain();
         await Submit(actor, new PlayCardCommand(source, merfolk, [], Destination: "BATTLEFIELD:" + battlefield));
+        var legendTrigger = Assert.Single(state.TriggerQueue, t => t.UnitPlayMight is not null);
+        var ownTrigger = Assert.Single(state.TriggerQueue, t => t.PermanentPlayStackItemId is not null);
+        Assert.Equal(2, state.TriggerQueue.Count);
+        var pendingOrderAt = journal.Entries.Count;
+        await OriginalNextAfterCold(actor, new OrderTriggersCommand(OrderedTriggerIds: [legendTrigger.TriggerId, ownTrigger.TriggerId]));
         var choice = Assert.IsType<PendingCardChoiceState>(state.PendingCardChoice);
+        Assert.Equal(source, choice.SourceObjectId);
         Assert.Equal(new[] { enemy! }, choice.LegalObjectIds);
         await Submit(actor, new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, [enemy!]));
+        var legendChoice = Assert.IsType<PendingCardChoiceState>(state.PendingCardChoice);
+        Assert.Equal(legendTrigger.SourceObjectId, legendChoice.SourceObjectId);
+        var pendingRengarChoiceAt = journal.Entries.Count;
+        await OriginalNextAfterCold(actor, new ChooseCardsCommand(legendChoice.ChoiceId, legendChoice.ChoiceWindow, [source]));
+        var confirmedRengarAt = journal.Entries.Count;
+        await OriginalNextAfterCold(state.PriorityPlayerId!, new PassPriorityCommand());
+        await Submit(state.PriorityPlayerId!, new PassPriorityCommand());
         var binding = Assert.Single(state.StackItems).PermanentPlaySource!;
         await Submit(actor, new PassPriorityCommand());
         await Submit(opponent, new PlayCardCommand(controlCard, control, [source])); await Top();
@@ -113,13 +126,15 @@ public sealed class HereLocationOpeningTests(ITestOutputHelper output)
         if (Environment.GetEnvironmentVariable("RIFTBOUND_HERE_OPENING_EVIDENCE") is { Length: > 0 } directory)
         {
             Directory.CreateDirectory(directory);
-            await File.WriteAllTextAsync(Path.Combine(directory, "here-controller-current-opening.json"), JsonSerializer.Serialize(new {
+            await File.WriteAllTextAsync(Path.Combine(directory, "here-controller-rengar-confirmation-opening.json"), JsonSerializer.Serialize(new {
                 schemaVersion = 1, openingSeed = 0, sourceRoomId = initial.RoomId, seats = initial.Seats,
                 expectedActor = actor, expectedOpponent = opponent, expectedSource = source, expectedSourceCardNo = merfolk,
                 expectedEnemy = enemy, expectedBattlefield = battlefield, pendingHereCommandCount = pendingAt,
+                pendingOrderCommandCount = pendingOrderAt, pendingRengarChoiceCommandCount = pendingRengarChoiceAt,
+                confirmedRengarCommandCount = confirmedRengarAt,
                 acceptedCommands = journal.Entries.Select(e => new { playerId = e.PlayerId, clientIntentId = e.ClientIntentId,
                     commandType = e.CommandType, rawCommand = e.RawCommand!.Value }),
-                scope = "Fresh legal Rengar and Renata decks from original blank seed0; Merfolk ability retains its original controller after ordinary Hostile Takeover standby reveal changes the source controller. Same battlefield, two pending priority cold boundaries, two original next commands, damage2 and full original replay. Base movement remains the separate explicit midgame cases; no whole card certification."
+                scope = "Fresh room and legal Rengar/Renata decks from original blank seed0, including mandatory independent legend confirmation and own/legend ordering before Takeover. Three Rengar and both original Here cold boundaries, five original next commands, original ability controller,damage2 and full replay. Prior83-command fixture and accepted histories remain unchanged. No whole-card or base-positive certification."
             }, json));
         }
         output.WriteLine($"HERE_CONTROLLER_OPENING_PASS: {journal.Entries.Count} commands,{Frame().Events.Count} events; source owner differs from controller, same battlefield,damage2,original next,cold and full original replay.");
@@ -134,6 +149,15 @@ public sealed class HereLocationOpeningTests(ITestOutputHelper output)
         {
             await Submit(state.PriorityPlayerId!, new PassPriorityCommand());
             await Submit(state.PriorityPlayerId!, new PassPriorityCommand());
+        }
+        async Task OriginalNextAfterCold(string id, GameCommand command)
+        {
+            await Cold();
+            var expected = await engine.ResolveAsync(state, new("here-opening-" + journal.Entries.Count, id, command.CmdType), command, default);
+            var actual = await Submit(id, command);
+            Assert.True(expected.Accepted, expected.ErrorMessage);
+            Assert.Equal(MatchStateHasher.Hash(expected.State), MatchStateHasher.Hash(actual.State));
+            Assert.True(JsonNode.DeepEquals(JsonSerializer.SerializeToNode(expected.Events), JsonSerializer.SerializeToNode(actual.Events)));
         }
         async Task Drain()
         {

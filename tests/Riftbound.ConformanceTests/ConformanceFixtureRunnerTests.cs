@@ -35215,7 +35215,9 @@ public sealed class ConformanceFixtureRunnerTests
 
         Assert.True(playResult.Accepted);
         var stackItem = Assert.Single(playResult.State.StackItems);
-        Assert.Empty(stackItem.TargetObjectIds);
+        Assert.Equal(["P1-LEGEND-BASE-UNIT"], stackItem.TargetObjectIds);
+        Assert.Equal("P1-LEGEND-RENGAR", stackItem.SourceObjectId);
+        Assert.NotNull(stackItem.UnitPlayMight);
         Assert.Contains(playResult.State.UntilEndOfTurnEffects, effectId =>
             effectId.StartsWith("RENGAR_UNIT_PLAYED_TARGET:", StringComparison.Ordinal)
             && effectId.EndsWith(":P1-LEGEND-BASE-UNIT", StringComparison.Ordinal));

@@ -1,0 +1,1163 @@
+{
+  "schemaVersion": 1,
+  "openingSeed": 0,
+  "sourceRoomId": "here-location-rengar-confirmation-opening-20261018",
+  "seats": {
+    "here-renata": "P1",
+    "here-rengar": "P2"
+  },
+  "expectedActor": "here-rengar",
+  "expectedOpponent": "here-renata",
+  "expectedSource": "here-rengar-MAIN-UNL-003-219-07",
+  "expectedSourceCardNo": "UNL-003/219",
+  "expectedEnemy": "here-renata-MAIN-OGN-210-298-35",
+  "expectedBattlefield": "here-rengar-BATTLEFIELD-OGN-275-298-01",
+  "pendingHereCommandCount": 85,
+  "pendingOrderCommandCount": 76,
+  "pendingRengarChoiceCommandCount": 78,
+  "confirmedRengarCommandCount": 79,
+  "acceptedCommands": [
+    {
+      "playerId": "here-renata",
+      "clientIntentId": "here-opening-0",
+      "commandType": "SUBMIT_DECK",
+      "rawCommand": {
+        "legendCardNo": "SFD\u00B7201/221",
+        "championCardNo": "SFD\u00B7088/221",
+        "mainDeck": [
+          "SFD\u00B7088/221",
+          "SFD\u00B7202/221",
+          "SFD\u00B7202/221",
+          "SFD\u00B7202/221",
+          "UNL-065/219",
+          "UNL-065/219",
+          "UNL-065/219",
+          "UNL-076/219",
+          "UNL-076/219",
+          "UNL-076/219",
+          "UNL-152/219",
+          "UNL-152/219",
+          "UNL-152/219",
+          "UNL-162/219",
+          "UNL-162/219",
+          "UNL-162/219",
+          "SFD\u00B7065/221",
+          "SFD\u00B7065/221",
+          "SFD\u00B7065/221",
+          "SFD\u00B7069/221",
+          "SFD\u00B7069/221",
+          "SFD\u00B7069/221",
+          "SFD\u00B7155/221",
+          "SFD\u00B7155/221",
+          "SFD\u00B7155/221",
+          "SFD\u00B7159/221",
+          "SFD\u00B7159/221",
+          "SFD\u00B7159/221",
+          "SFD\u00B7167/221",
+          "SFD\u00B7167/221",
+          "SFD\u00B7167/221",
+          "OGN\u00B7087/298",
+          "OGN\u00B7087/298",
+          "OGN\u00B7087/298",
+          "OGN\u00B7210/298",
+          "OGN\u00B7210/298",
+          "OGN\u00B7210/298",
+          "OGN\u00B7211/298",
+          "OGN\u00B7211/298",
+          "OGN\u00B7211/298"
+        ],
+        "runeDeck": [
+          "UNL-R03",
+          "UNL-R03",
+          "UNL-R03",
+          "UNL-R03",
+          "UNL-R03",
+          "UNL-R03",
+          "UNL-R06",
+          "UNL-R06",
+          "UNL-R06",
+          "UNL-R06",
+          "UNL-R06",
+          "UNL-R06"
+        ],
+        "battlefields": [
+          "OGN\u00B7278/298",
+          "OGN\u00B7275/298",
+          "OGN\u00B7294/298"
+        ],
+        "cmdType": "SUBMIT_DECK",
+        "promptId": "here-location-rengar-confirmation-opening-20261018:0:here-renata:SUBMIT_DECK",
+        "snapshotTick": 0
+      }
+    },
+    {
+      "playerId": "here-rengar",
+      "clientIntentId": "here-opening-1",
+      "commandType": "SUBMIT_DECK",
+      "rawCommand": {
+        "legendCardNo": "UNL-183/219",
+        "championCardNo": "UNL-024/219",
+        "mainDeck": [
+          "UNL-024/219",
+          "UNL-184/219",
+          "UNL-184/219",
+          "UNL-184/219",
+          "UNL-002/219",
+          "UNL-002/219",
+          "UNL-002/219",
+          "UNL-003/219",
+          "UNL-003/219",
+          "UNL-003/219",
+          "UNL-092/219",
+          "UNL-092/219",
+          "UNL-092/219",
+          "UNL-093/219",
+          "UNL-093/219",
+          "UNL-093/219",
+          "UNL-094/219",
+          "UNL-094/219",
+          "UNL-094/219",
+          "UNL-111/219",
+          "UNL-111/219",
+          "UNL-111/219",
+          "SFD\u00B7018/221",
+          "SFD\u00B7018/221",
+          "SFD\u00B7018/221",
+          "SFD\u00B7098/221",
+          "SFD\u00B7098/221",
+          "SFD\u00B7098/221",
+          "SFD\u00B7099/221",
+          "SFD\u00B7099/221",
+          "SFD\u00B7099/221",
+          "OGN\u00B7010/298",
+          "OGN\u00B7010/298",
+          "OGN\u00B7010/298",
+          "OGN\u00B7013/298",
+          "OGN\u00B7013/298",
+          "OGN\u00B7013/298",
+          "OGN\u00B7036/298",
+          "OGN\u00B7036/298",
+          "OGN\u00B7036/298"
+        ],
+        "runeDeck": [
+          "UNL-R01",
+          "UNL-R01",
+          "UNL-R01",
+          "UNL-R01",
+          "UNL-R01",
+          "UNL-R01",
+          "UNL-R04",
+          "UNL-R04",
+          "UNL-R04",
+          "UNL-R04",
+          "UNL-R04",
+          "UNL-R04"
+        ],
+        "battlefields": [
+          "OGN\u00B7278/298",
+          "OGN\u00B7275/298",
+          "OGN\u00B7294/298"
+        ],
+        "cmdType": "SUBMIT_DECK",
+        "promptId": "here-location-rengar-confirmation-opening-20261018:1:here-rengar:SUBMIT_DECK",
+        "snapshotTick": 1
+      }
+    },
+    {
+      "playerId": "here-renata",
+      "clientIntentId": "here-opening-2",
+      "commandType": "READY",
+      "rawCommand": {
+        "cmdType": "READY",
+        "promptId": "here-location-rengar-confirmation-opening-20261018:2:here-renata:READY",
+        "snapshotTick": 2
+      }
+    },
+    {
+      "playerId": "here-rengar",
+      "clientIntentId": "here-opening-3",
+      "commandType": "READY",
+      "rawCommand": {
+        "cmdType": "READY",
+        "promptId": "here-location-rengar-confirmation-opening-20261018:2:here-rengar:READY",
+        "snapshotTick": 2
+      }
+    },
+    {
+      "playerId": "here-rengar",
+      "clientIntentId": "here-opening-4",
+      "commandType": "MULLIGAN",
+      "rawCommand": {
+        "handObjectIds": [],
+        "cmdType": "MULLIGAN",
+        "promptId": "here-location-rengar-confirmation-opening-20261018:2:here-rengar:MULLIGAN,SURRENDER",
+        "snapshotTick": 2
+      }
+    },
+    {
+      "playerId": "here-renata",
+      "clientIntentId": "here-opening-5",
+      "commandType": "MULLIGAN",
+      "rawCommand": {
+        "handObjectIds": [],
+        "cmdType": "MULLIGAN",
+        "promptId": "here-location-rengar-confirmation-opening-20261018:3:here-renata:MULLIGAN,SURRENDER",
+        "snapshotTick": 3
+      }
+    },
+    {
+      "playerId": "here-rengar",
+      "clientIntentId": "here-opening-6",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN",
+        "promptId": "here-location-rengar-confirmation-opening-20261018:5:here-rengar:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 5
+      }
+    },
+    {
+      "playerId": "here-renata",
+      "clientIntentId": "here-opening-7",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN",
+        "promptId": "here-location-rengar-confirmation-opening-20261018:6:here-renata:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 6
+      }
+    },
+    {
+      "playerId": "here-rengar",
+      "clientIntentId": "here-opening-8",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN",
+        "promptId": "here-location-rengar-confirmation-opening-20261018:7:here-rengar:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 7
+      }
+    },
+    {
+      "playerId": "here-renata",
+      "clientIntentId": "here-opening-9",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN",
+        "promptId": "here-location-rengar-confirmation-opening-20261018:8:here-renata:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 8
+      }
+    },
+    {
+      "playerId": "here-rengar",
+      "clientIntentId": "here-opening-10",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN",
+        "promptId": "here-location-rengar-confirmation-opening-20261018:9:here-rengar:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 9
+      }
+    },
+    {
+      "playerId": "here-renata",
+      "clientIntentId": "here-opening-11",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN",
+        "promptId": "here-location-rengar-confirmation-opening-20261018:10:here-renata:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 10
+      }
+    },
+    {
+      "playerId": "here-rengar",
+      "clientIntentId": "here-opening-12",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN",
+        "promptId": "here-location-rengar-confirmation-opening-20261018:11:here-rengar:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 11
+      }
+    },
+    {
+      "playerId": "here-renata",
+      "clientIntentId": "here-opening-13",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN",
+        "promptId": "here-location-rengar-confirmation-opening-20261018:12:here-renata:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 12
+      }
+    },
+    {
+      "playerId": "here-rengar",
+      "clientIntentId": "here-opening-14",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN",
+        "promptId": "here-location-rengar-confirmation-opening-20261018:13:here-rengar:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 13
+      }
+    },
+    {
+      "playerId": "here-renata",
+      "clientIntentId": "here-opening-15",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN",
+        "promptId": "here-location-rengar-confirmation-opening-20261018:14:here-renata:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 14
+      }
+    },
+    {
+      "playerId": "here-rengar",
+      "clientIntentId": "here-opening-16",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN",
+        "promptId": "here-location-rengar-confirmation-opening-20261018:15:here-rengar:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 15
+      }
+    },
+    {
+      "playerId": "here-renata",
+      "clientIntentId": "here-opening-17",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN",
+        "promptId": "here-location-rengar-confirmation-opening-20261018:16:here-renata:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 16
+      }
+    },
+    {
+      "playerId": "here-rengar",
+      "clientIntentId": "here-opening-18",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN",
+        "promptId": "here-location-rengar-confirmation-opening-20261018:17:here-rengar:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 17
+      }
+    },
+    {
+      "playerId": "here-renata",
+      "clientIntentId": "here-opening-19",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN",
+        "promptId": "here-location-rengar-confirmation-opening-20261018:18:here-renata:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 18
+      }
+    },
+    {
+      "playerId": "here-rengar",
+      "clientIntentId": "here-opening-20",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN",
+        "promptId": "here-location-rengar-confirmation-opening-20261018:19:here-rengar:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 19
+      }
+    },
+    {
+      "playerId": "here-renata",
+      "clientIntentId": "here-opening-21",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN",
+        "promptId": "here-location-rengar-confirmation-opening-20261018:20:here-renata:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 20
+      }
+    },
+    {
+      "playerId": "here-rengar",
+      "clientIntentId": "here-opening-22",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN",
+        "promptId": "here-location-rengar-confirmation-opening-20261018:21:here-rengar:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 21
+      }
+    },
+    {
+      "playerId": "here-renata",
+      "clientIntentId": "here-opening-23",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "here-renata-RUNE-UNL-R03-04",
+        "sourceObjectIds": null,
+        "cmdType": "TAP_RUNE",
+        "promptId": "here-location-rengar-confirmation-opening-20261018:22:here-renata:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 22
+      }
+    },
+    {
+      "playerId": "here-renata",
+      "clientIntentId": "here-opening-24",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "here-renata-RUNE-UNL-R03-01",
+        "sourceObjectIds": null,
+        "cmdType": "TAP_RUNE",
+        "promptId": "here-location-rengar-confirmation-opening-20261018:23:here-renata:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 23
+      }
+    },
+    {
+      "playerId": "here-renata",
+      "clientIntentId": "here-opening-25",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "here-renata-RUNE-UNL-R06-11",
+        "sourceObjectIds": null,
+        "cmdType": "TAP_RUNE",
+        "promptId": "here-location-rengar-confirmation-opening-20261018:24:here-renata:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 24
+      }
+    },
+    {
+      "playerId": "here-renata",
+      "clientIntentId": "here-opening-26",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "here-renata-RUNE-UNL-R03-05",
+        "sourceObjectIds": null,
+        "cmdType": "TAP_RUNE",
+        "promptId": "here-location-rengar-confirmation-opening-20261018:25:here-renata:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 25
+      }
+    },
+    {
+      "playerId": "here-renata",
+      "clientIntentId": "here-opening-27",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "here-renata-RUNE-UNL-R06-10",
+        "sourceObjectIds": null,
+        "cmdType": "TAP_RUNE",
+        "promptId": "here-location-rengar-confirmation-opening-20261018:26:here-renata:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 26
+      }
+    },
+    {
+      "playerId": "here-renata",
+      "clientIntentId": "here-opening-28",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "here-renata-RUNE-UNL-R06-09",
+        "sourceObjectIds": null,
+        "cmdType": "TAP_RUNE",
+        "promptId": "here-location-rengar-confirmation-opening-20261018:27:here-renata:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 27
+      }
+    },
+    {
+      "playerId": "here-renata",
+      "clientIntentId": "here-opening-29",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "here-renata-RUNE-UNL-R06-12",
+        "sourceObjectIds": null,
+        "cmdType": "TAP_RUNE",
+        "promptId": "here-location-rengar-confirmation-opening-20261018:28:here-renata:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 28
+      }
+    },
+    {
+      "playerId": "here-renata",
+      "clientIntentId": "here-opening-30",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "here-renata-RUNE-UNL-R03-06",
+        "sourceObjectIds": null,
+        "cmdType": "TAP_RUNE",
+        "promptId": "here-location-rengar-confirmation-opening-20261018:29:here-renata:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 29
+      }
+    },
+    {
+      "playerId": "here-renata",
+      "clientIntentId": "here-opening-31",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "here-renata-RUNE-UNL-R03-03",
+        "sourceObjectIds": null,
+        "cmdType": "TAP_RUNE",
+        "promptId": "here-location-rengar-confirmation-opening-20261018:30:here-renata:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 30
+      }
+    },
+    {
+      "playerId": "here-renata",
+      "clientIntentId": "here-opening-32",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "here-renata-RUNE-UNL-R03-02",
+        "sourceObjectIds": null,
+        "cmdType": "TAP_RUNE",
+        "promptId": "here-location-rengar-confirmation-opening-20261018:31:here-renata:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 31
+      }
+    },
+    {
+      "playerId": "here-renata",
+      "clientIntentId": "here-opening-33",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "here-renata-RUNE-UNL-R06-08",
+        "sourceObjectIds": null,
+        "cmdType": "TAP_RUNE",
+        "promptId": "here-location-rengar-confirmation-opening-20261018:32:here-renata:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 32
+      }
+    },
+    {
+      "playerId": "here-renata",
+      "clientIntentId": "here-opening-34",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "here-renata-RUNE-UNL-R06-07",
+        "sourceObjectIds": null,
+        "cmdType": "TAP_RUNE",
+        "promptId": "here-location-rengar-confirmation-opening-20261018:33:here-renata:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 33
+      }
+    },
+    {
+      "playerId": "here-renata",
+      "clientIntentId": "here-opening-35",
+      "commandType": "PLAY_CARD",
+      "rawCommand": {
+        "sourceObjectId": "here-renata-MAIN-OGN-210-298-35",
+        "cardNo": "OGN\u00B7210/298",
+        "targetObjectIds": [],
+        "mode": "",
+        "destination": "BASE",
+        "repeatChoices": null,
+        "movementDestinations": null,
+        "cmdType": "PLAY_CARD",
+        "promptId": "here-location-rengar-confirmation-opening-20261018:34:here-renata:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 34
+      }
+    },
+    {
+      "playerId": "here-renata",
+      "clientIntentId": "here-opening-36",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN",
+        "promptId": "here-location-rengar-confirmation-opening-20261018:35:here-renata:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 35
+      }
+    },
+    {
+      "playerId": "here-rengar",
+      "clientIntentId": "here-opening-37",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN",
+        "promptId": "here-location-rengar-confirmation-opening-20261018:36:here-rengar:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 36
+      }
+    },
+    {
+      "playerId": "here-renata",
+      "clientIntentId": "here-opening-38",
+      "commandType": "MOVE_UNIT",
+      "rawCommand": {
+        "sourceObjectId": "here-renata-MAIN-OGN-210-298-35",
+        "origin": "BASE",
+        "destination": "BATTLEFIELD:here-rengar-BATTLEFIELD-OGN-275-298-01",
+        "optionalCosts": [],
+        "sourceObjectIds": null,
+        "cmdType": "MOVE_UNIT",
+        "promptId": "here-location-rengar-confirmation-opening-20261018:37:here-renata:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 37
+      }
+    },
+    {
+      "playerId": "here-renata",
+      "clientIntentId": "here-opening-39",
+      "commandType": "PASS_FOCUS",
+      "rawCommand": {
+        "cmdType": "PASS_FOCUS",
+        "promptId": "here-location-rengar-confirmation-opening-20261018:38:here-renata:TAP_RUNE,RECYCLE_RUNE,PASS_FOCUS,SURRENDER",
+        "snapshotTick": 38
+      }
+    },
+    {
+      "playerId": "here-rengar",
+      "clientIntentId": "here-opening-40",
+      "commandType": "PASS_FOCUS",
+      "rawCommand": {
+        "cmdType": "PASS_FOCUS",
+        "promptId": "here-location-rengar-confirmation-opening-20261018:39:here-rengar:TAP_RUNE,RECYCLE_RUNE,PASS_FOCUS,SURRENDER",
+        "snapshotTick": 39
+      }
+    },
+    {
+      "playerId": "here-renata",
+      "clientIntentId": "here-opening-41",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "here-renata-RUNE-UNL-R03-04",
+        "sourceObjectIds": null,
+        "cmdType": "TAP_RUNE",
+        "promptId": "here-location-rengar-confirmation-opening-20261018:40:here-renata:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 40
+      }
+    },
+    {
+      "playerId": "here-renata",
+      "clientIntentId": "here-opening-42",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "here-renata-RUNE-UNL-R03-01",
+        "sourceObjectIds": null,
+        "cmdType": "TAP_RUNE",
+        "promptId": "here-location-rengar-confirmation-opening-20261018:41:here-renata:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 41
+      }
+    },
+    {
+      "playerId": "here-renata",
+      "clientIntentId": "here-opening-43",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "here-renata-RUNE-UNL-R06-11",
+        "sourceObjectIds": null,
+        "cmdType": "TAP_RUNE",
+        "promptId": "here-location-rengar-confirmation-opening-20261018:42:here-renata:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 42
+      }
+    },
+    {
+      "playerId": "here-renata",
+      "clientIntentId": "here-opening-44",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "here-renata-RUNE-UNL-R03-05",
+        "sourceObjectIds": null,
+        "cmdType": "TAP_RUNE",
+        "promptId": "here-location-rengar-confirmation-opening-20261018:43:here-renata:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 43
+      }
+    },
+    {
+      "playerId": "here-renata",
+      "clientIntentId": "here-opening-45",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "here-renata-RUNE-UNL-R06-10",
+        "sourceObjectIds": null,
+        "cmdType": "TAP_RUNE",
+        "promptId": "here-location-rengar-confirmation-opening-20261018:44:here-renata:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 44
+      }
+    },
+    {
+      "playerId": "here-renata",
+      "clientIntentId": "here-opening-46",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "here-renata-RUNE-UNL-R06-09",
+        "sourceObjectIds": null,
+        "cmdType": "TAP_RUNE",
+        "promptId": "here-location-rengar-confirmation-opening-20261018:45:here-renata:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 45
+      }
+    },
+    {
+      "playerId": "here-renata",
+      "clientIntentId": "here-opening-47",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "here-renata-RUNE-UNL-R06-12",
+        "sourceObjectIds": null,
+        "cmdType": "TAP_RUNE",
+        "promptId": "here-location-rengar-confirmation-opening-20261018:46:here-renata:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 46
+      }
+    },
+    {
+      "playerId": "here-renata",
+      "clientIntentId": "here-opening-48",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "here-renata-RUNE-UNL-R03-06",
+        "sourceObjectIds": null,
+        "cmdType": "TAP_RUNE",
+        "promptId": "here-location-rengar-confirmation-opening-20261018:47:here-renata:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 47
+      }
+    },
+    {
+      "playerId": "here-renata",
+      "clientIntentId": "here-opening-49",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "here-renata-RUNE-UNL-R03-03",
+        "sourceObjectIds": null,
+        "cmdType": "TAP_RUNE",
+        "promptId": "here-location-rengar-confirmation-opening-20261018:48:here-renata:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 48
+      }
+    },
+    {
+      "playerId": "here-renata",
+      "clientIntentId": "here-opening-50",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "here-renata-RUNE-UNL-R03-02",
+        "sourceObjectIds": null,
+        "cmdType": "TAP_RUNE",
+        "promptId": "here-location-rengar-confirmation-opening-20261018:49:here-renata:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 49
+      }
+    },
+    {
+      "playerId": "here-renata",
+      "clientIntentId": "here-opening-51",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "here-renata-RUNE-UNL-R06-08",
+        "sourceObjectIds": null,
+        "cmdType": "TAP_RUNE",
+        "promptId": "here-location-rengar-confirmation-opening-20261018:50:here-renata:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 50
+      }
+    },
+    {
+      "playerId": "here-renata",
+      "clientIntentId": "here-opening-52",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "here-renata-RUNE-UNL-R06-07",
+        "sourceObjectIds": null,
+        "cmdType": "TAP_RUNE",
+        "promptId": "here-location-rengar-confirmation-opening-20261018:51:here-renata:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 51
+      }
+    },
+    {
+      "playerId": "here-renata",
+      "clientIntentId": "here-opening-53",
+      "commandType": "RECYCLE_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "here-renata-RUNE-UNL-R03-04",
+        "sourceObjectIds": null,
+        "cmdType": "RECYCLE_RUNE",
+        "promptId": "here-location-rengar-confirmation-opening-20261018:52:here-renata:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 52
+      }
+    },
+    {
+      "playerId": "here-renata",
+      "clientIntentId": "here-opening-54",
+      "commandType": "HIDE_CARD",
+      "rawCommand": {
+        "sourceObjectId": "here-renata-MAIN-SFD-202-221-02",
+        "cardNo": "SFD\u00B7202/221",
+        "destination": "BATTLEFIELD:here-rengar-BATTLEFIELD-OGN-275-298-01",
+        "optionalCosts": [
+          "STANDBY_A"
+        ],
+        "cmdType": "HIDE_CARD",
+        "promptId": "here-location-rengar-confirmation-opening-20261018:53:here-renata:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 53
+      }
+    },
+    {
+      "playerId": "here-renata",
+      "clientIntentId": "here-opening-55",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN",
+        "promptId": "here-location-rengar-confirmation-opening-20261018:54:here-renata:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 54
+      }
+    },
+    {
+      "playerId": "here-rengar",
+      "clientIntentId": "here-opening-56",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "here-rengar-RUNE-UNL-R01-04",
+        "sourceObjectIds": null,
+        "cmdType": "TAP_RUNE",
+        "promptId": "here-location-rengar-confirmation-opening-20261018:55:here-rengar:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 55
+      }
+    },
+    {
+      "playerId": "here-rengar",
+      "clientIntentId": "here-opening-57",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "here-rengar-RUNE-UNL-R01-02",
+        "sourceObjectIds": null,
+        "cmdType": "TAP_RUNE",
+        "promptId": "here-location-rengar-confirmation-opening-20261018:56:here-rengar:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 56
+      }
+    },
+    {
+      "playerId": "here-rengar",
+      "clientIntentId": "here-opening-58",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "here-rengar-RUNE-UNL-R04-09",
+        "sourceObjectIds": null,
+        "cmdType": "TAP_RUNE",
+        "promptId": "here-location-rengar-confirmation-opening-20261018:57:here-rengar:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 57
+      }
+    },
+    {
+      "playerId": "here-rengar",
+      "clientIntentId": "here-opening-59",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "here-rengar-RUNE-UNL-R04-07",
+        "sourceObjectIds": null,
+        "cmdType": "TAP_RUNE",
+        "promptId": "here-location-rengar-confirmation-opening-20261018:58:here-rengar:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 58
+      }
+    },
+    {
+      "playerId": "here-rengar",
+      "clientIntentId": "here-opening-60",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "here-rengar-RUNE-UNL-R01-06",
+        "sourceObjectIds": null,
+        "cmdType": "TAP_RUNE",
+        "promptId": "here-location-rengar-confirmation-opening-20261018:59:here-rengar:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 59
+      }
+    },
+    {
+      "playerId": "here-rengar",
+      "clientIntentId": "here-opening-61",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "here-rengar-RUNE-UNL-R04-11",
+        "sourceObjectIds": null,
+        "cmdType": "TAP_RUNE",
+        "promptId": "here-location-rengar-confirmation-opening-20261018:60:here-rengar:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 60
+      }
+    },
+    {
+      "playerId": "here-rengar",
+      "clientIntentId": "here-opening-62",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "here-rengar-RUNE-UNL-R01-01",
+        "sourceObjectIds": null,
+        "cmdType": "TAP_RUNE",
+        "promptId": "here-location-rengar-confirmation-opening-20261018:61:here-rengar:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 61
+      }
+    },
+    {
+      "playerId": "here-rengar",
+      "clientIntentId": "here-opening-63",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "here-rengar-RUNE-UNL-R01-05",
+        "sourceObjectIds": null,
+        "cmdType": "TAP_RUNE",
+        "promptId": "here-location-rengar-confirmation-opening-20261018:62:here-rengar:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 62
+      }
+    },
+    {
+      "playerId": "here-rengar",
+      "clientIntentId": "here-opening-64",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "here-rengar-RUNE-UNL-R01-03",
+        "sourceObjectIds": null,
+        "cmdType": "TAP_RUNE",
+        "promptId": "here-location-rengar-confirmation-opening-20261018:63:here-rengar:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 63
+      }
+    },
+    {
+      "playerId": "here-rengar",
+      "clientIntentId": "here-opening-65",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "here-rengar-RUNE-UNL-R04-08",
+        "sourceObjectIds": null,
+        "cmdType": "TAP_RUNE",
+        "promptId": "here-location-rengar-confirmation-opening-20261018:64:here-rengar:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 64
+      }
+    },
+    {
+      "playerId": "here-rengar",
+      "clientIntentId": "here-opening-66",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "here-rengar-RUNE-UNL-R04-12",
+        "sourceObjectIds": null,
+        "cmdType": "TAP_RUNE",
+        "promptId": "here-location-rengar-confirmation-opening-20261018:65:here-rengar:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 65
+      }
+    },
+    {
+      "playerId": "here-rengar",
+      "clientIntentId": "here-opening-67",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "here-rengar-RUNE-UNL-R04-10",
+        "sourceObjectIds": null,
+        "cmdType": "TAP_RUNE",
+        "promptId": "here-location-rengar-confirmation-opening-20261018:66:here-rengar:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 66
+      }
+    },
+    {
+      "playerId": "here-rengar",
+      "clientIntentId": "here-opening-68",
+      "commandType": "RECYCLE_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "here-rengar-RUNE-UNL-R04-09",
+        "sourceObjectIds": null,
+        "cmdType": "RECYCLE_RUNE",
+        "promptId": "here-location-rengar-confirmation-opening-20261018:67:here-rengar:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 67
+      }
+    },
+    {
+      "playerId": "here-rengar",
+      "clientIntentId": "here-opening-69",
+      "commandType": "PLAY_CARD",
+      "rawCommand": {
+        "sourceObjectId": "here-rengar-MAIN-UNL-003-219-07",
+        "cardNo": "UNL-003/219",
+        "targetObjectIds": [
+          "here-renata-MAIN-OGN-210-298-35"
+        ],
+        "mode": "",
+        "destination": "BASE",
+        "repeatChoices": null,
+        "movementDestinations": null,
+        "cmdType": "PLAY_CARD",
+        "promptId": "here-location-rengar-confirmation-opening-20261018:68:here-rengar:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 68
+      }
+    },
+    {
+      "playerId": "here-rengar",
+      "clientIntentId": "here-opening-70",
+      "commandType": "PASS_PRIORITY",
+      "rawCommand": {
+        "cmdType": "PASS_PRIORITY",
+        "promptId": "here-location-rengar-confirmation-opening-20261018:69:here-rengar:RECYCLE_RUNE,PLAY_CARD,PASS_PRIORITY,SURRENDER",
+        "snapshotTick": 69
+      }
+    },
+    {
+      "playerId": "here-renata",
+      "clientIntentId": "here-opening-71",
+      "commandType": "PASS_PRIORITY",
+      "rawCommand": {
+        "cmdType": "PASS_PRIORITY",
+        "promptId": "here-location-rengar-confirmation-opening-20261018:70:here-renata:RECYCLE_RUNE,REVEAL_CARD,PASS_PRIORITY,SURRENDER",
+        "snapshotTick": 70
+      }
+    },
+    {
+      "playerId": "here-rengar",
+      "clientIntentId": "here-opening-72",
+      "commandType": "PLAY_CARD",
+      "rawCommand": {
+        "sourceObjectId": "here-rengar-MAIN-UNL-184-219-02",
+        "cardNo": "UNL-184/219",
+        "targetObjectIds": [
+          "here-rengar-MAIN-UNL-003-219-07"
+        ],
+        "mode": "",
+        "destination": "",
+        "repeatChoices": null,
+        "movementDestinations": null,
+        "cmdType": "PLAY_CARD",
+        "promptId": "here-location-rengar-confirmation-opening-20261018:71:here-rengar:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 71
+      }
+    },
+    {
+      "playerId": "here-rengar",
+      "clientIntentId": "here-opening-73",
+      "commandType": "PASS_PRIORITY",
+      "rawCommand": {
+        "cmdType": "PASS_PRIORITY",
+        "promptId": "here-location-rengar-confirmation-opening-20261018:72:here-rengar:RECYCLE_RUNE,PLAY_CARD,PASS_PRIORITY,SURRENDER",
+        "snapshotTick": 72
+      }
+    },
+    {
+      "playerId": "here-renata",
+      "clientIntentId": "here-opening-74",
+      "commandType": "PASS_PRIORITY",
+      "rawCommand": {
+        "cmdType": "PASS_PRIORITY",
+        "promptId": "here-location-rengar-confirmation-opening-20261018:73:here-renata:RECYCLE_RUNE,REVEAL_CARD,PASS_PRIORITY,SURRENDER",
+        "snapshotTick": 73
+      }
+    },
+    {
+      "playerId": "here-rengar",
+      "clientIntentId": "here-opening-75",
+      "commandType": "PLAY_CARD",
+      "rawCommand": {
+        "sourceObjectId": "here-rengar-MAIN-UNL-003-219-07",
+        "cardNo": "UNL-003/219",
+        "targetObjectIds": [],
+        "mode": "",
+        "destination": "BATTLEFIELD:here-rengar-BATTLEFIELD-OGN-275-298-01",
+        "repeatChoices": null,
+        "movementDestinations": null,
+        "cmdType": "PLAY_CARD",
+        "promptId": "here-location-rengar-confirmation-opening-20261018:74:here-rengar:PLAY_CARD,ACTIVATE_ABILITY,TAP_RUNE,RECYCLE_RUNE,SURRENDER",
+        "snapshotTick": 74
+      }
+    },
+    {
+      "playerId": "here-rengar",
+      "clientIntentId": "here-opening-76",
+      "commandType": "ORDER_TRIGGERS",
+      "rawCommand": {
+        "triggerIds": null,
+        "orderedTriggerIds": [
+          "unit-play-might-75-3-here-rengar-LEGEND-UNL-183-219-01",
+          "permanent-play-order-STACK-75-here-rengar-MAIN-UNL-003-219-07"
+        ],
+        "cmdType": "ORDER_TRIGGERS",
+        "promptId": "here-location-rengar-confirmation-opening-20261018:75:here-rengar:ORDER_TRIGGERS,SURRENDER",
+        "snapshotTick": 75
+      }
+    },
+    {
+      "playerId": "here-rengar",
+      "clientIntentId": "here-opening-77",
+      "commandType": "CHOOSE_CARDS",
+      "rawCommand": {
+        "choiceId": "PERMANENT-TARGET:STACK-75-here-rengar-MAIN-UNL-003-219-07",
+        "choiceWindow": "TRIGGER_CONFIRMATION",
+        "chosenObjectIds": [
+          "here-renata-MAIN-OGN-210-298-35"
+        ],
+        "cmdType": "CHOOSE_CARDS",
+        "promptId": "here-location-rengar-confirmation-opening-20261018:76:here-rengar:CHOOSE_CARDS,ACTIVATE_ABILITY,TAP_RUNE,RECYCLE_RUNE,SURRENDER",
+        "snapshotTick": 76
+      }
+    },
+    {
+      "playerId": "here-rengar",
+      "clientIntentId": "here-opening-78",
+      "commandType": "CHOOSE_CARDS",
+      "rawCommand": {
+        "choiceId": "UNIT-PLAY-MIGHT:ordered-unit-play-might-75-3-here-rengar-LEGEND-UNL-183-219-01",
+        "choiceWindow": "TRIGGER_CONFIRMATION",
+        "chosenObjectIds": [
+          "here-rengar-MAIN-UNL-003-219-07"
+        ],
+        "cmdType": "CHOOSE_CARDS",
+        "promptId": "here-location-rengar-confirmation-opening-20261018:77:here-rengar:CHOOSE_CARDS,ACTIVATE_ABILITY,TAP_RUNE,RECYCLE_RUNE,SURRENDER",
+        "snapshotTick": 77
+      }
+    },
+    {
+      "playerId": "here-rengar",
+      "clientIntentId": "here-opening-79",
+      "commandType": "PASS_PRIORITY",
+      "rawCommand": {
+        "cmdType": "PASS_PRIORITY",
+        "promptId": "here-location-rengar-confirmation-opening-20261018:78:here-rengar:RECYCLE_RUNE,PLAY_CARD,PASS_PRIORITY,SURRENDER",
+        "snapshotTick": 78
+      }
+    },
+    {
+      "playerId": "here-renata",
+      "clientIntentId": "here-opening-80",
+      "commandType": "PASS_PRIORITY",
+      "rawCommand": {
+        "cmdType": "PASS_PRIORITY",
+        "promptId": "here-location-rengar-confirmation-opening-20261018:79:here-renata:RECYCLE_RUNE,PLAY_CARD,REVEAL_CARD,PASS_PRIORITY,SURRENDER",
+        "snapshotTick": 79
+      }
+    },
+    {
+      "playerId": "here-rengar",
+      "clientIntentId": "here-opening-81",
+      "commandType": "PASS_PRIORITY",
+      "rawCommand": {
+        "cmdType": "PASS_PRIORITY",
+        "promptId": "here-location-rengar-confirmation-opening-20261018:80:here-rengar:RECYCLE_RUNE,PLAY_CARD,PASS_PRIORITY,SURRENDER",
+        "snapshotTick": 80
+      }
+    },
+    {
+      "playerId": "here-renata",
+      "clientIntentId": "here-opening-82",
+      "commandType": "PLAY_CARD",
+      "rawCommand": {
+        "sourceObjectId": "here-renata-MAIN-SFD-202-221-02",
+        "cardNo": "SFD\u00B7202/221",
+        "targetObjectIds": [
+          "here-rengar-MAIN-UNL-003-219-07"
+        ],
+        "mode": "",
+        "destination": "",
+        "repeatChoices": null,
+        "movementDestinations": null,
+        "cmdType": "PLAY_CARD",
+        "promptId": "here-location-rengar-confirmation-opening-20261018:81:here-renata:RECYCLE_RUNE,PLAY_CARD,REVEAL_CARD,PASS_PRIORITY,SURRENDER",
+        "snapshotTick": 81
+      }
+    },
+    {
+      "playerId": "here-renata",
+      "clientIntentId": "here-opening-83",
+      "commandType": "PASS_PRIORITY",
+      "rawCommand": {
+        "cmdType": "PASS_PRIORITY",
+        "promptId": "here-location-rengar-confirmation-opening-20261018:82:here-renata:RECYCLE_RUNE,PASS_PRIORITY,SURRENDER",
+        "snapshotTick": 82
+      }
+    },
+    {
+      "playerId": "here-rengar",
+      "clientIntentId": "here-opening-84",
+      "commandType": "PASS_PRIORITY",
+      "rawCommand": {
+        "cmdType": "PASS_PRIORITY",
+        "promptId": "here-location-rengar-confirmation-opening-20261018:83:here-rengar:RECYCLE_RUNE,PLAY_CARD,PASS_PRIORITY,SURRENDER",
+        "snapshotTick": 83
+      }
+    },
+    {
+      "playerId": "here-rengar",
+      "clientIntentId": "here-opening-85",
+      "commandType": "PASS_PRIORITY",
+      "rawCommand": {
+        "cmdType": "PASS_PRIORITY",
+        "promptId": "here-location-rengar-confirmation-opening-20261018:84:here-rengar:RECYCLE_RUNE,PASS_PRIORITY,SURRENDER",
+        "snapshotTick": 84
+      }
+    },
+    {
+      "playerId": "here-renata",
+      "clientIntentId": "here-opening-86",
+      "commandType": "PASS_PRIORITY",
+      "rawCommand": {
+        "cmdType": "PASS_PRIORITY",
+        "promptId": "here-location-rengar-confirmation-opening-20261018:85:here-renata:RECYCLE_RUNE,PASS_PRIORITY,SURRENDER",
+        "snapshotTick": 85
+      }
+    }
+  ],
+  "scope": "Fresh room and legal Rengar/Renata decks from original blank seed0, including mandatory independent legend confirmation and own/legend ordering before Takeover. Three Rengar and both original Here cold boundaries, five original next commands, original ability controller,damage2 and full replay. Prior83-command fixture and accepted histories remain unchanged. No whole-card or base-positive certification."
+}

@@ -1,0 +1,103 @@
+{
+  "recordedAtUtc": "2026-10-17T22:01:14.512504+00:00",
+  "status": "ACTUAL_EXECUTING_MODULE_IDENTITIES_INDEPENDENTLY_RECONSTRUCTED_FROM_PE_METADATA",
+  "actualModules": {
+    "currentConformanceDebug": [
+      {
+        "Name": "Riftbound.CardCatalog",
+        "Module": "83cc4391af2f46afb0f5bad4b925be45",
+        "sha256": "785bbfe74fb922064277bdc8ecd5ace5556174f2077a5aec12cf862640ce5477"
+      },
+      {
+        "Name": "Riftbound.Contracts",
+        "Module": "494b9fcb5ed944b48c37b12bc0569f00",
+        "sha256": "2a42fa8ed864d9899c93a9cb63eb8277d491e1fd80fa3fedc58f2ca6f273287f"
+      },
+      {
+        "Name": "Riftbound.Engine",
+        "Module": "7318f9c86972474e866dfff224b8b902",
+        "sha256": "6319ab860368adca81799ea72653a520fc86b3997df0d47c16ebcbcd3482315d"
+      }
+    ],
+    "currentSqlDebug": [
+      {
+        "Name": "Riftbound.CardCatalog",
+        "Module": "83cc4391af2f46afb0f5bad4b925be45",
+        "sha256": "785bbfe74fb922064277bdc8ecd5ace5556174f2077a5aec12cf862640ce5477"
+      },
+      {
+        "Name": "Riftbound.Contracts",
+        "Module": "494b9fcb5ed944b48c37b12bc0569f00",
+        "sha256": "2a42fa8ed864d9899c93a9cb63eb8277d491e1fd80fa3fedc58f2ca6f273287f"
+      },
+      {
+        "Name": "Riftbound.Engine",
+        "Module": "7318f9c86972474e866dfff224b8b902",
+        "sha256": "6319ab860368adca81799ea72653a520fc86b3997df0d47c16ebcbcd3482315d"
+      }
+    ],
+    "earlyOriginalGames": [
+      {
+        "Name": "Riftbound.CardCatalog",
+        "Module": "83cc4391af2f46afb0f5bad4b925be45",
+        "sha256": "785bbfe74fb922064277bdc8ecd5ace5556174f2077a5aec12cf862640ce5477"
+      },
+      {
+        "Name": "Riftbound.Contracts",
+        "Module": "494b9fcb5ed944b48c37b12bc0569f00",
+        "sha256": "2a42fa8ed864d9899c93a9cb63eb8277d491e1fd80fa3fedc58f2ca6f273287f"
+      },
+      {
+        "Name": "Riftbound.Engine",
+        "Module": "1e16a0a04bb84a3abf8c262aeaae8cad",
+        "sha256": "934b4c548de456e16c0a3d5fdbda8f0fa4999a7be7399e9db03daa7d05d046f6"
+      }
+    ],
+    "originalThreeRowRed": [
+      {
+        "Name": "Riftbound.CardCatalog",
+        "Module": "83cc4391af2f46afb0f5bad4b925be45",
+        "sha256": "785bbfe74fb922064277bdc8ecd5ace5556174f2077a5aec12cf862640ce5477"
+      },
+      {
+        "Name": "Riftbound.Contracts",
+        "Module": "494b9fcb5ed944b48c37b12bc0569f00",
+        "sha256": "2a42fa8ed864d9899c93a9cb63eb8277d491e1fd80fa3fedc58f2ca6f273287f"
+      },
+      {
+        "Name": "Riftbound.Engine",
+        "Module": "ed278d3233b4453386c26026005f0365",
+        "sha256": "90dc3240ade6a2a80ef0d975f20c5eec25e7f6f4c63f21ecd0714ec804584847"
+      }
+    ],
+    "originalNativeA5dRelease": [
+      {
+        "Name": "Riftbound.CardCatalog",
+        "Module": "d8a3814c41ee417b8482edf05e6d4f45",
+        "sha256": "9bf36ae20dedbdb05cd71311d08594475c9eca29a9c99c8bfe13087bb9cb126e"
+      },
+      {
+        "Name": "Riftbound.Contracts",
+        "Module": "0f7652e75680454caf85dce3cc86decb",
+        "sha256": "1341b3d0966e07262ce458732dd13a5fb958e4136f376d92852e5302b4110e1b"
+      },
+      {
+        "Name": "Riftbound.Engine",
+        "Module": "b0e748e587d946aeaecdcef1206922e3",
+        "sha256": "fa3cacb48d28b789af7d6330fa7d8387c7b72f73360e57851d953cbc3c86f6e9"
+      }
+    ]
+  },
+  "implementationIdentities": {
+    "currentConformanceDebug": "ba8c1dbeca19d85db206d64b1a14842724e40a536fff08758fd2b6b499d15896",
+    "currentSqlDebug": "ba8c1dbeca19d85db206d64b1a14842724e40a536fff08758fd2b6b499d15896",
+    "earlyOriginalGames": "6c794a2d8ca2637806f9cdbde04269e4411cd3f324d196602190905c152b074e",
+    "originalThreeRowRed": "2b21b0549d6ecfb0099393e37573a88cd1d406e128812148ca091d0fe2718826",
+    "originalNativeA5dRelease": "f45326e7f5c0bdae17c0b7a953937029ad7a87024d313d8bd1a22b9ad4b7ad4d"
+  },
+  "currentSqlReceiptIdentityMatchesIndependentMvidCalculation": true,
+  "currentConformanceAndSqlActualModuleBytesEqual": true,
+  "earlierOriginalGamesAndNativeRedKeepTheirOwnOriginalCompiledIdentity": true,
+  "sourceEqualityNotEquatedWithCompiledBinaryIdentity": true,
+  "scope": "Each original action/event replay stays bound to its executing modules; no old development match migration or history rewrite."
+}

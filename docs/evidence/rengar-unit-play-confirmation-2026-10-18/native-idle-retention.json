@@ -1,0 +1,24 @@
+{
+  "recordedAtUtc": "2026-10-17T21:09:06.664533+00:00",
+  "fixedCommit": "a5d01ad0577e992ab19029424159a4c9acee1385",
+  "bothNativeApplicationQuitMenusObserved": true,
+  "bothNativeProcessesExited": true,
+  "cmdQAloneDidNotExitA": true,
+  "apiNormalSigtermExit": true,
+  "apiPortClosed": true,
+  "postgresSmartStopped": true,
+  "originalFrameAfterBothQuitsAndApiExit": {
+    "room": "paired-here-control-20261018",
+    "Tick": 15,
+    "commands": 16,
+    "events": 56,
+    "entireOriginalFrameUnchanged": true,
+    "privateOriginalFrameSha256": "9d188ce70aa634651f3ebf4cdb3721fe4339e53b8df4c243277b0e962231ce09",
+    "privateSeedExcluded": true,
+    "noCommandsSubmitted": true
+  },
+  "rawDatabaseRetained": true,
+  "sourceTestsLogsAndOriginalAcceptedHistoryRetained": true,
+  "latestPairAndOneMacOneWindowsArchiveRetained": true,
+  "scope": "Idle resource release after saved native semantic red, not terminal product acceptance; no surrender or state migration."
+}

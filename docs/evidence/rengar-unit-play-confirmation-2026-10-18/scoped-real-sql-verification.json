@@ -1,0 +1,45 @@
+{
+  "startedAtUtc": "2026-10-17T21:50:25.088678+00:00",
+  "existingClusterReused": "var/qa/permanent-play-here-base-20261017/postgres",
+  "database": "riftbound_acceptance",
+  "noNewClusterOrDatabaseCreated": true,
+  "prior83CommandEvidenceAndNativeRedDatabaseRetained": true,
+  "priorRoomCount": 2,
+  "priorSevenTableDigests": {
+    "matches": "cabc646195dee51cfee6dce083459e42a0f6552c76fc3783f40e1e91198edf20",
+    "match_players": "6a4e73b7bd6c71f1c57c9596155a34745f584c4e07a126a3df568f5e77e1a765",
+    "command_log": "1910b4400c37d6e1308575368ca4f0e3232bdb57a5bb58e99cfbc650a5117987",
+    "game_events": "fd4fd7e6ab2b7d493f9eefbb9dd01404e0a0ae87061c1d8fd7a78e9ba28a4ce4",
+    "state_snapshots": "dafc815aae27744ed43206721d9bb307b7c4ef1a643214eb3f515b73a0db9cbd",
+    "snapshots": "87d68e73648590b9ee52964bc98e2f96f3f75520cbde2b296ec2a499049f6cf9",
+    "action_prompts": "11cc8fa893b803ac843e05e753351fed26b10712f257312bd6656c9e18f0e36e"
+  },
+  "exitCode": 0,
+  "finishedAtUtc": "2026-10-17T21:56:54.177089+00:00",
+  "afterPriorSevenTableDigests": {
+    "matches": "cabc646195dee51cfee6dce083459e42a0f6552c76fc3783f40e1e91198edf20",
+    "match_players": "6a4e73b7bd6c71f1c57c9596155a34745f584c4e07a126a3df568f5e77e1a765",
+    "command_log": "1910b4400c37d6e1308575368ca4f0e3232bdb57a5bb58e99cfbc650a5117987",
+    "game_events": "fd4fd7e6ab2b7d493f9eefbb9dd01404e0a0ae87061c1d8fd7a78e9ba28a4ce4",
+    "state_snapshots": "dafc815aae27744ed43206721d9bb307b7c4ef1a643214eb3f515b73a0db9cbd",
+    "snapshots": "87d68e73648590b9ee52964bc98e2f96f3f75520cbde2b296ec2a499049f6cf9",
+    "action_prompts": "11cc8fa893b803ac843e05e753351fed26b10712f257312bd6656c9e18f0e36e"
+  },
+  "allPriorRoomRowsUnchanged": true,
+  "authoredInputsStable": true,
+  "actualRuntimeFilesStable": true,
+  "status": "REAL_SQL_RENGAR_HERE_FIVE_COLD_FIVE_ORIGINAL_NEXT_FOUR_FORGERIES_PASS",
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+    "implementationSha256": "ba8c1dbeca19d85db206d64b1a14842724e40a536fff08758fd2b6b499d15896",
+    "identitySha256": "5fbbfe67923d3ca65d3720cbf8f93f6f9434e0ab80833d7124c41dcc80db197a"
+  },
+  "receiptSha256": "b8ae4e44b97900ecb4cb9b7c44cc2e8ea1122ac61e0c8daac9e8502e962129c7",
+  "idleClusterSmartStopped": true,
+  "rawDatabaseRetained": true,
+  "recordedAtUtc": "2026-10-17T21:56:54.801356+00:00"
+}

@@ -23659,6 +23659,13 @@ public static class MatchRecoveryValidator
             if (!CoreRuleEngine.ValidSourcePlayDraw(state, item.SourcePlayDraw, item.EffectKind, item.SourceObjectId, item.CardNo))
                 errors.Add("invalid source play draw stack");
         foreach (var trigger in state.TriggerQueue)
+            if (!PermanentPlayTriggerRecoveryRules.ValidQueued(state, trigger)) errors.Add("invalid deferred permanent play ordering origin");
+        foreach (var trigger in state.TriggerQueue)
+            if (!RengarPlayRecoveryRules.ValidQueued(state, trigger))
+                errors.Add("invalid unit play might trigger");
+        foreach (var item in state.StackItems)
+            if (!RengarPlayRecoveryRules.ValidStack(state, item)) errors.Add("invalid unit play might stack");
+        foreach (var trigger in state.TriggerQueue)
             if (trigger.UnitEntryContext is { } entry ? !CoreRuleEngine.ValidUnitEntryTrigger(entry, trigger.EffectKind, trigger.ControllerId)
                 || !state.Seats.ContainsKey(entry.EnteringPlayerId) : trigger.EffectKind == CoreRuleEngine.EnemyUnitEntryEffect) errors.Add("invalid unit entry trigger");
         foreach (var item in state.StackItems)
@@ -24900,7 +24907,7 @@ public static class MatchRecoveryValidator
                 || item.TargetGenerations is not { Count: 1 }
                 || !item.TargetGenerations.TryGetValue(item.TargetObjectIds[0], out var targetGeneration) || targetGeneration < 0
                 || item.SpellContext is not null || item.AzirMovement is not null || item.DamageDistribution is not null
-                || item.ReflexiveCopy is not null || item.CreatedTokenReady is not null || item.UnitEntryContext is not null || item.SourcePlayDraw is not null || item.TriggerCost is not null
+                || item.ReflexiveCopy is not null || item.CreatedTokenReady is not null || item.UnitEntryContext is not null || item.UnitPlayMight is not null || item.SourcePlayDraw is not null || item.TriggerCost is not null
                 || item.Equip is not null || item.AttachmentObserver is not null || item.Tempered is not null
                 || item.LegendAttachment is not null || item.TokenEntryPlan is not null || item.RepeatExecutions is not null
                 || item.MovementDestinations is not null || item.TargetStackSources is not null
@@ -27179,6 +27186,9 @@ public static class MatchRecoveryValidator
                     errors);
             }
             var targetReferences = knownObjectIds.ToHashSet(StringComparer.Ordinal);
+            if (stackItem.UnitPlayMight is { TargetTokenFactoryCardNo: not null }
+                && RengarPlayRecoveryRules.ValidStack(authoritativeState, stackItem))
+                foreach (var id in stackItem.TargetObjectIds) targetReferences.Add(id);
             if (stackItem.DestroyDeckPlay is { } destroyDeck && CoreRuleEngine.ValidHistoricalDestroyDeckTarget(authoritativeState, stackItem, destroyDeck.Target.ObjectId))
                 targetReferences.Add(destroyDeck.Target.ObjectId);
             if (stackItem.CreatedTokenReady is { } ready && CoreRuleEngine.ValidCreatedTokenReadyStack(authoritativeState, stackItem))
@@ -31964,6 +31974,9 @@ public static class MatchRecoveryValidator
             var targetReferences = knownObjectIds.ToHashSet(StringComparer.Ordinal);
             if (authoritativeState.StackItems.FirstOrDefault(i => i.StackItemId == stackItemId) is { } original)
             {
+                if (original.UnitPlayMight is { TargetTokenFactoryCardNo: not null }
+                    && RengarPlayRecoveryRules.ValidStack(authoritativeState, original))
+                    foreach (var id in original.TargetObjectIds) targetReferences.Add(id);
                 if (original.DestroyDeckPlay is { } destroyDeck && CoreRuleEngine.ValidHistoricalDestroyDeckTarget(authoritativeState, original, destroyDeck.Target.ObjectId))
                     targetReferences.Add(destroyDeck.Target.ObjectId);
                 if (original.CreatedTokenReady is { } ready && CoreRuleEngine.ValidCreatedTokenReadyStack(authoritativeState, original))

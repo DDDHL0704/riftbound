@@ -45,12 +45,23 @@ internal static class PermanentPlayTriggerRecoveryRules
         if (battlefield) return true;
         if (item.DamageAmount != 0) return false;
 
-        // The current permanent flow also carries the controller's independent
-        // legend ability. An opponent's legend cannot authorize this item.
-        return behavior.PlaysSourceToBaseAsUnit
-            && state.PlayerZones.TryGetValue(item.ControllerId, out var zones)
-            && zones.LegendZone.Any(id => state.CardObjects.TryGetValue(id, out var legend)
-                && CardControlRules.IsControlledByPlayerOrLegacyOwned(legend, item.ControllerId)
-                && LegendIdentityCatalog.IsSourceCardNoForIdentity(LegendIdentityCatalog.RengarLegendIdentityId, legend.CardNo));
+        return false;
+    }
+
+    internal static bool ValidQueued(MatchState state, TriggerQueueItemState trigger)
+    {
+        if (trigger.PermanentPlayStackItemId is not { } id)
+            return !trigger.TriggerId.StartsWith("permanent-play-order-", StringComparison.Ordinal);
+        var item = state.StackItems.FirstOrDefault(i => i.StackItemId == id);
+        return item is { SourceConfirmed: true, UnitPlayMight: null } && state.StackItems.Count(i => i.StackItemId == id) == 1
+            && trigger.TriggerId == "permanent-play-order-" + id && trigger.SourceObjectId == item.SourceObjectId
+            && trigger.ControllerId == item.ControllerId && trigger.EffectKind == item.EffectKind
+            && trigger.SourceCardNo == item.CardNo && trigger.UnitPlayMight is null && Valid(state, item)
+            && state.TriggerQueue.Any(t => t.UnitPlayMight is { } legend
+                && t.ControllerId == item.ControllerId && t.TriggeredByEventKind == trigger.TriggeredByEventKind
+                && RengarPlayRecoveryRules.Valid(state, legend, t.EffectKind, t.SourceObjectId, t.ControllerId)
+                && legend.PlayedUnit.ObjectId == item.SourceObjectId
+                && state.CardPlays.Resolved.Any(p => p.PlayId == id && p.Source == legend.PlayedUnit
+                    && p.CardNo == item.CardNo && p.PlayerId == item.ControllerId && p.Tick == legend.CapturedTick));
     }
 }

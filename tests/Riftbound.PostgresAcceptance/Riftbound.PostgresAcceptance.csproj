@@ -18,6 +18,8 @@
              Link="Fixtures/banish-owner-current-opening.json" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="../Riftbound.ConformanceTests/Fixtures/here-controller-current-opening.json"
              Link="Fixtures/here-controller-current-opening.json" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="../Riftbound.ConformanceTests/Fixtures/here-controller-rengar-confirmation-opening.json"
+             Link="Fixtures/here-controller-rengar-confirmation-opening.json" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="../Riftbound.ConformanceTests/Fixtures/confirmed-play-origin-hand-cn16.json"
              Link="Fixtures/confirmed-play-origin-hand-cn16.json" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="../Riftbound.ConformanceTests/Fixtures/confirmed-play-origin-standby-cn16.json"

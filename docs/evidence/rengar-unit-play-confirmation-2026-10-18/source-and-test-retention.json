@@ -1,0 +1,32 @@
+{
+  "recordedAtUtc": "2026-10-17T21:53:40.008183+00:00",
+  "baseCommit": "a5d01ad0577e992ab19029424159a4c9acee1385",
+  "originalConformanceSources": 450,
+  "originalSourceFilesByteExact": 445,
+  "changedOriginalSourcePaths": [
+    "tests/Riftbound.ConformanceTests/BattlefieldPlayRecoveryGuardTests.cs",
+    "tests/Riftbound.ConformanceTests/CardPlayHistoryTests.cs",
+    "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+    "tests/Riftbound.ConformanceTests/HereLocationOpeningTests.cs",
+    "tests/Riftbound.ConformanceTests/StandbyDefendObserverTests.cs"
+  ],
+  "allOriginalTestAttributesAndTheoryRowsExact": true,
+  "allOriginalPublicTestMethodSignaturesRetained": true,
+  "changedAssertionReasons": {
+    "ConformanceFixtureRunnerTests.cs": "Independent legend now owns its checked targets; all final power/source/cleanup assertions retained.",
+    "BattlefieldPlayRecoveryGuardTests.cs": "Keep both source printings/all rows and exact independent/casual forgery assertions; forge the printed ability separately from the now genuine legend item.",
+    "CardPlayHistoryTests.cs": "The owner-directed physical play uses its exact finalized STACK ID once; retain owner/type/Hunt attribution.",
+    "StandbyDefendObserverTests.cs": "Retain actual recorded RuleInputs in recovered commands instead of dropping metadata.",
+    "HereLocationOpeningTests.cs": "Fresh room and additional mandatory legend/order steps, three added cold/next boundaries; original controller/damage/replay assertions and old fixture retained."
+  },
+  "all1275OriginalFixturesByteExact": true,
+  "newFixturePath": "tests/Riftbound.ConformanceTests/Fixtures/here-controller-rengar-confirmation-opening.json",
+  "newFixtureSha256": "32d9f7524a9971f9c79454f17dfc5a64f7b1de2a1c32c97f537c30301412c243",
+  "allEightOriginalFullGameFilesByteExact": true,
+  "all143OriginalFullGameMethodsSeedsVictoryReplayAssertionsPreserved": true,
+  "defaultSqlProgramByteExact": true,
+  "allOriginalSqlContentEntriesRetained": true,
+  "oneNewExactSqlContentPathAdded": true,
+  "original110DirectedPairs11DecksSeed424242": "original-games-and110-verification.json",
+  "noOldMatchMigrationOrAcceptedHistoryRewrite": true
+}

@@ -9,8 +9,7 @@ public sealed partial class CoreRuleEngine
                 && SourcePlayDrawSpec(behavior.CardNo) is null)
             || HasStandbyCountedPlayAbility(StandbyDefinition(behavior, item.PlayedFromStandby))
             || HasStandbyAttachmentPlayAbility(StandbyDefinition(behavior, item.PlayedFromStandby))
-            || (behavior.MainDeckLookCount > 0 && behavior.RecyclesSelectedMainDeckTargets)
-            || (behavior.PlaysSourceToBaseAsUnit && ControllerHasRengarLegend(state, item.ControllerId));
+            || (behavior.MainDeckLookCount > 0 && behavior.RecyclesSelectedMainDeckTargets);
 
     // CN 359.2: confirming a permanent is part of PLAY_CARD, not a pair of passes.
     private static ResolutionResult ConfirmPlayedPermanent(MatchState before, MatchState paid,

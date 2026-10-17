@@ -21550,6 +21550,132 @@
         "docs/evidence/here-location-control-2026-10-18/storage-retirement-reconstruction.json",
         "docs/evidence/here-location-control-2026-10-18/one-check.json"
       ]
+    },
+    {
+      "id": "rengar-unit-play-confirmation-order-recovery-2026-10-18",
+      "scope": "CN zh-CN limited observation 2026-10-18; frozen CN 2026-10-16 source universe retained. Independent Rengar unit-play confirmation, mandatory postentry target, checked intent, shared Ward/response, simultaneous own-body ordering and independent original-causal recovery. Legal blank seed0 Rengar/Renata opening and explicit-midgame lifecycle cases are distinct; no whole printing certification.",
+      "status": "SCOPED_FOCUS107_CHECK12418_METHODS7323_SQL87_FIVE_COLD_FIVE_NEXT_FOUR_FORGERIES_PASS_CURRENT_FIXED_FULL_NATIVE_WINDOWS_OPEN",
+      "subjects": [
+        "UNL-183/219",
+        "UNL-227/219",
+        "UNL-227*/219",
+        "UNL-003/219",
+        "SFD-031/221",
+        "OGN-104/298",
+        "SFD-T02"
+      ],
+      "ruleRecords": [],
+      "pendingRuleRecords": [],
+      "sourceManifest": {
+        "path": "docs/evidence/rengar-unit-play-confirmation-2026-10-18/source-manifest.json",
+        "sha256": "a61088f5527f6e12803946bb35863507c21508af936f21e06873b0bf2f35c7c6"
+      },
+      "sourceClauses": [
+        {
+          "document": "DOC-01",
+          "clause": "337.1.b",
+          "sha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11"
+        },
+        {
+          "document": "DOC-01",
+          "clause": "359.2",
+          "sha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11"
+        },
+        {
+          "document": "DOC-01",
+          "clause": "359.3.f.4",
+          "sha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11"
+        },
+        {
+          "document": "DOC-01",
+          "clause": "383.3.d",
+          "sha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11"
+        },
+        {
+          "document": "DOC-01",
+          "clause": "383.4.a.2",
+          "sha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11"
+        },
+        {
+          "document": "DOC-01",
+          "clause": "383.4.a.4",
+          "sha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11"
+        },
+        {
+          "document": "DOC-01",
+          "clause": "402.2",
+          "sha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11"
+        },
+        {
+          "document": "DOC-01",
+          "clause": "403.2",
+          "sha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11"
+        },
+        {
+          "document": "DOC-01",
+          "clause": "403.4.b",
+          "sha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11"
+        },
+        {
+          "document": "DOC-01",
+          "clause": "405.2",
+          "sha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11"
+        },
+        {
+          "document": "DOC-01",
+          "clause": "407.4",
+          "sha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11"
+        }
+      ],
+      "validation": {
+        "focus": {
+          "path": "docs/evidence/rengar-unit-play-confirmation-2026-10-18/focus.json",
+          "sha256": "11185439d02a1ce08957eedcc7b4f0fb0ae4129977d5f34aded8c3bcd020a5a7"
+        },
+        "realSql": {
+          "path": "docs/evidence/rengar-unit-play-confirmation-2026-10-18/scoped-real-sql.json",
+          "sha256": "b8ae4e44b97900ecb4cb9b7c44cc2e8ea1122ac61e0c8daac9e8502e962129c7"
+        },
+        "actualCompiledInputs": {
+          "path": "docs/evidence/rengar-unit-play-confirmation-2026-10-18/actual-compiled-input-identity.json",
+          "sha256": "7d45ce79fe3ff5596f23617586f10e86d2f0fe632e36d61d09e40fd2e9b760c0"
+        },
+        "earlierOriginalGames": {
+          "path": "docs/evidence/rengar-unit-play-confirmation-2026-10-18/early-original-games-and110.json",
+          "sha256": "a4d2e43616ff96ac675b09ae9c676d8c97613cd5d06fb5374a46c4df3a197cc9"
+        },
+        "fixedCommitFull": "PENDING_NEW_FIXED_COMMIT",
+        "currentVisibleProduct": "OPEN",
+        "physicalWindows": "OPEN",
+        "oneCheck": {
+          "path": "docs/evidence/rengar-unit-play-confirmation-2026-10-18/one-check.json",
+          "sha256": "af7c0c41564648868822d47af24af59f8e63577d262970c04f2113d23b7ee2c3"
+        }
+      },
+      "exclusions": [
+        "Current fixed full and physical Windows",
+        "Current visible paired reconnect, normal score finish and original blank replay",
+        "Token lifecycle SQL/native and other shared consumers or combinations",
+        "Other Here/control/base-positive opening, Bright Future and Candlelit Sanctum current product combinations",
+        "Whole printing semantics and all official source gaps"
+      ],
+      "auditDocument": "docs/RENGAR_UNIT_PLAY_CONFIRMATION_AUDIT_2026-10-18.md",
+      "evidence": [
+        "docs/evidence/rengar-unit-play-confirmation-2026-10-18/focus.json",
+        "docs/evidence/rengar-unit-play-confirmation-2026-10-18/source-manifest.json",
+        "docs/evidence/rengar-unit-play-confirmation-2026-10-18/scoped-real-sql.json",
+        "docs/evidence/rengar-unit-play-confirmation-2026-10-18/scoped-real-sql-verification.json",
+        "docs/evidence/rengar-unit-play-confirmation-2026-10-18/source-and-test-retention.json",
+        "docs/evidence/rengar-unit-play-confirmation-2026-10-18/actual-compiled-input-identity.json",
+        "docs/evidence/rengar-unit-play-confirmation-2026-10-18/early-original-games-and110.json",
+        "docs/evidence/rengar-unit-play-confirmation-2026-10-18/original-causal-red.json",
+        "docs/evidence/rengar-unit-play-confirmation-2026-10-18/original-native-semantic-red.json",
+        "docs/evidence/rengar-unit-play-confirmation-2026-10-18/original-red-modules.json",
+        "docs/evidence/rengar-unit-play-confirmation-2026-10-18/simultaneous-order-red-modules.json",
+        "docs/evidence/rengar-unit-play-confirmation-2026-10-18/native-idle-retention.json",
+        "docs/evidence/rengar-unit-play-confirmation-2026-10-18/one-check.json",
+        "docs/evidence/rengar-unit-play-confirmation-2026-10-18/fixeda5d-full-ci-independent-original.json"
+      ]
     }
   ]
 }

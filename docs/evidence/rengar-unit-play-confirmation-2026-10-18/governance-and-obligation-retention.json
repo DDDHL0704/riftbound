@@ -1,0 +1,42 @@
+{
+  "recordedAtUtc": "2026-10-17T22:19:25.388335+00:00",
+  "governanceValid": true,
+  "errors": [],
+  "allOriginal122ReviewDictionariesExactlyRetained": true,
+  "currentReviews": 123,
+  "currentContexts": 38,
+  "originalObligationIdsRetained": 16575,
+  "currentObligationCount": 16582,
+  "addedObligationIds": [
+    "BRANCH:rengar-unit-play-confirmation-order-recovery-2026-10-18:captured-origin-independent-causal-recovery",
+    "BRANCH:rengar-unit-play-confirmation-order-recovery-2026-10-18:checked-declared-intent",
+    "BRANCH:rengar-unit-play-confirmation-order-recovery-2026-10-18:legal-blank-opening-cold-here-controller",
+    "BRANCH:rengar-unit-play-confirmation-order-recovery-2026-10-18:mandatory-postentry-target",
+    "BRANCH:rengar-unit-play-confirmation-order-recovery-2026-10-18:simultaneous-own-and-legend",
+    "BRANCH:rengar-unit-play-confirmation-order-recovery-2026-10-18:ward-target-and-token-lifecycle",
+    "GATE:RENGAR_UNIT_PLAY_CONFIRMATION_ORDER_AND_RECOVERY"
+  ],
+  "allCurrentContextsNewFixedFullPending": true,
+  "counts": {
+    "combinedExactPrintingNumbers": 1740,
+    "sourceDocuments": 36,
+    "sourceBlocks": 14293,
+    "cnOfficialPrintings": 1504,
+    "enReturnedPrintings": 1408,
+    "enReportedTotal": 1416,
+    "enSourceCountGap": 8,
+    "activeCatalogEntries": 1033,
+    "outsideActiveCatalog": 707,
+    "cnQaFields": 1504,
+    "cnNonemptyQaFields": 0
+  },
+  "sourceUniverseAndSourceDeltasNotReduced": true,
+  "originalAcceptanceGatesUnchanged": true,
+  "semanticCoverageCertified": false,
+  "completionRate": null,
+  "priorFixedGovernanceSha256": "7a28583c0509e7f764a93ee22f8284b20ab76f7a2d8e8b683fed1e56ca649a8a",
+  "currentGovernanceSha256": "f26c9680d549a388f36c90923ab0f320af469bf795c16386621456cfdffa372b",
+  "phase": "AFTER_SINGLE_BATCH_CHECK",
+  "preCheckGovernanceSha256": "111acf156ed16adeeeeababb7bd9ca15476841b572fadd295a9c5fa92951ad4d",
+  "oneCheck12418Cases7323MethodsPass": true
+}

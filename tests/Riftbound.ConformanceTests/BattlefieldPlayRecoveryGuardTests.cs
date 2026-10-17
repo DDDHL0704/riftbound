@@ -127,12 +127,15 @@ public sealed class BattlefieldPlayRecoveryGuardTests(ITestOutputHelper output)
 
         var independent = await Act(WithLegend(PermanentPlayTargetTests.Position(cardNo), "P1", "UNL-183/219"), "P1",
             new PlayCardCommand("UNIT", cardNo, ["HOST"], Destination: "BASE"));
+        Assert.NotNull(Assert.Single(independent.State.StackItems).UnitPlayMight);
+        var fake = ForgedPrintedAbility(plain.State, actor, source, cardNo,
+            Assert.Single(plain.State.CardPlays.Finalized).PlayId,
+            "BATTLEFIELD:" + plain.State.BattlefieldStates.Keys.Order(StringComparer.Ordinal).First()) with {
+                TargetObjectIds = [source],
+                TargetGenerations = new Dictionary<string, long> { [source] = plain.State.CardObjects[source].ObjectGeneration }
+            };
         var forged = plain.State with {
-            StackItems = [Assert.Single(independent.State.StackItems) with {
-                StackItemId = Assert.Single(plain.State.CardPlays.Finalized).PlayId,
-                ControllerId = actor, SourceObjectId = source,
-                PermanentPlaySource = cardNo == "UNL-003/219" ? new(source, plain.State.CardObjects[source].ObjectGeneration) : null,
-                Destination = "BATTLEFIELD:" + plain.State.BattlefieldStates.Keys.Order(StringComparer.Ordinal).First() }],
+            StackItems = [fake],
             PriorityPlayerId = actor,
             TimingState = independent.State.TimingState
         };
@@ -301,7 +304,12 @@ public sealed class BattlefieldPlayRecoveryGuardTests(ITestOutputHelper output)
         Assert.Empty(RecoveryErrors(withLegend));
         var independent = await Act(withLegend, "P1",
             new PlayCardCommand("UNIT", cardNo, ["HOST"], Destination: "BASE"));
-        var item = Assert.Single(independent.State.StackItems);
+        var legendItem = Assert.Single(independent.State.StackItems);
+        Assert.False(legendItem.SourceConfirmed);
+        Assert.NotNull(legendItem.UnitPlayMight);
+        Assert.Equal("LEGEND-P1", legendItem.SourceObjectId);
+        var item = ForgedPrintedAbility(plain.State, "P1", "UNIT", cardNo,
+            Assert.Single(plain.State.CardPlays.Finalized).PlayId, "");
         Assert.True(item.SourceConfirmed);
         Assert.Empty(item.Destination); // The stack stores canonical base placement as an empty destination.
         Assert.Empty(RecoveryErrors(independent.State));
@@ -318,6 +326,18 @@ public sealed class BattlefieldPlayRecoveryGuardTests(ITestOutputHelper output)
         var errors = RecoveryErrors(forged);
         output.WriteLine("BASE_ONLY_TRIGGER_FORGED_RECOVERY " + JsonSerializer.Serialize(new { cardNo, opponentLegend, errors }));
         Assert.NotEmpty(errors);
+        Assert.Contains(errors, error => error.Contains("battlefield-only permanent play trigger origin", StringComparison.Ordinal));
+    }
+
+    private static StackItemState ForgedPrintedAbility(MatchState state, string player, string source,
+        string cardNo, string playId, string destination)
+    {
+        Assert.True(CardBehaviorRegistry.TryGetByCardNo(cardNo, out var printed));
+        return new(playId, player, source, printed.EffectKind, cardNo, [],
+            destination.StartsWith("BATTLEFIELD:", StringComparison.Ordinal) ? printed.DamageAmount : 0,
+            destination: destination, sourceConfirmed: true) {
+            PermanentPlaySource = cardNo == "UNL-003/219" && destination.StartsWith("BATTLEFIELD:", StringComparison.Ordinal)
+                ? new(source, state.CardObjects[source].ObjectGeneration) : null };
     }
 
     private static MatchState WithLegend(MatchState initial, string player, string cardNo)

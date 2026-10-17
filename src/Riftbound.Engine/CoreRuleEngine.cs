@@ -166,6 +166,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             result = QueueGrantedPredict(state, result);
             result = QueuePrintedPredict(state, result);
             result = QueueSourcePlayDraw(state, result);
+            result = QueueUnitPlayMight(state, result);
             result = QueueSivirRuneRecycles(result);
             result = QueueRecycledCardBoons(result);
             if (result.State.RuleTextModeUses is { } uses && uses.TurnNumber != result.State.TurnNumber)
@@ -177,11 +178,15 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             // Mighty observers capture bindings. The final pass is idempotent
             // and also binds stack items created by those observers.
             collected = ApplyObjectContinuity(state, collected);
+            collected = DeferCompanionPermanentPlayOrdering(state, collected);
             collected = QueueTurnUnitPlayBoons(state, collected);
             collected = QueueStandbyPlayedObservers(collected);
             collected = RecordBattleDuelRoles(state, collected);
             collected = RecordMightyTransitions(state, collected);
             collected = ResumeDuelChainFocus(collected);
+            // A physical play has completed before its earned skills confirm,
+            // including a checked target intent supplied in the same command.
+            collected = RecordCardPlayHistory(state, collected);
             return ValueTask.FromResult(RecordCardPlayHistory(state, RefreshRuleDerivedKeywordLayers(ApplyObjectContinuity(state,
                 PrepareTriggerConfirmation(AdvanceTurnStartSequence(AdvanceEndStep(AdvanceObservedDeckPlays(PrepareTriggerConfirmation(PublishPendingTriggers(CaptureDeathTriggerSources(state,
                     RecordCombatMightSourceLocations(state, RecordDistributionSourceLocations(state, collected)))))))))))));
@@ -2767,6 +2772,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
 
         var orderedTriggers = triggerIds.Select(triggerId => triggersById[triggerId]).ToArray();
+        if (orderedTriggers.Any(t => !PermanentPlayTriggerRecoveryRules.ValidQueued(state, t) || !RengarPlayRecoveryRules.ValidQueued(state, t)))
+            return RejectWithCorePrompts(state, "触发排序的打出技能起源已失效。", ErrorCodes.InvalidTarget);
         if (!MatchesLegalApnapResolutionOrder(state, orderedTriggers))
         {
             return RejectWithCorePrompts(
@@ -2784,7 +2791,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             Tick = state.Tick + 1,
             TriggerQueue = [],
-            StackItems = state.StackItems.Concat(stackItemsToAppend).ToArray(),
+            StackItems = state.StackItems.Where(i => !orderedTriggers.Any(t => t.PermanentPlayStackItemId == i.StackItemId))
+                .Concat(stackItemsToAppend).ToArray(),
             PriorityPlayerId = topStackItem?.ControllerId,
             PassedPriorityPlayerIds = [],
             TimingState = state.SpellDuelState.IsActive ? TimingStates.SpellDuelClosed : TimingStates.NeutralClosed
@@ -3208,7 +3216,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
     private static StackItemState BuildStackItemForOrderedTrigger(MatchState state, TriggerQueueItemState trigger)
     {
-        var cardNo = trigger.CreatedTokenReady?.CardNo ?? trigger.SourcePlayDraw?.CardNo ?? trigger.EndAbility?.CardNo ?? trigger.DamageDistribution?.CardNo ?? trigger.AttachmentObserver?.CardNo ?? trigger.BattlefieldStart?.CardNo ?? trigger.ReflexiveDuel?.CardNo ?? trigger.UnitConquest?.CardNo ?? trigger.MovementObserver?.CardNo ?? trigger.DeathObserver?.CardNo ?? trigger.LegendConquest?.CardNo ?? trigger.UnitEntryContext?.CardNo ?? trigger.ReflexiveCopy?.CardNo ?? trigger.SourceCardNo ?? trigger.DeathRevealContext?.CardNo ?? trigger.RecastContext?.CardNo ?? trigger.SpellContext?.CardNo ?? trigger.FieldContext?.CardNo ?? trigger.InsightContext?.CardNo ?? trigger.ConquestToken?.CardNo ?? trigger.SivirRuneRecycle?.CardNo ?? trigger.HeldContext?.CardNo ?? (state.CardObjects.TryGetValue(trigger.SourceObjectId, out var sourceObject)
+        if (trigger.PermanentPlayStackItemId is { } pending)
+            return state.StackItems.Single(i => i.StackItemId == pending);
+        var cardNo = trigger.UnitPlayMight?.CardNo ?? trigger.CreatedTokenReady?.CardNo ?? trigger.SourcePlayDraw?.CardNo ?? trigger.EndAbility?.CardNo ?? trigger.DamageDistribution?.CardNo ?? trigger.AttachmentObserver?.CardNo ?? trigger.BattlefieldStart?.CardNo ?? trigger.ReflexiveDuel?.CardNo ?? trigger.UnitConquest?.CardNo ?? trigger.MovementObserver?.CardNo ?? trigger.DeathObserver?.CardNo ?? trigger.LegendConquest?.CardNo ?? trigger.UnitEntryContext?.CardNo ?? trigger.ReflexiveCopy?.CardNo ?? trigger.SourceCardNo ?? trigger.DeathRevealContext?.CardNo ?? trigger.RecastContext?.CardNo ?? trigger.SpellContext?.CardNo ?? trigger.FieldContext?.CardNo ?? trigger.InsightContext?.CardNo ?? trigger.ConquestToken?.CardNo ?? trigger.SivirRuneRecycle?.CardNo ?? trigger.HeldContext?.CardNo ?? (state.CardObjects.TryGetValue(trigger.SourceObjectId, out var sourceObject)
             ? sourceObject.CardNo : string.Empty);
         return new StackItemState(
             stackItemId: $"ordered-{trigger.TriggerId}",
@@ -3221,7 +3231,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             sourceConfirmed: trigger.DamageDistribution is not null,
             timingContext: !string.IsNullOrWhiteSpace(trigger.TimingContext) ? trigger.TimingContext
                 : state.SpellDuelState.IsActive ? TimingStates.SpellDuelOpen
-                : state.BattleState.IsActive ? TimingStates.NeutralClosed : "ORDERED_TRIGGER") { TurnUnitPlayBoon = trigger.TurnUnitPlayBoon, StandbyObserver = trigger.StandbyObserver, DamageDistribution = trigger.DamageDistribution, AttachmentObserver = trigger.AttachmentObserver, Tempered = trigger.Tempered, MovementObserver = trigger.MovementObserver, DeathObserver = trigger.DeathObserver, DelayedDestruction = trigger.DelayedDestruction, LegendConquest = trigger.LegendConquest, UnitConquest = trigger.UnitConquest, ReflexiveDuel = trigger.ReflexiveDuel, BeginningRecycle = trigger.BeginningRecycle, EndAbility = trigger.EndAbility, BeginningDraw = trigger.BeginningDraw, EphemeralStart = trigger.EphemeralStart, BattlefieldStart = trigger.BattlefieldStart, ReflexiveCopy = trigger.ReflexiveCopy, CreatedTokenReady = trigger.CreatedTokenReady, UnitEntryContext = trigger.UnitEntryContext, SourcePlayDraw = trigger.SourcePlayDraw, HeldContext = trigger.HeldContext, InsightContext = trigger.InsightContext, SivirRuneRecycle = trigger.SivirRuneRecycle, ConquestToken = trigger.ConquestToken, DeathRevealContext = trigger.DeathRevealContext, FieldContext = trigger.FieldContext, LastBreathMight = trigger.LastBreathMight, MightySkill = trigger.MightySkill, BattlefieldConquestMight = trigger.BattlefieldConquestMight, SpellContext = trigger.SpellContext, RecastContext = trigger.RecastContext };
+                : state.BattleState.IsActive ? TimingStates.NeutralClosed : "ORDERED_TRIGGER") { TurnUnitPlayBoon = trigger.TurnUnitPlayBoon, StandbyObserver = trigger.StandbyObserver, DamageDistribution = trigger.DamageDistribution, AttachmentObserver = trigger.AttachmentObserver, Tempered = trigger.Tempered, MovementObserver = trigger.MovementObserver, DeathObserver = trigger.DeathObserver, DelayedDestruction = trigger.DelayedDestruction, LegendConquest = trigger.LegendConquest, UnitConquest = trigger.UnitConquest, ReflexiveDuel = trigger.ReflexiveDuel, BeginningRecycle = trigger.BeginningRecycle, EndAbility = trigger.EndAbility, BeginningDraw = trigger.BeginningDraw, EphemeralStart = trigger.EphemeralStart, BattlefieldStart = trigger.BattlefieldStart, ReflexiveCopy = trigger.ReflexiveCopy, CreatedTokenReady = trigger.CreatedTokenReady, UnitEntryContext = trigger.UnitEntryContext, UnitPlayMight = trigger.UnitPlayMight, SourcePlayDraw = trigger.SourcePlayDraw, HeldContext = trigger.HeldContext, InsightContext = trigger.InsightContext, SivirRuneRecycle = trigger.SivirRuneRecycle, ConquestToken = trigger.ConquestToken, DeathRevealContext = trigger.DeathRevealContext, FieldContext = trigger.FieldContext, LastBreathMight = trigger.LastBreathMight, MightySkill = trigger.MightySkill, BattlefieldConquestMight = trigger.BattlefieldConquestMight, SpellContext = trigger.SpellContext, RecastContext = trigger.RecastContext };
     }
 
     private sealed record TriggerControllerBlock(
@@ -8527,39 +8537,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 cardObjects.TryGetValue(objectId, out var legendState)
                 && SourceObjectControlledByPlayerOrLegacyOwned(legendState, playerId)
                 && LegendCardHasIdentity(legendState.CardNo, JhinLegendIdentityId));
-    }
-
-    private static bool TryGetRengarLegend(
-        Dictionary<string, PlayerZones> playerZones,
-        Dictionary<string, CardObjectState> cardObjects,
-        string playerId,
-        out string legendObjectId,
-        out string legendCardNo)
-    {
-        legendObjectId = string.Empty;
-        legendCardNo = LegendIdentityCatalog.PrimarySourceCardNoForIdentity(RengarLegendIdentityId);
-        if (!playerZones.TryGetValue(playerId, out var zones))
-        {
-            return false;
-        }
-
-        foreach (var objectId in zones.LegendZone)
-        {
-            if (!cardObjects.TryGetValue(objectId, out var legendState)
-                || !SourceObjectControlledByPlayerOrLegacyOwned(legendState, playerId)
-                || !LegendCardHasIdentity(legendState.CardNo, RengarLegendIdentityId))
-            {
-                continue;
-            }
-
-            legendObjectId = objectId;
-            legendCardNo = string.IsNullOrWhiteSpace(legendState.CardNo)
-                ? LegendIdentityCatalog.PrimarySourceCardNoForIdentity(RengarLegendIdentityId)
-                : legendState.CardNo;
-            return true;
-        }
-
-        return false;
     }
 
     private static bool TryGetLeonaLegend(
@@ -20612,13 +20589,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         Dictionary<string, CardObjectState> cardObjects,
         StackItemState stackItem)
     {
-        if (!TryGetRengarUnitPlayedTarget(state, stackItem.StackItemId, out var targetObjectId)
-            || !TryGetRengarLegend(
-                playerZones,
-                cardObjects,
-                stackItem.ControllerId,
-                out var legendObjectId,
-                out var legendCardNo)
+        var targetObjectId = stackItem.TargetObjectIds.SingleOrDefault();
+        var legendObjectId = stackItem.SourceObjectId;
+        var legendCardNo = stackItem.UnitPlayMight!.CardNo;
+        if (targetObjectId is null || !UnitPlayMightTargets(state, stackItem.ControllerId).Contains(targetObjectId)
+            || stackItem.TargetGenerations?.GetValueOrDefault(targetObjectId, -1) != cardObjects.GetValueOrDefault(targetObjectId)?.ObjectGeneration
             || !IsFieldObjectControlledByZonePlayer(playerZones, cardObjects, targetObjectId)
             || !cardObjects.TryGetValue(targetObjectId, out var targetState)
             || !targetState.Tags.Contains(CardObjectTags.UnitCard, StringComparer.Ordinal)
@@ -20648,7 +20623,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["legendObjectId"] = legendObjectId,
                     ["legendCardNo"] = legendCardNo,
                     ["trigger"] = "UNIT_PLAYED_POWER_PLUS_1",
-                    ["playedUnitObjectId"] = stackItem.SourceObjectId,
+                    ["playedUnitObjectId"] = stackItem.UnitPlayMight.PlayedUnit.ObjectId,
                     ["targetObjectId"] = targetObjectId
                 }),
             new GameEvent(
@@ -24354,6 +24329,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (stackItem.LegendAttachment is not null) return ResolveLegendAttachment(state, stackItem);
         if (stackItem.Equip is not null) return ResolveEquip(state, stackItem);
         if (stackItem.UnitEntryContext is not null) return ResolveUnitEntryTrigger(state, stackItem);
+        if (stackItem.UnitPlayMight is not null) return ResolveUnitPlayMight(state, stackItem);
         if (stackItem.SourcePlayDraw is not null) return ResolveSourcePlayDraw(state, stackItem);
         if (stackItem.CreatedTokenReady is not null) return ResolveCreatedTokenReady(state, stackItem);
         if (stackItem.ReflexiveCopy is not null) return ResolveReflexiveCopy(state, stackItem);
@@ -24707,11 +24683,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 cardObjects,
                 stackItem.ControllerId,
                 stackItem.SourceObjectId));
-            events.AddRange(ResolveRengarUnitPlayedPowerTrigger(
-                state,
-                playerZones,
-                cardObjects,
-                stackItem));
 
             if (behavior.SourceNextSpellCostReductionMana > 0
                 && !string.IsNullOrWhiteSpace(behavior.SourceNextSpellCostReductionEffectKind))
@@ -30711,6 +30682,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             ["playerId"] = stackItem.ControllerId,
             ["sourceObjectId"] = stackItem.SourceObjectId,
             ["unitObjectId"] = stackItem.SourceObjectId,
+            ["historyPlayId"] = stackItem.StackItemId,
             ["unitName"] = behavior.DisplayName,
             ["destinationZone"] = "BATTLEFIELD",
             ["destination"] = stackItem.Destination,

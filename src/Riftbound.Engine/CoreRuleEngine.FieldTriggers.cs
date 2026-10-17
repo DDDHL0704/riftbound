@@ -111,7 +111,7 @@ public sealed partial class CoreRuleEngine
         // supplies their choices or costs (CN 337.1.b).
         var item = state.StackItems.FirstOrDefault(i =>
             i.EffectKind == EndAbilityEffect && i.EndAbility is { Kind: TriggerKinds.TurnEndReadyRunes or "DELAYED_READY_RUNES" } && i.TargetGenerations is null || i.MightySkill is { Confirmed: false } || NeedsAttachmentModeConfirmation(i) || i.Tempered is { Equipment: null } || i.DamageDistribution is not null && i.TargetGenerations is null || i.LocationDamage is not null && i.TargetGenerations is null || i.ReflexiveDuel is not null && i.TargetGenerations is null || NeedsTriggerCostConfirmation(i) || NeedsHeldTargetConfirmation(i) || i.UnitConquest is not null && i.TargetGenerations is null
-            || i.PermanentPlayTargetsPending || i.ReflexiveCopy is { TargetConfirmed: false }
+            || i.PermanentPlayTargetsPending || i.UnitPlayMight is not null && i.TargetGenerations is null || i.ReflexiveCopy is { TargetConfirmed: false }
             || i.CreatedTokenReady is not null && !CreatedTokenReadyHasPayment(i) && i.TargetGenerations is null
             || i.SpellContext is { } spell && NeedsSpellTriggerChoice(spell) && i.TargetGenerations is null
             || i.FieldContext is not null and not { Kind: "ENEMY_ATTACK_MIGHT" or "ATTACK_DECK_PLAY" } && i.TargetGenerations is null
@@ -119,6 +119,7 @@ public sealed partial class CoreRuleEngine
         if (item is null) return result;
         if (item.EndAbility is not null) return PrepareEndRuneTargets(result, item);
         if (item.PermanentPlayTargetsPending) return PreparePermanentPlayTargets(result, item);
+        if (item.UnitPlayMight is not null) return PrepareUnitPlayMight(result, item);
         if (item.MightySkill is { Confirmed: false }) return PrepareMightySkill(result, item);
         if (NeedsAttachmentModeConfirmation(item)) return PrepareAttachmentMode(result, item);
         if (item.Tempered is not null) return PrepareTempered(result, item);
@@ -191,7 +192,7 @@ public sealed partial class CoreRuleEngine
             && choice.ChoiceId == "TRIGGER-TARGET:" + item.StackItemId && choice.EffectKind == item.EffectKind
             && choice.RequiredCount == (context.Kind == "DEFEND" ? 0 : 1) && choice.MaxCount == 1
             && choice.LegalObjectIds.SequenceEqual(FieldTriggerTargets(state, item))
-            || ValidCreatedTokenReadyChoice(state, choice) || ValidPermanentPlayTargetChoice(state, choice) || ValidDistributionTargetChoice(state, choice) || ValidLocationDamageChoice(state, choice) || ValidReflexiveDuelChoice(state, choice) || ValidReflexiveCopyChoice(state, choice) || ValidHeldTargetChoice(state, choice) || ValidLegendConquestChoice(state, choice) || ValidConquestTargetChoice(state, choice);
+            || ValidUnitPlayMightChoice(state, choice) || ValidCreatedTokenReadyChoice(state, choice) || ValidPermanentPlayTargetChoice(state, choice) || ValidDistributionTargetChoice(state, choice) || ValidLocationDamageChoice(state, choice) || ValidReflexiveDuelChoice(state, choice) || ValidReflexiveCopyChoice(state, choice) || ValidHeldTargetChoice(state, choice) || ValidLegendConquestChoice(state, choice) || ValidConquestTargetChoice(state, choice);
 
     private static ResolutionResult ResolveTriggerTargetConfirmation(MatchState state, PendingCardChoiceState choice, IReadOnlyList<string> selected, bool advanceTick = true)
     {
@@ -205,11 +206,17 @@ public sealed partial class CoreRuleEngine
         if (selected.Count == 0 && item.CreatedTokenReady is null) return DiscardUnconfirmedTrigger(new(true, null, next, [], ResolutionResult.BuildSnapshots(next), BuildCorePrompts(next)), item);
         var tax = ResolveSpellshieldTargetTaxPower(state, item.ControllerId, selected, out _);
         var bound = item with { TargetObjectIds = selected.ToArray(), TargetGenerations = selected.ToDictionary(id => id, id => state.CardObjects[id].ObjectGeneration) };
+        if (item.UnitPlayMight is { } unitPlay)
+        {
+            var target = state.CardObjects[selected.Single()];
+            bound = bound with { UnitPlayMight = unitPlay with {
+                TargetTokenFactoryCardNo = TokenObjectRules.IsToken(target) ? target.TokenFactoryCardNo ?? target.CardNo : null } };
+        }
         if (item.LocationDamage is { } locationDamage)
             bound = bound with { LocationDamage = locationDamage with { TargetLocations = selected.ToDictionary(id => id, id => state.ObjectLocations[id]) } };
         if (tax > 0)
         {
-            // CN 404.2: even a mandatory trigger may be declined when it has a cost.
+            // CN 405.2: even a mandatory trigger may be declined when it has a cost.
             var payment = new PendingPaymentState("TRIGGER-WARD:" + item.StackItemId, TriggerTargetCostWindow, item.ControllerId,
                 powerCost: tax, legalPaymentChoiceIds: ["PAY", "DECLINE"], reason: $"已锁定 {DeckChoiceLabel(state, selected[0])}：支付 {tax} 任意符能的法盾费用，或放弃此触发技能。")
                 { ResolvingStackItemId = item.StackItemId };

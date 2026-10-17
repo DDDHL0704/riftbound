@@ -1,0 +1,85 @@
+{
+  "recordedAtUtc": "2026-10-17T20:21:16.184679+00:00",
+  "status": "NATIVE_MERFOLK_BASE_PLAY_OMITS_REQUIRED_RENGAR_UNIT_TARGET_AND_PLUS1_SEMANTIC_RED",
+  "fixedCommit": "a5d01ad0577e992ab19029424159a4c9acee1385",
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+    "implementationSha256": "f45326e7f5c0bdae17c0b7a953937029ad7a87024d313d8bd1a22b9ad4b7ad4d",
+    "identitySha256": "5bcb883bfa9776127daf790db27f42710bde1ad6432d4345e9705e4da3d415e3"
+  },
+  "room": "paired-here-control-20261018",
+  "commands": 16,
+  "events": 56,
+  "originalBlankPrivateNonzeroOpeningFullReplayMatched": true,
+  "originalAcceptedHistoryUnchanged": true,
+  "legendPrinting": "UNL-183/219",
+  "legendSourceRawSha256": "9bc42db0699ddb2188a165b359d822fdd6da4e454582b0a54f417c1cad526ad9",
+  "currentOfficialText": "当你打出一名单位时，让一名单位本回合内{{S}}+1。",
+  "actualNativePlayCommand": {
+    "playerId": "herea5da",
+    "clientIntentId": "prompt-play_card-ac424c8be1c04fed8f58a028fe695441",
+    "commandType": "PLAY_CARD",
+    "rawCommand": {
+      "mode": "",
+      "cardNo": "UNL-003/219",
+      "cmdType": "PLAY_CARD",
+      "promptId": "paired-here-control-20261018:12:herea5da:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+      "destination": "BASE",
+      "snapshotTick": 12,
+      "optionalCosts": [],
+      "repeatChoices": null,
+      "sourceObjectId": "herea5da-MAIN-UNL-003-219-07",
+      "targetObjectIds": [],
+      "movementDestinations": null
+    },
+    "startedTick": 12,
+    "completedTick": 13,
+    "startedEventSequence": 48,
+    "completedEventSequence": 53,
+    "accepted": true,
+    "errorMessage": null,
+    "ruleInputs": {
+      "schemaVersion": 1,
+      "region": "CN",
+      "language": "zh-CN",
+      "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+      "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+      "implementationSha256": "f45326e7f5c0bdae17c0b7a953937029ad7a87024d313d8bd1a22b9ad4b7ad4d",
+      "identitySha256": "5bcb883bfa9776127daf790db27f42710bde1ad6432d4345e9705e4da3d415e3"
+    }
+  },
+  "actualTwoEligiblePublicUnitsWithoutPlus1": [
+    {
+      "objectId": "herea5da-MAIN-UNL-003-219-07",
+      "cardNo": "UNL-003/219",
+      "controllerId": "herea5da",
+      "power": 2,
+      "location": {
+        "playerId": "herea5da",
+        "zone": "BASE",
+        "battlefieldObjectId": null
+      }
+    },
+    {
+      "objectId": "herea5db-MAIN-UNL-076-219-09",
+      "cardNo": "UNL-076/219",
+      "controllerId": "herea5db",
+      "power": 2,
+      "location": {
+        "playerId": "herea5db",
+        "zone": "BASE",
+        "battlefieldObjectId": null
+      }
+    }
+  ],
+  "noPendingChoiceOrTriggerAndReturnedToMain": true,
+  "noPowerModificationEvent": true,
+  "expected": "The mandatory Rengar unit-play trigger must choose one unit and grant1 Might this turn. Current native BASE path submitted no target and finished with no grant.",
+  "privateOriginalFrameSha256": "9d188ce70aa634651f3ebf4cdb3721fe4339e53b8df4c243277b0e962231ce09",
+  "privateOriginalFrameMustNotBeCommitted": true,
+  "scope": "One actual native Merfolk BASE play under the current Rengar legend; separate from the unchanged earlier unit111 native path and from whole Rengar certification. New mandatory target and simultaneous own/legend confirmation family requires a new candidate; never repair this accepted history."
+}

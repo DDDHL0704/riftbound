@@ -68,7 +68,7 @@ public sealed partial class CoreRuleEngine
                 && entered.ObjectGeneration != source.Generation) {
                 item = item with { SelfCopySource = source with { Generation = entered.ObjectGeneration } }; changed = true;
             }
-            if (item.PermanentPlayTargetsPending) return item;
+            if (item.PermanentPlayTargetsPending || item.UnitPlayMight is not null) return item;
             if (previousItems.TryGetValue(item.StackItemId, out var previousItem)
                 && previousItem.TargetObjectIds.SequenceEqual(item.TargetObjectIds, StringComparer.Ordinal)) return item;
             var bindings = item.TargetObjectIds.Distinct(StringComparer.Ordinal)
