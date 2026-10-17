@@ -16,8 +16,25 @@ internal static class PermanentPlayTriggerRecoveryRules
                     RegexOptions.CultureInvariant))
             .Select(card => card.CardNo).ToHashSet(StringComparer.Ordinal));
 
+    private static readonly Lazy<IReadOnlySet<string>> HereDamageSources = new(() =>
+        OfficialCardCatalog.LoadDefaultAsync().GetAwaiter().GetResult().Cards
+            .Where(card => BattlefieldOnlySources.Value.Contains(card.CardNo)
+                && card.CardEffect.Contains("对此处的一名敌方单位造成2点伤害", StringComparison.Ordinal))
+            .Select(card => card.CardNo).ToHashSet(StringComparer.Ordinal));
+
     internal static bool Valid(MatchState state, StackItemState item)
     {
+        var battlefield = item.Destination.StartsWith("BATTLEFIELD:", StringComparison.Ordinal)
+            && item.Destination.Length > "BATTLEFIELD:".Length;
+        var here = item.SourceConfirmed && battlefield && HereDamageSources.Value.Contains(item.CardNo)
+            && CardBehaviorRegistry.TryGetByCardNo(item.CardNo, out var hereBehavior) && item.EffectKind == hereBehavior.EffectKind;
+        if (item.PermanentPlaySource is { } binding
+            ? !here || binding.ObjectId != item.SourceObjectId || binding.Generation < 0
+                || !state.CardObjects.TryGetValue(binding.ObjectId, out var source) || source.ObjectGeneration < binding.Generation
+                || item.PlayedFromStandby is { } standby && binding.Generation != standby.SourceGeneration + 1
+                || !state.CardPlays.Resolved.Any(play => play.Source == binding && play.CardNo == item.CardNo)
+            : here) return false;
+
         if (!item.SourceConfirmed || !BattlefieldOnlySources.Value.Contains(item.CardNo)
             || !CardBehaviorRegistry.TryGetByCardNo(item.CardNo, out var behavior)
             || item.EffectKind != behavior.EffectKind
@@ -25,8 +42,8 @@ internal static class PermanentPlayTriggerRecoveryRules
 
         // This is the recorded play destination, not the source's current
         // location: a response can move the permanent after its ability triggers.
-        if (item.Destination.StartsWith("BATTLEFIELD:", StringComparison.Ordinal)
-            && item.Destination.Length > "BATTLEFIELD:".Length) return true;
+        if (battlefield) return true;
+        if (item.DamageAmount != 0) return false;
 
         // The current permanent flow also carries the controller's independent
         // legend ability. An opponent's legend cannot authorize this item.

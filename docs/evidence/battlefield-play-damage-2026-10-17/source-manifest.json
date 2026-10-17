@@ -1,0 +1,106 @@
+{
+  "region": "CN",
+  "language": "zh-CN",
+  "applicableAsOf": "2026-10-17",
+  "scope": "Merfolk battlefield play target and damage2; preserve other open branches",
+  "exactCardAcquisitions": [
+    {
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "鲛人滋事者",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "attemptedAtUtc": "2026-10-17T12:24:45.028663+00:00",
+      "receivedAtUtc": "2026-10-17T12:24:45.178321+00:00",
+      "httpStatus": 200,
+      "httpDate": "Sat, 17 Oct 2026 12:24:45 GMT",
+      "rawSha256": "891120e1838e2563ed2898e0a8276a5a98bb18ec00d4e02730bc4d7b420c11e0",
+      "bytes": 1246,
+      "file": "merfolk.json.gz",
+      "completeResponseComparedExcludingTransportTraceAndTimestamp": true,
+      "gzipSha256": "779a58e8b8201a44cd17a760b181a097910f63c8b78607e8c7f6ed0e56c85028",
+      "publicationDate": null,
+      "effectiveDate": null
+    },
+    {
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "布里茨",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "attemptedAtUtc": "2026-10-17T12:24:45.029184+00:00",
+      "receivedAtUtc": "2026-10-17T12:24:45.151392+00:00",
+      "httpStatus": 200,
+      "httpDate": "Sat, 17 Oct 2026 12:24:45 GMT",
+      "rawSha256": "f9cfd3534865f501e1dc4a18a84cee34b345f97d42e5d02ad73a6118036531d4",
+      "bytes": 1235,
+      "file": "blitzcrank.json.gz",
+      "completeResponseComparedExcludingTransportTraceAndTimestamp": true,
+      "gzipSha256": "3acd988cd635ba300af4cab3d416e7faea3070d15e51f7dbb291e01da157ab0b",
+      "publicationDate": null,
+      "effectiveDate": null
+    }
+  ],
+  "core": {
+    "url": "https://cdn.playloltcg.com/lol/2026/10/2026-10-10/a21ead876c6b44d6abe386b6ae54ea28.pdf",
+    "attemptedAtUtc": "2026-10-17T12:24:45.029382+00:00",
+    "receivedAtUtc": "2026-10-17T12:24:56.990798+00:00",
+    "bytes": 40278538,
+    "sha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11",
+    "publicationDate": "2026-10-10",
+    "effectiveDate": "2026-10-16",
+    "canonicalRetainedPdf": "var/qa/colorless-token-haste-20261016/DOC-01-current.pdf",
+    "identicalDuplicateNotStored": true,
+    "httpStatus": 200,
+    "httpDate": "Sat, 10 Oct 2026 00:27:22 GMT"
+  },
+  "oldFullManifestRetained": "docs/audit/current-manifest.json",
+  "newSourceDeltaFound": false,
+  "wholeCardCertified": false,
+  "probeAssumptionFailureRetained": "First comparison of complete transport responses failed only on timestamp and traceId; full card records unchanged, first responses preserved in attempt1 files",
+  "completePagesVisuallyReviewed": [
+    {
+      "sourceId": "DOC-01",
+      "pdfPages": [
+        55,
+        56
+      ],
+      "relevantClause": "359.3.f.1/2/4",
+      "page56": {
+        "path": "docs/evidence/battlefield-play-damage-2026-10-17/core-here-p56.png",
+        "sha256": "001e450321873d9e2ae73e6e9f94a7c87fd8271e2577ae32510b9f8aaf03e289"
+      }
+    },
+    {
+      "sourceId": "DOC-09",
+      "sha256": "20c684613d42397c364d2dd407802d529247643aa13650ec37161c8d6ae1771b",
+      "pdfPages": [
+        4,
+        12
+      ],
+      "scope": "Examples checked; these pages do not identify Merfolk or Blitzcrank and do not certify either card."
+    }
+  ],
+  "newOfficialLocalizedVariants": {
+    "path": "docs/evidence/battlefield-play-damage-2026-10-17/global-zh-cn-source-variant-discovery.json",
+    "sha256": "481bbfb42e0a6700a88d97f81a783ed86ece60d3ae61824287b40e2ec1f4218e"
+  },
+  "allPriorSourceVersionsAndDeltasRetained": true,
+  "allMatchingConditionalConsumersRetained": [
+    "UNL-003/219 current damage scope",
+    "OGN·067/298 optional pull and hold return OPEN",
+    "RAD·031/167 published preview exact applicability and implementation OPEN"
+  ],
+  "newSourceDeltaScope": "The false flag concerns unchanged card/core versions only. The two newly retrieved global zh-CN article variants are separately registered as OPEN source intake.",
+  "newLocalizedSourceVariantsFound": 2
+}

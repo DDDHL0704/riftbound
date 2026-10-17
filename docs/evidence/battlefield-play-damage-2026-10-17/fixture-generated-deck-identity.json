@@ -1,0 +1,13 @@
+{
+  "oldCommit": "4fca367eaab1dd198ffde839b23461c058a2b470",
+  "bothExactGeneratedDecksByteIdentical": true,
+  "sha256": "98fd710b3e3c42f6c0b2a3dedfbea108fc31b213d1f92f016448295157cb06d5",
+  "methods": [
+    "BuildBattlefieldAllUnitsStaticAuraOfficialDeck",
+    "BuildSlowBattlefieldLowCurveOfficialDeck"
+  ],
+  "separateActualOldAndCurrentCompiledAssembliesUsed": true,
+  "originalSeedsAndAllWinReplayAssertionsUnchanged": true,
+  "oldFailure": "Scalar ability target count accidentally removed Merfolk from generated low-curve deck membership; replacement changed the opening and caused no legal rune payment for ARC001.",
+  "sourceFix": "Fixture generation accepts the independently printed battlefield-only play condition for BASE entry; no game rule or resource grant changed."
+}

@@ -1,0 +1,37 @@
+{
+  "baseCommit": "4fca367eaab1dd198ffde839b23461c058a2b470",
+  "recordedAtUtc": "2026-10-17T14:05:15.053571+00:00",
+  "originalConformanceCs": 444,
+  "originalCsByteIdentical": 440,
+  "changedOriginalCs": [
+    "tests/Riftbound.ConformanceTests/BattlefieldConditionalPlayTriggerTests.cs",
+    "tests/Riftbound.ConformanceTests/BattlefieldPlayRecoveryGuardTests.cs",
+    "tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs",
+    "tests/Riftbound.ConformanceTests/MatrixOpeningResourceDriverTests.cs"
+  ],
+  "everyOriginalPublicTestMethodAndFactTheoryInlineMemberClassAttributeRetained": true,
+  "originalFixtures": 1271,
+  "originalFixturesByteIdentical": 1270,
+  "onlyChangedOriginalFixture": [
+    "tests/Riftbound.ConformanceTests/Fixtures/battlefield-base-merfolk.json"
+  ],
+  "acceptedCommandsExactlyPreservedInChangedFixture": true,
+  "all143OriginalFullGameMethodsAcrossEightPartialFilesRetained": true,
+  "allOriginalWinAndReplayAssertionLinesRetained": true,
+  "onlyOriginalSharedAssertionExtendedForIndependentlyCheckedPublicOldGeneration": [
+    {
+      "file": "tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs",
+      "oldAssertion": "Assert.Equal(item.FieldContext?.CardNo ?? item.DamageDistribution?.CardNo ?? held?.CardNo ?? grantedConquest!.CardNo, item.CardNo);",
+      "scope": "Existing shared hidden-zone helper now separately verifies exact public historical Merfolk source generations; every original branch and win/replay assertion remains."
+    }
+  ],
+  "allElevenOriginalOrderedDeckContentsExactInBothFormats": true,
+  "exactDeckIdentityEvidence": "all-original-generated-deck-identity.json",
+  "newFiles": [
+    "src/Riftbound.Engine/CoreRuleEngine.PermanentPlayHere.cs",
+    "tests/Riftbound.ConformanceTests/BattlefieldPlayDamageTests.cs",
+    "tests/Riftbound.ConformanceTests/Fixtures/battlefield-merfolk-current-opening.json",
+    "tests/Riftbound.ConformanceTests/Fixtures/preconstructed-original-4fca-inputs.json",
+    "tests/Riftbound.PostgresAcceptance/BattlefieldPlayDamageSqlAcceptance.cs"
+  ]
+}

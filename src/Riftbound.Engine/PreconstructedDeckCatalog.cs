@@ -159,7 +159,12 @@ public static class PreconstructedDeckCatalog
 
         var implementedLowCurveUnits = CardBehaviorRegistry.GetAll()
             .Where(behavior => behavior.PlaysSourceToBaseAsUnit)
-            .Where(behavior => behavior.RequiredTargetCount == 0 && behavior.MinTargetCount <= 0)
+            // Battlefield-only ability targets do not constrain ordinary BASE
+            // entry. Registering that ability must not silently replace cards
+            // in the existing preconstructed decks.
+            .Where(behavior => behavior.RequiredTargetCount == 0 && behavior.MinTargetCount <= 0
+                || cardsByNo.TryGetValue(behavior.CardNo, out var printed)
+                    && printed.CardEffect.Contains("当你将我打出到一处战场时", StringComparison.Ordinal))
             .Where(behavior => string.IsNullOrWhiteSpace(behavior.Mode))
             .Where(behavior => behavior.ManaCost <= MaxManaCostForLowCurveUnit)
             .Select(behavior => behavior.CardNo)

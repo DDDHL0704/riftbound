@@ -1,0 +1,9 @@
+{
+  "status": "FIRST_SCOPED_SQL_START_FAILED_MISSING_PUBLISHED_FIXTURE",
+  "failedBeforeAnyMatchWasCreated": true,
+  "retainedLog": "sql-scoped.log",
+  "repair": "tests/Riftbound.PostgresAcceptance/Riftbound.PostgresAcceptance.csproj",
+  "originalFrozenGameInputsNotEdited": true,
+  "oldSqlProjectSha256": "0df2cdb2793b1b45ebf7ce25cc1dc17ffeda50cbaeab51e266ac94f78ded3956",
+  "newSqlProjectSha256": "b00da5402b6f578cee4c5bd0c9504950f89deca6cc6a66fe019ad601c9e18236"
+}

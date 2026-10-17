@@ -1,0 +1,67 @@
+{
+  "recordedAtUtc": "2026-10-17T14:00:14.975483+00:00",
+  "sourceCommit": "4fca367eaab1dd198ffde839b23461c058a2b470",
+  "actualOldAndCurrentCompiledAssembliesCompared": true,
+  "formats": [
+    "CoreRules",
+    "ChinaStandard20260724"
+  ],
+  "exactOrderedOriginalDeckListsPerFormat": 11,
+  "bothOriginalPrivateFullGameFixtureDeckListsAlsoExact": true,
+  "allGeneratedDeckJsonBytesIdentical": true,
+  "oldGeneratedDeckSha256": "3d0eac9f056f4b844ca3ef609eb3742b71b20439f7f8942b9a7cb4745c839f06",
+  "currentGeneratedDeckSha256": "3d0eac9f056f4b844ca3ef609eb3742b71b20439f7f8942b9a7cb4745c839f06",
+  "beforeRepair": {
+    "actualOldAndCurrentCompiledAssembliesCompared": true,
+    "changedDeckIds": {
+      "CoreRules": [
+        "jhin-lowcurve",
+        "rumble-lowcurve",
+        "rumble-armaments"
+      ],
+      "ChinaStandard20260724": [
+        "jhin-lowcurve",
+        "rumble-lowcurve",
+        "rumble-armaments"
+      ]
+    },
+    "matrixPairIdsAndSeedHadRemainedUnchangedButDeckContentsHadNot": true,
+    "oldOriginalResourceTestFailureRetained": "check/check/results.trx"
+  },
+  "testInputPreservationOnlyNotWholeCardCertification": true,
+  "actualInputAssemblies": [
+    {
+      "module": "Riftbound.Api.dll",
+      "verified4fcaRedAssemblySha256": "f5a9a3f46f449a2fb9bb3ae7085b99a065ef46df8e30deb97be9fe3f14e92cc9",
+      "currentFinalFocusAssemblySha256": "e19bf9bc395e1581e166f7ed280ff86744a64de526374a6837f7b5a86744d7c9"
+    },
+    {
+      "module": "Riftbound.CardCatalog.dll",
+      "verified4fcaRedAssemblySha256": "440dd45a2c9757e9287d3817c415c0da3fd6e81ade7acc60467096b6dc953bf5",
+      "currentFinalFocusAssemblySha256": "c6fd6dc1c2f53eb58d8eab29bf2c81554f68295447b29a4e027e19d7d39cde40"
+    },
+    {
+      "module": "Riftbound.ConformanceTests.dll",
+      "verified4fcaRedAssemblySha256": "9513a85f844ec1f1786e8b09979508e74f1da0c5d1540f2ae2286dc9998992a1",
+      "currentFinalFocusAssemblySha256": "cff1bee01c448a82fa2c613de9d9b1a55ea63ee90cc180d0d5f52903c4cdf8b4"
+    },
+    {
+      "module": "Riftbound.Contracts.dll",
+      "verified4fcaRedAssemblySha256": "6148bec389d6e3f29358220fb00b0999a17057a645f7125f2c37ac31c29a8eba",
+      "currentFinalFocusAssemblySha256": "eae4472b9737b9c61871f4e20afd298a52ee4e887ce50f291bb68e9cadeea494"
+    },
+    {
+      "module": "Riftbound.Engine.dll",
+      "verified4fcaRedAssemblySha256": "7e25c066a639b4d5047aa0e416141f591c05146cf0ebb4c54e1af1de5e633449",
+      "currentFinalFocusAssemblySha256": "1ead00b372b78355ac7d570797770e4d0b6387b82bd3c6e9420d9594b882160e"
+    },
+    {
+      "module": "Riftbound.Persistence.dll",
+      "verified4fcaRedAssemblySha256": "394a6386fd0d0a371ae1d29c7ad3c1cc9b7d8e153bc16f48f9670c971f0e5268",
+      "currentFinalFocusAssemblySha256": "38697a399d5a92482054a518a319c2842d9e696792e08669579dafd15b8dfcc2"
+    }
+  ],
+  "probeSourceSha256": "c180ec2d8458e6cf666e72f4185d16830694406989e699a6731f8e45ce297ebd",
+  "probeExecutableSha256": "291086996380d63668f0514938eb7cddf1504651e2c8eb0d666dd7c2ed1ecf1a",
+  "allOldAssemblyHashesMatchPreviouslyVerifiedOldProductionRedReceipt": true
+}

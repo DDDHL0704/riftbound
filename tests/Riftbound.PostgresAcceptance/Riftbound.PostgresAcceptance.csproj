@@ -12,6 +12,8 @@
              Link="Fixtures/card-play-history-current-opening-20261017.json" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="../Riftbound.ConformanceTests/Fixtures/battlefield-base-*.json"
              Link="Fixtures/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="../Riftbound.ConformanceTests/Fixtures/battlefield-merfolk-current-opening.json"
+             Link="Fixtures/battlefield-merfolk-current-opening.json" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="../Riftbound.ConformanceTests/Fixtures/confirmed-play-origin-hand-cn16.json"
              Link="Fixtures/confirmed-play-origin-hand-cn16.json" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="../Riftbound.ConformanceTests/Fixtures/confirmed-play-origin-standby-cn16.json"

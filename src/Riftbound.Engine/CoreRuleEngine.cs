@@ -18650,6 +18650,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
 
 
+        behavior = PermanentPlayDefinition(behavior, destination.StartsWith("BATTLEFIELD:", StringComparison.Ordinal));
         var targetObjectIds = NormalizeTargetObjectIds(command.TargetObjectIds);
         var rengarUnitPlayedTargetObjectId = ExtractRengarUnitPlayedTriggerTarget(
             state,
@@ -24530,7 +24531,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 state.RngCursor);
         }
 
-        behavior = StandbyDefinition(behavior, stackItem.PlayedFromStandby);
+        behavior = StandbyDefinition(PermanentPlayDefinition(behavior, IsStackItemBattlefieldDestination(stackItem)), stackItem.PlayedFromStandby);
         behavior = behavior with { StandbyPlayFrom = stackItem.PlayedFromStandby };
 
         if (!(confirmPermanent && HasIndependentPermanentTargets(behavior))

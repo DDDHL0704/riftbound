@@ -1,0 +1,61 @@
+{
+  "status": "OFFICIAL_ZH_CN_SOURCE_VARIANTS_RETRIEVED_APPLICABILITY_OPEN",
+  "sources": [
+    {
+      "url": "https://playriftbound.com/zh-cn/news/announcements/the-radiance-overview/",
+      "resolvedUrl": "https://playriftbound.com/zh-cn/news/announcements/the-radiance-overview/",
+      "attemptedAtUtc": "2026-10-17T12:31:45.448402+00:00",
+      "receivedAtUtc": "2026-10-17T12:31:46.634305+00:00",
+      "httpStatus": 200,
+      "httpDate": "Sat, 17 Oct 2026 12:31:46 GMT",
+      "rawSha256": "377ab7864cfe44787d21b49ccf09bff9f002f76cc8a3eda500e3b117aaee5591",
+      "bytes": 168048,
+      "language": "zh-CN",
+      "publisherScope": "GLOBAL_OFFICIAL_LOCALIZED_SITE",
+      "cnRegionalPrecedence": "OPEN_NOT_ASSUMED_FROM_LANGUAGE",
+      "rawFile": "the-radiance-overview.html.gz",
+      "textFile": "the-radiance-overview.txt",
+      "textSha256": "327cef556a01faf77c2f9b1f7de254c373a5f9b04a421d631f532f9f7efc6a58",
+      "bodyHtmlFile": "the-radiance-overview.article-body.html",
+      "bodyHtmlSha256": "8c1efae7543d0750d4c9f07405ad73949da4101cb6a6f84b50e844c29ae1f506",
+      "title": "“辉耀群星”系列概览",
+      "displayedPublicationDate": "2026-09-25T22:30:00.000Z",
+      "revision": "jEv0005Ep2TWjU1CaqHdrO",
+      "bodyRichTextBlades": 2,
+      "sourceIsRetrievedNewLocaleNotAnEditToPriorEnSource": true
+    },
+    {
+      "url": "https://playriftbound.com/zh-cn/news/announcements/preparing-for-the-radiance-pre-rift/",
+      "resolvedUrl": "https://playriftbound.com/zh-cn/news/announcements/preparing-for-the-radiance-pre-rift/",
+      "attemptedAtUtc": "2026-10-17T12:31:45.463647+00:00",
+      "receivedAtUtc": "2026-10-17T12:31:46.615285+00:00",
+      "httpStatus": 200,
+      "httpDate": "Sat, 17 Oct 2026 12:31:46 GMT",
+      "rawSha256": "a53ed72bcfecb197491f7f6ebad8e4b9c1d64f8e3018f7eded7c0fb34d60f151",
+      "bytes": 158137,
+      "language": "zh-CN",
+      "publisherScope": "GLOBAL_OFFICIAL_LOCALIZED_SITE",
+      "cnRegionalPrecedence": "OPEN_NOT_ASSUMED_FROM_LANGUAGE",
+      "rawFile": "preparing-for-the-radiance-pre-rift.html.gz",
+      "textFile": "preparing-for-the-radiance-pre-rift.txt",
+      "textSha256": "c06f5145e8b0a3e35b4520d08c6aa5ddeb93f10ade7682fecba2726005ca99ed",
+      "bodyHtmlFile": "preparing-for-the-radiance-pre-rift.article-body.html",
+      "bodyHtmlSha256": "dc974a1b9db8d779afe203c6b1ae7eaff4411d601024b0ca19e8e8d293ef34ad",
+      "title": "“辉耀群星”系列售前现开赛准备指南",
+      "displayedPublicationDate": "2026-10-12T16:00:00.000Z",
+      "revision": "bl9UGXuyMPSXbfJsMUl4qo",
+      "bodyRichTextBlades": 1,
+      "sourceIsRetrievedNewLocaleNotAnEditToPriorEnSource": true
+    }
+  ],
+  "priorEnPreriftQaDiscoveryRetained": "docs/evidence/news-body-source-observation-2026-10-16/global-prerift-source-delta.json",
+  "newPrintingOrScopeActivation": false,
+  "sourceVersionChangedOrOnlyNewLanguageVariant": "Reconcile extracted complete article body against stored EN source and current CN regional rules; no silent replacement",
+  "articleFactsToReconcile": [
+    "overview displayed last update Oct16 and release Oct24, prerelease Oct17-23",
+    "localized prerelease guide displayed Oct12, names start Oct16 and four FAQ branches",
+    "localization does not establish regional rules precedence"
+  ],
+  "cardUniverse1740AndRuntime1033Retained": true,
+  "implementationAndTests": "OPEN_SOURCE_FACT_REVIEW_ONLY"
+}

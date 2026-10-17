@@ -22650,7 +22650,12 @@ public sealed partial class FullGameEndToEndTests
             .ToDictionary(card => card.CardNo, StringComparer.Ordinal);
         var implementedLowCurveUnits = CardBehaviorRegistry.GetAll()
             .Where(behavior => behavior.PlaysSourceToBaseAsUnit)
-            .Where(behavior => behavior.RequiredTargetCount == 0 && behavior.MinTargetCount <= 0)
+            // A battlefield-only play ability does not require targets when the
+            // unit enters BASE. Keep the original fixture deck membership when
+            // its independent damage ability gains its proper target count.
+            .Where(behavior => behavior.RequiredTargetCount == 0 && behavior.MinTargetCount <= 0
+                || cardsByNo.TryGetValue(behavior.CardNo, out var printed)
+                    && printed.CardEffect.Contains("当你将我打出到一处战场时", StringComparison.Ordinal))
             .Where(behavior => string.IsNullOrWhiteSpace(behavior.Mode))
             .Where(behavior => behavior.ManaCost <= 2)
             .Select(behavior => behavior.CardNo)
@@ -25316,14 +25321,16 @@ public sealed partial class FullGameEndToEndTests
                     var held = item?.HeldContext is { Kind: "EXACT_OTHER_DRAW" or "EXACT_OTHER_SCORE" } exactHeld ? exactHeld : null;
                     var grantedConquest = item?.UnitConquest is { TemporaryGrant: not null } granted ? granted : null;
                     var generation = item?.FieldContext is { Kind: "COMBAT_MIGHT" or "STANDBY_DEFEND" or "ATTACK_DECK_PLAY" } field
-                        ? field.SourceGeneration : item?.DamageDistribution?.Source.Generation ?? held?.SourceGeneration ?? grantedConquest?.SourceGeneration;
+                        ? field.SourceGeneration : item?.DamageDistribution?.Source.Generation ?? held?.SourceGeneration
+                            ?? grantedConquest?.SourceGeneration ?? item?.PermanentPlaySource?.Generation;
                     if (generation is null || item is null || !result.State.CardObjects.TryGetValue(item.SourceObjectId, out var source)
                         || source.ObjectGeneration == generation) continue;
                     Assert.True(generation >= 0 && generation < source.ObjectGeneration);
                     Assert.Equal(item.SourceObjectId, row["sourceObjectId"]?.GetValue<string>());
                     Assert.Equal(item.ControllerId, row["controllerId"]?.GetValue<string>());
                     Assert.Equal(item.CardNo, row["cardNo"]?.GetValue<string>());
-                    Assert.Equal(item.FieldContext?.CardNo ?? item.DamageDistribution?.CardNo ?? held?.CardNo ?? grantedConquest!.CardNo, item.CardNo);
+                    Assert.Equal(item.FieldContext?.CardNo ?? item.DamageDistribution?.CardNo ?? held?.CardNo
+                        ?? (item.PermanentPlaySource is not null ? "UNL-003/219" : grantedConquest!.CardNo), item.CardNo);
                     if (held is not null)
                     {
                         // Independently verify this bounded public old-generation
@@ -25352,6 +25359,27 @@ public sealed partial class FullGameEndToEndTests
                         Assert.Equal(grantedConquest.SourceGeneration.ToString(), grantFields[6]);
                         Assert.Equal(item.SourceObjectId, Encoding.UTF8.GetString(Convert.FromBase64String(grantFields[8])));
                         Assert.Null(row["unitConquest"]); // Stack view exposes only the public source/card identity.
+                    }
+                    else if (item.PermanentPlaySource is { } permanent)
+                    {
+                        // Only this independently checked public historical
+                        // incarnation is exempted. The current hand incarnation
+                        // and every other hidden identity remain checked below.
+                        Assert.Equal("MERFOLK_RABBLE_ROUSER_STANDBY_BATTLEFIELD_DAMAGE_STATIC", item.EffectKind);
+                        Assert.True(item.SourceConfirmed);
+                        Assert.Equal(item.SourceObjectId, permanent.ObjectId);
+                        Assert.StartsWith("BATTLEFIELD:", item.Destination);
+                        Assert.Contains(result.State.CardPlays.Resolved,
+                            play => play.Source == permanent && play.CardNo == "UNL-003/219" && play.Types == 1);
+                        if (item.PlayedFromStandby is { } standby)
+                        {
+                            Assert.Equal(item.SourceObjectId, standby.ObjectId);
+                            Assert.Equal("UNL-003/219", standby.CardNo);
+                            Assert.Equal(standby.SourceGeneration + 1, permanent.Generation);
+                            Assert.Equal("a1403b691681f937033ca69f08fd5910ac4448b717b91321cb0d9c075f3ca454", standby.PrintedTextSha256);
+                        }
+                        Assert.True(row["playAbility"]!.GetValue<bool>());
+                        Assert.Null(row["permanentPlaySource"]); // private binding is not projected
                     }
                     else
                         Assert.Equal(item.DamageDistribution is null ? "FIELD_TARGETED_TRIGGER" : "CAPTURED_DISTRIBUTED_DAMAGE", item.EffectKind);

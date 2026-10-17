@@ -24,7 +24,7 @@ public sealed partial class CoreRuleEngine
     {
         if (!CardBehaviorRegistry.TryGetByEffectKind(execution.EffectKind, out var behavior) || behavior.CardNo != spell.CardNo
             || execution.TargetObjectIds.Any(id => !CurrentChosenIncarnation(state, execution, id))) return false;
-        behavior = behavior with { StandbyPlayFrom = spell.PlayedFromStandby };
+        behavior = PermanentPlayDefinition(behavior, IsStackItemBattlefieldDestination(spell)) with { StandbyPlayFrom = spell.PlayedFromStandby };
         var targets = execution.TargetObjectIds;
         if (!HasValidTargetEffectAdditionalCostTargets(behavior, targets, spell.OptionalCosts)) return false;
         if (IsStandbyReactionStackItem(behavior, spell))
@@ -36,7 +36,8 @@ public sealed partial class CoreRuleEngine
             // A face-down play retains its original battlefield restriction after control changes.
             return targets.All(id => RemadeStandbyLocationAllowed(state, behavior, field, id));
         }
-        if (!HasLegalDeclaredTargets(state, spell.ControllerId, spell.SourceObjectId, behavior, targets, PlayCardTargetScopeForBehavior(behavior))) return false;
+        if (!HasLegalDeclaredTargets(state, spell.ControllerId, spell.SourceObjectId, behavior, targets, PlayCardTargetScopeForBehavior(behavior))
+            || targets.Any(id => !PermanentPlayHereTargetAllowed(state, spell, behavior, id))) return false;
         var command = new PlayCardCommand(spell.SourceObjectId, spell.CardNo, targets, behavior.Mode,
             spell.OptionalCosts, execution.Destination, MovementDestinations: execution.MovementDestinations);
         return IsSequentialMovementPlanAllowed(state, spell.ControllerId, behavior, command)

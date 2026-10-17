@@ -126,7 +126,8 @@ public sealed partial class CoreRuleEngine
                         if (index < execution.TargetObjectIds.Count && id == execution.TargetObjectIds[index]
                             && CurrentChosenIncarnation(state, execution, id)) continue;
                         var scope = IsStandbyReactionStackItem(definition, spell) ? definition.StandbyReactionTargetScope : PlayCardTargetScopeForBehavior(definition);
-                        if (!IsLegalChosenCardTarget(state, spell.ControllerId, id, index, targets, scope, definition)) continue;
+                        if (!IsLegalChosenCardTarget(state, spell.ControllerId, id, index, targets, scope, definition)
+                            || !PermanentPlayHereTargetAllowed(state, spell, definition, id)) continue;
                         var generations = execution.TargetGenerations.Where(p => targets.Contains(p.Key)).ToDictionary(p => p.Key, p => p.Value);
                         if (state.CardObjects.TryGetValue(id, out var card)) generations[id] = card.ObjectGeneration;
                         Add(execution with { TargetObjectIds = targets.ToArray(), TargetGenerations = generations },

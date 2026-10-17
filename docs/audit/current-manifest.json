@@ -99,7 +99,7 @@
     },
     "reviews": {
       "path": "docs/evidence/rules-reaudit-2026-10-11/review-decisions.json",
-      "sha256": "ddceeb42faa0c76e5068afa578c4be671bd74095761c3cb7917b2a8ed39618f5"
+      "sha256": "7cdf96b7760fba9baf88a0fc3aec2484eaf535a60eae9db39d841ceaec4591c5"
     },
     "summary": {
       "path": "docs/evidence/source-listing-2026-10-15/index-summary.json",
@@ -304,7 +304,7 @@
         }
       ],
       "evidenceCommit": "e54f3084662e2c2e00c521d232b4a11baaea7d91",
-      "currentImplementationCommit": "3a8a6f394fc6a8a7e3ea99a2db0799fa35859d31",
+      "currentImplementationCommit": "4fca367eaab1dd198ffde839b23461c058a2b470",
       "currentImplementationIncludesUncommittedChanges": true,
       "revalidationReason": "Journal event serialization comparison and either-side natural allocation gate changed after exact9e; prior receipts retain their exact input scope.",
       "implementationPinUpdates": [
@@ -365,14 +365,14 @@
         }
       ],
       "latestInputChange": {
-        "date": "2026-10-17",
-        "scope": "Duel chain focus continuation, ordered last-breath dispatch, standby tag normalization and independent global winning-score recovery checks.",
-        "receipt": {
-          "path": "docs/evidence/triggered-duel-continuation-2026-10-17/prior-context-input-updates.json",
-          "sha256": "e5faa62dd7f59f124dd389996a6854660775cd18a2a733c50cbc071f436b990d"
+        "kind": "PERMANENT_PLAY_SOURCE_GENERATION_AND_BATTLEFIELD_DAMAGE",
+        "scope": "Current compiled engine source changed. Earlier successful CI remains a previous fixed baseline only; current fixed full is pending.",
+        "sourceManifest": {
+          "path": "docs/evidence/battlefield-play-damage-2026-10-17/source-manifest.json",
+          "sha256": "05632566219de2496735cf6a87afb324b7d224165f0789f447b974c4ddb3f61a"
         }
       },
-      "currentInputRevision": "3a8 plus the independent battlefield-only primary-play recovery guard; new exact fixed full required. All prior semantic decisions and CI receipts retained."
+      "currentInputRevision": "18e06d46134c074b693f5c48cdd0dc78024ead8b9532fe0d5aaad56f50ab7446"
     },
     "candlelit-conquest-private-look-recycle-order-2026-10-14": {
       "implementation": [
@@ -683,7 +683,7 @@
         }
       ],
       "evidenceCommit": "e61745f5cc704f2aa0326d84f22416e04ecbf139",
-      "currentImplementationCommit": "3a8a6f394fc6a8a7e3ea99a2db0799fa35859d31",
+      "currentImplementationCommit": "4fca367eaab1dd198ffde839b23461c058a2b470",
       "currentImplementationIncludesUncommittedChanges": true,
       "revalidationReason": "Actual fixed0cbee full failed three original games. Accepted declaration provenance and single eligible surviving conquest-return selection changed; prior exact evidence is retained, new fixed full/product required.",
       "implementationPinUpdates": [
@@ -754,14 +754,14 @@
         }
       ],
       "latestInputChange": {
-        "date": "2026-10-17",
-        "scope": "Duel chain focus continuation, ordered last-breath dispatch, standby tag normalization and independent global winning-score recovery checks.",
-        "receipt": {
-          "path": "docs/evidence/triggered-duel-continuation-2026-10-17/prior-context-input-updates.json",
-          "sha256": "e5faa62dd7f59f124dd389996a6854660775cd18a2a733c50cbc071f436b990d"
+        "kind": "PERMANENT_PLAY_SOURCE_GENERATION_AND_BATTLEFIELD_DAMAGE",
+        "scope": "Current compiled engine source changed. Earlier successful CI remains a previous fixed baseline only; current fixed full is pending.",
+        "sourceManifest": {
+          "path": "docs/evidence/battlefield-play-damage-2026-10-17/source-manifest.json",
+          "sha256": "05632566219de2496735cf6a87afb324b7d224165f0789f447b974c4ddb3f61a"
         }
       },
-      "currentInputRevision": "3a8 plus the independent battlefield-only primary-play recovery guard; new exact fixed full required. All prior semantic decisions and CI receipts retained."
+      "currentInputRevision": "18e06d46134c074b693f5c48cdd0dc78024ead8b9532fe0d5aaad56f50ab7446"
     },
     "masked-attendant-reflexive-self-copy-2026-10-14": {
       "implementation": [
@@ -775,11 +775,11 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.ObjectContinuity.cs",
-          "sha256": "db0e7bcc2652e9f88a581da82f51c96b5c5c11797bb6a6552f02789ebbfd5aeb"
+          "sha256": "b767edbceb019ba3cdc264cfe714def6b86b5383c698a2eb26d057d0e9f1a108"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.PermanentConfirmation.cs",
-          "sha256": "89975fbcb3244799badd55e257f1d709133473e10748334bec53d4139798ffb1"
+          "sha256": "4691c444a8d94b609680bc2988aadd29efea62b79014dc892852bad25c5320fc"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.TokenReplacement.cs",
@@ -791,7 +791,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "f19995b83f6e94b674781fad1c2c25f19372f204f55e81e9418da828de9310c9"
+          "sha256": "e2a68ce74ce5d37ac7633a217d882ed0d7975eb6ff162224f29e576cb31b7f79"
         },
         {
           "path": "src/Riftbound.CardCatalog/ReviewedCardErrata.cs",
@@ -1401,7 +1401,7 @@
         }
       ],
       "evidenceCommit": "03f88a7ee1b109b2cb906fbdc457316f93c08fda",
-      "currentImplementationCommit": "3a8a6f394fc6a8a7e3ea99a2db0799fa35859d31",
+      "currentImplementationCommit": "4fca367eaab1dd198ffde839b23461c058a2b470",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -1470,15 +1470,15 @@
       ],
       "revalidationReason": "Explicit shared implementation/verification input changes; prior CI retained only at its fixed old source scope.",
       "latestInputChange": {
-        "date": "2026-10-17",
-        "scope": "Canonical optionalCosts ingress and typed null omission only. Independent recovery and mapper unchanged.",
-        "receipt": {
-          "path": "docs/evidence/optional-costs-ingress-2026-10-17/prior-context-input-updates.json",
-          "sha256": "2c5b9441fcafac4d26fe1cf622b040535ae4573cc827c4d2d0c0693dacd103a2"
+        "kind": "PERMANENT_PLAY_SOURCE_GENERATION_AND_BATTLEFIELD_DAMAGE",
+        "scope": "Current compiled engine source changed. Earlier successful CI remains a previous fixed baseline only; current fixed full is pending.",
+        "sourceManifest": {
+          "path": "docs/evidence/battlefield-play-damage-2026-10-17/source-manifest.json",
+          "sha256": "05632566219de2496735cf6a87afb324b7d224165f0789f447b974c4ddb3f61a"
         }
       },
       "currentProductAcceptance": "OPEN_AFTER_SHARED_NATIVE_PROMPT_INPUT_CHANGE_OLD_VISIBLE_EVIDENCE_RETAINS_EXACT_SCOPE",
-      "currentInputRevision": "3a8 plus the independent battlefield-only primary-play recovery guard; new exact fixed full required. All prior semantic decisions and CI receipts retained."
+      "currentInputRevision": "18e06d46134c074b693f5c48cdd0dc78024ead8b9532fe0d5aaad56f50ab7446"
     },
     "static-granted-predict-entry-2026-10-15": {
       "implementation": [
@@ -1508,11 +1508,11 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "ed79875b5dc4dc61d56ed82d4d299e4b464a0c8a227b46b3834579f21abc18b5"
+          "sha256": "f7db478ed3fc4ceb83392da63b6cab16ad0e551122bed9a4e1e6b0489f05c0c5"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "f19995b83f6e94b674781fad1c2c25f19372f204f55e81e9418da828de9310c9"
+          "sha256": "e2a68ce74ce5d37ac7633a217d882ed0d7975eb6ff162224f29e576cb31b7f79"
         },
         {
           "path": "src/Riftbound.Engine/OfficialPrintedTimingRules.cs",
@@ -2121,7 +2121,7 @@
       "ciState": "PENDING",
       "ciReceipts": [],
       "evidenceCommit": "03f88a7ee1b109b2cb906fbdc457316f93c08fda",
-      "currentImplementationCommit": "3a8a6f394fc6a8a7e3ea99a2db0799fa35859d31",
+      "currentImplementationCommit": "4fca367eaab1dd198ffde839b23461c058a2b470",
       "currentImplementationIncludesUncommittedChanges": true,
       "lastFixedCiFailure": {
         "path": "docs/evidence/granted-predict-2026-10-15/full-ci-c74853be-failed.json",
@@ -2302,15 +2302,15 @@
       ],
       "revalidationReason": "Actual battlefield-controller entry fix changes shared Core and SQL verification inputs; earlier fixed CI remains limited to its original source scope.",
       "latestInputChange": {
-        "date": "2026-10-17",
-        "scope": "Canonical optionalCosts ingress and typed null omission only. Independent recovery and mapper unchanged.",
-        "receipt": {
-          "path": "docs/evidence/optional-costs-ingress-2026-10-17/prior-context-input-updates.json",
-          "sha256": "2c5b9441fcafac4d26fe1cf622b040535ae4573cc827c4d2d0c0693dacd103a2"
+        "kind": "PERMANENT_PLAY_SOURCE_GENERATION_AND_BATTLEFIELD_DAMAGE",
+        "scope": "Current compiled engine source changed. Earlier successful CI remains a previous fixed baseline only; current fixed full is pending.",
+        "sourceManifest": {
+          "path": "docs/evidence/battlefield-play-damage-2026-10-17/source-manifest.json",
+          "sha256": "05632566219de2496735cf6a87afb324b7d224165f0789f447b974c4ddb3f61a"
         }
       },
       "currentProductAcceptance": "OPEN_AFTER_SHARED_NATIVE_PROMPT_INPUT_CHANGE_OLD_VISIBLE_EVIDENCE_RETAINS_EXACT_SCOPE",
-      "currentInputRevision": "3a8 plus the independent battlefield-only primary-play recovery guard; new exact fixed full required. All prior semantic decisions and CI receipts retained."
+      "currentInputRevision": "18e06d46134c074b693f5c48cdd0dc78024ead8b9532fe0d5aaad56f50ab7446"
     },
     "printed-predict-permanent-entry-2026-10-15": {
       "implementation": [
@@ -2340,11 +2340,11 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "ed79875b5dc4dc61d56ed82d4d299e4b464a0c8a227b46b3834579f21abc18b5"
+          "sha256": "f7db478ed3fc4ceb83392da63b6cab16ad0e551122bed9a4e1e6b0489f05c0c5"
         },
         {
           "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
-          "sha256": "ecfe05b082061def9120c3dac1c065427cd3e7a3f07eb8c2647370f49244473b"
+          "sha256": "05376463a0bfae0e36eb3a0b4f9e2af92a8526fb937fed6a8f45e9cf01a74d79"
         },
         {
           "path": "src/Riftbound.Engine/CardLifecycleKeywordRules.cs",
@@ -2948,7 +2948,7 @@
         }
       ],
       "evidenceCommit": "74353e405fd2242ece0bae05972f209950b2c9de",
-      "currentImplementationCommit": "3a8a6f394fc6a8a7e3ea99a2db0799fa35859d31",
+      "currentImplementationCommit": "4fca367eaab1dd198ffde839b23461c058a2b470",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -3131,14 +3131,14 @@
       ],
       "revalidationReason": "Actual battlefield-controller entry fix changes shared Core and SQL verification inputs; earlier fixed CI remains limited to its original source scope.",
       "latestInputChange": {
-        "date": "2026-10-17",
-        "scope": "Duel chain focus continuation, ordered last-breath dispatch, standby tag normalization and independent global winning-score recovery checks.",
-        "receipt": {
-          "path": "docs/evidence/triggered-duel-continuation-2026-10-17/prior-context-input-updates.json",
-          "sha256": "e5faa62dd7f59f124dd389996a6854660775cd18a2a733c50cbc071f436b990d"
+        "kind": "PERMANENT_PLAY_SOURCE_GENERATION_AND_BATTLEFIELD_DAMAGE",
+        "scope": "Current compiled engine source changed. Earlier successful CI remains a previous fixed baseline only; current fixed full is pending.",
+        "sourceManifest": {
+          "path": "docs/evidence/battlefield-play-damage-2026-10-17/source-manifest.json",
+          "sha256": "05632566219de2496735cf6a87afb324b7d224165f0789f447b974c4ddb3f61a"
         }
       },
-      "currentInputRevision": "3a8 plus the independent battlefield-only primary-play recovery guard; new exact fixed full required. All prior semantic decisions and CI receipts retained."
+      "currentInputRevision": "18e06d46134c074b693f5c48cdd0dc78024ead8b9532fe0d5aaad56f50ab7446"
     },
     "sivir-optional-rune-recycle-2026-10-15": {
       "implementation": [
@@ -3152,7 +3152,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "ed79875b5dc4dc61d56ed82d4d299e4b464a0c8a227b46b3834579f21abc18b5"
+          "sha256": "f7db478ed3fc4ceb83392da63b6cab16ad0e551122bed9a4e1e6b0489f05c0c5"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.Insight.cs",
@@ -3180,7 +3180,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "f19995b83f6e94b674781fad1c2c25f19372f204f55e81e9418da828de9310c9"
+          "sha256": "e2a68ce74ce5d37ac7633a217d882ed0d7975eb6ff162224f29e576cb31b7f79"
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
@@ -3514,7 +3514,7 @@
         }
       ],
       "evidenceCommit": "7649d573f884ffd7517a502f7eebe01d0aa186c4",
-      "currentImplementationCommit": "3a8a6f394fc6a8a7e3ea99a2db0799fa35859d31",
+      "currentImplementationCommit": "4fca367eaab1dd198ffde839b23461c058a2b470",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -3681,15 +3681,15 @@
       ],
       "revalidationReason": "Actual battlefield-controller entry fix changes shared Core and SQL verification inputs; earlier fixed CI remains limited to its original source scope.",
       "latestInputChange": {
-        "date": "2026-10-17",
-        "scope": "Canonical optionalCosts ingress and typed null omission only. Independent recovery and mapper unchanged.",
-        "receipt": {
-          "path": "docs/evidence/optional-costs-ingress-2026-10-17/prior-context-input-updates.json",
-          "sha256": "2c5b9441fcafac4d26fe1cf622b040535ae4573cc827c4d2d0c0693dacd103a2"
+        "kind": "PERMANENT_PLAY_SOURCE_GENERATION_AND_BATTLEFIELD_DAMAGE",
+        "scope": "Current compiled engine source changed. Earlier successful CI remains a previous fixed baseline only; current fixed full is pending.",
+        "sourceManifest": {
+          "path": "docs/evidence/battlefield-play-damage-2026-10-17/source-manifest.json",
+          "sha256": "05632566219de2496735cf6a87afb324b7d224165f0789f447b974c4ddb3f61a"
         }
       },
       "currentProductAcceptance": "OPEN_AFTER_SHARED_NATIVE_PROMPT_INPUT_CHANGE_OLD_VISIBLE_EVIDENCE_RETAINS_EXACT_SCOPE",
-      "currentInputRevision": "3a8 plus the independent battlefield-only primary-play recovery guard; new exact fixed full required. All prior semantic decisions and CI receipts retained."
+      "currentInputRevision": "18e06d46134c074b693f5c48cdd0dc78024ead8b9532fe0d5aaad56f50ab7446"
     },
     "battlefield-conquer-rune-destination-2026-10-15": {
       "implementation": [
@@ -3707,7 +3707,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "ed79875b5dc4dc61d56ed82d4d299e4b464a0c8a227b46b3834579f21abc18b5"
+          "sha256": "f7db478ed3fc4ceb83392da63b6cab16ad0e551122bed9a4e1e6b0489f05c0c5"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.Conquest.cs",
@@ -3854,7 +3854,7 @@
         }
       ],
       "evidenceCommit": "dd8884ba1e443138264b9b0e971ab8da3c5480ee",
-      "currentImplementationCommit": "3a8a6f394fc6a8a7e3ea99a2db0799fa35859d31",
+      "currentImplementationCommit": "4fca367eaab1dd198ffde839b23461c058a2b470",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -3975,14 +3975,14 @@
       ],
       "revalidationReason": "Actual battlefield-controller entry fix changes shared Core and SQL verification inputs; earlier fixed CI remains limited to its original source scope.",
       "latestInputChange": {
-        "date": "2026-10-17",
-        "scope": "Duel chain focus continuation, ordered last-breath dispatch, standby tag normalization and independent global winning-score recovery checks.",
-        "receipt": {
-          "path": "docs/evidence/triggered-duel-continuation-2026-10-17/prior-context-input-updates.json",
-          "sha256": "e5faa62dd7f59f124dd389996a6854660775cd18a2a733c50cbc071f436b990d"
+        "kind": "PERMANENT_PLAY_SOURCE_GENERATION_AND_BATTLEFIELD_DAMAGE",
+        "scope": "Current compiled engine source changed. Earlier successful CI remains a previous fixed baseline only; current fixed full is pending.",
+        "sourceManifest": {
+          "path": "docs/evidence/battlefield-play-damage-2026-10-17/source-manifest.json",
+          "sha256": "05632566219de2496735cf6a87afb324b7d224165f0789f447b974c4ddb3f61a"
         }
       },
-      "currentInputRevision": "3a8 plus the independent battlefield-only primary-play recovery guard; new exact fixed full required. All prior semantic decisions and CI receipts retained."
+      "currentInputRevision": "18e06d46134c074b693f5c48cdd0dc78024ead8b9532fe0d5aaad56f50ab7446"
     },
     "sivir-payment-trigger-and-ward-event-2026-10-15": {
       "implementation": [
@@ -4008,7 +4008,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "ed79875b5dc4dc61d56ed82d4d299e4b464a0c8a227b46b3834579f21abc18b5"
+          "sha256": "f7db478ed3fc4ceb83392da63b6cab16ad0e551122bed9a4e1e6b0489f05c0c5"
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
@@ -4194,7 +4194,7 @@
         }
       ],
       "evidenceCommit": "00420e2a2b453918e611812d18fda9f62632e15f",
-      "currentImplementationCommit": "3a8a6f394fc6a8a7e3ea99a2db0799fa35859d31",
+      "currentImplementationCommit": "4fca367eaab1dd198ffde839b23461c058a2b470",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -4310,14 +4310,14 @@
       ],
       "revalidationReason": "Actual battlefield-controller entry fix changes shared Core and SQL verification inputs; earlier fixed CI remains limited to its original source scope.",
       "latestInputChange": {
-        "date": "2026-10-17",
-        "scope": "Duel chain focus continuation, ordered last-breath dispatch, standby tag normalization and independent global winning-score recovery checks.",
-        "receipt": {
-          "path": "docs/evidence/triggered-duel-continuation-2026-10-17/prior-context-input-updates.json",
-          "sha256": "e5faa62dd7f59f124dd389996a6854660775cd18a2a733c50cbc071f436b990d"
+        "kind": "PERMANENT_PLAY_SOURCE_GENERATION_AND_BATTLEFIELD_DAMAGE",
+        "scope": "Current compiled engine source changed. Earlier successful CI remains a previous fixed baseline only; current fixed full is pending.",
+        "sourceManifest": {
+          "path": "docs/evidence/battlefield-play-damage-2026-10-17/source-manifest.json",
+          "sha256": "05632566219de2496735cf6a87afb324b7d224165f0789f447b974c4ddb3f61a"
         }
       },
-      "currentInputRevision": "3a8 plus the independent battlefield-only primary-play recovery guard; new exact fixed full required. All prior semantic decisions and CI receipts retained."
+      "currentInputRevision": "18e06d46134c074b693f5c48cdd0dc78024ead8b9532fe0d5aaad56f50ab7446"
     },
     "unit-conquest-gold-response-2026-10-15": {
       "implementation": [
@@ -4331,11 +4331,11 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "ed79875b5dc4dc61d56ed82d4d299e4b464a0c8a227b46b3834579f21abc18b5"
+          "sha256": "f7db478ed3fc4ceb83392da63b6cab16ad0e551122bed9a4e1e6b0489f05c0c5"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "f19995b83f6e94b674781fad1c2c25f19372f204f55e81e9418da828de9310c9"
+          "sha256": "e2a68ce74ce5d37ac7633a217d882ed0d7975eb6ff162224f29e576cb31b7f79"
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
@@ -4570,7 +4570,7 @@
         }
       ],
       "evidenceCommit": "eb3c4281c94c8d41d315cd574bdfa597cd10c30b",
-      "currentImplementationCommit": "3a8a6f394fc6a8a7e3ea99a2db0799fa35859d31",
+      "currentImplementationCommit": "4fca367eaab1dd198ffde839b23461c058a2b470",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -4712,15 +4712,15 @@
       ],
       "revalidationReason": "Actual battlefield-controller entry fix changes shared Core and SQL verification inputs; earlier fixed CI remains limited to its original source scope.",
       "latestInputChange": {
-        "date": "2026-10-17",
-        "scope": "Canonical optionalCosts ingress and typed null omission only. Independent recovery and mapper unchanged.",
-        "receipt": {
-          "path": "docs/evidence/optional-costs-ingress-2026-10-17/prior-context-input-updates.json",
-          "sha256": "2c5b9441fcafac4d26fe1cf622b040535ae4573cc827c4d2d0c0693dacd103a2"
+        "kind": "PERMANENT_PLAY_SOURCE_GENERATION_AND_BATTLEFIELD_DAMAGE",
+        "scope": "Current compiled engine source changed. Earlier successful CI remains a previous fixed baseline only; current fixed full is pending.",
+        "sourceManifest": {
+          "path": "docs/evidence/battlefield-play-damage-2026-10-17/source-manifest.json",
+          "sha256": "05632566219de2496735cf6a87afb324b7d224165f0789f447b974c4ddb3f61a"
         }
       },
       "currentProductAcceptance": "OPEN_AFTER_SHARED_NATIVE_PROMPT_INPUT_CHANGE_OLD_VISIBLE_EVIDENCE_RETAINS_EXACT_SCOPE",
-      "currentInputRevision": "3a8 plus the independent battlefield-only primary-play recovery guard; new exact fixed full required. All prior semantic decisions and CI receipts retained."
+      "currentInputRevision": "18e06d46134c074b693f5c48cdd0dc78024ead8b9532fe0d5aaad56f50ab7446"
     },
     "own-main-deck-recycle-card-boon-2026-10-15": {
       "implementation": [
@@ -4762,7 +4762,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "ed79875b5dc4dc61d56ed82d4d299e4b464a0c8a227b46b3834579f21abc18b5"
+          "sha256": "f7db478ed3fc4ceb83392da63b6cab16ad0e551122bed9a4e1e6b0489f05c0c5"
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
@@ -5442,7 +5442,7 @@
         }
       ],
       "evidenceCommit": "a0406e1d878598b3c0fd88f5bfa7f9831d6a2cc6",
-      "currentImplementationCommit": "3a8a6f394fc6a8a7e3ea99a2db0799fa35859d31",
+      "currentImplementationCommit": "4fca367eaab1dd198ffde839b23461c058a2b470",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -5588,14 +5588,14 @@
       ],
       "revalidationReason": "Actual battlefield-controller entry fix changes shared Core and SQL verification inputs; earlier fixed CI remains limited to its original source scope.",
       "latestInputChange": {
-        "date": "2026-10-17",
-        "scope": "Duel chain focus continuation, ordered last-breath dispatch, standby tag normalization and independent global winning-score recovery checks.",
-        "receipt": {
-          "path": "docs/evidence/triggered-duel-continuation-2026-10-17/prior-context-input-updates.json",
-          "sha256": "e5faa62dd7f59f124dd389996a6854660775cd18a2a733c50cbc071f436b990d"
+        "kind": "PERMANENT_PLAY_SOURCE_GENERATION_AND_BATTLEFIELD_DAMAGE",
+        "scope": "Current compiled engine source changed. Earlier successful CI remains a previous fixed baseline only; current fixed full is pending.",
+        "sourceManifest": {
+          "path": "docs/evidence/battlefield-play-damage-2026-10-17/source-manifest.json",
+          "sha256": "05632566219de2496735cf6a87afb324b7d224165f0789f447b974c4ddb3f61a"
         }
       },
-      "currentInputRevision": "3a8 plus the independent battlefield-only primary-play recovery guard; new exact fixed full required. All prior semantic decisions and CI receipts retained."
+      "currentInputRevision": "18e06d46134c074b693f5c48cdd0dc78024ead8b9532fe0d5aaad56f50ab7446"
     },
     "copied-recycle-boon-ceased-source-2026-10-15": {
       "implementation": [
@@ -5779,17 +5779,17 @@
         }
       ],
       "evidenceCommit": "1a5cabfbd5e7e87eb971622506371e57beb96319",
-      "currentImplementationCommit": "3a8a6f394fc6a8a7e3ea99a2db0799fa35859d31",
+      "currentImplementationCommit": "4fca367eaab1dd198ffde839b23461c058a2b470",
       "currentImplementationIncludesUncommittedChanges": true,
       "latestInputChange": {
-        "date": "2026-10-17",
-        "scope": "Created-token independent ready triggers and final truthful up-to-two target prompt; historical candidates remain separately pinned.",
-        "receipt": {
-          "path": "docs/evidence/sand-soldier-embedded-ready-2026-10-17/prior-context-input-updates.json",
-          "sha256": "d789954d637ab0d2c721ba5ecccd5e899ef93c66983ae332476704cef096d3a8"
+        "kind": "PERMANENT_PLAY_SOURCE_GENERATION_AND_BATTLEFIELD_DAMAGE",
+        "scope": "Current compiled engine source changed. Earlier successful CI remains a previous fixed baseline only; current fixed full is pending.",
+        "sourceManifest": {
+          "path": "docs/evidence/battlefield-play-damage-2026-10-17/source-manifest.json",
+          "sha256": "05632566219de2496735cf6a87afb324b7d224165f0789f447b974c4ddb3f61a"
         }
       },
-      "currentInputRevision": "3a8 plus the independent battlefield-only primary-play recovery guard; new exact fixed full required. All prior semantic decisions and CI receipts retained."
+      "currentInputRevision": "18e06d46134c074b693f5c48cdd0dc78024ead8b9532fe0d5aaad56f50ab7446"
     },
     "ceased-recycle-source-exact-printing-2026-10-15": {
       "implementation": [
@@ -5881,9 +5881,17 @@
         }
       ],
       "evidenceCommit": "09ac000ec5dcfb3fe2404d7da235b4e7c91bfeba",
-      "currentImplementationCommit": "3a8a6f394fc6a8a7e3ea99a2db0799fa35859d31",
+      "currentImplementationCommit": "4fca367eaab1dd198ffde839b23461c058a2b470",
       "currentImplementationIncludesUncommittedChanges": true,
-      "currentInputRevision": "3a8 plus the independent battlefield-only primary-play recovery guard; new exact fixed full required. All prior semantic decisions and CI receipts retained."
+      "currentInputRevision": "18e06d46134c074b693f5c48cdd0dc78024ead8b9532fe0d5aaad56f50ab7446",
+      "latestInputChange": {
+        "kind": "PERMANENT_PLAY_SOURCE_GENERATION_AND_BATTLEFIELD_DAMAGE",
+        "scope": "Current compiled engine source changed. Earlier successful CI remains a previous fixed baseline only; current fixed full is pending.",
+        "sourceManifest": {
+          "path": "docs/evidence/battlefield-play-damage-2026-10-17/source-manifest.json",
+          "sha256": "05632566219de2496735cf6a87afb324b7d224165f0789f447b974c4ddb3f61a"
+        }
+      }
     },
     "attached-recycle-order-confirmation-and-ceased-host-2026-10-15": {
       "implementation": [
@@ -6063,7 +6071,7 @@
         }
       ],
       "evidenceCommit": "5faa9012c305e8fc76b5b79d8b798597beee08df",
-      "currentImplementationCommit": "3a8a6f394fc6a8a7e3ea99a2db0799fa35859d31",
+      "currentImplementationCommit": "4fca367eaab1dd198ffde839b23461c058a2b470",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -6089,14 +6097,14 @@
       ],
       "revalidationReason": "Declared targeted Insight executions and the production outgoing command serializer changed; earlier exact receipts remain scoped to their own inputs.",
       "latestInputChange": {
-        "date": "2026-10-17",
-        "scope": "Duel chain focus continuation, ordered last-breath dispatch, standby tag normalization and independent global winning-score recovery checks.",
-        "receipt": {
-          "path": "docs/evidence/triggered-duel-continuation-2026-10-17/prior-context-input-updates.json",
-          "sha256": "e5faa62dd7f59f124dd389996a6854660775cd18a2a733c50cbc071f436b990d"
+        "kind": "PERMANENT_PLAY_SOURCE_GENERATION_AND_BATTLEFIELD_DAMAGE",
+        "scope": "Current compiled engine source changed. Earlier successful CI remains a previous fixed baseline only; current fixed full is pending.",
+        "sourceManifest": {
+          "path": "docs/evidence/battlefield-play-damage-2026-10-17/source-manifest.json",
+          "sha256": "05632566219de2496735cf6a87afb324b7d224165f0789f447b974c4ddb3f61a"
         }
       },
-      "currentInputRevision": "3a8 plus the independent battlefield-only primary-play recovery guard; new exact fixed full required. All prior semantic decisions and CI receipts retained."
+      "currentInputRevision": "18e06d46134c074b693f5c48cdd0dc78024ead8b9532fe0d5aaad56f50ab7446"
     },
     "swain-source-identity-and-conquest-clause-classification-2026-10-15": {
       "implementation": [
@@ -6136,7 +6144,7 @@
         }
       ],
       "evidenceCommit": "4ef4db144b1825f8b05f1b0b1605a8b99c49ac84",
-      "currentImplementationCommit": "3a8a6f394fc6a8a7e3ea99a2db0799fa35859d31",
+      "currentImplementationCommit": "4fca367eaab1dd198ffde839b23461c058a2b470",
       "currentImplementationIncludesUncommittedChanges": true,
       "branches": [
         {
@@ -6192,7 +6200,15 @@
           ]
         }
       ],
-      "currentInputRevision": "3a8 plus the independent battlefield-only primary-play recovery guard; new exact fixed full required. All prior semantic decisions and CI receipts retained."
+      "currentInputRevision": "18e06d46134c074b693f5c48cdd0dc78024ead8b9532fe0d5aaad56f50ab7446",
+      "latestInputChange": {
+        "kind": "PERMANENT_PLAY_SOURCE_GENERATION_AND_BATTLEFIELD_DAMAGE",
+        "scope": "Current compiled engine source changed. Earlier successful CI remains a previous fixed baseline only; current fixed full is pending.",
+        "sourceManifest": {
+          "path": "docs/evidence/battlefield-play-damage-2026-10-17/source-manifest.json",
+          "sha256": "05632566219de2496735cf6a87afb324b7d224165f0789f447b974c4ddb3f61a"
+        }
+      }
     },
     "official-multitype-factory-deck-and-native-metadata-2026-10-15": {
       "implementation": [
@@ -6206,7 +6222,7 @@
         },
         {
           "path": "src/Riftbound.Engine/PreconstructedDeckCatalog.cs",
-          "sha256": "cb7ef66cfac26e6f6dfed92fe4206fdb3571c2916ec1d697310efa0f209a913a"
+          "sha256": "fe8529ad546fff0f9979b1fdba9f956aee93d37b63e876fdcea3bd8a23b337f0"
         },
         {
           "path": "clients/godot/scripts/OfficialCardCatalogService.cs",
@@ -6243,7 +6259,7 @@
       "ciState": "PENDING",
       "ciReceipts": [],
       "evidenceCommit": "4ef4db144b1825f8b05f1b0b1605a8b99c49ac84",
-      "currentImplementationCommit": "3a8a6f394fc6a8a7e3ea99a2db0799fa35859d31",
+      "currentImplementationCommit": "4fca367eaab1dd198ffde839b23461c058a2b470",
       "currentImplementationIncludesUncommittedChanges": true,
       "branches": [
         {
@@ -6281,7 +6297,15 @@
           ]
         }
       ],
-      "currentInputRevision": "3a8 plus the independent battlefield-only primary-play recovery guard; new exact fixed full required. All prior semantic decisions and CI receipts retained."
+      "currentInputRevision": "18e06d46134c074b693f5c48cdd0dc78024ead8b9532fe0d5aaad56f50ab7446",
+      "latestInputChange": {
+        "kind": "PERMANENT_PLAY_SOURCE_GENERATION_AND_BATTLEFIELD_DAMAGE",
+        "scope": "Current compiled engine source changed. Earlier successful CI remains a previous fixed baseline only; current fixed full is pending.",
+        "sourceManifest": {
+          "path": "docs/evidence/battlefield-play-damage-2026-10-17/source-manifest.json",
+          "sha256": "05632566219de2496735cf6a87afb324b7d224165f0789f447b974c4ddb3f61a"
+        }
+      }
     },
     "typed-current-turn-card-play-confirmation-and-resolution-history-2026-10-15": {
       "implementation": [
@@ -6291,7 +6315,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "ed79875b5dc4dc61d56ed82d4d299e4b464a0c8a227b46b3834579f21abc18b5"
+          "sha256": "f7db478ed3fc4ceb83392da63b6cab16ad0e551122bed9a4e1e6b0489f05c0c5"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.SpellCompletion.cs",
@@ -6303,7 +6327,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "f19995b83f6e94b674781fad1c2c25f19372f204f55e81e9418da828de9310c9"
+          "sha256": "e2a68ce74ce5d37ac7633a217d882ed0d7975eb6ff162224f29e576cb31b7f79"
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
@@ -6352,7 +6376,7 @@
         }
       ],
       "evidenceCommit": "342187cb732ea37a616d3fb125be6e9e5096ead1",
-      "currentImplementationCommit": "3a8a6f394fc6a8a7e3ea99a2db0799fa35859d31",
+      "currentImplementationCommit": "4fca367eaab1dd198ffde839b23461c058a2b470",
       "currentImplementationIncludesUncommittedChanges": true,
       "branches": [
         {
@@ -6597,15 +6621,15 @@
       },
       "revalidationReason": "Actual battlefield-controller entry fix changes shared Core and SQL verification inputs; earlier fixed CI remains limited to its original source scope.",
       "latestInputChange": {
-        "date": "2026-10-17",
-        "scope": "Canonical optionalCosts ingress and typed null omission only. Independent recovery and mapper unchanged.",
-        "receipt": {
-          "path": "docs/evidence/optional-costs-ingress-2026-10-17/prior-context-input-updates.json",
-          "sha256": "2c5b9441fcafac4d26fe1cf622b040535ae4573cc827c4d2d0c0693dacd103a2"
+        "kind": "PERMANENT_PLAY_SOURCE_GENERATION_AND_BATTLEFIELD_DAMAGE",
+        "scope": "Current compiled engine source changed. Earlier successful CI remains a previous fixed baseline only; current fixed full is pending.",
+        "sourceManifest": {
+          "path": "docs/evidence/battlefield-play-damage-2026-10-17/source-manifest.json",
+          "sha256": "05632566219de2496735cf6a87afb324b7d224165f0789f447b974c4ddb3f61a"
         }
       },
       "currentProductAcceptance": "OPEN_AFTER_SHARED_NATIVE_PROMPT_INPUT_CHANGE_OLD_VISIBLE_EVIDENCE_RETAINS_EXACT_SCOPE",
-      "currentInputRevision": "3a8 plus the independent battlefield-only primary-play recovery guard; new exact fixed full required. All prior semantic decisions and CI receipts retained."
+      "currentInputRevision": "18e06d46134c074b693f5c48cdd0dc78024ead8b9532fe0d5aaad56f50ab7446"
     },
     "porobot-source-play-other-equipment-conditional-draw-2026-10-15": {
       "implementation": [
@@ -6619,19 +6643,19 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "ed79875b5dc4dc61d56ed82d4d299e4b464a0c8a227b46b3834579f21abc18b5"
+          "sha256": "f7db478ed3fc4ceb83392da63b6cab16ad0e551122bed9a4e1e6b0489f05c0c5"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.PermanentConfirmation.cs",
-          "sha256": "89975fbcb3244799badd55e257f1d709133473e10748334bec53d4139798ffb1"
+          "sha256": "4691c444a8d94b609680bc2988aadd29efea62b79014dc892852bad25c5320fc"
         },
         {
           "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
-          "sha256": "ecfe05b082061def9120c3dac1c065427cd3e7a3f07eb8c2647370f49244473b"
+          "sha256": "05376463a0bfae0e36eb3a0b4f9e2af92a8526fb937fed6a8f45e9cf01a74d79"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "f19995b83f6e94b674781fad1c2c25f19372f204f55e81e9418da828de9310c9"
+          "sha256": "e2a68ce74ce5d37ac7633a217d882ed0d7975eb6ff162224f29e576cb31b7f79"
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
@@ -6688,7 +6712,7 @@
         }
       ],
       "evidenceCommit": "339c6168f704684477354365988d7448cb0e7a10",
-      "currentImplementationCommit": "3a8a6f394fc6a8a7e3ea99a2db0799fa35859d31",
+      "currentImplementationCommit": "4fca367eaab1dd198ffde839b23461c058a2b470",
       "currentImplementationIncludesUncommittedChanges": true,
       "ciState": "PENDING",
       "ciReceipts": [
@@ -6944,19 +6968,19 @@
       ],
       "revalidationReason": "Actual battlefield-controller entry fix changes shared Core and SQL verification inputs; earlier fixed CI remains limited to its original source scope.",
       "latestInputChange": {
-        "date": "2026-10-17",
-        "scope": "Canonical optionalCosts ingress and typed null omission only. Independent recovery and mapper unchanged.",
-        "receipt": {
-          "path": "docs/evidence/optional-costs-ingress-2026-10-17/prior-context-input-updates.json",
-          "sha256": "2c5b9441fcafac4d26fe1cf622b040535ae4573cc827c4d2d0c0693dacd103a2"
+        "kind": "PERMANENT_PLAY_SOURCE_GENERATION_AND_BATTLEFIELD_DAMAGE",
+        "scope": "Current compiled engine source changed. Earlier successful CI remains a previous fixed baseline only; current fixed full is pending.",
+        "sourceManifest": {
+          "path": "docs/evidence/battlefield-play-damage-2026-10-17/source-manifest.json",
+          "sha256": "05632566219de2496735cf6a87afb324b7d224165f0789f447b974c4ddb3f61a"
         }
       },
       "currentProductAcceptance": "OPEN_AFTER_SHARED_NATIVE_PROMPT_INPUT_CHANGE_OLD_VISIBLE_EVIDENCE_RETAINS_EXACT_SCOPE",
-      "currentInputRevision": "3a8 plus the independent battlefield-only primary-play recovery guard; new exact fixed full required. All prior semantic decisions and CI receipts retained."
+      "currentInputRevision": "18e06d46134c074b693f5c48cdd0dc78024ead8b9532fe0d5aaad56f50ab7446"
     },
     "typed-card-play-history-causal-production-recovery-2026-10-15": {
       "evidenceCommit": "6bc546259eed61d5988bf8e8df5081cd8502c614",
-      "currentImplementationCommit": "3a8a6f394fc6a8a7e3ea99a2db0799fa35859d31",
+      "currentImplementationCommit": "4fca367eaab1dd198ffde839b23461c058a2b470",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact6bc fullCI/45SQL/case-method-pair preservation verified. Current workingtree has newer counted Insight/catalog dependencies; this prior full is not current gameplay coverage.",
       "ciState": "PENDING",
@@ -6979,7 +7003,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "f19995b83f6e94b674781fad1c2c25f19372f204f55e81e9418da828de9310c9"
+          "sha256": "e2a68ce74ce5d37ac7633a217d882ed0d7975eb6ff162224f29e576cb31b7f79"
         },
         {
           "path": "src/Riftbound.Persistence/PostgresMatchRecoveryStore.cs",
@@ -7119,19 +7143,19 @@
       ],
       "revalidationReason": "Explicit shared implementation/verification input changes; prior CI retained only at its fixed old source scope.",
       "latestInputChange": {
-        "date": "2026-10-17",
-        "scope": "Canonical optionalCosts ingress and typed null omission only. Independent recovery and mapper unchanged.",
-        "receipt": {
-          "path": "docs/evidence/optional-costs-ingress-2026-10-17/prior-context-input-updates.json",
-          "sha256": "2c5b9441fcafac4d26fe1cf622b040535ae4573cc827c4d2d0c0693dacd103a2"
+        "kind": "PERMANENT_PLAY_SOURCE_GENERATION_AND_BATTLEFIELD_DAMAGE",
+        "scope": "Current compiled engine source changed. Earlier successful CI remains a previous fixed baseline only; current fixed full is pending.",
+        "sourceManifest": {
+          "path": "docs/evidence/battlefield-play-damage-2026-10-17/source-manifest.json",
+          "sha256": "05632566219de2496735cf6a87afb324b7d224165f0789f447b974c4ddb3f61a"
         }
       },
       "currentProductAcceptance": "OPEN_AFTER_SHARED_NATIVE_PROMPT_INPUT_CHANGE_OLD_VISIBLE_EVIDENCE_RETAINS_EXACT_SCOPE",
-      "currentInputRevision": "3a8 plus the independent battlefield-only primary-play recovery guard; new exact fixed full required. All prior semantic decisions and CI receipts retained."
+      "currentInputRevision": "18e06d46134c074b693f5c48cdd0dc78024ead8b9532fe0d5aaad56f50ab7446"
     },
     "counted-insight-post-choice-draw-clairvoyance-2026-10-15": {
       "evidenceCommit": "6bc546259eed61d5988bf8e8df5081cd8502c614",
-      "currentImplementationCommit": "3a8a6f394fc6a8a7e3ea99a2db0799fa35859d31",
+      "currentImplementationCommit": "4fca367eaab1dd198ffde839b23461c058a2b470",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Base commit plus explicitly uncommitted gameplay/test inputs; own fixed CI remains pending. Earlier6bc full cannot certify this new gameplay batch.",
       "ciState": "PENDING",
@@ -7139,7 +7163,7 @@
       "implementation": [
         {
           "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
-          "sha256": "ecfe05b082061def9120c3dac1c065427cd3e7a3f07eb8c2647370f49244473b"
+          "sha256": "05376463a0bfae0e36eb3a0b4f9e2af92a8526fb937fed6a8f45e9cf01a74d79"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.Insight.cs",
@@ -7344,18 +7368,18 @@
       ],
       "revalidationReason": "Explicit shared implementation/verification input changes; prior CI retained only at its fixed old source scope.",
       "latestInputChange": {
-        "date": "2026-10-17",
-        "scope": "Created-token independent ready triggers and final truthful up-to-two target prompt; historical candidates remain separately pinned.",
-        "receipt": {
-          "path": "docs/evidence/sand-soldier-embedded-ready-2026-10-17/prior-context-input-updates.json",
-          "sha256": "d789954d637ab0d2c721ba5ecccd5e899ef93c66983ae332476704cef096d3a8"
+        "kind": "PERMANENT_PLAY_SOURCE_GENERATION_AND_BATTLEFIELD_DAMAGE",
+        "scope": "Current compiled engine source changed. Earlier successful CI remains a previous fixed baseline only; current fixed full is pending.",
+        "sourceManifest": {
+          "path": "docs/evidence/battlefield-play-damage-2026-10-17/source-manifest.json",
+          "sha256": "05632566219de2496735cf6a87afb324b7d224165f0789f447b974c4ddb3f61a"
         }
       },
-      "currentInputRevision": "3a8 plus the independent battlefield-only primary-play recovery guard; new exact fixed full required. All prior semantic decisions and CI receipts retained."
+      "currentInputRevision": "18e06d46134c074b693f5c48cdd0dc78024ead8b9532fe0d5aaad56f50ab7446"
     },
     "untargeted-counted-insight-echo-resumption-2026-10-15": {
       "evidenceCommit": "a8f0b1dd1797997390d34ec77a84455a4ddb8911",
-      "currentImplementationCommit": "3a8a6f394fc6a8a7e3ea99a2db0799fa35859d31",
+      "currentImplementationCommit": "4fca367eaab1dd198ffde839b23461c058a2b470",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact base plus explicitly uncommitted new Insight Echo inputs; own fixed full remains required.",
       "ciState": "PENDING",
@@ -7612,11 +7636,19 @@
         }
       ],
       "revalidationReason": "Declared targeted Insight executions and the production outgoing command serializer changed; earlier exact receipts remain scoped to their own inputs.",
-      "currentInputRevision": "3a8 plus the independent battlefield-only primary-play recovery guard; new exact fixed full required. All prior semantic decisions and CI receipts retained."
+      "currentInputRevision": "18e06d46134c074b693f5c48cdd0dc78024ead8b9532fe0d5aaad56f50ab7446",
+      "latestInputChange": {
+        "kind": "PERMANENT_PLAY_SOURCE_GENERATION_AND_BATTLEFIELD_DAMAGE",
+        "scope": "Current compiled engine source changed. Earlier successful CI remains a previous fixed baseline only; current fixed full is pending.",
+        "sourceManifest": {
+          "path": "docs/evidence/battlefield-play-damage-2026-10-17/source-manifest.json",
+          "sha256": "05632566219de2496735cf6a87afb324b7d224165f0789f447b974c4ddb3f61a"
+        }
+      }
     },
     "targeted-insight-repeat-declarations-and-native-wire-2026-10-15": {
       "evidenceCommit": "9e426a31386aefa980bf2d48f02b237098cb2914",
-      "currentImplementationCommit": "3a8a6f394fc6a8a7e3ea99a2db0799fa35859d31",
+      "currentImplementationCommit": "4fca367eaab1dd198ffde839b23461c058a2b470",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact base plus explicit new uncommitted targeted rule/client/test inputs; old full cannot certify these inputs.",
       "ciState": "PENDING",
@@ -7912,11 +7944,19 @@
       ],
       "latestFixedEvidenceStatus": "EXACT_9E_FULL_VERIFIED_VISIBLE_SCORE_OBSERVED_BUT_EVENT_REPLAY_FAILED_CURRENT_REPAIR_PENDING",
       "revalidationReason": "Exact9e11990/7330/57SQL passed; visible160-command/839-event normal8:3 failed event replay756/758. Current journal/combat repair has new input identity and requires fresh acceptance.",
-      "currentInputRevision": "3a8 plus the independent battlefield-only primary-play recovery guard; new exact fixed full required. All prior semantic decisions and CI receipts retained."
+      "currentInputRevision": "18e06d46134c074b693f5c48cdd0dc78024ead8b9532fe0d5aaad56f50ab7446",
+      "latestInputChange": {
+        "kind": "PERMANENT_PLAY_SOURCE_GENERATION_AND_BATTLEFIELD_DAMAGE",
+        "scope": "Current compiled engine source changed. Earlier successful CI remains a previous fixed baseline only; current fixed full is pending.",
+        "sourceManifest": {
+          "path": "docs/evidence/battlefield-play-damage-2026-10-17/source-manifest.json",
+          "sha256": "05632566219de2496735cf6a87afb324b7d224165f0789f447b974c4ddb3f61a"
+        }
+      }
     },
     "combat-event-journal-wire-and-single-defender-choice-2026-10-15": {
       "evidenceCommit": "9e426a31386aefa980bf2d48f02b237098cb2914",
-      "currentImplementationCommit": "3a8a6f394fc6a8a7e3ea99a2db0799fa35859d31",
+      "currentImplementationCommit": "4fca367eaab1dd198ffde839b23461c058a2b470",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact9e base plus explicitly hashed current journal/combat/native-fixture verification inputs; old full does not cover this repair.",
       "ciState": "PENDING",
@@ -7928,7 +7968,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "ed79875b5dc4dc61d56ed82d4d299e4b464a0c8a227b46b3834579f21abc18b5"
+          "sha256": "f7db478ed3fc4ceb83392da63b6cab16ad0e551122bed9a4e1e6b0489f05c0c5"
         },
         {
           "path": "clients/godot/scripts/ClientCommandSerializer.cs",
@@ -8163,18 +8203,18 @@
       "revalidationReason": "Actual battlefield-controller entry fix changes shared Core and SQL verification inputs; earlier fixed CI remains limited to its original source scope.",
       "latestFixedEvidenceStatus": "EXACT_0CBEE_FULL_FAILED_THREE_ORIGINAL_GAMES_CURRENT_CONTINUATION_REPAIR_PENDING",
       "latestInputChange": {
-        "date": "2026-10-17",
-        "scope": "Duel chain focus continuation, ordered last-breath dispatch, standby tag normalization and independent global winning-score recovery checks.",
-        "receipt": {
-          "path": "docs/evidence/triggered-duel-continuation-2026-10-17/prior-context-input-updates.json",
-          "sha256": "e5faa62dd7f59f124dd389996a6854660775cd18a2a733c50cbc071f436b990d"
+        "kind": "PERMANENT_PLAY_SOURCE_GENERATION_AND_BATTLEFIELD_DAMAGE",
+        "scope": "Current compiled engine source changed. Earlier successful CI remains a previous fixed baseline only; current fixed full is pending.",
+        "sourceManifest": {
+          "path": "docs/evidence/battlefield-play-damage-2026-10-17/source-manifest.json",
+          "sha256": "05632566219de2496735cf6a87afb324b7d224165f0789f447b974c4ddb3f61a"
         }
       },
-      "currentInputRevision": "3a8 plus the independent battlefield-only primary-play recovery guard; new exact fixed full required. All prior semantic decisions and CI receipts retained."
+      "currentInputRevision": "18e06d46134c074b693f5c48cdd0dc78024ead8b9532fe0d5aaad56f50ab7446"
     },
     "combat-declaration-provenance-and-single-eligible-unit-conquest-2026-10-15": {
       "evidenceCommit": "0cbee9e22c81bec21ea416fdb45dc1c16f78e7d4",
-      "currentImplementationCommit": "3a8a6f394fc6a8a7e3ea99a2db0799fa35859d31",
+      "currentImplementationCommit": "4fca367eaab1dd198ffde839b23461c058a2b470",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact0cbee failed base plus two explicitly pinned source repairs and new verification/source-intake evidence; new fixed SHA required.",
       "ciState": "PENDING",
@@ -8186,7 +8226,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "ed79875b5dc4dc61d56ed82d4d299e4b464a0c8a227b46b3834579f21abc18b5"
+          "sha256": "f7db478ed3fc4ceb83392da63b6cab16ad0e551122bed9a4e1e6b0489f05c0c5"
         }
       ],
       "evidence": [
@@ -8388,18 +8428,18 @@
       "revalidationReason": "Actual battlefield-controller entry fix changes shared Core and SQL verification inputs; earlier fixed CI remains limited to its original source scope.",
       "latestFixedEvidenceStatus": "EXACT_D1_FULL_SUCCESS_NATIVE_PAYMENT_FAILURE_NEW_PROMPT_CONTEXT_REPAIR_PENDING",
       "latestInputChange": {
-        "date": "2026-10-17",
-        "scope": "Duel chain focus continuation, ordered last-breath dispatch, standby tag normalization and independent global winning-score recovery checks.",
-        "receipt": {
-          "path": "docs/evidence/triggered-duel-continuation-2026-10-17/prior-context-input-updates.json",
-          "sha256": "e5faa62dd7f59f124dd389996a6854660775cd18a2a733c50cbc071f436b990d"
+        "kind": "PERMANENT_PLAY_SOURCE_GENERATION_AND_BATTLEFIELD_DAMAGE",
+        "scope": "Current compiled engine source changed. Earlier successful CI remains a previous fixed baseline only; current fixed full is pending.",
+        "sourceManifest": {
+          "path": "docs/evidence/battlefield-play-damage-2026-10-17/source-manifest.json",
+          "sha256": "05632566219de2496735cf6a87afb324b7d224165f0789f447b974c4ddb3f61a"
         }
       },
-      "currentInputRevision": "3a8 plus the independent battlefield-only primary-play recovery guard; new exact fixed full required. All prior semantic decisions and CI receipts retained."
+      "currentInputRevision": "18e06d46134c074b693f5c48cdd0dc78024ead8b9532fe0d5aaad56f50ab7446"
     },
     "optional-mana-trigger-native-and-natural-declaration-order-2026-10-15": {
       "evidenceCommit": "d1c2b4d351ca32862ee52ab7bc45cd7d581fca2c",
-      "currentImplementationCommit": "3a8a6f394fc6a8a7e3ea99a2db0799fa35859d31",
+      "currentImplementationCommit": "4fca367eaab1dd198ffde839b23461c058a2b470",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact d1 actual full-success/native-failure base plus three pinned source repairs, new verification and source readback; new fixed SHA required.",
       "ciState": "PENDING",
@@ -8411,11 +8451,11 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "ed79875b5dc4dc61d56ed82d4d299e4b464a0c8a227b46b3834579f21abc18b5"
+          "sha256": "f7db478ed3fc4ceb83392da63b6cab16ad0e551122bed9a4e1e6b0489f05c0c5"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "f19995b83f6e94b674781fad1c2c25f19372f204f55e81e9418da828de9310c9"
+          "sha256": "e2a68ce74ce5d37ac7633a217d882ed0d7975eb6ff162224f29e576cb31b7f79"
         }
       ],
       "evidence": [
@@ -8605,19 +8645,19 @@
       ],
       "revalidationReason": "Actual battlefield-controller entry fix changes shared Core and SQL verification inputs; earlier fixed CI remains limited to its original source scope.",
       "latestInputChange": {
-        "date": "2026-10-17",
-        "scope": "Canonical optionalCosts ingress and typed null omission only. Independent recovery and mapper unchanged.",
-        "receipt": {
-          "path": "docs/evidence/optional-costs-ingress-2026-10-17/prior-context-input-updates.json",
-          "sha256": "2c5b9441fcafac4d26fe1cf622b040535ae4573cc827c4d2d0c0693dacd103a2"
+        "kind": "PERMANENT_PLAY_SOURCE_GENERATION_AND_BATTLEFIELD_DAMAGE",
+        "scope": "Current compiled engine source changed. Earlier successful CI remains a previous fixed baseline only; current fixed full is pending.",
+        "sourceManifest": {
+          "path": "docs/evidence/battlefield-play-damage-2026-10-17/source-manifest.json",
+          "sha256": "05632566219de2496735cf6a87afb324b7d224165f0789f447b974c4ddb3f61a"
         }
       },
       "currentProductAcceptance": "OPEN_AFTER_SHARED_NATIVE_PROMPT_INPUT_CHANGE_OLD_VISIBLE_EVIDENCE_RETAINS_EXACT_SCOPE",
-      "currentInputRevision": "3a8 plus the independent battlefield-only primary-play recovery guard; new exact fixed full required. All prior semantic decisions and CI receipts retained."
+      "currentInputRevision": "18e06d46134c074b693f5c48cdd0dc78024ead8b9532fe0d5aaad56f50ab7446"
     },
     "cn16-confirmed-play-origin-and-required-causal-fact-2026-10-16": {
       "evidenceCommit": "56d1ee2eed9dcbf48ed54175867cd93ac58d92d8",
-      "currentImplementationCommit": "3a8a6f394fc6a8a7e3ea99a2db0799fa35859d31",
+      "currentImplementationCommit": "4fca367eaab1dd198ffde839b23461c058a2b470",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact56 baseline plus explicitly pinned CN16 source selection and bounded confirmed hand-origin repair; new fixed SHA required.",
       "ciState": "PENDING",
@@ -8625,15 +8665,15 @@
       "implementation": [
         {
           "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
-          "sha256": "ecfe05b082061def9120c3dac1c065427cd3e7a3f07eb8c2647370f49244473b"
+          "sha256": "05376463a0bfae0e36eb3a0b4f9e2af92a8526fb937fed6a8f45e9cf01a74d79"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "ed79875b5dc4dc61d56ed82d4d299e4b464a0c8a227b46b3834579f21abc18b5"
+          "sha256": "f7db478ed3fc4ceb83392da63b6cab16ad0e551122bed9a4e1e6b0489f05c0c5"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "f19995b83f6e94b674781fad1c2c25f19372f204f55e81e9418da828de9310c9"
+          "sha256": "e2a68ce74ce5d37ac7633a217d882ed0d7975eb6ff162224f29e576cb31b7f79"
         },
         {
           "path": "data/official/rule-input-scope.json",
@@ -8655,11 +8695,11 @@
         },
         {
           "path": "tests/Riftbound.PostgresAcceptance/Program.cs",
-          "sha256": "b87e0ec368adfa36ecc40a1da8b2bb5ecf998bda192550bfa06b6661b88dc345"
+          "sha256": "7eed59da04943d23baeedf1aea53690480c250963fbea6996cb0c69d556612b4"
         },
         {
           "path": "tests/Riftbound.PostgresAcceptance/Riftbound.PostgresAcceptance.csproj",
-          "sha256": "d9716fb317bdde134df16a22a629df812237174f548aa80d4f4afe60c61a91a9"
+          "sha256": "b00da5402b6f578cee4c5bd0c9504950f89deca6cc6a66fe019ad601c9e18236"
         },
         {
           "path": "tests/Riftbound.ConformanceTests/Fixtures/confirmed-play-origin-hand-cn16.json",
@@ -8895,19 +8935,19 @@
       ],
       "revalidationReason": "Actual battlefield-controller entry fix changes shared Core and SQL verification inputs; earlier fixed CI remains limited to its original source scope.",
       "latestInputChange": {
-        "date": "2026-10-17",
-        "scope": "Canonical optionalCosts ingress and typed null omission only. Independent recovery and mapper unchanged.",
-        "receipt": {
-          "path": "docs/evidence/optional-costs-ingress-2026-10-17/prior-context-input-updates.json",
-          "sha256": "2c5b9441fcafac4d26fe1cf622b040535ae4573cc827c4d2d0c0693dacd103a2"
+        "kind": "PERMANENT_PLAY_SOURCE_GENERATION_AND_BATTLEFIELD_DAMAGE",
+        "scope": "Current compiled engine source changed. Earlier successful CI remains a previous fixed baseline only; current fixed full is pending.",
+        "sourceManifest": {
+          "path": "docs/evidence/battlefield-play-damage-2026-10-17/source-manifest.json",
+          "sha256": "05632566219de2496735cf6a87afb324b7d224165f0789f447b974c4ddb3f61a"
         }
       },
       "currentProductAcceptance": "OPEN_AFTER_SHARED_NATIVE_PROMPT_INPUT_CHANGE_OLD_VISIBLE_EVIDENCE_RETAINS_EXACT_SCOPE",
-      "currentInputRevision": "3a8 plus the independent battlefield-only primary-play recovery guard; new exact fixed full required. All prior semantic decisions and CI receipts retained."
+      "currentInputRevision": "18e06d46134c074b693f5c48cdd0dc78024ead8b9532fe0d5aaad56f50ab7446"
     },
     "physical-origin-self-cost-reduction-2026-10-16": {
       "evidenceCommit": "903cbca2becfd9b142a6b6a86d77b8fbf3d080ef",
-      "currentImplementationCommit": "3a8a6f394fc6a8a7e3ea99a2db0799fa35859d31",
+      "currentImplementationCommit": "4fca367eaab1dd198ffde839b23461c058a2b470",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact903 baseline plus pinned3engine changes and new8cases/SQL fixtures; fixed newSHA required.",
       "ciState": "PENDING",
@@ -8915,11 +8955,11 @@
       "implementation": [
         {
           "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
-          "sha256": "ecfe05b082061def9120c3dac1c065427cd3e7a3f07eb8c2647370f49244473b"
+          "sha256": "05376463a0bfae0e36eb3a0b4f9e2af92a8526fb937fed6a8f45e9cf01a74d79"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "ed79875b5dc4dc61d56ed82d4d299e4b464a0c8a227b46b3834579f21abc18b5"
+          "sha256": "f7db478ed3fc4ceb83392da63b6cab16ad0e551122bed9a4e1e6b0489f05c0c5"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.PlayManaCost.cs",
@@ -8937,11 +8977,11 @@
         },
         {
           "path": "tests/Riftbound.PostgresAcceptance/Program.cs",
-          "sha256": "b87e0ec368adfa36ecc40a1da8b2bb5ecf998bda192550bfa06b6661b88dc345"
+          "sha256": "7eed59da04943d23baeedf1aea53690480c250963fbea6996cb0c69d556612b4"
         },
         {
           "path": "tests/Riftbound.PostgresAcceptance/Riftbound.PostgresAcceptance.csproj",
-          "sha256": "d9716fb317bdde134df16a22a629df812237174f548aa80d4f4afe60c61a91a9"
+          "sha256": "b00da5402b6f578cee4c5bd0c9504950f89deca6cc6a66fe019ad601c9e18236"
         },
         {
           "path": "tests/Riftbound.ConformanceTests/Fixtures/physical-origin-cost-unit.json",
@@ -9129,18 +9169,18 @@
         }
       ],
       "latestInputChange": {
-        "date": "2026-10-17",
-        "scope": "Canonical optionalCosts ingress and typed null omission only. Independent recovery and mapper unchanged.",
-        "receipt": {
-          "path": "docs/evidence/optional-costs-ingress-2026-10-17/prior-context-input-updates.json",
-          "sha256": "2c5b9441fcafac4d26fe1cf622b040535ae4573cc827c4d2d0c0693dacd103a2"
+        "kind": "PERMANENT_PLAY_SOURCE_GENERATION_AND_BATTLEFIELD_DAMAGE",
+        "scope": "Current compiled engine source changed. Earlier successful CI remains a previous fixed baseline only; current fixed full is pending.",
+        "sourceManifest": {
+          "path": "docs/evidence/battlefield-play-damage-2026-10-17/source-manifest.json",
+          "sha256": "05632566219de2496735cf6a87afb324b7d224165f0789f447b974c4ddb3f61a"
         }
       },
-      "currentInputRevision": "3a8 plus the independent battlefield-only primary-play recovery guard; new exact fixed full required. All prior semantic decisions and CI receipts retained."
+      "currentInputRevision": "18e06d46134c074b693f5c48cdd0dc78024ead8b9532fe0d5aaad56f50ab7446"
     },
     "granted-origin-haste-and-paid-entry-replacement-2026-10-16": {
       "evidenceCommit": "4ad7fe204adee28c4138f18bdde4c4cbcdea21f0",
-      "currentImplementationCommit": "3a8a6f394fc6a8a7e3ea99a2db0799fa35859d31",
+      "currentImplementationCommit": "4fca367eaab1dd198ffde839b23461c058a2b470",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact4ad7 baseline plus pinned5engine inputs,24cases, native readback and73SQL. NewfixedSHA full required. Printed-Haste dispatch restored after the singlecheck;213 current focus passed. Prior SQL/native exact inputs remain pre-repair, not relabeled.",
       "ciState": "PENDING",
@@ -9148,7 +9188,7 @@
       "implementation": [
         {
           "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
-          "sha256": "ecfe05b082061def9120c3dac1c065427cd3e7a3f07eb8c2647370f49244473b"
+          "sha256": "05376463a0bfae0e36eb3a0b4f9e2af92a8526fb937fed6a8f45e9cf01a74d79"
         },
         {
           "path": "src/Riftbound.Engine/CardPermissionKeywordRules.cs",
@@ -9156,11 +9196,11 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "ed79875b5dc4dc61d56ed82d4d299e4b464a0c8a227b46b3834579f21abc18b5"
+          "sha256": "f7db478ed3fc4ceb83392da63b6cab16ad0e551122bed9a4e1e6b0489f05c0c5"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "f19995b83f6e94b674781fad1c2c25f19372f204f55e81e9418da828de9310c9"
+          "sha256": "e2a68ce74ce5d37ac7633a217d882ed0d7975eb6ff162224f29e576cb31b7f79"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.PlayKeywords.cs",
@@ -9182,11 +9222,11 @@
         },
         {
           "path": "tests/Riftbound.PostgresAcceptance/Program.cs",
-          "sha256": "b87e0ec368adfa36ecc40a1da8b2bb5ecf998bda192550bfa06b6661b88dc345"
+          "sha256": "7eed59da04943d23baeedf1aea53690480c250963fbea6996cb0c69d556612b4"
         },
         {
           "path": "tests/Riftbound.PostgresAcceptance/Riftbound.PostgresAcceptance.csproj",
-          "sha256": "d9716fb317bdde134df16a22a629df812237174f548aa80d4f4afe60c61a91a9"
+          "sha256": "b00da5402b6f578cee4c5bd0c9504950f89deca6cc6a66fe019ad601c9e18236"
         },
         {
           "path": "tests/Riftbound.ConformanceTests/Fixtures/granted-origin-haste-unit.json",
@@ -9406,19 +9446,19 @@
         }
       ],
       "latestInputChange": {
-        "date": "2026-10-17",
-        "scope": "Canonical optionalCosts ingress and typed null omission only. Independent recovery and mapper unchanged.",
-        "receipt": {
-          "path": "docs/evidence/optional-costs-ingress-2026-10-17/prior-context-input-updates.json",
-          "sha256": "2c5b9441fcafac4d26fe1cf622b040535ae4573cc827c4d2d0c0693dacd103a2"
+        "kind": "PERMANENT_PLAY_SOURCE_GENERATION_AND_BATTLEFIELD_DAMAGE",
+        "scope": "Current compiled engine source changed. Earlier successful CI remains a previous fixed baseline only; current fixed full is pending.",
+        "sourceManifest": {
+          "path": "docs/evidence/battlefield-play-damage-2026-10-17/source-manifest.json",
+          "sha256": "05632566219de2496735cf6a87afb324b7d224165f0789f447b974c4ddb3f61a"
         }
       },
       "currentProductAcceptance": "OPEN_AFTER_SHARED_NATIVE_PROMPT_INPUT_CHANGE_OLD_VISIBLE_EVIDENCE_RETAINS_EXACT_SCOPE",
-      "currentInputRevision": "3a8 plus the independent battlefield-only primary-play recovery guard; new exact fixed full required. All prior semantic decisions and CI receipts retained."
+      "currentInputRevision": "18e06d46134c074b693f5c48cdd0dc78024ead8b9532fe0d5aaad56f50ab7446"
     },
     "opponent-battlefield-current-control-entry-2026-10-16": {
       "evidenceCommit": "3ced0126ac20a07c2909e7b44f3733a9e3aa044a",
-      "currentImplementationCommit": "3a8a6f394fc6a8a7e3ea99a2db0799fa35859d31",
+      "currentImplementationCommit": "4fca367eaab1dd198ffde839b23461c058a2b470",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact3ced baseline plus pinned Core fix and29new cases/3methods; old72 product and prior fixedfull evidence are separately bounded. New fixed SHA full required.",
       "ciState": "PENDING",
@@ -9426,7 +9466,7 @@
       "implementation": [
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "ed79875b5dc4dc61d56ed82d4d299e4b464a0c8a227b46b3834579f21abc18b5"
+          "sha256": "f7db478ed3fc4ceb83392da63b6cab16ad0e551122bed9a4e1e6b0489f05c0c5"
         }
       ],
       "verificationSources": [
@@ -9452,11 +9492,11 @@
         },
         {
           "path": "tests/Riftbound.PostgresAcceptance/Program.cs",
-          "sha256": "b87e0ec368adfa36ecc40a1da8b2bb5ecf998bda192550bfa06b6661b88dc345"
+          "sha256": "7eed59da04943d23baeedf1aea53690480c250963fbea6996cb0c69d556612b4"
         },
         {
           "path": "tests/Riftbound.PostgresAcceptance/Riftbound.PostgresAcceptance.csproj",
-          "sha256": "d9716fb317bdde134df16a22a629df812237174f548aa80d4f4afe60c61a91a9"
+          "sha256": "b00da5402b6f578cee4c5bd0c9504950f89deca6cc6a66fe019ad601c9e18236"
         }
       ],
       "evidence": [
@@ -9579,11 +9619,11 @@
         }
       ],
       "latestInputChange": {
-        "date": "2026-10-17",
-        "scope": "Canonical optionalCosts ingress and typed null omission only. Independent recovery and mapper unchanged.",
-        "receipt": {
-          "path": "docs/evidence/optional-costs-ingress-2026-10-17/prior-context-input-updates.json",
-          "sha256": "2c5b9441fcafac4d26fe1cf622b040535ae4573cc827c4d2d0c0693dacd103a2"
+        "kind": "PERMANENT_PLAY_SOURCE_GENERATION_AND_BATTLEFIELD_DAMAGE",
+        "scope": "Current compiled engine source changed. Earlier successful CI remains a previous fixed baseline only; current fixed full is pending.",
+        "sourceManifest": {
+          "path": "docs/evidence/battlefield-play-damage-2026-10-17/source-manifest.json",
+          "sha256": "05632566219de2496735cf6a87afb324b7d224165f0789f447b974c4ddb3f61a"
         }
       },
       "historicalFixedCiReceipts": [
@@ -9594,11 +9634,11 @@
           "runId": 38851939967
         }
       ],
-      "currentInputRevision": "3a8 plus the independent battlefield-only primary-play recovery guard; new exact fixed full required. All prior semantic decisions and CI receipts retained."
+      "currentInputRevision": "18e06d46134c074b693f5c48cdd0dc78024ead8b9532fe0d5aaad56f50ab7446"
     },
     "optional-sacrifice-printed-cost-and-paid-entry-2026-10-16": {
       "evidenceCommit": "8d7571c5a5572b1ed542a5ff1d8eaeb533bac1bc",
-      "currentImplementationCommit": "3a8a6f394fc6a8a7e3ea99a2db0799fa35859d31",
+      "currentImplementationCommit": "4fca367eaab1dd198ffde839b23461c058a2b470",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Fixed8d baseline plus exact15 executable/fixture patch files. Earlier full8d,113 old review dictionaries, source dates and original143/110/424242 remain retained. New candidate full required.",
       "ciState": "PENDING",
@@ -9606,11 +9646,11 @@
       "implementation": [
         {
           "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
-          "sha256": "ecfe05b082061def9120c3dac1c065427cd3e7a3f07eb8c2647370f49244473b"
+          "sha256": "05376463a0bfae0e36eb3a0b4f9e2af92a8526fb937fed6a8f45e9cf01a74d79"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "ed79875b5dc4dc61d56ed82d4d299e4b464a0c8a227b46b3834579f21abc18b5"
+          "sha256": "f7db478ed3fc4ceb83392da63b6cab16ad0e551122bed9a4e1e6b0489f05c0c5"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.PlayManaCost.cs",
@@ -9630,7 +9670,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "f19995b83f6e94b674781fad1c2c25f19372f204f55e81e9418da828de9310c9"
+          "sha256": "e2a68ce74ce5d37ac7633a217d882ed0d7975eb6ff162224f29e576cb31b7f79"
         },
         {
           "path": "src/Riftbound.Api/Riftbound.Api.csproj",
@@ -9660,11 +9700,11 @@
         },
         {
           "path": "tests/Riftbound.PostgresAcceptance/Program.cs",
-          "sha256": "b87e0ec368adfa36ecc40a1da8b2bb5ecf998bda192550bfa06b6661b88dc345"
+          "sha256": "7eed59da04943d23baeedf1aea53690480c250963fbea6996cb0c69d556612b4"
         },
         {
           "path": "tests/Riftbound.PostgresAcceptance/Riftbound.PostgresAcceptance.csproj",
-          "sha256": "d9716fb317bdde134df16a22a629df812237174f548aa80d4f4afe60c61a91a9"
+          "sha256": "b00da5402b6f578cee4c5bd0c9504950f89deca6cc6a66fe019ad601c9e18236"
         }
       ],
       "evidence": [
@@ -9836,11 +9876,11 @@
         }
       ],
       "latestInputChange": {
-        "date": "2026-10-17",
-        "scope": "Canonical optionalCosts ingress and typed null omission only. Independent recovery and mapper unchanged.",
-        "receipt": {
-          "path": "docs/evidence/optional-costs-ingress-2026-10-17/prior-context-input-updates.json",
-          "sha256": "2c5b9441fcafac4d26fe1cf622b040535ae4573cc827c4d2d0c0693dacd103a2"
+        "kind": "PERMANENT_PLAY_SOURCE_GENERATION_AND_BATTLEFIELD_DAMAGE",
+        "scope": "Current compiled engine source changed. Earlier successful CI remains a previous fixed baseline only; current fixed full is pending.",
+        "sourceManifest": {
+          "path": "docs/evidence/battlefield-play-damage-2026-10-17/source-manifest.json",
+          "sha256": "05632566219de2496735cf6a87afb324b7d224165f0789f447b974c4ddb3f61a"
         }
       },
       "historicalFixedCiReceipts": [
@@ -9852,11 +9892,11 @@
         }
       ],
       "currentProductAcceptance": "OPEN_AFTER_SHARED_NATIVE_PROMPT_INPUT_CHANGE_OLD_VISIBLE_EVIDENCE_RETAINS_EXACT_SCOPE",
-      "currentInputRevision": "3a8 plus the independent battlefield-only primary-play recovery guard; new exact fixed full required. All prior semantic decisions and CI receipts retained."
+      "currentInputRevision": "18e06d46134c074b693f5c48cdd0dc78024ead8b9532fe0d5aaad56f50ab7446"
     },
     "granted-colorless-token-haste-payment-2026-10-16": {
       "evidenceCommit": "daf394e20997ebdb028e91ba9fdfe6c24eb492eb",
-      "currentImplementationCommit": "3a8a6f394fc6a8a7e3ea99a2db0799fa35859d31",
+      "currentImplementationCommit": "4fca367eaab1dd198ffde839b23461c058a2b470",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Fixeddaf baseline plus exact13 current executable/test/fixture patch files; historical daf full12136/7372 and77SQL do not cover the patch.",
       "ciState": "PENDING",
@@ -9864,7 +9904,7 @@
       "implementation": [
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "ed79875b5dc4dc61d56ed82d4d299e4b464a0c8a227b46b3834579f21abc18b5"
+          "sha256": "f7db478ed3fc4ceb83392da63b6cab16ad0e551122bed9a4e1e6b0489f05c0c5"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.PlayKeywords.cs",
@@ -9884,7 +9924,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "f19995b83f6e94b674781fad1c2c25f19372f204f55e81e9418da828de9310c9"
+          "sha256": "e2a68ce74ce5d37ac7633a217d882ed0d7975eb6ff162224f29e576cb31b7f79"
         }
       ],
       "verificationSources": [
@@ -9910,11 +9950,11 @@
         },
         {
           "path": "tests/Riftbound.PostgresAcceptance/Program.cs",
-          "sha256": "b87e0ec368adfa36ecc40a1da8b2bb5ecf998bda192550bfa06b6661b88dc345"
+          "sha256": "7eed59da04943d23baeedf1aea53690480c250963fbea6996cb0c69d556612b4"
         },
         {
           "path": "tests/Riftbound.PostgresAcceptance/Riftbound.PostgresAcceptance.csproj",
-          "sha256": "d9716fb317bdde134df16a22a629df812237174f548aa80d4f4afe60c61a91a9"
+          "sha256": "b00da5402b6f578cee4c5bd0c9504950f89deca6cc6a66fe019ad601c9e18236"
         }
       ],
       "evidence": [
@@ -10138,18 +10178,18 @@
       },
       "currentProductAcceptance": "OPEN_AFTER_SHARED_NATIVE_PROMPT_INPUT_CHANGE_OLD_VISIBLE_EVIDENCE_RETAINS_EXACT_SCOPE",
       "latestInputChange": {
-        "date": "2026-10-17",
-        "scope": "Canonical optionalCosts ingress and typed null omission only. Independent recovery and mapper unchanged.",
-        "receipt": {
-          "path": "docs/evidence/optional-costs-ingress-2026-10-17/prior-context-input-updates.json",
-          "sha256": "2c5b9441fcafac4d26fe1cf622b040535ae4573cc827c4d2d0c0693dacd103a2"
+        "kind": "PERMANENT_PLAY_SOURCE_GENERATION_AND_BATTLEFIELD_DAMAGE",
+        "scope": "Current compiled engine source changed. Earlier successful CI remains a previous fixed baseline only; current fixed full is pending.",
+        "sourceManifest": {
+          "path": "docs/evidence/battlefield-play-damage-2026-10-17/source-manifest.json",
+          "sha256": "05632566219de2496735cf6a87afb324b7d224165f0789f447b974c4ddb3f61a"
         }
       },
-      "currentInputRevision": "3a8 plus the independent battlefield-only primary-play recovery guard; new exact fixed full required. All prior semantic decisions and CI receipts retained."
+      "currentInputRevision": "18e06d46134c074b693f5c48cdd0dc78024ead8b9532fe0d5aaad56f50ab7446"
     },
     "native-rule-choice-prompts-2026-10-16": {
       "evidenceCommit": "65092fcdea323f9f4b435a91344f76e838fb21b4",
-      "currentImplementationCommit": "3a8a6f394fc6a8a7e3ea99a2db0799fa35859d31",
+      "currentImplementationCommit": "4fca367eaab1dd198ffde839b23461c058a2b470",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Fixed650 baseline plus exact two implementation and four verification inputs. Fixed650 full does not cover these uncommitted prompt changes.",
       "ciState": "PENDING",
@@ -10157,7 +10197,7 @@
       "implementation": [
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "f19995b83f6e94b674781fad1c2c25f19372f204f55e81e9418da828de9310c9"
+          "sha256": "e2a68ce74ce5d37ac7633a217d882ed0d7975eb6ff162224f29e576cb31b7f79"
         },
         {
           "path": "clients/godot/scripts/ui/MatchPhasePresentation.cs",
@@ -10342,11 +10382,11 @@
         }
       ],
       "latestInputChange": {
-        "date": "2026-10-17",
-        "scope": "Canonical optionalCosts ingress and typed null omission only. Independent recovery and mapper unchanged.",
-        "receipt": {
-          "path": "docs/evidence/optional-costs-ingress-2026-10-17/prior-context-input-updates.json",
-          "sha256": "2c5b9441fcafac4d26fe1cf622b040535ae4573cc827c4d2d0c0693dacd103a2"
+        "kind": "PERMANENT_PLAY_SOURCE_GENERATION_AND_BATTLEFIELD_DAMAGE",
+        "scope": "Current compiled engine source changed. Earlier successful CI remains a previous fixed baseline only; current fixed full is pending.",
+        "sourceManifest": {
+          "path": "docs/evidence/battlefield-play-damage-2026-10-17/source-manifest.json",
+          "sha256": "05632566219de2496735cf6a87afb324b7d224165f0789f447b974c4ddb3f61a"
         }
       },
       "historicalFixedCiReceipts": [
@@ -10357,11 +10397,11 @@
           "runId": 38899251618
         }
       ],
-      "currentInputRevision": "3a8 plus the independent battlefield-only primary-play recovery guard; new exact fixed full required. All prior semantic decisions and CI receipts retained."
+      "currentInputRevision": "18e06d46134c074b693f5c48cdd0dc78024ead8b9532fe0d5aaad56f50ab7446"
     },
     "sand-soldier-embedded-ready-2026-10-17": {
       "evidenceCommit": "8ca4080c9431b981db051a5adad18dace5d85dd5",
-      "currentImplementationCommit": "3a8a6f394fc6a8a7e3ea99a2db0799fa35859d31",
+      "currentImplementationCommit": "4fca367eaab1dd198ffde839b23461c058a2b470",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Fixed8ca source baseline (gameplay5ed) plus explicit current implementation/test/fixture inputs. Prior5ed full/native and local pre-caption SQL are not relabeled as this final candidate.",
       "ciState": "PENDING",
@@ -10369,7 +10409,7 @@
       "implementation": [
         {
           "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
-          "sha256": "ecfe05b082061def9120c3dac1c065427cd3e7a3f07eb8c2647370f49244473b"
+          "sha256": "05376463a0bfae0e36eb3a0b4f9e2af92a8526fb937fed6a8f45e9cf01a74d79"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.CreatedTokenReady.cs",
@@ -10393,7 +10433,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "ed79875b5dc4dc61d56ed82d4d299e4b464a0c8a227b46b3834579f21abc18b5"
+          "sha256": "f7db478ed3fc4ceb83392da63b6cab16ad0e551122bed9a4e1e6b0489f05c0c5"
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
@@ -10401,7 +10441,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "f19995b83f6e94b674781fad1c2c25f19372f204f55e81e9418da828de9310c9"
+          "sha256": "e2a68ce74ce5d37ac7633a217d882ed0d7975eb6ff162224f29e576cb31b7f79"
         },
         {
           "path": "src/Riftbound.Engine/StackObjectRules.cs",
@@ -10459,11 +10499,11 @@
         },
         {
           "path": "tests/Riftbound.PostgresAcceptance/Program.cs",
-          "sha256": "b87e0ec368adfa36ecc40a1da8b2bb5ecf998bda192550bfa06b6661b88dc345"
+          "sha256": "7eed59da04943d23baeedf1aea53690480c250963fbea6996cb0c69d556612b4"
         },
         {
           "path": "tests/Riftbound.PostgresAcceptance/Riftbound.PostgresAcceptance.csproj",
-          "sha256": "d9716fb317bdde134df16a22a629df812237174f548aa80d4f4afe60c61a91a9"
+          "sha256": "b00da5402b6f578cee4c5bd0c9504950f89deca6cc6a66fe019ad601c9e18236"
         }
       ],
       "evidence": [
@@ -10696,18 +10736,18 @@
         }
       ],
       "latestInputChange": {
-        "date": "2026-10-17",
-        "scope": "Canonical optionalCosts ingress and typed null omission only. Independent recovery and mapper unchanged.",
-        "receipt": {
-          "path": "docs/evidence/optional-costs-ingress-2026-10-17/prior-context-input-updates.json",
-          "sha256": "2c5b9441fcafac4d26fe1cf622b040535ae4573cc827c4d2d0c0693dacd103a2"
+        "kind": "PERMANENT_PLAY_SOURCE_GENERATION_AND_BATTLEFIELD_DAMAGE",
+        "scope": "Current compiled engine source changed. Earlier successful CI remains a previous fixed baseline only; current fixed full is pending.",
+        "sourceManifest": {
+          "path": "docs/evidence/battlefield-play-damage-2026-10-17/source-manifest.json",
+          "sha256": "05632566219de2496735cf6a87afb324b7d224165f0789f447b974c4ddb3f61a"
         }
       },
-      "currentInputRevision": "3a8 plus the independent battlefield-only primary-play recovery guard; new exact fixed full required. All prior semantic decisions and CI receipts retained."
+      "currentInputRevision": "18e06d46134c074b693f5c48cdd0dc78024ead8b9532fe0d5aaad56f50ab7446"
     },
     "opening-randomness-2026-10-17": {
       "evidenceCommit": "a6ccf1952141c69ed4b3cde94695f983c1c28db8",
-      "currentImplementationCommit": "3a8a6f394fc6a8a7e3ea99a2db0799fa35859d31",
+      "currentImplementationCommit": "4fca367eaab1dd198ffde839b23461c058a2b470",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Base plus current explicit implementation/test inputs. Prior39 native/CI is historical and not relabeled current.",
       "ciState": "PENDING",
@@ -10727,7 +10767,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "f19995b83f6e94b674781fad1c2c25f19372f204f55e81e9418da828de9310c9"
+          "sha256": "e2a68ce74ce5d37ac7633a217d882ed0d7975eb6ff162224f29e576cb31b7f79"
         },
         {
           "path": "src/Riftbound.Persistence/PostgresMatchJournal.cs",
@@ -10885,11 +10925,11 @@
         },
         {
           "path": "tests/Riftbound.PostgresAcceptance/Program.cs",
-          "sha256": "b87e0ec368adfa36ecc40a1da8b2bb5ecf998bda192550bfa06b6661b88dc345"
+          "sha256": "7eed59da04943d23baeedf1aea53690480c250963fbea6996cb0c69d556612b4"
         },
         {
           "path": "tests/Riftbound.PostgresAcceptance/Riftbound.PostgresAcceptance.csproj",
-          "sha256": "d9716fb317bdde134df16a22a629df812237174f548aa80d4f4afe60c61a91a9"
+          "sha256": "b00da5402b6f578cee4c5bd0c9504950f89deca6cc6a66fe019ad601c9e18236"
         },
         {
           "path": "tests/Riftbound.PostgresAcceptance/RuneRecycleDestinationSqlAcceptance.cs",
@@ -11130,18 +11170,18 @@
         }
       ],
       "latestInputChange": {
-        "date": "2026-10-17",
-        "scope": "Canonical optionalCosts ingress and typed null omission only. Independent recovery and mapper unchanged.",
-        "receipt": {
-          "path": "docs/evidence/optional-costs-ingress-2026-10-17/prior-context-input-updates.json",
-          "sha256": "2c5b9441fcafac4d26fe1cf622b040535ae4573cc827c4d2d0c0693dacd103a2"
+        "kind": "PERMANENT_PLAY_SOURCE_GENERATION_AND_BATTLEFIELD_DAMAGE",
+        "scope": "Current compiled engine source changed. Earlier successful CI remains a previous fixed baseline only; current fixed full is pending.",
+        "sourceManifest": {
+          "path": "docs/evidence/battlefield-play-damage-2026-10-17/source-manifest.json",
+          "sha256": "05632566219de2496735cf6a87afb324b7d224165f0789f447b974c4ddb3f61a"
         }
       },
-      "currentInputRevision": "3a8 plus the independent battlefield-only primary-play recovery guard; new exact fixed full required. All prior semantic decisions and CI receipts retained."
+      "currentInputRevision": "18e06d46134c074b693f5c48cdd0dc78024ead8b9532fe0d5aaad56f50ab7446"
     },
     "duel-chain-origins-cold-recovery-2026-10-17": {
       "evidenceCommit": "42c89230105573e39ffaf524a7dc21f24d520d4b",
-      "currentImplementationCommit": "3a8a6f394fc6a8a7e3ea99a2db0799fa35859d31",
+      "currentImplementationCommit": "4fca367eaab1dd198ffde839b23461c058a2b470",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Base42 plus exact changed implementation/test pins; fixed067 full is a retained failure, not current success.",
       "ciState": "PENDING",
@@ -11149,7 +11189,7 @@
       "implementation": [
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "ed79875b5dc4dc61d56ed82d4d299e4b464a0c8a227b46b3834579f21abc18b5"
+          "sha256": "f7db478ed3fc4ceb83392da63b6cab16ad0e551122bed9a4e1e6b0489f05c0c5"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.TriggerHandoff.cs",
@@ -11161,7 +11201,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "f19995b83f6e94b674781fad1c2c25f19372f204f55e81e9418da828de9310c9"
+          "sha256": "e2a68ce74ce5d37ac7633a217d882ed0d7975eb6ff162224f29e576cb31b7f79"
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
@@ -11171,7 +11211,7 @@
       "verificationSources": [
         {
           "path": "tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs",
-          "sha256": "392ff0298f1c128378fe1cf0a7455c964ea96166eea711e8e96ab410919c92b6"
+          "sha256": "be4105f052bd8923a9998110e29a1cc9f6d5625a9a9d1329e451a54963af7a31"
         },
         {
           "path": "tests/Riftbound.ConformanceTests/MovementDiscardDuelContinuationTests.cs",
@@ -11368,14 +11408,218 @@
         }
       ],
       "latestInputChange": {
-        "date": "2026-10-17",
-        "scope": "Single canonical empty-array test producer after root check; final originals/full remain separately required.",
-        "receipt": {
-          "path": "docs/evidence/optional-costs-ingress-2026-10-17/prior-context-input-updates-revision2.json",
-          "sha256": "c9549a4bff7430d626a0e3233a8219a0746f9629e632264f9de6705c061d314d"
+        "kind": "PERMANENT_PLAY_SOURCE_GENERATION_AND_BATTLEFIELD_DAMAGE",
+        "scope": "Current compiled engine source changed. Earlier successful CI remains a previous fixed baseline only; current fixed full is pending.",
+        "sourceManifest": {
+          "path": "docs/evidence/battlefield-play-damage-2026-10-17/source-manifest.json",
+          "sha256": "05632566219de2496735cf6a87afb324b7d224165f0789f447b974c4ddb3f61a"
         }
       },
-      "currentInputRevision": "3a8 plus the independent battlefield-only primary-play recovery guard; new exact fixed full required. All prior semantic decisions and CI receipts retained."
+      "currentInputRevision": "18e06d46134c074b693f5c48cdd0dc78024ead8b9532fe0d5aaad56f50ab7446"
+    },
+    "merfolk-battlefield-play-damage-here-2026-10-17": {
+      "evidenceCommit": "4fca367eaab1dd198ffde839b23461c058a2b470",
+      "evidenceCommitScope": "Previous fixed baseline only. This review source includes uncommitted positive damage changes and does not claim that4fca tested them.",
+      "currentImplementationCommit": "4fca367eaab1dd198ffde839b23461c058a2b470",
+      "currentImplementationIncludesUncommittedChanges": true,
+      "ciState": "PENDING",
+      "ciReceipts": [],
+      "implementation": [
+        {
+          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "sha256": "05376463a0bfae0e36eb3a0b4f9e2af92a8526fb937fed6a8f45e9cf01a74d79"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.PermanentPlayHere.cs",
+          "sha256": "e0905509a067d4ace92fa4085a1331f141c25a69c240f1eba35fa407f0e31f84"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.PermanentConfirmation.cs",
+          "sha256": "4691c444a8d94b609680bc2988aadd29efea62b79014dc892852bad25c5320fc"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.PermanentPlayTargets.cs",
+          "sha256": "136b4c23030ff7c0e9864d72f789455d344ec4b84fecd290b4fea38dccf3823a"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ObjectContinuity.cs",
+          "sha256": "b767edbceb019ba3cdc264cfe714def6b86b5383c698a2eb26d057d0e9f1a108"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeclaredChoices.cs",
+          "sha256": "2e045d8767fc347faa3b6167e66e47377ef95553ab798fb468f8ea1f14825909"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.SpellChoiceControl.cs",
+          "sha256": "03292cd4a94d34c39b02ba936838e30f559b60139735cc13340d10599d5f9387"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "sha256": "f7db478ed3fc4ceb83392da63b6cab16ad0e551122bed9a4e1e6b0489f05c0c5"
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchSession.cs",
+          "sha256": "e2a68ce74ce5d37ac7633a217d882ed0d7975eb6ff162224f29e576cb31b7f79"
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.cs",
+          "sha256": "d60ed0b593c00bc1169931dfcebadb74a61435f8775c18c86272ee216c94ddc4"
+        },
+        {
+          "path": "src/Riftbound.Engine/PermanentPlayTriggerRecoveryRules.cs",
+          "sha256": "15a4b996f4bca62f20130ff76adff9932da5b4666646334973a15442542e1cad"
+        },
+        {
+          "path": "src/Riftbound.Engine/PreconstructedDeckCatalog.cs",
+          "sha256": "fe8529ad546fff0f9979b1fdba9f956aee93d37b63e876fdcea3bd8a23b337f0"
+        }
+      ],
+      "verificationSources": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/BattlefieldPlayDamageTests.cs",
+          "sha256": "fcb744d0136c91efaa0b9a7f8c24ea25d37ddc446dc5ed0b9cea0c8699e6261c"
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/BattlefieldConditionalPlayTriggerTests.cs",
+          "sha256": "08a708fce9a5738290afc1403077c2c6280d7b141186f806bb9d1d2747a2b234"
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/BattlefieldPlayRecoveryGuardTests.cs",
+          "sha256": "26614fd812df21647c86aba1c5cc5e95585638f0ccb08bd172b4019d337d339b"
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs",
+          "sha256": "be4105f052bd8923a9998110e29a1cc9f6d5625a9a9d1329e451a54963af7a31"
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/Fixtures/battlefield-merfolk-current-opening.json",
+          "sha256": "297c73afede23f5c4f279ac6e644b2e27647b812f5726b56d1a331be46995a79"
+        },
+        {
+          "path": "tests/Riftbound.PostgresAcceptance/BattlefieldPlayDamageSqlAcceptance.cs",
+          "sha256": "9c7accef649db079260db4125facb0778a3423680cb1d9369d499e1b8878e006"
+        },
+        {
+          "path": "tests/Riftbound.PostgresAcceptance/Program.cs",
+          "sha256": "7eed59da04943d23baeedf1aea53690480c250963fbea6996cb0c69d556612b4"
+        },
+        {
+          "path": "tests/Riftbound.PostgresAcceptance/Riftbound.PostgresAcceptance.csproj",
+          "sha256": "b00da5402b6f578cee4c5bd0c9504950f89deca6cc6a66fe019ad601c9e18236"
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/MatrixOpeningResourceDriverTests.cs",
+          "sha256": "d6788002cc7afe02b06585c32cf1fd96d339150ea0f8608fdd8a84d32532dc4e"
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/Fixtures/preconstructed-original-4fca-inputs.json",
+          "sha256": "242e8dc256809454c82b03b11397b8b35477f1d07ff6bd13bfd7e3dfb1c610aa"
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/Fixtures/battlefield-base-merfolk.json",
+          "sha256": "30a333defda40a95ecd248295c21d42652cd3d0fd16e5c959ed385b17b097e90"
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/evidence/battlefield-play-damage-2026-10-17/focus.json",
+          "sha256": "9b3e139ce99ab94624cae8a79f3e48bad9e5126011e7504ef7ebb7aeaf1ef8e8",
+          "role": "focus"
+        },
+        {
+          "path": "docs/evidence/battlefield-play-damage-2026-10-17/scoped-real-sql.json",
+          "sha256": "dbd1e034763f6f8109b02009d4eac750fcc35d44978b448d1d6f39d7dba3010a",
+          "role": "sql-scoped"
+        },
+        {
+          "path": "docs/evidence/battlefield-play-damage-2026-10-17/complete-real-sql.json",
+          "sha256": "faef22127085041f783662849c719cff75b8584fa0a6311067497e65dc2c4e4b",
+          "role": "sql-default"
+        },
+        {
+          "path": "docs/evidence/battlefield-play-damage-2026-10-17/source-manifest.json",
+          "sha256": "05632566219de2496735cf6a87afb324b7d224165f0789f447b974c4ddb3f61a",
+          "role": "source"
+        },
+        {
+          "path": "docs/evidence/battlefield-play-damage-2026-10-17/one-check-failure-and-final-focus-repair.json",
+          "sha256": "0c0065619a4f44c26dab311c8a1ccd5f9d6560250d61afacf675b3acf6e3ac00",
+          "role": "one-check"
+        },
+        {
+          "path": "docs/evidence/battlefield-play-damage-2026-10-17/all-original-generated-deck-identity.json",
+          "sha256": "2b5d0573eb186c4c46c5fb12b1598906870dbf6242400dc70a8205bd51fe14fa",
+          "role": "deck-input-identity"
+        },
+        {
+          "path": "docs/evidence/battlefield-play-damage-2026-10-17/original-source-and-fixture-retention.json",
+          "sha256": "14101a253f5c649a8b5503cacbd00eb4554f25265274babd6da61c44d3c7d68f",
+          "role": "source-retention"
+        },
+        {
+          "path": "docs/evidence/battlefield-play-damage-2026-10-17/original-five-and110-final.json",
+          "sha256": "ac6f6f715240f1528e8aff0e0da946bcd2fd1a4d5eb1e1307a1bbb683411768a",
+          "role": "original-five-and110"
+        }
+      ],
+      "branches": [
+        {
+          "id": "battlefield-post-entry-enemy-damage-two",
+          "sourceRefs": [
+            "UNL-003/219"
+          ],
+          "state": "RECORDED",
+          "decision": {
+            "state": "OPEN",
+            "reason": "Bounded local behavior and SQL executed; exact new fixed CI, current native and remaining location/consumer combinations are separate."
+          },
+          "remaining": [
+            "CURRENT_FIXED_FULL",
+            "CURRENT_POSITIVE_NATIVE",
+            "WINDOWS_PHYSICAL",
+            "REMAINING_LOCATION_AND_CONSUMER_COMBINATIONS"
+          ]
+        },
+        {
+          "id": "ward-counter-and-individual-source-target-departure",
+          "sourceRefs": [
+            "UNL-003/219"
+          ],
+          "state": "RECORDED",
+          "decision": {
+            "state": "OPEN",
+            "reason": "Bounded local behavior and SQL executed; exact new fixed CI, current native and remaining location/consumer combinations are separate."
+          },
+          "remaining": [
+            "CURRENT_FIXED_FULL",
+            "CURRENT_POSITIVE_NATIVE",
+            "WINDOWS_PHYSICAL",
+            "REMAINING_LOCATION_AND_CONSUMER_COMBINATIONS"
+          ]
+        },
+        {
+          "id": "independent-binding-and-pending-original-sql-cold-replay",
+          "sourceRefs": [
+            "UNL-003/219"
+          ],
+          "state": "RECORDED",
+          "decision": {
+            "state": "OPEN",
+            "reason": "Bounded local behavior and SQL executed; exact new fixed CI, current native and remaining location/consumer combinations are separate."
+          },
+          "remaining": [
+            "CURRENT_FIXED_FULL",
+            "CURRENT_POSITIVE_NATIVE",
+            "WINDOWS_PHYSICAL",
+            "REMAINING_LOCATION_AND_CONSUMER_COMBINATIONS"
+          ]
+        }
+      ],
+      "currentInputRevision": "18e06d46134c074b693f5c48cdd0dc78024ead8b9532fe0d5aaad56f50ab7446",
+      "previousFixedFullCi": {
+        "path": "docs/evidence/battlefield-play-damage-2026-10-17/full-ci-4fca-baseline.json",
+        "sha256": "c8fb136ffea9ba036ff55e27c4b753aaf57c2d2e0d72c8dbdcc3de1de5ead358"
+      }
     }
   },
   "acceptanceGates": [
@@ -14083,12 +14327,40 @@
       },
       "implementation": [
         {
-          "path": "src/Riftbound.Engine/OfficialPrintedTimingRules.cs",
-          "sha256": "fd501a2c5745d9782e02f7c9d11f66f0b2c8d40482df175850b55d9d3427e1f1"
+          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "sha256": "05376463a0bfae0e36eb3a0b4f9e2af92a8526fb937fed6a8f45e9cf01a74d79"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.PermanentPlayHere.cs",
+          "sha256": "e0905509a067d4ace92fa4085a1331f141c25a69c240f1eba35fa407f0e31f84"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.PermanentConfirmation.cs",
-          "sha256": "89975fbcb3244799badd55e257f1d709133473e10748334bec53d4139798ffb1"
+          "sha256": "4691c444a8d94b609680bc2988aadd29efea62b79014dc892852bad25c5320fc"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.PermanentPlayTargets.cs",
+          "sha256": "136b4c23030ff7c0e9864d72f789455d344ec4b84fecd290b4fea38dccf3823a"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.ObjectContinuity.cs",
+          "sha256": "b767edbceb019ba3cdc264cfe714def6b86b5383c698a2eb26d057d0e9f1a108"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeclaredChoices.cs",
+          "sha256": "2e045d8767fc347faa3b6167e66e47377ef95553ab798fb468f8ea1f14825909"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.SpellChoiceControl.cs",
+          "sha256": "03292cd4a94d34c39b02ba936838e30f559b60139735cc13340d10599d5f9387"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "sha256": "f7db478ed3fc4ceb83392da63b6cab16ad0e551122bed9a4e1e6b0489f05c0c5"
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchSession.cs",
+          "sha256": "e2a68ce74ce5d37ac7633a217d882ed0d7975eb6ff162224f29e576cb31b7f79"
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
@@ -14096,45 +14368,57 @@
         },
         {
           "path": "src/Riftbound.Engine/PermanentPlayTriggerRecoveryRules.cs",
-          "sha256": "88cc121c293f902e665546e56c56806df66e907356d3c124372f6e5efa4b6b51"
+          "sha256": "15a4b996f4bca62f20130ff76adff9932da5b4666646334973a15442542e1cad"
+        },
+        {
+          "path": "src/Riftbound.Engine/PreconstructedDeckCatalog.cs",
+          "sha256": "fe8529ad546fff0f9979b1fdba9f956aee93d37b63e876fdcea3bd8a23b337f0"
         }
       ],
       "verificationSources": [
         {
+          "path": "tests/Riftbound.ConformanceTests/BattlefieldPlayDamageTests.cs",
+          "sha256": "fcb744d0136c91efaa0b9a7f8c24ea25d37ddc446dc5ed0b9cea0c8699e6261c"
+        },
+        {
           "path": "tests/Riftbound.ConformanceTests/BattlefieldConditionalPlayTriggerTests.cs",
-          "sha256": "8f1862601890ad2370728df79dfc1a691469d1670399ae02bbbd0b9d17262371"
-        },
-        {
-          "path": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ogn-blitzcrank-barrier-static.fixture.json",
-          "sha256": "5ec9eea33ae2fe9c8f2140570c505b43d651f7ee2258494e2d54c95baf6bd628"
-        },
-        {
-          "path": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-merfolk-rabble-rouser-standby-static.fixture.json",
-          "sha256": "d50523c1730e6d54ac036eeda4094949feafc5452178f89937d7e2d319b40455"
+          "sha256": "08a708fce9a5738290afc1403077c2c6280d7b141186f806bb9d1d2747a2b234"
         },
         {
           "path": "tests/Riftbound.ConformanceTests/BattlefieldPlayRecoveryGuardTests.cs",
-          "sha256": "24c31a3155493170cf7b1cff73a9612963687d58ff2183663bcfc0b866ba5710"
+          "sha256": "26614fd812df21647c86aba1c5cc5e95585638f0ccb08bd172b4019d337d339b"
         },
         {
-          "path": "tests/Riftbound.PostgresAcceptance/BattlefieldPlayRecoverySqlAcceptance.cs",
-          "sha256": "3d5c94636e5473047e7b4df32df71c1f71210e447a575cbdf89d1ae9a91a8753"
+          "path": "tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs",
+          "sha256": "be4105f052bd8923a9998110e29a1cc9f6d5625a9a9d1329e451a54963af7a31"
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/Fixtures/battlefield-merfolk-current-opening.json",
+          "sha256": "297c73afede23f5c4f279ac6e644b2e27647b812f5726b56d1a331be46995a79"
+        },
+        {
+          "path": "tests/Riftbound.PostgresAcceptance/BattlefieldPlayDamageSqlAcceptance.cs",
+          "sha256": "9c7accef649db079260db4125facb0778a3423680cb1d9369d499e1b8878e006"
         },
         {
           "path": "tests/Riftbound.PostgresAcceptance/Program.cs",
-          "sha256": "43dfdc3821780b5153a3163aa6bc221dfd91548c2439b330b31b9804b96ee047"
+          "sha256": "7eed59da04943d23baeedf1aea53690480c250963fbea6996cb0c69d556612b4"
         },
         {
           "path": "tests/Riftbound.PostgresAcceptance/Riftbound.PostgresAcceptance.csproj",
-          "sha256": "0df2cdb2793b1b45ebf7ce25cc1dc17ffeda50cbaeab51e266ac94f78ded3956"
+          "sha256": "b00da5402b6f578cee4c5bd0c9504950f89deca6cc6a66fe019ad601c9e18236"
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/MatrixOpeningResourceDriverTests.cs",
+          "sha256": "d6788002cc7afe02b06585c32cf1fd96d339150ea0f8608fdd8a84d32532dc4e"
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/Fixtures/preconstructed-original-4fca-inputs.json",
+          "sha256": "242e8dc256809454c82b03b11397b8b35477f1d07ff6bd13bfd7e3dfb1c610aa"
         },
         {
           "path": "tests/Riftbound.ConformanceTests/Fixtures/battlefield-base-merfolk.json",
-          "sha256": "18bd3f46598f3e89c92073e5d733d3434a16dcb2b3e14e2c6cd623c7a8db6d21"
-        },
-        {
-          "path": "tests/Riftbound.ConformanceTests/Fixtures/battlefield-base-blitzcrank.json",
-          "sha256": "c735b71716f70004964a446b5322d8c6d4b98951a277f420d3619292e034c417"
+          "sha256": "30a333defda40a95ecd248295c21d42652cd3d0fd16e5c959ed385b17b097e90"
         }
       ],
       "semanticReview": "HAND_TO_BASE_CONDITION_ONLY_NOT_WHOLE_CARD",
@@ -14178,10 +14462,17 @@
         },
         {
           "id": "battlefield-positive-effect-here-targets-response-ward-counter-and-source-transition",
-          "semanticReview": "OPEN_POSITIVE_PRINTED_EFFECT_NOT_IMPLEMENTED_BY_EXISTING_STATIC_DEFINITION",
-          "tests": "MERFOLK_STANDBY_TRIGGER_QUEUE_ONLY_PASS_DAMAGE_NOT_CERTIFIED",
-          "fixedCommitCi": "OPEN",
-          "productAcceptance": "OPEN"
+          "semanticReview": "SCOPED_BATTLEFIELD_ENEMY_DAMAGE2_WARD_COUNTER_INDIVIDUAL_SOURCE_TARGET_DEPARTURE_PASS_OTHER_LOCATION_COMBINATIONS_OPEN",
+          "tests": "BOUNDED148_FOCUS_FINAL_CATALOG_INPUTS_AND_REAL_SQL42_COMMANDS240_EVENTS_TWO_PENDING_COLD_NEXT_REPLAY_PASS_REMAINING_HERE_LOCATIONS_OPEN",
+          "fixedCommitCi": "PENDING_CURRENT_FIXED_FULL",
+          "productAcceptance": "REAL_CURRENT_SQL42_COMMANDS240_EVENTS_TWO_PENDING_COLD_NEXT_AND_REPLAY_PASS_CURRENT_POSITIVE_NATIVE_WINDOWS_OPEN",
+          "remaining": [
+            "SAME_ENEMY_BASE_AFTER_SOURCE_CONTROL_CHANGE",
+            "OTHER_BATTLEFIELD_SOURCE_TARGET_MOVEMENT",
+            "REENTRY_COPIED_TOKEN_EFFECT_PLAY",
+            "DAMAGE_BONUS_PREVENTION_REPLACEMENT_COMBINATIONS",
+            "INDEPENDENT_LEGEND_MULTI_TRIGGER_ORDER"
+          ]
         },
         {
           "id": "remaining-printed-keyword-and-hold-behavior",
@@ -14228,6 +14519,42 @@
         "affectedOriginals": {
           "path": "docs/evidence/battlefield-play-recovery-2026-10-17/originals.json",
           "sha256": "a3daef0d680de0c347510a82f5b8b849b1b87dd07a67e7b6d04c31804f615b17"
+        }
+      },
+      "currentDamageSourceManifest": {
+        "path": "docs/evidence/battlefield-play-damage-2026-10-17/source-manifest.json",
+        "sha256": "05632566219de2496735cf6a87afb324b7d224165f0789f447b974c4ddb3f61a"
+      },
+      "currentDamageEvidence": {
+        "focus": {
+          "path": "docs/evidence/battlefield-play-damage-2026-10-17/focus.json",
+          "sha256": "3ef3db272ca3604943faf38bf493b91d544842bf11989b1f79c0a887ae29b7a1"
+        },
+        "scopedSql": {
+          "path": "docs/evidence/battlefield-play-damage-2026-10-17/scoped-real-sql.json",
+          "sha256": "9e77ef335a120a4770a1a43570197d7bfc2a5a211c3288473237a2970cc66839"
+        },
+        "defaultSql": {
+          "path": "docs/evidence/battlefield-play-damage-2026-10-17/complete-real-sql.json",
+          "sha256": "5f80410a95adddc6624dbe7b44aea46e47381c08af0ca9450798dc0223102493"
+        }
+      },
+      "previousFixed4fcaNativeBaseRecoveryAndScore": {
+        "path": "docs/evidence/battlefield-play-damage-2026-10-17/baseline-4fca-native-scope-acceptance.json",
+        "sha256": "353424a59b0d572c030755c081f4d60ab42e78a3a4349c2d6a125346325e5fe2"
+      },
+      "currentPositiveScopeEvidence": {
+        "focus": {
+          "path": "docs/evidence/battlefield-play-damage-2026-10-17/focus.json",
+          "sha256": "9b3e139ce99ab94624cae8a79f3e48bad9e5126011e7504ef7ebb7aeaf1ef8e8"
+        },
+        "realSql": {
+          "path": "docs/evidence/battlefield-play-damage-2026-10-17/complete-real-sql.json",
+          "sha256": "faef22127085041f783662849c719cff75b8584fa0a6311067497e65dc2c4e4b"
+        },
+        "originalDeckInputs": {
+          "path": "docs/evidence/battlefield-play-damage-2026-10-17/all-original-generated-deck-identity.json",
+          "sha256": "2b5d0573eb186c4c46c5fb12b1598906870dbf6242400dc70a8205bd51fe14fa"
         }
       }
     },
@@ -14444,6 +14771,141 @@
         }
       ],
       "wholePrintingCertified": false
+    },
+    {
+      "id": "GLOBAL_ZHCN_RADIANCE_OVERVIEW_VARIANT_20261016",
+      "state": "OPEN",
+      "requirement": "Read the complete newly acquired official global zh-CN overview and its images, reconcile release/prerelease dates and exact regional applicability; do not activate preview cards from a date or language alone.",
+      "sourceManifest": {
+        "path": "docs/evidence/battlefield-play-damage-2026-10-17/global-zh-cn-source-variant-discovery.json",
+        "sha256": "481bbfb42e0a6700a88d97f81a783ed86ece60d3ae61824287b40e2ec1f4218e"
+      },
+      "publisherScope": "GLOBAL_OFFICIAL_LOCALIZED_ZHCN",
+      "regionalPrecedence": "OPEN",
+      "semanticReview": "SOURCE_INTAKE_ONLY",
+      "implementation": "OPEN",
+      "tests": "OPEN",
+      "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+      "productAcceptance": "OPEN",
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "GLOBAL_ZHCN_RADIANCE_PRERIFT_VARIANT_20261012",
+      "state": "OPEN",
+      "requirement": "Read the complete newly acquired official global zh-CN prerelease guide and images, preserve original EN source and CN event conflict obligations, reconcile source precedence and format applicability.",
+      "sourceManifest": {
+        "path": "docs/evidence/battlefield-play-damage-2026-10-17/global-zh-cn-source-variant-discovery.json",
+        "sha256": "481bbfb42e0a6700a88d97f81a783ed86ece60d3ae61824287b40e2ec1f4218e"
+      },
+      "publisherScope": "GLOBAL_OFFICIAL_LOCALIZED_ZHCN",
+      "regionalPrecedence": "OPEN",
+      "semanticReview": "SOURCE_INTAKE_ONLY",
+      "implementation": "OPEN",
+      "tests": "OPEN",
+      "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+      "productAcceptance": "OPEN",
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "GLOBAL_ZHCN_PRERIFT_QA01_STEADFAST_ASSAULT",
+      "state": "OPEN",
+      "requirement": "Bind localized QA01 about the legend conversion of Steadfast to Assault to exact printing/images, CN applicability, complete implementation, tests and acceptance.",
+      "sourceManifest": {
+        "path": "docs/evidence/battlefield-play-damage-2026-10-17/global-zh-cn-source-variant-discovery.json",
+        "sha256": "481bbfb42e0a6700a88d97f81a783ed86ece60d3ae61824287b40e2ec1f4218e"
+      },
+      "publisherScope": "GLOBAL_OFFICIAL_LOCALIZED_ZHCN",
+      "regionalPrecedence": "OPEN",
+      "semanticReview": "SOURCE_INTAKE_ONLY",
+      "implementation": "OPEN",
+      "tests": "OPEN",
+      "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+      "productAcceptance": "OPEN",
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "GLOBAL_ZHCN_PRERIFT_QA02_NEEKO_QUANTITY",
+      "state": "OPEN",
+      "requirement": "Bind localized QA02 about selecting up to three different legends to exact printing/images and current CN errata, preserve preview applicability and all implementation/test obligations.",
+      "sourceManifest": {
+        "path": "docs/evidence/battlefield-play-damage-2026-10-17/global-zh-cn-source-variant-discovery.json",
+        "sha256": "481bbfb42e0a6700a88d97f81a783ed86ece60d3ae61824287b40e2ec1f4218e"
+      },
+      "publisherScope": "GLOBAL_OFFICIAL_LOCALIZED_ZHCN",
+      "regionalPrecedence": "OPEN",
+      "semanticReview": "SOURCE_INTAKE_ONLY",
+      "implementation": "OPEN",
+      "tests": "OPEN",
+      "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+      "productAcceptance": "OPEN",
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "GLOBAL_ZHCN_PRERIFT_QA03_ENCORE_DIFFERENT_OPTIONS",
+      "state": "OPEN",
+      "requirement": "Bind localized QA03 about two different modes to exact printing/images, regional source precedence, implementation, tests and acceptance.",
+      "sourceManifest": {
+        "path": "docs/evidence/battlefield-play-damage-2026-10-17/global-zh-cn-source-variant-discovery.json",
+        "sha256": "481bbfb42e0a6700a88d97f81a783ed86ece60d3ae61824287b40e2ec1f4218e"
+      },
+      "publisherScope": "GLOBAL_OFFICIAL_LOCALIZED_ZHCN",
+      "regionalPrecedence": "OPEN",
+      "semanticReview": "SOURCE_INTAKE_ONLY",
+      "implementation": "OPEN",
+      "tests": "OPEN",
+      "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+      "productAcceptance": "OPEN",
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "GLOBAL_ZHCN_PRERIFT_QA04_EQUIPMENT_UNIT_TEXT",
+      "state": "OPEN",
+      "requirement": "Bind localized QA04 about equipped text after becoming a unit to exact printing/images, regional source precedence, implementation, tests and acceptance.",
+      "sourceManifest": {
+        "path": "docs/evidence/battlefield-play-damage-2026-10-17/global-zh-cn-source-variant-discovery.json",
+        "sha256": "481bbfb42e0a6700a88d97f81a783ed86ece60d3ae61824287b40e2ec1f4218e"
+      },
+      "publisherScope": "GLOBAL_OFFICIAL_LOCALIZED_ZHCN",
+      "regionalPrecedence": "OPEN",
+      "semanticReview": "SOURCE_INTAKE_ONLY",
+      "implementation": "OPEN",
+      "tests": "OPEN",
+      "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+      "productAcceptance": "OPEN",
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "GLOBAL_ZHCN_RADIANCE_DATE_APPLICABILITY_CONFLICT",
+      "state": "OPEN",
+      "requirement": "Reconcile the overview prerelease Oct17-23 and general release Oct24 with the localized prerelease guide naming Oct16; language and date facts alone do not resolve CN event or standard legality.",
+      "sourceManifest": {
+        "path": "docs/evidence/battlefield-play-damage-2026-10-17/global-zh-cn-source-variant-discovery.json",
+        "sha256": "481bbfb42e0a6700a88d97f81a783ed86ece60d3ae61824287b40e2ec1f4218e"
+      },
+      "publisherScope": "GLOBAL_OFFICIAL_LOCALIZED_ZHCN",
+      "regionalPrecedence": "OPEN",
+      "semanticReview": "SOURCE_INTAKE_ONLY",
+      "implementation": "OPEN",
+      "tests": "OPEN",
+      "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+      "productAcceptance": "OPEN",
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "PERMANENT_PLAY_HERE_BASE_COLOCATION_AFTER_SOURCE_CONTROL",
+      "state": "OPEN",
+      "requirement": "Causally reproduce and converge source control changes followed by source and target sharing an enemy BASE, plus other location combinations, under CN359.3.f.2/f.4. Current permanent-play here filter is battlefield-only; individually leaving a battlefield does not certify all referenced locations.",
+      "sourceManifest": {
+        "path": "docs/evidence/battlefield-play-damage-2026-10-17/source-manifest.json",
+        "sha256": "05632566219de2496735cf6a87afb324b7d224165f0789f447b974c4ddb3f61a"
+      },
+      "parentObligationId": "CARD:UNL-003/219",
+      "semanticReview": "STATIC_SCOPE_GAP_AND_RULE_INFERENCE_PENDING_ACTUAL_CAUSAL_REPRO",
+      "implementation": "OPEN_CURRENT_FILTER_REQUIRES_BATTLEFIELD",
+      "tests": "OPEN",
+      "fixedCommitCi": "OPEN",
+      "productAcceptance": "OPEN",
+      "wholePrintingCertified": false
     }
   ],
   "note": "Current inventory and remaining obligations, with independently dated rule sources and separately recorded source deltas. No source fetch or semantic certification by this checker.",
@@ -14458,5 +14920,9 @@
       "path": "docs/evidence/battlefield-play-recovery-2026-10-17/prior-context-input-updates.json",
       "sha256": "2dcd31cf2e7262bf6551f9758beccb097b05622859d3a429d6d554538ea1548f"
     }
+  },
+  "currentPermanentPlayDamageInputChange": {
+    "path": "docs/evidence/battlefield-play-damage-2026-10-17/current-input-change.json",
+    "sha256": "d3175bbe7209a00d6bbbc110167845bb74644fb93aa0d3a435ce70ba63766300"
   }
 }

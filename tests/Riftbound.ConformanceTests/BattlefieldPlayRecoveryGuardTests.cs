@@ -13,6 +13,110 @@ public sealed class BattlefieldPlayRecoveryGuardTests(ITestOutputHelper output)
 {
     private static readonly JsonSerializerOptions WebJson = new(JsonSerializerDefaults.Web);
 
+    [Fact]
+    public async Task ActualBlankOpeningStandbyDamageKeepsOriginalPendingColdRecoveryAndFullReplay()
+    {
+        var (initial, journal, session, played, actor, firstUnit) = await ActualBaseOpening("UNL-003/219");
+        IMatchSession live = session;
+        var state = played.State;
+        var opponent = state.Seats.Keys.Single(player => player != actor);
+        string? secondUnit = null, enemy = null;
+        for (var turn = 0; turn < 90; turn++)
+        {
+            secondUnit = state.PlayerZones[actor].Hand.FirstOrDefault(id => state.CardObjects[id].CardNo == "UNL-003/219");
+            enemy = state.PlayerZones[opponent].Base.FirstOrDefault(id => state.CardObjects[id].CardNo == "UNL-003/219");
+            if (state.TurnPlayerId == actor && secondUnit is not null && enemy is not null
+                && !state.CardObjects[firstUnit].IsExhausted && !state.CardObjects[enemy].IsExhausted) break;
+            if (state.TurnPlayerId == opponent && enemy is null
+                && state.PlayerZones[opponent].Hand.FirstOrDefault(id => state.CardObjects[id].CardNo == "UNL-003/219") is { } unit)
+            {
+                foreach (var rune in state.PlayerZones[opponent].Base.Where(id => state.CardObjects[id].Tags.Contains(CardObjectTags.RuneCard)
+                    && !state.CardObjects[id].IsExhausted).Take(2).ToArray())
+                    await Submit(opponent, new TapRuneCommand(rune));
+                if (state.RunePools[opponent].Mana >= 2)
+                    await Submit(opponent, new PlayCardCommand(unit, "UNL-003/219", [], Destination: "BASE"));
+            }
+            await Submit(state.TurnPlayerId, new EndTurnCommand());
+        }
+        Assert.NotNull(secondUnit);
+        Assert.NotNull(enemy);
+        Assert.Equal(actor, state.TurnPlayerId);
+        var field = state.BattlefieldStates.Keys.OrderBy(id => state.CardObjects[id].CardNo == "OGN·278/298" ? 0 : 1)
+            .ThenBy(id => id, StringComparer.Ordinal).First();
+        await Submit(actor, new MoveUnitCommand(firstUnit, "BASE", "BATTLEFIELD:" + field, []));
+        while (state.FocusPlayerId is { } focus && state.StackItems.Count == 0)
+            await Submit(focus, new PassFocusCommand());
+        Assert.Equal(actor, state.BattlefieldStates[field].ControllerId);
+        var powerRune = state.PlayerZones[actor].Base.First(id => state.CardObjects[id].Tags.Contains(CardObjectTags.RuneCard));
+        await Submit(actor, new RecycleRuneCommand(powerRune));
+        await Submit(actor, new HideCardCommand(secondUnit!, "UNL-003/219", "BATTLEFIELD:" + field, ["STANDBY_A"]));
+        await Submit(actor, new EndTurnCommand());
+        await Submit(opponent, new MoveUnitCommand(enemy!, "BASE", "BATTLEFIELD:" + field, []));
+        await Submit(opponent, new PassFocusCommand());
+        await Submit(actor, new PlayCardCommand(secondUnit!, "UNL-003/219", []));
+        var choice = Assert.IsType<PendingCardChoiceState>(state.PendingCardChoice);
+        Assert.Equal(new[] { enemy }, choice.LegalObjectIds);
+        var pendingAt = journal.Entries.Count;
+        await Cold();
+        await Submit(actor, new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow, [enemy!]));
+        var confirmedAt = journal.Entries.Count;
+        await Cold();
+        await Submit(state.PriorityPlayerId!, new PassPriorityCommand());
+        var damage = await Submit(state.PriorityPlayerId!, new PassPriorityCommand());
+        Assert.DoesNotContain(damage.State.StackItems, item => item.SourceObjectId == secondUnit);
+        Assert.Contains(enemy!, damage.State.PlayerZones[opponent].Graveyard);
+        Assert.Contains(damage.Events, e => e.Kind == "DAMAGE_APPLIED" && Equals(e.Payload["targetObjectId"], enemy));
+        var finalFrame = Frame(initial, journal, state);
+        var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(initial, finalFrame.Commands, state,
+            new CoreRuleEngine(), default, finalFrame.Events);
+        Assert.True(replay.IsMatch, string.Join("; ", replay.Errors));
+        await Cold();
+        if (Environment.GetEnvironmentVariable("RIFTBOUND_BATTLEFIELD_PLAY_EVIDENCE") is { Length: > 0 } directory)
+        {
+            Directory.CreateDirectory(directory);
+            await File.WriteAllTextAsync(Path.Combine(directory, "battlefield-merfolk-current-opening.json"),
+                JsonSerializer.Serialize(new {
+                    schemaVersion = 1, openingSeed = 0, sourceRoomId = initial.RoomId, seats = initial.Seats,
+                    expectedActor = actor, expectedOpponent = opponent, expectedSource = secondUnit, expectedTarget = enemy,
+                    expectedBattlefield = field, pendingChoiceCommandCount = pendingAt, confirmedCommandCount = confirmedAt,
+                    acceptedCommands = journal.Entries.Select(e => new { playerId = e.PlayerId, clientIntentId = e.ClientIntentId,
+                        commandType = e.CommandType, rawCommand = e.RawCommand!.Value }),
+                    scope = "Fresh blank SEATING with original explicit seed0 and legal submitted decks; original base fixture reused without modifying any accepted command. Actual standby, enemy entry, target confirmation, two pending cold restores, damage cleanup and full original replay."
+                }, new JsonSerializerOptions(WebJson) { WriteIndented = true }));
+        }
+        output.WriteLine($"BATTLEFIELD_PLAY_DAMAGE_ORIGINAL_OPENING_PASS: {journal.Entries.Count} commands, {finalFrame.Events.Count} events; two pending cold restores and final original replay.");
+
+        async Task<ResolutionResult> Submit(string player, GameCommand command)
+        {
+            var raw = JsonSerializer.SerializeToNode(command, command.GetType(), WebJson)!.AsObject();
+            raw["promptId"] = live.PromptFor(player).PromptId;
+            raw["snapshotTick"] = state.Tick;
+            var result = await live.SubmitAsync(player, "battlefield-damage-" + journal.Entries.Count, command,
+                JsonSerializer.SerializeToElement(raw), default);
+            Assert.True(result.Accepted, result.ErrorMessage);
+            state = result.State;
+            FullGameEndToEndTests.AssertNoHiddenZoneLeak(result);
+            Restore(state);
+            ArmamentMightTests.PublicRecovery(state);
+            return result;
+        }
+
+        async Task Cold()
+        {
+            var frame = Frame(initial, journal, state);
+            var original = JsonSerializer.Serialize(new { frame.Commands, frame.Events });
+            var next = await new InMemoryMatchSessionRegistry(new CoreRuleEngine(), journal, new Store(frame))
+                .GetOrCreateAsync(initial.RoomId, default);
+            foreach (var player in state.Seats.Keys)
+            {
+                Assert.Equal(JsonSerializer.Serialize(live.SnapshotFor(player)), JsonSerializer.Serialize(next.SnapshotFor(player)));
+                Assert.Equal(JsonSerializer.Serialize(live.PromptFor(player)), JsonSerializer.Serialize(next.PromptFor(player)));
+            }
+            Assert.Equal(original, JsonSerializer.Serialize(new { frame.Commands, frame.Events }));
+            live = next;
+        }
+    }
+
     [Theory]
     [InlineData("UNL-003/219")]
     [InlineData("OGN·067/298")]
@@ -27,6 +131,7 @@ public sealed class BattlefieldPlayRecoveryGuardTests(ITestOutputHelper output)
             StackItems = [Assert.Single(independent.State.StackItems) with {
                 StackItemId = Assert.Single(plain.State.CardPlays.Finalized).PlayId,
                 ControllerId = actor, SourceObjectId = source,
+                PermanentPlaySource = cardNo == "UNL-003/219" ? new(source, plain.State.CardObjects[source].ObjectGeneration) : null,
                 Destination = "BATTLEFIELD:" + plain.State.BattlefieldStates.Keys.Order(StringComparer.Ordinal).First() }],
             PriorityPlayerId = actor,
             TimingState = independent.State.TimingState

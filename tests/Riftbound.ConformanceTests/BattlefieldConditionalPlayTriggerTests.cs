@@ -54,6 +54,7 @@ public sealed class BattlefieldConditionalPlayTriggerTests
     public async Task ActualStandbyPlacementRetainsTheBattlefieldConditionalTrigger()
     {
         var initial = await StandbySourceRulesTests.ReadyShadow("UNL-003/219");
+        initial = OfficialHoldSequenceTests.AddUnit(initial, "ENEMY-HERE", "OGN·096/298", "F", "P2");
         var result = await Act(initial, "P1", new PlayCardCommand("SHADOW", "UNL-003/219", []));
         Assert.Equal("F", result.State.ObjectLocations["SHADOW"].BattlefieldObjectId);
         var ability = Assert.Single(result.State.StackItems, i => i.SourceObjectId == "SHADOW");

@@ -56,6 +56,11 @@ public sealed partial class CoreRuleEngine
         var previousItems = before.StackItems.ToDictionary(item => item.StackItemId, StringComparer.Ordinal);
         var stack = after.StackItems.Select(item =>
         {
+            if (item.PermanentPlaySource is { } playSource && !previousItems.ContainsKey(item.StackItemId)
+                && cards.TryGetValue(playSource.ObjectId, out var playEntered)
+                && playEntered.ObjectGeneration != playSource.Generation) {
+                item = item with { PermanentPlaySource = playSource with { Generation = playEntered.ObjectGeneration } }; changed = true;
+            }
             if (item.SelfCopySource is { } source && !previousItems.ContainsKey(item.StackItemId)
                 && before.CardObjects.TryGetValue(source.ObjectId, out var oldSource)
                 && source.Generation == oldSource.ObjectGeneration && cards.TryGetValue(source.ObjectId, out var entered)
@@ -113,6 +118,7 @@ public sealed partial class CoreRuleEngine
         // other untargeted instructions still resolve (CN 359.3.e.5-8).
         return item with { TargetObjectIds = item.TargetObjectIds.Select((id, index) =>
             IsLegalChosenCardTarget(state, item.ControllerId, id, index, item.TargetObjectIds, scope, behavior)
+                && PermanentPlayHereTargetAllowed(state, item, behavior, id)
                 ? id : string.Empty).ToArray() };
     }
 

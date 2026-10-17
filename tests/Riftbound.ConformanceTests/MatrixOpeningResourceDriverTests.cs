@@ -1,4 +1,5 @@
 using System.Reflection;
+using System.Text.Json;
 using Riftbound.CardCatalog;
 using Riftbound.Engine;
 using Xunit;
@@ -7,6 +8,33 @@ namespace Riftbound.ConformanceTests;
 
 public sealed class MatrixOpeningResourceDriverTests
 {
+    [Fact]
+    public async Task OriginalElevenPreconstructedDeckInputsRemainExactAcrossBothFormats()
+    {
+        using var original = JsonDocument.Parse(await File.ReadAllTextAsync(Path.Combine(
+            AppContext.BaseDirectory, "Fixtures", "preconstructed-original-4fca-inputs.json")));
+        Assert.Equal(1, original.RootElement.GetProperty("schemaVersion").GetInt32());
+        Assert.Equal("4fca367eaab1dd198ffde839b23461c058a2b470",
+            original.RootElement.GetProperty("sourceCommit").GetString());
+        var catalog = await OfficialCardCatalog.LoadDefaultAsync();
+        var json = new JsonSerializerOptions(JsonSerializerDefaults.Web);
+        foreach (var format in original.RootElement.GetProperty("formats").EnumerateArray())
+        {
+            var formatName = format.GetProperty("format").GetString()!;
+            var decks = PreconstructedDeckCatalog.Build(catalog, Enum.Parse<OfficialDeckFormat>(formatName));
+            var expectedDecks = format.GetProperty("decks");
+            Assert.Equal(11, expectedDecks.GetArrayLength());
+            foreach (var expected in expectedDecks.EnumerateArray())
+            {
+                var id = expected.GetProperty("id").GetString()!;
+                var actual = Assert.Single(decks, deck => deck.Id == id);
+                Assert.True(JsonElement.DeepEquals(expected.GetProperty("decklist"),
+                        JsonSerializer.SerializeToElement(actual.Decklist, json)),
+                    $"Original deck input changed: {formatName}/{id}");
+            }
+        }
+    }
+
     [Fact]
     public async Task OriginalRumbleArmamentsPairPaysExposedUnitPowerThroughRealRuneActions()
     {

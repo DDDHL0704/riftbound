@@ -21316,6 +21316,66 @@
         "Current visible paired clients, actual database execution, network interruption/cold restart, normal score completion/full original replay and Windows physical runtime remain separate OPEN gates.",
         "Raw malformed optionalCosts issue52 remains unresolved. The old067 native initial-mulligan UI transition remains unverified; an unavailable UI window is not proof of an application hang. No accepted history is rewritten and no old development-match migration is added."
       ]
+    },
+    {
+      "id": "merfolk-battlefield-play-damage-here-2026-10-17",
+      "scope": "CN zh-CN as of2026-10-17, current core effective2026-10-16. UNL003 only: battlefield post-entry target confirmation, damage2, ward/counter, source or target individually leaving the battlefield, exact source generation, pending SQL cold original continuation/replay. Whole printing and all referenced-location combinations remain OPEN.",
+      "status": "SCOPED_LOCAL_BRANCHES_PASS_FIXED_FULL_CURRENT_NATIVE_WINDOWS_OPEN",
+      "subjects": [
+        "UNL-003/219"
+      ],
+      "ruleRecords": [],
+      "pendingRuleRecords": [],
+      "sourceManifest": {
+        "path": "docs/evidence/battlefield-play-damage-2026-10-17/source-manifest.json",
+        "sha256": "05632566219de2496735cf6a87afb324b7d224165f0789f447b974c4ddb3f61a"
+      },
+      "sourceClauses": [
+        {
+          "document": "DOC-01",
+          "clause": "359.3.f.1/2/4",
+          "pdfPage": 56,
+          "sha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11"
+        }
+      ],
+      "validation": {
+        "focus": {
+          "path": "docs/evidence/battlefield-play-damage-2026-10-17/focus.json",
+          "sha256": "9b3e139ce99ab94624cae8a79f3e48bad9e5126011e7504ef7ebb7aeaf1ef8e8"
+        },
+        "realSqlScoped": {
+          "path": "docs/evidence/battlefield-play-damage-2026-10-17/scoped-real-sql.json",
+          "sha256": "dbd1e034763f6f8109b02009d4eac750fcc35d44978b448d1d6f39d7dba3010a"
+        },
+        "realSqlDefault": {
+          "path": "docs/evidence/battlefield-play-damage-2026-10-17/complete-real-sql.json",
+          "sha256": "faef22127085041f783662849c719cff75b8584fa0a6311067497e65dc2c4e4b"
+        },
+        "fixedCommitFull": "PENDING_NEW_FIXED_COMMIT",
+        "currentPositiveNative": "OPEN",
+        "windowsPhysical": "OPEN",
+        "oneCheckFailureAndRepair": {
+          "path": "docs/evidence/battlefield-play-damage-2026-10-17/one-check-failure-and-final-focus-repair.json",
+          "sha256": "0c0065619a4f44c26dab311c8a1ccd5f9d6560250d61afacf675b3acf6e3ac00"
+        },
+        "originalDeckInputIdentity": {
+          "path": "docs/evidence/battlefield-play-damage-2026-10-17/all-original-generated-deck-identity.json",
+          "sha256": "2b5d0573eb186c4c46c5fb12b1598906870dbf6242400dc70a8205bd51fe14fa"
+        }
+      },
+      "exclusions": [
+        "Other battlefield and same enemy BASE reference combinations after source control changes need actual causal reproduction",
+        "Reentry, copied/token/effect-generated play consumers",
+        "Complete damage bonus, prevention and replacement combinations",
+        "Rengar independent multiple ability ordering and other trigger consumers",
+        "Blitzcrank and RAD031 whole semantics",
+        "Whole printing and complete official source certification"
+      ],
+      "auditDocument": "docs/BATTLEFIELD_PLAY_DAMAGE_AUDIT_2026-10-17.md",
+      "evidence": [
+        "docs/evidence/battlefield-play-damage-2026-10-17/focus.json",
+        "docs/evidence/battlefield-play-damage-2026-10-17/complete-real-sql.json"
+      ]
     }
   ]
 }

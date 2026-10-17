@@ -1,0 +1,39 @@
+{
+  "status": "CURRENT_SOURCE_GOVERNANCE_VALID_AND_ALL_ORIGINAL_OBLIGATIONS_RETAINED",
+  "recordedAtUtc": "2026-10-17T14:19:01.397153+00:00",
+  "governanceValid": true,
+  "errors": [],
+  "priorObligations": 16554,
+  "currentObligations": 16565,
+  "allPriorObligationIdsRetained": true,
+  "currentReviews": 120,
+  "historicalReviewPinCount": 78,
+  "currentContexts": 35,
+  "counts": {
+    "combinedExactPrintingNumbers": 1740,
+    "sourceDocuments": 36,
+    "sourceBlocks": 14293,
+    "cnOfficialPrintings": 1504,
+    "enReturnedPrintings": 1408,
+    "enReportedTotal": 1416,
+    "enSourceCountGap": 8,
+    "activeCatalogEntries": 1033,
+    "outsideActiveCatalog": 707,
+    "cnQaFields": 1504,
+    "cnNonemptyQaFields": 0
+  },
+  "wholeCardCertified": false,
+  "newObligationIds": [
+    "BRANCH:merfolk-battlefield-play-damage-here-2026-10-17:battlefield-post-entry-enemy-damage-two",
+    "BRANCH:merfolk-battlefield-play-damage-here-2026-10-17:independent-binding-and-pending-original-sql-cold-replay",
+    "BRANCH:merfolk-battlefield-play-damage-here-2026-10-17:ward-counter-and-individual-source-target-departure",
+    "GATE:GLOBAL_ZHCN_PRERIFT_QA01_STEADFAST_ASSAULT",
+    "GATE:GLOBAL_ZHCN_PRERIFT_QA02_NEEKO_QUANTITY",
+    "GATE:GLOBAL_ZHCN_PRERIFT_QA03_ENCORE_DIFFERENT_OPTIONS",
+    "GATE:GLOBAL_ZHCN_PRERIFT_QA04_EQUIPMENT_UNIT_TEXT",
+    "GATE:GLOBAL_ZHCN_RADIANCE_DATE_APPLICABILITY_CONFLICT",
+    "GATE:GLOBAL_ZHCN_RADIANCE_OVERVIEW_VARIANT_20261016",
+    "GATE:GLOBAL_ZHCN_RADIANCE_PRERIFT_VARIANT_20261012",
+    "GATE:PERMANENT_PLAY_HERE_BASE_COLOCATION_AFTER_SOURCE_CONTROL"
+  ]
+}

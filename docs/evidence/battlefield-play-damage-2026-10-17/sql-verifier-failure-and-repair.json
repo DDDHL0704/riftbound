@@ -1,0 +1,8 @@
+{
+  "retainedLog": "sql-scoped-v2.log",
+  "failure": "Verifier requested damageAmount instead of actual public event key damage at final numeric assertion. No engine or accepted history modification.",
+  "fixedPath": "tests/Riftbound.PostgresAcceptance/BattlefieldPlayDamageSqlAcceptance.cs",
+  "initial42CommandsTwoPendingColdOriginalNextAndFinalReplayReached": true,
+  "previousSourceSha256": "3e41af0e208052d4b6086e124e4ffaa4f3ea5605e904d6e03b336b8f66c0abdd",
+  "currentSourceSha256": "9c7accef649db079260db4125facb0778a3423680cb1d9369d499e1b8878e006"
+}

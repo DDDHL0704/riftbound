@@ -1,0 +1,619 @@
+{
+  "schemaVersion": 1,
+  "openingSeed": 0,
+  "sourceRoomId": "current-card-play-history-20261017-v2",
+  "seats": {
+    "paired-339c-a": "P1",
+    "paired-339c-b": "P2"
+  },
+  "expectedActor": "paired-339c-b",
+  "expectedOpponent": "paired-339c-a",
+  "expectedSource": "paired-339c-b-MAIN-UNL-003-219-31",
+  "expectedTarget": "paired-339c-a-MAIN-UNL-003-219-29",
+  "expectedBattlefield": "paired-339c-a-BATTLEFIELD-OGN-277-298-01",
+  "pendingChoiceCommandCount": 39,
+  "confirmedCommandCount": 40,
+  "acceptedCommands": [
+    {
+      "playerId": "paired-339c-a",
+      "clientIntentId": "origin-opening-0",
+      "commandType": "SUBMIT_DECK",
+      "rawCommand": {
+        "legendCardNo": "UNL-181/219",
+        "championCardNo": "UNL-022/219",
+        "mainDeck": [
+          "UNL-022/219",
+          "ARC-001/006",
+          "ARC-001/006",
+          "ARC-001/006",
+          "OGN\u00B7013/298",
+          "OGN\u00B7013/298",
+          "OGN\u00B7013/298",
+          "OGN\u00B7096/298",
+          "OGN\u00B7096/298",
+          "OGN\u00B7096/298",
+          "OGN\u00B7103/298",
+          "OGN\u00B7103/298",
+          "OGN\u00B7103/298",
+          "OGN\u00B7121/298",
+          "OGN\u00B7121/298",
+          "OGN\u00B7121/298",
+          "SFD\u00B7018/221",
+          "SFD\u00B7018/221",
+          "SFD\u00B7018/221",
+          "SFD\u00B7065/221",
+          "SFD\u00B7065/221",
+          "SFD\u00B7065/221",
+          "SFD\u00B7069/221",
+          "SFD\u00B7069/221",
+          "SFD\u00B7069/221",
+          "UNL-002/219",
+          "UNL-002/219",
+          "UNL-002/219",
+          "UNL-003/219",
+          "UNL-003/219",
+          "UNL-003/219",
+          "UNL-065/219",
+          "UNL-065/219",
+          "UNL-065/219",
+          "UNL-076/219",
+          "UNL-076/219",
+          "UNL-076/219",
+          "UNL-081/219",
+          "UNL-081/219",
+          "UNL-081/219"
+        ],
+        "runeDeck": [
+          "OGN\u00B7007/298",
+          "OGN\u00B7007a/298",
+          "OGN\u00B7007b/298",
+          "OGN\u00B7089/298",
+          "OGN\u00B7089a/298",
+          "OGN\u00B7089b/298",
+          "SFD\u00B7R01",
+          "SFD\u00B7R01a",
+          "SFD\u00B7R01b",
+          "SFD\u00B7R03",
+          "SFD\u00B7R03a",
+          "SFD\u00B7R03b"
+        ],
+        "battlefields": [
+          "OGN\u00B7275/298",
+          "OGN\u00B7277/298",
+          "OGN\u00B7278/298"
+        ],
+        "cmdType": "SUBMIT_DECK",
+        "promptId": "current-card-play-history-20261017-v2:0:paired-339c-a:SUBMIT_DECK",
+        "snapshotTick": 0
+      }
+    },
+    {
+      "playerId": "paired-339c-b",
+      "clientIntentId": "origin-opening-1",
+      "commandType": "SUBMIT_DECK",
+      "rawCommand": {
+        "legendCardNo": "SFD\u00B7181/221",
+        "championCardNo": "SFD\u00B7026/221",
+        "mainDeck": [
+          "SFD\u00B7026/221",
+          "SFD\u00B7085/221",
+          "SFD\u00B7008/221",
+          "SFD\u00B7022/221",
+          "ARC-001/006",
+          "ARC-001/006",
+          "ARC-001/006",
+          "OGN\u00B7013/298",
+          "OGN\u00B7013/298",
+          "OGN\u00B7013/298",
+          "OGN\u00B7096/298",
+          "OGN\u00B7096/298",
+          "OGN\u00B7096/298",
+          "OGN\u00B7103/298",
+          "OGN\u00B7103/298",
+          "OGN\u00B7103/298",
+          "OGN\u00B7121/298",
+          "OGN\u00B7121/298",
+          "OGN\u00B7121/298",
+          "SFD\u00B7018/221",
+          "SFD\u00B7018/221",
+          "SFD\u00B7018/221",
+          "SFD\u00B7065/221",
+          "SFD\u00B7065/221",
+          "SFD\u00B7065/221",
+          "SFD\u00B7069/221",
+          "SFD\u00B7069/221",
+          "SFD\u00B7069/221",
+          "UNL-002/219",
+          "UNL-002/219",
+          "UNL-002/219",
+          "UNL-003/219",
+          "UNL-003/219",
+          "UNL-003/219",
+          "UNL-065/219",
+          "UNL-065/219",
+          "UNL-065/219",
+          "UNL-076/219",
+          "UNL-076/219",
+          "UNL-076/219"
+        ],
+        "runeDeck": [
+          "OGN\u00B7007/298",
+          "OGN\u00B7007a/298",
+          "OGN\u00B7007b/298",
+          "OGN\u00B7089/298",
+          "OGN\u00B7089a/298",
+          "OGN\u00B7089b/298",
+          "SFD\u00B7R01",
+          "SFD\u00B7R01a",
+          "SFD\u00B7R01b",
+          "SFD\u00B7R03",
+          "SFD\u00B7R03a",
+          "SFD\u00B7R03b"
+        ],
+        "battlefields": [
+          "OGN\u00B7275/298",
+          "OGN\u00B7277/298",
+          "OGN\u00B7278/298"
+        ],
+        "cmdType": "SUBMIT_DECK",
+        "promptId": "current-card-play-history-20261017-v2:1:paired-339c-b:SUBMIT_DECK",
+        "snapshotTick": 1
+      }
+    },
+    {
+      "playerId": "paired-339c-a",
+      "clientIntentId": "origin-opening-2",
+      "commandType": "READY",
+      "rawCommand": {
+        "cmdType": "READY",
+        "promptId": "current-card-play-history-20261017-v2:2:paired-339c-a:READY",
+        "snapshotTick": 2
+      }
+    },
+    {
+      "playerId": "paired-339c-b",
+      "clientIntentId": "origin-opening-3",
+      "commandType": "READY",
+      "rawCommand": {
+        "cmdType": "READY",
+        "promptId": "current-card-play-history-20261017-v2:2:paired-339c-b:READY",
+        "snapshotTick": 2
+      }
+    },
+    {
+      "playerId": "paired-339c-b",
+      "clientIntentId": "origin-opening-4",
+      "commandType": "MULLIGAN",
+      "rawCommand": {
+        "handObjectIds": [],
+        "cmdType": "MULLIGAN",
+        "promptId": "current-card-play-history-20261017-v2:2:paired-339c-b:MULLIGAN,SURRENDER",
+        "snapshotTick": 2
+      }
+    },
+    {
+      "playerId": "paired-339c-a",
+      "clientIntentId": "origin-opening-5",
+      "commandType": "MULLIGAN",
+      "rawCommand": {
+        "handObjectIds": [],
+        "cmdType": "MULLIGAN",
+        "promptId": "current-card-play-history-20261017-v2:3:paired-339c-a:MULLIGAN,SURRENDER",
+        "snapshotTick": 3
+      }
+    },
+    {
+      "playerId": "paired-339c-b",
+      "clientIntentId": "origin-action-6",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "paired-339c-b-RUNE-OGN-007a-298-02",
+        "sourceObjectIds": null,
+        "cmdType": "TAP_RUNE",
+        "promptId": "current-card-play-history-20261017-v2:5:paired-339c-b:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 5
+      }
+    },
+    {
+      "playerId": "paired-339c-b",
+      "clientIntentId": "origin-action-7",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "paired-339c-b-RUNE-SFD-R03-10",
+        "sourceObjectIds": null,
+        "cmdType": "TAP_RUNE",
+        "promptId": "current-card-play-history-20261017-v2:6:paired-339c-b:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 6
+      }
+    },
+    {
+      "playerId": "paired-339c-b",
+      "clientIntentId": "origin-action-8",
+      "commandType": "PLAY_CARD",
+      "rawCommand": {
+        "sourceObjectId": "paired-339c-b-MAIN-UNL-003-219-32",
+        "cardNo": "UNL-003/219",
+        "targetObjectIds": [],
+        "mode": "",
+        "destination": "BASE",
+        "repeatChoices": null,
+        "movementDestinations": null,
+        "cmdType": "PLAY_CARD",
+        "promptId": "current-card-play-history-20261017-v2:7:paired-339c-b:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 7
+      }
+    },
+    {
+      "playerId": "paired-339c-b",
+      "clientIntentId": "battlefield-damage-9",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN",
+        "promptId": "current-card-play-history-20261017-v2:8:paired-339c-b:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 8
+      }
+    },
+    {
+      "playerId": "paired-339c-a",
+      "clientIntentId": "battlefield-damage-10",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN",
+        "promptId": "current-card-play-history-20261017-v2:9:paired-339c-a:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 9
+      }
+    },
+    {
+      "playerId": "paired-339c-b",
+      "clientIntentId": "battlefield-damage-11",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN",
+        "promptId": "current-card-play-history-20261017-v2:10:paired-339c-b:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 10
+      }
+    },
+    {
+      "playerId": "paired-339c-a",
+      "clientIntentId": "battlefield-damage-12",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN",
+        "promptId": "current-card-play-history-20261017-v2:11:paired-339c-a:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 11
+      }
+    },
+    {
+      "playerId": "paired-339c-b",
+      "clientIntentId": "battlefield-damage-13",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN",
+        "promptId": "current-card-play-history-20261017-v2:12:paired-339c-b:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 12
+      }
+    },
+    {
+      "playerId": "paired-339c-a",
+      "clientIntentId": "battlefield-damage-14",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN",
+        "promptId": "current-card-play-history-20261017-v2:13:paired-339c-a:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 13
+      }
+    },
+    {
+      "playerId": "paired-339c-b",
+      "clientIntentId": "battlefield-damage-15",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN",
+        "promptId": "current-card-play-history-20261017-v2:14:paired-339c-b:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 14
+      }
+    },
+    {
+      "playerId": "paired-339c-a",
+      "clientIntentId": "battlefield-damage-16",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN",
+        "promptId": "current-card-play-history-20261017-v2:15:paired-339c-a:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 15
+      }
+    },
+    {
+      "playerId": "paired-339c-b",
+      "clientIntentId": "battlefield-damage-17",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN",
+        "promptId": "current-card-play-history-20261017-v2:16:paired-339c-b:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 16
+      }
+    },
+    {
+      "playerId": "paired-339c-a",
+      "clientIntentId": "battlefield-damage-18",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN",
+        "promptId": "current-card-play-history-20261017-v2:17:paired-339c-a:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 17
+      }
+    },
+    {
+      "playerId": "paired-339c-b",
+      "clientIntentId": "battlefield-damage-19",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN",
+        "promptId": "current-card-play-history-20261017-v2:18:paired-339c-b:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 18
+      }
+    },
+    {
+      "playerId": "paired-339c-a",
+      "clientIntentId": "battlefield-damage-20",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN",
+        "promptId": "current-card-play-history-20261017-v2:19:paired-339c-a:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 19
+      }
+    },
+    {
+      "playerId": "paired-339c-b",
+      "clientIntentId": "battlefield-damage-21",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN",
+        "promptId": "current-card-play-history-20261017-v2:20:paired-339c-b:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 20
+      }
+    },
+    {
+      "playerId": "paired-339c-a",
+      "clientIntentId": "battlefield-damage-22",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN",
+        "promptId": "current-card-play-history-20261017-v2:21:paired-339c-a:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 21
+      }
+    },
+    {
+      "playerId": "paired-339c-b",
+      "clientIntentId": "battlefield-damage-23",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN",
+        "promptId": "current-card-play-history-20261017-v2:22:paired-339c-b:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 22
+      }
+    },
+    {
+      "playerId": "paired-339c-a",
+      "clientIntentId": "battlefield-damage-24",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "paired-339c-a-RUNE-SFD-R01a-08",
+        "sourceObjectIds": null,
+        "cmdType": "TAP_RUNE",
+        "promptId": "current-card-play-history-20261017-v2:23:paired-339c-a:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 23
+      }
+    },
+    {
+      "playerId": "paired-339c-a",
+      "clientIntentId": "battlefield-damage-25",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "paired-339c-a-RUNE-OGN-089-298-04",
+        "sourceObjectIds": null,
+        "cmdType": "TAP_RUNE",
+        "promptId": "current-card-play-history-20261017-v2:24:paired-339c-a:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 24
+      }
+    },
+    {
+      "playerId": "paired-339c-a",
+      "clientIntentId": "battlefield-damage-26",
+      "commandType": "PLAY_CARD",
+      "rawCommand": {
+        "sourceObjectId": "paired-339c-a-MAIN-UNL-003-219-29",
+        "cardNo": "UNL-003/219",
+        "targetObjectIds": [],
+        "mode": "",
+        "destination": "BASE",
+        "repeatChoices": null,
+        "movementDestinations": null,
+        "cmdType": "PLAY_CARD",
+        "promptId": "current-card-play-history-20261017-v2:25:paired-339c-a:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 25
+      }
+    },
+    {
+      "playerId": "paired-339c-a",
+      "clientIntentId": "battlefield-damage-27",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN",
+        "promptId": "current-card-play-history-20261017-v2:26:paired-339c-a:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 26
+      }
+    },
+    {
+      "playerId": "paired-339c-b",
+      "clientIntentId": "battlefield-damage-28",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN",
+        "promptId": "current-card-play-history-20261017-v2:27:paired-339c-b:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 27
+      }
+    },
+    {
+      "playerId": "paired-339c-a",
+      "clientIntentId": "battlefield-damage-29",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN",
+        "promptId": "current-card-play-history-20261017-v2:28:paired-339c-a:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 28
+      }
+    },
+    {
+      "playerId": "paired-339c-b",
+      "clientIntentId": "battlefield-damage-30",
+      "commandType": "MOVE_UNIT",
+      "rawCommand": {
+        "sourceObjectId": "paired-339c-b-MAIN-UNL-003-219-32",
+        "origin": "BASE",
+        "destination": "BATTLEFIELD:paired-339c-a-BATTLEFIELD-OGN-277-298-01",
+        "optionalCosts": [],
+        "sourceObjectIds": null,
+        "cmdType": "MOVE_UNIT",
+        "promptId": "current-card-play-history-20261017-v2:29:paired-339c-b:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 29
+      }
+    },
+    {
+      "playerId": "paired-339c-b",
+      "clientIntentId": "battlefield-damage-31",
+      "commandType": "PASS_FOCUS",
+      "rawCommand": {
+        "cmdType": "PASS_FOCUS",
+        "promptId": "current-card-play-history-20261017-v2:30:paired-339c-b:TAP_RUNE,RECYCLE_RUNE,PASS_FOCUS,SURRENDER",
+        "snapshotTick": 30
+      }
+    },
+    {
+      "playerId": "paired-339c-a",
+      "clientIntentId": "battlefield-damage-32",
+      "commandType": "PASS_FOCUS",
+      "rawCommand": {
+        "cmdType": "PASS_FOCUS",
+        "promptId": "current-card-play-history-20261017-v2:31:paired-339c-a:TAP_RUNE,RECYCLE_RUNE,PASS_FOCUS,SURRENDER",
+        "snapshotTick": 31
+      }
+    },
+    {
+      "playerId": "paired-339c-b",
+      "clientIntentId": "battlefield-damage-33",
+      "commandType": "RECYCLE_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "paired-339c-b-RUNE-OGN-007a-298-02",
+        "sourceObjectIds": null,
+        "cmdType": "RECYCLE_RUNE",
+        "promptId": "current-card-play-history-20261017-v2:32:paired-339c-b:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 32
+      }
+    },
+    {
+      "playerId": "paired-339c-b",
+      "clientIntentId": "battlefield-damage-34",
+      "commandType": "HIDE_CARD",
+      "rawCommand": {
+        "sourceObjectId": "paired-339c-b-MAIN-UNL-003-219-31",
+        "cardNo": "UNL-003/219",
+        "destination": "BATTLEFIELD:paired-339c-a-BATTLEFIELD-OGN-277-298-01",
+        "optionalCosts": [
+          "STANDBY_A"
+        ],
+        "cmdType": "HIDE_CARD",
+        "promptId": "current-card-play-history-20261017-v2:33:paired-339c-b:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 33
+      }
+    },
+    {
+      "playerId": "paired-339c-b",
+      "clientIntentId": "battlefield-damage-35",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN",
+        "promptId": "current-card-play-history-20261017-v2:34:paired-339c-b:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 34
+      }
+    },
+    {
+      "playerId": "paired-339c-a",
+      "clientIntentId": "battlefield-damage-36",
+      "commandType": "MOVE_UNIT",
+      "rawCommand": {
+        "sourceObjectId": "paired-339c-a-MAIN-UNL-003-219-29",
+        "origin": "BASE",
+        "destination": "BATTLEFIELD:paired-339c-a-BATTLEFIELD-OGN-277-298-01",
+        "optionalCosts": [],
+        "sourceObjectIds": null,
+        "cmdType": "MOVE_UNIT",
+        "promptId": "current-card-play-history-20261017-v2:35:paired-339c-a:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 35
+      }
+    },
+    {
+      "playerId": "paired-339c-a",
+      "clientIntentId": "battlefield-damage-37",
+      "commandType": "PASS_FOCUS",
+      "rawCommand": {
+        "cmdType": "PASS_FOCUS",
+        "promptId": "current-card-play-history-20261017-v2:36:paired-339c-a:TAP_RUNE,RECYCLE_RUNE,PASS_FOCUS,SURRENDER",
+        "snapshotTick": 36
+      }
+    },
+    {
+      "playerId": "paired-339c-b",
+      "clientIntentId": "battlefield-damage-38",
+      "commandType": "PLAY_CARD",
+      "rawCommand": {
+        "sourceObjectId": "paired-339c-b-MAIN-UNL-003-219-31",
+        "cardNo": "UNL-003/219",
+        "targetObjectIds": [],
+        "mode": "",
+        "destination": "",
+        "repeatChoices": null,
+        "movementDestinations": null,
+        "cmdType": "PLAY_CARD",
+        "promptId": "current-card-play-history-20261017-v2:37:paired-339c-b:TAP_RUNE,RECYCLE_RUNE,PLAY_CARD,REVEAL_CARD,PASS_FOCUS,SURRENDER",
+        "snapshotTick": 37
+      }
+    },
+    {
+      "playerId": "paired-339c-b",
+      "clientIntentId": "battlefield-damage-39",
+      "commandType": "CHOOSE_CARDS",
+      "rawCommand": {
+        "choiceId": "PERMANENT-TARGET:STACK-38-paired-339c-b-MAIN-UNL-003-219-31",
+        "choiceWindow": "TRIGGER_CONFIRMATION",
+        "chosenObjectIds": [
+          "paired-339c-a-MAIN-UNL-003-219-29"
+        ],
+        "cmdType": "CHOOSE_CARDS",
+        "promptId": "current-card-play-history-20261017-v2:38:paired-339c-b:CHOOSE_CARDS,ACTIVATE_ABILITY,TAP_RUNE,RECYCLE_RUNE,SURRENDER",
+        "snapshotTick": 38
+      }
+    },
+    {
+      "playerId": "paired-339c-b",
+      "clientIntentId": "battlefield-damage-40",
+      "commandType": "PASS_PRIORITY",
+      "rawCommand": {
+        "cmdType": "PASS_PRIORITY",
+        "promptId": "current-card-play-history-20261017-v2:39:paired-339c-b:TAP_RUNE,RECYCLE_RUNE,PASS_PRIORITY,SURRENDER",
+        "snapshotTick": 39
+      }
+    },
+    {
+      "playerId": "paired-339c-a",
+      "clientIntentId": "battlefield-damage-41",
+      "commandType": "PASS_PRIORITY",
+      "rawCommand": {
+        "cmdType": "PASS_PRIORITY",
+        "promptId": "current-card-play-history-20261017-v2:40:paired-339c-a:TAP_RUNE,RECYCLE_RUNE,PASS_PRIORITY,SURRENDER",
+        "snapshotTick": 40
+      }
+    }
+  ],
+  "scope": "Fresh blank SEATING with original explicit seed0 and legal submitted decks; original base fixture reused without modifying any accepted command. Actual standby, enemy entry, target confirmation, two pending cold restores, damage cleanup and full original replay."
+}

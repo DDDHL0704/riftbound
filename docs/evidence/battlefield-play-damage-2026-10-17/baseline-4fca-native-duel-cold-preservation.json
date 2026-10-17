@@ -1,0 +1,34 @@
+{
+  "recordedAtUtc": "2026-10-17T11:57:16.538111+00:00",
+  "status": "NATIVE_VISIBLE_PAIRED_LEGITIMATE_DUEL_COLD_RESTORE_EXACT_PASS",
+  "fixedCommit": "4fca367eaab1dd198ffde839b23461c058a2b470",
+  "secondsFromStopToRestart": 64.587705,
+  "bothClientsVisibleDisconnectedAndDisabled": true,
+  "manualNativeReconnectClicks": 2,
+  "bothClientsVisibleRestoredWithBFocusAndOriginalHandBoard": true,
+  "actualCommands": 19,
+  "actualEvents": 68,
+  "exactComparisons": {
+    "commands": true,
+    "events": true,
+    "authoritativeState": true,
+    "replayInitialState": true,
+    "spectatorReplayFrame": true,
+    "playerViews": true,
+    "openingSeed": true
+  },
+  "fullOriginalEmptyOpeningReplayBeforeAndAfterPass": true,
+  "originalStateHash": "b6850488ea86151f0afcdc9b36ee217282005039391ccbc32c650ce95ddb277d",
+  "actualRuntimeInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+    "implementationSha256": "9dac3ff2d4000294ec2d6bc8bff22822689531e521dff519f7a808292840ef80",
+    "identitySha256": "1771ef953c980a2908f5efc6beff22de8f26dbfce15266595654c7a0a34e88b1"
+  },
+  "all36ActualPublishedFilesUnchanged": true,
+  "originalNextBPass": "ACTUAL_NATIVE_PASS_FOCUS_ACCEPTED_ORIGINAL_PREFIX_EXACT_FULL_REPLAY_PASS",
+  "scope": "Legitimate movement duel with an empty chain; no pending targeted card effect is claimed. Windows and whole-card semantics remain OPEN."
+}

@@ -22,6 +22,7 @@ public sealed partial class CoreRuleEngine
         var maximum = MaxResolvedTargetCount(behavior, item, TargetCountConditionApplies(behavior, item));
         var scope = PlayCardTargetScopeForBehavior(behavior);
         return state.CardObjects.Keys.Where(id => (!OfficialPrintedTimingRules.PlayTargetsExcludeSource(item.CardNo) || id != item.SourceObjectId)
+            && PermanentPlayHereTargetAllowed(state, item, behavior, id)
             && (!behavior.SwapsSourceWithFirstTargetLocation || CanSwapTargetLocations(state.PlayerZones, state.CardObjects, item.SourceObjectId, id))
             && Enumerable.Range(0, maximum)
                 .Any(index => IsLegalChosenCardTarget(state, item.ControllerId, id, index, [id], scope, behavior)))
@@ -31,7 +32,7 @@ public sealed partial class CoreRuleEngine
     private static CardBehaviorDefinition PermanentPlayTargetBehavior(StackItemState item)
     {
         CardBehaviorRegistry.TryGetByEffectKind(item.EffectKind, out var behavior);
-        return StandbyDefinition(behavior!, item.PlayedFromStandby);
+        return StandbyDefinition(PermanentPlayDefinition(behavior!, IsStackItemBattlefieldDestination(item)), item.PlayedFromStandby);
     }
 
     private static bool ValidPermanentPlayTargetSelection(MatchState state, StackItemState item, IReadOnlyList<string> selected)
@@ -42,6 +43,7 @@ public sealed partial class CoreRuleEngine
             && (!OfficialPrintedTimingRules.PlayTargetsExcludeSource(item.CardNo) || !selected.Contains(item.SourceObjectId))
             && PlayCardTargetsExposeKnownCardNumbers(state, selected)
             && HasValidTargetGroup(state, behavior, selected) && HasRequiredAnyTargetTag(state, behavior, selected)
+            && selected.All(id => PermanentPlayHereTargetAllowed(state, item, behavior, id))
             && (!behavior.SwapsSourceWithFirstTargetLocation || selected.All(id => CanSwapTargetLocations(state.PlayerZones, state.CardObjects, item.SourceObjectId, id)))
             && selected.Select((id, index) => IsLegalChosenCardTarget(state, item.ControllerId, id, index,
                 selected, PlayCardTargetScopeForBehavior(behavior), behavior)).All(legal => legal);
