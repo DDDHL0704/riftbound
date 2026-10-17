@@ -1,0 +1,68 @@
+{
+  "region": "CN",
+  "language": "zh-CN",
+  "applicableAsOf": "2026-10-17",
+  "recordedAtUtc": "2026-10-17T00:22:15.188821+00:00",
+  "priorManifest": {
+    "path": "var/qa/opening-shuffle-probe-20261017/source-manifest-v2.json",
+    "sha256": "316fe6276c164214480fbd558c77a44264075f281992e2dae80f6872ee7dc673"
+  },
+  "scope": "Current opening candidate authority recheck only; no gameplay change or whole-source certification.",
+  "sources": [
+    {
+      "kind": "CN_RULES_INDEX",
+      "url": "https://lol-api.playloltcg.com/xcx/gameRule/getGameRuleList",
+      "finalUrl": "https://lol-api.playloltcg.com/xcx/gameRule/getGameRuleList",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 1000
+      },
+      "attemptedAtUtc": "2026-10-17T00:22:02.772302+00:00",
+      "receivedAtUtc": "2026-10-17T00:22:02.870123+00:00",
+      "httpStatus": 200,
+      "rows": 14,
+      "allFullRecordFieldsAndOrderUnchanged": true,
+      "priorBody": {
+        "path": "var/qa/opening-shuffle-probe-20261017/rules-index-v2.json",
+        "sha256": "fd9f6fd956e5d68c4da9ad606206600c2d9644f3a28e8b482f87056e1e85c547"
+      },
+      "body": {
+        "path": "var/qa/opening-matrix-repro-20261017/rules-index-recheck.json",
+        "sha256": "89e433ef84b2833e0cc7e051ffdcc426b12397937f664adda948ec39c37ffc66"
+      },
+      "volatileEnvelopeRetainedButNotComparedAsSemanticChange": true
+    },
+    {
+      "kind": "OFFICIAL_PDF",
+      "id": "DOC-01",
+      "url": "https://cdn.playloltcg.com/lol/2026/10/2026-10-10/a21ead876c6b44d6abe386b6ae54ea28.pdf",
+      "finalUrl": "https://cdn.playloltcg.com/lol/2026/10/2026-10-10/a21ead876c6b44d6abe386b6ae54ea28.pdf",
+      "attemptedAtUtc": "2026-10-17T00:22:02.870996+00:00",
+      "receivedAtUtc": "2026-10-17T00:22:15.188682+00:00",
+      "httpStatus": 200,
+      "bytes": 40278538,
+      "sha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11",
+      "unchanged": true,
+      "publicationDate": "2026-10-10",
+      "effectiveDate": "2026-10-16",
+      "retainedBody": {
+        "path": "var/qa/colorless-token-haste-20261016/DOC-01-current.pdf",
+        "sha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11"
+      },
+      "duplicateBodyDiscardedOnlyAfterActualHashMatch": true
+    }
+  ],
+  "changedBodiesOrRecordsRequireSeparateDeltaAndImpactReview": true,
+  "all1740SourceIdentities1033RuntimeAndExistingGapsRetained": true,
+  "semanticCoverageCertified": false,
+  "diagnosticInputs": [
+    {
+      "path": "var/qa/opening-matrix-repro-20261017/recheck-authority.py",
+      "sha256": "6f29a1217298a2c248185152fa95bbff564604720489ded1b2af8a9fbbe39ed3"
+    },
+    {
+      "path": "var/qa/opening-matrix-repro-20261017/source-recheck.json",
+      "sha256": "930e05faa0245fa635624ccd5c3b5ea9c472ec7e9fdbdf9b13db11aecf1b8e53"
+    }
+  ]
+}

@@ -1,5 +1,16 @@
 # 当前项目状态
 
+2026-10-17 固定开局候选`16319c4cbbc2de9e38244c4030e95a9ac887528f`的完整CI
+[38983712146](https://github.com/DDDHL0704/riftbound/actions/runs/38983712146)实际终态为FAILURE，
+原110配对矩阵在P2有合法符文回收选项时直接出牌、缺少符能支付，两个平台构建成功而SQL/网络步骤跳过。
+[失败产物收据](evidence/opening-randomness-2026-10-17/full-ci-16319c4c-failure.json)保留实际TRX和原始终态。
+当前仅在原驱动复用真实符文支付helper，原失败配对先红后绿，原完整110矩阵及五场相邻原完整对局全部通过；
+439原Conformance文件中438份逐字节不变，唯一原文件新增两行，全部方法/Theory/143原对局/110配对/11牌组/424242及胜利回放断言保留。
+本次修复唯一check实际12099例/7269方法、零失败/跳过，12171冻结输入无漂移；[限定修复收据](evidence/opening-randomness-2026-10-17/matrix-driver-correction.json)保留全部原证据。
+新固定full待启动，当前原生验收仍OPEN，仍只保留上一可用39双端和规范包。
+#52的[独立固定运行文件只读探针](evidence/opening-randomness-2026-10-17/raw-array-shape-probe.json)确认7种错误费用格式实际被接受后被结构守卫拒绝，
+另两种缺省/空数组通过；未修改入口或守卫，不冒称HTTP/SQL/原生已验收。Goal active / NOT READY。
+
 2026-10-17 当前批次收尾：[开局随机化与私密原始种子](OPENING_RANDOMNESS_AUDIT_2026-10-17.md)，[issue51](https://github.com/DDDHL0704/riftbound/issues/51)。
 CN/zh-CN、核心2026-10-16生效、487单局决斗；当前核心字节/14目录未变，488比赛选场/系列另OPEN。
 新生产私密种子在首命令前保存到已有matches.seed，四个开局消费者使用稳定SHA256/Fisher-Yates和拒绝采样；

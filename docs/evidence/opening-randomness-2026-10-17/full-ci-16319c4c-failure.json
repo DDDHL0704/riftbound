@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "verifiedAtUtc": "2026-10-17T00:13:21.566516+00:00",
+  "fixedCommit": "16319c4cbbc2de9e38244c4030e95a9ac887528f",
+  "runId": 38983712146,
+  "url": "https://github.com/DDDHL0704/riftbound/actions/runs/38983712146",
+  "actualConclusion": "FAILURE",
+  "terminal": {
+    "path": "var/qa/opening-shuffle-probe-20261017/ci-38983712146/terminal-status.json",
+    "sha256": "869e86ea442c12ad07b71f27f911e8263c413ba5be0119e6cb9e5bb5376aedb2"
+  },
+  "jobs": [
+    {
+      "name": "scope",
+      "conclusion": "success",
+      "completedAt": "2026-10-16T23:53:21Z",
+      "skippedAcceptance": []
+    },
+    {
+      "name": "desktop (windows-latest)",
+      "conclusion": "success",
+      "completedAt": "2026-10-16T23:56:14Z",
+      "skippedAcceptance": []
+    },
+    {
+      "name": "rules",
+      "conclusion": "failure",
+      "completedAt": "2026-10-16T23:56:46Z",
+      "skippedAcceptance": [
+        "Real PostgreSQL core recovery and replay",
+        "Native client connection recovery"
+      ]
+    },
+    {
+      "name": "desktop (macos-latest)",
+      "conclusion": "success",
+      "completedAt": "2026-10-16T23:56:14Z",
+      "skippedAcceptance": []
+    }
+  ],
+  "plan": {
+    "path": "var/qa/opening-shuffle-probe-20261017/ci-38983712146/conformance-results/ci-rules/plan.json",
+    "sha256": "37f333b44958b3ed57e0aca4753253b980d55ba4375a23ac5c2f9fbaec49a542",
+    "discoveredMethods": 7409,
+    "originalFullGameMethods": 143,
+    "assemblySha256": "12e9b58e7bcc2ac32959691bf913dd0126fd92970df64374a1d0d5893dd5e864"
+  },
+  "artifact": {
+    "artifactId": 12082043611,
+    "bytes": 291577,
+    "sha256": "5de3b0bd8f63d2595508356cf28114938ecb7c7ed6a0553fdae0e480bc7fde0c",
+    "zipIntegrityVerified": true,
+    "nativeInstallersNotDownloaded": true
+  },
+  "actualTrx": [
+    {
+      "path": "var/qa/opening-shuffle-probe-20261017/ci-38983712146/conformance-results/ci-rules/games-1/results.trx",
+      "sha256": "7cb8ef8f724ae4579093a8526a5168b846a9328233ce5d5a8f39588291735f0c",
+      "total": 1,
+      "outcomes": {
+        "Failed": 1
+      },
+      "failed": [
+        {
+          "name": "Riftbound.ConformanceTests.FullGameEndToEndTests.PreconstructedCatalogDecksReachScoreVictoryActionLogReplaysToFinalStateHash",
+          "messages": [
+            "System.InvalidOperationException : B0 auto-driver could not play any exposed PLAY_CARD source for P2."
+          ]
+        }
+      ]
+    }
+  ],
+  "completionClaim": "FAILED_RULES_STOPPED_OTHER_SHARDS_SQL_AND_NETWORK_SKIPPED",
+  "native": "DESKTOP_BUILDS_SUCCEEDED_NO_NEW_INSTALLERS_DOWNLOADED_OR_APPS_CREATED_PRIOR_USABLE39_RETAINED",
+  "sourceManifest": {
+    "path": "docs/evidence/opening-randomness-2026-10-17/source-manifest.json",
+    "sha256": "316fe6276c164214480fbd558c77a44264075f281992e2dae80f6872ee7dc673"
+  },
+  "goal": "ACTIVE_NOT_READY"
+}

@@ -13098,7 +13098,7 @@
         "path": "docs/evidence/opening-randomness-2026-10-17/check.json",
         "sha256": "3b3d6c1ae7c336607d470ae6f8ba030c5e52c0f85ba1b10ac12ddf43319b1905"
       },
-      "fixedCommitCi": "PENDING_NEW_FIXED_SHA",
+      "fixedCommitCi": "16319c4c_CI38983712146_FAILED_CORRECTION_ORIGINAL110_AND_CHECK_PASS_NEW_FIXED_FULL_PENDING",
       "productAcceptance": "OPEN_CURRENT_VISIBLE_AND_WINDOWS",
       "remaining": [
         "All non-opening randomness, including recycling417.5 and other rule consumers, remains OPEN; finite samples do not certify every permutation or the entire privacy surface.",
@@ -13114,6 +13114,18 @@
       "priorFixed39": {
         "path": "docs/evidence/opening-randomness-2026-10-17/prior-fixed39-full-ci.json",
         "sha256": "ae9ab74bae5eb07a3c3867d57d6dd7d4f2dfe94bffbc673186cb9eb16520d93e"
+      },
+      "failedFixedCommitCi": {
+        "path": "docs/evidence/opening-randomness-2026-10-17/full-ci-16319c4c-failure.json",
+        "sha256": "672bca572c5834db906bd06fc1ee849a0b20438cf7c47e7d53d791f3d611a94e"
+      },
+      "driverCorrectionSourceRecheck": {
+        "path": "docs/evidence/opening-randomness-2026-10-17/driver-source-recheck.json",
+        "sha256": "cbb6f5efb0ff7abd3a323086fd759973842ea6425057ba5af343cb1bd2088ccd"
+      },
+      "driverCorrection": {
+        "path": "docs/evidence/opening-randomness-2026-10-17/matrix-driver-correction.json",
+        "sha256": "2b7ca5b922248c75c28d6fa33e15ee1c9798d947c6fcdda234d62c54788c6d99"
       }
     },
     {
@@ -13128,7 +13140,11 @@
       "implementation": "OPEN",
       "tests": "CONFIRMED_LIVE_ACCEPTED_NINE_COMMANDS_THEN_TEN_STRUCTURAL_RECOVERY_FAILURES",
       "fixedCommitCi": "OPEN",
-      "productAcceptance": "OPEN"
+      "productAcceptance": "OPEN",
+      "additionalReadOnlyProbe": {
+        "path": "docs/evidence/opening-randomness-2026-10-17/raw-array-shape-probe.json",
+        "sha256": "80c94ae86710ec3daa19b9500d03ce1fbd70b14bf291eca838382be0a3012bc5"
+      }
     }
   ],
   "note": "Current inventory and remaining obligations, with independently dated rule sources and separately recorded source deltas. No source fetch or semantic certification by this checker.",

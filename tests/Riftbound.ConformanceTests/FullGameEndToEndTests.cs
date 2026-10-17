@@ -21849,6 +21849,8 @@ public sealed partial class FullGameEndToEndTests
                 continue;
             }
 
+            current = await SupplyPlayPowerThroughLegalRuneActionsAsync(
+                session, current, playerId, cardObject.CardNo, $"{intentPrefix}-fund-{index}", optionalCosts: null);
             var attempted = await session.SubmitAsync(
                 playerId,
                 $"{intentPrefix}-attempt-{index}",
