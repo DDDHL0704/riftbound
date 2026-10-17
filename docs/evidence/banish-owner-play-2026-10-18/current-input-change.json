@@ -1,0 +1,43 @@
+{
+  "recordedAtUtc": "2026-10-17T16:52:16.272465+00:00",
+  "baseCommit": "62bf7afc7a59bc743e1e578712e156686666c060",
+  "currentInputRevision": "ee0208815ebaa1c00f841a0f2507ce85063c6252f7631001dffbb76d863b64a0",
+  "sourceInputRevisionBasis": "SHA256 of current sorted gameplay path/hash map, independent of compiled runtime module identity",
+  "sourceInputCount": 479,
+  "allOriginal120ReviewDictionariesExact": true,
+  "allPrevious16565ObligationIdsRetainedPendingCheckerProof": true,
+  "all36CurrentContextsExplicitlyPendingNewFixedFull": true,
+  "updatedCurrentPins": [
+    {
+      "context": "sand-soldier-embedded-ready-2026-10-17",
+      "group": "verificationSources",
+      "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+      "previousSha256": "b565777f9dbcaf94afb7ef10d842e0d4132df1421ac164723f7f5294a67085ee",
+      "currentSha256": "b503c2c14e66389ff9bc4bf90a2e2de4a70192a90b4a9dc4369ab13acb2bb58a"
+    },
+    {
+      "context": "banish-owner-effect-play-2026-10-18",
+      "group": "evidence",
+      "path": "docs/evidence/banish-owner-play-2026-10-18/focus.json",
+      "previousSha256": "82c69e219cdd52315ada192d2d3639738322239581e6a8e56d91f717db89559e",
+      "currentSha256": "e6badb59ec97258f638d9913d0f46017d1c21b9e93c067115fede35faff4c57e"
+    },
+    {
+      "context": "banish-owner-effect-play-2026-10-18",
+      "group": "evidence",
+      "path": "docs/evidence/banish-owner-play-2026-10-18/source-manifest.json",
+      "previousSha256": "4c7577ec338c6ac18cc7d29363354a26586c99f5770bd79f2119759669c01a67",
+      "currentSha256": "9d1fa7245b9d95147a31bc0c7a0b580ef65ac0693806eb3c24748665d1c7928a"
+    },
+    {
+      "context": "banish-owner-effect-play-2026-10-18",
+      "group": "evidence",
+      "path": "docs/evidence/banish-owner-play-2026-10-18/source-and-fixture-retention.json",
+      "previousSha256": "b388e721f2b988c96c209f259ec011d855b1507be499ebd2d287a36b36b96a1a",
+      "currentSha256": "841e8302628ee7910e9ef0de55a7cc5bb8f0cad9cbd66e7912ea4ef4c6caa599"
+    }
+  ],
+  "previousFixed62bfFullAndNativeEvidenceRemainTheirOwnExactScope": true,
+  "newActualSqlImplementationSha256": "3f884869509a6c94f7deaf737bf086fbf3d51aa868c3d51633600ad52bfe5cf8",
+  "noOldDevelopmentMatchMigrationOrAcceptedHistoryRewrite": true
+}

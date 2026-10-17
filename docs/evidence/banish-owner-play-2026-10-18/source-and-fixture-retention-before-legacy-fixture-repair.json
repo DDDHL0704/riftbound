@@ -1,0 +1,38 @@
+{
+  "recordedAtUtc": "2026-10-17T16:30:35.091809+00:00",
+  "baseCommit": "62bf7afc7a59bc743e1e578712e156686666c060",
+  "originalConformanceFiles": 445,
+  "byteIdentical": 441,
+  "changed": [
+    {
+      "path": "tests/Riftbound.ConformanceTests/CardPlayHistoryTests.cs",
+      "oldSha256": "2c22213d3bf16e52ae5e2bfd5e35d7a8d146b94a24497d37746b8e0f2524f00a",
+      "newSha256": "fbedaef7855771e602a7f18c87d55a4298b5652261ba95830e470f3fa98e99e0",
+      "allOriginalPublicMethodsAndFactTheoryAttributesRetained": true
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/EmpowerTests.cs",
+      "oldSha256": "d222b048e1cce18f3598061c064c1074ec7af347972c852b0d1a25a493fd8c26",
+      "newSha256": "d415398e9dc9a98723609cd530062ee12c60ed48723232a87a26809bd6c722b4",
+      "allOriginalPublicMethodsAndFactTheoryAttributesRetained": true
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/PrintedPredictEntryTests.cs",
+      "oldSha256": "81e480e49440e5cbc503335aaa880d801ecf18e30fc8a1c4f2ed3a0d60134d6b",
+      "newSha256": "1d299c2a7aee636532c96f84172edcc7fa4ffca6d53e8290422d10c9f8c5fb3e",
+      "allOriginalPublicMethodsAndFactTheoryAttributesRetained": true
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/TurnUnitPlayGrantsTests.cs",
+      "oldSha256": "18ec3dc06f5cb5449ddbddb9e3b41e38230c701945d347c8350c2bed02bd4a42",
+      "newSha256": "7305964c96efe3b2a69da64409248eba2271cfabe60746ca1cc25178de001734",
+      "allOriginalPublicMethodsAndFactTheoryAttributesRetained": true
+    }
+  ],
+  "allOriginalMethodsFactTheoryInlineMemberClassDataRetained": true,
+  "allOriginalFixturesByteExact": 1273,
+  "allOriginalFullGamePartialFilesByteExact": 8,
+  "all143OriginalFullGameMethods110Pairs11OrderedDecks424242AndOriginalWinReplayAssertionsRetained": true,
+  "oneFormerHistoryPrefixEditRevertedToExactOriginalLIMITEDAssertionBeforePassingFocus": true,
+  "newFixtureNotARewriteOfOriginalAcceptedHistory": "tests/Riftbound.ConformanceTests/Fixtures/banish-owner-current-opening.json"
+}

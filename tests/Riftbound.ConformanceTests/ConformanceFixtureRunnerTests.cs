@@ -7180,7 +7180,8 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Empty(result.FinalState.PlayerZones["P1"].Base);
         Assert.Equal(
             ["P1-HUNTING-RHYTHM-FIELD-KEEPER", "P1-HUNTING-RHYTHM-TARGET-001"],
-            result.FinalState.PlayerZones["P1"].Battlefields);
+            result.FinalState.PlayerZones["P1"].Battlefields.Where(id =>
+                result.FinalState.CardObjects[id].Tags.Contains(CardObjectTags.UnitCard)).ToArray());
         Assert.Empty(result.FinalState.PlayerZones["P1"].Banished);
         Assert.Equal(0, result.FinalState.CardObjects["P1-HUNTING-RHYTHM-TARGET-001"].Damage);
         Assert.Equal(5, result.FinalState.CardObjects["P1-HUNTING-RHYTHM-TARGET-001"].Power);

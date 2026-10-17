@@ -23721,6 +23721,10 @@ public static class MatchRecoveryValidator
             && !CoreRuleEngine.ValidGraveyardUnitEffectPlay(state, graveyard))
             errors.Add("invalid graveyard unit effect-play continuation");
 
+        if (state.PendingEffectPlay is { } banished && BanishPlayRecoveryRules.Applies(banished)
+            && !BanishPlayRecoveryRules.Valid(state, banished))
+            errors.Add("invalid banished unit effect-play continuation");
+
         foreach (var item in state.StackItems)
         {
             if (item.PlayCost is { } cost && (cost.CardMana < 0 || cost.PaidMana < 0

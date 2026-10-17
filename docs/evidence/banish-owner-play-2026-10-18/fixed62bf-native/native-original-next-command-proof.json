@@ -1,0 +1,18 @@
+{
+  "status": "NATIVE_ORIGINAL_PENDING_CHOICE_NEXT_COMMAND_STATE_AND_EVENTS_MATCH",
+  "verifiedAtUtc": "2026-10-17T15:31:02.710625+00:00",
+  "fixedCommit": "62bf7afc7a59bc743e1e578712e156686666c060",
+  "originalPrefixCommands": 35,
+  "afterCommands": 36,
+  "originalNextCommand": "CHOOSE_CARDS",
+  "choiceWindow": "TRIGGER_CONFIRMATION",
+  "originalChoiceIdExact": true,
+  "originalSnapshotTick": 34,
+  "originalSoleLegalTargetExact": true,
+  "exactActualCommandIndependentlyExecutedAgainstSavedBeforeState": true,
+  "stateHash": "3a00f9563254c7b4c346def309aa5d28731dd59278347cf442a31084a09fb705",
+  "stateAndEventsExactlyEqual": true,
+  "sourceGeneration": 3,
+  "noOriginalHistoryMutation": true,
+  "scope": "One original next command after actual native pending cold restore; this does not certify all card semantics."
+}

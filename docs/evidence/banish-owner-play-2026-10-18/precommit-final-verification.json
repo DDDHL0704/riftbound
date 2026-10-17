@@ -1,0 +1,20 @@
+{
+  "verifiedAtUtc": "2026-10-17T16:54:24.457251+00:00",
+  "currentBaseCommit": "62bf7afc7a59bc743e1e578712e156686666c060",
+  "finalFocus779Passed": true,
+  "oneCheckActual12372Pass1LegacyFixtureFailureRetainedNoRepeat": true,
+  "exactOnlyTwoVerificationInputCorrectionsAfterFrozenCheckAndSql": [
+    "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+    "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-hunting-rhythm-banish-play-battlefield.fixture.json"
+  ],
+  "allGameplayDataOriginalFullGamesAndSqlInputsStillExactToFrozenV5": true,
+  "currentSourceInputRevision": "ee0208815ebaa1c00f841a0f2507ce85063c6252f7631001dffbb76d863b64a0",
+  "sourceCount": 479,
+  "governanceValid": true,
+  "original16565IdsRetained": true,
+  "allOriginal120ReviewDictionariesRetained": true,
+  "knownCredentialValuedKeyScanClear": true,
+  "pythonTests55Passed": true,
+  "newFixedFullStillRequired": true,
+  "wholePrintingCertified": false
+}

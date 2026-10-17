@@ -90,6 +90,8 @@ public sealed class CardPlayHistoryTests
                 Tags = [CardObjectTags.UnitCard, "预知"] } } };
         initial = AttackDamageDistributionTests.Spell(initial, "HUNT", "UNL-184/219", "P1");
         var done = await Top((await Act(initial, "P1", new PlayCardCommand("HUNT", "UNL-184/219", ["HOST"]))).State);
+        Assert.Equal("P2", done.State.PendingEffectPlay!.PlayerId);
+        done = await Act(done.State, "P2", new PlayCardCommand("HOST", "OGN·174/298", [], Destination: "BATTLEFIELD:F"));
         var unit = Assert.Single(done.State.CardPlays.Resolved, e => e.Source.ObjectId == "HOST");
         Assert.Equal("P2", unit.PlayerId); Assert.Equal(1, unit.Types); Assert.StartsWith("LIMITED-", unit.PlayId);
         Assert.Equal("P2", Assert.Single(done.State.CardPlays.Finalized, e => e.PlayId == unit.PlayId).PlayerId);

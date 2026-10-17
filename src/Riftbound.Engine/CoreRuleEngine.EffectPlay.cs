@@ -132,6 +132,10 @@ public sealed partial class CoreRuleEngine
                 && !HasBattlefieldStaticPreventUnitPlayToBattlefield(state, playerId, "BATTLEFIELD:" + hand.BattlefieldId)
                 ? ["BATTLEFIELD:" + hand.BattlefieldId] : [];
         if (pending.DestinationPolicy == "STACK") return ["BASE"];
+        if (pending.DestinationPolicy == "ANY_BATTLEFIELD")
+            return state.CardObjects.Keys.Select(id => "BATTLEFIELD:" + id)
+                .Where(destination => IsForcedEffectPlayDestination(state, playerId, destination)
+                    && !HasBattlefieldStaticPreventUnitPlayToBattlefield(state, playerId, destination)).ToArray();
         var destinations = new List<string>();
         if (pending.DestinationPolicy != "CONTROLLED_BATTLEFIELD") destinations.Add("BASE");
         if (pending.DestinationPolicy != "BASE")
@@ -246,12 +250,26 @@ public sealed partial class CoreRuleEngine
                     Base = RemoveFromZone(zones[owner].Base, id), Battlefields = RemoveFromZone(zones[owner].Battlefields, id) };
                 zones[actor] = zones[actor] with { Banished = zones[actor].Banished.Concat([id]).Distinct().ToArray() };
                 if (PrintedCardFactory.TryRestoreOutsidePlay(target, actor, out var printed)) cards[id] = printed with { ObjectGeneration = target.ObjectGeneration + 1 };
-                else { cards.Remove(id); sources = []; } // A token ceases to exist outside play.
+                else if (TokenObjectRules.IsToken(target))
+                {
+                    // CN 186.1: the token vanishes after entering banishment;
+                    // it cannot be a source for the following play instruction.
+                    cards.Remove(id);
+                    zones[actor] = zones[actor] with { Banished = RemoveFromZone(zones[actor].Banished, id) };
+                    sources = [];
+                }
                 events.Add(new("UNIT_BANISHED", "单位被放逐，等待其拥有者再次打出", new Dictionary<string, object?> {
                     ["sourceObjectId"] = parent.SourceObjectId, ["targetObjectId"] = id, ["ownerPlayerId"] = actor, ["destinationZone"] = "BANISHED" }));
             }
         }
         sources = sources.Where(id => cards.TryGetValue(id, out var card) && EffectPlaySourceMatches(card, behavior)).ToArray();
+        if (sources.Count == 0 && sourceZone == "BANISHED")
+        {
+            var resumed = state with { PlayerZones = zones, CardObjects = cards,
+                ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, zones) };
+            var resolved = ResolveStackItemEffect(resumed, parent with { EffectPlayCompleted = true });
+            return resolved with { Events = events.Concat(resolved.Events).ToArray() };
+        }
         if (sources.Count == 0 && events.Count == 0)
             return ResolveStackItemEffect(state, parent with { EffectPlayCompleted = true });
         var pending = new PendingEffectPlayState($"EFFECT-PLAY:{state.Tick + 1}:{parent.StackItemId}", actor, parent,

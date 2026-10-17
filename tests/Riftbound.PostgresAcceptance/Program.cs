@@ -16,7 +16,8 @@ var openingRandomnessOnly = args.SequenceEqual(new[] { "--opening-randomness-onl
 var optionalCostsOnly = args.SequenceEqual(new[] { "--optional-costs-only" });
 var battlefieldPlayRecoveryOnly = args.SequenceEqual(new[] { "--battlefield-play-recovery-only" });
 var battlefieldPlayDamageOnly = args.SequenceEqual(new[] { "--battlefield-play-damage-only" });
-if (args.Length != 0 && !openingRandomnessOnly && !optionalCostsOnly && !battlefieldPlayRecoveryOnly && !battlefieldPlayDamageOnly) throw new ArgumentException("Unknown PostgreSQL acceptance selector.");
+var banishEffectPlayOnly = args.SequenceEqual(new[] { "--banish-effect-play-only" });
+if (args.Length != 0 && !openingRandomnessOnly && !optionalCostsOnly && !battlefieldPlayRecoveryOnly && !battlefieldPlayDamageOnly && !banishEffectPlayOnly) throw new ArgumentException("Unknown PostgreSQL acceptance selector.");
 var json = new JsonSerializerOptions(JsonSerializerDefaults.Web) { WriteIndented = true };
 await using var dataSource = NpgsqlDataSource.Create(connectionString);
 await using (var connection = await dataSource.OpenConnectionAsync()) {
@@ -24,6 +25,12 @@ await using (var connection = await dataSource.OpenConnectionAsync()) {
         await using var command = new NpgsqlCommand(await File.ReadAllTextAsync(path), connection);
         await command.ExecuteNonQueryAsync();
     }
+}
+if (banishEffectPlayOnly)
+{
+    await BanishEffectPlaySqlAcceptance.RunAsync(dataSource, Path.Combine(output, "banish-effect-play"));
+    Console.WriteLine("SCOPED_POSTGRES_ONLY: banish-effect-play; the retained complete SQL suite was not requested.");
+    return;
 }
 if (battlefieldPlayDamageOnly)
 {
@@ -156,6 +163,7 @@ await GrantedTokenHasteSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "
 await OptionalCostsSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "optional-costs"));
 await BattlefieldPlayRecoverySqlAcceptance.RunAsync(dataSource, Path.Combine(output, "battlefield-play-recovery"));
 await BattlefieldPlayDamageSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "battlefield-play-damage"));
+await BanishEffectPlaySqlAcceptance.RunAsync(dataSource, Path.Combine(output, "banish-effect-play"));
 
 JsonElement Raw(GameCommand command) => JsonSerializer.SerializeToElement(command, command.GetType(), json);
 async Task Submit(string actor, string intent, GameCommand command, bool accepted = true) {

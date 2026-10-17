@@ -1,0 +1,9 @@
+{
+  "recordedAtUtc": "2026-10-17T16:34:08.987057+00:00",
+  "artifactId": 12107610012,
+  "bytes": 3800122,
+  "sha256": "a90f45eb043d104b7fa640e8f54c12bc623dd7865d61980cc307b7c6abd293de",
+  "githubDigestMatches": true,
+  "allZipCrcAndMemberPathsVerified": true,
+  "initialGhTransportEofRetainedLocallyAndHttp1CurlFallbackSucceeded": true
+}

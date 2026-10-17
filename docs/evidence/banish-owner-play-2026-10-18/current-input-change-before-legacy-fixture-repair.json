@@ -1,0 +1,596 @@
+{
+  "recordedAtUtc": "2026-10-17T16:41:06.361638+00:00",
+  "baseCommit": "62bf7afc7a59bc743e1e578712e156686666c060",
+  "currentInputRevision": "ee0208815ebaa1c00f841a0f2507ce85063c6252f7631001dffbb76d863b64a0",
+  "sourceInputRevisionBasis": "SHA256 of current sorted gameplay path/hash map, independent of compiled runtime module identity",
+  "sourceInputCount": 479,
+  "allOriginal120ReviewDictionariesExact": true,
+  "allPrevious16565ObligationIdsRetainedPendingCheckerProof": true,
+  "all36CurrentContextsExplicitlyPendingNewFixedFull": true,
+  "updatedCurrentPins": [
+    {
+      "context": "observed-pending-capture-order-and-earliest-permission-2026-10-14",
+      "group": "implementation",
+      "path": "src/Riftbound.Engine/MatchRecovery.cs",
+      "previousSha256": "d60ed0b593c00bc1169931dfcebadb74a61435f8775c18c86272ee216c94ddc4",
+      "currentSha256": "7cd88505b162e45d6b9401524e541e8797cad7bbdced6340641e1a2edd635313"
+    },
+    {
+      "context": "candlelit-conquest-private-look-recycle-order-2026-10-14",
+      "group": "implementation",
+      "path": "src/Riftbound.Engine/MatchRecovery.cs",
+      "previousSha256": "d60ed0b593c00bc1169931dfcebadb74a61435f8775c18c86272ee216c94ddc4",
+      "currentSha256": "7cd88505b162e45d6b9401524e541e8797cad7bbdced6340641e1a2edd635313"
+    },
+    {
+      "context": "masked-attendant-reflexive-self-copy-2026-10-14",
+      "group": "implementation",
+      "path": "src/Riftbound.Engine/MatchRecovery.cs",
+      "previousSha256": "d60ed0b593c00bc1169931dfcebadb74a61435f8775c18c86272ee216c94ddc4",
+      "currentSha256": "7cd88505b162e45d6b9401524e541e8797cad7bbdced6340641e1a2edd635313"
+    },
+    {
+      "context": "masked-attendant-reflexive-self-copy-2026-10-14",
+      "group": "implementation",
+      "path": "src/Riftbound.Engine/MatchSession.cs",
+      "previousSha256": "e2a68ce74ce5d37ac7633a217d882ed0d7975eb6ff162224f29e576cb31b7f79",
+      "currentSha256": "11c33c5d6e8d0215362b16de023036af7f3a141cd8057a84f76db898333c7d66"
+    },
+    {
+      "context": "static-granted-predict-entry-2026-10-15",
+      "group": "implementation",
+      "path": "src/Riftbound.Engine/MatchRecovery.cs",
+      "previousSha256": "d60ed0b593c00bc1169931dfcebadb74a61435f8775c18c86272ee216c94ddc4",
+      "currentSha256": "7cd88505b162e45d6b9401524e541e8797cad7bbdced6340641e1a2edd635313"
+    },
+    {
+      "context": "static-granted-predict-entry-2026-10-15",
+      "group": "implementation",
+      "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+      "previousSha256": "f7db478ed3fc4ceb83392da63b6cab16ad0e551122bed9a4e1e6b0489f05c0c5",
+      "currentSha256": "03aa5c53a552867d629cc2d47fe3c348f9b02a3bc0f46d5d9cb66b1c761825cd"
+    },
+    {
+      "context": "static-granted-predict-entry-2026-10-15",
+      "group": "implementation",
+      "path": "src/Riftbound.Engine/MatchSession.cs",
+      "previousSha256": "e2a68ce74ce5d37ac7633a217d882ed0d7975eb6ff162224f29e576cb31b7f79",
+      "currentSha256": "11c33c5d6e8d0215362b16de023036af7f3a141cd8057a84f76db898333c7d66"
+    },
+    {
+      "context": "printed-predict-permanent-entry-2026-10-15",
+      "group": "implementation",
+      "path": "src/Riftbound.Engine/MatchRecovery.cs",
+      "previousSha256": "d60ed0b593c00bc1169931dfcebadb74a61435f8775c18c86272ee216c94ddc4",
+      "currentSha256": "7cd88505b162e45d6b9401524e541e8797cad7bbdced6340641e1a2edd635313"
+    },
+    {
+      "context": "printed-predict-permanent-entry-2026-10-15",
+      "group": "implementation",
+      "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+      "previousSha256": "f7db478ed3fc4ceb83392da63b6cab16ad0e551122bed9a4e1e6b0489f05c0c5",
+      "currentSha256": "03aa5c53a552867d629cc2d47fe3c348f9b02a3bc0f46d5d9cb66b1c761825cd"
+    },
+    {
+      "context": "printed-predict-permanent-entry-2026-10-15",
+      "group": "implementation",
+      "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+      "previousSha256": "05376463a0bfae0e36eb3a0b4f9e2af92a8526fb937fed6a8f45e9cf01a74d79",
+      "currentSha256": "4be39c1a61c86572012ddb022ba1cd272dfb45e8a06d111f095b320de5226f20"
+    },
+    {
+      "context": "sivir-optional-rune-recycle-2026-10-15",
+      "group": "implementation",
+      "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+      "previousSha256": "f7db478ed3fc4ceb83392da63b6cab16ad0e551122bed9a4e1e6b0489f05c0c5",
+      "currentSha256": "03aa5c53a552867d629cc2d47fe3c348f9b02a3bc0f46d5d9cb66b1c761825cd"
+    },
+    {
+      "context": "sivir-optional-rune-recycle-2026-10-15",
+      "group": "implementation",
+      "path": "src/Riftbound.Engine/MatchSession.cs",
+      "previousSha256": "e2a68ce74ce5d37ac7633a217d882ed0d7975eb6ff162224f29e576cb31b7f79",
+      "currentSha256": "11c33c5d6e8d0215362b16de023036af7f3a141cd8057a84f76db898333c7d66"
+    },
+    {
+      "context": "sivir-optional-rune-recycle-2026-10-15",
+      "group": "implementation",
+      "path": "src/Riftbound.Engine/MatchRecovery.cs",
+      "previousSha256": "d60ed0b593c00bc1169931dfcebadb74a61435f8775c18c86272ee216c94ddc4",
+      "currentSha256": "7cd88505b162e45d6b9401524e541e8797cad7bbdced6340641e1a2edd635313"
+    },
+    {
+      "context": "battlefield-conquer-rune-destination-2026-10-15",
+      "group": "implementation",
+      "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+      "previousSha256": "f7db478ed3fc4ceb83392da63b6cab16ad0e551122bed9a4e1e6b0489f05c0c5",
+      "currentSha256": "03aa5c53a552867d629cc2d47fe3c348f9b02a3bc0f46d5d9cb66b1c761825cd"
+    },
+    {
+      "context": "sivir-payment-trigger-and-ward-event-2026-10-15",
+      "group": "implementation",
+      "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+      "previousSha256": "f7db478ed3fc4ceb83392da63b6cab16ad0e551122bed9a4e1e6b0489f05c0c5",
+      "currentSha256": "03aa5c53a552867d629cc2d47fe3c348f9b02a3bc0f46d5d9cb66b1c761825cd"
+    },
+    {
+      "context": "sivir-payment-trigger-and-ward-event-2026-10-15",
+      "group": "implementation",
+      "path": "src/Riftbound.Engine/MatchRecovery.cs",
+      "previousSha256": "d60ed0b593c00bc1169931dfcebadb74a61435f8775c18c86272ee216c94ddc4",
+      "currentSha256": "7cd88505b162e45d6b9401524e541e8797cad7bbdced6340641e1a2edd635313"
+    },
+    {
+      "context": "unit-conquest-gold-response-2026-10-15",
+      "group": "implementation",
+      "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+      "previousSha256": "f7db478ed3fc4ceb83392da63b6cab16ad0e551122bed9a4e1e6b0489f05c0c5",
+      "currentSha256": "03aa5c53a552867d629cc2d47fe3c348f9b02a3bc0f46d5d9cb66b1c761825cd"
+    },
+    {
+      "context": "unit-conquest-gold-response-2026-10-15",
+      "group": "implementation",
+      "path": "src/Riftbound.Engine/MatchSession.cs",
+      "previousSha256": "e2a68ce74ce5d37ac7633a217d882ed0d7975eb6ff162224f29e576cb31b7f79",
+      "currentSha256": "11c33c5d6e8d0215362b16de023036af7f3a141cd8057a84f76db898333c7d66"
+    },
+    {
+      "context": "unit-conquest-gold-response-2026-10-15",
+      "group": "implementation",
+      "path": "src/Riftbound.Engine/MatchRecovery.cs",
+      "previousSha256": "d60ed0b593c00bc1169931dfcebadb74a61435f8775c18c86272ee216c94ddc4",
+      "currentSha256": "7cd88505b162e45d6b9401524e541e8797cad7bbdced6340641e1a2edd635313"
+    },
+    {
+      "context": "own-main-deck-recycle-card-boon-2026-10-15",
+      "group": "implementation",
+      "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+      "previousSha256": "f7db478ed3fc4ceb83392da63b6cab16ad0e551122bed9a4e1e6b0489f05c0c5",
+      "currentSha256": "03aa5c53a552867d629cc2d47fe3c348f9b02a3bc0f46d5d9cb66b1c761825cd"
+    },
+    {
+      "context": "own-main-deck-recycle-card-boon-2026-10-15",
+      "group": "implementation",
+      "path": "src/Riftbound.Engine/MatchRecovery.cs",
+      "previousSha256": "d60ed0b593c00bc1169931dfcebadb74a61435f8775c18c86272ee216c94ddc4",
+      "currentSha256": "7cd88505b162e45d6b9401524e541e8797cad7bbdced6340641e1a2edd635313"
+    },
+    {
+      "context": "typed-current-turn-card-play-confirmation-and-resolution-history-2026-10-15",
+      "group": "implementation",
+      "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+      "previousSha256": "f7db478ed3fc4ceb83392da63b6cab16ad0e551122bed9a4e1e6b0489f05c0c5",
+      "currentSha256": "03aa5c53a552867d629cc2d47fe3c348f9b02a3bc0f46d5d9cb66b1c761825cd"
+    },
+    {
+      "context": "typed-current-turn-card-play-confirmation-and-resolution-history-2026-10-15",
+      "group": "implementation",
+      "path": "src/Riftbound.Engine/MatchSession.cs",
+      "previousSha256": "e2a68ce74ce5d37ac7633a217d882ed0d7975eb6ff162224f29e576cb31b7f79",
+      "currentSha256": "11c33c5d6e8d0215362b16de023036af7f3a141cd8057a84f76db898333c7d66"
+    },
+    {
+      "context": "typed-current-turn-card-play-confirmation-and-resolution-history-2026-10-15",
+      "group": "implementation",
+      "path": "src/Riftbound.Engine/MatchRecovery.cs",
+      "previousSha256": "d60ed0b593c00bc1169931dfcebadb74a61435f8775c18c86272ee216c94ddc4",
+      "currentSha256": "7cd88505b162e45d6b9401524e541e8797cad7bbdced6340641e1a2edd635313"
+    },
+    {
+      "context": "porobot-source-play-other-equipment-conditional-draw-2026-10-15",
+      "group": "implementation",
+      "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+      "previousSha256": "f7db478ed3fc4ceb83392da63b6cab16ad0e551122bed9a4e1e6b0489f05c0c5",
+      "currentSha256": "03aa5c53a552867d629cc2d47fe3c348f9b02a3bc0f46d5d9cb66b1c761825cd"
+    },
+    {
+      "context": "porobot-source-play-other-equipment-conditional-draw-2026-10-15",
+      "group": "implementation",
+      "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+      "previousSha256": "05376463a0bfae0e36eb3a0b4f9e2af92a8526fb937fed6a8f45e9cf01a74d79",
+      "currentSha256": "4be39c1a61c86572012ddb022ba1cd272dfb45e8a06d111f095b320de5226f20"
+    },
+    {
+      "context": "porobot-source-play-other-equipment-conditional-draw-2026-10-15",
+      "group": "implementation",
+      "path": "src/Riftbound.Engine/MatchSession.cs",
+      "previousSha256": "e2a68ce74ce5d37ac7633a217d882ed0d7975eb6ff162224f29e576cb31b7f79",
+      "currentSha256": "11c33c5d6e8d0215362b16de023036af7f3a141cd8057a84f76db898333c7d66"
+    },
+    {
+      "context": "porobot-source-play-other-equipment-conditional-draw-2026-10-15",
+      "group": "implementation",
+      "path": "src/Riftbound.Engine/MatchRecovery.cs",
+      "previousSha256": "d60ed0b593c00bc1169931dfcebadb74a61435f8775c18c86272ee216c94ddc4",
+      "currentSha256": "7cd88505b162e45d6b9401524e541e8797cad7bbdced6340641e1a2edd635313"
+    },
+    {
+      "context": "typed-card-play-history-causal-production-recovery-2026-10-15",
+      "group": "implementation",
+      "path": "src/Riftbound.Engine/MatchRecovery.cs",
+      "previousSha256": "d60ed0b593c00bc1169931dfcebadb74a61435f8775c18c86272ee216c94ddc4",
+      "currentSha256": "7cd88505b162e45d6b9401524e541e8797cad7bbdced6340641e1a2edd635313"
+    },
+    {
+      "context": "typed-card-play-history-causal-production-recovery-2026-10-15",
+      "group": "implementation",
+      "path": "src/Riftbound.Engine/MatchSession.cs",
+      "previousSha256": "e2a68ce74ce5d37ac7633a217d882ed0d7975eb6ff162224f29e576cb31b7f79",
+      "currentSha256": "11c33c5d6e8d0215362b16de023036af7f3a141cd8057a84f76db898333c7d66"
+    },
+    {
+      "context": "counted-insight-post-choice-draw-clairvoyance-2026-10-15",
+      "group": "implementation",
+      "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+      "previousSha256": "05376463a0bfae0e36eb3a0b4f9e2af92a8526fb937fed6a8f45e9cf01a74d79",
+      "currentSha256": "4be39c1a61c86572012ddb022ba1cd272dfb45e8a06d111f095b320de5226f20"
+    },
+    {
+      "context": "combat-event-journal-wire-and-single-defender-choice-2026-10-15",
+      "group": "implementation",
+      "path": "src/Riftbound.Engine/MatchRecovery.cs",
+      "previousSha256": "d60ed0b593c00bc1169931dfcebadb74a61435f8775c18c86272ee216c94ddc4",
+      "currentSha256": "7cd88505b162e45d6b9401524e541e8797cad7bbdced6340641e1a2edd635313"
+    },
+    {
+      "context": "combat-event-journal-wire-and-single-defender-choice-2026-10-15",
+      "group": "implementation",
+      "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+      "previousSha256": "f7db478ed3fc4ceb83392da63b6cab16ad0e551122bed9a4e1e6b0489f05c0c5",
+      "currentSha256": "03aa5c53a552867d629cc2d47fe3c348f9b02a3bc0f46d5d9cb66b1c761825cd"
+    },
+    {
+      "context": "combat-declaration-provenance-and-single-eligible-unit-conquest-2026-10-15",
+      "group": "implementation",
+      "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+      "previousSha256": "f7db478ed3fc4ceb83392da63b6cab16ad0e551122bed9a4e1e6b0489f05c0c5",
+      "currentSha256": "03aa5c53a552867d629cc2d47fe3c348f9b02a3bc0f46d5d9cb66b1c761825cd"
+    },
+    {
+      "context": "optional-mana-trigger-native-and-natural-declaration-order-2026-10-15",
+      "group": "implementation",
+      "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+      "previousSha256": "f7db478ed3fc4ceb83392da63b6cab16ad0e551122bed9a4e1e6b0489f05c0c5",
+      "currentSha256": "03aa5c53a552867d629cc2d47fe3c348f9b02a3bc0f46d5d9cb66b1c761825cd"
+    },
+    {
+      "context": "optional-mana-trigger-native-and-natural-declaration-order-2026-10-15",
+      "group": "implementation",
+      "path": "src/Riftbound.Engine/MatchSession.cs",
+      "previousSha256": "e2a68ce74ce5d37ac7633a217d882ed0d7975eb6ff162224f29e576cb31b7f79",
+      "currentSha256": "11c33c5d6e8d0215362b16de023036af7f3a141cd8057a84f76db898333c7d66"
+    },
+    {
+      "context": "cn16-confirmed-play-origin-and-required-causal-fact-2026-10-16",
+      "group": "implementation",
+      "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+      "previousSha256": "05376463a0bfae0e36eb3a0b4f9e2af92a8526fb937fed6a8f45e9cf01a74d79",
+      "currentSha256": "4be39c1a61c86572012ddb022ba1cd272dfb45e8a06d111f095b320de5226f20"
+    },
+    {
+      "context": "cn16-confirmed-play-origin-and-required-causal-fact-2026-10-16",
+      "group": "implementation",
+      "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+      "previousSha256": "f7db478ed3fc4ceb83392da63b6cab16ad0e551122bed9a4e1e6b0489f05c0c5",
+      "currentSha256": "03aa5c53a552867d629cc2d47fe3c348f9b02a3bc0f46d5d9cb66b1c761825cd"
+    },
+    {
+      "context": "cn16-confirmed-play-origin-and-required-causal-fact-2026-10-16",
+      "group": "implementation",
+      "path": "src/Riftbound.Engine/MatchSession.cs",
+      "previousSha256": "e2a68ce74ce5d37ac7633a217d882ed0d7975eb6ff162224f29e576cb31b7f79",
+      "currentSha256": "11c33c5d6e8d0215362b16de023036af7f3a141cd8057a84f76db898333c7d66"
+    },
+    {
+      "context": "cn16-confirmed-play-origin-and-required-causal-fact-2026-10-16",
+      "group": "verificationSources",
+      "path": "tests/Riftbound.PostgresAcceptance/Program.cs",
+      "previousSha256": "7eed59da04943d23baeedf1aea53690480c250963fbea6996cb0c69d556612b4",
+      "currentSha256": "4dc73d7d21a585558f8e6eef370238bbf0078bb9d7e9f9919fcce7e7a36a45f5"
+    },
+    {
+      "context": "cn16-confirmed-play-origin-and-required-causal-fact-2026-10-16",
+      "group": "verificationSources",
+      "path": "tests/Riftbound.PostgresAcceptance/Riftbound.PostgresAcceptance.csproj",
+      "previousSha256": "b00da5402b6f578cee4c5bd0c9504950f89deca6cc6a66fe019ad601c9e18236",
+      "currentSha256": "f041935402312915ae2245ca23ec1d4d369e6958b953c2105290a425bbc3f18b"
+    },
+    {
+      "context": "physical-origin-self-cost-reduction-2026-10-16",
+      "group": "implementation",
+      "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+      "previousSha256": "05376463a0bfae0e36eb3a0b4f9e2af92a8526fb937fed6a8f45e9cf01a74d79",
+      "currentSha256": "4be39c1a61c86572012ddb022ba1cd272dfb45e8a06d111f095b320de5226f20"
+    },
+    {
+      "context": "physical-origin-self-cost-reduction-2026-10-16",
+      "group": "implementation",
+      "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+      "previousSha256": "f7db478ed3fc4ceb83392da63b6cab16ad0e551122bed9a4e1e6b0489f05c0c5",
+      "currentSha256": "03aa5c53a552867d629cc2d47fe3c348f9b02a3bc0f46d5d9cb66b1c761825cd"
+    },
+    {
+      "context": "physical-origin-self-cost-reduction-2026-10-16",
+      "group": "verificationSources",
+      "path": "tests/Riftbound.PostgresAcceptance/Program.cs",
+      "previousSha256": "7eed59da04943d23baeedf1aea53690480c250963fbea6996cb0c69d556612b4",
+      "currentSha256": "4dc73d7d21a585558f8e6eef370238bbf0078bb9d7e9f9919fcce7e7a36a45f5"
+    },
+    {
+      "context": "physical-origin-self-cost-reduction-2026-10-16",
+      "group": "verificationSources",
+      "path": "tests/Riftbound.PostgresAcceptance/Riftbound.PostgresAcceptance.csproj",
+      "previousSha256": "b00da5402b6f578cee4c5bd0c9504950f89deca6cc6a66fe019ad601c9e18236",
+      "currentSha256": "f041935402312915ae2245ca23ec1d4d369e6958b953c2105290a425bbc3f18b"
+    },
+    {
+      "context": "granted-origin-haste-and-paid-entry-replacement-2026-10-16",
+      "group": "implementation",
+      "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+      "previousSha256": "05376463a0bfae0e36eb3a0b4f9e2af92a8526fb937fed6a8f45e9cf01a74d79",
+      "currentSha256": "4be39c1a61c86572012ddb022ba1cd272dfb45e8a06d111f095b320de5226f20"
+    },
+    {
+      "context": "granted-origin-haste-and-paid-entry-replacement-2026-10-16",
+      "group": "implementation",
+      "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+      "previousSha256": "f7db478ed3fc4ceb83392da63b6cab16ad0e551122bed9a4e1e6b0489f05c0c5",
+      "currentSha256": "03aa5c53a552867d629cc2d47fe3c348f9b02a3bc0f46d5d9cb66b1c761825cd"
+    },
+    {
+      "context": "granted-origin-haste-and-paid-entry-replacement-2026-10-16",
+      "group": "implementation",
+      "path": "src/Riftbound.Engine/MatchSession.cs",
+      "previousSha256": "e2a68ce74ce5d37ac7633a217d882ed0d7975eb6ff162224f29e576cb31b7f79",
+      "currentSha256": "11c33c5d6e8d0215362b16de023036af7f3a141cd8057a84f76db898333c7d66"
+    },
+    {
+      "context": "granted-origin-haste-and-paid-entry-replacement-2026-10-16",
+      "group": "verificationSources",
+      "path": "tests/Riftbound.PostgresAcceptance/Program.cs",
+      "previousSha256": "7eed59da04943d23baeedf1aea53690480c250963fbea6996cb0c69d556612b4",
+      "currentSha256": "4dc73d7d21a585558f8e6eef370238bbf0078bb9d7e9f9919fcce7e7a36a45f5"
+    },
+    {
+      "context": "granted-origin-haste-and-paid-entry-replacement-2026-10-16",
+      "group": "verificationSources",
+      "path": "tests/Riftbound.PostgresAcceptance/Riftbound.PostgresAcceptance.csproj",
+      "previousSha256": "b00da5402b6f578cee4c5bd0c9504950f89deca6cc6a66fe019ad601c9e18236",
+      "currentSha256": "f041935402312915ae2245ca23ec1d4d369e6958b953c2105290a425bbc3f18b"
+    },
+    {
+      "context": "opponent-battlefield-current-control-entry-2026-10-16",
+      "group": "implementation",
+      "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+      "previousSha256": "f7db478ed3fc4ceb83392da63b6cab16ad0e551122bed9a4e1e6b0489f05c0c5",
+      "currentSha256": "03aa5c53a552867d629cc2d47fe3c348f9b02a3bc0f46d5d9cb66b1c761825cd"
+    },
+    {
+      "context": "opponent-battlefield-current-control-entry-2026-10-16",
+      "group": "verificationSources",
+      "path": "tests/Riftbound.PostgresAcceptance/Program.cs",
+      "previousSha256": "7eed59da04943d23baeedf1aea53690480c250963fbea6996cb0c69d556612b4",
+      "currentSha256": "4dc73d7d21a585558f8e6eef370238bbf0078bb9d7e9f9919fcce7e7a36a45f5"
+    },
+    {
+      "context": "opponent-battlefield-current-control-entry-2026-10-16",
+      "group": "verificationSources",
+      "path": "tests/Riftbound.PostgresAcceptance/Riftbound.PostgresAcceptance.csproj",
+      "previousSha256": "b00da5402b6f578cee4c5bd0c9504950f89deca6cc6a66fe019ad601c9e18236",
+      "currentSha256": "f041935402312915ae2245ca23ec1d4d369e6958b953c2105290a425bbc3f18b"
+    },
+    {
+      "context": "optional-sacrifice-printed-cost-and-paid-entry-2026-10-16",
+      "group": "implementation",
+      "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+      "previousSha256": "05376463a0bfae0e36eb3a0b4f9e2af92a8526fb937fed6a8f45e9cf01a74d79",
+      "currentSha256": "4be39c1a61c86572012ddb022ba1cd272dfb45e8a06d111f095b320de5226f20"
+    },
+    {
+      "context": "optional-sacrifice-printed-cost-and-paid-entry-2026-10-16",
+      "group": "implementation",
+      "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+      "previousSha256": "f7db478ed3fc4ceb83392da63b6cab16ad0e551122bed9a4e1e6b0489f05c0c5",
+      "currentSha256": "03aa5c53a552867d629cc2d47fe3c348f9b02a3bc0f46d5d9cb66b1c761825cd"
+    },
+    {
+      "context": "optional-sacrifice-printed-cost-and-paid-entry-2026-10-16",
+      "group": "implementation",
+      "path": "src/Riftbound.Engine/CoreRuleEngine.EffectPlay.cs",
+      "previousSha256": "cfd1ecd7030e3c6496346e33d1299bf6db988d33a3233e9db895fbe8f2343af8",
+      "currentSha256": "7869f80de339f9a9808c00fb673d0522dab7c10fd2c56740b76600c4739750a3"
+    },
+    {
+      "context": "optional-sacrifice-printed-cost-and-paid-entry-2026-10-16",
+      "group": "implementation",
+      "path": "src/Riftbound.Engine/MatchSession.cs",
+      "previousSha256": "e2a68ce74ce5d37ac7633a217d882ed0d7975eb6ff162224f29e576cb31b7f79",
+      "currentSha256": "11c33c5d6e8d0215362b16de023036af7f3a141cd8057a84f76db898333c7d66"
+    },
+    {
+      "context": "optional-sacrifice-printed-cost-and-paid-entry-2026-10-16",
+      "group": "verificationSources",
+      "path": "tests/Riftbound.PostgresAcceptance/Program.cs",
+      "previousSha256": "7eed59da04943d23baeedf1aea53690480c250963fbea6996cb0c69d556612b4",
+      "currentSha256": "4dc73d7d21a585558f8e6eef370238bbf0078bb9d7e9f9919fcce7e7a36a45f5"
+    },
+    {
+      "context": "optional-sacrifice-printed-cost-and-paid-entry-2026-10-16",
+      "group": "verificationSources",
+      "path": "tests/Riftbound.PostgresAcceptance/Riftbound.PostgresAcceptance.csproj",
+      "previousSha256": "b00da5402b6f578cee4c5bd0c9504950f89deca6cc6a66fe019ad601c9e18236",
+      "currentSha256": "f041935402312915ae2245ca23ec1d4d369e6958b953c2105290a425bbc3f18b"
+    },
+    {
+      "context": "granted-colorless-token-haste-payment-2026-10-16",
+      "group": "implementation",
+      "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+      "previousSha256": "f7db478ed3fc4ceb83392da63b6cab16ad0e551122bed9a4e1e6b0489f05c0c5",
+      "currentSha256": "03aa5c53a552867d629cc2d47fe3c348f9b02a3bc0f46d5d9cb66b1c761825cd"
+    },
+    {
+      "context": "granted-colorless-token-haste-payment-2026-10-16",
+      "group": "implementation",
+      "path": "src/Riftbound.Engine/MatchSession.cs",
+      "previousSha256": "e2a68ce74ce5d37ac7633a217d882ed0d7975eb6ff162224f29e576cb31b7f79",
+      "currentSha256": "11c33c5d6e8d0215362b16de023036af7f3a141cd8057a84f76db898333c7d66"
+    },
+    {
+      "context": "granted-colorless-token-haste-payment-2026-10-16",
+      "group": "verificationSources",
+      "path": "tests/Riftbound.PostgresAcceptance/Program.cs",
+      "previousSha256": "7eed59da04943d23baeedf1aea53690480c250963fbea6996cb0c69d556612b4",
+      "currentSha256": "4dc73d7d21a585558f8e6eef370238bbf0078bb9d7e9f9919fcce7e7a36a45f5"
+    },
+    {
+      "context": "granted-colorless-token-haste-payment-2026-10-16",
+      "group": "verificationSources",
+      "path": "tests/Riftbound.PostgresAcceptance/Riftbound.PostgresAcceptance.csproj",
+      "previousSha256": "b00da5402b6f578cee4c5bd0c9504950f89deca6cc6a66fe019ad601c9e18236",
+      "currentSha256": "f041935402312915ae2245ca23ec1d4d369e6958b953c2105290a425bbc3f18b"
+    },
+    {
+      "context": "native-rule-choice-prompts-2026-10-16",
+      "group": "implementation",
+      "path": "src/Riftbound.Engine/MatchSession.cs",
+      "previousSha256": "e2a68ce74ce5d37ac7633a217d882ed0d7975eb6ff162224f29e576cb31b7f79",
+      "currentSha256": "11c33c5d6e8d0215362b16de023036af7f3a141cd8057a84f76db898333c7d66"
+    },
+    {
+      "context": "sand-soldier-embedded-ready-2026-10-17",
+      "group": "implementation",
+      "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+      "previousSha256": "05376463a0bfae0e36eb3a0b4f9e2af92a8526fb937fed6a8f45e9cf01a74d79",
+      "currentSha256": "4be39c1a61c86572012ddb022ba1cd272dfb45e8a06d111f095b320de5226f20"
+    },
+    {
+      "context": "sand-soldier-embedded-ready-2026-10-17",
+      "group": "implementation",
+      "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+      "previousSha256": "f7db478ed3fc4ceb83392da63b6cab16ad0e551122bed9a4e1e6b0489f05c0c5",
+      "currentSha256": "03aa5c53a552867d629cc2d47fe3c348f9b02a3bc0f46d5d9cb66b1c761825cd"
+    },
+    {
+      "context": "sand-soldier-embedded-ready-2026-10-17",
+      "group": "implementation",
+      "path": "src/Riftbound.Engine/MatchRecovery.cs",
+      "previousSha256": "d60ed0b593c00bc1169931dfcebadb74a61435f8775c18c86272ee216c94ddc4",
+      "currentSha256": "7cd88505b162e45d6b9401524e541e8797cad7bbdced6340641e1a2edd635313"
+    },
+    {
+      "context": "sand-soldier-embedded-ready-2026-10-17",
+      "group": "implementation",
+      "path": "src/Riftbound.Engine/MatchSession.cs",
+      "previousSha256": "e2a68ce74ce5d37ac7633a217d882ed0d7975eb6ff162224f29e576cb31b7f79",
+      "currentSha256": "11c33c5d6e8d0215362b16de023036af7f3a141cd8057a84f76db898333c7d66"
+    },
+    {
+      "context": "sand-soldier-embedded-ready-2026-10-17",
+      "group": "verificationSources",
+      "path": "tests/Riftbound.PostgresAcceptance/Program.cs",
+      "previousSha256": "7eed59da04943d23baeedf1aea53690480c250963fbea6996cb0c69d556612b4",
+      "currentSha256": "4dc73d7d21a585558f8e6eef370238bbf0078bb9d7e9f9919fcce7e7a36a45f5"
+    },
+    {
+      "context": "sand-soldier-embedded-ready-2026-10-17",
+      "group": "verificationSources",
+      "path": "tests/Riftbound.PostgresAcceptance/Riftbound.PostgresAcceptance.csproj",
+      "previousSha256": "b00da5402b6f578cee4c5bd0c9504950f89deca6cc6a66fe019ad601c9e18236",
+      "currentSha256": "f041935402312915ae2245ca23ec1d4d369e6958b953c2105290a425bbc3f18b"
+    },
+    {
+      "context": "opening-randomness-2026-10-17",
+      "group": "implementation",
+      "path": "src/Riftbound.Engine/MatchRecovery.cs",
+      "previousSha256": "d60ed0b593c00bc1169931dfcebadb74a61435f8775c18c86272ee216c94ddc4",
+      "currentSha256": "7cd88505b162e45d6b9401524e541e8797cad7bbdced6340641e1a2edd635313"
+    },
+    {
+      "context": "opening-randomness-2026-10-17",
+      "group": "implementation",
+      "path": "src/Riftbound.Engine/MatchSession.cs",
+      "previousSha256": "e2a68ce74ce5d37ac7633a217d882ed0d7975eb6ff162224f29e576cb31b7f79",
+      "currentSha256": "11c33c5d6e8d0215362b16de023036af7f3a141cd8057a84f76db898333c7d66"
+    },
+    {
+      "context": "opening-randomness-2026-10-17",
+      "group": "verificationSources",
+      "path": "tests/Riftbound.PostgresAcceptance/Program.cs",
+      "previousSha256": "7eed59da04943d23baeedf1aea53690480c250963fbea6996cb0c69d556612b4",
+      "currentSha256": "4dc73d7d21a585558f8e6eef370238bbf0078bb9d7e9f9919fcce7e7a36a45f5"
+    },
+    {
+      "context": "opening-randomness-2026-10-17",
+      "group": "verificationSources",
+      "path": "tests/Riftbound.PostgresAcceptance/Riftbound.PostgresAcceptance.csproj",
+      "previousSha256": "b00da5402b6f578cee4c5bd0c9504950f89deca6cc6a66fe019ad601c9e18236",
+      "currentSha256": "f041935402312915ae2245ca23ec1d4d369e6958b953c2105290a425bbc3f18b"
+    },
+    {
+      "context": "duel-chain-origins-cold-recovery-2026-10-17",
+      "group": "implementation",
+      "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+      "previousSha256": "f7db478ed3fc4ceb83392da63b6cab16ad0e551122bed9a4e1e6b0489f05c0c5",
+      "currentSha256": "03aa5c53a552867d629cc2d47fe3c348f9b02a3bc0f46d5d9cb66b1c761825cd"
+    },
+    {
+      "context": "duel-chain-origins-cold-recovery-2026-10-17",
+      "group": "implementation",
+      "path": "src/Riftbound.Engine/MatchSession.cs",
+      "previousSha256": "e2a68ce74ce5d37ac7633a217d882ed0d7975eb6ff162224f29e576cb31b7f79",
+      "currentSha256": "11c33c5d6e8d0215362b16de023036af7f3a141cd8057a84f76db898333c7d66"
+    },
+    {
+      "context": "duel-chain-origins-cold-recovery-2026-10-17",
+      "group": "implementation",
+      "path": "src/Riftbound.Engine/MatchRecovery.cs",
+      "previousSha256": "d60ed0b593c00bc1169931dfcebadb74a61435f8775c18c86272ee216c94ddc4",
+      "currentSha256": "7cd88505b162e45d6b9401524e541e8797cad7bbdced6340641e1a2edd635313"
+    },
+    {
+      "context": "merfolk-battlefield-play-damage-here-2026-10-17",
+      "group": "implementation",
+      "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+      "previousSha256": "05376463a0bfae0e36eb3a0b4f9e2af92a8526fb937fed6a8f45e9cf01a74d79",
+      "currentSha256": "4be39c1a61c86572012ddb022ba1cd272dfb45e8a06d111f095b320de5226f20"
+    },
+    {
+      "context": "merfolk-battlefield-play-damage-here-2026-10-17",
+      "group": "implementation",
+      "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+      "previousSha256": "f7db478ed3fc4ceb83392da63b6cab16ad0e551122bed9a4e1e6b0489f05c0c5",
+      "currentSha256": "03aa5c53a552867d629cc2d47fe3c348f9b02a3bc0f46d5d9cb66b1c761825cd"
+    },
+    {
+      "context": "merfolk-battlefield-play-damage-here-2026-10-17",
+      "group": "implementation",
+      "path": "src/Riftbound.Engine/MatchSession.cs",
+      "previousSha256": "e2a68ce74ce5d37ac7633a217d882ed0d7975eb6ff162224f29e576cb31b7f79",
+      "currentSha256": "11c33c5d6e8d0215362b16de023036af7f3a141cd8057a84f76db898333c7d66"
+    },
+    {
+      "context": "merfolk-battlefield-play-damage-here-2026-10-17",
+      "group": "implementation",
+      "path": "src/Riftbound.Engine/MatchRecovery.cs",
+      "previousSha256": "d60ed0b593c00bc1169931dfcebadb74a61435f8775c18c86272ee216c94ddc4",
+      "currentSha256": "7cd88505b162e45d6b9401524e541e8797cad7bbdced6340641e1a2edd635313"
+    },
+    {
+      "context": "merfolk-battlefield-play-damage-here-2026-10-17",
+      "group": "verificationSources",
+      "path": "tests/Riftbound.PostgresAcceptance/Program.cs",
+      "previousSha256": "7eed59da04943d23baeedf1aea53690480c250963fbea6996cb0c69d556612b4",
+      "currentSha256": "4dc73d7d21a585558f8e6eef370238bbf0078bb9d7e9f9919fcce7e7a36a45f5"
+    },
+    {
+      "context": "merfolk-battlefield-play-damage-here-2026-10-17",
+      "group": "verificationSources",
+      "path": "tests/Riftbound.PostgresAcceptance/Riftbound.PostgresAcceptance.csproj",
+      "previousSha256": "b00da5402b6f578cee4c5bd0c9504950f89deca6cc6a66fe019ad601c9e18236",
+      "currentSha256": "f041935402312915ae2245ca23ec1d4d369e6958b953c2105290a425bbc3f18b"
+    }
+  ],
+  "previousFixed62bfFullAndNativeEvidenceRemainTheirOwnExactScope": true,
+  "newActualSqlImplementationSha256": "3f884869509a6c94f7deaf737bf086fbf3d51aa868c3d51633600ad52bfe5cf8",
+  "noOldDevelopmentMatchMigrationOrAcceptedHistoryRewrite": true
+}

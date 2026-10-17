@@ -234,7 +234,6 @@ public static class CardBasicActionRules
             && (behavior.BanishesIfDestroyedThisTurn
                 || behavior.EffectPlaySourceZone == "BANISHED"
                 || behavior.BanishesTargetThenPlaysToBase
-                || behavior.BanishesTargetThenPlaysToBattlefield
                 || behavior.BanishesAllFriendlyGraveyardUnits
                 || behavior.BanishesSourceOnResolution);
     }

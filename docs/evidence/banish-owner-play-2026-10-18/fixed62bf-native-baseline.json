@@ -1,0 +1,76 @@
+{
+  "capturedAtUtc": "2026-10-17T16:27:25.502269+00:00",
+  "fixedCommit": "62bf7afc7a59bc743e1e578712e156686666c060",
+  "scope": "Historical exact fixed62bf native positive Merfolk baseline; it does not claim that the later Hunting Rhythm implementation was tested. Intermediate pending receipts retain their original chronological OPEN flags; native-scope-acceptance.json is the final receipt.",
+  "files": [
+    {
+      "path": "docs/evidence/banish-owner-play-2026-10-18/fixed62bf-native/native-scope-acceptance.json",
+      "sha256": "1b0ef74726a7be7ea7765679f58a0e9e3b827be062cc89be2cba7bf851e45bee",
+      "bytes": 3690
+    },
+    {
+      "path": "docs/evidence/banish-owner-play-2026-10-18/fixed62bf-native/native-pending-cold-preservation.json",
+      "sha256": "122fb89a7538ff4d8625c465a702fe53565a238665bfb65533f001c3b274de90",
+      "bytes": 2056
+    },
+    {
+      "path": "docs/evidence/banish-owner-play-2026-10-18/fixed62bf-native/native-original-next-command-proof.json",
+      "sha256": "58d4846a8a168fafca84e291ddc380bc50c1648357ffe2ae75116a8f667cdfc8",
+      "bytes": 822
+    },
+    {
+      "path": "docs/evidence/banish-owner-play-2026-10-18/fixed62bf-native/native-positive-damage-proof.json",
+      "sha256": "40bf278830b4c4235d88443592782738c5b8a5b6db14d761adebd35deee528dc",
+      "bytes": 796
+    },
+    {
+      "path": "docs/evidence/banish-owner-play-2026-10-18/fixed62bf-native/completed-runtime-service-stop.json",
+      "sha256": "90a05d4b4d6df63c8ecb8ca06fdd6493f9a8ba367cd9cb2a0b8e3c090c844017",
+      "bytes": 819
+    },
+    {
+      "path": "docs/evidence/banish-owner-play-2026-10-18/fixed62bf-native/latest-only-old-candidate-retirement.json",
+      "sha256": "f4f8af91ccd2a6c3f51b6e5d11d467f4117c72fd1a5a81247c012807e0e29324",
+      "bytes": 2234
+    },
+    {
+      "path": "docs/evidence/banish-owner-play-2026-10-18/fixed62bf-native/profile-preparation.json",
+      "sha256": "fd7c2cceaef0d8de3406c9dda165642bcbbb25cfb983dfd215258e6778b0af26",
+      "bytes": 816
+    },
+    {
+      "path": "docs/evidence/banish-owner-play-2026-10-18/fixed62bf-native/native-final-a.png",
+      "sha256": "18426a10648525037a515da394f4dc8539f0ba18d38adbe3ae0322f9081f91b2",
+      "bytes": 112885
+    },
+    {
+      "path": "docs/evidence/banish-owner-play-2026-10-18/fixed62bf-native/native-final-b.png",
+      "sha256": "14591b86913941fda684d7038ec69015f07d117c28a0d9a4129daff707ca0277",
+      "bytes": 96652
+    },
+    {
+      "path": "docs/evidence/banish-owner-play-2026-10-18/fixed62bf-native/native-lobby-a.png",
+      "sha256": "aed221a969f8111de3a2efb55b06f50bc46b59ae0afe313da06af49f633978e9",
+      "bytes": 110169
+    },
+    {
+      "path": "docs/evidence/banish-owner-play-2026-10-18/fixed62bf-native/native-lobby-b.png",
+      "sha256": "55b85967374712f1904f27bab27a2e9d99717e8c96bce2397205f5b3d14d7901",
+      "bytes": 110139
+    },
+    {
+      "path": "docs/evidence/banish-owner-play-2026-10-18/fixed62bf-native/native-a-pending-after-cold-reconnect.png",
+      "sha256": "e27b218122e5b311919b3e00a58b03946e2cbf454cc2d470e3f4eeb16cedc460",
+      "bytes": 241382
+    },
+    {
+      "path": "docs/evidence/banish-owner-play-2026-10-18/fixed62bf-native/native-b-pending-after-cold-reconnect.png",
+      "sha256": "6620c831ab24da1bdfd977c47cf96fb9e8ab23ed765c548c2b06add948faa766",
+      "bytes": 259825
+    }
+  ],
+  "rawFramesPrivateSeedAndProfilesNotCopied": true,
+  "sourceCommitAndRuntimeModuleIdentityRemainDistinct": true,
+  "physicalWindows": "OPEN",
+  "currentBanishFamilyNative": "OPEN"
+}

@@ -1,0 +1,87 @@
+{
+  "recordedAtUtc": "2026-10-17T15:43:07.852286+00:00",
+  "status": "FIXED62BF_VISIBLE_PAIRED_NATIVE_STANDBY_DAMAGE_PENDING_COLD_NORMAL_SCORE_ORIGINAL_REPLAY_SCOPED_PASS",
+  "fixedCommit": "62bf7afc7a59bc743e1e578712e156686666c060",
+  "runId": 39040518700,
+  "room": "paired-merfolk-damage-20261017",
+  "actualJournalCommands": 67,
+  "nativeGameplayCommands": 67,
+  "apiGameplayCommands": 0,
+  "authenticationAndSeatingApiPreparationDisclosed": "profile-preparation.json",
+  "allRecordedCommandsAccepted": true,
+  "events": 407,
+  "turn": 29,
+  "normalScores": {
+    "merfolk62a": 8,
+    "merfolk62b": 0
+  },
+  "noSurrenderOrDeveloperCommands": true,
+  "originalPrivateNonzeroSeedRetainedAndCanonicalMetadataVerified": true,
+  "fullOriginalBlankSeatingReplayPassed": true,
+  "finalStateHash": "6576c947f3b469a4c852157a2a88ce17f9a87d1c9f2c5dca9d947c13f64f94d9",
+  "ruleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+    "implementationSha256": "df386d4982a37787903d6d14388ef586073877de1e73614da06008816e94f596",
+    "identitySha256": "3fb90e2be4a5c84298cb0d798e613976ed1e7a4242e2752147737322d1995a77"
+  },
+  "actualStandbyDamage": 2,
+  "actualPendingColdAt35Commands198Events": true,
+  "originalNextChooseCardsStateAndEventsIndependentlyMatched": true,
+  "allFixed12391SourceAnd36Api71SqlAnd373PerAppCiPayloadsUnchanged": true,
+  "bothNativeTerminalDialogsVisiblyObserved": true,
+  "bothNativeLobbyExitsStillPending": false,
+  "windowsPhysical": "OPEN",
+  "remainingScopes": [
+    "All other location/control/reentry/copied/token/effect-play combinations",
+    "Blitzcrank positive and hold behavior",
+    "Full fixed CI conclusion and all source gaps",
+    "Whole printing and all official audit obligations"
+  ],
+  "wholePrintingCertified": false,
+  "bothNativeReturnToLobbyActuallyObserved": true,
+  "entireOriginalFinalFrameUnchangedAfterNativeLobbyExits": true,
+  "finalOriginalPrivateFrameSha256": "a3d39b1717ea7ba99d1de6f948ea962650f694cec3427e5a5763d30a85c5a418",
+  "afterExitOriginalPrivateFrameSha256": "a3d39b1717ea7ba99d1de6f948ea962650f694cec3427e5a5763d30a85c5a418",
+  "privateFramesRemain0600AndMustNotBeCommitted": true,
+  "screenshots": [
+    {
+      "file": "native-final-a.png",
+      "sha256": "18426a10648525037a515da394f4dc8539f0ba18d38adbe3ae0322f9081f91b2"
+    },
+    {
+      "file": "native-final-b.png",
+      "sha256": "14591b86913941fda684d7038ec69015f07d117c28a0d9a4129daff707ca0277"
+    },
+    {
+      "file": "native-lobby-a.png",
+      "sha256": "aed221a969f8111de3a2efb55b06f50bc46b59ae0afe313da06af49f633978e9"
+    },
+    {
+      "file": "native-lobby-b.png",
+      "sha256": "55b85967374712f1904f27bab27a2e9d99717e8c96bce2397205f5b3d14d7901"
+    },
+    {
+      "file": "native-a-pending-target-before-cold.png",
+      "sha256": "a2fd430f54f909503cfe2d0a95bdf05f5eecce6e26b59287b1f667bdfcf2892c"
+    },
+    {
+      "file": "native-b-waiting-target-before-cold.png",
+      "sha256": "c52d4c4c0d40dc1b3d4c6539f99e9e122ab8b80fc367df82796444419118dfc5"
+    },
+    {
+      "file": "native-a-pending-after-cold-reconnect.png",
+      "sha256": "e27b218122e5b311919b3e00a58b03946e2cbf454cc2d470e3f4eeb16cedc460"
+    },
+    {
+      "file": "native-b-pending-after-cold-reconnect.png",
+      "sha256": "6620c831ab24da1bdfd977c47cf96fb9e8ab23ed765c548c2b06add948faa766"
+    }
+  ],
+  "bothNativeClientsNormallyQuitAfterLobby": true,
+  "finalOriginalFrameAlsoUnchangedAfterQuit": true,
+  "idleApiAndPostgresNormallyStoppedOriginalDatabaseRetained": true
+}

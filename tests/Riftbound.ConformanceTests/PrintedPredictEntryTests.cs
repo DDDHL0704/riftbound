@@ -47,6 +47,8 @@ public sealed class PrintedPredictEntryTests
         initial = AttackDamageDistributionTests.Spell(initial, "HUNT", "UNL-184/219", "P1");
         var cast = await Act(initial, "P1", new PlayCardCommand("HUNT", "UNL-184/219", ["HOST"]));
         var entered = await Top(cast.State);
+        Assert.NotNull(entered.State.PendingEffectPlay);
+        entered = await Act(entered.State, "P1", new PlayCardCommand("HOST", "OGN·174/298", [], Destination: "BATTLEFIELD:F"));
         Assert.Equal("BATTLEFIELD", entered.State.ObjectLocations["HOST"].Zone);
         Assert.True(entered.State.CardObjects["HOST"].ObjectGeneration > initial.CardObjects["HOST"].ObjectGeneration);
         var trigger = Assert.Single(entered.State.StackItems, i => i.InsightContext?.Kind == "PRINTED_PREDICT");
@@ -73,7 +75,10 @@ public sealed class PrintedPredictEntryTests
     {
         var initial = ReplayPosition(card);
         var cast = await Act(initial, "P1", new PlayCardCommand("HUNT", "UNL-184/219", ["HOST"]));
-        var entered = await Top(cast.State); var trigger = Assert.Single(entered.State.StackItems);
+        var entered = await Top(cast.State);
+        Assert.NotNull(entered.State.PendingEffectPlay);
+        entered = await Act(entered.State, "P1", new PlayCardCommand("HOST", card, [], Destination: "BATTLEFIELD:F"));
+        var trigger = Assert.Single(entered.State.StackItems);
         Assert.Equal("PRINTED_PREDICT", trigger.InsightContext!.Kind);
         Assert.Equal(entered.State.CardObjects["HOST"].ObjectGeneration, trigger.InsightContext.SourceGeneration);
         Restore(entered.State);
@@ -89,6 +94,8 @@ public sealed class PrintedPredictEntryTests
         initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
             ["HOST"] = initial.CardObjects["HOST"] with { OwnerId = "P2", ControllerId = "P1" } } };
         var entered = await Top((await Act(initial, "P1", new PlayCardCommand("HUNT", "UNL-184/219", ["HOST"]))).State);
+        Assert.Equal("P2", entered.State.PendingEffectPlay!.PlayerId);
+        entered = await Act(entered.State, "P2", new PlayCardCommand("HOST", "OGN·174/298", [], Destination: "BATTLEFIELD:F"));
         var trigger = Assert.Single(entered.State.StackItems);
         Assert.Equal("P2", trigger.ControllerId); Assert.Equal("P2", trigger.InsightContext!.ControllerId); Restore(entered.State);
         var opened = await Top(entered.State);

@@ -329,6 +329,8 @@ public sealed class EmpowerTests
         var activated = await Activate(s);
         var played = await Act(activated.State, "P1", new PlayCardCommand("SPELL", "UNL-184/219", ["HOST"]));
         var returned = await Top(played.State);
+        Assert.NotNull(returned.State.PendingEffectPlay);
+        returned = await Act(returned.State, "P1", new PlayCardCommand("HOST", returned.State.CardObjects["HOST"].CardNo!, [], Destination: "BATTLEFIELD:F"));
         Assert.True(returned.State.CardObjects["HOST"].ObjectGeneration > activated.State.CardObjects["HOST"].ObjectGeneration);
         Assert.Contains("HOST", returned.State.PlayerZones["P1"].Battlefields);
         Assert.False(returned.State.CardObjects["HOST"].IsEmpowered);

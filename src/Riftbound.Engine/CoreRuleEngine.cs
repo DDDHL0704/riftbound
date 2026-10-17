@@ -18552,6 +18552,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
 
         if (state.StackItems.Any(item => string.Equals(item.SourceObjectId, command.SourceObjectId, StringComparison.Ordinal)
+            && !(state.PendingEffectPlay is { SourceZone: "BANISHED" }
+                && EffectPlaySources(state, intent.PlayerId).Contains(command.SourceObjectId))
             && !(item.DeckPlayPendingCard is not null && ValidDeckPlayPendingCard(state, item))
             && !(item.ObservedDeckPlay is { } observed && state.PendingEffectPlay?.Parent.ObservedPlayPermission?.Context.Id==observed.Id
                 && ValidObservedDeckSlot(state,item) && ValidObservedPlayPermission(state,state.PendingEffectPlay))))
@@ -26698,16 +26700,16 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     }
 
                     if (ShouldApplyBanishPlayToTarget(behavior, targetIndex)
-                        && (behavior.BanishesTargetThenPlaysToBase || behavior.BanishesTargetThenPlaysToBattlefield)
+                        && behavior.BanishesTargetThenPlaysToBase
                         && TryBanishTargetThenPlayToOwnerField(
                             state,
                             playerZones,
                             cardObjects,
                             targetObjectId,
-                            behavior.BanishesTargetThenPlaysToBattlefield ? "BATTLEFIELD" : "BASE",
+                            "BASE",
                             out var rescuedOwnerPlayerId))
                     {
-                        var playedDestinationZone = behavior.BanishesTargetThenPlaysToBattlefield ? "BATTLEFIELD" : "BASE";
+                        const string playedDestinationZone = "BASE";
                         events.Add(new GameEvent(
                             "UNIT_BANISHED",
                             $"{behavior.DisplayName}放逐单位",
@@ -26719,10 +26721,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                                 ["destinationZone"] = "BANISHED"
                             }));
                         events.Add(CaptureUnitEntry(new GameEvent(
-                            behavior.BanishesTargetThenPlaysToBattlefield ? "UNIT_PLAYED_TO_BATTLEFIELD" : "UNIT_PLAYED_TO_BASE",
-                            behavior.BanishesTargetThenPlaysToBattlefield
-                                ? $"{behavior.DisplayName}将单位打出到战场"
-                                : $"{behavior.DisplayName}将单位打出到基地",
+                            "UNIT_PLAYED_TO_BASE",
+                            $"{behavior.DisplayName}将单位打出到基地",
                             new Dictionary<string, object?>
                             {
                                 ["sourceObjectId"] = stackItem.SourceObjectId,

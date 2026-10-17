@@ -175,6 +175,8 @@ public sealed class TurnUnitPlayGrantsTests
         var driver = Driver(initial, card == Confront ? "confront-battlefield-play" : "rally-battlefield-play");
         await driver.Act("P1", new PlayCardCommand("GRANT", card, [])); await driver.Top();
         await driver.Act("P1", new PlayCardCommand("HUNT", "UNL-184/219", ["HOST"])); await driver.Top();
+        Assert.NotNull(driver.State.PendingEffectPlay);
+        await driver.Act("P1", new PlayCardCommand("HOST", driver.State.CardObjects["HOST"].CardNo!, [], Destination: "BATTLEFIELD:F"));
         Assert.Equal("BATTLEFIELD", driver.State.ObjectLocations["HOST"].Zone);
         Assert.True(driver.State.CardObjects["HOST"].ObjectGeneration > initial.CardObjects["HOST"].ObjectGeneration);
         if (card == Confront) Assert.False(driver.State.CardObjects["HOST"].IsExhausted);

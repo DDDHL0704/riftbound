@@ -1,0 +1,61 @@
+{
+  "recordedAtUtc": "2026-10-17T16:47:25.319002+00:00",
+  "status": "ONE_CHECK12373_WITH_ONE_ORIGINAL_LEGACY_FIXTURE_FAILURE_RETAINED_FINAL779_FOCUS_REPAIR_PASS",
+  "profile": "check",
+  "actualCases": 12373,
+  "actualMethods": 7310,
+  "passed": 12372,
+  "failed": 1,
+  "skipped": 0,
+  "allPrior12333NonFullGameCiCaseMultisetRetained": true,
+  "allPrior7297NonFullGameCiMethodsRetained": true,
+  "failure": [
+    {
+      "method": "Riftbound.ConformanceTests.ConformanceFixtureRunnerTests.CoreRuleEnginePlaysHuntingRhythmBanishPlayBattlefield",
+      "case": "Riftbound.ConformanceTests.ConformanceFixtureRunnerTests.CoreRuleEnginePlaysHuntingRhythmBanishPlayBattlefield",
+      "outcome": "Failed"
+    }
+  ],
+  "counter": {
+    "total": "12373",
+    "executed": "12373",
+    "passed": "12372",
+    "failed": "1",
+    "error": "0",
+    "timeout": "0",
+    "aborted": "0",
+    "inconclusive": "0",
+    "passedButRunAborted": "0",
+    "notRunnable": "0",
+    "notExecuted": "0",
+    "disconnected": "0",
+    "warning": "0",
+    "completed": "0",
+    "inProgress": "0",
+    "pending": "0"
+  },
+  "times": {
+    "creation": "2026-10-18T00:30:08.1041500+08:00",
+    "queuing": "2026-10-18T00:30:08.1041500+08:00",
+    "start": "2026-10-18T00:30:06.4528130+08:00",
+    "finish": "2026-10-18T00:38:58.3759880+08:00"
+  },
+  "frozenSourceFilesUnchanged": 12418,
+  "frozenSourcesSha256": "090d320d73aa69868984f86f608c78a25c801a924a762e209e603fef72817b98",
+  "trxSha256": "24122a20642c6b3a5a961120bebeafe797134f44bcb6ca1f235b3b8e12e442cd",
+  "testAssemblySha256": "646713440d989fef87c40dcb9e9ecabfc344d00e4318288c433235edfe199a09",
+  "repairScope": "Legacy unit omitted printed CardNo and precise battlefield identities, and expected atomic effect entry. Original seed and first3commands retained; add actual owner child play and retain all final unit power/damage/zone assertions with unit-only filtering.",
+  "noSecondCheck": true,
+  "currentFixedFull": "PENDING_NEW_COMMIT",
+  "wholePrintingCertified": false,
+  "finalRepairEvidence": {
+    "path": "docs/evidence/banish-owner-play-2026-10-18/focus.json",
+    "sha256": "e6badb59ec97258f638d9913d0f46017d1c21b9e93c067115fede35faff4c57e"
+  },
+  "finalFocusAllFailedCheckIdentitiesPassed": true,
+  "currentVerificationOnlyChangesAfterCheck": [
+    "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+    "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-hunting-rhythm-banish-play-battlefield.fixture.json"
+  ],
+  "gameplaySourceAndOriginalFullGameAndSqlInputsUnchangedByRepair": true
+}

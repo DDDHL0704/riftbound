@@ -1,0 +1,878 @@
+{
+  "schemaVersion": 1,
+  "openingSeed": 0,
+  "sourceRoomId": "banish-effect-play-opening-20261018",
+  "seats": {
+    "paired-339c-a": "P1",
+    "paired-339c-b": "P2"
+  },
+  "expectedActor": "paired-339c-b",
+  "expectedOpponent": "paired-339c-a",
+  "expectedSource": "paired-339c-b-MAIN-UNL-111-219-32",
+  "expectedSourceCardNo": "UNL-111/219",
+  "expectedHunt": "paired-339c-b-MAIN-UNL-184-219-31",
+  "expectedEnemy": "paired-339c-a-MAIN-UNL-003-219-29",
+  "expectedBattlefield": "paired-339c-b-BATTLEFIELD-OGN-275-298-01",
+  "pendingOwnerPlayCommandCount": 59,
+  "afterChildCommandCount": 60,
+  "acceptedCommands": [
+    {
+      "playerId": "paired-339c-a",
+      "clientIntentId": "banish-opening-0",
+      "commandType": "SUBMIT_DECK",
+      "rawCommand": {
+        "legendCardNo": "UNL-181/219",
+        "championCardNo": "UNL-022/219",
+        "mainDeck": [
+          "UNL-022/219",
+          "ARC-001/006",
+          "ARC-001/006",
+          "ARC-001/006",
+          "OGN\u00B7013/298",
+          "OGN\u00B7013/298",
+          "OGN\u00B7013/298",
+          "OGN\u00B7096/298",
+          "OGN\u00B7096/298",
+          "OGN\u00B7096/298",
+          "OGN\u00B7103/298",
+          "OGN\u00B7103/298",
+          "OGN\u00B7103/298",
+          "OGN\u00B7121/298",
+          "OGN\u00B7121/298",
+          "OGN\u00B7121/298",
+          "SFD\u00B7018/221",
+          "SFD\u00B7018/221",
+          "SFD\u00B7018/221",
+          "SFD\u00B7065/221",
+          "SFD\u00B7065/221",
+          "SFD\u00B7065/221",
+          "SFD\u00B7069/221",
+          "SFD\u00B7069/221",
+          "SFD\u00B7069/221",
+          "UNL-002/219",
+          "UNL-002/219",
+          "UNL-002/219",
+          "UNL-003/219",
+          "UNL-003/219",
+          "UNL-003/219",
+          "UNL-065/219",
+          "UNL-065/219",
+          "UNL-065/219",
+          "UNL-076/219",
+          "UNL-076/219",
+          "UNL-076/219",
+          "UNL-081/219",
+          "UNL-081/219",
+          "UNL-081/219"
+        ],
+        "runeDeck": [
+          "OGN\u00B7007/298",
+          "OGN\u00B7007a/298",
+          "OGN\u00B7007b/298",
+          "OGN\u00B7089/298",
+          "OGN\u00B7089a/298",
+          "OGN\u00B7089b/298",
+          "SFD\u00B7R01",
+          "SFD\u00B7R01a",
+          "SFD\u00B7R01b",
+          "SFD\u00B7R03",
+          "SFD\u00B7R03a",
+          "SFD\u00B7R03b"
+        ],
+        "battlefields": [
+          "OGN\u00B7275/298",
+          "OGN\u00B7276/298",
+          "OGN\u00B7277/298"
+        ],
+        "cmdType": "SUBMIT_DECK",
+        "promptId": "banish-effect-play-opening-20261018:0:paired-339c-a:SUBMIT_DECK",
+        "snapshotTick": 0
+      }
+    },
+    {
+      "playerId": "paired-339c-b",
+      "clientIntentId": "banish-opening-1",
+      "commandType": "SUBMIT_DECK",
+      "rawCommand": {
+        "legendCardNo": "UNL-183/219",
+        "championCardNo": "UNL-024/219",
+        "mainDeck": [
+          "UNL-024/219",
+          "OGN\u00B7010/298",
+          "UNL-184/219",
+          "UNL-184/219",
+          "UNL-002/219",
+          "UNL-002/219",
+          "UNL-002/219",
+          "UNL-003/219",
+          "UNL-003/219",
+          "UNL-003/219",
+          "UNL-092/219",
+          "UNL-092/219",
+          "UNL-092/219",
+          "UNL-093/219",
+          "UNL-093/219",
+          "UNL-093/219",
+          "UNL-094/219",
+          "UNL-094/219",
+          "UNL-094/219",
+          "OGN\u00B7010/298",
+          "UNL-111/219",
+          "UNL-111/219",
+          "SFD\u00B7018/221",
+          "SFD\u00B7018/221",
+          "SFD\u00B7018/221",
+          "SFD\u00B7098/221",
+          "SFD\u00B7098/221",
+          "SFD\u00B7098/221",
+          "SFD\u00B7099/221",
+          "SFD\u00B7099/221",
+          "SFD\u00B7099/221",
+          "UNL-184/219",
+          "UNL-111/219",
+          "OGN\u00B7010/298",
+          "OGN\u00B7013/298",
+          "OGN\u00B7013/298",
+          "OGN\u00B7013/298",
+          "OGN\u00B7036/298",
+          "OGN\u00B7036/298",
+          "OGN\u00B7036/298"
+        ],
+        "runeDeck": [
+          "UNL-R01",
+          "UNL-R01",
+          "UNL-R01",
+          "UNL-R01",
+          "UNL-R01",
+          "UNL-R01",
+          "UNL-R04",
+          "UNL-R04",
+          "UNL-R04",
+          "UNL-R04",
+          "UNL-R04",
+          "UNL-R04"
+        ],
+        "battlefields": [
+          "OGN\u00B7278/298",
+          "OGN\u00B7275/298",
+          "OGN\u00B7294/298"
+        ],
+        "cmdType": "SUBMIT_DECK",
+        "promptId": "banish-effect-play-opening-20261018:1:paired-339c-b:SUBMIT_DECK",
+        "snapshotTick": 1
+      }
+    },
+    {
+      "playerId": "paired-339c-a",
+      "clientIntentId": "banish-opening-2",
+      "commandType": "READY",
+      "rawCommand": {
+        "cmdType": "READY",
+        "promptId": "banish-effect-play-opening-20261018:2:paired-339c-a:READY",
+        "snapshotTick": 2
+      }
+    },
+    {
+      "playerId": "paired-339c-b",
+      "clientIntentId": "banish-opening-3",
+      "commandType": "READY",
+      "rawCommand": {
+        "cmdType": "READY",
+        "promptId": "banish-effect-play-opening-20261018:2:paired-339c-b:READY",
+        "snapshotTick": 2
+      }
+    },
+    {
+      "playerId": "paired-339c-b",
+      "clientIntentId": "banish-opening-4",
+      "commandType": "MULLIGAN",
+      "rawCommand": {
+        "handObjectIds": [],
+        "cmdType": "MULLIGAN",
+        "promptId": "banish-effect-play-opening-20261018:2:paired-339c-b:MULLIGAN,SURRENDER",
+        "snapshotTick": 2
+      }
+    },
+    {
+      "playerId": "paired-339c-a",
+      "clientIntentId": "banish-opening-5",
+      "commandType": "MULLIGAN",
+      "rawCommand": {
+        "handObjectIds": [],
+        "cmdType": "MULLIGAN",
+        "promptId": "banish-effect-play-opening-20261018:3:paired-339c-a:MULLIGAN,SURRENDER",
+        "snapshotTick": 3
+      }
+    },
+    {
+      "playerId": "paired-339c-b",
+      "clientIntentId": "banish-opening-6",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN",
+        "promptId": "banish-effect-play-opening-20261018:5:paired-339c-b:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 5
+      }
+    },
+    {
+      "playerId": "paired-339c-a",
+      "clientIntentId": "banish-opening-7",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN",
+        "promptId": "banish-effect-play-opening-20261018:6:paired-339c-a:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 6
+      }
+    },
+    {
+      "playerId": "paired-339c-b",
+      "clientIntentId": "banish-opening-8",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN",
+        "promptId": "banish-effect-play-opening-20261018:7:paired-339c-b:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 7
+      }
+    },
+    {
+      "playerId": "paired-339c-a",
+      "clientIntentId": "banish-opening-9",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN",
+        "promptId": "banish-effect-play-opening-20261018:8:paired-339c-a:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 8
+      }
+    },
+    {
+      "playerId": "paired-339c-b",
+      "clientIntentId": "banish-opening-10",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN",
+        "promptId": "banish-effect-play-opening-20261018:9:paired-339c-b:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 9
+      }
+    },
+    {
+      "playerId": "paired-339c-a",
+      "clientIntentId": "banish-opening-11",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN",
+        "promptId": "banish-effect-play-opening-20261018:10:paired-339c-a:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 10
+      }
+    },
+    {
+      "playerId": "paired-339c-b",
+      "clientIntentId": "banish-opening-12",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN",
+        "promptId": "banish-effect-play-opening-20261018:11:paired-339c-b:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 11
+      }
+    },
+    {
+      "playerId": "paired-339c-a",
+      "clientIntentId": "banish-opening-13",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN",
+        "promptId": "banish-effect-play-opening-20261018:12:paired-339c-a:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 12
+      }
+    },
+    {
+      "playerId": "paired-339c-b",
+      "clientIntentId": "banish-opening-14",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN",
+        "promptId": "banish-effect-play-opening-20261018:13:paired-339c-b:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 13
+      }
+    },
+    {
+      "playerId": "paired-339c-a",
+      "clientIntentId": "banish-opening-15",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN",
+        "promptId": "banish-effect-play-opening-20261018:14:paired-339c-a:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 14
+      }
+    },
+    {
+      "playerId": "paired-339c-b",
+      "clientIntentId": "banish-opening-16",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN",
+        "promptId": "banish-effect-play-opening-20261018:15:paired-339c-b:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 15
+      }
+    },
+    {
+      "playerId": "paired-339c-a",
+      "clientIntentId": "banish-opening-17",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN",
+        "promptId": "banish-effect-play-opening-20261018:16:paired-339c-a:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 16
+      }
+    },
+    {
+      "playerId": "paired-339c-b",
+      "clientIntentId": "banish-opening-18",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN",
+        "promptId": "banish-effect-play-opening-20261018:17:paired-339c-b:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 17
+      }
+    },
+    {
+      "playerId": "paired-339c-a",
+      "clientIntentId": "banish-opening-19",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN",
+        "promptId": "banish-effect-play-opening-20261018:18:paired-339c-a:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 18
+      }
+    },
+    {
+      "playerId": "paired-339c-b",
+      "clientIntentId": "banish-opening-20",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN",
+        "promptId": "banish-effect-play-opening-20261018:19:paired-339c-b:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 19
+      }
+    },
+    {
+      "playerId": "paired-339c-a",
+      "clientIntentId": "banish-opening-21",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "paired-339c-a-RUNE-SFD-R01a-08",
+        "sourceObjectIds": null,
+        "cmdType": "TAP_RUNE",
+        "promptId": "banish-effect-play-opening-20261018:20:paired-339c-a:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 20
+      }
+    },
+    {
+      "playerId": "paired-339c-a",
+      "clientIntentId": "banish-opening-22",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "paired-339c-a-RUNE-OGN-089-298-04",
+        "sourceObjectIds": null,
+        "cmdType": "TAP_RUNE",
+        "promptId": "banish-effect-play-opening-20261018:21:paired-339c-a:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 21
+      }
+    },
+    {
+      "playerId": "paired-339c-a",
+      "clientIntentId": "banish-opening-23",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "paired-339c-a-RUNE-OGN-007a-298-02",
+        "sourceObjectIds": null,
+        "cmdType": "TAP_RUNE",
+        "promptId": "banish-effect-play-opening-20261018:22:paired-339c-a:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 22
+      }
+    },
+    {
+      "playerId": "paired-339c-a",
+      "clientIntentId": "banish-opening-24",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "paired-339c-a-RUNE-OGN-089a-298-05",
+        "sourceObjectIds": null,
+        "cmdType": "TAP_RUNE",
+        "promptId": "banish-effect-play-opening-20261018:23:paired-339c-a:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 23
+      }
+    },
+    {
+      "playerId": "paired-339c-a",
+      "clientIntentId": "banish-opening-25",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "paired-339c-a-RUNE-OGN-089b-298-06",
+        "sourceObjectIds": null,
+        "cmdType": "TAP_RUNE",
+        "promptId": "banish-effect-play-opening-20261018:24:paired-339c-a:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 24
+      }
+    },
+    {
+      "playerId": "paired-339c-a",
+      "clientIntentId": "banish-opening-26",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "paired-339c-a-RUNE-SFD-R01-07",
+        "sourceObjectIds": null,
+        "cmdType": "TAP_RUNE",
+        "promptId": "banish-effect-play-opening-20261018:25:paired-339c-a:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 25
+      }
+    },
+    {
+      "playerId": "paired-339c-a",
+      "clientIntentId": "banish-opening-27",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "paired-339c-a-RUNE-OGN-007b-298-03",
+        "sourceObjectIds": null,
+        "cmdType": "TAP_RUNE",
+        "promptId": "banish-effect-play-opening-20261018:26:paired-339c-a:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 26
+      }
+    },
+    {
+      "playerId": "paired-339c-a",
+      "clientIntentId": "banish-opening-28",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "paired-339c-a-RUNE-SFD-R03b-12",
+        "sourceObjectIds": null,
+        "cmdType": "TAP_RUNE",
+        "promptId": "banish-effect-play-opening-20261018:27:paired-339c-a:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 27
+      }
+    },
+    {
+      "playerId": "paired-339c-a",
+      "clientIntentId": "banish-opening-29",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "paired-339c-a-RUNE-SFD-R01b-09",
+        "sourceObjectIds": null,
+        "cmdType": "TAP_RUNE",
+        "promptId": "banish-effect-play-opening-20261018:28:paired-339c-a:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 28
+      }
+    },
+    {
+      "playerId": "paired-339c-a",
+      "clientIntentId": "banish-opening-30",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "paired-339c-a-RUNE-SFD-R03-10",
+        "sourceObjectIds": null,
+        "cmdType": "TAP_RUNE",
+        "promptId": "banish-effect-play-opening-20261018:29:paired-339c-a:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 29
+      }
+    },
+    {
+      "playerId": "paired-339c-a",
+      "clientIntentId": "banish-opening-31",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "paired-339c-a-RUNE-SFD-R03a-11",
+        "sourceObjectIds": null,
+        "cmdType": "TAP_RUNE",
+        "promptId": "banish-effect-play-opening-20261018:30:paired-339c-a:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 30
+      }
+    },
+    {
+      "playerId": "paired-339c-a",
+      "clientIntentId": "banish-opening-32",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "paired-339c-a-RUNE-OGN-007-298-01",
+        "sourceObjectIds": null,
+        "cmdType": "TAP_RUNE",
+        "promptId": "banish-effect-play-opening-20261018:31:paired-339c-a:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 31
+      }
+    },
+    {
+      "playerId": "paired-339c-a",
+      "clientIntentId": "banish-opening-33",
+      "commandType": "PLAY_CARD",
+      "rawCommand": {
+        "sourceObjectId": "paired-339c-a-MAIN-UNL-003-219-29",
+        "cardNo": "UNL-003/219",
+        "targetObjectIds": [],
+        "mode": "",
+        "destination": "BASE",
+        "repeatChoices": null,
+        "movementDestinations": null,
+        "cmdType": "PLAY_CARD",
+        "promptId": "banish-effect-play-opening-20261018:32:paired-339c-a:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 32
+      }
+    },
+    {
+      "playerId": "paired-339c-a",
+      "clientIntentId": "banish-opening-34",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN",
+        "promptId": "banish-effect-play-opening-20261018:33:paired-339c-a:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 33
+      }
+    },
+    {
+      "playerId": "paired-339c-b",
+      "clientIntentId": "banish-opening-35",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN",
+        "promptId": "banish-effect-play-opening-20261018:34:paired-339c-b:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 34
+      }
+    },
+    {
+      "playerId": "paired-339c-a",
+      "clientIntentId": "banish-opening-36",
+      "commandType": "MOVE_UNIT",
+      "rawCommand": {
+        "sourceObjectId": "paired-339c-a-MAIN-UNL-003-219-29",
+        "origin": "BASE",
+        "destination": "BATTLEFIELD:paired-339c-b-BATTLEFIELD-OGN-275-298-01",
+        "optionalCosts": [],
+        "sourceObjectIds": null,
+        "cmdType": "MOVE_UNIT",
+        "promptId": "banish-effect-play-opening-20261018:35:paired-339c-a:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 35
+      }
+    },
+    {
+      "playerId": "paired-339c-a",
+      "clientIntentId": "banish-opening-37",
+      "commandType": "PASS_FOCUS",
+      "rawCommand": {
+        "cmdType": "PASS_FOCUS",
+        "promptId": "banish-effect-play-opening-20261018:36:paired-339c-a:TAP_RUNE,RECYCLE_RUNE,PASS_FOCUS,SURRENDER",
+        "snapshotTick": 36
+      }
+    },
+    {
+      "playerId": "paired-339c-b",
+      "clientIntentId": "banish-opening-38",
+      "commandType": "PASS_FOCUS",
+      "rawCommand": {
+        "cmdType": "PASS_FOCUS",
+        "promptId": "banish-effect-play-opening-20261018:37:paired-339c-b:TAP_RUNE,RECYCLE_RUNE,PASS_FOCUS,SURRENDER",
+        "snapshotTick": 37
+      }
+    },
+    {
+      "playerId": "paired-339c-a",
+      "clientIntentId": "banish-opening-39",
+      "commandType": "END_TURN",
+      "rawCommand": {
+        "cmdType": "END_TURN",
+        "promptId": "banish-effect-play-opening-20261018:38:paired-339c-a:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 38
+      }
+    },
+    {
+      "playerId": "paired-339c-b",
+      "clientIntentId": "banish-opening-40",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "paired-339c-b-RUNE-UNL-R01-02",
+        "sourceObjectIds": null,
+        "cmdType": "TAP_RUNE",
+        "promptId": "banish-effect-play-opening-20261018:39:paired-339c-b:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 39
+      }
+    },
+    {
+      "playerId": "paired-339c-b",
+      "clientIntentId": "banish-opening-41",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "paired-339c-b-RUNE-UNL-R04-10",
+        "sourceObjectIds": null,
+        "cmdType": "TAP_RUNE",
+        "promptId": "banish-effect-play-opening-20261018:40:paired-339c-b:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 40
+      }
+    },
+    {
+      "playerId": "paired-339c-b",
+      "clientIntentId": "banish-opening-42",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "paired-339c-b-RUNE-UNL-R04-12",
+        "sourceObjectIds": null,
+        "cmdType": "TAP_RUNE",
+        "promptId": "banish-effect-play-opening-20261018:41:paired-339c-b:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 41
+      }
+    },
+    {
+      "playerId": "paired-339c-b",
+      "clientIntentId": "banish-opening-43",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "paired-339c-b-RUNE-UNL-R01-01",
+        "sourceObjectIds": null,
+        "cmdType": "TAP_RUNE",
+        "promptId": "banish-effect-play-opening-20261018:42:paired-339c-b:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 42
+      }
+    },
+    {
+      "playerId": "paired-339c-b",
+      "clientIntentId": "banish-opening-44",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "paired-339c-b-RUNE-UNL-R01-05",
+        "sourceObjectIds": null,
+        "cmdType": "TAP_RUNE",
+        "promptId": "banish-effect-play-opening-20261018:43:paired-339c-b:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 43
+      }
+    },
+    {
+      "playerId": "paired-339c-b",
+      "clientIntentId": "banish-opening-45",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "paired-339c-b-RUNE-UNL-R04-07",
+        "sourceObjectIds": null,
+        "cmdType": "TAP_RUNE",
+        "promptId": "banish-effect-play-opening-20261018:44:paired-339c-b:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 44
+      }
+    },
+    {
+      "playerId": "paired-339c-b",
+      "clientIntentId": "banish-opening-46",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "paired-339c-b-RUNE-UNL-R04-08",
+        "sourceObjectIds": null,
+        "cmdType": "TAP_RUNE",
+        "promptId": "banish-effect-play-opening-20261018:45:paired-339c-b:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 45
+      }
+    },
+    {
+      "playerId": "paired-339c-b",
+      "clientIntentId": "banish-opening-47",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "paired-339c-b-RUNE-UNL-R01-06",
+        "sourceObjectIds": null,
+        "cmdType": "TAP_RUNE",
+        "promptId": "banish-effect-play-opening-20261018:46:paired-339c-b:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 46
+      }
+    },
+    {
+      "playerId": "paired-339c-b",
+      "clientIntentId": "banish-opening-48",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "paired-339c-b-RUNE-UNL-R01-03",
+        "sourceObjectIds": null,
+        "cmdType": "TAP_RUNE",
+        "promptId": "banish-effect-play-opening-20261018:47:paired-339c-b:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 47
+      }
+    },
+    {
+      "playerId": "paired-339c-b",
+      "clientIntentId": "banish-opening-49",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "paired-339c-b-RUNE-UNL-R01-04",
+        "sourceObjectIds": null,
+        "cmdType": "TAP_RUNE",
+        "promptId": "banish-effect-play-opening-20261018:48:paired-339c-b:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 48
+      }
+    },
+    {
+      "playerId": "paired-339c-b",
+      "clientIntentId": "banish-opening-50",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "paired-339c-b-RUNE-UNL-R04-09",
+        "sourceObjectIds": null,
+        "cmdType": "TAP_RUNE",
+        "promptId": "banish-effect-play-opening-20261018:49:paired-339c-b:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 49
+      }
+    },
+    {
+      "playerId": "paired-339c-b",
+      "clientIntentId": "banish-opening-51",
+      "commandType": "TAP_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "paired-339c-b-RUNE-UNL-R04-11",
+        "sourceObjectIds": null,
+        "cmdType": "TAP_RUNE",
+        "promptId": "banish-effect-play-opening-20261018:50:paired-339c-b:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 50
+      }
+    },
+    {
+      "playerId": "paired-339c-b",
+      "clientIntentId": "banish-opening-52",
+      "commandType": "RECYCLE_RUNE",
+      "rawCommand": {
+        "sourceObjectId": "paired-339c-b-RUNE-UNL-R04-10",
+        "sourceObjectIds": null,
+        "cmdType": "RECYCLE_RUNE",
+        "promptId": "banish-effect-play-opening-20261018:51:paired-339c-b:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 51
+      }
+    },
+    {
+      "playerId": "paired-339c-b",
+      "clientIntentId": "banish-opening-53",
+      "commandType": "PLAY_CARD",
+      "rawCommand": {
+        "sourceObjectId": "paired-339c-b-MAIN-UNL-111-219-32",
+        "cardNo": "UNL-111/219",
+        "targetObjectIds": [
+          "paired-339c-a-MAIN-UNL-003-219-29"
+        ],
+        "mode": "",
+        "destination": "BASE",
+        "repeatChoices": null,
+        "movementDestinations": null,
+        "cmdType": "PLAY_CARD",
+        "promptId": "banish-effect-play-opening-20261018:52:paired-339c-b:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 52
+      }
+    },
+    {
+      "playerId": "paired-339c-b",
+      "clientIntentId": "banish-opening-54",
+      "commandType": "PASS_PRIORITY",
+      "rawCommand": {
+        "cmdType": "PASS_PRIORITY",
+        "promptId": "banish-effect-play-opening-20261018:53:paired-339c-b:RECYCLE_RUNE,PLAY_CARD,PASS_PRIORITY,SURRENDER",
+        "snapshotTick": 53
+      }
+    },
+    {
+      "playerId": "paired-339c-a",
+      "clientIntentId": "banish-opening-55",
+      "commandType": "PASS_PRIORITY",
+      "rawCommand": {
+        "cmdType": "PASS_PRIORITY",
+        "promptId": "banish-effect-play-opening-20261018:54:paired-339c-a:TAP_RUNE,RECYCLE_RUNE,PASS_PRIORITY,SURRENDER",
+        "snapshotTick": 54
+      }
+    },
+    {
+      "playerId": "paired-339c-b",
+      "clientIntentId": "banish-opening-56",
+      "commandType": "PLAY_CARD",
+      "rawCommand": {
+        "sourceObjectId": "paired-339c-b-MAIN-UNL-184-219-31",
+        "cardNo": "UNL-184/219",
+        "targetObjectIds": [
+          "paired-339c-b-MAIN-UNL-111-219-32"
+        ],
+        "mode": "",
+        "destination": "",
+        "repeatChoices": null,
+        "movementDestinations": null,
+        "cmdType": "PLAY_CARD",
+        "promptId": "banish-effect-play-opening-20261018:55:paired-339c-b:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+        "snapshotTick": 55
+      }
+    },
+    {
+      "playerId": "paired-339c-b",
+      "clientIntentId": "banish-opening-57",
+      "commandType": "PASS_PRIORITY",
+      "rawCommand": {
+        "cmdType": "PASS_PRIORITY",
+        "promptId": "banish-effect-play-opening-20261018:56:paired-339c-b:RECYCLE_RUNE,PASS_PRIORITY,SURRENDER",
+        "snapshotTick": 56
+      }
+    },
+    {
+      "playerId": "paired-339c-a",
+      "clientIntentId": "banish-opening-58",
+      "commandType": "PASS_PRIORITY",
+      "rawCommand": {
+        "cmdType": "PASS_PRIORITY",
+        "promptId": "banish-effect-play-opening-20261018:57:paired-339c-a:TAP_RUNE,RECYCLE_RUNE,PASS_PRIORITY,SURRENDER",
+        "snapshotTick": 57
+      }
+    },
+    {
+      "playerId": "paired-339c-b",
+      "clientIntentId": "banish-opening-59",
+      "commandType": "PLAY_CARD",
+      "rawCommand": {
+        "sourceObjectId": "paired-339c-b-MAIN-UNL-111-219-32",
+        "cardNo": "UNL-111/219",
+        "targetObjectIds": [
+          "paired-339c-a-MAIN-UNL-003-219-29"
+        ],
+        "mode": "",
+        "destination": "BATTLEFIELD:paired-339c-b-BATTLEFIELD-OGN-275-298-01",
+        "repeatChoices": null,
+        "movementDestinations": null,
+        "cmdType": "PLAY_CARD",
+        "promptId": "banish-effect-play-opening-20261018:58:paired-339c-b:PLAY_CARD,ACTIVATE_ABILITY,TAP_RUNE,RECYCLE_RUNE,SURRENDER",
+        "snapshotTick": 58
+      }
+    },
+    {
+      "playerId": "paired-339c-b",
+      "clientIntentId": "banish-opening-60",
+      "commandType": "PASS_PRIORITY",
+      "rawCommand": {
+        "cmdType": "PASS_PRIORITY",
+        "promptId": "banish-effect-play-opening-20261018:59:paired-339c-b:RECYCLE_RUNE,PLAY_CARD,PASS_PRIORITY,SURRENDER",
+        "snapshotTick": 59
+      }
+    },
+    {
+      "playerId": "paired-339c-a",
+      "clientIntentId": "banish-opening-61",
+      "commandType": "PASS_PRIORITY",
+      "rawCommand": {
+        "cmdType": "PASS_PRIORITY",
+        "promptId": "banish-effect-play-opening-20261018:60:paired-339c-a:TAP_RUNE,RECYCLE_RUNE,PASS_PRIORITY,SURRENDER",
+        "snapshotTick": 60
+      }
+    },
+    {
+      "playerId": "paired-339c-b",
+      "clientIntentId": "banish-opening-62",
+      "commandType": "PASS_FOCUS",
+      "rawCommand": {
+        "cmdType": "PASS_FOCUS",
+        "promptId": "banish-effect-play-opening-20261018:61:paired-339c-b:RECYCLE_RUNE,PLAY_CARD,PASS_FOCUS,SURRENDER",
+        "snapshotTick": 61
+      }
+    },
+    {
+      "playerId": "paired-339c-a",
+      "clientIntentId": "banish-opening-63",
+      "commandType": "PASS_FOCUS",
+      "rawCommand": {
+        "cmdType": "PASS_FOCUS",
+        "promptId": "banish-effect-play-opening-20261018:62:paired-339c-a:TAP_RUNE,RECYCLE_RUNE,PASS_FOCUS,SURRENDER",
+        "snapshotTick": 62
+      }
+    }
+  ],
+  "scope": "New legal Rengar deck from original blank seed0, base unit, ordinary Hunting Rhythm, owner selects an enemy-controlled battlefield; pending owner-play and child-response cold recovery, original next command and full original replay. Other legend/own-ability combinations remain separate."
+}

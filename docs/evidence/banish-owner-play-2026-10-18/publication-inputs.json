@@ -1,0 +1,552 @@
+{
+  "recordedAtUtc": "2026-10-17T16:29:45.234752+00:00",
+  "fixedSourceManifest": "frozen-inputs-v5.json",
+  "allFourSharedRiftboundRuntimeModulesByteExact": true,
+  "files": {
+    "api": [
+      {
+        "path": "MessagePack.Annotations.dll",
+        "sha256": "d6d77e65edef6b60ce8fb9e5cba402d70fd97d1401c240c8b2c5389e08009315",
+        "bytes": 18432
+      },
+      {
+        "path": "MessagePack.dll",
+        "sha256": "6dedc861263288ee726ad9c919431cede00d35764f47ce9a3fa2f93d7f08a7f7",
+        "bytes": 382464
+      },
+      {
+        "path": "Microsoft.AspNetCore.SignalR.StackExchangeRedis.dll",
+        "sha256": "08e97dee4d18b0beaa3f7d0279eec70a8d2a57b29c2e5e8846bebfc98741ae4c",
+        "bytes": 82256
+      },
+      {
+        "path": "Microsoft.NET.StringTools.dll",
+        "sha256": "e51c8678fd602a21c249b369e833966019935132476f9434da896bef808ba3b1",
+        "bytes": 30880
+      },
+      {
+        "path": "Npgsql.dll",
+        "sha256": "9d8db086e9eda5ff20c4a7f83fa3eae7689198f57277ff9ceea1ee3526f5fcf8",
+        "bytes": 1477632
+      },
+      {
+        "path": "Pipelines.Sockets.Unofficial.dll",
+        "sha256": "fa2cdb1d5ffbb2b06512c92ce8bd18918a1a996171d0a72dfc73035bc586a711",
+        "bytes": 167424
+      },
+      {
+        "path": "Riftbound.Api",
+        "sha256": "2ee40d708044453974a50200c073a09b0a129b21c6202cca0952d0d89f679664",
+        "bytes": 124712
+      },
+      {
+        "path": "Riftbound.Api.deps.json",
+        "sha256": "72c26959496a9b126edbf4d1107e72dd10bac8dc6a4550fe5e91b18bb172ee9d",
+        "bytes": 6604
+      },
+      {
+        "path": "Riftbound.Api.dll",
+        "sha256": "2dd3712cc1b8230f6f7184d780d90aca4f1a4c9ccb46b29f70d2ca4cfdd1a2a6",
+        "bytes": 110080
+      },
+      {
+        "path": "Riftbound.Api.pdb",
+        "sha256": "bffd10e7a503d694738d3de01ceb7b6b3f9ed4be706bc0edb93d580ecf91d91c",
+        "bytes": 54972
+      },
+      {
+        "path": "Riftbound.Api.runtimeconfig.json",
+        "sha256": "f71b4c67b5233a19be9131b5fe4b45fe7829997cf2b42e762d6baa037da93863",
+        "bytes": 472
+      },
+      {
+        "path": "Riftbound.Api.staticwebassets.endpoints.json",
+        "sha256": "bd4d34cb964f0b4e2d3b98ab1a6b9c886341d2f2288b5829db90eb4b131f47a5",
+        "bytes": 1094
+      },
+      {
+        "path": "Riftbound.CardCatalog.dll",
+        "sha256": "4108a6057469da21fd4785bcadef492f11c5f7f0726f10bf1456cdcf3bbd4712",
+        "bytes": 331264
+      },
+      {
+        "path": "Riftbound.CardCatalog.pdb",
+        "sha256": "7a6f965c625f581423361e7dd5d0dc8c290e386b534b675bdf008969957820e8",
+        "bytes": 100992
+      },
+      {
+        "path": "Riftbound.Contracts.dll",
+        "sha256": "09e33ebe14a4a707b72a0999fd41f64c7ee444e4f9834fee04c8d0c9072685af",
+        "bytes": 337920
+      },
+      {
+        "path": "Riftbound.Contracts.pdb",
+        "sha256": "7cca4f18b7df187ba05bd6770db09070c5a778e2fa48e8919ec968a50abe2ce4",
+        "bytes": 71136
+      },
+      {
+        "path": "Riftbound.Engine.dll",
+        "sha256": "b75907779bcab5d1773f71b2ad121ba347da16de6ee034e92c17718e7684b6de",
+        "bytes": 4416000
+      },
+      {
+        "path": "Riftbound.Engine.pdb",
+        "sha256": "a76774c345cbd137564c91d1bb786817e260768c9266efe8108aa2ac1f23b103",
+        "bytes": 1640988
+      },
+      {
+        "path": "Riftbound.Persistence.dll",
+        "sha256": "d01cd97f617226212fd2bd951d6c693fff47ac725360591d20504408ff315d11",
+        "bytes": 109568
+      },
+      {
+        "path": "Riftbound.Persistence.pdb",
+        "sha256": "ba4cf535ad1bbd4d759f3df0135048228651cfa98c49b3c88e144a19382de523",
+        "bytes": 52948
+      },
+      {
+        "path": "Sql/001_p1_event_store.sql",
+        "sha256": "a9ac98b4925daa23a85453c2bad26c874362fd041cffd2f940d88763cfe418bd",
+        "bytes": 6975
+      },
+      {
+        "path": "Sql/002_p1_ruleset_audit.sql",
+        "sha256": "c7c449c8121f2224768a0a6773fb2990406f4f13b9bb8bb0fa84fbbc5517f5a9",
+        "bytes": 3073
+      },
+      {
+        "path": "Sql/003_p1_event_sequence.sql",
+        "sha256": "a0589a27b597680f14cfd6bb63038c5af57fc5b1d7fb75f4477306cea244c18d",
+        "bytes": 1319
+      },
+      {
+        "path": "Sql/004_p1_state_snapshots.sql",
+        "sha256": "a2bb2274088648a762159b068103b792baa18c474ec5a3b20786a3d3a58642b7",
+        "bytes": 739
+      },
+      {
+        "path": "Sql/005_p1_event_tick_order_not_unique.sql",
+        "sha256": "25bd0a733d33c9b9d1dfdc0382cd53200202c6eaa3f4bf91f735c3559c2ba2b9",
+        "bytes": 103
+      },
+      {
+        "path": "Sql/006_p1_match_player_seat_uniqueness.sql",
+        "sha256": "264af7f8cd9b89f46ccae728c71dba27e61ae7ab7b13946c698b2ce14b3f6583",
+        "bytes": 842
+      },
+      {
+        "path": "Sql/007_p2_player_identity.sql",
+        "sha256": "a543a908acb57b47a4db55b59248e167759d3c901d3d3f532c88818e525df9ed",
+        "bytes": 155
+      },
+      {
+        "path": "Sql/008_p2_match_results.sql",
+        "sha256": "97b07d1e59ec8a98e56edc958980e7d5f6a2173fa14d38ae6fc49aaaf83f9f34",
+        "bytes": 797
+      },
+      {
+        "path": "Sql/009_runtime_rule_inputs.sql",
+        "sha256": "a0ac37d459559449ed5eb0d5c1d1ee5879e1552f943215a3951ee0bb4dbcd6f5",
+        "bytes": 558
+      },
+      {
+        "path": "StackExchange.Redis.dll",
+        "sha256": "e78cbee5a5a1071e45246c9b400de869ba6c9bec5c67870f0b99253923d67799",
+        "bytes": 838656
+      },
+      {
+        "path": "appsettings.Development.json",
+        "sha256": "109fcebd5e1b2ded13ad0622e0faae3b0c5cfe238ee7036a1d2f6a292db860a4",
+        "bytes": 100
+      },
+      {
+        "path": "data/official/armaments.json",
+        "sha256": "ddcd838300e558c11df480ee79ccfab08c7af380df36544c666841720850bda8",
+        "bytes": 11743
+      },
+      {
+        "path": "data/official/card-catalog.zh-CN.json",
+        "sha256": "68930e34e45385c4bc78c4805aaba46e4b5b57057a25ba957a85b339fe376fc8",
+        "bytes": 1358537
+      },
+      {
+        "path": "data/official/rule-input-scope.json",
+        "sha256": "cc07cf3eef6a9af403454642a0435d061544400b5e01d08d3fdc65869bdad180",
+        "bytes": 14749
+      },
+      {
+        "path": "web.config",
+        "sha256": "19d9d38527a185f34773442f8ce35a045f8dbdebbd5d2a94a3456599ec27d0f5",
+        "bytes": 489
+      },
+      {
+        "path": "wwwroot/.gitkeep",
+        "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+        "bytes": 1
+      }
+    ],
+    "sql": [
+      {
+        "path": "Fixtures/banish-owner-current-opening.json",
+        "sha256": "e6bd310b80da65c5596ea4f202c970e8da6e0190c57093166db8651553f7dde8",
+        "bytes": 34085
+      },
+      {
+        "path": "Fixtures/battlefield-base-blitzcrank.json",
+        "sha256": "c735b71716f70004964a446b5322d8c6d4b98951a277f420d3619292e034c417",
+        "bytes": 13000
+      },
+      {
+        "path": "Fixtures/battlefield-base-merfolk.json",
+        "sha256": "30a333defda40a95ecd248295c21d42652cd3d0fd16e5c959ed385b17b097e90",
+        "bytes": 8919
+      },
+      {
+        "path": "Fixtures/battlefield-merfolk-current-opening.json",
+        "sha256": "297c73afede23f5c4f279ac6e644b2e27647b812f5726b56d1a331be46995a79",
+        "bytes": 23501
+      },
+      {
+        "path": "Fixtures/card-play-history-actual-opening-339c.json",
+        "sha256": "f3c2a8495ee9dd9eef80badba6222c9f0d9ea49ec19eacb1d62ff4ddb9b12317",
+        "bytes": 7157
+      },
+      {
+        "path": "Fixtures/card-play-history-current-opening-20261017.json",
+        "sha256": "b025dd81d7aeb74611edca6027afe9125f265ef1aa7a1b92fa8f35b0eca1a2ca",
+        "bytes": 14945
+      },
+      {
+        "path": "Fixtures/confirmed-play-origin-hand-cn16.json",
+        "sha256": "ddea9849f6ff7b2d3079c1f9a446e9bd766a333b54472008739e45457b503b49",
+        "bytes": 17078
+      },
+      {
+        "path": "Fixtures/confirmed-play-origin-standby-cn16.json",
+        "sha256": "dfc9cebb8f785717b251ac8226ec3a2725aefe1c27d8601d38159d1893086a9e",
+        "bytes": 20668
+      },
+      {
+        "path": "Fixtures/current-opening-20261017/confirmed-play-origin-hand-cn16.json",
+        "sha256": "07d215c3627eea38583f2e523ad734aacff683716ad9faf3132698893bc5e384",
+        "bytes": 10645
+      },
+      {
+        "path": "Fixtures/current-opening-20261017/confirmed-play-origin-standby-cn16.json",
+        "sha256": "ed4d9182e995e5fa9c978319c53beb067aff389d1d605a2cab05ffcc4443ff08",
+        "bytes": 12671
+      },
+      {
+        "path": "Fixtures/current-opening-20261017/embedded-ready-protect-decline.json",
+        "sha256": "370bedeb03305929989e40da699bbaecd0439f76cb778756301f5c85dad6426e",
+        "bytes": 29715
+      },
+      {
+        "path": "Fixtures/current-opening-20261017/embedded-ready-protect-pay.json",
+        "sha256": "c8816cef5618206818d691c9eaf35588c24f892d034434590e066ea8467af6e9",
+        "bytes": 29752
+      },
+      {
+        "path": "Fixtures/current-opening-20261017/embedded-ready-rise-0.json",
+        "sha256": "8b2e74989842c724ee4e121e36ef3e0e928bdad0596fdd13159eec1b8387651c",
+        "bytes": 29664
+      },
+      {
+        "path": "Fixtures/current-opening-20261017/embedded-ready-rise-2.json",
+        "sha256": "9ebcc40d25cef2300a7b8370b16c62bb554533f5a84340de105ec02a9fefb3f3",
+        "bytes": 47959
+      },
+      {
+        "path": "Fixtures/current-opening-20261017/granted-origin-haste-sacrifice.json",
+        "sha256": "57395ece74c8ac5d73ff9b6ae1a2e78d709d296355cd37238c9d9a95644d3ff9",
+        "bytes": 38304
+      },
+      {
+        "path": "Fixtures/current-opening-20261017/granted-origin-haste-unit.json",
+        "sha256": "01de80e59ecc1f9456fa20d2c08944b2e932c79ce671e1272f2e55b965eb7295",
+        "bytes": 38300
+      },
+      {
+        "path": "Fixtures/current-opening-20261017/opponent-battlefield-control-neutral.json",
+        "sha256": "adeb44c4de45938ebd85ae97adaca39e6d05eac6c4238d2ba69d25491fa9b59c",
+        "bytes": 26846
+      },
+      {
+        "path": "Fixtures/current-opening-20261017/opponent-battlefield-control-swapped.json",
+        "sha256": "9c4c0f106dc1cd38488b8ade04b7aed56b1cd79a18f8c9db0579f98be02f98dc",
+        "bytes": 59937
+      },
+      {
+        "path": "Fixtures/current-opening-20261017/optional-sacrifice-hand.json",
+        "sha256": "3bf779fe5c0f6d8660dc15cfc9d242c969ffa5192ba16c92af7bde92ccfc2d8e",
+        "bytes": 42112
+      },
+      {
+        "path": "Fixtures/current-opening-20261017/optional-sacrifice-haste.json",
+        "sha256": "ad8af13b0ac6d79c04a8d0d47e8788dc9a1bdce7da9b848cc05307b1ad3fad48",
+        "bytes": 67586
+      },
+      {
+        "path": "Fixtures/current-opening-20261017/physical-origin-cost-spell.json",
+        "sha256": "2c9110fd6711d2605057516015212925882a0c646c1040213d800b8703c89095",
+        "bytes": 38220
+      },
+      {
+        "path": "Fixtures/current-opening-20261017/physical-origin-cost-unit.json",
+        "sha256": "7c8509b73f3c52c572ce660d9a49945fd8c9b2b54a1e2baa66f4f4c8cfb12875",
+        "bytes": 37302
+      },
+      {
+        "path": "Fixtures/current-opening-20261017/token-haste-hand.json",
+        "sha256": "9951bd0c23938c0b82dfdcf455d1a7ecf9544fe63efa0297e135f1159c57b16d",
+        "bytes": 42745
+      },
+      {
+        "path": "Fixtures/current-opening-20261017/token-haste-standby.json",
+        "sha256": "dc24db39455742931b6cb1e97ee792d4965dec9f447c8b91088bc9fdae3e2a82",
+        "bytes": 49993
+      },
+      {
+        "path": "Fixtures/embedded-ready-protect-decline.json",
+        "sha256": "ddc8de2125e8f3e4d39b3ea65f12879b1527054f0a2e9c8035386fb57f98554a",
+        "bytes": 36287
+      },
+      {
+        "path": "Fixtures/embedded-ready-protect-pay.json",
+        "sha256": "540467115c27b4dde63975e1a8205cda1455c26e7662efb78f646fd1c808f5e6",
+        "bytes": 24690
+      },
+      {
+        "path": "Fixtures/embedded-ready-rise-0.json",
+        "sha256": "4c7be4f7187510e0c7cbc65f130846b5478135df30945f9c9e5771bef317e3f1",
+        "bytes": 44386
+      },
+      {
+        "path": "Fixtures/embedded-ready-rise-2.json",
+        "sha256": "9ff1c2b229024f048ef8e49f5c4c762d5e344829faa126dc1420b082dfd69193",
+        "bytes": 58554
+      },
+      {
+        "path": "Fixtures/granted-origin-haste-sacrifice.json",
+        "sha256": "aebd36e554e057e88c69324d2dabcd671a020e35f8ae7738e0d257209fe245fd",
+        "bytes": 99216
+      },
+      {
+        "path": "Fixtures/granted-origin-haste-unit.json",
+        "sha256": "59f714126d330cbc247e26e1e7c53c00e11bb075a87ec4bfbabe2235a9cf1676",
+        "bytes": 139199
+      },
+      {
+        "path": "Fixtures/opponent-battlefield-control-neutral.json",
+        "sha256": "e76d3480321ba420aee8cbdb7c7b4052ad1a4eb7ed8cdf6967843ab73290ce32",
+        "bytes": 46482
+      },
+      {
+        "path": "Fixtures/opponent-battlefield-control-swapped.json",
+        "sha256": "a600c5ea9dc9dd24023baf3b4f76644932f9515ea17c9f2cf1684dcb3433554f",
+        "bytes": 41131
+      },
+      {
+        "path": "Fixtures/optional-sacrifice-hand.json",
+        "sha256": "4a24c789e3f0011b70f30bc742ffb6000bdedff746bcf3c9695f04b2566e9ead",
+        "bytes": 71936
+      },
+      {
+        "path": "Fixtures/optional-sacrifice-haste.json",
+        "sha256": "942cac52e64eda794440ae4f624a9b930c3da7dbd4d1c2fa4b250c595d2c3713",
+        "bytes": 42654
+      },
+      {
+        "path": "Fixtures/physical-origin-cost-spell.json",
+        "sha256": "17c7d60010350af436cfa93537de987a9352561446a18baa21f842a5eb79f6ee",
+        "bytes": 35604
+      },
+      {
+        "path": "Fixtures/physical-origin-cost-unit.json",
+        "sha256": "84a60ad170db28fe62cce5c2c721faf1b559f0de264b67bdf1a5dc1ce578b056",
+        "bytes": 34642
+      },
+      {
+        "path": "Fixtures/token-haste-hand.json",
+        "sha256": "84fe1cd2eba9b42c73b3cc76218a7bd8c3a92fa99193b6134692bbb1e5a6fe12",
+        "bytes": 61657
+      },
+      {
+        "path": "Fixtures/token-haste-standby.json",
+        "sha256": "10cf2a0b6c2e27bb2e0d543072df7a3adad291dc030fae82d6dec684d0309311",
+        "bytes": 91053
+      },
+      {
+        "path": "Microsoft.Extensions.Configuration.Abstractions.dll",
+        "sha256": "5def68e1c7d9c1fcf56153bb669e00d84c1ae17b35fb09c5a8ccf93e9b934d3e",
+        "bytes": 28984
+      },
+      {
+        "path": "Microsoft.Extensions.DependencyInjection.Abstractions.dll",
+        "sha256": "7c97c4463fe0fc11d1f22f4d160b2bd2288981adf1de2717a6ff3fb993ddf294",
+        "bytes": 66312
+      },
+      {
+        "path": "Microsoft.Extensions.Diagnostics.Abstractions.dll",
+        "sha256": "9702b8737009bb5f6c943cf7a3ba5c0991c7e4eb58a9e952d54835bb596fe563",
+        "bytes": 31504
+      },
+      {
+        "path": "Microsoft.Extensions.FileProviders.Abstractions.dll",
+        "sha256": "7ee935aadd8afe2f731d655ef54479ed6206e6d2aa52bfd1889cdf170b0f9399",
+        "bytes": 23864
+      },
+      {
+        "path": "Microsoft.Extensions.Hosting.Abstractions.dll",
+        "sha256": "89a4428a5d0feedde5aa0565509b9f4c6189efdcaf888cd1c2c3f979e32ccd7c",
+        "bytes": 54536
+      },
+      {
+        "path": "Microsoft.Extensions.Logging.Abstractions.dll",
+        "sha256": "a76a735b63e6ef3b0bf41ff92423cbd16103b8952e8306140a9bd650346034dc",
+        "bytes": 67344
+      },
+      {
+        "path": "Microsoft.Extensions.Options.dll",
+        "sha256": "58048d710cf2a88d3dea7c933d0b1408464d5aa4245ef736d3d47e6df6ba4db3",
+        "bytes": 65848
+      },
+      {
+        "path": "Microsoft.Extensions.Primitives.dll",
+        "sha256": "6aaf929343fd02415d6cb5d903816c2f1c831b194bfe7a15789879093d0fa6b7",
+        "bytes": 45328
+      },
+      {
+        "path": "Npgsql.dll",
+        "sha256": "9d8db086e9eda5ff20c4a7f83fa3eae7689198f57277ff9ceea1ee3526f5fcf8",
+        "bytes": 1477632
+      },
+      {
+        "path": "Riftbound.CardCatalog.dll",
+        "sha256": "4108a6057469da21fd4785bcadef492f11c5f7f0726f10bf1456cdcf3bbd4712",
+        "bytes": 331264
+      },
+      {
+        "path": "Riftbound.CardCatalog.pdb",
+        "sha256": "7a6f965c625f581423361e7dd5d0dc8c290e386b534b675bdf008969957820e8",
+        "bytes": 100992
+      },
+      {
+        "path": "Riftbound.Contracts.dll",
+        "sha256": "09e33ebe14a4a707b72a0999fd41f64c7ee444e4f9834fee04c8d0c9072685af",
+        "bytes": 337920
+      },
+      {
+        "path": "Riftbound.Contracts.pdb",
+        "sha256": "7cca4f18b7df187ba05bd6770db09070c5a778e2fa48e8919ec968a50abe2ce4",
+        "bytes": 71136
+      },
+      {
+        "path": "Riftbound.Engine.dll",
+        "sha256": "b75907779bcab5d1773f71b2ad121ba347da16de6ee034e92c17718e7684b6de",
+        "bytes": 4416000
+      },
+      {
+        "path": "Riftbound.Engine.pdb",
+        "sha256": "a76774c345cbd137564c91d1bb786817e260768c9266efe8108aa2ac1f23b103",
+        "bytes": 1640988
+      },
+      {
+        "path": "Riftbound.Persistence.dll",
+        "sha256": "d01cd97f617226212fd2bd951d6c693fff47ac725360591d20504408ff315d11",
+        "bytes": 109568
+      },
+      {
+        "path": "Riftbound.Persistence.pdb",
+        "sha256": "ba4cf535ad1bbd4d759f3df0135048228651cfa98c49b3c88e144a19382de523",
+        "bytes": 52948
+      },
+      {
+        "path": "Riftbound.PostgresAcceptance",
+        "sha256": "d0f610706a2d3435f40efdc421bc201f904be7f8fe08b710279c5b472b616637",
+        "bytes": 124712
+      },
+      {
+        "path": "Riftbound.PostgresAcceptance.deps.json",
+        "sha256": "fb79874270ad8acb8886ac8e756416b82852290c3842328b63498541474c76fd",
+        "bytes": 9205
+      },
+      {
+        "path": "Riftbound.PostgresAcceptance.dll",
+        "sha256": "3dfa97b61dd7eb29360e08b18bc2c3db63b56f6a7f0b11d406f543f47c4fa847",
+        "bytes": 660480
+      },
+      {
+        "path": "Riftbound.PostgresAcceptance.pdb",
+        "sha256": "66a9ff00c902b0ecb8af6db7a070b75b58be022841c0d19e2b1f8ebb0e350b89",
+        "bytes": 202120
+      },
+      {
+        "path": "Riftbound.PostgresAcceptance.runtimeconfig.json",
+        "sha256": "9950d4583cfc9a106857c0d5b8a75b53e8774852b57b80bc3823a74d44a4d87f",
+        "bytes": 330
+      },
+      {
+        "path": "Sql/001_p1_event_store.sql",
+        "sha256": "a9ac98b4925daa23a85453c2bad26c874362fd041cffd2f940d88763cfe418bd",
+        "bytes": 6975
+      },
+      {
+        "path": "Sql/002_p1_ruleset_audit.sql",
+        "sha256": "c7c449c8121f2224768a0a6773fb2990406f4f13b9bb8bb0fa84fbbc5517f5a9",
+        "bytes": 3073
+      },
+      {
+        "path": "Sql/003_p1_event_sequence.sql",
+        "sha256": "a0589a27b597680f14cfd6bb63038c5af57fc5b1d7fb75f4477306cea244c18d",
+        "bytes": 1319
+      },
+      {
+        "path": "Sql/004_p1_state_snapshots.sql",
+        "sha256": "a2bb2274088648a762159b068103b792baa18c474ec5a3b20786a3d3a58642b7",
+        "bytes": 739
+      },
+      {
+        "path": "Sql/005_p1_event_tick_order_not_unique.sql",
+        "sha256": "25bd0a733d33c9b9d1dfdc0382cd53200202c6eaa3f4bf91f735c3559c2ba2b9",
+        "bytes": 103
+      },
+      {
+        "path": "Sql/006_p1_match_player_seat_uniqueness.sql",
+        "sha256": "264af7f8cd9b89f46ccae728c71dba27e61ae7ab7b13946c698b2ce14b3f6583",
+        "bytes": 842
+      },
+      {
+        "path": "Sql/007_p2_player_identity.sql",
+        "sha256": "a543a908acb57b47a4db55b59248e167759d3c901d3d3f532c88818e525df9ed",
+        "bytes": 155
+      },
+      {
+        "path": "Sql/008_p2_match_results.sql",
+        "sha256": "97b07d1e59ec8a98e56edc958980e7d5f6a2173fa14d38ae6fc49aaaf83f9f34",
+        "bytes": 797
+      },
+      {
+        "path": "Sql/009_runtime_rule_inputs.sql",
+        "sha256": "a0ac37d459559449ed5eb0d5c1d1ee5879e1552f943215a3951ee0bb4dbcd6f5",
+        "bytes": 558
+      },
+      {
+        "path": "data/official/armaments.json",
+        "sha256": "ddcd838300e558c11df480ee79ccfab08c7af380df36544c666841720850bda8",
+        "bytes": 11743
+      },
+      {
+        "path": "data/official/card-catalog.zh-CN.json",
+        "sha256": "68930e34e45385c4bc78c4805aaba46e4b5b57057a25ba957a85b339fe376fc8",
+        "bytes": 1358537
+      },
+      {
+        "path": "data/official/rule-input-scope.json",
+        "sha256": "cc07cf3eef6a9af403454642a0435d061544400b5e01d08d3fdc65869bdad180",
+        "bytes": 14749
+      }
+    ]
+  },
+  "sourceCommitAndActualRuntimeIdentityNotEquated": true
+}

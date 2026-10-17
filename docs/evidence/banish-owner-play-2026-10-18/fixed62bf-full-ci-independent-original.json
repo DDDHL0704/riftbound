@@ -1,0 +1,775 @@
+{
+  "recordedAtUtc": "2026-10-17T16:37:34.729346+00:00",
+  "status": "FIXED_COMMIT_FULL_CI_AND_INDEPENDENT_CASE_MATRIX_SQL_NETWORK_RETENTION_VERIFIED",
+  "commit": "62bf7afc7a59bc743e1e578712e156686666c060",
+  "runId": 39040518700,
+  "conclusion": "success",
+  "jobs": {
+    "scope": "success",
+    "rules": "success",
+    "desktop (macos-latest)": "success",
+    "desktop (windows-latest)": "success"
+  },
+  "actualCases": 12484,
+  "actualMethods": 7440,
+  "fullGameMethods": 143,
+  "skipped": 0,
+  "testAssemblySha256FromCiPlan": "6ff39cc60dcb513a597269e20963db008b22b281196883985835d5829ff00f8a",
+  "trx": [
+    {
+      "file": "results/ci-rules/rules/results.trx",
+      "sha256": "48480381e485a962b2faaffbba9323d31c0a1af9aecafd689e7ce83625e05a9e",
+      "cases": 12333,
+      "methods": 7297,
+      "skipped": 0
+    },
+    {
+      "file": "results/ci-rules/games-1/results.trx",
+      "sha256": "7ee094dbecc4b17eb5f33527f64910a4a2f9a026dfd00ebf9960d4acd36dd81a",
+      "cases": 1,
+      "methods": 1,
+      "skipped": 0
+    },
+    {
+      "file": "results/ci-rules/games-4/results.trx",
+      "sha256": "fb425b29f0824061ca217c05590937f0fbc1a7e69895afcb89ab3bb66aac4824",
+      "cases": 52,
+      "methods": 48,
+      "skipped": 0
+    },
+    {
+      "file": "results/ci-rules/games-2/results.trx",
+      "sha256": "1da2a23ab002fd476f2b26ec11c5372024df2c181426725f3723ff23d1bc130e",
+      "cases": 49,
+      "methods": 47,
+      "skipped": 0
+    },
+    {
+      "file": "results/ci-rules/games-3/results.trx",
+      "sha256": "a2fa212b4cd61fa4619f4bc98dba4dcf90d3ff8ca9a4f96eaa3c40c1c591ad8f",
+      "cases": 49,
+      "methods": 47,
+      "skipped": 0
+    }
+  ],
+  "allPrior12467CaseMultisetExactlyRetained": true,
+  "allPrior7430MethodsRetained": true,
+  "newCases": 17,
+  "newMethods": 10,
+  "newCaseNames": [
+    "Riftbound.ConformanceTests.BattlefieldPlayDamageTests.StandbyDamageChoosesOnlyCurrentEnemyHereAndColdReplays",
+    "Riftbound.ConformanceTests.BattlefieldPlayDamageTests.IllegalConfirmationDoesNotChangeStateOrHistory(target: \"ENEMY-BASE\")",
+    "Riftbound.ConformanceTests.BattlefieldPlayDamageTests.IllegalConfirmationDoesNotChangeStateOrHistory(target: \"UNKNOWN\")",
+    "Riftbound.ConformanceTests.BattlefieldPlayDamageTests.ActualResponseMovingSourceOrTargetToBaseInvalidatesHere(movedId: \"SHADOW\", player: \"P1\")",
+    "Riftbound.ConformanceTests.BattlefieldPlayDamageTests.IndependentRecoveryRejectsForgedHereSourceBindings(kind: \"previous\")",
+    "Riftbound.ConformanceTests.BattlefieldPlayDamageTests.IndependentRecoveryRejectsForgedHereSourceBindings(kind: \"future\")",
+    "Riftbound.ConformanceTests.BattlefieldPlayDamageTests.NoEnemyHereDoesNotLeaveADeadConfirmationAfterTheUnitEnters",
+    "Riftbound.ConformanceTests.MatrixOpeningResourceDriverTests.OriginalElevenPreconstructedDeckInputsRemainExactAcrossBothFormats",
+    "Riftbound.ConformanceTests.BattlefieldPlayDamageTests.WardIsConfirmedAfterEntryAndDecliningDoesNotUndoTheUnit(pay: True)",
+    "Riftbound.ConformanceTests.BattlefieldPlayDamageTests.IndependentRecoveryRejectsForgedHereSourceBindings(kind: \"other\")",
+    "Riftbound.ConformanceTests.BattlefieldPlayDamageTests.IndependentRecoveryRejectsForgedHereSourceBindings(kind: \"missing\")",
+    "Riftbound.ConformanceTests.BattlefieldPlayDamageTests.WardIsConfirmedAfterEntryAndDecliningDoesNotUndoTheUnit(pay: False)",
+    "Riftbound.ConformanceTests.BattlefieldPlayDamageTests.IllegalConfirmationDoesNotChangeStateOrHistory(target: \"HOST\")",
+    "Riftbound.ConformanceTests.BattlefieldPlayDamageTests.ActualSourceReturnToHandKeepsTheAbilityButCannotReuseItsOldHere",
+    "Riftbound.ConformanceTests.BattlefieldPlayDamageTests.ActualResponseMovingSourceOrTargetToBaseInvalidatesHere(movedId: \"ENEMY-HERE\", player: \"P2\")",
+    "Riftbound.ConformanceTests.BattlefieldPlayRecoveryGuardTests.ActualBlankOpeningStandbyDamageKeepsOriginalPendingColdRecoveryAndFullReplay",
+    "Riftbound.ConformanceTests.BattlefieldPlayDamageTests.AnActualCounterCancelsConfirmedDamageWithoutRemovingTheEnteredUnit"
+  ],
+  "runnerCaseParityVerified": false,
+  "independentCaseParityVerified": true,
+  "expectedDeckIds": [
+    "jhin-lowcurve",
+    "kaisa-red-control",
+    "kaisa-red-tempo",
+    "lillia-lowcurve",
+    "poppy-demacia",
+    "poppy-standby",
+    "rumble-armaments",
+    "rumble-lowcurve",
+    "vex-battlefields",
+    "vex-response",
+    "vex-spells"
+  ],
+  "all110DirectedPairsExactlyComplete": true,
+  "matrix": {
+    "seed": 424242,
+    "deckCount": 11,
+    "pairCount": 110,
+    "completed": {
+      "jhin-lowcurve-vs-kaisa-red-control": "ce79239dd3f9b37c1d2eea9a0fd6ff7a627a471997609d2e17d424d3e4a1cf8e",
+      "jhin-lowcurve-vs-kaisa-red-tempo": "a9e9c3e8ab9428630e40d39f1bda920faf2b0b90f61e0c1c29ec2141a2fccc7f",
+      "jhin-lowcurve-vs-lillia-lowcurve": "81be94f64755e537d8ca3bcba65cbc5e1493d70c0b5c4a0ed096d78eed76dab7",
+      "jhin-lowcurve-vs-poppy-demacia": "67d0122608a9b8a517766754dfb492516f67043ae155a641575488050bacbe23",
+      "jhin-lowcurve-vs-poppy-standby": "c7796588ff41396a0ce4ecdc179f6327350b96c1c7c31fd0e53c914f7f498bfc",
+      "jhin-lowcurve-vs-rumble-armaments": "68a6b7e4747a834234496cae50ea7b2b1befce000d2a3a9cf35615ebaeb3115c",
+      "jhin-lowcurve-vs-rumble-lowcurve": "c343ac41cc46c94736f2924a81b2b7511664fedfe3f4e305554a4ac40eab3c8e",
+      "jhin-lowcurve-vs-vex-battlefields": "7cb282ac773ac76c6cbfa5c6bd04fc8fb932cd854ae928fe69d1f6f4d7370594",
+      "jhin-lowcurve-vs-vex-response": "5433b84ad13aaba50b2e3f7282cd495f41c02d286ffe04a0bb5ee4d2096b9cbf",
+      "jhin-lowcurve-vs-vex-spells": "ef70b8e4b41ee48b357be58b92fbbdf99b5adc9f9cc9fe4c60f67feab2036cd7",
+      "kaisa-red-control-vs-jhin-lowcurve": "d4d6b605bfa3cf6962f57a358baaf097a8b5104e89a63cd25ae53dd397288906",
+      "kaisa-red-control-vs-kaisa-red-tempo": "897fcc4aa3611328f5e83dbb44178bd05a79466d50f5166041523700849b5e0b",
+      "kaisa-red-control-vs-lillia-lowcurve": "93aa6259d2b9ba8d10e50de09cbfde90e1fd17aced20c4d3519819ce8ebb1ab0",
+      "kaisa-red-control-vs-poppy-demacia": "f119f35fed532bbb1533b8559aa582316ae5b235a76fac37554c79ea91cd2ae5",
+      "kaisa-red-control-vs-poppy-standby": "343dba8c694a6cf45e59afce0c5c5df7d4bd2a12e37723062949cd8de61af1a8",
+      "kaisa-red-control-vs-rumble-armaments": "dceb5f6b9b33ba9a8df292d30a1daecac797351b0f09ede7787ee98f790ba0a2",
+      "kaisa-red-control-vs-rumble-lowcurve": "7cbb61e4743650375b886940996b62f39f93f7e4523c3037f9d4f5b12076f61e",
+      "kaisa-red-control-vs-vex-battlefields": "8e048da57927cf433f41893633edbb45ba6f9c067bb1a77891832e4894e5534c",
+      "kaisa-red-control-vs-vex-response": "9bfd4c5515c519de54061c3abeab6ce745d3a601b3d0673250fe16eccd96d160",
+      "kaisa-red-control-vs-vex-spells": "9dd9ad330f792007be4bc7a8117a66a702f46332e0765fe9ffdd59c404c84ba8",
+      "kaisa-red-tempo-vs-jhin-lowcurve": "3286972b3e472078bd632f9d8ea18cc9f8b77686ca395e8a6d61ecc0c3559e93",
+      "kaisa-red-tempo-vs-kaisa-red-control": "40578f41bd7cb32cacf7147e49b44eed3529b94ded409d81074e8d583206616e",
+      "kaisa-red-tempo-vs-lillia-lowcurve": "9e22034dea03e67deac1f2826e9f278df6529feb0bb0e752de804100714f5e3c",
+      "kaisa-red-tempo-vs-poppy-demacia": "99e1474dcb3d51b0b044bc147442d05c11ca735575dfd315a2efe4d7eaaebcc2",
+      "kaisa-red-tempo-vs-poppy-standby": "cc119ee1b53f53b1df600e33ec74074031724a855800380c3b04c2357b68eaf9",
+      "kaisa-red-tempo-vs-rumble-armaments": "c5c5301ff593e363a48dbdd6706afe493966b749b9474f2fb0ae2e2c4a16680e",
+      "kaisa-red-tempo-vs-rumble-lowcurve": "846c57f20867c4117a61aa0c7cf0917486669b353c9f44950fd5eda79557576c",
+      "kaisa-red-tempo-vs-vex-battlefields": "2b808680c3f5fc067fede7e64d55b70dc5767c13f482e97b44683fc660eb3d7f",
+      "kaisa-red-tempo-vs-vex-response": "22f8c93066cb983892f932962609391ba57b4b74d216fd39053f4a5cdfa2fee0",
+      "kaisa-red-tempo-vs-vex-spells": "d75c49ce381c9189957a8343140bde86246d633c6fb9889821c7568af4867abc",
+      "lillia-lowcurve-vs-jhin-lowcurve": "3645e115df16a4078df42a0ff83d4feb732186da82cc38672f77a336a203bd34",
+      "lillia-lowcurve-vs-kaisa-red-control": "b1a06b392fcb1633a53df8e21a008a51fa3ecc69d85d84203a37d0b783fa3adb",
+      "lillia-lowcurve-vs-kaisa-red-tempo": "dc1ced770219753391ddfa5286ef558e3fb6877e83202fe6d4a47ff90f5a0be8",
+      "lillia-lowcurve-vs-poppy-demacia": "b900f4642df3b24055f73e20263c40f426f1d03f7a0e4f351f72ce6ffa878879",
+      "lillia-lowcurve-vs-poppy-standby": "2d8ccc4b1fe6ec57a9f82958efd7982289d6e41d3398d702d2d61f11ead14e18",
+      "lillia-lowcurve-vs-rumble-armaments": "ea622ffb4bdad58c2781dddbd5a1d8065ec3c10bf3cdc2409422abae2d0f09d1",
+      "lillia-lowcurve-vs-rumble-lowcurve": "f8bbfa149f09fa13bd925ddcb1efb28d4f3caa9e00043939e4392961872500cc",
+      "lillia-lowcurve-vs-vex-battlefields": "89b095e480f8fde0c1261fda2c2a8162cbbf66c8acfd483aa7426c923e301d56",
+      "lillia-lowcurve-vs-vex-response": "22d97b7e2d17e4e08ee9933bf7cb52ba8a44459e07cc611b239302bd72cfd4c2",
+      "lillia-lowcurve-vs-vex-spells": "ced7d0a89b3f4e0ee802d35c4f4d431184427fe2133136ffc06f3f02b8ef2e40",
+      "poppy-demacia-vs-jhin-lowcurve": "1a07767c65e0772799b3e2e09fb7772b57bf176c774cbcdee61389f442d169ca",
+      "poppy-demacia-vs-kaisa-red-control": "21303af8e3bc3db770bc04bddf1c1f92547fed6535f2b172c4a00152729a219a",
+      "poppy-demacia-vs-kaisa-red-tempo": "2d0993378d70c27cc4006b5da98b4d1a9230938a8f3865db917cc19c6f0f425b",
+      "poppy-demacia-vs-lillia-lowcurve": "5b1b46a14144809af82a30038cebec45ed97a0e386e776a3ab73dfe02493220c",
+      "poppy-demacia-vs-poppy-standby": "970a37bdfdeef902b9b73269b36b334ac03e0735ebaf618a8b1996aa08485a4f",
+      "poppy-demacia-vs-rumble-armaments": "9067ce90b2984e0439b5eea6b326fbeb035b0694edf58d8b36a5341dd869d886",
+      "poppy-demacia-vs-rumble-lowcurve": "4931586167d7be4cf55fd0a1c55a13c5d1d5bf0b86b72694a73f31e83d95bb7b",
+      "poppy-demacia-vs-vex-battlefields": "f904766e1f9f47bd83f68bed121dcc1570f45247a12f82e2a53ec720f77523c8",
+      "poppy-demacia-vs-vex-response": "83c7250cb46e7830e3db7dd7dd1474fed71ebe68e67e5641d0d4d9f220cc6a97",
+      "poppy-demacia-vs-vex-spells": "794e6041f65af56b9087af998c0d058228b2b6c2b4b088beb7264f6fea68f1de",
+      "poppy-standby-vs-jhin-lowcurve": "796f3bcba69d9262e27601041db69f52a29638b0758abcf0e2a627b32c1b6bb3",
+      "poppy-standby-vs-kaisa-red-control": "348740440d795bd0f70138287e049c89d370804f122a9772868237b3d2be091c",
+      "poppy-standby-vs-kaisa-red-tempo": "d3570c8f78edb8e194800056d9bfca8bb63c37d63cb10196c7cb0a80b9c3aa85",
+      "poppy-standby-vs-lillia-lowcurve": "075098c0651b4e2bc39b23572ad7a2b30fcb03e511d0cf4afbcfadc7dc3a2b04",
+      "poppy-standby-vs-poppy-demacia": "a62d3e4b2b4235faa0ef1eda41f1a52870206ebd0d3f88f00340c82e4fb5d6e7",
+      "poppy-standby-vs-rumble-armaments": "420a517f63e0ebd155e7653438c54d9bd93e29014ed071ab4a40368755c533fe",
+      "poppy-standby-vs-rumble-lowcurve": "47170ec900ddcb7832b0e7f13f4328da5661be7d3fb9446e68d1f9b3aeae394d",
+      "poppy-standby-vs-vex-battlefields": "2929f6ab9a741d7440eef985702fa2c384adebac219b5847258370043b74d9fb",
+      "poppy-standby-vs-vex-response": "f3d3f709a386ca3b571728748655557f65620415614ae462f20c0687cab21402",
+      "poppy-standby-vs-vex-spells": "8f7faf27237f0d212d4e70bdb89f931a8f1de9766e5506fa4c36ac631325add7",
+      "rumble-armaments-vs-jhin-lowcurve": "a1724a6990b37ecc05061d743269ba267d491ae820a4db8eb3e7c05d4bd59bef",
+      "rumble-armaments-vs-kaisa-red-control": "19bdb63e8b1ea3d170f65422fdeeffbf7efb51081af873345bb5e9f6e36ea4a4",
+      "rumble-armaments-vs-kaisa-red-tempo": "5606f279afaa711686aba2fa6b0aee76a36e3ec2fcdc2a3721c29b4bca614e9d",
+      "rumble-armaments-vs-lillia-lowcurve": "10de36968b27a7b4194955cf02628a6d296d4378818a0c83dccdab9829fcbea1",
+      "rumble-armaments-vs-poppy-demacia": "1b46ccea015efc6cd727b31f3b28bce3f67e84bde9c02352058de903525e573e",
+      "rumble-armaments-vs-poppy-standby": "20dae1ca684bda725b8d150b2cfb6e81e86e7623abb5600f661c5b541ae91624",
+      "rumble-armaments-vs-rumble-lowcurve": "0740d9de439527fe1d0a6d826167a8daef68b93912734893eebf844c65471d8f",
+      "rumble-armaments-vs-vex-battlefields": "ed832a796d4d8dbc96f9570f611931b7357dde0f1c80522812259689f3e8d8d7",
+      "rumble-armaments-vs-vex-response": "5a51c719a9c9b9d923007700ee601dbac36d8af5df15d99b6bcec494b578268f",
+      "rumble-armaments-vs-vex-spells": "72f03e6ed6d9f7a09edf0fbb58f1420e3b14e9f2c3a4083f5eb1e45b634e8f65",
+      "rumble-lowcurve-vs-jhin-lowcurve": "2ee65a57f35b67c0712c4b516edee2a49518379aed0e21cc633202030e2ad31d",
+      "rumble-lowcurve-vs-kaisa-red-control": "0638af41eaf6ccb7273f2bdec7ca5bcf015c1e80e8ce3efa3b0b7aa778a8f42d",
+      "rumble-lowcurve-vs-kaisa-red-tempo": "a18d00203bbcbcb64a804c9b2cd70a89a4636cd70ca06ab0af10ef9a95392d2d",
+      "rumble-lowcurve-vs-lillia-lowcurve": "09bd6aa61fc7021502aea73d24009f66e8fde9e4b32efa178bd4222993d10969",
+      "rumble-lowcurve-vs-poppy-demacia": "77e5356f0cc4bbc85aa1a5a456f218bc8570aaebee3de24c3945be5572c1a605",
+      "rumble-lowcurve-vs-poppy-standby": "dd3ee0537d2f3250e7c7d0d4273dba8a50646c7c5f81ee47f16703b349e56e89",
+      "rumble-lowcurve-vs-rumble-armaments": "af420dceb628083506a358899f9d4afdf329b97962ae7ef88a940fbeae29be5b",
+      "rumble-lowcurve-vs-vex-battlefields": "80b08e79324b32266f05f14a2e971fd4c8e033e6abbf0420dd1fbb4b9f96c1fe",
+      "rumble-lowcurve-vs-vex-response": "511653ebeef620a2f6ef23ae97648494dd5b55c3c4be44aa78db9f97ab9ef761",
+      "rumble-lowcurve-vs-vex-spells": "21e444dd9407c77e58943c25e14cc901aa1e39bf04263d8f51fc9acf5271cb4c",
+      "vex-battlefields-vs-jhin-lowcurve": "e1fd836bf05be534e264276b0dc5d27957584f29758ced34dd04d0793022c899",
+      "vex-battlefields-vs-kaisa-red-control": "bfad0efcb76ebe90f91e6acbb2a158c2bccca71299799ccd408496376b1dbe16",
+      "vex-battlefields-vs-kaisa-red-tempo": "c20adbf1b52d27cfaffd42cecb9e48ba94acabc32b079ef3d9d7663bdedd591e",
+      "vex-battlefields-vs-lillia-lowcurve": "5145cbe1ac00edb92ef31ccd61269c43a215070234b03f6111fd4ba89ef9e34e",
+      "vex-battlefields-vs-poppy-demacia": "5a05e3bb904df5f2ddbaa98ee84b3ab1bf2ea6c417866d178b1be5637ccacdd4",
+      "vex-battlefields-vs-poppy-standby": "d8368a5dc20fcfbc5c0fb15f9f4f0e698450b7f459f8007cf46ecde2025c9b46",
+      "vex-battlefields-vs-rumble-armaments": "d44abcf80f9928a9e9ef704149002916d79c19b6b512bf1b45afbca87c54fa51",
+      "vex-battlefields-vs-rumble-lowcurve": "6f3c7ce57e58d05e93fdb8e4b3e6aeb836b4df0d489acf323b884af8643b2d60",
+      "vex-battlefields-vs-vex-response": "4b1a468ee7e0b87250a35cfca8ff78face61176350e5a1b7ce305ebac547ea5e",
+      "vex-battlefields-vs-vex-spells": "f8f1a091d7dfa2004141971383e25192a616ca75942ed11b7ef0fdedf3e19ee5",
+      "vex-response-vs-jhin-lowcurve": "ab1e51afc77c1cae0cafe266c7f538459486f6f6dc79ae15af1ab8b8240c5e3f",
+      "vex-response-vs-kaisa-red-control": "a2c924e9f11c109c820e9fa18dbd7d572ef5b8f491bd4c155b44f92c72e2f489",
+      "vex-response-vs-kaisa-red-tempo": "6283523151a0ee46de372a1930b8cb228e2d38833067f2b221f5ee3b27bbab84",
+      "vex-response-vs-lillia-lowcurve": "2933300c42f9c057133be38344a461c309fa584dc46c52bae98fa7460cf87941",
+      "vex-response-vs-poppy-demacia": "f39f0ff05ec04b176bce11fbfc0cdab785de59f913fee7c6c4ab8dcee483511d",
+      "vex-response-vs-poppy-standby": "dac931e3391a0506e8b9bb361c5ef01d8d00e3960e0c3b4c85e9e25119196a8c",
+      "vex-response-vs-rumble-armaments": "382396f432b50dc7abe4d3ea6248a1d69b34090dca71fc8268af60bc62dcf993",
+      "vex-response-vs-rumble-lowcurve": "9d5f61d35bb7a3dd6b960fd665a2c6bd48302f628ff6e93d3eff1c9487b113b8",
+      "vex-response-vs-vex-battlefields": "ac45111e2a1f18ec09843bb0b4006bc7105731844916b1c81f4b8bcbf69e2178",
+      "vex-response-vs-vex-spells": "1654823c83b60bde391a5556c1227aed935f06d25d58107da5d85e67f264b2e4",
+      "vex-spells-vs-jhin-lowcurve": "0095a3be8c9100ee669a12a89a386586d6b35252186f4a7a0849124564ea8f30",
+      "vex-spells-vs-kaisa-red-control": "066df823f2698dd132b8d0c44408cf79a00bf29e37fc7322c3afc4e1418625b1",
+      "vex-spells-vs-kaisa-red-tempo": "b104328586b67d5440c3f55586771dc69610f81df4e525fffdaae72d29f81b7b",
+      "vex-spells-vs-lillia-lowcurve": "001fd212ba563252e53a44b7a3498f4964687463e28d058753dcba63ff5f8e5b",
+      "vex-spells-vs-poppy-demacia": "327af765e327077aef68aede9ca757f413ee9445707b9bc14b56609f541121ec",
+      "vex-spells-vs-poppy-standby": "529ca8b0d16884c7e8389d5c0db4229aaf9f319717f41e7c78b0eca85affc453",
+      "vex-spells-vs-rumble-armaments": "de4e095e73aada6cccd56c722c0fe1da2760fb113f7fae955f2804ab6e251f62",
+      "vex-spells-vs-rumble-lowcurve": "5577e4ca4322775e677e660105570d8304b5d05cb0f1329d96b9134628140796",
+      "vex-spells-vs-vex-battlefields": "475c4d02a9ac776d9c79f3f37bdbc011336848983b2a45e95826fa10b3aa28b4",
+      "vex-spells-vs-vex-response": "9d015e5dc0c11b58cb2afb6ab203ced11406d0d27026e0afc8bb76cd01b9775b"
+    }
+  },
+  "sqlReceiptFiles": 87,
+  "actualSqlPaths": 89,
+  "allOriginal86SqlReceiptPathsAndTheirWeightsStatusesRetained": true,
+  "sqlReceipts": [
+    {
+      "file": "results/ci-postgres/result.json",
+      "status": "REAL_POSTGRES_CORE_OPENING_RECOVERY_REPLAY_AND_TAMPER_PASS",
+      "sha256": "7dd9eefa7f46dc0b4997e0e8c196fe9b05bfa7e0461459da151946da6bacc71f",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/rune-destination/multiple/receipt.json",
+      "status": "REAL_POSTGRES_RUNE_DESTINATION_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "sha256": "cb224f06862a6ef8a0aafbb766af2e9102e86a6f76ef4d2c49bbfd75d104399d",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/rune-destination/single/receipt.json",
+      "status": "REAL_POSTGRES_RUNE_DESTINATION_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "sha256": "13fd99162361c47d69ba3cb67f80162851c492e6914fc56fef434af932a75d87",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/recycled-card-boon/alternate-hook/receipt.json",
+      "status": "REAL_POSTGRES_RECYCLED_CARD_BOON_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "sha256": "06864f162fd19c63e4381b80451deddd44b81d93f83d444cb4b94ba62139e4ce",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/recycled-card-boon/primary-hook/receipt.json",
+      "status": "REAL_POSTGRES_RECYCLED_CARD_BOON_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "sha256": "92d35f2be27a40cffb31193690921c0cf12e3e65116f91a70f143ec6d5b1106a",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/recycled-card-boon/promo-hook/receipt.json",
+      "status": "REAL_POSTGRES_RECYCLED_CARD_BOON_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "sha256": "4e368b57fceed7d1dc9c9012f2ef0122ba50b8508912282fb805eb57892f88f4",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/recycled-card-boon/promo-predict/receipt.json",
+      "status": "REAL_POSTGRES_RECYCLED_CARD_BOON_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "sha256": "3b399c4c0967b8746c683cfc614ca43c435112bbd65c44241526d56628d2d8da",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/recycled-card-boon/alternate-predict/receipt.json",
+      "status": "REAL_POSTGRES_RECYCLED_CARD_BOON_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "sha256": "aa2017747399b7ab75bfecf88373d6c7e5ede4d1906af3c60f3a066dfd5a127c",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/recycled-card-boon/primary-predict/receipt.json",
+      "status": "REAL_POSTGRES_RECYCLED_CARD_BOON_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "sha256": "e4857de38c7e6acd181bf4e8337fde064829af0c5403de3817b5d4852e270857",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/sivir-optional/primary-pay/receipt.json",
+      "status": "REAL_POSTGRES_SIVIR_OPTIONAL_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "sha256": "3755da2715f3c65b14c0a65d69cfbe6293715a45368ef997db036f594f1acfbc",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/sivir-optional/alternate-decline/receipt.json",
+      "status": "REAL_POSTGRES_SIVIR_OPTIONAL_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "sha256": "89aab5f094a59ba7cfa88ba7d598df68fc3a6568e27af42b6e29c7a32a6c8d89",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/sivir-optional/primary-decline/receipt.json",
+      "status": "REAL_POSTGRES_SIVIR_OPTIONAL_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "sha256": "6255a1f54d266a37401c055a57a30361281729270f569e18f74e96e078e4df2c",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/sivir-optional/alternate-pay/receipt.json",
+      "status": "REAL_POSTGRES_SIVIR_OPTIONAL_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "sha256": "ef8fd6bd89cb3f35d59e94aa2011287f9768dd0b30b8600d43a1544e675da670",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/masked-attendant/receipt.json",
+      "status": "REAL_POSTGRES_MASKED_SELF_COPY_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "sha256": "3853c870818abbf5e014022b17defc8296be2d053aaf868d7d41e5076f7bb559",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/porobot/return/receipt.json",
+      "status": "REAL_POSTGRES_POROBOT_CONDITIONAL_DRAW_COLD_AND_FULL_REPLAY_PASS",
+      "sha256": "a398ebcaf907691f94dea86c4fe3c9f7c0d69545a0483c7d939a1142c97b6ad5",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/porobot/below/receipt.json",
+      "status": "REAL_POSTGRES_POROBOT_CONDITIONAL_DRAW_COLD_AND_FULL_REPLAY_PASS",
+      "sha256": "3ee82ca9d0cdd40ae64e587ac2bec991357abfe971edbb9934d53e7a2b49c134",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/porobot/gold/receipt.json",
+      "status": "REAL_POSTGRES_POROBOT_CONDITIONAL_DRAW_COLD_AND_FULL_REPLAY_PASS",
+      "sha256": "4d3f741c3e31cfa6159d6547d9d7ecb5d54fd23c6df528256bdfdd120384ad4b",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/porobot/threshold/receipt.json",
+      "status": "REAL_POSTGRES_POROBOT_CONDITIONAL_DRAW_COLD_AND_FULL_REPLAY_PASS",
+      "sha256": "9d1d5c217334e5b7fc5401e5686e66919bcd29770a4178960350f4f5ad92a6b1",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/sivir-payment/inline-pay/receipt.json",
+      "status": "REAL_POSTGRES_SIVIR_PAYMENT_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "sha256": "29ab68a2551f32c757c86c2c1eaa49d354844167a07160f8a0f9aa17f5f33bf9",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/sivir-payment/inline-decline/receipt.json",
+      "status": "REAL_POSTGRES_SIVIR_PAYMENT_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "sha256": "9c1b051572ed3a1829efb153ea3ca231d49e1b18dbc2d85369ca67d0f3658687",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/sivir-payment/deferred-decline/receipt.json",
+      "status": "REAL_POSTGRES_SIVIR_PAYMENT_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "sha256": "360a67463d61e5962dd5f4656f83fa350c17cde18ca2bb2b8b892839ef5e0a66",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/sivir-payment/deferred-pay/receipt.json",
+      "status": "REAL_POSTGRES_SIVIR_PAYMENT_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "sha256": "0962059299c128b697272a1653307b4a6963f074057dbe9c110698d7ef8034a9",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/confirmed-play-origin/hand/receipt.json",
+      "status": "REAL_POSTGRES_CONFIRMED_PLAY_ORIGIN_CAUSAL_RECOVERY_REPLAY_PASS",
+      "sha256": "3c5b9c15785cefc14b169a8540f10a52902dd9c6ace4ff6e505e2e1514ff4c96",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/confirmed-play-origin/standby/receipt.json",
+      "status": "REAL_POSTGRES_CONFIRMED_PLAY_ORIGIN_CAUSAL_RECOVERY_REPLAY_PASS",
+      "sha256": "32006279a91311ec5d691d3b3fdd7c80f180b6908243864dd97e03322790a344",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/granted-origin-haste/unit/receipt.json",
+      "status": "REAL_POSTGRES_GRANTED_HASTE_ORIGINAL_OPENING_COLD_ENTRY_AND_EVENT_REJECTION_PASS",
+      "sha256": "6048717b1f4b79bd11087135fc7bc57e879e58f4e42d956bce9a940d79003223",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/granted-origin-haste/sacrifice/receipt.json",
+      "status": "REAL_POSTGRES_GRANTED_HASTE_ORIGINAL_OPENING_COLD_ENTRY_AND_EVENT_REJECTION_PASS",
+      "sha256": "7a32e20803e7399c9be0099211b89cce1eca0abd0ff1753197d81d93331c6eaa",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/private-opening/receipt.json",
+      "status": "REAL_POSTGRES_PRIVATE_OPENING_SEED_COLD_FULL_ORIGINAL_REPLAY_TAMPER_AND_PROJECTION_PASS",
+      "sha256": "5226fb5e63bfcdb5cc60fd75f0d00c95dc9ba9f9c3bb8dbc78327215d6815a9e",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/typed-play-history/countered/receipt.json",
+      "status": "REAL_POSTGRES_TYPED_PLAY_HISTORY_COLD_AND_FULL_REPLAY_PASS",
+      "sha256": "d0074b685064f7f085781e5a7334d02bda542da666b98a212537f268a34c7bfc",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/typed-play-history/resolved/receipt.json",
+      "status": "REAL_POSTGRES_TYPED_PLAY_HISTORY_COLD_AND_FULL_REPLAY_PASS",
+      "sha256": "59c668deb41b27fc51e48617b10aa5788d86115fc9e8bb1028638d4850422a08",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/typed-play-history/control/receipt.json",
+      "status": "REAL_POSTGRES_TYPED_PLAY_HISTORY_COLD_AND_FULL_REPLAY_PASS",
+      "sha256": "00dfc337e715d240a76012a5aa3e71a89e7079cb0b12d760c21165ac5ed46d80",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/created-token-ready/rise-2/acceptance.json",
+      "status": "PASS",
+      "sha256": "987c8ea5330472a8737ed15503909769b90258e61545e577107c1441c9dbb31a",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/created-token-ready/protect-pay/acceptance.json",
+      "status": "PASS",
+      "sha256": "a04624810b226869dad583c444770c81e56f0ea4f40622e861a0eb3edc582111",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/created-token-ready/protect-decline/acceptance.json",
+      "status": "PASS",
+      "sha256": "3bcfc65141c52870bc043cafb11d561bead358b62208f067f38561a353a1733c",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/created-token-ready/rise-0/acceptance.json",
+      "status": "PASS",
+      "sha256": "86ebc085079b286578f52d0e8906ffebfab5ecdb8324a5b15442a68619489239",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/optional-sacrifice/hand/receipt.json",
+      "status": "REAL_POSTGRES_OPTIONAL_SACRIFICE_PRINTED_COST_COLD_RESTORE_AND_EVENT_REJECTION_PASS",
+      "sha256": "4f5f7d5c6fb13334ab316576bce345d6affa20d8b4d31f168a2d6765ebf2e872",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/optional-sacrifice/haste/receipt.json",
+      "status": "REAL_POSTGRES_OPTIONAL_SACRIFICE_PRINTED_COST_COLD_RESTORE_AND_EVENT_REJECTION_PASS",
+      "sha256": "812565110f0752df821095e40761737e4a13b20763b3175db7ec834d26368975",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/insight-repeat/eclipse/receipt.json",
+      "status": "REAL_POSTGRES_INSIGHT_ECHO_ORDER_DRAW_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "b0f450d2a4ecaa26d4e9910098c8f51a4a04810bd384a8476e5aa28eb6172663",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/insight-repeat/once/receipt.json",
+      "status": "REAL_POSTGRES_INSIGHT_ECHO_ORDER_DRAW_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "6e9d9f74fbe714c7733f51ce4330784b68aca75c7be370c1aca357c11358c4b0",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/insight-repeat/abandon/receipt.json",
+      "status": "REAL_POSTGRES_INSIGHT_ECHO_ORDER_DRAW_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "88f2c01397a515bc49d211780a3eded4289c5820061fb352f2688eff7d485320",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/insight-repeat/all/receipt.json",
+      "status": "REAL_POSTGRES_INSIGHT_ECHO_ORDER_DRAW_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "db3b8ed896d3b6ecfd50bc47b6829cd974e54a2c24fa3f87e0650e7ef2781af8",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/insight-repeat/twice/receipt.json",
+      "status": "REAL_POSTGRES_INSIGHT_ECHO_ORDER_DRAW_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "3c8a1217f5a6c6327bdb5f021fff7c434a98eb3bf670f6162215e70ca4a2cbb7",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/insight-repeat/counter/receipt.json",
+      "status": "REAL_POSTGRES_INSIGHT_ECHO_ORDER_DRAW_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "fe5ac54d9eff4f00a22f4414b3e5bce5b53932ae5152e9c47751bde665b74f6a",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/insight-repeat/burnout/receipt.json",
+      "status": "REAL_POSTGRES_INSIGHT_ECHO_ORDER_DRAW_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "73dd36094b3ca6c8b8f242290b9ed25f5bfd9479f6573cf814d4fbb389fc5cca",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/clairvoyance/keep/receipt.json",
+      "status": "REAL_POSTGRES_CLAIRVOYANCE_PRIVATE_ORDER_DRAW_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "4d298cba805e116b7c22a99f1f9e3d96166e4cbd04cb0d373b216a5bb69545bd",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/clairvoyance/all/receipt.json",
+      "status": "REAL_POSTGRES_CLAIRVOYANCE_PRIVATE_ORDER_DRAW_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "f542a3aa4ff8269d7396a7a08143414dc7ef5ad1b45f431176ad88ad0b7f91b1",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/clairvoyance/some/receipt.json",
+      "status": "REAL_POSTGRES_CLAIRVOYANCE_PRIVATE_ORDER_DRAW_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "425e2a2e0f6fcd456f06b759d258c33fa34e1c57f77375bd639419c7bac6bdb3",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/clairvoyance/control/receipt.json",
+      "status": "REAL_POSTGRES_CLAIRVOYANCE_PRIVATE_ORDER_DRAW_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "b6a862d269f239a65716a1db1e8d47750b3ff791860dda8da0334dd80abfbd41",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/clairvoyance/burnout/receipt.json",
+      "status": "REAL_POSTGRES_CLAIRVOYANCE_PRIVATE_ORDER_DRAW_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "a1a7835d777bd0185a056dbc0974212de46458a321ffeb0d0c1e99a8873610fc",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/battlefield-play-damage/receipt.json",
+      "status": "REAL_POSTGRES_BATTLEFIELD_PLAY_DAMAGE_PENDING_COLD_ORIGINAL_REPLAY_PASS",
+      "sha256": "6386f7fc9053b87983b94ca39c4c5edd5d08048dea94f7d2b35ed4ae079c2adc",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/typed-play-history-causal/receipt.json",
+      "status": "REAL_POSTGRES_TYPED_PLAY_HISTORY_CAUSAL_REGISTRY_PASS",
+      "sha256": "617dadf6f3d24295a33e9f515cece3e7b4f3ab45d9de809cc133d9c87e2d9e12",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/optional-costs/receipt.json",
+      "status": "REAL_POSTGRES_OPTIONAL_COSTS_REJECTION_COLD_RECOVERY_AND_ORIGINAL_REPLAY_PASS",
+      "sha256": "96b56ddeef10bcc12efb3960b875eb97448d957d4d43bc2cdacf048ce07ed913",
+      "paths": 2
+    },
+    {
+      "file": "results/ci-postgres/printed-predict/receipt.json",
+      "status": "REAL_POSTGRES_PRINTED_PREDICT_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "sha256": "a7994618f08852807819b8446e8cedf22f947637b7e4c97be411526e7c962bae",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/physical-origin-cost/unit/receipt.json",
+      "status": "REAL_POSTGRES_PHYSICAL_ORIGIN_COST_RECOVERY_EVENT_REJECTION_AND_FULL_OPENING_REPLAY_PASS",
+      "sha256": "a938ca7e528f9cde6e62171e7b8634c38f8ad2d46650142358c1fa7558708142",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/physical-origin-cost/spell/receipt.json",
+      "status": "REAL_POSTGRES_PHYSICAL_ORIGIN_COST_RECOVERY_EVENT_REJECTION_AND_FULL_OPENING_REPLAY_PASS",
+      "sha256": "97470726230534dec3204c1c529913a36fa4bc8dc6406533329bb0d57bec1c91",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/battlefield-play-recovery/receipt.json",
+      "status": "REAL_POSTGRES_BATTLEFIELD_PLAY_ORIGIN_STRUCTURAL_AND_CAUSAL_GUARDS_PASS",
+      "sha256": "f15c7f6182291020d633f392e961599872941ccbadaa8816167a8760132db33f",
+      "paths": 2
+    },
+    {
+      "file": "results/ci-postgres/attached-recycle-lifecycle/alternate/reverse/receipt.json",
+      "status": "REAL_POSTGRES_ATTACHED_RECYCLE_COLD_AND_FULL_REPLAY_PASS",
+      "sha256": "15141381b56fdadfcc0aa659b662925d081e8ce397a3ad0f6f994dc67f6b33b8",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/attached-recycle-lifecycle/alternate/forward/receipt.json",
+      "status": "REAL_POSTGRES_ATTACHED_RECYCLE_COLD_AND_FULL_REPLAY_PASS",
+      "sha256": "46295d00e5e64caf8183a53e0016647b39d15f2c8e702c58d93e19ec312564cc",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/attached-recycle-lifecycle/primary/reverse/receipt.json",
+      "status": "REAL_POSTGRES_ATTACHED_RECYCLE_COLD_AND_FULL_REPLAY_PASS",
+      "sha256": "efda20370a6d9019682f9604cc5db325fb0978b146ea30bb71e6dbaaf4327f01",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/attached-recycle-lifecycle/primary/forward/receipt.json",
+      "status": "REAL_POSTGRES_ATTACHED_RECYCLE_COLD_AND_FULL_REPLAY_PASS",
+      "sha256": "95ec482cc40de9300bd45b506db10216495b988c14bf2692c3b714e5cdae3815",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/attached-recycle-lifecycle/promo/reverse/receipt.json",
+      "status": "REAL_POSTGRES_ATTACHED_RECYCLE_COLD_AND_FULL_REPLAY_PASS",
+      "sha256": "819c17eb31eecbaf652e565819ed982a954bef6f8bd1631bc3974a1db22eabcc",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/attached-recycle-lifecycle/promo/forward/receipt.json",
+      "status": "REAL_POSTGRES_ATTACHED_RECYCLE_COLD_AND_FULL_REPLAY_PASS",
+      "sha256": "50625d5e38d38463558142a793d2c883872760a888a82b89a27f88567e34634d",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/recycle-boon-lifecycle/alternate/receipt.json",
+      "status": "REAL_POSTGRES_RECYCLED_BOON_CEASED_SOURCE_COLD_AND_FULL_REPLAY_PASS",
+      "sha256": "677fcf5b035ffd4a2fddf941967357eadb6886c46d323064e4cecab8047f0291",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/recycle-boon-lifecycle/primary/receipt.json",
+      "status": "REAL_POSTGRES_RECYCLED_BOON_CEASED_SOURCE_COLD_AND_FULL_REPLAY_PASS",
+      "sha256": "a3a7d8d47599c40d7f7160b2af75f118f11e84658bdf107c1196538d7c958be9",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/recycle-boon-lifecycle/promo/receipt.json",
+      "status": "REAL_POSTGRES_RECYCLED_BOON_CEASED_SOURCE_COLD_AND_FULL_REPLAY_PASS",
+      "sha256": "16737dda2e1b04da640d2108fe453443d829139ea45293ef6394b6b4cf68c950",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/battle-history/battle-history-deck/result.json",
+      "status": "REAL_POSTGRES_BATTLE_HISTORY_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "8d0a80a92c0a41af9e266a6e401fe815ded784c41fbe45d22e75f5af2edf6866",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/battle-history/battle-history-attacker-burnout/result.json",
+      "status": "REAL_POSTGRES_BATTLE_HISTORY_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "644ef549db219be50e1db8023817c4de7fa02ef8c2a568788171197e4869b3b0",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/battle-history/battle-history-attacker-deck/result.json",
+      "status": "REAL_POSTGRES_BATTLE_HISTORY_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "8568b54a8b78cf1de769f2de65caed4099f38478de1f2538d838b0a1df446a14",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/battle-history/battle-history-burnout/result.json",
+      "status": "REAL_POSTGRES_BATTLE_HISTORY_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "a6fba8e8e09929b4bd828e5656a619e9e68dd0c97a55e584b4329d45e94b1238",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/opponent-battlefield-control/swapped/receipt.json",
+      "status": "REAL_POSTGRES_CURRENT_BATTLEFIELD_CONTROLLER_EMPTY_OPENING_COLD_ENTRY_EVENT_REJECTION_PASS",
+      "sha256": "458de0517bfccc5249096ee5731bb0dc358ccfdb85c3dec8cd803b8030f88c45",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/opponent-battlefield-control/neutral/receipt.json",
+      "status": "REAL_POSTGRES_CURRENT_BATTLEFIELD_CONTROLLER_EMPTY_OPENING_COLD_ENTRY_EVENT_REJECTION_PASS",
+      "sha256": "ca40bbf20975117f61a52dad3b8b4a72e7cf7acf0e81338bde230a3076bbd0d8",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/granted-predict/receipt.json",
+      "status": "REAL_POSTGRES_GRANTED_PREDICT_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "sha256": "605966f674c0ee76eec056d272a6cf42f358201a30e4966ef6b01e3e67a53b71",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/granted-token-haste/hand/receipt.json",
+      "status": "REAL_POSTGRES_GRANTED_TOKEN_HASTE_COLD_RESTORE_AND_EVENT_REJECTION_PASS",
+      "sha256": "a1713ca974ed554443d2732a48430b9ff413527b7138652722d9f7836b9031a9",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/granted-token-haste/standby/receipt.json",
+      "status": "REAL_POSTGRES_GRANTED_TOKEN_HASTE_COLD_RESTORE_AND_EVENT_REJECTION_PASS",
+      "sha256": "a26aa3cba956e5bc85f6fd5bef99c856229ecffa7e1f04aaf733d98aab444e12",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/combat-assignment/vayne-secondary-decline/receipt.json",
+      "status": "REAL_POSTGRES_COMBAT_ASSIGNMENT_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "9c3be08122a5c1ece005b79d192297dd52d8ebefc429fe1b1aec8e70d3c63bcc",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/combat-assignment/vayne-secondary-dies/receipt.json",
+      "status": "REAL_POSTGRES_COMBAT_ASSIGNMENT_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "1c6d0d3d5d86f0471f5981780f3609c774472ddca240b9aa9d66639387f33fd9",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/combat-assignment/natural-source-first/receipt.json",
+      "status": "REAL_POSTGRES_COMBAT_ASSIGNMENT_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "d3978e547d979b40c2cb951062967cac44ef199e905b1c94395b618cd32cf76c",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/combat-assignment/multiple-defenders/receipt.json",
+      "status": "REAL_POSTGRES_COMBAT_ASSIGNMENT_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "b4a77770e826ddcb508485c93ccd470903fa03a4c5fb5be67c27b6274157828a",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/combat-assignment/declared-source-second/receipt.json",
+      "status": "REAL_POSTGRES_COMBAT_ASSIGNMENT_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "1132ee96b49eecc5b4a0dfce9a2f8d0e35d14539be122735e3d3b52bba88d3ab",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/combat-assignment/natural-source-second/receipt.json",
+      "status": "REAL_POSTGRES_COMBAT_ASSIGNMENT_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "940645c5874e6e5c3d7ebe6264a36596bede6ec76f20f6d8f77933aa10b53018",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/combat-assignment/choose-first-attacker/receipt.json",
+      "status": "REAL_POSTGRES_COMBAT_ASSIGNMENT_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "addffeb432133a88440e8dd8f0aa9954b955ed64de7840462855e2ee4e8bab7f",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/combat-assignment/vayne-secondary-pay/receipt.json",
+      "status": "REAL_POSTGRES_COMBAT_ASSIGNMENT_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "5a9fbc879a5a943cff39d5af6e3b3ed149848d15d51448fd554dea59b64b7022",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/combat-assignment/choose-second-attacker/receipt.json",
+      "status": "REAL_POSTGRES_COMBAT_ASSIGNMENT_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "386eebbdf1c4fd83f24da233f5f5d025644fc167f2befd0b916ca20adb92cf91",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/combat-assignment/one-on-one/receipt.json",
+      "status": "REAL_POSTGRES_COMBAT_ASSIGNMENT_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "420677fb0cf7b39beea2aeb20d191919f04bac60caff31a637b796da6ae30f69",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/conquest-token/alternate-reaction/receipt.json",
+      "status": "REAL_POSTGRES_CONQUEST_TOKEN_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "sha256": "6ae029bc78286f6cccbf044d289a88e3ef3bc4cbe4076be486fec007f288ae89",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/conquest-token/primary-plain/receipt.json",
+      "status": "REAL_POSTGRES_CONQUEST_TOKEN_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "sha256": "c5cf69feaa73cdb2fe8ec3ca0973e4d6793d47a60e085eea4b860a0c719e931e",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/conquest-token/primary-reaction/receipt.json",
+      "status": "REAL_POSTGRES_CONQUEST_TOKEN_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "sha256": "68650ba58e1b7df270f75901ee8691a95c45a4720c6ad61bd11fd08a7387f07e",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/conquest-token/alternate-plain/receipt.json",
+      "status": "REAL_POSTGRES_CONQUEST_TOKEN_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "sha256": "6e561d873d90ba5370b05af1d6f64a6a36a30725eeea3cd0643f4ec9756b577d",
+      "paths": 1
+    }
+  ],
+  "nativeWireRecoveryJobPass": true,
+  "nativeWireIsolation": {
+    "room": "NETWORK-65c5a67b7714",
+    "rejectedActions": 15,
+    "identities": [
+      "ANONYMOUS",
+      "FAILED_KEY",
+      "OTHER_HANDLE"
+    ],
+    "leakedPrivateMessages": 0,
+    "validReconnectTokenWasSupplied": true
+  },
+  "currentCanonicalDesktopArtifacts": [
+    {
+      "platform": "mac",
+      "artifactId": 12104071788,
+      "bytes": 142865107,
+      "sha256": "b42eb21ca01374c26782c21084a6c00bf66d6cdf8c7d98406b9fad143a04c8f1",
+      "currentCanonicalArchiveExact": true,
+      "actualBootAndLifecycleSeparateLogsPreviouslyVerified": true,
+      "physicalWindowsAcceptance": "OPEN"
+    },
+    {
+      "platform": "windows",
+      "artifactId": 12103099339,
+      "bytes": 89107858,
+      "sha256": "b882e9073996103fb2160877c432395539c5207c8124c1375ebf419de5289e67",
+      "currentCanonicalArchiveExact": true,
+      "actualBootAndLifecycleSeparateLogsPreviouslyVerified": true,
+      "physicalWindowsAcceptance": "OPEN"
+    }
+  ],
+  "sourceAndRuntimeBinaryIdentityNotEquated": true,
+  "wholeCardCertification": false,
+  "visibleFixed62bfPositiveMerfolkNative": "COMPLETED_SEPARATE_BOUNDED_RECEIPT",
+  "physicalWindowsAcceptance": "OPEN",
+  "laterUncommittedHuntingRhythmNotCoveredByThisFixedCommit": true
+}

@@ -1,0 +1,60 @@
+{
+  "status": "REAL_POSTGRES_BANISH_OWNER_PLAY_PENDING_COLD_FORGERY_ORIGINAL_REPLAY_PASS",
+  "executedAtUtc": "2026-10-17T16:31:38.818969+00:00",
+  "room": "postgres-banish-owner-26e67dae8445496d806d255febad479c",
+  "originalExplicitSeed": 0,
+  "commands": 64,
+  "events": 280,
+  "checkpoints": [
+    {
+      "commandCount": 59,
+      "mandatoryOwnerPlay": true,
+      "commands": 59,
+      "events": 263,
+      "fullOriginalReplay": true,
+      "sevenSqlTablesUnchanged": true,
+      "sourceGeneration": 2
+    },
+    {
+      "commandCount": 60,
+      "mandatoryOwnerPlay": false,
+      "commands": 60,
+      "events": 269,
+      "fullOriginalReplay": true,
+      "sevenSqlTablesUnchanged": true,
+      "sourceGeneration": 3
+    }
+  ],
+  "attacks": [
+    {
+      "coordinatedGeneration": false,
+      "rebuiltBothPlayerViews": true,
+      "structuralValidationPassed": false,
+      "productionRegistryRejected": true,
+      "acceptedHistoryUnchanged": true,
+      "allSqlRowsUnchangedByRejection": true
+    },
+    {
+      "coordinatedGeneration": true,
+      "rebuiltBothPlayerViews": true,
+      "structuralValidationPassed": true,
+      "productionRegistryRejected": true,
+      "acceptedHistoryUnchanged": true,
+      "allSqlRowsUnchangedByRejection": true
+    }
+  ],
+  "originalNextCommandsMatched": 2,
+  "finalHash": "3ffb1cfbc63455ae8651f996cc5cc5eb43e2020748f4f145507bb5b38f17133c",
+  "ruleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+    "implementationSha256": "3f884869509a6c94f7deaf737bf086fbf3d51aa868c3d51633600ad52bfe5cf8",
+    "identitySha256": "cf93983c65245099e2cf4ea18e7fb263cabb77ef56a0027726e00ad85e3db517"
+  },
+  "fixtureSha256": "e6bd310b80da65c5596ea4f202c970e8da6e0190c57093166db8651553f7dde8",
+  "databaseRoomRetained": true,
+  "scope": "Actual blank SEATING and new legal Rengar deck, Hunting Rhythm owner selects an enemy-controlled battlefield; two pending SQL cold restores, two original next commands, independent permission and coordinated-generation rejection, unchanged accepted rows and full original replay. Other own/legend ability combinations and native Windows are separate."
+}
