@@ -1,0 +1,24 @@
+{
+  "recordedAtUtc": "2026-10-17T18:05:00.196440+00:00",
+  "allFrozen12442SourceInputsStillExact": true,
+  "frozenInputCount": 12442,
+  "actualTestAssemblySha256": "4691460034c9003df6dd3acb85ed854525a820a35041d733d711c06046c9f2cd",
+  "currentRelevantSourceCatalogOriginalGamesAndGoldenInputCount": 1060,
+  "currentRelevantInputsMatchThroughOriginalGamesCompletion": true,
+  "status": "ORIGINAL_FIVE_GAMES_110_PAIRS_AND_ACTUAL_ORDERED_DECKS_VERIFIED",
+  "allFiveOriginalMethodsPassed": true,
+  "actualDirectedPairs": 110,
+  "originalSeed": 424242,
+  "actualOriginalDeckCountPerFormat": 11,
+  "actualRuntimeDecklistsDeepEqualGoldenIncludingAllOrderedArrays": true,
+  "formats": [
+    "CoreRules",
+    "ChinaStandard20260724"
+  ],
+  "matrixFile": "original-five-and110-matrix.json",
+  "originalGamesTestSeconds": 791.62,
+  "goldenActualCases": 1,
+  "originalGamesCases": 5,
+  "wholePrintingCertified": false,
+  "fixedCommitFullCiAndNativeForHereChangeStillPending": true
+}

@@ -1,0 +1,22 @@
+{
+  "recordedAtUtc": "2026-10-17T18:28:32.036439+00:00",
+  "newApiPid": 79005,
+  "previousApiPid": 63229,
+  "processActuallyCold": true,
+  "sameAll36PublishedRuntimeInputsReverified": true,
+  "apiPublishedFileCount": 36,
+  "samePublishedPath": "/Users/dinghaolin/MyProjects/riftbound/var/qa/permanent-play-here-base-20261017/api-publish-v5",
+  "ordinaryProductionSameDatabaseNoSeedOrMigrationRewrite": true,
+  "apiHealth200": true,
+  "offlineSecondsFromRecordedStopToNewProcessStart": 159.84373,
+  "fixedCommit": "c69aef543b7bb46a987719cc77cd77ea49782527",
+  "fullOriginalFrameAndNativeReconnectStillToVerify": true,
+  "verifiedAtUtc": "2026-10-17T18:31:41.047525+00:00",
+  "fullOriginalFrameByteExactAfterColdAndBothNativeReconnects": true,
+  "sameAll70OriginalCommands453EventsAndPendingSource": true,
+  "bothNativeManualReconnectButtonsActuallyClicked": true,
+  "bothRestoredPendingOwnerScreenshotsObserved": true,
+  "originalFullActionEventStateReplayAfterColdPassed": true,
+  "actualFrameSha256": "0cf8d42fcc0c4a43c5cd35e7f4bcb6e6149d614909eb0aef55e3182dd85dc899",
+  "nextNativeCommandNotYetSubmitted": true
+}

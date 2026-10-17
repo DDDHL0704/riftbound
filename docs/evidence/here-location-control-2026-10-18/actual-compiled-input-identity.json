@@ -1,0 +1,52 @@
+{
+  "recordedAtUtc": "2026-10-17T19:35:05.410673+00:00",
+  "status": "ACTUAL_RUNTIME_IDENTITIES_RECORDED_SEPARATELY_WITH_EXACT_AUTHORED_INPUT_RETENTION",
+  "allOriginalGamesAuthoredGameplayInputsMatchCurrent": true,
+  "gameplayInputCount": 479,
+  "actualAssemblies": {
+    "Riftbound.Contracts.dll": {
+      "originalGamesActualBinarySha256": "1374e1cd369bc74b426270ddb751280389f4999d3b63d98b060c2f1c8e157416",
+      "currentSqlAndConformanceActualBinarySha256": "28f1011ae7a5b84c0283cb18a3fe2d50d4c25cb061c68cf09d8eec410ac8684a",
+      "binaryBytesEqual": false,
+      "originalGamesActualMvid": "9de6f7c382464772bcf1628f92ed5b7f",
+      "currentSqlAndConformanceActualMvid": "2bfbf9e0c5e841e3b6b3bd7b269a80e6",
+      "originalBinaryRetainedObject": "1374e1cd369bc74b426270ddb751280389f4999d3b63d98b060c2f1c8e157416"
+    },
+    "Riftbound.CardCatalog.dll": {
+      "originalGamesActualBinarySha256": "b2812e383dd28debaf156039479e17be9a70f4f42a227f4bd7b7f1b07b1916aa",
+      "currentSqlAndConformanceActualBinarySha256": "3aca933cba7176d89d9eab28a449c89080fe3f6fca53fc8cc4c570aa17478f5f",
+      "binaryBytesEqual": false,
+      "originalGamesActualMvid": "a5d81df1689a4eb581bd803f5c650a8f",
+      "currentSqlAndConformanceActualMvid": "2ddf10f522414d4a9fe1e95d4bfdac22",
+      "originalBinaryRetainedObject": "b2812e383dd28debaf156039479e17be9a70f4f42a227f4bd7b7f1b07b1916aa"
+    },
+    "Riftbound.Engine.dll": {
+      "originalGamesActualBinarySha256": "887730075b53a13b060c48761bdc9d3c8f1fd67b17997f25ca2cf750af48fb85",
+      "currentSqlAndConformanceActualBinarySha256": "94c624a0e086a9f37b57a7d8dbf38b97c1f71a6ebe64782ba08a44e4764b433a",
+      "binaryBytesEqual": false,
+      "originalGamesActualMvid": "f614fefbfa4241caa45dd80d4741b808",
+      "currentSqlAndConformanceActualMvid": "b0dd540068234584ac288afe3a7e758b",
+      "originalBinaryRetainedObject": "887730075b53a13b060c48761bdc9d3c8f1fd67b17997f25ca2cf750af48fb85"
+    },
+    "Riftbound.Persistence.dll": {
+      "originalGamesActualBinarySha256": "7f8d1219d511630a40af2ce143029337c3c6e0fd654b7fd7bfe05db921edd8ed",
+      "currentSqlAndConformanceActualBinarySha256": "2e32d7d2652d24a834e1f4881c4a73439530d9eb66630fba6dcb98ab7dc284de",
+      "binaryBytesEqual": false,
+      "originalGamesActualMvid": "656bd94312094e778342aec460f19b7b",
+      "currentSqlAndConformanceActualMvid": "723303f1aaec4fd89e3cfc57ac3aa4cb",
+      "originalBinaryRetainedObject": "7f8d1219d511630a40af2ce143029337c3c6e0fd654b7fd7bfe05db921edd8ed"
+    }
+  },
+  "implementationIdentitiesIndependentlyReconstructedFromActualPeMetadata": {
+    "originalGames": "449dc700d80005004959c43c352078e72838e13b7299b045a0d6028a5142d6e8",
+    "currentSqlAndConformance": "ffcc7374165f3979bf4baac01991e7b40f28073bf440c52ca664cb6921d47e77"
+  },
+  "currentActualSqlReceiptMatchesIndependentMetadataCalculation": true,
+  "originalGamesUsesItsOwnActualCompiledIdentityNotRelabeledToCurrentRuntime": true,
+  "binaryDifferenceIsNotClaimedAsRuntimeEquivalenceFromSourceEquality": true,
+  "separateFrozenCheckoutAndCurrentBuildInputsHaveDifferentActualModules": true,
+  "originalRetirementIndex": "var/qa/completed-snapshot-material-20261018/09-here-location-control-20261018-original-games-fixed-source.json",
+  "originalRetirementIndexSha256": "c1f10cb0a077616928c4602462947196e0ec79b5d2aa94d2da93785020fcdcb3",
+  "originalGamesTestAssemblySha256": "4691460034c9003df6dd3acb85ed854525a820a35041d733d711c06046c9f2cd",
+  "currentFixedFullAndNativeAndWindowsRemainSeparate": true
+}

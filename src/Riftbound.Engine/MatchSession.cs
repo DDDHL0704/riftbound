@@ -13131,6 +13131,8 @@ internal static class ActionPromptBuilder
             CardTargetScopes.EnemyBattlefieldUnitThenFriendlyUnit => targetIndex == 0
                 ? IsPromptEnemyBattlefieldObject(state, playerId, objectId) : IsPromptControlledFieldObject(state, playerId, objectId),
             CardTargetScopes.EnemyUnitAtSourceBattlefield => IsPromptEnemyBattlefieldObject(state, playerId, objectId),
+            CardTargetScopes.EnemyUnitAtSourceLocation => IsPromptEnemyFieldObject(state, playerId, objectId)
+                && IsPromptFieldUnitObject(state, objectId),
             CardTargetScopes.EnemyUnit => IsPromptEnemyFieldObject(state, playerId, objectId),
             CardTargetScopes.EnemyUnitThenEnemyUnit => IsPromptEnemyFieldObject(state, playerId, objectId),
             CardTargetScopes.Battlefield => BattlefieldLocalRules.Battlefield(state, objectId) is not null,

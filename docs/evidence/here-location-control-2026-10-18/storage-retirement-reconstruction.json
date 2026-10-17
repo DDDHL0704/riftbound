@@ -1,0 +1,109 @@
+{
+  "retirement": {
+    "recordedAtUtc": "2026-10-17T19:01:43.193839+00:00",
+    "reason": "User requested continuous storage control and only latest usable builds",
+    "sourceTreesRetired": [
+      {
+        "retiredSource": "/Users/dinghaolin/MyProjects/riftbound/var/qa/colorless-token-haste-20261016/early-fixed",
+        "index": "/Users/dinghaolin/MyProjects/riftbound/var/qa/completed-snapshot-material-20261018/01-colorless-token-haste-20261016-early-fixed.json",
+        "sourceAndRuntimeFilesRetained": 13374,
+        "discardedDerivedCacheFiles": 214,
+        "originalLogicalBytes": 637726016,
+        "reconstructableFromReachableGitAndExactSavedObjects": true
+      },
+      {
+        "retiredSource": "/Users/dinghaolin/MyProjects/riftbound/var/qa/colorless-token-haste-20261016/sql-fixed",
+        "index": "/Users/dinghaolin/MyProjects/riftbound/var/qa/completed-snapshot-material-20261018/02-colorless-token-haste-20261016-sql-fixed.json",
+        "sourceAndRuntimeFilesRetained": 13681,
+        "discardedDerivedCacheFiles": 334,
+        "originalLogicalBytes": 697727007,
+        "reconstructableFromReachableGitAndExactSavedObjects": true
+      },
+      {
+        "retiredSource": "/Users/dinghaolin/MyProjects/riftbound/var/qa/battlefield-positive-play-20261017/fixed-source",
+        "index": "/Users/dinghaolin/MyProjects/riftbound/var/qa/completed-snapshot-material-20261018/03-battlefield-positive-play-20261017-fixed-source.json",
+        "sourceAndRuntimeFilesRetained": 13911,
+        "discardedDerivedCacheFiles": 337,
+        "originalLogicalBytes": 707519699,
+        "reconstructableFromReachableGitAndExactSavedObjects": true
+      },
+      {
+        "retiredSource": "/Users/dinghaolin/MyProjects/riftbound/var/qa/battlefield-positive-play-20261017/originals-final-source",
+        "index": "/Users/dinghaolin/MyProjects/riftbound/var/qa/completed-snapshot-material-20261018/04-battlefield-positive-play-20261017-originals-final-source.json",
+        "sourceAndRuntimeFilesRetained": 13912,
+        "discardedDerivedCacheFiles": 335,
+        "originalLogicalBytes": 707897751,
+        "reconstructableFromReachableGitAndExactSavedObjects": true
+      },
+      {
+        "retiredSource": "/Users/dinghaolin/MyProjects/riftbound/var/qa/opponent-battlefield-control-20261016/early-fixed",
+        "index": "/Users/dinghaolin/MyProjects/riftbound/var/qa/completed-snapshot-material-20261018/05-opponent-battlefield-control-20261016-early-fixed.json",
+        "sourceAndRuntimeFilesRetained": 13302,
+        "discardedDerivedCacheFiles": 214,
+        "originalLogicalBytes": 634398833,
+        "reconstructableFromReachableGitAndExactSavedObjects": true
+      },
+      {
+        "retiredSource": "/Users/dinghaolin/MyProjects/riftbound/var/qa/opponent-battlefield-control-20261016/sql-fixed",
+        "index": "/Users/dinghaolin/MyProjects/riftbound/var/qa/completed-snapshot-material-20261018/06-opponent-battlefield-control-20261016-sql-fixed.json",
+        "sourceAndRuntimeFilesRetained": 12036,
+        "discardedDerivedCacheFiles": 98,
+        "originalLogicalBytes": 543988415,
+        "reconstructableFromReachableGitAndExactSavedObjects": true
+      },
+      {
+        "retiredSource": "/Users/dinghaolin/MyProjects/riftbound/var/qa/atakhan-cost-20261016/early-fixed",
+        "index": "/Users/dinghaolin/MyProjects/riftbound/var/qa/completed-snapshot-material-20261018/07-atakhan-cost-20261016-early-fixed.json",
+        "sourceAndRuntimeFilesRetained": 13334,
+        "discardedDerivedCacheFiles": 214,
+        "originalLogicalBytes": 635897480,
+        "reconstructableFromReachableGitAndExactSavedObjects": true
+      },
+      {
+        "retiredSource": "/Users/dinghaolin/MyProjects/riftbound/var/qa/atakhan-cost-20261016/sql-fixed",
+        "index": "/Users/dinghaolin/MyProjects/riftbound/var/qa/completed-snapshot-material-20261018/08-atakhan-cost-20261016-sql-fixed.json",
+        "sourceAndRuntimeFilesRetained": 12067,
+        "discardedDerivedCacheFiles": 98,
+        "originalLogicalBytes": 545413789,
+        "reconstructableFromReachableGitAndExactSavedObjects": true
+      },
+      {
+        "retiredSource": "/Users/dinghaolin/MyProjects/riftbound/var/qa/here-location-control-20261018/original-games-fixed-source",
+        "index": "/Users/dinghaolin/MyProjects/riftbound/var/qa/completed-snapshot-material-20261018/09-here-location-control-20261018-original-games-fixed-source.json",
+        "sourceAndRuntimeFilesRetained": 13975,
+        "discardedDerivedCacheFiles": 339,
+        "originalLogicalBytes": 709664313,
+        "reconstructableFromReachableGitAndExactSavedObjects": true
+      }
+    ],
+    "gitBase": "c69aef543b7bb46a987719cc77cd77ea49782527",
+    "uniqueSavedObjects": 477,
+    "uniqueSavedBytes": 417566627,
+    "originalLogicalBytes": 5820233303,
+    "freeBeforeBytes": 33162608640,
+    "freeAfterBytes": 36370477056,
+    "observedFreeDeltaBytes": 3207868416,
+    "freeDeltaMayIncludeConcurrentFilesystemActivity": true,
+    "allAuthoredSourceTestsAndOfficialEvidenceExactlyReconstructable": true,
+    "matchingOwnRuntimeDllPdbAndRuntimeJsonRetained": true,
+    "allOriginalLogsTrxDatabasesAndExternalEvidenceRetained": true,
+    "latestNativePairCanonicalArchivesAndApiSqlPublicationsUntouched": true,
+    "olderBuildDependencyCachesRetiredAndNotClaimedAsStillPresent": true
+  },
+  "independentVerification": {
+    "recordedAtUtc": "2026-10-17T19:04:20.913131+00:00",
+    "status": "ALL_RETIRED_SOURCES_AND_NEEDED_RUNTIME_BYTES_INDEPENDENTLY_RECONSTRUCTABLE",
+    "retiredTrees": 9,
+    "retainedFileReferences": 119592,
+    "uniqueReachableGitBlobsActuallyReadAndSha256Verified": 11639,
+    "uncompressedGitBytesVerified": 499483090,
+    "uniqueSavedObjectsActuallySha256Verified": 477,
+    "hereAllOriginal12442FrozenInputReferencesExact": true,
+    "hereActualOriginalGameAndGoldenTestAssemblyExact": true,
+    "noBulkSourceRestoreOrExtraDiskCopyCreated": true,
+    "allOriginalDatabasesUntouched": true
+  },
+  "originalDatabasesNotDeleted": true,
+  "onlyLatestUsableNativePairAndOneCanonicalArchivePerPlatform": true,
+  "retirementPurpose": "Completed duplicate source trees and obsolete derived caches only; necessary runtime bytes retained by exact Git blob or477 content-addressed objects; no bulk source restore."
+}

@@ -21551,6 +21551,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             CardTargetScopes.EnemyBattlefieldUnitThenFriendlyUnit => targetIndex == 0
                 ? IsEnemyBattlefieldUnitObject(state, playerId, objectId) : IsPlayerControlledFieldUnitObject(state, playerId, objectId),
             CardTargetScopes.EnemyUnitAtSourceBattlefield => IsEnemyBattlefieldUnitObject(state, playerId, objectId),
+            CardTargetScopes.EnemyUnitAtSourceLocation => IsEnemyFieldObject(state, playerId, objectId)
+                && IsFieldUnitObjectControlledByZonePlayer(state.PlayerZones, state.CardObjects, objectId),
             CardTargetScopes.EnemyUnit => IsEnemyFieldObject(state, playerId, objectId),
             CardTargetScopes.EnemyUnitThenEnemyUnit => IsEnemyFieldObject(state, playerId, objectId),
             CardTargetScopes.Battlefield => BattlefieldLocalRules.Battlefield(state, objectId) is not null,
@@ -22014,6 +22016,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             or CardTargetScopes.EnemyAttackingUnit
             or CardTargetScopes.EnemyBattlefieldUnit
             or CardTargetScopes.EnemyUnitAtSourceBattlefield
+            or CardTargetScopes.EnemyUnitAtSourceLocation
             or CardTargetScopes.EnemyUnit
             or CardTargetScopes.EnemyUnitThenEnemyUnit;
     }

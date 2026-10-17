@@ -1,0 +1,69 @@
+{
+  "scope": "Original legal opening target survives printed damage2 because the separate actually chosen Rengar unit-play instruction granted it1 Might this turn. No unrelated Assault claim.",
+  "actualTargetAndDamageEvents": {
+    "target": {
+      "ObjectId": "here-renata-MAIN-OGN-210-298-35",
+      "ObjectGeneration": 2,
+      "DamageMarkedByPlayerIds": [
+        "here-rengar"
+      ],
+      "Damage": 2,
+      "UntilEndOfTurnEffects": [],
+      "IsFaceDown": false,
+      "IsAttacking": false,
+      "IsDefending": false,
+      "Power": 3,
+      "UntilEndOfTurnPowerModifier": 1,
+      "IsExhausted": true,
+      "Tags": [
+        "CARD_CATEGORY:单位",
+        "CARD_TYPE:UNIT",
+        "COLOR:yellow",
+        "强攻",
+        "魄罗"
+      ],
+      "ManaCost": 2,
+      "AttachedToObjectId": null,
+      "CardNo": "OGN·210/298",
+      "OwnerId": "here-renata",
+      "ControllerId": "here-renata",
+      "UntilEndOfTurnPowerModifiers": [
+        {
+          "EffectId": "POWER:here-renata-MAIN-OGN-210-298-35:here-rengar-LEGEND-UNL-183-219-01:UNIT_PLAYED_POWER_PLUS_1:CoreRuleEngine.ResolveRengarUnitPlayedPowerTrigger:1:1",
+          "EffectKind": "UNIT_PLAYED_POWER_PLUS_1",
+          "Duration": "UNTIL_END_OF_TURN",
+          "TargetObjectId": "here-renata-MAIN-OGN-210-298-35",
+          "SourceObjectId": "here-rengar-LEGEND-UNL-183-219-01",
+          "SourceCardNo": "UNL-183/219",
+          "PowerDelta": 1,
+          "BasePower": 2,
+          "EffectivePower": 3,
+          "SourcePath": "CoreRuleEngine.ResolveRengarUnitPlayedPowerTrigger",
+          "RequestedPowerDelta": 1,
+          "MinimumPower": 0,
+          "ResultingPower": 3,
+          "AppliedOrder": 1
+        }
+      ]
+    },
+    "location": {
+      "PlayerId": "here-renata",
+      "Zone": "BATTLEFIELD",
+      "BattlefieldObjectId": "here-rengar-BATTLEFIELD-OGN-275-298-01"
+    },
+    "damageEvents": [
+      {
+        "Kind": "DAMAGE_APPLIED",
+        "Description": "鲛人滋事者造成 2 点伤害",
+        "Payload": {
+          "sourceObjectId": "here-rengar-MAIN-UNL-003-219-07",
+          "targetObjectId": "here-renata-MAIN-OGN-210-298-35",
+          "damage": 2
+        },
+        "ObjectRefs": null
+      }
+    ]
+  },
+  "originalTrxSha256": "362212ba665db445ba100ab999d6a792c3db72c8aa9f33e9b6a5dbfeb0a61f17",
+  "originalTestScope": "Here ability controller after Takeover, not whole Rengar or unit Might certification"
+}

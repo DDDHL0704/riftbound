@@ -21463,6 +21463,93 @@
         "docs/evidence/banish-owner-play-2026-10-18/fixed62bf-native-baseline.json",
         "docs/evidence/banish-owner-play-2026-10-18/one-check.json"
       ]
+    },
+    {
+      "id": "permanent-here-location-control-2026-10-18",
+      "scope": "CN zh-CN observation2026-10-18, frozen CN2026-10-16 applicable universe retained. Finite Merfolk current Here includes actual same-player base, distinct opposite bases and ability controller after actual Takeover. Five explicit-midgame rows and one new legal blank Rengar/Renata opening; SQL controller branch only, no base-positive blank/native claim and no whole printing certification.",
+      "status": "SCOPED_FOCUS71_CHECK12379_SQL83_ORIGINAL_GAMES_AND_ORDERED_DECKS_PASS_FIXED_FULL_CURRENT_NATIVE_WINDOWS_OPEN",
+      "subjects": [
+        "UNL-003/219",
+        "UNL-184/219",
+        "SFD-202/221",
+        "OGS-011/024"
+      ],
+      "ruleRecords": [],
+      "pendingRuleRecords": [],
+      "sourceManifest": {
+        "path": "docs/evidence/here-location-control-2026-10-18/source-manifest.json",
+        "sha256": "2983462aa9127e6227fdbdb1388ff54ac9215fccf54269b5bc4764801519affd"
+      },
+      "sourceClauses": [
+        {
+          "document": "DOC-01",
+          "clause": "124",
+          "sha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11"
+        },
+        {
+          "document": "DOC-01",
+          "clause": "143",
+          "sha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11"
+        },
+        {
+          "document": "DOC-01",
+          "clause": "359.3.f.1",
+          "sha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11"
+        },
+        {
+          "document": "DOC-01",
+          "clause": "359.3.f.2",
+          "sha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11"
+        },
+        {
+          "document": "DOC-01",
+          "clause": "359.3.f.4",
+          "sha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11"
+        }
+      ],
+      "validation": {
+        "focus": {
+          "path": "docs/evidence/here-location-control-2026-10-18/focus.json",
+          "sha256": "421ec69e60bf6d4bfcfb3c97ce662af8c5c66d94476a525e2fadc7bcb2b764f7"
+        },
+        "realSql": {
+          "path": "docs/evidence/here-location-control-2026-10-18/scoped-real-sql.json",
+          "sha256": "ae4f38f08558f42a55e963f3da1d445cad784e0995d4759bfd8cf3d274cbd45b"
+        },
+        "originalGamesAndOrderedDecks": {
+          "path": "docs/evidence/here-location-control-2026-10-18/original-games-and-ordered-deck-retention.json",
+          "sha256": "3a21a055be481bf9647596942407c3ddcfc5ca122f29efba13e7bd7545beb206"
+        },
+        "fixedCommitFull": "PENDING_NEW_FIXED_COMMIT",
+        "currentHereNative": "OPEN",
+        "physicalWindows": "OPEN",
+        "oneCheck": {
+          "path": "docs/evidence/here-location-control-2026-10-18/one-check.json",
+          "sha256": "4f69a86309a6aef5e1481150adba4ba842f7def774d58a1a11e9674fe63895bc"
+        }
+      },
+      "exclusions": [
+        "Four unchanged defend target consumers and other Here/control/reentry combinations",
+        "Base-positive movement remains explicit midgame, not empty-opening SQL/native proof",
+        "Multiple own and independent legend ability ordering and complete legend semantics",
+        "Whole printing, source gaps, physical Windows and all original official obligations"
+      ],
+      "auditDocument": "docs/HERE_LOCATION_CONTROL_AUDIT_2026-10-18.md",
+      "evidence": [
+        "docs/evidence/here-location-control-2026-10-18/focus.json",
+        "docs/evidence/here-location-control-2026-10-18/source-manifest.json",
+        "docs/evidence/here-location-control-2026-10-18/scoped-real-sql.json",
+        "docs/evidence/here-location-control-2026-10-18/scoped-real-sql-verification.json",
+        "docs/evidence/here-location-control-2026-10-18/original-games-and-ordered-deck-retention.json",
+        "docs/evidence/here-location-control-2026-10-18/source-and-test-retention.json",
+        "docs/evidence/here-location-control-2026-10-18/actual-compiled-input-identity.json",
+        "docs/evidence/here-location-control-2026-10-18/fixed-causal-rows.json",
+        "docs/evidence/here-location-control-2026-10-18/original-causal-red.json",
+        "docs/evidence/here-location-control-2026-10-18/fixedc69-full-ci-independent-original.json",
+        "docs/evidence/here-location-control-2026-10-18/fixedc69-native-baseline.json",
+        "docs/evidence/here-location-control-2026-10-18/storage-retirement-reconstruction.json",
+        "docs/evidence/here-location-control-2026-10-18/one-check.json"
+      ]
     }
   ]
 }

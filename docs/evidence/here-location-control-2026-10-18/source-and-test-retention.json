@@ -1,0 +1,27 @@
+{
+  "conformanceSources": {
+    "originalFiles": 448,
+    "allOriginalBytesExact": true,
+    "changedOriginalPaths": []
+  },
+  "fixtures": {
+    "originalFiles": 1274,
+    "allOriginalBytesExact": true,
+    "changedOriginalPaths": []
+  },
+  "baseCommit": "c69aef543b7bb46a987719cc77cd77ea49782527",
+  "all143OriginalFullGameMethodsAndEightFilesExact": true,
+  "actual11OrderedDeckArraysBothFormatsAnd110OriginalDirectedPairsSeed424242": "original-games-and-ordered-deck-retention.json",
+  "allOriginalDefaultSqlAcceptanceCallsInExactOrder": true,
+  "originalDefaultSqlCalls": 29,
+  "newDefaultSqlCalls": 30,
+  "onlyNewDefaultCall": "await HereLocationSqlAcceptance.RunAsync(dataSource, Path.Combine(output, \"here-location-control\"));",
+  "newFixturePath": "tests/Riftbound.ConformanceTests/Fixtures/here-controller-current-opening.json",
+  "newFixtureSha256": "a04dbcffebbadefaaa4ac6da14682948a4be83ba1c71277f80a701ac0469b469",
+  "newConformanceFiles": [
+    "HereLocationControlTests.cs",
+    "HereLocationOpeningTests.cs"
+  ],
+  "allOriginalTheoryRowsAndVictoryReplayAssertionsPreservedByExactFileBytes": true,
+  "noOldDevelopmentCompatibilityMigrationOrAcceptedHistoryRewrite": true
+}

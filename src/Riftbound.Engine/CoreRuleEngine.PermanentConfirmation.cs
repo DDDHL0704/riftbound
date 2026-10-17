@@ -32,7 +32,7 @@ public sealed partial class CoreRuleEngine
             && HasIndependentPermanentTargets(StandbyDefinition(
                 PermanentPlayDefinition(targeted, IsStackItemBattlefieldDestination(item)), item.PlayedFromStandby)))
             ability = ability with { PermanentPlayTargetsPending = true, TargetGenerations = null };
-        if (targeted?.TargetScope == CardTargetScopes.EnemyUnitAtSourceBattlefield && IsStackItemBattlefieldDestination(item))
+        if (targeted?.TargetScope == CardTargetScopes.EnemyUnitAtSourceLocation && IsStackItemBattlefieldDestination(item))
             ability = ability with { PermanentPlaySource = new(item.SourceObjectId, cards[item.SourceObjectId].ObjectGeneration) };
         if (CardBehaviorRegistry.TryGetByCardNo(item.CardNo, out var behavior) && behavior.PlayDamagePerLocation > 0)
             ability = ability with { TargetObjectIds = [], TargetGenerations = null, LocationDamage = new(item.CardNo) };

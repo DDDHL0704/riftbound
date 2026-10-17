@@ -13,13 +13,20 @@ public sealed partial class CoreRuleEngine
     private static bool PermanentPlayHereTargetAllowed(MatchState state, StackItemState item,
         CardBehaviorDefinition behavior, string target)
     {
-        if (!item.SourceConfirmed || behavior.TargetScope != CardTargetScopes.EnemyUnitAtSourceBattlefield) return true;
+        if (!item.SourceConfirmed || behavior.TargetScope != CardTargetScopes.EnemyUnitAtSourceLocation) return true;
         // CN 124 and 359.3.f.2: movement within the field preserves this source;
         // leaving and re-entering creates another object, not a new "here".
-        return item.PermanentPlaySource is { } binding
-            && state.CardObjects.TryGetValue(binding.ObjectId, out var source)
-            && source.ObjectGeneration == binding.Generation && IsFaceUpNonStandbyUnit(source)
-            && BattlefieldLocalRules.AtUnit(state, binding.ObjectId) is { } here
-            && BattlefieldLocalRules.AtUnit(state, target)?.ObjectId == here.ObjectId;
+        if (item.PermanentPlaySource is not { } binding
+            || !state.CardObjects.TryGetValue(binding.ObjectId, out var source)
+            || source.ObjectGeneration != binding.Generation || !IsFaceUpNonStandbyUnit(source)
+            || !state.ObjectLocations.TryGetValue(binding.ObjectId, out var location)
+            || !state.ObjectLocations.TryGetValue(target, out var targetLocation)) return false;
+        if (location.Zone == "BATTLEFIELD")
+            return BattlefieldLocalRules.AtUnit(state, binding.ObjectId) is { } here
+                && BattlefieldLocalRules.AtUnit(state, target)?.ObjectId == here.ObjectId;
+        return location.Zone == "BASE" && targetLocation.Zone == "BASE"
+            && location.PlayerId == targetLocation.PlayerId
+            && state.PlayerZones.TryGetValue(location.PlayerId, out var zones)
+            && zones.Base.Contains(binding.ObjectId) && zones.Base.Contains(target);
     }
 }

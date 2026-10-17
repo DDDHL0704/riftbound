@@ -1,0 +1,122 @@
+{
+  "scope": "Actual control and optional actual movement from explicit midgame, not empty opening/native/SQL. Opposite-base negative also passes separate5-case focus.",
+  "rows": [
+    {
+      "case": "both-base",
+      "expectedDamage": 2,
+      "actualDamage": 2,
+      "sourceOwner": "P1",
+      "sourceController": "P2",
+      "sourceGeneration": 2,
+      "sourceLocation": {
+        "playerId": "P2",
+        "zone": "BASE",
+        "battlefieldObjectId": null
+      },
+      "targetLocation": {
+        "playerId": "P2",
+        "zone": "BASE",
+        "battlefieldObjectId": null
+      },
+      "commands": 42,
+      "events": 99,
+      "originalReplayVerified": true,
+      "originalTracePath": "var/qa/here-location-control-20261018/final-here-causal-v2/both-base.json",
+      "originalTraceSha256": "0f40a28e0c1e881ad82107a626304d6f189f5975f7f0d610475569b18e4fba52",
+      "initialStatus": "IN_PROGRESS",
+      "initialIsExplicitMidgameNotBlankOpening": true
+    },
+    {
+      "case": "control-only",
+      "expectedDamage": 2,
+      "actualDamage": 2,
+      "sourceOwner": "P1",
+      "sourceController": "P2",
+      "sourceGeneration": 2,
+      "sourceLocation": {
+        "playerId": "P2",
+        "zone": "BATTLEFIELD",
+        "battlefieldObjectId": "F"
+      },
+      "targetLocation": {
+        "playerId": "P2",
+        "zone": "BATTLEFIELD",
+        "battlefieldObjectId": "F"
+      },
+      "commands": 26,
+      "events": 65,
+      "originalReplayVerified": true,
+      "originalTracePath": "var/qa/here-location-control-20261018/final-here-causal-v2/control-only.json",
+      "originalTraceSha256": "25edc24fcbc080e45cf9113a9d72b749231c4bde5cfcae2738cb26c5a2fc5006",
+      "initialStatus": "IN_PROGRESS",
+      "initialIsExplicitMidgameNotBlankOpening": true
+    },
+    {
+      "case": "source-base",
+      "expectedDamage": 0,
+      "actualDamage": 0,
+      "sourceOwner": "P1",
+      "sourceController": "P2",
+      "sourceGeneration": 2,
+      "sourceLocation": {
+        "playerId": "P2",
+        "zone": "BASE",
+        "battlefieldObjectId": null
+      },
+      "targetLocation": {
+        "playerId": "P2",
+        "zone": "BATTLEFIELD",
+        "battlefieldObjectId": "F"
+      },
+      "commands": 42,
+      "events": 96,
+      "originalReplayVerified": true,
+      "originalTracePath": "var/qa/here-location-control-20261018/final-here-causal-v2/source-base.json",
+      "originalTraceSha256": "0f1c1b343d74b4fa48941a2db91d81d5cbfdeacae2824dd3d98aba17d356d16c",
+      "initialStatus": "IN_PROGRESS",
+      "initialIsExplicitMidgameNotBlankOpening": true
+    },
+    {
+      "case": "target-base",
+      "expectedDamage": 0,
+      "actualDamage": 0,
+      "sourceOwner": "P1",
+      "sourceController": "P2",
+      "sourceGeneration": 2,
+      "sourceLocation": {
+        "playerId": "P2",
+        "zone": "BATTLEFIELD",
+        "battlefieldObjectId": "F"
+      },
+      "targetLocation": {
+        "playerId": "P2",
+        "zone": "BASE",
+        "battlefieldObjectId": null
+      },
+      "commands": 42,
+      "events": 96,
+      "originalReplayVerified": true,
+      "originalTracePath": "var/qa/here-location-control-20261018/final-here-causal-v2/target-base.json",
+      "originalTraceSha256": "145e6a150c759d7f0482c3adeeb8a35d43e0557aeb2535c29ceb8b901fab2c67",
+      "initialStatus": "IN_PROGRESS",
+      "initialIsExplicitMidgameNotBlankOpening": true
+    }
+  ],
+  "fiveCaseFocus": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 63.63,
+    "total": 5,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 5,
+        "passed": 5,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 30.2
+      }
+    ]
+  }
+}

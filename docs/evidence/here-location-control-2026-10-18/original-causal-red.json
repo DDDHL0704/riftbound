@@ -1,0 +1,130 @@
+{
+  "recordedAtUtc": "2026-10-17T17:14:31.923954+00:00",
+  "baseCommit": "c69aef543b7bb46a987719cc77cd77ea49782527",
+  "status": "ACTUAL_HOSTILE_CONTROL_AND_FLASH_BOTH_BASE_RULE_REFERENCE_SEMANTIC_RED",
+  "scope": "Explicit tick0 midgame position, ordinary accepted standby/Hunt owner play/Takeover/Flash commands; full original replay independently matched each wrong or right result. No accepted history edits. Not an empty opening/native/SQL or whole-printing proof.",
+  "cases": [
+    {
+      "response": "target-base",
+      "sourceBinding": {
+        "ObjectId": "HOST",
+        "Generation": 2
+      },
+      "sourceOwner": "P1",
+      "sourceController": "P2",
+      "sourceLocation": {
+        "PlayerId": "P2",
+        "Zone": "BATTLEFIELD",
+        "BattlefieldObjectId": "F"
+      },
+      "targetLocation": {
+        "PlayerId": "P2",
+        "Zone": "BASE",
+        "BattlefieldObjectId": null
+      },
+      "actualDamage": 0,
+      "expectedDamage": 0,
+      "commands": 42,
+      "events": 96,
+      "originalActionEventStateReplayVerified": true,
+      "outcome": "Passed"
+    },
+    {
+      "response": "control-only",
+      "sourceBinding": {
+        "ObjectId": "HOST",
+        "Generation": 2
+      },
+      "sourceOwner": "P1",
+      "sourceController": "P2",
+      "sourceLocation": {
+        "PlayerId": "P2",
+        "Zone": "BATTLEFIELD",
+        "BattlefieldObjectId": "F"
+      },
+      "targetLocation": {
+        "PlayerId": "P2",
+        "Zone": "BATTLEFIELD",
+        "BattlefieldObjectId": "F"
+      },
+      "actualDamage": 2,
+      "expectedDamage": 2,
+      "commands": 26,
+      "events": 65,
+      "originalActionEventStateReplayVerified": true,
+      "outcome": "Passed"
+    },
+    {
+      "response": "source-base",
+      "sourceBinding": {
+        "ObjectId": "HOST",
+        "Generation": 2
+      },
+      "sourceOwner": "P1",
+      "sourceController": "P2",
+      "sourceLocation": {
+        "PlayerId": "P2",
+        "Zone": "BASE",
+        "BattlefieldObjectId": null
+      },
+      "targetLocation": {
+        "PlayerId": "P2",
+        "Zone": "BATTLEFIELD",
+        "BattlefieldObjectId": "F"
+      },
+      "actualDamage": 0,
+      "expectedDamage": 0,
+      "commands": 42,
+      "events": 96,
+      "originalActionEventStateReplayVerified": true,
+      "outcome": "Passed"
+    },
+    {
+      "response": "both-base",
+      "sourceBinding": {
+        "ObjectId": "HOST",
+        "Generation": 2
+      },
+      "sourceOwner": "P1",
+      "sourceController": "P2",
+      "sourceLocation": {
+        "PlayerId": "P2",
+        "Zone": "BASE",
+        "BattlefieldObjectId": null
+      },
+      "targetLocation": {
+        "PlayerId": "P2",
+        "Zone": "BASE",
+        "BattlefieldObjectId": null
+      },
+      "actualDamage": 0,
+      "expectedDamage": 2,
+      "commands": 42,
+      "events": 98,
+      "originalActionEventStateReplayVerified": true,
+      "outcome": "Failed"
+    }
+  ],
+  "trxSha256": "72f80b9eb90964033767938d43bd459ee97795ce341f561aac13085b510ebbbf",
+  "allFourFullOriginalActionEventStateReplaysMatched": true,
+  "originalActionEvidenceFiles": [
+    {
+      "file": "original-red-causal-records/control-only.json",
+      "sha256": "c6646b53d60bd50db1dbcc11ee2979881695ac5c469787164573f1966f0240ec"
+    },
+    {
+      "file": "original-red-causal-records/source-base.json",
+      "sha256": "06ec632dd7883202106b18de498b5d4fe6921f6dccd8c0f8c4cefc34b2bbc8a5"
+    },
+    {
+      "file": "original-red-causal-records/target-base.json",
+      "sha256": "86603cdb3b1af6ef27631ed84a6dcb1577950d0e076b59314458d104b0f00fac"
+    },
+    {
+      "file": "original-red-causal-records/both-base.json",
+      "sha256": "4624df2fc66cdef5920e679c81ae7ac9efa4312f6e9dca869abb74fee789a5dc"
+    }
+  ],
+  "expectedDamageLiteralFromCurrentOfficialTextAndReferenceClauses": true,
+  "wholePrintingCertified": false
+}

@@ -1,0 +1,802 @@
+{
+  "recordedAtUtc": "2026-10-17T18:36:17.303152+00:00",
+  "status": "FIXED_COMMIT_FULL_CI_AND_INDEPENDENT_CASE_MATRIX_SQL_NETWORK_RETENTION_VERIFIED",
+  "commit": "c69aef543b7bb46a987719cc77cd77ea49782527",
+  "runId": 39051636631,
+  "conclusion": "success",
+  "jobs": {
+    "scope": "success",
+    "rules": "success",
+    "desktop (macos-latest)": "success",
+    "desktop (windows-latest)": "success"
+  },
+  "actualCases": 12522,
+  "actualMethods": 7451,
+  "fullGameMethods": 143,
+  "skipped": 0,
+  "testAssemblySha256FromCiPlan": "06db786ba4ac7fd5b164e8a2533c11d7c49e86414702a3a347cd59482e2718c0",
+  "trx": [
+    {
+      "file": "results/ci-rules/rules/results.trx",
+      "sha256": "a6754f97462045bec451cf0e0cf271da271f4ec6090b42f09d1d0698ba629357",
+      "cases": 12371,
+      "methods": 7308,
+      "skipped": 0
+    },
+    {
+      "file": "results/ci-rules/games-1/results.trx",
+      "sha256": "9a2e02fa34353f5add3e7d4cdda65b34c6ac6cd4acb65bd3a6c4722549726811",
+      "cases": 1,
+      "methods": 1,
+      "skipped": 0
+    },
+    {
+      "file": "results/ci-rules/games-4/results.trx",
+      "sha256": "d660595ec560e5d4ecb5a435aaeef06b19f057ce4ff83503bfae7ecb4fdeb455",
+      "cases": 52,
+      "methods": 48,
+      "skipped": 0
+    },
+    {
+      "file": "results/ci-rules/games-2/results.trx",
+      "sha256": "500a62d059305c080978ef0506c42954238a709cc2c0aa86a3378dbca869b634",
+      "cases": 49,
+      "methods": 47,
+      "skipped": 0
+    },
+    {
+      "file": "results/ci-rules/games-3/results.trx",
+      "sha256": "bcf6b94b1dff4f8b4dbc3a064e5dacd566c071e108d4c981e764706a2a9a1ab7",
+      "cases": 49,
+      "methods": 47,
+      "skipped": 0
+    }
+  ],
+  "allPrior12484CaseMultisetExactlyRetained": true,
+  "allPrior7440MethodsRetained": true,
+  "newCases": 38,
+  "newMethods": 11,
+  "newCaseNames": [
+    "Riftbound.ConformanceTests.BanishEffectPlayTests.ATokenIncludingACopiedPrintedFaceCeasesAfterBanishmentAndCannotBePlayed(spell: \"OGN·102/298\", copied: True)",
+    "Riftbound.ConformanceTests.BanishEffectPlayTests.OwnerActuallyChoosesThePrintedDestinationAndBothBaseCostsAreWaived(spell: \"UNL-184/219\", owner: \"P2\", destination: \"BATTLEFIELD:OTHER\")",
+    "Riftbound.ConformanceTests.BanishEffectPlayTests.IndependentRecoveryRejectsForgedOwnerSourceGenerationAndCostPermission(spell: \"UNL-184/219\", mutation: \"source\")",
+    "Riftbound.ConformanceTests.BanishEffectPlayTests.AnyBattlefieldPermissionStillRespectsPrintedProhibitionsAndCannotDeadlock(allBlocked: False)",
+    "Riftbound.ConformanceTests.BanishEffectPlayTests.IndependentRecoveryRejectsForgedOwnerSourceGenerationAndCostPermission(spell: \"UNL-184/219\", mutation: \"owner\")",
+    "Riftbound.ConformanceTests.BanishEffectPlayTests.RebuildingAllGenerationFieldsCannotRewriteTheOriginalAcceptedCommands",
+    "Riftbound.ConformanceTests.BanishEffectPlayTests.MandatoryAdditionalSacrificeCannotBeWaived",
+    "Riftbound.ConformanceTests.BanishEffectPlayTests.IndependentRecoveryRejectsForgedOwnerSourceGenerationAndCostPermission(spell: \"OGN·102/298\", mutation: \"destination\")",
+    "Riftbound.ConformanceTests.BanishEffectPlayTests.OwnerActuallyChoosesThePrintedDestinationAndBothBaseCostsAreWaived(spell: \"UNL-184/219\", owner: \"P1\", destination: \"BATTLEFIELD:F\")",
+    "Riftbound.ConformanceTests.BanishEffectPlayTests.OptionalHasteRemainsARealPaidCost(paid: False)",
+    "Riftbound.ConformanceTests.BanishEffectPlayTests.IndependentRecoveryRejectsForgedOwnerSourceGenerationAndCostPermission(spell: \"UNL-184/219\", mutation: \"base-power\")",
+    "Riftbound.ConformanceTests.BanishEffectPlayTests.IndependentRecoveryRejectsForgedOwnerSourceGenerationAndCostPermission(spell: \"UNL-184/219\", mutation: \"optional\")",
+    "Riftbound.ConformanceTests.BanishEffectPlayTests.AnyBattlefieldPermissionStillRespectsPrintedProhibitionsAndCannotDeadlock(allBlocked: True)",
+    "Riftbound.ConformanceTests.BanishEffectPlayTests.AnOlderUnitAbilityCannotBlockTheNewBanishedIncarnationsActualPlay",
+    "Riftbound.ConformanceTests.BanishEffectPlayTests.IndependentRecoveryRejectsForgedOwnerSourceGenerationAndCostPermission(spell: \"UNL-184/219\", mutation: \"all-costs\")",
+    "Riftbound.ConformanceTests.BattlefieldEffectPlayTriggerTests.ActualHuntingRhythmPlayToBattlefieldConfirmsMerfolkDamageAfterEntry",
+    "Riftbound.ConformanceTests.BanishEffectPlayTests.IndependentRecoveryRejectsForgedOwnerSourceGenerationAndCostPermission(spell: \"OGN·102/298\", mutation: \"owner\")",
+    "Riftbound.ConformanceTests.BanishEffectPlayTests.IndependentRecoveryRejectsForgedOwnerSourceGenerationAndCostPermission(spell: \"OGN·102/298\", mutation: \"generation\")",
+    "Riftbound.ConformanceTests.BanishEffectPlayTests.IndependentRecoveryRejectsForgedOwnerSourceGenerationAndCostPermission(spell: \"UNL-184/219\", mutation: \"coordinated-generation\")",
+    "Riftbound.ConformanceTests.BanishEffectPlayTests.OwnerActuallyChoosesThePrintedDestinationAndBothBaseCostsAreWaived(spell: \"UNL-184/219\", owner: \"P1\", destination: \"BATTLEFIELD:OTHER\")",
+    "Riftbound.ConformanceTests.BanishEffectPlayTests.OwnerActuallyChoosesThePrintedDestinationAndBothBaseCostsAreWaived(spell: \"OGN·102/298\", owner: \"P1\", destination: \"BASE\")",
+    "Riftbound.ConformanceTests.BanishEffectPlayTests.IndependentRecoveryRejectsForgedOwnerSourceGenerationAndCostPermission(spell: \"UNL-184/219\", mutation: \"parent-target\")",
+    "Riftbound.ConformanceTests.BanishEffectPlayTests.IndependentRecoveryRejectsForgedOwnerSourceGenerationAndCostPermission(spell: \"UNL-184/219\", mutation: \"zone\")",
+    "Riftbound.ConformanceTests.BanishEffectPlayTests.IndependentRecoveryRejectsForgedOwnerSourceGenerationAndCostPermission(spell: \"UNL-184/219\", mutation: \"destination\")",
+    "Riftbound.ConformanceTests.BanishEffectPlayTests.OwnerActuallyChoosesThePrintedDestinationAndBothBaseCostsAreWaived(spell: \"UNL-184/219\", owner: \"P2\", destination: \"BATTLEFIELD:F\")",
+    "Riftbound.ConformanceTests.BanishEffectPlayTests.IndependentRecoveryRejectsForgedOwnerSourceGenerationAndCostPermission(spell: \"OGN·102/298\", mutation: \"all-costs\")",
+    "Riftbound.ConformanceTests.BanishEffectPlayOpeningTests.ActualBlankOpeningRetainsMandatoryOwnerPlayAcrossColdRecoveryAndOriginalReplay",
+    "Riftbound.ConformanceTests.BanishEffectPlayTests.IndependentRecoveryRejectsForgedOwnerSourceGenerationAndCostPermission(spell: \"UNL-184/219\", mutation: \"base-mana\")",
+    "Riftbound.ConformanceTests.BanishEffectPlayTests.AnImpossibleMandatoryAdditionalCostLeavesTheCardBanishedAndCompletesTheParent",
+    "Riftbound.ConformanceTests.BanishEffectPlayTests.IndependentRecoveryRejectsForgedOwnerSourceGenerationAndCostPermission(spell: \"OGN·102/298\", mutation: \"optional\")",
+    "Riftbound.ConformanceTests.BanishEffectPlayTests.ATokenIncludingACopiedPrintedFaceCeasesAfterBanishmentAndCannotBePlayed(spell: \"OGN·102/298\", copied: False)",
+    "Riftbound.ConformanceTests.BanishEffectPlayTests.IndependentRecoveryRejectsForgedOwnerSourceGenerationAndCostPermission(spell: \"OGN·102/298\", mutation: \"base-mana\")",
+    "Riftbound.ConformanceTests.BanishEffectPlayTests.OwnerActuallyChoosesThePrintedDestinationAndBothBaseCostsAreWaived(spell: \"OGN·102/298\", owner: \"P2\", destination: \"BASE\")",
+    "Riftbound.ConformanceTests.BanishEffectPlayTests.ATokenIncludingACopiedPrintedFaceCeasesAfterBanishmentAndCannotBePlayed(spell: \"UNL-184/219\", copied: False)",
+    "Riftbound.ConformanceTests.BanishEffectPlayTests.IndependentRecoveryRejectsForgedOwnerSourceGenerationAndCostPermission(spell: \"UNL-184/219\", mutation: \"reduction\")",
+    "Riftbound.ConformanceTests.BanishEffectPlayTests.IndependentRecoveryRejectsForgedOwnerSourceGenerationAndCostPermission(spell: \"UNL-184/219\", mutation: \"generation\")",
+    "Riftbound.ConformanceTests.BanishEffectPlayTests.ATokenIncludingACopiedPrintedFaceCeasesAfterBanishmentAndCannotBePlayed(spell: \"UNL-184/219\", copied: True)",
+    "Riftbound.ConformanceTests.BanishEffectPlayTests.OptionalHasteRemainsARealPaidCost(paid: True)"
+  ],
+  "runnerCaseParityVerified": false,
+  "independentCaseParityVerified": true,
+  "expectedDeckIds": [
+    "jhin-lowcurve",
+    "kaisa-red-control",
+    "kaisa-red-tempo",
+    "lillia-lowcurve",
+    "poppy-demacia",
+    "poppy-standby",
+    "rumble-armaments",
+    "rumble-lowcurve",
+    "vex-battlefields",
+    "vex-response",
+    "vex-spells"
+  ],
+  "all110DirectedPairsExactlyComplete": true,
+  "matrix": {
+    "seed": 424242,
+    "deckCount": 11,
+    "pairCount": 110,
+    "completed": {
+      "jhin-lowcurve-vs-kaisa-red-control": "dc931abaa5f76000971c878401d5260bf1e4cd46a49b291ef9d85bef952b9b6b",
+      "jhin-lowcurve-vs-kaisa-red-tempo": "65aa12526da2ee624fc433e00105401de383cd4b84fb629a374c76ec86ca6afc",
+      "jhin-lowcurve-vs-lillia-lowcurve": "bf4418dac61557407de423087605eaf9f3ecc5c57b0d554e6854130fc96c9ffe",
+      "jhin-lowcurve-vs-poppy-demacia": "ca85443aa540b873f15fde80e9ea0bfb1c45c268469873ae23584775ecbab5de",
+      "jhin-lowcurve-vs-poppy-standby": "187d79c02be397e39d0631d2095b8565a47edf05355cff8daebb634fb2be9c4d",
+      "jhin-lowcurve-vs-rumble-armaments": "f28f528e8c50f450dfd835c88046144e32f7c0db0c2b0f80e6380352c4077e8d",
+      "jhin-lowcurve-vs-rumble-lowcurve": "eb9875678fde80689213934ccaeb2f327f053fc129faeb4e2701f75d111af483",
+      "jhin-lowcurve-vs-vex-battlefields": "285e1fc06eec804319741d1a1b145cb02d63d6aed3491131cd02c31951911e32",
+      "jhin-lowcurve-vs-vex-response": "f4bfc1d33023ee793b63014c0267260c4ae079d81eeebb0d003f69e5d5287544",
+      "jhin-lowcurve-vs-vex-spells": "1a98b874ead93f114e8865cf133f1807af0cbfad1203e0c3b15d1e208e18a3bd",
+      "kaisa-red-control-vs-jhin-lowcurve": "e734a635a7ee5d1f7f79ae13193291d769660803e5c7f838167d2fc00017809c",
+      "kaisa-red-control-vs-kaisa-red-tempo": "7d500c8e9e6c3eb52fcb731185f6648482ce2c19f618826a090a2837a4facc24",
+      "kaisa-red-control-vs-lillia-lowcurve": "bf0a2fdd9dcf4f40ec07c62a580d339490ca7c10effc0e1d7e4ed9cfcb111f06",
+      "kaisa-red-control-vs-poppy-demacia": "0a330a92174902c6640a8682d526e924b9d1f52a7089d5ab7efad4dd1f429119",
+      "kaisa-red-control-vs-poppy-standby": "faf9ce854565a29c6761a663105d228ff28d43c67b3e7d72c71b2b3195b7bef4",
+      "kaisa-red-control-vs-rumble-armaments": "f6f490c9d3060a1468152f5dc78f71479c2ad6b2ef941178f3c5e7c9a6bc8f1c",
+      "kaisa-red-control-vs-rumble-lowcurve": "5de5ea35e3c74bb5591cd6192ed94f98850cb112b8864e01384a97babcc45600",
+      "kaisa-red-control-vs-vex-battlefields": "eb2ae8cb849ef1928101f7216a53c1bbb8b555053f72283e0d896183ea574db4",
+      "kaisa-red-control-vs-vex-response": "d35ca02466ef31074211455a0ba65f42915718fa9d691dcaf52b4c47c3d09765",
+      "kaisa-red-control-vs-vex-spells": "785e7ec261564717e693659bf7c485b11e0d4c0b9addd222115fca77e3f31f35",
+      "kaisa-red-tempo-vs-jhin-lowcurve": "09be139ebff0e4198d36643facc2fac336ae38d19e507773400ee7a7c91d4ed7",
+      "kaisa-red-tempo-vs-kaisa-red-control": "8db35bef2fb82751bd50ee3b868ee709c4e41f84bc4ef2835d1a01170645805e",
+      "kaisa-red-tempo-vs-lillia-lowcurve": "cbf219364860d129b6c4a7fed2ecfaf11747a820d988145e3bb70d5ba3997ff4",
+      "kaisa-red-tempo-vs-poppy-demacia": "6f56bd47e237c6690d6ed5df8d63c902c746481ca936f1f542d8b136faeec3ae",
+      "kaisa-red-tempo-vs-poppy-standby": "9e59e3bf5c2d7d04853418af0039a29be2b3bccd69ea2d242c8e50a2d348c573",
+      "kaisa-red-tempo-vs-rumble-armaments": "c2fcf4211bc208c92ad554f6e0d7d7403df08b75caf56df032e6e9d206b7b228",
+      "kaisa-red-tempo-vs-rumble-lowcurve": "98373a27bda97cf41d84096babd7ec22b4b0353bbb1591993522feeef3b51d7d",
+      "kaisa-red-tempo-vs-vex-battlefields": "9c12ac8e1eb9340206fd097e853d4052b791eff3367dd3661eaaeeb400407a9e",
+      "kaisa-red-tempo-vs-vex-response": "795a336c1576c323a3e123c485087c2c11f75106e0ca0b03f3894986ac044f3b",
+      "kaisa-red-tempo-vs-vex-spells": "b6e622e144dfefe61c64e9801dbe80e8c058b1d6f318175ae69616e5aa65376b",
+      "lillia-lowcurve-vs-jhin-lowcurve": "c6213adfbf6fc366287eeae1f59ce4cfde3e8834bfc2cc00095ea5f443a56d33",
+      "lillia-lowcurve-vs-kaisa-red-control": "08a2ffb88436255f939e827db93222b6d6780a23fd863c1a9ed96245b066d98d",
+      "lillia-lowcurve-vs-kaisa-red-tempo": "a377e798375439d9d7f56c811b19929930191f7eae7e73ad6f6e636428e9751b",
+      "lillia-lowcurve-vs-poppy-demacia": "65fe3450ff7e2616b41f2e70e065727d0fad91f54b0314b7dcbd329aede86791",
+      "lillia-lowcurve-vs-poppy-standby": "8b1684e650a8cb2240d3b61570abfb0cb3fb30c3c21238ac0c864b56fa56b8df",
+      "lillia-lowcurve-vs-rumble-armaments": "ad3c4d8df76cfec24262ac38ed5189f5fed029f0cdc15b376b176b4f0251cf5d",
+      "lillia-lowcurve-vs-rumble-lowcurve": "e50dbc9773012fe671b34c4159fb63f42e9688d448db2ca0d9adfdf45c711ce3",
+      "lillia-lowcurve-vs-vex-battlefields": "27957d64ee1dbacd30635baee266e6cecd5d7a54b0fcb0b90ab6a3f34822058b",
+      "lillia-lowcurve-vs-vex-response": "e0362b1759eeb152f20df6bdeea3199205096254132f3d8e93148377bef4801b",
+      "lillia-lowcurve-vs-vex-spells": "a2690963c35d17bc076becee0c00cb7a41903c6d28002067925c2bb61c090761",
+      "poppy-demacia-vs-jhin-lowcurve": "bf2f462b57e1721601698e8a36008bb7e8e0d379a9ebc583336f983c457a26e9",
+      "poppy-demacia-vs-kaisa-red-control": "c4748b2511dbb62f3f46f6d01894f81528e3f137aa658b4b9bae20776d93941c",
+      "poppy-demacia-vs-kaisa-red-tempo": "190b900ac517724eef7209107f8396d36f0e8d322a55a15ce611fb4599e713c5",
+      "poppy-demacia-vs-lillia-lowcurve": "e3531afe40df9d711ded9be77db0d6087bd3e1cf39077c3d49b26272525831ad",
+      "poppy-demacia-vs-poppy-standby": "6fcd71419f9ffb211cb07a2b5225486418ad221ffcc3b183f20175fdaca3d5c2",
+      "poppy-demacia-vs-rumble-armaments": "65adc79ca112d4c50693ad4bde8475509241a5a081cef9aa227c7b4cfe3a1da3",
+      "poppy-demacia-vs-rumble-lowcurve": "d69b1831c9c3678a2f67347127844503cafd80ff41bd5de186af65e14372529c",
+      "poppy-demacia-vs-vex-battlefields": "cd592c4ccfe36c98624d5d0b2f46c6b9039e4366862a19307a121b0e90afeb55",
+      "poppy-demacia-vs-vex-response": "930c452e20844a421550ef44a61caa1249519b3489f00b5ab5bae58ea98c790d",
+      "poppy-demacia-vs-vex-spells": "e790c6104f60db789d63f5916d528bc73227a676d4c24ddca79e8cd6ca6bbf2e",
+      "poppy-standby-vs-jhin-lowcurve": "522c36bba718e58080a7e860b835d6dc0a7ea49c8ad1004de47ec69233c7c482",
+      "poppy-standby-vs-kaisa-red-control": "7451b4a6876323392c5f7368d45781682738c5406e320ddb5173339b82445f32",
+      "poppy-standby-vs-kaisa-red-tempo": "2b177cacba1b62b2cf1e709cbbe1253c63861a05f5a46d5403c12097391d56c3",
+      "poppy-standby-vs-lillia-lowcurve": "ddb2f9765c8720f2aeec97023aa7e99eaa35b0687783e52dc5c517bf6e9d63ca",
+      "poppy-standby-vs-poppy-demacia": "ec667fb6cbd563a3ff552117d5428708b9712c7b28d017f042d6807b83a0d64e",
+      "poppy-standby-vs-rumble-armaments": "1a8241d3de97ae99d4ba149fa00a1d3be3f10975fc75d723a47ebd1ef579f8d5",
+      "poppy-standby-vs-rumble-lowcurve": "5730d96ac0f6cc69bb34a1e0e2ae1f54f2d4a72709b06f1176341139f59eb5a6",
+      "poppy-standby-vs-vex-battlefields": "50e2871fde21d5ac3ba17bc20bae2bf93bb65e95fa908d2f6ae7853b87d66663",
+      "poppy-standby-vs-vex-response": "50a3509eb79286b42fde3ff2cf70a208300d3564547b1eed5b46e5a645503b5a",
+      "poppy-standby-vs-vex-spells": "87eb03a4e87909bcf6657c12e0270a2f5a6b380c1007fbd0e7aeb1479f340762",
+      "rumble-armaments-vs-jhin-lowcurve": "506813df87f068e539c1b07717ad0d58a1f977d17a51b06654389095b3928a11",
+      "rumble-armaments-vs-kaisa-red-control": "de4a0cbf42dc4f95c0fe9d1c1a9fe31049023d283d1b3bc436324a8a501f8b4c",
+      "rumble-armaments-vs-kaisa-red-tempo": "4ae56f344d0a43639ea055475e9eb6117d36b6dde74e9827fc905a21ff459751",
+      "rumble-armaments-vs-lillia-lowcurve": "5dcd38dd15efa98a00300517528ffe46acb2fc0b2ad780438430f912d8b088af",
+      "rumble-armaments-vs-poppy-demacia": "67f3f186fb6a42a057c9f2a31c4d1a52f8032959ddcce91699235ad180421038",
+      "rumble-armaments-vs-poppy-standby": "932740477cbd947dc33d7aff4f449afd32e864d6c604da9f118cec37d6b66c74",
+      "rumble-armaments-vs-rumble-lowcurve": "e35a5c09e6b87a35a02588a6b47954bafe34ce67bfdb58e695cb72170102d579",
+      "rumble-armaments-vs-vex-battlefields": "863a56337e29a53e4aa05c23b9091547becd8afb9930bee30a1bb324d6e85a4e",
+      "rumble-armaments-vs-vex-response": "b6ead849c9455afb14c71305354060b5397e6e4f591c5d649ef4ecd90f8d55ac",
+      "rumble-armaments-vs-vex-spells": "f669a8448cb2b9ee8fba19e5dc0094d201414e4c73ef1a8c8fe8e48587a1d624",
+      "rumble-lowcurve-vs-jhin-lowcurve": "9f35b46b2c8404f6edcf9ac8758e87daaff8998ecc0471921dfe4c1893343748",
+      "rumble-lowcurve-vs-kaisa-red-control": "7661adff2851d346131f255ce92ff8bb309ebe659980a909dd03c25c87e4ff6a",
+      "rumble-lowcurve-vs-kaisa-red-tempo": "106593c425af399e00eda7356ea782923ee69ef0d0ca5a71d23204a6ba9eca06",
+      "rumble-lowcurve-vs-lillia-lowcurve": "11492e43219ee6c50b06d92f96a38e945783f0566de62d9209268719f6342a33",
+      "rumble-lowcurve-vs-poppy-demacia": "d8890604c52cab9f11c574a2da02bee9d93234b19c4716515663d9db7256f1a0",
+      "rumble-lowcurve-vs-poppy-standby": "e26aa2622c6d41d3e8343de2f97c7a7ca0de0d35d4ab68fef9d3e2dfa8a3a06f",
+      "rumble-lowcurve-vs-rumble-armaments": "2552fa1fe26ed4f66dbebd932dd28598f8dccf411c0dcbdbd96bc1870d2d31ff",
+      "rumble-lowcurve-vs-vex-battlefields": "dbcc32bbdf778d56ad7e51a9775d79b46dd29ef1740b38986a08c9fb03b855dd",
+      "rumble-lowcurve-vs-vex-response": "725fd0d3631216267288db1d9699e24b9b8d3f679adf806ae7e39f61bc2cf9a0",
+      "rumble-lowcurve-vs-vex-spells": "1243651d1ac8016a8c15de8acc7d8762ade619db63410854cb0290586b3b330d",
+      "vex-battlefields-vs-jhin-lowcurve": "a21e443421b01154e03283d05fd2d4f07341e800340340ffe4757398c5bd827b",
+      "vex-battlefields-vs-kaisa-red-control": "0c9b1e3ce780bec73eded0dd82a3f08e168d1c8ad783ad35eda8d73b4d0babb2",
+      "vex-battlefields-vs-kaisa-red-tempo": "749f73c8488ab62454bf78dd25ebb4d8a82c7af2f9eaed3b9064b35ec33ca652",
+      "vex-battlefields-vs-lillia-lowcurve": "6a9b1b98a3259f3b8cde08491306f88f01b704c05c5222ad10b332181d7674ea",
+      "vex-battlefields-vs-poppy-demacia": "e60eb1c1f051438fe3d44f46e08bd061dfde67e7888099d51d4e4710a8690c48",
+      "vex-battlefields-vs-poppy-standby": "1cd51a69cd34a9c37567a3791b1ee4b586000067e014abc2db71a65984d0e555",
+      "vex-battlefields-vs-rumble-armaments": "3daa1c9d5b757603f4c75ecccd57af0f6e7da9a6168eef46601ebbd2deac3be2",
+      "vex-battlefields-vs-rumble-lowcurve": "a1acddd02258f96a07990657f13b7f575a7f10c2072ed6732b3ca40e16c06b9b",
+      "vex-battlefields-vs-vex-response": "848c958929b2966fb14917769098c22c67015648deeb700774b35d737d9db700",
+      "vex-battlefields-vs-vex-spells": "e1a200050aa7eafe0fe9ef289ed1668f9a954c275df7c65af827a5c324e62a01",
+      "vex-response-vs-jhin-lowcurve": "456f38f1a7cbb3a54dba99a58ea352a9346eaccf769325756aac2d5ea3264b2d",
+      "vex-response-vs-kaisa-red-control": "aaad6573e7a44f911b5390d4cc3dfdb2d75bf6f01b6bdfc3b911967458116b9f",
+      "vex-response-vs-kaisa-red-tempo": "4c5082f071006048df1986ed7845362f71b253885067d0ae54bd6f8e66fc6bff",
+      "vex-response-vs-lillia-lowcurve": "4d1f8e816769d432a700ffbb70c339cdabcc0af5731267141e9ffee9e2f8bc26",
+      "vex-response-vs-poppy-demacia": "a2c8deece748afae4e735b06b7970b8ade061be7e44831627dc230a17ef5743f",
+      "vex-response-vs-poppy-standby": "47a3d78142689750860111d55d538ff04fa6f258a673923b46de0e91cae7989d",
+      "vex-response-vs-rumble-armaments": "051460641b760368bebde01fbcd4938a2978c9ea78f14b5915de4e6208f89bab",
+      "vex-response-vs-rumble-lowcurve": "4fee2439db66d0f9ccbc5972217ed644fe2b8d3b881a468cb28542a65bbacab7",
+      "vex-response-vs-vex-battlefields": "03f753fd01fb4ad0574e0a38713f46f11311337dfa0190bddd972ea3638508ce",
+      "vex-response-vs-vex-spells": "c8e923c1e8acfe21d6ef1a4387018442790bceacb525f002b67698895e8a75e1",
+      "vex-spells-vs-jhin-lowcurve": "c0cb171e4845a5ea548be99704d5e7716b2703a1691470c30ef5a1d406c0cd01",
+      "vex-spells-vs-kaisa-red-control": "a932717d8b153b64a5876f18bf8d5b024b4e67803dd19d03e9321d533bb092b2",
+      "vex-spells-vs-kaisa-red-tempo": "6da0838c843eb05378a96e43a5eaa2c3f761d7f22040822596109fa92de0a7f0",
+      "vex-spells-vs-lillia-lowcurve": "9fbe056411c5efa18069f6902a7bed25e319b4de19a545a643b912b76f126489",
+      "vex-spells-vs-poppy-demacia": "added42b1cac86a391626ae84f7861fc15e2e7a41edba2d7b9bbe2c61a018135",
+      "vex-spells-vs-poppy-standby": "c93c39a277d265fa40a737aa92aea1bff4543f63253698cd87b296647f7650d5",
+      "vex-spells-vs-rumble-armaments": "19821cc848dd3fa96368aa25077e17acd2d8837edd15b9ccaadfaafcff3cccec",
+      "vex-spells-vs-rumble-lowcurve": "3b52fd721935759f770424689520406b2cfc7d15e89e5450e3fbad86bd3448dc",
+      "vex-spells-vs-vex-battlefields": "0ad67ce63c59815aa2ff70e755df79fbf9d00debecd1219d410ae8cd842c04a6",
+      "vex-spells-vs-vex-response": "b8b906e95c1c17acc904eaf990d18395c70917a55fb107f775aecbe11edb3ce3"
+    }
+  },
+  "sqlReceiptFiles": 88,
+  "actualSqlPaths": 90,
+  "allOriginal87SqlReceiptPathsAndTheirWeightsStatusesRetained": true,
+  "sqlReceipts": [
+    {
+      "file": "results/ci-postgres/result.json",
+      "status": "REAL_POSTGRES_CORE_OPENING_RECOVERY_REPLAY_AND_TAMPER_PASS",
+      "sha256": "78859d487977b4235768e65080f030d5647831bf95caaaca1f2d54c4148f1dd1",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/rune-destination/multiple/receipt.json",
+      "status": "REAL_POSTGRES_RUNE_DESTINATION_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "sha256": "8554ac30e2f649191454ad2f0bf0005ddf95c711bbe26684bb1fe183121de173",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/rune-destination/single/receipt.json",
+      "status": "REAL_POSTGRES_RUNE_DESTINATION_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "sha256": "a5a23866d33e9931df538cccd673e0a6f9b011f40b10faba1ff1c631d375701b",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/recycled-card-boon/alternate-hook/receipt.json",
+      "status": "REAL_POSTGRES_RECYCLED_CARD_BOON_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "sha256": "bc78a7e7167ee7be73a9a9ea8e7604b44e0b5f0623f37fb1fe763f7a8f89f909",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/recycled-card-boon/primary-hook/receipt.json",
+      "status": "REAL_POSTGRES_RECYCLED_CARD_BOON_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "sha256": "4dfd6d04f2e8607ad7c3494a262870975e0f184775405232cfde0d68db47c4f2",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/recycled-card-boon/promo-hook/receipt.json",
+      "status": "REAL_POSTGRES_RECYCLED_CARD_BOON_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "sha256": "eaa6ef449b5eace151184c756087307638ee3932b6a20b3462ae865b06e6c501",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/recycled-card-boon/promo-predict/receipt.json",
+      "status": "REAL_POSTGRES_RECYCLED_CARD_BOON_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "sha256": "6b67013a9c18c65db23696cca9837a6136186b223d6d75a21ec265e8fee1e90b",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/recycled-card-boon/alternate-predict/receipt.json",
+      "status": "REAL_POSTGRES_RECYCLED_CARD_BOON_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "sha256": "d3a75df25812c3c05d72f762751ab24245af89143f9758561d673a79facd5a69",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/recycled-card-boon/primary-predict/receipt.json",
+      "status": "REAL_POSTGRES_RECYCLED_CARD_BOON_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "sha256": "4b6c36ff8d84ec5a5daa89f92d95c3767aeb041027a0a8f219ba2e822af1155f",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/sivir-optional/primary-pay/receipt.json",
+      "status": "REAL_POSTGRES_SIVIR_OPTIONAL_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "sha256": "c81170ebb75bebe1d8ce5597f3fc6f25787bed1d880f7dbd8e7ff28d4ccfd16b",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/sivir-optional/alternate-decline/receipt.json",
+      "status": "REAL_POSTGRES_SIVIR_OPTIONAL_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "sha256": "4a3bb5b37d6c546dfb1b4a0a6272275b270e65eadf2fece86e073322026c1aba",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/sivir-optional/primary-decline/receipt.json",
+      "status": "REAL_POSTGRES_SIVIR_OPTIONAL_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "sha256": "99f1cd32051c494bb394e685c5ca2e07d42a090760abffa4e7bf3d6adc6ff326",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/sivir-optional/alternate-pay/receipt.json",
+      "status": "REAL_POSTGRES_SIVIR_OPTIONAL_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "sha256": "82fb90897212b6b0a8bd7c0cae1a507b2124cc986396b97858ce83a9f719d6a9",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/masked-attendant/receipt.json",
+      "status": "REAL_POSTGRES_MASKED_SELF_COPY_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "sha256": "0e197984590455eb54e038684a64145bd246c5f8a47c517bc43ed3167a377085",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/porobot/return/receipt.json",
+      "status": "REAL_POSTGRES_POROBOT_CONDITIONAL_DRAW_COLD_AND_FULL_REPLAY_PASS",
+      "sha256": "c1a72c75f164a08a9fe3349c1743f4c4536244272ab8be595d355b27d5b71e95",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/porobot/below/receipt.json",
+      "status": "REAL_POSTGRES_POROBOT_CONDITIONAL_DRAW_COLD_AND_FULL_REPLAY_PASS",
+      "sha256": "8b736ff41950cb64a1270e9f01f5b73dec7638bdadb6afc2861945b8e526cc63",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/porobot/gold/receipt.json",
+      "status": "REAL_POSTGRES_POROBOT_CONDITIONAL_DRAW_COLD_AND_FULL_REPLAY_PASS",
+      "sha256": "abfc6f5a7227372645a5c61513323178dfcf16b1256b6699e9a0332191352603",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/porobot/threshold/receipt.json",
+      "status": "REAL_POSTGRES_POROBOT_CONDITIONAL_DRAW_COLD_AND_FULL_REPLAY_PASS",
+      "sha256": "cf13bbf70c677cd08ed6e74a71227622b6777e8579010ffb87321b70695adcb0",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/banish-effect-play/receipt.json",
+      "status": "REAL_POSTGRES_BANISH_OWNER_PLAY_PENDING_COLD_FORGERY_ORIGINAL_REPLAY_PASS",
+      "sha256": "91d98245f5f3f65fe0c43f5c8f3b7a95ce1de1837d3339b736473de78fe8506c",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/sivir-payment/inline-pay/receipt.json",
+      "status": "REAL_POSTGRES_SIVIR_PAYMENT_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "sha256": "43b229f99420b1b0b21a7a36b578b3ed1c5adda38593218a53f5f6a6ad9ba56f",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/sivir-payment/inline-decline/receipt.json",
+      "status": "REAL_POSTGRES_SIVIR_PAYMENT_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "sha256": "e5ce92d8ac4df67b1eeec1c84cc1456038ab0d26d7d557208ea3aefbfe87376d",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/sivir-payment/deferred-decline/receipt.json",
+      "status": "REAL_POSTGRES_SIVIR_PAYMENT_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "sha256": "7bcc9f4606186f20f775ed90a7f33e93836a716dae92953e2067e9e3c66f2baa",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/sivir-payment/deferred-pay/receipt.json",
+      "status": "REAL_POSTGRES_SIVIR_PAYMENT_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "sha256": "8ac2cb34d7c8cfdf57957d1ae79f9a49e3ceefa9abac1f19276532cc52ec6f8b",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/confirmed-play-origin/hand/receipt.json",
+      "status": "REAL_POSTGRES_CONFIRMED_PLAY_ORIGIN_CAUSAL_RECOVERY_REPLAY_PASS",
+      "sha256": "74f8f92c1da6fc521a5394c1c309b37f21fae17fa6749dad04071347352dbbd0",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/confirmed-play-origin/standby/receipt.json",
+      "status": "REAL_POSTGRES_CONFIRMED_PLAY_ORIGIN_CAUSAL_RECOVERY_REPLAY_PASS",
+      "sha256": "1b4d0b141447828e8b59c5639a90418e1824da442104fcf6ef5cce2715b8f082",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/granted-origin-haste/unit/receipt.json",
+      "status": "REAL_POSTGRES_GRANTED_HASTE_ORIGINAL_OPENING_COLD_ENTRY_AND_EVENT_REJECTION_PASS",
+      "sha256": "ebf5b99386f26e5394acd2a5a6c797663a74d23cdc79133fe365e4a38928c841",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/granted-origin-haste/sacrifice/receipt.json",
+      "status": "REAL_POSTGRES_GRANTED_HASTE_ORIGINAL_OPENING_COLD_ENTRY_AND_EVENT_REJECTION_PASS",
+      "sha256": "52374ed412a534c040b5eee2d633a8672be9c6a90d488e5fbd800e844dc68173",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/private-opening/receipt.json",
+      "status": "REAL_POSTGRES_PRIVATE_OPENING_SEED_COLD_FULL_ORIGINAL_REPLAY_TAMPER_AND_PROJECTION_PASS",
+      "sha256": "f8d6ff545992a057f731b576da7af78ad7bdf43cde18910deca71dc462500ce7",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/typed-play-history/countered/receipt.json",
+      "status": "REAL_POSTGRES_TYPED_PLAY_HISTORY_COLD_AND_FULL_REPLAY_PASS",
+      "sha256": "8c323496a04eec3b8b71c9ead7802713b08a9574c7b23c90c421f6e2f5bc3504",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/typed-play-history/resolved/receipt.json",
+      "status": "REAL_POSTGRES_TYPED_PLAY_HISTORY_COLD_AND_FULL_REPLAY_PASS",
+      "sha256": "5918bff0c48bebd5513c447e58b5e91ba72de4c217f1be1349e7be5c8c95124e",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/typed-play-history/control/receipt.json",
+      "status": "REAL_POSTGRES_TYPED_PLAY_HISTORY_COLD_AND_FULL_REPLAY_PASS",
+      "sha256": "1cf4aa7a46e4c7f39dc3a1a154b878be4796492709a7cb445a4e98e1dc2a52d9",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/created-token-ready/rise-2/acceptance.json",
+      "status": "PASS",
+      "sha256": "1390785847e63137859d719ba2249fb3fa64aa94d99cc946f77b272f0e43dcbc",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/created-token-ready/protect-pay/acceptance.json",
+      "status": "PASS",
+      "sha256": "b10678ae8053c0b6c64b45450ce94349f09a71681e5d70f5f99ed28ab123bb2b",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/created-token-ready/protect-decline/acceptance.json",
+      "status": "PASS",
+      "sha256": "8057d238ac1683f111c2a4efb4c832e4a6c2b85239603fecc4d4aea25a3429f7",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/created-token-ready/rise-0/acceptance.json",
+      "status": "PASS",
+      "sha256": "4e20d93fcf0f19b1fca04f01a8bccad1ccc46e8ba73d9c8f59c495cb1004d20d",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/optional-sacrifice/hand/receipt.json",
+      "status": "REAL_POSTGRES_OPTIONAL_SACRIFICE_PRINTED_COST_COLD_RESTORE_AND_EVENT_REJECTION_PASS",
+      "sha256": "3233e6e08fbb5cc1ea729dfabdb089314dcb78f9ca237158402b0f73b163b71b",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/optional-sacrifice/haste/receipt.json",
+      "status": "REAL_POSTGRES_OPTIONAL_SACRIFICE_PRINTED_COST_COLD_RESTORE_AND_EVENT_REJECTION_PASS",
+      "sha256": "0a9b9bc9fa972606ebf5f63a72f1d42f4c7f8ea8cafeac9e074b1375fca4e224",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/insight-repeat/eclipse/receipt.json",
+      "status": "REAL_POSTGRES_INSIGHT_ECHO_ORDER_DRAW_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "22308cab58f6705ae080413e0ba60442d9fef5aa37335174298e6b955f061bdc",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/insight-repeat/once/receipt.json",
+      "status": "REAL_POSTGRES_INSIGHT_ECHO_ORDER_DRAW_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "6aebcd8feca610d99d37ce91d1d3cedb05fcda16e44158be7f05aea5fa25c29b",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/insight-repeat/abandon/receipt.json",
+      "status": "REAL_POSTGRES_INSIGHT_ECHO_ORDER_DRAW_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "74493889615e847f56efb50a5087b10932881dca167eda79b83067cdb484c0ea",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/insight-repeat/all/receipt.json",
+      "status": "REAL_POSTGRES_INSIGHT_ECHO_ORDER_DRAW_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "e8ccabd55af65fe229188f0e38065042243f0311936fdd8f1b5856b1027139bd",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/insight-repeat/twice/receipt.json",
+      "status": "REAL_POSTGRES_INSIGHT_ECHO_ORDER_DRAW_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "d0ee2a62bcee8c7cbfcbb4d5788de3c0fa66d6c339f8e3680064cfd0bb4ded94",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/insight-repeat/counter/receipt.json",
+      "status": "REAL_POSTGRES_INSIGHT_ECHO_ORDER_DRAW_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "114518948c549b2bd649ccb5f208d385354928e9eafbd68644c2ddc510b0ea09",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/insight-repeat/burnout/receipt.json",
+      "status": "REAL_POSTGRES_INSIGHT_ECHO_ORDER_DRAW_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "a53f02f9d6474f1bf404e3b984499ed874842407c29e5626e5ace8e2667b981f",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/clairvoyance/keep/receipt.json",
+      "status": "REAL_POSTGRES_CLAIRVOYANCE_PRIVATE_ORDER_DRAW_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "52800a29240c768c70915e19d3318b3eccd9e5a2771fc113b27dd9cf1256032a",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/clairvoyance/all/receipt.json",
+      "status": "REAL_POSTGRES_CLAIRVOYANCE_PRIVATE_ORDER_DRAW_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "34914ed6d6cf5b4b2375187477a518d7045006faadc686146de77b867d692975",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/clairvoyance/some/receipt.json",
+      "status": "REAL_POSTGRES_CLAIRVOYANCE_PRIVATE_ORDER_DRAW_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "dffcce1f663d76aa24d1ddce07c3f16733c03b1fc483f3b45b45913cd74ec9d1",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/clairvoyance/control/receipt.json",
+      "status": "REAL_POSTGRES_CLAIRVOYANCE_PRIVATE_ORDER_DRAW_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "0803af3dd8e6c3c26ef243ed6fefa27d00c949d8877e97efcdd1fc0a69ca6fc4",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/clairvoyance/burnout/receipt.json",
+      "status": "REAL_POSTGRES_CLAIRVOYANCE_PRIVATE_ORDER_DRAW_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "26673d9c318e11cf8461544b8b6b00cbd1fb68aabf38e89e54dc0bd67b911877",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/battlefield-play-damage/receipt.json",
+      "status": "REAL_POSTGRES_BATTLEFIELD_PLAY_DAMAGE_PENDING_COLD_ORIGINAL_REPLAY_PASS",
+      "sha256": "9adea336930b93d71c5c678402cf8adc74717f161fdd44b7f26c617dc302e436",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/typed-play-history-causal/receipt.json",
+      "status": "REAL_POSTGRES_TYPED_PLAY_HISTORY_CAUSAL_REGISTRY_PASS",
+      "sha256": "167d87d5880859b2173c696354edc75cdd9cc7f094546f4688f772a2a2edf004",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/optional-costs/receipt.json",
+      "status": "REAL_POSTGRES_OPTIONAL_COSTS_REJECTION_COLD_RECOVERY_AND_ORIGINAL_REPLAY_PASS",
+      "sha256": "acad8457a30fac25de59cd7e32ed98ddf6b58706d01f9e97a2bde6467931311b",
+      "paths": 2
+    },
+    {
+      "file": "results/ci-postgres/printed-predict/receipt.json",
+      "status": "REAL_POSTGRES_PRINTED_PREDICT_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "sha256": "7920e517d105f0a0a8b5ad712901dbcfa681968b36fb78984b8246d886ffc8cf",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/physical-origin-cost/unit/receipt.json",
+      "status": "REAL_POSTGRES_PHYSICAL_ORIGIN_COST_RECOVERY_EVENT_REJECTION_AND_FULL_OPENING_REPLAY_PASS",
+      "sha256": "eccf616385a45e441ea197a00484913f769b0da9d7523707876c21ba3bc3a424",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/physical-origin-cost/spell/receipt.json",
+      "status": "REAL_POSTGRES_PHYSICAL_ORIGIN_COST_RECOVERY_EVENT_REJECTION_AND_FULL_OPENING_REPLAY_PASS",
+      "sha256": "f666f240ea47d1808b17a3f7d3846f103a289bae9dda623078fdfe9949fb5302",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/battlefield-play-recovery/receipt.json",
+      "status": "REAL_POSTGRES_BATTLEFIELD_PLAY_ORIGIN_STRUCTURAL_AND_CAUSAL_GUARDS_PASS",
+      "sha256": "0168175ed09e25c0cfdcf65e48205b3ba698b72a1451f1caba6bd00f6c470188",
+      "paths": 2
+    },
+    {
+      "file": "results/ci-postgres/attached-recycle-lifecycle/alternate/reverse/receipt.json",
+      "status": "REAL_POSTGRES_ATTACHED_RECYCLE_COLD_AND_FULL_REPLAY_PASS",
+      "sha256": "67abf081dd7a594978e71a441d77800137131b2854205812730420731c95b65d",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/attached-recycle-lifecycle/alternate/forward/receipt.json",
+      "status": "REAL_POSTGRES_ATTACHED_RECYCLE_COLD_AND_FULL_REPLAY_PASS",
+      "sha256": "aeb73de76e318bf8fb959a4495b05bc72fb77d0f5934297f995198318428c53d",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/attached-recycle-lifecycle/primary/reverse/receipt.json",
+      "status": "REAL_POSTGRES_ATTACHED_RECYCLE_COLD_AND_FULL_REPLAY_PASS",
+      "sha256": "b660789ddc0ad4a22d1705643703b2da3939ae90a01928e6938f50cec1f675d6",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/attached-recycle-lifecycle/primary/forward/receipt.json",
+      "status": "REAL_POSTGRES_ATTACHED_RECYCLE_COLD_AND_FULL_REPLAY_PASS",
+      "sha256": "6598b5b72915209eb1b3822a8785866fedb7284358726fe117bcf8446e9745fe",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/attached-recycle-lifecycle/promo/reverse/receipt.json",
+      "status": "REAL_POSTGRES_ATTACHED_RECYCLE_COLD_AND_FULL_REPLAY_PASS",
+      "sha256": "025485c7182dbdb09e326e8ca3316eb15babba79d7b46a0e895522b334903a64",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/attached-recycle-lifecycle/promo/forward/receipt.json",
+      "status": "REAL_POSTGRES_ATTACHED_RECYCLE_COLD_AND_FULL_REPLAY_PASS",
+      "sha256": "3f60c053ce6e4504791db8f5daf1c6987b632b84e7d7ac16e063b11d9c811f47",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/recycle-boon-lifecycle/alternate/receipt.json",
+      "status": "REAL_POSTGRES_RECYCLED_BOON_CEASED_SOURCE_COLD_AND_FULL_REPLAY_PASS",
+      "sha256": "d6de93d3f8494298567dbd7d92ac0304cf113fe8bb63a466c55a2df7284e8b38",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/recycle-boon-lifecycle/primary/receipt.json",
+      "status": "REAL_POSTGRES_RECYCLED_BOON_CEASED_SOURCE_COLD_AND_FULL_REPLAY_PASS",
+      "sha256": "499d2486083e78cf5d8f0270d986b12ddf03bf9cb6f39c042a8dabe8254f4bc1",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/recycle-boon-lifecycle/promo/receipt.json",
+      "status": "REAL_POSTGRES_RECYCLED_BOON_CEASED_SOURCE_COLD_AND_FULL_REPLAY_PASS",
+      "sha256": "aa2cf724cd92811d8028e6b9c46ab218716dfeee39e638e47ba258a6a8ab85d2",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/battle-history/battle-history-deck/result.json",
+      "status": "REAL_POSTGRES_BATTLE_HISTORY_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "9fa1146b29c66a079229e883a40e51e99ce80b43ad854852f0817859e4f1b1d1",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/battle-history/battle-history-attacker-burnout/result.json",
+      "status": "REAL_POSTGRES_BATTLE_HISTORY_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "dcbb92ad7c6fe9cc9df31fef6ea895e166d1f22ef5de1c730a17fd5502869e6a",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/battle-history/battle-history-attacker-deck/result.json",
+      "status": "REAL_POSTGRES_BATTLE_HISTORY_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "e35680d9cb1df119e5efcae730dd8131b4c0d7596b470c2b48f5e60a5ae2c1f8",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/battle-history/battle-history-burnout/result.json",
+      "status": "REAL_POSTGRES_BATTLE_HISTORY_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "fc022a1e9e9dbeb978d15f1512f46f5b88e8311be05574e56af911cff0b70a0c",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/opponent-battlefield-control/swapped/receipt.json",
+      "status": "REAL_POSTGRES_CURRENT_BATTLEFIELD_CONTROLLER_EMPTY_OPENING_COLD_ENTRY_EVENT_REJECTION_PASS",
+      "sha256": "9a88a7fe9e77c388567a634f0be9564f38794462fb2abba8d282fb95c5c81644",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/opponent-battlefield-control/neutral/receipt.json",
+      "status": "REAL_POSTGRES_CURRENT_BATTLEFIELD_CONTROLLER_EMPTY_OPENING_COLD_ENTRY_EVENT_REJECTION_PASS",
+      "sha256": "7cca299f5d5ddfe56fe943f8b4b6ce66afa53e43a9ac4ff417ca2df164fa8ff6",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/granted-predict/receipt.json",
+      "status": "REAL_POSTGRES_GRANTED_PREDICT_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "sha256": "32ff2461717ad1988a2ad4932bde7e1f350b03a5e193f5f2d300fb512730bfc8",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/granted-token-haste/hand/receipt.json",
+      "status": "REAL_POSTGRES_GRANTED_TOKEN_HASTE_COLD_RESTORE_AND_EVENT_REJECTION_PASS",
+      "sha256": "1bcf5b0b26c3b3f8a89438ec8770758035f32c1f8da012b2eb80f68bcb54e001",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/granted-token-haste/standby/receipt.json",
+      "status": "REAL_POSTGRES_GRANTED_TOKEN_HASTE_COLD_RESTORE_AND_EVENT_REJECTION_PASS",
+      "sha256": "a0425d3743b7bd696f526bf45f19e6d8391ef9fac1b68b1950967a3b4501183c",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/combat-assignment/vayne-secondary-decline/receipt.json",
+      "status": "REAL_POSTGRES_COMBAT_ASSIGNMENT_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "6edbd96524146f9220fa210cef9eb91cca2162d122ac6c9fb96b29c78a1f90b9",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/combat-assignment/vayne-secondary-dies/receipt.json",
+      "status": "REAL_POSTGRES_COMBAT_ASSIGNMENT_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "3c8e144cb8248fe34b1306e5fb3d6ee757827d21f57904ffca0757de9771edff",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/combat-assignment/natural-source-first/receipt.json",
+      "status": "REAL_POSTGRES_COMBAT_ASSIGNMENT_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "90c6bbf5bf5dceb1a8729e32bb685333621a7543a25f1f14c232ad127c279379",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/combat-assignment/multiple-defenders/receipt.json",
+      "status": "REAL_POSTGRES_COMBAT_ASSIGNMENT_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "99ab52b8687f5389483c6d4b6b0186808c897e36af20b6d0d0227e1370cec28b",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/combat-assignment/declared-source-second/receipt.json",
+      "status": "REAL_POSTGRES_COMBAT_ASSIGNMENT_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "f60d674021ad94beb56edab2fbdf2074041efc02bcd482f69f8452d899532648",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/combat-assignment/natural-source-second/receipt.json",
+      "status": "REAL_POSTGRES_COMBAT_ASSIGNMENT_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "40bb8c63d097a08b8bdb3cb69513a2d8dbce4ff5dcbbb9720af7419a9fd56144",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/combat-assignment/choose-first-attacker/receipt.json",
+      "status": "REAL_POSTGRES_COMBAT_ASSIGNMENT_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "617dcf82705311653268734d7765d56c7c3c831da2ba15a96e39454d770c05df",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/combat-assignment/vayne-secondary-pay/receipt.json",
+      "status": "REAL_POSTGRES_COMBAT_ASSIGNMENT_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "9cf0c2b029efcc07f4c2dce7dceed32b2690579101070a07187f207ba074fe8f",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/combat-assignment/choose-second-attacker/receipt.json",
+      "status": "REAL_POSTGRES_COMBAT_ASSIGNMENT_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "6cbaae12acf64d21d7df890d73267846d8b6ad85d0bd70c4027eb79bf35ad3bb",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/combat-assignment/one-on-one/receipt.json",
+      "status": "REAL_POSTGRES_COMBAT_ASSIGNMENT_COLD_REPLAY_TAMPER_PASS",
+      "sha256": "aef1a72147aacb71742b5b7388de6fb197093bcc6fd8080b4c46ce787b0567fc",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/conquest-token/alternate-reaction/receipt.json",
+      "status": "REAL_POSTGRES_CONQUEST_TOKEN_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "sha256": "6613b0510dd893e7283c4e34c3608b9b1448f96acfe94c174d486166ca3bd822",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/conquest-token/primary-plain/receipt.json",
+      "status": "REAL_POSTGRES_CONQUEST_TOKEN_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "sha256": "9c25dc762db2d041aef1b1d0274d5f08e689d3b30a942ee9257444492d6d037c",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/conquest-token/primary-reaction/receipt.json",
+      "status": "REAL_POSTGRES_CONQUEST_TOKEN_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "sha256": "f05d0ff007ad82958e861948a59476a474321936423f5d1c1917d80e5fbaaadb",
+      "paths": 1
+    },
+    {
+      "file": "results/ci-postgres/conquest-token/alternate-plain/receipt.json",
+      "status": "REAL_POSTGRES_CONQUEST_TOKEN_COLD_AND_EXPLICIT_INITIAL_REPLAY_PASS",
+      "sha256": "4867b418bb07e0826c51d176a13c4b8b52c98481f31aa750797a879c51420c1c",
+      "paths": 1
+    }
+  ],
+  "nativeWireRecoveryJobPass": true,
+  "nativeWireIsolation": {
+    "room": "NETWORK-77dc83b18c1b",
+    "rejectedActions": 15,
+    "identities": [
+      "ANONYMOUS",
+      "FAILED_KEY",
+      "OTHER_HANDLE"
+    ],
+    "leakedPrivateMessages": 0,
+    "validReconnectTokenWasSupplied": true
+  },
+  "currentCanonicalDesktopArtifacts": [
+    {
+      "platform": "mac",
+      "artifactId": 12108325275,
+      "bytes": 142864712,
+      "sha256": "b05987d47393594cad2b4ca31b79ea077cf5cc752dfa3071bd331ad64d9478b6",
+      "currentCanonicalArchiveExact": true,
+      "actualBootAndLifecycleSeparateLogsPreviouslyVerified": true,
+      "physicalWindowsAcceptance": "OPEN"
+    },
+    {
+      "platform": "windows",
+      "artifactId": 12107733727,
+      "bytes": 89107869,
+      "sha256": "3e80fc2593c898ddeb1b60b63df305708ba37b0afd20ce41359561848e199cad",
+      "currentCanonicalArchiveExact": true,
+      "actualBootAndLifecycleSeparateLogsPreviouslyVerified": true,
+      "physicalWindowsAcceptance": "OPEN"
+    }
+  ],
+  "sourceAndRuntimeBinaryIdentityNotEquated": true,
+  "wholeCardCertification": false,
+  "visibleFixedC69BanishNative": "IN_PROGRESS_WITH_SEPARATE_PENDING_COLD_AND_NEXT_COMMAND_RECEIPTS",
+  "physicalWindowsAcceptance": "OPEN",
+  "laterUncommittedHereLocationControlNotCoveredByThisFixedCommit": true
+}

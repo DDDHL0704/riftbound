@@ -326,6 +326,7 @@ public static class CardTargetScopes
     public const string EnemyBattlefieldUnitThenFriendlyUnit = "ENEMY_BATTLEFIELD_UNIT_THEN_FRIENDLY_UNIT";
     public const string FriendlyUnitThenFriendlyEquipment = "FRIENDLY_UNIT_THEN_FRIENDLY_EQUIPMENT";
     public const string EnemyUnitAtSourceBattlefield = "ENEMY_UNIT_AT_SOURCE_BATTLEFIELD";
+    public const string EnemyUnitAtSourceLocation = "ENEMY_UNIT_AT_SOURCE_LOCATION";
     public const string EnemyUnit = "ENEMY_UNIT";
     public const string EnemyUnitThenEnemyUnit = "ENEMY_UNIT_THEN_ENEMY_UNIT";
     public const string OpponentHandCard = "OPPONENT_HAND_CARD";
@@ -6849,7 +6850,7 @@ public static class CardBehaviorRegistry
             "MERFOLK_RABBLE_ROUSER_STANDBY_BATTLEFIELD_DAMAGE_STATIC",
             2,
             1,
-            TargetScope: CardTargetScopes.EnemyUnitAtSourceBattlefield,
+            TargetScope: CardTargetScopes.EnemyUnitAtSourceLocation,
             PlaysSourceToBaseAsUnit: true,
             SourceUnitPower: 2,
             SourceUnitTags: CardObjectTags.Standby),
