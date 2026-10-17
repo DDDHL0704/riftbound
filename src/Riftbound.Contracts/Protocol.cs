@@ -192,6 +192,7 @@ public sealed record PlayCardCommand(
     string CardNo,
     IReadOnlyList<string> TargetObjectIds,
     string Mode = "",
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     IReadOnlyList<string>? OptionalCosts = null,
     string Destination = "",
     IReadOnlyList<SpellRepeatChoice>? RepeatChoices = null,
@@ -201,6 +202,7 @@ public sealed record ActivateAbilityCommand(
     string SourceObjectId,
     string AbilityId,
     IReadOnlyList<string> TargetObjectIds,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     IReadOnlyList<string>? OptionalCosts = null) : GameCommand("ACTIVATE_ABILITY")
 {
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
@@ -211,12 +213,14 @@ public sealed record LegendActCommand(
     string SourceObjectId,
     string AbilityId,
     IReadOnlyList<string> TargetObjectIds,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     IReadOnlyList<string>? OptionalCosts = null) : GameCommand("LEGEND_ACT");
 
 public sealed record HideCardCommand(
     string SourceObjectId,
     string CardNo,
     string Destination = "",
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     IReadOnlyList<string>? OptionalCosts = null) : GameCommand("HIDE_CARD");
 
 public sealed record TapRuneCommand(
@@ -232,6 +236,7 @@ public sealed record RevealCardCommand(
     string CardNo,
     IReadOnlyList<string> TargetObjectIds,
     string Mode = "",
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     IReadOnlyList<string>? OptionalCosts = null,
     string Destination = "") : GameCommand("REVEAL_CARD");
 
@@ -239,18 +244,21 @@ public sealed record MoveUnitCommand(
     string SourceObjectId,
     string Origin = "",
     string Destination = "",
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     IReadOnlyList<string>? OptionalCosts = null,
     IReadOnlyList<string>? SourceObjectIds = null) : GameCommand("MOVE_UNIT");
 
 public sealed record AssembleEquipmentCommand(
     string SourceObjectId,
     string TargetObjectId = "",
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     IReadOnlyList<string>? OptionalCosts = null) : GameCommand("ASSEMBLE_EQUIPMENT");
 
 public sealed record DeclareBattleCommand(
     string BattlefieldId = "",
     IReadOnlyList<string>? AttackerObjectIds = null,
     IReadOnlyList<string>? DefenderObjectIds = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     IReadOnlyList<string>? OptionalCosts = null,
     IReadOnlyList<string>? BattlefieldTargetObjectIds = null) : GameCommand("DECLARE_BATTLE");
 

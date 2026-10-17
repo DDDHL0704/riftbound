@@ -1,0 +1,35 @@
+{
+  "recordedAtUtc": "2026-10-17T05:50:38.514380+00:00",
+  "region": "CN",
+  "language": "zh-CN",
+  "applicableAsOf": "2026-10-17",
+  "coreEffectiveDate": "2026-10-16",
+  "semanticScope": "PROTOCOL_CANONICAL_OPTIONAL_COSTS_ONLY_NO_NEW_CARD_RULE_CERTIFICATION",
+  "reusedOfficialSourceAcquisition": {
+    "path": "docs/evidence/full-fixture-premises-2026-10-17/source-manifest.json",
+    "sha256": "2d22ae3466728bbb7c4e9855f2c16e9f2c3af9caf0472eb413551692c47dc1a2"
+  },
+  "sourceAcquisitionDatesRetainedNotRefetchedByThisProtocolBatch": true,
+  "sourceUniverseUnchanged": {
+    "sources": 1740,
+    "runtime": 1033,
+    "reviews": 119
+  },
+  "sourceGapsAndAllPriorObligationsRetained": true,
+  "contractSubjects": [
+    "PLAY_CARD",
+    "ACTIVATE_ABILITY",
+    "LEGEND_ACT",
+    "HIDE_CARD",
+    "REVEAL_CARD",
+    "MOVE_UNIT",
+    "ASSEMBLE_EQUIPMENT",
+    "DECLARE_BATTLE"
+  ],
+  "fieldsOutsideOptionalCostsRemainOpen": true,
+  "nullPolicy": "Typed producer omits null; explicit wire null and noncanonical optionalCosts reject before any journal write. Omitted/[] remain legal shape; unknown canonical IDs remain subject to real rules.",
+  "oldDevelopmentGamesMigrated": false,
+  "acceptedHistoryRewritten": false,
+  "windowsPhysical": "OPEN",
+  "currentNativePairedAcceptance": "OPEN_NEW_INPUT_IDENTITY"
+}

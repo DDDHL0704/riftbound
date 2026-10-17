@@ -1,0 +1,21 @@
+{
+  "recordedAtUtc": "2026-10-17T06:01:59.313032+00:00",
+  "status": "INTERRUPTED_AFTER_CONFIRMED_SHARED_RAW_MOVE_PRODUCER_FAILURE_NOT_PASS",
+  "ownedRunnerPid": 41358,
+  "observedOriginalFailureIdentities": [
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameAppliesSameBattlefieldStaticKeywordAndScoreVictoryActionLogReplaysToFinalStateHash [FAIL]",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameAppliesMasterYiLevelFriendlyUnitsStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash [FAIL]",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameAppliesCrystalhandHunterSourceObjectLevelStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash [FAIL]",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameAppliesSameBattlefieldBoonCountStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash [FAIL]",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameAppliesDariusSameBattlefieldStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash [FAIL]",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameResolvesFlameclawLevelActiveEntryStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash [FAIL]",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameAppliesSourceSameLocationStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash [FAIL]",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameAppliesBattlefieldAllUnitsStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash [FAIL]",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameAppliesSameBattlefieldStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash [FAIL]",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameAppliesTargonSeerSourceObjectLevelStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash [FAIL]"
+  ],
+  "diagnosticTrxSha256": "4d5837b57c159ea523235b3e8d4ea69a0f92bddc011db2dd7da57c0b8d5535cf",
+  "reason": "Original all-units-aura fails with InvalidPayload at StageDefenderThenMoveAttackingGroupAsync; shared raw MOVE_UNIT helper writes optionalCosts:null. Correct producer and rerun the complete unchanged 39-method/110-pair scope.",
+  "completed110PairsNotClaimed": true,
+  "allSourceAndHistoryRetained": true
+}

@@ -1,0 +1,27 @@
+{
+  "recordedAtUtc": "2026-10-17T06:08:31.475275+00:00",
+  "status": "EXACT_ORIGINAL_FULL_GAME_RED_TO_GREEN_CANONICAL_RAW_MOVE_PRODUCER_ONLY",
+  "case": "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameAppliesBattlefieldAllUnitsStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash",
+  "counters": {
+    "total": "1",
+    "executed": "1",
+    "passed": "1",
+    "failed": "0",
+    "error": "0",
+    "timeout": "0",
+    "aborted": "0",
+    "inconclusive": "0",
+    "passedButRunAborted": "0",
+    "notRunnable": "0",
+    "notExecuted": "0",
+    "disconnected": "0",
+    "warning": "0",
+    "completed": "0",
+    "inProgress": "0",
+    "pending": "0"
+  },
+  "trxSha256": "b8e5a81a8d566dd4e042499ff28f5a8a493138b4c6633a58db2c6fa87298db55",
+  "assemblySha256": "b83d77687a740c6952924a0b9307d0f2d32716b531174681173d21e1aa9aad1c",
+  "originalWinAndCompleteReplayAssertionsRetained": true,
+  "entire39MethodsAnd110Pairs": "RUNNING_NOT_YET_PASS"
+}

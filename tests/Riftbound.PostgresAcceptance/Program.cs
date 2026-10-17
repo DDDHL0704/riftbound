@@ -13,7 +13,8 @@ if (settings.Database != "riftbound_acceptance" || settings.Host is not ("127.0.
 var output = Environment.GetEnvironmentVariable("RIFTBOUND_POSTGRES_EVIDENCE") ?? "var/qa/postgres-acceptance";
 Directory.CreateDirectory(output);
 var openingRandomnessOnly = args.SequenceEqual(new[] { "--opening-randomness-only" });
-if (args.Length != 0 && !openingRandomnessOnly) throw new ArgumentException("Unknown PostgreSQL acceptance selector.");
+var optionalCostsOnly = args.SequenceEqual(new[] { "--optional-costs-only" });
+if (args.Length != 0 && !openingRandomnessOnly && !optionalCostsOnly) throw new ArgumentException("Unknown PostgreSQL acceptance selector.");
 var json = new JsonSerializerOptions(JsonSerializerDefaults.Web) { WriteIndented = true };
 await using var dataSource = NpgsqlDataSource.Create(connectionString);
 await using (var connection = await dataSource.OpenConnectionAsync()) {
@@ -21,6 +22,12 @@ await using (var connection = await dataSource.OpenConnectionAsync()) {
         await using var command = new NpgsqlCommand(await File.ReadAllTextAsync(path), connection);
         await command.ExecuteNonQueryAsync();
     }
+}
+if (optionalCostsOnly)
+{
+    await OptionalCostsSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "optional-costs"));
+    Console.WriteLine("SCOPED_POSTGRES_ONLY: optional-costs; the retained complete SQL suite was not requested.");
+    return;
 }
 await OpeningRandomnessSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "private-opening"));
 if (openingRandomnessOnly)
@@ -132,6 +139,7 @@ await GrantedOriginHasteSqlAcceptance.RunAsync(dataSource, Path.Combine(output, 
 await OpponentBattlefieldControlSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "opponent-battlefield-control"));
 await OptionalSacrificeSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "optional-sacrifice"));
 await GrantedTokenHasteSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "granted-token-haste"));
+await OptionalCostsSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "optional-costs"));
 
 JsonElement Raw(GameCommand command) => JsonSerializer.SerializeToElement(command, command.GetType(), json);
 async Task Submit(string actor, string intent, GameCommand command, bool accepted = true) {

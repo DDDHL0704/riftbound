@@ -1,0 +1,61 @@
+{
+  "capturedAtUtc": "2026-10-17T05:25:05.926381+00:00",
+  "baseCommit": "3d70b1e8d3c8396e7fe7b6d2548e2bae09ae7e84",
+  "productionUntouchedDuringCounterexamples": true,
+  "productionInputSha256": {
+    "src/Riftbound.Contracts/Protocol.cs": "3e64fea885b0764521db2913070fed4ed00a56e4bc7b47e46c4c3d9e0ab600f9",
+    "src/Riftbound.Contracts/GameCommandJsonMapper.cs": "2e89e90e985b90dfeb6b68f7aad7b23a9f5843365e3b917e142b83435da68832",
+    "src/Riftbound.Engine/MatchSession.cs": "e6a6a0b70818d02d702c4d3f0d3e37e574dcaba8beaa6bf540672712fd905c64",
+    "src/Riftbound.Engine/MatchRecovery.cs": "48dda169917a0c6eb76e05e2e5a8f281f72219090bac2c9ce657826f6fd696b1"
+  },
+  "cases": 185,
+  "failed": 152,
+  "passed": 33,
+  "groups": [
+    {
+      "method": "MalformedFieldNeverReachesEngineOrAcceptedOrRejectedJournal",
+      "outcome": "Failed",
+      "cases": 120
+    },
+    {
+      "method": "MalformedFieldPrecedesStalePromptAndFinishedStatusJournalPaths",
+      "outcome": "Failed",
+      "cases": 16
+    },
+    {
+      "method": "CorrectedRequestCanReuseAnUnjournaledMalformedIntent",
+      "outcome": "Failed",
+      "cases": 8
+    },
+    {
+      "method": "CanonicalFieldsReachRealRulesAndColdRecoverOriginalJournal",
+      "outcome": "Passed",
+      "cases": 24
+    },
+    {
+      "method": "TypedProducersOmitNullAndKeepExplicitCanonicalArrays",
+      "outcome": "Failed",
+      "cases": 8
+    },
+    {
+      "method": "ExistingIntentConflictKeepsPrecedenceAndOriginalHistory",
+      "outcome": "Passed",
+      "cases": 8
+    },
+    {
+      "method": "IndependentRecoveryStillRejectsAllMalformedAcceptedPlayShapes",
+      "outcome": "Passed",
+      "cases": 1
+    }
+  ],
+  "trx": "var/qa/raw-command-shape-20261017/red-ingress-v2/focus/results.trx",
+  "trxSha256": "01899a04f0188f71ad965bdef3d31690aa4e76a3d31ae690f9131c2ee56f5406",
+  "initialCompileDraftNotCountedAsBehaviorFailure": {
+    "directory": "var/qa/raw-command-shape-20261017/red-ingress",
+    "errors": [
+      "Nullable string assertion array annotated non-null",
+      "Use literal existing CARD_TYPE:BATTLEFIELD tag instead of nonexistent constant"
+    ]
+  },
+  "originalAcceptedHistoriesNotRewritten": true
+}

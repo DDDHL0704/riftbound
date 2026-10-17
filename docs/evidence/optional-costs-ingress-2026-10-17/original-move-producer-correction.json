@@ -1,0 +1,14 @@
+{
+  "recordedAtUtc": "2026-10-17T06:04:32.743910+00:00",
+  "originalFailureName": "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameAppliesBattlefieldAllUnitsStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash",
+  "outcome": "Failed",
+  "message": "可选费用格式无效，请按最新提示重试。",
+  "stack": "   at Riftbound.ConformanceTests.FullGameEndToEndTests.AssertAccepted(ResolutionResult result) in /Users/dinghaolin/MyProjects/riftbound/var/qa/raw-command-shape-20261017/fixed-source/tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs:line 25228\n   at Riftbound.ConformanceTests.FullGameEndToEndTests.StageDefenderThenMoveAttackingGroupAsync(MatchSession session, ResolutionResult current, String defender, String battlefieldOwner, String prefix, String battlefieldCardNo, String defenderCardNo) in /Users/dinghaolin/MyProjects/riftbound/var/qa/raw-command-shape-20261017/fixed-source/tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs:line 13836\n   at Riftbound.ConformanceTests.FullGameEndToEndTests.DriveOpponentUnitToBattlefieldAsync(MatchSession session, ResolutionResult current, String opponentId, String battlefieldOwnerId, String intentPrefix, String battlefieldCardNo, Boolean counterAttack) in /Users/dinghaolin/MyProjects/riftbound/var/qa/raw-command-shape-20261017/fixed-source/tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs:line 13748\n   at Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameAppliesBattlefieldAllUnitsStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash() in /Users/dinghaolin/MyProjects/riftbound/var/qa/raw-command-shape-20261017/fixed-source/tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs:line 3869\n--- End of stack trace from previous location ---",
+  "diagnosticTrxSha256": "4d5837b57c159ea523235b3e8d4ea69a0f92bddc011db2dd7da57c0b8d5535cf",
+  "oldRawMoveUnitOptionalCosts": "Explicit JSON null when OptionalCosts property null",
+  "finalRawMoveUnitOptionalCosts": "Canonical empty array when property null, same as other helper branches",
+  "change": "One null-coalescing expression in existing RawCommand switch; all test methods, Theory rows, seeds and assertions retained.",
+  "rootOneCheckBeforeThisCorrection": "12295 all passed; final test helper is covered separately by rerun unchanged 39 original methods/all110 and new fixed full.",
+  "redWholeGroupInterruptedWith10ObservedFailuresNotPass": true,
+  "finalOriginalGroup": "RUNNING_39_ORIGINAL_METHODS_AND_FULL110"
+}

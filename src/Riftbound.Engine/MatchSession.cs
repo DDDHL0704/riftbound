@@ -17924,6 +17924,12 @@ public sealed partial class MatchSession : IMatchSession
                 return cached.Result;
             }
 
+            // Both accepted and rejected journal rows undergo independent raw
+            // recovery validation. Reject malformed costs before any path can
+            // persist the request, including stale-prompt rejections.
+            if (!HasCanonicalOptionalCosts(command, rawCommand))
+                return ResolutionResult.Rejected(state, "可选费用格式无效，请按最新提示重试。", ErrorCodes.InvalidPayload);
+
             var startedTick = state.Tick;
             var startedEventSequence = lastEventSequence;
             ResolutionResult result;
@@ -17988,6 +17994,29 @@ public sealed partial class MatchSession : IMatchSession
     }
 
     private sealed record CachedResolution(string CommandType, string? RawCommandHash, ResolutionResult Result);
+
+    private static bool HasCanonicalOptionalCosts(GameCommand command, JsonElement? rawCommand)
+    {
+        if (command is not (PlayCardCommand or ActivateAbilityCommand or LegendActCommand or HideCardCommand
+                or RevealCardCommand or MoveUnitCommand or AssembleEquipmentCommand or DeclareBattleCommand)
+            || rawCommand is not { ValueKind: JsonValueKind.Object } raw)
+            return true;
+
+        var seen = false;
+        foreach (var property in raw.EnumerateObject())
+        {
+            if (!string.Equals(property.Name.Trim(), "optionalCosts", StringComparison.Ordinal)) continue;
+            if (seen || property.Name != "optionalCosts" || property.Value.ValueKind != JsonValueKind.Array) return false;
+            seen = true;
+            foreach (var choice in property.Value.EnumerateArray())
+            {
+                if (choice.ValueKind != JsonValueKind.String) return false;
+                var value = choice.GetString()!;
+                if (string.IsNullOrWhiteSpace(value) || value != value.Trim()) return false;
+            }
+        }
+        return true;
+    }
 
     private static bool IntentConflicts(CachedResolution cached, string commandType, string? rawCommandHash)
     {

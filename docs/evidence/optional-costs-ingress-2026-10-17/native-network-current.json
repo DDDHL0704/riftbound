@@ -1,0 +1,30 @@
+{
+  "recordedAtUtc": "2026-10-17T06:05:31.847984+00:00",
+  "status": "CURRENT_MACOS_NATIVE_TRANSPORT_REAL_SOCKET_AUTH_RECOVERY_PROJECTION_AND_15_IDENTITY_REJECTIONS_PASS",
+  "api": "http://127.0.0.1:5170",
+  "actualDatabasePort": 55474,
+  "sourceFiles": {
+    "src/Riftbound.Contracts/Protocol.cs": "96bf65164e06fc562350175b9d80bf9e904e22919300d79412eafac5a5817e18",
+    "src/Riftbound.Engine/MatchSession.cs": "f19995b83f6e94b674781fad1c2c25f19372f204f55e81e9418da828de9310c9",
+    "clients/godot/scripts/RiftboundGameHubClient.cs": "50fcd5c6fdde075a7c267b27d169409bf8949ca5054f83ae6ce7d604dde66561",
+    "clients/godot/scripts/SnapshotCardRef.cs": "88ee91f317e692c51ec92bdab92ce91dc5a2ad82002e05374901b274f789c1f8",
+    "tests/Riftbound.NativeNetworkSmoke/Program.cs": "fb5ae02de974fd964c7c844a5f4b84631e219405b09564369ab22ed7375cd5ea",
+    "tests/Riftbound.NativeNetworkSmoke/Riftbound.NativeNetworkSmoke.csproj": "a0fe68dc12f269db5690fc53da7a3d1c82d61bf86e07e1b5766b3196911c0996"
+  },
+  "sourceMatchesCurrentProtocolIngressCandidate": true,
+  "apiPublishedFilesUnchanged": true,
+  "actualWireEvidence": {
+    "room": "NETWORK-98f3d849adef",
+    "rejectedActions": 15,
+    "identities": [
+      "ANONYMOUS",
+      "FAILED_KEY",
+      "OTHER_HANDLE"
+    ],
+    "leakedPrivateMessages": 0,
+    "validReconnectTokenWasSupplied": true
+  },
+  "activeTransportSocketLossAuthenticatedRestoreFreshSnapshotAndInvalidTokenNotActionable": true,
+  "stdoutSha256": "f745bf7cc3c84da61a97178e7cd5b372eb4ccfda418a6b3c5e4dc3c97c669248",
+  "scope": "Actual native transport class through drop proxy and real API/SQL; no visible GUI, score victory or physical Windows claim."
+}

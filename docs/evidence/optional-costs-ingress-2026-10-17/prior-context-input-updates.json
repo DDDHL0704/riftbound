@@ -1,0 +1,250 @@
+{
+  "recordedAtUtc": "2026-10-17T05:51:02.583839+00:00",
+  "baseCommit": "3d70b1e8d3c8396e7fe7b6d2548e2bae09ae7e84",
+  "contextsReopened": 18,
+  "changedPins": 25,
+  "changes": [
+    {
+      "reviewId": "masked-attendant-reflexive-self-copy-2026-10-14",
+      "changedPins": [
+        {
+          "section": "implementation",
+          "path": "src/Riftbound.Engine/MatchSession.cs",
+          "before": "e6a6a0b70818d02d702c4d3f0d3e37e574dcaba8beaa6bf540672712fd905c64",
+          "after": "f19995b83f6e94b674781fad1c2c25f19372f204f55e81e9418da828de9310c9"
+        }
+      ]
+    },
+    {
+      "reviewId": "static-granted-predict-entry-2026-10-15",
+      "changedPins": [
+        {
+          "section": "implementation",
+          "path": "src/Riftbound.Engine/MatchSession.cs",
+          "before": "e6a6a0b70818d02d702c4d3f0d3e37e574dcaba8beaa6bf540672712fd905c64",
+          "after": "f19995b83f6e94b674781fad1c2c25f19372f204f55e81e9418da828de9310c9"
+        }
+      ]
+    },
+    {
+      "reviewId": "sivir-optional-rune-recycle-2026-10-15",
+      "changedPins": [
+        {
+          "section": "implementation",
+          "path": "src/Riftbound.Engine/MatchSession.cs",
+          "before": "e6a6a0b70818d02d702c4d3f0d3e37e574dcaba8beaa6bf540672712fd905c64",
+          "after": "f19995b83f6e94b674781fad1c2c25f19372f204f55e81e9418da828de9310c9"
+        }
+      ]
+    },
+    {
+      "reviewId": "unit-conquest-gold-response-2026-10-15",
+      "changedPins": [
+        {
+          "section": "implementation",
+          "path": "src/Riftbound.Engine/MatchSession.cs",
+          "before": "e6a6a0b70818d02d702c4d3f0d3e37e574dcaba8beaa6bf540672712fd905c64",
+          "after": "f19995b83f6e94b674781fad1c2c25f19372f204f55e81e9418da828de9310c9"
+        }
+      ]
+    },
+    {
+      "reviewId": "typed-current-turn-card-play-confirmation-and-resolution-history-2026-10-15",
+      "changedPins": [
+        {
+          "section": "implementation",
+          "path": "src/Riftbound.Engine/MatchSession.cs",
+          "before": "e6a6a0b70818d02d702c4d3f0d3e37e574dcaba8beaa6bf540672712fd905c64",
+          "after": "f19995b83f6e94b674781fad1c2c25f19372f204f55e81e9418da828de9310c9"
+        }
+      ]
+    },
+    {
+      "reviewId": "porobot-source-play-other-equipment-conditional-draw-2026-10-15",
+      "changedPins": [
+        {
+          "section": "implementation",
+          "path": "src/Riftbound.Engine/MatchSession.cs",
+          "before": "e6a6a0b70818d02d702c4d3f0d3e37e574dcaba8beaa6bf540672712fd905c64",
+          "after": "f19995b83f6e94b674781fad1c2c25f19372f204f55e81e9418da828de9310c9"
+        }
+      ]
+    },
+    {
+      "reviewId": "typed-card-play-history-causal-production-recovery-2026-10-15",
+      "changedPins": [
+        {
+          "section": "implementation",
+          "path": "src/Riftbound.Engine/MatchSession.cs",
+          "before": "e6a6a0b70818d02d702c4d3f0d3e37e574dcaba8beaa6bf540672712fd905c64",
+          "after": "f19995b83f6e94b674781fad1c2c25f19372f204f55e81e9418da828de9310c9"
+        }
+      ]
+    },
+    {
+      "reviewId": "optional-mana-trigger-native-and-natural-declaration-order-2026-10-15",
+      "changedPins": [
+        {
+          "section": "implementation",
+          "path": "src/Riftbound.Engine/MatchSession.cs",
+          "before": "e6a6a0b70818d02d702c4d3f0d3e37e574dcaba8beaa6bf540672712fd905c64",
+          "after": "f19995b83f6e94b674781fad1c2c25f19372f204f55e81e9418da828de9310c9"
+        }
+      ]
+    },
+    {
+      "reviewId": "cn16-confirmed-play-origin-and-required-causal-fact-2026-10-16",
+      "changedPins": [
+        {
+          "section": "implementation",
+          "path": "src/Riftbound.Engine/MatchSession.cs",
+          "before": "e6a6a0b70818d02d702c4d3f0d3e37e574dcaba8beaa6bf540672712fd905c64",
+          "after": "f19995b83f6e94b674781fad1c2c25f19372f204f55e81e9418da828de9310c9"
+        },
+        {
+          "section": "verificationSources",
+          "path": "tests/Riftbound.PostgresAcceptance/Program.cs",
+          "before": "8aa37c53f823b082c25b2a16f83e9db1f77faed620019c5bcb3f34caac965c30",
+          "after": "b87e0ec368adfa36ecc40a1da8b2bb5ecf998bda192550bfa06b6661b88dc345"
+        }
+      ]
+    },
+    {
+      "reviewId": "physical-origin-self-cost-reduction-2026-10-16",
+      "changedPins": [
+        {
+          "section": "verificationSources",
+          "path": "tests/Riftbound.PostgresAcceptance/Program.cs",
+          "before": "8aa37c53f823b082c25b2a16f83e9db1f77faed620019c5bcb3f34caac965c30",
+          "after": "b87e0ec368adfa36ecc40a1da8b2bb5ecf998bda192550bfa06b6661b88dc345"
+        }
+      ]
+    },
+    {
+      "reviewId": "granted-origin-haste-and-paid-entry-replacement-2026-10-16",
+      "changedPins": [
+        {
+          "section": "implementation",
+          "path": "src/Riftbound.Engine/MatchSession.cs",
+          "before": "e6a6a0b70818d02d702c4d3f0d3e37e574dcaba8beaa6bf540672712fd905c64",
+          "after": "f19995b83f6e94b674781fad1c2c25f19372f204f55e81e9418da828de9310c9"
+        },
+        {
+          "section": "verificationSources",
+          "path": "tests/Riftbound.PostgresAcceptance/Program.cs",
+          "before": "8aa37c53f823b082c25b2a16f83e9db1f77faed620019c5bcb3f34caac965c30",
+          "after": "b87e0ec368adfa36ecc40a1da8b2bb5ecf998bda192550bfa06b6661b88dc345"
+        }
+      ]
+    },
+    {
+      "reviewId": "opponent-battlefield-current-control-entry-2026-10-16",
+      "changedPins": [
+        {
+          "section": "verificationSources",
+          "path": "tests/Riftbound.PostgresAcceptance/Program.cs",
+          "before": "8aa37c53f823b082c25b2a16f83e9db1f77faed620019c5bcb3f34caac965c30",
+          "after": "b87e0ec368adfa36ecc40a1da8b2bb5ecf998bda192550bfa06b6661b88dc345"
+        }
+      ]
+    },
+    {
+      "reviewId": "optional-sacrifice-printed-cost-and-paid-entry-2026-10-16",
+      "changedPins": [
+        {
+          "section": "implementation",
+          "path": "src/Riftbound.Engine/MatchSession.cs",
+          "before": "e6a6a0b70818d02d702c4d3f0d3e37e574dcaba8beaa6bf540672712fd905c64",
+          "after": "f19995b83f6e94b674781fad1c2c25f19372f204f55e81e9418da828de9310c9"
+        },
+        {
+          "section": "verificationSources",
+          "path": "tests/Riftbound.PostgresAcceptance/Program.cs",
+          "before": "8aa37c53f823b082c25b2a16f83e9db1f77faed620019c5bcb3f34caac965c30",
+          "after": "b87e0ec368adfa36ecc40a1da8b2bb5ecf998bda192550bfa06b6661b88dc345"
+        }
+      ]
+    },
+    {
+      "reviewId": "granted-colorless-token-haste-payment-2026-10-16",
+      "changedPins": [
+        {
+          "section": "implementation",
+          "path": "src/Riftbound.Engine/MatchSession.cs",
+          "before": "e6a6a0b70818d02d702c4d3f0d3e37e574dcaba8beaa6bf540672712fd905c64",
+          "after": "f19995b83f6e94b674781fad1c2c25f19372f204f55e81e9418da828de9310c9"
+        },
+        {
+          "section": "verificationSources",
+          "path": "tests/Riftbound.PostgresAcceptance/Program.cs",
+          "before": "8aa37c53f823b082c25b2a16f83e9db1f77faed620019c5bcb3f34caac965c30",
+          "after": "b87e0ec368adfa36ecc40a1da8b2bb5ecf998bda192550bfa06b6661b88dc345"
+        }
+      ]
+    },
+    {
+      "reviewId": "native-rule-choice-prompts-2026-10-16",
+      "changedPins": [
+        {
+          "section": "implementation",
+          "path": "src/Riftbound.Engine/MatchSession.cs",
+          "before": "e6a6a0b70818d02d702c4d3f0d3e37e574dcaba8beaa6bf540672712fd905c64",
+          "after": "f19995b83f6e94b674781fad1c2c25f19372f204f55e81e9418da828de9310c9"
+        }
+      ]
+    },
+    {
+      "reviewId": "sand-soldier-embedded-ready-2026-10-17",
+      "changedPins": [
+        {
+          "section": "implementation",
+          "path": "src/Riftbound.Engine/MatchSession.cs",
+          "before": "e6a6a0b70818d02d702c4d3f0d3e37e574dcaba8beaa6bf540672712fd905c64",
+          "after": "f19995b83f6e94b674781fad1c2c25f19372f204f55e81e9418da828de9310c9"
+        },
+        {
+          "section": "verificationSources",
+          "path": "tests/Riftbound.PostgresAcceptance/Program.cs",
+          "before": "8aa37c53f823b082c25b2a16f83e9db1f77faed620019c5bcb3f34caac965c30",
+          "after": "b87e0ec368adfa36ecc40a1da8b2bb5ecf998bda192550bfa06b6661b88dc345"
+        }
+      ]
+    },
+    {
+      "reviewId": "opening-randomness-2026-10-17",
+      "changedPins": [
+        {
+          "section": "implementation",
+          "path": "src/Riftbound.Engine/MatchSession.cs",
+          "before": "e6a6a0b70818d02d702c4d3f0d3e37e574dcaba8beaa6bf540672712fd905c64",
+          "after": "f19995b83f6e94b674781fad1c2c25f19372f204f55e81e9418da828de9310c9"
+        },
+        {
+          "section": "verificationSources",
+          "path": "tests/Riftbound.PostgresAcceptance/Program.cs",
+          "before": "8aa37c53f823b082c25b2a16f83e9db1f77faed620019c5bcb3f34caac965c30",
+          "after": "b87e0ec368adfa36ecc40a1da8b2bb5ecf998bda192550bfa06b6661b88dc345"
+        }
+      ]
+    },
+    {
+      "reviewId": "duel-chain-origins-cold-recovery-2026-10-17",
+      "changedPins": [
+        {
+          "section": "implementation",
+          "path": "src/Riftbound.Engine/MatchSession.cs",
+          "before": "e6a6a0b70818d02d702c4d3f0d3e37e574dcaba8beaa6bf540672712fd905c64",
+          "after": "f19995b83f6e94b674781fad1c2c25f19372f204f55e81e9418da828de9310c9"
+        },
+        {
+          "section": "verificationSources",
+          "path": "tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs",
+          "before": "bdaeb627fd5b84c9e957c3808756e758d443b6dc90587914a5ab34449e635a6e",
+          "after": "8ae72684dc188db7477e9866f0fecc9b4ecb667f6640bc8656e8c4816531dbc8"
+        }
+      ]
+    }
+  ],
+  "all119HistoricalReviewDictionariesByteIdentical": true,
+  "oldCiNeverRelabeledCurrent": true
+}

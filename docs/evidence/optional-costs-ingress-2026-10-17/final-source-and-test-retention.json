@@ -1,0 +1,14 @@
+{
+  "recordedAtUtc": "2026-10-17T06:04:38.566697+00:00",
+  "oldConformanceFiles": 441,
+  "byteIdenticalOldSources": 440,
+  "soleOldTestSourceChange": {
+    "path": "tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs",
+    "sha256": "392ff0298f1c128378fe1cf0a7455c964ea96166eea711e8e96ab410919c92b6"
+  },
+  "exactOnlyChange": "optionalCosts = moveUnit.OptionalCosts -> moveUnit.OptionalCosts ?? []",
+  "allOriginalMethodsTheoryRows143Games110DirectedPairsAndSeedsWinReplayAssertionsUnchanged": true,
+  "newConformanceMethods": 7,
+  "newCases": 185,
+  "independentRecoveryGuardAndMapperByteIdenticalTo3d70": true
+}

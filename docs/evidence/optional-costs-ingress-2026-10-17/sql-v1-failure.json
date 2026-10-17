@@ -1,0 +1,8 @@
+{
+  "status": "FAILED",
+  "executedAtUtc": "2026-10-17T05:41:47.817246+00:00",
+  "sourceSha256": "5f4386ffc81f1d820fdb0c97689b9e89df47ac8c9822b3f365e6d5a21512b5e8",
+  "failure": "New unique SQL room has a different live prompt identity; copied prefix raw hint was stale before optional-cost attempts. No optional-cost SQL pass claimed.",
+  "sourceFixtureUnchanged": true,
+  "originalFailureLog": "sql-v1.log"
+}

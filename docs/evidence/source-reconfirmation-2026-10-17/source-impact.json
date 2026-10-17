@@ -1,0 +1,599 @@
+{
+  "recordedAtUtc": "2026-10-17T06:15:50.730558+00:00",
+  "scope": {
+    "CN": {
+      "region": "CN",
+      "language": "zh-CN",
+      "applicableAsOf": "2026-10-17",
+      "coreEffectiveDate": "2026-10-16"
+    },
+    "EN": {
+      "region": "GLOBAL",
+      "language": "en-US",
+      "applicableAsOf": "2026-10-17",
+      "regionalReleaseOrEffectiveDateNotInferredFromNewBadge": true
+    }
+  },
+  "cn": {
+    "path": "docs/evidence/source-reconfirmation-2026-10-17/full-cn/manifest.json",
+    "sha256": "96dd465626365d8806703bb5c93eaf891f9bae694c62667de7c8a96d24e444d7"
+  },
+  "en": {
+    "path": "docs/evidence/source-reconfirmation-2026-10-17/full-en/manifest.json",
+    "sha256": "d3bb0108d12faa2c206d02b7d1444d756b3425accb0332105bbfdd41544406e3"
+  },
+  "frozenEnSource": "data/official/upstream/2026-10-16/source-refresh-20261015T160523Z/card-gallery.en-US.json",
+  "frozenEnSourceSha256": "4392c13622cff66c32d0a31b63919af9522e16991883758df79cdbfd20daa289",
+  "currentEnWholeResponse": {
+    "path": "docs/evidence/source-reconfirmation-2026-10-17/gallery-api-full.json",
+    "sha256": "e99037cbf83707823bb9588d5fcbfc8c893e5023f5f5316c1f802c7c14bff74b"
+  },
+  "cnFullExactRowsUnchanged": 1504,
+  "enUnchangedRows": 1382,
+  "enChangedRows": 26,
+  "reportedEnTotal": 1416,
+  "actualReturnedEnIds": 1408,
+  "enSourceCountGapStillOpen": 8,
+  "sourceUniverse1740AndRuntime1033NotReplacedOrReduced": true,
+  "newAndOldIdsMerged": false,
+  "records": [
+    {
+      "officialId": "rad-010-167",
+      "exactPrinting": "RAD-010/167",
+      "name": "Forbidden Technique",
+      "beforeRecordSha256": "2f98ae7f4f583f9ed635a43e3dc7dc12e45ccb875207e901297c6195675777a8",
+      "afterRecordSha256": "2b909c820c3e20b3fd7b7006060b02376edbf3c5451dec80b155f5d54d3187f3",
+      "changedFields": [
+        "flags"
+      ],
+      "beforeFlags": [
+        {
+          "id": "new",
+          "label": "New"
+        }
+      ],
+      "afterFlags": null,
+      "disposition": "GALLERY_NEW_BADGE_REMOVED_ONLY_ALL_OTHER_RETURNED_FIELDS_IDENTICAL",
+      "semanticReview": "NO_WHOLE_CARD_CERTIFICATION",
+      "runtimeImplementationImpact": "NO_DECLARED_CN_RULE_TEXT_OR_CATALOG_INPUT_CHANGE",
+      "imageUriUnchangedButImageBytesNotRefetched": true
+    },
+    {
+      "officialId": "rad-011-167",
+      "exactPrinting": "RAD-011/167",
+      "name": "Incorrigible Construct",
+      "beforeRecordSha256": "62a555572716090c00769c03f4f7e57aa10d105653b3b0cb8f62d4ec6a03953e",
+      "afterRecordSha256": "383077cba5953a39d7d33b1698a0e62305963a17ad49d0039d57c43fe0e45d0d",
+      "changedFields": [
+        "flags"
+      ],
+      "beforeFlags": [
+        {
+          "id": "new",
+          "label": "New"
+        }
+      ],
+      "afterFlags": null,
+      "disposition": "GALLERY_NEW_BADGE_REMOVED_ONLY_ALL_OTHER_RETURNED_FIELDS_IDENTICAL",
+      "semanticReview": "NO_WHOLE_CARD_CERTIFICATION",
+      "runtimeImplementationImpact": "NO_DECLARED_CN_RULE_TEXT_OR_CATALOG_INPUT_CHANGE",
+      "imageUriUnchangedButImageBytesNotRefetched": true
+    },
+    {
+      "officialId": "rad-022-167",
+      "exactPrinting": "RAD-022/167",
+      "name": "Whirling Twirligig",
+      "beforeRecordSha256": "3fa3f226615690f754a43b84bbf54ffd40686fb29f2cb5758bed976cbbab5bfa",
+      "afterRecordSha256": "2ff1a9e53f3f098b63c4bf36ab47b08b28423399f0ef91c6da0930dad2fd2cdb",
+      "changedFields": [
+        "flags"
+      ],
+      "beforeFlags": [
+        {
+          "id": "new",
+          "label": "New"
+        }
+      ],
+      "afterFlags": null,
+      "disposition": "GALLERY_NEW_BADGE_REMOVED_ONLY_ALL_OTHER_RETURNED_FIELDS_IDENTICAL",
+      "semanticReview": "NO_WHOLE_CARD_CERTIFICATION",
+      "runtimeImplementationImpact": "NO_DECLARED_CN_RULE_TEXT_OR_CATALOG_INPUT_CHANGE",
+      "imageUriUnchangedButImageBytesNotRefetched": true
+    },
+    {
+      "officialId": "rad-031-167",
+      "exactPrinting": "RAD-031/167",
+      "name": "Stoic Ferryman",
+      "beforeRecordSha256": "317f693a5211373322e4657298660c9f7259359d0f1adb8ce6c793df7265de91",
+      "afterRecordSha256": "1bec1a61d350117e390494ce5940fd4ec6f9da9e069ce13d84bc229bd629e9ee",
+      "changedFields": [
+        "flags"
+      ],
+      "beforeFlags": [
+        {
+          "id": "new",
+          "label": "New"
+        }
+      ],
+      "afterFlags": null,
+      "disposition": "GALLERY_NEW_BADGE_REMOVED_ONLY_ALL_OTHER_RETURNED_FIELDS_IDENTICAL",
+      "semanticReview": "NO_WHOLE_CARD_CERTIFICATION",
+      "runtimeImplementationImpact": "NO_DECLARED_CN_RULE_TEXT_OR_CATALOG_INPUT_CHANGE",
+      "imageUriUnchangedButImageBytesNotRefetched": true
+    },
+    {
+      "officialId": "rad-032-167",
+      "exactPrinting": "RAD-032/167",
+      "name": "Battle Preparations",
+      "beforeRecordSha256": "b00631aeb92efd28a7aaa3decdb06481a7c402dcc53203ec3255048e11d279a1",
+      "afterRecordSha256": "958e21e852dcf6ff2b4c2acd75c83645e45a124a2f8c98b672e1df824f8a13ae",
+      "changedFields": [
+        "flags"
+      ],
+      "beforeFlags": [
+        {
+          "id": "new",
+          "label": "New"
+        }
+      ],
+      "afterFlags": null,
+      "disposition": "GALLERY_NEW_BADGE_REMOVED_ONLY_ALL_OTHER_RETURNED_FIELDS_IDENTICAL",
+      "semanticReview": "NO_WHOLE_CARD_CERTIFICATION",
+      "runtimeImplementationImpact": "NO_DECLARED_CN_RULE_TEXT_OR_CATALOG_INPUT_CHANGE",
+      "imageUriUnchangedButImageBytesNotRefetched": true
+    },
+    {
+      "officialId": "rad-042-167",
+      "exactPrinting": "RAD-042/167",
+      "name": "Orianna",
+      "beforeRecordSha256": "418250b0117f02684d8baf8796304276563768b3e12ef211667f83db16d64564",
+      "afterRecordSha256": "1cc78905371fc44512447ce96a85ea4758ac76fb2d0d33384cc407f09f86be8b",
+      "changedFields": [
+        "flags"
+      ],
+      "beforeFlags": [
+        {
+          "id": "new",
+          "label": "New"
+        }
+      ],
+      "afterFlags": null,
+      "disposition": "GALLERY_NEW_BADGE_REMOVED_ONLY_ALL_OTHER_RETURNED_FIELDS_IDENTICAL",
+      "semanticReview": "NO_WHOLE_CARD_CERTIFICATION",
+      "runtimeImplementationImpact": "NO_DECLARED_CN_RULE_TEXT_OR_CATALOG_INPUT_CHANGE",
+      "imageUriUnchangedButImageBytesNotRefetched": true
+    },
+    {
+      "officialId": "rad-042a-167",
+      "exactPrinting": "RAD-042a/167",
+      "name": "Orianna",
+      "beforeRecordSha256": "1930afa6dc00cce8c099a3a2b19a04b550e1bec1bbef1f2ab0ef3029b8211a39",
+      "afterRecordSha256": "b0dc63e14fc9bdf5238efa0732d60ccf539b310ad8aae2b2bceeff7c82256fd5",
+      "changedFields": [
+        "flags"
+      ],
+      "beforeFlags": [
+        {
+          "id": "new",
+          "label": "New"
+        }
+      ],
+      "afterFlags": null,
+      "disposition": "GALLERY_NEW_BADGE_REMOVED_ONLY_ALL_OTHER_RETURNED_FIELDS_IDENTICAL",
+      "semanticReview": "NO_WHOLE_CARD_CERTIFICATION",
+      "runtimeImplementationImpact": "NO_DECLARED_CN_RULE_TEXT_OR_CATALOG_INPUT_CHANGE",
+      "imageUriUnchangedButImageBytesNotRefetched": true
+    },
+    {
+      "officialId": "rad-053-167",
+      "exactPrinting": "RAD-053/167",
+      "name": "Strigian Oracle",
+      "beforeRecordSha256": "4eb27a66dd8fe4d8a1a22dbdf095ea0b8584d21ca8ae497e3439bc0bc90d3bbd",
+      "afterRecordSha256": "3588731b93673ad101fec48665760173362b2f54c0c07d684bd110a2d6ee16ef",
+      "changedFields": [
+        "flags"
+      ],
+      "beforeFlags": [
+        {
+          "id": "new",
+          "label": "New"
+        }
+      ],
+      "afterFlags": null,
+      "disposition": "GALLERY_NEW_BADGE_REMOVED_ONLY_ALL_OTHER_RETURNED_FIELDS_IDENTICAL",
+      "semanticReview": "NO_WHOLE_CARD_CERTIFICATION",
+      "runtimeImplementationImpact": "NO_DECLARED_CN_RULE_TEXT_OR_CATALOG_INPUT_CHANGE",
+      "imageUriUnchangedButImageBytesNotRefetched": true
+    },
+    {
+      "officialId": "rad-054-167",
+      "exactPrinting": "RAD-054/167",
+      "name": "Trinket Peddler",
+      "beforeRecordSha256": "7a098e922fdbb349d7ff5716602c2ad074ad7c48886f1fd3da3cd8a221a50e75",
+      "afterRecordSha256": "ace2fd578f20b13ef31a9c1a5b46f8919a5d73ec26bef5fa2d2672521dcb6c4c",
+      "changedFields": [
+        "flags"
+      ],
+      "beforeFlags": [
+        {
+          "id": "new",
+          "label": "New"
+        }
+      ],
+      "afterFlags": null,
+      "disposition": "GALLERY_NEW_BADGE_REMOVED_ONLY_ALL_OTHER_RETURNED_FIELDS_IDENTICAL",
+      "semanticReview": "NO_WHOLE_CARD_CERTIFICATION",
+      "runtimeImplementationImpact": "NO_DECLARED_CN_RULE_TEXT_OR_CATALOG_INPUT_CHANGE",
+      "imageUriUnchangedButImageBytesNotRefetched": true
+    },
+    {
+      "officialId": "rad-065-167",
+      "exactPrinting": "RAD-065/167",
+      "name": "Seraphine",
+      "beforeRecordSha256": "8733d963d357adbc87a4cb440a365e0b0cb2ecced8eeca690ab52ca441997cf7",
+      "afterRecordSha256": "f6cb42d0234d849ce82809f5727941aa292adc80737688d6063b64d0c03f4f5d",
+      "changedFields": [
+        "flags"
+      ],
+      "beforeFlags": [
+        {
+          "id": "new",
+          "label": "New"
+        }
+      ],
+      "afterFlags": null,
+      "disposition": "GALLERY_NEW_BADGE_REMOVED_ONLY_ALL_OTHER_RETURNED_FIELDS_IDENTICAL",
+      "semanticReview": "NO_WHOLE_CARD_CERTIFICATION",
+      "runtimeImplementationImpact": "NO_DECLARED_CN_RULE_TEXT_OR_CATALOG_INPUT_CHANGE",
+      "imageUriUnchangedButImageBytesNotRefetched": true
+    },
+    {
+      "officialId": "rad-065a-167",
+      "exactPrinting": "RAD-065a/167",
+      "name": "Seraphine",
+      "beforeRecordSha256": "b77b356953615312f7c9b7c8d39aa39c4e47d1c713eb7296c926a6d2941907c8",
+      "afterRecordSha256": "5c0bf35dad8a722a3daca99422ed79871a9c54fead6a1d6ee343f3492324dfae",
+      "changedFields": [
+        "flags"
+      ],
+      "beforeFlags": [
+        {
+          "id": "new",
+          "label": "New"
+        }
+      ],
+      "afterFlags": null,
+      "disposition": "GALLERY_NEW_BADGE_REMOVED_ONLY_ALL_OTHER_RETURNED_FIELDS_IDENTICAL",
+      "semanticReview": "NO_WHOLE_CARD_CERTIFICATION",
+      "runtimeImplementationImpact": "NO_DECLARED_CN_RULE_TEXT_OR_CATALOG_INPUT_CHANGE",
+      "imageUriUnchangedButImageBytesNotRefetched": true
+    },
+    {
+      "officialId": "rad-066-167",
+      "exactPrinting": "RAD-066/167",
+      "name": "Spirit of the Forge",
+      "beforeRecordSha256": "697d1fa75ce90331934a6998ddabaff78e7a0d6fd7c2828845c643e7d650d373",
+      "afterRecordSha256": "60a907147c42e2ba518d9ccbd0d698496e2df7c7c7544cde8e9d1a6a818329aa",
+      "changedFields": [
+        "flags"
+      ],
+      "beforeFlags": [
+        {
+          "id": "new",
+          "label": "New"
+        }
+      ],
+      "afterFlags": null,
+      "disposition": "GALLERY_NEW_BADGE_REMOVED_ONLY_ALL_OTHER_RETURNED_FIELDS_IDENTICAL",
+      "semanticReview": "NO_WHOLE_CARD_CERTIFICATION",
+      "runtimeImplementationImpact": "NO_DECLARED_CN_RULE_TEXT_OR_CATALOG_INPUT_CHANGE",
+      "imageUriUnchangedButImageBytesNotRefetched": true
+    },
+    {
+      "officialId": "rad-078-167",
+      "exactPrinting": "RAD-078/167",
+      "name": "Armored Tusker",
+      "beforeRecordSha256": "01fef33283912f293dab12c465b7eb8044761feafc1bf95cf8725e506e0b5377",
+      "afterRecordSha256": "53ab84f4c381e8d297fce24da60bf5a96219a5bdcbd01d8e0e8ebba6aef8cee5",
+      "changedFields": [
+        "flags"
+      ],
+      "beforeFlags": [
+        {
+          "id": "new",
+          "label": "New"
+        }
+      ],
+      "afterFlags": null,
+      "disposition": "GALLERY_NEW_BADGE_REMOVED_ONLY_ALL_OTHER_RETURNED_FIELDS_IDENTICAL",
+      "semanticReview": "NO_WHOLE_CARD_CERTIFICATION",
+      "runtimeImplementationImpact": "NO_DECLARED_CN_RULE_TEXT_OR_CATALOG_INPUT_CHANGE",
+      "imageUriUnchangedButImageBytesNotRefetched": true
+    },
+    {
+      "officialId": "rad-080-167",
+      "exactPrinting": "RAD-080/167",
+      "name": "Bloodscent Swarm",
+      "beforeRecordSha256": "6841087efe422f202a65e706c2d0ad203a66070ea3bf1c7a73f77ff671c5c9cf",
+      "afterRecordSha256": "acfc664deff9f20b21bbcc495e5fb4cc17b7a89d8fc0c7f48715190e0d518812",
+      "changedFields": [
+        "flags"
+      ],
+      "beforeFlags": [
+        {
+          "id": "new",
+          "label": "New"
+        }
+      ],
+      "afterFlags": null,
+      "disposition": "GALLERY_NEW_BADGE_REMOVED_ONLY_ALL_OTHER_RETURNED_FIELDS_IDENTICAL",
+      "semanticReview": "NO_WHOLE_CARD_CERTIFICATION",
+      "runtimeImplementationImpact": "NO_DECLARED_CN_RULE_TEXT_OR_CATALOG_INPUT_CHANGE",
+      "imageUriUnchangedButImageBytesNotRefetched": true
+    },
+    {
+      "officialId": "rad-092-167",
+      "exactPrinting": "RAD-092/167",
+      "name": "Seraphic Wyvern",
+      "beforeRecordSha256": "d94fd43b4ed5ceb582f3f432634a4304c6bdfd8e8b0fb4ec69a6514c78596d58",
+      "afterRecordSha256": "96e1c4c7804b705e3472cb2f255ec3ad3c671a7cef13db10e93954271a66945a",
+      "changedFields": [
+        "flags"
+      ],
+      "beforeFlags": [
+        {
+          "id": "new",
+          "label": "New"
+        }
+      ],
+      "afterFlags": null,
+      "disposition": "GALLERY_NEW_BADGE_REMOVED_ONLY_ALL_OTHER_RETURNED_FIELDS_IDENTICAL",
+      "semanticReview": "NO_WHOLE_CARD_CERTIFICATION",
+      "runtimeImplementationImpact": "NO_DECLARED_CN_RULE_TEXT_OR_CATALOG_INPUT_CHANGE",
+      "imageUriUnchangedButImageBytesNotRefetched": true
+    },
+    {
+      "officialId": "rad-094-167",
+      "exactPrinting": "RAD-094/167",
+      "name": "Explosimian",
+      "beforeRecordSha256": "9f5ef8989507c434dd97cdb772c1cba81f4a917d9eebfd299192dff45ad81c88",
+      "afterRecordSha256": "b9ea1ff463d6d83584838fac1849ed1c6d07fdc6c1067078272590c545dddbb7",
+      "changedFields": [
+        "flags"
+      ],
+      "beforeFlags": [
+        {
+          "id": "new",
+          "label": "New"
+        }
+      ],
+      "afterFlags": null,
+      "disposition": "GALLERY_NEW_BADGE_REMOVED_ONLY_ALL_OTHER_RETURNED_FIELDS_IDENTICAL",
+      "semanticReview": "NO_WHOLE_CARD_CERTIFICATION",
+      "runtimeImplementationImpact": "NO_DECLARED_CN_RULE_TEXT_OR_CATALOG_INPUT_CHANGE",
+      "imageUriUnchangedButImageBytesNotRefetched": true
+    },
+    {
+      "officialId": "rad-103-167",
+      "exactPrinting": "RAD-103/167",
+      "name": "Gutter Guardian",
+      "beforeRecordSha256": "7d0206aabe500a0ef858c136774993b38e7903a0d9b5979485e3da3201b88793",
+      "afterRecordSha256": "7be4997547f8984aa4c7f3478b7dd344da32f7da2830ff68889f0ca1c6223a3b",
+      "changedFields": [
+        "flags"
+      ],
+      "beforeFlags": [
+        {
+          "id": "new",
+          "label": "New"
+        }
+      ],
+      "afterFlags": null,
+      "disposition": "GALLERY_NEW_BADGE_REMOVED_ONLY_ALL_OTHER_RETURNED_FIELDS_IDENTICAL",
+      "semanticReview": "NO_WHOLE_CARD_CERTIFICATION",
+      "runtimeImplementationImpact": "NO_DECLARED_CN_RULE_TEXT_OR_CATALOG_INPUT_CHANGE",
+      "imageUriUnchangedButImageBytesNotRefetched": true
+    },
+    {
+      "officialId": "rad-104-167",
+      "exactPrinting": "RAD-104/167",
+      "name": "Pitiless Stalker",
+      "beforeRecordSha256": "3b28ccf7b3c029a694c5a2492ce4a869782d6fa47749271d5a8195672609f9d0",
+      "afterRecordSha256": "9fe1bfab200cf0e9fc1558b691e6e5d76cfdaf92309ebdc0e1bf7c4d35100e24",
+      "changedFields": [
+        "flags"
+      ],
+      "beforeFlags": [
+        {
+          "id": "new",
+          "label": "New"
+        }
+      ],
+      "afterFlags": null,
+      "disposition": "GALLERY_NEW_BADGE_REMOVED_ONLY_ALL_OTHER_RETURNED_FIELDS_IDENTICAL",
+      "semanticReview": "NO_WHOLE_CARD_CERTIFICATION",
+      "runtimeImplementationImpact": "NO_DECLARED_CN_RULE_TEXT_OR_CATALOG_INPUT_CHANGE",
+      "imageUriUnchangedButImageBytesNotRefetched": true
+    },
+    {
+      "officialId": "rad-113-167",
+      "exactPrinting": "RAD-113/167",
+      "name": "Angler Wyrm",
+      "beforeRecordSha256": "9b7340e8a9888272743ccc7d95a76f3b6f0ed46babf9c701b1fde4508f9babaf",
+      "afterRecordSha256": "2d11d45607c2ff85b80b6b115b957c87e0de1be97d36fcafa66af12abdc81e3f",
+      "changedFields": [
+        "flags"
+      ],
+      "beforeFlags": [
+        {
+          "id": "new",
+          "label": "New"
+        }
+      ],
+      "afterFlags": null,
+      "disposition": "GALLERY_NEW_BADGE_REMOVED_ONLY_ALL_OTHER_RETURNED_FIELDS_IDENTICAL",
+      "semanticReview": "NO_WHOLE_CARD_CERTIFICATION",
+      "runtimeImplementationImpact": "NO_DECLARED_CN_RULE_TEXT_OR_CATALOG_INPUT_CHANGE",
+      "imageUriUnchangedButImageBytesNotRefetched": true
+    },
+    {
+      "officialId": "rad-123-167",
+      "exactPrinting": "RAD-123/167",
+      "name": "Protector's Shield",
+      "beforeRecordSha256": "841ec0d1a89ba21c1c542f5d5344d9327332c16a58c9100819ab855d65f172bc",
+      "afterRecordSha256": "7f34002723b558498ec60fec35805df96b71280e689b98fbd5597412061acdd8",
+      "changedFields": [
+        "flags"
+      ],
+      "beforeFlags": [
+        {
+          "id": "new",
+          "label": "New"
+        }
+      ],
+      "afterFlags": null,
+      "disposition": "GALLERY_NEW_BADGE_REMOVED_ONLY_ALL_OTHER_RETURNED_FIELDS_IDENTICAL",
+      "semanticReview": "NO_WHOLE_CARD_CERTIFICATION",
+      "runtimeImplementationImpact": "NO_DECLARED_CN_RULE_TEXT_OR_CATALOG_INPUT_CHANGE",
+      "imageUriUnchangedButImageBytesNotRefetched": true
+    },
+    {
+      "officialId": "rad-124-167",
+      "exactPrinting": "RAD-124/167",
+      "name": "Burn Away",
+      "beforeRecordSha256": "048322abceff642caa80f3ccc067c74de7d49ed91494d7cd5ec848ff39bd82f7",
+      "afterRecordSha256": "e681b903241aaaa2024bf0cfa4599f037e4d4c63336477b349b0a8115f7f4234",
+      "changedFields": [
+        "flags"
+      ],
+      "beforeFlags": [
+        {
+          "id": "new",
+          "label": "New"
+        }
+      ],
+      "afterFlags": null,
+      "disposition": "GALLERY_NEW_BADGE_REMOVED_ONLY_ALL_OTHER_RETURNED_FIELDS_IDENTICAL",
+      "semanticReview": "NO_WHOLE_CARD_CERTIFICATION",
+      "runtimeImplementationImpact": "NO_DECLARED_CN_RULE_TEXT_OR_CATALOG_INPUT_CHANGE",
+      "imageUriUnchangedButImageBytesNotRefetched": true
+    },
+    {
+      "officialId": "rad-134-167",
+      "exactPrinting": "RAD-134/167",
+      "name": "Raucous Anthem",
+      "beforeRecordSha256": "72a7b7a70e85d08143a8273cb58853270132f7bb308ce7ce5458e83af9762c3c",
+      "afterRecordSha256": "984c506403bcf9c3a52cc0eed25d2625cfef8c8db41e5b23724e38e2c676ce18",
+      "changedFields": [
+        "flags"
+      ],
+      "beforeFlags": [
+        {
+          "id": "new",
+          "label": "New"
+        }
+      ],
+      "afterFlags": null,
+      "disposition": "GALLERY_NEW_BADGE_REMOVED_ONLY_ALL_OTHER_RETURNED_FIELDS_IDENTICAL",
+      "semanticReview": "NO_WHOLE_CARD_CERTIFICATION",
+      "runtimeImplementationImpact": "NO_DECLARED_CN_RULE_TEXT_OR_CATALOG_INPUT_CHANGE",
+      "imageUriUnchangedButImageBytesNotRefetched": true
+    },
+    {
+      "officialId": "rad-135-167",
+      "exactPrinting": "RAD-135/167",
+      "name": "Remember the Fallen",
+      "beforeRecordSha256": "f46638fa5b3417b04634aa33b10d34a3c870b77f88d2df23bbfaa83556056107",
+      "afterRecordSha256": "79c203100e3e3d187e06814657437afdb2aca80669aa4382359a08f33f3daa8a",
+      "changedFields": [
+        "flags"
+      ],
+      "beforeFlags": [
+        {
+          "id": "new",
+          "label": "New"
+        }
+      ],
+      "afterFlags": null,
+      "disposition": "GALLERY_NEW_BADGE_REMOVED_ONLY_ALL_OTHER_RETURNED_FIELDS_IDENTICAL",
+      "semanticReview": "NO_WHOLE_CARD_CERTIFICATION",
+      "runtimeImplementationImpact": "NO_DECLARED_CN_RULE_TEXT_OR_CATALOG_INPUT_CHANGE",
+      "imageUriUnchangedButImageBytesNotRefetched": true
+    },
+    {
+      "officialId": "rad-149-167",
+      "exactPrinting": "RAD-149/167",
+      "name": "The Exile",
+      "beforeRecordSha256": "64c5a869c1288612c94ce917c0ba889d8162882f7b383f429e39189dc01ffc13",
+      "afterRecordSha256": "aac18aa84c6783638722fb1ff069bbc7595251c880fce47114b6f01625e5a890",
+      "changedFields": [
+        "flags"
+      ],
+      "beforeFlags": [
+        {
+          "id": "new",
+          "label": "New"
+        }
+      ],
+      "afterFlags": null,
+      "disposition": "GALLERY_NEW_BADGE_REMOVED_ONLY_ALL_OTHER_RETURNED_FIELDS_IDENTICAL",
+      "semanticReview": "NO_WHOLE_CARD_CERTIFICATION",
+      "runtimeImplementationImpact": "NO_DECLARED_CN_RULE_TEXT_OR_CATALOG_INPUT_CHANGE",
+      "imageUriUnchangedButImageBytesNotRefetched": true
+    },
+    {
+      "officialId": "rad-173-167",
+      "exactPrinting": "RAD-173/167",
+      "name": "The Exile",
+      "beforeRecordSha256": "de62ca97f4cf121b10293bfa9bf528c9c25a0c7ba3a2d7a12d0eaa8f1ae835f0",
+      "afterRecordSha256": "b39c6f7a00412218f3ef7196d3fb850fe1255b686d1f94cadecd450b70bcf18d",
+      "changedFields": [
+        "flags"
+      ],
+      "beforeFlags": [
+        {
+          "id": "new",
+          "label": "New"
+        }
+      ],
+      "afterFlags": null,
+      "disposition": "GALLERY_NEW_BADGE_REMOVED_ONLY_ALL_OTHER_RETURNED_FIELDS_IDENTICAL",
+      "semanticReview": "NO_WHOLE_CARD_CERTIFICATION",
+      "runtimeImplementationImpact": "NO_DECLARED_CN_RULE_TEXT_OR_CATALOG_INPUT_CHANGE",
+      "imageUriUnchangedButImageBytesNotRefetched": true
+    },
+    {
+      "officialId": "rad-177-167",
+      "exactPrinting": "RAD-177/167",
+      "name": "Ekko",
+      "beforeRecordSha256": "74170309d283b430969342d76a5a91bab9157072c6f3dadf732c9c09aecaa438",
+      "afterRecordSha256": "ce5ffa8a5bcae4170ba4999812180f62630d3430fd2f3bf577704632438acd8e",
+      "changedFields": [
+        "flags"
+      ],
+      "beforeFlags": [
+        {
+          "id": "new",
+          "label": "New"
+        }
+      ],
+      "afterFlags": null,
+      "disposition": "GALLERY_NEW_BADGE_REMOVED_ONLY_ALL_OTHER_RETURNED_FIELDS_IDENTICAL",
+      "semanticReview": "NO_WHOLE_CARD_CERTIFICATION",
+      "runtimeImplementationImpact": "NO_DECLARED_CN_RULE_TEXT_OR_CATALOG_INPUT_CHANGE",
+      "imageUriUnchangedButImageBytesNotRefetched": true
+    }
+  ],
+  "unknownPublicationAndEffectiveDatesRetained": true,
+  "rawApiAndSsrCurrentViewsCompared": true,
+  "newSourceVersionRegisteredSeparately": true,
+  "currentRuntimeOrFrozenLedgerUpdated": false,
+  "oldSourceEvidenceRewritten": false,
+  "semanticCoverageCertified": false,
+  "remaining": [
+    "Eight reported-but-unreturned EN identities",
+    "Whole applicable card/rule/FAQ semantics",
+    "All image-byte freshness and release-date dispositions remain separate",
+    "Current fixed full and native/Windows gates"
+  ]
+}

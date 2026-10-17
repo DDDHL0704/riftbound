@@ -1,0 +1,12 @@
+{
+  "recordedAtUtc": "2026-10-17T05:48:40.433213+00:00",
+  "exactOwnedApiPidStopped": 41895,
+  "apiPortClosed": true,
+  "postgresStayedRunning": true,
+  "hubConnectionsWereClosedBeforeColdRestart": true,
+  "originalCheckpoint": "hub-open-receipt.json",
+  "beforeHash": "b88a97d186a104cf84f18b9a27c046f9044ebc7a72eddadf92f1f85fff23ed3b",
+  "beforeCommands": 10,
+  "beforeEvents": 28,
+  "allPublishedFilesUnchanged": true
+}

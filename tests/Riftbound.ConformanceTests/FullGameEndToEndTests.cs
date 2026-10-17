@@ -25159,7 +25159,7 @@ public sealed partial class FullGameEndToEndTests
                 sourceObjectId = moveUnit.SourceObjectId,
                 origin = moveUnit.Origin,
                 destination = moveUnit.Destination,
-                optionalCosts = moveUnit.OptionalCosts,
+                optionalCosts = moveUnit.OptionalCosts ?? [],
                 sourceObjectIds = moveUnit.SourceObjectIds ?? []
             }),
             DeclareBattleCommand declareBattle => JsonSerializer.SerializeToElement(new

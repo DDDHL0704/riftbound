@@ -1,0 +1,55 @@
+{
+  "recordedAtUtc": "2026-10-17T05:50:38.498874+00:00",
+  "baseCommit": "3d70b1e8d3c8396e7fe7b6d2548e2bae09ae7e84",
+  "oldConformanceSources": 441,
+  "allOldConformanceSourcesByteIdentical": true,
+  "allOriginalMethodsTheoryRows143Games110PairsSeedsWinReplayAssertionsRetained": true,
+  "nonDocumentationTrackedInputs": 3195,
+  "changedExistingNonDocumentationFiles": [
+    "src/Riftbound.Contracts/Protocol.cs",
+    "src/Riftbound.Engine/MatchSession.cs",
+    "tests/Riftbound.PostgresAcceptance/Program.cs"
+  ],
+  "newSourceFiles": [
+    "tests/Riftbound.ConformanceTests/OptionalCostsIngressTests.cs",
+    "tests/Riftbound.PostgresAcceptance/OptionalCostsSqlAcceptance.cs"
+  ],
+  "independentRecoveryGuard": {
+    "path": "src/Riftbound.Engine/MatchRecovery.cs",
+    "sha256": "48dda169917a0c6eb76e05e2e5a8f281f72219090bac2c9ce657826f6fd696b1"
+  },
+  "mapperRetainedWithExistingLossyNonStrictBehavior": {
+    "path": "src/Riftbound.Contracts/GameCommandJsonMapper.cs",
+    "sha256": "2e89e90e985b90dfeb6b68f7aad7b23a9f5843365e3b917e142b83435da68832"
+  },
+  "allOldSqlFamilyCallsInOriginalOrder": [
+    "OpeningRandomnessSqlAcceptance",
+    "CardPlayHistoryCausalSqlAcceptance",
+    "CreatedTokenReadySqlAcceptance",
+    "BattleHistorySqlAcceptance",
+    "MaskedAttendantSqlAcceptance",
+    "GrantedPredictSqlAcceptance",
+    "PrintedPredictSqlAcceptance",
+    "SivirOptionalSqlAcceptance",
+    "RuneRecycleDestinationSqlAcceptance",
+    "SivirPaymentSqlAcceptance",
+    "ConquestTokenSqlAcceptance",
+    "RecycledCardBoonSqlAcceptance",
+    "RecycleBoonLifecycleSqlAcceptance",
+    "AttachedRecycleLifecycleSqlAcceptance",
+    "CardPlayHistorySqlAcceptance",
+    "PatchedPorobotSqlAcceptance",
+    "CardPlayHistoryCausalSqlAcceptance",
+    "ClairvoyanceSqlAcceptance",
+    "InsightRepeatSqlAcceptance",
+    "CombatAssignmentSqlAcceptance",
+    "ConfirmedPlayOriginSqlAcceptance",
+    "PhysicalOriginCostSqlAcceptance",
+    "GrantedOriginHasteSqlAcceptance",
+    "OpponentBattlefieldControlSqlAcceptance",
+    "OptionalSacrificeSqlAcceptance",
+    "GrantedTokenHasteSqlAcceptance"
+  ],
+  "newSqlFamilyInDefaultFull": true,
+  "oldOpeningRandomnessSelectorRetained": true
+}

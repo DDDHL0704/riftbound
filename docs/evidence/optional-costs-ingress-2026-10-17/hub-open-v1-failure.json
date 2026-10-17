@@ -1,0 +1,7 @@
+{
+  "status": "FAILED_BEFORE_OPTIONAL_COSTS_PROBE",
+  "recordedAtUtc": "2026-10-17T05:46:06.284123+00:00",
+  "reason": "The selected built-in jhin-lowcurve deck contains a CN-standard forbidden battlefield; production rejected ordinary SUBMIT_DECK. No live optional-cost pass is claimed.",
+  "roomRetained": "hub-optional-costs-20261017",
+  "existingAcceptedHistoryNeverEdited": true
+}
