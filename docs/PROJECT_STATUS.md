@@ -1,5 +1,16 @@
 # 当前项目状态
 
+2026-10-17 当前固定代码候选`067483dced41e80b9c0ece6a215628e2c7d22adb`已推送，
+[完整CI38986678316](https://github.com/DDDHL0704/riftbound/actions/runs/38986678316)实际仍在规则full，双平台构建已成功。
+原110配对、五场相邻原完整对局及本批唯一check12099例/7269方法全部通过，全部原断言与种子保留。
+当前CI的373个托管/PCK文件在A/B中逐字节核对；双方已通过原生控件连接同一新房间（A以Tab/Return，B以指针），
+真实PostgreSQL确认双席位、tick0/零事件、规范私密非零种子及当前运行身份。A坐标包装器noWindowsAvailable而键盘有效的工具现象、
+零命令阶段过早调用严格回放reader的失败日志均保留；当前正常得分、网络/冷恢复、实际玩法原始回放和Windows实机继续OPEN。
+新双端可见连接确认后清退上一39的A/B及两个平台包，共4个旧生成目标；当前仅留067双端和macOS/Windows各一规范包。
+本次可用空间实测增加771633152字节，收尾43366404096字节（约43.37GB）；源码、全部测试/来源/日志/原始数据库保留。
+本地精确收据`var/qa/private-opening-paired-20261017/previous39-build-retirement.json`，新房间尚无玩法命令；Goal active / NOT READY。
+本段仅同步精确白名单状态文档，不修改代码或替代067的后台完整CI与后续产品验收。
+
 2026-10-17 固定开局候选`16319c4cbbc2de9e38244c4030e95a9ac887528f`的完整CI
 [38983712146](https://github.com/DDDHL0704/riftbound/actions/runs/38983712146)实际终态为FAILURE，
 原110配对矩阵在P2有合法符文回收选项时直接出牌、缺少符能支付，两个平台构建成功而SQL/网络步骤跳过。
