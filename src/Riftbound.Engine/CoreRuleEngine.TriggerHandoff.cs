@@ -2,8 +2,20 @@ using Riftbound.Contracts;
 
 namespace Riftbound.Engine;
 
+public sealed record DuelChainFocusState(string FocusPlayerId, IReadOnlyList<string> PassedFocusPlayerIds);
+
 public sealed partial class CoreRuleEngine
 {
+    private static ResolutionResult CaptureDuelChainFocus(MatchState before, ResolutionResult result)
+    {
+        if (!result.Accepted || result.State.DuelChainFocus is not null || before.StackItems.Count > 0
+            || before.TimingState != TimingStates.SpellDuelOpen || before.FocusPlayerId is not { } focus
+            || !result.Events.Any(e => e.Kind == "STACK_ITEM_ADDED")) return result;
+        // A card or non-resource skill opens this chain: focus passes only after
+        // the complete chain, including earned triggers and choices, has finished.
+        return result with { State = result.State with { DuelChainFocus = new(NextPlayerIdAfter(before, focus), []) } };
+    }
+
     // Resource skills remain available for payment. Other pending triggers must reach
     // the response/ordering window before the next ordinary action or battlefield task.
     internal static bool IsImmediateTrigger(TriggerQueueItemState trigger) =>
@@ -37,6 +49,12 @@ public sealed partial class CoreRuleEngine
         var pending = state.TriggerQueue.Where(IsImmediateTrigger).ToArray();
         if (pending.Length == 0) return result;
 
+        // CN 340.2.a / 346.1: a trigger-opened chain keeps the existing focus,
+        // including when resolution pauses for a choice or a response is added.
+        if (state.DuelChainFocus is null && state.StackItems.Count == 0
+            && state.SpellDuelState.IsActive && state.FocusPlayerId is { } focus)
+            state = state with { DuelChainFocus = new(focus, state.PassedFocusPlayerIds.ToArray()) };
+
         var events = result.Events.ToList();
         if (pending.Length == 1)
         {
@@ -58,9 +76,35 @@ public sealed partial class CoreRuleEngine
         else
         {
             state = state with { PriorityPlayerId = null, FocusPlayerId = null,
-                PassedPriorityPlayerIds = [], TimingState = TimingStates.NeutralClosed };
+                PassedPriorityPlayerIds = [],
+                TimingState = state.SpellDuelState.IsActive ? TimingStates.SpellDuelClosed : TimingStates.NeutralClosed };
         }
         return result with { State = state, Events = events,
             Snapshots = ResolutionResult.BuildSnapshots(state), Prompts = BuildCorePrompts(state) };
+    }
+
+    private static ResolutionResult ResumeDuelChainFocus(ResolutionResult result)
+    {
+        var state = result.State;
+        if (!result.Accepted || state.DuelChainFocus is not { } continuation) return result;
+        if (state.Status != MatchStatuses.InProgress || result.Events.Any(e => e.Kind is "SPELL_DUEL_CLOSED" or "BATTLE_CLOSED"))
+            state = state with { DuelChainFocus = null };
+        else
+        {
+            var resolving = state.StackItems.Count > 0 || state.TriggerQueue.Any(IsImmediateTrigger)
+                || state.PendingHandChoice is not null || state.PendingCardChoice is not null
+                || state.PendingPayment is not null || state.PendingEffectPlay is not null
+                || state.PendingRuleChoice is not null || HasObservedConfirmationBeforeTriggers(state);
+            state = state with {
+                TimingState = resolving ? TimingStates.SpellDuelClosed : TimingStates.SpellDuelOpen,
+                ActivePlayerId = resolving ? state.ActivePlayerId : continuation.FocusPlayerId,
+                FocusPlayerId = resolving ? null : continuation.FocusPlayerId,
+                PassedFocusPlayerIds = continuation.PassedFocusPlayerIds,
+                PriorityPlayerId = resolving ? state.PriorityPlayerId : null,
+                PassedPriorityPlayerIds = resolving ? state.PassedPriorityPlayerIds : [],
+                DuelChainFocus = resolving ? continuation : null
+            };
+        }
+        return result with { State = state, Snapshots = ResolutionResult.BuildSnapshots(state), Prompts = BuildCorePrompts(state) };
     }
 }

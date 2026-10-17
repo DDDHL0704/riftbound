@@ -1,0 +1,77 @@
+{
+  "verifiedAtUtc": "2026-10-17T01:41:52.658715+00:00",
+  "fixedCommit": "067483dced41e80b9c0ece6a215628e2c7d22adb",
+  "runId": 38986678316,
+  "url": "https://github.com/DDDHL0704/riftbound/actions/runs/38986678316",
+  "actualConclusion": "FAILURE",
+  "terminal": {
+    "path": "var/qa/private-opening-paired-20261017/ci-full-terminal-recheck.json",
+    "sha256": "6020cf7e97f390c6541f75dad26b77346001461ce1e3c75a37f1182e0eeac519"
+  },
+  "artifactReceipt": {
+    "path": "var/qa/opening-full067-failure-20261017/download-receipt.json",
+    "sha256": "f9942d7e5cfb096b3cd12aec645fcafcf76f205b53e69c98f01665873a2f689b"
+  },
+  "plan": {
+    "path": "var/qa/opening-full067-failure-20261017/extracted/ci-rules/plan.json",
+    "sha256": "4b7eb7242315243b1c23222e8c73d859e6ec48abf1806b64abd3f45ca282edb6",
+    "discoveredMethods": 7410,
+    "originalFullGameMethods": 143,
+    "assemblySha256": "d8b77623ddf7f2f161727b8b72a720bc4b6a6b68aab355d67ba058931f0cd7c6"
+  },
+  "actualTrx": [
+    {
+      "path": "var/qa/opening-full067-failure-20261017/extracted/ci-rules/games-2/results.trx",
+      "sha256": "230af51d3f648323a5eb35c4f15b72ec42a2ac98ba61ae19cfd3574d956a47c9",
+      "cases": 49,
+      "outcomes": {
+        "Failed": 3,
+        "Passed": 46
+      },
+      "failed": [
+        {
+          "name": "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameAppliesOrnnFriendlyEquipmentStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash",
+          "messages": [
+            "Assert.NotEmpty() Failure: Collection was empty"
+          ]
+        },
+        {
+          "name": "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDecksResolveStandbyReactionDuringShadowResponseScoreVictoryActionLogReplaysToFinalStateHash",
+          "messages": [
+            "结束回合只能由当前玩家在开放主阶段提交。"
+          ]
+        },
+        {
+          "name": "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameAppliesOtherFriendlyStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash",
+          "messages": [
+            "System.InvalidOperationException : B0 Treant defender driver cannot stage a defender: {\"Status\":\"IN_PROGRESS\",\"Phase\":\"MAIN\",\"TimingState\":\"NEUTRAL_CLOSED\",\"ActivePlayerId\":\"P1\",\"TurnPlayerId\":\"P1\",\"FocusPlayerId\":null,\"PriorityPlayerId\":\"P1\",\"Scores\":{\"P1\":2,\"P2\":2},\"RunePools\":{\"P1\":{\"Mana\":0,\"Power\":0,\"PowerByTrait\":{}},\"P2\":{\"Mana\":0,\"Power\":0,\"PowerByTrait\":{}}},\"PendingTaskPhase\":\"IDLE\",\"ActiveTaskId\":null,\"TaskKinds\":[]}"
+          ]
+        }
+      ]
+    },
+    {
+      "path": "var/qa/opening-full067-failure-20261017/extracted/ci-rules/rules/results.trx",
+      "sha256": "495e65854cb7e53e7e56d67f972451c4260143f3774c888eb26d018557265bcf",
+      "cases": 12097,
+      "outcomes": {
+        "Passed": 12097
+      },
+      "failed": []
+    }
+  ],
+  "unfinishedShards": [
+    "games-1",
+    "games-4",
+    "games-3"
+  ],
+  "sql": "SKIPPED_NOT_RUN",
+  "network": "SKIPPED_NOT_RUN",
+  "desktopBuilds": "BOTH_SUCCEEDED_ONLY",
+  "localOriginalThreeFailureReproduction": {
+    "path": "var/qa/opening-full067-failure-20261017/repro067/focus/results.trx",
+    "sha256": "a7e7e4eda08080065337baa926208e9885a9882b0366723362513806a0c9dbc2"
+  },
+  "nativeCandidateNotPromoted": true,
+  "fullSemanticScopeUnchanged": true,
+  "goal": "ACTIVE_NOT_READY"
+}

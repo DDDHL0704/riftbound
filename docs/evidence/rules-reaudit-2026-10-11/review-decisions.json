@@ -21253,6 +21253,69 @@
         "Current visible paired clients, network/cold recovery, normal score victory/full original replay and physical Windows are separate OPEN gates for the new candidate.",
         "All1740 source identities/1033 runtime entries, EN missing8, CN QA/news/media/document/version gaps and all earlier card/rule obligations remain retained."
       ]
+    },
+    {
+      "id": "duel-chain-origins-cold-recovery-2026-10-17",
+      "status": "SCOPED_46_FOCUS_23_ORIGINALS_110_PAIRS_PASS_CHECK2_FAILURES_RETAINED_FIXED_FULL_PRODUCT_PENDING",
+      "scope": "CN duel-chain origins through discard choices, ordered Undercover last-breath dispatch, standby tag serialization and opponent-controlled global winning score. Executed branches only.",
+      "subjects": [
+        "OGN-185/298",
+        "OGN-178/298",
+        "OGN-197/298",
+        "OGN-276/298",
+        "OGN-133/298",
+        "SFD-130/221",
+        "SFD-048/221",
+        "UNL-115/219",
+        "UNL-127/219"
+      ],
+      "ruleRecords": [
+        "CN-d6fd7140f106f9b5-P042-B011",
+        "CN-d6fd7140f106f9b5-P042-B013",
+        "CN-d6fd7140f106f9b5-P042-B015",
+        "CN-d6fd7140f106f9b5-P043-B003",
+        "CN-d6fd7140f106f9b5-P043-B005",
+        "CN-d6fd7140f106f9b5-P031-B005",
+        "CN-d6fd7140f106f9b5-P040-B020"
+      ],
+      "pendingRuleRecords": [],
+      "auditDocument": "docs/DUEL_CHAIN_COLD_RECOVERY_AUDIT_2026-10-17.md",
+      "evidence": "docs/evidence/triggered-duel-continuation-2026-10-17",
+      "semanticReview": {
+        "state": "SCOPED",
+        "wholeCardCertified": false,
+        "region": "CN",
+        "language": "zh-CN",
+        "sourceIndexAsOf": "2026-10-17",
+        "coreEffectiveDate": "2026-10-16"
+      },
+      "wholeCardCertification": false,
+      "testExecution": {
+        "focusCases": 42,
+        "focusMethods": 31,
+        "newCases": 11,
+        "newMethods": 5,
+        "originalGames": "23_METHODS_AND_FULL110_PAIRS_PASS",
+        "singleCheck": "12110_CASES_12108_PASS_2_FAIL_RETAINED_BOTH_CORRECTED_46_FOCUS_PASS_NO_SECOND_CHECK",
+        "fixedFull": "PENDING_NEW_FIXED_COMMIT",
+        "currentProduct": "OPEN_SQL_VISIBLE_NETWORK_WINDOWS",
+        "finalFocusCases": 46,
+        "finalFocusMethods": 34
+      },
+      "exclusions": [
+        "All1740 source identities/1033 runtime entries and all prior source, printing, clause, QA, news and EN-gap obligations remain; no whole-card or whole-family certification.",
+        "Other consumers, nested combinations, spells and skills beyond the exact executed method/branch receipts require their own semantic and behavioral review.",
+        "Current fixed-commit full must retain all143 original games, all110 pairs, original seeds, win/replay assertions, all84 real SQL paths, network and both desktop jobs.",
+        "Current visible paired clients, actual database execution, network interruption/cold restart, normal score completion/full original replay and Windows physical runtime remain separate OPEN gates.",
+        "Raw malformed optionalCosts issue52 remains unresolved. The old067 native initial-mulligan UI transition remains unverified; an unavailable UI window is not proof of an application hang. No accepted history is rewritten and no old development-match migration is added."
+      ],
+      "remaining": [
+        "All1740 source identities/1033 runtime entries and all prior source, printing, clause, QA, news and EN-gap obligations remain; no whole-card or whole-family certification.",
+        "Other consumers, nested combinations, spells and skills beyond the exact executed method/branch receipts require their own semantic and behavioral review.",
+        "Current fixed-commit full must retain all143 original games, all110 pairs, original seeds, win/replay assertions, all84 real SQL paths, network and both desktop jobs.",
+        "Current visible paired clients, actual database execution, network interruption/cold restart, normal score completion/full original replay and Windows physical runtime remain separate OPEN gates.",
+        "Raw malformed optionalCosts issue52 remains unresolved. The old067 native initial-mulligan UI transition remains unverified; an unavailable UI window is not proof of an application hang. No accepted history is rewritten and no old development-match migration is added."
+      ]
     }
   ]
 }

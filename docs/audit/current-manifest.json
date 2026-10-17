@@ -99,7 +99,7 @@
     },
     "reviews": {
       "path": "docs/evidence/rules-reaudit-2026-10-11/review-decisions.json",
-      "sha256": "5fd3c3b42a4fe71fa654c8b98d18d9bd56f4be94928ffb20c7b8edef97d16614"
+      "sha256": "ddceeb42faa0c76e5068afa578c4be671bd74095761c3cb7917b2a8ed39618f5"
     },
     "summary": {
       "path": "docs/evidence/source-listing-2026-10-15/index-summary.json",
@@ -160,7 +160,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "60f6daa432c808e24524746dbc6a79d98fe86fccb77a4674dab3031750c1d4cd"
+          "sha256": "48dda169917a0c6eb76e05e2e5a8f281f72219090bac2c9ce657826f6fd696b1"
         }
       ],
       "branches": [
@@ -288,7 +288,7 @@
         }
       ],
       "evidenceCommit": "e54f3084662e2c2e00c521d232b4a11baaea7d91",
-      "currentImplementationCommit": "a6ccf1952141c69ed4b3cde94695f983c1c28db8",
+      "currentImplementationCommit": "42c89230105573e39ffaf524a7dc21f24d520d4b",
       "currentImplementationIncludesUncommittedChanges": true,
       "revalidationReason": "Journal event serialization comparison and either-side natural allocation gate changed after exact9e; prior receipts retain their exact input scope.",
       "implementationPinUpdates": [
@@ -350,10 +350,10 @@
       ],
       "latestInputChange": {
         "date": "2026-10-17",
-        "scope": "Fresh private opening input, deterministic fair permutation and persisted recovery binding; old evidence keeps its original commit.",
+        "scope": "Duel chain focus continuation, ordered last-breath dispatch, standby tag normalization and independent global winning-score recovery checks.",
         "receipt": {
-          "path": "docs/evidence/opening-randomness-2026-10-17/prior-context-input-updates.json",
-          "sha256": "2813ee15ea1765358447f4c2bdf20051353bc18b70bac76fae5a20bb72625873"
+          "path": "docs/evidence/triggered-duel-continuation-2026-10-17/prior-context-input-updates.json",
+          "sha256": "e5faa62dd7f59f124dd389996a6854660775cd18a2a733c50cbc071f436b990d"
         }
       }
     },
@@ -377,7 +377,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "60f6daa432c808e24524746dbc6a79d98fe86fccb77a4674dab3031750c1d4cd"
+          "sha256": "48dda169917a0c6eb76e05e2e5a8f281f72219090bac2c9ce657826f6fd696b1"
         }
       ],
       "branches": [
@@ -666,7 +666,7 @@
         }
       ],
       "evidenceCommit": "e61745f5cc704f2aa0326d84f22416e04ecbf139",
-      "currentImplementationCommit": "a6ccf1952141c69ed4b3cde94695f983c1c28db8",
+      "currentImplementationCommit": "42c89230105573e39ffaf524a7dc21f24d520d4b",
       "currentImplementationIncludesUncommittedChanges": true,
       "revalidationReason": "Actual fixed0cbee full failed three original games. Accepted declaration provenance and single eligible surviving conquest-return selection changed; prior exact evidence is retained, new fixed full/product required.",
       "implementationPinUpdates": [
@@ -738,10 +738,10 @@
       ],
       "latestInputChange": {
         "date": "2026-10-17",
-        "scope": "Fresh private opening input, deterministic fair permutation and persisted recovery binding; old evidence keeps its original commit.",
+        "scope": "Duel chain focus continuation, ordered last-breath dispatch, standby tag normalization and independent global winning-score recovery checks.",
         "receipt": {
-          "path": "docs/evidence/opening-randomness-2026-10-17/prior-context-input-updates.json",
-          "sha256": "2813ee15ea1765358447f4c2bdf20051353bc18b70bac76fae5a20bb72625873"
+          "path": "docs/evidence/triggered-duel-continuation-2026-10-17/prior-context-input-updates.json",
+          "sha256": "e5faa62dd7f59f124dd389996a6854660775cd18a2a733c50cbc071f436b990d"
         }
       }
     },
@@ -769,11 +769,11 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "60f6daa432c808e24524746dbc6a79d98fe86fccb77a4674dab3031750c1d4cd"
+          "sha256": "48dda169917a0c6eb76e05e2e5a8f281f72219090bac2c9ce657826f6fd696b1"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "4f77b4c099b7d5ec083c4cec6f8d3d83b89a112151e41675e328d208c4a3a285"
+          "sha256": "e6a6a0b70818d02d702c4d3f0d3e37e574dcaba8beaa6bf540672712fd905c64"
         },
         {
           "path": "src/Riftbound.CardCatalog/ReviewedCardErrata.cs",
@@ -827,7 +827,7 @@
               "decline"
             ]
           },
-          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -867,7 +867,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -907,7 +907,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -947,7 +947,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -987,7 +987,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -1027,7 +1027,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -1067,7 +1067,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -1107,7 +1107,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -1147,7 +1147,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -1187,7 +1187,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -1227,7 +1227,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -1267,7 +1267,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -1307,7 +1307,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -1347,7 +1347,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         }
       ],
@@ -1383,7 +1383,7 @@
         }
       ],
       "evidenceCommit": "03f88a7ee1b109b2cb906fbdc457316f93c08fda",
-      "currentImplementationCommit": "a6ccf1952141c69ed4b3cde94695f983c1c28db8",
+      "currentImplementationCommit": "42c89230105573e39ffaf524a7dc21f24d520d4b",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -1453,10 +1453,10 @@
       "revalidationReason": "Explicit shared implementation/verification input changes; prior CI retained only at its fixed old source scope.",
       "latestInputChange": {
         "date": "2026-10-17",
-        "scope": "Fresh private opening input, deterministic fair permutation and persisted recovery binding; old evidence keeps its original commit.",
+        "scope": "Duel chain focus continuation, ordered last-breath dispatch, standby tag normalization and independent global winning-score recovery checks.",
         "receipt": {
-          "path": "docs/evidence/opening-randomness-2026-10-17/prior-context-input-updates.json",
-          "sha256": "2813ee15ea1765358447f4c2bdf20051353bc18b70bac76fae5a20bb72625873"
+          "path": "docs/evidence/triggered-duel-continuation-2026-10-17/prior-context-input-updates.json",
+          "sha256": "e5faa62dd7f59f124dd389996a6854660775cd18a2a733c50cbc071f436b990d"
         }
       },
       "currentProductAcceptance": "OPEN_AFTER_SHARED_NATIVE_PROMPT_INPUT_CHANGE_OLD_VISIBLE_EVIDENCE_RETAINS_EXACT_SCOPE"
@@ -1485,15 +1485,15 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "60f6daa432c808e24524746dbc6a79d98fe86fccb77a4674dab3031750c1d4cd"
+          "sha256": "48dda169917a0c6eb76e05e2e5a8f281f72219090bac2c9ce657826f6fd696b1"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "5e60b623ff023f47ffb06080701ef0d283927f3d7066ed4477393fb49f048925"
+          "sha256": "ed79875b5dc4dc61d56ed82d4d299e4b464a0c8a227b46b3834579f21abc18b5"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "4f77b4c099b7d5ec083c4cec6f8d3d83b89a112151e41675e328d208c4a3a285"
+          "sha256": "e6a6a0b70818d02d702c4d3f0d3e37e574dcaba8beaa6bf540672712fd905c64"
         },
         {
           "path": "src/Riftbound.Engine/OfficialPrintedTimingRules.cs",
@@ -1545,7 +1545,7 @@
               "recycle"
             ]
           },
-          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -1589,7 +1589,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -1633,7 +1633,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -1677,7 +1677,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -1721,7 +1721,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -1765,7 +1765,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -1809,7 +1809,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -1853,7 +1853,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -1897,7 +1897,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -1941,7 +1941,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -1985,7 +1985,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -2029,7 +2029,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -2073,7 +2073,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         }
       ],
@@ -2102,7 +2102,7 @@
       "ciState": "PENDING",
       "ciReceipts": [],
       "evidenceCommit": "03f88a7ee1b109b2cb906fbdc457316f93c08fda",
-      "currentImplementationCommit": "a6ccf1952141c69ed4b3cde94695f983c1c28db8",
+      "currentImplementationCommit": "42c89230105573e39ffaf524a7dc21f24d520d4b",
       "currentImplementationIncludesUncommittedChanges": true,
       "lastFixedCiFailure": {
         "path": "docs/evidence/granted-predict-2026-10-15/full-ci-c74853be-failed.json",
@@ -2284,10 +2284,10 @@
       "revalidationReason": "Actual battlefield-controller entry fix changes shared Core and SQL verification inputs; earlier fixed CI remains limited to its original source scope.",
       "latestInputChange": {
         "date": "2026-10-17",
-        "scope": "Fresh private opening input, deterministic fair permutation and persisted recovery binding; old evidence keeps its original commit.",
+        "scope": "Duel chain focus continuation, ordered last-breath dispatch, standby tag normalization and independent global winning-score recovery checks.",
         "receipt": {
-          "path": "docs/evidence/opening-randomness-2026-10-17/prior-context-input-updates.json",
-          "sha256": "2813ee15ea1765358447f4c2bdf20051353bc18b70bac76fae5a20bb72625873"
+          "path": "docs/evidence/triggered-duel-continuation-2026-10-17/prior-context-input-updates.json",
+          "sha256": "e5faa62dd7f59f124dd389996a6854660775cd18a2a733c50cbc071f436b990d"
         }
       },
       "currentProductAcceptance": "OPEN_AFTER_SHARED_NATIVE_PROMPT_INPUT_CHANGE_OLD_VISIBLE_EVIDENCE_RETAINS_EXACT_SCOPE"
@@ -2316,11 +2316,11 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "60f6daa432c808e24524746dbc6a79d98fe86fccb77a4674dab3031750c1d4cd"
+          "sha256": "48dda169917a0c6eb76e05e2e5a8f281f72219090bac2c9ce657826f6fd696b1"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "5e60b623ff023f47ffb06080701ef0d283927f3d7066ed4477393fb49f048925"
+          "sha256": "ed79875b5dc4dc61d56ed82d4d299e4b464a0c8a227b46b3834579f21abc18b5"
         },
         {
           "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
@@ -2391,7 +2391,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -2453,7 +2453,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -2515,7 +2515,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -2577,7 +2577,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -2639,7 +2639,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -2701,7 +2701,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -2763,7 +2763,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -2825,7 +2825,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -2892,7 +2892,7 @@
               "equipment-recycle"
             ]
           },
-          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         }
       ],
@@ -2928,7 +2928,7 @@
         }
       ],
       "evidenceCommit": "74353e405fd2242ece0bae05972f209950b2c9de",
-      "currentImplementationCommit": "a6ccf1952141c69ed4b3cde94695f983c1c28db8",
+      "currentImplementationCommit": "42c89230105573e39ffaf524a7dc21f24d520d4b",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -3112,10 +3112,10 @@
       "revalidationReason": "Actual battlefield-controller entry fix changes shared Core and SQL verification inputs; earlier fixed CI remains limited to its original source scope.",
       "latestInputChange": {
         "date": "2026-10-17",
-        "scope": "Fresh private opening input, deterministic fair permutation and persisted recovery binding; old evidence keeps its original commit.",
+        "scope": "Duel chain focus continuation, ordered last-breath dispatch, standby tag normalization and independent global winning-score recovery checks.",
         "receipt": {
-          "path": "docs/evidence/opening-randomness-2026-10-17/prior-context-input-updates.json",
-          "sha256": "2813ee15ea1765358447f4c2bdf20051353bc18b70bac76fae5a20bb72625873"
+          "path": "docs/evidence/triggered-duel-continuation-2026-10-17/prior-context-input-updates.json",
+          "sha256": "e5faa62dd7f59f124dd389996a6854660775cd18a2a733c50cbc071f436b990d"
         }
       }
     },
@@ -3131,7 +3131,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "5e60b623ff023f47ffb06080701ef0d283927f3d7066ed4477393fb49f048925"
+          "sha256": "ed79875b5dc4dc61d56ed82d4d299e4b464a0c8a227b46b3834579f21abc18b5"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.Insight.cs",
@@ -3159,11 +3159,11 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "4f77b4c099b7d5ec083c4cec6f8d3d83b89a112151e41675e328d208c4a3a285"
+          "sha256": "e6a6a0b70818d02d702c4d3f0d3e37e574dcaba8beaa6bf540672712fd905c64"
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "60f6daa432c808e24524746dbc6a79d98fe86fccb77a4674dab3031750c1d4cd"
+          "sha256": "48dda169917a0c6eb76e05e2e5a8f281f72219090bac2c9ce657826f6fd696b1"
         },
         {
           "path": "src/Riftbound.Engine/StackObjectRules.cs",
@@ -3204,7 +3204,7 @@
               "alternate-decline"
             ]
           },
-          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -3235,7 +3235,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -3266,7 +3266,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -3297,7 +3297,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -3333,7 +3333,7 @@
               "alternate-decline"
             ]
           },
-          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -3364,7 +3364,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -3395,7 +3395,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -3426,7 +3426,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -3457,7 +3457,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         }
       ],
@@ -3493,7 +3493,7 @@
         }
       ],
       "evidenceCommit": "7649d573f884ffd7517a502f7eebe01d0aa186c4",
-      "currentImplementationCommit": "a6ccf1952141c69ed4b3cde94695f983c1c28db8",
+      "currentImplementationCommit": "42c89230105573e39ffaf524a7dc21f24d520d4b",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -3661,10 +3661,10 @@
       "revalidationReason": "Actual battlefield-controller entry fix changes shared Core and SQL verification inputs; earlier fixed CI remains limited to its original source scope.",
       "latestInputChange": {
         "date": "2026-10-17",
-        "scope": "Fresh private opening input, deterministic fair permutation and persisted recovery binding; old evidence keeps its original commit.",
+        "scope": "Duel chain focus continuation, ordered last-breath dispatch, standby tag normalization and independent global winning-score recovery checks.",
         "receipt": {
-          "path": "docs/evidence/opening-randomness-2026-10-17/prior-context-input-updates.json",
-          "sha256": "2813ee15ea1765358447f4c2bdf20051353bc18b70bac76fae5a20bb72625873"
+          "path": "docs/evidence/triggered-duel-continuation-2026-10-17/prior-context-input-updates.json",
+          "sha256": "e5faa62dd7f59f124dd389996a6854660775cd18a2a733c50cbc071f436b990d"
         }
       },
       "currentProductAcceptance": "OPEN_AFTER_SHARED_NATIVE_PROMPT_INPUT_CHANGE_OLD_VISIBLE_EVIDENCE_RETAINS_EXACT_SCOPE"
@@ -3685,7 +3685,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "5e60b623ff023f47ffb06080701ef0d283927f3d7066ed4477393fb49f048925"
+          "sha256": "ed79875b5dc4dc61d56ed82d4d299e4b464a0c8a227b46b3834579f21abc18b5"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.Conquest.cs",
@@ -3730,7 +3730,7 @@
               "multiple"
             ]
           },
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -3763,7 +3763,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -3796,7 +3796,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         }
       ],
@@ -3832,7 +3832,7 @@
         }
       ],
       "evidenceCommit": "dd8884ba1e443138264b9b0e971ab8da3c5480ee",
-      "currentImplementationCommit": "8ca4080c9431b981db051a5adad18dace5d85dd5",
+      "currentImplementationCommit": "42c89230105573e39ffaf524a7dc21f24d520d4b",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -3954,10 +3954,10 @@
       "revalidationReason": "Actual battlefield-controller entry fix changes shared Core and SQL verification inputs; earlier fixed CI remains limited to its original source scope.",
       "latestInputChange": {
         "date": "2026-10-17",
-        "scope": "Created-token independent ready triggers and final truthful up-to-two target prompt; historical candidates remain separately pinned.",
+        "scope": "Duel chain focus continuation, ordered last-breath dispatch, standby tag normalization and independent global winning-score recovery checks.",
         "receipt": {
-          "path": "docs/evidence/sand-soldier-embedded-ready-2026-10-17/prior-context-input-updates.json",
-          "sha256": "d789954d637ab0d2c721ba5ecccd5e899ef93c66983ae332476704cef096d3a8"
+          "path": "docs/evidence/triggered-duel-continuation-2026-10-17/prior-context-input-updates.json",
+          "sha256": "e5faa62dd7f59f124dd389996a6854660775cd18a2a733c50cbc071f436b990d"
         }
       }
     },
@@ -3973,7 +3973,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.TriggerHandoff.cs",
-          "sha256": "38f39a18d97a7c17c514da1757e0f1fe57d7be0ab64047e83b52e69dd8318357"
+          "sha256": "91ff7c748a2fea15064f2ddc49de125acb291ec76827361d7a91d77063f76eb7"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.SivirRuneRecycle.cs",
@@ -3985,11 +3985,11 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "5e60b623ff023f47ffb06080701ef0d283927f3d7066ed4477393fb49f048925"
+          "sha256": "ed79875b5dc4dc61d56ed82d4d299e4b464a0c8a227b46b3834579f21abc18b5"
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "60f6daa432c808e24524746dbc6a79d98fe86fccb77a4674dab3031750c1d4cd"
+          "sha256": "48dda169917a0c6eb76e05e2e5a8f281f72219090bac2c9ce657826f6fd696b1"
         }
       ],
       "branches": [
@@ -4030,7 +4030,7 @@
               "deferred-decline"
             ]
           },
-          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -4065,7 +4065,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -4100,7 +4100,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -4135,7 +4135,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         }
       ],
@@ -4171,7 +4171,7 @@
         }
       ],
       "evidenceCommit": "00420e2a2b453918e611812d18fda9f62632e15f",
-      "currentImplementationCommit": "a6ccf1952141c69ed4b3cde94695f983c1c28db8",
+      "currentImplementationCommit": "42c89230105573e39ffaf524a7dc21f24d520d4b",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -4288,10 +4288,10 @@
       "revalidationReason": "Actual battlefield-controller entry fix changes shared Core and SQL verification inputs; earlier fixed CI remains limited to its original source scope.",
       "latestInputChange": {
         "date": "2026-10-17",
-        "scope": "Fresh private opening input, deterministic fair permutation and persisted recovery binding; old evidence keeps its original commit.",
+        "scope": "Duel chain focus continuation, ordered last-breath dispatch, standby tag normalization and independent global winning-score recovery checks.",
         "receipt": {
-          "path": "docs/evidence/opening-randomness-2026-10-17/prior-context-input-updates.json",
-          "sha256": "2813ee15ea1765358447f4c2bdf20051353bc18b70bac76fae5a20bb72625873"
+          "path": "docs/evidence/triggered-duel-continuation-2026-10-17/prior-context-input-updates.json",
+          "sha256": "e5faa62dd7f59f124dd389996a6854660775cd18a2a733c50cbc071f436b990d"
         }
       }
     },
@@ -4307,15 +4307,15 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "5e60b623ff023f47ffb06080701ef0d283927f3d7066ed4477393fb49f048925"
+          "sha256": "ed79875b5dc4dc61d56ed82d4d299e4b464a0c8a227b46b3834579f21abc18b5"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "4f77b4c099b7d5ec083c4cec6f8d3d83b89a112151e41675e328d208c4a3a285"
+          "sha256": "e6a6a0b70818d02d702c4d3f0d3e37e574dcaba8beaa6bf540672712fd905c64"
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "60f6daa432c808e24524746dbc6a79d98fe86fccb77a4674dab3031750c1d4cd"
+          "sha256": "48dda169917a0c6eb76e05e2e5a8f281f72219090bac2c9ce657826f6fd696b1"
         },
         {
           "path": "src/Riftbound.Engine/StackObjectRules.cs",
@@ -4362,7 +4362,7 @@
               "alternate-reaction"
             ]
           },
-          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -4399,7 +4399,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -4436,7 +4436,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -4473,7 +4473,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -4510,7 +4510,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         }
       ],
@@ -4546,7 +4546,7 @@
         }
       ],
       "evidenceCommit": "eb3c4281c94c8d41d315cd574bdfa597cd10c30b",
-      "currentImplementationCommit": "a6ccf1952141c69ed4b3cde94695f983c1c28db8",
+      "currentImplementationCommit": "42c89230105573e39ffaf524a7dc21f24d520d4b",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -4689,10 +4689,10 @@
       "revalidationReason": "Actual battlefield-controller entry fix changes shared Core and SQL verification inputs; earlier fixed CI remains limited to its original source scope.",
       "latestInputChange": {
         "date": "2026-10-17",
-        "scope": "Fresh private opening input, deterministic fair permutation and persisted recovery binding; old evidence keeps its original commit.",
+        "scope": "Duel chain focus continuation, ordered last-breath dispatch, standby tag normalization and independent global winning-score recovery checks.",
         "receipt": {
-          "path": "docs/evidence/opening-randomness-2026-10-17/prior-context-input-updates.json",
-          "sha256": "2813ee15ea1765358447f4c2bdf20051353bc18b70bac76fae5a20bb72625873"
+          "path": "docs/evidence/triggered-duel-continuation-2026-10-17/prior-context-input-updates.json",
+          "sha256": "e5faa62dd7f59f124dd389996a6854660775cd18a2a733c50cbc071f436b990d"
         }
       },
       "currentProductAcceptance": "OPEN_AFTER_SHARED_NATIVE_PROMPT_INPUT_CHANGE_OLD_VISIBLE_EVIDENCE_RETAINS_EXACT_SCOPE"
@@ -4737,11 +4737,11 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "5e60b623ff023f47ffb06080701ef0d283927f3d7066ed4477393fb49f048925"
+          "sha256": "ed79875b5dc4dc61d56ed82d4d299e4b464a0c8a227b46b3834579f21abc18b5"
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "60f6daa432c808e24524746dbc6a79d98fe86fccb77a4674dab3031750c1d4cd"
+          "sha256": "48dda169917a0c6eb76e05e2e5a8f281f72219090bac2c9ce657826f6fd696b1"
         }
       ],
       "branches": [
@@ -4806,7 +4806,7 @@
               "promo-hook"
             ]
           },
-          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -4863,7 +4863,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -4920,7 +4920,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -4977,7 +4977,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -5034,7 +5034,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -5091,7 +5091,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -5148,7 +5148,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -5205,7 +5205,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -5262,7 +5262,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -5319,7 +5319,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -5376,7 +5376,7 @@
             ],
             "requiredNativeBranches": []
           },
-          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         }
       ],
@@ -5417,7 +5417,7 @@
         }
       ],
       "evidenceCommit": "a0406e1d878598b3c0fd88f5bfa7f9831d6a2cc6",
-      "currentImplementationCommit": "a6ccf1952141c69ed4b3cde94695f983c1c28db8",
+      "currentImplementationCommit": "42c89230105573e39ffaf524a7dc21f24d520d4b",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -5564,10 +5564,10 @@
       "revalidationReason": "Actual battlefield-controller entry fix changes shared Core and SQL verification inputs; earlier fixed CI remains limited to its original source scope.",
       "latestInputChange": {
         "date": "2026-10-17",
-        "scope": "Fresh private opening input, deterministic fair permutation and persisted recovery binding; old evidence keeps its original commit.",
+        "scope": "Duel chain focus continuation, ordered last-breath dispatch, standby tag normalization and independent global winning-score recovery checks.",
         "receipt": {
-          "path": "docs/evidence/opening-randomness-2026-10-17/prior-context-input-updates.json",
-          "sha256": "2813ee15ea1765358447f4c2bdf20051353bc18b70bac76fae5a20bb72625873"
+          "path": "docs/evidence/triggered-duel-continuation-2026-10-17/prior-context-input-updates.json",
+          "sha256": "e5faa62dd7f59f124dd389996a6854660775cd18a2a733c50cbc071f436b990d"
         }
       }
     },
@@ -5869,7 +5869,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.TriggerHandoff.cs",
-          "sha256": "38f39a18d97a7c17c514da1757e0f1fe57d7be0ab64047e83b52e69dd8318357"
+          "sha256": "91ff7c748a2fea15064f2ddc49de125acb291ec76827361d7a91d77063f76eb7"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.Tokens.cs",
@@ -6035,7 +6035,7 @@
         }
       ],
       "evidenceCommit": "5faa9012c305e8fc76b5b79d8b798597beee08df",
-      "currentImplementationCommit": "8ca4080c9431b981db051a5adad18dace5d85dd5",
+      "currentImplementationCommit": "42c89230105573e39ffaf524a7dc21f24d520d4b",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -6062,10 +6062,10 @@
       "revalidationReason": "Declared targeted Insight executions and the production outgoing command serializer changed; earlier exact receipts remain scoped to their own inputs.",
       "latestInputChange": {
         "date": "2026-10-17",
-        "scope": "Created-token independent ready triggers and final truthful up-to-two target prompt; historical candidates remain separately pinned.",
+        "scope": "Duel chain focus continuation, ordered last-breath dispatch, standby tag normalization and independent global winning-score recovery checks.",
         "receipt": {
-          "path": "docs/evidence/sand-soldier-embedded-ready-2026-10-17/prior-context-input-updates.json",
-          "sha256": "d789954d637ab0d2c721ba5ecccd5e899ef93c66983ae332476704cef096d3a8"
+          "path": "docs/evidence/triggered-duel-continuation-2026-10-17/prior-context-input-updates.json",
+          "sha256": "e5faa62dd7f59f124dd389996a6854660775cd18a2a733c50cbc071f436b990d"
         }
       }
     },
@@ -6260,7 +6260,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "5e60b623ff023f47ffb06080701ef0d283927f3d7066ed4477393fb49f048925"
+          "sha256": "ed79875b5dc4dc61d56ed82d4d299e4b464a0c8a227b46b3834579f21abc18b5"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.SpellCompletion.cs",
@@ -6272,11 +6272,11 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "4f77b4c099b7d5ec083c4cec6f8d3d83b89a112151e41675e328d208c4a3a285"
+          "sha256": "e6a6a0b70818d02d702c4d3f0d3e37e574dcaba8beaa6bf540672712fd905c64"
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "60f6daa432c808e24524746dbc6a79d98fe86fccb77a4674dab3031750c1d4cd"
+          "sha256": "48dda169917a0c6eb76e05e2e5a8f281f72219090bac2c9ce657826f6fd696b1"
         }
       ],
       "evidence": [
@@ -6321,7 +6321,7 @@
         }
       ],
       "evidenceCommit": "342187cb732ea37a616d3fb125be6e9e5096ead1",
-      "currentImplementationCommit": "a6ccf1952141c69ed4b3cde94695f983c1c28db8",
+      "currentImplementationCommit": "42c89230105573e39ffaf524a7dc21f24d520d4b",
       "currentImplementationIncludesUncommittedChanges": true,
       "branches": [
         {
@@ -6353,7 +6353,7 @@
             "Snapshot-only causal forgery has bounded production-registry and real SQL evidence in typed-card-play-history-causal-production-recovery-2026-10-15; coordinated accepted-log replacement and all untested consumers remain OPEN",
             "Same fixed candidate visible paired SQL/network/normal score/full replay and Windows real runtime"
           ],
-          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -6385,7 +6385,7 @@
             "Snapshot-only causal forgery has bounded production-registry and real SQL evidence in typed-card-play-history-causal-production-recovery-2026-10-15; coordinated accepted-log replacement and all untested consumers remain OPEN",
             "Same fixed candidate visible paired SQL/network/normal score/full replay and Windows real runtime"
           ],
-          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -6417,7 +6417,7 @@
             "Snapshot-only causal forgery has bounded production-registry and real SQL evidence in typed-card-play-history-causal-production-recovery-2026-10-15; coordinated accepted-log replacement and all untested consumers remain OPEN",
             "Same fixed candidate visible paired SQL/network/normal score/full replay and Windows real runtime"
           ],
-          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         }
       ],
@@ -6567,10 +6567,10 @@
       "revalidationReason": "Actual battlefield-controller entry fix changes shared Core and SQL verification inputs; earlier fixed CI remains limited to its original source scope.",
       "latestInputChange": {
         "date": "2026-10-17",
-        "scope": "Fresh private opening input, deterministic fair permutation and persisted recovery binding; old evidence keeps its original commit.",
+        "scope": "Duel chain focus continuation, ordered last-breath dispatch, standby tag normalization and independent global winning-score recovery checks.",
         "receipt": {
-          "path": "docs/evidence/opening-randomness-2026-10-17/prior-context-input-updates.json",
-          "sha256": "2813ee15ea1765358447f4c2bdf20051353bc18b70bac76fae5a20bb72625873"
+          "path": "docs/evidence/triggered-duel-continuation-2026-10-17/prior-context-input-updates.json",
+          "sha256": "e5faa62dd7f59f124dd389996a6854660775cd18a2a733c50cbc071f436b990d"
         }
       },
       "currentProductAcceptance": "OPEN_AFTER_SHARED_NATIVE_PROMPT_INPUT_CHANGE_OLD_VISIBLE_EVIDENCE_RETAINS_EXACT_SCOPE"
@@ -6587,7 +6587,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "5e60b623ff023f47ffb06080701ef0d283927f3d7066ed4477393fb49f048925"
+          "sha256": "ed79875b5dc4dc61d56ed82d4d299e4b464a0c8a227b46b3834579f21abc18b5"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.PermanentConfirmation.cs",
@@ -6599,11 +6599,11 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "4f77b4c099b7d5ec083c4cec6f8d3d83b89a112151e41675e328d208c4a3a285"
+          "sha256": "e6a6a0b70818d02d702c4d3f0d3e37e574dcaba8beaa6bf540672712fd905c64"
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "60f6daa432c808e24524746dbc6a79d98fe86fccb77a4674dab3031750c1d4cd"
+          "sha256": "48dda169917a0c6eb76e05e2e5a8f281f72219090bac2c9ce657826f6fd696b1"
         },
         {
           "path": "src/Riftbound.CardCatalog/RuleTextParsers.cs",
@@ -6656,7 +6656,7 @@
         }
       ],
       "evidenceCommit": "339c6168f704684477354365988d7448cb0e7a10",
-      "currentImplementationCommit": "a6ccf1952141c69ed4b3cde94695f983c1c28db8",
+      "currentImplementationCommit": "42c89230105573e39ffaf524a7dc21f24d520d4b",
       "currentImplementationIncludesUncommittedChanges": true,
       "ciState": "PENDING",
       "ciReceipts": [
@@ -6699,7 +6699,7 @@
             "Current fixed full CI and same-candidate visible paired SQL/network/normal score/full replay remain OPEN",
             "Independent Windows real runtime and every other full-universe obligation remain OPEN"
           ],
-          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -6728,7 +6728,7 @@
             "Current fixed full CI and same-candidate visible paired SQL/network/normal score/full replay remain OPEN",
             "Independent Windows real runtime and every other full-universe obligation remain OPEN"
           ],
-          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -6757,7 +6757,7 @@
             "Current fixed full CI and same-candidate visible paired SQL/network/normal score/full replay remain OPEN",
             "Independent Windows real runtime and every other full-universe obligation remain OPEN"
           ],
-          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         }
       ],
@@ -6913,17 +6913,17 @@
       "revalidationReason": "Actual battlefield-controller entry fix changes shared Core and SQL verification inputs; earlier fixed CI remains limited to its original source scope.",
       "latestInputChange": {
         "date": "2026-10-17",
-        "scope": "Fresh private opening input, deterministic fair permutation and persisted recovery binding; old evidence keeps its original commit.",
+        "scope": "Duel chain focus continuation, ordered last-breath dispatch, standby tag normalization and independent global winning-score recovery checks.",
         "receipt": {
-          "path": "docs/evidence/opening-randomness-2026-10-17/prior-context-input-updates.json",
-          "sha256": "2813ee15ea1765358447f4c2bdf20051353bc18b70bac76fae5a20bb72625873"
+          "path": "docs/evidence/triggered-duel-continuation-2026-10-17/prior-context-input-updates.json",
+          "sha256": "e5faa62dd7f59f124dd389996a6854660775cd18a2a733c50cbc071f436b990d"
         }
       },
       "currentProductAcceptance": "OPEN_AFTER_SHARED_NATIVE_PROMPT_INPUT_CHANGE_OLD_VISIBLE_EVIDENCE_RETAINS_EXACT_SCOPE"
     },
     "typed-card-play-history-causal-production-recovery-2026-10-15": {
       "evidenceCommit": "6bc546259eed61d5988bf8e8df5081cd8502c614",
-      "currentImplementationCommit": "a6ccf1952141c69ed4b3cde94695f983c1c28db8",
+      "currentImplementationCommit": "42c89230105573e39ffaf524a7dc21f24d520d4b",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact6bc fullCI/45SQL/case-method-pair preservation verified. Current workingtree has newer counted Insight/catalog dependencies; this prior full is not current gameplay coverage.",
       "ciState": "PENDING",
@@ -6942,11 +6942,11 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "60f6daa432c808e24524746dbc6a79d98fe86fccb77a4674dab3031750c1d4cd"
+          "sha256": "48dda169917a0c6eb76e05e2e5a8f281f72219090bac2c9ce657826f6fd696b1"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "4f77b4c099b7d5ec083c4cec6f8d3d83b89a112151e41675e328d208c4a3a285"
+          "sha256": "e6a6a0b70818d02d702c4d3f0d3e37e574dcaba8beaa6bf540672712fd905c64"
         },
         {
           "path": "src/Riftbound.Persistence/PostgresMatchRecoveryStore.cs",
@@ -6997,7 +6997,7 @@
             "New test/fixture/SQL inputs require their own fixed-commit complete CI",
             "Independent Windows real runtime and all full-universe source/semantic gaps remain OPEN"
           ],
-          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -7016,7 +7016,7 @@
             "New test/fixture/SQL inputs require their own fixed-commit complete CI",
             "Independent Windows real runtime and all full-universe source/semantic gaps remain OPEN"
           ],
-          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -7035,7 +7035,7 @@
             "New test/fixture/SQL inputs require their own fixed-commit complete CI",
             "Independent Windows real runtime and all full-universe source/semantic gaps remain OPEN"
           ],
-          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         }
       ],
@@ -7087,10 +7087,10 @@
       "revalidationReason": "Explicit shared implementation/verification input changes; prior CI retained only at its fixed old source scope.",
       "latestInputChange": {
         "date": "2026-10-17",
-        "scope": "Fresh private opening input, deterministic fair permutation and persisted recovery binding; old evidence keeps its original commit.",
+        "scope": "Duel chain focus continuation, ordered last-breath dispatch, standby tag normalization and independent global winning-score recovery checks.",
         "receipt": {
-          "path": "docs/evidence/opening-randomness-2026-10-17/prior-context-input-updates.json",
-          "sha256": "2813ee15ea1765358447f4c2bdf20051353bc18b70bac76fae5a20bb72625873"
+          "path": "docs/evidence/triggered-duel-continuation-2026-10-17/prior-context-input-updates.json",
+          "sha256": "e5faa62dd7f59f124dd389996a6854660775cd18a2a733c50cbc071f436b990d"
         }
       },
       "currentProductAcceptance": "OPEN_AFTER_SHARED_NATIVE_PROMPT_INPUT_CHANGE_OLD_VISIBLE_EVIDENCE_RETAINS_EXACT_SCOPE"
@@ -7879,7 +7879,7 @@
     },
     "combat-event-journal-wire-and-single-defender-choice-2026-10-15": {
       "evidenceCommit": "9e426a31386aefa980bf2d48f02b237098cb2914",
-      "currentImplementationCommit": "a6ccf1952141c69ed4b3cde94695f983c1c28db8",
+      "currentImplementationCommit": "42c89230105573e39ffaf524a7dc21f24d520d4b",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact9e base plus explicitly hashed current journal/combat/native-fixture verification inputs; old full does not cover this repair.",
       "ciState": "PENDING",
@@ -7887,11 +7887,11 @@
       "implementation": [
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "60f6daa432c808e24524746dbc6a79d98fe86fccb77a4674dab3031750c1d4cd"
+          "sha256": "48dda169917a0c6eb76e05e2e5a8f281f72219090bac2c9ce657826f6fd696b1"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "5e60b623ff023f47ffb06080701ef0d283927f3d7066ed4477393fb49f048925"
+          "sha256": "ed79875b5dc4dc61d56ed82d4d299e4b464a0c8a227b46b3834579f21abc18b5"
         },
         {
           "path": "clients/godot/scripts/ClientCommandSerializer.cs",
@@ -7977,7 +7977,7 @@
             "Native custom deck editor and independent Windows real runtime",
             "Every official source gap and newly effective applicability change; full-universe semantic certification"
           ],
-          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -8003,7 +8003,7 @@
             "Native custom deck editor and independent Windows real runtime",
             "Every official source gap and newly effective applicability change; full-universe semantic certification"
           ],
-          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         },
         {
@@ -8029,7 +8029,7 @@
             "Native custom deck editor and independent Windows real runtime",
             "Every official source gap and newly effective applicability change; full-universe semantic certification"
           ],
-          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN"
         }
       ],
@@ -8127,16 +8127,16 @@
       "latestFixedEvidenceStatus": "EXACT_0CBEE_FULL_FAILED_THREE_ORIGINAL_GAMES_CURRENT_CONTINUATION_REPAIR_PENDING",
       "latestInputChange": {
         "date": "2026-10-17",
-        "scope": "Fresh private opening input, deterministic fair permutation and persisted recovery binding; old evidence keeps its original commit.",
+        "scope": "Duel chain focus continuation, ordered last-breath dispatch, standby tag normalization and independent global winning-score recovery checks.",
         "receipt": {
-          "path": "docs/evidence/opening-randomness-2026-10-17/prior-context-input-updates.json",
-          "sha256": "2813ee15ea1765358447f4c2bdf20051353bc18b70bac76fae5a20bb72625873"
+          "path": "docs/evidence/triggered-duel-continuation-2026-10-17/prior-context-input-updates.json",
+          "sha256": "e5faa62dd7f59f124dd389996a6854660775cd18a2a733c50cbc071f436b990d"
         }
       }
     },
     "combat-declaration-provenance-and-single-eligible-unit-conquest-2026-10-15": {
       "evidenceCommit": "0cbee9e22c81bec21ea416fdb45dc1c16f78e7d4",
-      "currentImplementationCommit": "8ca4080c9431b981db051a5adad18dace5d85dd5",
+      "currentImplementationCommit": "42c89230105573e39ffaf524a7dc21f24d520d4b",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact0cbee failed base plus two explicitly pinned source repairs and new verification/source-intake evidence; new fixed SHA required.",
       "ciState": "PENDING",
@@ -8148,7 +8148,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "5e60b623ff023f47ffb06080701ef0d283927f3d7066ed4477393fb49f048925"
+          "sha256": "ed79875b5dc4dc61d56ed82d4d299e4b464a0c8a227b46b3834579f21abc18b5"
         }
       ],
       "evidence": [
@@ -8219,7 +8219,7 @@
           "state": "RECORDED",
           "semanticReview": "SCOPED_ONLY",
           "tests": "FOCUS_NATIVE_SQL_PASS",
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN",
           "remaining": [
             "Multiple optional unit conquest returns, additional activations, mixed battlefield/unit payments and player ordering",
@@ -8238,7 +8238,7 @@
           "state": "RECORDED",
           "semanticReview": "SCOPED_ONLY",
           "tests": "FOCUS_NATIVE_SQL_PASS",
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN",
           "remaining": [
             "Multiple optional unit conquest returns, additional activations, mixed battlefield/unit payments and player ordering",
@@ -8258,7 +8258,7 @@
           "state": "RECORDED",
           "semanticReview": "SCOPED_ONLY",
           "tests": "FOCUS_NATIVE_SQL_PASS",
-          "fixedCommitCi": "PENDING_AFTER_SHARED_CREATED_TOKEN_READY_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN",
           "remaining": [
             "Multiple optional unit conquest returns, additional activations, mixed battlefield/unit payments and player ordering",
@@ -8351,16 +8351,16 @@
       "latestFixedEvidenceStatus": "EXACT_D1_FULL_SUCCESS_NATIVE_PAYMENT_FAILURE_NEW_PROMPT_CONTEXT_REPAIR_PENDING",
       "latestInputChange": {
         "date": "2026-10-17",
-        "scope": "Created-token independent ready triggers and final truthful up-to-two target prompt; historical candidates remain separately pinned.",
+        "scope": "Duel chain focus continuation, ordered last-breath dispatch, standby tag normalization and independent global winning-score recovery checks.",
         "receipt": {
-          "path": "docs/evidence/sand-soldier-embedded-ready-2026-10-17/prior-context-input-updates.json",
-          "sha256": "d789954d637ab0d2c721ba5ecccd5e899ef93c66983ae332476704cef096d3a8"
+          "path": "docs/evidence/triggered-duel-continuation-2026-10-17/prior-context-input-updates.json",
+          "sha256": "e5faa62dd7f59f124dd389996a6854660775cd18a2a733c50cbc071f436b990d"
         }
       }
     },
     "optional-mana-trigger-native-and-natural-declaration-order-2026-10-15": {
       "evidenceCommit": "d1c2b4d351ca32862ee52ab7bc45cd7d581fca2c",
-      "currentImplementationCommit": "a6ccf1952141c69ed4b3cde94695f983c1c28db8",
+      "currentImplementationCommit": "42c89230105573e39ffaf524a7dc21f24d520d4b",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact d1 actual full-success/native-failure base plus three pinned source repairs, new verification and source readback; new fixed SHA required.",
       "ciState": "PENDING",
@@ -8372,11 +8372,11 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "5e60b623ff023f47ffb06080701ef0d283927f3d7066ed4477393fb49f048925"
+          "sha256": "ed79875b5dc4dc61d56ed82d4d299e4b464a0c8a227b46b3834579f21abc18b5"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "4f77b4c099b7d5ec083c4cec6f8d3d83b89a112151e41675e328d208c4a3a285"
+          "sha256": "e6a6a0b70818d02d702c4d3f0d3e37e574dcaba8beaa6bf540672712fd905c64"
         }
       ],
       "evidence": [
@@ -8461,7 +8461,7 @@
           "state": "RECORDED",
           "semanticReview": "SCOPED_ONLY",
           "tests": "FOCUS_NATIVE_SQL_PASS",
-          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN",
           "remaining": [
             "Multiple optional conquest triggers, mixed payments, player ordering and other unreviewed consumers",
@@ -8480,7 +8480,7 @@
           "state": "RECORDED",
           "semanticReview": "SCOPED_ONLY",
           "tests": "FOCUS_NATIVE_SQL_PASS",
-          "fixedCommitCi": "PENDING_AFTER_OPENING_RANDOMNESS_INPUT_CHANGE",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN",
           "remaining": [
             "Multiple optional conquest triggers, mixed payments, player ordering and other unreviewed consumers",
@@ -8567,17 +8567,17 @@
       "revalidationReason": "Actual battlefield-controller entry fix changes shared Core and SQL verification inputs; earlier fixed CI remains limited to its original source scope.",
       "latestInputChange": {
         "date": "2026-10-17",
-        "scope": "Fresh private opening input, deterministic fair permutation and persisted recovery binding; old evidence keeps its original commit.",
+        "scope": "Duel chain focus continuation, ordered last-breath dispatch, standby tag normalization and independent global winning-score recovery checks.",
         "receipt": {
-          "path": "docs/evidence/opening-randomness-2026-10-17/prior-context-input-updates.json",
-          "sha256": "2813ee15ea1765358447f4c2bdf20051353bc18b70bac76fae5a20bb72625873"
+          "path": "docs/evidence/triggered-duel-continuation-2026-10-17/prior-context-input-updates.json",
+          "sha256": "e5faa62dd7f59f124dd389996a6854660775cd18a2a733c50cbc071f436b990d"
         }
       },
       "currentProductAcceptance": "OPEN_AFTER_SHARED_NATIVE_PROMPT_INPUT_CHANGE_OLD_VISIBLE_EVIDENCE_RETAINS_EXACT_SCOPE"
     },
     "cn16-confirmed-play-origin-and-required-causal-fact-2026-10-16": {
       "evidenceCommit": "56d1ee2eed9dcbf48ed54175867cd93ac58d92d8",
-      "currentImplementationCommit": "a6ccf1952141c69ed4b3cde94695f983c1c28db8",
+      "currentImplementationCommit": "42c89230105573e39ffaf524a7dc21f24d520d4b",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact56 baseline plus explicitly pinned CN16 source selection and bounded confirmed hand-origin repair; new fixed SHA required.",
       "ciState": "PENDING",
@@ -8589,11 +8589,11 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "5e60b623ff023f47ffb06080701ef0d283927f3d7066ed4477393fb49f048925"
+          "sha256": "ed79875b5dc4dc61d56ed82d4d299e4b464a0c8a227b46b3834579f21abc18b5"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "4f77b4c099b7d5ec083c4cec6f8d3d83b89a112151e41675e328d208c4a3a285"
+          "sha256": "e6a6a0b70818d02d702c4d3f0d3e37e574dcaba8beaa6bf540672712fd905c64"
         },
         {
           "path": "data/official/rule-input-scope.json",
@@ -8695,7 +8695,7 @@
           "semanticReview": "SCOPED_ONLY",
           "implementation": "LOCAL_COMPLETE_FOR_RECORDED_BRANCH",
           "tests": "CN16_FOCUS_AND_REAL_SQL_PASS",
-          "fixedCommitCi": "PENDING_AFTER_CURRENT_OPENING_FIXTURE_AND_HUB_INPUT_CORRECTION",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN",
           "remaining": [
             "All unreviewed exact printing/target/permission/cost/repeat branches and the text-located consumer inventory; no whole-card certification",
@@ -8716,7 +8716,7 @@
           "semanticReview": "SCOPED_ONLY",
           "implementation": "LOCAL_COMPLETE_FOR_RECORDED_BRANCH",
           "tests": "ACTUAL_PERMISSION_PLAY_FOCUS_REPLAY_PASS",
-          "fixedCommitCi": "PENDING_AFTER_CURRENT_OPENING_FIXTURE_AND_HUB_INPUT_CORRECTION",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN",
           "remaining": [
             "All unreviewed exact printing/target/permission/cost/repeat branches and the text-located consumer inventory; no whole-card certification",
@@ -8737,7 +8737,7 @@
           "semanticReview": "SCOPED_ONLY",
           "implementation": "NO_DEFAULT_MIGRATION_OR_CAUSAL_GUARD_RELAXATION",
           "tests": "EMPTY_OPENING_FORGED_VIEW_AND_REAL_SQL_FLIP_MISSING_REJECTION_PASS",
-          "fixedCommitCi": "PENDING_AFTER_CURRENT_OPENING_FIXTURE_AND_HUB_INPUT_CORRECTION",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN",
           "remaining": [
             "All unreviewed exact printing/target/permission/cost/repeat branches and the text-located consumer inventory; no whole-card certification",
@@ -8856,17 +8856,17 @@
       "revalidationReason": "Actual battlefield-controller entry fix changes shared Core and SQL verification inputs; earlier fixed CI remains limited to its original source scope.",
       "latestInputChange": {
         "date": "2026-10-17",
-        "scope": "Explicit current opening corpus and production-seed test input correction; old accepted history and CI stay historical.",
+        "scope": "Duel chain focus continuation, ordered last-breath dispatch, standby tag normalization and independent global winning-score recovery checks.",
         "receipt": {
-          "path": "docs/evidence/opening-randomness-2026-10-17/post-check-context-input-updates.json",
-          "sha256": "088511d681928cc6e299b5f6826475188fdce1c4b0e601c5fe51ca5c819f9bda"
+          "path": "docs/evidence/triggered-duel-continuation-2026-10-17/prior-context-input-updates.json",
+          "sha256": "e5faa62dd7f59f124dd389996a6854660775cd18a2a733c50cbc071f436b990d"
         }
       },
       "currentProductAcceptance": "OPEN_AFTER_SHARED_NATIVE_PROMPT_INPUT_CHANGE_OLD_VISIBLE_EVIDENCE_RETAINS_EXACT_SCOPE"
     },
     "physical-origin-self-cost-reduction-2026-10-16": {
       "evidenceCommit": "903cbca2becfd9b142a6b6a86d77b8fbf3d080ef",
-      "currentImplementationCommit": "a6ccf1952141c69ed4b3cde94695f983c1c28db8",
+      "currentImplementationCommit": "42c89230105573e39ffaf524a7dc21f24d520d4b",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact903 baseline plus pinned3engine changes and new8cases/SQL fixtures; fixed newSHA required.",
       "ciState": "PENDING",
@@ -8878,7 +8878,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "5e60b623ff023f47ffb06080701ef0d283927f3d7066ed4477393fb49f048925"
+          "sha256": "ed79875b5dc4dc61d56ed82d4d299e4b464a0c8a227b46b3834579f21abc18b5"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.PlayManaCost.cs",
@@ -8969,7 +8969,7 @@
           "semanticReview": "SCOPED_ONLY",
           "implementation": "LOCAL_COMPLETE_FOR_RECORDED_BRANCH",
           "tests": "ALL8_FINAL_CASES_AND_ADJACENT162_PASS",
-          "fixedCommitCi": "PENDING_AFTER_CURRENT_OPENING_FIXTURE_AND_HUB_INPUT_CORRECTION",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN",
           "remaining": [
             "Other origin/controller/payment-waiver/combined-cost branches and the remaining text-located consumers remain separately unreviewed; no whole-card/family certification.",
@@ -8993,7 +8993,7 @@
           "semanticReview": "SCOPED_ONLY",
           "implementation": "LOCAL_COMPLETE_FOR_RECORDED_BRANCH",
           "tests": "2_NORMAL_FRAMES_AND_ALL71_SQL_PASS",
-          "fixedCommitCi": "PENDING_AFTER_CURRENT_OPENING_FIXTURE_AND_HUB_INPUT_CORRECTION",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN",
           "remaining": [
             "Other origin/controller/payment-waiver/combined-cost branches and the remaining text-located consumers remain separately unreviewed; no whole-card/family certification.",
@@ -9089,16 +9089,16 @@
       ],
       "latestInputChange": {
         "date": "2026-10-17",
-        "scope": "Explicit current opening corpus and production-seed test input correction; old accepted history and CI stay historical.",
+        "scope": "Duel chain focus continuation, ordered last-breath dispatch, standby tag normalization and independent global winning-score recovery checks.",
         "receipt": {
-          "path": "docs/evidence/opening-randomness-2026-10-17/post-check-context-input-updates.json",
-          "sha256": "088511d681928cc6e299b5f6826475188fdce1c4b0e601c5fe51ca5c819f9bda"
+          "path": "docs/evidence/triggered-duel-continuation-2026-10-17/prior-context-input-updates.json",
+          "sha256": "e5faa62dd7f59f124dd389996a6854660775cd18a2a733c50cbc071f436b990d"
         }
       }
     },
     "granted-origin-haste-and-paid-entry-replacement-2026-10-16": {
       "evidenceCommit": "4ad7fe204adee28c4138f18bdde4c4cbcdea21f0",
-      "currentImplementationCommit": "a6ccf1952141c69ed4b3cde94695f983c1c28db8",
+      "currentImplementationCommit": "42c89230105573e39ffaf524a7dc21f24d520d4b",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact4ad7 baseline plus pinned5engine inputs,24cases, native readback and73SQL. NewfixedSHA full required. Printed-Haste dispatch restored after the singlecheck;213 current focus passed. Prior SQL/native exact inputs remain pre-repair, not relabeled.",
       "ciState": "PENDING",
@@ -9114,11 +9114,11 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "5e60b623ff023f47ffb06080701ef0d283927f3d7066ed4477393fb49f048925"
+          "sha256": "ed79875b5dc4dc61d56ed82d4d299e4b464a0c8a227b46b3834579f21abc18b5"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "4f77b4c099b7d5ec083c4cec6f8d3d83b89a112151e41675e328d208c4a3a285"
+          "sha256": "e6a6a0b70818d02d702c4d3f0d3e37e574dcaba8beaa6bf540672712fd905c64"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.PlayKeywords.cs",
@@ -9233,7 +9233,7 @@
           "semanticReview": "SCOPED_ONLY",
           "implementation": "LOCAL_COMPLETE_FOR_RECORDED_BRANCH",
           "tests": "24_CASES_394_ADJACENT112_NATIVE_COMMANDS73_REAL_SQL_PASS",
-          "fixedCommitCi": "PENDING_AFTER_CURRENT_OPENING_FIXTURE_AND_HUB_INPUT_CORRECTION",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN",
           "remaining": [
             "Actual Atakhan optional sacrifice, generated Sand Soldier play, copied/attached/nonunit sources, controller-transfer and continuing in-play keyword characteristic consumers remain OPEN.",
@@ -9267,7 +9267,7 @@
           "semanticReview": "SCOPED_ONLY",
           "implementation": "LOCAL_COMPLETE_FOR_RECORDED_BRANCH",
           "tests": "24_CASES_394_ADJACENT112_NATIVE_COMMANDS73_REAL_SQL_PASS",
-          "fixedCommitCi": "PENDING_AFTER_CURRENT_OPENING_FIXTURE_AND_HUB_INPUT_CORRECTION",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN",
           "remaining": [
             "Actual Atakhan optional sacrifice, generated Sand Soldier play, copied/attached/nonunit sources, controller-transfer and continuing in-play keyword characteristic consumers remain OPEN.",
@@ -9301,7 +9301,7 @@
           "semanticReview": "SCOPED_ONLY",
           "implementation": "LOCAL_COMPLETE_FOR_RECORDED_BRANCH",
           "tests": "24_CASES_394_ADJACENT112_NATIVE_COMMANDS73_REAL_SQL_PASS",
-          "fixedCommitCi": "PENDING_AFTER_CURRENT_OPENING_FIXTURE_AND_HUB_INPUT_CORRECTION",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN",
           "remaining": [
             "Actual Atakhan optional sacrifice, generated Sand Soldier play, copied/attached/nonunit sources, controller-transfer and continuing in-play keyword characteristic consumers remain OPEN.",
@@ -9365,17 +9365,17 @@
       ],
       "latestInputChange": {
         "date": "2026-10-17",
-        "scope": "Explicit current opening corpus and production-seed test input correction; old accepted history and CI stay historical.",
+        "scope": "Duel chain focus continuation, ordered last-breath dispatch, standby tag normalization and independent global winning-score recovery checks.",
         "receipt": {
-          "path": "docs/evidence/opening-randomness-2026-10-17/post-check-context-input-updates.json",
-          "sha256": "088511d681928cc6e299b5f6826475188fdce1c4b0e601c5fe51ca5c819f9bda"
+          "path": "docs/evidence/triggered-duel-continuation-2026-10-17/prior-context-input-updates.json",
+          "sha256": "e5faa62dd7f59f124dd389996a6854660775cd18a2a733c50cbc071f436b990d"
         }
       },
       "currentProductAcceptance": "OPEN_AFTER_SHARED_NATIVE_PROMPT_INPUT_CHANGE_OLD_VISIBLE_EVIDENCE_RETAINS_EXACT_SCOPE"
     },
     "opponent-battlefield-current-control-entry-2026-10-16": {
       "evidenceCommit": "3ced0126ac20a07c2909e7b44f3733a9e3aa044a",
-      "currentImplementationCommit": "a6ccf1952141c69ed4b3cde94695f983c1c28db8",
+      "currentImplementationCommit": "42c89230105573e39ffaf524a7dc21f24d520d4b",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact3ced baseline plus pinned Core fix and29new cases/3methods; old72 product and prior fixedfull evidence are separately bounded. New fixed SHA full required.",
       "ciState": "PENDING",
@@ -9383,7 +9383,7 @@
       "implementation": [
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "5e60b623ff023f47ffb06080701ef0d283927f3d7066ed4477393fb49f048925"
+          "sha256": "ed79875b5dc4dc61d56ed82d4d299e4b464a0c8a227b46b3834579f21abc18b5"
         }
       ],
       "verificationSources": [
@@ -9475,7 +9475,7 @@
           "semanticReview": "SCOPED_ENTRY_CONDITION_ONLY",
           "implementation": "LOCAL_COMPLETE",
           "tests": "29_NEW_1093_ADJACENT_1_ORIGINAL_GAME_75_REAL_SQL_4_EVENT_REJECTIONS_11964_SINGLE_CHECK_PASS",
-          "fixedCommitCi": "PENDING_AFTER_CURRENT_OPENING_FIXTURE_AND_HUB_INPUT_CORRECTION",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN_NEW_CANDIDATE",
           "remaining": [
             "New exact fixed-commit full CI and necessary visible candidate/Windows physical acceptance remain OPEN.",
@@ -9500,7 +9500,7 @@
           "semanticReview": "SCOPED_ENTRY_CONDITION_ONLY",
           "implementation": "LOCAL_COMPLETE",
           "tests": "29_NEW_1093_ADJACENT_1_ORIGINAL_GAME_75_REAL_SQL_4_EVENT_REJECTIONS_11964_SINGLE_CHECK_PASS",
-          "fixedCommitCi": "PENDING_AFTER_CURRENT_OPENING_FIXTURE_AND_HUB_INPUT_CORRECTION",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN_NEW_CANDIDATE",
           "remaining": [
             "New exact fixed-commit full CI and necessary visible candidate/Windows physical acceptance remain OPEN.",
@@ -9525,7 +9525,7 @@
           "semanticReview": "SCOPED_ENTRY_CONDITION_ONLY",
           "implementation": "LOCAL_COMPLETE",
           "tests": "29_NEW_1093_ADJACENT_1_ORIGINAL_GAME_75_REAL_SQL_4_EVENT_REJECTIONS_11964_SINGLE_CHECK_PASS",
-          "fixedCommitCi": "PENDING_AFTER_CURRENT_OPENING_FIXTURE_AND_HUB_INPUT_CORRECTION",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN_NEW_CANDIDATE",
           "remaining": [
             "New exact fixed-commit full CI and necessary visible candidate/Windows physical acceptance remain OPEN.",
@@ -9537,10 +9537,10 @@
       ],
       "latestInputChange": {
         "date": "2026-10-17",
-        "scope": "Explicit current opening corpus and production-seed test input correction; old accepted history and CI stay historical.",
+        "scope": "Duel chain focus continuation, ordered last-breath dispatch, standby tag normalization and independent global winning-score recovery checks.",
         "receipt": {
-          "path": "docs/evidence/opening-randomness-2026-10-17/post-check-context-input-updates.json",
-          "sha256": "088511d681928cc6e299b5f6826475188fdce1c4b0e601c5fe51ca5c819f9bda"
+          "path": "docs/evidence/triggered-duel-continuation-2026-10-17/prior-context-input-updates.json",
+          "sha256": "e5faa62dd7f59f124dd389996a6854660775cd18a2a733c50cbc071f436b990d"
         }
       },
       "historicalFixedCiReceipts": [
@@ -9554,7 +9554,7 @@
     },
     "optional-sacrifice-printed-cost-and-paid-entry-2026-10-16": {
       "evidenceCommit": "8d7571c5a5572b1ed542a5ff1d8eaeb533bac1bc",
-      "currentImplementationCommit": "a6ccf1952141c69ed4b3cde94695f983c1c28db8",
+      "currentImplementationCommit": "42c89230105573e39ffaf524a7dc21f24d520d4b",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Fixed8d baseline plus exact15 executable/fixture patch files. Earlier full8d,113 old review dictionaries, source dates and original143/110/424242 remain retained. New candidate full required.",
       "ciState": "PENDING",
@@ -9566,7 +9566,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "5e60b623ff023f47ffb06080701ef0d283927f3d7066ed4477393fb49f048925"
+          "sha256": "ed79875b5dc4dc61d56ed82d4d299e4b464a0c8a227b46b3834579f21abc18b5"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.PlayManaCost.cs",
@@ -9586,7 +9586,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "4f77b4c099b7d5ec083c4cec6f8d3d83b89a112151e41675e328d208c4a3a285"
+          "sha256": "e6a6a0b70818d02d702c4d3f0d3e37e574dcaba8beaa6bf540672712fd905c64"
         },
         {
           "path": "src/Riftbound.Api/Riftbound.Api.csproj",
@@ -9693,7 +9693,7 @@
           "semanticReview": "SCOPED_COST_ONLY",
           "implementation": "LOCAL_COMPLETE",
           "tests": "23_NEW_2056_ADJACENT_3_ORIGINAL_GAMES_2_NATIVE_77_REAL_SQL_8_EVENT_REJECTIONS_11987_SINGLE_CHECK_PASS",
-          "fixedCommitCi": "PENDING_AFTER_CURRENT_OPENING_FIXTURE_AND_HUB_INPUT_CORRECTION",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN_NEW_CANDIDATE",
           "remaining": [
             "New fixed candidate full CI and visible paired/network/score/replay and Windows physical acceptance remain OPEN.",
@@ -9724,7 +9724,7 @@
           "semanticReview": "SCOPED_COST_ONLY",
           "implementation": "LOCAL_COMPLETE",
           "tests": "23_NEW_2056_ADJACENT_3_ORIGINAL_GAMES_2_NATIVE_77_REAL_SQL_8_EVENT_REJECTIONS_11987_SINGLE_CHECK_PASS",
-          "fixedCommitCi": "PENDING_AFTER_CURRENT_OPENING_FIXTURE_AND_HUB_INPUT_CORRECTION",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN_NEW_CANDIDATE",
           "remaining": [
             "New fixed candidate full CI and visible paired/network/score/replay and Windows physical acceptance remain OPEN.",
@@ -9755,7 +9755,7 @@
           "semanticReview": "SCOPED_COST_ONLY",
           "implementation": "LOCAL_COMPLETE",
           "tests": "23_NEW_2056_ADJACENT_3_ORIGINAL_GAMES_2_NATIVE_77_REAL_SQL_8_EVENT_REJECTIONS_11987_SINGLE_CHECK_PASS",
-          "fixedCommitCi": "PENDING_AFTER_CURRENT_OPENING_FIXTURE_AND_HUB_INPUT_CORRECTION",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN_NEW_CANDIDATE",
           "remaining": [
             "New fixed candidate full CI and visible paired/network/score/replay and Windows physical acceptance remain OPEN.",
@@ -9793,10 +9793,10 @@
       ],
       "latestInputChange": {
         "date": "2026-10-17",
-        "scope": "Explicit current opening corpus and production-seed test input correction; old accepted history and CI stay historical.",
+        "scope": "Duel chain focus continuation, ordered last-breath dispatch, standby tag normalization and independent global winning-score recovery checks.",
         "receipt": {
-          "path": "docs/evidence/opening-randomness-2026-10-17/post-check-context-input-updates.json",
-          "sha256": "088511d681928cc6e299b5f6826475188fdce1c4b0e601c5fe51ca5c819f9bda"
+          "path": "docs/evidence/triggered-duel-continuation-2026-10-17/prior-context-input-updates.json",
+          "sha256": "e5faa62dd7f59f124dd389996a6854660775cd18a2a733c50cbc071f436b990d"
         }
       },
       "historicalFixedCiReceipts": [
@@ -9811,7 +9811,7 @@
     },
     "granted-colorless-token-haste-payment-2026-10-16": {
       "evidenceCommit": "daf394e20997ebdb028e91ba9fdfe6c24eb492eb",
-      "currentImplementationCommit": "a6ccf1952141c69ed4b3cde94695f983c1c28db8",
+      "currentImplementationCommit": "42c89230105573e39ffaf524a7dc21f24d520d4b",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Fixeddaf baseline plus exact13 current executable/test/fixture patch files; historical daf full12136/7372 and77SQL do not cover the patch.",
       "ciState": "PENDING",
@@ -9819,7 +9819,7 @@
       "implementation": [
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "5e60b623ff023f47ffb06080701ef0d283927f3d7066ed4477393fb49f048925"
+          "sha256": "ed79875b5dc4dc61d56ed82d4d299e4b464a0c8a227b46b3834579f21abc18b5"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.PlayKeywords.cs",
@@ -9839,7 +9839,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "4f77b4c099b7d5ec083c4cec6f8d3d83b89a112151e41675e328d208c4a3a285"
+          "sha256": "e6a6a0b70818d02d702c4d3f0d3e37e574dcaba8beaa6bf540672712fd905c64"
         }
       ],
       "verificationSources": [
@@ -9950,7 +9950,7 @@
           "semanticReview": "SCOPED_PRE_ENTRY_UNMODIFIED_HASTE_COST_ONLY",
           "implementation": "LOCAL_EXECUTED_SCOPE_COMPLETE",
           "tests": "33_NEW_1959_ADJACENT_3_ORIGINAL_GAMES_2_NATIVE_79_SQL_8_EVENT_REJECTIONS_12020_SINGLE_CHECK_PASS",
-          "fixedCommitCi": "PENDING_AFTER_CURRENT_OPENING_FIXTURE_AND_HUB_INPUT_CORRECTION",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN_NEW_CANDIDATE",
           "remaining": [
             "New fixed-commit full CI, visible paired clients, actual reconnect/normal score/full replay and Windows physical acceptance remain separate OPEN gates.",
@@ -9990,7 +9990,7 @@
           "semanticReview": "SCOPED_PRE_ENTRY_UNMODIFIED_HASTE_COST_ONLY",
           "implementation": "LOCAL_EXECUTED_SCOPE_COMPLETE",
           "tests": "33_NEW_1959_ADJACENT_3_ORIGINAL_GAMES_2_NATIVE_79_SQL_8_EVENT_REJECTIONS_12020_SINGLE_CHECK_PASS",
-          "fixedCommitCi": "PENDING_AFTER_CURRENT_OPENING_FIXTURE_AND_HUB_INPUT_CORRECTION",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN_NEW_CANDIDATE",
           "remaining": [
             "New fixed-commit full CI, visible paired clients, actual reconnect/normal score/full replay and Windows physical acceptance remain separate OPEN gates.",
@@ -10030,7 +10030,7 @@
           "semanticReview": "SCOPED_PRE_ENTRY_UNMODIFIED_HASTE_COST_ONLY",
           "implementation": "LOCAL_EXECUTED_SCOPE_COMPLETE",
           "tests": "33_NEW_1959_ADJACENT_3_ORIGINAL_GAMES_2_NATIVE_79_SQL_8_EVENT_REJECTIONS_12020_SINGLE_CHECK_PASS",
-          "fixedCommitCi": "PENDING_AFTER_CURRENT_OPENING_FIXTURE_AND_HUB_INPUT_CORRECTION",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN_NEW_CANDIDATE",
           "remaining": [
             "New fixed-commit full CI, visible paired clients, actual reconnect/normal score/full replay and Windows physical acceptance remain separate OPEN gates.",
@@ -10094,16 +10094,16 @@
       "currentProductAcceptance": "OPEN_AFTER_SHARED_NATIVE_PROMPT_INPUT_CHANGE_OLD_VISIBLE_EVIDENCE_RETAINS_EXACT_SCOPE",
       "latestInputChange": {
         "date": "2026-10-17",
-        "scope": "Explicit current opening corpus and production-seed test input correction; old accepted history and CI stay historical.",
+        "scope": "Duel chain focus continuation, ordered last-breath dispatch, standby tag normalization and independent global winning-score recovery checks.",
         "receipt": {
-          "path": "docs/evidence/opening-randomness-2026-10-17/post-check-context-input-updates.json",
-          "sha256": "088511d681928cc6e299b5f6826475188fdce1c4b0e601c5fe51ca5c819f9bda"
+          "path": "docs/evidence/triggered-duel-continuation-2026-10-17/prior-context-input-updates.json",
+          "sha256": "e5faa62dd7f59f124dd389996a6854660775cd18a2a733c50cbc071f436b990d"
         }
       }
     },
     "native-rule-choice-prompts-2026-10-16": {
       "evidenceCommit": "65092fcdea323f9f4b435a91344f76e838fb21b4",
-      "currentImplementationCommit": "a6ccf1952141c69ed4b3cde94695f983c1c28db8",
+      "currentImplementationCommit": "42c89230105573e39ffaf524a7dc21f24d520d4b",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Fixed650 baseline plus exact two implementation and four verification inputs. Fixed650 full does not cover these uncommitted prompt changes.",
       "ciState": "PENDING",
@@ -10111,7 +10111,7 @@
       "implementation": [
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "4f77b4c099b7d5ec083c4cec6f8d3d83b89a112151e41675e328d208c4a3a285"
+          "sha256": "e6a6a0b70818d02d702c4d3f0d3e37e574dcaba8beaa6bf540672712fd905c64"
         },
         {
           "path": "clients/godot/scripts/ui/MatchPhasePresentation.cs",
@@ -10204,7 +10204,7 @@
           "semanticReview": "SCOPED_EXISTING_AUTHORITATIVE_PROMPT_CONTRACT_ONLY",
           "implementation": "LOCAL_EXECUTED_SCOPE_COMPLETE",
           "tests": "7_NEW_191_ADJACENT_2_ORIGINAL_GAMES_13_NATIVE_79_SQL_12027_SINGLE_CHECK_PASS",
-          "fixedCommitCi": "PENDING_AFTER_CURRENT_OPENING_FIXTURE_AND_HUB_INPUT_CORRECTION",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN_NEW_VISIBLE_AND_WINDOWS",
           "remaining": [
             "New fixed-commit full CI for this changed prompt candidate, visible paired controls, normal score/reconnect/replay and Windows physical remain independent OPEN gates.",
@@ -10244,7 +10244,7 @@
           "semanticReview": "SCOPED_EXISTING_AUTHORITATIVE_PROMPT_CONTRACT_ONLY",
           "implementation": "LOCAL_EXECUTED_SCOPE_COMPLETE",
           "tests": "7_NEW_191_ADJACENT_2_ORIGINAL_GAMES_13_NATIVE_79_SQL_12027_SINGLE_CHECK_PASS",
-          "fixedCommitCi": "PENDING_AFTER_CURRENT_OPENING_FIXTURE_AND_HUB_INPUT_CORRECTION",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN_NEW_VISIBLE_AND_WINDOWS",
           "remaining": [
             "New fixed-commit full CI for this changed prompt candidate, visible paired controls, normal score/reconnect/replay and Windows physical remain independent OPEN gates.",
@@ -10284,7 +10284,7 @@
           "semanticReview": "SCOPED_EXISTING_AUTHORITATIVE_PROMPT_CONTRACT_ONLY",
           "implementation": "LOCAL_EXECUTED_SCOPE_COMPLETE",
           "tests": "7_NEW_191_ADJACENT_2_ORIGINAL_GAMES_13_NATIVE_79_SQL_12027_SINGLE_CHECK_PASS",
-          "fixedCommitCi": "PENDING_AFTER_CURRENT_OPENING_FIXTURE_AND_HUB_INPUT_CORRECTION",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN_NEW_VISIBLE_AND_WINDOWS",
           "remaining": [
             "New fixed-commit full CI for this changed prompt candidate, visible paired controls, normal score/reconnect/replay and Windows physical remain independent OPEN gates.",
@@ -10297,10 +10297,10 @@
       ],
       "latestInputChange": {
         "date": "2026-10-17",
-        "scope": "Explicit current opening corpus and production-seed test input correction; old accepted history and CI stay historical.",
+        "scope": "Duel chain focus continuation, ordered last-breath dispatch, standby tag normalization and independent global winning-score recovery checks.",
         "receipt": {
-          "path": "docs/evidence/opening-randomness-2026-10-17/post-check-context-input-updates.json",
-          "sha256": "088511d681928cc6e299b5f6826475188fdce1c4b0e601c5fe51ca5c819f9bda"
+          "path": "docs/evidence/triggered-duel-continuation-2026-10-17/prior-context-input-updates.json",
+          "sha256": "e5faa62dd7f59f124dd389996a6854660775cd18a2a733c50cbc071f436b990d"
         }
       },
       "historicalFixedCiReceipts": [
@@ -10314,7 +10314,7 @@
     },
     "sand-soldier-embedded-ready-2026-10-17": {
       "evidenceCommit": "8ca4080c9431b981db051a5adad18dace5d85dd5",
-      "currentImplementationCommit": "a6ccf1952141c69ed4b3cde94695f983c1c28db8",
+      "currentImplementationCommit": "42c89230105573e39ffaf524a7dc21f24d520d4b",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Fixed8ca source baseline (gameplay5ed) plus explicit current implementation/test/fixture inputs. Prior5ed full/native and local pre-caption SQL are not relabeled as this final candidate.",
       "ciState": "PENDING",
@@ -10346,15 +10346,15 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "5e60b623ff023f47ffb06080701ef0d283927f3d7066ed4477393fb49f048925"
+          "sha256": "ed79875b5dc4dc61d56ed82d4d299e4b464a0c8a227b46b3834579f21abc18b5"
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "60f6daa432c808e24524746dbc6a79d98fe86fccb77a4674dab3031750c1d4cd"
+          "sha256": "48dda169917a0c6eb76e05e2e5a8f281f72219090bac2c9ce657826f6fd696b1"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "4f77b4c099b7d5ec083c4cec6f8d3d83b89a112151e41675e328d208c4a3a285"
+          "sha256": "e6a6a0b70818d02d702c4d3f0d3e37e574dcaba8beaa6bf540672712fd905c64"
         },
         {
           "path": "src/Riftbound.Engine/StackObjectRules.cs",
@@ -10498,7 +10498,7 @@
           "semanticReview": "SCOPED_EXECUTED_BRANCH_ONLY",
           "implementation": "LOCAL_CURRENT_EXECUTED_SCOPE",
           "tests": "33_NEW_192_ADJACENT_4_EMPTY_OPENINGS_34_HEADLESS_NATIVE_SINGLE_CHECK12060_7256_PASS",
-          "fixedCommitCi": "PENDING_AFTER_CURRENT_OPENING_FIXTURE_AND_HUB_INPUT_CORRECTION",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN_CURRENT_VISIBLE_AND_WINDOWS",
           "remaining": [
             "New fixed full CI for final input including all83 actual SQL paths, normal143 games/110 pairs/11 decks/424242 and network/packaging remains OPEN until actual terminal artifacts verified.",
@@ -10534,7 +10534,7 @@
           "semanticReview": "SCOPED_EXECUTED_BRANCH_ONLY",
           "implementation": "LOCAL_CURRENT_EXECUTED_SCOPE",
           "tests": "33_NEW_192_ADJACENT_4_EMPTY_OPENINGS_34_HEADLESS_NATIVE_SINGLE_CHECK12060_7256_PASS",
-          "fixedCommitCi": "PENDING_AFTER_CURRENT_OPENING_FIXTURE_AND_HUB_INPUT_CORRECTION",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN_CURRENT_VISIBLE_AND_WINDOWS",
           "remaining": [
             "New fixed full CI for final input including all83 actual SQL paths, normal143 games/110 pairs/11 decks/424242 and network/packaging remains OPEN until actual terminal artifacts verified.",
@@ -10570,7 +10570,7 @@
           "semanticReview": "SCOPED_EXECUTED_BRANCH_ONLY",
           "implementation": "LOCAL_CURRENT_EXECUTED_SCOPE",
           "tests": "33_NEW_192_ADJACENT_4_EMPTY_OPENINGS_34_HEADLESS_NATIVE_SINGLE_CHECK12060_7256_PASS",
-          "fixedCommitCi": "PENDING_AFTER_CURRENT_OPENING_FIXTURE_AND_HUB_INPUT_CORRECTION",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN_CURRENT_VISIBLE_AND_WINDOWS",
           "remaining": [
             "New fixed full CI for final input including all83 actual SQL paths, normal143 games/110 pairs/11 decks/424242 and network/packaging remains OPEN until actual terminal artifacts verified.",
@@ -10606,7 +10606,7 @@
           "semanticReview": "SCOPED_EXECUTED_BRANCH_ONLY",
           "implementation": "LOCAL_CURRENT_EXECUTED_SCOPE",
           "tests": "33_NEW_192_ADJACENT_4_EMPTY_OPENINGS_34_HEADLESS_NATIVE_SINGLE_CHECK12060_7256_PASS",
-          "fixedCommitCi": "PENDING_AFTER_CURRENT_OPENING_FIXTURE_AND_HUB_INPUT_CORRECTION",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN_CURRENT_VISIBLE_AND_WINDOWS",
           "remaining": [
             "New fixed full CI for final input including all83 actual SQL paths, normal143 games/110 pairs/11 decks/424242 and network/packaging remains OPEN until actual terminal artifacts verified.",
@@ -10650,16 +10650,16 @@
       ],
       "latestInputChange": {
         "date": "2026-10-17",
-        "scope": "Explicit current opening corpus and production-seed test input correction; old accepted history and CI stay historical.",
+        "scope": "Duel chain focus continuation, ordered last-breath dispatch, standby tag normalization and independent global winning-score recovery checks.",
         "receipt": {
-          "path": "docs/evidence/opening-randomness-2026-10-17/post-check-context-input-updates.json",
-          "sha256": "088511d681928cc6e299b5f6826475188fdce1c4b0e601c5fe51ca5c819f9bda"
+          "path": "docs/evidence/triggered-duel-continuation-2026-10-17/prior-context-input-updates.json",
+          "sha256": "e5faa62dd7f59f124dd389996a6854660775cd18a2a733c50cbc071f436b990d"
         }
       }
     },
     "opening-randomness-2026-10-17": {
       "evidenceCommit": "a6ccf1952141c69ed4b3cde94695f983c1c28db8",
-      "currentImplementationCommit": "a6ccf1952141c69ed4b3cde94695f983c1c28db8",
+      "currentImplementationCommit": "42c89230105573e39ffaf524a7dc21f24d520d4b",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Base plus current explicit implementation/test inputs. Prior39 native/CI is historical and not relabeled current.",
       "ciState": "PENDING",
@@ -10675,11 +10675,11 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "60f6daa432c808e24524746dbc6a79d98fe86fccb77a4674dab3031750c1d4cd"
+          "sha256": "48dda169917a0c6eb76e05e2e5a8f281f72219090bac2c9ce657826f6fd696b1"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "4f77b4c099b7d5ec083c4cec6f8d3d83b89a112151e41675e328d208c4a3a285"
+          "sha256": "e6a6a0b70818d02d702c4d3f0d3e37e574dcaba8beaa6bf540672712fd905c64"
         },
         {
           "path": "src/Riftbound.Persistence/PostgresMatchJournal.cs",
@@ -10777,7 +10777,7 @@
         },
         {
           "path": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
-          "sha256": "5f5f52ed341559d2c1525c5c72a5a8619d9d45897a89b3221f1e6706989ac124"
+          "sha256": "3d14d626b49566a9b0191f34739dd7721376c07564d19395f749799a3deb3a5e"
         },
         {
           "path": "tests/Riftbound.ConformanceTests/OpeningRandomizationTests.cs",
@@ -10999,7 +10999,7 @@
           "semanticReview": "SCOPED_EXECUTED_ONLY",
           "implementation": "LOCAL_CURRENT_EXECUTED_SCOPE",
           "tests": "38_NEW_63_CORRECTED_FOCUS_17_CORPUS_8_FRESH_HUB_2_SQL_PATHS_PASS_SINGLE_CHECK_FAILURE_RETAINED",
-          "fixedCommitCi": "PENDING_AFTER_CURRENT_OPENING_FIXTURE_AND_HUB_INPUT_CORRECTION",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN_CURRENT_VISIBLE_AND_WINDOWS",
           "remaining": [
             "All non-opening randomness, including recycling417.5 and other rule consumers, remains OPEN; finite samples do not certify every permutation or the entire privacy surface.",
@@ -11018,7 +11018,7 @@
           "semanticReview": "SCOPED_EXECUTED_ONLY",
           "implementation": "LOCAL_CURRENT_EXECUTED_SCOPE",
           "tests": "38_NEW_63_CORRECTED_FOCUS_17_CORPUS_8_FRESH_HUB_2_SQL_PATHS_PASS_SINGLE_CHECK_FAILURE_RETAINED",
-          "fixedCommitCi": "PENDING_AFTER_CURRENT_OPENING_FIXTURE_AND_HUB_INPUT_CORRECTION",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN_CURRENT_VISIBLE_AND_WINDOWS",
           "remaining": [
             "All non-opening randomness, including recycling417.5 and other rule consumers, remains OPEN; finite samples do not certify every permutation or the entire privacy surface.",
@@ -11037,7 +11037,7 @@
           "semanticReview": "SCOPED_EXECUTED_ONLY",
           "implementation": "LOCAL_CURRENT_EXECUTED_SCOPE",
           "tests": "38_NEW_63_CORRECTED_FOCUS_17_CORPUS_8_FRESH_HUB_2_SQL_PATHS_PASS_SINGLE_CHECK_FAILURE_RETAINED",
-          "fixedCommitCi": "PENDING_AFTER_CURRENT_OPENING_FIXTURE_AND_HUB_INPUT_CORRECTION",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN_CURRENT_VISIBLE_AND_WINDOWS",
           "remaining": [
             "All non-opening randomness, including recycling417.5 and other rule consumers, remains OPEN; finite samples do not certify every permutation or the entire privacy surface.",
@@ -11056,7 +11056,7 @@
           "semanticReview": "SCOPED_EXECUTED_ONLY",
           "implementation": "LOCAL_CURRENT_EXECUTED_SCOPE",
           "tests": "38_NEW_63_CORRECTED_FOCUS_17_CORPUS_8_FRESH_HUB_2_SQL_PATHS_PASS_SINGLE_CHECK_FAILURE_RETAINED",
-          "fixedCommitCi": "PENDING_AFTER_CURRENT_OPENING_FIXTURE_AND_HUB_INPUT_CORRECTION",
+          "fixedCommitCi": "PENDING_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
           "productAcceptance": "OPEN_CURRENT_VISIBLE_AND_WINDOWS",
           "remaining": [
             "All non-opening randomness, including recycling417.5 and other rule consumers, remains OPEN; finite samples do not certify every permutation or the entire privacy surface.",
@@ -11083,12 +11083,241 @@
       ],
       "latestInputChange": {
         "date": "2026-10-17",
-        "scope": "Explicit current opening corpus and production-seed test input correction; old accepted history and CI stay historical.",
+        "scope": "Duel chain focus continuation, ordered last-breath dispatch, standby tag normalization and independent global winning-score recovery checks.",
         "receipt": {
-          "path": "docs/evidence/opening-randomness-2026-10-17/post-check-context-input-updates.json",
-          "sha256": "088511d681928cc6e299b5f6826475188fdce1c4b0e601c5fe51ca5c819f9bda"
+          "path": "docs/evidence/triggered-duel-continuation-2026-10-17/prior-context-input-updates.json",
+          "sha256": "e5faa62dd7f59f124dd389996a6854660775cd18a2a733c50cbc071f436b990d"
         }
       }
+    },
+    "duel-chain-origins-cold-recovery-2026-10-17": {
+      "evidenceCommit": "42c89230105573e39ffaf524a7dc21f24d520d4b",
+      "currentImplementationCommit": "42c89230105573e39ffaf524a7dc21f24d520d4b",
+      "currentImplementationIncludesUncommittedChanges": true,
+      "evidenceCommitScope": "Base42 plus exact changed implementation/test pins; fixed067 full is a retained failure, not current success.",
+      "ciState": "PENDING",
+      "ciReceipts": [],
+      "implementation": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "sha256": "ed79875b5dc4dc61d56ed82d4d299e4b464a0c8a227b46b3834579f21abc18b5"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.TriggerHandoff.cs",
+          "sha256": "91ff7c748a2fea15064f2ddc49de125acb291ec76827361d7a91d77063f76eb7"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.Standby.cs",
+          "sha256": "71b6a9b19e35b4c1ef46800e185c8174c9abdc960dc7e0bc3d33094591ac6fdd"
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchSession.cs",
+          "sha256": "e6a6a0b70818d02d702c4d3f0d3e37e574dcaba8beaa6bf540672712fd905c64"
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.cs",
+          "sha256": "48dda169917a0c6eb76e05e2e5a8f281f72219090bac2c9ce657826f6fd696b1"
+        }
+      ],
+      "verificationSources": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs",
+          "sha256": "bdaeb627fd5b84c9e957c3808756e758d443b6dc90587914a5ab34449e635a6e"
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/MovementDiscardDuelContinuationTests.cs",
+          "sha256": "74ed48643b9d7ef6f3a0348ca1c86652507534fca433c985dffa533d9fecc7dd"
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/SwiftStackPriorityPlayCardTests.cs",
+          "sha256": "6c45918ced14148597b65cf225bf0e0d665bcbfd781d1ef4e7ebf38b428512e8"
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+          "sha256": "3d14d626b49566a9b0191f34739dd7721376c07564d19395f749799a3deb3a5e"
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/evidence/triggered-duel-continuation-2026-10-17/source-manifest.json",
+          "sha256": "dd4d3d264f9a90712d853617e78355d13680ef087401350f798c64b08931dd9e",
+          "role": "source-manifest"
+        },
+        {
+          "path": "docs/evidence/triggered-duel-continuation-2026-10-17/full-ci-067483dc-failure.json",
+          "sha256": "f49b1d046e03629214d5ad46b95b50d141e2bd6ad8009ba9b07fadce667b882f",
+          "role": "full-ci-067483dc-failure"
+        },
+        {
+          "path": "docs/evidence/triggered-duel-continuation-2026-10-17/focus.json",
+          "sha256": "a42aef56781f56ee60b9a1f17d179af5d855e58e467ea4860c53220dfc6c0257",
+          "role": "focus"
+        },
+        {
+          "path": "docs/evidence/triggered-duel-continuation-2026-10-17/final-focus.json",
+          "sha256": "990bdb769810845945cbfe84ca4d3e16054c84ea087ddd3deb87b9b23a013685",
+          "role": "final-focus"
+        },
+        {
+          "path": "docs/evidence/triggered-duel-continuation-2026-10-17/original-source-parity.json",
+          "sha256": "17b953b0c402fda933e6d763d135a8ec56050ee3aac2e96b4c663ea460ff5b4f",
+          "role": "original-source-parity"
+        },
+        {
+          "path": "docs/evidence/triggered-duel-continuation-2026-10-17/original-source-parity-final.json",
+          "sha256": "9f696d2ee8312f54bca4ca66b3e26e5f26f9959de977ebfb19a076690e4d6183",
+          "role": "original-source-parity-final"
+        },
+        {
+          "path": "docs/evidence/triggered-duel-continuation-2026-10-17/existing-obligation-links.json",
+          "sha256": "fdcdc5cf1168e783357eb78a898ddac17900de4cefc641715eab7fc6e62d1c40",
+          "role": "existing-obligation-links"
+        },
+        {
+          "path": "docs/evidence/triggered-duel-continuation-2026-10-17/remaining-consumers.json",
+          "sha256": "e52fb82324983104408236e127d741cbfd16560b000fbd27751ebc1605327ac1",
+          "role": "remaining-consumers"
+        },
+        {
+          "path": "docs/evidence/triggered-duel-continuation-2026-10-17/prior-context-input-updates.json",
+          "sha256": "e5faa62dd7f59f124dd389996a6854660775cd18a2a733c50cbc071f436b990d",
+          "role": "prior-context-input-updates"
+        },
+        {
+          "path": "docs/evidence/triggered-duel-continuation-2026-10-17/check.json",
+          "sha256": "38466b5710e2659a4ce4ed3850593704f076e5c9100eef89f9a64044df628701",
+          "role": "check"
+        },
+        {
+          "path": "docs/evidence/triggered-duel-continuation-2026-10-17/original-games.json",
+          "sha256": "d25cf81174a36f4212e9795d120369be19fa17884b10df38b200eae508333c75",
+          "role": "original-games"
+        },
+        {
+          "path": "docs/evidence/triggered-duel-continuation-2026-10-17/matrix110.json",
+          "sha256": "8387d3a4cd7e910e9c0c17bb454cb1cead5009a740a395e43fbe4d6d1b78758c",
+          "role": "matrix110"
+        },
+        {
+          "path": "docs/evidence/triggered-duel-continuation-2026-10-17/post-originals-test-only-corrections.json",
+          "sha256": "1db705fdef9fb5f602794ac4c060d3f8eb372b314580339bd3fce75f48c18dea",
+          "role": "post-originals-test-only-corrections"
+        },
+        {
+          "path": "docs/evidence/triggered-duel-continuation-2026-10-17/validation-summary.json",
+          "sha256": "e6d7e2ee6aeb87a8c1cfed7c6bbbbe54cb4054ea9a4812b78677863945a320d8",
+          "role": "validation-summary"
+        }
+      ],
+      "branches": [
+        {
+          "id": "trigger-root-preserves-focus-through-choice-response-and-cold-restore",
+          "sourceRefs": [
+            "CN-d6fd7140f106f9b5-P043-B005",
+            "CN-d6fd7140f106f9b5-P042-B011",
+            "OGN-185/298",
+            "SFD-130/221",
+            "SFD-048/221",
+            "UNL-115/219",
+            "UNL-127/219"
+          ],
+          "state": "RECORDED",
+          "semanticReview": "SCOPED_EXECUTED_ONLY",
+          "implementation": "LOCAL_CURRENT_FROZEN_INPUTS",
+          "tests": "46_FINAL_FOCUS_23_ORIGINALS_FULL110_PASS_SINGLE_CHECK2_FAILURES_RETAINED_BOTH_CORRECTED_FOCUS_PASS",
+          "fixedCommitCi": "PENDING_NEW_FIXED_COMMIT",
+          "productAcceptance": "OPEN_CURRENT_SQL_VISIBLE_NETWORK_WINDOWS",
+          "remaining": [
+            "All1740 source identities/1033 runtime entries and all prior source, printing, clause, QA, news and EN-gap obligations remain; no whole-card or whole-family certification.",
+            "Other consumers, nested combinations, spells and skills beyond the exact executed method/branch receipts require their own semantic and behavioral review.",
+            "Current fixed-commit full must retain all143 original games, all110 pairs, original seeds, win/replay assertions, all84 real SQL paths, network and both desktop jobs.",
+            "Current visible paired clients, actual database execution, network interruption/cold restart, normal score completion/full original replay and Windows physical runtime remain separate OPEN gates.",
+            "Raw malformed optionalCosts issue52 remains unresolved. The old067 native initial-mulligan UI transition remains unverified; an unavailable UI window is not proof of an application hang. No accepted history is rewritten and no old development-match migration is added."
+          ]
+        },
+        {
+          "id": "normal-card-root-passes-focus-after-earned-last-breath-choice",
+          "sourceRefs": [
+            "CN-d6fd7140f106f9b5-P042-B013",
+            "CN-d6fd7140f106f9b5-P042-B015",
+            "OGN-133/298",
+            "OGN-178/298",
+            "CN-d6fd7140f106f9b5-P040-B020"
+          ],
+          "state": "RECORDED",
+          "semanticReview": "SCOPED_EXECUTED_ONLY",
+          "implementation": "LOCAL_CURRENT_FROZEN_INPUTS",
+          "tests": "46_FINAL_FOCUS_23_ORIGINALS_FULL110_PASS_SINGLE_CHECK2_FAILURES_RETAINED_BOTH_CORRECTED_FOCUS_PASS",
+          "fixedCommitCi": "PENDING_NEW_FIXED_COMMIT",
+          "productAcceptance": "OPEN_CURRENT_SQL_VISIBLE_NETWORK_WINDOWS",
+          "remaining": [
+            "All1740 source identities/1033 runtime entries and all prior source, printing, clause, QA, news and EN-gap obligations remain; no whole-card or whole-family certification.",
+            "Other consumers, nested combinations, spells and skills beyond the exact executed method/branch receipts require their own semantic and behavioral review.",
+            "Current fixed-commit full must retain all143 original games, all110 pairs, original seeds, win/replay assertions, all84 real SQL paths, network and both desktop jobs.",
+            "Current visible paired clients, actual database execution, network interruption/cold restart, normal score completion/full original replay and Windows physical runtime remain separate OPEN gates.",
+            "Raw malformed optionalCosts issue52 remains unresolved. The old067 native initial-mulligan UI transition remains unverified; an unavailable UI window is not proof of an application hang. No accepted history is rewritten and no old development-match migration is added."
+          ]
+        },
+        {
+          "id": "ordered-undercover-last-breath-in-duel-resolves-without-replaying-source-unit",
+          "sourceRefs": [
+            "CN-d6fd7140f106f9b5-P042-B011",
+            "OGN-178/298"
+          ],
+          "state": "RECORDED",
+          "semanticReview": "SCOPED_EXECUTED_ONLY",
+          "implementation": "LOCAL_CURRENT_FROZEN_INPUTS",
+          "tests": "46_FINAL_FOCUS_23_ORIGINALS_FULL110_PASS_SINGLE_CHECK2_FAILURES_RETAINED_BOTH_CORRECTED_FOCUS_PASS",
+          "fixedCommitCi": "PENDING_NEW_FIXED_COMMIT",
+          "productAcceptance": "OPEN_CURRENT_SQL_VISIBLE_NETWORK_WINDOWS",
+          "remaining": [
+            "All1740 source identities/1033 runtime entries and all prior source, printing, clause, QA, news and EN-gap obligations remain; no whole-card or whole-family certification.",
+            "Other consumers, nested combinations, spells and skills beyond the exact executed method/branch receipts require their own semantic and behavioral review.",
+            "Current fixed-commit full must retain all143 original games, all110 pairs, original seeds, win/replay assertions, all84 real SQL paths, network and both desktop jobs.",
+            "Current visible paired clients, actual database execution, network interruption/cold restart, normal score completion/full original replay and Windows physical runtime remain separate OPEN gates.",
+            "Raw malformed optionalCosts issue52 remains unresolved. The old067 native initial-mulligan UI transition remains unverified; an unavailable UI window is not proof of an application hang. No accepted history is rewritten and no old development-match migration is added."
+          ]
+        },
+        {
+          "id": "standby-tag-producer-preserves-json-roundtrip-hash",
+          "sourceRefs": [
+            "OGN-197/298"
+          ],
+          "state": "RECORDED",
+          "semanticReview": "SCOPED_EXECUTED_ONLY",
+          "implementation": "LOCAL_CURRENT_FROZEN_INPUTS",
+          "tests": "46_FINAL_FOCUS_23_ORIGINALS_FULL110_PASS_SINGLE_CHECK2_FAILURES_RETAINED_BOTH_CORRECTED_FOCUS_PASS",
+          "fixedCommitCi": "PENDING_NEW_FIXED_COMMIT",
+          "productAcceptance": "OPEN_CURRENT_SQL_VISIBLE_NETWORK_WINDOWS",
+          "remaining": [
+            "All1740 source identities/1033 runtime entries and all prior source, printing, clause, QA, news and EN-gap obligations remain; no whole-card or whole-family certification.",
+            "Other consumers, nested combinations, spells and skills beyond the exact executed method/branch receipts require their own semantic and behavioral review.",
+            "Current fixed-commit full must retain all143 original games, all110 pairs, original seeds, win/replay assertions, all84 real SQL paths, network and both desktop jobs.",
+            "Current visible paired clients, actual database execution, network interruption/cold restart, normal score completion/full original replay and Windows physical runtime remain separate OPEN gates.",
+            "Raw malformed optionalCosts issue52 remains unresolved. The old067 native initial-mulligan UI transition remains unverified; an unavailable UI window is not proof of an application hang. No accepted history is rewritten and no old development-match migration is added."
+          ]
+        },
+        {
+          "id": "global-winning-score-modifier-independent-of-controller",
+          "sourceRefs": [
+            "CN-d6fd7140f106f9b5-P031-B005",
+            "OGN-276/298"
+          ],
+          "state": "RECORDED",
+          "semanticReview": "SCOPED_EXECUTED_ONLY",
+          "implementation": "LOCAL_CURRENT_FROZEN_INPUTS",
+          "tests": "46_FINAL_FOCUS_23_ORIGINALS_FULL110_PASS_SINGLE_CHECK2_FAILURES_RETAINED_BOTH_CORRECTED_FOCUS_PASS",
+          "fixedCommitCi": "PENDING_NEW_FIXED_COMMIT",
+          "productAcceptance": "OPEN_CURRENT_SQL_VISIBLE_NETWORK_WINDOWS",
+          "remaining": [
+            "All1740 source identities/1033 runtime entries and all prior source, printing, clause, QA, news and EN-gap obligations remain; no whole-card or whole-family certification.",
+            "Other consumers, nested combinations, spells and skills beyond the exact executed method/branch receipts require their own semantic and behavioral review.",
+            "Current fixed-commit full must retain all143 original games, all110 pairs, original seeds, win/replay assertions, all84 real SQL paths, network and both desktop jobs.",
+            "Current visible paired clients, actual database execution, network interruption/cold restart, normal score completion/full original replay and Windows physical runtime remain separate OPEN gates.",
+            "Raw malformed optionalCosts issue52 remains unresolved. The old067 native initial-mulligan UI transition remains unverified; an unavailable UI window is not proof of an application hang. No accepted history is rewritten and no old development-match migration is added."
+          ]
+        }
+      ]
     }
   },
   "acceptanceGates": [
@@ -11582,7 +11811,7 @@
         },
         "currentImplementationVerified": false
       },
-      "fixedCommitCi": "OPEN_AFTER_OPENING_RANDOMNESS_SHARED_INPUT_CHANGE",
+      "fixedCommitCi": "OPEN_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
       "currentProductAcceptance": "OPEN_NEW_CANDIDATE"
     },
     {
@@ -11728,7 +11957,7 @@
         },
         "currentImplementationVerified": false
       },
-      "fixedCommitCi": "OPEN_AFTER_OPENING_RANDOMNESS_SHARED_INPUT_CHANGE",
+      "fixedCommitCi": "OPEN_AFTER_DUEL_CHAIN_AND_RECOVERY_SHARED_INPUT_CHANGE",
       "currentProductAcceptance": "OPEN_NEW_CANDIDATE"
     },
     {
@@ -13144,6 +13373,38 @@
       "additionalReadOnlyProbe": {
         "path": "docs/evidence/opening-randomness-2026-10-17/raw-array-shape-probe.json",
         "sha256": "80c94ae86710ec3daa19b9500d03ce1fbd70b14bf291eca838382be0a3012bc5"
+      }
+    },
+    {
+      "id": "DUEL_CHAIN_CHOICE_AND_COLD_RECOVERY_CURRENT_CANDIDATE",
+      "state": "OPEN",
+      "requirement": "Close fixed complete regression and independent current SQL, visible paired clients, reconnect/cold restart, score/full replay and physical Windows for duel choices/recovery fixes.",
+      "issues": [
+        "https://github.com/DDDHL0704/riftbound/issues/53",
+        "https://github.com/DDDHL0704/riftbound/issues/54",
+        "https://github.com/DDDHL0704/riftbound/issues/55",
+        "https://github.com/DDDHL0704/riftbound/issues/56"
+      ],
+      "source": {
+        "path": "docs/evidence/triggered-duel-continuation-2026-10-17/source-manifest.json",
+        "sha256": "dd4d3d264f9a90712d853617e78355d13680ef087401350f798c64b08931dd9e"
+      },
+      "focus": {
+        "path": "docs/evidence/triggered-duel-continuation-2026-10-17/final-focus.json",
+        "sha256": "990bdb769810845945cbfe84ca4d3e16054c84ea087ddd3deb87b9b23a013685"
+      },
+      "fixedCommitCi": "PENDING_NEW_FIXED_COMMIT",
+      "productAcceptance": "OPEN",
+      "remaining": [
+        "All1740 source identities/1033 runtime entries and all prior source, printing, clause, QA, news and EN-gap obligations remain; no whole-card or whole-family certification.",
+        "Other consumers, nested combinations, spells and skills beyond the exact executed method/branch receipts require their own semantic and behavioral review.",
+        "Current fixed-commit full must retain all143 original games, all110 pairs, original seeds, win/replay assertions, all84 real SQL paths, network and both desktop jobs.",
+        "Current visible paired clients, actual database execution, network interruption/cold restart, normal score completion/full original replay and Windows physical runtime remain separate OPEN gates.",
+        "Raw malformed optionalCosts issue52 remains unresolved. The old067 native initial-mulligan UI transition remains unverified; an unavailable UI window is not proof of an application hang. No accepted history is rewritten and no old development-match migration is added."
+      ],
+      "batchCheck": {
+        "path": "docs/evidence/triggered-duel-continuation-2026-10-17/check.json",
+        "sha256": "38466b5710e2659a4ce4ed3850593704f076e5c9100eef89f9a64044df628701"
       }
     }
   ],

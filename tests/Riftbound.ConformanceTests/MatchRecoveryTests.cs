@@ -52666,7 +52666,8 @@ public sealed class MatchRecoveryTests
                     scoringBattlefieldObjectId,
                     cardNo: "OGN·276/298",
                     ownerId: "alice",
-                    controllerId: "alice")
+                    controllerId: "alice",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag])
             });
         var events = new[]
         {
@@ -52683,6 +52684,7 @@ public sealed class MatchRecoveryTests
             entry => entry.Key,
             entry => entry.Value,
             StringComparer.Ordinal);
+        Assert.Equal(9, spectatorReplayFrame.SpectatorSnapshot.Timing["winningScore"]);
         timing["winningScore"] = 8;
         spectatorReplayFrame = spectatorReplayFrame with
         {

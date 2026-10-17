@@ -116,7 +116,7 @@ public sealed partial class CoreRuleEngine
             new(fieldId,state.CardObjects[fieldId].ObjectGeneration),state.TurnNumber,state.Tick+1,permission,StandbyRules.TextHash(source.CardNo!));
         var cards=state.CardObjects.ToDictionary(p=>p.Key,p=>p.Value,StringComparer.Ordinal);
         cards[source.ObjectId]=source with {IsFaceDown=true,IsAttacking=false,IsDefending=false,IsExhausted=false,
-            ControllerId=intent.PlayerId,StandbyPlacement=placement,Tags=source.Tags.Append(CardObjectTags.Standby).Distinct(StringComparer.Ordinal).ToArray()};
+            ControllerId=intent.PlayerId,StandbyPlacement=placement,Tags=source.Tags.Append(CardObjectTags.Standby).Distinct(StringComparer.Ordinal).OrderBy(tag=>tag,StringComparer.Ordinal).ToArray()};
         var locations=ReconcileObjectLocations(state.ObjectLocations,zones);locations[source.ObjectId]=new(intent.PlayerId,"BATTLEFIELD",fieldId);
         var events=new List<GameEvent> {
             new("COST_PAID","支付待命布置费用",PaymentCostRules.BuildCostPaidPayload(payment,committed.RunePools,committed.PlayerExperience,

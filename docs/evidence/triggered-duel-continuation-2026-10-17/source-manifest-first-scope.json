@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 1,
+  "recordedAtUtc": "2026-10-17T02:10:09.236256+00:00",
+  "region": "CN",
+  "language": "zh-CN",
+  "applicableAsOf": "2026-10-17",
+  "mode": "single-game 1v1 duel, existing global source universe and all gaps retained",
+  "currentCoreRecheck": {
+    "path": "var/qa/opening-full067-failure-20261017/source-recheck.json",
+    "sha256": "68c3da97454c963608e6d94ab46a995562b8326c69af30f266a881b5364ed163"
+  },
+  "currentCoreDocument": {
+    "id": "DOC-01",
+    "url": "https://cdn.playloltcg.com/lol/2026/10/2026-10-10/a21ead876c6b44d6abe386b6ae54ea28.pdf",
+    "sha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11",
+    "publicationDate": "2026-10-10",
+    "effectiveDate": "2026-10-16"
+  },
+  "exactClauseRecords": [
+    {
+      "id": "DOC-01-P042-B011",
+      "page": 42,
+      "clauseAnchors": [
+        "340.1"
+      ],
+      "globalReviewStatusRetained": "NOT_REVIEWED"
+    },
+    {
+      "id": "DOC-01-P042-B013",
+      "page": 42,
+      "clauseAnchors": [
+        "340.2.a"
+      ],
+      "globalReviewStatusRetained": "NOT_REVIEWED"
+    },
+    {
+      "id": "DOC-01-P042-B015",
+      "page": 42,
+      "clauseAnchors": [
+        "340.4"
+      ],
+      "globalReviewStatusRetained": "NOT_REVIEWED"
+    },
+    {
+      "id": "DOC-01-P043-B003",
+      "page": 43,
+      "clauseAnchors": [
+        "345"
+      ],
+      "globalReviewStatusRetained": "NOT_REVIEWED"
+    },
+    {
+      "id": "DOC-01-P043-B005",
+      "page": 43,
+      "clauseAnchors": [
+        "346.1"
+      ],
+      "globalReviewStatusRetained": "NOT_REVIEWED"
+    }
+  ],
+  "freshCardReadback": [
+    {
+      "path": "var/qa/opening-full067-failure-20261017/current-merchant-source-receipt.json",
+      "sha256": "c7aa169acc665cff7a3ecbcbc7b09273619e742947f2a41cff6126b251b5b961"
+    },
+    {
+      "path": "var/qa/opening-full067-failure-20261017/current-card-source-recheck.json",
+      "sha256": "ad0f3cfe4aa7dda673e0bf189b950dd03fe09ab931c769a57544abdad6313f93"
+    },
+    {
+      "path": "var/qa/opening-full067-failure-20261017/current-movement-source-v2-receipt.json",
+      "sha256": "01ffe815f981d452b59e227d1359df7f12edba0ba53d33831bd9013fa1a17e95"
+    }
+  ],
+  "exactPrimaryCard": {
+    "id": 31415,
+    "cardNo": "OGN·185/298",
+    "cardName": "旅行商人",
+    "publicationDate": null,
+    "effectiveDate": null,
+    "datesNotIndividuallySuppliedByOfficialCardEndpoint": true
+  },
+  "firstImpreciseSearchAndNullListParserFailureRetained": true,
+  "allReturnedFullRecordComparisonsUnchangedExceptInitialZeroResultQuery": true,
+  "newSourceDeltas": "NONE_DETECTED_WITHIN_RECHECK_SCOPE",
+  "all1740SourceIdentities1033RuntimeEntriesAndExistingGapsRetained": true,
+  "wholeCardOrWholeRuleFamilyCertified": false,
+  "semanticCoverageCertified": false
+}

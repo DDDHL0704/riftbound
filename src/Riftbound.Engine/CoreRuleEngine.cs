@@ -159,6 +159,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     {
         ValueTask<ResolutionResult> Complete(ResolutionResult result)
         {
+            result = CaptureDuelChainFocus(state, result);
             result = CollectObservedDeckPlays(result);
             result = EndDetachedUnitCopies(state, result);
             result = RefreshRuleDerivedKeywordLayers(result);
@@ -180,6 +181,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             collected = QueueStandbyPlayedObservers(collected);
             collected = RecordBattleDuelRoles(state, collected);
             collected = RecordMightyTransitions(state, collected);
+            collected = ResumeDuelChainFocus(collected);
             return ValueTask.FromResult(RecordCardPlayHistory(state, RefreshRuleDerivedKeywordLayers(ApplyObjectContinuity(state,
                 PrepareTriggerConfirmation(AdvanceTurnStartSequence(AdvanceEndStep(AdvanceObservedDeckPlays(PrepareTriggerConfirmation(PublishPendingTriggers(CaptureDeathTriggerSources(state,
                     RecordCombatMightSourceLocations(state, RecordDistributionSourceLocations(state, collected)))))))))))));
@@ -24439,7 +24441,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         if (string.Equals(stackItem.EffectKind, TriggerKinds.UnitLastBreathDiscardDraw, StringComparison.Ordinal)
             && TryGetLastBreathDiscardDrawTrigger(stackItem, out _)
-            && string.Equals(stackItem.TimingContext, "ORDERED_TRIGGER", StringComparison.Ordinal))
+            && stackItem.StackItemId.StartsWith("ordered-", StringComparison.Ordinal))
         {
             return ResolveUndercoverAgentLastBreathStackItem(state, stackItem);
         }

@@ -12036,12 +12036,13 @@ public static class MatchRecoveryValidator
 
     private static int EffectiveWinningScoreForRecovery(MatchState authoritativeState)
     {
-        var modifier = authoritativeState.PlayerZones
-            .Sum(entry => entry.Value.Battlefields.Sum(objectId =>
-                authoritativeState.CardObjects.TryGetValue(objectId, out var cardObject)
-                && SourceObjectControlledByPlayerOrLegacyOwnedForRecovery(cardObject, entry.Key)
-                    ? BattlefieldWinningScoreIncreaseAmountForRecovery(cardObject.CardNo)
-                    : 0));
+        // OGN276 applies globally while the battlefield is on the public field;
+        // conquering it does not move its physical card to the new controller's zone.
+        var modifier = authoritativeState.PlayerZones.Values.SelectMany(zones => zones.Battlefields)
+            .Distinct(StringComparer.Ordinal)
+            .Sum(objectId => authoritativeState.CardObjects.TryGetValue(objectId, out var cardObject)
+                && !cardObject.IsFaceDown && cardObject.Tags.Contains(P6TokenFactoryCatalog.BattlefieldCardTag, StringComparer.Ordinal)
+                    ? BattlefieldWinningScoreIncreaseAmountForRecovery(cardObject.CardNo) : 0);
         return BaseWinningScore + modifier;
     }
 
@@ -24557,6 +24558,22 @@ public static class MatchRecoveryValidator
         MatchState authoritativeState,
         List<string> errors)
     {
+        if (authoritativeState.DuelChainFocus is { } suspended)
+        {
+            if (string.IsNullOrWhiteSpace(suspended.FocusPlayerId)
+                || !authoritativeState.Seats.ContainsKey(suspended.FocusPlayerId)
+                || suspended.PassedFocusPlayerIds is null
+                || suspended.PassedFocusPlayerIds.Count >= authoritativeState.Seats.Count
+                || suspended.PassedFocusPlayerIds.Distinct(StringComparer.Ordinal).Count() != suspended.PassedFocusPlayerIds.Count
+                || suspended.PassedFocusPlayerIds.Any(id => id == suspended.FocusPlayerId || !authoritativeState.Seats.ContainsKey(id))
+                || authoritativeState.Status != MatchStatuses.InProgress || authoritativeState.Phase != MatchPhases.Main
+                || authoritativeState.TimingState != TimingStates.SpellDuelClosed || authoritativeState.FocusPlayerId is not null
+                || authoritativeState.StackItems.Count == 0 && authoritativeState.TriggerQueue.Count == 0
+                    && authoritativeState.PendingHandChoice is null && authoritativeState.PendingCardChoice is null
+                    && authoritativeState.PendingPayment is null && authoritativeState.PendingEffectPlay is null
+                    && authoritativeState.PendingRuleChoice is null && authoritativeState.ObservedDeckPlays is not { Count: > 0 })
+                errors.Add("invalid duel chain focus continuation");
+        }
         var knownObjectIds = BuildAuthoritativeStateKnownObjectIds(authoritativeState);
         var objectCardNos = BuildAuthoritativeStateObjectCardNoIndex(authoritativeState);
         var objectPowers = BuildAuthoritativeStateObjectPowerIndex(authoritativeState);

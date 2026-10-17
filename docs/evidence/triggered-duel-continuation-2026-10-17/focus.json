@@ -1,0 +1,74 @@
+{
+  "status": "PASSED",
+  "profile": "focus",
+  "cases": 42,
+  "methods": 31,
+  "newCases": 11,
+  "newMethods": 5,
+  "newMethodCases": {
+    "Riftbound.ConformanceTests.MovementDiscardDuelContinuationTests.OtherMovementTriggerConsumersKeepOriginalFocus": 4,
+    "Riftbound.ConformanceTests.MovementDiscardDuelContinuationTests.TriggerOnlyArrivalChainKeepsOriginalFocusAfterEveryColdRestore": 4,
+    "Riftbound.ConformanceTests.MovementDiscardDuelContinuationTests.ResponseAddedAboveTheMovementTriggerPreservesItsOriginalFocus": 1,
+    "Riftbound.ConformanceTests.MovementDiscardDuelContinuationTests.OriginalSeed31EmptyOpeningColdRecoversTheDiscardAndReplaysThroughScoreVictory": 1,
+    "Riftbound.ConformanceTests.MovementDiscardDuelContinuationTests.NormalCardOriginPassesFocusAfterItsLastBreathDiscardChoice": 1
+  },
+  "allMethodCases": {
+    "Riftbound.ConformanceTests.ConformanceFixtureRunnerTests.P4UndercoverAgentTargetRejectedFixture": 1,
+    "Riftbound.ConformanceTests.MatchRecoveryTests.RecoveryValidatorRejectsAuthoritativeStateTriggerQueueUndercoverAgentLastBreathContextDrift": 1,
+    "Riftbound.ConformanceTests.MatchRecoveryTests.RecoveryValidatorRejectsSnapshotTimingTriggerQueueUndercoverAgentLastBreathContextDrift": 1,
+    "Riftbound.ConformanceTests.MatchRecoveryTests.RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueUndercoverAgentLastBreathContextDriftWithCountMismatch": 1,
+    "Riftbound.ConformanceTests.MatchRecoveryTests.RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueUndercoverAgentLastBreathContextDriftWithoutCountMismatch": 1,
+    "Riftbound.ConformanceTests.MovementDiscardDuelContinuationTests.NormalCardOriginPassesFocusAfterItsLastBreathDiscardChoice": 1,
+    "Riftbound.ConformanceTests.MovementDiscardDuelContinuationTests.OriginalSeed31EmptyOpeningColdRecoversTheDiscardAndReplaysThroughScoreVictory": 1,
+    "Riftbound.ConformanceTests.MovementDiscardDuelContinuationTests.OtherMovementTriggerConsumersKeepOriginalFocus": 4,
+    "Riftbound.ConformanceTests.MovementDiscardDuelContinuationTests.ResponseAddedAboveTheMovementTriggerPreservesItsOriginalFocus": 1,
+    "Riftbound.ConformanceTests.MovementDiscardDuelContinuationTests.TriggerOnlyArrivalChainKeepsOriginalFocusAfterEveryColdRestore": 4,
+    "Riftbound.ConformanceTests.MovementDiscardNativeTests.NativeHandChoiceRestoresAndReplaysAfterSourceLeaves": 2,
+    "Riftbound.ConformanceTests.MovementDiscardTests.ActualDestructionResponseDoesNotCancelTheEarnedSkill": 1,
+    "Riftbound.ConformanceTests.MovementDiscardTests.CapturedControllerKeepsChoiceWhenSourceChangesControlOrDisappears": 2,
+    "Riftbound.ConformanceTests.MovementDiscardTests.ChoosingDiscardFeedsSecondDrawObserverOnlyAfterTheDraw": 1,
+    "Riftbound.ConformanceTests.MovementDiscardTests.DiscardThenBurnoutCanRecycleTheJustDiscardedCard": 1,
+    "Riftbound.ConformanceTests.MovementDiscardTests.EveryRouteWaitsForResponseThenChosenDiscardBeforeDraw": 3,
+    "Riftbound.ConformanceTests.MovementDiscardTests.ForgedContinuationCannotChangeSkillControllerCountsOrKind": 1,
+    "Riftbound.ConformanceTests.MovementDiscardTests.InsufficientOrSingleHandStillCompletesTheDraw": 2,
+    "Riftbound.ConformanceTests.MovementDiscardTests.OpponentIllegalDuplicateAndStaleChoicesAreRejectedWithoutMutation": 1,
+    "Riftbound.ConformanceTests.MovementDiscardTests.PendingDiscardDoesNotAllowOtherActionsOrExposePrivateCards": 1,
+    "Riftbound.ConformanceTests.MovementDiscardTests.StandardMoveAndASecondMoveEachRequireTheirOwnDiscard": 1,
+    "Riftbound.ConformanceTests.UndercoverAgentTriggerTests.HiddenAndStandbyUndercoverAgentsDoNotTriggerOrLeakHandChoice": 1,
+    "Riftbound.ConformanceTests.UndercoverAgentTriggerTests.StateBasedCleanupUndercoverAgentQueuesAndOpensHandChoiceThroughStack": 1,
+    "Riftbound.ConformanceTests.UndercoverAgentTriggerTests.UndercoverAgentHandChoiceDuplicateClientIntentRawPayloadReplaysButChangedRawConflictsWithoutMutation": 1,
+    "Riftbound.ConformanceTests.UndercoverAgentTriggerTests.UndercoverAgentHandChoiceRejectsAcceptedCommandReplayWithoutMutation": 1,
+    "Riftbound.ConformanceTests.UndercoverAgentTriggerTests.UndercoverAgentHandChoiceRejectsInvalidCommandsWithoutMutation": 1,
+    "Riftbound.ConformanceTests.UndercoverAgentTriggerTests.UndercoverAgentHandChoiceStalePromptReplayAfterWindowClosesRejectsWithoutMutation": 1,
+    "Riftbound.ConformanceTests.UndercoverAgentTriggerTests.UndercoverAgentHandChoiceStaleRawPromptAfterWindowClosesRecordsRejectedJournalWithoutMutation": 1,
+    "Riftbound.ConformanceTests.UndercoverAgentTriggerTests.UndercoverAgentLastBreathOpensHandChoiceAndDiscardsChosenThenDrawsTwo": 1,
+    "Riftbound.ConformanceTests.UndercoverAgentTriggerTests.UndercoverAgentLastBreathWithNoHandDrawsTwoWithoutPrompt": 1,
+    "Riftbound.ConformanceTests.UndercoverAgentTriggerTests.UndercoverAgentLastBreathWithOneHandAutoDiscardsAndDrawsTwo": 1
+  },
+  "testAssemblySha256": "d5e44a395b1d32f04136e69cac929d217e544e967871a244f77605d8d9284aa3",
+  "trx": {
+    "path": "var/qa/opening-full067-failure-20261017/green-shared-origins/focus/results.trx",
+    "sha256": "749d21dde7d578074aeb31b867e0c9a10594264bc94d3a2f0cc1f8d35687b1a3"
+  },
+  "plan": {
+    "path": "var/qa/opening-full067-failure-20261017/green-shared-origins/plan.json",
+    "sha256": "0f8909f99aac4d264ab554698d4f4cfbac399a6b3f93bd9a9a1aab49bb7bb5f3"
+  },
+  "summary": {
+    "path": "var/qa/opening-full067-failure-20261017/green-shared-origins/summary.json",
+    "sha256": "0b6fea47d6d3f43e68d932773f73fdc77a038a4710ad169624651096ed48aab5"
+  },
+  "strictOriginalOpening": {
+    "seed": 31,
+    "normalScoreVictory": true,
+    "fullOriginalActionEventStateReplay": true,
+    "jsonRoundtripAndColdRegistryRestore": true,
+    "nextOriginalCommandAfterColdRestore": true,
+    "actualWinningScore": 9,
+    "forgedWinningScore8Rejected": true
+  },
+  "scope": "Executed branches only. Explicit midgame choice fixtures use checkpoint replay; seed31 separately uses genuine empty original opening and strict complete recovery replay.",
+  "sql": "NOT_EXECUTED_FOR_CURRENT_INPUTS",
+  "nativeVisible": "OPEN",
+  "windowsPhysical": "OPEN"
+}

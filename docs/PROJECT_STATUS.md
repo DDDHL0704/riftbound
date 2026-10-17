@@ -1,15 +1,25 @@
 # 当前项目状态
 
-2026-10-17 当前固定代码候选`067483dced41e80b9c0ece6a215628e2c7d22adb`已推送，
-[完整CI38986678316](https://github.com/DDDHL0704/riftbound/actions/runs/38986678316)实际仍在规则full，双平台构建已成功。
-原110配对、五场相邻原完整对局及本批唯一check12099例/7269方法全部通过，全部原断言与种子保留。
-当前CI的373个托管/PCK文件在A/B中逐字节核对；双方已通过原生控件连接同一新房间（A以Tab/Return，B以指针），
-真实PostgreSQL确认双席位、tick0/零事件、规范私密非零种子及当前运行身份。A坐标包装器noWindowsAvailable而键盘有效的工具现象、
-零命令阶段过早调用严格回放reader的失败日志均保留；当前正常得分、网络/冷恢复、实际玩法原始回放和Windows实机继续OPEN。
-新双端可见连接确认后清退上一39的A/B及两个平台包，共4个旧生成目标；当前仅留067双端和macOS/Windows各一规范包。
-本次可用空间实测增加771633152字节，收尾43366404096字节（约43.37GB）；源码、全部测试/来源/日志/原始数据库保留。
-本地精确收据`var/qa/private-opening-paired-20261017/previous39-build-retirement.json`，新房间尚无玩法命令；Goal active / NOT READY。
-本段仅同步精确白名单状态文档，不修改代码或替代067的后台完整CI与后续产品验收。
+2026-10-17 固定候选`067483dced41e80b9c0ece6a215628e2c7d22adb`的
+[完整CI38986678316](https://github.com/DDDHL0704/riftbound/actions/runs/38986678316)实际终态为FAILURE：
+普通规则12097例通过，games-2有三条原完整对局失败，其他分片未全部产出终态TRX；双平台构建成功，真实SQL与网络步骤跳过。
+[终态及产物收据](evidence/triggered-duel-continuation-2026-10-17/full-ci-067483dc-failure.json)保留原始哈希与三例本地重现。
+此前110配对、五场相邻对局及12099例/7269方法check只证明当时已执行范围，不能替代本次full终态。
+
+当前工作树正在闭合[触发链时机续接53](https://github.com/DDDHL0704/riftbound/issues/53)、
+[待命标签JSON往返54](https://github.com/DDDHL0704/riftbound/issues/54)及
+[被对手控制的攀圣长阶恢复误拒55](https://github.com/DDDHL0704/riftbound/issues/55)，以及
+[卧底特工对决绝念错误分派56](https://github.com/DDDHL0704/riftbound/issues/56)。
+本轮[现行来源复核](evidence/triggered-duel-continuation-2026-10-17/source-manifest.json)明确CN/zh-CN、截至2026-10-17及核心2026-10-16生效；没有缩减全量来源或提升整卡认证。
+本轮[限定审查与收据](DUEL_CHAIN_COLD_RECOVERY_AUDIT_2026-10-17.md)记录最终46例/34方法focus通过，包含原种子31空白开局、正常得分、严格原始回放、JSON冷恢复及恢复后原下一命令、四个其他移动消费者、响应插入和普通牌起源的弃两抽两；15项原卧底特工测试保留。
+23条原完整对局全部通过，其中原110配对/11牌组/424242的实际完成集合与全部期望精确相等；3,195冻结输入及程序集至结束无漂移。
+独立固定工作树的一次check实际12110例/7274方法，12108通过、2失败、零跳过；原12099例/7269方法全部保留。两项旧Swift/恢复夹具前提有来源地修正后，最终46例包含全部失败身份并通过；生产与原FullGame输入不变，无第二次check，原失败不改写。437份原Conformance源码逐字节相同，全部原方法/Theory/种子和胜利回放断言保留；55项Python工具通过。
+新固定提交完整full待启动，当前SQL、原生双端/网络与Windows实机均未提升。
+
+保留的067原生A/B与macOS/Windows各一规范包仍属于旧固定候选；373个托管/PCK输入及旧真实数据库证明不改写为当前工作树证据。
+其新局已经双方提交牌组及READY，四条接受命令、原始私密种子绑定与完整原始前缀回放均保留；可见客户端尚未完成初始调度与正常得分验收。
+旧39的A/B及两个平台包已按精确清单清退。2026-10-17清理复核时只留最新一组双端与两平台规范包，可用空间约41.5GB；源码、全部测试/来源/日志/原始数据库保留。
+119项限定审查不提升全量认证。26个旧上下文因共享输入变化重开CI，118份历史审查字典保持；原16,534项义务全部保留，本批显式增加五个行为分支和一个门禁，当前16,540项。Goal active / NOT READY。
 
 2026-10-17 固定开局候选`16319c4cbbc2de9e38244c4030e95a9ac887528f`的完整CI
 [38983712146](https://github.com/DDDHL0704/riftbound/actions/runs/38983712146)实际终态为FAILURE，

@@ -43,7 +43,10 @@ public sealed class SwiftStackPriorityPlayCardTests
 
         Assert.True(result.Accepted, result.ErrorMessage);
         Assert.Equal(6, result.State.Tick);
-        Assert.Equal(TimingStates.NeutralClosed, result.State.TimingState);
+        // CN 331.1/340.2.a: the chain closes inside the existing duel.
+        Assert.Equal(TimingStates.SpellDuelClosed, result.State.TimingState);
+        Assert.Null(result.State.FocusPlayerId);
+        Assert.Equal("P1", Assert.IsType<DuelChainFocusState>(result.State.DuelChainFocus).FocusPlayerId);
         Assert.Equal("P2", result.State.ActivePlayerId);
         Assert.Equal("P2", result.State.PriorityPlayerId);
         Assert.Empty(result.State.PassedPriorityPlayerIds);

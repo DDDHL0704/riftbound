@@ -1311,6 +1311,9 @@ public sealed record MatchState
 
     public PendingHandChoiceState? PendingHandChoice { get; init; }
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public DuelChainFocusState? DuelChainFocus { get; init; }
+
     public PendingCardChoiceState? PendingCardChoice { get; init; }
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]

@@ -1,0 +1,62 @@
+{
+  "state": "FAILED_TWO_ORIGINAL_TEST_EXPECTATIONS_RETAINED_CORRECTED_FOCUS_PASS",
+  "profile": "check",
+  "cases": 12110,
+  "methods": 7274,
+  "passed": 12108,
+  "failed": 2,
+  "skipped": 0,
+  "failures": [
+    {
+      "testName": "Riftbound.ConformanceTests.MatchRecoveryTests.RecoveryValidatorRejectsSpectatorReplayTimingWinningScoreMismatch",
+      "message": "Assert.Contains() Failure: Filter not matched in collection\nCollection: []"
+    },
+    {
+      "testName": "Riftbound.ConformanceTests.SwiftStackPriorityPlayCardTests.SwiftSpellPromptAndPlayCardAreLegalInOpenSpellDuelFocusWindow",
+      "message": "Assert.Equal() Failure: Strings differ\n           ↓ (pos 0)\nExpected: \"NEUTRAL_CLOSED\"\nActual:   \"SPELL_DUEL_CLOSED\"\n           ↑ (pos 0)"
+    }
+  ],
+  "trx": {
+    "path": "var/qa/opening-full067-failure-20261017/check/check/results.trx",
+    "sha256": "54e3e26506a3b3c9b033c3ef4fe2ef9ff9567465ea4c18a96ce9525ca78127ba"
+  },
+  "plan": {
+    "path": "var/qa/opening-full067-failure-20261017/check/plan.json",
+    "sha256": "b242deed5f961b5be71f38026efbe0102e4602d269ef85ffc37c1797c1b0d451"
+  },
+  "baselineTrx": {
+    "path": "var/qa/opening-matrix-repro-20261017/check/check/results.trx",
+    "sha256": "057a060d8032feefb4dbdaa9bd6e3ea279d97416a740e05f3b10a4a38195fb7a"
+  },
+  "all12099PriorCaseIdentitiesRetained": true,
+  "all7269PriorMethodIdentitiesRetained": true,
+  "addedCaseIdentities": [
+    "Riftbound.ConformanceTests.MovementDiscardDuelContinuationTests.NormalCardOriginPassesFocusAfterItsLastBreathDiscardChoice",
+    "Riftbound.ConformanceTests.MovementDiscardDuelContinuationTests.OriginalSeed31EmptyOpeningColdRecoversTheDiscardAndReplaysThroughScoreVictory",
+    "Riftbound.ConformanceTests.MovementDiscardDuelContinuationTests.OtherMovementTriggerConsumersKeepOriginalFocus(cardNo: \"SFD·048/221\")",
+    "Riftbound.ConformanceTests.MovementDiscardDuelContinuationTests.OtherMovementTriggerConsumersKeepOriginalFocus(cardNo: \"SFD·130/221\")",
+    "Riftbound.ConformanceTests.MovementDiscardDuelContinuationTests.OtherMovementTriggerConsumersKeepOriginalFocus(cardNo: \"UNL-115/219\")",
+    "Riftbound.ConformanceTests.MovementDiscardDuelContinuationTests.OtherMovementTriggerConsumersKeepOriginalFocus(cardNo: \"UNL-127/219\")",
+    "Riftbound.ConformanceTests.MovementDiscardDuelContinuationTests.ResponseAddedAboveTheMovementTriggerPreservesItsOriginalFocus",
+    "Riftbound.ConformanceTests.MovementDiscardDuelContinuationTests.TriggerOnlyArrivalChainKeepsOriginalFocusAfterEveryColdRestore(handCount: 0, merchants: 1)",
+    "Riftbound.ConformanceTests.MovementDiscardDuelContinuationTests.TriggerOnlyArrivalChainKeepsOriginalFocusAfterEveryColdRestore(handCount: 1, merchants: 1)",
+    "Riftbound.ConformanceTests.MovementDiscardDuelContinuationTests.TriggerOnlyArrivalChainKeepsOriginalFocusAfterEveryColdRestore(handCount: 3, merchants: 1)",
+    "Riftbound.ConformanceTests.MovementDiscardDuelContinuationTests.TriggerOnlyArrivalChainKeepsOriginalFocusAfterEveryColdRestore(handCount: 3, merchants: 2)"
+  ],
+  "isolatedFailureReproduction": {
+    "path": "var/qa/opening-full067-failure-20261017/check-failure-repro/results.trx",
+    "sha256": "15ba505b266e3f890a4a6700b83c35e459bb05d5b377052e9f8255b595f6d6a6"
+  },
+  "afterCorrections": {
+    "path": "docs/evidence/triggered-duel-continuation-2026-10-17/final-focus.json",
+    "sha256": "990bdb769810845945cbfe84ca4d3e16054c84ea087ddd3deb87b9b23a013685"
+  },
+  "corrections": [
+    "Swift expected NEUTRAL_CLOSED changed to SPELL_DUEL_CLOSED per CN331.1/340.2.a, plus null current focus and saved next focusP1 assertions. All other assertions/rows retained.",
+    "Winning-score recovery fixture now has actual battlefield tag; assert real score9 before forged8. Original rejection predicate retained."
+  ],
+  "batchCheckAttempts": 1,
+  "noSecondCheck": "Only two independent test assertions/fixture prerequisites changed; production and original full-game inputs unchanged. All46 selected cases pass; new fixed full must validate complete final inputs.",
+  "fixedCommitFull": "PENDING_NEW_FIXED_COMMIT",
+  "currentProductAcceptance": "OPEN"
+}

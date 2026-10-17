@@ -1,0 +1,446 @@
+{
+  "recordedAtUtc": "2026-10-17T02:54:22.155516+00:00",
+  "baselineCommit": "42c89230105573e39ffaf524a7dc21f24d520d4b",
+  "contextsReopened": 26,
+  "changedPins": 51,
+  "changes": [
+    {
+      "reviewId": "observed-pending-capture-order-and-earliest-permission-2026-10-14",
+      "changedPins": [
+        {
+          "section": "implementation",
+          "path": "src/Riftbound.Engine/MatchRecovery.cs",
+          "before": "60f6daa432c808e24524746dbc6a79d98fe86fccb77a4674dab3031750c1d4cd",
+          "after": "48dda169917a0c6eb76e05e2e5a8f281f72219090bac2c9ce657826f6fd696b1"
+        }
+      ]
+    },
+    {
+      "reviewId": "candlelit-conquest-private-look-recycle-order-2026-10-14",
+      "changedPins": [
+        {
+          "section": "implementation",
+          "path": "src/Riftbound.Engine/MatchRecovery.cs",
+          "before": "60f6daa432c808e24524746dbc6a79d98fe86fccb77a4674dab3031750c1d4cd",
+          "after": "48dda169917a0c6eb76e05e2e5a8f281f72219090bac2c9ce657826f6fd696b1"
+        }
+      ]
+    },
+    {
+      "reviewId": "masked-attendant-reflexive-self-copy-2026-10-14",
+      "changedPins": [
+        {
+          "section": "implementation",
+          "path": "src/Riftbound.Engine/MatchRecovery.cs",
+          "before": "60f6daa432c808e24524746dbc6a79d98fe86fccb77a4674dab3031750c1d4cd",
+          "after": "48dda169917a0c6eb76e05e2e5a8f281f72219090bac2c9ce657826f6fd696b1"
+        },
+        {
+          "section": "implementation",
+          "path": "src/Riftbound.Engine/MatchSession.cs",
+          "before": "4f77b4c099b7d5ec083c4cec6f8d3d83b89a112151e41675e328d208c4a3a285",
+          "after": "e6a6a0b70818d02d702c4d3f0d3e37e574dcaba8beaa6bf540672712fd905c64"
+        }
+      ]
+    },
+    {
+      "reviewId": "static-granted-predict-entry-2026-10-15",
+      "changedPins": [
+        {
+          "section": "implementation",
+          "path": "src/Riftbound.Engine/MatchRecovery.cs",
+          "before": "60f6daa432c808e24524746dbc6a79d98fe86fccb77a4674dab3031750c1d4cd",
+          "after": "48dda169917a0c6eb76e05e2e5a8f281f72219090bac2c9ce657826f6fd696b1"
+        },
+        {
+          "section": "implementation",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "before": "5e60b623ff023f47ffb06080701ef0d283927f3d7066ed4477393fb49f048925",
+          "after": "ed79875b5dc4dc61d56ed82d4d299e4b464a0c8a227b46b3834579f21abc18b5"
+        },
+        {
+          "section": "implementation",
+          "path": "src/Riftbound.Engine/MatchSession.cs",
+          "before": "4f77b4c099b7d5ec083c4cec6f8d3d83b89a112151e41675e328d208c4a3a285",
+          "after": "e6a6a0b70818d02d702c4d3f0d3e37e574dcaba8beaa6bf540672712fd905c64"
+        }
+      ]
+    },
+    {
+      "reviewId": "printed-predict-permanent-entry-2026-10-15",
+      "changedPins": [
+        {
+          "section": "implementation",
+          "path": "src/Riftbound.Engine/MatchRecovery.cs",
+          "before": "60f6daa432c808e24524746dbc6a79d98fe86fccb77a4674dab3031750c1d4cd",
+          "after": "48dda169917a0c6eb76e05e2e5a8f281f72219090bac2c9ce657826f6fd696b1"
+        },
+        {
+          "section": "implementation",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "before": "5e60b623ff023f47ffb06080701ef0d283927f3d7066ed4477393fb49f048925",
+          "after": "ed79875b5dc4dc61d56ed82d4d299e4b464a0c8a227b46b3834579f21abc18b5"
+        }
+      ]
+    },
+    {
+      "reviewId": "sivir-optional-rune-recycle-2026-10-15",
+      "changedPins": [
+        {
+          "section": "implementation",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "before": "5e60b623ff023f47ffb06080701ef0d283927f3d7066ed4477393fb49f048925",
+          "after": "ed79875b5dc4dc61d56ed82d4d299e4b464a0c8a227b46b3834579f21abc18b5"
+        },
+        {
+          "section": "implementation",
+          "path": "src/Riftbound.Engine/MatchSession.cs",
+          "before": "4f77b4c099b7d5ec083c4cec6f8d3d83b89a112151e41675e328d208c4a3a285",
+          "after": "e6a6a0b70818d02d702c4d3f0d3e37e574dcaba8beaa6bf540672712fd905c64"
+        },
+        {
+          "section": "implementation",
+          "path": "src/Riftbound.Engine/MatchRecovery.cs",
+          "before": "60f6daa432c808e24524746dbc6a79d98fe86fccb77a4674dab3031750c1d4cd",
+          "after": "48dda169917a0c6eb76e05e2e5a8f281f72219090bac2c9ce657826f6fd696b1"
+        }
+      ]
+    },
+    {
+      "reviewId": "battlefield-conquer-rune-destination-2026-10-15",
+      "changedPins": [
+        {
+          "section": "implementation",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "before": "5e60b623ff023f47ffb06080701ef0d283927f3d7066ed4477393fb49f048925",
+          "after": "ed79875b5dc4dc61d56ed82d4d299e4b464a0c8a227b46b3834579f21abc18b5"
+        }
+      ]
+    },
+    {
+      "reviewId": "sivir-payment-trigger-and-ward-event-2026-10-15",
+      "changedPins": [
+        {
+          "section": "implementation",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.TriggerHandoff.cs",
+          "before": "38f39a18d97a7c17c514da1757e0f1fe57d7be0ab64047e83b52e69dd8318357",
+          "after": "91ff7c748a2fea15064f2ddc49de125acb291ec76827361d7a91d77063f76eb7"
+        },
+        {
+          "section": "implementation",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "before": "5e60b623ff023f47ffb06080701ef0d283927f3d7066ed4477393fb49f048925",
+          "after": "ed79875b5dc4dc61d56ed82d4d299e4b464a0c8a227b46b3834579f21abc18b5"
+        },
+        {
+          "section": "implementation",
+          "path": "src/Riftbound.Engine/MatchRecovery.cs",
+          "before": "60f6daa432c808e24524746dbc6a79d98fe86fccb77a4674dab3031750c1d4cd",
+          "after": "48dda169917a0c6eb76e05e2e5a8f281f72219090bac2c9ce657826f6fd696b1"
+        }
+      ]
+    },
+    {
+      "reviewId": "unit-conquest-gold-response-2026-10-15",
+      "changedPins": [
+        {
+          "section": "implementation",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "before": "5e60b623ff023f47ffb06080701ef0d283927f3d7066ed4477393fb49f048925",
+          "after": "ed79875b5dc4dc61d56ed82d4d299e4b464a0c8a227b46b3834579f21abc18b5"
+        },
+        {
+          "section": "implementation",
+          "path": "src/Riftbound.Engine/MatchSession.cs",
+          "before": "4f77b4c099b7d5ec083c4cec6f8d3d83b89a112151e41675e328d208c4a3a285",
+          "after": "e6a6a0b70818d02d702c4d3f0d3e37e574dcaba8beaa6bf540672712fd905c64"
+        },
+        {
+          "section": "implementation",
+          "path": "src/Riftbound.Engine/MatchRecovery.cs",
+          "before": "60f6daa432c808e24524746dbc6a79d98fe86fccb77a4674dab3031750c1d4cd",
+          "after": "48dda169917a0c6eb76e05e2e5a8f281f72219090bac2c9ce657826f6fd696b1"
+        }
+      ]
+    },
+    {
+      "reviewId": "own-main-deck-recycle-card-boon-2026-10-15",
+      "changedPins": [
+        {
+          "section": "implementation",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "before": "5e60b623ff023f47ffb06080701ef0d283927f3d7066ed4477393fb49f048925",
+          "after": "ed79875b5dc4dc61d56ed82d4d299e4b464a0c8a227b46b3834579f21abc18b5"
+        },
+        {
+          "section": "implementation",
+          "path": "src/Riftbound.Engine/MatchRecovery.cs",
+          "before": "60f6daa432c808e24524746dbc6a79d98fe86fccb77a4674dab3031750c1d4cd",
+          "after": "48dda169917a0c6eb76e05e2e5a8f281f72219090bac2c9ce657826f6fd696b1"
+        }
+      ]
+    },
+    {
+      "reviewId": "attached-recycle-order-confirmation-and-ceased-host-2026-10-15",
+      "changedPins": [
+        {
+          "section": "implementation",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.TriggerHandoff.cs",
+          "before": "38f39a18d97a7c17c514da1757e0f1fe57d7be0ab64047e83b52e69dd8318357",
+          "after": "91ff7c748a2fea15064f2ddc49de125acb291ec76827361d7a91d77063f76eb7"
+        }
+      ]
+    },
+    {
+      "reviewId": "typed-current-turn-card-play-confirmation-and-resolution-history-2026-10-15",
+      "changedPins": [
+        {
+          "section": "implementation",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "before": "5e60b623ff023f47ffb06080701ef0d283927f3d7066ed4477393fb49f048925",
+          "after": "ed79875b5dc4dc61d56ed82d4d299e4b464a0c8a227b46b3834579f21abc18b5"
+        },
+        {
+          "section": "implementation",
+          "path": "src/Riftbound.Engine/MatchSession.cs",
+          "before": "4f77b4c099b7d5ec083c4cec6f8d3d83b89a112151e41675e328d208c4a3a285",
+          "after": "e6a6a0b70818d02d702c4d3f0d3e37e574dcaba8beaa6bf540672712fd905c64"
+        },
+        {
+          "section": "implementation",
+          "path": "src/Riftbound.Engine/MatchRecovery.cs",
+          "before": "60f6daa432c808e24524746dbc6a79d98fe86fccb77a4674dab3031750c1d4cd",
+          "after": "48dda169917a0c6eb76e05e2e5a8f281f72219090bac2c9ce657826f6fd696b1"
+        }
+      ]
+    },
+    {
+      "reviewId": "porobot-source-play-other-equipment-conditional-draw-2026-10-15",
+      "changedPins": [
+        {
+          "section": "implementation",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "before": "5e60b623ff023f47ffb06080701ef0d283927f3d7066ed4477393fb49f048925",
+          "after": "ed79875b5dc4dc61d56ed82d4d299e4b464a0c8a227b46b3834579f21abc18b5"
+        },
+        {
+          "section": "implementation",
+          "path": "src/Riftbound.Engine/MatchSession.cs",
+          "before": "4f77b4c099b7d5ec083c4cec6f8d3d83b89a112151e41675e328d208c4a3a285",
+          "after": "e6a6a0b70818d02d702c4d3f0d3e37e574dcaba8beaa6bf540672712fd905c64"
+        },
+        {
+          "section": "implementation",
+          "path": "src/Riftbound.Engine/MatchRecovery.cs",
+          "before": "60f6daa432c808e24524746dbc6a79d98fe86fccb77a4674dab3031750c1d4cd",
+          "after": "48dda169917a0c6eb76e05e2e5a8f281f72219090bac2c9ce657826f6fd696b1"
+        }
+      ]
+    },
+    {
+      "reviewId": "typed-card-play-history-causal-production-recovery-2026-10-15",
+      "changedPins": [
+        {
+          "section": "implementation",
+          "path": "src/Riftbound.Engine/MatchRecovery.cs",
+          "before": "60f6daa432c808e24524746dbc6a79d98fe86fccb77a4674dab3031750c1d4cd",
+          "after": "48dda169917a0c6eb76e05e2e5a8f281f72219090bac2c9ce657826f6fd696b1"
+        },
+        {
+          "section": "implementation",
+          "path": "src/Riftbound.Engine/MatchSession.cs",
+          "before": "4f77b4c099b7d5ec083c4cec6f8d3d83b89a112151e41675e328d208c4a3a285",
+          "after": "e6a6a0b70818d02d702c4d3f0d3e37e574dcaba8beaa6bf540672712fd905c64"
+        }
+      ]
+    },
+    {
+      "reviewId": "combat-event-journal-wire-and-single-defender-choice-2026-10-15",
+      "changedPins": [
+        {
+          "section": "implementation",
+          "path": "src/Riftbound.Engine/MatchRecovery.cs",
+          "before": "60f6daa432c808e24524746dbc6a79d98fe86fccb77a4674dab3031750c1d4cd",
+          "after": "48dda169917a0c6eb76e05e2e5a8f281f72219090bac2c9ce657826f6fd696b1"
+        },
+        {
+          "section": "implementation",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "before": "5e60b623ff023f47ffb06080701ef0d283927f3d7066ed4477393fb49f048925",
+          "after": "ed79875b5dc4dc61d56ed82d4d299e4b464a0c8a227b46b3834579f21abc18b5"
+        }
+      ]
+    },
+    {
+      "reviewId": "combat-declaration-provenance-and-single-eligible-unit-conquest-2026-10-15",
+      "changedPins": [
+        {
+          "section": "implementation",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "before": "5e60b623ff023f47ffb06080701ef0d283927f3d7066ed4477393fb49f048925",
+          "after": "ed79875b5dc4dc61d56ed82d4d299e4b464a0c8a227b46b3834579f21abc18b5"
+        }
+      ]
+    },
+    {
+      "reviewId": "optional-mana-trigger-native-and-natural-declaration-order-2026-10-15",
+      "changedPins": [
+        {
+          "section": "implementation",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "before": "5e60b623ff023f47ffb06080701ef0d283927f3d7066ed4477393fb49f048925",
+          "after": "ed79875b5dc4dc61d56ed82d4d299e4b464a0c8a227b46b3834579f21abc18b5"
+        },
+        {
+          "section": "implementation",
+          "path": "src/Riftbound.Engine/MatchSession.cs",
+          "before": "4f77b4c099b7d5ec083c4cec6f8d3d83b89a112151e41675e328d208c4a3a285",
+          "after": "e6a6a0b70818d02d702c4d3f0d3e37e574dcaba8beaa6bf540672712fd905c64"
+        }
+      ]
+    },
+    {
+      "reviewId": "cn16-confirmed-play-origin-and-required-causal-fact-2026-10-16",
+      "changedPins": [
+        {
+          "section": "implementation",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "before": "5e60b623ff023f47ffb06080701ef0d283927f3d7066ed4477393fb49f048925",
+          "after": "ed79875b5dc4dc61d56ed82d4d299e4b464a0c8a227b46b3834579f21abc18b5"
+        },
+        {
+          "section": "implementation",
+          "path": "src/Riftbound.Engine/MatchSession.cs",
+          "before": "4f77b4c099b7d5ec083c4cec6f8d3d83b89a112151e41675e328d208c4a3a285",
+          "after": "e6a6a0b70818d02d702c4d3f0d3e37e574dcaba8beaa6bf540672712fd905c64"
+        }
+      ]
+    },
+    {
+      "reviewId": "physical-origin-self-cost-reduction-2026-10-16",
+      "changedPins": [
+        {
+          "section": "implementation",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "before": "5e60b623ff023f47ffb06080701ef0d283927f3d7066ed4477393fb49f048925",
+          "after": "ed79875b5dc4dc61d56ed82d4d299e4b464a0c8a227b46b3834579f21abc18b5"
+        }
+      ]
+    },
+    {
+      "reviewId": "granted-origin-haste-and-paid-entry-replacement-2026-10-16",
+      "changedPins": [
+        {
+          "section": "implementation",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "before": "5e60b623ff023f47ffb06080701ef0d283927f3d7066ed4477393fb49f048925",
+          "after": "ed79875b5dc4dc61d56ed82d4d299e4b464a0c8a227b46b3834579f21abc18b5"
+        },
+        {
+          "section": "implementation",
+          "path": "src/Riftbound.Engine/MatchSession.cs",
+          "before": "4f77b4c099b7d5ec083c4cec6f8d3d83b89a112151e41675e328d208c4a3a285",
+          "after": "e6a6a0b70818d02d702c4d3f0d3e37e574dcaba8beaa6bf540672712fd905c64"
+        }
+      ]
+    },
+    {
+      "reviewId": "opponent-battlefield-current-control-entry-2026-10-16",
+      "changedPins": [
+        {
+          "section": "implementation",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "before": "5e60b623ff023f47ffb06080701ef0d283927f3d7066ed4477393fb49f048925",
+          "after": "ed79875b5dc4dc61d56ed82d4d299e4b464a0c8a227b46b3834579f21abc18b5"
+        }
+      ]
+    },
+    {
+      "reviewId": "optional-sacrifice-printed-cost-and-paid-entry-2026-10-16",
+      "changedPins": [
+        {
+          "section": "implementation",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "before": "5e60b623ff023f47ffb06080701ef0d283927f3d7066ed4477393fb49f048925",
+          "after": "ed79875b5dc4dc61d56ed82d4d299e4b464a0c8a227b46b3834579f21abc18b5"
+        },
+        {
+          "section": "implementation",
+          "path": "src/Riftbound.Engine/MatchSession.cs",
+          "before": "4f77b4c099b7d5ec083c4cec6f8d3d83b89a112151e41675e328d208c4a3a285",
+          "after": "e6a6a0b70818d02d702c4d3f0d3e37e574dcaba8beaa6bf540672712fd905c64"
+        }
+      ]
+    },
+    {
+      "reviewId": "granted-colorless-token-haste-payment-2026-10-16",
+      "changedPins": [
+        {
+          "section": "implementation",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "before": "5e60b623ff023f47ffb06080701ef0d283927f3d7066ed4477393fb49f048925",
+          "after": "ed79875b5dc4dc61d56ed82d4d299e4b464a0c8a227b46b3834579f21abc18b5"
+        },
+        {
+          "section": "implementation",
+          "path": "src/Riftbound.Engine/MatchSession.cs",
+          "before": "4f77b4c099b7d5ec083c4cec6f8d3d83b89a112151e41675e328d208c4a3a285",
+          "after": "e6a6a0b70818d02d702c4d3f0d3e37e574dcaba8beaa6bf540672712fd905c64"
+        }
+      ]
+    },
+    {
+      "reviewId": "native-rule-choice-prompts-2026-10-16",
+      "changedPins": [
+        {
+          "section": "implementation",
+          "path": "src/Riftbound.Engine/MatchSession.cs",
+          "before": "4f77b4c099b7d5ec083c4cec6f8d3d83b89a112151e41675e328d208c4a3a285",
+          "after": "e6a6a0b70818d02d702c4d3f0d3e37e574dcaba8beaa6bf540672712fd905c64"
+        }
+      ]
+    },
+    {
+      "reviewId": "sand-soldier-embedded-ready-2026-10-17",
+      "changedPins": [
+        {
+          "section": "implementation",
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "before": "5e60b623ff023f47ffb06080701ef0d283927f3d7066ed4477393fb49f048925",
+          "after": "ed79875b5dc4dc61d56ed82d4d299e4b464a0c8a227b46b3834579f21abc18b5"
+        },
+        {
+          "section": "implementation",
+          "path": "src/Riftbound.Engine/MatchRecovery.cs",
+          "before": "60f6daa432c808e24524746dbc6a79d98fe86fccb77a4674dab3031750c1d4cd",
+          "after": "48dda169917a0c6eb76e05e2e5a8f281f72219090bac2c9ce657826f6fd696b1"
+        },
+        {
+          "section": "implementation",
+          "path": "src/Riftbound.Engine/MatchSession.cs",
+          "before": "4f77b4c099b7d5ec083c4cec6f8d3d83b89a112151e41675e328d208c4a3a285",
+          "after": "e6a6a0b70818d02d702c4d3f0d3e37e574dcaba8beaa6bf540672712fd905c64"
+        }
+      ]
+    },
+    {
+      "reviewId": "opening-randomness-2026-10-17",
+      "changedPins": [
+        {
+          "section": "implementation",
+          "path": "src/Riftbound.Engine/MatchRecovery.cs",
+          "before": "60f6daa432c808e24524746dbc6a79d98fe86fccb77a4674dab3031750c1d4cd",
+          "after": "48dda169917a0c6eb76e05e2e5a8f281f72219090bac2c9ce657826f6fd696b1"
+        },
+        {
+          "section": "implementation",
+          "path": "src/Riftbound.Engine/MatchSession.cs",
+          "before": "4f77b4c099b7d5ec083c4cec6f8d3d83b89a112151e41675e328d208c4a3a285",
+          "after": "e6a6a0b70818d02d702c4d3f0d3e37e574dcaba8beaa6bf540672712fd905c64"
+        }
+      ]
+    }
+  ],
+  "all118HistoricalReviewDictionariesRetained": true,
+  "oldCiNeverRelabeledCurrent": true
+}

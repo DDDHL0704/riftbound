@@ -1,0 +1,57 @@
+{
+  "status": "PASSED",
+  "profile": "focus",
+  "originalMethods": 23,
+  "cases": 23,
+  "passed": 23,
+  "failed": 0,
+  "skipped": 0,
+  "methods": [
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameAppliesBattlefieldAllUnitsStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameAppliesCrystalhandHunterSourceObjectLevelStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameAppliesDariusSameBattlefieldStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameAppliesMasterYiLevelFriendlyUnitsStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameAppliesOrnnFriendlyEquipmentStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameAppliesOtherFriendlyStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameAppliesSameBattlefieldBoonCountStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameAppliesSameBattlefieldOtherFriendlyFilteredStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameAppliesSameBattlefieldStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameAppliesSameBattlefieldStaticKeywordAndScoreVictoryActionLogReplaysToFinalStateHash",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameAppliesSourceCombatStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameAppliesSourceLoneBattleStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameAppliesSourceSameLocationStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameAppliesTargonSeerSourceObjectLevelStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameAppliesWiseElderSourceObjectFilteredStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameResolvesCrimsonSignetTreantConquestRepeatAndScoreVictoryActionLogReplaysToFinalStateHash",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameResolvesFlameclawLevelActiveEntryStaticAuraAndScoreVictoryActionLogReplaysToFinalStateHash",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDecksResolveShadowBattleResponseActivationActionLogReplaysToFinalStateHash",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDecksResolveShadowBattleResponseActivationScoreVictoryActionLogReplaysToFinalStateHash",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDecksResolveShadowBattleResponseActivationThroughServerPrompts",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDecksResolveStandbyReactionDuringShadowResponseActionLogReplaysToFinalStateHash",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDecksResolveStandbyReactionDuringShadowResponseScoreVictoryActionLogReplaysToFinalStateHash",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.PreconstructedCatalogDecksReachScoreVictoryActionLogReplaysToFinalStateHash"
+  ],
+  "includesFull110PairMatrix": true,
+  "matrix": {
+    "path": "docs/evidence/triggered-duel-continuation-2026-10-17/matrix110.json",
+    "sha256": "8387d3a4cd7e910e9c0c17bb454cb1cead5009a740a395e43fbe4d6d1b78758c"
+  },
+  "testAssemblySha256": "d5e44a395b1d32f04136e69cac929d217e544e967871a244f77605d8d9284aa3",
+  "plan": {
+    "path": "var/qa/opening-full067-failure-20261017/all-affected-originals-and-110-pairs/plan.json",
+    "sha256": "5a44460f715856bc3797bdf6d541ba03ebfeb4189b71cc83404591c12b81466c"
+  },
+  "summary": {
+    "path": "var/qa/opening-full067-failure-20261017/all-affected-originals-and-110-pairs/summary.json",
+    "sha256": "396d1103ebaa6b48a597d20be706f071909961abc0b6ac2588cb2214ff516e87"
+  },
+  "trx": {
+    "path": "var/qa/opening-full067-failure-20261017/all-affected-originals-and-110-pairs/focus/results.trx",
+    "sha256": "185c5cca4d837ee6c1e46ccf548f0dd90aa63bc89a736e39c8d1e5dc6c7dee19"
+  },
+  "inputClose": {
+    "path": "var/qa/opening-full067-failure-20261017/original-games-input-close.json",
+    "sha256": "515aaa280b203a18478c7e11018a686c10776ae8376245a77fc8cdc06b1f1fa3"
+  },
+  "followupInputChange": "Two separate Swift/MatchRecovery test fixture assertions will be corrected after this execution. Production and original FullGame inputs remain identical; no repeat of unchanged matrix inputs."
+}

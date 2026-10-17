@@ -9530,7 +9530,7 @@ public sealed partial class FullGameEndToEndTests
 
     private static void AssertOrnnFriendlyEquipmentStaticAuraDamage(ResolutionResult result)
     {
-        // The unopposed opening now creates its conquest Gold: Long Sword + Gold give Ornn +2.
+        // The midgame fixture stages Long Sword + Gold explicitly: Ornn gets +2.
         var attackerDamageEvent = CombatTestDriver.DamageMatching(result, gameEvent =>
             string.Equals(gameEvent.Kind, "DAMAGE_APPLIED", StringComparison.Ordinal)
             && gameEvent.Payload.TryGetValue("combatRole", out var combatRole)
@@ -11497,7 +11497,7 @@ public sealed partial class FullGameEndToEndTests
         Assert.False(current.State.CardObjects[shadow].IsExhausted);
         current = await MoveBaseUnitToBattlefieldAsync(session, attacker, current,
             BattlefieldDestinationFor(current.State, attacker), "b0-shadow-incoming-attacker");
-        return current;
+        return await ResolveDriverPendingEffectsAsync(session, current, "b0-shadow-arrival-triggers");
     }
 
     private static async ValueTask<ResolutionResult> DriveContestedBattlefieldToShadowResponseAsync(
@@ -13818,6 +13818,7 @@ public sealed partial class FullGameEndToEndTests
         var withdraw = new MoveUnitCommand(units[0], "BATTLEFIELD", "BASE", SourceObjectIds: units);
         current = await session.SubmitAsync(attacker, $"{prefix}-withdraw", withdraw, RawCommand(withdraw), default);
         AssertAccepted(current);
+        current = await PassOpenSpellDuelAsync(session, current, $"{prefix}-withdraw-triggers");
         current = defenderCardNo is null
             ? await DriveOpponentUnitToBattlefieldAsync(session, current, defender, battlefieldOwner,
                 $"{prefix}-place-defender", battlefieldCardNo)
@@ -26203,16 +26204,22 @@ public sealed partial class FullGameEndToEndTests
 
         var playerZones = midgameState.PlayerZones.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         var p1Zones = playerZones["P1"];
+        // Opening battlefield selection does not guarantee a conquest Gold.
+        // Keep this two-equipment midgame scenario independent of that choice.
+        const string goldObjectId = "P1-ORNN-AURA-FIXTURE-GOLD";
+        Assert.True(P6TokenFactoryCatalog.TryGetByCardNo("SFD·T03", out var gold));
         playerZones["P1"] = p1Zones with
         {
             Hand = p1Zones.Hand.Where(objectId => !string.Equals(objectId, equipmentObjectId, StringComparison.Ordinal)).ToArray(),
-            Base = p1Zones.Base.Concat([equipmentObjectId]).ToArray()
+            Base = p1Zones.Base.Concat([equipmentObjectId, goldObjectId]).ToArray()
         };
 
         var objectLocations = midgameState.ObjectLocations.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         objectLocations[equipmentObjectId] = new ObjectLocationState("P1", "BASE");
+        objectLocations[goldObjectId] = new ObjectLocationState("P1", "BASE");
 
         var cardObjects = midgameState.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+        cardObjects[goldObjectId] = gold.CreateObject(goldObjectId, "P1", "P1", true);
         cardObjects[equipmentObjectId] = cardObjects[equipmentObjectId] with
         {
             Damage = 0,
