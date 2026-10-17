@@ -1,0 +1,31 @@
+{
+  "governanceValid": true,
+  "semanticCoverageCertified": false,
+  "executionScope": "CURRENT_MANIFEST_INDEX_AND_REMAINING_OBLIGATIONS_ONLY",
+  "counts": {
+    "combinedExactPrintingNumbers": 1740,
+    "sourceDocuments": 36,
+    "sourceBlocks": 14293,
+    "cnOfficialPrintings": 1504,
+    "enReturnedPrintings": 1408,
+    "enReportedTotal": 1416,
+    "enSourceCountGap": 8,
+    "activeCatalogEntries": 1033,
+    "outsideActiveCatalog": 707,
+    "cnQaFields": 1504,
+    "cnNonemptyQaFields": 0
+  },
+  "scopedReviews": 119,
+  "errors": [],
+  "previousObligations": 16541,
+  "remainingObligations": 16542,
+  "allOldObligationIdsRetained": true,
+  "addedObligationIds": [
+    "GATE:FULL_GAME_RANDOM_OPENING_FIXTURE_PREMISES"
+  ],
+  "actualFullOutput": {
+    "path": "var/qa/duel-full-ed6a2ba5-failure-20261017/governance-final.json",
+    "sha256": "b01723c03429b27eaf36b7a9102f801cdf0879c0b259d9517fc4e81e773942f3"
+  },
+  "recordedAtUtc": "2026-10-17T05:08:43.527927+00:00"
+}

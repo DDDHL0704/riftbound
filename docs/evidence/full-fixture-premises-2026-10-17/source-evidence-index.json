@@ -1,0 +1,40 @@
+{
+  "scope": "Full original responses for six narrow official-card reads and 14-rule index; unchanged PDF kept once at recorded canonical local path. No whole-source semantic certification.",
+  "files": [
+    {
+      "original": "var/qa/duel-full-ed6a2ba5-failure-20261017/source-recheck/bandle-tree.json",
+      "path": "docs/evidence/full-fixture-premises-2026-10-17/source-bandle-tree.json",
+      "sha256": "7fb521726287913ad2b30fa209e4b0c820b403ad4071aa8dc81f6dc585a6c4a1"
+    },
+    {
+      "original": "var/qa/duel-full-ed6a2ba5-failure-20261017/source-recheck/forgotten-monument.json",
+      "path": "docs/evidence/full-fixture-premises-2026-10-17/source-forgotten-monument.json",
+      "sha256": "cf3c251848eb70fe5e2fe65a8a672f8a5e1ba4fa7a1ce5defedbabdd73b22063"
+    },
+    {
+      "original": "var/qa/duel-full-ed6a2ba5-failure-20261017/source-recheck/gemstone-seer.json",
+      "path": "docs/evidence/full-fixture-premises-2026-10-17/source-gemstone-seer.json",
+      "sha256": "e364ed5047cd991d433243220bda747fa4a681a9db15ffd4a6d9e18d55b5dd53"
+    },
+    {
+      "original": "var/qa/duel-full-ed6a2ba5-failure-20261017/source-recheck/glory-arena.json",
+      "path": "docs/evidence/full-fixture-premises-2026-10-17/source-glory-arena.json",
+      "sha256": "73675d0eefa3d66d2f2d22cc047a769aa355d9cf1cf6a5190d14d268d50d9f70"
+    },
+    {
+      "original": "var/qa/duel-full-ed6a2ba5-failure-20261017/source-recheck/prescient-mech.json",
+      "path": "docs/evidence/full-fixture-premises-2026-10-17/source-prescient-mech.json",
+      "sha256": "f7c079fe9c28a3fd452d1d8892f8d67b61e1440ff4ed7dab19f5ebb96a6024af"
+    },
+    {
+      "original": "var/qa/duel-full-ed6a2ba5-failure-20261017/source-recheck/progress-glory.json",
+      "path": "docs/evidence/full-fixture-premises-2026-10-17/source-progress-glory.json",
+      "sha256": "7653cdbf084caa07d00b4603afe33d654b65581ea80362c7ee2d9d4066039167"
+    },
+    {
+      "original": "var/qa/duel-full-ed6a2ba5-failure-20261017/source-recheck/rules-index.json",
+      "path": "docs/evidence/full-fixture-premises-2026-10-17/source-rules-index.json",
+      "sha256": "4aeb150604c4319baac817897bbb1e09c493fb7fa2b0312bebe70f3935554332"
+    }
+  ]
+}

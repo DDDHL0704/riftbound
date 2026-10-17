@@ -13393,19 +13393,132 @@
         "path": "docs/evidence/triggered-duel-continuation-2026-10-17/final-focus.json",
         "sha256": "990bdb769810845945cbfe84ca4d3e16054c84ea087ddd3deb87b9b23a013685"
       },
-      "fixedCommitCi": "PENDING_NEW_FIXED_COMMIT",
+      "fixedCommitCi": {
+        "commit": "ed6a2ba59ec09c74c28856c6462edd6bc81dca07",
+        "runId": 38997666509,
+        "conclusion": "FAILURE",
+        "receipt": {
+          "path": "docs/evidence/full-fixture-premises-2026-10-17/full-ci-ed-failure.json",
+          "sha256": "be6b2bef76b586ecbe13085c8887c3fb8d313089e6d5970ca7cfeff10841445f"
+        },
+        "fixtureCorrectionIssue": "https://github.com/DDDHL0704/riftbound/issues/58",
+        "newFixedFull": "PENDING_NEW_FIXED_COMMIT"
+      },
       "productAcceptance": "OPEN",
       "remaining": [
         "All1740 source identities/1033 runtime entries and all prior source, printing, clause, QA, news and EN-gap obligations remain; no whole-card or whole-family certification.",
         "Other consumers, nested combinations, spells and skills beyond the exact executed method/branch receipts require their own semantic and behavioral review.",
         "Current fixed-commit full must retain all143 original games, all110 pairs, original seeds, win/replay assertions, all84 real SQL paths, network and both desktop jobs.",
-        "Current visible paired clients, actual database execution, network interruption/cold restart, normal score completion/full original replay and Windows physical runtime remain separate OPEN gates.",
-        "Raw malformed optionalCosts issue52 remains unresolved. The old067 native initial-mulligan UI transition remains unverified; an unavailable UI window is not proof of an application hang. No accepted history is rewritten and no old development-match migration is added."
+        "Current fixed-ed visible pair, actual PostgreSQL, open empty-duel cold interruption/reconnect, normal score8 and original replay passed only the documented native slice. Pending-selection/stack cold restart, other family consumers, new-candidate full and physical Windows remain OPEN.",
+        "Raw malformed optionalCosts issue52 remains unresolved. The earlier opening application-defect classification is withdrawn after human actual-window confirmation and a direct normal ed opening. Issue57 remains needs-triage for observation-root-cause evaluation. No accepted history is rewritten and no development-match migration is added."
       ],
       "batchCheck": {
         "path": "docs/evidence/triggered-duel-continuation-2026-10-17/check.json",
         "sha256": "38466b5710e2659a4ce4ed3850593704f076e5c9100eef89f9a64044df628701"
+      },
+      "limitedEdNativeAcceptance": {
+        "path": "docs/evidence/native-opening-transition-2026-10-17/ed-native-acceptance.json",
+        "sha256": "c66fd20b9a9777900304192e864f2b9423a0c4f77bfce3cc069af871d57c3bf0"
       }
+    },
+    {
+      "id": "NATIVE_INITIAL_OPENING_TRANSITION",
+      "state": "OPEN",
+      "requirement": "Normal native paired READY must show mulligan/wait directly; retain cold reconnect, network, score/full replay and exact input identities. Cold restart cannot replace normal opening.",
+      "issue": "https://github.com/DDDHL0704/riftbound/issues/57",
+      "observedRuntimeCommit": "067483dced41e80b9c0ece6a215628e2c7d22adb",
+      "clientSourceByteUnchangedThroughCommit": "ed6a2ba59ec09c74c28856c6462edd6bc81dca07",
+      "observation": {
+        "path": "docs/evidence/native-opening-transition-2026-10-17/old067-cold-observation.json",
+        "sha256": "ad4a2f959bacf4995d65814813bf3efb98125e4b258ccb80da81c48c7fccda03"
+      },
+      "normalOpeningUiTransition": "LIMITED_ED_DIRECT_READY_AND_MULLIGAN_PASS_WITH_EXPLICIT_WINDOW_OBSERVATION",
+      "latestEdBinaryAcceptance": "LIMITED_NATIVE_PAIR_REAL_SQL_NETWORK_COLD_NORMAL_SCORE_ORIGINAL_REPLAY_PASS",
+      "sourceSemanticCertification": false,
+      "windowsPhysical": "OPEN",
+      "observationCorrection": {
+        "path": "docs/evidence/native-opening-transition-2026-10-17/window-activation-correction.json",
+        "sha256": "201860d028df18f5595b70c138e8dba54c28319c2084509afbffacf32f221ccf"
+      },
+      "earlierApplicationDefectClassificationWithdrawn": true,
+      "observedCurrentRuntimeCommit": "ed6a2ba59ec09c74c28856c6462edd6bc81dca07",
+      "currentEdReceipt": {
+        "path": "docs/evidence/native-opening-transition-2026-10-17/ed-native-acceptance.json",
+        "sha256": "c66fd20b9a9777900304192e864f2b9423a0c4f77bfce3cc069af871d57c3bf0"
+      },
+      "issueStillNeedsMaintainerTriage": true,
+      "observationRootCause": "UNCONFIRMED_TOOL_RENDERED_SURFACE_CAN_BE_STALE",
+      "fullCiConclusion": "ED_FAILURE_THREE_FIXTURE_PREMISES_ISSUE58",
+      "pendingSelectionColdRestart": "NOT_EXERCISED_IN_THIS_NATIVE_SLICE"
+    },
+    {
+      "id": "FULL_GAME_RANDOM_OPENING_FIXTURE_PREMISES",
+      "state": "OPEN",
+      "requirement": "Close all three original fixed-ed full-CI failure identities without removing original tests, Theory rows, seeds, balance/score/win/replay assertions; verify the precise fixture prerequisites and complete a new fixed full.",
+      "issue": "https://github.com/DDDHL0704/riftbound/issues/58",
+      "source": {
+        "path": "docs/evidence/full-fixture-premises-2026-10-17/source-manifest.json",
+        "sha256": "2d22ae3466728bbb7c4e9855f2c16e9f2c3af9caf0472eb413551692c47dc1a2"
+      },
+      "semanticReview": "LIMITED_FIXTURE_PREMISES_NO_WHOLE_CARD_CERTIFICATION",
+      "implementation": {
+        "state": "TEST_FIXTURE_CORRECTION_ONLY_NO_PRODUCTION_CHANGE",
+        "path": "tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs",
+        "sha256": "8ae72684dc188db7477e9866f0fecc9b4ecb667f6640bc8656e8c4816531dbc8"
+      },
+      "behaviorBranches": [
+        {
+          "id": "prescient-granted-predict-planned-printed-payment",
+          "printing": "SFD·065/221",
+          "officialId": 33145,
+          "playedPrinting": "SFD·075/221",
+          "playedOfficialId": 33155,
+          "requiredPool": "4 mana +1 power; no unrelated hand cost funding"
+        },
+        {
+          "id": "gemstone-other-friendly-granted-predict-planned-printed-payment",
+          "printing": "OGN·100/298",
+          "officialId": 31318,
+          "playedPrinting": "SFD·075/221",
+          "playedOfficialId": 33155,
+          "requiredPool": "4 mana +1 power; no unrelated hand cost funding"
+        },
+        {
+          "id": "glory-global-first-turn-plus-different-legal-actual-held-field",
+          "printing": "OGN·290/298",
+          "runtimeOfficialId": 31535,
+          "currentReturnedOfficialId": 37953,
+          "otherPrintings": [
+            "SFD·209/221",
+            "OGN·278/298"
+          ],
+          "coreClauses": [
+            "167",
+            "190.4.c",
+            "190.6.b",
+            "194.1",
+            "315.2.b.2"
+          ],
+          "requiredPremise": "Original total2 remains: Glory global1 plus real holder on a distinct field whose first-turn score is not blocked."
+        }
+      ],
+      "testEvidence": {
+        "path": "docs/evidence/full-fixture-premises-2026-10-17/original-full-game-focus.json",
+        "sha256": "e8aaa46e28f9a30f8638daf56545839c9d802af747e71e025604d5cb99112ad3"
+      },
+      "batchCheck": {
+        "path": "docs/evidence/full-fixture-premises-2026-10-17/check.json",
+        "sha256": "4820b37c744dcc82ee2b2c89194d6ae3ae5f4d7edb7951b5e9f3391e2e6ac880"
+      },
+      "failedFixedCi": {
+        "path": "docs/evidence/full-fixture-premises-2026-10-17/full-ci-ed-failure.json",
+        "sha256": "be6b2bef76b586ecbe13085c8887c3fb8d313089e6d5970ca7cfeff10841445f"
+      },
+      "fixedCommitCi": "PENDING_NEW_FIXED_COMMIT_FULL",
+      "productAcceptance": "NO_PRODUCTION_CHANGE_ED_NATIVE_EVIDENCE_SEPARATE",
+      "sourceSemanticCertification": false,
+      "allPrior16541ObligationIdentitiesRetained": true,
+      "windowsPhysical": "OPEN"
     }
   ],
   "note": "Current inventory and remaining obligations, with independently dated rule sources and separately recorded source deltas. No source fetch or semantic certification by this checker.",

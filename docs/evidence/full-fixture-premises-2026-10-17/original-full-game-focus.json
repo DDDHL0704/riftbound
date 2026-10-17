@@ -1,0 +1,52 @@
+{
+  "status": "THREE_ORIGINAL_FAILURES_REPRODUCED_THEN_SAME_THREE_PASS_AND_THREE_ADJACENT_PASS",
+  "red": {
+    "trx": {
+      "path": "var/qa/duel-full-ed6a2ba5-failure-20261017/red-originals/focus/results.trx",
+      "sha256": "b577caf4a8f993e7611c31cb015082362d24d83894f021fdd106a019203b4619"
+    },
+    "cases": 3,
+    "methods": 3,
+    "passed": 0,
+    "failed": 3,
+    "testNames": [
+      "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameResolvesGemstoneSeerOtherFriendlyStaticGrantedPredictRecycleAndScoreVictoryActionLogReplaysToFinalStateHash",
+      "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameResolvesPrescientMechStaticGrantedPredictRecycleAndScoreVictoryActionLogReplaysToFinalStateHash",
+      "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDecksResolveGloryArenaFirstTurnScoreAndScoreVictoryActionLogReplaysToFinalStateHash"
+    ]
+  },
+  "green": {
+    "trx": {
+      "path": "var/qa/duel-full-ed6a2ba5-failure-20261017/green-originals/focus/results.trx",
+      "sha256": "a618c2fe1c54fb8c16ece0156e39161daadadb0a7983c21a3e6b0a5a5eaa2bd1"
+    },
+    "cases": 3,
+    "methods": 3,
+    "passed": 3,
+    "failed": 0,
+    "testNames": [
+      "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameResolvesPrescientMechStaticGrantedPredictRecycleAndScoreVictoryActionLogReplaysToFinalStateHash",
+      "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDecksResolveGloryArenaFirstTurnScoreAndScoreVictoryActionLogReplaysToFinalStateHash",
+      "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameResolvesGemstoneSeerOtherFriendlyStaticGrantedPredictRecycleAndScoreVictoryActionLogReplaysToFinalStateHash"
+    ]
+  },
+  "adjacent": {
+    "trx": {
+      "path": "var/qa/duel-full-ed6a2ba5-failure-20261017/green-adjacent/focus/results.trx",
+      "sha256": "2267114ad2913b6cd22b5e63641e80b6f266a2609d7b45f0e76e444e0f438a9e"
+    },
+    "cases": 3,
+    "methods": 3,
+    "passed": 3,
+    "failed": 0,
+    "testNames": [
+      "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDecksResolvePowerObeliskFirstTurnExtraRuneAndScoreVictoryActionLogReplaysToFinalStateHash",
+      "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDecksResolveWinningScoreIncreaseAndScoreVictoryActionLogReplaysToFinalStateHash",
+      "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDecksResolveForgottenMonumentScoreDelayAndScoreVictoryActionLogReplaysToFinalStateHash"
+    ]
+  },
+  "allOriginalFailureIdentitiesPreserved": true,
+  "newTestMethodsAdded": 0,
+  "productionChanged": false,
+  "noWinReplayOrBalanceAssertionsRemoved": true
+}

@@ -1,0 +1,12 @@
+{
+  "priorManifest": {
+    "path": "var/qa/duel-full-ed6a2ba5-failure-20261017/manifest-before-evidence-update.json",
+    "sha256": "60129f1fabd4e0b85c34074f9bf749176186767b9325f8a95f7723ec8677a675"
+  },
+  "all119ReviewContextDictionariesUnchanged": true,
+  "allPriorGateIdsRetained": true,
+  "addedGateId": "FULL_GAME_RANDOM_OPENING_FIXTURE_PREMISES",
+  "previousRemainingObligations": 16541,
+  "expectedCurrentRemainingObligations": 16542,
+  "wholeCardOrFamilyCertificationAdded": false
+}

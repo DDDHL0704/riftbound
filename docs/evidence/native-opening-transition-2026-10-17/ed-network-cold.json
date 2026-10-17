@@ -1,0 +1,41 @@
+{
+  "capturedAtUtc": "2026-10-17T04:25:07.187401+00:00",
+  "status": "NATIVE_TWO_CLIENT_RECONNECT_AND_COLD_POSTGRES_DUEL_RESTORE_PASS",
+  "commit": "ed6a2ba59ec09c74c28856c6462edd6bc81dca07",
+  "room": "paired-duel-chain-20261017",
+  "beforeCheckpoint": "before-native-cold-duel-full-replay-checkpoint.json",
+  "afterCheckpoint": "after-native-cold-duel-full-replay-checkpoint.json",
+  "exactMatchedFields": [
+    "currentTick",
+    "lastEventSequence",
+    "commands",
+    "events",
+    "ruleInputs",
+    "finalStateHash",
+    "openingSeedTextSha256",
+    "scores",
+    "turnNumber"
+  ],
+  "commands": 24,
+  "events": 98,
+  "tick": 23,
+  "stateHash": "574617a69a4e45c8dfd29ace92388fa3cb1c23200b99b66ccc8b87b6fb6ddaa9",
+  "uiObserved": {
+    "bothClientsDisplayedConnectionInterrupted": true,
+    "bothShowedCachedBoardWithActionsDisabled": true,
+    "automaticRetryEventuallyExhausted": true,
+    "manualNativeReconnectUsedForAAndB": true,
+    "bothDisconnectedBannersCleared": true,
+    "sameScoreAndHandCountsAfterRejoin": true,
+    "bRegainedFocusAndPassAction": true,
+    "aRemainedWaitingForB": true
+  },
+  "sourceFrozen": true,
+  "apiPublishFrozen": true,
+  "originalSeedKeptPrivate": true,
+  "qaRewroteHistory": false,
+  "normalScoreFinish": "OPEN",
+  "pendingChoiceDuringColdRestart": "NOT_EXERCISED_IN_THIS_SLICE",
+  "windowsPhysical": "OPEN",
+  "scope": "Exact ed6a2ba5 native pair; active contested battlefield and open empty duel, not a pending stack/choice."
+}

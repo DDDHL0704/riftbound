@@ -1089,13 +1089,25 @@ public sealed partial class FullGameEndToEndTests
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
         var p1Deck = BuildBattlefieldFirstTurnScoreOfficialDeck(catalog);
         var p2Deck = BuildSlowBattlefieldLowCurveOfficialDeck(catalog, RumbleLegendCardNo, RumbleChampionCardNo);
+        // The original two-point assertion includes holding a different field.
+        // Forgotten Monument cannot supply that point on a player's first turn.
+        p2Deck = p2Deck with { Battlefields = p2Deck.Battlefields.Select(cardNo =>
+            cardNo == ForgottenMonumentBattlefieldCardNo ? BandleTreeBattlefieldCardNo : cardNo).ToArray() };
+        Assert.True(OfficialDeckValidator.Validate(p2Deck, catalog).IsValid);
         var (_, openingResult) = await DriveOfficialDecksToBattlefieldFirstTurnScoreOpeningAsync(
             "b0-full-game-glory-arena-first-turn-score-replay-room",
             p1Deck,
             p2Deck);
         var replayInitialState = BuildBattlefieldFirstTurnReplayInitialState(
             openingResult.State,
-            FirstTurnScoreBattlefieldCardNo);
+            FirstTurnScoreBattlefieldCardNo,
+            preserveBattlefieldUnits: true);
+        var heldBattlefieldId = BattlefieldObjectIdForPlayer(replayInitialState, "P2");
+        Assert.NotEqual(ForgottenMonumentBattlefieldCardNo, replayInitialState.CardObjects[heldBattlefieldId].CardNo);
+        Assert.Equal("P2", replayInitialState.CardObjects[heldBattlefieldId].ControllerId);
+        Assert.Contains(replayInitialState.ObjectLocations, entry => entry.Value.BattlefieldObjectId == heldBattlefieldId
+            && replayInitialState.CardObjects[entry.Key].Tags.Contains(CardObjectTags.UnitCard)
+            && replayInitialState.CardObjects[entry.Key].ControllerId == "P2");
         var journal = new RecordingMatchJournal();
         var session = new MatchSession(replayInitialState, new CoreRuleEngine(), journal);
         var current = AcceptedCurrentResult(replayInitialState);
@@ -4331,7 +4343,9 @@ public sealed partial class FullGameEndToEndTests
             NoopMatchJournal.Instance,
             p1Deck,
             p2Deck);
-        var initialState = PrintedCostFixture.FundHand(BuildPrescientMechStaticGrantedPredictMidgameInitialState(openingResult.State));
+        var initialState = PrintedCostFixture.Add(BuildPrescientMechStaticGrantedPredictMidgameInitialState(openingResult.State),
+            "P1", ProgressGloryMechanicalUnitCardNo);
+        Assert.Equal(new RunePool(4, 1), initialState.RunePools["P1"]);
         var journal = new RecordingMatchJournal();
         var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
         var current = AcceptedCurrentResult(initialState);
@@ -4368,7 +4382,9 @@ public sealed partial class FullGameEndToEndTests
             NoopMatchJournal.Instance,
             p1Deck,
             p2Deck);
-        var initialState = PrintedCostFixture.FundHand(BuildGemstoneSeerOtherFriendlyStaticGrantedPredictMidgameInitialState(openingResult.State));
+        var initialState = PrintedCostFixture.Add(BuildGemstoneSeerOtherFriendlyStaticGrantedPredictMidgameInitialState(openingResult.State),
+            "P1", ProgressGloryMechanicalUnitCardNo);
+        Assert.Equal(new RunePool(4, 1), initialState.RunePools["P1"]);
         var journal = new RecordingMatchJournal();
         var session = new MatchSession(initialState, new CoreRuleEngine(), journal);
         var current = AcceptedCurrentResult(initialState);
@@ -27548,7 +27564,8 @@ public sealed partial class FullGameEndToEndTests
         };
     }
 
-    private static MatchState BuildBattlefieldFirstTurnReplayInitialState(MatchState state, string sourceBattlefieldCardNo)
+    private static MatchState BuildBattlefieldFirstTurnReplayInitialState(MatchState state, string sourceBattlefieldCardNo,
+        bool preserveBattlefieldUnits = false)
     {
         _ = BattlefieldObjectIdForCardNo(
             state,
@@ -27559,6 +27576,7 @@ public sealed partial class FullGameEndToEndTests
         var cardObjects = state.CardObjects.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
         foreach (var (playerId, zones) in state.PlayerZones)
         {
+            if (preserveBattlefieldUnits) continue;
             var battlefieldCardObjectIds = zones.Battlefields
                 .Where(objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
                     && cardObject.Tags.Contains("CARD_TYPE:BATTLEFIELD", StringComparer.Ordinal))
