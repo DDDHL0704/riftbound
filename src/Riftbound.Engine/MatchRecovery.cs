@@ -1031,6 +1031,7 @@ public static class MatchRecoveryValidator
         "CARD_PLAYED",
         "SPELL_PLAY_COMPLETED",
         "SPELL_TARGET_CHOSEN",
+        "SPELL_DUEL_STARTED",
         "BATTLEFIELD_CONQUERED",
         "BATTLE_DECLARED",
         "BATTLE_ROLES_ESTABLISHED",
@@ -4552,7 +4553,7 @@ public static class MatchRecoveryValidator
                 playerGraveyardObjectIdsByPlayer,
                 "player zones",
                 errors);
-            var ceasedInsight = ValidateLastBreathInsightView(triggerPayload,effectKind,controllerId,sourceObjectId,errors);
+            var ceasedInsight = ValidateCapturedInsightView(triggerPayload,effectKind,controllerId,sourceObjectId,errors);
             if (!ValidateReflexiveDuelView(triggerPayload,effectKind,errors)
             && !ValidateMovementObserverView(triggerPayload,effectKind,controllerId,sourceObjectId,errors)
             && !ValidateDeathObserverView(triggerPayload,effectKind,controllerId,sourceObjectId,errors)
@@ -18707,7 +18708,7 @@ public static class MatchRecoveryValidator
             if (MatchStateHasher.HashValue(ReadMightySkillView(spectatorTrigger)) != MatchStateHasher.HashValue(authoritativeTrigger.MightySkill)) errors.Add("spectator captured Mighty transition differs from authoritative state");
             if (MatchStateHasher.HashValue(ReadBattlefieldConquestMightView(spectatorTrigger)) != MatchStateHasher.HashValue(authoritativeTrigger.BattlefieldConquestMight)) errors.Add("spectator captured conquest Might differs from authoritative state");
             if (MatchStateHasher.HashValue(ReadLastBreathMightView(spectatorTrigger)) != MatchStateHasher.HashValue(authoritativeTrigger.LastBreathMight)) errors.Add("spectator captured last-breath Might differs from authoritative state");
-            if (MatchStateHasher.HashValue(ReadLastBreathInsightView(spectatorTrigger)) != MatchStateHasher.HashValue(LastBreathInsight(authoritativeTrigger.InsightContext))) errors.Add("spectator captured last-breath Insight differs from authoritative state");
+            if (MatchStateHasher.HashValue(ReadCapturedInsightView(spectatorTrigger)) != MatchStateHasher.HashValue(CapturedInsight(authoritativeTrigger.InsightContext))) errors.Add($"spectator {CapturedInsightLabel(authoritativeTrigger.InsightContext)} differs from authoritative state");
             if (MatchStateHasher.HashValue(ReadDeathObserverView(spectatorTrigger)) != MatchStateHasher.HashValue(authoritativeTrigger.DeathObserver)) errors.Add("spectator captured death observer differs from authoritative state");
             if (MatchStateHasher.HashValue(ReadDelayedDestructionView(spectatorTrigger)) != MatchStateHasher.HashValue(authoritativeTrigger.DelayedDestruction)) errors.Add("spectator captured delayed destruction differs from authoritative state");
             var expectedSourceObjectId = hiddenSource ? "HIDDEN" : authoritativeTrigger.SourceObjectId;
@@ -18944,7 +18945,7 @@ public static class MatchRecoveryValidator
             if (MatchStateHasher.HashValue(ReadMightySkillView(triggerPayload)) != MatchStateHasher.HashValue(authoritativeTrigger.MightySkill)) errors.Add("snapshot captured Mighty transition differs from authoritative state");
             if (MatchStateHasher.HashValue(ReadBattlefieldConquestMightView(triggerPayload)) != MatchStateHasher.HashValue(authoritativeTrigger.BattlefieldConquestMight)) errors.Add("snapshot captured conquest Might differs from authoritative state");
             if (MatchStateHasher.HashValue(ReadLastBreathMightView(triggerPayload)) != MatchStateHasher.HashValue(authoritativeTrigger.LastBreathMight)) errors.Add("snapshot captured last-breath Might differs from authoritative state");
-            if (MatchStateHasher.HashValue(ReadLastBreathInsightView(triggerPayload)) != MatchStateHasher.HashValue(LastBreathInsight(authoritativeTrigger.InsightContext))) errors.Add("snapshot captured last-breath Insight differs from authoritative state");
+            if (MatchStateHasher.HashValue(ReadCapturedInsightView(triggerPayload)) != MatchStateHasher.HashValue(CapturedInsight(authoritativeTrigger.InsightContext))) errors.Add($"snapshot {CapturedInsightLabel(authoritativeTrigger.InsightContext)} differs from authoritative state");
             if (MatchStateHasher.HashValue(ReadDeathObserverView(triggerPayload)) != MatchStateHasher.HashValue(authoritativeTrigger.DeathObserver)) errors.Add("spectator captured death observer differs from authoritative state");
             if (MatchStateHasher.HashValue(ReadDelayedDestructionView(triggerPayload)) != MatchStateHasher.HashValue(authoritativeTrigger.DelayedDestruction)) errors.Add("spectator captured delayed destruction differs from authoritative state");
             var expectedSourceObjectId = hiddenSource ? "HIDDEN" : authoritativeTrigger.SourceObjectId;
@@ -19308,7 +19309,7 @@ public static class MatchRecoveryValidator
             playerGraveyardObjectIdsByPlayer,
             "authoritative state player zones",
             errors);
-        var ceasedInsight = ValidateLastBreathInsightView(triggerPayload,effectKind,controllerId,sourceObjectId,errors);
+        var ceasedInsight = ValidateCapturedInsightView(triggerPayload,effectKind,controllerId,sourceObjectId,errors);
         if (!ValidateReflexiveDuelView(triggerPayload,effectKind,errors)
             && !ValidateMovementObserverView(triggerPayload,effectKind,controllerId,sourceObjectId,errors)
             && !ValidateDeathObserverView(triggerPayload,effectKind,controllerId,sourceObjectId,errors)
@@ -23070,7 +23071,7 @@ public static class MatchRecoveryValidator
             }
 
             ValidateLastBreathMightStackViews(view.Snapshot.Stack, authoritativeState, errors, $"snapshot for {view.PlayerId}");
-            ValidateLastBreathInsightStackViews(view.Snapshot.Stack, authoritativeState, errors, $"snapshot for {view.PlayerId}");
+            ValidateCapturedInsightStackViews(view.Snapshot.Stack, authoritativeState, errors, $"snapshot for {view.PlayerId}");
             ValidateDelayedDestructionStackViews(view.Snapshot.Stack, authoritativeState, errors);
             ValidateSourceReplayStackViews(view.Snapshot.Stack, authoritativeState, errors);
             ValidateResolutionDamageChoiceViews(view.Snapshot.Stack, authoritativeState, errors);
@@ -23103,8 +23104,8 @@ public static class MatchRecoveryValidator
                         TryReadObjectString(payload, "triggerId", out var id) && id == trigger.TriggerId);
                     if (MatchStateHasher.HashValue(ReadDelayedDestructionView(projected)) != MatchStateHasher.HashValue(trigger.DelayedDestruction))
                         errors.Add($"snapshot for {view.PlayerId} captured delayed destruction differs from authoritative state");
-                    if (MatchStateHasher.HashValue(ReadLastBreathInsightView(projected)) != MatchStateHasher.HashValue(LastBreathInsight(trigger.InsightContext)))
-                        errors.Add($"snapshot for {view.PlayerId} captured last-breath Insight differs from authoritative state");
+                    if (MatchStateHasher.HashValue(ReadCapturedInsightView(projected)) != MatchStateHasher.HashValue(CapturedInsight(trigger.InsightContext)))
+                        errors.Add($"snapshot for {view.PlayerId} {CapturedInsightLabel(trigger.InsightContext)} differs from authoritative state");
                 }
                 foreach (var trigger in authoritativeState.TriggerQueue.Where(t => t.DeathObserver is not null))
                 {
@@ -23503,31 +23504,39 @@ public static class MatchRecoveryValidator
         }
     }
 
-    private static InsightTriggerContext? LastBreathInsight(InsightTriggerContext? context)
-        => context is { Kind: "LAST_BREATH" } ? context : null;
+    private static string CapturedInsightLabel(InsightTriggerContext? context)
+        => context is { Kind: "DUEL" } ? "captured duel Insight" : "captured last-breath Insight";
 
-    private static InsightTriggerContext? ReadLastBreathInsightView(object? payload)
+    private static InsightTriggerContext? CapturedInsight(InsightTriggerContext? context)
+        => context is { Kind: "LAST_BREATH" or "DUEL" } ? context : null;
+
+    private static InsightTriggerContext? ReadCapturedInsightView(object? payload)
     {
         try {
             var json = JsonSerializer.SerializeToElement(payload);
-            return json.ValueKind == JsonValueKind.Object && json.TryGetProperty("lastBreathInsight", out var raw)
-                && raw.ValueKind != JsonValueKind.Null
-                ? raw.Deserialize<InsightTriggerContext>(new JsonSerializerOptions {
-                    PropertyNameCaseInsensitive = true,
-                    UnmappedMemberHandling = System.Text.Json.Serialization.JsonUnmappedMemberHandling.Disallow }) : null;
+            if (json.ValueKind != JsonValueKind.Object) return null;
+            var hasLastBreath = json.TryGetProperty("lastBreathInsight", out var lastBreath) && lastBreath.ValueKind != JsonValueKind.Null;
+            var hasDuel = json.TryGetProperty("duelInsight", out var duel) && duel.ValueKind != JsonValueKind.Null;
+            if (hasLastBreath == hasDuel) return null;
+            var context = (hasLastBreath ? lastBreath : duel).Deserialize<InsightTriggerContext>(new JsonSerializerOptions {
+                PropertyNameCaseInsensitive = true,
+                UnmappedMemberHandling = System.Text.Json.Serialization.JsonUnmappedMemberHandling.Disallow });
+            return context?.Kind == (hasLastBreath ? "LAST_BREATH" : "DUEL") ? context : null;
         } catch (JsonException) { return null; }
     }
 
-    private static bool ValidateLastBreathInsightView(object? payload, string? effect, string? controller,
+    private static bool ValidateCapturedInsightView(object? payload, string? effect, string? controller,
         string? source, List<string> errors)
     {
-        if (!TryReadObjectValue(payload, "lastBreathInsight", out var raw) || IsNullSnapshotPayloadValue(raw)) return false;
-        var context = ReadLastBreathInsightView(payload);
-        if (context is not { Kind: "LAST_BREATH" } || string.IsNullOrWhiteSpace(source)
+        var hasLastBreath = TryReadObjectValue(payload, "lastBreathInsight", out var lastBreath) && !IsNullSnapshotPayloadValue(lastBreath);
+        var hasDuel = TryReadObjectValue(payload, "duelInsight", out var duel) && !IsNullSnapshotPayloadValue(duel);
+        if (!hasLastBreath && !hasDuel) return false;
+        var context = ReadCapturedInsightView(payload);
+        if (hasLastBreath == hasDuel || context is not { Kind: "LAST_BREATH" or "DUEL" } || string.IsNullOrWhiteSpace(source)
             || !CoreRuleEngine.ValidInsightTrigger(context, effect ?? "", controller ?? "")
             || context.Origin is { } origin && (origin.Unit is null || origin.Unit.ObjectId != source))
         {
-            errors.Add("invalid public captured last-breath Insight");
+            errors.Add($"invalid public {(hasDuel ? "captured duel Insight" : "captured last-breath Insight")}");
             return false;
         }
         // This proves only the public shape. Exact typed-authority comparisons
@@ -23535,7 +23544,7 @@ public static class MatchRecoveryValidator
         return context.SourceTokenFactoryCardNo is not null;
     }
 
-    private static void ValidateLastBreathInsightStackViews(IReadOnlyList<object?> payloads,
+    private static void ValidateCapturedInsightStackViews(IReadOnlyList<object?> payloads,
         MatchState authority, List<string> errors, string label)
     {
         foreach (var payload in payloads)
@@ -23544,10 +23553,10 @@ public static class MatchRecoveryValidator
             TryReadObjectString(payload, "sourceObjectId", out var source);
             TryReadObjectString(payload, "effectKind", out var effect);
             TryReadObjectString(payload, "controllerId", out var controller);
-            ValidateLastBreathInsightView(payload, effect, controller, source, errors);
+            ValidateCapturedInsightView(payload, effect, controller, source, errors);
             var expected = authority.StackItems.FirstOrDefault(i => i.StackItemId == id);
-            if (MatchStateHasher.HashValue(ReadLastBreathInsightView(payload)) != MatchStateHasher.HashValue(LastBreathInsight(expected?.InsightContext)))
-                errors.Add($"{label} captured last-breath Insight differs from authoritative state");
+            if (MatchStateHasher.HashValue(ReadCapturedInsightView(payload)) != MatchStateHasher.HashValue(CapturedInsight(expected?.InsightContext)))
+                errors.Add($"{label} {CapturedInsightLabel(expected?.InsightContext)} differs from authoritative state");
         }
     }
 
@@ -23880,7 +23889,8 @@ public static class MatchRecoveryValidator
         foreach (var trigger in state.TriggerQueue)
             if (trigger.InsightContext is { } captured
                 ? captured.PaymentAccepted || !CoreRuleEngine.ValidInsightTrigger(captured, trigger.EffectKind, trigger.ControllerId)
-                    || captured.Kind == "DUEL" && !state.Seats.ContainsKey(captured.ReturnFocusPlayerId!)
+                    || captured.Kind == "DUEL" && (trigger.TriggeredByEventKind != "SPELL_DUEL_STARTED" || trigger.SourceCardNo != captured.CardNo
+                        || !state.Seats.ContainsKey(captured.ReturnFocusPlayerId!))
                     || !CoreRuleEngine.ValidConquestLookSource(state,captured,trigger.SourceObjectId)
                     || !CoreRuleEngine.ValidInsightRuleTextSource(state,captured,trigger.SourceObjectId)
                     || !CoreRuleEngine.ValidPredictEntryBindings(state,captured,trigger.SourceObjectId)
@@ -27123,7 +27133,7 @@ public static class MatchRecoveryValidator
                 && CoreRuleEngine.ValidFieldContextState(authoritativeState, field, parent.SourceObjectId, parent.ControllerId, parent.EffectKind, parent.CardNo);
             var capturedInsightSource = parent is not null && choice.SourceObjectId == parent.SourceObjectId
                 && CoreRuleEngine.ValidInsightChoice(authoritativeState, choice, parent)
-                && CoreRuleEngine.ValidCeasedLastBreathInsightSource(authoritativeState, parent.InsightContext,
+                && CoreRuleEngine.ValidCeasedInsightSource(authoritativeState, parent.InsightContext,
                     parent.SourceObjectId, parent.EffectKind, parent.ControllerId, parent.CardNo);
             if (!capturedDeckSource && !capturedInsightSource) ValidateAuthoritativeStateOptionalObjectReferenceWithExpectedDetails(
                 $"pending card choice {authoritativeState.PendingCardChoice.ChoiceId} source object",
@@ -27234,7 +27244,7 @@ public static class MatchRecoveryValidator
             // Captured triggered abilities survive their source object leaving.
             // Only validated official contexts permit a missing source.
             if (!(stackItem.EndAbility is not null && CoreRuleEngine.ValidEndAbility(authoritativeState, stackItem))
-                && !CoreRuleEngine.ValidCeasedLastBreathInsightSource(authoritativeState, stackItem.InsightContext,
+                && !CoreRuleEngine.ValidCeasedInsightSource(authoritativeState, stackItem.InsightContext,
                     stackItem.SourceObjectId, stackItem.EffectKind, stackItem.ControllerId, stackItem.CardNo)
                 && !(stackItem.FieldContext is { SourceCeasedToExist: true } field && CoreRuleEngine.ValidFieldContextState(authoritativeState,
                     field, stackItem.SourceObjectId, stackItem.ControllerId, stackItem.EffectKind, stackItem.CardNo))
@@ -27355,7 +27365,7 @@ public static class MatchRecoveryValidator
             }
 
             if (!(trigger.EndAbility is not null && CoreRuleEngine.ValidEndTrigger(authoritativeState, trigger))
-                && !CoreRuleEngine.ValidCeasedLastBreathInsightSource(authoritativeState, trigger.InsightContext,
+                && !CoreRuleEngine.ValidCeasedInsightSource(authoritativeState, trigger.InsightContext,
                     trigger.SourceObjectId, trigger.EffectKind, trigger.ControllerId)
                 && !(trigger.FieldContext is { SourceCeasedToExist: true } field && CoreRuleEngine.ValidFieldContextState(authoritativeState,
                     field, trigger.SourceObjectId, trigger.ControllerId, trigger.EffectKind))
@@ -32036,9 +32046,9 @@ public static class MatchRecoveryValidator
                 && MatchStateHasher.HashValue(ReadLastBreathMightView(stackItem)) == MatchStateHasher.HashValue(captured))
                 sourceReferences = knownObjectIds.Append(earned.SourceObjectId).ToHashSet(StringComparer.Ordinal);
             if (authoritativeState.StackItems.FirstOrDefault(i => i.StackItemId == stackItemId) is { } insight
-                && CoreRuleEngine.ValidCeasedLastBreathInsightSource(authoritativeState, insight.InsightContext,
+                && CoreRuleEngine.ValidCeasedInsightSource(authoritativeState, insight.InsightContext,
                     insight.SourceObjectId, insight.EffectKind, insight.ControllerId, insight.CardNo)
-                && MatchStateHasher.HashValue(ReadLastBreathInsightView(stackItem)) == MatchStateHasher.HashValue(insight.InsightContext))
+                && MatchStateHasher.HashValue(ReadCapturedInsightView(stackItem)) == MatchStateHasher.HashValue(insight.InsightContext))
                 sourceReferences = knownObjectIds.Append(insight.SourceObjectId).ToHashSet(StringComparer.Ordinal);
             ValidateTimingOptionalObjectReferenceWithExpectedDetails(
                 stackItem,
@@ -32085,7 +32095,7 @@ public static class MatchRecoveryValidator
         List<string> errors)
     {
         ValidateLastBreathMightStackViews(stackItems, authoritativeState, errors, "spectator replay frame");
-        ValidateLastBreathInsightStackViews(stackItems, authoritativeState, errors, "spectator replay frame");
+        ValidateCapturedInsightStackViews(stackItems, authoritativeState, errors, "spectator replay frame");
         ValidateDelayedDestructionStackViews(stackItems, authoritativeState, errors);
         ValidateSourceReplayStackViews(stackItems, authoritativeState, errors);
         ValidateResolutionDamageChoiceViews(stackItems, authoritativeState, errors);

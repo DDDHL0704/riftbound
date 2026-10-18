@@ -1,0 +1,60 @@
+{
+  "attemptedAtUtc": "2026-10-18T21:49:44.831084+00:00",
+  "receivedAtUtc": "2026-10-18T21:49:47.198734+00:00",
+  "region": "GLOBAL_SITE_NOT_CN_AUTHORITY",
+  "language": "en-US",
+  "url": "https://playriftbound.com/en-us/card-gallery/",
+  "finalUrl": "https://playriftbound.com/en-us/card-gallery/",
+  "httpStatus": 200,
+  "httpDate": "Sun, 18 Oct 2026 21:49:45 GMT",
+  "rawSha256": "0595259d6526989326d764a26a7885785210fc20bd5ddbf278af251b316ae99e",
+  "stored": "var/qa/copied-duel-insight-20261019/english-gallery-page-20261019.html.gz",
+  "storedSha256": "7cfc92ee5f2d47b42bfc0a86e033ceeffa9287a025a623bb36d97a26c61efbae",
+  "bytes": 3981672,
+  "observedAlternateLinkTags": [
+    "<link rel=\"alternate\" href=\"https://playriftbound.com/en-us/card-gallery/\" hrefLang=\"en-us\" data-next-head=\"\"/>",
+    "<link rel=\"alternate\" href=\"https://playriftbound.com/es-es/card-gallery/\" hrefLang=\"es-es\" data-next-head=\"\"/>",
+    "<link rel=\"alternate\" href=\"https://playriftbound.com/de-de/card-gallery/\" hrefLang=\"de-de\" data-next-head=\"\"/>",
+    "<link rel=\"alternate\" href=\"https://playriftbound.com/fr-fr/card-gallery/\" hrefLang=\"fr-fr\" data-next-head=\"\"/>",
+    "<link rel=\"alternate\" href=\"https://playriftbound.com/it-it/card-gallery/\" hrefLang=\"it-it\" data-next-head=\"\"/>",
+    "<link rel=\"alternate\" href=\"https://playriftbound.com/ja-jp/card-gallery/\" hrefLang=\"ja-jp\" data-next-head=\"\"/>",
+    "<link rel=\"alternate\" href=\"https://playriftbound.com/ko-kr/card-gallery/\" hrefLang=\"ko-kr\" data-next-head=\"\"/>",
+    "<link rel=\"alternate\" href=\"https://playriftbound.com/zh-cn/card-gallery/\" hrefLang=\"zh-cn\" data-next-head=\"\"/>",
+    "<link rel=\"alternate\" href=\"https://playriftbound.com/zh-tw/card-gallery/\" hrefLang=\"zh-tw\" data-next-head=\"\"/>"
+  ],
+  "observedLocalePathPairs": [
+    [
+      "de",
+      "de"
+    ],
+    [
+      "en",
+      "us"
+    ],
+    [
+      "es",
+      "es"
+    ],
+    [
+      "fr",
+      "fr"
+    ],
+    [
+      "it",
+      "it"
+    ],
+    [
+      "ja",
+      "jp"
+    ],
+    [
+      "ko",
+      "kr"
+    ],
+    [
+      "zh",
+      "tw"
+    ]
+  ],
+  "scope": "Read-only official page/source discovery for unresolved English gallery advertised-count gap, not card semantics or a source-universe rewrite."
+}

@@ -1,0 +1,160 @@
+{
+  "recordedAtUtc": "2026-10-18T20:18:30.814302+00:00",
+  "region": "CN",
+  "language": "zh-CN",
+  "applicableAsOf": "2026-10-16",
+  "scope": "Exact ordinary opening legends and Watchful opponent plus revealed spell identity only; Watchful costs2 and has its own LastBreath draw1, not a neutral filler.",
+  "sources": [
+    {
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 1000,
+        "searchContent": "警觉的哨兵",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "attemptedAtUtc": "2026-10-18T20:18:30.692109+00:00",
+      "receivedAtUtc": "2026-10-18T20:18:30.806913+00:00",
+      "httpStatus": 200,
+      "httpDate": "Sun, 18 Oct 2026 20:18:30 GMT",
+      "rawSha256": "54665e92f2f09cbf94f84a53c67166bc99bab72ea8cfc2140958a5f55bcff688",
+      "stored": "var/qa/copied-duel-insight-20261019/opening-source-31314.json.gz",
+      "storedSha256": "d0e4b1a09dcc590ca231f180621a964ea36c5eb759a45aaea5401dc095f4699e",
+      "returnedWholeRows": 1,
+      "changedWholeRowIds": [],
+      "exactEntries": [
+        {
+          "apiId": 31314,
+          "cardNo": "OGN·096/298",
+          "cardName": "警觉的哨兵",
+          "subTitle": "",
+          "categories": [
+            "单位"
+          ],
+          "effectiveText": "{{绝念}}—抽一张牌。（当我被摧毁后，发动此效果。）",
+          "qa": null,
+          "publishedAt": null,
+          "effectiveAt": null,
+          "wholeRowSha256": "01ff74b20a61e36123d049c0092fb8a0c4be73868b5d7ef8415f8284d50f1044"
+        }
+      ]
+    },
+    {
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 1000,
+        "searchContent": "借鉴历史",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "attemptedAtUtc": "2026-10-18T20:18:30.694709+00:00",
+      "receivedAtUtc": "2026-10-18T20:18:30.801199+00:00",
+      "httpStatus": 200,
+      "httpDate": "Sun, 18 Oct 2026 20:18:30 GMT",
+      "rawSha256": "000b4ecad7e22539f5d82ede70c711b6c68621e7a0e588cc5f71abe8d4b1680d",
+      "stored": "var/qa/copied-duel-insight-20261019/opening-source-31299.json.gz",
+      "storedSha256": "d92ec38b3ab9c5b2d31a91932942aa5070d972802fe97d5c053aa8ee69df9a72",
+      "returnedWholeRows": 1,
+      "changedWholeRowIds": [],
+      "exactEntries": [
+        {
+          "apiId": 31299,
+          "cardNo": "OGN·083/298",
+          "cardName": "借鉴历史",
+          "subTitle": "",
+          "categories": [
+            "法术"
+          ],
+          "effectiveText": "{{待命}}（支付{{A}}正面朝下放置此牌，之后可支付{{0}}将其当作反应牌打出。）\n{{反应}}（可在任意时机打出，甚至先于其他法术和技能的结算。）\n抽两张牌。",
+          "qa": null,
+          "publishedAt": null,
+          "effectiveAt": null,
+          "wholeRowSha256": "5bb29ad3eed45d51c55cb823a92dcc15b70a21b22c5d54075bda7a68530f8d69"
+        }
+      ]
+    },
+    {
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 1000,
+        "searchContent": "含羞蓓蕾",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "attemptedAtUtc": "2026-10-18T20:18:30.694878+00:00",
+      "receivedAtUtc": "2026-10-18T20:18:30.806127+00:00",
+      "httpStatus": 200,
+      "httpDate": "Sun, 18 Oct 2026 20:18:30 GMT",
+      "rawSha256": "62d11b272ce3753887f5f078aeef91522d8d466ae9f99064329b624d18d57889",
+      "stored": "var/qa/copied-duel-insight-20261019/opening-source-34742.json.gz",
+      "storedSha256": "b678aa97ee0eb7864f634ace92aaa066a5f4ef81dfd0adf6e5d15ebabffdadb1",
+      "returnedWholeRows": 4,
+      "changedWholeRowIds": [],
+      "exactEntries": [
+        {
+          "apiId": 34742,
+          "cardNo": "UNL-189/219",
+          "cardName": "含羞蓓蕾",
+          "subTitle": "",
+          "categories": [
+            "传奇"
+          ],
+          "effectiveText": "支付{{4}}，{{横置}}：打出一名处于活跃状态的3{{S}}“精灵”，它拥有{{瞬息}}。场上每存在一名拥有{{瞬息}}的友方单位，此技能费用减少{{1}}。",
+          "qa": null,
+          "publishedAt": null,
+          "effectiveAt": null,
+          "wholeRowSha256": "1326e21bfae3cee5814d4d3bfa6e6bf9964660fef450e124338f23a2d8ba3149"
+        }
+      ]
+    },
+    {
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 1000,
+        "searchContent": "机械公敌",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "attemptedAtUtc": "2026-10-18T20:18:30.698781+00:00",
+      "receivedAtUtc": "2026-10-18T20:18:30.814139+00:00",
+      "httpStatus": 200,
+      "httpDate": "Sun, 18 Oct 2026 20:18:30 GMT",
+      "rawSha256": "dbe98dd19795664b1adedf869454c2c203328bdfcf19294661c3b9a60e54b44e",
+      "stored": "var/qa/copied-duel-insight-20261019/opening-source-33279.json.gz",
+      "storedSha256": "65013edb3267891851ae96ac6ed7e624bfe516729630b029a78f3726751d5913",
+      "returnedWholeRows": 2,
+      "changedWholeRowIds": [],
+      "exactEntries": [
+        {
+          "apiId": 33279,
+          "cardNo": "SFD·181/221",
+          "cardName": "机械公敌",
+          "subTitle": "",
+          "categories": [
+            "传奇"
+          ],
+          "effectiveText": "你的“机械”属性单位获得{{坚守}}。（如果它们是防守方，则{{S}}+1。）",
+          "qa": null,
+          "publishedAt": null,
+          "effectiveAt": null,
+          "wholeRowSha256": "765e49e75a86a8035bbed9cd432641ecda4a87ca14398480f448538ddba26522"
+        }
+      ]
+    }
+  ],
+  "currentCoreSourceManifest": "source-manifest.json",
+  "newWholeRowChanges": [],
+  "noWholeCardOrFormatCertification": true
+}

@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup><OutputType>Exe</OutputType><TargetFramework>net10.0</TargetFramework></PropertyGroup>
   <ItemGroup>
+    <Content Include="../Riftbound.ConformanceTests/Fixtures/copied-duel-insight-openings.json" Link="Fixtures/copied-duel-insight-openings.json" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="../Riftbound.ConformanceTests/Fixtures/copied-last-breath-insight-openings.json" Link="Fixtures/copied-last-breath-insight-openings.json" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="../Riftbound.ConformanceTests/Fixtures/attached-predict-openings.json" Link="Fixtures/attached-predict-openings.json" CopyToOutputDirectory="PreserveNewest" />
     <ProjectReference Include="../../src/Riftbound.Persistence/Riftbound.Persistence.csproj" />

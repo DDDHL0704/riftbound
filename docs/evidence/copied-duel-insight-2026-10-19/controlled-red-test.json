@@ -1,0 +1,36 @@
+{
+  "atUtc": "2026-10-18T19:59:23.262735+00:00",
+  "status": "ZERO_COPY_CONTROL_PASS_TWO_COPY_THEORY_ROWS_RED",
+  "baseCommit": "3d690c3511ee8f96e57bad87c2e34691a3148e30",
+  "cases": 3,
+  "passed": 1,
+  "failed": 2,
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+    "implementationSha256": "c252de8c391db22414b5465bd18832722cb70e639eca0fb8c17bd3e16c15a21f",
+    "identitySha256": "d8303f71d2af20bb5ca45989ffa55983984af1b5d9051c25453852d63e242835"
+  },
+  "executedModules": {
+    "Riftbound.CardCatalog.dll": "e84af5766a1a3639e1abafeed437a59d01d149aad9563b49ec958755b85dda89",
+    "Riftbound.Contracts.pdb": "2c355c23b7ece50aab07a57005dc6439389c86e31fdb8d95514380f752620580",
+    "Riftbound.Engine.pdb": "cf8348c75d9d638e4dc6773820dd88c91c24eea8e9653d191a38724de91e2798",
+    "Riftbound.CardCatalog.pdb": "6202be2fda0eb6bd6cd0ab27731416e7e11e4619a1facad5a580052a8d6c674f",
+    "Riftbound.Contracts.dll": "13e9820a0d057fd98b874357e67631ea0388d608e87411790b94c3b1de802716",
+    "Riftbound.Engine.dll": "32a94081313e92750327237a6a6d01f2593843777948aa25f3c264d5181fbd64",
+    "Riftbound.Persistence.pdb": "f6f53f93705f8fe555c34fb8b7b344065e8f1c26ff3c548935457d18d51c9f3e",
+    "Riftbound.Api.dll": "ad94f4691eefe31fd48a11b356f610d00f28655b28902878311db8779a37d73b",
+    "Riftbound.ConformanceTests.pdb": "4baa62042c51e6d6a3d66d06a596696fe4d6568c7cd175e6ca671ba265bd858a",
+    "Riftbound.Api.pdb": "b59d8b51fe1de6d6cabe56067957772359acc9df9e7d5706ab8ac5222cb496c7",
+    "Riftbound.Persistence.dll": "b7215c818e1d925e54f6baf58e64f01fd21bc7afd557d2e6d641f2242ce6a8c3",
+    "Riftbound.ConformanceTests.dll": "b466ce5b293bb91637ed9997aab2adb9bb96539a123a4e9eb1676209ba8af7c2"
+  },
+  "trx": "var/qa/copied-duel-insight-20261019/red-v1/focus/results.trx",
+  "trxSha256": "2b603da401831ec6d0c5e957a416769024d011775bcccebac000bbdccc1397e6",
+  "testSourceSha256": "44ff6e1a915bc5df839383e3bd9fe6de2f10b01c44899fa962e8b93e419f806a",
+  "existingOfficialSourcesAndTestSemanticsUnchanged": true,
+  "verifierDiagnostic": "First inspection used nonexistent Debug identity helper path; corrected to existing Release reflection helper. No test rerun or runtime change."
+}

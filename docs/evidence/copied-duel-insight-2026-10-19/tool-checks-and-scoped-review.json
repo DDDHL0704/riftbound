@@ -1,0 +1,59 @@
+{
+  "reviewedAtUtc": "2026-10-18T22:35:14.930173+00:00",
+  "status": "SCOPED_CODE_AND_TOOL_REVIEW_RECORDED_FIXED_FULL_AND_PRODUCT_STILL_REQUIRED",
+  "reviewedSourceFilesSha256": {
+    "src/Riftbound.Engine/CoreRuleEngine.InsightTriggers.cs": "7a9ce04db33eea9260736bd3e9f8b6d0a55f16c507898c278f009241d9ede167",
+    "src/Riftbound.Engine/MatchRecovery.cs": "33f5bb5c1933756af73904c0ae78ab3598c1c5a9c04b2084b4431cecc0bd0f85",
+    "src/Riftbound.Engine/MatchSession.cs": "2a8cf846c23240b71344b4722e859a2b4bc3a68db1a7c6a1014126378e20cc66",
+    "tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs": "0cdf4022fdf15ade4699ef97eb286cd372dcb7b21afaaf19b2b6094f1faee977",
+    "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs": "aaf2cbdba0695878d52023130a03d99a1dd5d08011af79cf4e121053ed3da2fd",
+    "tests/Riftbound.ConformanceTests/CopiedDuelInsightTests.cs": "6bd37e1e72475b978a61819eb069ab17ce60eccdfc1e738c181bf357b93e53be",
+    "tests/Riftbound.ConformanceTests/CopiedDuelInsightOpeningTests.cs": "9f542f44253b60b07464747b752d3bcbfee785b0040994d950c96d274713d12f",
+    "tests/Riftbound.ConformanceTests/PrivateOpeningResourceDriverTests.cs": "7ab4bacfbb933ec3cfe16fa69336562a7f6d05b5fbaf4b71dcdfc2e3d1dda8ad",
+    "tests/Riftbound.ConformanceTests/Fixtures/copied-duel-insight-openings.json": "94af0592ead664cdea35ed1e256c951bdbfdea2cf4c09578a45173328eb1c209",
+    "tests/Riftbound.ConformanceTests/Fixtures/private-opening-unfundable-first-unit.json": "905c44355e6382bfa7f53ecb0cc6816927872c22be54db40bd8a91ad43535d4e",
+    "tests/Riftbound.PostgresAcceptance/CopiedDuelInsightSqlAcceptance.cs": "e650217b3be1f106bf8f2713520677d6ccf8ed205110253d9e7424bd302f7dc6",
+    "tests/Riftbound.PostgresAcceptance/Program.cs": "22d9a00be6f7e39bb5d075a8b8731ba0af691d623542c9d50a755042331117b9",
+    "tests/Riftbound.PostgresAcceptance/Riftbound.PostgresAcceptance.csproj": "be54ceec3decaf4186622ca35f0a34d13384169391db7e74ac6cf91fcfe57ecf"
+  },
+  "actualToolTests": {
+    "cases": 55,
+    "passed": 55,
+    "failed": 0,
+    "logSha256": "9908d9bcbd29f952815084d60bfa6a2cb2a2d5c40d87530d4fe89dcc01a74f96"
+  },
+  "scopedReview": {
+    "duelCopies": "Existing AttachedRuleTextRules.Instances captures each independent native/copied Duel source without DSL expansion.",
+    "historicalBindings": "Controller/generation/equipment revision/face/factory captured and bound in typed validation, payment, both-player/spectator queue and stack views.",
+    "publicContextSlots": "Independent kind-checked mutually exclusive lastBreathInsight/duelInsight readers reject malformed/unknown fields and keep original LastBreath diagnostics.",
+    "independentAudit": "Original action-log replay remains separate from structural shape checks; coordinated shape-valid forgeries rejected in actual ordinary and SQL evidence.",
+    "driverFunding": "Private candidate budget changes only a local RunePool copy; actual resources still obtained through original legal server commands; no printed-cost relaxation.",
+    "diagnosticExpectedList": "One independent manual constant addition; public rejection test methods/assertions preserved and actual32focus passes on unchangedCore.",
+    "sqlIntegration": "Exact actual tested helper added;37 old helpers and default ordering/counts preserved, now38.",
+    "sourceFinding": "Newly acquired regional Kayn CMS/printed conflict remains separate, EN8gap and old4 temporalDeltas preserved; no runtime normalization or new playable printing inferred."
+  },
+  "actualOriginalCheck": {
+    "cases": 12785,
+    "methods": 7398,
+    "passed": 12781,
+    "failed": 4,
+    "runs": 1,
+    "originalOutcomeNotRewritten": true
+  },
+  "actualPostRepairFocus": {
+    "cases": 32,
+    "methods": 5,
+    "passed": 32,
+    "failed": 0,
+    "sameTenNonTestOwnModules": true
+  },
+  "all143Methods110PairsOriginalSeedsVictoryReplayAssertionsRetained": true,
+  "all16662PriorObligationsPlus16Preserved": true,
+  "gitDiffCheckPassed": true,
+  "newFixedFull": "PENDING_NEW_FIXED_COMMIT",
+  "visibleGodotControlsPairedNormalScoreFullReplay": "OPEN",
+  "physicalWindows": "OPEN",
+  "wholePrintingFamilyCertification": false,
+  "availableDiskBytes": 56984616960,
+  "noNewCheckoutDatabaseOrNativeInstallers": true
+}

@@ -28,23 +28,23 @@ public sealed partial class CoreRuleEngine
                     Origin: i.Origin, SourceTokenFactoryCardNo: unit.TokenFactoryCardNo)).ToArray();
 
     internal static bool ValidInsightRuleTextSource(MatchState state, InsightTriggerContext context, string source)
-        => (context.Kind != "LAST_BREATH" || !string.IsNullOrWhiteSpace(source) && (state.CardObjects.TryGetValue(source, out var unit)
+        => (context.Kind is not ("LAST_BREATH" or "DUEL") || !string.IsNullOrWhiteSpace(source) && (state.CardObjects.TryGetValue(source, out var unit)
                 ? unit.ObjectGeneration >= context.SourceGeneration && unit.TokenFactoryCardNo == context.SourceTokenFactoryCardNo
                 : context.SourceTokenFactoryCardNo is not null && P6TokenFactoryCatalog.IsTokenFactory(context.SourceTokenFactoryCardNo)))
-            && (context.Origin is null || context.Kind == "LAST_BREATH"
+            && (context.Origin is null || context.Kind is "LAST_BREATH" or "DUEL"
                 && AttachedRuleTextRules.ValidCaptured(state, context.Origin, source, context.SourceGeneration, context.CardNo));
 
-    internal static bool ValidCeasedLastBreathInsightSource(MatchState state, InsightTriggerContext? context,
+    internal static bool ValidCeasedInsightSource(MatchState state, InsightTriggerContext? context,
         string source, string effect, string controller, string? cardNo = null)
-        => context is { Kind: "LAST_BREATH", SourceTokenFactoryCardNo: not null }
+        => context is { Kind: "LAST_BREATH" or "DUEL", SourceTokenFactoryCardNo: not null }
             && !string.IsNullOrWhiteSpace(source) && !state.CardObjects.ContainsKey(source) && ValidInsightTrigger(context, effect, controller, cardNo)
             && ValidInsightRuleTextSource(state, context, source);
 
     internal static bool ValidInsightTrigger(InsightTriggerContext context, string effect, string controller, string? cardNo = null)
         => effect == InsightTriggerEffect && context.ControllerId == controller && context.SourceGeneration >= 0
-            && (context.SourceTokenFactoryCardNo is null || context.Kind == "LAST_BREATH"
+            && (context.SourceTokenFactoryCardNo is null || context.Kind is "LAST_BREATH" or "DUEL"
                 && P6TokenFactoryCatalog.IsTokenFactory(context.SourceTokenFactoryCardNo))
-            && (context.Origin is null || context.Kind == "LAST_BREATH" && context.Origin.CardNo == context.CardNo
+            && (context.Origin is null || context.Kind is "LAST_BREATH" or "DUEL" && context.Origin.CardNo == context.CardNo
                 && context.Origin.Unit is { } unit && unit.Generation == context.SourceGeneration)
             && context.Kind is "SPELL_PLAYED" or "LAST_BREATH" or "DUEL" or "ACTIVATED" or "CONQUEST_LOOK" or "GRANTED_PREDICT" or "PRINTED_PREDICT"
             && context.Count == (context.Kind=="CONQUEST_LOOK" ? ConquestLookSpec(context.CardNo)?.RevealCount ?? 0
@@ -107,11 +107,16 @@ public sealed partial class CoreRuleEngine
                 foreach (var id in HeldUnitsAt(result.State, field))
                 {
                     var card = result.State.CardObjects[id];
-                    if (!IsInsightSource(card.CardNo, "DUEL") || card.ControllerId is not { Length: > 0 } controller) continue;
-                    var duelTrigger = new TriggerQueueItemState($"insight-duel-{result.State.Tick}-{index}-{id}", card.ControllerId,
-                        id, InsightTriggerEffect, "SPELL_DUEL_STARTED", TimingStates.SpellDuelOpen) {
-                        InsightContext = new(card.CardNo!, controller, 1, card.ObjectGeneration, "DUEL", field, focus) };
-                    queue.Add(duelTrigger); events.Add(BuildTriggerQueuedEvent(duelTrigger));
+                    if (card.ControllerId is not { Length: > 0 } controller) continue;
+                    var instances = AttachedRuleTextRules.Instances(result.State, card).Where(i => IsInsightSource(i.CardNo, "DUEL"));
+                    foreach (var (instance, ordinal) in instances.Select((value, ordinal) => (value, ordinal)))
+                    {
+                        var duelTrigger = new TriggerQueueItemState($"insight-duel-{result.State.Tick}-{index}-{id}{(ordinal == 0 ? "" : "-" + ordinal)}", controller,
+                            id, InsightTriggerEffect, "SPELL_DUEL_STARTED", TimingStates.SpellDuelOpen) {
+                            InsightContext = new(instance.CardNo, controller, 1, card.ObjectGeneration, "DUEL", field, focus,
+                                Origin: instance.Origin, SourceTokenFactoryCardNo: card.TokenFactoryCardNo), SourceCardNo = instance.CardNo };
+                        queue.Add(duelTrigger); events.Add(BuildTriggerQueuedEvent(duelTrigger));
+                    }
                 }
             }
             if (ev.Kind != "UNIT_DESTROYED"
@@ -139,6 +144,7 @@ public sealed partial class CoreRuleEngine
     internal static bool ValidInsightPayment(MatchState state, PendingPaymentState payment)
         => state.StackItems.FirstOrDefault(i => i.StackItemId == payment.ResolvingStackItemId) is { InsightContext: { Kind: "DUEL", PaymentAccepted: false } context } item
             && ValidInsightTrigger(context, item.EffectKind, item.ControllerId, item.CardNo)
+            && ValidInsightRuleTextSource(state, context, item.SourceObjectId)
             && !item.InsightCompleted && payment.ResolvingStackItemId == item.StackItemId
             && payment.PaymentId == "INSIGHT-PAY:" + item.StackItemId && payment.PaymentWindow == "INSIGHT_EFFECT"
             && payment.PlayerId == item.ControllerId && payment.ManaCost == 1 && payment.PowerCost == 0

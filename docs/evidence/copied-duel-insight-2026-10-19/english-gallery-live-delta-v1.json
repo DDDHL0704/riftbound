@@ -1,0 +1,40 @@
+{
+  "attemptedAtUtc": "2026-10-18T21:53:11.007651+00:00",
+  "receivedAtUtc": "2026-10-18T21:53:14.077653+00:00",
+  "region": "GLOBAL_SITE_NOT_CN_AUTHORITY",
+  "language": "en-US",
+  "url": "https://content.publishing.riotgames.com/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=en_US&limit=2000&from=0",
+  "httpStatus": 200,
+  "httpDate": "Sun, 18 Oct 2026 21:53:12 GMT",
+  "rawSha256": "15e0e7b24c221a2900cdfa331b9806fe491330ecd6e7f82228e4663f91daebf3",
+  "stored": "var/qa/copied-duel-insight-20261019/gallery-en-US-live-delta-v1.json.gz",
+  "storedSha256": "31d8a9d0c03984f0351dcd30c5cc7901f5ac9008b71e44d7c3ad078b9a07e510",
+  "metadata": {
+    "channelMachineName": "riftbound_website",
+    "channelHostname": "playriftbound.com",
+    "smartListMachineName": "riftbound_gallery_cards",
+    "from": 0,
+    "limit": 2000,
+    "overrideSize": 0,
+    "totalItems": 1416,
+    "totalPages": 1,
+    "locale": "en-us",
+    "resultsUpdatedAt": "2026-10-18T21:53:12.561651381Z"
+  },
+  "linkdata": {
+    "first": "/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=en_US&from=0&limit=2000",
+    "last": "/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=en_US&from=0&limit=2000",
+    "self": "/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=en_US&from=0&limit=2000"
+  },
+  "rawRows": 1408,
+  "distinctIds": 1408,
+  "newExactIds": [],
+  "newExactRows": [],
+  "changedExistingWholeRowIds": [],
+  "changedExistingRows": [],
+  "priorKnownIdsNotReturned": [],
+  "advertisedMinusActual": 8,
+  "publishedAt": null,
+  "effectiveAt": null,
+  "originalUniverseCatalogAndEvidenceNotRewritten": true
+}

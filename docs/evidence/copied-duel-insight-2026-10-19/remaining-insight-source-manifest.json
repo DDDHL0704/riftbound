@@ -1,0 +1,86 @@
+{
+  "recordedAtUtc": "2026-10-18T21:45:30.562675+00:00",
+  "region": "CN",
+  "language": "zh-CN",
+  "applicableAsOf": "2026-10-16",
+  "scope": "Exact current equipment Blossom and battlefield Lost Library printed types/text/QA only. Direct ordinary Song unit-host premise is distinguished from other indirect/type-changing/retained-source consumers; all broader card obligations stay OPEN.",
+  "sources": [
+    {
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 1000,
+        "searchContent": "占卜花朵",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "attemptedAtUtc": "2026-10-18T21:45:30.448290+00:00",
+      "receivedAtUtc": "2026-10-18T21:45:30.556750+00:00",
+      "httpStatus": 200,
+      "httpDate": "Sun, 18 Oct 2026 21:45:30 GMT",
+      "rawSha256": "c98fa0159cb85fd463003a93d4e62c2c39ab6e55a99f1b424c34864139cada84",
+      "stored": "var/qa/copied-duel-insight-20261019/remaining-insight-source-34679.json.gz",
+      "storedSha256": "88c6ccdef76f3463114cbcd8a93c442005edda5757b8a0187e09a9277c4e5fde",
+      "returnedWholeRows": 1,
+      "changedWholeRowIds": [],
+      "exactEntries": [
+        {
+          "apiId": 34679,
+          "cardNo": "UNL-136/219",
+          "cardName": "占卜花朵",
+          "subTitle": "",
+          "categories": [
+            "装备"
+          ],
+          "effectiveText": "此牌以休眠状态进场。\n摧毁此牌，支付{{1}}，{{横置}}：{{洞察2}}，然后抽一张牌。获得1经验。（执行洞察2，即查看你主牌堆顶部的两张牌。你可以将其中任意卡牌回收，并将其余的卡牌按任意顺序放回原处。）",
+          "qa": null,
+          "publishedAt": null,
+          "effectiveAt": null,
+          "wholeRowSha256": "6f6607846afe77a957fac60cd4a0e94e6857281396d6d2b0f901818f8c3325be"
+        }
+      ]
+    },
+    {
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 1000,
+        "searchContent": "失落书库",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "attemptedAtUtc": "2026-10-18T21:45:30.451248+00:00",
+      "receivedAtUtc": "2026-10-18T21:45:30.562526+00:00",
+      "httpStatus": 200,
+      "httpDate": "Sun, 18 Oct 2026 21:45:30 GMT",
+      "rawSha256": "ed32eb97b321ea43a7e8a69f398756c380afbb33f83b78da35959841f22b70d9",
+      "stored": "var/qa/copied-duel-insight-20261019/remaining-insight-source-34764.json.gz",
+      "storedSha256": "e77fdde1fb84f7d9e1443693c87fb197063cb6a5a5d453cd0c630a29a99ac7af",
+      "returnedWholeRows": 1,
+      "changedWholeRowIds": [],
+      "exactEntries": [
+        {
+          "apiId": 34764,
+          "cardNo": "UNL-211/219",
+          "cardName": "失落书库",
+          "subTitle": "",
+          "categories": [
+            "战场"
+          ],
+          "effectiveText": "若此战场受你控制，当你打出一张法术牌时，如果消耗了不低于{{4}}法力，则进行{{洞察}}。（查看你主牌堆顶部的一张牌。你可以选择将其回收。）",
+          "qa": null,
+          "publishedAt": null,
+          "effectiveAt": null,
+          "wholeRowSha256": "9c73174e43e9a254d913f04c745eeeade287f9398a1f69ebdafa4d4072a3eb73"
+        }
+      ]
+    }
+  ],
+  "currentCoreSourceManifest": "source-manifest.json",
+  "newWholeRowChanges": [],
+  "noWholeCardOrFormatCertification": true
+}

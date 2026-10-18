@@ -1,0 +1,62 @@
+{
+  "atUtc": "2026-10-18T22:19:40.278424+00:00",
+  "status": "POST_CHECK_SHARED_DIAGNOSTIC_REPAIR_FOCUS_PASS",
+  "cases": 32,
+  "methods": 5,
+  "failed": 0,
+  "skipped": 0,
+  "allFourOriginalRejectionAssertionsPassUnchanged": true,
+  "allTwentyEightLegitimateNativeAndCopiedDuelOptionalPaymentCasesPass": true,
+  "exactFailureMethodNames": [
+    "Riftbound.ConformanceTests.MatchRecoveryTests.RecoveryValidatorRejectsAuthoritativeStateTriggerQueueTriggeredEventKindDrift",
+    "Riftbound.ConformanceTests.MatchRecoveryTests.RecoveryValidatorRejectsSnapshotTimingTriggerQueueTriggeredEventKindDrift",
+    "Riftbound.ConformanceTests.MatchRecoveryTests.RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueKeyedKnownValueCanonicalityWithCountMismatch",
+    "Riftbound.ConformanceTests.MatchRecoveryTests.RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueKeyedVisibleSourceTriggeredEventKindInvalidValueWithoutCountMismatch"
+  ],
+  "actualMethodNames": [
+    "Riftbound.ConformanceTests.CopiedDuelInsightTests.EachOptionalCostIsConfirmedBeforeIndependentCurrentDeckInsightRevealAndSpellDraw",
+    "Riftbound.ConformanceTests.MatchRecoveryTests.RecoveryValidatorRejectsAuthoritativeStateTriggerQueueTriggeredEventKindDrift",
+    "Riftbound.ConformanceTests.MatchRecoveryTests.RecoveryValidatorRejectsSnapshotTimingTriggerQueueTriggeredEventKindDrift",
+    "Riftbound.ConformanceTests.MatchRecoveryTests.RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueKeyedKnownValueCanonicalityWithCountMismatch",
+    "Riftbound.ConformanceTests.MatchRecoveryTests.RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueKeyedVisibleSourceTriggeredEventKindInvalidValueWithoutCountMismatch"
+  ],
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+    "implementationSha256": "70ce4b635e6c48f499ed547ef070d2658acc3ed9ea41cd9ef744acc5ff77d05b",
+    "identitySha256": "51b89874267d79b0358bd29669a8fb7c7b382ce97116fe535070e2dd998f5a14"
+  },
+  "actualOwnModules": {
+    "Riftbound.CardCatalog.dll": "e84af5766a1a3639e1abafeed437a59d01d149aad9563b49ec958755b85dda89",
+    "Riftbound.Contracts.pdb": "2c355c23b7ece50aab07a57005dc6439389c86e31fdb8d95514380f752620580",
+    "Riftbound.Engine.pdb": "8f1e8d6f3a3bbaaac62df17e131718c14c95e7c5c7f7f35775982a2b7d04bc50",
+    "Riftbound.CardCatalog.pdb": "6202be2fda0eb6bd6cd0ab27731416e7e11e4619a1facad5a580052a8d6c674f",
+    "Riftbound.Contracts.dll": "13e9820a0d057fd98b874357e67631ea0388d608e87411790b94c3b1de802716",
+    "Riftbound.Engine.dll": "0ae0e2d135c0a93ffe6db6bfb443ab8a4ab93291f492d16ffe03cc4c65d9d698",
+    "Riftbound.Persistence.pdb": "cf101154c02df09a07056dfcfbebb93bb54fbab5d3c26740143db73913cfaba0",
+    "Riftbound.Api.dll": "8adeba20bc6d8a2c56cc396323be2b88a17ca4b9c2c223aee7f34db798ac96a1",
+    "Riftbound.ConformanceTests.pdb": "cbe8fab611a38a0514537864ab8be6a813f9566b598db1c8eef828d4ecfd327a",
+    "Riftbound.Api.pdb": "a7b21afef0026fbd51667a0ee0936963f58aba68d206af9f2b254911822c2d2c",
+    "Riftbound.Persistence.dll": "5f0b4b1120e6a00109935b0bd8d285ccad8033ffefc40ba8c12cdc25bc394e72",
+    "Riftbound.ConformanceTests.dll": "88a36a3f6acec5744b41108ecdfb0e8908bcce0fb5cdf924f85b9de9db16bfb3"
+  },
+  "trxSha256": "9ecf119a819f18d618f7870a49e5104fc1f2ae4aa9aee71d53e09e34b927eef4",
+  "testAssemblySha256": "88a36a3f6acec5744b41108ecdfb0e8908bcce0fb5cdf924f85b9de9db16bfb3",
+  "seconds": 73.66,
+  "allSourcesStableDuringFocus": true,
+  "allTenNonTestModulesByteExact": true,
+  "allPublicOriginalTestBodiesAndAssertionsByteExact": true,
+  "oneIndependentManualExpectedListLiteralAdditionOnly": true,
+  "preRepairFullTrxMessageLimit": "1 full actual rejection;3 xUnit truncated collections preserved, not invented. Same actual production core plus unchanged original bodies now all4 pass.",
+  "originalCheckRemainsFailed": {
+    "cases": 12785,
+    "passed": 12781,
+    "failed": 4,
+    "runs": 1
+  },
+  "noSecondCheckOrOriginalHistoryRewrite": true,
+  "fixedCommitFullStillRequired": true
+}

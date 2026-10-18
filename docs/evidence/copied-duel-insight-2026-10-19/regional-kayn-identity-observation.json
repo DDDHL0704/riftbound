@@ -1,0 +1,125 @@
+{
+  "recordedAtUtc": "2026-10-18T21:57:09.161213+00:00",
+  "status": "NEWLY_ACQUIRED_REGIONAL_SOURCE_IDENTITY_CONFLICT_OPEN_NOT_NEW_PRINTING_OR_TEMPORAL_DELTA",
+  "regions": [
+    "GLOBAL_SITE_EN_FR_DE",
+    "CN_COMPARISON_ONLY"
+  ],
+  "languages": [
+    "en-US",
+    "fr-FR",
+    "de-DE",
+    "zh-CN"
+  ],
+  "observationLocalDate": "2026-10-19",
+  "globalPublishedAt": null,
+  "globalEffectiveAt": null,
+  "cnApplicableBaseline": "2026-10-16",
+  "exactObservedRecords": [
+    {
+      "locale": "fr-fr",
+      "id": "ogn-189-000",
+      "publicCode": "OGN-189/000",
+      "observedAtUtc": "2026-10-18T21:50:52.384896+00:00",
+      "returnedRows": 1409,
+      "reportedTotal": 1417
+    },
+    {
+      "locale": "de-de",
+      "id": "ogn-189-000",
+      "publicCode": "OGN-189/000",
+      "observedAtUtc": "2026-10-18T21:50:59.959029+00:00",
+      "returnedRows": 1409,
+      "reportedTotal": 1417
+    }
+  ],
+  "freshEnglish": {
+    "observedAtUtc": "2026-10-18T21:53:14.077653+00:00",
+    "canonicalId": "ogn-189-298",
+    "canonicalPublicCode": "OGN-189/298",
+    "newCmsDuplicateNotReturned": true,
+    "allPrior1408WholeRowsUnchanged": true,
+    "reportedTotal": 1416,
+    "returnedRows": 1408,
+    "gap": 8
+  },
+  "freshCN": {
+    "apiId": 31419,
+    "cardNo": "OGN·189/298",
+    "cardName": "凯隐",
+    "subTitle": "巨镰奔扬",
+    "categories": [
+      "英雄单位"
+    ],
+    "effectiveText": "{{游走}}（我可以向其他战场进行移动。）\n在本回合内，如果我移动了两次，则我免疫伤害。",
+    "qa": null,
+    "publishedAt": null,
+    "effectiveAt": null,
+    "wholeRowSha256": "9b3b7cfd125eb562dc03005d1f42b6d6028b4c37d18283f0493c799ddea1c8a8"
+  },
+  "officialSharedAsset": {
+    "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/a1ce0e784264748f170bebb3b26a09a7f55efe0f-744x1039.png?accountingTag=RB",
+    "sha256": "003990d7789021298797befcc65c37b36a91d74b53dd593c477e55f613455cc2",
+    "sameUrlInFreshEnglishCanonicalAndBothAlternateLocaleRecords": true,
+    "actualPrintedFooter": "OGN · 189/298",
+    "visualEvidence": "kayn-card-visual-inspection.json"
+  },
+  "identityDisposition": "OPEN: CMS/printed denominator mismatch. The matching exact official image is association evidence, not permission to silently normalize /000 into /298 or create a new playable printing.",
+  "impactOnThisCandidate": "No runtime catalog, source identity hash, accepted history or implementation changed. Exact CN Kayn31419 and all prior English whole rows unchanged. Preserve current scoped CN evidence; all additional locale identity/regional applicability and whole-card behavior remain unclosed.",
+  "notAnEstablishedTemporalSourceChange": "FR/DE prior baseline was not available. These are newly acquired locale observations compared with the existing EN namespace, not proof of when Riot added a card. Keep original four temporal-source deltas byte exact.",
+  "englishEightCountGapStillOpen": true,
+  "original1740PrintingUniversePreserved": true,
+  "newSourceRecordStillNeedsSeparateDisposition": true,
+  "rad182AndAllOtherKaynPrintingsNotCertifiedByThisOneImage": true,
+  "newFullAndVisibleProductAcceptanceUnaffectedSeparateGates": true,
+  "acquisitionFiles": [
+    {
+      "path": "var/qa/copied-duel-insight-20261019/english-gallery-page-observation.json",
+      "sha256": "1a848a28cf28ee14556af6e30517d3298655f2eb97ef1112fffdaf8040204f50"
+    },
+    {
+      "path": "var/qa/copied-duel-insight-20261019/english-gallery-page-20261019.html.gz",
+      "sha256": "7cfc92ee5f2d47b42bfc0a86e033ceeffa9287a025a623bb36d97a26c61efbae"
+    },
+    {
+      "path": "var/qa/copied-duel-insight-20261019/gallery-locale-crosscheck-v1.json",
+      "sha256": "6c72ae532e9adc716fcc2171dffaea4b9a2e07b8e512d8459aea05668c809c48"
+    },
+    {
+      "path": "var/qa/copied-duel-insight-20261019/gallery-locale-fr_FR-v1.json.gz",
+      "sha256": "8c332c6fcdc1f75a1f20dc27ffc1766ba2ce786b1030a415047b4f2ed0256e1f"
+    },
+    {
+      "path": "var/qa/copied-duel-insight-20261019/gallery-locale-de_DE-v1.json.gz",
+      "sha256": "0d00b50bd8fdf9de8121208986154e4fa6bca7473a6f3ace5bbcc9321d899845"
+    },
+    {
+      "path": "var/qa/copied-duel-insight-20261019/english-gallery-live-delta-v1.json",
+      "sha256": "7ce2b7cbea02ed147ca63d27ad181e3508e3839cbce462363a03d01a489761e9"
+    },
+    {
+      "path": "var/qa/copied-duel-insight-20261019/gallery-en-US-live-delta-v1.json.gz",
+      "sha256": "31d8a9d0c03984f0351dcd30c5cc7901f5ac9008b71e44d7c3ad078b9a07e510"
+    },
+    {
+      "path": "var/qa/copied-duel-insight-20261019/kayn-cn-source-manifest.json",
+      "sha256": "7e2b200b402594254798a947678819c0c97b17cd1877a49f786b6053b94021d0"
+    },
+    {
+      "path": "var/qa/copied-duel-insight-20261019/kayn-cn-source-31419.json.gz",
+      "sha256": "b84c0eac54af53ce81a07a723eb6ee5f0727f86aaa2d7102b9acb3ff6da3facc"
+    },
+    {
+      "path": "var/qa/copied-duel-insight-20261019/kayn-global-fr-de-card-image-observation.json",
+      "sha256": "25371d055610dfa2b97eaf6a2f0186023287d5d7ee4b0c4baefca6646698b3a8"
+    },
+    {
+      "path": "var/qa/copied-duel-insight-20261019/kayn-global-fr-de-official-card-image.png",
+      "sha256": "003990d7789021298797befcc65c37b36a91d74b53dd593c477e55f613455cc2"
+    },
+    {
+      "path": "var/qa/copied-duel-insight-20261019/kayn-card-visual-inspection.json",
+      "sha256": "a2bd7e26e639b8f7d902b78ec30dfb2a961b978bd7938a92ce7d92aeea127db4"
+    }
+  ]
+}

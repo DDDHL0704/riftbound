@@ -1,0 +1,260 @@
+{
+  "schemaVersion": 1,
+  "sourceKind": "Captured QA private-seed original opening; not the missing CI seed. Read only as new-match setup before accepted history, never migrate an old match.",
+  "sourceOriginalFrameSha256": "98f17f8c3707538d64da2386b6ac8b6024ad4f5de5f651cf7da765b76d51183c",
+  "roomId": "b0-full-game-official-low-curve-reopen-room",
+  "seed": 539388028763471262,
+  "deck": {
+    "legendCardNo": "UNL-181/219",
+    "championCardNo": "UNL-022/219",
+    "mainDeck": [
+      "UNL-022/219",
+      "ARC-001/006",
+      "ARC-001/006",
+      "ARC-001/006",
+      "OGN·010/298",
+      "OGN·010/298",
+      "OGN·010/298",
+      "OGN·013/298",
+      "OGN·013/298",
+      "OGN·013/298",
+      "OGN·096/298",
+      "OGN·096/298",
+      "OGN·096/298",
+      "OGN·103/298",
+      "OGN·103/298",
+      "OGN·103/298",
+      "OGN·121/298",
+      "OGN·121/298",
+      "OGN·121/298",
+      "SFD·018/221",
+      "SFD·018/221",
+      "SFD·018/221",
+      "SFD·065/221",
+      "SFD·065/221",
+      "SFD·065/221",
+      "SFD·069/221",
+      "SFD·069/221",
+      "SFD·069/221",
+      "UNL-002/219",
+      "UNL-002/219",
+      "UNL-002/219",
+      "UNL-003/219",
+      "UNL-003/219",
+      "UNL-003/219",
+      "UNL-065/219",
+      "UNL-065/219",
+      "UNL-065/219",
+      "UNL-076/219",
+      "UNL-076/219",
+      "UNL-076/219"
+    ],
+    "runeDeck": [
+      "OGN·007/298",
+      "OGN·007a/298",
+      "OGN·007b/298",
+      "OGN·089/298",
+      "OGN·089a/298",
+      "OGN·089b/298",
+      "SFD·R01",
+      "SFD·R01a",
+      "SFD·R01b",
+      "SFD·R03",
+      "SFD·R03a",
+      "SFD·R03b"
+    ],
+    "battlefields": [
+      "OGN·275/298",
+      "OGN·276/298",
+      "OGN·277/298"
+    ]
+  },
+  "acceptedCommands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "b0-submit-p1",
+      "rawCommand": {
+        "cmdType": "SUBMIT_DECK",
+        "legendCardNo": "UNL-181/219",
+        "championCardNo": "UNL-022/219",
+        "mainDeck": [
+          "UNL-022/219",
+          "ARC-001/006",
+          "ARC-001/006",
+          "ARC-001/006",
+          "OGN·010/298",
+          "OGN·010/298",
+          "OGN·010/298",
+          "OGN·013/298",
+          "OGN·013/298",
+          "OGN·013/298",
+          "OGN·096/298",
+          "OGN·096/298",
+          "OGN·096/298",
+          "OGN·103/298",
+          "OGN·103/298",
+          "OGN·103/298",
+          "OGN·121/298",
+          "OGN·121/298",
+          "OGN·121/298",
+          "SFD·018/221",
+          "SFD·018/221",
+          "SFD·018/221",
+          "SFD·065/221",
+          "SFD·065/221",
+          "SFD·065/221",
+          "SFD·069/221",
+          "SFD·069/221",
+          "SFD·069/221",
+          "UNL-002/219",
+          "UNL-002/219",
+          "UNL-002/219",
+          "UNL-003/219",
+          "UNL-003/219",
+          "UNL-003/219",
+          "UNL-065/219",
+          "UNL-065/219",
+          "UNL-065/219",
+          "UNL-076/219",
+          "UNL-076/219",
+          "UNL-076/219"
+        ],
+        "runeDeck": [
+          "OGN·007/298",
+          "OGN·007a/298",
+          "OGN·007b/298",
+          "OGN·089/298",
+          "OGN·089a/298",
+          "OGN·089b/298",
+          "SFD·R01",
+          "SFD·R01a",
+          "SFD·R01b",
+          "SFD·R03",
+          "SFD·R03a",
+          "SFD·R03b"
+        ],
+        "battlefields": [
+          "OGN·275/298",
+          "OGN·276/298",
+          "OGN·277/298"
+        ]
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "b0-submit-p2",
+      "rawCommand": {
+        "cmdType": "SUBMIT_DECK",
+        "legendCardNo": "UNL-181/219",
+        "championCardNo": "UNL-022/219",
+        "mainDeck": [
+          "UNL-022/219",
+          "ARC-001/006",
+          "ARC-001/006",
+          "ARC-001/006",
+          "OGN·010/298",
+          "OGN·010/298",
+          "OGN·010/298",
+          "OGN·013/298",
+          "OGN·013/298",
+          "OGN·013/298",
+          "OGN·096/298",
+          "OGN·096/298",
+          "OGN·096/298",
+          "OGN·103/298",
+          "OGN·103/298",
+          "OGN·103/298",
+          "OGN·121/298",
+          "OGN·121/298",
+          "OGN·121/298",
+          "SFD·018/221",
+          "SFD·018/221",
+          "SFD·018/221",
+          "SFD·065/221",
+          "SFD·065/221",
+          "SFD·065/221",
+          "SFD·069/221",
+          "SFD·069/221",
+          "SFD·069/221",
+          "UNL-002/219",
+          "UNL-002/219",
+          "UNL-002/219",
+          "UNL-003/219",
+          "UNL-003/219",
+          "UNL-003/219",
+          "UNL-065/219",
+          "UNL-065/219",
+          "UNL-065/219",
+          "UNL-076/219",
+          "UNL-076/219",
+          "UNL-076/219"
+        ],
+        "runeDeck": [
+          "OGN·007/298",
+          "OGN·007a/298",
+          "OGN·007b/298",
+          "OGN·089/298",
+          "OGN·089a/298",
+          "OGN·089b/298",
+          "SFD·R01",
+          "SFD·R01a",
+          "SFD·R01b",
+          "SFD·R03",
+          "SFD·R03a",
+          "SFD·R03b"
+        ],
+        "battlefields": [
+          "OGN·275/298",
+          "OGN·276/298",
+          "OGN·277/298"
+        ]
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "b0-ready-p1",
+      "rawCommand": {
+        "cmdType": "READY"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "b0-ready-p2",
+      "rawCommand": {
+        "cmdType": "READY"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "b0-mulligan-active",
+      "rawCommand": {
+        "cmdType": "MULLIGAN",
+        "handObjectIds": []
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "b0-mulligan-second",
+      "rawCommand": {
+        "cmdType": "MULLIGAN",
+        "handObjectIds": []
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "b0-first-tap-0",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P1-RUNE-OGN-089b-298-06"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "b0-first-tap-1",
+      "rawCommand": {
+        "cmdType": "TAP_RUNE",
+        "sourceObjectId": "P1-RUNE-SFD-R03b-12"
+      }
+    }
+  ]
+}

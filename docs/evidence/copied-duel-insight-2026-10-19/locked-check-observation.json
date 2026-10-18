@@ -1,0 +1,20 @@
+{
+  "observedAtUtc": "2026-10-18T21:46:41.050436+00:00",
+  "observationTiming": "DURING_CHECK_ONLY_NOT_AN_INVENTED_START_OBSERVATION",
+  "rootLocked": true,
+  "sessions": [
+    {
+      "screenLocked": true,
+      "onConsole": true
+    }
+  ],
+  "actualOwnRunnerAndTemporaryCaffeinateProcesses": "PID  PPID ELAPSED      TIME STAT COMMAND\n20830 20827   03:12   0:00.58 S    /Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/MacOS/Python var/qa/copied-duel-insight-20261019/run-one-check-v1.py\n20831 20827   03:12   0:00.00 S    /usr/bin/caffeinate -i -w 20830",
+  "ownTemporaryPowerAssertions": [
+    "pid 20831(caffeinate): [0x000e23a900019e3e] 00:03:11 PreventUserIdleSystemSleep named: \"caffeinate command-line tool\""
+  ],
+  "temporaryCaffeinateBoundToOwnRunnerPid": 20830,
+  "noPersistentPowerSettingOrLockChange": true,
+  "noDesktopUiInteractionOrUnlockRequired": true,
+  "noVisibleControlsClaim": true,
+  "diskBytesAvailableAtObservation": 57076305920
+}

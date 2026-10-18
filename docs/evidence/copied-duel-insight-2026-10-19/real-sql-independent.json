@@ -1,0 +1,155 @@
+{
+  "startedAtUtc": "2026-10-18T21:25:21.741442+00:00",
+  "status": "PASS",
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+    "implementationSha256": "70ce4b635e6c48f499ed547ef070d2658acc3ed9ea41cd9ef744acc5ff77d05b",
+    "identitySha256": "51b89874267d79b0358bd29669a8fb7c7b382ce97116fe535070e2dd998f5a14"
+  },
+  "rootAndSessionLockAtStart": {
+    "atUtc": "2026-10-18T21:25:21.764103+00:00",
+    "rootLocked": true,
+    "sessions": [
+      {
+        "screenLocked": true,
+        "onConsole": true
+      }
+    ]
+  },
+  "noSuccessfulFunctionalStepRerun": true,
+  "noVisibleControlsNormalScoreFullGameOrPhysicalWindowsClaim": true,
+  "ordinaryMatchingFormatBranches": 8,
+  "commands": 432,
+  "events": 1554,
+  "frames": [
+    {
+      "file": "real-sql-v1/copied-duel-insight/songs-1-ChinaStandard20260724-ALL_PAY_KEEP-original-frame.json.gz",
+      "sha256": "b53250afe23862125c8ce741fb6ed95061374736e0edbe7d3bbf5a860a779c13",
+      "room": "postgres-copied-duel-bfb43d552035499498ba27c52636e58f",
+      "songs": 1,
+      "format": "ChinaStandard20260724",
+      "profile": "ALL_PAY_KEEP",
+      "commands": 48,
+      "events": 170,
+      "allRawFieldsNullsArraysAndEventOrderExact": true
+    },
+    {
+      "file": "real-sql-v1/copied-duel-insight/songs-1-ChinaStandard20260724-MIXED_PAY_RECYCLE-original-frame.json.gz",
+      "sha256": "0b7e09d6a1e00cfa38388f740cb39d7689607b71e904c8eb02ea777508240f60",
+      "room": "postgres-copied-duel-a435edf050534a5d9df87d1efaf73df3",
+      "songs": 1,
+      "format": "ChinaStandard20260724",
+      "profile": "MIXED_PAY_RECYCLE",
+      "commands": 44,
+      "events": 162,
+      "allRawFieldsNullsArraysAndEventOrderExact": true
+    },
+    {
+      "file": "real-sql-v1/copied-duel-insight/songs-1-CoreRules-ALL_PAY_KEEP-original-frame.json.gz",
+      "sha256": "90aa80b7ed72f33ebe9090fba496058e1beb2d283c5dda063dc60c2e4db490fd",
+      "room": "postgres-copied-duel-2f4914d86030457d847f18b629f87b6d",
+      "songs": 1,
+      "format": "CoreRules",
+      "profile": "ALL_PAY_KEEP",
+      "commands": 48,
+      "events": 170,
+      "allRawFieldsNullsArraysAndEventOrderExact": true
+    },
+    {
+      "file": "real-sql-v1/copied-duel-insight/songs-1-CoreRules-MIXED_PAY_RECYCLE-original-frame.json.gz",
+      "sha256": "aee66e68e3ea549507bc422c803f782915ea3affc061a08bc48c309f07d8f500",
+      "room": "postgres-copied-duel-7420a00e4cf04289b09d6b8e0dfcee76",
+      "songs": 1,
+      "format": "CoreRules",
+      "profile": "MIXED_PAY_RECYCLE",
+      "commands": 44,
+      "events": 162,
+      "allRawFieldsNullsArraysAndEventOrderExact": true
+    },
+    {
+      "file": "real-sql-v1/copied-duel-insight/songs-2-ChinaStandard20260724-ALL_PAY_KEEP-original-frame.json.gz",
+      "sha256": "50f0a697dab9b236d99f7ac6619a320733aa3d138db4613f5c152e03ecf71336",
+      "room": "postgres-copied-duel-028bd15e86454cbba424e738ddb85d3b",
+      "songs": 2,
+      "format": "ChinaStandard20260724",
+      "profile": "ALL_PAY_KEEP",
+      "commands": 66,
+      "events": 231,
+      "allRawFieldsNullsArraysAndEventOrderExact": true
+    },
+    {
+      "file": "real-sql-v1/copied-duel-insight/songs-2-ChinaStandard20260724-MIXED_PAY_RECYCLE-original-frame.json.gz",
+      "sha256": "987c6ef05180ccb136a259c29874d9ae8e59a8b5888e374958f7228a8af30d76",
+      "room": "postgres-copied-duel-f68ac0d8349347dc86990902a17b3c79",
+      "songs": 2,
+      "format": "ChinaStandard20260724",
+      "profile": "MIXED_PAY_RECYCLE",
+      "commands": 58,
+      "events": 214,
+      "allRawFieldsNullsArraysAndEventOrderExact": true
+    },
+    {
+      "file": "real-sql-v1/copied-duel-insight/songs-2-CoreRules-ALL_PAY_KEEP-original-frame.json.gz",
+      "sha256": "bafff8bbb2d09fb7d957a5a8b687f4fa38c7b72edc893fbd1e4cecb896fcc303",
+      "room": "postgres-copied-duel-722ee1dc9ed8447bb115d26cb96ace37",
+      "songs": 2,
+      "format": "CoreRules",
+      "profile": "ALL_PAY_KEEP",
+      "commands": 66,
+      "events": 231,
+      "allRawFieldsNullsArraysAndEventOrderExact": true
+    },
+    {
+      "file": "real-sql-v1/copied-duel-insight/songs-2-CoreRules-MIXED_PAY_RECYCLE-original-frame.json.gz",
+      "sha256": "e61f5aa92bee70bfd1f7f714cffcf7cdc211ecfd5454b1bf2fa81f947f7f7990",
+      "room": "postgres-copied-duel-3ca5c0c6d0174b5287db45befed10fef",
+      "songs": 2,
+      "format": "CoreRules",
+      "profile": "MIXED_PAY_RECYCLE",
+      "commands": 58,
+      "events": 214,
+      "allRawFieldsNullsArraysAndEventOrderExact": true
+    }
+  ],
+  "auditRoomCount": 91,
+  "nativeRoomCount": 12,
+  "allPrior83AuditAndTwelveNativeSevenTablesExact": true,
+  "allCurrent91AuditAndTwelveNativeSevenTablesStable": true,
+  "exactStoredAuthorityCommandsEventsBothPrivateViewsAndPrompts": true,
+  "noNullOmissionPolicy": true,
+  "allCurrent91AuditSevenTables": {
+    "matches": "f671182982933820719eae6430998cc657fcd8b061a8231aa41cfdc3dfd06646",
+    "match_players": "f0cb24276071a37ed8f8bd38a56ef3cb00b10839c30435f8caaff71b5f5ae111",
+    "command_log": "659178f2cee038d20d3c0c88e89cfec87b0867f57cff9145d73dd0c5106fe2ff",
+    "game_events": "7922698e63390c3a35e2c935d05576145b518a3bf8dd50b5de8f948eb681a54c",
+    "state_snapshots": "7e138a24ab1bb0ea230ba112eaea9d81c2917502fc2bbb775deb2cfa6fc3a5b3",
+    "snapshots": "4225c4b4ee2e135e74c036a1373f5319e2ac25012694971557a917a838b43d11",
+    "action_prompts": "c35d9d09b10e6538a9020b1b7f3fae2d1741eb380dc5c4c0213e3a45519e867e"
+  },
+  "allTwelveNativeSevenTables": {
+    "matches": "5a39f0cb8fafdd81c78ee63d34e2a49f4f8c550578aac43e1ad76b2ec96166f0",
+    "match_players": "3a81e75ac3d0bd35218ce642b526de173e16782532a1bb58dbf70cc2d47de4f7",
+    "command_log": "abc74ea517cf05fbfdaf649a5e89e67160ed376e490e6d4a91cf4ff98c8e3ab4",
+    "game_events": "ce2d3b46d9b0b9c41a8b1d124cf2fea8aa16abf1284f8aa81cce86aed719c924",
+    "state_snapshots": "f4da2c4e9d962addab47aa6c51ed250a06f9be72bbae577298d131f0a981c51a",
+    "snapshots": "2993b6027a5721f2590cca982d90a103cd34e0c01b362aa40e2acb8786cda7ec",
+    "action_prompts": "d704b8719478c03722b55dd93d846d2df14f8b5c70d6de992597948f3c541aa0"
+  },
+  "ownPostgresSmartStopped": true,
+  "finishedAtUtc": "2026-10-18T21:25:38.912412+00:00",
+  "rootAndSessionLockAtEnd": {
+    "atUtc": "2026-10-18T21:25:38.942185+00:00",
+    "rootLocked": true,
+    "sessions": [
+      {
+        "screenLocked": true,
+        "onConsole": true
+      }
+    ]
+  },
+  "originalDatabaseRetained": true
+}

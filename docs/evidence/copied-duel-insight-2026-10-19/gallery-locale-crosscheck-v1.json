@@ -1,0 +1,463 @@
+{
+  "recordedAtUtc": "2026-10-18T21:50:59.963890+00:00",
+  "status": "READ_ONLY_OFFICIAL_SUPPORTED_LOCALE_CROSSCHECK_NOT_ENGLISH_GAP_DISPOSITION",
+  "scope": "Two alternate locales explicitly linked by actual current official gallery page. No invented language path/filter. Distinct language observations do not substitute for English or CN source text.",
+  "officialLocaleDiscovery": {
+    "path": "var/qa/copied-duel-insight-20261019/english-gallery-page-observation.json",
+    "sha256": "1a848a28cf28ee14556af6e30517d3298655f2eb97ef1112fffdaf8040204f50"
+  },
+  "priorEnglishBaseline": {
+    "path": "var/qa/copied-predict-20261018/gallery-20261019-large-limit/response.json.gz",
+    "sha256": "9cd936eae1ecd080967c46d3e62b737638f97461278f4d715dbfab65c758c0bd",
+    "metadata": {
+      "channelMachineName": "riftbound_website",
+      "channelHostname": "playriftbound.com",
+      "smartListMachineName": "riftbound_gallery_cards",
+      "from": 0,
+      "limit": 2000,
+      "overrideSize": 0,
+      "totalItems": 1416,
+      "totalPages": 1,
+      "locale": "en-us",
+      "resultsUpdatedAt": "2026-10-18T16:16:58.609883176Z"
+    },
+    "rows": 1408
+  },
+  "results": [
+    {
+      "requestedLocale": "fr_FR",
+      "observedLocale": "fr-fr",
+      "url": "https://content.publishing.riotgames.com/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=fr_FR&limit=2000&from=0",
+      "finalUrl": "https://content.publishing.riotgames.com/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=fr_FR&limit=2000&from=0",
+      "attemptedAtUtc": "2026-10-18T21:50:48.683608+00:00",
+      "receivedAtUtc": "2026-10-18T21:50:52.384896+00:00",
+      "httpStatus": 200,
+      "httpDate": "Sun, 18 Oct 2026 21:50:50 GMT",
+      "rawSha256": "b4c53aa92c140324bee0b460d4cb726d7153cab27d46e2b8006c43d2e2a54e16",
+      "stored": "var/qa/copied-duel-insight-20261019/gallery-locale-fr_FR-v1.json.gz",
+      "storedSha256": "8c332c6fcdc1f75a1f20dc27ffc1766ba2ce786b1030a415047b4f2ed0256e1f",
+      "metadata": {
+        "channelMachineName": "riftbound_website",
+        "channelHostname": "playriftbound.com",
+        "smartListMachineName": "riftbound_gallery_cards",
+        "from": 0,
+        "limit": 2000,
+        "overrideSize": 0,
+        "totalItems": 1417,
+        "totalPages": 1,
+        "locale": "fr-fr",
+        "resultsUpdatedAt": "2026-10-18T21:50:50.781196523Z"
+      },
+      "linkdata": {
+        "first": "/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=fr_FR&from=0&limit=2000",
+        "last": "/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=fr_FR&from=0&limit=2000",
+        "self": "/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=fr_FR&from=0&limit=2000"
+      },
+      "returnedRows": 1409,
+      "distinctIds": 1409,
+      "knownEnglishIdsReturned": 1408,
+      "idsNotInPriorEnglish": [
+        "ogn-189-000"
+      ],
+      "priorEnglishIdsNotReturned": [],
+      "newIdentityCandidateRows": [
+        {
+          "id": "ogn-189-000",
+          "collectorNumber": 189,
+          "name": "Kayn, Unleashed",
+          "set": {
+            "label": "Set de cartes",
+            "value": {
+              "id": "OGN",
+              "label": "Origins"
+            }
+          },
+          "cardType": {
+            "label": "Type de carte",
+            "type": [
+              {
+                "id": "unit",
+                "label": "Unité (Unit)",
+                "icon": {
+                  "type": "image",
+                  "provider": "sanity",
+                  "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/cb0caf49361546ece0c25d65b7fbf57c0eee57f0-64x64.png?accountingTag=RB",
+                  "dimensions": {
+                    "width": 64,
+                    "height": 64,
+                    "aspectRatio": 1
+                  },
+                  "mimeType": "image/png"
+                }
+              }
+            ],
+            "superType": [
+              {
+                "id": "champion",
+                "label": "Champion",
+                "icon": {
+                  "type": "image",
+                  "provider": "sanity",
+                  "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/c56f1df327f53562a56b493d3d38c3cee5780c5a-64x64.png?accountingTag=RB",
+                  "dimensions": {
+                    "width": 64,
+                    "height": 64,
+                    "aspectRatio": 1
+                  },
+                  "mimeType": "image/png"
+                }
+              }
+            ]
+          },
+          "publicCode": "OGN-189/000",
+          "rarity": {
+            "label": "Rareté",
+            "value": {
+              "id": "rare",
+              "label": "Rare",
+              "icon": {
+                "type": "image",
+                "provider": "sanity",
+                "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/d90078e1ec2ef7cbcbba2be86da1b192c389581a-429x425.png?accountingTag=RB",
+                "dimensions": {
+                  "width": 429,
+                  "height": 425,
+                  "aspectRatio": 1.0094117647058825
+                },
+                "colors": {
+                  "primary": "#B881A9",
+                  "secondary": "#332932",
+                  "label": "#804570"
+                },
+                "mimeType": "image/png"
+              }
+            }
+          },
+          "domain": {
+            "label": "Domaine",
+            "values": [
+              {
+                "id": "chaos",
+                "label": "Chaos",
+                "icon": {
+                  "type": "image",
+                  "provider": "sanity",
+                  "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/597ddb82be59e87b467c52bb10204f02c2005d06-64x64.png?accountingTag=RB",
+                  "dimensions": {
+                    "width": 64,
+                    "height": 64,
+                    "aspectRatio": 1
+                  },
+                  "colors": {
+                    "primary": "#100B16",
+                    "secondary": "#EDD6FF",
+                    "label": "#000000"
+                  },
+                  "mimeType": "image/png"
+                }
+              }
+            ]
+          },
+          "cardImage": {
+            "type": "image",
+            "provider": "sanity",
+            "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/a1ce0e784264748f170bebb3b26a09a7f55efe0f-744x1039.png?accountingTag=RB",
+            "accessibilityText": "Riftbound Unit: Kayn, Unleashed. [Ganking] (I can move from battlefield to battlefield.)\nIf I have moved twice this turn, I don't take damage.",
+            "dimensions": {
+              "width": 744,
+              "height": 1039,
+              "aspectRatio": 0.7160731472569779
+            },
+            "colors": {
+              "primary": "#180F1E",
+              "secondary": "#EDD6FF",
+              "label": "#040404"
+            },
+            "mimeType": "image/png"
+          },
+          "orientation": "portrait",
+          "illustrator": {
+            "label": "Artiste",
+            "values": [
+              {
+                "id": "kudosproductions",
+                "label": "Kudos Productions",
+                "icon": {
+                  "type": "image",
+                  "provider": "web",
+                  "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/artist.svg"
+                }
+              }
+            ]
+          },
+          "text": {
+            "label": "Compétence (Ability)",
+            "richText": {
+              "type": "html",
+              "body": "<p>[Ganking] <em>(I can move from battlefield to battlefield.)</em><br />If I have moved twice this turn, I don't take damage.</p>"
+            }
+          },
+          "energy": {
+            "label": "Énergie (Energy)",
+            "value": {
+              "id": 6,
+              "label": "6"
+            }
+          },
+          "might": {
+            "label": "Puissance (Might)",
+            "value": {
+              "id": 6,
+              "label": "6",
+              "icon": {
+                "type": "image",
+                "provider": "web",
+                "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/might.svg"
+              }
+            }
+          },
+          "power": {
+            "label": "Essence runique (Power)",
+            "value": {
+              "id": 1,
+              "label": "1",
+              "icon": {
+                "type": "image",
+                "provider": "web",
+                "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/card_type_rune.svg"
+              }
+            }
+          },
+          "tags": {
+            "label": "Tags",
+            "tags": [
+              "Kayn",
+              "Ionia"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "requestedLocale": "de_DE",
+      "observedLocale": "de-de",
+      "url": "https://content.publishing.riotgames.com/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=de_DE&limit=2000&from=0",
+      "finalUrl": "https://content.publishing.riotgames.com/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=de_DE&limit=2000&from=0",
+      "attemptedAtUtc": "2026-10-18T21:50:48.686769+00:00",
+      "receivedAtUtc": "2026-10-18T21:50:59.959029+00:00",
+      "httpStatus": 200,
+      "httpDate": "Sun, 18 Oct 2026 21:50:58 GMT",
+      "rawSha256": "da8c265ffd1b169362ff050e5a12b9055cafd373263fd99f05635f9ae952e648",
+      "stored": "var/qa/copied-duel-insight-20261019/gallery-locale-de_DE-v1.json.gz",
+      "storedSha256": "0d00b50bd8fdf9de8121208986154e4fa6bca7473a6f3ace5bbcc9321d899845",
+      "metadata": {
+        "channelMachineName": "riftbound_website",
+        "channelHostname": "playriftbound.com",
+        "smartListMachineName": "riftbound_gallery_cards",
+        "from": 0,
+        "limit": 2000,
+        "overrideSize": 0,
+        "totalItems": 1417,
+        "totalPages": 1,
+        "locale": "de-de",
+        "resultsUpdatedAt": "2026-10-18T21:50:58.475421472Z"
+      },
+      "linkdata": {
+        "first": "/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=de_DE&from=0&limit=2000",
+        "last": "/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=de_DE&from=0&limit=2000",
+        "self": "/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=de_DE&from=0&limit=2000"
+      },
+      "returnedRows": 1409,
+      "distinctIds": 1409,
+      "knownEnglishIdsReturned": 1408,
+      "idsNotInPriorEnglish": [
+        "ogn-189-000"
+      ],
+      "priorEnglishIdsNotReturned": [],
+      "newIdentityCandidateRows": [
+        {
+          "id": "ogn-189-000",
+          "collectorNumber": 189,
+          "name": "Kayn, Unleashed",
+          "set": {
+            "label": "Kartenset",
+            "value": {
+              "id": "OGN",
+              "label": "Origins"
+            }
+          },
+          "cardType": {
+            "label": "Kartentyp",
+            "type": [
+              {
+                "id": "unit",
+                "label": "Einheit (Unit)",
+                "icon": {
+                  "type": "image",
+                  "provider": "sanity",
+                  "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/cb0caf49361546ece0c25d65b7fbf57c0eee57f0-64x64.png?accountingTag=RB",
+                  "dimensions": {
+                    "width": 64,
+                    "height": 64,
+                    "aspectRatio": 1
+                  },
+                  "mimeType": "image/png"
+                }
+              }
+            ],
+            "superType": [
+              {
+                "id": "champion",
+                "label": "Champion",
+                "icon": {
+                  "type": "image",
+                  "provider": "sanity",
+                  "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/c56f1df327f53562a56b493d3d38c3cee5780c5a-64x64.png?accountingTag=RB",
+                  "dimensions": {
+                    "width": 64,
+                    "height": 64,
+                    "aspectRatio": 1
+                  },
+                  "mimeType": "image/png"
+                }
+              }
+            ]
+          },
+          "publicCode": "OGN-189/000",
+          "rarity": {
+            "label": "Seltenheit",
+            "value": {
+              "id": "rare",
+              "label": "Selten",
+              "icon": {
+                "type": "image",
+                "provider": "sanity",
+                "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/d90078e1ec2ef7cbcbba2be86da1b192c389581a-429x425.png?accountingTag=RB",
+                "dimensions": {
+                  "width": 429,
+                  "height": 425,
+                  "aspectRatio": 1.0094117647058825
+                },
+                "colors": {
+                  "primary": "#B881A9",
+                  "secondary": "#332932",
+                  "label": "#804570"
+                },
+                "mimeType": "image/png"
+              }
+            }
+          },
+          "domain": {
+            "label": "Domäne (Domain)",
+            "values": [
+              {
+                "id": "chaos",
+                "label": "Chaos",
+                "icon": {
+                  "type": "image",
+                  "provider": "sanity",
+                  "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/597ddb82be59e87b467c52bb10204f02c2005d06-64x64.png?accountingTag=RB",
+                  "dimensions": {
+                    "width": 64,
+                    "height": 64,
+                    "aspectRatio": 1
+                  },
+                  "colors": {
+                    "primary": "#100B16",
+                    "secondary": "#EDD6FF",
+                    "label": "#000000"
+                  },
+                  "mimeType": "image/png"
+                }
+              }
+            ]
+          },
+          "cardImage": {
+            "type": "image",
+            "provider": "sanity",
+            "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/a1ce0e784264748f170bebb3b26a09a7f55efe0f-744x1039.png?accountingTag=RB",
+            "accessibilityText": "Riftbound Unit: Kayn, Unleashed. [Ganking] (I can move from battlefield to battlefield.)\nIf I have moved twice this turn, I don't take damage.",
+            "dimensions": {
+              "width": 744,
+              "height": 1039,
+              "aspectRatio": 0.7160731472569779
+            },
+            "colors": {
+              "primary": "#180F1E",
+              "secondary": "#EDD6FF",
+              "label": "#040404"
+            },
+            "mimeType": "image/png"
+          },
+          "orientation": "portrait",
+          "illustrator": {
+            "label": "Künstler",
+            "values": [
+              {
+                "id": "kudosproductions",
+                "label": "Kudos Productions",
+                "icon": {
+                  "type": "image",
+                  "provider": "web",
+                  "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/artist.svg"
+                }
+              }
+            ]
+          },
+          "text": {
+            "label": "Ability",
+            "richText": {
+              "type": "html",
+              "body": "<p>[Ganking] <em>(I can move from battlefield to battlefield.)</em><br />If I have moved twice this turn, I don't take damage.</p>"
+            }
+          },
+          "energy": {
+            "label": "Energie (Energy)",
+            "value": {
+              "id": 6,
+              "label": "6"
+            }
+          },
+          "might": {
+            "label": "Macht (Might)",
+            "value": {
+              "id": 6,
+              "label": "6",
+              "icon": {
+                "type": "image",
+                "provider": "web",
+                "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/might.svg"
+              }
+            }
+          },
+          "power": {
+            "label": "Kraft (Power)",
+            "value": {
+              "id": 1,
+              "label": "1",
+              "icon": {
+                "type": "image",
+                "provider": "web",
+                "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/card_type_rune.svg"
+              }
+            }
+          },
+          "tags": {
+            "label": "Tags",
+            "tags": [
+              "Kayn",
+              "Ionia"
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "newIdentityCandidateIds": [
+    "ogn-189-000"
+  ],
+  "englishAdvertisedCountGapStillOpen": true,
+  "noEnglishBodyOrApplicabilityInferredFromAnotherLocale": true,
+  "noFrozenSourceUniverseOrOldEvidenceRewritten": true,
+  "noProductionSourceFixtureOrRuntimeChange": true
+}

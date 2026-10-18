@@ -1,0 +1,48 @@
+{
+  "recordedAtUtc": "2026-10-18T21:45:50.858298+00:00",
+  "region": "CN",
+  "language": "zh-CN",
+  "applicableAsOf": "2026-10-16",
+  "sourceManifest": "remaining-insight-source-manifest.json",
+  "currentEngineSource": "src/Riftbound.Engine/CoreRuleEngine.InsightTriggers.cs",
+  "currentEngineSourceSha256": "7a9ce04db33eea9260736bd3e9f8b6d0a55f16c507898c278f009241d9ede167",
+  "printedSourceGroupsInThisExactTable": [
+    {
+      "kind": "SPELL_PLAYED",
+      "representative": "UNL-211/219",
+      "nativePrintedType": "BATTLEFIELD",
+      "directOrdinarySongUnitHostPremise": "NOT_MET_FOR_THIS_PRINTED_TYPE_ONLY",
+      "allOtherConsumersAndWholeCard": "OPEN"
+    },
+    {
+      "kind": "LAST_BREATH",
+      "representative": "UNL-062/219",
+      "nativePrintedType": "UNIT",
+      "copyEvidence": "PRIOR_Q7_LIMITED_CONTEXT_AND_SCOPED_TESTS;fixed3dFullActualFailureRetained",
+      "allOtherConsumersAndWholeCard": "OPEN"
+    },
+    {
+      "kind": "DUEL",
+      "representative": "UNL-079/219",
+      "nativePrintedType": "UNIT",
+      "copyEvidence": "CURRENT_Q8_104_CONTROLLED_16ORDINARY_8SQL_ONLY;newFixedFullPending",
+      "allOtherConsumersAndWholeCard": "OPEN"
+    },
+    {
+      "kind": "ACTIVATED",
+      "representative": "UNL-136/219",
+      "nativePrintedType": "EQUIPMENT",
+      "directOrdinarySongUnitHostPremise": "NOT_MET_FOR_THIS_PRINTED_TYPE_ONLY",
+      "allOtherConsumersAndWholeCard": "OPEN"
+    }
+  ],
+  "additionalInsightContextKindsOutsideThisPrintedSourceTable": [
+    "CONQUEST_LOOK",
+    "GRANTED_PREDICT",
+    "PRINTED_PREDICT"
+  ],
+  "scopeLimit": "Four configured printed source groups are not the full observation/choice/play family. Printed battlefield/equipment types exclude only the immediate ordinary Song-on-unit setup premise; no all-copy-path, indirect-consumer or whole-card NOT_APPLICABLE disposition. Prior and current limited evidence is never whole-family certification.",
+  "allOriginalSourceUniverseAndObligationsRetained": true,
+  "noProductionCodeOrFixtureChangeForThisReadOnlyMapping": true,
+  "newWholeRowChanges": []
+}

@@ -1,0 +1,40 @@
+{
+  "observedAt": "2026-10-18T19:33:26.892922+00:00",
+  "status": "PAYABLE_CONTROLLED_COPIED_DUEL_TRIGGER_OMISSION_REPRODUCED_NOT_FIXED",
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+    "implementationSha256": "a970155e29cdcc7726b5a40b46517b5afc96ab036426a2e201c73bfa7a7b0b3b",
+    "identitySha256": "e2e37f169ea51eab2bc8b8b403edc56762f51761a89928d8027676163606e557"
+  },
+  "zeroCopyActualExpected": 1,
+  "oneCopyExpected": 2,
+  "oneCopyActual": 1,
+  "bothCostsFundedByTwoActualAcceptedRuneTaps": true,
+  "allOriginalControlledCommandEventReplaysMatch": true,
+  "actualReproducerSourceSha256": "97385300670d139dab8c14b58fcce54a50854c8b4c2eb83130ac43947767684f",
+  "actualRuntimeFiles": {
+    "Riftbound.CardCatalog.dll": "04c9c2e1c25f52696c587636fa1933a44cfa19b78c3d51930e13c0e98488e9aa",
+    "reproduce.pdb": "54e7b886754f77313315e04db7d8ce0e7f5d6467002843918b84f60ddede2299",
+    "reproduce": "fc04512cc7f351b0ca65c3ebf2b8ce514a307a998a7b53b16d46198694ce114e",
+    "Riftbound.Contracts.pdb": "6a40bfb9548c7ab7adc86df0431cb5e5bb5cae9954855a0fc44c359ff224d571",
+    "Riftbound.Engine.pdb": "70b250219f381bf2eecb7dd1923001f29df76906380f0817f962bf58de3ea26f",
+    "Riftbound.CardCatalog.pdb": "30664d776a9178a5134779cf7bc6f86e693393e7106a1856975b3e49686dc48a",
+    "reproduce.dll": "febf195b0263ab2786353b5d5040c2a3159f7c179178d20a09fed3c3f6197b4d",
+    "Riftbound.Contracts.dll": "c1546a46e5db80bc13ca19d937271e6991956e6bd6191602a40bc61a59083f99",
+    "Riftbound.Engine.dll": "302a84152bbabd141c0b81b2a3f4a0f7e43231de4546ff93ea543912c2a0e0ad",
+    "reproduce.deps.json": "c21c53ccd227d281d43088fb0245d46a83ae4b4852ab745b480e87a26f2840af",
+    "reproduce.runtimeconfig.json": "dd72603f49fc74ad956017904a955b25d7043d65291c0c7d033a2064e141622a"
+  },
+  "rawFrames": {
+    "copy-True-original-frame.json.gz": "79d698d62e8f1bb6c8e1a04c5786fce9ce2233deaa556e7e542fb2d6d805b061",
+    "copy-False-original-frame.json.gz": "04f91bce23748171157bcbf68dce2c41b5acc3644ada5661c916341c809164f8"
+  },
+  "sourceManifest": "candidate-source-manifest.json",
+  "ruleAuthority": "Same primaryPDFd6fd;719.1 adds copied text tohost;383 describes distinct triggeredabilities and383.3.d/controllerorder;437 InsightfollowedbyDiana reveal/draw stillmustbeimplementedandtested separately",
+  "notOrdinaryLegalOpeningNativeOrSqlAcceptance": true,
+  "noCurrentQ7AuthoredSourceOrTestBinChanged": true
+}

@@ -1,0 +1,122 @@
+{
+  "recordedAtUtc": "2026-10-18T20:02:44.304657+00:00",
+  "region": "CN",
+  "language": "zh-CN",
+  "applicableAsOf": "2026-10-16",
+  "baseCommit": "3d690c3511ee8f96e57bad87c2e34691a3148e30",
+  "scope": "Independent native and copied Diana optional Duel Insight, separate confirmation cost, current-deck Insight then reveal and spell-only draw; limited behavior branches only.",
+  "cardSources": [
+    {
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 1000,
+        "searchContent": "黛安娜",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "attemptedAtUtc": "2026-10-18T20:02:26.883468+00:00",
+      "receivedAtUtc": "2026-10-18T20:02:27.009665+00:00",
+      "httpStatus": 200,
+      "httpDate": "Sun, 18 Oct 2026 20:02:27 GMT",
+      "rawSha256": "6f71f0355129aafccfe490f31fd33264b05af8c98d1a4f5f411cde4d1ad03d04",
+      "stored": "var/qa/copied-duel-insight-20261019/scoped-source-v2-34612.json.gz",
+      "storedSha256": "262e83da72516ebef2e5b597611c5299784257b7400ed9cd69fa96968e95cd72",
+      "returnedWholeRows": 9,
+      "changedWholeRowIds": [],
+      "exactEntries": [
+        {
+          "apiId": 34612,
+          "cardNo": "UNL-079/219",
+          "cardName": "黛安娜",
+          "subTitle": "皎月化身",
+          "categories": [
+            "英雄单位"
+          ],
+          "effectiveText": "当法术对决在此处开始时，你可以选择支付{{1}}。若如此做，则进行{{洞察}}，然后展示你主牌堆顶部的一张牌。如果是一张法术牌，则抽取该卡牌。（洞察时，查看你主牌堆顶部的一张牌。你可以选择将其回收。）",
+          "qa": null,
+          "publishedAt": null,
+          "effectiveAt": null,
+          "wholeRowSha256": "2f39b1ab867ba4cc83cc8f65c74919aba03a6375e88c506bf1657edc38c832d0"
+        },
+        {
+          "apiId": 34613,
+          "cardNo": "UNL-079a/219",
+          "cardName": "黛安娜",
+          "subTitle": "皎月化身",
+          "categories": [
+            "英雄单位"
+          ],
+          "effectiveText": "当法术对决在此处开始时，你可以选择支付{{1}}。若如此做，则进行{{洞察}}，然后展示你主牌堆顶部的一张牌。如果是一张法术牌，则抽取该卡牌。",
+          "qa": null,
+          "publishedAt": null,
+          "effectiveAt": null,
+          "wholeRowSha256": "49a3c2bc6cd1cf84615ee53733da5606f0eee0a50859d37eb9b8ccab5cd439d2"
+        }
+      ]
+    },
+    {
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 1000,
+        "searchContent": "斯弗尔尚歌",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "attemptedAtUtc": "2026-10-18T20:02:26.884224+00:00",
+      "receivedAtUtc": "2026-10-18T20:02:26.991762+00:00",
+      "httpStatus": 200,
+      "httpDate": "Sun, 18 Oct 2026 20:02:26 GMT",
+      "rawSha256": "b9bbb73aa29eeec6fd0caba919baa6c75fd71e1394ec3022ffd78a1bcaa7f9ba",
+      "stored": "var/qa/copied-duel-insight-20261019/scoped-source-v2-33139.json.gz",
+      "storedSha256": "82a1faaa701c576442446f21e74728e8a88a4e501d86181fc0aa603e201fc869",
+      "returnedWholeRows": 1,
+      "changedWholeRowIds": [],
+      "exactEntries": [
+        {
+          "apiId": 33139,
+          "cardNo": "SFD·059/221",
+          "cardName": "斯弗尔尚歌",
+          "subTitle": "",
+          "categories": [
+            "装备"
+          ],
+          "effectiveText": "{{装配}}{{1}}{{绿色}}（支付{{1}}和{{绿色}}：将此牌贴附到你控制的一名单位上。）\n在此牌贴附于单位期间，复制该单位的技能描述到此武装的效果文字，在贴附期间持续生效。",
+          "qa": null,
+          "publishedAt": null,
+          "effectiveAt": null,
+          "wholeRowSha256": "c2400573fa1ec6e2bb7c4aabc955deb7b140fc8860d184d183533d28a135e6bf"
+        }
+      ]
+    }
+  ],
+  "currentPrimaryCore": {
+    "url": "https://cdn.playloltcg.com/lol/2026/10/2026-10-10/a21ead876c6b44d6abe386b6ae54ea28.pdf",
+    "attemptedAtUtc": "2026-10-18T20:02:27.010038+00:00",
+    "receivedAtUtc": "2026-10-18T20:02:44.304669+00:00",
+    "httpStatus": 200,
+    "httpDate": "Sat, 10 Oct 2026 00:46:49 GMT",
+    "lastModified": "Fri, 09 Oct 2026 16:55:24 GMT",
+    "bytes": 40278538,
+    "sha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11",
+    "publishedAt": "2026-10-10",
+    "effectiveAt": "2026-10-16",
+    "canonicalLocalPdf": "var/qa/colorless-token-haste-20261016/DOC-01-current.pdf",
+    "freshPdftotextSha256": "cafb4f3010c68360f3a8bc39b2b963e6654d6368c193c1d935a77661fb900a6d",
+    "scopedExcerpts": "current-core-scoped-excerpts.json",
+    "scopedExcerptsSha256": "b0ca66e4e78d31f7df9e0a5d111b1612cc0be328a4b4d0989c538078b86d5710",
+    "noNewPdfCopy": true
+  },
+  "priorUnreproducedSourceObservationRetained": "candidate-source-manifest.json",
+  "actualPayableControlledRedRetained": "controlled-red-v2-independent-input-verification.json",
+  "freshWholeRowChanges": [],
+  "webReaderAttempt": "Both primary official website and core PDF fetch failed in web reader; direct official HTTP acquisition above succeeded.",
+  "noWholeCardFamilyOrProductCertification": true,
+  "semanticCoverageCertified": false,
+  "all1740Printings36Documents14293BlocksAndExistingGapsRetained": true
+}

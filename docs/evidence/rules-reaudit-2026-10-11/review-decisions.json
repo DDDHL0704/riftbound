@@ -22734,6 +22734,281 @@
         "docs/evidence/copied-last-breath-insight-2026-10-19/source-manifest.json",
         "docs/evidence/copied-last-breath-insight-2026-10-19/sql-export-null-policy.json"
       ]
+    },
+    {
+      "id": "copied-duel-insight-2026-10-19",
+      "scope": "CN/zh-CN applicable2026-10-16, sources acquired local2026-10-19 with exact UTC/hash. Limited independent copied Diana optional Duel Insight, current-deck choices, captured face/equipment/ceased-token origins, authoritative recovery and original log. Borrowed VEN137/Sand/Reaction cases are lower-level controls without ordinary green-blue format certification.",
+      "status": "SCOPED_DUEL104_NEW_PLUS97_RETAINED_ORDINARY16_SQL8_CHECK12785_7398_4DIAGFAIL_POSTFOCUS32PASS_NEW_FIXED_FULL_VISIBLE_WINDOWS_OPEN",
+      "subjects": [
+        "SFD·059/221",
+        "UNL-079/219",
+        "UNL-079a/219"
+      ],
+      "ruleRecords": [],
+      "pendingRuleRecords": [],
+      "sourceManifest": {
+        "path": "docs/evidence/copied-duel-insight-2026-10-19/source-manifest.json",
+        "sha256": "88501665d064b21e32d76ec53d0342e37ba22639890b32026c1d08a585750aff",
+        "role": "source-manifest"
+      },
+      "sourceClauses": [
+        "CN current DOC-01 383.2.c",
+        "CN current DOC-01 383.3.a",
+        "CN current DOC-01 383.3.b",
+        "CN current DOC-01 383.3.c",
+        "CN current DOC-01 383.3.d",
+        "CN current DOC-01 719.1",
+        "CN current DOC-01 437.1",
+        "CN current DOC-01 437.4"
+      ],
+      "validation": {
+        "focus": {
+          "path": "docs/evidence/copied-duel-insight-2026-10-19/focus-201.json",
+          "sha256": "b232dccd861a01d4255b0799db2228a37064accd89dfd536fc0c78782772d8eb",
+          "role": "focus-201"
+        },
+        "ordinary": {
+          "path": "docs/evidence/copied-duel-insight-2026-10-19/ordinary16.json",
+          "sha256": "ecd97bc3ef0b6f35e1c386f473f7893826fe5aa8088948739079e78eef43ec34",
+          "role": "ordinary16"
+        },
+        "realSql": {
+          "path": "docs/evidence/copied-duel-insight-2026-10-19/real-sql-independent.json",
+          "sha256": "2683d2b863267417e459510da76c453af45a6ecdf16dc2ed980b45e13904ce83",
+          "role": "real-sql-independent"
+        },
+        "driverRed": {
+          "path": "docs/evidence/copied-duel-insight-2026-10-19/funding-red-v1-proof.json",
+          "sha256": "339df6df28163fc7335d3eadea6952d3ec41f7c70ecda345ceacd6154f32d669",
+          "role": "funding-red-v1-proof"
+        },
+        "driverGreen": {
+          "path": "docs/evidence/copied-duel-insight-2026-10-19/funding-green-v1-verification.json",
+          "sha256": "dd1d95b657f38b656995e817a95220242d7c7e27e448d7ac1e3d52b11c786333",
+          "role": "funding-green-v1-verification"
+        },
+        "originalGames": {
+          "path": "docs/evidence/copied-duel-insight-2026-10-19/original116-and110-pairs.json",
+          "sha256": "efdb8d1aed95566695bc55a8bca2ac6ad77b6b18d37d7446e59e35231a6ca939",
+          "role": "original116-and110-pairs"
+        },
+        "oneCheck": {
+          "path": "docs/evidence/copied-duel-insight-2026-10-19/one-check.json",
+          "sha256": "c86b82dbe3a9a1c3b643eebefa37c2f7c0123248ac13d781e1292fe4400df8e4",
+          "role": "one-check"
+        },
+        "postCheckDiagnosticRepair": {
+          "path": "docs/evidence/copied-duel-insight-2026-10-19/post-check-diagnostic-focus.json",
+          "sha256": "8efcfee4ea229c16525cb3dae5700fa1c2966de0e65584fc833d584ef97e2738",
+          "role": "post-check-diagnostic-focus"
+        },
+        "actualCompiledInputs": {
+          "path": "docs/evidence/copied-duel-insight-2026-10-19/actual-compiled-inputs.json",
+          "sha256": "6cdd61503d681dc8e0b880b81de4e26bfc20173d86916fd5ba0dd716d58de057",
+          "role": "actual-compiled-inputs"
+        },
+        "previousFixedFullFailure": {
+          "path": "docs/evidence/copied-duel-insight-2026-10-19/fixed3d-full-ci-failure.json",
+          "sha256": "7bba58cfe765b05dc344de4373d1aef27a8032cc580a51a5b3aafde3f09dc386",
+          "role": "fixed3d-full-ci-failure"
+        },
+        "newFixedFull": "PENDING",
+        "currentVisibleProduct": "OPEN",
+        "physicalWindows": "OPEN"
+      },
+      "exclusions": [
+        "NEW_FIXED_FULL_ALL_ORIGINAL_CASES143_FULL_METHODS110_PAIRS_SQL_NETWORK",
+        "CURRENT_FIXED_VISIBLE_CONTROLS_PAIRED_REAL_SQL_RECONNECT_NORMAL_SCORE_FULL_REPLAY",
+        "PHYSICAL_WINDOWS",
+        "WHOLE_PRINTING_AND_ALL_INDIRECT_OBSERVATION_CONSUMERS",
+        "ALL1740_PRINTINGS36_DOCUMENTS14293_BLOCKS4DELTAS_AND_SOURCE_GAPS",
+        "ENGLISH8_GAP_WEIXIN_BODIES_KAYN_IDENTITY_VEN137_REGION_FORMAT"
+      ],
+      "auditDocument": "docs/COPIED_DUEL_INSIGHT_AUDIT_2026-10-19.md",
+      "evidence": [
+        "docs/evidence/copied-duel-insight-2026-10-19/acceptance-boundaries.json",
+        "docs/evidence/copied-duel-insight-2026-10-19/actual-compiled-inputs.json",
+        "docs/evidence/copied-duel-insight-2026-10-19/check-verifier-premise-correction.json",
+        "docs/evidence/copied-duel-insight-2026-10-19/controlled-original-red.json",
+        "docs/evidence/copied-duel-insight-2026-10-19/controlled-red-test.json",
+        "docs/evidence/copied-duel-insight-2026-10-19/core-383-437-719-excerpts.json",
+        "docs/evidence/copied-duel-insight-2026-10-19/default-sql-integration.json",
+        "docs/evidence/copied-duel-insight-2026-10-19/development-classifications.json",
+        "docs/evidence/copied-duel-insight-2026-10-19/diagnostic-literal-repair.json",
+        "docs/evidence/copied-duel-insight-2026-10-19/english-gallery-live-delta-v1.json",
+        "docs/evidence/copied-duel-insight-2026-10-19/english-gallery-page-observation.json",
+        "docs/evidence/copied-duel-insight-2026-10-19/fixed3d-full-ci-failure.json",
+        "docs/evidence/copied-duel-insight-2026-10-19/fixed3d-funding-repair-v1-verification.json",
+        "docs/evidence/copied-duel-insight-2026-10-19/fixed3d-locked-native-acceptance.json",
+        "docs/evidence/copied-duel-insight-2026-10-19/focus-201.json",
+        "docs/evidence/copied-duel-insight-2026-10-19/funding-green-v1-verification.json",
+        "docs/evidence/copied-duel-insight-2026-10-19/funding-red-v1-proof.json",
+        "docs/evidence/copied-duel-insight-2026-10-19/funding-source-manifest.json",
+        "docs/evidence/copied-duel-insight-2026-10-19/gallery-locale-crosscheck-v1.json",
+        "docs/evidence/copied-duel-insight-2026-10-19/insight-consumer-boundaries.json",
+        "docs/evidence/copied-duel-insight-2026-10-19/kayn-card-visual-inspection.json",
+        "docs/evidence/copied-duel-insight-2026-10-19/kayn-cn-source-manifest.json",
+        "docs/evidence/copied-duel-insight-2026-10-19/kayn-global-fr-de-card-image-observation.json",
+        "docs/evidence/copied-duel-insight-2026-10-19/lifecycle-source-manifest.json",
+        "docs/evidence/copied-duel-insight-2026-10-19/locked-check-observation.json",
+        "docs/evidence/copied-duel-insight-2026-10-19/native-package-retirement.json",
+        "docs/evidence/copied-duel-insight-2026-10-19/one-check.json",
+        "docs/evidence/copied-duel-insight-2026-10-19/opening-source-manifest.json",
+        "docs/evidence/copied-duel-insight-2026-10-19/ordinary-raw-independent.json",
+        "docs/evidence/copied-duel-insight-2026-10-19/ordinary16.json",
+        "docs/evidence/copied-duel-insight-2026-10-19/original-test-retention-before-diagnostic-repair.json",
+        "docs/evidence/copied-duel-insight-2026-10-19/original-test-retention.json",
+        "docs/evidence/copied-duel-insight-2026-10-19/original116-and110-pairs.json",
+        "docs/evidence/copied-duel-insight-2026-10-19/post-check-diagnostic-focus.json",
+        "docs/evidence/copied-duel-insight-2026-10-19/pre-diagnostic-repair-compiled-inputs.json",
+        "docs/evidence/copied-duel-insight-2026-10-19/previous-a9-full-ci.json",
+        "docs/evidence/copied-duel-insight-2026-10-19/publication-complete.json",
+        "docs/evidence/copied-duel-insight-2026-10-19/raw-source-publication.json",
+        "docs/evidence/copied-duel-insight-2026-10-19/real-sql-execution.json",
+        "docs/evidence/copied-duel-insight-2026-10-19/real-sql-independent.json",
+        "docs/evidence/copied-duel-insight-2026-10-19/real-sql-receipt.json",
+        "docs/evidence/copied-duel-insight-2026-10-19/regional-kayn-identity-observation.json",
+        "docs/evidence/copied-duel-insight-2026-10-19/regional-kayn-issue66.json",
+        "docs/evidence/copied-duel-insight-2026-10-19/regional-kayn-source-publication.json",
+        "docs/evidence/copied-duel-insight-2026-10-19/remaining-insight-source-manifest.json",
+        "docs/evidence/copied-duel-insight-2026-10-19/source-manifest.json",
+        "docs/evidence/copied-duel-insight-2026-10-19/supplemental-runtime-retirement.json"
+      ]
+    },
+    {
+      "id": "private-opening-resource-driver-2026-10-19",
+      "scope": "CN/zh-CN applicable2026-10-16, limited original full-game test-driver selection. Actual fixed3d full failed on P2 unfundable ARC001; separately captured local P1 original seed reproduces same helper exception. CI seed was unavailable; no CI seed equivalence, rule-engine cost relaxation, old-state migration or accepted-history rewrite.",
+      "status": "ACTUAL_3D_FULL_FAILURE_PRESERVED_PRIVATE_DRIVER_RED_GREEN_ORIGINAL_METHOD_PASS_NEW_FIXED_FULL_PENDING",
+      "subjects": [
+        "ARC-001/006",
+        "OGN·103/298"
+      ],
+      "ruleRecords": [],
+      "pendingRuleRecords": [],
+      "sourceManifest": {
+        "path": "docs/evidence/copied-duel-insight-2026-10-19/funding-source-manifest.json",
+        "sha256": "782fdabf1de56a0dacfed32e719d0c670e0f523c6767bbaee873c0891b9de6ce",
+        "role": "funding-source-manifest"
+      },
+      "sourceClauses": [
+        "CN current DOC-01 131.2",
+        "CN current DOC-01 131.3",
+        "CN current DOC-01 135.2.e.5",
+        "CN current DOC-01 135.2.e.6"
+      ],
+      "validation": {
+        "focus": {
+          "path": "docs/evidence/copied-duel-insight-2026-10-19/focus-201.json",
+          "sha256": "b232dccd861a01d4255b0799db2228a37064accd89dfd536fc0c78782772d8eb",
+          "role": "focus-201"
+        },
+        "ordinary": {
+          "path": "docs/evidence/copied-duel-insight-2026-10-19/ordinary16.json",
+          "sha256": "ecd97bc3ef0b6f35e1c386f473f7893826fe5aa8088948739079e78eef43ec34",
+          "role": "ordinary16"
+        },
+        "realSql": {
+          "path": "docs/evidence/copied-duel-insight-2026-10-19/real-sql-independent.json",
+          "sha256": "2683d2b863267417e459510da76c453af45a6ecdf16dc2ed980b45e13904ce83",
+          "role": "real-sql-independent"
+        },
+        "driverRed": {
+          "path": "docs/evidence/copied-duel-insight-2026-10-19/funding-red-v1-proof.json",
+          "sha256": "339df6df28163fc7335d3eadea6952d3ec41f7c70ecda345ceacd6154f32d669",
+          "role": "funding-red-v1-proof"
+        },
+        "driverGreen": {
+          "path": "docs/evidence/copied-duel-insight-2026-10-19/funding-green-v1-verification.json",
+          "sha256": "dd1d95b657f38b656995e817a95220242d7c7e27e448d7ac1e3d52b11c786333",
+          "role": "funding-green-v1-verification"
+        },
+        "originalGames": {
+          "path": "docs/evidence/copied-duel-insight-2026-10-19/original116-and110-pairs.json",
+          "sha256": "efdb8d1aed95566695bc55a8bca2ac6ad77b6b18d37d7446e59e35231a6ca939",
+          "role": "original116-and110-pairs"
+        },
+        "oneCheck": {
+          "path": "docs/evidence/copied-duel-insight-2026-10-19/one-check.json",
+          "sha256": "c86b82dbe3a9a1c3b643eebefa37c2f7c0123248ac13d781e1292fe4400df8e4",
+          "role": "one-check"
+        },
+        "postCheckDiagnosticRepair": {
+          "path": "docs/evidence/copied-duel-insight-2026-10-19/post-check-diagnostic-focus.json",
+          "sha256": "8efcfee4ea229c16525cb3dae5700fa1c2966de0e65584fc833d584ef97e2738",
+          "role": "post-check-diagnostic-focus"
+        },
+        "actualCompiledInputs": {
+          "path": "docs/evidence/copied-duel-insight-2026-10-19/actual-compiled-inputs.json",
+          "sha256": "6cdd61503d681dc8e0b880b81de4e26bfc20173d86916fd5ba0dd716d58de057",
+          "role": "actual-compiled-inputs"
+        },
+        "previousFixedFullFailure": {
+          "path": "docs/evidence/copied-duel-insight-2026-10-19/fixed3d-full-ci-failure.json",
+          "sha256": "7bba58cfe765b05dc344de4373d1aef27a8032cc580a51a5b3aafde3f09dc386",
+          "role": "fixed3d-full-ci-failure"
+        },
+        "newFixedFull": "PENDING",
+        "currentVisibleProduct": "OPEN",
+        "physicalWindows": "OPEN"
+      },
+      "exclusions": [
+        "NEW_FIXED_FULL_ALL_ORIGINAL_CASES143_FULL_METHODS110_PAIRS_SQL_NETWORK",
+        "CURRENT_FIXED_VISIBLE_CONTROLS_PAIRED_REAL_SQL_RECONNECT_NORMAL_SCORE_FULL_REPLAY",
+        "PHYSICAL_WINDOWS",
+        "WHOLE_PRINTING_AND_ALL_INDIRECT_OBSERVATION_CONSUMERS",
+        "ALL1740_PRINTINGS36_DOCUMENTS14293_BLOCKS4DELTAS_AND_SOURCE_GAPS",
+        "ENGLISH8_GAP_WEIXIN_BODIES_KAYN_IDENTITY_VEN137_REGION_FORMAT"
+      ],
+      "auditDocument": "docs/COPIED_DUEL_INSIGHT_AUDIT_2026-10-19.md",
+      "evidence": [
+        "docs/evidence/copied-duel-insight-2026-10-19/acceptance-boundaries.json",
+        "docs/evidence/copied-duel-insight-2026-10-19/actual-compiled-inputs.json",
+        "docs/evidence/copied-duel-insight-2026-10-19/check-verifier-premise-correction.json",
+        "docs/evidence/copied-duel-insight-2026-10-19/controlled-original-red.json",
+        "docs/evidence/copied-duel-insight-2026-10-19/controlled-red-test.json",
+        "docs/evidence/copied-duel-insight-2026-10-19/core-383-437-719-excerpts.json",
+        "docs/evidence/copied-duel-insight-2026-10-19/default-sql-integration.json",
+        "docs/evidence/copied-duel-insight-2026-10-19/development-classifications.json",
+        "docs/evidence/copied-duel-insight-2026-10-19/diagnostic-literal-repair.json",
+        "docs/evidence/copied-duel-insight-2026-10-19/english-gallery-live-delta-v1.json",
+        "docs/evidence/copied-duel-insight-2026-10-19/english-gallery-page-observation.json",
+        "docs/evidence/copied-duel-insight-2026-10-19/fixed3d-full-ci-failure.json",
+        "docs/evidence/copied-duel-insight-2026-10-19/fixed3d-funding-repair-v1-verification.json",
+        "docs/evidence/copied-duel-insight-2026-10-19/fixed3d-locked-native-acceptance.json",
+        "docs/evidence/copied-duel-insight-2026-10-19/focus-201.json",
+        "docs/evidence/copied-duel-insight-2026-10-19/funding-green-v1-verification.json",
+        "docs/evidence/copied-duel-insight-2026-10-19/funding-red-v1-proof.json",
+        "docs/evidence/copied-duel-insight-2026-10-19/funding-source-manifest.json",
+        "docs/evidence/copied-duel-insight-2026-10-19/gallery-locale-crosscheck-v1.json",
+        "docs/evidence/copied-duel-insight-2026-10-19/insight-consumer-boundaries.json",
+        "docs/evidence/copied-duel-insight-2026-10-19/kayn-card-visual-inspection.json",
+        "docs/evidence/copied-duel-insight-2026-10-19/kayn-cn-source-manifest.json",
+        "docs/evidence/copied-duel-insight-2026-10-19/kayn-global-fr-de-card-image-observation.json",
+        "docs/evidence/copied-duel-insight-2026-10-19/lifecycle-source-manifest.json",
+        "docs/evidence/copied-duel-insight-2026-10-19/locked-check-observation.json",
+        "docs/evidence/copied-duel-insight-2026-10-19/native-package-retirement.json",
+        "docs/evidence/copied-duel-insight-2026-10-19/one-check.json",
+        "docs/evidence/copied-duel-insight-2026-10-19/opening-source-manifest.json",
+        "docs/evidence/copied-duel-insight-2026-10-19/ordinary-raw-independent.json",
+        "docs/evidence/copied-duel-insight-2026-10-19/ordinary16.json",
+        "docs/evidence/copied-duel-insight-2026-10-19/original-test-retention-before-diagnostic-repair.json",
+        "docs/evidence/copied-duel-insight-2026-10-19/original-test-retention.json",
+        "docs/evidence/copied-duel-insight-2026-10-19/original116-and110-pairs.json",
+        "docs/evidence/copied-duel-insight-2026-10-19/post-check-diagnostic-focus.json",
+        "docs/evidence/copied-duel-insight-2026-10-19/pre-diagnostic-repair-compiled-inputs.json",
+        "docs/evidence/copied-duel-insight-2026-10-19/previous-a9-full-ci.json",
+        "docs/evidence/copied-duel-insight-2026-10-19/publication-complete.json",
+        "docs/evidence/copied-duel-insight-2026-10-19/raw-source-publication.json",
+        "docs/evidence/copied-duel-insight-2026-10-19/real-sql-execution.json",
+        "docs/evidence/copied-duel-insight-2026-10-19/real-sql-independent.json",
+        "docs/evidence/copied-duel-insight-2026-10-19/real-sql-receipt.json",
+        "docs/evidence/copied-duel-insight-2026-10-19/regional-kayn-identity-observation.json",
+        "docs/evidence/copied-duel-insight-2026-10-19/regional-kayn-issue66.json",
+        "docs/evidence/copied-duel-insight-2026-10-19/regional-kayn-source-publication.json",
+        "docs/evidence/copied-duel-insight-2026-10-19/remaining-insight-source-manifest.json",
+        "docs/evidence/copied-duel-insight-2026-10-19/source-manifest.json",
+        "docs/evidence/copied-duel-insight-2026-10-19/supplemental-runtime-retirement.json"
+      ]
     }
   ]
 }

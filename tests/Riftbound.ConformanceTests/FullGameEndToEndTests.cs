@@ -21868,6 +21868,14 @@ public sealed partial class FullGameEndToEndTests
                 continue;
             }
 
+            // Private openings can expose a unit whose printed trait cannot be
+            // supplied by any legal rune action. Try the next original source
+            // before consuming resources or submitting an unfundable play.
+            if (!CanFundPrintedPowerWithExposedRunes(current, playerId, cardObject.CardNo))
+            {
+                continue;
+            }
+
             current = await SupplyPlayPowerThroughLegalRuneActionsAsync(
                 session, current, playerId, cardObject.CardNo, $"{intentPrefix}-fund-{index}", optionalCosts: null);
             var attempted = await session.SubmitAsync(
@@ -21900,6 +21908,25 @@ public sealed partial class FullGameEndToEndTests
         }
 
         throw new InvalidOperationException($"B0 auto-driver could not play any exposed PLAY_CARD source for {playerId}.");
+    }
+
+    private static bool CanFundPrintedPowerWithExposedRunes(ResolutionResult current, string playerId, string cardNo)
+    {
+        var pool = current.State.RunePools[playerId];
+        var typed = pool.PowerByTrait.ToDictionary(entry => entry.Key, entry => entry.Value);
+        foreach (var source in (EnabledCandidate(current.Prompts[playerId], CommandTypes.RecycleRune)?.Sources ?? [])
+                     .DistinctBy(choice => choice.Id))
+        {
+            var card = current.State.CardObjects[source.Id];
+            var trait = card.Tags.FirstOrDefault(tag => tag.StartsWith("COLOR:", StringComparison.Ordinal))?[6..];
+            if (trait is not null) typed[trait] = typed.GetValueOrDefault(trait) + 1;
+        }
+
+        // This local budget only selects a candidate. The existing driver still
+        // obtains every actual resource through accepted server commands.
+        pool = pool with { PowerByTrait = typed };
+        PrintedPowerCostRules.TrySelect(cardNo, null, pool, 0, new Dictionary<string, int>(), out var generic, out var costs);
+        return PaymentCostRules.PowerDeficit(pool, generic, costs) == 0;
     }
 
     private static async ValueTask<ResolutionResult> ResolveStackPassPassAsync(
