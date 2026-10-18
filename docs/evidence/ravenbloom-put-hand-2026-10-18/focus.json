@@ -1,0 +1,37 @@
+{
+  "recordedAtUtc": "2026-10-18T14:12:06.821406+00:00",
+  "status": "FINAL307_FOCUS_CASES72_METHODS_PASS_INCLUDING_EXACT_SINGLE_CHECK_FAILURE_ALL286_PRIOR_FOCUS_CASES_RETAINED",
+  "cases": 307,
+  "methods": 72,
+  "passed": 307,
+  "failed": 0,
+  "skipped": 0,
+  "seconds": 180.21,
+  "originalOneCheckCaseNowPassed": "Riftbound.ConformanceTests.BattlefieldContestBattleTaskGuardTests.DeclareBattleStalePromptReplayAfterNextSpellDuelStartsRejectsWithoutMutation",
+  "allPrior286FocusCaseNameMultisetRetained": true,
+  "all21BattlefieldTaskCasesAndAll185OptionalCostsAnd24TargetCasesRetained": true,
+  "all12773PostCheckAuthoredInputPathsRetained": true,
+  "onlyOnePostCheckSourceChanged": "tests/Riftbound.ConformanceTests/BattlefieldContestBattleTaskGuardTests.cs",
+  "beforeSourceSha256": "4e1906ca95bfc37dce25438d959585cc29bf3c7b69c0fc64e4367de12c9214bb",
+  "afterSourceSha256": "5bbf7410b691e9fb390f616ca20aca4a2409a137f690f14863d4f5f6c9cd5132",
+  "exactChanges": "Two anonymous manual wire encoders null-coalesce optional battlefield target arrays to []; one helper requires the resulting empty array. All other bytes, original test bodies, state/private-view/journal/intent/stale-prompt assertions unchanged.",
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+    "implementationSha256": "8e6ee446728f9f7f9bcaddd00defe3a4391b7120d609ed888557ffea1fb47ba2",
+    "identitySha256": "15660e85b71f7ddb4672bee1d6339f18b654d9f54bcb6f56612ca7dc0720e493"
+  },
+  "fourRuleModulesPdbNpgsqlAndThreeOfficialDataFilesExactToSqlAndOriginal115AndCheck": true,
+  "actualTrxSha256": "9a523ae2c679f7215766e506a663feede85f7644c03909be1cced482b55957fb",
+  "testAssemblySha256": "a1cf0a16fa1396ab7cbbc47de953a7ab9e569861a6bc77de96b9f19b32012de5",
+  "actualRetainedFinalTestModules": {
+    "Riftbound.ConformanceTests.dll": "a1cf0a16fa1396ab7cbbc47de953a7ab9e569861a6bc77de96b9f19b32012de5",
+    "Riftbound.ConformanceTests.pdb": "2be83a49fa46796835ee53dea054c7b3893204581e35ccdddfddf1f05f6d28f3"
+  },
+  "oldOriginal115AndFailedCheckTestDllPdbRetainedSeparately": true,
+  "singleCheckActual12544Pass1FailNeverRelabelledOrRerun": true,
+  "finalFixedFullStillPending": true
+}

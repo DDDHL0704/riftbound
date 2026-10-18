@@ -1,0 +1,43 @@
+{
+  "atUtc": "2026-10-18T11:57:27.540364+00:00",
+  "status": "ACTUAL_FIXED21_PUBLISHED_RELEASE_PE_MVID_COMBINED_IDENTITY_AND_SQL_READER_INPUTS_VERIFIED",
+  "fixedCommit": "21e505c32e29e1595251ccd571d80d176b95c98c",
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+    "implementationSha256": "56b2a9bdb130e2d706938a4e971c8003a673e795487142ead529b609bfecb61f",
+    "identitySha256": "b263b0223aa6989aa1c751f109a0391029cfe796dbad8aa7b37fa395bc3ac4f0"
+  },
+  "moduleRecords": [
+    {
+      "Name": "Riftbound.CardCatalog",
+      "Module": "2896b88be2a34ba79336899afbb52cca"
+    },
+    {
+      "Name": "Riftbound.Contracts",
+      "Module": "14adc071119b4058b27096748851afed"
+    },
+    {
+      "Name": "Riftbound.Engine",
+      "Module": "6f1946a77caf4942a7437a5cb11f3174"
+    }
+  ],
+  "actualPublishedModulesAndReaderExact": {
+    "Riftbound.CardCatalog.dll": "469d9095524b3bf04910e8678faff6bb32afc7631603c23d0d14cbe8ebc898e3",
+    "Riftbound.CardCatalog.pdb": "1adf1d60748b6b77f7cb86dd4b298cb24edb921ef930911da4169c5140112a05",
+    "Riftbound.Contracts.dll": "ba06d83ee4441399e9dcc2a66da8ee03c3fbec5c2159f30d6a3df760bdf2d07d",
+    "Riftbound.Contracts.pdb": "a387766b2d9c78d526a1e391ae3498c088db373db089df0e73464e1bd05c101d",
+    "Riftbound.Engine.dll": "4622298ffd5009703f73a0edeb35ffc885ac915c9a90020cd906f057d473249e",
+    "Riftbound.Engine.pdb": "711db21568a932da591cfc843cb3d9583f4d272c4e5e6df02f09246499f71b1f",
+    "Riftbound.Persistence.dll": "b415a568d89325c2eb5908a478065fe5d168f43f6552e9cb8369baa28f22b535",
+    "Riftbound.Persistence.pdb": "1ca263b4634ee742f71607f2a58d2f94f1f07d39f2d0eacecb32669d7811be12",
+    "Npgsql.dll": "9d8db086e9eda5ff20c4a7f83fa3eae7689198f57277ff9ceea1ee3526f5fcf8"
+  },
+  "all46PublishedFilesExact": true,
+  "all3248OutsideDocsSourcesExact": true,
+  "oldDebugBad341AndParent8cD4NotEquatedWithThisRelease": true,
+  "noWholeSourceCheckoutCopied": true
+}

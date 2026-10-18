@@ -22,7 +22,8 @@ var fateWeaverOnly = args.SequenceEqual(new[] { "--fate-weaver-only" });
 var multiControllerOrderOnly = args.SequenceEqual(new[] { "--multi-controller-trigger-order-only" });
 var emptyObservedRepeatOnly = args.SequenceEqual(new[] { "--empty-observed-repeat-only" });
 var observedPlayWindowOnly = args.SequenceEqual(new[] { "--observed-play-window-only" });
-if (args.Length != 0 && !openingRandomnessOnly && !optionalCostsOnly && !battlefieldPlayRecoveryOnly && !battlefieldPlayDamageOnly && !banishEffectPlayOnly && !hereLocationOnly && !fateWeaverOnly && !multiControllerOrderOnly && !emptyObservedRepeatOnly && !observedPlayWindowOnly) throw new ArgumentException("Unknown PostgreSQL acceptance selector.");
+var ravenbloomPutHandOnly = args.SequenceEqual(new[] { "--ravenbloom-put-hand-only" });
+if (args.Length != 0 && !openingRandomnessOnly && !optionalCostsOnly && !battlefieldPlayRecoveryOnly && !battlefieldPlayDamageOnly && !banishEffectPlayOnly && !hereLocationOnly && !fateWeaverOnly && !multiControllerOrderOnly && !emptyObservedRepeatOnly && !observedPlayWindowOnly && !ravenbloomPutHandOnly) throw new ArgumentException("Unknown PostgreSQL acceptance selector.");
 var json = new JsonSerializerOptions(JsonSerializerDefaults.Web) { WriteIndented = true };
 await using var dataSource = NpgsqlDataSource.Create(connectionString);
 await using (var connection = await dataSource.OpenConnectionAsync()) {
@@ -30,6 +31,12 @@ await using (var connection = await dataSource.OpenConnectionAsync()) {
         await using var command = new NpgsqlCommand(await File.ReadAllTextAsync(path), connection);
         await command.ExecuteNonQueryAsync();
     }
+}
+if (ravenbloomPutHandOnly)
+{
+    await RavenbloomPutIntoHandSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "ravenbloom-put-hand"));
+    Console.WriteLine("SCOPED_POSTGRES_ONLY: ravenbloom-put-hand; the retained complete SQL suite was not requested.");
+    return;
 }
 if (observedPlayWindowOnly)
 {
@@ -204,6 +211,7 @@ await FateWeaverSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "fate-we
 await MultiControllerTriggerSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "multi-controller-trigger-order"));
 await EmptyObservedDeckRepeatSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "empty-observed-repeat"));
 await ObservedDeckPlayWindowSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "observed-play-window"));
+await RavenbloomPutIntoHandSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "ravenbloom-put-hand"));
 
 JsonElement Raw(GameCommand command) => JsonSerializer.SerializeToElement(command, command.GetType(), json);
 async Task Submit(string actor, string intent, GameCommand command, bool accepted = true) {

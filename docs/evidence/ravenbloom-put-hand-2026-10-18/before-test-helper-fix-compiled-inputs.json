@@ -1,0 +1,59 @@
+{
+  "atUtc": "2026-10-18T14:06:54.572116+00:00",
+  "status": "INDEPENDENT_ACTUAL_FINAL_DEBUG_MVID_COMBINED_IDENTITY_CONFORMANCE_SQL_ORIGINAL115_SINGLE_CHECK_AND_DATA_EXACT",
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+    "implementationSha256": "8e6ee446728f9f7f9bcaddd00defe3a4391b7120d609ed888557ffea1fb47ba2",
+    "identitySha256": "15660e85b71f7ddb4672bee1d6339f18b654d9f54bcb6f56612ca7dc0720e493"
+  },
+  "actualModules": [
+    {
+      "Name": "Riftbound.CardCatalog",
+      "Module": "ed49d63e2d2945a0a0eccd020f0d33ad"
+    },
+    {
+      "Name": "Riftbound.Contracts",
+      "Module": "43c4380b6f854337b444818c0deee388"
+    },
+    {
+      "Name": "Riftbound.Engine",
+      "Module": "266a70e0e336402d932e7711a066f627"
+    }
+  ],
+  "independentImplementationSha256": "8e6ee446728f9f7f9bcaddd00defe3a4391b7120d609ed888557ffea1fb47ba2",
+  "independentCombinedIdentitySha256": "15660e85b71f7ddb4672bee1d6339f18b654d9f54bcb6f56612ca7dc0720e493",
+  "fourActualCoreDllPdbBytesExact": {
+    "Riftbound.CardCatalog.dll": "e86cd5c52292f07a4afac569567480af0263717c80f8c8ac7f7bd4e3fd8fe234",
+    "Riftbound.CardCatalog.pdb": "c74c026eafab38196d0c3ab37b28f89f74c721447fb7ff1dea1406180aefda12",
+    "Riftbound.Contracts.dll": "4b1ac7c2a68e57c9b7934ab8e1fb0a149787c0ffd58b62c0bfbe46bebc00de3a",
+    "Riftbound.Contracts.pdb": "bf9e76f0ca819e614a6faaa48ac55cd36f397636611ab256f5d2c9545a3a39a7",
+    "Riftbound.Engine.dll": "dbebf63117d3db630d66849bc6617b8632b6c50b2e4f055439b906aa68c733ed",
+    "Riftbound.Engine.pdb": "322c302f60f1ee4a9adefcc1c5323cd321596d58f0f1295eb834070e042fc88e",
+    "Riftbound.Persistence.dll": "279a34be4648f72b74d5800f6fd6ed2ac65eaa4d9ad6bfc51cfc8b85961ebe92",
+    "Riftbound.Persistence.pdb": "6789361aa592fd624d03d9c266bdaa6d26745427512895d78e6d52ac4dc6f88c"
+  },
+  "threeOfficialInputsExact": {
+    "data/official/card-catalog.zh-CN.json": "68930e34e45385c4bc78c4805aaba46e4b5b57057a25ba957a85b339fe376fc8",
+    "data/official/rule-input-scope.json": "cc07cf3eef6a9af403454642a0435d061544400b5e01d08d3fdc65869bdad180",
+    "data/official/armaments.json": "ddcd838300e558c11df480ee79ccfab08c7af380df36544c666841720850bda8"
+  },
+  "original115SingleCheckAndFinalFocusUseExactSame12ExecutedOwnModules": true,
+  "previousSemanticOnlyRuntime": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+    "implementationSha256": "a2c2145ae65a036fe714a858dd09d3b88c84153ebe1dcab94f4bb5b8639f1519",
+    "identitySha256": "81ab4fb9ff8c24d696a0a5969601e90223f7630ed4642c909331d110fbb35606"
+  },
+  "previousSemanticOnlySqlV1FailureAndRuntimeRetained": true,
+  "fixed21ReleaseImplIsDifferentFromThisDebugIdentity": true,
+  "fixed21ActualRuntimeReceiptSha256": "6e18d9b615fb7079d95f7f1dffd3b51557328761b01a72b39317c3381cdbccba",
+  "currentFixedFullAndVisibleNativeAreSeparateNotCertifiedByModuleEquality": true,
+  "noOldRoomMigrationOrHistoryRewrite": true
+}

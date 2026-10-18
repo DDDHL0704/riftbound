@@ -260,6 +260,7 @@ public sealed record DeclareBattleCommand(
     IReadOnlyList<string>? DefenderObjectIds = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     IReadOnlyList<string>? OptionalCosts = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     IReadOnlyList<string>? BattlefieldTargetObjectIds = null) : GameCommand("DECLARE_BATTLE");
 
 public sealed record PayCostCommand(

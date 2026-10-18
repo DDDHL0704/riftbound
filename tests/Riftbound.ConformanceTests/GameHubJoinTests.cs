@@ -9554,6 +9554,9 @@ public sealed partial class GameHubJoinTests
             && Equals(gameEvent.Payload["revealedIsSpell"], true));
         Assert.Contains(battleEvents, gameEvent => string.Equals(gameEvent.Kind, "CARDS_REVEALED", StringComparison.Ordinal));
         Assert.Contains(battleEvents, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARD_ADDED_TO_HAND", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P2-BATTLEFIELD-RAVENBLOOM", StringComparison.Ordinal));
+        Assert.DoesNotContain(battleEvents, gameEvent =>
             string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P2-BATTLEFIELD-RAVENBLOOM", StringComparison.Ordinal));
 

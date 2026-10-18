@@ -1,0 +1,14 @@
+{
+  "atUtc": "2026-10-18T12:10:30.319868+00:00",
+  "status": "TEST_ENTRY_POINT_UNAVAILABLE_IN_OFFICIAL_EXPORTED_GODOT_RUNTIME_NO_GAMEPLAY_CASE_STARTED",
+  "actualRun": {
+    "path": "var/qa/observed-ui-paired-20261018/packaged-control-verification-v1.json",
+    "sha256": "52e11bec6b4b185eefb8f50408b5ae46c035c039c31ac7a91085f51068b46d6d",
+    "actualProcessExitCode": 0
+  },
+  "exactCause": "Official exported Godot4.7.2 disables scene path overrides; the debug scene was rejected before loading. Exit code alone was insufficient, and required PASS marker plus ERROR guards correctly rejected the run.",
+  "independentFullCiOrProductionDefectOrUiPassNotInferred": true,
+  "all373NativePayloadsAndOrdinaryProjectionsUnchanged": true,
+  "priorSevenDeveloperRuntimeControlCasesRetained": true,
+  "currentVisibleNativeAndWindowsRemainOpen": true
+}

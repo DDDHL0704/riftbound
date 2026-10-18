@@ -1,0 +1,11 @@
+{
+  "atUtc": "2026-10-18T14:20:27.426641+00:00",
+  "disk": "Filesystem      Size    Used   Avail Capacity iused ifree %iused  Mounted on\n/dev/disk3s5   460Gi   374Gi    53Gi    88%    3.6M  556M    1%   /System/Volumes/Data\n",
+  "onlyLatestNativePairAndTwoCanonicalPlatformArchives": true,
+  "priorPairRetiredOnlyAfterLatestPayloadsVerified": true,
+  "newWholeSourceCheckoutCreated": false,
+  "sourcePublicationStageMovedInsteadOfDuplicated": true,
+  "oldOriginalDatabasesTracesSourcesTestsAndNecessaryActualModulesRetained": true,
+  "boundedNewFrozenInputsUseApfsClones": true,
+  "fullOfficialCorePdfNotDuplicated": true
+}

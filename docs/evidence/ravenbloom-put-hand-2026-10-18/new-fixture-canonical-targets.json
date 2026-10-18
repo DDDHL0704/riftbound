@@ -1,0 +1,23 @@
+{
+  "recordedAtUtc": "2026-10-18T13:28:25.841348+00:00",
+  "status": "ONLY_NEW_RECIPE_TWO_NULL_OPTIONAL_TARGET_FIELDS_OMITTED_ALL_OTHER_LOGICAL_COMMANDS_EXACT",
+  "beforeSha256": "7cfdfec3fce26a34b12103d502b9435a7ff2d92774b2ec91dfa8974fc4194adb",
+  "beforeRetainedGzipSha256": "259ac9460bbf037b2098b9f52c5e09f7d619b4b47e6fa8a953f0ebd9886821a0",
+  "afterSha256": "62be106e3ce7a23d8e78626cf020b595dcddf636c7a4ccedcb137783f8324732",
+  "changes": [
+    {
+      "branch": "spell",
+      "index": 30,
+      "oldExplicitValue": null,
+      "newFieldOmitted": true
+    },
+    {
+      "branch": "unit",
+      "index": 30,
+      "oldExplicitValue": null,
+      "newFieldOmitted": true
+    }
+  ],
+  "original1279FixturesUntouched": true,
+  "priorSqlV1RawAcceptedHistoryNotModifiedOrMigrated": true
+}

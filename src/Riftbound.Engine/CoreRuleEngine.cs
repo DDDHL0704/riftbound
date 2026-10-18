@@ -16882,13 +16882,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 Hand = zones.Hand.Concat([revealedObjectId]).ToArray()
             };
             events.Add(new GameEvent(
-                "CARD_DRAWN",
+                "CARD_ADDED_TO_HAND",
                 $"{playerId} 将展示的法术牌置入手牌",
                 new Dictionary<string, object?>
                 {
                     ["playerId"] = playerId,
                     ["sourceObjectId"] = battlefieldObjectId,
-                    ["drawTriggerSources"] = CaptureDrawTriggerSources(playerZones, cardObjects, playerId),
                     ["count"] = 1,
                     ["cardIds"] = new[] { revealedObjectId },
                     ["destinationZone"] = trigger.RevealMatchDestinationZone

@@ -1,0 +1,917 @@
+{
+  "scope": "CN2026-10-16 frozen applicability; current2026-10-18 source reconfirmation; exact SFD215 put-into-hand action classification. Fresh ordinary seed0 matches, both-format legal ordered deck planning. Recipe logical commands are rebound to each new session current prompt/tick; not a migrated or rewritten development log. Original producer frames and version-specific rule inputs retained separately.",
+  "sourceManifestToPublish": "docs/evidence/ravenbloom-put-hand-2026-10-18/source-manifest.json",
+  "seed": 0,
+  "validatedFormats": [
+    "CoreRules",
+    "ChinaStandard20260724"
+  ],
+  "branches": [
+    {
+      "branch": "spell",
+      "spell": true,
+      "originalBlankSeed": 0,
+      "expectedRevealedObjectId": "P2-MAIN-OGN-048-298-09",
+      "expectedRevealedCardNo": "OGN·048/298",
+      "battlefield": "P2-BATTLEFIELD-SFD-215-221-01",
+      "attacker": "P1-MAIN-UNL-036-219-11",
+      "defender": "P2-MAIN-UNL-036-219-23",
+      "expectedBeforeDrawCount": 1,
+      "expectedAfterDrawCount": 1,
+      "expectedAfterGemTrigger": false,
+      "acceptedCommands": [
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "legendCardNo": "UNL-189/219",
+            "championCardNo": "UNL-082/219",
+            "mainDeck": [
+              "UNL-082/219",
+              "OGN·052/298",
+              "UNL-053/219",
+              "OGN·096/298",
+              "OGN·044/298",
+              "OGN·096/298",
+              "UNL-040/219",
+              "UNL-053/219",
+              "OGN·121/298",
+              "UNL-065/219",
+              "SFD·041/221",
+              "UNL-036/219",
+              "OGN·044/298",
+              "OGN·044/298",
+              "UNL-053/219",
+              "OGN·052/298",
+              "SFD·069/221",
+              "UNL-065/219",
+              "OGN·121/298",
+              "SFD·065/221",
+              "OGN·103/298",
+              "UNL-036/219",
+              "SFD·065/221",
+              "OGN·096/298",
+              "SFD·041/221",
+              "UNL-065/219",
+              "OGN·103/298",
+              "SFD·036/221",
+              "SFD·041/221",
+              "SFD·036/221",
+              "UNL-040/219",
+              "SFD·065/221",
+              "SFD·036/221",
+              "SFD·069/221",
+              "OGN·103/298",
+              "OGN·052/298",
+              "OGN·121/298",
+              "SFD·069/221",
+              "UNL-036/219",
+              "UNL-040/219"
+            ],
+            "runeDeck": [
+              "OGN·042/298",
+              "OGN·042a/298",
+              "OGN·042b/298",
+              "OGN·089/298",
+              "OGN·089a/298",
+              "OGN·089b/298",
+              "SFD·R02",
+              "SFD·R02a",
+              "SFD·R02b",
+              "SFD·R03",
+              "SFD·R03a",
+              "SFD·R03b"
+            ],
+            "battlefields": [
+              "OGN·275/298",
+              "OGN·277/298",
+              "OGN·278/298"
+            ],
+            "cmdType": "SUBMIT_DECK",
+            "promptId": "ordinary-raven-put-hand-spell:0:P1:SUBMIT_DECK",
+            "snapshotTick": 0
+          }
+        },
+        {
+          "playerId": "P2",
+          "rawCommand": {
+            "legendCardNo": "UNL-189/219",
+            "championCardNo": "UNL-082/219",
+            "mainDeck": [
+              "UNL-082/219",
+              "OGN·048/298",
+              "OGN·103/298",
+              "OGN·096/298",
+              "SFD·041/221",
+              "OGN·044/298",
+              "OGN·044/298",
+              "OGN·121/298",
+              "OGN·103/298",
+              "OGN·048/298",
+              "OGN·103/298",
+              "OGN·083/298",
+              "OGN·044/298",
+              "SFD·041/221",
+              "UNL-061/219",
+              "SFD·065/221",
+              "SFD·036/221",
+              "UNL-061/219",
+              "OGN·096/298",
+              "OGN·083/298",
+              "OGN·052/298",
+              "UNL-061/219",
+              "UNL-074/219",
+              "UNL-036/219",
+              "UNL-074/219",
+              "OGN·052/298",
+              "UNL-036/219",
+              "OGN·083/298",
+              "SFD·065/221",
+              "SFD·036/221",
+              "SFD·036/221",
+              "UNL-036/219",
+              "SFD·065/221",
+              "OGN·048/298",
+              "SFD·041/221",
+              "OGN·052/298",
+              "OGN·121/298",
+              "UNL-074/219",
+              "OGN·121/298",
+              "OGN·096/298"
+            ],
+            "runeDeck": [
+              "OGN·042/298",
+              "OGN·042a/298",
+              "OGN·042b/298",
+              "OGN·089/298",
+              "OGN·089a/298",
+              "OGN·089b/298",
+              "SFD·R02",
+              "SFD·R02a",
+              "SFD·R02b",
+              "SFD·R03",
+              "SFD·R03a",
+              "SFD·R03b"
+            ],
+            "battlefields": [
+              "OGN·275/298",
+              "OGN·277/298",
+              "SFD·215/221"
+            ],
+            "cmdType": "SUBMIT_DECK",
+            "promptId": "ordinary-raven-put-hand-spell:1:P2:SUBMIT_DECK",
+            "snapshotTick": 1
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "cmdType": "READY",
+            "promptId": "ordinary-raven-put-hand-spell:2:P1:READY",
+            "snapshotTick": 2
+          }
+        },
+        {
+          "playerId": "P2",
+          "rawCommand": {
+            "cmdType": "READY",
+            "promptId": "ordinary-raven-put-hand-spell:2:P2:READY",
+            "snapshotTick": 2
+          }
+        },
+        {
+          "playerId": "P2",
+          "rawCommand": {
+            "handObjectIds": [],
+            "cmdType": "MULLIGAN",
+            "promptId": "ordinary-raven-put-hand-spell:2:P2:MULLIGAN,SURRENDER",
+            "snapshotTick": 2
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "handObjectIds": [],
+            "cmdType": "MULLIGAN",
+            "promptId": "ordinary-raven-put-hand-spell:3:P1:MULLIGAN,SURRENDER",
+            "snapshotTick": 3
+          }
+        },
+        {
+          "playerId": "P2",
+          "rawCommand": {
+            "sourceObjectId": "P2-RUNE-SFD-R03b-12",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-raven-put-hand-spell:5:P2:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 5
+          }
+        },
+        {
+          "playerId": "P2",
+          "rawCommand": {
+            "sourceObjectId": "P2-RUNE-OGN-089a-298-05",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-raven-put-hand-spell:6:P2:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 6
+          }
+        },
+        {
+          "playerId": "P2",
+          "rawCommand": {
+            "sourceObjectId": "P2-MAIN-UNL-036-219-23",
+            "cardNo": "UNL-036/219",
+            "targetObjectIds": [],
+            "mode": "",
+            "destination": "",
+            "repeatChoices": null,
+            "movementDestinations": null,
+            "cmdType": "PLAY_CARD",
+            "promptId": "ordinary-raven-put-hand-spell:7:P2:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 7
+          }
+        },
+        {
+          "playerId": "P2",
+          "rawCommand": {
+            "cmdType": "END_TURN",
+            "promptId": "ordinary-raven-put-hand-spell:8:P2:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 8
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "sourceObjectId": "P1-RUNE-SFD-R03a-11",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-raven-put-hand-spell:9:P1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 9
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "sourceObjectId": "P1-RUNE-SFD-R03-10",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-raven-put-hand-spell:10:P1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 10
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "sourceObjectId": "P1-MAIN-UNL-036-219-11",
+            "cardNo": "UNL-036/219",
+            "targetObjectIds": [],
+            "mode": "",
+            "destination": "",
+            "repeatChoices": null,
+            "movementDestinations": null,
+            "cmdType": "PLAY_CARD",
+            "promptId": "ordinary-raven-put-hand-spell:11:P1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 11
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "cmdType": "END_TURN",
+            "promptId": "ordinary-raven-put-hand-spell:12:P1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 12
+          }
+        },
+        {
+          "playerId": "P2",
+          "rawCommand": {
+            "sourceObjectId": "P2-RUNE-SFD-R03b-12",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-raven-put-hand-spell:13:P2:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 13
+          }
+        },
+        {
+          "playerId": "P2",
+          "rawCommand": {
+            "sourceObjectId": "P2-RUNE-OGN-089a-298-05",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-raven-put-hand-spell:14:P2:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 14
+          }
+        },
+        {
+          "playerId": "P2",
+          "rawCommand": {
+            "sourceObjectId": "P2-MAIN-UNL-074-219-22",
+            "cardNo": "UNL-074/219",
+            "targetObjectIds": [],
+            "mode": "",
+            "destination": "",
+            "repeatChoices": null,
+            "movementDestinations": null,
+            "cmdType": "PLAY_CARD",
+            "promptId": "ordinary-raven-put-hand-spell:15:P2:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 15
+          }
+        },
+        {
+          "playerId": "P2",
+          "rawCommand": {
+            "sourceObjectId": "P2-MAIN-UNL-036-219-23",
+            "origin": "BASE",
+            "destination": "BATTLEFIELD:P2-BATTLEFIELD-SFD-215-221-01",
+            "sourceObjectIds": null,
+            "cmdType": "MOVE_UNIT",
+            "promptId": "ordinary-raven-put-hand-spell:16:P2:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 16
+          }
+        },
+        {
+          "playerId": "P2",
+          "rawCommand": {
+            "cmdType": "PASS_FOCUS",
+            "promptId": "ordinary-raven-put-hand-spell:17:P2:TAP_RUNE,RECYCLE_RUNE,PASS_FOCUS,SURRENDER",
+            "snapshotTick": 17
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "cmdType": "PASS_FOCUS",
+            "promptId": "ordinary-raven-put-hand-spell:18:P1:TAP_RUNE,RECYCLE_RUNE,PASS_FOCUS,SURRENDER",
+            "snapshotTick": 18
+          }
+        },
+        {
+          "playerId": "P2",
+          "rawCommand": {
+            "cmdType": "END_TURN",
+            "promptId": "ordinary-raven-put-hand-spell:19:P2:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 19
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "sourceObjectId": "P1-MAIN-UNL-036-219-11",
+            "origin": "BASE",
+            "destination": "BATTLEFIELD:P2-BATTLEFIELD-SFD-215-221-01",
+            "sourceObjectIds": null,
+            "cmdType": "MOVE_UNIT",
+            "promptId": "ordinary-raven-put-hand-spell:20:P1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 20
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "cmdType": "PASS_FOCUS",
+            "promptId": "ordinary-raven-put-hand-spell:21:P1:TAP_RUNE,RECYCLE_RUNE,PASS_FOCUS,SURRENDER",
+            "snapshotTick": 21
+          }
+        },
+        {
+          "playerId": "P2",
+          "rawCommand": {
+            "sourceObjectId": "P2-RUNE-OGN-042-298-01",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-raven-put-hand-spell:22:P2:TAP_RUNE,RECYCLE_RUNE,PASS_FOCUS,SURRENDER",
+            "snapshotTick": 22
+          }
+        },
+        {
+          "playerId": "P2",
+          "rawCommand": {
+            "sourceObjectId": "P2-RUNE-SFD-R02a-08",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-raven-put-hand-spell:23:P2:TAP_RUNE,RECYCLE_RUNE,PASS_FOCUS,SURRENDER",
+            "snapshotTick": 23
+          }
+        },
+        {
+          "playerId": "P2",
+          "rawCommand": {
+            "sourceObjectId": "P2-MAIN-UNL-061-219-14",
+            "cardNo": "UNL-061/219",
+            "targetObjectIds": [],
+            "mode": "",
+            "destination": "",
+            "repeatChoices": null,
+            "movementDestinations": null,
+            "cmdType": "PLAY_CARD",
+            "promptId": "ordinary-raven-put-hand-spell:24:P2:RECYCLE_RUNE,PLAY_CARD,PASS_FOCUS,SURRENDER",
+            "snapshotTick": 24
+          }
+        },
+        {
+          "playerId": "P2",
+          "rawCommand": {
+            "cmdType": "PASS_PRIORITY",
+            "promptId": "ordinary-raven-put-hand-spell:25:P2:RECYCLE_RUNE,PASS_PRIORITY,SURRENDER",
+            "snapshotTick": 25
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "cmdType": "PASS_PRIORITY",
+            "promptId": "ordinary-raven-put-hand-spell:26:P1:TAP_RUNE,RECYCLE_RUNE,PASS_PRIORITY,SURRENDER",
+            "snapshotTick": 26
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "cmdType": "PASS_FOCUS",
+            "promptId": "ordinary-raven-put-hand-spell:27:P1:TAP_RUNE,RECYCLE_RUNE,PASS_FOCUS,SURRENDER",
+            "snapshotTick": 27
+          }
+        },
+        {
+          "playerId": "P2",
+          "rawCommand": {
+            "cmdType": "PASS_FOCUS",
+            "promptId": "ordinary-raven-put-hand-spell:28:P2:RECYCLE_RUNE,PASS_FOCUS,SURRENDER",
+            "snapshotTick": 28
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "battlefieldId": "P2-BATTLEFIELD-SFD-215-221-01",
+            "attackerObjectIds": [
+              "P1-MAIN-UNL-036-219-11"
+            ],
+            "defenderObjectIds": [
+              "P2-MAIN-UNL-036-219-23"
+            ],
+            "optionalCosts": [
+              "COMBAT_ASSIGNMENT"
+            ],
+            "cmdType": "DECLARE_BATTLE",
+            "promptId": "ordinary-raven-put-hand-spell:29:P1:DECLARE_BATTLE,SURRENDER",
+            "snapshotTick": 29
+          }
+        }
+      ]
+    },
+    {
+      "branch": "unit",
+      "spell": false,
+      "originalBlankSeed": 0,
+      "expectedRevealedObjectId": "P2-MAIN-OGN-044-298-09",
+      "expectedRevealedCardNo": "OGN·044/298",
+      "battlefield": "P2-BATTLEFIELD-SFD-215-221-01",
+      "attacker": "P1-MAIN-UNL-036-219-11",
+      "defender": "P2-MAIN-UNL-036-219-23",
+      "expectedBeforeDrawCount": 1,
+      "expectedAfterDrawCount": 1,
+      "expectedAfterGemTrigger": false,
+      "acceptedCommands": [
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "legendCardNo": "UNL-189/219",
+            "championCardNo": "UNL-082/219",
+            "mainDeck": [
+              "UNL-082/219",
+              "OGN·052/298",
+              "UNL-053/219",
+              "OGN·096/298",
+              "OGN·044/298",
+              "OGN·096/298",
+              "UNL-040/219",
+              "UNL-053/219",
+              "OGN·121/298",
+              "UNL-065/219",
+              "SFD·041/221",
+              "UNL-036/219",
+              "OGN·044/298",
+              "OGN·044/298",
+              "UNL-053/219",
+              "OGN·052/298",
+              "SFD·069/221",
+              "UNL-065/219",
+              "OGN·121/298",
+              "SFD·065/221",
+              "OGN·103/298",
+              "UNL-036/219",
+              "SFD·065/221",
+              "OGN·096/298",
+              "SFD·041/221",
+              "UNL-065/219",
+              "OGN·103/298",
+              "SFD·036/221",
+              "SFD·041/221",
+              "SFD·036/221",
+              "UNL-040/219",
+              "SFD·065/221",
+              "SFD·036/221",
+              "SFD·069/221",
+              "OGN·103/298",
+              "OGN·052/298",
+              "OGN·121/298",
+              "SFD·069/221",
+              "UNL-036/219",
+              "UNL-040/219"
+            ],
+            "runeDeck": [
+              "OGN·042/298",
+              "OGN·042a/298",
+              "OGN·042b/298",
+              "OGN·089/298",
+              "OGN·089a/298",
+              "OGN·089b/298",
+              "SFD·R02",
+              "SFD·R02a",
+              "SFD·R02b",
+              "SFD·R03",
+              "SFD·R03a",
+              "SFD·R03b"
+            ],
+            "battlefields": [
+              "OGN·275/298",
+              "OGN·277/298",
+              "OGN·278/298"
+            ],
+            "cmdType": "SUBMIT_DECK",
+            "promptId": "ordinary-raven-put-hand-unit:0:P1:SUBMIT_DECK",
+            "snapshotTick": 0
+          }
+        },
+        {
+          "playerId": "P2",
+          "rawCommand": {
+            "legendCardNo": "UNL-189/219",
+            "championCardNo": "UNL-082/219",
+            "mainDeck": [
+              "UNL-082/219",
+              "OGN·044/298",
+              "OGN·103/298",
+              "OGN·096/298",
+              "SFD·041/221",
+              "OGN·048/298",
+              "OGN·083/298",
+              "OGN·121/298",
+              "OGN·103/298",
+              "OGN·044/298",
+              "OGN·103/298",
+              "OGN·052/298",
+              "OGN·048/298",
+              "SFD·041/221",
+              "UNL-061/219",
+              "SFD·065/221",
+              "SFD·036/221",
+              "UNL-036/219",
+              "OGN·096/298",
+              "OGN·048/298",
+              "OGN·052/298",
+              "OGN·044/298",
+              "UNL-074/219",
+              "UNL-036/219",
+              "UNL-074/219",
+              "OGN·083/298",
+              "UNL-074/219",
+              "UNL-061/219",
+              "SFD·065/221",
+              "SFD·036/221",
+              "SFD·036/221",
+              "UNL-036/219",
+              "SFD·065/221",
+              "OGN·052/298",
+              "SFD·041/221",
+              "OGN·083/298",
+              "OGN·121/298",
+              "UNL-061/219",
+              "OGN·121/298",
+              "OGN·096/298"
+            ],
+            "runeDeck": [
+              "OGN·042/298",
+              "OGN·042a/298",
+              "OGN·042b/298",
+              "OGN·089/298",
+              "OGN·089a/298",
+              "OGN·089b/298",
+              "SFD·R02",
+              "SFD·R02a",
+              "SFD·R02b",
+              "SFD·R03",
+              "SFD·R03a",
+              "SFD·R03b"
+            ],
+            "battlefields": [
+              "OGN·275/298",
+              "OGN·277/298",
+              "SFD·215/221"
+            ],
+            "cmdType": "SUBMIT_DECK",
+            "promptId": "ordinary-raven-put-hand-unit:1:P2:SUBMIT_DECK",
+            "snapshotTick": 1
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "cmdType": "READY",
+            "promptId": "ordinary-raven-put-hand-unit:2:P1:READY",
+            "snapshotTick": 2
+          }
+        },
+        {
+          "playerId": "P2",
+          "rawCommand": {
+            "cmdType": "READY",
+            "promptId": "ordinary-raven-put-hand-unit:2:P2:READY",
+            "snapshotTick": 2
+          }
+        },
+        {
+          "playerId": "P2",
+          "rawCommand": {
+            "handObjectIds": [],
+            "cmdType": "MULLIGAN",
+            "promptId": "ordinary-raven-put-hand-unit:2:P2:MULLIGAN,SURRENDER",
+            "snapshotTick": 2
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "handObjectIds": [],
+            "cmdType": "MULLIGAN",
+            "promptId": "ordinary-raven-put-hand-unit:3:P1:MULLIGAN,SURRENDER",
+            "snapshotTick": 3
+          }
+        },
+        {
+          "playerId": "P2",
+          "rawCommand": {
+            "sourceObjectId": "P2-RUNE-SFD-R03b-12",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-raven-put-hand-unit:5:P2:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 5
+          }
+        },
+        {
+          "playerId": "P2",
+          "rawCommand": {
+            "sourceObjectId": "P2-RUNE-OGN-089a-298-05",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-raven-put-hand-unit:6:P2:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 6
+          }
+        },
+        {
+          "playerId": "P2",
+          "rawCommand": {
+            "sourceObjectId": "P2-MAIN-UNL-036-219-23",
+            "cardNo": "UNL-036/219",
+            "targetObjectIds": [],
+            "mode": "",
+            "destination": "",
+            "repeatChoices": null,
+            "movementDestinations": null,
+            "cmdType": "PLAY_CARD",
+            "promptId": "ordinary-raven-put-hand-unit:7:P2:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 7
+          }
+        },
+        {
+          "playerId": "P2",
+          "rawCommand": {
+            "cmdType": "END_TURN",
+            "promptId": "ordinary-raven-put-hand-unit:8:P2:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 8
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "sourceObjectId": "P1-RUNE-SFD-R03a-11",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-raven-put-hand-unit:9:P1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 9
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "sourceObjectId": "P1-RUNE-SFD-R03-10",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-raven-put-hand-unit:10:P1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 10
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "sourceObjectId": "P1-MAIN-UNL-036-219-11",
+            "cardNo": "UNL-036/219",
+            "targetObjectIds": [],
+            "mode": "",
+            "destination": "",
+            "repeatChoices": null,
+            "movementDestinations": null,
+            "cmdType": "PLAY_CARD",
+            "promptId": "ordinary-raven-put-hand-unit:11:P1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 11
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "cmdType": "END_TURN",
+            "promptId": "ordinary-raven-put-hand-unit:12:P1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 12
+          }
+        },
+        {
+          "playerId": "P2",
+          "rawCommand": {
+            "sourceObjectId": "P2-RUNE-SFD-R03b-12",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-raven-put-hand-unit:13:P2:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 13
+          }
+        },
+        {
+          "playerId": "P2",
+          "rawCommand": {
+            "sourceObjectId": "P2-RUNE-OGN-089a-298-05",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-raven-put-hand-unit:14:P2:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 14
+          }
+        },
+        {
+          "playerId": "P2",
+          "rawCommand": {
+            "sourceObjectId": "P2-MAIN-UNL-074-219-22",
+            "cardNo": "UNL-074/219",
+            "targetObjectIds": [],
+            "mode": "",
+            "destination": "",
+            "repeatChoices": null,
+            "movementDestinations": null,
+            "cmdType": "PLAY_CARD",
+            "promptId": "ordinary-raven-put-hand-unit:15:P2:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 15
+          }
+        },
+        {
+          "playerId": "P2",
+          "rawCommand": {
+            "sourceObjectId": "P2-MAIN-UNL-036-219-23",
+            "origin": "BASE",
+            "destination": "BATTLEFIELD:P2-BATTLEFIELD-SFD-215-221-01",
+            "sourceObjectIds": null,
+            "cmdType": "MOVE_UNIT",
+            "promptId": "ordinary-raven-put-hand-unit:16:P2:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 16
+          }
+        },
+        {
+          "playerId": "P2",
+          "rawCommand": {
+            "cmdType": "PASS_FOCUS",
+            "promptId": "ordinary-raven-put-hand-unit:17:P2:TAP_RUNE,RECYCLE_RUNE,PASS_FOCUS,SURRENDER",
+            "snapshotTick": 17
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "cmdType": "PASS_FOCUS",
+            "promptId": "ordinary-raven-put-hand-unit:18:P1:TAP_RUNE,RECYCLE_RUNE,PASS_FOCUS,SURRENDER",
+            "snapshotTick": 18
+          }
+        },
+        {
+          "playerId": "P2",
+          "rawCommand": {
+            "cmdType": "END_TURN",
+            "promptId": "ordinary-raven-put-hand-unit:19:P2:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 19
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "sourceObjectId": "P1-MAIN-UNL-036-219-11",
+            "origin": "BASE",
+            "destination": "BATTLEFIELD:P2-BATTLEFIELD-SFD-215-221-01",
+            "sourceObjectIds": null,
+            "cmdType": "MOVE_UNIT",
+            "promptId": "ordinary-raven-put-hand-unit:20:P1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 20
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "cmdType": "PASS_FOCUS",
+            "promptId": "ordinary-raven-put-hand-unit:21:P1:TAP_RUNE,RECYCLE_RUNE,PASS_FOCUS,SURRENDER",
+            "snapshotTick": 21
+          }
+        },
+        {
+          "playerId": "P2",
+          "rawCommand": {
+            "sourceObjectId": "P2-RUNE-OGN-042-298-01",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-raven-put-hand-unit:22:P2:TAP_RUNE,RECYCLE_RUNE,PASS_FOCUS,SURRENDER",
+            "snapshotTick": 22
+          }
+        },
+        {
+          "playerId": "P2",
+          "rawCommand": {
+            "sourceObjectId": "P2-RUNE-SFD-R02a-08",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-raven-put-hand-unit:23:P2:TAP_RUNE,RECYCLE_RUNE,PASS_FOCUS,SURRENDER",
+            "snapshotTick": 23
+          }
+        },
+        {
+          "playerId": "P2",
+          "rawCommand": {
+            "sourceObjectId": "P2-MAIN-UNL-061-219-14",
+            "cardNo": "UNL-061/219",
+            "targetObjectIds": [],
+            "mode": "",
+            "destination": "",
+            "repeatChoices": null,
+            "movementDestinations": null,
+            "cmdType": "PLAY_CARD",
+            "promptId": "ordinary-raven-put-hand-unit:24:P2:RECYCLE_RUNE,PLAY_CARD,PASS_FOCUS,SURRENDER",
+            "snapshotTick": 24
+          }
+        },
+        {
+          "playerId": "P2",
+          "rawCommand": {
+            "cmdType": "PASS_PRIORITY",
+            "promptId": "ordinary-raven-put-hand-unit:25:P2:RECYCLE_RUNE,PASS_PRIORITY,SURRENDER",
+            "snapshotTick": 25
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "cmdType": "PASS_PRIORITY",
+            "promptId": "ordinary-raven-put-hand-unit:26:P1:TAP_RUNE,RECYCLE_RUNE,PASS_PRIORITY,SURRENDER",
+            "snapshotTick": 26
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "cmdType": "PASS_FOCUS",
+            "promptId": "ordinary-raven-put-hand-unit:27:P1:TAP_RUNE,RECYCLE_RUNE,PASS_FOCUS,SURRENDER",
+            "snapshotTick": 27
+          }
+        },
+        {
+          "playerId": "P2",
+          "rawCommand": {
+            "cmdType": "PASS_FOCUS",
+            "promptId": "ordinary-raven-put-hand-unit:28:P2:RECYCLE_RUNE,PASS_FOCUS,SURRENDER",
+            "snapshotTick": 28
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "battlefieldId": "P2-BATTLEFIELD-SFD-215-221-01",
+            "attackerObjectIds": [
+              "P1-MAIN-UNL-036-219-11"
+            ],
+            "defenderObjectIds": [
+              "P2-MAIN-UNL-036-219-23"
+            ],
+            "optionalCosts": [
+              "COMBAT_ASSIGNMENT"
+            ],
+            "cmdType": "DECLARE_BATTLE",
+            "promptId": "ordinary-raven-put-hand-unit:29:P1:DECLARE_BATTLE,SURRENDER",
+            "snapshotTick": 29
+          }
+        }
+      ]
+    }
+  ]
+}

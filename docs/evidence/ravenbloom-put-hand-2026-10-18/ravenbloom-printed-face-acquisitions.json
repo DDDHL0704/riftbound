@@ -1,0 +1,56 @@
+{
+  "atUtc": "2026-10-18T12:07:30.545826+00:00",
+  "status": "SOURCE_PRINTED_WORDING_REVIEW_PENDING_ACTUAL_VISUAL_READBACK",
+  "observations": [
+    {
+      "url": "https://cdn.playloltcg.com/lol/card/20251217/33b8accc78c24a55aefb54d38f037a14.png",
+      "sourceExactApiId": 33314,
+      "exactPrinting": "SFD-215/221",
+      "regionLanguage": "cn-zh-CN",
+      "attemptedAtUtc": "2026-10-18T12:07:29.629716+00:00",
+      "receivedAtUtc": "2026-10-18T12:07:29.769191+00:00",
+      "httpStatus": 200,
+      "httpDate": "Mon, 07 Sep 2026 03:11:32 GMT",
+      "mimeType": "image/png",
+      "bytes": 222291,
+      "sha256": "8d894d3791c703d10c5aa850b6c1855b2392559c5a5d7b63a8d8c43a380500dc",
+      "path": "var/qa/deck-observation-family-inventory-20261018/ravenbloom-cn-zh-CN.png",
+      "publishedAt": null,
+      "effectiveAt": null,
+      "newRulesOrRegionalMergeNotInferred": true
+    },
+    {
+      "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/6d820754b197eb5fb2af7567b7a7573e9a076e51-1039x744.png?accountingTag=RB",
+      "sourceExactApiId": "sfd-215-221",
+      "exactPrinting": "SFD-215/221",
+      "regionLanguage": "global-en-US",
+      "attemptedAtUtc": "2026-10-18T12:07:29.632438+00:00",
+      "receivedAtUtc": "2026-10-18T12:07:30.520431+00:00",
+      "httpStatus": 200,
+      "httpDate": "Sun, 18 Oct 2026 12:07:30 GMT",
+      "mimeType": "image/png",
+      "bytes": 775026,
+      "sha256": "7c341c48ba8c5ae9c79cf61e12776352ccbfeee4631674ba25b1adf6068b593f",
+      "path": "var/qa/deck-observation-family-inventory-20261018/ravenbloom-global-en-US.png",
+      "publishedAt": null,
+      "effectiveAt": null,
+      "newRulesOrRegionalMergeNotInferred": true
+    }
+  ],
+  "currentCnText": "当你防守此处时，展示你主牌堆顶部的一张牌。如果是一张法术牌，则将其放入你的手牌，否则将其回收。",
+  "currentEnglishText": "<p>When you defend here, reveal the top card of your Main Deck. If it's a spell, put it in your hand. Otherwise, recycle it.</p>",
+  "cnQA": null,
+  "cardPublicationAndEffectiveDatesNotExposed": true,
+  "coreCanonicalPdf": {
+    "path": "var/qa/colorless-token-haste-20261016/DOC-01-current.pdf",
+    "sha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11",
+    "publishedAt": "2026-10-10",
+    "effectiveAt": "2026-10-16",
+    "clausesToReview": [
+      "414.1",
+      "414.2.b",
+      "414.3"
+    ]
+  },
+  "runtimeNotChanged": true
+}

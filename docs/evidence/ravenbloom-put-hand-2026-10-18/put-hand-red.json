@@ -1,0 +1,51 @@
+{
+  "atUtc": "2026-10-18T12:24:05.722883+00:00",
+  "status": "ACTUAL_SEVEN_CASE_RED_THREE_FALSE_DRAW_LEDGER_FAILURES_FOUR_CONTROLS_PASS_BEFORE_PRODUCTION_FIX",
+  "cases": 7,
+  "failed": 3,
+  "passed": 4,
+  "skipped": 0,
+  "failedCases": [
+    {
+      "name": "Riftbound.ConformanceTests.RavenbloomPutIntoHandTests.RevealedSpellEntersHandWithoutDrawingOrCountingAsTheSecondDraw(previousDraws: 0)",
+      "actualMessage": "Assert.Equal() Failure: Values differ\nExpected: 0\nActual:   1"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.RavenbloomPutIntoHandTests.RevealedSpellEntersHandWithoutDrawingOrCountingAsTheSecondDraw(previousDraws: 1)",
+      "actualMessage": "Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   2"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.RavenbloomPutIntoHandTests.RevealedSpellEntersHandWithoutDrawingOrCountingAsTheSecondDraw(previousDraws: 2)",
+      "actualMessage": "Assert.Equal() Failure: Values differ\nExpected: 2\nActual:   3"
+    }
+  ],
+  "all12768OriginalAuthoredInputsExactToPreChangeBaseline": true,
+  "onlyNewSevenCaseTestSourceAdded": {
+    "path": "tests/Riftbound.ConformanceTests/RavenbloomPutIntoHandTests.cs",
+    "sha256": "3c6dbfcd90fdcd609f1d18a181fa1b28a1786d7e5c6712c7fc58beba2922a424"
+  },
+  "allOriginalProductionAndTestSourcesUnmodified": true,
+  "actualTrx": {
+    "path": "var/qa/deck-observation-family-inventory-20261018/put-hand-red-v1/focus/results.trx",
+    "sha256": "2cb7b13fe3e1a5b95016dfba39a7bcf6056d422e57210bca465f7a2fc74e6b43"
+  },
+  "actualOwnExecutedModulesAndData": {
+    "Riftbound.Api.dll": "bb705ed16fa361916975f851848ef48550a7435a3765219591d0215c4c244271",
+    "Riftbound.Api.pdb": "93b93b86284a9492652f13f854b6f8cffde81707c191afcc5d12aa34b2a23694",
+    "Riftbound.CardCatalog.dll": "b4dce3a0164d4d931f22567b71b3676f15e1013a1bfc9ba954886d45843bec32",
+    "Riftbound.CardCatalog.pdb": "6432b9242ec38f2284de74e315d995cdc6d0e621cf2a87ead858009dbdce2a1d",
+    "Riftbound.Contracts.dll": "7875ef9685a1c68a8fe06004a12204595a47857908948d504e54c6067c1b3229",
+    "Riftbound.Contracts.pdb": "271c426763b44ce33813738304ddb8eb96174f12b1cb81381132255047c5ea6c",
+    "Riftbound.Engine.dll": "03e46abbd4f9b511593389809ad06061a285c8b21e72a583ddf106a7c2c48d06",
+    "Riftbound.Engine.pdb": "d420762e90094d7d5a7935d6bd603840182f4933fd3b0a821dfeadcaab02bd81",
+    "Riftbound.Persistence.dll": "87b786bde10982fdb4647c6b06ad236b3c9339f94571afb811b4621ab41490c1",
+    "Riftbound.Persistence.pdb": "b32270a5e01c7a7b8ce67e65cd2ee6f43a8c689abfd199a65afa50d148f263c0",
+    "Riftbound.ConformanceTests.dll": "01b29121958933c355231c962c5bdeb7a7fbf3b1cd5c6ee90b2f8e36d64700a0",
+    "Riftbound.ConformanceTests.pdb": "d156b814854cc1207b323fba4eb09f69243ba9a90d28c30d1dc66cc904514698",
+    "data/official/card-catalog.zh-CN.json": "68930e34e45385c4bc78c4805aaba46e4b5b57057a25ba957a85b339fe376fc8",
+    "data/official/rule-input-scope.json": "cc07cf3eef6a9af403454642a0435d061544400b5e01d08d3fdc65869bdad180",
+    "data/official/armaments.json": "ddcd838300e558c11df480ee79ccfab08c7af380df36544c666841720850bda8"
+  },
+  "apfsClonesNotWholeSourceCheckout": true,
+  "scope": "Controlled continuation cases only; current ordinary opening SQL, fixed full, visible native and physical Windows remain independently open."
+}

@@ -1,0 +1,118 @@
+{
+  "startedAtUtc": "2026-10-18T12:15:04.584611+00:00",
+  "fixedCommit": "21e505c32e29e1595251ccd571d80d176b95c98c",
+  "currentActualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+    "implementationSha256": "56b2a9bdb130e2d706938a4e971c8003a673e795487142ead529b609bfecb61f",
+    "identitySha256": "b263b0223aa6989aa1c751f109a0391029cfe796dbad8aa7b37fa395bc3ac4f0"
+  },
+  "originalActualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+    "implementationSha256": "d4f11c4ad8e4e511eac0ee60e49b8d83c3db6722cd86ea7731138743f1eb6b3f",
+    "identitySha256": "c77a8cb5dc2a7dbbc21dd29ec32d6e209375df418809cd56ebade6484a3c4490"
+  },
+  "originalPrivateFrameHashes": {
+    "var/qa/empty-repeat-paired-20261018/native-after-next-frame.json.gz": "3f411d26fd3800e8d6b433fb8f956d9326363c3a48aaa75dc979411e3c8622cf",
+    "var/qa/empty-repeat-paired-20261018/native-before-network-frame.json.gz": "88b502f18568d5d61cc5521740235dca137e1f147c76b4408dd611ad19082907",
+    "var/qa/empty-repeat-paired-20261018/native-blocked-original-frame.json.gz": "ea3bf559e5c315d246347c58bdd017743a5df1162b98bfe2107492724cd1b656",
+    "var/qa/empty-repeat-paired-20261018/native-qa-original-base-frame.json.gz": "1b41ce7c6ce08f37864a40aec0f2c31920f0ff1fae93ca288e302f4057cebc5c",
+    "var/qa/multi-controller-paired-20261018/native-before-network-frame.json.gz": "90ee778725394c73411e58cca05b5c1a4af78a976adfd0bbab7e111a9d307bd6",
+    "var/qa/multi-controller-paired-20261018/native-final-original-frame.json.gz": "c3374d12b25052dbcd51309bf2e135967e6fc4ecebc7045490c03055ced96a8b",
+    "var/qa/observed-window-paired-20261018/native-after-end-turn-original-frame.json.gz": "8a5187c20c814cca6e4889b1fdd0d4ed56e29f7363206d0c7fa607dc07f540cd",
+    "var/qa/observed-window-paired-20261018/native-after-next-frame.json.gz": "05b19708690880dbec56f325dd487961a81a524f37423296db4379f759fed1a0",
+    "var/qa/observed-window-paired-20261018/native-after-offers-original-frame.json.gz": "c5ab49298434c269c225298d3d470ca8b5c128db84c11a66fb1de7e7497967a2",
+    "var/qa/observed-window-paired-20261018/native-before-network-frame.json.gz": "f4ba2692996cac0cbb63ede811e36f462e3c35131b15b89371d4d8ed546169ec",
+    "var/qa/observed-window-paired-20261018/native-final-original-frame.json.gz": "45a052928836aa7c4220963f1670c0d66d1b1c19fbf362af43ad3e39128f0578",
+    "var/qa/observed-window-paired-20261018/native-qa-original-base-frame.json.gz": "9677764605344914ffd455dc0d1fb6695ee6cc8be5a178ce03b5ca220de37f92"
+  },
+  "noGameplayCommandOrOldFrameNewEngineExecution": true,
+  "noVisibleNativeOrPhysicalWindowsPassClaim": true,
+  "originalNativeRoomIds": [
+    "paired-controller-46a990fe-20261018",
+    "paired-empty-view-48c6ae96-20261018",
+    "paired-here-control-20261018",
+    "paired-observed-window-8c6d569e-20261018"
+  ],
+  "originalAuditRoomCount": 42,
+  "originalSevenTablesBefore": {
+    "riftbound_here_native": {
+      "matches": "07ccb3474e90e4a926eee4ceae65391cb4838fd9e2e4c1c1285a21a4edf41200",
+      "match_players": "176adb4635d3c27696b16bd2a45de589cb5dbbd0df9bd5324193356986b50ef6",
+      "command_log": "59321eac5a7b69e3615b7af7fe1023f82716e6739e68b9c483a3c0631b26f5cb",
+      "game_events": "78e8962cedf9cf2b9407bbace0d0dc417e22c5501ac770c47b7ae290c1a9fde3",
+      "state_snapshots": "4175e2645ab2e9cd71ea15694dc60ef99057df288fc05483f02284d420d268db",
+      "snapshots": "e07e824cf46fda83694458ac7aa6a5f269225e7ad0e206400defcfd183d4dc29",
+      "action_prompts": "e4d1509404d2e868ba789cd28b2985349ef4f702fbd8c49e2db8706b9d6fb5f6"
+    },
+    "riftbound_acceptance": {
+      "matches": "28c9cf1ec277608dd43ae9951f1c848968ed58e97b9f0a2afa9d8658cbf1354c",
+      "match_players": "167a730f536e9dface03660a2a04e3227ba1d3fcb69982f3857442af37783e1f",
+      "command_log": "e4b8c0d9dfafb141544e0d769add6114dc3b3f72ed072da4b86224ecb318506b",
+      "game_events": "0d451ec5d954e96d0efd6c27dc7be7fe6660d604b12180fbd6efe16d7831f334",
+      "state_snapshots": "bf4c5a623a5909cbb1e689c8fd65003cd840c8b7d052d35bed979860b4a992ea",
+      "snapshots": "ef3f2d597feaf30f57301e1fbbd48dd91fc83d53b9fa52134c6cdb91fc9a9959",
+      "action_prompts": "03c674990375021dd83a8ccb147f689a39d7e16f92911b87a4792ced5db495b6"
+    }
+  },
+  "originalReconnectTokenIndependentlyHashesToPersistedValue": true,
+  "actualApiPid": 87518,
+  "probeReturnCode": 0,
+  "actualProbe": {
+    "recordedAtUtc": "2026-10-18T12:15:10.035Z",
+    "status": "LIVE_FIXED_API_AUTHENTICATED_OLD_IMPLEMENTATION_VERSION_REJECTED",
+    "fixedCommit": "21e505c32e29e1595251ccd571d80d176b95c98c",
+    "room": "paired-observed-window-8c6d569e-20261018",
+    "originalAuthenticatedPlayer": "herea5da",
+    "actualAuthenticationSucceeded": true,
+    "originalReconnectTokenSuppliedWithoutPrinting": true,
+    "errorCode": "RECOVERY_INCONSISTENT",
+    "errorMessage": "match recovery validation failed: authoritative rule input identity is missing or differs from running inputs; command rule input identity is missing or differs from running inputs",
+    "privateOrJoinedMessageCounts": {
+      "Joined": 0,
+      "Snapshot": 0,
+      "Prompt": 0,
+      "Events": 0,
+      "Matchmaking": 0
+    },
+    "noGameplayCommandSubmitted": true,
+    "noNativeUiActionClaimed": true,
+    "uncoveredNativeUiAndWindowsAcceptanceRemainOpen": true
+  },
+  "status": "LIVE_FIXED21_AUTHENTICATED_ORIGINAL8C_INPUT_MISMATCH_REJECTED_ZERO_PRIVATE_FRAMES_ORIGINAL_FOUR_ROOMS_UNCHANGED",
+  "apiGracefulSigtermCompleted": true,
+  "originalSevenTablesAfter": {
+    "riftbound_here_native": {
+      "matches": "07ccb3474e90e4a926eee4ceae65391cb4838fd9e2e4c1c1285a21a4edf41200",
+      "match_players": "176adb4635d3c27696b16bd2a45de589cb5dbbd0df9bd5324193356986b50ef6",
+      "command_log": "59321eac5a7b69e3615b7af7fe1023f82716e6739e68b9c483a3c0631b26f5cb",
+      "game_events": "78e8962cedf9cf2b9407bbace0d0dc417e22c5501ac770c47b7ae290c1a9fde3",
+      "state_snapshots": "4175e2645ab2e9cd71ea15694dc60ef99057df288fc05483f02284d420d268db",
+      "snapshots": "e07e824cf46fda83694458ac7aa6a5f269225e7ad0e206400defcfd183d4dc29",
+      "action_prompts": "e4d1509404d2e868ba789cd28b2985349ef4f702fbd8c49e2db8706b9d6fb5f6"
+    },
+    "riftbound_acceptance": {
+      "matches": "28c9cf1ec277608dd43ae9951f1c848968ed58e97b9f0a2afa9d8658cbf1354c",
+      "match_players": "167a730f536e9dface03660a2a04e3227ba1d3fcb69982f3857442af37783e1f",
+      "command_log": "e4b8c0d9dfafb141544e0d769add6114dc3b3f72ed072da4b86224ecb318506b",
+      "game_events": "0d451ec5d954e96d0efd6c27dc7be7fe6660d604b12180fbd6efe16d7831f334",
+      "state_snapshots": "bf4c5a623a5909cbb1e689c8fd65003cd840c8b7d052d35bed979860b4a992ea",
+      "snapshots": "ef3f2d597feaf30f57301e1fbbd48dd91fc83d53b9fa52134c6cdb91fc9a9959",
+      "action_prompts": "03c674990375021dd83a8ccb147f689a39d7e16f92911b87a4792ced5db495b6"
+    }
+  },
+  "allFourNativeAnd42AuditRoomsSevenTablesExact": true,
+  "clusterSmartStopped": true,
+  "finishedAtUtc": "2026-10-18T12:15:13.246265+00:00",
+  "all46PublishedFilesExact": true,
+  "allOriginalPrivateFrameHashesExact": true,
+  "allOutsideDocsInputsExact": true,
+  "originalDatabaseRetained": true
+}

@@ -1,0 +1,17 @@
+{
+  "recordedAtUtc": "2026-10-18T13:49:02.180984+00:00",
+  "source": "Read-only OS IORegistry session boolean flags; no UI input or settings change",
+  "userReportedUnlocked": true,
+  "cuaListAppsStillReportedLockedTwiceThisContext": true,
+  "osSessionBooleansOnly": [
+    {
+      "CGSSessionScreenIsLocked": true,
+      "kCGSSessionOnConsoleKey": true,
+      "kCGSessionLoginDoneKey": true
+    }
+  ],
+  "missingFlagsNotTreatedAsUnlocked": true,
+  "noUserNamesSessionIdsOrPasswordsRecorded": true,
+  "visibleAcceptanceNotClaimed": true,
+  "noRepeatedUnlockQuestionSent": true
+}

@@ -1,0 +1,96 @@
+{
+  "atUtc": "2026-10-18T13:08:13.917414+00:00",
+  "status": "FOUR_ACTUAL_FORMAT_ORDINARY_OPENINGS_CURRENT_DRAW_LEDGER_COLD_ORIGINAL_NEXT_AND_REPLAY_PASS",
+  "cases": 4,
+  "methods": 1,
+  "commands": 128,
+  "events": 500,
+  "coldRestores": 20,
+  "originalNextCommandsMatched": 16,
+  "engineRejectionsWithoutMutation": 8,
+  "results": [
+    {
+      "branch": "spell",
+      "format": 1,
+      "commands": 32,
+      "events": 125,
+      "originalBlankSeed": 0,
+      "coldCount": 5,
+      "originalNextCommandsMatched": 4,
+      "engineRejectionsWithoutMutation": 2,
+      "originalFullActionAndEventReplayMatched": true,
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "a2c2145ae65a036fe714a858dd09d3b88c84153ebe1dcab94f4bb5b8639f1519",
+        "identitySha256": "81ab4fb9ff8c24d696a0a5969601e90223f7630ed4642c909331d110fbb35606"
+      }
+    },
+    {
+      "branch": "unit",
+      "format": 0,
+      "commands": 32,
+      "events": 125,
+      "originalBlankSeed": 0,
+      "coldCount": 5,
+      "originalNextCommandsMatched": 4,
+      "engineRejectionsWithoutMutation": 2,
+      "originalFullActionAndEventReplayMatched": true,
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "a2c2145ae65a036fe714a858dd09d3b88c84153ebe1dcab94f4bb5b8639f1519",
+        "identitySha256": "81ab4fb9ff8c24d696a0a5969601e90223f7630ed4642c909331d110fbb35606"
+      }
+    },
+    {
+      "branch": "unit",
+      "format": 1,
+      "commands": 32,
+      "events": 125,
+      "originalBlankSeed": 0,
+      "coldCount": 5,
+      "originalNextCommandsMatched": 4,
+      "engineRejectionsWithoutMutation": 2,
+      "originalFullActionAndEventReplayMatched": true,
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "a2c2145ae65a036fe714a858dd09d3b88c84153ebe1dcab94f4bb5b8639f1519",
+        "identitySha256": "81ab4fb9ff8c24d696a0a5969601e90223f7630ed4642c909331d110fbb35606"
+      }
+    },
+    {
+      "branch": "spell",
+      "format": 0,
+      "commands": 32,
+      "events": 125,
+      "originalBlankSeed": 0,
+      "coldCount": 5,
+      "originalNextCommandsMatched": 4,
+      "engineRejectionsWithoutMutation": 2,
+      "originalFullActionAndEventReplayMatched": true,
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "a2c2145ae65a036fe714a858dd09d3b88c84153ebe1dcab94f4bb5b8639f1519",
+        "identitySha256": "81ab4fb9ff8c24d696a0a5969601e90223f7630ed4642c909331d110fbb35606"
+      }
+    }
+  ],
+  "actualTrxSha256": "ce10a5e42f98745522b38a9146be720b98a9985aca6309bb3da6b2020dcd241e",
+  "coordinatedCountAndDrawEventForgeriesPassStructureButOriginalActionLogRejectsInBothSpellFormats": true,
+  "currentFullNativeSqlAndPhysicalWindowsRemainSeparate": true
+}

@@ -37448,6 +37448,9 @@ public sealed class ConformanceFixtureRunnerTests
             string.Equals(gameEvent.Kind, "CARDS_REVEALED", StringComparison.Ordinal)
             && Assert.IsAssignableFrom<IReadOnlyList<string>>(gameEvent.Payload["cardIds"]).Contains("P2-BATTLEFIELD-REVEAL-SPELL", StringComparer.Ordinal));
         Assert.Contains(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARD_ADDED_TO_HAND", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P2-BATTLEFIELD-RAVENBLOOM", StringComparison.Ordinal));
+        Assert.DoesNotContain(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P2-BATTLEFIELD-RAVENBLOOM", StringComparison.Ordinal));
     }
@@ -37557,6 +37560,9 @@ public sealed class ConformanceFixtureRunnerTests
             && string.Equals(gameEvent.Payload["trigger"] as string, "BATTLEFIELD_DEFENSE_REVEAL_TOP_DRAW_SPELL_OR_RECYCLE", StringComparison.Ordinal));
         Assert.DoesNotContain(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal)
+            && string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P2-BATTLEFIELD-RAVENBLOOM", StringComparison.Ordinal));
+        Assert.DoesNotContain(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARD_ADDED_TO_HAND", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["sourceObjectId"] as string, "P2-BATTLEFIELD-RAVENBLOOM", StringComparison.Ordinal));
     }
 

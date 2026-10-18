@@ -1,0 +1,290 @@
+{
+  "status": "REAL_POSTGRES_RAVENBLOOM_PUT_HAND_BOTH_FORMATS_COLD_ORIGINAL_NEXT_REPLAY_TAMPER_PASS",
+  "results": [
+    {
+      "branch": "spell",
+      "spell": true,
+      "format": "CoreRules",
+      "room": "postgres-ravenbloom-put-hand-ca5f73e1a20149e5ac3985d358e0e3d1",
+      "commands": 32,
+      "events": 125,
+      "coldRestores": 9,
+      "originalNextCommandsMatched": 4,
+      "attacks": [
+        {
+          "scenario": "coordinated-false-second-draw-count",
+          "rebuiltBothPlayerViews": true,
+          "structuralValidationPassed": true,
+          "productionRegistryRejected": true,
+          "acceptedHistoryUnchanged": true,
+          "allSqlRowsUnchangedByRejection": true
+        },
+        {
+          "scenario": "coordinated-closed-idle-main",
+          "rebuiltBothPlayerViews": true,
+          "structuralValidationPassed": true,
+          "productionRegistryRejected": true,
+          "acceptedHistoryUnchanged": true,
+          "allSqlRowsUnchangedByRejection": true
+        },
+        {
+          "scenario": "wrong-implementation",
+          "rebuiltBothPlayerViews": true,
+          "structuralValidationPassed": false,
+          "productionRegistryRejected": true,
+          "acceptedHistoryUnchanged": true,
+          "allSqlRowsUnchangedByRejection": true
+        },
+        {
+          "scenario": "negative-draw-count",
+          "rebuiltBothPlayerViews": true,
+          "structuralValidationPassed": false,
+          "productionRegistryRejected": true,
+          "acceptedHistoryUnchanged": true,
+          "allSqlRowsUnchangedByRejection": true
+        }
+      ],
+      "checkpoints": [
+        {
+          "stage": "TAP_RUNE",
+          "commands": 6
+        },
+        {
+          "stage": "PLAY_CARD",
+          "commands": 16
+        },
+        {
+          "stage": "DECLARE_BATTLE",
+          "commands": 30
+        }
+      ],
+      "malformedTargetIngressRejections": 15,
+      "originalBlankSeed": 0,
+      "originalFullReplayMatched": true,
+      "finalHash": "91d7fe887a990ce19d3fb38f51aac989ef60df10e39ea57c2315a7bb0a7797de",
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "8e6ee446728f9f7f9bcaddd00defe3a4391b7120d609ed888557ffea1fb47ba2",
+        "identitySha256": "15660e85b71f7ddb4672bee1d6339f18b654d9f54bcb6f56612ca7dc0720e493"
+      }
+    },
+    {
+      "branch": "spell",
+      "spell": true,
+      "format": "ChinaStandard20260724",
+      "room": "postgres-ravenbloom-put-hand-5ac38cda48e844568195511ccb900ef6",
+      "commands": 32,
+      "events": 125,
+      "coldRestores": 9,
+      "originalNextCommandsMatched": 4,
+      "attacks": [
+        {
+          "scenario": "coordinated-false-second-draw-count",
+          "rebuiltBothPlayerViews": true,
+          "structuralValidationPassed": true,
+          "productionRegistryRejected": true,
+          "acceptedHistoryUnchanged": true,
+          "allSqlRowsUnchangedByRejection": true
+        },
+        {
+          "scenario": "coordinated-closed-idle-main",
+          "rebuiltBothPlayerViews": true,
+          "structuralValidationPassed": true,
+          "productionRegistryRejected": true,
+          "acceptedHistoryUnchanged": true,
+          "allSqlRowsUnchangedByRejection": true
+        },
+        {
+          "scenario": "wrong-implementation",
+          "rebuiltBothPlayerViews": true,
+          "structuralValidationPassed": false,
+          "productionRegistryRejected": true,
+          "acceptedHistoryUnchanged": true,
+          "allSqlRowsUnchangedByRejection": true
+        },
+        {
+          "scenario": "negative-draw-count",
+          "rebuiltBothPlayerViews": true,
+          "structuralValidationPassed": false,
+          "productionRegistryRejected": true,
+          "acceptedHistoryUnchanged": true,
+          "allSqlRowsUnchangedByRejection": true
+        }
+      ],
+      "checkpoints": [
+        {
+          "stage": "TAP_RUNE",
+          "commands": 6
+        },
+        {
+          "stage": "PLAY_CARD",
+          "commands": 16
+        },
+        {
+          "stage": "DECLARE_BATTLE",
+          "commands": 30
+        }
+      ],
+      "malformedTargetIngressRejections": 15,
+      "originalBlankSeed": 0,
+      "originalFullReplayMatched": true,
+      "finalHash": "40e2c53ef615d5e3b4cb6a10fb6a3881a2ce51a868ad6cd3f76aefa1a92ac609",
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "8e6ee446728f9f7f9bcaddd00defe3a4391b7120d609ed888557ffea1fb47ba2",
+        "identitySha256": "15660e85b71f7ddb4672bee1d6339f18b654d9f54bcb6f56612ca7dc0720e493"
+      }
+    },
+    {
+      "branch": "unit",
+      "spell": false,
+      "format": "CoreRules",
+      "room": "postgres-ravenbloom-put-hand-05992d19eadb4ab0bc587f63e90bcec3",
+      "commands": 32,
+      "events": 125,
+      "coldRestores": 9,
+      "originalNextCommandsMatched": 4,
+      "attacks": [
+        {
+          "scenario": "coordinated-false-second-draw-count",
+          "rebuiltBothPlayerViews": true,
+          "structuralValidationPassed": true,
+          "productionRegistryRejected": true,
+          "acceptedHistoryUnchanged": true,
+          "allSqlRowsUnchangedByRejection": true
+        },
+        {
+          "scenario": "coordinated-closed-idle-main",
+          "rebuiltBothPlayerViews": true,
+          "structuralValidationPassed": true,
+          "productionRegistryRejected": true,
+          "acceptedHistoryUnchanged": true,
+          "allSqlRowsUnchangedByRejection": true
+        },
+        {
+          "scenario": "wrong-implementation",
+          "rebuiltBothPlayerViews": true,
+          "structuralValidationPassed": false,
+          "productionRegistryRejected": true,
+          "acceptedHistoryUnchanged": true,
+          "allSqlRowsUnchangedByRejection": true
+        },
+        {
+          "scenario": "negative-draw-count",
+          "rebuiltBothPlayerViews": true,
+          "structuralValidationPassed": false,
+          "productionRegistryRejected": true,
+          "acceptedHistoryUnchanged": true,
+          "allSqlRowsUnchangedByRejection": true
+        }
+      ],
+      "checkpoints": [
+        {
+          "stage": "TAP_RUNE",
+          "commands": 6
+        },
+        {
+          "stage": "PLAY_CARD",
+          "commands": 16
+        },
+        {
+          "stage": "DECLARE_BATTLE",
+          "commands": 30
+        }
+      ],
+      "malformedTargetIngressRejections": 15,
+      "originalBlankSeed": 0,
+      "originalFullReplayMatched": true,
+      "finalHash": "b87d2f7231fd853ce3e887bb18f4a02115036c29f7a16d2d6f339d57e0cf54eb",
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "8e6ee446728f9f7f9bcaddd00defe3a4391b7120d609ed888557ffea1fb47ba2",
+        "identitySha256": "15660e85b71f7ddb4672bee1d6339f18b654d9f54bcb6f56612ca7dc0720e493"
+      }
+    },
+    {
+      "branch": "unit",
+      "spell": false,
+      "format": "ChinaStandard20260724",
+      "room": "postgres-ravenbloom-put-hand-47e036a718834577808f60147ab9d3ac",
+      "commands": 32,
+      "events": 125,
+      "coldRestores": 9,
+      "originalNextCommandsMatched": 4,
+      "attacks": [
+        {
+          "scenario": "coordinated-false-second-draw-count",
+          "rebuiltBothPlayerViews": true,
+          "structuralValidationPassed": true,
+          "productionRegistryRejected": true,
+          "acceptedHistoryUnchanged": true,
+          "allSqlRowsUnchangedByRejection": true
+        },
+        {
+          "scenario": "coordinated-closed-idle-main",
+          "rebuiltBothPlayerViews": true,
+          "structuralValidationPassed": true,
+          "productionRegistryRejected": true,
+          "acceptedHistoryUnchanged": true,
+          "allSqlRowsUnchangedByRejection": true
+        },
+        {
+          "scenario": "wrong-implementation",
+          "rebuiltBothPlayerViews": true,
+          "structuralValidationPassed": false,
+          "productionRegistryRejected": true,
+          "acceptedHistoryUnchanged": true,
+          "allSqlRowsUnchangedByRejection": true
+        },
+        {
+          "scenario": "negative-draw-count",
+          "rebuiltBothPlayerViews": true,
+          "structuralValidationPassed": false,
+          "productionRegistryRejected": true,
+          "acceptedHistoryUnchanged": true,
+          "allSqlRowsUnchangedByRejection": true
+        }
+      ],
+      "checkpoints": [
+        {
+          "stage": "TAP_RUNE",
+          "commands": 6
+        },
+        {
+          "stage": "PLAY_CARD",
+          "commands": 16
+        },
+        {
+          "stage": "DECLARE_BATTLE",
+          "commands": 30
+        }
+      ],
+      "malformedTargetIngressRejections": 15,
+      "originalBlankSeed": 0,
+      "originalFullReplayMatched": true,
+      "finalHash": "29d8a4c3620b7a90edea922c7b29d30eaa3d5667fd4c3369afe5f5a921ab805b",
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "8e6ee446728f9f7f9bcaddd00defe3a4391b7120d609ed888557ffea1fb47ba2",
+        "identitySha256": "15660e85b71f7ddb4672bee1d6339f18b654d9f54bcb6f56612ca7dc0720e493"
+      }
+    }
+  ],
+  "scope": "CN16 current exact SFD215 hand-entry classification; four normal blank seed0 runs with a genuine prior draw and matching session format. Native, wrong-format configuration identity, Windows and whole-card semantics remain separate."
+}

@@ -17889,10 +17889,14 @@ public sealed partial class MatchSession : IMatchSession
             }
 
             // Both accepted and rejected journal rows undergo independent raw
-            // recovery validation. Reject malformed costs before any path can
+            // recovery validation. Reject malformed optional arrays before any path can
             // persist the request, including stale-prompt rejections.
             if (!HasCanonicalOptionalCosts(command, rawCommand))
                 return ResolutionResult.Rejected(state, "可选费用格式无效，请按最新提示重试。", ErrorCodes.InvalidPayload);
+            if (command is DeclareBattleCommand
+                && rawCommand is { ValueKind: JsonValueKind.Object } raw
+                && !HasCanonicalOptionalStringArray(raw, "battlefieldTargetObjectIds"))
+                return ResolutionResult.Rejected(state, "战场目标选项格式无效，请按最新提示重试。", ErrorCodes.InvalidPayload);
 
             var startedTick = state.Tick;
             var startedEventSequence = lastEventSequence;
@@ -17966,11 +17970,16 @@ public sealed partial class MatchSession : IMatchSession
             || rawCommand is not { ValueKind: JsonValueKind.Object } raw)
             return true;
 
+        return HasCanonicalOptionalStringArray(raw, "optionalCosts");
+    }
+
+    private static bool HasCanonicalOptionalStringArray(JsonElement raw, string field)
+    {
         var seen = false;
         foreach (var property in raw.EnumerateObject())
         {
-            if (!string.Equals(property.Name.Trim(), "optionalCosts", StringComparison.Ordinal)) continue;
-            if (seen || property.Name != "optionalCosts" || property.Value.ValueKind != JsonValueKind.Array) return false;
+            if (!string.Equals(property.Name.Trim(), field, StringComparison.Ordinal)) continue;
+            if (seen || property.Name != field || property.Value.ValueKind != JsonValueKind.Array) return false;
             seen = true;
             foreach (var choice in property.Value.EnumerateArray())
             {

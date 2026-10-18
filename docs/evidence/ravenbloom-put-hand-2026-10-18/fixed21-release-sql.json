@@ -1,0 +1,475 @@
+{
+  "startedAtUtc": "2026-10-18T11:57:28.052480+00:00",
+  "fixedCommit": "21e505c32e29e1595251ccd571d80d176b95c98c",
+  "fullCiRun": 39125088373,
+  "actualExecutingReleaseRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+    "implementationSha256": "56b2a9bdb130e2d706938a4e971c8003a673e795487142ead529b609bfecb61f",
+    "identitySha256": "b263b0223aa6989aa1c751f109a0391029cfe796dbad8aa7b37fa395bc3ac4f0"
+  },
+  "publishedApiFiles": {
+    "Microsoft.AspNetCore.SignalR.StackExchangeRedis.dll": "08e97dee4d18b0beaa3f7d0279eec70a8d2a57b29c2e5e8846bebfc98741ae4c",
+    "Riftbound.CardCatalog.dll": "469d9095524b3bf04910e8678faff6bb32afc7631603c23d0d14cbe8ebc898e3",
+    "StackExchange.Redis.dll": "e78cbee5a5a1071e45246c9b400de869ba6c9bec5c67870f0b99253923d67799",
+    "Riftbound.Contracts.pdb": "a387766b2d9c78d526a1e391ae3498c088db373db089df0e73464e1bd05c101d",
+    "Pipelines.Sockets.Unofficial.dll": "fa2cdb1d5ffbb2b06512c92ce8bd18918a1a996171d0a72dfc73035bc586a711",
+    "Riftbound.Engine.pdb": "711db21568a932da591cfc843cb3d9583f4d272c4e5e6df02f09246499f71b1f",
+    "Riftbound.CardCatalog.pdb": "1adf1d60748b6b77f7cb86dd4b298cb24edb921ef930911da4169c5140112a05",
+    "MessagePack.Annotations.dll": "d6d77e65edef6b60ce8fb9e5cba402d70fd97d1401c240c8b2c5389e08009315",
+    "web.config": "19d9d38527a185f34773442f8ce35a045f8dbdebbd5d2a94a3456599ec27d0f5",
+    "Npgsql.dll": "9d8db086e9eda5ff20c4a7f83fa3eae7689198f57277ff9ceea1ee3526f5fcf8",
+    "Riftbound.Api": "2ee40d708044453974a50200c073a09b0a129b21c6202cca0952d0d89f679664",
+    "Riftbound.Contracts.dll": "ba06d83ee4441399e9dcc2a66da8ee03c3fbec5c2159f30d6a3df760bdf2d07d",
+    "Riftbound.Engine.dll": "4622298ffd5009703f73a0edeb35ffc885ac915c9a90020cd906f057d473249e",
+    "Riftbound.Persistence.pdb": "1ca263b4634ee742f71607f2a58d2f94f1f07d39f2d0eacecb32669d7811be12",
+    "Riftbound.Api.runtimeconfig.json": "f71b4c67b5233a19be9131b5fe4b45fe7829997cf2b42e762d6baa037da93863",
+    "Riftbound.Api.dll": "eab8993420c2fe1b370b59debda8bf6c15c4021c086565b3c3084ee4945b99c1",
+    "MessagePack.dll": "6dedc861263288ee726ad9c919431cede00d35764f47ce9a3fa2f93d7f08a7f7",
+    "Microsoft.NET.StringTools.dll": "e51c8678fd602a21c249b369e833966019935132476f9434da896bef808ba3b1",
+    "Riftbound.Api.staticwebassets.endpoints.json": "da947440264c31a98ff93ee234d451818d08cbcc950f87c3e2ab632402e4aedb",
+    "Riftbound.Api.pdb": "b8532fc23e4890a42ca7f586e1d4dff86680551ef50fd1ed5b60c3b65d89d420",
+    "appsettings.Development.json": "109fcebd5e1b2ded13ad0622e0faae3b0c5cfe238ee7036a1d2f6a292db860a4",
+    "Riftbound.Persistence.dll": "b415a568d89325c2eb5908a478065fe5d168f43f6552e9cb8369baa28f22b535",
+    "Riftbound.Api.deps.json": "72c26959496a9b126edbf4d1107e72dd10bac8dc6a4550fe5e91b18bb172ee9d",
+    "wwwroot/index.html": "47e3db54f36a495355d0698884edab8f38ba104dbbfdaf7ec6b32b801febcc4c",
+    "wwwroot/index.html.br": "cf50c8e92a1f2fdd650234179a7173497cdf21fc1225c94633ba92e2dcc1af52",
+    "wwwroot/.gitkeep": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+    "wwwroot/index.html.gz": "12130f6cc5b2ac167dc581d6aee36538d2bc6f250b270901d7b185ffd4c254fa",
+    "wwwroot/assets/index-C566mL2B.css": "d2da2db3b0bc064fa2192333f3aea70d42a547f071d82044bceaf636d8a674d3",
+    "wwwroot/assets/tts-playmat-default.png": "61b6dea721cbeb6130876a3e8a70e787e7f1ab08b23726a542a3de026d872105",
+    "wwwroot/assets/index-DM9fjVi6.js.gz": "dc17f76c05c467f00db2b91a75fde06794b8ce0d6ab34993417a0e1e838a302d",
+    "wwwroot/assets/index-DM9fjVi6.js": "8c4df353e49f7a0024201b06f698f149918352215f3a0d1725dfc0a395d50d6b",
+    "wwwroot/assets/index-C566mL2B.css.br": "0ad112c13ecc311e751da8d9180f83bb2d01ddda5c7e31ce1a244ccbd463df3b",
+    "wwwroot/assets/index-DM9fjVi6.js.br": "794917654bae0a2070b2c1be8328da31287d29d919ecf95a694331182b37fe66",
+    "wwwroot/assets/index-C566mL2B.css.gz": "0614ced8774334de7e45b80ec1643dfb742b9293d003f7bb443ccd14f3b1cbc9",
+    "data/official/rule-input-scope.json": "cc07cf3eef6a9af403454642a0435d061544400b5e01d08d3fdc65869bdad180",
+    "data/official/armaments.json": "ddcd838300e558c11df480ee79ccfab08c7af380df36544c666841720850bda8",
+    "data/official/card-catalog.zh-CN.json": "68930e34e45385c4bc78c4805aaba46e4b5b57057a25ba957a85b339fe376fc8",
+    "Sql/003_p1_event_sequence.sql": "a0589a27b597680f14cfd6bb63038c5af57fc5b1d7fb75f4477306cea244c18d",
+    "Sql/001_p1_event_store.sql": "a9ac98b4925daa23a85453c2bad26c874362fd041cffd2f940d88763cfe418bd",
+    "Sql/005_p1_event_tick_order_not_unique.sql": "25bd0a733d33c9b9d1dfdc0382cd53200202c6eaa3f4bf91f735c3559c2ba2b9",
+    "Sql/004_p1_state_snapshots.sql": "a2bb2274088648a762159b068103b792baa18c474ec5a3b20786a3d3a58642b7",
+    "Sql/006_p1_match_player_seat_uniqueness.sql": "264af7f8cd9b89f46ccae728c71dba27e61ae7ab7b13946c698b2ce14b3f6583",
+    "Sql/008_p2_match_results.sql": "97b07d1e59ec8a98e56edc958980e7d5f6a2173fa14d38ae6fc49aaaf83f9f34",
+    "Sql/002_p1_ruleset_audit.sql": "c7c449c8121f2224768a0a6773fb2990406f4f13b9bb8bb0fa84fbbc5517f5a9",
+    "Sql/007_p2_player_identity.sql": "a543a908acb57b47a4db55b59248e167759d3c901d3d3f532c88818e525df9ed",
+    "Sql/009_runtime_rule_inputs.sql": "a0ac37d459559449ed5eb0d5c1d1ee5879e1552f943215a3951ee0bb4dbcd6f5"
+  },
+  "readerRuntimeFiles": {
+    "reader": "b39da4cd24d88d6146919d9fbbdea8b6520c37616ca4ebb583d8b384914bb667",
+    "Riftbound.CardCatalog.dll": "469d9095524b3bf04910e8678faff6bb32afc7631603c23d0d14cbe8ebc898e3",
+    "reader.runtimeconfig.json": "f8bd1713a3691d58eb332a71675f129385b91e852b66e7b6761cae1f34d4efd2",
+    "Riftbound.Contracts.pdb": "a387766b2d9c78d526a1e391ae3498c088db373db089df0e73464e1bd05c101d",
+    "Riftbound.Engine.pdb": "711db21568a932da591cfc843cb3d9583f4d272c4e5e6df02f09246499f71b1f",
+    "Riftbound.CardCatalog.pdb": "1adf1d60748b6b77f7cb86dd4b298cb24edb921ef930911da4169c5140112a05",
+    "Npgsql.dll": "9d8db086e9eda5ff20c4a7f83fa3eae7689198f57277ff9ceea1ee3526f5fcf8",
+    "Riftbound.Contracts.dll": "ba06d83ee4441399e9dcc2a66da8ee03c3fbec5c2159f30d6a3df760bdf2d07d",
+    "Riftbound.Engine.dll": "4622298ffd5009703f73a0edeb35ffc885ac915c9a90020cd906f057d473249e",
+    "Riftbound.Persistence.pdb": "1ca263b4634ee742f71607f2a58d2f94f1f07d39f2d0eacecb32669d7811be12",
+    "reader.deps.json": "caf3efd32aa762d8c587a79b75eb35a2e91aef4cc373b513e95669048bf7778d",
+    "reader.dll": "e751a575d9ca31cd462e7762aee7db941768a910b54be3f391d6b2ae28b4f2f2",
+    "Riftbound.Persistence.dll": "b415a568d89325c2eb5908a478065fe5d168f43f6552e9cb8369baa28f22b535",
+    "reader.pdb": "55aa77adadb6d32bae6fc1c7c3a432b27718a3dcf23c055c82a9cc4651512914",
+    "Fixtures/empty-observed-deck-repeat-openings.json": "3dd828c2710d24f89a62740c0c8ce7fc04d2222a3fa1e337aeffc1f360e93232",
+    "data/official/rule-input-scope.json": "cc07cf3eef6a9af403454642a0435d061544400b5e01d08d3fdc65869bdad180",
+    "data/official/armaments.json": "ddcd838300e558c11df480ee79ccfab08c7af380df36544c666841720850bda8",
+    "data/official/card-catalog.zh-CN.json": "68930e34e45385c4bc78c4805aaba46e4b5b57057a25ba957a85b339fe376fc8"
+  },
+  "readerSources": {
+    "ObservedDeckPlayWindowSqlAcceptance.cs": "8a952583def01ae8b225d58393916ac85cb733a9b0dd94182c5c0f8dfc41c846",
+    "Program.cs": "950e75e178f525698e26b2ac2a0d96c606f783f07a54dcb795bb869ccc906c56"
+  },
+  "outsideDocsSourceInputs": 3248,
+  "scope": "Three fresh original blank positive observed play, final decline and next EndTurn SQL branches under actual fixed21e505c3 published Release; SFD122 CoreRules only, UNL032 both-format legal. Original test seed0, no native seed/state injection, no new database/source checkout. Visible/native/Windows remain separate.",
+  "priorRoomCount": 39,
+  "priorSevenTableDigests": {
+    "matches": "4aae07294031b8963cbf0025da09d2ac33778bb8f56ef3bb861aed869316a949",
+    "match_players": "fc624aa754ba3622557c6668739132efd52faecc529c4a460d4570382aa6dd09",
+    "command_log": "5e318960315dbf57ee7ce6dc647b7ad0d2b48b6772be68f383301fd94c5c696a",
+    "game_events": "eef4d8a0aa23c93d8249de3b483b1c144303cf822b52ac9ee1300ce4d2063705",
+    "state_snapshots": "176739c23bee702f4988bd8f3f164eba9f95d11bed01b0406eae72eb1cf43b2d",
+    "snapshots": "8cf425ffdc1cdf77fdf178e95e33b59c7cf3003a7a1c3c3abc9c4aab835ee67d",
+    "action_prompts": "d4ff9b66d839d071ae1a4ab543fe3ab1aee45810f9aeb9aef3677dbe0db11cd2"
+  },
+  "originalNativeSevenTableDigests": {
+    "matches": "07ccb3474e90e4a926eee4ceae65391cb4838fd9e2e4c1c1285a21a4edf41200",
+    "match_players": "176adb4635d3c27696b16bd2a45de589cb5dbbd0df9bd5324193356986b50ef6",
+    "command_log": "59321eac5a7b69e3615b7af7fe1023f82716e6739e68b9c483a3c0631b26f5cb",
+    "game_events": "78e8962cedf9cf2b9407bbace0d0dc417e22c5501ac770c47b7ae290c1a9fde3",
+    "state_snapshots": "4175e2645ab2e9cd71ea15694dc60ef99057df288fc05483f02284d420d268db",
+    "snapshots": "e07e824cf46fda83694458ac7aa6a5f269225e7ad0e206400defcfd183d4dc29",
+    "action_prompts": "e4d1509404d2e868ba789cd28b2985349ef4f702fbd8c49e2db8706b9d6fb5f6"
+  },
+  "returnCode": 0,
+  "allPriorSevenTableRowsExact": true,
+  "originalNativeSevenTableRowsExact": true,
+  "status": "FIXED21_PUBLISHED_RELEASE_OBSERVED_OFFER_CONTINUATION_SQL90_COMMANDS340_EVENTS42_COLD15_NEXT24_REJECTIONS_PASS",
+  "receipt": {
+    "status": "REAL_POSTGRES_ORDINARY_OBSERVED_PLAY_WINDOW_POSITIVE_DECLINES_NEXT_END_TURN_COLD_REPLAY_TAMPER_PASS",
+    "results": [
+      {
+        "card": "SFD\u00b7122/221",
+        "draw": true,
+        "room": "postgres-observed-play-window-73f3c053496144158c0ba486f33aa96f",
+        "commands": 30,
+        "events": 114,
+        "coldRestores": 14,
+        "originalNextCommandsMatched": 5,
+        "attacks": [
+          {
+            "scenario": "earlier-completed-count",
+            "rebuiltBothPlayerViews": true,
+            "structuralValidationPassed": false,
+            "productionRegistryRejected": true,
+            "acceptedHistoryUnchanged": true,
+            "allSqlRowsUnchangedByRejection": true
+          },
+          {
+            "scenario": "later-completed-count",
+            "rebuiltBothPlayerViews": true,
+            "structuralValidationPassed": false,
+            "productionRegistryRejected": true,
+            "acceptedHistoryUnchanged": true,
+            "allSqlRowsUnchangedByRejection": true
+          },
+          {
+            "scenario": "premature-item-completion",
+            "rebuiltBothPlayerViews": true,
+            "structuralValidationPassed": false,
+            "productionRegistryRejected": true,
+            "acceptedHistoryUnchanged": true,
+            "allSqlRowsUnchangedByRejection": true
+          },
+          {
+            "scenario": "maximum-two",
+            "rebuiltBothPlayerViews": true,
+            "structuralValidationPassed": false,
+            "productionRegistryRejected": true,
+            "acceptedHistoryUnchanged": true,
+            "allSqlRowsUnchangedByRejection": true
+          },
+          {
+            "scenario": "coordinated-second-view-order",
+            "rebuiltBothPlayerViews": true,
+            "structuralValidationPassed": true,
+            "productionRegistryRejected": true,
+            "acceptedHistoryUnchanged": true,
+            "allSqlRowsUnchangedByRejection": true
+          },
+          {
+            "scenario": "wrong-implementation",
+            "rebuiltBothPlayerViews": true,
+            "structuralValidationPassed": false,
+            "productionRegistryRejected": true,
+            "acceptedHistoryUnchanged": true,
+            "allSqlRowsUnchangedByRejection": true
+          },
+          {
+            "scenario": "coordinated-closed-final-window",
+            "rebuiltBothPlayerViews": true,
+            "structuralValidationPassed": true,
+            "productionRegistryRejected": true,
+            "acceptedHistoryUnchanged": true,
+            "allSqlRowsUnchangedByRejection": true
+          },
+          {
+            "scenario": "wrong-final-implementation",
+            "rebuiltBothPlayerViews": true,
+            "structuralValidationPassed": false,
+            "productionRegistryRejected": true,
+            "acceptedHistoryUnchanged": true,
+            "allSqlRowsUnchangedByRejection": true
+          }
+        ],
+        "checkpoints": [
+          {
+            "stage": "before-last-banish",
+            "commands": 24
+          },
+          {
+            "stage": "pending-second-view",
+            "commands": 25
+          },
+          {
+            "stage": "pending-observed-play",
+            "commands": 26
+          },
+          {
+            "stage": "after-positive-before-original-declines",
+            "commands": 28
+          },
+          {
+            "stage": "open-main-before-original-next-end-turn",
+            "commands": 29
+          },
+          {
+            "stage": "complete-original-replay-after-end-turn",
+            "commands": 30
+          }
+        ],
+        "originalBlankSeed": 0,
+        "completeOriginalReplay": true,
+        "finalHash": "0369aa1c92065fb4af431d31e65d69a85a054bb05dca869967e9dc80ee9ffa45",
+        "ruleInputs": {
+          "schemaVersion": 1,
+          "region": "CN",
+          "language": "zh-CN",
+          "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+          "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+          "implementationSha256": "56b2a9bdb130e2d706938a4e971c8003a673e795487142ead529b609bfecb61f",
+          "identitySha256": "b263b0223aa6989aa1c751f109a0391029cfe796dbad8aa7b37fa395bc3ac4f0"
+        },
+        "validatedFormats": [
+          "CoreRules"
+        ]
+      },
+      {
+        "card": "UNL-032/219",
+        "draw": true,
+        "room": "postgres-observed-play-window-2aa8c5a86e974e3985ac88b91d879d59",
+        "commands": 30,
+        "events": 114,
+        "coldRestores": 14,
+        "originalNextCommandsMatched": 5,
+        "attacks": [
+          {
+            "scenario": "earlier-completed-count",
+            "rebuiltBothPlayerViews": true,
+            "structuralValidationPassed": false,
+            "productionRegistryRejected": true,
+            "acceptedHistoryUnchanged": true,
+            "allSqlRowsUnchangedByRejection": true
+          },
+          {
+            "scenario": "later-completed-count",
+            "rebuiltBothPlayerViews": true,
+            "structuralValidationPassed": false,
+            "productionRegistryRejected": true,
+            "acceptedHistoryUnchanged": true,
+            "allSqlRowsUnchangedByRejection": true
+          },
+          {
+            "scenario": "premature-item-completion",
+            "rebuiltBothPlayerViews": true,
+            "structuralValidationPassed": false,
+            "productionRegistryRejected": true,
+            "acceptedHistoryUnchanged": true,
+            "allSqlRowsUnchangedByRejection": true
+          },
+          {
+            "scenario": "maximum-two",
+            "rebuiltBothPlayerViews": true,
+            "structuralValidationPassed": false,
+            "productionRegistryRejected": true,
+            "acceptedHistoryUnchanged": true,
+            "allSqlRowsUnchangedByRejection": true
+          },
+          {
+            "scenario": "coordinated-second-view-order",
+            "rebuiltBothPlayerViews": true,
+            "structuralValidationPassed": true,
+            "productionRegistryRejected": true,
+            "acceptedHistoryUnchanged": true,
+            "allSqlRowsUnchangedByRejection": true
+          },
+          {
+            "scenario": "wrong-implementation",
+            "rebuiltBothPlayerViews": true,
+            "structuralValidationPassed": false,
+            "productionRegistryRejected": true,
+            "acceptedHistoryUnchanged": true,
+            "allSqlRowsUnchangedByRejection": true
+          },
+          {
+            "scenario": "coordinated-closed-final-window",
+            "rebuiltBothPlayerViews": true,
+            "structuralValidationPassed": true,
+            "productionRegistryRejected": true,
+            "acceptedHistoryUnchanged": true,
+            "allSqlRowsUnchangedByRejection": true
+          },
+          {
+            "scenario": "wrong-final-implementation",
+            "rebuiltBothPlayerViews": true,
+            "structuralValidationPassed": false,
+            "productionRegistryRejected": true,
+            "acceptedHistoryUnchanged": true,
+            "allSqlRowsUnchangedByRejection": true
+          }
+        ],
+        "checkpoints": [
+          {
+            "stage": "before-last-banish",
+            "commands": 24
+          },
+          {
+            "stage": "pending-second-view",
+            "commands": 25
+          },
+          {
+            "stage": "pending-observed-play",
+            "commands": 26
+          },
+          {
+            "stage": "after-positive-before-original-declines",
+            "commands": 27
+          },
+          {
+            "stage": "open-main-before-original-next-end-turn",
+            "commands": 29
+          },
+          {
+            "stage": "complete-original-replay-after-end-turn",
+            "commands": 30
+          }
+        ],
+        "originalBlankSeed": 0,
+        "completeOriginalReplay": true,
+        "finalHash": "c7474f3b55b7140daaf594cc3f8b70257dfe09b255e75ec59ffc99bbe30f1bb1",
+        "ruleInputs": {
+          "schemaVersion": 1,
+          "region": "CN",
+          "language": "zh-CN",
+          "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+          "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+          "implementationSha256": "56b2a9bdb130e2d706938a4e971c8003a673e795487142ead529b609bfecb61f",
+          "identitySha256": "b263b0223aa6989aa1c751f109a0391029cfe796dbad8aa7b37fa395bc3ac4f0"
+        },
+        "validatedFormats": [
+          "CoreRules",
+          "ChinaStandard20260724"
+        ]
+      },
+      {
+        "card": "UNL-032/219",
+        "draw": false,
+        "room": "postgres-observed-play-window-2bad3524519b4a1296e2e13067a4b81f",
+        "commands": 30,
+        "events": 112,
+        "coldRestores": 14,
+        "originalNextCommandsMatched": 5,
+        "attacks": [
+          {
+            "scenario": "earlier-completed-count",
+            "rebuiltBothPlayerViews": true,
+            "structuralValidationPassed": false,
+            "productionRegistryRejected": true,
+            "acceptedHistoryUnchanged": true,
+            "allSqlRowsUnchangedByRejection": true
+          },
+          {
+            "scenario": "later-completed-count",
+            "rebuiltBothPlayerViews": true,
+            "structuralValidationPassed": false,
+            "productionRegistryRejected": true,
+            "acceptedHistoryUnchanged": true,
+            "allSqlRowsUnchangedByRejection": true
+          },
+          {
+            "scenario": "premature-item-completion",
+            "rebuiltBothPlayerViews": true,
+            "structuralValidationPassed": false,
+            "productionRegistryRejected": true,
+            "acceptedHistoryUnchanged": true,
+            "allSqlRowsUnchangedByRejection": true
+          },
+          {
+            "scenario": "maximum-two",
+            "rebuiltBothPlayerViews": true,
+            "structuralValidationPassed": false,
+            "productionRegistryRejected": true,
+            "acceptedHistoryUnchanged": true,
+            "allSqlRowsUnchangedByRejection": true
+          },
+          {
+            "scenario": "coordinated-second-view-order",
+            "rebuiltBothPlayerViews": true,
+            "structuralValidationPassed": true,
+            "productionRegistryRejected": true,
+            "acceptedHistoryUnchanged": true,
+            "allSqlRowsUnchangedByRejection": true
+          },
+          {
+            "scenario": "wrong-implementation",
+            "rebuiltBothPlayerViews": true,
+            "structuralValidationPassed": false,
+            "productionRegistryRejected": true,
+            "acceptedHistoryUnchanged": true,
+            "allSqlRowsUnchangedByRejection": true
+          },
+          {
+            "scenario": "coordinated-closed-final-window",
+            "rebuiltBothPlayerViews": true,
+            "structuralValidationPassed": true,
+            "productionRegistryRejected": true,
+            "acceptedHistoryUnchanged": true,
+            "allSqlRowsUnchangedByRejection": true
+          },
+          {
+            "scenario": "wrong-final-implementation",
+            "rebuiltBothPlayerViews": true,
+            "structuralValidationPassed": false,
+            "productionRegistryRejected": true,
+            "acceptedHistoryUnchanged": true,
+            "allSqlRowsUnchangedByRejection": true
+          }
+        ],
+        "checkpoints": [
+          {
+            "stage": "before-last-banish",
+            "commands": 24
+          },
+          {
+            "stage": "pending-second-view",
+            "commands": 25
+          },
+          {
+            "stage": "pending-observed-play",
+            "commands": 26
+          },
+          {
+            "stage": "after-positive-before-original-declines",
+            "commands": 27
+          },
+          {
+            "stage": "open-main-before-original-next-end-turn",
+            "commands": 29
+          },
+          {
+            "stage": "complete-original-replay-after-end-turn",
+            "commands": 30
+          }
+        ],
+        "originalBlankSeed": 0,
+        "completeOriginalReplay": true,
+        "finalHash": "8ca0b28310080ecff39c68610ac9759d288bafdc771969b16eb9eb3a0666b761",
+        "ruleInputs": {
+          "schemaVersion": 1,
+          "region": "CN",
+          "language": "zh-CN",
+          "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+          "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+          "implementationSha256": "56b2a9bdb130e2d706938a4e971c8003a673e795487142ead529b609bfecb61f",
+          "identitySha256": "b263b0223aa6989aa1c751f109a0391029cfe796dbad8aa7b37fa395bc3ac4f0"
+        },
+        "validatedFormats": [
+          "CoreRules",
+          "ChinaStandard20260724"
+        ]
+      }
+    ],
+    "scope": "CN text, core-rule SFD122 and both-format UNL032 ordinary blank seed0 branches; not native/physical Windows or whole-card certification."
+  },
+  "receiptSha256": "dbae397fafeb8fb20e6acd88b201b2b770e447b7c82ad1a398caf9d88e18e818",
+  "finishedAtUtc": "2026-10-18T11:59:27.960433+00:00",
+  "allOutsideDocsSourcesStable": true,
+  "all46PublishedApiFilesStable": true,
+  "readerRuntimeStable": true,
+  "readerSourcesStable": true,
+  "idleDedicatedClusterSmartStopped": true,
+  "originalDatabaseRetained": true
+}

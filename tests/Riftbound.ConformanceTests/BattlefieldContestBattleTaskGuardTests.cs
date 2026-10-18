@@ -928,7 +928,7 @@ public sealed class BattlefieldContestBattleTaskGuardTests
             attackerObjectIds = command.AttackerObjectIds,
             defenderObjectIds = command.DefenderObjectIds,
             optionalCosts = command.OptionalCosts,
-            battlefieldTargetObjectIds = command.BattlefieldTargetObjectIds,
+            battlefieldTargetObjectIds = command.BattlefieldTargetObjectIds ?? [],
             promptId = prompt.PromptId,
             snapshotTick = prompt.SnapshotTick
         }));
@@ -947,7 +947,7 @@ public sealed class BattlefieldContestBattleTaskGuardTests
             attackerObjectIds = command.AttackerObjectIds,
             defenderObjectIds = command.DefenderObjectIds,
             optionalCosts = command.OptionalCosts,
-            battlefieldTargetObjectIds = command.BattlefieldTargetObjectIds,
+            battlefieldTargetObjectIds = command.BattlefieldTargetObjectIds ?? [],
             promptId = prompt.PromptId,
             snapshotTick = prompt.SnapshotTick,
             clientNote
@@ -968,7 +968,7 @@ public sealed class BattlefieldContestBattleTaskGuardTests
         Assert.Equal(
             ["COMBAT_ASSIGNMENT"],
             rawCommand.GetProperty("optionalCosts").EnumerateArray().Select(value => value.GetString()!).ToArray());
-        Assert.Equal(JsonValueKind.Null, rawCommand.GetProperty("battlefieldTargetObjectIds").ValueKind);
+        Assert.Empty(rawCommand.GetProperty("battlefieldTargetObjectIds").EnumerateArray());
         Assert.Equal(prompt.PromptId, rawCommand.GetProperty("promptId").GetString());
         Assert.Equal(prompt.SnapshotTick, rawCommand.GetProperty("snapshotTick").GetInt64());
         Assert.False(rawCommand.TryGetProperty("clientNote", out _));

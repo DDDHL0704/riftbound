@@ -1,0 +1,34 @@
+{
+  "recordedAtUtc": "2026-10-18T14:00:52.757164+00:00",
+  "scope": "Official CN news-linked current regional series publication/legality source access only; no card applicability inferred from listing dates or preview flags.",
+  "attempts": [
+    {
+      "url": "https://mp.weixin.qq.com/s/K4_X7DCCMNNa2-b4JOjPJg",
+      "titleAsCurrentOfficialCnListing": "化神争锋售前现开赛详情",
+      "dateAsListingOnly": "2026-07-16",
+      "attemptedAtUtc": "2026-10-18T14:00:50.646493+00:00",
+      "priorWebToolAttempt": "NON_RETRYABLE_CANNOT_OPEN_NO_ARTICLE_CONTENT",
+      "publishedAtIndependentlyConfirmed": null,
+      "effectiveOrLegalityAt": null,
+      "finishedAtUtc": "2026-10-18T14:00:52.756757+00:00",
+      "contentStatus": "SOURCE_GAP_FETCH_ERROR",
+      "error": "URLError: <urlopen error EOF occurred in violation of protocol (_ssl.c:1129)>",
+      "rawSha256": null
+    },
+    {
+      "url": "https://mp.weixin.qq.com/s/FjGfnw8RU-nsnWwZFw5ibQ",
+      "titleAsCurrentOfficialCnListing": "辉耀群星售前现开赛报名开启",
+      "dateAsListingOnly": "2026-10-09",
+      "attemptedAtUtc": "2026-10-18T14:00:50.647164+00:00",
+      "priorWebToolAttempt": "NON_RETRYABLE_CANNOT_OPEN_NO_ARTICLE_CONTENT",
+      "publishedAtIndependentlyConfirmed": null,
+      "effectiveOrLegalityAt": null,
+      "finishedAtUtc": "2026-10-18T14:00:51.432449+00:00",
+      "contentStatus": "SOURCE_GAP_FETCH_ERROR",
+      "error": "URLError: <urlopen error EOF occurred in violation of protocol (_ssl.c:1129)>",
+      "rawSha256": null
+    }
+  ],
+  "noSourceDateOrRuntimeAdoption": true,
+  "existingGlobalSourceObligationsRetained": true
+}

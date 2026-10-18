@@ -1,0 +1,163 @@
+{
+  "recordedAtUtc": "2026-10-18T13:31:48.895799+00:00",
+  "status": "FINAL286_FOCUS_CASES65_METHODS_PASS_WITH_ALL185_ORIGINAL_COST_CASES_AND_NEW24_TARGET_GUARDS",
+  "cases": 286,
+  "methods": 65,
+  "testClassesActualCounts": {
+    "Riftbound.ConformanceTests.OptionalCostsIngressTests": 185,
+    "Riftbound.ConformanceTests.RavenbloomPutIntoHandOpeningTests": 4,
+    "Riftbound.ConformanceTests.DeckObservationPlayTests": 41,
+    "Riftbound.ConformanceTests.OptionalBattlefieldTargetsIngressTests": 24,
+    "Riftbound.ConformanceTests.ConformanceFixtureRunnerTests": 3,
+    "Riftbound.ConformanceTests.OfficialDrawDefenseTests": 20,
+    "Riftbound.ConformanceTests.RavenbloomPutIntoHandTests": 7,
+    "Riftbound.ConformanceTests.FullGameEndToEndTests": 2
+  },
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+    "implementationSha256": "8e6ee446728f9f7f9bcaddd00defe3a4391b7120d609ed888557ffea1fb47ba2",
+    "identitySha256": "15660e85b71f7ddb4672bee1d6339f18b654d9f54bcb6f56612ca7dc0720e493"
+  },
+  "actualIndependentModuleMvids": [
+    {
+      "Name": "Riftbound.CardCatalog",
+      "Module": "ed49d63e2d2945a0a0eccd020f0d33ad"
+    },
+    {
+      "Name": "Riftbound.Contracts",
+      "Module": "43c4380b6f854337b444818c0deee388"
+    },
+    {
+      "Name": "Riftbound.Engine",
+      "Module": "266a70e0e336402d932e7711a066f627"
+    }
+  ],
+  "actualOwnApiAndTestModules": {
+    "Riftbound.Api.dll": "06385cb1f518d58f11c939a9fd4634512574904eecacb8e5c9c3fed182d7a870",
+    "Riftbound.Api.pdb": "fd26eb7b08df7acb5a20f0d978d4f1a4078e4716a16b0d90c1ec1f091ac6078c",
+    "Riftbound.ConformanceTests.dll": "01058486afb95b3df9d8e8fd33416bf30aab9c29cebf387c94f3a39116582ba5",
+    "Riftbound.ConformanceTests.pdb": "56eba4fa25de994b478ac70c96121a7d048d1e9ed213be309eacf1fcbf613f7f"
+  },
+  "actualFourRuleModulesAndData": {
+    "Riftbound.Contracts.dll": "4b1ac7c2a68e57c9b7934ab8e1fb0a149787c0ffd58b62c0bfbe46bebc00de3a",
+    "Riftbound.Contracts.pdb": "bf9e76f0ca819e614a6faaa48ac55cd36f397636611ab256f5d2c9545a3a39a7",
+    "Riftbound.CardCatalog.dll": "e86cd5c52292f07a4afac569567480af0263717c80f8c8ac7f7bd4e3fd8fe234",
+    "Riftbound.CardCatalog.pdb": "c74c026eafab38196d0c3ab37b28f89f74c721447fb7ff1dea1406180aefda12",
+    "Riftbound.Engine.dll": "dbebf63117d3db630d66849bc6617b8632b6c50b2e4f055439b906aa68c733ed",
+    "Riftbound.Engine.pdb": "322c302f60f1ee4a9adefcc1c5323cd321596d58f0f1295eb834070e042fc88e",
+    "Riftbound.Persistence.dll": "279a34be4648f72b74d5800f6fd6ed2ac65eaa4d9ad6bfc51cfc8b85961ebe92",
+    "Riftbound.Persistence.pdb": "6789361aa592fd624d03d9c266bdaa6d26745427512895d78e6d52ac4dc6f88c",
+    "Npgsql.dll": "9d8db086e9eda5ff20c4a7f83fa3eae7689198f57277ff9ceea1ee3526f5fcf8",
+    "data/official/card-catalog.zh-CN.json": "68930e34e45385c4bc78c4805aaba46e4b5b57057a25ba957a85b339fe376fc8",
+    "data/official/rule-input-scope.json": "cc07cf3eef6a9af403454642a0435d061544400b5e01d08d3fdc65869bdad180",
+    "data/official/armaments.json": "ddcd838300e558c11df480ee79ccfab08c7af380df36544c666841720850bda8"
+  },
+  "actualTrxSha256": "56a7a4aef2993e4fbb8cfbd5faceb58ff84c245e8a9f27557cbd93f8ae04c538",
+  "testAssemblySha256": "01058486afb95b3df9d8e8fd33416bf30aab9c29cebf387c94f3a39116582ba5",
+  "summary": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 136.24,
+    "total": 286,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 286,
+        "passed": 286,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 101.82
+      }
+    ]
+  },
+  "ordinaryOpeningResults": [
+    {
+      "branch": "unit",
+      "format": 1,
+      "commands": 32,
+      "events": 125,
+      "originalBlankSeed": 0,
+      "coldCount": 5,
+      "originalNextCommandsMatched": 4,
+      "engineRejectionsWithoutMutation": 2,
+      "originalFullActionAndEventReplayMatched": true,
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "8e6ee446728f9f7f9bcaddd00defe3a4391b7120d609ed888557ffea1fb47ba2",
+        "identitySha256": "15660e85b71f7ddb4672bee1d6339f18b654d9f54bcb6f56612ca7dc0720e493"
+      }
+    },
+    {
+      "branch": "unit",
+      "format": 0,
+      "commands": 32,
+      "events": 125,
+      "originalBlankSeed": 0,
+      "coldCount": 5,
+      "originalNextCommandsMatched": 4,
+      "engineRejectionsWithoutMutation": 2,
+      "originalFullActionAndEventReplayMatched": true,
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "8e6ee446728f9f7f9bcaddd00defe3a4391b7120d609ed888557ffea1fb47ba2",
+        "identitySha256": "15660e85b71f7ddb4672bee1d6339f18b654d9f54bcb6f56612ca7dc0720e493"
+      }
+    },
+    {
+      "branch": "spell",
+      "format": 0,
+      "commands": 32,
+      "events": 125,
+      "originalBlankSeed": 0,
+      "coldCount": 5,
+      "originalNextCommandsMatched": 4,
+      "engineRejectionsWithoutMutation": 2,
+      "originalFullActionAndEventReplayMatched": true,
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "8e6ee446728f9f7f9bcaddd00defe3a4391b7120d609ed888557ffea1fb47ba2",
+        "identitySha256": "15660e85b71f7ddb4672bee1d6339f18b654d9f54bcb6f56612ca7dc0720e493"
+      }
+    },
+    {
+      "branch": "spell",
+      "format": 1,
+      "commands": 32,
+      "events": 125,
+      "originalBlankSeed": 0,
+      "coldCount": 5,
+      "originalNextCommandsMatched": 4,
+      "engineRejectionsWithoutMutation": 2,
+      "originalFullActionAndEventReplayMatched": true,
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "8e6ee446728f9f7f9bcaddd00defe3a4391b7120d609ed888557ffea1fb47ba2",
+        "identitySha256": "15660e85b71f7ddb4672bee1d6339f18b654d9f54bcb6f56612ca7dc0720e493"
+      }
+    }
+  ],
+  "originalOptionalCostsSourceByteUnchanged": true,
+  "independentMatchRecoverySourceByteUnchanged": true,
+  "notFixedFullOrNativeAcceptance": true
+}

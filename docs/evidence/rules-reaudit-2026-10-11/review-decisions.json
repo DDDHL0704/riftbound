@@ -22411,6 +22411,118 @@
         "docs/evidence/observed-source-native-ui-2026-10-18/storage-control.json",
         "docs/evidence/observed-source-native-ui-2026-10-18/acceptance-boundaries.json"
       ]
+    },
+    {
+      "id": "ravenbloom-put-hand-2026-10-18",
+      "scope": "CN zh-CN acquired2026-10-18; applicability frozen2026-10-16. Exact SFD215/API33314 defended revealed spell put into hand, not draw, with UNL074 false second-draw prevention and nonspell controls. Ordinary seed0 four branches with both explicit matching formats. Related raw nullable optional battlefield targets default/ingress repaired; old failed accepted history never migrated. Full source and indirect consumers remain OPEN.",
+      "status": "SCOPED_RAVEN_HAND_ENTRY_FOCUS286_SQL128_COMMANDS500_EVENTS36_COLD16_NEXT16_FORGERIES60_INGRESS_REJECTS_ORIGINAL115_SINGLE_CHECK12544_PASS1_RAW_NULL_PREMISE_FAIL_FINAL307_FOCUS_FIXED_FULL_VISIBLE_WINDOWS_OPEN",
+      "subjects": [
+        "SFD·215/221",
+        "UNL-074/219",
+        "OGN·183/298"
+      ],
+      "ruleRecords": [],
+      "pendingRuleRecords": [],
+      "sourceManifest": {
+        "path": "docs/evidence/ravenbloom-put-hand-2026-10-18/source-manifest.json",
+        "sha256": "bf4017cbbcff13000df4c7b091214ac3f6ef236104938f432688c8fba11b2f21",
+        "role": "source-manifest"
+      },
+      "sourceClauses": [
+        "DOC-01 current CN414.1",
+        "DOC-01 current CN414.2.b",
+        "DOC-01 current CN414.3"
+      ],
+      "validation": {
+        "focus": {
+          "path": "docs/evidence/ravenbloom-put-hand-2026-10-18/focus.json",
+          "sha256": "32c12fed29f4bb60e5a9ef0d87d503429058e2c3a8139fdfd469cc64e7b11e11",
+          "role": "focus"
+        },
+        "realSql": {
+          "path": "docs/evidence/ravenbloom-put-hand-2026-10-18/real-sql.json",
+          "sha256": "2b82db34b7be64e982c9bfdf9ff5964831f5870edd4bd762cd7a119eff359b60",
+          "role": "real-sql"
+        },
+        "actualCompiledInputs": {
+          "path": "docs/evidence/ravenbloom-put-hand-2026-10-18/actual-compiled-inputs.json",
+          "sha256": "be1e3d618b487684ef32943821442853a3dc552fb1aacdaf7683d3669abe08bf",
+          "role": "actual-compiled-inputs"
+        },
+        "originalGames": {
+          "path": "docs/evidence/ravenbloom-put-hand-2026-10-18/original-five-and110.json",
+          "sha256": "0e155070092fe4f4128fa70485b26dfda90cb4bc59712d10dc6bc9d8c6edb6d8",
+          "role": "original-five-and110"
+        },
+        "oneCheck": {
+          "path": "docs/evidence/ravenbloom-put-hand-2026-10-18/one-check.json",
+          "sha256": "a7bc42392aafd10659329a8de66a3d88a697f33c295c05c8cfc849aa5d68f18c",
+          "role": "one-check"
+        },
+        "originalSqlFailureRetained": {
+          "path": "docs/evidence/ravenbloom-put-hand-2026-10-18/original-sql-v1-failure.json",
+          "sha256": "5e32c95666900cc3c8aadfb14dd58e4f614742ca928a4538e0986989324eabd3",
+          "role": "original-sql-v1-failure"
+        },
+        "priorFixed8cCiCancelled": {
+          "path": "docs/evidence/ravenbloom-put-hand-2026-10-18/fixed8c-ci-cancelled.json",
+          "sha256": "e7cb32d97950802cb4021a3aa280b998eb37d6347f735d405b38dc4b62290863",
+          "role": "fixed8c-ci-cancelled"
+        },
+        "fixedCommitFull": "PENDING_NEW_FIXED_COMMIT",
+        "currentVisibleProduct": "OPEN_CURRENT_FIXED_VISIBLE_GAME_REQUIRED_LOCKED_WORK_CONTINUES_IN_BACKGROUND",
+        "physicalWindows": "OPEN"
+      },
+      "exclusions": [
+        "CURRENT_NEW_FIXED_FULL_ALL_ORIGINAL_RULES_SQL_NETWORK_AND_PLATFORM_GATES",
+        "CURRENT_FIXED_VISIBLE_CONTROLS_PAIRED_ORIGINAL_SQL_NETWORK_NORMAL_SCORE_AND_COMPLETE_REPLAY",
+        "PHYSICAL_WINDOWS",
+        "WRONG_FORMAT_CONFIGURATION_IDENTITY_SEPARATE",
+        "ALL70_DIRECT_FAMILY_CANDIDATES_AND_UNENUMERATED_INDIRECT_CONSUMERS",
+        "WHOLE_PRINTINGS_ALL_GLOBAL_SOURCES_GAPS_AND_APPLICABILITY"
+      ],
+      "auditDocument": "docs/RAVENBLOOM_PUT_HAND_AUDIT_2026-10-18.md",
+      "evidence": [
+        "docs/evidence/ravenbloom-put-hand-2026-10-18/native-unlocked-lobby-only-observation.json",
+        "docs/evidence/ravenbloom-put-hand-2026-10-18/fixed21-ci-observation.json",
+        "docs/evidence/ravenbloom-put-hand-2026-10-18/pre-check-focus.json",
+        "docs/evidence/ravenbloom-put-hand-2026-10-18/before-test-helper-fix-compiled-inputs.json",
+        "docs/evidence/ravenbloom-put-hand-2026-10-18/regional-series-article-access-attempts.json",
+        "docs/evidence/ravenbloom-put-hand-2026-10-18/current-news-observation.json",
+        "docs/evidence/ravenbloom-put-hand-2026-10-18/native-access-observation.json",
+        "docs/evidence/ravenbloom-put-hand-2026-10-18/source-manifest.json",
+        "docs/evidence/ravenbloom-put-hand-2026-10-18/source-inventory.json",
+        "docs/evidence/ravenbloom-put-hand-2026-10-18/family-candidate-obligation-links.json",
+        "docs/evidence/ravenbloom-put-hand-2026-10-18/english-gallery-density-observation.json",
+        "docs/evidence/ravenbloom-put-hand-2026-10-18/ravenbloom-printed-face-acquisitions.json",
+        "docs/evidence/ravenbloom-put-hand-2026-10-18/ravenbloom-printed-wording-review.json",
+        "docs/evidence/ravenbloom-put-hand-2026-10-18/focus.json",
+        "docs/evidence/ravenbloom-put-hand-2026-10-18/target-ingress-red.json",
+        "docs/evidence/ravenbloom-put-hand-2026-10-18/put-hand-red.json",
+        "docs/evidence/ravenbloom-put-hand-2026-10-18/ordinary-fixed21-red.json",
+        "docs/evidence/ravenbloom-put-hand-2026-10-18/ordinary-semantic-green.json",
+        "docs/evidence/ravenbloom-put-hand-2026-10-18/earlier-semantic-opening-green.json",
+        "docs/evidence/ravenbloom-put-hand-2026-10-18/original-sql-v1-failure.json",
+        "docs/evidence/ravenbloom-put-hand-2026-10-18/sql-v1-failure-classification.json",
+        "docs/evidence/ravenbloom-put-hand-2026-10-18/real-sql.json",
+        "docs/evidence/ravenbloom-put-hand-2026-10-18/real-sql-actual-receipt.json",
+        "docs/evidence/ravenbloom-put-hand-2026-10-18/new-fixture-canonical-targets.json",
+        "docs/evidence/ravenbloom-put-hand-2026-10-18/actual-compiled-inputs.json",
+        "docs/evidence/ravenbloom-put-hand-2026-10-18/original-five-and110.json",
+        "docs/evidence/ravenbloom-put-hand-2026-10-18/one-check.json",
+        "docs/evidence/ravenbloom-put-hand-2026-10-18/executed-module-retention.json",
+        "docs/evidence/ravenbloom-put-hand-2026-10-18/test-retention.json",
+        "docs/evidence/ravenbloom-put-hand-2026-10-18/default-sql-retention.json",
+        "docs/evidence/ravenbloom-put-hand-2026-10-18/tooling-tests.json",
+        "docs/evidence/ravenbloom-put-hand-2026-10-18/fixed8c-ci-cancelled.json",
+        "docs/evidence/ravenbloom-put-hand-2026-10-18/fixed21-release-sql.json",
+        "docs/evidence/ravenbloom-put-hand-2026-10-18/fixed21-runtime-inputs.json",
+        "docs/evidence/ravenbloom-put-hand-2026-10-18/fixed21-live-old8c-rejection.json",
+        "docs/evidence/ravenbloom-put-hand-2026-10-18/fixed21-packaged-debug-entry-unavailable.json",
+        "docs/evidence/ravenbloom-put-hand-2026-10-18/latest-native-pair-retirement.json",
+        "docs/evidence/ravenbloom-put-hand-2026-10-18/storage-control.json",
+        "docs/evidence/ravenbloom-put-hand-2026-10-18/acceptance-boundaries.json"
+      ]
     }
   ]
 }

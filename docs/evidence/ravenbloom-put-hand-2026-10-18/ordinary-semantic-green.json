@@ -1,0 +1,25 @@
+{
+  "atUtc": "2026-10-18T12:51:37.516996+00:00",
+  "status": "TWO_ORDINARY_BLANK_BOTH_FORMAT_SPELL_AND_UNIT_BRANCHES_PASS_WITH_EXACT_ORIGINAL_LOGICAL_INPUTS",
+  "commands": 62,
+  "events": 222,
+  "allOriginalActionsAndEventsReplayMatched": true,
+  "actualFrozenDebugRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+    "implementationSha256": "a2c2145ae65a036fe714a858dd09d3b88c84153ebe1dcab94f4bb5b8639f1519",
+    "identitySha256": "81ab4fb9ff8c24d696a0a5969601e90223f7630ed4642c909331d110fbb35606"
+  },
+  "all31LogicalCommandsPerBranchExactToOldFixed21ReleaseExceptFreshCurrentPromptBinding": true,
+  "allOrderedDecksAndOriginalElevenPreconstructedObjectsExact": true,
+  "bothAfterDrawCountsStayAtTheOneGenuineDraw": true,
+  "bothFalseGemTriggersAbsent": true,
+  "notMigrationOrReplayOfOldRoomWithNewEngine": true,
+  "freshActualCurrentPromptIdsRequired": true,
+  "sourceTreeCopied": false,
+  "databaseOrNativeNotExecuted": true,
+  "currentFixedFullAndVisiblePairedWindowsRemainOpen": true
+}

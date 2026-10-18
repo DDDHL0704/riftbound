@@ -9470,12 +9470,14 @@ public sealed partial class FullGameEndToEndTests
         Assert.Equal("MAIN_DECK", Assert.IsType<string>(revealedEvent.Payload["zone"]));
         Assert.Equal([revealedSpellObjectId], Assert.IsType<string[]>(revealedEvent.Payload["cardIds"]));
 
-        var drawnEvent = Assert.Single(result.Events, gameEvent =>
-            string.Equals(gameEvent.Kind, "CARD_DRAWN", StringComparison.Ordinal)
+        var addedEvent = Assert.Single(result.Events, gameEvent =>
+            string.Equals(gameEvent.Kind, "CARD_ADDED_TO_HAND", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["sourceObjectId"] as string, battlefieldObjectId, StringComparison.Ordinal));
-        Assert.Equal("P2", drawnEvent.Payload["playerId"]);
-        Assert.Equal("HAND", drawnEvent.Payload["destinationZone"]);
-        Assert.Equal([revealedSpellObjectId], Assert.IsType<string[]>(drawnEvent.Payload["cardIds"]));
+        Assert.Equal("P2", addedEvent.Payload["playerId"]);
+        Assert.Equal("HAND", addedEvent.Payload["destinationZone"]);
+        Assert.Equal([revealedSpellObjectId], Assert.IsType<string[]>(addedEvent.Payload["cardIds"]));
+        Assert.DoesNotContain(result.Events, gameEvent => gameEvent.Kind == "CARD_DRAWN"
+            && gameEvent.Payload.GetValueOrDefault("sourceObjectId") as string == battlefieldObjectId);
 
         Assert.Contains(revealedSpellObjectId, result.State.PlayerZones["P2"].Hand);
         Assert.DoesNotContain(revealedSpellObjectId, result.State.PlayerZones["P2"].MainDeck);
