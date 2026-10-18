@@ -1,0 +1,23 @@
+{
+  "atUtc": "2026-10-18T07:29:36.533243+00:00",
+  "classification": "New ordinary-opening assertion expected pending observed units already in Banished; actual pending contexts are detached from the main deck and remain staged until play offers finish. No production rule change.",
+  "totalCases": 16,
+  "passed": 13,
+  "failedNewRows": 3,
+  "allExecutedModuleHashes": {
+    "Riftbound.CardCatalog.dll": "a0b9e92950bab76bd100635557b118f06581d51e4fc862537135c45fde93c6fb",
+    "Riftbound.Contracts.pdb": "d2558e934a81a8fb9f69597ffdee3e4708013bb080a57895ff684c27cb756e18",
+    "Riftbound.Engine.pdb": "62f5806e5a2d1041139071c450c3942378bb0bf592bd0a08ff96dda798f56c26",
+    "Riftbound.CardCatalog.pdb": "a016fac3b2d40a00361eb9d8b524363dee1b3857e48c0184fc58dce003cffbc7",
+    "Riftbound.Contracts.dll": "0b22fba8ef775d48d9831d8ebf49d78a37a27f7a03a7654ab28a3e476e4547f0",
+    "Riftbound.Engine.dll": "091691b70e2fbb1a5c0f953550a545187b77ccd861337964f6ba1dbd20e5c1e8",
+    "Riftbound.Persistence.pdb": "640b3c3c6b41f164d459b44729b8f684881c5d4bcc18ace1f12f960e22fc7e2f",
+    "Riftbound.Api.dll": "acec76365713f78a808b52908371baf833d8c53ef52ca8fee80562e80be7f936",
+    "Riftbound.ConformanceTests.pdb": "7205a9577d05efe9484da67162b5a22901035b0a1292c0df9d9998ee33d526da",
+    "Riftbound.Api.pdb": "a60af9a537e318a7b20378dc03efca0a7dca2d98bdb5aacf0fec32c604be40a1",
+    "Riftbound.Persistence.dll": "a112cd35e4ca9ede6c5711cd2d6557bd1ce47f7ad36a26f3dc4addc4635aab09",
+    "Riftbound.ConformanceTests.dll": "ef9041bc2208e23fbd56d44c395a2e5fbf988fd214d18d9d5373ec119bf802de"
+  },
+  "twoExecutedTestModulesPhysicallyRetained": "var/qa/deck-choice-empty-repeat-20261018/ordinary-opening-v1-failed-test-modules",
+  "otherTenExecutedModulesRetainedByExactHashesInOriginalGamesModulesAndFrozenCore": true
+}

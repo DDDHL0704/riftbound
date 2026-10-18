@@ -1,0 +1,780 @@
+{
+  "scope": "New ordinary blank seed0 QA recipes; only submitted legal deck order is planned. Core122 is banned from ChinaStandard; both032 passes both formats. Original eleven preconstructed decks and seed424242 unchanged.",
+  "openingSeed": 0,
+  "branches": [
+    {
+      "cardNo": "SFD·122/221",
+      "validatedFormats": [
+        "CoreRules"
+      ],
+      "expectedFirstView": [
+        "P1-MAIN-OGN-194-298-15",
+        "P1-MAIN-OGN-194-298-01"
+      ],
+      "expectedSecondView": [
+        "P1-MAIN-UNL-034-219-03",
+        "P1-MAIN-UNL-033-219-05"
+      ],
+      "spellSource": "P1-MAIN-SFD-122-221-11",
+      "expectedPrefixCommands": 25,
+      "acceptedCommands": [
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "legendCardNo": "OGN·259/298",
+            "championCardNo": "OGN·205/298",
+            "mainDeck": [
+              "OGN·205/298",
+              "OGN·194/298",
+              "OGN·194/298",
+              "UNL-034/219",
+              "SFD·122/221",
+              "UNL-033/219",
+              "SFD·122/221",
+              "UNL-032/219",
+              "UNL-032/219",
+              "UNL-032/219",
+              "UNL-033/219",
+              "SFD·122/221",
+              "UNL-033/219",
+              "UNL-034/219",
+              "UNL-034/219",
+              "OGN·194/298",
+              "UNL-035/219",
+              "UNL-035/219",
+              "UNL-035/219",
+              "UNL-036/219",
+              "UNL-036/219",
+              "UNL-036/219",
+              "UNL-037/219",
+              "UNL-037/219",
+              "UNL-037/219",
+              "UNL-040/219",
+              "UNL-040/219",
+              "UNL-040/219",
+              "UNL-041/219",
+              "UNL-041/219",
+              "UNL-041/219",
+              "UNL-043/219",
+              "UNL-043/219",
+              "UNL-043/219",
+              "UNL-047/219",
+              "UNL-047/219",
+              "UNL-047/219",
+              "UNL-048/219",
+              "UNL-048/219",
+              "UNL-048/219"
+            ],
+            "runeDeck": [
+              "UNL-R02",
+              "UNL-R02",
+              "UNL-R02",
+              "UNL-R02",
+              "UNL-R02",
+              "UNL-R02",
+              "UNL-R05",
+              "UNL-R05",
+              "UNL-R05",
+              "UNL-R05",
+              "UNL-R05",
+              "UNL-R05"
+            ],
+            "battlefields": [
+              "OGN·278/298",
+              "OGN·280/298",
+              "OGN·281/298"
+            ],
+            "cmdType": "SUBMIT_DECK",
+            "promptId": "ordinary-empty-observed-repeat:0:P1:SUBMIT_DECK",
+            "snapshotTick": 0
+          }
+        },
+        {
+          "playerId": "P2",
+          "rawCommand": {
+            "legendCardNo": "OGN·259/298",
+            "championCardNo": "OGN·205/298",
+            "mainDeck": [
+              "OGN·205/298",
+              "OGN·194/298",
+              "OGN·194/298",
+              "UNL-034/219",
+              "SFD·122/221",
+              "UNL-033/219",
+              "SFD·122/221",
+              "UNL-032/219",
+              "UNL-032/219",
+              "UNL-032/219",
+              "UNL-033/219",
+              "SFD·122/221",
+              "UNL-033/219",
+              "UNL-034/219",
+              "UNL-034/219",
+              "OGN·194/298",
+              "UNL-035/219",
+              "UNL-035/219",
+              "UNL-035/219",
+              "UNL-036/219",
+              "UNL-036/219",
+              "UNL-036/219",
+              "UNL-037/219",
+              "UNL-037/219",
+              "UNL-037/219",
+              "UNL-040/219",
+              "UNL-040/219",
+              "UNL-040/219",
+              "UNL-041/219",
+              "UNL-041/219",
+              "UNL-041/219",
+              "UNL-043/219",
+              "UNL-043/219",
+              "UNL-043/219",
+              "UNL-047/219",
+              "UNL-047/219",
+              "UNL-047/219",
+              "UNL-048/219",
+              "UNL-048/219",
+              "UNL-048/219"
+            ],
+            "runeDeck": [
+              "UNL-R02",
+              "UNL-R02",
+              "UNL-R02",
+              "UNL-R02",
+              "UNL-R02",
+              "UNL-R02",
+              "UNL-R05",
+              "UNL-R05",
+              "UNL-R05",
+              "UNL-R05",
+              "UNL-R05",
+              "UNL-R05"
+            ],
+            "battlefields": [
+              "OGN·278/298",
+              "OGN·280/298",
+              "OGN·281/298"
+            ],
+            "cmdType": "SUBMIT_DECK",
+            "promptId": "ordinary-empty-observed-repeat:1:P2:SUBMIT_DECK",
+            "snapshotTick": 1
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "cmdType": "READY",
+            "promptId": "ordinary-empty-observed-repeat:2:P1:READY",
+            "snapshotTick": 2
+          }
+        },
+        {
+          "playerId": "P2",
+          "rawCommand": {
+            "cmdType": "READY",
+            "promptId": "ordinary-empty-observed-repeat:2:P2:READY",
+            "snapshotTick": 2
+          }
+        },
+        {
+          "playerId": "P2",
+          "rawCommand": {
+            "handObjectIds": [],
+            "cmdType": "MULLIGAN",
+            "promptId": "ordinary-empty-observed-repeat:2:P2:MULLIGAN,SURRENDER",
+            "snapshotTick": 2
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "handObjectIds": [],
+            "cmdType": "MULLIGAN",
+            "promptId": "ordinary-empty-observed-repeat:3:P1:MULLIGAN,SURRENDER",
+            "snapshotTick": 3
+          }
+        },
+        {
+          "playerId": "P2",
+          "rawCommand": {
+            "cmdType": "END_TURN",
+            "promptId": "ordinary-empty-observed-repeat:5:P2:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 5
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "cmdType": "END_TURN",
+            "promptId": "ordinary-empty-observed-repeat:6:P1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 6
+          }
+        },
+        {
+          "playerId": "P2",
+          "rawCommand": {
+            "cmdType": "END_TURN",
+            "promptId": "ordinary-empty-observed-repeat:7:P2:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 7
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "cmdType": "END_TURN",
+            "promptId": "ordinary-empty-observed-repeat:8:P1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 8
+          }
+        },
+        {
+          "playerId": "P2",
+          "rawCommand": {
+            "cmdType": "END_TURN",
+            "promptId": "ordinary-empty-observed-repeat:9:P2:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 9
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "sourceObjectId": "P1-RUNE-UNL-R05-11",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-empty-observed-repeat:10:P1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 10
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "sourceObjectId": "P1-RUNE-UNL-R05-10",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-empty-observed-repeat:11:P1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 11
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "sourceObjectId": "P1-RUNE-UNL-R02-02",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-empty-observed-repeat:12:P1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 12
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "sourceObjectId": "P1-RUNE-UNL-R02-04",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-empty-observed-repeat:13:P1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 13
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "sourceObjectId": "P1-RUNE-UNL-R05-09",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-empty-observed-repeat:14:P1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 14
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "sourceObjectId": "P1-RUNE-UNL-R05-07",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-empty-observed-repeat:15:P1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 15
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "sourceObjectId": "P1-RUNE-UNL-R05-08",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-empty-observed-repeat:16:P1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 16
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "sourceObjectId": "P1-RUNE-UNL-R05-11",
+            "sourceObjectIds": null,
+            "cmdType": "RECYCLE_RUNE",
+            "promptId": "ordinary-empty-observed-repeat:17:P1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 17
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "sourceObjectId": "P1-RUNE-UNL-R05-10",
+            "sourceObjectIds": null,
+            "cmdType": "RECYCLE_RUNE",
+            "promptId": "ordinary-empty-observed-repeat:18:P1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 18
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "sourceObjectId": "P1-MAIN-SFD-122-221-11",
+            "cardNo": "SFD·122/221",
+            "targetObjectIds": [],
+            "mode": "",
+            "optionalCosts": [
+              "ECHO"
+            ],
+            "destination": "",
+            "repeatChoices": null,
+            "movementDestinations": null,
+            "cmdType": "PLAY_CARD",
+            "promptId": "ordinary-empty-observed-repeat:19:P1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 19
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "cmdType": "PASS_PRIORITY",
+            "promptId": "ordinary-empty-observed-repeat:20:P1:RECYCLE_RUNE,PASS_PRIORITY,SURRENDER",
+            "snapshotTick": 20
+          }
+        },
+        {
+          "playerId": "P2",
+          "rawCommand": {
+            "cmdType": "PASS_PRIORITY",
+            "promptId": "ordinary-empty-observed-repeat:21:P2:TAP_RUNE,RECYCLE_RUNE,PASS_PRIORITY,SURRENDER",
+            "snapshotTick": 21
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "paymentId": "REPLACEMENT:21:0",
+            "paymentWindow": "RULE_REPLACEMENT",
+            "paymentChoiceIds": [
+              "BANISH"
+            ],
+            "cmdType": "PAY_COST",
+            "promptId": "ordinary-empty-observed-repeat:22:P1:PAY_COST,SURRENDER",
+            "snapshotTick": 22
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "paymentId": "REPLACEMENT:21:1",
+            "paymentWindow": "RULE_REPLACEMENT",
+            "paymentChoiceIds": [
+              "BANISH"
+            ],
+            "cmdType": "PAY_COST",
+            "promptId": "ordinary-empty-observed-repeat:23:P1:PAY_COST,SURRENDER",
+            "snapshotTick": 23
+          }
+        }
+      ]
+    },
+    {
+      "cardNo": "UNL-032/219",
+      "validatedFormats": [
+        "CoreRules",
+        "ChinaStandard20260724"
+      ],
+      "expectedFirstView": [
+        "P1-MAIN-OGN-194-298-15",
+        "P1-MAIN-OGN-194-298-01",
+        "P1-MAIN-OGN-194-298-03"
+      ],
+      "expectedSecondView": [
+        "P1-MAIN-UNL-034-219-05",
+        "P1-MAIN-UNL-037-219-23",
+        "P1-MAIN-UNL-047-219-34"
+      ],
+      "spellSource": "P1-MAIN-UNL-032-219-11",
+      "expectedPrefixCommands": 25,
+      "acceptedCommands": [
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "legendCardNo": "OGN·259/298",
+            "championCardNo": "OGN·205/298",
+            "mainDeck": [
+              "OGN·205/298",
+              "OGN·194/298",
+              "UNL-031/219",
+              "OGN·194/298",
+              "UNL-031/219",
+              "UNL-034/219",
+              "UNL-031/219",
+              "UNL-033/219",
+              "UNL-032/219",
+              "UNL-032/219",
+              "UNL-033/219",
+              "UNL-032/219",
+              "UNL-033/219",
+              "UNL-034/219",
+              "UNL-034/219",
+              "OGN·194/298",
+              "UNL-035/219",
+              "UNL-035/219",
+              "UNL-035/219",
+              "UNL-036/219",
+              "UNL-036/219",
+              "UNL-036/219",
+              "UNL-037/219",
+              "UNL-037/219",
+              "UNL-037/219",
+              "UNL-040/219",
+              "UNL-040/219",
+              "UNL-040/219",
+              "UNL-041/219",
+              "UNL-041/219",
+              "UNL-041/219",
+              "UNL-043/219",
+              "UNL-043/219",
+              "UNL-043/219",
+              "UNL-047/219",
+              "UNL-047/219",
+              "UNL-047/219",
+              "UNL-048/219",
+              "UNL-048/219",
+              "UNL-048/219"
+            ],
+            "runeDeck": [
+              "UNL-R02",
+              "UNL-R02",
+              "UNL-R02",
+              "UNL-R02",
+              "UNL-R02",
+              "UNL-R02",
+              "UNL-R05",
+              "UNL-R05",
+              "UNL-R05",
+              "UNL-R05",
+              "UNL-R05",
+              "UNL-R05"
+            ],
+            "battlefields": [
+              "OGN·278/298",
+              "OGN·280/298",
+              "OGN·281/298"
+            ],
+            "cmdType": "SUBMIT_DECK",
+            "promptId": "ordinary-empty-observed-repeat:0:P1:SUBMIT_DECK",
+            "snapshotTick": 0
+          }
+        },
+        {
+          "playerId": "P2",
+          "rawCommand": {
+            "legendCardNo": "OGN·259/298",
+            "championCardNo": "OGN·205/298",
+            "mainDeck": [
+              "OGN·205/298",
+              "OGN·194/298",
+              "UNL-031/219",
+              "OGN·194/298",
+              "UNL-031/219",
+              "UNL-034/219",
+              "UNL-031/219",
+              "UNL-033/219",
+              "UNL-032/219",
+              "UNL-032/219",
+              "UNL-033/219",
+              "UNL-032/219",
+              "UNL-033/219",
+              "UNL-034/219",
+              "UNL-034/219",
+              "OGN·194/298",
+              "UNL-035/219",
+              "UNL-035/219",
+              "UNL-035/219",
+              "UNL-036/219",
+              "UNL-036/219",
+              "UNL-036/219",
+              "UNL-037/219",
+              "UNL-037/219",
+              "UNL-037/219",
+              "UNL-040/219",
+              "UNL-040/219",
+              "UNL-040/219",
+              "UNL-041/219",
+              "UNL-041/219",
+              "UNL-041/219",
+              "UNL-043/219",
+              "UNL-043/219",
+              "UNL-043/219",
+              "UNL-047/219",
+              "UNL-047/219",
+              "UNL-047/219",
+              "UNL-048/219",
+              "UNL-048/219",
+              "UNL-048/219"
+            ],
+            "runeDeck": [
+              "UNL-R02",
+              "UNL-R02",
+              "UNL-R02",
+              "UNL-R02",
+              "UNL-R02",
+              "UNL-R02",
+              "UNL-R05",
+              "UNL-R05",
+              "UNL-R05",
+              "UNL-R05",
+              "UNL-R05",
+              "UNL-R05"
+            ],
+            "battlefields": [
+              "OGN·278/298",
+              "OGN·280/298",
+              "OGN·281/298"
+            ],
+            "cmdType": "SUBMIT_DECK",
+            "promptId": "ordinary-empty-observed-repeat:1:P2:SUBMIT_DECK",
+            "snapshotTick": 1
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "cmdType": "READY",
+            "promptId": "ordinary-empty-observed-repeat:2:P1:READY",
+            "snapshotTick": 2
+          }
+        },
+        {
+          "playerId": "P2",
+          "rawCommand": {
+            "cmdType": "READY",
+            "promptId": "ordinary-empty-observed-repeat:2:P2:READY",
+            "snapshotTick": 2
+          }
+        },
+        {
+          "playerId": "P2",
+          "rawCommand": {
+            "handObjectIds": [],
+            "cmdType": "MULLIGAN",
+            "promptId": "ordinary-empty-observed-repeat:2:P2:MULLIGAN,SURRENDER",
+            "snapshotTick": 2
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "handObjectIds": [],
+            "cmdType": "MULLIGAN",
+            "promptId": "ordinary-empty-observed-repeat:3:P1:MULLIGAN,SURRENDER",
+            "snapshotTick": 3
+          }
+        },
+        {
+          "playerId": "P2",
+          "rawCommand": {
+            "cmdType": "END_TURN",
+            "promptId": "ordinary-empty-observed-repeat:5:P2:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 5
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "cmdType": "END_TURN",
+            "promptId": "ordinary-empty-observed-repeat:6:P1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 6
+          }
+        },
+        {
+          "playerId": "P2",
+          "rawCommand": {
+            "cmdType": "END_TURN",
+            "promptId": "ordinary-empty-observed-repeat:7:P2:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 7
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "cmdType": "END_TURN",
+            "promptId": "ordinary-empty-observed-repeat:8:P1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 8
+          }
+        },
+        {
+          "playerId": "P2",
+          "rawCommand": {
+            "cmdType": "END_TURN",
+            "promptId": "ordinary-empty-observed-repeat:9:P2:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 9
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "sourceObjectId": "P1-RUNE-UNL-R05-11",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-empty-observed-repeat:10:P1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 10
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "sourceObjectId": "P1-RUNE-UNL-R05-10",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-empty-observed-repeat:11:P1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 11
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "sourceObjectId": "P1-RUNE-UNL-R02-02",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-empty-observed-repeat:12:P1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 12
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "sourceObjectId": "P1-RUNE-UNL-R02-04",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-empty-observed-repeat:13:P1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 13
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "sourceObjectId": "P1-RUNE-UNL-R05-09",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-empty-observed-repeat:14:P1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 14
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "sourceObjectId": "P1-RUNE-UNL-R05-07",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-empty-observed-repeat:15:P1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 15
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "sourceObjectId": "P1-RUNE-UNL-R05-08",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-empty-observed-repeat:16:P1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 16
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "sourceObjectId": "P1-RUNE-UNL-R02-02",
+            "sourceObjectIds": null,
+            "cmdType": "RECYCLE_RUNE",
+            "promptId": "ordinary-empty-observed-repeat:17:P1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 17
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "sourceObjectId": "P1-MAIN-UNL-032-219-11",
+            "cardNo": "UNL-032/219",
+            "targetObjectIds": [],
+            "mode": "",
+            "optionalCosts": [
+              "ECHO"
+            ],
+            "destination": "",
+            "repeatChoices": null,
+            "movementDestinations": null,
+            "cmdType": "PLAY_CARD",
+            "promptId": "ordinary-empty-observed-repeat:18:P1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 18
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "cmdType": "PASS_PRIORITY",
+            "promptId": "ordinary-empty-observed-repeat:19:P1:RECYCLE_RUNE,PASS_PRIORITY,SURRENDER",
+            "snapshotTick": 19
+          }
+        },
+        {
+          "playerId": "P2",
+          "rawCommand": {
+            "cmdType": "PASS_PRIORITY",
+            "promptId": "ordinary-empty-observed-repeat:20:P2:TAP_RUNE,RECYCLE_RUNE,PASS_PRIORITY,SURRENDER",
+            "snapshotTick": 20
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "paymentId": "REPLACEMENT:20:0",
+            "paymentWindow": "RULE_REPLACEMENT",
+            "paymentChoiceIds": [
+              "BANISH"
+            ],
+            "cmdType": "PAY_COST",
+            "promptId": "ordinary-empty-observed-repeat:21:P1:PAY_COST,SURRENDER",
+            "snapshotTick": 21
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "paymentId": "REPLACEMENT:20:1",
+            "paymentWindow": "RULE_REPLACEMENT",
+            "paymentChoiceIds": [
+              "BANISH"
+            ],
+            "cmdType": "PAY_COST",
+            "promptId": "ordinary-empty-observed-repeat:22:P1:PAY_COST,SURRENDER",
+            "snapshotTick": 22
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "paymentId": "REPLACEMENT:20:2",
+            "paymentWindow": "RULE_REPLACEMENT",
+            "paymentChoiceIds": [
+              "BANISH"
+            ],
+            "cmdType": "PAY_COST",
+            "promptId": "ordinary-empty-observed-repeat:23:P1:PAY_COST,SURRENDER",
+            "snapshotTick": 23
+          }
+        }
+      ]
+    }
+  ]
+}

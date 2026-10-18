@@ -1,0 +1,18 @@
+{
+  "region": "CN",
+  "language": "zh-CN",
+  "applicableAsOf": "2026-10-16",
+  "observedAt": "2026-10-18",
+  "semanticScope": "Empty observed first view completes one paid deck execution and continues the second before observed-unit play offers.",
+  "ordinaryBranches": 3,
+  "sixNocturneBothEmptyRowsAreExplicitMidgameOnly": true,
+  "Sfd122ChinaStandardExcluded": true,
+  "nativeHeadlessCurrent": "Three actual ActionBar choice and confirm button commands accepted by the frozen current engine and original replay.",
+  "priorFixed46VisibleBaseline": "Actual46 native commands237events, cold API pending13/58 and original next14/59, normal score8:0, both terminal screens and return to lobby. Includes one-controller three-skill sort; does not cover dual-controller handoff or the new empty-view fix.",
+  "currentFixedFull": "PENDING_NEW_FIXED_COMMIT",
+  "currentVisiblePairedSecondViewAndObservedPlay": "OPEN",
+  "positiveObservedUnitPlayOtherConsumersAndWholePrintings": "OPEN",
+  "physicalWindows": "OPEN",
+  "all1740PrintingsCn1504English1408Gap8Documents36Blocks14293FourTemporalDeltasAndKaynIdentityGateRetained": true,
+  "goal": "ACTIVE_NOT_READY"
+}

@@ -1,0 +1,10 @@
+{
+  "scope": "Explicit per-item applicability of freshly reacquired DOC-08; no existing source or historical evidence rewritten.",
+  "docPublicationDate": "2026-07-17",
+  "Sfd122BanEffectiveDate": "2026-03-31",
+  "latestIncrementEffectiveDate": "2026-07-24",
+  "docHasMultipleEffectiveSections": true,
+  "priorReceiptEffectiveDateRefersToLatestListIncrementOnly": true,
+  "ChinaStandardSfd122OpeningExcluded": true,
+  "coreRulesMechanicsOpeningRetained": true
+}

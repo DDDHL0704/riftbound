@@ -1,0 +1,15 @@
+{
+  "atUtc": "2026-10-18T07:42:43.006709+00:00",
+  "command": [
+    "python3",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "scripts/tests",
+    "-v"
+  ],
+  "returnCode": 0,
+  "logSha256": "2f568e0d07339dd076cfeee00076b24aca11b38b092bfe79d7e2607a5dc2cafe",
+  "scope": "Python governance, workflow and verification tools; does not replace current gameplay or fixed CI."
+}

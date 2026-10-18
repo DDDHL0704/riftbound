@@ -36,7 +36,11 @@ public sealed partial class CoreRuleEngine
         state=state with {PlayerZones=zones,CardObjects=cards,ObjectLocations=ReconcileObjectLocations(state.ObjectLocations,zones)};
         if (viewed.Length == 0)
         {
-            var finished=ResolveStackItemEffect(state, item with { DeckChoiceCompleted = true });
+            var nextItem = item with { CompletedDeckExecutions = item.CompletedDeckExecutions + 1,
+                DeckChoiceCompleted = item.CompletedDeckExecutions + 1 >= item.EffectRepeatCount };
+            state = state with { StackItems = state.StackItems.Select(slot =>
+                slot.StackItemId == item.StackItemId ? nextItem : slot).ToArray() };
+            var finished=ResolveStackItemEffect(state, nextItem);
             return finished with {Events=observationEvents.Concat(finished.Events).ToArray()};
         }
         var legal = viewed.Where(id => (string.IsNullOrEmpty(behavior.MainDeckTargetRequiredTag)

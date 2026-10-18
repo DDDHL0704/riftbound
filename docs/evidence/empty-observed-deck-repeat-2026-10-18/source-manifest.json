@@ -1,0 +1,436 @@
+{
+  "recordedAtUtc": "2026-10-18T06:28:02.758131+00:00",
+  "scope": "CN zh-CN current observation of paid echo after all viewed cards independently banish themselves. Explicit red uses actual fixed46 Release only; ordinary blank, implementation, full and product gates not implied.",
+  "applicableAsOf": "2026-10-16",
+  "primaryCore": {
+    "url": "https://cdn.playloltcg.com/lol/2026/10/2026-10-10/a21ead876c6b44d6abe386b6ae54ea28.pdf",
+    "attemptedAtUtc": "2026-10-18T06:27:46.321792+00:00",
+    "receivedAtUtc": "2026-10-18T06:28:02.757316+00:00",
+    "httpStatus": 200,
+    "httpDate": "Sat, 10 Oct 2026 00:27:22 GMT",
+    "lastModified": "Fri, 09 Oct 2026 16:55:24 GMT",
+    "bytes": 40278538,
+    "sha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11",
+    "publishedAt": "2026-10-10",
+    "effectiveAt": "2026-10-16",
+    "sameCanonicalFile": "var/qa/colorless-token-haste-20261016/DOC-01-current.pdf",
+    "noNewPdfCopySaved": true,
+    "sameBytesAsPrior": true,
+    "webToolAccess": "URL not accessible via web tool; actual direct HTTP stream independently hashed"
+  },
+  "clauses": [
+    "055",
+    "414",
+    "417",
+    "432.1.c",
+    "820.1.d",
+    "820.1.d.1",
+    "820.2.a",
+    "820.3.a"
+  ],
+  "acquisitions": [
+    {
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "预判攻势",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "attemptedAtUtc": "2026-10-18T06:27:46.314248+00:00",
+      "receivedAtUtc": "2026-10-18T06:27:46.548009+00:00",
+      "httpStatus": 200,
+      "httpDate": "Sun, 18 Oct 2026 06:27:46 GMT",
+      "rawSha256": "0a9dcb70f5a2a96777e8c88c816c9ca7de377b40bd99f0b31a45ef0d05c066f9",
+      "stored": "docs/evidence/empty-observed-deck-repeat-2026-10-18/SFD-122-221-current.json.gz",
+      "storedSha256": "ac9edec740f7d653db46d71d5e86fbb46f1d81a2dccb1c6e73bd14db3902e133",
+      "region": "CN",
+      "language": "zh-CN",
+      "publishedAt": null,
+      "effectiveAt": null,
+      "cardNo": "SFD·122/221",
+      "exactCurrentApiId": 33212,
+      "runtimeSnapshotApiId": 33212,
+      "exactCurrentRecord": {
+        "id": 33212,
+        "cardCategoryList": [
+          "spell"
+        ],
+        "cardCategoryNameList": [
+          "法术"
+        ],
+        "cardNo": "SFD·122/221",
+        "cardName": "预判攻势",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "purple"
+        ],
+        "hero": "",
+        "region": "",
+        "tag": "",
+        "artist": "Kudos Productions",
+        "cardEffect": "{{迅捷}}（可在你的回合或法术对决中打出。）\n{{回响紫色}}（你可以选择支付此额外费用，以重复此法术效果。）\n查看你主牌堆顶部的两张牌。抽取其中一张，然后回收另一张卡牌。",
+        "flavorText": "",
+        "energy": 0,
+        "returnEnergy": 1,
+        "power": null,
+        "productCodeList": [
+          "SFD(标准补充包)",
+          "SFD(进阶补充包)"
+        ],
+        "productNameList": [
+          "铸魂淬炼 标准补充包",
+          "铸魂淬炼 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_dust",
+        "rarityName": "普通",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260331/e4e21ed87a8e4ae4b0c81c003aa0b786.png",
+        "backImage": "",
+        "listSort": 861,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": true,
+        "errata": "",
+        "otherDesc": 1
+      },
+      "currentEffectiveText": "{{迅捷}}（可在你的回合或法术对决中打出。）\n{{回响紫色}}（你可以选择支付此额外费用，以重复此法术效果。）\n查看你主牌堆顶部的两张牌。抽取其中一张，然后回收另一张卡牌。",
+      "runtimeEffectiveText": "{{迅捷}}（可在你的回合或法术对决中打出。）\n{{回响紫色}}（你可以选择支付此额外费用，以重复此法术效果。）\n查看你主牌堆顶部的两张牌。抽取其中一张，然后回收另一张卡牌。",
+      "effectiveTextByteEqual": true,
+      "preciseIdentitiesNotMergedFromWording": true,
+      "originalStoredPath": "var/qa/deck-choice-empty-repeat-20261018/SFD-122-221-current.json.gz"
+    },
+    {
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "龙虎双雄",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "attemptedAtUtc": "2026-10-18T06:27:46.314931+00:00",
+      "receivedAtUtc": "2026-10-18T06:27:46.432335+00:00",
+      "httpStatus": 200,
+      "httpDate": "Sun, 18 Oct 2026 06:27:46 GMT",
+      "rawSha256": "4f7301fcdb2e986e23e89926fdf5ca4ce6bee877ce6ae9d2b3eefcf8b625f050",
+      "stored": "docs/evidence/empty-observed-deck-repeat-2026-10-18/UNL-032-219-current.json.gz",
+      "storedSha256": "1cf28a1a31262f779c203a6ab95fc2de751c181d2253464ea7ff8204f4da1aaa",
+      "region": "CN",
+      "language": "zh-CN",
+      "publishedAt": null,
+      "effectiveAt": null,
+      "cardNo": "UNL-032/219",
+      "exactCurrentApiId": 34560,
+      "runtimeSnapshotApiId": 34560,
+      "exactCurrentRecord": {
+        "id": 34560,
+        "cardCategoryList": [
+          "spell"
+        ],
+        "cardCategoryNameList": [
+          "法术"
+        ],
+        "cardNo": "UNL-032/219",
+        "cardName": "龙虎双雄",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "green"
+        ],
+        "hero": "",
+        "region": "",
+        "tag": "",
+        "artist": "Kudos Productions",
+        "cardEffect": "{{回响}}{{2}}（你可以选择支付此额外费用，以重复此法术效果。）\n查看你主牌堆顶部的三张牌。你可以选择从中展示一名单位，并抽取该卡牌。回收其余的卡牌。",
+        "flavorText": "两颗脑袋总比一颗赚得多。",
+        "energy": 2,
+        "returnEnergy": null,
+        "power": null,
+        "productCodeList": [
+          "UNL(进阶补充包)",
+          "UNL(标准补充包)"
+        ],
+        "productNameList": [
+          "破限系列 进阶补充包",
+          "破限系列 基础补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_dust",
+        "rarityName": "普通",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260327/e4e2d8278bd14f439c659fa531cb4413.webp",
+        "backImage": "",
+        "listSort": 1464,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "currentEffectiveText": "{{回响}}{{2}}（你可以选择支付此额外费用，以重复此法术效果。）\n查看你主牌堆顶部的三张牌。你可以选择从中展示一名单位，并抽取该卡牌。回收其余的卡牌。",
+      "runtimeEffectiveText": "{{回响}}{{2}}（你可以选择支付此额外费用，以重复此法术效果。）\n查看你主牌堆顶部的三张牌。你可以选择从中展示一名单位，并抽取该卡牌。回收其余的卡牌。",
+      "effectiveTextByteEqual": true,
+      "preciseIdentitiesNotMergedFromWording": true,
+      "originalStoredPath": "var/qa/deck-choice-empty-repeat-20261018/UNL-032-219-current.json.gz"
+    },
+    {
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "魔腾",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "attemptedAtUtc": "2026-10-18T06:27:46.319647+00:00",
+      "receivedAtUtc": "2026-10-18T06:27:46.439996+00:00",
+      "httpStatus": 200,
+      "httpDate": "Sun, 18 Oct 2026 06:27:46 GMT",
+      "rawSha256": "773e6e9873ae90e8a6ee65d5ca75634d039ddf1c23a9411c1f890847e394f513",
+      "stored": "docs/evidence/empty-observed-deck-repeat-2026-10-18/OGN-194-298-current.json.gz",
+      "storedSha256": "b40ffe64a33d162201bfaee83f6dc74af6bf1b97ab8351023810f507bda579d1",
+      "region": "CN",
+      "language": "zh-CN",
+      "publishedAt": null,
+      "effectiveAt": null,
+      "cardNo": "OGN·194/298",
+      "exactCurrentApiId": 31426,
+      "runtimeSnapshotApiId": 31426,
+      "exactCurrentRecord": {
+        "id": 31426,
+        "cardCategoryList": [
+          "hero_unit"
+        ],
+        "cardCategoryNameList": [
+          "英雄单位"
+        ],
+        "cardNo": "OGN·194/298",
+        "cardName": "魔腾",
+        "subTitle": "惊魂夜",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "purple"
+        ],
+        "hero": "魔腾",
+        "region": "",
+        "tag": "",
+        "artist": "Six More Vodka",
+        "cardEffect": "{{游走}}（我可以向其他战场进行移动。）\n当你查看主牌堆顶部的卡牌（不是抽牌）并看到我时，可以选择支付{{A}}将我打出。",
+        "flavorText": "",
+        "energy": 4,
+        "returnEnergy": 1,
+        "power": 4,
+        "productCodeList": [
+          "OGN(标准补充包)",
+          "OGN(进阶补充包)"
+        ],
+        "productNameList": [
+          "起源 标准补充包",
+          "起源 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_shard",
+        "rarityName": "稀有",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/1d9ef3d55c7c4b8a81874a68ee87ccd7.png",
+        "backImage": "",
+        "listSort": 279,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "{{游走}}（我可以向其他战场进行移动。）\n你查看或展示主牌堆顶部的卡牌并看到我时，可以选择将我放逐。如选择放逐，则你可以选择支付{{A}}将我打出。",
+        "otherDesc": 0
+      },
+      "currentEffectiveText": "{{游走}}（我可以向其他战场进行移动。）\n你查看或展示主牌堆顶部的卡牌并看到我时，可以选择将我放逐。如选择放逐，则你可以选择支付{{A}}将我打出。",
+      "runtimeEffectiveText": "{{游走}}（我可以向其他战场进行移动。）\n你查看或展示主牌堆顶部的卡牌并看到我时，可以选择将我放逐。如选择放逐，则你可以选择支付{{A}}将我打出。",
+      "effectiveTextByteEqual": true,
+      "preciseIdentitiesNotMergedFromWording": true,
+      "originalStoredPath": "var/qa/deck-choice-empty-repeat-20261018/OGN-194-298-current.json.gz"
+    },
+    {
+      "url": "https://lol-api.playloltcg.com/xcx/gameRule/getGameRuleList",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 1000
+      },
+      "attemptedAtUtc": "2026-10-18T06:27:46.321638+00:00",
+      "receivedAtUtc": "2026-10-18T06:27:46.424279+00:00",
+      "httpStatus": 200,
+      "httpDate": "Sun, 18 Oct 2026 06:27:46 GMT",
+      "rawSha256": "f9cb211c3a1dba45a5f9f1b42d4ce762a76f45275b8d221779f72d8194d2e07d",
+      "stored": "docs/evidence/empty-observed-deck-repeat-2026-10-18/rules-current.json.gz",
+      "storedSha256": "da060da64c13234185c9824d66ccd3bd2ab0a1debee6edc2987f3eb17b8fa8c4",
+      "region": "CN",
+      "language": "zh-CN",
+      "publishedAt": null,
+      "effectiveAt": null,
+      "allCurrentMetadataRows": [
+        {
+          "ruleCategory": "核心规则",
+          "ruleName": "《符文战场：英雄联盟对战卡牌》核心规则",
+          "coverUrl": "https://cdn.playloltcg.com/lol/2026/10/2026-10-10/f9f01d430af740c3b32dd1aff39c0887.jpg",
+          "updateDate": "2026-10-10",
+          "ruleDocUrl": "https://cdn.playloltcg.com/lol/2026/10/2026-10-10/a21ead876c6b44d6abe386b6ae54ea28.pdf"
+        },
+        {
+          "ruleCategory": "赛事规则",
+          "ruleName": "《符文战场：英雄联盟对战卡牌》赛事规则",
+          "coverUrl": "https://cdn.playloltcg.com/lol/2026/10/2026-10-10/30aeff8b9f584eb5995103c194a964f4.jpg",
+          "updateDate": "2026-10-10",
+          "ruleDocUrl": "https://cdn.playloltcg.com/lol/2026/10/2026-10-10/0d5c26b5535345d48e1afafb3e2a0018.pdf"
+        },
+        {
+          "ruleCategory": "勘误汇总",
+          "ruleName": "《符文战场》勘误汇总",
+          "coverUrl": "https://cdn.playloltcg.com/lol/2026/10/2026-10-10/aca9901897e647bb9356c06b742f6aba.jpg",
+          "updateDate": "2026-10-10",
+          "ruleDocUrl": "https://cdn.playloltcg.com/lol/2026/10/2026-10-10/ade3c71d000c4dd0abf978d5d48b24ef.pdf"
+        },
+        {
+          "ruleCategory": "化神争锋系列 FAQ",
+          "ruleName": "化神争锋系列 官方FAQ",
+          "coverUrl": "https://cdn.playloltcg.com/lol/2026/08/2026-08-13/b12f3a27b677490da7065297f5683fc3.jpg",
+          "updateDate": "2026-08-14",
+          "ruleDocUrl": "https://cdn.playloltcg.com/lol/2026/08/2026-08-13/612b1cd53f9f41baaf3c8734c1881a3b.pdf"
+        },
+        {
+          "ruleCategory": "化神争锋系列 勘误",
+          "ruleName": "化神争锋系列 勘误汇总",
+          "coverUrl": "https://cdn.playloltcg.com/lol/2026/07/2026-07-24/e6805683852241faad370f96f9ecf333.jpg",
+          "updateDate": "2026-07-24",
+          "ruleDocUrl": "https://cdn.playloltcg.com/lol/2026/07/2026-07-24/9fe1f19110dd4678a6ad7bd96e791bba.pdf"
+        },
+        {
+          "ruleCategory": "禁卡表",
+          "ruleName": "禁卡表",
+          "coverUrl": "https://cdn.playloltcg.com/lol/2026/07/2026-07-17/55e0f4d873d4408095d88ab3c1fb2b9f.jpg",
+          "updateDate": "2026-07-17",
+          "ruleDocUrl": "https://cdn.playloltcg.com/lol/2026/07/2026-07-17/d91ee4548d224dfb9c7a3f5390cf0573.pdf"
+        },
+        {
+          "ruleCategory": "破限系列 FAQ",
+          "ruleName": "破限系列 裁判FAQ",
+          "coverUrl": "https://cdn.playloltcg.com/lol/2026/04/2026-04-16/688953d3fea2420da802163a9381b33c.jpg",
+          "updateDate": "2026-05-11",
+          "ruleDocUrl": "https://cdn.playloltcg.com/lol/2026/05/2026-05-13/《符文战场》破限系列_裁判FAQ_260511.pdf"
+        },
+        {
+          "ruleCategory": "破限系列 勘误",
+          "ruleName": "破限系列 勘误汇总",
+          "coverUrl": "https://cdn.playloltcg.com/lol/2026/04/2026-04-03/69a177b6352c4a069dd764403977c43d.jpg",
+          "updateDate": "2026-04-03",
+          "ruleDocUrl": "https://cdn.playloltcg.com/lol/2026/04/2026-04-15/破限系列_勘误汇总_260403.pdf"
+        },
+        {
+          "ruleCategory": "破限系列 FAQ",
+          "ruleName": "破限系列 官方FAQ",
+          "coverUrl": "https://cdn.playloltcg.com/lol/2026/04/2026-04-30/0ea83c83cee24b9baf4e0b59b2b31541.jpg",
+          "updateDate": "2026-04-30",
+          "ruleDocUrl": "https://cdn.playloltcg.com/lol/2026/04/2026-04-30/破限系列 官方FAQ.pdf"
+        },
+        {
+          "ruleCategory": "铸魂淬炼系列 勘误",
+          "ruleName": "铸魂淬炼系列 勘误汇总",
+          "coverUrl": "https://cdn.playloltcg.com/lol/2026/01/2026-01-14/2670e85eea67443cbaf663479bfb359e.jpeg",
+          "updateDate": "2026-01-14",
+          "ruleDocUrl": "https://cdn.playloltcg.com/lol/2026/04/2026-04-15/铸魂淬炼系列_勘误汇总_260114.pdf"
+        },
+        {
+          "ruleCategory": "铸魂淬炼系列 FAQ",
+          "ruleName": "铸魂淬炼系列 官方FAQ",
+          "coverUrl": "https://cdn.playloltcg.com/lol/2026/01/2026-01-14/c8fe15554b65440e82a8bbb3517b2cc4.jpeg",
+          "updateDate": "2026-01-14",
+          "ruleDocUrl": "https://cdn.playloltcg.com/lol/2026/04/2026-04-15/铸魂淬炼系列_官方FAQ_260114.pdf"
+        },
+        {
+          "ruleCategory": "铸魂淬炼系列 FAQ",
+          "ruleName": "铸魂淬炼系列 裁判FAQ",
+          "coverUrl": "https://cdn.playloltcg.com/lol/2025/12/2025-12-19/56c7dfe1e21846f3956989b3bcfcb8f8.jpeg",
+          "updateDate": "2026-01-14",
+          "ruleDocUrl": "https://cdn.playloltcg.com/lol/2026/04/2026-04-15/铸魂淬炼系列_裁判FAQ.pdf"
+        },
+        {
+          "ruleCategory": "起源系列 FAQ",
+          "ruleName": "起源系列 裁判FAQ",
+          "coverUrl": "https://cdn.playloltcg.com/lol/2025/12/2025-12-03/2b68dffacd9c44cfaebcbce6f2a6d299.jpeg",
+          "updateDate": "2025-10-24",
+          "ruleDocUrl": "https://cdn.playloltcg.com/lol/2025/12/2025-12-03/裁判FAQ_251023.pdf"
+        },
+        {
+          "ruleCategory": "起源系列 勘误",
+          "ruleName": "《符文战场：英雄联盟对战卡牌》起源系列 勘误汇总",
+          "coverUrl": "https://cdn.playloltcg.com/lol/2025/12/2025-12-03/d48a3431a1024577aa288883edd75fef.jpeg",
+          "updateDate": "2025-10-28",
+          "ruleDocUrl": "https://cdn.playloltcg.com/lol/2025/12/2025-12-03/《符文战场》勘误汇总_1028.pdf"
+        }
+      ],
+      "all14MetadataRowsEqual": true,
+      "primaryStillListed": true,
+      "originalStoredPath": "var/qa/deck-choice-empty-repeat-20261018/rules-current.json.gz"
+    }
+  ],
+  "allThreeCurrentCardTextsByteEqualToRuntime": true,
+  "retainedCombinedPrintings": 1740,
+  "retainedCnPrintings": 1504,
+  "retainedEnglishConfirmed": 1408,
+  "retainedEnglishGap": 8,
+  "retainedDocuments": 36,
+  "allFourTemporalDeltasAndKaynIdentityGateRetained": true,
+  "newTemporalSourceDelta": false,
+  "wholePrintingCertified": false,
+  "originalObservationManifest": {
+    "path": "var/qa/deck-choice-empty-repeat-20261018/source-manifest.json",
+    "sha256": "29b8eb835277462be68e19528db63e6d600ccca4a6fed0ffe9e085c2b332284d",
+    "originalBytesUnchanged": true
+  },
+  "publicStorageRelocation": [
+    {
+      "originalPath": "var/qa/deck-choice-empty-repeat-20261018/SFD-122-221-current.json.gz",
+      "retainedPublicPath": "docs/evidence/empty-observed-deck-repeat-2026-10-18/SFD-122-221-current.json.gz",
+      "sha256": "ac9edec740f7d653db46d71d5e86fbb46f1d81a2dccb1c6e73bd14db3902e133"
+    },
+    {
+      "originalPath": "var/qa/deck-choice-empty-repeat-20261018/UNL-032-219-current.json.gz",
+      "retainedPublicPath": "docs/evidence/empty-observed-deck-repeat-2026-10-18/UNL-032-219-current.json.gz",
+      "sha256": "1cf28a1a31262f779c203a6ab95fc2de751c181d2253464ea7ff8204f4da1aaa"
+    },
+    {
+      "originalPath": "var/qa/deck-choice-empty-repeat-20261018/OGN-194-298-current.json.gz",
+      "retainedPublicPath": "docs/evidence/empty-observed-deck-repeat-2026-10-18/OGN-194-298-current.json.gz",
+      "sha256": "b40ffe64a33d162201bfaee83f6dc74af6bf1b97ab8351023810f507bda579d1"
+    },
+    {
+      "originalPath": "var/qa/deck-choice-empty-repeat-20261018/rules-current.json.gz",
+      "retainedPublicPath": "docs/evidence/empty-observed-deck-repeat-2026-10-18/rules-current.json.gz",
+      "sha256": "da060da64c13234185c9824d66ccd3bd2ab0a1debee6edc2987f3eb17b8fa8c4"
+    }
+  ],
+  "scopedFormatApplicability": {
+    "SFD122": "CoreRules mechanics only; CN standard ban effective2026-03-31, confirmed from current DOC08 sections.",
+    "UNL032": "Ordinary QA deck valid under both CoreRules and ChinaStandard20260724.",
+    "banListPublication": "2026-07-17",
+    "latestBanListIncrementEffective": "2026-07-24",
+    "oldSourceRecordsAndFourTemporalDeltasNotRewritten": true,
+    "freshBanBytesReceipt": "banlist-current-reconfirmation.json",
+    "perItemDateAddendum": "banlist-effective-date-addendum.json"
+  }
+}

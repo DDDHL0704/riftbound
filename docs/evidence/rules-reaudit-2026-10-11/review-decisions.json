@@ -22094,6 +22094,106 @@
         "docs/evidence/multi-controller-trigger-order-2026-10-18/previous-fixed-f199-full.json",
         "docs/evidence/multi-controller-trigger-order-2026-10-18/previous-fixed91-full.json"
       ]
+    },
+    {
+      "id": "empty-observed-deck-paid-repeat-2026-10-18",
+      "scope": "CN zh-CN acquired2026-10-18, frozen applicability2026-10-16. An all-banished first look completes one paid execution and continues the repeat before deferred unit-play offers. SFD122 ordinary opening is CoreRules only and explicitly China-standard banned since2026-03-31; UNL032 ordinary openings pass both formats. Both-empty six-Nocturne rows are explicit fixtures only. Positive observed play and whole-card semantics remain OPEN.",
+      "status": "SCOPED_EMPTY_OBSERVED_REPEAT_16_CASES6_METHODS_ORDINARY86_COMMANDS296_EVENTS_SQL30_COLD9_NEXT18_REJECTIONS_HEADLESS3_ORIGINAL115_SINGLE_CHECK12490_CURRENT_FIXED_FULL_VISIBLE_WINDOWS_OPEN",
+      "subjects": [
+        "SFD·122/221",
+        "UNL-032/219",
+        "OGN·194/298",
+        "OGN·183/298"
+      ],
+      "ruleRecords": [],
+      "pendingRuleRecords": [],
+      "sourceManifest": {
+        "path": "docs/evidence/empty-observed-deck-repeat-2026-10-18/source-manifest.json",
+        "sha256": "d7c4eea2f94665e356317c69dd3e8819e55e7987f0b87e370737a74a962e7ccd",
+        "role": "source-manifest"
+      },
+      "sourceClauses": [
+        {
+          "document": "DOC-01",
+          "clause": "432.1.c",
+          "sha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11"
+        },
+        {
+          "document": "DOC-01",
+          "clause": "820.1.d.1",
+          "sha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11"
+        }
+      ],
+      "validation": {
+        "focus": {
+          "path": "docs/evidence/empty-observed-deck-repeat-2026-10-18/focus.json",
+          "sha256": "5d392033497d4a0ba5457175f1b96935f4655140ea4910d06d760bce6870762f",
+          "role": "focus"
+        },
+        "ordinaryOpenings": {
+          "path": "docs/evidence/empty-observed-deck-repeat-2026-10-18/ordinary-openings.json",
+          "sha256": "c4e20012916b995916baf88e8f15eb35025f3901d40ea42614bbab0084e19bec",
+          "role": "ordinary-openings"
+        },
+        "realSql": {
+          "path": "docs/evidence/empty-observed-deck-repeat-2026-10-18/real-sql.json",
+          "sha256": "5d42d038c65ed30421021d9111e8358802d786415ed4552a7153e8191425c9f3",
+          "role": "real-sql"
+        },
+        "actualCompiledInputs": {
+          "path": "docs/evidence/empty-observed-deck-repeat-2026-10-18/actual-compiled-inputs.json",
+          "sha256": "99082c6b3bf50b388d6762f6cc35ffd817c6b1a8e801e0c4d82279cee63932a3",
+          "role": "actual-compiled-inputs"
+        },
+        "originalGames": {
+          "path": "docs/evidence/empty-observed-deck-repeat-2026-10-18/original-five-and110.json",
+          "sha256": "4ca0330ef7bda00d24239a09db7bf17e41765997a4df2a1eabfca131a780351e",
+          "role": "original-five-and110"
+        },
+        "oneCheck": {
+          "path": "docs/evidence/empty-observed-deck-repeat-2026-10-18/one-check.json",
+          "sha256": "ea70465be28f241204f6c5e301cb83432bb1bf1abc7c8c5935af154f73642e20",
+          "role": "one-check"
+        },
+        "headlessNativeControls": {
+          "path": "docs/evidence/empty-observed-deck-repeat-2026-10-18/native-controls.json",
+          "sha256": "9628ad85be5fe62317ca90d63f373f70c3ce5cb438aa9e99243e90a8bd93f44f",
+          "role": "native-controls"
+        },
+        "fixedCommitFull": "PENDING_NEW_FIXED_COMMIT",
+        "visibleProduct": "OPEN_CURRENT_NEW_FIX_NOT_YET_PACKAGED",
+        "physicalWindows": "OPEN"
+      },
+      "exclusions": [
+        "CURRENT_FIXED_FULL",
+        "CURRENT_VISIBLE_PAIRED_SECOND_VIEW_AND_OBSERVED_PLAY_WITH_NETWORK_NORMAL_SCORE_ORIGINAL_REPLAY",
+        "PHYSICAL_WINDOWS",
+        "POSITIVE_OBSERVED_UNIT_PLAY_AND_OTHER_CONSUMERS",
+        "WHOLE_PRINTING_ALL_OTHER_RULES_QA_AND_SOURCE_GAPS"
+      ],
+      "auditDocument": "docs/EMPTY_OBSERVED_DECK_REPEAT_AUDIT_2026-10-18.md",
+      "evidence": [
+        "docs/evidence/empty-observed-deck-repeat-2026-10-18/source-manifest.json",
+        "docs/evidence/empty-observed-deck-repeat-2026-10-18/banlist-current-reconfirmation.json",
+        "docs/evidence/empty-observed-deck-repeat-2026-10-18/banlist-effective-date-addendum.json",
+        "docs/evidence/empty-observed-deck-repeat-2026-10-18/actual-fixed46-empty-repeat-observation.json",
+        "docs/evidence/empty-observed-deck-repeat-2026-10-18/actual-fixed46-red-retention.json",
+        "docs/evidence/empty-observed-deck-repeat-2026-10-18/semantic-red-retention.json",
+        "docs/evidence/empty-observed-deck-repeat-2026-10-18/initial-nonzero-tick-harness-failures.json",
+        "docs/evidence/empty-observed-deck-repeat-2026-10-18/ordinary-opening-v1-failure-retention.json",
+        "docs/evidence/empty-observed-deck-repeat-2026-10-18/actual-compiled-inputs.json",
+        "docs/evidence/empty-observed-deck-repeat-2026-10-18/focus.json",
+        "docs/evidence/empty-observed-deck-repeat-2026-10-18/ordinary-openings.json",
+        "docs/evidence/empty-observed-deck-repeat-2026-10-18/real-sql.json",
+        "docs/evidence/empty-observed-deck-repeat-2026-10-18/native-controls.json",
+        "docs/evidence/empty-observed-deck-repeat-2026-10-18/test-retention.json",
+        "docs/evidence/empty-observed-deck-repeat-2026-10-18/original-five-and110.json",
+        "docs/evidence/empty-observed-deck-repeat-2026-10-18/one-check.json",
+        "docs/evidence/empty-observed-deck-repeat-2026-10-18/tooling-tests.json",
+        "docs/evidence/empty-observed-deck-repeat-2026-10-18/storage-control.json",
+        "docs/evidence/empty-observed-deck-repeat-2026-10-18/fixed46-visible-native-baseline.json",
+        "docs/evidence/empty-observed-deck-repeat-2026-10-18/acceptance-boundaries.json"
+      ]
     }
   ]
 }

@@ -1,0 +1,8 @@
+{
+  "error": "Single() assumed the paid spell was the only remaining stack item; observed Nocturne continuations correctly add stack items.",
+  "classification": "QA helper assertion error, no engine change or rule failure claimed.",
+  "executedModules": {
+    "planner.dll": "752b003b151b1360cadb52c4d0aee739543942270a3e2b28052569b43b21b31d",
+    "planner.pdb": "02a085cfc08f248dd91caf954d38e79e370e43685db7cf0321697c9172430dde"
+  }
+}

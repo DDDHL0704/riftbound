@@ -1,0 +1,50 @@
+{
+  "atUtc": "2026-10-18T07:32:08.998206+00:00",
+  "status": "ALL13_EXPLICIT_CONTROLS_PLUS3_ORDINARY_BLANK_SECOND_VIEW_DEFERRED_PLAY_FOUR_COLD_THREE_ORIGINAL_NEXT_AND_FULL_REPLAY_PASS",
+  "baseCommit": "46a990fefc65805116d45480d2880cb6861fdc58",
+  "actualImplementation": "c4ecf67f5bee1b6f0a00d38b9a4f34f4090eb1a55aa057be390d59d2e0c840fe",
+  "cases": 16,
+  "methods": 6,
+  "authoredInputs": 12664,
+  "allAuthoredInputsStableThroughImmediateVerification": true,
+  "frames": [
+    {
+      "path": "var/qa/deck-choice-empty-repeat-20261018/ordinary-opening-v2-frames/ordinary-empty-view-2-true.json.gz",
+      "sha256": "b6bbd6aa20eaaa79b6eb5370ff4f9c00976661be6589ee2cb85919181c1e99c9",
+      "commands": 28,
+      "events": 98,
+      "look": 2,
+      "draw": true
+    },
+    {
+      "path": "var/qa/deck-choice-empty-repeat-20261018/ordinary-opening-v2-frames/ordinary-empty-view-3-false.json.gz",
+      "sha256": "62904f59163119be6b6afd81aa57829bdf5d43119f2eb8aff35f2f845bd70289",
+      "commands": 29,
+      "events": 98,
+      "look": 3,
+      "draw": false
+    },
+    {
+      "path": "var/qa/deck-choice-empty-repeat-20261018/ordinary-opening-v2-frames/ordinary-empty-view-3-true.json.gz",
+      "sha256": "8ca9d57eb5ee722b7a6f74eaef20629ead8e090580e8e164a5e437d2eb9bf16b",
+      "commands": 29,
+      "events": 100,
+      "look": 3,
+      "draw": true
+    }
+  ],
+  "ordinaryCommands": 86,
+  "ordinaryEvents": 296,
+  "ordinaryColdRestores": 12,
+  "ordinaryOriginalNextCommandMatches": 9,
+  "threeFirstViewCardNocturnesMaximumLegalCopiesRetained": true,
+  "Sfd122CoreRulesOnlyAndChinaStandardBanExplicitlyVerified": true,
+  "Unl032BothFormatsVerified": true,
+  "originalTrxSha256": "a824db5111bfedd6109049b7b74f9ed60e4b2fa59a330a414f4b7d7945181ae6",
+  "actualNewTestModules": {
+    "Riftbound.ConformanceTests.dll": "847e1ba551e8d1f2ea3897a82dce60723defcbd045d5bafa5affedf0d1f730b6",
+    "Riftbound.ConformanceTests.pdb": "27afa66a5eeba5cd636dbb42310f9afff0f4edbb7e6c07a7cdda631d528b1a5c"
+  },
+  "priorThreeAssertionFailuresAndActualFailedTestModulesRetained": true,
+  "noCurrentFixedCiOrVisibleNativeClaim": true
+}

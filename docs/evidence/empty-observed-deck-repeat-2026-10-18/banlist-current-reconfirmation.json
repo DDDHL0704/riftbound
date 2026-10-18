@@ -1,0 +1,21 @@
+{
+  "url": "https://cdn.playloltcg.com/lol/2026/07/2026-07-17/d91ee4548d224dfb9c7a3f5390cf0573.pdf",
+  "startedAtUtc": "2026-10-18T07:22:37.861939+00:00",
+  "receivedAtUtc": "2026-10-18T07:22:38.558892+00:00",
+  "httpStatus": 200,
+  "httpDate": "Fri, 17 Jul 2026 01:03:26 GMT",
+  "lastModified": "Fri, 17 Jul 2026 00:46:22 GMT",
+  "sha256": "e0326381f003a3e5d0a12db9521dc15eb1cc4ed0456188cee9fc46e0eb6d5ef7",
+  "bytes": 1807879,
+  "region": "CN",
+  "language": "zh-CN",
+  "publicationDate": "2026-07-17",
+  "effectiveDate": "2026-07-24",
+  "exactExcerpt": "           《符文战场》禁卡表\n                最后更新时间：2026 年 7 月 17 日\n\n\n\n2026 年 3 月 31 日起生效\n标准赛制\n\n标准赛制禁卡表将新增以下卡牌：\n\n卡牌\n\n •   预判攻势\n\n\n\n\n •   德莱文-血斧飞旋\n\n\n\n\n •   战或逃\n\f •   废料堆\n\n\n\n\n战场\n\n •   劫掠船巷\n\n\n\n\n •   幻梦之树\n\n\n\n\n •   力量方尖碑\n\f2026 年 7 月 24 日起生效\n标准赛制\n\n标准赛制禁卡表将新增以下卡牌：\n\n卡牌\n\n •   隐秘追踪者\n\n\n\n\n战场\n\n •   荣耀竞技场\n\n\n\n\n •   攀圣长阶\n\n\n\n\n2v2 构筑赛\n\f从本次禁卡表更新起，我们将加入 2v2 构筑赛的禁卡表。2v2 构筑赛的禁卡包\n含标准赛制下的所有禁卡，并额外禁用以下卡牌。今后的禁卡更新都会明确标\n注相关调整是仅适用于其中一种赛制，还是同时适用于两种赛制。\n\n传奇\n\n •   易 - 无极剑圣\n\f",
+  "sameAsRuntimeAuthority": true,
+  "listedByCurrent14RowRulesApi": true,
+  "Sfd122ChinaStandardBanned": true,
+  "coreRulesStillPermitsMechanicsOnly": true,
+  "noDuplicatePdfSaved": true,
+  "webToolUnavailableDirectHttpBytesIndependentlyHashed": true
+}

@@ -1,0 +1,85 @@
+{
+  "recordedAtUtc": "2026-10-18T07:52:11.808609+00:00",
+  "status": "SINGLE_CHECK_ALL12490_CASES7346_METHODS_PASS_EXACT_OLD_CASE_AND_METHOD_PARITY",
+  "checkRunsThisBatch": 1,
+  "cases": 12490,
+  "methods": 7346,
+  "passed": 12490,
+  "failed": 0,
+  "skipped": 0,
+  "seconds": 760.42,
+  "allOriginal12474CaseMultisetAnd7340MethodsRetained": true,
+  "newCases": 16,
+  "newMethods": 6,
+  "newMethodIdentities": [
+    "Riftbound.ConformanceTests.EmptyObservedDeckRepeatOpeningTests.OrdinaryBlankOpeningExecutesPaidSecondViewBeforeAllObservedUnitPlayOffers",
+    "Riftbound.ConformanceTests.EmptyObservedDeckRepeatTests.EmptyFirstViewStillExecutesThePaidRepeatBeforeObservedUnitsPlay",
+    "Riftbound.ConformanceTests.EmptyObservedDeckRepeatTests.EmptyLastOrBothViewsFinishOnePaidItemWithoutObservingTheUntouchedTail",
+    "Riftbound.ConformanceTests.EmptyObservedDeckRepeatTests.EmptyOriginalDeckDoesNotBurnOutOrLeaveAnEchoContinuation",
+    "Riftbound.ConformanceTests.EmptyObservedDeckRepeatTests.PendingSecondViewRejectsIndependentCounterAndCompletionForgeries",
+    "Riftbound.ConformanceTests.EmptyObservedDeckRepeatTests.WithoutEchoAnEmptyViewDoesNotConsumeTheNextCards"
+  ],
+  "newCaseIdentities": [
+    "Riftbound.ConformanceTests.EmptyObservedDeckRepeatTests.EmptyLastOrBothViewsFinishOnePaidItemWithoutObservingTheUntouchedTail(card: \"SFD·122/221\", look: 2, firstEmpty: False)",
+    "Riftbound.ConformanceTests.EmptyObservedDeckRepeatTests.WithoutEchoAnEmptyViewDoesNotConsumeTheNextCards(card: \"OGN·183/298\", look: 3)",
+    "Riftbound.ConformanceTests.EmptyObservedDeckRepeatTests.EmptyLastOrBothViewsFinishOnePaidItemWithoutObservingTheUntouchedTail(card: \"SFD·122/221\", look: 2, firstEmpty: True)",
+    "Riftbound.ConformanceTests.EmptyObservedDeckRepeatTests.EmptyFirstViewStillExecutesThePaidRepeatBeforeObservedUnitsPlay(card: \"SFD·122/221\", look: 2, choose: True)",
+    "Riftbound.ConformanceTests.EmptyObservedDeckRepeatOpeningTests.OrdinaryBlankOpeningExecutesPaidSecondViewBeforeAllObservedUnitPlayOffers(card: \"UNL-032/219\", draw: False)",
+    "Riftbound.ConformanceTests.EmptyObservedDeckRepeatTests.EmptyFirstViewStillExecutesThePaidRepeatBeforeObservedUnitsPlay(card: \"UNL-032/219\", look: 3, choose: False)",
+    "Riftbound.ConformanceTests.EmptyObservedDeckRepeatTests.EmptyLastOrBothViewsFinishOnePaidItemWithoutObservingTheUntouchedTail(card: \"UNL-032/219\", look: 3, firstEmpty: False)",
+    "Riftbound.ConformanceTests.EmptyObservedDeckRepeatTests.WithoutEchoAnEmptyViewDoesNotConsumeTheNextCards(card: \"UNL-032/219\", look: 3)",
+    "Riftbound.ConformanceTests.EmptyObservedDeckRepeatTests.EmptyFirstViewStillExecutesThePaidRepeatBeforeObservedUnitsPlay(card: \"UNL-032/219\", look: 3, choose: True)",
+    "Riftbound.ConformanceTests.EmptyObservedDeckRepeatTests.EmptyOriginalDeckDoesNotBurnOutOrLeaveAnEchoContinuation(card: \"SFD·122/221\")",
+    "Riftbound.ConformanceTests.EmptyObservedDeckRepeatTests.EmptyOriginalDeckDoesNotBurnOutOrLeaveAnEchoContinuation(card: \"UNL-032/219\")",
+    "Riftbound.ConformanceTests.EmptyObservedDeckRepeatTests.PendingSecondViewRejectsIndependentCounterAndCompletionForgeries",
+    "Riftbound.ConformanceTests.EmptyObservedDeckRepeatOpeningTests.OrdinaryBlankOpeningExecutesPaidSecondViewBeforeAllObservedUnitPlayOffers(card: \"SFD·122/221\", draw: True)",
+    "Riftbound.ConformanceTests.EmptyObservedDeckRepeatTests.WithoutEchoAnEmptyViewDoesNotConsumeTheNextCards(card: \"SFD·122/221\", look: 2)",
+    "Riftbound.ConformanceTests.EmptyObservedDeckRepeatTests.EmptyLastOrBothViewsFinishOnePaidItemWithoutObservingTheUntouchedTail(card: \"UNL-032/219\", look: 3, firstEmpty: True)",
+    "Riftbound.ConformanceTests.EmptyObservedDeckRepeatOpeningTests.OrdinaryBlankOpeningExecutesPaidSecondViewBeforeAllObservedUnitPlayOffers(card: \"UNL-032/219\", draw: True)"
+  ],
+  "authoredInputCount": 12667,
+  "all12667AuthoredInputsStableThroughExecutionAndImmediateVerification": true,
+  "noExtraSourceCheckout": true,
+  "checkTestAssemblySha256": "847e1ba551e8d1f2ea3897a82dce60723defcbd045d5bafa5affedf0d1f730b6",
+  "actualTrx": "var/qa/deck-choice-empty-repeat-20261018/one-check-v1/check/results.trx",
+  "actualTrxSha256": "da40dc103baa35a65a02f96aa1482425a2e69801eff030259babea9211600eb7",
+  "originalCheckUncompressedTrxSha256": "6f135be2b1315fae16b1405bfa64f804b0f45b0587bc298434ca9ba2d2174d26",
+  "actualFourRuleModulesAndPdbs": [
+    {
+      "file": "Riftbound.Contracts.dll",
+      "sha256": "0b22fba8ef775d48d9831d8ebf49d78a37a27f7a03a7654ab28a3e476e4547f0"
+    },
+    {
+      "file": "Riftbound.Contracts.pdb",
+      "sha256": "d2558e934a81a8fb9f69597ffdee3e4708013bb080a57895ff684c27cb756e18"
+    },
+    {
+      "file": "Riftbound.CardCatalog.dll",
+      "sha256": "a0b9e92950bab76bd100635557b118f06581d51e4fc862537135c45fde93c6fb"
+    },
+    {
+      "file": "Riftbound.CardCatalog.pdb",
+      "sha256": "a016fac3b2d40a00361eb9d8b524363dee1b3857e48c0184fc58dce003cffbc7"
+    },
+    {
+      "file": "Riftbound.Engine.dll",
+      "sha256": "091691b70e2fbb1a5c0f953550a545187b77ccd861337964f6ba1dbd20e5c1e8"
+    },
+    {
+      "file": "Riftbound.Engine.pdb",
+      "sha256": "62f5806e5a2d1041139071c450c3942378bb0bf592bd0a08ff96dda798f56c26"
+    },
+    {
+      "file": "Riftbound.Persistence.dll",
+      "sha256": "a112cd35e4ca9ede6c5711cd2d6557bd1ce47f7ad36a26f3dc4addc4635aab09"
+    },
+    {
+      "file": "Riftbound.Persistence.pdb",
+      "sha256": "640b3c3c6b41f164d459b44729b8f684881c5d4bcc18ace1f12f960e22fc7e2f"
+    }
+  ],
+  "actualImplementationSha256": "c4ecf67f5bee1b6f0a00d38b9a4f34f4090eb1a55aa057be390d59d2e0c840fe",
+  "allOriginalHarnessAndSemanticFailuresRetainedOnlyNewExecutedInputsPassed": true,
+  "independentCaseAndMethodParityVerified": true,
+  "currentFixedFullAndVisibleNativeAndPhysicalWindowsIndependent": true
+}

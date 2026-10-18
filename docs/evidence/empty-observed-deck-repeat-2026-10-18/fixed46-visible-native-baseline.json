@@ -1,0 +1,79 @@
+{
+  "recordedAtUtc": "2026-10-18T07:19:34.331144+00:00",
+  "status": "VISIBLE_MAC_PAIRED_NATIVE46_ORIGINAL46_COMMANDS237_EVENTS_SCORE8_TO0_COLD_API_PENDING_NEXT_AND_FULL_REPLAY_PASS",
+  "fixedCommit": "46a990fefc65805116d45480d2880cb6861fdc58",
+  "room": "paired-controller-46a990fe-20261018",
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+    "implementationSha256": "d21fa804410088ac77a08b9e8a2ff94dcc54de4a496cfacc47007eada20d4dcb",
+    "identitySha256": "a8778fdb3fa73cf8ee0ea5bea49f6e0082d5faf4f8a97e000515d54809983c00"
+  },
+  "commands": 46,
+  "events": 237,
+  "turn": 11,
+  "finalStateHash": "ae8c2498a2e2134c867ba128e52d220f81816ca0079a26408cf171d808475087",
+  "bothNativeLobbyDeckSubmissionReadyAndZeroSwapMulliganObserved": true,
+  "nativeGameplayOnlyNoSeedStateOrHistoryInjection": true,
+  "visibleNativeSort": {
+    "controller": "herea5da",
+    "skills": 3,
+    "ownDownArrowThenConfirmObserved": true,
+    "subsequentThreeOriginalEphemeralDestructionsObserved": true,
+    "dualControllerHandoffNotClaimed": true
+  },
+  "actualOfflineSecondsToNewApiHealth": 45.494773,
+  "bothNativeProcessesRetainedAcrossApiRestart": {
+    "B": 88695,
+    "A": 88921
+  },
+  "bothVisibleDisconnectedBannersAndDisabledActionsObserved": true,
+  "reconnectAction": "Both native reconnect buttons clicked after automatic retry limit; autonomous recovery is not claimed.",
+  "bothPrivatePendingViewsOriginalSeedAnd13Commands58EventsExactAfterColdApi": true,
+  "originalNextNativePassFocus14Commands59EventsExact": true,
+  "bothVisibleScoreVictoryDefeatAndReturnToLobbyObserved": true,
+  "screenshotsEvidence": "Original CUA screenshots in this chat; no local screenshot file or screenshot hash claimed.",
+  "allOriginalActionAndEventReplayMatched": true,
+  "noSurrender": true,
+  "nativeReaderFourCoreDllPdbAndRuntimeDataEqualActualFixedApi": true,
+  "all46PublishedApiFilesStable": true,
+  "originalHFrame16Commands56EventsAndSevenSqlTablesExact": true,
+  "originalHSevenTableHashes": {
+    "matches": "7fb4d5ae4345d6ddd2f70241af5cbc6b0850ec6d6d8adb42c62fc8bbfa2d5234",
+    "match_players": "21cae4da491672706373a2de81d72a1dfcff344c4eee8257b2a633b74058582e",
+    "command_log": "791f2786e2a5fece357b5c93a5e4ea9ca6e2b0612897ff4a0055f2e00764566e",
+    "game_events": "2a03796c10bb4c5b2789d04f326ae6d6dd66b97d905c7a02b5af4c7cb86db0a7",
+    "state_snapshots": "73e48eb888b1220f66c660347b1c0ecb30cd062e1d75f4a246b20dd6fc2e8515",
+    "snapshots": "3406444d183d877273294e3be146014c696e6cf9e3dd26dea81e47acf5c487f2",
+    "action_prompts": "5023042045108b1d139bf2b9be9cca982ac005294ee21c443c844e452e7032a4"
+  },
+  "bothNativeAppsNormallyQuit": true,
+  "apiGracefulSigtermExit": true,
+  "apiPortClosed": true,
+  "postgresSmartStopped": true,
+  "allOriginalDatabasesAndNecessaryRuntimeModulesRetained": true,
+  "separateOpenGates": [
+    "dual-controller visible handoff",
+    "positive Merfolk battlefield damage",
+    "new empty-observation repeat source",
+    "physical Windows",
+    "all remaining semantics and sources"
+  ],
+  "observedUiFollowups": [
+    "A launched before API startup showed no deck catalog after joining; native restart restored catalog. Cause still unverified.",
+    "Three-skill ordering dialog exposed CAPTURED_EPHEMERAL_START_DESTROY implementation labels."
+  ],
+  "fullCi39103607902NotInferredFromThisNativeAcceptance": true,
+  "goalActiveNotReady": true,
+  "evidence": {
+    "native-before-network-verification.json": "f8e005fd4b03f26f6694564b6e2cf68dbd04ca13df8516452f87f8377f0008ac",
+    "native-after-network-verification.json": "1e4cbe04d218b4761fef2f0341c59bdf4a1a98b9f552b5245117b76363ddd97a",
+    "native-after-next-verification.json": "f65e4dd2ee3a9e1f35b23efcd9fb5aedc1224fcd23cc54cdf05479d9dbe5a681",
+    "native-final-verification.json": "246800ade645f8d67741316922dfc8d3c3f6000babdd2faec377ba6e5e4a8055",
+    "native-final-original-frame.json.gz": "c3374d12b25052dbcd51309bf2e135967e6fc4ecebc7045490c03055ced96a8b",
+    "old-h-after-native-score-verification.json": "7aab03780f01b7e9f9d17f09224afb7c36643b97f2db09d2027e75e603fca4f6"
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "atUtc": "2026-10-18T07:54:49.845684+00:00",
+  "status": "GOVERNANCE_VALID_ORIGINAL127_REVIEWS16612_OBLIGATION_IDS_AND_ALL_SOURCE_UNIVERSE_RETAINED",
+  "governanceValid": true,
+  "semanticCoverageCertified": false,
+  "currentReviews": 128,
+  "currentContexts": 43,
+  "currentAcceptanceGates": 73,
+  "remainingObligations": 16619,
+  "oldObligationCount": 16612,
+  "allOldIdsRetained": true,
+  "all127OldReviewDictionariesByteEquivalentAsJson": true,
+  "addedExactIds": [
+    "BRANCH:empty-observed-deck-paid-repeat-2026-10-18:empty-first-view-continues-paid-second-execution-before-unit-play",
+    "BRANCH:empty-observed-deck-paid-repeat-2026-10-18:independent-counter-permission-and-coordinated-original-log-rejection",
+    "BRANCH:empty-observed-deck-paid-repeat-2026-10-18:last-both-empty-no-echo-original-empty-deck-no-burnout-controls",
+    "BRANCH:empty-observed-deck-paid-repeat-2026-10-18:ordinary-core-and-regional-format-boundaries-and-native-second-choice",
+    "GATE:EMPTY_OBSERVED_DECK_PAID_REPEAT_CURRENT_PRODUCT",
+    "GATE:NATIVE_CATALOG_RETRY_AFTER_SERVER_START",
+    "GATE:NATIVE_EPHEMERAL_ORDER_FRIENDLY_LABELS"
+  ],
+  "all43CurrentCiStates": "PENDING_NEW_FIXED_FULL",
+  "allFourOriginalTemporalDeltasAndCoverageAndNewsManifestsExact": true,
+  "originalUniverse": {
+    "combinedPrintings": 1740,
+    "cnPrintings": 1504,
+    "englishConfirmed": 1408,
+    "englishGap": 8,
+    "documents": 36,
+    "corpusBlocks": 14293
+  },
+  "allCheckOutsideDocsInputsStillExactAfterGovernancePublication": true,
+  "governanceJsonSha256": "3c7a75f75b8a85fb1dc4131f2c90a73965be7ee1e849263b977ea827958777de",
+  "separateTwoObservedNativeUiProductGatesAddedWithoutCauseClaims": true
+}

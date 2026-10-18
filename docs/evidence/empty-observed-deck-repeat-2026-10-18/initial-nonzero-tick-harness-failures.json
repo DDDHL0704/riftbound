@@ -1,0 +1,38 @@
+{
+  "recordedAtUtc": "2026-10-18T06:33:55.648669+00:00",
+  "status": "INITIAL_NEW_TEST_HARNESS_ALL13_STOPPED_AT_NONZERO_ORIGIN_TICK_BEFORE_RULE_ASSERTIONS",
+  "actualTrxSha256": "6bb3d9ec4a9cb3c2fe711c50488f4d1379c7ccbf15e000036f0c1acaae1b7c93",
+  "failedCases": [
+    "Riftbound.ConformanceTests.EmptyObservedDeckRepeatTests.WithoutEchoAnEmptyViewDoesNotConsumeTheNextCards(card: \"OGN\u00b7183/298\", look: 3)",
+    "Riftbound.ConformanceTests.EmptyObservedDeckRepeatTests.EmptyLastOrBothViewsFinishOnePaidItemWithoutObservingTheUntouchedTail(card: \"UNL-032/219\", look: 3, firstEmpty: False)",
+    "Riftbound.ConformanceTests.EmptyObservedDeckRepeatTests.PendingSecondViewRejectsIndependentCounterAndCompletionForgeries",
+    "Riftbound.ConformanceTests.EmptyObservedDeckRepeatTests.EmptyOriginalDeckDoesNotBurnOutOrLeaveAnEchoContinuation(card: \"UNL-032/219\")",
+    "Riftbound.ConformanceTests.EmptyObservedDeckRepeatTests.EmptyLastOrBothViewsFinishOnePaidItemWithoutObservingTheUntouchedTail(card: \"UNL-032/219\", look: 3, firstEmpty: True)",
+    "Riftbound.ConformanceTests.EmptyObservedDeckRepeatTests.WithoutEchoAnEmptyViewDoesNotConsumeTheNextCards(card: \"UNL-032/219\", look: 3)",
+    "Riftbound.ConformanceTests.EmptyObservedDeckRepeatTests.EmptyOriginalDeckDoesNotBurnOutOrLeaveAnEchoContinuation(card: \"SFD\u00b7122/221\")",
+    "Riftbound.ConformanceTests.EmptyObservedDeckRepeatTests.EmptyFirstViewStillExecutesThePaidRepeatBeforeObservedUnitsPlay(card: \"SFD\u00b7122/221\", look: 2, choose: True)",
+    "Riftbound.ConformanceTests.EmptyObservedDeckRepeatTests.WithoutEchoAnEmptyViewDoesNotConsumeTheNextCards(card: \"SFD\u00b7122/221\", look: 2)",
+    "Riftbound.ConformanceTests.EmptyObservedDeckRepeatTests.EmptyLastOrBothViewsFinishOnePaidItemWithoutObservingTheUntouchedTail(card: \"SFD\u00b7122/221\", look: 2, firstEmpty: False)",
+    "Riftbound.ConformanceTests.EmptyObservedDeckRepeatTests.EmptyFirstViewStillExecutesThePaidRepeatBeforeObservedUnitsPlay(card: \"UNL-032/219\", look: 3, choose: False)",
+    "Riftbound.ConformanceTests.EmptyObservedDeckRepeatTests.EmptyFirstViewStillExecutesThePaidRepeatBeforeObservedUnitsPlay(card: \"UNL-032/219\", look: 3, choose: True)",
+    "Riftbound.ConformanceTests.EmptyObservedDeckRepeatTests.EmptyLastOrBothViewsFinishOnePaidItemWithoutObservingTheUntouchedTail(card: \"SFD\u00b7122/221\", look: 2, firstEmpty: True)"
+  ],
+  "actualExecutedTestSourceSha256": "26b2f5af9baa47209705deb1f249495f14f1e274a4daf116084b9b2d1c214c0a",
+  "actual12ExecutedDllPdbFiles": {
+    "Riftbound.ConformanceTests.dll": "1893f5cc9475adf6a59c584edef07c0f817d731f44ac74bb25dc1fa22c12e809",
+    "Riftbound.ConformanceTests.pdb": "f47258995304102f10085d55bdd5c877cbdd944f8c290d54b1cdb60cbb9beaab",
+    "Riftbound.Api.dll": "aec92746c651c740eab8bc9df432b27120c3bc59c194086a88ba972dd605906a",
+    "Riftbound.Api.pdb": "04114ef9a3245e16760fed3d436223e9ca195ffffe9293ce845f60650984469d",
+    "Riftbound.Contracts.dll": "0b22fba8ef775d48d9831d8ebf49d78a37a27f7a03a7654ab28a3e476e4547f0",
+    "Riftbound.Contracts.pdb": "d2558e934a81a8fb9f69597ffdee3e4708013bb080a57895ff684c27cb756e18",
+    "Riftbound.CardCatalog.dll": "a0b9e92950bab76bd100635557b118f06581d51e4fc862537135c45fde93c6fb",
+    "Riftbound.CardCatalog.pdb": "a016fac3b2d40a00361eb9d8b524363dee1b3857e48c0184fc58dce003cffbc7",
+    "Riftbound.Engine.dll": "1ec377ba42e54d5fb3d1b38eb4bffc7daacb7aa712bd9654100c840f2a570782",
+    "Riftbound.Engine.pdb": "b7f19fee32018ddb834cc355b24f5745c33095af673ac8ae9d72b7c6b6f43a10",
+    "Riftbound.Persistence.dll": "6d571fe006914c1b531a2e1d840d9bc8cb19de18076d9feb7504c720325aa501",
+    "Riftbound.Persistence.pdb": "8247826b8073954081e34f118adf5463a8c50440fbe7b20c471bf2fb042db37d"
+  },
+  "reason": "The reused cold-recovery driver validates a command history beginning at tick0; the new explicit fixture accidentally began at tick1. None of these13 failures is relabeled as a semantic red.",
+  "nextChangeOnlyInitialFixtureTick1To0": true,
+  "independentActualFixed46TwoSemanticRedPrefixesUnaffected": true
+}

@@ -1,0 +1,68 @@
+{
+  "scope": "Exploratory explicit-midgame actual Release46 runtime. No rule fix, ordinary opening, SQL or native certification yet.",
+  "results": [
+    {
+      "cardNo": "SFD\u00B7122/221",
+      "look": 2,
+      "actualRuleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "d21fa804410088ac77a08b9e8a2ff94dcc54de4a496cfacc47007eada20d4dcb",
+        "identitySha256": "a8778fdb3fa73cf8ee0ea5bea49f6e0082d5faf4f8a97e000515d54809983c00"
+      },
+      "explicitMidgameNotOrdinaryBlank": true,
+      "commands": 5,
+      "events": 10,
+      "allViewedCardsBanished": true,
+      "expectedSecondView": [
+        "TAIL1",
+        "TAIL2"
+      ],
+      "actualPendingChoice": null,
+      "pendingObservedPlay": true,
+      "actualTail": [
+        "TAIL1",
+        "TAIL2",
+        "TAIL3",
+        "TAIL4"
+      ],
+      "secondExecutionSkipped": true,
+      "originalReplayMatched": true
+    },
+    {
+      "cardNo": "UNL-032/219",
+      "look": 3,
+      "actualRuleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "d21fa804410088ac77a08b9e8a2ff94dcc54de4a496cfacc47007eada20d4dcb",
+        "identitySha256": "a8778fdb3fa73cf8ee0ea5bea49f6e0082d5faf4f8a97e000515d54809983c00"
+      },
+      "explicitMidgameNotOrdinaryBlank": true,
+      "commands": 6,
+      "events": 12,
+      "allViewedCardsBanished": true,
+      "expectedSecondView": [
+        "TAIL1",
+        "TAIL2",
+        "TAIL3"
+      ],
+      "actualPendingChoice": null,
+      "pendingObservedPlay": true,
+      "actualTail": [
+        "TAIL1",
+        "TAIL2",
+        "TAIL3",
+        "TAIL4"
+      ],
+      "secondExecutionSkipped": true,
+      "originalReplayMatched": true
+    }
+  ]
+}

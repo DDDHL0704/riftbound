@@ -1,0 +1,1539 @@
+{
+  "initial": {
+    "ruleInputs": {
+      "schemaVersion": 1,
+      "region": "CN",
+      "language": "zh-CN",
+      "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+      "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+      "implementationSha256": "d21fa804410088ac77a08b9e8a2ff94dcc54de4a496cfacc47007eada20d4dcb",
+      "identitySha256": "a8778fdb3fa73cf8ee0ea5bea49f6e0082d5faf4f8a97e000515d54809983c00"
+    },
+    "faceDownLookPermissions": [],
+    "linkedExiles": [],
+    "deathLedger": {
+      "turnNumber": 0,
+      "counts": {}
+    },
+    "drawLedger": {
+      "turnNumber": 0,
+      "counts": {}
+    },
+    "cardPlays": {
+      "turnNumber": 0,
+      "finalized": [],
+      "resolved": []
+    },
+    "delayedResourceGains": [],
+    "roomId": "explicit-empty-repeat-2",
+    "tick": 1,
+    "turnNumber": 3,
+    "activePlayerId": "P1",
+    "seats": {
+      "P1": "P1",
+      "P2": "P2"
+    },
+    "status": "IN_PROGRESS",
+    "readyPlayerIds": [],
+    "turnPlayerId": "P1",
+    "phase": "MAIN",
+    "timingState": "NEUTRAL_OPEN",
+    "turnWindow": {
+      "state": "NEUTRAL_OPEN",
+      "isSpellDuel": false,
+      "isClosed": false,
+      "hasStack": false,
+      "actingPlayerId": "P1"
+    },
+    "spellDuelState": {
+      "isActive": false,
+      "isClosed": false,
+      "spellDuelId": null,
+      "battlefieldObjectId": null,
+      "focusPlayerId": null,
+      "passedFocusPlayerIds": [],
+      "stackItemIds": [],
+      "stackControllerIds": []
+    },
+    "battleState": {
+      "isActive": false,
+      "battleId": null,
+      "battlefieldObjectId": null,
+      "attackerObjectIds": [],
+      "defenderObjectIds": [],
+      "participantControllerIds": {}
+    },
+    "runePools": {
+      "P1": {
+        "mana": 20,
+        "power": 20,
+        "powerByTrait": {}
+      },
+      "P2": {
+        "mana": 0,
+        "power": 0,
+        "powerByTrait": {}
+      }
+    },
+    "playerZones": {
+      "P1": {
+        "mainDeck": [
+          "NOCT1",
+          "NOCT2",
+          "TAIL1",
+          "TAIL2",
+          "TAIL3",
+          "TAIL4"
+        ],
+        "runeDeck": [],
+        "hand": [
+          "SPELL"
+        ],
+        "base": [],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": [],
+        "championZone": []
+      },
+      "P2": {
+        "mainDeck": [],
+        "runeDeck": [],
+        "hand": [],
+        "base": [],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": [],
+        "championZone": []
+      }
+    },
+    "objectLocations": {},
+    "battlefieldStates": {},
+    "pendingCleanupTasks": [],
+    "battlefieldTasks": [],
+    "battlefieldResolutions": [],
+    "battleResolutions": [],
+    "pendingTaskQueue": {
+      "hasTasks": false,
+      "isBlocking": false,
+      "phase": "IDLE",
+      "activeTaskId": null,
+      "tasks": []
+    },
+    "continuousEffects": [],
+    "pendingPayment": null,
+    "pendingHandChoice": null,
+    "pendingCardChoice": null,
+    "playerScores": {},
+    "playerExperience": {},
+    "playerCardsPlayedThisTurn": {},
+    "playerDecklists": {},
+    "mulliganCompletedPlayerIds": [],
+    "openingSecondActionPlayerId": null,
+    "cardObjects": {
+      "SPELL": {
+        "objectId": "SPELL",
+        "damage": 0,
+        "untilEndOfTurnEffects": [],
+        "isFaceDown": false,
+        "isAttacking": false,
+        "isDefending": false,
+        "power": 0,
+        "untilEndOfTurnPowerModifier": 0,
+        "isExhausted": false,
+        "tags": [
+          "CARD_TYPE:SPELL"
+        ],
+        "manaCost": 0,
+        "attachedToObjectId": null,
+        "cardNo": "SFD\u00B7122/221",
+        "ownerId": "P1",
+        "controllerId": "P1",
+        "untilEndOfTurnPowerModifiers": []
+      },
+      "NOCT1": {
+        "objectId": "NOCT1",
+        "damage": 0,
+        "untilEndOfTurnEffects": [],
+        "isFaceDown": false,
+        "isAttacking": false,
+        "isDefending": false,
+        "power": 0,
+        "untilEndOfTurnPowerModifier": 0,
+        "isExhausted": false,
+        "tags": [
+          "CARD_TYPE:UNIT"
+        ],
+        "manaCost": 0,
+        "attachedToObjectId": null,
+        "cardNo": "OGN\u00B7194/298",
+        "ownerId": "P1",
+        "controllerId": "P1",
+        "untilEndOfTurnPowerModifiers": []
+      },
+      "NOCT2": {
+        "objectId": "NOCT2",
+        "damage": 0,
+        "untilEndOfTurnEffects": [],
+        "isFaceDown": false,
+        "isAttacking": false,
+        "isDefending": false,
+        "power": 0,
+        "untilEndOfTurnPowerModifier": 0,
+        "isExhausted": false,
+        "tags": [
+          "CARD_TYPE:UNIT"
+        ],
+        "manaCost": 0,
+        "attachedToObjectId": null,
+        "cardNo": "OGN\u00B7194/298",
+        "ownerId": "P1",
+        "controllerId": "P1",
+        "untilEndOfTurnPowerModifiers": []
+      },
+      "TAIL1": {
+        "objectId": "TAIL1",
+        "damage": 0,
+        "untilEndOfTurnEffects": [],
+        "isFaceDown": false,
+        "isAttacking": false,
+        "isDefending": false,
+        "power": 0,
+        "untilEndOfTurnPowerModifier": 0,
+        "isExhausted": false,
+        "tags": [
+          "CARD_TYPE:UNIT"
+        ],
+        "manaCost": 0,
+        "attachedToObjectId": null,
+        "cardNo": "SFD\u00B7125/221",
+        "ownerId": "P1",
+        "controllerId": "P1",
+        "untilEndOfTurnPowerModifiers": []
+      },
+      "TAIL2": {
+        "objectId": "TAIL2",
+        "damage": 0,
+        "untilEndOfTurnEffects": [],
+        "isFaceDown": false,
+        "isAttacking": false,
+        "isDefending": false,
+        "power": 0,
+        "untilEndOfTurnPowerModifier": 0,
+        "isExhausted": false,
+        "tags": [
+          "CARD_TYPE:UNIT"
+        ],
+        "manaCost": 0,
+        "attachedToObjectId": null,
+        "cardNo": "SFD\u00B7125/221",
+        "ownerId": "P1",
+        "controllerId": "P1",
+        "untilEndOfTurnPowerModifiers": []
+      },
+      "TAIL3": {
+        "objectId": "TAIL3",
+        "damage": 0,
+        "untilEndOfTurnEffects": [],
+        "isFaceDown": false,
+        "isAttacking": false,
+        "isDefending": false,
+        "power": 0,
+        "untilEndOfTurnPowerModifier": 0,
+        "isExhausted": false,
+        "tags": [
+          "CARD_TYPE:UNIT"
+        ],
+        "manaCost": 0,
+        "attachedToObjectId": null,
+        "cardNo": "SFD\u00B7125/221",
+        "ownerId": "P1",
+        "controllerId": "P1",
+        "untilEndOfTurnPowerModifiers": []
+      },
+      "TAIL4": {
+        "objectId": "TAIL4",
+        "damage": 0,
+        "untilEndOfTurnEffects": [],
+        "isFaceDown": false,
+        "isAttacking": false,
+        "isDefending": false,
+        "power": 0,
+        "untilEndOfTurnPowerModifier": 0,
+        "isExhausted": false,
+        "tags": [
+          "CARD_TYPE:UNIT"
+        ],
+        "manaCost": 0,
+        "attachedToObjectId": null,
+        "cardNo": "SFD\u00B7125/221",
+        "ownerId": "P1",
+        "controllerId": "P1",
+        "untilEndOfTurnPowerModifiers": []
+      }
+    },
+    "priorityPlayerId": null,
+    "passedPriorityPlayerIds": [],
+    "stackItems": [],
+    "triggerQueue": [],
+    "focusPlayerId": null,
+    "passedFocusPlayerIds": [],
+    "winnerPlayerId": null,
+    "destroyedUnitOwnerIdsThisTurn": [],
+    "seed": 0,
+    "rngCursor": 0,
+    "untilEndOfTurnEffects": [],
+    "extraTurnPlayerId": null
+  },
+  "commands": [
+    {
+      "playerId": "P1",
+      "clientIntentId": "empty-repeat-0",
+      "commandType": "PLAY_CARD",
+      "rawCommand": {
+        "sourceObjectId": "SPELL",
+        "cardNo": "SFD\u00B7122/221",
+        "targetObjectIds": [],
+        "mode": "",
+        "optionalCosts": [
+          "ECHO"
+        ],
+        "destination": "",
+        "repeatChoices": null,
+        "movementDestinations": null,
+        "cmdType": "PLAY_CARD"
+      },
+      "startedTick": 1,
+      "completedTick": 2,
+      "startedEventSequence": 0,
+      "completedEventSequence": 3,
+      "accepted": true,
+      "errorMessage": null,
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "d21fa804410088ac77a08b9e8a2ff94dcc54de4a496cfacc47007eada20d4dcb",
+        "identitySha256": "a8778fdb3fa73cf8ee0ea5bea49f6e0082d5faf4f8a97e000515d54809983c00"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "empty-repeat-1",
+      "commandType": "PASS_PRIORITY",
+      "rawCommand": {
+        "cmdType": "PASS_PRIORITY"
+      },
+      "startedTick": 2,
+      "completedTick": 3,
+      "startedEventSequence": 3,
+      "completedEventSequence": 4,
+      "accepted": true,
+      "errorMessage": null,
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "d21fa804410088ac77a08b9e8a2ff94dcc54de4a496cfacc47007eada20d4dcb",
+        "identitySha256": "a8778fdb3fa73cf8ee0ea5bea49f6e0082d5faf4f8a97e000515d54809983c00"
+      }
+    },
+    {
+      "playerId": "P2",
+      "clientIntentId": "empty-repeat-2",
+      "commandType": "PASS_PRIORITY",
+      "rawCommand": {
+        "cmdType": "PASS_PRIORITY"
+      },
+      "startedTick": 3,
+      "completedTick": 4,
+      "startedEventSequence": 4,
+      "completedEventSequence": 5,
+      "accepted": true,
+      "errorMessage": null,
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "d21fa804410088ac77a08b9e8a2ff94dcc54de4a496cfacc47007eada20d4dcb",
+        "identitySha256": "a8778fdb3fa73cf8ee0ea5bea49f6e0082d5faf4f8a97e000515d54809983c00"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "empty-repeat-3",
+      "commandType": "PAY_COST",
+      "rawCommand": {
+        "paymentId": "REPLACEMENT:3:0",
+        "paymentWindow": "RULE_REPLACEMENT",
+        "paymentChoiceIds": [
+          "BANISH"
+        ],
+        "cmdType": "PAY_COST"
+      },
+      "startedTick": 4,
+      "completedTick": 5,
+      "startedEventSequence": 5,
+      "completedEventSequence": 6,
+      "accepted": true,
+      "errorMessage": null,
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "d21fa804410088ac77a08b9e8a2ff94dcc54de4a496cfacc47007eada20d4dcb",
+        "identitySha256": "a8778fdb3fa73cf8ee0ea5bea49f6e0082d5faf4f8a97e000515d54809983c00"
+      }
+    },
+    {
+      "playerId": "P1",
+      "clientIntentId": "empty-repeat-4",
+      "commandType": "PAY_COST",
+      "rawCommand": {
+        "paymentId": "REPLACEMENT:3:1",
+        "paymentWindow": "RULE_REPLACEMENT",
+        "paymentChoiceIds": [
+          "BANISH"
+        ],
+        "cmdType": "PAY_COST"
+      },
+      "startedTick": 5,
+      "completedTick": 6,
+      "startedEventSequence": 6,
+      "completedEventSequence": 10,
+      "accepted": true,
+      "errorMessage": null,
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "d21fa804410088ac77a08b9e8a2ff94dcc54de4a496cfacc47007eada20d4dcb",
+        "identitySha256": "a8778fdb3fa73cf8ee0ea5bea49f6e0082d5faf4f8a97e000515d54809983c00"
+      }
+    }
+  ],
+  "events": [
+    {
+      "sequence": 1,
+      "tick": 2,
+      "order": 0,
+      "event": {
+        "kind": "CARD_PLAYED",
+        "description": "P1 \u6253\u51FA\u9884\u5224\u653B\u52BF",
+        "payload": {
+          "playerId": "P1",
+          "sourceObjectId": "SPELL",
+          "cardNo": "SFD\u00B7122/221",
+          "mode": "",
+          "destination": ""
+        },
+        "objectRefs": null
+      }
+    },
+    {
+      "sequence": 2,
+      "tick": 2,
+      "order": 1,
+      "event": {
+        "kind": "COST_PAID",
+        "description": "P1 \u652F\u4ED8 0 \u70B9\u8D39\u7528",
+        "payload": {
+          "playerId": "P1",
+          "mana": 0,
+          "power": 2,
+          "powerByTrait": {
+            "purple": 2
+          },
+          "experience": 0,
+          "baseMana": 0,
+          "costReductionMana": 0,
+          "optionalCostManaReduction": 0,
+          "battlefieldEchoCostReductionMana": 0,
+          "battlefieldEquipmentCostReductionMana": 0,
+          "nextSpellCostReductionMana": 0,
+          "battlefieldSpellCostReductionMana": 0,
+          "battlefieldHeldUnitCostIncreaseMana": 0,
+          "spellshieldTaxPower": 0,
+          "spellshieldTaxTargetObjectIds": [],
+          "optionalCosts": [
+            "ECHO"
+          ],
+          "paymentResourceActions": [],
+          "recycledRuneObjectIds": [],
+          "luxSpellOnlyResourceActions": [],
+          "luxSpellOnlyResourceSourceObjectIds": [],
+          "luxSpellOnlyGeneratedMana": 0,
+          "luxSpellOnlyConsumedMana": 0,
+          "luxSpellOnlyRemainingMana": 0,
+          "paymentId": "PLAY_CARD:2:P1:SPELL",
+          "paymentWindow": "PLAY_CARD",
+          "remainingMana": 20,
+          "remainingPower": 18,
+          "remainingPowerByTrait": {},
+          "remainingExperience": 0,
+          "baseManaCost": 0,
+          "totalManaCost": 0,
+          "genericPower": 0,
+          "totalPowerCost": 2,
+          "experienceCost": 0,
+          "extraCosts": [],
+          "legalPaymentChoiceIds": [],
+          "reason": "PREDICTIVE_OFFENSIVE_DRAW_ONE_RECYCLE_OTHER",
+          "sourceObjectId": "SPELL",
+          "dragonUnitCostReductionMana": 0
+        },
+        "objectRefs": null
+      }
+    },
+    {
+      "sequence": 3,
+      "tick": 2,
+      "order": 2,
+      "event": {
+        "kind": "STACK_ITEM_ADDED",
+        "description": "\u9884\u5224\u653B\u52BF\u52A0\u5165\u7ED3\u7B97\u94FE",
+        "payload": {
+          "stackItemId": "STACK-2-SPELL",
+          "controllerId": "P1",
+          "sourceObjectId": "SPELL",
+          "cardNo": "SFD\u00B7122/221",
+          "targetObjectIds": [],
+          "effectKind": "PREDICTIVE_OFFENSIVE_DRAW_ONE_RECYCLE_OTHER",
+          "mode": "",
+          "effectRepeatCount": 2,
+          "playedAfterAnotherCardThisTurn": false
+        },
+        "objectRefs": null
+      }
+    },
+    {
+      "sequence": 4,
+      "tick": 3,
+      "order": 0,
+      "event": {
+        "kind": "PRIORITY_PASSED",
+        "description": "P1 \u8BA9\u8FC7\u4F18\u5148\u884C\u52A8\u6743",
+        "payload": {
+          "playerId": "P1",
+          "priorityPlayerId": "P1"
+        },
+        "objectRefs": null
+      }
+    },
+    {
+      "sequence": 5,
+      "tick": 4,
+      "order": 0,
+      "event": {
+        "kind": "RULE_CHOICE_REQUESTED",
+        "description": "\u6240\u67E5\u770B\u7684\u5361\u724C\u63D0\u4F9B\u53EF\u9009\u653E\u9010\u51FA\u724C\u6743\u9650\u3002",
+        "payload": {
+          "playerId": "P1",
+          "choiceId": "REPLACEMENT:3:0"
+        },
+        "objectRefs": null
+      }
+    },
+    {
+      "sequence": 6,
+      "tick": 5,
+      "order": 0,
+      "event": {
+        "kind": "RULE_CHOICE_REQUESTED",
+        "description": "\u6240\u67E5\u770B\u7684\u5361\u724C\u63D0\u4F9B\u53EF\u9009\u653E\u9010\u51FA\u724C\u6743\u9650\u3002",
+        "payload": {
+          "playerId": "P1",
+          "choiceId": "REPLACEMENT:3:1"
+        },
+        "objectRefs": null
+      }
+    },
+    {
+      "sequence": 7,
+      "tick": 6,
+      "order": 0,
+      "event": {
+        "kind": "PRIORITY_PASSED",
+        "description": "P2 \u8BA9\u8FC7\u4F18\u5148\u884C\u52A8\u6743",
+        "payload": {
+          "playerId": "P2",
+          "priorityPlayerId": "P2"
+        },
+        "objectRefs": null
+      }
+    },
+    {
+      "sequence": 8,
+      "tick": 6,
+      "order": 1,
+      "event": {
+        "kind": "STACK_ITEM_RESOLVED",
+        "description": "STACK-2-SPELL \u7ED3\u7B97",
+        "payload": {
+          "stackItemId": "STACK-2-SPELL",
+          "controllerId": "P1",
+          "sourceObjectId": "SPELL",
+          "effectKind": "PREDICTIVE_OFFENSIVE_DRAW_ONE_RECYCLE_OTHER",
+          "cardNo": "SFD\u00B7122/221",
+          "targetObjectIds": []
+        },
+        "objectRefs": null
+      }
+    },
+    {
+      "sequence": 9,
+      "tick": 6,
+      "order": 2,
+      "event": {
+        "kind": "CARD_BANISHED",
+        "description": "\u6240\u67E5\u770B\u7684\u5361\u724C\u4EE5\u9759\u6001\u80FD\u529B\u653E\u9010\uFF0C\u5F00\u59CB\u5F85\u786E\u8BA4\u51FA\u724C",
+        "payload": {
+          "playerId": "P1",
+          "sourceObjectId": "NOCT1",
+          "targetObjectId": "NOCT1",
+          "cardNo": "OGN\u00B7194/298",
+          "destinationZone": "BANISHED"
+        },
+        "objectRefs": null
+      }
+    },
+    {
+      "sequence": 10,
+      "tick": 6,
+      "order": 3,
+      "event": {
+        "kind": "CARD_BANISHED",
+        "description": "\u6240\u67E5\u770B\u7684\u5361\u724C\u4EE5\u9759\u6001\u80FD\u529B\u653E\u9010\uFF0C\u5F00\u59CB\u5F85\u786E\u8BA4\u51FA\u724C",
+        "payload": {
+          "playerId": "P1",
+          "sourceObjectId": "NOCT2",
+          "targetObjectId": "NOCT2",
+          "cardNo": "OGN\u00B7194/298",
+          "destinationZone": "BANISHED"
+        },
+        "objectRefs": null
+      }
+    }
+  ],
+  "final": {
+    "ruleInputs": {
+      "schemaVersion": 1,
+      "region": "CN",
+      "language": "zh-CN",
+      "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+      "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+      "implementationSha256": "d21fa804410088ac77a08b9e8a2ff94dcc54de4a496cfacc47007eada20d4dcb",
+      "identitySha256": "a8778fdb3fa73cf8ee0ea5bea49f6e0082d5faf4f8a97e000515d54809983c00"
+    },
+    "faceDownLookPermissions": [],
+    "linkedExiles": [],
+    "deathLedger": {
+      "turnNumber": 3,
+      "counts": {}
+    },
+    "drawLedger": {
+      "turnNumber": 3,
+      "counts": {}
+    },
+    "cardPlays": {
+      "turnNumber": 3,
+      "finalized": [
+        {
+          "playId": "STACK-2-SPELL",
+          "playerId": "P1",
+          "source": {
+            "objectId": "SPELL",
+            "generation": 1
+          },
+          "cardNo": "SFD\u00B7122/221",
+          "types": 4,
+          "tick": 2,
+          "faceRevision": 0
+        }
+      ],
+      "resolved": [
+        {
+          "playId": "STACK-2-SPELL",
+          "playerId": "P1",
+          "source": {
+            "objectId": "SPELL",
+            "generation": 2
+          },
+          "cardNo": "SFD\u00B7122/221",
+          "types": 4,
+          "tick": 4,
+          "faceRevision": 0
+        }
+      ]
+    },
+    "delayedResourceGains": [],
+    "roomId": "explicit-empty-repeat-2",
+    "tick": 6,
+    "turnNumber": 3,
+    "activePlayerId": "P1",
+    "seats": {
+      "P1": "P1",
+      "P2": "P2"
+    },
+    "status": "IN_PROGRESS",
+    "readyPlayerIds": [],
+    "turnPlayerId": "P1",
+    "phase": "MAIN",
+    "timingState": "NEUTRAL_OPEN",
+    "turnWindow": {
+      "state": "NEUTRAL_CLOSED",
+      "isSpellDuel": false,
+      "isClosed": true,
+      "hasStack": true,
+      "actingPlayerId": null
+    },
+    "spellDuelState": {
+      "isActive": false,
+      "isClosed": false,
+      "spellDuelId": null,
+      "battlefieldObjectId": null,
+      "focusPlayerId": null,
+      "passedFocusPlayerIds": [],
+      "stackItemIds": [],
+      "stackControllerIds": []
+    },
+    "battleState": {
+      "isActive": false,
+      "battleId": null,
+      "battlefieldObjectId": null,
+      "attackerObjectIds": [],
+      "defenderObjectIds": [],
+      "participantControllerIds": {}
+    },
+    "runePools": {
+      "P1": {
+        "mana": 20,
+        "power": 18,
+        "powerByTrait": {}
+      },
+      "P2": {
+        "mana": 0,
+        "power": 0,
+        "powerByTrait": {}
+      }
+    },
+    "playerZones": {
+      "P1": {
+        "mainDeck": [
+          "TAIL1",
+          "TAIL2",
+          "TAIL3",
+          "TAIL4"
+        ],
+        "runeDeck": [],
+        "hand": [],
+        "base": [],
+        "battlefields": [],
+        "graveyard": [
+          "SPELL"
+        ],
+        "banished": [],
+        "legendZone": [],
+        "championZone": []
+      },
+      "P2": {
+        "mainDeck": [],
+        "runeDeck": [],
+        "hand": [],
+        "base": [],
+        "battlefields": [],
+        "graveyard": [],
+        "banished": [],
+        "legendZone": [],
+        "championZone": []
+      }
+    },
+    "objectLocations": {
+      "NOCT1": {
+        "playerId": "P1",
+        "zone": "STACK",
+        "battlefieldObjectId": null
+      },
+      "NOCT2": {
+        "playerId": "P1",
+        "zone": "STACK",
+        "battlefieldObjectId": null
+      },
+      "TAIL1": {
+        "playerId": "P1",
+        "zone": "MAIN_DECK",
+        "battlefieldObjectId": null
+      },
+      "TAIL2": {
+        "playerId": "P1",
+        "zone": "MAIN_DECK",
+        "battlefieldObjectId": null
+      },
+      "TAIL3": {
+        "playerId": "P1",
+        "zone": "MAIN_DECK",
+        "battlefieldObjectId": null
+      },
+      "TAIL4": {
+        "playerId": "P1",
+        "zone": "MAIN_DECK",
+        "battlefieldObjectId": null
+      },
+      "SPELL": {
+        "playerId": "P1",
+        "zone": "GRAVEYARD",
+        "battlefieldObjectId": null
+      }
+    },
+    "battlefieldStates": {},
+    "pendingCleanupTasks": [],
+    "battlefieldTasks": [],
+    "battlefieldResolutions": [],
+    "battleResolutions": [],
+    "pendingTaskQueue": {
+      "hasTasks": false,
+      "isBlocking": false,
+      "phase": "IDLE",
+      "activeTaskId": null,
+      "tasks": []
+    },
+    "continuousEffects": [
+      {
+        "effectId": "GLOBAL:PLAYED_SPELL_THIS_TURN:P1",
+        "scope": "GLOBAL",
+        "layer": "RULE_TEXT",
+        "duration": "UNTIL_END_OF_TURN",
+        "targetObjectId": null,
+        "sourceObjectId": null,
+        "powerDelta": 0,
+        "basePower": 0,
+        "effectivePower": 0,
+        "effectKind": "",
+        "sourceCardNo": null,
+        "sourcePath": "",
+        "isLayerEngineFoundationOnly": false,
+        "deferredLayerEngineResiduals": null,
+        "sequence": 1
+      }
+    ],
+    "pendingPayment": null,
+    "pendingHandChoice": null,
+    "pendingCardChoice": null,
+    "observedDeckPlays": [
+      {
+        "id": "OBSERVED:3:STACK-2-SPELL:0:NOCT1",
+        "instruction": {
+          "parent": {
+            "playedFromHand": true,
+            "attachmentObserver": null,
+            "tempered": null,
+            "legendAttachment": null,
+            "azirMovement": null,
+            "equip": null,
+            "movementDestinations": null,
+            "triggerCost": null,
+            "tokenEntryPlan": null,
+            "completedRepeatExecutions": 0,
+            "reflexiveCopy": null,
+            "unitEntryContext": null,
+            "afterPlayRecycle": null,
+            "recycledUnit": null,
+            "playCost": {
+              "cardMana": 0,
+              "paidMana": 0
+            },
+            "recastContext": null,
+            "spellContext": null,
+            "targetStackSources": {},
+            "completedHandExecutions": 0,
+            "completedDeckExecutions": 0,
+            "deckChoiceCompleted": false,
+            "insightCompleted": false,
+            "stackItemId": "STACK-2-SPELL",
+            "controllerId": "P1",
+            "sourceObjectId": "SPELL",
+            "deathRevealContext": null,
+            "deathObserver": null,
+            "movementObserver": null,
+            "legendConquest": null,
+            "ephemeralStart": null,
+            "beginningRecycle": null,
+            "beginningDraw": null,
+            "unitConquest": null,
+            "effectKind": "PREDICTIVE_OFFENSIVE_DRAW_ONE_RECYCLE_OTHER",
+            "cardNo": "SFD\u00B7122/221",
+            "targetObjectIds": [],
+            "damageAmount": 0,
+            "effectRepeatCount": 2,
+            "optionalCosts": [
+              "ECHO"
+            ],
+            "playedAfterAnotherCardThisTurn": false,
+            "destination": "",
+            "timingContext": "NEUTRAL_OPEN"
+          },
+          "playerId": "P1",
+          "kind": "LOOK",
+          "executionIndex": 0,
+          "seen": [
+            {
+              "objectId": "NOCT1",
+              "generation": 0
+            },
+            {
+              "objectId": "NOCT2",
+              "generation": 0
+            }
+          ],
+          "selectionReveal": false
+        },
+        "card": {
+          "objectId": "NOCT1",
+          "generation": 2
+        },
+        "cardNo": "OGN\u00B7194/298",
+        "powerCost": 1,
+        "capturedTick": 3
+      },
+      {
+        "id": "OBSERVED:3:STACK-2-SPELL:0:NOCT2",
+        "instruction": {
+          "parent": {
+            "playedFromHand": true,
+            "attachmentObserver": null,
+            "tempered": null,
+            "legendAttachment": null,
+            "azirMovement": null,
+            "equip": null,
+            "movementDestinations": null,
+            "triggerCost": null,
+            "tokenEntryPlan": null,
+            "completedRepeatExecutions": 0,
+            "reflexiveCopy": null,
+            "unitEntryContext": null,
+            "afterPlayRecycle": null,
+            "recycledUnit": null,
+            "playCost": {
+              "cardMana": 0,
+              "paidMana": 0
+            },
+            "recastContext": null,
+            "spellContext": null,
+            "targetStackSources": {},
+            "completedHandExecutions": 0,
+            "completedDeckExecutions": 0,
+            "deckChoiceCompleted": false,
+            "insightCompleted": false,
+            "stackItemId": "STACK-2-SPELL",
+            "controllerId": "P1",
+            "sourceObjectId": "SPELL",
+            "deathRevealContext": null,
+            "deathObserver": null,
+            "movementObserver": null,
+            "legendConquest": null,
+            "ephemeralStart": null,
+            "beginningRecycle": null,
+            "beginningDraw": null,
+            "unitConquest": null,
+            "effectKind": "PREDICTIVE_OFFENSIVE_DRAW_ONE_RECYCLE_OTHER",
+            "cardNo": "SFD\u00B7122/221",
+            "targetObjectIds": [],
+            "damageAmount": 0,
+            "effectRepeatCount": 2,
+            "optionalCosts": [
+              "ECHO"
+            ],
+            "playedAfterAnotherCardThisTurn": false,
+            "destination": "",
+            "timingContext": "NEUTRAL_OPEN"
+          },
+          "playerId": "P1",
+          "kind": "LOOK",
+          "executionIndex": 0,
+          "seen": [
+            {
+              "objectId": "NOCT1",
+              "generation": 0
+            },
+            {
+              "objectId": "NOCT2",
+              "generation": 0
+            }
+          ],
+          "selectionReveal": false
+        },
+        "card": {
+          "objectId": "NOCT2",
+          "generation": 2
+        },
+        "cardNo": "OGN\u00B7194/298",
+        "powerCost": 1,
+        "capturedTick": 3
+      }
+    ],
+    "pendingEffectPlay": {
+      "choiceId": "OBSERVED-PLAY:OBSERVED:3:STACK-2-SPELL:0:NOCT1",
+      "playerId": "P1",
+      "parent": {
+        "observedPlayPermission": {
+          "context": {
+            "id": "OBSERVED:3:STACK-2-SPELL:0:NOCT1",
+            "instruction": {
+              "parent": {
+                "playedFromHand": true,
+                "attachmentObserver": null,
+                "tempered": null,
+                "legendAttachment": null,
+                "azirMovement": null,
+                "equip": null,
+                "movementDestinations": null,
+                "triggerCost": null,
+                "tokenEntryPlan": null,
+                "completedRepeatExecutions": 0,
+                "reflexiveCopy": null,
+                "unitEntryContext": null,
+                "afterPlayRecycle": null,
+                "recycledUnit": null,
+                "playCost": {
+                  "cardMana": 0,
+                  "paidMana": 0
+                },
+                "recastContext": null,
+                "spellContext": null,
+                "targetStackSources": {},
+                "completedHandExecutions": 0,
+                "completedDeckExecutions": 0,
+                "deckChoiceCompleted": false,
+                "insightCompleted": false,
+                "stackItemId": "STACK-2-SPELL",
+                "controllerId": "P1",
+                "sourceObjectId": "SPELL",
+                "deathRevealContext": null,
+                "deathObserver": null,
+                "movementObserver": null,
+                "legendConquest": null,
+                "ephemeralStart": null,
+                "beginningRecycle": null,
+                "beginningDraw": null,
+                "unitConquest": null,
+                "effectKind": "PREDICTIVE_OFFENSIVE_DRAW_ONE_RECYCLE_OTHER",
+                "cardNo": "SFD\u00B7122/221",
+                "targetObjectIds": [],
+                "damageAmount": 0,
+                "effectRepeatCount": 2,
+                "optionalCosts": [
+                  "ECHO"
+                ],
+                "playedAfterAnotherCardThisTurn": false,
+                "destination": "",
+                "timingContext": "NEUTRAL_OPEN"
+              },
+              "playerId": "P1",
+              "kind": "LOOK",
+              "executionIndex": 0,
+              "seen": [
+                {
+                  "objectId": "NOCT1",
+                  "generation": 0
+                },
+                {
+                  "objectId": "NOCT2",
+                  "generation": 0
+                }
+              ],
+              "selectionReveal": false
+            },
+            "card": {
+              "objectId": "NOCT1",
+              "generation": 2
+            },
+            "cardNo": "OGN\u00B7194/298",
+            "powerCost": 1,
+            "capturedTick": 3
+          }
+        },
+        "playedFromHand": false,
+        "attachmentObserver": null,
+        "tempered": null,
+        "legendAttachment": null,
+        "azirMovement": null,
+        "equip": null,
+        "movementDestinations": null,
+        "triggerCost": null,
+        "tokenEntryPlan": null,
+        "completedRepeatExecutions": 0,
+        "reflexiveCopy": null,
+        "unitEntryContext": null,
+        "afterPlayRecycle": null,
+        "recycledUnit": null,
+        "playCost": null,
+        "recastContext": null,
+        "spellContext": null,
+        "completedHandExecutions": 0,
+        "completedDeckExecutions": 0,
+        "deckChoiceCompleted": false,
+        "insightCompleted": false,
+        "stackItemId": "OBSERVED-PERMISSION:OBSERVED:3:STACK-2-SPELL:0:NOCT1",
+        "controllerId": "P1",
+        "sourceObjectId": "NOCT1",
+        "deathRevealContext": null,
+        "deathObserver": null,
+        "movementObserver": null,
+        "legendConquest": null,
+        "ephemeralStart": null,
+        "beginningRecycle": null,
+        "beginningDraw": null,
+        "unitConquest": null,
+        "effectKind": "OBSERVED_DECK_UNIT_PLAY_PERMISSION",
+        "cardNo": "OGN\u00B7194/298",
+        "targetObjectIds": [],
+        "damageAmount": 0,
+        "effectRepeatCount": 1,
+        "optionalCosts": [],
+        "playedAfterAnotherCardThisTurn": false,
+        "destination": "",
+        "timingContext": ""
+      },
+      "sourceZone": "STACK",
+      "sources": {
+        "NOCT1": 2
+      },
+      "ignoreBaseMana": true,
+      "ignoreBasePower": true,
+      "manaReduction": 0,
+      "destinationPolicy": "",
+      "optional": true,
+      "viewedCardIds": null,
+      "ignoreAllCosts": false,
+      "revealedHand": null
+    },
+    "playerScores": {},
+    "playerExperience": {
+      "P1": 0,
+      "P2": 0
+    },
+    "playerCardsPlayedThisTurn": {
+      "P1": 1
+    },
+    "playerDecklists": {},
+    "mulliganCompletedPlayerIds": [],
+    "openingSecondActionPlayerId": null,
+    "cardObjects": {
+      "SPELL": {
+        "objectId": "SPELL",
+        "objectGeneration": 2,
+        "damage": 0,
+        "untilEndOfTurnEffects": [],
+        "isFaceDown": false,
+        "isAttacking": false,
+        "isDefending": false,
+        "power": 0,
+        "untilEndOfTurnPowerModifier": 0,
+        "isExhausted": false,
+        "tags": [
+          "CARD_CATEGORY:\u6CD5\u672F",
+          "CARD_TYPE:SPELL",
+          "COLOR:purple"
+        ],
+        "manaCost": 0,
+        "attachedToObjectId": null,
+        "cardNo": "SFD\u00B7122/221",
+        "ownerId": "P1",
+        "controllerId": "P1",
+        "untilEndOfTurnPowerModifiers": []
+      },
+      "NOCT1": {
+        "objectId": "NOCT1",
+        "objectGeneration": 2,
+        "damage": 0,
+        "untilEndOfTurnEffects": [],
+        "isFaceDown": false,
+        "isAttacking": false,
+        "isDefending": false,
+        "power": 4,
+        "untilEndOfTurnPowerModifier": 0,
+        "isExhausted": false,
+        "tags": [
+          "CARD_CATEGORY:\u82F1\u96C4\u5355\u4F4D",
+          "CARD_TYPE:HERO",
+          "CARD_TYPE:UNIT",
+          "COLOR:purple",
+          "HERO:\u9B54\u817E"
+        ],
+        "manaCost": 4,
+        "attachedToObjectId": null,
+        "cardNo": "OGN\u00B7194/298",
+        "ownerId": "P1",
+        "controllerId": "P1",
+        "untilEndOfTurnPowerModifiers": []
+      },
+      "NOCT2": {
+        "objectId": "NOCT2",
+        "objectGeneration": 2,
+        "damage": 0,
+        "untilEndOfTurnEffects": [],
+        "isFaceDown": false,
+        "isAttacking": false,
+        "isDefending": false,
+        "power": 4,
+        "untilEndOfTurnPowerModifier": 0,
+        "isExhausted": false,
+        "tags": [
+          "CARD_CATEGORY:\u82F1\u96C4\u5355\u4F4D",
+          "CARD_TYPE:HERO",
+          "CARD_TYPE:UNIT",
+          "COLOR:purple",
+          "HERO:\u9B54\u817E"
+        ],
+        "manaCost": 4,
+        "attachedToObjectId": null,
+        "cardNo": "OGN\u00B7194/298",
+        "ownerId": "P1",
+        "controllerId": "P1",
+        "untilEndOfTurnPowerModifiers": []
+      },
+      "TAIL1": {
+        "objectId": "TAIL1",
+        "damage": 0,
+        "untilEndOfTurnEffects": [],
+        "isFaceDown": false,
+        "isAttacking": false,
+        "isDefending": false,
+        "power": 0,
+        "untilEndOfTurnPowerModifier": 0,
+        "isExhausted": false,
+        "tags": [
+          "CARD_TYPE:UNIT"
+        ],
+        "manaCost": 0,
+        "attachedToObjectId": null,
+        "cardNo": "SFD\u00B7125/221",
+        "ownerId": "P1",
+        "controllerId": "P1",
+        "untilEndOfTurnPowerModifiers": []
+      },
+      "TAIL2": {
+        "objectId": "TAIL2",
+        "damage": 0,
+        "untilEndOfTurnEffects": [],
+        "isFaceDown": false,
+        "isAttacking": false,
+        "isDefending": false,
+        "power": 0,
+        "untilEndOfTurnPowerModifier": 0,
+        "isExhausted": false,
+        "tags": [
+          "CARD_TYPE:UNIT"
+        ],
+        "manaCost": 0,
+        "attachedToObjectId": null,
+        "cardNo": "SFD\u00B7125/221",
+        "ownerId": "P1",
+        "controllerId": "P1",
+        "untilEndOfTurnPowerModifiers": []
+      },
+      "TAIL3": {
+        "objectId": "TAIL3",
+        "damage": 0,
+        "untilEndOfTurnEffects": [],
+        "isFaceDown": false,
+        "isAttacking": false,
+        "isDefending": false,
+        "power": 0,
+        "untilEndOfTurnPowerModifier": 0,
+        "isExhausted": false,
+        "tags": [
+          "CARD_TYPE:UNIT"
+        ],
+        "manaCost": 0,
+        "attachedToObjectId": null,
+        "cardNo": "SFD\u00B7125/221",
+        "ownerId": "P1",
+        "controllerId": "P1",
+        "untilEndOfTurnPowerModifiers": []
+      },
+      "TAIL4": {
+        "objectId": "TAIL4",
+        "damage": 0,
+        "untilEndOfTurnEffects": [],
+        "isFaceDown": false,
+        "isAttacking": false,
+        "isDefending": false,
+        "power": 0,
+        "untilEndOfTurnPowerModifier": 0,
+        "isExhausted": false,
+        "tags": [
+          "CARD_TYPE:UNIT"
+        ],
+        "manaCost": 0,
+        "attachedToObjectId": null,
+        "cardNo": "SFD\u00B7125/221",
+        "ownerId": "P1",
+        "controllerId": "P1",
+        "untilEndOfTurnPowerModifiers": []
+      }
+    },
+    "priorityPlayerId": null,
+    "passedPriorityPlayerIds": [],
+    "stackItems": [
+      {
+        "observedDeckPlay": {
+          "id": "OBSERVED:3:STACK-2-SPELL:0:NOCT1",
+          "instruction": {
+            "parent": {
+              "playedFromHand": true,
+              "attachmentObserver": null,
+              "tempered": null,
+              "legendAttachment": null,
+              "azirMovement": null,
+              "equip": null,
+              "movementDestinations": null,
+              "triggerCost": null,
+              "tokenEntryPlan": null,
+              "completedRepeatExecutions": 0,
+              "reflexiveCopy": null,
+              "unitEntryContext": null,
+              "afterPlayRecycle": null,
+              "recycledUnit": null,
+              "playCost": {
+                "cardMana": 0,
+                "paidMana": 0
+              },
+              "recastContext": null,
+              "spellContext": null,
+              "targetStackSources": {},
+              "completedHandExecutions": 0,
+              "completedDeckExecutions": 0,
+              "deckChoiceCompleted": false,
+              "insightCompleted": false,
+              "stackItemId": "STACK-2-SPELL",
+              "controllerId": "P1",
+              "sourceObjectId": "SPELL",
+              "deathRevealContext": null,
+              "deathObserver": null,
+              "movementObserver": null,
+              "legendConquest": null,
+              "ephemeralStart": null,
+              "beginningRecycle": null,
+              "beginningDraw": null,
+              "unitConquest": null,
+              "effectKind": "PREDICTIVE_OFFENSIVE_DRAW_ONE_RECYCLE_OTHER",
+              "cardNo": "SFD\u00B7122/221",
+              "targetObjectIds": [],
+              "damageAmount": 0,
+              "effectRepeatCount": 2,
+              "optionalCosts": [
+                "ECHO"
+              ],
+              "playedAfterAnotherCardThisTurn": false,
+              "destination": "",
+              "timingContext": "NEUTRAL_OPEN"
+            },
+            "playerId": "P1",
+            "kind": "LOOK",
+            "executionIndex": 0,
+            "seen": [
+              {
+                "objectId": "NOCT1",
+                "generation": 0
+              },
+              {
+                "objectId": "NOCT2",
+                "generation": 0
+              }
+            ],
+            "selectionReveal": false
+          },
+          "card": {
+            "objectId": "NOCT1",
+            "generation": 2
+          },
+          "cardNo": "OGN\u00B7194/298",
+          "powerCost": 1,
+          "capturedTick": 3
+        },
+        "playedFromHand": false,
+        "attachmentObserver": null,
+        "tempered": null,
+        "legendAttachment": null,
+        "azirMovement": null,
+        "equip": null,
+        "movementDestinations": null,
+        "triggerCost": null,
+        "tokenEntryPlan": null,
+        "completedRepeatExecutions": 0,
+        "reflexiveCopy": null,
+        "unitEntryContext": null,
+        "afterPlayRecycle": null,
+        "recycledUnit": null,
+        "playCost": null,
+        "recastContext": null,
+        "spellContext": null,
+        "completedHandExecutions": 0,
+        "completedDeckExecutions": 0,
+        "deckChoiceCompleted": false,
+        "insightCompleted": false,
+        "stackItemId": "OBSERVED:3:STACK-2-SPELL:0:NOCT1",
+        "controllerId": "P1",
+        "sourceObjectId": "NOCT1",
+        "deathRevealContext": null,
+        "deathObserver": null,
+        "movementObserver": null,
+        "legendConquest": null,
+        "ephemeralStart": null,
+        "beginningRecycle": null,
+        "beginningDraw": null,
+        "unitConquest": null,
+        "effectKind": "NOCTURNE_ROAM_PLAY_UNIT",
+        "cardNo": "OGN\u00B7194/298",
+        "targetObjectIds": [],
+        "damageAmount": 0,
+        "effectRepeatCount": 1,
+        "optionalCosts": [],
+        "playedAfterAnotherCardThisTurn": false,
+        "destination": "",
+        "timingContext": ""
+      },
+      {
+        "observedDeckPlay": {
+          "id": "OBSERVED:3:STACK-2-SPELL:0:NOCT2",
+          "instruction": {
+            "parent": {
+              "playedFromHand": true,
+              "attachmentObserver": null,
+              "tempered": null,
+              "legendAttachment": null,
+              "azirMovement": null,
+              "equip": null,
+              "movementDestinations": null,
+              "triggerCost": null,
+              "tokenEntryPlan": null,
+              "completedRepeatExecutions": 0,
+              "reflexiveCopy": null,
+              "unitEntryContext": null,
+              "afterPlayRecycle": null,
+              "recycledUnit": null,
+              "playCost": {
+                "cardMana": 0,
+                "paidMana": 0
+              },
+              "recastContext": null,
+              "spellContext": null,
+              "targetStackSources": {},
+              "completedHandExecutions": 0,
+              "completedDeckExecutions": 0,
+              "deckChoiceCompleted": false,
+              "insightCompleted": false,
+              "stackItemId": "STACK-2-SPELL",
+              "controllerId": "P1",
+              "sourceObjectId": "SPELL",
+              "deathRevealContext": null,
+              "deathObserver": null,
+              "movementObserver": null,
+              "legendConquest": null,
+              "ephemeralStart": null,
+              "beginningRecycle": null,
+              "beginningDraw": null,
+              "unitConquest": null,
+              "effectKind": "PREDICTIVE_OFFENSIVE_DRAW_ONE_RECYCLE_OTHER",
+              "cardNo": "SFD\u00B7122/221",
+              "targetObjectIds": [],
+              "damageAmount": 0,
+              "effectRepeatCount": 2,
+              "optionalCosts": [
+                "ECHO"
+              ],
+              "playedAfterAnotherCardThisTurn": false,
+              "destination": "",
+              "timingContext": "NEUTRAL_OPEN"
+            },
+            "playerId": "P1",
+            "kind": "LOOK",
+            "executionIndex": 0,
+            "seen": [
+              {
+                "objectId": "NOCT1",
+                "generation": 0
+              },
+              {
+                "objectId": "NOCT2",
+                "generation": 0
+              }
+            ],
+            "selectionReveal": false
+          },
+          "card": {
+            "objectId": "NOCT2",
+            "generation": 2
+          },
+          "cardNo": "OGN\u00B7194/298",
+          "powerCost": 1,
+          "capturedTick": 3
+        },
+        "playedFromHand": false,
+        "attachmentObserver": null,
+        "tempered": null,
+        "legendAttachment": null,
+        "azirMovement": null,
+        "equip": null,
+        "movementDestinations": null,
+        "triggerCost": null,
+        "tokenEntryPlan": null,
+        "completedRepeatExecutions": 0,
+        "reflexiveCopy": null,
+        "unitEntryContext": null,
+        "afterPlayRecycle": null,
+        "recycledUnit": null,
+        "playCost": null,
+        "recastContext": null,
+        "spellContext": null,
+        "completedHandExecutions": 0,
+        "completedDeckExecutions": 0,
+        "deckChoiceCompleted": false,
+        "insightCompleted": false,
+        "stackItemId": "OBSERVED:3:STACK-2-SPELL:0:NOCT2",
+        "controllerId": "P1",
+        "sourceObjectId": "NOCT2",
+        "deathRevealContext": null,
+        "deathObserver": null,
+        "movementObserver": null,
+        "legendConquest": null,
+        "ephemeralStart": null,
+        "beginningRecycle": null,
+        "beginningDraw": null,
+        "unitConquest": null,
+        "effectKind": "NOCTURNE_ROAM_PLAY_UNIT",
+        "cardNo": "OGN\u00B7194/298",
+        "targetObjectIds": [],
+        "damageAmount": 0,
+        "effectRepeatCount": 1,
+        "optionalCosts": [],
+        "playedAfterAnotherCardThisTurn": false,
+        "destination": "",
+        "timingContext": ""
+      }
+    ],
+    "triggerQueue": [],
+    "focusPlayerId": null,
+    "passedFocusPlayerIds": [],
+    "winnerPlayerId": null,
+    "destroyedUnitOwnerIdsThisTurn": [],
+    "seed": 0,
+    "rngCursor": 0,
+    "untilEndOfTurnEffects": [
+      "PLAYED_SPELL_THIS_TURN:P1"
+    ],
+    "extraTurnPlayerId": null
+  }
+}
