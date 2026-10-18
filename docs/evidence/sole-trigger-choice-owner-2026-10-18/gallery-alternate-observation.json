@@ -1,0 +1,52 @@
+{
+  "acquisition": {
+    "url": "https://playriftbound.com/zh-cn/card-gallery/",
+    "observedOriginalPageLink": true,
+    "attemptedAtUtc": "2026-10-18T01:40:11.523671+00:00",
+    "receivedAtUtc": "2026-10-18T01:40:14.564088+00:00",
+    "httpStatus": 200,
+    "finalUrl": "https://playriftbound.com/zh-cn/card-gallery/",
+    "httpDate": "Sun, 18 Oct 2026 01:40:12 GMT",
+    "lastModified": null,
+    "rawBytes": 4058083,
+    "rawSha256": "32eefbd52040812e88cb8a3cbd951bb82b285b9fac39abdb4e2d2a49bb299f69",
+    "region": "GLOBAL_SITE_ZH_CN_NOT_INFERRED_CN_REGIONAL_AUTHORITY",
+    "language": "zh-CN",
+    "publishedAt": null,
+    "effectiveAt": null,
+    "stored": "docs/evidence/sole-trigger-choice-owner-2026-10-18/source/gallery-global-zh-cn.html.gz",
+    "storedSha256": "416b30e7b0d002f8f1c4c4004d488bfbe106ba72c6b846355acab60dd364e940"
+  },
+  "reportedTotal": 1415,
+  "rawReturnedRows": 1408,
+  "returnedDistinctIds": 1407,
+  "addedAgainstCurrentEnglish": [],
+  "englishIdsNotReturned": [
+    "ven-173-166"
+  ],
+  "officialAsyncDescriptor": {
+    "linkdata": {
+      "self": "/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=zh_CN&from=0&limit=200",
+      "first": "/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=zh_CN&from=0&limit=200",
+      "last": "/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=zh_CN&from=1400&limit=200",
+      "next": "/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=zh_CN&from=200&limit=200"
+    },
+    "metadata": {
+      "channelHostname": "playriftbound.com",
+      "channelMachineName": "riftbound_website",
+      "overrideSize": 0,
+      "resultsUpdatedAt": "2026-10-18T01:25:07.572051097Z",
+      "smartListMachineName": "riftbound_gallery_cards",
+      "from": 0,
+      "limit": 200,
+      "totalItems": 1415,
+      "totalPages": 8,
+      "locale": "zh-cn",
+      "ssr": true,
+      "prefetchAll": true
+    }
+  },
+  "frozenSourceUniverseAndManifestUntouched": true,
+  "noRegionalCardTextMerged": true,
+  "sourceGapNotClosedByCrossLocaleCountAlone": true
+}

@@ -1,0 +1,64 @@
+{
+  "recordedAtUtc": "2026-10-18T01:52:18.736864+00:00",
+  "status": "SINGLE_CHECK_ONE_OLD_OWNER_ASSERTION_FAILED_THEN_EXACT_IDENTITY_AND40_ADJACENT_PASS",
+  "profile": "check",
+  "checkRunsThisCoherentBatch": 1,
+  "total": 12431,
+  "passed": 12430,
+  "failed": 1,
+  "skipped": 0,
+  "methods": 7329,
+  "wallSeconds": 621.883004,
+  "originalFailedIdentities": [
+    "Riftbound.ConformanceTests.OfficialLeblancCreationTests.ImagesQueueEntryObserversAndCopyTogetherAndKeepStunAfterCopy"
+  ],
+  "failedCheckNotRelabeledGreen": true,
+  "finalFailureRecheck": {
+    "recordedAtUtc": "2026-10-18T01:51:10.928775+00:00",
+    "status": "PASS",
+    "cases": 40,
+    "methods": 28,
+    "failedSingleCheckIdentityExactlyReexecutedAndPassed": [
+      "Riftbound.ConformanceTests.OfficialLeblancCreationTests.ImagesQueueEntryObserversAndCopyTogetherAndKeepStunAfterCopy"
+    ],
+    "trxSha256": "889b07f2a9bc090d8676628dc1ff3a15ebc21142f0a06302428dc68419c19f6f",
+    "actualTestAssemblySha256": "e46d0854d3d5452b1ca49502e3a922bc08e9b99066d0c18d35cede86ec6bf38c",
+    "originalSingleCheckFailedNotRelabeled": true,
+    "scope": "Full LeBlanc creation and optional token-replacement classes, both sole choice owner rows and observer prompt privacy. One-line actor correction only; all original effect and recovery assertions retained."
+  },
+  "allOriginal12429CaseMultisetAnd7328MethodsRetained": true,
+  "newCases": 2,
+  "newMethods": 1,
+  "newCaseNames": [
+    "Riftbound.ConformanceTests.RengarObservationOrderingTests.OnlyTheControllerWithASimultaneousChoiceMayOrderItsSkills(legendFirst: False)",
+    "Riftbound.ConformanceTests.RengarObservationOrderingTests.OnlyTheControllerWithASimultaneousChoiceMayOrderItsSkills(legendFirst: True)"
+  ],
+  "newMethodNames": [
+    "Riftbound.ConformanceTests.RengarObservationOrderingTests.OnlyTheControllerWithASimultaneousChoiceMayOrderItsSkills"
+  ],
+  "originalTwoFullGameSmokesRetained": [
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgamePaysRumbleReducedGraveyardMechanicalPaymentAndScoreVictoryActionLogReplaysToFinalStateHash",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialLowCurveDecksReachScoreVictoryAfterRealBattleThroughServerPrompts"
+  ],
+  "12574InputsStableDuringActualCheck": true,
+  "afterCheckChangedAuthoredSource": [
+    "tests/Riftbound.ConformanceTests/OfficialLeblancCreationTests.cs"
+  ],
+  "productionCodeChangedToRepairFailure": false,
+  "oneLineCorrection": "P1->P2 ORDER_TRIGGERS sender; original power/stun/movement/recovery assertions unchanged",
+  "actualCheckTestAssemblySha256": "a2ff5f757ee452eaf0ee88d5ce5b9c766ddd01fd389c09410fce9fad8cdadf55",
+  "actualFinalFocusTestAssemblySha256": "e46d0854d3d5452b1ca49502e3a922bc08e9b99066d0c18d35cede86ec6bf38c",
+  "onlyTestAssemblyAndPdbChangedAfterActorCorrection": true,
+  "allTenOtherOwnModulesAndFourSqlModulesByteExact": true,
+  "actualCoreImplementationSha256": "230f2e61607bd3d547081bad0eb05e3e52f0e131aff6bbd17fbacca0fb41f360",
+  "trx": {
+    "path": "var/qa/trigger-choice-owner-20261018/one-check-v1/check/results.trx",
+    "sha256": "b6130c126b5ef4403dfec8becbf408ecc503cd4144c19b112ba581ddcb1d23ea"
+  },
+  "frozenInputs": {
+    "path": "var/qa/trigger-choice-owner-20261018/one-check-v1-inputs.json",
+    "sha256": "9d43574ab5a8aef9c5db117548b86a29914d21cb2499bbe3252a288bbc726852"
+  },
+  "actualSingleCheckModulesRetained": true,
+  "fixedFullNativeWindowsRemainSeparate": true
+}

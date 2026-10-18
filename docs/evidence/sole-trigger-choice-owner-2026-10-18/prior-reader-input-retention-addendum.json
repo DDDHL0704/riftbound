@@ -1,0 +1,23 @@
+{
+  "recordedAtUtc": "2026-10-18T00:23:09.041243+00:00",
+  "reason": "OfficialArmamentCatalog reads a third runtime data file. Initial retention copied catalog/scope only; this operational addendum completes the frozen reader data without altering original SQL execution evidence, code, core binaries or old accepted history.",
+  "retained": "var/qa/observed-rengar-confirmation-20261018/sql-chronology-reader/bin/Debug/net10.0/data/official/armaments.json",
+  "sourceSha256": "ddcd838300e558c11df480ee79ccfab08c7af380df36544c666841720850bda8",
+  "bytes": 11743,
+  "apfsClone": true,
+  "bytesEqualActualExecutedSourceInput": true,
+  "originalReaderCodeAndCoreDllsUnchanged": true,
+  "runtimeIdentityVerification": "ACTUAL_FROZEN_READER_BASE_DIRECTORY_PROBE_PASS",
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+    "implementationSha256": "487bf6179a8d19165b60d1a4ce393bbcbb6ef848968358fd69e0027686c88964",
+    "identitySha256": "069b2e466018f3012c59c613cfe9cc5792dae1c8cf8f9f7506ecf7677ae1f0b0"
+  },
+  "exactlyMatchesOriginalExecutedSqlRuleInputs": true,
+  "probeSha256": "f8e4a24e6a551f02835d3a7019135436fa46cbe3fd59904479ab8ae29a0b4b03",
+  "probeDidNotConnectToDatabase": true
+}

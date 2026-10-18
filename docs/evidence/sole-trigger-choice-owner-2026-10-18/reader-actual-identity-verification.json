@@ -1,0 +1,36 @@
+{
+  "recordedAtUtc": "2026-10-18T01:42:59.363242+00:00",
+  "status": "ACTUAL_FROZEN_READER_RULE_INPUT_IDENTITY_MATCHES_ORIGINAL_SQL",
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+    "implementationSha256": "230f2e61607bd3d547081bad0eb05e3e52f0e131aff6bbd17fbacca0fb41f360",
+    "identitySha256": "ff421c253d8cce409bf8d7c0c2ade2f49196faf4befff16c4e4772772a8b099c"
+  },
+  "actualOwnModules": {
+    "Riftbound.CardCatalog.dll": "e85a23271bec9171abea72879289a14effba9976c18ab32aa0bbbc40abbebc96",
+    "Riftbound.Contracts.pdb": "7761580c6ff947c7fd4c4484df25a15a2746e4f749543e14c413003358b8d4b2",
+    "Riftbound.Engine.pdb": "07f5d5d2331c5c2772b366dfdd0c9fd0bf92350da5bf0b27b22ecba436daaed7",
+    "Riftbound.CardCatalog.pdb": "cfaea087ad04e0cd36b23e1ae16c5b99c4420d154ad98175c83b4f31db459006",
+    "Riftbound.Contracts.dll": "a18b20fc3edba66ee67c23ea4c61ea71e9cf54dbc71eec93f7fbe3f33b599187",
+    "Riftbound.Engine.dll": "955037b774f9042d191372ed0cb5098cbb9f37612e4a49b8c41493acf2335bc7",
+    "Riftbound.Persistence.pdb": "92fe2f4a56f1dba1e7323d06a45d0db3a353e963a56a7838d27f951eec6bf1b3",
+    "Riftbound.Persistence.dll": "2c68a570097b5bbbac6cbc721d2d2b1359efffc5712cb2c9efdae69e1c968443"
+  },
+  "allThreeFrozenRuntimeDataFiles": {
+    "rule-input-scope.json": "cc07cf3eef6a9af403454642a0435d061544400b5e01d08d3fdc65869bdad180",
+    "armaments.json": "ddcd838300e558c11df480ee79ccfab08c7af380df36544c666841720850bda8",
+    "card-catalog.zh-CN.json": "68930e34e45385c4bc78c4805aaba46e4b5b57057a25ba957a85b339fe376fc8"
+  },
+  "probeAssemblyReusedWithoutNewCompilationOrProjectReferences": {
+    "original": "var/qa/observed-rengar-confirmation-20261018/sql-chronology-reader/bin/Debug/net10.0/IdentityProbe.dll",
+    "actualCurrentPlacement": "var/qa/trigger-choice-owner-20261018/sql-choice-owner-reader/bin/Debug/net10.0/IdentityProbe.dll",
+    "sha256": "f8e4a24e6a551f02835d3a7019135436fa46cbe3fd59904479ab8ae29a0b4b03"
+  },
+  "databaseConnectionOpened": false,
+  "sourceBinAndOriginalRecordsNotModified": true,
+  "allExistingReaderModuleAndDataBytesUnchanged": true
+}

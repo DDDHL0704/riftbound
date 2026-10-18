@@ -1,0 +1,14 @@
+{
+  "baseCommit": "fc106dcf29d996e09994d582378bdf4d8472618b",
+  "scope": "Pre-fix source patch for two actual sole-choice-owner red cases; production sources exact base fc. Necessary actual executed own DLL/PDB retained independently.",
+  "patch": {
+    "path": "docs/evidence/sole-trigger-choice-owner-2026-10-18/original-red-source.patch.gz",
+    "sha256": "18cc461a73da749b0e969bc560d46951242f12829ec6ad743855ea64dfb9d1d9",
+    "uncompressedSha256": "e6c703b5b4b132219e89bf61ef4e52ba91a707f6da70cb1968bb343866facc3a"
+  },
+  "actualExecutedModuleProof": {
+    "path": "docs/evidence/sole-trigger-choice-owner-2026-10-18/actual-choice-owner-red.json",
+    "sha256": "137d9b6130f96a8e48acf81b5e574ca44a7c5421083f3ac0bdafcae808009e3a"
+  },
+  "additionalFullSourceCheckoutCreated": false
+}

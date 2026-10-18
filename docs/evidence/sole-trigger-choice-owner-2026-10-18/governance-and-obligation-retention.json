@@ -1,0 +1,63 @@
+{
+  "recordedAtUtc": "2026-10-18T01:59:28.681061+00:00",
+  "phase": "AFTER_SINGLE_CHECK_ONE_OLD_ACTOR_FAILURE_REPAIRED_BY_FINAL40_FOCUS",
+  "governanceValid": true,
+  "errors": [],
+  "allOriginal124ReviewDictionariesExactlyRetained": true,
+  "currentReviews": 125,
+  "currentContexts": 40,
+  "original16589ObligationIdsExactlyRetained": true,
+  "currentObligationCount": 16596,
+  "addedObligationIds": [
+    "BRANCH:sole-trigger-choice-controller-2026-10-18:cold-restored-mixed-later-choice-owner",
+    "BRANCH:sole-trigger-choice-controller-2026-10-18:known-mirror-errata-runtime-adoption",
+    "BRANCH:sole-trigger-choice-controller-2026-10-18:nonowner-rejection-no-mutation",
+    "BRANCH:sole-trigger-choice-controller-2026-10-18:owned-prompt-and-observer-privacy",
+    "BRANCH:sole-trigger-choice-controller-2026-10-18:sole-choice-controller",
+    "BRANCH:sole-trigger-choice-controller-2026-10-18:vex-token-entry-owner-consumer",
+    "GATE:SOLE_TRIGGER_CHOICE_OWNER"
+  ],
+  "all40CurrentContextsExplicitlyPendingNewFixedFull": true,
+  "originalAcceptanceGatesExactlyRetained": true,
+  "counts": {
+    "combinedExactPrintingNumbers": 1740,
+    "sourceDocuments": 36,
+    "sourceBlocks": 14293,
+    "cnOfficialPrintings": 1504,
+    "enReturnedPrintings": 1408,
+    "enReportedTotal": 1416,
+    "enSourceCountGap": 8,
+    "activeCatalogEntries": 1033,
+    "outsideActiveCatalog": 707,
+    "cnQaFields": 1504,
+    "cnNonemptyQaFields": 0
+  },
+  "fourRegisteredSourceDeltasExactlyRetained": true,
+  "all483GameplayInputsStillExactExecutedOriginal115SourceInputs": true,
+  "singleCheck": {
+    "total": 12431,
+    "passed": 12430,
+    "failed": 1,
+    "methods": 7329,
+    "skipped": 0,
+    "failedOriginalNotRelabeled": true,
+    "receiptSha256": "000e14cb6102b0765cd6dfd6d5692cbec629e7d000e68eeb650face3b0837c99"
+  },
+  "finalRepairedFocus": {
+    "cases": 40,
+    "methods": 28,
+    "allPassed": true,
+    "includesExactFailure": true
+  },
+  "pythonToolTests55Passed": true,
+  "pythonToolLogSha256": "a953c73f63b45560d5326f34218119939d76509da249059b0d1e130260f703c1",
+  "preCheckGovernanceSha256": "30ca1d674abd017f75b7ad67cfd506ee893a0001c26b12ce9aab3f290bc001ad",
+  "preCheckGovernanceLosslessArchive": {
+    "path": "var/qa/trigger-choice-owner-20261018/governance-before-check.json.gz",
+    "sha256": "dfcaa87370282a926d7ad72559ab7dd6649fd2861794e920f7bfa3b8abf07f10",
+    "decompressedSha256MatchesOriginal": true
+  },
+  "currentGovernanceSha256": "28694b685fab0e3bdc68710d9aa21a7a36fd9664ad145370b8656875d4131d8a",
+  "semanticCoverageCertified": false,
+  "completionRate": null
+}

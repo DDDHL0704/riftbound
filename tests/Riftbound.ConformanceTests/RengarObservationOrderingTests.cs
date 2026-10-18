@@ -100,8 +100,62 @@ public sealed class RengarObservationOrderingTests(ITestOutputHelper output)
         await BanishEffectPlayTests.Replay(initial, driver);
     }
 
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task OnlyTheControllerWithASimultaneousChoiceMayOrderItsSkills(bool legendFirst)
+    {
+        var (initial, driver, _, second) = await BrightFuturePrefix(bothLegends: true, merfolk: true,
+            branch: "p2-choice-owner-" + legendFirst, merfolkPlayer: "P2");
+        await BanishEffectPlayTests.Replay(initial, driver);
+        var state = driver.State;
+        var pair = state.TriggerQueue.Where(t => t.ControllerId == "P2" && t.EnqueuedAtTick == 10).ToArray();
+        Assert.Equal(2, pair.Length);
+        Assert.All(state.TriggerQueue.Where(t => t.ControllerId == "P1"),
+            t => Assert.Single(state.TriggerQueue, other => other.EnqueuedAtTick == t.EnqueuedAtTick));
+        var prompts = ResolutionResult.BuildPrompts(state);
+        var projected = JsonSerializer.SerializeToElement(prompts, new JsonSerializerOptions(JsonSerializerDefaults.Web));
+        var candidate = projected.EnumerateObject().SelectMany(p => p.Value.GetProperty("candidates").EnumerateArray())
+            .First(c => c.GetProperty("action").GetString() == "ORDER_TRIGGERS" && c.GetProperty("enabled").GetBoolean());
+        var ids = candidate.GetProperty("metadata").GetProperty("orderedTriggerIds").EnumerateArray()
+            .Select(v => v.GetString()!).ToArray();
+        var orderedPair = pair.OrderBy(t => (t.UnitPlayMight is not null) == legendFirst ? 0 : 1).ToArray();
+        var start = Array.FindIndex(ids, id => pair.Any(t => t.TriggerId == id));
+        ids[start] = orderedPair[0].TriggerId; ids[start + 1] = orderedPair[1].TriggerId;
+        var command = new OrderTriggersCommand(ids);
+        var engine = new CoreRuleEngine();
+        var wrong = await engine.ResolveAsync(state, new("opponent-chooses-p2-order", "P1", command.CmdType), command, default);
+        var owned = await engine.ResolveAsync(state, new("owner-chooses-p2-order", "P2", command.CmdType), command, default);
+        output.WriteLine("TRIGGER_CHOICE_OWNER " + JsonSerializer.Serialize(new {
+            legendFirst, originalPrefixFullReplayPassed = true, explicitMidgameReachabilityNotCertified = true,
+            turnPlayer = state.TurnPlayerId, choosingController = "P2", pairTicks = pair.Select(t => t.EnqueuedAtTick),
+            wrongActorAccepted = wrong.Accepted, ownerAccepted = owned.Accepted, ownerError = owned.ErrorMessage,
+            actualRuleInputs = state.RuleInputs
+        }));
+        driver.Export("p2-choice-owner-prefix.json", new { initial, state, commands = driver.Commands(), events = driver.Events() });
+        Assert.False(wrong.Accepted, "P1 has no simultaneous choice and cannot choose P2's own/legend order.");
+        Assert.Equal(MatchStateHasher.Hash(state), MatchStateHasher.Hash(wrong.State));
+        Assert.True(owned.Accepted, owned.ErrorMessage);
+        Assert.DoesNotContain(projected.GetProperty("P1").GetProperty("candidates").EnumerateArray(),
+            c => c.GetProperty("action").GetString() == "ORDER_TRIGGERS" && c.GetProperty("enabled").GetBoolean());
+        var ownedCandidate = Assert.Single(projected.GetProperty("P2").GetProperty("candidates").EnumerateArray(),
+            c => c.GetProperty("action").GetString() == "ORDER_TRIGGERS" && c.GetProperty("enabled").GetBoolean());
+        Assert.Equal("P2", ownedCandidate.GetProperty("metadata").GetProperty("orderingPlayerId").GetString());
+        await driver.Act("P2", command);
+        while (driver.State.PendingCardChoice is { } choice)
+        {
+            var item = driver.State.StackItems.Single(i => i.StackItemId == choice.ResolvingStackItemId);
+            Assert.NotNull(item.UnitPlayMight);
+            await driver.Act(choice.PlayerId, new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow,
+                [item.UnitPlayMight!.PlayedUnit.ObjectId]));
+        }
+        while (driver.State.StackItems.Count > 0) await driver.Top();
+        Assert.Equal(state.CardObjects[second].Power + 1, driver.State.CardObjects[second].Power);
+        await BanishEffectPlayTests.Replay(initial, driver);
+    }
+
     private static async Task<(MatchState Initial, StandbyDefendObserverTests.Driver Driver, string First, string Second)>
-        BrightFuturePrefix(bool bothLegends = false, bool merfolk = false, string? branch = null)
+        BrightFuturePrefix(bool bothLegends = false, bool merfolk = false, string? branch = null, string merfolkPlayer = "P1")
     {
         var initial = RengarUnitPlayConfirmationTests.WithLegend(DeckPlaySequenceTests.TopCard(
             DeckPlaySequenceTests.TopCard(DeckPlaySequenceTests.Position(DeckPlaySequenceTests.BrightFuture),
@@ -121,9 +175,11 @@ public sealed class RengarObservationOrderingTests(ITestOutputHelper output)
         }
         if (merfolk)
         {
-            initial = DeckPlaySequenceTests.TopCard(initial, "D0", "UNL-003/219");
+            var merfolkId = merfolkPlayer == "P1" ? "D0"
+                : initial.PlayerZones["P2"].MainDeck.First(id => id != "P2_TOP");
+            initial = DeckPlaySequenceTests.TopCard(initial, merfolkId, "UNL-003/219");
             initial = initial with { CardObjects = new Dictionary<string, CardObjectState>(initial.CardObjects) {
-                ["F"] = initial.CardObjects["F"] with { ControllerId = "P1" } } };
+                ["F"] = initial.CardObjects["F"] with { ControllerId = merfolkPlayer } } };
         }
         var driver = Driver(initial, branch ?? (bothLegends ? "bright-future-both-legends" : "bright-future-one-legend"));
         await driver.Act("P1", new PlayCardCommand("PARENT", DeckPlaySequenceTests.BrightFuture, []));
@@ -157,7 +213,7 @@ public sealed class RengarObservationOrderingTests(ITestOutputHelper output)
             Assert.Equal(player, pending.PlayerId);
             var id = pending.Sources.Keys.Single();
             await driver.Act(player, new PlayCardCommand(id, driver.State.CardObjects[id].CardNo!, [],
-                Destination: merfolk && player == "P1" ? "BATTLEFIELD:F" : "BASE"));
+                Destination: merfolk && player == merfolkPlayer ? "BATTLEFIELD:F" : "BASE"));
             await RejectOrderingWhileOriginalPermissionRemains(driver);
         }
         Assert.Null(driver.State.PendingEffectPlay);

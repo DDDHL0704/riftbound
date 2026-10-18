@@ -1,0 +1,43 @@
+{
+  "recordedAtUtc": "2026-10-18T01:54:04.149108+00:00",
+  "status": "REAL_SQL_SOLE_CHOICE_OWNER_TWO_EXPLICIT_PREFIXES_PASS",
+  "commands": 48,
+  "events": 146,
+  "coldRecoveries": 22,
+  "originalNextCommandsMatched": 18,
+  "forgedClockRejections": 6,
+  "priorRooms": 10,
+  "allPriorSevenTableRowsExact": true,
+  "freshRooms": 2,
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+    "implementationSha256": "230f2e61607bd3d547081bad0eb05e3e52f0e131aff6bbd17fbacca0fb41f360",
+    "identitySha256": "ff421c253d8cce409bf8d7c0c2ade2f49196faf4befff16c4e4772772a8b099c"
+  },
+  "currentFourModulesByteEqualConformance": true,
+  "originalGivenStateActionEventFinalReplayPassed": true,
+  "currentMixedLaterSimultaneousGroupOwnerSql": true,
+  "originalLegalBlankOpeningReachability": "OPEN",
+  "productionPositiveRegistryFromBlank": "NOT_APPLICABLE_EXPLICIT_MIDGAME",
+  "visiblePairedOffTurnOverlayAndNetworkColdAndNormalScoreAndWindows": "OPEN",
+  "wholePrintingCertified": false,
+  "databaseRetainedAndIdleSmartStopped": true,
+  "firstProbeRejectedAndNotRelabeled": {
+    "path": "docs/evidence/sole-trigger-choice-owner-2026-10-18/first-sql-probe-rejection.json",
+    "sha256": "a9cce2e55a5ec3c222170ae7bd2b2b4269b252ff34c827aa3beba69c51365d13"
+  },
+  "receipts": [
+    {
+      "path": "docs/evidence/sole-trigger-choice-owner-2026-10-18/sql/p2-choice-owner-False-receipt.json",
+      "sha256": "5a6b4f377d48a9df30e92ed3c5ed89c38d5483b17f8049e20f58526531158da2"
+    },
+    {
+      "path": "docs/evidence/sole-trigger-choice-owner-2026-10-18/sql/p2-choice-owner-True-receipt.json",
+      "sha256": "1d5af3bfe42e6a5e5973a3773455ba259b2b182a4338854f0eaf5c0a88c5525a"
+    }
+  ]
+}

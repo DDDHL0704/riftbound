@@ -1,0 +1,612 @@
+{
+  "recordedAtUtc": "2026-10-18T00:43:29.283013+00:00",
+  "scope": "Only the sole controller with at least one multi-skill simultaneous block owns ordering; other controllers have fixed singleton blocks. Multi-controller choices, finer same-command epochs, legal opening reachability and visible product acceptance remain separate.",
+  "hub": {
+    "url": "https://playloltcg.com/rules.html",
+    "attemptedAtUtc": "2026-10-18T00:43:15.174668+00:00",
+    "receivedAtUtc": "2026-10-18T00:43:15.353592+00:00",
+    "httpStatus": 200,
+    "httpDate": "Sun, 11 Oct 2026 15:35:44 GMT",
+    "rawSha256": "574cfebe168c9dedd2f9099b7ea604550c8fe9ecca62383abaad80710893ac2b",
+    "stored": "var/qa/trigger-choice-owner-20261018/rules-hub-current.html.gz",
+    "storedSha256": "8e5111f6aadbd3340ab1ae90c5383484fa48b2548157d069321746fbf31a4565",
+    "currentPrimaryUrlListed": false,
+    "pdfLinks": [],
+    "region": "CN",
+    "language": "zh-CN"
+  },
+  "primaryCore": {
+    "url": "https://cdn.playloltcg.com/lol/2026/10/2026-10-10/a21ead876c6b44d6abe386b6ae54ea28.pdf",
+    "attemptedAtUtc": "2026-10-18T00:43:15.353759+00:00",
+    "receivedAtUtc": "2026-10-18T00:43:29.283039+00:00",
+    "httpStatus": 200,
+    "httpDate": "Sat, 10 Oct 2026 00:27:22 GMT",
+    "lastModified": "Fri, 09 Oct 2026 16:55:24 GMT",
+    "bytes": 40278538,
+    "sha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11",
+    "publishedAt": "2026-10-10",
+    "effectiveAt": "2026-10-16",
+    "clauses": [
+      "383.3.d",
+      "383.3.d.1"
+    ],
+    "sameCanonicalFile": "var/qa/colorless-token-haste-20261016/DOC-01-current.pdf",
+    "bytesExactlySame": true,
+    "noDuplicatePdfSaved": true
+  },
+  "existingSourceManifestsReusedWithoutRewriting": [
+    {
+      "path": "docs/evidence/deferred-trigger-chronology-2026-10-18/source-manifest.json",
+      "sha256": "93c7df04b033aff5ae57145d332bbec5896bc6ce66446c34876ede77622f382a"
+    },
+    {
+      "path": "docs/evidence/deferred-trigger-chronology-2026-10-18/fixture-reachability-boundary.json",
+      "sha256": "d84629bead345918a8263ac6521e52d0470ddd12032cd817c6cdc3943bb28385"
+    }
+  ],
+  "newSourceDeltaNotInferredFromMetadataAlone": true,
+  "wholePrintingCertified": false,
+  "frozenUniverseApplicableAsOf": "2026-10-16",
+  "combinedExactPrintingNumbers": 1740,
+  "runtimeEntries": 1033,
+  "outsideRuntimeEntries": 707,
+  "exactCardObservations": [
+    {
+      "ok": true,
+      "cardNo": "UNL-150/219",
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "薇古丝",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "attemptedAtUtc": "2026-10-18T01:10:47.878964+00:00",
+      "receivedAtUtc": "2026-10-18T01:10:48.037424+00:00",
+      "httpStatus": 200,
+      "httpDate": "Sun, 18 Oct 2026 01:10:47 GMT",
+      "region": "CN",
+      "language": "zh-CN",
+      "publishedAt": null,
+      "effectiveAt": null,
+      "rawSha256": "4c54f14bc32ce095431f081378dfa245a29ced4cdc4d27c48ef6083599fdf509",
+      "stored": "docs/evidence/sole-trigger-choice-owner-2026-10-18/source/token-v2-UNL-150-219.json.gz",
+      "storedSha256": "225c556e3b99c20f5b0e7d691d488651f1818f9fd373550660b950a948df3ad9",
+      "exactCard": {
+        "id": 34697,
+        "cardCategoryList": [
+          "hero_unit"
+        ],
+        "cardCategoryNameList": [
+          "英雄单位"
+        ],
+        "cardNo": "UNL-150/219",
+        "cardName": "薇古丝",
+        "subTitle": "冷眼旁观",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "purple"
+        ],
+        "hero": "薇古丝",
+        "region": "暗影岛",
+        "tag": "约德尔人",
+        "artist": "League Splash Team",
+        "cardEffect": "{{法盾}}（对手必须支付{{A}}才能将我选作法术或技能的目标。）\n当对手打出一名单位时，如果我位于战场上，则{{眩晕}}该单位。该对手在本回合内无法移动该单位。（使其在本回合内无法造成战斗伤害。）",
+        "flavorText": "“我要让他们看看什么叫真的无所谓……或者算了。”",
+        "energy": 4,
+        "returnEnergy": null,
+        "power": 4,
+        "productCodeList": [
+          "UNL(进阶补充包)",
+          "UNL(标准补充包)",
+          "UNL（英雄预组 薇古丝）"
+        ],
+        "productNameList": [
+          "破限系列 进阶补充包",
+          "破限系列 基础补充包",
+          "破限系列 英雄预组 薇古丝"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_core",
+        "rarityName": "史诗",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260326/74452408b9914686bf76bad25f41caf5.webp",
+        "backImage": "",
+        "listSort": 1327,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "currentEffectiveText": "{{法盾}}（对手必须支付{{A}}才能将我选作法术或技能的目标。）\n当对手打出一名单位时，如果我位于战场上，则{{眩晕}}该单位。该对手在本回合内无法移动该单位。（使其在本回合内无法造成战斗伤害。）",
+      "snapshotEffectiveText": "{{法盾}}（对手必须支付{{A}}才能将我选作法术或技能的目标。）\n当对手打出一名单位时，如果我位于战场上，则{{眩晕}}该单位。该对手在本回合内无法移动该单位。（使其在本回合内无法造成战斗伤害。）",
+      "effectiveTextsByteEqual": true,
+      "effectiveTextsWhitespaceEqual": true
+    },
+    {
+      "ok": true,
+      "cardNo": "UNL-200/219",
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "镜花水月",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "attemptedAtUtc": "2026-10-18T01:10:47.879591+00:00",
+      "receivedAtUtc": "2026-10-18T01:10:47.988776+00:00",
+      "httpStatus": 200,
+      "httpDate": "Sun, 18 Oct 2026 01:10:47 GMT",
+      "region": "CN",
+      "language": "zh-CN",
+      "publishedAt": null,
+      "effectiveAt": null,
+      "rawSha256": "5afe8d20ec6103841fc02d3d8cb125c913b60b618ac26b7f3f23ad83444d6d76",
+      "stored": "docs/evidence/sole-trigger-choice-owner-2026-10-18/source/token-v2-UNL-200-219.json.gz",
+      "storedSha256": "68c3765a4033d9da448a4780d5d3a97df9eceaea7f7159dd541b8ba53f985833",
+      "exactCard": {
+        "id": 34753,
+        "cardCategoryList": [
+          "exclusive_spell"
+        ],
+        "cardCategoryNameList": [
+          "专属法术"
+        ],
+        "cardNo": "UNL-200/219",
+        "cardName": "镜花水月",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "blue",
+          "yellow"
+        ],
+        "hero": "乐芙兰",
+        "region": "",
+        "tag": "",
+        "artist": "华锐",
+        "cardEffect": "选择一名单位。将一名活跃状态的“映像”打出到你的基地。该“映像”变为所选单位的复制体。并让其获得{{瞬息}}。（在其控制者的开始阶段开始时，结算得分之前将其摧毁。）",
+        "flavorText": "“最好的谎言，总是美丽的。”\n——乐芙兰",
+        "energy": 3,
+        "returnEnergy": 2,
+        "power": null,
+        "productCodeList": [
+          "UNL(进阶补充包)",
+          "UNL(标准补充包)"
+        ],
+        "productNameList": [
+          "破限系列 进阶补充包",
+          "破限系列 基础补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_core",
+        "rarityName": "史诗",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260319/9264bffd383a476da0a3126d4f513367.webp",
+        "backImage": "",
+        "listSort": 1271,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "选择一名单位。将一名活跃状态的“映像”打出到你的基地。然后进行一次：该“映像”变为所选单位的复制体。让其获得{{瞬息}}。（在其控制者的开始阶段开始时，结算得分之前将其摧毁。）",
+        "otherDesc": 0
+      },
+      "currentEffectiveText": "选择一名单位。将一名活跃状态的“映像”打出到你的基地。然后进行一次：该“映像”变为所选单位的复制体。让其获得{{瞬息}}。（在其控制者的开始阶段开始时，结算得分之前将其摧毁。）",
+      "snapshotEffectiveText": "选择一名单位。将一名活跃状态的“映像”打出到你的基地。该“映像”变为所选单位的复制体。并让其获得{{瞬息}}。（在其控制者的开始阶段开始时，结算得分之前将其摧毁。）",
+      "effectiveTextsByteEqual": false,
+      "effectiveTextsWhitespaceEqual": false
+    },
+    {
+      "ok": true,
+      "cardNo": "UNL-086/219",
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "基兰",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "attemptedAtUtc": "2026-10-18T01:10:47.883589+00:00",
+      "receivedAtUtc": "2026-10-18T01:10:47.999354+00:00",
+      "httpStatus": 200,
+      "httpDate": "Sun, 18 Oct 2026 01:10:47 GMT",
+      "region": "CN",
+      "language": "zh-CN",
+      "publishedAt": null,
+      "effectiveAt": null,
+      "rawSha256": "7cfca33ac671ba05fda525b81fdc2bf9c6eae66455e3f8a053f29213ce8236db",
+      "stored": "docs/evidence/sole-trigger-choice-owner-2026-10-18/source/token-v2-UNL-086-219.json.gz",
+      "storedSha256": "cb67f9f42583b36733afa20321feb36837dec3b747f7be8e58f11f039be00495",
+      "exactCard": {
+        "id": 34621,
+        "cardCategoryList": [
+          "hero_unit"
+        ],
+        "cardCategoryNameList": [
+          "英雄单位"
+        ],
+        "cardNo": "UNL-086/219",
+        "cardName": "基兰",
+        "subTitle": "时间法师",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "blue"
+        ],
+        "hero": "基兰",
+        "region": "艾卡西亚",
+        "tag": "",
+        "artist": "Six More Vodka",
+        "cardEffect": "每回合限一次，如果我位于战场上，若你要打出一名指示物单位，则你可以选择改为打出该指示物单位和它的一名复制体。",
+        "flavorText": "“我觉得我以前做过这件事。”",
+        "energy": 5,
+        "returnEnergy": 1,
+        "power": 5,
+        "productCodeList": [
+          "UNL(进阶补充包)",
+          "UNL(标准补充包)"
+        ],
+        "productNameList": [
+          "破限系列 进阶补充包",
+          "破限系列 基础补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_shard",
+        "rarityName": "稀有",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260321/bcbeba35425747fbaab37f4cc47a6560.webp",
+        "backImage": "",
+        "listSort": 1403,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "currentEffectiveText": "每回合限一次，如果我位于战场上，若你要打出一名指示物单位，则你可以选择改为打出该指示物单位和它的一名复制体。",
+      "snapshotEffectiveText": "每回合限一次，如果我位于战场上，若你要打出一名指示物单位，则你可以选择改为打出该指示物单位和它的一名复制体。",
+      "effectiveTextsByteEqual": true,
+      "effectiveTextsWhitespaceEqual": true
+    },
+    {
+      "ok": true,
+      "cardNo": "OGN·297/298",
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "疾风山丘",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "attemptedAtUtc": "2026-10-18T01:10:47.885545+00:00",
+      "receivedAtUtc": "2026-10-18T01:10:47.990560+00:00",
+      "httpStatus": 200,
+      "httpDate": "Sun, 18 Oct 2026 01:10:47 GMT",
+      "region": "CN",
+      "language": "zh-CN",
+      "publishedAt": null,
+      "effectiveAt": null,
+      "rawSha256": "5ed11f2896c9157b3ea0aea68ee8884ed448a0f38000e5e4ce3700f21ae7460a",
+      "stored": "docs/evidence/sole-trigger-choice-owner-2026-10-18/source/token-v2-OGN-297-298.json.gz",
+      "storedSha256": "428c480cd6fa9c16114e3f447b266f74dc83f9bbbfbf873dcefe39b7ac3e96bb",
+      "exactCard": {
+        "id": 31543,
+        "cardCategoryList": [
+          "battlefield"
+        ],
+        "cardCategoryNameList": [
+          "战场"
+        ],
+        "cardNo": "OGN·297/298",
+        "cardName": "疾风山丘",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "colorless"
+        ],
+        "hero": "",
+        "region": "",
+        "tag": "",
+        "artist": "Kudos Productions",
+        "cardEffect": "此处的单位获得{{游走}}。（他们可以向其他战场进行移动。）",
+        "flavorText": "浪迹天涯，四海为家。",
+        "energy": null,
+        "returnEnergy": null,
+        "power": null,
+        "productCodeList": [
+          "OGN(标准补充包)",
+          "OGN(进阶补充包)"
+        ],
+        "productNameList": [
+          "起源 标准补充包",
+          "起源 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_glimmer",
+        "rarityName": "不凡",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/cb8eafb236c14508bc5a7648baa6bf64.png",
+        "backImage": "",
+        "listSort": 162,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "currentEffectiveText": "此处的单位获得{{游走}}。（他们可以向其他战场进行移动。）",
+      "snapshotEffectiveText": "此处的单位获得{{游走}}。（他们可以向其他战场进行移动。）",
+      "effectiveTextsByteEqual": true,
+      "effectiveTextsWhitespaceEqual": true
+    },
+    {
+      "ok": true,
+      "cardNo": "UNL-199/219",
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "诡术妖姬",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "attemptedAtUtc": "2026-10-18T01:50:18.557425+00:00",
+      "receivedAtUtc": "2026-10-18T01:50:18.681399+00:00",
+      "httpStatus": 200,
+      "httpDate": "Sun, 18 Oct 2026 01:50:18 GMT",
+      "region": "CN",
+      "language": "zh-CN",
+      "publishedAt": null,
+      "effectiveAt": null,
+      "rawSha256": "d3e59f046d7eb382155fce5660594119b7bd3eb34dd6c5257334310485e2fc66",
+      "stored": "docs/evidence/sole-trigger-choice-owner-2026-10-18/source/legend-current-UNL-199-219.json.gz",
+      "storedSha256": "a618e5b7fbc13acf9b900615e8365b3e5545c08d1ff43b441d0f650a3fd26666",
+      "exactCard": {
+        "id": 34752,
+        "cardCategoryList": [
+          "legendary"
+        ],
+        "cardCategoryNameList": [
+          "传奇"
+        ],
+        "cardNo": "UNL-199/219",
+        "cardName": "诡术妖姬",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "blue",
+          "yellow"
+        ],
+        "hero": "乐芙兰",
+        "region": "",
+        "tag": "",
+        "artist": "黯荧岛Dark Glow",
+        "cardEffect": "当你征服或据守一处战场时，你可以选择弃置一张手牌并让我变为休眠状态，以此在该处打出一名处于活跃状态的“映像”。该“映像”变为该处另一名单位的复制体。让其获得{{瞬息}}。",
+        "flavorText": "",
+        "energy": null,
+        "returnEnergy": null,
+        "power": null,
+        "productCodeList": [
+          "UNL(进阶补充包)",
+          "UNL(标准补充包)"
+        ],
+        "productNameList": [
+          "破限系列 进阶补充包",
+          "破限系列 基础补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_shard",
+        "rarityName": "稀有",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260319/676159225d354706b573d8a7a8cf4e02.webp",
+        "backImage": "",
+        "listSort": 1272,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "当你征服或据守一处战场时，你可以选择弃置一张手牌并让我变为休眠状态，以此在该处打出一名处于活跃状态的“映像”。然后进行一次：该“映像”变为该处另一名单位的复制体。让其获得{{瞬息}}。",
+        "otherDesc": 0
+      },
+      "currentEffectiveText": "当你征服或据守一处战场时，你可以选择弃置一张手牌并让我变为休眠状态，以此在该处打出一名处于活跃状态的“映像”。然后进行一次：该“映像”变为该处另一名单位的复制体。让其获得{{瞬息}}。",
+      "snapshotEffectiveText": "当你征服或据守一处战场时，你可以选择弃置一张手牌并让我变为休眠状态，以此在该处打出一名处于活跃状态的“映像”。该“映像”变为该处另一名单位的复制体。让其获得{{瞬息}}。",
+      "effectiveTextsByteEqual": false,
+      "effectiveTextsWhitespaceEqual": false
+    }
+  ],
+  "knownMirrorErrataBoundary": {
+    "path": "docs/evidence/sole-trigger-choice-owner-2026-10-18/mirror-known-errata-boundary.json",
+    "sha256": "86755bc31642609d3698cd23000687d9c4da9eb7a6c62aadbd826239bd60b4cd"
+  },
+  "allWholePrintingSemantics": "OPEN",
+  "currentRulesListing": {
+    "acquisition": {
+      "recordedAtUtc": "2026-10-18T00:46:19.425559+00:00",
+      "url": "https://lol-api.playloltcg.com/xcx/gameRule/getGameRuleList",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 1000
+      },
+      "attemptedAtUtc": "2026-10-18T00:46:19.328203+00:00",
+      "receivedAtUtc": "2026-10-18T00:46:19.425567+00:00",
+      "httpStatus": 200,
+      "httpDate": "Sun, 18 Oct 2026 00:46:19 GMT",
+      "rawSha256": "43d702df606114c6a3c9747a9021ae1850209d676ac1cc7bcd86f06ca8fdcb91",
+      "stored": "var/qa/trigger-choice-owner-20261018/rules-list-current.json.gz",
+      "storedSha256": "d0002313354ad06abe7ed9b6bc7f3f06b5ec7976eceb26a366ec81d0168c5600",
+      "observedPublicEndpointFromCurrentOfficialPageScripts": true,
+      "region": "CN",
+      "language": "zh-CN",
+      "currentPrimaryMatchesCanonicalUrl": true,
+      "primaryMetadata": {
+        "ruleCategory": "核心规则",
+        "ruleName": "《符文战场：英雄联盟对战卡牌》核心规则",
+        "coverUrl": "https://cdn.playloltcg.com/lol/2026/10/2026-10-10/f9f01d430af740c3b32dd1aff39c0887.jpg",
+        "updateDate": "2026-10-10",
+        "ruleDocUrl": "https://cdn.playloltcg.com/lol/2026/10/2026-10-10/a21ead876c6b44d6abe386b6ae54ea28.pdf"
+      },
+      "allCurrentMetadataRows": [
+        {
+          "ruleCategory": "核心规则",
+          "ruleName": "《符文战场：英雄联盟对战卡牌》核心规则",
+          "coverUrl": "https://cdn.playloltcg.com/lol/2026/10/2026-10-10/f9f01d430af740c3b32dd1aff39c0887.jpg",
+          "updateDate": "2026-10-10",
+          "ruleDocUrl": "https://cdn.playloltcg.com/lol/2026/10/2026-10-10/a21ead876c6b44d6abe386b6ae54ea28.pdf"
+        },
+        {
+          "ruleCategory": "赛事规则",
+          "ruleName": "《符文战场：英雄联盟对战卡牌》赛事规则",
+          "coverUrl": "https://cdn.playloltcg.com/lol/2026/10/2026-10-10/30aeff8b9f584eb5995103c194a964f4.jpg",
+          "updateDate": "2026-10-10",
+          "ruleDocUrl": "https://cdn.playloltcg.com/lol/2026/10/2026-10-10/0d5c26b5535345d48e1afafb3e2a0018.pdf"
+        },
+        {
+          "ruleCategory": "勘误汇总",
+          "ruleName": "《符文战场》勘误汇总",
+          "coverUrl": "https://cdn.playloltcg.com/lol/2026/10/2026-10-10/aca9901897e647bb9356c06b742f6aba.jpg",
+          "updateDate": "2026-10-10",
+          "ruleDocUrl": "https://cdn.playloltcg.com/lol/2026/10/2026-10-10/ade3c71d000c4dd0abf978d5d48b24ef.pdf"
+        },
+        {
+          "ruleCategory": "化神争锋系列 FAQ",
+          "ruleName": "化神争锋系列 官方FAQ",
+          "coverUrl": "https://cdn.playloltcg.com/lol/2026/08/2026-08-13/b12f3a27b677490da7065297f5683fc3.jpg",
+          "updateDate": "2026-08-14",
+          "ruleDocUrl": "https://cdn.playloltcg.com/lol/2026/08/2026-08-13/612b1cd53f9f41baaf3c8734c1881a3b.pdf"
+        },
+        {
+          "ruleCategory": "化神争锋系列 勘误",
+          "ruleName": "化神争锋系列 勘误汇总",
+          "coverUrl": "https://cdn.playloltcg.com/lol/2026/07/2026-07-24/e6805683852241faad370f96f9ecf333.jpg",
+          "updateDate": "2026-07-24",
+          "ruleDocUrl": "https://cdn.playloltcg.com/lol/2026/07/2026-07-24/9fe1f19110dd4678a6ad7bd96e791bba.pdf"
+        },
+        {
+          "ruleCategory": "禁卡表",
+          "ruleName": "禁卡表",
+          "coverUrl": "https://cdn.playloltcg.com/lol/2026/07/2026-07-17/55e0f4d873d4408095d88ab3c1fb2b9f.jpg",
+          "updateDate": "2026-07-17",
+          "ruleDocUrl": "https://cdn.playloltcg.com/lol/2026/07/2026-07-17/d91ee4548d224dfb9c7a3f5390cf0573.pdf"
+        },
+        {
+          "ruleCategory": "破限系列 FAQ",
+          "ruleName": "破限系列 裁判FAQ",
+          "coverUrl": "https://cdn.playloltcg.com/lol/2026/04/2026-04-16/688953d3fea2420da802163a9381b33c.jpg",
+          "updateDate": "2026-05-11",
+          "ruleDocUrl": "https://cdn.playloltcg.com/lol/2026/05/2026-05-13/《符文战场》破限系列_裁判FAQ_260511.pdf"
+        },
+        {
+          "ruleCategory": "破限系列 勘误",
+          "ruleName": "破限系列 勘误汇总",
+          "coverUrl": "https://cdn.playloltcg.com/lol/2026/04/2026-04-03/69a177b6352c4a069dd764403977c43d.jpg",
+          "updateDate": "2026-04-03",
+          "ruleDocUrl": "https://cdn.playloltcg.com/lol/2026/04/2026-04-15/破限系列_勘误汇总_260403.pdf"
+        },
+        {
+          "ruleCategory": "破限系列 FAQ",
+          "ruleName": "破限系列 官方FAQ",
+          "coverUrl": "https://cdn.playloltcg.com/lol/2026/04/2026-04-30/0ea83c83cee24b9baf4e0b59b2b31541.jpg",
+          "updateDate": "2026-04-30",
+          "ruleDocUrl": "https://cdn.playloltcg.com/lol/2026/04/2026-04-30/破限系列 官方FAQ.pdf"
+        },
+        {
+          "ruleCategory": "铸魂淬炼系列 勘误",
+          "ruleName": "铸魂淬炼系列 勘误汇总",
+          "coverUrl": "https://cdn.playloltcg.com/lol/2026/01/2026-01-14/2670e85eea67443cbaf663479bfb359e.jpeg",
+          "updateDate": "2026-01-14",
+          "ruleDocUrl": "https://cdn.playloltcg.com/lol/2026/04/2026-04-15/铸魂淬炼系列_勘误汇总_260114.pdf"
+        },
+        {
+          "ruleCategory": "铸魂淬炼系列 FAQ",
+          "ruleName": "铸魂淬炼系列 官方FAQ",
+          "coverUrl": "https://cdn.playloltcg.com/lol/2026/01/2026-01-14/c8fe15554b65440e82a8bbb3517b2cc4.jpeg",
+          "updateDate": "2026-01-14",
+          "ruleDocUrl": "https://cdn.playloltcg.com/lol/2026/04/2026-04-15/铸魂淬炼系列_官方FAQ_260114.pdf"
+        },
+        {
+          "ruleCategory": "铸魂淬炼系列 FAQ",
+          "ruleName": "铸魂淬炼系列 裁判FAQ",
+          "coverUrl": "https://cdn.playloltcg.com/lol/2025/12/2025-12-19/56c7dfe1e21846f3956989b3bcfcb8f8.jpeg",
+          "updateDate": "2026-01-14",
+          "ruleDocUrl": "https://cdn.playloltcg.com/lol/2026/04/2026-04-15/铸魂淬炼系列_裁判FAQ.pdf"
+        },
+        {
+          "ruleCategory": "起源系列 FAQ",
+          "ruleName": "起源系列 裁判FAQ",
+          "coverUrl": "https://cdn.playloltcg.com/lol/2025/12/2025-12-03/2b68dffacd9c44cfaebcbce6f2a6d299.jpeg",
+          "updateDate": "2025-10-24",
+          "ruleDocUrl": "https://cdn.playloltcg.com/lol/2025/12/2025-12-03/裁判FAQ_251023.pdf"
+        },
+        {
+          "ruleCategory": "起源系列 勘误",
+          "ruleName": "《符文战场：英雄联盟对战卡牌》起源系列 勘误汇总",
+          "coverUrl": "https://cdn.playloltcg.com/lol/2025/12/2025-12-03/d48a3431a1024577aa288883edd75fef.jpeg",
+          "updateDate": "2025-10-28",
+          "ruleDocUrl": "https://cdn.playloltcg.com/lol/2025/12/2025-12-03/《符文战场》勘误汇总_1028.pdf"
+        }
+      ],
+      "globalFrozenUniverseNotRewritten": true,
+      "newSemanticSourceDeltaNotInferredFromMetadataOnly": true
+    },
+    "impact": {
+      "currentOfficialRuleMetadataRows": 14,
+      "allCurrentUrlIdentitiesAlreadyRegistered": true,
+      "unmatchedCurrentUrlRows": [],
+      "comparisonInputs": [
+        "docs/evidence/rules-reaudit-2026-10-11/official-corpus.json",
+        "docs/evidence/rules-reaudit-2026-10-11/all-rule-ledger.json",
+        "docs/audit/current-manifest.json"
+      ],
+      "scope": "Metadata URL membership only; no complete semantic or source-byte closure inferred. Core source bytes separately refreshed unchanged.",
+      "globalFrozenUniverseAndExistingSourceDeltasUnchanged": true
+    },
+    "rawStored": "docs/evidence/sole-trigger-choice-owner-2026-10-18/source/rules-list-current.json.gz",
+    "metadataMembershipDoesNotCertifyAllDocumentBytesOrSemantics": true
+  },
+  "priorFamilySourceManifest": {
+    "path": "docs/evidence/deferred-trigger-chronology-2026-10-18/source-manifest.json",
+    "sha256": "93c7df04b033aff5ae57145d332bbec5896bc6ce66446c34876ede77622f382a"
+  },
+  "knownLeBlancErrataBoundary": {
+    "path": "docs/evidence/sole-trigger-choice-owner-2026-10-18/leblanc-known-errata-boundary.json",
+    "sha256": "8e739d5a958c236ffcfc61cf2ba4d3424194dad0d7a667fa69b26c51ae9c6ea3"
+  },
+  "internationalChineseGalleryVariant": {
+    "observation": {
+      "path": "docs/evidence/sole-trigger-choice-owner-2026-10-18/gallery-alternate-observation.json",
+      "sha256": "4aab3bcd8e1408fa434150f8d032eadad501f2d1c785a750eb1876cdc6f8ac7a"
+    },
+    "impact": {
+      "path": "docs/evidence/sole-trigger-choice-owner-2026-10-18/gallery-alternate-impact.json",
+      "sha256": "0ec2488563d86353304f11ec6223897d8af4fc51b01ef93187de190b1e8c64e5"
+    },
+    "scope": "GLOBAL_SITE_ZH_CN_NOT_CN_REGIONAL_AUTHORITY_NO_NEW_IDS_EN_GAP8_RETAINED"
+  }
+}

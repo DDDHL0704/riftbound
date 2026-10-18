@@ -142,7 +142,7 @@ public sealed class OfficialTokenReplacementTests
         var pending=await Open(s);Assert.Empty(pending.State.TriggerQueue);
         var done=await Choose(pending.State,"Z1");Assert.Equal(3,done.State.TriggerQueue.Count);
         Assert.Equal(2,done.State.TriggerQueue.Count(t=>t.UnitEntryContext is not null));Restore(done.State);
-        done=await Act(done.State,"P1",new OrderTriggersCommand(OrderedTriggerIds:done.State.TriggerQueue.Select(t=>t.TriggerId).Reverse().ToArray()));
+        done=await Act(done.State,"P2",new OrderTriggersCommand(OrderedTriggerIds:done.State.TriggerQueue.Select(t=>t.TriggerId).Reverse().ToArray()));
         for(var i=0;i<3;i++)done=await Top(done.State);
         Assert.All(Tokens(done.State),t=>{Assert.Contains("STUNNED",t.UntilEndOfTurnEffects);Assert.False(MovementRestrictionRules.CanMove(t,"P1"));});Restore(done.State);
     }

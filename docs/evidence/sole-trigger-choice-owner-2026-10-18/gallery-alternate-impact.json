@@ -1,0 +1,22 @@
+{
+  "recordedAtUtc": "2026-10-18T01:41:41.028567+00:00",
+  "sourceObservation": {
+    "path": "var/qa/trigger-choice-owner-20261018/gallery-alternate-observation.json",
+    "sha256": "572f983c46658fcddddc41ddfff9193bfad49c0bba68d847e86c399762197458"
+  },
+  "status": "GLOBAL_SITE_CHINESE_VARIANT_NO_NEW_PRINTING_IDS_COUNT_GAP_STILL_OPEN",
+  "reportedTotal": 1415,
+  "rawRows": 1408,
+  "distinctIds": 1407,
+  "identicalDuplicateIds": {
+    "ven-065-166": 2
+  },
+  "knownEnglishIdsAbsentHere": [
+    "ven-173-166"
+  ],
+  "regionalCn1504AndFrozenCombined1740NotMergedOrReduced": true,
+  "englishReported1416Returned1408Gap8StillOpen": true,
+  "localeSpecificMissingCardNotInferredBannedUnreleasedOrInapplicable": true,
+  "notAnAuthorityForCnRegionalCardWording": true,
+  "sourceGapNotReclassifiedAsOfficialCountDefect": true
+}

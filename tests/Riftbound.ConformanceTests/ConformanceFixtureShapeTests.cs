@@ -2968,15 +2968,20 @@ public sealed class ConformanceFixtureShapeTests
     public async Task OrderTriggersApnapPromptMetadataExposesLegalDefaultOrderAndRedactsHiddenSources()
     {
         var state = BuildP0ContractBattleInitialApnapTriggerQueueState(includeHiddenTrigger: true);
-        var prompt = ResolutionResult.BuildPrompts(state)["P1"];
+        var prompts = ResolutionResult.BuildPrompts(state);
+        var prompt = prompts["P1"];
+        var ownedPrompt = prompts["P2"];
 
-        Assert.True(prompt.Actionable);
-        Assert.Equal(PromptTypes.OrderTriggers, prompt.View?.Type);
-        var candidate = Assert.Single(
-            prompt.Candidates ?? [],
-            promptCandidate => string.Equals(promptCandidate.Action, CommandTypes.OrderTriggers, StringComparison.Ordinal));
-        var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(candidate.Metadata);
-        Assert.Equal("P1", Assert.IsType<string>(metadata["orderingPlayerId"]));
+        Assert.False(prompt.Actionable);
+        Assert.True(ownedPrompt.Actionable);
+        Assert.Equal(PromptTypes.OrderTriggers, ownedPrompt.View?.Type);
+        Assert.DoesNotContain(prompt.Candidates ?? [],
+            c => string.Equals(c.Action, CommandTypes.OrderTriggers, StringComparison.Ordinal));
+        var ownedCandidate = Assert.Single(ownedPrompt.Candidates ?? [],
+            c => string.Equals(c.Action, CommandTypes.OrderTriggers, StringComparison.Ordinal));
+        Assert.True(ownedCandidate.Enabled);
+        var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(ownedCandidate.Metadata);
+        Assert.Equal("P2", Assert.IsType<string>(metadata["orderingPlayerId"]));
         var defaultOrderedTriggerIds = Assert.IsAssignableFrom<IReadOnlyList<string>>(metadata["orderedTriggerIds"]);
         Assert.Equal(
             ["TRIGGER-BATTLE-DEFENDER", "TRIGGER-BATTLE-HIDDEN", "TRIGGER-BATTLE-ATTACKER"],
@@ -2995,7 +3000,8 @@ public sealed class ConformanceFixtureShapeTests
         var resolutionBlocks = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(constraints["legalResolutionControllerBlockOrder"]).ToArray();
         Assert.Equal(["P2", "P1"], resolutionBlocks.Select(block => Assert.IsType<string>(block["controllerId"])).ToArray());
 
-        var triggers = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(metadata["triggers"]).ToArray();
+        var observerSnapshot = ResolutionResult.BuildSnapshots(state)["P1"];
+        var triggers = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(observerSnapshot.Timing["triggerQueue"]).ToArray();
         var hiddenTrigger = Assert.Single(triggers, trigger =>
             string.Equals(trigger["triggerId"] as string, "TRIGGER-BATTLE-HIDDEN", StringComparison.Ordinal));
         Assert.Equal("HIDDEN", Assert.IsType<string>(hiddenTrigger["sourceObjectId"]));
@@ -3012,7 +3018,7 @@ public sealed class ConformanceFixtureShapeTests
 
         var directSubmit = await new CoreRuleEngine().ResolveAsync(
             state,
-            new PlayerIntent("intent-apnap-default-metadata-order", "P1", CommandTypes.OrderTriggers),
+            new PlayerIntent("intent-apnap-default-metadata-order", "P2", CommandTypes.OrderTriggers),
             new OrderTriggersCommand(OrderedTriggerIds: defaultOrderedTriggerIds),
             CancellationToken.None);
         Assert.True(directSubmit.Accepted, directSubmit.ErrorMessage);

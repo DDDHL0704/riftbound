@@ -1,0 +1,161 @@
+{
+  "recordedAtUtc": "2026-10-18T01:54:04.181301+00:00",
+  "onlyLatestNativePairAndOneCanonicalZipEachPlatform": true,
+  "noAdditionalFullSourceCheckoutCreated": true,
+  "completedNativeSourceRetirement": {
+    "recordedAtUtc": "2026-10-18T01:16:57.705449+00:00",
+    "status": "TWO_COMPLETED_DUPLICATE_NATIVE_SOURCE_TREES_RETIRED_AFTER_EXACT_RECONSTRUCTION_VERIFICATION",
+    "retired": [
+      {
+        "source": "/Users/dinghaolin/MyProjects/riftbound/var/qa/battlefield-play-paired-20261017/fixed-source",
+        "index": "/Users/dinghaolin/MyProjects/riftbound/var/qa/trigger-choice-owner-20261018/completed-native-source-retirement/battlefield-play-paired-20261017.json.gz",
+        "indexSha256": "7161f270032c0d50c3e0a62f10fc5681fe191623d437be11507f5081c44dfe38",
+        "fileReferences": 12490,
+        "logicalBytes": 570298632
+      },
+      {
+        "source": "/Users/dinghaolin/MyProjects/riftbound/var/qa/merfolk-damage-paired-20261017/fixed-source",
+        "index": "/Users/dinghaolin/MyProjects/riftbound/var/qa/trigger-choice-owner-20261018/completed-native-source-retirement/merfolk-damage-paired-20261017.json.gz",
+        "indexSha256": "f38fa3846dd497d3e4407e4a028b19c69ebba09aefbc2994b72cf8489b394dd1",
+        "fileReferences": 13922,
+        "logicalBytes": 707711511
+      }
+    ],
+    "uniqueGitBlobsActuallyReadAndSha256Verified": 11612,
+    "uniqueObjectsActuallyVerified": 102,
+    "newSavedObjects": 33,
+    "newSavedLogicalBytes": 9859281,
+    "objectStore": "/Users/dinghaolin/MyProjects/riftbound/var/qa/completed-snapshot-material-20261018/objects",
+    "freeBeforeBytes": 35454717952,
+    "freeAfterBytes": 35495469056,
+    "allOriginalSourcesTestsFixturesLogsTrxActualOwnModulesAndDatabasesRetainedOrExactlyReconstructable": true,
+    "matchingApiReplayPublicationsAndLatestNativePairUntouched": true,
+    "otherConcurrentFilesystemActivityPossible": true,
+    "observedFreeDeltaBytes": 40751104
+  },
+  "originalTestResultsLosslessArchive": {
+    "startedAtUtc": "2026-10-18T01:22:12.022902+00:00",
+    "reason": "User requested controlled storage and only latest builds; preserve original completed verification bytes losslessly",
+    "protectedLatestRunDirectories": [
+      "chronology-family-paired-20261018",
+      "full-ci-b18272e8-terminal-20261018",
+      "observed-rengar-confirmation-20261018",
+      "trigger-choice-owner-20261018"
+    ],
+    "selectedFiles": 860,
+    "selectedLogicalBytes": 6683745535,
+    "representation": "original path + .gz; gzip -dc reconstructs original exact bytes",
+    "status": "COMPLETED_ALL_ORIGINAL_TEST_RESULT_BYTES_INDEPENDENTLY_VERIFIED",
+    "finishedAtUtc": "2026-10-18T01:23:13.589738+00:00",
+    "archivedFiles": 860,
+    "gzipBytes": 1143439696,
+    "freeBeforeBytes": 35492196352,
+    "freeAfterBytes": 41038409728,
+    "authoredSourceAndAllTestMethodsFixturesSeedsAndAssertionsUntouched": true,
+    "allOriginalDatabasesSourcesPrivateFramesAndNecessaryActualAssembliesUntouched": true,
+    "originalRunStatusesAndHashesNotRelabeled": true,
+    "protectedRunsNotModified": true,
+    "filesystemDeltaCanIncludeConcurrentActivity": true,
+    "logicalReductionBytes": 5540305839,
+    "observedFreeDeltaBytes": 5546213376
+  },
+  "losslessArchiveCompleteIndex": {
+    "path": "var/qa/trigger-choice-owner-20261018/completed-trx-lossless-archive.json",
+    "sha256": "abb4e0429724088080b728905c893d8454c6940b1de67fc9c933f8d56dfd588b"
+  },
+  "identicalPdfsShareApfsStorage": {
+    "recordedAtUtc": "2026-10-18T01:23:32.671177+00:00",
+    "status": "IDENTICAL_OFFICIAL_PDF_BYTES_SHARE_APFS_STORAGE_ALL_ORIGINAL_PATHS_REMAIN",
+    "duplicateGroups": 12,
+    "pathsStorageShared": 96,
+    "duplicateLogicalBytes": 2567600619,
+    "freeBeforeBytes": 41033760768,
+    "freeAfterBytes": 43583840256,
+    "allOriginalOfficialSourcesStillDirectlyReadable": true,
+    "sourceObservationsAndHashesNotRewritten": true,
+    "hardlinksUsed": false,
+    "currentExecutingSourceBinAndAllDatabasesUntouched": true,
+    "concurrentFilesystemActivityPossible": true,
+    "observedFreeDeltaBytes": 2550079488
+  },
+  "pdfCompleteIndex": {
+    "path": "var/qa/trigger-choice-owner-20261018/identical-pdf-storage-sharing.json",
+    "sha256": "678d806b778a4b9cc6d6e12b8e50e355ceb42f7ee6793234c099c7940ff755f7"
+  },
+  "allOriginalPrivateFramesDatabasesAndNeededActualRuntimeModulesRetained": true,
+  "bothRetiredNativeSourcesApiAndReplayReadersAllThreeInputsAlreadyFrozenAndExact": [
+    {
+      "runtime": "var/qa/battlefield-play-paired-20261017/api-publish",
+      "data": "card-catalog.zh-CN.json",
+      "sha256": "68930e34e45385c4bc78c4805aaba46e4b5b57057a25ba957a85b339fe376fc8",
+      "exactOriginalCommittedInput": "4fca367eaab1dd198ffde839b23461c058a2b470"
+    },
+    {
+      "runtime": "var/qa/battlefield-play-paired-20261017/api-publish",
+      "data": "rule-input-scope.json",
+      "sha256": "cc07cf3eef6a9af403454642a0435d061544400b5e01d08d3fdc65869bdad180",
+      "exactOriginalCommittedInput": "4fca367eaab1dd198ffde839b23461c058a2b470"
+    },
+    {
+      "runtime": "var/qa/battlefield-play-paired-20261017/api-publish",
+      "data": "armaments.json",
+      "sha256": "ddcd838300e558c11df480ee79ccfab08c7af380df36544c666841720850bda8",
+      "exactOriginalCommittedInput": "4fca367eaab1dd198ffde839b23461c058a2b470"
+    },
+    {
+      "runtime": "var/qa/battlefield-play-paired-20261017/replay-reader/bin/Release/net10.0",
+      "data": "card-catalog.zh-CN.json",
+      "sha256": "68930e34e45385c4bc78c4805aaba46e4b5b57057a25ba957a85b339fe376fc8",
+      "exactOriginalCommittedInput": "4fca367eaab1dd198ffde839b23461c058a2b470"
+    },
+    {
+      "runtime": "var/qa/battlefield-play-paired-20261017/replay-reader/bin/Release/net10.0",
+      "data": "rule-input-scope.json",
+      "sha256": "cc07cf3eef6a9af403454642a0435d061544400b5e01d08d3fdc65869bdad180",
+      "exactOriginalCommittedInput": "4fca367eaab1dd198ffde839b23461c058a2b470"
+    },
+    {
+      "runtime": "var/qa/battlefield-play-paired-20261017/replay-reader/bin/Release/net10.0",
+      "data": "armaments.json",
+      "sha256": "ddcd838300e558c11df480ee79ccfab08c7af380df36544c666841720850bda8",
+      "exactOriginalCommittedInput": "4fca367eaab1dd198ffde839b23461c058a2b470"
+    },
+    {
+      "runtime": "var/qa/merfolk-damage-paired-20261017/api-publish",
+      "data": "card-catalog.zh-CN.json",
+      "sha256": "68930e34e45385c4bc78c4805aaba46e4b5b57057a25ba957a85b339fe376fc8",
+      "exactOriginalCommittedInput": "62bf7afc7a59bc743e1e578712e156686666c060"
+    },
+    {
+      "runtime": "var/qa/merfolk-damage-paired-20261017/api-publish",
+      "data": "rule-input-scope.json",
+      "sha256": "cc07cf3eef6a9af403454642a0435d061544400b5e01d08d3fdc65869bdad180",
+      "exactOriginalCommittedInput": "62bf7afc7a59bc743e1e578712e156686666c060"
+    },
+    {
+      "runtime": "var/qa/merfolk-damage-paired-20261017/api-publish",
+      "data": "armaments.json",
+      "sha256": "ddcd838300e558c11df480ee79ccfab08c7af380df36544c666841720850bda8",
+      "exactOriginalCommittedInput": "62bf7afc7a59bc743e1e578712e156686666c060"
+    },
+    {
+      "runtime": "var/qa/merfolk-damage-paired-20261017/replay-reader/bin/Release/net10.0",
+      "data": "card-catalog.zh-CN.json",
+      "sha256": "68930e34e45385c4bc78c4805aaba46e4b5b57057a25ba957a85b339fe376fc8",
+      "exactOriginalCommittedInput": "62bf7afc7a59bc743e1e578712e156686666c060"
+    },
+    {
+      "runtime": "var/qa/merfolk-damage-paired-20261017/replay-reader/bin/Release/net10.0",
+      "data": "rule-input-scope.json",
+      "sha256": "cc07cf3eef6a9af403454642a0435d061544400b5e01d08d3fdc65869bdad180",
+      "exactOriginalCommittedInput": "62bf7afc7a59bc743e1e578712e156686666c060"
+    },
+    {
+      "runtime": "var/qa/merfolk-damage-paired-20261017/replay-reader/bin/Release/net10.0",
+      "data": "armaments.json",
+      "sha256": "ddcd838300e558c11df480ee79ccfab08c7af380df36544c666841720850bda8",
+      "exactOriginalCommittedInput": "62bf7afc7a59bc743e1e578712e156686666c060"
+    }
+  ],
+  "retiredSourcesNotNeededForRuntimeCatalogResolution": true
+}

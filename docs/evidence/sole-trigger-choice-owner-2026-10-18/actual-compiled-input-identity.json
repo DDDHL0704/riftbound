@@ -1,0 +1,115 @@
+{
+  "recordedAtUtc": "2026-10-18T01:54:04.172760+00:00",
+  "actualCurrentRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+    "implementationSha256": "230f2e61607bd3d547081bad0eb05e3e52f0e131aff6bbd17fbacca0fb41f360",
+    "identitySha256": "ff421c253d8cce409bf8d7c0c2ade2f49196faf4befff16c4e4772772a8b099c"
+  },
+  "actualCurrentDebugModules": {
+    "Riftbound.CardCatalog.dll": "e85a23271bec9171abea72879289a14effba9976c18ab32aa0bbbc40abbebc96",
+    "Riftbound.Contracts.pdb": "7761580c6ff947c7fd4c4484df25a15a2746e4f749543e14c413003358b8d4b2",
+    "Riftbound.Engine.pdb": "07f5d5d2331c5c2772b366dfdd0c9fd0bf92350da5bf0b27b22ecba436daaed7",
+    "Riftbound.CardCatalog.pdb": "cfaea087ad04e0cd36b23e1ae16c5b99c4420d154ad98175c83b4f31db459006",
+    "Riftbound.Contracts.dll": "a18b20fc3edba66ee67c23ea4c61ea71e9cf54dbc71eec93f7fbe3f33b599187",
+    "Riftbound.Engine.dll": "955037b774f9042d191372ed0cb5098cbb9f37612e4a49b8c41493acf2335bc7",
+    "Riftbound.Persistence.pdb": "92fe2f4a56f1dba1e7323d06a45d0db3a353e963a56a7838d27f951eec6bf1b3",
+    "Riftbound.Api.dll": "29439d7c154a8f250c460f58df15a27c483d705ff4421f1fb196a8a91edb2660",
+    "Riftbound.ConformanceTests.pdb": "ce6eec9c9ff7a5d26a300034c988f90e891e66bea059dfe585d4c8e490fb6838",
+    "Riftbound.Api.pdb": "cb87db2ed7ca750d227f6b0c005c25bd98f13235735df96814e05de6f6d6c15f",
+    "Riftbound.Persistence.dll": "2c68a570097b5bbbac6cbc721d2d2b1359efffc5712cb2c9efdae69e1c968443",
+    "Riftbound.ConformanceTests.dll": "e46d0854d3d5452b1ca49502e3a922bc08e9b99066d0c18d35cede86ec6bf38c"
+  },
+  "actualSingleCheckAndOriginalOwnModules": [
+    {
+      "name": "Riftbound.CardCatalog.dll",
+      "path": "var/qa/trigger-choice-owner-20261018/sql-choice-owner-reader/bin/Debug/net10.0/Riftbound.CardCatalog.dll",
+      "sha256": "e85a23271bec9171abea72879289a14effba9976c18ab32aa0bbbc40abbebc96",
+      "reusedExactReaderModule": true
+    },
+    {
+      "name": "Riftbound.Contracts.pdb",
+      "path": "var/qa/trigger-choice-owner-20261018/sql-choice-owner-reader/bin/Debug/net10.0/Riftbound.Contracts.pdb",
+      "sha256": "7761580c6ff947c7fd4c4484df25a15a2746e4f749543e14c413003358b8d4b2",
+      "reusedExactReaderModule": true
+    },
+    {
+      "name": "Riftbound.Engine.pdb",
+      "path": "var/qa/trigger-choice-owner-20261018/sql-choice-owner-reader/bin/Debug/net10.0/Riftbound.Engine.pdb",
+      "sha256": "07f5d5d2331c5c2772b366dfdd0c9fd0bf92350da5bf0b27b22ecba436daaed7",
+      "reusedExactReaderModule": true
+    },
+    {
+      "name": "Riftbound.CardCatalog.pdb",
+      "path": "var/qa/trigger-choice-owner-20261018/sql-choice-owner-reader/bin/Debug/net10.0/Riftbound.CardCatalog.pdb",
+      "sha256": "cfaea087ad04e0cd36b23e1ae16c5b99c4420d154ad98175c83b4f31db459006",
+      "reusedExactReaderModule": true
+    },
+    {
+      "name": "Riftbound.Contracts.dll",
+      "path": "var/qa/trigger-choice-owner-20261018/sql-choice-owner-reader/bin/Debug/net10.0/Riftbound.Contracts.dll",
+      "sha256": "a18b20fc3edba66ee67c23ea4c61ea71e9cf54dbc71eec93f7fbe3f33b599187",
+      "reusedExactReaderModule": true
+    },
+    {
+      "name": "Riftbound.Engine.dll",
+      "path": "var/qa/trigger-choice-owner-20261018/sql-choice-owner-reader/bin/Debug/net10.0/Riftbound.Engine.dll",
+      "sha256": "955037b774f9042d191372ed0cb5098cbb9f37612e4a49b8c41493acf2335bc7",
+      "reusedExactReaderModule": true
+    },
+    {
+      "name": "Riftbound.Persistence.pdb",
+      "path": "var/qa/trigger-choice-owner-20261018/sql-choice-owner-reader/bin/Debug/net10.0/Riftbound.Persistence.pdb",
+      "sha256": "92fe2f4a56f1dba1e7323d06a45d0db3a353e963a56a7838d27f951eec6bf1b3",
+      "reusedExactReaderModule": true
+    },
+    {
+      "name": "Riftbound.Api.dll",
+      "path": "var/qa/trigger-choice-owner-20261018/single-check-executed-assemblies/Riftbound.Api.dll",
+      "sha256": "29439d7c154a8f250c460f58df15a27c483d705ff4421f1fb196a8a91edb2660",
+      "reusedExactReaderModule": false
+    },
+    {
+      "name": "Riftbound.ConformanceTests.pdb",
+      "path": "var/qa/trigger-choice-owner-20261018/single-check-executed-assemblies/Riftbound.ConformanceTests.pdb",
+      "sha256": "7248340fd7da1aa7963b088e64f825b58406b3c743fb640870c397db1eece080",
+      "reusedExactReaderModule": false
+    },
+    {
+      "name": "Riftbound.Api.pdb",
+      "path": "var/qa/trigger-choice-owner-20261018/single-check-executed-assemblies/Riftbound.Api.pdb",
+      "sha256": "cb87db2ed7ca750d227f6b0c005c25bd98f13235735df96814e05de6f6d6c15f",
+      "reusedExactReaderModule": false
+    },
+    {
+      "name": "Riftbound.Persistence.dll",
+      "path": "var/qa/trigger-choice-owner-20261018/sql-choice-owner-reader/bin/Debug/net10.0/Riftbound.Persistence.dll",
+      "sha256": "2c68a570097b5bbbac6cbc721d2d2b1359efffc5712cb2c9efdae69e1c968443",
+      "reusedExactReaderModule": true
+    },
+    {
+      "name": "Riftbound.ConformanceTests.dll",
+      "path": "var/qa/trigger-choice-owner-20261018/single-check-executed-assemblies/Riftbound.ConformanceTests.dll",
+      "sha256": "a2ff5f757ee452eaf0ee88d5ce5b9c766ddd01fd389c09410fce9fad8cdadf55",
+      "reusedExactReaderModule": false
+    }
+  ],
+  "onlyFinalTestAssemblyAndPdbDifferFromSingleCheckAndOriginals": true,
+  "finalFocusModuleRetention": {
+    "path": "docs/evidence/sole-trigger-choice-owner-2026-10-18/final-focus-module-retention.json",
+    "sha256": "1608a7e09973d3458efbd54b07b43a9cfc18f21165410b9472d89c196e982585"
+  },
+  "sqlFourSharedModules": {
+    "Riftbound.Contracts.dll": "a18b20fc3edba66ee67c23ea4c61ea71e9cf54dbc71eec93f7fbe3f33b599187",
+    "Riftbound.CardCatalog.dll": "e85a23271bec9171abea72879289a14effba9976c18ab32aa0bbbc40abbebc96",
+    "Riftbound.Engine.dll": "955037b774f9042d191372ed0cb5098cbb9f37612e4a49b8c41493acf2335bc7",
+    "Riftbound.Persistence.dll": "2c68a570097b5bbbac6cbc721d2d2b1359efffc5712cb2c9efdae69e1c968443"
+  },
+  "actualPreFixDebugImplementation": "815858c6c0d39ec0fac5ac3320228ee1eaf4b9435d9840c50244834d913a45bc",
+  "fixedFcReleaseActualImplementation": "cdafc9ec946ccc1f40ccb63136a40448e55444075d9d1f092303787b6c6fd69d",
+  "sourceEqualityDoesNotMeanCompiledModuleIdentityEquality": true,
+  "currentFixedFullAndNativeStillIndependent": true
+}

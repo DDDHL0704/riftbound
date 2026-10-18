@@ -4617,6 +4617,11 @@ public sealed record ResolutionResult(
 
     internal static string? OrderTriggersOrderingPlayerId(MatchState state)
     {
+        // A player with only fixed single-skill blocks has no choice to make.
+        // The sole controller who must choose orders their own simultaneous skills.
+        if (CoreRuleEngine.SoleTriggerChoiceControllerId(state) is { } choosingController)
+            return choosingController;
+
         var controllerIds = state.TriggerQueue
             .Select(trigger => trigger.ControllerId)
             .Where(controllerId => !string.IsNullOrWhiteSpace(controllerId))

@@ -21783,6 +21783,100 @@
         "docs/evidence/deferred-trigger-chronology-2026-10-18/fixedb182-full-ci-independent-original.json",
         "docs/evidence/deferred-trigger-chronology-2026-10-18/fixedb182-pre-native-checks.json"
       ]
+    },
+    {
+      "id": "sole-trigger-choice-controller-2026-10-18",
+      "scope": "CN zh-CN limited observation2026-10-18, frozen CN2026-10-16 universe retained. Only the sole controller with a multi-skill simultaneous block chooses order; every other controller has singleton fixed blocks. Actual off-turn P2 prompts, wrong-owner atomic rejection and explicit-midgame SQL recorded. Known Mirror errata adoption remains separate. No whole-card or multiple-choice-controller certification.",
+      "status": "SINGLE_CHECK12431_CASES7329_METHODS_12430_PASS1_OLD_ACTOR_FAIL_FINAL40_CASES28_METHODS_PASS_SCOPED_FOCUS2327_CASES1704_METHODS_SQL48_COMMANDS146_EVENTS22_COLD18_NEXT6_CLOCK_REJECTIONS_NEW2_CASES1_METHOD_FIXED_FULL_NATIVE_WINDOWS_OPEN",
+      "subjects": [
+        "OGN·115/298",
+        "UNL-183/219",
+        "UNL-003/219",
+        "UNL-150/219",
+        "UNL-086/219",
+        "UNL-200/219",
+        "UNL-199/219"
+      ],
+      "ruleRecords": [],
+      "pendingRuleRecords": [],
+      "sourceManifest": {
+        "path": "docs/evidence/sole-trigger-choice-owner-2026-10-18/source-manifest.json",
+        "sha256": "a20afee3c1936db259055a3648b11145fb0710f4c7cb9643c3354966b19fab1f"
+      },
+      "sourceClauses": [
+        {
+          "document": "DOC-01",
+          "clause": "383.3.d",
+          "sha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11"
+        },
+        {
+          "document": "DOC-01",
+          "clause": "383.3.d.1",
+          "sha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11"
+        }
+      ],
+      "validation": {
+        "focus": {
+          "path": "docs/evidence/sole-trigger-choice-owner-2026-10-18/focus-adjacent-verification.json",
+          "sha256": "eba6d1864397bd01cc84bc79ee363da8c7aa5a6f5ebb53701eabbd4b9aa07671"
+        },
+        "realSql": {
+          "path": "docs/evidence/sole-trigger-choice-owner-2026-10-18/scoped-real-sql.json",
+          "sha256": "a628433a43fda20bcc46605f15774626ab82ad652c41376967da8c5a235f6ff1"
+        },
+        "actualCompiledInputs": {
+          "path": "docs/evidence/sole-trigger-choice-owner-2026-10-18/actual-compiled-input-identity.json",
+          "sha256": "687cac9161996fa77426f6aeb2610a0ef93de9a08ac696f35daecf4ab6266982"
+        },
+        "fixedCommitFull": "PENDING_NEW_FIXED_COMMIT",
+        "currentVisibleProduct": "OPEN_MAC_LOCKED",
+        "physicalWindows": "OPEN",
+        "originalGames": {
+          "path": "docs/evidence/sole-trigger-choice-owner-2026-10-18/original-five-and110.json",
+          "sha256": "fef12fb424705fbded109156de767e1dda8b1b550efa143d0a6e566246ee96cc"
+        },
+        "oneCheck": {
+          "path": "docs/evidence/sole-trigger-choice-owner-2026-10-18/one-check.json",
+          "sha256": "000e14cb6102b0765cd6dfd6d5692cbec629e7d000e68eeb650face3b0837c99"
+        }
+      },
+      "exclusions": [
+        "CURRENT_FIXED_FULL",
+        "LEGAL_ORDINARY_OPENING_REACHABILITY",
+        "VISIBLE_OFFTURN_OWNER_CONTROL",
+        "VISIBLE_PAIRED_NETWORK_COLD_NORMAL_SCORE_AND_ORIGINAL_REPLAY",
+        "PHYSICAL_WINDOWS",
+        "MULTIPLE_CONTROLLERS_EACH_CHOOSE_THEIR_OWN_GROUP",
+        "FINER_OCCURRENCES_WITHIN_ONE_COMMAND",
+        "OTHER_CONSUMERS_AND_WHOLE_PRINTING_SEMANTICS",
+        "Known Mirror and LeBlanc legend errata runtime adoption and full reflexive copy semantics",
+        "All current source gaps including EN1416/1408 gap8"
+      ],
+      "auditDocument": "docs/SOLE_TRIGGER_CHOICE_OWNER_AUDIT_2026-10-18.md",
+      "evidence": [
+        "docs/evidence/sole-trigger-choice-owner-2026-10-18/source-manifest.json",
+        "docs/evidence/sole-trigger-choice-owner-2026-10-18/actual-choice-owner-red.json",
+        "docs/evidence/sole-trigger-choice-owner-2026-10-18/original-red-source.json",
+        "docs/evidence/sole-trigger-choice-owner-2026-10-18/focus-adjacent-verification.json",
+        "docs/evidence/sole-trigger-choice-owner-2026-10-18/scoped-real-sql.json",
+        "docs/evidence/sole-trigger-choice-owner-2026-10-18/sql-input-stability.json",
+        "docs/evidence/sole-trigger-choice-owner-2026-10-18/source-and-test-retention.json",
+        "docs/evidence/sole-trigger-choice-owner-2026-10-18/actual-compiled-input-identity.json",
+        "docs/evidence/sole-trigger-choice-owner-2026-10-18/native-consumer-source-trace.json",
+        "docs/evidence/sole-trigger-choice-owner-2026-10-18/fixedfc-before-native.json",
+        "docs/evidence/sole-trigger-choice-owner-2026-10-18/mirror-known-errata-boundary.json",
+        "docs/evidence/sole-trigger-choice-owner-2026-10-18/first-sql-probe-rejection.json",
+        "docs/evidence/sole-trigger-choice-owner-2026-10-18/prior-reader-input-retention-addendum.json",
+        "docs/evidence/sole-trigger-choice-owner-2026-10-18/storage-control.json",
+        "docs/evidence/sole-trigger-choice-owner-2026-10-18/original-five-and110.json",
+        "docs/evidence/sole-trigger-choice-owner-2026-10-18/one-check.json",
+        "docs/evidence/sole-trigger-choice-owner-2026-10-18/final-failure-consumers-focus.json",
+        "docs/evidence/sole-trigger-choice-owner-2026-10-18/single-check-module-retention.json",
+        "docs/evidence/sole-trigger-choice-owner-2026-10-18/final-focus-module-retention.json",
+        "docs/evidence/sole-trigger-choice-owner-2026-10-18/reader-actual-identity-verification.json",
+        "docs/evidence/sole-trigger-choice-owner-2026-10-18/leblanc-known-errata-boundary.json",
+        "docs/evidence/sole-trigger-choice-owner-2026-10-18/gallery-alternate-impact.json"
+      ]
     }
   ]
 }

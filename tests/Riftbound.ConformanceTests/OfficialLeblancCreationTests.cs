@@ -227,7 +227,7 @@ public sealed class OfficialLeblancCreationTests
         Assert.Empty(paid.State.TriggerQueue);
         var created = await Choose(paid.State, "Z1");
         Assert.Equal(3, created.State.TriggerQueue.Count); Assert.Null(created.State.PendingCardChoice); Restore(created.State);
-        var ordered = await Act(created.State, "P1", new OrderTriggersCommand(OrderedTriggerIds:
+        var ordered = await Act(created.State, "P2", new OrderTriggersCommand(OrderedTriggerIds:
             created.State.TriggerQueue.OrderBy(t => t.UnitEntryContext is null ? 1 : 0).Select(t => t.TriggerId).ToArray()));
         Assert.Equal("TRIGGER_CONFIRMATION", ordered.State.PendingCardChoice!.ChoiceWindow);
         var confirmed = await Choose(ordered.State, "UNIT");
