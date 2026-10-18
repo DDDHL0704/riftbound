@@ -1,0 +1,7 @@
+{
+  "cases": 55,
+  "failed": 0,
+  "seconds": 1.898,
+  "actualLogSha256": "4402f11873ece4a39179e389f2debb08b36d6dd06806d825e7071bca25981b47",
+  "scope": "Python tool checks; does not replace rule/full/native acceptance."
+}

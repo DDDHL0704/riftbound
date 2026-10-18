@@ -1,0 +1,57 @@
+{
+  "recordedAtUtc": "2026-10-18T08:54:48.219434+00:00",
+  "status": "ORIGINAL_FIXED48_NATIVE_BYTES_AND_BOOT_LIFECYCLE_LOGS_INDEPENDENTLY_VERIFIED_BEFORE_RETIREMENT",
+  "fixedCommit": "48c6ae96903807322cbba5dff3f1513fe8632917",
+  "runId": 39109499298,
+  "artifacts": [
+    {
+      "platform": "mac",
+      "artifactId": 12129901640,
+      "bytes": 142884139,
+      "sha256": "37496773b8c10a88248ddb35ae57b71994f9634d408d4d1e56c96fe124538ca8",
+      "originalArchivePath": "var/qa/empty-repeat-paired-20261018/native-current/mac-ci-artifact.zip",
+      "allZipCrcVerified": true,
+      "innerRuntimeZipCrcVerified": true,
+      "originalBootAndLifecycleLogMembersRetained": {
+        "exported-boot.log": {
+          "path": "var/qa/empty-repeat-paired-20261018/native-current/ci-logs/mac/exported-boot.log",
+          "sha256": "47df8e88ce39cc0c2f525f7ef322e1b90660c48561cf59b9f19a6330b5871c0d"
+        },
+        "rune-table-lifecycle.log": {
+          "path": "var/qa/empty-repeat-paired-20261018/native-current/ci-logs/mac/rune-table-lifecycle.log",
+          "sha256": "e84a0713ccdf974f1763afbd355174fdfe2abcaa9cda608b4d67c87f08b0d437"
+        }
+      },
+      "actualArchiveBytesReadBeforeAnyRetirement": true
+    },
+    {
+      "platform": "windows",
+      "artifactId": 12130165420,
+      "bytes": 89118966,
+      "sha256": "212e49c0f409dd9d438bbfc5c724ae2ec90ea60b1a4611412ba7eab85d786f52",
+      "originalArchivePath": "var/qa/empty-repeat-paired-20261018/native-current/windows-ci-artifact.zip",
+      "allZipCrcVerified": true,
+      "innerRuntimeZipCrcVerified": true,
+      "originalBootAndLifecycleLogMembersRetained": {
+        "exported-boot.log": {
+          "path": "var/qa/empty-repeat-paired-20261018/native-current/ci-logs/windows/exported-boot.log",
+          "sha256": "e04bae9d0f74e2b4686e7edf253a5642f16d8399d79e874ea044ad326cf8f10d"
+        },
+        "rune-table-lifecycle.log": {
+          "path": "var/qa/empty-repeat-paired-20261018/native-current/ci-logs/windows/rune-table-lifecycle.log",
+          "sha256": "5e7dfd1dcc6a32d91f793e317af735921a7ebee8ae3fb95ba86fb6067cfa4f88"
+        }
+      },
+      "actualArchiveBytesReadBeforeAnyRetirement": true
+    }
+  ],
+  "metadataSha256": "885c8f74d92e31fa820abd62dc15a693ccd297da95b7c16caa96cdd31f571f66",
+  "metadataPath": "var/qa/empty-repeat-paired-20261018/native-ci-artifacts-metadata.json",
+  "appInputsAnd373ManagedPckChecks": {
+    "path": "var/qa/empty-repeat-paired-20261018/native-app-inputs.json",
+    "sha256": "01bdeab2b6f66a0446562fc6cd8cf22958badff81339a27edc9e3c158248c863"
+  },
+  "fullRulesSqlNetworkTerminalNotInferredFromDesktopSuccess": true,
+  "visibleLocalAndPhysicalWindowsNotClaimed": true,
+  "purpose": "Preserve actual independent original native byte/log checks before latest-only replacement; future full receipt may refer to this completed byte verification without claiming old archives still physically retained."
+}

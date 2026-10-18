@@ -1,0 +1,24 @@
+{
+  "atUtc": "2026-10-18T09:29:41.188719+00:00",
+  "scope": "Independent PE MVID records of the exact executed pre-fix Debug modules retained with the red7case run. Not inferred from previous precommit Debug or fixed Release builds.",
+  "actualRedImplementationSha256": "4f0f63c39ec3f9740c80a9da7a681061750e3d64ede6087c5da842b341d3ebfc",
+  "actualRedModuleRecords": [
+    {
+      "Name": "Riftbound.CardCatalog",
+      "Module": "20626253cc6b4531a3f228470fea4bdc"
+    },
+    {
+      "Name": "Riftbound.Contracts",
+      "Module": "5d09d0b27b044d2cb69b847a8bab3dda"
+    },
+    {
+      "Name": "Riftbound.Engine",
+      "Module": "731d9a5f67fc43b5b4354a3d8dec1b47"
+    }
+  ],
+  "redExecutedManifestSha256": "6c4b8d1fecb6e1d2d1cd22b575da537f1352359b102a4da5812fe40fe6fc9366",
+  "sourceBaseCommit": "48c6ae96903807322cbba5dff3f1513fe8632917",
+  "sourceVersionHasNoObservedFinalWindowFix": true,
+  "nativeFixed48ReleaseImplementationSeparatelyRetained": "87c65e34a9a419a1a77a2f7923a6f60795ddf13650ce9194103cc08ff949c43d",
+  "greenDebugImplementationSeparatelyRetained": "52504b50b3def51b2f1d2eaaa8d09502add0b8d2b71dcc36742fa06660b3a401"
+}

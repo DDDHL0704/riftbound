@@ -1,0 +1,25 @@
+{
+  "atUtc": "2026-10-18T09:25:44.780598+00:00",
+  "actualCiReceiptSha256": "5fced618eac7f6d44f66ce361a1a970d8451943c6a7d79c32f63debb9ae9466b",
+  "priorLocalSqlReceiptSha256": "a343f29ac491930d13fc874668f47136447bd3381daf3921e8b919ff7b3c05e3",
+  "exactOriginalFixtureSha256": "14ed9aeb9c8926977b65dbb62bfd52e252e9ae73c1e9996d7cd73a996657686c",
+  "bothDistinctBranchMetricsExactlyEqualPriorSourceBoundSql": true,
+  "metrics": [
+    [
+      72,
+      230,
+      10,
+      3,
+      6
+    ],
+    [
+      80,
+      254,
+      10,
+      3,
+      6
+    ]
+  ],
+  "firstVerifierWronglyAssumedAnAveragePerBranch": "fixed46-verifier-v1-failure-classification.json",
+  "ciOutputsNeverModified": true
+}

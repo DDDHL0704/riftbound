@@ -22194,6 +22194,128 @@
         "docs/evidence/empty-observed-deck-repeat-2026-10-18/fixed46-visible-native-baseline.json",
         "docs/evidence/empty-observed-deck-repeat-2026-10-18/acceptance-boundaries.json"
       ]
+    },
+    {
+      "id": "observed-deck-play-final-window-2026-10-18",
+      "scope": "CN zh-CN acquired2026-10-18, frozen applicability2026-10-16. Final observed-unit play/decline restores existing main/lower chain/suspended original queue/duel focus/end-step continuation. Ordinary SFD122 is CoreRules only; UNL032 both formats. Other card semantics, later neutral closed combat response, UI fixes and whole printings remain OPEN.",
+      "status": "SCOPED_OBSERVED_DECK_PLAY_FINAL_WINDOW_20_CASES8_METHODS_SHARED320_ORDINARY212_COMMANDS803_EVENTS_SQL90_COMMANDS340_EVENTS42_COLD15_NEXT24_REJECTIONS_ORIGINAL115_SINGLE_CHECK12510_CURRENT_FULL_VISIBLE_WINDOWS_OPEN",
+      "subjects": [
+        "SFD·122/221",
+        "UNL-032/219",
+        "OGN·194/298"
+      ],
+      "ruleRecords": [],
+      "pendingRuleRecords": [],
+      "sourceManifest": {
+        "path": "docs/evidence/observed-play-window-2026-10-18/source-manifest.json",
+        "sha256": "9415f900546885c3130470c13573fb07b26bc863d752f5468eec8f1e1e5bbe08",
+        "role": "source-manifest"
+      },
+      "sourceClauses": [
+        {
+          "document": "DOC-01",
+          "clause": "340.2",
+          "sha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11"
+        },
+        {
+          "document": "DOC-01",
+          "clause": "340.2.a",
+          "sha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11"
+        },
+        {
+          "document": "DOC-01",
+          "clause": "340.3",
+          "sha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11"
+        },
+        {
+          "document": "DOC-01",
+          "clause": "340.4",
+          "sha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11"
+        },
+        {
+          "document": "DOC-01",
+          "clause": "346.1",
+          "sha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11"
+        }
+      ],
+      "validation": {
+        "focus": {
+          "path": "docs/evidence/observed-play-window-2026-10-18/focus.json",
+          "sha256": "163c99cfc54918b99d7fb4a5b683c81c973a07299bfd08c4e0f6a5111967add8",
+          "role": "focus"
+        },
+        "ordinaryOpenings": {
+          "path": "docs/evidence/observed-play-window-2026-10-18/ordinary-openings.json",
+          "sha256": "637568996c250afa93a473c8aa98f05f53074d6508ba0e42a58d6473595fcdf7",
+          "role": "ordinary-openings"
+        },
+        "realSql": {
+          "path": "docs/evidence/observed-play-window-2026-10-18/real-sql.json",
+          "sha256": "5f8f71c87be5694805d75e70b5c7cbb74c08758e4e88d5e46934d80c14c21a20",
+          "role": "real-sql"
+        },
+        "actualCompiledInputs": {
+          "path": "docs/evidence/observed-play-window-2026-10-18/actual-compiled-inputs.json",
+          "sha256": "a415b319dfe62b02a582a6636eccb6b5a41144d9a783ba1ee0b8b84fd7debe75",
+          "role": "actual-compiled-inputs"
+        },
+        "originalGames": {
+          "path": "docs/evidence/observed-play-window-2026-10-18/original-five-and110.json",
+          "sha256": "39652628ec66ccbdfae6667e3aa13896228bd4058034a02518b95ff82191f7f9",
+          "role": "original-five-and110"
+        },
+        "oneCheck": {
+          "path": "docs/evidence/observed-play-window-2026-10-18/one-check.json",
+          "sha256": "bf7c6772c0897eac1f9662b389ebd7238bf3bb4206dbe94b4ca746ba84702cbe",
+          "role": "one-check"
+        },
+        "priorFixed46Full": {
+          "path": "docs/evidence/observed-play-window-2026-10-18/fixed46-full-ci.json",
+          "sha256": "edc13ff1613c497c5e464cfd611a708ec38dddf69511d3db6a1ce6137536a663",
+          "role": "fixed46-full-ci"
+        },
+        "priorFixed48NativeRed": {
+          "path": "docs/evidence/observed-play-window-2026-10-18/fixed48-visible-native-red.json",
+          "sha256": "e0808db90a22dfec03d50352fdf86cfd90543ac3fe29688c851f7b5e98246066",
+          "role": "fixed48-visible-native-red"
+        },
+        "fixedCommitFull": "PENDING_NEW_FIXED_COMMIT",
+        "visibleProduct": "OPEN_NATIVE_OLD_RELEASE_RED_REQUIRES_NEW_FIXED_CANDIDATE",
+        "physicalWindows": "OPEN"
+      },
+      "exclusions": [
+        "CURRENT_FIXED_FULL",
+        "CURRENT_VISIBLE_PAIRED_SQL_NETWORK_NORMAL_SCORE_ORIGINAL_REPLAY",
+        "PHYSICAL_WINDOWS",
+        "TWO_OBSERVED_NATIVE_UI_FIXES",
+        "OTHER_CONSUMERS_AND_WHOLE_PRINTING_SEMANTICS_AND_SOURCE_GAPS"
+      ],
+      "auditDocument": "docs/OBSERVED_DECK_PLAY_WINDOW_AUDIT_2026-10-18.md",
+      "evidence": [
+        "docs/evidence/observed-play-window-2026-10-18/source-manifest.json",
+        "docs/evidence/observed-play-window-2026-10-18/core-continuation-clauses-identity.json",
+        "docs/evidence/observed-play-window-2026-10-18/banlist-source-reconfirmation.json",
+        "docs/evidence/observed-play-window-2026-10-18/semantic-red.json",
+        "docs/evidence/observed-play-window-2026-10-18/semantic-red-inputs.json",
+        "docs/evidence/observed-play-window-2026-10-18/battle-fixture-premise-failure.json",
+        "docs/evidence/observed-play-window-2026-10-18/focus.json",
+        "docs/evidence/observed-play-window-2026-10-18/ordinary-openings.json",
+        "docs/evidence/observed-play-window-2026-10-18/real-sql.json",
+        "docs/evidence/observed-play-window-2026-10-18/actual-compiled-inputs.json",
+        "docs/evidence/observed-play-window-2026-10-18/test-retention.json",
+        "docs/evidence/observed-play-window-2026-10-18/original-five-and110.json",
+        "docs/evidence/observed-play-window-2026-10-18/one-check.json",
+        "docs/evidence/observed-play-window-2026-10-18/tooling-tests.json",
+        "docs/evidence/observed-play-window-2026-10-18/fixed48-visible-native-red.json",
+        "docs/evidence/observed-play-window-2026-10-18/fixed48-release-sql-baseline.json",
+        "docs/evidence/observed-play-window-2026-10-18/fixed48-native-package-bytes.json",
+        "docs/evidence/observed-play-window-2026-10-18/fixed46-full-ci.json",
+        "docs/evidence/observed-play-window-2026-10-18/fixed46-verifier-premise-failure.json",
+        "docs/evidence/observed-play-window-2026-10-18/fixed46-sql-branch-parity.json",
+        "docs/evidence/observed-play-window-2026-10-18/native-ui-source-trace.json",
+        "docs/evidence/observed-play-window-2026-10-18/storage-control.json",
+        "docs/evidence/observed-play-window-2026-10-18/acceptance-boundaries.json"
+      ]
     }
   ]
 }

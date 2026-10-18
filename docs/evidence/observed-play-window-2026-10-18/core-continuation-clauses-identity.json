@@ -1,0 +1,23 @@
+{
+  "source": "var/qa/colorless-token-haste-20261016/DOC-01-current.pdf",
+  "sha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11",
+  "extractionCommand": [
+    "pdftotext",
+    "-layout"
+  ],
+  "clauses": [
+    "340.2.",
+    "340.2.a.",
+    "340.3.",
+    "340.4.",
+    "346.1.",
+    "432.1.c.",
+    "432.1.c.1."
+  ],
+  "extractedSha256": "ae1200427c88f8b808ed437cb68d2f36780fb221c4d101b022ddcf5c238e8987",
+  "region": "CN",
+  "language": "zh-CN",
+  "publishedAt": "2026-10-10",
+  "effectiveAt": "2026-10-16",
+  "boundedExtractNotNewFullPdfCopy": true
+}

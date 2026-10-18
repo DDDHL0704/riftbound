@@ -1,0 +1,32 @@
+{
+  "atUtc": "2026-10-18T09:00:01.978651+00:00",
+  "actualCases": 7,
+  "actualPassed": 2,
+  "actualFailed": 5,
+  "allFailuresAreExpectedFinalClosedNeutralWindow": true,
+  "allOriginalAuthoredInputsStable": true,
+  "allPlayBranchesArePassingControls": "SFD plays2 and UNL plays3",
+  "failures": [
+    {
+      "name": "Riftbound.ConformanceTests.ObservedDeckPlayWindowOpeningTests.OrdinaryBlankObservedOffersRestoreAnOpenWindowAndAcceptTheOriginalNextEndTurn(card: \"UNL-032/219\", draw: False, plays: 1)",
+      "message": "Assert.Equal() Failure: Strings differ\n                   \u2193 (pos 8)\nExpected: \"NEUTRAL_OPEN\"\nActual:   \"NEUTRAL_CLOSED\"\n                   \u2191 (pos 8)"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.ObservedDeckPlayWindowOpeningTests.OrdinaryBlankObservedOffersRestoreAnOpenWindowAndAcceptTheOriginalNextEndTurn(card: \"SFD\u00b7122/221\", draw: True, plays: 1)",
+      "message": "Assert.Equal() Failure: Strings differ\n                   \u2193 (pos 8)\nExpected: \"NEUTRAL_OPEN\"\nActual:   \"NEUTRAL_CLOSED\"\n                   \u2191 (pos 8)"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.ObservedDeckPlayWindowOpeningTests.OrdinaryBlankObservedOffersRestoreAnOpenWindowAndAcceptTheOriginalNextEndTurn(card: \"UNL-032/219\", draw: True, plays: 1)",
+      "message": "Assert.Equal() Failure: Strings differ\n                   \u2193 (pos 8)\nExpected: \"NEUTRAL_OPEN\"\nActual:   \"NEUTRAL_CLOSED\"\n                   \u2191 (pos 8)"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.ObservedDeckPlayWindowOpeningTests.OrdinaryBlankObservedOffersRestoreAnOpenWindowAndAcceptTheOriginalNextEndTurn(card: \"UNL-032/219\", draw: True, plays: 0)",
+      "message": "Assert.Equal() Failure: Strings differ\n                   \u2193 (pos 8)\nExpected: \"NEUTRAL_OPEN\"\nActual:   \"NEUTRAL_CLOSED\"\n                   \u2191 (pos 8)"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.ObservedDeckPlayWindowOpeningTests.OrdinaryBlankObservedOffersRestoreAnOpenWindowAndAcceptTheOriginalNextEndTurn(card: \"SFD\u00b7122/221\", draw: True, plays: 0)",
+      "message": "Assert.Equal() Failure: Strings differ\n                   \u2193 (pos 8)\nExpected: \"NEUTRAL_OPEN\"\nActual:   \"NEUTRAL_CLOSED\"\n                   \u2191 (pos 8)"
+    }
+  ],
+  "trxSha256": "ed283b340b5020ffaf34aaf73d92abdc314ee6c2d4ef42f9efb457bab7c975bc"
+}

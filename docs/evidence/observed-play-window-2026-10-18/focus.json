@@ -1,0 +1,14 @@
+{
+  "atUtc": "2026-10-18T09:12:45.245268+00:00",
+  "status": "320_SCOPED_SHARED_CONTEXT_CASES_156_METHODS_PASS",
+  "cases": 320,
+  "methods": 156,
+  "seconds": 157.56,
+  "failed": 0,
+  "skipped": 0,
+  "authoredInputs": 12702,
+  "allAuthoredInputsStable": true,
+  "testAssemblySha256": "15c1c6da4db249067bce77691875674d0d22f2a80c2b6f8184d236243b0913dc",
+  "actualDebugImplementation": "52504b50b3def51b2f1d2eaaa8d09502add0b8d2b71dcc36742fa06660b3a401",
+  "retainedV1Failures": "shared-adjacent-v1-failure-classification.json"
+}

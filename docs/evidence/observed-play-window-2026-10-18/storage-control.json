@@ -1,0 +1,25 @@
+{
+  "atUtc": "2026-10-18T09:17:59.319172+00:00",
+  "latestNativeApps": [
+    "var/qa/empty-repeat-paired-20261018/RiftboundEcho-A.app",
+    "var/qa/empty-repeat-paired-20261018/RiftboundEcho-B.app"
+  ],
+  "onlyCanonicalPlatformArchives": [
+    "var/qa/empty-repeat-paired-20261018/native-current/mac-ci-artifact.zip",
+    "var/qa/empty-repeat-paired-20261018/native-current/windows-ci-artifact.zip"
+  ],
+  "noWholeSourceCheckoutCopied": true,
+  "necessaryHistoricalRuntimeModulesPrivateFramesOriginalDatabasesSourcesTestsAndTrxRetained": true,
+  "nativeAppsAndApiIdle": true,
+  "postgresSmartStoppedAfterRealSql": true,
+  "diskBeforeCompression": "Filesystem      Size    Used   Avail Capacity iused ifree %iused  Mounted on\n/dev/disk3s5   460Gi   375Gi    54Gi    88%    3.6M  569M    1%   /System/Volumes/Data\n",
+  "diskAfterCompressionAndBatchCheck": "Filesystem      Size    Used   Avail Capacity iused ifree %iused  Mounted on\n/dev/disk3s5   460Gi   373Gi    56Gi    87%    3.6M  586M    1%   /System/Volumes/Data\n",
+  "historicalGeneratedGovernanceOutputsTransparentlyCompressed": 142,
+  "allocatedBytesReducedIncludingPilot": 1797349376,
+  "all142OriginalPathsLogicalBytesHashesModesAndModificationTimesPreserved": true,
+  "compressionReceipts": [
+    "apfs-compression-pilot.json",
+    "apfs-compression.json"
+  ],
+  "observationBeforeAndAfterFreeSpaceMayIncludeConcurrentFilesystemActivity": true
+}

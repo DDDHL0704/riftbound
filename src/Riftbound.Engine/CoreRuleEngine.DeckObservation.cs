@@ -121,6 +121,8 @@ public sealed partial class CoreRuleEngine
         var remaining=(state.ObservedDeckPlays??[]).Where(x=>x.Id!=c.Id).ToArray();
         var next=state with {PendingEffectPlay=p.Suspended,ObservedDeckPlays=remaining.Length==0?null:remaining,
             PriorityPlayerId=p.Suspended is null?state.StackItems.LastOrDefault()?.ControllerId:null,ActivePlayerId=p.Suspended?.PlayerId??state.TurnPlayerId};
+        if(p.Suspended is null && remaining.Length==0)
+            next=RestoreAfterTriggerConfirmation(next,c.Instruction.Parent);
         return new(true,null,next,events,ResolutionResult.BuildSnapshots(next),BuildCorePrompts(next));
     }
 

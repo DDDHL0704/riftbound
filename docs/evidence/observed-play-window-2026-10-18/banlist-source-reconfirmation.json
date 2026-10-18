@@ -1,0 +1,19 @@
+{
+  "attemptedAtUtc": "2026-10-18T09:13:53.078581+00:00",
+  "receivedAtUtc": "2026-10-18T09:13:53.679227+00:00",
+  "url": "https://cdn.playloltcg.com/lol/2026/07/2026-07-17/d91ee4548d224dfb9c7a3f5390cf0573.pdf",
+  "httpStatus": 200,
+  "httpDate": "Fri, 17 Jul 2026 01:03:00 GMT",
+  "lastModified": "Fri, 17 Jul 2026 00:46:22 GMT",
+  "bytes": 1807879,
+  "sha256": "e0326381f003a3e5d0a12db9521dc15eb1cc4ed0456188cee9fc46e0eb6d5ef7",
+  "sameBytesAsPriorOfficialPdf": true,
+  "publishedAt": "2026-07-17",
+  "latestListIncrementEffectiveAt": "2026-07-24",
+  "SFD122BanEffectiveAt": "2026-03-31",
+  "perItemDateSourceUnchanged": "docs/evidence/empty-observed-deck-repeat-2026-10-18/banlist-effective-date-addendum.json",
+  "oldUnknownDatesNotRewritten": true,
+  "noDuplicatePdfSaved": true,
+  "region": "CN",
+  "language": "zh-CN"
+}
