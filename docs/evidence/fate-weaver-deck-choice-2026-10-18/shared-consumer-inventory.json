@@ -1,0 +1,37 @@
+{
+  "consumers": [
+    {
+      "cardNo": "SFD·122/221",
+      "mainDeckLookCount": 2,
+      "source": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+      "scope": "existing shared deferred deck choice consumer; no whole-printing certification inferred"
+    },
+    {
+      "cardNo": "OGN·183/298",
+      "mainDeckLookCount": 3,
+      "source": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+      "scope": "existing shared deferred deck choice consumer; no whole-printing certification inferred"
+    },
+    {
+      "cardNo": "UNL-032/219",
+      "mainDeckLookCount": 3,
+      "source": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+      "scope": "existing shared deferred deck choice consumer; no whole-printing certification inferred"
+    },
+    {
+      "cardNo": "SFD·058/221",
+      "mainDeckLookCount": 4,
+      "source": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+      "scope": "existing shared deferred deck choice consumer; no whole-printing certification inferred"
+    },
+    {
+      "cardNo": "SFD·058a/221",
+      "mainDeckLookCount": 4,
+      "source": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+      "scope": "existing shared deferred deck choice consumer; no whole-printing certification inferred"
+    }
+  ],
+  "newConsumer": "UNL-064/219",
+  "independentRecovery": "MatchRecovery.cs private deck choice permissions",
+  "wholePrintingCertified": false
+}

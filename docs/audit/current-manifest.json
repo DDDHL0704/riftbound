@@ -99,7 +99,7 @@
     },
     "reviews": {
       "path": "docs/evidence/rules-reaudit-2026-10-11/review-decisions.json",
-      "sha256": "d1c36ecde17f786cea9c27844cd2e75e7e2b4c27064fcca645740da4dd0ed40f"
+      "sha256": "41e080e295ee260de899c011ce2c5ce831342d2a18428b0bd2f57170d85fb2c6"
     },
     "summary": {
       "path": "docs/evidence/source-listing-2026-10-15/index-summary.json",
@@ -176,7 +176,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "2fd48a20f3f697ef99d4407624da419541b7c47aef91502a5f3c728425308804"
+          "sha256": "8d742f14a0e156da495ae916ab5eb7fc034b6b648176bdfc637184684deeef60"
         }
       ],
       "branches": [
@@ -304,7 +304,7 @@
         }
       ],
       "evidenceCommit": "e54f3084662e2c2e00c521d232b4a11baaea7d91",
-      "currentImplementationCommit": "fc106dcf29d996e09994d582378bdf4d8472618b",
+      "currentImplementationCommit": "91b87e4fbcb3baae1e82020df1e393d6a268b8b2",
       "currentImplementationIncludesUncommittedChanges": true,
       "revalidationReason": "Journal event serialization comparison and either-side natural allocation gate changed after exact9e; prior receipts retain their exact input scope.",
       "implementationPinUpdates": [
@@ -372,7 +372,7 @@
           "sha256": "05632566219de2496735cf6a87afb324b7d224165f0789f447b974c4ddb3f61a"
         }
       },
-      "currentInputRevision": "3d4f6365d018958338e43d1c30b3f3a4c7b180514fd4d9f9230543d116b6d002"
+      "currentInputRevision": "2dc3b9ea05eb26941caafade121807c5373dc6edb10b25cb79d8d3faf6c88c72"
     },
     "candlelit-conquest-private-look-recycle-order-2026-10-14": {
       "implementation": [
@@ -394,7 +394,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "2fd48a20f3f697ef99d4407624da419541b7c47aef91502a5f3c728425308804"
+          "sha256": "8d742f14a0e156da495ae916ab5eb7fc034b6b648176bdfc637184684deeef60"
         }
       ],
       "branches": [
@@ -683,7 +683,7 @@
         }
       ],
       "evidenceCommit": "e61745f5cc704f2aa0326d84f22416e04ecbf139",
-      "currentImplementationCommit": "fc106dcf29d996e09994d582378bdf4d8472618b",
+      "currentImplementationCommit": "91b87e4fbcb3baae1e82020df1e393d6a268b8b2",
       "currentImplementationIncludesUncommittedChanges": true,
       "revalidationReason": "Actual fixed0cbee full failed three original games. Accepted declaration provenance and single eligible surviving conquest-return selection changed; prior exact evidence is retained, new fixed full/product required.",
       "implementationPinUpdates": [
@@ -761,7 +761,7 @@
           "sha256": "05632566219de2496735cf6a87afb324b7d224165f0789f447b974c4ddb3f61a"
         }
       },
-      "currentInputRevision": "3d4f6365d018958338e43d1c30b3f3a4c7b180514fd4d9f9230543d116b6d002"
+      "currentInputRevision": "2dc3b9ea05eb26941caafade121807c5373dc6edb10b25cb79d8d3faf6c88c72"
     },
     "masked-attendant-reflexive-self-copy-2026-10-14": {
       "implementation": [
@@ -787,7 +787,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "2fd48a20f3f697ef99d4407624da419541b7c47aef91502a5f3c728425308804"
+          "sha256": "8d742f14a0e156da495ae916ab5eb7fc034b6b648176bdfc637184684deeef60"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
@@ -1401,7 +1401,7 @@
         }
       ],
       "evidenceCommit": "03f88a7ee1b109b2cb906fbdc457316f93c08fda",
-      "currentImplementationCommit": "fc106dcf29d996e09994d582378bdf4d8472618b",
+      "currentImplementationCommit": "91b87e4fbcb3baae1e82020df1e393d6a268b8b2",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -1478,7 +1478,7 @@
         }
       },
       "currentProductAcceptance": "OPEN_AFTER_SHARED_NATIVE_PROMPT_INPUT_CHANGE_OLD_VISIBLE_EVIDENCE_RETAINS_EXACT_SCOPE",
-      "currentInputRevision": "3d4f6365d018958338e43d1c30b3f3a4c7b180514fd4d9f9230543d116b6d002"
+      "currentInputRevision": "2dc3b9ea05eb26941caafade121807c5373dc6edb10b25cb79d8d3faf6c88c72"
     },
     "static-granted-predict-entry-2026-10-15": {
       "implementation": [
@@ -1504,7 +1504,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "2fd48a20f3f697ef99d4407624da419541b7c47aef91502a5f3c728425308804"
+          "sha256": "8d742f14a0e156da495ae916ab5eb7fc034b6b648176bdfc637184684deeef60"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
@@ -2121,7 +2121,7 @@
       "ciState": "PENDING",
       "ciReceipts": [],
       "evidenceCommit": "03f88a7ee1b109b2cb906fbdc457316f93c08fda",
-      "currentImplementationCommit": "fc106dcf29d996e09994d582378bdf4d8472618b",
+      "currentImplementationCommit": "91b87e4fbcb3baae1e82020df1e393d6a268b8b2",
       "currentImplementationIncludesUncommittedChanges": true,
       "lastFixedCiFailure": {
         "path": "docs/evidence/granted-predict-2026-10-15/full-ci-c74853be-failed.json",
@@ -2310,7 +2310,7 @@
         }
       },
       "currentProductAcceptance": "OPEN_AFTER_SHARED_NATIVE_PROMPT_INPUT_CHANGE_OLD_VISIBLE_EVIDENCE_RETAINS_EXACT_SCOPE",
-      "currentInputRevision": "3d4f6365d018958338e43d1c30b3f3a4c7b180514fd4d9f9230543d116b6d002"
+      "currentInputRevision": "2dc3b9ea05eb26941caafade121807c5373dc6edb10b25cb79d8d3faf6c88c72"
     },
     "printed-predict-permanent-entry-2026-10-15": {
       "implementation": [
@@ -2336,7 +2336,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "2fd48a20f3f697ef99d4407624da419541b7c47aef91502a5f3c728425308804"
+          "sha256": "8d742f14a0e156da495ae916ab5eb7fc034b6b648176bdfc637184684deeef60"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
@@ -2344,7 +2344,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
-          "sha256": "291b21b0b733b085bc0ec11547419e1d6382f64ed461d1aca81fb6a0f0d53789"
+          "sha256": "f027170bcebdf59b09d84fd7598d6fcd991d9bd5db9f9a7838a9f7f2a35788f3"
         },
         {
           "path": "src/Riftbound.Engine/CardLifecycleKeywordRules.cs",
@@ -2948,7 +2948,7 @@
         }
       ],
       "evidenceCommit": "74353e405fd2242ece0bae05972f209950b2c9de",
-      "currentImplementationCommit": "fc106dcf29d996e09994d582378bdf4d8472618b",
+      "currentImplementationCommit": "91b87e4fbcb3baae1e82020df1e393d6a268b8b2",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -3138,7 +3138,7 @@
           "sha256": "05632566219de2496735cf6a87afb324b7d224165f0789f447b974c4ddb3f61a"
         }
       },
-      "currentInputRevision": "3d4f6365d018958338e43d1c30b3f3a4c7b180514fd4d9f9230543d116b6d002"
+      "currentInputRevision": "2dc3b9ea05eb26941caafade121807c5373dc6edb10b25cb79d8d3faf6c88c72"
     },
     "sivir-optional-rune-recycle-2026-10-15": {
       "implementation": [
@@ -3160,7 +3160,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.DeckChoices.cs",
-          "sha256": "a5008bf2acb0efe32f7da592a178fe233f40768c5dfcb7757eb20c2e968f2727"
+          "sha256": "09aa6af5b099fc1ebc38ea4c10b3538f42a44d471060a68e65719e10059abf03"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.DeckPlaySequence.cs",
@@ -3184,7 +3184,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "2fd48a20f3f697ef99d4407624da419541b7c47aef91502a5f3c728425308804"
+          "sha256": "8d742f14a0e156da495ae916ab5eb7fc034b6b648176bdfc637184684deeef60"
         },
         {
           "path": "src/Riftbound.Engine/StackObjectRules.cs",
@@ -3514,7 +3514,7 @@
         }
       ],
       "evidenceCommit": "7649d573f884ffd7517a502f7eebe01d0aa186c4",
-      "currentImplementationCommit": "fc106dcf29d996e09994d582378bdf4d8472618b",
+      "currentImplementationCommit": "91b87e4fbcb3baae1e82020df1e393d6a268b8b2",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -3689,7 +3689,7 @@
         }
       },
       "currentProductAcceptance": "OPEN_AFTER_SHARED_NATIVE_PROMPT_INPUT_CHANGE_OLD_VISIBLE_EVIDENCE_RETAINS_EXACT_SCOPE",
-      "currentInputRevision": "3d4f6365d018958338e43d1c30b3f3a4c7b180514fd4d9f9230543d116b6d002"
+      "currentInputRevision": "2dc3b9ea05eb26941caafade121807c5373dc6edb10b25cb79d8d3faf6c88c72"
     },
     "battlefield-conquer-rune-destination-2026-10-15": {
       "implementation": [
@@ -3854,7 +3854,7 @@
         }
       ],
       "evidenceCommit": "dd8884ba1e443138264b9b0e971ab8da3c5480ee",
-      "currentImplementationCommit": "fc106dcf29d996e09994d582378bdf4d8472618b",
+      "currentImplementationCommit": "91b87e4fbcb3baae1e82020df1e393d6a268b8b2",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -3982,7 +3982,7 @@
           "sha256": "05632566219de2496735cf6a87afb324b7d224165f0789f447b974c4ddb3f61a"
         }
       },
-      "currentInputRevision": "3d4f6365d018958338e43d1c30b3f3a4c7b180514fd4d9f9230543d116b6d002"
+      "currentInputRevision": "2dc3b9ea05eb26941caafade121807c5373dc6edb10b25cb79d8d3faf6c88c72"
     },
     "sivir-payment-trigger-and-ward-event-2026-10-15": {
       "implementation": [
@@ -4012,7 +4012,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "2fd48a20f3f697ef99d4407624da419541b7c47aef91502a5f3c728425308804"
+          "sha256": "8d742f14a0e156da495ae916ab5eb7fc034b6b648176bdfc637184684deeef60"
         }
       ],
       "branches": [
@@ -4194,7 +4194,7 @@
         }
       ],
       "evidenceCommit": "00420e2a2b453918e611812d18fda9f62632e15f",
-      "currentImplementationCommit": "fc106dcf29d996e09994d582378bdf4d8472618b",
+      "currentImplementationCommit": "91b87e4fbcb3baae1e82020df1e393d6a268b8b2",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -4317,7 +4317,7 @@
           "sha256": "05632566219de2496735cf6a87afb324b7d224165f0789f447b974c4ddb3f61a"
         }
       },
-      "currentInputRevision": "3d4f6365d018958338e43d1c30b3f3a4c7b180514fd4d9f9230543d116b6d002"
+      "currentInputRevision": "2dc3b9ea05eb26941caafade121807c5373dc6edb10b25cb79d8d3faf6c88c72"
     },
     "unit-conquest-gold-response-2026-10-15": {
       "implementation": [
@@ -4339,7 +4339,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "2fd48a20f3f697ef99d4407624da419541b7c47aef91502a5f3c728425308804"
+          "sha256": "8d742f14a0e156da495ae916ab5eb7fc034b6b648176bdfc637184684deeef60"
         },
         {
           "path": "src/Riftbound.Engine/StackObjectRules.cs",
@@ -4570,7 +4570,7 @@
         }
       ],
       "evidenceCommit": "eb3c4281c94c8d41d315cd574bdfa597cd10c30b",
-      "currentImplementationCommit": "fc106dcf29d996e09994d582378bdf4d8472618b",
+      "currentImplementationCommit": "91b87e4fbcb3baae1e82020df1e393d6a268b8b2",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -4720,7 +4720,7 @@
         }
       },
       "currentProductAcceptance": "OPEN_AFTER_SHARED_NATIVE_PROMPT_INPUT_CHANGE_OLD_VISIBLE_EVIDENCE_RETAINS_EXACT_SCOPE",
-      "currentInputRevision": "3d4f6365d018958338e43d1c30b3f3a4c7b180514fd4d9f9230543d116b6d002"
+      "currentInputRevision": "2dc3b9ea05eb26941caafade121807c5373dc6edb10b25cb79d8d3faf6c88c72"
     },
     "own-main-deck-recycle-card-boon-2026-10-15": {
       "implementation": [
@@ -4766,7 +4766,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "2fd48a20f3f697ef99d4407624da419541b7c47aef91502a5f3c728425308804"
+          "sha256": "8d742f14a0e156da495ae916ab5eb7fc034b6b648176bdfc637184684deeef60"
         }
       ],
       "branches": [
@@ -5442,7 +5442,7 @@
         }
       ],
       "evidenceCommit": "a0406e1d878598b3c0fd88f5bfa7f9831d6a2cc6",
-      "currentImplementationCommit": "fc106dcf29d996e09994d582378bdf4d8472618b",
+      "currentImplementationCommit": "91b87e4fbcb3baae1e82020df1e393d6a268b8b2",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -5595,7 +5595,7 @@
           "sha256": "05632566219de2496735cf6a87afb324b7d224165f0789f447b974c4ddb3f61a"
         }
       },
-      "currentInputRevision": "3d4f6365d018958338e43d1c30b3f3a4c7b180514fd4d9f9230543d116b6d002"
+      "currentInputRevision": "2dc3b9ea05eb26941caafade121807c5373dc6edb10b25cb79d8d3faf6c88c72"
     },
     "copied-recycle-boon-ceased-source-2026-10-15": {
       "implementation": [
@@ -5779,7 +5779,7 @@
         }
       ],
       "evidenceCommit": "1a5cabfbd5e7e87eb971622506371e57beb96319",
-      "currentImplementationCommit": "fc106dcf29d996e09994d582378bdf4d8472618b",
+      "currentImplementationCommit": "91b87e4fbcb3baae1e82020df1e393d6a268b8b2",
       "currentImplementationIncludesUncommittedChanges": true,
       "latestInputChange": {
         "kind": "PERMANENT_PLAY_SOURCE_GENERATION_AND_BATTLEFIELD_DAMAGE",
@@ -5789,7 +5789,7 @@
           "sha256": "05632566219de2496735cf6a87afb324b7d224165f0789f447b974c4ddb3f61a"
         }
       },
-      "currentInputRevision": "3d4f6365d018958338e43d1c30b3f3a4c7b180514fd4d9f9230543d116b6d002"
+      "currentInputRevision": "2dc3b9ea05eb26941caafade121807c5373dc6edb10b25cb79d8d3faf6c88c72"
     },
     "ceased-recycle-source-exact-printing-2026-10-15": {
       "implementation": [
@@ -5881,9 +5881,9 @@
         }
       ],
       "evidenceCommit": "09ac000ec5dcfb3fe2404d7da235b4e7c91bfeba",
-      "currentImplementationCommit": "fc106dcf29d996e09994d582378bdf4d8472618b",
+      "currentImplementationCommit": "91b87e4fbcb3baae1e82020df1e393d6a268b8b2",
       "currentImplementationIncludesUncommittedChanges": true,
-      "currentInputRevision": "3d4f6365d018958338e43d1c30b3f3a4c7b180514fd4d9f9230543d116b6d002",
+      "currentInputRevision": "2dc3b9ea05eb26941caafade121807c5373dc6edb10b25cb79d8d3faf6c88c72",
       "latestInputChange": {
         "kind": "PERMANENT_PLAY_SOURCE_GENERATION_AND_BATTLEFIELD_DAMAGE",
         "scope": "Current compiled engine source changed. Earlier successful CI remains a previous fixed baseline only; current fixed full is pending.",
@@ -6071,7 +6071,7 @@
         }
       ],
       "evidenceCommit": "5faa9012c305e8fc76b5b79d8b798597beee08df",
-      "currentImplementationCommit": "fc106dcf29d996e09994d582378bdf4d8472618b",
+      "currentImplementationCommit": "91b87e4fbcb3baae1e82020df1e393d6a268b8b2",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -6104,7 +6104,7 @@
           "sha256": "05632566219de2496735cf6a87afb324b7d224165f0789f447b974c4ddb3f61a"
         }
       },
-      "currentInputRevision": "3d4f6365d018958338e43d1c30b3f3a4c7b180514fd4d9f9230543d116b6d002"
+      "currentInputRevision": "2dc3b9ea05eb26941caafade121807c5373dc6edb10b25cb79d8d3faf6c88c72"
     },
     "swain-source-identity-and-conquest-clause-classification-2026-10-15": {
       "implementation": [
@@ -6144,7 +6144,7 @@
         }
       ],
       "evidenceCommit": "4ef4db144b1825f8b05f1b0b1605a8b99c49ac84",
-      "currentImplementationCommit": "fc106dcf29d996e09994d582378bdf4d8472618b",
+      "currentImplementationCommit": "91b87e4fbcb3baae1e82020df1e393d6a268b8b2",
       "currentImplementationIncludesUncommittedChanges": true,
       "branches": [
         {
@@ -6200,7 +6200,7 @@
           ]
         }
       ],
-      "currentInputRevision": "3d4f6365d018958338e43d1c30b3f3a4c7b180514fd4d9f9230543d116b6d002",
+      "currentInputRevision": "2dc3b9ea05eb26941caafade121807c5373dc6edb10b25cb79d8d3faf6c88c72",
       "latestInputChange": {
         "kind": "PERMANENT_PLAY_SOURCE_GENERATION_AND_BATTLEFIELD_DAMAGE",
         "scope": "Current compiled engine source changed. Earlier successful CI remains a previous fixed baseline only; current fixed full is pending.",
@@ -6259,7 +6259,7 @@
       "ciState": "PENDING",
       "ciReceipts": [],
       "evidenceCommit": "4ef4db144b1825f8b05f1b0b1605a8b99c49ac84",
-      "currentImplementationCommit": "fc106dcf29d996e09994d582378bdf4d8472618b",
+      "currentImplementationCommit": "91b87e4fbcb3baae1e82020df1e393d6a268b8b2",
       "currentImplementationIncludesUncommittedChanges": true,
       "branches": [
         {
@@ -6297,7 +6297,7 @@
           ]
         }
       ],
-      "currentInputRevision": "3d4f6365d018958338e43d1c30b3f3a4c7b180514fd4d9f9230543d116b6d002",
+      "currentInputRevision": "2dc3b9ea05eb26941caafade121807c5373dc6edb10b25cb79d8d3faf6c88c72",
       "latestInputChange": {
         "kind": "PERMANENT_PLAY_SOURCE_GENERATION_AND_BATTLEFIELD_DAMAGE",
         "scope": "Current compiled engine source changed. Earlier successful CI remains a previous fixed baseline only; current fixed full is pending.",
@@ -6331,7 +6331,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "2fd48a20f3f697ef99d4407624da419541b7c47aef91502a5f3c728425308804"
+          "sha256": "8d742f14a0e156da495ae916ab5eb7fc034b6b648176bdfc637184684deeef60"
         }
       ],
       "evidence": [
@@ -6376,7 +6376,7 @@
         }
       ],
       "evidenceCommit": "342187cb732ea37a616d3fb125be6e9e5096ead1",
-      "currentImplementationCommit": "fc106dcf29d996e09994d582378bdf4d8472618b",
+      "currentImplementationCommit": "91b87e4fbcb3baae1e82020df1e393d6a268b8b2",
       "currentImplementationIncludesUncommittedChanges": true,
       "branches": [
         {
@@ -6629,7 +6629,7 @@
         }
       },
       "currentProductAcceptance": "OPEN_AFTER_SHARED_NATIVE_PROMPT_INPUT_CHANGE_OLD_VISIBLE_EVIDENCE_RETAINS_EXACT_SCOPE",
-      "currentInputRevision": "3d4f6365d018958338e43d1c30b3f3a4c7b180514fd4d9f9230543d116b6d002"
+      "currentInputRevision": "2dc3b9ea05eb26941caafade121807c5373dc6edb10b25cb79d8d3faf6c88c72"
     },
     "porobot-source-play-other-equipment-conditional-draw-2026-10-15": {
       "implementation": [
@@ -6651,7 +6651,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
-          "sha256": "291b21b0b733b085bc0ec11547419e1d6382f64ed461d1aca81fb6a0f0d53789"
+          "sha256": "f027170bcebdf59b09d84fd7598d6fcd991d9bd5db9f9a7838a9f7f2a35788f3"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
@@ -6659,7 +6659,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "2fd48a20f3f697ef99d4407624da419541b7c47aef91502a5f3c728425308804"
+          "sha256": "8d742f14a0e156da495ae916ab5eb7fc034b6b648176bdfc637184684deeef60"
         },
         {
           "path": "src/Riftbound.CardCatalog/RuleTextParsers.cs",
@@ -6712,7 +6712,7 @@
         }
       ],
       "evidenceCommit": "339c6168f704684477354365988d7448cb0e7a10",
-      "currentImplementationCommit": "fc106dcf29d996e09994d582378bdf4d8472618b",
+      "currentImplementationCommit": "91b87e4fbcb3baae1e82020df1e393d6a268b8b2",
       "currentImplementationIncludesUncommittedChanges": true,
       "ciState": "PENDING",
       "ciReceipts": [
@@ -6976,11 +6976,11 @@
         }
       },
       "currentProductAcceptance": "OPEN_AFTER_SHARED_NATIVE_PROMPT_INPUT_CHANGE_OLD_VISIBLE_EVIDENCE_RETAINS_EXACT_SCOPE",
-      "currentInputRevision": "3d4f6365d018958338e43d1c30b3f3a4c7b180514fd4d9f9230543d116b6d002"
+      "currentInputRevision": "2dc3b9ea05eb26941caafade121807c5373dc6edb10b25cb79d8d3faf6c88c72"
     },
     "typed-card-play-history-causal-production-recovery-2026-10-15": {
       "evidenceCommit": "6bc546259eed61d5988bf8e8df5081cd8502c614",
-      "currentImplementationCommit": "fc106dcf29d996e09994d582378bdf4d8472618b",
+      "currentImplementationCommit": "91b87e4fbcb3baae1e82020df1e393d6a268b8b2",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact6bc fullCI/45SQL/case-method-pair preservation verified. Current workingtree has newer counted Insight/catalog dependencies; this prior full is not current gameplay coverage.",
       "ciState": "PENDING",
@@ -6999,7 +6999,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "2fd48a20f3f697ef99d4407624da419541b7c47aef91502a5f3c728425308804"
+          "sha256": "8d742f14a0e156da495ae916ab5eb7fc034b6b648176bdfc637184684deeef60"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
@@ -7151,11 +7151,11 @@
         }
       },
       "currentProductAcceptance": "OPEN_AFTER_SHARED_NATIVE_PROMPT_INPUT_CHANGE_OLD_VISIBLE_EVIDENCE_RETAINS_EXACT_SCOPE",
-      "currentInputRevision": "3d4f6365d018958338e43d1c30b3f3a4c7b180514fd4d9f9230543d116b6d002"
+      "currentInputRevision": "2dc3b9ea05eb26941caafade121807c5373dc6edb10b25cb79d8d3faf6c88c72"
     },
     "counted-insight-post-choice-draw-clairvoyance-2026-10-15": {
       "evidenceCommit": "6bc546259eed61d5988bf8e8df5081cd8502c614",
-      "currentImplementationCommit": "fc106dcf29d996e09994d582378bdf4d8472618b",
+      "currentImplementationCommit": "91b87e4fbcb3baae1e82020df1e393d6a268b8b2",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Base commit plus explicitly uncommitted gameplay/test inputs; own fixed CI remains pending. Earlier6bc full cannot certify this new gameplay batch.",
       "ciState": "PENDING",
@@ -7163,7 +7163,7 @@
       "implementation": [
         {
           "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
-          "sha256": "291b21b0b733b085bc0ec11547419e1d6382f64ed461d1aca81fb6a0f0d53789"
+          "sha256": "f027170bcebdf59b09d84fd7598d6fcd991d9bd5db9f9a7838a9f7f2a35788f3"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.Insight.cs",
@@ -7375,11 +7375,11 @@
           "sha256": "05632566219de2496735cf6a87afb324b7d224165f0789f447b974c4ddb3f61a"
         }
       },
-      "currentInputRevision": "3d4f6365d018958338e43d1c30b3f3a4c7b180514fd4d9f9230543d116b6d002"
+      "currentInputRevision": "2dc3b9ea05eb26941caafade121807c5373dc6edb10b25cb79d8d3faf6c88c72"
     },
     "untargeted-counted-insight-echo-resumption-2026-10-15": {
       "evidenceCommit": "a8f0b1dd1797997390d34ec77a84455a4ddb8911",
-      "currentImplementationCommit": "fc106dcf29d996e09994d582378bdf4d8472618b",
+      "currentImplementationCommit": "91b87e4fbcb3baae1e82020df1e393d6a268b8b2",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact base plus explicitly uncommitted new Insight Echo inputs; own fixed full remains required.",
       "ciState": "PENDING",
@@ -7636,7 +7636,7 @@
         }
       ],
       "revalidationReason": "Declared targeted Insight executions and the production outgoing command serializer changed; earlier exact receipts remain scoped to their own inputs.",
-      "currentInputRevision": "3d4f6365d018958338e43d1c30b3f3a4c7b180514fd4d9f9230543d116b6d002",
+      "currentInputRevision": "2dc3b9ea05eb26941caafade121807c5373dc6edb10b25cb79d8d3faf6c88c72",
       "latestInputChange": {
         "kind": "PERMANENT_PLAY_SOURCE_GENERATION_AND_BATTLEFIELD_DAMAGE",
         "scope": "Current compiled engine source changed. Earlier successful CI remains a previous fixed baseline only; current fixed full is pending.",
@@ -7648,7 +7648,7 @@
     },
     "targeted-insight-repeat-declarations-and-native-wire-2026-10-15": {
       "evidenceCommit": "9e426a31386aefa980bf2d48f02b237098cb2914",
-      "currentImplementationCommit": "fc106dcf29d996e09994d582378bdf4d8472618b",
+      "currentImplementationCommit": "91b87e4fbcb3baae1e82020df1e393d6a268b8b2",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact base plus explicit new uncommitted targeted rule/client/test inputs; old full cannot certify these inputs.",
       "ciState": "PENDING",
@@ -7944,7 +7944,7 @@
       ],
       "latestFixedEvidenceStatus": "EXACT_9E_FULL_VERIFIED_VISIBLE_SCORE_OBSERVED_BUT_EVENT_REPLAY_FAILED_CURRENT_REPAIR_PENDING",
       "revalidationReason": "Exact9e11990/7330/57SQL passed; visible160-command/839-event normal8:3 failed event replay756/758. Current journal/combat repair has new input identity and requires fresh acceptance.",
-      "currentInputRevision": "3d4f6365d018958338e43d1c30b3f3a4c7b180514fd4d9f9230543d116b6d002",
+      "currentInputRevision": "2dc3b9ea05eb26941caafade121807c5373dc6edb10b25cb79d8d3faf6c88c72",
       "latestInputChange": {
         "kind": "PERMANENT_PLAY_SOURCE_GENERATION_AND_BATTLEFIELD_DAMAGE",
         "scope": "Current compiled engine source changed. Earlier successful CI remains a previous fixed baseline only; current fixed full is pending.",
@@ -7956,7 +7956,7 @@
     },
     "combat-event-journal-wire-and-single-defender-choice-2026-10-15": {
       "evidenceCommit": "9e426a31386aefa980bf2d48f02b237098cb2914",
-      "currentImplementationCommit": "fc106dcf29d996e09994d582378bdf4d8472618b",
+      "currentImplementationCommit": "91b87e4fbcb3baae1e82020df1e393d6a268b8b2",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact9e base plus explicitly hashed current journal/combat/native-fixture verification inputs; old full does not cover this repair.",
       "ciState": "PENDING",
@@ -7964,7 +7964,7 @@
       "implementation": [
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "2fd48a20f3f697ef99d4407624da419541b7c47aef91502a5f3c728425308804"
+          "sha256": "8d742f14a0e156da495ae916ab5eb7fc034b6b648176bdfc637184684deeef60"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
@@ -8210,11 +8210,11 @@
           "sha256": "05632566219de2496735cf6a87afb324b7d224165f0789f447b974c4ddb3f61a"
         }
       },
-      "currentInputRevision": "3d4f6365d018958338e43d1c30b3f3a4c7b180514fd4d9f9230543d116b6d002"
+      "currentInputRevision": "2dc3b9ea05eb26941caafade121807c5373dc6edb10b25cb79d8d3faf6c88c72"
     },
     "combat-declaration-provenance-and-single-eligible-unit-conquest-2026-10-15": {
       "evidenceCommit": "0cbee9e22c81bec21ea416fdb45dc1c16f78e7d4",
-      "currentImplementationCommit": "fc106dcf29d996e09994d582378bdf4d8472618b",
+      "currentImplementationCommit": "91b87e4fbcb3baae1e82020df1e393d6a268b8b2",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact0cbee failed base plus two explicitly pinned source repairs and new verification/source-intake evidence; new fixed SHA required.",
       "ciState": "PENDING",
@@ -8435,11 +8435,11 @@
           "sha256": "05632566219de2496735cf6a87afb324b7d224165f0789f447b974c4ddb3f61a"
         }
       },
-      "currentInputRevision": "3d4f6365d018958338e43d1c30b3f3a4c7b180514fd4d9f9230543d116b6d002"
+      "currentInputRevision": "2dc3b9ea05eb26941caafade121807c5373dc6edb10b25cb79d8d3faf6c88c72"
     },
     "optional-mana-trigger-native-and-natural-declaration-order-2026-10-15": {
       "evidenceCommit": "d1c2b4d351ca32862ee52ab7bc45cd7d581fca2c",
-      "currentImplementationCommit": "fc106dcf29d996e09994d582378bdf4d8472618b",
+      "currentImplementationCommit": "91b87e4fbcb3baae1e82020df1e393d6a268b8b2",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact d1 actual full-success/native-failure base plus three pinned source repairs, new verification and source readback; new fixed SHA required.",
       "ciState": "PENDING",
@@ -8653,11 +8653,11 @@
         }
       },
       "currentProductAcceptance": "OPEN_AFTER_SHARED_NATIVE_PROMPT_INPUT_CHANGE_OLD_VISIBLE_EVIDENCE_RETAINS_EXACT_SCOPE",
-      "currentInputRevision": "3d4f6365d018958338e43d1c30b3f3a4c7b180514fd4d9f9230543d116b6d002"
+      "currentInputRevision": "2dc3b9ea05eb26941caafade121807c5373dc6edb10b25cb79d8d3faf6c88c72"
     },
     "cn16-confirmed-play-origin-and-required-causal-fact-2026-10-16": {
       "evidenceCommit": "56d1ee2eed9dcbf48ed54175867cd93ac58d92d8",
-      "currentImplementationCommit": "fc106dcf29d996e09994d582378bdf4d8472618b",
+      "currentImplementationCommit": "91b87e4fbcb3baae1e82020df1e393d6a268b8b2",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact56 baseline plus explicitly pinned CN16 source selection and bounded confirmed hand-origin repair; new fixed SHA required.",
       "ciState": "PENDING",
@@ -8665,7 +8665,7 @@
       "implementation": [
         {
           "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
-          "sha256": "291b21b0b733b085bc0ec11547419e1d6382f64ed461d1aca81fb6a0f0d53789"
+          "sha256": "f027170bcebdf59b09d84fd7598d6fcd991d9bd5db9f9a7838a9f7f2a35788f3"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
@@ -8695,11 +8695,11 @@
         },
         {
           "path": "tests/Riftbound.PostgresAcceptance/Program.cs",
-          "sha256": "0aee3dd95129336c073f6fe4e115a4adcfba834100a1ddcdc38f430057c70d00"
+          "sha256": "f0ce85b9e0a038c274ac145bc60533503f842494d184042fbc81008eb0b6e6b3"
         },
         {
           "path": "tests/Riftbound.PostgresAcceptance/Riftbound.PostgresAcceptance.csproj",
-          "sha256": "568da0396ced8a93f75e2a5bf304875945a14eb9e95db04c4468414189b7d5dc"
+          "sha256": "be07e23edec0111da05e7aa31b4e05ddcd179de52bf091d1265f01146b8454cd"
         },
         {
           "path": "tests/Riftbound.ConformanceTests/Fixtures/confirmed-play-origin-hand-cn16.json",
@@ -8943,11 +8943,11 @@
         }
       },
       "currentProductAcceptance": "OPEN_AFTER_SHARED_NATIVE_PROMPT_INPUT_CHANGE_OLD_VISIBLE_EVIDENCE_RETAINS_EXACT_SCOPE",
-      "currentInputRevision": "3d4f6365d018958338e43d1c30b3f3a4c7b180514fd4d9f9230543d116b6d002"
+      "currentInputRevision": "2dc3b9ea05eb26941caafade121807c5373dc6edb10b25cb79d8d3faf6c88c72"
     },
     "physical-origin-self-cost-reduction-2026-10-16": {
       "evidenceCommit": "903cbca2becfd9b142a6b6a86d77b8fbf3d080ef",
-      "currentImplementationCommit": "fc106dcf29d996e09994d582378bdf4d8472618b",
+      "currentImplementationCommit": "91b87e4fbcb3baae1e82020df1e393d6a268b8b2",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact903 baseline plus pinned3engine changes and new8cases/SQL fixtures; fixed newSHA required.",
       "ciState": "PENDING",
@@ -8955,7 +8955,7 @@
       "implementation": [
         {
           "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
-          "sha256": "291b21b0b733b085bc0ec11547419e1d6382f64ed461d1aca81fb6a0f0d53789"
+          "sha256": "f027170bcebdf59b09d84fd7598d6fcd991d9bd5db9f9a7838a9f7f2a35788f3"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
@@ -8977,11 +8977,11 @@
         },
         {
           "path": "tests/Riftbound.PostgresAcceptance/Program.cs",
-          "sha256": "0aee3dd95129336c073f6fe4e115a4adcfba834100a1ddcdc38f430057c70d00"
+          "sha256": "f0ce85b9e0a038c274ac145bc60533503f842494d184042fbc81008eb0b6e6b3"
         },
         {
           "path": "tests/Riftbound.PostgresAcceptance/Riftbound.PostgresAcceptance.csproj",
-          "sha256": "568da0396ced8a93f75e2a5bf304875945a14eb9e95db04c4468414189b7d5dc"
+          "sha256": "be07e23edec0111da05e7aa31b4e05ddcd179de52bf091d1265f01146b8454cd"
         },
         {
           "path": "tests/Riftbound.ConformanceTests/Fixtures/physical-origin-cost-unit.json",
@@ -9176,11 +9176,11 @@
           "sha256": "05632566219de2496735cf6a87afb324b7d224165f0789f447b974c4ddb3f61a"
         }
       },
-      "currentInputRevision": "3d4f6365d018958338e43d1c30b3f3a4c7b180514fd4d9f9230543d116b6d002"
+      "currentInputRevision": "2dc3b9ea05eb26941caafade121807c5373dc6edb10b25cb79d8d3faf6c88c72"
     },
     "granted-origin-haste-and-paid-entry-replacement-2026-10-16": {
       "evidenceCommit": "4ad7fe204adee28c4138f18bdde4c4cbcdea21f0",
-      "currentImplementationCommit": "fc106dcf29d996e09994d582378bdf4d8472618b",
+      "currentImplementationCommit": "91b87e4fbcb3baae1e82020df1e393d6a268b8b2",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact4ad7 baseline plus pinned5engine inputs,24cases, native readback and73SQL. NewfixedSHA full required. Printed-Haste dispatch restored after the singlecheck;213 current focus passed. Prior SQL/native exact inputs remain pre-repair, not relabeled.",
       "ciState": "PENDING",
@@ -9188,7 +9188,7 @@
       "implementation": [
         {
           "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
-          "sha256": "291b21b0b733b085bc0ec11547419e1d6382f64ed461d1aca81fb6a0f0d53789"
+          "sha256": "f027170bcebdf59b09d84fd7598d6fcd991d9bd5db9f9a7838a9f7f2a35788f3"
         },
         {
           "path": "src/Riftbound.Engine/CardPermissionKeywordRules.cs",
@@ -9222,11 +9222,11 @@
         },
         {
           "path": "tests/Riftbound.PostgresAcceptance/Program.cs",
-          "sha256": "0aee3dd95129336c073f6fe4e115a4adcfba834100a1ddcdc38f430057c70d00"
+          "sha256": "f0ce85b9e0a038c274ac145bc60533503f842494d184042fbc81008eb0b6e6b3"
         },
         {
           "path": "tests/Riftbound.PostgresAcceptance/Riftbound.PostgresAcceptance.csproj",
-          "sha256": "568da0396ced8a93f75e2a5bf304875945a14eb9e95db04c4468414189b7d5dc"
+          "sha256": "be07e23edec0111da05e7aa31b4e05ddcd179de52bf091d1265f01146b8454cd"
         },
         {
           "path": "tests/Riftbound.ConformanceTests/Fixtures/granted-origin-haste-unit.json",
@@ -9454,11 +9454,11 @@
         }
       },
       "currentProductAcceptance": "OPEN_AFTER_SHARED_NATIVE_PROMPT_INPUT_CHANGE_OLD_VISIBLE_EVIDENCE_RETAINS_EXACT_SCOPE",
-      "currentInputRevision": "3d4f6365d018958338e43d1c30b3f3a4c7b180514fd4d9f9230543d116b6d002"
+      "currentInputRevision": "2dc3b9ea05eb26941caafade121807c5373dc6edb10b25cb79d8d3faf6c88c72"
     },
     "opponent-battlefield-current-control-entry-2026-10-16": {
       "evidenceCommit": "3ced0126ac20a07c2909e7b44f3733a9e3aa044a",
-      "currentImplementationCommit": "fc106dcf29d996e09994d582378bdf4d8472618b",
+      "currentImplementationCommit": "91b87e4fbcb3baae1e82020df1e393d6a268b8b2",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact3ced baseline plus pinned Core fix and29new cases/3methods; old72 product and prior fixedfull evidence are separately bounded. New fixed SHA full required.",
       "ciState": "PENDING",
@@ -9492,11 +9492,11 @@
         },
         {
           "path": "tests/Riftbound.PostgresAcceptance/Program.cs",
-          "sha256": "0aee3dd95129336c073f6fe4e115a4adcfba834100a1ddcdc38f430057c70d00"
+          "sha256": "f0ce85b9e0a038c274ac145bc60533503f842494d184042fbc81008eb0b6e6b3"
         },
         {
           "path": "tests/Riftbound.PostgresAcceptance/Riftbound.PostgresAcceptance.csproj",
-          "sha256": "568da0396ced8a93f75e2a5bf304875945a14eb9e95db04c4468414189b7d5dc"
+          "sha256": "be07e23edec0111da05e7aa31b4e05ddcd179de52bf091d1265f01146b8454cd"
         }
       ],
       "evidence": [
@@ -9634,11 +9634,11 @@
           "runId": 38851939967
         }
       ],
-      "currentInputRevision": "3d4f6365d018958338e43d1c30b3f3a4c7b180514fd4d9f9230543d116b6d002"
+      "currentInputRevision": "2dc3b9ea05eb26941caafade121807c5373dc6edb10b25cb79d8d3faf6c88c72"
     },
     "optional-sacrifice-printed-cost-and-paid-entry-2026-10-16": {
       "evidenceCommit": "8d7571c5a5572b1ed542a5ff1d8eaeb533bac1bc",
-      "currentImplementationCommit": "fc106dcf29d996e09994d582378bdf4d8472618b",
+      "currentImplementationCommit": "91b87e4fbcb3baae1e82020df1e393d6a268b8b2",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Fixed8d baseline plus exact15 executable/fixture patch files. Earlier full8d,113 old review dictionaries, source dates and original143/110/424242 remain retained. New candidate full required.",
       "ciState": "PENDING",
@@ -9646,7 +9646,7 @@
       "implementation": [
         {
           "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
-          "sha256": "291b21b0b733b085bc0ec11547419e1d6382f64ed461d1aca81fb6a0f0d53789"
+          "sha256": "f027170bcebdf59b09d84fd7598d6fcd991d9bd5db9f9a7838a9f7f2a35788f3"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
@@ -9700,11 +9700,11 @@
         },
         {
           "path": "tests/Riftbound.PostgresAcceptance/Program.cs",
-          "sha256": "0aee3dd95129336c073f6fe4e115a4adcfba834100a1ddcdc38f430057c70d00"
+          "sha256": "f0ce85b9e0a038c274ac145bc60533503f842494d184042fbc81008eb0b6e6b3"
         },
         {
           "path": "tests/Riftbound.PostgresAcceptance/Riftbound.PostgresAcceptance.csproj",
-          "sha256": "568da0396ced8a93f75e2a5bf304875945a14eb9e95db04c4468414189b7d5dc"
+          "sha256": "be07e23edec0111da05e7aa31b4e05ddcd179de52bf091d1265f01146b8454cd"
         }
       ],
       "evidence": [
@@ -9892,11 +9892,11 @@
         }
       ],
       "currentProductAcceptance": "OPEN_AFTER_SHARED_NATIVE_PROMPT_INPUT_CHANGE_OLD_VISIBLE_EVIDENCE_RETAINS_EXACT_SCOPE",
-      "currentInputRevision": "3d4f6365d018958338e43d1c30b3f3a4c7b180514fd4d9f9230543d116b6d002"
+      "currentInputRevision": "2dc3b9ea05eb26941caafade121807c5373dc6edb10b25cb79d8d3faf6c88c72"
     },
     "granted-colorless-token-haste-payment-2026-10-16": {
       "evidenceCommit": "daf394e20997ebdb028e91ba9fdfe6c24eb492eb",
-      "currentImplementationCommit": "fc106dcf29d996e09994d582378bdf4d8472618b",
+      "currentImplementationCommit": "91b87e4fbcb3baae1e82020df1e393d6a268b8b2",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Fixeddaf baseline plus exact13 current executable/test/fixture patch files; historical daf full12136/7372 and77SQL do not cover the patch.",
       "ciState": "PENDING",
@@ -9950,11 +9950,11 @@
         },
         {
           "path": "tests/Riftbound.PostgresAcceptance/Program.cs",
-          "sha256": "0aee3dd95129336c073f6fe4e115a4adcfba834100a1ddcdc38f430057c70d00"
+          "sha256": "f0ce85b9e0a038c274ac145bc60533503f842494d184042fbc81008eb0b6e6b3"
         },
         {
           "path": "tests/Riftbound.PostgresAcceptance/Riftbound.PostgresAcceptance.csproj",
-          "sha256": "568da0396ced8a93f75e2a5bf304875945a14eb9e95db04c4468414189b7d5dc"
+          "sha256": "be07e23edec0111da05e7aa31b4e05ddcd179de52bf091d1265f01146b8454cd"
         }
       ],
       "evidence": [
@@ -10185,11 +10185,11 @@
           "sha256": "05632566219de2496735cf6a87afb324b7d224165f0789f447b974c4ddb3f61a"
         }
       },
-      "currentInputRevision": "3d4f6365d018958338e43d1c30b3f3a4c7b180514fd4d9f9230543d116b6d002"
+      "currentInputRevision": "2dc3b9ea05eb26941caafade121807c5373dc6edb10b25cb79d8d3faf6c88c72"
     },
     "native-rule-choice-prompts-2026-10-16": {
       "evidenceCommit": "65092fcdea323f9f4b435a91344f76e838fb21b4",
-      "currentImplementationCommit": "fc106dcf29d996e09994d582378bdf4d8472618b",
+      "currentImplementationCommit": "91b87e4fbcb3baae1e82020df1e393d6a268b8b2",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Fixed650 baseline plus exact two implementation and four verification inputs. Fixed650 full does not cover these uncommitted prompt changes.",
       "ciState": "PENDING",
@@ -10397,11 +10397,11 @@
           "runId": 38899251618
         }
       ],
-      "currentInputRevision": "3d4f6365d018958338e43d1c30b3f3a4c7b180514fd4d9f9230543d116b6d002"
+      "currentInputRevision": "2dc3b9ea05eb26941caafade121807c5373dc6edb10b25cb79d8d3faf6c88c72"
     },
     "sand-soldier-embedded-ready-2026-10-17": {
       "evidenceCommit": "8ca4080c9431b981db051a5adad18dace5d85dd5",
-      "currentImplementationCommit": "fc106dcf29d996e09994d582378bdf4d8472618b",
+      "currentImplementationCommit": "91b87e4fbcb3baae1e82020df1e393d6a268b8b2",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Fixed8ca source baseline (gameplay5ed) plus explicit current implementation/test/fixture inputs. Prior5ed full/native and local pre-caption SQL are not relabeled as this final candidate.",
       "ciState": "PENDING",
@@ -10409,7 +10409,7 @@
       "implementation": [
         {
           "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
-          "sha256": "291b21b0b733b085bc0ec11547419e1d6382f64ed461d1aca81fb6a0f0d53789"
+          "sha256": "f027170bcebdf59b09d84fd7598d6fcd991d9bd5db9f9a7838a9f7f2a35788f3"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.CreatedTokenReady.cs",
@@ -10437,7 +10437,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "2fd48a20f3f697ef99d4407624da419541b7c47aef91502a5f3c728425308804"
+          "sha256": "8d742f14a0e156da495ae916ab5eb7fc034b6b648176bdfc637184684deeef60"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
@@ -10499,11 +10499,11 @@
         },
         {
           "path": "tests/Riftbound.PostgresAcceptance/Program.cs",
-          "sha256": "0aee3dd95129336c073f6fe4e115a4adcfba834100a1ddcdc38f430057c70d00"
+          "sha256": "f0ce85b9e0a038c274ac145bc60533503f842494d184042fbc81008eb0b6e6b3"
         },
         {
           "path": "tests/Riftbound.PostgresAcceptance/Riftbound.PostgresAcceptance.csproj",
-          "sha256": "568da0396ced8a93f75e2a5bf304875945a14eb9e95db04c4468414189b7d5dc"
+          "sha256": "be07e23edec0111da05e7aa31b4e05ddcd179de52bf091d1265f01146b8454cd"
         }
       ],
       "evidence": [
@@ -10743,11 +10743,11 @@
           "sha256": "05632566219de2496735cf6a87afb324b7d224165f0789f447b974c4ddb3f61a"
         }
       },
-      "currentInputRevision": "3d4f6365d018958338e43d1c30b3f3a4c7b180514fd4d9f9230543d116b6d002"
+      "currentInputRevision": "2dc3b9ea05eb26941caafade121807c5373dc6edb10b25cb79d8d3faf6c88c72"
     },
     "opening-randomness-2026-10-17": {
       "evidenceCommit": "a6ccf1952141c69ed4b3cde94695f983c1c28db8",
-      "currentImplementationCommit": "fc106dcf29d996e09994d582378bdf4d8472618b",
+      "currentImplementationCommit": "91b87e4fbcb3baae1e82020df1e393d6a268b8b2",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Base plus current explicit implementation/test inputs. Prior39 native/CI is historical and not relabeled current.",
       "ciState": "PENDING",
@@ -10763,7 +10763,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "2fd48a20f3f697ef99d4407624da419541b7c47aef91502a5f3c728425308804"
+          "sha256": "8d742f14a0e156da495ae916ab5eb7fc034b6b648176bdfc637184684deeef60"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
@@ -10925,11 +10925,11 @@
         },
         {
           "path": "tests/Riftbound.PostgresAcceptance/Program.cs",
-          "sha256": "0aee3dd95129336c073f6fe4e115a4adcfba834100a1ddcdc38f430057c70d00"
+          "sha256": "f0ce85b9e0a038c274ac145bc60533503f842494d184042fbc81008eb0b6e6b3"
         },
         {
           "path": "tests/Riftbound.PostgresAcceptance/Riftbound.PostgresAcceptance.csproj",
-          "sha256": "568da0396ced8a93f75e2a5bf304875945a14eb9e95db04c4468414189b7d5dc"
+          "sha256": "be07e23edec0111da05e7aa31b4e05ddcd179de52bf091d1265f01146b8454cd"
         },
         {
           "path": "tests/Riftbound.PostgresAcceptance/RuneRecycleDestinationSqlAcceptance.cs",
@@ -11177,11 +11177,11 @@
           "sha256": "05632566219de2496735cf6a87afb324b7d224165f0789f447b974c4ddb3f61a"
         }
       },
-      "currentInputRevision": "3d4f6365d018958338e43d1c30b3f3a4c7b180514fd4d9f9230543d116b6d002"
+      "currentInputRevision": "2dc3b9ea05eb26941caafade121807c5373dc6edb10b25cb79d8d3faf6c88c72"
     },
     "duel-chain-origins-cold-recovery-2026-10-17": {
       "evidenceCommit": "42c89230105573e39ffaf524a7dc21f24d520d4b",
-      "currentImplementationCommit": "fc106dcf29d996e09994d582378bdf4d8472618b",
+      "currentImplementationCommit": "91b87e4fbcb3baae1e82020df1e393d6a268b8b2",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Base42 plus exact changed implementation/test pins; fixed067 full is a retained failure, not current success.",
       "ciState": "PENDING",
@@ -11205,7 +11205,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "2fd48a20f3f697ef99d4407624da419541b7c47aef91502a5f3c728425308804"
+          "sha256": "8d742f14a0e156da495ae916ab5eb7fc034b6b648176bdfc637184684deeef60"
         }
       ],
       "verificationSources": [
@@ -11415,19 +11415,19 @@
           "sha256": "05632566219de2496735cf6a87afb324b7d224165f0789f447b974c4ddb3f61a"
         }
       },
-      "currentInputRevision": "3d4f6365d018958338e43d1c30b3f3a4c7b180514fd4d9f9230543d116b6d002"
+      "currentInputRevision": "2dc3b9ea05eb26941caafade121807c5373dc6edb10b25cb79d8d3faf6c88c72"
     },
     "merfolk-battlefield-play-damage-here-2026-10-17": {
       "evidenceCommit": "4fca367eaab1dd198ffde839b23461c058a2b470",
       "evidenceCommitScope": "Previous fixed baseline only. This review source includes uncommitted positive damage changes and does not claim that4fca tested them.",
-      "currentImplementationCommit": "fc106dcf29d996e09994d582378bdf4d8472618b",
+      "currentImplementationCommit": "91b87e4fbcb3baae1e82020df1e393d6a268b8b2",
       "currentImplementationIncludesUncommittedChanges": true,
       "ciState": "PENDING",
       "ciReceipts": [],
       "implementation": [
         {
           "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
-          "sha256": "291b21b0b733b085bc0ec11547419e1d6382f64ed461d1aca81fb6a0f0d53789"
+          "sha256": "f027170bcebdf59b09d84fd7598d6fcd991d9bd5db9f9a7838a9f7f2a35788f3"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.PermanentPlayHere.cs",
@@ -11463,7 +11463,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "2fd48a20f3f697ef99d4407624da419541b7c47aef91502a5f3c728425308804"
+          "sha256": "8d742f14a0e156da495ae916ab5eb7fc034b6b648176bdfc637184684deeef60"
         },
         {
           "path": "src/Riftbound.Engine/PermanentPlayTriggerRecoveryRules.cs",
@@ -11501,11 +11501,11 @@
         },
         {
           "path": "tests/Riftbound.PostgresAcceptance/Program.cs",
-          "sha256": "0aee3dd95129336c073f6fe4e115a4adcfba834100a1ddcdc38f430057c70d00"
+          "sha256": "f0ce85b9e0a038c274ac145bc60533503f842494d184042fbc81008eb0b6e6b3"
         },
         {
           "path": "tests/Riftbound.PostgresAcceptance/Riftbound.PostgresAcceptance.csproj",
-          "sha256": "568da0396ced8a93f75e2a5bf304875945a14eb9e95db04c4468414189b7d5dc"
+          "sha256": "be07e23edec0111da05e7aa31b4e05ddcd179de52bf091d1265f01146b8454cd"
         },
         {
           "path": "tests/Riftbound.ConformanceTests/MatrixOpeningResourceDriverTests.cs",
@@ -11615,7 +11615,7 @@
           ]
         }
       ],
-      "currentInputRevision": "3d4f6365d018958338e43d1c30b3f3a4c7b180514fd4d9f9230543d116b6d002",
+      "currentInputRevision": "2dc3b9ea05eb26941caafade121807c5373dc6edb10b25cb79d8d3faf6c88c72",
       "previousFixedFullCi": {
         "path": "docs/evidence/battlefield-play-damage-2026-10-17/full-ci-4fca-baseline.json",
         "sha256": "c8fb136ffea9ba036ff55e27c4b753aaf57c2d2e0d72c8dbdcc3de1de5ead358"
@@ -11624,14 +11624,14 @@
     "banish-owner-effect-play-2026-10-18": {
       "evidenceCommit": "62bf7afc7a59bc743e1e578712e156686666c060",
       "evidenceCommitScope": "Previous fixed62bf baseline only. Later Hunting Rhythm source, fixture and SQL changes are uncommitted and are not covered by62bf.",
-      "currentImplementationCommit": "fc106dcf29d996e09994d582378bdf4d8472618b",
+      "currentImplementationCommit": "91b87e4fbcb3baae1e82020df1e393d6a268b8b2",
       "currentImplementationIncludesUncommittedChanges": true,
       "ciState": "PENDING",
       "ciReceipts": [],
       "implementation": [
         {
           "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
-          "sha256": "291b21b0b733b085bc0ec11547419e1d6382f64ed461d1aca81fb6a0f0d53789"
+          "sha256": "f027170bcebdf59b09d84fd7598d6fcd991d9bd5db9f9a7838a9f7f2a35788f3"
         },
         {
           "path": "src/Riftbound.Engine/CardBasicActionRules.cs",
@@ -11651,7 +11651,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "2fd48a20f3f697ef99d4407624da419541b7c47aef91502a5f3c728425308804"
+          "sha256": "8d742f14a0e156da495ae916ab5eb7fc034b6b648176bdfc637184684deeef60"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
@@ -11709,11 +11709,11 @@
         },
         {
           "path": "tests/Riftbound.PostgresAcceptance/Program.cs",
-          "sha256": "0aee3dd95129336c073f6fe4e115a4adcfba834100a1ddcdc38f430057c70d00"
+          "sha256": "f0ce85b9e0a038c274ac145bc60533503f842494d184042fbc81008eb0b6e6b3"
         },
         {
           "path": "tests/Riftbound.PostgresAcceptance/Riftbound.PostgresAcceptance.csproj",
-          "sha256": "568da0396ced8a93f75e2a5bf304875945a14eb9e95db04c4468414189b7d5dc"
+          "sha256": "be07e23edec0111da05e7aa31b4e05ddcd179de52bf091d1265f01146b8454cd"
         }
       ],
       "evidence": [
@@ -11837,7 +11837,7 @@
           ]
         }
       ],
-      "currentInputRevision": "3d4f6365d018958338e43d1c30b3f3a4c7b180514fd4d9f9230543d116b6d002",
+      "currentInputRevision": "2dc3b9ea05eb26941caafade121807c5373dc6edb10b25cb79d8d3faf6c88c72",
       "previousFixedFullCi": {
         "path": "docs/evidence/banish-owner-play-2026-10-18/fixed62bf-full-ci-independent-original.json",
         "sha256": "c2cce06fd37e5615d373a480f5264c63d6819ac44a45300035be2b1511808e1b"
@@ -11846,14 +11846,14 @@
     "permanent-here-location-control-2026-10-18": {
       "evidenceCommit": "c69aef543b7bb46a987719cc77cd77ea49782527",
       "evidenceCommitScope": "Previous c69 fixed full/native baseline only; later uncommitted Here inputs are separately pinned and not covered by c69.",
-      "currentImplementationCommit": "fc106dcf29d996e09994d582378bdf4d8472618b",
+      "currentImplementationCommit": "91b87e4fbcb3baae1e82020df1e393d6a268b8b2",
       "currentImplementationIncludesUncommittedChanges": true,
       "ciState": "PENDING",
       "ciReceipts": [],
       "implementation": [
         {
           "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
-          "sha256": "291b21b0b733b085bc0ec11547419e1d6382f64ed461d1aca81fb6a0f0d53789"
+          "sha256": "f027170bcebdf59b09d84fd7598d6fcd991d9bd5db9f9a7838a9f7f2a35788f3"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.PermanentConfirmation.cs",
@@ -11895,11 +11895,11 @@
         },
         {
           "path": "tests/Riftbound.PostgresAcceptance/Program.cs",
-          "sha256": "0aee3dd95129336c073f6fe4e115a4adcfba834100a1ddcdc38f430057c70d00"
+          "sha256": "f0ce85b9e0a038c274ac145bc60533503f842494d184042fbc81008eb0b6e6b3"
         },
         {
           "path": "tests/Riftbound.PostgresAcceptance/Riftbound.PostgresAcceptance.csproj",
-          "sha256": "568da0396ced8a93f75e2a5bf304875945a14eb9e95db04c4468414189b7d5dc"
+          "sha256": "be07e23edec0111da05e7aa31b4e05ddcd179de52bf091d1265f01146b8454cd"
         }
       ],
       "evidence": [
@@ -12045,7 +12045,7 @@
           ]
         }
       ],
-      "currentInputRevision": "3d4f6365d018958338e43d1c30b3f3a4c7b180514fd4d9f9230543d116b6d002",
+      "currentInputRevision": "2dc3b9ea05eb26941caafade121807c5373dc6edb10b25cb79d8d3faf6c88c72",
       "previousFixedFullCi": {
         "path": "docs/evidence/here-location-control-2026-10-18/fixedc69-full-ci-independent-original.json",
         "sha256": "c1c3108f19703652aa3d20b71f29e6c87c7fe3871b4cb623365ea3f3b1c8dcf6"
@@ -12058,7 +12058,7 @@
     "rengar-unit-play-confirmation-order-recovery-2026-10-18": {
       "evidenceCommit": "a5d01ad0577e992ab19029424159a4c9acee1385",
       "evidenceCommitScope": "Original a5d native semantic red and prior source/test baseline only; current authored/compiled inputs are separately pinned and not covered by a5d.",
-      "currentImplementationCommit": "fc106dcf29d996e09994d582378bdf4d8472618b",
+      "currentImplementationCommit": "91b87e4fbcb3baae1e82020df1e393d6a268b8b2",
       "currentImplementationIncludesUncommittedChanges": true,
       "ciState": "PENDING",
       "ciReceipts": [],
@@ -12105,7 +12105,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "2fd48a20f3f697ef99d4407624da419541b7c47aef91502a5f3c728425308804"
+          "sha256": "8d742f14a0e156da495ae916ab5eb7fc034b6b648176bdfc637184684deeef60"
         },
         {
           "path": "src/Riftbound.Engine/PermanentPlayTriggerRecoveryRules.cs",
@@ -12155,11 +12155,11 @@
         },
         {
           "path": "tests/Riftbound.PostgresAcceptance/Program.cs",
-          "sha256": "0aee3dd95129336c073f6fe4e115a4adcfba834100a1ddcdc38f430057c70d00"
+          "sha256": "f0ce85b9e0a038c274ac145bc60533503f842494d184042fbc81008eb0b6e6b3"
         },
         {
           "path": "tests/Riftbound.PostgresAcceptance/Riftbound.PostgresAcceptance.csproj",
-          "sha256": "568da0396ced8a93f75e2a5bf304875945a14eb9e95db04c4468414189b7d5dc"
+          "sha256": "be07e23edec0111da05e7aa31b4e05ddcd179de52bf091d1265f01146b8454cd"
         }
       ],
       "evidence": [
@@ -12352,12 +12352,12 @@
           ]
         }
       ],
-      "currentInputRevision": "3d4f6365d018958338e43d1c30b3f3a4c7b180514fd4d9f9230543d116b6d002"
+      "currentInputRevision": "2dc3b9ea05eb26941caafade121807c5373dc6edb10b25cb79d8d3faf6c88c72"
     },
     "deferred-trigger-command-chronology-2026-10-18": {
       "evidenceCommit": "b18272e8e4ad0ed01523aebc9f592e19623f46c9",
       "evidenceCommitScope": "Prior fixed b182 full/native preparation only. Current authored/actual compiled chronology inputs are independently pinned, not covered by the base commit.",
-      "currentImplementationCommit": "fc106dcf29d996e09994d582378bdf4d8472618b",
+      "currentImplementationCommit": "91b87e4fbcb3baae1e82020df1e393d6a268b8b2",
       "currentImplementationIncludesUncommittedChanges": true,
       "ciState": "PENDING",
       "ciReceipts": [],
@@ -12384,7 +12384,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "2fd48a20f3f697ef99d4407624da419541b7c47aef91502a5f3c728425308804"
+          "sha256": "8d742f14a0e156da495ae916ab5eb7fc034b6b648176bdfc637184684deeef60"
         },
         {
           "path": "src/Riftbound.Engine/RengarPlayRecoveryRules.cs",
@@ -12667,12 +12667,12 @@
           ]
         }
       ],
-      "currentInputRevision": "3d4f6365d018958338e43d1c30b3f3a4c7b180514fd4d9f9230543d116b6d002"
+      "currentInputRevision": "2dc3b9ea05eb26941caafade121807c5373dc6edb10b25cb79d8d3faf6c88c72"
     },
     "sole-trigger-choice-controller-2026-10-18": {
       "evidenceCommit": "fc106dcf29d996e09994d582378bdf4d8472618b",
       "evidenceCommitScope": "Prior fixed fc evidence only. Current WIP source revision and actual compiled modules independently pinned; source equality is not compiled identity equality.",
-      "currentImplementationCommit": "fc106dcf29d996e09994d582378bdf4d8472618b",
+      "currentImplementationCommit": "91b87e4fbcb3baae1e82020df1e393d6a268b8b2",
       "currentImplementationIncludesUncommittedChanges": true,
       "ciState": "PENDING",
       "ciReceipts": [],
@@ -12979,7 +12979,297 @@
           ]
         }
       ],
-      "currentInputRevision": "3d4f6365d018958338e43d1c30b3f3a4c7b180514fd4d9f9230543d116b6d002"
+      "currentInputRevision": "2dc3b9ea05eb26941caafade121807c5373dc6edb10b25cb79d8d3faf6c88c72"
+    },
+    "fate-weaver-private-spell-choice-2026-10-18": {
+      "evidenceCommit": "91b87e4fbcb3baae1e82020df1e393d6a268b8b2",
+      "evidenceCommitScope": "Original fixed91 red/product evidence only; current WIP exact source and independently measured actual executing modules separately pinned.",
+      "currentImplementationCommit": "91b87e4fbcb3baae1e82020df1e393d6a268b8b2",
+      "currentImplementationIncludesUncommittedChanges": true,
+      "currentInputRevision": "2dc3b9ea05eb26941caafade121807c5373dc6edb10b25cb79d8d3faf6c88c72",
+      "ciState": "PENDING",
+      "ciReceipts": [],
+      "implementation": [
+        {
+          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "sha256": "f027170bcebdf59b09d84fd7598d6fcd991d9bd5db9f9a7838a9f7f2a35788f3"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeckChoices.cs",
+          "sha256": "09aa6af5b099fc1ebc38ea4c10b3538f42a44d471060a68e65719e10059abf03"
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.cs",
+          "sha256": "8d742f14a0e156da495ae916ab5eb7fc034b6b648176bdfc637184684deeef60"
+        }
+      ],
+      "verificationSources": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/FateWeaverDeckChoiceTests.cs",
+          "sha256": "b45925c26bd68e759be57fca9e4dcbb5a291a3cae34943cd8578f86230ab9628"
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/FateWeaverOpeningTests.cs",
+          "sha256": "722267cd2f67d6489f194ffa86531e1c2df786c29c76cbd58345b94893f703bb"
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/Fixtures/fate-weaver-bright-future-opening.json",
+          "sha256": "509b893005d275b232ae560ac9726827a5fc060870cdf4c1819fdb54a3da9610"
+        },
+        {
+          "path": "tests/Riftbound.PostgresAcceptance/FateWeaverSqlAcceptance.cs",
+          "sha256": "11e2b4a5abb68d240c0467eafd54e64fac23a2f853870abaacbce251f193c8d1"
+        },
+        {
+          "path": "tests/Riftbound.PostgresAcceptance/Program.cs",
+          "sha256": "f0ce85b9e0a038c274ac145bc60533503f842494d184042fbc81008eb0b6e6b3"
+        },
+        {
+          "path": "tests/Riftbound.PostgresAcceptance/Riftbound.PostgresAcceptance.csproj",
+          "sha256": "be07e23edec0111da05e7aa31b4e05ddcd179de52bf091d1265f01146b8454cd"
+        },
+        {
+          "path": "clients/godot/scripts/Main.cs",
+          "sha256": "cb4504128a51efd75064c4108e55bce2125a47d3d6d69c9ef95d4831afa8ea19"
+        },
+        {
+          "path": "clients/godot/scripts/interaction/PromptInteractionController.cs",
+          "sha256": "70df82fdd953087e17fd6041413828308ed600cc44b8e3034b72ecc93d8d5eb8"
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/evidence/fate-weaver-deck-choice-2026-10-18/source-manifest.json",
+          "sha256": "693673477950a30f1b8fad86c3c4f83210d69287e3f52494f7cc2726315bdf50",
+          "role": "source"
+        },
+        {
+          "path": "docs/evidence/fate-weaver-deck-choice-2026-10-18/actual-fixed91-red.json",
+          "sha256": "2694fd87172cbc61fa7d313768e0a1db2e2cd53e78fea39ca6a1b7ae4f828cca",
+          "role": "actual-fixed91-red"
+        },
+        {
+          "path": "docs/evidence/fate-weaver-deck-choice-2026-10-18/red-retention.json",
+          "sha256": "fb7a257e0bbcdb689279148fec9744ee9e5d26f096d2cf684de0d7377b114a6f",
+          "role": "red-retention"
+        },
+        {
+          "path": "docs/evidence/fate-weaver-deck-choice-2026-10-18/shared-consumer-inventory.json",
+          "sha256": "f90bfdfd0706d50fda53cd0dce51301b39c8ab2d6c32d5b795f7703174b493ea",
+          "role": "shared-consumer-inventory"
+        },
+        {
+          "path": "docs/evidence/fate-weaver-deck-choice-2026-10-18/focus.json",
+          "sha256": "843aef5607d637f3c0aecfe8d6468b48c2e86b9d2e8668ce69893801dd049585",
+          "role": "focus"
+        },
+        {
+          "path": "docs/evidence/fate-weaver-deck-choice-2026-10-18/actual-compiled-inputs.json",
+          "sha256": "137f0523e26c84b256b4ab379b3b843f637efcd079410e9a409aa773b808954d",
+          "role": "actual-compiled-inputs"
+        },
+        {
+          "path": "docs/evidence/fate-weaver-deck-choice-2026-10-18/real-sql.json",
+          "sha256": "4fa1d5599f73efd15bd0ab3407e432a8f258ee23f536c3c17e4e30dfc012fe75",
+          "role": "sql"
+        },
+        {
+          "path": "docs/evidence/fate-weaver-deck-choice-2026-10-18/test-retention.json",
+          "sha256": "a63af1389c561545d0db0288bff887314e4973c8bc92a6e6baa179e81d5d62d0",
+          "role": "test-retention"
+        },
+        {
+          "path": "docs/evidence/fate-weaver-deck-choice-2026-10-18/original-five-and110.json",
+          "sha256": "79a837a1633948761b2fb9ef28d305b88660b95151c62b48a2968dbc50b4152b",
+          "role": "original-five-and110"
+        },
+        {
+          "path": "docs/evidence/fate-weaver-deck-choice-2026-10-18/one-check.json",
+          "sha256": "53770308773ec5d66b87d310f922c7140150b6e87430170f7bd7085fce7f90b1",
+          "role": "check"
+        },
+        {
+          "path": "docs/evidence/fate-weaver-deck-choice-2026-10-18/fixed91-product-boundary.json",
+          "sha256": "4bd1b359f169d44bf3f21d6387953267da894a8b67a9f1d389874512ff49faa9",
+          "role": "fixed91-product-boundary"
+        },
+        {
+          "path": "docs/evidence/fate-weaver-deck-choice-2026-10-18/storage-control.json",
+          "sha256": "9828d32ee61f3be050e28f6df0b066e6624f08946b87ea8496b807ec9e132c70",
+          "role": "storage-control"
+        },
+        {
+          "path": "docs/evidence/fate-weaver-deck-choice-2026-10-18/tooling-tests.json",
+          "sha256": "a9a072d25c27e67220d07d75a1fbb78503158b7499648c74ec09b86f00e3922e",
+          "role": "tooling-tests"
+        },
+        {
+          "path": "docs/evidence/fate-weaver-deck-choice-2026-10-18/single-check-original-failures.json",
+          "sha256": "f94759dcda6eb863a9b9ddf65c5af2d3715e2c26a9188adc313b32a7eb98700a",
+          "role": "single-check-original-failures"
+        },
+        {
+          "path": "docs/evidence/fate-weaver-deck-choice-2026-10-18/single-check-lossless-archive.json",
+          "sha256": "9a378b131619a973d88d1721e82ca60e9cf431ef351fc6b146dad58a673f5d39",
+          "role": "single-check-lossless-archive"
+        },
+        {
+          "path": "docs/evidence/fate-weaver-deck-choice-2026-10-18/single-check-executed-core.json",
+          "sha256": "75543249a3b1d75068d60e159670462194480643446148da5c904b4f9a3efb65",
+          "role": "single-check-executed-core"
+        },
+        {
+          "path": "docs/evidence/fate-weaver-deck-choice-2026-10-18/final-core-retention.json",
+          "sha256": "78d485a5e8a0af4f0d124a3840683526b94a13fd6c13e581c6dde3038885dae8",
+          "role": "final-core-retention"
+        },
+        {
+          "path": "docs/evidence/fate-weaver-deck-choice-2026-10-18/final-test-boundary-focus.json",
+          "sha256": "b6ae89bc17656bf52ae0d6364f5fe1899daaa64e2a4d91a42681e177ab8d460d",
+          "role": "final-test-boundary-focus"
+        },
+        {
+          "path": "docs/evidence/fate-weaver-deck-choice-2026-10-18/native-selection-source-trace.json",
+          "sha256": "8b3cf7b86ce79d0c0990bb324c355848b60315848e94aa11d66be716fb349769",
+          "role": "native-selection-source-trace"
+        },
+        {
+          "path": "docs/evidence/fate-weaver-deck-choice-2026-10-18/locale-identity-source-impact.json",
+          "sha256": "2108f48dd468d6f0dc757843e65b05eb3c3fd66e0eef77fe9310978e02bd9560",
+          "role": "locale-identity-source-impact"
+        },
+        {
+          "path": "docs/evidence/fate-weaver-deck-choice-2026-10-18/previous-fixedfc-full.json",
+          "sha256": "781aecb7143b074bcfe5d5c753351b4911b234b5a891052adde6404a867a4175",
+          "role": "previous-fixedfc-full"
+        }
+      ],
+      "branches": [
+        {
+          "id": "optional-private-mana-four-spell-filter",
+          "sourceRefs": [
+            "UNL-064/219"
+          ],
+          "state": "RECORDED",
+          "decision": {
+            "state": "OPEN",
+            "reason": "Bounded actual focus/ordinary blank/SQL and original-game pass; current fixed full and independent product gates remain OPEN. No whole-printing certification."
+          },
+          "semanticReview": "SCOPED_BRANCH_REVIEWED_AGAINST_CN18_CARD_AND_CN16_CORE",
+          "testExecution": "2553_FINAL_ADJACENT_CASES_ALL_THREE_ACTUAL_FAILURES_PASSED_AND_TWO_33_COMMAND_SQL_BRANCHES",
+          "remaining": [
+            "CURRENT_FIXED_FULL",
+            "CURRENT_VISIBLE_PAIRED_SQL_NETWORK_NORMAL_SCORE_AND_ORIGINAL_REPLAY",
+            "PHYSICAL_WINDOWS",
+            "ALL_OTHER_CONSUMERS_AND_COMPLETE_PRINTING_SEMANTICS",
+            "ALL_ORIGINAL_SOURCE_GAPS_AND_REGIONAL_APPLICABILITY"
+          ]
+        },
+        {
+          "id": "explicit-reveal-draw-or-decline-and-recycle-rest",
+          "sourceRefs": [
+            "UNL-064/219"
+          ],
+          "state": "RECORDED",
+          "decision": {
+            "state": "OPEN",
+            "reason": "Bounded actual focus/ordinary blank/SQL and original-game pass; current fixed full and independent product gates remain OPEN. No whole-printing certification."
+          },
+          "semanticReview": "SCOPED_BRANCH_REVIEWED_AGAINST_CN18_CARD_AND_CN16_CORE",
+          "testExecution": "2553_FINAL_ADJACENT_CASES_ALL_THREE_ACTUAL_FAILURES_PASSED_AND_TWO_33_COMMAND_SQL_BRANCHES",
+          "remaining": [
+            "CURRENT_FIXED_FULL",
+            "CURRENT_VISIBLE_PAIRED_SQL_NETWORK_NORMAL_SCORE_AND_ORIGINAL_REPLAY",
+            "PHYSICAL_WINDOWS",
+            "ALL_OTHER_CONSUMERS_AND_COMPLETE_PRINTING_SEMANTICS",
+            "ALL_ORIGINAL_SOURCE_GAPS_AND_REGIONAL_APPLICABILITY"
+          ]
+        },
+        {
+          "id": "short-deck-no-burnout",
+          "sourceRefs": [
+            "UNL-064/219"
+          ],
+          "state": "RECORDED",
+          "decision": {
+            "state": "OPEN",
+            "reason": "Bounded actual focus/ordinary blank/SQL and original-game pass; current fixed full and independent product gates remain OPEN. No whole-printing certification."
+          },
+          "semanticReview": "SCOPED_BRANCH_REVIEWED_AGAINST_CN18_CARD_AND_CN16_CORE",
+          "testExecution": "2553_FINAL_ADJACENT_CASES_ALL_THREE_ACTUAL_FAILURES_PASSED_AND_TWO_33_COMMAND_SQL_BRANCHES",
+          "remaining": [
+            "CURRENT_FIXED_FULL",
+            "CURRENT_VISIBLE_PAIRED_SQL_NETWORK_NORMAL_SCORE_AND_ORIGINAL_REPLAY",
+            "PHYSICAL_WINDOWS",
+            "ALL_OTHER_CONSUMERS_AND_COMPLETE_PRINTING_SEMANTICS",
+            "ALL_ORIGINAL_SOURCE_GAPS_AND_REGIONAL_APPLICABILITY"
+          ]
+        },
+        {
+          "id": "observed-nocturne-before-original-spell-choice-and-confirmation",
+          "sourceRefs": [
+            "UNL-064/219",
+            "OGN-194/298"
+          ],
+          "state": "RECORDED",
+          "decision": {
+            "state": "OPEN",
+            "reason": "Bounded actual focus/ordinary blank/SQL and original-game pass; current fixed full and independent product gates remain OPEN. No whole-printing certification."
+          },
+          "semanticReview": "SCOPED_BRANCH_REVIEWED_AGAINST_CN18_CARD_AND_CN16_CORE",
+          "testExecution": "2553_FINAL_ADJACENT_CASES_ALL_THREE_ACTUAL_FAILURES_PASSED_AND_TWO_33_COMMAND_SQL_BRANCHES",
+          "remaining": [
+            "CURRENT_FIXED_FULL",
+            "CURRENT_VISIBLE_PAIRED_SQL_NETWORK_NORMAL_SCORE_AND_ORIGINAL_REPLAY",
+            "PHYSICAL_WINDOWS",
+            "ALL_OTHER_CONSUMERS_AND_COMPLETE_PRINTING_SEMANTICS",
+            "ALL_ORIGINAL_SOURCE_GAPS_AND_REGIONAL_APPLICABILITY"
+          ]
+        },
+        {
+          "id": "nonowner-invalid-selection-and-independent-permission-validation",
+          "sourceRefs": [
+            "UNL-064/219"
+          ],
+          "state": "RECORDED",
+          "decision": {
+            "state": "OPEN",
+            "reason": "Bounded actual focus/ordinary blank/SQL and original-game pass; current fixed full and independent product gates remain OPEN. No whole-printing certification."
+          },
+          "semanticReview": "SCOPED_BRANCH_REVIEWED_AGAINST_CN18_CARD_AND_CN16_CORE",
+          "testExecution": "2553_FINAL_ADJACENT_CASES_ALL_THREE_ACTUAL_FAILURES_PASSED_AND_TWO_33_COMMAND_SQL_BRANCHES",
+          "remaining": [
+            "CURRENT_FIXED_FULL",
+            "CURRENT_VISIBLE_PAIRED_SQL_NETWORK_NORMAL_SCORE_AND_ORIGINAL_REPLAY",
+            "PHYSICAL_WINDOWS",
+            "ALL_OTHER_CONSUMERS_AND_COMPLETE_PRINTING_SEMANTICS",
+            "ALL_ORIGINAL_SOURCE_GAPS_AND_REGIONAL_APPLICABILITY"
+          ]
+        },
+        {
+          "id": "legal-blank-owner-sql-original-next-identity-and-observation-history",
+          "sourceRefs": [
+            "UNL-064/219",
+            "OGN-115/298",
+            "UNL-183/219",
+            "UNL-092/219"
+          ],
+          "state": "RECORDED",
+          "decision": {
+            "state": "OPEN",
+            "reason": "Bounded actual focus/ordinary blank/SQL and original-game pass; current fixed full and independent product gates remain OPEN. No whole-printing certification."
+          },
+          "semanticReview": "SCOPED_BRANCH_REVIEWED_AGAINST_CN18_CARD_AND_CN16_CORE",
+          "testExecution": "2553_FINAL_ADJACENT_CASES_ALL_THREE_ACTUAL_FAILURES_PASSED_AND_TWO_33_COMMAND_SQL_BRANCHES",
+          "remaining": [
+            "CURRENT_FIXED_FULL",
+            "CURRENT_VISIBLE_PAIRED_SQL_NETWORK_NORMAL_SCORE_AND_ORIGINAL_REPLAY",
+            "PHYSICAL_WINDOWS",
+            "ALL_OTHER_CONSUMERS_AND_COMPLETE_PRINTING_SEMANTICS",
+            "ALL_ORIGINAL_SOURCE_GAPS_AND_REGIONAL_APPLICABILITY"
+          ]
+        }
+      ]
     }
   },
   "acceptanceGates": [
@@ -16814,6 +17104,107 @@
         "physicalWindows": "OPEN"
       },
       "wholePrintingCertified": false
+    },
+    {
+      "id": "FATE_WEAVER_DEFERRED_SPELL_CHOICE",
+      "state": "OPEN",
+      "requirement": "Close source-bound exact Weaver private observation, optional spell mana threshold/reveal/draw/recycle, all relevant original tests, new fixed full and current visible paired SQL/network/normal score/original replay plus independent physical Windows.",
+      "parentObligationId": "CARD:UNL-064/219",
+      "relatedObligationIds": [
+        "CARD:OGN-194/298",
+        "CARD:OGN-115/298",
+        "CARD:UNL-183/219",
+        "CARD:UNL-092/219"
+      ],
+      "applicableAsOf": "2026-10-18",
+      "frozenUniverseApplicableAsOf": "2026-10-16",
+      "region": "CN",
+      "language": "zh-CN",
+      "sourceManifest": {
+        "path": "docs/evidence/fate-weaver-deck-choice-2026-10-18/source-manifest.json",
+        "sha256": "693673477950a30f1b8fad86c3c4f83210d69287e3f52494f7cc2726315bdf50"
+      },
+      "semanticReview": "SCOPED_BRANCHES_ONLY",
+      "implementation": [
+        {
+          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "sha256": "f027170bcebdf59b09d84fd7598d6fcd991d9bd5db9f9a7838a9f7f2a35788f3"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeckChoices.cs",
+          "sha256": "09aa6af5b099fc1ebc38ea4c10b3538f42a44d471060a68e65719e10059abf03"
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.cs",
+          "sha256": "8d742f14a0e156da495ae916ab5eb7fc034b6b648176bdfc637184684deeef60"
+        }
+      ],
+      "verificationSources": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/FateWeaverDeckChoiceTests.cs",
+          "sha256": "b45925c26bd68e759be57fca9e4dcbb5a291a3cae34943cd8578f86230ab9628"
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/FateWeaverOpeningTests.cs",
+          "sha256": "722267cd2f67d6489f194ffa86531e1c2df786c29c76cbd58345b94893f703bb"
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/Fixtures/fate-weaver-bright-future-opening.json",
+          "sha256": "509b893005d275b232ae560ac9726827a5fc060870cdf4c1819fdb54a3da9610"
+        },
+        {
+          "path": "tests/Riftbound.PostgresAcceptance/FateWeaverSqlAcceptance.cs",
+          "sha256": "11e2b4a5abb68d240c0467eafd54e64fac23a2f853870abaacbce251f193c8d1"
+        },
+        {
+          "path": "tests/Riftbound.PostgresAcceptance/Program.cs",
+          "sha256": "f0ce85b9e0a038c274ac145bc60533503f842494d184042fbc81008eb0b6e6b3"
+        },
+        {
+          "path": "tests/Riftbound.PostgresAcceptance/Riftbound.PostgresAcceptance.csproj",
+          "sha256": "be07e23edec0111da05e7aa31b4e05ddcd179de52bf091d1265f01146b8454cd"
+        },
+        {
+          "path": "clients/godot/scripts/Main.cs",
+          "sha256": "cb4504128a51efd75064c4108e55bce2125a47d3d6d69c9ef95d4831afa8ea19"
+        },
+        {
+          "path": "clients/godot/scripts/interaction/PromptInteractionController.cs",
+          "sha256": "70df82fdd953087e17fd6041413828308ed600cc44b8e3034b72ecc93d8d5eb8"
+        }
+      ],
+      "tests": "SCOPED_WEAVER_24_CASES6_METHODS_FOCUS2553_CASES1735_METHODS_SQL66_COMMANDS252_EVENTS14_COLD4_NEXT8_REJECTIONS_ORIGINAL115_GAMES_SINGLE_CHECK12455_CASES7335_METHODS_12452_PASS3_FAIL_FINAL2553_PASS_CURRENT_FIXED_FULL_NATIVE_WINDOWS_OPEN",
+      "fixedCommitCi": "PENDING_NEW_FIXED_COMMIT",
+      "productAcceptance": {
+        "realSqlBlankChoiceAndDecline": "SCOPED_PASS",
+        "visiblePairedNetworkNormalScoreReplay": "OPEN_MAC_LOCKED",
+        "physicalWindows": "OPEN"
+      },
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "GLOBAL_KAYN_OGN189000_SOURCE_IDENTITY",
+      "state": "OPEN",
+      "requirement": "Resolve public French/Japanese exact source id ogn-189-000 / publicCode OGN-189/000 alongside ogn-189-298, with shared official face visibly189/298. Preserve both exact source records, original1740 ledger and EN gap8; do not infer a new printing or merge API identities without official disposition and regional/date evidence.",
+      "parentObligationId": "CARD:OGN-189/298",
+      "sourceManifest": {
+        "path": "docs/evidence/fate-weaver-deck-choice-2026-10-18/locale-identity-source-impact.json",
+        "sha256": "2108f48dd468d6f0dc757843e65b05eb3c3fd66e0eef77fe9310978e02bd9560"
+      },
+      "region": "GLOBAL_SITE",
+      "pageLocales": [
+        "fr-FR",
+        "ja-JP"
+      ],
+      "observedComparedCardTextAndFaceLanguage": "en",
+      "pageLocaleNotInferredPrintingRegionOrLanguage": true,
+      "observedAt": "2026-10-18",
+      "publishedAt": null,
+      "effectiveAt": null,
+      "semanticReview": "IDENTITY_DISPOSITION_OPEN_NOT_CN_RULE_AUTHORITY",
+      "tests": "SOURCE_RECORD_AND_SHARED_IMAGE_NUMBER_READ_ONLY",
+      "fixedCommitCi": "NOT_A_GAMEPLAY_CERTIFICATION",
+      "wholePrintingCertified": false
     }
   ],
   "note": "Current inventory and remaining obligations, with independently dated rule sources and separately recorded source deltas. No source fetch or semantic certification by this checker.",
@@ -16852,5 +17243,9 @@
   "currentSoleTriggerChoiceOwnerInputChange": {
     "path": "docs/evidence/sole-trigger-choice-owner-2026-10-18/current-input-change.json",
     "sha256": "cd359aafc218c8f064cb5eabfbab9c9b7670742a82e97152f750225372b91adf"
+  },
+  "currentFateWeaverInputChange": {
+    "path": "docs/evidence/fate-weaver-deck-choice-2026-10-18/current-input-change.json",
+    "sha256": "288324fe3b4f2c52dae11eec67e6fb9a89ced55521ee7754e4d7cc2d20c42eba"
   }
 }

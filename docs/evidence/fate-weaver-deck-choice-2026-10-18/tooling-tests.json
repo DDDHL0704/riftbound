@@ -1,0 +1,8 @@
+{
+  "tests": 55,
+  "status": "PASS",
+  "actualLog": {
+    "path": "var/qa/fate-weaver-look-spell-20261018/tooling-tests.log",
+    "sha256": "e5c7f16e5ad83ec5f73d1bb7565de4c2e9c3a8733e93483b8f3ca3800d9ea475"
+  }
+}

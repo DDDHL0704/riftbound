@@ -39,8 +39,10 @@ public sealed partial class CoreRuleEngine
             var finished=ResolveStackItemEffect(state, item with { DeckChoiceCompleted = true });
             return finished with {Events=observationEvents.Concat(finished.Events).ToArray()};
         }
-        var legal = viewed.Where(id => string.IsNullOrEmpty(behavior.MainDeckTargetRequiredTag)
-            || CardObjectHasTag(state.CardObjects, id, behavior.MainDeckTargetRequiredTag)).ToArray();
+        var legal = viewed.Where(id => (string.IsNullOrEmpty(behavior.MainDeckTargetRequiredTag)
+            || CardObjectHasTag(state.CardObjects, id, behavior.MainDeckTargetRequiredTag))
+            && (behavior.MainDeckTargetMinimumManaCost <= 0
+                || state.CardObjects.TryGetValue(id, out var card) && card.ManaCost >= behavior.MainDeckTargetMinimumManaCost)).ToArray();
         var mandatory = behavior.MinTargetCount != 0 && legal.Length > 0;
         var choice = new PendingCardChoiceState($"DECK-{item.StackItemId}-{item.CompletedDeckExecutions}", "DECK_EFFECT", item.ControllerId,
             mandatory ? 1 : 0, legal.Length > 0 ? 1 : 0, legal, viewed,

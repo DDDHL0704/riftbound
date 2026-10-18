@@ -1,0 +1,13 @@
+{
+  "Riftbound.CardCatalog.dll": "fa83b0c12fb850e67e993618d99140187cec022c5e28689090a88ba3c8f77958",
+  "Riftbound.CardCatalog.pdb": "5bddfb826fe6aa0da424768ce424be82ef45292da55d87c5d0a2f985ed4be189",
+  "Riftbound.Contracts.dll": "b19d335bd0e585712a73ce008e710066bbad857cae0416321c31e81f39ca61de",
+  "Riftbound.Contracts.pdb": "c654db7c5e271232e162a6e278e3027798bd440c1cf235bd47cda3c709a3ad2b",
+  "Riftbound.Engine.dll": "6346f5a55e7bc891a812349ba6a0cd3cbd0d79b18b1d9f656aed0550228ce85b",
+  "Riftbound.Engine.pdb": "4f29096aaa77a9fee3ec1e46119cceedb05b8ea49b3a46bee73df463c6731f7d",
+  "Riftbound.Persistence.dll": "f241eae0c8d66941669f77e6470aaa1db496c54b900d7f4e6d5728819d5ca90b",
+  "Riftbound.Persistence.pdb": "aa1df5347e835f7a5a1004a6a9f8f4fdda32c9b5979fa1907b3f3cc72b9ff683",
+  "card-catalog.zh-CN.json": "68930e34e45385c4bc78c4805aaba46e4b5b57057a25ba957a85b339fe376fc8",
+  "rule-input-scope.json": "cc07cf3eef6a9af403454642a0435d061544400b5e01d08d3fdc65869bdad180",
+  "armaments.json": "ddcd838300e558c11df480ee79ccfab08c7af380df36544c666841720850bda8"
+}

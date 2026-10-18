@@ -1,0 +1,30 @@
+{
+  "recordedAtUtc": "2026-10-18T03:58:00.379180+00:00",
+  "policy": "Only latest usable native A/B and one canonical verified archive per platform; preserve all source/tests/necessary actual modules/source evidence/trace/original databases. No complete source checkout created.",
+  "previousNativePairRetirementProof": {
+    "path": "var/qa/sole-choice-owner-paired-20261018/prior-native-pair-retirement.json",
+    "sha256": "b4c1bff7115c4cd34979f135ee2ab7fab673b4ba01897be993a0b67d0adb042e"
+  },
+  "prior860TrxLosslessCompression": {
+    "path": "var/qa/trigger-choice-owner-20261018/completed-trx-lossless-archive.json",
+    "sha256": "abb4e0429724088080b728905c893d8454c6940b1de67fc9c933f8d56dfd588b"
+  },
+  "priorIdenticalPdfApfsSharing": {
+    "path": "var/qa/trigger-choice-owner-20261018/identical-pdf-storage-sharing.json",
+    "sha256": "678d806b778a4b9cc6d6e12b8e50e355ceb42f7ee6793234c099c7940ff755f7"
+  },
+  "currentCompletedFailedCheckLosslesslyArchived": {
+    "path": "var/qa/fate-weaver-look-spell-20261018/single-check-lossless-archive.json",
+    "sha256": "9a378b131619a973d88d1721e82ca60e9cf431ef351fc6b146dad58a673f5d39"
+  },
+  "currentUnusedPreparationDuplicateRetired": {
+    "path": "var/qa/fate-weaver-look-spell-20261018/unused-preparation-file-retirement.json",
+    "sha256": "381319cfb6067659f8c1d479fc4867b3d2124f164a2b4ab7165016631b459542"
+  },
+  "currentCoreStreamingVerificationNoAdditionalPdf": {
+    "path": "var/qa/fate-weaver-look-spell-20261018/source-manifest.json",
+    "sha256": "693673477950a30f1b8fad86c3c4f83210d69287e3f52494f7cc2726315bdf50"
+  },
+  "currentFreeSpace": "/dev/disk3s5   460Gi   376Gi    47Gi    89%    3.6M  497M    1%   /System/Volumes/Data",
+  "systemWideFreeSpaceChangesNotAttributedEntirelyToThisBatch": true
+}

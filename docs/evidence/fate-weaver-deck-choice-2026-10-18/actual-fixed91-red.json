@@ -1,0 +1,119 @@
+{
+  "recordedAtUtc": "2026-10-18T02:46:10.083375+00:00",
+  "status": "ACTUAL_FIXED91_LEGAL_BLANK_WEAVER_RESOLVES_WITHOUT_REQUIRED_LOOK_CHOICE_RECYCLE",
+  "fixedCommit": "91b87e4fbcb3baae1e82020df1e393d6a268b8b2",
+  "runId": 39088568831,
+  "exactPrinting": "UNL-064/219",
+  "actualRuntimeRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+    "implementationSha256": "e2fb8ef607cd276cb95613b920540d9a38062a9265850406027d7a1cbc1ae21e",
+    "identitySha256": "d69b80428cdb12c63da6af1122496af48b6762622255f3b53743a25d45c3ee4f"
+  },
+  "sourceObservation": {
+    "ok": true,
+    "cardNo": "UNL-064/219",
+    "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+    "request": {
+      "pageNum": 1,
+      "pageSize": 100,
+      "searchContent": "命运编织者",
+      "cardCategoryList": [],
+      "cardColorList": [],
+      "rarityList": [],
+      "productCodeList": []
+    },
+    "attemptedAtUtc": "2026-10-18T02:29:03.747211+00:00",
+    "receivedAtUtc": "2026-10-18T02:29:03.859617+00:00",
+    "httpStatus": 200,
+    "httpDate": "Sun, 18 Oct 2026 02:29:03 GMT",
+    "region": "CN",
+    "language": "zh-CN",
+    "publishedAt": null,
+    "effectiveAt": null,
+    "rawSha256": "79b8562c06266528e02eaae85668c7c21f1abe0d752cc25ab5af8a9ce153a425",
+    "stored": "var/qa/sole-choice-owner-paired-20261018/normal-opening-addition-UNL-064-219.json.gz",
+    "storedSha256": "142836c4b9bf96787e58f203b1881ccd0efd4e7481ba250c1af176770fe727da",
+    "exactCard": {
+      "id": 34597,
+      "cardCategoryList": [
+        "unit"
+      ],
+      "cardCategoryNameList": [
+        "单位"
+      ],
+      "cardNo": "UNL-064/219",
+      "cardName": "命运编织者",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "blue"
+      ],
+      "hero": "",
+      "region": "艾欧尼亚",
+      "tag": "",
+      "artist": "Valentin Gloaguen",
+      "cardEffect": "当你打出我时，查看你主牌堆顶部的四张牌。你可以选择从中展示一张法力费用不低于{{4}}的法术牌，并抽取该卡牌。回收其余的卡牌。",
+      "flavorText": "“无论长短，每根丝线终究不可能躲过剪刀的裁剪。”",
+      "energy": 5,
+      "returnEnergy": null,
+      "power": 4,
+      "productCodeList": [
+        "UNL(进阶补充包)",
+        "UNL(标准补充包)"
+      ],
+      "productNameList": [
+        "破限系列 进阶补充包",
+        "破限系列 基础补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_dust",
+      "rarityName": "普通",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260326/79e65b4193a643978ef90eb753e1705b.webp",
+      "backImage": "",
+      "listSort": 1427,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    "currentEffectiveText": "当你打出我时，查看你主牌堆顶部的四张牌。你可以选择从中展示一张法力费用不低于{{4}}的法术牌，并抽取该卡牌。回收其余的卡牌。",
+    "snapshotEffectiveText": "当你打出我时，查看你主牌堆顶部的四张牌。你可以选择从中展示一张法力费用不低于{{4}}的法术牌，并抽取该卡牌。回收其余的卡牌。",
+    "effectiveTextsByteEqual": true,
+    "effectiveTextsWhitespaceEqual": true
+  },
+  "originalNormalBlankMemory": {
+    "path": "var/qa/sole-choice-owner-paired-20261018/normal-opening-memory-plan.json.gz",
+    "sha256": "9b2b1396f1cfcdd63ea38e1e39665baa084ae914de9adb4a00c2ec6d88c1c34b"
+  },
+  "actualSqlOriginalEvidence": {
+    "path": "var/qa/sole-choice-owner-paired-20261018/normal-opening-real-sql-verification.json",
+    "sha256": "af2f069b386023f9c8188bb2a30e4f2774542fd764df5afc03b2fca09475c10a"
+  },
+  "all32OriginalCommandsAcceptedAndOriginalReplayPassed": true,
+  "sqlMatchesAll121OriginalEventsAndFinalState": true,
+  "beforeWeaverTopFourObjectIds": [
+    "P1-MAIN-OGN-115-298-34",
+    "P1-MAIN-SFD-069-221-20",
+    "P1-MAIN-SFD-159-221-26",
+    "P1-MAIN-OGN-115-298-36"
+  ],
+  "eligibleMana5FutureSpellIds": [
+    "P1-MAIN-OGN-115-298-34",
+    "P1-MAIN-OGN-115-298-36"
+  ],
+  "expectedOptionalPrivateSpellChoiceOrExplicitDeclineAndRecycleRest": true,
+  "actualNoCardChoiceOrRecycleAfterWeaverMarkedResolved": true,
+  "actualFullOrderedMainDeckUnchanged": true,
+  "currentWeaverSemanticCertification": false,
+  "ownerAuthorityAndSqlConsistencyScopeNotPromotedToWholeCard": true,
+  "noHistoryOrStateRewrite": true
+}

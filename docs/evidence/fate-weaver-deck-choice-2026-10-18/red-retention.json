@@ -1,0 +1,35 @@
+{
+  "baseCommit": "91b87e4fbcb3baae1e82020df1e393d6a268b8b2",
+  "actualRedTwoCases": {
+    "path": "var/qa/fate-weaver-look-spell-20261018/focus-red-v2/focus/results.trx",
+    "sha256": "1c40b18e1b70c5a232a3562fb448f5fa44f8bb13772d197871b0cd28a0a0e4d0"
+  },
+  "redCorrectedFixtureSource": {
+    "path": "var/qa/fate-weaver-look-spell-20261018/red-v2-test-source.cs.gz",
+    "sha256": "85af443371f8d79759a453286a88ac3cce59540e2e66e44c921f7b4c2837b8c3"
+  },
+  "actualRedModules": {
+    "Riftbound.Api.dll": "1759cfb5bca2a37c068e82c5b8fd3ffe449e90a3b8f4a36703a48fe61b28b5fb",
+    "Riftbound.Api.pdb": "e4dfc9086d3a71dd8155c12a1f836431a5e7f43f341e47a88683c1edce95867a",
+    "Riftbound.CardCatalog.dll": "fa83b0c12fb850e67e993618d99140187cec022c5e28689090a88ba3c8f77958",
+    "Riftbound.CardCatalog.pdb": "5bddfb826fe6aa0da424768ce424be82ef45292da55d87c5d0a2f985ed4be189",
+    "Riftbound.Contracts.dll": "b19d335bd0e585712a73ce008e710066bbad857cae0416321c31e81f39ca61de",
+    "Riftbound.Contracts.pdb": "c654db7c5e271232e162a6e278e3027798bd440c1cf235bd47cda3c709a3ad2b",
+    "Riftbound.Engine.dll": "bbfcd919404182b319bc4024684ebc94bcfde79571de7fe6ec49ddf0bcd0a7c0",
+    "Riftbound.Engine.pdb": "0335ebde0367506ee6045a19dab74aa823d81522251b445e9d92796775b28093",
+    "Riftbound.Persistence.dll": "5a35d8ae0eedf73564000d42487b308e304de9b22ed094275ae629dfee7a79e6",
+    "Riftbound.Persistence.pdb": "1912212e305b8ab9364780f8d82ced7fc644dd328105266973796617717a59df",
+    "Riftbound.ConformanceTests.dll": "8bf2d6af91188456c9bd5ef207dd38f895214686c635c1c229a59d6a390059d4",
+    "Riftbound.ConformanceTests.pdb": "1b99ffc3511b7529a3d6c15160db9126ea1c96755432b1bde97777d12a2da009"
+  },
+  "actualModuleDirectory": "var/qa/fate-weaver-look-spell-20261018/red-executed-assemblies",
+  "originalV1IncorrectFeeExampleStillFailedAtMissingChoice": {
+    "path": "var/qa/fate-weaver-look-spell-20261018/focus-red-v1/focus/results.trx",
+    "sha256": "01adc76efb22099e4d09afd47764259ed20f3258f53fcc4f7f2806844b582a91"
+  },
+  "firstOpeningBuildOnlyFailureNoCases": {
+    "path": "var/qa/fate-weaver-look-spell-20261018/focus-opening-v3/build.log",
+    "sha256": "e360abd730f0f91ebf71c2d82196708dfaee734ee6ff092a1b5d9f975d773565"
+  },
+  "correction": "Initial illustrative4-mana spell was actually1 mana, corrected before v2 to actual OGN083 cost4 and SFD125 unit4. Both old v1 and corrected v2 fail at missing choice. Opening v3 had only a C# local variable name collision, corrected before actual execution. No old failure relabeled."
+}

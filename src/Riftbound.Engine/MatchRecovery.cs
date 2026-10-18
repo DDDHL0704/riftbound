@@ -23904,8 +23904,10 @@ public static class MatchRecoveryValidator
                 errors.Add("invalid private deck choice continuation");
             else
             {
-                var legal = choice.ContextObjectIds.Where(id => string.IsNullOrEmpty(behavior.MainDeckTargetRequiredTag)
-                    || state.CardObjects.TryGetValue(id, out var card) && card.Tags.Contains(behavior.MainDeckTargetRequiredTag)).ToArray();
+                var legal = choice.ContextObjectIds.Where(id => (string.IsNullOrEmpty(behavior.MainDeckTargetRequiredTag)
+                    || state.CardObjects.TryGetValue(id, out var card) && card.Tags.Contains(behavior.MainDeckTargetRequiredTag))
+                    && (behavior.MainDeckTargetMinimumManaCost <= 0
+                        || state.CardObjects.TryGetValue(id, out var costCard) && costCard.ManaCost >= behavior.MainDeckTargetMinimumManaCost)).ToArray();
                 var required = behavior.MinTargetCount != 0 && legal.Length > 0 ? 1 : 0;
                 if (!legal.SequenceEqual(choice.LegalObjectIds) || choice.RequiredCount != required
                     || choice.MaxCount != (legal.Length > 0 ? 1 : 0) || choice.EffectKind != top.EffectKind)

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "fixtureId": "p2-preflight-play-fate-weaver-look-spell-static",
-  "description": "Fate Weaver enters as a unit while its top-four spell selection text is deferred.",
+  "description": "Fate Weaver enters as a unit, looks at the one available card, explicitly declines the optional spell and recycles that card.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
@@ -28,6 +28,11 @@
       "source": "data/official/upstream/2026-10-05/rules-manifest.json",
       "locator": "CN 359.2 / 383.4.a.2",
       "note": "Permanent enters during confirmation. Only its play ability waits on the chain. Migrates historical permanent-as-spell timing; gameplay payload and final-state assertions retained."
+    },
+    {
+      "source": "data/official/rule-input-scope.json",
+      "locator": "CN core effective2026-10-16, 359.2 / 414 / 417 / 425 / 432.1.c; UNL-064/219 live text reconfirmed2026-10-18",
+      "note": "The original three commands and seed remain. The actual play ability looks at the single available card without burnout, then needs an explicit empty optional choice before recycling and completion. Earlier deferred-implementation notes above are historical only; this fixture is limited entry/decline evidence, not whole-card certification."
     }
   ],
   "roomId": "p2-preflight-fate-weaver-look-spell-room",
@@ -82,10 +87,12 @@
       }
     },
     { "playerId": "P1", "clientIntentId": "intent-p2-preflight-fate-weaver-p1-pass", "cmd": { "cmdType": "PASS_PRIORITY" } },
-    { "playerId": "P2", "clientIntentId": "intent-p2-preflight-fate-weaver-p2-pass", "cmd": { "cmdType": "PASS_PRIORITY" } }
+    { "playerId": "P2", "clientIntentId": "intent-p2-preflight-fate-weaver-p2-pass", "cmd": { "cmdType": "PASS_PRIORITY" } },
+    { "playerId": "P1", "clientIntentId": "intent-p2-preflight-fate-weaver-explicit-decline", "cmd": {
+      "cmdType": "CHOOSE_CARDS", "choiceId": "DECK-STACK-1-P1-UNIT-FATE-WEAVER-0", "choiceWindow": "DECK_EFFECT", "chosenObjectIds": [] } }
   ],
   "expected": {
-    "finalTick": 3,
+    "finalTick": 4,
     "eventKinds": [
       "CARD_PLAYED",
       "COST_PAID",
@@ -94,6 +101,10 @@
       "TRIGGER_QUEUED",
       "PRIORITY_PASSED",
       "PRIORITY_PASSED",
+      "STACK_ITEM_SUSPENDED",
+      "CARD_CHOICE_REQUESTED",
+      "CARDS_RECYCLED",
+      "CARD_CHOICE_RESOLVED",
       "STACK_ITEM_RESOLVED"
     ],
     "promptActions": { "P1": ["END_TURN"], "P2": ["WAIT"] },

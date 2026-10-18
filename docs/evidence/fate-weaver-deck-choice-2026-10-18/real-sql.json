@@ -1,0 +1,176 @@
+{
+  "recordedAtUtc": "2026-10-18T03:39:47.955934+00:00",
+  "status": "TWO_REAL_SQL_BLANK_WEAVER_BRANCHES_PASS",
+  "receipt": {
+    "status": "REAL_POSTGRES_FATE_WEAVER_OPTIONAL_SPELL_CHOICE_PASS",
+    "results": [
+      {
+        "draw": true,
+        "room": "postgres-weaver-fad5a19031d9492592e385d537786496",
+        "commands": 33,
+        "events": 127,
+        "coldRestores": 7,
+        "originalNextCommandsMatched": 2,
+        "checkpoints": [
+          {
+            "stage": "offturn-owner-order",
+            "commands": 24
+          },
+          {
+            "stage": "pending-weaver-choice",
+            "commands": 32
+          },
+          {
+            "stage": "complete-original-replay",
+            "commands": 33
+          }
+        ],
+        "attacks": [
+          {
+            "scenario": "non-spell-eligibility",
+            "rebuiltBothPlayerViews": true,
+            "structuralValidationPassed": false,
+            "productionRegistryRejected": true,
+            "acceptedHistoryUnchanged": true,
+            "allSqlRowsUnchangedByRejection": true
+          },
+          {
+            "scenario": "maximum-two",
+            "rebuiltBothPlayerViews": true,
+            "structuralValidationPassed": false,
+            "productionRegistryRejected": true,
+            "acceptedHistoryUnchanged": true,
+            "allSqlRowsUnchangedByRejection": true
+          },
+          {
+            "scenario": "coordinated-observed-order",
+            "rebuiltBothPlayerViews": true,
+            "structuralValidationPassed": true,
+            "productionRegistryRejected": true,
+            "acceptedHistoryUnchanged": true,
+            "allSqlRowsUnchangedByRejection": true
+          },
+          {
+            "scenario": "wrong-implementation",
+            "rebuiltBothPlayerViews": true,
+            "structuralValidationPassed": false,
+            "productionRegistryRejected": true,
+            "acceptedHistoryUnchanged": true,
+            "allSqlRowsUnchangedByRejection": true
+          }
+        ],
+        "finalHash": "9627ec7f190d32671df7e59b67a8fc3030bd8e4770f818067b75a7028def9889",
+        "originalBlankSeed": 0,
+        "completeOriginalReplay": true,
+        "productionRegistryRestored": true,
+        "ruleInputs": {
+          "schemaVersion": 1,
+          "region": "CN",
+          "language": "zh-CN",
+          "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+          "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+          "implementationSha256": "8128a62eb7092666324635cc8c288c349f6cfc20526348172fe350cabf33ebef",
+          "identitySha256": "e3ed5532156174cab5933db325f1d354d7e4eb99dac3aa08c670a04721e95c14"
+        }
+      },
+      {
+        "draw": false,
+        "room": "postgres-weaver-c4d6dffe62c74629b5316e9b7d400298",
+        "commands": 33,
+        "events": 125,
+        "coldRestores": 7,
+        "originalNextCommandsMatched": 2,
+        "checkpoints": [
+          {
+            "stage": "offturn-owner-order",
+            "commands": 24
+          },
+          {
+            "stage": "pending-weaver-choice",
+            "commands": 32
+          },
+          {
+            "stage": "complete-original-replay",
+            "commands": 33
+          }
+        ],
+        "attacks": [
+          {
+            "scenario": "non-spell-eligibility",
+            "rebuiltBothPlayerViews": true,
+            "structuralValidationPassed": false,
+            "productionRegistryRejected": true,
+            "acceptedHistoryUnchanged": true,
+            "allSqlRowsUnchangedByRejection": true
+          },
+          {
+            "scenario": "maximum-two",
+            "rebuiltBothPlayerViews": true,
+            "structuralValidationPassed": false,
+            "productionRegistryRejected": true,
+            "acceptedHistoryUnchanged": true,
+            "allSqlRowsUnchangedByRejection": true
+          },
+          {
+            "scenario": "coordinated-observed-order",
+            "rebuiltBothPlayerViews": true,
+            "structuralValidationPassed": true,
+            "productionRegistryRejected": true,
+            "acceptedHistoryUnchanged": true,
+            "allSqlRowsUnchangedByRejection": true
+          },
+          {
+            "scenario": "wrong-implementation",
+            "rebuiltBothPlayerViews": true,
+            "structuralValidationPassed": false,
+            "productionRegistryRejected": true,
+            "acceptedHistoryUnchanged": true,
+            "allSqlRowsUnchangedByRejection": true
+          }
+        ],
+        "finalHash": "a0cddfafd83bfb0a80646766a5f62dd6e9f1d24c6bba4603a93e5a98a70d021a",
+        "originalBlankSeed": 0,
+        "completeOriginalReplay": true,
+        "productionRegistryRestored": true,
+        "ruleInputs": {
+          "schemaVersion": 1,
+          "region": "CN",
+          "language": "zh-CN",
+          "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+          "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+          "implementationSha256": "8128a62eb7092666324635cc8c288c349f6cfc20526348172fe350cabf33ebef",
+          "identitySha256": "e3ed5532156174cab5933db325f1d354d7e4eb99dac3aa08c670a04721e95c14"
+        }
+      }
+    ],
+    "fixtureSha256": "509b893005d275b232ae560ac9726827a5fc060870cdf4c1819fdb54a3da9610",
+    "scope": "Two fresh ordinary blank openings with legal decks, off-turn owner ordering, private Weaver spell selection/decline, actual SQL cold recovery, independent wrong-permission/identity and coordinated observation-history attacks. Native and physical Windows remain OPEN."
+  },
+  "actualReceipt": {
+    "path": "var/qa/fate-weaver-look-spell-20261018/sql-v2/fate-weaver/receipt.json",
+    "sha256": "f93e6b8113621a7d596b5a9bb3a481b5c43309eabf08d860004e6918685000ac"
+  },
+  "actualWrapperProof": {
+    "path": "var/qa/fate-weaver-look-spell-20261018/real-sql-verification-v2.json",
+    "sha256": "a4c336cb456a77b94a8fbc1e645bd78cd9a2e3f70b1689e54809b661ff29fbed"
+  },
+  "oldTestRooms": 16,
+  "allPriorSevenTableRowsExact": true,
+  "originalNativeDatabaseRowsExact": true,
+  "nonDocInputCount": 3231,
+  "nonDocInputsStable": true,
+  "actualRuntimeFileCount": 75,
+  "runtimeFilesStable": true,
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+    "implementationSha256": "8128a62eb7092666324635cc8c288c349f6cfc20526348172fe350cabf33ebef",
+    "identitySha256": "e3ed5532156174cab5933db325f1d354d7e4eb99dac3aa08c670a04721e95c14"
+  },
+  "allFourCommonSqlConformanceModulesExact": true,
+  "idleClusterSmartStopped": true,
+  "noDatabaseCreatedOrOriginalHistoryRewritten": true
+}

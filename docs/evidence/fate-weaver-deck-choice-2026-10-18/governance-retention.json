@@ -1,0 +1,25 @@
+{
+  "at": "2026-10-18T04:00:12.910075+00:00",
+  "status": "GOVERNANCE_AND_ALL_ORIGINAL_OBLIGATIONS_RETAINED",
+  "allOriginal125ReviewDictionariesExact": true,
+  "allOriginal16596ObligationIdsRetained": true,
+  "currentObligations": 16604,
+  "newObligationIds": [
+    "BRANCH:fate-weaver-private-spell-choice-2026-10-18:explicit-reveal-draw-or-decline-and-recycle-rest",
+    "BRANCH:fate-weaver-private-spell-choice-2026-10-18:legal-blank-owner-sql-original-next-identity-and-observation-history",
+    "BRANCH:fate-weaver-private-spell-choice-2026-10-18:nonowner-invalid-selection-and-independent-permission-validation",
+    "BRANCH:fate-weaver-private-spell-choice-2026-10-18:observed-nocturne-before-original-spell-choice-and-confirmation",
+    "BRANCH:fate-weaver-private-spell-choice-2026-10-18:optional-private-mana-four-spell-filter",
+    "BRANCH:fate-weaver-private-spell-choice-2026-10-18:short-deck-no-burnout",
+    "GATE:FATE_WEAVER_DEFERRED_SPELL_CHOICE",
+    "GATE:GLOBAL_KAYN_OGN189000_SOURCE_IDENTITY"
+  ],
+  "currentReviews": 126,
+  "currentContexts": 41,
+  "all41CiPendingForNewGameplayInputRevision": true,
+  "fourOriginalTemporalDeltasExact": true,
+  "frozen1740Cn1504English1408Gap8AllRetained": true,
+  "globalLocaleIdentityObservationSeparateIndependentGate": true,
+  "wholePrintingCertified": false,
+  "fullGovernanceReportSha256": "91397e64051982d80465ee5d12edf65a5ad1170bdf22eb2cee7a3d38912685f2"
+}

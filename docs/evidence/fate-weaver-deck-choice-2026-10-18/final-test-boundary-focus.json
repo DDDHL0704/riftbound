@@ -1,0 +1,49 @@
+{
+  "at": "2026-10-18T03:57:17.721174+00:00",
+  "status": "FINAL_ELIGIBLE_FIFTH_SPELL_BOUNDARY_AND_ALL_ACTUAL_CHECK_FAILURES_PASS",
+  "cases": 178,
+  "methods": 9,
+  "all24WeaverCasesAnd152OriginalVanillaTheoryRowsAndTwoUnfilteredFixtureFailuresPassed": true,
+  "originalActualFailedCaseNames": [
+    "Riftbound.ConformanceTests.ConformanceFixtureRunnerTests.CoreRuleEnginePlaysCardTrickDrawOneRecycleRest",
+    "Riftbound.ConformanceTests.ConformanceFixtureRunnerTests.CoreRuleEnginePlaysPredictiveOffensiveDrawOneRecycleOther",
+    "Riftbound.ConformanceTests.ConformanceFixtureRunnerTests.CoreRuleEnginePlaysVanillaSourceUnit(fixtureFileName: \"p2-preflight-play-fate-weaver-look-spell-static.fi\"\u00b7\u00b7\u00b7, sourceObjectId: \"P1-UNIT-FATE-WEAVER\", expectedPower: 4)"
+  ],
+  "sourceOnlyChange": {
+    "path": "tests/Riftbound.ConformanceTests/FateWeaverDeckChoiceTests.cs",
+    "beforeSha256": "f1e245ea5a0a4e66c52ec7d1e770d7f4d971f8edf54bec48541da76e5f9c7c62",
+    "afterSha256": "b45925c26bd68e759be57fca9e4dcbb5a291a3cae34943cd8578f86230ab9628",
+    "change": "The fifth card is now an otherwise eligible5-mana spell, so outside-four rejection isolates the observation boundary from card type/mana eligibility."
+  },
+  "productionAndAllFourActualCoreModulesUnchanged8128": {
+    "Riftbound.CardCatalog.dll": "fa83b0c12fb850e67e993618d99140187cec022c5e28689090a88ba3c8f77958",
+    "Riftbound.CardCatalog.pdb": "5bddfb826fe6aa0da424768ce424be82ef45292da55d87c5d0a2f985ed4be189",
+    "Riftbound.Contracts.dll": "b19d335bd0e585712a73ce008e710066bbad857cae0416321c31e81f39ca61de",
+    "Riftbound.Contracts.pdb": "c654db7c5e271232e162a6e278e3027798bd440c1cf235bd47cda3c709a3ad2b",
+    "Riftbound.Engine.dll": "cdb56ca6bab49c2428005eb5931756b54e73cfb2800e691994aaf6b62da9c744",
+    "Riftbound.Engine.pdb": "27cbb4895a1da0e52d886608beed4c579faf5a72f83d010b4b3fa2e60ac6fc6e",
+    "Riftbound.Persistence.dll": "f241eae0c8d66941669f77e6470aaa1db496c54b900d7f4e6d5728819d5ca90b",
+    "Riftbound.Persistence.pdb": "aa1df5347e835f7a5a1004a6a9f8f4fdda32c9b5979fa1907b3f3cc72b9ff683"
+  },
+  "actualTestAssemblySha256": "9155d376838e9b8d6fdca45730d1f12768d33daf09f86208d679a03ba1587d34",
+  "actualFinalTestPdbSha256": "cba617402b0663a82fa2b46cc15ea6473ddc2ef0be449cfc10a1828993cf6b90",
+  "original115GameExecutedTestDllAndPdbRetained": {
+    "at": "2026-10-18T03:55:22.966836+00:00",
+    "actualOriginalGameTestModules": {
+      "Riftbound.ConformanceTests.dll": "e924a9f5ea9ea1aa297d445f10ba0876b7a273b22045dc9d8f25612388559267",
+      "Riftbound.ConformanceTests.pdb": "b4fa09aa828126025a9de071d4e03baeea0fb28122b926454815117efa1e0155"
+    },
+    "directory": "var/qa/fate-weaver-look-spell-20261018/original-games-executed-test-assembly",
+    "sourceBeforeBoundaryChangeSha256": "f1e245ea5a0a4e66c52ec7d1e770d7f4d971f8edf54bec48541da76e5f9c7c62",
+    "reason": "Retain actual executed original115-game test assembly before strengthening only the new fifth-card boundary input. Final four rule modules remain identical8128."
+  },
+  "trx": [
+    {
+      "file": "var/qa/fate-weaver-look-spell-20261018/final-boundary-v7/focus/results.trx",
+      "originalTrxSha256": "7c5af17cc73860665c7061e4751fec612fd1b146e6e94ae07d3162b52668ac54",
+      "cases": 178,
+      "methods": 9
+    }
+  ],
+  "singleCheckStill12452Pass3FailNotRerunOrRelabeled": true
+}

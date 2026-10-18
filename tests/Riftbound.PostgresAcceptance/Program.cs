@@ -18,7 +18,8 @@ var battlefieldPlayRecoveryOnly = args.SequenceEqual(new[] { "--battlefield-play
 var battlefieldPlayDamageOnly = args.SequenceEqual(new[] { "--battlefield-play-damage-only" });
 var banishEffectPlayOnly = args.SequenceEqual(new[] { "--banish-effect-play-only" });
 var hereLocationOnly = args.SequenceEqual(new[] { "--here-location-only" });
-if (args.Length != 0 && !openingRandomnessOnly && !optionalCostsOnly && !battlefieldPlayRecoveryOnly && !battlefieldPlayDamageOnly && !banishEffectPlayOnly && !hereLocationOnly) throw new ArgumentException("Unknown PostgreSQL acceptance selector.");
+var fateWeaverOnly = args.SequenceEqual(new[] { "--fate-weaver-only" });
+if (args.Length != 0 && !openingRandomnessOnly && !optionalCostsOnly && !battlefieldPlayRecoveryOnly && !battlefieldPlayDamageOnly && !banishEffectPlayOnly && !hereLocationOnly && !fateWeaverOnly) throw new ArgumentException("Unknown PostgreSQL acceptance selector.");
 var json = new JsonSerializerOptions(JsonSerializerDefaults.Web) { WriteIndented = true };
 await using var dataSource = NpgsqlDataSource.Create(connectionString);
 await using (var connection = await dataSource.OpenConnectionAsync()) {
@@ -26,6 +27,12 @@ await using (var connection = await dataSource.OpenConnectionAsync()) {
         await using var command = new NpgsqlCommand(await File.ReadAllTextAsync(path), connection);
         await command.ExecuteNonQueryAsync();
     }
+}
+if (fateWeaverOnly)
+{
+    await FateWeaverSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "fate-weaver"));
+    Console.WriteLine("SCOPED_POSTGRES_ONLY: fate-weaver; the retained complete SQL suite was not requested.");
+    return;
 }
 if (hereLocationOnly)
 {
@@ -172,6 +179,7 @@ await BattlefieldPlayRecoverySqlAcceptance.RunAsync(dataSource, Path.Combine(out
 await BattlefieldPlayDamageSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "battlefield-play-damage"));
 await BanishEffectPlaySqlAcceptance.RunAsync(dataSource, Path.Combine(output, "banish-effect-play"));
 await HereLocationSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "here-location-control"));
+await FateWeaverSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "fate-weaver"));
 
 JsonElement Raw(GameCommand command) => JsonSerializer.SerializeToElement(command, command.GetType(), json);
 async Task Submit(string actor, string intent, GameCommand command, bool accepted = true) {

@@ -21877,6 +21877,123 @@
         "docs/evidence/sole-trigger-choice-owner-2026-10-18/leblanc-known-errata-boundary.json",
         "docs/evidence/sole-trigger-choice-owner-2026-10-18/gallery-alternate-impact.json"
       ]
+    },
+    {
+      "id": "fate-weaver-private-spell-choice-2026-10-18",
+      "scope": "CN zh-CN limited observation2026-10-18, frozen CN2026-10-16 full universe retained. Exact UNL-064/219 privately looks at most4, optionally reveals/draws one spell with card mana>=4, recycles the rest via existing deferred deck choice. Independent recovery keeps its own eligibility derivation. No generic DSL expansion, old-match migration or whole-printing certification.",
+      "status": "SCOPED_WEAVER_24_CASES6_METHODS_FOCUS2553_CASES1735_METHODS_SQL66_COMMANDS252_EVENTS14_COLD4_NEXT8_REJECTIONS_ORIGINAL115_GAMES_SINGLE_CHECK12455_CASES7335_METHODS_12452_PASS3_FAIL_FINAL2553_PASS_CURRENT_FIXED_FULL_NATIVE_WINDOWS_OPEN",
+      "subjects": [
+        "UNL-064/219",
+        "OGN·194/298",
+        "OGN·115/298",
+        "UNL-183/219",
+        "UNL-092/219"
+      ],
+      "ruleRecords": [],
+      "pendingRuleRecords": [],
+      "sourceManifest": {
+        "path": "docs/evidence/fate-weaver-deck-choice-2026-10-18/source-manifest.json",
+        "sha256": "693673477950a30f1b8fad86c3c4f83210d69287e3f52494f7cc2726315bdf50"
+      },
+      "sourceClauses": [
+        {
+          "document": "DOC-01",
+          "clause": "128.3",
+          "sha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11"
+        },
+        {
+          "document": "DOC-01",
+          "clause": "128.4",
+          "sha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11"
+        },
+        {
+          "document": "DOC-01",
+          "clause": "359.2",
+          "sha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11"
+        },
+        {
+          "document": "DOC-01",
+          "clause": "414.1",
+          "sha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11"
+        },
+        {
+          "document": "DOC-01",
+          "clause": "417.1",
+          "sha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11"
+        },
+        {
+          "document": "DOC-01",
+          "clause": "417.5",
+          "sha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11"
+        },
+        {
+          "document": "DOC-01",
+          "clause": "425.1",
+          "sha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11"
+        },
+        {
+          "document": "DOC-01",
+          "clause": "432.1.c",
+          "sha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11"
+        }
+      ],
+      "validation": {
+        "focus": {
+          "path": "docs/evidence/fate-weaver-deck-choice-2026-10-18/focus.json",
+          "sha256": "843aef5607d637f3c0aecfe8d6468b48c2e86b9d2e8668ce69893801dd049585"
+        },
+        "realSql": {
+          "path": "docs/evidence/fate-weaver-deck-choice-2026-10-18/real-sql.json",
+          "sha256": "4fa1d5599f73efd15bd0ab3407e432a8f258ee23f536c3c17e4e30dfc012fe75"
+        },
+        "actualCompiledInputs": {
+          "path": "docs/evidence/fate-weaver-deck-choice-2026-10-18/actual-compiled-inputs.json",
+          "sha256": "137f0523e26c84b256b4ab379b3b843f637efcd079410e9a409aa773b808954d"
+        },
+        "originalGames": {
+          "path": "docs/evidence/fate-weaver-deck-choice-2026-10-18/original-five-and110.json",
+          "sha256": "79a837a1633948761b2fb9ef28d305b88660b95151c62b48a2968dbc50b4152b"
+        },
+        "oneCheck": {
+          "path": "docs/evidence/fate-weaver-deck-choice-2026-10-18/one-check.json",
+          "sha256": "53770308773ec5d66b87d310f922c7140150b6e87430170f7bd7085fce7f90b1"
+        },
+        "fixedCommitFull": "PENDING_NEW_FIXED_COMMIT",
+        "visibleProduct": "OPEN_MAC_LOCKED",
+        "physicalWindows": "OPEN"
+      },
+      "exclusions": [
+        "CURRENT_FIXED_FULL",
+        "CURRENT_VISIBLE_PAIRED_SQL_NETWORK_NORMAL_SCORE_AND_ORIGINAL_REPLAY",
+        "PHYSICAL_WINDOWS",
+        "ALL_OTHER_CONSUMERS_AND_COMPLETE_PRINTING_SEMANTICS",
+        "ALL_ORIGINAL_SOURCE_GAPS_AND_REGIONAL_APPLICABILITY",
+        "International locale OGN189000 identity observation is separate from CN card authority and not merged into the frozen printing ledger."
+      ],
+      "auditDocument": "docs/FATE_WEAVER_DECK_CHOICE_AUDIT_2026-10-18.md",
+      "evidence": [
+        "docs/evidence/fate-weaver-deck-choice-2026-10-18/source-manifest.json",
+        "docs/evidence/fate-weaver-deck-choice-2026-10-18/actual-fixed91-red.json",
+        "docs/evidence/fate-weaver-deck-choice-2026-10-18/red-retention.json",
+        "docs/evidence/fate-weaver-deck-choice-2026-10-18/shared-consumer-inventory.json",
+        "docs/evidence/fate-weaver-deck-choice-2026-10-18/focus.json",
+        "docs/evidence/fate-weaver-deck-choice-2026-10-18/actual-compiled-inputs.json",
+        "docs/evidence/fate-weaver-deck-choice-2026-10-18/real-sql.json",
+        "docs/evidence/fate-weaver-deck-choice-2026-10-18/test-retention.json",
+        "docs/evidence/fate-weaver-deck-choice-2026-10-18/original-five-and110.json",
+        "docs/evidence/fate-weaver-deck-choice-2026-10-18/one-check.json",
+        "docs/evidence/fate-weaver-deck-choice-2026-10-18/fixed91-product-boundary.json",
+        "docs/evidence/fate-weaver-deck-choice-2026-10-18/storage-control.json",
+        "docs/evidence/fate-weaver-deck-choice-2026-10-18/tooling-tests.json",
+        "docs/evidence/fate-weaver-deck-choice-2026-10-18/single-check-original-failures.json",
+        "docs/evidence/fate-weaver-deck-choice-2026-10-18/single-check-lossless-archive.json",
+        "docs/evidence/fate-weaver-deck-choice-2026-10-18/single-check-executed-core.json",
+        "docs/evidence/fate-weaver-deck-choice-2026-10-18/final-core-retention.json",
+        "docs/evidence/fate-weaver-deck-choice-2026-10-18/final-test-boundary-focus.json",
+        "docs/evidence/fate-weaver-deck-choice-2026-10-18/native-selection-source-trace.json",
+        "docs/evidence/fate-weaver-deck-choice-2026-10-18/locale-identity-source-impact.json",
+        "docs/evidence/fate-weaver-deck-choice-2026-10-18/previous-fixedfc-full.json"
+      ]
     }
   ]
 }
