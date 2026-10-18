@@ -1,0 +1,79 @@
+{
+  "recordedAtUtc": "2026-10-18T00:09:55.538892+00:00",
+  "status": "CHECK_AND_EXACT_CASE_METHOD_PARITY_PASS",
+  "profile": "check",
+  "checkRunsThisCoherentBatch": 1,
+  "total": 12429,
+  "passed": 12429,
+  "failed": 0,
+  "skipped": 0,
+  "methods": 7328,
+  "seconds": 588.58,
+  "summary": {
+    "status": "PASSED",
+    "profile": "check",
+    "seconds": 588.58,
+    "total": 12429,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "check",
+        "total": 12429,
+        "passed": 12429,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 584.42
+      }
+    ]
+  },
+  "oldCasesPreserved": true,
+  "oldMethodsPreserved": true,
+  "previousComparableCheckCaseCount": 12418,
+  "previousMethods": 7323,
+  "originalTwoRequiredFullGameSmokesRetained": [
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgamePaysRumbleReducedGraveyardMechanicalPaymentAndScoreVictoryActionLogReplaysToFinalStateHash",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialLowCurveDecksReachScoreVictoryAfterRealBattleThroughServerPrompts"
+  ],
+  "newCases": 11,
+  "newMethods": 5,
+  "newCaseNames": [
+    "Riftbound.ConformanceTests.RengarObservationOrderingTests.ALaterSimultaneousOwnAndLegendGroupCannotMoveBeforeAnEarlierLegendSkill(legendFirst: False)",
+    "Riftbound.ConformanceTests.RengarObservationOrderingTests.ALaterSimultaneousOwnAndLegendGroupCannotMoveBeforeAnEarlierLegendSkill(legendFirst: True)",
+    "Riftbound.ConformanceTests.RengarObservationOrderingTests.BothPlayersLegendSkillsKeepEarnedChronologyInsteadOfOneGlobalApnapBlock",
+    "Riftbound.ConformanceTests.RengarObservationOrderingTests.BrightFutureKeepsAllOriginalPendingCardsBeforeLegendSkillsEarnedByDifferentConfirmations",
+    "Riftbound.ConformanceTests.RengarObservationOrderingTests.SequentialObservedNocturnesFinishTheirPermissionsBeforeLegendSkillsConfirmInEarnedOrder",
+    "Riftbound.ConformanceTests.TriggerChronologyRecoveryTests.RecordedChronologyIsBoundToTheActualUnitPlayAndCompanionOrigin(mutation: \"earlier-companion\")",
+    "Riftbound.ConformanceTests.TriggerChronologyRecoveryTests.RecordedChronologyIsBoundToTheActualUnitPlayAndCompanionOrigin(mutation: \"earlier-legend\")",
+    "Riftbound.ConformanceTests.TriggerChronologyRecoveryTests.RecordedChronologyIsBoundToTheActualUnitPlayAndCompanionOrigin(mutation: \"future-legend\")",
+    "Riftbound.ConformanceTests.TriggerChronologyRecoveryTests.RecordedChronologyIsBoundToTheActualUnitPlayAndCompanionOrigin(mutation: \"missing-companion\")",
+    "Riftbound.ConformanceTests.TriggerChronologyRecoveryTests.RecordedChronologyIsBoundToTheActualUnitPlayAndCompanionOrigin(mutation: \"missing-legend\")",
+    "Riftbound.ConformanceTests.TriggerChronologyRecoveryTests.RecordedChronologyIsBoundToTheActualUnitPlayAndCompanionOrigin(mutation: \"zero-legend\")"
+  ],
+  "newMethodNames": [
+    "Riftbound.ConformanceTests.RengarObservationOrderingTests.ALaterSimultaneousOwnAndLegendGroupCannotMoveBeforeAnEarlierLegendSkill",
+    "Riftbound.ConformanceTests.RengarObservationOrderingTests.BothPlayersLegendSkillsKeepEarnedChronologyInsteadOfOneGlobalApnapBlock",
+    "Riftbound.ConformanceTests.RengarObservationOrderingTests.BrightFutureKeepsAllOriginalPendingCardsBeforeLegendSkillsEarnedByDifferentConfirmations",
+    "Riftbound.ConformanceTests.RengarObservationOrderingTests.SequentialObservedNocturnesFinishTheirPermissionsBeforeLegendSkillsConfirmInEarnedOrder",
+    "Riftbound.ConformanceTests.TriggerChronologyRecoveryTests.RecordedChronologyIsBoundToTheActualUnitPlayAndCompanionOrigin"
+  ],
+  "frozenInputsUnchanged": true,
+  "frozenInputCount": 12537,
+  "inputManifestSha256": "2df96933df4e3b3b207ad5262b12fc38b361dd6e31ac7d8223457d899c8f081c",
+  "testAssemblySha256": "04ad4d648b31eaa8853f9dc8dcc6f41edf1802fc570256e0ef28ea034fec214a",
+  "trx": [
+    {
+      "path": "var/qa/observed-rengar-confirmation-20261018/one-check-v1/check/results.trx",
+      "sha256": "43cdd6476d2a5923e920e3f5a7843369ee5fc5b13ce4998a7401091b99bb4b72",
+      "cases": 12429,
+      "methods": 7328
+    }
+  ],
+  "actualCoreModulesEqualPriorCurrentFocusAndSql": true,
+  "runtimeInputScope": "Current actual Conformance/SQL487bf617 and all115 original games share the same actual modules. Fixed b182 Releasec5cf remains separate; no source-equality inference.",
+  "allOriginal452ConformanceMethodsTheoryRows1276FixturesAnd143FullMethodsRetained": "source-and-test-retention.json",
+  "sourceTreeCopied": false,
+  "currentFixedFullAndNativeAndPhysicalWindowsRemainSeparate": true,
+  "finalNonDocumentationInputCount": 3227,
+  "finalAllNonDocumentationInputsByteEqualExecutedCheck": true,
+  "postCheckUpdates": "Bounded evidence/governance/audit documents only, including explicit cross-domain fixture reachability OPEN. No source/test/bin changed and no second check."
+}

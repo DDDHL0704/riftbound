@@ -1,0 +1,156 @@
+{
+  "region": "CN",
+  "language": "zh-CN",
+  "limitedObservationDate": "2026-10-18",
+  "frozenGlobalScope": "CN-2026-10-16",
+  "exactCards": [
+    {
+      "cardNo": "OGN·291/298",
+      "apiId": 31536,
+      "cardName": "烛光圣殿",
+      "publishedAt": null,
+      "effectiveAt": null,
+      "currentEffectiveText": "当你征服此处时，查看主牌堆顶部的两张牌。你可以选择从这两张牌中回收任意数量的卡牌，并将其余的卡牌按任意顺序放回原处。",
+      "effectiveTextUsesNonemptyErrata": false,
+      "runtimeEffectiveTextExact": true,
+      "sourceStored": "docs/evidence/deferred-trigger-chronology-2026-10-18/source/OGN-291-298.json.gz",
+      "sourceRawSha256": "40ad2ff8a697b9b9b2bd541091490a18738f7831130cfe4524dec421083369ee",
+      "sourceReceivedAtUtc": "2026-10-17T19:40:55.137785+00:00",
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "烛光圣殿",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "sourceStoredSha256": "442a91df8a752f33c5a6e0f906f3c710c51c11d74bf6348bfbd0beb6b5031f7a",
+      "sourceAttemptedAtUtc": "2026-10-17T19:40:55.003265+00:00",
+      "httpDate": "Sat, 17 Oct 2026 19:40:55 GMT",
+      "apiDoesNotExposePublicationOrEffectiveDate": true,
+      "cardQaNullIsNotWholeFaqClosure": true
+    },
+    {
+      "cardNo": "OGN·115/298",
+      "apiId": 31334,
+      "cardName": "光明未来",
+      "publishedAt": null,
+      "effectiveAt": null,
+      "currentEffectiveText": "每名玩家查看其主牌堆顶部的五张牌，放逐其中一张，然后回收其余的卡牌。从下一名玩家开始，每名玩家打出这些被放逐的卡牌，无视其法力费用。（仍需支付所有符能费用。）",
+      "effectiveTextUsesNonemptyErrata": true,
+      "runtimeEffectiveTextExact": true,
+      "sourceStored": "docs/evidence/deferred-trigger-chronology-2026-10-18/source/OGN-115-298.json.gz",
+      "sourceRawSha256": "ad91de544797d9d69e3d8f83658ca18012fe9ef5676ab0fc3684a8971380c8d2",
+      "sourceReceivedAtUtc": "2026-10-17T19:40:55.239814+00:00",
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "光明未来",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "sourceStoredSha256": "f6243332d82d6178c866f3bdf84e4f49abdc775a081239ae4923b77865d579bb",
+      "sourceAttemptedAtUtc": "2026-10-17T19:40:55.137964+00:00",
+      "httpDate": "Sat, 17 Oct 2026 19:40:55 GMT",
+      "apiDoesNotExposePublicationOrEffectiveDate": true,
+      "cardQaNullIsNotWholeFaqClosure": true
+    },
+    {
+      "cardNo": "OGN·194/298",
+      "apiId": 31426,
+      "cardName": "魔腾",
+      "publishedAt": null,
+      "effectiveAt": null,
+      "currentEffectiveText": "{{游走}}（我可以向其他战场进行移动。）\n你查看或展示主牌堆顶部的卡牌并看到我时，可以选择将我放逐。如选择放逐，则你可以选择支付{{A}}将我打出。",
+      "effectiveTextUsesNonemptyErrata": true,
+      "runtimeEffectiveTextExact": true,
+      "sourceStored": "docs/evidence/deferred-trigger-chronology-2026-10-18/source/nocturne-current.json.gz",
+      "sourceRawSha256": "3f1b9fe346c3eb75e0908da0597eb5d8b6306c9ff67dd37ef39ceaa4f53b194b",
+      "sourceReceivedAtUtc": "2026-10-17T22:48:21.273034+00:00",
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "魔腾",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "sourceStoredSha256": "cc22da234f0102777b0b555a40f264df468127d04b0d86c2238a9d2c08678e16",
+      "sourceAttemptedAtUtc": "2026-10-17T22:48:21.160980+00:00",
+      "httpDate": "Sat, 17 Oct 2026 22:48:21 GMT",
+      "apiDoesNotExposePublicationOrEffectiveDate": true,
+      "cardQaNullIsNotWholeFaqClosure": true
+    }
+  ],
+  "internationalErrataCrossCheck": {
+    "url": "https://playriftbound.com/en-us/news/rules-and-releases/riftbound-origins-card-errata/",
+    "attemptedAtUtc": "2026-10-17T22:55:40.266115+00:00",
+    "receivedAtUtc": "2026-10-17T22:55:41.323282+00:00",
+    "httpDate": "Sat, 17 Oct 2026 22:55:40 GMT",
+    "rawSha256": "120125d1f94cdd7309f004436380ebef1ac2c5a45ec2e37d5f812a7e2668ba8b",
+    "publishedAt": "2025-10-28",
+    "effectiveAt": null,
+    "region": "International",
+    "language": "en-US",
+    "scope": "Current Nocturne/Promising Future errata cross-check only; not imported as CN applicability authority",
+    "stored": "docs/evidence/deferred-trigger-chronology-2026-10-18/source/origins-errata-current.html.gz",
+    "storedSha256": "4215c02fbf0fb44fd36083ffd9cd47318d54cea251175c1508dcde2b65dbb8de"
+  },
+  "core": {
+    "url": "https://cdn.playloltcg.com/lol/2026/10/2026-10-10/a21ead876c6b44d6abe386b6ae54ea28.pdf",
+    "receivedAtUtc": "2026-10-17T17:02:14.241411+00:00",
+    "rawSha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11",
+    "bytes": 40278538,
+    "httpDate": "Sat, 10 Oct 2026 00:35:26 GMT",
+    "lastModified": "Fri, 09 Oct 2026 16:55:24 GMT",
+    "publishedAt": "2026-10-10",
+    "effectiveAt": "2026-10-16",
+    "canonicalLocalFile": "var/qa/colorless-token-haste-20261016/DOC-01-current.pdf",
+    "streamedHashVerifiedWithoutSavingDuplicatePdf": true,
+    "attemptedAtUtc": "2026-10-17T17:02:02.448822+00:00",
+    "clauses": [
+      "329",
+      "334.2.a",
+      "337.1.b",
+      "337.2",
+      "337.3",
+      "383.3.d",
+      "402.2"
+    ],
+    "existingCanonicalSnapshotRetainedNoDuplicatePdfSaved": true,
+    "canonicalPath": "var/qa/colorless-token-haste-20261016/DOC-01-current.pdf",
+    "sha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11",
+    "additionalReachabilityBoundaryClauses": [
+      "103.2.b.1",
+      "103.2.b.2",
+      "103.2.b.3",
+      "103.2.b.6",
+      "103.3.c"
+    ]
+  },
+  "scope": "Original pending cards retain insertion chronology; unit-play triggered skills earned at different confirmations are not simultaneous solely because their publication was deferred.",
+  "wholePrintingCertified": false,
+  "globalUniverseAndExistingEvidenceUnchanged": true,
+  "additionalExactConsumerSources": [
+    {
+      "cardNo": "UNL-183/219",
+      "sourceManifest": "docs/evidence/rengar-unit-play-confirmation-2026-10-18/source-manifest.json",
+      "sha256": "a61088f5527f6e12803946bb35863507c21508af936f21e06873b0bf2f35c7c6"
+    },
+    {
+      "cardNo": "UNL-003/219",
+      "sourceManifest": "docs/evidence/here-location-control-2026-10-18/source-manifest.json",
+      "sha256": "2983462aa9127e6227fdbdb1388ff54ac9215fccf54269b5bc4764801519affd"
+    }
+  ],
+  "finerOccurrencesWithinOneCommand": "OPEN_NOT_INFERRED_FROM_EQUAL_TICK",
+  "semanticScope": "Explicit midgame prefixes with commands accepted from those given states: deferred unit-play Rengar skills from different accepted commands retain earned chronology; current original permissions complete first; a later simultaneous own/legend group cannot reorder before an earlier skill. No blanket trigger simultaneity or whole-card certification.",
+  "fullLegalOpeningReachabilityForMixedDomainFixtures": "OPEN_SEE_fixture-reachability-boundary.json"
+}

@@ -184,12 +184,14 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             collected = RecordBattleDuelRoles(state, collected);
             collected = RecordMightyTransitions(state, collected);
             collected = ResumeDuelChainFocus(collected);
+            collected = StampNewTriggerQueueTimes(state, collected);
             // A physical play has completed before its earned skills confirm,
             // including a checked target intent supplied in the same command.
             collected = RecordCardPlayHistory(state, collected);
-            return ValueTask.FromResult(RecordCardPlayHistory(state, RefreshRuleDerivedKeywordLayers(ApplyObjectContinuity(state,
+            var completed = RecordCardPlayHistory(state, RefreshRuleDerivedKeywordLayers(ApplyObjectContinuity(state,
                 PrepareTriggerConfirmation(AdvanceTurnStartSequence(AdvanceEndStep(AdvanceObservedDeckPlays(PrepareTriggerConfirmation(PublishPendingTriggers(CaptureDeathTriggerSources(state,
-                    RecordCombatMightSourceLocations(state, RecordDistributionSourceLocations(state, collected)))))))))))));
+                    RecordCombatMightSourceLocations(state, RecordDistributionSourceLocations(state, collected))))))))))));
+            return ValueTask.FromResult(StampNewTriggerQueueTimes(state, completed));
         }
 
         if (!string.Equals(state.Status, MatchStatuses.InProgress, StringComparison.Ordinal))
@@ -2772,13 +2774,14 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
 
         var orderedTriggers = triggerIds.Select(triggerId => triggersById[triggerId]).ToArray();
-        if (orderedTriggers.Any(t => !PermanentPlayTriggerRecoveryRules.ValidQueued(state, t) || !RengarPlayRecoveryRules.ValidQueued(state, t)))
+        if (!TriggerQueueRecoveryRules.Valid(state)
+            || orderedTriggers.Any(t => !PermanentPlayTriggerRecoveryRules.ValidQueued(state, t) || !RengarPlayRecoveryRules.ValidQueued(state, t)))
             return RejectWithCorePrompts(state, "触发排序的打出技能起源已失效。", ErrorCodes.InvalidTarget);
         if (!MatchesLegalApnapResolutionOrder(state, orderedTriggers))
         {
             return RejectWithCorePrompts(
                 state,
-                "ORDER_TRIGGERS 当前切片要求按 APNAP controller block 的合法结算顺序提交。",
+                "触发顺序必须保留先后关系，以及同一时机内各玩家的技能分组。",
                 ErrorCodes.InvalidPayload);
         }
 
@@ -2849,7 +2852,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         for (var index = 0; index < legalBlocks.Count; index++)
         {
-            if (!string.Equals(legalBlocks[index].ControllerId, submittedBlocks[index].ControllerId, StringComparison.Ordinal))
+            if (!string.Equals(legalBlocks[index].ControllerId, submittedBlocks[index].ControllerId, StringComparison.Ordinal)
+                || legalBlocks[index].EnqueuedAtTick != submittedBlocks[index].EnqueuedAtTick)
             {
                 return false;
             }
@@ -2873,7 +2877,14 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
     private static IReadOnlyList<TriggerControllerBlock> BuildApnapTriggerControllerBlocks(MatchState state)
     {
-        var triggerIdsByController = state.TriggerQueue
+        return state.TriggerQueue.GroupBy(t => t.EnqueuedAtTick).OrderBy(g => g.Key)
+            .SelectMany(moment => BuildApnapTriggerControllerBlocks(state, moment.ToArray(), moment.Key)).ToArray();
+    }
+
+    private static IReadOnlyList<TriggerControllerBlock> BuildApnapTriggerControllerBlocks(
+        MatchState state, IReadOnlyList<TriggerQueueItemState> triggers, long? enqueuedAtTick)
+    {
+        var triggerIdsByController = triggers
             .Where(trigger => !string.IsNullOrWhiteSpace(trigger.ControllerId))
             .GroupBy(trigger => trigger.ControllerId, StringComparer.Ordinal)
             .ToDictionary(
@@ -2884,11 +2895,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         return OrderTriggerApnapControllerIds(state, triggerIdsByController.Keys)
             .Select(controllerId => new TriggerControllerBlock(
                 controllerId,
-                triggerIdsByController.TryGetValue(controllerId, out var triggerIds) ? triggerIds : []))
+                triggerIdsByController.TryGetValue(controllerId, out var triggerIds) ? triggerIds : [], enqueuedAtTick))
             .ToArray();
     }
 
-    private static IReadOnlyList<string> OrderTriggerApnapControllerIds(
+    internal static IReadOnlyList<string> OrderTriggerApnapControllerIds(
         MatchState state,
         IEnumerable<string> controllerIds)
     {
@@ -2925,7 +2936,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             .Select(block => (IReadOnlyDictionary<string, object?>)new Dictionary<string, object?>
             {
                 ["controllerId"] = block.ControllerId,
-                ["triggerIds"] = block.TriggerIds
+                ["triggerIds"] = block.TriggerIds,
+                ["enqueuedAtTick"] = block.EnqueuedAtTick
             })
             .ToArray();
     }
@@ -2938,7 +2950,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             var last = blocks.LastOrDefault();
             if (last is not null
-                && string.Equals(last.ControllerId, trigger.ControllerId, StringComparison.Ordinal))
+                && string.Equals(last.ControllerId, trigger.ControllerId, StringComparison.Ordinal)
+                && last.EnqueuedAtTick == trigger.EnqueuedAtTick)
             {
                 blocks[^1] = last with
                 {
@@ -2947,7 +2960,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 continue;
             }
 
-            blocks.Add(new TriggerControllerBlock(trigger.ControllerId, [trigger.TriggerId]));
+            blocks.Add(new TriggerControllerBlock(trigger.ControllerId, [trigger.TriggerId], trigger.EnqueuedAtTick));
         }
 
         return blocks;
@@ -3236,7 +3249,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
     private sealed record TriggerControllerBlock(
         string ControllerId,
-        IReadOnlyList<string> TriggerIds);
+        IReadOnlyList<string> TriggerIds,
+        long? EnqueuedAtTick);
 
     private static bool TryReadPayCostPayload(
         GameCommand command,

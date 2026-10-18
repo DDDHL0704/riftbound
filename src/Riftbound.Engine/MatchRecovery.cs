@@ -23660,6 +23660,7 @@ public static class MatchRecoveryValidator
                 errors.Add("invalid source play draw stack");
         foreach (var trigger in state.TriggerQueue)
             if (!PermanentPlayTriggerRecoveryRules.ValidQueued(state, trigger)) errors.Add("invalid deferred permanent play ordering origin");
+        if (!TriggerQueueRecoveryRules.Valid(state)) errors.Add("invalid queued trigger chronology");
         foreach (var trigger in state.TriggerQueue)
             if (!RengarPlayRecoveryRules.ValidQueued(state, trigger))
                 errors.Add("invalid unit play might trigger");

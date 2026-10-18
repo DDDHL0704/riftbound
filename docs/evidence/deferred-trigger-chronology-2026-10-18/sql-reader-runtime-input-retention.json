@@ -1,0 +1,28 @@
+{
+  "recordedAtUtc": "2026-10-18T00:00:59.313196+00:00",
+  "scope": "Two runtime input files for the already executed actual487bf Debug SQL reader; retain exact historical replay inputs when the working tree moves. No full source copy or native package.",
+  "files": [
+    {
+      "source": "data/official/card-catalog.zh-CN.json",
+      "retained": "var/qa/observed-rengar-confirmation-20261018/sql-chronology-reader/bin/Debug/net10.0/data/official/card-catalog.zh-CN.json",
+      "sha256": "68930e34e45385c4bc78c4805aaba46e4b5b57057a25ba957a85b339fe376fc8",
+      "bytes": 1358537,
+      "apfsClone": true
+    },
+    {
+      "source": "data/official/rule-input-scope.json",
+      "retained": "var/qa/observed-rengar-confirmation-20261018/sql-chronology-reader/bin/Debug/net10.0/data/official/rule-input-scope.json",
+      "sha256": "cc07cf3eef6a9af403454642a0435d061544400b5e01d08d3fdc65869bdad180",
+      "bytes": 14749,
+      "apfsClone": true
+    }
+  ],
+  "sameBytesAsActuallyExecutedSourceInputs": true,
+  "actualFourModuleIdentityRetained": {
+    "Riftbound.Contracts.dll": "16dbaa43321ff9c5cdd5faa6e1c9bb30f12566abaed5c6f618979e6f078f6444",
+    "Riftbound.CardCatalog.dll": "036ffc67e16d996643e3088fa4b566fc2497ebe21c942930fe9e641e1519583e",
+    "Riftbound.Engine.dll": "f2021fa3fde650393b82ec1d0223b81e429b1b6bf2d6f47bd267b0fbc893fd60",
+    "Riftbound.Persistence.dll": "26bd9d1ebd5191d2ef42bc3967e43932bc8b37fafd26faff264e8e25070a083f"
+  },
+  "rootSourceAndCheckBinNotModified": true
+}

@@ -1,0 +1,93 @@
+{
+  "startedAtUtc": "2026-10-17T23:46:44.341515+00:00",
+  "baseCommit": "b18272e8e4ad0ed01523aebc9f592e19623f46c9",
+  "noSourceTreeCopy": true,
+  "noProjectReferencesOrRebuildOfExecutingSourceOrBin": true,
+  "actualSharedModules": {
+    "Riftbound.Contracts.dll": "16dbaa43321ff9c5cdd5faa6e1c9bb30f12566abaed5c6f618979e6f078f6444",
+    "Riftbound.CardCatalog.dll": "036ffc67e16d996643e3088fa4b566fc2497ebe21c942930fe9e641e1519583e",
+    "Riftbound.Engine.dll": "f2021fa3fde650393b82ec1d0223b81e429b1b6bf2d6f47bd267b0fbc893fd60",
+    "Riftbound.Persistence.dll": "26bd9d1ebd5191d2ef42bc3967e43932bc8b37fafd26faff264e8e25070a083f"
+  },
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+    "implementationSha256": "487bf6179a8d19165b60d1a4ce393bbcbb6ef848968358fd69e0027686c88964",
+    "identitySha256": "069b2e466018f3012c59c613cfe9cc5792dae1c8cf8f9f7506ecf7677ae1f0b0"
+  },
+  "fixtureInputs": {
+    "projection-fixed-prefixes/bright-future-one-legend/distinct-trigger-prefix.json": "a7bcf61bb229cabd5815f7786bee3e0487a3975772fda682097e5dbd88a1e03c",
+    "projection-fixed-prefixes/sanctum-two-nocturnes/distinct-trigger-prefix.json": "0e82b368eec37276b5d89788ef5f6f27a3a5b5652230a38fa494d2f62f9d4a72",
+    "projection-fixed-prefixes/bright-future-both-legends/distinct-trigger-prefix.json": "1549f3b5b8852ba51931985e659bb25b550efda715f775ac2054d734a81b1f39"
+  },
+  "authoredInputCount": 12511,
+  "authoredInputDigest": "e0786a6054051174506a5defed725b716b471b3d67c42b87ecbe3fc2a0fe2e3b",
+  "helperSha256": "d358ce7ef58974655b8eb2d38e9deab7ce29bde10f45c980c9b1cba9ee50198b",
+  "existingCluster": "var/qa/permanent-play-here-base-20261017/postgres",
+  "existingDatabase": "riftbound_acceptance",
+  "noNewClusterOrDatabaseCreated": true,
+  "priorRoomCount": 5,
+  "priorSevenTableDigests": {
+    "matches": "76ea1b6865fbe5a3239aa6a4ae3c10f0718ead4594fd36c16cbbc32e7c55f0c5",
+    "match_players": "9f892f213532c0211b84ee025347898c1ebf6e611f4914251ed717b9a6270194",
+    "command_log": "d8c850e8d74136f4c41b1ae70cb27567cfc048c47410c39a9f0b987360d67ca3",
+    "game_events": "a761e8bc3d941a9892f035a6bdb9e113d7a9d865f5480089d6acab7d04fc9846",
+    "state_snapshots": "12bc63f95b45326f47917ecaf2666310780d981152e73a756869327e8d7c0bc0",
+    "snapshots": "7c1e954280a7f4530f8535d7fcd74e0a67f21a93cea4d4f488f8ed824767d2b7",
+    "action_prompts": "0b61f437de75b25518b7a5f1cf359d2170f5a3e2157604f6bfbee9f31e6f1c3b"
+  },
+  "returnCode": 0,
+  "allPriorRoomRowsExact": true,
+  "afterPriorSevenTableDigests": {
+    "matches": "76ea1b6865fbe5a3239aa6a4ae3c10f0718ead4594fd36c16cbbc32e7c55f0c5",
+    "match_players": "9f892f213532c0211b84ee025347898c1ebf6e611f4914251ed717b9a6270194",
+    "command_log": "d8c850e8d74136f4c41b1ae70cb27567cfc048c47410c39a9f0b987360d67ca3",
+    "game_events": "a761e8bc3d941a9892f035a6bdb9e113d7a9d865f5480089d6acab7d04fc9846",
+    "state_snapshots": "12bc63f95b45326f47917ecaf2666310780d981152e73a756869327e8d7c0bc0",
+    "snapshots": "7c1e954280a7f4530f8535d7fcd74e0a67f21a93cea4d4f488f8ed824767d2b7",
+    "action_prompts": "0b61f437de75b25518b7a5f1cf359d2170f5a3e2157604f6bfbee9f31e6f1c3b"
+  },
+  "status": "REAL_SQL_THREE_EXPLICIT_CHRONOLOGY_PREFIXES_NINE_FORGED_CLOCKS_PASS",
+  "receipts": [
+    {
+      "branch": "sanctum-two-nocturnes",
+      "room": "sql-chronology-f2444ffcbf20454399e620b7b4b3d463",
+      "commands": 15,
+      "events": 42,
+      "coldRecoveries": 5,
+      "forgedClocksRejected": 3,
+      "originalNextCommandsMatched": 4
+    },
+    {
+      "branch": "bright-future-one-legend",
+      "room": "sql-chronology-4c2d284a00d248d88c2c8d039b911333",
+      "commands": 17,
+      "events": 56,
+      "coldRecoveries": 7,
+      "forgedClocksRejected": 3,
+      "originalNextCommandsMatched": 6
+    },
+    {
+      "branch": "bright-future-both-legends",
+      "room": "sql-chronology-ab851bbd22bf4c2499197f6db1ac6d3a",
+      "commands": 23,
+      "events": 70,
+      "coldRecoveries": 9,
+      "forgedClocksRejected": 3,
+      "originalNextCommandsMatched": 8
+    }
+  ],
+  "receiptSha256": "f7b377bd496f8fdd446eea4980d3d89e323a3002e89d14db75f72c8540f39956",
+  "freshRooms": 3,
+  "finishedAtUtc": "2026-10-17T23:46:59.647852+00:00",
+  "authoredInputsStable": true,
+  "actualSourceModulesStable": true,
+  "actualReaderRuntimeStable": true,
+  "fixtureInputsStable": true,
+  "helperUnchanged": true,
+  "idleClusterSmartStopped": true,
+  "rawDatabaseRetained": true
+}

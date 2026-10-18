@@ -54,6 +54,7 @@ internal static class RengarPlayRecoveryRules
     internal static bool ValidQueued(MatchState state, TriggerQueueItemState trigger)
         => Valid(state, trigger.UnitPlayMight, trigger.EffectKind, trigger.SourceObjectId, trigger.ControllerId, trigger.SourceCardNo)
             && (trigger.UnitPlayMight is null || trigger.SourceCardNo == trigger.UnitPlayMight.CardNo
+                && trigger.EnqueuedAtTick == trigger.UnitPlayMight.CapturedTick
                 && trigger.TriggeredByEventKind is "UNIT_PLAYED_TO_BASE" or "UNIT_PLAYED_TO_BATTLEFIELD" or "UNIT_TOKEN_CREATED");
 
     private static bool ValidTargetWitness(MatchState state, StackItemState item)

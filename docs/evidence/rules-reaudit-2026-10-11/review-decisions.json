@@ -21676,6 +21676,113 @@
         "docs/evidence/rengar-unit-play-confirmation-2026-10-18/one-check.json",
         "docs/evidence/rengar-unit-play-confirmation-2026-10-18/fixeda5d-full-ci-independent-original.json"
       ]
+    },
+    {
+      "id": "deferred-trigger-command-chronology-2026-10-18",
+      "scope": "CN zh-CN limited observation2026-10-18; frozen CN2026-10-16 universe retained. Deferred Rengar unit-play skills earned by distinct accepted commands keep earned chronology after all original observed permissions; a later own/legend simultaneous group stays after an earlier skill. Prompt/executor share legal block calculation; recovery origin checks remain independent. Explicit-midgame SQL only. No blanket same-command simultaneity or whole-card certification.",
+      "status": "SCOPED_CHECK12429_CASES7328_METHODS_FOCUS2325_SQL55_COMMANDS168_EVENTS21_COLD18_NEXT9_FORGERIES_ORIGINAL_FIVE_AND110_PASS_FIXED_FULL_NATIVE_WINDOWS_OPEN",
+      "subjects": [
+        "OGN·291/298",
+        "OGN·115/298",
+        "OGN·194/298",
+        "UNL-183/219",
+        "UNL-003/219"
+      ],
+      "ruleRecords": [],
+      "pendingRuleRecords": [],
+      "sourceManifest": {
+        "path": "docs/evidence/deferred-trigger-chronology-2026-10-18/source-manifest.json",
+        "sha256": "93c7df04b033aff5ae57145d332bbec5896bc6ce66446c34876ede77622f382a"
+      },
+      "sourceClauses": [
+        {
+          "document": "DOC-01",
+          "clause": "329",
+          "sha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11"
+        },
+        {
+          "document": "DOC-01",
+          "clause": "334.2.a",
+          "sha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11"
+        },
+        {
+          "document": "DOC-01",
+          "clause": "337.1.b",
+          "sha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11"
+        },
+        {
+          "document": "DOC-01",
+          "clause": "337.2",
+          "sha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11"
+        },
+        {
+          "document": "DOC-01",
+          "clause": "337.3",
+          "sha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11"
+        },
+        {
+          "document": "DOC-01",
+          "clause": "383.3.d",
+          "sha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11"
+        },
+        {
+          "document": "DOC-01",
+          "clause": "402.2",
+          "sha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11"
+        }
+      ],
+      "validation": {
+        "focus": {
+          "path": "docs/evidence/deferred-trigger-chronology-2026-10-18/focus.json",
+          "sha256": "402e38803fbd3dfa4d4393c62071baee34e874591c45e081393ad5386f6fd08e"
+        },
+        "realSql": {
+          "path": "docs/evidence/deferred-trigger-chronology-2026-10-18/scoped-real-sql.json",
+          "sha256": "0c377c5b1af5afc7cfc51e534cfc821e03db28234c9886314dc83c268225a67e"
+        },
+        "actualCompiledInputs": {
+          "path": "docs/evidence/deferred-trigger-chronology-2026-10-18/actual-compiled-input-identity.json",
+          "sha256": "7c4226dd9293ef717376b789f3da6834dbc2298ba4ae895288044cb3ac9918a2"
+        },
+        "originalGames": {
+          "path": "docs/evidence/deferred-trigger-chronology-2026-10-18/original-five-and110.json",
+          "sha256": "036ab772bad403bf2cf111e6e0b65e79a65e690b996cf533dca92c1ffeafea17"
+        },
+        "fixedCommitFull": "PENDING_NEW_FIXED_COMMIT",
+        "currentVisibleProduct": "OPEN",
+        "physicalWindows": "OPEN",
+        "oneCheck": {
+          "path": "docs/evidence/deferred-trigger-chronology-2026-10-18/one-check.json",
+          "sha256": "b691ffe5f2f9a59150780782a0bc5ae29ab226cd57df3586fc463361fb5896d2"
+        }
+      },
+      "exclusions": [
+        "Legal original-opening reachability of the mixed-domain fixtures; given-state acceptance is not deck legality",
+        "Current fixed full, current normal blank-opening SQL and mixed-late ordering SQL",
+        "Current visible paired controls/reconnect/normal score finish/original replay",
+        "Physical Windows",
+        "Finer trigger occurrences within one accepted command, each controller choosing its own simultaneous group, other consumers/combinations and whole-printing semantics",
+        "All unchanged official source gaps, including EN reported1416/returned1408 gap8"
+      ],
+      "auditDocument": "docs/DEFERRED_TRIGGER_CHRONOLOGY_AUDIT_2026-10-18.md",
+      "evidence": [
+        "docs/evidence/deferred-trigger-chronology-2026-10-18/source-manifest.json",
+        "docs/evidence/deferred-trigger-chronology-2026-10-18/focus.json",
+        "docs/evidence/deferred-trigger-chronology-2026-10-18/source-and-test-retention.json",
+        "docs/evidence/deferred-trigger-chronology-2026-10-18/original-chronology-red.json",
+        "docs/evidence/deferred-trigger-chronology-2026-10-18/original-projection-red.json",
+        "docs/evidence/deferred-trigger-chronology-2026-10-18/actual-compiled-input-identity.json",
+        "docs/evidence/deferred-trigger-chronology-2026-10-18/scoped-real-sql.json",
+        "docs/evidence/deferred-trigger-chronology-2026-10-18/sql-input-stability.json",
+        "docs/evidence/deferred-trigger-chronology-2026-10-18/original-five-and110.json",
+        "docs/evidence/deferred-trigger-chronology-2026-10-18/gallery-reconfirmation.json",
+        "docs/evidence/deferred-trigger-chronology-2026-10-18/fixture-reachability-boundary.json",
+        "docs/evidence/deferred-trigger-chronology-2026-10-18/sql-reader-runtime-input-retention.json",
+        "docs/evidence/deferred-trigger-chronology-2026-10-18/single-check-module-retention.json",
+        "docs/evidence/deferred-trigger-chronology-2026-10-18/one-check.json",
+        "docs/evidence/deferred-trigger-chronology-2026-10-18/fixedb182-full-ci-independent-original.json",
+        "docs/evidence/deferred-trigger-chronology-2026-10-18/fixedb182-pre-native-checks.json"
+      ]
     }
   ]
 }

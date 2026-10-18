@@ -1,0 +1,47 @@
+{
+  "recordedAtUtc": "2026-10-17T23:51:41.931493+00:00",
+  "status": "REAL_SQL_THREE_EXPLICIT_PREFIXES_55_COMMANDS168_EVENTS21_COLD18_NEXT9_FORGERIES_PASS",
+  "commands": 55,
+  "events": 168,
+  "coldRecoveries": 21,
+  "originalNextCommandsMatched": 18,
+  "forgedClockRejections": 9,
+  "priorRoomCount": 5,
+  "priorSevenTableRowsExact": true,
+  "freshRooms": 3,
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+    "implementationSha256": "487bf6179a8d19165b60d1a4ce393bbcbb6ef848968358fd69e0027686c88964",
+    "identitySha256": "069b2e466018f3012c59c613cfe9cc5792dae1c8cf8f9f7506ecf7677ae1f0b0"
+  },
+  "currentFourModulesByteEqualConformance": true,
+  "noRootSourceBinMutationOrFullSourceCopy": true,
+  "dedicatedOriginalDatabaseRetainedAndStopped": true,
+  "receipts": [
+    {
+      "path": "docs/evidence/deferred-trigger-chronology-2026-10-18/sql/sanctum-two-nocturnes-receipt.json",
+      "sha256": "1a09b751b635c90aae87ddf6bec3eb7fd32e257497a36735fc2cf84b93e7444c"
+    },
+    {
+      "path": "docs/evidence/deferred-trigger-chronology-2026-10-18/sql/bright-future-one-legend-receipt.json",
+      "sha256": "6468190629a9103a74f39d842a39068c80c41bf818724c63f78c7732e5edd988"
+    },
+    {
+      "path": "docs/evidence/deferred-trigger-chronology-2026-10-18/sql/bright-future-both-legends-receipt.json",
+      "sha256": "5cff0e08ed2fc74db766102eb48c46dad0fb58afe708c25c3e8fe9eee8f5436f"
+    }
+  ],
+  "failedFirstHarnessAssumption": {
+    "status": "NOT_A_RULE_FAILURE_OR_PASS",
+    "reason": "Production SQL derives replay initial state from blank seats, not explicit midgame fixtures. First auxiliary harness incorrectly required nonempty production replay initial cards; original failure source/log/DB remain. Second uses the independently supplied explicit initial state, original replay and direct structural cold restore, matching existing scoped SQL fixture conventions. No production replay bypass was added.",
+    "firstFailureVerification": "var/qa/observed-rengar-confirmation-20261018/real-sql-chronology-v1-verification.json"
+  },
+  "productionPositiveRegistryFromBlank": "NOT_APPLICABLE_EXPLICIT_MIDGAME",
+  "mixedLateOrderSql": "OPEN",
+  "normalBlankOpeningAndNativeAndWindows": "OPEN",
+  "wholePrintingCertified": false
+}

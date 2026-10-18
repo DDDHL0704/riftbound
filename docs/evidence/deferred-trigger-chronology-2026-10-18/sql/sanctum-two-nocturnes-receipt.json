@@ -1,0 +1,86 @@
+{
+  "status": "REAL_POSTGRES_DEFERRED_TRIGGER_CHRONOLOGY_PASS",
+  "room": "sql-chronology-f2444ffcbf20454399e620b7b4b3d463",
+  "branch": "sanctum-two-nocturnes",
+  "commands": 15,
+  "events": 42,
+  "checkpoints": [
+    {
+      "stage": "pending-original-effect-play",
+      "tick": 8,
+      "commands": 8,
+      "events": 24,
+      "fullOriginalReplay": true,
+      "sevenTablesUnchanged": true
+    },
+    {
+      "stage": "chronological-confirmations",
+      "tick": 9,
+      "commands": 9,
+      "events": 30,
+      "fullOriginalReplay": true,
+      "sevenTablesUnchanged": true
+    },
+    {
+      "stage": "confirmed-DRAW1",
+      "tick": 10,
+      "commands": 10,
+      "events": 31,
+      "fullOriginalReplay": true,
+      "sevenTablesUnchanged": true
+    },
+    {
+      "stage": "confirmed-DRAW2",
+      "tick": 11,
+      "commands": 11,
+      "events": 32,
+      "fullOriginalReplay": true,
+      "sevenTablesUnchanged": true
+    },
+    {
+      "stage": "final-original-replay",
+      "tick": 15,
+      "commands": 15,
+      "events": 42,
+      "fullOriginalReplay": true,
+      "sevenTablesUnchanged": true
+    }
+  ],
+  "attacks": [
+    {
+      "mutation": "missing",
+      "structuralAndRegistryRejected": true,
+      "acceptedHistoryUnchanged": true,
+      "noSqlWritesOnRejection": true
+    },
+    {
+      "mutation": "zero",
+      "structuralAndRegistryRejected": true,
+      "acceptedHistoryUnchanged": true,
+      "noSqlWritesOnRejection": true
+    },
+    {
+      "mutation": "future",
+      "structuralAndRegistryRejected": true,
+      "acceptedHistoryUnchanged": true,
+      "noSqlWritesOnRejection": true
+    }
+  ],
+  "originalNextCommandsMatched": 4,
+  "confirmed": [
+    "DRAW1",
+    "DRAW2"
+  ],
+  "finalHash": "8e62ea9a0d96be52a410fa002ff18365c96a9ee9254583d845fb26b7f44f4a67",
+  "ruleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+    "implementationSha256": "487bf6179a8d19165b60d1a4ce393bbcbb6ef848968358fd69e0027686c88964",
+    "identitySha256": "069b2e466018f3012c59c613cfe9cc5792dae1c8cf8f9f7506ecf7677ae1f0b0"
+  },
+  "productionRegistryPositiveReplayFromBlank": "NOT_APPLICABLE_EXPLICIT_MIDGAME",
+  "scope": "Fresh explicit-midgame rules fixture, same actual compiled modules as current conformance. Not a native match, blank opening, mixed-late ordering SQL, whole card, or Windows acceptance."
+}

@@ -1,0 +1,136 @@
+{
+  "recordedAtUtc": "2026-10-17T23:06:47.459358+00:00",
+  "status": "TWO_REAL_CHRONOLOGY_SEMANTIC_FAILURES_REPRODUCED_WITH_COMPLETE_ORIGINAL_PREFIX_REPLAY",
+  "baseProductionCommit": "b18272e8e4ad0ed01523aebc9f592e19623f46c9",
+  "productionSourceInputsExactFixedB182": true,
+  "actualDebugImplementationSha256": "44f3b9883e41ca83b34389f95c3cef7da842184f5b5ef3527ac4fac4db3d8f7d",
+  "v1Scope": "Unnecessary simultaneous-order window accepted canonical resolution order.",
+  "v2Scope": "Opposite chronological confirmation accepted; next mandatory choice is bound to the later played unit.",
+  "runs": [
+    {
+      "version": "v1",
+      "trxSha256": "cdaf983e043d71513106adb29f84831022bbb0a200a38e3a5d76671177a099a4",
+      "cases": [
+        {
+          "test": "Riftbound.ConformanceTests.RengarObservationOrderingTests.BrightFutureKeepsAllOriginalPendingCardsBeforeLegendSkillsEarnedByDifferentConfirmations",
+          "observed": {
+            "playedOrder": [
+              "P1_TOP",
+              "D0"
+            ],
+            "capturedTicks": [
+              8,
+              11
+            ],
+            "actualReorderingAccepted": true,
+            "queuedLegendCount": 2,
+            "stackLegendCount": 0,
+            "pendingChoice": null,
+            "actualRuleInputs": {
+              "SchemaVersion": 1,
+              "Region": "CN",
+              "Language": "zh-CN",
+              "AuthoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+              "CatalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+              "ImplementationSha256": "44f3b9883e41ca83b34389f95c3cef7da842184f5b5ef3527ac4fac4db3d8f7d",
+              "IdentitySha256": "7528dd1ba2a6430650b5f6101594a3c3378d13bbb495795647734b5ebbaa4181"
+            },
+            "originalPrefixFullReplayPassed": true
+          }
+        },
+        {
+          "test": "Riftbound.ConformanceTests.RengarObservationOrderingTests.SequentialObservedNocturnesFinishTheirPermissionsBeforeLegendSkillsConfirmInEarnedOrder",
+          "observed": {
+            "playedOrder": [
+              "DRAW1",
+              "DRAW2"
+            ],
+            "capturedTicks": [
+              8,
+              9
+            ],
+            "actualReorderingAccepted": true,
+            "queuedLegendCount": 2,
+            "stackLegendCount": 0,
+            "pendingChoice": null,
+            "actualRuleInputs": {
+              "SchemaVersion": 1,
+              "Region": "CN",
+              "Language": "zh-CN",
+              "AuthoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+              "CatalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+              "ImplementationSha256": "44f3b9883e41ca83b34389f95c3cef7da842184f5b5ef3527ac4fac4db3d8f7d",
+              "IdentitySha256": "7528dd1ba2a6430650b5f6101594a3c3378d13bbb495795647734b5ebbaa4181"
+            },
+            "originalPrefixFullReplayPassed": true
+          }
+        }
+      ]
+    },
+    {
+      "version": "v2",
+      "trxSha256": "3a37776482288024d66bf6db266ddfd8b6c3ebbcf78ba0b22e474f296e4c0361",
+      "cases": [
+        {
+          "test": "Riftbound.ConformanceTests.RengarObservationOrderingTests.SequentialObservedNocturnesFinishTheirPermissionsBeforeLegendSkillsConfirmInEarnedOrder",
+          "observed": {
+            "playedOrder": [
+              "DRAW1",
+              "DRAW2"
+            ],
+            "capturedTicks": [
+              8,
+              9
+            ],
+            "actualReorderingAccepted": true,
+            "queuedLegendCount": 2,
+            "stackLegendCount": 0,
+            "pendingChoice": null,
+            "attemptedNextConfirmationPlayedUnit": "DRAW2",
+            "actualRuleInputs": {
+              "SchemaVersion": 1,
+              "Region": "CN",
+              "Language": "zh-CN",
+              "AuthoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+              "CatalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+              "ImplementationSha256": "44f3b9883e41ca83b34389f95c3cef7da842184f5b5ef3527ac4fac4db3d8f7d",
+              "IdentitySha256": "7528dd1ba2a6430650b5f6101594a3c3378d13bbb495795647734b5ebbaa4181"
+            },
+            "originalPrefixFullReplayPassed": true
+          }
+        },
+        {
+          "test": "Riftbound.ConformanceTests.RengarObservationOrderingTests.BrightFutureKeepsAllOriginalPendingCardsBeforeLegendSkillsEarnedByDifferentConfirmations",
+          "observed": {
+            "playedOrder": [
+              "P1_TOP",
+              "D0"
+            ],
+            "capturedTicks": [
+              8,
+              11
+            ],
+            "actualReorderingAccepted": true,
+            "queuedLegendCount": 2,
+            "stackLegendCount": 0,
+            "pendingChoice": null,
+            "attemptedNextConfirmationPlayedUnit": "D0",
+            "actualRuleInputs": {
+              "SchemaVersion": 1,
+              "Region": "CN",
+              "Language": "zh-CN",
+              "AuthoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+              "CatalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+              "ImplementationSha256": "44f3b9883e41ca83b34389f95c3cef7da842184f5b5ef3527ac4fac4db3d8f7d",
+              "IdentitySha256": "7528dd1ba2a6430650b5f6101594a3c3378d13bbb495795647734b5ebbaa4181"
+            },
+            "originalPrefixFullReplayPassed": true
+          }
+        }
+      ]
+    }
+  ],
+  "originalModulesAndTestSourcesRetained": true,
+  "sourceWholeCardCertification": false,
+  "originalHistoriesNotRewritten": true
+}

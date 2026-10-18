@@ -56,21 +56,25 @@ public sealed partial class CoreRuleEngine
             state = state with { DuelChainFocus = new(focus, state.PassedFocusPlayerIds.ToArray()) };
 
         var events = result.Events.ToList();
-        if (pending.Length == 1)
+        if (pending.Length == 1 || AreDistinctCommandTriggers(pending))
         {
-            var item = BuildStackItemForOrderedTrigger(state, pending[0]);
+            var admitted = pending.OrderBy(t => t.EnqueuedAtTick).ToArray();
+            var items = admitted.Select(t => BuildStackItemForOrderedTrigger(state, t)).ToArray();
+            var item = items[^1];
             state = state with {
                 TriggerQueue = state.TriggerQueue.Where(t => !IsImmediateTrigger(t)).ToArray(),
-                StackItems = state.StackItems.Where(i => i.StackItemId != pending[0].PermanentPlayStackItemId).Concat([item]).ToArray(),
+                StackItems = state.StackItems.Where(i => !admitted.Any(t => t.PermanentPlayStackItemId == i.StackItemId)).Concat(items).ToArray(),
                 PriorityPlayerId = item.ControllerId, ActivePlayerId = item.ControllerId,
                 FocusPlayerId = null, PassedPriorityPlayerIds = [],
                 TimingState = state.SpellDuelState.IsActive ? TimingStates.SpellDuelClosed : TimingStates.NeutralClosed
             };
             events.Add(new GameEvent("TRIGGERS_MOVED_TO_STACK", "单一触发能力自动加入结算链",
                 new Dictionary<string, object?> {
-                    ["orderedTriggerIds"] = new[] { pending[0].TriggerId },
-                    ["stackItemIds"] = new[] { item.StackItemId }, ["topStackItemId"] = item.StackItemId,
-                    ["nextPriorityPlayerId"] = item.ControllerId, ["orderingPolicy"] = "SINGLE_TRIGGER_AUTO_STACK"
+                    ["orderedTriggerIds"] = admitted.Reverse().Select(t => t.TriggerId).ToArray(),
+                    ["confirmationTriggerIds"] = admitted.Select(t => t.TriggerId).ToArray(),
+                    ["stackItemIds"] = items.Select(i => i.StackItemId).ToArray(), ["topStackItemId"] = item.StackItemId,
+                    ["nextPriorityPlayerId"] = item.ControllerId, ["orderingPolicy"] = pending.Length == 1
+                        ? "SINGLE_TRIGGER_AUTO_STACK" : "DISTINCT_COMMAND_TRIGGERS_CHRONOLOGICAL_AUTO_STACK"
                 }));
         }
         else

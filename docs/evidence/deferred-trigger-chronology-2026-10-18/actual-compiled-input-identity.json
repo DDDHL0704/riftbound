@@ -1,0 +1,36 @@
+{
+  "recordedAtUtc": "2026-10-17T23:51:41.949502+00:00",
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+    "implementationSha256": "487bf6179a8d19165b60d1a4ce393bbcbb6ef848968358fd69e0027686c88964",
+    "identitySha256": "069b2e466018f3012c59c613cfe9cc5792dae1c8cf8f9f7506ecf7677ae1f0b0"
+  },
+  "actualCurrentDebugModules": {
+    "Riftbound.CardCatalog.dll": "036ffc67e16d996643e3088fa4b566fc2497ebe21c942930fe9e641e1519583e",
+    "Riftbound.Contracts.pdb": "b0aa8d352625bb4128176227d424a70251041b4dda4b47d074e4a5fc25009e1a",
+    "Riftbound.Engine.pdb": "e288aea278a355cbb1ac1448dc07ebb21423f1e89685ef9d0dedce1c94f383ba",
+    "Riftbound.CardCatalog.pdb": "d451fa1d5da62d6eca5c5d1393ab04f2228674544875e1d8dc9460e822293167",
+    "Riftbound.Contracts.dll": "16dbaa43321ff9c5cdd5faa6e1c9bb30f12566abaed5c6f618979e6f078f6444",
+    "Riftbound.Engine.dll": "f2021fa3fde650393b82ec1d0223b81e429b1b6bf2d6f47bd267b0fbc893fd60",
+    "Riftbound.Persistence.pdb": "eaf88764f0d16805317d7c15dafa1f6311c52e33227d745c16b5c080ab3dbb9a",
+    "Riftbound.Api.dll": "fbe3244f91e45ebbb44126adcd9bfed7e20823e5c1029e2b304436280a21a625",
+    "Riftbound.ConformanceTests.pdb": "b6c994dc7af092d35ece46037d46d82ac153a427f9db0282f14497f73a2e246f",
+    "Riftbound.Api.pdb": "edce5672ba73403b9745166febc084d3b01af0bf575f90b5ef04c0341e06521f",
+    "Riftbound.Persistence.dll": "26bd9d1ebd5191d2ef42bc3967e43932bc8b37fafd26faff264e8e25070a083f",
+    "Riftbound.ConformanceTests.dll": "04ad4d648b31eaa8853f9dc8dcc6f41edf1802fc570256e0ef28ea034fec214a"
+  },
+  "sqlFourSharedModules": {
+    "Riftbound.Contracts.dll": "16dbaa43321ff9c5cdd5faa6e1c9bb30f12566abaed5c6f618979e6f078f6444",
+    "Riftbound.CardCatalog.dll": "036ffc67e16d996643e3088fa4b566fc2497ebe21c942930fe9e641e1519583e",
+    "Riftbound.Engine.dll": "f2021fa3fde650393b82ec1d0223b81e429b1b6bf2d6f47bd267b0fbc893fd60",
+    "Riftbound.Persistence.dll": "26bd9d1ebd5191d2ef42bc3967e43932bc8b37fafd26faff264e8e25070a083f"
+  },
+  "sourceEqualityNotEquatedWithCompiledIdentity": true,
+  "fixedB182ReleaseNativeActualImplementationSha256": "c5cf8b97a61955b9d067199f6d5b07299e18f2f6fd830db005ae534f46e850d3",
+  "fixedB182NativeDoesNotCoverCurrentChronology": true,
+  "currentNativeAndPhysicalWindows": "OPEN"
+}

@@ -1,0 +1,120 @@
+{
+  "status": "REAL_POSTGRES_DEFERRED_TRIGGER_CHRONOLOGY_PASS",
+  "room": "sql-chronology-ab851bbd22bf4c2499197f6db1ac6d3a",
+  "branch": "bright-future-both-legends",
+  "commands": 23,
+  "events": 70,
+  "checkpoints": [
+    {
+      "stage": "pending-original-effect-play",
+      "tick": 8,
+      "commands": 8,
+      "events": 28,
+      "fullOriginalReplay": true,
+      "sevenTablesUnchanged": true
+    },
+    {
+      "stage": "pending-original-effect-play",
+      "tick": 9,
+      "commands": 9,
+      "events": 33,
+      "fullOriginalReplay": true,
+      "sevenTablesUnchanged": true
+    },
+    {
+      "stage": "pending-original-effect-play",
+      "tick": 10,
+      "commands": 10,
+      "events": 38,
+      "fullOriginalReplay": true,
+      "sevenTablesUnchanged": true
+    },
+    {
+      "stage": "chronological-confirmations",
+      "tick": 11,
+      "commands": 11,
+      "events": 44,
+      "fullOriginalReplay": true,
+      "sevenTablesUnchanged": true
+    },
+    {
+      "stage": "confirmed-P1_TOP",
+      "tick": 12,
+      "commands": 12,
+      "events": 45,
+      "fullOriginalReplay": true,
+      "sevenTablesUnchanged": true
+    },
+    {
+      "stage": "confirmed-P2_TOP",
+      "tick": 13,
+      "commands": 13,
+      "events": 46,
+      "fullOriginalReplay": true,
+      "sevenTablesUnchanged": true
+    },
+    {
+      "stage": "confirmed-DISCIPLE-P2-DRAW-0",
+      "tick": 14,
+      "commands": 14,
+      "events": 47,
+      "fullOriginalReplay": true,
+      "sevenTablesUnchanged": true
+    },
+    {
+      "stage": "confirmed-D0",
+      "tick": 15,
+      "commands": 15,
+      "events": 48,
+      "fullOriginalReplay": true,
+      "sevenTablesUnchanged": true
+    },
+    {
+      "stage": "final-original-replay",
+      "tick": 23,
+      "commands": 23,
+      "events": 70,
+      "fullOriginalReplay": true,
+      "sevenTablesUnchanged": true
+    }
+  ],
+  "attacks": [
+    {
+      "mutation": "missing",
+      "structuralAndRegistryRejected": true,
+      "acceptedHistoryUnchanged": true,
+      "noSqlWritesOnRejection": true
+    },
+    {
+      "mutation": "zero",
+      "structuralAndRegistryRejected": true,
+      "acceptedHistoryUnchanged": true,
+      "noSqlWritesOnRejection": true
+    },
+    {
+      "mutation": "future",
+      "structuralAndRegistryRejected": true,
+      "acceptedHistoryUnchanged": true,
+      "noSqlWritesOnRejection": true
+    }
+  ],
+  "originalNextCommandsMatched": 8,
+  "confirmed": [
+    "P1_TOP",
+    "P2_TOP",
+    "DISCIPLE-P2-DRAW-0",
+    "D0"
+  ],
+  "finalHash": "92b10c20403826dc2c84cee7fc695383e5c5476dd4d6d1f88a4d21ba32f52c0d",
+  "ruleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+    "implementationSha256": "487bf6179a8d19165b60d1a4ce393bbcbb6ef848968358fd69e0027686c88964",
+    "identitySha256": "069b2e466018f3012c59c613cfe9cc5792dae1c8cf8f9f7506ecf7677ae1f0b0"
+  },
+  "productionRegistryPositiveReplayFromBlank": "NOT_APPLICABLE_EXPLICIT_MIDGAME",
+  "scope": "Fresh explicit-midgame rules fixture, same actual compiled modules as current conformance. Not a native match, blank opening, mixed-late ordering SQL, whole card, or Windows acceptance."
+}

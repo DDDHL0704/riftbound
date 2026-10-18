@@ -837,6 +837,8 @@ public sealed record StackItemState
 public sealed record TriggerQueueItemState
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public long? EnqueuedAtTick { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string? PermanentPlayStackItemId { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public EndAbilityContext? EndAbility { get; init; }
@@ -4383,7 +4385,7 @@ public sealed record MatchState
                 item.SourceObjectId,
                 item.EffectKind,
                 item.TriggeredByEventKind,
-                item.TimingContext) { PermanentPlayStackItemId = item.PermanentPlayStackItemId, EndAbility = item.EndAbility, TurnUnitPlayBoon = item.TurnUnitPlayBoon, StandbyObserver = item.StandbyObserver, DamageDistribution = item.DamageDistribution, AttachmentObserver = item.AttachmentObserver, Tempered = item.Tempered, ReflexiveCopy = item.ReflexiveCopy, CreatedTokenReady = item.CreatedTokenReady, UnitEntryContext = item.UnitEntryContext, UnitPlayMight = item.UnitPlayMight, SourcePlayDraw = item.SourcePlayDraw, SourceCardNo = item.SourceCardNo, HeldContext = item.HeldContext, InsightContext = item.InsightContext, SivirRuneRecycle = item.SivirRuneRecycle, ConquestToken = item.ConquestToken, DeathRevealContext = item.DeathRevealContext, DeathObserver = item.DeathObserver, MovementObserver = item.MovementObserver, FieldContext = item.FieldContext, LastBreathMight = item.LastBreathMight, DelayedDestruction = item.DelayedDestruction, MightySkill = item.MightySkill, BattlefieldConquestMight = item.BattlefieldConquestMight, LegendConquest = item.LegendConquest, UnitConquest = item.UnitConquest, ReflexiveDuel = item.ReflexiveDuel, BeginningRecycle = item.BeginningRecycle, BeginningDraw = item.BeginningDraw, EphemeralStart = item.EphemeralStart, BattlefieldStart = item.BattlefieldStart, SpellContext = item.SpellContext, RecastContext = item.RecastContext })
+                item.TimingContext) { EnqueuedAtTick = item.EnqueuedAtTick, PermanentPlayStackItemId = item.PermanentPlayStackItemId, EndAbility = item.EndAbility, TurnUnitPlayBoon = item.TurnUnitPlayBoon, StandbyObserver = item.StandbyObserver, DamageDistribution = item.DamageDistribution, AttachmentObserver = item.AttachmentObserver, Tempered = item.Tempered, ReflexiveCopy = item.ReflexiveCopy, CreatedTokenReady = item.CreatedTokenReady, UnitEntryContext = item.UnitEntryContext, UnitPlayMight = item.UnitPlayMight, SourcePlayDraw = item.SourcePlayDraw, SourceCardNo = item.SourceCardNo, HeldContext = item.HeldContext, InsightContext = item.InsightContext, SivirRuneRecycle = item.SivirRuneRecycle, ConquestToken = item.ConquestToken, DeathRevealContext = item.DeathRevealContext, DeathObserver = item.DeathObserver, MovementObserver = item.MovementObserver, FieldContext = item.FieldContext, LastBreathMight = item.LastBreathMight, DelayedDestruction = item.DelayedDestruction, MightySkill = item.MightySkill, BattlefieldConquestMight = item.BattlefieldConquestMight, LegendConquest = item.LegendConquest, UnitConquest = item.UnitConquest, ReflexiveDuel = item.ReflexiveDuel, BeginningRecycle = item.BeginningRecycle, BeginningDraw = item.BeginningDraw, EphemeralStart = item.EphemeralStart, BattlefieldStart = item.BattlefieldStart, SpellContext = item.SpellContext, RecastContext = item.RecastContext })
             .ToArray();
     }
 
@@ -4604,6 +4606,9 @@ public sealed record ResolutionResult(
             && state.PendingPayment is null
             && state.PendingHandChoice is null
             && state.PendingCardChoice is null
+            && state.PendingRuleChoice is null
+            && state.PendingEffectPlay is null
+            && !CoreRuleEngine.HasObservedConfirmationBeforeTriggers(state)
             && !HasOpenStackPriority(state)
             && !HasOpenSpellDuelFocus(state)
             && state.TriggerQueue.Count > 1
@@ -4623,7 +4628,7 @@ public sealed record ResolutionResult(
             return firstPlayer;
         }
 
-        return OrderTriggerApnapControllerIds(state, controllerIds).FirstOrDefault();
+        return CoreRuleEngine.OrderTriggerApnapControllerIds(state, controllerIds).FirstOrDefault();
     }
 
     internal static IReadOnlyList<string> OrderTriggerIds(MatchState state)
@@ -4635,22 +4640,7 @@ public sealed record ResolutionResult(
     }
 
     internal static IReadOnlyList<string> OrderTriggerLegalResolutionIds(MatchState state)
-    {
-        var triggerIdsByController = state.TriggerQueue
-            .Where(trigger => !string.IsNullOrWhiteSpace(trigger.ControllerId))
-            .GroupBy(trigger => trigger.ControllerId, StringComparer.Ordinal)
-            .ToDictionary(
-                group => group.Key,
-                group => group.Select(trigger => trigger.TriggerId).ToArray(),
-                StringComparer.Ordinal);
-
-        return OrderTriggerApnapControllerIds(state, triggerIdsByController.Keys)
-            .Reverse()
-            .SelectMany(controllerId => triggerIdsByController.TryGetValue(controllerId, out var triggerIds)
-                ? triggerIds
-                : [])
-            .ToArray();
-    }
+        => CoreRuleEngine.TriggerResolutionOrderIds(state);
 
     internal static IReadOnlyList<IReadOnlyDictionary<string, object?>> OrderTriggerViews(
         MatchState state,
@@ -4697,6 +4687,7 @@ public sealed record ResolutionResult(
             ["crossControllerReorderingAllowed"] = false,
             ["withinControllerReorderingAllowed"] = true,
             ["preserveControllerBlocks"] = true,
+            ["preserveTriggerChronology"] = true,
             ["controllerBlockOrder"] = controllerBlockOrder,
             ["legalResolutionControllerBlockOrder"] = legalResolutionBlockOrder,
             ["activePlayerId"] = state.ActivePlayerId,
@@ -4706,55 +4697,7 @@ public sealed record ResolutionResult(
     }
 
     internal static IReadOnlyList<IReadOnlyDictionary<string, object?>> OrderTriggerControllerBlockOrder(MatchState state)
-    {
-        var triggerIdsByController = state.TriggerQueue
-            .Where(trigger => !string.IsNullOrWhiteSpace(trigger.ControllerId))
-            .GroupBy(trigger => trigger.ControllerId, StringComparer.Ordinal)
-            .ToDictionary(
-                group => group.Key,
-                group => group.Select(trigger => trigger.TriggerId).ToArray(),
-                StringComparer.Ordinal);
-
-        return OrderTriggerApnapControllerIds(state, triggerIdsByController.Keys)
-            .Select(controllerId => (IReadOnlyDictionary<string, object?>)new Dictionary<string, object?>
-                {
-                    ["controllerId"] = controllerId,
-                    ["triggerIds"] = triggerIdsByController.TryGetValue(controllerId, out var triggerIds)
-                        ? triggerIds
-                        : []
-                })
-            .ToArray();
-    }
-
-    private static IReadOnlyList<string> OrderTriggerApnapControllerIds(
-        MatchState state,
-        IEnumerable<string> controllerIds)
-    {
-        var remaining = controllerIds
-            .Where(controllerId => !string.IsNullOrWhiteSpace(controllerId))
-            .Distinct(StringComparer.Ordinal)
-            .ToList();
-        var ordered = new List<string>();
-
-        var firstPlayer = CoreRuleEngine.BattleRoleOrderingPlayer(state) ?? state.TurnPlayerId;
-        if (remaining.Remove(firstPlayer))
-        {
-            ordered.Add(firstPlayer);
-        }
-
-        foreach (var seatPlayerId in state.Seats
-            .OrderBy(entry => entry.Value, StringComparer.Ordinal)
-            .Select(entry => entry.Key))
-        {
-            if (remaining.Remove(seatPlayerId))
-            {
-                ordered.Add(seatPlayerId);
-            }
-        }
-
-        ordered.AddRange(remaining);
-        return ordered;
-    }
+        => CoreRuleEngine.TriggerInsertionControllerBlocks(state);
 
     internal static string OrderTriggerSummary(
         MatchState state,

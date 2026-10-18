@@ -1,0 +1,23 @@
+{
+  "recordedAtUtc": "2026-10-17T23:35:19.629883+00:00",
+  "baseCommit": "b18272e8e4ad0ed01523aebc9f592e19623f46c9",
+  "reconstructableSource": "var/qa/observed-rengar-confirmation-20261018/chronology-projection-red-v5/reconstructable-inputs.json.gz",
+  "rawSourceSha256": "397808fd47726e30416f80293bb7b74fb716e7faa80c6a838dc71fde1c84d261",
+  "archiveSha256": "af95f6858bcfd3f746920fe8714db414da46dcfd8c67a228d8f80ecdb4e23b91",
+  "actualModules": {
+    "Riftbound.Api.dll": "9887060580c888bfa1541b7082dee4cd4ae53b77e8f0aa942ae97c54cf65b4da",
+    "Riftbound.Api.pdb": "cdb17ae3f4a27a3a3ab6f49975ee3ac2b2c6157d74251b98d3e4ff306671a9db",
+    "Riftbound.CardCatalog.dll": "036ffc67e16d996643e3088fa4b566fc2497ebe21c942930fe9e641e1519583e",
+    "Riftbound.CardCatalog.pdb": "d451fa1d5da62d6eca5c5d1393ab04f2228674544875e1d8dc9460e822293167",
+    "Riftbound.ConformanceTests.dll": "85670de168c55b7b4f891405ea0828e1ba94550f658aba0a75c650aa1028711b",
+    "Riftbound.ConformanceTests.pdb": "904c1cc418768e17f99637f6cbaaad75fb773d5a3bc3ead3f19fcc9b43406f01",
+    "Riftbound.Contracts.dll": "16dbaa43321ff9c5cdd5faa6e1c9bb30f12566abaed5c6f618979e6f078f6444",
+    "Riftbound.Contracts.pdb": "b0aa8d352625bb4128176227d424a70251041b4dda4b47d074e4a5fc25009e1a",
+    "Riftbound.Engine.dll": "0920713cf4997540b7f5f3c8688df468326d8dbeee743844f5cc61742ba33618",
+    "Riftbound.Engine.pdb": "765d1c2f5335eabe2b935d6a54b9af6141ab0c55224013e5954fb2334f778e14",
+    "Riftbound.Persistence.dll": "23dd2aa905e80518ba35111fed8384e21424d4e5ebf6c0dc8ff30b223a6c31ef",
+    "Riftbound.Persistence.pdb": "af0c37e45ec934fbd390990d5462737e0e5048f40fa246df93b4d2474479b755"
+  },
+  "redResult": "2 failed / 2 executed; server default rejected by own chronology validator",
+  "extraRuntimeCopies": false
+}

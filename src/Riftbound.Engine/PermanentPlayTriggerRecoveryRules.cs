@@ -59,6 +59,7 @@ internal static class PermanentPlayTriggerRecoveryRules
             && trigger.SourceCardNo == item.CardNo && trigger.UnitPlayMight is null && Valid(state, item)
             && state.TriggerQueue.Any(t => t.UnitPlayMight is { } legend
                 && t.ControllerId == item.ControllerId && t.TriggeredByEventKind == trigger.TriggeredByEventKind
+                && trigger.EnqueuedAtTick == legend.CapturedTick
                 && RengarPlayRecoveryRules.Valid(state, legend, t.EffectKind, t.SourceObjectId, t.ControllerId)
                 && legend.PlayedUnit.ObjectId == item.SourceObjectId
                 && state.CardPlays.Resolved.Any(p => p.PlayId == id && p.Source == legend.PlayedUnit
