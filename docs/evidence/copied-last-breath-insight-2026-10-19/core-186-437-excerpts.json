@@ -1,0 +1,48 @@
+{
+  "reviewedAtUtc": "2026-10-18T19:19:08.753858+00:00",
+  "sourceAcquiredAtUtcRetained": "2026-10-18T17:19:18.705206+00:00",
+  "samePrimarySourceManifestSha256": "905ff5b26c61fc270c523f0c7a8b6378f260a8f1c98bd82c20dd5fe9763cf1e7",
+  "sourceUrl": "https://cdn.playloltcg.com/lol/2026/10/2026-10-10/a21ead876c6b44d6abe386b6ae54ea28.pdf",
+  "pdfSha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11",
+  "textSha256": "cafb4f3010c68360f3a8bc39b2b963e6654d6368c193c1d935a77661fb900a6d",
+  "noNewSourceOrEffectiveDateClaim": true,
+  "noNewPdfOrTextCopy": true,
+  "excerpts": [
+    {
+      "clause": "186.1",
+      "text": "186.1.           如果指示物被放入除结算链外的非场地区域，则在移动到新区域后立即消失。"
+    },
+    {
+      "clause": "437.1",
+      "text": "437.1.              洞察 一张卡牌指的是查看主牌堆 顶部的一张牌并选择是否回收 的行动。"
+    },
+    {
+      "clause": "437.1.a",
+      "text": "437.1.a.                 当洞察多张卡牌时，进行洞察的玩家查看相应数量的卡牌，回收其中任意数量的卡牌，然后将其余卡牌 以任意顺序放回其主牌堆顶部。"
+    },
+    {
+      "clause": "437.2",
+      "text": "437.2.              洞察 是一种限定行动 。"
+    },
+    {
+      "clause": "437.2.a",
+      "text": "437.2.a.                 只有在游戏效果指示玩家进行洞察时，玩家才能洞察卡牌。"
+    },
+    {
+      "clause": "437.3",
+      "text": "437.3.              作为指示时，该行动的格式为“洞察 X”。"
+    },
+    {
+      "clause": "437.3.a",
+      "text": "437.3.a.                 如果[X]没有出现，则默认数值为 1。"
+    },
+    {
+      "clause": "437.4",
+      "text": "437.4.              如果玩家尝试洞察的卡牌数量超过他们主牌堆中剩余的卡牌数量，则会改为尽可能多地进行洞察。"
+    },
+    {
+      "clause": "437.4.a",
+      "text": "437.4.a.                 牌堆中卡牌数量过少时，玩家不会因洞察而执行燃尽。"
+    }
+  ]
+}

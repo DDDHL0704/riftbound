@@ -1,0 +1,31 @@
+{
+  "observedAt": "2026-10-18T18:37:41.421184+00:00",
+  "baseCommit": "447cf56b79fb3bc68c8b47254dadf46f8ca15c05",
+  "originalTestToolFixtureFiles": 1796,
+  "byteExactOriginalFiles": 1794,
+  "changedOriginalPathsOnly": [
+    "tests/Riftbound.PostgresAcceptance/Program.cs",
+    "tests/Riftbound.PostgresAcceptance/Riftbound.PostgresAcceptance.csproj"
+  ],
+  "oldConformanceSources": 467,
+  "allOldConformanceSourcesByteExact": true,
+  "oldFixtures": 1281,
+  "allOldFixturesByteExact": true,
+  "oldSqlHelpers": 36,
+  "allOldSqlHelpersByteExact": true,
+  "all8OriginalFullGameSourcesByteExact": true,
+  "allOriginalSqlCallOrderAndCountsRetained": true,
+  "allOriginalSqlCallSites": 48,
+  "exactNewSqlCallSites": [
+    [
+      "CopiedLastBreathInsightSqlAcceptance",
+      "copied-last-breath-insight"
+    ],
+    [
+      "CopiedLastBreathInsightSqlAcceptance",
+      "copied-last-breath-insight"
+    ]
+  ],
+  "newDefaultConsumerAndExactSelectorOnly": true,
+  "originalTheoryRowsSeeds110PairsVictoryAndReplayAssertionsNotEdited": true
+}

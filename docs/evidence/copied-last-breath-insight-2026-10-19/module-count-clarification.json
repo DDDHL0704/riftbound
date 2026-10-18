@@ -1,0 +1,8 @@
+{
+  "atUtc": "2026-10-18T19:13:09.828510+00:00",
+  "actualOwnModuleFiles": 12,
+  "unchangedFromOrdinaryV2Original116ExceptAddedTestMethodDllAndPdb": 10,
+  "changedTestDllAndPdb": 2,
+  "all4CoreDllsExact": true,
+  "earlierLabelClarification": "The key allOther11ActualModuleFilesSameExceptTestDllAndPdb in final-executed-module-inputs.json was a count-label error; its actual module dictionary and hashes remain unchanged. Correct counts are12 total,10 byte-identical,2 test files changed."
+}

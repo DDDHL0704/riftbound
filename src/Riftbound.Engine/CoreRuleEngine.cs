@@ -32071,11 +32071,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
         var beforeRemovalEvents = scope?.Events;
         var death = before is null ? null : CaptureUnitDeath(state, zones, cards, before);
+        IReadOnlyList<InsightTriggerContext> insights = before is null ? [] : CaptureLastBreathInsights(zones, cards, before, controller);
         var removed = TryRemoveFieldTargetCore(zones, cards, id, false, out removal);
-        removal = removal with { BeforeRemovalEvents = beforeRemovalEvents, Death = removed && removal.WasDestroyed && removal.WasUnit ? death : null };
-        if (removed && removal.WasDestroyed && removal.WasUnit && before is { IsFaceDown: false }
-            && IsInsightSource(before.CardNo, "LAST_BREATH"))
-            removal = removal with { InsightContext = new(before.CardNo!, controller, 2, before.ObjectGeneration, "LAST_BREATH") };
+        removal = removal with { BeforeRemovalEvents = beforeRemovalEvents,
+            Death = removed && removal.WasDestroyed && removal.WasUnit ? death : null,
+            InsightContexts = removed && removal.WasDestroyed && removal.WasUnit ? insights : [] };
         if (removed && removal.WasDestroyed && removal.WasUnit && before is { IsFaceDown: false } && IsDeathRevealSource(before.CardNo))
             removal = removal with { DeathRevealContext = new(before.CardNo!, controller, before.ObjectGeneration) };
         return removed;
@@ -32193,8 +32193,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (removalResult.Death is not null) payload["capturedUnitDeath"] = removalResult.Death;
         if (removalResult.DeathRevealContext is not null)
             payload["deathRevealContext"] = removalResult.DeathRevealContext;
-        if (removalResult.InsightContext is not null)
-            payload["insightTriggerContext"] = removalResult.InsightContext;
+        if (removalResult.InsightContexts.Count > 0)
+            payload["insightTriggerContexts"] = removalResult.InsightContexts;
         if (!string.IsNullOrWhiteSpace(reason))
         {
             payload["reason"] = reason;
@@ -35241,7 +35241,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         public IReadOnlyList<GameEvent>? ReplacementEvents { get; init; }
         public IReadOnlyList<GameEvent>? BeforeRemovalEvents { get; init; }
         public CapturedUnitDeath? Death { get; init; }
-        public InsightTriggerContext? InsightContext { get; init; }
+        public IReadOnlyList<InsightTriggerContext> InsightContexts { get; init; } = [];
         public DeathRevealContext? DeathRevealContext { get; init; }
         public bool WasDestroyed => !WasBanished && !WasRecalledToBase;
 

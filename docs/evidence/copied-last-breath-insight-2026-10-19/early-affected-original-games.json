@@ -1,0 +1,18 @@
+{
+  "atUtc": "2026-10-18T18:31:15.145173+00:00",
+  "actualCases": 5,
+  "allPassed": true,
+  "actualMethods": [
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameResolvesBloodAltarBattleDestroyedRecallAndScoreVictoryActionLogReplaysToFinalStateHash",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.DistinctOfficialLowCurveDecksReachScoreVictoryAfterRealBattleThroughServerPrompts",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.StandbyHeavyOfficialLowCurveDecksReachScoreVictoryAfterRealBattleThroughServerPrompts",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialLowCurveDecksReachScoreVictoryAfterRealBattleThroughServerPrompts",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameResolvesDuskpetalLabTurnStartDestroyDrawAndScoreVictoryActionLogReplaysToFinalStateHash"
+  ],
+  "trxSha256": "aaf2d559497b75d2a763f876a6837ff22a679a0cd0434bedf6460083848f2f04",
+  "actualImplementation": "a970155e29cdcc7726b5a40b46517b5afc96ab036426a2e201c73bfa7a7b0b3b",
+  "originalAuthoredInputs": 12899,
+  "allAuthoredAndExecutedInputsStable": true,
+  "threeSelectorsExpandedToFiveMethods": true,
+  "directVisionaryNotInOriginalDecks": true
+}

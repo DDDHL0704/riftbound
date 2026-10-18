@@ -1,0 +1,55 @@
+{
+  "observedAt": "2026-10-18T18:53:27.729270+00:00",
+  "status": "EXACT_ORIGINAL_ORDINARY_WIRE_OLD_ONE_CURRENT_TWO_OR_THREE_BOTH_PERSISTED_FULL_REPLAYS_VERIFIED",
+  "actualOldRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+    "implementationSha256": "3b7822575240b7c597c37331f87ed99a40be2b215043b3de22b83fcdc7778bbd",
+    "identitySha256": "d1494d984bf278d3cda8abbd1c2dff4e7c20ca36ddc76552bdaf950038275799"
+  },
+  "actualCurrentRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+    "implementationSha256": "a970155e29cdcc7726b5a40b46517b5afc96ab036426a2e201c73bfa7a7b0b3b",
+    "identitySha256": "e2e37f169ea51eab2bc8b8b403edc56762f51761a89928d8027676163606e557"
+  },
+  "branches": [
+    {
+      "songs": 1,
+      "originalCommandsEach": 45,
+      "actualOldEvents": 159,
+      "actualCurrentEvents": 159,
+      "actualOldCapturedCount": 1,
+      "actualCurrentCapturedCount": 2,
+      "actualCopiedOrigins": 1,
+      "allOriginalTicksIntentsAndWireFieldsExactExceptActualPerRoomPromptId": true,
+      "bothOriginalPersistedFullCommandEventReplaysMatch": true,
+      "oldTapeSha256": "4448bc21552c30f0da2b40dfd4799dd432ffac9837145ecc91cbf31138b67044",
+      "currentTapeSha256": "7c7795cbadcd3184e222c6e7670f381acde9b481438b5f5ff065c12c2dfb0365"
+    },
+    {
+      "songs": 2,
+      "originalCommandsEach": 57,
+      "actualOldEvents": 206,
+      "actualCurrentEvents": 207,
+      "actualOldCapturedCount": 1,
+      "actualCurrentCapturedCount": 3,
+      "actualCopiedOrigins": 2,
+      "allOriginalTicksIntentsAndWireFieldsExactExceptActualPerRoomPromptId": true,
+      "bothOriginalPersistedFullCommandEventReplaysMatch": true,
+      "oldTapeSha256": "938291727932e1ce9de80c25355db8f21be3972d3b30f836da88e4d92df5d1a3",
+      "currentTapeSha256": "69443a54ff0d811ec0ef54d8a873dacb0f6eb2d7aba529fc30945d7f5a2b5085"
+    }
+  ],
+  "originalBlankSeed0Retained": true,
+  "allOriginalOrderedDeckSubmissionsExact": true,
+  "noOriginalStateSeedRngCommandOrEventInjection": true,
+  "originalDiagnosticOmittedNullProducerFramesNotUsedForPersistedProof": true,
+  "nativeAndSqlAcceptanceSeparate": true
+}

@@ -1,0 +1,70 @@
+{
+  "atUtc": "2026-10-18T18:23:51.312768+00:00",
+  "region": "CN",
+  "language": "zh-CN",
+  "applicableAsOf": "2026-10-16",
+  "scope": "Official original Lillia and Rumble legend inputs for ordinary legal opening; bounded commands do not certify either whole legend.",
+  "sources": [
+    {
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 1000,
+        "searchContent": "含羞蓓蕾",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "attemptedAtUtc": "2026-10-18T18:23:51.197207+00:00",
+      "receivedAtUtc": "2026-10-18T18:23:51.312649+00:00",
+      "httpStatus": 200,
+      "httpDate": "Sun, 18 Oct 2026 18:23:51 GMT",
+      "rawSha256": "c297eccbee36f85500aac02343d8ac9790e22fdec1cb06b9b81de5441ade5cd0",
+      "stored": "var/qa/copied-last-breath-insight-20261019/official-opening-control-34742.json.gz",
+      "storedSha256": "4eefd8a3ade6e13b7fcd2b14595bd37897034ba54624bd5d9bd477f4b44eb609",
+      "exactId": 34742,
+      "cardNo": "UNL-189/219",
+      "categories": [
+        "传奇"
+      ],
+      "effectiveText": "支付{{4}}，{{横置}}：打出一名处于活跃状态的3{{S}}“精灵”，它拥有{{瞬息}}。场上每存在一名拥有{{瞬息}}的友方单位，此技能费用减少{{1}}。",
+      "qa": null,
+      "publishedAt": null,
+      "effectiveAt": null,
+      "changedWholeRows": []
+    },
+    {
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 1000,
+        "searchContent": "机械公敌",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "attemptedAtUtc": "2026-10-18T18:23:51.200326+00:00",
+      "receivedAtUtc": "2026-10-18T18:23:51.304440+00:00",
+      "httpStatus": 200,
+      "httpDate": "Sun, 18 Oct 2026 18:23:51 GMT",
+      "rawSha256": "a0ec3504e41b3632f3579752a3560f9de26bf935bfa93d812f0cf5bb4db63827",
+      "stored": "var/qa/copied-last-breath-insight-20261019/official-opening-control-33279.json.gz",
+      "storedSha256": "e6c4d2a279b7e37e67dac71cc94d0540a7a295c06124c00f4fed861ec910816f",
+      "exactId": 33279,
+      "cardNo": "SFD·181/221",
+      "categories": [
+        "传奇"
+      ],
+      "effectiveText": "你的“机械”属性单位获得{{坚守}}。（如果它们是防守方，则{{S}}+1。）",
+      "qa": null,
+      "publishedAt": null,
+      "effectiveAt": null,
+      "changedWholeRows": []
+    }
+  ],
+  "newWholeRowChanges": [],
+  "sameCoreAcquisitionReused": "source-manifest.json",
+  "noNewPdfCopied": true
+}

@@ -1,0 +1,36 @@
+{
+  "atUtc": "2026-10-18T19:10:31.072371+00:00",
+  "actualIndependentResult": "real-sql-v3-independent-verification.json",
+  "firstRawEqualityVerifierFailuresRetained": [
+    "real-sql-v1-independent-verification.json",
+    "real-sql-v2-independent-verification.json"
+  ],
+  "actualEventDifferenceOnly1736NullableObjectRefsOmittedInExport": true,
+  "all1736EventPayloadsDescriptionsKindsAndArrayOrderExact": true,
+  "stateAndViewNullOmissionsRecorded": 1912,
+  "allOtherActualStateAndViewValuesAndArrayOrderEqual": true,
+  "noProductionReplayValidatorOrDatabaseChangedToPassVerifier": true,
+  "functionalEightSqlBranchesNotRerun": true,
+  "allOriginal67Audit10NativeAndCurrent75AuditSevenTableRowsStable": true,
+  "ownReadOnlyPostgresStopped": true,
+  "rootAndSessionLockAtStart": {
+    "atUtc": "2026-10-18T19:08:38.175617+00:00",
+    "rootLocked": true,
+    "sessions": [
+      {
+        "screenLocked": true,
+        "onConsole": true
+      }
+    ]
+  },
+  "rootAndSessionLockAtEnd": {
+    "atUtc": "2026-10-18T19:08:55.566904+00:00",
+    "rootLocked": true,
+    "sessions": [
+      {
+        "screenLocked": true,
+        "onConsole": true
+      }
+    ]
+  }
+}

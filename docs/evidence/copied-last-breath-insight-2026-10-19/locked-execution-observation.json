@@ -1,0 +1,14 @@
+{
+  "observedAt": "2026-10-18T18:39:01.476666+00:00",
+  "rootIOConsoleLocked": true,
+  "sessions": [
+    {
+      "screenLocked": true,
+      "onConsole": true
+    }
+  ],
+  "source": "Read-only IORegistry Root plist root IOConsoleLocked and session CGSSessionScreenIsLocked",
+  "priorNullFieldObservationRetained": "locked-background-in-progress-observation.json",
+  "noUnlockDependency": true,
+  "testAndSqlTerminalsPending": true
+}

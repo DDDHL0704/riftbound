@@ -1,0 +1,27 @@
+{
+  "attemptedAtUtc": "2026-10-18T17:47:32.424539+00:00",
+  "receivedAtUtc": "2026-10-18T17:47:32.548487+00:00",
+  "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+  "request": {
+    "pageNum": 1,
+    "pageSize": 1000,
+    "searchContent": "崔法利兵营",
+    "cardCategoryList": [],
+    "cardColorList": [],
+    "rarityList": [],
+    "productCodeList": []
+  },
+  "exactId": 31540,
+  "cardNo": "OGN·294/298",
+  "name": "崔法利兵营",
+  "effectiveText": "此处的所有单位获得{{S}}+1。（包括进攻方单位。）",
+  "rawSha256": "7266bcd04aace7660122a8c66f68547f0888e58d1a208d65131f986599d48158",
+  "stored": "var/qa/copied-last-breath-insight-20261019/official-field-control.json.gz",
+  "storedSha256": "d65c610212757406aa52b53ecf073e5561711c00e0e9f78c0d5c6e7596ad3209",
+  "wholeRowMatchesPrior": true,
+  "publishedAt": null,
+  "effectiveAt": null,
+  "region": "CN",
+  "language": "zh-CN",
+  "scope": "Actual on-battlefield damage control setup only; no whole battlefield certification"
+}

@@ -22628,6 +22628,112 @@
         "docs/evidence/copied-predict-2026-10-18/test-retention.json",
         "docs/evidence/copied-predict-2026-10-18/tooling-tests.json"
       ]
+    },
+    {
+      "id": "copied-last-breath-insight-2026-10-19",
+      "scope": "CN / zh-CN, applicability baseline2026-10-16. Sources acquired on local2026-10-19 retain original UTC timestamps and hashes. Limited to SFD059 copying UNL062 LastBreath Insight2 and historical equipment, face and ceased-token provenance. MALZ, Ruination and VEN137 are lower-level controls, without ordinary green-blue deck legality or whole-printing, family or product certification.",
+      "status": "SCOPED_COPIED_LAST_BREATH_274_101_ORDINARY500_1736_SQL8_196COLD124NEXT64REJECTS_ORIGINAL116_SINGLE_CHECK12664_7386_NEW_FIXED_FULL_VISIBLE_WINDOWS_OPEN",
+      "subjects": [
+        "SFD·059/221",
+        "UNL-062/219"
+      ],
+      "ruleRecords": [],
+      "pendingRuleRecords": [],
+      "sourceManifest": {
+        "path": "docs/evidence/copied-last-breath-insight-2026-10-19/source-manifest.json",
+        "sha256": "905ff5b26c61fc270c523f0c7a8b6378f260a8f1c98bd82c20dd5fe9763cf1e7",
+        "role": "source-manifest"
+      },
+      "sourceClauses": [
+        "CN current DOC-01 435.1.e",
+        "CN current DOC-01 719.1",
+        "CN current DOC-01 808.1.c",
+        "CN current DOC-01 808.1.d",
+        "CN current DOC-01 808.1.d.1",
+        "CN current DOC-01 808.2",
+        "CN current DOC-01 808.2.a",
+        "CN current DOC-01 437.1.a",
+        "CN current DOC-01 437.4.a",
+        "CN current DOC-01 186.1"
+      ],
+      "validation": {
+        "focus": {
+          "path": "docs/evidence/copied-last-breath-insight-2026-10-19/focus.json",
+          "sha256": "c87b09caa2dd4596355f0363789573e726a37fc14980cf410f51a7611710cf88",
+          "role": "focus"
+        },
+        "realSql": {
+          "path": "docs/evidence/copied-last-breath-insight-2026-10-19/real-sql-independent-verification.json",
+          "sha256": "2cef7aa25c64359c194cd598dc06d50ea2880aae653777e00c482b4d02e6e803",
+          "role": "real-sql-independent-verification"
+        },
+        "actualCompiledInputs": {
+          "path": "docs/evidence/copied-last-breath-insight-2026-10-19/actual-compiled-inputs.json",
+          "sha256": "c78264ef1f206a8587d94fdf3d2a31e1515ed19b5a8e32e51b2d8523d5623e95",
+          "role": "actual-compiled-inputs"
+        },
+        "originalGames": {
+          "path": "docs/evidence/copied-last-breath-insight-2026-10-19/original116-and110-pairs.json",
+          "sha256": "84af7712a4541ff24d204068ec39d4ffd98206038a0dea7e1982d00c51d9c128",
+          "role": "original116-and110-pairs"
+        },
+        "oneCheck": {
+          "path": "docs/evidence/copied-last-breath-insight-2026-10-19/one-check.json",
+          "sha256": "bcf8cc774bca14f9a750a785313232c06695e041ae59d51638f52f45abf001b1",
+          "role": "one-check"
+        },
+        "ordinaryOriginalRedGreen": {
+          "path": "docs/evidence/copied-last-breath-insight-2026-10-19/ordinary-exact-raw-red-green.json",
+          "sha256": "db42dcd25541fe228b8d7d645c53cbb9c7cff8a8548f60baaf75b41876c8188a",
+          "role": "ordinary-exact-raw-red-green"
+        },
+        "fixedCommitFull": "PENDING_NEW_FIXED_COMMIT",
+        "currentVisibleProduct": "OPEN_CURRENT_FIXED_REQUIRED_BACKGROUND_EXECUTION_CONTINUES_LOCKED",
+        "physicalWindows": "OPEN"
+      },
+      "exclusions": [
+        "NEW_FIXED_FULL_ALL_RETAINED_CASES143_FULL_METHODS110_PAIRS_SQL_AND_NETWORK",
+        "CURRENT_FIXED_VISIBLE_CONTROLS_PAIRED_REAL_SQL_RECONNECT_NORMAL_SCORE_AND_FULL_REPLAY",
+        "PHYSICAL_WINDOWS",
+        "WHOLE_PRINTING_AND_ALL_INDIRECT_OBSERVATION_CONSUMERS",
+        "VEN137_EXACT_REGION_AND_FORMAT",
+        "ALL1740_PRINTINGS36_DOCUMENTS14293_BLOCKS_AND_SOURCE_GAPS",
+        "UNL079_COPIED_DUEL_PAYABLE_CONTROLLED_OMISSION_REPRODUCED_NOT_IMPLEMENTED"
+      ],
+      "auditDocument": "docs/COPIED_LAST_BREATH_INSIGHT_AUDIT_2026-10-19.md",
+      "evidence": [
+        "docs/evidence/copied-last-breath-insight-2026-10-19/acceptance-boundaries.json",
+        "docs/evidence/copied-last-breath-insight-2026-10-19/actual-compiled-inputs.json",
+        "docs/evidence/copied-last-breath-insight-2026-10-19/additional-control-source-manifest.json",
+        "docs/evidence/copied-last-breath-insight-2026-10-19/check-temporary-sleep-assertion.json",
+        "docs/evidence/copied-last-breath-insight-2026-10-19/controlled-red.json",
+        "docs/evidence/copied-last-breath-insight-2026-10-19/core-186-437-excerpts.json",
+        "docs/evidence/copied-last-breath-insight-2026-10-19/core-435-719-808-excerpts.json",
+        "docs/evidence/copied-last-breath-insight-2026-10-19/default-postgres-build-and-retention.json",
+        "docs/evidence/copied-last-breath-insight-2026-10-19/development-classifications.json",
+        "docs/evidence/copied-last-breath-insight-2026-10-19/early-affected-original-games.json",
+        "docs/evidence/copied-last-breath-insight-2026-10-19/field-control-source-manifest.json",
+        "docs/evidence/copied-last-breath-insight-2026-10-19/focus.json",
+        "docs/evidence/copied-last-breath-insight-2026-10-19/locked-execution-observation.json",
+        "docs/evidence/copied-last-breath-insight-2026-10-19/module-count-clarification.json",
+        "docs/evidence/copied-last-breath-insight-2026-10-19/one-check.json",
+        "docs/evidence/copied-last-breath-insight-2026-10-19/ordinary-exact-raw-red-green.json",
+        "docs/evidence/copied-last-breath-insight-2026-10-19/ordinary-legend-source-manifest.json",
+        "docs/evidence/copied-last-breath-insight-2026-10-19/ordinary-openings.json",
+        "docs/evidence/copied-last-breath-insight-2026-10-19/original-test-retention.json",
+        "docs/evidence/copied-last-breath-insight-2026-10-19/original116-and110-pairs.json",
+        "docs/evidence/copied-last-breath-insight-2026-10-19/previous-fixed-a9-ci-observation.json",
+        "docs/evidence/copied-last-breath-insight-2026-10-19/publication-complete.json",
+        "docs/evidence/copied-last-breath-insight-2026-10-19/raw-source-publication.json",
+        "docs/evidence/copied-last-breath-insight-2026-10-19/real-sql-actual-receipt.json",
+        "docs/evidence/copied-last-breath-insight-2026-10-19/real-sql-execution.json",
+        "docs/evidence/copied-last-breath-insight-2026-10-19/real-sql-independent-verification.json",
+        "docs/evidence/copied-last-breath-insight-2026-10-19/rule-directory-observation.json",
+        "docs/evidence/copied-last-breath-insight-2026-10-19/scoped-code-review-before-final-simultaneous-case.json",
+        "docs/evidence/copied-last-breath-insight-2026-10-19/simultaneous-control-source-manifest.json",
+        "docs/evidence/copied-last-breath-insight-2026-10-19/source-manifest.json",
+        "docs/evidence/copied-last-breath-insight-2026-10-19/sql-export-null-policy.json"
+      ]
     }
   ]
 }

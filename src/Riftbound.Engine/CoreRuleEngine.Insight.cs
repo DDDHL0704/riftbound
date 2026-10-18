@@ -192,7 +192,8 @@ public sealed partial class CoreRuleEngine
             || item.CompletedDeckExecutions < 0 || item.CompletedDeckExecutions >= item.EffectRepeatCount
             || !ValidInsightRepeatPlan(item) || item.DeckChoiceCompleted
             || item.InsightContext is { Kind: "DUEL", PaymentAccepted: false }
-            || item.InsightContext is { } capturedSource && !ValidPredictEntryBindings(state, capturedSource, item.SourceObjectId)
+            || item.InsightContext is { } capturedSource && (!ValidPredictEntryBindings(state, capturedSource, item.SourceObjectId)
+                || !ValidInsightRuleTextSource(state, capturedSource, item.SourceObjectId))
             || choice.DeckContext is not { } context || context.ExecutionIndex != item.CompletedDeckExecutions || context.StackItemId != item.StackItemId
             || choice.PlayerId != item.ControllerId || choice.SourceObjectId != item.SourceObjectId || choice.EffectKind != item.EffectKind
             || !state.PlayerZones.TryGetValue(item.ControllerId, out var zones)) return false;

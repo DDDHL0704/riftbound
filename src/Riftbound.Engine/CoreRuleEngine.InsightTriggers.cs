@@ -5,7 +5,9 @@ namespace Riftbound.Engine;
 public sealed record InsightTriggerContext(string CardNo, string ControllerId, int Count, long SourceGeneration, string Kind,
     string? BattlefieldObjectId = null, string? ReturnFocusPlayerId = null, bool PaymentAccepted = false,
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] PredictGrantOrigin? PredictGrant = null,
-    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] PrintedPredictEntryOrigin? PrintedPredict = null);
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] PrintedPredictEntryOrigin? PrintedPredict = null,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] RuleTextInstanceBinding? Origin = null,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] string? SourceTokenFactoryCardNo = null);
 
 public sealed partial class CoreRuleEngine
 {
@@ -17,8 +19,33 @@ public sealed partial class CoreRuleEngine
         => InsightSourceFamilies.Value[kind switch { "SPELL_PLAYED" => "UNL-211/219", "LAST_BREATH" => "UNL-062/219", "DUEL" => "UNL-079/219", _ => "UNL-136/219" }]
             .Contains(OfficialCardSourceIdentityGroups.NormalizeCardNo(cardNo), StringComparer.Ordinal);
 
+    private static IReadOnlyList<InsightTriggerContext> CaptureLastBreathInsights(
+        IReadOnlyDictionary<string, PlayerZones> zones, IReadOnlyDictionary<string, CardObjectState> cards,
+        CardObjectState unit, string controller)
+        => unit.IsFaceDown || !unit.Tags.Contains(CardObjectTags.UnitCard) ? []
+            : AttachedRuleTextRules.Instances(zones, cards, unit).Where(i => IsInsightSource(i.CardNo, "LAST_BREATH"))
+                .Select(i => new InsightTriggerContext(i.CardNo, controller, 2, unit.ObjectGeneration, "LAST_BREATH",
+                    Origin: i.Origin, SourceTokenFactoryCardNo: unit.TokenFactoryCardNo)).ToArray();
+
+    internal static bool ValidInsightRuleTextSource(MatchState state, InsightTriggerContext context, string source)
+        => (context.Kind != "LAST_BREATH" || !string.IsNullOrWhiteSpace(source) && (state.CardObjects.TryGetValue(source, out var unit)
+                ? unit.ObjectGeneration >= context.SourceGeneration && unit.TokenFactoryCardNo == context.SourceTokenFactoryCardNo
+                : context.SourceTokenFactoryCardNo is not null && P6TokenFactoryCatalog.IsTokenFactory(context.SourceTokenFactoryCardNo)))
+            && (context.Origin is null || context.Kind == "LAST_BREATH"
+                && AttachedRuleTextRules.ValidCaptured(state, context.Origin, source, context.SourceGeneration, context.CardNo));
+
+    internal static bool ValidCeasedLastBreathInsightSource(MatchState state, InsightTriggerContext? context,
+        string source, string effect, string controller, string? cardNo = null)
+        => context is { Kind: "LAST_BREATH", SourceTokenFactoryCardNo: not null }
+            && !string.IsNullOrWhiteSpace(source) && !state.CardObjects.ContainsKey(source) && ValidInsightTrigger(context, effect, controller, cardNo)
+            && ValidInsightRuleTextSource(state, context, source);
+
     internal static bool ValidInsightTrigger(InsightTriggerContext context, string effect, string controller, string? cardNo = null)
         => effect == InsightTriggerEffect && context.ControllerId == controller && context.SourceGeneration >= 0
+            && (context.SourceTokenFactoryCardNo is null || context.Kind == "LAST_BREATH"
+                && P6TokenFactoryCatalog.IsTokenFactory(context.SourceTokenFactoryCardNo))
+            && (context.Origin is null || context.Kind == "LAST_BREATH" && context.Origin.CardNo == context.CardNo
+                && context.Origin.Unit is { } unit && unit.Generation == context.SourceGeneration)
             && context.Kind is "SPELL_PLAYED" or "LAST_BREATH" or "DUEL" or "ACTIVATED" or "CONQUEST_LOOK" or "GRANTED_PREDICT" or "PRINTED_PREDICT"
             && context.Count == (context.Kind=="CONQUEST_LOOK" ? ConquestLookSpec(context.CardNo)?.RevealCount ?? 0
                 : context.Kind is "SPELL_PLAYED" or "DUEL" or "GRANTED_PREDICT" or "PRINTED_PREDICT" ? 1 : 2) && context.Count>0
@@ -88,11 +115,14 @@ public sealed partial class CoreRuleEngine
                 }
             }
             if (ev.Kind != "UNIT_DESTROYED"
-                || !ev.Payload.TryGetValue("insightTriggerContext", out var raw) || raw is not InsightTriggerContext context
+                || !ev.Payload.TryGetValue("insightTriggerContexts", out var raw) || raw is not IReadOnlyList<InsightTriggerContext> contexts
                 || !ev.Payload.TryGetValue("targetObjectId", out var target) || target is not string source) continue;
-            var trigger = new TriggerQueueItemState($"insight-death-{result.State.Tick}-{index}-{source}", context.ControllerId,
-                source, InsightTriggerEffect, "UNIT_DESTROYED") { InsightContext = context };
-            queue.Add(trigger); events.Add(BuildTriggerQueuedEvent(trigger));
+            foreach (var (context, ordinal) in contexts.Select((c, i) => (c, i)))
+            {
+                var trigger = new TriggerQueueItemState($"insight-death-{result.State.Tick}-{index}-{source}{(ordinal == 0 ? "" : "-" + ordinal)}", context.ControllerId,
+                    source, InsightTriggerEffect, "UNIT_DESTROYED") { InsightContext = context, SourceCardNo = context.CardNo };
+                queue.Add(trigger); events.Add(BuildTriggerQueuedEvent(trigger));
+            }
         }
         if (queue.Count == result.State.TriggerQueue.Count) return result;
         var state = result.State with { TriggerQueue = queue };
