@@ -5,7 +5,8 @@ namespace Riftbound.Engine;
 public sealed record PredictGrantOrigin(string CardNo, ObjectBinding Source, long SourceFaceRevision,
     long CapturedTick, long EnteredFaceRevision,
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] string? SourceTokenFactoryCardNo = null,
-    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] string? EnteredTokenFactoryCardNo = null);
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] string? EnteredTokenFactoryCardNo = null,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)] RuleTextInstanceBinding? Origin = null);
 
 public sealed partial class CoreRuleEngine
 {
@@ -18,6 +19,8 @@ public sealed partial class CoreRuleEngine
     internal static bool ValidPredictGrant(PredictGrantOrigin? origin, string enteredCardNo) => origin is not null && origin.Source is not null
         && origin.Source.Generation >= 0 && !string.IsNullOrWhiteSpace(origin.Source.ObjectId)
         && origin.SourceFaceRevision >= 0 && origin.CapturedTick >= 0 && origin.EnteredFaceRevision >= 0
+        && (origin.Origin is not { } binding || binding.CardNo == origin.CardNo && binding.Unit == origin.Source
+            && binding.FaceRevision == origin.SourceFaceRevision && binding.CapturedTick is >= 0 && binding.CapturedTick <= origin.CapturedTick)
         && (origin.SourceTokenFactoryCardNo is null || P6TokenFactoryCatalog.IsTokenFactory(origin.SourceTokenFactoryCardNo))
         && (origin.EnteredTokenFactoryCardNo is null || P6TokenFactoryCatalog.IsTokenFactory(origin.EnteredTokenFactoryCardNo))
         && TryPredictEnteredFace(enteredCardNo, out var entered) && entered.Tags.Contains(CardObjectTags.UnitCard)
@@ -37,7 +40,9 @@ public sealed partial class CoreRuleEngine
         if (context.Kind != "GRANTED_PREDICT") return true;
         if (!ValidPredictGrant(context.PredictGrant, context.CardNo) || context.PredictGrant is not { } grant
             || grant.CapturedTick > state.Tick
-            || !PredictBindingMatches(state, grant.Source, grant.CardNo, grant.SourceFaceRevision, grant.CapturedTick, grant.SourceTokenFactoryCardNo)
+            || !PredictBindingMatches(state, grant.Source, grant.CardNo, grant.SourceFaceRevision,
+                grant.Origin?.CapturedTick ?? grant.CapturedTick, grant.SourceTokenFactoryCardNo)
+            || !AttachedRuleTextRules.ValidCaptured(state, grant.Origin, grant.Source.ObjectId, grant.Source.Generation, grant.CardNo)
             || !PredictBindingMatches(state, new(enteredId, context.SourceGeneration), context.CardNo, grant.EnteredFaceRevision, grant.CapturedTick, grant.EnteredTokenFactoryCardNo)) return false;
         if (grant.Source.ObjectId == enteredId && (grant.Source.Generation != context.SourceGeneration || grant.CardNo != context.CardNo)) return false;
         return TryPredictEnteredFace(context.CardNo, out var entered)
@@ -61,10 +66,12 @@ public sealed partial class CoreRuleEngine
         if (string.IsNullOrWhiteSpace(player)) return ev;
         var grants = PublicStaticAuraSourceObjectIds(zones).Where(cards.ContainsKey).Select(id=>cards[id])
             .Where(c=>!c.IsFaceDown && EffectivePublicStaticAuraSourceControllerId(zones,c.ObjectId,c)==player)
-            .SelectMany(c=>StaticAuraSpecRules.GetStaticAuras(c.CardNo).Where(IsPredictAura)
-                .Where(a=>PublicFieldFriendlyKeywordStaticAuraAppliesToParticipant(a,c.ObjectId,entered.ObjectId,entered))
-                .Select(_=>new PredictGrantOrigin(c.CardNo!,new(c.ObjectId,c.ObjectGeneration), c.CopyFaceTransitions?.Count ?? 0,
-                    0, entered.CopyFaceTransitions?.Count ?? 0, c.TokenFactoryCardNo, entered.TokenFactoryCardNo))).ToArray();
+            .SelectMany(c=>AttachedRuleTextRules.Instances(zones,cards,c).SelectMany(instance=>
+                StaticAuraSpecRules.GetStaticAuras(instance.CardNo).Where(IsPredictAura)
+                    .Where(a=>PublicFieldFriendlyKeywordStaticAuraAppliesToParticipant(a,c.ObjectId,entered.ObjectId,entered))
+                    .Select(_=>new PredictGrantOrigin(instance.CardNo,new(c.ObjectId,c.ObjectGeneration),
+                        instance.Origin?.FaceRevision ?? c.CopyFaceTransitions?.Count ?? 0,
+                        0, entered.CopyFaceTransitions?.Count ?? 0, c.TokenFactoryCardNo, entered.TokenFactoryCardNo,instance.Origin)))).ToArray();
         return grants.Length==0 ? ev : ev with {Payload=new Dictionary<string,object?>(ev.Payload) {
             ["grantedPredictObservation"]=new GrantedPredictObservation(entered.ObjectId,entered.CardNo!,entered.ObjectGeneration,player,grants)}};
     }

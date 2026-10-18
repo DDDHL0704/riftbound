@@ -1,0 +1,116 @@
+{
+  "step": "native-network",
+  "startedAtUtc": "2026-10-18T14:41:46.456272+00:00",
+  "fixedCommit": "6c9632f155bacff654acceb70ce42ee15e9b681f",
+  "fixedInputsSha256": "bb0b7267753bf4d0f2b11081b0c920202b8f531707d317f4e1e06a76e6bcf348",
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+    "implementationSha256": "83a9bfca71dd91ca82cc96fd06f331d677eea341451c10f0f3816ca5ddc24658",
+    "identitySha256": "4fa44e710c234b5895f84d96d987779c26bfbfa5912c8c8548936de1775993ce"
+  },
+  "lockAtStart": {
+    "atUtc": "2026-10-18T14:41:46.484871+00:00",
+    "source": "read-only IORegistry; no desktop automation",
+    "sessions": [
+      {
+        "screenLocked": true,
+        "onConsole": true
+      }
+    ]
+  },
+  "noDesktopDependency": true,
+  "noVisibleOrWindowsAcceptanceClaim": true,
+  "priorNativeRooms": [
+    "paired-controller-46a990fe-20261018",
+    "paired-empty-view-48c6ae96-20261018",
+    "paired-here-control-20261018",
+    "paired-observed-window-8c6d569e-20261018"
+  ],
+  "priorNativeSevenTables": {
+    "matches": "07ccb3474e90e4a926eee4ceae65391cb4838fd9e2e4c1c1285a21a4edf41200",
+    "match_players": "176adb4635d3c27696b16bd2a45de589cb5dbbd0df9bd5324193356986b50ef6",
+    "command_log": "59321eac5a7b69e3615b7af7fe1023f82716e6739e68b9c483a3c0631b26f5cb",
+    "game_events": "78e8962cedf9cf2b9407bbace0d0dc417e22c5501ac770c47b7ae290c1a9fde3",
+    "state_snapshots": "4175e2645ab2e9cd71ea15694dc60ef99057df288fc05483f02284d420d268db",
+    "snapshots": "e07e824cf46fda83694458ac7aa6a5f269225e7ad0e206400defcfd183d4dc29",
+    "action_prompts": "e4d1509404d2e868ba789cd28b2985349ef4f702fbd8c49e2db8706b9d6fb5f6"
+  },
+  "priorAuditRoomCount": 51,
+  "priorAuditSevenTables": {
+    "matches": "40f23e14854859728bb9f333d136e5fbfb3d330499267291d9274f97a73da75b",
+    "match_players": "5a839ac3795753fae9baf8b59540f75acdaa4a662dc3e81e205ff6df4f82c759",
+    "command_log": "b97e8459a163218fa1a83221bed44e1e7c65b04c24ea04cac88db14e38d665db",
+    "game_events": "d45c3386c23e54fb962cf139dbeed6e090d58390251a17c0a4e5171c55045804",
+    "state_snapshots": "6909a9b563d420cf9b53bd5e243e70e775be8b680d9ad3c2a4a73bc15a8bfd8f",
+    "snapshots": "12f60656fd317af93b1706d9bfdc7d163c632f177a088999c02b37e0799b616e",
+    "action_prompts": "36dce95952a368d27ca2084cdc301103d770717b8cf782f4b282ab042cddec23"
+  },
+  "ownApiPid": 29093,
+  "configuredHealth": {
+    "status": "ok",
+    "service": "riftbound-dotnet",
+    "environment": "Production",
+    "dotnet": "10.0.9",
+    "persistenceMode": "postgres",
+    "signalRScaleMode": "single-instance",
+    "redisBackplaneConfigured": false,
+    "redisChannelPrefix": "riftbound",
+    "metricsEnabled": true,
+    "configuredCorsOriginCount": 6,
+    "developmentLoopbackCorsFallback": false,
+    "dependencies": [
+      {
+        "name": "persistence",
+        "mode": "postgres",
+        "status": "configured"
+      },
+      {
+        "name": "signalr-backplane",
+        "mode": "single-instance",
+        "status": "ok"
+      }
+    ]
+  },
+  "returnCode": 0,
+  "ownApiGracefulStop": true,
+  "wireEvidence": {
+    "room": "NETWORK-5af8dc418888",
+    "rejectedActions": 15,
+    "identities": [
+      "ANONYMOUS",
+      "FAILED_KEY",
+      "OTHER_HANDLE"
+    ],
+    "leakedPrivateMessages": 0,
+    "validReconnectTokenWasSupplied": true
+  },
+  "allPriorNativeSevenTablesExact": true,
+  "all51AuditRoomsSevenTablesExact": true,
+  "newRoomSevenTableDigests": {
+    "matches": "66adb7e3bcd181c9e7ac9c0452627367ea73a98c16e519770ef86e49986b2c5f",
+    "match_players": "382b1a1cad59c6414e5a1ccd46df87c929be6612a2889ea99b8f1902f2e30987",
+    "command_log": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+    "game_events": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+    "state_snapshots": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+    "snapshots": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+    "action_prompts": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+  },
+  "scope": "Actual production native gateway socket loss, authenticated session restore, fresh snapshot, invalid-token guard and 15 cross-identity rejects; one authorized primary, no paired-gameplay or visible-window claim.",
+  "status": "PASS",
+  "finishedAtUtc": "2026-10-18T14:41:53.669911+00:00",
+  "fixedInputsStillExact": true,
+  "lockAtEnd": {
+    "atUtc": "2026-10-18T14:41:53.698815+00:00",
+    "source": "read-only IORegistry; no desktop automation",
+    "sessions": [
+      {
+        "screenLocked": true,
+        "onConsole": true
+      }
+    ]
+  }
+}

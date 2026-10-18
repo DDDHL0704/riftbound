@@ -1,0 +1,47 @@
+{
+  "atUtc": "2026-10-18T15:13:32.024889+00:00",
+  "status": "IDENTITY_COMPUTED_FROM_ACTUAL_RED_PE_MVIDS_AND_UNCHANGED_THREE_OFFICIAL_DATA_INPUTS",
+  "actualRedRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+    "implementationSha256": "7d5641194d4cc92f2f134cb83c2e4d81ad878dac0f174b22f4bdc4e9a736dcc3",
+    "identitySha256": "6bbccdcfa395c93b27c26583f51984b239fc6a76da09bcaf4aeee5666de86218"
+  },
+  "moduleRecords": [
+    {
+      "Name": "Riftbound.CardCatalog",
+      "Module": "0602be1917bb43aa86aa59fd707a261d"
+    },
+    {
+      "Name": "Riftbound.Contracts",
+      "Module": "26abe654e42e483caf9f17a06483e8a1"
+    },
+    {
+      "Name": "Riftbound.Engine",
+      "Module": "20c5c8d4b57148a3aa3428f094db0a6d"
+    }
+  ],
+  "oldUncommittedDebug8e6NotAssumedEqualToCommitted6cDebug": true,
+  "sourceRevisionMetadataChangedAfterCommit": true,
+  "allPrior1792TestToolFixtureFilesExact": true,
+  "allNonDocsProductionSourcesBeforeSemanticEditMatch6c": true,
+  "redProductionSourceFromGitCommit": "6c9632f155bacff654acceb70ce42ee15e9b681f",
+  "onlyNewConformanceTestWasAddedForRed": true,
+  "actualPeEmbeddedSourceRevisionEvidence": {
+    "Riftbound.Engine": {
+      "priorContains21Commit": true,
+      "redContains6cCommit": true
+    },
+    "Riftbound.CardCatalog": {
+      "priorContains21Commit": true,
+      "redContains6cCommit": true
+    },
+    "Riftbound.Contracts": {
+      "priorContains21Commit": true,
+      "redContains6cCommit": true
+    }
+  }
+}

@@ -1,0 +1,190 @@
+{
+  "atUtc": "2026-10-18T16:31:37.554375+00:00",
+  "status": "PASS",
+  "actualCases": 152,
+  "actualMethods": 53,
+  "allPrior150ActualCasesRetained": true,
+  "addedBorrowedOriginCases": 2,
+  "trxSha256": "e0ab8740cd14a029d528b4806fae982934d8eb521c1efcb64f7cad2c56ffc766",
+  "actualTestAssemblySha256": "514ef920121c0bd3a53a28f706c8a34f02bdcb26c0b3cd24d7f65a553e6962f5",
+  "ordinaryEightMatchingFormatRecycleBranches": [
+    {
+      "host": "SFD\u00b7065/221",
+      "format": 1,
+      "recycleFirst": true,
+      "commands": 41,
+      "events": 150,
+      "coldCount": 9,
+      "originalNextMatches": 8,
+      "engineRejectionsWithoutMutation": 4,
+      "originalFullActionEventReplayMatched": true,
+      "originalBlankSeed": 0,
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "2c3a3b1b8de91cce6e3df5f82af1e3e9fbbf51d506c7bde768c72ba565ead03d",
+        "identitySha256": "67084b403328b02f93ea956d8e866351c704304dd7221697167b67df28cbaea0"
+      }
+    },
+    {
+      "host": "SFD\u00b7065/221",
+      "format": 0,
+      "recycleFirst": false,
+      "commands": 41,
+      "events": 149,
+      "coldCount": 9,
+      "originalNextMatches": 8,
+      "engineRejectionsWithoutMutation": 4,
+      "originalFullActionEventReplayMatched": true,
+      "originalBlankSeed": 0,
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "2c3a3b1b8de91cce6e3df5f82af1e3e9fbbf51d506c7bde768c72ba565ead03d",
+        "identitySha256": "67084b403328b02f93ea956d8e866351c704304dd7221697167b67df28cbaea0"
+      }
+    },
+    {
+      "host": "OGN\u00b7100/298",
+      "format": 1,
+      "recycleFirst": false,
+      "commands": 43,
+      "events": 153,
+      "coldCount": 9,
+      "originalNextMatches": 8,
+      "engineRejectionsWithoutMutation": 4,
+      "originalFullActionEventReplayMatched": true,
+      "originalBlankSeed": 0,
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "2c3a3b1b8de91cce6e3df5f82af1e3e9fbbf51d506c7bde768c72ba565ead03d",
+        "identitySha256": "67084b403328b02f93ea956d8e866351c704304dd7221697167b67df28cbaea0"
+      }
+    },
+    {
+      "host": "SFD\u00b7065/221",
+      "format": 1,
+      "recycleFirst": false,
+      "commands": 41,
+      "events": 149,
+      "coldCount": 9,
+      "originalNextMatches": 8,
+      "engineRejectionsWithoutMutation": 4,
+      "originalFullActionEventReplayMatched": true,
+      "originalBlankSeed": 0,
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "2c3a3b1b8de91cce6e3df5f82af1e3e9fbbf51d506c7bde768c72ba565ead03d",
+        "identitySha256": "67084b403328b02f93ea956d8e866351c704304dd7221697167b67df28cbaea0"
+      }
+    },
+    {
+      "host": "SFD\u00b7065/221",
+      "format": 0,
+      "recycleFirst": true,
+      "commands": 41,
+      "events": 150,
+      "coldCount": 9,
+      "originalNextMatches": 8,
+      "engineRejectionsWithoutMutation": 4,
+      "originalFullActionEventReplayMatched": true,
+      "originalBlankSeed": 0,
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "2c3a3b1b8de91cce6e3df5f82af1e3e9fbbf51d506c7bde768c72ba565ead03d",
+        "identitySha256": "67084b403328b02f93ea956d8e866351c704304dd7221697167b67df28cbaea0"
+      }
+    },
+    {
+      "host": "OGN\u00b7100/298",
+      "format": 0,
+      "recycleFirst": true,
+      "commands": 43,
+      "events": 154,
+      "coldCount": 9,
+      "originalNextMatches": 8,
+      "engineRejectionsWithoutMutation": 4,
+      "originalFullActionEventReplayMatched": true,
+      "originalBlankSeed": 0,
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "2c3a3b1b8de91cce6e3df5f82af1e3e9fbbf51d506c7bde768c72ba565ead03d",
+        "identitySha256": "67084b403328b02f93ea956d8e866351c704304dd7221697167b67df28cbaea0"
+      }
+    },
+    {
+      "host": "OGN\u00b7100/298",
+      "format": 1,
+      "recycleFirst": true,
+      "commands": 43,
+      "events": 154,
+      "coldCount": 9,
+      "originalNextMatches": 8,
+      "engineRejectionsWithoutMutation": 4,
+      "originalFullActionEventReplayMatched": true,
+      "originalBlankSeed": 0,
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "2c3a3b1b8de91cce6e3df5f82af1e3e9fbbf51d506c7bde768c72ba565ead03d",
+        "identitySha256": "67084b403328b02f93ea956d8e866351c704304dd7221697167b67df28cbaea0"
+      }
+    },
+    {
+      "host": "OGN\u00b7100/298",
+      "format": 0,
+      "recycleFirst": false,
+      "commands": 43,
+      "events": 153,
+      "coldCount": 9,
+      "originalNextMatches": 8,
+      "engineRejectionsWithoutMutation": 4,
+      "originalFullActionEventReplayMatched": true,
+      "originalBlankSeed": 0,
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "2c3a3b1b8de91cce6e3df5f82af1e3e9fbbf51d506c7bde768c72ba565ead03d",
+        "identitySha256": "67084b403328b02f93ea956d8e866351c704304dd7221697167b67df28cbaea0"
+      }
+    }
+  ],
+  "ordinaryTotals": {
+    "commands": 336,
+    "events": 1212,
+    "coldCount": 72,
+    "originalNextMatches": 64,
+    "engineRejectionsWithoutMutation": 32
+  },
+  "sameActualRuleModulesAsOriginal116AndSql": true,
+  "priorCompileAndInputPremiseFailuresRetained": true,
+  "notASecondCheckOrCurrentFullCiClaim": true
+}

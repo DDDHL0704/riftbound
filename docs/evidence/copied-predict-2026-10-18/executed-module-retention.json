@@ -1,0 +1,9 @@
+{
+  "atUtc": "2026-10-18T16:31:50.932390+00:00",
+  "testDllAndPdb": {
+    "Riftbound.ConformanceTests.pdb": "69fa171855c8bedee723fd6e2d9891668c8906c2e616edfd50fbf2c152f6b6b4",
+    "Riftbound.ConformanceTests.dll": "514ef920121c0bd3a53a28f706c8a34f02bdcb26c0b3cd24d7f65a553e6962f5"
+  },
+  "fourCoreModulesReusedExact": "var/qa/copied-predict-20261018/green-v1-executed-modules",
+  "noDuplicateWholeCheckoutOrNativePackages": true
+}

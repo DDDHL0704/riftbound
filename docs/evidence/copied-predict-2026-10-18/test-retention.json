@@ -1,0 +1,40 @@
+{
+  "atUtc": "2026-10-18T16:31:50.927101+00:00",
+  "status": "PASS",
+  "baseCommit": "6c9632f155bacff654acceb70ce42ee15e9b681f",
+  "originalGroups": {
+    "tests/Riftbound.ConformanceTests.cs": {
+      "count": 465,
+      "allByteExact": true
+    },
+    "tests/Riftbound.ConformanceTests/FixturesNone": {
+      "count": 1280,
+      "allByteExact": true
+    },
+    "scripts/testsNone": {
+      "count": 7,
+      "allByteExact": true
+    },
+    "tests/Riftbound.PostgresAcceptance.cs": {
+      "count": 35,
+      "allByteExact": true
+    }
+  },
+  "allEightFullGameFilesByteExact": true,
+  "originalFullGameMethods": 143,
+  "allOriginalTheoryRowsSeedsVictoryAndReplayAssertionsPreservedByExactSourceBytes": true,
+  "newConformanceSourcesOnly": [
+    "AttachedPredictGrantTests.cs",
+    "AttachedPredictOpeningTests.cs"
+  ],
+  "newFixtureOnly": "attached-predict-openings.json",
+  "newFixtureSha256": "cc647026e49a3c7270a61fcb9f9ad49347844513a3d598f74799a014f6674330",
+  "defaultSqlOriginalOrderedCallRetentionReceipt": "var/qa/copied-predict-20261018/default-postgres-call-retention.json",
+  "originalTestToolFixtureFiles": 1792,
+  "originalByteExactFiles": 1790,
+  "twoAdditiveDefaultSqlIntegrationFiles": [
+    "tests/Riftbound.PostgresAcceptance/Program.cs",
+    "tests/Riftbound.PostgresAcceptance/Riftbound.PostgresAcceptance.csproj"
+  ],
+  "allOriginalCallsExactOrderAndMultiplicity": true
+}

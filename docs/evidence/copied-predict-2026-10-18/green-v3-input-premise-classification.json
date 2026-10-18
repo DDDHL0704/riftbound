@@ -1,0 +1,19 @@
+{
+  "status": "NEW_TEST_INPUT_PREMISES_REQUIRE_CORRECTION",
+  "actualCases": 142,
+  "actualPassed": 138,
+  "actualFailed": 4,
+  "failedCases": [
+    "Riftbound.ConformanceTests.AttachedPredictGrantTests.AddingCopiedAuraDoesNotRetroactivelyTriggerExistingUnits(host: \"OGN\u00b7100/298\")",
+    "Riftbound.ConformanceTests.AttachedPredictGrantTests.OriginalJournalRejectsCoordinatedRemovalOfTheCopiedOrigin(host: \"OGN\u00b7100/298\")",
+    "Riftbound.ConformanceTests.AttachedPredictGrantTests.OriginalJournalRejectsCoordinatedRemovalOfTheCopiedOrigin(host: \"SFD\u00b7065/221\")",
+    "Riftbound.ConformanceTests.AttachedPredictGrantTests.AddingCopiedAuraDoesNotRetroactivelyTriggerExistingUnits(host: \"SFD\u00b7065/221\")"
+  ],
+  "causes": [
+    "At helper only relocates field zones; initial controlled hand must explicitly remove the newly fielded object",
+    "Strict original action-log replay correctly requires an original ordinary blank state; replace the new midgame replay initial state with full ordinary legal deck submissions and accepted prefix"
+  ],
+  "productionSourceUnchangedSince85PassingFocus": true,
+  "originalTrxSha256": "e97853440ddd923817913da762fb88bcc9c248a87f29fe8a0bf0c89c6b32a797",
+  "originalNewTestSourceSha256": "08dcee3b8b8d43cb41124aebd17e4bab4f80efd4668c0b8e3c76744c16ee2ed6"
+}

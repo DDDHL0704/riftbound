@@ -22523,6 +22523,111 @@
         "docs/evidence/ravenbloom-put-hand-2026-10-18/storage-control.json",
         "docs/evidence/ravenbloom-put-hand-2026-10-18/acceptance-boundaries.json"
       ]
+    },
+    {
+      "id": "copied-predict-2026-10-18",
+      "scope": "CN zh-CN applicability baseline2026-10-16. Sources freshly acquired2026-10-18; unchanged card/news/rule-directory and English whole rows separately observed2026-10-19. SFD059 copied attached printed text grants independent Predict for SFD065 and OGN100; historical copied/borrowed face controls have explicit regional exclusions. Not whole-printing, family or product certification.",
+      "status": "SCOPED_COPIED_PREDICT_FOCUS152_53_ORDINARY336_1212_SQL8_136COLD72NEXT56REJECTS_ORIGINAL116_SINGLE_CHECK12583_7374_NEW_FIXED_FULL_VISIBLE_WINDOWS_OPEN",
+      "subjects": [
+        "SFD·059/221",
+        "SFD·065/221",
+        "OGN·100/298"
+      ],
+      "ruleRecords": [],
+      "pendingRuleRecords": [],
+      "sourceManifest": {
+        "path": "docs/evidence/copied-predict-2026-10-18/source-manifest.json",
+        "sha256": "7fa8e2bca6205af40d7e0ca5b4a1f06f7e682996889504f2a3f823a6d50a9599",
+        "role": "source-manifest"
+      },
+      "sourceClauses": [
+        "CN current DOC-01 435.1.e",
+        "CN current DOC-01 719.1",
+        "CN current DOC-01 817.1.c",
+        "CN current DOC-01 817.2",
+        "CN current DOC-01 817.2.a",
+        "CN current DOC-01 817.2.b"
+      ],
+      "validation": {
+        "focus": {
+          "path": "docs/evidence/copied-predict-2026-10-18/focus.json",
+          "sha256": "8176feb544d03c78d0fd2a971faa0e7d39dead3ee880de0c0ee0021098d016d5",
+          "role": "focus"
+        },
+        "realSql": {
+          "path": "docs/evidence/copied-predict-2026-10-18/real-sql-independent-verification.json",
+          "sha256": "49959c8796658aa70b06f5933f458049540c1c80542211c2ec990be7c45d031b",
+          "role": "real-sql-independent-verification"
+        },
+        "actualCompiledInputs": {
+          "path": "docs/evidence/copied-predict-2026-10-18/actual-compiled-inputs.json",
+          "sha256": "b6366b87b4aeb947c29257ce13793a9d4e8cd9abcd51cd76fc4921fc3c418354",
+          "role": "actual-compiled-inputs"
+        },
+        "originalGames": {
+          "path": "docs/evidence/copied-predict-2026-10-18/original-five-and110-plus-one.json",
+          "sha256": "1a7ebaebef4fc9f04e8dec97ce06f4ce126435d7fefbbcd51c4051f0ea0e1635",
+          "role": "original-five-and110-plus-one"
+        },
+        "oneCheck": {
+          "path": "docs/evidence/copied-predict-2026-10-18/one-check.json",
+          "sha256": "750a8f9eea9a7636ed81f41b4340fea2bf9fbcd829939bbbf87bc5dd2d3492ae",
+          "role": "one-check"
+        },
+        "ordinaryOriginalRedGreen": {
+          "path": "docs/evidence/copied-predict-2026-10-18/ordinary-exact-raw-red-green.json",
+          "sha256": "7ebe1e788d8c2d1f4eebe7ecd7c4b355237bcff48d1c626c5edab418b4a6adcf",
+          "role": "ordinary-exact-raw-red-green"
+        },
+        "fixedCommitFull": "PENDING_NEW_FIXED_COMMIT",
+        "currentVisibleProduct": "OPEN_CURRENT_FIXED_REQUIRED_BACKGROUND_PROGRESS_CONTINUES_LOCKED",
+        "physicalWindows": "OPEN"
+      },
+      "exclusions": [
+        "NEW_FIXED_FULL_ALL_RETAINED_CASES_FULL143_METHODS110_PAIRS_SQL_AND_NETWORK",
+        "CURRENT_FIXED_VISIBLE_CONTROLS_PAIRED_REAL_SQL_RECONNECT_NORMAL_SCORE_AND_FULL_REPLAY",
+        "PHYSICAL_WINDOWS",
+        "WHOLE_PRINTING_AND_ALL_INDIRECT_OBSERVATION_CONSUMERS",
+        "VEN137_EXACT_REGIONAL_AND_FORMAT_APPLICABILITY",
+        "ALL1740_SOURCES36_DOCUMENTS14293_BLOCKS_AND_SOURCE_GAPS"
+      ],
+      "auditDocument": "docs/COPIED_PREDICT_AUDIT_2026-10-18.md",
+      "evidence": [
+        "docs/evidence/copied-predict-2026-10-18/acceptance-boundaries.json",
+        "docs/evidence/copied-predict-2026-10-18/actual-compiled-inputs.json",
+        "docs/evidence/copied-predict-2026-10-18/additional-control-source-manifest.json",
+        "docs/evidence/copied-predict-2026-10-18/cn-listings-observation-2026-10-19.json",
+        "docs/evidence/copied-predict-2026-10-18/cn-rule-directory-observation-2026-10-19.json",
+        "docs/evidence/copied-predict-2026-10-18/controlled-red.json",
+        "docs/evidence/copied-predict-2026-10-18/current-core-scoped-excerpts.json",
+        "docs/evidence/copied-predict-2026-10-18/default-postgres-build.json",
+        "docs/evidence/copied-predict-2026-10-18/default-sql-retention.json",
+        "docs/evidence/copied-predict-2026-10-18/early-affected-original-games.json",
+        "docs/evidence/copied-predict-2026-10-18/english-gallery-large-limit-2026-10-19.json",
+        "docs/evidence/copied-predict-2026-10-18/english-whole-row-comparison-2026-10-19.json",
+        "docs/evidence/copied-predict-2026-10-18/executed-module-retention.json",
+        "docs/evidence/copied-predict-2026-10-18/focus.json",
+        "docs/evidence/copied-predict-2026-10-18/green-v2-build-only-classification.json",
+        "docs/evidence/copied-predict-2026-10-18/green-v3-input-premise-classification.json",
+        "docs/evidence/copied-predict-2026-10-18/green-v4-build-only-classification.json",
+        "docs/evidence/copied-predict-2026-10-18/next-consumer-source-type-premises.json",
+        "docs/evidence/copied-predict-2026-10-18/one-check.json",
+        "docs/evidence/copied-predict-2026-10-18/ordinary-exact-raw-red-green.json",
+        "docs/evidence/copied-predict-2026-10-18/original-five-and110-plus-one.json",
+        "docs/evidence/copied-predict-2026-10-18/prior-fixed6c-ci-observation.json",
+        "docs/evidence/copied-predict-2026-10-18/prior-fixed6c-full-verified.json",
+        "docs/evidence/copied-predict-2026-10-18/prior-wrapper-raw-shape-classification.json",
+        "docs/evidence/copied-predict-2026-10-18/producer-initial-build-classification.json",
+        "docs/evidence/copied-predict-2026-10-18/raw-source-publication.json",
+        "docs/evidence/copied-predict-2026-10-18/real-sql-actual-receipt.json",
+        "docs/evidence/copied-predict-2026-10-18/real-sql-independent-verification.json",
+        "docs/evidence/copied-predict-2026-10-18/real-sql.json",
+        "docs/evidence/copied-predict-2026-10-18/red-actual-module-identity-classification.json",
+        "docs/evidence/copied-predict-2026-10-18/red-executed-rule-inputs.json",
+        "docs/evidence/copied-predict-2026-10-18/source-manifest.json",
+        "docs/evidence/copied-predict-2026-10-18/test-retention.json",
+        "docs/evidence/copied-predict-2026-10-18/tooling-tests.json"
+      ]
     }
   ]
 }

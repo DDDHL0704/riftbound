@@ -1,0 +1,6 @@
+{
+  "status": "HARNESS_COMPILE_ONLY_NULLABLE_OFFICIAL_ENERGY_FIELD",
+  "casesOrRoomsExecuted": 0,
+  "oldProducerSourceSha256": "2b13682362685ce2517ca08c8447e31b76eb35d4dc4575a7d6ebfba4e98d8916",
+  "correction": "Require the known official unit mana cost; no default invented."
+}

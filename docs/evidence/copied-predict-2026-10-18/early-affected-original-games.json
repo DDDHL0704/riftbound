@@ -1,0 +1,16 @@
+{
+  "status": "PASS",
+  "atUtc": "2026-10-18T15:54:15.333522+00:00",
+  "actualCases": 2,
+  "actualMethods": 2,
+  "actualOriginalCaseNames": [
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameResolvesGemstoneSeerOtherFriendlyStaticGrantedPredictRecycleAndScoreVictoryActionLogReplaysToFinalStateHash",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameResolvesPrescientMechStaticGrantedPredictRecycleAndScoreVictoryActionLogReplaysToFinalStateHash"
+  ],
+  "trxSha256": "f3e63f4b112800536c393d34e5b3eaf58e46bfdc49d1fa0952d34634a9be4cdd",
+  "sameActualTestAssemblyAs150PassingFocus": true,
+  "actualTestAssemblySha256": "c9275258581a2942ddedc4742fcd70d13fca206da853cec1a01faba36582fe22",
+  "postRun3256SourceFingerprintExact": true,
+  "noPreRunFullSourceHashReceiptClaim": true,
+  "noOriginalGameMethodsSeedsVictoryOrReplayAssertionsEdited": true
+}

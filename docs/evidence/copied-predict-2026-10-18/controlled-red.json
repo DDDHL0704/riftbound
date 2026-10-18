@@ -1,0 +1,53 @@
+{
+  "atUtc": "2026-10-18T15:09:41.385036+00:00",
+  "actualCases": [
+    {
+      "name": "Riftbound.ConformanceTests.AttachedPredictGrantTests.EachAttachedPrintedAuraCreatesItsOwnPredictInstance(host: \"SFD\u00b7065/221\", songs: 1)",
+      "outcome": "Failed",
+      "message": "Assert.Equal() Failure: Values differ\nExpected: 2\nActual:   1"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.AttachedPredictGrantTests.EachAttachedPrintedAuraCreatesItsOwnPredictInstance(host: \"OGN\u00b7100/298\", songs: 1)",
+      "outcome": "Failed",
+      "message": "Assert.Equal() Failure: Values differ\nExpected: 2\nActual:   1"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.AttachedPredictGrantTests.EachAttachedPrintedAuraCreatesItsOwnPredictInstance(host: \"OGN\u00b7100/298\", songs: 2)",
+      "outcome": "Failed",
+      "message": "Assert.Equal() Failure: Values differ\nExpected: 3\nActual:   1"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.AttachedPredictGrantTests.EachAttachedPrintedAuraCreatesItsOwnPredictInstance(host: \"OGN\u00b7100/298\", songs: 0)",
+      "outcome": "Passed",
+      "message": null
+    },
+    {
+      "name": "Riftbound.ConformanceTests.AttachedPredictGrantTests.EachAttachedPrintedAuraCreatesItsOwnPredictInstance(host: \"SFD\u00b7065/221\", songs: 0)",
+      "outcome": "Passed",
+      "message": null
+    },
+    {
+      "name": "Riftbound.ConformanceTests.AttachedPredictGrantTests.EachAttachedPrintedAuraCreatesItsOwnPredictInstance(host: \"SFD\u00b7065/221\", songs: 2)",
+      "outcome": "Failed",
+      "message": "Assert.Equal() Failure: Values differ\nExpected: 3\nActual:   1"
+    }
+  ],
+  "trxSha256": "c7b6700d76ef1c21eff66a93c88199e7928400be9d89dbea972e75cf11da3e1d",
+  "newTestSourceSha256": "7dca432bd4cf9648729f5a2f2403b7fcee2570fb8d010a40bfa42dab49c177b4",
+  "originalProductionCoreDllsSameAsPriorDebug8e6": false,
+  "actualExecutedModuleFiles": {
+    "Riftbound.Contracts.dll": "350d625cd64b63edde76f7cdd62089f8c455945a93f922e9e3833eae270d643d",
+    "Riftbound.Contracts.pdb": "f514b6447f64fa56c116699e020bdf803a268c3262c85a3fbe08b1affc6d73e1",
+    "Riftbound.CardCatalog.dll": "535110a88f2c019cfed704c9c4eea7d215b76c4f10ec3da5afa37018ae94477d",
+    "Riftbound.CardCatalog.pdb": "ea34048a5638f28b3a4b7a12bf1ec3cf3e67e32898419a50602ef6f5ea0d55a8",
+    "Riftbound.Engine.dll": "242f8a15b9ba8e745fe8418cd4be6e03ffded9c76e6eba40c831d7e227b4c102",
+    "Riftbound.Engine.pdb": "173bf4fcf628156b6b50cc2efcfc0b43760fd613b75ebd88b9dde86aa6fafaeb",
+    "Riftbound.Persistence.dll": "dc355ac9287dfe5135785a7067ccafe5ea0b71c2bb34eb25d37d158a81eb2b84",
+    "Riftbound.Persistence.pdb": "e314ca458c973c64ee9fd5d70763f280b74906e8afe79d007136dfeb836e4891",
+    "Riftbound.Api.dll": "a37e473cccf9fab48a7909cec97e8dee75af770370309a3e80b46f3eb30d9aa5",
+    "Riftbound.Api.pdb": "cf698b2d536cf7450d7c37de1e4a43475db302724c8df4dc5573769738783de9",
+    "Riftbound.ConformanceTests.dll": "4c99339dc7e52b33055031f522cbf015ab242dcfe0ae479898d382e6adbacd3f",
+    "Riftbound.ConformanceTests.pdb": "b789df14fe03eb144bf495b8494d83ecf4e1e2f1aac9edaf883e4f4173284fb3"
+  },
+  "controlledMidgameOnly": true
+}

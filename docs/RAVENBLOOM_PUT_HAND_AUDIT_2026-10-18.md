@@ -22,6 +22,10 @@ Protocol让该可选字段的默认null按省略编码；MatchSession复用原�
 
 ## 当前实际验证
 
+固定`6c9632f1`实际发布Release的实现身份为83a9bfca…24658、组合4fa44e71…993ce，与先前Debug和固定21分别记录。Mac在每步开始、结束均由只读系统状态确认锁定时，[四条普通开局真实SQL](evidence/ravenbloom-put-hand-2026-10-18/fixed6c-published-sql.json)128命令/500事件、36冷恢复/16原下一命令/16篡改及60畸形入口拒绝通过；原47审计和4原生房间七表未变。[生产原生网关网络验收](evidence/ravenbloom-put-hand-2026-10-18/fixed6c-locked-native-network.json)完成真实套接字丢失、认证恢复、新快照、坏凭证拒绝及15越权拒绝/零私有消息泄露，原51审计和4原生局不变。
+
+[两个认证网关客户端后台验收](evidence/ravenbloom-put-hand-2026-10-18/fixed6c-locked-paired-restart.json)在普通随机原开局4命令/10事件的真实调度窗口保存双方私有视图；正常关闭旧API并以新PID启动，0.411秒为API停止至健康的实测间隔，并非客户端完成恢复时长。双方各自动恢复一次、各收到11次实际快照，原私有视图/提示完全一致；随后两次原调度与一次结束回合正常接受，7命令/27事件原始完整日志回放通过，私有非零原种子和空白初态不变。此前两次验收工具的路径/端口探测失败及其4命令/10事件原局原样保留并再次原回放通过；未修改生产模块或旧历史。原7原生及51审计房间七表未变，本轮API/客户端与专用库均已正常停止。[独立核验](evidence/ravenbloom-put-hand-2026-10-18/fixed6c-locked-independent-verification.json)另逐项核对4条前缀/10事件与最终日志、SQL和网关双方原视图、隐藏手牌、实际运行文件及检查点哈希。此范围仅为无桌面的生产网关/数据库/恢复/原下一命令；没有完成可见控件、当前正常得分整局或Windows实机。后台入口可核验复用已完成收据，锁屏不再成为这些工作的依赖。
+
 [最终focus](evidence/ravenbloom-put-hand-2026-10-18/focus.json)307例/72方法通过，包含唯一check的精确失败身份及全部21个原战斗任务例；原286例/65方法多重集合完整保留，含原185可选费用精确用例多重集合、新24入口例、三个原抽牌数的法术/非法术控制、真正抽牌相邻和原Ravenbloom完整对局。两赛制各法术/单位普通空白seed0分支合计128命令/500事件、20冷恢复/16原下一命令、8直接规则拒绝；协调伪造抽牌事件和计数通过结构仍被原行动日志审计拒绝。普通测试不是历史中盘注入，也没有声称盲随机原生牌序。
 
 [最终真实SQL](evidence/ravenbloom-put-hand-2026-10-18/real-sql.json)四个普通空白且匹配赛制的分支128命令/500事件、36冷恢复/16原下一命令和16篡改拒绝通过；60次畸形目标请求不改七表，随后合法声明重用原intent。每条完整原行动/事件精确回放，双方私有快照和提示一致。原43审计房间(包含上次新失败房间)及全部4原生房间七表不变，原专用数据库复用并smart stop。匹配赛制的恢复不能认证错赛制配置身份。
@@ -36,10 +40,12 @@ Protocol让该可选字段的默认null按省略编码；MatchSession复用原�
 
 [有限族清单](evidence/ravenbloom-put-hand-2026-10-18/family-candidate-obligation-links.json)的70精确候选全部映射到原统一印次义务，51在运行目录、19在外；不据运行目录或preview标志判定不适用，授予/复制/指示物和其他非字面消费者仍需列举。各既有限定审查不扩大。[英文8页实际密度](evidence/ravenbloom-put-hand-2026-10-18/english-gallery-density-observation.json)为200/199/199/198/200/198/198/16、合计1408，API声明1416，缺口8仍OPEN，未编造身份或静默改变全量分母。
 
-[固定8c full39116825669](evidence/ravenbloom-put-hand-2026-10-18/fixed8c-ci-cancelled.json)实际cancelled，GitHub确认3小时上限；规则12659例/7495方法及143原完整方法/110配对通过，SQL只有98路径/92收据，网络未执行。原状态不提升为full成功。固定21 full39125088373仍须核验实际终态；300分钟时限和所有门禁保留，本批新提交另起固定full。
+[固定8c full39116825669](evidence/ravenbloom-put-hand-2026-10-18/fixed8c-ci-cancelled.json)实际cancelled，GitHub确认3小时上限；规则12659例/7495方法及143原完整方法/110配对通过，SQL只有98路径/92收据，网络未执行。原状态不提升为full成功。[固定21 full39125088373](evidence/ravenbloom-put-hand-2026-10-18/fixed21-full-verified.json)现已取得实际success终态，独立核验12659例/7495方法、143原完整方法/110配对、101 SQL路径/93收据、网络15拒绝/零泄露及既有双平台规范包摘要；全部前46的12623例/7481方法及91 SQL收据/95路径保留，新增36例/14方法及两项各三条SQL分支。只保留4MB规范验证zip及日志zip，不解出重复树、不重新下载相同原生包。早先pending快照原样保留。300分钟时限和所有门禁不减，本批6c固定full另待终态，后续未提交的复制授予修复不由旧固定覆盖。
 
 [固定21实际Release SQL及旧8c真实重连凭证拒绝](evidence/ravenbloom-put-hand-2026-10-18/fixed21-live-old8c-rejection.json)与当前Debug分开；原四局和审计库七表未写，零私有/Joined消息。旧固定8c可见46/282正常8:0仅属旧范围，不能代替当前新规则验收。实际CI导出包不支持用场景路径启动调试控件，进程虽然0退出但ERROR且未执行用例，保留为[验收入口不可用](evidence/ravenbloom-put-hand-2026-10-18/fixed21-packaged-debug-entry-unavailable.json)，没有冒充产品通过。
 
 只保留最新Source A/B和两平台各一规范压缩包，旧包在新包字节/签名/启动核验后清退，源码/全部测试/来源/原始帧/原库和必要旧运行模块保留；本批没有复制整份源码树。[边界](evidence/ravenbloom-put-hand-2026-10-18/acceptance-boundaries.json)保持当前固定full、可见控件/双端/网络/正常得分/完整回放、Windows实机和所有全量语义OPEN。先前锁定记录保留；最新解锁后CUA可操作，观察A未连接大厅并正常退出两个现有客户端，未开始新验收局。按用户新要求，锁屏期间继续后台规则、真实SQL、原生网络/重连、回放和固定CI；可见产品及Windows单独补验，不反复请求解锁。Goal active / NOT READY。
 
 [统一清单与保留核验](evidence/ravenbloom-put-hand-2026-10-18/governance-and-obligation-retention.json)保留全部130原审查字典、76原门禁字典、四来源增量与16631原义务ID；追加6限定分支和3门禁后为131审查、46上下文、16640义务。治理0错误，全部46当前CI状态仍PENDING，全量语义和产品状态不提升。
+
+2026-10-19 固定6c完整终态补核：CI39135994258实际success，原始conformance压缩包与日志ZIP直接核验12694例/7506方法、全部143原完整方法/110配对、105 SQL路径/94收据，保留固定21的12659例/7495方法与93 SQL收据；网络15独立拒绝/零泄露、两个桌面构建成功。桌面产物仅使用GitHub元数据摘要，本地没有重复下载或宣称Windows实机通过。此固定6c证据不覆盖随后未提交的复制预知输入，新的可见产品和Windows门禁仍OPEN。详见[固定6c完整核验](evidence/ravenbloom-put-hand-2026-10-18/fixed6c-full-verified.json)。

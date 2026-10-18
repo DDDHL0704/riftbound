@@ -1,0 +1,653 @@
+{
+  "status": "REAL_POSTGRES_ORDINARY_ATTACHED_PREDICT_MATCHING_FORMAT_CHOICES_COLD_ORIGINAL_REPLAY_TAMPER_PASS",
+  "results": [
+    {
+      "branch": "mechanical",
+      "host": "SFD\u00B7065/221",
+      "format": "CoreRules",
+      "recycleFirst": false,
+      "room": "postgres-attached-predict-83623c564ec34606ada36d0ccf32e0b2",
+      "commands": 41,
+      "events": 149,
+      "coldRestores": 17,
+      "originalNextCommandsMatched": 9,
+      "attacks": [
+        {
+          "scenario": "unknown-copied-equipment",
+          "rebuiltBothPlayerViews": true,
+          "structuralValidationPassed": false,
+          "productionRegistryRejected": true,
+          "acceptedHistoryUnchanged": true,
+          "allSqlRowsUnchangedByRejection": true
+        },
+        {
+          "scenario": "future-copy-revision",
+          "rebuiltBothPlayerViews": true,
+          "structuralValidationPassed": false,
+          "productionRegistryRejected": true,
+          "acceptedHistoryUnchanged": true,
+          "allSqlRowsUnchangedByRejection": true
+        },
+        {
+          "scenario": "future-copy-capture",
+          "rebuiltBothPlayerViews": true,
+          "structuralValidationPassed": false,
+          "productionRegistryRejected": true,
+          "acceptedHistoryUnchanged": true,
+          "allSqlRowsUnchangedByRejection": true
+        },
+        {
+          "scenario": "future-source-generation",
+          "rebuiltBothPlayerViews": true,
+          "structuralValidationPassed": false,
+          "productionRegistryRejected": true,
+          "acceptedHistoryUnchanged": true,
+          "allSqlRowsUnchangedByRejection": true
+        },
+        {
+          "scenario": "wrong-implementation",
+          "rebuiltBothPlayerViews": true,
+          "structuralValidationPassed": false,
+          "productionRegistryRejected": true,
+          "acceptedHistoryUnchanged": true,
+          "allSqlRowsUnchangedByRejection": true
+        },
+        {
+          "scenario": "coordinated-copied-origin-removal",
+          "rebuiltBothPlayerViews": true,
+          "structuralValidationPassed": true,
+          "productionRegistryRejected": true,
+          "acceptedHistoryUnchanged": true,
+          "allSqlRowsUnchangedByRejection": true
+        },
+        {
+          "scenario": "coordinated-swapped-printed-and-copied-bindings",
+          "rebuiltBothPlayerViews": true,
+          "structuralValidationPassed": true,
+          "productionRegistryRejected": true,
+          "acceptedHistoryUnchanged": true,
+          "allSqlRowsUnchangedByRejection": true
+        }
+      ],
+      "originalBlankSeed": 0,
+      "originalFullReplayMatched": true,
+      "finalHash": "c07948dd6d95fb1fb0ce6ea58948aa13232ebc610d0ce42e7e471a18896659d4",
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "2c3a3b1b8de91cce6e3df5f82af1e3e9fbbf51d506c7bde768c72ba565ead03d",
+        "identitySha256": "67084b403328b02f93ea956d8e866351c704304dd7221697167b67df28cbaea0"
+      }
+    },
+    {
+      "branch": "mechanical",
+      "host": "SFD\u00B7065/221",
+      "format": "CoreRules",
+      "recycleFirst": true,
+      "room": "postgres-attached-predict-5019dc4f9aaf4d8c9517f21aa4621c35",
+      "commands": 41,
+      "events": 150,
+      "coldRestores": 17,
+      "originalNextCommandsMatched": 9,
+      "attacks": [
+        {
+          "scenario": "unknown-copied-equipment",
+          "rebuiltBothPlayerViews": true,
+          "structuralValidationPassed": false,
+          "productionRegistryRejected": true,
+          "acceptedHistoryUnchanged": true,
+          "allSqlRowsUnchangedByRejection": true
+        },
+        {
+          "scenario": "future-copy-revision",
+          "rebuiltBothPlayerViews": true,
+          "structuralValidationPassed": false,
+          "productionRegistryRejected": true,
+          "acceptedHistoryUnchanged": true,
+          "allSqlRowsUnchangedByRejection": true
+        },
+        {
+          "scenario": "future-copy-capture",
+          "rebuiltBothPlayerViews": true,
+          "structuralValidationPassed": false,
+          "productionRegistryRejected": true,
+          "acceptedHistoryUnchanged": true,
+          "allSqlRowsUnchangedByRejection": true
+        },
+        {
+          "scenario": "future-source-generation",
+          "rebuiltBothPlayerViews": true,
+          "structuralValidationPassed": false,
+          "productionRegistryRejected": true,
+          "acceptedHistoryUnchanged": true,
+          "allSqlRowsUnchangedByRejection": true
+        },
+        {
+          "scenario": "wrong-implementation",
+          "rebuiltBothPlayerViews": true,
+          "structuralValidationPassed": false,
+          "productionRegistryRejected": true,
+          "acceptedHistoryUnchanged": true,
+          "allSqlRowsUnchangedByRejection": true
+        },
+        {
+          "scenario": "coordinated-copied-origin-removal",
+          "rebuiltBothPlayerViews": true,
+          "structuralValidationPassed": true,
+          "productionRegistryRejected": true,
+          "acceptedHistoryUnchanged": true,
+          "allSqlRowsUnchangedByRejection": true
+        },
+        {
+          "scenario": "coordinated-swapped-printed-and-copied-bindings",
+          "rebuiltBothPlayerViews": true,
+          "structuralValidationPassed": true,
+          "productionRegistryRejected": true,
+          "acceptedHistoryUnchanged": true,
+          "allSqlRowsUnchangedByRejection": true
+        }
+      ],
+      "originalBlankSeed": 0,
+      "originalFullReplayMatched": true,
+      "finalHash": "296d38d32842cdd3d5d3ff711979896ffb65d0fd9671d749ee466d750f877817",
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "2c3a3b1b8de91cce6e3df5f82af1e3e9fbbf51d506c7bde768c72ba565ead03d",
+        "identitySha256": "67084b403328b02f93ea956d8e866351c704304dd7221697167b67df28cbaea0"
+      }
+    },
+    {
+      "branch": "mechanical",
+      "host": "SFD\u00B7065/221",
+      "format": "ChinaStandard20260724",
+      "recycleFirst": false,
+      "room": "postgres-attached-predict-d98ed7598ae64fb487f6603419ef754a",
+      "commands": 41,
+      "events": 149,
+      "coldRestores": 17,
+      "originalNextCommandsMatched": 9,
+      "attacks": [
+        {
+          "scenario": "unknown-copied-equipment",
+          "rebuiltBothPlayerViews": true,
+          "structuralValidationPassed": false,
+          "productionRegistryRejected": true,
+          "acceptedHistoryUnchanged": true,
+          "allSqlRowsUnchangedByRejection": true
+        },
+        {
+          "scenario": "future-copy-revision",
+          "rebuiltBothPlayerViews": true,
+          "structuralValidationPassed": false,
+          "productionRegistryRejected": true,
+          "acceptedHistoryUnchanged": true,
+          "allSqlRowsUnchangedByRejection": true
+        },
+        {
+          "scenario": "future-copy-capture",
+          "rebuiltBothPlayerViews": true,
+          "structuralValidationPassed": false,
+          "productionRegistryRejected": true,
+          "acceptedHistoryUnchanged": true,
+          "allSqlRowsUnchangedByRejection": true
+        },
+        {
+          "scenario": "future-source-generation",
+          "rebuiltBothPlayerViews": true,
+          "structuralValidationPassed": false,
+          "productionRegistryRejected": true,
+          "acceptedHistoryUnchanged": true,
+          "allSqlRowsUnchangedByRejection": true
+        },
+        {
+          "scenario": "wrong-implementation",
+          "rebuiltBothPlayerViews": true,
+          "structuralValidationPassed": false,
+          "productionRegistryRejected": true,
+          "acceptedHistoryUnchanged": true,
+          "allSqlRowsUnchangedByRejection": true
+        },
+        {
+          "scenario": "coordinated-copied-origin-removal",
+          "rebuiltBothPlayerViews": true,
+          "structuralValidationPassed": true,
+          "productionRegistryRejected": true,
+          "acceptedHistoryUnchanged": true,
+          "allSqlRowsUnchangedByRejection": true
+        },
+        {
+          "scenario": "coordinated-swapped-printed-and-copied-bindings",
+          "rebuiltBothPlayerViews": true,
+          "structuralValidationPassed": true,
+          "productionRegistryRejected": true,
+          "acceptedHistoryUnchanged": true,
+          "allSqlRowsUnchangedByRejection": true
+        }
+      ],
+      "originalBlankSeed": 0,
+      "originalFullReplayMatched": true,
+      "finalHash": "7ebfd6f856fb0bdd2c647433f8b80f9c9f8350be2095949a77481f03ca480718",
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "2c3a3b1b8de91cce6e3df5f82af1e3e9fbbf51d506c7bde768c72ba565ead03d",
+        "identitySha256": "67084b403328b02f93ea956d8e866351c704304dd7221697167b67df28cbaea0"
+      }
+    },
+    {
+      "branch": "mechanical",
+      "host": "SFD\u00B7065/221",
+      "format": "ChinaStandard20260724",
+      "recycleFirst": true,
+      "room": "postgres-attached-predict-5657add9f8f1406fb869ec1129b9441b",
+      "commands": 41,
+      "events": 150,
+      "coldRestores": 17,
+      "originalNextCommandsMatched": 9,
+      "attacks": [
+        {
+          "scenario": "unknown-copied-equipment",
+          "rebuiltBothPlayerViews": true,
+          "structuralValidationPassed": false,
+          "productionRegistryRejected": true,
+          "acceptedHistoryUnchanged": true,
+          "allSqlRowsUnchangedByRejection": true
+        },
+        {
+          "scenario": "future-copy-revision",
+          "rebuiltBothPlayerViews": true,
+          "structuralValidationPassed": false,
+          "productionRegistryRejected": true,
+          "acceptedHistoryUnchanged": true,
+          "allSqlRowsUnchangedByRejection": true
+        },
+        {
+          "scenario": "future-copy-capture",
+          "rebuiltBothPlayerViews": true,
+          "structuralValidationPassed": false,
+          "productionRegistryRejected": true,
+          "acceptedHistoryUnchanged": true,
+          "allSqlRowsUnchangedByRejection": true
+        },
+        {
+          "scenario": "future-source-generation",
+          "rebuiltBothPlayerViews": true,
+          "structuralValidationPassed": false,
+          "productionRegistryRejected": true,
+          "acceptedHistoryUnchanged": true,
+          "allSqlRowsUnchangedByRejection": true
+        },
+        {
+          "scenario": "wrong-implementation",
+          "rebuiltBothPlayerViews": true,
+          "structuralValidationPassed": false,
+          "productionRegistryRejected": true,
+          "acceptedHistoryUnchanged": true,
+          "allSqlRowsUnchangedByRejection": true
+        },
+        {
+          "scenario": "coordinated-copied-origin-removal",
+          "rebuiltBothPlayerViews": true,
+          "structuralValidationPassed": true,
+          "productionRegistryRejected": true,
+          "acceptedHistoryUnchanged": true,
+          "allSqlRowsUnchangedByRejection": true
+        },
+        {
+          "scenario": "coordinated-swapped-printed-and-copied-bindings",
+          "rebuiltBothPlayerViews": true,
+          "structuralValidationPassed": true,
+          "productionRegistryRejected": true,
+          "acceptedHistoryUnchanged": true,
+          "allSqlRowsUnchangedByRejection": true
+        }
+      ],
+      "originalBlankSeed": 0,
+      "originalFullReplayMatched": true,
+      "finalHash": "7a647348fe893e8a963551d53a52ac891c857b60ff43b7517e05b7763817766e",
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "2c3a3b1b8de91cce6e3df5f82af1e3e9fbbf51d506c7bde768c72ba565ead03d",
+        "identitySha256": "67084b403328b02f93ea956d8e866351c704304dd7221697167b67df28cbaea0"
+      }
+    },
+    {
+      "branch": "other-friendly",
+      "host": "OGN\u00B7100/298",
+      "format": "CoreRules",
+      "recycleFirst": false,
+      "room": "postgres-attached-predict-1d5906d692ee4f5b8ecea029b80aab39",
+      "commands": 43,
+      "events": 153,
+      "coldRestores": 17,
+      "originalNextCommandsMatched": 9,
+      "attacks": [
+        {
+          "scenario": "unknown-copied-equipment",
+          "rebuiltBothPlayerViews": true,
+          "structuralValidationPassed": false,
+          "productionRegistryRejected": true,
+          "acceptedHistoryUnchanged": true,
+          "allSqlRowsUnchangedByRejection": true
+        },
+        {
+          "scenario": "future-copy-revision",
+          "rebuiltBothPlayerViews": true,
+          "structuralValidationPassed": false,
+          "productionRegistryRejected": true,
+          "acceptedHistoryUnchanged": true,
+          "allSqlRowsUnchangedByRejection": true
+        },
+        {
+          "scenario": "future-copy-capture",
+          "rebuiltBothPlayerViews": true,
+          "structuralValidationPassed": false,
+          "productionRegistryRejected": true,
+          "acceptedHistoryUnchanged": true,
+          "allSqlRowsUnchangedByRejection": true
+        },
+        {
+          "scenario": "future-source-generation",
+          "rebuiltBothPlayerViews": true,
+          "structuralValidationPassed": false,
+          "productionRegistryRejected": true,
+          "acceptedHistoryUnchanged": true,
+          "allSqlRowsUnchangedByRejection": true
+        },
+        {
+          "scenario": "wrong-implementation",
+          "rebuiltBothPlayerViews": true,
+          "structuralValidationPassed": false,
+          "productionRegistryRejected": true,
+          "acceptedHistoryUnchanged": true,
+          "allSqlRowsUnchangedByRejection": true
+        },
+        {
+          "scenario": "coordinated-copied-origin-removal",
+          "rebuiltBothPlayerViews": true,
+          "structuralValidationPassed": true,
+          "productionRegistryRejected": true,
+          "acceptedHistoryUnchanged": true,
+          "allSqlRowsUnchangedByRejection": true
+        },
+        {
+          "scenario": "coordinated-swapped-printed-and-copied-bindings",
+          "rebuiltBothPlayerViews": true,
+          "structuralValidationPassed": true,
+          "productionRegistryRejected": true,
+          "acceptedHistoryUnchanged": true,
+          "allSqlRowsUnchangedByRejection": true
+        }
+      ],
+      "originalBlankSeed": 0,
+      "originalFullReplayMatched": true,
+      "finalHash": "952cd6e703e9fbdd4aa52ed0c64ebff28f73c2381292abeee602d41bde1a808e",
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "2c3a3b1b8de91cce6e3df5f82af1e3e9fbbf51d506c7bde768c72ba565ead03d",
+        "identitySha256": "67084b403328b02f93ea956d8e866351c704304dd7221697167b67df28cbaea0"
+      }
+    },
+    {
+      "branch": "other-friendly",
+      "host": "OGN\u00B7100/298",
+      "format": "CoreRules",
+      "recycleFirst": true,
+      "room": "postgres-attached-predict-8e88c69e000d4b3f8cb64edf76cbd2dd",
+      "commands": 43,
+      "events": 154,
+      "coldRestores": 17,
+      "originalNextCommandsMatched": 9,
+      "attacks": [
+        {
+          "scenario": "unknown-copied-equipment",
+          "rebuiltBothPlayerViews": true,
+          "structuralValidationPassed": false,
+          "productionRegistryRejected": true,
+          "acceptedHistoryUnchanged": true,
+          "allSqlRowsUnchangedByRejection": true
+        },
+        {
+          "scenario": "future-copy-revision",
+          "rebuiltBothPlayerViews": true,
+          "structuralValidationPassed": false,
+          "productionRegistryRejected": true,
+          "acceptedHistoryUnchanged": true,
+          "allSqlRowsUnchangedByRejection": true
+        },
+        {
+          "scenario": "future-copy-capture",
+          "rebuiltBothPlayerViews": true,
+          "structuralValidationPassed": false,
+          "productionRegistryRejected": true,
+          "acceptedHistoryUnchanged": true,
+          "allSqlRowsUnchangedByRejection": true
+        },
+        {
+          "scenario": "future-source-generation",
+          "rebuiltBothPlayerViews": true,
+          "structuralValidationPassed": false,
+          "productionRegistryRejected": true,
+          "acceptedHistoryUnchanged": true,
+          "allSqlRowsUnchangedByRejection": true
+        },
+        {
+          "scenario": "wrong-implementation",
+          "rebuiltBothPlayerViews": true,
+          "structuralValidationPassed": false,
+          "productionRegistryRejected": true,
+          "acceptedHistoryUnchanged": true,
+          "allSqlRowsUnchangedByRejection": true
+        },
+        {
+          "scenario": "coordinated-copied-origin-removal",
+          "rebuiltBothPlayerViews": true,
+          "structuralValidationPassed": true,
+          "productionRegistryRejected": true,
+          "acceptedHistoryUnchanged": true,
+          "allSqlRowsUnchangedByRejection": true
+        },
+        {
+          "scenario": "coordinated-swapped-printed-and-copied-bindings",
+          "rebuiltBothPlayerViews": true,
+          "structuralValidationPassed": true,
+          "productionRegistryRejected": true,
+          "acceptedHistoryUnchanged": true,
+          "allSqlRowsUnchangedByRejection": true
+        }
+      ],
+      "originalBlankSeed": 0,
+      "originalFullReplayMatched": true,
+      "finalHash": "a2430fde89f5a16fdb76f156ae8d5204587f6e8cde8ad69f74a482120c6a47ec",
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "2c3a3b1b8de91cce6e3df5f82af1e3e9fbbf51d506c7bde768c72ba565ead03d",
+        "identitySha256": "67084b403328b02f93ea956d8e866351c704304dd7221697167b67df28cbaea0"
+      }
+    },
+    {
+      "branch": "other-friendly",
+      "host": "OGN\u00B7100/298",
+      "format": "ChinaStandard20260724",
+      "recycleFirst": false,
+      "room": "postgres-attached-predict-4297661a5a4b4a1cbb39c300dd6e40fc",
+      "commands": 43,
+      "events": 153,
+      "coldRestores": 17,
+      "originalNextCommandsMatched": 9,
+      "attacks": [
+        {
+          "scenario": "unknown-copied-equipment",
+          "rebuiltBothPlayerViews": true,
+          "structuralValidationPassed": false,
+          "productionRegistryRejected": true,
+          "acceptedHistoryUnchanged": true,
+          "allSqlRowsUnchangedByRejection": true
+        },
+        {
+          "scenario": "future-copy-revision",
+          "rebuiltBothPlayerViews": true,
+          "structuralValidationPassed": false,
+          "productionRegistryRejected": true,
+          "acceptedHistoryUnchanged": true,
+          "allSqlRowsUnchangedByRejection": true
+        },
+        {
+          "scenario": "future-copy-capture",
+          "rebuiltBothPlayerViews": true,
+          "structuralValidationPassed": false,
+          "productionRegistryRejected": true,
+          "acceptedHistoryUnchanged": true,
+          "allSqlRowsUnchangedByRejection": true
+        },
+        {
+          "scenario": "future-source-generation",
+          "rebuiltBothPlayerViews": true,
+          "structuralValidationPassed": false,
+          "productionRegistryRejected": true,
+          "acceptedHistoryUnchanged": true,
+          "allSqlRowsUnchangedByRejection": true
+        },
+        {
+          "scenario": "wrong-implementation",
+          "rebuiltBothPlayerViews": true,
+          "structuralValidationPassed": false,
+          "productionRegistryRejected": true,
+          "acceptedHistoryUnchanged": true,
+          "allSqlRowsUnchangedByRejection": true
+        },
+        {
+          "scenario": "coordinated-copied-origin-removal",
+          "rebuiltBothPlayerViews": true,
+          "structuralValidationPassed": true,
+          "productionRegistryRejected": true,
+          "acceptedHistoryUnchanged": true,
+          "allSqlRowsUnchangedByRejection": true
+        },
+        {
+          "scenario": "coordinated-swapped-printed-and-copied-bindings",
+          "rebuiltBothPlayerViews": true,
+          "structuralValidationPassed": true,
+          "productionRegistryRejected": true,
+          "acceptedHistoryUnchanged": true,
+          "allSqlRowsUnchangedByRejection": true
+        }
+      ],
+      "originalBlankSeed": 0,
+      "originalFullReplayMatched": true,
+      "finalHash": "eb8be676dce2936a356470905b0713dfad61ac2970e1399d859f2c17b6508978",
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "2c3a3b1b8de91cce6e3df5f82af1e3e9fbbf51d506c7bde768c72ba565ead03d",
+        "identitySha256": "67084b403328b02f93ea956d8e866351c704304dd7221697167b67df28cbaea0"
+      }
+    },
+    {
+      "branch": "other-friendly",
+      "host": "OGN\u00B7100/298",
+      "format": "ChinaStandard20260724",
+      "recycleFirst": true,
+      "room": "postgres-attached-predict-04a4e18ee1834a21ba0d0fca1c951f44",
+      "commands": 43,
+      "events": 154,
+      "coldRestores": 17,
+      "originalNextCommandsMatched": 9,
+      "attacks": [
+        {
+          "scenario": "unknown-copied-equipment",
+          "rebuiltBothPlayerViews": true,
+          "structuralValidationPassed": false,
+          "productionRegistryRejected": true,
+          "acceptedHistoryUnchanged": true,
+          "allSqlRowsUnchangedByRejection": true
+        },
+        {
+          "scenario": "future-copy-revision",
+          "rebuiltBothPlayerViews": true,
+          "structuralValidationPassed": false,
+          "productionRegistryRejected": true,
+          "acceptedHistoryUnchanged": true,
+          "allSqlRowsUnchangedByRejection": true
+        },
+        {
+          "scenario": "future-copy-capture",
+          "rebuiltBothPlayerViews": true,
+          "structuralValidationPassed": false,
+          "productionRegistryRejected": true,
+          "acceptedHistoryUnchanged": true,
+          "allSqlRowsUnchangedByRejection": true
+        },
+        {
+          "scenario": "future-source-generation",
+          "rebuiltBothPlayerViews": true,
+          "structuralValidationPassed": false,
+          "productionRegistryRejected": true,
+          "acceptedHistoryUnchanged": true,
+          "allSqlRowsUnchangedByRejection": true
+        },
+        {
+          "scenario": "wrong-implementation",
+          "rebuiltBothPlayerViews": true,
+          "structuralValidationPassed": false,
+          "productionRegistryRejected": true,
+          "acceptedHistoryUnchanged": true,
+          "allSqlRowsUnchangedByRejection": true
+        },
+        {
+          "scenario": "coordinated-copied-origin-removal",
+          "rebuiltBothPlayerViews": true,
+          "structuralValidationPassed": true,
+          "productionRegistryRejected": true,
+          "acceptedHistoryUnchanged": true,
+          "allSqlRowsUnchangedByRejection": true
+        },
+        {
+          "scenario": "coordinated-swapped-printed-and-copied-bindings",
+          "rebuiltBothPlayerViews": true,
+          "structuralValidationPassed": true,
+          "productionRegistryRejected": true,
+          "acceptedHistoryUnchanged": true,
+          "allSqlRowsUnchangedByRejection": true
+        }
+      ],
+      "originalBlankSeed": 0,
+      "originalFullReplayMatched": true,
+      "finalHash": "f22d5a37b0f42d40085de943ce301915e43bf16340d60ce992820c3d42d989a5",
+      "ruleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "implementationSha256": "2c3a3b1b8de91cce6e3df5f82af1e3e9fbbf51d506c7bde768c72ba565ead03d",
+        "identitySha256": "67084b403328b02f93ea956d8e866351c704304dd7221697167b67df28cbaea0"
+      }
+    }
+  ]
+}

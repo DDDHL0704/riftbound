@@ -1,0 +1,247 @@
+{
+  "startedAtUtc": "2026-10-18T14:51:39.953632+00:00",
+  "fixedCommit": "6c9632f155bacff654acceb70ce42ee15e9b681f",
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+    "implementationSha256": "83a9bfca71dd91ca82cc96fd06f331d677eea341451c10f0f3816ca5ddc24658",
+    "identitySha256": "4fa44e710c234b5895f84d96d987779c26bfbfa5912c8c8548936de1775993ce"
+  },
+  "fixedInputsSha256": "db81f258b01af6edda38f8a56e0bc75a0420fbd52f12924e454f9c350b5405b2",
+  "lockAtStart": {
+    "atUtc": "2026-10-18T14:51:39.981655+00:00",
+    "source": "read-only IORegistry; no desktop automation",
+    "sessions": [
+      {
+        "screenLocked": true,
+        "onConsole": true
+      }
+    ]
+  },
+  "noDesktopDependency": true,
+  "noVisibleControlsOrFullGameOrWindowsClaim": true,
+  "priorNativeRooms": [
+    "LOCKED-PAIR-829a1df810a9",
+    "LOCKED-PAIR-8f2413d6f2af",
+    "NETWORK-5af8dc418888",
+    "paired-controller-46a990fe-20261018",
+    "paired-empty-view-48c6ae96-20261018",
+    "paired-here-control-20261018",
+    "paired-observed-window-8c6d569e-20261018"
+  ],
+  "prior51AuditRooms": [
+    "postgres-banish-owner-26e67dae8445496d806d255febad479c",
+    "postgres-controller-order-1dabd9e1c7ff47ce87b6ffb885fc6197",
+    "postgres-controller-order-73a088481e2f4bce957274857eb47ed2",
+    "postgres-controller-order-9707e787767e4771b4c9b07a9802464a",
+    "postgres-controller-order-be42a8378a074043b5d3aec4f7ff73ab",
+    "postgres-empty-observed-repeat-24bd3c91a2f348d9a978ee994853b4da",
+    "postgres-empty-observed-repeat-581c807bf4a94804b88ff20f4077cbb3",
+    "postgres-empty-observed-repeat-59383b208cff44acad6416960c406050",
+    "postgres-empty-observed-repeat-ebdf929265be4c98a3975d07fdc9c207",
+    "postgres-empty-observed-repeat-f5ca82d23d4846d782066ad1fc083dc3",
+    "postgres-empty-observed-repeat-fc9c2624a81e4075a571a888c5cc02f0",
+    "postgres-here-location-082f333032a04a63a2740b046604e171",
+    "postgres-here-location-72f799462e0d4168b0a2659ff1eaf1a5",
+    "postgres-here-location-ce76ff17e7174f18aac95ab929127eb5",
+    "postgres-here-location-cfda32116dc540afb5eff5fb55d07d7a",
+    "postgres-observed-play-window-120e9e6c2a95433383e4274e38067b2b",
+    "postgres-observed-play-window-2a12bcbd64fb4d9b85d23514d5a7ea91",
+    "postgres-observed-play-window-2aa8c5a86e974e3985ac88b91d879d59",
+    "postgres-observed-play-window-2bad3524519b4a1296e2e13067a4b81f",
+    "postgres-observed-play-window-73f3c053496144158c0ba486f33aa96f",
+    "postgres-observed-play-window-7d29b846b9a048c5a1ef7a151305308d",
+    "postgres-observed-play-window-c3cdca705f964b6e815e46388e88c5ec",
+    "postgres-observed-play-window-c53755c4623d481fb6a745883d01febd",
+    "postgres-observed-play-window-c94a22721622489ab7fc5937e1169198",
+    "postgres-observed-play-window-ce17088826a94757b340bb50dcca92c7",
+    "postgres-observed-play-window-d69d39b0ce6b42b69db720d8b5801453",
+    "postgres-observed-play-window-ef0c4e99ecfb4a64b8bc6178355efd08",
+    "postgres-ravenbloom-put-hand-05992d19eadb4ab0bc587f63e90bcec3",
+    "postgres-ravenbloom-put-hand-269bb7afae4848a59f0a55c5035e31f7",
+    "postgres-ravenbloom-put-hand-47e036a718834577808f60147ab9d3ac",
+    "postgres-ravenbloom-put-hand-5ac38cda48e844568195511ccb900ef6",
+    "postgres-ravenbloom-put-hand-6dd074914e98456e904a1a3c82f69a74",
+    "postgres-ravenbloom-put-hand-b96ae25eec8e4275b26ac3124e68770f",
+    "postgres-ravenbloom-put-hand-ca5f73e1a20149e5ac3985d358e0e3d1",
+    "postgres-ravenbloom-put-hand-e75a9dd96e174e27840386340899ea9e",
+    "postgres-ravenbloom-put-hand-f19e3ada6a7d4cf78f31b1e9c3b6ea1a",
+    "postgres-weaver-7a01caec96c64309b5d23b9e3846a6a3",
+    "postgres-weaver-b553c35b6154485faead52a836dddca9",
+    "postgres-weaver-c4d6dffe62c74629b5316e9b7d400298",
+    "postgres-weaver-e6fbb7fa330841a5bfea8ccc8f9dc5e3",
+    "postgres-weaver-e7b9f7b1d9ea4e51bf06b5976e5d1ba2",
+    "postgres-weaver-fad5a19031d9492592e385d537786496",
+    "sql-chronology-4c2d284a00d248d88c2c8d039b911333",
+    "sql-chronology-628783d262b34a5d8956cc62d3768f8f",
+    "sql-chronology-ab851bbd22bf4c2499197f6db1ac6d3a",
+    "sql-chronology-f2444ffcbf20454399e620b7b4b3d463",
+    "sql-sole-choice-owner-15cc2ff8e83b4d26962f6524a3ad81bb",
+    "sql-sole-choice-owner-402fd1f5f1c04991b71e281cb9355879",
+    "sql-sole-choice-owner-f957aac679504ca4b54ebd0c02738ce4",
+    "sql-sole-owner-normal91-0a6ce6ae3847464d8b340991a6393f3f",
+    "sql-sole-owner-normal91-d10182c5fdde403b9f27b23268cbc447"
+  ],
+  "priorNativeSevenTables": {
+    "matches": "013c214cd75a7884a6aa5d4f0c851859d0468f20bdbbec90be9ce5fbaab4696a",
+    "match_players": "6e1887efd7f61d559680df5cf100975067101a9951ac2ea2440478b3cbc11237",
+    "command_log": "f41e0707ffa9d376fe829ea1bea09e60abaa7d018a646b36b088e1adb42fa9ad",
+    "game_events": "f2918ae56d67ce17c7b7ffe7eff19d615e7c01d9bda96e588896630d5a2e835c",
+    "state_snapshots": "20e385ad3f32b66f814c3244f19fd4efadd758fbf49deca688bc6e0bde519b3c",
+    "snapshots": "c9895341b8a885bb04ee37b526d603bf0629dcc7698cbff0acd85dff1a3ee40f",
+    "action_prompts": "fba9533c9cdc9b81bdd3d41dce18ac376c9c09b7f04fd8dcbccbfe70c827fad7"
+  },
+  "priorAuditSevenTables": {
+    "matches": "40f23e14854859728bb9f333d136e5fbfb3d330499267291d9274f97a73da75b",
+    "match_players": "5a839ac3795753fae9baf8b59540f75acdaa4a662dc3e81e205ff6df4f82c759",
+    "command_log": "b97e8459a163218fa1a83221bed44e1e7c65b04c24ea04cac88db14e38d665db",
+    "game_events": "d45c3386c23e54fb962cf139dbeed6e090d58390251a17c0a4e5171c55045804",
+    "state_snapshots": "6909a9b563d420cf9b53bd5e243e70e775be8b680d9ad3c2a4a73bc15a8bfd8f",
+    "snapshots": "12f60656fd317af93b1706d9bfdc7d163c632f177a088999c02b37e0799b616e",
+    "action_prompts": "36dce95952a368d27ca2084cdc301103d770717b8cf782f4b282ab042cddec23"
+  },
+  "allPriorV1NativeAndAuditRowsStillExact": true,
+  "priorFailedAttemptOriginalReplay": {
+    "status": "ORIGINAL_REAL_NATIVE_NETWORK_FRAME_FULL_REPLAY_PASS",
+    "room": "LOCKED-PAIR-829a1df810a9",
+    "commands": 4,
+    "events": 10,
+    "stateHash": "b145b29d6fbac8ebd10ba536fceef6dc293ae7e13ae4a78bde3267ddff5f8702",
+    "actualRuleInputs": {
+      "schemaVersion": 1,
+      "region": "CN",
+      "language": "zh-CN",
+      "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+      "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+      "implementationSha256": "83a9bfca71dd91ca82cc96fd06f331d677eea341451c10f0f3816ca5ddc24658",
+      "identitySha256": "4fa44e710c234b5895f84d96d987779c26bfbfa5912c8c8548936de1775993ce"
+    },
+    "originalNonZeroPrivateSeedPreserved": true,
+    "noOldHistoryMigration": true,
+    "originalFrameSha256": "9da549114f02e4a47e964a9d20579e10f6322f2e1209af080c206910287d39b2",
+    "allSevenTablesUnchangedByReader": true
+  },
+  "secondFailedAttemptOriginalReplay": {
+    "status": "ORIGINAL_REAL_NATIVE_NETWORK_FRAME_FULL_REPLAY_PASS",
+    "room": "LOCKED-PAIR-8f2413d6f2af",
+    "commands": 4,
+    "events": 10,
+    "stateHash": "875eb3b8f81b5637f566d6fcb7a1ea8e8504f372306da2c6b30f131876826dc4",
+    "actualRuleInputs": {
+      "schemaVersion": 1,
+      "region": "CN",
+      "language": "zh-CN",
+      "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+      "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+      "implementationSha256": "83a9bfca71dd91ca82cc96fd06f331d677eea341451c10f0f3816ca5ddc24658",
+      "identitySha256": "4fa44e710c234b5895f84d96d987779c26bfbfa5912c8c8548936de1775993ce"
+    },
+    "originalNonZeroPrivateSeedPreserved": true,
+    "noOldHistoryMigration": true,
+    "originalFrameSha256": "0fd2bc54027ded107ebcf75ddd0d47adcbbec558a28a14ee985da6bc914f8706",
+    "allSevenTablesUnchangedByReader": true
+  },
+  "allPriorV2NativeRowsStillExact": true,
+  "ownApiPids": [
+    31729,
+    31767
+  ],
+  "ownPairPid": 31733,
+  "originalBeforeRestartReplay": {
+    "status": "ORIGINAL_REAL_NATIVE_NETWORK_FRAME_FULL_REPLAY_PASS",
+    "room": "LOCKED-PAIR-fc82f3c58107",
+    "commands": 4,
+    "events": 10,
+    "stateHash": "76ba91b441810b6e807405b12f886d292aff23e3c65067de85b3819b819c8528",
+    "actualRuleInputs": {
+      "schemaVersion": 1,
+      "region": "CN",
+      "language": "zh-CN",
+      "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+      "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+      "implementationSha256": "83a9bfca71dd91ca82cc96fd06f331d677eea341451c10f0f3816ca5ddc24658",
+      "identitySha256": "4fa44e710c234b5895f84d96d987779c26bfbfa5912c8c8548936de1775993ce"
+    },
+    "originalNonZeroPrivateSeedPreserved": true,
+    "noOldHistoryMigration": true,
+    "originalFrameSha256": "7352e15da5ff96a373ceacaeb7b0dba7c589212a4295938dd1c7b6a8423c7d22",
+    "allSevenTablesUnchangedByReader": true
+  },
+  "oldApiGracefulStopBeforeColdRestart": true,
+  "actualApiDowntimeSeconds": 0.41083720800000023,
+  "pairExitCode": 0,
+  "wireReceipt": {
+    "status": "PASS",
+    "room": "LOCKED-PAIR-fc82f3c58107",
+    "acceptedCommands": 7,
+    "ordinaryLegalDecks": 2,
+    "actualProductionNativeGateway": true,
+    "twoAuthorizedClients": true,
+    "actualApiRestart": true,
+    "bothPrivateViewsAndPromptsExact": true,
+    "privateHandRedaction": true,
+    "originalPostRestartMulligans": 2,
+    "originalNextEndTurns": 1,
+    "restores": [
+      1,
+      1
+    ],
+    "freshSnapshots": [
+      11,
+      11
+    ],
+    "originalWireViewsSha256": "2b5ccd23256ad80999f7178249f5ec5c320dc41b9f902dad787a279088097ab3",
+    "noSeedOrStateInjection": true,
+    "noVisibleControlsOrWholeGameOrWindowsClaim": true
+  },
+  "originalAfterContinuationReplay": {
+    "status": "ORIGINAL_REAL_NATIVE_NETWORK_FRAME_FULL_REPLAY_PASS",
+    "room": "LOCKED-PAIR-fc82f3c58107",
+    "commands": 7,
+    "events": 27,
+    "stateHash": "9c822970a8c4aae006eb0d0f03c6097e9d124c3437eee6422afddc61406acc8d",
+    "actualRuleInputs": {
+      "schemaVersion": 1,
+      "region": "CN",
+      "language": "zh-CN",
+      "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+      "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+      "implementationSha256": "83a9bfca71dd91ca82cc96fd06f331d677eea341451c10f0f3816ca5ddc24658",
+      "identitySha256": "4fa44e710c234b5895f84d96d987779c26bfbfa5912c8c8548936de1775993ce"
+    },
+    "originalNonZeroPrivateSeedPreserved": true,
+    "noOldHistoryMigration": true,
+    "originalFrameSha256": "90126e6eab18aebf2bfd1efe8143a5238d3a6fd304d6a3acc8a805e1442d59a4",
+    "allSevenTablesUnchangedByReader": true
+  },
+  "ownFinalApiGracefulStop": true,
+  "allSevenPriorNativeRoomsSevenTablesExact": true,
+  "all51AuditRoomsSevenTablesExact": true,
+  "newOriginalRoomSevenTables": {
+    "matches": "909c55ffaa8e4e36f917611dfa4cb6f7e93f27818df8785c1b624b2fe45b6bbf",
+    "match_players": "583af7b13b2c239db1281d3ed9eb40939f9ac76928e3e996641f1082d2cd0bf0",
+    "command_log": "2e8d682ce04cc14771c01bb3269f5f54eaa40783d11011f1ae88a6a73083bf1b",
+    "game_events": "9e25267427c16d81da0473ccc8632a79df11719d4e525e3d48eb0f906eeca47c",
+    "state_snapshots": "34c267320696fa67d3e57f587b4f08898492cbd5b47b7ca83ce1efd8b2857525",
+    "snapshots": "bbbfa4e35dcd9d555cfcfa7cc41a7f9f67c4d42b3de357085881a7921ea7bff2",
+    "action_prompts": "4256702a6c20c5a44577798f88ad7ea59aa9d83d587ae1b87909262622cebbc7"
+  },
+  "status": "PASS",
+  "ownPostgresSmartStopped": true,
+  "finishedAtUtc": "2026-10-18T14:52:10.828053+00:00",
+  "lockAtEnd": {
+    "atUtc": "2026-10-18T14:52:10.855878+00:00",
+    "source": "read-only IORegistry; no desktop automation",
+    "sessions": [
+      {
+        "screenLocked": true,
+        "onConsole": true
+      }
+    ]
+  },
+  "fixedFilesStillExact": true,
+  "originalDatabaseRetained": true
+}
