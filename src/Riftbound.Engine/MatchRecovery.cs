@@ -23661,6 +23661,7 @@ public static class MatchRecoveryValidator
         foreach (var trigger in state.TriggerQueue)
             if (!PermanentPlayTriggerRecoveryRules.ValidQueued(state, trigger)) errors.Add("invalid deferred permanent play ordering origin");
         if (!TriggerQueueRecoveryRules.Valid(state)) errors.Add("invalid queued trigger chronology");
+        if (!TriggerQueueRecoveryRules.ValidControllerOrderConfirmations(state)) errors.Add("invalid trigger controller order confirmations");
         foreach (var trigger in state.TriggerQueue)
             if (!RengarPlayRecoveryRules.ValidQueued(state, trigger))
                 errors.Add("invalid unit play might trigger");

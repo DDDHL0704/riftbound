@@ -191,6 +191,7 @@ public partial class TriggerOrderOverlay : Control
         return index >= 0
             && targetIndex >= 0
             && targetIndex < _triggers.Count
+            && _triggers[index].CanReorder && _triggers[targetIndex].CanReorder
             && _triggers[index].ControllerBlockIndex == _triggers[targetIndex].ControllerBlockIndex;
     }
 

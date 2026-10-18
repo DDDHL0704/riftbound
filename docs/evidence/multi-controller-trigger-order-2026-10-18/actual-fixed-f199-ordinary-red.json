@@ -1,0 +1,74 @@
+{
+  "recordedAtUtc": "2026-10-18T05:33:29.732777+00:00",
+  "status": "ACTUAL_FIXED_F199_RELEASE_ORDINARY_BLANK_BOTH_CONTROLLER_AUTHORITY_RED_REPRODUCED",
+  "fixedCommit": "f199451ae6ceb135fa4fe4eafcba03e73ec9b99d",
+  "actualPublishedImplementation": "5d3a70381153d259663e466ae09fec42b7fcad0b6ee2059a173beac39237cc55",
+  "original46PublicationFilesUnchanged": true,
+  "shadowLoadedRuleModulesAndDataExactlyEqualActualPublication": {
+    "Riftbound.Contracts.dll": "e521e92c6e9bf5b73fa51bfa1ea343fdf7f8209f2ad50ceb0129fe0139cb6979",
+    "Riftbound.CardCatalog.dll": "0c13e10e40e6ecb62f74b89e78e45be5ff1e5c933949fae79626b9c5cd467a20",
+    "Riftbound.Engine.dll": "585de2ebcededd33cd0c483a909bed8967f3ba9e52e595d2e3597deff45d4ad6",
+    "Riftbound.Persistence.dll": "65344b063f761355b221349ef499f8fc7ae44892cff0236046cbcbb033df02c3",
+    "Npgsql.dll": "9d8db086e9eda5ff20c4a7f83fa3eae7689198f57277ff9ceea1ee3526f5fcf8",
+    "data/official/rule-input-scope.json": "cc07cf3eef6a9af403454642a0435d061544400b5e01d08d3fdc65869bdad180",
+    "data/official/armaments.json": "ddcd838300e558c11df480ee79ccfab08c7af380df36544c666841720850bda8",
+    "data/official/card-catalog.zh-CN.json": "68930e34e45385c4bc78c4805aaba46e4b5b57057a25ba957a85b339fe376fc8"
+  },
+  "actualCallerDllSha256": "10efda4067171f4e4b46417d8244db76c64943e0eb0fd08cbc246d8fb0f692f9",
+  "actualCallerSourceSha256": "c550c6ba8ff5ad45fc074934a73a444bf1b4ed4eb3ec82ad51a034ef30549092",
+  "callerSourceRetainedLosslessly": true,
+  "proofs": [
+    {
+      "caster": "P1",
+      "path": "var/qa/multi-controller-trigger-order-20261018/fixed-f199-ordinary-red-P1.json-prefix-order-audit.json",
+      "sha256": "e3334196e1fe6323cedfe57fba4db0239eebf57ff3a62d1c8a53956d86b9600b",
+      "observed": {
+        "actualRuleInputs": {
+          "schemaVersion": 1,
+          "region": "CN",
+          "language": "zh-CN",
+          "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+          "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+          "implementationSha256": "5d3a70381153d259663e466ae09fec42b7fcad0b6ee2059a173beac39237cc55",
+          "identitySha256": "081fa0b6211a22341dd86ddef9c27a4bed319b84a4c317cba347f4e098348431"
+        },
+        "normalBlankPrefixCommands": 70,
+        "originalPrefixFullReplayMatched": true,
+        "originalPrefixEvents": 231,
+        "otherControllerOrderAccepted": true,
+        "ownedFirstAccepted": true,
+        "queuedAfterOnlyFirstController": 0,
+        "stackAfterOnlyFirstController": 4,
+        "noVisibleNativeOrDatabaseAcceptanceClaim": true
+      }
+    },
+    {
+      "caster": "P2",
+      "path": "var/qa/multi-controller-trigger-order-20261018/fixed-f199-ordinary-red-P2.json-prefix-order-audit.json",
+      "sha256": "f223845282a1e09fa85810663d9e7d85ceed298f1f28d1e7a8208c6fdadd980b",
+      "observed": {
+        "actualRuleInputs": {
+          "schemaVersion": 1,
+          "region": "CN",
+          "language": "zh-CN",
+          "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+          "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+          "implementationSha256": "5d3a70381153d259663e466ae09fec42b7fcad0b6ee2059a173beac39237cc55",
+          "identitySha256": "081fa0b6211a22341dd86ddef9c27a4bed319b84a4c317cba347f4e098348431"
+        },
+        "normalBlankPrefixCommands": 62,
+        "originalPrefixFullReplayMatched": true,
+        "originalPrefixEvents": 207,
+        "otherControllerOrderAccepted": true,
+        "ownedFirstAccepted": true,
+        "queuedAfterOnlyFirstController": 0,
+        "stackAfterOnlyFirstController": 4,
+        "noVisibleNativeOrDatabaseAcceptanceClaim": true
+      }
+    }
+  ],
+  "sourceVersionAndDebug417NotEquated": true,
+  "noOriginalDatabaseHistoryOrNativeProfilesTouched": true,
+  "noVisibleNativeWindowsOrDatabaseAcceptanceClaim": true,
+  "onlyRequiredFrozenModulesNotAnotherSourceCheckoutOrApp": true
+}

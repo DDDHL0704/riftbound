@@ -21994,6 +21994,106 @@
         "docs/evidence/fate-weaver-deck-choice-2026-10-18/locale-identity-source-impact.json",
         "docs/evidence/fate-weaver-deck-choice-2026-10-18/previous-fixedfc-full.json"
       ]
+    },
+    {
+      "id": "multi-controller-neutral-trigger-order-2026-10-18",
+      "scope": "CN zh-CN, frozen applicability2026-10-16, observation2026-10-18. Each controller chooses its own neutral untargeted simultaneous trigger block in APNAP order; persisted first-owner handoff, own-order invariance, ordinary legal blank openings and independent original-history protection. Target/cost/actual insertion/finer epochs/battle roles and whole-card semantics remain OPEN.",
+      "status": "SCOPED_CONTROLLER_OWN_ORDER_19_CASES5_METHODS_ORDINARY8_SQL152_COMMANDS484_EVENTS20_COLD6_NEXT12_REJECTIONS_HEADLESS8_ORIGINAL115_SINGLE_CHECK_12474_CURRENT_FIXED_FULL_VISIBLE_NATIVE_WINDOWS_OPEN",
+      "subjects": [
+        "ARC-006/006",
+        "UNL-129/219",
+        "OGN·133/298",
+        "UNL-203/219",
+        "UNL-116/219",
+        "UNL-111/219",
+        "SFD·197/221",
+        "SFD·171/221",
+        "UNL-150/219",
+        "UNL-086/219"
+      ],
+      "ruleRecords": [],
+      "pendingRuleRecords": [],
+      "sourceManifest": {
+        "path": "docs/evidence/multi-controller-trigger-order-2026-10-18/source-manifest.json",
+        "sha256": "f2c2b4f397fe83877154cb2ec5d96d3ab6cbacfe052bc638eaaf06d5a067c91b",
+        "role": "source-manifest"
+      },
+      "sourceClauses": [
+        {
+          "document": "DOC-01",
+          "clause": "383.3.d",
+          "sha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11"
+        },
+        {
+          "document": "DOC-01",
+          "clause": "383.3.d.1",
+          "sha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11"
+        }
+      ],
+      "validation": {
+        "focus": {
+          "path": "docs/evidence/multi-controller-trigger-order-2026-10-18/focus.json",
+          "sha256": "0bbeaa2d76fe05bb0d28e473de870efbe334ae659f5469974b0d7eefa9e31552",
+          "role": "focus"
+        },
+        "realSql": {
+          "path": "docs/evidence/multi-controller-trigger-order-2026-10-18/real-sql.json",
+          "sha256": "85d4035beaad675d9e7e52e0afa8c3c0a77f19159b4cc41cbf729a9bed95a691",
+          "role": "real-sql"
+        },
+        "actualCompiledInputs": {
+          "path": "docs/evidence/multi-controller-trigger-order-2026-10-18/actual-compiled-inputs.json",
+          "sha256": "5254da779a3a9a35e4c48c309a90f83c09216597ceb626440b93c31df15ff24b",
+          "role": "actual-compiled-inputs"
+        },
+        "originalGames": {
+          "path": "docs/evidence/multi-controller-trigger-order-2026-10-18/original-five-and110.json",
+          "sha256": "bc4ca9d055410bacb4f42b07cf48dd54aa72c96c7b7c27010c1a4fee4424954e",
+          "role": "original-five-and110"
+        },
+        "oneCheck": {
+          "path": "docs/evidence/multi-controller-trigger-order-2026-10-18/one-check.json",
+          "sha256": "ee629bbfb753668200f54c712e358533c5091fffa12bb30a46c0af987aca3423",
+          "role": "one-check"
+        },
+        "headlessNativeControls": {
+          "path": "docs/evidence/multi-controller-trigger-order-2026-10-18/native-controls.json",
+          "sha256": "bac1f7fcfd55e09d9cdc615196c2499f838aff6c834a1fb74106ffce481146d4",
+          "role": "native-controls"
+        },
+        "fixedCommitFull": "PENDING_NEW_FIXED_COMMIT",
+        "visibleProduct": "OPEN_MAC_LOCKED",
+        "physicalWindows": "OPEN"
+      },
+      "exclusions": [
+        "CURRENT_FIXED_FULL",
+        "CURRENT_VISIBLE_PAIRED_SQL_NETWORK_NORMAL_SCORE_AND_ORIGINAL_REPLAY",
+        "PHYSICAL_WINDOWS",
+        "TARGET_CHOICES_OPTIONAL_COSTS_ACTUAL_INSERTION_FINER_EPOCHS_AND_BATTLE_ROLES",
+        "WHOLE_PRINTING_AND_ALL_OTHER_CONSUMERS",
+        "ALL_ORIGINAL_SOURCE_GAPS_AND_REGIONAL_APPLICABILITY"
+      ],
+      "auditDocument": "docs/MULTI_CONTROLLER_TRIGGER_ORDER_AUDIT_2026-10-18.md",
+      "evidence": [
+        "docs/evidence/multi-controller-trigger-order-2026-10-18/source-manifest.json",
+        "docs/evidence/multi-controller-trigger-order-2026-10-18/actual-fixed-f199-ordinary-red.json",
+        "docs/evidence/multi-controller-trigger-order-2026-10-18/original-red-retention.json",
+        "docs/evidence/multi-controller-trigger-order-2026-10-18/actual-compiled-inputs.json",
+        "docs/evidence/multi-controller-trigger-order-2026-10-18/ordinary-eight-combinations.json",
+        "docs/evidence/multi-controller-trigger-order-2026-10-18/focus.json",
+        "docs/evidence/multi-controller-trigger-order-2026-10-18/native-controls.json",
+        "docs/evidence/multi-controller-trigger-order-2026-10-18/real-sql.json",
+        "docs/evidence/multi-controller-trigger-order-2026-10-18/test-retention.json",
+        "docs/evidence/multi-controller-trigger-order-2026-10-18/original-five-and110.json",
+        "docs/evidence/multi-controller-trigger-order-2026-10-18/one-check.json",
+        "docs/evidence/multi-controller-trigger-order-2026-10-18/first-fix-normalization-failures.json",
+        "docs/evidence/multi-controller-trigger-order-2026-10-18/opening-helper-alias-failures.json",
+        "docs/evidence/multi-controller-trigger-order-2026-10-18/acceptance-boundaries.json",
+        "docs/evidence/multi-controller-trigger-order-2026-10-18/storage-control.json",
+        "docs/evidence/multi-controller-trigger-order-2026-10-18/tooling-tests.json",
+        "docs/evidence/multi-controller-trigger-order-2026-10-18/previous-fixed-f199-full.json",
+        "docs/evidence/multi-controller-trigger-order-2026-10-18/previous-fixed91-full.json"
+      ]
     }
   ]
 }

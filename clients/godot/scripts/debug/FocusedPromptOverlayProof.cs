@@ -75,6 +75,7 @@ public partial class FocusedPromptOverlayProof : Control
           "enabled": true,
           "metadata": {
             "orderedTriggerIds": ["TRIGGER-P2-1", "TRIGGER-P2-2", "TRIGGER-P1-1", "TRIGGER-P1-2"],
+            "reorderableTriggerIds": ["TRIGGER-P1-1", "TRIGGER-P1-2"],
             "triggerIds": ["TRIGGER-P2-1", "TRIGGER-P2-2", "TRIGGER-P1-1", "TRIGGER-P1-2"],
             "triggerChoices": [
               { "id": "TRIGGER-P2-1", "label": "对手战场效果" },

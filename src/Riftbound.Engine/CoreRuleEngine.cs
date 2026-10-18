@@ -2774,7 +2774,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
 
         var orderedTriggers = triggerIds.Select(triggerId => triggersById[triggerId]).ToArray();
-        if (!TriggerQueueRecoveryRules.Valid(state)
+        if (!TriggerQueueRecoveryRules.Valid(state) || !TriggerQueueRecoveryRules.ValidControllerOrderConfirmations(state)
             || orderedTriggers.Any(t => !PermanentPlayTriggerRecoveryRules.ValidQueued(state, t) || !RengarPlayRecoveryRules.ValidQueued(state, t)))
             return RejectWithCorePrompts(state, "触发排序的打出技能起源已失效。", ErrorCodes.InvalidTarget);
         if (!MatchesLegalApnapResolutionOrder(state, orderedTriggers))
@@ -2783,6 +2783,27 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 state,
                 "触发顺序必须保留先后关系，以及同一时机内各玩家的技能分组。",
                 ErrorCodes.InvalidPayload);
+        }
+
+        var defaultOrder = TriggerResolutionOrderIds(state);
+        if (orderedTriggers.Where((trigger, index) => trigger.ControllerId != intent.PlayerId
+                && trigger.TriggerId != defaultOrder[index]).Any())
+            return RejectWithCorePrompts(state, "只能选择自己控制的同时技能顺序。", ErrorCodes.InvalidPayload);
+
+        if (TriggerChoiceControllerIds(state).Any(controller => controller != intent.PlayerId
+                && state.TriggerQueue.Any(t => t.ControllerId == controller && !t.ControllerOrderConfirmed)))
+        {
+            var confirmedQueue = BuildApnapTriggerControllerBlocks(state).SelectMany(block =>
+                orderedTriggers.Where(t => block.TriggerIds.Contains(t.TriggerId)))
+                .Select(t => t.ControllerId == intent.PlayerId ? t with { ControllerOrderConfirmed = true } : t).ToArray();
+            var waiting = state with { Tick = state.Tick + 1, TriggerQueue = confirmedQueue };
+            return new ResolutionResult(true, null, waiting,
+                [new("TRIGGER_ORDER_CHOICE_RECORDED", "已记录本方顺序，等待其他控制者选择", new Dictionary<string, object?> {
+                    ["orderingPlayerId"] = intent.PlayerId,
+                    ["orderedOwnTriggerIds"] = orderedTriggers.Where(t => t.ControllerId == intent.PlayerId)
+                        .Select(t => t.TriggerId).ToArray(),
+                    ["nextOrderingPlayerId"] = NextTriggerChoiceControllerId(waiting)
+                })], ResolutionResult.BuildSnapshots(waiting), BuildCorePrompts(waiting));
         }
 
         var stackItemsToAppend = orderedTriggers

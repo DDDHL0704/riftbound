@@ -1,0 +1,1762 @@
+{
+  "schemaVersion": 1,
+  "openingSeed": 0,
+  "seats": {
+    "P1": "P1",
+    "P2": "P2"
+  },
+  "sourceBaseCommit": "f199451ae6ceb135fa4fe4eafcba03e73ec9b99d",
+  "sourceUncommittedEnginePatchSha256": "6764a65a5f633aa01c992c66af36f51648d693668af8acb38070a0612eee7e2a",
+  "sourcePlanningActualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+    "implementationSha256": "41711827d112a646ec4a56b3979a155d146ffeb368441fde25847b78ab5f1a7e",
+    "identitySha256": "119ca62449b526ba297cd37e485443c658c62dcf4425ad7686349ce35da0bc16"
+  },
+  "scope": "New ordinary blank seed0 QA recipes from normal deck submit, ready, mulligan, resources, plays, movement, focus and damage commands. Two independently legal40-card deck orders; no injected initial cards/hands/shuffle or rewritten accepted history. Original11 decks and424242 not changed.",
+  "branches": [
+    {
+      "caster": "P1",
+      "sourcePlanFile": "var/qa/multi-controller-trigger-order-20261018/ordinary-opening-to-order-P1-v5.json",
+      "sourcePlanSha256": "d0532945a424a4f222196a9e43233eeaf8ebc240c5c4d19d64ddc0b698bd6800",
+      "acceptedCommands": [
+        {
+          "playerId": "P1",
+          "clientIntentId": "ordinary-multi-0",
+          "rawCommand": {
+            "legendCardNo": "UNL-203/219",
+            "championCardNo": "UNL-116/219",
+            "mainDeck": [
+              "UNL-116/219",
+              "UNL-092/219",
+              "UNL-105/219",
+              "ARC-006/006",
+              "UNL-097/219",
+              "UNL-111/219",
+              "UNL-111/219",
+              "UNL-092/219",
+              "OGN·133/298",
+              "OGN·133/298",
+              "UNL-092/219",
+              "ARC-006/006",
+              "OGN·133/298",
+              "UNL-093/219",
+              "UNL-093/219",
+              "UNL-093/219",
+              "UNL-094/219",
+              "UNL-094/219",
+              "UNL-094/219",
+              "UNL-097/219",
+              "UNL-097/219",
+              "UNL-111/219",
+              "UNL-098/219",
+              "UNL-098/219",
+              "UNL-098/219",
+              "UNL-099/219",
+              "UNL-099/219",
+              "UNL-099/219",
+              "UNL-100/219",
+              "UNL-100/219",
+              "UNL-100/219",
+              "UNL-102/219",
+              "UNL-102/219",
+              "UNL-102/219",
+              "UNL-104/219",
+              "UNL-104/219",
+              "UNL-104/219",
+              "UNL-105/219",
+              "ARC-006/006",
+              "UNL-105/219"
+            ],
+            "runeDeck": [
+              "UNL-R04",
+              "UNL-R04",
+              "UNL-R04",
+              "UNL-R04",
+              "UNL-R04",
+              "UNL-R04",
+              "UNL-R06",
+              "UNL-R06",
+              "UNL-R06",
+              "UNL-R06",
+              "UNL-R06",
+              "UNL-R06"
+            ],
+            "battlefields": [
+              "OGN·278/298",
+              "OGN·280/298",
+              "OGN·281/298"
+            ],
+            "cmdType": "SUBMIT_DECK",
+            "promptId": "ordinary-multi-controller-probe:0:P1:SUBMIT_DECK",
+            "snapshotTick": 0
+          }
+        },
+        {
+          "playerId": "P2",
+          "clientIntentId": "ordinary-multi-1",
+          "rawCommand": {
+            "legendCardNo": "UNL-203/219",
+            "championCardNo": "UNL-116/219",
+            "mainDeck": [
+              "UNL-116/219",
+              "UNL-098/219",
+              "UNL-098/219",
+              "ARC-006/006",
+              "UNL-093/219",
+              "UNL-111/219",
+              "UNL-111/219",
+              "UNL-102/219",
+              "OGN·133/298",
+              "OGN·133/298",
+              "UNL-092/219",
+              "UNL-092/219",
+              "UNL-092/219",
+              "UNL-093/219",
+              "UNL-111/219",
+              "UNL-093/219",
+              "UNL-094/219",
+              "UNL-094/219",
+              "UNL-094/219",
+              "UNL-097/219",
+              "UNL-097/219",
+              "UNL-097/219",
+              "ARC-006/006",
+              "ARC-006/006",
+              "UNL-098/219",
+              "UNL-099/219",
+              "UNL-099/219",
+              "UNL-099/219",
+              "UNL-100/219",
+              "UNL-100/219",
+              "UNL-100/219",
+              "OGN·133/298",
+              "UNL-102/219",
+              "UNL-102/219",
+              "UNL-104/219",
+              "UNL-104/219",
+              "UNL-104/219",
+              "UNL-105/219",
+              "UNL-105/219",
+              "UNL-105/219"
+            ],
+            "runeDeck": [
+              "UNL-R04",
+              "UNL-R04",
+              "UNL-R04",
+              "UNL-R04",
+              "UNL-R04",
+              "UNL-R04",
+              "UNL-R06",
+              "UNL-R06",
+              "UNL-R06",
+              "UNL-R06",
+              "UNL-R06",
+              "UNL-R06"
+            ],
+            "battlefields": [
+              "OGN·278/298",
+              "OGN·280/298",
+              "OGN·281/298"
+            ],
+            "cmdType": "SUBMIT_DECK",
+            "promptId": "ordinary-multi-controller-probe:1:P2:SUBMIT_DECK",
+            "snapshotTick": 1
+          }
+        },
+        {
+          "playerId": "P1",
+          "clientIntentId": "ordinary-multi-2",
+          "rawCommand": {
+            "cmdType": "READY",
+            "promptId": "ordinary-multi-controller-probe:2:P1:READY",
+            "snapshotTick": 2
+          }
+        },
+        {
+          "playerId": "P2",
+          "clientIntentId": "ordinary-multi-3",
+          "rawCommand": {
+            "cmdType": "READY",
+            "promptId": "ordinary-multi-controller-probe:2:P2:READY",
+            "snapshotTick": 2
+          }
+        },
+        {
+          "playerId": "P2",
+          "clientIntentId": "ordinary-multi-4",
+          "rawCommand": {
+            "handObjectIds": [],
+            "cmdType": "MULLIGAN",
+            "promptId": "ordinary-multi-controller-probe:2:P2:MULLIGAN,SURRENDER",
+            "snapshotTick": 2
+          }
+        },
+        {
+          "playerId": "P1",
+          "clientIntentId": "ordinary-multi-5",
+          "rawCommand": {
+            "handObjectIds": [],
+            "cmdType": "MULLIGAN",
+            "promptId": "ordinary-multi-controller-probe:3:P1:MULLIGAN,SURRENDER",
+            "snapshotTick": 3
+          }
+        },
+        {
+          "playerId": "P2",
+          "clientIntentId": "ordinary-multi-6",
+          "rawCommand": {
+            "sourceObjectId": "P2-RUNE-UNL-R06-12",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-multi-controller-probe:5:P2:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 5
+          }
+        },
+        {
+          "playerId": "P2",
+          "clientIntentId": "ordinary-multi-7",
+          "rawCommand": {
+            "sourceObjectId": "P2-RUNE-UNL-R04-05",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-multi-controller-probe:6:P2:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 6
+          }
+        },
+        {
+          "playerId": "P2",
+          "clientIntentId": "ordinary-multi-8",
+          "rawCommand": {
+            "sourceObjectId": "P2-MAIN-UNL-111-219-14",
+            "cardNo": "UNL-111/219",
+            "targetObjectIds": [],
+            "mode": "",
+            "destination": "BASE",
+            "repeatChoices": null,
+            "movementDestinations": null,
+            "cmdType": "PLAY_CARD",
+            "promptId": "ordinary-multi-controller-probe:7:P2:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 7
+          }
+        },
+        {
+          "playerId": "P2",
+          "clientIntentId": "ordinary-multi-9",
+          "rawCommand": {
+            "cmdType": "END_TURN",
+            "promptId": "ordinary-multi-controller-probe:8:P2:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 8
+          }
+        },
+        {
+          "playerId": "P1",
+          "clientIntentId": "ordinary-multi-10",
+          "rawCommand": {
+            "sourceObjectId": "P1-RUNE-UNL-R06-11",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-multi-controller-probe:9:P1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 9
+          }
+        },
+        {
+          "playerId": "P1",
+          "clientIntentId": "ordinary-multi-11",
+          "rawCommand": {
+            "sourceObjectId": "P1-RUNE-UNL-R06-10",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-multi-controller-probe:10:P1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 10
+          }
+        },
+        {
+          "playerId": "P1",
+          "clientIntentId": "ordinary-multi-12",
+          "rawCommand": {
+            "sourceObjectId": "P1-RUNE-UNL-R04-02",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-multi-controller-probe:11:P1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 11
+          }
+        },
+        {
+          "playerId": "P1",
+          "clientIntentId": "ordinary-multi-13",
+          "rawCommand": {
+            "sourceObjectId": "P1-MAIN-UNL-111-219-21",
+            "cardNo": "UNL-111/219",
+            "targetObjectIds": [],
+            "mode": "",
+            "destination": "BASE",
+            "repeatChoices": null,
+            "movementDestinations": null,
+            "cmdType": "PLAY_CARD",
+            "promptId": "ordinary-multi-controller-probe:12:P1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 12
+          }
+        },
+        {
+          "playerId": "P1",
+          "clientIntentId": "ordinary-multi-14",
+          "rawCommand": {
+            "cmdType": "END_TURN",
+            "promptId": "ordinary-multi-controller-probe:13:P1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 13
+          }
+        },
+        {
+          "playerId": "P2",
+          "clientIntentId": "ordinary-multi-15",
+          "rawCommand": {
+            "sourceObjectId": "P2-RUNE-UNL-R06-12",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-multi-controller-probe:14:P2:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 14
+          }
+        },
+        {
+          "playerId": "P2",
+          "clientIntentId": "ordinary-multi-16",
+          "rawCommand": {
+            "sourceObjectId": "P2-RUNE-UNL-R04-05",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-multi-controller-probe:15:P2:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 15
+          }
+        },
+        {
+          "playerId": "P2",
+          "clientIntentId": "ordinary-multi-17",
+          "rawCommand": {
+            "sourceObjectId": "P2-RUNE-UNL-R04-01",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-multi-controller-probe:16:P2:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 16
+          }
+        },
+        {
+          "playerId": "P2",
+          "clientIntentId": "ordinary-multi-18",
+          "rawCommand": {
+            "sourceObjectId": "P2-RUNE-UNL-R06-08",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-multi-controller-probe:17:P2:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 17
+          }
+        },
+        {
+          "playerId": "P2",
+          "clientIntentId": "ordinary-multi-19",
+          "rawCommand": {
+            "sourceObjectId": "P2-RUNE-UNL-R06-12",
+            "sourceObjectIds": null,
+            "cmdType": "RECYCLE_RUNE",
+            "promptId": "ordinary-multi-controller-probe:18:P2:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 18
+          }
+        },
+        {
+          "playerId": "P2",
+          "clientIntentId": "ordinary-multi-20",
+          "rawCommand": {
+            "sourceObjectId": "P2-MAIN-ARC-006-006-23",
+            "cardNo": "ARC-006/006",
+            "targetObjectIds": [],
+            "mode": "",
+            "destination": "BASE",
+            "repeatChoices": null,
+            "movementDestinations": null,
+            "cmdType": "PLAY_CARD",
+            "promptId": "ordinary-multi-controller-probe:19:P2:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 19
+          }
+        },
+        {
+          "playerId": "P2",
+          "clientIntentId": "ordinary-multi-21",
+          "rawCommand": {
+            "cmdType": "END_TURN",
+            "promptId": "ordinary-multi-controller-probe:20:P2:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 20
+          }
+        },
+        {
+          "playerId": "P1",
+          "clientIntentId": "ordinary-multi-22",
+          "rawCommand": {
+            "sourceObjectId": "P1-RUNE-UNL-R06-11",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-multi-controller-probe:21:P1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 21
+          }
+        },
+        {
+          "playerId": "P1",
+          "clientIntentId": "ordinary-multi-23",
+          "rawCommand": {
+            "sourceObjectId": "P1-RUNE-UNL-R06-10",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-multi-controller-probe:22:P1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 22
+          }
+        },
+        {
+          "playerId": "P1",
+          "clientIntentId": "ordinary-multi-24",
+          "rawCommand": {
+            "sourceObjectId": "P1-RUNE-UNL-R04-02",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-multi-controller-probe:23:P1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 23
+          }
+        },
+        {
+          "playerId": "P1",
+          "clientIntentId": "ordinary-multi-25",
+          "rawCommand": {
+            "sourceObjectId": "P1-RUNE-UNL-R04-04",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-multi-controller-probe:24:P1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 24
+          }
+        },
+        {
+          "playerId": "P1",
+          "clientIntentId": "ordinary-multi-26",
+          "rawCommand": {
+            "sourceObjectId": "P1-RUNE-UNL-R06-09",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-multi-controller-probe:25:P1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 25
+          }
+        },
+        {
+          "playerId": "P1",
+          "clientIntentId": "ordinary-multi-27",
+          "rawCommand": {
+            "sourceObjectId": "P1-RUNE-UNL-R06-11",
+            "sourceObjectIds": null,
+            "cmdType": "RECYCLE_RUNE",
+            "promptId": "ordinary-multi-controller-probe:26:P1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 26
+          }
+        },
+        {
+          "playerId": "P1",
+          "clientIntentId": "ordinary-multi-28",
+          "rawCommand": {
+            "sourceObjectId": "P1-MAIN-ARC-006-006-11",
+            "cardNo": "ARC-006/006",
+            "targetObjectIds": [],
+            "mode": "",
+            "destination": "BASE",
+            "repeatChoices": null,
+            "movementDestinations": null,
+            "cmdType": "PLAY_CARD",
+            "promptId": "ordinary-multi-controller-probe:27:P1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 27
+          }
+        },
+        {
+          "playerId": "P1",
+          "clientIntentId": "ordinary-multi-29",
+          "rawCommand": {
+            "cmdType": "END_TURN",
+            "promptId": "ordinary-multi-controller-probe:28:P1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 28
+          }
+        },
+        {
+          "playerId": "P2",
+          "clientIntentId": "ordinary-multi-30",
+          "rawCommand": {
+            "sourceObjectId": "P2-RUNE-UNL-R04-05",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-multi-controller-probe:29:P2:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 29
+          }
+        },
+        {
+          "playerId": "P2",
+          "clientIntentId": "ordinary-multi-31",
+          "rawCommand": {
+            "sourceObjectId": "P2-RUNE-UNL-R04-01",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-multi-controller-probe:30:P2:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 30
+          }
+        },
+        {
+          "playerId": "P2",
+          "clientIntentId": "ordinary-multi-32",
+          "rawCommand": {
+            "sourceObjectId": "P2-RUNE-UNL-R06-08",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-multi-controller-probe:31:P2:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 31
+          }
+        },
+        {
+          "playerId": "P2",
+          "clientIntentId": "ordinary-multi-33",
+          "rawCommand": {
+            "sourceObjectId": "P2-RUNE-UNL-R04-02",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-multi-controller-probe:32:P2:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 32
+          }
+        },
+        {
+          "playerId": "P2",
+          "clientIntentId": "ordinary-multi-34",
+          "rawCommand": {
+            "sourceObjectId": "P2-RUNE-UNL-R06-11",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-multi-controller-probe:33:P2:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 33
+          }
+        },
+        {
+          "playerId": "P2",
+          "clientIntentId": "ordinary-multi-35",
+          "rawCommand": {
+            "sourceObjectId": "P2-RUNE-UNL-R06-08",
+            "sourceObjectIds": null,
+            "cmdType": "RECYCLE_RUNE",
+            "promptId": "ordinary-multi-controller-probe:34:P2:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 34
+          }
+        },
+        {
+          "playerId": "P2",
+          "clientIntentId": "ordinary-multi-36",
+          "rawCommand": {
+            "sourceObjectId": "P2-MAIN-ARC-006-006-22",
+            "cardNo": "ARC-006/006",
+            "targetObjectIds": [],
+            "mode": "",
+            "destination": "BASE",
+            "repeatChoices": null,
+            "movementDestinations": null,
+            "cmdType": "PLAY_CARD",
+            "promptId": "ordinary-multi-controller-probe:35:P2:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 35
+          }
+        },
+        {
+          "playerId": "P2",
+          "clientIntentId": "ordinary-multi-37",
+          "rawCommand": {
+            "cmdType": "END_TURN",
+            "promptId": "ordinary-multi-controller-probe:36:P2:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 36
+          }
+        },
+        {
+          "playerId": "P1",
+          "clientIntentId": "ordinary-multi-38",
+          "rawCommand": {
+            "sourceObjectId": "P1-RUNE-UNL-R06-10",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-multi-controller-probe:37:P1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 37
+          }
+        },
+        {
+          "playerId": "P1",
+          "clientIntentId": "ordinary-multi-39",
+          "rawCommand": {
+            "sourceObjectId": "P1-RUNE-UNL-R04-02",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-multi-controller-probe:38:P1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 38
+          }
+        },
+        {
+          "playerId": "P1",
+          "clientIntentId": "ordinary-multi-40",
+          "rawCommand": {
+            "sourceObjectId": "P1-RUNE-UNL-R04-04",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-multi-controller-probe:39:P1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 39
+          }
+        },
+        {
+          "playerId": "P1",
+          "clientIntentId": "ordinary-multi-41",
+          "rawCommand": {
+            "sourceObjectId": "P1-RUNE-UNL-R06-09",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-multi-controller-probe:40:P1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 40
+          }
+        },
+        {
+          "playerId": "P1",
+          "clientIntentId": "ordinary-multi-42",
+          "rawCommand": {
+            "sourceObjectId": "P1-RUNE-UNL-R06-07",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-multi-controller-probe:41:P1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 41
+          }
+        },
+        {
+          "playerId": "P1",
+          "clientIntentId": "ordinary-multi-43",
+          "rawCommand": {
+            "sourceObjectId": "P1-RUNE-UNL-R06-08",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-multi-controller-probe:42:P1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 42
+          }
+        },
+        {
+          "playerId": "P1",
+          "clientIntentId": "ordinary-multi-44",
+          "rawCommand": {
+            "sourceObjectId": "P1-RUNE-UNL-R06-10",
+            "sourceObjectIds": null,
+            "cmdType": "RECYCLE_RUNE",
+            "promptId": "ordinary-multi-controller-probe:43:P1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 43
+          }
+        },
+        {
+          "playerId": "P1",
+          "clientIntentId": "ordinary-multi-45",
+          "rawCommand": {
+            "sourceObjectId": "P1-MAIN-ARC-006-006-38",
+            "cardNo": "ARC-006/006",
+            "targetObjectIds": [],
+            "mode": "",
+            "destination": "BASE",
+            "repeatChoices": null,
+            "movementDestinations": null,
+            "cmdType": "PLAY_CARD",
+            "promptId": "ordinary-multi-controller-probe:44:P1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 44
+          }
+        },
+        {
+          "playerId": "P1",
+          "clientIntentId": "ordinary-multi-46",
+          "rawCommand": {
+            "cmdType": "END_TURN",
+            "promptId": "ordinary-multi-controller-probe:45:P1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 45
+          }
+        },
+        {
+          "playerId": "P2",
+          "clientIntentId": "ordinary-multi-47",
+          "rawCommand": {
+            "sourceObjectId": "P2-RUNE-UNL-R04-05",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-multi-controller-probe:46:P2:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 46
+          }
+        },
+        {
+          "playerId": "P2",
+          "clientIntentId": "ordinary-multi-48",
+          "rawCommand": {
+            "sourceObjectId": "P2-RUNE-UNL-R04-01",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-multi-controller-probe:47:P2:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 47
+          }
+        },
+        {
+          "playerId": "P2",
+          "clientIntentId": "ordinary-multi-49",
+          "rawCommand": {
+            "sourceObjectId": "P2-RUNE-UNL-R04-02",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-multi-controller-probe:48:P2:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 48
+          }
+        },
+        {
+          "playerId": "P2",
+          "clientIntentId": "ordinary-multi-50",
+          "rawCommand": {
+            "sourceObjectId": "P2-RUNE-UNL-R06-11",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-multi-controller-probe:49:P2:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 49
+          }
+        },
+        {
+          "playerId": "P2",
+          "clientIntentId": "ordinary-multi-51",
+          "rawCommand": {
+            "sourceObjectId": "P2-RUNE-UNL-R04-06",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-multi-controller-probe:50:P2:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 50
+          }
+        },
+        {
+          "playerId": "P2",
+          "clientIntentId": "ordinary-multi-52",
+          "rawCommand": {
+            "sourceObjectId": "P2-RUNE-UNL-R06-07",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-multi-controller-probe:51:P2:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 51
+          }
+        },
+        {
+          "playerId": "P2",
+          "clientIntentId": "ordinary-multi-53",
+          "rawCommand": {
+            "sourceObjectId": "P2-MAIN-UNL-111-219-14",
+            "origin": "BASE",
+            "destination": "BATTLEFIELD:P2-BATTLEFIELD-OGN-281-298-01",
+            "optionalCosts": [],
+            "sourceObjectIds": null,
+            "cmdType": "MOVE_UNIT",
+            "promptId": "ordinary-multi-controller-probe:52:P2:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 52
+          }
+        },
+        {
+          "playerId": "P2",
+          "clientIntentId": "ordinary-multi-54",
+          "rawCommand": {
+            "cmdType": "PASS_FOCUS",
+            "promptId": "ordinary-multi-controller-probe:53:P2:RECYCLE_RUNE,PLAY_CARD,PASS_FOCUS,SURRENDER",
+            "snapshotTick": 53
+          }
+        },
+        {
+          "playerId": "P1",
+          "clientIntentId": "ordinary-multi-55",
+          "rawCommand": {
+            "cmdType": "PASS_FOCUS",
+            "promptId": "ordinary-multi-controller-probe:54:P1:RECYCLE_RUNE,PASS_FOCUS,SURRENDER",
+            "snapshotTick": 54
+          }
+        },
+        {
+          "playerId": "P2",
+          "clientIntentId": "ordinary-multi-56",
+          "rawCommand": {
+            "cmdType": "END_TURN",
+            "promptId": "ordinary-multi-controller-probe:55:P2:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 55
+          }
+        },
+        {
+          "playerId": "P1",
+          "clientIntentId": "ordinary-multi-57",
+          "rawCommand": {
+            "sourceObjectId": "P1-RUNE-UNL-R04-02",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-multi-controller-probe:56:P1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 56
+          }
+        },
+        {
+          "playerId": "P1",
+          "clientIntentId": "ordinary-multi-58",
+          "rawCommand": {
+            "sourceObjectId": "P1-RUNE-UNL-R04-04",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-multi-controller-probe:57:P1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 57
+          }
+        },
+        {
+          "playerId": "P1",
+          "clientIntentId": "ordinary-multi-59",
+          "rawCommand": {
+            "sourceObjectId": "P1-RUNE-UNL-R06-09",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-multi-controller-probe:58:P1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 58
+          }
+        },
+        {
+          "playerId": "P1",
+          "clientIntentId": "ordinary-multi-60",
+          "rawCommand": {
+            "sourceObjectId": "P1-RUNE-UNL-R06-07",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-multi-controller-probe:59:P1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 59
+          }
+        },
+        {
+          "playerId": "P1",
+          "clientIntentId": "ordinary-multi-61",
+          "rawCommand": {
+            "sourceObjectId": "P1-RUNE-UNL-R06-08",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-multi-controller-probe:60:P1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 60
+          }
+        },
+        {
+          "playerId": "P1",
+          "clientIntentId": "ordinary-multi-62",
+          "rawCommand": {
+            "sourceObjectId": "P1-RUNE-UNL-R04-01",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-multi-controller-probe:61:P1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 61
+          }
+        },
+        {
+          "playerId": "P1",
+          "clientIntentId": "ordinary-multi-63",
+          "rawCommand": {
+            "sourceObjectId": "P1-RUNE-UNL-R04-06",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-multi-controller-probe:62:P1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 62
+          }
+        },
+        {
+          "playerId": "P1",
+          "clientIntentId": "ordinary-multi-64",
+          "rawCommand": {
+            "sourceObjectId": "P1-MAIN-UNL-111-219-21",
+            "origin": "BASE",
+            "destination": "BATTLEFIELD:P1-BATTLEFIELD-OGN-280-298-01",
+            "optionalCosts": [],
+            "sourceObjectIds": null,
+            "cmdType": "MOVE_UNIT",
+            "promptId": "ordinary-multi-controller-probe:63:P1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 63
+          }
+        },
+        {
+          "playerId": "P1",
+          "clientIntentId": "ordinary-multi-65",
+          "rawCommand": {
+            "cmdType": "PASS_FOCUS",
+            "promptId": "ordinary-multi-controller-probe:64:P1:RECYCLE_RUNE,PLAY_CARD,PASS_FOCUS,SURRENDER",
+            "snapshotTick": 64
+          }
+        },
+        {
+          "playerId": "P2",
+          "clientIntentId": "ordinary-multi-66",
+          "rawCommand": {
+            "cmdType": "PASS_FOCUS",
+            "promptId": "ordinary-multi-controller-probe:65:P2:RECYCLE_RUNE,PASS_FOCUS,SURRENDER",
+            "snapshotTick": 65
+          }
+        },
+        {
+          "playerId": "P1",
+          "clientIntentId": "ordinary-multi-67",
+          "rawCommand": {
+            "sourceObjectId": "P1-MAIN-OGN-133-298-12",
+            "cardNo": "OGN·133/298",
+            "targetObjectIds": [],
+            "mode": "",
+            "destination": "",
+            "repeatChoices": null,
+            "movementDestinations": null,
+            "cmdType": "PLAY_CARD",
+            "promptId": "ordinary-multi-controller-probe:66:P1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 66
+          }
+        },
+        {
+          "playerId": "P1",
+          "clientIntentId": "ordinary-multi-68",
+          "rawCommand": {
+            "cmdType": "PASS_PRIORITY",
+            "promptId": "ordinary-multi-controller-probe:67:P1:RECYCLE_RUNE,PASS_PRIORITY,SURRENDER",
+            "snapshotTick": 67
+          }
+        },
+        {
+          "playerId": "P2",
+          "clientIntentId": "ordinary-multi-69",
+          "rawCommand": {
+            "cmdType": "PASS_PRIORITY",
+            "promptId": "ordinary-multi-controller-probe:68:P2:RECYCLE_RUNE,PASS_PRIORITY,SURRENDER",
+            "snapshotTick": 68
+          }
+        }
+      ],
+      "expectedPrefixCommands": 70,
+      "expectedVictims": [
+        "P1-MAIN-UNL-111-219-21",
+        "P2-MAIN-UNL-111-219-14"
+      ]
+    },
+    {
+      "caster": "P2",
+      "sourcePlanFile": "var/qa/multi-controller-trigger-order-20261018/ordinary-opening-to-order-P2-v5.json",
+      "sourcePlanSha256": "2edf221420f96b055cf3fc78c195b657f4e6aecbc6b3321c562cb15d18f89422",
+      "acceptedCommands": [
+        {
+          "playerId": "P1",
+          "clientIntentId": "ordinary-multi-0",
+          "rawCommand": {
+            "legendCardNo": "UNL-203/219",
+            "championCardNo": "UNL-116/219",
+            "mainDeck": [
+              "UNL-116/219",
+              "UNL-092/219",
+              "UNL-105/219",
+              "ARC-006/006",
+              "UNL-097/219",
+              "UNL-111/219",
+              "UNL-111/219",
+              "UNL-092/219",
+              "OGN·133/298",
+              "OGN·133/298",
+              "UNL-092/219",
+              "ARC-006/006",
+              "OGN·133/298",
+              "UNL-093/219",
+              "UNL-093/219",
+              "UNL-093/219",
+              "UNL-094/219",
+              "UNL-094/219",
+              "UNL-094/219",
+              "UNL-097/219",
+              "UNL-097/219",
+              "UNL-111/219",
+              "UNL-098/219",
+              "UNL-098/219",
+              "UNL-098/219",
+              "UNL-099/219",
+              "UNL-099/219",
+              "UNL-099/219",
+              "UNL-100/219",
+              "UNL-100/219",
+              "UNL-100/219",
+              "UNL-102/219",
+              "UNL-102/219",
+              "UNL-102/219",
+              "UNL-104/219",
+              "UNL-104/219",
+              "UNL-104/219",
+              "UNL-105/219",
+              "ARC-006/006",
+              "UNL-105/219"
+            ],
+            "runeDeck": [
+              "UNL-R04",
+              "UNL-R04",
+              "UNL-R04",
+              "UNL-R04",
+              "UNL-R04",
+              "UNL-R04",
+              "UNL-R06",
+              "UNL-R06",
+              "UNL-R06",
+              "UNL-R06",
+              "UNL-R06",
+              "UNL-R06"
+            ],
+            "battlefields": [
+              "OGN·278/298",
+              "OGN·280/298",
+              "OGN·281/298"
+            ],
+            "cmdType": "SUBMIT_DECK",
+            "promptId": "ordinary-multi-controller-probe:0:P1:SUBMIT_DECK",
+            "snapshotTick": 0
+          }
+        },
+        {
+          "playerId": "P2",
+          "clientIntentId": "ordinary-multi-1",
+          "rawCommand": {
+            "legendCardNo": "UNL-203/219",
+            "championCardNo": "UNL-116/219",
+            "mainDeck": [
+              "UNL-116/219",
+              "UNL-098/219",
+              "UNL-098/219",
+              "ARC-006/006",
+              "UNL-093/219",
+              "UNL-111/219",
+              "UNL-111/219",
+              "UNL-102/219",
+              "OGN·133/298",
+              "OGN·133/298",
+              "UNL-092/219",
+              "UNL-092/219",
+              "UNL-092/219",
+              "UNL-093/219",
+              "UNL-111/219",
+              "UNL-093/219",
+              "UNL-094/219",
+              "UNL-094/219",
+              "UNL-094/219",
+              "UNL-097/219",
+              "UNL-097/219",
+              "UNL-097/219",
+              "ARC-006/006",
+              "ARC-006/006",
+              "UNL-098/219",
+              "UNL-099/219",
+              "UNL-099/219",
+              "UNL-099/219",
+              "UNL-100/219",
+              "UNL-100/219",
+              "UNL-100/219",
+              "OGN·133/298",
+              "UNL-102/219",
+              "UNL-102/219",
+              "UNL-104/219",
+              "UNL-104/219",
+              "UNL-104/219",
+              "UNL-105/219",
+              "UNL-105/219",
+              "UNL-105/219"
+            ],
+            "runeDeck": [
+              "UNL-R04",
+              "UNL-R04",
+              "UNL-R04",
+              "UNL-R04",
+              "UNL-R04",
+              "UNL-R04",
+              "UNL-R06",
+              "UNL-R06",
+              "UNL-R06",
+              "UNL-R06",
+              "UNL-R06",
+              "UNL-R06"
+            ],
+            "battlefields": [
+              "OGN·278/298",
+              "OGN·280/298",
+              "OGN·281/298"
+            ],
+            "cmdType": "SUBMIT_DECK",
+            "promptId": "ordinary-multi-controller-probe:1:P2:SUBMIT_DECK",
+            "snapshotTick": 1
+          }
+        },
+        {
+          "playerId": "P1",
+          "clientIntentId": "ordinary-multi-2",
+          "rawCommand": {
+            "cmdType": "READY",
+            "promptId": "ordinary-multi-controller-probe:2:P1:READY",
+            "snapshotTick": 2
+          }
+        },
+        {
+          "playerId": "P2",
+          "clientIntentId": "ordinary-multi-3",
+          "rawCommand": {
+            "cmdType": "READY",
+            "promptId": "ordinary-multi-controller-probe:2:P2:READY",
+            "snapshotTick": 2
+          }
+        },
+        {
+          "playerId": "P2",
+          "clientIntentId": "ordinary-multi-4",
+          "rawCommand": {
+            "handObjectIds": [],
+            "cmdType": "MULLIGAN",
+            "promptId": "ordinary-multi-controller-probe:2:P2:MULLIGAN,SURRENDER",
+            "snapshotTick": 2
+          }
+        },
+        {
+          "playerId": "P1",
+          "clientIntentId": "ordinary-multi-5",
+          "rawCommand": {
+            "handObjectIds": [],
+            "cmdType": "MULLIGAN",
+            "promptId": "ordinary-multi-controller-probe:3:P1:MULLIGAN,SURRENDER",
+            "snapshotTick": 3
+          }
+        },
+        {
+          "playerId": "P2",
+          "clientIntentId": "ordinary-multi-6",
+          "rawCommand": {
+            "sourceObjectId": "P2-RUNE-UNL-R06-12",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-multi-controller-probe:5:P2:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 5
+          }
+        },
+        {
+          "playerId": "P2",
+          "clientIntentId": "ordinary-multi-7",
+          "rawCommand": {
+            "sourceObjectId": "P2-RUNE-UNL-R04-05",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-multi-controller-probe:6:P2:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 6
+          }
+        },
+        {
+          "playerId": "P2",
+          "clientIntentId": "ordinary-multi-8",
+          "rawCommand": {
+            "sourceObjectId": "P2-MAIN-UNL-111-219-14",
+            "cardNo": "UNL-111/219",
+            "targetObjectIds": [],
+            "mode": "",
+            "destination": "BASE",
+            "repeatChoices": null,
+            "movementDestinations": null,
+            "cmdType": "PLAY_CARD",
+            "promptId": "ordinary-multi-controller-probe:7:P2:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 7
+          }
+        },
+        {
+          "playerId": "P2",
+          "clientIntentId": "ordinary-multi-9",
+          "rawCommand": {
+            "cmdType": "END_TURN",
+            "promptId": "ordinary-multi-controller-probe:8:P2:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 8
+          }
+        },
+        {
+          "playerId": "P1",
+          "clientIntentId": "ordinary-multi-10",
+          "rawCommand": {
+            "sourceObjectId": "P1-RUNE-UNL-R06-11",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-multi-controller-probe:9:P1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 9
+          }
+        },
+        {
+          "playerId": "P1",
+          "clientIntentId": "ordinary-multi-11",
+          "rawCommand": {
+            "sourceObjectId": "P1-RUNE-UNL-R06-10",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-multi-controller-probe:10:P1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 10
+          }
+        },
+        {
+          "playerId": "P1",
+          "clientIntentId": "ordinary-multi-12",
+          "rawCommand": {
+            "sourceObjectId": "P1-RUNE-UNL-R04-02",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-multi-controller-probe:11:P1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 11
+          }
+        },
+        {
+          "playerId": "P1",
+          "clientIntentId": "ordinary-multi-13",
+          "rawCommand": {
+            "sourceObjectId": "P1-MAIN-UNL-111-219-21",
+            "cardNo": "UNL-111/219",
+            "targetObjectIds": [],
+            "mode": "",
+            "destination": "BASE",
+            "repeatChoices": null,
+            "movementDestinations": null,
+            "cmdType": "PLAY_CARD",
+            "promptId": "ordinary-multi-controller-probe:12:P1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 12
+          }
+        },
+        {
+          "playerId": "P1",
+          "clientIntentId": "ordinary-multi-14",
+          "rawCommand": {
+            "cmdType": "END_TURN",
+            "promptId": "ordinary-multi-controller-probe:13:P1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 13
+          }
+        },
+        {
+          "playerId": "P2",
+          "clientIntentId": "ordinary-multi-15",
+          "rawCommand": {
+            "sourceObjectId": "P2-RUNE-UNL-R06-12",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-multi-controller-probe:14:P2:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 14
+          }
+        },
+        {
+          "playerId": "P2",
+          "clientIntentId": "ordinary-multi-16",
+          "rawCommand": {
+            "sourceObjectId": "P2-RUNE-UNL-R04-05",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-multi-controller-probe:15:P2:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 15
+          }
+        },
+        {
+          "playerId": "P2",
+          "clientIntentId": "ordinary-multi-17",
+          "rawCommand": {
+            "sourceObjectId": "P2-RUNE-UNL-R04-01",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-multi-controller-probe:16:P2:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 16
+          }
+        },
+        {
+          "playerId": "P2",
+          "clientIntentId": "ordinary-multi-18",
+          "rawCommand": {
+            "sourceObjectId": "P2-RUNE-UNL-R06-08",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-multi-controller-probe:17:P2:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 17
+          }
+        },
+        {
+          "playerId": "P2",
+          "clientIntentId": "ordinary-multi-19",
+          "rawCommand": {
+            "sourceObjectId": "P2-RUNE-UNL-R06-12",
+            "sourceObjectIds": null,
+            "cmdType": "RECYCLE_RUNE",
+            "promptId": "ordinary-multi-controller-probe:18:P2:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 18
+          }
+        },
+        {
+          "playerId": "P2",
+          "clientIntentId": "ordinary-multi-20",
+          "rawCommand": {
+            "sourceObjectId": "P2-MAIN-ARC-006-006-23",
+            "cardNo": "ARC-006/006",
+            "targetObjectIds": [],
+            "mode": "",
+            "destination": "BASE",
+            "repeatChoices": null,
+            "movementDestinations": null,
+            "cmdType": "PLAY_CARD",
+            "promptId": "ordinary-multi-controller-probe:19:P2:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 19
+          }
+        },
+        {
+          "playerId": "P2",
+          "clientIntentId": "ordinary-multi-21",
+          "rawCommand": {
+            "cmdType": "END_TURN",
+            "promptId": "ordinary-multi-controller-probe:20:P2:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 20
+          }
+        },
+        {
+          "playerId": "P1",
+          "clientIntentId": "ordinary-multi-22",
+          "rawCommand": {
+            "sourceObjectId": "P1-RUNE-UNL-R06-11",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-multi-controller-probe:21:P1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 21
+          }
+        },
+        {
+          "playerId": "P1",
+          "clientIntentId": "ordinary-multi-23",
+          "rawCommand": {
+            "sourceObjectId": "P1-RUNE-UNL-R06-10",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-multi-controller-probe:22:P1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 22
+          }
+        },
+        {
+          "playerId": "P1",
+          "clientIntentId": "ordinary-multi-24",
+          "rawCommand": {
+            "sourceObjectId": "P1-RUNE-UNL-R04-02",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-multi-controller-probe:23:P1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 23
+          }
+        },
+        {
+          "playerId": "P1",
+          "clientIntentId": "ordinary-multi-25",
+          "rawCommand": {
+            "sourceObjectId": "P1-RUNE-UNL-R04-04",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-multi-controller-probe:24:P1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 24
+          }
+        },
+        {
+          "playerId": "P1",
+          "clientIntentId": "ordinary-multi-26",
+          "rawCommand": {
+            "sourceObjectId": "P1-RUNE-UNL-R06-09",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-multi-controller-probe:25:P1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 25
+          }
+        },
+        {
+          "playerId": "P1",
+          "clientIntentId": "ordinary-multi-27",
+          "rawCommand": {
+            "sourceObjectId": "P1-RUNE-UNL-R06-11",
+            "sourceObjectIds": null,
+            "cmdType": "RECYCLE_RUNE",
+            "promptId": "ordinary-multi-controller-probe:26:P1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 26
+          }
+        },
+        {
+          "playerId": "P1",
+          "clientIntentId": "ordinary-multi-28",
+          "rawCommand": {
+            "sourceObjectId": "P1-MAIN-ARC-006-006-11",
+            "cardNo": "ARC-006/006",
+            "targetObjectIds": [],
+            "mode": "",
+            "destination": "BASE",
+            "repeatChoices": null,
+            "movementDestinations": null,
+            "cmdType": "PLAY_CARD",
+            "promptId": "ordinary-multi-controller-probe:27:P1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 27
+          }
+        },
+        {
+          "playerId": "P1",
+          "clientIntentId": "ordinary-multi-29",
+          "rawCommand": {
+            "cmdType": "END_TURN",
+            "promptId": "ordinary-multi-controller-probe:28:P1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 28
+          }
+        },
+        {
+          "playerId": "P2",
+          "clientIntentId": "ordinary-multi-30",
+          "rawCommand": {
+            "sourceObjectId": "P2-RUNE-UNL-R04-05",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-multi-controller-probe:29:P2:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 29
+          }
+        },
+        {
+          "playerId": "P2",
+          "clientIntentId": "ordinary-multi-31",
+          "rawCommand": {
+            "sourceObjectId": "P2-RUNE-UNL-R04-01",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-multi-controller-probe:30:P2:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 30
+          }
+        },
+        {
+          "playerId": "P2",
+          "clientIntentId": "ordinary-multi-32",
+          "rawCommand": {
+            "sourceObjectId": "P2-RUNE-UNL-R06-08",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-multi-controller-probe:31:P2:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 31
+          }
+        },
+        {
+          "playerId": "P2",
+          "clientIntentId": "ordinary-multi-33",
+          "rawCommand": {
+            "sourceObjectId": "P2-RUNE-UNL-R04-02",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-multi-controller-probe:32:P2:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 32
+          }
+        },
+        {
+          "playerId": "P2",
+          "clientIntentId": "ordinary-multi-34",
+          "rawCommand": {
+            "sourceObjectId": "P2-RUNE-UNL-R06-11",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-multi-controller-probe:33:P2:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 33
+          }
+        },
+        {
+          "playerId": "P2",
+          "clientIntentId": "ordinary-multi-35",
+          "rawCommand": {
+            "sourceObjectId": "P2-RUNE-UNL-R06-08",
+            "sourceObjectIds": null,
+            "cmdType": "RECYCLE_RUNE",
+            "promptId": "ordinary-multi-controller-probe:34:P2:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 34
+          }
+        },
+        {
+          "playerId": "P2",
+          "clientIntentId": "ordinary-multi-36",
+          "rawCommand": {
+            "sourceObjectId": "P2-MAIN-ARC-006-006-22",
+            "cardNo": "ARC-006/006",
+            "targetObjectIds": [],
+            "mode": "",
+            "destination": "BASE",
+            "repeatChoices": null,
+            "movementDestinations": null,
+            "cmdType": "PLAY_CARD",
+            "promptId": "ordinary-multi-controller-probe:35:P2:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 35
+          }
+        },
+        {
+          "playerId": "P2",
+          "clientIntentId": "ordinary-multi-37",
+          "rawCommand": {
+            "cmdType": "END_TURN",
+            "promptId": "ordinary-multi-controller-probe:36:P2:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 36
+          }
+        },
+        {
+          "playerId": "P1",
+          "clientIntentId": "ordinary-multi-38",
+          "rawCommand": {
+            "sourceObjectId": "P1-RUNE-UNL-R06-10",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-multi-controller-probe:37:P1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 37
+          }
+        },
+        {
+          "playerId": "P1",
+          "clientIntentId": "ordinary-multi-39",
+          "rawCommand": {
+            "sourceObjectId": "P1-RUNE-UNL-R04-02",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-multi-controller-probe:38:P1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 38
+          }
+        },
+        {
+          "playerId": "P1",
+          "clientIntentId": "ordinary-multi-40",
+          "rawCommand": {
+            "sourceObjectId": "P1-RUNE-UNL-R04-04",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-multi-controller-probe:39:P1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 39
+          }
+        },
+        {
+          "playerId": "P1",
+          "clientIntentId": "ordinary-multi-41",
+          "rawCommand": {
+            "sourceObjectId": "P1-RUNE-UNL-R06-09",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-multi-controller-probe:40:P1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 40
+          }
+        },
+        {
+          "playerId": "P1",
+          "clientIntentId": "ordinary-multi-42",
+          "rawCommand": {
+            "sourceObjectId": "P1-RUNE-UNL-R06-07",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-multi-controller-probe:41:P1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 41
+          }
+        },
+        {
+          "playerId": "P1",
+          "clientIntentId": "ordinary-multi-43",
+          "rawCommand": {
+            "sourceObjectId": "P1-RUNE-UNL-R06-08",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-multi-controller-probe:42:P1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 42
+          }
+        },
+        {
+          "playerId": "P1",
+          "clientIntentId": "ordinary-multi-44",
+          "rawCommand": {
+            "sourceObjectId": "P1-RUNE-UNL-R06-10",
+            "sourceObjectIds": null,
+            "cmdType": "RECYCLE_RUNE",
+            "promptId": "ordinary-multi-controller-probe:43:P1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 43
+          }
+        },
+        {
+          "playerId": "P1",
+          "clientIntentId": "ordinary-multi-45",
+          "rawCommand": {
+            "sourceObjectId": "P1-MAIN-ARC-006-006-38",
+            "cardNo": "ARC-006/006",
+            "targetObjectIds": [],
+            "mode": "",
+            "destination": "BASE",
+            "repeatChoices": null,
+            "movementDestinations": null,
+            "cmdType": "PLAY_CARD",
+            "promptId": "ordinary-multi-controller-probe:44:P1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 44
+          }
+        },
+        {
+          "playerId": "P1",
+          "clientIntentId": "ordinary-multi-46",
+          "rawCommand": {
+            "sourceObjectId": "P1-MAIN-UNL-111-219-21",
+            "origin": "BASE",
+            "destination": "BATTLEFIELD:P1-BATTLEFIELD-OGN-280-298-01",
+            "optionalCosts": [],
+            "sourceObjectIds": null,
+            "cmdType": "MOVE_UNIT",
+            "promptId": "ordinary-multi-controller-probe:45:P1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 45
+          }
+        },
+        {
+          "playerId": "P1",
+          "clientIntentId": "ordinary-multi-47",
+          "rawCommand": {
+            "cmdType": "PASS_FOCUS",
+            "promptId": "ordinary-multi-controller-probe:46:P1:RECYCLE_RUNE,PLAY_CARD,PASS_FOCUS,SURRENDER",
+            "snapshotTick": 46
+          }
+        },
+        {
+          "playerId": "P2",
+          "clientIntentId": "ordinary-multi-48",
+          "rawCommand": {
+            "cmdType": "PASS_FOCUS",
+            "promptId": "ordinary-multi-controller-probe:47:P2:RECYCLE_RUNE,PASS_FOCUS,SURRENDER",
+            "snapshotTick": 47
+          }
+        },
+        {
+          "playerId": "P1",
+          "clientIntentId": "ordinary-multi-49",
+          "rawCommand": {
+            "cmdType": "END_TURN",
+            "promptId": "ordinary-multi-controller-probe:48:P1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 48
+          }
+        },
+        {
+          "playerId": "P2",
+          "clientIntentId": "ordinary-multi-50",
+          "rawCommand": {
+            "sourceObjectId": "P2-RUNE-UNL-R04-05",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-multi-controller-probe:49:P2:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 49
+          }
+        },
+        {
+          "playerId": "P2",
+          "clientIntentId": "ordinary-multi-51",
+          "rawCommand": {
+            "sourceObjectId": "P2-RUNE-UNL-R04-01",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-multi-controller-probe:50:P2:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 50
+          }
+        },
+        {
+          "playerId": "P2",
+          "clientIntentId": "ordinary-multi-52",
+          "rawCommand": {
+            "sourceObjectId": "P2-RUNE-UNL-R04-02",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-multi-controller-probe:51:P2:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 51
+          }
+        },
+        {
+          "playerId": "P2",
+          "clientIntentId": "ordinary-multi-53",
+          "rawCommand": {
+            "sourceObjectId": "P2-RUNE-UNL-R06-11",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-multi-controller-probe:52:P2:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 52
+          }
+        },
+        {
+          "playerId": "P2",
+          "clientIntentId": "ordinary-multi-54",
+          "rawCommand": {
+            "sourceObjectId": "P2-RUNE-UNL-R04-06",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-multi-controller-probe:53:P2:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 53
+          }
+        },
+        {
+          "playerId": "P2",
+          "clientIntentId": "ordinary-multi-55",
+          "rawCommand": {
+            "sourceObjectId": "P2-RUNE-UNL-R06-07",
+            "sourceObjectIds": null,
+            "cmdType": "TAP_RUNE",
+            "promptId": "ordinary-multi-controller-probe:54:P2:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 54
+          }
+        },
+        {
+          "playerId": "P2",
+          "clientIntentId": "ordinary-multi-56",
+          "rawCommand": {
+            "sourceObjectId": "P2-MAIN-UNL-111-219-14",
+            "origin": "BASE",
+            "destination": "BATTLEFIELD:P2-BATTLEFIELD-OGN-281-298-01",
+            "optionalCosts": [],
+            "sourceObjectIds": null,
+            "cmdType": "MOVE_UNIT",
+            "promptId": "ordinary-multi-controller-probe:55:P2:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 55
+          }
+        },
+        {
+          "playerId": "P2",
+          "clientIntentId": "ordinary-multi-57",
+          "rawCommand": {
+            "cmdType": "PASS_FOCUS",
+            "promptId": "ordinary-multi-controller-probe:56:P2:RECYCLE_RUNE,PLAY_CARD,PASS_FOCUS,SURRENDER",
+            "snapshotTick": 56
+          }
+        },
+        {
+          "playerId": "P1",
+          "clientIntentId": "ordinary-multi-58",
+          "rawCommand": {
+            "cmdType": "PASS_FOCUS",
+            "promptId": "ordinary-multi-controller-probe:57:P1:RECYCLE_RUNE,PASS_FOCUS,SURRENDER",
+            "snapshotTick": 57
+          }
+        },
+        {
+          "playerId": "P2",
+          "clientIntentId": "ordinary-multi-59",
+          "rawCommand": {
+            "sourceObjectId": "P2-MAIN-OGN-133-298-31",
+            "cardNo": "OGN·133/298",
+            "targetObjectIds": [],
+            "mode": "",
+            "destination": "",
+            "repeatChoices": null,
+            "movementDestinations": null,
+            "cmdType": "PLAY_CARD",
+            "promptId": "ordinary-multi-controller-probe:58:P2:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 58
+          }
+        },
+        {
+          "playerId": "P2",
+          "clientIntentId": "ordinary-multi-60",
+          "rawCommand": {
+            "cmdType": "PASS_PRIORITY",
+            "promptId": "ordinary-multi-controller-probe:59:P2:RECYCLE_RUNE,PLAY_CARD,PASS_PRIORITY,SURRENDER",
+            "snapshotTick": 59
+          }
+        },
+        {
+          "playerId": "P1",
+          "clientIntentId": "ordinary-multi-61",
+          "rawCommand": {
+            "cmdType": "PASS_PRIORITY",
+            "promptId": "ordinary-multi-controller-probe:60:P1:RECYCLE_RUNE,PASS_PRIORITY,SURRENDER",
+            "snapshotTick": 60
+          }
+        }
+      ],
+      "expectedPrefixCommands": 62,
+      "expectedVictims": [
+        "P1-MAIN-UNL-111-219-21",
+        "P2-MAIN-UNL-111-219-14"
+      ]
+    }
+  ]
+}

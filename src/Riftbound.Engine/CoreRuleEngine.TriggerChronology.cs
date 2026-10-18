@@ -10,12 +10,16 @@ public sealed partial class CoreRuleEngine
     internal static IReadOnlyList<IReadOnlyDictionary<string, object?>> TriggerInsertionControllerBlocks(MatchState state)
         => TriggerControllerBlockViews(BuildApnapTriggerControllerBlocks(state));
 
-    internal static string? SoleTriggerChoiceControllerId(MatchState state)
+    internal static IReadOnlyList<string> TriggerChoiceControllerIds(MatchState state)
     {
         var controllers = BuildApnapTriggerControllerBlocks(state).Where(block => block.TriggerIds.Count > 1)
             .Select(block => block.ControllerId).Distinct(StringComparer.Ordinal).ToArray();
-        return controllers.Length == 1 ? controllers[0] : null;
+        return OrderTriggerApnapControllerIds(state, controllers);
     }
+
+    internal static string? NextTriggerChoiceControllerId(MatchState state)
+        => TriggerChoiceControllerIds(state).FirstOrDefault(controller => state.TriggerQueue
+            .Any(t => t.ControllerId == controller && !t.ControllerOrderConfirmed));
 
     // A later command cannot make an earlier earned trigger simultaneous with it.
     // This records command chronology; finer ordering inside one command remains

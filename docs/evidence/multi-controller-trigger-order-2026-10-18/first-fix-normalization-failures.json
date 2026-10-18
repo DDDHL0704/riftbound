@@ -1,0 +1,53 @@
+{
+  "recordedAtUtc": "2026-10-18T04:57:22.452422+00:00",
+  "actualCases": 233,
+  "passed": 226,
+  "failed": [
+    {
+      "name": "Riftbound.ConformanceTests.MultiControllerTriggerOrderingTests.IndependentRecoveryRejectsForgedControllerConfirmationProgress(mutation: \"lost-simultaneous-partner\")",
+      "message": "Assert.Equal() Failure: Strings differ\n           ↓ (pos 0)\nExpected: \"3014e7350a0ab7f04b00e7fad1954a9dd970a206b\"···\nActual:   \"5d05b306192d5ddf0676fea3df78d64c8da5280c6\"···\n           ↑ (pos 0)"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.MultiControllerTriggerOrderingTests.EachControllerMustChooseBeforeTheCombinedQueueMovesToTheStack(reverseFirst: True)",
+      "message": "Assert.Equal() Failure: Strings differ\n             ↓ (pos 2)\nExpected: \"862107e81e6f5302256b3a1514f2dd02982eb575c\"···\nActual:   \"860c4a48018890f374fba9eb6f50a694130cabce1\"···\n             ↑ (pos 2)"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.MultiControllerTriggerOrderingTests.IndependentRecoveryRejectsForgedControllerConfirmationProgress(mutation: \"all-confirmed\")",
+      "message": "Assert.Equal() Failure: Strings differ\n           ↓ (pos 0)\nExpected: \"3014e7350a0ab7f04b00e7fad1954a9dd970a206b\"···\nActual:   \"5d05b306192d5ddf0676fea3df78d64c8da5280c6\"···\n           ↑ (pos 0)"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.MultiControllerTriggerOrderingTests.IndependentRecoveryRejectsForgedControllerConfirmationProgress(mutation: \"confirmation-before-enqueue\")",
+      "message": "Assert.Equal() Failure: Strings differ\n           ↓ (pos 0)\nExpected: \"3014e7350a0ab7f04b00e7fad1954a9dd970a206b\"···\nActual:   \"5d05b306192d5ddf0676fea3df78d64c8da5280c6\"···\n           ↑ (pos 0)"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.MultiControllerTriggerOrderingTests.IndependentRecoveryRejectsForgedControllerConfirmationProgress(mutation: \"partial-controller\")",
+      "message": "Assert.Equal() Failure: Strings differ\n           ↓ (pos 0)\nExpected: \"3014e7350a0ab7f04b00e7fad1954a9dd970a206b\"···\nActual:   \"5d05b306192d5ddf0676fea3df78d64c8da5280c6\"···\n           ↑ (pos 0)"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.MultiControllerTriggerOrderingTests.EachControllerMustChooseBeforeTheCombinedQueueMovesToTheStack(reverseFirst: False)",
+      "message": "Assert.Equal() Failure: Strings differ\n           ↓ (pos 0)\nExpected: \"3014e7350a0ab7f04b00e7fad1954a9dd970a206b\"···\nActual:   \"5d05b306192d5ddf0676fea3df78d64c8da5280c6\"···\n           ↑ (pos 0)"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.MultiControllerTriggerOrderingTests.IndependentRecoveryRejectsForgedControllerConfirmationProgress(mutation: \"wrong-first-controller\")",
+      "message": "Assert.Equal() Failure: Strings differ\n           ↓ (pos 0)\nExpected: \"3014e7350a0ab7f04b00e7fad1954a9dd970a206b\"···\nActual:   \"5d05b306192d5ddf0676fea3df78d64c8da5280c6\"···\n           ↑ (pos 0)"
+    }
+  ],
+  "trxSha256": "1b6f5da266ec5c0ce0a8abacb7cf593d4c38085f952d9f6cb36d3ab5e4ba2d13",
+  "executedOwnModuleSha256": {
+    "Riftbound.CardCatalog.dll": "c2cb858b2ed51f553e93ca455e20e6dd414ac85c65e95fe0aa7dc7e1f8a00c32",
+    "Riftbound.Contracts.pdb": "92ec16eaced52f013fc91eb6b7a11a39719866e26ccc74a55f521f1ad6f8e69b",
+    "Riftbound.Engine.pdb": "456a4ec9b19cf3b0855dc62094242ad5c8ac66d71e7d0921ed6355be9f0af6f7",
+    "Riftbound.CardCatalog.pdb": "fc5e825bbec80765e6b00c62544535a5f7c46c71a0b7a7aeebaefb40a128675c",
+    "Riftbound.Contracts.dll": "04fa1185cf888d150801c76042ad68d99a22e8ff3c3cdd1795b93a284ca06848",
+    "Riftbound.Engine.dll": "cddb8a4a2ef7130ecec2f27c4a7ab6f6cabeebb6c803e1d0678b920c4fecb9c7",
+    "Riftbound.Persistence.pdb": "c0006f80047469f2fce66b5ea6449b85d6d08eb9c0c8fcd4ca4029bff9871559",
+    "Riftbound.Api.dll": "98c7103a670d7be3807e04c3e06eec0f70670d84e30d2e45677cf7ae8e2e157e",
+    "Riftbound.ConformanceTests.pdb": "de9f7f643f73a17808fa4faf709b3e4eac88aff5e851f0595781479c6c28615e",
+    "Riftbound.Api.pdb": "f23ba67ba927d6df94bcf8cc48927323967cf9f49e09c6cf32b603c712cd554c",
+    "Riftbound.Persistence.dll": "1fee74688dc23af835105b66e7e71c8f6f5f1eebbc06423d1075edf9ee8c47db",
+    "Riftbound.ConformanceTests.dll": "41e1ae3e6eed73c4800a5776fb0fa260fb07acac6a761c76f9c7d791edfe6f5c"
+  },
+  "actualFailure": "MatchState constructor normalizes TriggerQueue by explicit reconstruction and dropped new controller confirmation flag; staged state JSON round-trip hash mismatch before deeper assertions.",
+  "correction": "Preserve ControllerOrderConfirmed in existing queue normalization.",
+  "failedRuntimeHashesRecordedWithoutAccumulatingAnotherFullNativeOrSourceCopy": true
+}

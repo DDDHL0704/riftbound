@@ -1,0 +1,81 @@
+{
+  "recordedAtUtc": "2026-10-18T05:49:40.300660+00:00",
+  "baseCommit": "f199451ae6ceb135fa4fe4eafcba03e73ec9b99d",
+  "groups": {
+    "conformanceSources": {
+      "originalFiles": 456,
+      "byteExact": 455,
+      "changed": [
+        "tests/Riftbound.ConformanceTests/OfficialLegendTokenTests.cs"
+      ]
+    },
+    "fixtures": {
+      "originalFiles": 1277,
+      "byteExact": 1277,
+      "changed": []
+    },
+    "fullGameSources": {
+      "originalFiles": 8,
+      "byteExact": 8,
+      "changed": []
+    },
+    "sqlSources": {
+      "originalFiles": 32,
+      "byteExact": 31,
+      "changed": [
+        "tests/Riftbound.PostgresAcceptance/Program.cs"
+      ]
+    }
+  },
+  "originalChangedConformanceFileEveryOriginalLineRetainedInOrder": true,
+  "addedLinesOnly": [
+    "            .OrderByDescending(t => t.ControllerId, StringComparer.Ordinal).ThenBy(t => t.TriggerId, StringComparer.Ordinal).Select(t => t.TriggerId).ToArray()));\n",
+    "        Assert.Equal(4, done.State.TriggerQueue.Count); Assert.Empty(done.State.StackItems); Restore(done.State);\n",
+    "        done = await Act(done.State, \"P2\", new OrderTriggersCommand(OrderedTriggerIds: done.State.TriggerQueue\n"
+  ],
+  "allOriginalPublicMethodsTheoryRowsPrivacyStateVictoryAndReplayAssertionsRetained": true,
+  "allOriginalFullGameSourcesAnd143MethodsByteExact": true,
+  "allOriginalFixturesAndElevenDeckGoldenSourceBytesExact": true,
+  "originalSqlCallsIncludingAll31DefaultConsumersRetainedInExactOrder": [
+    "FateWeaverSqlAcceptance",
+    "HereLocationSqlAcceptance",
+    "BanishEffectPlaySqlAcceptance",
+    "BattlefieldPlayDamageSqlAcceptance",
+    "BattlefieldPlayRecoverySqlAcceptance",
+    "OptionalCostsSqlAcceptance",
+    "OpeningRandomnessSqlAcceptance",
+    "CardPlayHistoryCausalSqlAcceptance",
+    "CreatedTokenReadySqlAcceptance",
+    "BattleHistorySqlAcceptance",
+    "MaskedAttendantSqlAcceptance",
+    "GrantedPredictSqlAcceptance",
+    "PrintedPredictSqlAcceptance",
+    "SivirOptionalSqlAcceptance",
+    "RuneRecycleDestinationSqlAcceptance",
+    "SivirPaymentSqlAcceptance",
+    "ConquestTokenSqlAcceptance",
+    "RecycledCardBoonSqlAcceptance",
+    "RecycleBoonLifecycleSqlAcceptance",
+    "AttachedRecycleLifecycleSqlAcceptance",
+    "CardPlayHistorySqlAcceptance",
+    "PatchedPorobotSqlAcceptance",
+    "CardPlayHistoryCausalSqlAcceptance",
+    "ClairvoyanceSqlAcceptance",
+    "InsightRepeatSqlAcceptance",
+    "CombatAssignmentSqlAcceptance",
+    "ConfirmedPlayOriginSqlAcceptance",
+    "PhysicalOriginCostSqlAcceptance",
+    "GrantedOriginHasteSqlAcceptance",
+    "OpponentBattlefieldControlSqlAcceptance",
+    "OptionalSacrificeSqlAcceptance",
+    "GrantedTokenHasteSqlAcceptance",
+    "OptionalCostsSqlAcceptance",
+    "BattlefieldPlayRecoverySqlAcceptance",
+    "BattlefieldPlayDamageSqlAcceptance",
+    "BanishEffectPlaySqlAcceptance",
+    "HereLocationSqlAcceptance",
+    "FateWeaverSqlAcceptance"
+  ],
+  "newSqlDefaultAndExplicitSelectorCallsOnly": 2,
+  "additionalFullSourceCheckoutCreated": false
+}

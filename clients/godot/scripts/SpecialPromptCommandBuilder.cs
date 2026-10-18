@@ -6,7 +6,7 @@ using Godot;
 
 namespace Riftbound.GodotClient;
 
-public sealed record TriggerPromptItem(string TriggerId, string Label, int ControllerBlockIndex);
+public sealed record TriggerPromptItem(string TriggerId, string Label, int ControllerBlockIndex, bool CanReorder);
 
 public static class SpecialPromptCommandBuilder
 {
@@ -44,6 +44,14 @@ public static class SpecialPromptCommandBuilder
             return false;
         }
 
+        if (!metadata.TryGetProperty("reorderableTriggerIds", out var reorderable)
+            || !TryReadUniqueTriggerIds(reorderable, "reorderableTriggerIds", out var reorderableIds, out reason)
+            || reorderableIds.Except(orderedTriggerIds, StringComparer.Ordinal).Any())
+        {
+            reason = "reorderableTriggerIds must identify server trigger choices";
+            return false;
+        }
+
         var parsed = new List<TriggerPromptItem>(orderedTriggerIds.Length);
         foreach (var triggerId in orderedTriggerIds)
         {
@@ -53,7 +61,8 @@ public static class SpecialPromptCommandBuilder
                 return false;
             }
 
-            parsed.Add(new TriggerPromptItem(triggerId, label, controllerBlockIndexes[triggerId]));
+            parsed.Add(new TriggerPromptItem(triggerId, label, controllerBlockIndexes[triggerId],
+                reorderableIds.Contains(triggerId, StringComparer.Ordinal)));
         }
 
         triggers = parsed;
@@ -623,6 +632,11 @@ public static class SpecialPromptCommandBuilder
         out string reason)
     {
         reason = string.Empty;
+        if (serverTriggers.Where((trigger, index) => !trigger.CanReorder && submittedIds[index] != trigger.TriggerId).Any())
+        {
+            reason = "ordered trigger selection must preserve other controllers' choices";
+            return false;
+        }
         var blockById = serverTriggers.ToDictionary(trigger => trigger.TriggerId, trigger => trigger.ControllerBlockIndex, StringComparer.Ordinal);
         var previousBlock = -1;
         foreach (var triggerId in submittedIds)

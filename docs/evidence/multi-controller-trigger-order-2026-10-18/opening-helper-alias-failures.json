@@ -1,0 +1,43 @@
+{
+  "recordedAtUtc": "2026-10-18T05:36:03.652719+00:00",
+  "actualCases": 384,
+  "passed": 376,
+  "failures": [
+    {
+      "name": "Riftbound.ConformanceTests.MultiControllerTriggerOpeningTests.OrdinaryBlankOpeningKeepsBothControllersChoicesAcrossColdRecoveryAndOriginalReplay(caster: \"P1\", reverseFirst: False, reverseSecond: False)",
+      "message": "System.ArgumentNullException : Value cannot be null. (Parameter 'source')"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.MultiControllerTriggerOpeningTests.OrdinaryBlankOpeningKeepsBothControllersChoicesAcrossColdRecoveryAndOriginalReplay(caster: \"P1\", reverseFirst: True, reverseSecond: False)",
+      "message": "System.ArgumentNullException : Value cannot be null. (Parameter 'source')"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.MultiControllerTriggerOpeningTests.OrdinaryBlankOpeningKeepsBothControllersChoicesAcrossColdRecoveryAndOriginalReplay(caster: \"P2\", reverseFirst: False, reverseSecond: False)",
+      "message": "System.ArgumentNullException : Value cannot be null. (Parameter 'source')"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.MultiControllerTriggerOpeningTests.OrdinaryBlankOpeningKeepsBothControllersChoicesAcrossColdRecoveryAndOriginalReplay(caster: \"P1\", reverseFirst: False, reverseSecond: True)",
+      "message": "System.ArgumentNullException : Value cannot be null. (Parameter 'source')"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.MultiControllerTriggerOpeningTests.OrdinaryBlankOpeningKeepsBothControllersChoicesAcrossColdRecoveryAndOriginalReplay(caster: \"P2\", reverseFirst: False, reverseSecond: True)",
+      "message": "System.ArgumentNullException : Value cannot be null. (Parameter 'source')"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.MultiControllerTriggerOpeningTests.OrdinaryBlankOpeningKeepsBothControllersChoicesAcrossColdRecoveryAndOriginalReplay(caster: \"P2\", reverseFirst: True, reverseSecond: False)",
+      "message": "System.ArgumentNullException : Value cannot be null. (Parameter 'source')"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.MultiControllerTriggerOpeningTests.OrdinaryBlankOpeningKeepsBothControllersChoicesAcrossColdRecoveryAndOriginalReplay(caster: \"P1\", reverseFirst: True, reverseSecond: True)",
+      "message": "System.ArgumentNullException : Value cannot be null. (Parameter 'source')"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.MultiControllerTriggerOpeningTests.OrdinaryBlankOpeningKeepsBothControllersChoicesAcrossColdRecoveryAndOriginalReplay(caster: \"P2\", reverseFirst: True, reverseSecond: True)",
+      "message": "System.ArgumentNullException : Value cannot be null. (Parameter 'source')"
+    }
+  ],
+  "actualTrxSha256": "733f153959eca39c5583d7bab130c8e1530f015b910b5ddaacac66ce28e5bb84",
+  "cause": "Test helper used the first positional OrderTriggersCommand parameter (TriggerIds), then inspected OrderedTriggerIds. Both forms are legitimate protocol inputs; helper must explicitly populate the inspected member.",
+  "correction": "Use named OrderedTriggerIds for the returned helper command; keep all assertions and all8 Theory rows.",
+  "productionCoreChanged": false
+}

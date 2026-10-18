@@ -1,0 +1,172 @@
+{
+  "status": "ALL_EIGHT_ORDINARY_BLANK_ORDER_COMBINATIONS_AND_ADJACENT_NATIVE_COMMANDS_PASS",
+  "actualCases": 384,
+  "selectedMethods": 259,
+  "ordinaryBranches": [
+    {
+      "caster": "P2",
+      "reverseFirst": false,
+      "reverseSecond": true,
+      "actualRuleInputs": {
+        "SchemaVersion": 1,
+        "Region": "CN",
+        "Language": "zh-CN",
+        "AuthoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "CatalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "ImplementationSha256": "41711827d112a646ec4a56b3979a155d146ffeb368441fde25847b78ab5f1a7e",
+        "IdentitySha256": "119ca62449b526ba297cd37e485443c658c62dcf4425ad7686349ce35da0bc16"
+      },
+      "commands": 72,
+      "events": 230,
+      "originalBlankSeed": 0,
+      "coldCheckpoints": 4,
+      "bothDeckFormatsValidated": true,
+      "allOriginalActionAndEventReplayChecksMatched": true
+    },
+    {
+      "caster": "P2",
+      "reverseFirst": true,
+      "reverseSecond": false,
+      "actualRuleInputs": {
+        "SchemaVersion": 1,
+        "Region": "CN",
+        "Language": "zh-CN",
+        "AuthoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "CatalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "ImplementationSha256": "41711827d112a646ec4a56b3979a155d146ffeb368441fde25847b78ab5f1a7e",
+        "IdentitySha256": "119ca62449b526ba297cd37e485443c658c62dcf4425ad7686349ce35da0bc16"
+      },
+      "commands": 72,
+      "events": 230,
+      "originalBlankSeed": 0,
+      "coldCheckpoints": 4,
+      "bothDeckFormatsValidated": true,
+      "allOriginalActionAndEventReplayChecksMatched": true
+    },
+    {
+      "caster": "P1",
+      "reverseFirst": true,
+      "reverseSecond": true,
+      "actualRuleInputs": {
+        "SchemaVersion": 1,
+        "Region": "CN",
+        "Language": "zh-CN",
+        "AuthoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "CatalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "ImplementationSha256": "41711827d112a646ec4a56b3979a155d146ffeb368441fde25847b78ab5f1a7e",
+        "IdentitySha256": "119ca62449b526ba297cd37e485443c658c62dcf4425ad7686349ce35da0bc16"
+      },
+      "commands": 80,
+      "events": 254,
+      "originalBlankSeed": 0,
+      "coldCheckpoints": 4,
+      "bothDeckFormatsValidated": true,
+      "allOriginalActionAndEventReplayChecksMatched": true
+    },
+    {
+      "caster": "P2",
+      "reverseFirst": false,
+      "reverseSecond": false,
+      "actualRuleInputs": {
+        "SchemaVersion": 1,
+        "Region": "CN",
+        "Language": "zh-CN",
+        "AuthoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "CatalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "ImplementationSha256": "41711827d112a646ec4a56b3979a155d146ffeb368441fde25847b78ab5f1a7e",
+        "IdentitySha256": "119ca62449b526ba297cd37e485443c658c62dcf4425ad7686349ce35da0bc16"
+      },
+      "commands": 72,
+      "events": 230,
+      "originalBlankSeed": 0,
+      "coldCheckpoints": 4,
+      "bothDeckFormatsValidated": true,
+      "allOriginalActionAndEventReplayChecksMatched": true
+    },
+    {
+      "caster": "P1",
+      "reverseFirst": false,
+      "reverseSecond": true,
+      "actualRuleInputs": {
+        "SchemaVersion": 1,
+        "Region": "CN",
+        "Language": "zh-CN",
+        "AuthoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "CatalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "ImplementationSha256": "41711827d112a646ec4a56b3979a155d146ffeb368441fde25847b78ab5f1a7e",
+        "IdentitySha256": "119ca62449b526ba297cd37e485443c658c62dcf4425ad7686349ce35da0bc16"
+      },
+      "commands": 80,
+      "events": 254,
+      "originalBlankSeed": 0,
+      "coldCheckpoints": 4,
+      "bothDeckFormatsValidated": true,
+      "allOriginalActionAndEventReplayChecksMatched": true
+    },
+    {
+      "caster": "P1",
+      "reverseFirst": true,
+      "reverseSecond": false,
+      "actualRuleInputs": {
+        "SchemaVersion": 1,
+        "Region": "CN",
+        "Language": "zh-CN",
+        "AuthoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "CatalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "ImplementationSha256": "41711827d112a646ec4a56b3979a155d146ffeb368441fde25847b78ab5f1a7e",
+        "IdentitySha256": "119ca62449b526ba297cd37e485443c658c62dcf4425ad7686349ce35da0bc16"
+      },
+      "commands": 80,
+      "events": 254,
+      "originalBlankSeed": 0,
+      "coldCheckpoints": 4,
+      "bothDeckFormatsValidated": true,
+      "allOriginalActionAndEventReplayChecksMatched": true
+    },
+    {
+      "caster": "P2",
+      "reverseFirst": true,
+      "reverseSecond": true,
+      "actualRuleInputs": {
+        "SchemaVersion": 1,
+        "Region": "CN",
+        "Language": "zh-CN",
+        "AuthoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "CatalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "ImplementationSha256": "41711827d112a646ec4a56b3979a155d146ffeb368441fde25847b78ab5f1a7e",
+        "IdentitySha256": "119ca62449b526ba297cd37e485443c658c62dcf4425ad7686349ce35da0bc16"
+      },
+      "commands": 72,
+      "events": 230,
+      "originalBlankSeed": 0,
+      "coldCheckpoints": 4,
+      "bothDeckFormatsValidated": true,
+      "allOriginalActionAndEventReplayChecksMatched": true
+    },
+    {
+      "caster": "P1",
+      "reverseFirst": false,
+      "reverseSecond": false,
+      "actualRuleInputs": {
+        "SchemaVersion": 1,
+        "Region": "CN",
+        "Language": "zh-CN",
+        "AuthoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "CatalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "ImplementationSha256": "41711827d112a646ec4a56b3979a155d146ffeb368441fde25847b78ab5f1a7e",
+        "IdentitySha256": "119ca62449b526ba297cd37e485443c658c62dcf4425ad7686349ce35da0bc16"
+      },
+      "commands": 80,
+      "events": 254,
+      "originalBlankSeed": 0,
+      "coldCheckpoints": 4,
+      "bothDeckFormatsValidated": true,
+      "allOriginalActionAndEventReplayChecksMatched": true
+    }
+  ],
+  "ordinaryAcceptedCommands": 608,
+  "ordinaryEvents": 1936,
+  "coldCheckpoints": 32,
+  "actualTrxSha256": "1efa6b9b9fda679707bd2e4193f709d94a3505c0cd3de20ad168571fc563131e",
+  "notDatabaseOrVisibleNativeAcceptance": true
+}

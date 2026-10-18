@@ -19,7 +19,8 @@ var battlefieldPlayDamageOnly = args.SequenceEqual(new[] { "--battlefield-play-d
 var banishEffectPlayOnly = args.SequenceEqual(new[] { "--banish-effect-play-only" });
 var hereLocationOnly = args.SequenceEqual(new[] { "--here-location-only" });
 var fateWeaverOnly = args.SequenceEqual(new[] { "--fate-weaver-only" });
-if (args.Length != 0 && !openingRandomnessOnly && !optionalCostsOnly && !battlefieldPlayRecoveryOnly && !battlefieldPlayDamageOnly && !banishEffectPlayOnly && !hereLocationOnly && !fateWeaverOnly) throw new ArgumentException("Unknown PostgreSQL acceptance selector.");
+var multiControllerOrderOnly = args.SequenceEqual(new[] { "--multi-controller-trigger-order-only" });
+if (args.Length != 0 && !openingRandomnessOnly && !optionalCostsOnly && !battlefieldPlayRecoveryOnly && !battlefieldPlayDamageOnly && !banishEffectPlayOnly && !hereLocationOnly && !fateWeaverOnly && !multiControllerOrderOnly) throw new ArgumentException("Unknown PostgreSQL acceptance selector.");
 var json = new JsonSerializerOptions(JsonSerializerDefaults.Web) { WriteIndented = true };
 await using var dataSource = NpgsqlDataSource.Create(connectionString);
 await using (var connection = await dataSource.OpenConnectionAsync()) {
@@ -27,6 +28,12 @@ await using (var connection = await dataSource.OpenConnectionAsync()) {
         await using var command = new NpgsqlCommand(await File.ReadAllTextAsync(path), connection);
         await command.ExecuteNonQueryAsync();
     }
+}
+if (multiControllerOrderOnly)
+{
+    await MultiControllerTriggerSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "multi-controller-trigger-order"));
+    Console.WriteLine("SCOPED_POSTGRES_ONLY: multi-controller-trigger-order; the retained complete SQL suite was not requested.");
+    return;
 }
 if (fateWeaverOnly)
 {
@@ -180,6 +187,7 @@ await BattlefieldPlayDamageSqlAcceptance.RunAsync(dataSource, Path.Combine(outpu
 await BanishEffectPlaySqlAcceptance.RunAsync(dataSource, Path.Combine(output, "banish-effect-play"));
 await HereLocationSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "here-location-control"));
 await FateWeaverSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "fate-weaver"));
+await MultiControllerTriggerSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "multi-controller-trigger-order"));
 
 JsonElement Raw(GameCommand command) => JsonSerializer.SerializeToElement(command, command.GetType(), json);
 async Task Submit(string actor, string intent, GameCommand command, bool accepted = true) {

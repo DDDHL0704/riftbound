@@ -1,0 +1,86 @@
+{
+  "recordedAtUtc": "2026-10-18T06:14:12.752338+00:00",
+  "status": "SINGLE_CHECK_ALL12474_CASES7340_METHODS_PASS_EXACT_OLD_CASE_AND_METHOD_PARITY",
+  "checkRunsThisBatch": 1,
+  "cases": 12474,
+  "methods": 7340,
+  "passed": 12474,
+  "failed": 0,
+  "skipped": 0,
+  "seconds": 705.42,
+  "allOriginal12455CaseMultisetAnd7335MethodsRetained": true,
+  "newCases": 19,
+  "newMethods": 5,
+  "newMethodIdentities": [
+    "Riftbound.ConformanceTests.MultiControllerTriggerOpeningTests.OrdinaryBlankOpeningKeepsBothControllersChoicesAcrossColdRecoveryAndOriginalReplay",
+    "Riftbound.ConformanceTests.MultiControllerTriggerOrderingTests.AControllerCannotChooseTheOtherControllersSimultaneousSkillOrder",
+    "Riftbound.ConformanceTests.MultiControllerTriggerOrderingTests.EachControllerMustChooseBeforeTheCombinedQueueMovesToTheStack",
+    "Riftbound.ConformanceTests.MultiControllerTriggerOrderingTests.IndependentRecoveryRejectsForgedControllerConfirmationProgress",
+    "Riftbound.ConformanceTests.MultiControllerTriggerOrderingTests.TheOtherTurnPlayerAlsoChoosesBeforeTheNonTurnController"
+  ],
+  "newCaseIdentities": [
+    "Riftbound.ConformanceTests.MultiControllerTriggerOrderingTests.IndependentRecoveryRejectsForgedControllerConfirmationProgress(mutation: \"partial-controller\")",
+    "Riftbound.ConformanceTests.MultiControllerTriggerOrderingTests.IndependentRecoveryRejectsForgedControllerConfirmationProgress(mutation: \"all-confirmed\")",
+    "Riftbound.ConformanceTests.MultiControllerTriggerOrderingTests.TheOtherTurnPlayerAlsoChoosesBeforeTheNonTurnController(reverseFirst: True)",
+    "Riftbound.ConformanceTests.MultiControllerTriggerOrderingTests.IndependentRecoveryRejectsForgedControllerConfirmationProgress(mutation: \"confirmation-before-enqueue\")",
+    "Riftbound.ConformanceTests.MultiControllerTriggerOpeningTests.OrdinaryBlankOpeningKeepsBothControllersChoicesAcrossColdRecoveryAndOriginalReplay(caster: \"P2\", reverseFirst: False, reverseSecond: False)",
+    "Riftbound.ConformanceTests.MultiControllerTriggerOrderingTests.EachControllerMustChooseBeforeTheCombinedQueueMovesToTheStack(reverseFirst: True)",
+    "Riftbound.ConformanceTests.MultiControllerTriggerOpeningTests.OrdinaryBlankOpeningKeepsBothControllersChoicesAcrossColdRecoveryAndOriginalReplay(caster: \"P1\", reverseFirst: True, reverseSecond: True)",
+    "Riftbound.ConformanceTests.MultiControllerTriggerOrderingTests.AControllerCannotChooseTheOtherControllersSimultaneousSkillOrder(reverseOwn: False)",
+    "Riftbound.ConformanceTests.MultiControllerTriggerOpeningTests.OrdinaryBlankOpeningKeepsBothControllersChoicesAcrossColdRecoveryAndOriginalReplay(caster: \"P2\", reverseFirst: False, reverseSecond: True)",
+    "Riftbound.ConformanceTests.MultiControllerTriggerOpeningTests.OrdinaryBlankOpeningKeepsBothControllersChoicesAcrossColdRecoveryAndOriginalReplay(caster: \"P1\", reverseFirst: False, reverseSecond: False)",
+    "Riftbound.ConformanceTests.MultiControllerTriggerOpeningTests.OrdinaryBlankOpeningKeepsBothControllersChoicesAcrossColdRecoveryAndOriginalReplay(caster: \"P1\", reverseFirst: False, reverseSecond: True)",
+    "Riftbound.ConformanceTests.MultiControllerTriggerOrderingTests.EachControllerMustChooseBeforeTheCombinedQueueMovesToTheStack(reverseFirst: False)",
+    "Riftbound.ConformanceTests.MultiControllerTriggerOrderingTests.IndependentRecoveryRejectsForgedControllerConfirmationProgress(mutation: \"wrong-first-controller\")",
+    "Riftbound.ConformanceTests.MultiControllerTriggerOrderingTests.IndependentRecoveryRejectsForgedControllerConfirmationProgress(mutation: \"lost-simultaneous-partner\")",
+    "Riftbound.ConformanceTests.MultiControllerTriggerOpeningTests.OrdinaryBlankOpeningKeepsBothControllersChoicesAcrossColdRecoveryAndOriginalReplay(caster: \"P1\", reverseFirst: True, reverseSecond: False)",
+    "Riftbound.ConformanceTests.MultiControllerTriggerOrderingTests.TheOtherTurnPlayerAlsoChoosesBeforeTheNonTurnController(reverseFirst: False)",
+    "Riftbound.ConformanceTests.MultiControllerTriggerOpeningTests.OrdinaryBlankOpeningKeepsBothControllersChoicesAcrossColdRecoveryAndOriginalReplay(caster: \"P2\", reverseFirst: True, reverseSecond: False)",
+    "Riftbound.ConformanceTests.MultiControllerTriggerOrderingTests.AControllerCannotChooseTheOtherControllersSimultaneousSkillOrder(reverseOwn: True)",
+    "Riftbound.ConformanceTests.MultiControllerTriggerOpeningTests.OrdinaryBlankOpeningKeepsBothControllersChoicesAcrossColdRecoveryAndOriginalReplay(caster: \"P2\", reverseFirst: True, reverseSecond: True)"
+  ],
+  "authoredInputCount": 12618,
+  "all12618AuthoredInputsStableThroughExecutionAndImmediateVerification": true,
+  "noExtraSourceCheckout": true,
+  "checkTestAssemblySha256": "ce1466aab220086270d68acf646dffa5df8d010e31f60c672136248c784e9056",
+  "actualTrx": "var/qa/multi-controller-trigger-order-20261018/one-check-v1/check/results.trx",
+  "actualTrxSha256": "6f135be2b1315fae16b1405bfa64f804b0f45b0587bc298434ca9ba2d2174d26",
+  "originalCheckUncompressedTrxSha256": "52b252116dd556a2f2e1325d63c51f01e3256252f7d616ee87a54208a0c17fc5",
+  "actualFourRuleModulesAndPdbs": [
+    {
+      "file": "Riftbound.Contracts.dll",
+      "sha256": "04fa1185cf888d150801c76042ad68d99a22e8ff3c3cdd1795b93a284ca06848"
+    },
+    {
+      "file": "Riftbound.Contracts.pdb",
+      "sha256": "92ec16eaced52f013fc91eb6b7a11a39719866e26ccc74a55f521f1ad6f8e69b"
+    },
+    {
+      "file": "Riftbound.CardCatalog.dll",
+      "sha256": "c2cb858b2ed51f553e93ca455e20e6dd414ac85c65e95fe0aa7dc7e1f8a00c32"
+    },
+    {
+      "file": "Riftbound.CardCatalog.pdb",
+      "sha256": "fc5e825bbec80765e6b00c62544535a5f7c46c71a0b7a7aeebaefb40a128675c"
+    },
+    {
+      "file": "Riftbound.Engine.dll",
+      "sha256": "9acb287f60acfb9d317eb887faa366f060eaba12bef5c6345faef94847f36656"
+    },
+    {
+      "file": "Riftbound.Engine.pdb",
+      "sha256": "c838a2a2b7567c1d73e33b773461b9edb5e492a2c134770e454f92e269471686"
+    },
+    {
+      "file": "Riftbound.Persistence.dll",
+      "sha256": "1fee74688dc23af835105b66e7e71c8f6f5f1eebbc06423d1075edf9ee8c47db"
+    },
+    {
+      "file": "Riftbound.Persistence.pdb",
+      "sha256": "c0006f80047469f2fce66b5ea6449b85d6d08eb9c0c8fcd4ca4029bff9871559"
+    }
+  ],
+  "actualImplementationSha256": "41711827d112a646ec4a56b3979a155d146ffeb368441fde25847b78ab5f1a7e",
+  "priorHistoricalThreeFailuresRemainOriginalFailuresOnlyThisNewInputPassed": true,
+  "currentFixedFullAndVisibleNativeAndPhysicalWindowsIndependent": true
+}
