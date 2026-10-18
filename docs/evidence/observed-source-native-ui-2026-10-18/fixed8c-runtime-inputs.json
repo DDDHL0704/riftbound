@@ -1,0 +1,43 @@
+{
+  "atUtc": "2026-10-18T09:56:28.765143+00:00",
+  "status": "ACTUAL_FIXED8C_PUBLISHED_RELEASE_PE_MVID_COMBINED_IDENTITY_AND_SQL_READER_INPUTS_VERIFIED",
+  "fixedCommit": "8c6d569e7be024b278cda46c09c262f061e53ab8",
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+    "implementationSha256": "d4f11c4ad8e4e511eac0ee60e49b8d83c3db6722cd86ea7731138743f1eb6b3f",
+    "identitySha256": "c77a8cb5dc2a7dbbc21dd29ec32d6e209375df418809cd56ebade6484a3c4490"
+  },
+  "moduleRecords": [
+    {
+      "Name": "Riftbound.CardCatalog",
+      "Module": "3bf50e301d6149519e032345e96839ce"
+    },
+    {
+      "Name": "Riftbound.Contracts",
+      "Module": "ab7876e6ca4949bcabcd07c4355fbc30"
+    },
+    {
+      "Name": "Riftbound.Engine",
+      "Module": "01ec19ff4efc4350b49b957aba6b4800"
+    }
+  ],
+  "actualPublishedModulesAndReaderExact": {
+    "Riftbound.CardCatalog.dll": "026b823824c499c460b034474f3c2e7bc2a81ef3b626a92f7987cafc684bcf98",
+    "Riftbound.CardCatalog.pdb": "ce2fc2eb2d821dc25bfe4e8562a6fd2b4c432d7d4a659b9fa12d1c4bc9730c90",
+    "Riftbound.Contracts.dll": "ad6c7ef5320e7dbe584ebc97d10866ff3ecf877f7861fa0af3aa72eefcddd672",
+    "Riftbound.Contracts.pdb": "1249875d4016e626bf33f445d2a4cbcdffbd9404744f6b9f94d810fc12bafa6e",
+    "Riftbound.Engine.dll": "8d05874a49a94347d3988d1111415fc61137d49073e975a265abc29a68f1128f",
+    "Riftbound.Engine.pdb": "913216868c23998715da94a89626936461292caf8c0fcea3ea38963c185a15e8",
+    "Riftbound.Persistence.dll": "b1a6c7e81c6b1e0175f4e6b61332aaa4ddcee38643ef27ae2beaf09ee9625675",
+    "Riftbound.Persistence.pdb": "5f13a977393e8a85c18a83a89cbdd95b36ef6cfc49b447155bc97bb4398dff99",
+    "Npgsql.dll": "9d8db086e9eda5ff20c4a7f83fa3eae7689198f57277ff9ceea1ee3526f5fcf8"
+  },
+  "all46PublishedFilesExact": true,
+  "all3246OutsideDocsSourcesExact": true,
+  "oldDebug525AndPriorFixed48Release87NotEquatedWithThisD4Release": true,
+  "noWholeSourceCheckoutCopied": true
+}

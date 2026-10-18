@@ -1,0 +1,40 @@
+{
+  "atUtc": "2026-10-18T11:49:04.711907+00:00",
+  "status": "GOVERNANCE_AND_ORIGINAL_OBLIGATION_RETENTION_VERIFIED_ALL_CURRENT_FULL_PRODUCT_AND_WINDOWS_GATES_REMAIN_OPEN",
+  "baseCommit": "8c6d569e7be024b278cda46c09c262f061e53ab8",
+  "priorReviewDictionaries": 129,
+  "allPriorReviewDictionariesExact": true,
+  "currentReviews": 130,
+  "currentContexts": 45,
+  "priorObligationIds": 16629,
+  "currentObligationIds": 16631,
+  "allPriorObligationIdsRetained": true,
+  "addedObligationIds": [
+    "BRANCH:observed-source-native-ui-2026-10-18:authorized-stack-source-main-preview-and-negative-source-guards",
+    "BRANCH:observed-source-native-ui-2026-10-18:observed-banish-owner-action-phase-and-step-labels"
+  ],
+  "acceptanceGates": 76,
+  "allPriorAcceptanceGateIdsRetained": true,
+  "all45CurrentCiContextsPending": true,
+  "allFourOriginalSourceDeltaDictionariesExact": true,
+  "sourceCounts": {
+    "combinedExactPrintingNumbers": 1740,
+    "sourceDocuments": 36,
+    "sourceBlocks": 14293,
+    "cnOfficialPrintings": 1504,
+    "enReturnedPrintings": 1408,
+    "enReportedTotal": 1416,
+    "enSourceCountGap": 8,
+    "activeCatalogEntries": 1033,
+    "outsideActiveCatalog": 707,
+    "cnQaFields": 1504,
+    "cnNonemptyQaFields": 0
+  },
+  "semanticCoverageCertified": false,
+  "governanceErrors": 0,
+  "governanceWarnings": 49,
+  "actualGovernanceReportSha256": "3e3c78995cde4e1d644278c7728fb8b937990cf9a69fbc7bd936c80017459d35",
+  "onlyGovernanceDocsChangedAfterSingleCheck": true,
+  "allNonDocsExecutionInputsExactAfterCheck": true,
+  "noWholePrintingOrCurrentVisibleWindowsPassClaim": true
+}

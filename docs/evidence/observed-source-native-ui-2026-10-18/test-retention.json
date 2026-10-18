@@ -1,0 +1,15 @@
+{
+  "atUtc": "2026-10-18T11:28:52.328237+00:00",
+  "baseCommit": "8c6d569e7be024b278cda46c09c262f061e53ab8",
+  "all462PriorConformanceSourceFilesByteExact": true,
+  "priorConformanceSources": 462,
+  "all1279FixturesByteExact": true,
+  "priorFixtureCount": 1279,
+  "allEightOriginalFullGameSourcesByteExact": true,
+  "all143FullGameMethodsOriginal110PairsSeedsVictoryEventAndActionReplayAssertionsRetained": true,
+  "noPriorTheoryRowsOrTestsEditedOrRemoved": true,
+  "defaultPostgresProgramAndAll34PriorConsumerSourceFilesByteExact": true,
+  "newNativeProofAddsNoReplacementOrDeletionOfExistingCases": true,
+  "singleCheckStillRunningNoPassClaimFromThisInventory": true,
+  "priorPostgresSourceFiles": 35
+}

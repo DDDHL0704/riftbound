@@ -1,0 +1,121 @@
+{
+  "atUtc": "2026-10-18T10:41:37.343138+00:00",
+  "status": "FIXED8C_VISIBLE_SECOND_VIEW_AUTO_RECONNECT_ORIGINAL_NEXT_POSITIVE_NOCTURNE_FINAL_OFFER_OPEN_MAIN_NATIVE_ENDTURN_NORMAL8TO0_AND_COMPLETE_ORIGINAL_REPLAY_PASS",
+  "fixedCommit": "8c6d569e7be024b278cda46c09c262f061e53ab8",
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+    "implementationSha256": "d4f11c4ad8e4e511eac0ee60e49b8d83c3db6722cd86ea7731138743f1eb6b3f",
+    "identitySha256": "c77a8cb5dc2a7dbbc21dd29ec32d6e209375df418809cd56ebade6484a3c4490"
+  },
+  "room": "paired-observed-window-8c6d569e-20261018",
+  "commands": 46,
+  "acceptedCommands": 46,
+  "rejectedCommands": 0,
+  "events": 282,
+  "turn": 17,
+  "scores": {
+    "herea5da": 8,
+    "herea5db": 0
+  },
+  "winner": "herea5da",
+  "actualBlankInitialStateAndOriginalPrivateSeedRetained": true,
+  "allOriginalCommandsAndEventsReplayMatched": true,
+  "controlledDeckSetup": {
+    "normalAuthenticatedApiDeckSetupCommands": 1,
+    "originalPrivateSeedReadOnlyUsedToPlanLegalSubmittedDeckOrder": true,
+    "allSubsequentReadyMulliganAndGameplayCommandsFromActualNativeControls": true,
+    "blindRandomDeckOrderNotClaimed": true
+  },
+  "nativeCommandCount": 45,
+  "visibleSecondDeckViewAfterAllFirstThreeNocturnesBanished": true,
+  "secondPrivateViewHiddenFromOpponent": true,
+  "actualOfflineSecondsToNewApiHealth": 11.072708,
+  "bothOriginalNativeProcessesRetained": {
+    "A": 53788,
+    "B": 54822
+  },
+  "bothVisibleDisconnectBannersAndAutomaticReconnectObserved": true,
+  "noManualReconnectButtonNeeded": true,
+  "pending20Commands103EventsWholeStateSeedAndBothPrivateViewsExactAfterColdApi": true,
+  "originalNextNativeSecondView21Commands108EventsExact": true,
+  "nativeObservedNocturne22Commands112EventsExactCostMana0Power1ExhaustedBase": true,
+  "nativeFinalOffer24Commands114EventsRestoredMainNeutralOpen": true,
+  "originalNextNativeEndTurn25Commands125EventsAcceptedAndMatched": true,
+  "normalScore8To0BothVisibleTerminalAndLobbyObserved": true,
+  "screenshotsEvidence": "Actual CUA screenshots in this chat; no local screenshot file or image hash claimed.",
+  "observedProductFollowupsStillOpen": [
+    "Deck-observation banish choice incorrectly labelled destruction replacement.",
+    "Observed stack-source play composer shows CARD placeholder.",
+    "Native custom-deck submission and lobby preview not certified by one authenticated API setup."
+  ],
+  "originalThreePriorNativeRoomsSevenSqlTablesExact": true,
+  "originalHFrame16Commands56EventsExact": true,
+  "priorRoomIds": [
+    "paired-controller-46a990fe-20261018",
+    "paired-empty-view-48c6ae96-20261018",
+    "paired-here-control-20261018"
+  ],
+  "priorRoomSevenTableSha256": {
+    "matches": "665e3f8ae6fb290c843e68a498aabbc2bc1442d594824a789ffc4790607cde69",
+    "match_players": "52621e5c8376888c424bf301b2c827d06342edf30d60e98c3e877771b8b03543",
+    "command_log": "b976d12d31627a4f7a211c67b90bdecec9d698108db67bd3f5885e75e6053e2c",
+    "game_events": "57b7d69f3cb2ae05e598797f3270d58d751bc459618310ab1391fac4fe556d74",
+    "state_snapshots": "139a3795b78dd6e4c5a2eb3c4ff2d35cb9a4939ee05d9d65b0b0062ca650418f",
+    "snapshots": "a6fe33106c62932657b3c6eb77a59ae50c3268a479b9de9730c99ccd21cbd868",
+    "action_prompts": "88b59ec559d37dd8156fbe8471cd10835ea3873bb26a5fbfe9c61782dac84019"
+  },
+  "allFourRoomsSevenTableSha256AfterGracefulApiStop": {
+    "matches": "07ccb3474e90e4a926eee4ceae65391cb4838fd9e2e4c1c1285a21a4edf41200",
+    "match_players": "176adb4635d3c27696b16bd2a45de589cb5dbbd0df9bd5324193356986b50ef6",
+    "command_log": "59321eac5a7b69e3615b7af7fe1023f82716e6739e68b9c483a3c0631b26f5cb",
+    "game_events": "78e8962cedf9cf2b9407bbace0d0dc417e22c5501ac770c47b7ae290c1a9fde3",
+    "state_snapshots": "4175e2645ab2e9cd71ea15694dc60ef99057df288fc05483f02284d420d268db",
+    "snapshots": "e07e824cf46fda83694458ac7aa6a5f269225e7ad0e206400defcfd183d4dc29",
+    "action_prompts": "e4d1509404d2e868ba789cd28b2985349ef4f702fbd8c49e2db8706b9d6fb5f6"
+  },
+  "existingAuditDatabaseRoomCount": 36,
+  "all46PublishedApiFilesAnd3246OutsideDocsSourcesStable": true,
+  "nineNativeReaderPublishedReferenceAndThreeDataFilesExact": true,
+  "bothNativeApp373CiManagedPckFilesAndDeepStrictSignaturesStillExact": true,
+  "bothCanonicalPlatformArchivesAndOriginalBootLifecycleLogBytesStillExact": true,
+  "bothNativeAppsNormallyQuit": true,
+  "apiGracefulSigtermExit": true,
+  "apiPortClosed": true,
+  "postgresSmartStopped": true,
+  "allOriginalDatabasesPrivateFramesSourcesTestsAndNecessaryRuntimeModulesRetained": true,
+  "onlyLatestPairAndTwoCanonicalArchivesRetained": true,
+  "retainedLatestApps": [
+    "var/qa/observed-window-paired-20261018/RiftboundWindow-A.app",
+    "var/qa/observed-window-paired-20261018/RiftboundWindow-B.app"
+  ],
+  "retainedCanonicalArchives": [
+    "var/qa/observed-window-paired-20261018/native-current/mac-ci-artifact.zip",
+    "var/qa/observed-window-paired-20261018/native-current/windows-ci-artifact.zip"
+  ],
+  "fullCi39116825669NotInferredFromLimitedNativeEvidence": true,
+  "physicalWindowsNotClaimed": true,
+  "wholeCardOrSourceUniverseCertificationNotClaimed": true,
+  "goalActiveNotReady": true,
+  "evidence": {
+    "native-before-network-verification.json": "a0e0918361a0e5b729d86d4e9be0fa292e547e5a62a16279c3b5903c08abe25d",
+    "native-after-network-verification.json": "a7460c2deb5be0ef6eac89bca60855aa7f8fca196916424c1eaef55e96ebbada",
+    "native-after-next-verification.json": "f28693a387ac39b30023656e9d2749490889cfa14333ade865461db06fbac662",
+    "native-after-positive-verification.json": "883e677d554988646f74e9a32de72d4120619dbb6d451ad2477dc3902d1022cb",
+    "native-after-offers-verification.json": "ed03faf6209d44a4e8838e31526c656cb957580ca78352cee4aced0b66d9dead",
+    "native-after-end-turn-verification.json": "c98928fcbc81bf2b6be0eb94b2e4156ea5e3e25ab17c166e84891898d5c78b17",
+    "native-final-verification.json": "9b92464fce9d8dff3a8af905ca65ab99bb58376f0ffccdbfc018daf4f8d7421b",
+    "native-before-network-frame.json.gz": "f4ba2692996cac0cbb63ede811e36f462e3c35131b15b89371d4d8ed546169ec",
+    "native-after-offers-original-frame.json.gz": "c5ab49298434c269c225298d3d470ca8b5c128db84c11a66fb1de7e7497967a2",
+    "native-after-end-turn-original-frame.json.gz": "8a5187c20c814cca6e4889b1fdd0d4ed56e29f7363206d0c7fa607dc07f540cd",
+    "native-final-original-frame.json.gz": "45a052928836aa7c4220963f1670c0d66d1b1c19fbf362af43ad3e39128f0578",
+    "controlled-qa-deck-planning.json": "570ab5f234ec14f8669193388e0b74984bd4bfa972cc23ab1ac58ecef0a5a648",
+    "controlled-a-deck-api-receipt.json": "6cccf9e833a3a961add0c691fb55af3cc990a1ae4e791e78d9ee8b458fe83c56",
+    "live-api-old48-version-rejection.json": "36090cc7987ab96a06691d4267c4e271540c4d03bcd87ceb0269f9d204826745",
+    "live-api-old48-version-no-write-verification.json": "2b3aa8f80652bf4de13bc4d47b75f7e5dac8e167099975839137cd3fef604ca4",
+    "native-reader/executed-own-modules/manifest.json": "4b5e321c6f7dc4a608a28c3f0ed43bf20ea174bd414a46a4db65c2783249a488"
+  }
+}

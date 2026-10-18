@@ -22316,6 +22316,101 @@
         "docs/evidence/observed-play-window-2026-10-18/storage-control.json",
         "docs/evidence/observed-play-window-2026-10-18/acceptance-boundaries.json"
       ]
+    },
+    {
+      "id": "observed-source-native-ui-2026-10-18",
+      "scope": "CN zh-CN acquired2026-10-18, frozen applicability2026-10-16. Existing deck-observation banish wording and exact server-authorized STACK-source preview only. Five projected banish action/phase/option states, two actual Main preview/confirm source guards; no new game rule or whole printing certification. SFD122 ordinary projection is CoreRules only, UNL032 both formats.",
+      "status": "SCOPED_NATIVE_OBSERVED_SOURCE_PRESENTATION7_CONTROLS83_FOCUS_SQL90_COMMANDS340_EVENTS42_COLD15_NEXT24_REJECTIONS_ORIGINAL115_SINGLE_CHECK12510_FULL_VISIBLE_WINDOWS_OPEN",
+      "subjects": [
+        "SFD·122/221",
+        "UNL-032/219",
+        "OGN·194/298"
+      ],
+      "ruleRecords": [],
+      "pendingRuleRecords": [],
+      "sourceManifest": {
+        "path": "docs/evidence/observed-source-native-ui-2026-10-18/source-manifest.json",
+        "sha256": "ce716f2a6f153382867d4f6faa5e490399d3dca3e4ffc935dc2c24e40846106c",
+        "role": "source-manifest"
+      },
+      "sourceClauses": [],
+      "validation": {
+        "nativeControls": {
+          "path": "docs/evidence/observed-source-native-ui-2026-10-18/native-controls.json",
+          "sha256": "8e2467f83cef345cf9babfc3dcd6dfc67defe1c5c548d51862d99120fd7775e9",
+          "role": "native-controls"
+        },
+        "focus": {
+          "path": "docs/evidence/observed-source-native-ui-2026-10-18/focus.json",
+          "sha256": "1f53904ada98b71a9c38bf5a339df2dcc5d951ad1ffa4535330f6a5422d4cef4",
+          "role": "focus"
+        },
+        "realSql": {
+          "path": "docs/evidence/observed-source-native-ui-2026-10-18/real-sql.json",
+          "sha256": "ad203a78e696f5ac495c3d936be5e8e127db4b2d9400384283bd0e8baf128bcf",
+          "role": "real-sql"
+        },
+        "actualCompiledInputs": {
+          "path": "docs/evidence/observed-source-native-ui-2026-10-18/actual-compiled-inputs.json",
+          "sha256": "f5a027f75672ac44aa7f1bceb60f4909db12ba7281434dda3e9e68515ca891e6",
+          "role": "actual-compiled-inputs"
+        },
+        "originalGames": {
+          "path": "docs/evidence/observed-source-native-ui-2026-10-18/original-five-and110.json",
+          "sha256": "65c50e7c3238b40b5eafba9defacade9388aec16714579964dcdf863930eb005",
+          "role": "original-five-and110"
+        },
+        "oneCheck": {
+          "path": "docs/evidence/observed-source-native-ui-2026-10-18/one-check.json",
+          "sha256": "ed8e3e378ed0c485d17cb1005d86c4c9d88a4688795cfe1ec6a204d6bbf58250",
+          "role": "one-check"
+        },
+        "priorFixed8cNative": {
+          "path": "docs/evidence/observed-source-native-ui-2026-10-18/fixed8c-visible-native.json",
+          "sha256": "ab0469b66fb8cebc5eaf298491987271ff772644fef94bab3d25723d8bb7cd81",
+          "role": "fixed8c-visible-native"
+        },
+        "priorFixed48CiCancelled": {
+          "path": "docs/evidence/observed-source-native-ui-2026-10-18/fixed48-ci-timeout.json",
+          "sha256": "e763f7bdce4dcee828cfa6b6a6dbc925d933c66cc2b26ed0537ef59594ee31d9",
+          "role": "fixed48-ci-timeout"
+        },
+        "fixedCommitFull": "PENDING_NEW_FIXED_COMMIT_300_MINUTES",
+        "visibleProduct": "OPEN_CURRENT_MAC_LOCK_AND_NEW_FIXED_CANDIDATE",
+        "physicalWindows": "OPEN"
+      },
+      "exclusions": [
+        "CURRENT_FIXED_FULL_300_MINUTE_BUDGET",
+        "CURRENT_FIXED_VISIBLE_UI_PAIRED_SQL_NETWORK_NORMAL_SCORE_COMPLETE_ORIGINAL_REPLAY",
+        "PHYSICAL_WINDOWS",
+        "OTHER_CONSUMERS_WHOLE_PRINTINGS_AND_SOURCE_GAPS"
+      ],
+      "auditDocument": "docs/OBSERVED_SOURCE_NATIVE_UI_AUDIT_2026-10-18.md",
+      "evidence": [
+        "docs/evidence/observed-source-native-ui-2026-10-18/source-manifest.json",
+        "docs/evidence/observed-source-native-ui-2026-10-18/banlist-source-reconfirmation.json",
+        "docs/evidence/observed-source-native-ui-2026-10-18/native-red.json",
+        "docs/evidence/observed-source-native-ui-2026-10-18/native-controls.json",
+        "docs/evidence/observed-source-native-ui-2026-10-18/harness-premise-failure.json",
+        "docs/evidence/observed-source-native-ui-2026-10-18/ordinary-projections.json",
+        "docs/evidence/observed-source-native-ui-2026-10-18/focus.json",
+        "docs/evidence/observed-source-native-ui-2026-10-18/real-sql.json",
+        "docs/evidence/observed-source-native-ui-2026-10-18/actual-compiled-inputs.json",
+        "docs/evidence/observed-source-native-ui-2026-10-18/original-five-and110.json",
+        "docs/evidence/observed-source-native-ui-2026-10-18/one-check.json",
+        "docs/evidence/observed-source-native-ui-2026-10-18/executed-module-retention.json",
+        "docs/evidence/observed-source-native-ui-2026-10-18/test-retention.json",
+        "docs/evidence/observed-source-native-ui-2026-10-18/tooling-tests.json",
+        "docs/evidence/observed-source-native-ui-2026-10-18/fixed8c-visible-native.json",
+        "docs/evidence/observed-source-native-ui-2026-10-18/fixed8c-release-sql.json",
+        "docs/evidence/observed-source-native-ui-2026-10-18/fixed8c-runtime-inputs.json",
+        "docs/evidence/observed-source-native-ui-2026-10-18/fixed8c-native-bytes.json",
+        "docs/evidence/observed-source-native-ui-2026-10-18/fixed8c-old48-rejection.json",
+        "docs/evidence/observed-source-native-ui-2026-10-18/fixed48-ci-timeout.json",
+        "docs/evidence/observed-source-native-ui-2026-10-18/ci-timeout-repair.json",
+        "docs/evidence/observed-source-native-ui-2026-10-18/storage-control.json",
+        "docs/evidence/observed-source-native-ui-2026-10-18/acceptance-boundaries.json"
+      ]
     }
   ]
 }

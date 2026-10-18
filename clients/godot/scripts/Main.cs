@@ -534,14 +534,14 @@ public partial class Main : Control
         if (document.RootElement.TryGetProperty("metadata", out var metadata)
             && metadata.ValueKind == JsonValueKind.Object && metadata.TryGetProperty("sourceRequirements", out var requirements))
             foreach (var requirement in requirements.EnumerateArray())
-                if (ReadString(requirement, "sourceZone") == "MAIN_DECK")
+                if (ReadString(requirement, "sourceZone") is "MAIN_DECK" or "STACK")
                     privateSources[ReadString(requirement, "sourceObjectId")] = ReadString(requirement, "cardNo");
         Godot.Collections.Dictionary? CardView(string objectId)
         {
             if (VisibleTableCardView(objectId, includeOpponents: true) is { } visible) return visible;
             if (!privateSources.TryGetValue(objectId, out var cardNo)) return null;
             // Only the owner's server-authorized effect-play sources may reveal a
-            // deck card. Cached rendering never waits for the image CDN.
+            // deck or observed stack card. Cached rendering never waits for the image CDN.
             var card = _cardViewFactory.BuildAsync(new SnapshotCardRef(objectId, cardNo, true, false),
                 _officialCatalog, _shutdown.Token, waitForImage: false);
             return card.IsCompletedSuccessfully ? card.Result.ToGodotDictionary() : null;

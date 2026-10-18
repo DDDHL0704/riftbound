@@ -58,10 +58,10 @@ jobs:
     # A failed or missing selector must not silently skip the complete suite.
     if: ${{ always() && !cancelled() && (needs.scope.result != 'success' || needs.scope.outputs.full != 'false') }}
     runs-on: ubuntu-latest
-    # aa2f095d completed the full rule suite after about 87 minutes, then hit
-    # the 120-minute job limit during real PostgreSQL acceptance. Keep every
-    # rule/game/pairing, SQL scenario and network gate in this fixed-commit job.
-    timeout-minutes: 180
+    # Fixed48 run39109499298 completed every rule shard, then exceeded the
+    # 180-minute job limit in PostgreSQL acceptance. Allow the full fixed
+    # candidate to finish every rule/game/pairing, SQL and network gate.
+    timeout-minutes: 300
     concurrency:
       group: rules-${{ github.ref }}-${{ github.sha }}
       cancel-in-progress: true

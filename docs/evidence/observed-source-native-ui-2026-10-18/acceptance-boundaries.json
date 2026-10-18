@@ -1,0 +1,23 @@
+{
+  "region": "CN",
+  "language": "zh-CN",
+  "observedAt": "2026-10-18",
+  "applicableAsOf": "2026-10-16",
+  "scope": "Observed deck-banish action/step/phase wording and Main preview lookup for exact server-authorized STACK sources. Existing layout and server authority retained.",
+  "actualDebugImplementation": "bad34120b30ae63d9b626ffc9875c784cfdb31fdf93198653ef6f7d1b6434a71",
+  "priorFixed8cReleaseImplementation": "d4f11c4ad8e4e511eac0ee60e49b8d83c3db6722cd86ea7731138743f1eb6b3f",
+  "nativeControlCases": 7,
+  "nativeControlScope": "Five ordinary projected banish action-button/phase/option states and two real Main preview/confirm/unauthorized-source cases; headless control signals, not visible live-match acceptance.",
+  "newXunitCases": 0,
+  "allPrior12510CheckCases7354MethodsExactlyRetained": true,
+  "priorFixed8cNative": "46 accepted commands(45 native,one authenticated API deck setup),282 events,original seed and full replay,automatic reconnect and normal8:0 passed; separate earlier fixed implementation.",
+  "qaDeckSetup": "Read-only original private seed used to plan one legal normal authenticated deck submission; subsequent ready/mulligan/gameplay actual native controls; blind-random order not claimed.",
+  "fixed48Full": "CANCELLED_CONFIRMED_3H_JOB_TIMEOUT_RULE_SUITE12639_7487_PASSED_SQL95_PATHS_ONLY_NETWORK_SKIPPED",
+  "currentFull": "PENDING_NEW_FIXED_COMMIT_WITH_300_MINUTE_BUDGET",
+  "currentVisibleUiAndPairedNetworkNormalScoreReplay": "OPEN_NEW_FIXED_CANDIDATE_REQUIRED",
+  "actualMacLockBlocker": "CUA observed lock twice; unlock question pending; isolated test host stopped before rebuilding; no new screenshot or normal UI quit claim.",
+  "physicalWindows": "OPEN",
+  "wholePrintingAndSourceUniverseCertification": false,
+  "all1740PrintingsCn1504English1408Gap8Documents36Blocks14293FourDeltasKaynGateAndOriginalObligationsRetained": true,
+  "goal": "ACTIVE_NOT_READY"
+}

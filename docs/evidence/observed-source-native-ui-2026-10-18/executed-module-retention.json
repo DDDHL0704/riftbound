@@ -1,0 +1,58 @@
+{
+  "atUtc": "2026-10-18T11:39:11.112237+00:00",
+  "status": "ORIGINAL115_AND_SINGLE_CHECK_ACTUAL_TWELVE_OWN_MODULES_EXACT_SAME_RETAINED",
+  "actualTwelveOwnModules": {
+    "Riftbound.Api.dll": {
+      "sha256": "cfa513aaf518a736e4b04ad98b113cf676851f3385b98ca8ff9ce42866512031",
+      "retainedPath": "var/qa/observed-source-native-ui-20261018/check-executed-own-modules/Riftbound.Api.dll"
+    },
+    "Riftbound.Api.pdb": {
+      "sha256": "53db29dbaeb33b41ab10cba2be0bd119307cbf5d911552822b88d9c9ab8e8b18",
+      "retainedPath": "var/qa/observed-source-native-ui-20261018/check-executed-own-modules/Riftbound.Api.pdb"
+    },
+    "Riftbound.CardCatalog.dll": {
+      "sha256": "1b4d7a57d33530af620f9c13676d52dc1718207cc70ef97f43c1fe26b752bade",
+      "retainedPath": "var/qa/observed-source-native-ui-20261018/frozen-debug-runtime/Riftbound.CardCatalog.dll"
+    },
+    "Riftbound.CardCatalog.pdb": {
+      "sha256": "7024710b15b258aed848ab6f28bcc69c8eccd76932abdc6da15a30bd60dc8f58",
+      "retainedPath": "var/qa/observed-source-native-ui-20261018/frozen-debug-runtime/Riftbound.CardCatalog.pdb"
+    },
+    "Riftbound.Contracts.dll": {
+      "sha256": "62f91fbe2970e94a24dfbdb375c481372fa57dad643d08cb38dc0734a9acd9de",
+      "retainedPath": "var/qa/observed-source-native-ui-20261018/frozen-debug-runtime/Riftbound.Contracts.dll"
+    },
+    "Riftbound.Contracts.pdb": {
+      "sha256": "3b84353e962f6dcc6b6e4ee36bebd6525981d1db4b18dd63d33b3fcd8c319122",
+      "retainedPath": "var/qa/observed-source-native-ui-20261018/frozen-debug-runtime/Riftbound.Contracts.pdb"
+    },
+    "Riftbound.Engine.dll": {
+      "sha256": "064e7e11dfb8e6ecccfce9da3eb9b8d55a6c121e6cde52eb2f1bde3772f7c33f",
+      "retainedPath": "var/qa/observed-source-native-ui-20261018/frozen-debug-runtime/Riftbound.Engine.dll"
+    },
+    "Riftbound.Engine.pdb": {
+      "sha256": "043a2cf7dfc64fc26abd53380e293cce434cebb05baed8b2bb4802ea9b86677b",
+      "retainedPath": "var/qa/observed-source-native-ui-20261018/frozen-debug-runtime/Riftbound.Engine.pdb"
+    },
+    "Riftbound.Persistence.dll": {
+      "sha256": "4891ae00cce955a374e837aa9f8fe9be5fd51b5753f070b594b75bbdd4bf9772",
+      "retainedPath": "var/qa/observed-source-native-ui-20261018/frozen-debug-runtime/Riftbound.Persistence.dll"
+    },
+    "Riftbound.Persistence.pdb": {
+      "sha256": "6dbd538abfb472a606d011756df88650a2cd0c32c4ded4ce4ace081a325aa5bd",
+      "retainedPath": "var/qa/observed-source-native-ui-20261018/frozen-debug-runtime/Riftbound.Persistence.pdb"
+    },
+    "Riftbound.ConformanceTests.dll": {
+      "sha256": "c9d415804657b766a7f8070841ffdc6533ecd057f79e8fafe20e03ba74f411f0",
+      "retainedPath": "var/qa/observed-source-native-ui-20261018/check-executed-own-modules/Riftbound.ConformanceTests.dll"
+    },
+    "Riftbound.ConformanceTests.pdb": {
+      "sha256": "7ce81dfa68cca51a5dfe09a4ef305156a5f76e72f3dc81d64d133fe90ea4db22",
+      "retainedPath": "var/qa/observed-source-native-ui-20261018/check-executed-own-modules/Riftbound.ConformanceTests.pdb"
+    }
+  },
+  "eightCoreDllPdbFilesReuseFrozenRuntimeWithoutDuplicateCopies": true,
+  "remainingFourApiTestModuleFilesApfsCloned": true,
+  "implementationSha256": "bad34120b30ae63d9b626ffc9875c784cfdb31fdf93198653ef6f7d1b6434a71",
+  "allAuthoredInputsImmediatelyVerifiedBeforeAnyGovernanceMutation": true
+}

@@ -1,0 +1,207 @@
+{
+  "atUtc": "2026-10-18T11:44:12.260195+00:00",
+  "baseCommit": "8c6d569e7be024b278cda46c09c262f061e53ab8",
+  "currentInputRevision": "853b85e2f57e2bc49e47a285ca11a625090609fa22e10505a61afbccd145e279",
+  "gameplayInputCount": 489,
+  "updatedCurrentPins": [
+    {
+      "context": "masked-attendant-reflexive-self-copy-2026-10-14",
+      "group": "implementation",
+      "path": "src/Riftbound.Engine/MatchSession.cs",
+      "previousSha256": "ce8d75b052c66c98b7787788ccf7c955f8f09de7da19bd5aa1a08e7d8c849093",
+      "currentSha256": "54563a8e675093881cd1b4dd1246a570d4f5742a1456289430cc1eb47febb1b8"
+    },
+    {
+      "context": "static-granted-predict-entry-2026-10-15",
+      "group": "implementation",
+      "path": "src/Riftbound.Engine/MatchSession.cs",
+      "previousSha256": "ce8d75b052c66c98b7787788ccf7c955f8f09de7da19bd5aa1a08e7d8c849093",
+      "currentSha256": "54563a8e675093881cd1b4dd1246a570d4f5742a1456289430cc1eb47febb1b8"
+    },
+    {
+      "context": "sivir-optional-rune-recycle-2026-10-15",
+      "group": "implementation",
+      "path": "src/Riftbound.Engine/MatchSession.cs",
+      "previousSha256": "ce8d75b052c66c98b7787788ccf7c955f8f09de7da19bd5aa1a08e7d8c849093",
+      "currentSha256": "54563a8e675093881cd1b4dd1246a570d4f5742a1456289430cc1eb47febb1b8"
+    },
+    {
+      "context": "unit-conquest-gold-response-2026-10-15",
+      "group": "implementation",
+      "path": "src/Riftbound.Engine/MatchSession.cs",
+      "previousSha256": "ce8d75b052c66c98b7787788ccf7c955f8f09de7da19bd5aa1a08e7d8c849093",
+      "currentSha256": "54563a8e675093881cd1b4dd1246a570d4f5742a1456289430cc1eb47febb1b8"
+    },
+    {
+      "context": "typed-current-turn-card-play-confirmation-and-resolution-history-2026-10-15",
+      "group": "implementation",
+      "path": "src/Riftbound.Engine/MatchSession.cs",
+      "previousSha256": "ce8d75b052c66c98b7787788ccf7c955f8f09de7da19bd5aa1a08e7d8c849093",
+      "currentSha256": "54563a8e675093881cd1b4dd1246a570d4f5742a1456289430cc1eb47febb1b8"
+    },
+    {
+      "context": "porobot-source-play-other-equipment-conditional-draw-2026-10-15",
+      "group": "implementation",
+      "path": "src/Riftbound.Engine/MatchSession.cs",
+      "previousSha256": "ce8d75b052c66c98b7787788ccf7c955f8f09de7da19bd5aa1a08e7d8c849093",
+      "currentSha256": "54563a8e675093881cd1b4dd1246a570d4f5742a1456289430cc1eb47febb1b8"
+    },
+    {
+      "context": "typed-card-play-history-causal-production-recovery-2026-10-15",
+      "group": "implementation",
+      "path": "src/Riftbound.Engine/MatchSession.cs",
+      "previousSha256": "ce8d75b052c66c98b7787788ccf7c955f8f09de7da19bd5aa1a08e7d8c849093",
+      "currentSha256": "54563a8e675093881cd1b4dd1246a570d4f5742a1456289430cc1eb47febb1b8"
+    },
+    {
+      "context": "targeted-insight-repeat-declarations-and-native-wire-2026-10-15",
+      "group": "implementation",
+      "path": "clients/godot/scripts/Main.cs",
+      "previousSha256": "cb4504128a51efd75064c4108e55bce2125a47d3d6d69c9ef95d4831afa8ea19",
+      "currentSha256": "e93e1ac3b6e26a79f36e544c4104ddd462d02a19634fefa011c7f06beef82006"
+    },
+    {
+      "context": "optional-mana-trigger-native-and-natural-declaration-order-2026-10-15",
+      "group": "implementation",
+      "path": "src/Riftbound.Engine/MatchSession.cs",
+      "previousSha256": "ce8d75b052c66c98b7787788ccf7c955f8f09de7da19bd5aa1a08e7d8c849093",
+      "currentSha256": "54563a8e675093881cd1b4dd1246a570d4f5742a1456289430cc1eb47febb1b8"
+    },
+    {
+      "context": "cn16-confirmed-play-origin-and-required-causal-fact-2026-10-16",
+      "group": "implementation",
+      "path": "src/Riftbound.Engine/MatchSession.cs",
+      "previousSha256": "ce8d75b052c66c98b7787788ccf7c955f8f09de7da19bd5aa1a08e7d8c849093",
+      "currentSha256": "54563a8e675093881cd1b4dd1246a570d4f5742a1456289430cc1eb47febb1b8"
+    },
+    {
+      "context": "granted-origin-haste-and-paid-entry-replacement-2026-10-16",
+      "group": "implementation",
+      "path": "src/Riftbound.Engine/MatchSession.cs",
+      "previousSha256": "ce8d75b052c66c98b7787788ccf7c955f8f09de7da19bd5aa1a08e7d8c849093",
+      "currentSha256": "54563a8e675093881cd1b4dd1246a570d4f5742a1456289430cc1eb47febb1b8"
+    },
+    {
+      "context": "optional-sacrifice-printed-cost-and-paid-entry-2026-10-16",
+      "group": "implementation",
+      "path": "src/Riftbound.Engine/MatchSession.cs",
+      "previousSha256": "ce8d75b052c66c98b7787788ccf7c955f8f09de7da19bd5aa1a08e7d8c849093",
+      "currentSha256": "54563a8e675093881cd1b4dd1246a570d4f5742a1456289430cc1eb47febb1b8"
+    },
+    {
+      "context": "granted-colorless-token-haste-payment-2026-10-16",
+      "group": "implementation",
+      "path": "src/Riftbound.Engine/MatchSession.cs",
+      "previousSha256": "ce8d75b052c66c98b7787788ccf7c955f8f09de7da19bd5aa1a08e7d8c849093",
+      "currentSha256": "54563a8e675093881cd1b4dd1246a570d4f5742a1456289430cc1eb47febb1b8"
+    },
+    {
+      "context": "native-rule-choice-prompts-2026-10-16",
+      "group": "implementation",
+      "path": "src/Riftbound.Engine/MatchSession.cs",
+      "previousSha256": "ce8d75b052c66c98b7787788ccf7c955f8f09de7da19bd5aa1a08e7d8c849093",
+      "currentSha256": "54563a8e675093881cd1b4dd1246a570d4f5742a1456289430cc1eb47febb1b8"
+    },
+    {
+      "context": "native-rule-choice-prompts-2026-10-16",
+      "group": "implementation",
+      "path": "clients/godot/scripts/ui/MatchPhasePresentation.cs",
+      "previousSha256": "76723ecac561deb446151a23e4376337d65090b1deafd91f890ca0722a136767",
+      "currentSha256": "afae354e18d4c6cf3cb964abed6d70f2817fb4acafde9293c0660f17e8803b62"
+    },
+    {
+      "context": "sand-soldier-embedded-ready-2026-10-17",
+      "group": "implementation",
+      "path": "src/Riftbound.Engine/MatchSession.cs",
+      "previousSha256": "ce8d75b052c66c98b7787788ccf7c955f8f09de7da19bd5aa1a08e7d8c849093",
+      "currentSha256": "54563a8e675093881cd1b4dd1246a570d4f5742a1456289430cc1eb47febb1b8"
+    },
+    {
+      "context": "opening-randomness-2026-10-17",
+      "group": "implementation",
+      "path": "src/Riftbound.Engine/MatchSession.cs",
+      "previousSha256": "ce8d75b052c66c98b7787788ccf7c955f8f09de7da19bd5aa1a08e7d8c849093",
+      "currentSha256": "54563a8e675093881cd1b4dd1246a570d4f5742a1456289430cc1eb47febb1b8"
+    },
+    {
+      "context": "duel-chain-origins-cold-recovery-2026-10-17",
+      "group": "implementation",
+      "path": "src/Riftbound.Engine/MatchSession.cs",
+      "previousSha256": "ce8d75b052c66c98b7787788ccf7c955f8f09de7da19bd5aa1a08e7d8c849093",
+      "currentSha256": "54563a8e675093881cd1b4dd1246a570d4f5742a1456289430cc1eb47febb1b8"
+    },
+    {
+      "context": "merfolk-battlefield-play-damage-here-2026-10-17",
+      "group": "implementation",
+      "path": "src/Riftbound.Engine/MatchSession.cs",
+      "previousSha256": "ce8d75b052c66c98b7787788ccf7c955f8f09de7da19bd5aa1a08e7d8c849093",
+      "currentSha256": "54563a8e675093881cd1b4dd1246a570d4f5742a1456289430cc1eb47febb1b8"
+    },
+    {
+      "context": "banish-owner-effect-play-2026-10-18",
+      "group": "implementation",
+      "path": "src/Riftbound.Engine/MatchSession.cs",
+      "previousSha256": "ce8d75b052c66c98b7787788ccf7c955f8f09de7da19bd5aa1a08e7d8c849093",
+      "currentSha256": "54563a8e675093881cd1b4dd1246a570d4f5742a1456289430cc1eb47febb1b8"
+    },
+    {
+      "context": "permanent-here-location-control-2026-10-18",
+      "group": "implementation",
+      "path": "src/Riftbound.Engine/MatchSession.cs",
+      "previousSha256": "ce8d75b052c66c98b7787788ccf7c955f8f09de7da19bd5aa1a08e7d8c849093",
+      "currentSha256": "54563a8e675093881cd1b4dd1246a570d4f5742a1456289430cc1eb47febb1b8"
+    },
+    {
+      "context": "rengar-unit-play-confirmation-order-recovery-2026-10-18",
+      "group": "implementation",
+      "path": "src/Riftbound.Engine/MatchSession.cs",
+      "previousSha256": "ce8d75b052c66c98b7787788ccf7c955f8f09de7da19bd5aa1a08e7d8c849093",
+      "currentSha256": "54563a8e675093881cd1b4dd1246a570d4f5742a1456289430cc1eb47febb1b8"
+    },
+    {
+      "context": "deferred-trigger-command-chronology-2026-10-18",
+      "group": "implementation",
+      "path": "src/Riftbound.Engine/MatchSession.cs",
+      "previousSha256": "ce8d75b052c66c98b7787788ccf7c955f8f09de7da19bd5aa1a08e7d8c849093",
+      "currentSha256": "54563a8e675093881cd1b4dd1246a570d4f5742a1456289430cc1eb47febb1b8"
+    },
+    {
+      "context": "sole-trigger-choice-controller-2026-10-18",
+      "group": "implementation",
+      "path": "src/Riftbound.Engine/MatchSession.cs",
+      "previousSha256": "ce8d75b052c66c98b7787788ccf7c955f8f09de7da19bd5aa1a08e7d8c849093",
+      "currentSha256": "54563a8e675093881cd1b4dd1246a570d4f5742a1456289430cc1eb47febb1b8"
+    },
+    {
+      "context": "sole-trigger-choice-controller-2026-10-18",
+      "group": "verificationSources",
+      "path": "clients/godot/scripts/Main.cs",
+      "previousSha256": "cb4504128a51efd75064c4108e55bce2125a47d3d6d69c9ef95d4831afa8ea19",
+      "currentSha256": "e93e1ac3b6e26a79f36e544c4104ddd462d02a19634fefa011c7f06beef82006"
+    },
+    {
+      "context": "fate-weaver-private-spell-choice-2026-10-18",
+      "group": "verificationSources",
+      "path": "clients/godot/scripts/Main.cs",
+      "previousSha256": "cb4504128a51efd75064c4108e55bce2125a47d3d6d69c9ef95d4831afa8ea19",
+      "currentSha256": "e93e1ac3b6e26a79f36e544c4104ddd462d02a19634fefa011c7f06beef82006"
+    },
+    {
+      "context": "multi-controller-neutral-trigger-order-2026-10-18",
+      "group": "implementation",
+      "path": "src/Riftbound.Engine/MatchSession.cs",
+      "previousSha256": "ce8d75b052c66c98b7787788ccf7c955f8f09de7da19bd5aa1a08e7d8c849093",
+      "currentSha256": "54563a8e675093881cd1b4dd1246a570d4f5742a1456289430cc1eb47febb1b8"
+    }
+  ],
+  "allOriginal129ReviewDictionariesExact": true,
+  "all45CurrentContextsPendingNewFixedFull": true,
+  "priorAcceptanceGateIdsAndAllFourSourceDeltasRetained": true,
+  "currentDebugImplementation": "bad34120b30ae63d9b626ffc9875c784cfdb31fdf93198653ef6f7d1b6434a71",
+  "priorFixed8cReleaseImplementation": "d4f11c4ad8e4e511eac0ee60e49b8d83c3db6722cd86ea7731138743f1eb6b3f",
+  "newScopeBranches": 2,
+  "newAcceptanceGates": 0,
+  "oldFixed8cNativeProofNotPromotedToCurrentSourceProductAcceptance": true,
+  "noOldMatchMigrationOrAcceptedHistoryRewrite": true,
+  "fixed48CancelledConclusionNeverPromotedToSuccess": true
+}
