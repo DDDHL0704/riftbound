@@ -1,0 +1,26 @@
+{
+  "reviewedAtUtc": "2026-10-19T11:37:40.257778+00:00",
+  "initialAcquisitionManifestSha256": "4306fc19e57887d81511cbaa860715cefb7f26927431077e609769d1ae9b0d09",
+  "initialAggregateLabelCorrection": "The original aggregate label said FIVE...ACQUIRED, but actual records contain2 acquired and3 verified-TLS EOF failures. Record-level totals control; preserve original receipt.",
+  "priorPixelBaselineScopeClarification": "No prior raw pixel hash occurs in these retained index entries; this does not claim no other project archive ever held the assets.",
+  "observations": [
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-I004",
+      "rawSha256": "912be0c72984d263d7807ab98206d211f9d9761b9a6036a002b00cd4c1a813e8",
+      "pixelsInspected": true,
+      "observedContent": "Full landscape fantasy illustration with a tree and small luminous white figures. No visible card frame, readable card number or printed rules text.",
+      "boundedDisposition": "PIXEL_READ_ART_ONLY_NO_INDEPENDENT_RULE_OR_PRINTING_AUTHORITY",
+      "wholeArticleAndRegionalApplicability": "OPEN"
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-I005",
+      "rawSha256": "df3182f348da73762118f57f83350f46d3d2ff1f1fafadeed1c3b2e00a7cf8dc",
+      "pixelsInspected": true,
+      "observedContent": "Photographic scene with people and Riftbound branding. No readable card frame, card number or gameplay instructions. No person identity or event date inferred.",
+      "boundedDisposition": "PIXEL_READ_PHOTO_ONLY_NO_INDEPENDENT_RULE_OR_PRINTING_AUTHORITY",
+      "wholeArticleAndRegionalApplicability": "OPEN"
+    }
+  ],
+  "original37IndexRowsAndIdsUnchanged": true,
+  "noWholeSourceOrGameSemanticsCertification": true
+}

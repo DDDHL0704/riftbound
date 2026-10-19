@@ -1,0 +1,904 @@
+{
+  "status": "EXACT_ORIGINAL_SOURCE_AND_FIXED_NATIVE_EVIDENCE_ARCHIVED",
+  "files": [
+    {
+      "originalPath": "var/qa/radiance-image-readback-20261019/I001.jpg",
+      "canonical": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/raw/I001.jpg",
+        "sha256": "28c84d6114094bda0b3c5dfb9f37d10fcd8dc2c1b9230b9004e5e79fc77a4236",
+        "role": "I001"
+      },
+      "bytes": 489698,
+      "samePhysicalRawFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/radiance-image-readback-20261019/I002.jpg",
+      "canonical": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/raw/I002.jpg",
+        "sha256": "310f7152d9279e9feb7034716eb5b3722760a14d10033139fbdd98fef322ed8d",
+        "role": "I002"
+      },
+      "bytes": 476776,
+      "samePhysicalRawFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/radiance-image-readback-20261019/I003.jpg",
+      "canonical": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/raw/I003.jpg",
+        "sha256": "d818712254ab7ad337d6f94ed2954b7a9ee5e39bab102225a21ed8196c50e519",
+        "role": "I003"
+      },
+      "bytes": 241974,
+      "samePhysicalRawFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/radiance-image-readback-20261019/I004.jpg",
+      "canonical": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/raw/I004.jpg",
+        "sha256": "912be0c72984d263d7807ab98206d211f9d9761b9a6036a002b00cd4c1a813e8",
+        "role": "I004"
+      },
+      "bytes": 274743,
+      "samePhysicalRawFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/radiance-image-readback-20261019/I005.jpg",
+      "canonical": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/raw/I005.jpg",
+        "sha256": "df3182f348da73762118f57f83350f46d3d2ff1f1fafadeed1c3b2e00a7cf8dc",
+        "role": "I005"
+      },
+      "bytes": 336312,
+      "samePhysicalRawFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/radiance-image-readback-20261019/I006.jpg",
+      "canonical": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/raw/I006.jpg",
+        "sha256": "802e976e33cdf35958e40430d5fbcc573e76dc7d663de24675bf4de51921da7c",
+        "role": "I006"
+      },
+      "bytes": 314698,
+      "samePhysicalRawFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/radiance-image-readback-20261019/I007.png",
+      "canonical": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/raw/I007.png",
+        "sha256": "416246e29fe5b28fc51e3521742e6891d19ddff41dde49b9f6d65053cce8c8e4",
+        "role": "I007"
+      },
+      "bytes": 3294238,
+      "samePhysicalRawFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/radiance-image-readback-20261019/I008.jpg",
+      "canonical": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/raw/I008.jpg",
+        "sha256": "2d6b8132b411acd9da47ad76af4514dde2121af780c83296fd2516ef96107b4c",
+        "role": "I008"
+      },
+      "bytes": 232661,
+      "samePhysicalRawFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/radiance-image-readback-20261019/I009.jpg",
+      "canonical": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/raw/I009.jpg",
+        "sha256": "7e54aedefe163cf774aa50e6010d322f7a495e20b9656f5e6280e167b6b9c4e5",
+        "role": "I009"
+      },
+      "bytes": 210652,
+      "samePhysicalRawFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/radiance-image-readback-20261019/I010.jpg",
+      "canonical": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/raw/I010.jpg",
+        "sha256": "4b1a720b1cd4ffb26ba089b2de3935c6ec0982f6138f04fb92e8673465a4c1f0",
+        "role": "I010"
+      },
+      "bytes": 516483,
+      "samePhysicalRawFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/radiance-image-readback-20261019/I011.jpg",
+      "canonical": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/raw/I011.jpg",
+        "sha256": "23b07ce3729a9891b796ed0bcce079ca77518a731ceaf38fefb0d34b29c55e21",
+        "role": "I011"
+      },
+      "bytes": 132144,
+      "samePhysicalRawFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/radiance-image-readback-20261019/I012.jpg",
+      "canonical": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/raw/I012.jpg",
+        "sha256": "27f50065d504cb2f3db36bb00d8db2d03c129c5868f77511c65568b92474e2da",
+        "role": "I012"
+      },
+      "bytes": 302065,
+      "samePhysicalRawFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/radiance-image-readback-20261019/I013.jpg",
+      "canonical": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/raw/I013.jpg",
+        "sha256": "751cbde542751d078c67b9dadc0f46c20526fd7f1c91d3df8117161707901dd1",
+        "role": "I013"
+      },
+      "bytes": 270881,
+      "samePhysicalRawFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/radiance-image-readback-20261019/I014.jpg",
+      "canonical": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/raw/I014.jpg",
+        "sha256": "9a0cf7a260423f435110de9db81d0f3caadacddefb25a8236964594a1150e464",
+        "role": "I014"
+      },
+      "bytes": 118110,
+      "samePhysicalRawFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/radiance-image-readback-20261019/I015.png",
+      "canonical": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/raw/I015.png",
+        "sha256": "06c9adf43f9ba964f35529ccc7039b228f8108228a943f2d6b757008d85b24f8",
+        "role": "I015"
+      },
+      "bytes": 1066467,
+      "samePhysicalRawFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/radiance-image-readback-20261019/I016.jpg",
+      "canonical": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/raw/I016.jpg",
+        "sha256": "53be83ed2c8c7024d13ab7bb09c4f68a0767212e25c03c9f85c93fc5968dc577",
+        "role": "I016"
+      },
+      "bytes": 173405,
+      "samePhysicalRawFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/radiance-image-readback-20261019/I017.jpg",
+      "canonical": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/raw/I017.jpg",
+        "sha256": "0495961f0e116add2b489891dfa4fa98fdfd914b8f29a271d22a081cc1726db5",
+        "role": "I017"
+      },
+      "bytes": 108657,
+      "samePhysicalRawFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/radiance-image-readback-20261019/I018.jpg",
+      "canonical": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/raw/I018.jpg",
+        "sha256": "0b13479e23211a55cf7d5b60c63e948ed9d68dcab682aa5ec38f8bb495c1ea6d",
+        "role": "I018"
+      },
+      "bytes": 262819,
+      "samePhysicalRawFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/radiance-image-readback-20261019/I019.png",
+      "canonical": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/raw/I019.png",
+        "sha256": "9275f2356df3e864cf49227d0004864b92fb45fe927dd7732725545baf59a16f",
+        "role": "I019"
+      },
+      "bytes": 995940,
+      "samePhysicalRawFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/radiance-image-readback-20261019/I020.jpg",
+      "canonical": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/raw/I020.jpg",
+        "sha256": "21f06173bd4c537ea7b875fcc34e2b9608d48a41a154330a6a2e956858c29c38",
+        "role": "I020"
+      },
+      "bytes": 126818,
+      "samePhysicalRawFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/radiance-image-readback-20261019/I021.jpg",
+      "canonical": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/raw/I021.jpg",
+        "sha256": "548c6a0d136f054c74d9f996117ac3c76245b236d106fb83def3f202e79d712a",
+        "role": "I021"
+      },
+      "bytes": 131663,
+      "samePhysicalRawFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/radiance-image-readback-20261019/I022.jpg",
+      "canonical": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/raw/I022.jpg",
+        "sha256": "491b06f4bc189614ac8c05fc5768c65703e7a4bfb14ac8b71fe21d3a70b47233",
+        "role": "I022"
+      },
+      "bytes": 271969,
+      "samePhysicalRawFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/radiance-image-readback-20261019/I023.jpg",
+      "canonical": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/raw/I023.jpg",
+        "sha256": "593dea900d5817c723f933b6a2d99790ec6562a44e03ede907539438934cb057",
+        "role": "I023"
+      },
+      "bytes": 371449,
+      "samePhysicalRawFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/radiance-image-readback-20261019/I024.jpg",
+      "canonical": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/raw/I024.jpg",
+        "sha256": "d142b994a7f768c52bed8795d9f062f56e130bc5f7c76391302f08336ef9af98",
+        "role": "I024"
+      },
+      "bytes": 281814,
+      "samePhysicalRawFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/radiance-image-readback-20261019/I025.jpg",
+      "canonical": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/raw/I025.jpg",
+        "sha256": "d0ce46593f0046ead272e64b50f76c54eed42e308b50dd29c54947c9c414c54c",
+        "role": "I025"
+      },
+      "bytes": 116669,
+      "samePhysicalRawFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/radiance-image-readback-20261019/I026.jpg",
+      "canonical": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/raw/I026.jpg",
+        "sha256": "b331ba071e33074d2102d16ada4e4fc0447540b03b4eb05b5b75fb8287ac33a4",
+        "role": "I026"
+      },
+      "bytes": 119029,
+      "samePhysicalRawFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/radiance-image-readback-20261019/I027.jpg",
+      "canonical": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/raw/I027.jpg",
+        "sha256": "01d190fca2f2832d7dfae87a73d3b4dc3c8f9e94761c8748f2a0db8e9c5a5c8e",
+        "role": "I027"
+      },
+      "bytes": 153623,
+      "samePhysicalRawFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/radiance-image-readback-20261019/I028.png",
+      "canonical": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/raw/I028.png",
+        "sha256": "fd56d093b0ae4bc393c14d31f47e50565a192172320aeec6d3edd1e570a9e3cc",
+        "role": "I028"
+      },
+      "bytes": 5408733,
+      "samePhysicalRawFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/radiance-image-readback-20261019/I029.jpg",
+      "canonical": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/raw/I029.jpg",
+        "sha256": "e2a2589c1a220f45b20e320eab0f807b0827a3aec73cc970298dd9cefe15455c",
+        "role": "I029"
+      },
+      "bytes": 131851,
+      "samePhysicalRawFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/radiance-image-readback-20261019/I030.jpg",
+      "canonical": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/raw/I030.jpg",
+        "sha256": "984096a923b3b16e7e2f8ff99b9faacf9852d0729cbda835ee8e7c243c577011",
+        "role": "I030"
+      },
+      "bytes": 152593,
+      "samePhysicalRawFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/radiance-image-readback-20261019/I031.jpg",
+      "canonical": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/raw/I031.jpg",
+        "sha256": "dfa6e6ed549307bd76de32c4ff250172f16ba79c0b731ea2551081518e0de06f",
+        "role": "I031"
+      },
+      "bytes": 92310,
+      "samePhysicalRawFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/radiance-image-readback-20261019/I032.jpg",
+      "canonical": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/raw/I032.jpg",
+        "sha256": "0701d7463265cb883f6f6784a9da262be4a161bfaa5a096e5f94655945acacae",
+        "role": "I032"
+      },
+      "bytes": 153315,
+      "samePhysicalRawFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/radiance-image-readback-20261019/I033.png",
+      "canonical": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/raw/I033.png",
+        "sha256": "93343a7f53cc4bfdc332678dd68a3cf9b3443a653e124a0db876891517ea9a61",
+        "role": "I033"
+      },
+      "bytes": 1084734,
+      "samePhysicalRawFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/radiance-image-readback-20261019/I034.png",
+      "canonical": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/raw/I034.png",
+        "sha256": "eab179933e6fc513d53138432703a408d03a5494b74c577e59fca56a86e74b2d",
+        "role": "I034"
+      },
+      "bytes": 4429066,
+      "samePhysicalRawFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/radiance-image-readback-20261019/I035.png",
+      "canonical": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/raw/I035.png",
+        "sha256": "77dd09656cee9edf7207fded3469c3aa4e8d035f8d4d410b86c5ec00eb7335b2",
+        "role": "I035"
+      },
+      "bytes": 1062701,
+      "samePhysicalRawFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/radiance-image-readback-20261019/I036.jpg",
+      "canonical": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/raw/I036.jpg",
+        "sha256": "2cfc33e03d7c399aab9d9fbf96794231f9a8c40964d8f83043b827ffd28c3b1a",
+        "role": "I036"
+      },
+      "bytes": 171374,
+      "samePhysicalRawFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/radiance-image-readback-20261019/I037-render-receipt.json",
+      "canonical": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/original-I037-render-receipt.json",
+        "sha256": "7691052756ac69463e7d9cb5703cdf6b0ae4875f145c13cdd4edab544239eb9c",
+        "role": "original-I037-render-receipt"
+      },
+      "bytes": 492,
+      "samePhysicalRawFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/radiance-image-readback-20261019/I037-review-render.png",
+      "canonical": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/raw/I037-review-render.png",
+        "sha256": "004177d70efdc3da87cfc46f63910228187e404358e15114987804b96f784c52",
+        "role": "I037-review-render"
+      },
+      "bytes": 10075,
+      "samePhysicalRawFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/radiance-image-readback-20261019/I037.svg",
+      "canonical": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/raw/I037.svg",
+        "sha256": "3c781f64fd7dea199449d2b38bcdac5c940972d3e486b5f5bafe97d58c3eeb80",
+        "role": "I037"
+      },
+      "bytes": 2541,
+      "samePhysicalRawFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/radiance-image-readback-20261019/I038-render-receipt.json",
+      "canonical": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/original-I038-render-receipt.json",
+        "sha256": "c70178ba12d2827ecff580d36a0b271e8589f68b9b25e468857218031a36523f",
+        "role": "original-I038-render-receipt"
+      },
+      "bytes": 452,
+      "samePhysicalRawFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/radiance-image-readback-20261019/I038-review-render.png",
+      "canonical": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/raw/I038-review-render.png",
+        "sha256": "093ee3a3da6a3e5688afa1597786a6638f59e04eda545689b4af0c7eeec0c580",
+        "role": "I038-review-render"
+      },
+      "bytes": 11938,
+      "samePhysicalRawFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/radiance-image-readback-20261019/I038.svg",
+      "canonical": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/raw/I038.svg",
+        "sha256": "fba58f681b83a6d6122b3d697385c5e743ac52777228dc4580a8b65311313ace",
+        "role": "I038"
+      },
+      "bytes": 3865,
+      "samePhysicalRawFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/radiance-image-readback-20261019/I039.webp",
+      "canonical": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/raw/I039.webp",
+        "sha256": "ee706a9da44ed82e05813ee2d45f606667bb778131923d3f89b25db665872fab",
+        "role": "I039"
+      },
+      "bytes": 70494,
+      "samePhysicalRawFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/radiance-image-readback-20261019/acquire-next-ten-v4.py",
+      "canonical": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/executed-or-diagnostic-acquire-next-ten-v4.py.gz",
+        "sha256": "18594fc0dfc908cd380e01df98a06d282d75aa50f4a608b0df37faa63c97c5c3",
+        "role": "executed-or-diagnostic-acquire-next-ten-v4.py"
+      },
+      "uncompressedSha256": "bc393f98e081d589a901a20e79c46ad66d8fbdf61dc365493eb9814dd9569677",
+      "bytes": 2927,
+      "samePhysicalRawFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/radiance-image-readback-20261019/acquire-next-ten-v5.py",
+      "canonical": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/executed-or-diagnostic-acquire-next-ten-v5.py.gz",
+        "sha256": "5c7a4766fa841755049024167dacd4d22ca50618d86282cf2a195bc202a6e17b",
+        "role": "executed-or-diagnostic-acquire-next-ten-v5.py"
+      },
+      "uncompressedSha256": "d90a6165a506668830f6ef68c5f3ae3f87790d1c7f6d0cd2e732eb79d6878b9b",
+      "bytes": 3001,
+      "samePhysicalRawFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/radiance-image-readback-20261019/acquire-remaining17-v8.py",
+      "canonical": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/executed-or-diagnostic-acquire-remaining17-v8.py.gz",
+        "sha256": "14f115def5cd055071556775960b7c9c1866f60200ea544ea6fbfb3d76a7a9ae",
+        "role": "executed-or-diagnostic-acquire-remaining17-v8.py"
+      },
+      "uncompressedSha256": "cde74833eb8afd460fb6a17b5d4c3022248a853a152f80a10d481f247b220be3",
+      "bytes": 3012,
+      "samePhysicalRawFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/radiance-image-readback-20261019/acquisition-manifest-v1.json",
+      "canonical": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/original-acquisition-manifest-v1.json",
+        "sha256": "4306fc19e57887d81511cbaa860715cefb7f26927431077e609769d1ae9b0d09",
+        "role": "original-acquisition-manifest-v1"
+      },
+      "bytes": 7045,
+      "samePhysicalRawFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/radiance-image-readback-20261019/all37-visual-checkpoint-v1.json",
+      "canonical": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/original-all37-visual-checkpoint-v1.json",
+        "sha256": "644fcd64120f379fd04ca3ed7b664783bebdb79cddbe1e54424528b1e9c82791",
+        "role": "original-all37-visual-checkpoint-v1"
+      },
+      "bytes": 20854,
+      "samePhysicalRawFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/radiance-image-readback-20261019/article-version-recheck-corrected-v3.json",
+      "canonical": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/original-article-version-recheck-corrected-v3.json",
+        "sha256": "639a9f26260e70dc2ffa9b7b4c4a24fb9c79e7743a2d4fc2ab7709c7a8b647b2",
+        "role": "original-article-version-recheck-corrected-v3"
+      },
+      "bytes": 46575,
+      "samePhysicalRawFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/radiance-image-readback-20261019/article-version-recheck-v1.json",
+      "canonical": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/original-article-version-recheck-v1.json",
+        "sha256": "a1a2b4dd0cb51df332b5ec98e211251437d470df4bf1e16021499b2e907f96d2",
+        "role": "original-article-version-recheck-v1"
+      },
+      "bytes": 12457,
+      "samePhysicalRawFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/radiance-image-readback-20261019/article-version-v2-precondition-diagnostic.json",
+      "canonical": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/original-article-version-v2-precondition-diagnostic.json",
+        "sha256": "02176f087926ebdbdfbaf020c9c50cd264ee6685770a9ebd8187c216d074a3ab",
+        "role": "original-article-version-v2-precondition-diagnostic"
+      },
+      "bytes": 493,
+      "samePhysicalRawFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/radiance-image-readback-20261019/correct-article-version-comparison-v2.py",
+      "canonical": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/executed-or-diagnostic-correct-article-version-comparison-v2.py.gz",
+        "sha256": "3254bf2b337d6fc6a5571a6f0b1fdb3b0b96d882920bb612972b7b76a6f4bc2a",
+        "role": "executed-or-diagnostic-correct-article-version-comparison-v2.py"
+      },
+      "uncompressedSha256": "1a1adee69af3dfd4a2952112e7cdfdafe723c999688947c960c3445f2641d3c0",
+      "bytes": 5500,
+      "samePhysicalRawFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/radiance-image-readback-20261019/correct-article-version-comparison-v3.py",
+      "canonical": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/executed-or-diagnostic-correct-article-version-comparison-v3.py.gz",
+        "sha256": "d41594380940e84f6e0201fd7696bf3707c36382f2e189a49ab202a48affc411",
+        "role": "executed-or-diagnostic-correct-article-version-comparison-v3.py"
+      },
+      "uncompressedSha256": "423033f1d2ac0f13567396bbd76e5204662ee8ed98b3e630d450ec5faa2a09f3",
+      "bytes": 6063,
+      "samePhysicalRawFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/radiance-image-readback-20261019/en-overview-current-article.html.gz",
+      "canonical": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/en-overview-current-article.html.gz",
+        "sha256": "20afb56b5f504a26950c972d300f22fd5c4714f2360ee9bae1d5f7037ca9509b",
+        "role": "en-overview-current-article.html"
+      },
+      "bytes": 28057,
+      "samePhysicalRawFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/radiance-image-readback-20261019/en-overview-current-body.html.gz",
+      "canonical": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/en-overview-current-body.html.gz",
+        "sha256": "68a860a25254dd9eff24bffebbf19141d4e7146112a904a0347963cfe65eba05",
+        "role": "en-overview-current-body.html"
+      },
+      "bytes": 5272,
+      "samePhysicalRawFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/radiance-image-readback-20261019/en-overview-current-body.txt.gz",
+      "canonical": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/en-overview-current-body.txt.gz",
+        "sha256": "8694b4bb6830a07dde03410ebf164cd71f30b63c083f0c926e6f0a0a93ee282c",
+        "role": "en-overview-current-body.txt"
+      },
+      "bytes": 3623,
+      "samePhysicalRawFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/radiance-image-readback-20261019/face-identity-reconciliation-v1.json",
+      "canonical": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/original-face-identity-reconciliation-v1.json",
+        "sha256": "f8995d7fa57d2d2374f15663b13dd11d1aee8c2dcf661fae2d6f3197334a0456",
+        "role": "original-face-identity-reconciliation-v1"
+      },
+      "bytes": 145110,
+      "samePhysicalRawFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/radiance-image-readback-20261019/first-two-visual-readback-v1.json",
+      "canonical": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/original-first-two-visual-readback-v1.json",
+        "sha256": "4f8c403b8bcc3986124071e22e69e4c7fa4da1025d2438050821ba9f0024b87f",
+        "role": "original-first-two-visual-readback-v1"
+      },
+      "bytes": 1708,
+      "samePhysicalRawFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/radiance-image-readback-20261019/i019-corrected-format-retry-v7.json",
+      "canonical": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/original-i019-corrected-format-retry-v7.json",
+        "sha256": "b47529d1624e04d9d011c13f92363ac7b12da016a16ada55b6627617e2994804",
+        "role": "original-i019-corrected-format-retry-v7"
+      },
+      "bytes": 1809,
+      "samePhysicalRawFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/radiance-image-readback-20261019/i019-retry-v6.json",
+      "canonical": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/original-i019-retry-v6.json",
+        "sha256": "cbae2b075cacebd3aa1ec7ac9dcee4074e164763cc95f55387f4190baebd5b6c",
+        "role": "original-i019-retry-v6"
+      },
+      "bytes": 1449,
+      "samePhysicalRawFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/radiance-image-readback-20261019/last-two-retry-v9.json",
+      "canonical": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/original-last-two-retry-v9.json",
+        "sha256": "754ac0048a56a1d407197bdd4a765786703a628bf2b422147dc4ad67fc3fda7e",
+        "role": "original-last-two-retry-v9"
+      },
+      "bytes": 4396,
+      "samePhysicalRawFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/radiance-image-readback-20261019/last17-visual-readback-v1.json",
+      "canonical": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/original-last17-visual-readback-v1.json",
+        "sha256": "7c9398f15474ed2501fab1355c4a9920b4e8dd067aa076f553cdc8b987e7c3f4",
+        "role": "original-last17-visual-readback-v1"
+      },
+      "bytes": 39369,
+      "samePhysicalRawFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/radiance-image-readback-20261019/next-ten-acquisition-v5.json",
+      "canonical": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/original-next-ten-acquisition-v5.json",
+        "sha256": "365a9a48fb72e6125f39bc62b397a8eac5e86e5d0c4045d0651ed3610d70d5a4",
+        "role": "original-next-ten-acquisition-v5"
+      },
+      "bytes": 14112,
+      "samePhysicalRawFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/radiance-image-readback-20261019/publish-source-supplement-v1.py",
+      "canonical": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/executed-or-diagnostic-publish-source-supplement-v1.py.gz",
+        "sha256": "938b603bbe623d71405fe5d103621aba11a428380238ec140517e963ecc4a046",
+        "role": "executed-or-diagnostic-publish-source-supplement-v1.py"
+      },
+      "uncompressedSha256": "3cec4ad7fed46054f42390a2f03f7e966e856862749e9d9159459afd7af9f0cd",
+      "bytes": 15869,
+      "samePhysicalRawFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/radiance-image-readback-20261019/recheck-article-versions-v1.py",
+      "canonical": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/executed-or-diagnostic-recheck-article-versions-v1.py.gz",
+        "sha256": "ec986676e2812b983f4acb9bc524193c5ec1062dfab73d73b98a369ab74e12da",
+        "role": "executed-or-diagnostic-recheck-article-versions-v1.py"
+      },
+      "uncompressedSha256": "c98fe6df16ce4b098bc724d7988c84a736bf6a8abec40da60d780e177703c575",
+      "bytes": 5540,
+      "samePhysicalRawFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/radiance-image-readback-20261019/remaining17-acquisition-v8.json",
+      "canonical": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/original-remaining17-acquisition-v8.json",
+        "sha256": "126bf52d1aecf2e5f597e6fcae92f933af3d5a74554051177c7e48374e20e304",
+        "role": "original-remaining17-acquisition-v8"
+      },
+      "bytes": 23806,
+      "samePhysicalRawFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/radiance-image-readback-20261019/retry-acquisition-v2.json",
+      "canonical": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/original-retry-acquisition-v2.json",
+        "sha256": "aee08f4638a69142d856b49af46dc62a0618ac402543d90f5155fa851e41bb1b",
+        "role": "original-retry-acquisition-v2"
+      },
+      "bytes": 3610,
+      "samePhysicalRawFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/radiance-image-readback-20261019/second-five-acquisition-v3.json",
+      "canonical": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/original-second-five-acquisition-v3.json",
+        "sha256": "efa092f41f9226b9b228d5186d364e0e794ccc032d68517c5729a349e8876097",
+        "role": "original-second-five-acquisition-v3"
+      },
+      "bytes": 7497,
+      "samePhysicalRawFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/radiance-image-readback-20261019/second-five-visual-readback-v3.json",
+      "canonical": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/original-second-five-visual-readback-v3.json",
+        "sha256": "acd9864b13c0ade23235fd6e1704d5ed224ac0ca1828c41c4b432e200ae0f839",
+        "role": "original-second-five-visual-readback-v3"
+      },
+      "bytes": 12018,
+      "samePhysicalRawFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/radiance-image-readback-20261019/ten11-20-visual-readback-v1.json",
+      "canonical": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/original-ten11-20-visual-readback-v1.json",
+        "sha256": "6740b566f1eb9ec953f1b975058daeebcdd92dfac81c415b02cf4d47294438ec",
+        "role": "original-ten11-20-visual-readback-v1"
+      },
+      "bytes": 24138,
+      "samePhysicalRawFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/radiance-image-readback-20261019/two-existing-metadata-image-acquisition-v1.json",
+      "canonical": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/original-two-existing-metadata-image-acquisition-v1.json",
+        "sha256": "767ed9455aab2d7dd0434ec7112f15bd54c597b6e2e498d0bd15c19cdeaf702d",
+        "role": "original-two-existing-metadata-image-acquisition-v1"
+      },
+      "bytes": 2373,
+      "samePhysicalRawFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/radiance-image-readback-20261019/two-existing-metadata-visual-readback-v1.json",
+      "canonical": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/original-two-existing-metadata-visual-readback-v1.json",
+        "sha256": "34d43a3c8e61190f6976e1c9a207aa8078d853aadb7b161b983a28823ee15ac5",
+        "role": "original-two-existing-metadata-visual-readback-v1"
+      },
+      "bytes": 4824,
+      "samePhysicalRawFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/radiance-image-readback-20261019/v4-preflight-environment-failure.json",
+      "canonical": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/original-v4-preflight-environment-failure.json",
+        "sha256": "bd0c5fda653c83714472e4e5c40537f9784b9a08c321f82eb28c76d909241ba5",
+        "role": "original-v4-preflight-environment-failure"
+      },
+      "bytes": 477,
+      "samePhysicalRawFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/radiance-image-readback-20261019/visual-readback-v2.json",
+      "canonical": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/original-visual-readback-v2.json",
+        "sha256": "0606d06e692870b3877ad1275667f26fc504c97c7f41dcb1ac6fe77a3f67f092",
+        "role": "original-visual-readback-v2"
+      },
+      "bytes": 10870,
+      "samePhysicalRawFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/radiance-image-readback-20261019/zh-overview-current-article.html.gz",
+      "canonical": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/zh-overview-current-article.html.gz",
+        "sha256": "8d69a0e15195ed5a03bb59d0d22ee501a3f131c60636d25ff8323a0d05939bac",
+        "role": "zh-overview-current-article.html"
+      },
+      "bytes": 30110,
+      "samePhysicalRawFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/radiance-image-readback-20261019/zh-overview-current-body.html.gz",
+      "canonical": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/zh-overview-current-body.html.gz",
+        "sha256": "b1a303d8316e359f84bfd7f0b1d8b279a38f6373a91f20f3e6367e1928a44a65",
+        "role": "zh-overview-current-body.html"
+      },
+      "bytes": 5836,
+      "samePhysicalRawFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/radiance-image-readback-20261019/zh-overview-current-body.txt.gz",
+      "canonical": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/zh-overview-current-body.txt.gz",
+        "sha256": "8177b54c489964cec76a67ebf278037639ca20a46d1d51d03d715d1680c871e1",
+        "role": "zh-overview-current-body.txt"
+      },
+      "bytes": 4016,
+      "samePhysicalRawFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/radiance-image-readback-20261019/zh-prerift-current-article.html.gz",
+      "canonical": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/zh-prerift-current-article.html.gz",
+        "sha256": "fd1be3280fd5e395efa44f37ed7fa6e138ce0077de9ae9fc7f99bed75ea107a7",
+        "role": "zh-prerift-current-article.html"
+      },
+      "bytes": 28571,
+      "samePhysicalRawFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/radiance-image-readback-20261019/zh-prerift-current-body.html.gz",
+      "canonical": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/zh-prerift-current-body.html.gz",
+        "sha256": "b6406376ec6360d6285295b6ec13b106549c496c9e42b01cb6370fb092cf60ce",
+        "role": "zh-prerift-current-body.html"
+      },
+      "bytes": 5310,
+      "samePhysicalRawFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/radiance-image-readback-20261019/zh-prerift-current-body.txt.gz",
+      "canonical": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/zh-prerift-current-body.txt.gz",
+        "sha256": "4dfbaab0fbc220a3b7cf4a7d44b652c651818d95c4da3ca5ec4270d5621d6eab",
+        "role": "zh-prerift-current-body.txt"
+      },
+      "bytes": 4331,
+      "samePhysicalRawFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/paka-move-reveal-20261019/radiance-overview-next-frontier.html.gz",
+      "canonical": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/prior-en-overview.html.gz",
+        "sha256": "541de25c0d8b7e715ffed82be2bdc7f64b402dfa0c61b811402523cfffadd5e9",
+        "role": "prior-en-overview.html"
+      },
+      "bytes": 28326,
+      "samePhysicalRawFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/battlefield-positive-play-20261017/source-current/the-radiance-overview.html.gz",
+      "canonical": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/prior-zh-overview.html.gz",
+        "sha256": "d8e187aa72f07cebbccb18d1773f1fe62cac2627644eaaa6c9c1f6cf961d1bc4",
+        "role": "prior-zh-overview.html"
+      },
+      "bytes": 30430,
+      "samePhysicalRawFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/battlefield-positive-play-20261017/source-current/preparing-for-the-radiance-pre-rift.html.gz",
+      "canonical": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/prior-zh-prerift.html.gz",
+        "sha256": "fd1be3280fd5e395efa44f37ed7fa6e138ce0077de9ae9fc7f99bed75ea107a7",
+        "role": "prior-zh-prerift.html"
+      },
+      "bytes": 28571,
+      "samePhysicalRawFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/empty-reveal-followup-20261019/exported-graceful-original-frame.json.gz",
+      "canonical": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/fixed797f-exported-graceful-original-frame.json.gz",
+        "sha256": "a714a435923d44699799f8884454904dc30ac09f03f083924d76e1f1ac4e3eb9",
+        "role": "fixed797f-exported-graceful-original-frame.json"
+      },
+      "bytes": 13277,
+      "samePhysicalRawFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/empty-reveal-followup-20261019/exported-stale-retry-v2-original-frame.json.gz",
+      "canonical": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/fixed797f-exported-stale-retry-v2-original-frame.json.gz",
+        "sha256": "4f0943b99e5d45886ecdcdf575b4ee28fd26c5bf42159ad25b15933dbdcbd575",
+        "role": "fixed797f-exported-stale-retry-v2-original-frame.json"
+      },
+      "bytes": 16688,
+      "samePhysicalRawFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/empty-reveal-followup-20261019/score-paired-before-restart-original-frame.json.gz",
+      "canonical": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/fixed797f-score-paired-before-restart-original-frame.json.gz",
+        "sha256": "f234067ad8011e38624866867a3f0b31108162c17713d88b4342ee00fd6a2a17",
+        "role": "fixed797f-score-paired-before-restart-original-frame.json"
+      },
+      "bytes": 17880,
+      "samePhysicalRawFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/empty-reveal-followup-20261019/score-paired-after-continuation-original-frame.json.gz",
+      "canonical": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/fixed797f-score-paired-after-continuation-original-frame.json.gz",
+        "sha256": "4dc89df9142da6593ed762212ac7c9d42ebb986a82d8eab8507a2ad9da1eb0f3",
+        "role": "fixed797f-score-paired-after-continuation-original-frame.json"
+      },
+      "bytes": 36635,
+      "samePhysicalRawFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/empty-reveal-followup-20261019/score-network-evidence/original-paired-wire-views.json.gz",
+      "canonical": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/fixed797f-original-paired-wire-views.json.gz",
+        "sha256": "f5dc935e49d094761f71e3f6f4ad25bdb23fdf386a92b27ccfdc430cb0cc1721",
+        "role": "fixed797f-original-paired-wire-views.json"
+      },
+      "bytes": 22607,
+      "samePhysicalRawFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/empty-reveal-followup-20261019/score-network-evidence/original-private-wire-timeline.json.gz",
+      "canonical": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/fixed797f-original-private-wire-timeline.json.gz",
+        "sha256": "f4738bdac14f66047261cf394480d78ee3b488f511cb0987c84fb3ee1b5a4b6a",
+        "role": "fixed797f-original-private-wire-timeline.json"
+      },
+      "bytes": 508420,
+      "samePhysicalRawFileHardlinked": true
+    }
+  ],
+  "rawImagesHardlinkedToAvoidAnotherLocalPhysicalCopy": true,
+  "noDatabaseSourceTestOrRuntimeRetirement": true
+}

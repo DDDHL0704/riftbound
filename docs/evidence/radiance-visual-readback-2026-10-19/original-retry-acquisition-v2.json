@@ -1,0 +1,70 @@
+{
+  "recordedAtUtc": "2026-10-19T11:37:43.162650+00:00",
+  "status": "ALL_THREE_FAILED_URLS_RECOVERED_NORMAL_TLS_VISUAL_PENDING",
+  "originalManifestSha256": "4306fc19e57887d81511cbaa860715cefb7f26927431077e609769d1ae9b0d09",
+  "onlyFailedUrlsRequestedAgain": true,
+  "initialTwoSuccessfulFilesNeverRewritten": true,
+  "records": [
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-I001",
+      "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/06f598de7c6f88948da3d5144d40c966f2609931-3166x1781.jpg?accountingTag=RB",
+      "attemptedAtUtc": "2026-10-19T11:37:40.258130+00:00",
+      "previousFailure": {
+        "type": "URLError",
+        "message": "<urlopen error EOF occurred in violation of protocol (_ssl.c:1129)>"
+      },
+      "tlsVerificationDisabled": false,
+      "httpStatus": 200,
+      "resolvedUrl": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/06f598de7c6f88948da3d5144d40c966f2609931-3166x1781.jpg?accountingTag=RB",
+      "httpDate": "Mon, 19 Oct 2026 11:37:40 GMT",
+      "lastModified": "Mon, 12 Oct 2026 09:42:55 GMT",
+      "contentType": "image/jpeg",
+      "status": "ACQUIRED_VISUAL_REVIEW_PENDING",
+      "path": "var/qa/radiance-image-readback-20261019/I001.jpg",
+      "rawSha256": "28c84d6114094bda0b3c5dfb9f37d10fcd8dc2c1b9230b9004e5e79fc77a4236",
+      "bytes": 489698,
+      "receivedAtUtc": "2026-10-19T11:37:41.017484+00:00"
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-I002",
+      "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/08da730c513dd6d217dc71e5ae37193f46ebcadf-4623x2600.jpg?accountingTag=RB",
+      "attemptedAtUtc": "2026-10-19T11:37:41.017498+00:00",
+      "previousFailure": {
+        "type": "URLError",
+        "message": "<urlopen error EOF occurred in violation of protocol (_ssl.c:1129)>"
+      },
+      "tlsVerificationDisabled": false,
+      "httpStatus": 200,
+      "resolvedUrl": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/08da730c513dd6d217dc71e5ae37193f46ebcadf-4623x2600.jpg?accountingTag=RB",
+      "httpDate": "Mon, 19 Oct 2026 11:37:41 GMT",
+      "lastModified": "Fri, 18 Sep 2026 12:18:54 GMT",
+      "contentType": "image/jpeg",
+      "status": "ACQUIRED_VISUAL_REVIEW_PENDING",
+      "path": "var/qa/radiance-image-readback-20261019/I002.jpg",
+      "rawSha256": "310f7152d9279e9feb7034716eb5b3722760a14d10033139fbdd98fef322ed8d",
+      "bytes": 476776,
+      "receivedAtUtc": "2026-10-19T11:37:41.790084+00:00"
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-I003",
+      "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/0d895d9d1ec8446fd14649933ff8d7efe1972cc4-1920x1080.jpg?accountingTag=RB",
+      "attemptedAtUtc": "2026-10-19T11:37:41.790096+00:00",
+      "previousFailure": {
+        "type": "URLError",
+        "message": "<urlopen error EOF occurred in violation of protocol (_ssl.c:1129)>"
+      },
+      "tlsVerificationDisabled": false,
+      "httpStatus": 200,
+      "resolvedUrl": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/0d895d9d1ec8446fd14649933ff8d7efe1972cc4-1920x1080.jpg?accountingTag=RB",
+      "httpDate": "Mon, 19 Oct 2026 11:37:42 GMT",
+      "lastModified": "Tue, 03 Feb 2026 21:12:35 GMT",
+      "contentType": "image/jpeg",
+      "status": "ACQUIRED_VISUAL_REVIEW_PENDING",
+      "path": "var/qa/radiance-image-readback-20261019/I003.jpg",
+      "rawSha256": "d818712254ab7ad337d6f94ed2954b7a9ee5e39bab102225a21ed8196c50e519",
+      "bytes": 241974,
+      "receivedAtUtc": "2026-10-19T11:37:43.162618+00:00"
+    }
+  ],
+  "wholeArticleAndCurrentCnApplicability": "OPEN"
+}

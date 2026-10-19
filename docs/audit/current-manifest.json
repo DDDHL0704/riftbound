@@ -59,8 +59,8 @@
     }
   },
   "cardCoverageManifest": {
-    "path": "docs/evidence/empty-reveal-followup-2026-10-19/source-coverage.json",
-    "sha256": "1c5b19832b71afdbdc73d03a90cf29f2fc5ed4354f3b941fc705b2259a7d770e",
+    "path": "docs/evidence/radiance-visual-readback-2026-10-19/source-coverage.json",
+    "sha256": "a0291d0b3847aec9cecc85f84ae590e3de4cd0150d10ca586e2d32a857bcca82",
     "role": "current-card-coverage"
   },
   "inputs": {
@@ -32020,6 +32020,586 @@
       "fixedCommitCi": "PENDING_NEW_FIXED_FULL",
       "productAcceptance": "OPEN",
       "wholePrintingCertified": false
+    },
+    {
+      "id": "RADIANCE_VISUAL_NUMBER_RAD_110A_167",
+      "state": "OPEN",
+      "parentObligationId": "GATE:RADIANCE_OVERVIEW_EXACT_BODY_AND_FORMAT_APPLICABILITY",
+      "region": "GLOBAL_CN_DISPOSITION_OPEN",
+      "language": "en-US",
+      "observedAt": "2026-10-19",
+      "requirement": "Resolve exact printed-number/source-version identity, token or rune namespace, regional dates and applicability, then all applicable shared behavior, independent tests, fixed CI and product evidence. Do not merge a similar structured card number or infer a new official API ID.",
+      "sourceManifest": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/source-manifest.json",
+        "sha256": "4eab22d206f8c5c81ce82dd7e506e4d3a41a5ea9475e15d23e6ffd8222b9abda",
+        "role": "source-manifest"
+      },
+      "sourcePrintingCandidate": {
+        "id": "SOURCE-PRINTING-CANDIDATE:RAD-110A/167",
+        "normalizedLookupCandidate": "RAD-110A/167",
+        "printedReadings": [
+          "RAD 110a/167 EN"
+        ],
+        "faces": [
+          {
+            "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-I027-FACE01",
+            "sourceImageId": "GLOBAL-RADIANCE-OVERVIEW-20260925-I027",
+            "sourceUrl": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/91615e371018c10d2c1a09c4003a547dcb503cbb-1848x1063.jpg",
+            "sourceRawSha256": "01d190fca2f2832d7dfae87a73d3b4dc3c8f9e94761c8748f2a0db8e9c5a5c8e",
+            "sourceObtainedAtUtc": "2026-10-19T12:11:51.963333+00:00",
+            "printedNumberAsRead": "RAD 110a/167 EN",
+            "printedLanguage": "EN",
+            "promoPMark": true,
+            "prizeStampAsRead": null,
+            "nameAsRead": "Lulu / Whimsical",
+            "categoryAsRead": "CHAMPION_UNIT",
+            "fullFaceReadable": true,
+            "normalizedNumberCandidateOnly": "RAD-110A/167",
+            "numberCandidatePresentInFrozen1740": false,
+            "historicalCandidateSources": [],
+            "currentCnApiVersionDisposition": null,
+            "runtimeBindingPresent": false,
+            "semanticReview": "SOURCE_VISUAL_FACT_ONLY_WHOLE_BEHAVIOR_OPEN",
+            "exactVariantAndCnRegionalApplicability": "OPEN",
+            "implementationTestsFixedCiAndProduct": "NOT_PROMOTED_FROM_IMAGE",
+            "publicationDate": null,
+            "effectiveDate": null,
+            "visualEntryNotNewOfficialApiId": true,
+            "canonicalImage": {
+              "path": "docs/evidence/radiance-visual-readback-2026-10-19/raw/I027.jpg",
+              "sha256": "01d190fca2f2832d7dfae87a73d3b4dc3c8f9e94761c8748f2a0db8e9c5a5c8e",
+              "role": "official-raw-image"
+            }
+          }
+        ],
+        "state": "OPEN",
+        "sourceFact": "OFFICIAL_IMAGE_READ_PRINTED_NUMBER_NOT_MATCHED_IN_FROZEN1740_LEDGER",
+        "officialStructuredApiIdentity": "UNRESOLVED_DO_NOT_INVENT_OR_MERGE",
+        "publicationDate": null,
+        "effectiveDate": null,
+        "semanticReview": "VISUAL_IDENTITY_FACT_ONLY",
+        "implementation": "NOT_RUNTIME_ADOPTED",
+        "testExecution": "OPEN_IF_APPLICABLE",
+        "fixedCommitCi": "PENDING_SOURCE_INDEX_CI",
+        "productAcceptance": "OPEN_IF_APPLICABLE",
+        "wholePrintingCertified": false
+      },
+      "semanticReview": "SOURCE_VISUAL_FACT_ONLY",
+      "implementation": "NOT_RUNTIME_ADOPTED",
+      "testExecution": "OPEN_IF_APPLICABLE",
+      "fixedCommitCi": "PENDING_SOURCE_INDEX_CI",
+      "productAcceptance": "OPEN_IF_APPLICABLE",
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "RADIANCE_VISUAL_NUMBER_RAD_R01B",
+      "state": "OPEN",
+      "parentObligationId": "GATE:RADIANCE_OVERVIEW_EXACT_BODY_AND_FORMAT_APPLICABILITY",
+      "region": "GLOBAL_CN_DISPOSITION_OPEN",
+      "language": "en-US",
+      "observedAt": "2026-10-19",
+      "requirement": "Resolve exact printed-number/source-version identity, token or rune namespace, regional dates and applicability, then all applicable shared behavior, independent tests, fixed CI and product evidence. Do not merge a similar structured card number or infer a new official API ID.",
+      "sourceManifest": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/source-manifest.json",
+        "sha256": "4eab22d206f8c5c81ce82dd7e506e4d3a41a5ea9475e15d23e6ffd8222b9abda",
+        "role": "source-manifest"
+      },
+      "sourcePrintingCandidate": {
+        "id": "SOURCE-PRINTING-CANDIDATE:RAD-R01B",
+        "normalizedLookupCandidate": "RAD-R01B",
+        "printedReadings": [
+          "RAD R01b EN"
+        ],
+        "faces": [
+          {
+            "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-I016-FACE01",
+            "sourceImageId": "GLOBAL-RADIANCE-OVERVIEW-20260925-I016",
+            "sourceUrl": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/3897f799c32a2e3a47794dc008764b9116fb277c-1327x1220.jpg",
+            "sourceRawSha256": "53be83ed2c8c7024d13ab7bb09c4f68a0767212e25c03c9f85c93fc5968dc577",
+            "sourceObtainedAtUtc": "2026-10-19T12:04:00.899739+00:00",
+            "printedNumberAsRead": "RAD R01b EN",
+            "printedLanguage": "EN",
+            "promoPMark": true,
+            "prizeStampAsRead": null,
+            "nameAsRead": "Fury Rune",
+            "categoryAsRead": "RUNE",
+            "fullFaceReadable": true,
+            "normalizedNumberCandidateOnly": "RAD-R01B",
+            "numberCandidatePresentInFrozen1740": false,
+            "historicalCandidateSources": [],
+            "currentCnApiVersionDisposition": null,
+            "runtimeBindingPresent": false,
+            "semanticReview": "SOURCE_VISUAL_FACT_ONLY_WHOLE_BEHAVIOR_OPEN",
+            "exactVariantAndCnRegionalApplicability": "OPEN",
+            "implementationTestsFixedCiAndProduct": "NOT_PROMOTED_FROM_IMAGE",
+            "publicationDate": null,
+            "effectiveDate": null,
+            "visualEntryNotNewOfficialApiId": true,
+            "canonicalImage": {
+              "path": "docs/evidence/radiance-visual-readback-2026-10-19/raw/I016.jpg",
+              "sha256": "53be83ed2c8c7024d13ab7bb09c4f68a0767212e25c03c9f85c93fc5968dc577",
+              "role": "official-raw-image"
+            }
+          }
+        ],
+        "state": "OPEN",
+        "sourceFact": "OFFICIAL_IMAGE_READ_PRINTED_NUMBER_NOT_MATCHED_IN_FROZEN1740_LEDGER",
+        "officialStructuredApiIdentity": "UNRESOLVED_DO_NOT_INVENT_OR_MERGE",
+        "publicationDate": null,
+        "effectiveDate": null,
+        "semanticReview": "VISUAL_IDENTITY_FACT_ONLY",
+        "implementation": "NOT_RUNTIME_ADOPTED",
+        "testExecution": "OPEN_IF_APPLICABLE",
+        "fixedCommitCi": "PENDING_SOURCE_INDEX_CI",
+        "productAcceptance": "OPEN_IF_APPLICABLE",
+        "wholePrintingCertified": false
+      },
+      "semanticReview": "SOURCE_VISUAL_FACT_ONLY",
+      "implementation": "NOT_RUNTIME_ADOPTED",
+      "testExecution": "OPEN_IF_APPLICABLE",
+      "fixedCommitCi": "PENDING_SOURCE_INDEX_CI",
+      "productAcceptance": "OPEN_IF_APPLICABLE",
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "RADIANCE_VISUAL_NUMBER_RAD_R02B",
+      "state": "OPEN",
+      "parentObligationId": "GATE:RADIANCE_OVERVIEW_EXACT_BODY_AND_FORMAT_APPLICABILITY",
+      "region": "GLOBAL_CN_DISPOSITION_OPEN",
+      "language": "en-US",
+      "observedAt": "2026-10-19",
+      "requirement": "Resolve exact printed-number/source-version identity, token or rune namespace, regional dates and applicability, then all applicable shared behavior, independent tests, fixed CI and product evidence. Do not merge a similar structured card number or infer a new official API ID.",
+      "sourceManifest": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/source-manifest.json",
+        "sha256": "4eab22d206f8c5c81ce82dd7e506e4d3a41a5ea9475e15d23e6ffd8222b9abda",
+        "role": "source-manifest"
+      },
+      "sourcePrintingCandidate": {
+        "id": "SOURCE-PRINTING-CANDIDATE:RAD-R02B",
+        "normalizedLookupCandidate": "RAD-R02B",
+        "printedReadings": [
+          "RAD R02b EN"
+        ],
+        "faces": [
+          {
+            "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-I016-FACE02",
+            "sourceImageId": "GLOBAL-RADIANCE-OVERVIEW-20260925-I016",
+            "sourceUrl": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/3897f799c32a2e3a47794dc008764b9116fb277c-1327x1220.jpg",
+            "sourceRawSha256": "53be83ed2c8c7024d13ab7bb09c4f68a0767212e25c03c9f85c93fc5968dc577",
+            "sourceObtainedAtUtc": "2026-10-19T12:04:00.899739+00:00",
+            "printedNumberAsRead": "RAD R02b EN",
+            "printedLanguage": "EN",
+            "promoPMark": true,
+            "prizeStampAsRead": null,
+            "nameAsRead": "Calm Rune",
+            "categoryAsRead": "RUNE",
+            "fullFaceReadable": true,
+            "normalizedNumberCandidateOnly": "RAD-R02B",
+            "numberCandidatePresentInFrozen1740": false,
+            "historicalCandidateSources": [],
+            "currentCnApiVersionDisposition": null,
+            "runtimeBindingPresent": false,
+            "semanticReview": "SOURCE_VISUAL_FACT_ONLY_WHOLE_BEHAVIOR_OPEN",
+            "exactVariantAndCnRegionalApplicability": "OPEN",
+            "implementationTestsFixedCiAndProduct": "NOT_PROMOTED_FROM_IMAGE",
+            "publicationDate": null,
+            "effectiveDate": null,
+            "visualEntryNotNewOfficialApiId": true,
+            "canonicalImage": {
+              "path": "docs/evidence/radiance-visual-readback-2026-10-19/raw/I016.jpg",
+              "sha256": "53be83ed2c8c7024d13ab7bb09c4f68a0767212e25c03c9f85c93fc5968dc577",
+              "role": "official-raw-image"
+            }
+          }
+        ],
+        "state": "OPEN",
+        "sourceFact": "OFFICIAL_IMAGE_READ_PRINTED_NUMBER_NOT_MATCHED_IN_FROZEN1740_LEDGER",
+        "officialStructuredApiIdentity": "UNRESOLVED_DO_NOT_INVENT_OR_MERGE",
+        "publicationDate": null,
+        "effectiveDate": null,
+        "semanticReview": "VISUAL_IDENTITY_FACT_ONLY",
+        "implementation": "NOT_RUNTIME_ADOPTED",
+        "testExecution": "OPEN_IF_APPLICABLE",
+        "fixedCommitCi": "PENDING_SOURCE_INDEX_CI",
+        "productAcceptance": "OPEN_IF_APPLICABLE",
+        "wholePrintingCertified": false
+      },
+      "semanticReview": "SOURCE_VISUAL_FACT_ONLY",
+      "implementation": "NOT_RUNTIME_ADOPTED",
+      "testExecution": "OPEN_IF_APPLICABLE",
+      "fixedCommitCi": "PENDING_SOURCE_INDEX_CI",
+      "productAcceptance": "OPEN_IF_APPLICABLE",
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "RADIANCE_VISUAL_NUMBER_RAD_R03B",
+      "state": "OPEN",
+      "parentObligationId": "GATE:RADIANCE_OVERVIEW_EXACT_BODY_AND_FORMAT_APPLICABILITY",
+      "region": "GLOBAL_CN_DISPOSITION_OPEN",
+      "language": "en-US",
+      "observedAt": "2026-10-19",
+      "requirement": "Resolve exact printed-number/source-version identity, token or rune namespace, regional dates and applicability, then all applicable shared behavior, independent tests, fixed CI and product evidence. Do not merge a similar structured card number or infer a new official API ID.",
+      "sourceManifest": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/source-manifest.json",
+        "sha256": "4eab22d206f8c5c81ce82dd7e506e4d3a41a5ea9475e15d23e6ffd8222b9abda",
+        "role": "source-manifest"
+      },
+      "sourcePrintingCandidate": {
+        "id": "SOURCE-PRINTING-CANDIDATE:RAD-R03B",
+        "normalizedLookupCandidate": "RAD-R03B",
+        "printedReadings": [
+          "RAD R03b EN"
+        ],
+        "faces": [
+          {
+            "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-I016-FACE03",
+            "sourceImageId": "GLOBAL-RADIANCE-OVERVIEW-20260925-I016",
+            "sourceUrl": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/3897f799c32a2e3a47794dc008764b9116fb277c-1327x1220.jpg",
+            "sourceRawSha256": "53be83ed2c8c7024d13ab7bb09c4f68a0767212e25c03c9f85c93fc5968dc577",
+            "sourceObtainedAtUtc": "2026-10-19T12:04:00.899739+00:00",
+            "printedNumberAsRead": "RAD R03b EN",
+            "printedLanguage": "EN",
+            "promoPMark": true,
+            "prizeStampAsRead": null,
+            "nameAsRead": "Mind Rune",
+            "categoryAsRead": "RUNE",
+            "fullFaceReadable": true,
+            "normalizedNumberCandidateOnly": "RAD-R03B",
+            "numberCandidatePresentInFrozen1740": false,
+            "historicalCandidateSources": [],
+            "currentCnApiVersionDisposition": null,
+            "runtimeBindingPresent": false,
+            "semanticReview": "SOURCE_VISUAL_FACT_ONLY_WHOLE_BEHAVIOR_OPEN",
+            "exactVariantAndCnRegionalApplicability": "OPEN",
+            "implementationTestsFixedCiAndProduct": "NOT_PROMOTED_FROM_IMAGE",
+            "publicationDate": null,
+            "effectiveDate": null,
+            "visualEntryNotNewOfficialApiId": true,
+            "canonicalImage": {
+              "path": "docs/evidence/radiance-visual-readback-2026-10-19/raw/I016.jpg",
+              "sha256": "53be83ed2c8c7024d13ab7bb09c4f68a0767212e25c03c9f85c93fc5968dc577",
+              "role": "official-raw-image"
+            }
+          }
+        ],
+        "state": "OPEN",
+        "sourceFact": "OFFICIAL_IMAGE_READ_PRINTED_NUMBER_NOT_MATCHED_IN_FROZEN1740_LEDGER",
+        "officialStructuredApiIdentity": "UNRESOLVED_DO_NOT_INVENT_OR_MERGE",
+        "publicationDate": null,
+        "effectiveDate": null,
+        "semanticReview": "VISUAL_IDENTITY_FACT_ONLY",
+        "implementation": "NOT_RUNTIME_ADOPTED",
+        "testExecution": "OPEN_IF_APPLICABLE",
+        "fixedCommitCi": "PENDING_SOURCE_INDEX_CI",
+        "productAcceptance": "OPEN_IF_APPLICABLE",
+        "wholePrintingCertified": false
+      },
+      "semanticReview": "SOURCE_VISUAL_FACT_ONLY",
+      "implementation": "NOT_RUNTIME_ADOPTED",
+      "testExecution": "OPEN_IF_APPLICABLE",
+      "fixedCommitCi": "PENDING_SOURCE_INDEX_CI",
+      "productAcceptance": "OPEN_IF_APPLICABLE",
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "RADIANCE_VISUAL_NUMBER_RAD_R04B",
+      "state": "OPEN",
+      "parentObligationId": "GATE:RADIANCE_OVERVIEW_EXACT_BODY_AND_FORMAT_APPLICABILITY",
+      "region": "GLOBAL_CN_DISPOSITION_OPEN",
+      "language": "en-US",
+      "observedAt": "2026-10-19",
+      "requirement": "Resolve exact printed-number/source-version identity, token or rune namespace, regional dates and applicability, then all applicable shared behavior, independent tests, fixed CI and product evidence. Do not merge a similar structured card number or infer a new official API ID.",
+      "sourceManifest": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/source-manifest.json",
+        "sha256": "4eab22d206f8c5c81ce82dd7e506e4d3a41a5ea9475e15d23e6ffd8222b9abda",
+        "role": "source-manifest"
+      },
+      "sourcePrintingCandidate": {
+        "id": "SOURCE-PRINTING-CANDIDATE:RAD-R04B",
+        "normalizedLookupCandidate": "RAD-R04B",
+        "printedReadings": [
+          "RAD R04b EN"
+        ],
+        "faces": [
+          {
+            "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-I016-FACE04",
+            "sourceImageId": "GLOBAL-RADIANCE-OVERVIEW-20260925-I016",
+            "sourceUrl": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/3897f799c32a2e3a47794dc008764b9116fb277c-1327x1220.jpg",
+            "sourceRawSha256": "53be83ed2c8c7024d13ab7bb09c4f68a0767212e25c03c9f85c93fc5968dc577",
+            "sourceObtainedAtUtc": "2026-10-19T12:04:00.899739+00:00",
+            "printedNumberAsRead": "RAD R04b EN",
+            "printedLanguage": "EN",
+            "promoPMark": true,
+            "prizeStampAsRead": null,
+            "nameAsRead": "Body Rune",
+            "categoryAsRead": "RUNE",
+            "fullFaceReadable": true,
+            "normalizedNumberCandidateOnly": "RAD-R04B",
+            "numberCandidatePresentInFrozen1740": false,
+            "historicalCandidateSources": [],
+            "currentCnApiVersionDisposition": null,
+            "runtimeBindingPresent": false,
+            "semanticReview": "SOURCE_VISUAL_FACT_ONLY_WHOLE_BEHAVIOR_OPEN",
+            "exactVariantAndCnRegionalApplicability": "OPEN",
+            "implementationTestsFixedCiAndProduct": "NOT_PROMOTED_FROM_IMAGE",
+            "publicationDate": null,
+            "effectiveDate": null,
+            "visualEntryNotNewOfficialApiId": true,
+            "canonicalImage": {
+              "path": "docs/evidence/radiance-visual-readback-2026-10-19/raw/I016.jpg",
+              "sha256": "53be83ed2c8c7024d13ab7bb09c4f68a0767212e25c03c9f85c93fc5968dc577",
+              "role": "official-raw-image"
+            }
+          }
+        ],
+        "state": "OPEN",
+        "sourceFact": "OFFICIAL_IMAGE_READ_PRINTED_NUMBER_NOT_MATCHED_IN_FROZEN1740_LEDGER",
+        "officialStructuredApiIdentity": "UNRESOLVED_DO_NOT_INVENT_OR_MERGE",
+        "publicationDate": null,
+        "effectiveDate": null,
+        "semanticReview": "VISUAL_IDENTITY_FACT_ONLY",
+        "implementation": "NOT_RUNTIME_ADOPTED",
+        "testExecution": "OPEN_IF_APPLICABLE",
+        "fixedCommitCi": "PENDING_SOURCE_INDEX_CI",
+        "productAcceptance": "OPEN_IF_APPLICABLE",
+        "wholePrintingCertified": false
+      },
+      "semanticReview": "SOURCE_VISUAL_FACT_ONLY",
+      "implementation": "NOT_RUNTIME_ADOPTED",
+      "testExecution": "OPEN_IF_APPLICABLE",
+      "fixedCommitCi": "PENDING_SOURCE_INDEX_CI",
+      "productAcceptance": "OPEN_IF_APPLICABLE",
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "RADIANCE_VISUAL_NUMBER_RAD_R05B",
+      "state": "OPEN",
+      "parentObligationId": "GATE:RADIANCE_OVERVIEW_EXACT_BODY_AND_FORMAT_APPLICABILITY",
+      "region": "GLOBAL_CN_DISPOSITION_OPEN",
+      "language": "en-US",
+      "observedAt": "2026-10-19",
+      "requirement": "Resolve exact printed-number/source-version identity, token or rune namespace, regional dates and applicability, then all applicable shared behavior, independent tests, fixed CI and product evidence. Do not merge a similar structured card number or infer a new official API ID.",
+      "sourceManifest": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/source-manifest.json",
+        "sha256": "4eab22d206f8c5c81ce82dd7e506e4d3a41a5ea9475e15d23e6ffd8222b9abda",
+        "role": "source-manifest"
+      },
+      "sourcePrintingCandidate": {
+        "id": "SOURCE-PRINTING-CANDIDATE:RAD-R05B",
+        "normalizedLookupCandidate": "RAD-R05B",
+        "printedReadings": [
+          "RAD R05b EN"
+        ],
+        "faces": [
+          {
+            "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-I016-FACE05",
+            "sourceImageId": "GLOBAL-RADIANCE-OVERVIEW-20260925-I016",
+            "sourceUrl": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/3897f799c32a2e3a47794dc008764b9116fb277c-1327x1220.jpg",
+            "sourceRawSha256": "53be83ed2c8c7024d13ab7bb09c4f68a0767212e25c03c9f85c93fc5968dc577",
+            "sourceObtainedAtUtc": "2026-10-19T12:04:00.899739+00:00",
+            "printedNumberAsRead": "RAD R05b EN",
+            "printedLanguage": "EN",
+            "promoPMark": true,
+            "prizeStampAsRead": null,
+            "nameAsRead": "Chaos Rune",
+            "categoryAsRead": "RUNE",
+            "fullFaceReadable": true,
+            "normalizedNumberCandidateOnly": "RAD-R05B",
+            "numberCandidatePresentInFrozen1740": false,
+            "historicalCandidateSources": [],
+            "currentCnApiVersionDisposition": null,
+            "runtimeBindingPresent": false,
+            "semanticReview": "SOURCE_VISUAL_FACT_ONLY_WHOLE_BEHAVIOR_OPEN",
+            "exactVariantAndCnRegionalApplicability": "OPEN",
+            "implementationTestsFixedCiAndProduct": "NOT_PROMOTED_FROM_IMAGE",
+            "publicationDate": null,
+            "effectiveDate": null,
+            "visualEntryNotNewOfficialApiId": true,
+            "canonicalImage": {
+              "path": "docs/evidence/radiance-visual-readback-2026-10-19/raw/I016.jpg",
+              "sha256": "53be83ed2c8c7024d13ab7bb09c4f68a0767212e25c03c9f85c93fc5968dc577",
+              "role": "official-raw-image"
+            }
+          }
+        ],
+        "state": "OPEN",
+        "sourceFact": "OFFICIAL_IMAGE_READ_PRINTED_NUMBER_NOT_MATCHED_IN_FROZEN1740_LEDGER",
+        "officialStructuredApiIdentity": "UNRESOLVED_DO_NOT_INVENT_OR_MERGE",
+        "publicationDate": null,
+        "effectiveDate": null,
+        "semanticReview": "VISUAL_IDENTITY_FACT_ONLY",
+        "implementation": "NOT_RUNTIME_ADOPTED",
+        "testExecution": "OPEN_IF_APPLICABLE",
+        "fixedCommitCi": "PENDING_SOURCE_INDEX_CI",
+        "productAcceptance": "OPEN_IF_APPLICABLE",
+        "wholePrintingCertified": false
+      },
+      "semanticReview": "SOURCE_VISUAL_FACT_ONLY",
+      "implementation": "NOT_RUNTIME_ADOPTED",
+      "testExecution": "OPEN_IF_APPLICABLE",
+      "fixedCommitCi": "PENDING_SOURCE_INDEX_CI",
+      "productAcceptance": "OPEN_IF_APPLICABLE",
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "RADIANCE_VISUAL_NUMBER_RAD_R06B",
+      "state": "OPEN",
+      "parentObligationId": "GATE:RADIANCE_OVERVIEW_EXACT_BODY_AND_FORMAT_APPLICABILITY",
+      "region": "GLOBAL_CN_DISPOSITION_OPEN",
+      "language": "en-US",
+      "observedAt": "2026-10-19",
+      "requirement": "Resolve exact printed-number/source-version identity, token or rune namespace, regional dates and applicability, then all applicable shared behavior, independent tests, fixed CI and product evidence. Do not merge a similar structured card number or infer a new official API ID.",
+      "sourceManifest": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/source-manifest.json",
+        "sha256": "4eab22d206f8c5c81ce82dd7e506e4d3a41a5ea9475e15d23e6ffd8222b9abda",
+        "role": "source-manifest"
+      },
+      "sourcePrintingCandidate": {
+        "id": "SOURCE-PRINTING-CANDIDATE:RAD-R06B",
+        "normalizedLookupCandidate": "RAD-R06B",
+        "printedReadings": [
+          "RAD R06b EN"
+        ],
+        "faces": [
+          {
+            "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-I016-FACE06",
+            "sourceImageId": "GLOBAL-RADIANCE-OVERVIEW-20260925-I016",
+            "sourceUrl": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/3897f799c32a2e3a47794dc008764b9116fb277c-1327x1220.jpg",
+            "sourceRawSha256": "53be83ed2c8c7024d13ab7bb09c4f68a0767212e25c03c9f85c93fc5968dc577",
+            "sourceObtainedAtUtc": "2026-10-19T12:04:00.899739+00:00",
+            "printedNumberAsRead": "RAD R06b EN",
+            "printedLanguage": "EN",
+            "promoPMark": true,
+            "prizeStampAsRead": null,
+            "nameAsRead": "Order Rune",
+            "categoryAsRead": "RUNE",
+            "fullFaceReadable": true,
+            "normalizedNumberCandidateOnly": "RAD-R06B",
+            "numberCandidatePresentInFrozen1740": false,
+            "historicalCandidateSources": [],
+            "currentCnApiVersionDisposition": null,
+            "runtimeBindingPresent": false,
+            "semanticReview": "SOURCE_VISUAL_FACT_ONLY_WHOLE_BEHAVIOR_OPEN",
+            "exactVariantAndCnRegionalApplicability": "OPEN",
+            "implementationTestsFixedCiAndProduct": "NOT_PROMOTED_FROM_IMAGE",
+            "publicationDate": null,
+            "effectiveDate": null,
+            "visualEntryNotNewOfficialApiId": true,
+            "canonicalImage": {
+              "path": "docs/evidence/radiance-visual-readback-2026-10-19/raw/I016.jpg",
+              "sha256": "53be83ed2c8c7024d13ab7bb09c4f68a0767212e25c03c9f85c93fc5968dc577",
+              "role": "official-raw-image"
+            }
+          }
+        ],
+        "state": "OPEN",
+        "sourceFact": "OFFICIAL_IMAGE_READ_PRINTED_NUMBER_NOT_MATCHED_IN_FROZEN1740_LEDGER",
+        "officialStructuredApiIdentity": "UNRESOLVED_DO_NOT_INVENT_OR_MERGE",
+        "publicationDate": null,
+        "effectiveDate": null,
+        "semanticReview": "VISUAL_IDENTITY_FACT_ONLY",
+        "implementation": "NOT_RUNTIME_ADOPTED",
+        "testExecution": "OPEN_IF_APPLICABLE",
+        "fixedCommitCi": "PENDING_SOURCE_INDEX_CI",
+        "productAcceptance": "OPEN_IF_APPLICABLE",
+        "wholePrintingCertified": false
+      },
+      "semanticReview": "SOURCE_VISUAL_FACT_ONLY",
+      "implementation": "NOT_RUNTIME_ADOPTED",
+      "testExecution": "OPEN_IF_APPLICABLE",
+      "fixedCommitCi": "PENDING_SOURCE_INDEX_CI",
+      "productAcceptance": "OPEN_IF_APPLICABLE",
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "RADIANCE_VISUAL_NUMBER_RAD_T02",
+      "state": "OPEN",
+      "parentObligationId": "GATE:RADIANCE_OVERVIEW_EXACT_BODY_AND_FORMAT_APPLICABILITY",
+      "region": "GLOBAL_CN_DISPOSITION_OPEN",
+      "language": "en-US",
+      "observedAt": "2026-10-19",
+      "requirement": "Resolve exact printed-number/source-version identity, token or rune namespace, regional dates and applicability, then all applicable shared behavior, independent tests, fixed CI and product evidence. Do not merge a similar structured card number or infer a new official API ID.",
+      "sourceManifest": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/source-manifest.json",
+        "sha256": "4eab22d206f8c5c81ce82dd7e506e4d3a41a5ea9475e15d23e6ffd8222b9abda",
+        "role": "source-manifest"
+      },
+      "sourcePrintingCandidate": {
+        "id": "SOURCE-PRINTING-CANDIDATE:RAD-T02",
+        "normalizedLookupCandidate": "RAD-T02",
+        "printedReadings": [
+          "RAD T02 EN"
+        ],
+        "faces": [
+          {
+            "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-I031-FACE01",
+            "sourceImageId": "GLOBAL-RADIANCE-OVERVIEW-20260925-I031",
+            "sourceUrl": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/c1837fcea02cb2cef8ab892198dadcacb16123dd-1848x1063.jpg",
+            "sourceRawSha256": "dfa6e6ed549307bd76de32c4ff250172f16ba79c0b731ea2551081518e0de06f",
+            "sourceObtainedAtUtc": "2026-10-19T12:11:57.462255+00:00",
+            "printedNumberAsRead": "RAD T02 EN",
+            "printedLanguage": "EN",
+            "promoPMark": false,
+            "prizeStampAsRead": null,
+            "nameAsRead": "Bomb",
+            "categoryAsRead": "TOKEN_GEAR",
+            "fullFaceReadable": true,
+            "normalizedNumberCandidateOnly": "RAD-T02",
+            "numberCandidatePresentInFrozen1740": false,
+            "historicalCandidateSources": [],
+            "currentCnApiVersionDisposition": null,
+            "runtimeBindingPresent": false,
+            "semanticReview": "SOURCE_VISUAL_FACT_ONLY_WHOLE_BEHAVIOR_OPEN",
+            "exactVariantAndCnRegionalApplicability": "OPEN",
+            "implementationTestsFixedCiAndProduct": "NOT_PROMOTED_FROM_IMAGE",
+            "publicationDate": null,
+            "effectiveDate": null,
+            "visualEntryNotNewOfficialApiId": true,
+            "canonicalImage": {
+              "path": "docs/evidence/radiance-visual-readback-2026-10-19/raw/I031.jpg",
+              "sha256": "dfa6e6ed549307bd76de32c4ff250172f16ba79c0b731ea2551081518e0de06f",
+              "role": "official-raw-image"
+            }
+          }
+        ],
+        "state": "OPEN",
+        "sourceFact": "OFFICIAL_IMAGE_READ_PRINTED_NUMBER_NOT_MATCHED_IN_FROZEN1740_LEDGER",
+        "officialStructuredApiIdentity": "UNRESOLVED_DO_NOT_INVENT_OR_MERGE",
+        "publicationDate": null,
+        "effectiveDate": null,
+        "semanticReview": "VISUAL_IDENTITY_FACT_ONLY",
+        "implementation": "NOT_RUNTIME_ADOPTED",
+        "testExecution": "OPEN_IF_APPLICABLE",
+        "fixedCommitCi": "PENDING_SOURCE_INDEX_CI",
+        "productAcceptance": "OPEN_IF_APPLICABLE",
+        "wholePrintingCertified": false
+      },
+      "semanticReview": "SOURCE_VISUAL_FACT_ONLY",
+      "implementation": "NOT_RUNTIME_ADOPTED",
+      "testExecution": "OPEN_IF_APPLICABLE",
+      "fixedCommitCi": "PENDING_SOURCE_INDEX_CI",
+      "productAcceptance": "OPEN_IF_APPLICABLE",
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "RADIANCE_SAME_NUMBER_PROMO_STAMPS_AND_SP_NAMESPACES",
+      "state": "OPEN",
+      "parentObligationId": "GATE:RADIANCE_OVERVIEW_EXACT_BODY_AND_FORMAT_APPLICABILITY",
+      "region": "GLOBAL_CN_DISPOSITION_OPEN",
+      "language": "en-US",
+      "observedAt": "2026-10-19",
+      "requirement": "Resolve numeric/SP/promo exact identities and same-number TOP8 versus CHAMPION stamps for Akali015 and Ahri038, plus Heimer132 prerelease and ordinary faces. Matching rule text/printed number alone does not certify every physical variant or CN eligibility.",
+      "sourceManifest": {
+        "path": "docs/evidence/radiance-visual-readback-2026-10-19/source-manifest.json",
+        "sha256": "4eab22d206f8c5c81ce82dd7e506e4d3a41a5ea9475e15d23e6ffd8222b9abda",
+        "role": "source-manifest"
+      },
+      "semanticReview": "VISUAL_VARIANTS_RECORDED",
+      "implementation": "NOT_RUNTIME_ADOPTED",
+      "testExecution": "OPEN_IF_APPLICABLE",
+      "fixedCommitCi": "PENDING_SOURCE_INDEX_CI",
+      "productAcceptance": "OPEN_IF_APPLICABLE",
+      "wholePrintingCertified": false
     }
   ],
   "note": "Current inventory and remaining obligations, with independently dated rule sources and separately recorded source deltas. No source fetch or semantic certification by this checker.",
@@ -32147,5 +32727,20 @@
     "path": "docs/evidence/empty-reveal-followup-2026-10-19/current-input-change.json",
     "sha256": "aef5a2d12baf1c3d9248755ce80e25f936d0e97a2c5eb3fbb2336fd106cf1e03",
     "role": "current-input-change"
+  },
+  "currentRadianceVisualSourceSupplement": {
+    "path": "docs/evidence/radiance-visual-readback-2026-10-19/source-manifest.json",
+    "sha256": "4eab22d206f8c5c81ce82dd7e506e4d3a41a5ea9475e15d23e6ffd8222b9abda",
+    "role": "source-manifest"
+  },
+  "currentRadianceSupplementalPrintingObligations": {
+    "path": "docs/evidence/radiance-visual-readback-2026-10-19/supplemental-printing-obligations.json",
+    "sha256": "fe26a1f77257f07a7d346754c353593fb51f54c00e0741531b48bf15085a91c0",
+    "role": "supplemental-printing-obligations"
+  },
+  "currentRadianceVisualObligationRetention": {
+    "path": "docs/evidence/radiance-visual-readback-2026-10-19/unified-obligation-retention.json",
+    "sha256": "51a495905e3e98447b3b0beab51e50f61b4d7e4e851909f2bcb5ce2a90ad7b00",
+    "role": "unified-obligation-retention"
   }
 }

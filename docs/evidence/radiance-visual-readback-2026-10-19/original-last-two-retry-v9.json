@@ -1,0 +1,82 @@
+{
+  "startedAtUtc": "2026-10-19T12:14:21.350244+00:00",
+  "originalFailuresRetained": true,
+  "correction": "I037 is an SVG from riotbar_live; the prior raster-only signature check was not a source failure. Preserve raw XML without executing it.",
+  "records": [
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-I036",
+      "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/fe4d16c47834aef297eee720784b57617cafa54b-2312x1300.jpg",
+      "priorFailedAttempt": {
+        "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-I036",
+        "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/fe4d16c47834aef297eee720784b57617cafa54b-2312x1300.jpg",
+        "sourceReferenceUnchanged": {
+          "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-I036",
+          "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/fe4d16c47834aef297eee720784b57617cafa54b-2312x1300.jpg",
+          "semanticReview": "OPEN_EXACT_VISUAL_IDENTITY_AND_APPLICABILITY",
+          "pixelsInspected": false
+        },
+        "attemptedAtUtc": "2026-10-19T12:12:05.303185+00:00",
+        "tlsVerificationDisabled": false,
+        "language": "en-US",
+        "region": "GLOBAL_SUPPLEMENTARY_CN_DISPOSITION_OPEN",
+        "pixelsInspected": false,
+        "status": "FAILED_ACQUISITION_NOT_REVIEWED",
+        "errorType": "URLError",
+        "error": "<urlopen error EOF occurred in violation of protocol (_ssl.c:1129)>"
+      },
+      "attemptedAtUtc": "2026-10-19T12:14:21.350382+00:00",
+      "tlsVerificationDisabled": false,
+      "pixelsInspected": false,
+      "httpStatus": 200,
+      "resolvedUrl": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/fe4d16c47834aef297eee720784b57617cafa54b-2312x1300.jpg",
+      "httpDate": "Mon, 19 Oct 2026 12:14:22 GMT",
+      "lastModified": "Thu, 24 Sep 2026 20:21:55 GMT",
+      "contentType": "image/jpeg",
+      "status": "ACQUIRED_VISUAL_PENDING",
+      "path": "var/qa/radiance-image-readback-20261019/I036.jpg",
+      "bytes": 171374,
+      "rawSha256": "2cfc33e03d7c399aab9d9fbf96794231f9a8c40964d8f83043b827ffd28c3b1a",
+      "receivedAtUtc": "2026-10-19T12:14:22.603593+00:00"
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-I037",
+      "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/riotbar_live/4da88ec91ad2d6d108ce89a62dcd1c05e764f724-24x24.svg?accountingTag=RB",
+      "priorFailedAttempt": {
+        "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-I037",
+        "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/riotbar_live/4da88ec91ad2d6d108ce89a62dcd1c05e764f724-24x24.svg?accountingTag=RB",
+        "sourceReferenceUnchanged": {
+          "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-I037",
+          "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/riotbar_live/4da88ec91ad2d6d108ce89a62dcd1c05e764f724-24x24.svg?accountingTag=RB",
+          "semanticReview": "OPEN_EXACT_VISUAL_IDENTITY_AND_APPLICABILITY",
+          "pixelsInspected": false
+        },
+        "attemptedAtUtc": "2026-10-19T12:12:08.386337+00:00",
+        "tlsVerificationDisabled": false,
+        "language": "en-US",
+        "region": "GLOBAL_SUPPLEMENTARY_CN_DISPOSITION_OPEN",
+        "pixelsInspected": false,
+        "httpStatus": 200,
+        "resolvedUrl": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/riotbar_live/4da88ec91ad2d6d108ce89a62dcd1c05e764f724-24x24.svg?accountingTag=RB",
+        "httpDate": "Mon, 19 Oct 2026 12:12:10 GMT",
+        "lastModified": "Mon, 31 Mar 2025 20:54:55 GMT",
+        "contentType": "image/svg+xml",
+        "status": "FAILED_ACQUISITION_NOT_REVIEWED",
+        "errorType": "AssertionError",
+        "error": ""
+      },
+      "attemptedAtUtc": "2026-10-19T12:14:22.603765+00:00",
+      "tlsVerificationDisabled": false,
+      "pixelsInspected": false,
+      "httpStatus": 200,
+      "resolvedUrl": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/riotbar_live/4da88ec91ad2d6d108ce89a62dcd1c05e764f724-24x24.svg?accountingTag=RB",
+      "httpDate": "Mon, 19 Oct 2026 12:14:23 GMT",
+      "lastModified": "Mon, 31 Mar 2025 20:54:55 GMT",
+      "contentType": "image/svg+xml",
+      "status": "ACQUIRED_VISUAL_PENDING",
+      "path": "var/qa/radiance-image-readback-20261019/I037.svg",
+      "bytes": 2541,
+      "rawSha256": "3c781f64fd7dea199449d2b38bcdac5c940972d3e486b5f5bafe97d58c3eeb80",
+      "receivedAtUtc": "2026-10-19T12:14:23.651532+00:00"
+    }
+  ]
+}

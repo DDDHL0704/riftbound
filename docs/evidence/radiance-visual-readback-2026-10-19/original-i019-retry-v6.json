@@ -1,0 +1,32 @@
+{
+  "attemptedAtUtc": "2026-10-19T12:06:52.219018+00:00",
+  "sourceReference": {
+    "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-I019",
+    "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/58000a55f3e4186393c85992cf81d8b7983d5b82-744x1039.png",
+    "sourceReferenceUnchanged": {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-I019",
+      "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/58000a55f3e4186393c85992cf81d8b7983d5b82-744x1039.png",
+      "semanticReview": "OPEN_EXACT_VISUAL_IDENTITY_AND_APPLICABILITY",
+      "pixelsInspected": false
+    },
+    "attemptedAtUtc": "2026-10-19T12:04:03.004732+00:00",
+    "tlsVerificationDisabled": false,
+    "language": "en-US",
+    "region": "GLOBAL_SUPPLEMENTARY_CN_DISPOSITION_OPEN",
+    "pixelsInspected": false,
+    "status": "FAILED_ACQUISITION_NOT_REVIEWED",
+    "errorType": "URLError",
+    "error": "<urlopen error EOF occurred in violation of protocol (_ssl.c:1129)>"
+  },
+  "priorNormalTlsFailurePreserved": true,
+  "tlsVerificationDisabled": false,
+  "pixelsInspected": false,
+  "httpStatus": 200,
+  "resolvedUrl": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/58000a55f3e4186393c85992cf81d8b7983d5b82-744x1039.png",
+  "httpDate": "Mon, 19 Oct 2026 12:06:52 GMT",
+  "lastModified": "Thu, 15 Oct 2026 23:13:21 GMT",
+  "contentType": "image/png",
+  "status": "FAILED_ACQUISITION_NOT_REVIEWED",
+  "errorType": "AssertionError",
+  "error": ""
+}

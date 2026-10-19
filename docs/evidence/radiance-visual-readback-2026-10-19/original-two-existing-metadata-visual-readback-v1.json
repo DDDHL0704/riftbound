@@ -1,0 +1,82 @@
+{
+  "recordedAtUtc": "2026-10-19T12:59:46.979128+00:00",
+  "status": "TWO_EXISTING_METADATA_REFERENCES_ACTUALLY_READ_NO_NEW_TEMPORAL_IMAGE_ADDITION",
+  "original37ImageIdsAndAllRawSourcesPreserved": true,
+  "observations": [
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-I038",
+      "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/content_organization/45270aab26c0d3f2f7377cba4147dd2ac01b473a-24x24.svg?accountingTag=RB",
+      "sourceAcquisition": {
+        "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-I038",
+        "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/content_organization/45270aab26c0d3f2f7377cba4147dd2ac01b473a-24x24.svg?accountingTag=RB",
+        "tlsVerificationDisabled": false,
+        "pixelsInspected": false,
+        "attemptedAtUtc": "2026-10-19T12:55:01.432099+00:00",
+        "httpStatus": 200,
+        "httpDate": "Mon, 19 Oct 2026 12:55:01 GMT",
+        "lastModified": "Sat, 22 Mar 2025 00:09:40 GMT",
+        "contentType": "image/svg+xml",
+        "resolvedUrl": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/content_organization/45270aab26c0d3f2f7377cba4147dd2ac01b473a-24x24.svg?accountingTag=RB",
+        "status": "ACQUIRED_VISUAL_PENDING",
+        "path": "var/qa/radiance-image-readback-20261019/I038.svg",
+        "rawSha256": "fba58f681b83a6d6122b3d697385c5e743ac52777228dc4580a8b65311313ace",
+        "bytes": 3865,
+        "receivedAtUtc": "2026-10-19T12:55:01.873615+00:00",
+        "publicationDate": null,
+        "effectiveDate": null
+      },
+      "pixelsActuallyInspected": true,
+      "boundedDisposition": "PAGE_METADATA_BRANDING_NO_CARD_OR_RULE_OR_DATE_AUTHORITY",
+      "wholeArticleAndRegionalEligibilityCertified": false,
+      "alreadyInHistoricalPageBeforeThisAcquisition": true,
+      "actualObservedContent": "Orange circular spiral brand mark, no text, card frame, card number or game instructions; actual SVG viewed through a256px derived review render.",
+      "derivedRenderReceipt": {
+        "status": "DERIVED_REVIEW_RENDER_NOT_OFFICIAL_RAW",
+        "sourceSha256": "fba58f681b83a6d6122b3d697385c5e743ac52777228dc4580a8b65311313ace",
+        "renderSha256": "093ee3a3da6a3e5688afa1597786a6638f59e04eda545689b4af0c7eeec0c580",
+        "rawSvgUnchanged": true,
+        "renderer": "bundled sharp 0.35.5",
+        "sourceViewBox": "0 0 24 24",
+        "renderPixels": [
+          256,
+          256
+        ],
+        "noExternalResourceOrScript": true,
+        "pixelsStillRequireActualInspection": true
+      }
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-I039",
+      "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/0d895d9d1ec8446fd14649933ff8d7efe1972cc4-1920x1080.jpg?accountingTag=RB&w=1200&h=630&fm=webp&fit=crop&crop=center",
+      "sourceAcquisition": {
+        "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-I039",
+        "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/0d895d9d1ec8446fd14649933ff8d7efe1972cc4-1920x1080.jpg?accountingTag=RB&w=1200&h=630&fm=webp&fit=crop&crop=center",
+        "tlsVerificationDisabled": false,
+        "pixelsInspected": false,
+        "attemptedAtUtc": "2026-10-19T12:55:01.874425+00:00",
+        "httpStatus": 200,
+        "httpDate": "Mon, 19 Oct 2026 12:55:02 GMT",
+        "lastModified": "2026-09-25T23:07:42.204Z",
+        "contentType": "image/webp",
+        "resolvedUrl": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/0d895d9d1ec8446fd14649933ff8d7efe1972cc4-1920x1080.jpg?accountingTag=RB&w=1200&h=630&fm=webp&fit=crop&crop=center",
+        "status": "ACQUIRED_VISUAL_PENDING",
+        "path": "var/qa/radiance-image-readback-20261019/I039.webp",
+        "rawSha256": "ee706a9da44ed82e05813ee2d45f606667bb778131923d3f89b25db665872fab",
+        "bytes": 70494,
+        "receivedAtUtc": "2026-10-19T12:55:02.954549+00:00",
+        "publicationDate": null,
+        "effectiveDate": null
+      },
+      "pixelsActuallyInspected": true,
+      "boundedDisposition": "PAGE_METADATA_BRANDING_NO_CARD_OR_RULE_OR_DATE_AUTHORITY",
+      "wholeArticleAndRegionalEligibilityCertified": false,
+      "alreadyInHistoricalPageBeforeThisAcquisition": true,
+      "actualObservedContent": "1200x630 promotional character/branding banner for Radiance, with the same asset URL identifier as the full1920x1080 banner but an explicit WebP/crop transformation. No card number, game instructions or effective date. Both image bytes are retained separately."
+    }
+  ],
+  "all39VersionedPageImageUrlsNowHaveActualVisualEvidence": true,
+  "currentEnPageContains38OfTheHistorical39Union": true,
+  "onePreviouslyIndexedReferenceOnlyRemovedFromRelatedArticleCarouselCurrentResponse": true,
+  "noCardOrRuleChangeOrRegionalEligibilityInferred": true,
+  "currentZhcNOverviewAndPreriftImageCoverageNotAutomaticallyCertifiedFromEnSet": true
+}

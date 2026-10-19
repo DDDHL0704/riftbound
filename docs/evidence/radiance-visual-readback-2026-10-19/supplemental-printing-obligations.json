@@ -1,0 +1,408 @@
+{
+  "status": "EIGHT_EXPLICIT_UNRESOLVED_SOURCE_PRINTING_CANDIDATES",
+  "historicalStructuredLedgerCountUnchanged": 1740,
+  "candidates": [
+    {
+      "id": "SOURCE-PRINTING-CANDIDATE:RAD-110A/167",
+      "normalizedLookupCandidate": "RAD-110A/167",
+      "printedReadings": [
+        "RAD 110a/167 EN"
+      ],
+      "faces": [
+        {
+          "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-I027-FACE01",
+          "sourceImageId": "GLOBAL-RADIANCE-OVERVIEW-20260925-I027",
+          "sourceUrl": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/91615e371018c10d2c1a09c4003a547dcb503cbb-1848x1063.jpg",
+          "sourceRawSha256": "01d190fca2f2832d7dfae87a73d3b4dc3c8f9e94761c8748f2a0db8e9c5a5c8e",
+          "sourceObtainedAtUtc": "2026-10-19T12:11:51.963333+00:00",
+          "printedNumberAsRead": "RAD 110a/167 EN",
+          "printedLanguage": "EN",
+          "promoPMark": true,
+          "prizeStampAsRead": null,
+          "nameAsRead": "Lulu / Whimsical",
+          "categoryAsRead": "CHAMPION_UNIT",
+          "fullFaceReadable": true,
+          "normalizedNumberCandidateOnly": "RAD-110A/167",
+          "numberCandidatePresentInFrozen1740": false,
+          "historicalCandidateSources": [],
+          "currentCnApiVersionDisposition": null,
+          "runtimeBindingPresent": false,
+          "semanticReview": "SOURCE_VISUAL_FACT_ONLY_WHOLE_BEHAVIOR_OPEN",
+          "exactVariantAndCnRegionalApplicability": "OPEN",
+          "implementationTestsFixedCiAndProduct": "NOT_PROMOTED_FROM_IMAGE",
+          "publicationDate": null,
+          "effectiveDate": null,
+          "visualEntryNotNewOfficialApiId": true,
+          "canonicalImage": {
+            "path": "docs/evidence/radiance-visual-readback-2026-10-19/raw/I027.jpg",
+            "sha256": "01d190fca2f2832d7dfae87a73d3b4dc3c8f9e94761c8748f2a0db8e9c5a5c8e",
+            "role": "official-raw-image"
+          }
+        }
+      ],
+      "state": "OPEN",
+      "sourceFact": "OFFICIAL_IMAGE_READ_PRINTED_NUMBER_NOT_MATCHED_IN_FROZEN1740_LEDGER",
+      "officialStructuredApiIdentity": "UNRESOLVED_DO_NOT_INVENT_OR_MERGE",
+      "publicationDate": null,
+      "effectiveDate": null,
+      "semanticReview": "VISUAL_IDENTITY_FACT_ONLY",
+      "implementation": "NOT_RUNTIME_ADOPTED",
+      "testExecution": "OPEN_IF_APPLICABLE",
+      "fixedCommitCi": "PENDING_SOURCE_INDEX_CI",
+      "productAcceptance": "OPEN_IF_APPLICABLE",
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "SOURCE-PRINTING-CANDIDATE:RAD-R01B",
+      "normalizedLookupCandidate": "RAD-R01B",
+      "printedReadings": [
+        "RAD R01b EN"
+      ],
+      "faces": [
+        {
+          "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-I016-FACE01",
+          "sourceImageId": "GLOBAL-RADIANCE-OVERVIEW-20260925-I016",
+          "sourceUrl": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/3897f799c32a2e3a47794dc008764b9116fb277c-1327x1220.jpg",
+          "sourceRawSha256": "53be83ed2c8c7024d13ab7bb09c4f68a0767212e25c03c9f85c93fc5968dc577",
+          "sourceObtainedAtUtc": "2026-10-19T12:04:00.899739+00:00",
+          "printedNumberAsRead": "RAD R01b EN",
+          "printedLanguage": "EN",
+          "promoPMark": true,
+          "prizeStampAsRead": null,
+          "nameAsRead": "Fury Rune",
+          "categoryAsRead": "RUNE",
+          "fullFaceReadable": true,
+          "normalizedNumberCandidateOnly": "RAD-R01B",
+          "numberCandidatePresentInFrozen1740": false,
+          "historicalCandidateSources": [],
+          "currentCnApiVersionDisposition": null,
+          "runtimeBindingPresent": false,
+          "semanticReview": "SOURCE_VISUAL_FACT_ONLY_WHOLE_BEHAVIOR_OPEN",
+          "exactVariantAndCnRegionalApplicability": "OPEN",
+          "implementationTestsFixedCiAndProduct": "NOT_PROMOTED_FROM_IMAGE",
+          "publicationDate": null,
+          "effectiveDate": null,
+          "visualEntryNotNewOfficialApiId": true,
+          "canonicalImage": {
+            "path": "docs/evidence/radiance-visual-readback-2026-10-19/raw/I016.jpg",
+            "sha256": "53be83ed2c8c7024d13ab7bb09c4f68a0767212e25c03c9f85c93fc5968dc577",
+            "role": "official-raw-image"
+          }
+        }
+      ],
+      "state": "OPEN",
+      "sourceFact": "OFFICIAL_IMAGE_READ_PRINTED_NUMBER_NOT_MATCHED_IN_FROZEN1740_LEDGER",
+      "officialStructuredApiIdentity": "UNRESOLVED_DO_NOT_INVENT_OR_MERGE",
+      "publicationDate": null,
+      "effectiveDate": null,
+      "semanticReview": "VISUAL_IDENTITY_FACT_ONLY",
+      "implementation": "NOT_RUNTIME_ADOPTED",
+      "testExecution": "OPEN_IF_APPLICABLE",
+      "fixedCommitCi": "PENDING_SOURCE_INDEX_CI",
+      "productAcceptance": "OPEN_IF_APPLICABLE",
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "SOURCE-PRINTING-CANDIDATE:RAD-R02B",
+      "normalizedLookupCandidate": "RAD-R02B",
+      "printedReadings": [
+        "RAD R02b EN"
+      ],
+      "faces": [
+        {
+          "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-I016-FACE02",
+          "sourceImageId": "GLOBAL-RADIANCE-OVERVIEW-20260925-I016",
+          "sourceUrl": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/3897f799c32a2e3a47794dc008764b9116fb277c-1327x1220.jpg",
+          "sourceRawSha256": "53be83ed2c8c7024d13ab7bb09c4f68a0767212e25c03c9f85c93fc5968dc577",
+          "sourceObtainedAtUtc": "2026-10-19T12:04:00.899739+00:00",
+          "printedNumberAsRead": "RAD R02b EN",
+          "printedLanguage": "EN",
+          "promoPMark": true,
+          "prizeStampAsRead": null,
+          "nameAsRead": "Calm Rune",
+          "categoryAsRead": "RUNE",
+          "fullFaceReadable": true,
+          "normalizedNumberCandidateOnly": "RAD-R02B",
+          "numberCandidatePresentInFrozen1740": false,
+          "historicalCandidateSources": [],
+          "currentCnApiVersionDisposition": null,
+          "runtimeBindingPresent": false,
+          "semanticReview": "SOURCE_VISUAL_FACT_ONLY_WHOLE_BEHAVIOR_OPEN",
+          "exactVariantAndCnRegionalApplicability": "OPEN",
+          "implementationTestsFixedCiAndProduct": "NOT_PROMOTED_FROM_IMAGE",
+          "publicationDate": null,
+          "effectiveDate": null,
+          "visualEntryNotNewOfficialApiId": true,
+          "canonicalImage": {
+            "path": "docs/evidence/radiance-visual-readback-2026-10-19/raw/I016.jpg",
+            "sha256": "53be83ed2c8c7024d13ab7bb09c4f68a0767212e25c03c9f85c93fc5968dc577",
+            "role": "official-raw-image"
+          }
+        }
+      ],
+      "state": "OPEN",
+      "sourceFact": "OFFICIAL_IMAGE_READ_PRINTED_NUMBER_NOT_MATCHED_IN_FROZEN1740_LEDGER",
+      "officialStructuredApiIdentity": "UNRESOLVED_DO_NOT_INVENT_OR_MERGE",
+      "publicationDate": null,
+      "effectiveDate": null,
+      "semanticReview": "VISUAL_IDENTITY_FACT_ONLY",
+      "implementation": "NOT_RUNTIME_ADOPTED",
+      "testExecution": "OPEN_IF_APPLICABLE",
+      "fixedCommitCi": "PENDING_SOURCE_INDEX_CI",
+      "productAcceptance": "OPEN_IF_APPLICABLE",
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "SOURCE-PRINTING-CANDIDATE:RAD-R03B",
+      "normalizedLookupCandidate": "RAD-R03B",
+      "printedReadings": [
+        "RAD R03b EN"
+      ],
+      "faces": [
+        {
+          "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-I016-FACE03",
+          "sourceImageId": "GLOBAL-RADIANCE-OVERVIEW-20260925-I016",
+          "sourceUrl": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/3897f799c32a2e3a47794dc008764b9116fb277c-1327x1220.jpg",
+          "sourceRawSha256": "53be83ed2c8c7024d13ab7bb09c4f68a0767212e25c03c9f85c93fc5968dc577",
+          "sourceObtainedAtUtc": "2026-10-19T12:04:00.899739+00:00",
+          "printedNumberAsRead": "RAD R03b EN",
+          "printedLanguage": "EN",
+          "promoPMark": true,
+          "prizeStampAsRead": null,
+          "nameAsRead": "Mind Rune",
+          "categoryAsRead": "RUNE",
+          "fullFaceReadable": true,
+          "normalizedNumberCandidateOnly": "RAD-R03B",
+          "numberCandidatePresentInFrozen1740": false,
+          "historicalCandidateSources": [],
+          "currentCnApiVersionDisposition": null,
+          "runtimeBindingPresent": false,
+          "semanticReview": "SOURCE_VISUAL_FACT_ONLY_WHOLE_BEHAVIOR_OPEN",
+          "exactVariantAndCnRegionalApplicability": "OPEN",
+          "implementationTestsFixedCiAndProduct": "NOT_PROMOTED_FROM_IMAGE",
+          "publicationDate": null,
+          "effectiveDate": null,
+          "visualEntryNotNewOfficialApiId": true,
+          "canonicalImage": {
+            "path": "docs/evidence/radiance-visual-readback-2026-10-19/raw/I016.jpg",
+            "sha256": "53be83ed2c8c7024d13ab7bb09c4f68a0767212e25c03c9f85c93fc5968dc577",
+            "role": "official-raw-image"
+          }
+        }
+      ],
+      "state": "OPEN",
+      "sourceFact": "OFFICIAL_IMAGE_READ_PRINTED_NUMBER_NOT_MATCHED_IN_FROZEN1740_LEDGER",
+      "officialStructuredApiIdentity": "UNRESOLVED_DO_NOT_INVENT_OR_MERGE",
+      "publicationDate": null,
+      "effectiveDate": null,
+      "semanticReview": "VISUAL_IDENTITY_FACT_ONLY",
+      "implementation": "NOT_RUNTIME_ADOPTED",
+      "testExecution": "OPEN_IF_APPLICABLE",
+      "fixedCommitCi": "PENDING_SOURCE_INDEX_CI",
+      "productAcceptance": "OPEN_IF_APPLICABLE",
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "SOURCE-PRINTING-CANDIDATE:RAD-R04B",
+      "normalizedLookupCandidate": "RAD-R04B",
+      "printedReadings": [
+        "RAD R04b EN"
+      ],
+      "faces": [
+        {
+          "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-I016-FACE04",
+          "sourceImageId": "GLOBAL-RADIANCE-OVERVIEW-20260925-I016",
+          "sourceUrl": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/3897f799c32a2e3a47794dc008764b9116fb277c-1327x1220.jpg",
+          "sourceRawSha256": "53be83ed2c8c7024d13ab7bb09c4f68a0767212e25c03c9f85c93fc5968dc577",
+          "sourceObtainedAtUtc": "2026-10-19T12:04:00.899739+00:00",
+          "printedNumberAsRead": "RAD R04b EN",
+          "printedLanguage": "EN",
+          "promoPMark": true,
+          "prizeStampAsRead": null,
+          "nameAsRead": "Body Rune",
+          "categoryAsRead": "RUNE",
+          "fullFaceReadable": true,
+          "normalizedNumberCandidateOnly": "RAD-R04B",
+          "numberCandidatePresentInFrozen1740": false,
+          "historicalCandidateSources": [],
+          "currentCnApiVersionDisposition": null,
+          "runtimeBindingPresent": false,
+          "semanticReview": "SOURCE_VISUAL_FACT_ONLY_WHOLE_BEHAVIOR_OPEN",
+          "exactVariantAndCnRegionalApplicability": "OPEN",
+          "implementationTestsFixedCiAndProduct": "NOT_PROMOTED_FROM_IMAGE",
+          "publicationDate": null,
+          "effectiveDate": null,
+          "visualEntryNotNewOfficialApiId": true,
+          "canonicalImage": {
+            "path": "docs/evidence/radiance-visual-readback-2026-10-19/raw/I016.jpg",
+            "sha256": "53be83ed2c8c7024d13ab7bb09c4f68a0767212e25c03c9f85c93fc5968dc577",
+            "role": "official-raw-image"
+          }
+        }
+      ],
+      "state": "OPEN",
+      "sourceFact": "OFFICIAL_IMAGE_READ_PRINTED_NUMBER_NOT_MATCHED_IN_FROZEN1740_LEDGER",
+      "officialStructuredApiIdentity": "UNRESOLVED_DO_NOT_INVENT_OR_MERGE",
+      "publicationDate": null,
+      "effectiveDate": null,
+      "semanticReview": "VISUAL_IDENTITY_FACT_ONLY",
+      "implementation": "NOT_RUNTIME_ADOPTED",
+      "testExecution": "OPEN_IF_APPLICABLE",
+      "fixedCommitCi": "PENDING_SOURCE_INDEX_CI",
+      "productAcceptance": "OPEN_IF_APPLICABLE",
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "SOURCE-PRINTING-CANDIDATE:RAD-R05B",
+      "normalizedLookupCandidate": "RAD-R05B",
+      "printedReadings": [
+        "RAD R05b EN"
+      ],
+      "faces": [
+        {
+          "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-I016-FACE05",
+          "sourceImageId": "GLOBAL-RADIANCE-OVERVIEW-20260925-I016",
+          "sourceUrl": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/3897f799c32a2e3a47794dc008764b9116fb277c-1327x1220.jpg",
+          "sourceRawSha256": "53be83ed2c8c7024d13ab7bb09c4f68a0767212e25c03c9f85c93fc5968dc577",
+          "sourceObtainedAtUtc": "2026-10-19T12:04:00.899739+00:00",
+          "printedNumberAsRead": "RAD R05b EN",
+          "printedLanguage": "EN",
+          "promoPMark": true,
+          "prizeStampAsRead": null,
+          "nameAsRead": "Chaos Rune",
+          "categoryAsRead": "RUNE",
+          "fullFaceReadable": true,
+          "normalizedNumberCandidateOnly": "RAD-R05B",
+          "numberCandidatePresentInFrozen1740": false,
+          "historicalCandidateSources": [],
+          "currentCnApiVersionDisposition": null,
+          "runtimeBindingPresent": false,
+          "semanticReview": "SOURCE_VISUAL_FACT_ONLY_WHOLE_BEHAVIOR_OPEN",
+          "exactVariantAndCnRegionalApplicability": "OPEN",
+          "implementationTestsFixedCiAndProduct": "NOT_PROMOTED_FROM_IMAGE",
+          "publicationDate": null,
+          "effectiveDate": null,
+          "visualEntryNotNewOfficialApiId": true,
+          "canonicalImage": {
+            "path": "docs/evidence/radiance-visual-readback-2026-10-19/raw/I016.jpg",
+            "sha256": "53be83ed2c8c7024d13ab7bb09c4f68a0767212e25c03c9f85c93fc5968dc577",
+            "role": "official-raw-image"
+          }
+        }
+      ],
+      "state": "OPEN",
+      "sourceFact": "OFFICIAL_IMAGE_READ_PRINTED_NUMBER_NOT_MATCHED_IN_FROZEN1740_LEDGER",
+      "officialStructuredApiIdentity": "UNRESOLVED_DO_NOT_INVENT_OR_MERGE",
+      "publicationDate": null,
+      "effectiveDate": null,
+      "semanticReview": "VISUAL_IDENTITY_FACT_ONLY",
+      "implementation": "NOT_RUNTIME_ADOPTED",
+      "testExecution": "OPEN_IF_APPLICABLE",
+      "fixedCommitCi": "PENDING_SOURCE_INDEX_CI",
+      "productAcceptance": "OPEN_IF_APPLICABLE",
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "SOURCE-PRINTING-CANDIDATE:RAD-R06B",
+      "normalizedLookupCandidate": "RAD-R06B",
+      "printedReadings": [
+        "RAD R06b EN"
+      ],
+      "faces": [
+        {
+          "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-I016-FACE06",
+          "sourceImageId": "GLOBAL-RADIANCE-OVERVIEW-20260925-I016",
+          "sourceUrl": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/3897f799c32a2e3a47794dc008764b9116fb277c-1327x1220.jpg",
+          "sourceRawSha256": "53be83ed2c8c7024d13ab7bb09c4f68a0767212e25c03c9f85c93fc5968dc577",
+          "sourceObtainedAtUtc": "2026-10-19T12:04:00.899739+00:00",
+          "printedNumberAsRead": "RAD R06b EN",
+          "printedLanguage": "EN",
+          "promoPMark": true,
+          "prizeStampAsRead": null,
+          "nameAsRead": "Order Rune",
+          "categoryAsRead": "RUNE",
+          "fullFaceReadable": true,
+          "normalizedNumberCandidateOnly": "RAD-R06B",
+          "numberCandidatePresentInFrozen1740": false,
+          "historicalCandidateSources": [],
+          "currentCnApiVersionDisposition": null,
+          "runtimeBindingPresent": false,
+          "semanticReview": "SOURCE_VISUAL_FACT_ONLY_WHOLE_BEHAVIOR_OPEN",
+          "exactVariantAndCnRegionalApplicability": "OPEN",
+          "implementationTestsFixedCiAndProduct": "NOT_PROMOTED_FROM_IMAGE",
+          "publicationDate": null,
+          "effectiveDate": null,
+          "visualEntryNotNewOfficialApiId": true,
+          "canonicalImage": {
+            "path": "docs/evidence/radiance-visual-readback-2026-10-19/raw/I016.jpg",
+            "sha256": "53be83ed2c8c7024d13ab7bb09c4f68a0767212e25c03c9f85c93fc5968dc577",
+            "role": "official-raw-image"
+          }
+        }
+      ],
+      "state": "OPEN",
+      "sourceFact": "OFFICIAL_IMAGE_READ_PRINTED_NUMBER_NOT_MATCHED_IN_FROZEN1740_LEDGER",
+      "officialStructuredApiIdentity": "UNRESOLVED_DO_NOT_INVENT_OR_MERGE",
+      "publicationDate": null,
+      "effectiveDate": null,
+      "semanticReview": "VISUAL_IDENTITY_FACT_ONLY",
+      "implementation": "NOT_RUNTIME_ADOPTED",
+      "testExecution": "OPEN_IF_APPLICABLE",
+      "fixedCommitCi": "PENDING_SOURCE_INDEX_CI",
+      "productAcceptance": "OPEN_IF_APPLICABLE",
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "SOURCE-PRINTING-CANDIDATE:RAD-T02",
+      "normalizedLookupCandidate": "RAD-T02",
+      "printedReadings": [
+        "RAD T02 EN"
+      ],
+      "faces": [
+        {
+          "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-I031-FACE01",
+          "sourceImageId": "GLOBAL-RADIANCE-OVERVIEW-20260925-I031",
+          "sourceUrl": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/c1837fcea02cb2cef8ab892198dadcacb16123dd-1848x1063.jpg",
+          "sourceRawSha256": "dfa6e6ed549307bd76de32c4ff250172f16ba79c0b731ea2551081518e0de06f",
+          "sourceObtainedAtUtc": "2026-10-19T12:11:57.462255+00:00",
+          "printedNumberAsRead": "RAD T02 EN",
+          "printedLanguage": "EN",
+          "promoPMark": false,
+          "prizeStampAsRead": null,
+          "nameAsRead": "Bomb",
+          "categoryAsRead": "TOKEN_GEAR",
+          "fullFaceReadable": true,
+          "normalizedNumberCandidateOnly": "RAD-T02",
+          "numberCandidatePresentInFrozen1740": false,
+          "historicalCandidateSources": [],
+          "currentCnApiVersionDisposition": null,
+          "runtimeBindingPresent": false,
+          "semanticReview": "SOURCE_VISUAL_FACT_ONLY_WHOLE_BEHAVIOR_OPEN",
+          "exactVariantAndCnRegionalApplicability": "OPEN",
+          "implementationTestsFixedCiAndProduct": "NOT_PROMOTED_FROM_IMAGE",
+          "publicationDate": null,
+          "effectiveDate": null,
+          "visualEntryNotNewOfficialApiId": true,
+          "canonicalImage": {
+            "path": "docs/evidence/radiance-visual-readback-2026-10-19/raw/I031.jpg",
+            "sha256": "dfa6e6ed549307bd76de32c4ff250172f16ba79c0b731ea2551081518e0de06f",
+            "role": "official-raw-image"
+          }
+        }
+      ],
+      "state": "OPEN",
+      "sourceFact": "OFFICIAL_IMAGE_READ_PRINTED_NUMBER_NOT_MATCHED_IN_FROZEN1740_LEDGER",
+      "officialStructuredApiIdentity": "UNRESOLVED_DO_NOT_INVENT_OR_MERGE",
+      "publicationDate": null,
+      "effectiveDate": null,
+      "semanticReview": "VISUAL_IDENTITY_FACT_ONLY",
+      "implementation": "NOT_RUNTIME_ADOPTED",
+      "testExecution": "OPEN_IF_APPLICABLE",
+      "fixedCommitCi": "PENDING_SOURCE_INDEX_CI",
+      "productAcceptance": "OPEN_IF_APPLICABLE",
+      "wholePrintingCertified": false
+    }
+  ],
+  "notAClaimTheCompleteOfficialUniverseHasOnly1748Printings": true,
+  "sameNumberPromoStampsAndSpNamespaceStillSeparateOpenRequirement": true
+}
