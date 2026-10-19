@@ -1,0 +1,32 @@
+{
+  "reviewedAtUtc": "2026-10-19T10:55:01.412309+00:00",
+  "status": "FINITE_CN_SEMANTIC_DECISION_REVIEWED_IMPLEMENTATION_AND_EXECUTED_EVIDENCE_PENDING",
+  "region": "CN",
+  "language": "zh-CN",
+  "applicableAsOf": "2026-10-16",
+  "sourceIntakeSha256": "da9dd62a4aabbed42f01dffe17c5411af234f6b5265bd2f2ba9303f1168a2746",
+  "primaryPdfSha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11",
+  "primaryPagesVisuallyReviewedOneBased": [
+    1,
+    13,
+    81,
+    82
+  ],
+  "exactCnApiId": 37721,
+  "exactApiCardNo": "VEN\u00b7033",
+  "exactPhysicalCardNo": "VEN \u00b7033/166\u00b7SC",
+  "currentCardFaceVisuallyReviewed": true,
+  "ruleBindings": [
+    "DOC-01 055/055.1",
+    "DOC-01 135.2.b.4-135.2.b.5.b",
+    "DOC-01 432.1.c/432.1.c.1"
+  ],
+  "decision": "At initial observation with zero cards, this instruction cannot provide the card required by the subsequent draw/trash condition. Specific432.1.c.1 cancels the subsequent instructions, including the otherwise self-Might instruction. The general055 do-as-much-as-possible rule does not override this specific cancellation. No burnout, phantom observation choice or replacement top card is produced.",
+  "scopeBoundary": "The initial empty observed set is distinct from a nonempty original unit reveal later banished by Nocturne. Preserve original binding and existing Nocturne outcomes, nonunit Might and independent source-generation checks.",
+  "oldControlledExpectation": "The existing empty-deck Theory row expects6 Might and was only a limited055 assumption with an explicit OPEN semantic branch. Keep its test method, all7 rows and all other assertions; archive exact source at07ac and correct only that row expectation after actual failing source-derived counterexamples.",
+  "nextTests": "Controlled zero/nonzero unit/nonunit plus ordinary unchanged paid Paka opening, legal turns to empty main deck, cold recovery and original replay in both explicitly named engine formats.",
+  "wholeCardCertified": false,
+  "allOtherConsumersAndFullSourceUniverseRetained": true,
+  "newTemporalSourceChange": false,
+  "runtimeSourceAlreadyChanged": false
+}

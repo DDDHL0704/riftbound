@@ -1,0 +1,34 @@
+{
+  "atUtc": "2026-10-19T10:59:22.032418+00:00",
+  "status": "ACTUAL_TWO_ORDINARY_SOURCE_DERIVED_COUNTEREXAMPLES_OLD_ENGINE_MIGHT6_EXPECTED4",
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+    "implementationSha256": "664486d1d1816add4a0eb0dec8520eb3b45c51756f09808e3725d5ba1c2e7be2",
+    "identitySha256": "d7f447ce58fb5f4ee3ca90a8f804eef7539f8b579912405cd83ee96be6148a84"
+  },
+  "primarySourceIntakeSha256": "da9dd62a4aabbed42f01dffe17c5411af234f6b5265bd2f2ba9303f1168a2746",
+  "cases": [
+    {
+      "name": "Riftbound.ConformanceTests.EmptyRevealFollowupTests.OriginalPaidPakaOpeningReachesEmptyDeckThroughLegalTurnsAndPreservesRecovery(format: ChinaStandard20260724)",
+      "outcome": "Failed",
+      "message": "Assert.Equal() Failure: Values differ\nExpected: 4\nActual:   6",
+      "trx": "var/qa/empty-reveal-followup-20261019/ordinary-empty-red-v1/focus/results.trx",
+      "trxSha256": "fe0397c9d8674f1b1ada370bd570131a3dfad70ad19e02211ff91ebcba4d4919"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.EmptyRevealFollowupTests.OriginalPaidPakaOpeningReachesEmptyDeckThroughLegalTurnsAndPreservesRecovery(format: CoreRules)",
+      "outcome": "Failed",
+      "message": "Assert.Equal() Failure: Values differ\nExpected: 4\nActual:   6",
+      "trx": "var/qa/empty-reveal-followup-20261019/ordinary-empty-red-v1/focus/results.trx",
+      "trxSha256": "fe0397c9d8674f1b1ada370bd570131a3dfad70ad19e02211ff91ebcba4d4919"
+    }
+  ],
+  "noEngineRuntimeSourceChangeBeforeActualFailures": true,
+  "actualOriginalBlankSeed0AndPaidOpeningAnd84AcceptedCommandsPerCase": true,
+  "afterResolveOriginalFramesRetained": true,
+  "controlledHarnessFailuresNotIncluded": true
+}

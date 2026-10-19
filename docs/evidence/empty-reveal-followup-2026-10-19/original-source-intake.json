@@ -1,0 +1,134 @@
+{
+  "recordedAtUtc": "2026-10-19T10:51:37.388163+00:00",
+  "status": "CURRENT_CN_PRIMARY_SOURCE_RECONFIRMED_VISUAL_AND_FINITE_SEMANTIC_REVIEW_PENDING",
+  "region": "CN",
+  "language": "zh-CN",
+  "applicableAsOf": "2026-10-16",
+  "observationDate": "2026-10-19",
+  "baseFixedCommit": "07ac3ac93098c476179297ad755b18e9aa3f2e95",
+  "baseFixedLockedAcceptanceCheckpoint": {
+    "path": "var/qa/public-reveal-wording-20261019/locked-fixed-candidate-checkpoint-v1.json",
+    "sha256": "2e1adb716851d839c5b96da80206ebac42dbb5192e3459500c17af2ed83ac569"
+  },
+  "records": {
+    "officialCnCard": {
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 1000,
+        "searchContent": "\u5e15\u5361\u76d1\u62a4\u8005",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "attemptedAtUtc": "2026-10-19T10:51:24.216485+00:00",
+      "region": "CN",
+      "language": "zh-CN",
+      "httpStatus": 200,
+      "resolvedUrl": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "httpDate": "Mon, 19 Oct 2026 10:51:24 GMT",
+      "lastModified": null,
+      "receivedAtUtc": "2026-10-19T10:51:24.339442+00:00",
+      "bytes": 1268,
+      "rawSha256": "89308f61394ee382870d08febcfb40c7bb2e10d3fe4fbc90d34ebfd8831f6c5a",
+      "stored": "var/qa/empty-reveal-followup-20261019/official-cn-37721.json.gz",
+      "storedSha256": "9b7ad92dedeeddda4d923f1af87c52787e75b14941d91175337b060935015eef",
+      "wholeRowExactPrevious": true,
+      "cardNo": "VEN\u00b7033",
+      "apiId": 37721,
+      "cardQaList": null,
+      "publicationDate": null,
+      "effectiveDate": null
+    },
+    "officialCnFace": {
+      "url": "https://cdn.playloltcg.com/lol/card/20260716/c1ad7a7290874709b2639a9d53010396.png",
+      "request": null,
+      "attemptedAtUtc": "2026-10-19T10:51:24.219031+00:00",
+      "region": "CN",
+      "language": "zh-CN",
+      "httpStatus": 200,
+      "resolvedUrl": "https://cdn.playloltcg.com/lol/card/20260716/c1ad7a7290874709b2639a9d53010396.png",
+      "httpDate": "Thu, 30 Jul 2026 05:52:57 GMT",
+      "lastModified": "Thu, 16 Jul 2026 11:13:04 GMT",
+      "receivedAtUtc": "2026-10-19T10:51:24.416793+00:00",
+      "bytes": 232411,
+      "rawSha256": "00e8efb0c51e416b42218cf1bee08b82e6faed64778979b31117e0cfc7ec079d",
+      "retainedCanonicalSource": "var/qa/paka-move-reveal-20261019/paka-guardian-cn-official-face.png",
+      "noAdditionalSourceCopy": true,
+      "sameExactBytesAsRetained": true,
+      "publicationDate": null,
+      "effectiveDate": null
+    },
+    "currentCnCore": {
+      "url": "https://cdn.playloltcg.com/lol/2026/10/2026-10-10/a21ead876c6b44d6abe386b6ae54ea28.pdf",
+      "request": null,
+      "attemptedAtUtc": "2026-10-19T10:51:24.221129+00:00",
+      "region": "CN",
+      "language": "zh-CN",
+      "httpStatus": 200,
+      "resolvedUrl": "https://cdn.playloltcg.com/lol/2026/10/2026-10-10/a21ead876c6b44d6abe386b6ae54ea28.pdf",
+      "httpDate": "Sat, 10 Oct 2026 00:27:22 GMT",
+      "lastModified": "Fri, 09 Oct 2026 16:55:24 GMT",
+      "receivedAtUtc": "2026-10-19T10:51:36.181337+00:00",
+      "bytes": 40278538,
+      "rawSha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11",
+      "retainedCanonicalSource": "var/qa/colorless-token-haste-20261016/DOC-01-current.pdf",
+      "noAdditionalSourceCopy": true,
+      "sameExactBytesAsRetained": true,
+      "publicationDate": "2026-10-10",
+      "effectiveDate": "2026-10-16"
+    }
+  },
+  "clauses": [
+    {
+      "exactStart": "055.",
+      "exclusiveEnd": "056.",
+      "sourceTextCharStart": 663,
+      "sourceTextCharEnd": 764,
+      "rawTextSha256": "c224bc544987bc514c50b04d44169ed92e2b94a3e63668f60bd88203b2fbf3aa",
+      "gzipPath": "var/qa/empty-reveal-followup-20261019/cn-055-through-before-056.txt.gz",
+      "gzipSha256": "8ad3180b75dca640c69af444016f1931b5aad61a8e4ecec23ba02f02ef14b48f",
+      "primaryPdfSha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11",
+      "pageOneBased": 1
+    },
+    {
+      "exactStart": "135.2.b.4.",
+      "exclusiveEnd": "135.2.b.6.",
+      "sourceTextCharStart": 15818,
+      "sourceTextCharEnd": 17078,
+      "rawTextSha256": "428dd6f7d348924532a603ffd7ea638185986edd70c37eefd0900ff8d3a524f9",
+      "gzipPath": "var/qa/empty-reveal-followup-20261019/cn-135.2.b.4-through-before-135.2.b.6.txt.gz",
+      "gzipSha256": "aca4841bdc0cc3769608ea13133771761568f0bb294988e6dc444366ebeb90fd",
+      "primaryPdfSha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11",
+      "pageOneBased": 13
+    },
+    {
+      "exactStart": "432.1.",
+      "exclusiveEnd": "432.2.",
+      "sourceTextCharStart": 141145,
+      "sourceTextCharEnd": 141865,
+      "rawTextSha256": "80608a18b166022c0571a5f9ff608e3cdae37f16c40f7f83937d507b36285bae",
+      "gzipPath": "var/qa/empty-reveal-followup-20261019/cn-432.1-through-before-432.2.txt.gz",
+      "gzipSha256": "da6335faad39a9a453a3262cd9ee1903c5b90a3b5f15c7b4aac6d6abe0401581",
+      "primaryPdfSha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11",
+      "pageOneBased": 81
+    }
+  ],
+  "renderedPrimaryPages": {
+    "var/qa/empty-reveal-followup-20261019/cn-core-page-13.png": "ed6c1e49dc4eea49973404b2eee5e9a34520170ab6a95d1fd8c4c8c917c13c87",
+    "var/qa/empty-reveal-followup-20261019/cn-core-page-1.png": "81b8ccf3101ca1deb3c41635db38da8f64688e5ba005a929ea4b2aa336927e94",
+    "var/qa/empty-reveal-followup-20261019/cn-core-page-81.png": "d1b72522423a7ca5928d12db5266ac96228f2d4bb5264f3d08b4afa311f57ee1",
+    "var/qa/empty-reveal-followup-20261019/cn-core-page-82.png": "841e1f498e327cf29f4b75837b51cd7438d7f8a906a187a6a23243fe4d5a24c1"
+  },
+  "previousScopedTestsArchivedExact": {
+    "sourcePath": "tests/Riftbound.ConformanceTests/PakaaProtectorRevealTests.cs",
+    "sourceSha256": "271df9c235836dbe93f7d563c3fde3772793eb537a3ac989d112d35ede7ebc94",
+    "gzipPath": "var/qa/empty-reveal-followup-20261019/prior-pakaa-reveal-tests-07ac3ac9.cs.gz",
+    "gzipSha256": "2b8e07c321f52413514e575ff2910f8d9696d8ee2a87f88b1174be3e247b8c33"
+  },
+  "noNewTemporalSourceDelta": true,
+  "runtimeOrTestSourceChanged": false,
+  "all1740PrintedIdentitiesAndSourceGapsAndOriginalObligationsRetained": true,
+  "semanticCoverageCertified": false
+}

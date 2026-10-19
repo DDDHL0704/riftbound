@@ -1,0 +1,67 @@
+{
+  "status": "CHECK_AND_EXACT_CASE_METHOD_PARITY_PASS",
+  "profile": "check",
+  "passed": 12969,
+  "failed": 0,
+  "skipped": 0,
+  "methods": 7425,
+  "oldCaseCount": 12963,
+  "oldMethodCount": 7423,
+  "oldCasesPreserved": true,
+  "oldMethodsPreserved": true,
+  "frozenInputsUnchanged": true,
+  "newMethodNames": [
+    "Riftbound.ConformanceTests.EmptyRevealFollowupTests.InitialEmptyRevealCancelsSubsequentInstructionWithoutBurnoutOrPhantomChoice",
+    "Riftbound.ConformanceTests.EmptyRevealFollowupTests.OriginalPaidPakaOpeningReachesEmptyDeckThroughLegalTurnsAndPreservesRecovery"
+  ],
+  "newCaseNames": [
+    "Riftbound.ConformanceTests.EmptyRevealFollowupTests.InitialEmptyRevealCancelsSubsequentInstructionWithoutBurnoutOrPhantomChoice(topNo: \"OGN·103/298\", count: 1, expectedMight: 4)",
+    "Riftbound.ConformanceTests.EmptyRevealFollowupTests.OriginalPaidPakaOpeningReachesEmptyDeckThroughLegalTurnsAndPreservesRecovery(format: ChinaStandard20260724)",
+    "Riftbound.ConformanceTests.EmptyRevealFollowupTests.InitialEmptyRevealCancelsSubsequentInstructionWithoutBurnoutOrPhantomChoice(topNo: \"OGN·104/298\", count: 1, expectedMight: 6)",
+    "Riftbound.ConformanceTests.EmptyRevealFollowupTests.InitialEmptyRevealCancelsSubsequentInstructionWithoutBurnoutOrPhantomChoice(topNo: \"OGN·104/298\", count: 0, expectedMight: 4)",
+    "Riftbound.ConformanceTests.EmptyRevealFollowupTests.InitialEmptyRevealCancelsSubsequentInstructionWithoutBurnoutOrPhantomChoice(topNo: \"OGN·103/298\", count: 0, expectedMight: 4)",
+    "Riftbound.ConformanceTests.EmptyRevealFollowupTests.OriginalPaidPakaOpeningReachesEmptyDeckThroughLegalTurnsAndPreservesRecovery(format: CoreRules)"
+  ],
+  "all13233AuthoredInputsStable": true,
+  "all12ExecutedModulesStable": true,
+  "actualDebugRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+    "implementationSha256": "5eb4946f2ac92951d548917c94905973795a348b3e062699c073ea8cf820ca63",
+    "identitySha256": "6bc908374b99a4ac699752892881c17b627058db3b05004984ddb1dd003116bc"
+  },
+  "actualModules": {
+    "Riftbound.CardCatalog.dll": "870a861f7ce7cba452346ac2379dc06dd0e13af50ec85643a347416661298854",
+    "Riftbound.Contracts.pdb": "fc077189c89df6ac986a61d80ce246ab998b88064529cc3c093bc6d2e5007ada",
+    "Riftbound.Engine.pdb": "0b76925d7fee6a4d1b222f56e1e123c1952fa3cad1ac13295da7e1220ae3166a",
+    "Riftbound.CardCatalog.pdb": "43d467bcc1dea31f3fd7c5f2093698cadd25ad59d2985a4cdd190653782d779e",
+    "Riftbound.Contracts.dll": "5aa22f89a570422f8b9d1cbd35a0a06b8432c68109af818e5801fd58be609983",
+    "Riftbound.Engine.dll": "999be7e28b8eef6c43f9d360a191a509453f1236a48ff79da6d00d21e1bebce1",
+    "Riftbound.Persistence.pdb": "3dfd55a3210f5b32c643c6914fec9e039fed15c2b9379c39860e712a82f421ec",
+    "Riftbound.Api.dll": "703fcf0a082ee589931919ec2693e5083f8ea3e1cd5adf16f2291710e8b98294",
+    "Riftbound.ConformanceTests.pdb": "922324cb8ed10dd253344fb0c6fe7659c14fa279bd0e22ec8cb32eb4f9644051",
+    "Riftbound.Api.pdb": "f0320d87506d81dd2f45efc2f1da429db89594a780230881c4dcf7e60d4dc103",
+    "Riftbound.Persistence.dll": "c9ba56c027d7442e7f630495f540c483ed2cfd02b824d97b998506b76d855df0",
+    "Riftbound.ConformanceTests.dll": "2c4a0359f9b54cd22173cb88053750ccf2d2d321cea309b9acd42b01555edf7b"
+  },
+  "originalVerification": {
+    "path": "docs/evidence/empty-reveal-followup-2026-10-19/single-check-verification-original.json",
+    "sha256": "0986c66ce82dd2ab83204b5088ad917b1603eaf75d72443989df187f8a422795",
+    "role": "single-check-verification-original"
+  },
+  "inputManifest": {
+    "path": "docs/evidence/empty-reveal-followup-2026-10-19/single-check-inputs.json",
+    "sha256": "c54c18ce951dc94c8642b6eea2d24def14f62099abf0253bdc6123ff30a2152c",
+    "role": "single-check-inputs"
+  },
+  "rawPlan": {
+    "path": "docs/evidence/empty-reveal-followup-2026-10-19/single-check-plan-original.json",
+    "sha256": "90ba9cdac17bfd87c37ec59161a7f5f1bc3fd0f09450f4dc7383f2b10b60d125",
+    "role": "single-check-plan-original"
+  },
+  "newFixedFull": "PENDING",
+  "visibleAndPhysicalWindows": "OPEN"
+}

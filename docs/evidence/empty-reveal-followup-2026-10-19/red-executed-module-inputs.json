@@ -1,0 +1,33 @@
+{
+  "atUtc": "2026-10-19T10:58:54.625133+00:00",
+  "configuration": "Debug",
+  "captureTiming": "During unchanged ordinary-red execution, before any production edit; the checked shard plan separately pins the actual test assembly.",
+  "sourceFixedCommit": "07ac3ac93098c476179297ad755b18e9aa3f2e95",
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+    "implementationSha256": "664486d1d1816add4a0eb0dec8520eb3b45c51756f09808e3725d5ba1c2e7be2",
+    "identitySha256": "d7f447ce58fb5f4ee3ca90a8f804eef7539f8b579912405cd83ee96be6148a84"
+  },
+  "files": {
+    "old-engine-executed-modules-v1/Riftbound.CardCatalog.dll": "870a861f7ce7cba452346ac2379dc06dd0e13af50ec85643a347416661298854",
+    "old-engine-executed-modules-v1/probe.runtimeconfig.json": "f9bc8e9f0c46247078ed47309f19a7576b4b94e4300e9de0003917d6bd2d667a",
+    "old-engine-executed-modules-v1/probe.dll": "1102231849524503aff3a4c671f2a93205d72d14f378b304e49d346cd23dcb23",
+    "old-engine-executed-modules-v1/probe.deps.json": "0f11ea5722433b63f2f140999eed5081b412c16eff52cddd35c61d4777f60386",
+    "old-engine-executed-modules-v1/Riftbound.Contracts.dll": "5aa22f89a570422f8b9d1cbd35a0a06b8432c68109af818e5801fd58be609983",
+    "old-engine-executed-modules-v1/Riftbound.Engine.dll": "cded632ec97064b231a269db7fb5d905e3851e0da7c96492039259e2233ac90b",
+    "old-engine-executed-modules-v1/Riftbound.ConformanceTests.pdb": "450a82a9be0144213202363da47b89c019235c2d3134efd3cda4d886855d0e23",
+    "old-engine-executed-modules-v1/Riftbound.Persistence.dll": "c9ba56c027d7442e7f630495f540c483ed2cfd02b824d97b998506b76d855df0",
+    "old-engine-executed-modules-v1/Riftbound.ConformanceTests.dll": "0f3519b8d6ecffa1102d6c6450ff6028df582ca2c063c797067ddf92bb828cf2",
+    "old-engine-executed-modules-v1/data/official/rule-input-scope.json": "cc07cf3eef6a9af403454642a0435d061544400b5e01d08d3fdc65869bdad180",
+    "old-engine-executed-modules-v1/data/official/armaments.json": "ddcd838300e558c11df480ee79ccfab08c7af380df36544c666841720850bda8",
+    "old-engine-executed-modules-v1/data/official/card-catalog.zh-CN.json": "d521d7346392f2ea947c73c437c140d7bfe13a90cbca8642f7ae135b7b11f479"
+  },
+  "sameModulesBeforeCopyAfterCopy": true,
+  "trackedEngineSourceUnchangedFrom07ac": true,
+  "newTestSourceSha256": "eb0d8bcbb8579b412d6ae3f9a490bea8e08e60b20e856ad9e5dc770abf11d987",
+  "notPriorReleaseIdentity": true
+}

@@ -36,7 +36,7 @@ public sealed partial class CoreRuleEngine
                 result = result with { PlayerScores = draw.PlayerScores, WinnerPlayerId = draw.WinnerPlayerId, RngCursor = draw.RngCursor };
             }
         }
-        else
+        else if (top is not null)
         {
             if (top is not null && remaining.Contains(top))
             {
@@ -46,7 +46,8 @@ public sealed partial class CoreRuleEngine
                     ["playerId"] = player, ["sourceObjectId"] = item.SourceObjectId, ["cardIds"] = new[] { top },
                     ["count"] = 1, ["sourceZone"] = TriggerZones.MainDeck, ["destinationZone"] = TriggerZones.Graveyard }));
             }
-            // CN055: impossible reveal/trash instructions do not remove the remaining Might instruction.
+            // CN432.1.c.1 cancels the follow-up instructions when the original
+            // observation is empty. A real revealed nonunit still grants Might.
             if (cards.TryGetValue(item.SourceObjectId, out var source) && source.ObjectGeneration == context.SourceGeneration
                 && source.Tags.Contains(CardObjectTags.UnitCard) && IsObjectOnField(zones, source.ObjectId))
             {

@@ -69,7 +69,7 @@ public sealed class PakaaProtectorRevealTests
         Assert.Equal(deck.Skip(1), resolved.State.PlayerZones["P1"].MainDeck);
         Assert.Equal(draws ? hand.Append(deck[0]) : hand, resolved.State.PlayerZones["P1"].Hand);
         Assert.Equal(!draws && deckCount > 0 ? grave.Append(deck[0]) : grave, resolved.State.PlayerZones["P1"].Graveyard);
-        Assert.Equal(draws ? 4 : 6, ArmamentMightTests.Might(resolved.State));
+        Assert.Equal(draws || deckCount == 0 ? 4 : 6, ArmamentMightTests.Might(resolved.State));
         Assert.DoesNotContain(resolved.Events, e => e.Kind == "BURNOUT_APPLIED");
         Assert.Equal(draws ? 1 : 0, resolved.Events.Count(e => e.Kind == "CARD_DRAWN"));
         Assert.Equal(!draws && deckCount > 0 ? 1 : 0, resolved.Events.Count(e => e.Kind == "CARDS_MILLED"));

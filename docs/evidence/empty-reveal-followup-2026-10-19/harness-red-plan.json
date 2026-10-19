@@ -1,0 +1,17 @@
+{
+  "profile": "focus",
+  "discoveredMethods": 7566,
+  "jobs": 4,
+  "includeGames": false,
+  "testAssemblySha256": "0f3519b8d6ecffa1102d6c6450ff6028df582ca2c063c797067ddf92bb828cf2",
+  "timings": "/Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/TestResults/mechanical-full.trx",
+  "shards": [
+    {
+      "name": "focus",
+      "methods": [
+        "Riftbound.ConformanceTests.EmptyRevealFollowupTests.InitialEmptyRevealCancelsSubsequentInstructionWithoutBurnoutOrPhantomChoice"
+      ],
+      "filter": "(FullyQualifiedName~EmptyRevealFollowupTests.InitialEmptyRevealCancelsSubsequentInstructionWithoutBurnoutOrPhantomChoice)&FullyQualifiedName!~Riftbound.ConformanceTests.FullGameEndToEndTests."
+    }
+  ]
+}

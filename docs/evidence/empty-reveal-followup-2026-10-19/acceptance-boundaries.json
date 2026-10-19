@@ -1,0 +1,49 @@
+{
+  "status": "FINITE_SOURCE_AND_DEVELOPMENT_EXECUTION_ONLY_NOT_FINAL_PRODUCT",
+  "region": "CN",
+  "language": "zh-CN",
+  "applicableAsOf": "2026-10-16",
+  "newCases": 6,
+  "focusCases": 79,
+  "earlyOriginalCases": 6,
+  "singleCheckCases": 12969,
+  "realSqlBranches": 2,
+  "realSqlCommands": 170,
+  "realSqlEvents": 1328,
+  "realSqlCold": 14,
+  "realSqlOriginalNext": 12,
+  "realSqlAtomicRejections": 4,
+  "actualStoredOriginalSqlIndependentReadOnly": "PASS",
+  "currentDebugRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+    "implementationSha256": "5eb4946f2ac92951d548917c94905973795a348b3e062699c073ea8cf820ca63",
+    "identitySha256": "6bc908374b99a4ac699752892881c17b627058db3b05004984ddb1dd003116bc"
+  },
+  "priorFixed07acReleaseRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+    "implementationSha256": "205bf2a1dbb4bddcc0ad9ae13714c0916b60b0e49c2bedec022884b879829b5e",
+    "identitySha256": "1e2c2e03403331a54a0e5956760e2ed8379225a82b43e7b792e5fc0c2b00bec1"
+  },
+  "priorFixedNativeReceipt": {
+    "path": "docs/evidence/empty-reveal-followup-2026-10-19/prior-fixed07ac-locked-native-acceptance.json",
+    "sha256": "bff2ca16ab2011aa40c16dfe46ce2dabeb2881d00f0e573097e18ee128409bbf",
+    "role": "prior-fixed07ac-locked-native-acceptance"
+  },
+  "oldActualNativeAndCurrentChangedEngineNotInterchangeable": true,
+  "newFixedFull": "PENDING",
+  "currentNativeVisibleControls": "OPEN",
+  "currentVisiblePairedClients": "OPEN",
+  "currentVisibleDatabaseReconnectNormalScoreAndFullReplay": "OPEN",
+  "physicalWindows": "OPEN",
+  "allSourceUniverseAndOldObligationsRetained": true,
+  "wholePrintingOrWholeFamilyCertified": false,
+  "noNewDatabaseOrWholeCheckoutOrOldMatchMigrationOrSecondCheck": true
+}

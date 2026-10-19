@@ -1,0 +1,39 @@
+{
+  "status": "PASS_ORIGINAL_PAID_SEED0_ORDINARY_TWO_NAMED_ENGINE_FORMATS",
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+    "implementationSha256": "5eb4946f2ac92951d548917c94905973795a348b3e062699c073ea8cf820ca63",
+    "identitySha256": "6bc908374b99a4ac699752892881c17b627058db3b05004984ddb1dd003116bc"
+  },
+  "records": [
+    {
+      "format": "ChinaStandard20260724",
+      "originalBlankSeed": 0,
+      "originalOpeningCommands": 17,
+      "legalAdditionalTurns": 64,
+      "commands": 84,
+      "events": 663,
+      "coldCount": 3,
+      "originalNextMatches": 2,
+      "originalFullActionEventStateReplay": true,
+      "noSourceDeckSeedOrHistoryInjection": true
+    },
+    {
+      "format": "CoreRules",
+      "originalBlankSeed": 0,
+      "originalOpeningCommands": 17,
+      "legalAdditionalTurns": 64,
+      "commands": 84,
+      "events": 663,
+      "coldCount": 3,
+      "originalNextMatches": 2,
+      "originalFullActionEventStateReplay": true,
+      "noSourceDeckSeedOrHistoryInjection": true
+    }
+  ],
+  "wholePrintingOrRegionalTournamentEligibilityCertified": false
+}
