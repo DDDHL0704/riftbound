@@ -1,0 +1,94 @@
+{
+  "recordedAtUtc": "2026-10-19T15:04:38.283189+00:00",
+  "status": "PARALLEL_FULL_CI_IMPLEMENTED_LOCAL_GUARDS_PASSED_NEW_FIXED_RUN_PENDING",
+  "sourceBaseCommit": "a3432166062177ba127ab8b3ffd836b9cd619b58",
+  "cancelledRun": {
+    "runId": 39224398741,
+    "commit": "6d9aee51e5259313b319ad555f8f44572563b3df",
+    "conclusion": "cancelled",
+    "officialCause": "The job has exceeded the maximum execution time of 6h0m0s",
+    "completeRuleCases": 13068,
+    "completeRuleMethods": 7561,
+    "all143OriginalFullGameMethodsAnd110Pairs424242Preserved": true,
+    "sqlOverallComplete": false,
+    "nativeNetworkExecuted": false,
+    "fullAcceptancePassed": false
+  },
+  "newFixedFull": "PENDING",
+  "implementationSources": [
+    {
+      "path": ".github/workflows/native-desktop.yml",
+      "sha256": "9d81988d16c9c0e6af52b57b2c7212b6381247ca6e6845abac59696b17b608b7",
+      "role": "implementation"
+    },
+    {
+      "path": "scripts/full-ci-gate.py",
+      "sha256": "2481c931c8f9dcd8e96f2cb867cb7f03d38b7eceea8b8e937e95c7eeca46eb26",
+      "role": "implementation"
+    },
+    {
+      "path": "scripts/tests/test_full_ci_gate.py",
+      "sha256": "c5f24c4ff4929b5d1d3e03ad0d4602b7a8d08a96b94970c3249d5478b093b049",
+      "role": "implementation"
+    }
+  ],
+  "preservation": {
+    "scopeDesktopGlobalPermissionsAndEnvironmentStructurallyExact": true,
+    "ruleSuiteRetainsOriginalRealPostgresServiceAndConnectionForOptionalSqlSmokes": true,
+    "postgresRetainsOriginalServiceEnvironmentAndAllDefault42HelpersInOrder": true,
+    "all143FullGameMethods110PairsOriginalSeedsVictoryReplayAssertionsUnchanged": true,
+    "sameRequiredRulesCheckName": true,
+    "requiredRulesGateRunsAlwaysForFullEvenCancelledDependencies": true,
+    "anyMissingFailedCancelledSkippedChildCannotPassTheRequiredGate": true,
+    "sameShaOnlyDuplicateCancellation": true,
+    "allRuntimeGameplayAndGodotSourcesUnchanged": true
+  },
+  "artifactLayout": {
+    "verification-scope": "unchanged scope/governance evidence",
+    "conformance-results": [
+      "ci-rules/",
+      "ci-rule-suite-commit.txt"
+    ],
+    "postgres-results": [
+      "ci-postgres/",
+      "ci-postgres-commit.txt"
+    ],
+    "full-verification-gate": [
+      "result.json"
+    ],
+    "native-macos-latest": "unchanged",
+    "native-windows-latest": "unchanged"
+  },
+  "validation": {
+    "pythonSafeguards": 65,
+    "pythonSafeguardsPassed": true,
+    "childStatusTruthTableCombinations": 125,
+    "yamlParsedWithSystemRuby": true,
+    "newConformanceCheckRepeated": false,
+    "priorSingleConformanceCheck": {
+      "cases": 12975,
+      "methods": 7427,
+      "scope": "Actual earlier current C#/fixture input; no workflow files are read by the authored Conformance tests. CI infrastructure changes independently checked by Python/YAML and require new actual fixed full."
+    },
+    "exactOldRuntimeInputsNotAttributedToANewBuild": true
+  },
+  "physicalVisibleAndWindowsAcceptance": "OPEN",
+  "semanticCoverageCertified": false,
+  "explicitCurrentWorkflowImplementationPinUpdates": [
+    {
+      "context": "observed-source-native-ui-2026-10-18",
+      "path": ".github/workflows/native-desktop.yml",
+      "beforeSha256": "349c76fff3b3d85754747b87b1f385e2f773b3e03fb975921526d1f0899fb5a9",
+      "afterSha256": "9d81988d16c9c0e6af52b57b2c7212b6381247ca6e6845abac59696b17b608b7",
+      "reason": "Actual six-hour full cancellation requires independent rule/SQL jobs and strict required rules aggregation; no gameplay/native-source or semantic evidence change."
+    }
+  ],
+  "priorContextSnapshot": {
+    "path": "docs/evidence/parallel-full-ci-2026-10-19/prior-observed-source-native-ui-context-before-ci-layout.json",
+    "sha256": "d3fb5bc59ce11f23acb9da3e70df226f07dfad48080be6a14093fdf82b741e27",
+    "role": "prior-workflow-context"
+  },
+  "allOther54CurrentContextDictionariesExact": true,
+  "priorPakaaSourceRetentionReceiptScope": "The earlier54-context exact retention receipt records the completed Paka-source publication before this later CI-only workflow pin update. Preserve that original receipt and this explicit subsequent delta; do not treat an obsolete current implementation pin as the new workflow.",
+  "allOriginalSemanticReviewDictionariesAndExecutionEvidenceRetained": true
+}

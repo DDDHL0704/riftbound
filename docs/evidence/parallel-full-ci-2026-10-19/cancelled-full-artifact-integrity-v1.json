@@ -1,0 +1,12 @@
+{
+  "recordedAtUtc": "2026-10-19T14:55:12.814553+00:00",
+  "artifactId": 12195826539,
+  "runId": 39224398741,
+  "status": "PARTIAL_CANCELLED_FULL_ARTIFACT_DIGEST_AND_ALL_ENTRY_CRC_VERIFIED",
+  "sha256": "ece12806cc9335398575310afb6f4913dd9f76817faabe8ac1dbc529a852a053",
+  "zipBytes": 5622497,
+  "entries": 222,
+  "uncompressedBytes": 25760303,
+  "noDesktopPackagesDownloadedOrRotated": true,
+  "fullAcceptancePassed": false
+}

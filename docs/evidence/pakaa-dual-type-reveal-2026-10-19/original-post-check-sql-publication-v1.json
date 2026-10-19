@@ -1,0 +1,14 @@
+{
+  "status": "TESTED_ISOLATED_SQL_HELPER_PUBLISHED_BYTE_EXACT_AFTER_COMPLETED_CHECK",
+  "canonicalPath": "tests/Riftbound.PostgresAcceptance/PakaaDualTypeRevealSqlAcceptance.cs",
+  "precheckHelperSha256": "0094904dd944a56dcc49c3ca2cedf1d39adaf641ff52b701422a975ebc8412b7",
+  "executedAndPublishedHelperSha256": "b069e5332712e4fa2482a6efa7d5fb0d2348d05e24a6028b90a734e559611baa",
+  "onlyChangedAfterCheckInputPaths": [
+    "tests/Riftbound.PostgresAcceptance/PakaaDualTypeRevealSqlAcceptance.cs"
+  ],
+  "all42ExecutedCheckModuleCopiesStillExact": true,
+  "newSqlHelperNotAConformanceCompileInput": true,
+  "defaultSqlProjectBuildExit": 0,
+  "secondCheckRun": false,
+  "noCoreEngineOrNativeOrRuntimeSourceChanged": true
+}

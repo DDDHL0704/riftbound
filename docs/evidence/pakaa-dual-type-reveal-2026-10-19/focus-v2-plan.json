@@ -1,0 +1,18 @@
+{
+  "profile": "focus",
+  "discoveredMethods": 7568,
+  "jobs": 2,
+  "includeGames": false,
+  "testAssemblySha256": "237ea7b4ddfad5464f4e94a644ff8ad6d0f04aa3fd2b0f8d74f508fee12a956c",
+  "timings": "/Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/TestResults/mechanical-full.trx",
+  "shards": [
+    {
+      "name": "focus",
+      "methods": [
+        "Riftbound.ConformanceTests.PakaaDualTypeRevealTests.DualTypeTopIsDrawnOnceWithoutBeingPlayedOrTakingTheNonunitBranch",
+        "Riftbound.ConformanceTests.PakaaDualTypeRevealTests.NewLegalDeckFromBlankOpeningKeepsBothPrintedTypesAndReplaysItsOriginalCommands"
+      ],
+      "filter": "(FullyQualifiedName~PakaaDualTypeRevealTests)&FullyQualifiedName!~Riftbound.ConformanceTests.FullGameEndToEndTests."
+    }
+  ]
+}

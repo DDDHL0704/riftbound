@@ -1,0 +1,14 @@
+{
+  "observedAtUtc": "2026-10-19T13:45:40.012347+00:00",
+  "lockObservations": [
+    {
+      "rootLocked": true,
+      "sessionLocks": [
+        true
+      ]
+    }
+  ],
+  "freeBytes": 56935198720,
+  "userGodotPid": 34426,
+  "touchedUserGodotOrItsSdk": false
+}

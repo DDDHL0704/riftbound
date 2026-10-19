@@ -1,0 +1,1481 @@
+{
+  "observedAtUtc": "2026-10-19T13:44:51.904966+00:00",
+  "runs": [
+    {
+      "runId": 39224398741,
+      "queryExit": 0,
+      "result": {
+        "conclusion": "",
+        "headSha": "6d9aee51e5259313b319ad555f8f44572563b3df",
+        "jobs": [
+          {
+            "completedAt": "2026-10-19T08:40:31Z",
+            "conclusion": "success",
+            "databaseId": 117967058879,
+            "name": "scope",
+            "startedAt": "2026-10-19T08:40:10Z",
+            "status": "completed",
+            "steps": [
+              {
+                "completedAt": "2026-10-19T08:40:12Z",
+                "conclusion": "success",
+                "name": "Set up job",
+                "number": 1,
+                "startedAt": "2026-10-19T08:40:11Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T08:40:23Z",
+                "conclusion": "success",
+                "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+                "number": 2,
+                "startedAt": "2026-10-19T08:40:12Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T08:40:24Z",
+                "conclusion": "success",
+                "name": "Verification safeguards",
+                "number": 3,
+                "startedAt": "2026-10-19T08:40:23Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T08:40:24Z",
+                "conclusion": "success",
+                "name": "Determine scope from fixed Git inputs",
+                "number": 4,
+                "startedAt": "2026-10-19T08:40:24Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T08:40:26Z",
+                "conclusion": "success",
+                "name": "Source-index and governance integrity",
+                "number": 5,
+                "startedAt": "2026-10-19T08:40:24Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T08:40:26Z",
+                "conclusion": "success",
+                "name": "Check committed diff formatting",
+                "number": 6,
+                "startedAt": "2026-10-19T08:40:26Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T08:40:28Z",
+                "conclusion": "success",
+                "name": "Run actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a",
+                "number": 7,
+                "startedAt": "2026-10-19T08:40:26Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T08:40:28Z",
+                "conclusion": "success",
+                "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+                "number": 14,
+                "startedAt": "2026-10-19T08:40:28Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T08:40:28Z",
+                "conclusion": "success",
+                "name": "Complete job",
+                "number": 15,
+                "startedAt": "2026-10-19T08:40:28Z",
+                "status": "completed"
+              }
+            ],
+            "url": "https://github.com/DDDHL0704/riftbound/actions/runs/39224398741/job/117967058879"
+          },
+          {
+            "completedAt": "0001-01-01T00:00:00Z",
+            "conclusion": "",
+            "databaseId": 117967216393,
+            "name": "rules",
+            "startedAt": "2026-10-19T08:40:34Z",
+            "status": "in_progress",
+            "steps": [
+              {
+                "completedAt": "2026-10-19T08:40:36Z",
+                "conclusion": "success",
+                "name": "Set up job",
+                "number": 1,
+                "startedAt": "2026-10-19T08:40:35Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T08:40:49Z",
+                "conclusion": "success",
+                "name": "Initialize containers",
+                "number": 2,
+                "startedAt": "2026-10-19T08:40:36Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T08:41:01Z",
+                "conclusion": "success",
+                "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+                "number": 3,
+                "startedAt": "2026-10-19T08:40:49Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T08:41:19Z",
+                "conclusion": "success",
+                "name": "Run actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68",
+                "number": 4,
+                "startedAt": "2026-10-19T08:41:02Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T08:41:20Z",
+                "conclusion": "success",
+                "name": "Test runner coverage safeguards",
+                "number": 5,
+                "startedAt": "2026-10-19T08:41:19Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T10:55:07Z",
+                "conclusion": "success",
+                "name": "Complete rule suite with checked process shards",
+                "number": 6,
+                "startedAt": "2026-10-19T08:41:20Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "0001-01-01T00:00:00Z",
+                "conclusion": "",
+                "name": "Real PostgreSQL core recovery and replay",
+                "number": 7,
+                "startedAt": "2026-10-19T10:55:07Z",
+                "status": "in_progress"
+              },
+              {
+                "completedAt": "0001-01-01T00:00:00Z",
+                "conclusion": "",
+                "name": "Native client connection recovery",
+                "number": 8,
+                "startedAt": "0001-01-01T00:00:00Z",
+                "status": "pending"
+              },
+              {
+                "completedAt": "0001-01-01T00:00:00Z",
+                "conclusion": "",
+                "name": "Run actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a",
+                "number": 9,
+                "startedAt": "0001-01-01T00:00:00Z",
+                "status": "pending"
+              },
+              {
+                "completedAt": "0001-01-01T00:00:00Z",
+                "conclusion": "",
+                "name": "Post Run actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68",
+                "number": 16,
+                "startedAt": "0001-01-01T00:00:00Z",
+                "status": "pending"
+              },
+              {
+                "completedAt": "0001-01-01T00:00:00Z",
+                "conclusion": "",
+                "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+                "number": 17,
+                "startedAt": "0001-01-01T00:00:00Z",
+                "status": "pending"
+              },
+              {
+                "completedAt": "0001-01-01T00:00:00Z",
+                "conclusion": "",
+                "name": "Stop containers",
+                "number": 18,
+                "startedAt": "0001-01-01T00:00:00Z",
+                "status": "pending"
+              }
+            ],
+            "url": "https://github.com/DDDHL0704/riftbound/actions/runs/39224398741/job/117967216393"
+          },
+          {
+            "completedAt": "2026-10-19T08:43:31Z",
+            "conclusion": "success",
+            "databaseId": 117967216450,
+            "name": "desktop (macos-latest)",
+            "startedAt": "2026-10-19T08:40:40Z",
+            "status": "completed",
+            "steps": [
+              {
+                "completedAt": "2026-10-19T08:40:41Z",
+                "conclusion": "success",
+                "name": "Set up job",
+                "number": 1,
+                "startedAt": "2026-10-19T08:40:39Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T08:40:41Z",
+                "conclusion": "skipped",
+                "name": "Documentation-only scope; packaging not executed",
+                "number": 2,
+                "startedAt": "2026-10-19T08:40:41Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T08:41:01Z",
+                "conclusion": "success",
+                "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+                "number": 3,
+                "startedAt": "2026-10-19T08:40:41Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T08:41:26Z",
+                "conclusion": "success",
+                "name": "Run actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68",
+                "number": 4,
+                "startedAt": "2026-10-19T08:41:01Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T08:43:23Z",
+                "conclusion": "success",
+                "name": "Run python3 clients/godot/tools/ci-desktop.py",
+                "number": 5,
+                "startedAt": "2026-10-19T08:41:26Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T08:43:26Z",
+                "conclusion": "success",
+                "name": "Run actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a",
+                "number": 6,
+                "startedAt": "2026-10-19T08:43:23Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T08:43:26Z",
+                "conclusion": "success",
+                "name": "Post Run actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68",
+                "number": 11,
+                "startedAt": "2026-10-19T08:43:26Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T08:43:27Z",
+                "conclusion": "success",
+                "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+                "number": 12,
+                "startedAt": "2026-10-19T08:43:26Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T08:43:29Z",
+                "conclusion": "success",
+                "name": "Complete job",
+                "number": 13,
+                "startedAt": "2026-10-19T08:43:27Z",
+                "status": "completed"
+              }
+            ],
+            "url": "https://github.com/DDDHL0704/riftbound/actions/runs/39224398741/job/117967216450"
+          },
+          {
+            "completedAt": "2026-10-19T08:43:59Z",
+            "conclusion": "success",
+            "databaseId": 117967216464,
+            "name": "desktop (windows-latest)",
+            "startedAt": "2026-10-19T08:40:34Z",
+            "status": "completed",
+            "steps": [
+              {
+                "completedAt": "2026-10-19T08:40:36Z",
+                "conclusion": "success",
+                "name": "Set up job",
+                "number": 1,
+                "startedAt": "2026-10-19T08:40:35Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T08:40:36Z",
+                "conclusion": "skipped",
+                "name": "Documentation-only scope; packaging not executed",
+                "number": 2,
+                "startedAt": "2026-10-19T08:40:36Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T08:40:57Z",
+                "conclusion": "success",
+                "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+                "number": 3,
+                "startedAt": "2026-10-19T08:40:37Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T08:41:56Z",
+                "conclusion": "success",
+                "name": "Run actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68",
+                "number": 4,
+                "startedAt": "2026-10-19T08:40:57Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T08:43:51Z",
+                "conclusion": "success",
+                "name": "Run python3 clients/godot/tools/ci-desktop.py",
+                "number": 5,
+                "startedAt": "2026-10-19T08:41:56Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T08:43:54Z",
+                "conclusion": "success",
+                "name": "Run actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a",
+                "number": 6,
+                "startedAt": "2026-10-19T08:43:51Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T08:43:54Z",
+                "conclusion": "success",
+                "name": "Post Run actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68",
+                "number": 11,
+                "startedAt": "2026-10-19T08:43:54Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T08:43:57Z",
+                "conclusion": "success",
+                "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+                "number": 12,
+                "startedAt": "2026-10-19T08:43:54Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T08:43:57Z",
+                "conclusion": "success",
+                "name": "Complete job",
+                "number": 13,
+                "startedAt": "2026-10-19T08:43:57Z",
+                "status": "completed"
+              }
+            ],
+            "url": "https://github.com/DDDHL0704/riftbound/actions/runs/39224398741/job/117967216464"
+          }
+        ],
+        "status": "in_progress",
+        "url": "https://github.com/DDDHL0704/riftbound/actions/runs/39224398741"
+      },
+      "error": null
+    },
+    {
+      "runId": 39236312099,
+      "queryExit": 0,
+      "result": {
+        "conclusion": "",
+        "headSha": "07ac3ac93098c476179297ad755b18e9aa3f2e95",
+        "jobs": [
+          {
+            "completedAt": "2026-10-19T10:18:01Z",
+            "conclusion": "success",
+            "databaseId": 118006114229,
+            "name": "scope",
+            "startedAt": "2026-10-19T10:16:53Z",
+            "status": "completed",
+            "steps": [
+              {
+                "completedAt": "2026-10-19T10:16:56Z",
+                "conclusion": "success",
+                "name": "Set up job",
+                "number": 1,
+                "startedAt": "2026-10-19T10:16:54Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T10:17:54Z",
+                "conclusion": "success",
+                "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+                "number": 2,
+                "startedAt": "2026-10-19T10:16:56Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T10:17:55Z",
+                "conclusion": "success",
+                "name": "Verification safeguards",
+                "number": 3,
+                "startedAt": "2026-10-19T10:17:54Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T10:17:55Z",
+                "conclusion": "success",
+                "name": "Determine scope from fixed Git inputs",
+                "number": 4,
+                "startedAt": "2026-10-19T10:17:55Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T10:17:57Z",
+                "conclusion": "success",
+                "name": "Source-index and governance integrity",
+                "number": 5,
+                "startedAt": "2026-10-19T10:17:55Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T10:17:57Z",
+                "conclusion": "success",
+                "name": "Check committed diff formatting",
+                "number": 6,
+                "startedAt": "2026-10-19T10:17:57Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T10:17:58Z",
+                "conclusion": "success",
+                "name": "Run actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a",
+                "number": 7,
+                "startedAt": "2026-10-19T10:17:57Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T10:17:59Z",
+                "conclusion": "success",
+                "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+                "number": 14,
+                "startedAt": "2026-10-19T10:17:58Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T10:17:59Z",
+                "conclusion": "success",
+                "name": "Complete job",
+                "number": 15,
+                "startedAt": "2026-10-19T10:17:59Z",
+                "status": "completed"
+              }
+            ],
+            "url": "https://github.com/DDDHL0704/riftbound/actions/runs/39236312099/job/118006114229"
+          },
+          {
+            "completedAt": "0001-01-01T00:00:00Z",
+            "conclusion": "",
+            "databaseId": 118006593972,
+            "name": "rules",
+            "startedAt": "2026-10-19T10:18:04Z",
+            "status": "in_progress",
+            "steps": [
+              {
+                "completedAt": "2026-10-19T10:18:06Z",
+                "conclusion": "success",
+                "name": "Set up job",
+                "number": 1,
+                "startedAt": "2026-10-19T10:18:05Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T10:18:21Z",
+                "conclusion": "success",
+                "name": "Initialize containers",
+                "number": 2,
+                "startedAt": "2026-10-19T10:18:06Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T10:18:34Z",
+                "conclusion": "success",
+                "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+                "number": 3,
+                "startedAt": "2026-10-19T10:18:21Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T10:18:51Z",
+                "conclusion": "success",
+                "name": "Run actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68",
+                "number": 4,
+                "startedAt": "2026-10-19T10:18:34Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T10:18:51Z",
+                "conclusion": "success",
+                "name": "Test runner coverage safeguards",
+                "number": 5,
+                "startedAt": "2026-10-19T10:18:51Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T12:51:16Z",
+                "conclusion": "success",
+                "name": "Complete rule suite with checked process shards",
+                "number": 6,
+                "startedAt": "2026-10-19T10:18:51Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "0001-01-01T00:00:00Z",
+                "conclusion": "",
+                "name": "Real PostgreSQL core recovery and replay",
+                "number": 7,
+                "startedAt": "2026-10-19T12:51:16Z",
+                "status": "in_progress"
+              },
+              {
+                "completedAt": "0001-01-01T00:00:00Z",
+                "conclusion": "",
+                "name": "Native client connection recovery",
+                "number": 8,
+                "startedAt": "0001-01-01T00:00:00Z",
+                "status": "pending"
+              },
+              {
+                "completedAt": "0001-01-01T00:00:00Z",
+                "conclusion": "",
+                "name": "Run actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a",
+                "number": 9,
+                "startedAt": "0001-01-01T00:00:00Z",
+                "status": "pending"
+              },
+              {
+                "completedAt": "0001-01-01T00:00:00Z",
+                "conclusion": "",
+                "name": "Post Run actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68",
+                "number": 16,
+                "startedAt": "0001-01-01T00:00:00Z",
+                "status": "pending"
+              },
+              {
+                "completedAt": "0001-01-01T00:00:00Z",
+                "conclusion": "",
+                "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+                "number": 17,
+                "startedAt": "0001-01-01T00:00:00Z",
+                "status": "pending"
+              },
+              {
+                "completedAt": "0001-01-01T00:00:00Z",
+                "conclusion": "",
+                "name": "Stop containers",
+                "number": 18,
+                "startedAt": "0001-01-01T00:00:00Z",
+                "status": "pending"
+              }
+            ],
+            "url": "https://github.com/DDDHL0704/riftbound/actions/runs/39236312099/job/118006593972"
+          },
+          {
+            "completedAt": "2026-10-19T10:21:22Z",
+            "conclusion": "success",
+            "databaseId": 118006593995,
+            "name": "desktop (windows-latest)",
+            "startedAt": "2026-10-19T10:18:04Z",
+            "status": "completed",
+            "steps": [
+              {
+                "completedAt": "2026-10-19T10:18:07Z",
+                "conclusion": "success",
+                "name": "Set up job",
+                "number": 1,
+                "startedAt": "2026-10-19T10:18:05Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T10:18:07Z",
+                "conclusion": "skipped",
+                "name": "Documentation-only scope; packaging not executed",
+                "number": 2,
+                "startedAt": "2026-10-19T10:18:07Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T10:18:30Z",
+                "conclusion": "success",
+                "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+                "number": 3,
+                "startedAt": "2026-10-19T10:18:07Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T10:19:29Z",
+                "conclusion": "success",
+                "name": "Run actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68",
+                "number": 4,
+                "startedAt": "2026-10-19T10:18:30Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T10:21:14Z",
+                "conclusion": "success",
+                "name": "Run python3 clients/godot/tools/ci-desktop.py",
+                "number": 5,
+                "startedAt": "2026-10-19T10:19:29Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T10:21:17Z",
+                "conclusion": "success",
+                "name": "Run actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a",
+                "number": 6,
+                "startedAt": "2026-10-19T10:21:14Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T10:21:17Z",
+                "conclusion": "success",
+                "name": "Post Run actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68",
+                "number": 11,
+                "startedAt": "2026-10-19T10:21:17Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T10:21:20Z",
+                "conclusion": "success",
+                "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+                "number": 12,
+                "startedAt": "2026-10-19T10:21:17Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T10:21:20Z",
+                "conclusion": "success",
+                "name": "Complete job",
+                "number": 13,
+                "startedAt": "2026-10-19T10:21:20Z",
+                "status": "completed"
+              }
+            ],
+            "url": "https://github.com/DDDHL0704/riftbound/actions/runs/39236312099/job/118006593995"
+          },
+          {
+            "completedAt": "2026-10-19T10:21:43Z",
+            "conclusion": "success",
+            "databaseId": 118006594128,
+            "name": "desktop (macos-latest)",
+            "startedAt": "2026-10-19T10:18:15Z",
+            "status": "completed",
+            "steps": [
+              {
+                "completedAt": "2026-10-19T10:18:17Z",
+                "conclusion": "success",
+                "name": "Set up job",
+                "number": 1,
+                "startedAt": "2026-10-19T10:18:16Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T10:18:17Z",
+                "conclusion": "skipped",
+                "name": "Documentation-only scope; packaging not executed",
+                "number": 2,
+                "startedAt": "2026-10-19T10:18:17Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T10:18:38Z",
+                "conclusion": "success",
+                "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+                "number": 3,
+                "startedAt": "2026-10-19T10:18:17Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T10:19:10Z",
+                "conclusion": "success",
+                "name": "Run actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68",
+                "number": 4,
+                "startedAt": "2026-10-19T10:18:38Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T10:21:30Z",
+                "conclusion": "success",
+                "name": "Run python3 clients/godot/tools/ci-desktop.py",
+                "number": 5,
+                "startedAt": "2026-10-19T10:19:10Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T10:21:36Z",
+                "conclusion": "success",
+                "name": "Run actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a",
+                "number": 6,
+                "startedAt": "2026-10-19T10:21:30Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T10:21:36Z",
+                "conclusion": "success",
+                "name": "Post Run actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68",
+                "number": 11,
+                "startedAt": "2026-10-19T10:21:36Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T10:21:37Z",
+                "conclusion": "success",
+                "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+                "number": 12,
+                "startedAt": "2026-10-19T10:21:36Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T10:21:41Z",
+                "conclusion": "success",
+                "name": "Complete job",
+                "number": 13,
+                "startedAt": "2026-10-19T10:21:37Z",
+                "status": "completed"
+              }
+            ],
+            "url": "https://github.com/DDDHL0704/riftbound/actions/runs/39236312099/job/118006594128"
+          }
+        ],
+        "status": "in_progress",
+        "url": "https://github.com/DDDHL0704/riftbound/actions/runs/39236312099"
+      },
+      "error": null
+    },
+    {
+      "runId": 39248538363,
+      "queryExit": 0,
+      "result": {
+        "conclusion": "",
+        "headSha": "797f813c03a739141ba4a8fbe1bb9921337bd351",
+        "jobs": [
+          {
+            "completedAt": "2026-10-19T11:59:10Z",
+            "conclusion": "success",
+            "databaseId": 118046353464,
+            "name": "scope",
+            "startedAt": "2026-10-19T11:58:52Z",
+            "status": "completed",
+            "steps": [
+              {
+                "completedAt": "2026-10-19T11:58:53Z",
+                "conclusion": "success",
+                "name": "Set up job",
+                "number": 1,
+                "startedAt": "2026-10-19T11:58:53Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T11:59:04Z",
+                "conclusion": "success",
+                "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+                "number": 2,
+                "startedAt": "2026-10-19T11:58:53Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T11:59:05Z",
+                "conclusion": "success",
+                "name": "Verification safeguards",
+                "number": 3,
+                "startedAt": "2026-10-19T11:59:04Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T11:59:05Z",
+                "conclusion": "success",
+                "name": "Determine scope from fixed Git inputs",
+                "number": 4,
+                "startedAt": "2026-10-19T11:59:05Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T11:59:08Z",
+                "conclusion": "success",
+                "name": "Source-index and governance integrity",
+                "number": 5,
+                "startedAt": "2026-10-19T11:59:05Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T11:59:08Z",
+                "conclusion": "success",
+                "name": "Check committed diff formatting",
+                "number": 6,
+                "startedAt": "2026-10-19T11:59:08Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T11:59:09Z",
+                "conclusion": "success",
+                "name": "Run actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a",
+                "number": 7,
+                "startedAt": "2026-10-19T11:59:08Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T11:59:09Z",
+                "conclusion": "success",
+                "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+                "number": 14,
+                "startedAt": "2026-10-19T11:59:09Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T11:59:09Z",
+                "conclusion": "success",
+                "name": "Complete job",
+                "number": 15,
+                "startedAt": "2026-10-19T11:59:09Z",
+                "status": "completed"
+              }
+            ],
+            "url": "https://github.com/DDDHL0704/riftbound/actions/runs/39248538363/job/118046353464"
+          },
+          {
+            "completedAt": "0001-01-01T00:00:00Z",
+            "conclusion": "",
+            "databaseId": 118046487493,
+            "name": "rules",
+            "startedAt": "2026-10-19T11:59:14Z",
+            "status": "in_progress",
+            "steps": [
+              {
+                "completedAt": "2026-10-19T11:59:16Z",
+                "conclusion": "success",
+                "name": "Set up job",
+                "number": 1,
+                "startedAt": "2026-10-19T11:59:15Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T11:59:29Z",
+                "conclusion": "success",
+                "name": "Initialize containers",
+                "number": 2,
+                "startedAt": "2026-10-19T11:59:16Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T11:59:44Z",
+                "conclusion": "success",
+                "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+                "number": 3,
+                "startedAt": "2026-10-19T11:59:29Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T11:59:57Z",
+                "conclusion": "success",
+                "name": "Run actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68",
+                "number": 4,
+                "startedAt": "2026-10-19T11:59:44Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T11:59:58Z",
+                "conclusion": "success",
+                "name": "Test runner coverage safeguards",
+                "number": 5,
+                "startedAt": "2026-10-19T11:59:57Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "0001-01-01T00:00:00Z",
+                "conclusion": "",
+                "name": "Complete rule suite with checked process shards",
+                "number": 6,
+                "startedAt": "2026-10-19T11:59:58Z",
+                "status": "in_progress"
+              },
+              {
+                "completedAt": "0001-01-01T00:00:00Z",
+                "conclusion": "",
+                "name": "Real PostgreSQL core recovery and replay",
+                "number": 7,
+                "startedAt": "0001-01-01T00:00:00Z",
+                "status": "pending"
+              },
+              {
+                "completedAt": "0001-01-01T00:00:00Z",
+                "conclusion": "",
+                "name": "Native client connection recovery",
+                "number": 8,
+                "startedAt": "0001-01-01T00:00:00Z",
+                "status": "pending"
+              },
+              {
+                "completedAt": "0001-01-01T00:00:00Z",
+                "conclusion": "",
+                "name": "Run actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a",
+                "number": 9,
+                "startedAt": "0001-01-01T00:00:00Z",
+                "status": "pending"
+              },
+              {
+                "completedAt": "0001-01-01T00:00:00Z",
+                "conclusion": "",
+                "name": "Post Run actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68",
+                "number": 16,
+                "startedAt": "0001-01-01T00:00:00Z",
+                "status": "pending"
+              },
+              {
+                "completedAt": "0001-01-01T00:00:00Z",
+                "conclusion": "",
+                "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+                "number": 17,
+                "startedAt": "0001-01-01T00:00:00Z",
+                "status": "pending"
+              },
+              {
+                "completedAt": "0001-01-01T00:00:00Z",
+                "conclusion": "",
+                "name": "Stop containers",
+                "number": 18,
+                "startedAt": "0001-01-01T00:00:00Z",
+                "status": "pending"
+              }
+            ],
+            "url": "https://github.com/DDDHL0704/riftbound/actions/runs/39248538363/job/118046487493"
+          },
+          {
+            "completedAt": "2026-10-19T12:02:36Z",
+            "conclusion": "success",
+            "databaseId": 118046487631,
+            "name": "desktop (macos-latest)",
+            "startedAt": "2026-10-19T11:59:20Z",
+            "status": "completed",
+            "steps": [
+              {
+                "completedAt": "2026-10-19T11:59:22Z",
+                "conclusion": "success",
+                "name": "Set up job",
+                "number": 1,
+                "startedAt": "2026-10-19T11:59:20Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T11:59:22Z",
+                "conclusion": "skipped",
+                "name": "Documentation-only scope; packaging not executed",
+                "number": 2,
+                "startedAt": "2026-10-19T11:59:22Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T11:59:41Z",
+                "conclusion": "success",
+                "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+                "number": 3,
+                "startedAt": "2026-10-19T11:59:22Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T12:00:15Z",
+                "conclusion": "success",
+                "name": "Run actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68",
+                "number": 4,
+                "startedAt": "2026-10-19T11:59:41Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T12:02:28Z",
+                "conclusion": "success",
+                "name": "Run python3 clients/godot/tools/ci-desktop.py",
+                "number": 5,
+                "startedAt": "2026-10-19T12:00:15Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T12:02:32Z",
+                "conclusion": "success",
+                "name": "Run actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a",
+                "number": 6,
+                "startedAt": "2026-10-19T12:02:28Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T12:02:32Z",
+                "conclusion": "success",
+                "name": "Post Run actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68",
+                "number": 11,
+                "startedAt": "2026-10-19T12:02:32Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T12:02:33Z",
+                "conclusion": "success",
+                "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+                "number": 12,
+                "startedAt": "2026-10-19T12:02:32Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T12:02:35Z",
+                "conclusion": "success",
+                "name": "Complete job",
+                "number": 13,
+                "startedAt": "2026-10-19T12:02:33Z",
+                "status": "completed"
+              }
+            ],
+            "url": "https://github.com/DDDHL0704/riftbound/actions/runs/39248538363/job/118046487631"
+          },
+          {
+            "completedAt": "2026-10-19T12:02:13Z",
+            "conclusion": "success",
+            "databaseId": 118046487673,
+            "name": "desktop (windows-latest)",
+            "startedAt": "2026-10-19T11:59:14Z",
+            "status": "completed",
+            "steps": [
+              {
+                "completedAt": "2026-10-19T11:59:16Z",
+                "conclusion": "success",
+                "name": "Set up job",
+                "number": 1,
+                "startedAt": "2026-10-19T11:59:14Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T11:59:16Z",
+                "conclusion": "skipped",
+                "name": "Documentation-only scope; packaging not executed",
+                "number": 2,
+                "startedAt": "2026-10-19T11:59:16Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T11:59:35Z",
+                "conclusion": "success",
+                "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+                "number": 3,
+                "startedAt": "2026-10-19T11:59:16Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T12:00:30Z",
+                "conclusion": "success",
+                "name": "Run actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68",
+                "number": 4,
+                "startedAt": "2026-10-19T11:59:35Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T12:02:07Z",
+                "conclusion": "success",
+                "name": "Run python3 clients/godot/tools/ci-desktop.py",
+                "number": 5,
+                "startedAt": "2026-10-19T12:00:30Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T12:02:09Z",
+                "conclusion": "success",
+                "name": "Run actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a",
+                "number": 6,
+                "startedAt": "2026-10-19T12:02:07Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T12:02:09Z",
+                "conclusion": "success",
+                "name": "Post Run actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68",
+                "number": 11,
+                "startedAt": "2026-10-19T12:02:09Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T12:02:12Z",
+                "conclusion": "success",
+                "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+                "number": 12,
+                "startedAt": "2026-10-19T12:02:09Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T12:02:12Z",
+                "conclusion": "success",
+                "name": "Complete job",
+                "number": 13,
+                "startedAt": "2026-10-19T12:02:12Z",
+                "status": "completed"
+              }
+            ],
+            "url": "https://github.com/DDDHL0704/riftbound/actions/runs/39248538363/job/118046487673"
+          }
+        ],
+        "status": "in_progress",
+        "url": "https://github.com/DDDHL0704/riftbound/actions/runs/39248538363"
+      },
+      "error": null
+    },
+    {
+      "runId": 39258672573,
+      "queryExit": 0,
+      "result": {
+        "conclusion": "",
+        "headSha": "a3432166062177ba127ab8b3ffd836b9cd619b58",
+        "jobs": [
+          {
+            "completedAt": "2026-10-19T13:16:30Z",
+            "conclusion": "success",
+            "databaseId": 118080329245,
+            "name": "scope",
+            "startedAt": "2026-10-19T13:16:01Z",
+            "status": "completed",
+            "steps": [
+              {
+                "completedAt": "2026-10-19T13:16:02Z",
+                "conclusion": "success",
+                "name": "Set up job",
+                "number": 1,
+                "startedAt": "2026-10-19T13:16:02Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T13:16:22Z",
+                "conclusion": "success",
+                "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+                "number": 2,
+                "startedAt": "2026-10-19T13:16:02Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T13:16:23Z",
+                "conclusion": "success",
+                "name": "Verification safeguards",
+                "number": 3,
+                "startedAt": "2026-10-19T13:16:22Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T13:16:23Z",
+                "conclusion": "success",
+                "name": "Determine scope from fixed Git inputs",
+                "number": 4,
+                "startedAt": "2026-10-19T13:16:23Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T13:16:25Z",
+                "conclusion": "success",
+                "name": "Source-index and governance integrity",
+                "number": 5,
+                "startedAt": "2026-10-19T13:16:23Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T13:16:25Z",
+                "conclusion": "success",
+                "name": "Check committed diff formatting",
+                "number": 6,
+                "startedAt": "2026-10-19T13:16:25Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T13:16:27Z",
+                "conclusion": "success",
+                "name": "Run actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a",
+                "number": 7,
+                "startedAt": "2026-10-19T13:16:25Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T13:16:28Z",
+                "conclusion": "success",
+                "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+                "number": 14,
+                "startedAt": "2026-10-19T13:16:27Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T13:16:28Z",
+                "conclusion": "success",
+                "name": "Complete job",
+                "number": 15,
+                "startedAt": "2026-10-19T13:16:28Z",
+                "status": "completed"
+              }
+            ],
+            "url": "https://github.com/DDDHL0704/riftbound/actions/runs/39258672573/job/118080329245"
+          },
+          {
+            "completedAt": "2026-10-19T13:19:33Z",
+            "conclusion": "success",
+            "databaseId": 118080600172,
+            "name": "desktop (windows-latest)",
+            "startedAt": "2026-10-19T13:16:33Z",
+            "status": "completed",
+            "steps": [
+              {
+                "completedAt": "2026-10-19T13:16:35Z",
+                "conclusion": "success",
+                "name": "Set up job",
+                "number": 1,
+                "startedAt": "2026-10-19T13:16:34Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T13:16:35Z",
+                "conclusion": "skipped",
+                "name": "Documentation-only scope; packaging not executed",
+                "number": 2,
+                "startedAt": "2026-10-19T13:16:35Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T13:16:58Z",
+                "conclusion": "success",
+                "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+                "number": 3,
+                "startedAt": "2026-10-19T13:16:35Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T13:17:49Z",
+                "conclusion": "success",
+                "name": "Run actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68",
+                "number": 4,
+                "startedAt": "2026-10-19T13:16:58Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T13:19:27Z",
+                "conclusion": "success",
+                "name": "Run python3 clients/godot/tools/ci-desktop.py",
+                "number": 5,
+                "startedAt": "2026-10-19T13:17:49Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T13:19:29Z",
+                "conclusion": "success",
+                "name": "Run actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a",
+                "number": 6,
+                "startedAt": "2026-10-19T13:19:27Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T13:19:29Z",
+                "conclusion": "success",
+                "name": "Post Run actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68",
+                "number": 11,
+                "startedAt": "2026-10-19T13:19:29Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T13:19:32Z",
+                "conclusion": "success",
+                "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+                "number": 12,
+                "startedAt": "2026-10-19T13:19:29Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T13:19:32Z",
+                "conclusion": "success",
+                "name": "Complete job",
+                "number": 13,
+                "startedAt": "2026-10-19T13:19:32Z",
+                "status": "completed"
+              }
+            ],
+            "url": "https://github.com/DDDHL0704/riftbound/actions/runs/39258672573/job/118080600172"
+          },
+          {
+            "completedAt": "0001-01-01T00:00:00Z",
+            "conclusion": "",
+            "databaseId": 118080600309,
+            "name": "rules",
+            "startedAt": "2026-10-19T13:16:34Z",
+            "status": "in_progress",
+            "steps": [
+              {
+                "completedAt": "2026-10-19T13:16:36Z",
+                "conclusion": "success",
+                "name": "Set up job",
+                "number": 1,
+                "startedAt": "2026-10-19T13:16:35Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T13:16:49Z",
+                "conclusion": "success",
+                "name": "Initialize containers",
+                "number": 2,
+                "startedAt": "2026-10-19T13:16:36Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T13:17:03Z",
+                "conclusion": "success",
+                "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+                "number": 3,
+                "startedAt": "2026-10-19T13:16:49Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T13:17:19Z",
+                "conclusion": "success",
+                "name": "Run actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68",
+                "number": 4,
+                "startedAt": "2026-10-19T13:17:03Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T13:17:20Z",
+                "conclusion": "success",
+                "name": "Test runner coverage safeguards",
+                "number": 5,
+                "startedAt": "2026-10-19T13:17:19Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "0001-01-01T00:00:00Z",
+                "conclusion": "",
+                "name": "Complete rule suite with checked process shards",
+                "number": 6,
+                "startedAt": "2026-10-19T13:17:20Z",
+                "status": "in_progress"
+              },
+              {
+                "completedAt": "0001-01-01T00:00:00Z",
+                "conclusion": "",
+                "name": "Real PostgreSQL core recovery and replay",
+                "number": 7,
+                "startedAt": "0001-01-01T00:00:00Z",
+                "status": "pending"
+              },
+              {
+                "completedAt": "0001-01-01T00:00:00Z",
+                "conclusion": "",
+                "name": "Native client connection recovery",
+                "number": 8,
+                "startedAt": "0001-01-01T00:00:00Z",
+                "status": "pending"
+              },
+              {
+                "completedAt": "0001-01-01T00:00:00Z",
+                "conclusion": "",
+                "name": "Run actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a",
+                "number": 9,
+                "startedAt": "0001-01-01T00:00:00Z",
+                "status": "pending"
+              },
+              {
+                "completedAt": "0001-01-01T00:00:00Z",
+                "conclusion": "",
+                "name": "Post Run actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68",
+                "number": 16,
+                "startedAt": "0001-01-01T00:00:00Z",
+                "status": "pending"
+              },
+              {
+                "completedAt": "0001-01-01T00:00:00Z",
+                "conclusion": "",
+                "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+                "number": 17,
+                "startedAt": "0001-01-01T00:00:00Z",
+                "status": "pending"
+              },
+              {
+                "completedAt": "0001-01-01T00:00:00Z",
+                "conclusion": "",
+                "name": "Stop containers",
+                "number": 18,
+                "startedAt": "0001-01-01T00:00:00Z",
+                "status": "pending"
+              }
+            ],
+            "url": "https://github.com/DDDHL0704/riftbound/actions/runs/39258672573/job/118080600309"
+          },
+          {
+            "completedAt": "2026-10-19T13:20:29Z",
+            "conclusion": "success",
+            "databaseId": 118080600748,
+            "name": "desktop (macos-latest)",
+            "startedAt": "2026-10-19T13:16:49Z",
+            "status": "completed",
+            "steps": [
+              {
+                "completedAt": "2026-10-19T13:16:51Z",
+                "conclusion": "success",
+                "name": "Set up job",
+                "number": 1,
+                "startedAt": "2026-10-19T13:16:50Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T13:16:51Z",
+                "conclusion": "skipped",
+                "name": "Documentation-only scope; packaging not executed",
+                "number": 2,
+                "startedAt": "2026-10-19T13:16:51Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T13:17:24Z",
+                "conclusion": "success",
+                "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+                "number": 3,
+                "startedAt": "2026-10-19T13:16:51Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T13:17:56Z",
+                "conclusion": "success",
+                "name": "Run actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68",
+                "number": 4,
+                "startedAt": "2026-10-19T13:17:24Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T13:20:16Z",
+                "conclusion": "success",
+                "name": "Run python3 clients/godot/tools/ci-desktop.py",
+                "number": 5,
+                "startedAt": "2026-10-19T13:17:56Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T13:20:22Z",
+                "conclusion": "success",
+                "name": "Run actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a",
+                "number": 6,
+                "startedAt": "2026-10-19T13:20:16Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T13:20:22Z",
+                "conclusion": "success",
+                "name": "Post Run actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68",
+                "number": 11,
+                "startedAt": "2026-10-19T13:20:22Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T13:20:23Z",
+                "conclusion": "success",
+                "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+                "number": 12,
+                "startedAt": "2026-10-19T13:20:22Z",
+                "status": "completed"
+              },
+              {
+                "completedAt": "2026-10-19T13:20:27Z",
+                "conclusion": "success",
+                "name": "Complete job",
+                "number": 13,
+                "startedAt": "2026-10-19T13:20:23Z",
+                "status": "completed"
+              }
+            ],
+            "url": "https://github.com/DDDHL0704/riftbound/actions/runs/39258672573/job/118080600748"
+          }
+        ],
+        "status": "in_progress",
+        "url": "https://github.com/DDDHL0704/riftbound/actions/runs/39258672573"
+      },
+      "error": null
+    }
+  ]
+}

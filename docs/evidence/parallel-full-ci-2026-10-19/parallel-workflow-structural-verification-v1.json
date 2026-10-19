@@ -1,0 +1,1 @@
+{"status":"PARSED_WORKFLOW_PRESERVES_SCOPE_DESKTOP_GLOBAL_PERMISSIONS_AND_BOTH_REAL_POSTGRES_ENVIRONMENTS","jobs":["scope","rule_suite","postgres","rules","desktop"],"requiredRulesNeeds":["scope","rule_suite","postgres"]}

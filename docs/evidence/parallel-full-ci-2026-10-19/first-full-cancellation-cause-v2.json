@@ -1,0 +1,51 @@
+{
+  "recordedAtUtc": "2026-10-19T14:49:33.700765+00:00",
+  "runId": 39224398741,
+  "fixedCommit": "6d9aee51e5259313b319ad555f8f44572563b3df",
+  "status": "ACTUAL_FULL_CANCELLED_BY_OFFICIAL_SIX_HOUR_JOB_LIMIT",
+  "officialAnnotations": [
+    {
+      "path": ".github",
+      "blob_href": "https://github.com/DDDHL0704/riftbound/blob/6d9aee51e5259313b319ad555f8f44572563b3df/.github",
+      "start_line": 1,
+      "start_column": null,
+      "end_line": 1,
+      "end_column": null,
+      "annotation_level": "failure",
+      "title": "",
+      "message": "The job has exceeded the maximum execution time of 6h0m0s",
+      "raw_details": ""
+    },
+    {
+      "path": ".github",
+      "blob_href": "https://github.com/DDDHL0704/riftbound/blob/6d9aee51e5259313b319ad555f8f44572563b3df/.github",
+      "start_line": 105,
+      "start_column": null,
+      "end_line": 105,
+      "end_column": null,
+      "annotation_level": "failure",
+      "title": "",
+      "message": "The operation was canceled.",
+      "raw_details": ""
+    },
+    {
+      "path": ".github",
+      "blob_href": "https://github.com/DDDHL0704/riftbound/blob/6d9aee51e5259313b319ad555f8f44572563b3df/.github",
+      "start_line": 1,
+      "start_column": null,
+      "end_line": 1,
+      "end_column": null,
+      "annotation_level": "notice",
+      "title": "",
+      "message": "\"The ubuntu-latest label will migrate to Ubuntu 26 beginning October 19, 2026. For more information, see https://github.com/actions/runner-images/issues/14748\"",
+      "raw_details": ""
+    }
+  ],
+  "completeRuleStepSucceeded": true,
+  "sqlStepCancelled": true,
+  "nativeNetworkStepSkipped": true,
+  "fullAcceptancePassed": false,
+  "noOriginalMethodsCasesPairingsSeedsOrSqlHelpersMayBeRemoved": true,
+  "preChangeWorkflowSha256": "349c76fff3b3d85754747b87b1f385e2f773b3e03fb975921526d1f0899fb5a9",
+  "earlierIssue49": "https://github.com/DDDHL0704/riftbound/issues/49"
+}

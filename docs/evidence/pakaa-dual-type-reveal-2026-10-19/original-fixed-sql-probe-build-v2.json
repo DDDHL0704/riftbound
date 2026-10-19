@@ -1,0 +1,46 @@
+{
+  "recordedAtUtc": "2026-10-19T14:00:31.988014+00:00",
+  "status": "PASS_FROZEN797F_RELEASE_LINKED_NEW_SQL_HARNESS_BUILT",
+  "fixedCoreCommit": "797f813c03a739141ba4a8fbe1bb9921337bd351",
+  "harnessSourceBaseCommit": "a3432166062177ba127ab8b3ffd836b9cd619b58",
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+    "implementationSha256": "245e1afda6270b32fb8dda74dcee826ab25bdf37be70f2654d74b8c508f619b8",
+    "identitySha256": "07cb4b856c865cdc85287facee90011a5e0126a3b87cdd309fa073b8f89a3f3d"
+  },
+  "frozenPublicationInputsSha256": "2f5af5ee975f8f27fc80ebd6fe9cabfd5bf3576d397c6acb4e8e66a046d2cdfa",
+  "allFourCoreModulesByteExact": true,
+  "sources": {
+    "var/qa/dual-type-reveal-20261019/sql-probe/Program.cs": "1dacfcd252095cc3a0a1d905225aeafac3d40b1dfee1d95cd501ead99d143025",
+    "var/qa/dual-type-reveal-20261019/sql-probe/probe.csproj": "d4fc2e0d98ec6a8bb83fa9ef26e7e522b57922744d7120e5eb709a0e38ca58c6",
+    "tests/Riftbound.PostgresAcceptance/PakaaDualTypeRevealSqlAcceptance.cs": "0094904dd944a56dcc49c3ca2cedf1d39adaf641ff52b701422a975ebc8412b7",
+    "tests/Riftbound.ConformanceTests/Fixtures/pakaa-dual-type-openings.json": "38763c2e75acfe0d2633bc34c272dd3b7597b53b355d55f70d9d7972ab0d3984"
+  },
+  "runtimeFiles": {
+    "probe.pdb": "4f3bb668be8f83df4a443d08c4ca58550ea81f6000db5abe42a5abe5c72446ec",
+    "Riftbound.CardCatalog.dll": "4c6d6378e7ced433e6ba27e6368f76b338819fe4305204f70488b67239d2c11d",
+    "Riftbound.Contracts.pdb": "e5380c5eca99610e77dd57fc02ca389a3088c4511a70bfc41949442add099d74",
+    "Riftbound.Engine.pdb": "61c72d89eedf1f29c343062cfd8dcc23781559c0f2ee4ee435fcd7bb53034d91",
+    "probe.runtimeconfig.json": "f8bd1713a3691d58eb332a71675f129385b91e852b66e7b6761cae1f34d4efd2",
+    "Riftbound.CardCatalog.pdb": "7433dfc3c3b551b55e7977395de0f8a890d1c0ea00237f8e3dccfabf11ca8895",
+    "probe.dll": "de6544251f1b716936dbcc03687809593cbff68aea7be96d2ff93dae42aa4499",
+    "Npgsql.dll": "9d8db086e9eda5ff20c4a7f83fa3eae7689198f57277ff9ceea1ee3526f5fcf8",
+    "probe.deps.json": "8e4e1286284c23288baca70095f48c39889ceda465c79dabc48d03690085e10e",
+    "Riftbound.Contracts.dll": "4bd3f3bed7fa7c156adbb7d11bbd6c5af1e2e03a004c3da0c2e8ae5a77b6fd2c",
+    "Riftbound.Engine.dll": "236de529c09fb9c6e3fbe7e30d583c9af782827df4946755d2371624c153cabc",
+    "Riftbound.Persistence.pdb": "7c8528a010ef3c46238320ef45c938e142ed7f31093854b53e4325e8ab5fa6a5",
+    "Riftbound.Persistence.dll": "642a140d96615683e25bfe42f47bd44a689248af09dcc49432c819ad57187d07",
+    "probe": "7b599981d9e582803ebd3ee529192ba25055985dae087dd75377fc00201608bc",
+    "Fixtures/pakaa-dual-type-openings.json": "38763c2e75acfe0d2633bc34c272dd3b7597b53b355d55f70d9d7972ab0d3984",
+    "data/official/rule-input-scope.json": "cc07cf3eef6a9af403454642a0435d061544400b5e01d08d3fdc65869bdad180",
+    "data/official/armaments.json": "ddcd838300e558c11df480ee79ccfab08c7af380df36544c666841720850bda8",
+    "data/official/card-catalog.zh-CN.json": "d521d7346392f2ea947c73c437c140d7bfe13a90cbca8642f7ae135b7b11f479"
+  },
+  "godotSdkOrProjectInvoked": false,
+  "failedPreExecutionReaderBuildRetained": "var/qa/dual-type-reveal-20261019/fixed-sql-probe-build-v1.log",
+  "failureCorrection": "RecoveredCommand.RawCommand is nullable; explicitly require non-null before inspecting the two submitted deck fields. No original SQL run was started for this compilation failure."
+}

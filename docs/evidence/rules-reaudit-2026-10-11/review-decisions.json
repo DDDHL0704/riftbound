@@ -23452,6 +23452,68 @@
         "docs/evidence/empty-reveal-followup-2026-10-19/single-check.json",
         "docs/evidence/empty-reveal-followup-2026-10-19/source-manifest.json"
       ]
+    },
+    {
+      "id": "pakaa-dual-type-top-reveal-2026-10-19",
+      "scope": "CN/zh-CN applicable2026-10-16; current19Oct CN sources and exact unit/gear-top behavior only.",
+      "status": "SCOPED6_ADJACENT58_SQL2_SINGLECHECK12975_UNCHANGED_ENGINE_FIXEDFULL_VISIBLE_WINDOWS_OPEN",
+      "subjects": [
+        "VEN·033",
+        "VEN·058"
+      ],
+      "ruleRecords": [],
+      "pendingRuleRecords": [],
+      "sourceManifest": {
+        "path": "docs/evidence/pakaa-dual-type-reveal-2026-10-19/source-manifest.json",
+        "sha256": "3aca00e542dfba1da9b020209cb45e5fee5d75c3d8bf7681cd375f54db0ce786",
+        "role": "source-manifest"
+      },
+      "validation": {
+        "focus": {
+          "path": "docs/evidence/pakaa-dual-type-reveal-2026-10-19/final-focus-summary.json",
+          "sha256": "e7aa5ec2ba64a05606a47a57b842ab13c5f568e5cf6eb30be73bc351bee61a62",
+          "role": "final-focus-summary"
+        },
+        "singleCheck": {
+          "path": "docs/evidence/pakaa-dual-type-reveal-2026-10-19/single-check.json",
+          "sha256": "ca404b839cb5a832a4e2b5104c97771527d861feaea61f19eab06cf162f4854f",
+          "role": "single-check"
+        },
+        "realSql": {
+          "path": "docs/evidence/pakaa-dual-type-reveal-2026-10-19/original-fixed-sql-verification-v2.json",
+          "sha256": "e7921d287d12feb8fcb4b357a292576b16e7a4a1103ea9ca3c7999f9540fb7a0",
+          "role": "original-fixed-sql-verification-v2"
+        },
+        "independentSql": {
+          "path": "docs/evidence/pakaa-dual-type-reveal-2026-10-19/original-independent-actual-sql-reader-result-v2.json",
+          "sha256": "32c561cf030d3ead7c880615289e456a73ff048eb9d95bf0046779261627e76d",
+          "role": "original-independent-actual-sql-reader-result-v2"
+        },
+        "originalRejectedPrefix": {
+          "path": "docs/evidence/pakaa-dual-type-reveal-2026-10-19/original-first-failed-prefix-independent-reader-result-v1.json",
+          "sha256": "99dbb7794ef16fc6a8f9c73772edddea4c315470e3ca9ae5beeed8a6ae49189b",
+          "role": "original-first-failed-prefix-independent-reader-result-v1"
+        },
+        "newFixedFull": "PENDING",
+        "visibleNativeProduct": "OPEN",
+        "physicalWindows": "OPEN"
+      },
+      "exclusions": [
+        "ALL_OTHER_PAKA_SOURCE_LIFECYCLE_COPIED_FORCED_SIMULTANEOUS_MOVEMENT_AND_DENIAL_BRANCHES",
+        "WHOLE_PRINTING_ALL_QA_AND_SOURCE_GAPS",
+        "NEW_FIXED_FULL",
+        "VISIBLE_NATIVE_PRODUCT",
+        "PHYSICAL_WINDOWS"
+      ],
+      "auditDocument": "docs/PAKAA_DUAL_TYPE_REVEAL_AUDIT_2026-10-19.md",
+      "evidence": [
+        "docs/evidence/pakaa-dual-type-reveal-2026-10-19/single-check.json",
+        "docs/evidence/pakaa-dual-type-reveal-2026-10-19/test-preservation.json",
+        "docs/evidence/pakaa-dual-type-reveal-2026-10-19/original-finite-semantic-decision-v1.json",
+        "docs/evidence/pakaa-dual-type-reveal-2026-10-19/original-fixed-sql-verification-v2.json",
+        "docs/evidence/pakaa-dual-type-reveal-2026-10-19/original-independent-actual-sql-reader-result-v2.json",
+        "docs/evidence/pakaa-dual-type-reveal-2026-10-19/original-first-failed-prefix-independent-reader-result-v1.json"
+      ]
     }
   ]
 }

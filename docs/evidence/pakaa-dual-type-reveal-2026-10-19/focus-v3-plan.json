@@ -1,0 +1,35 @@
+{
+  "profile": "focus",
+  "discoveredMethods": 7568,
+  "jobs": 2,
+  "includeGames": false,
+  "testAssemblySha256": "a4f84a997cbf962c780c086984a1f92c01d26fbc3d1f78f8bffc4619820ab76e",
+  "timings": "/Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/TestResults/mechanical-full.trx",
+  "shards": [
+    {
+      "name": "focus",
+      "methods": [
+        "Riftbound.ConformanceTests.PakaaDualTypeRevealTests.DualTypeTopIsDrawnOnceWithoutBeingPlayedOrTakingTheNonunitBranch",
+        "Riftbound.ConformanceTests.PakaaDualTypeRevealTests.NewLegalDeckFromBlankOpeningKeepsBothPrintedTypesAndReplaysItsOriginalCommands",
+        "Riftbound.ConformanceTests.PakaaProtectorRevealTests.ControlledUnitPlayThenStandardMoveCapturesItsOwnRevealTrigger",
+        "Riftbound.ConformanceTests.PakaaProtectorRevealTests.CoordinatedEarlierObservationTickStillFailsTheOriginalActionLogReplay",
+        "Riftbound.ConformanceTests.PakaaProtectorRevealTests.ExactCurrentCnPakaaProtectorPrintingHasExecutableOrdinaryUnitDefinition",
+        "Riftbound.ConformanceTests.PakaaProtectorRevealTests.ObservedPermissionRejectsForgedMovementSourceAndObservationBindings",
+        "Riftbound.ConformanceTests.PakaaProtectorRevealTests.PublicRevealPreviewRejectsPrivateViewWrongGenerationAndUnseenCards",
+        "Riftbound.ConformanceTests.PakaaProtectorRevealTests.RevealUsesOnlyTheOriginalTopAndDrawsAUnitOrTrashesNonunitWithTemporaryMight",
+        "Riftbound.ConformanceTests.PakaaProtectorRevealTests.RevealedNocturneUsesTheSharedBanishAndMandatoryPlayConfirmationWithoutSubstitutingTheNextCard",
+        "Riftbound.ConformanceTests.PatchedPorobotTests.CountUsesTheControllerRatherThanTheOwnerOfOtherEquipment",
+        "Riftbound.ConformanceTests.PatchedPorobotTests.ExactPrintedClauseIsParsedWithoutAGenericDuplicateTrigger",
+        "Riftbound.ConformanceTests.PatchedPorobotTests.ProductionDualTypePlayCommandsColdRecoverDeduplicateAndReplay",
+        "Riftbound.ConformanceTests.PatchedPorobotTests.RealDualTypePlayIsExhaustedAndChecksOtherEquipmentOnlyAtPlay",
+        "Riftbound.ConformanceTests.PatchedPorobotTests.RealImageGainingTheDualTypeFaceAfterEntryDoesNotRetroactivelyTriggerTheDraw",
+        "Riftbound.ConformanceTests.PatchedPorobotTests.RecoveryIndependentlyRejectsForgedConditionalDrawContext",
+        "Riftbound.ConformanceTests.PatchedPorobotTests.ReturningTheRealSourceDoesNotCancelItsAlreadyCapturedDraw",
+        "Riftbound.ConformanceTests.PatchedPorobotTests.SchemaValidatesEachOfficialTypeWithoutAcceptingUnknownOrInconsistentCategories",
+        "Riftbound.ConformanceTests.PatchedPorobotTests.SpendingCountedGoldInResponseDoesNotRecheckTheAdditionalTriggerCondition",
+        "Riftbound.ConformanceTests.PatchedPorobotTests.ThirdObjectMustBeAnotherControlledPublicFieldEquipment"
+      ],
+      "filter": "(FullyQualifiedName~PakaaDualTypeRevealTests|FullyQualifiedName~PakaaProtectorRevealTests|FullyQualifiedName~PatchedPorobotTests)&FullyQualifiedName!~Riftbound.ConformanceTests.FullGameEndToEndTests."
+    }
+  ]
+}

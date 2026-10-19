@@ -1,0 +1,14 @@
+{
+  "recordedAtUtc": "2026-10-19T13:49:45.238531+00:00",
+  "status": "FOCUS_STOPPED_FOR_NEW_FIXTURE_FAILURES_NOT_RULE_COUNTEREXAMPLES",
+  "ownedRunnerPid": 46370,
+  "ownedRunnerCommand": "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/MacOS/Python scripts/test-rules.py focus --match PakaaDualTypeRevealTests --match PakaaProtector --match PatchedPorobotTests --output var/qa/dual-type-reveal-20261019/focus-v1 --jobs 2",
+  "newTestSourceSha256": "330b50fe8078737e3adc516440d57da677f2328f64375712f791e98d76009751",
+  "fixtureFailures": {
+    "controlled4": "Tags were assigned in noncanonical order using a with-expression, so JSON constructor sorting changed the state hash before reveal resolution. Retain failure, correct only the new fixture.",
+    "ordinary2": "Original deck legend is green/purple; adding blue Porobot is illegal. Create a separate legal green/blue submitted deck; preserve the original fixture and original seed."
+  },
+  "failedDiagnosticTrx": "var/qa/dual-type-reveal-20261019/controlled-failure-diagnostic-v1/results.trx",
+  "newRuleFailureClaimed": false,
+  "fullOrCheckInterrupted": false
+}

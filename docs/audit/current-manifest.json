@@ -102,7 +102,8 @@
     },
     "reviews": {
       "path": "docs/evidence/rules-reaudit-2026-10-11/review-decisions.json",
-      "sha256": "217ba8dcdce76d14a75431b3a03a249b865163289c0c9f539c55b6588e86fc36"
+      "sha256": "b39d97e9aeb23cc5f3e23ae46f732de3d6f8d3908695fb8b6f6e6b2f9c9f0471",
+      "role": "reviews"
     },
     "summary": {
       "path": "docs/evidence/pakaa-move-reveal-2026-10-19/index-summary.json",
@@ -14261,7 +14262,7 @@
     "observed-source-native-ui-2026-10-18": {
       "evidenceCommit": "8c6d569e7be024b278cda46c09c262f061e53ab8",
       "evidenceCommitScope": "Prior fixed8c Release d4 visible46/282/normal8:0 is separate. Current uncommitted Debug bad341/combined47228 and actual native client modules pinned independently. Fixed48 CI cancelled by3h timeout, never full success.",
-      "currentImplementationCommit": "07ac3ac93098c476179297ad755b18e9aa3f2e95",
+      "currentImplementationCommit": "a3432166062177ba127ab8b3ffd836b9cd619b58",
       "currentImplementationIncludesUncommittedChanges": true,
       "currentInputRevision": "9886402200bf26b08e7efda7080b5243a7d9828762d63619d25d309ba5f6d704",
       "ciState": "PENDING",
@@ -14284,7 +14285,7 @@
         },
         {
           "path": ".github/workflows/native-desktop.yml",
-          "sha256": "349c76fff3b3d85754747b87b1f385e2f773b3e03fb975921526d1f0899fb5a9",
+          "sha256": "9d81988d16c9c0e6af52b57b2c7212b6381247ca6e6845abac59696b17b608b7",
           "role": "implementation"
         }
       ],
@@ -14475,7 +14476,13 @@
             "OTHER_CONSUMERS_WHOLE_PRINTINGS_AND_SOURCE_GAPS"
           ]
         }
-      ]
+      ],
+      "currentWorkflowSourceScope": "2026-10-19 explicit uncommitted CI-only workflow revision. Prior source/test/CI/native evidence remains within original recorded commits; the new full layout is not a certified current run.",
+      "priorWorkflowContextSnapshot": {
+        "path": "docs/evidence/parallel-full-ci-2026-10-19/prior-observed-source-native-ui-context-before-ci-layout.json",
+        "sha256": "d3fb5bc59ce11f23acb9da3e70df226f07dfad48080be6a14093fdf82b741e27",
+        "role": "prior-workflow-context"
+      }
     },
     "ravenbloom-put-hand-2026-10-18": {
       "evidenceCommit": "21e505c32e29e1595251ccd571d80d176b95c98c",
@@ -20477,6 +20484,228 @@
         }
       ],
       "parentExistingBranch": "pakaa-native-move-reveal-2026-10-19/empty-main-deck-conditional-interpretation"
+    },
+    "pakaa-dual-type-top-reveal-2026-10-19": {
+      "evidenceCommit": "a3432166062177ba127ab8b3ffd836b9cd619b58",
+      "currentImplementationCommit": "a3432166062177ba127ab8b3ffd836b9cd619b58",
+      "currentImplementationIncludesUncommittedChanges": true,
+      "evidenceCommitScope": "Basea343 plus explicitly uncommitted test/SQL harness additions; no new files attributed to base. Current Conformance Debug98f is separate from actual frozen797f Release07cb SQL. New fixed full remains pending.",
+      "currentInputRevision": "9886402200bf26b08e7efda7080b5243a7d9828762d63619d25d309ba5f6d704",
+      "ciState": "PENDING",
+      "ciReceipts": [],
+      "region": "CN",
+      "language": "zh-CN",
+      "applicableAsOf": "2026-10-16",
+      "sourceManifest": {
+        "path": "docs/evidence/pakaa-dual-type-reveal-2026-10-19/source-manifest.json",
+        "sha256": "3aca00e542dfba1da9b020209cb45e5fee5d75c3d8bf7681cd375f54db0ce786",
+        "role": "source-manifest"
+      },
+      "implementation": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.MovementReveal.cs",
+          "sha256": "5ecfaa73f8513235a72e9b63a53fd964020633b58bed8018231ac24b95e9075c",
+          "role": "implementation"
+        },
+        {
+          "path": "src/Riftbound.Engine/PrintedCardFactory.cs",
+          "sha256": "8b069d25dacb16ce512411fdd9ee25e98907247591bcb818756b5838922ba98e",
+          "role": "implementation"
+        }
+      ],
+      "verificationSources": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/PakaaDualTypeRevealTests.cs",
+          "sha256": "bfa6cf83cba7bc5d5da376f69c9ac36fa63c7007758cba0281a3a0dbd3618658",
+          "role": "verification"
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/Fixtures/pakaa-dual-type-openings.json",
+          "sha256": "38763c2e75acfe0d2633bc34c272dd3b7597b53b355d55f70d9d7972ab0d3984",
+          "role": "verification"
+        },
+        {
+          "path": "tests/Riftbound.PostgresAcceptance/PakaaDualTypeRevealSqlAcceptance.cs",
+          "sha256": "b069e5332712e4fa2482a6efa7d5fb0d2348d05e24a6028b90a734e559611baa",
+          "role": "verification"
+        },
+        {
+          "path": "tests/Riftbound.PostgresAcceptance/Program.cs",
+          "sha256": "5eb751a3524c6e3371dafc972953f5aab9a310d428f47bddebac622631a0da49",
+          "role": "verification"
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/evidence/pakaa-dual-type-reveal-2026-10-19/single-check.json",
+          "sha256": "ca404b839cb5a832a4e2b5104c97771527d861feaea61f19eab06cf162f4854f",
+          "role": "single-check"
+        },
+        {
+          "path": "docs/evidence/pakaa-dual-type-reveal-2026-10-19/test-preservation.json",
+          "sha256": "ddd537cc2d9a2fbf8e573f653276d0c35d6410b35386177b9277b930325dc995",
+          "role": "test-preservation"
+        },
+        {
+          "path": "docs/evidence/pakaa-dual-type-reveal-2026-10-19/original-finite-semantic-decision-v1.json",
+          "sha256": "210173b7e976104a9087f9533323b99641d8763ee0b963e535c0c830d8785c61",
+          "role": "original-finite-semantic-decision-v1"
+        },
+        {
+          "path": "docs/evidence/pakaa-dual-type-reveal-2026-10-19/original-fixed-sql-verification-v2.json",
+          "sha256": "e7921d287d12feb8fcb4b357a292576b16e7a4a1103ea9ca3c7999f9540fb7a0",
+          "role": "original-fixed-sql-verification-v2"
+        },
+        {
+          "path": "docs/evidence/pakaa-dual-type-reveal-2026-10-19/original-independent-actual-sql-reader-result-v2.json",
+          "sha256": "32c561cf030d3ead7c880615289e456a73ff048eb9d95bf0046779261627e76d",
+          "role": "original-independent-actual-sql-reader-result-v2"
+        },
+        {
+          "path": "docs/evidence/pakaa-dual-type-reveal-2026-10-19/original-first-failed-prefix-independent-reader-result-v1.json",
+          "sha256": "99dbb7794ef16fc6a8f9c73772edddea4c315470e3ca9ae5beeed8a6ae49189b",
+          "role": "original-first-failed-prefix-independent-reader-result-v1"
+        }
+      ],
+      "branches": [
+        {
+          "id": "unit-gear-top-one-card-deck",
+          "sourceRefs": [
+            "VEN-033",
+            "VEN-058"
+          ],
+          "sourceManifest": {
+            "path": "docs/evidence/pakaa-dual-type-reveal-2026-10-19/source-manifest.json",
+            "sha256": "3aca00e542dfba1da9b020209cb45e5fee5d75c3d8bf7681cd375f54db0ce786",
+            "role": "source-manifest"
+          },
+          "sourceClauses": [
+            "DOC-01 178.1/178.1.a/178.2/178.3",
+            "DOC-01 383 (trigger conditions)",
+            "DOC-01 425.1 (public reveal, not a zone change)",
+            "DOC-01 432.1 (draw the required original card)"
+          ],
+          "state": "RECORDED",
+          "decision": {
+            "state": "OPEN",
+            "reason": "Bounded source/test/SQL proof only; fixed full and product acceptance are independently open."
+          },
+          "semanticReview": "BOUNDED_DUAL_TYPE_ORIGINAL_TOP_REVIEW",
+          "testExecution": "PASS_LIMITED_NAMED_CASES",
+          "branchScope": "Exact original unit/gear top is publicly revealed and drawn once with Might4; no mill, on-play effect or burnout.",
+          "fixedCommitCi": "PENDING_NEW_FIXED_FULL",
+          "productAcceptance": "OPEN",
+          "remaining": [
+            "NEW_FIXED_FULL_ALL143_METHODS110_PAIRS_ORIGINAL_SEEDS_AND42_SQL_HELPERS",
+            "VISIBLE_NATIVE_PAIRED_PRODUCT",
+            "PHYSICAL_WINDOWS",
+            "WHOLE_PRINTING_QA_AND_OTHER_MOVEMENT_OBSERVER_BRANCHES"
+          ]
+        },
+        {
+          "id": "unit-gear-top-two-card-deck",
+          "sourceRefs": [
+            "VEN-033",
+            "VEN-058"
+          ],
+          "sourceManifest": {
+            "path": "docs/evidence/pakaa-dual-type-reveal-2026-10-19/source-manifest.json",
+            "sha256": "3aca00e542dfba1da9b020209cb45e5fee5d75c3d8bf7681cd375f54db0ce786",
+            "role": "source-manifest"
+          },
+          "sourceClauses": [
+            "DOC-01 178.1/178.1.a/178.2/178.3",
+            "DOC-01 383 (trigger conditions)",
+            "DOC-01 425.1 (public reveal, not a zone change)",
+            "DOC-01 432.1 (draw the required original card)"
+          ],
+          "state": "RECORDED",
+          "decision": {
+            "state": "OPEN",
+            "reason": "Bounded source/test/SQL proof only; fixed full and product acceptance are independently open."
+          },
+          "semanticReview": "BOUNDED_DUAL_TYPE_ORIGINAL_TOP_REVIEW",
+          "testExecution": "PASS_LIMITED_NAMED_CASES",
+          "branchScope": "Original dual-type card is drawn without substituting or revealing the next hidden top.",
+          "fixedCommitCi": "PENDING_NEW_FIXED_FULL",
+          "productAcceptance": "OPEN",
+          "remaining": [
+            "NEW_FIXED_FULL_ALL143_METHODS110_PAIRS_ORIGINAL_SEEDS_AND42_SQL_HELPERS",
+            "VISIBLE_NATIVE_PAIRED_PRODUCT",
+            "PHYSICAL_WINDOWS",
+            "WHOLE_PRINTING_QA_AND_OTHER_MOVEMENT_OBSERVER_BRANCHES"
+          ]
+        },
+        {
+          "id": "unit-gear-draw-is-not-onplay-with-three-other-gears",
+          "sourceRefs": [
+            "VEN-033",
+            "VEN-058"
+          ],
+          "sourceManifest": {
+            "path": "docs/evidence/pakaa-dual-type-reveal-2026-10-19/source-manifest.json",
+            "sha256": "3aca00e542dfba1da9b020209cb45e5fee5d75c3d8bf7681cd375f54db0ce786",
+            "role": "source-manifest"
+          },
+          "sourceClauses": [
+            "DOC-01 178.1/178.1.a/178.2/178.3",
+            "DOC-01 383 (trigger conditions)",
+            "DOC-01 425.1 (public reveal, not a zone change)",
+            "DOC-01 432.1 (draw the required original card)"
+          ],
+          "state": "RECORDED",
+          "decision": {
+            "state": "OPEN",
+            "reason": "Bounded source/test/SQL proof only; fixed full and product acceptance are independently open."
+          },
+          "semanticReview": "BOUNDED_DUAL_TYPE_ORIGINAL_TOP_REVIEW",
+          "testExecution": "PASS_LIMITED_NAMED_CASES",
+          "branchScope": "Even with three other controlled equipment, drawing Porobot does not trigger its on-play draw or create a card-play ledger entry.",
+          "fixedCommitCi": "PENDING_NEW_FIXED_FULL",
+          "productAcceptance": "OPEN",
+          "remaining": [
+            "NEW_FIXED_FULL_ALL143_METHODS110_PAIRS_ORIGINAL_SEEDS_AND42_SQL_HELPERS",
+            "VISIBLE_NATIVE_PAIRED_PRODUCT",
+            "PHYSICAL_WINDOWS",
+            "WHOLE_PRINTING_QA_AND_OTHER_MOVEMENT_OBSERVER_BRANCHES"
+          ]
+        },
+        {
+          "id": "ordinary-dual-type-factory-cold-original-replay-two-engine-formats",
+          "sourceRefs": [
+            "VEN-033",
+            "VEN-058"
+          ],
+          "sourceManifest": {
+            "path": "docs/evidence/pakaa-dual-type-reveal-2026-10-19/source-manifest.json",
+            "sha256": "3aca00e542dfba1da9b020209cb45e5fee5d75c3d8bf7681cd375f54db0ce786",
+            "role": "source-manifest"
+          },
+          "sourceClauses": [
+            "DOC-01 178.1/178.1.a/178.2/178.3",
+            "DOC-01 383 (trigger conditions)",
+            "DOC-01 425.1 (public reveal, not a zone change)",
+            "DOC-01 432.1 (draw the required original card)"
+          ],
+          "state": "RECORDED",
+          "decision": {
+            "state": "OPEN",
+            "reason": "Bounded source/test/SQL proof only; fixed full and product acceptance are independently open."
+          },
+          "semanticReview": "BOUNDED_DUAL_TYPE_ORIGINAL_TOP_REVIEW",
+          "testExecution": "PASS_LIMITED_NAMED_CASES",
+          "branchScope": "Real legal green/blue submitted deck from blank seed0 creates both printed tags; both named engine formats preserve actual commands, private views, cold recovery and full original replay.",
+          "fixedCommitCi": "PENDING_NEW_FIXED_FULL",
+          "productAcceptance": "OPEN",
+          "remaining": [
+            "NEW_FIXED_FULL_ALL143_METHODS110_PAIRS_ORIGINAL_SEEDS_AND42_SQL_HELPERS",
+            "VISIBLE_NATIVE_PAIRED_PRODUCT",
+            "PHYSICAL_WINDOWS",
+            "WHOLE_PRINTING_QA_AND_OTHER_MOVEMENT_OBSERVER_BRANCHES"
+          ]
+        }
+      ],
+      "parentExistingBranch": "Paka broader unit/gear top branch remains bounded; all original review dictionaries and exclusions retained."
     }
   },
   "acceptanceGates": [
@@ -32600,6 +32829,24 @@
       "fixedCommitCi": "PENDING_SOURCE_INDEX_CI",
       "productAcceptance": "OPEN_IF_APPLICABLE",
       "wholePrintingCertified": false
+    },
+    {
+      "id": "PAKAA_DUAL_TYPE_TOP_NEW_FIXED_FULL_VISIBLE_AND_WINDOWS",
+      "state": "OPEN",
+      "region": "CN",
+      "language": "zh-CN",
+      "sourceManifest": {
+        "path": "docs/evidence/pakaa-dual-type-reveal-2026-10-19/source-manifest.json",
+        "sha256": "3aca00e542dfba1da9b020209cb45e5fee5d75c3d8bf7681cd375f54db0ce786",
+        "role": "source-manifest"
+      },
+      "requirement": "New fixed full includes all143 original full-game methods,110 pairs,seeds,win/replay assertions and42 SQL helpers; visible native paired product and physical Windows remain independent. Bounded six cases do not certify either whole printing.",
+      "semanticReview": "BOUNDED_SOURCE_REVIEW_ONLY",
+      "implementation": "EXISTING_SHARED_ENGINE_SOURCE_UNCHANGED",
+      "testExecution": "LIMITED_FOCUS58_CHECK12975_SQL2_ACTUAL_PASS",
+      "fixedCommitCi": "PENDING",
+      "productAcceptance": "OPEN",
+      "wholePrintingCertified": false
     }
   ],
   "note": "Current inventory and remaining obligations, with independently dated rule sources and separately recorded source deltas. No source fetch or semantic certification by this checker.",
@@ -32742,5 +32989,20 @@
     "path": "docs/evidence/radiance-visual-readback-2026-10-19/unified-obligation-retention.json",
     "sha256": "51a495905e3e98447b3b0beab51e50f61b4d7e4e851909f2bcb5ce2a90ad7b00",
     "role": "unified-obligation-retention"
+  },
+  "currentPakaaDualTypeTopVerification": {
+    "path": "docs/evidence/pakaa-dual-type-reveal-2026-10-19/source-manifest.json",
+    "sha256": "3aca00e542dfba1da9b020209cb45e5fee5d75c3d8bf7681cd375f54db0ce786",
+    "role": "source-manifest"
+  },
+  "currentPakaaDualTypeTopInputChange": {
+    "path": "docs/evidence/pakaa-dual-type-reveal-2026-10-19/current-input-change.json",
+    "sha256": "7a5c6f0e8216d529ff5ac371be580ff668e4931c835f517109048d3d4466f566",
+    "role": "current-input-change"
+  },
+  "currentParallelFullVerificationLayout": {
+    "path": "docs/evidence/parallel-full-ci-2026-10-19/pipeline-change.json",
+    "sha256": "375c96f11e960ad40241bb618f6fcced550c9ea052064dab478ea171c95df0c8",
+    "role": "pipeline-change"
   }
 }

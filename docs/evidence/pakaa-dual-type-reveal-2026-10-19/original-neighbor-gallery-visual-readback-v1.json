@@ -1,0 +1,50 @@
+{
+  "reviewedAtUtc": "2026-10-19T14:24:40.548752+00:00",
+  "status": "THREE_ACTUAL_NEIGHBOR_GALLERY_FACES_VISUALLY_MATCH_THEIR_OWN_API_CODES_ONLY",
+  "acquisitionReceiptSha256": "d4ec4dbd00c5d9a721f569a76893784c838bc1bddc1b4b9f293539d8dd766364",
+  "region": "GLOBAL",
+  "language": "en-US",
+  "faces": [
+    {
+      "officialApiId": "rad-110-167",
+      "printedIdentity": "RAD · 110/167 · EN",
+      "visiblePromoP": false,
+      "name": "Lulu / Whimsical",
+      "energy": 3,
+      "might": 3,
+      "interpretation": "Ordinary110 face; does not depict the separate article110a P printing. Same title or behavior cannot merge them.",
+      "path": "var/qa/dual-type-reveal-20261019/actual-neighbor-gallery-faces/rad-110-167.png",
+      "rawSha256": "761a414adb6b9968159815d61291ea86507ae5fbaea7b41d9c6523438bf36fb8",
+      "receivedAtUtc": "2026-10-19T14:23:41.253840+00:00",
+      "actualFullPixelsReviewed": true
+    },
+    {
+      "officialApiId": "rad-r01a",
+      "printedIdentity": "RAD · R01a · EN",
+      "visiblePromoP": false,
+      "name": "Fury Rune",
+      "interpretation": "Musical guitar a face; distinct from article promo R01b P. Preserve lowercase a as printed.",
+      "path": "var/qa/dual-type-reveal-20261019/actual-neighbor-gallery-faces/rad-r01a.png",
+      "rawSha256": "e9dc22612fba730628c05cb8fb6491a9d1c3f3454a603f7b464d0d37c8e54b65",
+      "receivedAtUtc": "2026-10-19T14:23:43.349250+00:00",
+      "actualFullPixelsReviewed": true
+    },
+    {
+      "officialApiId": "rad-r01",
+      "printedIdentity": "RAD · R01 · EN",
+      "visiblePromoP": false,
+      "name": "Fury Rune",
+      "interpretation": "Ordinary base rune face; distinct from both a musical and b promo printing.",
+      "path": "var/qa/dual-type-reveal-20261019/actual-neighbor-gallery-faces/rad-r01.png",
+      "rawSha256": "f89c25e91ec28e0788db4e99f91a6ec91f8c239f9cc41a2aae32ceafb4ecd597",
+      "receivedAtUtc": "2026-10-19T14:23:41.898528+00:00",
+      "actualFullPixelsReviewed": true
+    }
+  ],
+  "newWholePrintingCertification": false,
+  "allEightArticlePrintingSourceMappingGatesRemainOpen": true,
+  "globalUnreturnedEightNotEquatedWithArticleEight": true,
+  "noRuntimeOrFrozenArticle39OrOriginal1740LedgerChanged": true,
+  "sameApiUrlAndRowNotProofCdnPixelsUnchangedOverTime": true,
+  "scope": "Exactly these three actual newly obtained gallery images. No all-six rune image equivalence, all1408 image audit, global/CN precedence or printing-effective-date certification."
+}

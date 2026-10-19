@@ -1,0 +1,26 @@
+{
+  "priorRemainingObligationCount": 16880,
+  "currentRemainingObligationCount": 16885,
+  "priorCommittedInput": {
+    "commit": "a3432166062177ba127ab8b3ffd836b9cd619b58",
+    "manifestSha256": "6b2ca1cb2dc11ec3d5e4fc9c225857b8ceae2fee86af2eada44e0078ccdca61e",
+    "reviewsSha256": "217ba8dcdce76d14a75431b3a03a249b865163289c0c9f539c55b6588e86fc36"
+  },
+  "all16880OriginalObligationIdsRetained": true,
+  "newObligationIds": [
+    "BRANCH:pakaa-dual-type-top-reveal-2026-10-19:ordinary-dual-type-factory-cold-original-replay-two-engine-formats",
+    "BRANCH:pakaa-dual-type-top-reveal-2026-10-19:unit-gear-draw-is-not-onplay-with-three-other-gears",
+    "BRANCH:pakaa-dual-type-top-reveal-2026-10-19:unit-gear-top-one-card-deck",
+    "BRANCH:pakaa-dual-type-top-reveal-2026-10-19:unit-gear-top-two-card-deck",
+    "GATE:PAKAA_DUAL_TYPE_TOP_NEW_FIXED_FULL_VISIBLE_AND_WINDOWS"
+  ],
+  "all139OriginalReviewDictionariesExact": true,
+  "all54OriginalContextsExact": true,
+  "all230OriginalGateDictionariesExact": true,
+  "allFiveTemporalDeltaDictionariesExact": true,
+  "currentReviews": 140,
+  "currentContexts": 55,
+  "currentGates": 231,
+  "allOldPrintingRuleQaHistoricalReviewPinsAndCoverageDenominatorsExact": true,
+  "semanticCoverageCertified": false
+}

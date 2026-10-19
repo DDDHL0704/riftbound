@@ -1,0 +1,40 @@
+{
+  "status": "PASS_ACTUAL_INDEPENDENT_READONLY_DUAL_TYPE_ORIGINAL_FRAMES",
+  "checks": [
+    {
+      "room": "postgres-dual-type-reveal-b26eb2941c094a179ecade5003891202",
+      "format": "CoreRules",
+      "commands": 23,
+      "events": 106,
+      "allStoredFieldsAndNullsAndBothPrivateViewsExact": true,
+      "originalSeed": 0,
+      "independentDraws": 1,
+      "independentExpectedMight": 4,
+      "bothPrintedTypes": true,
+      "originalFullReplayMatched": true
+    },
+    {
+      "room": "postgres-dual-type-reveal-38ee770dc3894c119d3026a26e4a651e",
+      "format": "ChinaStandard20260724",
+      "commands": 23,
+      "events": 106,
+      "allStoredFieldsAndNullsAndBothPrivateViewsExact": true,
+      "originalSeed": 0,
+      "independentDraws": 1,
+      "independentExpectedMight": 4,
+      "bothPrintedTypes": true,
+      "originalFullReplayMatched": true
+    }
+  ],
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+    "implementationSha256": "245e1afda6270b32fb8dda74dcee826ab25bdf37be70f2654d74b8c508f619b8",
+    "identitySha256": "07cb4b856c865cdc85287facee90011a5e0126a3b87cdd309fa073b8f89a3f3d"
+  },
+  "noNewRoomStateSeedOrHistoryRewrite": true,
+  "visibleAndPhysicalWindows": "OPEN"
+}

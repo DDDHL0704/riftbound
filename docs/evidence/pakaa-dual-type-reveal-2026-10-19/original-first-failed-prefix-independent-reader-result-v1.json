@@ -1,0 +1,21 @@
+{
+  "status": "PASS_RETAINED_ORIGINAL_PREMATURE_ENDTURN_REJECTION_READONLY",
+  "room": "postgres-dual-type-reveal-c11c6a6c32e34514a233ef25e16ba39f",
+  "commands": 22,
+  "accepted": 21,
+  "rejected": 1,
+  "events": 90,
+  "pendingOpponentFocus": "P2",
+  "rejectedTickAndEventSequenceAtomic": true,
+  "originalAcceptedAndRejectedFullReplayMatched": true,
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+    "implementationSha256": "245e1afda6270b32fb8dda74dcee826ab25bdf37be70f2654d74b8c508f619b8",
+    "identitySha256": "07cb4b856c865cdc85287facee90011a5e0126a3b87cdd309fa073b8f89a3f3d"
+  },
+  "originalDatabaseStateSeedAndHistoryUnmodified": true
+}
