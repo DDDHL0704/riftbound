@@ -1,0 +1,219 @@
+{
+  "recordedAtUtc": "2026-10-18T23:22:32.183921+00:00",
+  "status": "FIVE_OFFICIAL_UI_LOCALE_OBSERVATIONS_ASSOCIATED_WITH_EXISTING_OPEN_SOURCE_GATES_NO_RUNTIME_CHANGE",
+  "canonicalObligationManifest": {
+    "path": "docs/audit/current-manifest.json",
+    "sha256": "ae6c9f2dcc3a27dba7331344f0875eaf80dc2dae1e6d8f9c4e95ec01b1023c0b"
+  },
+  "acquisitionManifest": {
+    "path": "var/qa/copied-duel-paired-20261019/supported-gallery-locale-observation-v1.json",
+    "sha256": "d94cdb07bdac11cd8ead59d8b4583bdd3a60b0cbffba74714f1c657ecb8441fa"
+  },
+  "observations": [
+    {
+      "locale": "es-es",
+      "sourceUrl": "https://content.publishing.riotgames.com/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=es_ES&limit=2000&from=0",
+      "sourceRawSha256": "cae94ce9208bf089dd123ac0524bfcc4548b696060d38f2b4720e46876989acf",
+      "metadataTotal": 1417,
+      "returnedUniqueRows": 1409,
+      "reportedMinusReturned": 8,
+      "all1408EnglishCmsIdsPresent": true,
+      "additionalRelativeEnglishRows": [
+        {
+          "exactCmsId": "ogn-189-000",
+          "exactPublicCode": "OGN-189/000",
+          "wholeRowSha256": "076e71330857087f5e1865d573468055d6f06b1a6d007342921f13527ad8efee",
+          "name": "Kayn, Unleashed",
+          "sameOfficialFaceUrl": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/a1ce0e784264748f170bebb3b26a09a7f55efe0f-744x1039.png?accountingTag=RB",
+          "rawRulesHtml": "<p>[Ganking] <em>(I can move from battlefield to battlefield.)</em><br />If I have moved twice this turn, I don't take damage.</p>",
+          "englishCanonicalRulesHtml": "<p>[Ganking] (I can move from battlefield to battlefield.)<br />If I have moved twice this turn, I don't take damage.</p>",
+          "rawRulesHtmlEqual": false,
+          "plainRulesTextEqual": true,
+          "exactDifferenceOnlyEmTags": true,
+          "observedEnergyPowerMight": [
+            6,
+            1,
+            6
+          ],
+          "canonicalEnergyPowerMight": [
+            6,
+            1,
+            6
+          ],
+          "printingIdentityMergeAuthorized": false,
+          "newPhysicalPrintingEstablished": false
+        }
+      ],
+      "allAdditionalCmsIds": [
+        "ogn-189-000"
+      ]
+    },
+    {
+      "locale": "it-it",
+      "sourceUrl": "https://content.publishing.riotgames.com/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=it_IT&limit=2000&from=0",
+      "sourceRawSha256": "abc5dd9855f9766214510fe85ab40bba62286a93d36ff293bda10468177db6c3",
+      "metadataTotal": 1417,
+      "returnedUniqueRows": 1409,
+      "reportedMinusReturned": 8,
+      "all1408EnglishCmsIdsPresent": true,
+      "additionalRelativeEnglishRows": [
+        {
+          "exactCmsId": "ogn-189-000",
+          "exactPublicCode": "OGN-189/000",
+          "wholeRowSha256": "0b445f104c2743bdcf359b27109abbd3c192c7bd86ecebe86d6d329fdcb38e4e",
+          "name": "Kayn, Unleashed",
+          "sameOfficialFaceUrl": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/a1ce0e784264748f170bebb3b26a09a7f55efe0f-744x1039.png?accountingTag=RB",
+          "rawRulesHtml": "<p>[Ganking] <em>(I can move from battlefield to battlefield.)</em><br />If I have moved twice this turn, I don't take damage.</p>",
+          "englishCanonicalRulesHtml": "<p>[Ganking] (I can move from battlefield to battlefield.)<br />If I have moved twice this turn, I don't take damage.</p>",
+          "rawRulesHtmlEqual": false,
+          "plainRulesTextEqual": true,
+          "exactDifferenceOnlyEmTags": true,
+          "observedEnergyPowerMight": [
+            6,
+            1,
+            6
+          ],
+          "canonicalEnergyPowerMight": [
+            6,
+            1,
+            6
+          ],
+          "printingIdentityMergeAuthorized": false,
+          "newPhysicalPrintingEstablished": false
+        }
+      ],
+      "allAdditionalCmsIds": [
+        "ogn-189-000"
+      ]
+    },
+    {
+      "locale": "ja-jp",
+      "sourceUrl": "https://content.publishing.riotgames.com/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=ja_JP&limit=2000&from=0",
+      "sourceRawSha256": "34a444861356a5a8fa068b280fd0aa9b6df3fbdf986a361ff08cc9bf5fdd322e",
+      "metadataTotal": 1417,
+      "returnedUniqueRows": 1409,
+      "reportedMinusReturned": 8,
+      "all1408EnglishCmsIdsPresent": true,
+      "additionalRelativeEnglishRows": [
+        {
+          "exactCmsId": "ogn-189-000",
+          "exactPublicCode": "OGN-189/000",
+          "wholeRowSha256": "ab6a59ab46d476b82cb579bded131647499ed7e60007341cf908444ef6c9fcfd",
+          "name": "Kayn, Unleashed",
+          "sameOfficialFaceUrl": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/a1ce0e784264748f170bebb3b26a09a7f55efe0f-744x1039.png?accountingTag=RB",
+          "rawRulesHtml": "<p>[Ganking] <em>(I can move from battlefield to battlefield.)</em><br />If I have moved twice this turn, I don't take damage.</p>",
+          "englishCanonicalRulesHtml": "<p>[Ganking] (I can move from battlefield to battlefield.)<br />If I have moved twice this turn, I don't take damage.</p>",
+          "rawRulesHtmlEqual": false,
+          "plainRulesTextEqual": true,
+          "exactDifferenceOnlyEmTags": true,
+          "observedEnergyPowerMight": [
+            6,
+            1,
+            6
+          ],
+          "canonicalEnergyPowerMight": [
+            6,
+            1,
+            6
+          ],
+          "printingIdentityMergeAuthorized": false,
+          "newPhysicalPrintingEstablished": false
+        }
+      ],
+      "allAdditionalCmsIds": [
+        "ogn-189-000"
+      ]
+    },
+    {
+      "locale": "ko-kr",
+      "sourceUrl": "https://content.publishing.riotgames.com/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=ko_KR&limit=2000&from=0",
+      "sourceRawSha256": "4f70b4eadb130ac316b83906d3bc15959a942c119081f45d20b274bfd35eb1be",
+      "metadataTotal": 1416,
+      "returnedUniqueRows": 1408,
+      "reportedMinusReturned": 8,
+      "all1408EnglishCmsIdsPresent": true,
+      "additionalRelativeEnglishRows": [],
+      "allAdditionalCmsIds": []
+    },
+    {
+      "locale": "zh-tw",
+      "sourceUrl": "https://content.publishing.riotgames.com/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=zh_TW&limit=2000&from=0",
+      "sourceRawSha256": "47ef551905b66b35acaac65a84cf06d45f8612f925810684f24422975e3f1c3e",
+      "metadataTotal": 1415,
+      "returnedUniqueRows": 1408,
+      "reportedMinusReturned": 7,
+      "all1408EnglishCmsIdsPresent": true,
+      "additionalRelativeEnglishRows": [],
+      "allAdditionalCmsIds": []
+    }
+  ],
+  "priorJapaneseObservation": {
+    "path": "docs/evidence/fate-weaver-deck-choice-2026-10-18/locale-identity-source-impact.json",
+    "sha256": "2108f48dd468d6f0dc757843e65b05eb3c3fd66e0eef77fe9310978e02bd9560",
+    "exactPriorFragmentPath": "var/qa/fate-weaver-look-spell-20261018/gallery-ja-jp-next-data.json.gz",
+    "exactPriorFragmentSha256": "13097c9d352bc9b62ea7aaabd60cacff1328cca41bfbde00b9e460f03655ed9c",
+    "priorObservedAt": "2026-10-18T03:11:45.017912+00:00",
+    "priorSsrDistinctRows": 1409,
+    "currentApiDistinctRows": 1409,
+    "sameCmsIdentitySet": true,
+    "byteEqualWholeRowCount": 1409,
+    "changedWholeRowIds": [],
+    "comparisonScope": "Prior page SSR items versus fresh official public API items, not whole HTTP response identity."
+  },
+  "acquisitionWordingClarification": {
+    "v1FirstAcquisitionMeansCurrentApiProbeNotFirstEverLocaleSource": true,
+    "japaneseLocaleAndKayn000WereAlreadyRecordedOnOctober18": true,
+    "noFirstEverDiscoveryOrPublicationClaimForAnyOtherLocale": true,
+    "allRawV1ObservationsAndEarlierSourceProofsKeptUnmodified": true
+  },
+  "rawHtmlComparisonPremiseFailure": {
+    "path": "var/qa/copied-duel-paired-20261019/supported-gallery-source-impact-initial-premise-failure.json",
+    "sha256": "647a149cf7921f45bfdc8c189c50485f39cac7c8d7fa0e85ce62704c74905814"
+  },
+  "freshSharedAsset": {
+    "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/a1ce0e784264748f170bebb3b26a09a7f55efe0f-744x1039.png?accountingTag=RB",
+    "attemptedAtUtc": "2026-10-18T23:22:30.352488+00:00",
+    "receivedAtUtc": "2026-10-18T23:22:32.172817+00:00",
+    "httpStatus": 200,
+    "httpDate": "Sun, 18 Oct 2026 23:22:31 GMT",
+    "lastModified": "Mon, 06 Oct 2025 16:46:19 GMT",
+    "bytes": 847216,
+    "sha256": "003990d7789021298797befcc65c37b36a91d74b53dd593c477e55f613455cc2"
+  },
+  "existingIdenticalVisualProof": {
+    "path": "docs/evidence/fate-weaver-deck-choice-2026-10-18/locale-identity-source-impact.json",
+    "imageFile": "var/qa/fate-weaver-look-spell-20261018/kayn-shared-official-face.png",
+    "actualPrintedNumber": "OGN 189/298",
+    "sameBytesNoNewImageCopy": true
+  },
+  "exactEnglishCanonicalRecord": {
+    "id": "ogn-189-298",
+    "publicCode": "OGN-189/298",
+    "wholeRowSha256": "d6e5180d3f0f8768ec683cef5311948b62ced2c57fdde11d7eca4f841b11a599"
+  },
+  "printingLanguageClarification": "API locale/page labels describe UI. Compared Kayn names/rules and the shared exact previously inspected face are English; UI locale is not printing language, regional legality or effectivity certification.",
+  "existingOpenGateIds": [
+    "GLOBAL_KAYN_OGN189000_SOURCE_IDENTITY",
+    "REGIONAL_KAYN_CMS_PRINTED_IDENTITY_DISPOSITION"
+  ],
+  "parentPrintingObligation": "CARD:OGN-189/298",
+  "issue": "https://github.com/DDDHL0704/riftbound/issues/66",
+  "regionalAdvertisedCountGapsRemainOpen": {
+    "es-es": 8,
+    "it-it": 8,
+    "ja-jp": 8,
+    "ko-kr": 8,
+    "zh-tw": 7
+  },
+  "englishAdvertisedEightGapRemainsOpen": true,
+  "allOriginal1740PrintingAndFourTemporalDeltaIdsRetained": true,
+  "newPhysicalPrintingIdNotCreated": true,
+  "noHistoricalEvidenceRewrite": true,
+  "canonicalManifestNotYetUpdatedByThisIgnoredSourceObservation": true,
+  "pendingNextCoherentPublication": "Append exact observations to the existing OPEN source-identity gates and regional-count gap evidence; retain old observations and source fields. No duplicate physical printing IDs or temporal addition claim.",
+  "semanticReview": "OPEN_EXACT_SOURCE_IDENTITY_AND_REGIONAL_APPLICABILITY",
+  "testExecution": "PUBLIC_API_SOURCE_ACQUISITION_AND_EXACT_EXISTING_ASSET_HASH_ONLY",
+  "fixedCommitCi": "NOT_A_SOURCE_IDENTITY_CERTIFICATE",
+  "productAcceptance": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+  "semanticCoverageCertified": false
+}

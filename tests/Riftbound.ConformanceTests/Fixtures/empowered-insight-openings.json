@@ -1,0 +1,1018 @@
+{
+  "scope": {
+    "region": "CN",
+    "language": "zh-CN",
+    "applicableAsOf": "2026-10-16",
+    "mechanicsOnlyNotRegionalTournamentEligibilityCertified": true,
+    "derivedOriginalIntentFixture": "tests/Riftbound.ConformanceTests/Fixtures/copied-duel-insight-openings.json",
+    "derivedOriginalIntentFixtureSha256": "94af0592ead664cdea35ed1e256c951bdbfdea2cf4c09578a45173328eb1c209",
+    "onlyDeckSubstitution": "All three P1 UNL-079/219 replaced by VEN·047. Same ordered deck/runes/seed; no in-match insertion or reorder.",
+    "sourceManifest": "apprentice-mage-source.json",
+    "seed": 0,
+    "theseAreIntentsUntilActuallyAccepted": true
+  },
+  "branches": [
+    {
+      "branch": "native",
+      "songs": 0,
+      "host": "P1-MAIN-VEN-047-11",
+      "openingIntents": [
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "legendCardNo": "UNL-189/219",
+            "championCardNo": "UNL-082/219",
+            "mainDeck": [
+              "UNL-082/219",
+              "OGN·044/298",
+              "UNL-036/219",
+              "OGN·052/298",
+              "SFD·059/221",
+              "OGN·052/298",
+              "SFD·069/221",
+              "UNL-036/219",
+              "OGN·103/298",
+              "UNL-040/219",
+              "SFD·036/221",
+              "VEN·047",
+              "VEN·047",
+              "VEN·047",
+              "UNL-036/219",
+              "OGN·044/298",
+              "SFD·065/221",
+              "UNL-040/219",
+              "OGN·103/298",
+              "SFD·041/221",
+              "OGN·096/298",
+              "SFD·059/221",
+              "SFD·041/221",
+              "OGN·052/298",
+              "SFD·036/221",
+              "UNL-040/219",
+              "OGN·096/298",
+              "OGN·121/298",
+              "SFD·036/221",
+              "OGN·121/298",
+              "SFD·069/221",
+              "SFD·041/221",
+              "OGN·121/298",
+              "SFD·065/221",
+              "OGN·096/298",
+              "OGN·044/298",
+              "OGN·103/298",
+              "SFD·065/221",
+              "SFD·059/221",
+              "SFD·069/221"
+            ],
+            "runeDeck": [
+              "OGN·042/298",
+              "OGN·042a/298",
+              "OGN·042b/298",
+              "OGN·089/298",
+              "OGN·089a/298",
+              "OGN·089b/298",
+              "SFD·R02",
+              "SFD·R02a",
+              "SFD·R02b",
+              "SFD·R03",
+              "SFD·R03a",
+              "SFD·R03b"
+            ],
+            "battlefields": [
+              "OGN·275/298",
+              "OGN·294/298",
+              "OGN·278/298"
+            ],
+            "cmdType": "SUBMIT_DECK"
+          }
+        },
+        {
+          "playerId": "P2",
+          "rawCommand": {
+            "legendCardNo": "SFD·181/221",
+            "championCardNo": "SFD·026/221",
+            "mainDeck": [
+              "SFD·026/221",
+              "OGN·013/298",
+              "UNL-002/219",
+              "SFD·069/221",
+              "UNL-076/219",
+              "SFD·018/221",
+              "SFD·018/221",
+              "UNL-003/219",
+              "UNL-002/219",
+              "OGN·013/298",
+              "UNL-002/219",
+              "OGN·103/298",
+              "SFD·018/221",
+              "UNL-076/219",
+              "OGN·096/298",
+              "UNL-081/219",
+              "UNL-065/219",
+              "ARC-001/006",
+              "SFD·069/221",
+              "OGN·121/298",
+              "SFD·065/221",
+              "ARC-001/006",
+              "OGN·096/298",
+              "OGN·096/298",
+              "OGN·103/298",
+              "SFD·065/221",
+              "OGN·103/298",
+              "OGN·121/298",
+              "UNL-081/219",
+              "UNL-065/219",
+              "UNL-065/219",
+              "ARC-001/006",
+              "UNL-081/219",
+              "OGN·013/298",
+              "UNL-076/219",
+              "SFD·065/221",
+              "UNL-003/219",
+              "OGN·121/298",
+              "UNL-003/219",
+              "SFD·069/221"
+            ],
+            "runeDeck": [
+              "OGN·007/298",
+              "OGN·007a/298",
+              "OGN·007b/298",
+              "OGN·089/298",
+              "OGN·089a/298",
+              "OGN·089b/298",
+              "SFD·R01",
+              "SFD·R01a",
+              "SFD·R01b",
+              "SFD·R03",
+              "SFD·R03a",
+              "SFD·R03b"
+            ],
+            "battlefields": [
+              "OGN·275/298",
+              "OGN·277/298",
+              "OGN·278/298"
+            ],
+            "cmdType": "SUBMIT_DECK"
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "cmdType": "READY"
+          }
+        },
+        {
+          "playerId": "P2",
+          "rawCommand": {
+            "cmdType": "READY"
+          }
+        },
+        {
+          "playerId": "P2",
+          "rawCommand": {
+            "handObjectIds": [],
+            "cmdType": "MULLIGAN"
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "handObjectIds": [],
+            "cmdType": "MULLIGAN"
+          }
+        },
+        {
+          "playerId": "P2",
+          "rawCommand": {
+            "sourceObjectId": "P2-RUNE-SFD-R03b-12",
+            "cmdType": "TAP_RUNE"
+          }
+        },
+        {
+          "playerId": "P2",
+          "rawCommand": {
+            "sourceObjectId": "P2-RUNE-OGN-089a-298-05",
+            "cmdType": "TAP_RUNE"
+          }
+        },
+        {
+          "playerId": "P2",
+          "rawCommand": {
+            "sourceObjectId": "P2-MAIN-OGN-096-298-23",
+            "cardNo": "OGN·096/298",
+            "targetObjectIds": [],
+            "mode": "",
+            "destination": "",
+            "cmdType": "PLAY_CARD"
+          }
+        },
+        {
+          "playerId": "P2",
+          "rawCommand": {
+            "cmdType": "END_TURN"
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "sourceObjectId": "P1-RUNE-SFD-R03a-11",
+            "cmdType": "TAP_RUNE"
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "sourceObjectId": "P1-RUNE-SFD-R03-10",
+            "cmdType": "TAP_RUNE"
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "sourceObjectId": "P1-RUNE-OGN-042a-298-02",
+            "cmdType": "TAP_RUNE"
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "sourceObjectId": "P1-MAIN-VEN-047-11",
+            "cardNo": "VEN·047",
+            "targetObjectIds": [],
+            "mode": "",
+            "destination": "",
+            "cmdType": "PLAY_CARD"
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "cmdType": "END_TURN"
+          }
+        },
+        {
+          "playerId": "P2",
+          "rawCommand": {
+            "cmdType": "END_TURN"
+          }
+        }
+      ]
+    },
+    {
+      "branch": "copied-1",
+      "songs": 1,
+      "host": "P1-MAIN-VEN-047-11",
+      "openingIntents": [
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "legendCardNo": "UNL-189/219",
+            "championCardNo": "UNL-082/219",
+            "mainDeck": [
+              "UNL-082/219",
+              "OGN·044/298",
+              "UNL-036/219",
+              "OGN·052/298",
+              "SFD·059/221",
+              "OGN·052/298",
+              "SFD·069/221",
+              "UNL-036/219",
+              "OGN·103/298",
+              "UNL-040/219",
+              "SFD·036/221",
+              "VEN·047",
+              "VEN·047",
+              "VEN·047",
+              "UNL-036/219",
+              "OGN·044/298",
+              "SFD·065/221",
+              "UNL-040/219",
+              "OGN·103/298",
+              "SFD·041/221",
+              "OGN·096/298",
+              "SFD·059/221",
+              "SFD·041/221",
+              "OGN·052/298",
+              "SFD·036/221",
+              "UNL-040/219",
+              "OGN·096/298",
+              "OGN·121/298",
+              "SFD·036/221",
+              "OGN·121/298",
+              "SFD·069/221",
+              "SFD·041/221",
+              "OGN·121/298",
+              "SFD·065/221",
+              "OGN·096/298",
+              "OGN·044/298",
+              "OGN·103/298",
+              "SFD·065/221",
+              "SFD·059/221",
+              "SFD·069/221"
+            ],
+            "runeDeck": [
+              "OGN·042/298",
+              "OGN·042a/298",
+              "OGN·042b/298",
+              "OGN·089/298",
+              "OGN·089a/298",
+              "OGN·089b/298",
+              "SFD·R02",
+              "SFD·R02a",
+              "SFD·R02b",
+              "SFD·R03",
+              "SFD·R03a",
+              "SFD·R03b"
+            ],
+            "battlefields": [
+              "OGN·275/298",
+              "OGN·294/298",
+              "OGN·278/298"
+            ],
+            "cmdType": "SUBMIT_DECK"
+          }
+        },
+        {
+          "playerId": "P2",
+          "rawCommand": {
+            "legendCardNo": "SFD·181/221",
+            "championCardNo": "SFD·026/221",
+            "mainDeck": [
+              "SFD·026/221",
+              "OGN·013/298",
+              "UNL-002/219",
+              "SFD·069/221",
+              "UNL-076/219",
+              "SFD·018/221",
+              "SFD·018/221",
+              "UNL-003/219",
+              "UNL-002/219",
+              "OGN·013/298",
+              "UNL-002/219",
+              "OGN·103/298",
+              "SFD·018/221",
+              "UNL-076/219",
+              "OGN·096/298",
+              "UNL-081/219",
+              "UNL-065/219",
+              "ARC-001/006",
+              "SFD·069/221",
+              "OGN·121/298",
+              "SFD·065/221",
+              "ARC-001/006",
+              "OGN·096/298",
+              "OGN·096/298",
+              "OGN·103/298",
+              "SFD·065/221",
+              "OGN·103/298",
+              "OGN·121/298",
+              "UNL-081/219",
+              "UNL-065/219",
+              "UNL-065/219",
+              "ARC-001/006",
+              "UNL-081/219",
+              "OGN·013/298",
+              "UNL-076/219",
+              "SFD·065/221",
+              "UNL-003/219",
+              "OGN·121/298",
+              "UNL-003/219",
+              "SFD·069/221"
+            ],
+            "runeDeck": [
+              "OGN·007/298",
+              "OGN·007a/298",
+              "OGN·007b/298",
+              "OGN·089/298",
+              "OGN·089a/298",
+              "OGN·089b/298",
+              "SFD·R01",
+              "SFD·R01a",
+              "SFD·R01b",
+              "SFD·R03",
+              "SFD·R03a",
+              "SFD·R03b"
+            ],
+            "battlefields": [
+              "OGN·275/298",
+              "OGN·277/298",
+              "OGN·278/298"
+            ],
+            "cmdType": "SUBMIT_DECK"
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "cmdType": "READY"
+          }
+        },
+        {
+          "playerId": "P2",
+          "rawCommand": {
+            "cmdType": "READY"
+          }
+        },
+        {
+          "playerId": "P2",
+          "rawCommand": {
+            "handObjectIds": [],
+            "cmdType": "MULLIGAN"
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "handObjectIds": [],
+            "cmdType": "MULLIGAN"
+          }
+        },
+        {
+          "playerId": "P2",
+          "rawCommand": {
+            "sourceObjectId": "P2-RUNE-SFD-R03b-12",
+            "cmdType": "TAP_RUNE"
+          }
+        },
+        {
+          "playerId": "P2",
+          "rawCommand": {
+            "sourceObjectId": "P2-RUNE-OGN-089a-298-05",
+            "cmdType": "TAP_RUNE"
+          }
+        },
+        {
+          "playerId": "P2",
+          "rawCommand": {
+            "sourceObjectId": "P2-MAIN-OGN-096-298-23",
+            "cardNo": "OGN·096/298",
+            "targetObjectIds": [],
+            "mode": "",
+            "destination": "",
+            "cmdType": "PLAY_CARD"
+          }
+        },
+        {
+          "playerId": "P2",
+          "rawCommand": {
+            "cmdType": "END_TURN"
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "sourceObjectId": "P1-RUNE-SFD-R03a-11",
+            "cmdType": "TAP_RUNE"
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "sourceObjectId": "P1-RUNE-SFD-R03-10",
+            "cmdType": "TAP_RUNE"
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "sourceObjectId": "P1-RUNE-OGN-042a-298-02",
+            "cmdType": "TAP_RUNE"
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "sourceObjectId": "P1-MAIN-VEN-047-11",
+            "cardNo": "VEN·047",
+            "targetObjectIds": [],
+            "mode": "",
+            "destination": "",
+            "cmdType": "PLAY_CARD"
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "cmdType": "END_TURN"
+          }
+        },
+        {
+          "playerId": "P2",
+          "rawCommand": {
+            "cmdType": "END_TURN"
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "sourceObjectId": "P1-RUNE-SFD-R03a-11",
+            "cmdType": "TAP_RUNE"
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "sourceObjectId": "P1-RUNE-SFD-R03-10",
+            "cmdType": "TAP_RUNE"
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "sourceObjectId": "P1-RUNE-OGN-042a-298-02",
+            "cmdType": "TAP_RUNE"
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "sourceObjectId": "P1-RUNE-OGN-042a-298-02",
+            "cmdType": "RECYCLE_RUNE"
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "sourceObjectId": "P1-MAIN-SFD-059-221-38",
+            "cardNo": "SFD·059/221",
+            "targetObjectIds": [],
+            "mode": "",
+            "destination": "",
+            "cmdType": "PLAY_CARD"
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "sourceObjectId": "P1-RUNE-OGN-089-298-04",
+            "cmdType": "TAP_RUNE"
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "sourceObjectId": "P1-RUNE-SFD-R02b-09",
+            "cmdType": "RECYCLE_RUNE"
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "sourceObjectId": "P1-MAIN-SFD-059-221-38",
+            "targetObjectId": "P1-MAIN-VEN-047-11",
+            "optionalCosts": [
+              "ASSEMBLE_GREEN"
+            ],
+            "cmdType": "ASSEMBLE_EQUIPMENT"
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "cmdType": "PASS_PRIORITY"
+          }
+        },
+        {
+          "playerId": "P2",
+          "rawCommand": {
+            "cmdType": "PASS_PRIORITY"
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "cmdType": "END_TURN"
+          }
+        },
+        {
+          "playerId": "P2",
+          "rawCommand": {
+            "cmdType": "END_TURN"
+          }
+        }
+      ]
+    },
+    {
+      "branch": "copied-2",
+      "songs": 2,
+      "host": "P1-MAIN-VEN-047-11",
+      "openingIntents": [
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "legendCardNo": "UNL-189/219",
+            "championCardNo": "UNL-082/219",
+            "mainDeck": [
+              "UNL-082/219",
+              "OGN·044/298",
+              "UNL-036/219",
+              "OGN·052/298",
+              "SFD·059/221",
+              "OGN·052/298",
+              "SFD·069/221",
+              "UNL-036/219",
+              "OGN·103/298",
+              "UNL-040/219",
+              "SFD·036/221",
+              "VEN·047",
+              "VEN·047",
+              "VEN·047",
+              "UNL-036/219",
+              "OGN·044/298",
+              "SFD·065/221",
+              "UNL-040/219",
+              "OGN·103/298",
+              "SFD·041/221",
+              "OGN·096/298",
+              "SFD·059/221",
+              "SFD·041/221",
+              "OGN·052/298",
+              "SFD·036/221",
+              "UNL-040/219",
+              "OGN·096/298",
+              "OGN·121/298",
+              "SFD·036/221",
+              "OGN·121/298",
+              "SFD·069/221",
+              "SFD·041/221",
+              "OGN·121/298",
+              "SFD·065/221",
+              "OGN·096/298",
+              "OGN·044/298",
+              "OGN·103/298",
+              "SFD·065/221",
+              "SFD·059/221",
+              "SFD·069/221"
+            ],
+            "runeDeck": [
+              "OGN·042/298",
+              "OGN·042a/298",
+              "OGN·042b/298",
+              "OGN·089/298",
+              "OGN·089a/298",
+              "OGN·089b/298",
+              "SFD·R02",
+              "SFD·R02a",
+              "SFD·R02b",
+              "SFD·R03",
+              "SFD·R03a",
+              "SFD·R03b"
+            ],
+            "battlefields": [
+              "OGN·275/298",
+              "OGN·294/298",
+              "OGN·278/298"
+            ],
+            "cmdType": "SUBMIT_DECK"
+          }
+        },
+        {
+          "playerId": "P2",
+          "rawCommand": {
+            "legendCardNo": "SFD·181/221",
+            "championCardNo": "SFD·026/221",
+            "mainDeck": [
+              "SFD·026/221",
+              "OGN·013/298",
+              "UNL-002/219",
+              "SFD·069/221",
+              "UNL-076/219",
+              "SFD·018/221",
+              "SFD·018/221",
+              "UNL-003/219",
+              "UNL-002/219",
+              "OGN·013/298",
+              "UNL-002/219",
+              "OGN·103/298",
+              "SFD·018/221",
+              "UNL-076/219",
+              "OGN·096/298",
+              "UNL-081/219",
+              "UNL-065/219",
+              "ARC-001/006",
+              "SFD·069/221",
+              "OGN·121/298",
+              "SFD·065/221",
+              "ARC-001/006",
+              "OGN·096/298",
+              "OGN·096/298",
+              "OGN·103/298",
+              "SFD·065/221",
+              "OGN·103/298",
+              "OGN·121/298",
+              "UNL-081/219",
+              "UNL-065/219",
+              "UNL-065/219",
+              "ARC-001/006",
+              "UNL-081/219",
+              "OGN·013/298",
+              "UNL-076/219",
+              "SFD·065/221",
+              "UNL-003/219",
+              "OGN·121/298",
+              "UNL-003/219",
+              "SFD·069/221"
+            ],
+            "runeDeck": [
+              "OGN·007/298",
+              "OGN·007a/298",
+              "OGN·007b/298",
+              "OGN·089/298",
+              "OGN·089a/298",
+              "OGN·089b/298",
+              "SFD·R01",
+              "SFD·R01a",
+              "SFD·R01b",
+              "SFD·R03",
+              "SFD·R03a",
+              "SFD·R03b"
+            ],
+            "battlefields": [
+              "OGN·275/298",
+              "OGN·277/298",
+              "OGN·278/298"
+            ],
+            "cmdType": "SUBMIT_DECK"
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "cmdType": "READY"
+          }
+        },
+        {
+          "playerId": "P2",
+          "rawCommand": {
+            "cmdType": "READY"
+          }
+        },
+        {
+          "playerId": "P2",
+          "rawCommand": {
+            "handObjectIds": [],
+            "cmdType": "MULLIGAN"
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "handObjectIds": [],
+            "cmdType": "MULLIGAN"
+          }
+        },
+        {
+          "playerId": "P2",
+          "rawCommand": {
+            "sourceObjectId": "P2-RUNE-SFD-R03b-12",
+            "cmdType": "TAP_RUNE"
+          }
+        },
+        {
+          "playerId": "P2",
+          "rawCommand": {
+            "sourceObjectId": "P2-RUNE-OGN-089a-298-05",
+            "cmdType": "TAP_RUNE"
+          }
+        },
+        {
+          "playerId": "P2",
+          "rawCommand": {
+            "sourceObjectId": "P2-MAIN-OGN-096-298-23",
+            "cardNo": "OGN·096/298",
+            "targetObjectIds": [],
+            "mode": "",
+            "destination": "",
+            "cmdType": "PLAY_CARD"
+          }
+        },
+        {
+          "playerId": "P2",
+          "rawCommand": {
+            "cmdType": "END_TURN"
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "sourceObjectId": "P1-RUNE-SFD-R03a-11",
+            "cmdType": "TAP_RUNE"
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "sourceObjectId": "P1-RUNE-SFD-R03-10",
+            "cmdType": "TAP_RUNE"
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "sourceObjectId": "P1-RUNE-OGN-042a-298-02",
+            "cmdType": "TAP_RUNE"
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "sourceObjectId": "P1-MAIN-VEN-047-11",
+            "cardNo": "VEN·047",
+            "targetObjectIds": [],
+            "mode": "",
+            "destination": "",
+            "cmdType": "PLAY_CARD"
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "cmdType": "END_TURN"
+          }
+        },
+        {
+          "playerId": "P2",
+          "rawCommand": {
+            "cmdType": "END_TURN"
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "sourceObjectId": "P1-RUNE-SFD-R03a-11",
+            "cmdType": "TAP_RUNE"
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "sourceObjectId": "P1-RUNE-SFD-R03-10",
+            "cmdType": "TAP_RUNE"
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "sourceObjectId": "P1-RUNE-OGN-042a-298-02",
+            "cmdType": "TAP_RUNE"
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "sourceObjectId": "P1-RUNE-OGN-042a-298-02",
+            "cmdType": "RECYCLE_RUNE"
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "sourceObjectId": "P1-MAIN-SFD-059-221-38",
+            "cardNo": "SFD·059/221",
+            "targetObjectIds": [],
+            "mode": "",
+            "destination": "",
+            "cmdType": "PLAY_CARD"
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "sourceObjectId": "P1-RUNE-OGN-089-298-04",
+            "cmdType": "TAP_RUNE"
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "sourceObjectId": "P1-RUNE-SFD-R02b-09",
+            "cmdType": "RECYCLE_RUNE"
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "sourceObjectId": "P1-MAIN-SFD-059-221-38",
+            "targetObjectId": "P1-MAIN-VEN-047-11",
+            "optionalCosts": [
+              "ASSEMBLE_GREEN"
+            ],
+            "cmdType": "ASSEMBLE_EQUIPMENT"
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "cmdType": "PASS_PRIORITY"
+          }
+        },
+        {
+          "playerId": "P2",
+          "rawCommand": {
+            "cmdType": "PASS_PRIORITY"
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "cmdType": "END_TURN"
+          }
+        },
+        {
+          "playerId": "P2",
+          "rawCommand": {
+            "cmdType": "END_TURN"
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "sourceObjectId": "P1-RUNE-SFD-R03a-11",
+            "cmdType": "TAP_RUNE"
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "sourceObjectId": "P1-RUNE-SFD-R03-10",
+            "cmdType": "TAP_RUNE"
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "sourceObjectId": "P1-RUNE-OGN-089-298-04",
+            "cmdType": "TAP_RUNE"
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "sourceObjectId": "P1-RUNE-SFD-R02-07",
+            "cmdType": "RECYCLE_RUNE"
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "sourceObjectId": "P1-MAIN-SFD-059-221-21",
+            "cardNo": "SFD·059/221",
+            "targetObjectIds": [],
+            "mode": "",
+            "destination": "",
+            "cmdType": "PLAY_CARD"
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "sourceObjectId": "P1-RUNE-SFD-R02a-08",
+            "cmdType": "TAP_RUNE"
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "sourceObjectId": "P1-RUNE-SFD-R02a-08",
+            "cmdType": "RECYCLE_RUNE"
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "sourceObjectId": "P1-MAIN-SFD-059-221-21",
+            "targetObjectId": "P1-MAIN-VEN-047-11",
+            "optionalCosts": [
+              "ASSEMBLE_GREEN"
+            ],
+            "cmdType": "ASSEMBLE_EQUIPMENT"
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "cmdType": "PASS_PRIORITY"
+          }
+        },
+        {
+          "playerId": "P2",
+          "rawCommand": {
+            "cmdType": "PASS_PRIORITY"
+          }
+        },
+        {
+          "playerId": "P1",
+          "rawCommand": {
+            "cmdType": "END_TURN"
+          }
+        },
+        {
+          "playerId": "P2",
+          "rawCommand": {
+            "cmdType": "END_TURN"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -2,7 +2,7 @@
   "source": "https://playloltcg.com/card.html",
   "api": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
   "fetchedAt": "2026-04-27",
-  "total": 1033,
+  "total": 1034,
   "cards": [
     {
       "id": 31005,
@@ -42847,6 +42847,54 @@
       "isPreview": false,
       "errata": "",
       "otherDesc": 0
+    },
+    {
+      "id": 37738,
+      "cardCategoryList": [
+        "unit"
+      ],
+      "cardCategoryNameList": [
+        "单位"
+      ],
+      "cardNo": "VEN·047",
+      "cardName": "见习法师",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "blue"
+      ],
+      "hero": "",
+      "region": "比尔吉沃特",
+      "tag": "",
+      "artist": "Envar Studio",
+      "cardEffect": "{{强化2}}（支付{{2}}：强化我。仅在未强化时可用。）\n当我变为{{已强化}}时，进行{{洞察2}}。（查看你主牌堆顶部的两张牌。你可以将其中任意卡牌回收，并将其余的卡牌按任意顺序放回原处。）\n{{已强化>}} 我获得{{S}}+1。",
+      "flavorText": "",
+      "energy": 3,
+      "returnEnergy": null,
+      "power": 3,
+      "productCodeList": [
+        "VEN(标准补充包)",
+        "VEN(进阶补充包)"
+      ],
+      "productNameList": [
+        "化神争锋 标准补充包",
+        "化神争锋 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_dust",
+      "rarityName": "普通",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260710/530a7ed2b1c04fa7adf85183ded35693.png",
+      "backImage": "",
+      "listSort": 1948,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
     }
   ],
   "scopedAdditions": [
@@ -43273,6 +43321,18 @@
       "publicationDate": null,
       "effectiveDate": null,
       "reason": "Current exact VEN056/166 Insight5 then draw2 spell through shared private sequence. Registration is not whole-card certification."
+    },
+    {
+      "cardNo": "VEN·047",
+      "source": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "fetchedAtUtc": "2026-10-18T23:31:54.171791+00:00",
+      "sourceId": 37738,
+      "sourceRecordSha256": "21e9cad225235fee9971b7dfbce13b362c549f791b33f7bac280cd142565005a",
+      "language": "zh-CN",
+      "region": "CN",
+      "publicationDate": null,
+      "effectiveDate": null,
+      "reason": "Exact current Apprentice Mage ordinary Empower2, empowered-state conditional Might and mandatory Insight2 consumer. Printed footer047/166 is associated without rewriting raw API VEN047 or original source ledger identities. Registration is not whole-card or regional tournament certification."
     }
   ]
 }

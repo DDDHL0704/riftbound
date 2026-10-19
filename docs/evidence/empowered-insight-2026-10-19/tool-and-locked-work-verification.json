@@ -1,0 +1,40 @@
+{
+  "recordedAtUtc": "2026-10-19T01:20:31.153464+00:00",
+  "status": "PASS",
+  "pythonToolChecks": 55,
+  "toolLogSha256": "0b24635212161c07f02215daf29ba3c3df1cb80ba00b7f2a0e1da8123f6a4039",
+  "scriptInputs": {
+    "scripts/audit/build-comprehensive-ledger.py": "e8b77215c9e7f1798b29e3bcb2ae5e8011997774fcd8bd952e5e9a659d2b50ff",
+    "scripts/audit/check-project-governance.py": "c9e7fa7cd60e228839e1b293d97ec1425ece7474439da60785679dd842b27659",
+    "scripts/audit/gallery_coverage.py": "6d6f2e010bf4a05411982935f8785f68ea2c77e4d3184882b68bb93766b75ece",
+    "scripts/audit/index-official-coverage.py": "c20ababf5feaafb3c90dfee547e7aa1e8f3b0651d4588d852c73839af5ac26d9",
+    "scripts/audit/rule-inventory/Program.cs": "ee38857b2f9eb239a5d7795c2aada6512913aacfd51f1aa9b499baad91675d9d",
+    "scripts/audit/rule-inventory/rule-inventory.csproj": "931c5cb694ab2eebffa0e575b8eb514bde7359ee302411271b68d777026616be",
+    "scripts/audit/snapshot-card-qa-and-gallery.py": "f9d05aa04f4dad8b4ecd91352d7ea77b3c364bcf8a6524897e1407156a91fb4a",
+    "scripts/audit/snapshot-global-rules.py": "6e9b0b7d7818e521381faf26b78c4dcc6ce7c45713c7822841e57210a72011ed",
+    "scripts/ci-change-scope.py": "94d6c361bf474b35171cb15d17f2406146fd015cc7b3f885c2dab0b6fdf01db9",
+    "scripts/dev-env.sh": "b07cf07dec71179a68a0043ba76a577ba7e47ee9d22400563f6186a3368221de",
+    "scripts/index-official-rules.py": "fa9229cf90cc5b7c4a3f0ef6e58c91fac91caf9e531d94059e29600be2455643",
+    "scripts/rule-test-timings.json": "5f149260889be59f340d3721e4ea955e522790c4d51a7648aaae345b0e11d230",
+    "scripts/sync-official.py": "585f941c2e0e09b24896e77ead6d1215595eacdc363ceef5451e08f9ced54375",
+    "scripts/test-rules.py": "2866ef049821c7d4ae84af6694073ccf12ba73fe8b3b122b4a5ddae786b2c76b",
+    "scripts/tests/test_ci_change_scope.py": "ad2740c5f47769b3ff423a14a30d5aeb3fb59e63bc3ce30b8304498d44f736d0",
+    "scripts/tests/test_current_audit.py": "f79c65630fa972f05f37119581a7c87c1e38fb0dcb2796f1784cab1dd3e00d9b",
+    "scripts/tests/test_desktop_export_config.py": "7efeb46d625793c9a4b3e6f6ccc1a660978e7bad6df09e7c73e12f7427553a4f",
+    "scripts/tests/test_gallery_coverage.py": "db7fdcad3d042d45c82b27c836e776e54f010721a775b7edbbe6e256b47c4d99",
+    "scripts/tests/test_official_news_obligations.py": "65916a24964705eeee0bf748c906caa3ea6900bef0df7ac83bd834b4017c400d",
+    "scripts/tests/test_project_governance.py": "be1a2cd53901f5b4b27a4450e57ce44b94697dad34796a6342dd12b925ecf417",
+    "scripts/tests/test_rules_runner.py": "a22625ae78271ca9277cb6929a8fdf272a5b0850432ceaf6d4195b7056a46faa"
+  },
+  "rootAndSessionLockAtPublication": {
+    "rootLocked": true,
+    "sessions": [
+      true
+    ]
+  },
+  "originalLongStepsEndLockObservationsAreInEachExactReceipt": true,
+  "noContinuousEveryMomentLockClaim": true,
+  "userGodotPid34426NotStoppedOrRebuilt": true,
+  "onlyLatestC6NativePairAndMacWindowsCanonicalArchivesNoNewNativePackagesThisBatch": true,
+  "finalVisibleNativeAndWindowsRemainOpen": true
+}

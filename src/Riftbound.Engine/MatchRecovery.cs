@@ -1037,7 +1037,8 @@ public static class MatchRecoveryValidator
         "BATTLE_ROLES_ESTABLISHED",
         "BATTLE_ROLE_ACQUIRED",
         "OBJECT_DESTROYED",
-        "UNIT_READY"
+        "UNIT_READY",
+        "OBJECT_EMPOWERED"
     ];
 
     private static readonly string[] KnownTriggerSourceVisibilities =
@@ -23505,10 +23506,11 @@ public static class MatchRecoveryValidator
     }
 
     private static string CapturedInsightLabel(InsightTriggerContext? context)
-        => context is { Kind: "DUEL" } ? "captured duel Insight" : "captured last-breath Insight";
+        => context is { Kind: "DUEL" } ? "captured duel Insight"
+            : context is { Kind: "EMPOWERED" } ? "captured empowered Insight" : "captured last-breath Insight";
 
     private static InsightTriggerContext? CapturedInsight(InsightTriggerContext? context)
-        => context is { Kind: "LAST_BREATH" or "DUEL" } ? context : null;
+        => CoreRuleEngine.IsCapturedInsightKind(context?.Kind) ? context : null;
 
     private static InsightTriggerContext? ReadCapturedInsightView(object? payload)
     {
@@ -23517,11 +23519,12 @@ public static class MatchRecoveryValidator
             if (json.ValueKind != JsonValueKind.Object) return null;
             var hasLastBreath = json.TryGetProperty("lastBreathInsight", out var lastBreath) && lastBreath.ValueKind != JsonValueKind.Null;
             var hasDuel = json.TryGetProperty("duelInsight", out var duel) && duel.ValueKind != JsonValueKind.Null;
-            if (hasLastBreath == hasDuel) return null;
-            var context = (hasLastBreath ? lastBreath : duel).Deserialize<InsightTriggerContext>(new JsonSerializerOptions {
+            var hasEmpowered = json.TryGetProperty("empoweredInsight", out var empowered) && empowered.ValueKind != JsonValueKind.Null;
+            if ((hasLastBreath ? 1 : 0) + (hasDuel ? 1 : 0) + (hasEmpowered ? 1 : 0) != 1) return null;
+            var context = (hasLastBreath ? lastBreath : hasDuel ? duel : empowered).Deserialize<InsightTriggerContext>(new JsonSerializerOptions {
                 PropertyNameCaseInsensitive = true,
                 UnmappedMemberHandling = System.Text.Json.Serialization.JsonUnmappedMemberHandling.Disallow });
-            return context?.Kind == (hasLastBreath ? "LAST_BREATH" : "DUEL") ? context : null;
+            return context?.Kind == (hasLastBreath ? "LAST_BREATH" : hasDuel ? "DUEL" : "EMPOWERED") ? context : null;
         } catch (JsonException) { return null; }
     }
 
@@ -23530,13 +23533,15 @@ public static class MatchRecoveryValidator
     {
         var hasLastBreath = TryReadObjectValue(payload, "lastBreathInsight", out var lastBreath) && !IsNullSnapshotPayloadValue(lastBreath);
         var hasDuel = TryReadObjectValue(payload, "duelInsight", out var duel) && !IsNullSnapshotPayloadValue(duel);
-        if (!hasLastBreath && !hasDuel) return false;
+        var hasEmpowered = TryReadObjectValue(payload, "empoweredInsight", out var empowered) && !IsNullSnapshotPayloadValue(empowered);
+        if (!hasLastBreath && !hasDuel && !hasEmpowered) return false;
         var context = ReadCapturedInsightView(payload);
-        if (hasLastBreath == hasDuel || context is not { Kind: "LAST_BREATH" or "DUEL" } || string.IsNullOrWhiteSpace(source)
+        if ((hasLastBreath ? 1 : 0) + (hasDuel ? 1 : 0) + (hasEmpowered ? 1 : 0) != 1
+            || context is null || !CoreRuleEngine.IsCapturedInsightKind(context.Kind) || string.IsNullOrWhiteSpace(source)
             || !CoreRuleEngine.ValidInsightTrigger(context, effect ?? "", controller ?? "")
             || context.Origin is { } origin && (origin.Unit is null || origin.Unit.ObjectId != source))
         {
-            errors.Add($"invalid public {(hasDuel ? "captured duel Insight" : "captured last-breath Insight")}");
+            errors.Add($"invalid public {(hasDuel ? "captured duel Insight" : hasEmpowered ? "captured empowered Insight" : "captured last-breath Insight")}");
             return false;
         }
         // This proves only the public shape. Exact typed-authority comparisons
@@ -23891,6 +23896,7 @@ public static class MatchRecoveryValidator
                 ? captured.PaymentAccepted || !CoreRuleEngine.ValidInsightTrigger(captured, trigger.EffectKind, trigger.ControllerId)
                     || captured.Kind == "DUEL" && (trigger.TriggeredByEventKind != "SPELL_DUEL_STARTED" || trigger.SourceCardNo != captured.CardNo
                         || !state.Seats.ContainsKey(captured.ReturnFocusPlayerId!))
+                    || captured.Kind == "EMPOWERED" && (trigger.TriggeredByEventKind != "OBJECT_EMPOWERED" || trigger.SourceCardNo != captured.CardNo)
                     || !CoreRuleEngine.ValidConquestLookSource(state,captured,trigger.SourceObjectId)
                     || !CoreRuleEngine.ValidInsightRuleTextSource(state,captured,trigger.SourceObjectId)
                     || !CoreRuleEngine.ValidPredictEntryBindings(state,captured,trigger.SourceObjectId)

@@ -1,0 +1,57 @@
+{
+  "recordedAtUtc": "2026-10-19T01:15:58.725407+00:00",
+  "status": "EXPLICIT_VERSIONED_RUNTIME_BINDING_UPDATE_AFTER_GOVERNANCE_PIN_REJECTION",
+  "originalGovernanceFailure": {
+    "path": "var/qa/deck-family-frontier-20261019/current-governance-v1.json",
+    "sha256": "fa73943a9a8b22c0d5bfca9fabaecbd15b35bdd5d1480bead10e75ccdd8ec565",
+    "error": "Pinned input hash mismatch: data/official/card-catalog.zh-CN.json"
+  },
+  "priorInputs": {
+    "cards": {
+      "path": "docs/evidence/source-listing-2026-10-15/all-card-ledger.json",
+      "sha256": "08cef841f62d21812542d0429c12be8853fe91174962e2c428564d03420041d1"
+    },
+    "summary": {
+      "path": "docs/evidence/source-listing-2026-10-15/index-summary.json",
+      "sha256": "dc58abc54a6f11ce62a9c9b8516c8f8b1c0fd5db0223e3ae7fead946d3562486"
+    },
+    "active": {
+      "path": "data/official/card-catalog.zh-CN.json",
+      "sha256": "68930e34e45385c4bc78c4805aaba46e4b5b57057a25ba957a85b339fe376fc8"
+    }
+  },
+  "priorCoverage": {
+    "path": "docs/evidence/source-listing-2026-10-15/source-coverage.json",
+    "sha256": "8448a10da27011a4dee466e33a9d9617a9b6abed7c231bb698731ad39690b8a8"
+  },
+  "currentLedger": {
+    "path": "docs/evidence/empowered-insight-2026-10-19/all-card-ledger.json",
+    "sha256": "c37a68757c95f9cb4a222858c50ff1675796519a5f6997edba14453d4158e182",
+    "role": "current-card-ledger"
+  },
+  "currentSummary": {
+    "path": "docs/evidence/empowered-insight-2026-10-19/index-summary.json",
+    "sha256": "89f08bacd6140cae8a0d32dee02bbabde782670e13e31f4f4cd4c3d31468d226",
+    "role": "current-card-summary"
+  },
+  "currentCoverage": {
+    "path": "docs/evidence/empowered-insight-2026-10-19/source-coverage.json",
+    "sha256": "671908c4d6aebf0f54ec325112e8c3dfdfb6e37ad1a3fac296813aa6f31012d8",
+    "role": "current-card-coverage"
+  },
+  "currentActiveRuntime": {
+    "path": "data/official/card-catalog.zh-CN.json",
+    "sha256": "7927e411bcce982e077a57e45466924b88bbe65c5e0f48a8ec9576b09f30d80b",
+    "role": "actual-runtime"
+  },
+  "original1740IdsAndEverySourceFingerprintAndConfirmationDatePreserved": true,
+  "onlyRuntimeActiveBindingChange": {
+    "record": "VEN-047",
+    "before": null,
+    "after": "VEN·047"
+  },
+  "originalReviewStatusAndImplementationTestsNativeEvidenceFieldsUnchanged": true,
+  "sourceDatesRemainOriginal2026_10_15NewBindingRecordedAtSeparateUtc": true,
+  "all36Documents14293BlocksAndFourSourceDeltaDictionariesUnchanged": true,
+  "semanticCoverageCertified": false
+}

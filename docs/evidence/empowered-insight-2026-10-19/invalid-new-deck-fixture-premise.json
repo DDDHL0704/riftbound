@@ -1,0 +1,65 @@
+{
+  "atUtc": "2026-10-18T23:51:42.923580+00:00",
+  "status": "NEW_CONTROLLED_FIXTURE_REPLACED_MAINDECK_WITHOUT_REMOVING_PRIOR_CARD_LOCATIONS",
+  "cases": 56,
+  "passed": 55,
+  "failed": 1,
+  "failureMethod": "Riftbound.ConformanceTests.EmpoweredInsightTests.RealEmpowerResolutionTriggersPrivateInsightTwoAndRetainedTopOrder",
+  "originalTrxSha256": "6c9acb5be75e16b8118773baf1d775632674e41f0e0df1665699588efeb2b2a0",
+  "originalNewTestSource": "initial-consumer-new-test-source.cs.gz",
+  "originalNewTestSourceSha256": "3b6c3e2bfae74337f0410460ad344ef5fa1dc367fcedbd493c2e7be9413dab20",
+  "actual12ModuleRefs": {
+    "Riftbound.CardCatalog.dll": {
+      "sha256": "64c75304a2f030cfaef65b0ae7cc29ed2e41175ce6122b08dcb6e5efc96e9e70",
+      "retainedAt": "pre-registration-executed-modules/Riftbound.CardCatalog.dll"
+    },
+    "Riftbound.Contracts.pdb": {
+      "sha256": "5c71364e71336373ba650b0c0b3af8019197d7476f59418328459de88918680a",
+      "retainedAt": "pre-registration-executed-modules/Riftbound.Contracts.pdb"
+    },
+    "Riftbound.Engine.pdb": {
+      "sha256": "0972e3cd214f1b879f23def666d56b50f55ae368476f9c56006b2cb2134f7ae5",
+      "retainedAt": "initial-consumer-failed-new-modules/Riftbound.Engine.pdb"
+    },
+    "Riftbound.CardCatalog.pdb": {
+      "sha256": "55fb474d68a4f8f52f6943143bdbd03c8bd60aaba19e0ddfbfc6e5cf165cb29c",
+      "retainedAt": "pre-registration-executed-modules/Riftbound.CardCatalog.pdb"
+    },
+    "Riftbound.Contracts.dll": {
+      "sha256": "b02c8e71b39754c74b70f515d4b4bc6fc95678769175d6e73267bf85ed07029e",
+      "retainedAt": "pre-registration-executed-modules/Riftbound.Contracts.dll"
+    },
+    "Riftbound.Engine.dll": {
+      "sha256": "9fede8e1c76cc55595b931db18a822defd83001781af712a9a11f9c0acf4d8aa",
+      "retainedAt": "initial-consumer-failed-new-modules/Riftbound.Engine.dll"
+    },
+    "Riftbound.Persistence.pdb": {
+      "sha256": "8aa716fe98aa951b54bd04b3223697e78ef83a5f5a666b8f452ead1ff6e165af",
+      "retainedAt": "initial-consumer-failed-new-modules/Riftbound.Persistence.pdb"
+    },
+    "Riftbound.Api.dll": {
+      "sha256": "fbff8bde7d3053fb0683fa7e5c0120debe0b104e980800305a83e81635e10c47",
+      "retainedAt": "initial-consumer-failed-new-modules/Riftbound.Api.dll"
+    },
+    "Riftbound.ConformanceTests.pdb": {
+      "sha256": "d82f78343952207595c47478c23cb535c993cece89c141f498a561923fd654fe",
+      "retainedAt": "initial-consumer-failed-new-modules/Riftbound.ConformanceTests.pdb"
+    },
+    "Riftbound.Api.pdb": {
+      "sha256": "8cea20afef739e08ce21cfc2b4e0191078d7073b401dbc9f0c8bad52c562e067",
+      "retainedAt": "initial-consumer-failed-new-modules/Riftbound.Api.pdb"
+    },
+    "Riftbound.Persistence.dll": {
+      "sha256": "351ce6f0b5985729d7c932ab586dba66a643c7ebae5d43a43d68064cadf5dad8",
+      "retainedAt": "initial-consumer-failed-new-modules/Riftbound.Persistence.dll"
+    },
+    "Riftbound.ConformanceTests.dll": {
+      "sha256": "a1abca1c704480fea8201d5eda511068867e46e4e69e3297ad8877cff9530b0e",
+      "retainedAt": "initial-consumer-failed-new-modules/Riftbound.ConformanceTests.dll"
+    }
+  },
+  "classification": "The new test replaced the existing D0..D11 deck with MAGE-D1..3 but left original location bindings orphaned. Keep the existing valid deck and its exact bindings instead. Production recovery correctly rejected the inconsistent fixture; no validation is relaxed.",
+  "sourceTriggerAlreadyReached": true,
+  "productionCoreToRemainByteExactAcrossFixtureRepair": true,
+  "oldTestMethodsAndAssertionsUnchangedExceptKnownNewTriggerDiagnosticConstant": true
+}

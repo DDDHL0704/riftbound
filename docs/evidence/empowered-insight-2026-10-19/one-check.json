@@ -1,0 +1,287 @@
+{
+  "status": "CATALOG_METADATA_FAILURES_PENDING_FOCUS",
+  "checkRunsThisBatch": 1,
+  "cases": 12876,
+  "passed": 12862,
+  "failed": 14,
+  "allPriorCaseMultiplicitiesRetained": true,
+  "removedCases": {},
+  "addedCases": {
+    "Riftbound.ConformanceTests.EmpoweredInsightTests.ExactCurrentApprenticeMageSourceHasOrdinaryUnitEmpowerAndConditionalMight": 1,
+    "Riftbound.ConformanceTests.EmpoweredInsightTests.PublicQueueAndStackViewsIndependentlyBindTheEmpoweredContext(viewer: \"spectator\", ordered: False, mutation: \"BOTH_LAST_BREATH\")": 1,
+    "Riftbound.ConformanceTests.EmpoweredInsightTests.PublicQueueAndStackViewsIndependentlyBindTheEmpoweredContext(viewer: \"spectator\", ordered: True, mutation: \"BOTH_LAST_BREATH\")": 1,
+    "Riftbound.ConformanceTests.EmpoweredInsightTests.PublicQueueAndStackViewsIndependentlyBindTheEmpoweredContext(viewer: \"P1\", ordered: True, mutation: \"REMOVE\")": 1,
+    "Riftbound.ConformanceTests.EmpoweredInsightTests.ActualReactionSourceDepartureDistinguishesAnUnresolvedActivationFromAlreadyCapturedInsight(beforeEmpowered: False)": 1,
+    "Riftbound.ConformanceTests.EmpoweredInsightTests.StructuralRecoveryRejectsMalformedCopiedEmpoweredSourceBindings(mutation: \"UNKNOWN_TOKEN_FACTORY\")": 1,
+    "Riftbound.ConformanceTests.EmpoweredInsightTests.PublicQueueAndStackViewsIndependentlyBindTheEmpoweredContext(viewer: \"P2\", ordered: False, mutation: \"COUNT\")": 1,
+    "Riftbound.ConformanceTests.EmpoweredInsightTests.PublicQueueAndStackViewsIndependentlyBindTheEmpoweredContext(viewer: \"P2\", ordered: False, mutation: \"TOKEN\")": 1,
+    "Riftbound.ConformanceTests.EmpoweredInsightTests.PublicQueueAndStackViewsIndependentlyBindTheEmpoweredContext(viewer: \"P1\", ordered: False, mutation: \"WRONG_SLOT\")": 1,
+    "Riftbound.ConformanceTests.EmpoweredInsightTests.PublicQueueAndStackViewsIndependentlyBindTheEmpoweredContext(viewer: \"P2\", ordered: True, mutation: \"UNKNOWN_FIELD\")": 1,
+    "Riftbound.ConformanceTests.EmpoweredInsightOpeningTests.OrdinaryBlankOpeningPaysRealEmpowerThenResolvesEveryPrivateInsightAndOriginalReplay(songs: 1, format: CoreRules, recycle: False)": 1,
+    "Riftbound.ConformanceTests.EmpoweredInsightTests.PublicQueueAndStackViewsIndependentlyBindTheEmpoweredContext(viewer: \"spectator\", ordered: True, mutation: \"MALFORMED\")": 1,
+    "Riftbound.ConformanceTests.EmpoweredInsightTests.PublicQueueAndStackViewsIndependentlyBindTheEmpoweredContext(viewer: \"spectator\", ordered: False, mutation: \"BOTH_DUEL\")": 1,
+    "Riftbound.ConformanceTests.EmpoweredInsightOpeningTests.OrdinaryBlankOpeningPaysRealEmpowerThenResolvesEveryPrivateInsightAndOriginalReplay(songs: 0, format: ChinaStandard20260724, recycle: False)": 1,
+    "Riftbound.ConformanceTests.EmpoweredInsightTests.StructuralRecoveryRejectsMalformedCopiedEmpoweredSourceBindings(mutation: \"REVISION\")": 1,
+    "Riftbound.ConformanceTests.EmpoweredInsightOpeningTests.OrdinaryBlankOpeningPaysRealEmpowerThenResolvesEveryPrivateInsightAndOriginalReplay(songs: 1, format: ChinaStandard20260724, recycle: False)": 1,
+    "Riftbound.ConformanceTests.EmpoweredInsightTests.PublicQueueAndStackViewsIndependentlyBindTheEmpoweredContext(viewer: \"P1\", ordered: False, mutation: \"TOKEN\")": 1,
+    "Riftbound.ConformanceTests.EmpoweredInsightTests.RealEmpowerResolutionTriggersPrivateInsightTwoAndRetainedTopOrder": 1,
+    "Riftbound.ConformanceTests.EmpoweredInsightTests.PublicQueueAndStackViewsIndependentlyBindTheEmpoweredContext(viewer: \"P1\", ordered: False, mutation: \"UNKNOWN_FIELD\")": 1,
+    "Riftbound.ConformanceTests.EmpoweredInsightTests.PublicQueueAndStackViewsIndependentlyBindTheEmpoweredContext(viewer: \"spectator\", ordered: True, mutation: \"COUNT\")": 1,
+    "Riftbound.ConformanceTests.EmpoweredInsightTests.CoordinatedShapeValidOriginRemovalStillFailsTheOriginalAcceptedActionLog": 1,
+    "Riftbound.ConformanceTests.EmpoweredInsightOpeningTests.OrdinaryBlankOpeningPaysRealEmpowerThenResolvesEveryPrivateInsightAndOriginalReplay(songs: 1, format: ChinaStandard20260724, recycle: True)": 1,
+    "Riftbound.ConformanceTests.EmpoweredInsightOpeningTests.OrdinaryBlankOpeningPaysRealEmpowerThenResolvesEveryPrivateInsightAndOriginalReplay(songs: 2, format: ChinaStandard20260724, recycle: True)": 1,
+    "Riftbound.ConformanceTests.EmpoweredInsightTests.StructuralRecoveryRejectsMalformedCopiedEmpoweredSourceBindings(mutation: \"TOKEN_FACTORY\")": 1,
+    "Riftbound.ConformanceTests.EmpoweredInsightTests.PublicQueueAndStackViewsIndependentlyBindTheEmpoweredContext(viewer: \"P2\", ordered: True, mutation: \"BOTH_LAST_BREATH\")": 1,
+    "Riftbound.ConformanceTests.EmpoweredInsightTests.NativeAndCopiedEmpoweredInsightKeepShortDecksWithoutDrawingOrBurnout(remaining: 2)": 1,
+    "Riftbound.ConformanceTests.EmpoweredInsightOpeningTests.OrdinaryBlankOpeningPaysRealEmpowerThenResolvesEveryPrivateInsightAndOriginalReplay(songs: 0, format: CoreRules, recycle: True)": 1,
+    "Riftbound.ConformanceTests.EmpoweredInsightOpeningTests.OrdinaryBlankOpeningPaysRealEmpowerThenResolvesEveryPrivateInsightAndOriginalReplay(songs: 1, format: CoreRules, recycle: True)": 1,
+    "Riftbound.ConformanceTests.EmpoweredInsightTests.StructuralRecoveryRejectsMalformedCopiedEmpoweredSourceBindings(mutation: \"QUEUE_CARD\")": 1,
+    "Riftbound.ConformanceTests.EmpoweredInsightTests.PublicQueueAndStackViewsIndependentlyBindTheEmpoweredContext(viewer: \"P1\", ordered: True, mutation: \"SOURCE\")": 1,
+    "Riftbound.ConformanceTests.EmpoweredInsightTests.PublicQueueAndStackViewsIndependentlyBindTheEmpoweredContext(viewer: \"spectator\", ordered: True, mutation: \"BOTH_DUEL\")": 1,
+    "Riftbound.ConformanceTests.EmpoweredInsightTests.PublicQueueAndStackViewsIndependentlyBindTheEmpoweredContext(viewer: \"spectator\", ordered: False, mutation: \"COUNT\")": 1,
+    "Riftbound.ConformanceTests.EmpoweredInsightTests.EachCurrentPrintedTextInstanceCapturesItsOwnEmpoweredInsightAndCurrentDeck(songs: 2)": 1,
+    "Riftbound.ConformanceTests.EmpoweredInsightTests.PublicQueueAndStackViewsIndependentlyBindTheEmpoweredContext(viewer: \"P2\", ordered: True, mutation: \"REMOVE\")": 1,
+    "Riftbound.ConformanceTests.EmpoweredInsightOpeningTests.OrdinaryBlankOpeningPaysRealEmpowerThenResolvesEveryPrivateInsightAndOriginalReplay(songs: 2, format: CoreRules, recycle: True)": 1,
+    "Riftbound.ConformanceTests.EmpoweredInsightTests.PublicQueueAndStackViewsIndependentlyBindTheEmpoweredContext(viewer: \"spectator\", ordered: False, mutation: \"SOURCE\")": 1,
+    "Riftbound.ConformanceTests.EmpoweredInsightTests.PublicQueueAndStackViewsIndependentlyBindTheEmpoweredContext(viewer: \"spectator\", ordered: True, mutation: \"UNKNOWN_FIELD\")": 1,
+    "Riftbound.ConformanceTests.EmpoweredInsightTests.PublicQueueAndStackViewsIndependentlyBindTheEmpoweredContext(viewer: \"spectator\", ordered: True, mutation: \"TOKEN\")": 1,
+    "Riftbound.ConformanceTests.EmpoweredInsightTests.StructuralRecoveryRejectsMalformedCopiedEmpoweredSourceBindings(mutation: \"SOURCE\")": 1,
+    "Riftbound.ConformanceTests.EmpoweredInsightTests.StructuralRecoveryRejectsMalformedCopiedEmpoweredSourceBindings(mutation: \"CAPTURE_NEGATIVE\")": 1,
+    "Riftbound.ConformanceTests.EmpoweredInsightTests.PublicQueueAndStackViewsIndependentlyBindTheEmpoweredContext(viewer: \"spectator\", ordered: True, mutation: \"REMOVE\")": 1,
+    "Riftbound.ConformanceTests.EmpoweredInsightTests.PublicQueueAndStackViewsIndependentlyBindTheEmpoweredContext(viewer: \"P1\", ordered: False, mutation: \"REMOVE\")": 1,
+    "Riftbound.ConformanceTests.EmpoweredInsightTests.EachCurrentPrintedTextInstanceCapturesItsOwnEmpoweredInsightAndCurrentDeck(songs: 1)": 1,
+    "Riftbound.ConformanceTests.EmpoweredInsightTests.NativeAndCopiedEmpoweredInsightKeepShortDecksWithoutDrawingOrBurnout(remaining: 0)": 1,
+    "Riftbound.ConformanceTests.EmpoweredInsightTests.PublicQueueAndStackViewsIndependentlyBindTheEmpoweredContext(viewer: \"P2\", ordered: True, mutation: \"SOURCE\")": 1,
+    "Riftbound.ConformanceTests.EmpoweredInsightTests.PublicQueueAndStackViewsIndependentlyBindTheEmpoweredContext(viewer: \"P2\", ordered: False, mutation: \"BOTH_DUEL\")": 1,
+    "Riftbound.ConformanceTests.EmpoweredInsightTests.StructuralRecoveryRejectsMalformedCopiedEmpoweredSourceBindings(mutation: \"EVENT\")": 1,
+    "Riftbound.ConformanceTests.EmpoweredInsightTests.PublicQueueAndStackViewsIndependentlyBindTheEmpoweredContext(viewer: \"P2\", ordered: True, mutation: \"MALFORMED\")": 1,
+    "Riftbound.ConformanceTests.EmpoweredInsightTests.ActualReactionSourceDepartureDistinguishesAnUnresolvedActivationFromAlreadyCapturedInsight(beforeEmpowered: True)": 1,
+    "Riftbound.ConformanceTests.EmpoweredInsightTests.PublicQueueAndStackViewsIndependentlyBindTheEmpoweredContext(viewer: \"spectator\", ordered: True, mutation: \"SOURCE\")": 1,
+    "Riftbound.ConformanceTests.EmpoweredInsightTests.PublicQueueAndStackViewsIndependentlyBindTheEmpoweredContext(viewer: \"P1\", ordered: True, mutation: \"BOTH_DUEL\")": 1,
+    "Riftbound.ConformanceTests.EmpoweredInsightTests.PublicQueueAndStackViewsIndependentlyBindTheEmpoweredContext(viewer: \"P2\", ordered: True, mutation: \"TOKEN\")": 1,
+    "Riftbound.ConformanceTests.EmpoweredInsightTests.PublicQueueAndStackViewsIndependentlyBindTheEmpoweredContext(viewer: \"P1\", ordered: False, mutation: \"COUNT\")": 1,
+    "Riftbound.ConformanceTests.EmpoweredInsightTests.PublicQueueAndStackViewsIndependentlyBindTheEmpoweredContext(viewer: \"P1\", ordered: True, mutation: \"MALFORMED\")": 1,
+    "Riftbound.ConformanceTests.EmpoweredInsightTests.PublicQueueAndStackViewsIndependentlyBindTheEmpoweredContext(viewer: \"P2\", ordered: True, mutation: \"BOTH_DUEL\")": 1,
+    "Riftbound.ConformanceTests.EmpoweredInsightTests.PublicQueueAndStackViewsIndependentlyBindTheEmpoweredContext(viewer: \"P2\", ordered: False, mutation: \"UNKNOWN_FIELD\")": 1,
+    "Riftbound.ConformanceTests.EmpoweredInsightTests.StructuralRecoveryRejectsMalformedCopiedEmpoweredSourceBindings(mutation: \"EQUIPMENT\")": 1,
+    "Riftbound.ConformanceTests.EmpoweredInsightTests.StructuralRecoveryRejectsMalformedCopiedEmpoweredSourceBindings(mutation: \"CAPTURE_FUTURE\")": 1,
+    "Riftbound.ConformanceTests.EmpoweredInsightTests.PublicQueueAndStackViewsIndependentlyBindTheEmpoweredContext(viewer: \"P2\", ordered: False, mutation: \"BOTH_LAST_BREATH\")": 1,
+    "Riftbound.ConformanceTests.EmpoweredInsightTests.StructuralRecoveryRejectsMalformedCopiedEmpoweredSourceBindings(mutation: \"COUNT\")": 1,
+    "Riftbound.ConformanceTests.EmpoweredInsightTests.StructuralRecoveryRejectsMalformedCopiedEmpoweredSourceBindings(mutation: \"CARD\")": 1,
+    "Riftbound.ConformanceTests.EmpoweredInsightOpeningTests.OrdinaryBlankOpeningPaysRealEmpowerThenResolvesEveryPrivateInsightAndOriginalReplay(songs: 0, format: ChinaStandard20260724, recycle: True)": 1,
+    "Riftbound.ConformanceTests.EmpoweredInsightTests.PublicQueueAndStackViewsIndependentlyBindTheEmpoweredContext(viewer: \"P1\", ordered: False, mutation: \"BOTH_LAST_BREATH\")": 1,
+    "Riftbound.ConformanceTests.EmpoweredInsightOpeningTests.OrdinaryBlankOpeningPaysRealEmpowerThenResolvesEveryPrivateInsightAndOriginalReplay(songs: 2, format: CoreRules, recycle: False)": 1,
+    "Riftbound.ConformanceTests.EmpoweredInsightTests.PublicQueueAndStackViewsIndependentlyBindTheEmpoweredContext(viewer: \"P1\", ordered: False, mutation: \"MALFORMED\")": 1,
+    "Riftbound.ConformanceTests.EmpoweredInsightOpeningTests.OrdinaryBlankOpeningPaysRealEmpowerThenResolvesEveryPrivateInsightAndOriginalReplay(songs: 0, format: CoreRules, recycle: False)": 1,
+    "Riftbound.ConformanceTests.EmpoweredInsightTests.PublicQueueAndStackViewsIndependentlyBindTheEmpoweredContext(viewer: \"spectator\", ordered: False, mutation: \"MALFORMED\")": 1,
+    "Riftbound.ConformanceTests.EmpoweredInsightTests.StructuralRecoveryRejectsMalformedCopiedEmpoweredSourceBindings(mutation: \"CONTROLLER\")": 1,
+    "Riftbound.ConformanceTests.EmpoweredInsightTests.StructuralRecoveryRejectsMalformedCopiedEmpoweredSourceBindings(mutation: \"SOURCE_GENERATION\")": 1,
+    "Riftbound.ConformanceTests.EmpoweredInsightTests.PublicQueueAndStackViewsIndependentlyBindTheEmpoweredContext(viewer: \"P1\", ordered: False, mutation: \"SOURCE\")": 1,
+    "Riftbound.ConformanceTests.EmpoweredInsightTests.PublicQueueAndStackViewsIndependentlyBindTheEmpoweredContext(viewer: \"P1\", ordered: True, mutation: \"WRONG_SLOT\")": 1,
+    "Riftbound.ConformanceTests.EmpoweredInsightTests.PublicQueueAndStackViewsIndependentlyBindTheEmpoweredContext(viewer: \"spectator\", ordered: True, mutation: \"WRONG_SLOT\")": 1,
+    "Riftbound.ConformanceTests.EmpoweredInsightTests.PublicQueueAndStackViewsIndependentlyBindTheEmpoweredContext(viewer: \"spectator\", ordered: False, mutation: \"WRONG_SLOT\")": 1,
+    "Riftbound.ConformanceTests.EmpoweredInsightOpeningTests.OrdinaryBlankOpeningPaysRealEmpowerThenResolvesEveryPrivateInsightAndOriginalReplay(songs: 2, format: ChinaStandard20260724, recycle: False)": 1,
+    "Riftbound.ConformanceTests.EmpoweredInsightTests.PublicQueueAndStackViewsIndependentlyBindTheEmpoweredContext(viewer: \"P1\", ordered: True, mutation: \"BOTH_LAST_BREATH\")": 1,
+    "Riftbound.ConformanceTests.EmpoweredInsightTests.PublicQueueAndStackViewsIndependentlyBindTheEmpoweredContext(viewer: \"P1\", ordered: True, mutation: \"TOKEN\")": 1,
+    "Riftbound.ConformanceTests.EmpoweredInsightTests.PublicQueueAndStackViewsIndependentlyBindTheEmpoweredContext(viewer: \"P2\", ordered: False, mutation: \"WRONG_SLOT\")": 1,
+    "Riftbound.ConformanceTests.EmpoweredInsightTests.PublicQueueAndStackViewsIndependentlyBindTheEmpoweredContext(viewer: \"spectator\", ordered: False, mutation: \"UNKNOWN_FIELD\")": 1,
+    "Riftbound.ConformanceTests.EmpoweredInsightTests.StructuralRecoveryRejectsMalformedCopiedEmpoweredSourceBindings(mutation: \"FACE_FUTURE\")": 1,
+    "Riftbound.ConformanceTests.EmpoweredInsightTests.PublicQueueAndStackViewsIndependentlyBindTheEmpoweredContext(viewer: \"P1\", ordered: True, mutation: \"COUNT\")": 1,
+    "Riftbound.ConformanceTests.EmpoweredInsightTests.NativeAndCopiedEmpoweredInsightKeepShortDecksWithoutDrawingOrBurnout(remaining: 1)": 1,
+    "Riftbound.ConformanceTests.EmpoweredInsightTests.PublicQueueAndStackViewsIndependentlyBindTheEmpoweredContext(viewer: \"P2\", ordered: True, mutation: \"WRONG_SLOT\")": 1,
+    "Riftbound.ConformanceTests.EmpoweredInsightTests.PublicQueueAndStackViewsIndependentlyBindTheEmpoweredContext(viewer: \"spectator\", ordered: False, mutation: \"TOKEN\")": 1,
+    "Riftbound.ConformanceTests.EmpoweredInsightTests.PublicQueueAndStackViewsIndependentlyBindTheEmpoweredContext(viewer: \"P2\", ordered: True, mutation: \"COUNT\")": 1,
+    "Riftbound.ConformanceTests.EmpoweredInsightTests.PublicQueueAndStackViewsIndependentlyBindTheEmpoweredContext(viewer: \"P1\", ordered: False, mutation: \"BOTH_DUEL\")": 1,
+    "Riftbound.ConformanceTests.EmpoweredInsightTests.StructuralRecoveryRejectsMalformedCopiedEmpoweredSourceBindings(mutation: \"EQUIPMENT_GENERATION\")": 1,
+    "Riftbound.ConformanceTests.EmpoweredInsightTests.PublicQueueAndStackViewsIndependentlyBindTheEmpoweredContext(viewer: \"spectator\", ordered: False, mutation: \"REMOVE\")": 1,
+    "Riftbound.ConformanceTests.EmpoweredInsightTests.PublicQueueAndStackViewsIndependentlyBindTheEmpoweredContext(viewer: \"P2\", ordered: False, mutation: \"REMOVE\")": 1,
+    "Riftbound.ConformanceTests.EmpoweredInsightTests.PublicQueueAndStackViewsIndependentlyBindTheEmpoweredContext(viewer: \"P2\", ordered: False, mutation: \"MALFORMED\")": 1,
+    "Riftbound.ConformanceTests.EmpoweredInsightTests.PublicQueueAndStackViewsIndependentlyBindTheEmpoweredContext(viewer: \"P1\", ordered: True, mutation: \"UNKNOWN_FIELD\")": 1,
+    "Riftbound.ConformanceTests.EmpoweredInsightTests.PublicQueueAndStackViewsIndependentlyBindTheEmpoweredContext(viewer: \"P2\", ordered: False, mutation: \"SOURCE\")": 1
+  },
+  "newEmpoweredCases": 91,
+  "allNewEmpoweredCasesPassed": true,
+  "originalFailures": [
+    {
+      "testName": "Riftbound.ConformanceTests.CardCatalogBaselineTests.OfficialCatalogLoadsAllSnapshotCards",
+      "message": "Assert.Equal() Failure: Values differ\nExpected: 1033\nActual:   1034",
+      "independentExpectedDelta": [
+        "1033",
+        "1034"
+      ],
+      "knownMetadataTestClass": true,
+      "abbreviatedHashDiagnosticBoundToFullOriginalSourcePinAndExactGreenRuntime": false
+    },
+    {
+      "testName": "Riftbound.ConformanceTests.CardCatalogBaselineTests.FunctionalUnitIdsAreStableUniqueAndComplete",
+      "message": "Assert.Equal() Failure: Values differ\nExpected: 1033\nActual:   1034",
+      "independentExpectedDelta": [
+        "1033",
+        "1034"
+      ],
+      "knownMetadataTestClass": true,
+      "abbreviatedHashDiagnosticBoundToFullOriginalSourcePinAndExactGreenRuntime": false
+    },
+    {
+      "testName": "Riftbound.ConformanceTests.AhriCombatMightTests.PromotionKeepsEveryHistoricalRuntimeRecordAndItsExactSource",
+      "message": "Assert.Equal() Failure: Values differ\nExpected: 1033\nActual:   1034",
+      "independentExpectedDelta": [
+        "1033",
+        "1034"
+      ],
+      "knownMetadataTestClass": true,
+      "abbreviatedHashDiagnosticBoundToFullOriginalSourcePinAndExactGreenRuntime": false
+    },
+    {
+      "testName": "Riftbound.ConformanceTests.CardCatalogBaselineTests.OfficialCatalogSchemaValidationCoversAllSnapshotCards",
+      "message": "Assert.Equal() Failure: Values differ\nExpected: 1033\nActual:   1034",
+      "independentExpectedDelta": [
+        "1033",
+        "1034"
+      ],
+      "knownMetadataTestClass": true,
+      "abbreviatedHashDiagnosticBoundToFullOriginalSourcePinAndExactGreenRuntime": false
+    },
+    {
+      "testName": "Riftbound.ConformanceTests.CardCatalogBaselineTests.P6SecondaryTemplateFamiliesReportEntryAndFunctionalUnitCoverage",
+      "message": "Assert.Equal() Failure: Values differ\nExpected: 64\nActual:   65",
+      "independentExpectedDelta": [
+        "64",
+        "65"
+      ],
+      "knownMetadataTestClass": true,
+      "abbreviatedHashDiagnosticBoundToFullOriginalSourcePinAndExactGreenRuntime": false
+    },
+    {
+      "testName": "Riftbound.ConformanceTests.CardCatalogBaselineTests.P6CompletionAuditKeepsEveryFunctionalUnitImplementedOrExplicitlyDeferred",
+      "message": "Assert.Equal() Failure: Values differ\nExpected: 1033\nActual:   1034",
+      "independentExpectedDelta": [
+        "1033",
+        "1034"
+      ],
+      "knownMetadataTestClass": true,
+      "abbreviatedHashDiagnosticBoundToFullOriginalSourcePinAndExactGreenRuntime": false
+    },
+    {
+      "testName": "Riftbound.ConformanceTests.CardCatalogBaselineTests.P6LifecycleTriggerReplacementFamiliesReportSpecAndExecutionBoundaryCoverage",
+      "message": "Assert.Equal() Failure: Values differ\nExpected: 549\nActual:   550",
+      "independentExpectedDelta": [
+        "549",
+        "550"
+      ],
+      "knownMetadataTestClass": true,
+      "abbreviatedHashDiagnosticBoundToFullOriginalSourcePinAndExactGreenRuntime": false
+    },
+    {
+      "testName": "Riftbound.ConformanceTests.CardCatalogBaselineTests.P79ProductCatalogExposesRepresentativesWithoutClaimingFullOfficialRulePass",
+      "message": "Assert.Equal() Failure: Values differ\nExpected: 1033\nActual:   1034",
+      "independentExpectedDelta": [
+        "1033",
+        "1034"
+      ],
+      "knownMetadataTestClass": true,
+      "abbreviatedHashDiagnosticBoundToFullOriginalSourcePinAndExactGreenRuntime": false
+    },
+    {
+      "testName": "Riftbound.ConformanceTests.CardCatalogBaselineTests.KeywordCoverageReportExposesDeferredKeywordFamilies",
+      "message": "Assert.Equal() Failure: Values differ\nExpected: 1033\nActual:   1034",
+      "independentExpectedDelta": [
+        "1033",
+        "1034"
+      ],
+      "knownMetadataTestClass": true,
+      "abbreviatedHashDiagnosticBoundToFullOriginalSourcePinAndExactGreenRuntime": false
+    },
+    {
+      "testName": "Riftbound.ConformanceTests.Cn16RuleInputSelectionTests.ActualPackagedInputsSelectTheCurrentCnCoreWithoutCertifyingAllItsSemantics",
+      "message": "Assert.Equal() Failure: Strings differ\n           ↓ (pos 0)\nExpected: \"9706138cf5ec1795ad41dc689632603bb0530807f\"···\nActual:   \"c4cc65cfcac0a6761466545876614a0440c70bdc1\"···\n           ↑ (pos 0)",
+      "independentExpectedDelta": [
+        "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9",
+        "c4cc65cfcac0a6761466545876614a0440c70bdc199a81b9e9834f96ed4df1fc"
+      ],
+      "knownMetadataTestClass": true,
+      "abbreviatedHashDiagnosticBoundToFullOriginalSourcePinAndExactGreenRuntime": true
+    },
+    {
+      "testName": "Riftbound.ConformanceTests.CardCatalogBaselineTests.BehaviorSpecsCoverEveryOfficialCardWithExplicitStatusAndReason",
+      "message": "Assert.Equal() Failure: Values differ\nExpected: 1033\nActual:   1034",
+      "independentExpectedDelta": [
+        "1033",
+        "1034"
+      ],
+      "knownMetadataTestClass": true,
+      "abbreviatedHashDiagnosticBoundToFullOriginalSourcePinAndExactGreenRuntime": false
+    },
+    {
+      "testName": "Riftbound.ConformanceTests.VendettaAmbushTests.CatalogStatisticsAreEvidenceOfRegistrationOnly",
+      "message": "Assert.Equal() Failure: Values differ\nExpected: 1033\nActual:   1034",
+      "independentExpectedDelta": [
+        "1033",
+        "1034"
+      ],
+      "knownMetadataTestClass": true,
+      "abbreviatedHashDiagnosticBoundToFullOriginalSourcePinAndExactGreenRuntime": false
+    },
+    {
+      "testName": "Riftbound.ConformanceTests.CardCatalogBaselineTests.FunctionalUnitsMatchCurrentBaselineCounts",
+      "message": "Assert.Equal() Failure: Values differ\nExpected: 1033\nActual:   1034",
+      "independentExpectedDelta": [
+        "1033",
+        "1034"
+      ],
+      "knownMetadataTestClass": true,
+      "abbreviatedHashDiagnosticBoundToFullOriginalSourcePinAndExactGreenRuntime": false
+    },
+    {
+      "testName": "Riftbound.ConformanceTests.CardCatalogBaselineTests.P6FunctionalUnitCoverageAuditsSameTextVariantsAndReprints",
+      "message": "Assert.Equal() Failure: Values differ\nExpected: 832\nActual:   833",
+      "independentExpectedDelta": [
+        "832",
+        "833"
+      ],
+      "knownMetadataTestClass": true,
+      "abbreviatedHashDiagnosticBoundToFullOriginalSourcePinAndExactGreenRuntime": false
+    }
+  ],
+  "unclassifiedFailures": [],
+  "actualCatalogStatistics": [],
+  "retainedOriginalMetadataTestSources": [
+    {
+      "path": "tests/Riftbound.ConformanceTests/CardCatalogBaselineTests.cs",
+      "sha256": "99fd5fc1127d491b74f49bb332da0feaa43d392231770c7fe49c247f49ec19d6",
+      "retainedSource": "var/qa/deck-family-frontier-20261019/check-original-CardCatalogBaselineTests.cs.gz"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/VendettaAmbushTests.cs",
+      "sha256": "f94b8ebf9ca93c369967cd7072767775dce335fb47ccc87881ad30e4e1775189",
+      "retainedSource": "var/qa/deck-family-frontier-20261019/check-original-VendettaAmbushTests.cs.gz"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/AhriCombatMightTests.cs",
+      "sha256": "f1022bb6e289eed33adf7c530780842800aa0d4f471bcdaa23b77f6f2a1aa9c4",
+      "retainedSource": "var/qa/deck-family-frontier-20261019/check-original-AhriCombatMightTests.cs.gz"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/Cn16RuleInputSelectionTests.cs",
+      "sha256": "8710b42d115a7a2d48e776f1f8b200f04206bf94ba32e6e7c43f41dddf1a9e20",
+      "retainedSource": "var/qa/deck-family-frontier-20261019/check-original-Cn16RuleInputSelectionTests.cs.gz"
+    }
+  ],
+  "actualExecutedOwnModules": {
+    "Riftbound.CardCatalog.dll": "64c75304a2f030cfaef65b0ae7cc29ed2e41175ce6122b08dcb6e5efc96e9e70",
+    "Riftbound.Contracts.pdb": "5c71364e71336373ba650b0c0b3af8019197d7476f59418328459de88918680a",
+    "Riftbound.Engine.pdb": "0972e3cd214f1b879f23def666d56b50f55ae368476f9c56006b2cb2134f7ae5",
+    "Riftbound.CardCatalog.pdb": "55fb474d68a4f8f52f6943143bdbd03c8bd60aaba19e0ddfbfc6e5cf165cb29c",
+    "Riftbound.Contracts.dll": "b02c8e71b39754c74b70f515d4b4bc6fc95678769175d6e73267bf85ed07029e",
+    "Riftbound.Engine.dll": "9fede8e1c76cc55595b931db18a822defd83001781af712a9a11f9c0acf4d8aa",
+    "Riftbound.Persistence.pdb": "8aa716fe98aa951b54bd04b3223697e78ef83a5f5a666b8f452ead1ff6e165af",
+    "Riftbound.Api.dll": "fbff8bde7d3053fb0683fa7e5c0120debe0b104e980800305a83e81635e10c47",
+    "Riftbound.ConformanceTests.pdb": "6bd07465cd5ae1245be29a40b42200e01d7ebf33d51de6d95f84c59b23a64dc0",
+    "Riftbound.Api.pdb": "8cea20afef739e08ce21cfc2b4e0191078d7073b401dbc9f0c8bad52c562e067",
+    "Riftbound.Persistence.dll": "351ce6f0b5985729d7c932ab586dba66a643c7ebae5d43a43d68064cadf5dad8",
+    "Riftbound.ConformanceTests.dll": "8afad27c8bcb37f7b4fc65e90e8a5937bf0df8387795be03f9306eb051324f18"
+  },
+  "allAuthoredAndExecutedModuleInputsStable": true,
+  "noSecondCheckRunPermittedByThisReceipt": true,
+  "wholeCardOrProductOrFixedNewCommitCertification": false
+}

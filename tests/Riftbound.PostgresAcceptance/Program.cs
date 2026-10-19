@@ -26,7 +26,8 @@ var ravenbloomPutHandOnly = args.SequenceEqual(new[] { "--ravenbloom-put-hand-on
 var attachedPredictOnly = args.SequenceEqual(new[] { "--attached-predict-only" });
 var copiedLastBreathOnly = args.SequenceEqual(new[] { "--copied-last-breath-insight-only" });
 var copiedDuelOnly = args.SequenceEqual(new[] { "--copied-duel-insight-only" });
-if (args.Length != 0 && !openingRandomnessOnly && !optionalCostsOnly && !battlefieldPlayRecoveryOnly && !battlefieldPlayDamageOnly && !banishEffectPlayOnly && !hereLocationOnly && !fateWeaverOnly && !multiControllerOrderOnly && !emptyObservedRepeatOnly && !observedPlayWindowOnly && !ravenbloomPutHandOnly && !attachedPredictOnly && !copiedLastBreathOnly && !copiedDuelOnly) throw new ArgumentException("Unknown PostgreSQL acceptance selector.");
+var empoweredInsightOnly = args.SequenceEqual(new[] { "--empowered-insight-only" });
+if (args.Length != 0 && !openingRandomnessOnly && !optionalCostsOnly && !battlefieldPlayRecoveryOnly && !battlefieldPlayDamageOnly && !banishEffectPlayOnly && !hereLocationOnly && !fateWeaverOnly && !multiControllerOrderOnly && !emptyObservedRepeatOnly && !observedPlayWindowOnly && !ravenbloomPutHandOnly && !attachedPredictOnly && !copiedLastBreathOnly && !copiedDuelOnly && !empoweredInsightOnly) throw new ArgumentException("Unknown PostgreSQL acceptance selector.");
 var json = new JsonSerializerOptions(JsonSerializerDefaults.Web) { WriteIndented = true };
 await using var dataSource = NpgsqlDataSource.Create(connectionString);
 await using (var connection = await dataSource.OpenConnectionAsync()) {
@@ -34,6 +35,12 @@ await using (var connection = await dataSource.OpenConnectionAsync()) {
         await using var command = new NpgsqlCommand(await File.ReadAllTextAsync(path), connection);
         await command.ExecuteNonQueryAsync();
     }
+}
+if (empoweredInsightOnly)
+{
+    await EmpoweredInsightSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "empowered-insight"));
+    Console.WriteLine("SCOPED_POSTGRES_ONLY: empowered-insight; the retained complete SQL suite was not requested.");
+    return;
 }
 if (copiedDuelOnly)
 {
@@ -236,6 +243,7 @@ await RavenbloomPutIntoHandSqlAcceptance.RunAsync(dataSource, Path.Combine(outpu
 await AttachedPredictSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "attached-predict"));
 await CopiedLastBreathInsightSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "copied-last-breath-insight"));
 await CopiedDuelInsightSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "copied-duel-insight"));
+await EmpoweredInsightSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "empowered-insight"));
 
 JsonElement Raw(GameCommand command) => JsonSerializer.SerializeToElement(command, command.GetType(), json);
 async Task Submit(string actor, string intent, GameCommand command, bool accepted = true) {

@@ -1,0 +1,350 @@
+{
+  "status": "PASS",
+  "observedAtUtc": "2026-10-19T00:23:23.719178+00:00",
+  "cases": 12,
+  "methods": 1,
+  "profile": "focus",
+  "allTwelveBranchIdentitiesExact": true,
+  "actualCounts": {
+    "commands": 506,
+    "events": 1796,
+    "ColdCount": 138,
+    "OriginalNextMatches": 110,
+    "atomicEngineRejections": 126
+  },
+  "rows": [
+    {
+      "songs": 0,
+      "format": 1,
+      "recycle": true,
+      "commands": 25,
+      "events": 95,
+      "ColdCount": 7,
+      "OriginalNextMatches": 5,
+      "atomicEngineRejections": 5,
+      "originalBlankSeed": 0,
+      "originalFullActionEventReplayMatched": true,
+      "ruleInputs": {
+        "SchemaVersion": 1,
+        "Region": "CN",
+        "Language": "zh-CN",
+        "AuthoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "CatalogSha256": "c4cc65cfcac0a6761466545876614a0440c70bdc199a81b9e9834f96ed4df1fc",
+        "ImplementationSha256": "552e2239513f8d5f855a42c378ec8cfd585c2fe6cfc0a03b8a62a0614f320855",
+        "IdentitySha256": "6993dff5594882123f2e01d2bb38fc1fb33a754b03302a9b03130c48e63f91b4"
+      },
+      "regionalTournamentEligibilityCertified": false
+    },
+    {
+      "songs": 2,
+      "format": 1,
+      "recycle": true,
+      "commands": 58,
+      "events": 204,
+      "ColdCount": 15,
+      "OriginalNextMatches": 12,
+      "atomicEngineRejections": 15,
+      "originalBlankSeed": 0,
+      "originalFullActionEventReplayMatched": true,
+      "ruleInputs": {
+        "SchemaVersion": 1,
+        "Region": "CN",
+        "Language": "zh-CN",
+        "AuthoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "CatalogSha256": "c4cc65cfcac0a6761466545876614a0440c70bdc199a81b9e9834f96ed4df1fc",
+        "ImplementationSha256": "552e2239513f8d5f855a42c378ec8cfd585c2fe6cfc0a03b8a62a0614f320855",
+        "IdentitySha256": "6993dff5594882123f2e01d2bb38fc1fb33a754b03302a9b03130c48e63f91b4"
+      },
+      "regionalTournamentEligibilityCertified": false
+    },
+    {
+      "songs": 2,
+      "format": 0,
+      "recycle": true,
+      "commands": 58,
+      "events": 204,
+      "ColdCount": 15,
+      "OriginalNextMatches": 12,
+      "atomicEngineRejections": 15,
+      "originalBlankSeed": 0,
+      "originalFullActionEventReplayMatched": true,
+      "ruleInputs": {
+        "SchemaVersion": 1,
+        "Region": "CN",
+        "Language": "zh-CN",
+        "AuthoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "CatalogSha256": "c4cc65cfcac0a6761466545876614a0440c70bdc199a81b9e9834f96ed4df1fc",
+        "ImplementationSha256": "552e2239513f8d5f855a42c378ec8cfd585c2fe6cfc0a03b8a62a0614f320855",
+        "IdentitySha256": "6993dff5594882123f2e01d2bb38fc1fb33a754b03302a9b03130c48e63f91b4"
+      },
+      "regionalTournamentEligibilityCertified": false
+    },
+    {
+      "songs": 0,
+      "format": 0,
+      "recycle": false,
+      "commands": 26,
+      "events": 95,
+      "ColdCount": 8,
+      "OriginalNextMatches": 6,
+      "atomicEngineRejections": 6,
+      "originalBlankSeed": 0,
+      "originalFullActionEventReplayMatched": true,
+      "ruleInputs": {
+        "SchemaVersion": 1,
+        "Region": "CN",
+        "Language": "zh-CN",
+        "AuthoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "CatalogSha256": "c4cc65cfcac0a6761466545876614a0440c70bdc199a81b9e9834f96ed4df1fc",
+        "ImplementationSha256": "552e2239513f8d5f855a42c378ec8cfd585c2fe6cfc0a03b8a62a0614f320855",
+        "IdentitySha256": "6993dff5594882123f2e01d2bb38fc1fb33a754b03302a9b03130c48e63f91b4"
+      },
+      "regionalTournamentEligibilityCertified": false
+    },
+    {
+      "songs": 0,
+      "format": 1,
+      "recycle": false,
+      "commands": 26,
+      "events": 95,
+      "ColdCount": 8,
+      "OriginalNextMatches": 6,
+      "atomicEngineRejections": 6,
+      "originalBlankSeed": 0,
+      "originalFullActionEventReplayMatched": true,
+      "ruleInputs": {
+        "SchemaVersion": 1,
+        "Region": "CN",
+        "Language": "zh-CN",
+        "AuthoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "CatalogSha256": "c4cc65cfcac0a6761466545876614a0440c70bdc199a81b9e9834f96ed4df1fc",
+        "ImplementationSha256": "552e2239513f8d5f855a42c378ec8cfd585c2fe6cfc0a03b8a62a0614f320855",
+        "IdentitySha256": "6993dff5594882123f2e01d2bb38fc1fb33a754b03302a9b03130c48e63f91b4"
+      },
+      "regionalTournamentEligibilityCertified": false
+    },
+    {
+      "songs": 2,
+      "format": 0,
+      "recycle": false,
+      "commands": 59,
+      "events": 204,
+      "ColdCount": 16,
+      "OriginalNextMatches": 13,
+      "atomicEngineRejections": 16,
+      "originalBlankSeed": 0,
+      "originalFullActionEventReplayMatched": true,
+      "ruleInputs": {
+        "SchemaVersion": 1,
+        "Region": "CN",
+        "Language": "zh-CN",
+        "AuthoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "CatalogSha256": "c4cc65cfcac0a6761466545876614a0440c70bdc199a81b9e9834f96ed4df1fc",
+        "ImplementationSha256": "552e2239513f8d5f855a42c378ec8cfd585c2fe6cfc0a03b8a62a0614f320855",
+        "IdentitySha256": "6993dff5594882123f2e01d2bb38fc1fb33a754b03302a9b03130c48e63f91b4"
+      },
+      "regionalTournamentEligibilityCertified": false
+    },
+    {
+      "songs": 1,
+      "format": 1,
+      "recycle": true,
+      "commands": 42,
+      "events": 150,
+      "ColdCount": 11,
+      "OriginalNextMatches": 9,
+      "atomicEngineRejections": 10,
+      "originalBlankSeed": 0,
+      "originalFullActionEventReplayMatched": true,
+      "ruleInputs": {
+        "SchemaVersion": 1,
+        "Region": "CN",
+        "Language": "zh-CN",
+        "AuthoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "CatalogSha256": "c4cc65cfcac0a6761466545876614a0440c70bdc199a81b9e9834f96ed4df1fc",
+        "ImplementationSha256": "552e2239513f8d5f855a42c378ec8cfd585c2fe6cfc0a03b8a62a0614f320855",
+        "IdentitySha256": "6993dff5594882123f2e01d2bb38fc1fb33a754b03302a9b03130c48e63f91b4"
+      },
+      "regionalTournamentEligibilityCertified": false
+    },
+    {
+      "songs": 0,
+      "format": 0,
+      "recycle": true,
+      "commands": 25,
+      "events": 95,
+      "ColdCount": 7,
+      "OriginalNextMatches": 5,
+      "atomicEngineRejections": 5,
+      "originalBlankSeed": 0,
+      "originalFullActionEventReplayMatched": true,
+      "ruleInputs": {
+        "SchemaVersion": 1,
+        "Region": "CN",
+        "Language": "zh-CN",
+        "AuthoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "CatalogSha256": "c4cc65cfcac0a6761466545876614a0440c70bdc199a81b9e9834f96ed4df1fc",
+        "ImplementationSha256": "552e2239513f8d5f855a42c378ec8cfd585c2fe6cfc0a03b8a62a0614f320855",
+        "IdentitySha256": "6993dff5594882123f2e01d2bb38fc1fb33a754b03302a9b03130c48e63f91b4"
+      },
+      "regionalTournamentEligibilityCertified": false
+    },
+    {
+      "songs": 1,
+      "format": 0,
+      "recycle": false,
+      "commands": 43,
+      "events": 150,
+      "ColdCount": 12,
+      "OriginalNextMatches": 10,
+      "atomicEngineRejections": 11,
+      "originalBlankSeed": 0,
+      "originalFullActionEventReplayMatched": true,
+      "ruleInputs": {
+        "SchemaVersion": 1,
+        "Region": "CN",
+        "Language": "zh-CN",
+        "AuthoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "CatalogSha256": "c4cc65cfcac0a6761466545876614a0440c70bdc199a81b9e9834f96ed4df1fc",
+        "ImplementationSha256": "552e2239513f8d5f855a42c378ec8cfd585c2fe6cfc0a03b8a62a0614f320855",
+        "IdentitySha256": "6993dff5594882123f2e01d2bb38fc1fb33a754b03302a9b03130c48e63f91b4"
+      },
+      "regionalTournamentEligibilityCertified": false
+    },
+    {
+      "songs": 2,
+      "format": 1,
+      "recycle": false,
+      "commands": 59,
+      "events": 204,
+      "ColdCount": 16,
+      "OriginalNextMatches": 13,
+      "atomicEngineRejections": 16,
+      "originalBlankSeed": 0,
+      "originalFullActionEventReplayMatched": true,
+      "ruleInputs": {
+        "SchemaVersion": 1,
+        "Region": "CN",
+        "Language": "zh-CN",
+        "AuthoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "CatalogSha256": "c4cc65cfcac0a6761466545876614a0440c70bdc199a81b9e9834f96ed4df1fc",
+        "ImplementationSha256": "552e2239513f8d5f855a42c378ec8cfd585c2fe6cfc0a03b8a62a0614f320855",
+        "IdentitySha256": "6993dff5594882123f2e01d2bb38fc1fb33a754b03302a9b03130c48e63f91b4"
+      },
+      "regionalTournamentEligibilityCertified": false
+    },
+    {
+      "songs": 1,
+      "format": 0,
+      "recycle": true,
+      "commands": 42,
+      "events": 150,
+      "ColdCount": 11,
+      "OriginalNextMatches": 9,
+      "atomicEngineRejections": 10,
+      "originalBlankSeed": 0,
+      "originalFullActionEventReplayMatched": true,
+      "ruleInputs": {
+        "SchemaVersion": 1,
+        "Region": "CN",
+        "Language": "zh-CN",
+        "AuthoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "CatalogSha256": "c4cc65cfcac0a6761466545876614a0440c70bdc199a81b9e9834f96ed4df1fc",
+        "ImplementationSha256": "552e2239513f8d5f855a42c378ec8cfd585c2fe6cfc0a03b8a62a0614f320855",
+        "IdentitySha256": "6993dff5594882123f2e01d2bb38fc1fb33a754b03302a9b03130c48e63f91b4"
+      },
+      "regionalTournamentEligibilityCertified": false
+    },
+    {
+      "songs": 1,
+      "format": 1,
+      "recycle": false,
+      "commands": 43,
+      "events": 150,
+      "ColdCount": 12,
+      "OriginalNextMatches": 10,
+      "atomicEngineRejections": 11,
+      "originalBlankSeed": 0,
+      "originalFullActionEventReplayMatched": true,
+      "ruleInputs": {
+        "SchemaVersion": 1,
+        "Region": "CN",
+        "Language": "zh-CN",
+        "AuthoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "CatalogSha256": "c4cc65cfcac0a6761466545876614a0440c70bdc199a81b9e9834f96ed4df1fc",
+        "ImplementationSha256": "552e2239513f8d5f855a42c378ec8cfd585c2fe6cfc0a03b8a62a0614f320855",
+        "IdentitySha256": "6993dff5594882123f2e01d2bb38fc1fb33a754b03302a9b03130c48e63f91b4"
+      },
+      "regionalTournamentEligibilityCertified": false
+    }
+  ],
+  "trxSha256": "9f51b4b907d17622a51698cc236039a6039637f1b34fbd76da4a1b4ad0af9bf7",
+  "originalFrames": {
+    "songs-2-ChinaStandard20260724-recycle-False.json.gz": "f3be5285d1d999f1fc53d1ed7339612021c748f07dbd789a7abf93352b70a059",
+    "songs-2-CoreRules-recycle-True.json.gz": "4604a6820477fa1f77497c62dac7c214073f5203de2a10a9c01d5f02e4f6a1a7",
+    "songs-0-CoreRules-recycle-False.json.gz": "a9c1a14163da53f9841956a60d1e9352b34ace151f6c179a0ca12dd706ba0d3f",
+    "songs-1-ChinaStandard20260724-recycle-False.json.gz": "4113c4e48f8a62483835acc6805affc7a8f56d05b6cc5dcecf090737c36b4df5",
+    "songs-1-ChinaStandard20260724-recycle-True.json.gz": "9bbae74e11a11f968aaec16bf5715527d86133a90519c813d4580b903f547f90",
+    "songs-1-CoreRules-recycle-True.json.gz": "47aeec8e50507a9a02f5cf254fa311ac8ef44020669f23714e5522ef03778c82",
+    "songs-1-CoreRules-recycle-False.json.gz": "4276f40c7c3cb83e350cbd03390a778549302785896eb43a13dceb86d2e3a23d",
+    "songs-0-ChinaStandard20260724-recycle-True.json.gz": "28b246c91faf1fe9fe60342a7cc79e123c4a236bc949172baa0dc5378cb0b635",
+    "songs-0-CoreRules-recycle-True.json.gz": "dfdac410196e372363eef4396a6358065e77d65c6a1c7210179e8cd8e16404d0",
+    "songs-0-ChinaStandard20260724-recycle-False.json.gz": "bf70058cb5c53e669495308ee58e1bf49eb496650050de977b1ae7c71abbe867",
+    "songs-2-CoreRules-recycle-False.json.gz": "c480489300a5906a3841511c0a2a3f1a094237677b2853e993ec510a42a4594c",
+    "songs-2-ChinaStandard20260724-recycle-True.json.gz": "83c8071cc3a40b9e518e8167043346df923e6da5f3c6c7d473d322f861552451"
+  },
+  "originalRelativeEvidenceOutputRelocatedWithoutByteChanges": true,
+  "retainedExecutedModules": {
+    "Riftbound.CardCatalog.dll": {
+      "sha256": "64c75304a2f030cfaef65b0ae7cc29ed2e41175ce6122b08dcb6e5efc96e9e70",
+      "retainedExactPath": "var/qa/deck-family-frontier-20261019/pre-registration-executed-modules/Riftbound.CardCatalog.dll"
+    },
+    "Riftbound.Contracts.pdb": {
+      "sha256": "5c71364e71336373ba650b0c0b3af8019197d7476f59418328459de88918680a",
+      "retainedExactPath": "var/qa/deck-family-frontier-20261019/pre-registration-executed-modules/Riftbound.Contracts.pdb"
+    },
+    "Riftbound.Engine.pdb": {
+      "sha256": "0972e3cd214f1b879f23def666d56b50f55ae368476f9c56006b2cb2134f7ae5",
+      "retainedExactPath": "var/qa/deck-family-frontier-20261019/initial-consumer-failed-new-modules/Riftbound.Engine.pdb"
+    },
+    "Riftbound.CardCatalog.pdb": {
+      "sha256": "55fb474d68a4f8f52f6943143bdbd03c8bd60aaba19e0ddfbfc6e5cf165cb29c",
+      "retainedExactPath": "var/qa/deck-family-frontier-20261019/pre-registration-executed-modules/Riftbound.CardCatalog.pdb"
+    },
+    "Riftbound.Contracts.dll": {
+      "sha256": "b02c8e71b39754c74b70f515d4b4bc6fc95678769175d6e73267bf85ed07029e",
+      "retainedExactPath": "var/qa/deck-family-frontier-20261019/pre-registration-executed-modules/Riftbound.Contracts.dll"
+    },
+    "Riftbound.Engine.dll": {
+      "sha256": "9fede8e1c76cc55595b931db18a822defd83001781af712a9a11f9c0acf4d8aa",
+      "retainedExactPath": "var/qa/deck-family-frontier-20261019/initial-consumer-failed-new-modules/Riftbound.Engine.dll"
+    },
+    "Riftbound.Persistence.pdb": {
+      "sha256": "8aa716fe98aa951b54bd04b3223697e78ef83a5f5a666b8f452ead1ff6e165af",
+      "retainedExactPath": "var/qa/deck-family-frontier-20261019/initial-consumer-failed-new-modules/Riftbound.Persistence.pdb"
+    },
+    "Riftbound.Api.dll": {
+      "sha256": "fbff8bde7d3053fb0683fa7e5c0120debe0b104e980800305a83e81635e10c47",
+      "retainedExactPath": "var/qa/deck-family-frontier-20261019/initial-consumer-failed-new-modules/Riftbound.Api.dll"
+    },
+    "Riftbound.ConformanceTests.pdb": {
+      "sha256": "6bd07465cd5ae1245be29a40b42200e01d7ebf33d51de6d95f84c59b23a64dc0",
+      "retainedExactPath": "var/qa/deck-family-frontier-20261019/ordinary-green-new-modules/Riftbound.ConformanceTests.pdb"
+    },
+    "Riftbound.Api.pdb": {
+      "sha256": "8cea20afef739e08ce21cfc2b4e0191078d7073b401dbc9f0c8bad52c562e067",
+      "retainedExactPath": "var/qa/deck-family-frontier-20261019/initial-consumer-failed-new-modules/Riftbound.Api.pdb"
+    },
+    "Riftbound.Persistence.dll": {
+      "sha256": "351ce6f0b5985729d7c932ab586dba66a643c7ebae5d43a43d68064cadf5dad8",
+      "retainedExactPath": "var/qa/deck-family-frontier-20261019/initial-consumer-failed-new-modules/Riftbound.Persistence.dll"
+    },
+    "Riftbound.ConformanceTests.dll": {
+      "sha256": "8afad27c8bcb37f7b4fc65e90e8a5937bf0df8387795be03f9306eb051324f18",
+      "retainedExactPath": "var/qa/deck-family-frontier-20261019/ordinary-green-new-modules/Riftbound.ConformanceTests.dll"
+    }
+  },
+  "all13034AuthoredInputsStillExact": true,
+  "regionalTournamentEligibilityCertified": false,
+  "visibleProductOrWindowsAcceptance": false
+}

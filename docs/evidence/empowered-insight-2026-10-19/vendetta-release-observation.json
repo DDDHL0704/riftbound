@@ -1,0 +1,61 @@
+{
+  "sourceId": "GLOBAL-VENDETTA-OVERVIEW-20260707",
+  "url": "https://playriftbound.com/en-us/news/announcements/the-vendetta-overview/",
+  "attemptedAtUtc": "2026-10-19T00:22:33.055100+00:00",
+  "sourceLocale": "en-US",
+  "namedReleaseLanguages": [
+    "English",
+    "Chinese",
+    "French"
+  ],
+  "sourceDiscoveryKind": "ADDITIONAL_PREEXISTING_OFFICIAL_ARTICLE_NOT_ASSUMED_TEMPORAL_CHANGE",
+  "publishedFirstIndependentlyVerified": null,
+  "effectiveAt": null,
+  "receivedAtUtc": "2026-10-19T00:22:35.748709+00:00",
+  "httpStatus": 200,
+  "resolvedUrl": "https://playriftbound.com/en-us/news/announcements/the-vendetta-overview/",
+  "httpDate": "Mon, 19 Oct 2026 00:22:35 GMT",
+  "rawSha256": "c80a77e1d3037d9de2b54e2be98391a3ee4a5ec3807f5d3368604b277d8a4547",
+  "rawBytes": 163899,
+  "title": "The Vendetta Overview",
+  "displayedPublishedAt": "2026-07-07T01:00:00.000Z",
+  "rawStored": "var/qa/deck-family-frontier-20261019/vendetta-overview-official.html.gz",
+  "rawStoredSha256": "7262c6a637cd003a729fb385ed57053da8051e6a01c44f842945d78d71d5ea69",
+  "bodyStored": "var/qa/deck-family-frontier-20261019/vendetta-overview-official-body.json",
+  "bodyStoredSha256": "f8f8f846a01cb72dbff906855ea432e1e0d5449a01f6b41960901313c77c49b7",
+  "bodyHtmlSha256": "069ab6bbebe2417267654c58884533e7b97548fd20e0bf3605b48a3107b1586c",
+  "textSha256": "9a8c6b30512238da75e547c79bfd0b95b88a87ca30668b28a6e861449df79273",
+  "extractor": {
+    "path": "scripts/audit/snapshot-global-rules.py",
+    "sha256": "6e9b0b7d7818e521381faf26b78c4dcc6ce7c45713c7822841e57210a72011ed"
+  },
+  "sourceLinks": [
+    "https://newsletter.riotgames.com/riftbound-subscribe"
+  ],
+  "inventoryAssociation": {
+    "retainedHistoricalGlobalSources": 20,
+    "retainedPreriftAddition": 1,
+    "retainedPendingEventAdditions": 2,
+    "additionalOverview": 1,
+    "namedCombinedSources": 24,
+    "historical36DocumentDenominatorUnchanged": true,
+    "notAllWebsiteNewsCoverage": true
+  },
+  "boundedReleaseDisposition": {
+    "VENSetEnglishAndChineseReleaseFromDisplayed2026Article": "2026-07-31",
+    "FrenchRelease": "2026-10-23",
+    "currentCnApiProductCode": "VEN",
+    "currentCnApiProductNames": [
+      "化神争锋 标准补充包",
+      "化神争锋 进阶补充包"
+    ],
+    "currentCnApiCardId": 37738,
+    "currentCnApiCardNo": "VEN·047",
+    "sourceSupportsPublishedChineseSetReleaseDate": true,
+    "sourceDoesNotCertifyEveryCurrentRegionalTournamentEligibilityBranch": true,
+    "individualPrintingPublicationAndEffectiveDatesStillNull": true,
+    "newRuleImplementationBeyondThisCandidateNotAsserted": true
+  },
+  "canonicalIncorporationPendingNextCoherentPublication": true,
+  "semanticCoverageCertified": false
+}

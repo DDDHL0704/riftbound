@@ -5396,6 +5396,7 @@ public sealed record ResolutionResult(
         if (!hiddenSource && item.LastBreathMight is not null) view["lastBreathMight"] = item.LastBreathMight;
         if (!hiddenSource && item.InsightContext is { Kind: "LAST_BREATH" } lastBreathInsight) view["lastBreathInsight"] = lastBreathInsight;
         if (!hiddenSource && item.InsightContext is { Kind: "DUEL" } duelInsight) view["duelInsight"] = duelInsight;
+        if (!hiddenSource && item.InsightContext is { Kind: "EMPOWERED" } empoweredInsight) view["empoweredInsight"] = empoweredInsight;
         if (!hiddenSource && item.DelayedDestruction is not null) view["delayedDestruction"] = item.DelayedDestruction;
         if (!hiddenSource && item.SourceReplay is not null) view["sourceReplay"] = item.SourceReplay;
         if (!hiddenSource && item.ResolutionDamageChoice is not null) view["resolutionDamageChoice"] = item.ResolutionDamageChoice;
@@ -5577,6 +5578,7 @@ public sealed record ResolutionResult(
         if (!hiddenSource && item.LastBreathMight is not null) view["lastBreathMight"] = item.LastBreathMight;
         if (!hiddenSource && item.InsightContext is { Kind: "LAST_BREATH" } lastBreathInsight) view["lastBreathInsight"] = lastBreathInsight;
         if (!hiddenSource && item.InsightContext is { Kind: "DUEL" } duelInsight) view["duelInsight"] = duelInsight;
+        if (!hiddenSource && item.InsightContext is { Kind: "EMPOWERED" } empoweredInsight) view["empoweredInsight"] = empoweredInsight;
         if (!hiddenSource && item.DelayedDestruction is not null) view["delayedDestruction"] = item.DelayedDestruction;
         if (!hiddenSource && item.BattlefieldConquestMight is not null) view["battlefieldConquestMight"] = item.BattlefieldConquestMight;
         if (!hiddenSource && item.MightySkill is not null) view["mightySkill"] = item.MightySkill;

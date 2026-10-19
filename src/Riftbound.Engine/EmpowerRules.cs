@@ -119,8 +119,12 @@ public sealed partial class CoreRuleEngine
         if (!state.CardObjects.TryGetValue(c.Source.ObjectId, out var source) || source.ObjectGeneration != c.Source.Generation
             || !IsObjectOnField(state.PlayerZones, source.ObjectId) || source.IsEmpowered) return NoopStackResolutionResult(state);
         var cards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value); cards[source.ObjectId] = source with { IsEmpowered = true };
+        var payload = new Dictionary<string, object?> {
+            ["sourceObjectId"] = source.ObjectId, ["objectGeneration"] = source.ObjectGeneration };
+        var insights = CaptureRuleTextInsights(state.PlayerZones, cards, cards[source.ObjectId],
+            EffectiveFieldControllerId(state.PlayerZones, source.ObjectId, source), "EMPOWERED");
+        if (insights.Count > 0) payload["insightTriggerContexts"] = insights;
         return NoopStackResolutionResult(state) with { CardObjects = cards,
-            Events = [new("OBJECT_EMPOWERED", "单位变为已强化状态", new Dictionary<string, object?> {
-                ["sourceObjectId"] = source.ObjectId, ["objectGeneration"] = source.ObjectGeneration })] };
+            Events = [new("OBJECT_EMPOWERED", "单位变为已强化状态", payload)] };
     }
 }

@@ -1,0 +1,79 @@
+{
+  "atUtc": "2026-10-18T23:45:53.368928+00:00",
+  "status": "REGISTRATION_AND_EXISTING_EMPOWER_STATIC_LAYERS_PASS_NEW_INSIGHT_TRIGGER_REPRODUCIBLY_ABSENT",
+  "results": [
+    {
+      "name": "Riftbound.ConformanceTests.EmpoweredInsightTests.ExactCurrentApprenticeMageSourceHasOrdinaryUnitEmpowerAndConditionalMight",
+      "outcome": "Passed",
+      "message": null
+    },
+    {
+      "name": "Riftbound.ConformanceTests.EmpoweredInsightTests.RealEmpowerResolutionTriggersPrivateInsightTwoAndRetainedTopOrder",
+      "outcome": "Failed",
+      "message": "Assert.Single() Failure: The collection did not contain any matching items\nExpected:   (predicate expression)\nCollection: []"
+    }
+  ],
+  "actualModuleReferences": {
+    "Riftbound.CardCatalog.dll": {
+      "sha256": "64c75304a2f030cfaef65b0ae7cc29ed2e41175ce6122b08dcb6e5efc96e9e70",
+      "retainedAt": "pre-registration-executed-modules/Riftbound.CardCatalog.dll"
+    },
+    "Riftbound.Contracts.pdb": {
+      "sha256": "5c71364e71336373ba650b0c0b3af8019197d7476f59418328459de88918680a",
+      "retainedAt": "pre-registration-executed-modules/Riftbound.Contracts.pdb"
+    },
+    "Riftbound.Engine.pdb": {
+      "sha256": "969b47dedd9eac77d490841e53a9f5bc2bbaf33265dc5df481d0221f7820cbbd",
+      "retainedAt": "registration-only-new-executed-modules/Riftbound.Engine.pdb"
+    },
+    "Riftbound.CardCatalog.pdb": {
+      "sha256": "55fb474d68a4f8f52f6943143bdbd03c8bd60aaba19e0ddfbfc6e5cf165cb29c",
+      "retainedAt": "pre-registration-executed-modules/Riftbound.CardCatalog.pdb"
+    },
+    "Riftbound.Contracts.dll": {
+      "sha256": "b02c8e71b39754c74b70f515d4b4bc6fc95678769175d6e73267bf85ed07029e",
+      "retainedAt": "pre-registration-executed-modules/Riftbound.Contracts.dll"
+    },
+    "Riftbound.Engine.dll": {
+      "sha256": "ff524f9681b8bb16d1f82ccf315a693c80efd5a083b83548a2e44d5d04806284",
+      "retainedAt": "registration-only-new-executed-modules/Riftbound.Engine.dll"
+    },
+    "Riftbound.Persistence.pdb": {
+      "sha256": "98eb4e0d3acd2d5d6bd022340c3736933da01466fadc1c1e59a9eaaaa2bd130c",
+      "retainedAt": "pre-registration-executed-modules/Riftbound.Persistence.pdb"
+    },
+    "Riftbound.Api.dll": {
+      "sha256": "cc3e62bb5e2bd5ad804be27fff82580ce35b5aa98fe6ee62882b52f3f418d563",
+      "retainedAt": "pre-registration-executed-modules/Riftbound.Api.dll"
+    },
+    "Riftbound.ConformanceTests.pdb": {
+      "sha256": "d0684c10f10dfa06d5c601f80ac811ce5703c80efbcc0de26fd00faeccc8fd9c",
+      "retainedAt": "pre-registration-executed-modules/Riftbound.ConformanceTests.pdb"
+    },
+    "Riftbound.Api.pdb": {
+      "sha256": "63136368f6722b8b5b6236c775cc8449edbfa023aa8e7d289cc8410a5bce4103",
+      "retainedAt": "pre-registration-executed-modules/Riftbound.Api.pdb"
+    },
+    "Riftbound.Persistence.dll": {
+      "sha256": "ea82c90ec9b434444a2bb12403482034c3ff40a088314b1c25d249f5cd13f24b",
+      "retainedAt": "pre-registration-executed-modules/Riftbound.Persistence.dll"
+    },
+    "Riftbound.ConformanceTests.dll": {
+      "sha256": "171dbb3f516c51a364e6a39c8dc36948dfc1aa9d856efb11b0d93af973f6bab2",
+      "retainedAt": "pre-registration-executed-modules/Riftbound.ConformanceTests.dll"
+    }
+  },
+  "registrationOnlyConsumerNotYetImplemented": true,
+  "observedBeforeMissingTriggerAssertion": [
+    "actual unit play",
+    "actual2mana empower activation",
+    "no early Empowered flag or deck change",
+    "actual empower ability resolution",
+    "IsEmpowered true",
+    "conditional Might4",
+    "one OBJECT_EMPOWERED event"
+  ],
+  "exactFailure": "No stack item carries the required Empowered Insight2 context after the actual activation resolves.",
+  "controlledFixtureNotOrdinaryOpeningOrProductAcceptance": true,
+  "allBaseline1033CatalogRowsAndOriginalTestsRemainUnchanged": true
+}

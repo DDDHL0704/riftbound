@@ -23009,6 +23009,126 @@
         "docs/evidence/copied-duel-insight-2026-10-19/source-manifest.json",
         "docs/evidence/copied-duel-insight-2026-10-19/supplemental-runtime-retirement.json"
       ]
+    },
+    {
+      "id": "empowered-insight-2026-10-19",
+      "scope": "CN/zh-CN applicable2026-10-16; acquired/reviewed local2026-10-19. Exact VEN047 ordinary empower and current copied text instances use existing mandatory Insight2. Current source field/count pins are independent metadata; regional tournament eligibility, dedicated untested attachment/control/status branches, all FAQ images and whole printing remain open.",
+      "status": "SCOPED79_ORDINARY12_SQL12_EARLY_ORIGINAL6_ONECHECK12876_14METADATAFAIL_POSTFOCUS438DISTINCTPASS_NEW_FIXED_FULL_PRODUCT_OPEN",
+      "subjects": [
+        "VEN·047",
+        "SFD·059/221"
+      ],
+      "ruleRecords": [],
+      "pendingRuleRecords": [],
+      "sourceManifest": {
+        "path": "docs/evidence/empowered-insight-2026-10-19/source-manifest.json",
+        "sha256": "4ef9621bcacea6d6ff8103b983c06285cbff3d80421cd377f5dfbad8defa5da7",
+        "role": "source-manifest"
+      },
+      "sourceClauses": [
+        "CN current DOC-01 417.5",
+        "CN current DOC-01 437",
+        "CN current DOC-01 442",
+        "CN current DOC-01 719.1",
+        "CN current DOC-01 719.4",
+        "CN current DOC-01 719.5"
+      ],
+      "validation": {
+        "focus": {
+          "path": "docs/evidence/empowered-insight-2026-10-19/focus79.json",
+          "sha256": "327627829701a9f579071d66ae43a5610909ef495d2077a78d759487709189d1",
+          "role": "focus79"
+        },
+        "ordinary": {
+          "path": "docs/evidence/empowered-insight-2026-10-19/ordinary12.json",
+          "sha256": "b2a54162f119afa2b2573962ac950b2671efd4424cf70b860f3e19a80fcf4382",
+          "role": "ordinary12"
+        },
+        "realSql": {
+          "path": "docs/evidence/empowered-insight-2026-10-19/real-sql12.json",
+          "sha256": "4d29b8f5c87ad82810f111a8b32c23d16c31b6b16fa3cf79ada949488ec0b4be",
+          "role": "real-sql12"
+        },
+        "independentSql": {
+          "path": "docs/evidence/empowered-insight-2026-10-19/real-sql-independent.json",
+          "sha256": "0a56cd96c7a5d0dbb3cba5071ff6538ed67bb9578b3e6b90a275b58b1bbdd3e7",
+          "role": "real-sql-independent"
+        },
+        "earlyOriginalGames": {
+          "path": "docs/evidence/empowered-insight-2026-10-19/early-original6.json",
+          "sha256": "256c9043473e51e054047584be6bc687eb5bcb0900a9b496f9001fc369bda57e",
+          "role": "early-original6"
+        },
+        "oneCheck": {
+          "path": "docs/evidence/empowered-insight-2026-10-19/one-check.json",
+          "sha256": "0497f29b36d7223a0d7d92f36f0cf0303101a1062bedbae7d5015432826947a1",
+          "role": "one-check"
+        },
+        "postCheck": {
+          "path": "docs/evidence/empowered-insight-2026-10-19/post-check-final.json",
+          "sha256": "955e64af87a8e600f0db93b82140c7e3e04bd605887679db2c578c0f1fa2dd1a",
+          "role": "post-check-final"
+        },
+        "actualCompiledInputs": {
+          "path": "docs/evidence/empowered-insight-2026-10-19/actual-compiled-inputs.json",
+          "sha256": "cb7eb967a6e862f0243f04cbdcbabd1853d9aabe39e6ba46f9ae8f98a2485ef3",
+          "role": "actual-compiled-inputs"
+        },
+        "newFixedFull": "PENDING",
+        "visibleCurrentProduct": "OPEN",
+        "physicalWindows": "OPEN"
+      },
+      "exclusions": [
+        "NEW_FIXED_FULL_ALL_ORIGINAL143_METHODS110_PAIRS_SEEDS_ASSERTIONS_AND_COMPLETE_DEFAULT_SQL_NETWORK",
+        "CURRENT_FIXED_NATIVE_CONTROLS_VISIBLE_PAIRED_REAL_DATABASE_RECONNECT_NORMAL_SCORE_COMPLETE_REPLAY",
+        "PHYSICAL_WINDOWS",
+        "ALL_APPLICABLE_PRINTINGS_RULES_FAQ_QA_SOURCE_GAPS_AND_UNCLASSIFIED_SOURCE_BLOCKS",
+        "DEDICATED_ATTACHMENT_CONTROL_AND_SPECIAL_STATUS_BRANCHES"
+      ],
+      "auditDocument": "docs/EMPOWERED_INSIGHT_AUDIT_2026-10-19.md",
+      "evidence": [
+        "docs/evidence/empowered-insight-2026-10-19/acceptance-boundaries.json",
+        "docs/evidence/empowered-insight-2026-10-19/actual-compiled-inputs.json",
+        "docs/evidence/empowered-insight-2026-10-19/actual-sql-runtime-inputs.json",
+        "docs/evidence/empowered-insight-2026-10-19/current-core-and-mage-image-observation.json",
+        "docs/evidence/empowered-insight-2026-10-19/early-original6.json",
+        "docs/evidence/empowered-insight-2026-10-19/event-source-mapping-gap.json",
+        "docs/evidence/empowered-insight-2026-10-19/exact-catalog-identity-repair.json",
+        "docs/evidence/empowered-insight-2026-10-19/exact-mage-source-bindings.json",
+        "docs/evidence/empowered-insight-2026-10-19/exact-metadata-count-repair.json",
+        "docs/evidence/empowered-insight-2026-10-19/excerpt-locator-premise-correction.json",
+        "docs/evidence/empowered-insight-2026-10-19/faq-and-topmost-card-bindings.json",
+        "docs/evidence/empowered-insight-2026-10-19/finite70-registration-delta.json",
+        "docs/evidence/empowered-insight-2026-10-19/focus79.json",
+        "docs/evidence/empowered-insight-2026-10-19/invalid-new-deck-fixture-premise.json",
+        "docs/evidence/empowered-insight-2026-10-19/issue67.json",
+        "docs/evidence/empowered-insight-2026-10-19/new-copy-helper-sequence-premise.json",
+        "docs/evidence/empowered-insight-2026-10-19/new-pre-empower-powerful-cost-premise.json",
+        "docs/evidence/empowered-insight-2026-10-19/official-event-source-manifest.json",
+        "docs/evidence/empowered-insight-2026-10-19/one-check.json",
+        "docs/evidence/empowered-insight-2026-10-19/ordinary12.json",
+        "docs/evidence/empowered-insight-2026-10-19/original-test-retention.json",
+        "docs/evidence/empowered-insight-2026-10-19/original-unregistered-source-red.json",
+        "docs/evidence/empowered-insight-2026-10-19/pending-event-source-intake.json",
+        "docs/evidence/empowered-insight-2026-10-19/pending-vendetta-source-intake.json",
+        "docs/evidence/empowered-insight-2026-10-19/post-check-final.json",
+        "docs/evidence/empowered-insight-2026-10-19/post-check-focus438.json",
+        "docs/evidence/empowered-insight-2026-10-19/previous-c6-full-observation.json",
+        "docs/evidence/empowered-insight-2026-10-19/previous-c6-global20-observation.json",
+        "docs/evidence/empowered-insight-2026-10-19/previous-c6-locked-score-independent.json",
+        "docs/evidence/empowered-insight-2026-10-19/real-sql-independent.json",
+        "docs/evidence/empowered-insight-2026-10-19/real-sql12.json",
+        "docs/evidence/empowered-insight-2026-10-19/registration-only-missing-insight-red.json",
+        "docs/evidence/empowered-insight-2026-10-19/runtime-row-retention.json",
+        "docs/evidence/empowered-insight-2026-10-19/simultaneous-recycle-order-premise.json",
+        "docs/evidence/empowered-insight-2026-10-19/song-source-observation.json",
+        "docs/evidence/empowered-insight-2026-10-19/source-frontier-observation.json",
+        "docs/evidence/empowered-insight-2026-10-19/source-manifest.json",
+        "docs/evidence/empowered-insight-2026-10-19/supplemental-source-obligations.json",
+        "docs/evidence/empowered-insight-2026-10-19/supported-gallery-source-impact.json",
+        "docs/evidence/empowered-insight-2026-10-19/vendetta-existing-source-association.json",
+        "docs/evidence/empowered-insight-2026-10-19/vendetta-release-observation.json"
+      ]
     }
   ]
 }

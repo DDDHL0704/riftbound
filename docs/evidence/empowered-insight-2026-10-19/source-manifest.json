@@ -1,0 +1,67 @@
+{
+  "recordedAtUtc": "2026-10-19T01:09:44.663187+00:00",
+  "region": "CN",
+  "language": "zh-CN",
+  "applicableAsOf": "2026-10-16",
+  "observedLocalDate": "2026-10-19",
+  "baseCommit": "c6af0a41d28326b7dd2ec18b9b1a3d176a6a2b99",
+  "exactRuntimePrinting": "VEN·047",
+  "exactApiId": 37738,
+  "observedPrintedImageIdentity": "VEN·047/166 · SC",
+  "existingSourceLedgerIdentity": "CARD:VEN-047",
+  "namespacesNotMerged": true,
+  "bindings": [
+    {
+      "path": "docs/evidence/empowered-insight-2026-10-19/source-frontier-observation.json",
+      "sha256": "ee7e2d818db8514614a4a53039e9b031b912c212c3a7e2359d6d32b500a88562",
+      "role": "exact-source-binding"
+    },
+    {
+      "path": "docs/evidence/empowered-insight-2026-10-19/exact-mage-source-bindings.json",
+      "sha256": "6c75366bfd8a2fa3ca32b83b4854f6f1157aabeb83ab89de19202189450139d2",
+      "role": "exact-source-binding"
+    },
+    {
+      "path": "docs/evidence/empowered-insight-2026-10-19/current-core-and-mage-image-observation.json",
+      "sha256": "ca806c3afef350c85c7170ffc4f1035fa442edbf92e6d72f332a09204b60bece",
+      "role": "exact-source-binding"
+    },
+    {
+      "path": "docs/evidence/empowered-insight-2026-10-19/song-source-observation.json",
+      "sha256": "b46a3e6ebd88e4a5698318b7167cf6d943781e43be5fe7c6b2d0935ecf83b4fe",
+      "role": "exact-source-binding"
+    },
+    {
+      "path": "docs/evidence/empowered-insight-2026-10-19/faq-and-topmost-card-bindings.json",
+      "sha256": "9b102ebb107596df01a3ff549e171508672c7f8933f094518de97dba8f78f45c",
+      "role": "exact-source-binding"
+    },
+    {
+      "path": "docs/evidence/empowered-insight-2026-10-19/vendetta-release-observation.json",
+      "sha256": "d52703f2a9312bbe12f26eaa8176a5b6c6630ce093807f70d1e0f0ab74f47ca8",
+      "role": "exact-source-binding"
+    },
+    {
+      "path": "docs/evidence/empowered-insight-2026-10-19/vendetta-existing-source-association.json",
+      "sha256": "10a56668d952add8676b4e477b61a0dfd8b0209ffcb8577f0feae536284ec554",
+      "role": "exact-source-binding"
+    }
+  ],
+  "sourceClauses": [
+    "DOC-01 417.5",
+    "DOC-01 437",
+    "DOC-01 442",
+    "DOC-01 719.1",
+    "DOC-01 719.4",
+    "DOC-01 719.5"
+  ],
+  "semanticScope": "Actual ordinary binary empower transition of Mage, current native/copied printed text instances, mandatory private Insight2, independent recovery and original-log checks. Neither whole printing nor every indirect empowerment/attachment/status exception is certified.",
+  "individualPrintingPublicationAndEffectiveDates": null,
+  "regionalTournamentEligibilityCertified": false,
+  "setReleaseAndExactPrintingTournamentEligibilityAreDistinct": true,
+  "faqZeroNameHitsNotProofOfNoRelatedImageOrQuestion": true,
+  "allRelatedFaqImagesInspected": false,
+  "rawAcquisitionsAndOriginalFailedAndPassedTrxRetainedLocally": true,
+  "rawBodyIntakeNotAFirstProjectDiscoveryOrTemporalRulesChangeClaim": true,
+  "semanticCoverageCertified": false
+}

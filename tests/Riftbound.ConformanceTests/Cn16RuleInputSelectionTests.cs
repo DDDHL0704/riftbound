@@ -33,7 +33,7 @@ public sealed class Cn16RuleInputSelectionTests
         Assert.Equal(1504, scope.GetProperty("cardQa").GetProperty("entries").GetInt32());
         Assert.Equal("0f5f933ced955f89b9046eb66bf07f62b4d827464b23669b8af6a009b2fc784c", scope.GetProperty("cardQa").GetProperty("sha256").GetString());
         Assert.NotEqual(PriorAuthority, RuleInputIdentity.Current.AuthoritySha256);
-        Assert.Equal("9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9", RuleInputIdentity.Current.CatalogSha256);
+        Assert.Equal("c4cc65cfcac0a6761466545876614a0440c70bdc199a81b9e9834f96ed4df1fc", RuleInputIdentity.Current.CatalogSha256);
     }
 
     [Fact]
@@ -44,6 +44,23 @@ public sealed class Cn16RuleInputSelectionTests
         var state = MatchReplayInitialStateBuilder.FromSeats("prior-cn14-under-cn16", new Dictionary<string, string> { ["P1"] = "P1", ["P2"] = "P2" })
             with { RuleInputs = prior };
         var result = await new CoreRuleEngine().ResolveAsync(state, new("prior-authority", "P1", "PASS"), new PassCommand(), default);
+        Assert.False(result.Accepted); Assert.Equal(ErrorCodes.RecoveryInconsistent, result.ErrorCode);
+        Assert.Same(state, result.State); Assert.Empty(result.Events);
+        Assert.Throws<MatchSessionException>(() => new MatchSession(state, new CoreRuleEngine(), NoopMatchJournal.Instance));
+        var replay = await MatchActionLogReplayer.VerifyFinalStateAsync(state, [], state, new CoreRuleEngine(), default);
+        Assert.False(replay.IsMatch); Assert.NotEmpty(replay.Errors);
+        Assert.Equal(replay.ExpectedStateHash, replay.ReplayedStateHash);
+    }
+
+    [Fact]
+    public async Task AWellFormedActualPriorCatalogCannotRunUnderTheCurrentImplementation()
+    {
+        var current = RuleInputIdentity.Current;
+        var prior = new RuleInputIdentity(1, "CN", "zh-CN", current.AuthoritySha256,
+            "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9", current.ImplementationSha256);
+        var state = MatchReplayInitialStateBuilder.FromSeats("prior-1033-under-1034", new Dictionary<string, string> { ["P1"] = "P1", ["P2"] = "P2" })
+            with { RuleInputs = prior };
+        var result = await new CoreRuleEngine().ResolveAsync(state, new("prior-catalog", "P1", "PASS"), new PassCommand(), default);
         Assert.False(result.Accepted); Assert.Equal(ErrorCodes.RecoveryInconsistent, result.ErrorCode);
         Assert.Same(state, result.State); Assert.Empty(result.Events);
         Assert.Throws<MatchSessionException>(() => new MatchSession(state, new CoreRuleEngine(), NoopMatchJournal.Instance));

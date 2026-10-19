@@ -1,0 +1,68 @@
+{
+  "recordedAtUtc": "2026-10-18T23:43:55.437630+00:00",
+  "region": "CN",
+  "language": "zh-CN",
+  "applicableAsOf": "2026-10-16",
+  "currentPrimaryCnCore": {
+    "url": "https://cdn.playloltcg.com/lol/2026/10/2026-10-10/a21ead876c6b44d6abe386b6ae54ea28.pdf",
+    "attemptedAtUtc": "2026-10-18T23:34:58.317113+00:00",
+    "receivedAtUtc": "2026-10-18T23:35:10.358553+00:00",
+    "httpStatus": 200,
+    "httpDate": "Sat, 10 Oct 2026 00:27:22 GMT",
+    "lastModified": "Fri, 09 Oct 2026 16:55:24 GMT",
+    "bytes": 40278538,
+    "sha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11",
+    "publishedAt": "2026-10-10",
+    "effectiveAt": "2026-10-16",
+    "region": "CN",
+    "language": "zh-CN",
+    "existingCanonicalPdf": "var/qa/colorless-token-haste-20261016/DOC-01-current.pdf",
+    "existingCanonicalText": "var/qa/colorless-token-haste-20261016/DOC-01-current.txt",
+    "existingCanonicalTextSha256": "cafb4f3010c68360f3a8bc39b2b963e6654d6368c193c1d935a77661fb900a6d",
+    "noAdditionalPdfCopy": true
+  },
+  "scopedExtracts": [
+    {
+      "startTextLine": 5186,
+      "endTextLine": 5206,
+      "text": "\n435.1.b.1.                  如果顶部卡牌贴附了一张以上的卡牌，则在堆叠时，应保证所有效果文本框和战力加成均清晰\n                            可见。已贴附卡牌的顺序不影响效果的应用。\n\n435.1.c.               所有已贴附卡牌的效果文本，都会被添加到顶部卡牌的规则文本中。\n\n435.1.d.               顶部卡牌 的战力，会按照其所有已贴附 卡牌的战力加成 进行调整。\n\n\n435.1.e.               贴附 一张或多张卡牌会导致这些卡牌卡面上印刷的规则文本 在其贴附 期间变为未激活 状态。\n                            想获取更多有关信息，请查阅规则 716.贴附。\n\n435.1.f.               将一张卡牌贴附到新的顶部卡牌会导致其从当前已贴附的任何卡牌上卸除。\n\n435.1.g.               将一张卡牌贴附到其当前的顶部卡牌不会产生任何效果。\n\n435.1.h.               单位 无法被贴附 到其他卡牌上。\n                            想获取更多有关信息，请查阅规则 140.单位。\n\n435.1.h.1.                  如果某个单位将被贴附，则不会产生任何效果。\n"
+    },
+    {
+      "startTextLine": 5392,
+      "endTextLine": 5415,
+      "text": "\n439.7.b.                进行换回时，指示物会消失，原始卡牌会返回该指示物刚刚占据的位置，并继承所有当前效果和状态。\n\n439.7.b.1.                     被该指示物或其曾替换过的任何指示物替换过的任何卡牌，均可通过这种方式换回。\n\n439.7.c.                如果放逐区域中没有可以换回的对象，则该物体永远无法换回。\n\n440.         创建\n\n\n440.1.            创建 指的是在游戏中生成一个此前不存在的游戏物体 的行动。\n\n\n440.2.            创建 一个或多个游戏物体 的效果会指定这些游戏物体 的去向——这些游戏物体 会直接创建 到相关区域。\n\n\n440.2.a.               在创建之前，这些游戏物体不存在于它们被创建的区域之外。在创建后，它们可根据所属的游戏物体类\n                       型相应改变区域。\n\n440.2.b.               如果该效果未指定区域，则游戏物体会被创建到其类型对应的适当区域。\n\n440.2.b.1.                   常驻牌会创建到场地上其可以被打出到的位置。\n\n440.2.b.2.                   法术会在结算链上被创建。"
+    },
+    {
+      "startTextLine": 7364,
+      "endTextLine": 7375,
+      "text": "812.1.c.               只要在同一回合中，有另一张卡牌不同于具有[鼓舞]技能的卡牌已由你完成确认，则该具有[鼓舞]的卡牌\n                       上的依赖性技能就会生效。\n\n812.2.            玩家只需打出一张卡牌，便可满足其控制的所有卡牌上带有的所有[鼓舞]效果的条件。\n                       举例：一张卡牌拥有三个不同的[鼓舞]技能。只要该卡牌的控制者在同一回合早些时候已确认过一张卡\n                       牌，则该卡牌三个技能的[鼓舞]文本都会生效。\n\n812.3.            [鼓舞]，以及卡牌是否拥有[鼓舞]，是卡牌的一个特性，其他游戏效果可以检查或引用该特性。\n\n813.         反应\n\n"
+    }
+  ],
+  "actualImageInspection": {
+    "tool": "view_image",
+    "file": "var/qa/deck-family-frontier-20261019/apprentice-mage-cn-official-face.png",
+    "sha256": "467cbf52cc8c6a5bd5295ca656fe0b24d7d612d0841e0e33b1360252a11312ba",
+    "printedFooter": "VEN · 047/166 · SC",
+    "name": "见习法师",
+    "manaCost": 3,
+    "printedPowerCost": 0,
+    "might": 3,
+    "empowerActivationMana": 2,
+    "becomesEmpoweredInsightCount": 2,
+    "empoweredSelfMightBonus": 1
+  },
+  "identityAssociation": {
+    "rawApiId": 37738,
+    "rawApiCardNo": "VEN·047",
+    "existingCnSourceObligation": "CARD:VEN-047",
+    "observedPrintedCardNo": "VEN·047/166",
+    "englishGalleryId": "ven-047-166",
+    "relationship": "EXPLICIT_SAME_NUMBER_NAME_AND_SKILLS_ASSOCIATION_WITH_DISTINCT_SOURCE_NAMESPACES_RETAINED",
+    "oldSourceIdsOr1740DenominatorMergedOrRewritten": false
+  },
+  "rulesInterpretationScope": "Empower442 binary transition for this ordinary card, existing mandatory trigger handoff then Insight437 private subset and ordering. Printed Predict817 entry is a distinct trigger. Repeated empowered-status exceptions and other cards remain separate OPEN obligations.",
+  "previousV1GlobalReferenceClarification": "source-frontier-manifest-v1.currentPrimaryCoreManifest points to the prior global source observation as historical context, not the CN primary. This exact freshly hashed CN DOC01 binding is authoritative for this candidate.",
+  "apiPreviewFlagAloneNotATournamentLegalityCertificate": true,
+  "regionalTournamentApplicability": "OPEN_SEPARATE_FROM_CURRENT_CN_CARD_TEXT_AND_CORE_MECHANICS",
+  "wholeCardCertified": false
+}

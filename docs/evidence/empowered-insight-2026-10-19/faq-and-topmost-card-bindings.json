@@ -1,0 +1,70 @@
+{
+  "reviewedAtUtc": "2026-10-19T00:56:55.157967+00:00",
+  "currentCnPrimary": {
+    "document": "DOC-01",
+    "sha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11",
+    "applicableAsOf": "2026-10-16",
+    "clauses": [
+      "719.1",
+      "719.4",
+      "719.5"
+    ],
+    "sourceTextPath": "var/qa/colorless-token-haste-20261016/DOC-01-current.txt",
+    "sourceTextSha256": "cafb4f3010c68360f3a8bc39b2b963e6654d6368c193c1d935a77661fb900a6d",
+    "textStart": 188136,
+    "textLength": 639,
+    "physicalLfFirstLine": 6570,
+    "physicalLfLastLine": 6593,
+    "exactScopedTextSha256": "66d5f98d9c4f97e757c4ceaebeb318e3b98410da1192f29583a9958a039353f4",
+    "exactScopedText": "719.       顶部卡牌 是指有一张或多张卡牌通过贴附 动作与其相连的卡牌。\n\n\n719.1.          所有贴附于此卡牌的卡牌，只要保持贴附状态，其效果文本就会被添加到此卡牌的规则文本中。\n\n719.2.          当不再有任何卡牌贴附于此卡牌时，它将不再是顶部卡牌。\n\n719.3.          顶部卡牌 和所有贴附于它的卡牌 均位于同一位置。\n\n\n719.3.a.              当顶部卡牌变更位置时，所有已贴附卡牌会随之变更位置。\n\n719.4.          顶部卡牌 的休眠 和活跃 状态不会影响或改变已贴附 卡牌的状态，反之亦然。\n\n\n719.4.a.              除位置、已贴附状态和顶部卡牌状态外，其他所有状态均适用此规则。\n                          举例：如果顶部卡牌进入晕眩状态，不会影响任何已贴附卡牌的状态。\n\n                           举例：如果一张已贴附卡牌变为已强化状态，不会影响其顶部卡牌的状态。\n\f719.5.             当顶部卡牌从场地区域移动到非场地区域时，所有已贴附卡牌将从此卡牌上卸除，并留在当前区域。\n\n719.5.a.               对区域变更的顶部卡牌拥有控制权的玩家，将决定这些卡牌卸除的顺序，并因此决定因卸除而产生的任\n                       何相关效果的顺序。\n"
+  },
+  "freshlyRetainedGlobalReference": {
+    "url": "https://playriftbound.com/en-us/news/rules-and-releases/vendetta-rules-faq-and-clarifications/",
+    "acquiredAtUtc": "2026-10-18T22:59:16.900015+00:00",
+    "publishedAt": "2026-08-14T01:00:00.000Z",
+    "effectiveAt": null,
+    "region": "GLOBAL",
+    "language": "en-US",
+    "manifest": {
+      "path": "var/qa/copied-duel-paired-20261019/official-global-source-observation-v1.json",
+      "sha256": "09709938f36b81ac684427b052400eafbb84fe5ce96604c5ed83ad17fbc8fbb3"
+    },
+    "rawSha256": "0080562727296986efea892322413eede277c3269c964d11c8bb3635640e568a",
+    "bodyHtmlSha256": "ca5137a80d898ab546eaad090876b8aac358023e17df7ff9090fbb17bc2ea578",
+    "originalCompressedRawPath": "var/qa/copied-duel-paired-20261019/official-global-source-observation/e5d46a49ba8f9b66.html.gz",
+    "scopedCopiedGearParagraphs": [
+      {
+        "textStart": 9355,
+        "textLength": 365,
+        "textSha256": "258db2089b6e12192fc9d4f12e95df5f1165f78a52fca19d36b9dbf612ffe0db"
+      },
+      {
+        "textStart": 9724,
+        "textLength": 106,
+        "textSha256": "43dba1de4d2bd7a70ba17ac8489ce2bc19f18d7dfa2be3544a2984ac5655def0"
+      },
+      {
+        "textStart": 10021,
+        "textLength": 350,
+        "textSha256": "3fe6af43e6f869905e6a349edd673e1d0d391a82614f7973262c452ea7da7467"
+      },
+      {
+        "textStart": 11018,
+        "textLength": 413,
+        "textSha256": "895b8bb54eaab8aaa8290f07fda7cd387b0ac10f4811490d76c5659291a82fde"
+      }
+    ]
+  },
+  "boundedInterpretation": {
+    "cnTopmostRule": "While attached, equipment effect text is added to the topmost card rules text. The host receives each current copied Mage instance.",
+    "globalCopiedGearSequence": "Attachment executes first; copying follows. Newly copied text cannot retroactively trigger for an earlier event.",
+    "n9RealAssemblyBeforeActualStatusTransition": "TESTED",
+    "n9AttachAfterAlreadyEmpoweredOrDetachBeforeStatusTransition": "NOT_YET_A_DEDICATED_N9_TESTED_BRANCH",
+    "keywordOnlyEmpowerStatusExceptions": "SEPARATE_OPEN"
+  },
+  "faqExactEnglishMageTextMatches": 0,
+  "zeroTextMatchesDoesNotProveNoRelevantFaqOrImage": true,
+  "allFaqCardImagesInspected": false,
+  "cnAuthorityNotReplacedByGlobalFaq": true,
+  "wholeCardOrWholeFaqCertified": false
+}

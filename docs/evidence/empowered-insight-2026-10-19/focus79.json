@@ -1,0 +1,57 @@
+{
+  "status": "PASS",
+  "cases": 79,
+  "methods": 8,
+  "originalRunInputs": "focus-lifecycle-security-v2-inputs.json",
+  "retainedExecutedModules": {
+    "Riftbound.CardCatalog.dll": {
+      "sha256": "64c75304a2f030cfaef65b0ae7cc29ed2e41175ce6122b08dcb6e5efc96e9e70",
+      "retainedExactPath": "var/qa/deck-family-frontier-20261019/pre-registration-executed-modules/Riftbound.CardCatalog.dll"
+    },
+    "Riftbound.Contracts.pdb": {
+      "sha256": "5c71364e71336373ba650b0c0b3af8019197d7476f59418328459de88918680a",
+      "retainedExactPath": "var/qa/deck-family-frontier-20261019/pre-registration-executed-modules/Riftbound.Contracts.pdb"
+    },
+    "Riftbound.Engine.pdb": {
+      "sha256": "0972e3cd214f1b879f23def666d56b50f55ae368476f9c56006b2cb2134f7ae5",
+      "retainedExactPath": "var/qa/deck-family-frontier-20261019/initial-consumer-failed-new-modules/Riftbound.Engine.pdb"
+    },
+    "Riftbound.CardCatalog.pdb": {
+      "sha256": "55fb474d68a4f8f52f6943143bdbd03c8bd60aaba19e0ddfbfc6e5cf165cb29c",
+      "retainedExactPath": "var/qa/deck-family-frontier-20261019/pre-registration-executed-modules/Riftbound.CardCatalog.pdb"
+    },
+    "Riftbound.Contracts.dll": {
+      "sha256": "b02c8e71b39754c74b70f515d4b4bc6fc95678769175d6e73267bf85ed07029e",
+      "retainedExactPath": "var/qa/deck-family-frontier-20261019/pre-registration-executed-modules/Riftbound.Contracts.dll"
+    },
+    "Riftbound.Engine.dll": {
+      "sha256": "9fede8e1c76cc55595b931db18a822defd83001781af712a9a11f9c0acf4d8aa",
+      "retainedExactPath": "var/qa/deck-family-frontier-20261019/initial-consumer-failed-new-modules/Riftbound.Engine.dll"
+    },
+    "Riftbound.Persistence.pdb": {
+      "sha256": "8aa716fe98aa951b54bd04b3223697e78ef83a5f5a666b8f452ead1ff6e165af",
+      "retainedExactPath": "var/qa/deck-family-frontier-20261019/initial-consumer-failed-new-modules/Riftbound.Persistence.pdb"
+    },
+    "Riftbound.Api.dll": {
+      "sha256": "fbff8bde7d3053fb0683fa7e5c0120debe0b104e980800305a83e81635e10c47",
+      "retainedExactPath": "var/qa/deck-family-frontier-20261019/initial-consumer-failed-new-modules/Riftbound.Api.dll"
+    },
+    "Riftbound.ConformanceTests.pdb": {
+      "sha256": "b9e2e79bc8011d1f2506329e7dbe29a5f2c9b1e30996609d29acf15f85a3f0ff",
+      "retainedExactPath": "var/qa/deck-family-frontier-20261019/lifecycle-security-green-new-modules/Riftbound.ConformanceTests.pdb"
+    },
+    "Riftbound.Api.pdb": {
+      "sha256": "8cea20afef739e08ce21cfc2b4e0191078d7073b401dbc9f0c8bad52c562e067",
+      "retainedExactPath": "var/qa/deck-family-frontier-20261019/initial-consumer-failed-new-modules/Riftbound.Api.pdb"
+    },
+    "Riftbound.Persistence.dll": {
+      "sha256": "351ce6f0b5985729d7c932ab586dba66a643c7ebae5d43a43d68064cadf5dad8",
+      "retainedExactPath": "var/qa/deck-family-frontier-20261019/initial-consumer-failed-new-modules/Riftbound.Persistence.dll"
+    },
+    "Riftbound.ConformanceTests.dll": {
+      "sha256": "ca3ca20a368c92683ae8404ad734393ebdb02e486d90bc57790b3dc881cbf812",
+      "retainedExactPath": "var/qa/deck-family-frontier-20261019/lifecycle-security-green-new-modules/Riftbound.ConformanceTests.dll"
+    }
+  },
+  "scope": "Controlled fixture only. Empty/one/two-card private look, real different-generation pre-transition exile/reentry, real post-capture destruction, 15 private and 54 public forgeries, coordinated shape-valid origin removal rejected by original log. Not ordinary opening or product acceptance."
+}

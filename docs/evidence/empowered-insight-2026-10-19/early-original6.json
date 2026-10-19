@@ -1,0 +1,35 @@
+{
+  "status": "PASS",
+  "cases": 6,
+  "methods": 5,
+  "selectedOriginalGameResults": [
+    [
+      "Riftbound.ConformanceTests.FullGameEndToEndTests.AuditedCopiedPrintedTextMidgameResolvesIndependentInstancesAndReplaysThroughScoreVictory(card: \"SFD\u00b7050/221\")",
+      "Passed"
+    ],
+    [
+      "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialLowCurveFullGameScoreVictoryActionLogReplaysToFinalStateHash",
+      "Passed"
+    ],
+    [
+      "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameResolvesLostLibraryHighCostSpellInsightAndScoreVictoryActionLogReplaysToFinalStateHash",
+      "Passed"
+    ],
+    [
+      "Riftbound.ConformanceTests.FullGameEndToEndTests.AuditedCopiedPrintedTextMidgameResolvesIndependentInstancesAndReplaysThroughScoreVictory(card: \"OGN\u00b7109/298\")",
+      "Passed"
+    ],
+    [
+      "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialLowCurveDecksResolveContestedBattleAfterStandardMove",
+      "Passed"
+    ],
+    [
+      "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameResolvesCandlelitSanctumConquerRevealRecycleAndScoreVictoryActionLogReplaysToFinalStateHash",
+      "Passed"
+    ]
+  ],
+  "allAuthoredInputsStable": true,
+  "allActualOwnModulesStable": true,
+  "originalEightFullGameSourcesUnchanged": true,
+  "full143MethodsAnd110PairsNotClaimedByThisFocus": true
+}
