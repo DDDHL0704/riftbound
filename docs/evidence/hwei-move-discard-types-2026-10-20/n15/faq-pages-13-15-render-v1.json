@@ -1,0 +1,64 @@
+{
+  "createdAt": "2026-10-19T16:02:39.815047+00:00",
+  "sourceSha256": "59bd828207564540aa3c9885f9dfc39764034f633eb6fb84d49440c9edef4742",
+  "renders": [
+    {
+      "page": 13,
+      "file": "var/qa/cn-qa-source-trace-20261019/faq-source-review-derivatives/page-13-v1.png",
+      "bytes": 312639,
+      "sha256": "65c4c01767683734d87506a3e69fe8fa43bf696495f9eaf581fd85306d986133",
+      "command": [
+        "pdftoppm",
+        "-f",
+        "13",
+        "-l",
+        "13",
+        "-singlefile",
+        "-r",
+        "110",
+        "-png",
+        "var/qa/porobot-20261015/resume-DOC-06.pdf",
+        "var/qa/cn-qa-source-trace-20261019/faq-source-review-derivatives/page-13-v1"
+      ]
+    },
+    {
+      "page": 14,
+      "file": "var/qa/cn-qa-source-trace-20261019/faq-source-review-derivatives/page-14-v1.png",
+      "bytes": 285288,
+      "sha256": "868cbcef063a3e1f4d815d5e636fa2995c82513e4d073e67a8c7b3dc11485214",
+      "command": [
+        "pdftoppm",
+        "-f",
+        "14",
+        "-l",
+        "14",
+        "-singlefile",
+        "-r",
+        "110",
+        "-png",
+        "var/qa/porobot-20261015/resume-DOC-06.pdf",
+        "var/qa/cn-qa-source-trace-20261019/faq-source-review-derivatives/page-14-v1"
+      ]
+    },
+    {
+      "page": 15,
+      "file": "var/qa/cn-qa-source-trace-20261019/faq-source-review-derivatives/page-15-v1.png",
+      "bytes": 317571,
+      "sha256": "bf6763f9887b55989db26cda8c775ad835e8a3d765896ab549bebbfa57df8f9f",
+      "command": [
+        "pdftoppm",
+        "-f",
+        "15",
+        "-l",
+        "15",
+        "-singlefile",
+        "-r",
+        "110",
+        "-png",
+        "var/qa/porobot-20261015/resume-DOC-06.pdf",
+        "var/qa/cn-qa-source-trace-20261019/faq-source-review-derivatives/page-15-v1"
+      ]
+    }
+  ],
+  "readbackPending": true
+}

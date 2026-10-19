@@ -1,0 +1,17 @@
+{
+  "profile": "focus",
+  "discoveredMethods": 7580,
+  "jobs": 4,
+  "includeGames": false,
+  "testAssemblySha256": "4a33665f950a770243bc4d679b3eb95016cc05f080621eb73de490a2f46eae48",
+  "timings": "/Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/TestResults/mechanical-full.trx",
+  "shards": [
+    {
+      "name": "focus",
+      "methods": [
+        "Riftbound.ConformanceTests.HweiMoveDiscardRecoveryTests.ActualSourceReturnBeforeResolutionKeepsDrawDiscardAndRunesButCannotBuffNewHandIncarnation"
+      ],
+      "filter": "(FullyQualifiedName~HweiMoveDiscardRecoveryTests.ActualSourceReturnBeforeResolution)&FullyQualifiedName!~Riftbound.ConformanceTests.FullGameEndToEndTests."
+    }
+  ]
+}

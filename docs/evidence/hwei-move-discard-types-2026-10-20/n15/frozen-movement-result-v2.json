@@ -1,0 +1,70 @@
+{
+  "status": "CONTROLLED_RULE_COUNTEREXAMPLE_WITH_POSITIVE_MOVEMENT_CONTROL_NOT_ORDINARY_MATCH_OR_PRODUCT_CERTIFICATION",
+  "acquiredAt": "2026-10-19T15:50:21.495157+00:00",
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+    "implementationSha256": "245e1afda6270b32fb8dda74dcee826ab25bdf37be70f2654d74b8c508f619b8",
+    "identitySha256": "07cb4b856c865cdc85287facee90011a5e0126a3b87cdd309fa073b8f89a3f3d"
+  },
+  "actualLoadedModuleHashes": {
+    "Riftbound.Engine.dll": "236de529c09fb9c6e3fbe7e30d583c9af782827df4946755d2371624c153cabc",
+    "Riftbound.Contracts.dll": "4bd3f3bed7fa7c156adbb7d11bbd6c5af1e2e03a004c3da0c2e8ae5a77b6fd2c",
+    "Riftbound.CardCatalog.dll": "4c6d6378e7ced433e6ba27e6368f76b338819fe4305204f70488b67239d2c11d"
+  },
+  "noCoreProjectOrGodotBuild": true,
+  "noOriginalDatabaseSeedOrHistoryModified": true,
+  "cases": [
+    {
+      "cardNo": "UNL-080/219",
+      "controlledFixture": true,
+      "ordinaryBlankOpening": false,
+      "originalSeed": 0,
+      "acceptedCommands": 1,
+      "eventCount": 2,
+      "afterMoveQueuedTriggers": 0,
+      "afterMoveStackItems": 0,
+      "cardDrawnEvents": 0,
+      "finalHand": [
+        "HAND"
+      ],
+      "finalDeck": [
+        "D0",
+        "D1"
+      ],
+      "sourceMovementCount": 1,
+      "originalFullReplayMatched": true,
+      "evidencePath": "/Users/dinghaolin/MyProjects/riftbound/var/qa/cn-qa-source-trace-20261019/frozen-movement-original-v2/hwei-original-controlled-frame.json.gz",
+      "evidenceSha256": "c26ab37c33dc92ffbd58bf34ee5312cb5ca0bfdb2d45b9250c8dcd1fe30202f7",
+      "ruleExpectedInitialDraw": 1,
+      "classification": "CONFIRMED_CONTROLLED_MISSING_HWEI_MOVEMENT_TRIGGER_AND_DRAW"
+    },
+    {
+      "cardNo": "VEN\u00B7033",
+      "controlledFixture": true,
+      "ordinaryBlankOpening": false,
+      "originalSeed": 0,
+      "acceptedCommands": 3,
+      "eventCount": 10,
+      "afterMoveQueuedTriggers": 0,
+      "afterMoveStackItems": 1,
+      "cardDrawnEvents": 1,
+      "finalHand": [
+        "HAND",
+        "D0"
+      ],
+      "finalDeck": [
+        "D1"
+      ],
+      "sourceMovementCount": 1,
+      "originalFullReplayMatched": true,
+      "evidencePath": "/Users/dinghaolin/MyProjects/riftbound/var/qa/cn-qa-source-trace-20261019/frozen-movement-original-v2/pakaa-positive-control-original-frame.json.gz",
+      "evidenceSha256": "f819184b56037c612ec779bb34393c2ae852a16b2c162feb1e693251d614ee1d",
+      "ruleExpectedInitialDraw": 1,
+      "classification": "POSITIVE_PAKAA_MOVEMENT_CONTROL"
+    }
+  ]
+}

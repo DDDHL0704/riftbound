@@ -1,0 +1,9 @@
+{
+  "recordedAt": "2026-10-19T17:12:35.344011+00:00",
+  "status": "ORDINARY_PROBE_USED_NONEXISTENT_EVENTSEQUENCE_PROPERTY_NO_TEST_EXECUTION",
+  "source": "var/qa/hwei-move-discard-types-20261020/ordinary-first-build-v4.cs.txt",
+  "sha256": "8cd0ca3767ac46548e6e7593046fa934757ab1e586cb201ebc66cee79596c699",
+  "buildLog": "focus-v4/build.log",
+  "correction": "Use the last actual recovered event Sequence as the event checkpoint.",
+  "originalFixtureAndAssertionsRetained": true
+}

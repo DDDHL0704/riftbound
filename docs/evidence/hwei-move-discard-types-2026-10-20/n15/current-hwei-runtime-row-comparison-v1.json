@@ -1,0 +1,28 @@
+{
+  "observedAt": "2026-10-19T15:52:18.292927+00:00",
+  "apiId": 34614,
+  "printing": "UNL-080/219",
+  "runtimeSourceFile": "data/official/card-catalog.zh-CN.json",
+  "runtimeWholeFileSha256": "d521d7346392f2ea947c73c437c140d7bfe13a90cbca8642f7ae135b7b11f479",
+  "currentRowFieldCount": 34,
+  "runtimeRowFieldCount": 31,
+  "wholeRowByteEquivalent": false,
+  "currentOnlyFields": {
+    "cardCategoryList": [
+      "hero_unit"
+    ],
+    "errata": "",
+    "otherDesc": 0,
+    "cardCategoryNameList": [
+      "英雄单位"
+    ],
+    "isPreview": false
+  },
+  "runtimeOnlyFields": {
+    "cardCategoryName": "英雄单位",
+    "cardCategory": "hero_unit"
+  },
+  "commonDifferentFields": {},
+  "allCommonFieldsEqual": true,
+  "inference": "This compares present fields only; absent runtime metadata must not be claimed present or invented."
+}

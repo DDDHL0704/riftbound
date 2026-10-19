@@ -1,0 +1,17 @@
+{
+  "recordedAt": "2026-10-19T16:21:10.008374+00:00",
+  "priorLookup": "current-core-draw-discard-clause-intake-v1.json",
+  "priorLookupActuallyFound": "432 Burnout and433 Double; it did not identify draw/discard headings",
+  "actualHeadings": [
+    {
+      "page": 71,
+      "heading": "414.         抽牌"
+    },
+    {
+      "page": 76,
+      "heading": "423.       弃置"
+    }
+  ],
+  "priorRawResultsRetained": true,
+  "noRuntimeOrSemanticConclusionFromWrongLookup": true
+}

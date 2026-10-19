@@ -29,8 +29,9 @@ var copiedDuelOnly = args.SequenceEqual(new[] { "--copied-duel-insight-only" });
 var empoweredInsightOnly = args.SequenceEqual(new[] { "--empowered-insight-only" });
 var pakaRevealOnly = args.SequenceEqual(new[] { "--paka-move-reveal-only" });
 var emptyRevealFollowupOnly = args.SequenceEqual(new[] { "--empty-reveal-followup-only" });
+var hweiMoveDiscardTypesOnly = args.SequenceEqual(new[] { "--hwei-move-discard-types-only" });
 var pakaDualTypeRevealOnly = args.SequenceEqual(new[] { "--paka-dual-type-reveal-only" });
-if (args.Length != 0 && !openingRandomnessOnly && !optionalCostsOnly && !battlefieldPlayRecoveryOnly && !battlefieldPlayDamageOnly && !banishEffectPlayOnly && !hereLocationOnly && !fateWeaverOnly && !multiControllerOrderOnly && !emptyObservedRepeatOnly && !observedPlayWindowOnly && !ravenbloomPutHandOnly && !attachedPredictOnly && !copiedLastBreathOnly && !copiedDuelOnly && !empoweredInsightOnly && !pakaRevealOnly && !emptyRevealFollowupOnly && !pakaDualTypeRevealOnly) throw new ArgumentException("Unknown PostgreSQL acceptance selector.");
+if (args.Length != 0 && !openingRandomnessOnly && !optionalCostsOnly && !battlefieldPlayRecoveryOnly && !battlefieldPlayDamageOnly && !banishEffectPlayOnly && !hereLocationOnly && !fateWeaverOnly && !multiControllerOrderOnly && !emptyObservedRepeatOnly && !observedPlayWindowOnly && !ravenbloomPutHandOnly && !attachedPredictOnly && !copiedLastBreathOnly && !copiedDuelOnly && !empoweredInsightOnly && !pakaRevealOnly && !emptyRevealFollowupOnly && !pakaDualTypeRevealOnly && !hweiMoveDiscardTypesOnly) throw new ArgumentException("Unknown PostgreSQL acceptance selector.");
 var json = new JsonSerializerOptions(JsonSerializerDefaults.Web) { WriteIndented = true };
 await using var dataSource = NpgsqlDataSource.Create(connectionString);
 await using (var connection = await dataSource.OpenConnectionAsync()) {
@@ -38,6 +39,12 @@ await using (var connection = await dataSource.OpenConnectionAsync()) {
         await using var command = new NpgsqlCommand(await File.ReadAllTextAsync(path), connection);
         await command.ExecuteNonQueryAsync();
     }
+}
+if (hweiMoveDiscardTypesOnly)
+{
+    await HweiMoveDiscardTypesSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "hwei-move-discard-types"));
+    Console.WriteLine("SCOPED_POSTGRES_ONLY: hwei-move-discard-types; the retained complete SQL suite was not requested.");
+    return;
 }
 if (pakaDualTypeRevealOnly)
 {
@@ -268,6 +275,7 @@ await EmpoweredInsightSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "e
 await PakaaProtectorSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "paka-move-reveal"));
 await EmptyRevealSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "empty-reveal-followup"));
 await PakaaDualTypeRevealSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "paka-dual-type-reveal"));
+await HweiMoveDiscardTypesSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "hwei-move-discard-types"));
 
 JsonElement Raw(GameCommand command) => JsonSerializer.SerializeToElement(command, command.GetType(), json);
 async Task Submit(string actor, string intent, GameCommand command, bool accepted = true) {

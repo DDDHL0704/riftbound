@@ -1,0 +1,9 @@
+{
+  "recordedAt": "2026-10-19T16:30:48.708835+00:00",
+  "status": "INDEPENDENT_ARTIFACT_VERIFIER_SOURCE_FILE_SELECTION_FAILED_NO_PASS_RECEIPT_WRITTEN",
+  "source": "var/qa/cn-qa-source-trace-20261019/verify-old07ac-original-artifact.first-source-filter-v1.py.txt",
+  "sourceSha256": "4a6aea1eba286f731745b60ec2c977379af5740fc33ab2a159e7a9fedfbb3c59",
+  "reason": "Exact suffix FullGameEndToEndTests.cs excludes the seven retained partial source files; select the original class filename prefix and retain the expected eight-file assertion.",
+  "allEightSourceAssertionRetained": true,
+  "originalArtifactAndHistoryUnchanged": true
+}

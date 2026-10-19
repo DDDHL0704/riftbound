@@ -1,0 +1,9 @@
+{
+  "recordedAt": "2026-10-19T15:57:39.061806+00:00",
+  "source": "var/qa/cn-qa-source-trace-20261019/frozen-ordinary-hwei-probe/Program.first-build-v1.cs.txt",
+  "sourceSha256": "85acc3450e349bb7ee38ac4ab252ee491268ef38ccf31ac4618ca108c337ad5d",
+  "status": "PROBE_CSHARP_PATTERN_VARIABLE_NAME_COLLISION_BEFORE_ENGINE_EXECUTION",
+  "buildLog": "frozen-ordinary-hwei-probe-build-v1.log",
+  "runtimeExecuted": false,
+  "productionChange": false
+}

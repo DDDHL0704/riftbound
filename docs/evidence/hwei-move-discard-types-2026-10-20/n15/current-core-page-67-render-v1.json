@@ -1,0 +1,22 @@
+{
+  "sourceSha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11",
+  "sourcePage": 67,
+  "renderedAt": "2026-10-19T15:53:26.331430+00:00",
+  "command": [
+    "pdftoppm",
+    "-f",
+    "67",
+    "-l",
+    "67",
+    "-singlefile",
+    "-r",
+    "110",
+    "-png",
+    "var/qa/colorless-token-haste-20261016/DOC-01-current.pdf",
+    "var/qa/cn-qa-source-trace-20261019/current-core-page-67-v1"
+  ],
+  "file": "var/qa/cn-qa-source-trace-20261019/current-core-page-67-v1.png",
+  "bytes": 284619,
+  "sha256": "68bf41500cb6c675648886bd0c8f272b42d50409a38343e52d36e5f6d8906aaf",
+  "visualReadbackPending": true
+}

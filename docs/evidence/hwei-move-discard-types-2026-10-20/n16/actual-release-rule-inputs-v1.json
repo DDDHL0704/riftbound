@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "region": "CN",
+  "language": "zh-CN",
+  "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+  "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+  "implementationSha256": "8758c75f6432678da5e9b15e2d956a76f6948df034dcc8b437c9cc9158463c18",
+  "identitySha256": "f4aefb541cd1ce32c7a36fbc328ef239c1b42ab09efd99ab10f7187a7cee3a73"
+}

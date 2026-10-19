@@ -1,0 +1,14 @@
+{
+  "recordedAtUtc": "2026-10-19T18:00:05.859564+00:00",
+  "roots": [
+    {
+      "rootLocked": true,
+      "sessions": [
+        true
+      ]
+    }
+  ],
+  "originalOnlyCheckStartLockRootsEmptyMeansUnknownNotUnlocked": true,
+  "originalCollectorDictionaryRootIterationDefectRetained": true,
+  "noPasswordOrSessionSecurityChange": true
+}

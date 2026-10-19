@@ -1,0 +1,233 @@
+{
+  "recordedAtUtc": "2026-10-19T16:26:55.038395+00:00",
+  "existingUnifiedRemainingManifest": "docs/audit/current-manifest.json",
+  "existingManifestSha256": "c953901cf76ed6849e34f6eac3e83be19336afc08822ffd48591382ad520e616",
+  "existingRemainingReceipt": "var/qa/dual-type-reveal-20261019/final-governance-v5.json",
+  "existingRemainingCount": 16885,
+  "existingAll16885ObligationIdsRetained": true,
+  "status": "LOCAL_SOURCE_AND_CONFIRMED_DEFECT_LINKAGE_PENDING_COHERENT_IMPLEMENTATION_BATCH_INTEGRATION",
+  "initialFriendlyDocumentIdAndMissingOptionalSourceRecordLookupsFailedWithoutChangingAnything": true,
+  "exactFriendlyToContentVersionedRuleRecordMapping": {
+    "DOC-06-P008-B001": "CN-59bd828207564540-P008-B001",
+    "DOC-06-P008-B002": "CN-59bd828207564540-P008-B002",
+    "DOC-06-P008-B003": "CN-59bd828207564540-P008-B003",
+    "DOC-06-P008-B004": "CN-59bd828207564540-P008-B004"
+  },
+  "linkedOriginalObligations": [
+    {
+      "existingObligationId": "CARD:UNL-080/219",
+      "originalRemainingRecord": {
+        "id": "CARD:UNL-080/219",
+        "kind": "PRINTING",
+        "sourceLedger": {
+          "path": "docs/evidence/pakaa-move-reveal-2026-10-19/all-card-ledger.json",
+          "sha256": "cb51813028cda0c7793357bd1550e06e23f0dd51271966b30bd0621cd52481f2",
+          "role": "current-card-ledger"
+        },
+        "sourceRecord": "UNL-080/219",
+        "sourceVersions": [
+          {
+            "language": "zh-CN",
+            "sourceId": 34614,
+            "cardNo": "UNL-080/219",
+            "name": "彗",
+            "sha256": "0807f0d36334a0bd3eacd1f5fd0c2d8f174d572c2e73f9b03c44e5dc96e99ef2",
+            "snapshot": {
+              "path": "data/official/upstream/2026-10-14/source-refresh-20261013T164814Z/card-catalog.zh-CN.json",
+              "sha256": "1a3defea228520af938e9b40389aaa936d3c16678303593d55372cd4251b8fbc"
+            },
+            "confirmedAt": "2026-10-13T16:46:28.219816+00:00",
+            "publishedPreview": false
+          },
+          {
+            "language": "en-US",
+            "sourceId": "unl-080-219",
+            "cardNo": "UNL-080/219",
+            "name": "Hwei",
+            "sha256": "400b0c1ba3a5ce01454de6ef79882d1621d48f581ca63cca1109cd9d13386fe5",
+            "snapshot": {
+              "path": "data/official/upstream/2026-10-14/source-refresh-20261013T164814Z/card-gallery.en-US.json",
+              "sha256": "4b5ea0b0683ddf64736276d3d39a721b8d42b47037e3747a8429a11ea8f55a31"
+            },
+            "confirmedAt": "2026-10-13T16:45:12.062488+00:00",
+            "publishedPreview": false
+          }
+        ],
+        "semanticReview": "NOT_CERTIFIED",
+        "behaviorBranchMapping": "REQUIRED",
+        "scopedReviewRefs": [],
+        "applicability": "REQUIRES_REGIONAL_DATE_DISPOSITION"
+      },
+      "region": "CN",
+      "language": "zh-CN",
+      "sourceVersionManifest": {
+        "path": "var/qa/cn-qa-source-trace-20261019/source-and-frozen-counterexample-manifest-v2.json",
+        "sha256": "e70f0bbd2a039485805b8ef3a3b71426cd715a5afe4c5c1d49b20253e280026c"
+      },
+      "semanticReview": "LIMITED_HWEI_SOURCE_TEXT_MULTITYPE_AND_CURRENT_CORE388_1_b_REVIEWED_NOT_WHOLE_PRINTING",
+      "implementation": "CONFIRMED_MISSING_MOVEMENT_TRIGGER_AND_INITIAL_DRAW",
+      "testExecution": "FROZEN_NEGATIVE_CONTROLLED_AND_TWO_ORIGINAL_LEGAL_OPENING_PREFIXES_CONFIRMED",
+      "fixedCommitCi": "OPEN_FOR_FUTURE_IMPLEMENTATION_FIX",
+      "productAcceptance": "OPEN",
+      "wholePrintingCertified": false,
+      "trackingIssue": "https://github.com/DDDHL0704/riftbound/issues/68"
+    },
+    {
+      "existingObligationId": "RULE:CN-59bd828207564540-P008-B001",
+      "originalRemainingRecord": {
+        "id": "RULE:CN-59bd828207564540-P008-B001",
+        "kind": "RULE_RECORD",
+        "sourceLedger": {
+          "path": "docs/evidence/rules-reaudit-2026-10-11/all-rule-ledger.json",
+          "sha256": "af5d3738a9df06b3087f454726396a906b7d73dea5ccbc9fd9080985b5287297",
+          "atCommit": "4a2b4d4659ae36f18e4ab104efd2f1523d04b602"
+        },
+        "sourceRecord": "CN-59bd828207564540-P008-B001",
+        "document": "CN-59bd828207564540",
+        "textHash": "1db9163305543e6cc4bcf75445f45bf6763862fb2fe1af884b0212cc7d57d0ff",
+        "semanticReview": "NOT_CERTIFIED",
+        "behaviorBranchMapping": "REQUIRED",
+        "scopedReviewRefs": [],
+        "applicability": "REQUIRES_DOCUMENT_AND_CLAUSE_DISPOSITION"
+      },
+      "region": "CN",
+      "language": "zh-CN",
+      "sourceVersionManifest": {
+        "path": "var/qa/cn-qa-source-trace-20261019/source-and-frozen-counterexample-manifest-v2.json",
+        "sha256": "e70f0bbd2a039485805b8ef3a3b71426cd715a5afe4c5c1d49b20253e280026c"
+      },
+      "semanticReview": "LIMITED_HWEI_SOURCE_TEXT_MULTITYPE_AND_CURRENT_CORE388_1_b_REVIEWED_NOT_WHOLE_PRINTING",
+      "implementation": "CONFIRMED_MISSING_MOVEMENT_TRIGGER_AND_INITIAL_DRAW",
+      "testExecution": "FROZEN_NEGATIVE_CONTROLLED_AND_TWO_ORIGINAL_LEGAL_OPENING_PREFIXES_CONFIRMED",
+      "fixedCommitCi": "OPEN_FOR_FUTURE_IMPLEMENTATION_FIX",
+      "productAcceptance": "OPEN",
+      "wholePrintingCertified": false,
+      "trackingIssue": "https://github.com/DDDHL0704/riftbound/issues/68"
+    },
+    {
+      "existingObligationId": "RULE:CN-59bd828207564540-P008-B002",
+      "originalRemainingRecord": {
+        "id": "RULE:CN-59bd828207564540-P008-B002",
+        "kind": "RULE_RECORD",
+        "sourceLedger": {
+          "path": "docs/evidence/rules-reaudit-2026-10-11/all-rule-ledger.json",
+          "sha256": "af5d3738a9df06b3087f454726396a906b7d73dea5ccbc9fd9080985b5287297",
+          "atCommit": "4a2b4d4659ae36f18e4ab104efd2f1523d04b602"
+        },
+        "sourceRecord": "CN-59bd828207564540-P008-B002",
+        "document": "CN-59bd828207564540",
+        "textHash": "02d1e84e4ebae7fd15f79eeb7d4e2bb7a119333edd20bbc180622dcdaba4391e",
+        "semanticReview": "NOT_CERTIFIED",
+        "behaviorBranchMapping": "REQUIRED",
+        "scopedReviewRefs": [],
+        "applicability": "REQUIRES_DOCUMENT_AND_CLAUSE_DISPOSITION"
+      },
+      "region": "CN",
+      "language": "zh-CN",
+      "sourceVersionManifest": {
+        "path": "var/qa/cn-qa-source-trace-20261019/source-and-frozen-counterexample-manifest-v2.json",
+        "sha256": "e70f0bbd2a039485805b8ef3a3b71426cd715a5afe4c5c1d49b20253e280026c"
+      },
+      "semanticReview": "LIMITED_HWEI_SOURCE_TEXT_MULTITYPE_AND_CURRENT_CORE388_1_b_REVIEWED_NOT_WHOLE_PRINTING",
+      "implementation": "CONFIRMED_MISSING_MOVEMENT_TRIGGER_AND_INITIAL_DRAW",
+      "testExecution": "FROZEN_NEGATIVE_CONTROLLED_AND_TWO_ORIGINAL_LEGAL_OPENING_PREFIXES_CONFIRMED",
+      "fixedCommitCi": "OPEN_FOR_FUTURE_IMPLEMENTATION_FIX",
+      "productAcceptance": "OPEN",
+      "wholePrintingCertified": false,
+      "trackingIssue": "https://github.com/DDDHL0704/riftbound/issues/68"
+    },
+    {
+      "existingObligationId": "RULE:CN-59bd828207564540-P008-B003",
+      "originalRemainingRecord": {
+        "id": "RULE:CN-59bd828207564540-P008-B003",
+        "kind": "RULE_RECORD",
+        "sourceLedger": {
+          "path": "docs/evidence/rules-reaudit-2026-10-11/all-rule-ledger.json",
+          "sha256": "af5d3738a9df06b3087f454726396a906b7d73dea5ccbc9fd9080985b5287297",
+          "atCommit": "4a2b4d4659ae36f18e4ab104efd2f1523d04b602"
+        },
+        "sourceRecord": "CN-59bd828207564540-P008-B003",
+        "document": "CN-59bd828207564540",
+        "textHash": "4cac04c72979e20e1beebbfe9b2eb24cce06b27ccfb6a4c9c3e785a7453724d4",
+        "semanticReview": "NOT_CERTIFIED",
+        "behaviorBranchMapping": "REQUIRED",
+        "scopedReviewRefs": [],
+        "applicability": "REQUIRES_DOCUMENT_AND_CLAUSE_DISPOSITION"
+      },
+      "region": "CN",
+      "language": "zh-CN",
+      "sourceVersionManifest": {
+        "path": "var/qa/cn-qa-source-trace-20261019/source-and-frozen-counterexample-manifest-v2.json",
+        "sha256": "e70f0bbd2a039485805b8ef3a3b71426cd715a5afe4c5c1d49b20253e280026c"
+      },
+      "semanticReview": "LIMITED_HWEI_SOURCE_TEXT_MULTITYPE_AND_CURRENT_CORE388_1_b_REVIEWED_NOT_WHOLE_PRINTING",
+      "implementation": "CONFIRMED_MISSING_MOVEMENT_TRIGGER_AND_INITIAL_DRAW",
+      "testExecution": "FROZEN_NEGATIVE_CONTROLLED_AND_TWO_ORIGINAL_LEGAL_OPENING_PREFIXES_CONFIRMED",
+      "fixedCommitCi": "OPEN_FOR_FUTURE_IMPLEMENTATION_FIX",
+      "productAcceptance": "OPEN",
+      "wholePrintingCertified": false,
+      "trackingIssue": "https://github.com/DDDHL0704/riftbound/issues/68"
+    },
+    {
+      "existingObligationId": "RULE:CN-59bd828207564540-P008-B004",
+      "originalRemainingRecord": {
+        "id": "RULE:CN-59bd828207564540-P008-B004",
+        "kind": "RULE_RECORD",
+        "sourceLedger": {
+          "path": "docs/evidence/rules-reaudit-2026-10-11/all-rule-ledger.json",
+          "sha256": "af5d3738a9df06b3087f454726396a906b7d73dea5ccbc9fd9080985b5287297",
+          "atCommit": "4a2b4d4659ae36f18e4ab104efd2f1523d04b602"
+        },
+        "sourceRecord": "CN-59bd828207564540-P008-B004",
+        "document": "CN-59bd828207564540",
+        "textHash": "cd99532c3408607dd8c9329542155005159d9ff957ab51563beddcecfa3c9faa",
+        "semanticReview": "NOT_CERTIFIED",
+        "behaviorBranchMapping": "REQUIRED",
+        "scopedReviewRefs": [],
+        "applicability": "REQUIRES_DOCUMENT_AND_CLAUSE_DISPOSITION"
+      },
+      "region": "CN",
+      "language": "zh-CN",
+      "sourceVersionManifest": {
+        "path": "var/qa/cn-qa-source-trace-20261019/source-and-frozen-counterexample-manifest-v2.json",
+        "sha256": "e70f0bbd2a039485805b8ef3a3b71426cd715a5afe4c5c1d49b20253e280026c"
+      },
+      "semanticReview": "LIMITED_HWEI_SOURCE_TEXT_MULTITYPE_AND_CURRENT_CORE388_1_b_REVIEWED_NOT_WHOLE_PRINTING",
+      "implementation": "CONFIRMED_MISSING_MOVEMENT_TRIGGER_AND_INITIAL_DRAW",
+      "testExecution": "FROZEN_NEGATIVE_CONTROLLED_AND_TWO_ORIGINAL_LEGAL_OPENING_PREFIXES_CONFIRMED",
+      "fixedCommitCi": "OPEN_FOR_FUTURE_IMPLEMENTATION_FIX",
+      "productAcceptance": "OPEN",
+      "wholePrintingCertified": false,
+      "trackingIssue": "https://github.com/DDDHL0704/riftbound/issues/68"
+    }
+  ],
+  "finiteRemainingBehaviorBranches": [
+    {
+      "id": "HWEI_MOVE_DRAW_THEN_REQUIRED_DISCARD",
+      "state": "OPEN"
+    },
+    {
+      "id": "HWEI_DISCARDED_SPELL_INLINE_DRAW",
+      "state": "OPEN"
+    },
+    {
+      "id": "HWEI_DISCARDED_GEAR_INLINE_ZERO_ONE_TWO_RUNE_TARGETS",
+      "state": "OPEN"
+    },
+    {
+      "id": "HWEI_DISCARDED_UNIT_INLINE_SELF_MIGHT_UNTIL_END_TURN",
+      "state": "OPEN"
+    },
+    {
+      "id": "HWEI_REAL_UNIT_GEAR_BOTH_INLINE_TRIGGERS_BOTH_ORDERS",
+      "state": "OPEN"
+    },
+    {
+      "id": "HWEI_CAPTURED_SOURCE_CONTROLLER_GENERATION_AND_PRIVATE_CHOICE_RECOVERY",
+      "state": "OPEN"
+    }
+  ],
+  "wholeSourceUniverseAndEarlierSemanticReviewsUnchanged": true,
+  "all161FaqBlockIdsStillOpenUntilIndividualSourceRuntimeAndCurrentCoreReconciliation": true,
+  "all22PagePixelReviewNotAnAutomaticSemanticPromotion": true
+}

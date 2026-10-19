@@ -1,0 +1,28 @@
+{
+  "status": "ORIGINAL_20_FRAMES_RELOCATED_BYTE_EXACT",
+  "oldTestWorkingDirectoryRelativePath": "tests/Riftbound.ConformanceTests/bin/Debug/net10.0/var/qa/hwei-move-discard-types-20261020/final-focus-frames",
+  "canonicalPath": "var/qa/hwei-move-discard-types-20261020/final-focus-frames",
+  "sha256": {
+    "ChinaStandard20260724-True-after-discard.json.gz": "4ead2d31aad21b17c65c599a36c52efc6f610fa0c18ded4ea320f81f953bd35c",
+    "CoreRules-False-pending-discard.json.gz": "df0796d14dd4761da80f0f480d22ea4f54ea924a4a57b565efa3cbfc3406c71e",
+    "ChinaStandard20260724-False-before-move.json.gz": "de8f54732b13a3574208ded3d7924227d7f22cef85d31b1e503346cd1984f7f6",
+    "ChinaStandard20260724-False-after-discard.json.gz": "4ead2d31aad21b17c65c599a36c52efc6f610fa0c18ded4ea320f81f953bd35c",
+    "ChinaStandard20260724-True-pending-discard.json.gz": "9a5815ff718c4148fd05abda5b275a4d2d59657da21e7d3d9d5ba0d844a3a5f8",
+    "CoreRules-True-complete.json.gz": "490a433e8edcfc9f1e53d68fd7fc68651a3c3fcb566b91184eab40d44d54c240",
+    "CoreRules-False-next-turn.json.gz": "a1fdfa5b23d9e1b6d71c2f2eccf49aae57d2d994190e59d79504ba24736cd94d",
+    "CoreRules-True-pending-discard.json.gz": "df0796d14dd4761da80f0f480d22ea4f54ea924a4a57b565efa3cbfc3406c71e",
+    "CoreRules-False-complete.json.gz": "959fc4035f8e26120c9c403942d9697fc8559235c49cfc915b0b29210726c219",
+    "CoreRules-True-before-move.json.gz": "33779081c1d04391678048bf55d4c691347516fead913d6e51de52c11e401a18",
+    "CoreRules-True-next-turn.json.gz": "acb0634f801dfcecaa35c49369e3029726274d04f45109993782cc9816efd732",
+    "ChinaStandard20260724-False-complete.json.gz": "a13a5bde843bf231b91349019de5e4e76c0dd0a36ea95e717cf7d41786eda997",
+    "CoreRules-False-before-move.json.gz": "33779081c1d04391678048bf55d4c691347516fead913d6e51de52c11e401a18",
+    "ChinaStandard20260724-False-pending-discard.json.gz": "9a5815ff718c4148fd05abda5b275a4d2d59657da21e7d3d9d5ba0d844a3a5f8",
+    "ChinaStandard20260724-True-next-turn.json.gz": "61050e0e3b760b2c1c6d04ae693f443754d6a4fa8eb5f2380345e9ac89a55530",
+    "ChinaStandard20260724-False-next-turn.json.gz": "4b3de585445903f1680163ccb01a9b75754359f736f395f1b8d57b1b58767159",
+    "CoreRules-False-after-discard.json.gz": "b8b85394eabbe28918f7c14bd782e9c024a995a48d4d3240253303fe2110d7b7",
+    "ChinaStandard20260724-True-complete.json.gz": "8322907eb6a9f5f78412fc249a92f1eaddec66c31349e45e65f9c22e3306b725",
+    "ChinaStandard20260724-True-before-move.json.gz": "de8f54732b13a3574208ded3d7924227d7f22cef85d31b1e503346cd1984f7f6",
+    "CoreRules-True-after-discard.json.gz": "b8b85394eabbe28918f7c14bd782e9c024a995a48d4d3240253303fe2110d7b7"
+  },
+  "commandStateSeedAndHistoryNotRewritten": true
+}

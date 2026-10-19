@@ -1,0 +1,41 @@
+{
+  "recordedAtUtc": "2026-10-19T15:20:31.244008+00:00",
+  "records": {
+    "home": {
+      "url": "https://www.playloltcg.com/",
+      "startedAtUtc": "2026-10-19T15:20:31.072696+00:00",
+      "region": "CN",
+      "language": "zh-CN",
+      "publicationDate": null,
+      "effectiveDate": null,
+      "httpStatus": 200,
+      "resolvedUrl": "https://www.playloltcg.com/",
+      "httpDate": "Sat, 05 Sep 2026 12:35:29 GMT",
+      "lastModified": "Tue, 18 Aug 2026 02:34:18 GMT",
+      "receivedAtUtc": "2026-10-19T15:20:31.243578+00:00",
+      "rawBytes": 4759,
+      "rawSha256": "217684696e8130adbc4638f582dccc59ce0fbaeeb9025dd80b4172da31de3b7a",
+      "path": "var/qa/cn-qa-source-trace-20261019/home.html.gz",
+      "gzipSha256": "0733f92f0faa6cb6ef97cd37b621b6485da35386f9b1d776024fb98a8c5a1b99"
+    },
+    "rules": {
+      "url": "https://www.playloltcg.com/rules.html",
+      "startedAtUtc": "2026-10-19T15:20:31.075431+00:00",
+      "region": "CN",
+      "language": "zh-CN",
+      "publicationDate": null,
+      "effectiveDate": null,
+      "httpStatus": 200,
+      "resolvedUrl": "https://www.playloltcg.com/rules.html",
+      "httpDate": "Sun, 04 Oct 2026 09:15:17 GMT",
+      "lastModified": "Tue, 18 Aug 2026 02:34:18 GMT",
+      "receivedAtUtc": "2026-10-19T15:20:31.243625+00:00",
+      "rawBytes": 2858,
+      "rawSha256": "574cfebe168c9dedd2f9099b7ea604550c8fe9ecca62383abaad80710893ac2b",
+      "path": "var/qa/cn-qa-source-trace-20261019/rules.html.gz",
+      "gzipSha256": "8e5111f6aadbd3340ab1ae90c5383484fa48b2548157d069321746fbf31a4565"
+    }
+  },
+  "purpose": "Trace actual public official QA discovery routes;1504 list API nulls are not treated as absence. No route guessed, runtime adopted or old snapshot overwritten.",
+  "semanticCoverageCertified": false
+}

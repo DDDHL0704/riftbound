@@ -1,0 +1,10 @@
+{
+  "recordedAt": "2026-10-19T15:49:16.932058+00:00",
+  "status": "STANDALONE_PROBE_COMPILATION_FAILED_BEFORE_RUNTIME_EXECUTION",
+  "cause": "File.CreateNew is not a .NET API; use FileStream with FileMode.CreateNew",
+  "originalSource": "var/qa/cn-qa-source-trace-20261019/frozen-movement-probe/Program.first-build-v1.cs.txt",
+  "sourceSha256": "974980f83b307fbac89050de415e4da3abe059e0d0f31b3da12a8a09fb1cbeb1",
+  "buildLog": "frozen-movement-probe-build-v1.log",
+  "engineWasExecuted": false,
+  "databaseOrOriginalHistoryModified": false
+}

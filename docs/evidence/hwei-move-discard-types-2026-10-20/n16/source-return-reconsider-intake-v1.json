@@ -1,0 +1,33 @@
+{
+  "recordedAtUtc": "2026-10-19T17:32:09.811843+00:00",
+  "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+  "request": {
+    "pageNum": 1,
+    "pageSize": 100,
+    "searchContent": "择日再战",
+    "cardCategoryList": [],
+    "cardColorList": [],
+    "rarityList": [],
+    "productCodeList": []
+  },
+  "httpStatus": 200,
+  "headers": {
+    "Date": "Mon, 19 Oct 2026 17:32:09 GMT",
+    "Content-Type": "application/json",
+    "Content-Length": "1205",
+    "Connection": "close",
+    "Set-Cookie": "tgw_l7_route=6b0cae0ef66e5dc8d57032056dbb0d1f; Expires=Mon, 19-Oct-2026 17:32:39 GMT; Path=/; sameSite=None; Secure",
+    "Vary": "Origin",
+    "X-Frame-Options": "SAMEORIGIN"
+  },
+  "file": "var/qa/hwei-move-discard-types-20261020/source-return-reconsider-api-v1.json.gz",
+  "rawSha256": "4fb839d860d1139aefe98eec770aa810b1d4b00f88bb29ddee7f805a932ff550",
+  "gzipSha256": "71a1939bd08728f664bc976e7172d8da8322b6727b731eceb60d3204a309ff8e",
+  "exactSourceId": 31322,
+  "apiCardNo": "OGN·104/298",
+  "cardText": "{{反应}}（可在任意时机打出，甚至先于其他法术和技能的结算。）\n让一名友方单位返回其所属的手牌，然后让其拥有者召出一枚休眠的符文。",
+  "commonFieldsExact": true,
+  "individualPublicationDate": null,
+  "individualEffectiveDate": null,
+  "scope": "Legal Reaction with1mana, no printed power cost; source owner returns Hwei before its skill resolves, then attempts ordinary rune call. No whole-card certification."
+}

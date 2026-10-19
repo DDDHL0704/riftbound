@@ -1,0 +1,10 @@
+{
+  "recordedAt": "2026-10-19T17:27:19.075847+00:00",
+  "focus": "focus-v7",
+  "status": "ONLY_SOURCE_DEPARTURE_CASE_FAILED_BEFORE_RESPONSE_PLAY",
+  "cause": "Gust OGN169 only returns a battlefield unit with Might3 or less; actual Hwei has Might5. Keep original Hwei stats and replace the new test reaction with current official Reprimand OGN172, id31402.",
+  "freshSelectedReactionSource": "source-return-reprimand-intake-v1.json",
+  "originalFailedTrxRetained": true,
+  "all47MethodsCasesRemain": true,
+  "noEngineRuleCounterexampleClaimFromInvalidGustTarget": true
+}

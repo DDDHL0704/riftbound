@@ -1,0 +1,57 @@
+{
+  "status": "ACTUAL_FIXED_B294_RULE_SUITE_TRXS_PASS_OVERALL_SQL_NETWORK_PENDING",
+  "runId": 39275773327,
+  "fixedCommit": "b294bb150d877b3399cd9e120bbaec5c75e353cf",
+  "actualRuleCases": 13124,
+  "actualRuleMethods": 7568,
+  "all13118PreviousCaseMultisetRetained": true,
+  "all7566PreviousMethodsRetained": true,
+  "newCaseNames": [
+    [
+      "Riftbound.ConformanceTests.PakaaDualTypeRevealTests",
+      "DualTypeTopIsDrawnOnceWithoutBeingPlayedOrTakingTheNonunitBranch",
+      "Riftbound.ConformanceTests.PakaaDualTypeRevealTests.DualTypeTopIsDrawnOnceWithoutBeingPlayedOrTakingTheNonunitBranch(count: 1, equipment: 0)"
+    ],
+    [
+      "Riftbound.ConformanceTests.PakaaDualTypeRevealTests",
+      "DualTypeTopIsDrawnOnceWithoutBeingPlayedOrTakingTheNonunitBranch",
+      "Riftbound.ConformanceTests.PakaaDualTypeRevealTests.DualTypeTopIsDrawnOnceWithoutBeingPlayedOrTakingTheNonunitBranch(count: 1, equipment: 3)"
+    ],
+    [
+      "Riftbound.ConformanceTests.PakaaDualTypeRevealTests",
+      "DualTypeTopIsDrawnOnceWithoutBeingPlayedOrTakingTheNonunitBranch",
+      "Riftbound.ConformanceTests.PakaaDualTypeRevealTests.DualTypeTopIsDrawnOnceWithoutBeingPlayedOrTakingTheNonunitBranch(count: 2, equipment: 0)"
+    ],
+    [
+      "Riftbound.ConformanceTests.PakaaDualTypeRevealTests",
+      "DualTypeTopIsDrawnOnceWithoutBeingPlayedOrTakingTheNonunitBranch",
+      "Riftbound.ConformanceTests.PakaaDualTypeRevealTests.DualTypeTopIsDrawnOnceWithoutBeingPlayedOrTakingTheNonunitBranch(count: 2, equipment: 3)"
+    ],
+    [
+      "Riftbound.ConformanceTests.PakaaDualTypeRevealTests",
+      "NewLegalDeckFromBlankOpeningKeepsBothPrintedTypesAndReplaysItsOriginalCommands",
+      "Riftbound.ConformanceTests.PakaaDualTypeRevealTests.NewLegalDeckFromBlankOpeningKeepsBothPrintedTypesAndReplaysItsOriginalCommands(format: ChinaStandard20260724)"
+    ],
+    [
+      "Riftbound.ConformanceTests.PakaaDualTypeRevealTests",
+      "NewLegalDeckFromBlankOpeningKeepsBothPrintedTypesAndReplaysItsOriginalCommands",
+      "Riftbound.ConformanceTests.PakaaDualTypeRevealTests.NewLegalDeckFromBlankOpeningKeepsBothPrintedTypesAndReplaysItsOriginalCommands(format: CoreRules)"
+    ]
+  ],
+  "all143OriginalFullGameMethodsRetained": true,
+  "all110DirectedPairs11DecksSeed424242Retained": true,
+  "all110ActualTerminalHashesRetained": true,
+  "rawTrxSha256": {
+    "ci-rules/games-1/results.trx": "f2c98bc01404188e51c99fb711594eece8dadd0f3979d858729b52305e00ab51",
+    "ci-rules/games-2/results.trx": "d8f0c10efe3f4daa617abfd0c5e2c3e2ddde3b47e5273e6549059861b7b8d8b6",
+    "ci-rules/games-3/results.trx": "423cc4c63e3061f7c216381a862f515f0ff2b45d1a92fdbd0dcacd5026803a03",
+    "ci-rules/games-4/results.trx": "fd0444177ea4d50d2183c73cda366826dad769adf334fe435fa4e242689ca78f",
+    "ci-rules/rules/results.trx": "bf50ea9ef7b3add6444addbece06588f3bf1cd746a166c618a815f7be074467b"
+  },
+  "originalSummaryCaseParityVerified": false,
+  "independentRawCaseMultisetActuallyCompared": true,
+  "fullAcceptancePassed": false,
+  "currentUncommittedHweiNotCovered": true,
+  "sqlAndNetworkStillPending": true,
+  "onlyOriginalRulesArchiveDownloadedNoNativePackage": true
+}

@@ -1,0 +1,17 @@
+{
+  "status": "PASSED",
+  "profile": "focus",
+  "seconds": 108.92,
+  "total": 103,
+  "caseParityVerified": false,
+  "shards": [
+    {
+      "shard": "focus",
+      "total": 103,
+      "passed": 103,
+      "failed": 0,
+      "notExecuted": 0,
+      "seconds": 94.14
+    }
+  ]
+}

@@ -3140,6 +3140,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         // The discard/draw choice finishes the top effect; any lower stack item
         // must regain response priority before battlefield cleanup can advance.
+        nextState = QueueMovementDiscardInlines(state, nextState, pendingChoice, submittedObjectIds, events);
         if (nextState.Status == MatchStatuses.InProgress && nextState.StackItems.Count > 0)
             nextState = nextState with { ActivePlayerId = nextState.StackItems[^1].ControllerId,
                 PriorityPlayerId = nextState.StackItems[^1].ControllerId, PassedPriorityPlayerIds = [],
@@ -3240,6 +3241,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (pendingChoice.ChoiceWindow == GraveyardRecycleWindow) return ResolveGraveyardRecycleChoice(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow == "DECK_EFFECT") return ResolveDeckChoice(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow == EndRuneChoiceWindow) return ResolveEndRuneChoice(state, pendingChoice, submittedObjectIds);
+        if (pendingChoice.ChoiceWindow == MovementDiscardRuneChoiceWindow) return ResolveMovementDiscardRuneChoice(state, pendingChoice, submittedObjectIds);
         if (pendingChoice.ChoiceWindow == DeckPlayChoiceWindow) return ResolveDeckPlaySelection(state, pendingChoice, submittedObjectIds);
 
         return RejectWithCorePrompts(

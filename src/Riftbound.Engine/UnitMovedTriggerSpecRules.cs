@@ -38,6 +38,7 @@ internal static class UnitMovedTriggerSpecRules
     public static bool IsImplementedMovementTrigger(TriggerSpec trigger)
         => IsUnitMovedCreateDormantGoldTrigger(trigger) || IsOpponentMovementDrawTrigger(trigger)
             || IsUnitMovedRevealTopDrawUnitOrTrashPowerTrigger(trigger)
+            || IsUnitMovedDrawDiscardTypesTrigger(trigger)
             || trigger.Timing == TriggerTimings.UnitMoved && trigger.TargetScope == TriggerTargetScopes.SourceUnit
                 && (IsMovementUnitTokenTrigger(trigger)
                     || trigger.Kind == TriggerKinds.UnitMovedDiscardDraw && trigger.DiscardCount > 0 && trigger.DrawCount > 0
@@ -45,6 +46,11 @@ internal static class UnitMovedTriggerSpecRules
                     || trigger.Kind == TriggerKinds.UnitMovedGainExperience && trigger.ExperienceCount > 0
                     || trigger.Kind == TriggerKinds.UnitMovedPowerModifier && trigger.PowerDelta > 0
                         && trigger.Duration == TriggerDurations.UntilEndOfTurn);
+
+    public static bool IsUnitMovedDrawDiscardTypesTrigger(TriggerSpec trigger)
+        => trigger.Kind == TriggerKinds.UnitMovedDrawDiscardTypes && trigger.Timing == TriggerTimings.UnitMoved
+            && trigger.TargetScope == TriggerTargetScopes.SourceUnit && trigger.DrawCount == 1 && trigger.DiscardCount == 1
+            && trigger.RuneReadyCount == 2 && trigger.PowerDelta == 3 && trigger.Duration == TriggerDurations.UntilEndOfTurn;
 
     public static bool IsOpponentMovementDrawTrigger(TriggerSpec trigger)
         => trigger.Kind == TriggerKinds.OpponentMovedToOtherBattlefieldDraw && trigger.Timing == TriggerTimings.UnitMoved

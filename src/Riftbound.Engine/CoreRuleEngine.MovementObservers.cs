@@ -5,7 +5,13 @@ namespace Riftbound.Engine;
 public sealed record MovedUnitFact(string ObjectId, long Generation, string ControllerId, string MovingPlayerId,
     ObjectLocationState Origin, ObjectLocationState Destination);
 public sealed record MovementObserverContext(string CardNo, string Kind, long SourceGeneration, MovedUnitFact Unit,
-    IReadOnlyList<MovedUnitFact>? MovementBatch = null, ObjectLocationState? SourceLocation = null, int? MovementOrdinal = null);
+    IReadOnlyList<MovedUnitFact>? MovementBatch = null, ObjectLocationState? SourceLocation = null, int? MovementOrdinal = null)
+{
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public MovementDiscardInlineContext? DiscardInline { get; init; }
+}
+public sealed record MovementDiscardInlineContext(ObjectBinding DiscardedCard, string CardNo, int Types,
+    int BranchType, long CreatedAtTick);
 internal sealed record CapturedMovementObserver(string SourceId, string ControllerId, MovementObserverContext Context);
 
 public sealed partial class CoreRuleEngine
@@ -24,7 +30,10 @@ public sealed partial class CoreRuleEngine
     internal static bool ValidMovementObserver(MovementObserverContext c, string effect, string controller, string source, string? cardNo = null)
     {
         if (string.IsNullOrWhiteSpace(source) || string.IsNullOrWhiteSpace(controller)
-            || effect != MovementObserverEffect || c.SourceGeneration < 0 || cardNo is not null && cardNo != c.CardNo
+            || (effect == MovementObserverEffect ? c.DiscardInline is not null
+                : effect != MovementDiscardInlineEffect || c.DiscardInline is null)
+            || c.DiscardInline is not null && (c.Kind != TriggerKinds.UnitMovedDrawDiscardTypes || !ValidMovementDiscardInline(c.DiscardInline))
+            || c.SourceGeneration < 0 || cardNo is not null && cardNo != c.CardNo
             || !ValidMovedUnitFact(c.Unit)) return false;
         var unit = c.Unit;
         if (c.Kind == MovementScoreKind) return source == unit.ObjectId && controller == unit.ControllerId && c.SourceGeneration == unit.Generation
@@ -55,25 +64,34 @@ public sealed partial class CoreRuleEngine
     {
         var p = state.PendingHandChoice;
         if (p is null) return true;
-        if (p.MovementObserver is null) return p.EffectKind != TriggerKinds.UnitMovedDiscardDraw
-            && p.ChoiceWindow != TriggerKinds.UnitMovedDiscardDraw && p.Reason != TriggerKinds.UnitMovedDiscardDraw;
+        if (p.MovementObserver is null) return p.EffectKind is not (TriggerKinds.UnitMovedDiscardDraw or TriggerKinds.UnitMovedDrawDiscardTypes)
+            && p.ChoiceWindow is not (TriggerKinds.UnitMovedDiscardDraw or TriggerKinds.UnitMovedDrawDiscardTypes)
+            && p.Reason is not (TriggerKinds.UnitMovedDiscardDraw or TriggerKinds.UnitMovedDrawDiscardTypes);
         var c = p.MovementObserver;
         var spec = UnitMovedTriggerSpecRules.MovementTriggers(c.CardNo).FirstOrDefault(t => t.Kind == c.Kind);
-        return c.Kind == TriggerKinds.UnitMovedDiscardDraw && p.EffectKind == c.Kind && p.ChoiceWindow == c.Kind && p.Reason == c.Kind
+        var drawnFirst = c.Kind == TriggerKinds.UnitMovedDrawDiscardTypes;
+        return (drawnFirst || c.Kind == TriggerKinds.UnitMovedDiscardDraw) && c.DiscardInline is null
+            && p.EffectKind == c.Kind && p.ChoiceWindow == c.Kind && p.Reason == c.Kind
             && ValidMovementObserver(c, MovementObserverEffect, p.PlayerId, p.SourceObjectId)
             && state.Seats.ContainsKey(c.Unit.MovingPlayerId) && state.PlayerZones.TryGetValue(p.PlayerId, out var zones)
-            && spec is not null && p.DrawCount == spec.DrawCount && p.RequiredCount == Math.Min(spec.DiscardCount!.Value, zones.Hand.Count)
+            && spec is not null && p.DrawCount == (drawnFirst ? 0 : spec.DrawCount)
+            && p.RequiredCount == Math.Min(spec.DiscardCount!.Value, zones.Hand.Count)
             && p.MaxCount == p.RequiredCount && p.RequiredCount > 0
             && p.LegalObjectIds.Order(StringComparer.Ordinal).SequenceEqual(zones.Hand.Order(StringComparer.Ordinal));
     }
 
     internal static string MovementObserverLabel(MovementObserverContext c)
         => OfficialCardSourceIdentityGroups.DisplayName(c.CardNo)
-            + (c.Kind switch {
+            + (c.DiscardInline is { } inline ? inline.BranchType switch {
+                1 => "：弃置单位后，本回合战力 +3",
+                2 => "：弃置装备后，让最多两枚符文变为活跃状态",
+                _ => "：弃置法术后，抽一张牌" }
+            : c.Kind switch {
                 MovementScoreKind => "：第三次移动后获得 1 分",
                 TriggerKinds.UnitMovedCreateDormantGold => "：移动后打出休眠金币",
                 TriggerKinds.UnitMovedCreateUnitToken => "：移动后打出单位指示物",
                 TriggerKinds.UnitMovedDiscardDraw => "：移动后弃牌再抽牌",
+                TriggerKinds.UnitMovedDrawDiscardTypes => "：移动后先抽牌，再弃置手牌",
                 TriggerKinds.OpponentMovedToOtherBattlefieldDraw => "：对手移动到其他战场后抽牌",
                 TriggerKinds.UnitMovedDraw => "：移动后抽牌",
                 TriggerKinds.UnitMovedRevealTopDrawUnitOrTrashPower => "：移动后展示顶牌，抽取单位或放入废牌堆并增加战力",
@@ -167,12 +185,15 @@ public sealed partial class CoreRuleEngine
         var context = item.MovementObserver!;
         if (!ValidMovementObserver(context, item.EffectKind, item.ControllerId, item.SourceObjectId, item.CardNo))
             throw new InvalidOperationException("Invalid captured movement observer.");
+        if (context.DiscardInline is not null) return ResolveMovementDiscardInline(state, item);
         if (context.Kind == MovementScoreKind) return ResolveMovementScore(state,item);
         var zones = NormalizeZonesForSeats(state);
         var cards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
         var events = new List<GameEvent> { BuildTriggerResolvedEvent(new(item.StackItemId, item.ControllerId,
             item.SourceObjectId, item.EffectKind, TriggerTimings.UnitMoved) { MovementObserver = context }) };
         var unitSpec = UnitMovedTriggerSpecRules.MovementTriggers(context.CardNo).FirstOrDefault(t => t.Kind == context.Kind);
+        if (context.Kind == TriggerKinds.UnitMovedDrawDiscardTypes)
+            return ResolveMovementDrawDiscardTypes(state, item, events[0]);
         if (context.Kind == TriggerKinds.UnitMovedRevealTopDrawUnitOrTrashPower)
             return ResolveMovementReveal(state, item, unitSpec!, events);
         if (context.Kind == TriggerKinds.UnitMovedCreateUnitToken)

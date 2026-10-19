@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup><OutputType>Exe</OutputType><TargetFramework>net10.0</TargetFramework></PropertyGroup>
   <ItemGroup>
+    <Content Include="../Riftbound.ConformanceTests/Fixtures/hwei-move-discard-openings.json" Link="Fixtures/hwei-move-discard-openings.json" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="../Riftbound.ConformanceTests/Fixtures/pakaa-protector-openings.json" Link="Fixtures/pakaa-protector-openings.json" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="../Riftbound.ConformanceTests/Fixtures/pakaa-dual-type-openings.json" Link="Fixtures/pakaa-dual-type-openings.json" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="../Riftbound.ConformanceTests/Fixtures/empowered-insight-openings.json" Link="Fixtures/empowered-insight-openings.json" CopyToOutputDirectory="PreserveNewest" />

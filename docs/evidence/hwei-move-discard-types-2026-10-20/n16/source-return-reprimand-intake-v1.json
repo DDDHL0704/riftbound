@@ -1,0 +1,44 @@
+{
+  "recordedAtUtc": "2026-10-19T17:26:21.781305+00:00",
+  "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+  "request": {
+    "pageNum": 1,
+    "pageSize": 100,
+    "searchContent": "责退",
+    "cardCategoryList": [],
+    "cardColorList": [],
+    "rarityList": [],
+    "productCodeList": []
+  },
+  "httpStatus": 200,
+  "headers": {
+    "Date": "Mon, 19 Oct 2026 17:26:21 GMT",
+    "Content-Type": "application/json",
+    "Content-Length": "1111",
+    "Connection": "close",
+    "Set-Cookie": "tgw_l7_route=cc030ae68fd1ebbd308ff36a992829c1; Expires=Mon, 19-Oct-2026 17:26:51 GMT; Path=/; sameSite=None; Secure",
+    "Vary": "Origin",
+    "X-Frame-Options": "SAMEORIGIN"
+  },
+  "file": "var/qa/hwei-move-discard-types-20261020/source-return-reprimand-api-v1.json.gz",
+  "rawSha256": "ec91e9b48b8eb00cf02b61a02a60c390e22b471a1ab2149ff069348fbef77fdf",
+  "gzipSha256": "a94d5d4200f476f2c0a8463e1820e1c899c5dd9c2de54c223a95df9776e85f58",
+  "exactSourceId": 31402,
+  "exactApiPrinting": "OGN·172/298",
+  "currentText": "{{迅捷}}（可在你的回合或法术对决中打出。）\n让一名战场上的单位返回其所属的手牌。",
+  "commonFieldDifferences": {},
+  "runtimeOnlyFields": [
+    "cardCategory",
+    "cardCategoryName"
+  ],
+  "currentOnlyFields": [
+    "isPreview",
+    "cardCategoryNameList",
+    "cardCategoryList",
+    "errata",
+    "otherDesc"
+  ],
+  "individualPublicationDate": null,
+  "individualEffectiveDate": null,
+  "scope": "Only legality of the selected reaction used to test Hwei source departure; not whole Reprimand certification"
+}

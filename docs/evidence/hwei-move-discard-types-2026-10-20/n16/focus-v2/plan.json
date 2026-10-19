@@ -1,0 +1,19 @@
+{
+  "profile": "focus",
+  "discoveredMethods": 7571,
+  "jobs": 4,
+  "includeGames": false,
+  "testAssemblySha256": "67ff6a06500ad0cbab0d01c33e88a44dd3a417f16e0ffe90d5ff321647a6b0f1",
+  "timings": "/Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/TestResults/mechanical-full.trx",
+  "shards": [
+    {
+      "name": "focus",
+      "methods": [
+        "Riftbound.ConformanceTests.HweiMoveDiscardTypesTests.DrawsBeforeOfferingAllHandCardsThenCreatesEveryMatchingType",
+        "Riftbound.ConformanceTests.HweiMoveDiscardTypesTests.RealDualTypeHasBothControllerOrdersAndZeroOneOrTwoRuneTargets",
+        "Riftbound.ConformanceTests.HweiMoveDiscardTypesTests.WholePrintedAbilityHasOneImplementedMovementTriggerWithAllThreeInlineEffects"
+      ],
+      "filter": "(FullyQualifiedName~HweiMoveDiscardTypesTests)&FullyQualifiedName!~Riftbound.ConformanceTests.FullGameEndToEndTests."
+    }
+  ]
+}

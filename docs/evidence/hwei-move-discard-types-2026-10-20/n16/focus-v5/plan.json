@@ -1,0 +1,28 @@
+{
+  "profile": "focus",
+  "discoveredMethods": 7580,
+  "jobs": 4,
+  "includeGames": false,
+  "testAssemblySha256": "d9ebf91cb1134959f989e904a58426c11c3ef20c1ddfab93cc18cd7979ac14e3",
+  "timings": "/Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/TestResults/mechanical-full.trx",
+  "shards": [
+    {
+      "name": "focus",
+      "methods": [
+        "Riftbound.ConformanceTests.HweiMoveDiscardOrdinaryTests.OriginalBlankOpeningDrawsDiscardsDualTypeAndResolvesEitherOrderWithCompleteOriginalReplay",
+        "Riftbound.ConformanceTests.HweiMoveDiscardRecoveryTests.ActualSourceReturnBeforeResolutionKeepsDrawDiscardAndRunesButCannotBuffNewHandIncarnation",
+        "Riftbound.ConformanceTests.HweiMoveDiscardRecoveryTests.CoordinatedEarlierInlineCreationTickStillFailsOriginalJournalReplay",
+        "Riftbound.ConformanceTests.HweiMoveDiscardRecoveryTests.EmptyMainDeckUsesRealBurnoutAndFinishesBeforeDiscardIfNoCardCanBeDrawn",
+        "Riftbound.ConformanceTests.HweiMoveDiscardRecoveryTests.GearInlineWithNoRunesNeedsNoSelectionAndStillAllowsItsUnitInline",
+        "Riftbound.ConformanceTests.HweiMoveDiscardRecoveryTests.InlineStateRejectsForgedTypeSourceGenerationTimingRoleAndDuplicateBranch",
+        "Riftbound.ConformanceTests.HweiMoveDiscardRecoveryTests.PendingDiscardRejectsForgedActorHandCountDrawAndSource",
+        "Riftbound.ConformanceTests.HweiMoveDiscardRecoveryTests.RecycledConfirmedRuneLosesItsOldTargetIdentityAndIsNotReadiedInDeck",
+        "Riftbound.ConformanceTests.HweiMoveDiscardRecoveryTests.RuneConfirmationCannotBeReboundToAnotherWindowStackOrTargetSet",
+        "Riftbound.ConformanceTests.HweiMoveDiscardTypesTests.DrawsBeforeOfferingAllHandCardsThenCreatesEveryMatchingType",
+        "Riftbound.ConformanceTests.HweiMoveDiscardTypesTests.RealDualTypeHasBothControllerOrdersAndZeroOneOrTwoRuneTargets",
+        "Riftbound.ConformanceTests.HweiMoveDiscardTypesTests.WholePrintedAbilityHasOneImplementedMovementTriggerWithAllThreeInlineEffects"
+      ],
+      "filter": "(FullyQualifiedName~HweiMoveDiscard)&FullyQualifiedName!~Riftbound.ConformanceTests.FullGameEndToEndTests."
+    }
+  ]
+}

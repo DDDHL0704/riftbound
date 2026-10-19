@@ -1,0 +1,124 @@
+{
+  "recordedAtUtc": "2026-10-19T16:20:01.230994+00:00",
+  "recordedAtAsiaShanghai": "2026-10-20T00:20:01.231108+08:00",
+  "region": "CN",
+  "language": "zh-CN",
+  "auditApplicableAsOf": "2026-10-16",
+  "baseCommit": "b294bb150d877b3399cd9e120bbaec5c75e353cf",
+  "scope": "Live public card-page route/API and one complete22-page Vendetta FAQ visual review; exact Hwei movement trigger counterexamples only.",
+  "officialDirectoryRows": 14,
+  "current14RowsExactLatestPrior14RowDirectory": true,
+  "cardListQaFieldIsNotFaqUniverse": {
+    "frozenEntries": 1504,
+    "fieldPresentNull": 1504,
+    "knownCounterexamplePrinting": "UNL-080/219",
+    "apiId": 34614,
+    "actualQaPdfPage": 8,
+    "absenceInCardQaListDoesNotCloseQaObligation": true
+  },
+  "actualPublicRouteTrace": {
+    "pages": [
+      "https://www.playloltcg.com/",
+      "https://www.playloltcg.com/rules.html",
+      "https://www.playloltcg.com/card.html"
+    ],
+    "firstPartyScripts": [
+      "request.js",
+      "index.js",
+      "rule.js",
+      "card.js"
+    ],
+    "cardModalObservedInPublicScript": "Only assigns card.frontImage to popup image",
+    "noCardQaOrFaqEndpointReferencesInThisCardScript": true,
+    "noGlobalQaAbsenceOrUnknownEndpointAvailabilityClaim": true
+  },
+  "hwei": {
+    "apiId": 34614,
+    "apiCardNo": "UNL-080/219",
+    "physicalFace": "UNL·080/219 SC",
+    "currentRowExactlyEqualsCN16Baseline": true,
+    "runtimeProjectionSchemaDifference": "current-hwei-runtime-row-comparison-v1.json",
+    "allPresentRuntimeCommonFieldsEqual": true,
+    "faceSha256": "d3cfbbe67b6ba1a0d49743b0ad049763c16d11365e7b8154ecd281688f0e26b9",
+    "faceUrl": "https://cdn.playloltcg.com/lol/card/20260319/8b2a853da2bc4d4ead1eac75c1bdbf50.webp",
+    "individualPublicationDate": null,
+    "individualEffectiveDate": null
+  },
+  "vendettaFaq": {
+    "url": "https://cdn.playloltcg.com/lol/2026/08/2026-08-13/612b1cd53f9f41baaf3c8734c1881a3b.pdf",
+    "sha256": "59bd828207564540aa3c9885f9dfc39764034f633eb6fb84d49440c9edef4742",
+    "directoryUpdateDate": "2026-08-14",
+    "independentlyConfirmedPublicationDate": null,
+    "effectiveDate": null,
+    "freshHashMatchesCanonicalAndHistoricalCorpus": true,
+    "historicalReferencedHweiClause": "387.1.b",
+    "currentCoreEquivalentClause": "388.1.b",
+    "currentCorePage": 67,
+    "precedence": "FAQ page1 expressly defers to a newer core for any conflict",
+    "all22PagePixelsObserved": true,
+    "pdfImageOccurrences": 54,
+    "all161OriginalBlockIdsRetained": true,
+    "allExactPrintingsOrSemanticsCertified": false
+  },
+  "primaryCore": {
+    "sha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11",
+    "publicationDate": "2026-10-10",
+    "effectiveDate": "2026-10-16",
+    "freshAcquisitionPinnedAtPriorBatch": {
+      "manifest": "docs/evidence/pakaa-dual-type-reveal-2026-10-19/source-manifest.json",
+      "path": "primaryCore",
+      "acquiredAtUtc": "2026-10-19T13:41:53.487036+00:00"
+    },
+    "actualPage67RenderedAndViewedThisBatch": {
+      "renderReceipt": "current-core-page-67-render-v1.json",
+      "text": "current-core-page-67-inline-trigger-text-v1.txt.gz",
+      "actualCurrentClause": "388.1.b",
+      "notASecondPdfDownload": true
+    }
+  },
+  "confirmedGap": {
+    "currentFrozenCandidateCommit": "797f813c03a739141ba4a8fbe1bb9921337bd351",
+    "actualRuleInputs": {
+      "schemaVersion": 1,
+      "region": "CN",
+      "language": "zh-CN",
+      "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+      "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+      "implementationSha256": "245e1afda6270b32fb8dda74dcee826ab25bdf37be70f2654d74b8c508f619b8",
+      "identitySha256": "07cb4b856c865cdc85287facee90011a5e0126a3b87cdd309fa073b8f89a3f3d"
+    },
+    "controlled": "frozen-movement-result-v2.json",
+    "ordinary": "frozen-ordinary-hwei-result-v3.json",
+    "ordinaryCommands": 42,
+    "ordinaryEvents": 178,
+    "coldRestores": 6,
+    "originalNextComparisons": 4,
+    "independentInvalidActorRejects": 2,
+    "initialDrawObserved": 0,
+    "initialDrawExpected": 1,
+    "bothOriginalFullReplaysMatched": true,
+    "implementationFix": "OPEN",
+    "newFiniteFamilyScope": "draw first; required hand discard; enqueue every matching type as separate inline triggers with original controller order",
+    "wholePrintingCertification": false
+  },
+  "originalFailedProbeBuildsAndOriginalRejectedPowerPrefixRetained": true,
+  "newTemporalOfficialSourceChangeEstablished": false,
+  "mainRuntimeInputsTestsFixturesAndUnifiedManifestUnchanged": true,
+  "visibleNativeAndPhysicalWindows": "OPEN",
+  "overallGoal": "ACTIVE_NOT_READY",
+  "priorManifest": {
+    "path": "var/qa/cn-qa-source-trace-20261019/source-and-frozen-counterexample-manifest-v1.json",
+    "sha256": "e27024e4c170569899b6b357ef27aaee5bfa5e47e455f12e3046425d139c5b6d"
+  },
+  "hweiIssue": {
+    "number": 68,
+    "url": "https://github.com/DDDHL0704/riftbound/issues/68",
+    "state": "OPEN",
+    "labels": [
+      "bug",
+      "ready-for-agent"
+    ],
+    "actualReadback": "hwei-issue-publication-verification-v1.json",
+    "implementation": "OPEN"
+  }
+}

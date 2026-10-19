@@ -1,0 +1,28 @@
+{
+  "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+  "request": {
+    "pageNum": 1,
+    "pageSize": 100,
+    "searchContent": "彗",
+    "cardCategoryList": [],
+    "cardColorList": [],
+    "rarityList": [],
+    "productCodeList": []
+  },
+  "startedAtUtc": "2026-10-19T15:33:15.156494+00:00",
+  "region": "CN",
+  "language": "zh-CN",
+  "publicationDate": null,
+  "effectiveDate": null,
+  "httpStatus": 200,
+  "resolvedUrl": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+  "httpDate": "Mon, 19 Oct 2026 15:33:15 GMT",
+  "lastModified": null,
+  "receivedAtUtc": "2026-10-19T15:33:15.264103+00:00",
+  "rawBytes": 2266,
+  "rawSha256": "4b0eecbde944ee9d7b254b2dc0aa01e9ee0d0fd7c4243560236cd5ee6eb1e900",
+  "path": "var/qa/cn-qa-source-trace-20261019/current-hwei-api-search-v1.json.gz",
+  "gzipSha256": "0572b471ed20c251497718586c2392b6eec2d225a38e147e40facab9adf1f1d8",
+  "reportedTotal": 2,
+  "returnedRows": 2
+}

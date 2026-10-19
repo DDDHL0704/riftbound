@@ -1,0 +1,9 @@
+{
+  "recordedAtUtc": "2026-10-19T18:22:50.647669+00:00",
+  "status": "ISOLATED_READER_REFERENCE_REBUILD_AND_OBSOLETE_RUNTIME_RETIREMENT_DID_NOT_TOUCH_CHECK_INPUTS",
+  "sourceInputsExact": 3285,
+  "conformanceRuntimeAndFixtureFilesExact": 1398,
+  "changedSources": [],
+  "changedConformanceRuntimeFiles": [],
+  "activeCheckStillRunning": true
+}

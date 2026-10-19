@@ -321,6 +321,14 @@ public static class TriggerParser
     public static IReadOnlyList<TriggerSpec> Parse(string text)
     {
         var triggers = new List<TriggerSpec>();
+        var movedTypedDiscard = Regex.Match(text,
+            @"当我移动时，抽一张牌，然后弃置一张手牌。\s*随后，根据被弃置卡牌的类型，执行以下效果：\s*\*法术\s*—\s*抽一张牌。\s*\*装备\s*—\s*让最多两枚符文变为活跃状态。\s*\*单位\s*—\s*让我本回合内\{\{S\}\}\+3。?",
+            RegexOptions.CultureInvariant);
+        if (movedTypedDiscard.Success)
+            triggers.Add(new(TriggerKinds.UnitMovedDrawDiscardTypes, TriggerTimings.UnitMoved,
+                movedTypedDiscard.Value, "Draw first, discard one, then create every applicable type's independent inline trigger.",
+                TargetScope: TriggerTargetScopes.SourceUnit, DrawCount: 1, DiscardCount: 1,
+                RuneReadyCount: 2, PowerDelta: 3, Duration: TriggerDurations.UntilEndOfTurn));
         var movedReveal = Regex.Match(text,
             @"(?:每当|当)我移动时，展示你主牌堆顶部的一张牌。\s*如果是一张单位牌，则抽取该卡牌。\s*否则，将其放入你的废牌堆并给予我在本回合内\{\{S\}\}\+(?<might>[0-9一两二三四五六七八九十]+)。?",
             RegexOptions.CultureInvariant);
@@ -450,6 +458,7 @@ public static class TriggerParser
         }
 
         triggers.AddRange(TargetParser.SplitRulesText(text)
+            .Where(segment => !movedTypedDiscard.Success || !segment.StartsWith("当我移动时，抽一张牌，然后弃置一张手牌", StringComparison.Ordinal))
             .Where(segment => !movedReveal.Success || !segment.StartsWith("当我移动时，展示你主牌堆顶部的一张牌", StringComparison.Ordinal)
                 && !segment.StartsWith("每当我移动时，展示你主牌堆顶部的一张牌", StringComparison.Ordinal))
             .Where(segment => !equipmentDraw.Success || !segment.Contains(equipmentDraw.Value.TrimEnd('。'), StringComparison.Ordinal))

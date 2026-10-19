@@ -1,0 +1,37 @@
+{
+  "url": "https://cdn.playloltcg.com/lol/2026/08/2026-08-13/612b1cd53f9f41baaf3c8734c1881a3b.pdf",
+  "startedAtUtc": "2026-10-19T15:28:39.981367+00:00",
+  "region": "CN",
+  "language": "zh-CN",
+  "directoryRow": {
+    "ruleCategory": "化神争锋系列 FAQ",
+    "ruleName": "化神争锋系列 官方FAQ",
+    "coverUrl": "https://cdn.playloltcg.com/lol/2026/08/2026-08-13/b12f3a27b677490da7065297f5683fc3.jpg",
+    "updateDate": "2026-08-14",
+    "ruleDocUrl": "https://cdn.playloltcg.com/lol/2026/08/2026-08-13/612b1cd53f9f41baaf3c8734c1881a3b.pdf"
+  },
+  "adoptedSourceBeforeReadback": {
+    "id": "DOC-06",
+    "url": "https://cdn.playloltcg.com/lol/2026/08/2026-08-13/612b1cd53f9f41baaf3c8734c1881a3b.pdf",
+    "sha256": "59bd828207564540aa3c9885f9dfc39764034f633eb6fb84d49440c9edef4742",
+    "versionDate": "2026-08-14",
+    "effectiveDate": null,
+    "region": "CN",
+    "language": "zh-CN",
+    "role": "REGIONAL_FAQ_ERRATA_OR_TOURNAMENT_REFERENCE",
+    "applicability": "RETAINED_SOURCE_VERSION_CN_AS_OF_2026_10_16_UNKNOWN_EFFECTIVE_DATES_UNCHANGED"
+  },
+  "publicationDate": null,
+  "effectiveDate": null,
+  "retainedCanonicalSource": "var/qa/porobot-20261015/resume-DOC-06.pdf",
+  "httpStatus": 200,
+  "resolvedUrl": "https://cdn.playloltcg.com/lol/2026/08/2026-08-13/612b1cd53f9f41baaf3c8734c1881a3b.pdf",
+  "httpDate": "Thu, 13 Aug 2026 11:45:53 GMT",
+  "lastModified": "Thu, 13 Aug 2026 11:45:47 GMT",
+  "receivedAtUtc": "2026-10-19T15:28:43.703598+00:00",
+  "rawBytes": 12449344,
+  "rawSha256": "59bd828207564540aa3c9885f9dfc39764034f633eb6fb84d49440c9edef4742",
+  "exactRetainedVersionUnchanged": true,
+  "status": "PASS_SINGLE_CURRENT_VENDETTA_FAQ_BYTES_MATCH_RETAINED_SOURCE",
+  "noAdditionalPdfCopyRetained": true
+}

@@ -1,0 +1,83 @@
+{
+  "createdAt": "2026-10-19T15:58:28.673745+00:00",
+  "sourceSha256": "59bd828207564540aa3c9885f9dfc39764034f633eb6fb84d49440c9edef4742",
+  "renders": [
+    {
+      "page": 4,
+      "file": "var/qa/cn-qa-source-trace-20261019/faq-source-review-derivatives/page-04-v1.png",
+      "bytes": 284311,
+      "sha256": "e3308e61fd07e19986e3cf3c28acac522df9fd34cc3a98ad4524fa98f992a2b4",
+      "command": [
+        "pdftoppm",
+        "-f",
+        "4",
+        "-l",
+        "4",
+        "-singlefile",
+        "-r",
+        "110",
+        "-png",
+        "var/qa/porobot-20261015/resume-DOC-06.pdf",
+        "var/qa/cn-qa-source-trace-20261019/faq-source-review-derivatives/page-04-v1"
+      ]
+    },
+    {
+      "page": 5,
+      "file": "var/qa/cn-qa-source-trace-20261019/faq-source-review-derivatives/page-05-v1.png",
+      "bytes": 266607,
+      "sha256": "85c60809f2c46619ea84fc04636d79f9cb01cd2cabeb093f380e3debad8a78f9",
+      "command": [
+        "pdftoppm",
+        "-f",
+        "5",
+        "-l",
+        "5",
+        "-singlefile",
+        "-r",
+        "110",
+        "-png",
+        "var/qa/porobot-20261015/resume-DOC-06.pdf",
+        "var/qa/cn-qa-source-trace-20261019/faq-source-review-derivatives/page-05-v1"
+      ]
+    },
+    {
+      "page": 6,
+      "file": "var/qa/cn-qa-source-trace-20261019/faq-source-review-derivatives/page-06-v1.png",
+      "bytes": 334584,
+      "sha256": "00dc0a0328ab51f6258c6efcaa7f552f4e287f33c7d595b719ac388fc2f6b23c",
+      "command": [
+        "pdftoppm",
+        "-f",
+        "6",
+        "-l",
+        "6",
+        "-singlefile",
+        "-r",
+        "110",
+        "-png",
+        "var/qa/porobot-20261015/resume-DOC-06.pdf",
+        "var/qa/cn-qa-source-trace-20261019/faq-source-review-derivatives/page-06-v1"
+      ]
+    },
+    {
+      "page": 7,
+      "file": "var/qa/cn-qa-source-trace-20261019/faq-source-review-derivatives/page-07-v1.png",
+      "bytes": 306364,
+      "sha256": "7127f1413e8c47205d80d5854d2cf9e53a5f8f90d0c398e8d19c16e652370f97",
+      "command": [
+        "pdftoppm",
+        "-f",
+        "7",
+        "-l",
+        "7",
+        "-singlefile",
+        "-r",
+        "110",
+        "-png",
+        "var/qa/porobot-20261015/resume-DOC-06.pdf",
+        "var/qa/cn-qa-source-trace-20261019/faq-source-review-derivatives/page-07-v1"
+      ]
+    }
+  ],
+  "readbackPending": true
+}

@@ -23514,6 +23514,69 @@
         "docs/evidence/pakaa-dual-type-reveal-2026-10-19/original-independent-actual-sql-reader-result-v2.json",
         "docs/evidence/pakaa-dual-type-reveal-2026-10-19/original-first-failed-prefix-independent-reader-result-v1.json"
       ]
+    },
+    {
+      "id": "hwei-move-draw-discard-all-printed-types-2026-10-20",
+      "scope": "CN/zh-CN rules effective baseline2026-10-16; current20Oct exact Hwei move draw/discard/all printed type inline branches only.",
+      "status": "LIMITED_IMPLEMENTATION_FOCUS103_SQL4_SOLECHECK_FOUR_DIAGNOSTICS_FOCUSED_CLOSURE_FIXEDFULL_PRODUCT_OPEN",
+      "subjects": [
+        "UNL-080/219",
+        "VEN·058"
+      ],
+      "ruleRecords": [
+        "CN-59bd828207564540-P008-B001",
+        "CN-59bd828207564540-P008-B002",
+        "CN-59bd828207564540-P008-B003",
+        "CN-59bd828207564540-P008-B004"
+      ],
+      "pendingRuleRecords": [],
+      "sourceManifest": {
+        "path": "docs/evidence/hwei-move-discard-types-2026-10-20/source-manifest.json",
+        "sha256": "a72aa6c3519a87fa34a1066a22d3180e90bbe3bfe53ce9a750091af679ee8692",
+        "role": "source-manifest"
+      },
+      "validation": {
+        "focus103": {
+          "path": "docs/evidence/hwei-move-discard-types-2026-10-20/n16/final-focus-v13/summary.json",
+          "sha256": "af089ae19ccb1b14c4853f18c761b3bd64941d874a684e728800d415cf634a72",
+          "role": "summary"
+        },
+        "soleCheck": {
+          "path": "docs/evidence/hwei-move-discard-types-2026-10-20/single-check.json",
+          "sha256": "5041f5c363a289912cd33f7a11d1529dfcf6f6fba49bcf166793aa0412edb7e6",
+          "role": "single-check"
+        },
+        "focusedDiagnosticClosure": {
+          "path": "docs/evidence/hwei-move-discard-types-2026-10-20/n16/postcheck-diagnostic-closure-verification-v1.json",
+          "sha256": "642fe2230da1d35886aa5af3e361a4ceb4e7fbfb1e9feb14339b725fdef370be",
+          "role": "postcheck-diagnostic-closure-verification-v1"
+        },
+        "actualSql": {
+          "path": "docs/evidence/hwei-move-discard-types-2026-10-20/n16/real-sql-verification-v2.json",
+          "sha256": "eda7dd20bc2d0629fd7116f34824abe1bba3119a5a5abdd62b0cdd84b8179ed3",
+          "role": "real-sql-verification-v2"
+        },
+        "newFixedFull": "PENDING",
+        "visibleCurrentNativeProduct": "OPEN",
+        "physicalWindows": "OPEN"
+      },
+      "exclusions": [
+        "ALL_OTHER_HWEI_COPY_LEGITIMATE_CONTROL_CHANGE_FORCED_SIMULTANEOUS_MOVEMENT_AND_CHILD_BURNOUT_BRANCHES",
+        "WHOLE_PRINTING_QA_AND_GLOBAL_SOURCE_GAPS",
+        "NEW_FIXED_FULL",
+        "VISIBLE_NATIVE_PRODUCT",
+        "PHYSICAL_WINDOWS"
+      ],
+      "auditDocument": "docs/HWEI_MOVE_DISCARD_TYPES_AUDIT_2026-10-20.md",
+      "evidence": [
+        "docs/evidence/hwei-move-discard-types-2026-10-20/single-check.json",
+        "docs/evidence/hwei-move-discard-types-2026-10-20/test-preservation.json",
+        "docs/evidence/hwei-move-discard-types-2026-10-20/n16/focus-and-default-sql-retention-v1.json",
+        "docs/evidence/hwei-move-discard-types-2026-10-20/n16/postcheck-diagnostic-closure-verification-v1.json",
+        "docs/evidence/hwei-move-discard-types-2026-10-20/n16/real-sql-verification-v2.json",
+        "docs/evidence/hwei-move-discard-types-2026-10-20/n16/independent-actual-sql-reader-result-v2.json",
+        "docs/evidence/hwei-move-discard-types-2026-10-20/n16/first-failed-prefix-independent-reader-result-v1.json"
+      ]
     }
   ]
 }

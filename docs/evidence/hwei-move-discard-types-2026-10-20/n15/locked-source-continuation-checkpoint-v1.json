@@ -1,0 +1,20 @@
+{
+  "recordedAtUtc": "2026-10-19T16:13:35.497492+00:00",
+  "status": "SOURCE_BATCH_AND_FROZEN_NEGATIVE_REPRODUCTIONS_COMPLETE_IMPLEMENTATION_OPEN",
+  "baseCommit": "b294bb150d877b3399cd9e120bbaec5c75e353cf",
+  "sourceManifest": "source-and-frozen-counterexample-manifest-v1.json",
+  "sourceManifestSha256": "e27024e4c170569899b6b357ef27aaee5bfa5e47e455f12e3046425d139c5b6d",
+  "worktreeClean": true,
+  "latestFixedFullRun": 39275773327,
+  "latestFixedFull": "IN_PROGRESS_LAST_OBSERVED_RULE_SUITE_AND_REAL_SQL",
+  "old07acFull": 39236312099,
+  "old07acFullStatus": "IN_PROGRESS_LAST_OBSERVED_2026-10-19T16:10Z",
+  "hweiIssueStatus": "NOT_YET_CREATED",
+  "nativeCandidateRemains797f": true,
+  "visibleAndPhysicalWindowsRemainOpen": true,
+  "trackedFilesEdited": false,
+  "standaloneBinObjRetired": true,
+  "localEvidenceBytes": 2174016,
+  "freeGiB": 52.79,
+  "next": "Track exact Hwei bug, then bounded shared draw/discard/type-inline implementation after prioritizing any actual fixed-full failures. Do not create a source-only full-CI bookkeeping loop."
+}

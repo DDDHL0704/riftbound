@@ -25272,6 +25272,7 @@ public sealed partial class FullGameEndToEndTests
         {
             var snapshot = JsonNode.Parse(JsonSerializer.Serialize(result.Snapshots[viewerId],
                 new JsonSerializerOptions(JsonSerializerDefaults.Web)))!;
+            CheckHistoricalMovementDiscardSources(snapshot, result.State);
             CheckHistoricalBattlefieldReferences(snapshot, result.State);
             CheckHistoricalBattleReferences(snapshot, result.State);
             CheckHistoricalBoonAmplifierSources(snapshot, result.State);

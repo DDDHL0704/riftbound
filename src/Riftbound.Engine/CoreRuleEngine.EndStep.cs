@@ -79,10 +79,14 @@ public sealed partial class CoreRuleEngine
             && !card.IsFaceDown && IsRuneObject(id, card) && SourceObjectControlledByPlayerOrLegacyOwned(card, player)).ToArray();
 
     private static ResolutionResult PrepareEndRuneTargets(ResolutionResult result, StackItemState item)
+        => PrepareRuneTargets(result, item, item.EndAbility!.RuneCount, EndRuneChoiceWindow, "END-RUNES:" + item.StackItemId);
+
+    private static ResolutionResult PrepareRuneTargets(ResolutionResult result, StackItemState item, int count,
+        string window, string choiceId)
     {
         var state = result.State; var ids = EndRuneTargets(state, item.ControllerId);
-        var choice = new PendingCardChoiceState("END-RUNES:" + item.StackItemId, EndRuneChoiceWindow, item.ControllerId,
-            0, Math.Min(ids.Length, item.EndAbility!.RuneCount), ids, ids, "选择至多指定数量的符文变为活跃状态", item.SourceObjectId, item.EffectKind) {
+        var choice = new PendingCardChoiceState(choiceId, window, item.ControllerId,
+            0, Math.Min(ids.Length, count), ids, ids, "选择至多指定数量的符文变为活跃状态", item.SourceObjectId, item.EffectKind) {
             ResolvingStackItemId = item.StackItemId };
         if (ids.Length == 0)
         {
@@ -100,10 +104,16 @@ public sealed partial class CoreRuleEngine
         if (item?.EndAbility is not { Kind: TriggerKinds.TurnEndReadyRunes or "DELAYED_READY_RUNES" } context || item.TargetGenerations is not null
             || selected.Count > context.RuneCount || selected.Any(id => !EndRuneTargets(state, item.ControllerId).Contains(id)))
             return RejectWithCorePrompts(state, "结束步骤符文选择已失效。", ErrorCodes.InvalidTarget);
+        return ConfirmRuneTargets(state, item, selected, "END_RUNE_TARGETS_CONFIRMED", "结束步骤符文目标已确认，双方可以响应");
+    }
+
+    private static ResolutionResult ConfirmRuneTargets(MatchState state, StackItemState item, IReadOnlyList<string> selected,
+        string eventKind, string message)
+    {
         item = item with { TargetObjectIds = selected, TargetGenerations = selected.ToDictionary(id => id, id => state.CardObjects[id].ObjectGeneration) };
         var next = state with { Tick = state.Tick + 1, PendingCardChoice = null, ActivePlayerId = item.ControllerId,
             PriorityPlayerId = item.ControllerId, PassedPriorityPlayerIds = [], StackItems = state.StackItems.Select(s => s.StackItemId == item.StackItemId ? item : s).ToArray() };
-        return new(true, null, next, [new("END_RUNE_TARGETS_CONFIRMED", "结束步骤符文目标已确认，双方可以响应", new Dictionary<string,object?> {
+        return new(true, null, next, [new(eventKind, message, new Dictionary<string,object?> {
             ["playerId"] = item.ControllerId, ["sourceObjectId"] = item.SourceObjectId, ["objectIds"] = selected.ToArray() })],
             ResolutionResult.BuildSnapshots(next), BuildCorePrompts(next));
     }

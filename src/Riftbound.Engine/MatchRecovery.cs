@@ -1014,6 +1014,7 @@ public static class MatchRecoveryValidator
 
     private static readonly string[] KnownTriggerQueueTriggeredEventKinds =
     [
+        "CARD_DISCARDED",
         "CARDS_RECYCLED",
         "RUNE_RECYCLED",
         "TURN_END_STEP_STARTED",
@@ -23427,7 +23428,7 @@ public static class MatchRecoveryValidator
             if (json.ValueKind == JsonValueKind.Object && json.TryGetProperty("movementObserver", out var raw) && raw.ValueKind != JsonValueKind.Null)
                 context = raw.Deserialize<MovementObserverContext>(new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         } catch (JsonException) { errors.Add("invalid public movement observer encoding"); }
-        if (effect != CoreRuleEngine.MovementObserverEffect && context is null) return false;
+        if (effect is not (CoreRuleEngine.MovementObserverEffect or CoreRuleEngine.MovementDiscardInlineEffect) && context is null) return false;
         if (context is null || !CoreRuleEngine.ValidMovementObserver(context, effect ?? "", controller ?? "", source ?? ""))
         { errors.Add("invalid public captured movement observer"); return false; }
         return true;
@@ -23661,17 +23662,19 @@ public static class MatchRecoveryValidator
             || !CoreRuleEngine.TryReadBattleResponseDeclarationContext(state, string.Empty, out _)))
             errors.Add("invalid battle response declaration");
         if (!CoreRuleEngine.ValidMovementDiscardChoice(state)) errors.Add("invalid movement discard continuation");
+        if (!CoreRuleEngine.ValidMovementDiscardState(state)) errors.Add("invalid movement discard inline bindings");
         foreach (var trigger in state.TriggerQueue)
             if (trigger.MovementObserver is { } movement
                 ? !CoreRuleEngine.ValidMovementObserver(movement, trigger.EffectKind, trigger.ControllerId, trigger.SourceObjectId)
-                    || trigger.TriggeredByEventKind != (movement.Unit.Destination.Zone == "BASE" ? "UNIT_MOVED_TO_BASE" : "UNIT_MOVED_TO_BATTLEFIELD")
+                    || trigger.TriggeredByEventKind != (movement.DiscardInline is not null ? "CARD_DISCARDED"
+                        : movement.Unit.Destination.Zone == "BASE" ? "UNIT_MOVED_TO_BASE" : "UNIT_MOVED_TO_BATTLEFIELD")
                     || !ValidMovementPlayers(state, movement)
-                : trigger.EffectKind == CoreRuleEngine.MovementObserverEffect) errors.Add("invalid captured movement observer");
+                : trigger.EffectKind is CoreRuleEngine.MovementObserverEffect or CoreRuleEngine.MovementDiscardInlineEffect) errors.Add("invalid captured movement observer");
         foreach (var item in state.StackItems)
             if (item.MovementObserver is { } movement
                 ? !CoreRuleEngine.ValidMovementObserver(movement, item.EffectKind, item.ControllerId, item.SourceObjectId, item.CardNo)
                     || !ValidMovementPlayers(state, movement)
-                : item.EffectKind == CoreRuleEngine.MovementObserverEffect) errors.Add("invalid captured movement observer stack");
+                : item.EffectKind is CoreRuleEngine.MovementObserverEffect or CoreRuleEngine.MovementDiscardInlineEffect) errors.Add("invalid captured movement observer stack");
         if (!CoreRuleEngine.ValidRuleChoice(state)) errors.Add("invalid replacement choice continuation");
         if (state.DeathLedger is null || state.DeathLedger.Counts is null || state.DeathLedger.TurnNumber < 0
             || state.DeathLedger.Counts.Count > 0 && state.DeathLedger.TurnNumber != state.TurnNumber
@@ -23983,6 +23986,8 @@ public static class MatchRecoveryValidator
             if (!CoreRuleEngine.ValidDelayedEndReady(state, marker)) errors.Add("invalid delayed end-step ability");
         if (state.PendingCardChoice is { ChoiceWindow: CoreRuleEngine.EndRuneChoiceWindow } endRuneChoice
             && !CoreRuleEngine.ValidEndRuneChoice(state, endRuneChoice)) errors.Add("invalid end-step rune choice");
+        if (state.PendingCardChoice is { ChoiceWindow: CoreRuleEngine.MovementDiscardRuneChoiceWindow } movementRuneChoice
+            && !CoreRuleEngine.ValidMovementDiscardRuneChoice(state, movementRuneChoice)) errors.Add("invalid movement discard rune choice");
         if (state.PendingEffectPlay is { Parent.DeckPlaySequence: not null } deckPending
             && !CoreRuleEngine.ValidDeckPlayPending(state, deckPending)) errors.Add("invalid selected banished deck play continuation");
         if (state.PendingCardChoice is { ChoiceWindow: CoreRuleEngine.DeckPlayChoiceWindow } deckChoice)
