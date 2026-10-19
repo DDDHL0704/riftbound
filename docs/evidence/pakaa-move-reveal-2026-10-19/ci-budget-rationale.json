@@ -1,0 +1,10 @@
+{
+  "baselineFixedCommit": "c5199fda52ad2417e6372e2a0731e3f52f604077",
+  "baselineRunId": 39185200031,
+  "actualBaselineRuleJobSeconds": 17769,
+  "previousTimeoutMinutes": 300,
+  "actualPreviousHeadroomSeconds": 231,
+  "newTimeoutMinutes": 360,
+  "allExistingRuleMethodsCases143FullMethods110PairsOriginalSeeds39DefaultSqlHelpersAndNativeNetworkRemain": true,
+  "noTestsRemovedSkippedOrNarrowedForBudget": true
+}

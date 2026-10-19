@@ -1,0 +1,9 @@
+{
+  "beforeSha256": "7927e411bcce982e077a57e45466924b88bbe65c5e0f48a8ec9576b09f30d80b",
+  "afterSha256": "d521d7346392f2ea947c73c437c140d7bfe13a90cbca8642f7ae135b7b11f479",
+  "beforeCount": 1034,
+  "afterCount": 1035,
+  "allOld1034WholeRowsOrderAndRootMetadataRetained": true,
+  "newEntireRawRowSha256": "3c9a26f2927051340a485d4699ff3d39cc7670c538911446c26a085bd584c8d8",
+  "noMovementImplementationYet": true
+}

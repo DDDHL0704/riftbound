@@ -166,6 +166,7 @@ public static class TriggerKinds
     public const string UnitMovedCreateUnitToken = "UNIT_MOVED_CREATE_UNIT_TOKEN";
     public const string OpponentMovedToOtherBattlefieldDraw = "OPPONENT_MOVED_TO_OTHER_BATTLEFIELD_DRAW";
     public const string UnitMovedDraw = "UNIT_MOVED_DRAW";
+    public const string UnitMovedRevealTopDrawUnitOrTrashPower = "UNIT_MOVED_REVEAL_TOP_DRAW_UNIT_OR_TRASH_POWER";
     public const string UnitMovedDiscardDraw = "UNIT_MOVED_DISCARD_DRAW";
     public const string UnitMovedGainExperience = "UNIT_MOVED_GAIN_EXPERIENCE";
     public const string UnitMovedPowerModifier = "UNIT_MOVED_POWER_MODIFIER";

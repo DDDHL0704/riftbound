@@ -37,6 +37,7 @@ internal static class UnitMovedTriggerSpecRules
 
     public static bool IsImplementedMovementTrigger(TriggerSpec trigger)
         => IsUnitMovedCreateDormantGoldTrigger(trigger) || IsOpponentMovementDrawTrigger(trigger)
+            || IsUnitMovedRevealTopDrawUnitOrTrashPowerTrigger(trigger)
             || trigger.Timing == TriggerTimings.UnitMoved && trigger.TargetScope == TriggerTargetScopes.SourceUnit
                 && (IsMovementUnitTokenTrigger(trigger)
                     || trigger.Kind == TriggerKinds.UnitMovedDiscardDraw && trigger.DiscardCount > 0 && trigger.DrawCount > 0
@@ -49,6 +50,14 @@ internal static class UnitMovedTriggerSpecRules
         => trigger.Kind == TriggerKinds.OpponentMovedToOtherBattlefieldDraw && trigger.Timing == TriggerTimings.UnitMoved
             && trigger.TargetScope == TriggerTargetScopes.MovedUnit && trigger.DrawCount > 0
             && trigger.MovementDestinationZone == "BATTLEFIELD";
+
+    public static bool IsUnitMovedRevealTopDrawUnitOrTrashPowerTrigger(TriggerSpec trigger)
+        => trigger.Kind == TriggerKinds.UnitMovedRevealTopDrawUnitOrTrashPower && trigger.Timing == TriggerTimings.UnitMoved
+            && trigger.TargetScope == TriggerTargetScopes.SourceUnit && trigger.RevealCount == 1 && trigger.DrawCount == 1
+            && trigger.PowerDelta > 0 && trigger.Duration == TriggerDurations.UntilEndOfTurn
+            && trigger.RevealSourceZone == TriggerZones.MainDeck
+            && trigger.RevealMatchCardFilter == TriggerCardFilters.TagPrefix + CardObjectTags.UnitCard
+            && trigger.RevealMatchDestinationZone == TriggerZones.Hand && trigger.RevealMissDestinationZone == TriggerZones.Graveyard;
 
     public static bool IsMovementUnitTokenTrigger(TriggerSpec trigger)
         => trigger.Kind == TriggerKinds.UnitMovedCreateUnitToken && trigger.CreatedTokenCount > 0

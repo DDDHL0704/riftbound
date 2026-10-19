@@ -1,0 +1,30 @@
+{
+  "recordedAtUtc": "2026-10-19T06:51:47.073590+00:00",
+  "sourceObservation": "var/qa/paka-move-reveal-20261019/dependent-nocturne-source-observation-v1.json",
+  "sourceObservationRetainedUnmodified": true,
+  "currentRawApiExactPreviousFullCnSourceSnapshot": true,
+  "baselinePath": "data/official/upstream/2026-10-16/source-refresh-20261015T160523Z/card-catalog.zh-CN.json",
+  "baselineRawRowSha256": "d5dc9e26a04fdc51e6118ca81b50e51ca786c104808c48a139948b9cfd71a594",
+  "currentRawRowSha256": "d5dc9e26a04fdc51e6118ca81b50e51ca786c104808c48a139948b9cfd71a594",
+  "runtimeUsesAlreadyAppliedEffectiveErrataAsCardEffect": true,
+  "effectiveTextSha256": "0b1c0455028423e03412b34133d20fa59ef4c273a17aac6fb7eeebfa735cc4ae",
+  "rawVsNormalizedRuntimeChangedFieldNames": [
+    "cardCategory",
+    "cardCategoryList",
+    "cardCategoryName",
+    "cardCategoryNameList",
+    "cardEffect",
+    "errata",
+    "isPreview",
+    "otherDesc"
+  ],
+  "normalizationDifferences": [
+    "runtime cardEffect is current official effective errata; raw API preserves original cardEffect plus errata",
+    "runtime category/categoryName singular fields correspond to API categoryList/categoryNameList",
+    "raw API preview/status supplement fields are absent in normalized runtime"
+  ],
+  "allOtherFieldsExactlyEqual": true,
+  "noNewTemporalSourceChangeInferred": true,
+  "noRuntimeDependentCardEditRequired": true,
+  "noWholeCardOrImageQaCertification": true
+}

@@ -8641,6 +8641,8 @@ public static class CardBehaviorRegistry
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 2),
         new("VEN·030", "无情苦修者", 3, "UNIT_EMPOWER_PLAY:VEN030", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3),
+        new("VEN·033", "帕卡监护者", 5, "UNIT_MOVE_REVEAL_PLAY:VEN033", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 4, SourceUnitTags: "猫科"),
         new("VEN·047", "见习法师", 3, "UNIT_EMPOWER_PLAY:VEN047", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 3),
         new("VEN·074", "军团掠阵兵", 2, "UNIT_EMPOWER_PLAY:VEN074", 0, 0,

@@ -1,0 +1,61 @@
+{
+  "rawApiCard": {
+    "id": 37721,
+    "cardCategoryList": [
+      "unit"
+    ],
+    "cardCategoryNameList": [
+      "单位"
+    ],
+    "cardNo": "VEN·033",
+    "cardName": "帕卡监护者",
+    "subTitle": "",
+    "extendType": null,
+    "extendTypeName": "",
+    "cardColorList": [
+      "green"
+    ],
+    "hero": "",
+    "region": "恕瑞玛",
+    "tag": "猫科",
+    "artist": "Bubble Cat Studio",
+    "cardEffect": "当我移动时，展示你主牌堆顶部的一张牌。如果是一张单位牌，则抽取该卡牌。否则，将其放入你的废牌堆并给予我在本回合内{{S}}+2。",
+    "flavorText": "“不存在走丢的帕卡幼崽这么一说。”\n——野外生存小知识",
+    "energy": 5,
+    "returnEnergy": null,
+    "power": 4,
+    "productCodeList": [
+      "VEN(标准补充包)",
+      "VEN(进阶补充包)"
+    ],
+    "productNameList": [
+      "化神争锋 标准补充包",
+      "化神争锋 进阶补充包"
+    ],
+    "cardQaList": null,
+    "craftLevel": 0,
+    "rarity": "rune_glimmer",
+    "rarityName": "不凡",
+    "extendRarity": "base_inscript",
+    "extendRarityName": "平卡",
+    "frontImage": "https://cdn.playloltcg.com/lol/card/20260716/c1ad7a7290874709b2639a9d53010396.png",
+    "backImage": "",
+    "listSort": 1965,
+    "status": 1,
+    "cardGroupLimit": null,
+    "isPreview": false,
+    "errata": "",
+    "otherDesc": 0
+  },
+  "printedImageCardNo": "VEN·033/166",
+  "printedFooter": "VEN · 033/166 · SC",
+  "cnApiWholeRowSha256": "3c9a26f2927051340a485d4699ff3d39cc7670c538911446c26a085bd584c8d8",
+  "officialImageSha256": "00e8efb0c51e416b42218cf1bee08b82e6faed64778979b31117e0cfc7ec079d",
+  "sourceUrl": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+  "sourceAcquiredAtUtc": "2026-10-19T06:00:10.945465+00:00",
+  "region": "CN",
+  "language": "zh-CN",
+  "applicableRulesEffectiveDate": "2026-10-16",
+  "cardPublicationAndIndividualTournamentEffectiveDate": null,
+  "scope": "Exact current source snapshot; no whole-card, copied-text or tournament legality certification."
+}

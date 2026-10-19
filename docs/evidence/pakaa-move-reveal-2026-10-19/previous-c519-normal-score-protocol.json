@@ -1,0 +1,299 @@
+{
+  "verifiedAtUtc": "2026-10-19T06:09:37.940278+00:00",
+  "status": "PASS",
+  "fixedCommit": "c5199fda52ad2417e6372e2a0731e3f52f604077",
+  "actualPublishedRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "c4cc65cfcac0a6761466545876614a0440c70bdc199a81b9e9834f96ed4df1fc",
+    "implementationSha256": "4828914e2b1f90bc847f97fd80f6f910bcaf8482cc410bfb383fc65a0845f954",
+    "identitySha256": "1ee22e38642e422ea89dbd2b25cd0cd3170e46bc88e8668c6b404dc171a2375e"
+  },
+  "originalAfterFrameSha256": "968aa00dcda3414df4783a91643072890122b196cfc3e167ea42d3cbac7dc893",
+  "functionalReceiptSha256": "c0b215cf28c9f8ccc9043ebc2744be2efe8579b691737a51fbcbaeb460335d3b",
+  "actualOriginalFullReplayPreviouslyPassedWithoutReexecution": true,
+  "commands": 41,
+  "events": 263,
+  "turnNumber": 18,
+  "originalActualCommandTypeCounts": {
+    "SUBMIT_DECK": 2,
+    "READY": 2,
+    "MULLIGAN": 2,
+    "END_TURN": 17,
+    "TAP_RUNE": 2,
+    "PLAY_CARD": 1,
+    "MOVE_UNIT": 1,
+    "PASS_FOCUS": 2,
+    "PASS_PRIORITY": 12
+  },
+  "normalScoringReasons": {
+    "BATTLEFIELD_CONQUERED_SCORE": 1,
+    "BATTLEFIELD_HELD_SCORE": 7
+  },
+  "normalFinalScores": [
+    8,
+    0
+  ],
+  "twoActualColdApiRestores": [
+    1,
+    1
+  ],
+  "bothPrivateStoredBeforeRestoredFinalViewsAndPromptsExact": true,
+  "allOriginalWireStepTicksAndPrivateHandRedactionExact": true,
+  "originalNonzeroPrivateSeedAndFourCommandPrefixUnchangedWithoutPrintingSeed": true,
+  "noSurrenderOrBurnoutOrOldHistoryMigration": true,
+  "all123PriorAuditAnd17PriorNativeRoomsSevenTablesExact": true,
+  "nativeRoomCount": 18,
+  "auditRoomCount": 123,
+  "independentSqlReadOnlyVerified": true,
+  "lockAtStart": {
+    "atUtc": "2026-10-19T06:09:29.362752+00:00",
+    "source": "read-only actual Root IOConsoleLocked and nonempty CGSSessions",
+    "observations": [
+      {
+        "rootLocked": true,
+        "sessions": [
+          {
+            "screenLocked": true,
+            "onConsole": true
+          }
+        ]
+      }
+    ],
+    "rootKnown": true,
+    "sessionsNonempty": true
+  },
+  "lockAtEnd": {
+    "atUtc": "2026-10-19T06:09:37.962584+00:00",
+    "source": "read-only actual Root IOConsoleLocked and nonempty CGSSessions",
+    "observations": [
+      {
+        "rootLocked": true,
+        "sessions": [
+          {
+            "screenLocked": true,
+            "onConsole": true
+          }
+        ]
+      }
+    ],
+    "rootKnown": true,
+    "sessionsNonempty": true
+  },
+  "functionalLockAtStart": {
+    "atUtc": "2026-10-19T06:05:05.704294+00:00",
+    "source": "read-only actual Root IOConsoleLocked and nonempty CGSSessions",
+    "observations": [
+      {
+        "rootLocked": true,
+        "sessions": [
+          {
+            "screenLocked": true,
+            "onConsole": true
+          }
+        ]
+      }
+    ],
+    "rootKnown": true,
+    "sessionsNonempty": true
+  },
+  "functionalLockAtEnd": {
+    "atUtc": "2026-10-19T06:05:51.846093+00:00",
+    "source": "read-only actual Root IOConsoleLocked and nonempty CGSSessions",
+    "observations": [
+      {
+        "rootLocked": true,
+        "sessions": [
+          {
+            "screenLocked": true,
+            "onConsole": true
+          }
+        ]
+      }
+    ],
+    "rootKnown": true,
+    "sessionsNonempty": true
+  },
+  "ownPostgresSmartStoppedOriginalDatabaseRetained": true,
+  "allFixedRuntimeAndSourceInputsStillExact": true,
+  "scope": "One cooperative unopposed Student conquest and hold path, actual two production gateways, ordinary original game, API cold restart then normal score 8:0; not all cards, formats, visible controls or physical Windows certification.",
+  "supersededVerifierPremiseClassificationSha256": "d799cd5edab819e292a7ca552854d2a16784b2264f7ee1fedc6d6ca52e8400ad",
+  "rawFailedVerifierRetained": true,
+  "failedTransportClassificationSha256": "de62ffdd01934a6757aa113ab241a261a0064a4e46c4f64e4e456d3836639df4",
+  "streamedDigestObservations": [
+    {
+      "database": "riftbound_acceptance",
+      "table": "matches",
+      "selectedRoomCount": null,
+      "orderedRowTextBytesIncludingPsqlNewlines": 118592,
+      "sha256": "f86761235ea90041b972d094345dddb1b61df36f3a2393dd931c568cbc586810",
+      "fetchCount": 8
+    },
+    {
+      "database": "riftbound_acceptance",
+      "table": "match_players",
+      "selectedRoomCount": null,
+      "orderedRowTextBytesIncludingPsqlNewlines": 80110,
+      "sha256": "00d9c91d022a3dea03eb0981ea2175c54305bed69284fd58538bee1bef926d68",
+      "fetchCount": 8
+    },
+    {
+      "database": "riftbound_acceptance",
+      "table": "command_log",
+      "selectedRoomCount": null,
+      "orderedRowTextBytesIncludingPsqlNewlines": 12270544,
+      "sha256": "786c25652868b67ab5a4acc8b1e559399c914b54af1a5ffbcca4b7a357009e2f",
+      "fetchCount": 8
+    },
+    {
+      "database": "riftbound_acceptance",
+      "table": "game_events",
+      "selectedRoomCount": null,
+      "orderedRowTextBytesIncludingPsqlNewlines": 22393163,
+      "sha256": "3fcba4ac2294de11be68ecac9863a6f25a3b5d39604b568b6a717de2596d986f",
+      "fetchCount": 8
+    },
+    {
+      "database": "riftbound_acceptance",
+      "table": "state_snapshots",
+      "selectedRoomCount": null,
+      "orderedRowTextBytesIncludingPsqlNewlines": 373356042,
+      "sha256": "a21eab71d70ee78b195e75f540fc7ec649cc33c65edc50f62e76fbf927476376",
+      "fetchCount": 8
+    },
+    {
+      "database": "riftbound_acceptance",
+      "table": "snapshots",
+      "selectedRoomCount": null,
+      "orderedRowTextBytesIncludingPsqlNewlines": 242046538,
+      "sha256": "0b53f810ed4a23f7a9fa58f428144e3da1b466d23d881702e63b63f2c15aa842",
+      "fetchCount": 8
+    },
+    {
+      "database": "riftbound_acceptance",
+      "table": "action_prompts",
+      "selectedRoomCount": null,
+      "orderedRowTextBytesIncludingPsqlNewlines": 416544968,
+      "sha256": "b0b77d895a1f5a19e287d6a2650495a976ceaebc2d0ac399c3373600ab76fcb2",
+      "fetchCount": 8
+    },
+    {
+      "database": "riftbound_here_native",
+      "table": "matches",
+      "selectedRoomCount": 17,
+      "orderedRowTextBytesIncludingPsqlNewlines": 16140,
+      "sha256": "d6e6151382e5f7557cc12345aaf2801dc6b108cc38bd7e87190d716d91bef6bd",
+      "fetchCount": 8
+    },
+    {
+      "database": "riftbound_here_native",
+      "table": "match_players",
+      "selectedRoomCount": 17,
+      "orderedRowTextBytesIncludingPsqlNewlines": 8924,
+      "sha256": "d13d261b6845006191dbd259d93ba1f153f4e4b1fc7def72f9805c884636d7e2",
+      "fetchCount": 8
+    },
+    {
+      "database": "riftbound_here_native",
+      "table": "command_log",
+      "selectedRoomCount": 17,
+      "orderedRowTextBytesIncludingPsqlNewlines": 568264,
+      "sha256": "8e10fc135b1d62caae1cac07dcfe1269069081f7f70d815d893b43d212a69f4d",
+      "fetchCount": 8
+    },
+    {
+      "database": "riftbound_here_native",
+      "table": "game_events",
+      "selectedRoomCount": 17,
+      "orderedRowTextBytesIncludingPsqlNewlines": 1573172,
+      "sha256": "6d0305b1086917a769c3d34915618601573f7e5a17a0db778fbddfcc78ab56e0",
+      "fetchCount": 8
+    },
+    {
+      "database": "riftbound_here_native",
+      "table": "state_snapshots",
+      "selectedRoomCount": 17,
+      "orderedRowTextBytesIncludingPsqlNewlines": 17879483,
+      "sha256": "d8014f86c70f3886ea6a744ca2412d264d6579e38aa4b7505d99700c8c0e10b7",
+      "fetchCount": 8
+    },
+    {
+      "database": "riftbound_here_native",
+      "table": "snapshots",
+      "selectedRoomCount": 17,
+      "orderedRowTextBytesIncludingPsqlNewlines": 13137657,
+      "sha256": "316a31b0fb0e76e0dc385a87f946c7736929b71395b44bb3fe18c8f292824ac3",
+      "fetchCount": 8
+    },
+    {
+      "database": "riftbound_here_native",
+      "table": "action_prompts",
+      "selectedRoomCount": 17,
+      "orderedRowTextBytesIncludingPsqlNewlines": 17678776,
+      "sha256": "52b85da090aa3e8ae4fadaff18c7b2e2c08b0c4b23239807b3c6e531224b9061",
+      "fetchCount": 8
+    },
+    {
+      "database": "riftbound_here_native",
+      "table": "matches",
+      "selectedRoomCount": 1,
+      "orderedRowTextBytesIncludingPsqlNewlines": 968,
+      "sha256": "a4070c4661f680908660817c150fb6be1351d575d125c2118b2dd6eeb8d00f8d",
+      "fetchCount": 8
+    },
+    {
+      "database": "riftbound_here_native",
+      "table": "match_players",
+      "selectedRoomCount": 1,
+      "orderedRowTextBytesIncludingPsqlNewlines": 625,
+      "sha256": "403f9d1b9d0a8c83ebd4ffc50ec034de2e4111f999ba0a40188d380d85d01ac2",
+      "fetchCount": 8
+    },
+    {
+      "database": "riftbound_here_native",
+      "table": "command_log",
+      "selectedRoomCount": 1,
+      "orderedRowTextBytesIncludingPsqlNewlines": 91457,
+      "sha256": "ad5bbf3a258ca235dff7c983485d64fe8bcb32e7a52816637bcb1b8ad015915d",
+      "fetchCount": 8
+    },
+    {
+      "database": "riftbound_here_native",
+      "table": "game_events",
+      "selectedRoomCount": 1,
+      "orderedRowTextBytesIncludingPsqlNewlines": 293831,
+      "sha256": "2e5eb6f7011fbf7492eff17c284f0e7028b22560663fd693151fa27ebe93cda5",
+      "fetchCount": 8
+    },
+    {
+      "database": "riftbound_here_native",
+      "table": "state_snapshots",
+      "selectedRoomCount": 1,
+      "orderedRowTextBytesIncludingPsqlNewlines": 3232662,
+      "sha256": "a4a65b33b9390b4b76294c77eac50d5b8b897d02f9aa83302d757c4a2fe5d619",
+      "fetchCount": 8
+    },
+    {
+      "database": "riftbound_here_native",
+      "table": "snapshots",
+      "selectedRoomCount": 1,
+      "orderedRowTextBytesIncludingPsqlNewlines": 2495239,
+      "sha256": "c4a548da72802ebc4458e992cecc2dc2d6bd75197b948f07b77c700644b33523",
+      "fetchCount": 8
+    },
+    {
+      "database": "riftbound_here_native",
+      "table": "action_prompts",
+      "selectedRoomCount": 1,
+      "orderedRowTextBytesIncludingPsqlNewlines": 3086551,
+      "sha256": "68705c94a20563ea201ddd4e7bfbcb04c1da2057825acf68ed6d87e87bda6dee",
+      "fetchCount": 8
+    }
+  ],
+  "orderedTextDigestPreimagePreservedAgainstEveryPriorSevenTableReceipt": true,
+  "randomSeedOutcomeCountsNotAssumedFromPreviousRoom": true,
+  "visibleControlsAndVisiblePairedNormalScore": "OPEN",
+  "physicalWindows": "OPEN"
+}

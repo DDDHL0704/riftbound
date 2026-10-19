@@ -33,7 +33,7 @@ public sealed class Cn16RuleInputSelectionTests
         Assert.Equal(1504, scope.GetProperty("cardQa").GetProperty("entries").GetInt32());
         Assert.Equal("0f5f933ced955f89b9046eb66bf07f62b4d827464b23669b8af6a009b2fc784c", scope.GetProperty("cardQa").GetProperty("sha256").GetString());
         Assert.NotEqual(PriorAuthority, RuleInputIdentity.Current.AuthoritySha256);
-        Assert.Equal("c4cc65cfcac0a6761466545876614a0440c70bdc199a81b9e9834f96ed4df1fc", RuleInputIdentity.Current.CatalogSha256);
+        Assert.Equal("eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d", RuleInputIdentity.Current.CatalogSha256);
     }
 
     [Fact]

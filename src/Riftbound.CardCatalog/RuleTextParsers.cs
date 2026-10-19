@@ -321,6 +321,16 @@ public static class TriggerParser
     public static IReadOnlyList<TriggerSpec> Parse(string text)
     {
         var triggers = new List<TriggerSpec>();
+        var movedReveal = Regex.Match(text,
+            @"(?:每当|当)我移动时，展示你主牌堆顶部的一张牌。\s*如果是一张单位牌，则抽取该卡牌。\s*否则，将其放入你的废牌堆并给予我在本回合内\{\{S\}\}\+(?<might>[0-9一两二三四五六七八九十]+)。?",
+            RegexOptions.CultureInvariant);
+        if (movedReveal.Success)
+            triggers.Add(new(TriggerKinds.UnitMovedRevealTopDrawUnitOrTrashPower, TriggerTimings.UnitMoved,
+                movedReveal.Value, "Move trigger: reveal one, draw that Unit or trash it and give the source Might this turn.",
+                TargetScope: TriggerTargetScopes.SourceUnit, PowerDelta: ParseChineseNumber(movedReveal.Groups["might"].Value),
+                Duration: TriggerDurations.UntilEndOfTurn, DrawCount: 1, RevealCount: 1,
+                RevealSourceZone: TriggerZones.MainDeck, RevealMatchCardFilter: TriggerCardFilters.TagPrefix + "CARD_TYPE:UNIT",
+                RevealMatchDestinationZone: TriggerZones.Hand, RevealMissDestinationZone: TriggerZones.Graveyard));
         var endReveal = Regex.Match(text, @"在你的回合结束时，从主牌堆顶部开始逐一展示卡牌，直到翻出一名单位为止，将其放逐，然后将其打出，无视费用，并回收其余的卡牌。", RegexOptions.CultureInvariant);
         if (endReveal.Success) triggers.Add(new(TriggerKinds.TurnEndRevealUntilUnit, TriggerTimings.TurnEnd, endReveal.Value,
             "End-step reveal until first unit, banish and normal free pending play.", RevealSourceZone: TriggerZones.MainDeck,
@@ -440,6 +450,8 @@ public static class TriggerParser
         }
 
         triggers.AddRange(TargetParser.SplitRulesText(text)
+            .Where(segment => !movedReveal.Success || !segment.StartsWith("当我移动时，展示你主牌堆顶部的一张牌", StringComparison.Ordinal)
+                && !segment.StartsWith("每当我移动时，展示你主牌堆顶部的一张牌", StringComparison.Ordinal))
             .Where(segment => !equipmentDraw.Success || !segment.Contains(equipmentDraw.Value.TrimEnd('。'), StringComparison.Ordinal))
             .Where(segment => !hasAttackDeck || !segment.StartsWith("当我进攻时，你可以选择展示你主牌堆顶部", StringComparison.Ordinal))
             .Where(segment => !hasAttachmentModes || !segment.Contains("当你为我贴附", StringComparison.Ordinal))

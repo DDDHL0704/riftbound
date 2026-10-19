@@ -76,6 +76,7 @@ public sealed partial class CoreRuleEngine
                 TriggerKinds.UnitMovedDiscardDraw => "：移动后弃牌再抽牌",
                 TriggerKinds.OpponentMovedToOtherBattlefieldDraw => "：对手移动到其他战场后抽牌",
                 TriggerKinds.UnitMovedDraw => "：移动后抽牌",
+                TriggerKinds.UnitMovedRevealTopDrawUnitOrTrashPower => "：移动后展示顶牌，抽取单位或放入废牌堆并增加战力",
                 TriggerKinds.UnitMovedGainExperience => "：移动后获得经验",
                 TriggerKinds.UnitMovedPowerModifier => "：离开战场后本回合增加战力",
                 _ => "：离开此处的单位本回合战力 +1" });
@@ -172,6 +173,8 @@ public sealed partial class CoreRuleEngine
         var events = new List<GameEvent> { BuildTriggerResolvedEvent(new(item.StackItemId, item.ControllerId,
             item.SourceObjectId, item.EffectKind, TriggerTimings.UnitMoved) { MovementObserver = context }) };
         var unitSpec = UnitMovedTriggerSpecRules.MovementTriggers(context.CardNo).FirstOrDefault(t => t.Kind == context.Kind);
+        if (context.Kind == TriggerKinds.UnitMovedRevealTopDrawUnitOrTrashPower)
+            return ResolveMovementReveal(state, item, unitSpec!, events);
         if (context.Kind == TriggerKinds.UnitMovedCreateUnitToken)
         {
             if (!TryMovementTokenInstruction(state, item, out var instruction))

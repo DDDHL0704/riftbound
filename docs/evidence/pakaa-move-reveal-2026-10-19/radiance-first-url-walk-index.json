@@ -1,0 +1,1384 @@
+{
+  "sourceId": "GLOBAL-RADIANCE-OVERVIEW-20260925",
+  "sourceUrl": "https://playriftbound.com/en-us/news/announcements/the-radiance-overview/",
+  "bodyHtmlSha256": "869a79b4def7be2758abd5412c7af23ea863ef3bf49287714273bbb4d008d9e3",
+  "bodyTextSha256": "77a09f847364d52f3c9ee8f1ef5e3aebc3f521bd018f8e927af5ca77203f08c7",
+  "blocks": [
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B001",
+      "text": "Updated October 16, 2026",
+      "sha256": "5140f4f9c231a3b8d37a34a71b87dc4d7d2402f3de109cf13a9fd31952a1356b",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B002",
+      "text": "Welcome to the Riftbound: Radiance overview. Here you’ll find key dates, new mechanics, collectibility details, and product highlights as preview season rolls on.",
+      "sha256": "cfee3140eebef0ff1b398bb43b81ed16ee6b666f124493b27ee85fbba19a3a5e",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B003",
+      "text": "This is the last update to this article and we now have the full picture of Radiance! We can’t wait to catch y’all at the Pre-Rifts!",
+      "sha256": "2ca5ba5d90d9d3ffd9a97bd1b4d00c4026380d494346b1d11a4db12b19c57179",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B004",
+      "text": "Welcome to Radiance",
+      "sha256": "14c4dec9d84555f6b732655aa5048d2074c99de28c56adbb5651f53bfcedeb64",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B005",
+      "text": "Radiance is about performing like a master: playing at the absolute peak of your powers, under the brightest lights, with everything on the line.",
+      "sha256": "fb863a931f083c919672b26f3ae0d0782d22796ecd592fe9c276b3c0f94ae87f",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B006",
+      "text": "With a lineup of some of the best bands in the League of Legends universe and a colorful cast of new legends, Radiance is sure to dazzle.",
+      "sha256": "306a52a96f9c007c2d1a008d269b8d0c83cc9858074dc7b2b2c59afe025bcce3",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B007",
+      "text": "Dev Video",
+      "sha256": "5ebb653f23bdd2c7944664058fc160b3fba546afd750eea168df82db5cd92408",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B008",
+      "text": "Check out our Dev Video for a snapshot of this set, and Dave’s deep and unbridled love for Karaoke.",
+      "sha256": "f75d0ccd7a1afb7b2e4ca9250c79183baece442e13b32bd0af136cbb3d58f91d",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B009",
+      "text": "Key Dates",
+      "sha256": "56b78c3d730d48e53a4d23438631e23602e5846c9b861a15d81109f77d4f6184",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B010",
+      "text": "Previews: September 25 - October 9, 2026",
+      "sha256": "9c03d7d0791ce509767d0b1589cc4f5d1cc44ea621d3d0a859492db99f499aa8",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B011",
+      "text": "Merch Store Drawing Sign-Up: September 25 - 30, 2026",
+      "sha256": "778332e30375ac460d38928583c6210873ca48fc91b8e13529244eb9971b3e1b",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B012",
+      "text": "Sign up here.",
+      "sha256": "fe1f86599b6df2e282db7f901041680850ef14206919fe2a81e090f21292622c",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B013",
+      "text": "Drawing Selection Begins: October 5, 2026 at approximately 9:00 AM Pacific Time",
+      "sha256": "e2c60948cc429312d169f4a35948e4389659ae0175aceae9cb4121ff1604f528",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B014",
+      "text": "Pre-Rifts: October 16 - 22, 2026",
+      "sha256": "cc063999242ae9328ed00c4643a8f0c2f094fc6bdfcb2756c476544fda1c14fa",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B015",
+      "text": "Release: October 23, 2026",
+      "sha256": "e80192d00cbd2c88de10813e62cdd3d3cdf963ca258511b8f99525dfb0780c90",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B016",
+      "text": "English, French, and Chinese languages release",
+      "sha256": "f0c01a2b6bc63838df331d0af510655d5c15984eef91d943e5d0bcf5f07f96ec",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B017",
+      "text": "New Set, New Mechanics",
+      "sha256": "387780b8362f827eec665a2027ba55bb6f6f2e927eda1b069d77f7666921afcb",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B018",
+      "text": "Deploy",
+      "sha256": "4c236daafb445f867f574918b3d07c901d73ac48d2ab87edb940b665d79e0039",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B019",
+      "text": "Play this Gear only to a Battlefield and it will grant benefits while there. When an opponent holds that Battlefield, kill this Gear.",
+      "sha256": "1633d403c85509bdcacce45ce9d1b54529bf19a82f278ed6e14724737f10c5b6",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B020",
+      "text": "[IMAGE: visual review required]",
+      "sha256": "94893a921c40cc39ccc9159c27b1d4ba2d4baf5adaf5512353a08146c7d5c220",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B021",
+      "text": "Show Off",
+      "sha256": "6fb381e53c5f532c15565dfb7f502409e5a966b6ccebd09a82cf5cdeec83e4db",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B022",
+      "text": "Reveal, or “Show Off,” a qualifying card from your hand or on your board to unlock a new effect of the played card.",
+      "sha256": "b796384d04dc9cdc2126dfe42e57086485862276362b71d42dbc8459ab48c8a5",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B023",
+      "text": "[IMAGE: visual review required]",
+      "sha256": "94893a921c40cc39ccc9159c27b1d4ba2d4baf5adaf5512353a08146c7d5c220",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B024",
+      "text": "Disarm",
+      "sha256": "0449aa195af99b148f7e64c9d8ab2e20ecba3dd1dbe8a43025d6c2dee335b553",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B025",
+      "text": "Disarm reduces the Might of an enemy Unit by as you attack!",
+      "sha256": "d0dd2f97a8c3419171c72c1c7479fd6f5ea86e6f0614f9d6959ade414e37f798",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B026",
+      "text": "Disarm is similar to Assault. Each instance of Disarm will make its Might reduction stronger.",
+      "sha256": "591b313998567e8541693650d19871265fa406b2cabf723ba31941791d2e1bc2",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B027",
+      "text": "[IMAGE: visual review required]",
+      "sha256": "94893a921c40cc39ccc9159c27b1d4ba2d4baf5adaf5512353a08146c7d5c220",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B028",
+      "text": "New Types of Cards",
+      "sha256": "e43d71d49ab3a91db30f6a87a94c207f5d70078b9a0b3a3c3894f4fede377c05",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B029",
+      "text": "New Unit Type: Equipment Units",
+      "sha256": "6e40ad3fcdb555f91487d2dd2545910a7dd1d213c3411faa2cf45ecbe845022f",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B030",
+      "text": "Gear Units were introduced in Vendetta with the Patched Porobot. With Orianna’s Legend effect, equipment can now become Units as well.",
+      "sha256": "f73063292209ab162bf86a558db004a762ddcc41da8671bff0b6d4882a42cfe2",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B031",
+      "text": "Before you get too excited about equipping Units onto one another— when an Equipment becomes a Unit, it’s automatically unequipped.",
+      "sha256": "817ba148d1d66a1082887a015dcf787d973cfe88a2ca2f2df1e73effaa77b2c3",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B032",
+      "text": "[IMAGE: visual review required]",
+      "sha256": "94893a921c40cc39ccc9159c27b1d4ba2d4baf5adaf5512353a08146c7d5c220",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B033",
+      "text": "New Tokens",
+      "sha256": "4cc8f37f468d61e92cb72842d719d2fdcf2f372a05a4a51a15fd46c12b536ed3",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B034",
+      "text": "Bomb",
+      "sha256": "359be5f850889fd1fec2febe58b390e171991bdc7a33e3a6535cd77b0d92903f",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B035",
+      "text": "Bombs are small gifts to leave your opponent! The more bombs you play, the bigger the boom.",
+      "sha256": "ca83b32c5ae1412094bd9ade7718c2217cac2d23b878eaff39a3586ab61126ed",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B036",
+      "text": "[IMAGE: visual review required]",
+      "sha256": "94893a921c40cc39ccc9159c27b1d4ba2d4baf5adaf5512353a08146c7d5c220",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B037",
+      "text": "Collectibility",
+      "sha256": "f408e5e238d0b3d08c8d3e69e8ae9881ea1dc73b3076b7902add96bc561ab316",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B038",
+      "text": "Ultimate Rarity:",
+      "sha256": "d9df8a5f6514e3910d706bcb1ad9b4981a24cd3cff7d95cc36cb492d4ff44637",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B039",
+      "text": "Radiance brings Riftbound’s second Ultimate Rare.",
+      "sha256": "11bcc1c47519df0b3a324495b0d8ec398516170f019878e78ddba3292bcb10a9",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B040",
+      "text": "We learned a lot with the Ultimate Rare introduced in Unleashed. While finding one was very exciting, it wasn’t quite as rare as we wanted it to be. We're trying something new with this card: it's our rarest Ultimate Rare yet, significantly harder to find than the Baron.",
+      "sha256": "7bb027573e22330bcffb728b64c37fdd7f070984122ab7004d28d1a649f10a14",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B041",
+      "text": "Booster Pack Rarity Distribution",
+      "sha256": "33b3e45e5926da02ac9068a6ccc4e4f565a7f02279ac75f9b18ac289da592921",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B042",
+      "text": "Each Riftbound: Radiance booster pack contains:",
+      "sha256": "1b2ceadb48277f4f2a033eacf196897dbc0d2dd2a0fc685c7961667b21638c2a",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B043",
+      "text": "7 Commons",
+      "sha256": "7806f4b9a2c4f76b52aaaead2e29b6ec9bcb3c245aad31c872fd876c6913e2d1",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B044",
+      "text": "3 Uncommons",
+      "sha256": "e533169f121d31417b64156253c0eda6d5faddfb8bed2063177785ea5b3d7661",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B045",
+      "text": "1 Foil slot that can be a Common, Uncommon, Rare or Epic",
+      "sha256": "4cc675d0463d3053e74ec24fd6149372defa3230e9c0639634a55788402ec559",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B046",
+      "text": "1 Rare or Epic",
+      "sha256": "9d6fa1df35d10ab3108389863240aaca654835198af1d55646cfb48c5aa12ab7",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B047",
+      "text": "1 slot that can be a Rare, Epic, Alt Art, Special Alt, Overnumber, or Ultimate Rare",
+      "sha256": "7e26f2e572754a8c4e4b12aaf3034d12ea8be4d2afc8bd4b65e57295a97e7cca",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B048",
+      "text": "1 Token, Rune, or Alt Art Rune",
+      "sha256": "5a30b100242d7267aaf9f98acc5642ce4e21248020bef31ea19938ce2589b428",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B049",
+      "text": "1 informational insert",
+      "sha256": "844335e2c5418a9f887856f389d3a970995998596c005a55c5f299d4880dd9f2",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B050",
+      "text": "Each pack can contain at most one Ultimate Rare card. There is no guaranteed Ultimate Rare in any pack, box, or case. On average across the entire Radiance print run, an Ultimate Rare appears in approximately 0.025% of booster packs. Pack contents are randomized during manufacturing. Any stated appearance rates reflect averages across the print run and are not guarantees of appearance in booster packs or booster displays.",
+      "sha256": "17fc64b16561459c94a35e9a09e39dd15e5a007235aa9b6c0ef67c5fc278ab72",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B051",
+      "text": "Showcase Treatments",
+      "sha256": "ec0fc42399282e455dc60da4b83a9acbcc75eb5b17ec2f88e2c3d0488cf1ad79",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B052",
+      "text": "Special Cards",
+      "sha256": "314ed21c77e49eb3312be668a8c2ace352223339be247f1bacd9c5eb484044ff",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B053",
+      "text": "Our Crystal Rose themed Special cards introduced in Vendetta were extremely popular, and we know you’re all wanting more. So I’ll show you what we’ve got in store—we couldn’t have a music themed set without featuring the K/DA girls.",
+      "sha256": "84edd01bb7bcc178f8a571d303b3b05179d9e56e99e494f88449d0ee54d645ad",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B054",
+      "text": "As a reminder, Special Alt Art Cards appear at roughly the same frequency as Alt Art cards.",
+      "sha256": "73133cfd4eae7dbff7c2fdd9a388137df50acb7e0748c609795c9860dbea2176",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B055",
+      "text": "[IMAGE: visual review required]",
+      "sha256": "94893a921c40cc39ccc9159c27b1d4ba2d4baf5adaf5512353a08146c7d5c220",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B056",
+      "text": "Overnumbers",
+      "sha256": "e6d1c02fb52b40d44487776909e7f1a30180f24a997410cebb43efd5fbb434bd",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B057",
+      "text": "In Radiance, we have the nine new Legends in the set represented with their Overnumbered variants, which can be found with an artist's signature as well.",
+      "sha256": "38ff3d29d02215e39dd72c855b8e9e9fdb188687816e51ecbed8807af5e7d642",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B058",
+      "text": "Heartsteel Overnumbers",
+      "sha256": "43212443d1eb922998c2e6e41b77b77b1f26a3157bec20fdc25f010e51428bb2",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B059",
+      "text": "The boys are here with a modern fashion makeover. Collect them all and stun your opponent with your overwhelming aura.",
+      "sha256": "6f302a21a47cd24f340aa971ab87f826c9c675ab640a09c1ca16503d73b78be2",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B060",
+      "text": "[IMAGE: visual review required]",
+      "sha256": "94893a921c40cc39ccc9159c27b1d4ba2d4baf5adaf5512353a08146c7d5c220",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B061",
+      "text": "Ultimate Rare",
+      "sha256": "db90c980bc9f8a47dee28459ada9bf55f078f6c71f5228a3aeb311cab2ea1889",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B062",
+      "text": "The Ultimate Rare for Radiance is going to be even rarer than the Unleashed Baron, and we’re trying something new with our first showcase Battlefield also being an Ultimate Rare. This picture doesn’t quite do it justice, but we’re excited for players to share the moment someone pulls it.",
+      "sha256": "47598c3dfbcdebd8020c16b77feb154e3efd5ad0667f8f6979385692b055d88a",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B063",
+      "text": "[IMAGE: visual review required]",
+      "sha256": "94893a921c40cc39ccc9159c27b1d4ba2d4baf5adaf5512353a08146c7d5c220",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B064",
+      "text": "Alt Art Runes",
+      "sha256": "4f3b9d35630e05b82ca2e2dd068c36cc2a632a66a3e8e29dfc5459a4d9154bac",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B065",
+      "text": "This new set has some musically inspired Runes. Check them out below!",
+      "sha256": "d926949a3c46c7a58ab61609b0fb7031586ef6d743eb211a322712ca556def7b",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B066",
+      "text": "[IMAGE: visual review required]",
+      "sha256": "94893a921c40cc39ccc9159c27b1d4ba2d4baf5adaf5512353a08146c7d5c220",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B067",
+      "text": "Radiance Product Line-Up",
+      "sha256": "ad8ec32be17a5bdf4b00efe32d34fb15ebe7b6d933ed584f2af1fba9f471641c",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B068",
+      "text": "Booster Display",
+      "sha256": "fc273964fc4d4ead22ac315da26b5c709d7eb0b01cfe6d6c2f891196f91782bf",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B069",
+      "text": "With Radiance, Ekko and Seraphine take center stage in this stunning new box art, with Ziggs and Jarvan playing supporting roles.",
+      "sha256": "ec00d66194c69c03bf0da4a854307b5d140f2b88cc93e8a07a24f5276531d1e0",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B070",
+      "text": "[IMAGE: visual review required]",
+      "sha256": "94893a921c40cc39ccc9159c27b1d4ba2d4baf5adaf5512353a08146c7d5c220",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B071",
+      "text": "Showdown Decks",
+      "sha256": "ef296c19a413016350f44f677b9da153c3400e8402a834043887c12d7066c488",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B072",
+      "text": "Seraphine’s bright and bubbly performance clashes with Evelynn’s seductive sultry tones.",
+      "sha256": "abae8d73b73b55838fa504004a9e99c988f0f19de20cc88a6333cf8d88d16dbe",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B073",
+      "text": "Check back later in previews for decklists once the cards have been revealed!",
+      "sha256": "bc998b4f9986201df088f508da630a96584e9611db136672419e525be36b4fde",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B074",
+      "text": "[IMAGE: visual review required]",
+      "sha256": "94893a921c40cc39ccc9159c27b1d4ba2d4baf5adaf5512353a08146c7d5c220",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B075",
+      "text": "Seraphine Preconstructed Decklist",
+      "sha256": "0a1017600ffa6adaf59343060a86d217f2b3a2c0c3a5aa0f15834584b19cc9bc",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B076",
+      "text": "Legend:\nStarry-Eyed Songstress",
+      "sha256": "79482d513b3a1e0f4c071fa98049658b4e4b40234a7e2c8b63b28447997236a4",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B077",
+      "text": "Champion Options:\n1 Seraphine, Not Alone\n2 Seraphine, Inspiring",
+      "sha256": "98a933a220c5ff11a1ca6bc0ddc2555f588c1adf68890b35da4fb4d41920bc5e",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B078",
+      "text": "Main Deck:\n1 Encore\n1 Heimerdinger, Academy Instructor\n2 Raucous Anthem\n2 Piltovan Guidebot\n1 Dune Devourer\n1 The Empyrean\n2 Steadfast Outrider\n2 Rousing Display\n2 Supernova\n1 Burn Away\n3 Concert Poster\n3 Strigian Oracle\n2 High Note\n2 Fanfare\n2 Hunting Dog\n2 Industrious Mechsmith\n1 Herald of the Emperor\n1 Party Crasher\n2 Faithful Manufactor\n2 Meticulous Restorationist\n1 For Demacia!\n1 Moonlight Affliction",
+      "sha256": "408330bb3387ea77d3fd18b8ed88e94a5350b74a25a7436833f239db89db2ce1",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B079",
+      "text": "[IMAGE: visual review required]",
+      "sha256": "94893a921c40cc39ccc9159c27b1d4ba2d4baf5adaf5512353a08146c7d5c220",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B080",
+      "text": "Battlefields:\nBlack Rose Sanctum\nRuined Monastery\nValley of Idols",
+      "sha256": "bfe074890994faec549c4850d7eb7ceb092e7508f671298cd4c4c0348be74390",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B081",
+      "text": "Rune Pool:\n6 Mind Rune\n6 Order Rune",
+      "sha256": "3996fab713e135f79504167cc46c6b2de4641bba91655043ea3c493d3fac1e36",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B082",
+      "text": "Tokens:\n3 Mech // Recruit\n3 Bird // Buff",
+      "sha256": "4b238df772691719cbe3e3b202227e0ff587b63f45ef78263eb65b1afff28551",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B083",
+      "text": "Evelynn Preconstructed Decklist",
+      "sha256": "5b2451adaae5484274e39a660f53516a13ba5797abc7715507b2823cca5a8bb6",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B084",
+      "text": "Legend:\nAgony’s Embrace",
+      "sha256": "2ce822f2c0ca3b8d7f54c5b35e6dff58c05ad6fa29f85240de42fd1cf24b09dc",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B085",
+      "text": "Champion Options:\n1 Evelynn, Consuming \n1 Evelynn, In Control \n2 Evelynn, Entrancing",
+      "sha256": "6ab4b99328eefb5e9b7683a5899b1c4a9b43bc6e9ea8beda27afd069c8b7aa48",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B086",
+      "text": "Main Deck:\n1 Last Caress\n1 Bushwhack Trap\n1 K'Sante, Courageous\n2 Gutter Guardian\n1 Demon Shade\n1 The Good Stuff\n2 Elnuk Herd\n2 Reckless Innovator\n2 Wind and Ghosts\n1 Pitiless Stalker\n3 Sneaky Zeebles\n3 Siren of the Shallows\n2 Hold 'Em\n2 The Waters' Wage\n2 Momentary Companion\n2 Suave Negotiator\n2 Pakaa Cub\n2 Wrath of the Freljord\n2 Black Market Broker\n2 Siren's Song",
+      "sha256": "28d6fa6642df172156ada4b8535534d30a5bc0c9e6c5f7a2869d22b06c0171b1",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B087",
+      "text": "[IMAGE: visual review required]",
+      "sha256": "94893a921c40cc39ccc9159c27b1d4ba2d4baf5adaf5512353a08146c7d5c220",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B088",
+      "text": "Battlefields:\nBandle Scouts' Academy\nRakelstake\nBandle Tree",
+      "sha256": "4f616383387cc0d98e440dd2ea0daafc2e0a2087c30a4fcbbbcc347f4114e1e7",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B089",
+      "text": "Rune Pool:\n6 Body Rune\n6 Chaos Rune",
+      "sha256": "e18e6fa67cf81cdfec105d3ec8c241af4c00185bf4f898b2f1f84d3e1329f08b",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B090",
+      "text": "Tokens:\n5 Gold // Bomb",
+      "sha256": "7687f3fde0e61a596968b9edc455e65cd3ec2a1ee2ec8a3cebfb1ddd6d49f64f",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B091",
+      "text": "Vault",
+      "sha256": "5d55c415e356dd7b59f329aa5c83a34ee10c3803516ac569fde5e68804a7e06c",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B092",
+      "text": "The Vault returns, including a storage box, six Radiance booster packs, foil tokens, and a set of 36 Runes.",
+      "sha256": "8df3425804818af9217f258c15e2de007637985bab14ae23d27b1023566aefb9",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B093",
+      "text": "[IMAGE: visual review required]",
+      "sha256": "94893a921c40cc39ccc9159c27b1d4ba2d4baf5adaf5512353a08146c7d5c220",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B094",
+      "text": "Pre-Rift Kits",
+      "sha256": "accd5e11b42918513c3e798f37446289bd48c3ca6aff401b80bc6162ec4ba46c",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B095",
+      "text": "These boxes contain five Radiance boosters and a seeded Pre-Rift pack for each of the nine new Legends in Radiance.",
+      "sha256": "c3ce64621149ee69ab830ed4a0e117daf24c5322dd938e6adbf226dd3176e321",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B096",
+      "text": "[IMAGE: visual review required]",
+      "sha256": "94893a921c40cc39ccc9159c27b1d4ba2d4baf5adaf5512353a08146c7d5c220",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B097",
+      "text": "Promos",
+      "sha256": "ce50934757d5deba7ec2b1e0193e4f87c2ef9bfbecbac559195070e0c57f8699",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B098",
+      "text": "Now that the cards are revealed, let’s see what promos you can expect at your LGS!",
+      "sha256": "b2d860b59a171f82e1eff07a7eeceb42ec7c29645238f32ef485b1250f3f95a1",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B099",
+      "text": "Pre-Rift",
+      "sha256": "aa2149cdd5753674cda90cdb449d69b86118bfc30e9a0853ed930efd3cd6493e",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B100",
+      "text": "Sign up for your LGS’s Pre-Rift event and get your copy of Heimerdinger, Academy Instructor while supplies last!",
+      "sha256": "b6140465d9ad0ef9e003f7b2f0d4be4f14c24caa167a7d4d6559a5fe1d77a9f0",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B101",
+      "text": "[IMAGE: visual review required]",
+      "sha256": "94893a921c40cc39ccc9159c27b1d4ba2d4baf5adaf5512353a08146c7d5c220",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B102",
+      "text": "Nexus Nights",
+      "sha256": "a28c7b927aeae07b1ddc2a1068d998584c7ac8024d43977df3a3181ec946e6ca",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B103",
+      "text": "The Nexus Night promo packs are being updated with new cards from Radiance…",
+      "sha256": "7e9f68c890923b7129b36eaa78aafc74d64643ee6b8815af3984b083cfe0d5c7",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B104",
+      "text": "Nexus Night Card Pool",
+      "sha256": "15dd57722587650f19898bd670c0f6c003cba5d07160a171914fc9cecb4bdf54",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B105",
+      "text": "Banner of Conquest",
+      "sha256": "d0b3281a9fa74bb53091f97ba42c80b0e2e28e4604f24e8ea9af80e1316c03d9",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B106",
+      "text": "War Scout",
+      "sha256": "d81d427199a8fc8e3fb295ca97af6524da92927058f329c1bb53fd0c95837bfa",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B107",
+      "text": "Shimmering Swimmer",
+      "sha256": "05acd78d132bf8780fd8fba892925f17226694182298a6fdeac69e8a824941e1",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B108",
+      "text": "Firebrand Raider",
+      "sha256": "f4847d9fdb97d7ccf7a9d4a296e64e63e5d8c219daa10d1016d79ae12591dc77",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B109",
+      "text": "Iridescent Avian",
+      "sha256": "8dc527406dd2ec53dd9af597138cb888f1548f0de5158dc5477e8c34b25afda8",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B110",
+      "text": "Life from Stone",
+      "sha256": "0b434d5de4e3431420a6dddfc3ed5c57570643467c671f4efae850ed1f9905ea",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B111",
+      "text": "Watchful Curator",
+      "sha256": "dc5774a38ed543aac39bd40a45c96e08acddedf25a91e979a8a3576715ec1a5b",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B112",
+      "text": "Hush",
+      "sha256": "9687e50570fa9c4d346613c3c24b7a3647f366f42940e8d43d23361879fe9935",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B113",
+      "text": "High Note",
+      "sha256": "94a6c9fbd1c07987c118b3c37993744abe6442237b9355dfa3faf6771ca2da54",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B114",
+      "text": "Trinket Peddler",
+      "sha256": "5b9aac2ec3458269709573d44e05606f3722bd32afdcf7223d443142dd3efab2",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B115",
+      "text": "Clanging Sentry",
+      "sha256": "664329985c0c826779032a079e87a5c433f6be42cbfb4f724f81fd89fcc9a90a",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B116",
+      "text": "Spirit of the Forge",
+      "sha256": "1a0148d117a682a14c4cc0386d73bca30726326af4d790432067868daa0f8e6c",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B117",
+      "text": "Hold’Em",
+      "sha256": "b86b012316a9c7777f74b6535c9c8f9aae0e09585e3e05d05e5c6e23dc37b861",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B118",
+      "text": "Sneaky Zeebles",
+      "sha256": "36af4340a3b4308d5a0aaf002e73ae4fb29bec09c724487100a7387c8f819063",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B119",
+      "text": "Stalwart Shepherd",
+      "sha256": "78bfb567bd22831de68a347753fb13d175ab6a6b08bd6b0dd97f53459d5adf1d",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B120",
+      "text": "Portable Portal",
+      "sha256": "c23ae2a28f5e64f8b56146faf62b3012c3c1902a3ebdd597858ac9d76f814fdc",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B121",
+      "text": "Explosimian",
+      "sha256": "d105d8a33bb3ab83f8aa5bfea8c4d1d0009eaea9841547d1db0ac4b664161bb9",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B122",
+      "text": "Satchel Charge",
+      "sha256": "2e3a1c21d595d016a01ef7ca0dac47ff84bd3742a4ce60df418cdaed35983366",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B123",
+      "text": "Reckless Innovator",
+      "sha256": "f5202df7168d19f18b45036939808e43056853194542d133c56127959e1b69c1",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B124",
+      "text": "Bedeviling Stranger",
+      "sha256": "4122e96a3266bd012c251c2b82b1406e2deb7ff40f367359244639e4e4538ae4",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B125",
+      "text": "Hunting Dog",
+      "sha256": "883ac11e924326f2848f19e337d6d2f7e70dc660d572f974d06708fc1f752353",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B126",
+      "text": "Party Crasher",
+      "sha256": "51a7a5074ce15f7be681afd13ce27fd042c4566c3987a18a4e7dafdf0faadc53",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B127",
+      "text": "Rousing Display",
+      "sha256": "e1dc41d23789b8f4890d5cd59e5dc7e12c0c0d447b2f09fd7acf63729930c55d",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B128",
+      "text": "Battlefield Armorer",
+      "sha256": "5ded292f5616ea4fbb22076ef9ee2421ef6458f0ce8eda2335e14bb61716771c",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B129",
+      "text": "And lastly, our chase card Lulu, Whimsical. Check out the new Runes as well as the chase card in the gallery below",
+      "sha256": "61e04ada9a45bd5624ef390eecbd1b14fc96b249e2e1ee54658bb0ed87631d13",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B130",
+      "text": "[IMAGE: visual review required]",
+      "sha256": "94893a921c40cc39ccc9159c27b1d4ba2d4baf5adaf5512353a08146c7d5c220",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B131",
+      "text": "[IMAGE: visual review required]",
+      "sha256": "94893a921c40cc39ccc9159c27b1d4ba2d4baf5adaf5512353a08146c7d5c220",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B132",
+      "text": "Summoner Skirmish 1",
+      "sha256": "e422eb4b2a6431ce2625624ed9590065de5168273f5f8991a447a9368555bdc7",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B133",
+      "text": "Events will begin running November 9, 2026.",
+      "sha256": "9441a0d20963bd33371d66dde163a8172256b96f538db3da183bbdbc430735d4",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B134",
+      "text": "ParticipationTop CutChampion Card",
+      "sha256": "1a11d2b1693855bed5546dd5450c778ec4b1e774aa40c0d4c66bf39105c6512b",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B135",
+      "text": "[IMAGE: visual review required][IMAGE: visual review required][IMAGE: visual review required]",
+      "sha256": "f753b66a7ebd8075d956f008ae6c8d9a7b6052d6d1ef1b35d5c8e23635951cfb",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B136",
+      "text": "The Champion will also step away with the Skirmish Playmat!",
+      "sha256": "3ed110322c275a544cc815a81d0aa369a6ef7e04987b6d3367b25b0c297439d3",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B137",
+      "text": "[IMAGE: visual review required]",
+      "sha256": "94893a921c40cc39ccc9159c27b1d4ba2d4baf5adaf5512353a08146c7d5c220",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B138",
+      "text": "Summoner Skirmish 2",
+      "sha256": "f96fad1775d5fe86a0004f39b90e4c42222587401e2b9286e4807488df8a68bb",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B139",
+      "text": "Events will begin running December 14, 2026.",
+      "sha256": "98be339018a193cb24ceab438e63c30a7a7a2c26f9fb579a5848bf29facbb98f",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B140",
+      "text": "ParticipationTop CutChampion",
+      "sha256": "154a2793680bfcddf5b88618cf1f630674976c03ac9068b9e534498c182b59da",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B141",
+      "text": "[IMAGE: visual review required][IMAGE: visual review required][IMAGE: visual review required]",
+      "sha256": "f753b66a7ebd8075d956f008ae6c8d9a7b6052d6d1ef1b35d5c8e23635951cfb",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B142",
+      "text": "The Champion will also step away with the Skirmish Playmat!",
+      "sha256": "3ed110322c275a544cc815a81d0aa369a6ef7e04987b6d3367b25b0c297439d3",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B143",
+      "text": "[IMAGE: visual review required]",
+      "sha256": "94893a921c40cc39ccc9159c27b1d4ba2d4baf5adaf5512353a08146c7d5c220",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B144",
+      "text": "The End",
+      "sha256": "0ecac1a8e4a766baafe253f76af0603734c3a1315630f8239a6328da48fa17d6",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B145",
+      "text": "That’s all for now! We hope you enjoy the Radiance card reveals. If you want to stay in the loop on all things Riftbound sign up for our newsletter.",
+      "sha256": "d7c2c0772f1e9ced1c945003768a7787e6aec35ba88b25a771e0306a5fa680bf",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-B146",
+      "text": "Have a great day and go sling some cards!",
+      "sha256": "ecba030b8a70bcb046ef9c90c0e40b1dbd1050224358ff084bf668d608ef5fb5",
+      "semanticReview": "OPEN_EXACT_CN_FORMAT_AND_RULE_OR_NONRULE_DISPOSITION",
+      "implementation": "OPEN_IF_APPLICABLE",
+      "testExecution": "SOURCE_TEXT_ONLY",
+      "wholeSourceCertified": false
+    }
+  ],
+  "images": [
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-I001",
+      "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/06f598de7c6f88948da3d5144d40c966f2609931-3166x1781.jpg?accountingTag=RB",
+      "semanticReview": "OPEN_EXACT_VISUAL_IDENTITY_AND_APPLICABILITY",
+      "pixelsInspected": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-I002",
+      "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/08da730c513dd6d217dc71e5ae37193f46ebcadf-4623x2600.jpg?accountingTag=RB",
+      "semanticReview": "OPEN_EXACT_VISUAL_IDENTITY_AND_APPLICABILITY",
+      "pixelsInspected": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-I003",
+      "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/0d895d9d1ec8446fd14649933ff8d7efe1972cc4-1920x1080.jpg?accountingTag=RB",
+      "semanticReview": "OPEN_EXACT_VISUAL_IDENTITY_AND_APPLICABILITY",
+      "pixelsInspected": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-I004",
+      "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/11ee42308081f6d83c4fba8f72c83c73e00eb2b7-2923x1644.jpg?accountingTag=RB",
+      "semanticReview": "OPEN_EXACT_VISUAL_IDENTITY_AND_APPLICABILITY",
+      "pixelsInspected": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-I005",
+      "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/144ab9429ce67dd42a8755cef9b577e70d27a91e-2048x1152.jpg?accountingTag=RB",
+      "semanticReview": "OPEN_EXACT_VISUAL_IDENTITY_AND_APPLICABILITY",
+      "pixelsInspected": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-I006",
+      "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/4e6e7f9bc37b5a1913eee9e3b3aa79c906d42235-3780x2127.jpg?accountingTag=RB",
+      "semanticReview": "OPEN_EXACT_VISUAL_IDENTITY_AND_APPLICABILITY",
+      "pixelsInspected": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-I007",
+      "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/5572a598fed29243ba51d9419326155a7a8fa3e9-1920x1080.png?accountingTag=RB",
+      "semanticReview": "OPEN_EXACT_VISUAL_IDENTITY_AND_APPLICABILITY",
+      "pixelsInspected": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-I008",
+      "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/7f5a41cf1c09f7a807b34b195c9f4002c9400101-1820x1024.jpg?accountingTag=RB",
+      "semanticReview": "OPEN_EXACT_VISUAL_IDENTITY_AND_APPLICABILITY",
+      "pixelsInspected": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-I009",
+      "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/87a9d9de0214a20362f1ae89396e01369ed09758-1920x1080.jpg?accountingTag=RB",
+      "semanticReview": "OPEN_EXACT_VISUAL_IDENTITY_AND_APPLICABILITY",
+      "pixelsInspected": false
+    },
+    {
+      "id": "GLOBAL-RADIANCE-OVERVIEW-20260925-I010",
+      "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/adf6a64d8c93eec0cf16d363831a5f8e21ce22be-4497x2530.jpg?accountingTag=RB",
+      "semanticReview": "OPEN_EXACT_VISUAL_IDENTITY_AND_APPLICABILITY",
+      "pixelsInspected": false
+    }
+  ]
+}

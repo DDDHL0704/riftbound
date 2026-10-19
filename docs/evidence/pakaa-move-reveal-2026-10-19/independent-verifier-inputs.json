@@ -1,0 +1,36 @@
+{
+  "createdAtUtc": "2026-10-19T07:53:23.177559+00:00",
+  "sourceInputsFileSha256": "c02a684af7d9710a5cf9b7ed9a885db7360dc12fdc63874fef229b53b79eda39",
+  "verifierFiles": {
+    "Riftbound.CardCatalog.dll": "2be8570ba7d0935e21906cf8730d3a707d48df07ccacb46b9fcc8898f07fe960",
+    "Microsoft.Extensions.Hosting.Abstractions.dll": "89a4428a5d0feedde5aa0565509b9f4c6189efdcaf888cd1c2c3f979e32ccd7c",
+    "Riftbound.Contracts.pdb": "320d3fd318f5833820afa7b94886c24bb7785291321377a6cec405d456f9b701",
+    "verify.dll": "9fd642ed9892b6e5baf6544d22b813e1edccae22bd41fa19b8cd204b60f14826",
+    "Riftbound.Engine.pdb": "7a2cf38e71abb9fdea6c07e7356e95734ae42f156a9b7cf25f248631624aefd0",
+    "Microsoft.Extensions.Logging.Abstractions.dll": "a76a735b63e6ef3b0bf41ff92423cbd16103b8952e8306140a9bd650346034dc",
+    "verify": "158708d83fd4438f6b447c7360a1ec5ee04b92b4587f3c1c0b261574cf7967e6",
+    "Riftbound.CardCatalog.pdb": "b9d621eaf5de741b283966dd3bb6d82c487ecdeb2706a5f7df27d685b4166a63",
+    "Microsoft.Extensions.Primitives.dll": "6aaf929343fd02415d6cb5d903816c2f1c831b194bfe7a15789879093d0fa6b7",
+    "Npgsql.dll": "9d8db086e9eda5ff20c4a7f83fa3eae7689198f57277ff9ceea1ee3526f5fcf8",
+    "verify.pdb": "398675f79e9fd51743565f79c8b9b64ee42bb8c093de349bbfedfc74ebb8de6e",
+    "Riftbound.Contracts.dll": "e06f6c1693c87a9dc9cab46318d0ab5cc04c2ea3804ff0d10cdd1081709f145b",
+    "Microsoft.Extensions.Configuration.Abstractions.dll": "5def68e1c7d9c1fcf56153bb669e00d84c1ae17b35fb09c5a8ccf93e9b934d3e",
+    "Riftbound.Engine.dll": "cd3e9d6fa5ebb43178553759c50152ccb13d3afa7bc0df0c6ab29069d2194616",
+    "Microsoft.Extensions.Options.dll": "58048d710cf2a88d3dea7c933d0b1408464d5aa4245ef736d3d47e6df6ba4db3",
+    "Riftbound.Persistence.pdb": "53b3750d3d252c99b86e3af0457ff4e898e312d04846d0260a54c137e2de1949",
+    "Microsoft.Extensions.FileProviders.Abstractions.dll": "7ee935aadd8afe2f731d655ef54479ed6206e6d2aa52bfd1889cdf170b0f9399",
+    "verify.runtimeconfig.json": "f9bc8e9f0c46247078ed47309f19a7576b4b94e4300e9de0003917d6bd2d667a",
+    "Microsoft.Extensions.DependencyInjection.Abstractions.dll": "7c97c4463fe0fc11d1f22f4d160b2bd2288981adf1de2717a6ff3fb993ddf294",
+    "verify.deps.json": "5d1bfe5f613ad67096311786618e86da9c7cb4b115097589b3247f46cf09a1ad",
+    "Riftbound.Persistence.dll": "14b16f5995ecd6d4d13841eb6bff6532326a1fad203cb91a452cb0284dbdd92f",
+    "Microsoft.Extensions.Diagnostics.Abstractions.dll": "9702b8737009bb5f6c943cf7a3ba5c0991c7e4eb58a9e952d54835bb596fe563",
+    "data/official/rule-input-scope.json": "cc07cf3eef6a9af403454642a0435d061544400b5e01d08d3fdc65869bdad180",
+    "data/official/armaments.json": "ddcd838300e558c11df480ee79ccfab08c7af380df36544c666841720850bda8",
+    "data/official/card-catalog.zh-CN.json": "d521d7346392f2ea947c73c437c140d7bfe13a90cbca8642f7ae135b7b11f479"
+  },
+  "verifierSource": {
+    "sql-verifier/verify.csproj": "6a403095e8fafef21e5ca3b3ee7daec0ea2bd262060699781f5e9eb825cd22b0",
+    "sql-verifier/Program.cs": "de1754200b41aa53fd82a09c2a1ca532e789a39df5d2894abec0c70d3b183aa1"
+  },
+  "doesNotRunTheAcceptanceHelperOrCreateNewRooms": true
+}

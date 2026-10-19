@@ -1,0 +1,90 @@
+{
+  "verifiedAtUtc": "2026-10-19T07:55:29.502081+00:00",
+  "status": "PASS_TEN_DISTINCT_CONTROLLED_LIFECYCLE_AND_ACTUAL_PRIOR_CATALOG_CASES",
+  "cases": 10,
+  "methods": 4,
+  "latestPerExactCase": {
+    "Riftbound.ConformanceTests.PakaaProtectorLifecycleTests.ActualUnitDrawFeedsTheSecondDrawObserverWhileNonunitTrashDoesNot(unitTop: True)": {
+      "outcome": "Passed",
+      "execution": "lifecycle-second"
+    },
+    "Riftbound.ConformanceTests.PakaaProtectorLifecycleTests.ActualResponsesKeepCapturedDeckControllerAndLimitSelfMightToTheOriginalIncarnation(response: \"DESTROY\", unitTop: True)": {
+      "outcome": "Passed",
+      "execution": "lifecycle-responses-fifth"
+    },
+    "Riftbound.ConformanceTests.PakaaProtectorLifecycleTests.ActualResponsesKeepCapturedDeckControllerAndLimitSelfMightToTheOriginalIncarnation(response: \"CONTROL\", unitTop: False)": {
+      "outcome": "Passed",
+      "execution": "lifecycle-responses-fifth"
+    },
+    "Riftbound.ConformanceTests.PakaaProtectorLifecycleTests.ActualResponsesKeepCapturedDeckControllerAndLimitSelfMightToTheOriginalIncarnation(response: \"CONTROL\", unitTop: True)": {
+      "outcome": "Passed",
+      "execution": "lifecycle-responses-fifth"
+    },
+    "Riftbound.ConformanceTests.PakaaProtectorLifecycleTests.ActualUnitDrawFeedsTheSecondDrawObserverWhileNonunitTrashDoesNot(unitTop: False)": {
+      "outcome": "Passed",
+      "execution": "lifecycle-second"
+    },
+    "Riftbound.ConformanceTests.PakaaProtectorLifecycleTests.ActualResponsesKeepCapturedDeckControllerAndLimitSelfMightToTheOriginalIncarnation(response: \"REENTER\", unitTop: True)": {
+      "outcome": "Passed",
+      "execution": "lifecycle-responses-fifth"
+    },
+    "Riftbound.ConformanceTests.PakaaProtectorLifecycleTests.ActualResponsesKeepCapturedDeckControllerAndLimitSelfMightToTheOriginalIncarnation(response: \"DESTROY\", unitTop: False)": {
+      "outcome": "Passed",
+      "execution": "lifecycle-responses-fifth"
+    },
+    "Riftbound.ConformanceTests.PakaaProtectorLifecycleTests.ActualResponsesKeepCapturedDeckControllerAndLimitSelfMightToTheOriginalIncarnation(response: \"REENTER\", unitTop: False)": {
+      "outcome": "Passed",
+      "execution": "lifecycle-responses-fifth"
+    },
+    "Riftbound.ConformanceTests.PakaaProtectorLifecycleTests.NormalEndTurnClearsTheNonunitRevealMightAndItsLedger": {
+      "outcome": "Passed",
+      "execution": "lifecycle-second"
+    },
+    "Riftbound.ConformanceTests.PakaaProtectorLifecycleTests.ActualPrevious1034CatalogCannotBeRelabelledAsTheCurrent1035Inputs": {
+      "outcome": "Passed",
+      "execution": "lifecycle-second"
+    }
+  },
+  "allOriginalAttemptsRetained": [
+    {
+      "execution": "lifecycle-second",
+      "cases": 10,
+      "passed": 6,
+      "failed": 4,
+      "trxSha256": {
+        "lifecycle-second/focus/results.trx": "998ac5e409df44cddf0e239173af0b69c58b2c662bf4831d2b682ec89dfb081b"
+      }
+    },
+    {
+      "execution": "lifecycle-responses-third",
+      "cases": 6,
+      "passed": 2,
+      "failed": 4,
+      "trxSha256": {
+        "lifecycle-responses-third/focus/results.trx": "bc1b6c397ad59fa3af5c1fc84d7a071e017b3bd335d428c4c2c8fbd16fd42c8a"
+      }
+    },
+    {
+      "execution": "lifecycle-responses-fourth",
+      "cases": 6,
+      "passed": 4,
+      "failed": 2,
+      "trxSha256": {
+        "lifecycle-responses-fourth/focus/results.trx": "63c2640548edf9cb93f20c3f66e013abf9308e6366236250ceff332f721d5146"
+      }
+    },
+    {
+      "execution": "lifecycle-responses-fifth",
+      "cases": 6,
+      "passed": 6,
+      "failed": 0,
+      "trxSha256": {
+        "lifecycle-responses-fifth/focus/results.trx": "7e445635d51d006c7864835bde196c8a13a592d6ced7d0c85afd3522e3f2f7a9"
+      }
+    }
+  ],
+  "initialBuildFailureRetained": "lifecycle-first/build.log",
+  "productionRuleModulesUnchangedByTestPremiseRepairs": true,
+  "scope": "Actual accepted friendly sacrifice destruction and mandatory grave play completion, actual banish/reentry, actual standby hide/turn advance/reveal control change; captured original player deck and exact generation Might, draw observer and normal end-turn ledger cleanup, old catalog rejection. Controlled tick0 fixtures; not ordinary blank-opening evidence.",
+  "wholePrintingOrFixedFullOrProductCertification": false
+}

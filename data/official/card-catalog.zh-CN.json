@@ -2,7 +2,7 @@
   "source": "https://playloltcg.com/card.html",
   "api": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
   "fetchedAt": "2026-04-27",
-  "total": 1034,
+  "total": 1035,
   "cards": [
     {
       "id": 31005,
@@ -42895,6 +42895,54 @@
       "isPreview": false,
       "errata": "",
       "otherDesc": 0
+    },
+    {
+      "id": 37721,
+      "cardCategoryList": [
+        "unit"
+      ],
+      "cardCategoryNameList": [
+        "单位"
+      ],
+      "cardNo": "VEN·033",
+      "cardName": "帕卡监护者",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "green"
+      ],
+      "hero": "",
+      "region": "恕瑞玛",
+      "tag": "猫科",
+      "artist": "Bubble Cat Studio",
+      "cardEffect": "当我移动时，展示你主牌堆顶部的一张牌。如果是一张单位牌，则抽取该卡牌。否则，将其放入你的废牌堆并给予我在本回合内{{S}}+2。",
+      "flavorText": "“不存在走丢的帕卡幼崽这么一说。”\n——野外生存小知识",
+      "energy": 5,
+      "returnEnergy": null,
+      "power": 4,
+      "productCodeList": [
+        "VEN(标准补充包)",
+        "VEN(进阶补充包)"
+      ],
+      "productNameList": [
+        "化神争锋 标准补充包",
+        "化神争锋 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_glimmer",
+      "rarityName": "不凡",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260716/c1ad7a7290874709b2639a9d53010396.png",
+      "backImage": "",
+      "listSort": 1965,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
     }
   ],
   "scopedAdditions": [
@@ -43333,6 +43381,18 @@
       "publicationDate": null,
       "effectiveDate": null,
       "reason": "Exact current Apprentice Mage ordinary Empower2, empowered-state conditional Might and mandatory Insight2 consumer. Printed footer047/166 is associated without rewriting raw API VEN047 or original source ledger identities. Registration is not whole-card or regional tournament certification."
+    },
+    {
+      "cardNo": "VEN·033",
+      "source": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "fetchedAtUtc": "2026-10-19T06:00:10.945465+00:00",
+      "sourceId": 37721,
+      "sourceRecordSha256": "3c9a26f2927051340a485d4699ff3d39cc7670c538911446c26a085bd584c8d8",
+      "language": "zh-CN",
+      "region": "CN",
+      "publicationDate": null,
+      "effectiveDate": null,
+      "reason": "Exact current native movement/reveal consumer source. Printed footer033/166 is associated while raw API VEN033 and historical source dates remain unchanged. Registration is not whole-card, copied-text or tournament certification."
     }
   ]
 }

@@ -59,9 +59,10 @@ jobs:
     if: ${{ always() && !cancelled() && (needs.scope.result != 'success' || needs.scope.outputs.full != 'false') }}
     runs-on: ubuntu-latest
     # Fixed48 run39109499298 completed every rule shard, then exceeded the
-    # 180-minute job limit in PostgreSQL acceptance. Allow the full fixed
-    # candidate to finish every rule/game/pairing, SQL and network gate.
-    timeout-minutes: 300
+    # 180-minute job limit in PostgreSQL acceptance. Fixed c519 run39185200031
+    # passed in 296m9s, leaving 3m51s of the later 300-minute budget. Preserve
+    # every rule/game/pairing, SQL and network gate as consumer coverage grows.
+    timeout-minutes: 360
     concurrency:
       group: rules-${{ github.ref }}-${{ github.sha }}
       cancel-in-progress: true

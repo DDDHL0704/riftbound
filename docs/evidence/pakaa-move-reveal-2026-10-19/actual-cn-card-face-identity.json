@@ -1,0 +1,25 @@
+{
+  "observedAtUtc": "2026-10-19T06:01:37.982627+00:00",
+  "imagePath": "var/qa/paka-move-reveal-20261019/paka-guardian-cn-official-face.png",
+  "imageSha256": "00e8efb0c51e416b42218cf1bee08b82e6faed64778979b31117e0cfc7ec079d",
+  "sourceObservationSha256": "038e0fde4a55ee8934ee881ee60610574e05a71e32dafe19cfa46640aee6f048",
+  "method": "Actual local image pixels inspected with view_image",
+  "printedName": "帕卡监护者",
+  "printedFooter": "VEN · 033/166 · SC",
+  "printedEnergy": 5,
+  "printedMight": 4,
+  "printedTypeAndTags": [
+    "单位",
+    "恕瑞玛",
+    "猫科"
+  ],
+  "printedPowerCostSymbols": [],
+  "printedRuleText": "当我移动时，展示你主牌堆顶部的一张牌。如果是一张单位牌，则抽取该卡牌。否则，将其放入你的废牌堆并给予我在本回合内战力+2。",
+  "cnApiIdentity": {
+    "id": 37721,
+    "cardNo": "VEN·033"
+  },
+  "enGalleryIdentitySeparate": "VEN-033/166; sourceId ven-033-166; name Pakaa Protector",
+  "printedApiAndGalleryNamespacesKeptDistinct": true,
+  "noWholeCardOrTournamentLegalityCertification": true
+}

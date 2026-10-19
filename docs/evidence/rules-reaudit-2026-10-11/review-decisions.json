@@ -23129,6 +23129,137 @@
         "docs/evidence/empowered-insight-2026-10-19/vendetta-existing-source-association.json",
         "docs/evidence/empowered-insight-2026-10-19/vendetta-release-observation.json"
       ]
+    },
+    {
+      "id": "pakaa-native-move-reveal-2026-10-19",
+      "scope": "CN/zh-CN applicable2026-10-16, source observed2026-10-19. Exact native VEN033 ordinary move/reveal/draw-or-trash and original generation self Might consumer through existing shared observation/play permission. Controlled lifecycle and two declared engine formats are bounded. Empty-deck conditional interpretation, copied text, forced/simultaneous movement, dual unitgear, denial, all FAQ images and current visible/Windows remain separate open obligations.",
+      "status": "SCOPED42_SQL10_66TAMPER_INDEPENDENT_ORIGINAL_REPLAY_SINGLECHECK_METADATA_REPAIRS_NEW_FIXED_FULL_VISIBLE_WINDOWS_OPEN",
+      "subjects": [
+        "VEN·033",
+        "OGN·194/298"
+      ],
+      "ruleRecords": [],
+      "pendingRuleRecords": [],
+      "sourceClauses": [
+        "CN current DOC-01 055",
+        "CN current DOC-01 128",
+        "CN current DOC-01 383",
+        "CN current DOC-01 414",
+        "CN current DOC-01 425",
+        "CN current DOC-01 448-455"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/pakaa-move-reveal-2026-10-19/source-manifest.json",
+        "sha256": "9c6d22c55d6ea59a9f7fca311e431be4299bbbcf54d65f661af54957011f59f3",
+        "role": "source-manifest"
+      },
+      "validation": {
+        "singleCheck": {
+          "path": "docs/evidence/pakaa-move-reveal-2026-10-19/one-check.json",
+          "sha256": "6e6e78bde5c3050291ff95d898f3a4af74ff9a1ba6029cb23deba76fdfe60f87",
+          "role": "one-check"
+        },
+        "postCheckExactFocus": {
+          "path": "docs/evidence/pakaa-move-reveal-2026-10-19/post-check-final.json",
+          "sha256": "40cb9d26ee8de308ebb09ce6298c97a304b435ab29c8e5278b1cd25a3f55640d",
+          "role": "post-check-final"
+        },
+        "ordinary": {
+          "path": "docs/evidence/pakaa-move-reveal-2026-10-19/ordinary10.json",
+          "sha256": "43823ddd22ea336285a42208664690321ecd3d6230d1c31a93157e80ff8f8be4",
+          "role": "ordinary10"
+        },
+        "lifecycle": {
+          "path": "docs/evidence/pakaa-move-reveal-2026-10-19/lifecycle10.json",
+          "sha256": "4c05b04a58d3ac4a6299b49cbb75a82ae86d1efdd914263228f506976f3b238f",
+          "role": "lifecycle10"
+        },
+        "realSql": {
+          "path": "docs/evidence/pakaa-move-reveal-2026-10-19/real-sql10.json",
+          "sha256": "7992734dc4cb996c50851fadf7b8ce79630d10d126f581fc9c9689402b3fb8b2",
+          "role": "real-sql10"
+        },
+        "realSqlIndependent": {
+          "path": "docs/evidence/pakaa-move-reveal-2026-10-19/real-sql-independent.json",
+          "sha256": "eb517e91b4e1ad2da0fd61eded625a4c4d3aa51247ffe876f4c9000a43046812",
+          "role": "real-sql-independent"
+        },
+        "priorFixedC519Only": {
+          "path": "docs/evidence/pakaa-move-reveal-2026-10-19/previous-c519-full.json",
+          "sha256": "b68f357545e5b044a2a490dc338fe0211ebde5fc97fc97f9de76a65aa828ac59",
+          "role": "previous-c519-full"
+        },
+        "newFixedFull": "PENDING",
+        "visibleCurrentProduct": "OPEN",
+        "physicalWindows": "OPEN"
+      },
+      "exclusions": [
+        "NEW_FIXED_COMPLETE_FULL_WITH_ORIGINAL143_METHODS110_PAIRS_SEEDS_WIN_REPLAY_AND40_DEFAULT_SQL_HELPERS",
+        "CURRENT_FIXED_VISIBLE_NATIVE_PAIRED_REALSQL_RECONNECT_NORMAL_SCORE_COMPLETE_REPLAY",
+        "PHYSICAL_WINDOWS",
+        "ALL_UNCOVERED_EXACT_SOURCE_SEMANTIC_BRANCHES_AND_SOURCE_GAPS"
+      ],
+      "auditDocument": "docs/PAKAA_MOVE_REVEAL_AUDIT_2026-10-19.md",
+      "evidence": [
+        "docs/evidence/pakaa-move-reveal-2026-10-19/acceptance-boundaries.json",
+        "docs/evidence/pakaa-move-reveal-2026-10-19/actual-cn-card-face-identity.json",
+        "docs/evidence/pakaa-move-reveal-2026-10-19/actual-sql-runtime-inputs.json",
+        "docs/evidence/pakaa-move-reveal-2026-10-19/ci-budget-rationale.json",
+        "docs/evidence/pakaa-move-reveal-2026-10-19/cn-core-055-through-before-056.txt",
+        "docs/evidence/pakaa-move-reveal-2026-10-19/cn-core-128-through-before-129.txt",
+        "docs/evidence/pakaa-move-reveal-2026-10-19/cn-core-383-through-before-384.txt",
+        "docs/evidence/pakaa-move-reveal-2026-10-19/cn-core-414-through-before-415.txt",
+        "docs/evidence/pakaa-move-reveal-2026-10-19/cn-core-425-through-before-426.txt",
+        "docs/evidence/pakaa-move-reveal-2026-10-19/cn-core-448-through-before-456.txt",
+        "docs/evidence/pakaa-move-reveal-2026-10-19/early-original-execution.json",
+        "docs/evidence/pakaa-move-reveal-2026-10-19/early-original6.json",
+        "docs/evidence/pakaa-move-reveal-2026-10-19/exact-metadata-repair.json",
+        "docs/evidence/pakaa-move-reveal-2026-10-19/finite70-registration-delta.json",
+        "docs/evidence/pakaa-move-reveal-2026-10-19/independent-original-ten-frames.json",
+        "docs/evidence/pakaa-move-reveal-2026-10-19/independent-verifier-inputs.json",
+        "docs/evidence/pakaa-move-reveal-2026-10-19/initial-consumer-frontier.json",
+        "docs/evidence/pakaa-move-reveal-2026-10-19/lifecycle10.json",
+        "docs/evidence/pakaa-move-reveal-2026-10-19/native22.json",
+        "docs/evidence/pakaa-move-reveal-2026-10-19/new-journal-fixture-premise.json",
+        "docs/evidence/pakaa-move-reveal-2026-10-19/new-lifecycle-build-premise.json",
+        "docs/evidence/pakaa-move-reveal-2026-10-19/new-lifecycle-parent-entry-premise.json",
+        "docs/evidence/pakaa-move-reveal-2026-10-19/new-lifecycle-priority-premise.json",
+        "docs/evidence/pakaa-move-reveal-2026-10-19/new-lifecycle-standby-location-premise.json",
+        "docs/evidence/pakaa-move-reveal-2026-10-19/nocturne-cn-raw-api.json.gz",
+        "docs/evidence/pakaa-move-reveal-2026-10-19/nocturne-original-source-observation.json",
+        "docs/evidence/pakaa-move-reveal-2026-10-19/nocturne-representation-classification.json",
+        "docs/evidence/pakaa-move-reveal-2026-10-19/old-fixed-reader-guard-rejection.json",
+        "docs/evidence/pakaa-move-reveal-2026-10-19/one-check.json",
+        "docs/evidence/pakaa-move-reveal-2026-10-19/ordinary10.json",
+        "docs/evidence/pakaa-move-reveal-2026-10-19/original-executed-registration-and-movement-reds.json",
+        "docs/evidence/pakaa-move-reveal-2026-10-19/original-test-retention.json",
+        "docs/evidence/pakaa-move-reveal-2026-10-19/paka-cn-official-face.png",
+        "docs/evidence/pakaa-move-reveal-2026-10-19/paka-cn-raw-api.json.gz",
+        "docs/evidence/pakaa-move-reveal-2026-10-19/post-check-final.json",
+        "docs/evidence/pakaa-move-reveal-2026-10-19/previous-c519-full.json",
+        "docs/evidence/pakaa-move-reveal-2026-10-19/previous-c519-initial-count-label.json",
+        "docs/evidence/pakaa-move-reveal-2026-10-19/previous-c519-normal-headless-exported-pair.json",
+        "docs/evidence/pakaa-move-reveal-2026-10-19/previous-c519-normal-score-protocol.json",
+        "docs/evidence/pakaa-move-reveal-2026-10-19/previous-c519-reuse.json",
+        "docs/evidence/pakaa-move-reveal-2026-10-19/previous-c519-sigterm-errors-open.json",
+        "docs/evidence/pakaa-move-reveal-2026-10-19/previous-c519-storage-retirement.json",
+        "docs/evidence/pakaa-move-reveal-2026-10-19/previous-c519-terminal.json",
+        "docs/evidence/pakaa-move-reveal-2026-10-19/primary-cn-clause-bindings.json",
+        "docs/evidence/pakaa-move-reveal-2026-10-19/public-reveal-label-gap.json",
+        "docs/evidence/pakaa-move-reveal-2026-10-19/radiance-expanded-index.json",
+        "docs/evidence/pakaa-move-reveal-2026-10-19/radiance-expanded-source.json",
+        "docs/evidence/pakaa-move-reveal-2026-10-19/radiance-first-url-walk-index.json",
+        "docs/evidence/pakaa-move-reveal-2026-10-19/radiance-first-url-walk-source.json",
+        "docs/evidence/pakaa-move-reveal-2026-10-19/radiance-next-frontier-index.json",
+        "docs/evidence/pakaa-move-reveal-2026-10-19/radiance-next-frontier-source.json",
+        "docs/evidence/pakaa-move-reveal-2026-10-19/radiance-next-frontier.html.gz",
+        "docs/evidence/pakaa-move-reveal-2026-10-19/real-sql-independent.json",
+        "docs/evidence/pakaa-move-reveal-2026-10-19/real-sql10.json",
+        "docs/evidence/pakaa-move-reveal-2026-10-19/runtime-row-retention.json",
+        "docs/evidence/pakaa-move-reveal-2026-10-19/source-manifest.json",
+        "docs/evidence/pakaa-move-reveal-2026-10-19/source-observation.json",
+        "docs/evidence/pakaa-move-reveal-2026-10-19/vendetta-faq-observed.html.gz"
+      ]
     }
   ]
 }
