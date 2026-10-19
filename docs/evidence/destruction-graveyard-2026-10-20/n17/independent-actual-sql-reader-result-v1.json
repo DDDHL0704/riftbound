@@ -1,0 +1,80 @@
+{
+  "status": "PASS_ACTUAL_INDEPENDENT_READONLY_HWEI_ORIGINAL_FRAMES",
+  "checks": [
+    {
+      "room": "postgres-hwei-discard-types-5b9fc1a5101b451688b42a7b22de8d23",
+      "format": "CoreRules",
+      "reverse": false,
+      "commands": 33,
+      "events": 131,
+      "allStoredFieldsAndNullsAndPrivateViewsExact": true,
+      "originalSeed": 0,
+      "independentDraws": 1,
+      "independentDiscards": 1,
+      "bothInlineBranchesAndOrder": true,
+      "readiedRunes": 2,
+      "preEndMight": 8,
+      "nextTurnMight": 5,
+      "fullOriginalReplayMatched": true
+    },
+    {
+      "room": "postgres-hwei-discard-types-d84b78a7ed0a41c996f18492de5e4cfb",
+      "format": "CoreRules",
+      "reverse": true,
+      "commands": 33,
+      "events": 131,
+      "allStoredFieldsAndNullsAndPrivateViewsExact": true,
+      "originalSeed": 0,
+      "independentDraws": 1,
+      "independentDiscards": 1,
+      "bothInlineBranchesAndOrder": true,
+      "readiedRunes": 2,
+      "preEndMight": 8,
+      "nextTurnMight": 5,
+      "fullOriginalReplayMatched": true
+    },
+    {
+      "room": "postgres-hwei-discard-types-8f25aa61bb0b4ad894e6131fac92bf29",
+      "format": "ChinaStandard20260724",
+      "reverse": false,
+      "commands": 33,
+      "events": 131,
+      "allStoredFieldsAndNullsAndPrivateViewsExact": true,
+      "originalSeed": 0,
+      "independentDraws": 1,
+      "independentDiscards": 1,
+      "bothInlineBranchesAndOrder": true,
+      "readiedRunes": 2,
+      "preEndMight": 8,
+      "nextTurnMight": 5,
+      "fullOriginalReplayMatched": true
+    },
+    {
+      "room": "postgres-hwei-discard-types-8b460d33c3e74afa970fb798df4d7766",
+      "format": "ChinaStandard20260724",
+      "reverse": true,
+      "commands": 33,
+      "events": 131,
+      "allStoredFieldsAndNullsAndPrivateViewsExact": true,
+      "originalSeed": 0,
+      "independentDraws": 1,
+      "independentDiscards": 1,
+      "bothInlineBranchesAndOrder": true,
+      "readiedRunes": 2,
+      "preEndMight": 8,
+      "nextTurnMight": 5,
+      "fullOriginalReplayMatched": true
+    }
+  ],
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+    "implementationSha256": "aa1142ae842e96564fe73f3237f6616c8dc7128e069f82b76e5ffe57c0a1c8eb",
+    "identitySha256": "b95c5356604bd832648068bcb2248b6763aea8b7100f3c995915646e47b1bcd7"
+  },
+  "noNewRoomStateSeedOrHistoryRewrite": true,
+  "visibleAndPhysicalWindows": "OPEN"
+}

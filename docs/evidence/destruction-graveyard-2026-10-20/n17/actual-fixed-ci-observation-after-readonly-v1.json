@@ -1,0 +1,144 @@
+{
+  "observedAtUtc": "2026-10-19T19:16:25.035598+00:00",
+  "runs": [
+    {
+      "runId": 39305210166,
+      "sha": "08fd25c0dc643f9120b529f039feed69beffc251",
+      "status": "in_progress",
+      "conclusion": null,
+      "updatedAt": "2026-10-19T18:51:06Z",
+      "jobs": [
+        {
+          "id": 118240355856,
+          "name": "scope",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-19T18:45:35Z",
+          "completed_at": "2026-10-19T18:45:57Z"
+        },
+        {
+          "id": 118240567332,
+          "name": "rule_suite",
+          "status": "in_progress",
+          "conclusion": null,
+          "started_at": "2026-10-19T18:46:00Z",
+          "completed_at": null
+        },
+        {
+          "id": 118240567338,
+          "name": "desktop (macos-latest)",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-19T18:51:05Z",
+          "completed_at": "2026-10-19T18:54:04Z"
+        },
+        {
+          "id": 118240567492,
+          "name": "desktop (windows-latest)",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-19T18:46:02Z",
+          "completed_at": "2026-10-19T18:49:26Z"
+        },
+        {
+          "id": 118240567604,
+          "name": "postgres",
+          "status": "in_progress",
+          "conclusion": null,
+          "started_at": "2026-10-19T18:46:01Z",
+          "completed_at": null
+        }
+      ]
+    },
+    {
+      "runId": 39275773327,
+      "sha": "b294bb150d877b3399cd9e120bbaec5c75e353cf",
+      "status": "in_progress",
+      "conclusion": null,
+      "updatedAt": "2026-10-19T15:12:22Z",
+      "jobs": [
+        {
+          "id": 118139569185,
+          "name": "scope",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-19T15:11:46Z",
+          "completed_at": "2026-10-19T15:12:13Z"
+        },
+        {
+          "id": 118139859727,
+          "name": "postgres",
+          "status": "in_progress",
+          "conclusion": null,
+          "started_at": "2026-10-19T15:12:16Z",
+          "completed_at": null
+        },
+        {
+          "id": 118139859984,
+          "name": "rule_suite",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-19T15:12:16Z",
+          "completed_at": "2026-10-19T17:59:39Z"
+        },
+        {
+          "id": 118139860340,
+          "name": "desktop (macos-latest)",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-19T15:12:22Z",
+          "completed_at": "2026-10-19T15:15:18Z"
+        },
+        {
+          "id": 118139860523,
+          "name": "desktop (windows-latest)",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-19T15:12:17Z",
+          "completed_at": "2026-10-19T15:15:38Z"
+        }
+      ]
+    },
+    {
+      "runId": 39258672573,
+      "sha": "a3432166062177ba127ab8b3ffd836b9cd619b58",
+      "status": "in_progress",
+      "conclusion": null,
+      "updatedAt": "2026-10-19T13:16:49Z",
+      "jobs": [
+        {
+          "id": 118080329245,
+          "name": "scope",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-19T13:16:01Z",
+          "completed_at": "2026-10-19T13:16:30Z"
+        },
+        {
+          "id": 118080600172,
+          "name": "desktop (windows-latest)",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-19T13:16:33Z",
+          "completed_at": "2026-10-19T13:19:33Z"
+        },
+        {
+          "id": 118080600309,
+          "name": "rules",
+          "status": "in_progress",
+          "conclusion": null,
+          "started_at": "2026-10-19T13:16:34Z",
+          "completed_at": null
+        },
+        {
+          "id": 118080600748,
+          "name": "desktop (macos-latest)",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-19T13:16:49Z",
+          "completed_at": "2026-10-19T13:20:29Z"
+        }
+      ]
+    }
+  ]
+}

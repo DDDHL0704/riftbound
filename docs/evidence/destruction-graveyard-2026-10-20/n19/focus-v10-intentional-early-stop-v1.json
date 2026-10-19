@@ -1,0 +1,7 @@
+{
+  "atUtc": "2026-10-19T20:37:08.153254+00:00",
+  "runnerPid": 36338,
+  "reason": "All ordinary profiles share a new incorrect test expectation of graveyard source generation2. Retained original08fd ordinary self-destroy frames prove actual generation3; stop only this own focus runner to avoid repeating this same incorrect assertion across remaining profiles. Original source/commands/frames untouched.",
+  "notACompletedOrPassingRun": true,
+  "originalConsoleLogRetained": true
+}

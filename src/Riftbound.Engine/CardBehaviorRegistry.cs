@@ -994,7 +994,6 @@ public static class CardBehaviorRegistry
             "NOXIAN_GUILLOTINE_DESTROY_ON_NEXT_DAMAGE",
             0,
             1,
-            StatusEffectId: "DESTROY_ON_NEXT_DAMAGE_THIS_TURN",
             TargetScope: CardTargetScopes.AnyUnit),
         new(
             "OGN·221/298",
@@ -1002,9 +1001,7 @@ public static class CardBehaviorRegistry
             5,
             "IMPERIAL_DECREE_ALL_UNITS_DESTROY_ON_DAMAGE_THIS_TURN",
             0,
-            0,
-            StatusEffectId: "DESTROY_ON_NEXT_DAMAGE_THIS_TURN",
-            AppliesStatusEffectToAllUnits: true),
+            0),
         new(
             "OGS·012/024",
             "爆能术",

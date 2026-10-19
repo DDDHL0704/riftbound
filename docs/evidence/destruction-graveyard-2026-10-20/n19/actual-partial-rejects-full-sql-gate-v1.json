@@ -1,0 +1,15 @@
+{
+  "status": "ACTUAL_ONE_CASE_OF45_RECEIPT_CANNOT_SATISFY_FOUR_PARTITION_FULL_GATE",
+  "atUtc": "2026-10-19T21:59:26.379647+00:00",
+  "actualPartialReceiptSha256": "5c4b230237d9edd4d947e75c592251af5a7a32317b80d342ee377fc578d38b7c",
+  "actualCompletedCases": [
+    "destruction-graveyard"
+  ],
+  "actualPartitionIndex": 44,
+  "actualPartitionCount": 45,
+  "negativeProbeChildFlagsAreSyntheticSuccessNotActualCiEvidence": true,
+  "exitCode": 1,
+  "diagnostic": "ValueError: Missing or extra SQL partition receipt.",
+  "fullSuccessReceiptNotCreated": true,
+  "allFourProductionPartitionsActuallyExecuted": false
+}

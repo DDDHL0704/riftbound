@@ -1,0 +1,90 @@
+{
+  "status": "ACTUAL_SOURCE_PAGINATION_IDENTITY_INSTABILITY_INDEPENDENT_OFFLINE_READBACK",
+  "atUtc": "2026-10-19T22:15:23.093952+00:00",
+  "region": "GLOBAL",
+  "language": "en-US",
+  "verifiedOriginalResponses": 30,
+  "originalArchives": [
+    {
+      "path": "var/qa/global-gallery-gap-20261020/eight-pagination-original-responses-v1.jsonl.gz",
+      "sha256": "c0eac9e3031262ba6def079ac89b07015a3e2bd6321e1f5f255c1d5f303efdf0"
+    },
+    {
+      "path": "var/qa/global-gallery-gap-20261020/slot-localization-original-responses-v1.jsonl.gz",
+      "sha256": "6afe7fb55492a00ce2158ccb0b8c4a422abe3b70f7bc832d54e2aa20032549fe"
+    }
+  ],
+  "allOriginalRawBytesHashesAndFullRowsVerified": true,
+  "sourceReportedTotal": 1416,
+  "wholeListUniqueRows": 1408,
+  "defaultLocaleAndSsrWholeDictionariesMatch": true,
+  "observedParentChildIdentityDisagreements": [
+    {
+      "parent": [
+        300,
+        100
+      ],
+      "left": [
+        300,
+        50
+      ],
+      "right": [
+        350,
+        50
+      ],
+      "parentIdsNotReturnedByCombinedChildren": [
+        "rad-021-167"
+      ],
+      "childIdsNotReturnedByParent": [],
+      "sameIdInBothChildren": [
+        "rad-021a-167"
+      ],
+      "exactPrintingReadback": {
+        "rad-021-167": {
+          "publicCode": "RAD-021/167",
+          "name": "Ekko"
+        }
+      },
+      "parentSourceUrl": "https://content.publishing.riotgames.com/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=en_US&limit=100&from=300",
+      "leftSourceUrl": "https://content.publishing.riotgames.com/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=en_US&limit=50&from=300",
+      "rightSourceUrl": "https://content.publishing.riotgames.com/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=en_US&limit=50&from=350"
+    },
+    {
+      "parent": [
+        400,
+        100
+      ],
+      "left": [
+        400,
+        50
+      ],
+      "right": [
+        450,
+        50
+      ],
+      "parentIdsNotReturnedByCombinedChildren": [
+        "ogn-007-298"
+      ],
+      "childIdsNotReturnedByParent": [],
+      "sameIdInBothChildren": [
+        "rad-r01a"
+      ],
+      "exactPrintingReadback": {
+        "ogn-007-298": {
+          "publicCode": "OGN-007/298",
+          "name": "Fury Rune"
+        }
+      },
+      "parentSourceUrl": "https://content.publishing.riotgames.com/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=en_US&limit=100&from=400",
+      "leftSourceUrl": "https://content.publishing.riotgames.com/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=en_US&limit=50&from=400",
+      "rightSourceUrl": "https://content.publishing.riotgames.com/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=en_US&limit=50&from=450"
+    }
+  ],
+  "boundedLocalizationStatus": "Stopped after22 additional requests upon first failed identity conservation; no missing-slot or duplicate-slot conclusion certified.",
+  "allEightSourceGapObligationsRemainOpen": true,
+  "noArticleEightCandidateEquivalenceInferred": true,
+  "providerOrderingOrBackendRootCause": "UNKNOWN",
+  "noFurtherNetworkRequestForThisReadback": true,
+  "noRuntimeSourceUniverseDatesOrAcceptedHistoryMutated": true,
+  "semanticCoverageCertified": false
+}

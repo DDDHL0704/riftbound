@@ -1,0 +1,341 @@
+{
+  "status": "FIXED_08FD_ALL_ORIGINAL_RULES_PASS_SQL_NETWORK_PENDING",
+  "runId": 39305210166,
+  "fixedCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+  "archiveBytes": 3844880,
+  "archiveSha256": "1f2702eeb6fbfb34832a084c52b46017d8cfe9633108e29ecaeef2251e346079",
+  "cases": 13176,
+  "methods": 7581,
+  "all13124PreviousCasesRetained": true,
+  "all7568PreviousMethodsRetained": true,
+  "originalFullGameMethods": 143,
+  "110Pairs11DecksSeed424242Retained": true,
+  "newCases": [
+    [
+      "Riftbound.ConformanceTests.HweiMoveDiscardOrdinaryTests",
+      "OriginalBlankOpeningDrawsDiscardsDualTypeAndResolvesEitherOrderWithCompleteOriginalReplay",
+      "Riftbound.ConformanceTests.HweiMoveDiscardOrdinaryTests.OriginalBlankOpeningDrawsDiscardsDualTypeAndResolvesEitherOrderWithCompleteOriginalReplay(format: ChinaStandard20260724, reverse: False)"
+    ],
+    [
+      "Riftbound.ConformanceTests.HweiMoveDiscardOrdinaryTests",
+      "OriginalBlankOpeningDrawsDiscardsDualTypeAndResolvesEitherOrderWithCompleteOriginalReplay",
+      "Riftbound.ConformanceTests.HweiMoveDiscardOrdinaryTests.OriginalBlankOpeningDrawsDiscardsDualTypeAndResolvesEitherOrderWithCompleteOriginalReplay(format: ChinaStandard20260724, reverse: True)"
+    ],
+    [
+      "Riftbound.ConformanceTests.HweiMoveDiscardOrdinaryTests",
+      "OriginalBlankOpeningDrawsDiscardsDualTypeAndResolvesEitherOrderWithCompleteOriginalReplay",
+      "Riftbound.ConformanceTests.HweiMoveDiscardOrdinaryTests.OriginalBlankOpeningDrawsDiscardsDualTypeAndResolvesEitherOrderWithCompleteOriginalReplay(format: CoreRules, reverse: False)"
+    ],
+    [
+      "Riftbound.ConformanceTests.HweiMoveDiscardOrdinaryTests",
+      "OriginalBlankOpeningDrawsDiscardsDualTypeAndResolvesEitherOrderWithCompleteOriginalReplay",
+      "Riftbound.ConformanceTests.HweiMoveDiscardOrdinaryTests.OriginalBlankOpeningDrawsDiscardsDualTypeAndResolvesEitherOrderWithCompleteOriginalReplay(format: CoreRules, reverse: True)"
+    ],
+    [
+      "Riftbound.ConformanceTests.HweiMoveDiscardRecoveryTests",
+      "ActualSourceReturnBeforeResolutionKeepsDrawDiscardAndRunesButCannotBuffNewHandIncarnation",
+      "Riftbound.ConformanceTests.HweiMoveDiscardRecoveryTests.ActualSourceReturnBeforeResolutionKeepsDrawDiscardAndRunesButCannotBuffNewHandIncarnation"
+    ],
+    [
+      "Riftbound.ConformanceTests.HweiMoveDiscardRecoveryTests",
+      "CoordinatedEarlierInlineCreationTickStillFailsOriginalJournalReplay",
+      "Riftbound.ConformanceTests.HweiMoveDiscardRecoveryTests.CoordinatedEarlierInlineCreationTickStillFailsOriginalJournalReplay"
+    ],
+    [
+      "Riftbound.ConformanceTests.HweiMoveDiscardRecoveryTests",
+      "CurrentHandIncarnationCannotBorrowHistoricalMovementDisclosure",
+      "Riftbound.ConformanceTests.HweiMoveDiscardRecoveryTests.CurrentHandIncarnationCannotBorrowHistoricalMovementDisclosure(afterDraw: False, extraHandDisclosure: False)"
+    ],
+    [
+      "Riftbound.ConformanceTests.HweiMoveDiscardRecoveryTests",
+      "CurrentHandIncarnationCannotBorrowHistoricalMovementDisclosure",
+      "Riftbound.ConformanceTests.HweiMoveDiscardRecoveryTests.CurrentHandIncarnationCannotBorrowHistoricalMovementDisclosure(afterDraw: False, extraHandDisclosure: True)"
+    ],
+    [
+      "Riftbound.ConformanceTests.HweiMoveDiscardRecoveryTests",
+      "CurrentHandIncarnationCannotBorrowHistoricalMovementDisclosure",
+      "Riftbound.ConformanceTests.HweiMoveDiscardRecoveryTests.CurrentHandIncarnationCannotBorrowHistoricalMovementDisclosure(afterDraw: True, extraHandDisclosure: False)"
+    ],
+    [
+      "Riftbound.ConformanceTests.HweiMoveDiscardRecoveryTests",
+      "CurrentHandIncarnationCannotBorrowHistoricalMovementDisclosure",
+      "Riftbound.ConformanceTests.HweiMoveDiscardRecoveryTests.CurrentHandIncarnationCannotBorrowHistoricalMovementDisclosure(afterDraw: True, extraHandDisclosure: True)"
+    ],
+    [
+      "Riftbound.ConformanceTests.HweiMoveDiscardRecoveryTests",
+      "EmptyMainDeckUsesRealBurnoutAndFinishesBeforeDiscardIfNoCardCanBeDrawn",
+      "Riftbound.ConformanceTests.HweiMoveDiscardRecoveryTests.EmptyMainDeckUsesRealBurnoutAndFinishesBeforeDiscardIfNoCardCanBeDrawn(refill: False)"
+    ],
+    [
+      "Riftbound.ConformanceTests.HweiMoveDiscardRecoveryTests",
+      "EmptyMainDeckUsesRealBurnoutAndFinishesBeforeDiscardIfNoCardCanBeDrawn",
+      "Riftbound.ConformanceTests.HweiMoveDiscardRecoveryTests.EmptyMainDeckUsesRealBurnoutAndFinishesBeforeDiscardIfNoCardCanBeDrawn(refill: True)"
+    ],
+    [
+      "Riftbound.ConformanceTests.HweiMoveDiscardRecoveryTests",
+      "GearInlineWithNoRunesNeedsNoSelectionAndStillAllowsItsUnitInline",
+      "Riftbound.ConformanceTests.HweiMoveDiscardRecoveryTests.GearInlineWithNoRunesNeedsNoSelectionAndStillAllowsItsUnitInline"
+    ],
+    [
+      "Riftbound.ConformanceTests.HweiMoveDiscardRecoveryTests",
+      "InlineStateRejectsForgedTypeSourceGenerationTimingRoleAndDuplicateBranch",
+      "Riftbound.ConformanceTests.HweiMoveDiscardRecoveryTests.InlineStateRejectsForgedTypeSourceGenerationTimingRoleAndDuplicateBranch(attack: \"BRANCH\")"
+    ],
+    [
+      "Riftbound.ConformanceTests.HweiMoveDiscardRecoveryTests",
+      "InlineStateRejectsForgedTypeSourceGenerationTimingRoleAndDuplicateBranch",
+      "Riftbound.ConformanceTests.HweiMoveDiscardRecoveryTests.InlineStateRejectsForgedTypeSourceGenerationTimingRoleAndDuplicateBranch(attack: \"CARD_NO\")"
+    ],
+    [
+      "Riftbound.ConformanceTests.HweiMoveDiscardRecoveryTests",
+      "InlineStateRejectsForgedTypeSourceGenerationTimingRoleAndDuplicateBranch",
+      "Riftbound.ConformanceTests.HweiMoveDiscardRecoveryTests.InlineStateRejectsForgedTypeSourceGenerationTimingRoleAndDuplicateBranch(attack: \"CARD_NO_AND_TYPES\")"
+    ],
+    [
+      "Riftbound.ConformanceTests.HweiMoveDiscardRecoveryTests",
+      "InlineStateRejectsForgedTypeSourceGenerationTimingRoleAndDuplicateBranch",
+      "Riftbound.ConformanceTests.HweiMoveDiscardRecoveryTests.InlineStateRejectsForgedTypeSourceGenerationTimingRoleAndDuplicateBranch(attack: \"CONTROLLER\")"
+    ],
+    [
+      "Riftbound.ConformanceTests.HweiMoveDiscardRecoveryTests",
+      "InlineStateRejectsForgedTypeSourceGenerationTimingRoleAndDuplicateBranch",
+      "Riftbound.ConformanceTests.HweiMoveDiscardRecoveryTests.InlineStateRejectsForgedTypeSourceGenerationTimingRoleAndDuplicateBranch(attack: \"DISCARD_GENERATION\")"
+    ],
+    [
+      "Riftbound.ConformanceTests.HweiMoveDiscardRecoveryTests",
+      "InlineStateRejectsForgedTypeSourceGenerationTimingRoleAndDuplicateBranch",
+      "Riftbound.ConformanceTests.HweiMoveDiscardRecoveryTests.InlineStateRejectsForgedTypeSourceGenerationTimingRoleAndDuplicateBranch(attack: \"DUPLICATE_BRANCH\")"
+    ],
+    [
+      "Riftbound.ConformanceTests.HweiMoveDiscardRecoveryTests",
+      "InlineStateRejectsForgedTypeSourceGenerationTimingRoleAndDuplicateBranch",
+      "Riftbound.ConformanceTests.HweiMoveDiscardRecoveryTests.InlineStateRejectsForgedTypeSourceGenerationTimingRoleAndDuplicateBranch(attack: \"EVENT\")"
+    ],
+    [
+      "Riftbound.ConformanceTests.HweiMoveDiscardRecoveryTests",
+      "InlineStateRejectsForgedTypeSourceGenerationTimingRoleAndDuplicateBranch",
+      "Riftbound.ConformanceTests.HweiMoveDiscardRecoveryTests.InlineStateRejectsForgedTypeSourceGenerationTimingRoleAndDuplicateBranch(attack: \"FUTURE\")"
+    ],
+    [
+      "Riftbound.ConformanceTests.HweiMoveDiscardRecoveryTests",
+      "InlineStateRejectsForgedTypeSourceGenerationTimingRoleAndDuplicateBranch",
+      "Riftbound.ConformanceTests.HweiMoveDiscardRecoveryTests.InlineStateRejectsForgedTypeSourceGenerationTimingRoleAndDuplicateBranch(attack: \"NO_CONTEXT\")"
+    ],
+    [
+      "Riftbound.ConformanceTests.HweiMoveDiscardRecoveryTests",
+      "InlineStateRejectsForgedTypeSourceGenerationTimingRoleAndDuplicateBranch",
+      "Riftbound.ConformanceTests.HweiMoveDiscardRecoveryTests.InlineStateRejectsForgedTypeSourceGenerationTimingRoleAndDuplicateBranch(attack: \"NO_INLINE\")"
+    ],
+    [
+      "Riftbound.ConformanceTests.HweiMoveDiscardRecoveryTests",
+      "InlineStateRejectsForgedTypeSourceGenerationTimingRoleAndDuplicateBranch",
+      "Riftbound.ConformanceTests.HweiMoveDiscardRecoveryTests.InlineStateRejectsForgedTypeSourceGenerationTimingRoleAndDuplicateBranch(attack: \"PARENT_EFFECT\")"
+    ],
+    [
+      "Riftbound.ConformanceTests.HweiMoveDiscardRecoveryTests",
+      "InlineStateRejectsForgedTypeSourceGenerationTimingRoleAndDuplicateBranch",
+      "Riftbound.ConformanceTests.HweiMoveDiscardRecoveryTests.InlineStateRejectsForgedTypeSourceGenerationTimingRoleAndDuplicateBranch(attack: \"SOURCE\")"
+    ],
+    [
+      "Riftbound.ConformanceTests.HweiMoveDiscardRecoveryTests",
+      "InlineStateRejectsForgedTypeSourceGenerationTimingRoleAndDuplicateBranch",
+      "Riftbound.ConformanceTests.HweiMoveDiscardRecoveryTests.InlineStateRejectsForgedTypeSourceGenerationTimingRoleAndDuplicateBranch(attack: \"SOURCE_CARD_NO\")"
+    ],
+    [
+      "Riftbound.ConformanceTests.HweiMoveDiscardRecoveryTests",
+      "InlineStateRejectsForgedTypeSourceGenerationTimingRoleAndDuplicateBranch",
+      "Riftbound.ConformanceTests.HweiMoveDiscardRecoveryTests.InlineStateRejectsForgedTypeSourceGenerationTimingRoleAndDuplicateBranch(attack: \"SOURCE_GENERATION\")"
+    ],
+    [
+      "Riftbound.ConformanceTests.HweiMoveDiscardRecoveryTests",
+      "InlineStateRejectsForgedTypeSourceGenerationTimingRoleAndDuplicateBranch",
+      "Riftbound.ConformanceTests.HweiMoveDiscardRecoveryTests.InlineStateRejectsForgedTypeSourceGenerationTimingRoleAndDuplicateBranch(attack: \"TYPES\")"
+    ],
+    [
+      "Riftbound.ConformanceTests.HweiMoveDiscardRecoveryTests",
+      "InlineStateRejectsForgedTypeSourceGenerationTimingRoleAndDuplicateBranch",
+      "Riftbound.ConformanceTests.HweiMoveDiscardRecoveryTests.InlineStateRejectsForgedTypeSourceGenerationTimingRoleAndDuplicateBranch(attack: \"UNCAPTURED_DISCARD\")"
+    ],
+    [
+      "Riftbound.ConformanceTests.HweiMoveDiscardRecoveryTests",
+      "InlineStateRejectsForgedTypeSourceGenerationTimingRoleAndDuplicateBranch",
+      "Riftbound.ConformanceTests.HweiMoveDiscardRecoveryTests.InlineStateRejectsForgedTypeSourceGenerationTimingRoleAndDuplicateBranch(attack: \"UNKNOWN_DISCARD\")"
+    ],
+    [
+      "Riftbound.ConformanceTests.HweiMoveDiscardRecoveryTests",
+      "InlineStateRejectsForgedTypeSourceGenerationTimingRoleAndDuplicateBranch",
+      "Riftbound.ConformanceTests.HweiMoveDiscardRecoveryTests.InlineStateRejectsForgedTypeSourceGenerationTimingRoleAndDuplicateBranch(attack: \"ZERO_TICK\")"
+    ],
+    [
+      "Riftbound.ConformanceTests.HweiMoveDiscardRecoveryTests",
+      "PendingDiscardRejectsForgedActorHandCountDrawAndSource",
+      "Riftbound.ConformanceTests.HweiMoveDiscardRecoveryTests.PendingDiscardRejectsForgedActorHandCountDrawAndSource(attack: \"ACTOR\")"
+    ],
+    [
+      "Riftbound.ConformanceTests.HweiMoveDiscardRecoveryTests",
+      "PendingDiscardRejectsForgedActorHandCountDrawAndSource",
+      "Riftbound.ConformanceTests.HweiMoveDiscardRecoveryTests.PendingDiscardRejectsForgedActorHandCountDrawAndSource(attack: \"COUNT\")"
+    ],
+    [
+      "Riftbound.ConformanceTests.HweiMoveDiscardRecoveryTests",
+      "PendingDiscardRejectsForgedActorHandCountDrawAndSource",
+      "Riftbound.ConformanceTests.HweiMoveDiscardRecoveryTests.PendingDiscardRejectsForgedActorHandCountDrawAndSource(attack: \"DRAW_AGAIN\")"
+    ],
+    [
+      "Riftbound.ConformanceTests.HweiMoveDiscardRecoveryTests",
+      "PendingDiscardRejectsForgedActorHandCountDrawAndSource",
+      "Riftbound.ConformanceTests.HweiMoveDiscardRecoveryTests.PendingDiscardRejectsForgedActorHandCountDrawAndSource(attack: \"LEGAL_HAND\")"
+    ],
+    [
+      "Riftbound.ConformanceTests.HweiMoveDiscardRecoveryTests",
+      "PendingDiscardRejectsForgedActorHandCountDrawAndSource",
+      "Riftbound.ConformanceTests.HweiMoveDiscardRecoveryTests.PendingDiscardRejectsForgedActorHandCountDrawAndSource(attack: \"SOURCE\")"
+    ],
+    [
+      "Riftbound.ConformanceTests.HweiMoveDiscardRecoveryTests",
+      "RecycledConfirmedRuneLosesItsOldTargetIdentityAndIsNotReadiedInDeck",
+      "Riftbound.ConformanceTests.HweiMoveDiscardRecoveryTests.RecycledConfirmedRuneLosesItsOldTargetIdentityAndIsNotReadiedInDeck"
+    ],
+    [
+      "Riftbound.ConformanceTests.HweiMoveDiscardRecoveryTests",
+      "RuneConfirmationCannotBeReboundToAnotherWindowStackOrTargetSet",
+      "Riftbound.ConformanceTests.HweiMoveDiscardRecoveryTests.RuneConfirmationCannotBeReboundToAnotherWindowStackOrTargetSet(attack: \"LEGAL\")"
+    ],
+    [
+      "Riftbound.ConformanceTests.HweiMoveDiscardRecoveryTests",
+      "RuneConfirmationCannotBeReboundToAnotherWindowStackOrTargetSet",
+      "Riftbound.ConformanceTests.HweiMoveDiscardRecoveryTests.RuneConfirmationCannotBeReboundToAnotherWindowStackOrTargetSet(attack: \"MAX\")"
+    ],
+    [
+      "Riftbound.ConformanceTests.HweiMoveDiscardRecoveryTests",
+      "RuneConfirmationCannotBeReboundToAnotherWindowStackOrTargetSet",
+      "Riftbound.ConformanceTests.HweiMoveDiscardRecoveryTests.RuneConfirmationCannotBeReboundToAnotherWindowStackOrTargetSet(attack: \"STACK\")"
+    ],
+    [
+      "Riftbound.ConformanceTests.HweiMoveDiscardRecoveryTests",
+      "RuneConfirmationCannotBeReboundToAnotherWindowStackOrTargetSet",
+      "Riftbound.ConformanceTests.HweiMoveDiscardRecoveryTests.RuneConfirmationCannotBeReboundToAnotherWindowStackOrTargetSet(attack: \"WINDOW\")"
+    ],
+    [
+      "Riftbound.ConformanceTests.HweiMoveDiscardTypesTests",
+      "DrawsBeforeOfferingAllHandCardsThenCreatesEveryMatchingType",
+      "Riftbound.ConformanceTests.HweiMoveDiscardTypesTests.DrawsBeforeOfferingAllHandCardsThenCreatesEveryMatchingType(discardedNo: \"OGN\u00b7072/298\", types: 2, branches: 1, might: 5)"
+    ],
+    [
+      "Riftbound.ConformanceTests.HweiMoveDiscardTypesTests",
+      "DrawsBeforeOfferingAllHandCardsThenCreatesEveryMatchingType",
+      "Riftbound.ConformanceTests.HweiMoveDiscardTypesTests.DrawsBeforeOfferingAllHandCardsThenCreatesEveryMatchingType(discardedNo: \"OGN\u00b7083/298\", types: 4, branches: 1, might: 5)"
+    ],
+    [
+      "Riftbound.ConformanceTests.HweiMoveDiscardTypesTests",
+      "DrawsBeforeOfferingAllHandCardsThenCreatesEveryMatchingType",
+      "Riftbound.ConformanceTests.HweiMoveDiscardTypesTests.DrawsBeforeOfferingAllHandCardsThenCreatesEveryMatchingType(discardedNo: \"OGN\u00b7096/298\", types: 1, branches: 1, might: 8)"
+    ],
+    [
+      "Riftbound.ConformanceTests.HweiMoveDiscardTypesTests",
+      "DrawsBeforeOfferingAllHandCardsThenCreatesEveryMatchingType",
+      "Riftbound.ConformanceTests.HweiMoveDiscardTypesTests.DrawsBeforeOfferingAllHandCardsThenCreatesEveryMatchingType(discardedNo: \"VEN\u00b7058\", types: 3, branches: 2, might: 8)"
+    ],
+    [
+      "Riftbound.ConformanceTests.HweiMoveDiscardTypesTests",
+      "RealDualTypeHasBothControllerOrdersAndZeroOneOrTwoRuneTargets",
+      "Riftbound.ConformanceTests.HweiMoveDiscardTypesTests.RealDualTypeHasBothControllerOrdersAndZeroOneOrTwoRuneTargets(reverse: False, selected: 0)"
+    ],
+    [
+      "Riftbound.ConformanceTests.HweiMoveDiscardTypesTests",
+      "RealDualTypeHasBothControllerOrdersAndZeroOneOrTwoRuneTargets",
+      "Riftbound.ConformanceTests.HweiMoveDiscardTypesTests.RealDualTypeHasBothControllerOrdersAndZeroOneOrTwoRuneTargets(reverse: False, selected: 1)"
+    ],
+    [
+      "Riftbound.ConformanceTests.HweiMoveDiscardTypesTests",
+      "RealDualTypeHasBothControllerOrdersAndZeroOneOrTwoRuneTargets",
+      "Riftbound.ConformanceTests.HweiMoveDiscardTypesTests.RealDualTypeHasBothControllerOrdersAndZeroOneOrTwoRuneTargets(reverse: False, selected: 2)"
+    ],
+    [
+      "Riftbound.ConformanceTests.HweiMoveDiscardTypesTests",
+      "RealDualTypeHasBothControllerOrdersAndZeroOneOrTwoRuneTargets",
+      "Riftbound.ConformanceTests.HweiMoveDiscardTypesTests.RealDualTypeHasBothControllerOrdersAndZeroOneOrTwoRuneTargets(reverse: True, selected: 0)"
+    ],
+    [
+      "Riftbound.ConformanceTests.HweiMoveDiscardTypesTests",
+      "RealDualTypeHasBothControllerOrdersAndZeroOneOrTwoRuneTargets",
+      "Riftbound.ConformanceTests.HweiMoveDiscardTypesTests.RealDualTypeHasBothControllerOrdersAndZeroOneOrTwoRuneTargets(reverse: True, selected: 1)"
+    ],
+    [
+      "Riftbound.ConformanceTests.HweiMoveDiscardTypesTests",
+      "RealDualTypeHasBothControllerOrdersAndZeroOneOrTwoRuneTargets",
+      "Riftbound.ConformanceTests.HweiMoveDiscardTypesTests.RealDualTypeHasBothControllerOrdersAndZeroOneOrTwoRuneTargets(reverse: True, selected: 2)"
+    ],
+    [
+      "Riftbound.ConformanceTests.HweiMoveDiscardTypesTests",
+      "WholePrintedAbilityHasOneImplementedMovementTriggerWithAllThreeInlineEffects",
+      "Riftbound.ConformanceTests.HweiMoveDiscardTypesTests.WholePrintedAbilityHasOneImplementedMovementTriggerWithAllThreeInlineEffects"
+    ]
+  ],
+  "rawTrxSha256": {
+    "ci-rules/games-1/results.trx": "eb2bb6c04eea604f75ba21f81df8b28f3982317f45818fb11fca96eefe260917",
+    "ci-rules/games-2/results.trx": "c89505b608a386d073d2ed2c553b3e13b791a6399afceb840bd4971fac7e8d72",
+    "ci-rules/games-3/results.trx": "23aeefa0ecb4620e9a2d488053d2fa9f5921fa346dfb37074a8a9d92fa5b8cba",
+    "ci-rules/games-4/results.trx": "830c176159840b4fe7168987a510e572bb148d4a1d1dac983f2fe56889486b90",
+    "ci-rules/rules/results.trx": "b7b67e5e6b90450735b167c8f95b758aac66da5a1557435efff61f6abefba83a"
+  },
+  "summary": {
+    "status": "PASSED",
+    "profile": "full",
+    "seconds": 4995.61,
+    "total": 13176,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "games-2",
+        "total": 49,
+        "passed": 49,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 1561.8
+      },
+      {
+        "shard": "games-4",
+        "total": 52,
+        "passed": 52,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 1749.19
+      },
+      {
+        "shard": "games-1",
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 2340.27
+      },
+      {
+        "shard": "games-3",
+        "total": 49,
+        "passed": 49,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 1315.6
+      },
+      {
+        "shard": "rules",
+        "total": 13025,
+        "passed": 13025,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 4921.51
+      }
+    ]
+  },
+  "jobs": {
+    "scope": "success",
+    "rule_suite": "success",
+    "desktop (macos-latest)": "success",
+    "desktop (windows-latest)": "success",
+    "postgres": "in_progress"
+  },
+  "fullAcceptancePassed": false,
+  "currentUncommittedDestructionFamilyCovered": false,
+  "visibleNativeAndWindowsPhysical": "OPEN"
+}

@@ -102,16 +102,20 @@ jobs:
             var/qa/ci-rule-suite-commit.txt
           retention-days: 7
 
-  postgres:
+  postgres_partitions:
     needs: scope
     # A failed or missing selector still executes the complete fixed inputs.
     if: ${{ always() && !cancelled() && (needs.scope.result != 'success' || needs.scope.outputs.full != 'false') }}
+    strategy:
+      fail-fast: false
+      matrix:
+        partition: [0, 1, 2, 3]
     runs-on: ubuntu-latest
     # Each independent full job has its own six-hour budget. Run the rule
     # suite and real SQL/network in the first wave; never remove test inputs.
     timeout-minutes: 360
     concurrency:
-      group: postgres-${{ github.ref }}-${{ github.sha }}
+      group: postgres-${{ github.ref }}-${{ github.sha }}-${{ matrix.partition }}
       cancel-in-progress: true
     services:
       postgres:
@@ -137,11 +141,39 @@ jobs:
       - name: Record the fixed PostgreSQL and network commit
         run: |
           mkdir -p var/qa
-          git rev-parse HEAD > var/qa/ci-postgres-commit.txt
-      - name: Real PostgreSQL core recovery and replay
+          git rev-parse HEAD > var/qa/ci-postgres-partition-commit.txt
+      - name: Real PostgreSQL complete checked partition
         env:
           RIFTBOUND_POSTGRES_EVIDENCE: var/qa/ci-postgres
-        run: dotnet run --project tests/Riftbound.PostgresAcceptance
+        run: dotnet run --project tests/Riftbound.PostgresAcceptance -- --ci-partition ${{ matrix.partition }} 4
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: always()
+        with:
+          name: postgres-partition-${{ matrix.partition }}
+          path: |
+            var/qa/ci-postgres/
+            var/qa/ci-postgres-partition-commit.txt
+          retention-days: 7
+
+  native_network:
+    needs: scope
+    if: ${{ always() && !cancelled() && (needs.scope.result != 'success' || needs.scope.outputs.full != 'false') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    concurrency:
+      group: native-network-${{ github.ref }}-${{ github.sha }}
+      cancel-in-progress: true
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6
+        with:
+          dotnet-version: |
+            8.0.x
+            10.0.x
+      - name: Record the fixed native network commit
+        run: |
+          mkdir -p var/qa/ci-native-network
+          git rev-parse HEAD > var/qa/ci-native-network/commit.txt
       - name: Native client connection recovery
         env:
           ASPNETCORE_ENVIRONMENT: Development
@@ -150,22 +182,54 @@ jobs:
           RIFTBOUND_SERVER_URL: http://127.0.0.1:15089
         run: |
           dotnet build src/Riftbound.Api
-          dotnet run --project src/Riftbound.Api --no-build --no-launch-profile > var/qa/ci-postgres/native-api.log 2>&1 &
+          dotnet run --project src/Riftbound.Api --no-build --no-launch-profile > var/qa/ci-native-network/native-api.log 2>&1 &
           riftbound_api_pid=$!
           trap 'kill "$riftbound_api_pid"' EXIT
           for attempt in $(seq 1 30); do
             if curl --fail --silent "$RIFTBOUND_SERVER_URL/health"; then break; fi
             sleep 1
           done
-          dotnet run --project tests/Riftbound.NativeNetworkSmoke > var/qa/ci-postgres/native-network.log 2>&1
-          cat var/qa/ci-postgres/native-network.log
+          dotnet run --project tests/Riftbound.NativeNetworkSmoke > var/qa/ci-native-network/native-network.log 2>&1
+          cat var/qa/ci-native-network/native-network.log
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: always()
+        with:
+          name: native-network-results
+          path: var/qa/ci-native-network/
+          retention-days: 7
+
+  postgres:
+    needs: [scope, postgres_partitions, native_network]
+    if: ${{ always() && (needs.scope.result != 'success' || needs.scope.outputs.full != 'false') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    concurrency:
+      group: postgres-gate-${{ github.ref }}-${{ github.sha }}
+      cancel-in-progress: true
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
+        with:
+          pattern: postgres-partition-*
+          merge-multiple: false
+          path: var/qa/ci-sql-inputs
+      - name: Require every fixed SQL case and native network result
+        env:
+          RIFTBOUND_SCOPE_RESULT: ${{ needs.scope.result }}
+          RIFTBOUND_POSTGRES_PARTITIONS_RESULT: ${{ needs.postgres_partitions.result }}
+          RIFTBOUND_NATIVE_NETWORK_RESULT: ${{ needs.native_network.result }}
+        run: >-
+          python3 scripts/sql-ci-gate.py --commit "$GITHUB_SHA"
+          --manifest tests/Riftbound.PostgresAcceptance/SqlAcceptanceCases.json
+          --inputs var/qa/ci-sql-inputs --scope "$RIFTBOUND_SCOPE_RESULT"
+          --postgres-partitions "$RIFTBOUND_POSTGRES_PARTITIONS_RESULT"
+          --native-network "$RIFTBOUND_NATIVE_NETWORK_RESULT"
+          --output var/qa/ci-sql-gate/result.json
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: always()
         with:
           name: postgres-results
-          path: |
-            var/qa/ci-postgres/
-            var/qa/ci-postgres-commit.txt
+          path: var/qa/ci-sql-gate/
           retention-days: 7
 
   rules:

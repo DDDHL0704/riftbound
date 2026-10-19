@@ -19,6 +19,10 @@ public sealed partial class CoreRuleEngine
         bool confirmPermanent = false, bool deferCompletion = false,
         HashSet<string>? repeatDamageDestroyTargets = null, bool skipInsight = false)
     {
+        var frame = RuleChoices.Value!;
+        var previousState = frame.ResolutionState; var previousItem = frame.ResolutionItem;
+        frame.ResolutionState = state; frame.ResolutionItem = item;
+        try {
         var result = ResolveStackItemEffectCore(state, item, confirmPermanent, deferCompletion, repeatDamageDestroyTargets, skipInsight);
         result = FinishRecycledPlays(state, item, result, deferCompletion);
         if (result.CompletedCardPlayIds?.Contains(item.StackItemId) == true || deferCompletion || item.PlayCost is null
@@ -44,6 +48,8 @@ public sealed partial class CoreRuleEngine
         return result with { CompletedCardPlayIds = (result.CompletedCardPlayIds ?? []).Append(item.StackItemId).ToArray(),
             TriggerQueue = result.TriggerQueue.Concat(triggers).ToArray(),
             UntilEndOfTurnEffects = markers, Events = result.Events.Concat(triggers.Select(BuildTriggerQueuedEvent)).ToArray() };
+        }
+        finally { frame.ResolutionState = previousState; frame.ResolutionItem = previousItem; }
     }
 
     private static TriggerSpec? SpellTriggerSpec(string cardNo, string kind)

@@ -1,0 +1,123 @@
+{
+  "status": "ACTUAL_OLD_AND_CURRENT_FROZEN_REGISTRY_COUNT_COMPARISON_NOT_SEMANTIC_CERTIFICATION",
+  "atUtc": "2026-10-19T22:20:37.370353+00:00",
+  "before": {
+    "entries": 551,
+    "implementedEntries": 551,
+    "manualEntries": 0,
+    "unimplementedEntries": 0,
+    "functionalUnits": 441,
+    "implementedFunctionalUnits": 441
+  },
+  "after": {
+    "entries": 552,
+    "implementedEntries": 552,
+    "manualEntries": 0,
+    "unimplementedEntries": 0,
+    "functionalUnits": 442,
+    "implementedFunctionalUnits": 442
+  },
+  "newTriggerPrintingRows": {
+    "OGN·254/298": {
+      "cardNo": "OGN·254/298",
+      "functionalUnitId": "FU-842e15ada7",
+      "status": "implemented",
+      "triggerKinds": [
+        "SPELL_NEXT_DAMAGE_OR_INSPIRED_DESTROY"
+      ]
+    }
+  },
+  "removedOldTriggerPrintingRows": [],
+  "changedOldTriggerPrintingRows": {
+    "OGN·037/298": {
+      "before": {
+        "cardNo": "OGN·037/298",
+        "functionalUnitId": "FU-fb6b5139e7",
+        "status": "implemented",
+        "triggerKinds": [
+          "on-play"
+        ]
+      },
+      "after": {
+        "cardNo": "OGN·037/298",
+        "functionalUnitId": "FU-fb6b5139e7",
+        "status": "implemented",
+        "triggerKinds": [
+          "UNIT_SPELL_DESTROY_PLAY_FROM_GRAVEYARD"
+        ]
+      }
+    },
+    "OGN·221/298": {
+      "before": {
+        "cardNo": "OGN·221/298",
+        "functionalUnitId": "FU-c48eba69f1",
+        "status": "implemented",
+        "triggerKinds": [
+          "triggered"
+        ]
+      },
+      "after": {
+        "cardNo": "OGN·221/298",
+        "functionalUnitId": "FU-c48eba69f1",
+        "status": "implemented",
+        "triggerKinds": [
+          "SPELL_TURN_UNIT_DAMAGED_DESTROY"
+        ]
+      }
+    }
+  },
+  "currentFiniteFamilyConsumers": [
+    {
+      "cardNo": "OGN·037/298",
+      "functionalUnitId": "FU-fb6b5139e7",
+      "triggerKinds": [
+        "UNIT_SPELL_DESTROY_PLAY_FROM_GRAVEYARD"
+      ]
+    },
+    {
+      "cardNo": "OGN·221/298",
+      "functionalUnitId": "FU-c48eba69f1",
+      "triggerKinds": [
+        "SPELL_TURN_UNIT_DAMAGED_DESTROY"
+      ]
+    },
+    {
+      "cardNo": "OGN·254/298",
+      "functionalUnitId": "FU-842e15ada7",
+      "triggerKinds": [
+        "SPELL_NEXT_DAMAGE_OR_INSPIRED_DESTROY"
+      ]
+    }
+  ],
+  "actualOldRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+    "implementationSha256": "aa1142ae842e96564fe73f3237f6616c8dc7128e069f82b76e5ffe57c0a1c8eb",
+    "identitySha256": "b95c5356604bd832648068bcb2248b6763aea8b7100f3c995915646e47b1bcd7"
+  },
+  "actualCurrentRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+    "implementationSha256": "094c10b3683617f6b3982df15613f2662f82ce60c170231fb2b13d6130200d8b",
+    "identitySha256": "d88117d228637e74e8e6d4e807a154f676b266d8d05f1c62735406d7f8b8627e"
+  },
+  "allActualOriginalModuleHashesStable": true,
+  "dataInputHashesExactAndStable": {
+    "data/official/rule-input-scope.json": "cc07cf3eef6a9af403454642a0435d061544400b5e01d08d3fdc65869bdad180",
+    "data/official/armaments.json": "ddcd838300e558c11df480ee79ccfab08c7af380df36544c666841720850bda8",
+    "data/official/card-catalog.zh-CN.json": "d521d7346392f2ea947c73c437c140d7bfe13a90cbca8642f7ae135b7b11f479"
+  },
+  "probeSourceInputs": {
+    "catalog-boundary-probe/Program.cs": "3700884dafbfc47e00b712aaa45084c5225c4e68c3111e9de5aa20b65929099d",
+    "catalog-boundary-probe/probe.csproj": "618fb4d1e54b1c5a4b4399723957a06cacf820d3e1feb3523fe29b7f728af9f8"
+  },
+  "checkSourceAndRuntimeNotModified": true,
+  "currentSoleCheckStillRunning": true,
+  "registrationStatisticsNeverWholeCardCertification": true
+}

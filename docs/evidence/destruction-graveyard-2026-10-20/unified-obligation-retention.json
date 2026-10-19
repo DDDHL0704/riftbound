@@ -1,0 +1,29 @@
+{
+  "previousManifestCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+  "priorRemainingObligations": 16892,
+  "currentRemainingObligations": 16903,
+  "all16892OriginalIdsRetained": true,
+  "all22ParentIdsRetained": true,
+  "newObligationIds": [
+    "BRANCH:destruction-attribution-delayed-skill-graveyard-play-2026-10-20:ACTUAL_SPELL_DESTRUCTION_SOURCE_RESPONSIBILITY",
+    "BRANCH:destruction-attribution-delayed-skill-graveyard-play-2026-10-20:DECREE_INDEPENDENT_DELAYED_DAMAGE_DESTRUCTION",
+    "BRANCH:destruction-attribution-delayed-skill-graveyard-play-2026-10-20:DESTRUCTION_CONTEXT_STATE_PRIVATE_SPECTATOR_AND_JOURNAL",
+    "BRANCH:destruction-attribution-delayed-skill-graveyard-play-2026-10-20:DESTRUCTION_ORIGINAL_ORDINARY_SQL_COLD_NEXT_AND_REPLAY",
+    "BRANCH:destruction-attribution-delayed-skill-graveyard-play-2026-10-20:GUILLOTINE_ORIGINAL_INSPIRE_OR_NEXT_DAMAGE",
+    "BRANCH:destruction-attribution-delayed-skill-graveyard-play-2026-10-20:PHOENIX_CAPTURED_GRAVEYARD_GENERATION_SHARED_PLAY",
+    "BRANCH:destruction-attribution-delayed-skill-graveyard-play-2026-10-20:PHOENIX_LEADING_ONE_MANA_ONE_RED_PAY_OR_DECLINE",
+    "BRANCH:destruction-attribution-delayed-skill-graveyard-play-2026-10-20:PHOENIX_SELF_AND_SIMULTANEOUS_GRAVEYARD_OBSERVERS",
+    "BRANCH:destruction-attribution-delayed-skill-graveyard-play-2026-10-20:UNIT_COMBAT_AND_NAMED_DUEL_DAMAGE_NOT_SPELL",
+    "GATE:ALL_SQL_PARTITIONS_REAL_EXECUTION_AND_NETWORK_AFTER_TIMEOUT",
+    "GATE:DESTRUCTION_GRAVEYARD_NEW_FIXED_FULL_VISIBLE_AND_WINDOWS"
+  ],
+  "all141OriginalSemanticReviewDictionariesExact": true,
+  "all56OriginalContextsPreservedBeforeExplicitRebind": true,
+  "all232OriginalGateDictionariesExact": true,
+  "allFiveTemporalDeltaDictionariesExact": true,
+  "currentReviews": 142,
+  "currentContexts": 57,
+  "currentGates": 234,
+  "allOriginalSourceUniversesDatesAndGapsRetained": true,
+  "semanticCoverageCertified": false
+}

@@ -1,0 +1,41 @@
+{
+  "atUtc": "2026-10-19T19:20:23.856891+00:00",
+  "status": "INDEPENDENT_READER_WRONG_LATER_BASELINE_EXPECTATION_CORRECTED_NOT_A_RULE_FAILURE",
+  "initialExpectation": "a343 exact case multiset equals later b294",
+  "actualA343Cases": 13118,
+  "actualB294Cases": 13124,
+  "laterOnlyCases": [
+    [
+      "Riftbound.ConformanceTests.PakaaDualTypeRevealTests",
+      "NewLegalDeckFromBlankOpeningKeepsBothPrintedTypesAndReplaysItsOriginalCommands",
+      "Riftbound.ConformanceTests.PakaaDualTypeRevealTests.NewLegalDeckFromBlankOpeningKeepsBothPrintedTypesAndReplaysItsOriginalCommands(format: ChinaStandard20260724)"
+    ],
+    [
+      "Riftbound.ConformanceTests.PakaaDualTypeRevealTests",
+      "DualTypeTopIsDrawnOnceWithoutBeingPlayedOrTakingTheNonunitBranch",
+      "Riftbound.ConformanceTests.PakaaDualTypeRevealTests.DualTypeTopIsDrawnOnceWithoutBeingPlayedOrTakingTheNonunitBranch(count: 1, equipment: 0)"
+    ],
+    [
+      "Riftbound.ConformanceTests.PakaaDualTypeRevealTests",
+      "DualTypeTopIsDrawnOnceWithoutBeingPlayedOrTakingTheNonunitBranch",
+      "Riftbound.ConformanceTests.PakaaDualTypeRevealTests.DualTypeTopIsDrawnOnceWithoutBeingPlayedOrTakingTheNonunitBranch(count: 1, equipment: 3)"
+    ],
+    [
+      "Riftbound.ConformanceTests.PakaaDualTypeRevealTests",
+      "DualTypeTopIsDrawnOnceWithoutBeingPlayedOrTakingTheNonunitBranch",
+      "Riftbound.ConformanceTests.PakaaDualTypeRevealTests.DualTypeTopIsDrawnOnceWithoutBeingPlayedOrTakingTheNonunitBranch(count: 2, equipment: 0)"
+    ],
+    [
+      "Riftbound.ConformanceTests.PakaaDualTypeRevealTests",
+      "DualTypeTopIsDrawnOnceWithoutBeingPlayedOrTakingTheNonunitBranch",
+      "Riftbound.ConformanceTests.PakaaDualTypeRevealTests.DualTypeTopIsDrawnOnceWithoutBeingPlayedOrTakingTheNonunitBranch(count: 2, equipment: 3)"
+    ],
+    [
+      "Riftbound.ConformanceTests.PakaaDualTypeRevealTests",
+      "NewLegalDeckFromBlankOpeningKeepsBothPrintedTypesAndReplaysItsOriginalCommands",
+      "Riftbound.ConformanceTests.PakaaDualTypeRevealTests.NewLegalDeckFromBlankOpeningKeepsBothPrintedTypesAndReplaysItsOriginalCommands(format: CoreRules)"
+    ]
+  ],
+  "correctEarlier797fCaseMultisetExact": true,
+  "archiveAndStoredHistoryNotChanged": true
+}

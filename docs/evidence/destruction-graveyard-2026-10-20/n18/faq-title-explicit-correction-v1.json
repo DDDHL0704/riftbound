@@ -1,0 +1,16 @@
+{
+  "recordedAtUtc": "2026-10-19T19:28:33.725752+00:00",
+  "status": "EXPLICIT_PRIOR_LOCAL_FAQ_TITLE_MISLABEL_CORRECTION_NOT_OFFICIAL_SOURCE_CHANGE",
+  "officialDirectoryName": "化神争锋系列 官方FAQ",
+  "actualPdfTitle": "《符文战场》化神争锋系列 官方 FAQ",
+  "sourceUrl": "https://cdn.playloltcg.com/lol/2026/08/2026-08-13/612b1cd53f9f41baaf3c8734c1881a3b.pdf",
+  "sourcePdfSha256": "59bd828207564540aa3c9885f9dfc39764034f633eb6fb84d49440c9edef4742",
+  "priorLocalAuditPath": "docs/HWEI_MOVE_DISCARD_TYPES_AUDIT_2026-10-20.md",
+  "priorAuditSha256": "e50cc739a40abe01a02af9f227c871aeb316218e8efda7dee3f42422577ad9ae",
+  "priorIncorrectLabel": "《惊魂夜常见问题》",
+  "originalEvidenceHashAndDoc06BlockIdsStillCorrect": true,
+  "priorEvidenceNotSilentlyRewritten": true,
+  "currentAcquisitionScriptLocalLabelIsNotOfficialDocumentIdentity": true,
+  "nextCoherentBatchMustApplyExplicitTitleCorrection": true,
+  "rulesUniverseNotChanged": true
+}

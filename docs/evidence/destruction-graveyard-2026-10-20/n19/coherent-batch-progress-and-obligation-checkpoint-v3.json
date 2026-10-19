@@ -1,0 +1,41 @@
+{
+  "recordedAtUtc": "2026-10-19T22:57:34.270735+00:00",
+  "status": "SOLE_CHECK_RETAINED_THREE_FAILURES_REPAIRED_CURRENT_FOCUS78_PASS_SQL_V2_RUNNING",
+  "baseCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+  "originalSoleCheck": {
+    "cases": 13100,
+    "methods": 7464,
+    "passed": 13097,
+    "failed": 3,
+    "skipped": 0,
+    "all73NewCasesPassed": true,
+    "all13027PriorCasesAnd7440MethodsRetained": true,
+    "sourceAnd1399RuntimeFilesStable": true,
+    "declaredSourceInputs": 3302
+  },
+  "postcheckRepairs": "postcheck-source-repairs-v2.json: production null collection/member failclosed guard; Assert.Single privacy helper; four exact P6 counter constants551to552/441to442. Original old negative and victory/replay assertions untouched.",
+  "currentFocus": "PASS78cases34methods; includes allthree failures, allcontrolled family, four old causality negatives, coordinated journal tamper rejection and two original full score/replay games; source/runtime stable; locktrue",
+  "currentDebugRuleInputIdentity": "0bf57f7c87f6e8d7d298e96d65057e6d5caa756c8f581c8b31dff98417125a61",
+  "currentReleaseSqlV2Identity": "dc63b6ca733e3f6fd049a9974e971f704fff39c33f31ad1e04e7ae77e9837d91",
+  "currentSqlV2ToolSession": 73485,
+  "currentSqlV2": "RUNNING six fresh blank seed0 branches, baseline178audit35native, expected184/35. Preserve original V1 SQL172to178 underd88117 only. NO source/tests/scripts/.github/data mutations while V2 frozen input check remains active.",
+  "next": [
+    "Complete SQLV2 writer and independent read-only pass, old178/native35 seven tables exact; stop ownPG/caff.",
+    "Run finalize-postcheck-current-closure-v2.py to generate current behavior matrixv2, closure and final source retentionv3.",
+    "Publisher draft currently updated for current78/SQLv2/3 original failures; check syntax/preconditions; all source refs22 preflight located. Source contexts baseline56/gates232/reviews141/remaining16892. Newscoped9branches2gates means142/57/234/16903 withalloldIDs retained.",
+    "Canonical source/FAQ/global followup/evidence archive; governance; coherent commit/push fixednew full4SQLpartitions/nativefirstwave; exactCIactualstatus and original TRX/matrix checks; continue goal."
+  ],
+  "preparedScripts": [
+    "prepare-frozen-sql-v2.py",
+    "run-frozen-sql-v2.py",
+    "finalize-postcheck-current-closure-v2.py",
+    "publish-audit-v1.py"
+  ],
+  "oldCounterOnlyWatcher": "Intentionally stoppedpid61224 before source changes; no postcheck-catalog-boundary-closure-v1.json; obsolete script retained as superseded plan only.",
+  "sourceFollowup": "GLOBAL current whole/default/SSR all1408same/1416report;8pages+22extra windows fail parent/child identity conservation (EkkoRAD021missingvsRAD021a duplicate; FuryOGN007missingvsRADR01a duplicate); all8gaps OPEN;30originalresponses verified; no data/current source rewrite.",
+  "faqFollowup": "Five native300x419footers read OGN009/221/037/173/257; exactAPI31245 frontPNG296611B retained; visual association only, physicalfinish joinOPEN; originalFAQtitlecorrect59bd; original10temporaryimagefiles866830B retired.",
+  "space": "Onlylatest08fd A/B+twoOScanonicalarchives retained, no newSDK/Godotbuild/worktree/database.52completedprobe build files822434B retired. UserGodotPID34426 protected.",
+  "noSecondCheck": true,
+  "noCommitPushOrNewFixedFullYet": true,
+  "goal": "ACTIVE_NOT_READY"
+}

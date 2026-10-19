@@ -1,0 +1,13 @@
+{
+  "atUtc": "2026-10-19T20:31:56.818851+00:00",
+  "testRunnerPid": 36338,
+  "caffeinatePid": 36678,
+  "args": [
+    "caffeinate",
+    "-i",
+    "-w",
+    "36338"
+  ],
+  "persistentSettingsChanged": false,
+  "powerAssertions": "2026-10-20 04:31:56 +0800 \nAssertion status system-wide:\n   BackgroundTask                 0\n   ApplePushServiceTask           0\n   UserIsActive                   0\n   PreventUserIdleDisplaySleep    0\n   SoftwareUpdateTask             0\n   PreventSystemSleep             0\n   PreventSystemSleepSecurityIndicator 0\n   ExternalMedia                  0\n   PreventUserIdleSystemSleep     1\n   NetworkClientActive            0\nListed by owning process:\n   pid 36678(caffeinate): [0x000f6464000199ad] 00:00:00 PreventUserIdleSystemSleep named: \"caffeinate command-line tool\"  \n\tDetails: caffeinate asserting on behalf of Process ID 36338\n\tCreated for PID: 36338. \n\tLocalized=THE CAFFEINATE TOOL IS PREVENTING SLEEP.\n   pid 1561(ChatGPT): [0x000e7fe50001a45d] 16:14:54 NoIdleSleepAssertion named: \"Electron\"  \n   pid 36385(UURemote): [0x0007fcff00018a54] 134:47:01 PreventUserIdleSystemSleep named: \"UURemote Disable Idle System Sleep\"  \nKernel Assertions: 0x104=USB,MAGICWAKE\n   id=555  level=255 0x4=USB creat=2026/10/8 12:20 description=com.apple.usb.externaldevice.03100000 owner=USB2.0 Hub\n   id=557  level=255 0x4=USB creat=2026/10/8 12:21 description=com.apple.usb.externaldevice.03200000 owner=USB3.1 Hub\n   id=559  level=255 0x4=USB creat=2026/10/8 12:31 description=com.apple.usb.externaldevice.03140000 owner=USB2.1 Hub\n   id=561  level=255 0x4=USB creat=2026/10/8 12:33 description=com.apple.usb.externaldevice.03240000 owner=USB3.1 Hub\n   id=563  level=255 0x4=USB creat=2026/10/8 12:34 description=com.apple.usb.externaldevice.03141000 owner=Keychron K8\n   id=564  level=255 0x4=USB creat=2026/10/8 12:35 description=com.apple.usb.externaldevice.03144000 owner=USB Receiver\n   id=565  level=255 0x4=USB creat=2026/10/8 12:35 description=com.apple.usb.externaldevice.03110000 owner=DK5A1\n   id=567  level=255 0x100=MAGICWAKE creat=2026/10/8 12:32 description=en0 owner=en0\n"
+}

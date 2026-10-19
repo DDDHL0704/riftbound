@@ -1,0 +1,7 @@
+{
+  "status": "EXPLICIT_LOCAL_DIAGNOSTIC_REASON_CORRECTION",
+  "priorReceipt": "compiled-plan-and-original-workflow-core-retention-v2.json",
+  "incorrectInference": "Initial V1 stopped only at trailing job separators.",
+  "actualKnown": "Initial V1 had an assertion failure; its exact failed predicate was not preserved in the shell output. Subsequent explicit per-predicate plan, all job block bytes and normalized core checks passed. All four original unaffected workflow blocks are byte exact, including their separators.",
+  "doNotInferGitHubFailureOrSourceRewriteFromLocalProbe": true
+}

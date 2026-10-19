@@ -1,0 +1,27 @@
+{
+  "profile": "focus",
+  "discoveredMethods": 7591,
+  "jobs": 4,
+  "includeGames": false,
+  "testAssemblySha256": "520b7baa92d16688e92ad1b7664a1892312e6e23b918eec3c50fb806fd535edb",
+  "timings": "/Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/TestResults/mechanical-full.trx",
+  "shards": [
+    {
+      "name": "focus",
+      "methods": [
+        "Riftbound.ConformanceTests.DestructionGraveyardFamilyTests.ActualLethalSpellAndSelfDestructionOfferLeadingCostThenPlayOriginalPhoenix",
+        "Riftbound.ConformanceTests.DestructionGraveyardFamilyTests.DecreeDamageQueuesIndependentDestroyBeforePhoenixWithOriginalSpellSource",
+        "Riftbound.ConformanceTests.DestructionGraveyardFamilyTests.GuillotineCapturesInspireAtConfirmationOrNextDamageCreatesIndependentAbility",
+        "Riftbound.ConformanceTests.DestructionGraveyardFamilyTests.WholePrintedInstructionsParseAsFiniteSharedConsumers",
+        "Riftbound.ConformanceTests.DestructionGraveyardLifecycleTests.ActualNamedUnitDuelDamageRetainsUnitResponsibilityAndCannotTriggerPhoenix",
+        "Riftbound.ConformanceTests.DestructionGraveyardLifecycleTests.BothInstructionsExpireAtTheActualEndOfTurn",
+        "Riftbound.ConformanceTests.DestructionGraveyardLifecycleTests.GlobalDecreeIncludesARealUnitPlayedAfterTheSpellResolved",
+        "Riftbound.ConformanceTests.DestructionGraveyardLifecycleTests.OpponentsActualLethalSpellDoesNotOfferYourGraveyardPhoenix",
+        "Riftbound.ConformanceTests.DestructionGraveyardLifecycleTests.ReturningDamagedTargetDuringActualResponseMakesEarnedDecreeAbilityNoop",
+        "Riftbound.ConformanceTests.DestructionGraveyardLifecycleTests.TwoDecreesRetainBothOriginalSpellInstancesAndOnlyFirstAbilityCanDestroy",
+        "Riftbound.ConformanceTests.TriggerCostNativeContinuationTests.NativeCostDecisionsRecoverAndReplay"
+      ],
+      "filter": "(FullyQualifiedName~DestructionGraveyard|FullyQualifiedName~TriggerCostNativeContinuationTests)&FullyQualifiedName!~Riftbound.ConformanceTests.FullGameEndToEndTests."
+    }
+  ]
+}

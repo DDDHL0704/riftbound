@@ -22194,9 +22194,9 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
-        Assert.Contains(
-            "DESTROY_ON_NEXT_DAMAGE_THIS_TURN",
-            result.FinalState.CardObjects["P1-IMPERIAL-ALLY-001"].UntilEndOfTurnEffects);
+        Assert.Empty(result.FinalState.CardObjects["P1-IMPERIAL-ALLY-001"].UntilEndOfTurnEffects);
+        Assert.Single(result.FinalState.UntilEndOfTurnEffects,
+            effect => effect.StartsWith("DAMAGE_DESTRUCTION|", StringComparison.Ordinal));
         Assert.DoesNotContain("P2-IMPERIAL-ENEMY-001", result.FinalState.CardObjects.Keys);
         Assert.Equal(["P2-IMPERIAL-ENEMY-001"], result.FinalState.PlayerZones["P2"].Graveyard);
     }

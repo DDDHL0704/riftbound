@@ -1,0 +1,58 @@
+{
+  "status": "ORDINARY_NEW_BLANK_SEED0_LEGAL_DECK_PHOENIX_COUNTEREXAMPLES_ONLY",
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+    "implementationSha256": "aa1142ae842e96564fe73f3237f6616c8dc7128e069f82b76e5ffe57c0a1c8eb",
+    "identitySha256": "b95c5356604bd832648068bcb2248b6763aea8b7100f3c995915646e47b1bcd7"
+  },
+  "noOriginalAcceptedHistoryOrSeedChanged": true,
+  "noGodotMainProjectBuildOrDatabaseAccess": true,
+  "cases": [
+    {
+      "format": "CoreRules",
+      "originalBlankInitialSeed": 0,
+      "newBothDecksValidatedBeforeSubmit": true,
+      "selfCommands": 85,
+      "selfEvents": 393,
+      "totalOriginalCommands": 111,
+      "totalOriginalEvents": 471,
+      "coldRecoveries": 4,
+      "originalNextComparisons": 3,
+      "selfPhoenixTriggerMissing": true,
+      "decreePhoenixTriggerMissing": true,
+      "originalSelfAndFinalReplayPassed": true,
+      "finalScores": {
+        "P1": 1,
+        "P2": 1
+      },
+      "turnNumber": 32,
+      "phoenix": "P1-MAIN-OGN-037-298-01",
+      "elder": "P2-MAIN-UNL-118-219-37"
+    },
+    {
+      "format": "ChinaStandard20260724",
+      "originalBlankInitialSeed": 0,
+      "newBothDecksValidatedBeforeSubmit": true,
+      "selfCommands": 85,
+      "selfEvents": 393,
+      "totalOriginalCommands": 111,
+      "totalOriginalEvents": 471,
+      "coldRecoveries": 4,
+      "originalNextComparisons": 3,
+      "selfPhoenixTriggerMissing": true,
+      "decreePhoenixTriggerMissing": true,
+      "originalSelfAndFinalReplayPassed": true,
+      "finalScores": {
+        "P1": 1,
+        "P2": 1
+      },
+      "turnNumber": 32,
+      "phoenix": "P1-MAIN-OGN-037-298-01",
+      "elder": "P2-MAIN-UNL-118-219-37"
+    }
+  ]
+}

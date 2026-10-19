@@ -1,0 +1,41 @@
+{
+  "startedAtUtc": "2026-10-19T19:50:58.446456+00:00",
+  "fixedCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+    "implementationSha256": "aa1142ae842e96564fe73f3237f6616c8dc7128e069f82b76e5ffe57c0a1c8eb",
+    "identitySha256": "b95c5356604bd832648068bcb2248b6763aea8b7100f3c995915646e47b1bcd7"
+  },
+  "lockAtStart": {
+    "atUtc": "2026-10-19T19:50:58.467631+00:00",
+    "roots": [
+      {
+        "rootLocked": true,
+        "sessions": [
+          true
+        ]
+      }
+    ],
+    "unknownIsNotUnlocked": true
+  },
+  "sourceFiles": {
+    "ordinary-independent-reader/reader.csproj": "fe46551fffd90a828fe1eb358fff3aa5eb9cab525bc9bbc7f93c86c4b8a6aef9",
+    "ordinary-independent-reader/Program.cs": "d0023b3d98bb1e5e4a54125761d471709b37bfa887fa8172f5cfa8978d436b4c"
+  },
+  "actualReaderFiles": {
+    "phoenixindependent.dll": "805bd056c45f7f4577febeef024493ff8884c379b1f3126484f2b269d553956e",
+    "phoenixindependent.pdb": "484c950b3896c4a108d764d99c977f00f3af7e9537ee9674dca3a9dbf67cc4f1"
+  },
+  "originalFrames": {
+    "ordinary-originals-v3/CoreRules-decree-original-frame.json.gz": "28e6766c7034b4320d78d63b9cbda96cca785dcfd0071ce1acdce17f38443a46",
+    "ordinary-originals-v3/ChinaStandard20260724-decree-original-frame.json.gz": "6a1f3769308451d7d7e6f687c5d9c3df9a246175b2e4b20e8c50963cfecff40e",
+    "ordinary-originals-v3/CoreRules-self-destroy-original-frame.json.gz": "f05fcb34f40d9c27004b9a0a3fd0d5a706e3dfcf89969887a77def1f4fbbada2",
+    "ordinary-originals-v3/ChinaStandard20260724-self-destroy-original-frame.json.gz": "413d6b1f879784f65b072bb38c62d9fd5fb4c960c18d2d1b1761d9127f9a8e0c",
+    "ordinary-originals-v2/CoreRules-failed-original-prefix.json.gz": "2e88ee4dd6f1ef80b5f752097bffc010ef1c1f78196dede68db55b8ce782599f"
+  },
+  "originalDatabaseNotAccessed": true
+}

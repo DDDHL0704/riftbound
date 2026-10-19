@@ -56,11 +56,15 @@ class FullCiGateTests(unittest.TestCase):
         text = (ROOT / '.github/workflows/native-desktop.yml').read_text()
         jobs = dict(re.findall(r'^  ([a-z_]+):\n(.*?)(?=^  [a-z_]+:\n|\Z)', text, re.M | re.S))
         condition = "always() && !cancelled() && (needs.scope.result != 'success' || needs.scope.outputs.full != 'false')"
-        for name in ['rule_suite', 'postgres']:
+        for name in ['rule_suite', 'postgres_partitions']:
             self.assertIn('    needs: scope\n', jobs[name])
             self.assertIn(condition, jobs[name])
             self.assertIn('github.sha', jobs[name])
             self.assertIn('timeout-minutes: 360', jobs[name])
+        self.assertIn('    needs: scope\n', jobs['native_network'])
+        self.assertIn(condition, jobs['native_network'])
+        self.assertIn('    needs: [scope, postgres_partitions, native_network]\n', jobs['postgres'])
+        self.assertIn('python3 scripts/sql-ci-gate.py', jobs['postgres'])
         self.assertIn('    needs: [scope, rule_suite, postgres]\n', jobs['rules'])
         self.assertIn("always() && (needs.scope.result != 'success' || needs.scope.outputs.full != 'false')", jobs['rules'])
         self.assertNotIn('!cancelled()', jobs['rules'])
@@ -71,26 +75,29 @@ class FullCiGateTests(unittest.TestCase):
     def test_full_workflow_keeps_actual_postgres_for_unit_smokes_and_all_full_sql_and_network_commands(self):
         text = (ROOT / '.github/workflows/native-desktop.yml').read_text()
         jobs = dict(re.findall(r'^  ([a-z_]+):\n(.*?)(?=^  [a-z_]+:\n|\Z)', text, re.M | re.S))
-        for job in ['rule_suite', 'postgres']:
+        for job in ['rule_suite', 'postgres_partitions']:
             self.assertIn('image: postgres:16.13@sha256:', jobs[job])
             self.assertIn('ConnectionStrings__Riftbound: Host=127.0.0.1;', jobs[job])
         self.assertIn('python3 scripts/test-rules.py full --output var/qa/ci-rules', jobs['rule_suite'])
         self.assertIn('name: conformance-results', jobs['rule_suite'])
-        self.assertIn('dotnet run --project tests/Riftbound.PostgresAcceptance\n', jobs['postgres'])
-        self.assertNotIn('dotnet run --project tests/Riftbound.PostgresAcceptance --', jobs['postgres'])
-        self.assertIn('dotnet run --project tests/Riftbound.NativeNetworkSmoke', jobs['postgres'])
-        self.assertLess(jobs['postgres'].index('dotnet build src/Riftbound.Api'), jobs['postgres'].index('dotnet run --project src/Riftbound.Api --no-build'))
+        self.assertIn('dotnet run --project tests/Riftbound.PostgresAcceptance -- --ci-partition ${{ matrix.partition }} 4', jobs['postgres_partitions'])
+        self.assertIn('partition: [0, 1, 2, 3]', jobs['postgres_partitions'])
+        self.assertNotIn('--opening-randomness-only', jobs['postgres_partitions'])
+        self.assertNotIn('--hwei-move-discard-types-only', jobs['postgres_partitions'])
+        self.assertIn('dotnet run --project tests/Riftbound.NativeNetworkSmoke', jobs['native_network'])
+        self.assertLess(jobs['native_network'].index('dotnet build src/Riftbound.Api'), jobs['native_network'].index('dotnet run --project src/Riftbound.Api --no-build'))
         self.assertIn('name: postgres-results', jobs['postgres'])
-        self.assertIn('var/qa/ci-postgres/', jobs['postgres'])
+        self.assertIn('var/qa/ci-postgres/', jobs['postgres_partitions'])
 
     def test_full_jobs_do_not_downgrade_errors_or_conditionally_skip_real_gates(self):
         text = (ROOT / '.github/workflows/native-desktop.yml').read_text()
         jobs = dict(re.findall(r'^  ([a-z_]+):\n(.*?)(?=^  [a-z_]+:\n|\Z)', text, re.M | re.S))
-        for job in ['rule_suite', 'postgres', 'rules']:
+        for job in ['rule_suite', 'postgres_partitions', 'native_network', 'postgres', 'rules']:
             self.assertNotIn('continue-on-error', jobs[job])
         for job, name in [('rule_suite', 'Complete rule suite with checked process shards'),
-                          ('postgres', 'Real PostgreSQL core recovery and replay'),
-                          ('postgres', 'Native client connection recovery'),
+                          ('postgres_partitions', 'Real PostgreSQL complete checked partition'),
+                          ('native_network', 'Native client connection recovery'),
+                          ('postgres', 'Require every fixed SQL case and native network result'),
                           ('rules', 'Require every fixed full child job')]:
             block = jobs[job].split('      - name: ' + name + '\n', 1)[1]
             block = re.split(r'\n      - ', block, maxsplit=1)[0]

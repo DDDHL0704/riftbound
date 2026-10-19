@@ -1,0 +1,10 @@
+{
+  "status": "EXPLICIT_USER_FACING_SOURCE_COUNT_LABEL_CORRECTION",
+  "atUtc": "2026-10-19T21:57:12.365029+00:00",
+  "priorUserFacingWording": "7594处测试方法声明",
+  "accurateMeaning": "7594 occurrences of public Task/void declarations in original test/tool CSharp source, including helpers; NOT the discovered or executed test-method count.",
+  "originalProofAlreadyUsedAccurateKey": "originalPublicTaskVoidMethodOccurrences",
+  "originalProofSha256": "dbf8b57b9e1e0ff8e5e213ebc7ef6be17efc8f19cc06a49ce3085a7eef66edad",
+  "testMethodsAndCasesMustUseActualTrx": true,
+  "originalEvidenceNotRewritten": true
+}

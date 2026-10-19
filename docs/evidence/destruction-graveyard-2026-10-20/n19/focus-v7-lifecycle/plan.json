@@ -1,0 +1,47 @@
+{
+  "profile": "focus",
+  "discoveredMethods": 7591,
+  "jobs": 4,
+  "includeGames": false,
+  "testAssemblySha256": "dbec08e02d4d15ae8ea0df195b8092784d03df9beaa40b63ac4d6dedcd50e4d6",
+  "timings": "/Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/TestResults/mechanical-full.trx",
+  "shards": [
+    {
+      "name": "focus",
+      "methods": [
+        "Riftbound.ConformanceTests.DeathObserverAuditTests.AnimatedGoldAndFollowingDeathKeepFirstDeathAndRecovery",
+        "Riftbound.ConformanceTests.DeathObserverAuditTests.CapturedDeathRejectsTamperingAndSurvivesVictimChangingZones",
+        "Riftbound.ConformanceTests.DeathObserverAuditTests.CentaurCannotBuffANewIncarnation",
+        "Riftbound.ConformanceTests.DeathObserverAuditTests.DeathBelongsToControllerNotOwner",
+        "Riftbound.ConformanceTests.DeathObserverAuditTests.DisappearedObserverKeepsItsEarnedSkillsAndPublicContextCannotBeForged",
+        "Riftbound.ConformanceTests.DeathObserverAuditTests.EarnedTriggerSurvivesSourceLeavingOrChangingController",
+        "Riftbound.ConformanceTests.DeathObserverAuditTests.EveryDeathTriggersOnceEvenWhenTwoUnitsDieTogether",
+        "Riftbound.ConformanceTests.DeathObserverAuditTests.FirstDeathLedgerBelongsToControllerAndDoesNotDependOnObserverBeingPresent",
+        "Riftbound.ConformanceTests.DeathObserverAuditTests.FirstSimultaneousDeathIsChosenAndResumesAfterRecovery",
+        "Riftbound.ConformanceTests.DeathObserverAuditTests.NestedResourceDeathTriggersObserverBeforeItsOuterDeath",
+        "Riftbound.ConformanceTests.DeathObserverAuditTests.ObserverDyingInTheSameActionDoesNotTrigger",
+        "Riftbound.ConformanceTests.DeathObserverAuditTests.PlayerAndSpectatorViewsRecoverMultipleTokenDeathObservers",
+        "Riftbound.ConformanceTests.DeathObserverAuditTests.RetiredStackRecordCannotBypassRejectionByChangingEffectKind",
+        "Riftbound.ConformanceTests.DeathObserverAuditTests.ViktorUsesSharedTokenReplacementBeforeEnteringPlay",
+        "Riftbound.ConformanceTests.DestructionGraveyardFamilyTests.ActualLethalSpellAndSelfDestructionOfferLeadingCostThenPlayOriginalPhoenix",
+        "Riftbound.ConformanceTests.DestructionGraveyardFamilyTests.DecreeDamageQueuesIndependentDestroyBeforePhoenixWithOriginalSpellSource",
+        "Riftbound.ConformanceTests.DestructionGraveyardFamilyTests.GuillotineCapturesInspireAtConfirmationOrNextDamageCreatesIndependentAbility",
+        "Riftbound.ConformanceTests.DestructionGraveyardFamilyTests.WholePrintedInstructionsParseAsFiniteSharedConsumers",
+        "Riftbound.ConformanceTests.DestructionGraveyardLifecycleTests.ActualNamedUnitDuelDamageRetainsUnitResponsibilityAndCannotTriggerPhoenix",
+        "Riftbound.ConformanceTests.DestructionGraveyardLifecycleTests.BothInstructionsExpireAtTheActualEndOfTurn",
+        "Riftbound.ConformanceTests.DestructionGraveyardLifecycleTests.GlobalDecreeIncludesARealUnitPlayedAfterTheSpellResolved",
+        "Riftbound.ConformanceTests.DestructionGraveyardLifecycleTests.OpponentsActualLethalSpellDoesNotOfferYourGraveyardPhoenix",
+        "Riftbound.ConformanceTests.DestructionGraveyardLifecycleTests.ReturningDamagedTargetDuringActualResponseMakesEarnedDecreeAbilityNoop",
+        "Riftbound.ConformanceTests.DestructionGraveyardLifecycleTests.TwoDecreesRetainBothOriginalSpellInstancesAndOnlyFirstAbilityCanDestroy",
+        "Riftbound.ConformanceTests.OfficialTriggerCostTests.CapturedPaidEffectSurvivesSourceChangeAndNeverExhaustsAgain",
+        "Riftbound.ConformanceTests.OfficialTriggerCostTests.ForgedCostReceiptOrMissingConfirmationCannotRecover",
+        "Riftbound.ConformanceTests.OfficialTriggerCostTests.MixedPowerAndExhaustCostsRespectPlayerTriggerOrder",
+        "Riftbound.ConformanceTests.OfficialTriggerCostTests.MultipleHeldFieldsCannotReuseOneExhaustCostBeforeResponses",
+        "Riftbound.ConformanceTests.OfficialTriggerCostTests.PaymentCanUseRuneResourcesWithoutOpeningOpponentResponseOrEarlyScoring",
+        "Riftbound.ConformanceTests.OfficialTriggerCostTests.PaymentIsBeforeFirstResponseAndEffectWaitsForBothPlayers",
+        "Riftbound.ConformanceTests.OfficialTriggerCostTests.WinningScoreWaitsForPaidEffectResolution"
+      ],
+      "filter": "(FullyQualifiedName~DestructionGraveyardFamilyTests|FullyQualifiedName~DestructionGraveyardLifecycleTests|FullyQualifiedName~OfficialTriggerCostTests|FullyQualifiedName~DeathObserverAuditTests)&FullyQualifiedName!~Riftbound.ConformanceTests.FullGameEndToEndTests."
+    }
+  ]
+}

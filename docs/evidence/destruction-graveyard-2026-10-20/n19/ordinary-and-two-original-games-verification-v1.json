@@ -1,0 +1,77 @@
+{
+  "status": "NINE_REAL_TRX_CASES_PASS_SIX_NEW_LEGAL_BLANK_GAMES_AND_COORDINATED_JOURNAL_REJECTION_AND_TWO_ORIGINAL_FULL_GAMES",
+  "rawTrxSha256": "992a762a600945a7dad7644f5c776630eeedbf483cf049270c9e898b17367bcb",
+  "actualCases": 9,
+  "actualMethods": 4,
+  "sixDistinctNewOrdinaryFrames": [
+    {
+      "file": "var/qa/destruction-graveyard-implementation-20261020/ordinary-v22/ChinaStandard20260724-DECREE_PAY-final.json.gz",
+      "sha256": "a03a07da53e94128e2d2ea5e5206e163cf586cc6cc689d6539e2226393070fb9",
+      "commands": 119,
+      "events": 495,
+      "scores": {
+        "P1": 1,
+        "P2": 1
+      }
+    },
+    {
+      "file": "var/qa/destruction-graveyard-implementation-20261020/ordinary-v22/ChinaStandard20260724-SELF_PAY-final.json.gz",
+      "sha256": "b7a785eae3f95f7d550ef25b249b9f03a93a9ec7eb81b568f3fb358c3d010ee5",
+      "commands": 90,
+      "events": 408,
+      "scores": {
+        "P1": 1,
+        "P2": 0
+      }
+    },
+    {
+      "file": "var/qa/destruction-graveyard-implementation-20261020/ordinary-v22/CoreRules-DECREE_DECLINE-final.json.gz",
+      "sha256": "f88c89e5f25195ef84cb4fb9e2db25f3aedf8b6ee2cb9bd05a7f74c2f11db1cd",
+      "commands": 115,
+      "events": 483,
+      "scores": {
+        "P1": 1,
+        "P2": 1
+      }
+    },
+    {
+      "file": "var/qa/destruction-graveyard-implementation-20261020/ordinary-v22/CoreRules-SELF_PAY-final.json.gz",
+      "sha256": "149315b2e52629399cf4110f81bf08e8ca18f6423eacd75f588ddc8a0fc3b3e7",
+      "commands": 90,
+      "events": 408,
+      "scores": {
+        "P1": 1,
+        "P2": 0
+      }
+    },
+    {
+      "file": "var/qa/destruction-graveyard-implementation-20261020/ordinary-v22/CoreRules-DECREE_PAY-final.json.gz",
+      "sha256": "8fb89f97f4fa90bfcf03fce8bc0b7877da50cea2803695ea9899ddb522ba3907",
+      "commands": 119,
+      "events": 495,
+      "scores": {
+        "P1": 1,
+        "P2": 1
+      }
+    },
+    {
+      "file": "var/qa/destruction-graveyard-implementation-20261020/ordinary-v22/ChinaStandard20260724-DECREE_DECLINE-final.json.gz",
+      "sha256": "576d4209e549dd5421e5c317fc0f0c270c2892de33b107ec5c93892a934a0dfd",
+      "commands": 115,
+      "events": 483,
+      "scores": {
+        "P1": 1,
+        "P2": 1
+      }
+    }
+  ],
+  "ordinaryCommands": 648,
+  "ordinaryEvents": 2772,
+  "originalBlankSeed": 0,
+  "namedEngineFormats": 2,
+  "currentRegionalTournamentEligibilityNotCertified": true,
+  "completeScoreGameOrWholePrintingNotClaimedForOrdinaryPrefixes": true,
+  "allFrozenSourcesExact": true,
+  "lockStartAndEndTrue": true,
+  "newSqlCheckFixedFullProductPending": true
+}

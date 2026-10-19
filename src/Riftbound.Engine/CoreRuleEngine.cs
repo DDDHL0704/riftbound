@@ -45,7 +45,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     private const string DamageReceivedDoubledThisTurnEffectId = "DAMAGE_RECEIVED_DOUBLED_THIS_TURN";
     private const string PreventNextDamageThisTurnEffectId = "PREVENT_NEXT_DAMAGE_THIS_TURN";
     private const string PreventSpellAndSkillDamageThisTurnEffectId = "PREVENT_SPELL_AND_SKILL_DAMAGE_THIS_TURN";
-    private const string DestroyOnNextDamageThisTurnEffectId = "DESTROY_ON_NEXT_DAMAGE_THIS_TURN";
     private const string ReturnControlToOwnerAtTurnEndEffectPrefix = "RETURN_CONTROL_TO_OWNER_AT_TURN_END:";
     private const string ExhaustFriendlyUnitOptionalCostPrefix = "EXHAUST_FRIENDLY_UNIT:";
     private const string DestroyFriendlyUnitAdditionalCostPrefix = "DESTROY_FRIENDLY_UNIT:";
@@ -171,7 +170,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             result = QueueRecycledCardBoons(result);
             if (result.State.RuleTextModeUses is { } uses && uses.TurnNumber != result.State.TurnNumber)
                 result = result with { State = result.State with { RuleTextModeUses = null } };
-            result = QueueReflexiveDuels(RecordDeathObservers(state, RecordDelayedDestruction(state, RecordAttachmentObservers(state, RecordMovementObservers(ApplyNestedDestructionContinuations(result))))));
+            result = QueueReflexiveDuels(RecordDeathObservers(state, RecordDelayedDestruction(state, RecordDamageDestruction(state, RecordAttachmentObservers(state, RecordMovementObservers(ApplyNestedDestructionContinuations(result)))))));
             var collected = QueueTempered(state, RecordDrawTriggers(state, ResolveImmediateResourceTriggers(ApplyFriendlyEquipmentStaticPowerRecompute(
                 QueueUnitEntryTriggers(state, QueueCreatedTokenReady(QueueReflexiveCopies(QueueBattlefieldReturnTriggers(QueueDeathRevealTriggers(QueueInsightEventTriggers(FinalizeTokenDepartures(state, result)))))))))));
             // New field objects need their current incarnation before role and
@@ -3267,7 +3266,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             sourceConfirmed: trigger.DamageDistribution is not null,
             timingContext: !string.IsNullOrWhiteSpace(trigger.TimingContext) ? trigger.TimingContext
                 : state.SpellDuelState.IsActive ? TimingStates.SpellDuelOpen
-                : state.BattleState.IsActive ? TimingStates.NeutralClosed : "ORDERED_TRIGGER") { TurnUnitPlayBoon = trigger.TurnUnitPlayBoon, StandbyObserver = trigger.StandbyObserver, DamageDistribution = trigger.DamageDistribution, AttachmentObserver = trigger.AttachmentObserver, Tempered = trigger.Tempered, MovementObserver = trigger.MovementObserver, DeathObserver = trigger.DeathObserver, DelayedDestruction = trigger.DelayedDestruction, LegendConquest = trigger.LegendConquest, UnitConquest = trigger.UnitConquest, ReflexiveDuel = trigger.ReflexiveDuel, BeginningRecycle = trigger.BeginningRecycle, EndAbility = trigger.EndAbility, BeginningDraw = trigger.BeginningDraw, EphemeralStart = trigger.EphemeralStart, BattlefieldStart = trigger.BattlefieldStart, ReflexiveCopy = trigger.ReflexiveCopy, CreatedTokenReady = trigger.CreatedTokenReady, UnitEntryContext = trigger.UnitEntryContext, UnitPlayMight = trigger.UnitPlayMight, SourcePlayDraw = trigger.SourcePlayDraw, HeldContext = trigger.HeldContext, InsightContext = trigger.InsightContext, SivirRuneRecycle = trigger.SivirRuneRecycle, ConquestToken = trigger.ConquestToken, DeathRevealContext = trigger.DeathRevealContext, FieldContext = trigger.FieldContext, LastBreathMight = trigger.LastBreathMight, MightySkill = trigger.MightySkill, BattlefieldConquestMight = trigger.BattlefieldConquestMight, SpellContext = trigger.SpellContext, RecastContext = trigger.RecastContext };
+                : state.BattleState.IsActive ? TimingStates.NeutralClosed : "ORDERED_TRIGGER") { TurnUnitPlayBoon = trigger.TurnUnitPlayBoon, StandbyObserver = trigger.StandbyObserver, DamageDistribution = trigger.DamageDistribution, AttachmentObserver = trigger.AttachmentObserver, Tempered = trigger.Tempered, MovementObserver = trigger.MovementObserver, DeathObserver = trigger.DeathObserver, DelayedDestruction = trigger.DelayedDestruction, DamageDestruction = trigger.DamageDestruction, GraveyardPlay = trigger.GraveyardPlay, LegendConquest = trigger.LegendConquest, UnitConquest = trigger.UnitConquest, ReflexiveDuel = trigger.ReflexiveDuel, BeginningRecycle = trigger.BeginningRecycle, EndAbility = trigger.EndAbility, BeginningDraw = trigger.BeginningDraw, EphemeralStart = trigger.EphemeralStart, BattlefieldStart = trigger.BattlefieldStart, ReflexiveCopy = trigger.ReflexiveCopy, CreatedTokenReady = trigger.CreatedTokenReady, UnitEntryContext = trigger.UnitEntryContext, UnitPlayMight = trigger.UnitPlayMight, SourcePlayDraw = trigger.SourcePlayDraw, HeldContext = trigger.HeldContext, InsightContext = trigger.InsightContext, SivirRuneRecycle = trigger.SivirRuneRecycle, ConquestToken = trigger.ConquestToken, DeathRevealContext = trigger.DeathRevealContext, FieldContext = trigger.FieldContext, LastBreathMight = trigger.LastBreathMight, MightySkill = trigger.MightySkill, BattlefieldConquestMight = trigger.BattlefieldConquestMight, SpellContext = trigger.SpellContext, RecastContext = trigger.RecastContext };
     }
 
     private sealed record TriggerControllerBlock(
@@ -24403,6 +24402,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (stackItem.MovementObserver is not null) return ResolveMovementObserver(state, stackItem);
         if (stackItem.DeathObserver is not null) return ResolveDeathObserver(state, stackItem);
         if (stackItem.DelayedDestruction is not null) return ResolveDelayedDestruction(state, stackItem);
+        if (stackItem.DamageDestruction is not null) return ResolveDamageDestruction(state, stackItem);
+        if (stackItem.GraveyardPlay is not null) return ResolveGraveyardPlay(state, stackItem);
         if (TryGetLegendUnitToken(stackItem.EffectKind, out var legendToken)) return ResolveLegendUnitToken(state, stackItem, legendToken);
         if (stackItem.DamageDistribution is not null) return ResolveDistributedDamage(state, stackItem);
         if (stackItem.LocationDamage is not null) return ResolveLocationDamage(state, stackItem);
@@ -25379,6 +25380,23 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     runePools = battlefieldReturnRunePools.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
                 }
             }
+        }
+        else if (DamageDestructionSpec(behavior.CardNo) is { } damageDestructionSpec)
+        {
+            if (damageDestructionSpec.Kind == TriggerKinds.SpellNextDamageOrInspiredDestroy && stackItem.PlayedAfterAnotherCardThisTurn)
+            {
+                var targets = stackItem.TargetObjectIds.Where(id => IsFieldObjectControlledByZonePlayer(playerZones, cardObjects, id)).ToHashSet();
+                var removal = ResolveFieldDestructions(state, playerZones, cardObjects, stackItem, new HashSet<string>(),
+                    state.DestroyedUnitOwnerIdsThisTurn.ToHashSet(), runePools, objectLocations: state.ObjectLocations,
+                    explicitDestroyObjectIds: targets, explicitDestroyReason: "INSPIRED_DESTRUCTION");
+                events.AddRange(removal.Events); destroyedUnitOwnerIds.AddRange(removal.DestroyedUnitOwnerIds);
+                runePools = removal.RunePools.ToDictionary(p => p.Key, p => p.Value);
+            }
+            else if (damageDestructionSpec.Kind == TriggerKinds.SpellTurnUnitDamagedDestroy)
+                ScheduleDamageDestruction(state, stackItem, null, untilEndOfTurnEffects, events);
+            else
+                foreach (var id in stackItem.TargetObjectIds.Where(id => IsFieldObjectControlledByZonePlayer(playerZones, cardObjects, id)))
+                    ScheduleDamageDestruction(state, stackItem, new(id, cardObjects[id].ObjectGeneration), untilEndOfTurnEffects, events);
         }
         else if (behavior.AppliesStatusEffectToAllUnits)
         {
@@ -29217,15 +29235,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             : targetState.UntilEndOfTurnEffects.Contains(DamageReceivedDoubledThisTurnEffectId, StringComparer.Ordinal)
                 ? damageAmount * 2
                 : damageAmount;
-        var triggersDestroyOnDamage = adjustedDamageAmount > 0
-            && targetState.UntilEndOfTurnEffects.Contains(
-                DestroyOnNextDamageThisTurnEffectId,
-                StringComparer.Ordinal);
         var nextEffects = targetState.UntilEndOfTurnEffects
             .Where(effectId => !preventsWithTargetEffect
                 || !string.Equals(effectId, PreventNextDamageThisTurnEffectId, StringComparison.Ordinal))
-            .Where(effectId => !triggersDestroyOnDamage
-                || !string.Equals(effectId, DestroyOnNextDamageThisTurnEffectId, StringComparison.Ordinal))
             .ToArray();
 
         cardObjects[targetObjectId] = targetState with
@@ -29237,10 +29249,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 : targetState.DamageMarkedByPlayerIds,
             UntilEndOfTurnEffects = nextEffects
         };
-        if (triggersDestroyOnDamage)
-        {
-            damageTriggeredDestroyTargetObjectIds?.Add(targetObjectId);
-        }
 
         return new DamageApplicationResult(
             adjustedDamageAmount,
@@ -29250,7 +29258,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ? PreventNextDamageThisTurnEffectId
                 : preventDamage
                     ? preventionEffectId
-                    : string.Empty);
+                    : string.Empty) { Target = new(targetObjectId, targetState.ObjectGeneration), ControllerId = damageControllerId,
+                        TargetTokenFactoryCardNo = targetState.TokenFactoryCardNo };
     }
 
     private static Dictionary<string, object?> BuildDamagePayload(
@@ -29259,12 +29268,15 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         DamageApplicationResult damageApplication,
         string damageSourceObjectId = "")
     {
+        CaptureAppliedDamage(sourceObjectId, damageSourceObjectId, damageApplication);
         var payload = new Dictionary<string, object?>
         {
             ["sourceObjectId"] = sourceObjectId,
             ["targetObjectId"] = targetObjectId,
             ["damage"] = damageApplication.DamageAmount
         };
+        if (damageApplication.Target is { } target) payload["targetGeneration"] = target.Generation;
+        if (damageApplication.TargetTokenFactoryCardNo is { } tokenFactory) payload["targetTokenFactoryCardNo"] = tokenFactory;
 
         if (!string.IsNullOrWhiteSpace(damageSourceObjectId))
         {
@@ -32192,7 +32204,15 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             ["destroyedByPlayerId"] = stackItem.ControllerId,
             ["destinationZone"] = removalResult.DestinationZone
         };
-        if (removalResult.Death is not null) payload["capturedUnitDeath"] = removalResult.Death;
+        if (removalResult.Death is { } death)
+        {
+            var attribution = ActualDestructionAttribution(stackItem, death, reason);
+            payload["capturedUnitDeath"] = death with { Attribution = attribution };
+            if (attribution is not null) {
+                payload["destructionAttribution"] = attribution;
+                payload["destroyedByPlayerId"] = attribution.ResponsiblePlayerId;
+            }
+        }
         if (removalResult.DeathRevealContext is not null)
             payload["deathRevealContext"] = removalResult.DeathRevealContext;
         if (removalResult.InsightContexts.Count > 0)
@@ -35083,7 +35103,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         int DamageAmount,
         int OriginalDamageAmount,
         bool Prevented,
-        string PreventionEffectId);
+        string PreventionEffectId)
+    {
+        public ObjectBinding? Target { get; init; }
+        public string ControllerId { get; init; } = "";
+        public string? TargetTokenFactoryCardNo { get; init; }
+    }
 
     private sealed record BattleDamageAssignmentTarget(
         string ObjectId,

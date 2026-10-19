@@ -1,0 +1,20 @@
+{
+  "profile": "focus",
+  "discoveredMethods": 7585,
+  "jobs": 4,
+  "includeGames": false,
+  "testAssemblySha256": "c7c11285fcea33222ef0825c61b1d80a327f892767ac20abc6123b14439669df",
+  "timings": "/Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/TestResults/mechanical-full.trx",
+  "shards": [
+    {
+      "name": "focus",
+      "methods": [
+        "Riftbound.ConformanceTests.DestructionGraveyardFamilyTests.ActualLethalSpellAndSelfDestructionOfferLeadingCostThenPlayOriginalPhoenix",
+        "Riftbound.ConformanceTests.DestructionGraveyardFamilyTests.DecreeDamageQueuesIndependentDestroyBeforePhoenixWithOriginalSpellSource",
+        "Riftbound.ConformanceTests.DestructionGraveyardFamilyTests.GuillotineCapturesInspireAtConfirmationOrNextDamageCreatesIndependentAbility",
+        "Riftbound.ConformanceTests.DestructionGraveyardFamilyTests.WholePrintedInstructionsParseAsFiniteSharedConsumers"
+      ],
+      "filter": "(FullyQualifiedName~DestructionGraveyardFamilyTests)&FullyQualifiedName!~Riftbound.ConformanceTests.FullGameEndToEndTests."
+    }
+  ]
+}

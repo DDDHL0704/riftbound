@@ -1,0 +1,200 @@
+{
+  "recordedAtUtc": "2026-10-19T23:15:30.073357+00:00",
+  "region": "CN",
+  "language": "zh-CN",
+  "applicableAsOf": "2026-10-16",
+  "observedAtAsiaShanghai": "2026-10-20",
+  "rulesEffectiveBaseline": "2026-10-16",
+  "baseCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+  "includesExplicitUncommittedImplementation": true,
+  "scope": "Actual destruction source/responsibility, Decree and Guillotine independent finite delayed skills, Phoenix graveyard self/simultaneous observation, leading cost and original-incarnation normal effect play only.",
+  "freshOfficialSources": {
+    "path": "docs/evidence/destruction-graveyard-2026-10-20/n18/fresh-source-intake-v1.json",
+    "sha256": "8b9870436da3a825abd2636f709599f08618bedca79d72109e3852de97200a52",
+    "role": "fresh-source-intake-v1"
+  },
+  "additionalExactNoxianAndUnitDamageSources": {
+    "path": "docs/evidence/destruction-graveyard-2026-10-20/n18/additional-attribution-consumer-source-intake-v1.json",
+    "sha256": "5c14e827a79e494d3d5eb7eb2579086d9585569deb167a215a1dc6ddb116d7e8",
+    "role": "additional-attribution-consumer-source-intake-v1"
+  },
+  "currentCoreFaqBranchReadback": {
+    "path": "docs/evidence/destruction-graveyard-2026-10-20/n18/current-core-faq-branch-readback-v1.json",
+    "sha256": "df6cb8fd35230bb23795236d638f1b2a6e4a83e6ff2ddf250c043d9e354bb173",
+    "role": "current-core-faq-branch-readback-v1"
+  },
+  "faqTitleExplicitCorrection": {
+    "path": "docs/evidence/destruction-graveyard-2026-10-20/n18/faq-title-explicit-correction-v1.json",
+    "sha256": "61c7fc0f1c19966d8e4fb97593045b92665b6eeecf2b5423b84deb6f44f7363f",
+    "role": "faq-title-explicit-correction-v1"
+  },
+  "leadingCostClauseExplicitCorrection": {
+    "path": "docs/evidence/destruction-graveyard-2026-10-20/n18/leading-trigger-cost-clause-correction-v1.json",
+    "sha256": "ca8e7bb46d2b6ba0d19d4282c18fe5b822dbf41d038b2334f6ddf2789dd29fc9",
+    "role": "leading-trigger-cost-clause-correction-v1"
+  },
+  "originalFullGameFileCountExplicitCorrection": {
+    "path": "docs/evidence/destruction-graveyard-2026-10-20/n19/original-fullgame-retention-before-security-v1.json",
+    "sha256": "0b57b64590e5cf06ae80b7a628e29af509039263a28bf15193c7c5de8a6097d2",
+    "role": "original-fullgame-retention-before-security-v1"
+  },
+  "exactPrintings": [
+    "OGN·037/298",
+    "OGN·221/298",
+    "OGN·254/298",
+    "OGN·009/298",
+    "UNL-118/219",
+    "UNL-118a/219"
+  ],
+  "existingParentObligationIds": [
+    "CARD:OGN-037/298",
+    "CARD:OGN-221/298",
+    "CARD:OGN-009/298",
+    "CARD:UNL-118/219",
+    "CARD:UNL-118A/219",
+    "RULE:CN-d6fd7140f106f9b5-P062-B011",
+    "RULE:CN-d6fd7140f106f9b5-P071-B017",
+    "RULE:CN-d6fd7140f106f9b5-P080-B011",
+    "RULE:CN-d6fd7140f106f9b5-P080-B012",
+    "RULE:CN-d6fd7140f106f9b5-P080-B013",
+    "RULE:CN-d6fd7140f106f9b5-P080-B014",
+    "RULE:CN-d6fd7140f106f9b5-P080-B015",
+    "RULE:CN-d6fd7140f106f9b5-P080-B016",
+    "RULE:CN-d6fd7140f106f9b5-P080-B017",
+    "RULE:CN-59bd828207564540-P021-B002",
+    "RULE:CN-59bd828207564540-P021-B003",
+    "RULE:CN-59bd828207564540-P021-B004",
+    "CARD:OGN-254/298",
+    "RULE:CN-d6fd7140f106f9b5-P032-B002",
+    "RULE:CN-d6fd7140f106f9b5-P074-B013",
+    "RULE:CN-d6fd7140f106f9b5-P074-B014",
+    "RULE:CN-d6fd7140f106f9b5-P068-B002"
+  ],
+  "currentClauses": [
+    "204.1.c",
+    "383.2.c.1",
+    "391.2",
+    "412.5",
+    "418.6.b.3-4",
+    "429.5.b-d"
+  ],
+  "faqExactRecords": [
+    "CN-59bd828207564540-P021-B002",
+    "CN-59bd828207564540-P021-B003",
+    "CN-59bd828207564540-P021-B004"
+  ],
+  "faqOfficialTitle": "《符文战场》化神争锋系列 官方FAQ",
+  "sourceBytesUnchangedNotNewTemporalDelta": true,
+  "unknownSinglePrintingPublicationAndEffectiveDatesRemainNull": true,
+  "faqIllustratedVariantFooterIdentity": "FIVE_EXACT_PRINTED_CODES_READ_PHYSICAL_FINISH_JOIN_OPEN",
+  "nativeFaqPage21FooterReadback": {
+    "path": "docs/evidence/destruction-graveyard-2026-10-20/n19/faq-page21-exact-footer-readback-v1.json",
+    "sha256": "0c00bfb10e70a2ff2d2559c9e07a5e1d25854b778799f675e9fc46e18ea65452",
+    "role": "faq-page21-exact-footer-readback-v1"
+  },
+  "original08fdCounterexamplesAndFullReadOnlyReplay": {
+    "path": "docs/evidence/destruction-graveyard-2026-10-20/n18/ordinary-counterexamples-and-finite-family-checkpoint-v2.json",
+    "sha256": "5c140f8793ab335baae921f054cd9abf160144cf500cd47fbdbb7082379ca488",
+    "role": "ordinary-counterexamples-and-finite-family-checkpoint-v2"
+  },
+  "prior08fdFixedNativeSqlNetworkProofOnly": {
+    "path": "docs/evidence/destruction-graveyard-2026-10-20/n17/locked-fixed-candidate-continuation-checkpoint-v1.json",
+    "sha256": "fde5680434b0c657420b4f35e3b4fe2c1ec815e0f34f73ac4911e587896c1e0c",
+    "role": "locked-fixed-candidate-continuation-checkpoint-v1"
+  },
+  "currentConformanceDebugRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+    "implementationSha256": "1f205f60ce903d8513c5387f2b8495d9963b9aad6e60ad4d1c2eb7bc9fce11a2",
+    "identitySha256": "0bf57f7c87f6e8d7d298e96d65057e6d5caa756c8f581c8b31dff98417125a61"
+  },
+  "earlierSoleCheckDebugRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+    "implementationSha256": "f1d25a556b19f4cbbc26e920f63fd2906aef00e5a64145424122e552aac38ca8",
+    "identitySha256": "cda24b21bb904dbdb5e7201b42b50ae1218e833b79f1a112729835ae0ab9fc8a"
+  },
+  "actualFrozenReleaseSqlRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+    "implementationSha256": "ebb3709352e6b0da2272e3da873d12dc52f0e19cc11edc25d201721026719d6f",
+    "identitySha256": "dc63b6ca733e3f6fd049a9974e971f704fff39c33f31ad1e04e7ae77e9837d91"
+  },
+  "actualLocalPartialReceiptRejectedAsFull": {
+    "path": "docs/evidence/destruction-graveyard-2026-10-20/n19/actual-partial-rejects-full-sql-gate-v1.json",
+    "sha256": "80b3a8fbc627de0de5d3cf82a9e4b587daf916091992586f13177a8a95e7d93a",
+    "role": "actual-partial-rejects-full-sql-gate-v1"
+  },
+  "releaseAndDebugAndOldNativeAndFutureFixedModulesNotInterchanged": true,
+  "soleCheck": {
+    "path": "docs/evidence/destruction-graveyard-2026-10-20/n19/only-check-retention-and-disposition-v1.json",
+    "sha256": "69a54b183d9b0ba217524d12869e994f76d8dc26ab5cb1a21790e0f35ee82fac",
+    "role": "only-check-retention-and-disposition-v1"
+  },
+  "soleCheckOriginalFailureNotRelabeledGreen": true,
+  "postCheckFocusedClosure": {
+    "path": "docs/evidence/destruction-graveyard-2026-10-20/n19/postcheck-three-failures-current-closure-v2.json",
+    "sha256": "f3e877a0bbe124c0f13cea765b90cf075328c521c46db025debf22a05944efa7",
+    "role": "postcheck-three-failures-current-closure-v2"
+  },
+  "boundedBranchToExactTestIdentityMatrix": {
+    "path": "docs/evidence/destruction-graveyard-2026-10-20/n19/bounded-behavior-evidence-matrix-v2.json",
+    "sha256": "2f46d838cb4389d2f83e208f8943f54dcbb4d9901f36282e89c5d847d765fec8",
+    "role": "bounded-behavior-evidence-matrix-v2"
+  },
+  "realSql": {
+    "path": "docs/evidence/destruction-graveyard-2026-10-20/n19/real-sql-verification-v2.json",
+    "sha256": "e2b556df246d25a83fe9a0b3fc447d9cddc39357053db50a197606f2bedf2ac3",
+    "role": "real-sql-verification-v2"
+  },
+  "earlierPreRepairReleaseSqlOriginalIdentityAndHistoryRetained": {
+    "path": "docs/evidence/destruction-graveyard-2026-10-20/n19/real-sql-verification-v1.json",
+    "sha256": "30572feb0153b48548561b1bc4cd9265146d0e4ce7795815b6406c2abc27b58d",
+    "role": "real-sql-verification-v1"
+  },
+  "actualPriorB294FullTimeout": {
+    "path": "docs/evidence/destruction-graveyard-2026-10-20/ci/actual-b294-sql-timeout-disposition-v1.json",
+    "sha256": "2d05f4e7bb906d4ba087ab34a9124e23b48a542201dae6c0a9bd4ad2509e2ec7",
+    "role": "actual-b294-sql-timeout-disposition-v1"
+  },
+  "actual08fdRulesOnly": {
+    "path": "docs/evidence/destruction-graveyard-2026-10-20/n19/08fd-original-rule-verification-v1.json",
+    "sha256": "54cc463b4454321983b6555ce50625df3224cfcb5aba4334b02bd8b4f467f998",
+    "role": "08fd-original-rule-verification-v1"
+  },
+  "all1740Printings36HistoricalDocuments14293BlocksOriginalDatesEn8GapCn236DispositionsAndFiveSourceDeltasRetained": true,
+  "newFixedFull": "PENDING",
+  "visibleCurrentNativeAndPhysicalWindows": "OPEN",
+  "regionalTournamentEligibilityCertified": false,
+  "wholePrintingCertified": false,
+  "semanticCoverageCertified": false,
+  "latestEffectiveChangesMustBeRecheckedBeforeFinalAcceptance": true,
+  "separateGlobalEnReadOnlyFollowupNotCnCertification": {
+    "freshViews": {
+      "path": "docs/evidence/destruction-graveyard-2026-10-20/global-source-followup/current-source-views-v1.json",
+      "sha256": "b60acb4f5f3892bc849584f40929af2f452f32399b4291da92fb3bec162093f4",
+      "role": "current-source-views-v1"
+    },
+    "actualSsrAndEightPages": {
+      "path": "docs/evidence/destruction-graveyard-2026-10-20/global-source-followup/ssr-and-pagination-readback-v1.json",
+      "sha256": "068a022a8b691c5158a927967f39022520bd1a1a3abc5cf9098d3d88b5257d7a",
+      "role": "ssr-and-pagination-readback-v1"
+    },
+    "boundedUnstableLocalization": {
+      "path": "docs/evidence/destruction-graveyard-2026-10-20/global-source-followup/source-window-instability-readback-v1.json",
+      "sha256": "b0d8f025155f6cd1c4983ea855d9d36787649ae8590912c976aea371eb1c9d89",
+      "role": "source-window-instability-readback-v1"
+    },
+    "allEightOriginalSourceGapObligationsRemainOpen": true,
+    "all1408ExistingWholeRowsExactNoSemanticTemporalDeltaOrRuntimeInputChange": true
+  }
+}

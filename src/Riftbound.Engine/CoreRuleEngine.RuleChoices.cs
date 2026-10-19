@@ -28,6 +28,9 @@ public sealed partial class CoreRuleEngine
         public int DestructionBatchSequence { get; set; }
         public int? CurrentDestructionBatch { get; set; }
         public LastKnownMightFrame? CurrentDestructionMightFrame { get; set; }
+        public MatchState? ResolutionState { get; set; }
+        public StackItemState? ResolutionItem { get; set; }
+        public List<AppliedDamageFact> AppliedDamages { get; } = [];
         public List<TriggerQueueItemState> NestedTriggers { get; } = [];
         public List<ObservedDeckPlayContext> ObservedPlays {get;}=[];
         public HashSet<string> NestedDestroyedOwners { get; } = [];

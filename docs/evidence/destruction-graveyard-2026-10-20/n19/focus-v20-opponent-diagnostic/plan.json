@@ -1,0 +1,17 @@
+{
+  "profile": "focus",
+  "discoveredMethods": 7605,
+  "jobs": 4,
+  "includeGames": false,
+  "testAssemblySha256": "e576fdc307ca1d115192417df6f97eb00504bcbd0c7d1e5fdbdef50ebacd8631",
+  "timings": "/Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/TestResults/mechanical-full.trx",
+  "shards": [
+    {
+      "name": "focus",
+      "methods": [
+        "Riftbound.ConformanceTests.DestructionGraveyardLifecycleTests.OpponentsDamageTriggersOriginalDecreeControllerAndOnlyThatPlayersPhoenix"
+      ],
+      "filter": "(FullyQualifiedName~OpponentsDamageTriggersOriginalDecreeControllerAndOnlyThatPlayersPhoenix)&FullyQualifiedName!~Riftbound.ConformanceTests.FullGameEndToEndTests."
+    }
+  ]
+}

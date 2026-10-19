@@ -1,0 +1,36 @@
+{
+  "profile": "focus",
+  "discoveredMethods": 7601,
+  "jobs": 4,
+  "includeGames": false,
+  "testAssemblySha256": "b527ebc51ed73e82c8fafd0037498127e5549e6249eaf2148dfa02381c402a4b",
+  "timings": "/Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/TestResults/mechanical-full.trx",
+  "shards": [
+    {
+      "name": "focus",
+      "methods": [
+        "Riftbound.ConformanceTests.ConformanceFixtureRunnerTests.CoreRuleEnginePlaysImperialDecreeAndDamageDestroysUnit",
+        "Riftbound.ConformanceTests.ConformanceFixtureRunnerTests.CoreRuleEnginePlaysNoxianGuillotineAndNextDamageDestroysUnit",
+        "Riftbound.ConformanceTests.DestructionGraveyardFamilyTests.ActualLethalSpellAndSelfDestructionOfferLeadingCostThenPlayOriginalPhoenix",
+        "Riftbound.ConformanceTests.DestructionGraveyardFamilyTests.DecreeDamageQueuesIndependentDestroyBeforePhoenixWithOriginalSpellSource",
+        "Riftbound.ConformanceTests.DestructionGraveyardFamilyTests.GuillotineCapturesInspireAtConfirmationOrNextDamageCreatesIndependentAbility",
+        "Riftbound.ConformanceTests.DestructionGraveyardFamilyTests.WholePrintedInstructionsParseAsFiniteSharedConsumers",
+        "Riftbound.ConformanceTests.DestructionGraveyardLifecycleTests.ActualCombatUnitDamageDoesNotBecomeSpellDestructionForGraveyardPhoenix",
+        "Riftbound.ConformanceTests.DestructionGraveyardLifecycleTests.ActualDamagePreventionProducesNoDelayedTriggerAndNextRealDamageStillDoes",
+        "Riftbound.ConformanceTests.DestructionGraveyardLifecycleTests.ActualNamedUnitDuelDamageRetainsUnitResponsibilityAndCannotTriggerPhoenix",
+        "Riftbound.ConformanceTests.DestructionGraveyardLifecycleTests.ActualSimultaneousGraveyardEntrantsObserveOwnAndOtherSpellDestructions",
+        "Riftbound.ConformanceTests.DestructionGraveyardLifecycleTests.BothInstructionsExpireAtTheActualEndOfTurn",
+        "Riftbound.ConformanceTests.DestructionGraveyardLifecycleTests.GlobalDecreeIncludesARealUnitPlayedAfterTheSpellResolved",
+        "Riftbound.ConformanceTests.DestructionGraveyardLifecycleTests.OpponentsActualLethalSpellDoesNotOfferYourGraveyardPhoenix",
+        "Riftbound.ConformanceTests.DestructionGraveyardLifecycleTests.ReturningDamagedTargetDuringActualResponseMakesEarnedDecreeAbilityNoop",
+        "Riftbound.ConformanceTests.DestructionGraveyardLifecycleTests.TwoDecreesRetainBothOriginalSpellInstancesAndOnlyFirstAbilityCanDestroy",
+        "Riftbound.ConformanceTests.DestructionGraveyardRecoveryTests.DelayedInstructionMarkerRejectsDuplicatesUnknownSchemaAndForgedGlobalTarget",
+        "Riftbound.ConformanceTests.DestructionGraveyardRecoveryTests.DelayedStackRejectsForgedSourceRolePrintingTimeTargetAndMissingContext",
+        "Riftbound.ConformanceTests.DestructionGraveyardRecoveryTests.InsufficientRedAndWrongOrStaleChoiceCannotMutateOriginalPendingPayment",
+        "Riftbound.ConformanceTests.DestructionGraveyardRecoveryTests.LeadingPaymentCannotBeForgedToWaiveManaRedPowerOrConfirmation",
+        "Riftbound.ConformanceTests.DestructionGraveyardRecoveryTests.PhoenixContextRejectsForgedAttributionVictimSourceAndRole"
+      ],
+      "filter": "(FullyQualifiedName~DestructionGraveyardRecoveryTests|FullyQualifiedName~DestructionGraveyardFamilyTests|FullyQualifiedName~DestructionGraveyardLifecycleTests|FullyQualifiedName~CoreRuleEnginePlaysNoxianGuillotineAndNextDamageDestroysUnit|FullyQualifiedName~CoreRuleEnginePlaysImperialDecreeAndDamageDestroysUnit)&FullyQualifiedName!~Riftbound.ConformanceTests.FullGameEndToEndTests."
+    }
+  ]
+}

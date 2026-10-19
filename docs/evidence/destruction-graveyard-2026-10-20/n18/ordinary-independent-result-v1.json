@@ -1,0 +1,75 @@
+{
+  "status": "PASS_INDEPENDENT_FOUR_ORIGINAL_PHOENIX_PREFIXES_AND_ORIGINAL_REJECTED_MULLIGAN",
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+    "implementationSha256": "aa1142ae842e96564fe73f3237f6616c8dc7128e069f82b76e5ffe57c0a1c8eb",
+    "identitySha256": "b95c5356604bd832648068bcb2248b6763aea8b7100f3c995915646e47b1bcd7"
+  },
+  "checks": [
+    {
+      "format": "CoreRules",
+      "branch": "self-destroy",
+      "commands": 85,
+      "events": 393,
+      "allDeclaredFieldsAndNullsExact": true,
+      "actualBothSubmittedDecksRevalidated": true,
+      "currentOpponentPrivateHandAndDeckIdsProtected": true,
+      "originalFullReplayAndRecoveryPassed": true,
+      "semanticMissingTriggerNotPromotedToPassingBehavior": true,
+      "originalFrameSha256": "f05fcb34f40d9c27004b9a0a3fd0d5a706e3dfcf89969887a77def1f4fbbada2"
+    },
+    {
+      "format": "CoreRules",
+      "branch": "decree",
+      "commands": 111,
+      "events": 471,
+      "allDeclaredFieldsAndNullsExact": true,
+      "actualBothSubmittedDecksRevalidated": true,
+      "currentOpponentPrivateHandAndDeckIdsProtected": true,
+      "originalFullReplayAndRecoveryPassed": true,
+      "semanticMissingTriggerNotPromotedToPassingBehavior": true,
+      "originalFrameSha256": "28e6766c7034b4320d78d63b9cbda96cca785dcfd0071ce1acdce17f38443a46"
+    },
+    {
+      "format": "ChinaStandard20260724",
+      "branch": "self-destroy",
+      "commands": 85,
+      "events": 393,
+      "allDeclaredFieldsAndNullsExact": true,
+      "actualBothSubmittedDecksRevalidated": true,
+      "currentOpponentPrivateHandAndDeckIdsProtected": true,
+      "originalFullReplayAndRecoveryPassed": true,
+      "semanticMissingTriggerNotPromotedToPassingBehavior": true,
+      "originalFrameSha256": "413d6b1f879784f65b072bb38c62d9fd5fb4c960c18d2d1b1761d9127f9a8e0c"
+    },
+    {
+      "format": "ChinaStandard20260724",
+      "branch": "decree",
+      "commands": 111,
+      "events": 471,
+      "allDeclaredFieldsAndNullsExact": true,
+      "actualBothSubmittedDecksRevalidated": true,
+      "currentOpponentPrivateHandAndDeckIdsProtected": true,
+      "originalFullReplayAndRecoveryPassed": true,
+      "semanticMissingTriggerNotPromotedToPassingBehavior": true,
+      "originalFrameSha256": "6a1f3769308451d7d7e6f687c5d9c3df9a246175b2e4b20e8c50963cfecff40e"
+    }
+  ],
+  "failedPrefix": {
+    "commands": 6,
+    "accepted": 5,
+    "rejected": 1,
+    "originalReplayPassed": true,
+    "rejectedAtomic": true,
+    "originalSha256": "2e88ee4dd6f1ef80b5f752097bffc010ef1c1f78196dede68db55b8ce782599f"
+  },
+  "actualOrdinaryDistinctGames": 2,
+  "distinctOriginalCommands": 222,
+  "distinctOriginalEvents": 942,
+  "noOriginalHistoryOrSeedOrPrivateViewRewrite": true,
+  "productAndWholeCardCertification": "OPEN"
+}

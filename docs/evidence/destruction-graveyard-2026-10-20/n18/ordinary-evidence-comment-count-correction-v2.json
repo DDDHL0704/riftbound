@@ -1,0 +1,9 @@
+{
+  "status": "AUTHOR_NUMERIC_COUNT_CORRECTION_FROM_ACTUAL_FRESH_SOURCE_RECORDS",
+  "actualRows": 5,
+  "priorIncorrectReportedRows": 6,
+  "originalPostedBodyAndReadbackRetained": true,
+  "commentId": "6276058925",
+  "commentUrl": "https://github.com/DDDHL0704/riftbound/issues/69#issuecomment-6276058925",
+  "change": "six API rows -> five; all other body bytes unchanged"
+}

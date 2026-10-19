@@ -962,7 +962,7 @@ public sealed class NoopMatchRecoveryStore : IMatchRecoveryStore
     }
 }
 
-public static class MatchRecoveryValidator
+public static partial class MatchRecoveryValidator
 {
     private const string DevSeedScenarioPrefix = "DEV_SEED_SCENARIO:";
     private const string DevSeedScenarioCommandType = "DEV_SEED_SCENARIO";
@@ -1014,6 +1014,7 @@ public static class MatchRecoveryValidator
 
     private static readonly string[] KnownTriggerQueueTriggeredEventKinds =
     [
+        "DAMAGE_APPLIED",
         "CARD_DISCARDED",
         "CARDS_RECYCLED",
         "RUNE_RECYCLED",
@@ -4561,6 +4562,7 @@ public static class MatchRecoveryValidator
             if (!ValidateReflexiveDuelView(triggerPayload,effectKind,errors)
             && !ValidateMovementObserverView(triggerPayload,effectKind,controllerId,sourceObjectId,errors)
             && !ValidateDeathObserverView(triggerPayload,effectKind,controllerId,sourceObjectId,errors)
+            && !ValidateDestructionFamilyView(triggerPayload,effectKind,controllerId,sourceObjectId,errors)
             && !ceasedInsight)
             ValidateTriggerQueueVisibleSourceObjectMembership(
                 triggerLabel,
@@ -18725,7 +18727,7 @@ public static class MatchRecoveryValidator
             }
 
             var authoritativeTrigger = authoritativeTriggers[index];
-            var hiddenSource = authoritativeTrigger.DelayedDestruction is null && authoritativeTrigger.DeathObserver is null && IsHiddenBattlefieldStandbyForSpectator(
+            var hiddenSource = authoritativeTrigger.DamageDestruction is null && authoritativeTrigger.GraveyardPlay is null && authoritativeTrigger.DelayedDestruction is null && authoritativeTrigger.DeathObserver is null && IsHiddenBattlefieldStandbyForSpectator(
                 authoritativeState,
                 authoritativeTrigger.SourceObjectId);
             if (MatchStateHasher.HashValue(ReadMightySkillView(spectatorTrigger)) != MatchStateHasher.HashValue(authoritativeTrigger.MightySkill)) errors.Add("spectator captured Mighty transition differs from authoritative state");
@@ -18734,6 +18736,7 @@ public static class MatchRecoveryValidator
             if (MatchStateHasher.HashValue(ReadCapturedInsightView(spectatorTrigger)) != MatchStateHasher.HashValue(CapturedInsight(authoritativeTrigger.InsightContext))) errors.Add($"spectator {CapturedInsightLabel(authoritativeTrigger.InsightContext)} differs from authoritative state");
             if (MatchStateHasher.HashValue(ReadDeathObserverView(spectatorTrigger)) != MatchStateHasher.HashValue(authoritativeTrigger.DeathObserver)) errors.Add("spectator captured death observer differs from authoritative state");
             if (MatchStateHasher.HashValue(ReadDelayedDestructionView(spectatorTrigger)) != MatchStateHasher.HashValue(authoritativeTrigger.DelayedDestruction)) errors.Add("spectator captured delayed destruction differs from authoritative state");
+            CompareDestructionFamilyView(spectatorTrigger, authoritativeTrigger.DamageDestruction, authoritativeTrigger.GraveyardPlay, errors);
             var expectedSourceObjectId = hiddenSource ? "HIDDEN" : authoritativeTrigger.SourceObjectId;
             var expectedSourceVisibility = hiddenSource ? "HIDDEN" : "VISIBLE";
             var expectedEffectKind = hiddenSource ? "HIDDEN" : authoritativeTrigger.EffectKind;
@@ -18962,7 +18965,7 @@ public static class MatchRecoveryValidator
                 continue;
             }
 
-            var hiddenSource = authoritativeTrigger.DelayedDestruction is null && authoritativeTrigger.DeathObserver is null && IsHiddenBattlefieldStandbyForSpectator(
+            var hiddenSource = authoritativeTrigger.DamageDestruction is null && authoritativeTrigger.GraveyardPlay is null && authoritativeTrigger.DelayedDestruction is null && authoritativeTrigger.DeathObserver is null && IsHiddenBattlefieldStandbyForSpectator(
                 authoritativeState,
                 authoritativeTrigger.SourceObjectId);
             if (MatchStateHasher.HashValue(ReadMightySkillView(triggerPayload)) != MatchStateHasher.HashValue(authoritativeTrigger.MightySkill)) errors.Add("snapshot captured Mighty transition differs from authoritative state");
@@ -18971,6 +18974,7 @@ public static class MatchRecoveryValidator
             if (MatchStateHasher.HashValue(ReadCapturedInsightView(triggerPayload)) != MatchStateHasher.HashValue(CapturedInsight(authoritativeTrigger.InsightContext))) errors.Add($"snapshot {CapturedInsightLabel(authoritativeTrigger.InsightContext)} differs from authoritative state");
             if (MatchStateHasher.HashValue(ReadDeathObserverView(triggerPayload)) != MatchStateHasher.HashValue(authoritativeTrigger.DeathObserver)) errors.Add("spectator captured death observer differs from authoritative state");
             if (MatchStateHasher.HashValue(ReadDelayedDestructionView(triggerPayload)) != MatchStateHasher.HashValue(authoritativeTrigger.DelayedDestruction)) errors.Add("spectator captured delayed destruction differs from authoritative state");
+            CompareDestructionFamilyView(triggerPayload, authoritativeTrigger.DamageDestruction, authoritativeTrigger.GraveyardPlay, errors);
             var expectedSourceObjectId = hiddenSource ? "HIDDEN" : authoritativeTrigger.SourceObjectId;
             var expectedSourceVisibility = hiddenSource ? "HIDDEN" : "VISIBLE";
             var expectedEffectKind = hiddenSource ? "HIDDEN" : authoritativeTrigger.EffectKind;
@@ -19336,6 +19340,7 @@ public static class MatchRecoveryValidator
         if (!ValidateReflexiveDuelView(triggerPayload,effectKind,errors)
             && !ValidateMovementObserverView(triggerPayload,effectKind,controllerId,sourceObjectId,errors)
             && !ValidateDeathObserverView(triggerPayload,effectKind,controllerId,sourceObjectId,errors)
+            && !ValidateDestructionFamilyView(triggerPayload,effectKind,controllerId,sourceObjectId,errors)
             && !ceasedInsight)
         ValidateTriggerQueueVisibleSourceObjectMembership(
             payloadLabel,
@@ -23096,6 +23101,7 @@ public static class MatchRecoveryValidator
             ValidateLastBreathMightStackViews(view.Snapshot.Stack, authoritativeState, errors, $"snapshot for {view.PlayerId}");
             ValidateCapturedInsightStackViews(view.Snapshot.Stack, authoritativeState, errors, $"snapshot for {view.PlayerId}");
             ValidateDelayedDestructionStackViews(view.Snapshot.Stack, authoritativeState, errors);
+            ValidateDestructionFamilyStackViews(view.Snapshot.Stack, authoritativeState, errors);
             ValidateSourceReplayStackViews(view.Snapshot.Stack, authoritativeState, errors);
             ValidateResolutionDamageChoiceViews(view.Snapshot.Stack, authoritativeState, errors);
             ValidateDeckPlayPendingCardViews(view.Snapshot.Stack, authoritativeState, errors);
@@ -23125,6 +23131,7 @@ public static class MatchRecoveryValidator
                 {
                     var projected = publicTriggers.FirstOrDefault(payload =>
                         TryReadObjectString(payload, "triggerId", out var id) && id == trigger.TriggerId);
+                    CompareDestructionFamilyView(projected, trigger.DamageDestruction, trigger.GraveyardPlay, errors);
                     if (MatchStateHasher.HashValue(ReadDelayedDestructionView(projected)) != MatchStateHasher.HashValue(trigger.DelayedDestruction))
                         errors.Add($"snapshot for {view.PlayerId} captured delayed destruction differs from authoritative state");
                     if (MatchStateHasher.HashValue(ReadCapturedInsightView(projected)) != MatchStateHasher.HashValue(CapturedInsight(trigger.InsightContext)))
@@ -24161,6 +24168,7 @@ public static class MatchRecoveryValidator
         if (state.PendingRuleChoice is null && state.StackItems.Any(i => i.SourceReplayDecisionCompleted))
             errors.Add("invalid premature source replay completion");
         ValidateDelayedDestructionState(state, errors);
+        ValidateDestructionFamilyState(state, errors);
         foreach (var item in state.StackItems)
             if (!CoreRuleEngine.ValidMovementFollowUp(state, item)) errors.Add("invalid movement optional attachment continuation");
         foreach (var item in state.StackItems)
@@ -32130,6 +32138,7 @@ public static class MatchRecoveryValidator
         ValidateLastBreathMightStackViews(stackItems, authoritativeState, errors, "spectator replay frame");
         ValidateCapturedInsightStackViews(stackItems, authoritativeState, errors, "spectator replay frame");
         ValidateDelayedDestructionStackViews(stackItems, authoritativeState, errors);
+        ValidateDestructionFamilyStackViews(stackItems, authoritativeState, errors);
         ValidateSourceReplayStackViews(stackItems, authoritativeState, errors);
         ValidateResolutionDamageChoiceViews(stackItems, authoritativeState, errors);
         ValidateDeckPlayPendingCardViews(stackItems, authoritativeState, errors);

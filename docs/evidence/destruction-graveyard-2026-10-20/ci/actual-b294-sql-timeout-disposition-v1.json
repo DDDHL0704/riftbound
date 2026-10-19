@@ -1,0 +1,22 @@
+{
+  "observedAtUtc": "2026-10-19T21:15:18.358251+00:00",
+  "fixedCommit": "b294bb150d877b3399cd9e120bbaec5c75e353cf",
+  "runId": 39275773327,
+  "overallStatus": "completed",
+  "overallConclusion": "cancelled",
+  "sqlStartedAt": "2026-10-19T15:12:16Z",
+  "sqlCompletedAt": "2026-10-19T21:13:04Z",
+  "sqlConclusion": "cancelled",
+  "officialMaximumJobHours": 6,
+  "networkStep": {
+    "name": "Native client connection recovery",
+    "status": "completed",
+    "conclusion": "skipped",
+    "number": 7,
+    "started_at": "2026-10-19T21:13:01Z",
+    "completed_at": "2026-10-19T21:13:01Z"
+  },
+  "independentRuleSuite": "success",
+  "fullAcceptancePassed": false,
+  "remediation": "Partition every original default SQL helper and the original core opening, retain source/test/seed/history/private/replay/tamper assertions, execute all parts and independent native network gate, aggregate exact coverage and fixed inputs; no helper omitted."
+}

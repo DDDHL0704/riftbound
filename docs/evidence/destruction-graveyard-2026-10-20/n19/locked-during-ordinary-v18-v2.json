@@ -1,0 +1,15 @@
+{
+  "atUtc": "2026-10-19T20:53:53.086235+00:00",
+  "observations": [
+    {
+      "path": "Root/IOConsoleLocked",
+      "value": true
+    },
+    {
+      "path": "Root/IOConsoleUsers/0/CGSSessionScreenIsLocked",
+      "value": true
+    }
+  ],
+  "initialProbeError": "v1 assumed plist list root; actual root is dictionary. Initial failed probe did not write a lock result.",
+  "screenLockOrPersistentSettingsChanged": false
+}

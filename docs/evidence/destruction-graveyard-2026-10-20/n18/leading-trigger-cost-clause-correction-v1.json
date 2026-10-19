@@ -1,0 +1,25 @@
+{
+  "recordedAtUtc": "2026-10-19T19:59:02.491930+00:00",
+  "status": "EXPLICIT_LOCAL_LEADING_TRIGGER_COST_CLAUSE_CITATION_CORRECTION_NOT_RULE_BEHAVIOR_CHANGE",
+  "sourceFile": "src/Riftbound.Engine/CoreRuleEngine.TriggerCosts.cs",
+  "sourceFileSha256": "7248aaebc0c824634407054b696275acb6302cb4ea8aedd04173bfcdc8b029e8",
+  "priorIncorrectCommentClause": "204.3.a",
+  "actualLeadingTriggeredAbilityBaseCostClause": "204.1.c",
+  "exactCurrentCoreRecord": {
+    "id": "DOC-01-P032-B002",
+    "document": "DOC-01",
+    "page": 32,
+    "clauseAnchors": [
+      "204.1.c"
+    ],
+    "text": "204.1.c.              在触发式技能中,基础费用(若有)是指出现在效果开头部分的指示中的费用。必须支付该费用才能确\n                      认该触发式技能。\n                           想获取更多有关信息,请查阅规则 204.3.指示中的费用。",
+    "reviewStatus": "NOT_REVIEWED",
+    "implementation": [],
+    "tests": []
+  },
+  "corePdfSha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11",
+  "204_3_aActuallyCovers": "spell/activated ability or latter-part trigger instruction costs during resolution",
+  "currentLeadingPaymentBehaviorNotDeclaredWrongByCitationMistake": true,
+  "commentNotSilentlyEditedBeforeCoherentGameplayBatch": true,
+  "nextCoherentBatchMustCorrectCitation": true
+}

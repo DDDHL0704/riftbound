@@ -1,0 +1,1290 @@
+{
+  "archiveBytes": 2378217,
+  "archiveSha256": "a0e3f38f0f97c2d50d4e00d08fd94539bef6ec73ed15198f018ae08f93c179f0",
+  "entries": 226,
+  "allCrcVerified": true,
+  "partialReceiptFilenamesNotCompleteAcceptanceScenarios": [
+    {
+      "name": "ci-postgres/attached-predict/receipt.json",
+      "bytes": 25049,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        17,
+        15,
+        18
+      ],
+      "sha256": "092bf41189b3a864ba2bf6c321a41d25c10ec52fe3fb7bd738f691abe852535f"
+    },
+    {
+      "name": "ci-postgres/attached-recycle-lifecycle/alternate/forward/receipt.json",
+      "bytes": 3042,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        23,
+        34
+      ],
+      "sha256": "ed100ff45f504c4573517fd008d65a9a26b775df3351373d734fd85e5b2a440b"
+    },
+    {
+      "name": "ci-postgres/attached-recycle-lifecycle/alternate/reverse/receipt.json",
+      "bytes": 3041,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        23,
+        40
+      ],
+      "sha256": "9faf193dd78d2490e4595b2268b57ce151ac530261de0beee1f38a83e6c37073"
+    },
+    {
+      "name": "ci-postgres/attached-recycle-lifecycle/primary/forward/receipt.json",
+      "bytes": 3042,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        23,
+        20
+      ],
+      "sha256": "753410bb0834b28075228ecf46b1da5a688277750e3239508c6256a75a453f38"
+    },
+    {
+      "name": "ci-postgres/attached-recycle-lifecycle/primary/reverse/receipt.json",
+      "bytes": 3041,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        23,
+        26
+      ],
+      "sha256": "995c7fb57aa07833902f3776b081261fb9a86fe116d969ebf86f70029ac1bca7"
+    },
+    {
+      "name": "ci-postgres/attached-recycle-lifecycle/promo/forward/receipt.json",
+      "bytes": 3043,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        23,
+        46
+      ],
+      "sha256": "2a3f026f02b0cb9cd421064252f84ffc7ede2f25c9b3b1e9ff835aadecd1f5ca"
+    },
+    {
+      "name": "ci-postgres/attached-recycle-lifecycle/promo/reverse/receipt.json",
+      "bytes": 3042,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        23,
+        54
+      ],
+      "sha256": "2737b731b6c0a0be4a03c8d8c17322d133422866b353d1d689ca0c1522020498"
+    },
+    {
+      "name": "ci-postgres/banish-effect-play/receipt.json",
+      "bytes": 2332,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        58,
+        46
+      ],
+      "sha256": "54d97686c69e63622d247590e6d13ba1acd866802786afbdeca79e0264ad4714"
+    },
+    {
+      "name": "ci-postgres/battle-history/battle-history-attacker-burnout/result.json",
+      "bytes": 4162,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        22,
+        48
+      ],
+      "sha256": "795df59990bc74337948a32344ca189e08b93de2a3b107ccd9e20b4d1facd798"
+    },
+    {
+      "name": "ci-postgres/battle-history/battle-history-attacker-deck/result.json",
+      "bytes": 4160,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        22,
+        34
+      ],
+      "sha256": "9c493d36c9eaea21f352ac4d00abae7370144b298d4adff214d57b1c618c5f01"
+    },
+    {
+      "name": "ci-postgres/battle-history/battle-history-burnout/result.json",
+      "bytes": 4154,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        22,
+        20
+      ],
+      "sha256": "3dfe9541a384a88136d22cc274d9b329d544cccbabc94a4e489b86d91ecdabb0"
+    },
+    {
+      "name": "ci-postgres/battle-history/battle-history-deck/result.json",
+      "bytes": 4152,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        22,
+        6
+      ],
+      "sha256": "e3ecf878883c5f1acb38224913d013ad2a16b3caa806e66b36026da824615bf6"
+    },
+    {
+      "name": "ci-postgres/battlefield-play-damage/receipt.json",
+      "bytes": 1849,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        52,
+        26
+      ],
+      "sha256": "dd06e30f0e82a8d7f5efe7843afb26ecd8d2361b1da2884b11318616095e9a53"
+    },
+    {
+      "name": "ci-postgres/battlefield-play-recovery/receipt.json",
+      "bytes": 3780,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        50,
+        50
+      ],
+      "sha256": "15edfd5152a51238eb0f125a8a96b3e009f3d1016b24f7f2f75fdbe576bee0ad"
+    },
+    {
+      "name": "ci-postgres/clairvoyance/all/receipt.json",
+      "bytes": 1597,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        24,
+        14
+      ],
+      "sha256": "c73b1da226b282e3d085506c15474fadbbdb3b98321d2c4bd35a02eb238d8171"
+    },
+    {
+      "name": "ci-postgres/clairvoyance/burnout/receipt.json",
+      "bytes": 1588,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        24,
+        14
+      ],
+      "sha256": "1e167b769bb9e2715155e7fba9f0a7ef6fbbe9eb84564be6aa446699c7a182ea"
+    },
+    {
+      "name": "ci-postgres/clairvoyance/control/receipt.json",
+      "bytes": 2181,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        24,
+        14
+      ],
+      "sha256": "f91211b2146535a75214b6ef74c699fb611e4852fe37b56ff7c70e3afb9303ca"
+    },
+    {
+      "name": "ci-postgres/clairvoyance/keep/receipt.json",
+      "bytes": 1722,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        24,
+        14
+      ],
+      "sha256": "34e7a360980573d29e67fa86f08bf951d131869e1f55afeb9ac53bcec9ad73a7"
+    },
+    {
+      "name": "ci-postgres/clairvoyance/some/receipt.json",
+      "bytes": 1722,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        24,
+        14
+      ],
+      "sha256": "33cb8e80258f18c7528f8274931cd2e4a29307f5f7d366f97496a99e662ba3bf"
+    },
+    {
+      "name": "ci-postgres/combat-assignment/choose-first-attacker/receipt.json",
+      "bytes": 6239,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        24,
+        34
+      ],
+      "sha256": "1f0d75d18ff497095774c2bfdfd5ad3ec24dac5216b215ab6303d935deae00ec"
+    },
+    {
+      "name": "ci-postgres/combat-assignment/choose-second-attacker/receipt.json",
+      "bytes": 6240,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        24,
+        40
+      ],
+      "sha256": "d3fab7d403fa3de693a3b94179c543cc7d360da648f6bb053b9b69296f3e8a62"
+    },
+    {
+      "name": "ci-postgres/combat-assignment/declared-source-second/receipt.json",
+      "bytes": 6638,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        24,
+        48
+      ],
+      "sha256": "be21294b81b59c6285a923e2a661b471f8a1f0168805319c4ee462b234d266ee"
+    },
+    {
+      "name": "ci-postgres/combat-assignment/multiple-defenders/receipt.json",
+      "bytes": 6367,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        24,
+        26
+      ],
+      "sha256": "afcf755c746e0aea0a8c8ebd33f3394ddf7bd997b4f833f80a52934060c4c268"
+    },
+    {
+      "name": "ci-postgres/combat-assignment/natural-source-first/receipt.json",
+      "bytes": 6950,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        25,
+        28
+      ],
+      "sha256": "b1274f27016f5ac903512db4aeb17a8116201c4e12278fc2ef7d87a995c0b965"
+    },
+    {
+      "name": "ci-postgres/combat-assignment/natural-source-second/receipt.json",
+      "bytes": 6951,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        25,
+        42
+      ],
+      "sha256": "bdde12896e2e5793b518afa22b1116d5fb8a5b5ba626678911bf4ff5309e6740"
+    },
+    {
+      "name": "ci-postgres/combat-assignment/one-on-one/receipt.json",
+      "bytes": 1105,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        24,
+        40
+      ],
+      "sha256": "cd320e9240ec3b55b719a082783615e0005094f4e46526c3925090e239465b5e"
+    },
+    {
+      "name": "ci-postgres/combat-assignment/vayne-secondary-dies/receipt.json",
+      "bytes": 6636,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        25,
+        12
+      ],
+      "sha256": "d5702bd21d2b7c3e1b049ec7eae9b17313a5f0536343bf9fee400e7148411ae1"
+    },
+    {
+      "name": "ci-postgres/combat-assignment/vayne-secondary-decline/receipt.json",
+      "bytes": 6738,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        25,
+        6
+      ],
+      "sha256": "a94e7c327c5375bf2e986b579c3ed333d42b19381e0301230d960be10dae09e5"
+    },
+    {
+      "name": "ci-postgres/combat-assignment/vayne-secondary-pay/receipt.json",
+      "bytes": 6734,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        24,
+        56
+      ],
+      "sha256": "1447700339e9f659ddebe4e93938fea8d1269697fe417321c6d67b892a62ba00"
+    },
+    {
+      "name": "ci-postgres/confirmed-play-origin/hand/receipt.json",
+      "bytes": 1616,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        26,
+        16
+      ],
+      "sha256": "d62f09613f9770f9d4c2e0a0410268f05fd777d81bc712708a8a45022111e8c0"
+    },
+    {
+      "name": "ci-postgres/confirmed-play-origin/standby/receipt.json",
+      "bytes": 1618,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        26,
+        58
+      ],
+      "sha256": "b5961557e8c9f1ccc09873cc91e2c66aad4c9fe0754daef5e10da393cf4c7806"
+    },
+    {
+      "name": "ci-postgres/conquest-token/alternate-plain/receipt.json",
+      "bytes": 1441,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        23,
+        0
+      ],
+      "sha256": "8278e5ea195d4c2b86f0011542a032c79654687a6986561f95b86239ed6b9ab1"
+    },
+    {
+      "name": "ci-postgres/conquest-token/alternate-reaction/receipt.json",
+      "bytes": 1808,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        23,
+        0
+      ],
+      "sha256": "0277e67267a69bb8c26cb2a532a5ac2952b06f76cef124d495115169ab3127c9"
+    },
+    {
+      "name": "ci-postgres/conquest-token/primary-plain/receipt.json",
+      "bytes": 1436,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        22,
+        58
+      ],
+      "sha256": "59c86bb10aee9d76013a5ad910ff8ae4f9fd9612ee429fb82c19a957909f9851"
+    },
+    {
+      "name": "ci-postgres/conquest-token/primary-reaction/receipt.json",
+      "bytes": 1803,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        22,
+        58
+      ],
+      "sha256": "5c7c348bedc90831a780a5c56d1218dd4f81154fd38dd56426261e86f8dcf6ae"
+    },
+    {
+      "name": "ci-postgres/copied-duel-insight/receipt.json",
+      "bytes": 27533,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        19,
+        14,
+        36
+      ],
+      "sha256": "d8845e017f770843d0ed0e1647899b86e086cc298b858b1b27987e50bd261d9e"
+    },
+    {
+      "name": "ci-postgres/copied-last-breath-insight/receipt.json",
+      "bytes": 27267,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        18,
+        20,
+        28
+      ],
+      "sha256": "945884536e4a58f76f201cecf37cdfbd64d92dc8ae7b60ec8d159b6edd4d49fe"
+    },
+    {
+      "name": "ci-postgres/empowered-insight/receipt.json",
+      "bytes": 43000,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        20,
+        9,
+        46
+      ],
+      "sha256": "020c0990eab061bd39bbad55610430bb37393e4ae729fd98d8de1fe540f5b4e1"
+    },
+    {
+      "name": "ci-postgres/empty-observed-repeat/receipt.json",
+      "bytes": 9788,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        16,
+        34,
+        58
+      ],
+      "sha256": "a0d7f661ab3c0dce2da9fa346f3cd7afc61d8b43cc7fafeae06fbdb9e2e6e3c7"
+    },
+    {
+      "name": "ci-postgres/fate-weaver/receipt.json",
+      "bytes": 5262,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        16,
+        18,
+        0
+      ],
+      "sha256": "ea1c52a212aaa5f3b97a0ab9851e2afcaf235c3a8c72a287efb1b7722466983f"
+    },
+    {
+      "name": "ci-postgres/granted-origin-haste/sacrifice/receipt.json",
+      "bytes": 1890,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        32,
+        14
+      ],
+      "sha256": "6e2c236837a61300bf92a6c7d497b5f9b9c229f8365a50e4ef0deafa4856a2a7"
+    },
+    {
+      "name": "ci-postgres/granted-origin-haste/unit/receipt.json",
+      "bytes": 1886,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        30,
+        52
+      ],
+      "sha256": "c64633df8b61445a51f91178eb57e60b6366723707306b90c05465cc094b1a08"
+    },
+    {
+      "name": "ci-postgres/granted-predict/receipt.json",
+      "bytes": 1622,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        22,
+        50
+      ],
+      "sha256": "6039b719df24d3eeccf828f98ccfcfe26df15bc82c538e4c4c63137bee6c09da"
+    },
+    {
+      "name": "ci-postgres/granted-token-haste/hand/receipt.json",
+      "bytes": 2200,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        46,
+        8
+      ],
+      "sha256": "91b2a508bcdd1bc3a283bb13f93ec3543ea6bd0cd023c2f3fd7a5e85c09322a0"
+    },
+    {
+      "name": "ci-postgres/granted-token-haste/standby/receipt.json",
+      "bytes": 2210,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        49,
+        22
+      ],
+      "sha256": "b8cf7bf6f3d274712848c9752dcbf52ef5db6f8f01149703a5ba8bff5186a209"
+    },
+    {
+      "name": "ci-postgres/here-location-control/receipt.json",
+      "bytes": 4494,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        16,
+        15,
+        26
+      ],
+      "sha256": "8a6ff0c5886bb7b11f9f146b7f1e9026ccd48e4c9b48519f6e0fbe8ba38a4cd9"
+    },
+    {
+      "name": "ci-postgres/insight-repeat/abandon/receipt.json",
+      "bytes": 1553,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        24,
+        18
+      ],
+      "sha256": "2a4f82badcc63af5c620ee6dd0eb8cca64843dd0975dea2adab307f5d06105fa"
+    },
+    {
+      "name": "ci-postgres/insight-repeat/all/receipt.json",
+      "bytes": 1549,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        24,
+        18
+      ],
+      "sha256": "3725b133fe6eadb597ed1eadf12de2f627b3bd51448c9a3701098c098ace9268"
+    },
+    {
+      "name": "ci-postgres/insight-repeat/burnout/receipt.json",
+      "bytes": 1552,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        24,
+        18
+      ],
+      "sha256": "bdb686205c34861e9ab37397a10015abfc9a716c124f37c2c34030b9d103899f"
+    },
+    {
+      "name": "ci-postgres/insight-repeat/counter/receipt.json",
+      "bytes": 1462,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        24,
+        18
+      ],
+      "sha256": "2eb6bc01b0106eff4a91b9ad9f637ec6fe4c72155654ebf899354695260d68e5"
+    },
+    {
+      "name": "ci-postgres/insight-repeat/eclipse/receipt.json",
+      "bytes": 1457,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        24,
+        18
+      ],
+      "sha256": "67101e22ce309218d265a08593bcf20c43537b8f9e648a9188c5db0ae775e253"
+    },
+    {
+      "name": "ci-postgres/insight-repeat/once/receipt.json",
+      "bytes": 1645,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        24,
+        16
+      ],
+      "sha256": "d19bc5edcce95776d22ee7e6df436c237fb60be5ff6182589c985b725d65606c"
+    },
+    {
+      "name": "ci-postgres/insight-repeat/twice/receipt.json",
+      "bytes": 1838,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        24,
+        16
+      ],
+      "sha256": "bc97f5c2d34df8522e804bdc8553c97cf570bb45488a2cb8f0b0b6af33ae66db"
+    },
+    {
+      "name": "ci-postgres/masked-attendant/receipt.json",
+      "bytes": 1460,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        22,
+        50
+      ],
+      "sha256": "593d82283784108d038b01b78de965db0f2dff15e3f6217fd3446f0afaeac0cf"
+    },
+    {
+      "name": "ci-postgres/multi-controller-trigger-order/receipt.json",
+      "bytes": 6910,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        16,
+        29,
+        16
+      ],
+      "sha256": "ef2460f0bdbd5e0c8f5d75a8eea90cd818cae1672dde2886f19b60ef0c21aaf3"
+    },
+    {
+      "name": "ci-postgres/observed-play-window/receipt.json",
+      "bytes": 12317,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        16,
+        43,
+        20
+      ],
+      "sha256": "d486231b32b3b254e40988df821806287d6e0a31a60b8c6696f5be40eeab0fd8"
+    },
+    {
+      "name": "ci-postgres/opponent-battlefield-control/neutral/receipt.json",
+      "bytes": 1891,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        33,
+        16
+      ],
+      "sha256": "4ee6ff01d9f51badecf9f7ae05adcf8b717fd0e0e7fa529a252f2b9ee985fe73"
+    },
+    {
+      "name": "ci-postgres/opponent-battlefield-control/swapped/receipt.json",
+      "bytes": 1891,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        36,
+        16
+      ],
+      "sha256": "03f8377c81c056c2c20ad2bed770569192d4010fb86fb470f27caae1b5a34cad"
+    },
+    {
+      "name": "ci-postgres/optional-costs/receipt.json",
+      "bytes": 55080,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        49,
+        56
+      ],
+      "sha256": "c4d286f66be26a12c396bc931a0fd69bf2c2d39e25f3506f4a128f5d836ab068"
+    },
+    {
+      "name": "ci-postgres/optional-sacrifice/hand/receipt.json",
+      "bytes": 2084,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        39,
+        26
+      ],
+      "sha256": "795edb344a84ed001bc176da9fb18212931b86bae1e95f9c99401ab3236830ad"
+    },
+    {
+      "name": "ci-postgres/optional-sacrifice/haste/receipt.json",
+      "bytes": 2084,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        43,
+        28
+      ],
+      "sha256": "4681f5c14c5d921e62c013ce7e189cc15ca9d5c522e4e5963dfbbaf3b664911b"
+    },
+    {
+      "name": "ci-postgres/physical-origin-cost/spell/receipt.json",
+      "bytes": 1635,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        29,
+        32
+      ],
+      "sha256": "93bf8f6de40c9ddd1b5b863614076531860666db57c04bb2a35cf24e7c135551"
+    },
+    {
+      "name": "ci-postgres/paka-move-reveal/receipt.json",
+      "bytes": 29851,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        20,
+        57,
+        24
+      ],
+      "sha256": "356e74dcb13dc56f5bb044ef2f9760072c4d30848c16479d7a5f2e0e079d0e26"
+    },
+    {
+      "name": "ci-postgres/physical-origin-cost/unit/receipt.json",
+      "bytes": 1627,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        28,
+        16
+      ],
+      "sha256": "bd86b2c9c28ca8eef43c83894c59077284b3d6f6208b1d1dc57911be78b27b88"
+    },
+    {
+      "name": "ci-postgres/porobot/below/receipt.json",
+      "bytes": 1654,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        23,
+        54
+      ],
+      "sha256": "f5851254f0fc252f5a9023e1657951f1ddece5e48ee4f91e6e08a8d5fe88c571"
+    },
+    {
+      "name": "ci-postgres/porobot/gold/receipt.json",
+      "bytes": 2005,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        23,
+        56
+      ],
+      "sha256": "d74f4361e5db958781230be9cfa99434108e7e084e525b53fd475e5c48a4bf62"
+    },
+    {
+      "name": "ci-postgres/porobot/return/receipt.json",
+      "bytes": 2734,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        23,
+        56
+      ],
+      "sha256": "8574e526b583804afd5f676b2b9c6feb101f60f5ded72d2e610aa2a0b833d8f5"
+    },
+    {
+      "name": "ci-postgres/porobot/threshold/receipt.json",
+      "bytes": 1892,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        23,
+        54
+      ],
+      "sha256": "2edeb1017281dd08f96094244302938dd30768893f5c29f3d9a53fdb143d2bfd"
+    },
+    {
+      "name": "ci-postgres/printed-predict/receipt.json",
+      "bytes": 1669,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        22,
+        50
+      ],
+      "sha256": "d87e3fbec6c57c85123e1332808c8c35349f9bf8609bb8d23bac2fa26d8a2b92"
+    },
+    {
+      "name": "ci-postgres/private-opening/receipt.json",
+      "bytes": 3400,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        13,
+        58
+      ],
+      "sha256": "ee638b9461321b9c3f2d9e0416da8e0e1168aa10622d2f7bc4fc788810a1c32c"
+    },
+    {
+      "name": "ci-postgres/ravenbloom-put-hand/receipt.json",
+      "bytes": 10255,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        16,
+        48,
+        46
+      ],
+      "sha256": "387abc55d4bd7fcf33de06776e4f5080916579a2c2308f4f72898d38e755582d"
+    },
+    {
+      "name": "ci-postgres/recycle-boon-lifecycle/alternate/receipt.json",
+      "bytes": 2378,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        23,
+        10
+      ],
+      "sha256": "e95a46a8fe8a188e8cc789816a2658f4a5a6f727deb84cd6772895fbb4abebc5"
+    },
+    {
+      "name": "ci-postgres/recycle-boon-lifecycle/primary/receipt.json",
+      "bytes": 2378,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        23,
+        8
+      ],
+      "sha256": "ecc46b8ce8999eb9f4f667b15a19ebb4ba0d5187a9eaff81cc28c9fbfbb165a5"
+    },
+    {
+      "name": "ci-postgres/recycle-boon-lifecycle/promo/receipt.json",
+      "bytes": 2379,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        23,
+        14
+      ],
+      "sha256": "aed02a3eec484e9d154dc088304fcc44d4a2281e81dae2492ef234366624d56d"
+    },
+    {
+      "name": "ci-postgres/recycled-card-boon/alternate-hook/receipt.json",
+      "bytes": 1712,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        23,
+        4
+      ],
+      "sha256": "1c506ac38810ed8394ebcde9f3bb5c3039ae0a07ef468846490d9748b0c05a06"
+    },
+    {
+      "name": "ci-postgres/recycled-card-boon/alternate-predict/receipt.json",
+      "bytes": 1622,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        23,
+        2
+      ],
+      "sha256": "83a6319558140d18c7f756f2dc3dcffa41a20f2296770882e5f8365e9e493757"
+    },
+    {
+      "name": "ci-postgres/recycled-card-boon/primary-hook/receipt.json",
+      "bytes": 1712,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        23,
+        2
+      ],
+      "sha256": "7a32af7bbef21c8df2a5133fd0716ad8b0df480803a098c1b480211e5a52c4eb"
+    },
+    {
+      "name": "ci-postgres/recycled-card-boon/primary-predict/receipt.json",
+      "bytes": 1622,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        23,
+        0
+      ],
+      "sha256": "274822d17afa05b79d1a61055e9dcdc68ffbf6f8b8453a80c2b096ec5759a02a"
+    },
+    {
+      "name": "ci-postgres/recycled-card-boon/promo-hook/receipt.json",
+      "bytes": 1713,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        23,
+        4
+      ],
+      "sha256": "9dd448abf62d9b3f98d35eda4ab6841fe8acbd47ca25348711f0eae9ac7807d8"
+    },
+    {
+      "name": "ci-postgres/recycled-card-boon/promo-predict/receipt.json",
+      "bytes": 1623,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        23,
+        4
+      ],
+      "sha256": "ec7fce1dc3b390cde27373cd6ab62e7b51194f53bdc206da5341f62122bffed9"
+    },
+    {
+      "name": "ci-postgres/result.json",
+      "bytes": 2380,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        21,
+        50
+      ],
+      "sha256": "e04ab7e0824d94ed7c5f768cff442fd975aa9a1235517b4f6dfea22647c02e04"
+    },
+    {
+      "name": "ci-postgres/rune-destination/multiple/receipt.json",
+      "bytes": 1142,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        22,
+        54
+      ],
+      "sha256": "166366d4090bb7c826319115aeaeb4c81049c5f894389eef50e72e7eea38e035"
+    },
+    {
+      "name": "ci-postgres/rune-destination/single/receipt.json",
+      "bytes": 1142,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        22,
+        54
+      ],
+      "sha256": "f1a87235906236b354b692bf5a8611da3f0b5cceed7ec811f2b0098160c2aaa6"
+    },
+    {
+      "name": "ci-postgres/sivir-optional/alternate-decline/receipt.json",
+      "bytes": 1159,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        22,
+        52
+      ],
+      "sha256": "159579974b8bdf4bcdaf084e73c05516225e39a937076ad428168dfffb342976"
+    },
+    {
+      "name": "ci-postgres/sivir-optional/alternate-pay/receipt.json",
+      "bytes": 1342,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        22,
+        52
+      ],
+      "sha256": "7ebc18fd6abc254a1d554821c05abe6d7e0f55dc387ebee084f27a460fff06d2"
+    },
+    {
+      "name": "ci-postgres/sivir-optional/primary-pay/receipt.json",
+      "bytes": 1342,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        22,
+        52
+      ],
+      "sha256": "98655a3ca081584e2358039ea5de2b4a95e4d8ee3dac25295b8957ab25d719ba"
+    },
+    {
+      "name": "ci-postgres/sivir-optional/primary-decline/receipt.json",
+      "bytes": 1159,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        22,
+        50
+      ],
+      "sha256": "a9dd6f4bfb7db404a1d914afacb490407ee946efed2b9cf5d928cbcb406d0416"
+    },
+    {
+      "name": "ci-postgres/sivir-payment/deferred-decline/receipt.json",
+      "bytes": 1792,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        22,
+        56
+      ],
+      "sha256": "efbd9341a84ff3af3a00337df85e0b77575a4ab947e738e1dd7138f25a4a4d5e"
+    },
+    {
+      "name": "ci-postgres/sivir-payment/deferred-pay/receipt.json",
+      "bytes": 1979,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        22,
+        56
+      ],
+      "sha256": "22bc1ea368f28c5989ed619a784e7c41e22348d531bfb610f990246b4eb787a7"
+    },
+    {
+      "name": "ci-postgres/sivir-payment/inline-decline/receipt.json",
+      "bytes": 1332,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        22,
+        54
+      ],
+      "sha256": "f936680246e601a650c9c871947a8787a6a95c9d7be24ece351195b358588d08"
+    },
+    {
+      "name": "ci-postgres/sivir-payment/inline-pay/receipt.json",
+      "bytes": 1516,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        22,
+        54
+      ],
+      "sha256": "34aed9b4467be97c8be4197b515c8608b5c5e431355a5a4f21c511f8f5ed4508"
+    },
+    {
+      "name": "ci-postgres/typed-play-history/countered/receipt.json",
+      "bytes": 2378,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        23,
+        54
+      ],
+      "sha256": "2cf4a784fa87193dfa49f381bec13d679687ecb7b352d62af092d1f2ff3328c8"
+    },
+    {
+      "name": "ci-postgres/typed-play-history/control/receipt.json",
+      "bytes": 3080,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        23,
+        54
+      ],
+      "sha256": "59b217ae02a0eb91c5d375a386b0c39e1588111fd435261e40ecd218ca00781c"
+    },
+    {
+      "name": "ci-postgres/typed-play-history-causal/receipt.json",
+      "bytes": 2195,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        24,
+        12
+      ],
+      "sha256": "8706de7796a8417f78f4956e0ea4666e21a37a538c22f7e6014ce184d35a6b95"
+    },
+    {
+      "name": "ci-postgres/typed-play-history/resolved/receipt.json",
+      "bytes": 1890,
+      "zipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        23,
+        54
+      ],
+      "sha256": "961f04ac760bfe568491dad67ff4ec1e1c40592ead88928b6425d52814a5a5e0"
+    }
+  ],
+  "topGroups": {
+    "attached-predict": 9,
+    "attached-recycle-lifecycle": 12,
+    "banish-effect-play": 1,
+    "battle-history": 4,
+    "battlefield-play-damage": 1,
+    "battlefield-play-recovery": 1,
+    "clairvoyance": 10,
+    "combat-assignment": 20,
+    "confirmed-play-origin": 2,
+    "conquest-token": 8,
+    "copied-duel-insight": 9,
+    "copied-last-breath-insight": 9,
+    "created-token-ready": 4,
+    "empowered-insight": 13,
+    "empty-observed-repeat": 4,
+    "empty-reveal-followup": 1,
+    "fate-weaver": 1,
+    "granted-origin-haste": 2,
+    "granted-predict": 2,
+    "granted-token-haste": 2,
+    "here-location-control": 1,
+    "insight-repeat": 14,
+    "masked-attendant": 7,
+    "multi-controller-trigger-order": 1,
+    "observed-play-window": 4,
+    "opponent-battlefield-control": 2,
+    "optional-costs": 1,
+    "optional-sacrifice": 2,
+    "paka-move-reveal": 11,
+    "physical-origin-cost": 2,
+    "porobot": 8,
+    "printed-predict": 2,
+    "private-opening": 3,
+    "ravenbloom-put-hand": 5,
+    "recycle-boon-lifecycle": 6,
+    "recycled-card-boon": 12,
+    "result.json": 1,
+    "rune-destination": 4,
+    "sivir-optional": 8,
+    "sivir-payment": 8,
+    "sql-counts.json": 1,
+    "typed-play-history": 6,
+    "typed-play-history-causal": 1,
+    "ci-postgres-commit.txt": 1
+  },
+  "fullSqlOrNetworkPassed": false
+}

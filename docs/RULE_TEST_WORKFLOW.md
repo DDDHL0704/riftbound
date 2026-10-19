@@ -69,6 +69,10 @@ python3 scripts/test-rules.py full --jobs 4 \
 
 完整 CI 验证固定提交，记录 run ID、输入/程序集哈希、真实 TRX 和方法/用例/配对身份。开发可继续；本地并行必须使用独立固定 checkout，不能修改正在执行的源文件或 bin。被取消或未完成的运行不能标为通过。
 
+真实 SQL 按 `tests/Riftbound.PostgresAcceptance/SqlAcceptanceCases.json` 的有序执行身份分为四片，每片使用独立 PostgreSQL 服务；2026-10-20 为原43个助手、原核心开局及新增销毁族助手共45项。无参数入口仍执行全部默认项，`--ci-partition INDEX 4` 仅执行对应片，`--ci-partition-plan` 只打印计划，命名 `--...-only` 入口仍是限定验证。执行清单不表示整卡或语义认证范围。
+
+规则全量、四片 SQL 和独立原生网络任务均在首波启动。稳定 `postgres` 检查要求四份固定提交/清单身份、有序完整用例、实际执行及产物哈希收据，并要求网络任务成功；稳定 `rules` 检查继续汇总全部子任务。缺片、重复、错版、篡改、失败、取消或跳过均不能被记为完整通过。本机单片、计划或门禁单元测试不替代实际四片终态；六小时上限导致取消的旧轮次保留原失败及未完成证据。
+
 scripts/ci-change-scope.py 只豁免逐项核查过的精确治理文档路径，不使用 docs/ 或 *.md 通配。docs/DEPLOYMENT.md、docs/evidence、官方数据、fixture、打包文档、脚本、构建配置及未知路径仍 full；缺基线、类型/执行位变化及不确定差异同样 full。范围判定失败时完整任务仍会运行。纯文档工作流不会取消此前代码的完整任务；不同代码 SHA 的验收也独立，仅相同 SHA 的重复任务可取消重复。
 
 轻量 CI 执行 Python 验证工具检查、固定差异格式、当前治理引用及来源索引完整性，报告规则/打包未执行。来源检查默认读取 docs/audit/current-manifest.json，核对当前卡牌、保留原确认日期的规则索引、限定审查和来源增量，不下载官网、不执行游戏、不提升 semanticCoverageCertified。显式 --date 2026-10-11 单独检查历史索引，不能替代当前 manifest。来源变化必须登记增量与影响，不静默改变冻结分母。

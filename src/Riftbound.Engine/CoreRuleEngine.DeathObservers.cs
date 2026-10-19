@@ -9,6 +9,8 @@ internal sealed record CapturedDeathObserver(string ObjectId, string ControllerI
 internal sealed record CapturedUnitDeath(string Id, int Batch, int TurnNumber, DestroyedUnitFact Unit, IReadOnlyList<CapturedDeathObserver> Observers)
 {
     public IReadOnlyList<LastBreathMightContext> LastBreathMights { get; init; } = [];
+    public DestructionAttribution? Attribution { get; init; }
+    public IReadOnlyList<CapturedGraveyardPlay> GraveyardPlays { get; init; } = [];
 }
 
 public sealed partial class CoreRuleEngine
@@ -50,7 +52,8 @@ public sealed partial class CoreRuleEngine
                 && UnitDestroyedTriggerSpecRules.TryGetTrigger(source.CardNo,t=>IsDeathObserverKind(t.Kind),out var spec)
                 && (spec.Kind != TriggerKinds.UnitDestroyedNonMinionCreateMinion || !fact.WasMinion))
                 observers.Add(new(source.ObjectId,controller,new(source.CardNo!,spec.Kind,source.ObjectGeneration,fact)));
-        return new($"death-{frame.Origin.Tick}-{frame.DeathSequence++}",frame.CurrentDestructionBatch ?? frame.DestructionBatchSequence++,state.TurnNumber,fact,observers) { LastBreathMights = CaptureLastBreathMight(state, zones, cards, unit) };
+        return new($"death-{frame.Origin.Tick}-{frame.DeathSequence++}",frame.CurrentDestructionBatch ?? frame.DestructionBatchSequence++,state.TurnNumber,fact,observers) {
+            LastBreathMights = CaptureLastBreathMight(state, zones, cards, unit), GraveyardPlays = CaptureGraveyardPlays(zones, cards, unit) };
     }
 
     private static ResolutionResult RecordDeathObservers(MatchState before, ResolutionResult result)
@@ -89,6 +92,7 @@ public sealed partial class CoreRuleEngine
             var prior=counts.GetValueOrDefault(death.Unit.ControllerId);
             counts[death.Unit.ControllerId]=prior+1;
             if (state.Status!=MatchStatuses.InProgress) continue;
+            QueueGraveyardPlays(state, death, deaths, queue, events);
             foreach (var captured in death.LastBreathMights.Where(c => UnitDestroyedTriggerSpecRules.TryGetTrigger(c.CardNo,
                 UnitDestroyedTriggerSpecRules.IsLastBreathPowerfulDrawTrigger, out var spec)
                 && c.Might >= spec.RequiredPowerThreshold.GetValueOrDefault(PowerfulUnitPowerThreshold)))

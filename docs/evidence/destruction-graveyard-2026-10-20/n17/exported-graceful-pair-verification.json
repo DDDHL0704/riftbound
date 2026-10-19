@@ -1,0 +1,179 @@
+{
+  "startedAtUtc": "2026-10-19T19:03:07.484394+00:00",
+  "fixedCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+    "implementationSha256": "aa1142ae842e96564fe73f3237f6616c8dc7128e069f82b76e5ffe57c0a1c8eb",
+    "identitySha256": "b95c5356604bd832648068bcb2248b6763aea8b7100f3c995915646e47b1bcd7"
+  },
+  "fixedSqlIndependentReceiptSha256": "6a53aae92b061a42475e5955ac419155ffecaedf195d8ebd8508f34c66390e84",
+  "nativeInputsSha256": "0e045b75c23aaa76934abb9b4dfcfb6e7890e3777771c41e138e743dff0c7d69",
+  "runnerSourceSha256": "386b740883393e5f9869d88d3a3f8b6dd9b5b8a87887e815e62a7e95942035be",
+  "room": "GRACEFUL-08FD-NATIVE-05edcc4e33f3",
+  "lockAtStart": {
+    "atUtc": "2026-10-19T19:03:07.506713+00:00",
+    "roots": [
+      {
+        "rootLocked": true,
+        "sessions": [
+          true
+        ]
+      }
+    ],
+    "unknownIsNotUnlocked": true
+  },
+  "status": "PASS_HEADLESS_EXPORTED_NATIVE_RESULT_PATH_AND_NORMAL_EXIT",
+  "currentDefaultHeadlessBootReceiptSha256": "af4d89186c9bcc8b9ddbb372c5e9a16ed38724d38e684e4bcd4989a98beec4a8",
+  "scope": "Two actual exported Godot default Main applications, headless authenticated deck/ready/mulligan and surrender result-message path. Does not certify visible controls, normal scoring, or physical Windows.",
+  "visibleControls": "OPEN",
+  "normalVisiblePairedScoring": "OPEN",
+  "physicalWindows": "OPEN",
+  "boundIdleSleepAssertionPid": 16041,
+  "priorNativeRooms": [
+    "GRACEFUL-07AC-NATIVE-dacbf6fc6871",
+    "GRACEFUL-6D9A-NATIVE-ddcb62ee3fe7",
+    "GRACEFUL-797F-NATIVE-39197e26c612",
+    "GRACEFUL-C519-NATIVE-5730eb6d86f9",
+    "HEADLESS-C519-NATIVE-8c6ab9a22dcc",
+    "LOCKED-07AC-SCORE-ce0eeedf0d12",
+    "LOCKED-3D-PAIR-a2b6fbee06eb",
+    "LOCKED-6D9A-SCORE-56a5ca8dd0c7",
+    "LOCKED-797F-SCORE-124d350bed58",
+    "LOCKED-A9-PAIR-6e81dcfc9912",
+    "LOCKED-C519-PAIR-bee30b68c79b",
+    "LOCKED-C519-SCORE-8bfd1b8c08d8",
+    "LOCKED-C6-PAIR-7e5381965c69",
+    "LOCKED-C6-SCORE-c6cf989117d0",
+    "LOCKED-PAIR-829a1df810a9",
+    "LOCKED-PAIR-8f2413d6f2af",
+    "LOCKED-PAIR-fc82f3c58107",
+    "NETWORK-087b47dc4652",
+    "NETWORK-13f1c75bd8e1",
+    "NETWORK-14c1cbb4bdea",
+    "NETWORK-3852221bd8db",
+    "NETWORK-5af8dc418888",
+    "NETWORK-5e4b0fc8b42d",
+    "NETWORK-d933ac25b19e",
+    "NETWORK-ef01657e6741",
+    "STALE2-07AC-NATIVE-79e8d04ba862",
+    "STALE2-797F-NATIVE-e428ca757055",
+    "paired-controller-46a990fe-20261018",
+    "paired-empty-view-48c6ae96-20261018",
+    "paired-here-control-20261018",
+    "paired-observed-window-8c6d569e-20261018"
+  ],
+  "priorNativeSevenTables": {
+    "matches": "70b23c14d0db3d4427345831ba5880baaf34d84827d85b2f3fcf031b0210999f",
+    "match_players": "3b4c6c3457c4bd2c40ac843fc0b9deefbc2db6d74a37b3c2fa52dbedbc22fc4e",
+    "command_log": "89a57056ca4ec0901cb2d6177256691b6a8af29243efcb8db60fb806a058ee3a",
+    "game_events": "921ba3d7cfaae7451975ae6870ddb486756d71964e9d0014887f9848a03c2f42",
+    "state_snapshots": "418d75a352cd70823f18c637bb763e9cd065e6ae45fab91d9a65144a622b023d",
+    "snapshots": "247d3a043ac90040739556098dfe6e3a0ed69a0d36e0acfc9d742001e1e2a00f",
+    "action_prompts": "3962a7acecb8063bcf92a083f09d8f219c14a9bb26a187cefa5319d60db9c19e"
+  },
+  "priorAuditSevenTables": {
+    "matches": "cafbe6629857103ed9d7462575236341fab34d4baf236c1414436ce02f6d40b5",
+    "match_players": "e438921b47ef980da1e2a47e765380ee560102812184080625de5148db630749",
+    "command_log": "698443cbad049391d4b89c28d18d1671f96d582de84779be259e9e53c9cca8db",
+    "game_events": "075f434d23c9c3a4ba72f4867bbf832b7eda7eb8bb9f446546420009aec9f188",
+    "state_snapshots": "93a9f54f690455d7ec6554f0443e6b246766daa50486b3c164779ff15e4542f7",
+    "snapshots": "e1e09d9c3533f3d92ed12c29180de287fff86c9d87ca392f26f854c0c33a5d17",
+    "action_prompts": "9948dcd30669b06862cbb3f388fde08518faf8c56a198dba271af2b2dc5c1a3b"
+  },
+  "ownApiPid": 16115,
+  "nativeClients": [
+    {
+      "label": "a",
+      "ownNativePid": 16119,
+      "log": "exported-graceful-a.log",
+      "profile": "never-written-exported-graceful-a.json",
+      "app": "/Users/dinghaolin/MyProjects/riftbound/var/qa/hwei-fixed-08fd-20261020/RiftboundHwei-A.app",
+      "defaultMain": true,
+      "headless": true,
+      "logSha256": "0e785d96591809d774f756b5f8dca9ca1a84f980261f65612f6b4573c6c5e91f",
+      "bootMarker": true,
+      "catalogMarker": true,
+      "resultMessageAndViewConstructed": true,
+      "matchWonReceived": true,
+      "ephemeralNoProfileWritten": true,
+      "noGodotErrorOrUnhandledException": true
+    },
+    {
+      "label": "b",
+      "ownNativePid": 16120,
+      "log": "exported-graceful-b.log",
+      "profile": "never-written-exported-graceful-b.json",
+      "app": "/Users/dinghaolin/MyProjects/riftbound/var/qa/hwei-fixed-08fd-20261020/RiftboundHwei-B.app",
+      "defaultMain": true,
+      "headless": true,
+      "logSha256": "25d238af352f642d077e3609d7258e5fb10eee30116dd14459bb568ffd14a776",
+      "bootMarker": true,
+      "catalogMarker": true,
+      "resultMessageAndViewConstructed": true,
+      "matchWonReceived": true,
+      "ephemeralNoProfileWritten": true,
+      "noGodotErrorOrUnhandledException": true
+    }
+  ],
+  "bothNativeNormalExitCodes": [
+    0,
+    0
+  ],
+  "actualStaleSurrenderRejectionThenNewPromptRetryObserved": false,
+  "noSigtermNeededForEitherSuccessfulNativeProcess": true,
+  "ownApiGracefulStop": true,
+  "originalReplay": {
+    "status": "ORIGINAL_REAL_NATIVE_NETWORK_FRAME_FULL_REPLAY_PASS",
+    "room": "GRACEFUL-08FD-NATIVE-05edcc4e33f3",
+    "commands": 7,
+    "events": 12,
+    "stateHash": "3fc5d2deaed5ef938a1b8eff88d58e3f7e638f4ade4ae7f04618113bb99be494",
+    "actualRuleInputs": {
+      "schemaVersion": 1,
+      "region": "CN",
+      "language": "zh-CN",
+      "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+      "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+      "implementationSha256": "aa1142ae842e96564fe73f3237f6616c8dc7128e069f82b76e5ffe57c0a1c8eb",
+      "identitySha256": "b95c5356604bd832648068bcb2248b6763aea8b7100f3c995915646e47b1bcd7"
+    },
+    "originalNonZeroPrivateSeedPreserved": true,
+    "noOldHistoryMigration": true
+  },
+  "originalFrameSha256": "ea9f77a3b938a9b168d6d273cba79668b7e9ff0d3880cadab49875f0ffea95ae",
+  "all172AuditAnd31PriorNativeRoomsSevenTablesExact": true,
+  "newOriginalRoomSevenTables": {
+    "matches": "d5ff12e2c717c79af79cfca8a1eaa2a37444744d3e6d0567600372a5f1fa8259",
+    "match_players": "97107b99771767e7714c7105ef00466782a3706df638c11edad3381ed4e1139e",
+    "command_log": "fa9f19eefd4ce84f386bd70634852fe7de00781cb014b4770585df668fa930fa",
+    "game_events": "cc97ad728d8d5b745c662c967b638302dc272608caa25eb2c61aa2a89c402866",
+    "state_snapshots": "fb9dcd1edd0ecb150e5053bdbac5b7d044a1a23e27bd90a1513509ec16d13bf2",
+    "snapshots": "e526e10811139787655f9840a1b8457d42c85383272ff88e453e8a9be1bea819",
+    "action_prompts": "fb4076f913cf57c5b5b6ae5c78cccda63a8ce4ab21dda04cd2112bb45879191e"
+  },
+  "nativeRoomCount": 32,
+  "auditRoomCount": 172,
+  "successfulPreviousFunctionalStepsNotRerun": true,
+  "ownPostgresSmartStopped": true,
+  "boundIdleSleepAssertionEnded": true,
+  "finishedAtUtc": "2026-10-19T19:03:57.211861+00:00",
+  "lockAtEnd": {
+    "atUtc": "2026-10-19T19:03:57.233497+00:00",
+    "roots": [
+      {
+        "rootLocked": true,
+        "sessions": [
+          true
+        ]
+      }
+    ],
+    "unknownIsNotUnlocked": true
+  },
+  "allFrozenFixedPublicationsAndAcceptanceRuntimesStillExact": true,
+  "originalDatabaseRetained": true,
+  "allNativeCiPayloadsStillExact": true
+}

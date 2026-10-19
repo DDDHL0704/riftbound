@@ -17,6 +17,12 @@ public sealed partial class CoreRuleEngine
 {
     internal static bool TryGetEffectPlayDefinition(StackItemState parent, out CardBehaviorDefinition definition)
     {
+        if (parent.GraveyardPlay is { } graveyard && parent.EffectKind == GraveyardPlayEffect
+            && parent.CardNo == graveyard.CardNo && GraveyardPlaySpec(graveyard.CardNo) is not null)
+        {
+            definition = GraveyardPlayBehavior(graveyard);
+            return true;
+        }
         if(parent.ObservedPlayPermission is { } observed)
         {
             definition=new(parent.CardNo,observed.Context.Instruction.Kind == "REVEAL" ? "展示期间放逐的卡牌" : "查看期间放逐的卡牌",0,ObservedDeckPlayEffect,0,0,
@@ -85,7 +91,7 @@ public sealed partial class CoreRuleEngine
 
     // Restore the same policy selected by the registered effect, never client-supplied waivers.
     internal static bool ValidGraveyardUnitEffectPlay(MatchState state, PendingEffectPlayState pending)
-        => CardBehaviorRegistry.TryGetByEffectKind(pending.Parent.EffectKind, out var behavior)
+        => TryGetEffectPlayDefinition(pending.Parent, out var behavior)
             && behavior.CardNo == pending.Parent.CardNo && behavior.EffectPlaySourceZone == "GRAVEYARD"
             && pending.SourceZone == behavior.EffectPlaySourceZone && pending.PlayerId == pending.Parent.ControllerId
             && state.Seats.ContainsKey(pending.PlayerId) && state.PlayerZones.TryGetValue(pending.PlayerId, out var zones)
@@ -94,6 +100,10 @@ public sealed partial class CoreRuleEngine
             && pending.ManaReduction == behavior.EffectPlayManaReduction
             && pending.DestinationPolicy == behavior.EffectPlayDestination && pending.Optional == behavior.EffectPlayOptional
             && pending.ViewedCardIds is null && !pending.Parent.EffectPlayCompleted
+            && (pending.Parent.GraveyardPlay is not { } graveyard
+                || ValidGraveyardPlay(state, graveyard, pending.Parent.SourceObjectId, pending.PlayerId, pending.Parent.CardNo)
+                    && ValidTriggerCostReceipt(state, pending.Parent) && pending.Parent.TriggerCost is not null
+                    && pending.Sources.Count == 1 && pending.Sources.GetValueOrDefault(graveyard.Source.ObjectId, -1) == graveyard.Source.Generation)
             && (!behavior.PlaysSourceToBaseAsUnit || pending.Parent.SourceConfirmed)
             && pending.Sources.Count > 0
             && pending.Sources.All(s => pending.Parent.TargetObjectIds.Contains(s.Key)

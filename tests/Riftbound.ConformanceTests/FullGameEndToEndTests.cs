@@ -25277,6 +25277,7 @@ public sealed partial class FullGameEndToEndTests
             CheckHistoricalBattleReferences(snapshot, result.State);
             CheckHistoricalBoonAmplifierSources(snapshot, result.State);
             CheckHistoricalTurnUnitPlayBoons(snapshot, result.State);
+            DestructionFamilyPrivacyAssertions.Check(snapshot, result.State);
             if (snapshot["stack"] is JsonArray stack)
                 foreach (var row in stack.OfType<JsonObject>())
                 {

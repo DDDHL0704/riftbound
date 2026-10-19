@@ -1,0 +1,12 @@
+{
+  "governanceValid": true,
+  "errors": [],
+  "remainingObligationCount": 16903,
+  "allRemainingIds": {
+    "path": "docs/evidence/destruction-graveyard-2026-10-20/remaining-obligation-ids.json.gz",
+    "sha256": "c621c9deb5bdfb8170b62cfb59e768bdc12162b40ed9f72cf5ec902d64d45a83",
+    "role": "remaining-obligation-ids.json"
+  },
+  "semanticCoverageCertified": false,
+  "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7"
+}

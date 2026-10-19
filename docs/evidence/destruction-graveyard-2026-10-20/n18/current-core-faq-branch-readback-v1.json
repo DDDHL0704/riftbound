@@ -1,0 +1,175 @@
+{
+  "recordedAtUtc": "2026-10-19T19:28:33.727177+00:00",
+  "status": "EXACT_CURRENT_CORE_AND_FAQ_SOURCE_SCOPE_READBACK_NOT_IMPLEMENTATION_CERTIFICATION",
+  "baseCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+  "region": "CN",
+  "language": "zh-CN",
+  "applicableRulesBaseline": "2026-10-16",
+  "all14DirectoryRowsExact": true,
+  "freshSevenSourceIntake": "fresh-source-intake-v1.json",
+  "canonicalCore": "var/qa/colorless-token-haste-20261016/DOC-01-current.pdf",
+  "canonicalFaq": "var/qa/porobot-20261015/resume-DOC-06.pdf",
+  "actualFaqPage21PixelsViewed": true,
+  "faqRenderSha256": "57888578cf6c55608e0e6edd0d1a6da5229b264b7e7e836c2d6eba6eb840d393",
+  "faqRenderCommand": [
+    "pdftoppm",
+    "-f",
+    "21",
+    "-l",
+    "21",
+    "-singlefile",
+    "-r",
+    "125",
+    "-png",
+    "var/qa/porobot-20261015/resume-DOC-06.pdf",
+    "var/qa/phoenix-destroy-source-20261020/faq-page-21-v1"
+  ],
+  "actualNamedBranch": "Phoenix may trigger from graveyard when destruction is attributed to a spell-created delayed ability; independent responsible player and graveyard owner conditions both matter.",
+  "currentCoreAlsoSpecifiesPhoenixDestroyedByOwnSpellMayTriggerFromNewGraveyardZone": true,
+  "exactSourceRecords": [
+    {
+      "id": "DOC-01-P062-B011",
+      "document": "DOC-01",
+      "page": 62,
+      "clauseAnchors": [
+        "383.2.c.1"
+      ],
+      "text": "383.2.c.1.              假如一个游戏物体拥有一个只在特定区域才能生效的触发式技能,如果它在触发条件满足的同\n                        时进入了该特定区域,则技能会在判定后随即触发。\n                                举例:“不朽凤凰”的技能描述为“当你使用法术摧毁一名单位时,你可以选择支付[1]和\n                                [C],以此从废牌堆中将我打出。”当你用法术摧毁一个单位后,即便被法术摧毁的单\n                                位就是“不朽凤凰”,但只要“不朽凤凰”位于你的废牌堆中,该技能就会立即触发。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P071-B017",
+      "document": "DOC-01",
+      "page": 71,
+      "clauseAnchors": [
+        "412.5"
+      ],
+      "text": "412.5.              请注意,特定游戏行动(尤其是摧毁行动)可以归因于法术和技能。行动的归因,与特定玩家需为摧毁游戏行动负\n                    上的责任并非同一概念。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P080-B011",
+      "document": "DOC-01",
+      "page": 80,
+      "clauseAnchors": [
+        "429.5"
+      ],
+      "text": "429.5.              摧毁 的来源可以是一个或多个游戏物体 。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P080-B012",
+      "document": "DOC-01",
+      "page": 80,
+      "clauseAnchors": [
+        "429.5.a"
+      ],
+      "text": "429.5.a.                 单位 或装备 视为被该游戏物体摧毁 。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P080-B013",
+      "document": "DOC-01",
+      "page": 80,
+      "clauseAnchors": [
+        "429.5.b"
+      ],
+      "text": "429.5.b.                 包含摧毁指示的法术或技能,被视为摧毁相应单位或装备的来源。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P080-B014",
+      "document": "DOC-01",
+      "page": 80,
+      "clauseAnchors": [
+        "429.5.c"
+      ],
+      "text": "429.5.c.                 如果有一名或多名单位由于清理而被摧毁,则该次摧毁行动便会归因于紧接在该次清理之前结算,并对前\n                         述单位造成伤害的法术或技能。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P080-B015",
+      "document": "DOC-01",
+      "page": 80,
+      "clauseAnchors": [
+        "429.5.c.1"
+      ],
+      "text": "429.5.c.1.                    对该次造成伤害负责的玩家,同时也会对该次摧毁行动负责。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P080-B016",
+      "document": "DOC-01",
+      "page": 80,
+      "clauseAnchors": [
+        "429.5.c.2"
+      ],
+      "text": "429.5.c.2.                    如果导致这些单位被摧毁的清理是来自战斗清理步骤,则该摧毁行动归属至造成战斗伤害的来\n                              源,且该摧毁行动的责任归属至相应来源的控制者。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P080-B017",
+      "document": "DOC-01",
+      "page": 80,
+      "clauseAnchors": [
+        "429.5.d"
+      ],
+      "text": "429.5.d.                 来自游戏物体的技能被视为摧毁行动的来源时,创造出该技能的相应游戏物体也被视为摧毁行动的来\n                         源。\n                              举例:某法术描述为:“进行两次:对一名单位造成 3 点伤害。”“不朽凤凰”是一张单位牌,其效\n                              果为:“当你使用法术摧毁一名单位时,你可以选择支付[1]和[C],以此从你的废牌堆中将我打\n                              出。”一名玩家在自己的废牌堆中有“不朽凤凰”时,打出该法术。“进行两次”描述表明,其拥有\n                              内嵌式触发技能,会将两个触发式技能放入结算链。随着这些触发式技能的结算,该技能会对\n                              所选单位造成伤害。如果这些技能其中之一对某名单位造成了致命伤害,则该法术及其内嵌技\n                              能都被视作该伤害的来源,因此该法术及其内嵌技能都会成为摧毁该单位的归因。这也就是\n                              说,该法术的控制者确实使用法术摧毁了一名单位,因此“不朽凤凰”的技能将会触发。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-06-P021-B002",
+      "document": "DOC-06",
+      "page": 21,
+      "clauseAnchors": [],
+      "text": "如果“帝国谕令”的延迟触发效果正在生效,我的废牌堆中有一张“不朽凤凰”,而我对“远古巨\n龙”打出“海克斯射线”,此时会发生什么?我是否可以从废牌堆中打出“不朽凤凰”?",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-06-P021-B003",
+      "document": "DOC-06",
+      "page": 21,
+      "clauseAnchors": [],
+      "text": "可以。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-06-P021-B004",
+      "document": "DOC-06",
+      "page": 21,
+      "clauseAnchors": [],
+      "text": "根据现行规则,没有任何内容会阻止“帝国谕令”的延迟触发效果触发“不朽凤凰”。这是一个由法术\n生成的触发式技能;摧毁行动的责任会归属至该技能,因此生成该技能的法术也会被视为同一个\n摧毁行动的来源。“帝国谕令”的所属者是该延迟触发式技能的控制者;为该摧毁行动负责的玩家\n是该技能的控制者;而该玩家也是废牌堆中“不朽凤凰”的所属者。因此,“不朽凤凰”的三个触发条\n件均已满足,其会正常触发。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    }
+  ],
+  "individualPublicationAndFaqEffectiveDates": null,
+  "physicalQaIllustrationFooterIdentity": "OPEN_SMALL_ILLUSTRATED_VARIANTS_NOT_AUTOMATICALLY_COLLAPSED_TO_CURRENT_API_PRINTINGS",
+  "wholePrintingCertified": false,
+  "scope": "Source readback only before separately recorded executable counterexample",
+  "globalManifestUnchanged": true,
+  "reproduciblePageRenderRetiredAfterActualPixelReview": true
+}

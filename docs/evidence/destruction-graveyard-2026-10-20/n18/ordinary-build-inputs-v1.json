@@ -1,0 +1,17 @@
+{
+  "exitCode": 1,
+  "fixedCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+    "implementationSha256": "aa1142ae842e96564fe73f3237f6616c8dc7128e069f82b76e5ffe57c0a1c8eb",
+    "identitySha256": "b95c5356604bd832648068bcb2248b6763aea8b7100f3c995915646e47b1bcd7"
+  },
+  "sourceFiles": {
+    "ordinary-probe/ordinary.csproj": "6504c126382ac3e6944c713b47179f4053ba103e447268d2a7068bb85c4b712f",
+    "ordinary-probe/Program.cs": "289d4dabb7a5c57c1abd95aa47b6302a72b807339645b0a24baaf6d5386d2459"
+  }
+}

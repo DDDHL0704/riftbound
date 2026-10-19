@@ -1,0 +1,97 @@
+{
+  "recordedAtUtc": "2026-10-19T21:02:37.425200+00:00",
+  "status": "IMPLEMENTATION_IN_PROGRESS_NOT_COHERENT_BATCH_ACCEPTANCE",
+  "baseCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+  "region": "CN",
+  "language": "zh-CN",
+  "applicableRulesBaseline": "2026-10-16",
+  "existing22ParentObligationIds": [
+    "CARD:OGN-037/298",
+    "CARD:OGN-221/298",
+    "CARD:OGN-009/298",
+    "CARD:UNL-118/219",
+    "CARD:UNL-118A/219",
+    "RULE:CN-d6fd7140f106f9b5-P062-B011",
+    "RULE:CN-d6fd7140f106f9b5-P071-B017",
+    "RULE:CN-d6fd7140f106f9b5-P080-B011",
+    "RULE:CN-d6fd7140f106f9b5-P080-B012",
+    "RULE:CN-d6fd7140f106f9b5-P080-B013",
+    "RULE:CN-d6fd7140f106f9b5-P080-B014",
+    "RULE:CN-d6fd7140f106f9b5-P080-B015",
+    "RULE:CN-d6fd7140f106f9b5-P080-B016",
+    "RULE:CN-d6fd7140f106f9b5-P080-B017",
+    "RULE:CN-59bd828207564540-P021-B002",
+    "RULE:CN-59bd828207564540-P021-B003",
+    "RULE:CN-59bd828207564540-P021-B004",
+    "CARD:OGN-254/298",
+    "RULE:CN-d6fd7140f106f9b5-P032-B002",
+    "RULE:CN-d6fd7140f106f9b5-P074-B013",
+    "RULE:CN-d6fd7140f106f9b5-P074-B014",
+    "RULE:CN-d6fd7140f106f9b5-P068-B002"
+  ],
+  "all16892GlobalIdsAndOriginalSourceUniverseStillRetained": true,
+  "scope": [
+    "destruction source and responsibility",
+    "Decree independent delayed any-unit damage instructions",
+    "Guillotine confirmed Inspire or original incarnation next-damage instruction",
+    "Phoenix graveyard self/simultaneous observer, leading1mana1red, shared normal effect play",
+    "independent state/private/spectator context guards and original journal verification"
+  ],
+  "controlledTests": {
+    "summaryPath": "var/qa/destruction-graveyard-implementation-20261020/focus-v21-controlled-all/summary.json",
+    "sha256": "88f22e850f42eaf797c6b982119faa42b5555fc4df916a5e27ba9a094f04d79f",
+    "actualCases": 68,
+    "actualMethods": 24,
+    "failed": 0,
+    "skipped": 0,
+    "scopeIncludesOriginalTwoFixtureMethods": true
+  },
+  "ordinaryAndOriginalGames": "RUNNING_FROZEN_INPUTS_V22",
+  "soleBatchCheck": "NOT_YET_RUN",
+  "newSqlHelper": "AUTHORED_NOT_BUILT_OR_EXECUTED",
+  "newFixedFull": "NOT_YET_DISPATCHED",
+  "wholePrintingCertified": false,
+  "semanticCoverageCertified": false,
+  "visibleNativeAndPhysicalWindows": "OPEN",
+  "priorFixed08fdRulesOnlyActualResult": {
+    "cases": 13176,
+    "methods": 7581,
+    "originalFullMethods": 143,
+    "directedPairs": 110,
+    "seed": 424242,
+    "archiveSha256": "1f2702eeb6fbfb34832a084c52b46017d8cfe9633108e29ecaeef2251e346079",
+    "overallSqlNetwork": "PENDING",
+    "coversCurrentUncommittedImplementation": false
+  },
+  "originalFullGameActualFileCountCorrection": {
+    "files": 9,
+    "partialFilesPlusMain": true,
+    "originalMethods": 143,
+    "priorEightTotalFileClaimNotUsed": true
+  },
+  "currentOwnFocusPid": 42158,
+  "caffeinateBoundPid": 42159,
+  "lastActualLockObservation": [
+    {
+      "path": "Root/IOConsoleLocked",
+      "value": true
+    },
+    {
+      "path": "Root/IOConsoleUsers/0/CGSSessionScreenIsLocked",
+      "value": true
+    }
+  ],
+  "sourceEvidenceRequiredCorrections": {
+    "leadingCostComment": "204.1.c corrected",
+    "priorFaqLocalTitle": "Explicit correction to 化神争锋系列 官方FAQ; same PDF bytes/IDs, old receipt retained"
+  },
+  "onlyLatestNativePairAndTwoCanonicalPlatformArchivesStillRetained": true,
+  "newNativeBuildsWholeCheckoutOrDatabaseCreated": false,
+  "nextRequired": [
+    "Complete ordinary v22 without editing its frozen Conformance/Engine source or bin",
+    "Compile and actually run new SQL helper against frozen actual binary and original database; preserve seven-table receipts",
+    "Prioritize actual terminal full failures; b294 SQL deadline2112UTC and08fd SQL still running",
+    "Retain all original method/Theory identities, one batch check, exact source-manifest/remaining gates, coherent commit/push and fixed full",
+    "Separate current candidate visible/mac controls, paired normal score/reconnect/full replay and physicalWindows gates"
+  ]
+}

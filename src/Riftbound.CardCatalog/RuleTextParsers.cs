@@ -321,6 +321,25 @@ public static class TriggerParser
     public static IReadOnlyList<TriggerSpec> Parse(string text)
     {
         var triggers = new List<TriggerSpec>();
+        var graveyardPlay = Regex.Match(text,
+            @"当你使用法术摧毁一名单位时，你可以选择支付\{\{(?<mana>[0-9]+)\}\}和\{\{红色\}\}，以此从废牌堆中将我打出。",
+            RegexOptions.CultureInvariant);
+        if (graveyardPlay.Success)
+            triggers.Add(new(TriggerKinds.UnitSpellDestroyPlayFromGraveyard, TriggerTimings.UnitDestroyed,
+                graveyardPlay.Value, "Spell destruction earns optional leading payment and play from the captured graveyard incarnation.",
+                ManaCost: int.Parse(graveyardPlay.Groups["mana"].Value, CultureInfo.InvariantCulture), PowerCost: 1,
+                PowerCostTrait: "red", PlayCount: 1, PlayOriginZone: TriggerZones.Graveyard,
+                PlayDestinationZone: TriggerZones.Stack, IgnorePlayManaCost: true, PayPlayPowerCosts: false, Optional: true));
+        var turnDamageDestroy = Regex.Match(text, @"在本回合内，每当任意单位承受伤害时，直接将它摧毁。", RegexOptions.CultureInvariant);
+        if (turnDamageDestroy.Success)
+            triggers.Add(new(TriggerKinds.SpellTurnUnitDamagedDestroy, "UNIT_DAMAGED", turnDamageDestroy.Value,
+                "Create an independent delayed destruction trigger for each actual damaged unit this turn.", Duration: TriggerDurations.UntilEndOfTurn));
+        var nextDamageDestroy = Regex.Match(text,
+            @"选择一名单位，在它本回合下次受到伤害时，将其摧毁。\s*\{\{鼓舞\}\}—改为立即将其摧毁。",
+            RegexOptions.CultureInvariant);
+        if (nextDamageDestroy.Success)
+            triggers.Add(new(TriggerKinds.SpellNextDamageOrInspiredDestroy, "UNIT_DAMAGED", nextDamageDestroy.Value,
+                "Confirmed Inspire destroys immediately; otherwise bind the original target's next damage this turn.", Duration: TriggerDurations.UntilEndOfTurn));
         var movedTypedDiscard = Regex.Match(text,
             @"当我移动时，抽一张牌，然后弃置一张手牌。\s*随后，根据被弃置卡牌的类型，执行以下效果：\s*\*法术\s*—\s*抽一张牌。\s*\*装备\s*—\s*让最多两枚符文变为活跃状态。\s*\*单位\s*—\s*让我本回合内\{\{S\}\}\+3。?",
             RegexOptions.CultureInvariant);
@@ -458,6 +477,9 @@ public static class TriggerParser
         }
 
         triggers.AddRange(TargetParser.SplitRulesText(text)
+            .Where(segment => !graveyardPlay.Success || !graveyardPlay.Value.Contains(segment, StringComparison.Ordinal))
+            .Where(segment => !turnDamageDestroy.Success || !turnDamageDestroy.Value.Contains(segment, StringComparison.Ordinal))
+            .Where(segment => !nextDamageDestroy.Success || !nextDamageDestroy.Value.Contains(segment, StringComparison.Ordinal))
             .Where(segment => !movedTypedDiscard.Success || !segment.StartsWith("当我移动时，抽一张牌，然后弃置一张手牌", StringComparison.Ordinal))
             .Where(segment => !movedReveal.Success || !segment.StartsWith("当我移动时，展示你主牌堆顶部的一张牌", StringComparison.Ordinal)
                 && !segment.StartsWith("每当我移动时，展示你主牌堆顶部的一张牌", StringComparison.Ordinal))

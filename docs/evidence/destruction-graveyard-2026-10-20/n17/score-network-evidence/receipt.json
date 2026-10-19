@@ -1,0 +1,32 @@
+{
+  "status": "PASS",
+  "room": "LOCKED-08FD-SCORE-9b8c2b9c5df3",
+  "acceptedCommands": 45,
+  "ordinaryLegalDecks": 2,
+  "actualProductionNativeGateway": true,
+  "twoAuthorizedClients": true,
+  "actualApiRestart": true,
+  "bothPrivateViewsAndPromptsExact": true,
+  "privateHandRedaction": true,
+  "originalPostRestartMulligans": 2,
+  "originalNextEndTurns": 1,
+  "restores": [
+    1,
+    1
+  ],
+  "freshSnapshots": [
+    49,
+    49
+  ],
+  "originalWireViewsSha256": "24999b23829969d464e98d4e05e5cb5be4f77d41ce18d0ee37daa5853d0b3c5d",
+  "noSeedOrStateInjection": true,
+  "noVisibleControlsOrWindowsClaim": true,
+  "cooperativeUncontestedStudentConquestAndHoldOnly": true,
+  "normalScoreThresholdObservedBothSides": true,
+  "finalScores": {
+    "locka9b8c2b9c5df3": 8,
+    "lockb9b8c2b9c5df3": 0
+  },
+  "originalWireTimelineSha256": "befd1717ea6aebd945bc23d060ff40de41b00d2ccd91a8b5d73e1111546947a1",
+  "wireSteps": 45
+}

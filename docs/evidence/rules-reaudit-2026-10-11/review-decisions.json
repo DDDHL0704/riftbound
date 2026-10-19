@@ -23577,6 +23577,70 @@
         "docs/evidence/hwei-move-discard-types-2026-10-20/n16/independent-actual-sql-reader-result-v2.json",
         "docs/evidence/hwei-move-discard-types-2026-10-20/n16/first-failed-prefix-independent-reader-result-v1.json"
       ]
+    },
+    {
+      "id": "destruction-attribution-delayed-skill-graveyard-play-2026-10-20",
+      "scope": "CN/zh-CN effective core baseline2026-10-16; current20Oct exact destruction attribution, delayed damage destroy and Phoenix graveyard instruction branches only.",
+      "status": "LIMITED_IMPLEMENTATION_CURRENT_FOCUS78_SQL6_SOLECHECK3_FAILURES_CLOSED_FIXEDFULL_PRODUCT_OPEN",
+      "subjects": [
+        "OGN·037/298",
+        "OGN·221/298",
+        "OGN·254/298",
+        "OGN·009/298",
+        "UNL-118/219",
+        "UNL-118a/219"
+      ],
+      "ruleRecords": [
+        "CN-59bd828207564540-P021-B002",
+        "CN-59bd828207564540-P021-B003",
+        "CN-59bd828207564540-P021-B004"
+      ],
+      "pendingRuleRecords": [],
+      "sourceManifest": {
+        "path": "docs/evidence/destruction-graveyard-2026-10-20/source-manifest.json",
+        "sha256": "033b6d794740afa0fce2f2618e9d60cb26d79759f3680d24c270128f38ea47b2",
+        "role": "source-manifest"
+      },
+      "auditDocument": "docs/DESTRUCTION_GRAVEYARD_AUDIT_2026-10-20.md",
+      "validation": {
+        "soleCheck": {
+          "path": "docs/evidence/destruction-graveyard-2026-10-20/n19/only-check-retention-and-disposition-v1.json",
+          "sha256": "69a54b183d9b0ba217524d12869e994f76d8dc26ab5cb1a21790e0f35ee82fac",
+          "role": "only-check-retention-and-disposition-v1"
+        },
+        "realSql": {
+          "path": "docs/evidence/destruction-graveyard-2026-10-20/n19/real-sql-verification-v2.json",
+          "sha256": "e2b556df246d25a83fe9a0b3fc447d9cddc39357053db50a197606f2bedf2ac3",
+          "role": "real-sql-verification-v2"
+        },
+        "newFixedFull": "PENDING",
+        "visibleCurrentNativeProduct": "OPEN",
+        "physicalWindows": "OPEN"
+      },
+      "exclusions": [
+        "WHOLE_PRINTING_AND_ALL_OTHER_CONSUMERS_COPY_CONTROL_REPLACEMENT_AND_LIFECYCLE_BRANCHES",
+        "FAQ_ILLUSTRATED_PRINTING_IDENTITY",
+        "GLOBAL_SOURCE_GAPS",
+        "NEW_FIXED_FULL",
+        "VISIBLE_NATIVE_PRODUCT",
+        "PHYSICAL_WINDOWS"
+      ],
+      "evidence": [
+        "docs/evidence/destruction-graveyard-2026-10-20/n19/only-check-retention-and-disposition-v1.json",
+        "docs/evidence/destruction-graveyard-2026-10-20/n19/postcheck-current-focus-v27-integrity.json",
+        "docs/evidence/destruction-graveyard-2026-10-20/n19/real-sql-verification-v2.json",
+        "docs/evidence/destruction-graveyard-2026-10-20/n19/independent-actual-sql-reader-result-v2.json",
+        "docs/evidence/destruction-graveyard-2026-10-20/n19/all-original-test-and-theory-source-retention-v3.json",
+        "docs/evidence/destruction-graveyard-2026-10-20/n19/precheck-existing-diagnostic-closure-v1.json",
+        "docs/evidence/destruction-graveyard-2026-10-20/n19/final-tool-and-yaml-validation-v1.json",
+        "docs/evidence/destruction-graveyard-2026-10-20/ci/compiled-plan-and-original-workflow-core-retention-v2.json",
+        "docs/evidence/destruction-graveyard-2026-10-20/ci/retention-v1-failure-reason-explicit-correction-v3.json",
+        "docs/evidence/destruction-graveyard-2026-10-20/n19/bounded-behavior-evidence-matrix-v2.json",
+        "docs/evidence/destruction-graveyard-2026-10-20/n19/actual-partial-rejects-full-sql-gate-v1.json",
+        "docs/evidence/destruction-graveyard-2026-10-20/n19/faq-page21-exact-footer-readback-v1.json",
+        "docs/evidence/destruction-graveyard-2026-10-20/n19/catalog-boundary-independent-old-current-comparison-v1.json",
+        "docs/evidence/destruction-graveyard-2026-10-20/n19/postcheck-three-failures-current-closure-v2.json"
+      ]
     }
   ]
 }

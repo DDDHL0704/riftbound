@@ -1,0 +1,94 @@
+{
+  "recordedAtUtc": "2026-10-19T19:31:16.426613+00:00",
+  "status": "EXISTING_17_OPEN_OBLIGATIONS_LINKED_TO_SOURCE_READBACK_AND_CONTROLLED_COUNTEREXAMPLES",
+  "fixedCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+    "implementationSha256": "aa1142ae842e96564fe73f3237f6616c8dc7128e069f82b76e5ffe57c0a1c8eb",
+    "identitySha256": "b95c5356604bd832648068bcb2248b6763aea8b7100f3c995915646e47b1bcd7"
+  },
+  "issue": {
+    "number": 69,
+    "title": "fix(rules): 不朽凤凰缺少法术摧毁后的废牌堆出牌触发",
+    "url": "https://github.com/DDDHL0704/riftbound/issues/69",
+    "state": "OPEN"
+  },
+  "issueBodyExactIncludingOriginalFinalNewline": true,
+  "initialReadbackExpectationOnlyIncorrectlyStrippedLocalFinalNewline": true,
+  "cardBindingsByActualExistingCnApiIdNotGuessedNo": [
+    {
+      "apiId": 31245,
+      "sourceCardNo": "OGN·037/298",
+      "currentUnifiedPrintingId": "OGN-037/298",
+      "existingObligationId": "CARD:OGN-037/298"
+    },
+    {
+      "apiId": 31459,
+      "sourceCardNo": "OGN·221/298",
+      "currentUnifiedPrintingId": "OGN-221/298",
+      "existingObligationId": "CARD:OGN-221/298"
+    },
+    {
+      "apiId": 31215,
+      "sourceCardNo": "OGN·009/298",
+      "currentUnifiedPrintingId": "OGN-009/298",
+      "existingObligationId": "CARD:OGN-009/298"
+    },
+    {
+      "apiId": 34658,
+      "sourceCardNo": "UNL-118/219",
+      "currentUnifiedPrintingId": "UNL-118/219",
+      "existingObligationId": "CARD:UNL-118/219"
+    },
+    {
+      "apiId": 34659,
+      "sourceCardNo": "UNL-118a/219",
+      "currentUnifiedPrintingId": "UNL-118A/219",
+      "existingObligationId": "CARD:UNL-118A/219"
+    }
+  ],
+  "initialMixedCaseVariantIdGuessNotUsed": true,
+  "existingUnifiedObligationIds": [
+    "CARD:OGN-037/298",
+    "CARD:OGN-221/298",
+    "CARD:OGN-009/298",
+    "CARD:UNL-118/219",
+    "CARD:UNL-118A/219",
+    "RULE:CN-d6fd7140f106f9b5-P062-B011",
+    "RULE:CN-d6fd7140f106f9b5-P071-B017",
+    "RULE:CN-d6fd7140f106f9b5-P080-B011",
+    "RULE:CN-d6fd7140f106f9b5-P080-B012",
+    "RULE:CN-d6fd7140f106f9b5-P080-B013",
+    "RULE:CN-d6fd7140f106f9b5-P080-B014",
+    "RULE:CN-d6fd7140f106f9b5-P080-B015",
+    "RULE:CN-d6fd7140f106f9b5-P080-B016",
+    "RULE:CN-d6fd7140f106f9b5-P080-B017",
+    "RULE:CN-59bd828207564540-P021-B002",
+    "RULE:CN-59bd828207564540-P021-B003",
+    "RULE:CN-59bd828207564540-P021-B004"
+  ],
+  "sourceManifestSha256": "8b9870436da3a825abd2636f709599f08618bedca79d72109e3852de97200a52",
+  "originalControlledFrameSha256": {
+    "direct-spell": "6890ae8dbbfd2c0cec5a0e1993849829ee2afc0706a1df215cd86f6e89d9a2c2",
+    "self-destroyed-phoenix": "50e795fa820a37e24969251b267a7c5d00cbb2d745558b7619894208530e6307",
+    "decree-nonlethal-spell": "7bb2a67a4590929ce866c76e04a7a58d1a3cfe99cee120d205aada432539e2f3"
+  },
+  "actualCommands": 12,
+  "actualEvents": 39,
+  "semanticReview": "CURRENT_SOURCE_EXPECTATIONS_VERIFIED_FOR_THREE_BRANCHES_ONLY",
+  "implementation": "CONFIRMED_MISSING_TRIGGER_IN_CONTROLLED_FIXED_08FD",
+  "testExecution": "THREE_CONTROLLED_ORIGINAL_ACTION_EVENT_STATE_REPLAYS_PASS_AS_COUNTEREXAMPLES",
+  "ordinaryLegalOpeningPrefixes": "OPEN",
+  "fixedCommitCompleteCi": "PENDING_NOT_ACCEPTED_FROM_CONTROLLED_PROBES",
+  "visibleProductAndPhysicalWindows": "OPEN",
+  "wholeCardCertified": false,
+  "all16892GlobalObligationIdsAndOriginalManifestUnchanged": true,
+  "globalManifestSha256": "dfc06b21ab7df67821db8c39e48c3099dafa9244ef11729909fca032fc9317bd",
+  "noNewTemporalOfficialSourceDeltaEstablished": true,
+  "explicitLocalTitleCorrection": "faq-title-explicit-correction-v1.json",
+  "nextCoherentBatch": "Add original legal blank-opening prefixes, implement the finite shared death cause/optional graveyard play flow, retain independent recovery rejection tests and all old methods/rows, then focus/once check/fixed full and separate product gates."
+}

@@ -1,0 +1,10 @@
+{
+  "compiledPlanMatchesManifest45Identities": true,
+  "all43PriorHelpersPlusOriginalCoreRetained": true,
+  "oneNewDestructionFamilyHelperAdded": true,
+  "scopeRuleSuiteRulesDesktopBodyExactExcludingTrailingJobSeparators": true,
+  "originalCoreStatementsAndAllLocalAssertionsWhitespaceNormalizedExact": true,
+  "initialV1ProofStoppedOnlyAtTrailingJobSeparatorByteComparison": true,
+  "yamlActuallyParsedSuccessfully": true,
+  "newExecutionNotYetDatabaseValidated": true
+}

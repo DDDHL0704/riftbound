@@ -1,0 +1,607 @@
+{
+  "atUtc": "2026-10-19T19:18:00.933018+00:00",
+  "fixedCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+  "status": "COMPLETED_DERIVATIVE_OUTPUTS_RETIRED_EXECUTED_INPUTS_RETAINED",
+  "targets": [
+    "sql-probe-build",
+    "native-reader-build",
+    "independent-native-build",
+    "fixed-sql-probe/obj",
+    "native-frame-reader/obj",
+    "fixed-native-independent-reader/obj"
+  ],
+  "files": [
+    {
+      "path": "sql-probe-build/Fixtures/hwei-move-discard-openings.json",
+      "bytes": 10531,
+      "sha256": "ffea62c08314aab6410325412db4b2ca7f33227dae2cf8cc6f89c4fd549d7fb7",
+      "identicalRetained": [
+        "fixed-api/Fixtures/hwei-move-discard-openings.json"
+      ],
+      "purpose": "finished build derivative; actual executed DLL/PDB and API deps/runtimeconfig retained"
+    },
+    {
+      "path": "sql-probe-build/fixedprobe",
+      "bytes": 124712,
+      "sha256": "1938398617ab5aef87f59f5e9be956945adf3494b82eed5cc0e826e0a835fc82",
+      "identicalRetained": [],
+      "purpose": "finished build derivative; actual executed DLL/PDB and API deps/runtimeconfig retained"
+    },
+    {
+      "path": "sql-probe-build/fixedprobe.deps.json",
+      "bytes": 402,
+      "sha256": "0ce92fe37a2bbd9e55cde3669bb80ad0f0f2295478c1aa3f465bfdff5b11a902",
+      "identicalRetained": [],
+      "purpose": "finished build derivative; actual executed DLL/PDB and API deps/runtimeconfig retained"
+    },
+    {
+      "path": "sql-probe-build/fixedprobe.dll",
+      "bytes": 71680,
+      "sha256": "61b3e61c4e51f58e901a1e59a8934c06331526334d044dadde9e24747a3a4fbe",
+      "identicalRetained": [
+        "fixed-api/fixedprobe.dll"
+      ],
+      "purpose": "finished build derivative; actual executed DLL/PDB and API deps/runtimeconfig retained"
+    },
+    {
+      "path": "sql-probe-build/fixedprobe.pdb",
+      "bytes": 26276,
+      "sha256": "cbcc42dea5be7e33cd084846c91782b8e7c541e27957435d6dbff064c651e7b8",
+      "identicalRetained": [
+        "fixed-api/fixedprobe.pdb"
+      ],
+      "purpose": "finished build derivative; actual executed DLL/PDB and API deps/runtimeconfig retained"
+    },
+    {
+      "path": "sql-probe-build/fixedprobe.runtimeconfig.json",
+      "bytes": 330,
+      "sha256": "9950d4583cfc9a106857c0d5b8a75b53e8774852b57b80bc3823a74d44a4d87f",
+      "identicalRetained": [],
+      "purpose": "finished build derivative; actual executed DLL/PDB and API deps/runtimeconfig retained"
+    },
+    {
+      "path": "native-reader-build/nativeframe",
+      "bytes": 124712,
+      "sha256": "dc1abefe751b5a900e0fc266be73721b6fa8212d40ae0afdff0948fb380cb645",
+      "identicalRetained": [],
+      "purpose": "finished build derivative; actual executed DLL/PDB and API deps/runtimeconfig retained"
+    },
+    {
+      "path": "native-reader-build/nativeframe.deps.json",
+      "bytes": 405,
+      "sha256": "7806a1332f0cfb4f3b3aa0ce04e9d685df9682272e3f8c200e2bc3f21890d031",
+      "identicalRetained": [],
+      "purpose": "finished build derivative; actual executed DLL/PDB and API deps/runtimeconfig retained"
+    },
+    {
+      "path": "native-reader-build/nativeframe.dll",
+      "bytes": 15360,
+      "sha256": "bfe3a07dea78d48511d44ae124aa0d900753614bb9047e09a8678657a4352b3f",
+      "identicalRetained": [
+        "fixed-api/nativeframe.dll"
+      ],
+      "purpose": "finished build derivative; actual executed DLL/PDB and API deps/runtimeconfig retained"
+    },
+    {
+      "path": "native-reader-build/nativeframe.pdb",
+      "bytes": 14064,
+      "sha256": "392ad2c80eff3095852249bd14c2a383300e8346491a56c6020a021f13b93c74",
+      "identicalRetained": [
+        "fixed-api/nativeframe.pdb"
+      ],
+      "purpose": "finished build derivative; actual executed DLL/PDB and API deps/runtimeconfig retained"
+    },
+    {
+      "path": "native-reader-build/nativeframe.runtimeconfig.json",
+      "bytes": 330,
+      "sha256": "9950d4583cfc9a106857c0d5b8a75b53e8774852b57b80bc3823a74d44a4d87f",
+      "identicalRetained": [],
+      "purpose": "finished build derivative; actual executed DLL/PDB and API deps/runtimeconfig retained"
+    },
+    {
+      "path": "independent-native-build/independentnative",
+      "bytes": 124712,
+      "sha256": "177e5d04fa1ed19c9b4d7962f438021435d99be64746126739136b3d6b2263bc",
+      "identicalRetained": [],
+      "purpose": "finished build derivative; actual executed DLL/PDB and API deps/runtimeconfig retained"
+    },
+    {
+      "path": "independent-native-build/independentnative.deps.json",
+      "bytes": 423,
+      "sha256": "7c8aea98cbdcb4300fe09fa6f5493cd69017bcb29091da6109e9d9697673498b",
+      "identicalRetained": [],
+      "purpose": "finished build derivative; actual executed DLL/PDB and API deps/runtimeconfig retained"
+    },
+    {
+      "path": "independent-native-build/independentnative.dll",
+      "bytes": 19968,
+      "sha256": "e0a48bf585fa0604cf0a67af4dd2aed2e0706599f85e36324f8abe6ae8c8aa2e",
+      "identicalRetained": [
+        "fixed-api/independentnative.dll"
+      ],
+      "purpose": "finished build derivative; actual executed DLL/PDB and API deps/runtimeconfig retained"
+    },
+    {
+      "path": "independent-native-build/independentnative.pdb",
+      "bytes": 14984,
+      "sha256": "57d2f52ffa2b15a757625e68159485e14b00052a33fa23600b7d4812c86e7c8a",
+      "identicalRetained": [
+        "fixed-api/independentnative.pdb"
+      ],
+      "purpose": "finished build derivative; actual executed DLL/PDB and API deps/runtimeconfig retained"
+    },
+    {
+      "path": "independent-native-build/independentnative.runtimeconfig.json",
+      "bytes": 330,
+      "sha256": "9950d4583cfc9a106857c0d5b8a75b53e8774852b57b80bc3823a74d44a4d87f",
+      "identicalRetained": [],
+      "purpose": "finished build derivative; actual executed DLL/PDB and API deps/runtimeconfig retained"
+    },
+    {
+      "path": "fixed-sql-probe/obj/Release/net10.0/.NETCoreApp,Version=v10.0.AssemblyAttributes.cs",
+      "bytes": 196,
+      "sha256": "f79c1ad9a9fc76110b3655f5bfb5ff4e3168e9addceff05b937c0796f0ec34eb",
+      "identicalRetained": [],
+      "purpose": "reproducible compiler intermediate; source and actual executed runtime retained"
+    },
+    {
+      "path": "fixed-sql-probe/obj/Release/net10.0/apphost",
+      "bytes": 124712,
+      "sha256": "1938398617ab5aef87f59f5e9be956945adf3494b82eed5cc0e826e0a835fc82",
+      "identicalRetained": [],
+      "purpose": "reproducible compiler intermediate; source and actual executed runtime retained"
+    },
+    {
+      "path": "fixed-sql-probe/obj/Release/net10.0/fixedprobe.AssemblyInfo.cs",
+      "bytes": 984,
+      "sha256": "cd0d64c5730301504e2c9579aab5d4c0de536ffcfd2a9f00bb19c0e13de343ab",
+      "identicalRetained": [],
+      "purpose": "reproducible compiler intermediate; source and actual executed runtime retained"
+    },
+    {
+      "path": "fixed-sql-probe/obj/Release/net10.0/fixedprobe.AssemblyInfoInputs.cache",
+      "bytes": 65,
+      "sha256": "7ed8b5f2c33c9167bd410ab0c02c149c1350abcdb862ef67fe3a1c7db6e9055b",
+      "identicalRetained": [],
+      "purpose": "reproducible compiler intermediate; source and actual executed runtime retained"
+    },
+    {
+      "path": "fixed-sql-probe/obj/Release/net10.0/fixedprobe.GeneratedMSBuildEditorConfig.editorconfig",
+      "bytes": 853,
+      "sha256": "1bf6d12f593afedfbbd81805f1d29bbe5b97123ac45e205dd70875672132bac6",
+      "identicalRetained": [],
+      "purpose": "reproducible compiler intermediate; source and actual executed runtime retained"
+    },
+    {
+      "path": "fixed-sql-probe/obj/Release/net10.0/fixedprobe.GlobalUsings.g.cs",
+      "bytes": 231,
+      "sha256": "8f86a2cbf00ff3eee0bda2bc0eb5e1fc19c8544d5dc650c53d0132325956b592",
+      "identicalRetained": [],
+      "purpose": "reproducible compiler intermediate; source and actual executed runtime retained"
+    },
+    {
+      "path": "fixed-sql-probe/obj/Release/net10.0/fixedprobe.assets.cache",
+      "bytes": 155,
+      "sha256": "e38af1dd0043bef90350742124849215a1c0b60893e4ad5df4608fbb3ef3f208",
+      "identicalRetained": [],
+      "purpose": "reproducible compiler intermediate; source and actual executed runtime retained"
+    },
+    {
+      "path": "fixed-sql-probe/obj/Release/net10.0/fixedprobe.csproj.AssemblyReference.cache",
+      "bytes": 7827,
+      "sha256": "38577261cf65d066d5b1b3e112929de5e98e021749c9cc4e7efd4d331ddc146f",
+      "identicalRetained": [],
+      "purpose": "reproducible compiler intermediate; source and actual executed runtime retained"
+    },
+    {
+      "path": "fixed-sql-probe/obj/Release/net10.0/fixedprobe.csproj.CoreCompileInputs.cache",
+      "bytes": 65,
+      "sha256": "3dd03755cba77a320873ed83974afe01fd53be9245423ed2a10de88dcf9005d8",
+      "identicalRetained": [],
+      "purpose": "reproducible compiler intermediate; source and actual executed runtime retained"
+    },
+    {
+      "path": "fixed-sql-probe/obj/Release/net10.0/fixedprobe.csproj.FileListAbsolute.txt",
+      "bytes": 2164,
+      "sha256": "b53b857faf36b4c4e9eb6177dbc089007700ba12bb937334615b0b294cffb311",
+      "identicalRetained": [],
+      "purpose": "reproducible compiler intermediate; source and actual executed runtime retained"
+    },
+    {
+      "path": "fixed-sql-probe/obj/Release/net10.0/fixedprobe.dll",
+      "bytes": 71680,
+      "sha256": "61b3e61c4e51f58e901a1e59a8934c06331526334d044dadde9e24747a3a4fbe",
+      "identicalRetained": [
+        "fixed-api/fixedprobe.dll"
+      ],
+      "purpose": "reproducible compiler intermediate; source and actual executed runtime retained"
+    },
+    {
+      "path": "fixed-sql-probe/obj/Release/net10.0/fixedprobe.genruntimeconfig.cache",
+      "bytes": 65,
+      "sha256": "729ca256a33ab3e534f047664c9e3df40b95877aee6671925f7153ec0f330612",
+      "identicalRetained": [],
+      "purpose": "reproducible compiler intermediate; source and actual executed runtime retained"
+    },
+    {
+      "path": "fixed-sql-probe/obj/Release/net10.0/fixedprobe.pdb",
+      "bytes": 26276,
+      "sha256": "cbcc42dea5be7e33cd084846c91782b8e7c541e27957435d6dbff064c651e7b8",
+      "identicalRetained": [
+        "fixed-api/fixedprobe.pdb"
+      ],
+      "purpose": "reproducible compiler intermediate; source and actual executed runtime retained"
+    },
+    {
+      "path": "fixed-sql-probe/obj/Release/net10.0/fixedprobe.sourcelink.json",
+      "bytes": 157,
+      "sha256": "2ba87f694827f2627134490a2116cca3be2b301b8e843a8799646727019e1488",
+      "identicalRetained": [],
+      "purpose": "reproducible compiler intermediate; source and actual executed runtime retained"
+    },
+    {
+      "path": "fixed-sql-probe/obj/Release/net10.0/ref/fixedprobe.dll",
+      "bytes": 15872,
+      "sha256": "626f8cc87fe830896bc30445d8604edb62977f3bafb13cfba49a4e86e048a471",
+      "identicalRetained": [],
+      "purpose": "reproducible compiler intermediate; source and actual executed runtime retained"
+    },
+    {
+      "path": "fixed-sql-probe/obj/Release/net10.0/refint/fixedprobe.dll",
+      "bytes": 15872,
+      "sha256": "626f8cc87fe830896bc30445d8604edb62977f3bafb13cfba49a4e86e048a471",
+      "identicalRetained": [],
+      "purpose": "reproducible compiler intermediate; source and actual executed runtime retained"
+    },
+    {
+      "path": "fixed-sql-probe/obj/fixedprobe.csproj.nuget.dgspec.json",
+      "bytes": 21329,
+      "sha256": "bd76169292da54f39c34fc385c1c688e66651ef221622d2b217169a97642564c",
+      "identicalRetained": [],
+      "purpose": "reproducible compiler intermediate; source and actual executed runtime retained"
+    },
+    {
+      "path": "fixed-sql-probe/obj/fixedprobe.csproj.nuget.g.props",
+      "bytes": 1130,
+      "sha256": "fc3164a419c5b2121a87fb47d38735c1397640d10e208c775a65a02edd6e231e",
+      "identicalRetained": [],
+      "purpose": "reproducible compiler intermediate; source and actual executed runtime retained"
+    },
+    {
+      "path": "fixed-sql-probe/obj/fixedprobe.csproj.nuget.g.targets",
+      "bytes": 149,
+      "sha256": "b14461e0cb1be3f77fcf9fe2fdd62889325ca92523d0f606980ed59eb5c4aa1c",
+      "identicalRetained": [],
+      "purpose": "reproducible compiler intermediate; source and actual executed runtime retained"
+    },
+    {
+      "path": "fixed-sql-probe/obj/project.assets.json",
+      "bytes": 20593,
+      "sha256": "9c352dbc1dc91947111ec1a014c5dd08c72b87b1e173599e63a24c78f0870f1f",
+      "identicalRetained": [],
+      "purpose": "reproducible compiler intermediate; source and actual executed runtime retained"
+    },
+    {
+      "path": "fixed-sql-probe/obj/project.nuget.cache",
+      "bytes": 242,
+      "sha256": "356613efbfe773252bf40db893c7499c13c0e5d1a28900444d39945064bcfca7",
+      "identicalRetained": [],
+      "purpose": "reproducible compiler intermediate; source and actual executed runtime retained"
+    },
+    {
+      "path": "native-frame-reader/obj/Release/net10.0/.NETCoreApp,Version=v10.0.AssemblyAttributes.cs",
+      "bytes": 196,
+      "sha256": "f79c1ad9a9fc76110b3655f5bfb5ff4e3168e9addceff05b937c0796f0ec34eb",
+      "identicalRetained": [],
+      "purpose": "reproducible compiler intermediate; source and actual executed runtime retained"
+    },
+    {
+      "path": "native-frame-reader/obj/Release/net10.0/apphost",
+      "bytes": 124712,
+      "sha256": "dc1abefe751b5a900e0fc266be73721b6fa8212d40ae0afdff0948fb380cb645",
+      "identicalRetained": [],
+      "purpose": "reproducible compiler intermediate; source and actual executed runtime retained"
+    },
+    {
+      "path": "native-frame-reader/obj/Release/net10.0/nativeframe.AssemblyInfo.cs",
+      "bytes": 987,
+      "sha256": "8f4952f3bf717e285b389c7e1f7f6e8b73a4c1adfee90d55a927fe1f9e2fa7bd",
+      "identicalRetained": [],
+      "purpose": "reproducible compiler intermediate; source and actual executed runtime retained"
+    },
+    {
+      "path": "native-frame-reader/obj/Release/net10.0/nativeframe.AssemblyInfoInputs.cache",
+      "bytes": 65,
+      "sha256": "49325135691b75716d6c957665d65349587ed1c6fddc7039b6b74bdb845b6163",
+      "identicalRetained": [],
+      "purpose": "reproducible compiler intermediate; source and actual executed runtime retained"
+    },
+    {
+      "path": "native-frame-reader/obj/Release/net10.0/nativeframe.GeneratedMSBuildEditorConfig.editorconfig",
+      "bytes": 858,
+      "sha256": "09408034f4f1d1b26c4b87906ce0f643d119b065462e80bec4334f80a28180fb",
+      "identicalRetained": [],
+      "purpose": "reproducible compiler intermediate; source and actual executed runtime retained"
+    },
+    {
+      "path": "native-frame-reader/obj/Release/net10.0/nativeframe.GlobalUsings.g.cs",
+      "bytes": 231,
+      "sha256": "8f86a2cbf00ff3eee0bda2bc0eb5e1fc19c8544d5dc650c53d0132325956b592",
+      "identicalRetained": [],
+      "purpose": "reproducible compiler intermediate; source and actual executed runtime retained"
+    },
+    {
+      "path": "native-frame-reader/obj/Release/net10.0/nativeframe.assets.cache",
+      "bytes": 155,
+      "sha256": "279a5a75b7d585a0a7c19b7c5ceadac421f7c81ca8a57754116b408baeda88b9",
+      "identicalRetained": [],
+      "purpose": "reproducible compiler intermediate; source and actual executed runtime retained"
+    },
+    {
+      "path": "native-frame-reader/obj/Release/net10.0/nativeframe.csproj.AssemblyReference.cache",
+      "bytes": 7827,
+      "sha256": "93c6b1965f2c4c4fe1a02d3c82c95d2393557f726bed3d97a5eab04a4a29d741",
+      "identicalRetained": [],
+      "purpose": "reproducible compiler intermediate; source and actual executed runtime retained"
+    },
+    {
+      "path": "native-frame-reader/obj/Release/net10.0/nativeframe.csproj.CoreCompileInputs.cache",
+      "bytes": 65,
+      "sha256": "1e2bbc20e9bc8a18fb2efc4a6e7b52d326eb6a443cf41843481d926b2faafb50",
+      "identicalRetained": [],
+      "purpose": "reproducible compiler intermediate; source and actual executed runtime retained"
+    },
+    {
+      "path": "native-frame-reader/obj/Release/net10.0/nativeframe.csproj.FileListAbsolute.txt",
+      "bytes": 2116,
+      "sha256": "1b31f4d1e66c75b8564c2521c74f9b920475f153094242ca2d792192725d523c",
+      "identicalRetained": [],
+      "purpose": "reproducible compiler intermediate; source and actual executed runtime retained"
+    },
+    {
+      "path": "native-frame-reader/obj/Release/net10.0/nativeframe.dll",
+      "bytes": 15360,
+      "sha256": "bfe3a07dea78d48511d44ae124aa0d900753614bb9047e09a8678657a4352b3f",
+      "identicalRetained": [
+        "fixed-api/nativeframe.dll"
+      ],
+      "purpose": "reproducible compiler intermediate; source and actual executed runtime retained"
+    },
+    {
+      "path": "native-frame-reader/obj/Release/net10.0/nativeframe.genruntimeconfig.cache",
+      "bytes": 65,
+      "sha256": "9d2ccccd37f786e44e9caa38aa6b55e7f927042787e73ed8cb865c10f89dd4a7",
+      "identicalRetained": [],
+      "purpose": "reproducible compiler intermediate; source and actual executed runtime retained"
+    },
+    {
+      "path": "native-frame-reader/obj/Release/net10.0/nativeframe.pdb",
+      "bytes": 14064,
+      "sha256": "392ad2c80eff3095852249bd14c2a383300e8346491a56c6020a021f13b93c74",
+      "identicalRetained": [
+        "fixed-api/nativeframe.pdb"
+      ],
+      "purpose": "reproducible compiler intermediate; source and actual executed runtime retained"
+    },
+    {
+      "path": "native-frame-reader/obj/Release/net10.0/nativeframe.sourcelink.json",
+      "bytes": 157,
+      "sha256": "2ba87f694827f2627134490a2116cca3be2b301b8e843a8799646727019e1488",
+      "identicalRetained": [],
+      "purpose": "reproducible compiler intermediate; source and actual executed runtime retained"
+    },
+    {
+      "path": "native-frame-reader/obj/Release/net10.0/ref/nativeframe.dll",
+      "bytes": 6656,
+      "sha256": "8acc69ac7d373d4331e681a42ebd78a65f9f3a6e2093579770e9e25504c4086d",
+      "identicalRetained": [],
+      "purpose": "reproducible compiler intermediate; source and actual executed runtime retained"
+    },
+    {
+      "path": "native-frame-reader/obj/Release/net10.0/refint/nativeframe.dll",
+      "bytes": 6656,
+      "sha256": "8acc69ac7d373d4331e681a42ebd78a65f9f3a6e2093579770e9e25504c4086d",
+      "identicalRetained": [],
+      "purpose": "reproducible compiler intermediate; source and actual executed runtime retained"
+    },
+    {
+      "path": "native-frame-reader/obj/nativeframe.csproj.nuget.dgspec.json",
+      "bytes": 21354,
+      "sha256": "6cfc81542d5ca696485a1cd43ca5f6b94707460f0d043a421369005f47ec6832",
+      "identicalRetained": [],
+      "purpose": "reproducible compiler intermediate; source and actual executed runtime retained"
+    },
+    {
+      "path": "native-frame-reader/obj/nativeframe.csproj.nuget.g.props",
+      "bytes": 1130,
+      "sha256": "fc3164a419c5b2121a87fb47d38735c1397640d10e208c775a65a02edd6e231e",
+      "identicalRetained": [],
+      "purpose": "reproducible compiler intermediate; source and actual executed runtime retained"
+    },
+    {
+      "path": "native-frame-reader/obj/nativeframe.csproj.nuget.g.targets",
+      "bytes": 149,
+      "sha256": "b14461e0cb1be3f77fcf9fe2fdd62889325ca92523d0f606980ed59eb5c4aa1c",
+      "identicalRetained": [],
+      "purpose": "reproducible compiler intermediate; source and actual executed runtime retained"
+    },
+    {
+      "path": "native-frame-reader/obj/project.assets.json",
+      "bytes": 20608,
+      "sha256": "21c4604eddf9f4d1ab3b12e467ee7877f47a328fa764c3d2d0ffd1d08a99ae9d",
+      "identicalRetained": [],
+      "purpose": "reproducible compiler intermediate; source and actual executed runtime retained"
+    },
+    {
+      "path": "native-frame-reader/obj/project.nuget.cache",
+      "bytes": 247,
+      "sha256": "3d6032883c5d82d752f89b2ebc5872d4d3e9b5f63106334c973034b768b0077a",
+      "identicalRetained": [],
+      "purpose": "reproducible compiler intermediate; source and actual executed runtime retained"
+    },
+    {
+      "path": "fixed-native-independent-reader/obj/Release/net10.0/.NETCoreApp,Version=v10.0.AssemblyAttributes.cs",
+      "bytes": 196,
+      "sha256": "f79c1ad9a9fc76110b3655f5bfb5ff4e3168e9addceff05b937c0796f0ec34eb",
+      "identicalRetained": [],
+      "purpose": "reproducible compiler intermediate; source and actual executed runtime retained"
+    },
+    {
+      "path": "fixed-native-independent-reader/obj/Release/net10.0/apphost",
+      "bytes": 124712,
+      "sha256": "177e5d04fa1ed19c9b4d7962f438021435d99be64746126739136b3d6b2263bc",
+      "identicalRetained": [],
+      "purpose": "reproducible compiler intermediate; source and actual executed runtime retained"
+    },
+    {
+      "path": "fixed-native-independent-reader/obj/Release/net10.0/independentnative.dll",
+      "bytes": 19968,
+      "sha256": "e0a48bf585fa0604cf0a67af4dd2aed2e0706599f85e36324f8abe6ae8c8aa2e",
+      "identicalRetained": [
+        "fixed-api/independentnative.dll"
+      ],
+      "purpose": "reproducible compiler intermediate; source and actual executed runtime retained"
+    },
+    {
+      "path": "fixed-native-independent-reader/obj/Release/net10.0/independentnative.pdb",
+      "bytes": 14984,
+      "sha256": "57d2f52ffa2b15a757625e68159485e14b00052a33fa23600b7d4812c86e7c8a",
+      "identicalRetained": [
+        "fixed-api/independentnative.pdb"
+      ],
+      "purpose": "reproducible compiler intermediate; source and actual executed runtime retained"
+    },
+    {
+      "path": "fixed-native-independent-reader/obj/Release/net10.0/reader.AssemblyInfo.cs",
+      "bytes": 1005,
+      "sha256": "276e42be57db231d67295839820e5b0dfb8c57a202a128e10cd6d383824ca5e5",
+      "identicalRetained": [],
+      "purpose": "reproducible compiler intermediate; source and actual executed runtime retained"
+    },
+    {
+      "path": "fixed-native-independent-reader/obj/Release/net10.0/reader.AssemblyInfoInputs.cache",
+      "bytes": 65,
+      "sha256": "38b815b25046b62f302838d59a9921a28aee1eedd78af92ebc0ff09d6166a790",
+      "identicalRetained": [],
+      "purpose": "reproducible compiler intermediate; source and actual executed runtime retained"
+    },
+    {
+      "path": "fixed-native-independent-reader/obj/Release/net10.0/reader.GeneratedMSBuildEditorConfig.editorconfig",
+      "bytes": 865,
+      "sha256": "dec8174359ae28e1ae508f0f7b1a08b9f38ab59e7dc51f522819fe0dee1f2902",
+      "identicalRetained": [],
+      "purpose": "reproducible compiler intermediate; source and actual executed runtime retained"
+    },
+    {
+      "path": "fixed-native-independent-reader/obj/Release/net10.0/reader.GlobalUsings.g.cs",
+      "bytes": 231,
+      "sha256": "8f86a2cbf00ff3eee0bda2bc0eb5e1fc19c8544d5dc650c53d0132325956b592",
+      "identicalRetained": [],
+      "purpose": "reproducible compiler intermediate; source and actual executed runtime retained"
+    },
+    {
+      "path": "fixed-native-independent-reader/obj/Release/net10.0/reader.assets.cache",
+      "bytes": 155,
+      "sha256": "4d82de1d02f1630d2c7e2988b6f52cb1ed240b2ec7ee5257fbab8f755f9cc97c",
+      "identicalRetained": [],
+      "purpose": "reproducible compiler intermediate; source and actual executed runtime retained"
+    },
+    {
+      "path": "fixed-native-independent-reader/obj/Release/net10.0/reader.csproj.AssemblyReference.cache",
+      "bytes": 7827,
+      "sha256": "93c6b1965f2c4c4fe1a02d3c82c95d2393557f726bed3d97a5eab04a4a29d741",
+      "identicalRetained": [],
+      "purpose": "reproducible compiler intermediate; source and actual executed runtime retained"
+    },
+    {
+      "path": "fixed-native-independent-reader/obj/Release/net10.0/reader.csproj.CoreCompileInputs.cache",
+      "bytes": 65,
+      "sha256": "94da9e8c21ef48ea3dc700b3c7077c616e42397495a5b5fabfa030f897c6f041",
+      "identicalRetained": [],
+      "purpose": "reproducible compiler intermediate; source and actual executed runtime retained"
+    },
+    {
+      "path": "fixed-native-independent-reader/obj/Release/net10.0/reader.csproj.FileListAbsolute.txt",
+      "bytes": 2292,
+      "sha256": "999d068b3e87aefda0f1216a4e3d8f1d7912cf88df7c1717d253df0fd3cd984a",
+      "identicalRetained": [],
+      "purpose": "reproducible compiler intermediate; source and actual executed runtime retained"
+    },
+    {
+      "path": "fixed-native-independent-reader/obj/Release/net10.0/reader.genruntimeconfig.cache",
+      "bytes": 65,
+      "sha256": "dcc61d7201a3ecaafac18c21427826454bb604342d960fb46cae2f35c6533c18",
+      "identicalRetained": [],
+      "purpose": "reproducible compiler intermediate; source and actual executed runtime retained"
+    },
+    {
+      "path": "fixed-native-independent-reader/obj/Release/net10.0/reader.sourcelink.json",
+      "bytes": 157,
+      "sha256": "2ba87f694827f2627134490a2116cca3be2b301b8e843a8799646727019e1488",
+      "identicalRetained": [],
+      "purpose": "reproducible compiler intermediate; source and actual executed runtime retained"
+    },
+    {
+      "path": "fixed-native-independent-reader/obj/Release/net10.0/ref/independentnative.dll",
+      "bytes": 7168,
+      "sha256": "fc39bd8e1e9216a9c3f4c04b8f7ff8558cdbccf08940a5f570eb17a89d10dd20",
+      "identicalRetained": [],
+      "purpose": "reproducible compiler intermediate; source and actual executed runtime retained"
+    },
+    {
+      "path": "fixed-native-independent-reader/obj/Release/net10.0/refint/independentnative.dll",
+      "bytes": 7168,
+      "sha256": "fc39bd8e1e9216a9c3f4c04b8f7ff8558cdbccf08940a5f570eb17a89d10dd20",
+      "identicalRetained": [],
+      "purpose": "reproducible compiler intermediate; source and actual executed runtime retained"
+    },
+    {
+      "path": "fixed-native-independent-reader/obj/project.assets.json",
+      "bytes": 20640,
+      "sha256": "e27394da9bae19e0438fd9d841ca2d4054913035a5677184fcc8d9568cc8af8d",
+      "identicalRetained": [],
+      "purpose": "reproducible compiler intermediate; source and actual executed runtime retained"
+    },
+    {
+      "path": "fixed-native-independent-reader/obj/project.nuget.cache",
+      "bytes": 254,
+      "sha256": "9d66f84989896950efe32544ad0c2f1dca3f11b60bacfeab3a568ba735699bf7",
+      "identicalRetained": [],
+      "purpose": "reproducible compiler intermediate; source and actual executed runtime retained"
+    },
+    {
+      "path": "fixed-native-independent-reader/obj/reader.csproj.nuget.dgspec.json",
+      "bytes": 21400,
+      "sha256": "9c28881865fa40516d3776aff554972a0c88f797dce5f117fbc28468b10d53bc",
+      "identicalRetained": [],
+      "purpose": "reproducible compiler intermediate; source and actual executed runtime retained"
+    },
+    {
+      "path": "fixed-native-independent-reader/obj/reader.csproj.nuget.g.props",
+      "bytes": 1130,
+      "sha256": "fc3164a419c5b2121a87fb47d38735c1397640d10e208c775a65a02edd6e231e",
+      "identicalRetained": [],
+      "purpose": "reproducible compiler intermediate; source and actual executed runtime retained"
+    },
+    {
+      "path": "fixed-native-independent-reader/obj/reader.csproj.nuget.g.targets",
+      "bytes": 149,
+      "sha256": "b14461e0cb1be3f77fcf9fe2fdd62889325ca92523d0f606980ed59eb5c4aa1c",
+      "identicalRetained": [],
+      "purpose": "reproducible compiler intermediate; source and actual executed runtime retained"
+    }
+  ],
+  "smallUnusedGeneratedManifests": {
+    "sql-probe-build/fixedprobe.deps.json": "{\n  \"runtimeTarget\": {\n    \"name\": \".NETCoreApp,Version=v10.0\",\n    \"signature\": \"\"\n  },\n  \"compilationOptions\": {},\n  \"targets\": {\n    \".NETCoreApp,Version=v10.0\": {\n      \"fixedprobe/1.0.0\": {\n        \"runtime\": {\n          \"fixedprobe.dll\": {}\n        }\n      }\n    }\n  },\n  \"libraries\": {\n    \"fixedprobe/1.0.0\": {\n      \"type\": \"project\",\n      \"serviceable\": false,\n      \"sha512\": \"\"\n    }\n  }\n}",
+    "sql-probe-build/fixedprobe.runtimeconfig.json": "{\n  \"runtimeOptions\": {\n    \"tfm\": \"net10.0\",\n    \"framework\": {\n      \"name\": \"Microsoft.NETCore.App\",\n      \"version\": \"10.0.0\"\n    },\n    \"configProperties\": {\n      \"System.Reflection.Metadata.MetadataUpdater.IsSupported\": false,\n      \"System.Runtime.Serialization.EnableUnsafeBinaryFormatterSerialization\": false\n    }\n  }\n}",
+    "native-reader-build/nativeframe.deps.json": "{\n  \"runtimeTarget\": {\n    \"name\": \".NETCoreApp,Version=v10.0\",\n    \"signature\": \"\"\n  },\n  \"compilationOptions\": {},\n  \"targets\": {\n    \".NETCoreApp,Version=v10.0\": {\n      \"nativeframe/1.0.0\": {\n        \"runtime\": {\n          \"nativeframe.dll\": {}\n        }\n      }\n    }\n  },\n  \"libraries\": {\n    \"nativeframe/1.0.0\": {\n      \"type\": \"project\",\n      \"serviceable\": false,\n      \"sha512\": \"\"\n    }\n  }\n}",
+    "native-reader-build/nativeframe.runtimeconfig.json": "{\n  \"runtimeOptions\": {\n    \"tfm\": \"net10.0\",\n    \"framework\": {\n      \"name\": \"Microsoft.NETCore.App\",\n      \"version\": \"10.0.0\"\n    },\n    \"configProperties\": {\n      \"System.Reflection.Metadata.MetadataUpdater.IsSupported\": false,\n      \"System.Runtime.Serialization.EnableUnsafeBinaryFormatterSerialization\": false\n    }\n  }\n}",
+    "independent-native-build/independentnative.deps.json": "{\n  \"runtimeTarget\": {\n    \"name\": \".NETCoreApp,Version=v10.0\",\n    \"signature\": \"\"\n  },\n  \"compilationOptions\": {},\n  \"targets\": {\n    \".NETCoreApp,Version=v10.0\": {\n      \"independentnative/1.0.0\": {\n        \"runtime\": {\n          \"independentnative.dll\": {}\n        }\n      }\n    }\n  },\n  \"libraries\": {\n    \"independentnative/1.0.0\": {\n      \"type\": \"project\",\n      \"serviceable\": false,\n      \"sha512\": \"\"\n    }\n  }\n}",
+    "independent-native-build/independentnative.runtimeconfig.json": "{\n  \"runtimeOptions\": {\n    \"tfm\": \"net10.0\",\n    \"framework\": {\n      \"name\": \"Microsoft.NETCore.App\",\n      \"version\": \"10.0.0\"\n    },\n    \"configProperties\": {\n      \"System.Reflection.Metadata.MetadataUpdater.IsSupported\": false,\n      \"System.Runtime.Serialization.EnableUnsafeBinaryFormatterSerialization\": false\n    }\n  }\n}"
+  },
+  "logicalBytesRemoved": 1313990,
+  "all61OriginalExecutedInputsExactBefore": true,
+  "noDatabaseSourceTestEvidenceOrRuntimeRemoved": true,
+  "all61OriginalExecutedInputsExactAfter": true,
+  "allExactTargetsAbsent": true
+}

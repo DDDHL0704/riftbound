@@ -1,0 +1,102 @@
+{
+  "region": "CN",
+  "language": "zh-CN",
+  "applicableRulesBaseline": "2026-10-16",
+  "records": [
+    {
+      "startedAtUtc": "2026-10-19T19:47:31.365822+00:00",
+      "receivedAtUtc": "2026-10-19T19:47:31.479444+00:00",
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "诺克萨斯断头台",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "httpStatus": 200,
+      "httpDate": "Mon, 19 Oct 2026 19:47:31 GMT",
+      "resolvedUrl": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "rawSha256": "2eaf6350a51f435d605239c167519036944b200e5601e6c106fe6bd206caf0b4",
+      "stored": "var/qa/phoenix-destroy-source-20261020/noxian-guillotine-fresh-source-v1.json.gz",
+      "rawBytes": 1280,
+      "reportedTotal": 1,
+      "returnedRows": 1,
+      "comparedExactRows": [
+        {
+          "apiId": 31496,
+          "cardNo": "OGN·254/298",
+          "name": "诺克萨斯断头台",
+          "currentFullRowExactlyMatchesCn16": true,
+          "individualPublicationDate": null,
+          "individualEffectiveDate": null,
+          "exactText": "{{迅捷}}（可在你的回合或法术对决中打出。）\n选择一名单位，在它本回合下次受到伤害时，将其摧毁。\n{{鼓舞}}—改为立即将其摧毁。（如果你在本回合内已打出过其他卡牌，则发动此效果。）"
+        }
+      ]
+    },
+    {
+      "startedAtUtc": "2026-10-19T19:47:31.479483+00:00",
+      "receivedAtUtc": "2026-10-19T19:47:31.599639+00:00",
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "决斗",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "httpStatus": 200,
+      "httpDate": "Mon, 19 Oct 2026 19:47:31 GMT",
+      "resolvedUrl": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "rawSha256": "753ae6df7f6b35d0746b9a3f128072ac6d5f47383b7e483c36db587361f8f975",
+      "stored": "var/qa/phoenix-destroy-source-20261020/duel-fresh-source-v1.json.gz",
+      "rawBytes": 4242,
+      "reportedTotal": 4,
+      "returnedRows": 4,
+      "comparedExactRows": [
+        {
+          "apiId": 37786,
+          "cardNo": "VEN·090",
+          "name": "末日决斗",
+          "currentFullRowExactlyMatchesCn16": true,
+          "individualPublicationDate": null,
+          "individualEffectiveDate": null,
+          "exactText": "每名玩家选择一个受自己控制的单位。摧毁其余的单位。"
+        },
+        {
+          "apiId": 31587,
+          "cardNo": "OGS·008/024",
+          "name": "绅士决斗",
+          "currentFullRowExactlyMatchesCn16": true,
+          "individualPublicationDate": null,
+          "individualEffectiveDate": null,
+          "exactText": "{{迅捷}}（可在你的回合或法术对决中打出。）\n让一名友方单位本回合内{{S}}+3。随后，选择一名敌方单位，让这两名单位互相以自身战力给对方造成伤害。"
+        },
+        {
+          "apiId": 31258,
+          "cardNo": "OGN·046/298",
+          "name": "决斗架势",
+          "currentFullRowExactlyMatchesCn16": true,
+          "individualPublicationDate": null,
+          "individualEffectiveDate": null,
+          "exactText": "{{反应}}（可在任意时机打出，甚至先于其他法术和技能的结算。）\n让一名友方单位本回合内{{S}}+1，如果它是你在该处唯一控制的单位，则它本回合内额外获得{{S}}+1。"
+        },
+        {
+          "apiId": 31352,
+          "cardNo": "OGN·128/298",
+          "name": "决斗",
+          "currentFullRowExactlyMatchesCn16": true,
+          "individualPublicationDate": null,
+          "individualEffectiveDate": null,
+          "exactText": "{{迅捷}}（可在你的回合或法术对决中打出。）\n选择任意一名友方和一名敌方单位，让这两名单位相互以自身战力给对方造成伤害。"
+        }
+      ]
+    }
+  ],
+  "noOldSourceDatesOrUniverseRewritten": true,
+  "semanticsImplementationAndProductStillOpen": true
+}

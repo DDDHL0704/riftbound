@@ -1,0 +1,22 @@
+{
+  "profile": "focus",
+  "discoveredMethods": 7585,
+  "jobs": 4,
+  "includeGames": true,
+  "testAssemblySha256": "56cc69c3ebcc5196967a112f892c5856d85abaa350a3de3da287b16ca0c1f28d",
+  "timings": "/Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/TestResults/mechanical-full.trx",
+  "shards": [
+    {
+      "name": "focus",
+      "methods": [
+        "Riftbound.ConformanceTests.DestructionGraveyardFamilyTests.ActualLethalSpellAndSelfDestructionOfferLeadingCostThenPlayOriginalPhoenix",
+        "Riftbound.ConformanceTests.DestructionGraveyardFamilyTests.DecreeDamageQueuesIndependentDestroyBeforePhoenixWithOriginalSpellSource",
+        "Riftbound.ConformanceTests.DestructionGraveyardFamilyTests.GuillotineCapturesInspireAtConfirmationOrNextDamageCreatesIndependentAbility",
+        "Riftbound.ConformanceTests.DestructionGraveyardFamilyTests.WholePrintedInstructionsParseAsFiniteSharedConsumers",
+        "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameResolvesVoidGateTargetSpellSkillDamageBonusAndScoreVictoryActionLogReplaysToFinalStateHash",
+        "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDecksResolveMultiDefenderBattleDamageAssignmentScoreVictoryActionLogReplaysToFinalStateHash"
+      ],
+      "filter": "(FullyQualifiedName~DestructionGraveyardFamilyTests|FullyQualifiedName~OfficialDeckMidgameResolvesVoidGateTargetSpellSkillDamageBonusAndScoreVictoryActionLogReplaysToFinalStateHash|FullyQualifiedName~OfficialDecksResolveMultiDefenderBattleDamageAssignmentScoreVictoryActionLogReplaysToFinalStateHash)"
+    }
+  ]
+}

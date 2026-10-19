@@ -1,0 +1,37 @@
+{
+  "status": "FINAL_ORIGINAL_TEST_AND_THEORY_SOURCE_IDENTITIES_RETAINED_WITH_EXPLICIT_ONE_LITERAL_DIAGNOSTIC_CHANGE",
+  "atUtc": "2026-10-19T22:02:05.952823+00:00",
+  "baseCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+  "originalTestAndToolPaths": 1831,
+  "allOriginalPathsRetained": true,
+  "originalPublicTaskVoidMethodOccurrences": 7594,
+  "allOriginalPublicTaskVoidMethodNamesRetainedWithMultiplicity": true,
+  "allOriginalInlineDataAttributeOccurrences": 5910,
+  "allOriginalInlineDataAttributesRetainedWithMultiplicity": true,
+  "changedOriginalCsFiles": [
+    "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+    "tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs",
+    "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "tests/Riftbound.PostgresAcceptance/Program.cs"
+  ],
+  "originalFullGameMainEveryOriginalLineExactAfterRemovingSingleAddedIndependentPrivacyCheck": true,
+  "originalFullGameFiles": 9,
+  "originalFullGameTestMethods": 143,
+  "fullGameRetentionReceipt": "original-fullgame-retention-before-security-v1.json",
+  "originalMatrixPairs": 110,
+  "originalSeed": 424242,
+  "matrixWholeSourceRetainedBeforeSingleAddedCheck": true,
+  "doesNotProveCurrentFullTrxExecution": true,
+  "previousCompleteRetentionProofSha256": "dbf8b57b9e1e0ff8e5e213ebc7ef6be17efc8f19cc06a49ce3085a7eef66edad",
+  "onlyAdditionalOldSourceChangeAfterV1": {
+    "path": "tests/Riftbound.ConformanceTests/MatchRecoveryTests.cs",
+    "originalPrefix": "\"[CARD_DISCARDED, CARDS_RECYCLED,",
+    "currentPrefix": "\"[DAMAGE_APPLIED, CARD_DISCARDED, CARDS_RECYCLED,",
+    "allOtherSourceBytesExactAgainstOriginalHead": true,
+    "sha256": "62774202429906c0f42e43727905c25b61565a1e01976d0da481f3fe8ab6f796",
+    "originalNegativeAssertionsAndForgedEventRejectionsRetained": true
+  },
+  "currentSoleCheckDeclaredThisExactUpdatedSource": true,
+  "publicTaskVoidCountIncludesHelpersNotActualTestMethodCount": true,
+  "allOriginalTestPathsStillRetained": true
+}

@@ -1,0 +1,31 @@
+{
+  "status": "FOUR_EXISTING_NEGATIVE_CAUSAL_DIAGNOSTIC_EXPECTATIONS_FAIL_BEFORE_SOLECHECK",
+  "actualCases": 4,
+  "rawTrxSha256": "e3fda8dddc7d165ee398713735a32a2d091a2e85377016bb9acc17ce9f4614d1",
+  "failures": [
+    {
+      "name": "Riftbound.ConformanceTests.MatchRecoveryTests.RecoveryValidatorRejectsSnapshotTimingTriggerQueueTriggeredEventKindDrift",
+      "outcome": "Failed",
+      "message": "Assert.Contains() Failure: Filter not matched in collection\nCollection: [\"snapshot for alice timing trigger queue item trigg\"\u00b7\u00b7\u00b7]"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.MatchRecoveryTests.RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueKeyedKnownValueCanonicalityWithCountMismatch",
+      "outcome": "Failed",
+      "message": "Assert.Contains() Failure: Filter not matched in collection\nCollection: [\"spectator replay frame timing trigger queue count \"\u00b7\u00b7\u00b7, \"spectator replay frame timing trigger queue item s\"\u00b7\u00b7\u00b7, \"spectator replay frame timing trigger queue item s\"\u00b7\u00b7\u00b7, \"spectator replay frame timing trigger queue item e\"\u00b7\u00b7\u00b7, \"spectator replay frame timing trigger queue item t\"\u00b7\u00b7\u00b7, \u00b7\u00b7\u00b7]"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.MatchRecoveryTests.RecoveryValidatorRejectsAuthoritativeStateTriggerQueueTriggeredEventKindDrift",
+      "outcome": "Failed",
+      "message": "authoritative state trigger queue item trigger-1 triggered event kind FORGED_EVENT is invalid; expected [DAMAGE_APPLIED, CARD_DISCARDED, CARDS_RECYCLED, RUNE_RECYCLED, TURN_END_STEP_STARTED, UNIT_BECAME_POWERFUL, TURN_START_BEGAN, MOVEMENT_INSTRUCTION_COMPLETED, EQUIPMENT_ATTACHED, UNIT_TOKEN_CREATED, UNIT_PLAYED_TO_BATTLEFIELD, UNIT_PLAYED_TO_BASE, UNIT_DESTROYED, BATTLEFIELD_HELD, UNIT_MOVED_TO_BATTLEFIELD, UNIT_MOVED_TO_BASE, CARD_PLAYED, SPELL_PLAY_COMPLETED, SPELL_TARGET_CHOSEN, SPELL_DUEL_STARTED, BATTLEFIELD_CONQUERED, BATTLE_DECLARED, BATTLE_ROLES_ESTABLISHED, BATTLE_ROLE_ACQUIRED, OBJECT_DESTROYED, UNIT_READY, OBJECT_EMPOWERED] but got FORGED_EVENT"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.MatchRecoveryTests.RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueKeyedVisibleSourceTriggeredEventKindInvalidValueWithoutCountMismatch",
+      "outcome": "Failed",
+      "message": "Assert.Contains() Failure: Filter not matched in collection\nCollection: [\"spectator replay frame timing trigger queue item t\"\u00b7\u00b7\u00b7, \"spectator replay frame timing trigger queue item t\"\u00b7\u00b7\u00b7, \"spectator replay frame timing trigger queue trigge\"\u00b7\u00b7\u00b7]"
+    }
+  ],
+  "currentLegitimateEventAdded": "DAMAGE_APPLIED",
+  "plannedCorrection": "Add the independent literal to the expected diagnostic list while retaining each FORGED_EVENT rejection and all original assertions. Do so only after the frozen SQL run ends.",
+  "productionSourceChangeRequired": false,
+  "soleCheckNotRunYet": true
+}

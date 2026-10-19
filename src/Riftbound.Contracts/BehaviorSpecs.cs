@@ -56,6 +56,9 @@ public static class BehaviorEffectFormulaKinds
 
 public static class TriggerKinds
 {
+    public const string UnitSpellDestroyPlayFromGraveyard = "UNIT_SPELL_DESTROY_PLAY_FROM_GRAVEYARD";
+    public const string SpellTurnUnitDamagedDestroy = "SPELL_TURN_UNIT_DAMAGED_DESTROY";
+    public const string SpellNextDamageOrInspiredDestroy = "SPELL_NEXT_DAMAGE_OR_INSPIRED_DESTROY";
     public const string TurnEndRevealUntilUnit = "TURN_END_REVEAL_UNTIL_UNIT";
     public const string TurnEndReadyRunes = "TURN_END_READY_RUNES";
     public const string BattlefieldUnitMovedAwayPowerModifier =

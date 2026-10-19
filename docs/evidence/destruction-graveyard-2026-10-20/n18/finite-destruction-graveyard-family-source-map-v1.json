@@ -1,0 +1,613 @@
+{
+  "recordedAtUtc": "2026-10-19T19:54:23.012629+00:00",
+  "fixedCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+  "status": "SOURCE_BOUND_FINITE_FAMILY_IMPLEMENTATION_SEAMS_AND_REQUIRED_BRANCHES_NOT_IMPLEMENTATION_PASS",
+  "region": "CN",
+  "language": "zh-CN",
+  "applicableRulesBaseline": "2026-10-16",
+  "sourceFiles": [
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+      "sha256": "93f44b598d64ee4927115b0ade5f01610e48e219aee4f3fb4a9ea7261a6f2e17",
+      "relevantActualSourceLocations": [
+        {
+          "line": 48,
+          "text": "private const string DestroyOnNextDamageThisTurnEffectId = \"DESTROY_ON_NEXT_DAMAGE_THIS_TURN\";"
+        },
+        {
+          "line": 174,
+          "text": "result = QueueReflexiveDuels(RecordDeathObservers(state, RecordDelayedDestruction(state, RecordAttachmentObservers(state, RecordMovementObservers(ApplyNestedDestructionContinuations(result))))));"
+        },
+        {
+          "line": 2464,
+          "text": "var damageApplication = ApplyDamageToCardObject("
+        },
+        {
+          "line": 2470,
+          "text": "var payload = BuildDamagePayload(assignment.SourceObjectId, assignment.TargetObjectId, damageApplication);"
+        },
+        {
+          "line": 3823,
+          "text": "using (var costReplacements = PrepareDestructionReplacements(state with { PlayerExperience = playerExperience }, playerZones, cardObjects, runePools, plan.DestroyedAdditionalCostTargetObjectIds))"
+        },
+        {
+          "line": 3833,
+          "text": "events.AddRange(BuildFieldRemovalEvents("
+        },
+        {
+          "line": 3923,
+          "text": "[\"playedAfterAnotherCardThisTurn\"] = stackItem.PlayedAfterAnotherCardThisTurn"
+        },
+        {
+          "line": 12667,
+          "text": "var attackerDamageApplication = ApplyDamageToCardObject("
+        },
+        {
+          "line": 12747,
+          "text": "var defenderDamageApplication = ApplyDamageToCardObject("
+        },
+        {
+          "line": 13588,
+          "text": "var damageApplication = ApplyDamageToCardObject("
+        },
+        {
+          "line": 13594,
+          "text": "var damagePayload = BuildDamagePayload(attackerObjectId, targetObjectId, damageApplication);"
+        },
+        {
+          "line": 16123,
+          "text": "events.AddRange(BuildFieldRemovalEvents("
+        },
+        {
+          "line": 18208,
+          "text": "var payload = BuildDamagePayload(sourceObjectId, targetObjectId, damageApplication);"
+        },
+        {
+          "line": 18569,
+          "text": "&& EffectPlaySources(state, intent.PlayerId).Contains(command.SourceObjectId))"
+        },
+        {
+          "line": 18589,
+          "text": "|| !EffectPlaySources(state, intent.PlayerId).Contains(command.SourceObjectId, StringComparer.Ordinal))"
+        },
+        {
+          "line": 19299,
+          "text": "var stackResolution = ResolveStackItemEffect(state, resolvedItem, confirmPermanent);"
+        },
+        {
+          "line": 23798,
+          "text": "CardSourceBoonConditionKinds.PlayedAfterAnotherCardThisTurn"
+        },
+        {
+          "line": 23799,
+          "text": "=> stackItem.PlayedAfterAnotherCardThisTurn,"
+        },
+        {
+          "line": 23959,
+          "text": "CardTargetCountConditionKinds.PlayedAfterAnotherCardThisTurn"
+        },
+        {
+          "line": 23972,
+          "text": "CardTargetCountConditionKinds.PlayedAfterAnotherCardThisTurn"
+        },
+        {
+          "line": 23973,
+          "text": "=> stackItem.PlayedAfterAnotherCardThisTurn,"
+        },
+        {
+          "line": 23985,
+          "text": "CardTokenCreationConditionKinds.PlayedAfterAnotherCardThisTurn"
+        },
+        {
+          "line": 23986,
+          "text": "=> stackItem.PlayedAfterAnotherCardThisTurn,"
+        },
+        {
+          "line": 24359,
+          "text": "private static StackResolutionResult ResolveStackItemEffectCore(MatchState state, StackItemState stackItem, bool confirmPermanent = false, bool deferCompletion = false, HashSet<string>? repeatDamageDestroyTargets = null, bool skipInsight = "
+        },
+        {
+          "line": 25258,
+          "text": "using var replacements = PrepareDestructionReplacements(state with { PlayerScores = playerScores, PlayerExperience = playerExperience }, playerZones, cardObjects, runePools, allUnitTargetObjectIds);"
+        },
+        {
+          "line": 25274,
+          "text": "events.AddRange(BuildFieldRemovalEvents("
+        },
+        {
+          "line": 25301,
+          "text": "events.AddRange(BuildFieldRemovalEvents("
+        },
+        {
+          "line": 25383,
+          "text": "else if (behavior.AppliesStatusEffectToAllUnits)"
+        },
+        {
+          "line": 25766,
+          "text": "var damageApplication = ApplyDamageToCardObject("
+        },
+        {
+          "line": 25777,
+          "text": "BuildDamagePayload("
+        },
+        {
+          "line": 25787,
+          "text": "var damageApplication = ApplyDamageToCardObject("
+        },
+        {
+          "line": 25798,
+          "text": "BuildDamagePayload("
+        },
+        {
+          "line": 25824,
+          "text": "var damageApplication = ApplyDamageToCardObject("
+        },
+        {
+          "line": 25835,
+          "text": "BuildDamagePayload("
+        },
+        {
+          "line": 25845,
+          "text": "var damageApplication = ApplyDamageToCardObject("
+        },
+        {
+          "line": 25856,
+          "text": "BuildDamagePayload("
+        },
+        {
+          "line": 25879,
+          "text": "var damageApplication = ApplyDamageToCardObject("
+        },
+        {
+          "line": 25890,
+          "text": "BuildDamagePayload("
+        },
+        {
+          "line": 25925,
+          "text": "var damageApplication = ApplyDamageToCardObject("
+        },
+        {
+          "line": 25936,
+          "text": "BuildDamagePayload("
+        },
+        {
+          "line": 26083,
+          "text": "events.AddRange(BuildFieldRemovalEvents("
+        },
+        {
+          "line": 26201,
+          "text": "using var replacements = PrepareDestructionReplacements(state with { PlayerScores = playerScores, PlayerExperience = playerExperience }, playerZones, cardObjects, runePools,"
+        },
+        {
+          "line": 26264,
+          "text": "var damageApplication = ApplyDamageToCardObject("
+        },
+        {
+          "line": 26277,
+          "text": "BuildDamagePayload(stackItem.SourceObjectId, targetObjectId, damageApplication)));"
+        },
+        {
+          "line": 26322,
+          "text": "events.AddRange(BuildFieldRemovalEvents("
+        },
+        {
+          "line": 26460,
+          "text": "events.AddRange(BuildFieldRemovalEvents("
+        },
+        {
+          "line": 27670,
+          "text": "var damageApplication = ApplyDamageToCardObject("
+        },
+        {
+          "line": 27675,
+          "text": "var payload = BuildDamagePayload(stackItem.SourceObjectId, targetObjectId, damageApplication);"
+        },
+        {
+          "line": 28291,
+          "text": "var damageApplication = ApplyDamageToCardObject("
+        },
+        {
+          "line": 28302,
+          "text": "BuildDamagePayload(stackItem.SourceObjectId, targetObjectId, damageApplication)));"
+        },
+        {
+          "line": 29012,
+          "text": "var damageApplication = ApplyDamageToCardObject("
+        },
+        {
+          "line": 29023,
+          "text": "BuildDamagePayload(stackItem.SourceObjectId, targetObjectId, damageApplication)));"
+        },
+        {
+          "line": 29104,
+          "text": "var damageApplication = ApplyDamageToCardObject("
+        },
+        {
+          "line": 29115,
+          "text": "BuildDamagePayload(stackItem.SourceObjectId, targetObjectId, damageApplication)));"
+        },
+        {
+          "line": 29137,
+          "text": "var damageApplication = ApplyDamageToCardObject("
+        },
+        {
+          "line": 29148,
+          "text": "BuildDamagePayload(stackItem.SourceObjectId, targetObjectId, damageApplication)));"
+        },
+        {
+          "line": 29176,
+          "text": "var damageApplication = ApplyDamageToCardObject("
+        },
+        {
+          "line": 29187,
+          "text": "BuildDamagePayload(stackItem.SourceObjectId, targetObjectId, damageApplication)));"
+        },
+        {
+          "line": 29191,
+          "text": "private static DamageApplicationResult ApplyDamageToCardObject("
+        },
+        {
+          "line": 29256,
+          "text": "private static Dictionary<string, object?> BuildDamagePayload("
+        },
+        {
+          "line": 31608,
+          "text": "var damageApplication = ApplyDamageToCardObject("
+        },
+        {
+          "line": 31619,
+          "text": "BuildDamagePayload(stackItem.SourceObjectId, targetObjectId, damageApplication)));"
+        },
+        {
+          "line": 32068,
+          "text": "? null : PrepareDestructionReplacements(state, zones, cards, runePools, [id]);"
+        },
+        {
+          "line": 32075,
+          "text": "var death = before is null ? null : CaptureUnitDeath(state, zones, cards, before);"
+        },
+        {
+          "line": 32175,
+          "text": "private static IReadOnlyList<GameEvent> BuildFieldRemovalEvents(string displayName, StackItemState stackItem,"
+        },
+        {
+          "line": 32178,
+          "text": "?? [BuildFieldRemovalEvent(displayName, stackItem, targetObjectId, removalResult, reason)]).ToArray();"
+        },
+        {
+          "line": 32180,
+          "text": "private static GameEvent BuildFieldRemovalEvent("
+        },
+        {
+          "line": 33106,
+          "text": "CardDrawConditionKinds.PlayedAfterAnotherCardThisTurn => stackItem.PlayedAfterAnotherCardThisTurn,"
+        },
+        {
+          "line": 33511,
+          "text": "using var replacements = PrepareDestructionReplacements(state, playerZones, cardObjects, nextRunePools, stateBasedRemovalObjectIds,"
+        },
+        {
+          "line": 33568,
+          "text": "events.AddRange(BuildFieldRemovalEvents("
+        }
+      ]
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.DeathObservers.cs",
+      "sha256": "8987b82a5f8b005af55d21b8399c3226c8a3311f6cd267e49ad7e09997d97676",
+      "relevantActualSourceLocations": [
+        {
+          "line": 36,
+          "text": "private static CapturedUnitDeath? CaptureUnitDeath(MatchState state, IReadOnlyDictionary<string,PlayerZones> zones,"
+        },
+        {
+          "line": 56,
+          "text": "private static ResolutionResult RecordDeathObservers(MatchState before, ResolutionResult result)"
+        }
+      ]
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.SpellCompletion.cs",
+      "sha256": "664635165fe8d51c54e5fd87732c59fc975332665fa838dc22c95fe929166ac4",
+      "relevantActualSourceLocations": [
+        {
+          "line": 18,
+          "text": "private static StackResolutionResult ResolveStackItemEffect(MatchState state, StackItemState item,"
+        },
+        {
+          "line": 22,
+          "text": "var result = ResolveStackItemEffectCore(state, item, confirmPermanent, deferCompletion, repeatDamageDestroyTargets, skipInsight);"
+        }
+      ]
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.DelayedDestruction.cs",
+      "sha256": "4bf7bff0f88886dfa2f24c41c85aa08457df0b97ecaacc6c47ea4704919c4a66",
+      "relevantActualSourceLocations": []
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.RuleChoices.cs",
+      "sha256": "2eafed47f13d5740755f3613c0b66a90367689f26b546761a7e609f17bb4f75d",
+      "relevantActualSourceLocations": []
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.TriggerCosts.cs",
+      "sha256": "7248aaebc0c824634407054b696275acb6302cb4ea8aedd04173bfcdc8b029e8",
+      "relevantActualSourceLocations": [
+        {
+          "line": 15,
+          "text": "private static LeadingCost? LeadingTriggerCost(StackItemState item) => CreatedTokenReadyHasPayment(item) ? new(Power: 1, PowerTrait: CardBehaviorRegistry.TryGetByCardNo(item.CreatedTokenReady!.CardNo, out var ready) ? ready.CreatedTokenRead"
+        },
+        {
+          "line": 26,
+          "text": "internal static bool NeedsTriggerCostConfirmation(StackItemState item) => LeadingTriggerCost(item) is not null && item.TriggerCost is null;"
+        },
+        {
+          "line": 28,
+          "text": "private static bool ValidLeadingCostContext(StackItemState item) => item.CreatedTokenReady is not null ? CreatedTokenReadyHasPayment(item) && item.EffectKind == CreatedTokenReadyEffect && item.CardNo == item.CreatedTokenReady.CardNo : item."
+        },
+        {
+          "line": 30,
+          "text": "&& LeadingTriggerCost(item) is not null && item.CardNo == held.CardNo"
+        },
+        {
+          "line": 37,
+          "text": "if (LeadingTriggerCost(item) is { DestroyLocalUnit: true })"
+        },
+        {
+          "line": 45,
+          "text": "if (!ValidLeadingCostContext(item) || item.TriggerCost is not null || LeadingTriggerCost(item) is not { Exhaust: true } cost"
+        },
+        {
+          "line": 48,
+          "text": "|| source.ObjectGeneration != TriggerCostSourceGeneration(item) || source.ControllerId != item.ControllerId"
+        },
+        {
+          "line": 55,
+          "text": "=> new(\"TRIGGER-COST:\" + item.StackItemId, LeadingTriggerCost(item) is { Exhaust: false, Power: 0, DestroyLocalUnit: false } ? OptionalTriggerWindow : TriggerCostWindow, item.ControllerId, 0, 1,"
+        },
+        {
+          "line": 57,
+          "text": "LeadingTriggerCost(item) is { DestroyLocalUnit: true } ? \"选择摧毁此战场的一名友方单位以确认技能；不选则放弃。费用支付后双方可响应，随后才抽牌。\" : item.HeldContext?.Kind == \"CHANNEL_OPTIONAL\" ? \"确认召出一枚休眠符文；不选则放弃。确认后双方可以响应，结算时才召出符文。\" : item.HeldContext?.Kind == \"BRUSH_RETURN\" ? \"选择此"
+        },
+        {
+          "line": 62,
+          "text": "private static long TriggerCostSourceGeneration(StackItemState item) => item.CreatedTokenReady?.Source.Generation ?? item.SivirRuneRecycle?.SourceGeneration ?? item.BattlefieldConquestMight?.Source.Generation ?? item.AttachmentObserver?.Sou"
+        },
+        {
+          "line": 66,
+          "text": "manaCost: LeadingTriggerCost(item)!.Mana, powerCost: LeadingTriggerCost(item)!.Power,"
+        },
+        {
+          "line": 67,
+          "text": "powerCostByTrait: LeadingTriggerCost(item)!.PowerTrait is { } trait ? new Dictionary<string, int> { [trait] = LeadingTriggerCost(item)!.Power } : null,"
+        },
+        {
+          "line": 75,
+          "text": "var cost = LeadingTriggerCost(item)!;"
+        },
+        {
+          "line": 90,
+          "text": "if (item is null || item.HeldContext is null && item.BattlefieldStart is null && item.LegendConquest?.Kind != \"EXHAUST_DECK_PLAY\" && item.SivirRuneRecycle is null || !NeedsTriggerCostConfirmation(item) || LeadingTriggerCost(item) is not { P"
+        },
+        {
+          "line": 105,
+          "text": "|| LeadingTriggerCost(item) is not { } cost || cost.Power + cost.Mana <= 0) return false;"
+        },
+        {
+          "line": 117,
+          "text": "if (LeadingTriggerCost(item) is not null && !ValidLeadingCostContext(item)) return false;"
+        },
+        {
+          "line": 120,
+          "text": "|| receipt.Source.Generation != TriggerCostSourceGeneration(item)) return false;"
+        },
+        {
+          "line": 121,
+          "text": "var cost = LeadingTriggerCost(item)!;"
+        },
+        {
+          "line": 162,
+          "text": "if (LeadingTriggerCost(item) is { DestroyLocalUnit: true })"
+        },
+        {
+          "line": 164,
+          "text": "if (LeadingTriggerCost(item) is { Exhaust: false })"
+        },
+        {
+          "line": 165,
+          "text": "return CompleteTriggerCost(state, item, new(new(item.SourceObjectId, TriggerCostSourceGeneration(item))), []);"
+        },
+        {
+          "line": 171,
+          "text": "if (LeadingTriggerCost(item)!.Discard)"
+        },
+        {
+          "line": 208,
+          "text": "return CompleteTriggerCost(next, item, new(new(item.SourceObjectId, TriggerCostSourceGeneration(item)), DestructionTarget: paid), events);"
+        },
+        {
+          "line": 231,
+          "text": "new(new(item.SourceObjectId, TriggerCostSourceGeneration(item)), Power: pending.PowerCost, Mana: pending.ManaCost),"
+        }
+      ]
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.EffectPlay.cs",
+      "sha256": "5bff675d1c2f708244132aa8266b5dcb1aa019a127611da1f29bfb89994efefd",
+      "relevantActualSourceLocations": [
+        {
+          "line": 72,
+          "text": "internal static IReadOnlyList<string> EffectPlaySources(MatchState state, string playerId)"
+        },
+        {
+          "line": 87,
+          "text": "internal static bool ValidGraveyardUnitEffectPlay(MatchState state, PendingEffectPlayState pending)"
+        },
+        {
+          "line": 220,
+          "text": "return EffectPlaySources(state, p.PlayerId).All(id => {"
+        },
+        {
+          "line": 270,
+          "text": "var resolved = ResolveStackItemEffect(resumed, parent with { EffectPlayCompleted = true });"
+        },
+        {
+          "line": 274,
+          "text": "return ResolveStackItemEffect(state, parent with { EffectPlayCompleted = true });"
+        },
+        {
+          "line": 298,
+          "text": "if (!EffectPlaySources(state, intent.PlayerId).Contains(play.SourceObjectId)"
+        }
+      ]
+    },
+    {
+      "path": "src/Riftbound.Engine/MatchSession.cs",
+      "sha256": "913efd1fbcc82fa5baa1c46fd1c97c16da9e63809d2b924eb3f7e990b2c823a6",
+      "relevantActualSourceLocations": [
+        {
+          "line": 745,
+          "text": "PlayedAfterAnotherCardThisTurn = playedAfterAnotherCardThisTurn;"
+        },
+        {
+          "line": 805,
+          "text": "public bool PlayedAfterAnotherCardThisTurn { get; init; }"
+        },
+        {
+          "line": 4372,
+          "text": "item.PlayedAfterAnotherCardThisTurn,"
+        },
+        {
+          "line": 9399,
+          "text": "\"PLAY_CARD\" => CoreRuleEngine.EffectPlaySources(state, playerId)"
+        },
+        {
+          "line": 12692,
+          "text": "CardTargetCountConditionKinds.PlayedAfterAnotherCardThisTurn"
+        },
+        {
+          "line": 14252,
+          "text": "return CoreRuleEngine.EffectPlaySources(state, playerId)"
+        },
+        {
+          "line": 16194,
+          "text": "return CoreRuleEngine.EffectPlaySources(state, playerId)"
+        }
+      ]
+    },
+    {
+      "path": "src/Riftbound.Engine/MatchRecovery.cs",
+      "sha256": "97def98a0b927bc69279947a70bf87a514a928a5bd25948e5157a6b0ba869325",
+      "relevantActualSourceLocations": [
+        {
+          "line": 23825,
+          "text": "&& !CoreRuleEngine.ValidGraveyardUnitEffectPlay(state, graveyard))"
+        },
+        {
+          "line": 25026,
+          "text": "|| item.DeckChoiceCompleted || item.InsightCompleted || item.PlayedAfterAnotherCardThisTurn"
+        }
+      ]
+    },
+    {
+      "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+      "sha256": "ceb45036d07a00ea524329e76e3a33ef79aeb6ed8d94932974cd2755f9bc8bd1",
+      "relevantActualSourceLocations": [
+        {
+          "line": 129,
+          "text": "bool AppliesStatusEffectToAllUnits = false,"
+        },
+        {
+          "line": 369,
+          "text": "public const string PlayedAfterAnotherCardThisTurn = \"PLAYED_AFTER_ANOTHER_CARD_THIS_TURN\";"
+        },
+        {
+          "line": 399,
+          "text": "public const string PlayedAfterAnotherCardThisTurn = \"PLAYED_AFTER_ANOTHER_CARD_THIS_TURN\";"
+        },
+        {
+          "line": 426,
+          "text": "public const string PlayedAfterAnotherCardThisTurn = \"PLAYED_AFTER_ANOTHER_CARD_THIS_TURN\";"
+        },
+        {
+          "line": 432,
+          "text": "public const string PlayedAfterAnotherCardThisTurn = \"PLAYED_AFTER_ANOTHER_CARD_THIS_TURN\";"
+        },
+        {
+          "line": 997,
+          "text": "StatusEffectId: \"DESTROY_ON_NEXT_DAMAGE_THIS_TURN\","
+        },
+        {
+          "line": 1006,
+          "text": "StatusEffectId: \"DESTROY_ON_NEXT_DAMAGE_THIS_TURN\","
+        },
+        {
+          "line": 1007,
+          "text": "AppliesStatusEffectToAllUnits: true),"
+        },
+        {
+          "line": 5156,
+          "text": "TargetCountConditionKind: CardTargetCountConditionKinds.PlayedAfterAnotherCardThisTurn),"
+        },
+        {
+          "line": 5168,
+          "text": "SourceBoonConditionKind: CardSourceBoonConditionKinds.PlayedAfterAnotherCardThisTurn),"
+        },
+        {
+          "line": 5187,
+          "text": "DrawConditionKind: CardDrawConditionKinds.PlayedAfterAnotherCardThisTurn,"
+        },
+        {
+          "line": 5193,
+          "text": "TargetCountConditionKind: CardTargetCountConditionKinds.PlayedAfterAnotherCardThisTurn),"
+        },
+        {
+          "line": 5208,
+          "text": "CreatedBaseUnitTokenConditionKind: CardTokenCreationConditionKinds.PlayedAfterAnotherCardThisTurn),"
+        }
+      ]
+    }
+  ],
+  "knownCurrentSharedMarkerConsumers": [
+    {
+      "apiId": 31459,
+      "printing": "OGN·221/298",
+      "name": "帝国谕令",
+      "currentBehavior": "all currently present units marked for immediate destruction during later damage cleanup; source identity not retained in the marker",
+      "requiredSemantics": "duration-wide independent delayed trigger for every damaged unit including later entries; original spell attribution and responsible player retained"
+    },
+    {
+      "apiId": 31496,
+      "printing": "OGN·254/298",
+      "name": "诺克萨斯断头台",
+      "currentBehavior": "one targeted unit given same marker; registry does not select Inspire immediate-destroy branch",
+      "requiredSemantics": "confirmed Inspire flag immediately destroys; otherwise next damage to the original target generation creates its independent delayed trigger"
+    }
+  ],
+  "requiredSharedContracts": [
+    "Retain exact source kind, source printing, source instance and responsible player for actual destruction. Damage sourced from a named unit must not be reclassified as spell damage (CN418.6.b.3-4).",
+    "Retain actual damaged target generation and positive applied damage; zero or prevented damage must not consume next-damage instructions.",
+    "Capture existing graveyard observers and cards actually entering graveyard in the same simultaneous destruction batch; do not use the final graveyard for all earlier sequential deaths.",
+    "Earned triggers survive their source leaving, while the eventual play refers only to the captured graveyard generation. A new incarnation cannot reuse old play permission.",
+    "Reuse optional leading-cost confirmation and typed red power payment; confirm 1 mana and 1 red power on the Phoenix trigger, then use the ordinary effect play flow without printed base costs.",
+    "Preserve ordinary play legality, response windows, extra costs, source ownership, destination policy and independent recovery/replay validation. No migrations or generic DSL."
+  ],
+  "requiredPositiveAndNegativeBranches": [
+    "ordinary seed0 Phoenix self destruction and Decree/Elder original prefixes in both named engine formats",
+    "direct lethal spell, direct destroy and spell-created inline/delayed sources; combat and unit-sourced duel negative controls",
+    "opponent responsible player and controller/owner distinctions; replacement preventing or replacing actual destruction",
+    "already-graveyard, self-enters-graveyard, multiple existing sources and simultaneous versus sequential batches",
+    "source leaves or changes generation before confirmation/resolution; original source return and new incarnation isolation",
+    "pay or decline, insufficient/wrong typed power, resource generation during confirmation, stale/duplicate/role/window/choice payload rejection",
+    "Decree later-entering units, multiple damage events and sources, expiry and responses before delayed destruction",
+    "Noxian confirmed Inspire immediate branch versus original-target next-damage branch",
+    "original action/event/state replay, actual SQL cold restore/next command, coordinated tamper rejection, native command payload and fixed CI/product gates"
+  ],
+  "currentProofsRemainCounterexamples": true,
+  "ordinaryFormatsNotCurrentRegionalTournamentEligibilityCertification": true,
+  "allGlobalUniverseAndOriginalMethodsCasesSeedsWinReplayAssertionsStillRetained": true,
+  "implementation": "OPEN",
+  "fixedFull": "PENDING",
+  "visibleProductAndPhysicalWindows": "OPEN"
+}

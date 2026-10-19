@@ -1,0 +1,20 @@
+{
+  "profile": "focus",
+  "discoveredMethods": 7605,
+  "jobs": 4,
+  "includeGames": false,
+  "testAssemblySha256": "6ce23537c9136573a39a6624368fca1ce4054834819405e578a220f38ce4d3a1",
+  "timings": "/Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/TestResults/mechanical-full.trx",
+  "shards": [
+    {
+      "name": "focus",
+      "methods": [
+        "Riftbound.ConformanceTests.MatchRecoveryTests.RecoveryValidatorRejectsAuthoritativeStateTriggerQueueTriggeredEventKindDrift",
+        "Riftbound.ConformanceTests.MatchRecoveryTests.RecoveryValidatorRejectsSnapshotTimingTriggerQueueTriggeredEventKindDrift",
+        "Riftbound.ConformanceTests.MatchRecoveryTests.RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueKeyedKnownValueCanonicalityWithCountMismatch",
+        "Riftbound.ConformanceTests.MatchRecoveryTests.RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueKeyedVisibleSourceTriggeredEventKindInvalidValueWithoutCountMismatch"
+      ],
+      "filter": "(FullyQualifiedName~RecoveryValidatorRejectsSnapshotTimingTriggerQueueTriggeredEventKindDrift|FullyQualifiedName~RecoveryValidatorRejectsAuthoritativeStateTriggerQueueTriggeredEventKindDrift|FullyQualifiedName~RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueKeyedKnownValueCanonicalityWithCountMismatch|FullyQualifiedName~RecoveryValidatorRejectsSpectatorReplayTimingTriggerQueueKeyedVisibleSourceTriggeredEventKindInvalidValueWithoutCountMismatch)&FullyQualifiedName!~Riftbound.ConformanceTests.FullGameEndToEndTests."
+    }
+  ]
+}
