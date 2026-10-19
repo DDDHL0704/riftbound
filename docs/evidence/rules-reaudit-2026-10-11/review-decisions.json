@@ -23260,6 +23260,101 @@
         "docs/evidence/pakaa-move-reveal-2026-10-19/source-observation.json",
         "docs/evidence/pakaa-move-reveal-2026-10-19/vendetta-faq-observed.html.gz"
       ]
+    },
+    {
+      "id": "observed-disclosure-wording-and-stale-native-smoke-2026-10-19",
+      "scope": "CN/zh-CN applicable2026-10-16; latest returned source rows and relevant rules-hub observations2026-10-19. Distinguish private LOOK/public REVEAL in existing observer prompts and native phase text, independent disclosure snapshot validation, ordinary choice/parent/play continuation and minimal native smoke accepted-receipt fix. CN236 API identity/preview changes remain separate exact source versions; no runtime adoption or whole printing certification.",
+      "status": "SCOPED44_ORDINARY12_ADJACENT142_SINGLECHECK12963_NEW_FIXED_NATIVE_FULL_VISIBLE_WINDOWS_OPEN",
+      "subjects": [
+        "VEN·033",
+        "OGN·194/298",
+        "OGN·183/298"
+      ],
+      "ruleRecords": [],
+      "pendingRuleRecords": [],
+      "sourceManifest": {
+        "path": "docs/evidence/public-reveal-wording-2026-10-19/source-manifest.json",
+        "sha256": "63e7409d774f44cfa68c2eb559f8cf9f0e97dfae3b20402d7d28be0f22e4e86c",
+        "role": "source-manifest"
+      },
+      "validation": {
+        "singleCheck": {
+          "path": "docs/evidence/public-reveal-wording-2026-10-19/one-check.json",
+          "sha256": "63844976f88cb600439494fef551e1566baae068fc46204d07917b718e84750d",
+          "role": "one-check"
+        },
+        "controlled": {
+          "path": "docs/evidence/public-reveal-wording-2026-10-19/controlled32.json",
+          "sha256": "80cc6da7d68cb0ea18675297ccbf6ffad6aa0dcfca1873532e7f75fa5939d5d3",
+          "role": "controlled32"
+        },
+        "ordinary": {
+          "path": "docs/evidence/public-reveal-wording-2026-10-19/ordinary12.json",
+          "sha256": "101d5593daf92c9d738b1551e2f556747316c82acbfb01a4b0ff9f20c0e1b52b",
+          "role": "ordinary12"
+        },
+        "adjacent": {
+          "path": "docs/evidence/public-reveal-wording-2026-10-19/adjacent142.json",
+          "sha256": "4f99011b336945cce82906dc18d31233b263b7293571d8d2c904b79c5989582d",
+          "role": "adjacent142"
+        },
+        "earlyOriginal": {
+          "path": "docs/evidence/public-reveal-wording-2026-10-19/early-original6.json",
+          "sha256": "d404053145d358a1cb005f078c4117c54002b7a1582f7702ad4c14f2f1897506",
+          "role": "early-original6"
+        },
+        "nativeFailureNotRelabelled": {
+          "path": "docs/evidence/public-reveal-wording-2026-10-19/prior6d9-exported-native-result-path-failure.json",
+          "sha256": "bfe744a802210b39524c6fe620de6cc01d40f1df2195c29735d90b5ffefc68b2",
+          "role": "prior6d9-exported-native-result-path-failure"
+        },
+        "newFixedFull": "PENDING",
+        "currentVisibleNativeProduct": "OPEN",
+        "physicalWindows": "OPEN"
+      },
+      "exclusions": [
+        "NEW_FIXED_FULL_ORIGINAL143_METHODS110_PAIRS_SEEDS_VICTORY_REPLAY_AND40_SQL_HELPERS",
+        "CURRENT_FIXED_NATIVE_PRODUCTION_CONTROLS_AND_VISIBLE_TWO_CLIENTS_REALSQL_NETWORK_NORMAL_SCORE_COMPLETE_REPLAY",
+        "PHYSICAL_WINDOWS",
+        "WHOLE_PRINTING_ALL_APPLICABLE_RULE_QA_AND_SOURCE_VERSION_DISPOSITIONS"
+      ],
+      "auditDocument": "docs/PUBLIC_REVEAL_WORDING_AUDIT_2026-10-19.md",
+      "evidence": [
+        "docs/evidence/public-reveal-wording-2026-10-19/acceptance-boundaries.json",
+        "docs/evidence/public-reveal-wording-2026-10-19/adjacent142.json",
+        "docs/evidence/public-reveal-wording-2026-10-19/cn-initial-collector-receipt.json",
+        "docs/evidence/public-reveal-wording-2026-10-19/cn-rad-preview-id-transition.json",
+        "docs/evidence/public-reveal-wording-2026-10-19/cn-source-delta-view.json",
+        "docs/evidence/public-reveal-wording-2026-10-19/controlled32.json",
+        "docs/evidence/public-reveal-wording-2026-10-19/current-en-source-reconciliation.json",
+        "docs/evidence/public-reveal-wording-2026-10-19/current-rules-hubs-reconciliation.json",
+        "docs/evidence/public-reveal-wording-2026-10-19/early-original-execution.json",
+        "docs/evidence/public-reveal-wording-2026-10-19/early-original6.json",
+        "docs/evidence/public-reveal-wording-2026-10-19/empty-observation-specific-rule-conflict.json",
+        "docs/evidence/public-reveal-wording-2026-10-19/initial-en-tls-failure.json",
+        "docs/evidence/public-reveal-wording-2026-10-19/initial-source-order-assertion.json",
+        "docs/evidence/public-reveal-wording-2026-10-19/official-source-archive-map.json",
+        "docs/evidence/public-reveal-wording-2026-10-19/one-check.json",
+        "docs/evidence/public-reveal-wording-2026-10-19/ordinary12.json",
+        "docs/evidence/public-reveal-wording-2026-10-19/original-executed-reds.json",
+        "docs/evidence/public-reveal-wording-2026-10-19/original-test-retention.json",
+        "docs/evidence/public-reveal-wording-2026-10-19/post-check-source-delta-kind.json",
+        "docs/evidence/public-reveal-wording-2026-10-19/prior6d9-default-main-boot.json",
+        "docs/evidence/public-reveal-wording-2026-10-19/prior6d9-exported-native-result-path-failure.json",
+        "docs/evidence/public-reveal-wording-2026-10-19/prior6d9-fixed-ci-observation.json",
+        "docs/evidence/public-reveal-wording-2026-10-19/prior6d9-fixed-release-publication-inputs.json",
+        "docs/evidence/public-reveal-wording-2026-10-19/prior6d9-fixed-release-sql-independent.json",
+        "docs/evidence/public-reveal-wording-2026-10-19/prior6d9-fixed-release-sql10.json",
+        "docs/evidence/public-reveal-wording-2026-10-19/prior6d9-independent-initial-command-count-premise.json",
+        "docs/evidence/public-reveal-wording-2026-10-19/prior6d9-native-gateway-build-inputs.json",
+        "docs/evidence/public-reveal-wording-2026-10-19/prior6d9-native-socket-identity.json",
+        "docs/evidence/public-reveal-wording-2026-10-19/prior6d9-obsolete-packages-retired.json",
+        "docs/evidence/public-reveal-wording-2026-10-19/prior6d9-original-native-rooms-independent.json",
+        "docs/evidence/public-reveal-wording-2026-10-19/prior6d9-two-gateway-normal-score.json",
+        "docs/evidence/public-reveal-wording-2026-10-19/python-tools58.json",
+        "docs/evidence/public-reveal-wording-2026-10-19/source-delta-kind-original-reds.json",
+        "docs/evidence/public-reveal-wording-2026-10-19/source-manifest.json"
+      ]
     }
   ]
 }

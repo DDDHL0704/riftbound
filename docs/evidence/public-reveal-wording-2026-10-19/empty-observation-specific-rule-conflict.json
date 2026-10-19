@@ -1,0 +1,22 @@
+{
+  "recordedAtUtc": "2026-10-19T09:25:05.435723+00:00",
+  "status": "OPEN_SPECIFIC_RULE_CONFLICT_REQUIRES_FINITE_EMPTY_OBSERVATION_REVIEW",
+  "region": "CN",
+  "language": "zh-CN",
+  "applicableAsOf": "2026-10-16",
+  "retainedPrimarySource": "var/qa/colorless-token-haste-20261016/DOC-01-current.pdf",
+  "primarySha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11",
+  "sourceTextSha256": "cafb4f3010c68360f3a8bc39b2b963e6654d6368c193c1d935a77661fb900a6d",
+  "exactClause": "DOC-01 432.1.c and 432.1.c.1",
+  "excerpt": "var/qa/public-reveal-wording-20261019/cn-core-432-1-through-before-432-2.txt",
+  "excerptSha256": "0d6d3fe40025741b354267259b3c8ac26582424389ef0b4e91aa124a688b1ab1",
+  "sourceCharacterStart": 141129,
+  "sourceCharacterEnd": 141865,
+  "observation": "432.1.c says look or reveal as many as possible without burnout and continue; 432.1.c.1 specifically cancels the remaining instruction if too few observed cards exist for follow-up actions on those cards.",
+  "priorBoundedAssumption": "N11 empty Pakaa deck currently grants2 Might by general055 remaining instruction; explicit semantic obligation was already OPEN.",
+  "remaining": "Resolve whether the specific cancellation removes the whole otherwise trash-and-self-Might instruction or only impossible manipulation. General055 and the current green empty-deck assertion alone cannot settle this. Retain all existing assertions and exact original source evidence; implement only after a dedicated bounded semantic decision.",
+  "newTemporalSourceDelta": false,
+  "runtimeOrCurrentTestChanged": false,
+  "parentExistingBranch": "pakaa-native-move-reveal-2026-10-19/empty-main-deck-conditional-interpretation",
+  "wholeCardCertified": false
+}

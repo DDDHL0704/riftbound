@@ -5594,7 +5594,7 @@ public sealed record ResolutionResult(
             return null;
         }
 
-        return new Dictionary<string, object?>
+        var view = new Dictionary<string, object?>
         {
             ["paymentId"] = payment.PaymentId,
             ["choiceKind"] = state.PendingRuleChoice?.Request.Kind,
@@ -5604,6 +5604,9 @@ public sealed record ResolutionResult(
             ["paymentChoices"] = payment.LegalPaymentChoiceIds,
             ["paymentResourceActions"] = PendingPaymentResourceActionIds(state, payment)
         };
+        if (state.PendingRuleChoice?.Request.Kind == "DECK_OBSERVATION_BANISH" && state.DeckObservationView is { } observation)
+            view["deckObservationKind"] = observation.Public ? "REVEAL" : "LOOK";
+        return view;
     }
 
     private static IReadOnlyList<string> PendingPaymentResourceActionIds(
@@ -8974,7 +8977,7 @@ internal static class ActionPromptBuilder
             && (payment.PaymentWindow is CoreRuleEngine.RuleChoiceWindow or CoreRuleEngine.TemperedPaymentWindow or CoreRuleEngine.MightyCostWindow or "TRIGGER_PAYMENT" || payment.LegalPaymentChoiceIds.SequenceEqual(["PAY", "DECLINE"])))
         {
             var steps = new List<ActionPromptSelectionStepDto>();
-            AddSelectionStep(steps, "target", payment.PaymentWindow == CoreRuleEngine.RuleChoiceWindow ? state.PendingRuleChoice?.Request.Kind == "TOKEN_HASTE_PAYMENT" ? "为即将打出的单位支付急速费用，或不支付" : state.PendingRuleChoice?.Request.Kind == "OPTIONAL_SPELL_CONTROL_PAYMENT" ? "结算中支付符能或尝试无效化" : state.PendingRuleChoice?.Request.Kind == "SPELL_CHOICE_REMAKE" ? "修改目标或模式，再确认全部合法；可保留全部原选择" : state.PendingRuleChoice?.Request.Kind == "DECK_OBSERVATION_BANISH" ? "选择是否放逐当前查看的牌": state.PendingRuleChoice?.Request.Kind == "MOVEMENT_SELECTION" ? "选择要移动的单位" : state.PendingRuleChoice?.Request.Kind == "ATTACHMENT_COPY_SELECTION" ? "选择复制单位" : "选择替换对象与支付方式，或不替换" : payment.PaymentWindow == CoreRuleEngine.TemperedPaymentWindow ? "支付装配费用，或确认无法支付" : "支付或放弃此效果", true,
+            AddSelectionStep(steps, "target", payment.PaymentWindow == CoreRuleEngine.RuleChoiceWindow ? state.PendingRuleChoice?.Request.Kind == "TOKEN_HASTE_PAYMENT" ? "为即将打出的单位支付急速费用，或不支付" : state.PendingRuleChoice?.Request.Kind == "OPTIONAL_SPELL_CONTROL_PAYMENT" ? "结算中支付符能或尝试无效化" : state.PendingRuleChoice?.Request.Kind == "SPELL_CHOICE_REMAKE" ? "修改目标或模式，再确认全部合法；可保留全部原选择" : state.PendingRuleChoice?.Request.Kind == "DECK_OBSERVATION_BANISH" ? state.DeckObservationView?.Public == true ? "选择是否放逐当前展示的牌" : "选择是否放逐当前查看的牌" : state.PendingRuleChoice?.Request.Kind == "MOVEMENT_SELECTION" ? "选择要移动的单位" : state.PendingRuleChoice?.Request.Kind == "ATTACHMENT_COPY_SELECTION" ? "选择复制单位" : "选择替换对象与支付方式，或不替换" : payment.PaymentWindow == CoreRuleEngine.TemperedPaymentWindow ? "支付装配费用，或确认无法支付" : "支付或放弃此效果", true,
                 payment.PaymentWindow is CoreRuleEngine.RuleChoiceWindow or CoreRuleEngine.TemperedPaymentWindow or CoreRuleEngine.MightyCostWindow or "TRIGGER_PAYMENT" ? PendingPaymentChoiceDtos(state, payment) : [new("PAY", payment.ManaCost > 0 ? $"支付 {payment.ManaCost} 法力" : $"支付 {payment.PowerCost} 符能"), new("DECLINE", "放弃此效果")]);
             if (payment.PaymentWindow == CoreRuleEngine.MightyCostWindow) {
                 var resources = PendingPaymentResourceChoiceDtos(state, payment);

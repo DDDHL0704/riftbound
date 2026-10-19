@@ -41,7 +41,14 @@ public partial class ObservedSourcePresentationProof : Control
                     var action = controller.Actions.Single(option => option.Name == "PAY_COST");
                     Check(action.Label == "选择是否放逐", "Observed banish action must describe banishing, not destruction.");
                     var phase = MatchPhasePresentation.Build(snapshot.RootElement, "P1", id => id);
-                    Check(phase["title"].AsString() == "查看牌库 · 放逐选择", "Observed banish phase must have its own label.");
+                    var expectedKind = row.TryGetProperty("expectedObservationKind", out var expectedDisclosure)
+                        ? expectedDisclosure.GetString()! : "LOOK";
+                    Check(snapshot.RootElement.GetProperty("timing").GetProperty("pendingPayment")
+                        .TryGetProperty("deckObservationKind", out var disclosure) && disclosure.ValueKind == JsonValueKind.String
+                        && disclosure.GetString() == expectedKind, "Actual disclosure must match the independent ordinary-opening branch.");
+                    var publicObservation = expectedKind == "REVEAL";
+                    Check(phase["title"].AsString() == (publicObservation ? "展示牌库 · 放逐选择" : "查看牌库 · 放逐选择"), "Observed banish phase must match actual public or private disclosure.");
+                    Check(phase["detail"].AsString().Contains("向双方展示") == publicObservation, "Only a public observation may describe disclosure to both players.");
                     Check(phase["detail"].AsString().Contains("原效果完成后"), "Explain the deferred play opportunity.");
                     var bar = GD.Load<PackedScene>("res://scenes/components/ActionBar.tscn").Instantiate<ActionBar>();
                     AddChild(bar); bar.SetAnchorsAndOffsetsPreset(LayoutPreset.BottomWide); bar.OffsetTop = -96;

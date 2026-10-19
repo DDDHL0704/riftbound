@@ -1,0 +1,27 @@
+{
+  "recordedAtUtc": "2026-10-19T10:01:19.107221+00:00",
+  "goal": "ACTIVE_NOT_READY",
+  "newControlledCases": 32,
+  "newOrdinaryCases": 12,
+  "ordinaryCommands": 524,
+  "ordinaryEvents": 3252,
+  "coldRestores": 74,
+  "originalNextCommandsMatched": 56,
+  "adjacentCases": 142,
+  "earlyOriginalCases": 6,
+  "singleCheck": {
+    "path": "docs/evidence/public-reveal-wording-2026-10-19/one-check.json",
+    "sha256": "63844976f88cb600439494fef551e1566baae068fc46204d07917b718e84750d",
+    "role": "one-check"
+  },
+  "newFixedFull": "PENDING",
+  "nativeTextAndStaleReceiptFix": "SOURCE_IMPLEMENTED_NEW_FIXED_NATIVE_EXECUTION_PENDING",
+  "priorFixed6d9ReleaseSqlAndNativeGatewayEvidence": "SEPARATE_EXACT_RELEASE_IDENTITY_ONLY",
+  "priorFixed6d9ActualExportedNativeResultPath": "FAILED_STALE_AUTO_SURRENDER_ORIGINAL_RETAINED",
+  "currentVisibleNativeControlsPairedNormalScore": "OPEN",
+  "physicalWindows": "OPEN",
+  "emptyObservationSpecific432ConditionalScope": "OPEN",
+  "cn236CurrentSourceVersionsAndEligibility": "OPEN_EXACT_DISPOSITION_ITEMS",
+  "en8UnreturnedSourceIds": "OPEN",
+  "wholePrintingOrFamilyOrGlobalCertified": false
+}

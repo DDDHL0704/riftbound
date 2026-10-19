@@ -19,7 +19,7 @@ public sealed partial class CoreRuleEngine
     {
         if(parent.ObservedPlayPermission is { } observed)
         {
-            definition=new(parent.CardNo,"查看期间放逐的卡牌",0,ObservedDeckPlayEffect,0,0,
+            definition=new(parent.CardNo,observed.Context.Instruction.Kind == "REVEAL" ? "展示期间放逐的卡牌" : "查看期间放逐的卡牌",0,ObservedDeckPlayEffect,0,0,
                 EffectPlaySourceZone:"STACK",EffectPlayIgnoreBaseMana:true,EffectPlayIgnoreBasePower:true,EffectPlayOptional:true);
             return ObservationPlayCosts.Value.ContainsKey(observed.Context.CardNo);
         }

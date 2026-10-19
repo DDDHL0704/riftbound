@@ -126,5 +126,37 @@ class GovernanceTests(unittest.TestCase):
         self.assertEqual(2, len(gov.check_documents(self.root)))
 
 
+    def test_cn_delta_retains_reissued_ids_without_coalescing_printing(self):
+        before = dict(cards=[dict(id=100, cardNo='RAD·001/167', isPreview=True)])
+        after = dict(metadata=dict(totalItems=1), data=[dict(id=101, cardNo='RAD·001/167', isPreview=False)])
+        result = gov.source_delta(before, after, 'cn_cards')
+        self.assertEqual([100], result['removedIds'])
+        self.assertEqual([101], result['addedIds'])
+        self.assertEqual([], result['changed'])
+        self.assertEqual(0, result['reportedMinusReturned'])
+        self.assertFalse(result['semanticCertification'])
+        self.assertEqual('REQUIRES_EXPLICIT_VERSION_DISPOSITION', result['applicability'])
+
+    def test_cn_delta_records_changed_errata_and_removed_null_field(self):
+        before = dict(cards=[dict(id=100, cardNo='RAD·001/167', errata='old text', cardQaList=None)])
+        after = dict(metadata=dict(totalItems=1), data=[dict(id=100, cardNo='RAD·001/167', errata='new text')])
+        result = gov.source_delta(before, after, 'cn_cards')
+        self.assertEqual([dict(id=100, printing='RAD·001/167', changedFields=['cardQaList', 'errata'])], result['changed'])
+        self.assertEqual([], result['addedIds'])
+        self.assertEqual([], result['removedIds'])
+        self.assertFalse(result['semanticCertification'])
+
+    def test_en_delta_retains_public_code_and_source_gap(self):
+        before = dict(cards=[dict(id='rad-001-167', publicCode='RAD-001/167', flags=['new'])])
+        after = dict(metadata=dict(totalItems=2), data=[dict(id='rad-001-167', publicCode='RAD-001/167', flags=None)])
+        result = gov.source_delta(before, after, 'cards')
+        self.assertEqual([dict(id='rad-001-167', printing='RAD-001/167', changedFields=['flags'])], result['changed'])
+        self.assertEqual(1, result['reportedMinusReturned'])
+        self.assertFalse(result['semanticCertification'])
+        with self.assertRaisesRegex(ValueError, 'Unsupported source delta kind'):
+            gov.source_delta({}, {}, 'unknown')
+
+
+
 if __name__ == '__main__':
     unittest.main()

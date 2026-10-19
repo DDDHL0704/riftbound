@@ -43,15 +43,16 @@ public sealed partial class CoreRuleEngine
                 ObjectLocations=ReconcileObjectLocations(state.ObjectLocations,zones),
                 DeckObservationView=new(player,kind=="REVEAL",seen.Where(x=>zones[player].MainDeck.Contains(x))
                     .Where(cards.ContainsKey).ToDictionary(x=>x,x=>cards[x].ObjectGeneration))};
-            var decision=frame.Choose(player,"所查看的卡牌提供可选放逐出牌权限。",[new("KEEP","保留给原效果处理"),new("BANISH","放逐，原效果完成后可支付符能打出")],
-                kind:"DECK_OBSERVATION_BANISH",preview:preview,privateReason:$"所查看的《{DeckCardNames.Value.GetValueOrDefault(card.CardNo!,card.CardNo!)}》可选择放逐，原效果完成后可支付一个任意符能打出。");
+            var observedVerb = kind == "REVEAL" ? "展示" : "查看";
+            var decision=frame.Choose(player,$"所{observedVerb}的卡牌提供可选放逐出牌权限。",[new("KEEP","保留给原效果处理"),new("BANISH","放逐，原效果完成后可支付符能打出")],
+                kind:"DECK_OBSERVATION_BANISH",preview:preview,privateReason:$"所{observedVerb}的《{DeckCardNames.Value.GetValueOrDefault(card.CardNo!,card.CardNo!)}》可选择放逐，原效果完成后可支付一个任意符能打出。");
             if(decision!="BANISH")continue;
             var restored=PrintedCardFactory.TryRestoreOutsidePlay(card,player,out var printed)?printed:card;
             cards[id]=restored with {ControllerId=player,ObjectGeneration=checked(card.ObjectGeneration+1)};
             zones[player]=zones[player] with {MainDeck=RemoveFromZone(zones[player].MainDeck,id),Banished=zones[player].Banished.Append(id).ToArray()};
             frame.ObservedPlays.Add(new($"OBSERVED:{state.Tick}:{parent.StackItemId}:{execution}:{id}",instruction,
                 new(id,cards[id].ObjectGeneration),card.CardNo!,cost,state.Tick));
-            events.Add(new("CARD_BANISHED","所查看的卡牌以静态能力放逐，开始待确认出牌",new Dictionary<string,object?> {
+            events.Add(new("CARD_BANISHED",$"所{observedVerb}的卡牌以静态能力放逐，开始待确认出牌",new Dictionary<string,object?> {
                 ["playerId"]=player,["sourceObjectId"]=id,["targetObjectId"]=id,["cardNo"]=card.CardNo,["destinationZone"]="BANISHED"}));
         }
         return seen.Where(id=>zones[player].MainDeck.Contains(id)).ToArray();

@@ -1,0 +1,75 @@
+{
+  "atUtc": "2026-10-19T09:02:06.076600+00:00",
+  "fixedCommit": "6d9aee51e5259313b319ad555f8f44572563b3df",
+  "fixedCiRun": 39224398741,
+  "lockAtStart": {
+    "rootLocked": true,
+    "sessions": [
+      {
+        "screenLocked": true
+      }
+    ]
+  },
+  "records": [
+    {
+      "label": "a",
+      "ownNativePid": 76537,
+      "returnCode": 0,
+      "defaultMainBootMarker": true,
+      "officialCatalogBootMarker": true,
+      "noGodotErrorOrUnhandledException": true,
+      "log": "current-native-default-headless-a.log",
+      "logSha256": "5370a2c89306e9a79cfc4f496d090aad375ee04ae8035ff8881baed8a0a7b002",
+      "outsideCheckoutCwd": "/tmp",
+      "exactArguments": [
+        "/Users/dinghaolin/MyProjects/riftbound/var/qa/paka-move-reveal-20261019/RiftboundPaka-A.app/Contents/MacOS/\u7b26\u6587\u6218\u573a",
+        "--headless",
+        "--quit-after",
+        "600",
+        "--",
+        "--riftbound-ephemeral-session",
+        "--riftbound-server=http://127.0.0.1:15839",
+        "--riftbound-session-file=/Users/dinghaolin/MyProjects/riftbound/var/qa/paka-move-reveal-20261019/never-written-default-headless-a-session.json"
+      ],
+      "ephemeralNoProfileWritten": true,
+      "all373OriginalCiManagedAndPckFilesStillExact": true,
+      "deepStrictSignaturePass": true
+    },
+    {
+      "label": "b",
+      "ownNativePid": 76570,
+      "returnCode": 0,
+      "defaultMainBootMarker": true,
+      "officialCatalogBootMarker": true,
+      "noGodotErrorOrUnhandledException": true,
+      "log": "current-native-default-headless-b.log",
+      "logSha256": "a707cecfa96a51f4df4bd760f89f0879904afb9f55f43f978d92ca822e2f17a2",
+      "outsideCheckoutCwd": "/tmp",
+      "exactArguments": [
+        "/Users/dinghaolin/MyProjects/riftbound/var/qa/paka-move-reveal-20261019/RiftboundPaka-B.app/Contents/MacOS/\u7b26\u6587\u6218\u573a",
+        "--headless",
+        "--quit-after",
+        "600",
+        "--",
+        "--riftbound-ephemeral-session",
+        "--riftbound-server=http://127.0.0.1:15839",
+        "--riftbound-session-file=/Users/dinghaolin/MyProjects/riftbound/var/qa/paka-move-reveal-20261019/never-written-default-headless-b-session.json"
+      ],
+      "ephemeralNoProfileWritten": true,
+      "all373OriginalCiManagedAndPckFilesStillExact": true,
+      "deepStrictSignaturePass": true
+    }
+  ],
+  "notVisibleControlsOrPairedGameAcceptance": true,
+  "physicalWindows": "OPEN",
+  "status": "CURRENT_FIXED_DEFAULT_MAIN_HEADLESS_BOOT_PASS",
+  "finishedAtUtc": "2026-10-19T09:02:19.881964+00:00",
+  "lockAtEnd": {
+    "rootLocked": true,
+    "sessions": [
+      {
+        "screenLocked": true
+      }
+    ]
+  }
+}

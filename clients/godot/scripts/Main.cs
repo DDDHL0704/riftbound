@@ -1456,18 +1456,18 @@ public partial class Main : Control
         }
     }
 
-    private async Task SubmitPromptCommandAsync(string cmdType, string promptId, long snapshotTick, string label)
+    private async Task<bool> SubmitPromptCommandAsync(string cmdType, string promptId, long snapshotTick, string label)
     {
         if (!IsConnected() || string.IsNullOrWhiteSpace(_authenticatedHandle))
         {
             AppendLog("[color=yellow]Prompt command skipped: not connected/authenticated.[/color]");
-            return;
+            return false;
         }
 
         if (string.IsNullOrWhiteSpace(cmdType))
         {
             AppendLog($"[color=yellow]Prompt command skipped: {Escape(label)} has no command type.[/color]");
-            return;
+            return false;
         }
 
         var payload = new Dictionary<string, object?>
@@ -1492,6 +1492,7 @@ public partial class Main : Control
             cmd,
             _shutdown.Token);
         AppendReceipt(label, receipt);
+        return receipt.Accepted;
     }
 
     private async Task SubmitPromptPayloadAsync(
@@ -2157,9 +2158,8 @@ public partial class Main : Control
                 return;
             }
 
-            _autoSmokeSurrenderSubmitted = true;
             AppendLog("Auto smoke: submitting SURRENDER from a server-enabled prompt.");
-            await SubmitPromptCommandAsync("SURRENDER", promptId, snapshotTick, label);
+            _autoSmokeSurrenderSubmitted = await SubmitPromptCommandAsync("SURRENDER", promptId, snapshotTick, label);
             return;
         }
 

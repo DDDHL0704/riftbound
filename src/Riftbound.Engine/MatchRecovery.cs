@@ -2038,6 +2038,8 @@ public static class MatchRecoveryValidator
             }
 
             ValidateSnapshotShape(view, errors, authoritativeState);
+            if (authoritativeState is not null && view.Snapshot.Timing is { } disclosureTiming)
+                ValidateObservedDisclosureSnapshot(disclosureTiming, authoritativeState, $"snapshot for {view.PlayerId}", errors);
 
             if (view.Snapshot.Players is null)
             {
@@ -12878,6 +12880,25 @@ public static class MatchRecoveryValidator
             || string.Equals(kind, "DESTROY_ZERO_POWER_UNIT", StringComparison.Ordinal)
             || string.Equals(kind, "REMOVE_ILLEGAL_STANDBY", StringComparison.Ordinal)
             || string.Equals(kind, "RECALL_UNATTACHED_EQUIPMENT", StringComparison.Ordinal);
+    }
+
+    private static void ValidateObservedDisclosureSnapshot(IReadOnlyDictionary<string, object?> timing,
+        MatchState state, string label, List<string> errors)
+    {
+        var hasPayment = TryReadObjectValue(timing, "pendingPayment", out var payment) && IsSnapshotPlayerPayloadObject(payment);
+        var hasKind = hasPayment && TryReadObjectValue(payment, "deckObservationKind", out _);
+        if (state.PendingRuleChoice is not { Request.Kind: "DECK_OBSERVATION_BANISH" } pending)
+        {
+            if (hasKind) errors.Add($"{label} deck observation disclosure kind is not allowed outside its choice");
+            return;
+        }
+        // Derive independently from the authoritative observation preview, not the snapshot producer.
+        var observation = pending.Request.Preview?.DeckObservationView;
+        var expected = observation?.Public == true ? "REVEAL" : "LOOK";
+        if (observation is null || !hasKind || !TryReadObjectValue(payment, "deckObservationKind", out var value)
+            || JsonSerializer.SerializeToElement(value) is not { ValueKind: JsonValueKind.String } text
+            || text.GetString() != expected)
+            errors.Add($"{label} deck observation disclosure kind does not match the authoritative preview");
     }
 
     private static void ValidateSpectatorPendingPaymentPayload(
@@ -28482,6 +28503,7 @@ public static class MatchRecoveryValidator
 
         ValidateSpectatorPendingTaskQueuePayload(spectatorReplayFrame.SpectatorSnapshot.Timing, authoritativeState, errors);
         ValidateSpectatorPendingPaymentPayload(spectatorReplayFrame.SpectatorSnapshot.Timing, authoritativeState, errors);
+        ValidateObservedDisclosureSnapshot(spectatorReplayFrame.SpectatorSnapshot.Timing, authoritativeState, "spectator replay frame", errors);
         ValidateSpectatorPendingHandChoicePayload(spectatorReplayFrame.SpectatorSnapshot.Timing, authoritativeState, errors);
         ValidateSpectatorPendingCardChoicePayload(spectatorReplayFrame.SpectatorSnapshot.Timing, authoritativeState, errors);
         ValidateSpectatorContinuousEffectPayloads(spectatorReplayFrame.SpectatorSnapshot.Timing, authoritativeState, errors);

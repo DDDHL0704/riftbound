@@ -1,0 +1,51 @@
+{
+  "startedAtUtc": "2026-10-19T09:20:22.449993+00:00",
+  "fixedCommit": "6d9aee51e5259313b319ad555f8f44572563b3df",
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+    "implementationSha256": "14b6473933f171db3714b292218c199f08b40f3c15e777286bfe19a64f0dbb14",
+    "identitySha256": "7eb709615a9248dc40ae22d59c8945ff9c6c11a6ddbb0da95e96940f2c2e5f3e"
+  },
+  "status": "FAILED_OR_INTERRUPTED_ORIGINALS_RETAINED",
+  "lockAtStart": {
+    "atUtc": "2026-10-19T09:20:22.473462+00:00",
+    "roots": [
+      {
+        "rootLocked": true,
+        "sessions": [
+          true
+        ]
+      }
+    ],
+    "unknownIsNotUnlocked": true
+  },
+  "normalScoreReceiptSha256": "57cb31b266c5e7c488974f97fbae06bded74fbb891549192eac77c2fc298a226",
+  "failedExportedReceiptSha256": "bfe744a802210b39524c6fe620de6cc01d40f1df2195c29735d90b5ffefc68b2",
+  "failedExportedNativeResultGateRemainsFailed": true,
+  "visibleControlsAndPhysicalWindows": "OPEN",
+  "ownRunnerPid": 80760,
+  "boundIdleSleepAssertionPid": 80767,
+  "errorType": "AssertionError",
+  "errorMessage": "",
+  "ownPostgresSmartStopped": true,
+  "finishedAtUtc": "2026-10-19T09:20:54.035757+00:00",
+  "lockAtEnd": {
+    "atUtc": "2026-10-19T09:20:54.058914+00:00",
+    "roots": [
+      {
+        "rootLocked": true,
+        "sessions": [
+          true
+        ]
+      }
+    ],
+    "unknownIsNotUnlocked": true
+  },
+  "allFixedFunctionalInputsStillExact": true,
+  "originalDatabaseRetained": true,
+  "temporaryIdleAssertionBoundToOwnRunner": true
+}

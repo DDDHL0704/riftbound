@@ -1,0 +1,205 @@
+{
+  "startedAtUtc": "2026-10-19T09:35:49.758384+00:00",
+  "status": "PASS_CURRENT_EN_8_PAGES_WHOLE_SSR_BY_EXACT_ID_ALL_FIELDS",
+  "previousTlsFailureSha256": "834cb41184385f6dd883c71e38f9a35466cd894668015db30a1d2db39210eeb0",
+  "reusedOriginalReceivedPageFiles": {
+    "live-en-v2/en/page-0000.json.gz": "570b525eba524a221201c36616024e4153e813f1a1cfdb8c9ea67e26664f3a4b",
+    "live-en-v2/en/page-0400.json.gz": "9634139c988d807de635722a42bd88154776e77321ebcff3faddcad3c69c3f29",
+    "live-en-v2/en/page-0600.json.gz": "228eb984274a1d02513cf2a5509d6a14ef63d7e0df21fa68181924bd73511730",
+    "live-en-v2/en/page-0800.json.gz": "e578947ef130889e07ea92ed4dc382ef3731af7d0219edc21982883705d3a2ed",
+    "live-en-v2/en/page-1000.json.gz": "2b24811be7051db75f5bf8e83a69f5612c71cc050e4081669b2660a3113222b6",
+    "live-en-v2/en/page-1200.json.gz": "053152135b0524483a876fdb4e3c58b7c870d1998a917debccc347219ee975ee",
+    "live-en-v2/en/page-1400.json.gz": "c79f23a9feb7d8d77a51ab5f8e0501b120d377eafc259a38bcfe42dcf4637fd1"
+  },
+  "noOriginalPrefixOverwritten": true,
+  "noTlsVerificationDisabled": true,
+  "reportedTotal": 1416,
+  "returnedExactIds": 1408,
+  "sourceGapStillOpen": 8,
+  "changedCardRowsVsLastOct17": 0,
+  "baseline": "docs/evidence/source-reconfirmation-2026-10-17/gallery-api-full.json",
+  "baselineSha256": "e99037cbf83707823bb9588d5fcbfc8c893e5023f5f5316c1f802c7c14bff74b",
+  "reusedOriginalPrefixReceipts": [
+    {
+      "file": "live-en-v2/en/page-0000.json.gz",
+      "rawSha256": "e122ac57a556a20be3c8d97c70aad6223ecb56c25d1a08d3d1e59c9c076a2a6b",
+      "gzipSha256": "570b525eba524a221201c36616024e4153e813f1a1cfdb8c9ea67e26664f3a4b",
+      "serverResultsUpdatedAt": "2026-10-19T09:33:01.409605419Z",
+      "payloadWrittenAtUtcFromFilesystem": "2026-10-19T09:33:02.308661+00:00",
+      "knownRetrievalWindow": [
+        "2026-10-19T09:33:00.067785+00:00",
+        "2026-10-19T09:33:05.550815+00:00"
+      ],
+      "originalHttpDateHeaderNotRetainedByFailedCollector": true
+    },
+    {
+      "file": "live-en-v2/en/page-0400.json.gz",
+      "rawSha256": "baf561ccf904009948bb1fb775fac514cd2738f996b7240f70f954962302b8cc",
+      "gzipSha256": "9634139c988d807de635722a42bd88154776e77321ebcff3faddcad3c69c3f29",
+      "serverResultsUpdatedAt": "2026-10-19T09:33:02.875148913Z",
+      "payloadWrittenAtUtcFromFilesystem": "2026-10-19T09:33:03.382648+00:00",
+      "knownRetrievalWindow": [
+        "2026-10-19T09:33:00.067785+00:00",
+        "2026-10-19T09:33:05.550815+00:00"
+      ],
+      "originalHttpDateHeaderNotRetainedByFailedCollector": true
+    },
+    {
+      "file": "live-en-v2/en/page-0600.json.gz",
+      "rawSha256": "0e5ca82942484e6e9b9c4533007405d4cda59fa8f260b68f733b45d35e98fdd2",
+      "gzipSha256": "228eb984274a1d02513cf2a5509d6a14ef63d7e0df21fa68181924bd73511730",
+      "serverResultsUpdatedAt": "2026-10-19T09:33:03.488699218Z",
+      "payloadWrittenAtUtcFromFilesystem": "2026-10-19T09:33:03.962859+00:00",
+      "knownRetrievalWindow": [
+        "2026-10-19T09:33:00.067785+00:00",
+        "2026-10-19T09:33:05.550815+00:00"
+      ],
+      "originalHttpDateHeaderNotRetainedByFailedCollector": true
+    },
+    {
+      "file": "live-en-v2/en/page-0800.json.gz",
+      "rawSha256": "1243b7dcd04c9e84b2a61d5fcad3f4d8cf17dd4b9d5ac18cb6803f5d61bb968a",
+      "gzipSha256": "e578947ef130889e07ea92ed4dc382ef3731af7d0219edc21982883705d3a2ed",
+      "serverResultsUpdatedAt": "2026-10-19T09:33:02.883776726Z",
+      "payloadWrittenAtUtcFromFilesystem": "2026-10-19T09:33:03.373388+00:00",
+      "knownRetrievalWindow": [
+        "2026-10-19T09:33:00.067785+00:00",
+        "2026-10-19T09:33:05.550815+00:00"
+      ],
+      "originalHttpDateHeaderNotRetainedByFailedCollector": true
+    },
+    {
+      "file": "live-en-v2/en/page-1000.json.gz",
+      "rawSha256": "c25465409fd87b8cc3513053b6024d3aa02c22fa32a6d8ab496300289745c724",
+      "gzipSha256": "2b24811be7051db75f5bf8e83a69f5612c71cc050e4081669b2660a3113222b6",
+      "serverResultsUpdatedAt": "2026-10-19T09:33:03.904329487Z",
+      "payloadWrittenAtUtcFromFilesystem": "2026-10-19T09:33:04.535455+00:00",
+      "knownRetrievalWindow": [
+        "2026-10-19T09:33:00.067785+00:00",
+        "2026-10-19T09:33:05.550815+00:00"
+      ],
+      "originalHttpDateHeaderNotRetainedByFailedCollector": true
+    },
+    {
+      "file": "live-en-v2/en/page-1200.json.gz",
+      "rawSha256": "4e0e27c2c53c4b6a50c72d28e5ec6ba9c41cf36491dfae10ce969cf60162bb9f",
+      "gzipSha256": "053152135b0524483a876fdb4e3c58b7c870d1998a917debccc347219ee975ee",
+      "serverResultsUpdatedAt": "2026-10-19T09:33:04.034343499Z",
+      "payloadWrittenAtUtcFromFilesystem": "2026-10-19T09:33:04.615181+00:00",
+      "knownRetrievalWindow": [
+        "2026-10-19T09:33:00.067785+00:00",
+        "2026-10-19T09:33:05.550815+00:00"
+      ],
+      "originalHttpDateHeaderNotRetainedByFailedCollector": true
+    },
+    {
+      "file": "live-en-v2/en/page-1400.json.gz",
+      "rawSha256": "937b0e2636d6b8dcd8278b1b2d353b9e7d1adb216f1f5b005b4f250f9370759d",
+      "gzipSha256": "c79f23a9feb7d8d77a51ab5f8e0501b120d377eafc259a38bcfe42dcf4637fd1",
+      "serverResultsUpdatedAt": "2026-10-19T09:33:04.369803758Z",
+      "payloadWrittenAtUtcFromFilesystem": "2026-10-19T09:33:04.636587+00:00",
+      "knownRetrievalWindow": [
+        "2026-10-19T09:33:00.067785+00:00",
+        "2026-10-19T09:33:05.550815+00:00"
+      ],
+      "originalHttpDateHeaderNotRetainedByFailedCollector": true
+    }
+  ],
+  "newVerifiedTlsAcquisitions": [
+    {
+      "url": "https://content.publishing.riotgames.com/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=en_US&limit=200&from=200",
+      "startedAtUtc": "2026-10-19T09:35:49.776790+00:00",
+      "receivedAtUtc": "2026-10-19T09:35:51.989777+00:00",
+      "httpDate": "Mon, 19 Oct 2026 09:35:51 GMT",
+      "httpStatus": 200,
+      "resolvedUrl": "https://content.publishing.riotgames.com/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=en_US&limit=200&from=200",
+      "file": "live-en-v3/missing-page-0200.json.gz",
+      "rawBytes": 545569,
+      "rawSha256": "d2b9d7f6b7d7d1fcac0a88b9cc135a08bae471d4521f979174a69dee804073b4",
+      "gzipSha256": "7b0d0e9dff5474fda05fdc6c47c29c223105f9dc213f3832ae01fe0454a2f97d",
+      "normalVerifiedTls": true
+    },
+    {
+      "url": "https://content.publishing.riotgames.com/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=en_US&limit=2000&from=0",
+      "startedAtUtc": "2026-10-19T09:35:51.997180+00:00",
+      "receivedAtUtc": "2026-10-19T09:35:57.130994+00:00",
+      "httpDate": "Mon, 19 Oct 2026 09:35:55 GMT",
+      "httpStatus": 200,
+      "resolvedUrl": "https://content.publishing.riotgames.com/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=en_US&limit=2000&from=0",
+      "file": "live-en-v3/whole-list.json.gz",
+      "rawBytes": 3836106,
+      "rawSha256": "056072890d0e628e7490120d986e4cd03efde2da840bf2ecd580b4afaa6f1384",
+      "gzipSha256": "8344bd73ea7603cd852dd3c898f54126f60fe827d5015ec8c3dfc714eab4310d",
+      "normalVerifiedTls": true
+    },
+    {
+      "url": "https://playriftbound.com/en-us/card-gallery/",
+      "startedAtUtc": "2026-10-19T09:35:57.185723+00:00",
+      "receivedAtUtc": "2026-10-19T09:36:00.613516+00:00",
+      "httpDate": "Mon, 19 Oct 2026 09:35:58 GMT",
+      "httpStatus": 200,
+      "resolvedUrl": "https://playriftbound.com/en-us/card-gallery/",
+      "file": "live-en-v3/official-gallery.html.gz",
+      "rawBytes": 3981799,
+      "rawSha256": "612a81d4f92162b9a56106c42c156dd09296adc2c24669043048904db9806a65",
+      "gzipSha256": "7f31449b2733190ff4385cbb312ca5208e7376ba64d91f1e6c78d6da7b156591",
+      "normalVerifiedTls": true
+    },
+    {
+      "url": "https://content.publishing.riotgames.com/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=en_US&limit=200&from=0",
+      "startedAtUtc": "2026-10-19T09:36:00.700684+00:00",
+      "receivedAtUtc": "2026-10-19T09:36:03.023122+00:00",
+      "httpDate": "Mon, 19 Oct 2026 09:36:02 GMT",
+      "httpStatus": 200,
+      "resolvedUrl": "https://content.publishing.riotgames.com/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=en_US&limit=200&from=0",
+      "file": "live-en-v3/first-page-end-readback.json.gz",
+      "rawBytes": 536605,
+      "rawSha256": "4d588d400ea4774738ee7c2277f94c0f01262c26df14dbef33c87328b9762aad",
+      "gzipSha256": "2d4b46a4b2778cc3b9347e3cd149a4e4edfd78eb9e034de58047ebb139ade528",
+      "normalVerifiedTls": true
+    }
+  ],
+  "normalTlsFailuresRetained": [],
+  "sourceCollectorSha256": "6d6f2e010bf4a05411982935f8785f68ea2c77e4d3184882b68bb93766b75ece",
+  "coverageComparisons": {
+    "reportedTotal": 1416,
+    "returnedEntries": 1408,
+    "reportedMinusReturned": 8,
+    "views": [
+      {
+        "name": "currentOriginalPaginationPrefixPlusMissingPage",
+        "rawEntries": 1408,
+        "distinctEntries": 1407,
+        "identicalDuplicateIds": {
+          "unl-224-219": 2
+        },
+        "missingFromCurrentUnion": [
+          "ogn-171-298"
+        ]
+      },
+      {
+        "name": "newWholeList",
+        "rawEntries": 1408,
+        "distinctEntries": 1408,
+        "identicalDuplicateIds": {},
+        "missingFromCurrentUnion": []
+      },
+      {
+        "name": "newPageSsr",
+        "rawEntries": 1408,
+        "distinctEntries": 1407,
+        "identicalDuplicateIds": {
+          "sfd-054-221": 2
+        },
+        "missingFromCurrentUnion": [
+          "sfd-119a-221"
+        ]
+      }
+    ]
+  },
+  "firstPageExactIdsAndFullRowsStableDespiteDifferentOrder": true,
+  "noHistoricalUnreturnedIdsImported": true,
+  "runtimeOrManifestChanged": false,
+  "wholeCardOrSourceCertified": false,
+  "finishedAtUtc": "2026-10-19T09:36:03.123963+00:00"
+}

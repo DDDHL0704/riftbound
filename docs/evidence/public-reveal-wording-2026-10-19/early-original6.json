@@ -1,0 +1,34 @@
+{
+  "status": "PASS_BOUNDED_CURRENT_DEVELOPMENT_INPUTS",
+  "cases": 6,
+  "methods": 5,
+  "caseNames": [
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameResolvesLostLibraryHighCostSpellInsightAndScoreVictoryActionLogReplaysToFinalStateHash",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialLowCurveDecksResolveContestedBattleAfterStandardMove",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialLowCurveFullGameScoreVictoryActionLogReplaysToFinalStateHash",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameResolvesCandlelitSanctumConquerRevealRecycleAndScoreVictoryActionLogReplaysToFinalStateHash",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.AuditedCopiedPrintedTextMidgameResolvesIndependentInstancesAndReplaysThroughScoreVictory(card: \"SFD·050/221\")",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.AuditedCopiedPrintedTextMidgameResolvesIndependentInstancesAndReplaysThroughScoreVictory(card: \"OGN·109/298\")"
+  ],
+  "summary": {
+    "status": "PASSED",
+    "profile": "focus",
+    "seconds": 57.13,
+    "total": 6,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "focus",
+        "total": 6,
+        "passed": 6,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 52.91
+      }
+    ]
+  },
+  "rawTrxSha256": {
+    "var/qa/public-reveal-wording-20261019/early-original-six/focus/results.trx": "d6c183ca2a56180e924754a1e1c8e5c6334a5a143cfabd9d69c973aa37be67ba"
+  },
+  "noWholePrintingOrNativeProductCertification": true
+}

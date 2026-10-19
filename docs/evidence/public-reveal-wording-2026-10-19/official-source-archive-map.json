@@ -1,0 +1,316 @@
+{
+  "recordedAtUtc": "2026-10-19T10:01:19.105279+00:00",
+  "originalAcquisitionReceiptsNeverRewritten": true,
+  "records": [
+    {
+      "originalAcquiredPath": "var/qa/public-reveal-wording-20261019/live-catalogues-v1/cn/first-page-end-readback.json.gz",
+      "canonicalRetainedCopy": {
+        "path": "docs/evidence/public-reveal-wording-2026-10-19/acquired/live-catalogues-v1/cn/first-page-end-readback.json.gz",
+        "sha256": "b7c48e7cfa6acf5e40e453a10e8efefef6358f4d4ca050c0821a3283c5aedab2",
+        "role": "first-page-end-readback.json"
+      },
+      "bytes": 14776
+    },
+    {
+      "originalAcquiredPath": "var/qa/public-reveal-wording-20261019/live-catalogues-v1/cn/page-01.json.gz",
+      "canonicalRetainedCopy": {
+        "path": "docs/evidence/public-reveal-wording-2026-10-19/acquired/live-catalogues-v1/cn/page-01.json.gz",
+        "sha256": "0985df843d660457905abc28f5855bbb7f5577234708b857be7a61d12f12f254",
+        "role": "page-01.json"
+      },
+      "bytes": 14777
+    },
+    {
+      "originalAcquiredPath": "var/qa/public-reveal-wording-20261019/live-catalogues-v1/cn/page-02.json.gz",
+      "canonicalRetainedCopy": {
+        "path": "docs/evidence/public-reveal-wording-2026-10-19/acquired/live-catalogues-v1/cn/page-02.json.gz",
+        "sha256": "143517f46f0d97a981be30517877e28250e3f3a161194b97be1976da959998d9",
+        "role": "page-02.json"
+      },
+      "bytes": 14022
+    },
+    {
+      "originalAcquiredPath": "var/qa/public-reveal-wording-20261019/live-catalogues-v1/cn/page-03.json.gz",
+      "canonicalRetainedCopy": {
+        "path": "docs/evidence/public-reveal-wording-2026-10-19/acquired/live-catalogues-v1/cn/page-03.json.gz",
+        "sha256": "99f1eec5ee4c7cd682b6886ac28537feab2e2fa23faf3dacd36501c295f8d565",
+        "role": "page-03.json"
+      },
+      "bytes": 13255
+    },
+    {
+      "originalAcquiredPath": "var/qa/public-reveal-wording-20261019/live-catalogues-v1/cn/page-04.json.gz",
+      "canonicalRetainedCopy": {
+        "path": "docs/evidence/public-reveal-wording-2026-10-19/acquired/live-catalogues-v1/cn/page-04.json.gz",
+        "sha256": "0fe9166758eb88a4e57209afe8de18ccb9a12b289d03b210738e949cdcb40ca5",
+        "role": "page-04.json"
+      },
+      "bytes": 14804
+    },
+    {
+      "originalAcquiredPath": "var/qa/public-reveal-wording-20261019/live-catalogues-v1/cn/page-05.json.gz",
+      "canonicalRetainedCopy": {
+        "path": "docs/evidence/public-reveal-wording-2026-10-19/acquired/live-catalogues-v1/cn/page-05.json.gz",
+        "sha256": "f3b8b9b37021e2a8e418962888d75276fe7927fdedf4337f749dc07efabd2cda",
+        "role": "page-05.json"
+      },
+      "bytes": 12347
+    },
+    {
+      "originalAcquiredPath": "var/qa/public-reveal-wording-20261019/live-catalogues-v1/cn/page-06.json.gz",
+      "canonicalRetainedCopy": {
+        "path": "docs/evidence/public-reveal-wording-2026-10-19/acquired/live-catalogues-v1/cn/page-06.json.gz",
+        "sha256": "f32c0cd1c645e379d28494cdb01e9da1b94bf26ad4c11191dce580581a49beed",
+        "role": "page-06.json"
+      },
+      "bytes": 14531
+    },
+    {
+      "originalAcquiredPath": "var/qa/public-reveal-wording-20261019/live-catalogues-v1/cn/page-07.json.gz",
+      "canonicalRetainedCopy": {
+        "path": "docs/evidence/public-reveal-wording-2026-10-19/acquired/live-catalogues-v1/cn/page-07.json.gz",
+        "sha256": "45f54b88f93493512dff622e1d3513d0c85664683394a6498ac2ff85790b573c",
+        "role": "page-07.json"
+      },
+      "bytes": 15160
+    },
+    {
+      "originalAcquiredPath": "var/qa/public-reveal-wording-20261019/live-catalogues-v1/cn/page-08.json.gz",
+      "canonicalRetainedCopy": {
+        "path": "docs/evidence/public-reveal-wording-2026-10-19/acquired/live-catalogues-v1/cn/page-08.json.gz",
+        "sha256": "e155787cea67c497a83a0f752ca759ce361ed0208315b2de0b2b07dd145d5ef8",
+        "role": "page-08.json"
+      },
+      "bytes": 12805
+    },
+    {
+      "originalAcquiredPath": "var/qa/public-reveal-wording-20261019/live-catalogues-v1/cn/page-09.json.gz",
+      "canonicalRetainedCopy": {
+        "path": "docs/evidence/public-reveal-wording-2026-10-19/acquired/live-catalogues-v1/cn/page-09.json.gz",
+        "sha256": "718c5e40beee66dd1c0ebe224432dfb9364f70482c57f1763053790ebf4c0ef0",
+        "role": "page-09.json"
+      },
+      "bytes": 14573
+    },
+    {
+      "originalAcquiredPath": "var/qa/public-reveal-wording-20261019/live-catalogues-v1/cn/page-10.json.gz",
+      "canonicalRetainedCopy": {
+        "path": "docs/evidence/public-reveal-wording-2026-10-19/acquired/live-catalogues-v1/cn/page-10.json.gz",
+        "sha256": "faeb353f7a4c8bb8492fccaf1a6d3885967d2ec247a75d1fc57b508dd454bd4e",
+        "role": "page-10.json"
+      },
+      "bytes": 13725
+    },
+    {
+      "originalAcquiredPath": "var/qa/public-reveal-wording-20261019/live-catalogues-v1/cn/page-11.json.gz",
+      "canonicalRetainedCopy": {
+        "path": "docs/evidence/public-reveal-wording-2026-10-19/acquired/live-catalogues-v1/cn/page-11.json.gz",
+        "sha256": "3cdf6a9d41a927a5b471e25bbf54fe84979cbf5f998fd50add51bb7b44ac65fe",
+        "role": "page-11.json"
+      },
+      "bytes": 12173
+    },
+    {
+      "originalAcquiredPath": "var/qa/public-reveal-wording-20261019/live-catalogues-v1/cn/page-12.json.gz",
+      "canonicalRetainedCopy": {
+        "path": "docs/evidence/public-reveal-wording-2026-10-19/acquired/live-catalogues-v1/cn/page-12.json.gz",
+        "sha256": "7b6c46ff9a7c76fee4a72346ab7e295df8d8740f7937378741bb8807f06cdb6f",
+        "role": "page-12.json"
+      },
+      "bytes": 13079
+    },
+    {
+      "originalAcquiredPath": "var/qa/public-reveal-wording-20261019/live-catalogues-v1/cn/page-13.json.gz",
+      "canonicalRetainedCopy": {
+        "path": "docs/evidence/public-reveal-wording-2026-10-19/acquired/live-catalogues-v1/cn/page-13.json.gz",
+        "sha256": "f657732456c954aa252e1b3ef2b45c1c48ba03606084b1442494431e9d6568a7",
+        "role": "page-13.json"
+      },
+      "bytes": 13784
+    },
+    {
+      "originalAcquiredPath": "var/qa/public-reveal-wording-20261019/live-catalogues-v1/cn/page-14.json.gz",
+      "canonicalRetainedCopy": {
+        "path": "docs/evidence/public-reveal-wording-2026-10-19/acquired/live-catalogues-v1/cn/page-14.json.gz",
+        "sha256": "01c504762a0672fb2f90b01d0a672230593454b786737fa1b29e03c42bb932b5",
+        "role": "page-14.json"
+      },
+      "bytes": 14368
+    },
+    {
+      "originalAcquiredPath": "var/qa/public-reveal-wording-20261019/live-catalogues-v1/cn/page-15.json.gz",
+      "canonicalRetainedCopy": {
+        "path": "docs/evidence/public-reveal-wording-2026-10-19/acquired/live-catalogues-v1/cn/page-15.json.gz",
+        "sha256": "b3afcf83a5598025f7013e700c7a8e2534b161c939f70e1f9d84fa66a6847229",
+        "role": "page-15.json"
+      },
+      "bytes": 13149
+    },
+    {
+      "originalAcquiredPath": "var/qa/public-reveal-wording-20261019/live-catalogues-v1/cn/page-16.json.gz",
+      "canonicalRetainedCopy": {
+        "path": "docs/evidence/public-reveal-wording-2026-10-19/acquired/live-catalogues-v1/cn/page-16.json.gz",
+        "sha256": "0b38f589e3c6c687b4d5686b69d13c3722a5c72f818177d2f5e68ec16cf70eca",
+        "role": "page-16.json"
+      },
+      "bytes": 1135
+    },
+    {
+      "originalAcquiredPath": "var/qa/public-reveal-wording-20261019/live-catalogues-v1/en/first-page-end-readback.json.gz",
+      "canonicalRetainedCopy": {
+        "path": "docs/evidence/public-reveal-wording-2026-10-19/acquired/live-catalogues-v1/en/first-page-end-readback.json.gz",
+        "sha256": "351fb5134d846a960509a313105e3669abab2a7d4d1ea5c1151066362138c654",
+        "role": "first-page-end-readback.json"
+      },
+      "bytes": 39600
+    },
+    {
+      "originalAcquiredPath": "var/qa/public-reveal-wording-20261019/live-catalogues-v1/en/page-0000.json.gz",
+      "canonicalRetainedCopy": {
+        "path": "docs/evidence/public-reveal-wording-2026-10-19/acquired/live-catalogues-v1/en/page-0000.json.gz",
+        "sha256": "c3db578ea5c55ce479a97caf3c7ec18c59efdf0e64272a0b3f974204ac5c9877",
+        "role": "page-0000.json"
+      },
+      "bytes": 39566
+    },
+    {
+      "originalAcquiredPath": "var/qa/public-reveal-wording-20261019/live-en-v2/en/page-0000.json.gz",
+      "canonicalRetainedCopy": {
+        "path": "docs/evidence/public-reveal-wording-2026-10-19/acquired/live-en-v2/en/page-0000.json.gz",
+        "sha256": "570b525eba524a221201c36616024e4153e813f1a1cfdb8c9ea67e26664f3a4b",
+        "role": "page-0000.json"
+      },
+      "bytes": 39566
+    },
+    {
+      "originalAcquiredPath": "var/qa/public-reveal-wording-20261019/live-en-v2/en/page-0400.json.gz",
+      "canonicalRetainedCopy": {
+        "path": "docs/evidence/public-reveal-wording-2026-10-19/acquired/live-en-v2/en/page-0400.json.gz",
+        "sha256": "9634139c988d807de635722a42bd88154776e77321ebcff3faddcad3c69c3f29",
+        "role": "page-0400.json"
+      },
+      "bytes": 39823
+    },
+    {
+      "originalAcquiredPath": "var/qa/public-reveal-wording-20261019/live-en-v2/en/page-0600.json.gz",
+      "canonicalRetainedCopy": {
+        "path": "docs/evidence/public-reveal-wording-2026-10-19/acquired/live-en-v2/en/page-0600.json.gz",
+        "sha256": "228eb984274a1d02513cf2a5509d6a14ef63d7e0df21fa68181924bd73511730",
+        "role": "page-0600.json"
+      },
+      "bytes": 38854
+    },
+    {
+      "originalAcquiredPath": "var/qa/public-reveal-wording-20261019/live-en-v2/en/page-0800.json.gz",
+      "canonicalRetainedCopy": {
+        "path": "docs/evidence/public-reveal-wording-2026-10-19/acquired/live-en-v2/en/page-0800.json.gz",
+        "sha256": "e578947ef130889e07ea92ed4dc382ef3731af7d0219edc21982883705d3a2ed",
+        "role": "page-0800.json"
+      },
+      "bytes": 39073
+    },
+    {
+      "originalAcquiredPath": "var/qa/public-reveal-wording-20261019/live-en-v2/en/page-1000.json.gz",
+      "canonicalRetainedCopy": {
+        "path": "docs/evidence/public-reveal-wording-2026-10-19/acquired/live-en-v2/en/page-1000.json.gz",
+        "sha256": "2b24811be7051db75f5bf8e83a69f5612c71cc050e4081669b2660a3113222b6",
+        "role": "page-1000.json"
+      },
+      "bytes": 38908
+    },
+    {
+      "originalAcquiredPath": "var/qa/public-reveal-wording-20261019/live-en-v2/en/page-1200.json.gz",
+      "canonicalRetainedCopy": {
+        "path": "docs/evidence/public-reveal-wording-2026-10-19/acquired/live-en-v2/en/page-1200.json.gz",
+        "sha256": "053152135b0524483a876fdb4e3c58b7c870d1998a917debccc347219ee975ee",
+        "role": "page-1200.json"
+      },
+      "bytes": 39385
+    },
+    {
+      "originalAcquiredPath": "var/qa/public-reveal-wording-20261019/live-en-v2/en/page-1400.json.gz",
+      "canonicalRetainedCopy": {
+        "path": "docs/evidence/public-reveal-wording-2026-10-19/acquired/live-en-v2/en/page-1400.json.gz",
+        "sha256": "c79f23a9feb7d8d77a51ab5f8e0501b120d377eafc259a38bcfe42dcf4637fd1",
+        "role": "page-1400.json"
+      },
+      "bytes": 4665
+    },
+    {
+      "originalAcquiredPath": "var/qa/public-reveal-wording-20261019/live-en-v3/first-page-end-readback.json.gz",
+      "canonicalRetainedCopy": {
+        "path": "docs/evidence/public-reveal-wording-2026-10-19/acquired/live-en-v3/first-page-end-readback.json.gz",
+        "sha256": "2d4b46a4b2778cc3b9347e3cd149a4e4edfd78eb9e034de58047ebb139ade528",
+        "role": "first-page-end-readback.json"
+      },
+      "bytes": 39601
+    },
+    {
+      "originalAcquiredPath": "var/qa/public-reveal-wording-20261019/live-en-v3/missing-page-0200.json.gz",
+      "canonicalRetainedCopy": {
+        "path": "docs/evidence/public-reveal-wording-2026-10-19/acquired/live-en-v3/missing-page-0200.json.gz",
+        "sha256": "7b0d0e9dff5474fda05fdc6c47c29c223105f9dc213f3832ae01fe0454a2f97d",
+        "role": "missing-page-0200.json"
+      },
+      "bytes": 40617
+    },
+    {
+      "originalAcquiredPath": "var/qa/public-reveal-wording-20261019/live-en-v3/official-gallery.html.gz",
+      "canonicalRetainedCopy": {
+        "path": "docs/evidence/public-reveal-wording-2026-10-19/acquired/live-en-v3/official-gallery.html.gz",
+        "sha256": "7f31449b2733190ff4385cbb312ca5208e7376ba64d91f1e6c78d6da7b156591",
+        "role": "official-gallery.html"
+      },
+      "bytes": 284944
+    },
+    {
+      "originalAcquiredPath": "var/qa/public-reveal-wording-20261019/live-en-v3/whole-list.json.gz",
+      "canonicalRetainedCopy": {
+        "path": "docs/evidence/public-reveal-wording-2026-10-19/acquired/live-en-v3/whole-list.json.gz",
+        "sha256": "8344bd73ea7603cd852dd3c898f54126f60fe827d5015ec8c3dfc714eab4310d",
+        "role": "whole-list.json"
+      },
+      "bytes": 268802
+    },
+    {
+      "originalAcquiredPath": "var/qa/public-reveal-wording-20261019/live-rule-hubs-v1/cn-rules-api.json.gz",
+      "canonicalRetainedCopy": {
+        "path": "docs/evidence/public-reveal-wording-2026-10-19/acquired/live-rule-hubs-v1/cn-rules-api.json.gz",
+        "sha256": "bb44f6a9a0c2b08858f0aca4e0f1174f129ca67e92e69d2b0059526cdedc888d",
+        "role": "cn-rules-api.json"
+      },
+      "bytes": 1172
+    },
+    {
+      "originalAcquiredPath": "var/qa/public-reveal-wording-20261019/live-rule-hubs-v1/global-rules-hub.html.gz",
+      "canonicalRetainedCopy": {
+        "path": "docs/evidence/public-reveal-wording-2026-10-19/acquired/live-rule-hubs-v1/global-rules-hub.html.gz",
+        "sha256": "97bd8a4052928cc2d9a2d5eb5acacdc1e8bc45b2247d4a128ed6e91f12897e45",
+        "role": "global-rules-hub.html"
+      },
+      "bytes": 19346
+    },
+    {
+      "originalAcquiredPath": "var/qa/public-reveal-wording-20261019/live-rule-hubs-v1/vendetta-faq.html.gz",
+      "canonicalRetainedCopy": {
+        "path": "docs/evidence/public-reveal-wording-2026-10-19/acquired/live-rule-hubs-v1/vendetta-faq.html.gz",
+        "sha256": "76036a08cdf405d9bd3b10c19ccf2078dea561c6e4190a1ee346d95b9215ecb8",
+        "role": "vendetta-faq.html"
+      },
+      "bytes": 44287
+    },
+    {
+      "originalAcquiredPath": "var/qa/public-reveal-wording-20261019/cn-core-432-1-through-before-432-2.txt",
+      "canonicalRetainedCopy": {
+        "path": "docs/evidence/public-reveal-wording-2026-10-19/cn-core-432-1.txt.gz",
+        "sha256": "75eda183a62fa5d6c51a96540cf85819cffc32dc109209da53b2ffc0c48c4299",
+        "role": "exact-source-text-slice-gzip"
+      },
+      "bytes": 609,
+      "uncompressedBytes": 1570,
+      "uncompressedSha256": "0d6d3fe40025741b354267259b3c8ac26582424389ef0b4e91aa124a688b1ab1",
+      "retainedByteExactIncludingOriginalTrailingWhitespace": true
+    }
+  ],
+  "preservedOriginalCollectorFailuresAndCountsInSeparateFiles": true
+}

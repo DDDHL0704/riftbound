@@ -1,0 +1,26 @@
+{
+  "recordedAtUtc": "2026-10-19T09:51:52.609626+00:00",
+  "status": "THREE_NEW_CN_SOURCE_IDENTITY_TESTS_ACTUALLY_FAIL_OLD_CHECKER",
+  "testsRun": 3,
+  "failureCount": 0,
+  "errorCount": 3,
+  "oldSourceSha256": "c9e7fa7cd60e228839e1b293d97ec1425ece7474439da60785679dd842b27659",
+  "frozenOldSourceSha256": "edf2120e5b07843dd5cf70e15198b3049889a547ae31b38aaf00d72fda3c3a4f",
+  "testHarnessSha256": "ae943c2377055f51ee33a9a57345177706c6f0cd52776b1e82bf4efdbf21da87",
+  "failures": [
+    {
+      "test": "test_cn_delta_records_changed_errata_and_removed_null_field (builtins.NewCnSourceDeltaTests)",
+      "trace": "Traceback (most recent call last):\n  File \"var/qa/public-reveal-wording-20261019/new-cn-source-delta-red-tests-v1.py\", line 17, in test_cn_delta_records_changed_errata_and_removed_null_field\n    result = gov.source_delta(before, after, 'cn_cards')\n  File \"scripts/audit/check-project-governance.py\", line 394, in source_delta\n    item['printing'] = b[identity]['publicCode']\nKeyError: 'publicCode'\n"
+    },
+    {
+      "test": "test_cn_delta_retains_reissued_ids_without_coalescing_printing (builtins.NewCnSourceDeltaTests)",
+      "trace": "Traceback (most recent call last):\n  File \"var/qa/public-reveal-wording-20261019/new-cn-source-delta-red-tests-v1.py\", line 10, in test_cn_delta_retains_reissued_ids_without_coalescing_printing\n    self.assertEqual(0, result['reportedMinusReturned'])\nKeyError: 'reportedMinusReturned'\n"
+    },
+    {
+      "test": "test_en_delta_retains_public_code_and_source_gap (builtins.NewCnSourceDeltaTests)",
+      "trace": "Traceback (most recent call last):\n  File \"var/qa/public-reveal-wording-20261019/new-cn-source-delta-red-tests-v1.py\", line 31, in test_en_delta_retains_public_code_and_source_gap\n    gov.source_delta({}, {}, 'unknown')\n  File \"scripts/audit/check-project-governance.py\", line 380, in source_delta\n    a = {r[key]: r for r in before['records' if kind == 'rules' else 'cards']}\nKeyError: 'cards'\n"
+    }
+  ],
+  "rawLogSha256": "410b4f188a53f5848c2801ebd5c98eee9d5599db369802afc70b81a5c5f48570",
+  "rootSourceAndCurrentCheckInputsUnchanged": true
+}

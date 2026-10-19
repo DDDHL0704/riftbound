@@ -376,6 +376,8 @@ def official_news_obligations(root, ref, scope, card_source, card_ids):
 
 
 def source_delta(before, after, kind):
+    if kind not in {'rules', 'cards', 'cn_cards'}:
+        raise ValueError('Unsupported source delta kind: '+str(kind))
     key = 'url' if kind == 'rules' else 'id'
     a = {r[key]: r for r in before['records' if kind == 'rules' else 'cards']}
     b = {r[key]: r for r in after['records' if kind == 'rules' else 'data']}
@@ -383,7 +385,8 @@ def source_delta(before, after, kind):
         raise ValueError('Duplicate source delta identity')
     changed = []
     for identity in sorted(a.keys() & b.keys()):
-        fields = sorted(k for k in a[identity].keys() | b[identity].keys() if a[identity].get(k) != b[identity].get(k))
+        fields = sorted(k for k in a[identity].keys() | b[identity].keys()
+                        if (k in a[identity]) != (k in b[identity]) or a[identity].get(k) != b[identity].get(k))
         if not fields:
             continue
         item = dict(id=identity, changedFields=fields)
@@ -391,11 +394,11 @@ def source_delta(before, after, kind):
             item.update(previousContentHash=a[identity]['sha256'], currentContentHash=b[identity]['sha256'],
                         extractedTextIdentical=a[identity]['text'] == b[identity]['text'])
         else:
-            item['printing'] = b[identity]['publicCode']
+            item['printing'] = b[identity]['cardNo' if kind == 'cn_cards' else 'publicCode']
         changed.append(item)
     result = dict(kind=kind, addedIds=sorted(b.keys()-a.keys()), removedIds=sorted(a.keys()-b.keys()),
                   changed=changed, applicability='REQUIRES_EXPLICIT_VERSION_DISPOSITION', semanticCertification=False)
-    if kind == 'cards':
+    if kind in {'cards', 'cn_cards'}:
         result.update(reportedTotal=after['metadata']['totalItems'], returnedEntries=len(b),
                       reportedMinusReturned=after['metadata']['totalItems']-len(b))
     return result
