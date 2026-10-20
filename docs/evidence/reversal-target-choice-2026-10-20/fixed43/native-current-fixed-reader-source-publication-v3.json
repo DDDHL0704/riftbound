@@ -1,0 +1,8 @@
+{
+  "atUtc": "2026-10-20T10:00:54.405513+00:00",
+  "originalV2SourceSha256": "babf22da2d64626eec19243ead0337cb7c8c71ac6684c893bee9afaf5e28c9d6",
+  "actualAdaptedSourceSha256": "5bebac3e3be678f660b7181d00e0705bbc7a78d68d6718ccb046bca647d267c1",
+  "onlyExpectedFixedCommitAndAssemblyNameUpdated": true,
+  "allOriginalPaymentPrefixEveryHistoryFieldNullRecoveryFullReplayAndActualBothNativePayloadAssertionsRetained": true,
+  "newCoreIdentityFromFixed43ActualRuntime": "47d75226de4724fa76d0e31f2139d1d99a520932f66c0eaffde6c69df6cc42c6"
+}

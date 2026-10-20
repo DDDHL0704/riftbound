@@ -1,0 +1,16 @@
+{
+  "observedAtUtc": "2026-10-20T11:44:05.558216+00:00",
+  "status": "READONLY_ADAPTER_INCORRECTLY_ASSUMED_COMMAND_ORDINAL_EQUALS_TICK",
+  "originalReaderSourceSha256": "b51ed7210fabed5498ddb48c4f74d19f51e91e8a0f4fd4fe02b80dc2bbf7e3ec",
+  "originalReaderLogSha256": "71602f9b4f1d779e07b914e8d44f2c708b5765ab1f5aa0fa803d91bd33706562",
+  "actualOriginalPrefixCommandCount": 49,
+  "actualOriginalPrefixCompletedTick": 48,
+  "actualFinalCommandCount": 55,
+  "actualFinalTick": 54,
+  "failedGuard": "Independent own-deck draw comparison selected tick49, which is after playing Reversal, rather than the end of the original49-command prefix.",
+  "correction": "Bind the prefix state to original frame.Commands[opening.Length-1].CompletedTick. Preserve every draw/count/actor/null/history/replay assertion.",
+  "fourOriginalWriterRoomsRetainedNoWriterRerun": true,
+  "old209AuditAnd45NativeSevenTablesExactAtStop": true,
+  "oldOwnerStoppedNormally": true,
+  "nextReadOnlyOwnerWillCompareAll213AuditAnd45NativeAgainstPreReaderBaseline": true
+}

@@ -1,0 +1,88 @@
+{
+  "observedAtUtc": "2026-10-20T11:27:11.057830+00:00",
+  "results": [
+    {
+      "format": 0,
+      "remake": false,
+      "commands": 55,
+      "events": 312,
+      "coldCount": 6,
+      "originalNextMatches": 5,
+      "originalBlankSeed": 0,
+      "actualRuleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+        "implementationSha256": "904eb54b0c18cf648d3e5385a5d75c55578b0d64c4baf7d0f636fccd5f461ac6",
+        "identitySha256": "2d86291e795e556328dcd74862dd8cae26183e6bb51dff059e7f0cf37bc4053f"
+      },
+      "allOriginalReplayMatched": true,
+      "completeGameOrWholePrintingCertification": false
+    },
+    {
+      "format": 1,
+      "remake": false,
+      "commands": 55,
+      "events": 312,
+      "coldCount": 6,
+      "originalNextMatches": 5,
+      "originalBlankSeed": 0,
+      "actualRuleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+        "implementationSha256": "904eb54b0c18cf648d3e5385a5d75c55578b0d64c4baf7d0f636fccd5f461ac6",
+        "identitySha256": "2d86291e795e556328dcd74862dd8cae26183e6bb51dff059e7f0cf37bc4053f"
+      },
+      "allOriginalReplayMatched": true,
+      "completeGameOrWholePrintingCertification": false
+    },
+    {
+      "format": 1,
+      "remake": true,
+      "commands": 56,
+      "events": 314,
+      "coldCount": 7,
+      "originalNextMatches": 6,
+      "originalBlankSeed": 0,
+      "actualRuleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+        "implementationSha256": "904eb54b0c18cf648d3e5385a5d75c55578b0d64c4baf7d0f636fccd5f461ac6",
+        "identitySha256": "2d86291e795e556328dcd74862dd8cae26183e6bb51dff059e7f0cf37bc4053f"
+      },
+      "allOriginalReplayMatched": true,
+      "completeGameOrWholePrintingCertification": false
+    },
+    {
+      "format": 0,
+      "remake": true,
+      "commands": 56,
+      "events": 314,
+      "coldCount": 7,
+      "originalNextMatches": 6,
+      "originalBlankSeed": 0,
+      "actualRuleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+        "implementationSha256": "904eb54b0c18cf648d3e5385a5d75c55578b0d64c4baf7d0f636fccd5f461ac6",
+        "identitySha256": "2d86291e795e556328dcd74862dd8cae26183e6bb51dff059e7f0cf37bc4053f"
+      },
+      "allOriginalReplayMatched": true,
+      "completeGameOrWholePrintingCertification": false
+    }
+  ],
+  "all27CasesPassed": true,
+  "original46SqlCasesAndOrderPreserved": true,
+  "new47thCase": "reversal-target-choice"
+}

@@ -186,6 +186,10 @@
     {
       "id": "conditional-counter-payment",
       "sourceType": "ConditionalCounterPaymentSqlAcceptance"
+    },
+    {
+      "id": "reversal-target-choice",
+      "sourceType": "ReversalTargetChoiceSqlAcceptance"
     }
   ]
 }

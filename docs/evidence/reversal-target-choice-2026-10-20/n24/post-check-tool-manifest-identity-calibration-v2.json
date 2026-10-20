@@ -1,0 +1,20 @@
+{
+  "status": "PASS_POST_CHECK_TOOL_ONLY_DEFAULT_SQL47_COUNT_AND_EXACT_LAST_TWO_IDS_CALIBRATION",
+  "atUtc": "2026-10-20T12:49:42.000678+00:00",
+  "changedSourcePath": "scripts/tests/test_sql_ci_gate.py",
+  "beforeSha256": "e5d49a5169afb6341f66645cba9a320e2e8a1062ba604a9d1a2ce05aa273fca0",
+  "afterSha256": "88743084f231e6e318354247a1b955c6baad1cc4f30af0232ce6462abed02361",
+  "originalSourceGzipSha256": "7b70915408705d6e143cbfa88adeccdfd46b34609dbc71dd2f8377a2e9dedbef",
+  "actualSourceDiff": "diff --git a/scripts/tests/test_sql_ci_gate.py b/scripts/tests/test_sql_ci_gate.py\nindex 24a17849..c932610e 100644\n--- a/scripts/tests/test_sql_ci_gate.py\n+++ b/scripts/tests/test_sql_ci_gate.py\n@@ -62,10 +62,11 @@ class SqlCiGateTests(unittest.TestCase):\n \n     def test_exact_all_default_cases_including_original_core_are_required_once(self):\n         result = self.verify()\n-        self.assertEqual(46, result['caseCount'])\n+        self.assertEqual(47, result['caseCount'])\n         self.assertEqual(self.ids, result['orderedDefaultCases'])\n         self.assertEqual(1, self.ids.count('core-opening'))\n-        self.assertEqual('conditional-counter-payment', self.ids[-1])\n+        self.assertEqual('conditional-counter-payment', self.ids[-2])\n+        self.assertEqual('reversal-target-choice', self.ids[-1])\n \n     def test_every_failed_cancelled_skipped_or_missing_child_fails_closed(self):\n         for values in itertools.product(['success', 'failure', 'cancelled', 'skipped', ''], repeat=3):\n",
+  "checkReceiptSha256": "e49466e80addb9c80aceeb22a757b0ff526d27cd2cec01e70ad643ad9ff5c0fb",
+  "allOther3311DeclaredSourcesAnd1401RuntimeFilesExactAfterToolTests": true,
+  "originalDefault46IdentitiesAndOrderRemainRequiredWith47thAppend": true,
+  "oldConditionalCounterIdentityGuardPreservedAtPenultimatePosition": true,
+  "newFinalReversalIdentityExplicitlyRequired": true,
+  "allOriginalMethodsAndOtherSafetyGuardsRetained": true,
+  "toolTestCount": 73,
+  "toolExitCode": 0,
+  "noSecondCheck": true,
+  "finalFixedFullMustVerifyFinalSource": true,
+  "gameplayOrNewNativeCertification": false
+}

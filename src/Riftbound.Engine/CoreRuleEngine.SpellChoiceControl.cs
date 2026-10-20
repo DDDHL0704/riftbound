@@ -4,7 +4,7 @@ namespace Riftbound.Engine;
 
 public sealed partial class CoreRuleEngine
 {
-    private static StackResolutionResult ResolveOptionalSpellControl(MatchState state, StackItemState item, CardBehaviorDefinition behavior)
+    private static StackResolutionResult ResolveSpellControl(MatchState state, StackItemState item, CardBehaviorDefinition behavior)
     {
         var target = state.StackItems.FirstOrDefault(s => item.TargetObjectIds.Contains(s.StackItemId));
         var zones = NormalizeZonesForSeats(state);
@@ -12,28 +12,42 @@ public sealed partial class CoreRuleEngine
         var pools = state.RunePools.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
         var events = new List<GameEvent>();
         var countered = new List<string>();
+        var triggers = new List<TriggerQueueItemState>();
+        var effects = state.UntilEndOfTurnEffects;
         IReadOnlyList<StackItemState>? stack = null;
         if (target is not null && !StackObjectRules.IsAbility(target)
             && IsLegalChosenCardTarget(state, item.ControllerId, target.StackItemId, 0, item.TargetObjectIds,
                 CardTargetScopes.StackSpell, behavior)
             && (item.TargetStackSources is null || item.TargetStackSources.GetValueOrDefault(target.StackItemId) == target.SourceObjectId))
         {
-            if (ChooseOptionalControlPayment(state, item, zones, cards, pools, events))
+            if (!behavior.MayPayPowerToGainControlAndRemakeSpellChoices
+                || ChooseOptionalControlPayment(state, item, zones, cards, pools, events))
             {
                 if (!TryGainControlOfTargetStackSpell(state.StackItems, behavior, item, out var transferred, out var controlEvent))
                     throw new InvalidOperationException("A confirmed spell target disappeared within its resolution.");
                 var controlled = transferred.Single(s => s.StackItemId == target.StackItemId);
                 var context = state with { PlayerZones = zones, CardObjects = cards, RunePools = pools,
                     StackItems = state.StackItems.Select(s => s.StackItemId == target.StackItemId ? controlled : s).ToArray() };
-                controlled = RemakeSpellChoices(context, controlled, item.StackItemId);
+                var remade = false;
+                if (behavior.MayPayPowerToGainControlAndRemakeSpellChoices || behavior.MayChooseNewTargetsForControlledSpell)
+                    controlled = RemakeSpellChoices(context, controlled, item.StackItemId,
+                        behavior.MayChooseNewTargetsForControlledSpell, out remade);
                 stack = transferred
                     .Select(s => s.StackItemId == target.StackItemId ? controlled : s).ToArray();
                 events.Add(controlEvent);
-                if (MatchStateHasher.HashValue(controlled with { ControllerId = target.ControllerId }) != MatchStateHasher.HashValue(target))
+                if (remade)
+                {
                     events.Add(new("SPELL_CHOICES_REMADE", "为法术做出新的选择", new Dictionary<string, object?> {
                         ["stackItemId"] = target.StackItemId, ["effectKind"] = controlled.EffectKind,
                         ["targetObjectIds"] = controlled.TargetObjectIds, ["repeatExecutions"] = controlled.RepeatExecutions,
                         ["destination"] = controlled.Destination, ["movementDestinations"] = controlled.MovementDestinations }));
+                    if (!CardBehaviorRegistry.TryGetByEffectKind(controlled.EffectKind, out var controlledBehavior))
+                        throw new InvalidOperationException("A remade spell must retain a registered mode.");
+                    var selected = CaptureSpellTriggers(context, controlled, controlledBehavior, out effects, targetSelection: true)
+                        .Select(t => t with { TriggerId = $"spell-remade-{item.StackItemId}-{t.TriggerId}" }).ToArray();
+                    triggers.AddRange(selected);
+                    events.AddRange(selected.Select(BuildTriggerQueuedEvent));
+                }
             }
             else if (TryCounterStackItem(state, zones, cards, target.StackItemId, item, behavior, out var counterEvent))
             {
@@ -41,8 +55,8 @@ public sealed partial class CoreRuleEngine
             }
         }
         CompleteSpellSource(zones, cards, item, behavior);
-        return new(zones, cards, state.PlayerScores, state.PlayerExperience, pools, state.UntilEndOfTurnEffects,
-            null, events, [], stack, countered, null, [], state.RngCursor,
+        return new(zones, cards, state.PlayerScores, state.PlayerExperience, pools, effects,
+            null, events, [], stack, countered, null, triggers, state.RngCursor,
             ObjectLocations: ReconcileObjectLocations(state.ObjectLocations, zones));
     }
 
@@ -91,26 +105,28 @@ public sealed partial class CoreRuleEngine
         }
     }
 
-    private static StackItemState RemakeSpellChoices(MatchState state, StackItemState spell, string resolvingItemId)
+    private static StackItemState RemakeSpellChoices(MatchState state, StackItemState spell, string resolvingItemId,
+        bool targetsOnly, out bool remade)
     {
         // Editing one choice at a time represents partial remakes and arbitrary target counts
         // without materializing every combination. Confirmation validates the whole draft.
         var executions = (spell.RepeatExecutions ?? [new(spell.EffectKind, spell.TargetObjectIds,
             spell.TargetGenerations ?? new Dictionary<string, long>(), spell.MovementDestinations, spell.Destination)]).ToArray();
-        var changed = false;
+        remade = false;
         while (true)
         {
             var options = new List<RuleChoiceOption> { new("KEEP_ALL", "不做新的选择：保留所有原选择（包括已不合法的选择）") };
             var edits = new Dictionary<string, (int Index, SpellExecutionState Execution)>();
-            if (changed && executions.All(e => HasLegalRemadeExecution(state, spell, e)))
+            if (executions.All(e => HasLegalRemadeExecution(state, spell, e)))
                 options.Add(new("CONFIRM", "确认新的选择；所有目标与保留选择均合法"));
             for (var i = 0; i < executions.Length; i++)
             {
                 var execution = executions[i];
                 if (!CardBehaviorRegistry.TryGetByEffectKind(execution.EffectKind, out var definition)) continue;
                 definition = definition with { StandbyPlayFrom = spell.PlayedFromStandby };
-                foreach (var mode in CardBehaviorRegistry.GetAll().Where(d => d.CardNo == spell.CardNo && d.EffectKind != execution.EffectKind))
-                    Add(execution with { EffectKind = mode.EffectKind }, $"第 {i + 1} 次：模式 {mode.Mode}（{mode.DisplayName}）");
+                if (!targetsOnly)
+                    foreach (var mode in CardBehaviorRegistry.GetAll().Where(d => d.CardNo == spell.CardNo && d.EffectKind != execution.EffectKind))
+                        Add(execution with { EffectKind = mode.EffectKind }, $"第 {i + 1} 次：模式 {mode.Mode}（{mode.DisplayName}）");
                 var candidates = state.CardObjects.Keys.Concat(state.StackItems.Where(s => s.StackItemId != spell.StackItemId
                     && s.StackItemId != resolvingItemId).Select(s => s.StackItemId))
                     .Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray();
@@ -140,11 +156,11 @@ public sealed partial class CoreRuleEngine
                             $"第 {i + 1} 次：移除目标 {index + 1}");
                     }
                 }
-                var destinations = definition.CommandedMovement is { } move ? CommandedMovementDestinations(state, spell.ControllerId, move)
+                var destinations = targetsOnly ? [] : definition.CommandedMovement is { } move ? CommandedMovementDestinations(state, spell.ControllerId, move)
                     : definition.MovesTargetsToChosenLocation ? ChosenMovementDestinations(state, spell.ControllerId) : [];
                 foreach (var destination in destinations.Where(d => d.Id != execution.Destination))
                     Add(execution with { Destination = destination.Id }, $"第 {i + 1} 次：目的地 {destination.Label}");
-                if (definition.MovesTargetsSequentially)
+                if (!targetsOnly && definition.MovesTargetsSequentially)
                     for (var j = 0; j < execution.TargetObjectIds.Count; j++)
                         foreach (var destination in SequentialMovementDestinations(state, spell.ControllerId, j))
                         {
@@ -162,12 +178,13 @@ public sealed partial class CoreRuleEngine
                 }
             }
             var selected = RuleChoices.Value!.Choose(spell.ControllerId,
-                "可为任意目标或模式做出新的选择；确认时，保留的选择也必须合法。也可保留全部原选择。当前选择："
+                (targetsOnly ? "可重新指定目标；原模式、终点和已支付的额外费用保持不变。" : "可为任意目标或模式做出新的选择；")
+                    + "确认时，保留的选择也必须合法。也可保留全部原选择。当前选择："
                     + string.Join("；", executions.Select((e, i) => $"第 {i + 1} 次 {e.EffectKind}：{string.Join("、", e.TargetObjectIds.Select(id => ChoiceObjectLabel(state, id)))} {e.Destination}")),
                 options, kind: "SPELL_CHOICE_REMAKE", preview: state);
             if (selected == "KEEP_ALL") return spell;
-            if (selected == "CONFIRM") return ApplyRemadeExecutions(state, spell, executions);
-            var edit = edits[selected]; executions[edit.Index] = edit.Execution; changed = true;
+            if (selected == "CONFIRM") { remade = true; return ApplyRemadeExecutions(state, spell, executions); }
+            var edit = edits[selected]; executions[edit.Index] = edit.Execution;
         }
     }
 

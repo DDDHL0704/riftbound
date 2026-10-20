@@ -1,0 +1,6 @@
+{
+  "initialGuard": "The independently verified v2 reader was retained under runtime, not an out folder. Guard stopped before reader execution or any API/database start.",
+  "correction": "Locate original v2 file and verify its exact publication SHA before linking into the separate new fixed runtime.",
+  "actualV2HelperSha256": "9621da6b0c2e56b7fba6cb1563e5862b9139bb784dd5b16908f383111e22464a",
+  "noExistingRuntimeOrOriginalHistoryChanged": true
+}

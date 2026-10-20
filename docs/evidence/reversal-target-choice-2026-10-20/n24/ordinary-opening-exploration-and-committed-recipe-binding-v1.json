@@ -1,0 +1,29 @@
+{
+  "observedAtUtc": "2026-10-20T11:18:21.251369+00:00",
+  "fixture": "tests/Riftbound.ConformanceTests/Fixtures/reversal-target-openings.json",
+  "sha256": "f566e012152924e697af83e718594a9dc2dfbfedc1b9af43e6003dcf56719260",
+  "originalExplorationRecipe": "var/qa/reversal-target-choice-audit-20261020/ordinary-exploration-v8/reversal-ordinary-derived-opening-recipe-v1.json",
+  "originalExplorationFrame": "var/qa/reversal-target-choice-audit-20261020/ordinary-exploration-v8/original-explorer-frame.json.gz",
+  "preparationActualDebugRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+    "implementationSha256": "904eb54b0c18cf648d3e5385a5d75c55578b0d64c4baf7d0f636fccd5f461ac6",
+    "identitySha256": "2d86291e795e556328dcd74862dd8cae26183e6bb51dff059e7f0cf37bc4053f"
+  },
+  "newReleaseOrFixedCommitAcceptanceNotImplied": true,
+  "prefixCommands": 49,
+  "seed": 0,
+  "formatBase": "ChinaStandard20260724",
+  "bothNamedFormatValidatorsPreserved": true,
+  "twoFillerTriplesChanged": {
+    "OGN·044/298": "OGN·080/298",
+    "OGN·096/298": "OGN·095/298"
+  },
+  "noOriginalFixtureOrDeckCatalogChangedForThisRecipe": true,
+  "setupUnitFaceActualViewed": true,
+  "setupUnitPrinting": "OGN·052/298",
+  "setupUnitScope": "2 mana, 2 printed might, Steadfast+1 in defense; remains in BASE, no combat in this bounded scenario."
+}

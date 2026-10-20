@@ -119,6 +119,7 @@ public sealed class TargetedInsightRepeatTests
         state = (await Act(state, "P1", new PassPriorityCommand())).State;
         state = (await Act(state, "P2", new PlayCardCommand("REVERSAL", "OGN·080/298", [parent], OptionalCosts: []))).State;
         state = (await ResolveTop(state)).State;
+        state = await RebuttalRulesTests.Choose(state, "KEEP_ALL");
         state = (await ResolveTop(state)).State;
         for (var execution = 0; execution < 2; execution++)
         {

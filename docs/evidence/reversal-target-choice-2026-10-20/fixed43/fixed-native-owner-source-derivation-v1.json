@@ -1,0 +1,8 @@
+{
+  "atUtc": "2026-10-20T09:20:40.684952+00:00",
+  "originalOwnerSource": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/run-fixed-native-control-v1.py",
+  "originalOwnerSha256": "433222a0f4de77ac4207c5d538cdb2c3321b92e28db6b0811cdfb8931742a132",
+  "adaptedOwnerSha256": "4e41d6d4d67bb7ef8e5865adc410baa1cd1eb94c776259669ba03959a39b969c",
+  "changes": "Bind fixed43 security API/patched native/Common evidence, retain previous209 audit43-native subset and completed a653 match as44th baseline, invoke same ordinary prefix with fixed43 name, observe actual API/prefix assembly loads. Preserve exclusive DB lock, seven-table checks, graceful own-process lifecycle, original prefix/restart assertions and frozen sources/runtime.",
+  "newDatabaseOrOldAcceptedHistoryMigration": false
+}

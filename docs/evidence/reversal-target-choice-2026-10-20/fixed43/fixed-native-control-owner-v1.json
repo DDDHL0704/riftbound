@@ -1,0 +1,161 @@
+{
+  "status": "FIXED_NATIVE_CONTROL_STOP_REQUESTED_ORIGINAL_HISTORY_RETAINED",
+  "startedAtUtc": "2026-10-20T09:39:13.311979+00:00",
+  "fixedCommit": "43d5b84e867eb09ca0570ed8774832ce70b04d87",
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+    "implementationSha256": "ff9f20c78c8491f6ecf91dec4b33a21c07ccd116573fe197f771af03da09ff30",
+    "identitySha256": "47d75226de4724fa76d0e31f2139d1d99a520932f66c0eaffde6c69df6cc42c6"
+  },
+  "nativeClientCommit": "43d5b84e867eb09ca0570ed8774832ce70b04d87",
+  "actualSharedFrameworkVersion": "10.0.13",
+  "fixedSecurityCandidateApiAndPatchedNativeInputs": true,
+  "scope": "Actual fixed security candidate, patched Common8.0.32/10.0.13 and original real database. Gateway prefix and visible desktop acceptance remain separately stated.",
+  "ownedApiProcesses": [
+    {
+      "pid": 10816,
+      "health": {
+        "status": "ok",
+        "service": "riftbound-dotnet",
+        "environment": "Production",
+        "dotnet": "10.0.13",
+        "persistenceMode": "postgres",
+        "signalRScaleMode": "single-instance",
+        "redisBackplaneConfigured": false,
+        "redisChannelPrefix": "riftbound",
+        "metricsEnabled": true,
+        "configuredCorsOriginCount": 6,
+        "developmentLoopbackCorsFallback": false,
+        "dependencies": [
+          {
+            "name": "persistence",
+            "mode": "postgres",
+            "status": "configured"
+          },
+          {
+            "name": "signalr-backplane",
+            "mode": "single-instance",
+            "status": "ok"
+          }
+        ]
+      },
+      "index": 0
+    },
+    {
+      "pid": 35822,
+      "health": {
+        "status": "ok",
+        "service": "riftbound-dotnet",
+        "environment": "Production",
+        "dotnet": "10.0.13",
+        "persistenceMode": "postgres",
+        "signalRScaleMode": "single-instance",
+        "redisBackplaneConfigured": false,
+        "redisChannelPrefix": "riftbound",
+        "metricsEnabled": true,
+        "configuredCorsOriginCount": 6,
+        "developmentLoopbackCorsFallback": false,
+        "dependencies": [
+          {
+            "name": "persistence",
+            "mode": "postgres",
+            "status": "configured"
+          },
+          {
+            "name": "signalr-backplane",
+            "mode": "single-instance",
+            "status": "ok"
+          }
+        ]
+      },
+      "index": 1
+    }
+  ],
+  "lockAtStart": {
+    "atUtc": "2026-10-20T09:39:13.337300+00:00",
+    "roots": [
+      {
+        "rootLocked": false,
+        "sessions": []
+      }
+    ],
+    "missingValuesRemainUnknown": true
+  },
+  "ownRunnerPid": 10613,
+  "boundIdleAssertionPid": 10623,
+  "room": "N23-PAY-24A69F6D03",
+  "prefixAcceptedCommands": 55,
+  "actualTick": 54,
+  "actualTurn": 32,
+  "allOriginal209Audit44NativeSevenTablesExact": true,
+  "firstApiGracefulExitCode": 0,
+  "ownApiGracefulExitCode": 0,
+  "allOriginal209AuditSevenTablesExactAtStop": true,
+  "allOriginal44NativeSevenTablesExactAtStop": true,
+  "nativeRoomIdsAtStop": [
+    "GRACEFUL-07AC-NATIVE-dacbf6fc6871",
+    "GRACEFUL-08FD-NATIVE-05edcc4e33f3",
+    "GRACEFUL-6D9A-NATIVE-ddcb62ee3fe7",
+    "GRACEFUL-797F-NATIVE-39197e26c612",
+    "GRACEFUL-C519-NATIVE-5730eb6d86f9",
+    "GRACEFUL-E262-NATIVE-adf640f8d2d9",
+    "HEADLESS-C519-NATIVE-8c6ab9a22dcc",
+    "LOCKED-07AC-SCORE-ce0eeedf0d12",
+    "LOCKED-08FD-SCORE-9b8c2b9c5df3",
+    "LOCKED-3D-PAIR-a2b6fbee06eb",
+    "LOCKED-6D9A-SCORE-56a5ca8dd0c7",
+    "LOCKED-797F-SCORE-124d350bed58",
+    "LOCKED-A9-PAIR-6e81dcfc9912",
+    "LOCKED-C519-PAIR-bee30b68c79b",
+    "LOCKED-C519-SCORE-8bfd1b8c08d8",
+    "LOCKED-C6-PAIR-7e5381965c69",
+    "LOCKED-C6-SCORE-c6cf989117d0",
+    "LOCKED-E262-SCORE-9572a6090eaf",
+    "LOCKED-PAIR-829a1df810a9",
+    "LOCKED-PAIR-8f2413d6f2af",
+    "LOCKED-PAIR-fc82f3c58107",
+    "N22-PAY-6F8A57AF6E",
+    "N22-PAY-C0F39208FA",
+    "N23-PAY-24A69F6D03",
+    "NETWORK-087b47dc4652",
+    "NETWORK-13f1c75bd8e1",
+    "NETWORK-14c1cbb4bdea",
+    "NETWORK-3852221bd8db",
+    "NETWORK-40e424ab23cb",
+    "NETWORK-5af8dc418888",
+    "NETWORK-5dc1ce5878fd",
+    "NETWORK-5e4b0fc8b42d",
+    "NETWORK-83847ed4749d",
+    "NETWORK-d933ac25b19e",
+    "NETWORK-ef01657e6741",
+    "RB-9A5706",
+    "RB-B67RVX",
+    "STALE2-07AC-NATIVE-79e8d04ba862",
+    "STALE2-08FD-NATIVE-4ef5d00244e2",
+    "STALE2-797F-NATIVE-e428ca757055",
+    "STALE2-E262-NATIVE-275a299d4602",
+    "paired-controller-46a990fe-20261018",
+    "paired-empty-view-48c6ae96-20261018",
+    "paired-here-control-20261018",
+    "paired-observed-window-8c6d569e-20261018"
+  ],
+  "ownPostgresSmartStopped": true,
+  "boundIdleAssertionEnded": true,
+  "finishedAtUtc": "2026-10-20T10:23:49.807778+00:00",
+  "lockAtEnd": {
+    "atUtc": "2026-10-20T10:23:49.837620+00:00",
+    "roots": [
+      {
+        "rootLocked": false,
+        "sessions": []
+      }
+    ],
+    "missingValuesRemainUnknown": true
+  },
+  "frozenInputsAndRuntimeExact": true,
+  "originalDatabaseRetained": true
+}

@@ -1,0 +1,31 @@
+{
+  "profile": "focus",
+  "discoveredMethods": 7621,
+  "jobs": 4,
+  "includeGames": false,
+  "testAssemblySha256": "5d2f958ee02ab6c8e8689418470f49ae4d0b6ca27aa19da739583a31b8c5a838",
+  "timings": "/Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/TestResults/mechanical-full.trx",
+  "shards": [
+    {
+      "name": "focus",
+      "methods": [
+        "Riftbound.ConformanceTests.RebuttalRulesTests.ActivatedAbilityCannotBeChosenAsASpell",
+        "Riftbound.ConformanceTests.RebuttalRulesTests.CurrentExactPrintingExposesItsReactionAndFourManaTargetLimit",
+        "Riftbound.ConformanceTests.RebuttalRulesTests.EachEchoExecutionCanRemakeItsOwnTargetsWhileRetainingTheOtherExecution",
+        "Riftbound.ConformanceTests.RebuttalRulesTests.FourManaLimitUsesTheSpellsCardCostInsteadOfManaActuallyPaid",
+        "Riftbound.ConformanceTests.RebuttalRulesTests.ModeCanChangeAndNeedsACompleteLegalTargetSet",
+        "Riftbound.ConformanceTests.RebuttalRulesTests.NoEnergyStillOffersDeclineWithoutInventingAnAffordablePayment",
+        "Riftbound.ConformanceTests.RebuttalRulesTests.OptionalPowerIsChosenOnlyDuringResolutionAndControlDoesNotCounter",
+        "Riftbound.ConformanceTests.RebuttalRulesTests.PartialRemakeRequiresEveryRetainedTargetToBeLegalOrKeepsAllOriginalChoices",
+        "Riftbound.ConformanceTests.RebuttalRulesTests.PendingResolutionRejectsForgedActorWindowOptionTranscriptAndPreview",
+        "Riftbound.ConformanceTests.RebuttalRulesTests.ProtectedSpellCanChangeControlButCannotBeCountered",
+        "Riftbound.ConformanceTests.RebuttalRulesTests.RemadeTargetIncarnationCannotResolveAgainstAnOlderBinding",
+        "Riftbound.ConformanceTests.RebuttalRulesTests.RemakingOneTargetDoesNotReplayCostsAndUpdatesItsIncarnation",
+        "Riftbound.ConformanceTests.RebuttalRulesTests.ResolutionPaymentCanUseCurrentRuneOrReactionResourceSkill",
+        "Riftbound.ConformanceTests.RebuttalRulesTests.WaitingResolutionRejectsUnauthorizedCommandsWithoutChangingState",
+        "Riftbound.ConformanceTests.ReversalTargetChoiceTests.ControlAllowsKeepingOrRemakingTargetsWithoutReplayingCosts"
+      ],
+      "filter": "(FullyQualifiedName~ReversalTargetChoiceTests|FullyQualifiedName~RebuttalRulesTests)&FullyQualifiedName!~Riftbound.ConformanceTests.FullGameEndToEndTests."
+    }
+  ]
+}

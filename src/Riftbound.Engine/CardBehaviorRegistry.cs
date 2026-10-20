@@ -184,6 +184,7 @@ public sealed record CardBehaviorDefinition(
     bool AttachesOrDetachesSecondTargetEquipmentToFirstTarget = false,
     bool GainsControlOfTargetStackSpell = false,
     bool MayPayPowerToGainControlAndRemakeSpellChoices = false,
+    bool MayChooseNewTargetsForControlledSpell = false,
     bool RecyclesUnkeptSacredJudgmentCards = false,
     string DeckPlayKind = "",
     bool DeckPlayDrawsUnselected = false,
@@ -8245,7 +8246,8 @@ public static class CardBehaviorRegistry
             1,
             TargetScope: CardTargetScopes.StackSpell,
             CanPlayDuringPriority: true,
-            GainsControlOfTargetStackSpell: true),
+            GainsControlOfTargetStackSpell: true,
+            MayChooseNewTargetsForControlledSpell: true),
         new(
             "VEN·152", "灵魂折镜", 1, "OPTIONAL_POWER_CONTROL_OR_COUNTER_SPELL", 0, 1,
             TargetScope: CardTargetScopes.StackSpell, MaxTargetManaCost: 4,

@@ -1,0 +1,17 @@
+{
+  "atUtc": "2026-10-20T09:16:25.800061+00:00",
+  "originalEntrySha256": "be318c989df9e971de09dc313b5b0cb9299abcf7327c4676e05ebbd8a2c4da66",
+  "entryChangeOnlyRoomPrefixLabelN22ToN23": true,
+  "sourceHashes": {
+    "native-payment-prefix-source/ActualProductionNativeGateway.cs": "50fcd5c6fdde075a7c267b27d169409bf8949ca5054f83ae6ce7d604dde66561",
+    "native-payment-prefix-source/Fixtures/conditional-counter-openings.json": "8ee045d4c477901f1e9894c08b57d302ec96071593fdc0289cbd7a27bd2a7df0",
+    "native-payment-prefix-source/Program.cs": "ffc34802638b32ef66adfad468db9d7f3ab5d51f376185f23dd57c8fbd7908fa",
+    "native-payment-prefix-source/original-entry-source-v1.cs.gz": "833ab251028795501bd014e145b6ce5d42d6e9949b9eb5bb2de1e43ba36af6c8",
+    "native-payment-prefix-source/probe.csproj": "a2cdef4728139914e74fe4d87930da6624e877f87fc689653d5279436eba0938"
+  },
+  "actualGatewaySourceByteExactToFixed43": true,
+  "unchangedOriginalFixtureAndEveryGatewayLegalityPromptTickAndResourceAssertionRetained": true,
+  "nativeCommonReferenceIsActualPatched8_0_32": "550058f27f5577e20184a0e0d198c90c87079b45dffab170423f6fe030c0687d",
+  "noRootProjectReferenceOrSourceEdit": true,
+  "precedingNativeProfilesToBeCopiedPrivatelyNoNewCredentials": true
+}

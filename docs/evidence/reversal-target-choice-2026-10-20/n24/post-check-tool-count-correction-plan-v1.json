@@ -1,0 +1,19 @@
+{
+  "recordedAtUtc": "2026-10-20T12:10:48.445399+00:00",
+  "status": "SOURCE_BACKED_TOOL_TEST_EXPECTED_COUNT_FIX_DEFERRED_UNTIL_ACTIVE_FROZEN_CHECK_TERMINATES",
+  "sourcePath": "scripts/tests/test_sql_ci_gate.py",
+  "currentSourceSha256": "e5d49a5169afb6341f66645cba9a320e2e8a1062ba604a9d1a2ce05aa273fca0",
+  "exactOld": "self.assertEqual(46, result['caseCount'])",
+  "exactNew": "self.assertEqual(47, result['caseCount'])",
+  "original73ToolRun": {
+    "passed": 72,
+    "failed": 1,
+    "failure": "Expected46 != actual47 after exact append of the new SQL acceptance case."
+  },
+  "originalLogSha256": "14818386faeb8cf87e5cbe9640c908bb9d4d3bd31a067ea5e90ee410ff25fd3a",
+  "noOriginalTestOrGateAssertionRemoved": true,
+  "original46SqlIdsAndOrderRemainRequired": true,
+  "doNotEditBeforeOnlyCheckTerminalAndRetentionVerifier": true,
+  "afterFixRunAll73ToolsAndGovernanceNoSecondCheck": true,
+  "finalFixedFullCoversFinalSource": true
+}

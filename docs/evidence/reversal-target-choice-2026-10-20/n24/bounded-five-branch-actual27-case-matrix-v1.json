@@ -1,0 +1,317 @@
+{
+  "atUtc": "2026-10-20T11:53:06.833918+00:00",
+  "status": "BOUNDED_ACTUAL27_CASE_FIVE_BRANCH_MATRIX_NOT_WHOLE_PRINTING_CERTIFICATION",
+  "actualCases": [
+    {
+      "caseName": "Riftbound.ConformanceTests.ReversalTargetChoiceTests.NewTargetsDoNotGrantANewMode",
+      "caseKey": "5dc11755641fbe074e5c6402a734ca23bfb15793524c54b8b198c2b3ad86f278",
+      "actualOutcome": "Passed",
+      "methodName": "Riftbound.ConformanceTests.ReversalTargetChoiceTests.NewTargetsDoNotGrantANewMode",
+      "branch": "NARROW_GRANT_AND_COMPLETE_LEGAL_CHOICES"
+    },
+    {
+      "caseName": "Riftbound.ConformanceTests.ReversalTargetChoiceTests.OnlyTheCurrentControllerCanSubmitTheCurrentServerChoice(mutation: \"option\")",
+      "caseKey": "690b98a52a47fead34b3d1b4fb5e6f5ba0029067a8af6becd503a141072ef83f",
+      "actualOutcome": "Passed",
+      "methodName": "Riftbound.ConformanceTests.ReversalTargetChoiceTests.OnlyTheCurrentControllerCanSubmitTheCurrentServerChoice",
+      "branch": "AUTHORITY_PRIVACY_AND_INDEPENDENT_RECOVERY"
+    },
+    {
+      "caseName": "Riftbound.ConformanceTests.ReversalTargetChoiceOpeningTests.OriginalBlankLegalOpeningKeepsOrRemakesTargetsAcrossColdRecovery(format: CoreRules, remake: False)",
+      "caseKey": "dc9e751b2d01ae4eae668b3c973ed6a3d8a22e94f5337e9c5404ccb7d2ebf2bd",
+      "actualOutcome": "Passed",
+      "methodName": "Riftbound.ConformanceTests.ReversalTargetChoiceOpeningTests.OriginalBlankLegalOpeningKeepsOrRemakesTargetsAcrossColdRecovery",
+      "branch": "NORMAL_CONTROL_AND_OPTIONAL_TARGETS"
+    },
+    {
+      "caseName": "Riftbound.ConformanceTests.ReversalTargetChoiceTests.OnlyTheCurrentControllerCanSubmitTheCurrentServerChoice(mutation: \"window\")",
+      "caseKey": "dccef65c76e12080319529b54908d33d0370ccd07645be2aed5d9ea02c4e079a",
+      "actualOutcome": "Passed",
+      "methodName": "Riftbound.ConformanceTests.ReversalTargetChoiceTests.OnlyTheCurrentControllerCanSubmitTheCurrentServerChoice",
+      "branch": "AUTHORITY_PRIVACY_AND_INDEPENDENT_RECOVERY"
+    },
+    {
+      "caseName": "Riftbound.ConformanceTests.ReversalTargetChoiceTests.RemakingTargetsRetainsDestinationsAndRequiresEveryRetainedChoiceToBeLegal(remake: False)",
+      "caseKey": "a6ef00c9c79bcb44aac3a466acc9f385e8683cc74e0bc64350675fb7bcba11bd",
+      "actualOutcome": "Passed",
+      "methodName": "Riftbound.ConformanceTests.ReversalTargetChoiceTests.RemakingTargetsRetainsDestinationsAndRequiresEveryRetainedChoiceToBeLegal",
+      "branch": "NARROW_GRANT_AND_COMPLETE_LEGAL_CHOICES"
+    },
+    {
+      "caseName": "Riftbound.ConformanceTests.ReversalTargetChoiceTests.OnlyTheCurrentControllerCanSubmitTheCurrentServerChoice(mutation: \"stale\")",
+      "caseKey": "a289601ea610606db1a14fc6707aad0a65cb3efef7642b0dda5a0530abafd7df",
+      "actualOutcome": "Passed",
+      "methodName": "Riftbound.ConformanceTests.ReversalTargetChoiceTests.OnlyTheCurrentControllerCanSubmitTheCurrentServerChoice",
+      "branch": "AUTHORITY_PRIVACY_AND_INDEPENDENT_RECOVERY"
+    },
+    {
+      "caseName": "Riftbound.ConformanceTests.ReversalTargetChoiceTests.IndependentRecoveryRejectsAlteredTargetChoiceEvidence(mutation: \"option\")",
+      "caseKey": "72eb837dd906b041e51bf5666a1f0af41c4135300219e7df966d83ee78c2d1cf",
+      "actualOutcome": "Passed",
+      "methodName": "Riftbound.ConformanceTests.ReversalTargetChoiceTests.IndependentRecoveryRejectsAlteredTargetChoiceEvidence",
+      "branch": "AUTHORITY_PRIVACY_AND_INDEPENDENT_RECOVERY"
+    },
+    {
+      "caseName": "Riftbound.ConformanceTests.ReversalTargetChoiceTests.OnlyTheCurrentControllerCanSubmitTheCurrentServerChoice(mutation: \"priority\")",
+      "caseKey": "ae3c7729d26803eb04f235198fda76a48a9099b78bbdf1e3fcd1ee31b38e9abd",
+      "actualOutcome": "Passed",
+      "methodName": "Riftbound.ConformanceTests.ReversalTargetChoiceTests.OnlyTheCurrentControllerCanSubmitTheCurrentServerChoice",
+      "branch": "AUTHORITY_PRIVACY_AND_INDEPENDENT_RECOVERY"
+    },
+    {
+      "caseName": "Riftbound.ConformanceTests.ReversalTargetChoiceTests.ConfirmingEvenTheSameTargetTriggersTargetSelectionButKeepingChoicesDoesNot(soulMirror: True, remake: False)",
+      "caseKey": "c4d46e1fdd36560aa6c572ec3f7021d366b05ab94e2a3dbbf1188eeb9cd4515a",
+      "actualOutcome": "Passed",
+      "methodName": "Riftbound.ConformanceTests.ReversalTargetChoiceTests.ConfirmingEvenTheSameTargetTriggersTargetSelectionButKeepingChoicesDoesNot",
+      "branch": "EXPLICIT_SAME_TARGET_SELECTION_AND_KEEP_CORE_SCOPE"
+    },
+    {
+      "caseName": "Riftbound.ConformanceTests.ReversalTargetChoiceTests.ControlAllowsKeepingOrRemakingTargetsWithoutReplayingCosts(remake: False)",
+      "caseKey": "588d284ba2f45ab1ff6a741ee2d47afc1e923f891b5272351d4355c271ad00dd",
+      "actualOutcome": "Passed",
+      "methodName": "Riftbound.ConformanceTests.ReversalTargetChoiceTests.ControlAllowsKeepingOrRemakingTargetsWithoutReplayingCosts",
+      "branch": "NORMAL_CONTROL_AND_OPTIONAL_TARGETS"
+    },
+    {
+      "caseName": "Riftbound.ConformanceTests.ReversalTargetChoiceTests.IndependentRecoveryRejectsAlteredTargetChoiceEvidence(mutation: \"transcript\")",
+      "caseKey": "8a09454f4a1e21097d35e06495fa4909515cff82e263f2b069413926b698f925",
+      "actualOutcome": "Passed",
+      "methodName": "Riftbound.ConformanceTests.ReversalTargetChoiceTests.IndependentRecoveryRejectsAlteredTargetChoiceEvidence",
+      "branch": "AUTHORITY_PRIVACY_AND_INDEPENDENT_RECOVERY"
+    },
+    {
+      "caseName": "Riftbound.ConformanceTests.ReversalTargetChoiceTests.OnlyTheCurrentControllerCanSubmitTheCurrentServerChoice(mutation: \"actor\")",
+      "caseKey": "d7477627cb1e8254f1ead5476f3b5a0e93e18ff1c06b5fb46ecdffae09684193",
+      "actualOutcome": "Passed",
+      "methodName": "Riftbound.ConformanceTests.ReversalTargetChoiceTests.OnlyTheCurrentControllerCanSubmitTheCurrentServerChoice",
+      "branch": "AUTHORITY_PRIVACY_AND_INDEPENDENT_RECOVERY"
+    },
+    {
+      "caseName": "Riftbound.ConformanceTests.ReversalTargetChoiceTests.IndependentRecoveryRejectsAlteredTargetChoiceEvidence(mutation: \"preview\")",
+      "caseKey": "14986f8adf79900433885cd4296b0f3347db01ad1703f4f2867d66fe54fa6a61",
+      "actualOutcome": "Passed",
+      "methodName": "Riftbound.ConformanceTests.ReversalTargetChoiceTests.IndependentRecoveryRejectsAlteredTargetChoiceEvidence",
+      "branch": "AUTHORITY_PRIVACY_AND_INDEPENDENT_RECOVERY"
+    },
+    {
+      "caseName": "Riftbound.ConformanceTests.ReversalTargetChoiceTests.ControlAllowsKeepingOrRemakingTargetsWithoutReplayingCosts(remake: True)",
+      "caseKey": "7c13275698dd01b1110115617eb1b33a847a29db27a63b5e3e690c718b5aac3f",
+      "actualOutcome": "Passed",
+      "methodName": "Riftbound.ConformanceTests.ReversalTargetChoiceTests.ControlAllowsKeepingOrRemakingTargetsWithoutReplayingCosts",
+      "branch": "NORMAL_CONTROL_AND_OPTIONAL_TARGETS"
+    },
+    {
+      "caseName": "Riftbound.ConformanceTests.ReversalTargetChoiceTests.EachDeclaredEchoExecutionRetainsItsCostsAndCanSelectItsOwnTarget",
+      "caseKey": "c554627d805d91356472ff05758297d0d5e77daec158710e4e51e0e3685f6437",
+      "actualOutcome": "Passed",
+      "methodName": "Riftbound.ConformanceTests.ReversalTargetChoiceTests.EachDeclaredEchoExecutionRetainsItsCostsAndCanSelectItsOwnTarget",
+      "branch": "CURRENT_GENERATION_COST_AND_DECLARED_REPEAT"
+    },
+    {
+      "caseName": "Riftbound.ConformanceTests.ReversalTargetChoiceTests.ConfirmingEvenTheSameTargetTriggersTargetSelectionButKeepingChoicesDoesNot(soulMirror: False, remake: False)",
+      "caseKey": "3d88f7f4dddf62e2ade16fface758b9606d6a78516ac39fca3eee781e6276341",
+      "actualOutcome": "Passed",
+      "methodName": "Riftbound.ConformanceTests.ReversalTargetChoiceTests.ConfirmingEvenTheSameTargetTriggersTargetSelectionButKeepingChoicesDoesNot",
+      "branch": "EXPLICIT_SAME_TARGET_SELECTION_AND_KEEP_CORE_SCOPE"
+    },
+    {
+      "caseName": "Riftbound.ConformanceTests.ReversalTargetChoiceOpeningTests.OriginalBlankLegalOpeningKeepsOrRemakesTargetsAcrossColdRecovery(format: ChinaStandard20260724, remake: False)",
+      "caseKey": "ae532ad727ea37e9a5d45d377b177220c2c6656670ea9d7cbdce74ed7cb25564",
+      "actualOutcome": "Passed",
+      "methodName": "Riftbound.ConformanceTests.ReversalTargetChoiceOpeningTests.OriginalBlankLegalOpeningKeepsOrRemakesTargetsAcrossColdRecovery",
+      "branch": "NORMAL_CONTROL_AND_OPTIONAL_TARGETS"
+    },
+    {
+      "caseName": "Riftbound.ConformanceTests.ReversalTargetChoiceTests.NewTargetChoicesDoNotExposeOpponentHandOrDeckIdentities",
+      "caseKey": "41b5a0bb28bd71d673257ad575d07569c80ee2f72f120f8cf2364c9a5592ca45",
+      "actualOutcome": "Passed",
+      "methodName": "Riftbound.ConformanceTests.ReversalTargetChoiceTests.NewTargetChoicesDoNotExposeOpponentHandOrDeckIdentities",
+      "branch": "AUTHORITY_PRIVACY_AND_INDEPENDENT_RECOVERY"
+    },
+    {
+      "caseName": "Riftbound.ConformanceTests.ReversalTargetChoiceTests.RemakingTargetsRetainsDestinationsAndRequiresEveryRetainedChoiceToBeLegal(remake: True)",
+      "caseKey": "a1a6f26dd07e7f8e300121b19d06fcf49ea2094e2cde50310c8e33a76ba65f4c",
+      "actualOutcome": "Passed",
+      "methodName": "Riftbound.ConformanceTests.ReversalTargetChoiceTests.RemakingTargetsRetainsDestinationsAndRequiresEveryRetainedChoiceToBeLegal",
+      "branch": "NARROW_GRANT_AND_COMPLETE_LEGAL_CHOICES"
+    },
+    {
+      "caseName": "Riftbound.ConformanceTests.ReversalTargetChoiceTests.ConfirmingEvenTheSameTargetTriggersTargetSelectionButKeepingChoicesDoesNot(soulMirror: True, remake: True)",
+      "caseKey": "321f065eed37ac0c7132d1e2dafa704de04ac6b8a96c9c381f26cc82f5217f48",
+      "actualOutcome": "Passed",
+      "methodName": "Riftbound.ConformanceTests.ReversalTargetChoiceTests.ConfirmingEvenTheSameTargetTriggersTargetSelectionButKeepingChoicesDoesNot",
+      "branch": "EXPLICIT_SAME_TARGET_SELECTION_AND_KEEP_CORE_SCOPE"
+    },
+    {
+      "caseName": "Riftbound.ConformanceTests.ReversalTargetChoiceOpeningTests.OriginalBlankLegalOpeningKeepsOrRemakesTargetsAcrossColdRecovery(format: ChinaStandard20260724, remake: True)",
+      "caseKey": "a97a1118ed3443b1b6828800eee378b985b1533aaca44d1717bd98ba33f3dd27",
+      "actualOutcome": "Passed",
+      "methodName": "Riftbound.ConformanceTests.ReversalTargetChoiceOpeningTests.OriginalBlankLegalOpeningKeepsOrRemakesTargetsAcrossColdRecovery",
+      "branch": "NORMAL_CONTROL_AND_OPTIONAL_TARGETS"
+    },
+    {
+      "caseName": "Riftbound.ConformanceTests.ReversalTargetChoiceTests.AConfirmedNewTargetUsesItsCurrentIncarnation",
+      "caseKey": "9924b74b1056799a6e0c733aab41d6ae92b37632ad6a561e6da965404e807db3",
+      "actualOutcome": "Passed",
+      "methodName": "Riftbound.ConformanceTests.ReversalTargetChoiceTests.AConfirmedNewTargetUsesItsCurrentIncarnation",
+      "branch": "CURRENT_GENERATION_COST_AND_DECLARED_REPEAT"
+    },
+    {
+      "caseName": "Riftbound.ConformanceTests.ReversalTargetChoiceTests.OnlyTheCurrentControllerCanSubmitTheCurrentServerChoice(mutation: \"multiple\")",
+      "caseKey": "3e533245f68d4d429bc13fef8044a6c0b7ae4dab90453347ebe0ff51c6078590",
+      "actualOutcome": "Passed",
+      "methodName": "Riftbound.ConformanceTests.ReversalTargetChoiceTests.OnlyTheCurrentControllerCanSubmitTheCurrentServerChoice",
+      "branch": "AUTHORITY_PRIVACY_AND_INDEPENDENT_RECOVERY"
+    },
+    {
+      "caseName": "Riftbound.ConformanceTests.ReversalTargetChoiceTests.IndependentRecoveryRejectsAlteredTargetChoiceEvidence(mutation: \"actor\")",
+      "caseKey": "223f4ce07803626918a3105a7fe49a0b69c31ebf9f0eeb87e33f0e1021e1a1b8",
+      "actualOutcome": "Passed",
+      "methodName": "Riftbound.ConformanceTests.ReversalTargetChoiceTests.IndependentRecoveryRejectsAlteredTargetChoiceEvidence",
+      "branch": "AUTHORITY_PRIVACY_AND_INDEPENDENT_RECOVERY"
+    },
+    {
+      "caseName": "Riftbound.ConformanceTests.ReversalTargetChoiceTests.RetargetingAnEnemyWithWardDoesNotPlayTheSpellOrPayItsCostsAgain",
+      "caseKey": "7286947a7c1ab08560295ac70b21890d80550f1d71d75ebe781f4bb0b2fc5733",
+      "actualOutcome": "Passed",
+      "methodName": "Riftbound.ConformanceTests.ReversalTargetChoiceTests.RetargetingAnEnemyWithWardDoesNotPlayTheSpellOrPayItsCostsAgain",
+      "branch": "CURRENT_GENERATION_COST_AND_DECLARED_REPEAT"
+    },
+    {
+      "caseName": "Riftbound.ConformanceTests.ReversalTargetChoiceTests.ConfirmingEvenTheSameTargetTriggersTargetSelectionButKeepingChoicesDoesNot(soulMirror: False, remake: True)",
+      "caseKey": "80ec8882c5180335633b41279734bd68dc942a776bd5c3b0d096ad8da535e8bd",
+      "actualOutcome": "Passed",
+      "methodName": "Riftbound.ConformanceTests.ReversalTargetChoiceTests.ConfirmingEvenTheSameTargetTriggersTargetSelectionButKeepingChoicesDoesNot",
+      "branch": "EXPLICIT_SAME_TARGET_SELECTION_AND_KEEP_CORE_SCOPE"
+    },
+    {
+      "caseName": "Riftbound.ConformanceTests.ReversalTargetChoiceOpeningTests.OriginalBlankLegalOpeningKeepsOrRemakesTargetsAcrossColdRecovery(format: CoreRules, remake: True)",
+      "caseKey": "38b58bbd2a6e8b89faa3f4ea2587b6128ad40e5f9a80eddae1a6676767dcb099",
+      "actualOutcome": "Passed",
+      "methodName": "Riftbound.ConformanceTests.ReversalTargetChoiceOpeningTests.OriginalBlankLegalOpeningKeepsOrRemakesTargetsAcrossColdRecovery",
+      "branch": "NORMAL_CONTROL_AND_OPTIONAL_TARGETS"
+    }
+  ],
+  "branches": [
+    {
+      "id": "NORMAL_CONTROL_AND_OPTIONAL_TARGETS",
+      "caseKeys": [
+        "dc9e751b2d01ae4eae668b3c973ed6a3d8a22e94f5337e9c5404ccb7d2ebf2bd",
+        "588d284ba2f45ab1ff6a741ee2d47afc1e923f891b5272351d4355c271ad00dd",
+        "7c13275698dd01b1110115617eb1b33a847a29db27a63b5e3e690c718b5aac3f",
+        "ae532ad727ea37e9a5d45d377b177220c2c6656670ea9d7cbdce74ed7cb25564",
+        "a97a1118ed3443b1b6828800eee378b985b1533aaca44d1717bd98ba33f3dd27",
+        "38b58bbd2a6e8b89faa3f4ea2587b6128ad40e5f9a80eddae1a6676767dcb099"
+      ],
+      "methodNames": [
+        "Riftbound.ConformanceTests.ReversalTargetChoiceOpeningTests.OriginalBlankLegalOpeningKeepsOrRemakesTargetsAcrossColdRecovery",
+        "Riftbound.ConformanceTests.ReversalTargetChoiceTests.ControlAllowsKeepingOrRemakingTargetsWithoutReplayingCosts"
+      ],
+      "actualCaseCount": 6,
+      "semanticReview": "LIMITED_CN_EXACT_PRINTING_AND_RECORDED_CLAUSES",
+      "fixedCommitCi": "PENDING_NEW_FIXED_FULL",
+      "productAcceptance": "OPEN_NEW_FIXED_VISIBLE_NATIVE_AND_PHYSICAL_WINDOWS",
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "NARROW_GRANT_AND_COMPLETE_LEGAL_CHOICES",
+      "caseKeys": [
+        "5dc11755641fbe074e5c6402a734ca23bfb15793524c54b8b198c2b3ad86f278",
+        "a6ef00c9c79bcb44aac3a466acc9f385e8683cc74e0bc64350675fb7bcba11bd",
+        "a1a6f26dd07e7f8e300121b19d06fcf49ea2094e2cde50310c8e33a76ba65f4c"
+      ],
+      "methodNames": [
+        "Riftbound.ConformanceTests.ReversalTargetChoiceTests.NewTargetsDoNotGrantANewMode",
+        "Riftbound.ConformanceTests.ReversalTargetChoiceTests.RemakingTargetsRetainsDestinationsAndRequiresEveryRetainedChoiceToBeLegal"
+      ],
+      "actualCaseCount": 3,
+      "semanticReview": "LIMITED_CN_EXACT_PRINTING_AND_RECORDED_CLAUSES",
+      "fixedCommitCi": "PENDING_NEW_FIXED_FULL",
+      "productAcceptance": "OPEN_NEW_FIXED_VISIBLE_NATIVE_AND_PHYSICAL_WINDOWS",
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "CURRENT_GENERATION_COST_AND_DECLARED_REPEAT",
+      "caseKeys": [
+        "c554627d805d91356472ff05758297d0d5e77daec158710e4e51e0e3685f6437",
+        "9924b74b1056799a6e0c733aab41d6ae92b37632ad6a561e6da965404e807db3",
+        "7286947a7c1ab08560295ac70b21890d80550f1d71d75ebe781f4bb0b2fc5733"
+      ],
+      "methodNames": [
+        "Riftbound.ConformanceTests.ReversalTargetChoiceTests.AConfirmedNewTargetUsesItsCurrentIncarnation",
+        "Riftbound.ConformanceTests.ReversalTargetChoiceTests.EachDeclaredEchoExecutionRetainsItsCostsAndCanSelectItsOwnTarget",
+        "Riftbound.ConformanceTests.ReversalTargetChoiceTests.RetargetingAnEnemyWithWardDoesNotPlayTheSpellOrPayItsCostsAgain"
+      ],
+      "actualCaseCount": 3,
+      "semanticReview": "LIMITED_CN_EXACT_PRINTING_AND_RECORDED_CLAUSES",
+      "fixedCommitCi": "PENDING_NEW_FIXED_FULL",
+      "productAcceptance": "OPEN_NEW_FIXED_VISIBLE_NATIVE_AND_PHYSICAL_WINDOWS",
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "AUTHORITY_PRIVACY_AND_INDEPENDENT_RECOVERY",
+      "caseKeys": [
+        "690b98a52a47fead34b3d1b4fb5e6f5ba0029067a8af6becd503a141072ef83f",
+        "dccef65c76e12080319529b54908d33d0370ccd07645be2aed5d9ea02c4e079a",
+        "a289601ea610606db1a14fc6707aad0a65cb3efef7642b0dda5a0530abafd7df",
+        "72eb837dd906b041e51bf5666a1f0af41c4135300219e7df966d83ee78c2d1cf",
+        "ae3c7729d26803eb04f235198fda76a48a9099b78bbdf1e3fcd1ee31b38e9abd",
+        "8a09454f4a1e21097d35e06495fa4909515cff82e263f2b069413926b698f925",
+        "d7477627cb1e8254f1ead5476f3b5a0e93e18ff1c06b5fb46ecdffae09684193",
+        "14986f8adf79900433885cd4296b0f3347db01ad1703f4f2867d66fe54fa6a61",
+        "41b5a0bb28bd71d673257ad575d07569c80ee2f72f120f8cf2364c9a5592ca45",
+        "3e533245f68d4d429bc13fef8044a6c0b7ae4dab90453347ebe0ff51c6078590",
+        "223f4ce07803626918a3105a7fe49a0b69c31ebf9f0eeb87e33f0e1021e1a1b8"
+      ],
+      "methodNames": [
+        "Riftbound.ConformanceTests.ReversalTargetChoiceTests.IndependentRecoveryRejectsAlteredTargetChoiceEvidence",
+        "Riftbound.ConformanceTests.ReversalTargetChoiceTests.NewTargetChoicesDoNotExposeOpponentHandOrDeckIdentities",
+        "Riftbound.ConformanceTests.ReversalTargetChoiceTests.OnlyTheCurrentControllerCanSubmitTheCurrentServerChoice"
+      ],
+      "actualCaseCount": 11,
+      "semanticReview": "LIMITED_CN_EXACT_PRINTING_AND_RECORDED_CLAUSES",
+      "fixedCommitCi": "PENDING_NEW_FIXED_FULL",
+      "productAcceptance": "OPEN_NEW_FIXED_VISIBLE_NATIVE_AND_PHYSICAL_WINDOWS",
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "EXPLICIT_SAME_TARGET_SELECTION_AND_KEEP_CORE_SCOPE",
+      "caseKeys": [
+        "c4d46e1fdd36560aa6c572ec3f7021d366b05ab94e2a3dbbf1188eeb9cd4515a",
+        "3d88f7f4dddf62e2ade16fface758b9606d6a78516ac39fca3eee781e6276341",
+        "321f065eed37ac0c7132d1e2dafa704de04ac6b8a96c9c381f26cc82f5217f48",
+        "80ec8882c5180335633b41279734bd68dc942a776bd5c3b0d096ad8da535e8bd"
+      ],
+      "methodNames": [
+        "Riftbound.ConformanceTests.ReversalTargetChoiceTests.ConfirmingEvenTheSameTargetTriggersTargetSelectionButKeepingChoicesDoesNot"
+      ],
+      "actualCaseCount": 4,
+      "semanticReview": "LIMITED_CN_EXACT_PRINTING_AND_RECORDED_CLAUSES",
+      "fixedCommitCi": "PENDING_NEW_FIXED_FULL",
+      "productAcceptance": "OPEN_NEW_FIXED_VISIBLE_NATIVE_AND_PHYSICAL_WINDOWS",
+      "wholePrintingCertified": false
+    }
+  ],
+  "currentFocusedOriginalTrx": "var/qa/reversal-target-choice-audit-20261020/focus-current-ordinary-and-boundaries-v5/focus/results.trx",
+  "currentFocusedOriginalTrxSha256": "e216e37e63972b962c8f7bea4db55fdc8fd33bdf27c8b231b4a929d346964463",
+  "currentFocusedCases": 27,
+  "currentFocusedMethods": 11,
+  "sourceExactPrinting": "OGN·080/298",
+  "sourceApiId": 31296,
+  "parentWholePrintingObligation": "CARD:OGN-080/298",
+  "sourceRegion": "CN",
+  "sourceLanguage": "zh-CN",
+  "adoptedCoreEffectiveDate": "2026-10-16",
+  "remainingOtherFamilyConsumersAndSourceUniverseRetained": true,
+  "wholePrintingCertified": false,
+  "explicitRemaining": [
+    "NEW_FIXED_FULL",
+    "CURRENT_FIXED_VISIBLE_NATIVE_PAIRED_SQL_RECONNECT_NORMAL_SCORE_FULL_REPLAY",
+    "PHYSICAL_WINDOWS",
+    "SOURCE_GRANTED_ECHO_ON_REVERSAL_CURRENTLY_REJECTED_BY_IMPLEMENTATION_NOT_OFFICIAL_PROHIBITION_CERTIFICATION",
+    "RELATIVE_BASE_DESTINATION_BINDING_REQUIRES_SEPARATE_EXACT_SOURCE_REVIEW",
+    "OTHER_TARGET_KINDS_CONSUMERS_PRINTINGS_AND_ALL_SOURCE_GAPS",
+    "NATIVE_SPELL_CHOICE_REMAKE_HEADING_CURRENT_SOURCE_FALLS_THROUGH_TO_DESTRUCTION_REPLACEMENT_SEPARATE_FIX_AND_GODOT_EXECUTION_REQUIRED",
+    "ZERO_TARGET_OR_NO_LEGAL_NEW_CHOICE_BRANCH_REQUIRES_EXACT_RULE753_2_REVIEW_NOT_CERTIFIED_BY_CURRENT_OPENING_FLOW"
+  ]
+}

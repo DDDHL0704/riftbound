@@ -1,0 +1,19 @@
+{
+  "atUtc": "2026-10-20T09:37:27.738152+00:00",
+  "onlyExactSupersededPairAndTwoInstallPackages": [
+    "var/qa/conditional-counter-payment-fixed-a653e547-20261020/Riftbound-A.app",
+    "var/qa/conditional-counter-payment-fixed-a653e547-20261020/Riftbound-B.app",
+    "var/qa/conditional-counter-payment-fixed-a653e547-20261020/native-current/mac-ci-artifact.zip",
+    "var/qa/conditional-counter-payment-fixed-a653e547-20261020/native-current/windows-ci-artifact.zip"
+  ],
+  "logicalRetiredBytes": 945872873,
+  "originalFullFileHashManifest": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/superseded-a653-native-original-file-manifest-v1.json.gz",
+  "manifestSha256": "2c973b08c0b538f9ce72cf4f2b373884c41a40bb5ae25f3937bbd4b4a71b86e6",
+  "newBothDefaultMainBootsAndBothPlatformPatchedAllArchitecturePayloadsPass": true,
+  "freeBefore": 44388675584,
+  "oldSourceOriginalTestsDatabaseAndAllNonPackageEvidenceRetained": true,
+  "oldRuntimeBinariesNotClaimedRetainedByHashSummary": true,
+  "freeAfter": 45147664384,
+  "measuredFreeIncrease": 758988800,
+  "allFourOldInstallItemsRemoved": true
+}

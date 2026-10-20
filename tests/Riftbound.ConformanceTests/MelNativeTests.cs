@@ -77,6 +77,7 @@ public sealed class MelNativeTests
             await Submit("offer-response","P1",new PassPriorityCommand());var item=current.StackItems.Single();
             await Submit("response","P2",new PlayCardCommand("RESPONSE",branch=="counter" ? "UNL-131/219" : branch=="ability" ? "SFD·045/221" : "OGN·080/298",[item.StackItemId]));
             await Passes("response-pass");
+            if(branch=="control")await Submit("keep-targets","P2",new PayCostCommand(current.PendingRuleChoice!.Request.Id,"RULE_REPLACEMENT",["KEEP_ALL"]));
             if(current.PendingCardChoice is { } choice)await Submit("predict","P2",new ChooseCardsCommand(choice.ChoiceId,choice.ChoiceWindow,[]));
             Assert.Single(current.StackItems);Assert.Equal(branch=="control" ? "P2" : "P1",current.StackItems.Single().ControllerId);
         }

@@ -1,0 +1,324 @@
+{
+  "status": "PASS_FIXED43_ACTUAL_COMPLETED_FOUR_SQL_PARTITIONS_AND_NETWORK_ORIGINALS_OVERALL_FULL_STILL_SEPARATE",
+  "atUtc": "2026-10-20T12:39:40.910943+00:00",
+  "fixedCommit": "43d5b84e867eb09ca0570ed8774832ce70b04d87",
+  "runId": 39397913669,
+  "all46DefaultSqlIdentitiesExactOnceInOriginalOrder": true,
+  "orderedDefaultCases": [
+    "private-opening",
+    "created-token-ready",
+    "core-opening",
+    "battle-history",
+    "masked-attendant",
+    "granted-predict",
+    "printed-predict",
+    "sivir-optional",
+    "rune-destination",
+    "sivir-payment",
+    "conquest-token",
+    "recycled-card-boon",
+    "recycle-boon-lifecycle",
+    "attached-recycle-lifecycle",
+    "typed-play-history",
+    "porobot",
+    "typed-play-history-causal",
+    "clairvoyance",
+    "insight-repeat",
+    "combat-assignment",
+    "confirmed-play-origin",
+    "physical-origin-cost",
+    "granted-origin-haste",
+    "opponent-battlefield-control",
+    "optional-sacrifice",
+    "granted-token-haste",
+    "optional-costs",
+    "battlefield-play-recovery",
+    "battlefield-play-damage",
+    "banish-effect-play",
+    "here-location-control",
+    "fate-weaver",
+    "multi-controller-trigger-order",
+    "empty-observed-repeat",
+    "observed-play-window",
+    "ravenbloom-put-hand",
+    "attached-predict",
+    "copied-last-breath-insight",
+    "copied-duel-insight",
+    "empowered-insight",
+    "paka-move-reveal",
+    "empty-reveal-followup",
+    "paka-dual-type-reveal",
+    "hwei-move-discard-types",
+    "destruction-graveyard",
+    "conditional-counter-payment"
+  ],
+  "manifestSha256": "e93d89bc42816ca5acb2e36688a1ddb9e6e103e7dd6d5431b0b0716187c5348b",
+  "partitions": [
+    {
+      "partitionIndex": 0,
+      "cases": [
+        "private-opening",
+        "masked-attendant",
+        "rune-destination",
+        "recycle-boon-lifecycle",
+        "typed-play-history-causal",
+        "confirmed-play-origin",
+        "optional-sacrifice",
+        "battlefield-play-damage",
+        "multi-controller-trigger-order",
+        "attached-predict",
+        "paka-move-reveal",
+        "destruction-graveyard"
+      ],
+      "receiptSha256": "7b478b6c75109a3faddc455ceaee298d2053ad3077d838c8e948bd660bf8eedc",
+      "outputs": 54,
+      "actualRuleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+        "implementationSha256": "aeb4a7aef9df768596875748ef0fd64024691f40edbb0343cb5d70fdf5ab2b30",
+        "identitySha256": "9fe09bee8cadcb1ad8d7880dd201e66b130d62641719a0732746d888a2f914cf"
+      },
+      "runtimeAssemblies": [
+        {
+          "file": "Riftbound.PostgresAcceptance.dll",
+          "sha256": "0202f394e066e0e23f5d082abdd2b9c4b42081106f3a8e232bf45d8a814e734c",
+          "mvid": "873d35a4-8f60-4a8f-8af3-4f0b6c4997e5"
+        },
+        {
+          "file": "Riftbound.Engine.dll",
+          "sha256": "87b5b06f01403fea8b2a4b9aa505c8c4c2c74b920cb6a751f0d827894145898d",
+          "mvid": "6d95e5b0-0e67-4d87-90bb-abe5e1f70038"
+        },
+        {
+          "file": "Riftbound.Contracts.dll",
+          "sha256": "f9480483c90b78db1e6b64124402a476052bb38fcbb0540921faa185befd1d94",
+          "mvid": "17952379-2323-43f3-be6d-7784acbf86f4"
+        },
+        {
+          "file": "Riftbound.CardCatalog.dll",
+          "sha256": "c7ab5b611ada9fb8bc439392c87d9d27d84ceb29b59d104aaae5808694cf15c0",
+          "mvid": "0d0caaf0-e2d9-4572-a7c4-2d6477c08a11"
+        },
+        {
+          "file": "Riftbound.Persistence.dll",
+          "sha256": "5f6ce955ec06a5465177ab5e8434e1d90bcf4ec1a5fa07e652fbf3ee4a7c2fb9",
+          "mvid": "aa9f4cf7-0ab2-4dd9-8e6a-09a7683be21e"
+        }
+      ]
+    },
+    {
+      "partitionIndex": 1,
+      "cases": [
+        "created-token-ready",
+        "granted-predict",
+        "sivir-payment",
+        "attached-recycle-lifecycle",
+        "clairvoyance",
+        "physical-origin-cost",
+        "granted-token-haste",
+        "banish-effect-play",
+        "empty-observed-repeat",
+        "copied-last-breath-insight",
+        "empty-reveal-followup",
+        "conditional-counter-payment"
+      ],
+      "receiptSha256": "35eab125b5cd8a21bba19868e2df61c344031daed7277b48e26c5717b960d11c",
+      "outputs": 66,
+      "actualRuleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+        "implementationSha256": "aeb4a7aef9df768596875748ef0fd64024691f40edbb0343cb5d70fdf5ab2b30",
+        "identitySha256": "9fe09bee8cadcb1ad8d7880dd201e66b130d62641719a0732746d888a2f914cf"
+      },
+      "runtimeAssemblies": [
+        {
+          "file": "Riftbound.PostgresAcceptance.dll",
+          "sha256": "0202f394e066e0e23f5d082abdd2b9c4b42081106f3a8e232bf45d8a814e734c",
+          "mvid": "873d35a4-8f60-4a8f-8af3-4f0b6c4997e5"
+        },
+        {
+          "file": "Riftbound.Engine.dll",
+          "sha256": "87b5b06f01403fea8b2a4b9aa505c8c4c2c74b920cb6a751f0d827894145898d",
+          "mvid": "6d95e5b0-0e67-4d87-90bb-abe5e1f70038"
+        },
+        {
+          "file": "Riftbound.Contracts.dll",
+          "sha256": "f9480483c90b78db1e6b64124402a476052bb38fcbb0540921faa185befd1d94",
+          "mvid": "17952379-2323-43f3-be6d-7784acbf86f4"
+        },
+        {
+          "file": "Riftbound.CardCatalog.dll",
+          "sha256": "c7ab5b611ada9fb8bc439392c87d9d27d84ceb29b59d104aaae5808694cf15c0",
+          "mvid": "0d0caaf0-e2d9-4572-a7c4-2d6477c08a11"
+        },
+        {
+          "file": "Riftbound.Persistence.dll",
+          "sha256": "5f6ce955ec06a5465177ab5e8434e1d90bcf4ec1a5fa07e652fbf3ee4a7c2fb9",
+          "mvid": "aa9f4cf7-0ab2-4dd9-8e6a-09a7683be21e"
+        }
+      ]
+    },
+    {
+      "partitionIndex": 2,
+      "cases": [
+        "core-opening",
+        "printed-predict",
+        "conquest-token",
+        "typed-play-history",
+        "insight-repeat",
+        "granted-origin-haste",
+        "optional-costs",
+        "here-location-control",
+        "observed-play-window",
+        "copied-duel-insight",
+        "paka-dual-type-reveal"
+      ],
+      "receiptSha256": "41ff0a6fa8cda2e012f2c87be637d56808884bff1b00647e1d6b98a16e931aef",
+      "outputs": 52,
+      "actualRuleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+        "implementationSha256": "aeb4a7aef9df768596875748ef0fd64024691f40edbb0343cb5d70fdf5ab2b30",
+        "identitySha256": "9fe09bee8cadcb1ad8d7880dd201e66b130d62641719a0732746d888a2f914cf"
+      },
+      "runtimeAssemblies": [
+        {
+          "file": "Riftbound.PostgresAcceptance.dll",
+          "sha256": "0202f394e066e0e23f5d082abdd2b9c4b42081106f3a8e232bf45d8a814e734c",
+          "mvid": "873d35a4-8f60-4a8f-8af3-4f0b6c4997e5"
+        },
+        {
+          "file": "Riftbound.Engine.dll",
+          "sha256": "87b5b06f01403fea8b2a4b9aa505c8c4c2c74b920cb6a751f0d827894145898d",
+          "mvid": "6d95e5b0-0e67-4d87-90bb-abe5e1f70038"
+        },
+        {
+          "file": "Riftbound.Contracts.dll",
+          "sha256": "f9480483c90b78db1e6b64124402a476052bb38fcbb0540921faa185befd1d94",
+          "mvid": "17952379-2323-43f3-be6d-7784acbf86f4"
+        },
+        {
+          "file": "Riftbound.CardCatalog.dll",
+          "sha256": "c7ab5b611ada9fb8bc439392c87d9d27d84ceb29b59d104aaae5808694cf15c0",
+          "mvid": "0d0caaf0-e2d9-4572-a7c4-2d6477c08a11"
+        },
+        {
+          "file": "Riftbound.Persistence.dll",
+          "sha256": "5f6ce955ec06a5465177ab5e8434e1d90bcf4ec1a5fa07e652fbf3ee4a7c2fb9",
+          "mvid": "aa9f4cf7-0ab2-4dd9-8e6a-09a7683be21e"
+        }
+      ]
+    },
+    {
+      "partitionIndex": 3,
+      "cases": [
+        "battle-history",
+        "sivir-optional",
+        "recycled-card-boon",
+        "porobot",
+        "combat-assignment",
+        "opponent-battlefield-control",
+        "battlefield-play-recovery",
+        "fate-weaver",
+        "ravenbloom-put-hand",
+        "empowered-insight",
+        "hwei-move-discard-types"
+      ],
+      "receiptSha256": "d1d5813cd4f050c32d57b8f7c7f51205572a1ac9fa4707168f11088c53d8162f",
+      "outputs": 79,
+      "actualRuleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+        "implementationSha256": "aeb4a7aef9df768596875748ef0fd64024691f40edbb0343cb5d70fdf5ab2b30",
+        "identitySha256": "9fe09bee8cadcb1ad8d7880dd201e66b130d62641719a0732746d888a2f914cf"
+      },
+      "runtimeAssemblies": [
+        {
+          "file": "Riftbound.PostgresAcceptance.dll",
+          "sha256": "0202f394e066e0e23f5d082abdd2b9c4b42081106f3a8e232bf45d8a814e734c",
+          "mvid": "873d35a4-8f60-4a8f-8af3-4f0b6c4997e5"
+        },
+        {
+          "file": "Riftbound.Engine.dll",
+          "sha256": "87b5b06f01403fea8b2a4b9aa505c8c4c2c74b920cb6a751f0d827894145898d",
+          "mvid": "6d95e5b0-0e67-4d87-90bb-abe5e1f70038"
+        },
+        {
+          "file": "Riftbound.Contracts.dll",
+          "sha256": "f9480483c90b78db1e6b64124402a476052bb38fcbb0540921faa185befd1d94",
+          "mvid": "17952379-2323-43f3-be6d-7784acbf86f4"
+        },
+        {
+          "file": "Riftbound.CardCatalog.dll",
+          "sha256": "c7ab5b611ada9fb8bc439392c87d9d27d84ceb29b59d104aaae5808694cf15c0",
+          "mvid": "0d0caaf0-e2d9-4572-a7c4-2d6477c08a11"
+        },
+        {
+          "file": "Riftbound.Persistence.dll",
+          "sha256": "5f6ce955ec06a5465177ab5e8434e1d90bcf4ec1a5fa07e652fbf3ee4a7c2fb9",
+          "mvid": "aa9f4cf7-0ab2-4dd9-8e6a-09a7683be21e"
+        }
+      ]
+    }
+  ],
+  "actualSqlOutputFileCount": 251,
+  "verifiedOriginalArtifacts": {
+    "postgres-partition-0": {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/ci-originals/39397913669-postgres-partition-0.zip",
+      "sha256": "38fc909a9f094917f465dbc093133635e139d0fcefdf68bff2c28f0042c9d0d8",
+      "bytes": 1030090
+    },
+    "postgres-partition-1": {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/ci-originals/39397913669-postgres-partition-1.zip",
+      "sha256": "c6103f418c6fb80a182ac231afc156a66493d83c0a190908876b3a6ad7c4a4de",
+      "bytes": 876501
+    },
+    "postgres-partition-2": {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/ci-originals/39397913669-postgres-partition-2.zip",
+      "sha256": "ebb4b054c92abba4bd07fa6ddc60a0fe0228152f82ea219a2e652755f446da4a",
+      "bytes": 547547
+    },
+    "postgres-partition-3": {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/ci-originals/39397913669-postgres-partition-3.zip",
+      "sha256": "4ab93ff5ff0efd9dd3aeb990f2fd942e35c929b1121ee43d79bb1fa3f75dd1b6",
+      "bytes": 835583
+    },
+    "postgres-results": {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/ci-originals/39397913669-postgres-results.zip",
+      "sha256": "ea928b0771d1f0ed73eb7338b5c99f80dd22e9d41bc3a37e71ec58d309ddaaf3",
+      "bytes": 2099
+    },
+    "native-network-results": {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/ci-originals/39397913669-native-network-results-v2.zip",
+      "sha256": "16d3f3c11445af3d54475f3dda6256a7fa2c11fd50975dbcb97ace21d44dc91f",
+      "bytes": 1772
+    }
+  },
+  "networkOriginalFileHashes": {
+    "commit.txt": "12a584390b5fed27974dcddd368e06d457c64217189d1c8025cb1f95bddaf9f4",
+    "native-api.log": "a9fd050283911fe5ac512841d430e6efa5685e10554f5590f4098d2e2cc70bd6",
+    "native-network.log": "52d51d6f0cafc9de66c2f6ff8d0dc1386a13fdc041d92eee5652600c50b65d8d"
+  },
+  "networkRejectedActions": 15,
+  "networkLeakedPrivateMessages": 0,
+  "validReconnectTokenWasSupplied": true,
+  "actualNetworkIdentities": [
+    "ANONYMOUS",
+    "FAILED_KEY",
+    "OTHER_HANDLE"
+  ],
+  "overallRuleSuiteAndFullTerminalNotInferred": true,
+  "currentReversal47thSqlCaseAndMacNativeOrWindowsPhysicalNotCovered": true
+}

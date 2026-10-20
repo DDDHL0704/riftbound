@@ -1,0 +1,29 @@
+{
+  "atUtc": "2026-10-20T10:17:20.495625+00:00",
+  "status": "PASS_BOTH_ACTUAL_NATIVE_GUI_PROCESS_MAPPED_COMMON8_0_32_FILES",
+  "actualObservers": [
+    {
+      "label": "a",
+      "ownNativePid": 13297,
+      "actualMappedCommonFiles": [
+        {
+          "path": "/Users/dinghaolin/MyProjects/riftbound/var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/Riftbound-A.app/Contents/Resources/data_Riftbound.GodotClient_macos_arm64/Microsoft.AspNetCore.SignalR.Common.dll",
+          "sha256": "550058f27f5577e20184a0e0d198c90c87079b45dffab170423f6fe030c0687d"
+        }
+      ]
+    },
+    {
+      "label": "b",
+      "ownNativePid": 13795,
+      "actualMappedCommonFiles": [
+        {
+          "path": "/Users/dinghaolin/MyProjects/riftbound/var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/Riftbound-B.app/Contents/Resources/data_Riftbound.GodotClient_macos_arm64/Microsoft.AspNetCore.SignalR.Common.dll",
+          "sha256": "550058f27f5577e20184a0e0d198c90c87079b45dffab170423f6fe030c0687d"
+        }
+      ]
+    }
+  ],
+  "expectedPatchedCommonSha256": "550058f27f5577e20184a0e0d198c90c87079b45dffab170423f6fe030c0687d",
+  "sameBytesAsIndependentlyLoadedCommon8_0_32": true,
+  "readOnlyNoProcessDebuggerOrSourceMutation": true
+}

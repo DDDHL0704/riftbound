@@ -1,0 +1,15 @@
+{
+  "priorReviews": 146,
+  "currentReviews": 147,
+  "priorContexts": 61,
+  "currentContexts": 62,
+  "priorGates": 239,
+  "currentGates": 241,
+  "priorObligations": 16918,
+  "currentObligations": 16925,
+  "allOriginalIdsRetained": true,
+  "allOriginal146Reviews239GatesAndSixGameSourceDeltasExact": true,
+  "allOriginal1740Printings14293RuleBlocksEn8GapCn236DispositionsRetained": true,
+  "newFiveBranchesAndTwoExplicitAcceptanceGates": true,
+  "semanticCoverageCertified": false
+}

@@ -1,0 +1,17 @@
+{
+  "status": "PASS_ORIGINAL_NETWORK_ZERO_LEAK_EXACT_15_ACTION_THREE_IDENTITIES_AND_REAL_TOKEN",
+  "fixedCommit": "a653e54772bddb4ed14d85c4f0b13150f2f3cbfa",
+  "runId": 39383332057,
+  "actualOriginalRow": {
+    "room": "NETWORK-5a0bd0fa17c8",
+    "rejectedActions": 15,
+    "identities": [
+      "ANONYMOUS",
+      "FAILED_KEY",
+      "OTHER_HANDLE"
+    ],
+    "leakedPrivateMessages": 0,
+    "validReconnectTokenWasSupplied": true
+  },
+  "originalFile": "ci-originals/39383332057-native-network-results.zip"
+}

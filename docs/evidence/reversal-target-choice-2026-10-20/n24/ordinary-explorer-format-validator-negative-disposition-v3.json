@@ -1,0 +1,9 @@
+{
+  "observedAtUtc": "2026-10-20T11:01:21.643698+00:00",
+  "status": "CHINA_STANDARD_VALIDATOR_CORRECTLY_REJECTED_CORE_ONLY_BASE_BEFORE_MATCH_OR_DATABASE",
+  "error": "The CoreRules Lillia preconstructed base includes banned Climbing Step.",
+  "correction": "Build the base with ChinaStandard20260724 explicitly, then retain both independent format validators. No banned-card exemption or weakened guard.",
+  "commandsExecuted": 0,
+  "originalSourceSha256": "763b5414746b02c9521c86de061c041c7fb64ca44bc579e0fba76488ec5a8191",
+  "productionChanges": false
+}

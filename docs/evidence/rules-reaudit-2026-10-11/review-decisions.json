@@ -23810,6 +23810,56 @@
         "PHYSICAL_WINDOWS",
         "WHOLE_CARD_AND_ALL_ORIGINAL_GAME_SOURCE_OBLIGATIONS"
       ]
+    },
+    {
+      "id": "reversal-optional-target-choices-and-shared-control-2026-10-20",
+      "scope": "CN exact OGN080 optional new-target grant, shared control/remake and explicitly recorded branches only.",
+      "status": "LIMITED27_FOCUS_CHECK13166_SQL4_PASS_NEW_FIXED_FULL_NATIVE_WINDOWS_OPEN",
+      "subjects": [
+        "OGN-080/298",
+        "VEN-152"
+      ],
+      "ruleRecords": [
+        "CN-d6fd7140f106f9b5-P111-B016",
+        "CN-d6fd7140f106f9b5-P111-B017",
+        "CN-d6fd7140f106f9b5-P111-B018",
+        "CN-d6fd7140f106f9b5-P111-B019",
+        "CN-d6fd7140f106f9b5-P111-B020",
+        "CN-d6fd7140f106f9b5-P111-B021",
+        "CN-d6fd7140f106f9b5-P111-B022",
+        "CN-d6fd7140f106f9b5-P111-B023",
+        "CN-d6fd7140f106f9b5-P111-B024",
+        "CN-d6fd7140f106f9b5-P116-B020",
+        "CN-d6fd7140f106f9b5-P116-B022"
+      ],
+      "pendingRuleRecords": [],
+      "sourceManifest": {
+        "path": "docs/evidence/reversal-target-choice-2026-10-20/source-manifest.json",
+        "sha256": "8e70cea90e6d28b84459f4307757d9e11e8e80722b40068e53585bb95daedefa",
+        "role": "source-manifest"
+      },
+      "auditDocument": "docs/REVERSAL_TARGET_CHOICE_AUDIT_2026-10-20.md",
+      "validation": {
+        "boundedNewCases": 27,
+        "newMethods": 11,
+        "adjacentCases": 254,
+        "originalFullGamesInAdjacentFocus": 2,
+        "soleCheckCases": 13166,
+        "soleCheckMethods": 7490,
+        "ordinaryRealSqlBranches": 4,
+        "allOriginalMethodsTheoriesSeedsVictoryReplayAssertionsRetained": true
+      },
+      "exclusions": [
+        "NEW_FIXED_FULL",
+        "CURRENT_FIXED_VISIBLE_NATIVE_PAIRED_SQL_RECONNECT_NORMAL_SCORE_FULL_REPLAY",
+        "PHYSICAL_WINDOWS",
+        "SOURCE_GRANTED_ECHO_ON_REVERSAL_CURRENTLY_REJECTED_BY_IMPLEMENTATION_NOT_OFFICIAL_PROHIBITION_CERTIFICATION",
+        "RELATIVE_BASE_DESTINATION_BINDING_REQUIRES_SEPARATE_EXACT_SOURCE_REVIEW",
+        "OTHER_TARGET_KINDS_CONSUMERS_PRINTINGS_AND_ALL_SOURCE_GAPS",
+        "NATIVE_SPELL_CHOICE_REMAKE_HEADING_CURRENT_SOURCE_FALLS_THROUGH_TO_DESTRUCTION_REPLACEMENT_SEPARATE_FIX_AND_GODOT_EXECUTION_REQUIRED",
+        "ZERO_TARGET_OR_NO_LEGAL_NEW_CHOICE_BRANCH_REQUIRES_EXACT_RULE753_2_REVIEW_NOT_CERTIFIED_BY_CURRENT_OPENING_FLOW",
+        "WHOLE_PRINTING_FAMILY_AND_ALL_SOURCE_GAPS"
+      ]
     }
   ]
 }

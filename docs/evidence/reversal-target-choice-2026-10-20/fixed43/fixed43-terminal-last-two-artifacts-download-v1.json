@@ -1,0 +1,25 @@
+{
+  "atUtc": "2026-10-20T12:49:03.070996+00:00",
+  "fixedCommit": "43d5b84e867eb09ca0570ed8774832ce70b04d87",
+  "runId": 39397913669,
+  "actualRemainingRuleAndFullGateResultArtifacts": [
+    {
+      "name": "conformance-results",
+      "artifactId": 12264039348,
+      "path": "/Users/dinghaolin/MyProjects/riftbound/var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/ci-originals/39397913669-conformance-results.zip",
+      "bytes": 3889143,
+      "sha256": "ba61958793f46deaa554e955ffa0cf214863f3ee1ad9abbc9c158f2a61d49015",
+      "backendSizeDigestAndAllZipCrcVerified": true
+    },
+    {
+      "name": "full-verification-gate",
+      "artifactId": 12265395147,
+      "path": "/Users/dinghaolin/MyProjects/riftbound/var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/ci-originals/39397913669-full-verification-gate.zip",
+      "bytes": 297,
+      "sha256": "8c5662a60e0d2be4449686b895db1b9e00e289637fdbd2f5bb79188534968577",
+      "backendSizeDigestAndAllZipCrcVerified": true
+    }
+  ],
+  "allOriginalResultContentStillRequiresIndependentReadback": true,
+  "noNativeInstallersDownloadedAgain": true
+}

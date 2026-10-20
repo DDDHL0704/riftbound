@@ -1,0 +1,24 @@
+{
+  "recordedAtUtc": "2026-10-20T12:29:54.153039+00:00",
+  "status": "PREPARED_ONLY_WAITING_FOR_SOLE_CHECK_TERMINAL_AND_ORIGINAL_RETENTION_VERIFIER",
+  "path": "scripts/tests/test_sql_ci_gate.py",
+  "originalSha256": "e5d49a5169afb6341f66645cba9a320e2e8a1062ba604a9d1a2ce05aa273fca0",
+  "exactOldBlock": "        self.assertEqual(46, result['caseCount'])\n        self.assertEqual(self.ids, result['orderedDefaultCases'])\n        self.assertEqual(1, self.ids.count('core-opening'))\n        self.assertEqual('conditional-counter-payment', self.ids[-1])",
+  "exactNewBlock": "        self.assertEqual(47, result['caseCount'])\n        self.assertEqual(self.ids, result['orderedDefaultCases'])\n        self.assertEqual(1, self.ids.count('core-opening'))\n        self.assertEqual('conditional-counter-payment', self.ids[-2])\n        self.assertEqual('reversal-target-choice', self.ids[-1])",
+  "actualOriginalPythonToolResult": {
+    "testsRun": 73,
+    "passed": 72,
+    "failed": 1,
+    "originalLog": "python-verification-tools-v1.log",
+    "actualFirstFailure": "Old caseCount46 != actual47.",
+    "staticAdditionalBlockedGuard": "Original old final conditional-counter-payment is now the unchanged 46th item; keep its identity check at -2 and add the appended final identity at -1."
+  },
+  "supersedesIncompleteCountOnlyPlanWithoutRewritingIt": "post-check-tool-count-correction-plan-v1.json",
+  "allOriginalDefaultIdsAndOrderGuardRetained": true,
+  "noMethodsOrOtherGuardsRemovedOrLoosened": true,
+  "newAcceptanceIdentityAndCountCheckedExplicitly": true,
+  "noGameplayImplementationOrRuntimeChange": true,
+  "noSecondCheck": true,
+  "mustRunAll73ToolTestsToFreshV2OutputAfterCorrection": true,
+  "finalFixedFullCoversFinalSourceIncludingToolOnlyCalibration": true
+}

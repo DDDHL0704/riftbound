@@ -1,0 +1,10 @@
+{
+  "recordedAtUtc": "2026-10-20T12:53:18.528994+00:00",
+  "status": "ORIGINAL_FINAL_RECEIPT_ADAPTER_KEYERROR_FULL_VERSUS_COMPACT_OUTPUT_RETAINED",
+  "actualError": "KeyError: 'remainingObligationCount'",
+  "actualUnderlyingGovernanceProcessExitCode": 0,
+  "actualUnderlyingGovernanceValid": true,
+  "underlyingErrors": [],
+  "cause": "CLI stdout compact shape contains remainingObligationCount; saved --output file contains the complete remainingObligations array. The first final-retention adapter read the compact key from the complete file.",
+  "correction": "Read the complete array, assert every source pin and original preservation unchanged; no governance/source/gameplay change or rerun."
+}

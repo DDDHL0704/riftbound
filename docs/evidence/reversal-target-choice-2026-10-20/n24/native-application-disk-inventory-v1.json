@@ -1,0 +1,9 @@
+{
+  "observedAtUtc": "2026-10-20T11:21:34.395772+00:00",
+  "repositoryQaAppBundles": [
+    "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/Riftbound-B.app",
+    "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/Riftbound-A.app"
+  ],
+  "externalMatchingApplicationsObservedOnlyNotRemoved": [],
+  "scope": "Read-only inventory; latest candidate pair retained; no source, test, database or evidence deletion."
+}

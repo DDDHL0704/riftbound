@@ -1,0 +1,8 @@
+{
+  "atUtc": "2026-10-20T09:35:57.408856+00:00",
+  "initialReaderGuard": "Expected one Common/deps payload per archive; actual Mac artifact is universal with two architecture payloads. Guard stopped before publishing an artifact version claim.",
+  "correction": "Verify every Mac arm64/x86_64 payload and Windows x64 payload, all four actual assembly hashes against independently loaded8.0.32 bytes and each original deps library. All original archive/CRC/boot/hash checks retained.",
+  "originalCiPackagesUnchanged": true,
+  "newNativeDefaultBootsIndependentlyCompleted": true,
+  "notAnApplicationFailureOrCiFailure": true
+}

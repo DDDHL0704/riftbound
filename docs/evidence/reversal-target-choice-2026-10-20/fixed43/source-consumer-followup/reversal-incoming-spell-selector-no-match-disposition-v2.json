@@ -1,0 +1,8 @@
+{
+  "atUtc": "2026-10-20T09:57:19.730708+00:00",
+  "actualFailure": "No current registry definition satisfies the over-specific plain damage2/noSourceReplay selector. It failed before construction or execution of any state.",
+  "correction": "Use the exact OGN095 incoming targeted spell already used by the original Mel control-transfer regression; still actually declare and pass it through the unchanged engine, keep the independent recovery validator and the official Reversal optional-new-target expectation.",
+  "originalSelectorSourceSha256": "67eabea9e79e5b1664b3c3c187ad798e65eadb5c23059a49b6f8fa6bd8a9fe93",
+  "originalOutput": "reversal-readonly-red-repro-original-v2.log",
+  "noProductFailureClaimedFromSelectorFailure": true
+}

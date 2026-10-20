@@ -1,0 +1,8 @@
+{
+  "scope": "Readback adapter only, not a product or test failure",
+  "failure": "First adapter attempted JSON parsing of the first line of pretty-printed multiline test stdout.",
+  "correction": "Decode the full original StdOut after the marker; retain original TRX and all tests, no rerun.",
+  "sqlSourceMutationsCompletedBeforeAdapterFailure": true,
+  "soleCheckNotExecuted": true,
+  "secondaryDisplayFieldCorrection": "Pretty formatter uses JsonSerializerDefaults.Web: coldCount and originalNextMatches. Original parsed metrics file already complete and unmodified; display corrected without test rerun."
+}

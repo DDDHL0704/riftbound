@@ -1,0 +1,12 @@
+{
+  "observedAtUtc": "2026-10-20T11:02:56.712923+00:00",
+  "status": "HELPER_ATTEMPTED_PRIORITY_PASS_AFTER_NONSTACK_PERMANENT_PLAY_NOT_PRODUCT_FAILURE",
+  "originalSourceSha256": "6b6d4cb49884fd316025155be23f1ecdd10d10601bec51e4583cc63e5b21e99e",
+  "originalFrameSha256": "9f77e3a76478805a552e1c4a55a0e8921ec0cd3ecc4b2dde985837d0c79da546",
+  "originalAcceptedCommands": 24,
+  "originalEvents": 79,
+  "lastFrameIndependentValidationErrors": 0,
+  "exceptionBeforeAnyFailedIntentWasSubmitted": true,
+  "correction": "Only pass for an actual stack after playing the simple unit. Preserve all accepted original history and independently replay it.",
+  "seedOrStateInjection": false
+}

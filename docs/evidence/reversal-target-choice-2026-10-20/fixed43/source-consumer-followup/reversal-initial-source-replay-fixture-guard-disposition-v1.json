@@ -1,0 +1,8 @@
+{
+  "atUtc": "2026-10-20T09:40:34.818823+00:00",
+  "initialFailure": "The manually constructed incoming targeted spell happened to require SourceReplay progress. Independent recovery validation correctly rejected the incomplete controlled fixture. No product finding or database execution claimed.",
+  "originalSourceSha256": "348b3657fb89e3b996c8aa8e1124d4fc923f94b02f3496ba888576797fc16f07",
+  "originalFailureLog": "reversal-readonly-red-repro-original-v1.log",
+  "correction": "Start with a controlled empty stack, actually play the incoming ordinary spell through CoreRuleEngine and pass its real priority, then play Reversal. Preserve typed state/null round-trip and full independent recovery validation. Select an incoming damage spell without SourceReplay; optional new-target expectation remains from the exact current official Reversal face.",
+  "noProductionOrOriginalTestMutation": true
+}

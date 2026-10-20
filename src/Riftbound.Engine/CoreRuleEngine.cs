@@ -24397,8 +24397,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             && selfCopyBehavior.CreatedBaseUnitTokensCopySource)
             return ResolveSelfCopyTokenPlay(state, stackItem, selfCopyBehavior);
         if (CardBehaviorRegistry.TryGetByEffectKind(stackItem.EffectKind, out var choiceBehavior)
-            && choiceBehavior.MayPayPowerToGainControlAndRemakeSpellChoices)
-            return ResolveOptionalSpellControl(state, stackItem, choiceBehavior);
+            && (choiceBehavior.MayPayPowerToGainControlAndRemakeSpellChoices || choiceBehavior.GainsControlOfTargetStackSpell))
+            return ResolveSpellControl(state, stackItem, choiceBehavior);
         if (stackItem.AttachmentObserver is not null) return ResolveAttachmentObserver(state, stackItem);
         if (stackItem.MovementObserver is not null) return ResolveMovementObserver(state, stackItem);
         if (stackItem.DeathObserver is not null) return ResolveDeathObserver(state, stackItem);
@@ -24889,18 +24889,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 counteredStackItemIds.Add(targetStackItemId);
                 events.Add(counteredEvent);
             }
-        }
-
-        if (behavior.GainsControlOfTargetStackSpell
-            && TryGainControlOfTargetStackSpell(
-                state.StackItems,
-                behavior,
-                stackItem,
-                out var controlledStackItems,
-                out var stackControlEvent))
-        {
-            updatedStackItems = controlledStackItems;
-            events.Add(stackControlEvent);
         }
 
         if (behavior.AppliesPowerModifierToFirstTargetFromSecondStackSpellManaCost

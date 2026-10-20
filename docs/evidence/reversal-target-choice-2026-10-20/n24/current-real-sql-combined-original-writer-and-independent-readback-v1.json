@@ -1,0 +1,28 @@
+{
+  "recordedAtUtc": "2026-10-20T11:50:13.157865+00:00",
+  "status": "PASS_FOUR_ORIGINAL_ORDINARY_SQL_BRANCHES_AND_SEPARATE_INDEPENDENT_READONLY_FULL_REPLAY",
+  "commands": 222,
+  "events": 1252,
+  "coldRestores": 26,
+  "originalNextCommandsMatched": 22,
+  "atomicRejections": 16,
+  "originalStates": 222,
+  "originalPrivateSnapshots": 428,
+  "originalPrompts": 428,
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+    "implementationSha256": "9707c006c57f97800fb785086c2f086b8e89d532d16e7f3e0f0dbf73b892d5ca",
+    "identitySha256": "4659c132143775006b6fe039cbe13cb827bd2c9f6cfee34fc1c913b89564d526"
+  },
+  "firstReadonlyAdapterFailureRetainedNotRelabeled": true,
+  "noWriterRerunOrNewRoomsDuringReadonlyFix": true,
+  "allOriginal209Audit45NativeAndAfterReadAll213Audit45NativeSevenTablesExact": true,
+  "originalDatabaseRetainedAndNormallyStopped": true,
+  "visibleNativeWindowsAndWholePrintingAcceptance": "OPEN",
+  "writerReceiptSha256": "0ee696e6e5c0854846a87f1a7d204c59d729704e94d889e7b904921f7a7a4002",
+  "independentOwnerSha256": "542eb723adea9e307c548c4f15778c1f94e235b27ae9cdc2816cad69bee4f882"
+}

@@ -1,0 +1,47 @@
+{
+  "atUtc": "2026-10-20T10:02:53.047859+00:00",
+  "status": "MEANINGFUL_RED_FIXED43_OPTIONAL_NEW_TARGET_CHOICE_MISSING_AFTER_VALID_CONTROL",
+  "expectedDiagnosticExitCode": 1,
+  "actualEvidence": {
+    "status": "RED_REPRODUCED_REVERSAL_CONTROLS_SPELL_WITHOUT_OPTIONAL_NEW_TARGET_CHOICE",
+    "actualRuleInputs": {
+      "schemaVersion": 1,
+      "region": "CN",
+      "language": "zh-CN",
+      "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+      "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+      "implementationSha256": "ff9f20c78c8491f6ecf91dec4b33a21c07ccd116573fe197f771af03da09ff30",
+      "identitySha256": "47d75226de4724fa76d0e31f2139d1d99a520932f66c0eaffde6c69df6cc42c6"
+    },
+    "sourceCard": "OGN\u00b7080/298",
+    "sourceApiId": 31296,
+    "independentExpected": "Current exact official face/API allow the new controller to optionally designate new targets.",
+    "actualFixtureSpell": {
+      "cardNo": "OGN\u00b7095/298",
+      "displayName": "\u201c\u6572\u201d\u8bc8",
+      "effectKind": "EXTORTION_POWER_MINUS_1_MIN_1_DRAW_1"
+    },
+    "actualController": "P1",
+    "actualOriginalTargets": [
+      "FRIEND"
+    ],
+    "actualPendingKind": null,
+    "optionalNewTargetOffered": false,
+    "independentRecoveryErrors": 0,
+    "actualPromptActions": [
+      "PASS_PRIORITY",
+      "SURRENDER"
+    ],
+    "acceptedCommands": 5,
+    "events": 11,
+    "controlledOnlyNotOrdinaryOpening": true,
+    "noDatabaseOrProductionSourceOrExistingTestMutation": true,
+    "wholePrintingNotCertified": true
+  },
+  "actualSourceSha256": "0912270704ea5d984a382cf40f4a4d5266992d735c16471850530c8444eb3772",
+  "actualHelperSha256": "534607b9d6b09d53ed1325e489d219b3878879114fa2898916fe1d4bce236b0e",
+  "originalLogSha256": "0cbfc5fcb88fe875b58cf7c3603d9df21c605932aeb73a7aecff4576cbed8984",
+  "originalControlledFrameSha256": "d625c0e3cf9a0ffa2c244ab58a5b553af8b4e436fe8b4dd46d72fb533cdb3426",
+  "productionRootAndAllOriginalTestsUnchanged": true,
+  "notAnOrdinaryOpeningOrProductAcceptance": true
+}

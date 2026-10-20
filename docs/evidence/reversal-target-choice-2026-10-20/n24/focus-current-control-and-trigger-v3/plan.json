@@ -1,0 +1,51 @@
+{
+  "profile": "focus",
+  "discoveredMethods": 7630,
+  "jobs": 4,
+  "includeGames": false,
+  "testAssemblySha256": "f8b84a5601f0fba4aeae0505227c29d6748d4d883c996680c9046ff9b643d262",
+  "timings": "/Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/TestResults/mechanical-full.trx",
+  "shards": [
+    {
+      "name": "focus",
+      "methods": [
+        "Riftbound.ConformanceTests.MelRulesTests.ASpellRespondingAbovePendingEmpowerCanStillBeCountered",
+        "Riftbound.ConformanceTests.MelRulesTests.AWholeUnitCopyUsesItsOwnStatusAndExpiresItsDependentRulesOnDetach",
+        "Riftbound.ConformanceTests.MelRulesTests.AbandonIsLegalButOnlyUnprotectedSpellsAreCounteredAndReturned",
+        "Riftbound.ConformanceTests.MelRulesTests.CurrentExactPrintingSupportsItsPrintedUnitAndDrawBehavior",
+        "Riftbound.ConformanceTests.MelRulesTests.MoonfallOnlyReplacesTheChosenEnemyAfterItsOptionalMove",
+        "Riftbound.ConformanceTests.MelRulesTests.RealEntryAndEmpowerEnableOnlyTheChosenNegativeMightEvent",
+        "Riftbound.ConformanceTests.MelRulesTests.RecoveryRejectsForgedNegativeMightReplacementFields",
+        "Riftbound.ConformanceTests.MelRulesTests.RemovingMelAboveAnAlreadyChosenCounterEndsProtectionBeforeThatCounterResolves",
+        "Riftbound.ConformanceTests.MelRulesTests.ReplacingStupefyInheritsItsMinimumAndNeverCreatesAnExtraReductionFromZero",
+        "Riftbound.ConformanceTests.MelRulesTests.SpellControlTransferIsAllowedAndRechecksTheNewControllersEmpoweredRules",
+        "Riftbound.ConformanceTests.MelRulesTests.TargetedExhaustAbilityReceivesTheReplacementAndCounterProtection",
+        "Riftbound.ConformanceTests.RebuttalRulesTests.ActivatedAbilityCannotBeChosenAsASpell",
+        "Riftbound.ConformanceTests.RebuttalRulesTests.CurrentExactPrintingExposesItsReactionAndFourManaTargetLimit",
+        "Riftbound.ConformanceTests.RebuttalRulesTests.EachEchoExecutionCanRemakeItsOwnTargetsWhileRetainingTheOtherExecution",
+        "Riftbound.ConformanceTests.RebuttalRulesTests.FourManaLimitUsesTheSpellsCardCostInsteadOfManaActuallyPaid",
+        "Riftbound.ConformanceTests.RebuttalRulesTests.ModeCanChangeAndNeedsACompleteLegalTargetSet",
+        "Riftbound.ConformanceTests.RebuttalRulesTests.NoEnergyStillOffersDeclineWithoutInventingAnAffordablePayment",
+        "Riftbound.ConformanceTests.RebuttalRulesTests.OptionalPowerIsChosenOnlyDuringResolutionAndControlDoesNotCounter",
+        "Riftbound.ConformanceTests.RebuttalRulesTests.PartialRemakeRequiresEveryRetainedTargetToBeLegalOrKeepsAllOriginalChoices",
+        "Riftbound.ConformanceTests.RebuttalRulesTests.PendingResolutionRejectsForgedActorWindowOptionTranscriptAndPreview",
+        "Riftbound.ConformanceTests.RebuttalRulesTests.ProtectedSpellCanChangeControlButCannotBeCountered",
+        "Riftbound.ConformanceTests.RebuttalRulesTests.RemadeTargetIncarnationCannotResolveAgainstAnOlderBinding",
+        "Riftbound.ConformanceTests.RebuttalRulesTests.RemakingOneTargetDoesNotReplayCostsAndUpdatesItsIncarnation",
+        "Riftbound.ConformanceTests.RebuttalRulesTests.ResolutionPaymentCanUseCurrentRuneOrReactionResourceSkill",
+        "Riftbound.ConformanceTests.RebuttalRulesTests.WaitingResolutionRejectsUnauthorizedCommandsWithoutChangingState",
+        "Riftbound.ConformanceTests.ReversalTargetChoiceTests.AConfirmedNewTargetUsesItsCurrentIncarnation",
+        "Riftbound.ConformanceTests.ReversalTargetChoiceTests.ConfirmingEvenTheSameTargetTriggersTargetSelectionButKeepingChoicesDoesNot",
+        "Riftbound.ConformanceTests.ReversalTargetChoiceTests.ControlAllowsKeepingOrRemakingTargetsWithoutReplayingCosts",
+        "Riftbound.ConformanceTests.ReversalTargetChoiceTests.EachDeclaredEchoExecutionRetainsItsCostsAndCanSelectItsOwnTarget",
+        "Riftbound.ConformanceTests.ReversalTargetChoiceTests.IndependentRecoveryRejectsAlteredTargetChoiceEvidence",
+        "Riftbound.ConformanceTests.ReversalTargetChoiceTests.NewTargetChoicesDoNotExposeOpponentHandOrDeckIdentities",
+        "Riftbound.ConformanceTests.ReversalTargetChoiceTests.NewTargetsDoNotGrantANewMode",
+        "Riftbound.ConformanceTests.ReversalTargetChoiceTests.OnlyTheCurrentControllerCanSubmitTheCurrentServerChoice",
+        "Riftbound.ConformanceTests.ReversalTargetChoiceTests.RemakingTargetsRetainsDestinationsAndRequiresEveryRetainedChoiceToBeLegal",
+        "Riftbound.ConformanceTests.ReversalTargetChoiceTests.RetargetingAnEnemyWithWardDoesNotPlayTheSpellOrPayItsCostsAgain"
+      ],
+      "filter": "(FullyQualifiedName~ReversalTargetChoiceTests|FullyQualifiedName~RebuttalRulesTests|FullyQualifiedName~MelRulesTests)&FullyQualifiedName!~Riftbound.ConformanceTests.FullGameEndToEndTests."
+    }
+  ]
+}

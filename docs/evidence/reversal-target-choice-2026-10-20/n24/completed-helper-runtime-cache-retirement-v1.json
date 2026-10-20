@@ -1,0 +1,891 @@
+{
+  "recordedAtUtc": "2026-10-20T11:34:45.180601+00:00",
+  "reason": "Superseded pre-execution/helper executables and completed owned obj caches; usable v8 and all source variants/logs/original frames retained. Frozen engine dependency bytes remain exact in v8.",
+  "folders": [
+    "var/qa/reversal-target-choice-audit-20261020/ordinary-opening-explorer/out-v1",
+    "var/qa/reversal-target-choice-audit-20261020/ordinary-opening-explorer/out-v2",
+    "var/qa/reversal-target-choice-audit-20261020/ordinary-opening-explorer/out-v3",
+    "var/qa/reversal-target-choice-audit-20261020/ordinary-opening-explorer/out-v4",
+    "var/qa/reversal-target-choice-audit-20261020/ordinary-opening-explorer/out-v5",
+    "var/qa/reversal-target-choice-audit-20261020/ordinary-opening-explorer/out-v6",
+    "var/qa/reversal-target-choice-audit-20261020/ordinary-opening-explorer/out-v7",
+    "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/native-current-reader-v3/obj",
+    "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/reversal-readonly-red-repro/obj",
+    "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/finite-stack-consumer-map/obj",
+    "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/native-normal-score-reader-v4/obj",
+    "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/native-payment-prefix-source/obj"
+  ],
+  "files": [
+    {
+      "path": "var/qa/reversal-target-choice-audit-20261020/ordinary-opening-explorer/out-v2/ReversalOrdinaryOpeningExplorer",
+      "bytes": 124712,
+      "sha256": "69e7f9a8e4f19bed0013021804af96567ed7e3b41abd29613b4fa5a6830ec35e"
+    },
+    {
+      "path": "var/qa/reversal-target-choice-audit-20261020/ordinary-opening-explorer/out-v2/ReversalOrdinaryOpeningExplorer.deps.json",
+      "bytes": 1610,
+      "sha256": "93a351596f27260f62495ac4dff316c3f31b5c6dd90044cf2764ba1357d7d8d7"
+    },
+    {
+      "path": "var/qa/reversal-target-choice-audit-20261020/ordinary-opening-explorer/out-v2/ReversalOrdinaryOpeningExplorer.dll",
+      "bytes": 42496,
+      "sha256": "7bfa0a93469eaa17e9e45cf6ee329f2e4f9172ef67357969fe5f55f609890ba9"
+    },
+    {
+      "path": "var/qa/reversal-target-choice-audit-20261020/ordinary-opening-explorer/out-v2/ReversalOrdinaryOpeningExplorer.pdb",
+      "bytes": 18656,
+      "sha256": "3ea7b257ae6d06efe1c9d2a366c4226c9401f9f8a1db4041b9f8176d2fc39e2d"
+    },
+    {
+      "path": "var/qa/reversal-target-choice-audit-20261020/ordinary-opening-explorer/out-v2/ReversalOrdinaryOpeningExplorer.runtimeconfig.json",
+      "bytes": 330,
+      "sha256": "9950d4583cfc9a106857c0d5b8a75b53e8774852b57b80bc3823a74d44a4d87f"
+    },
+    {
+      "path": "var/qa/reversal-target-choice-audit-20261020/ordinary-opening-explorer/out-v2/Riftbound.CardCatalog.dll",
+      "bytes": 347136,
+      "sha256": "3fb0b058e357d01baff2063ef03833cfa3e40ae92a76f201d51b573e3f65934c"
+    },
+    {
+      "path": "var/qa/reversal-target-choice-audit-20261020/ordinary-opening-explorer/out-v2/Riftbound.CardCatalog.pdb",
+      "bytes": 68836,
+      "sha256": "83a9b10d6f074e02c78fc5022dad44ef7c85812588d83f4bf4569b348cae01b0"
+    },
+    {
+      "path": "var/qa/reversal-target-choice-audit-20261020/ordinary-opening-explorer/out-v2/Riftbound.Contracts.dll",
+      "bytes": 345088,
+      "sha256": "e6aec8c4db3c08174c2699d47faf8fb2d615b0f4c73c1662abc032dcca194baf"
+    },
+    {
+      "path": "var/qa/reversal-target-choice-audit-20261020/ordinary-opening-explorer/out-v2/Riftbound.Contracts.pdb",
+      "bytes": 57344,
+      "sha256": "38a3c0c68c67e2feed9c6242378f813bd60887f5dea4e35b10f8277ac7a67f98"
+    },
+    {
+      "path": "var/qa/reversal-target-choice-audit-20261020/ordinary-opening-explorer/out-v2/Riftbound.Engine.dll",
+      "bytes": 4719616,
+      "sha256": "8c348cbcb1723494291bee8c8ff253843716af2669a0da069ab961b90195da98"
+    },
+    {
+      "path": "var/qa/reversal-target-choice-audit-20261020/ordinary-opening-explorer/out-v2/Riftbound.Engine.pdb",
+      "bytes": 1021128,
+      "sha256": "f14e587abec3b71649e32e5b67ba1739f6cb61c98e897142cd6dcb290ae32964"
+    },
+    {
+      "path": "var/qa/reversal-target-choice-audit-20261020/ordinary-opening-explorer/out-v2/data/official/armaments.json",
+      "bytes": 11743,
+      "sha256": "ddcd838300e558c11df480ee79ccfab08c7af380df36544c666841720850bda8"
+    },
+    {
+      "path": "var/qa/reversal-target-choice-audit-20261020/ordinary-opening-explorer/out-v2/data/official/card-catalog.zh-CN.json",
+      "bytes": 1362891,
+      "sha256": "d521d7346392f2ea947c73c437c140d7bfe13a90cbca8642f7ae135b7b11f479"
+    },
+    {
+      "path": "var/qa/reversal-target-choice-audit-20261020/ordinary-opening-explorer/out-v2/data/official/rule-input-scope.json",
+      "bytes": 14749,
+      "sha256": "cc07cf3eef6a9af403454642a0435d061544400b5e01d08d3fdc65869bdad180"
+    },
+    {
+      "path": "var/qa/reversal-target-choice-audit-20261020/ordinary-opening-explorer/out-v3/ReversalOrdinaryOpeningExplorer",
+      "bytes": 124712,
+      "sha256": "69e7f9a8e4f19bed0013021804af96567ed7e3b41abd29613b4fa5a6830ec35e"
+    },
+    {
+      "path": "var/qa/reversal-target-choice-audit-20261020/ordinary-opening-explorer/out-v3/ReversalOrdinaryOpeningExplorer.deps.json",
+      "bytes": 1610,
+      "sha256": "93a351596f27260f62495ac4dff316c3f31b5c6dd90044cf2764ba1357d7d8d7"
+    },
+    {
+      "path": "var/qa/reversal-target-choice-audit-20261020/ordinary-opening-explorer/out-v3/ReversalOrdinaryOpeningExplorer.dll",
+      "bytes": 42496,
+      "sha256": "5ab5da65490404705928ad75fa1f8e97a665393b87f8ff6348eecb51e4768fad"
+    },
+    {
+      "path": "var/qa/reversal-target-choice-audit-20261020/ordinary-opening-explorer/out-v3/ReversalOrdinaryOpeningExplorer.pdb",
+      "bytes": 18648,
+      "sha256": "08b70d68fdec4072ffac8bfc4031e994ebf27cdb27529cddb8709b8a1abb7082"
+    },
+    {
+      "path": "var/qa/reversal-target-choice-audit-20261020/ordinary-opening-explorer/out-v3/ReversalOrdinaryOpeningExplorer.runtimeconfig.json",
+      "bytes": 330,
+      "sha256": "9950d4583cfc9a106857c0d5b8a75b53e8774852b57b80bc3823a74d44a4d87f"
+    },
+    {
+      "path": "var/qa/reversal-target-choice-audit-20261020/ordinary-opening-explorer/out-v3/Riftbound.CardCatalog.dll",
+      "bytes": 347136,
+      "sha256": "3fb0b058e357d01baff2063ef03833cfa3e40ae92a76f201d51b573e3f65934c"
+    },
+    {
+      "path": "var/qa/reversal-target-choice-audit-20261020/ordinary-opening-explorer/out-v3/Riftbound.CardCatalog.pdb",
+      "bytes": 68836,
+      "sha256": "83a9b10d6f074e02c78fc5022dad44ef7c85812588d83f4bf4569b348cae01b0"
+    },
+    {
+      "path": "var/qa/reversal-target-choice-audit-20261020/ordinary-opening-explorer/out-v3/Riftbound.Contracts.dll",
+      "bytes": 345088,
+      "sha256": "e6aec8c4db3c08174c2699d47faf8fb2d615b0f4c73c1662abc032dcca194baf"
+    },
+    {
+      "path": "var/qa/reversal-target-choice-audit-20261020/ordinary-opening-explorer/out-v3/Riftbound.Contracts.pdb",
+      "bytes": 57344,
+      "sha256": "38a3c0c68c67e2feed9c6242378f813bd60887f5dea4e35b10f8277ac7a67f98"
+    },
+    {
+      "path": "var/qa/reversal-target-choice-audit-20261020/ordinary-opening-explorer/out-v3/Riftbound.Engine.dll",
+      "bytes": 4719616,
+      "sha256": "8c348cbcb1723494291bee8c8ff253843716af2669a0da069ab961b90195da98"
+    },
+    {
+      "path": "var/qa/reversal-target-choice-audit-20261020/ordinary-opening-explorer/out-v3/Riftbound.Engine.pdb",
+      "bytes": 1021128,
+      "sha256": "f14e587abec3b71649e32e5b67ba1739f6cb61c98e897142cd6dcb290ae32964"
+    },
+    {
+      "path": "var/qa/reversal-target-choice-audit-20261020/ordinary-opening-explorer/out-v3/data/official/armaments.json",
+      "bytes": 11743,
+      "sha256": "ddcd838300e558c11df480ee79ccfab08c7af380df36544c666841720850bda8"
+    },
+    {
+      "path": "var/qa/reversal-target-choice-audit-20261020/ordinary-opening-explorer/out-v3/data/official/card-catalog.zh-CN.json",
+      "bytes": 1362891,
+      "sha256": "d521d7346392f2ea947c73c437c140d7bfe13a90cbca8642f7ae135b7b11f479"
+    },
+    {
+      "path": "var/qa/reversal-target-choice-audit-20261020/ordinary-opening-explorer/out-v3/data/official/rule-input-scope.json",
+      "bytes": 14749,
+      "sha256": "cc07cf3eef6a9af403454642a0435d061544400b5e01d08d3fdc65869bdad180"
+    },
+    {
+      "path": "var/qa/reversal-target-choice-audit-20261020/ordinary-opening-explorer/out-v4/ReversalOrdinaryOpeningExplorer",
+      "bytes": 124712,
+      "sha256": "69e7f9a8e4f19bed0013021804af96567ed7e3b41abd29613b4fa5a6830ec35e"
+    },
+    {
+      "path": "var/qa/reversal-target-choice-audit-20261020/ordinary-opening-explorer/out-v4/ReversalOrdinaryOpeningExplorer.deps.json",
+      "bytes": 1610,
+      "sha256": "93a351596f27260f62495ac4dff316c3f31b5c6dd90044cf2764ba1357d7d8d7"
+    },
+    {
+      "path": "var/qa/reversal-target-choice-audit-20261020/ordinary-opening-explorer/out-v4/ReversalOrdinaryOpeningExplorer.dll",
+      "bytes": 42496,
+      "sha256": "bd66018753533a3ab4e081574332457418cd6c51a6f9e07baa527207d2b0071d"
+    },
+    {
+      "path": "var/qa/reversal-target-choice-audit-20261020/ordinary-opening-explorer/out-v4/ReversalOrdinaryOpeningExplorer.pdb",
+      "bytes": 18652,
+      "sha256": "709d900f1603be8e667d79d794dac75668f13b0f8ea366573cf4d952a7607ca7"
+    },
+    {
+      "path": "var/qa/reversal-target-choice-audit-20261020/ordinary-opening-explorer/out-v4/ReversalOrdinaryOpeningExplorer.runtimeconfig.json",
+      "bytes": 330,
+      "sha256": "9950d4583cfc9a106857c0d5b8a75b53e8774852b57b80bc3823a74d44a4d87f"
+    },
+    {
+      "path": "var/qa/reversal-target-choice-audit-20261020/ordinary-opening-explorer/out-v4/Riftbound.CardCatalog.dll",
+      "bytes": 347136,
+      "sha256": "3fb0b058e357d01baff2063ef03833cfa3e40ae92a76f201d51b573e3f65934c"
+    },
+    {
+      "path": "var/qa/reversal-target-choice-audit-20261020/ordinary-opening-explorer/out-v4/Riftbound.CardCatalog.pdb",
+      "bytes": 68836,
+      "sha256": "83a9b10d6f074e02c78fc5022dad44ef7c85812588d83f4bf4569b348cae01b0"
+    },
+    {
+      "path": "var/qa/reversal-target-choice-audit-20261020/ordinary-opening-explorer/out-v4/Riftbound.Contracts.dll",
+      "bytes": 345088,
+      "sha256": "e6aec8c4db3c08174c2699d47faf8fb2d615b0f4c73c1662abc032dcca194baf"
+    },
+    {
+      "path": "var/qa/reversal-target-choice-audit-20261020/ordinary-opening-explorer/out-v4/Riftbound.Contracts.pdb",
+      "bytes": 57344,
+      "sha256": "38a3c0c68c67e2feed9c6242378f813bd60887f5dea4e35b10f8277ac7a67f98"
+    },
+    {
+      "path": "var/qa/reversal-target-choice-audit-20261020/ordinary-opening-explorer/out-v4/Riftbound.Engine.dll",
+      "bytes": 4719616,
+      "sha256": "8c348cbcb1723494291bee8c8ff253843716af2669a0da069ab961b90195da98"
+    },
+    {
+      "path": "var/qa/reversal-target-choice-audit-20261020/ordinary-opening-explorer/out-v4/Riftbound.Engine.pdb",
+      "bytes": 1021128,
+      "sha256": "f14e587abec3b71649e32e5b67ba1739f6cb61c98e897142cd6dcb290ae32964"
+    },
+    {
+      "path": "var/qa/reversal-target-choice-audit-20261020/ordinary-opening-explorer/out-v4/data/official/armaments.json",
+      "bytes": 11743,
+      "sha256": "ddcd838300e558c11df480ee79ccfab08c7af380df36544c666841720850bda8"
+    },
+    {
+      "path": "var/qa/reversal-target-choice-audit-20261020/ordinary-opening-explorer/out-v4/data/official/card-catalog.zh-CN.json",
+      "bytes": 1362891,
+      "sha256": "d521d7346392f2ea947c73c437c140d7bfe13a90cbca8642f7ae135b7b11f479"
+    },
+    {
+      "path": "var/qa/reversal-target-choice-audit-20261020/ordinary-opening-explorer/out-v4/data/official/rule-input-scope.json",
+      "bytes": 14749,
+      "sha256": "cc07cf3eef6a9af403454642a0435d061544400b5e01d08d3fdc65869bdad180"
+    },
+    {
+      "path": "var/qa/reversal-target-choice-audit-20261020/ordinary-opening-explorer/out-v6/ReversalOrdinaryOpeningExplorer",
+      "bytes": 124712,
+      "sha256": "69e7f9a8e4f19bed0013021804af96567ed7e3b41abd29613b4fa5a6830ec35e"
+    },
+    {
+      "path": "var/qa/reversal-target-choice-audit-20261020/ordinary-opening-explorer/out-v6/ReversalOrdinaryOpeningExplorer.deps.json",
+      "bytes": 1610,
+      "sha256": "93a351596f27260f62495ac4dff316c3f31b5c6dd90044cf2764ba1357d7d8d7"
+    },
+    {
+      "path": "var/qa/reversal-target-choice-audit-20261020/ordinary-opening-explorer/out-v6/ReversalOrdinaryOpeningExplorer.dll",
+      "bytes": 46080,
+      "sha256": "1ecf8d78086168dbe53c3c29e435b8ee71d8d3ce4819fa7c1e598917f024e118"
+    },
+    {
+      "path": "var/qa/reversal-target-choice-audit-20261020/ordinary-opening-explorer/out-v6/ReversalOrdinaryOpeningExplorer.pdb",
+      "bytes": 19244,
+      "sha256": "a66a2835a6e46e4f83a2937cc4d5703b330f71beb604b49fc51a7d297eea734b"
+    },
+    {
+      "path": "var/qa/reversal-target-choice-audit-20261020/ordinary-opening-explorer/out-v6/ReversalOrdinaryOpeningExplorer.runtimeconfig.json",
+      "bytes": 330,
+      "sha256": "9950d4583cfc9a106857c0d5b8a75b53e8774852b57b80bc3823a74d44a4d87f"
+    },
+    {
+      "path": "var/qa/reversal-target-choice-audit-20261020/ordinary-opening-explorer/out-v6/Riftbound.CardCatalog.dll",
+      "bytes": 347136,
+      "sha256": "3fb0b058e357d01baff2063ef03833cfa3e40ae92a76f201d51b573e3f65934c"
+    },
+    {
+      "path": "var/qa/reversal-target-choice-audit-20261020/ordinary-opening-explorer/out-v6/Riftbound.CardCatalog.pdb",
+      "bytes": 68836,
+      "sha256": "83a9b10d6f074e02c78fc5022dad44ef7c85812588d83f4bf4569b348cae01b0"
+    },
+    {
+      "path": "var/qa/reversal-target-choice-audit-20261020/ordinary-opening-explorer/out-v6/Riftbound.Contracts.dll",
+      "bytes": 345088,
+      "sha256": "e6aec8c4db3c08174c2699d47faf8fb2d615b0f4c73c1662abc032dcca194baf"
+    },
+    {
+      "path": "var/qa/reversal-target-choice-audit-20261020/ordinary-opening-explorer/out-v6/Riftbound.Contracts.pdb",
+      "bytes": 57344,
+      "sha256": "38a3c0c68c67e2feed9c6242378f813bd60887f5dea4e35b10f8277ac7a67f98"
+    },
+    {
+      "path": "var/qa/reversal-target-choice-audit-20261020/ordinary-opening-explorer/out-v6/Riftbound.Engine.dll",
+      "bytes": 4719616,
+      "sha256": "8c348cbcb1723494291bee8c8ff253843716af2669a0da069ab961b90195da98"
+    },
+    {
+      "path": "var/qa/reversal-target-choice-audit-20261020/ordinary-opening-explorer/out-v6/Riftbound.Engine.pdb",
+      "bytes": 1021128,
+      "sha256": "f14e587abec3b71649e32e5b67ba1739f6cb61c98e897142cd6dcb290ae32964"
+    },
+    {
+      "path": "var/qa/reversal-target-choice-audit-20261020/ordinary-opening-explorer/out-v6/data/official/armaments.json",
+      "bytes": 11743,
+      "sha256": "ddcd838300e558c11df480ee79ccfab08c7af380df36544c666841720850bda8"
+    },
+    {
+      "path": "var/qa/reversal-target-choice-audit-20261020/ordinary-opening-explorer/out-v6/data/official/card-catalog.zh-CN.json",
+      "bytes": 1362891,
+      "sha256": "d521d7346392f2ea947c73c437c140d7bfe13a90cbca8642f7ae135b7b11f479"
+    },
+    {
+      "path": "var/qa/reversal-target-choice-audit-20261020/ordinary-opening-explorer/out-v6/data/official/rule-input-scope.json",
+      "bytes": 14749,
+      "sha256": "cc07cf3eef6a9af403454642a0435d061544400b5e01d08d3fdc65869bdad180"
+    },
+    {
+      "path": "var/qa/reversal-target-choice-audit-20261020/ordinary-opening-explorer/out-v7/ReversalOrdinaryOpeningExplorer",
+      "bytes": 124712,
+      "sha256": "69e7f9a8e4f19bed0013021804af96567ed7e3b41abd29613b4fa5a6830ec35e"
+    },
+    {
+      "path": "var/qa/reversal-target-choice-audit-20261020/ordinary-opening-explorer/out-v7/ReversalOrdinaryOpeningExplorer.deps.json",
+      "bytes": 1610,
+      "sha256": "93a351596f27260f62495ac4dff316c3f31b5c6dd90044cf2764ba1357d7d8d7"
+    },
+    {
+      "path": "var/qa/reversal-target-choice-audit-20261020/ordinary-opening-explorer/out-v7/ReversalOrdinaryOpeningExplorer.dll",
+      "bytes": 46592,
+      "sha256": "a14a73fce845cf5e8b6400bc51ccce229c97cbfa6b7da19487201c02335b0906"
+    },
+    {
+      "path": "var/qa/reversal-target-choice-audit-20261020/ordinary-opening-explorer/out-v7/ReversalOrdinaryOpeningExplorer.pdb",
+      "bytes": 19476,
+      "sha256": "b9994c8685dda676fc3019c7b60e1d678c4bed58bec07ae7e9e9daf40e5bdcf2"
+    },
+    {
+      "path": "var/qa/reversal-target-choice-audit-20261020/ordinary-opening-explorer/out-v7/ReversalOrdinaryOpeningExplorer.runtimeconfig.json",
+      "bytes": 330,
+      "sha256": "9950d4583cfc9a106857c0d5b8a75b53e8774852b57b80bc3823a74d44a4d87f"
+    },
+    {
+      "path": "var/qa/reversal-target-choice-audit-20261020/ordinary-opening-explorer/out-v7/Riftbound.CardCatalog.dll",
+      "bytes": 347136,
+      "sha256": "3fb0b058e357d01baff2063ef03833cfa3e40ae92a76f201d51b573e3f65934c"
+    },
+    {
+      "path": "var/qa/reversal-target-choice-audit-20261020/ordinary-opening-explorer/out-v7/Riftbound.CardCatalog.pdb",
+      "bytes": 68836,
+      "sha256": "83a9b10d6f074e02c78fc5022dad44ef7c85812588d83f4bf4569b348cae01b0"
+    },
+    {
+      "path": "var/qa/reversal-target-choice-audit-20261020/ordinary-opening-explorer/out-v7/Riftbound.Contracts.dll",
+      "bytes": 345088,
+      "sha256": "e6aec8c4db3c08174c2699d47faf8fb2d615b0f4c73c1662abc032dcca194baf"
+    },
+    {
+      "path": "var/qa/reversal-target-choice-audit-20261020/ordinary-opening-explorer/out-v7/Riftbound.Contracts.pdb",
+      "bytes": 57344,
+      "sha256": "38a3c0c68c67e2feed9c6242378f813bd60887f5dea4e35b10f8277ac7a67f98"
+    },
+    {
+      "path": "var/qa/reversal-target-choice-audit-20261020/ordinary-opening-explorer/out-v7/Riftbound.Engine.dll",
+      "bytes": 4719616,
+      "sha256": "8c348cbcb1723494291bee8c8ff253843716af2669a0da069ab961b90195da98"
+    },
+    {
+      "path": "var/qa/reversal-target-choice-audit-20261020/ordinary-opening-explorer/out-v7/Riftbound.Engine.pdb",
+      "bytes": 1021128,
+      "sha256": "f14e587abec3b71649e32e5b67ba1739f6cb61c98e897142cd6dcb290ae32964"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/native-current-reader-v3/obj/Release/net10.0/.NETCoreApp,Version=v10.0.AssemblyAttributes.cs",
+      "bytes": 196,
+      "sha256": "f79c1ad9a9fc76110b3655f5bfb5ff4e3168e9addceff05b937c0796f0ec34eb"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/native-current-reader-v3/obj/Release/net10.0/Fixed43NativePaymentReadback.dll",
+      "bytes": 38400,
+      "sha256": "e33fa4ec7f3e072a016a03cbea2497194dd2b496ac7f9095dab9c108c7af84fd"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/native-current-reader-v3/obj/Release/net10.0/Fixed43NativePaymentReadback.pdb",
+      "bytes": 18200,
+      "sha256": "5c18b84968979e0758db67dddb9547570ff790b61c511c4de3ebc8f277383d6d"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/native-current-reader-v3/obj/Release/net10.0/apphost",
+      "bytes": 124712,
+      "sha256": "dabe01e2bc4632b1f09539ce84a4b006309ff7b599325220727b08a0718a3293"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/native-current-reader-v3/obj/Release/net10.0/probe.AssemblyInfo.cs",
+      "bytes": 1038,
+      "sha256": "8c31f736445a664a0df18cf43f8f3bd9afc5efccb2b848c35c76e342c6c0c5a9"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/native-current-reader-v3/obj/Release/net10.0/probe.AssemblyInfoInputs.cache",
+      "bytes": 65,
+      "sha256": "383aa8453eb512f709133711717b754766d820d3ba79d4991d541c9b55f71407"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/native-current-reader-v3/obj/Release/net10.0/probe.GeneratedMSBuildEditorConfig.editorconfig",
+      "bytes": 885,
+      "sha256": "0de89e5885352b8be5450754a8af3be8ac98dcea0b1786318923ff630be8a367"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/native-current-reader-v3/obj/Release/net10.0/probe.GlobalUsings.g.cs",
+      "bytes": 231,
+      "sha256": "8f86a2cbf00ff3eee0bda2bc0eb5e1fc19c8544d5dc650c53d0132325956b592"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/native-current-reader-v3/obj/Release/net10.0/probe.assets.cache",
+      "bytes": 155,
+      "sha256": "ced880b65fff9e26b1a09441f7a21bea506184543e474ef3c5e96982619017b8"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/native-current-reader-v3/obj/Release/net10.0/probe.csproj.AssemblyReference.cache",
+      "bytes": 7996,
+      "sha256": "34b49b7f6b3ad33c51337555be39ae813226a43c9b81d4ba244ff02f6e537853"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/native-current-reader-v3/obj/Release/net10.0/probe.csproj.CoreCompileInputs.cache",
+      "bytes": 65,
+      "sha256": "70d508fa0ad941c2ce89ea64c7bdc4e26519d92e47268d9488fb026113b251ba"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/native-current-reader-v3/obj/Release/net10.0/probe.csproj.FileListAbsolute.txt",
+      "bytes": 2775,
+      "sha256": "1c93a7a07e129e481e739acc3f3490c080a7edb728f2954860c9185353d22da1"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/native-current-reader-v3/obj/Release/net10.0/probe.genruntimeconfig.cache",
+      "bytes": 65,
+      "sha256": "6f8279b2d31b5ffc86e3e14a6a93b21a8a7953961a971898210aabc15ac554cf"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/native-current-reader-v3/obj/Release/net10.0/probe.sourcelink.json",
+      "bytes": 157,
+      "sha256": "0f72bdc4a2ab07a0c70703c6b80173267317d66b5c8ec336e3180960908ad738"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/native-current-reader-v3/obj/Release/net10.0/ref/Fixed43NativePaymentReadback.dll",
+      "bytes": 12288,
+      "sha256": "4021e7902aa77bac724c1c3d1c0e6704f55118fbb70f4f1e3e6d2cc5b07a9ad1"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/native-current-reader-v3/obj/Release/net10.0/refint/Fixed43NativePaymentReadback.dll",
+      "bytes": 12288,
+      "sha256": "4021e7902aa77bac724c1c3d1c0e6704f55118fbb70f4f1e3e6d2cc5b07a9ad1"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/native-current-reader-v3/obj/probe.csproj.nuget.dgspec.json",
+      "bytes": 21512,
+      "sha256": "a4de0066d3fa7eaabea1a328c652e7d8a8839f0f30c4b8dcc834fdcbee6189d2"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/native-current-reader-v3/obj/probe.csproj.nuget.g.props",
+      "bytes": 1130,
+      "sha256": "fc3164a419c5b2121a87fb47d38735c1397640d10e208c775a65a02edd6e231e"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/native-current-reader-v3/obj/probe.csproj.nuget.g.targets",
+      "bytes": 149,
+      "sha256": "b14461e0cb1be3f77fcf9fe2fdd62889325ca92523d0f606980ed59eb5c4aa1c"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/native-current-reader-v3/obj/project.assets.json",
+      "bytes": 20712,
+      "sha256": "4addfc2fa92c335b14a608e015169c95ca88eb3f19c8cb00becf137622389a1d"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/native-current-reader-v3/obj/project.nuget.cache",
+      "bytes": 274,
+      "sha256": "14e8f4fabc898290d7a07a747e1e42d521e10ba1a080028d8a74966e7784b562"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/reversal-readonly-red-repro/obj/Release/net10.0/.NETCoreApp,Version=v10.0.AssemblyAttributes.cs",
+      "bytes": 196,
+      "sha256": "f79c1ad9a9fc76110b3655f5bfb5ff4e3168e9addceff05b937c0796f0ec34eb"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/reversal-readonly-red-repro/obj/Release/net10.0/Fixed43ReversalReadOnlyRepro.dll",
+      "bytes": 30720,
+      "sha256": "534607b9d6b09d53ed1325e489d219b3878879114fa2898916fe1d4bce236b0e"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/reversal-readonly-red-repro/obj/Release/net10.0/Fixed43ReversalReadOnlyRepro.pdb",
+      "bytes": 15668,
+      "sha256": "8f0ab3d17909dbe5b76924996179afc813b343bd2cdabe562985e72f74dd9313"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/reversal-readonly-red-repro/obj/Release/net10.0/apphost",
+      "bytes": 124712,
+      "sha256": "feb16790946c3ae3be8a4e710de7929d2b1adbc8e22534ea19fade521b0f47fb"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/reversal-readonly-red-repro/obj/Release/net10.0/probe.AssemblyInfo.cs",
+      "bytes": 1038,
+      "sha256": "ab8d27e730dce36150a69f21a3e411af1f055134a434e299c3ff9cec82180e75"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/reversal-readonly-red-repro/obj/Release/net10.0/probe.AssemblyInfoInputs.cache",
+      "bytes": 65,
+      "sha256": "9cfa247125bd474bfa88cfd38a9f393aa039cea997ac180090566696eefd3492"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/reversal-readonly-red-repro/obj/Release/net10.0/probe.GeneratedMSBuildEditorConfig.editorconfig",
+      "bytes": 888,
+      "sha256": "e619b59586d298c4445771d9cccbc50caeb6c955c37ac4604d6421b9dbee4ddc"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/reversal-readonly-red-repro/obj/Release/net10.0/probe.GlobalUsings.g.cs",
+      "bytes": 231,
+      "sha256": "8f86a2cbf00ff3eee0bda2bc0eb5e1fc19c8544d5dc650c53d0132325956b592"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/reversal-readonly-red-repro/obj/Release/net10.0/probe.assets.cache",
+      "bytes": 155,
+      "sha256": "2eb4353cef6d375b8301805c748e6d5b1666e50433aa63ca7a49da5c7a781b1a"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/reversal-readonly-red-repro/obj/Release/net10.0/probe.csproj.AssemblyReference.cache",
+      "bytes": 3296,
+      "sha256": "59a879fb4885c1dea38bdbac20ce3080f0976225c70724e5a64ad774d45c9fe8"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/reversal-readonly-red-repro/obj/Release/net10.0/probe.csproj.CoreCompileInputs.cache",
+      "bytes": 65,
+      "sha256": "f8072a59f9558b9524953b90984ab234adf53cc0a0fbf12332ac6bf302d45646"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/reversal-readonly-red-repro/obj/Release/net10.0/probe.csproj.FileListAbsolute.txt",
+      "bytes": 4527,
+      "sha256": "7123742ad826bb9b7d3ac943e574acd1842a8d98b7d28274e1bf33c858a51c5b"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/reversal-readonly-red-repro/obj/Release/net10.0/probe.genruntimeconfig.cache",
+      "bytes": 65,
+      "sha256": "101b867bbd83a0fbf4ea8ba9843d7724e237cc11ca8e686d9973bf9d6724ce46"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/reversal-readonly-red-repro/obj/Release/net10.0/probe.sourcelink.json",
+      "bytes": 157,
+      "sha256": "0f72bdc4a2ab07a0c70703c6b80173267317d66b5c8ec336e3180960908ad738"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/reversal-readonly-red-repro/obj/Release/net10.0/ref/Fixed43ReversalReadOnlyRepro.dll",
+      "bytes": 11776,
+      "sha256": "d5777e1449d798c08c448c0b53baecb53903e36e476ae1662612882ac79925cf"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/reversal-readonly-red-repro/obj/Release/net10.0/refint/Fixed43ReversalReadOnlyRepro.dll",
+      "bytes": 11776,
+      "sha256": "d5777e1449d798c08c448c0b53baecb53903e36e476ae1662612882ac79925cf"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/reversal-readonly-red-repro/obj/probe.csproj.nuget.dgspec.json",
+      "bytes": 21527,
+      "sha256": "e54025c68a3a5dffa6ead485cdb0b96ecb7bc246ce1843353d98c03178a7c00d"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/reversal-readonly-red-repro/obj/probe.csproj.nuget.g.props",
+      "bytes": 1130,
+      "sha256": "fc3164a419c5b2121a87fb47d38735c1397640d10e208c775a65a02edd6e231e"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/reversal-readonly-red-repro/obj/probe.csproj.nuget.g.targets",
+      "bytes": 149,
+      "sha256": "b14461e0cb1be3f77fcf9fe2fdd62889325ca92523d0f606980ed59eb5c4aa1c"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/reversal-readonly-red-repro/obj/project.assets.json",
+      "bytes": 20721,
+      "sha256": "fc86897ca63e26786d70ade0a3d975312d66e01dcf92b3792faf52d271b4f2cb"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/reversal-readonly-red-repro/obj/project.nuget.cache",
+      "bytes": 277,
+      "sha256": "f02176fa1827a618ff48931d1c7e2fd28054ff7ac149f914e46dcbd4c85e70a5"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/finite-stack-consumer-map/obj/Release/net10.0/.NETCoreApp,Version=v10.0.AssemblyAttributes.cs",
+      "bytes": 196,
+      "sha256": "f79c1ad9a9fc76110b3655f5bfb5ff4e3168e9addceff05b937c0796f0ec34eb"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/finite-stack-consumer-map/obj/Release/net10.0/Fixed43StackConsumerMap.dll",
+      "bytes": 15872,
+      "sha256": "4657b5ca2f4ff7ef16fe056b6f61577e90052458d46572e778cd217da0390ff4"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/finite-stack-consumer-map/obj/Release/net10.0/Fixed43StackConsumerMap.pdb",
+      "bytes": 12956,
+      "sha256": "6b7d17f37bf0d81073ac6a17cef2c20274c528d9b9839577e15222369613904a"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/finite-stack-consumer-map/obj/Release/net10.0/apphost",
+      "bytes": 124712,
+      "sha256": "7290099e72043216e04c7e0662219d99d5c1181adf162aac27488a70766b7c63"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/finite-stack-consumer-map/obj/Release/net10.0/probe.AssemblyInfo.cs",
+      "bytes": 1023,
+      "sha256": "636737f35c716912eed829801df1fe4871462b5c9052507953d819276f9b7727"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/finite-stack-consumer-map/obj/Release/net10.0/probe.AssemblyInfoInputs.cache",
+      "bytes": 65,
+      "sha256": "e0164b9afcb75aa5b63144c9985c06a49bd4b91808b9750a8c3c39b5ab13fdd7"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/finite-stack-consumer-map/obj/Release/net10.0/probe.GeneratedMSBuildEditorConfig.editorconfig",
+      "bytes": 886,
+      "sha256": "b29089e4d03c533d1316b4b1faacc43c5cea6f5509e4dd30a7687f6fe17faf1d"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/finite-stack-consumer-map/obj/Release/net10.0/probe.GlobalUsings.g.cs",
+      "bytes": 231,
+      "sha256": "8f86a2cbf00ff3eee0bda2bc0eb5e1fc19c8544d5dc650c53d0132325956b592"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/finite-stack-consumer-map/obj/Release/net10.0/probe.assets.cache",
+      "bytes": 155,
+      "sha256": "79e362e6cef7f6c0b9283892484acacfe0ac7ae0d62f95794646a7d4fe61397a"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/finite-stack-consumer-map/obj/Release/net10.0/probe.csproj.AssemblyReference.cache",
+      "bytes": 3209,
+      "sha256": "768235a81d01dfca08f1585d492fd8dca437ca7a4c31a7c9bdf90a5def61af28"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/finite-stack-consumer-map/obj/Release/net10.0/probe.csproj.CoreCompileInputs.cache",
+      "bytes": 65,
+      "sha256": "a79ad7cd15c88b91db11cbfa3af549a0e9309b9240994fd9afaceab5c64111e1"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/finite-stack-consumer-map/obj/Release/net10.0/probe.csproj.FileListAbsolute.txt",
+      "bytes": 2746,
+      "sha256": "3e8c51dbdcb0ccc0025d25a8f480dc10369b9cb6cc8ba070deedc7d9c91c8e78"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/finite-stack-consumer-map/obj/Release/net10.0/probe.genruntimeconfig.cache",
+      "bytes": 65,
+      "sha256": "8fcc181e8e3eb5d52b3824f01893710f383b66e26c9bf3f3f5c434248465cc59"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/finite-stack-consumer-map/obj/Release/net10.0/probe.sourcelink.json",
+      "bytes": 157,
+      "sha256": "0f72bdc4a2ab07a0c70703c6b80173267317d66b5c8ec336e3180960908ad738"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/finite-stack-consumer-map/obj/Release/net10.0/ref/Fixed43StackConsumerMap.dll",
+      "bytes": 6144,
+      "sha256": "55cdd25585f47a6f2fb9d28935c060378c76a538b8be7e29e2fdbbf92c1f8396"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/finite-stack-consumer-map/obj/Release/net10.0/refint/Fixed43StackConsumerMap.dll",
+      "bytes": 6144,
+      "sha256": "55cdd25585f47a6f2fb9d28935c060378c76a538b8be7e29e2fdbbf92c1f8396"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/finite-stack-consumer-map/obj/probe.csproj.nuget.dgspec.json",
+      "bytes": 21512,
+      "sha256": "f66b0c1d0765919334d325cbee3aa222eee8e28f1b0a80b2d2cd6ff2b28c88f9"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/finite-stack-consumer-map/obj/probe.csproj.nuget.g.props",
+      "bytes": 1130,
+      "sha256": "fc3164a419c5b2121a87fb47d38735c1397640d10e208c775a65a02edd6e231e"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/finite-stack-consumer-map/obj/probe.csproj.nuget.g.targets",
+      "bytes": 149,
+      "sha256": "b14461e0cb1be3f77fcf9fe2fdd62889325ca92523d0f606980ed59eb5c4aa1c"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/finite-stack-consumer-map/obj/project.assets.json",
+      "bytes": 20710,
+      "sha256": "a38b39cd08d9aabc060b53d894f4473ec00356020aadbbd4846585cab02041e8"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/finite-stack-consumer-map/obj/project.nuget.cache",
+      "bytes": 275,
+      "sha256": "2ea1e22e0dfb4ad414c5210adfae62b50ce5a03634e6a23b18df3ad4a3ff8ac5"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/native-normal-score-reader-v4/obj/Release/net10.0/.NETCoreApp,Version=v10.0.AssemblyAttributes.cs",
+      "bytes": 196,
+      "sha256": "f79c1ad9a9fc76110b3655f5bfb5ff4e3168e9addceff05b937c0796f0ec34eb"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/native-normal-score-reader-v4/obj/Release/net10.0/Fixed43NativeNormalScoreReadback.dll",
+      "bytes": 45568,
+      "sha256": "268c164a68d76f70ed938c1603cd5a3be1dcf2166c97fa1fff4834fb76443f29"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/native-normal-score-reader-v4/obj/Release/net10.0/Fixed43NativeNormalScoreReadback.pdb",
+      "bytes": 19684,
+      "sha256": "e7e06cddf2f1ee9d5a2be3701272cc9dbd7afff3acef8dee8133399c08cedc47"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/native-normal-score-reader-v4/obj/Release/net10.0/apphost",
+      "bytes": 124712,
+      "sha256": "2e5e2c5b12f07efda41b17f1d8dda91a60c31dfded03475018e55b8922d03602"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/native-normal-score-reader-v4/obj/Release/net10.0/probe.AssemblyInfo.cs",
+      "bytes": 1050,
+      "sha256": "0489f64bb78951fbf7be8609e45422d402e8a845f41bf80a9d78f41176419e63"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/native-normal-score-reader-v4/obj/Release/net10.0/probe.AssemblyInfoInputs.cache",
+      "bytes": 65,
+      "sha256": "39ca8c32a9e58b0099b999adccf4e4569177b43aaf2f90a45a04da091aad1915"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/native-normal-score-reader-v4/obj/Release/net10.0/probe.GeneratedMSBuildEditorConfig.editorconfig",
+      "bytes": 890,
+      "sha256": "76d7976b48ee4a802bbd35f9921854c1cea5a7479cbdcb2991b8c42f0cf44121"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/native-normal-score-reader-v4/obj/Release/net10.0/probe.GlobalUsings.g.cs",
+      "bytes": 231,
+      "sha256": "8f86a2cbf00ff3eee0bda2bc0eb5e1fc19c8544d5dc650c53d0132325956b592"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/native-normal-score-reader-v4/obj/Release/net10.0/probe.assets.cache",
+      "bytes": 155,
+      "sha256": "8eccca32029052db541d2b716d8dca7c7cb7ae25b96fdd491694fc6fc098791a"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/native-normal-score-reader-v4/obj/Release/net10.0/probe.csproj.AssemblyReference.cache",
+      "bytes": 7996,
+      "sha256": "34b49b7f6b3ad33c51337555be39ae813226a43c9b81d4ba244ff02f6e537853"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/native-normal-score-reader-v4/obj/Release/net10.0/probe.csproj.CoreCompileInputs.cache",
+      "bytes": 65,
+      "sha256": "70d508fa0ad941c2ce89ea64c7bdc4e26519d92e47268d9488fb026113b251ba"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/native-normal-score-reader-v4/obj/Release/net10.0/probe.csproj.FileListAbsolute.txt",
+      "bytes": 2891,
+      "sha256": "c4bb2a7a6fefa93f09dbf97a78d5a2c038d4a53498f4af39568e4401a214d534"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/native-normal-score-reader-v4/obj/Release/net10.0/probe.genruntimeconfig.cache",
+      "bytes": 65,
+      "sha256": "1c3d6db5b3081850d0f4a2151a7a450bbc253a4d9af20cac7a14240b2643d5c6"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/native-normal-score-reader-v4/obj/Release/net10.0/probe.sourcelink.json",
+      "bytes": 157,
+      "sha256": "0f72bdc4a2ab07a0c70703c6b80173267317d66b5c8ec336e3180960908ad738"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/native-normal-score-reader-v4/obj/Release/net10.0/ref/Fixed43NativeNormalScoreReadback.dll",
+      "bytes": 12800,
+      "sha256": "8c518cb5cdaed97775ab8a3fbd7d3a3ce289faba2070a18454f8e63c83e32984"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/native-normal-score-reader-v4/obj/Release/net10.0/refint/Fixed43NativeNormalScoreReadback.dll",
+      "bytes": 12800,
+      "sha256": "8c518cb5cdaed97775ab8a3fbd7d3a3ce289faba2070a18454f8e63c83e32984"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/native-normal-score-reader-v4/obj/probe.csproj.nuget.dgspec.json",
+      "bytes": 21541,
+      "sha256": "7a05983807a9387b56d7b1743a7d17901869debd0a57a3345c1aee88ba9b9177"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/native-normal-score-reader-v4/obj/probe.csproj.nuget.g.props",
+      "bytes": 1130,
+      "sha256": "fc3164a419c5b2121a87fb47d38735c1397640d10e208c775a65a02edd6e231e"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/native-normal-score-reader-v4/obj/probe.csproj.nuget.g.targets",
+      "bytes": 149,
+      "sha256": "b14461e0cb1be3f77fcf9fe2fdd62889325ca92523d0f606980ed59eb5c4aa1c"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/native-normal-score-reader-v4/obj/project.assets.json",
+      "bytes": 20731,
+      "sha256": "2bd1093ddc34562da47b089fb47e669e7cdf98c4e3bd8a822b1711195d985037"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/native-normal-score-reader-v4/obj/project.nuget.cache",
+      "bytes": 279,
+      "sha256": "936c279377f70a4614d845d36a9cf96dd8e5cee01bcb17dcf0ed64916fd24487"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/native-payment-prefix-source/obj/Release/net10.0/.NETCoreApp,Version=v10.0.AssemblyAttributes.cs",
+      "bytes": 196,
+      "sha256": "f79c1ad9a9fc76110b3655f5bfb5ff4e3168e9addceff05b937c0796f0ec34eb"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/native-payment-prefix-source/obj/Release/net10.0/Fixed43NativePaymentPrefix.dll",
+      "bytes": 50688,
+      "sha256": "39813f5662ec369f96b465af1598fffc149a0fc1ca642545276f3f92aaaa83e3"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/native-payment-prefix-source/obj/Release/net10.0/Fixed43NativePaymentPrefix.pdb",
+      "bytes": 24412,
+      "sha256": "f724f3acf0e53c773baadf3316e40b423564b385d92d73b38faa24ec91d5bf79"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/native-payment-prefix-source/obj/Release/net10.0/apphost",
+      "bytes": 124712,
+      "sha256": "bab257c1b8394e3f954b29ae756d3e0dd3bb61d8ad6ea5557c33eb7b74c68887"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/native-payment-prefix-source/obj/Release/net10.0/probe.AssemblyInfo.cs",
+      "bytes": 1032,
+      "sha256": "ad7f251732c809e79b0c64729a68377c7dfc1c861213753c719ac0660a8b6cf5"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/native-payment-prefix-source/obj/Release/net10.0/probe.AssemblyInfoInputs.cache",
+      "bytes": 65,
+      "sha256": "01ada64747f29d3489e080029c93d7838b33233bae9746d52108c63f353c55a1"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/native-payment-prefix-source/obj/Release/net10.0/probe.GeneratedMSBuildEditorConfig.editorconfig",
+      "bytes": 889,
+      "sha256": "8873c4edff771c7fd8899c2d985ed168c5ea11deae886a50f38e73bd248e3f99"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/native-payment-prefix-source/obj/Release/net10.0/probe.GlobalUsings.g.cs",
+      "bytes": 231,
+      "sha256": "8f86a2cbf00ff3eee0bda2bc0eb5e1fc19c8544d5dc650c53d0132325956b592"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/native-payment-prefix-source/obj/Release/net10.0/probe.assets.cache",
+      "bytes": 155,
+      "sha256": "c2f4e881c3fe8ee5e107c12b4e6542b3c927747f602b8e261d1496dfb2f1704e"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/native-payment-prefix-source/obj/Release/net10.0/probe.csproj.AssemblyReference.cache",
+      "bytes": 21896,
+      "sha256": "1a4edb5bd4490e35d5cac421ffe5bf6973b348fdf75a6ea5645528605a5d6716"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/native-payment-prefix-source/obj/Release/net10.0/probe.csproj.CoreCompileInputs.cache",
+      "bytes": 65,
+      "sha256": "35411a2b0da630067bfafcf393c66a071dfe30507cbb7d0311414ab403e5c77b"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/native-payment-prefix-source/obj/Release/net10.0/probe.csproj.FileListAbsolute.txt",
+      "bytes": 3099,
+      "sha256": "fdb4f3ddbea36ea3b517ffa049bbf766f4357b8cb514bef1fa9c989850a2d0c1"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/native-payment-prefix-source/obj/Release/net10.0/probe.csproj.Up2Date",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/native-payment-prefix-source/obj/Release/net10.0/probe.genruntimeconfig.cache",
+      "bytes": 65,
+      "sha256": "802a642b21148f433801c35a5ee902943df4cf538495aa154b43429bb856a47e"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/native-payment-prefix-source/obj/Release/net10.0/probe.sourcelink.json",
+      "bytes": 157,
+      "sha256": "0f72bdc4a2ab07a0c70703c6b80173267317d66b5c8ec336e3180960908ad738"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/native-payment-prefix-source/obj/Release/net10.0/ref/Fixed43NativePaymentPrefix.dll",
+      "bytes": 12800,
+      "sha256": "1699d6687a5e134e5454ddf5a4e7c6429677a6b31ec4445f6a3880ccade5c285"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/native-payment-prefix-source/obj/Release/net10.0/refint/Fixed43NativePaymentPrefix.dll",
+      "bytes": 12800,
+      "sha256": "1699d6687a5e134e5454ddf5a4e7c6429677a6b31ec4445f6a3880ccade5c285"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/native-payment-prefix-source/obj/probe.csproj.nuget.dgspec.json",
+      "bytes": 21530,
+      "sha256": "5dc6843d55026d07ea23721a3aa40b46fa7be67795a67c9d7223ae0ff1944e0d"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/native-payment-prefix-source/obj/probe.csproj.nuget.g.props",
+      "bytes": 1130,
+      "sha256": "fc3164a419c5b2121a87fb47d38735c1397640d10e208c775a65a02edd6e231e"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/native-payment-prefix-source/obj/probe.csproj.nuget.g.targets",
+      "bytes": 149,
+      "sha256": "b14461e0cb1be3f77fcf9fe2fdd62889325ca92523d0f606980ed59eb5c4aa1c"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/native-payment-prefix-source/obj/project.assets.json",
+      "bytes": 20722,
+      "sha256": "812dac4c2c6cf7ae07dd038340f26ae44df76493aa18b404a3b9bd31122fefeb"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/native-payment-prefix-source/obj/project.nuget.cache",
+      "bytes": 278,
+      "sha256": "123335dbb9659f8fd7a46a205792217b1699ca7fb7ba086eebb9a27f27cc8474"
+    }
+  ],
+  "logicalBytes": 40602428,
+  "scopeExcludes": "Root source/tests/evidence/private profiles/database/current native pair/installers/current SQL runtime",
+  "completedAtUtc": "2026-10-20T11:34:45.200815+00:00",
+  "actualFreeByteIncrease": 1474560,
+  "latestUsableHelperRetained": true,
+  "allNamedFoldersRemoved": true
+}

@@ -1,0 +1,81 @@
+{
+  "startedAtUtc": "2026-10-20T10:38:39.935161+00:00",
+  "region": "CN",
+  "language": "zh-CN",
+  "wholePrintingCertified": false,
+  "records": [
+    {
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "幻梦之树",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "requestedAtUtc": "2026-10-20T10:38:39.935786+00:00",
+      "receivedAtUtc": "2026-10-20T10:38:40.048973+00:00",
+      "httpStatus": 200,
+      "httpDate": "Tue, 20 Oct 2026 10:38:40 GMT",
+      "sha256": "d90db31063c561cb5cf4286280ddb92a83e0f6a217c6c1342e8711d341e8185f",
+      "bytes": 1273,
+      "exactPrinting": "OGN·292/298",
+      "wholeExactApiRowUnchanged": true,
+      "exactApiId": 31537
+    },
+    {
+      "url": "https://cdn.playloltcg.com/lol/card/20260331/63bf82886586472897b002178ea1c3c4.png",
+      "httpStatus": 200,
+      "httpDate": "Mon, 17 Aug 2026 14:26:50 GMT",
+      "receivedAtUtc": "2026-10-20T10:38:40.663779+00:00",
+      "sha256": "f05f1bd4884087565fc05c25b0fec36c274ff2d66ca9cc48068195868c6f61aa",
+      "bytes": 586816
+    },
+    {
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "灵魂折镜",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "requestedAtUtc": "2026-10-20T10:38:40.665281+00:00",
+      "receivedAtUtc": "2026-10-20T10:38:40.789004+00:00",
+      "httpStatus": 200,
+      "httpDate": "Tue, 20 Oct 2026 10:38:40 GMT",
+      "sha256": "a03301947977444469187c0996d0de9daf6b7ad8bd18ce72406324a5bea12938",
+      "bytes": 1336,
+      "exactPrinting": "VEN·152",
+      "wholeExactApiRowUnchanged": true,
+      "exactApiId": 37855
+    },
+    {
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "“敲”诈",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "requestedAtUtc": "2026-10-20T10:38:40.789853+00:00",
+      "receivedAtUtc": "2026-10-20T10:38:40.911321+00:00",
+      "httpStatus": 200,
+      "httpDate": "Tue, 20 Oct 2026 10:38:40 GMT",
+      "sha256": "6f47fd0c5ad69c0a274973eb0f00cc6f6f34f0d52912d511f4a87504fabed596",
+      "bytes": 1346,
+      "exactPrinting": "OGN·095/298",
+      "wholeExactApiRowUnchanged": true,
+      "exactApiId": 31313
+    }
+  ],
+  "finishedAtUtc": "2026-10-20T10:38:40.912330+00:00",
+  "status": "PASS_THREE_EXACT_ADJACENT_API_ROWS_UNCHANGED_DREAMTREE_FACE_AWAITING_VISUAL_REVIEW"
+}

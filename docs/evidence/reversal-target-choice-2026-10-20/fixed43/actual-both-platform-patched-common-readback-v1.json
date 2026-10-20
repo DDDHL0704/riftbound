@@ -1,0 +1,70 @@
+{
+  "atUtc": "2026-10-20T09:35:57.408856+00:00",
+  "fixedCommit": "43d5b84e867eb09ca0570ed8774832ce70b04d87",
+  "runId": 39397913669,
+  "bothPlatformsActualCommonSha256": "550058f27f5577e20184a0e0d198c90c87079b45dffab170423f6fe030c0687d",
+  "actualBothLocalAppsBothMacArchitectureCommonMatchesSamePatchedBytes": true,
+  "actualCommonInformationalVersionFromIndependentlyObservedIdenticalBytes": "8.0.32+7413d24330774263a78a4f3837ca53493518455a",
+  "independentOriginalSameByteAssemblyObserverSha256": "07f7bf5acb5eff0be633e3cbb49cd70f5cbd355959469d27608bae426ef2b98c",
+  "records": [
+    {
+      "platform": "mac",
+      "actualArchitecturePayloadDirectory": "\u7b26\u6587\u6218\u573a.app/Contents/Resources/data_Riftbound.GodotClient_macos_x86_64",
+      "actualCommonSha256": "550058f27f5577e20184a0e0d198c90c87079b45dffab170423f6fe030c0687d",
+      "allFourActualClientFamilyAssemblyHashes": {
+        "Microsoft.AspNetCore.SignalR.Client.Core": "feaa6dbd94bb63e1dcdfa9013032f6fcf7133bf8457c69b4bef24fc9537ab544",
+        "Microsoft.AspNetCore.SignalR.Common": "550058f27f5577e20184a0e0d198c90c87079b45dffab170423f6fe030c0687d",
+        "Microsoft.AspNetCore.SignalR.Client": "85b7b98f638a0e1d021b8d99ea4f1411dc9cb0bbc9aa3b90476abde58004e8ee",
+        "Microsoft.AspNetCore.SignalR.Protocols.Json": "337bd529119666700dcbfceb2395ef28d25f3735e52cb2e513e600a2fcf1ffb7"
+      },
+      "actualAllFourDepsLibraries": [
+        "Microsoft.AspNetCore.SignalR.Client/8.0.32",
+        "Microsoft.AspNetCore.SignalR.Client.Core/8.0.32",
+        "Microsoft.AspNetCore.SignalR.Common/8.0.32",
+        "Microsoft.AspNetCore.SignalR.Protocols.Json/8.0.32"
+      ],
+      "depsSha256": "b61a3dfa7d63a088a077a2875ef072bea66dd7e0a449bc38ca64284740a4daae",
+      "entireOuterAndInnerCrcVerified": true
+    },
+    {
+      "platform": "mac",
+      "actualArchitecturePayloadDirectory": "\u7b26\u6587\u6218\u573a.app/Contents/Resources/data_Riftbound.GodotClient_macos_arm64",
+      "actualCommonSha256": "550058f27f5577e20184a0e0d198c90c87079b45dffab170423f6fe030c0687d",
+      "allFourActualClientFamilyAssemblyHashes": {
+        "Microsoft.AspNetCore.SignalR.Client.Core": "feaa6dbd94bb63e1dcdfa9013032f6fcf7133bf8457c69b4bef24fc9537ab544",
+        "Microsoft.AspNetCore.SignalR.Common": "550058f27f5577e20184a0e0d198c90c87079b45dffab170423f6fe030c0687d",
+        "Microsoft.AspNetCore.SignalR.Client": "85b7b98f638a0e1d021b8d99ea4f1411dc9cb0bbc9aa3b90476abde58004e8ee",
+        "Microsoft.AspNetCore.SignalR.Protocols.Json": "337bd529119666700dcbfceb2395ef28d25f3735e52cb2e513e600a2fcf1ffb7"
+      },
+      "actualAllFourDepsLibraries": [
+        "Microsoft.AspNetCore.SignalR.Client/8.0.32",
+        "Microsoft.AspNetCore.SignalR.Client.Core/8.0.32",
+        "Microsoft.AspNetCore.SignalR.Common/8.0.32",
+        "Microsoft.AspNetCore.SignalR.Protocols.Json/8.0.32"
+      ],
+      "depsSha256": "5ff535949fd334d4c6dbb13bb6caad8611d4608ae0772d09b4e00eb03b8f561a",
+      "entireOuterAndInnerCrcVerified": true
+    },
+    {
+      "platform": "windows",
+      "actualArchitecturePayloadDirectory": "data_Riftbound.GodotClient_windows_x86_64",
+      "actualCommonSha256": "550058f27f5577e20184a0e0d198c90c87079b45dffab170423f6fe030c0687d",
+      "allFourActualClientFamilyAssemblyHashes": {
+        "Microsoft.AspNetCore.SignalR.Client.Core": "feaa6dbd94bb63e1dcdfa9013032f6fcf7133bf8457c69b4bef24fc9537ab544",
+        "Microsoft.AspNetCore.SignalR.Common": "550058f27f5577e20184a0e0d198c90c87079b45dffab170423f6fe030c0687d",
+        "Microsoft.AspNetCore.SignalR.Client": "85b7b98f638a0e1d021b8d99ea4f1411dc9cb0bbc9aa3b90476abde58004e8ee",
+        "Microsoft.AspNetCore.SignalR.Protocols.Json": "337bd529119666700dcbfceb2395ef28d25f3735e52cb2e513e600a2fcf1ffb7"
+      },
+      "actualAllFourDepsLibraries": [
+        "Microsoft.AspNetCore.SignalR.Client/8.0.32",
+        "Microsoft.AspNetCore.SignalR.Client.Core/8.0.32",
+        "Microsoft.AspNetCore.SignalR.Common/8.0.32",
+        "Microsoft.AspNetCore.SignalR.Protocols.Json/8.0.32"
+      ],
+      "depsSha256": "c384a2c45deb17d9b213e57ad28dd908f827a1853086cec8664bb043f8d01602",
+      "entireOuterAndInnerCrcVerified": true
+    }
+  ],
+  "notJustAssemblyVersion8OrSourceReference": true,
+  "localDefaultMainAndVisibleNativeAndPhysicalWindowsSeparatelyRequired": true
+}

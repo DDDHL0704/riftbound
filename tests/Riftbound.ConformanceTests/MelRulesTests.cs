@@ -192,6 +192,8 @@ public sealed class MelRulesTests
         var passed=await Act(cast.State,"P1",new PassPriorityCommand());
         var control=await Act(passed.State,"P2",new PlayCardCommand("CONTROL","OGN·080/298",[cast.State.StackItems.Single().StackItemId]));
         var changed=await Top(control.State);
+        var remake = Assert.IsType<RuleChoiceContinuation>(changed.State.PendingRuleChoice);
+        changed = await Act(changed.State, "P2", new PayCostCommand(remake.Request.Id, "RULE_REPLACEMENT", ["KEEP_ALL"]));
         Assert.Equal("P2",changed.State.StackItems.Single().ControllerId);
         Assert.Single(changed.Events,e=>e.Kind=="STACK_ITEM_CONTROL_GAINED");
         Assert.DoesNotContain(changed.Events,e=>e.Kind=="STACK_ITEM_COUNTERED");
