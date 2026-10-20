@@ -1,0 +1,36 @@
+{
+  "status": "LOCAL_DIRECTORY_RESULT_SHAPE_ASSUMPTION_FAILED_NOT_OFFICIAL_SOURCE_CHANGE",
+  "errorType": "TypeError",
+  "cause": "Rules directory result is a list; local draft incorrectly used the card-search result.list adapter for every endpoint.",
+  "completedOriginalRawPrefixFiles": [
+    {
+      "path": "var/qa/graveyard-lifecycle-source-followup-20261020/decree-pre-fix-refresh-v2.json.gz",
+      "bytes": 827,
+      "rawSha256": "3c4b5a30cb45c4229bb61dc7e7cd19c6b3a25a91ab776d58a32475a6447fe710"
+    },
+    {
+      "path": "var/qa/graveyard-lifecycle-source-followup-20261020/rules-directory-pre-fix-refresh-v2.json.gz",
+      "bytes": 1173,
+      "rawSha256": "8ae00c4226cd74af47c896891430b0d04ec227895059dce76a137ede4728aec2"
+    },
+    {
+      "path": "var/qa/graveyard-lifecycle-source-followup-20261020/guillotine-pre-fix-refresh-v2.json.gz",
+      "bytes": 886,
+      "rawSha256": "49d241953f386b11900efe75902da89ecaa65d5f720a4be063d6d3a8db21659b"
+    },
+    {
+      "path": "var/qa/graveyard-lifecycle-source-followup-20261020/windwall-pre-fix-refresh-v2.json.gz",
+      "bytes": 780,
+      "rawSha256": "3b92ea04b6bf3e25696de5edabc688bb7126aed37afeccf9008a53480407c00c"
+    },
+    {
+      "path": "var/qa/graveyard-lifecycle-source-followup-20261020/phoenix-pre-fix-refresh-v2.json.gz",
+      "bytes": 858,
+      "rawSha256": "48f75ffbc2c407cc6f238c2d22002f6687c9f800870f58ce52b6a0b6314fde42"
+    }
+  ],
+  "originalHttpMetadataNotPersistedAndNotInvented": true,
+  "notClaimedCompleteLatestSourceManifest": true,
+  "replacedByFreshCompletePerRequestPersistentV3Receipts": "var/qa/graveyard-lifecycle-source-followup-20261020/pre-fix-current-source-refresh-v3.json",
+  "noRuntimeSourceUniverseDatesOrTemporalDeltaMutation": true
+}

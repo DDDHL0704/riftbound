@@ -1,0 +1,24 @@
+{
+  "label": "rules-directory",
+  "url": "https://lol-api.playloltcg.com/xcx/gameRule/getGameRuleList",
+  "request": {
+    "pageNum": 1,
+    "pageSize": 1000
+  },
+  "startedAtUtc": "2026-10-19T23:52:32.939510+00:00",
+  "region": "CN",
+  "language": "zh-CN",
+  "individualPublicationDate": null,
+  "individualEffectiveDate": null,
+  "httpStatus": 200,
+  "httpDate": "Mon, 19 Oct 2026 23:52:33 GMT",
+  "resolvedUrl": "https://lol-api.playloltcg.com/xcx/gameRule/getGameRuleList",
+  "rawBytes": 4527,
+  "rawSha256": "fbab92f1a1f25f7a5cf676034df6ad35133e7a7521066f95a1c3f34afc2c8c6a",
+  "path": "var/qa/graveyard-lifecycle-source-followup-20261020/rules-directory-pre-fix-refresh-v3.json.gz",
+  "returnedRows": 14,
+  "reportedTotal": null,
+  "allDirectoryRowsExactToPreviousIntake": true,
+  "status": "ACQUIRED_AND_EXACT_VERSION_COMPARED",
+  "receivedAtUtc": "2026-10-19T23:52:33.048552+00:00"
+}

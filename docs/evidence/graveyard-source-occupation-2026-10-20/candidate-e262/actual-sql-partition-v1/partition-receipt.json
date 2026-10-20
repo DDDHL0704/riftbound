@@ -1,0 +1,144 @@
+{
+  "status": "REAL_POSTGRES_PARTITION_COMPLETE",
+  "fixedCommit": "e262ebf164e448cc9738d94db8e557f302cfc295",
+  "partitionIndex": 44,
+  "partitionCount": 45,
+  "manifestSha256": "971d597869a7e726ade4fb6a2f5b9a02d23089389565234e37039aee808eab22",
+  "orderedDefaultCases": [
+    "private-opening",
+    "created-token-ready",
+    "core-opening",
+    "battle-history",
+    "masked-attendant",
+    "granted-predict",
+    "printed-predict",
+    "sivir-optional",
+    "rune-destination",
+    "sivir-payment",
+    "conquest-token",
+    "recycled-card-boon",
+    "recycle-boon-lifecycle",
+    "attached-recycle-lifecycle",
+    "typed-play-history",
+    "porobot",
+    "typed-play-history-causal",
+    "clairvoyance",
+    "insight-repeat",
+    "combat-assignment",
+    "confirmed-play-origin",
+    "physical-origin-cost",
+    "granted-origin-haste",
+    "opponent-battlefield-control",
+    "optional-sacrifice",
+    "granted-token-haste",
+    "optional-costs",
+    "battlefield-play-recovery",
+    "battlefield-play-damage",
+    "banish-effect-play",
+    "here-location-control",
+    "fate-weaver",
+    "multi-controller-trigger-order",
+    "empty-observed-repeat",
+    "observed-play-window",
+    "ravenbloom-put-hand",
+    "attached-predict",
+    "copied-last-breath-insight",
+    "copied-duel-insight",
+    "empowered-insight",
+    "paka-move-reveal",
+    "empty-reveal-followup",
+    "paka-dual-type-reveal",
+    "hwei-move-discard-types",
+    "destruction-graveyard"
+  ],
+  "expectedCases": [
+    "destruction-graveyard"
+  ],
+  "completedCases": [
+    "destruction-graveyard"
+  ],
+  "executions": [
+    {
+      "id": "destruction-graveyard",
+      "ordinal": 44,
+      "status": "PASSED",
+      "startedAtUtc": "2026-10-19T23:21:39.591466+00:00",
+      "finishedAtUtc": "2026-10-19T23:42:18.132878+00:00",
+      "seconds": 1238.541042
+    }
+  ],
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+    "implementationSha256": "30f77f36a65bf645b8443d6ce7cc217c0bcf3e3a2e4bb2a848631fdcc3343273",
+    "identitySha256": "591dc1232bb160b3e5191a287a5e75d429e1e87069d7a37fd0e90b0d706b7bb6"
+  },
+  "outputFiles": [
+    {
+      "path": "destruction-graveyard/destruction-ChinaStandard20260724-DECREE_DECLINE-original-frame.json.gz",
+      "bytes": 59786,
+      "sha256": "43ad7600cc850019a4553045cb9d96b5f34bf5a79dfefae743c30031894730fd"
+    },
+    {
+      "path": "destruction-graveyard/destruction-ChinaStandard20260724-DECREE_PAY-original-frame.json.gz",
+      "bytes": 60685,
+      "sha256": "6b424a980bc5c2df6edda92acdb3a353de4c7c5de4cf540fee5d601c27783bd2"
+    },
+    {
+      "path": "destruction-graveyard/destruction-ChinaStandard20260724-SELF_PAY-original-frame.json.gz",
+      "bytes": 53681,
+      "sha256": "31e4c54a393931ae816a6e5b0aef34801edea2224d5a48e3df9c5c4945dd61f4"
+    },
+    {
+      "path": "destruction-graveyard/destruction-CoreRules-DECREE_DECLINE-original-frame.json.gz",
+      "bytes": 59789,
+      "sha256": "49607797fbcd41c1d29f1599423e212742e306182a5a21b41a85d056b4b93e52"
+    },
+    {
+      "path": "destruction-graveyard/destruction-CoreRules-DECREE_PAY-original-frame.json.gz",
+      "bytes": 60684,
+      "sha256": "9169f55d3df3bcf3d58d08ca9f08ffd5a2de56d68a4f4b923611a9b8ed549299"
+    },
+    {
+      "path": "destruction-graveyard/destruction-CoreRules-SELF_PAY-original-frame.json.gz",
+      "bytes": 53680,
+      "sha256": "852e8e0d449fe4eae03ab64e9a213b0debf420bf26ff439ac853d22625c6e17f"
+    },
+    {
+      "path": "destruction-graveyard/receipt.json",
+      "bytes": 6992,
+      "sha256": "7bdc0e25f7e5ad40d0ea3408dc5d873246efc7a8baf94634406e3d3fcfe36a11"
+    }
+  ],
+  "runtimeAssemblies": [
+    {
+      "file": "Riftbound.PostgresAcceptance.dll",
+      "sha256": "652361f4b093753e14413b2a855658eadea0b092ca52629588618e684c2f8e07",
+      "mvid": "5231c39c-e5d8-4e99-a54d-0834b811ec78"
+    },
+    {
+      "file": "Riftbound.Engine.dll",
+      "sha256": "ed7d5e017f76ea6bd146e7f54b167917f281e048ea075c990ce0a97dd5dafae2",
+      "mvid": "fe734492-c19f-42a9-8b2e-70af09319743"
+    },
+    {
+      "file": "Riftbound.Contracts.dll",
+      "sha256": "496301c757649a8561cd93a29c7c86b68988198d6bc31c8a844d1459153463eb",
+      "mvid": "3b919777-3249-4e70-90b8-418073ca23d8"
+    },
+    {
+      "file": "Riftbound.CardCatalog.dll",
+      "sha256": "2c5e0652f096b114482d62931d0086cdbf0cd6630aa46c3dd00a7a7f1b5e4ab3",
+      "mvid": "fb469647-90b6-4807-8d7c-fd6a5f90ab00"
+    },
+    {
+      "file": "Riftbound.Persistence.dll",
+      "sha256": "d50a47c448a0b1af10291541c6651c09884e5a9cd543b406d08f1083e43d8a78",
+      "mvid": "ad8e02eb-0b29-4df7-8bee-8cab474c6110"
+    }
+  ],
+  "nativeVisibleOrWholeRuleCertification": false
+}

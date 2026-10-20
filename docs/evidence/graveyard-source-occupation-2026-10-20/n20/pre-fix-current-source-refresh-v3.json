@@ -1,0 +1,297 @@
+{
+  "status": "CURRENT_PRIMARY_CN_SOURCE_REFRESH_BEFORE_NEXT_BOUNDED_FIX",
+  "region": "CN",
+  "language": "zh-CN",
+  "applicableRulesBaseline": "2026-10-16",
+  "records": [
+    {
+      "label": "rules-directory",
+      "url": "https://lol-api.playloltcg.com/xcx/gameRule/getGameRuleList",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 1000
+      },
+      "startedAtUtc": "2026-10-19T23:52:32.939510+00:00",
+      "region": "CN",
+      "language": "zh-CN",
+      "individualPublicationDate": null,
+      "individualEffectiveDate": null,
+      "httpStatus": 200,
+      "httpDate": "Mon, 19 Oct 2026 23:52:33 GMT",
+      "resolvedUrl": "https://lol-api.playloltcg.com/xcx/gameRule/getGameRuleList",
+      "rawBytes": 4527,
+      "rawSha256": "fbab92f1a1f25f7a5cf676034df6ad35133e7a7521066f95a1c3f34afc2c8c6a",
+      "path": "var/qa/graveyard-lifecycle-source-followup-20261020/rules-directory-pre-fix-refresh-v3.json.gz",
+      "returnedRows": 14,
+      "reportedTotal": null,
+      "allDirectoryRowsExactToPreviousIntake": true,
+      "status": "ACQUIRED_AND_EXACT_VERSION_COMPARED",
+      "receivedAtUtc": "2026-10-19T23:52:33.048552+00:00"
+    },
+    {
+      "label": "phoenix",
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "不朽凤凰",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "startedAtUtc": "2026-10-19T23:52:32.940266+00:00",
+      "region": "CN",
+      "language": "zh-CN",
+      "individualPublicationDate": null,
+      "individualEffectiveDate": null,
+      "httpStatus": 200,
+      "httpDate": "Mon, 19 Oct 2026 23:52:33 GMT",
+      "resolvedUrl": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "rawBytes": 1220,
+      "rawSha256": "6de2a1c6ec3ac2f67895237bf8423921e390195b70b37c43f99447add1fb42e9",
+      "path": "var/qa/graveyard-lifecycle-source-followup-20261020/phoenix-pre-fix-refresh-v3.json.gz",
+      "returnedRows": 1,
+      "reportedTotal": 1,
+      "exactRows": [
+        {
+          "apiId": 31245,
+          "cardNo": "OGN·037/298",
+          "name": "不朽凤凰",
+          "entireRowMatchesCn16": true,
+          "fullRawRowSha256": "08c07e71f93a45cdbd197b265102d61c6e983599ae9f567b95fb50db55940d3d"
+        }
+      ],
+      "status": "ACQUIRED_AND_EXACT_VERSION_COMPARED",
+      "receivedAtUtc": "2026-10-19T23:52:33.057436+00:00"
+    },
+    {
+      "label": "decree",
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "帝国谕令",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "startedAtUtc": "2026-10-19T23:52:32.944237+00:00",
+      "region": "CN",
+      "language": "zh-CN",
+      "individualPublicationDate": null,
+      "individualEffectiveDate": null,
+      "httpStatus": 200,
+      "httpDate": "Mon, 19 Oct 2026 23:52:33 GMT",
+      "resolvedUrl": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "rawBytes": 1182,
+      "rawSha256": "2663c295bd4bf3a058d4bb8e0d54b4e9b9ef5f5ca9a650029f368c0b70924f9d",
+      "path": "var/qa/graveyard-lifecycle-source-followup-20261020/decree-pre-fix-refresh-v3.json.gz",
+      "returnedRows": 1,
+      "reportedTotal": 1,
+      "exactRows": [
+        {
+          "apiId": 31459,
+          "cardNo": "OGN·221/298",
+          "name": "帝国谕令",
+          "entireRowMatchesCn16": true,
+          "fullRawRowSha256": "7ed5f0f9cb236c9392e2fa1c3d04d258b0a030737a8cd3f24d83dc8f9ad2bb88"
+        }
+      ],
+      "status": "ACQUIRED_AND_EXACT_VERSION_COMPARED",
+      "receivedAtUtc": "2026-10-19T23:52:33.062200+00:00"
+    },
+    {
+      "label": "guillotine",
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "诺克萨斯断头台",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "startedAtUtc": "2026-10-19T23:52:32.946147+00:00",
+      "region": "CN",
+      "language": "zh-CN",
+      "individualPublicationDate": null,
+      "individualEffectiveDate": null,
+      "httpStatus": 200,
+      "httpDate": "Mon, 19 Oct 2026 23:52:33 GMT",
+      "resolvedUrl": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "rawBytes": 1280,
+      "rawSha256": "04c64d8c1638816184f4d54fa55ef6f51f407356c69de40e53a748e07ee7390c",
+      "path": "var/qa/graveyard-lifecycle-source-followup-20261020/guillotine-pre-fix-refresh-v3.json.gz",
+      "returnedRows": 1,
+      "reportedTotal": 1,
+      "exactRows": [
+        {
+          "apiId": 31496,
+          "cardNo": "OGN·254/298",
+          "name": "诺克萨斯断头台",
+          "entireRowMatchesCn16": true,
+          "fullRawRowSha256": "29b8bbf5d4f4f1ff9ae2c2e3bbd48c066392610fc5f06bb3a93fac35932d0cd5"
+        }
+      ],
+      "status": "ACQUIRED_AND_EXACT_VERSION_COMPARED",
+      "receivedAtUtc": "2026-10-19T23:52:33.062296+00:00"
+    },
+    {
+      "label": "windwall",
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "风之障壁",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "startedAtUtc": "2026-10-19T23:52:33.048757+00:00",
+      "region": "CN",
+      "language": "zh-CN",
+      "individualPublicationDate": null,
+      "individualEffectiveDate": null,
+      "httpStatus": 200,
+      "httpDate": "Mon, 19 Oct 2026 23:52:33 GMT",
+      "resolvedUrl": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "rawBytes": 1129,
+      "rawSha256": "30ae6b0d6c67728ef10e2983e250339bd1582f92899fb029a0b8600dc2a9aaab",
+      "path": "var/qa/graveyard-lifecycle-source-followup-20261020/windwall-pre-fix-refresh-v3.json.gz",
+      "returnedRows": 1,
+      "reportedTotal": 1,
+      "exactRows": [
+        {
+          "apiId": 31276,
+          "cardNo": "OGN·064/298",
+          "name": "风之障壁",
+          "entireRowMatchesCn16": true,
+          "fullRawRowSha256": "809c50a9b9384249ca323d42da68b30ad02ef2e4081dc0df1dbd928c04129ba9"
+        }
+      ],
+      "status": "ACQUIRED_AND_EXACT_VERSION_COMPARED",
+      "receivedAtUtc": "2026-10-19T23:52:33.158543+00:00"
+    },
+    {
+      "label": "repulse",
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "击退",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "startedAtUtc": "2026-10-19T23:52:33.058215+00:00",
+      "region": "CN",
+      "language": "zh-CN",
+      "individualPublicationDate": null,
+      "individualEffectiveDate": null,
+      "httpStatus": 200,
+      "httpDate": "Mon, 19 Oct 2026 23:52:33 GMT",
+      "resolvedUrl": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "rawBytes": 1220,
+      "rawSha256": "f4e71499f7b439eb7da05c66e071d36830919e8e4e70768ccf5e27b887bdae34",
+      "path": "var/qa/graveyard-lifecycle-source-followup-20261020/repulse-pre-fix-refresh-v3.json.gz",
+      "returnedRows": 1,
+      "reportedTotal": 1,
+      "exactRows": [
+        {
+          "apiId": 34644,
+          "cardNo": "UNL-106/219",
+          "name": "击退",
+          "entireRowMatchesCn16": true,
+          "fullRawRowSha256": "975154aad0487c78a3abbe4d68f32d67dc3e737cdb23c24449ebb40a9572886e"
+        }
+      ],
+      "status": "ACQUIRED_AND_EXACT_VERSION_COMPARED",
+      "receivedAtUtc": "2026-10-19T23:52:33.175665+00:00"
+    },
+    {
+      "label": "quick-counter",
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "极速反制",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "startedAtUtc": "2026-10-19T23:52:33.062391+00:00",
+      "region": "CN",
+      "language": "zh-CN",
+      "individualPublicationDate": null,
+      "individualEffectiveDate": null,
+      "httpStatus": 200,
+      "httpDate": "Mon, 19 Oct 2026 23:52:33 GMT",
+      "resolvedUrl": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "rawBytes": 1170,
+      "rawSha256": "1cb5c156ef3a48f29cc846b22d7edf3fbd962700c9aa822f46e42532d42529bd",
+      "path": "var/qa/graveyard-lifecycle-source-followup-20261020/quick-counter-pre-fix-refresh-v3.json.gz",
+      "returnedRows": 1,
+      "reportedTotal": 1,
+      "exactRows": [
+        {
+          "apiId": 33121,
+          "cardNo": "SFD·045/221",
+          "name": "极速反制",
+          "entireRowMatchesCn16": true,
+          "fullRawRowSha256": "3b7e3fcbc134bb5c329fd467a0fe66a0e5c4b2b1405b791404a7a69e6b9050f1"
+        }
+      ],
+      "status": "ACQUIRED_AND_EXACT_VERSION_COMPARED",
+      "receivedAtUtc": "2026-10-19T23:52:33.189611+00:00"
+    },
+    {
+      "label": "core",
+      "url": "https://cdn.playloltcg.com/lol/2026/10/2026-10-10/a21ead876c6b44d6abe386b6ae54ea28.pdf",
+      "request": null,
+      "startedAtUtc": "2026-10-19T23:52:33.065078+00:00",
+      "region": "CN",
+      "language": "zh-CN",
+      "individualPublicationDate": null,
+      "individualEffectiveDate": null,
+      "httpStatus": 200,
+      "httpDate": "Sat, 10 Oct 2026 00:46:49 GMT",
+      "resolvedUrl": "https://cdn.playloltcg.com/lol/2026/10/2026-10-10/a21ead876c6b44d6abe386b6ae54ea28.pdf",
+      "rawBytes": 40278538,
+      "rawSha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11",
+      "canonical": "var/qa/colorless-token-haste-20261016/DOC-01-current.pdf",
+      "matchesRetainedCanonical": true,
+      "noDuplicatePdfRetained": true,
+      "status": "ACQUIRED_AND_EXACT_VERSION_COMPARED",
+      "receivedAtUtc": "2026-10-19T23:52:48.645695+00:00"
+    },
+    {
+      "label": "faq",
+      "url": "https://cdn.playloltcg.com/lol/2026/08/2026-08-13/612b1cd53f9f41baaf3c8734c1881a3b.pdf",
+      "request": null,
+      "startedAtUtc": "2026-10-19T23:52:33.158771+00:00",
+      "region": "CN",
+      "language": "zh-CN",
+      "individualPublicationDate": null,
+      "individualEffectiveDate": null,
+      "httpStatus": 200,
+      "httpDate": "Thu, 13 Aug 2026 11:45:53 GMT",
+      "resolvedUrl": "https://cdn.playloltcg.com/lol/2026/08/2026-08-13/612b1cd53f9f41baaf3c8734c1881a3b.pdf",
+      "rawBytes": 12449344,
+      "rawSha256": "59bd828207564540aa3c9885f9dfc39764034f633eb6fb84d49440c9edef4742",
+      "canonical": "var/qa/porobot-20261015/resume-DOC-06.pdf",
+      "matchesRetainedCanonical": true,
+      "noDuplicatePdfRetained": true,
+      "status": "ACQUIRED_AND_EXACT_VERSION_COMPARED",
+      "receivedAtUtc": "2026-10-19T23:52:40.549203+00:00"
+    }
+  ],
+  "allOriginalSourceDatesUniversesAndTemporalDeltasRetained": true,
+  "newRuntimeRuleOrCanonicalSourceAdoption": false,
+  "earlierTwoNewCardFaceReadbackManifest": "var/qa/graveyard-lifecycle-source-followup-20261020/current-source-intake-v1.json"
+}

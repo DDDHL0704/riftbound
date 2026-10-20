@@ -1,0 +1,37 @@
+{
+  "label": "phoenix",
+  "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+  "request": {
+    "pageNum": 1,
+    "pageSize": 100,
+    "searchContent": "不朽凤凰",
+    "cardCategoryList": [],
+    "cardColorList": [],
+    "rarityList": [],
+    "productCodeList": []
+  },
+  "startedAtUtc": "2026-10-19T23:52:32.940266+00:00",
+  "region": "CN",
+  "language": "zh-CN",
+  "individualPublicationDate": null,
+  "individualEffectiveDate": null,
+  "httpStatus": 200,
+  "httpDate": "Mon, 19 Oct 2026 23:52:33 GMT",
+  "resolvedUrl": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+  "rawBytes": 1220,
+  "rawSha256": "6de2a1c6ec3ac2f67895237bf8423921e390195b70b37c43f99447add1fb42e9",
+  "path": "var/qa/graveyard-lifecycle-source-followup-20261020/phoenix-pre-fix-refresh-v3.json.gz",
+  "returnedRows": 1,
+  "reportedTotal": 1,
+  "exactRows": [
+    {
+      "apiId": 31245,
+      "cardNo": "OGN·037/298",
+      "name": "不朽凤凰",
+      "entireRowMatchesCn16": true,
+      "fullRawRowSha256": "08c07e71f93a45cdbd197b265102d61c6e983599ae9f567b95fb50db55940d3d"
+    }
+  ],
+  "status": "ACQUIRED_AND_EXACT_VERSION_COMPARED",
+  "receivedAtUtc": "2026-10-19T23:52:33.057436+00:00"
+}

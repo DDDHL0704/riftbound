@@ -102,7 +102,7 @@
     },
     "reviews": {
       "path": "docs/evidence/rules-reaudit-2026-10-11/review-decisions.json",
-      "sha256": "fb9ad5ae60511b3462106e402de026c6a9defb27c6a8836c8b8e30eb7f4bff11",
+      "sha256": "3c78c8e1f906b1fa541720a538a9beb1f02bc9bfa918267aba608b124cbb2bd8",
       "role": "reviews"
     },
     "summary": {
@@ -329,9 +329,9 @@
         }
       ],
       "evidenceCommit": "e54f3084662e2c2e00c521d232b4a11baaea7d91",
-      "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+      "currentImplementationCommit": "e262ebf164e448cc9738d94db8e557f302cfc295",
       "currentImplementationIncludesUncommittedChanges": true,
-      "revalidationReason": "Shared destruction source, delayed skills, graveyard effect play and recovery validation changed; prior full evidence does not certify current inputs.",
+      "revalidationReason": "Shared stack source/card occupation and typed-ability classification changed.",
       "implementationPinUpdates": [
         {
           "batch": "porobot-source-play-other-equipment-conditional-draw-2026-10-15",
@@ -423,6 +423,17 @@
           },
           "previousEntireContextPreservedIn": "docs/evidence/destruction-graveyard-2026-10-20/n19/pre-destruction-original-current-manifest.json.gz",
           "scope": "Explicit current input rebind only. Original evidence commits, CI receipts, semantic branches, dates and exclusions retained. New fixed full required."
+        },
+        {
+          "batch": "graveyard-source-reference-occupation-and-original-generation-2026-10-20",
+          "changes": [],
+          "previousCurrentMetadata": {
+            "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7",
+            "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+            "currentImplementationIncludesUncommittedChanges": true
+          },
+          "previousEntireContextPreservedIn": "docs/evidence/graveyard-source-occupation-2026-10-20/n20/pre-occupation-original-current-manifest.json.gz",
+          "scope": "Explicit current pin rebind only. Original evidence versions, semantic ranges and dates retained; new fixed full required."
         }
       ],
       "latestInputChange": {
@@ -433,7 +444,7 @@
           "sha256": "05632566219de2496735cf6a87afb324b7d224165f0789f447b974c4ddb3f61a"
         }
       },
-      "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7"
+      "currentInputRevision": "1b7e2f06fb9d628d4b9c9fbf379d458c5d3b65bb0de180c0e5715f05aadc96ac"
     },
     "candlelit-conquest-private-look-recycle-order-2026-10-14": {
       "implementation": [
@@ -744,9 +755,9 @@
         }
       ],
       "evidenceCommit": "e61745f5cc704f2aa0326d84f22416e04ecbf139",
-      "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+      "currentImplementationCommit": "e262ebf164e448cc9738d94db8e557f302cfc295",
       "currentImplementationIncludesUncommittedChanges": true,
-      "revalidationReason": "Shared destruction source, delayed skills, graveyard effect play and recovery validation changed; prior full evidence does not certify current inputs.",
+      "revalidationReason": "Shared stack source/card occupation and typed-ability classification changed.",
       "implementationPinUpdates": [
         {
           "batch": "porobot-source-play-other-equipment-conditional-draw-2026-10-15",
@@ -860,6 +871,17 @@
           },
           "previousEntireContextPreservedIn": "docs/evidence/destruction-graveyard-2026-10-20/n19/pre-destruction-original-current-manifest.json.gz",
           "scope": "Explicit current input rebind only. Original evidence commits, CI receipts, semantic branches, dates and exclusions retained. New fixed full required."
+        },
+        {
+          "batch": "graveyard-source-reference-occupation-and-original-generation-2026-10-20",
+          "changes": [],
+          "previousCurrentMetadata": {
+            "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7",
+            "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+            "currentImplementationIncludesUncommittedChanges": true
+          },
+          "previousEntireContextPreservedIn": "docs/evidence/graveyard-source-occupation-2026-10-20/n20/pre-occupation-original-current-manifest.json.gz",
+          "scope": "Explicit current pin rebind only. Original evidence versions, semantic ranges and dates retained; new fixed full required."
         }
       ],
       "latestInputChange": {
@@ -870,7 +892,7 @@
           "sha256": "05632566219de2496735cf6a87afb324b7d224165f0789f447b974c4ddb3f61a"
         }
       },
-      "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7"
+      "currentInputRevision": "1b7e2f06fb9d628d4b9c9fbf379d458c5d3b65bb0de180c0e5715f05aadc96ac"
     },
     "masked-attendant-reflexive-self-copy-2026-10-14": {
       "implementation": [
@@ -1510,7 +1532,7 @@
         }
       ],
       "evidenceCommit": "03f88a7ee1b109b2cb906fbdc457316f93c08fda",
-      "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+      "currentImplementationCommit": "e262ebf164e448cc9738d94db8e557f302cfc295",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -1617,9 +1639,20 @@
           },
           "previousEntireContextPreservedIn": "docs/evidence/destruction-graveyard-2026-10-20/n19/pre-destruction-original-current-manifest.json.gz",
           "scope": "Explicit current input rebind only. Original evidence commits, CI receipts, semantic branches, dates and exclusions retained. New fixed full required."
+        },
+        {
+          "batch": "graveyard-source-reference-occupation-and-original-generation-2026-10-20",
+          "changes": [],
+          "previousCurrentMetadata": {
+            "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7",
+            "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+            "currentImplementationIncludesUncommittedChanges": true
+          },
+          "previousEntireContextPreservedIn": "docs/evidence/graveyard-source-occupation-2026-10-20/n20/pre-occupation-original-current-manifest.json.gz",
+          "scope": "Explicit current pin rebind only. Original evidence versions, semantic ranges and dates retained; new fixed full required."
         }
       ],
-      "revalidationReason": "Shared destruction source, delayed skills, graveyard effect play and recovery validation changed; prior full evidence does not certify current inputs.",
+      "revalidationReason": "Shared stack source/card occupation and typed-ability classification changed.",
       "latestInputChange": {
         "kind": "PERMANENT_PLAY_SOURCE_GENERATION_AND_BATTLEFIELD_DAMAGE",
         "scope": "Current compiled engine source changed. Earlier successful CI remains a previous fixed baseline only; current fixed full is pending.",
@@ -1629,7 +1662,7 @@
         }
       },
       "currentProductAcceptance": "OPEN_AFTER_SHARED_NATIVE_PROMPT_INPUT_CHANGE_OLD_VISIBLE_EVIDENCE_RETAINS_EXACT_SCOPE",
-      "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7"
+      "currentInputRevision": "1b7e2f06fb9d628d4b9c9fbf379d458c5d3b65bb0de180c0e5715f05aadc96ac"
     },
     "static-granted-predict-entry-2026-10-15": {
       "implementation": [
@@ -1659,7 +1692,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "823517c20ff6ab27e09b4d2a2797b114fb9a2125e4b44b0b909008b14146b7d2"
+          "sha256": "677dc2b28a6b0aca32d9c7c7c8e9d0e0b315081470c0695b192effe3bf82768a"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
@@ -2272,7 +2305,7 @@
       "ciState": "PENDING",
       "ciReceipts": [],
       "evidenceCommit": "03f88a7ee1b109b2cb906fbdc457316f93c08fda",
-      "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+      "currentImplementationCommit": "e262ebf164e448cc9738d94db8e557f302cfc295",
       "currentImplementationIncludesUncommittedChanges": true,
       "lastFixedCiFailure": {
         "path": "docs/evidence/granted-predict-2026-10-15/full-ci-c74853be-failed.json",
@@ -2503,9 +2536,27 @@
           },
           "previousEntireContextPreservedIn": "docs/evidence/destruction-graveyard-2026-10-20/n19/pre-destruction-original-current-manifest.json.gz",
           "scope": "Explicit current input rebind only. Original evidence commits, CI receipts, semantic branches, dates and exclusions retained. New fixed full required."
+        },
+        {
+          "batch": "graveyard-source-reference-occupation-and-original-generation-2026-10-20",
+          "changes": [
+            {
+              "field": "implementation",
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "823517c20ff6ab27e09b4d2a2797b114fb9a2125e4b44b0b909008b14146b7d2",
+              "currentSha256": "677dc2b28a6b0aca32d9c7c7c8e9d0e0b315081470c0695b192effe3bf82768a"
+            }
+          ],
+          "previousCurrentMetadata": {
+            "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7",
+            "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+            "currentImplementationIncludesUncommittedChanges": true
+          },
+          "previousEntireContextPreservedIn": "docs/evidence/graveyard-source-occupation-2026-10-20/n20/pre-occupation-original-current-manifest.json.gz",
+          "scope": "Explicit current pin rebind only. Original evidence versions, semantic ranges and dates retained; new fixed full required."
         }
       ],
-      "revalidationReason": "Shared destruction source, delayed skills, graveyard effect play and recovery validation changed; prior full evidence does not certify current inputs.",
+      "revalidationReason": "Shared stack source/card occupation and typed-ability classification changed.",
       "latestInputChange": {
         "kind": "PERMANENT_PLAY_SOURCE_GENERATION_AND_BATTLEFIELD_DAMAGE",
         "scope": "Current compiled engine source changed. Earlier successful CI remains a previous fixed baseline only; current fixed full is pending.",
@@ -2515,7 +2566,7 @@
         }
       },
       "currentProductAcceptance": "OPEN_AFTER_SHARED_NATIVE_PROMPT_INPUT_CHANGE_OLD_VISIBLE_EVIDENCE_RETAINS_EXACT_SCOPE",
-      "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7"
+      "currentInputRevision": "1b7e2f06fb9d628d4b9c9fbf379d458c5d3b65bb0de180c0e5715f05aadc96ac"
     },
     "printed-predict-permanent-entry-2026-10-15": {
       "implementation": [
@@ -2545,7 +2596,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "823517c20ff6ab27e09b4d2a2797b114fb9a2125e4b44b0b909008b14146b7d2"
+          "sha256": "677dc2b28a6b0aca32d9c7c7c8e9d0e0b315081470c0695b192effe3bf82768a"
         },
         {
           "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
@@ -3153,7 +3204,7 @@
         }
       ],
       "evidenceCommit": "74353e405fd2242ece0bae05972f209950b2c9de",
-      "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+      "currentImplementationCommit": "e262ebf164e448cc9738d94db8e557f302cfc295",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -3386,9 +3437,27 @@
           },
           "previousEntireContextPreservedIn": "docs/evidence/destruction-graveyard-2026-10-20/n19/pre-destruction-original-current-manifest.json.gz",
           "scope": "Explicit current input rebind only. Original evidence commits, CI receipts, semantic branches, dates and exclusions retained. New fixed full required."
+        },
+        {
+          "batch": "graveyard-source-reference-occupation-and-original-generation-2026-10-20",
+          "changes": [
+            {
+              "field": "implementation",
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "823517c20ff6ab27e09b4d2a2797b114fb9a2125e4b44b0b909008b14146b7d2",
+              "currentSha256": "677dc2b28a6b0aca32d9c7c7c8e9d0e0b315081470c0695b192effe3bf82768a"
+            }
+          ],
+          "previousCurrentMetadata": {
+            "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7",
+            "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+            "currentImplementationIncludesUncommittedChanges": true
+          },
+          "previousEntireContextPreservedIn": "docs/evidence/graveyard-source-occupation-2026-10-20/n20/pre-occupation-original-current-manifest.json.gz",
+          "scope": "Explicit current pin rebind only. Original evidence versions, semantic ranges and dates retained; new fixed full required."
         }
       ],
-      "revalidationReason": "Shared destruction source, delayed skills, graveyard effect play and recovery validation changed; prior full evidence does not certify current inputs.",
+      "revalidationReason": "Shared stack source/card occupation and typed-ability classification changed.",
       "latestInputChange": {
         "kind": "PERMANENT_PLAY_SOURCE_GENERATION_AND_BATTLEFIELD_DAMAGE",
         "scope": "Current compiled engine source changed. Earlier successful CI remains a previous fixed baseline only; current fixed full is pending.",
@@ -3397,7 +3466,7 @@
           "sha256": "05632566219de2496735cf6a87afb324b7d224165f0789f447b974c4ddb3f61a"
         }
       },
-      "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7"
+      "currentInputRevision": "1b7e2f06fb9d628d4b9c9fbf379d458c5d3b65bb0de180c0e5715f05aadc96ac"
     },
     "sivir-optional-rune-recycle-2026-10-15": {
       "implementation": [
@@ -3411,7 +3480,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "823517c20ff6ab27e09b4d2a2797b114fb9a2125e4b44b0b909008b14146b7d2"
+          "sha256": "677dc2b28a6b0aca32d9c7c7c8e9d0e0b315081470c0695b192effe3bf82768a"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.Insight.cs",
@@ -3447,7 +3516,7 @@
         },
         {
           "path": "src/Riftbound.Engine/StackObjectRules.cs",
-          "sha256": "d844eb96df256111fdc1de42c00b8706a922d7e445bc286b5a6a5cc960e5c446"
+          "sha256": "16e2fd1b0c70eb88ab9e124090b142c8bafe827079f08d45f6ff9dddbc6ca01a"
         }
       ],
       "branches": [
@@ -3773,7 +3842,7 @@
         }
       ],
       "evidenceCommit": "7649d573f884ffd7517a502f7eebe01d0aa186c4",
-      "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+      "currentImplementationCommit": "e262ebf164e448cc9738d94db8e557f302cfc295",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -3996,9 +4065,33 @@
           },
           "previousEntireContextPreservedIn": "docs/evidence/destruction-graveyard-2026-10-20/n19/pre-destruction-original-current-manifest.json.gz",
           "scope": "Explicit current input rebind only. Original evidence commits, CI receipts, semantic branches, dates and exclusions retained. New fixed full required."
+        },
+        {
+          "batch": "graveyard-source-reference-occupation-and-original-generation-2026-10-20",
+          "changes": [
+            {
+              "field": "implementation",
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "823517c20ff6ab27e09b4d2a2797b114fb9a2125e4b44b0b909008b14146b7d2",
+              "currentSha256": "677dc2b28a6b0aca32d9c7c7c8e9d0e0b315081470c0695b192effe3bf82768a"
+            },
+            {
+              "field": "implementation",
+              "path": "src/Riftbound.Engine/StackObjectRules.cs",
+              "previousSha256": "d844eb96df256111fdc1de42c00b8706a922d7e445bc286b5a6a5cc960e5c446",
+              "currentSha256": "16e2fd1b0c70eb88ab9e124090b142c8bafe827079f08d45f6ff9dddbc6ca01a"
+            }
+          ],
+          "previousCurrentMetadata": {
+            "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7",
+            "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+            "currentImplementationIncludesUncommittedChanges": true
+          },
+          "previousEntireContextPreservedIn": "docs/evidence/graveyard-source-occupation-2026-10-20/n20/pre-occupation-original-current-manifest.json.gz",
+          "scope": "Explicit current pin rebind only. Original evidence versions, semantic ranges and dates retained; new fixed full required."
         }
       ],
-      "revalidationReason": "Shared destruction source, delayed skills, graveyard effect play and recovery validation changed; prior full evidence does not certify current inputs.",
+      "revalidationReason": "Shared stack source/card occupation and typed-ability classification changed.",
       "latestInputChange": {
         "kind": "PERMANENT_PLAY_SOURCE_GENERATION_AND_BATTLEFIELD_DAMAGE",
         "scope": "Current compiled engine source changed. Earlier successful CI remains a previous fixed baseline only; current fixed full is pending.",
@@ -4008,7 +4101,7 @@
         }
       },
       "currentProductAcceptance": "OPEN_AFTER_SHARED_NATIVE_PROMPT_INPUT_CHANGE_OLD_VISIBLE_EVIDENCE_RETAINS_EXACT_SCOPE",
-      "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7"
+      "currentInputRevision": "1b7e2f06fb9d628d4b9c9fbf379d458c5d3b65bb0de180c0e5715f05aadc96ac"
     },
     "battlefield-conquer-rune-destination-2026-10-15": {
       "implementation": [
@@ -4026,7 +4119,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "823517c20ff6ab27e09b4d2a2797b114fb9a2125e4b44b0b909008b14146b7d2"
+          "sha256": "677dc2b28a6b0aca32d9c7c7c8e9d0e0b315081470c0695b192effe3bf82768a"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.Conquest.cs",
@@ -4173,7 +4266,7 @@
         }
       ],
       "evidenceCommit": "dd8884ba1e443138264b9b0e971ab8da3c5480ee",
-      "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+      "currentImplementationCommit": "e262ebf164e448cc9738d94db8e557f302cfc295",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -4350,9 +4443,27 @@
           },
           "previousEntireContextPreservedIn": "docs/evidence/destruction-graveyard-2026-10-20/n19/pre-destruction-original-current-manifest.json.gz",
           "scope": "Explicit current input rebind only. Original evidence commits, CI receipts, semantic branches, dates and exclusions retained. New fixed full required."
+        },
+        {
+          "batch": "graveyard-source-reference-occupation-and-original-generation-2026-10-20",
+          "changes": [
+            {
+              "field": "implementation",
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "823517c20ff6ab27e09b4d2a2797b114fb9a2125e4b44b0b909008b14146b7d2",
+              "currentSha256": "677dc2b28a6b0aca32d9c7c7c8e9d0e0b315081470c0695b192effe3bf82768a"
+            }
+          ],
+          "previousCurrentMetadata": {
+            "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7",
+            "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+            "currentImplementationIncludesUncommittedChanges": true
+          },
+          "previousEntireContextPreservedIn": "docs/evidence/graveyard-source-occupation-2026-10-20/n20/pre-occupation-original-current-manifest.json.gz",
+          "scope": "Explicit current pin rebind only. Original evidence versions, semantic ranges and dates retained; new fixed full required."
         }
       ],
-      "revalidationReason": "Shared destruction source, delayed skills, graveyard effect play and recovery validation changed; prior full evidence does not certify current inputs.",
+      "revalidationReason": "Shared stack source/card occupation and typed-ability classification changed.",
       "latestInputChange": {
         "kind": "PERMANENT_PLAY_SOURCE_GENERATION_AND_BATTLEFIELD_DAMAGE",
         "scope": "Current compiled engine source changed. Earlier successful CI remains a previous fixed baseline only; current fixed full is pending.",
@@ -4361,7 +4472,7 @@
           "sha256": "05632566219de2496735cf6a87afb324b7d224165f0789f447b974c4ddb3f61a"
         }
       },
-      "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7"
+      "currentInputRevision": "1b7e2f06fb9d628d4b9c9fbf379d458c5d3b65bb0de180c0e5715f05aadc96ac"
     },
     "sivir-payment-trigger-and-ward-event-2026-10-15": {
       "implementation": [
@@ -4387,7 +4498,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "823517c20ff6ab27e09b4d2a2797b114fb9a2125e4b44b0b909008b14146b7d2"
+          "sha256": "677dc2b28a6b0aca32d9c7c7c8e9d0e0b315081470c0695b192effe3bf82768a"
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
@@ -4573,7 +4684,7 @@
         }
       ],
       "evidenceCommit": "00420e2a2b453918e611812d18fda9f62632e15f",
-      "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+      "currentImplementationCommit": "e262ebf164e448cc9738d94db8e557f302cfc295",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -4745,9 +4856,27 @@
           },
           "previousEntireContextPreservedIn": "docs/evidence/destruction-graveyard-2026-10-20/n19/pre-destruction-original-current-manifest.json.gz",
           "scope": "Explicit current input rebind only. Original evidence commits, CI receipts, semantic branches, dates and exclusions retained. New fixed full required."
+        },
+        {
+          "batch": "graveyard-source-reference-occupation-and-original-generation-2026-10-20",
+          "changes": [
+            {
+              "field": "implementation",
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "823517c20ff6ab27e09b4d2a2797b114fb9a2125e4b44b0b909008b14146b7d2",
+              "currentSha256": "677dc2b28a6b0aca32d9c7c7c8e9d0e0b315081470c0695b192effe3bf82768a"
+            }
+          ],
+          "previousCurrentMetadata": {
+            "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7",
+            "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+            "currentImplementationIncludesUncommittedChanges": true
+          },
+          "previousEntireContextPreservedIn": "docs/evidence/graveyard-source-occupation-2026-10-20/n20/pre-occupation-original-current-manifest.json.gz",
+          "scope": "Explicit current pin rebind only. Original evidence versions, semantic ranges and dates retained; new fixed full required."
         }
       ],
-      "revalidationReason": "Shared destruction source, delayed skills, graveyard effect play and recovery validation changed; prior full evidence does not certify current inputs.",
+      "revalidationReason": "Shared stack source/card occupation and typed-ability classification changed.",
       "latestInputChange": {
         "kind": "PERMANENT_PLAY_SOURCE_GENERATION_AND_BATTLEFIELD_DAMAGE",
         "scope": "Current compiled engine source changed. Earlier successful CI remains a previous fixed baseline only; current fixed full is pending.",
@@ -4756,7 +4885,7 @@
           "sha256": "05632566219de2496735cf6a87afb324b7d224165f0789f447b974c4ddb3f61a"
         }
       },
-      "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7"
+      "currentInputRevision": "1b7e2f06fb9d628d4b9c9fbf379d458c5d3b65bb0de180c0e5715f05aadc96ac"
     },
     "unit-conquest-gold-response-2026-10-15": {
       "implementation": [
@@ -4770,7 +4899,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "823517c20ff6ab27e09b4d2a2797b114fb9a2125e4b44b0b909008b14146b7d2"
+          "sha256": "677dc2b28a6b0aca32d9c7c7c8e9d0e0b315081470c0695b192effe3bf82768a"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
@@ -4782,7 +4911,7 @@
         },
         {
           "path": "src/Riftbound.Engine/StackObjectRules.cs",
-          "sha256": "d844eb96df256111fdc1de42c00b8706a922d7e445bc286b5a6a5cc960e5c446"
+          "sha256": "16e2fd1b0c70eb88ab9e124090b142c8bafe827079f08d45f6ff9dddbc6ca01a"
         }
       ],
       "branches": [
@@ -5009,7 +5138,7 @@
         }
       ],
       "evidenceCommit": "eb3c4281c94c8d41d315cd574bdfa597cd10c30b",
-      "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+      "currentImplementationCommit": "e262ebf164e448cc9738d94db8e557f302cfc295",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -5201,9 +5330,33 @@
           },
           "previousEntireContextPreservedIn": "docs/evidence/destruction-graveyard-2026-10-20/n19/pre-destruction-original-current-manifest.json.gz",
           "scope": "Explicit current input rebind only. Original evidence commits, CI receipts, semantic branches, dates and exclusions retained. New fixed full required."
+        },
+        {
+          "batch": "graveyard-source-reference-occupation-and-original-generation-2026-10-20",
+          "changes": [
+            {
+              "field": "implementation",
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "823517c20ff6ab27e09b4d2a2797b114fb9a2125e4b44b0b909008b14146b7d2",
+              "currentSha256": "677dc2b28a6b0aca32d9c7c7c8e9d0e0b315081470c0695b192effe3bf82768a"
+            },
+            {
+              "field": "implementation",
+              "path": "src/Riftbound.Engine/StackObjectRules.cs",
+              "previousSha256": "d844eb96df256111fdc1de42c00b8706a922d7e445bc286b5a6a5cc960e5c446",
+              "currentSha256": "16e2fd1b0c70eb88ab9e124090b142c8bafe827079f08d45f6ff9dddbc6ca01a"
+            }
+          ],
+          "previousCurrentMetadata": {
+            "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7",
+            "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+            "currentImplementationIncludesUncommittedChanges": true
+          },
+          "previousEntireContextPreservedIn": "docs/evidence/graveyard-source-occupation-2026-10-20/n20/pre-occupation-original-current-manifest.json.gz",
+          "scope": "Explicit current pin rebind only. Original evidence versions, semantic ranges and dates retained; new fixed full required."
         }
       ],
-      "revalidationReason": "Shared destruction source, delayed skills, graveyard effect play and recovery validation changed; prior full evidence does not certify current inputs.",
+      "revalidationReason": "Shared stack source/card occupation and typed-ability classification changed.",
       "latestInputChange": {
         "kind": "PERMANENT_PLAY_SOURCE_GENERATION_AND_BATTLEFIELD_DAMAGE",
         "scope": "Current compiled engine source changed. Earlier successful CI remains a previous fixed baseline only; current fixed full is pending.",
@@ -5213,7 +5366,7 @@
         }
       },
       "currentProductAcceptance": "OPEN_AFTER_SHARED_NATIVE_PROMPT_INPUT_CHANGE_OLD_VISIBLE_EVIDENCE_RETAINS_EXACT_SCOPE",
-      "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7"
+      "currentInputRevision": "1b7e2f06fb9d628d4b9c9fbf379d458c5d3b65bb0de180c0e5715f05aadc96ac"
     },
     "own-main-deck-recycle-card-boon-2026-10-15": {
       "implementation": [
@@ -5255,7 +5408,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "823517c20ff6ab27e09b4d2a2797b114fb9a2125e4b44b0b909008b14146b7d2"
+          "sha256": "677dc2b28a6b0aca32d9c7c7c8e9d0e0b315081470c0695b192effe3bf82768a"
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
@@ -5935,7 +6088,7 @@
         }
       ],
       "evidenceCommit": "a0406e1d878598b3c0fd88f5bfa7f9831d6a2cc6",
-      "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+      "currentImplementationCommit": "e262ebf164e448cc9738d94db8e557f302cfc295",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -6131,9 +6284,27 @@
           },
           "previousEntireContextPreservedIn": "docs/evidence/destruction-graveyard-2026-10-20/n19/pre-destruction-original-current-manifest.json.gz",
           "scope": "Explicit current input rebind only. Original evidence commits, CI receipts, semantic branches, dates and exclusions retained. New fixed full required."
+        },
+        {
+          "batch": "graveyard-source-reference-occupation-and-original-generation-2026-10-20",
+          "changes": [
+            {
+              "field": "implementation",
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "823517c20ff6ab27e09b4d2a2797b114fb9a2125e4b44b0b909008b14146b7d2",
+              "currentSha256": "677dc2b28a6b0aca32d9c7c7c8e9d0e0b315081470c0695b192effe3bf82768a"
+            }
+          ],
+          "previousCurrentMetadata": {
+            "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7",
+            "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+            "currentImplementationIncludesUncommittedChanges": true
+          },
+          "previousEntireContextPreservedIn": "docs/evidence/graveyard-source-occupation-2026-10-20/n20/pre-occupation-original-current-manifest.json.gz",
+          "scope": "Explicit current pin rebind only. Original evidence versions, semantic ranges and dates retained; new fixed full required."
         }
       ],
-      "revalidationReason": "Shared destruction source, delayed skills, graveyard effect play and recovery validation changed; prior full evidence does not certify current inputs.",
+      "revalidationReason": "Shared stack source/card occupation and typed-ability classification changed.",
       "latestInputChange": {
         "kind": "PERMANENT_PLAY_SOURCE_GENERATION_AND_BATTLEFIELD_DAMAGE",
         "scope": "Current compiled engine source changed. Earlier successful CI remains a previous fixed baseline only; current fixed full is pending.",
@@ -6142,7 +6313,7 @@
           "sha256": "05632566219de2496735cf6a87afb324b7d224165f0789f447b974c4ddb3f61a"
         }
       },
-      "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7"
+      "currentInputRevision": "1b7e2f06fb9d628d4b9c9fbf379d458c5d3b65bb0de180c0e5715f05aadc96ac"
     },
     "copied-recycle-boon-ceased-source-2026-10-15": {
       "implementation": [
@@ -6326,7 +6497,7 @@
         }
       ],
       "evidenceCommit": "1a5cabfbd5e7e87eb971622506371e57beb96319",
-      "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+      "currentImplementationCommit": "e262ebf164e448cc9738d94db8e557f302cfc295",
       "currentImplementationIncludesUncommittedChanges": true,
       "latestInputChange": {
         "kind": "PERMANENT_PLAY_SOURCE_GENERATION_AND_BATTLEFIELD_DAMAGE",
@@ -6336,7 +6507,7 @@
           "sha256": "05632566219de2496735cf6a87afb324b7d224165f0789f447b974c4ddb3f61a"
         }
       },
-      "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7",
+      "currentInputRevision": "1b7e2f06fb9d628d4b9c9fbf379d458c5d3b65bb0de180c0e5715f05aadc96ac",
       "implementationPinUpdates": [
         {
           "batch": "hwei-move-draw-discard-all-printed-types-2026-10-20",
@@ -6366,9 +6537,20 @@
           },
           "previousEntireContextPreservedIn": "docs/evidence/destruction-graveyard-2026-10-20/n19/pre-destruction-original-current-manifest.json.gz",
           "scope": "Explicit current input rebind only. Original evidence commits, CI receipts, semantic branches, dates and exclusions retained. New fixed full required."
+        },
+        {
+          "batch": "graveyard-source-reference-occupation-and-original-generation-2026-10-20",
+          "changes": [],
+          "previousCurrentMetadata": {
+            "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7",
+            "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+            "currentImplementationIncludesUncommittedChanges": true
+          },
+          "previousEntireContextPreservedIn": "docs/evidence/graveyard-source-occupation-2026-10-20/n20/pre-occupation-original-current-manifest.json.gz",
+          "scope": "Explicit current pin rebind only. Original evidence versions, semantic ranges and dates retained; new fixed full required."
         }
       ],
-      "revalidationReason": "Shared destruction source, delayed skills, graveyard effect play and recovery validation changed; prior full evidence does not certify current inputs."
+      "revalidationReason": "Shared stack source/card occupation and typed-ability classification changed."
     },
     "ceased-recycle-source-exact-printing-2026-10-15": {
       "implementation": [
@@ -6460,9 +6642,9 @@
         }
       ],
       "evidenceCommit": "09ac000ec5dcfb3fe2404d7da235b4e7c91bfeba",
-      "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+      "currentImplementationCommit": "e262ebf164e448cc9738d94db8e557f302cfc295",
       "currentImplementationIncludesUncommittedChanges": true,
-      "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7",
+      "currentInputRevision": "1b7e2f06fb9d628d4b9c9fbf379d458c5d3b65bb0de180c0e5715f05aadc96ac",
       "latestInputChange": {
         "kind": "PERMANENT_PLAY_SOURCE_GENERATION_AND_BATTLEFIELD_DAMAGE",
         "scope": "Current compiled engine source changed. Earlier successful CI remains a previous fixed baseline only; current fixed full is pending.",
@@ -6493,9 +6675,20 @@
           },
           "previousEntireContextPreservedIn": "docs/evidence/destruction-graveyard-2026-10-20/n19/pre-destruction-original-current-manifest.json.gz",
           "scope": "Explicit current input rebind only. Original evidence commits, CI receipts, semantic branches, dates and exclusions retained. New fixed full required."
+        },
+        {
+          "batch": "graveyard-source-reference-occupation-and-original-generation-2026-10-20",
+          "changes": [],
+          "previousCurrentMetadata": {
+            "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7",
+            "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+            "currentImplementationIncludesUncommittedChanges": true
+          },
+          "previousEntireContextPreservedIn": "docs/evidence/graveyard-source-occupation-2026-10-20/n20/pre-occupation-original-current-manifest.json.gz",
+          "scope": "Explicit current pin rebind only. Original evidence versions, semantic ranges and dates retained; new fixed full required."
         }
       ],
-      "revalidationReason": "Shared destruction source, delayed skills, graveyard effect play and recovery validation changed; prior full evidence does not certify current inputs."
+      "revalidationReason": "Shared stack source/card occupation and typed-ability classification changed."
     },
     "attached-recycle-order-confirmation-and-ceased-host-2026-10-15": {
       "implementation": [
@@ -6675,7 +6868,7 @@
         }
       ],
       "evidenceCommit": "5faa9012c305e8fc76b5b79d8b798597beee08df",
-      "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+      "currentImplementationCommit": "e262ebf164e448cc9738d94db8e557f302cfc295",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -6726,9 +6919,20 @@
           },
           "previousEntireContextPreservedIn": "docs/evidence/destruction-graveyard-2026-10-20/n19/pre-destruction-original-current-manifest.json.gz",
           "scope": "Explicit current input rebind only. Original evidence commits, CI receipts, semantic branches, dates and exclusions retained. New fixed full required."
+        },
+        {
+          "batch": "graveyard-source-reference-occupation-and-original-generation-2026-10-20",
+          "changes": [],
+          "previousCurrentMetadata": {
+            "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7",
+            "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+            "currentImplementationIncludesUncommittedChanges": true
+          },
+          "previousEntireContextPreservedIn": "docs/evidence/graveyard-source-occupation-2026-10-20/n20/pre-occupation-original-current-manifest.json.gz",
+          "scope": "Explicit current pin rebind only. Original evidence versions, semantic ranges and dates retained; new fixed full required."
         }
       ],
-      "revalidationReason": "Shared destruction source, delayed skills, graveyard effect play and recovery validation changed; prior full evidence does not certify current inputs.",
+      "revalidationReason": "Shared stack source/card occupation and typed-ability classification changed.",
       "latestInputChange": {
         "kind": "PERMANENT_PLAY_SOURCE_GENERATION_AND_BATTLEFIELD_DAMAGE",
         "scope": "Current compiled engine source changed. Earlier successful CI remains a previous fixed baseline only; current fixed full is pending.",
@@ -6737,7 +6941,7 @@
           "sha256": "05632566219de2496735cf6a87afb324b7d224165f0789f447b974c4ddb3f61a"
         }
       },
-      "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7"
+      "currentInputRevision": "1b7e2f06fb9d628d4b9c9fbf379d458c5d3b65bb0de180c0e5715f05aadc96ac"
     },
     "swain-source-identity-and-conquest-clause-classification-2026-10-15": {
       "implementation": [
@@ -6777,7 +6981,7 @@
         }
       ],
       "evidenceCommit": "4ef4db144b1825f8b05f1b0b1605a8b99c49ac84",
-      "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+      "currentImplementationCommit": "e262ebf164e448cc9738d94db8e557f302cfc295",
       "currentImplementationIncludesUncommittedChanges": true,
       "branches": [
         {
@@ -6879,9 +7083,20 @@
           },
           "previousEntireContextPreservedIn": "docs/evidence/destruction-graveyard-2026-10-20/n19/pre-destruction-original-current-manifest.json.gz",
           "scope": "Explicit current input rebind only. Original evidence commits, CI receipts, semantic branches, dates and exclusions retained. New fixed full required."
+        },
+        {
+          "batch": "graveyard-source-reference-occupation-and-original-generation-2026-10-20",
+          "changes": [],
+          "previousCurrentMetadata": {
+            "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7",
+            "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+            "currentImplementationIncludesUncommittedChanges": true
+          },
+          "previousEntireContextPreservedIn": "docs/evidence/graveyard-source-occupation-2026-10-20/n20/pre-occupation-original-current-manifest.json.gz",
+          "scope": "Explicit current pin rebind only. Original evidence versions, semantic ranges and dates retained; new fixed full required."
         }
       ],
-      "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7",
+      "currentInputRevision": "1b7e2f06fb9d628d4b9c9fbf379d458c5d3b65bb0de180c0e5715f05aadc96ac",
       "latestInputChange": {
         "kind": "PERMANENT_PLAY_SOURCE_GENERATION_AND_BATTLEFIELD_DAMAGE",
         "scope": "Current compiled engine source changed. Earlier successful CI remains a previous fixed baseline only; current fixed full is pending.",
@@ -6890,7 +7105,7 @@
           "sha256": "05632566219de2496735cf6a87afb324b7d224165f0789f447b974c4ddb3f61a"
         }
       },
-      "revalidationReason": "Shared destruction source, delayed skills, graveyard effect play and recovery validation changed; prior full evidence does not certify current inputs."
+      "revalidationReason": "Shared stack source/card occupation and typed-ability classification changed."
     },
     "official-multitype-factory-deck-and-native-metadata-2026-10-15": {
       "implementation": [
@@ -6941,7 +7156,7 @@
       "ciState": "PENDING",
       "ciReceipts": [],
       "evidenceCommit": "4ef4db144b1825f8b05f1b0b1605a8b99c49ac84",
-      "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+      "currentImplementationCommit": "e262ebf164e448cc9738d94db8e557f302cfc295",
       "currentImplementationIncludesUncommittedChanges": true,
       "branches": [
         {
@@ -6979,7 +7194,7 @@
           ]
         }
       ],
-      "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7",
+      "currentInputRevision": "1b7e2f06fb9d628d4b9c9fbf379d458c5d3b65bb0de180c0e5715f05aadc96ac",
       "latestInputChange": {
         "kind": "PERMANENT_PLAY_SOURCE_GENERATION_AND_BATTLEFIELD_DAMAGE",
         "scope": "Current compiled engine source changed. Earlier successful CI remains a previous fixed baseline only; current fixed full is pending.",
@@ -7010,9 +7225,20 @@
           },
           "previousEntireContextPreservedIn": "docs/evidence/destruction-graveyard-2026-10-20/n19/pre-destruction-original-current-manifest.json.gz",
           "scope": "Explicit current input rebind only. Original evidence commits, CI receipts, semantic branches, dates and exclusions retained. New fixed full required."
+        },
+        {
+          "batch": "graveyard-source-reference-occupation-and-original-generation-2026-10-20",
+          "changes": [],
+          "previousCurrentMetadata": {
+            "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7",
+            "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+            "currentImplementationIncludesUncommittedChanges": true
+          },
+          "previousEntireContextPreservedIn": "docs/evidence/graveyard-source-occupation-2026-10-20/n20/pre-occupation-original-current-manifest.json.gz",
+          "scope": "Explicit current pin rebind only. Original evidence versions, semantic ranges and dates retained; new fixed full required."
         }
       ],
-      "revalidationReason": "Shared destruction source, delayed skills, graveyard effect play and recovery validation changed; prior full evidence does not certify current inputs."
+      "revalidationReason": "Shared stack source/card occupation and typed-ability classification changed."
     },
     "typed-current-turn-card-play-confirmation-and-resolution-history-2026-10-15": {
       "implementation": [
@@ -7022,7 +7248,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "823517c20ff6ab27e09b4d2a2797b114fb9a2125e4b44b0b909008b14146b7d2"
+          "sha256": "677dc2b28a6b0aca32d9c7c7c8e9d0e0b315081470c0695b192effe3bf82768a"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.SpellCompletion.cs",
@@ -7083,7 +7309,7 @@
         }
       ],
       "evidenceCommit": "342187cb732ea37a616d3fb125be6e9e5096ead1",
-      "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+      "currentImplementationCommit": "e262ebf164e448cc9738d94db8e557f302cfc295",
       "currentImplementationIncludesUncommittedChanges": true,
       "branches": [
         {
@@ -7379,6 +7605,24 @@
           },
           "previousEntireContextPreservedIn": "docs/evidence/destruction-graveyard-2026-10-20/n19/pre-destruction-original-current-manifest.json.gz",
           "scope": "Explicit current input rebind only. Original evidence commits, CI receipts, semantic branches, dates and exclusions retained. New fixed full required."
+        },
+        {
+          "batch": "graveyard-source-reference-occupation-and-original-generation-2026-10-20",
+          "changes": [
+            {
+              "field": "implementation",
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "823517c20ff6ab27e09b4d2a2797b114fb9a2125e4b44b0b909008b14146b7d2",
+              "currentSha256": "677dc2b28a6b0aca32d9c7c7c8e9d0e0b315081470c0695b192effe3bf82768a"
+            }
+          ],
+          "previousCurrentMetadata": {
+            "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7",
+            "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+            "currentImplementationIncludesUncommittedChanges": true
+          },
+          "previousEntireContextPreservedIn": "docs/evidence/graveyard-source-occupation-2026-10-20/n20/pre-occupation-original-current-manifest.json.gz",
+          "scope": "Explicit current pin rebind only. Original evidence versions, semantic ranges and dates retained; new fixed full required."
         }
       ],
       "priorEvidenceCommit": "4b4bd545c32ccf5b9d91810337327d7ca23c07d1",
@@ -7386,7 +7630,7 @@
         "review": "typed-card-play-history-causal-production-recovery-2026-10-15",
         "scope": "Only snapshot modifications against unchanged accepted action/event history; all other obligations retained."
       },
-      "revalidationReason": "Shared destruction source, delayed skills, graveyard effect play and recovery validation changed; prior full evidence does not certify current inputs.",
+      "revalidationReason": "Shared stack source/card occupation and typed-ability classification changed.",
       "latestInputChange": {
         "kind": "PERMANENT_PLAY_SOURCE_GENERATION_AND_BATTLEFIELD_DAMAGE",
         "scope": "Current compiled engine source changed. Earlier successful CI remains a previous fixed baseline only; current fixed full is pending.",
@@ -7396,7 +7640,7 @@
         }
       },
       "currentProductAcceptance": "OPEN_AFTER_SHARED_NATIVE_PROMPT_INPUT_CHANGE_OLD_VISIBLE_EVIDENCE_RETAINS_EXACT_SCOPE",
-      "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7"
+      "currentInputRevision": "1b7e2f06fb9d628d4b9c9fbf379d458c5d3b65bb0de180c0e5715f05aadc96ac"
     },
     "porobot-source-play-other-equipment-conditional-draw-2026-10-15": {
       "implementation": [
@@ -7410,7 +7654,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "823517c20ff6ab27e09b4d2a2797b114fb9a2125e4b44b0b909008b14146b7d2"
+          "sha256": "677dc2b28a6b0aca32d9c7c7c8e9d0e0b315081470c0695b192effe3bf82768a"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.PermanentConfirmation.cs",
@@ -7479,7 +7723,7 @@
         }
       ],
       "evidenceCommit": "339c6168f704684477354365988d7448cb0e7a10",
-      "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+      "currentImplementationCommit": "e262ebf164e448cc9738d94db8e557f302cfc295",
       "currentImplementationIncludesUncommittedChanges": true,
       "ciState": "PENDING",
       "ciReceipts": [
@@ -7815,9 +8059,27 @@
           },
           "previousEntireContextPreservedIn": "docs/evidence/destruction-graveyard-2026-10-20/n19/pre-destruction-original-current-manifest.json.gz",
           "scope": "Explicit current input rebind only. Original evidence commits, CI receipts, semantic branches, dates and exclusions retained. New fixed full required."
+        },
+        {
+          "batch": "graveyard-source-reference-occupation-and-original-generation-2026-10-20",
+          "changes": [
+            {
+              "field": "implementation",
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "823517c20ff6ab27e09b4d2a2797b114fb9a2125e4b44b0b909008b14146b7d2",
+              "currentSha256": "677dc2b28a6b0aca32d9c7c7c8e9d0e0b315081470c0695b192effe3bf82768a"
+            }
+          ],
+          "previousCurrentMetadata": {
+            "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7",
+            "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+            "currentImplementationIncludesUncommittedChanges": true
+          },
+          "previousEntireContextPreservedIn": "docs/evidence/graveyard-source-occupation-2026-10-20/n20/pre-occupation-original-current-manifest.json.gz",
+          "scope": "Explicit current pin rebind only. Original evidence versions, semantic ranges and dates retained; new fixed full required."
         }
       ],
-      "revalidationReason": "Shared destruction source, delayed skills, graveyard effect play and recovery validation changed; prior full evidence does not certify current inputs.",
+      "revalidationReason": "Shared stack source/card occupation and typed-ability classification changed.",
       "latestInputChange": {
         "kind": "PERMANENT_PLAY_SOURCE_GENERATION_AND_BATTLEFIELD_DAMAGE",
         "scope": "Current compiled engine source changed. Earlier successful CI remains a previous fixed baseline only; current fixed full is pending.",
@@ -7827,11 +8089,11 @@
         }
       },
       "currentProductAcceptance": "OPEN_AFTER_SHARED_NATIVE_PROMPT_INPUT_CHANGE_OLD_VISIBLE_EVIDENCE_RETAINS_EXACT_SCOPE",
-      "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7"
+      "currentInputRevision": "1b7e2f06fb9d628d4b9c9fbf379d458c5d3b65bb0de180c0e5715f05aadc96ac"
     },
     "typed-card-play-history-causal-production-recovery-2026-10-15": {
       "evidenceCommit": "6bc546259eed61d5988bf8e8df5081cd8502c614",
-      "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+      "currentImplementationCommit": "e262ebf164e448cc9738d94db8e557f302cfc295",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact6bc fullCI/45SQL/case-method-pair preservation verified. Current workingtree has newer counted Insight/catalog dependencies; this prior full is not current gameplay coverage.",
       "ciState": "PENDING",
@@ -8032,9 +8294,20 @@
           },
           "previousEntireContextPreservedIn": "docs/evidence/destruction-graveyard-2026-10-20/n19/pre-destruction-original-current-manifest.json.gz",
           "scope": "Explicit current input rebind only. Original evidence commits, CI receipts, semantic branches, dates and exclusions retained. New fixed full required."
+        },
+        {
+          "batch": "graveyard-source-reference-occupation-and-original-generation-2026-10-20",
+          "changes": [],
+          "previousCurrentMetadata": {
+            "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7",
+            "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+            "currentImplementationIncludesUncommittedChanges": true
+          },
+          "previousEntireContextPreservedIn": "docs/evidence/graveyard-source-occupation-2026-10-20/n20/pre-occupation-original-current-manifest.json.gz",
+          "scope": "Explicit current pin rebind only. Original evidence versions, semantic ranges and dates retained; new fixed full required."
         }
       ],
-      "revalidationReason": "Shared destruction source, delayed skills, graveyard effect play and recovery validation changed; prior full evidence does not certify current inputs.",
+      "revalidationReason": "Shared stack source/card occupation and typed-ability classification changed.",
       "latestInputChange": {
         "kind": "PERMANENT_PLAY_SOURCE_GENERATION_AND_BATTLEFIELD_DAMAGE",
         "scope": "Current compiled engine source changed. Earlier successful CI remains a previous fixed baseline only; current fixed full is pending.",
@@ -8044,11 +8317,11 @@
         }
       },
       "currentProductAcceptance": "OPEN_AFTER_SHARED_NATIVE_PROMPT_INPUT_CHANGE_OLD_VISIBLE_EVIDENCE_RETAINS_EXACT_SCOPE",
-      "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7"
+      "currentInputRevision": "1b7e2f06fb9d628d4b9c9fbf379d458c5d3b65bb0de180c0e5715f05aadc96ac"
     },
     "counted-insight-post-choice-draw-clairvoyance-2026-10-15": {
       "evidenceCommit": "6bc546259eed61d5988bf8e8df5081cd8502c614",
-      "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+      "currentImplementationCommit": "e262ebf164e448cc9738d94db8e557f302cfc295",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Base commit plus explicitly uncommitted gameplay/test inputs; own fixed CI remains pending. Earlier6bc full cannot certify this new gameplay batch.",
       "ciState": "PENDING",
@@ -8286,9 +8559,20 @@
           },
           "previousEntireContextPreservedIn": "docs/evidence/destruction-graveyard-2026-10-20/n19/pre-destruction-original-current-manifest.json.gz",
           "scope": "Explicit current input rebind only. Original evidence commits, CI receipts, semantic branches, dates and exclusions retained. New fixed full required."
+        },
+        {
+          "batch": "graveyard-source-reference-occupation-and-original-generation-2026-10-20",
+          "changes": [],
+          "previousCurrentMetadata": {
+            "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7",
+            "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+            "currentImplementationIncludesUncommittedChanges": true
+          },
+          "previousEntireContextPreservedIn": "docs/evidence/graveyard-source-occupation-2026-10-20/n20/pre-occupation-original-current-manifest.json.gz",
+          "scope": "Explicit current pin rebind only. Original evidence versions, semantic ranges and dates retained; new fixed full required."
         }
       ],
-      "revalidationReason": "Shared destruction source, delayed skills, graveyard effect play and recovery validation changed; prior full evidence does not certify current inputs.",
+      "revalidationReason": "Shared stack source/card occupation and typed-ability classification changed.",
       "latestInputChange": {
         "kind": "PERMANENT_PLAY_SOURCE_GENERATION_AND_BATTLEFIELD_DAMAGE",
         "scope": "Current compiled engine source changed. Earlier successful CI remains a previous fixed baseline only; current fixed full is pending.",
@@ -8297,11 +8581,11 @@
           "sha256": "05632566219de2496735cf6a87afb324b7d224165f0789f447b974c4ddb3f61a"
         }
       },
-      "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7"
+      "currentInputRevision": "1b7e2f06fb9d628d4b9c9fbf379d458c5d3b65bb0de180c0e5715f05aadc96ac"
     },
     "untargeted-counted-insight-echo-resumption-2026-10-15": {
       "evidenceCommit": "a8f0b1dd1797997390d34ec77a84455a4ddb8911",
-      "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+      "currentImplementationCommit": "e262ebf164e448cc9738d94db8e557f302cfc295",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact base plus explicitly uncommitted new Insight Echo inputs; own fixed full remains required.",
       "ciState": "PENDING",
@@ -8577,10 +8861,21 @@
           },
           "previousEntireContextPreservedIn": "docs/evidence/destruction-graveyard-2026-10-20/n19/pre-destruction-original-current-manifest.json.gz",
           "scope": "Explicit current input rebind only. Original evidence commits, CI receipts, semantic branches, dates and exclusions retained. New fixed full required."
+        },
+        {
+          "batch": "graveyard-source-reference-occupation-and-original-generation-2026-10-20",
+          "changes": [],
+          "previousCurrentMetadata": {
+            "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7",
+            "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+            "currentImplementationIncludesUncommittedChanges": true
+          },
+          "previousEntireContextPreservedIn": "docs/evidence/graveyard-source-occupation-2026-10-20/n20/pre-occupation-original-current-manifest.json.gz",
+          "scope": "Explicit current pin rebind only. Original evidence versions, semantic ranges and dates retained; new fixed full required."
         }
       ],
-      "revalidationReason": "Shared destruction source, delayed skills, graveyard effect play and recovery validation changed; prior full evidence does not certify current inputs.",
-      "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7",
+      "revalidationReason": "Shared stack source/card occupation and typed-ability classification changed.",
+      "currentInputRevision": "1b7e2f06fb9d628d4b9c9fbf379d458c5d3b65bb0de180c0e5715f05aadc96ac",
       "latestInputChange": {
         "kind": "PERMANENT_PLAY_SOURCE_GENERATION_AND_BATTLEFIELD_DAMAGE",
         "scope": "Current compiled engine source changed. Earlier successful CI remains a previous fixed baseline only; current fixed full is pending.",
@@ -8592,7 +8887,7 @@
     },
     "targeted-insight-repeat-declarations-and-native-wire-2026-10-15": {
       "evidenceCommit": "9e426a31386aefa980bf2d48f02b237098cb2914",
-      "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+      "currentImplementationCommit": "e262ebf164e448cc9738d94db8e557f302cfc295",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact base plus explicit new uncommitted targeted rule/client/test inputs; old full cannot certify these inputs.",
       "ciState": "PENDING",
@@ -8887,8 +9182,8 @@
         }
       ],
       "latestFixedEvidenceStatus": "EXACT_9E_FULL_VERIFIED_VISIBLE_SCORE_OBSERVED_BUT_EVENT_REPLAY_FAILED_CURRENT_REPAIR_PENDING",
-      "revalidationReason": "Shared destruction source, delayed skills, graveyard effect play and recovery validation changed; prior full evidence does not certify current inputs.",
-      "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7",
+      "revalidationReason": "Shared stack source/card occupation and typed-ability classification changed.",
+      "currentInputRevision": "1b7e2f06fb9d628d4b9c9fbf379d458c5d3b65bb0de180c0e5715f05aadc96ac",
       "latestInputChange": {
         "kind": "PERMANENT_PLAY_SOURCE_GENERATION_AND_BATTLEFIELD_DAMAGE",
         "scope": "Current compiled engine source changed. Earlier successful CI remains a previous fixed baseline only; current fixed full is pending.",
@@ -8919,12 +9214,23 @@
           },
           "previousEntireContextPreservedIn": "docs/evidence/destruction-graveyard-2026-10-20/n19/pre-destruction-original-current-manifest.json.gz",
           "scope": "Explicit current input rebind only. Original evidence commits, CI receipts, semantic branches, dates and exclusions retained. New fixed full required."
+        },
+        {
+          "batch": "graveyard-source-reference-occupation-and-original-generation-2026-10-20",
+          "changes": [],
+          "previousCurrentMetadata": {
+            "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7",
+            "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+            "currentImplementationIncludesUncommittedChanges": true
+          },
+          "previousEntireContextPreservedIn": "docs/evidence/graveyard-source-occupation-2026-10-20/n20/pre-occupation-original-current-manifest.json.gz",
+          "scope": "Explicit current pin rebind only. Original evidence versions, semantic ranges and dates retained; new fixed full required."
         }
       ]
     },
     "combat-event-journal-wire-and-single-defender-choice-2026-10-15": {
       "evidenceCommit": "9e426a31386aefa980bf2d48f02b237098cb2914",
-      "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+      "currentImplementationCommit": "e262ebf164e448cc9738d94db8e557f302cfc295",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact9e base plus explicitly hashed current journal/combat/native-fixture verification inputs; old full does not cover this repair.",
       "ciState": "PENDING",
@@ -8936,7 +9242,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "823517c20ff6ab27e09b4d2a2797b114fb9a2125e4b44b0b909008b14146b7d2"
+          "sha256": "677dc2b28a6b0aca32d9c7c7c8e9d0e0b315081470c0695b192effe3bf82768a"
         },
         {
           "path": "clients/godot/scripts/ClientCommandSerializer.cs",
@@ -9214,9 +9520,27 @@
           },
           "previousEntireContextPreservedIn": "docs/evidence/destruction-graveyard-2026-10-20/n19/pre-destruction-original-current-manifest.json.gz",
           "scope": "Explicit current input rebind only. Original evidence commits, CI receipts, semantic branches, dates and exclusions retained. New fixed full required."
+        },
+        {
+          "batch": "graveyard-source-reference-occupation-and-original-generation-2026-10-20",
+          "changes": [
+            {
+              "field": "implementation",
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "823517c20ff6ab27e09b4d2a2797b114fb9a2125e4b44b0b909008b14146b7d2",
+              "currentSha256": "677dc2b28a6b0aca32d9c7c7c8e9d0e0b315081470c0695b192effe3bf82768a"
+            }
+          ],
+          "previousCurrentMetadata": {
+            "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7",
+            "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+            "currentImplementationIncludesUncommittedChanges": true
+          },
+          "previousEntireContextPreservedIn": "docs/evidence/graveyard-source-occupation-2026-10-20/n20/pre-occupation-original-current-manifest.json.gz",
+          "scope": "Explicit current pin rebind only. Original evidence versions, semantic ranges and dates retained; new fixed full required."
         }
       ],
-      "revalidationReason": "Shared destruction source, delayed skills, graveyard effect play and recovery validation changed; prior full evidence does not certify current inputs.",
+      "revalidationReason": "Shared stack source/card occupation and typed-ability classification changed.",
       "latestFixedEvidenceStatus": "EXACT_0CBEE_FULL_FAILED_THREE_ORIGINAL_GAMES_CURRENT_CONTINUATION_REPAIR_PENDING",
       "latestInputChange": {
         "kind": "PERMANENT_PLAY_SOURCE_GENERATION_AND_BATTLEFIELD_DAMAGE",
@@ -9226,11 +9550,11 @@
           "sha256": "05632566219de2496735cf6a87afb324b7d224165f0789f447b974c4ddb3f61a"
         }
       },
-      "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7"
+      "currentInputRevision": "1b7e2f06fb9d628d4b9c9fbf379d458c5d3b65bb0de180c0e5715f05aadc96ac"
     },
     "combat-declaration-provenance-and-single-eligible-unit-conquest-2026-10-15": {
       "evidenceCommit": "0cbee9e22c81bec21ea416fdb45dc1c16f78e7d4",
-      "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+      "currentImplementationCommit": "e262ebf164e448cc9738d94db8e557f302cfc295",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact0cbee failed base plus two explicitly pinned source repairs and new verification/source-intake evidence; new fixed SHA required.",
       "ciState": "PENDING",
@@ -9242,7 +9566,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "823517c20ff6ab27e09b4d2a2797b114fb9a2125e4b44b0b909008b14146b7d2"
+          "sha256": "677dc2b28a6b0aca32d9c7c7c8e9d0e0b315081470c0695b192effe3bf82768a"
         }
       ],
       "evidence": [
@@ -9475,9 +9799,27 @@
           },
           "previousEntireContextPreservedIn": "docs/evidence/destruction-graveyard-2026-10-20/n19/pre-destruction-original-current-manifest.json.gz",
           "scope": "Explicit current input rebind only. Original evidence commits, CI receipts, semantic branches, dates and exclusions retained. New fixed full required."
+        },
+        {
+          "batch": "graveyard-source-reference-occupation-and-original-generation-2026-10-20",
+          "changes": [
+            {
+              "field": "implementation",
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "823517c20ff6ab27e09b4d2a2797b114fb9a2125e4b44b0b909008b14146b7d2",
+              "currentSha256": "677dc2b28a6b0aca32d9c7c7c8e9d0e0b315081470c0695b192effe3bf82768a"
+            }
+          ],
+          "previousCurrentMetadata": {
+            "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7",
+            "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+            "currentImplementationIncludesUncommittedChanges": true
+          },
+          "previousEntireContextPreservedIn": "docs/evidence/graveyard-source-occupation-2026-10-20/n20/pre-occupation-original-current-manifest.json.gz",
+          "scope": "Explicit current pin rebind only. Original evidence versions, semantic ranges and dates retained; new fixed full required."
         }
       ],
-      "revalidationReason": "Shared destruction source, delayed skills, graveyard effect play and recovery validation changed; prior full evidence does not certify current inputs.",
+      "revalidationReason": "Shared stack source/card occupation and typed-ability classification changed.",
       "latestFixedEvidenceStatus": "EXACT_D1_FULL_SUCCESS_NATIVE_PAYMENT_FAILURE_NEW_PROMPT_CONTEXT_REPAIR_PENDING",
       "latestInputChange": {
         "kind": "PERMANENT_PLAY_SOURCE_GENERATION_AND_BATTLEFIELD_DAMAGE",
@@ -9487,11 +9829,11 @@
           "sha256": "05632566219de2496735cf6a87afb324b7d224165f0789f447b974c4ddb3f61a"
         }
       },
-      "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7"
+      "currentInputRevision": "1b7e2f06fb9d628d4b9c9fbf379d458c5d3b65bb0de180c0e5715f05aadc96ac"
     },
     "optional-mana-trigger-native-and-natural-declaration-order-2026-10-15": {
       "evidenceCommit": "d1c2b4d351ca32862ee52ab7bc45cd7d581fca2c",
-      "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+      "currentImplementationCommit": "e262ebf164e448cc9738d94db8e557f302cfc295",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact d1 actual full-success/native-failure base plus three pinned source repairs, new verification and source readback; new fixed SHA required.",
       "ciState": "PENDING",
@@ -9503,7 +9845,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "823517c20ff6ab27e09b4d2a2797b114fb9a2125e4b44b0b909008b14146b7d2"
+          "sha256": "677dc2b28a6b0aca32d9c7c7c8e9d0e0b315081470c0695b192effe3bf82768a"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
@@ -9735,9 +10077,27 @@
           },
           "previousEntireContextPreservedIn": "docs/evidence/destruction-graveyard-2026-10-20/n19/pre-destruction-original-current-manifest.json.gz",
           "scope": "Explicit current input rebind only. Original evidence commits, CI receipts, semantic branches, dates and exclusions retained. New fixed full required."
+        },
+        {
+          "batch": "graveyard-source-reference-occupation-and-original-generation-2026-10-20",
+          "changes": [
+            {
+              "field": "implementation",
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "823517c20ff6ab27e09b4d2a2797b114fb9a2125e4b44b0b909008b14146b7d2",
+              "currentSha256": "677dc2b28a6b0aca32d9c7c7c8e9d0e0b315081470c0695b192effe3bf82768a"
+            }
+          ],
+          "previousCurrentMetadata": {
+            "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7",
+            "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+            "currentImplementationIncludesUncommittedChanges": true
+          },
+          "previousEntireContextPreservedIn": "docs/evidence/graveyard-source-occupation-2026-10-20/n20/pre-occupation-original-current-manifest.json.gz",
+          "scope": "Explicit current pin rebind only. Original evidence versions, semantic ranges and dates retained; new fixed full required."
         }
       ],
-      "revalidationReason": "Shared destruction source, delayed skills, graveyard effect play and recovery validation changed; prior full evidence does not certify current inputs.",
+      "revalidationReason": "Shared stack source/card occupation and typed-ability classification changed.",
       "latestInputChange": {
         "kind": "PERMANENT_PLAY_SOURCE_GENERATION_AND_BATTLEFIELD_DAMAGE",
         "scope": "Current compiled engine source changed. Earlier successful CI remains a previous fixed baseline only; current fixed full is pending.",
@@ -9747,11 +10107,11 @@
         }
       },
       "currentProductAcceptance": "OPEN_AFTER_SHARED_NATIVE_PROMPT_INPUT_CHANGE_OLD_VISIBLE_EVIDENCE_RETAINS_EXACT_SCOPE",
-      "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7"
+      "currentInputRevision": "1b7e2f06fb9d628d4b9c9fbf379d458c5d3b65bb0de180c0e5715f05aadc96ac"
     },
     "cn16-confirmed-play-origin-and-required-causal-fact-2026-10-16": {
       "evidenceCommit": "56d1ee2eed9dcbf48ed54175867cd93ac58d92d8",
-      "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+      "currentImplementationCommit": "e262ebf164e448cc9738d94db8e557f302cfc295",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact56 baseline plus explicitly pinned CN16 source selection and bounded confirmed hand-origin repair; new fixed SHA required.",
       "ciState": "PENDING",
@@ -9763,7 +10123,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "823517c20ff6ab27e09b4d2a2797b114fb9a2125e4b44b0b909008b14146b7d2"
+          "sha256": "677dc2b28a6b0aca32d9c7c7c8e9d0e0b315081470c0695b192effe3bf82768a"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
@@ -10097,9 +10457,27 @@
           },
           "previousEntireContextPreservedIn": "docs/evidence/destruction-graveyard-2026-10-20/n19/pre-destruction-original-current-manifest.json.gz",
           "scope": "Explicit current input rebind only. Original evidence commits, CI receipts, semantic branches, dates and exclusions retained. New fixed full required."
+        },
+        {
+          "batch": "graveyard-source-reference-occupation-and-original-generation-2026-10-20",
+          "changes": [
+            {
+              "field": "implementation",
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "823517c20ff6ab27e09b4d2a2797b114fb9a2125e4b44b0b909008b14146b7d2",
+              "currentSha256": "677dc2b28a6b0aca32d9c7c7c8e9d0e0b315081470c0695b192effe3bf82768a"
+            }
+          ],
+          "previousCurrentMetadata": {
+            "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7",
+            "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+            "currentImplementationIncludesUncommittedChanges": true
+          },
+          "previousEntireContextPreservedIn": "docs/evidence/graveyard-source-occupation-2026-10-20/n20/pre-occupation-original-current-manifest.json.gz",
+          "scope": "Explicit current pin rebind only. Original evidence versions, semantic ranges and dates retained; new fixed full required."
         }
       ],
-      "revalidationReason": "Shared destruction source, delayed skills, graveyard effect play and recovery validation changed; prior full evidence does not certify current inputs.",
+      "revalidationReason": "Shared stack source/card occupation and typed-ability classification changed.",
       "latestInputChange": {
         "kind": "PERMANENT_PLAY_SOURCE_GENERATION_AND_BATTLEFIELD_DAMAGE",
         "scope": "Current compiled engine source changed. Earlier successful CI remains a previous fixed baseline only; current fixed full is pending.",
@@ -10109,11 +10487,11 @@
         }
       },
       "currentProductAcceptance": "OPEN_AFTER_SHARED_NATIVE_PROMPT_INPUT_CHANGE_OLD_VISIBLE_EVIDENCE_RETAINS_EXACT_SCOPE",
-      "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7"
+      "currentInputRevision": "1b7e2f06fb9d628d4b9c9fbf379d458c5d3b65bb0de180c0e5715f05aadc96ac"
     },
     "physical-origin-self-cost-reduction-2026-10-16": {
       "evidenceCommit": "903cbca2becfd9b142a6b6a86d77b8fbf3d080ef",
-      "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+      "currentImplementationCommit": "e262ebf164e448cc9738d94db8e557f302cfc295",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact903 baseline plus pinned3engine changes and new8cases/SQL fixtures; fixed newSHA required.",
       "ciState": "PENDING",
@@ -10125,7 +10503,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "823517c20ff6ab27e09b4d2a2797b114fb9a2125e4b44b0b909008b14146b7d2"
+          "sha256": "677dc2b28a6b0aca32d9c7c7c8e9d0e0b315081470c0695b192effe3bf82768a"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.PlayManaCost.cs",
@@ -10387,9 +10765,27 @@
           },
           "previousEntireContextPreservedIn": "docs/evidence/destruction-graveyard-2026-10-20/n19/pre-destruction-original-current-manifest.json.gz",
           "scope": "Explicit current input rebind only. Original evidence commits, CI receipts, semantic branches, dates and exclusions retained. New fixed full required."
+        },
+        {
+          "batch": "graveyard-source-reference-occupation-and-original-generation-2026-10-20",
+          "changes": [
+            {
+              "field": "implementation",
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "823517c20ff6ab27e09b4d2a2797b114fb9a2125e4b44b0b909008b14146b7d2",
+              "currentSha256": "677dc2b28a6b0aca32d9c7c7c8e9d0e0b315081470c0695b192effe3bf82768a"
+            }
+          ],
+          "previousCurrentMetadata": {
+            "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7",
+            "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+            "currentImplementationIncludesUncommittedChanges": true
+          },
+          "previousEntireContextPreservedIn": "docs/evidence/graveyard-source-occupation-2026-10-20/n20/pre-occupation-original-current-manifest.json.gz",
+          "scope": "Explicit current pin rebind only. Original evidence versions, semantic ranges and dates retained; new fixed full required."
         }
       ],
-      "revalidationReason": "Shared destruction source, delayed skills, graveyard effect play and recovery validation changed; prior full evidence does not certify current inputs.",
+      "revalidationReason": "Shared stack source/card occupation and typed-ability classification changed.",
       "historicalFixedCiReceipts": [
         {
           "commit": "4ad7fe204adee28c4138f18bdde4c4cbcdea21f0",
@@ -10408,11 +10804,11 @@
           "sha256": "05632566219de2496735cf6a87afb324b7d224165f0789f447b974c4ddb3f61a"
         }
       },
-      "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7"
+      "currentInputRevision": "1b7e2f06fb9d628d4b9c9fbf379d458c5d3b65bb0de180c0e5715f05aadc96ac"
     },
     "granted-origin-haste-and-paid-entry-replacement-2026-10-16": {
       "evidenceCommit": "4ad7fe204adee28c4138f18bdde4c4cbcdea21f0",
-      "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+      "currentImplementationCommit": "e262ebf164e448cc9738d94db8e557f302cfc295",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact4ad7 baseline plus pinned5engine inputs,24cases, native readback and73SQL. NewfixedSHA full required. Printed-Haste dispatch restored after the singlecheck;213 current focus passed. Prior SQL/native exact inputs remain pre-repair, not relabeled.",
       "ciState": "PENDING",
@@ -10428,7 +10824,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "823517c20ff6ab27e09b4d2a2797b114fb9a2125e4b44b0b909008b14146b7d2"
+          "sha256": "677dc2b28a6b0aca32d9c7c7c8e9d0e0b315081470c0695b192effe3bf82768a"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
@@ -10735,10 +11131,28 @@
           },
           "previousEntireContextPreservedIn": "docs/evidence/destruction-graveyard-2026-10-20/n19/pre-destruction-original-current-manifest.json.gz",
           "scope": "Explicit current input rebind only. Original evidence commits, CI receipts, semantic branches, dates and exclusions retained. New fixed full required."
+        },
+        {
+          "batch": "graveyard-source-reference-occupation-and-original-generation-2026-10-20",
+          "changes": [
+            {
+              "field": "implementation",
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "823517c20ff6ab27e09b4d2a2797b114fb9a2125e4b44b0b909008b14146b7d2",
+              "currentSha256": "677dc2b28a6b0aca32d9c7c7c8e9d0e0b315081470c0695b192effe3bf82768a"
+            }
+          ],
+          "previousCurrentMetadata": {
+            "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7",
+            "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+            "currentImplementationIncludesUncommittedChanges": true
+          },
+          "previousEntireContextPreservedIn": "docs/evidence/graveyard-source-occupation-2026-10-20/n20/pre-occupation-original-current-manifest.json.gz",
+          "scope": "Explicit current pin rebind only. Original evidence versions, semantic ranges and dates retained; new fixed full required."
         }
       ],
       "checkState": "11934_PASS_1_SOURCE_GUARD_FAILURE_REPAIRED213_FOCUS_FIXED_FULL_PENDING",
-      "revalidationReason": "Shared destruction source, delayed skills, graveyard effect play and recovery validation changed; prior full evidence does not certify current inputs.",
+      "revalidationReason": "Shared stack source/card occupation and typed-ability classification changed.",
       "historicalFixedCiReceipts": [
         {
           "commit": "3ced0126ac20a07c2909e7b44f3733a9e3aa044a",
@@ -10758,11 +11172,11 @@
         }
       },
       "currentProductAcceptance": "OPEN_AFTER_SHARED_NATIVE_PROMPT_INPUT_CHANGE_OLD_VISIBLE_EVIDENCE_RETAINS_EXACT_SCOPE",
-      "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7"
+      "currentInputRevision": "1b7e2f06fb9d628d4b9c9fbf379d458c5d3b65bb0de180c0e5715f05aadc96ac"
     },
     "opponent-battlefield-current-control-entry-2026-10-16": {
       "evidenceCommit": "3ced0126ac20a07c2909e7b44f3733a9e3aa044a",
-      "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+      "currentImplementationCommit": "e262ebf164e448cc9738d94db8e557f302cfc295",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact3ced baseline plus pinned Core fix and29new cases/3methods; old72 product and prior fixedfull evidence are separately bounded. New fixed SHA full required.",
       "ciState": "PENDING",
@@ -10770,7 +11184,7 @@
       "implementation": [
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "823517c20ff6ab27e09b4d2a2797b114fb9a2125e4b44b0b909008b14146b7d2"
+          "sha256": "677dc2b28a6b0aca32d9c7c7c8e9d0e0b315081470c0695b192effe3bf82768a"
         }
       ],
       "verificationSources": [
@@ -10938,7 +11352,7 @@
           "runId": 38851939967
         }
       ],
-      "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7",
+      "currentInputRevision": "1b7e2f06fb9d628d4b9c9fbf379d458c5d3b65bb0de180c0e5715f05aadc96ac",
       "implementationPinUpdates": [
         {
           "batch": "hwei-move-draw-discard-all-printed-types-2026-10-20",
@@ -10999,13 +11413,31 @@
           },
           "previousEntireContextPreservedIn": "docs/evidence/destruction-graveyard-2026-10-20/n19/pre-destruction-original-current-manifest.json.gz",
           "scope": "Explicit current input rebind only. Original evidence commits, CI receipts, semantic branches, dates and exclusions retained. New fixed full required."
+        },
+        {
+          "batch": "graveyard-source-reference-occupation-and-original-generation-2026-10-20",
+          "changes": [
+            {
+              "field": "implementation",
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "823517c20ff6ab27e09b4d2a2797b114fb9a2125e4b44b0b909008b14146b7d2",
+              "currentSha256": "677dc2b28a6b0aca32d9c7c7c8e9d0e0b315081470c0695b192effe3bf82768a"
+            }
+          ],
+          "previousCurrentMetadata": {
+            "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7",
+            "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+            "currentImplementationIncludesUncommittedChanges": true
+          },
+          "previousEntireContextPreservedIn": "docs/evidence/graveyard-source-occupation-2026-10-20/n20/pre-occupation-original-current-manifest.json.gz",
+          "scope": "Explicit current pin rebind only. Original evidence versions, semantic ranges and dates retained; new fixed full required."
         }
       ],
-      "revalidationReason": "Shared destruction source, delayed skills, graveyard effect play and recovery validation changed; prior full evidence does not certify current inputs."
+      "revalidationReason": "Shared stack source/card occupation and typed-ability classification changed."
     },
     "optional-sacrifice-printed-cost-and-paid-entry-2026-10-16": {
       "evidenceCommit": "8d7571c5a5572b1ed542a5ff1d8eaeb533bac1bc",
-      "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+      "currentImplementationCommit": "e262ebf164e448cc9738d94db8e557f302cfc295",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Fixed8d baseline plus exact15 executable/fixture patch files. Earlier full8d,113 old review dictionaries, source dates and original143/110/424242 remain retained. New candidate full required.",
       "ciState": "PENDING",
@@ -11017,7 +11449,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "823517c20ff6ab27e09b4d2a2797b114fb9a2125e4b44b0b909008b14146b7d2"
+          "sha256": "677dc2b28a6b0aca32d9c7c7c8e9d0e0b315081470c0695b192effe3bf82768a"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.PlayManaCost.cs",
@@ -11259,7 +11691,7 @@
         }
       ],
       "currentProductAcceptance": "OPEN_AFTER_SHARED_NATIVE_PROMPT_INPUT_CHANGE_OLD_VISIBLE_EVIDENCE_RETAINS_EXACT_SCOPE",
-      "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7",
+      "currentInputRevision": "1b7e2f06fb9d628d4b9c9fbf379d458c5d3b65bb0de180c0e5715f05aadc96ac",
       "implementationPinUpdates": [
         {
           "batch": "hwei-move-draw-discard-all-printed-types-2026-10-20",
@@ -11338,13 +11770,31 @@
           },
           "previousEntireContextPreservedIn": "docs/evidence/destruction-graveyard-2026-10-20/n19/pre-destruction-original-current-manifest.json.gz",
           "scope": "Explicit current input rebind only. Original evidence commits, CI receipts, semantic branches, dates and exclusions retained. New fixed full required."
+        },
+        {
+          "batch": "graveyard-source-reference-occupation-and-original-generation-2026-10-20",
+          "changes": [
+            {
+              "field": "implementation",
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "823517c20ff6ab27e09b4d2a2797b114fb9a2125e4b44b0b909008b14146b7d2",
+              "currentSha256": "677dc2b28a6b0aca32d9c7c7c8e9d0e0b315081470c0695b192effe3bf82768a"
+            }
+          ],
+          "previousCurrentMetadata": {
+            "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7",
+            "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+            "currentImplementationIncludesUncommittedChanges": true
+          },
+          "previousEntireContextPreservedIn": "docs/evidence/graveyard-source-occupation-2026-10-20/n20/pre-occupation-original-current-manifest.json.gz",
+          "scope": "Explicit current pin rebind only. Original evidence versions, semantic ranges and dates retained; new fixed full required."
         }
       ],
-      "revalidationReason": "Shared destruction source, delayed skills, graveyard effect play and recovery validation changed; prior full evidence does not certify current inputs."
+      "revalidationReason": "Shared stack source/card occupation and typed-ability classification changed."
     },
     "granted-colorless-token-haste-payment-2026-10-16": {
       "evidenceCommit": "daf394e20997ebdb028e91ba9fdfe6c24eb492eb",
-      "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+      "currentImplementationCommit": "e262ebf164e448cc9738d94db8e557f302cfc295",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Fixeddaf baseline plus exact13 current executable/test/fixture patch files; historical daf full12136/7372 and77SQL do not cover the patch.",
       "ciState": "PENDING",
@@ -11352,7 +11802,7 @@
       "implementation": [
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "823517c20ff6ab27e09b4d2a2797b114fb9a2125e4b44b0b909008b14146b7d2"
+          "sha256": "677dc2b28a6b0aca32d9c7c7c8e9d0e0b315081470c0695b192effe3bf82768a"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.PlayKeywords.cs",
@@ -11633,7 +12083,7 @@
           "sha256": "05632566219de2496735cf6a87afb324b7d224165f0789f447b974c4ddb3f61a"
         }
       },
-      "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7",
+      "currentInputRevision": "1b7e2f06fb9d628d4b9c9fbf379d458c5d3b65bb0de180c0e5715f05aadc96ac",
       "implementationPinUpdates": [
         {
           "batch": "hwei-move-draw-discard-all-printed-types-2026-10-20",
@@ -11706,13 +12156,31 @@
           },
           "previousEntireContextPreservedIn": "docs/evidence/destruction-graveyard-2026-10-20/n19/pre-destruction-original-current-manifest.json.gz",
           "scope": "Explicit current input rebind only. Original evidence commits, CI receipts, semantic branches, dates and exclusions retained. New fixed full required."
+        },
+        {
+          "batch": "graveyard-source-reference-occupation-and-original-generation-2026-10-20",
+          "changes": [
+            {
+              "field": "implementation",
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "823517c20ff6ab27e09b4d2a2797b114fb9a2125e4b44b0b909008b14146b7d2",
+              "currentSha256": "677dc2b28a6b0aca32d9c7c7c8e9d0e0b315081470c0695b192effe3bf82768a"
+            }
+          ],
+          "previousCurrentMetadata": {
+            "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7",
+            "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+            "currentImplementationIncludesUncommittedChanges": true
+          },
+          "previousEntireContextPreservedIn": "docs/evidence/graveyard-source-occupation-2026-10-20/n20/pre-occupation-original-current-manifest.json.gz",
+          "scope": "Explicit current pin rebind only. Original evidence versions, semantic ranges and dates retained; new fixed full required."
         }
       ],
-      "revalidationReason": "Shared destruction source, delayed skills, graveyard effect play and recovery validation changed; prior full evidence does not certify current inputs."
+      "revalidationReason": "Shared stack source/card occupation and typed-ability classification changed."
     },
     "native-rule-choice-prompts-2026-10-16": {
       "evidenceCommit": "65092fcdea323f9f4b435a91344f76e838fb21b4",
-      "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+      "currentImplementationCommit": "e262ebf164e448cc9738d94db8e557f302cfc295",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Fixed650 baseline plus exact two implementation and four verification inputs. Fixed650 full does not cover these uncommitted prompt changes.",
       "ciState": "PENDING",
@@ -11920,7 +12388,7 @@
           "runId": 38899251618
         }
       ],
-      "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7",
+      "currentInputRevision": "1b7e2f06fb9d628d4b9c9fbf379d458c5d3b65bb0de180c0e5715f05aadc96ac",
       "implementationPinUpdates": [
         {
           "batch": "hwei-move-draw-discard-all-printed-types-2026-10-20",
@@ -11950,13 +12418,24 @@
           },
           "previousEntireContextPreservedIn": "docs/evidence/destruction-graveyard-2026-10-20/n19/pre-destruction-original-current-manifest.json.gz",
           "scope": "Explicit current input rebind only. Original evidence commits, CI receipts, semantic branches, dates and exclusions retained. New fixed full required."
+        },
+        {
+          "batch": "graveyard-source-reference-occupation-and-original-generation-2026-10-20",
+          "changes": [],
+          "previousCurrentMetadata": {
+            "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7",
+            "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+            "currentImplementationIncludesUncommittedChanges": true
+          },
+          "previousEntireContextPreservedIn": "docs/evidence/graveyard-source-occupation-2026-10-20/n20/pre-occupation-original-current-manifest.json.gz",
+          "scope": "Explicit current pin rebind only. Original evidence versions, semantic ranges and dates retained; new fixed full required."
         }
       ],
-      "revalidationReason": "Shared destruction source, delayed skills, graveyard effect play and recovery validation changed; prior full evidence does not certify current inputs."
+      "revalidationReason": "Shared stack source/card occupation and typed-ability classification changed."
     },
     "sand-soldier-embedded-ready-2026-10-17": {
       "evidenceCommit": "8ca4080c9431b981db051a5adad18dace5d85dd5",
-      "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+      "currentImplementationCommit": "e262ebf164e448cc9738d94db8e557f302cfc295",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Fixed8ca source baseline (gameplay5ed) plus explicit current implementation/test/fixture inputs. Prior5ed full/native and local pre-caption SQL are not relabeled as this final candidate.",
       "ciState": "PENDING",
@@ -11988,7 +12467,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "823517c20ff6ab27e09b4d2a2797b114fb9a2125e4b44b0b909008b14146b7d2"
+          "sha256": "677dc2b28a6b0aca32d9c7c7c8e9d0e0b315081470c0695b192effe3bf82768a"
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
@@ -12000,7 +12479,7 @@
         },
         {
           "path": "src/Riftbound.Engine/StackObjectRules.cs",
-          "sha256": "d844eb96df256111fdc1de42c00b8706a922d7e445bc286b5a6a5cc960e5c446"
+          "sha256": "16e2fd1b0c70eb88ab9e124090b142c8bafe827079f08d45f6ff9dddbc6ca01a"
         }
       ],
       "verificationSources": [
@@ -12298,7 +12777,7 @@
           "sha256": "05632566219de2496735cf6a87afb324b7d224165f0789f447b974c4ddb3f61a"
         }
       },
-      "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7",
+      "currentInputRevision": "1b7e2f06fb9d628d4b9c9fbf379d458c5d3b65bb0de180c0e5715f05aadc96ac",
       "implementationPinUpdates": [
         {
           "batch": "hwei-move-draw-discard-all-printed-types-2026-10-20",
@@ -12401,13 +12880,37 @@
           },
           "previousEntireContextPreservedIn": "docs/evidence/destruction-graveyard-2026-10-20/n19/pre-destruction-original-current-manifest.json.gz",
           "scope": "Explicit current input rebind only. Original evidence commits, CI receipts, semantic branches, dates and exclusions retained. New fixed full required."
+        },
+        {
+          "batch": "graveyard-source-reference-occupation-and-original-generation-2026-10-20",
+          "changes": [
+            {
+              "field": "implementation",
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "823517c20ff6ab27e09b4d2a2797b114fb9a2125e4b44b0b909008b14146b7d2",
+              "currentSha256": "677dc2b28a6b0aca32d9c7c7c8e9d0e0b315081470c0695b192effe3bf82768a"
+            },
+            {
+              "field": "implementation",
+              "path": "src/Riftbound.Engine/StackObjectRules.cs",
+              "previousSha256": "d844eb96df256111fdc1de42c00b8706a922d7e445bc286b5a6a5cc960e5c446",
+              "currentSha256": "16e2fd1b0c70eb88ab9e124090b142c8bafe827079f08d45f6ff9dddbc6ca01a"
+            }
+          ],
+          "previousCurrentMetadata": {
+            "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7",
+            "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+            "currentImplementationIncludesUncommittedChanges": true
+          },
+          "previousEntireContextPreservedIn": "docs/evidence/graveyard-source-occupation-2026-10-20/n20/pre-occupation-original-current-manifest.json.gz",
+          "scope": "Explicit current pin rebind only. Original evidence versions, semantic ranges and dates retained; new fixed full required."
         }
       ],
-      "revalidationReason": "Shared destruction source, delayed skills, graveyard effect play and recovery validation changed; prior full evidence does not certify current inputs."
+      "revalidationReason": "Shared stack source/card occupation and typed-ability classification changed."
     },
     "opening-randomness-2026-10-17": {
       "evidenceCommit": "a6ccf1952141c69ed4b3cde94695f983c1c28db8",
-      "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+      "currentImplementationCommit": "e262ebf164e448cc9738d94db8e557f302cfc295",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Base plus current explicit implementation/test inputs. Prior39 native/CI is historical and not relabeled current.",
       "ciState": "PENDING",
@@ -12837,7 +13340,7 @@
           "sha256": "05632566219de2496735cf6a87afb324b7d224165f0789f447b974c4ddb3f61a"
         }
       },
-      "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7",
+      "currentInputRevision": "1b7e2f06fb9d628d4b9c9fbf379d458c5d3b65bb0de180c0e5715f05aadc96ac",
       "implementationPinUpdates": [
         {
           "batch": "hwei-move-draw-discard-all-printed-types-2026-10-20",
@@ -12916,13 +13419,24 @@
           },
           "previousEntireContextPreservedIn": "docs/evidence/destruction-graveyard-2026-10-20/n19/pre-destruction-original-current-manifest.json.gz",
           "scope": "Explicit current input rebind only. Original evidence commits, CI receipts, semantic branches, dates and exclusions retained. New fixed full required."
+        },
+        {
+          "batch": "graveyard-source-reference-occupation-and-original-generation-2026-10-20",
+          "changes": [],
+          "previousCurrentMetadata": {
+            "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7",
+            "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+            "currentImplementationIncludesUncommittedChanges": true
+          },
+          "previousEntireContextPreservedIn": "docs/evidence/graveyard-source-occupation-2026-10-20/n20/pre-occupation-original-current-manifest.json.gz",
+          "scope": "Explicit current pin rebind only. Original evidence versions, semantic ranges and dates retained; new fixed full required."
         }
       ],
-      "revalidationReason": "Shared destruction source, delayed skills, graveyard effect play and recovery validation changed; prior full evidence does not certify current inputs."
+      "revalidationReason": "Shared stack source/card occupation and typed-ability classification changed."
     },
     "duel-chain-origins-cold-recovery-2026-10-17": {
       "evidenceCommit": "42c89230105573e39ffaf524a7dc21f24d520d4b",
-      "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+      "currentImplementationCommit": "e262ebf164e448cc9738d94db8e557f302cfc295",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Base42 plus exact changed implementation/test pins; fixed067 full is a retained failure, not current success.",
       "ciState": "PENDING",
@@ -12930,7 +13444,7 @@
       "implementation": [
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "823517c20ff6ab27e09b4d2a2797b114fb9a2125e4b44b0b909008b14146b7d2"
+          "sha256": "677dc2b28a6b0aca32d9c7c7c8e9d0e0b315081470c0695b192effe3bf82768a"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.TriggerHandoff.cs",
@@ -13156,7 +13670,7 @@
           "sha256": "05632566219de2496735cf6a87afb324b7d224165f0789f447b974c4ddb3f61a"
         }
       },
-      "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7",
+      "currentInputRevision": "1b7e2f06fb9d628d4b9c9fbf379d458c5d3b65bb0de180c0e5715f05aadc96ac",
       "implementationPinUpdates": [
         {
           "batch": "hwei-move-draw-discard-all-printed-types-2026-10-20",
@@ -13235,14 +13749,32 @@
           },
           "previousEntireContextPreservedIn": "docs/evidence/destruction-graveyard-2026-10-20/n19/pre-destruction-original-current-manifest.json.gz",
           "scope": "Explicit current input rebind only. Original evidence commits, CI receipts, semantic branches, dates and exclusions retained. New fixed full required."
+        },
+        {
+          "batch": "graveyard-source-reference-occupation-and-original-generation-2026-10-20",
+          "changes": [
+            {
+              "field": "implementation",
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "823517c20ff6ab27e09b4d2a2797b114fb9a2125e4b44b0b909008b14146b7d2",
+              "currentSha256": "677dc2b28a6b0aca32d9c7c7c8e9d0e0b315081470c0695b192effe3bf82768a"
+            }
+          ],
+          "previousCurrentMetadata": {
+            "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7",
+            "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+            "currentImplementationIncludesUncommittedChanges": true
+          },
+          "previousEntireContextPreservedIn": "docs/evidence/graveyard-source-occupation-2026-10-20/n20/pre-occupation-original-current-manifest.json.gz",
+          "scope": "Explicit current pin rebind only. Original evidence versions, semantic ranges and dates retained; new fixed full required."
         }
       ],
-      "revalidationReason": "Shared destruction source, delayed skills, graveyard effect play and recovery validation changed; prior full evidence does not certify current inputs."
+      "revalidationReason": "Shared stack source/card occupation and typed-ability classification changed."
     },
     "merfolk-battlefield-play-damage-here-2026-10-17": {
       "evidenceCommit": "4fca367eaab1dd198ffde839b23461c058a2b470",
       "evidenceCommitScope": "Previous fixed baseline only. This review source includes uncommitted positive damage changes and does not claim that4fca tested them.",
-      "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+      "currentImplementationCommit": "e262ebf164e448cc9738d94db8e557f302cfc295",
       "currentImplementationIncludesUncommittedChanges": true,
       "ciState": "PENDING",
       "ciReceipts": [],
@@ -13277,7 +13809,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "823517c20ff6ab27e09b4d2a2797b114fb9a2125e4b44b0b909008b14146b7d2"
+          "sha256": "677dc2b28a6b0aca32d9c7c7c8e9d0e0b315081470c0695b192effe3bf82768a"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
@@ -13437,7 +13969,7 @@
           ]
         }
       ],
-      "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7",
+      "currentInputRevision": "1b7e2f06fb9d628d4b9c9fbf379d458c5d3b65bb0de180c0e5715f05aadc96ac",
       "previousFixedFullCi": {
         "path": "docs/evidence/battlefield-play-damage-2026-10-17/full-ci-4fca-baseline.json",
         "sha256": "c8fb136ffea9ba036ff55e27c4b753aaf57c2d2e0d72c8dbdcc3de1de5ead358"
@@ -13538,14 +14070,32 @@
           },
           "previousEntireContextPreservedIn": "docs/evidence/destruction-graveyard-2026-10-20/n19/pre-destruction-original-current-manifest.json.gz",
           "scope": "Explicit current input rebind only. Original evidence commits, CI receipts, semantic branches, dates and exclusions retained. New fixed full required."
+        },
+        {
+          "batch": "graveyard-source-reference-occupation-and-original-generation-2026-10-20",
+          "changes": [
+            {
+              "field": "implementation",
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "823517c20ff6ab27e09b4d2a2797b114fb9a2125e4b44b0b909008b14146b7d2",
+              "currentSha256": "677dc2b28a6b0aca32d9c7c7c8e9d0e0b315081470c0695b192effe3bf82768a"
+            }
+          ],
+          "previousCurrentMetadata": {
+            "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7",
+            "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+            "currentImplementationIncludesUncommittedChanges": true
+          },
+          "previousEntireContextPreservedIn": "docs/evidence/graveyard-source-occupation-2026-10-20/n20/pre-occupation-original-current-manifest.json.gz",
+          "scope": "Explicit current pin rebind only. Original evidence versions, semantic ranges and dates retained; new fixed full required."
         }
       ],
-      "revalidationReason": "Shared destruction source, delayed skills, graveyard effect play and recovery validation changed; prior full evidence does not certify current inputs."
+      "revalidationReason": "Shared stack source/card occupation and typed-ability classification changed."
     },
     "banish-owner-effect-play-2026-10-18": {
       "evidenceCommit": "62bf7afc7a59bc743e1e578712e156686666c060",
       "evidenceCommitScope": "Previous fixed62bf baseline only. Later Hunting Rhythm source, fixture and SQL changes are uncommitted and are not covered by62bf.",
-      "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+      "currentImplementationCommit": "e262ebf164e448cc9738d94db8e557f302cfc295",
       "currentImplementationIncludesUncommittedChanges": true,
       "ciState": "PENDING",
       "ciReceipts": [],
@@ -13568,7 +14118,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "823517c20ff6ab27e09b4d2a2797b114fb9a2125e4b44b0b909008b14146b7d2"
+          "sha256": "677dc2b28a6b0aca32d9c7c7c8e9d0e0b315081470c0695b192effe3bf82768a"
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
@@ -13758,7 +14308,7 @@
           ]
         }
       ],
-      "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7",
+      "currentInputRevision": "1b7e2f06fb9d628d4b9c9fbf379d458c5d3b65bb0de180c0e5715f05aadc96ac",
       "previousFixedFullCi": {
         "path": "docs/evidence/banish-owner-play-2026-10-18/fixed62bf-full-ci-independent-original.json",
         "sha256": "c2cce06fd37e5615d373a480f5264c63d6819ac44a45300035be2b1511808e1b"
@@ -13859,14 +14409,32 @@
           },
           "previousEntireContextPreservedIn": "docs/evidence/destruction-graveyard-2026-10-20/n19/pre-destruction-original-current-manifest.json.gz",
           "scope": "Explicit current input rebind only. Original evidence commits, CI receipts, semantic branches, dates and exclusions retained. New fixed full required."
+        },
+        {
+          "batch": "graveyard-source-reference-occupation-and-original-generation-2026-10-20",
+          "changes": [
+            {
+              "field": "implementation",
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "823517c20ff6ab27e09b4d2a2797b114fb9a2125e4b44b0b909008b14146b7d2",
+              "currentSha256": "677dc2b28a6b0aca32d9c7c7c8e9d0e0b315081470c0695b192effe3bf82768a"
+            }
+          ],
+          "previousCurrentMetadata": {
+            "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7",
+            "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+            "currentImplementationIncludesUncommittedChanges": true
+          },
+          "previousEntireContextPreservedIn": "docs/evidence/graveyard-source-occupation-2026-10-20/n20/pre-occupation-original-current-manifest.json.gz",
+          "scope": "Explicit current pin rebind only. Original evidence versions, semantic ranges and dates retained; new fixed full required."
         }
       ],
-      "revalidationReason": "Shared destruction source, delayed skills, graveyard effect play and recovery validation changed; prior full evidence does not certify current inputs."
+      "revalidationReason": "Shared stack source/card occupation and typed-ability classification changed."
     },
     "permanent-here-location-control-2026-10-18": {
       "evidenceCommit": "c69aef543b7bb46a987719cc77cd77ea49782527",
       "evidenceCommitScope": "Previous c69 fixed full/native baseline only; later uncommitted Here inputs are separately pinned and not covered by c69.",
-      "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+      "currentImplementationCommit": "e262ebf164e448cc9738d94db8e557f302cfc295",
       "currentImplementationIncludesUncommittedChanges": true,
       "ciState": "PENDING",
       "ciReceipts": [],
@@ -13885,7 +14453,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "823517c20ff6ab27e09b4d2a2797b114fb9a2125e4b44b0b909008b14146b7d2"
+          "sha256": "677dc2b28a6b0aca32d9c7c7c8e9d0e0b315081470c0695b192effe3bf82768a"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
@@ -14065,7 +14633,7 @@
           ]
         }
       ],
-      "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7",
+      "currentInputRevision": "1b7e2f06fb9d628d4b9c9fbf379d458c5d3b65bb0de180c0e5715f05aadc96ac",
       "previousFixedFullCi": {
         "path": "docs/evidence/here-location-control-2026-10-18/fixedc69-full-ci-independent-original.json",
         "sha256": "c1c3108f19703652aa3d20b71f29e6c87c7fe3871b4cb623365ea3f3b1c8dcf6"
@@ -14146,14 +14714,32 @@
           },
           "previousEntireContextPreservedIn": "docs/evidence/destruction-graveyard-2026-10-20/n19/pre-destruction-original-current-manifest.json.gz",
           "scope": "Explicit current input rebind only. Original evidence commits, CI receipts, semantic branches, dates and exclusions retained. New fixed full required."
+        },
+        {
+          "batch": "graveyard-source-reference-occupation-and-original-generation-2026-10-20",
+          "changes": [
+            {
+              "field": "implementation",
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "823517c20ff6ab27e09b4d2a2797b114fb9a2125e4b44b0b909008b14146b7d2",
+              "currentSha256": "677dc2b28a6b0aca32d9c7c7c8e9d0e0b315081470c0695b192effe3bf82768a"
+            }
+          ],
+          "previousCurrentMetadata": {
+            "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7",
+            "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+            "currentImplementationIncludesUncommittedChanges": true
+          },
+          "previousEntireContextPreservedIn": "docs/evidence/graveyard-source-occupation-2026-10-20/n20/pre-occupation-original-current-manifest.json.gz",
+          "scope": "Explicit current pin rebind only. Original evidence versions, semantic ranges and dates retained; new fixed full required."
         }
       ],
-      "revalidationReason": "Shared destruction source, delayed skills, graveyard effect play and recovery validation changed; prior full evidence does not certify current inputs."
+      "revalidationReason": "Shared stack source/card occupation and typed-ability classification changed."
     },
     "rengar-unit-play-confirmation-order-recovery-2026-10-18": {
       "evidenceCommit": "a5d01ad0577e992ab19029424159a4c9acee1385",
       "evidenceCommitScope": "Original a5d native semantic red and prior source/test baseline only; current authored/compiled inputs are separately pinned and not covered by a5d.",
-      "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+      "currentImplementationCommit": "e262ebf164e448cc9738d94db8e557f302cfc295",
       "currentImplementationIncludesUncommittedChanges": true,
       "ciState": "PENDING",
       "ciReceipts": [],
@@ -14168,7 +14754,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "823517c20ff6ab27e09b4d2a2797b114fb9a2125e4b44b0b909008b14146b7d2"
+          "sha256": "677dc2b28a6b0aca32d9c7c7c8e9d0e0b315081470c0695b192effe3bf82768a"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEntryTriggers.cs",
@@ -14447,7 +15033,7 @@
           ]
         }
       ],
-      "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7",
+      "currentInputRevision": "1b7e2f06fb9d628d4b9c9fbf379d458c5d3b65bb0de180c0e5715f05aadc96ac",
       "implementationPinUpdates": [
         {
           "batch": "hwei-move-draw-discard-all-printed-types-2026-10-20",
@@ -14538,14 +15124,32 @@
           },
           "previousEntireContextPreservedIn": "docs/evidence/destruction-graveyard-2026-10-20/n19/pre-destruction-original-current-manifest.json.gz",
           "scope": "Explicit current input rebind only. Original evidence commits, CI receipts, semantic branches, dates and exclusions retained. New fixed full required."
+        },
+        {
+          "batch": "graveyard-source-reference-occupation-and-original-generation-2026-10-20",
+          "changes": [
+            {
+              "field": "implementation",
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "823517c20ff6ab27e09b4d2a2797b114fb9a2125e4b44b0b909008b14146b7d2",
+              "currentSha256": "677dc2b28a6b0aca32d9c7c7c8e9d0e0b315081470c0695b192effe3bf82768a"
+            }
+          ],
+          "previousCurrentMetadata": {
+            "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7",
+            "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+            "currentImplementationIncludesUncommittedChanges": true
+          },
+          "previousEntireContextPreservedIn": "docs/evidence/graveyard-source-occupation-2026-10-20/n20/pre-occupation-original-current-manifest.json.gz",
+          "scope": "Explicit current pin rebind only. Original evidence versions, semantic ranges and dates retained; new fixed full required."
         }
       ],
-      "revalidationReason": "Shared destruction source, delayed skills, graveyard effect play and recovery validation changed; prior full evidence does not certify current inputs."
+      "revalidationReason": "Shared stack source/card occupation and typed-ability classification changed."
     },
     "deferred-trigger-command-chronology-2026-10-18": {
       "evidenceCommit": "b18272e8e4ad0ed01523aebc9f592e19623f46c9",
       "evidenceCommitScope": "Prior fixed b182 full/native preparation only. Current authored/actual compiled chronology inputs are independently pinned, not covered by the base commit.",
-      "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+      "currentImplementationCommit": "e262ebf164e448cc9738d94db8e557f302cfc295",
       "currentImplementationIncludesUncommittedChanges": true,
       "ciState": "PENDING",
       "ciReceipts": [],
@@ -14564,7 +15168,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "823517c20ff6ab27e09b4d2a2797b114fb9a2125e4b44b0b909008b14146b7d2"
+          "sha256": "677dc2b28a6b0aca32d9c7c7c8e9d0e0b315081470c0695b192effe3bf82768a"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
@@ -14855,7 +15459,7 @@
           ]
         }
       ],
-      "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7",
+      "currentInputRevision": "1b7e2f06fb9d628d4b9c9fbf379d458c5d3b65bb0de180c0e5715f05aadc96ac",
       "implementationPinUpdates": [
         {
           "batch": "hwei-move-draw-discard-all-printed-types-2026-10-20",
@@ -14910,14 +15514,32 @@
           },
           "previousEntireContextPreservedIn": "docs/evidence/destruction-graveyard-2026-10-20/n19/pre-destruction-original-current-manifest.json.gz",
           "scope": "Explicit current input rebind only. Original evidence commits, CI receipts, semantic branches, dates and exclusions retained. New fixed full required."
+        },
+        {
+          "batch": "graveyard-source-reference-occupation-and-original-generation-2026-10-20",
+          "changes": [
+            {
+              "field": "implementation",
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "823517c20ff6ab27e09b4d2a2797b114fb9a2125e4b44b0b909008b14146b7d2",
+              "currentSha256": "677dc2b28a6b0aca32d9c7c7c8e9d0e0b315081470c0695b192effe3bf82768a"
+            }
+          ],
+          "previousCurrentMetadata": {
+            "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7",
+            "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+            "currentImplementationIncludesUncommittedChanges": true
+          },
+          "previousEntireContextPreservedIn": "docs/evidence/graveyard-source-occupation-2026-10-20/n20/pre-occupation-original-current-manifest.json.gz",
+          "scope": "Explicit current pin rebind only. Original evidence versions, semantic ranges and dates retained; new fixed full required."
         }
       ],
-      "revalidationReason": "Shared destruction source, delayed skills, graveyard effect play and recovery validation changed; prior full evidence does not certify current inputs."
+      "revalidationReason": "Shared stack source/card occupation and typed-ability classification changed."
     },
     "sole-trigger-choice-controller-2026-10-18": {
       "evidenceCommit": "fc106dcf29d996e09994d582378bdf4d8472618b",
       "evidenceCommitScope": "Prior fixed fc evidence only. Current WIP source revision and actual compiled modules independently pinned; source equality is not compiled identity equality.",
-      "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+      "currentImplementationCommit": "e262ebf164e448cc9738d94db8e557f302cfc295",
       "currentImplementationIncludesUncommittedChanges": true,
       "ciState": "PENDING",
       "ciReceipts": [],
@@ -14932,7 +15554,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "823517c20ff6ab27e09b4d2a2797b114fb9a2125e4b44b0b909008b14146b7d2"
+          "sha256": "677dc2b28a6b0aca32d9c7c7c8e9d0e0b315081470c0695b192effe3bf82768a"
         },
         {
           "path": "src/Riftbound.Engine/TriggerQueueRecoveryRules.cs",
@@ -15224,7 +15846,7 @@
           ]
         }
       ],
-      "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7",
+      "currentInputRevision": "1b7e2f06fb9d628d4b9c9fbf379d458c5d3b65bb0de180c0e5715f05aadc96ac",
       "implementationPinUpdates": [
         {
           "batch": "hwei-move-draw-discard-all-printed-types-2026-10-20",
@@ -15267,16 +15889,34 @@
           },
           "previousEntireContextPreservedIn": "docs/evidence/destruction-graveyard-2026-10-20/n19/pre-destruction-original-current-manifest.json.gz",
           "scope": "Explicit current input rebind only. Original evidence commits, CI receipts, semantic branches, dates and exclusions retained. New fixed full required."
+        },
+        {
+          "batch": "graveyard-source-reference-occupation-and-original-generation-2026-10-20",
+          "changes": [
+            {
+              "field": "implementation",
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "823517c20ff6ab27e09b4d2a2797b114fb9a2125e4b44b0b909008b14146b7d2",
+              "currentSha256": "677dc2b28a6b0aca32d9c7c7c8e9d0e0b315081470c0695b192effe3bf82768a"
+            }
+          ],
+          "previousCurrentMetadata": {
+            "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7",
+            "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+            "currentImplementationIncludesUncommittedChanges": true
+          },
+          "previousEntireContextPreservedIn": "docs/evidence/graveyard-source-occupation-2026-10-20/n20/pre-occupation-original-current-manifest.json.gz",
+          "scope": "Explicit current pin rebind only. Original evidence versions, semantic ranges and dates retained; new fixed full required."
         }
       ],
-      "revalidationReason": "Shared destruction source, delayed skills, graveyard effect play and recovery validation changed; prior full evidence does not certify current inputs."
+      "revalidationReason": "Shared stack source/card occupation and typed-ability classification changed."
     },
     "fate-weaver-private-spell-choice-2026-10-18": {
       "evidenceCommit": "91b87e4fbcb3baae1e82020df1e393d6a268b8b2",
       "evidenceCommitScope": "Original fixed91 red/product evidence only; current WIP exact source and independently measured actual executing modules separately pinned.",
-      "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+      "currentImplementationCommit": "e262ebf164e448cc9738d94db8e557f302cfc295",
       "currentImplementationIncludesUncommittedChanges": true,
-      "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7",
+      "currentInputRevision": "1b7e2f06fb9d628d4b9c9fbf379d458c5d3b65bb0de180c0e5715f05aadc96ac",
       "ciState": "PENDING",
       "ciReceipts": [],
       "implementation": [
@@ -15636,22 +16276,33 @@
           },
           "previousEntireContextPreservedIn": "docs/evidence/destruction-graveyard-2026-10-20/n19/pre-destruction-original-current-manifest.json.gz",
           "scope": "Explicit current input rebind only. Original evidence commits, CI receipts, semantic branches, dates and exclusions retained. New fixed full required."
+        },
+        {
+          "batch": "graveyard-source-reference-occupation-and-original-generation-2026-10-20",
+          "changes": [],
+          "previousCurrentMetadata": {
+            "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7",
+            "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+            "currentImplementationIncludesUncommittedChanges": true
+          },
+          "previousEntireContextPreservedIn": "docs/evidence/graveyard-source-occupation-2026-10-20/n20/pre-occupation-original-current-manifest.json.gz",
+          "scope": "Explicit current pin rebind only. Original evidence versions, semantic ranges and dates retained; new fixed full required."
         }
       ],
-      "revalidationReason": "Shared destruction source, delayed skills, graveyard effect play and recovery validation changed; prior full evidence does not certify current inputs."
+      "revalidationReason": "Shared stack source/card occupation and typed-ability classification changed."
     },
     "multi-controller-neutral-trigger-order-2026-10-18": {
       "evidenceCommit": "f199451ae6ceb135fa4fe4eafcba03e73ec9b99d",
       "evidenceCommitScope": "Actual fixedf199 Release5d3a ordinary red and pre-fix Debug81c2 only. Current WIP417 and fixed candidate inputs/data are independently pinned; source equality is not executing binary equality.",
-      "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+      "currentImplementationCommit": "e262ebf164e448cc9738d94db8e557f302cfc295",
       "currentImplementationIncludesUncommittedChanges": true,
-      "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7",
+      "currentInputRevision": "1b7e2f06fb9d628d4b9c9fbf379d458c5d3b65bb0de180c0e5715f05aadc96ac",
       "ciState": "PENDING",
       "ciReceipts": [],
       "implementation": [
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "823517c20ff6ab27e09b4d2a2797b114fb9a2125e4b44b0b909008b14146b7d2",
+          "sha256": "677dc2b28a6b0aca32d9c7c7c8e9d0e0b315081470c0695b192effe3bf82768a",
           "role": "implementation"
         },
         {
@@ -16054,16 +16705,34 @@
           },
           "previousEntireContextPreservedIn": "docs/evidence/destruction-graveyard-2026-10-20/n19/pre-destruction-original-current-manifest.json.gz",
           "scope": "Explicit current input rebind only. Original evidence commits, CI receipts, semantic branches, dates and exclusions retained. New fixed full required."
+        },
+        {
+          "batch": "graveyard-source-reference-occupation-and-original-generation-2026-10-20",
+          "changes": [
+            {
+              "field": "implementation",
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "823517c20ff6ab27e09b4d2a2797b114fb9a2125e4b44b0b909008b14146b7d2",
+              "currentSha256": "677dc2b28a6b0aca32d9c7c7c8e9d0e0b315081470c0695b192effe3bf82768a"
+            }
+          ],
+          "previousCurrentMetadata": {
+            "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7",
+            "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+            "currentImplementationIncludesUncommittedChanges": true
+          },
+          "previousEntireContextPreservedIn": "docs/evidence/graveyard-source-occupation-2026-10-20/n20/pre-occupation-original-current-manifest.json.gz",
+          "scope": "Explicit current pin rebind only. Original evidence versions, semantic ranges and dates retained; new fixed full required."
         }
       ],
-      "revalidationReason": "Shared destruction source, delayed skills, graveyard effect play and recovery validation changed; prior full evidence does not certify current inputs."
+      "revalidationReason": "Shared stack source/card occupation and typed-ability classification changed."
     },
     "empty-observed-deck-paid-repeat-2026-10-18": {
       "evidenceCommit": "46a990fefc65805116d45480d2880cb6861fdc58",
       "evidenceCommitScope": "Fixed46 actual Release d21fa804 red and separately verified current Debug c4ecf67f implementation. Fixed46 visible8:0 is an older implementation baseline, not new empty-view certification.",
-      "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+      "currentImplementationCommit": "e262ebf164e448cc9738d94db8e557f302cfc295",
       "currentImplementationIncludesUncommittedChanges": true,
-      "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7",
+      "currentInputRevision": "1b7e2f06fb9d628d4b9c9fbf379d458c5d3b65bb0de180c0e5715f05aadc96ac",
       "ciState": "PENDING",
       "ciReceipts": [],
       "implementation": [
@@ -16393,16 +17062,27 @@
           },
           "previousEntireContextPreservedIn": "docs/evidence/destruction-graveyard-2026-10-20/n19/pre-destruction-original-current-manifest.json.gz",
           "scope": "Explicit current input rebind only. Original evidence commits, CI receipts, semantic branches, dates and exclusions retained. New fixed full required."
+        },
+        {
+          "batch": "graveyard-source-reference-occupation-and-original-generation-2026-10-20",
+          "changes": [],
+          "previousCurrentMetadata": {
+            "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7",
+            "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+            "currentImplementationIncludesUncommittedChanges": true
+          },
+          "previousEntireContextPreservedIn": "docs/evidence/graveyard-source-occupation-2026-10-20/n20/pre-occupation-original-current-manifest.json.gz",
+          "scope": "Explicit current pin rebind only. Original evidence versions, semantic ranges and dates retained; new fixed full required."
         }
       ],
-      "revalidationReason": "Shared destruction source, delayed skills, graveyard effect play and recovery validation changed; prior full evidence does not certify current inputs."
+      "revalidationReason": "Shared stack source/card occupation and typed-ability classification changed."
     },
     "observed-deck-play-final-window-2026-10-18": {
       "evidenceCommit": "48c6ae96903807322cbba5dff3f1513fe8632917",
       "evidenceCommitScope": "Actual fixed48 Release87 native red and independently bound pre-fix Debug4f0 and corrected Debug525. Prior46 full is a separate older baseline, not this fix.",
-      "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+      "currentImplementationCommit": "e262ebf164e448cc9738d94db8e557f302cfc295",
       "currentImplementationIncludesUncommittedChanges": true,
-      "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7",
+      "currentInputRevision": "1b7e2f06fb9d628d4b9c9fbf379d458c5d3b65bb0de180c0e5715f05aadc96ac",
       "ciState": "PENDING",
       "ciReceipts": [],
       "implementation": [
@@ -16790,16 +17470,27 @@
           },
           "previousEntireContextPreservedIn": "docs/evidence/destruction-graveyard-2026-10-20/n19/pre-destruction-original-current-manifest.json.gz",
           "scope": "Explicit current input rebind only. Original evidence commits, CI receipts, semantic branches, dates and exclusions retained. New fixed full required."
+        },
+        {
+          "batch": "graveyard-source-reference-occupation-and-original-generation-2026-10-20",
+          "changes": [],
+          "previousCurrentMetadata": {
+            "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7",
+            "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+            "currentImplementationIncludesUncommittedChanges": true
+          },
+          "previousEntireContextPreservedIn": "docs/evidence/graveyard-source-occupation-2026-10-20/n20/pre-occupation-original-current-manifest.json.gz",
+          "scope": "Explicit current pin rebind only. Original evidence versions, semantic ranges and dates retained; new fixed full required."
         }
       ],
-      "revalidationReason": "Shared destruction source, delayed skills, graveyard effect play and recovery validation changed; prior full evidence does not certify current inputs."
+      "revalidationReason": "Shared stack source/card occupation and typed-ability classification changed."
     },
     "observed-source-native-ui-2026-10-18": {
       "evidenceCommit": "8c6d569e7be024b278cda46c09c262f061e53ab8",
       "evidenceCommitScope": "Prior fixed8c Release d4 visible46/282/normal8:0 is separate. Current uncommitted Debug bad341/combined47228 and actual native client modules pinned independently. Fixed48 CI cancelled by3h timeout, never full success.",
-      "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+      "currentImplementationCommit": "e262ebf164e448cc9738d94db8e557f302cfc295",
       "currentImplementationIncludesUncommittedChanges": true,
-      "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7",
+      "currentInputRevision": "1b7e2f06fb9d628d4b9c9fbf379d458c5d3b65bb0de180c0e5715f05aadc96ac",
       "ciState": "PENDING",
       "ciReceipts": [],
       "implementation": [
@@ -17053,22 +17744,33 @@
           },
           "previousEntireContextPreservedIn": "docs/evidence/destruction-graveyard-2026-10-20/n19/pre-destruction-original-current-manifest.json.gz",
           "scope": "Explicit current input rebind only. Original evidence commits, CI receipts, semantic branches, dates and exclusions retained. New fixed full required."
+        },
+        {
+          "batch": "graveyard-source-reference-occupation-and-original-generation-2026-10-20",
+          "changes": [],
+          "previousCurrentMetadata": {
+            "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7",
+            "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+            "currentImplementationIncludesUncommittedChanges": true
+          },
+          "previousEntireContextPreservedIn": "docs/evidence/graveyard-source-occupation-2026-10-20/n20/pre-occupation-original-current-manifest.json.gz",
+          "scope": "Explicit current pin rebind only. Original evidence versions, semantic ranges and dates retained; new fixed full required."
         }
       ],
-      "revalidationReason": "Shared destruction source, delayed skills, graveyard effect play and recovery validation changed; prior full evidence does not certify current inputs."
+      "revalidationReason": "Shared stack source/card occupation and typed-ability classification changed."
     },
     "ravenbloom-put-hand-2026-10-18": {
       "evidenceCommit": "21e505c32e29e1595251ccd571d80d176b95c98c",
       "evidenceCommitScope": "Actual current uncommitted Debug8e6/combined15660 is independently bound to SQL and Conformance. Prior semantic-only a2c and fixed21 Release56b/combinedb263 are separate. Actual fixed8c full cancelled by3h timeout is never promoted to success.",
-      "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+      "currentImplementationCommit": "e262ebf164e448cc9738d94db8e557f302cfc295",
       "currentImplementationIncludesUncommittedChanges": true,
-      "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7",
+      "currentInputRevision": "1b7e2f06fb9d628d4b9c9fbf379d458c5d3b65bb0de180c0e5715f05aadc96ac",
       "ciState": "PENDING",
       "ciReceipts": [],
       "implementation": [
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "823517c20ff6ab27e09b4d2a2797b114fb9a2125e4b44b0b909008b14146b7d2",
+          "sha256": "677dc2b28a6b0aca32d9c7c7c8e9d0e0b315081470c0695b192effe3bf82768a",
           "role": "implementation"
         },
         {
@@ -17616,16 +18318,34 @@
           },
           "previousEntireContextPreservedIn": "docs/evidence/destruction-graveyard-2026-10-20/n19/pre-destruction-original-current-manifest.json.gz",
           "scope": "Explicit current input rebind only. Original evidence commits, CI receipts, semantic branches, dates and exclusions retained. New fixed full required."
+        },
+        {
+          "batch": "graveyard-source-reference-occupation-and-original-generation-2026-10-20",
+          "changes": [
+            {
+              "field": "implementation",
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "823517c20ff6ab27e09b4d2a2797b114fb9a2125e4b44b0b909008b14146b7d2",
+              "currentSha256": "677dc2b28a6b0aca32d9c7c7c8e9d0e0b315081470c0695b192effe3bf82768a"
+            }
+          ],
+          "previousCurrentMetadata": {
+            "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7",
+            "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+            "currentImplementationIncludesUncommittedChanges": true
+          },
+          "previousEntireContextPreservedIn": "docs/evidence/graveyard-source-occupation-2026-10-20/n20/pre-occupation-original-current-manifest.json.gz",
+          "scope": "Explicit current pin rebind only. Original evidence versions, semantic ranges and dates retained; new fixed full required."
         }
       ],
-      "revalidationReason": "Shared destruction source, delayed skills, graveyard effect play and recovery validation changed; prior full evidence does not certify current inputs."
+      "revalidationReason": "Shared stack source/card occupation and typed-ability classification changed."
     },
     "copied-predict-2026-10-18": {
       "evidenceCommit": "6c9632f155bacff654acceb70ce42ee15e9b681f",
       "evidenceCommitScope": "Actual precommit Debug2c3a3/combined67084 current core bound to SQL/final152/original116/singlecheck. Actual old6c Debug7d564/combined6bbcc is separate from prior uncommittedDebug8e6 and prior6c Release83. Previous fixed21 full verified12659/7495/101SQLpaths93receipts is a prior baseline only.",
-      "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+      "currentImplementationCommit": "e262ebf164e448cc9738d94db8e557f302cfc295",
       "currentImplementationIncludesUncommittedChanges": true,
-      "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7",
+      "currentInputRevision": "1b7e2f06fb9d628d4b9c9fbf379d458c5d3b65bb0de180c0e5715f05aadc96ac",
       "ciState": "PENDING",
       "ciReceipts": [],
       "region": "CN",
@@ -18241,16 +18961,27 @@
           },
           "previousEntireContextPreservedIn": "docs/evidence/destruction-graveyard-2026-10-20/n19/pre-destruction-original-current-manifest.json.gz",
           "scope": "Explicit current input rebind only. Original evidence commits, CI receipts, semantic branches, dates and exclusions retained. New fixed full required."
+        },
+        {
+          "batch": "graveyard-source-reference-occupation-and-original-generation-2026-10-20",
+          "changes": [],
+          "previousCurrentMetadata": {
+            "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7",
+            "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+            "currentImplementationIncludesUncommittedChanges": true
+          },
+          "previousEntireContextPreservedIn": "docs/evidence/graveyard-source-occupation-2026-10-20/n20/pre-occupation-original-current-manifest.json.gz",
+          "scope": "Explicit current pin rebind only. Original evidence versions, semantic ranges and dates retained; new fixed full required."
         }
       ],
-      "revalidationReason": "Shared destruction source, delayed skills, graveyard effect play and recovery validation changed; prior full evidence does not certify current inputs."
+      "revalidationReason": "Shared stack source/card occupation and typed-ability classification changed."
     },
     "copied-last-breath-insight-2026-10-19": {
       "evidenceCommit": "447cf56b79fb3bc68c8b47254dadf46f8ca15c05",
       "evidenceCommitScope": "Actual precommit Debug a97015 / combined e2e37f binds274 scoped cases, SQL, original116 games and the single check. Old Debug3b782 / combined d1494d exact ordinary red evidence is separate from fixed a9 Release49. Added test assemblies are recorded separately; prior full receipts do not certify the current Q7 product.",
-      "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+      "currentImplementationCommit": "e262ebf164e448cc9738d94db8e557f302cfc295",
       "currentImplementationIncludesUncommittedChanges": true,
-      "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7",
+      "currentInputRevision": "1b7e2f06fb9d628d4b9c9fbf379d458c5d3b65bb0de180c0e5715f05aadc96ac",
       "ciState": "PENDING",
       "ciReceipts": [],
       "region": "CN",
@@ -18274,7 +19005,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "823517c20ff6ab27e09b4d2a2797b114fb9a2125e4b44b0b909008b14146b7d2",
+          "sha256": "677dc2b28a6b0aca32d9c7c7c8e9d0e0b315081470c0695b192effe3bf82768a",
           "role": "implementation"
         },
         {
@@ -19104,16 +19835,34 @@
           },
           "previousEntireContextPreservedIn": "docs/evidence/destruction-graveyard-2026-10-20/n19/pre-destruction-original-current-manifest.json.gz",
           "scope": "Explicit current input rebind only. Original evidence commits, CI receipts, semantic branches, dates and exclusions retained. New fixed full required."
+        },
+        {
+          "batch": "graveyard-source-reference-occupation-and-original-generation-2026-10-20",
+          "changes": [
+            {
+              "field": "implementation",
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "823517c20ff6ab27e09b4d2a2797b114fb9a2125e4b44b0b909008b14146b7d2",
+              "currentSha256": "677dc2b28a6b0aca32d9c7c7c8e9d0e0b315081470c0695b192effe3bf82768a"
+            }
+          ],
+          "previousCurrentMetadata": {
+            "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7",
+            "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+            "currentImplementationIncludesUncommittedChanges": true
+          },
+          "previousEntireContextPreservedIn": "docs/evidence/graveyard-source-occupation-2026-10-20/n20/pre-occupation-original-current-manifest.json.gz",
+          "scope": "Explicit current pin rebind only. Original evidence versions, semantic ranges and dates retained; new fixed full required."
         }
       ],
-      "revalidationReason": "Shared destruction source, delayed skills, graveyard effect play and recovery validation changed; prior full evidence does not certify current inputs."
+      "revalidationReason": "Shared stack source/card occupation and typed-ability classification changed."
     },
     "copied-duel-insight-2026-10-19": {
       "evidenceCommit": "3d690c3511ee8f96e57bad87c2e34691a3148e30",
-      "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+      "currentImplementationCommit": "e262ebf164e448cc9738d94db8e557f302cfc295",
       "evidenceCommitScope": "Uncommitted actual Debug70ce scoped201,ordinary16,SQL8,original116 and one check12781pass4diagnosticexpectationfailures,repairedby32focusonbyteidenticalCore.TestDLL/PDBphase separatelypinned.Fixed3d Release24e locked native is separate; its actual full failed on original driver. New fixed full pending.",
       "currentImplementationIncludesUncommittedChanges": true,
-      "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7",
+      "currentInputRevision": "1b7e2f06fb9d628d4b9c9fbf379d458c5d3b65bb0de180c0e5715f05aadc96ac",
       "ciState": "PENDING",
       "ciReceipts": [],
       "region": "CN",
@@ -19971,16 +20720,27 @@
           },
           "previousEntireContextPreservedIn": "docs/evidence/destruction-graveyard-2026-10-20/n19/pre-destruction-original-current-manifest.json.gz",
           "scope": "Explicit current input rebind only. Original evidence commits, CI receipts, semantic branches, dates and exclusions retained. New fixed full required."
+        },
+        {
+          "batch": "graveyard-source-reference-occupation-and-original-generation-2026-10-20",
+          "changes": [],
+          "previousCurrentMetadata": {
+            "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7",
+            "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+            "currentImplementationIncludesUncommittedChanges": true
+          },
+          "previousEntireContextPreservedIn": "docs/evidence/graveyard-source-occupation-2026-10-20/n20/pre-occupation-original-current-manifest.json.gz",
+          "scope": "Explicit current pin rebind only. Original evidence versions, semantic ranges and dates retained; new fixed full required."
         }
       ],
-      "revalidationReason": "Shared destruction source, delayed skills, graveyard effect play and recovery validation changed; prior full evidence does not certify current inputs."
+      "revalidationReason": "Shared stack source/card occupation and typed-ability classification changed."
     },
     "private-opening-resource-driver-2026-10-19": {
       "evidenceCommit": "3d690c3511ee8f96e57bad87c2e34691a3148e30",
-      "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+      "currentImplementationCommit": "e262ebf164e448cc9738d94db8e557f302cfc295",
       "evidenceCommitScope": "Uncommitted actual Debug70ce scoped201,ordinary16,SQL8,original116 and one check12781pass4diagnosticexpectationfailures,repairedby32focusonbyteidenticalCore.TestDLL/PDBphase separatelypinned.Fixed3d Release24e locked native is separate; its actual full failed on original driver. New fixed full pending.",
       "currentImplementationIncludesUncommittedChanges": true,
-      "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7",
+      "currentInputRevision": "1b7e2f06fb9d628d4b9c9fbf379d458c5d3b65bb0de180c0e5715f05aadc96ac",
       "ciState": "PENDING",
       "ciReceipts": [],
       "region": "CN",
@@ -20330,16 +21090,27 @@
           },
           "previousEntireContextPreservedIn": "docs/evidence/destruction-graveyard-2026-10-20/n19/pre-destruction-original-current-manifest.json.gz",
           "scope": "Explicit current input rebind only. Original evidence commits, CI receipts, semantic branches, dates and exclusions retained. New fixed full required."
+        },
+        {
+          "batch": "graveyard-source-reference-occupation-and-original-generation-2026-10-20",
+          "changes": [],
+          "previousCurrentMetadata": {
+            "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7",
+            "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+            "currentImplementationIncludesUncommittedChanges": true
+          },
+          "previousEntireContextPreservedIn": "docs/evidence/graveyard-source-occupation-2026-10-20/n20/pre-occupation-original-current-manifest.json.gz",
+          "scope": "Explicit current pin rebind only. Original evidence versions, semantic ranges and dates retained; new fixed full required."
         }
       ],
-      "revalidationReason": "Shared destruction source, delayed skills, graveyard effect play and recovery validation changed; prior full evidence does not certify current inputs."
+      "revalidationReason": "Shared stack source/card occupation and typed-ability classification changed."
     },
     "empowered-insight-2026-10-19": {
       "evidenceCommit": "c6af0a41d28326b7dd2ec18b9b1a3d176a6a2b99",
-      "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+      "currentImplementationCommit": "e262ebf164e448cc9738d94db8e557f302cfc295",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Actual uncommitted N9 Debug6993 identity:79directed,12ordinary,12realSQL,6earlyoriginal,onecheck12862pass14metadataexpectationfailures; all14resolvedby438distinctpassingfocusidentities over439executions. Ten non-test modules byte-exact; only four rule DLLs are shared with frozen SQL runtime. New fixed Release/full and current visible/Windows gates remain separate.",
-      "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7",
+      "currentInputRevision": "1b7e2f06fb9d628d4b9c9fbf379d458c5d3b65bb0de180c0e5715f05aadc96ac",
       "ciState": "PENDING",
       "ciReceipts": [],
       "region": "CN",
@@ -21231,16 +22002,27 @@
           },
           "previousEntireContextPreservedIn": "docs/evidence/destruction-graveyard-2026-10-20/n19/pre-destruction-original-current-manifest.json.gz",
           "scope": "Explicit current input rebind only. Original evidence commits, CI receipts, semantic branches, dates and exclusions retained. New fixed full required."
+        },
+        {
+          "batch": "graveyard-source-reference-occupation-and-original-generation-2026-10-20",
+          "changes": [],
+          "previousCurrentMetadata": {
+            "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7",
+            "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+            "currentImplementationIncludesUncommittedChanges": true
+          },
+          "previousEntireContextPreservedIn": "docs/evidence/graveyard-source-occupation-2026-10-20/n20/pre-occupation-original-current-manifest.json.gz",
+          "scope": "Explicit current pin rebind only. Original evidence versions, semantic ranges and dates retained; new fixed full required."
         }
       ],
-      "revalidationReason": "Shared destruction source, delayed skills, graveyard effect play and recovery validation changed; prior full evidence does not certify current inputs."
+      "revalidationReason": "Shared stack source/card occupation and typed-ability classification changed."
     },
     "pakaa-native-move-reveal-2026-10-19": {
       "evidenceCommit": "c5199fda52ad2417e6372e2a0731e3f52f604077",
-      "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+      "currentImplementationCommit": "e262ebf164e448cc9738d94db8e557f302cfc295",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Actual N11 uncommitted Debug identity bound to42 new cases,10 ordinary and10 real SQL branches, independent original read-only full replay and single check plus exact metadata focus; not c519 runtime or new fixed Release/product acceptance.",
-      "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7",
+      "currentInputRevision": "1b7e2f06fb9d628d4b9c9fbf379d458c5d3b65bb0de180c0e5715f05aadc96ac",
       "ciState": "PENDING",
       "ciReceipts": [],
       "region": "CN",
@@ -22528,16 +23310,27 @@
           },
           "previousEntireContextPreservedIn": "docs/evidence/destruction-graveyard-2026-10-20/n19/pre-destruction-original-current-manifest.json.gz",
           "scope": "Explicit current input rebind only. Original evidence commits, CI receipts, semantic branches, dates and exclusions retained. New fixed full required."
+        },
+        {
+          "batch": "graveyard-source-reference-occupation-and-original-generation-2026-10-20",
+          "changes": [],
+          "previousCurrentMetadata": {
+            "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7",
+            "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+            "currentImplementationIncludesUncommittedChanges": true
+          },
+          "previousEntireContextPreservedIn": "docs/evidence/graveyard-source-occupation-2026-10-20/n20/pre-occupation-original-current-manifest.json.gz",
+          "scope": "Explicit current pin rebind only. Original evidence versions, semantic ranges and dates retained; new fixed full required."
         }
       ],
-      "revalidationReason": "Shared destruction source, delayed skills, graveyard effect play and recovery validation changed; prior full evidence does not certify current inputs."
+      "revalidationReason": "Shared stack source/card occupation and typed-ability classification changed."
     },
     "observed-disclosure-wording-and-stale-native-smoke-2026-10-19": {
       "evidenceCommit": "6d9aee51e5259313b319ad555f8f44572563b3df",
-      "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+      "currentImplementationCommit": "e262ebf164e448cc9738d94db8e557f302cfc295",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Actual precommit N12 Debug identity in32 controlled and12 ordinary cases and one check; prior fixed6d9 actual Release acceptance is separate. New native source fix is not yet a native execution certificate.",
-      "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7",
+      "currentInputRevision": "1b7e2f06fb9d628d4b9c9fbf379d458c5d3b65bb0de180c0e5715f05aadc96ac",
       "ciState": "PENDING",
       "ciReceipts": [],
       "region": "CN",
@@ -23165,16 +23958,27 @@
           },
           "previousEntireContextPreservedIn": "docs/evidence/destruction-graveyard-2026-10-20/n19/pre-destruction-original-current-manifest.json.gz",
           "scope": "Explicit current input rebind only. Original evidence commits, CI receipts, semantic branches, dates and exclusions retained. New fixed full required."
+        },
+        {
+          "batch": "graveyard-source-reference-occupation-and-original-generation-2026-10-20",
+          "changes": [],
+          "previousCurrentMetadata": {
+            "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7",
+            "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+            "currentImplementationIncludesUncommittedChanges": true
+          },
+          "previousEntireContextPreservedIn": "docs/evidence/graveyard-source-occupation-2026-10-20/n20/pre-occupation-original-current-manifest.json.gz",
+          "scope": "Explicit current pin rebind only. Original evidence versions, semantic ranges and dates retained; new fixed full required."
         }
       ],
-      "revalidationReason": "Shared destruction source, delayed skills, graveyard effect play and recovery validation changed; prior full evidence does not certify current inputs."
+      "revalidationReason": "Shared stack source/card occupation and typed-ability classification changed."
     },
     "initial-empty-reveal-followup-specific432-2026-10-19": {
       "evidenceCommit": "07ac3ac93098c476179297ad755b18e9aa3f2e95",
-      "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+      "currentImplementationCommit": "e262ebf164e448cc9738d94db8e557f302cfc295",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Actual current frozen precommit Debug6bc source/rule/catalog/implementation identity. Prior fixed07ac Release1e2 acceptance is separate; source changes are not claimed present at the base commit.",
-      "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7",
+      "currentInputRevision": "1b7e2f06fb9d628d4b9c9fbf379d458c5d3b65bb0de180c0e5715f05aadc96ac",
       "ciState": "PENDING",
       "ciReceipts": [],
       "region": "CN",
@@ -23681,16 +24485,27 @@
           },
           "previousEntireContextPreservedIn": "docs/evidence/destruction-graveyard-2026-10-20/n19/pre-destruction-original-current-manifest.json.gz",
           "scope": "Explicit current input rebind only. Original evidence commits, CI receipts, semantic branches, dates and exclusions retained. New fixed full required."
+        },
+        {
+          "batch": "graveyard-source-reference-occupation-and-original-generation-2026-10-20",
+          "changes": [],
+          "previousCurrentMetadata": {
+            "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7",
+            "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+            "currentImplementationIncludesUncommittedChanges": true
+          },
+          "previousEntireContextPreservedIn": "docs/evidence/graveyard-source-occupation-2026-10-20/n20/pre-occupation-original-current-manifest.json.gz",
+          "scope": "Explicit current pin rebind only. Original evidence versions, semantic ranges and dates retained; new fixed full required."
         }
       ],
-      "revalidationReason": "Shared destruction source, delayed skills, graveyard effect play and recovery validation changed; prior full evidence does not certify current inputs."
+      "revalidationReason": "Shared stack source/card occupation and typed-ability classification changed."
     },
     "pakaa-dual-type-top-reveal-2026-10-19": {
       "evidenceCommit": "a3432166062177ba127ab8b3ffd836b9cd619b58",
-      "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+      "currentImplementationCommit": "e262ebf164e448cc9738d94db8e557f302cfc295",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Basea343 plus explicitly uncommitted test/SQL harness additions; no new files attributed to base. Current Conformance Debug98f is separate from actual frozen797f Release07cb SQL. New fixed full remains pending.",
-      "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7",
+      "currentInputRevision": "1b7e2f06fb9d628d4b9c9fbf379d458c5d3b65bb0de180c0e5715f05aadc96ac",
       "ciState": "PENDING",
       "ciReceipts": [],
       "region": "CN",
@@ -23942,16 +24757,27 @@
           },
           "previousEntireContextPreservedIn": "docs/evidence/destruction-graveyard-2026-10-20/n19/pre-destruction-original-current-manifest.json.gz",
           "scope": "Explicit current input rebind only. Original evidence commits, CI receipts, semantic branches, dates and exclusions retained. New fixed full required."
+        },
+        {
+          "batch": "graveyard-source-reference-occupation-and-original-generation-2026-10-20",
+          "changes": [],
+          "previousCurrentMetadata": {
+            "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7",
+            "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+            "currentImplementationIncludesUncommittedChanges": true
+          },
+          "previousEntireContextPreservedIn": "docs/evidence/graveyard-source-occupation-2026-10-20/n20/pre-occupation-original-current-manifest.json.gz",
+          "scope": "Explicit current pin rebind only. Original evidence versions, semantic ranges and dates retained; new fixed full required."
         }
       ],
-      "revalidationReason": "Shared destruction source, delayed skills, graveyard effect play and recovery validation changed; prior full evidence does not certify current inputs."
+      "revalidationReason": "Shared stack source/card occupation and typed-ability classification changed."
     },
     "hwei-move-draw-discard-all-printed-types-2026-10-20": {
       "evidenceCommit": "b294bb150d877b3399cd9e120bbaec5c75e353cf",
-      "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+      "currentImplementationCommit": "e262ebf164e448cc9738d94db8e557f302cfc295",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Baseb294 plus declared uncommitted Hwei sources/tests/SQL. Actual local Debugdb884 and Releasef4a are separate from older797f native and future fixed commit modules.",
-      "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7",
+      "currentInputRevision": "1b7e2f06fb9d628d4b9c9fbf379d458c5d3b65bb0de180c0e5715f05aadc96ac",
       "ciState": "PENDING",
       "ciReceipts": [],
       "region": "CN",
@@ -24000,7 +24826,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "823517c20ff6ab27e09b4d2a2797b114fb9a2125e4b44b0b909008b14146b7d2",
+          "sha256": "677dc2b28a6b0aca32d9c7c7c8e9d0e0b315081470c0695b192effe3bf82768a",
           "role": "implementation"
         },
         {
@@ -24364,16 +25190,34 @@
           },
           "previousEntireContextPreservedIn": "docs/evidence/destruction-graveyard-2026-10-20/n19/pre-destruction-original-current-manifest.json.gz",
           "scope": "Explicit current input rebind only. Original evidence commits, CI receipts, semantic branches, dates and exclusions retained. New fixed full required."
+        },
+        {
+          "batch": "graveyard-source-reference-occupation-and-original-generation-2026-10-20",
+          "changes": [
+            {
+              "field": "implementation",
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "823517c20ff6ab27e09b4d2a2797b114fb9a2125e4b44b0b909008b14146b7d2",
+              "currentSha256": "677dc2b28a6b0aca32d9c7c7c8e9d0e0b315081470c0695b192effe3bf82768a"
+            }
+          ],
+          "previousCurrentMetadata": {
+            "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7",
+            "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+            "currentImplementationIncludesUncommittedChanges": true
+          },
+          "previousEntireContextPreservedIn": "docs/evidence/graveyard-source-occupation-2026-10-20/n20/pre-occupation-original-current-manifest.json.gz",
+          "scope": "Explicit current pin rebind only. Original evidence versions, semantic ranges and dates retained; new fixed full required."
         }
       ],
-      "revalidationReason": "Shared destruction source, delayed skills, graveyard effect play and recovery validation changed; prior full evidence does not certify current inputs."
+      "revalidationReason": "Shared stack source/card occupation and typed-ability classification changed."
     },
     "destruction-attribution-delayed-skill-graveyard-play-2026-10-20": {
       "evidenceCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
-      "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+      "currentImplementationCommit": "e262ebf164e448cc9738d94db8e557f302cfc295",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Base08fd plus declared uncommitted source/test/SQL/CI inputs. Actual precommit Debug and Release evidence distinct from old08fd native and future fixed modules.",
-      "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7",
+      "currentInputRevision": "1b7e2f06fb9d628d4b9c9fbf379d458c5d3b65bb0de180c0e5715f05aadc96ac",
       "ciState": "PENDING",
       "ciReceipts": [],
       "region": "CN",
@@ -24442,7 +25286,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "823517c20ff6ab27e09b4d2a2797b114fb9a2125e4b44b0b909008b14146b7d2",
+          "sha256": "677dc2b28a6b0aca32d9c7c7c8e9d0e0b315081470c0695b192effe3bf82768a",
           "role": "implementation"
         },
         {
@@ -25380,6 +26224,443 @@
             "PHYSICAL_WINDOWS",
             "WHOLE_PRINTING_OTHER_COPY_CONTROL_REPLACEMENT_SIMULTANEOUS_AND_OTHER_CONSUMERS",
             "FAQ_ILLUSTRATED_PRINTING_IDENTITY_AND_ALL_ORIGINAL_SOURCE_GAPS"
+          ]
+        }
+      ],
+      "implementationPinUpdates": [
+        {
+          "batch": "graveyard-source-reference-occupation-and-original-generation-2026-10-20",
+          "changes": [
+            {
+              "field": "implementation",
+              "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+              "previousSha256": "823517c20ff6ab27e09b4d2a2797b114fb9a2125e4b44b0b909008b14146b7d2",
+              "currentSha256": "677dc2b28a6b0aca32d9c7c7c8e9d0e0b315081470c0695b192effe3bf82768a"
+            }
+          ],
+          "previousCurrentMetadata": {
+            "currentInputRevision": "e81004348dafc448167244e1b1eb7cacf54526236cc730d9601b926f65690db7",
+            "currentImplementationCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
+            "currentImplementationIncludesUncommittedChanges": true
+          },
+          "previousEntireContextPreservedIn": "docs/evidence/graveyard-source-occupation-2026-10-20/n20/pre-occupation-original-current-manifest.json.gz",
+          "scope": "Explicit current pin rebind only. Original evidence versions, semantic ranges and dates retained; new fixed full required."
+        }
+      ],
+      "revalidationReason": "Shared stack source/card occupation and typed-ability classification changed."
+    },
+    "graveyard-source-reference-occupation-and-original-generation-2026-10-20": {
+      "evidenceCommit": "e262ebf164e448cc9738d94db8e557f302cfc295",
+      "currentImplementationCommit": "e262ebf164e448cc9738d94db8e557f302cfc295",
+      "currentImplementationIncludesUncommittedChanges": true,
+      "evidenceCommitScope": "Basee262 plus exact declared source/test inputs. Prior e262 Release/native remains a separate version.",
+      "currentInputRevision": "1b7e2f06fb9d628d4b9c9fbf379d458c5d3b65bb0de180c0e5715f05aadc96ac",
+      "ciState": "PENDING",
+      "ciReceipts": [],
+      "region": "CN",
+      "language": "zh-CN",
+      "applicableAsOf": "2026-10-16",
+      "sourceManifest": {
+        "path": "docs/evidence/graveyard-source-occupation-2026-10-20/source-manifest.json",
+        "sha256": "576921675682987d6efe6d9c9d2db0032063b7b32913e8fd8cdbd032b29ff602",
+        "role": "source-manifest"
+      },
+      "implementation": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "sha256": "677dc2b28a6b0aca32d9c7c7c8e9d0e0b315081470c0695b192effe3bf82768a",
+          "role": "implementation"
+        },
+        {
+          "path": "src/Riftbound.Engine/StackObjectRules.cs",
+          "sha256": "16e2fd1b0c70eb88ab9e124090b142c8bafe827079f08d45f6ff9dddbc6ca01a",
+          "role": "implementation"
+        }
+      ],
+      "verificationSources": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/DestructionGraveyardSourceOccupationTests.cs",
+          "sha256": "d642f7b12886dc82f5f3e7de5db8a4abec13a35f4ee17bb626084e3e754568c0",
+          "role": "verification"
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/evidence/graveyard-source-occupation-2026-10-20/n20/only-check-retention-and-disposition-v1.json",
+          "sha256": "ee084412025bef6d84299dcabfaa67e6a87725b6b67f7312afc2001f1364cb3e",
+          "role": "only-check-retention-and-disposition-v1"
+        },
+        {
+          "path": "docs/evidence/graveyard-source-occupation-2026-10-20/n20/affected-original-full-games-and-shared-consumers-v5-verification.json",
+          "sha256": "dfc22b523580fa345db24865f35827e153bbff0b8f5c120664c3d64d2c4cb7d5",
+          "role": "affected-original-full-games-and-shared-consumers-v5-verification"
+        },
+        {
+          "path": "docs/evidence/graveyard-source-occupation-2026-10-20/n20/all-e262-test-tool-and-original-fullgame-source-retention-v1.json",
+          "sha256": "0abc6f58dc54f2a477716772617213d1f6f6f8ba79e410643ac074d46e066a95",
+          "role": "all-e262-test-tool-and-original-fullgame-source-retention-v1"
+        },
+        {
+          "path": "docs/evidence/graveyard-source-occupation-2026-10-20/n20/original-prefix-independent-verification-v2.json",
+          "sha256": "40d14c5bd01925230e8e108f54961d68a9e2103acca46e8c01b92e1d6d936d00",
+          "role": "original-prefix-independent-verification-v2"
+        },
+        {
+          "path": "docs/evidence/graveyard-source-occupation-2026-10-20/n20/focus-first-four-failures-new-test-scope-disposition-v1.json",
+          "sha256": "ac133324822061f8c78f0525bfaafd7b09b610863d11c08efb188cb9003d78c1",
+          "role": "focus-first-four-failures-new-test-scope-disposition-v1"
+        },
+        {
+          "path": "docs/evidence/graveyard-source-occupation-2026-10-20/candidate-e262/locked-fixed-candidate-continuation-checkpoint-v2.json",
+          "sha256": "ef8ea36b3742ea05f67242e41674c11d13928c92391a855d2e8800866bed8e34",
+          "role": "locked-fixed-candidate-continuation-checkpoint-v2"
+        },
+        {
+          "path": "docs/evidence/graveyard-source-occupation-2026-10-20/ordinary-prefix/ordinary-two-format-original-prefix-closure-v1.json",
+          "sha256": "78ce623e7f08102983efda473a73b2891da2921ab851023cfa10164322ab7dc4",
+          "role": "ordinary-two-format-original-prefix-closure-v1"
+        },
+        {
+          "path": "docs/evidence/graveyard-source-occupation-2026-10-20/ordinary-prefix/independent-core-original-verification-v3.json",
+          "sha256": "1dba3f4b9f0ce518e2b2d94d03cf9507962d5cc07e72a98b775fba26eb3659b2",
+          "role": "independent-core-original-verification-v3"
+        },
+        {
+          "path": "docs/evidence/graveyard-source-occupation-2026-10-20/ordinary-prefix/independent-china-original-verification-v3.json",
+          "sha256": "f1840a84c2c93ae8cc8991e08a4ad8469d38432ce30c7a96527924cba7da25b2",
+          "role": "independent-china-original-verification-v3"
+        },
+        {
+          "path": "docs/evidence/graveyard-source-occupation-2026-10-20/ordinary-prefix/original-v1-prefix-independent-verification-v1.json",
+          "sha256": "bacaaea50a697b0e4764e35dd2d218401e180be9b30665664080e0b3edc202db",
+          "role": "original-v1-prefix-independent-verification-v1"
+        },
+        {
+          "path": "docs/evidence/graveyard-source-occupation-2026-10-20/bounded-behavior-matrix.json",
+          "sha256": "cc2f81e36d5948ca4aef56b2dc691b90e1a272176ef5efebe236195b6b2fe624",
+          "role": "bounded-behavior-matrix"
+        }
+      ],
+      "branches": [
+        {
+          "id": "SIBLING_SKILL_REFERENCES_DO_NOT_OCCUPY_THE_SOURCE_CARD",
+          "sourceRefs": [
+            "CN-59bd828207564540-P021-B002",
+            "CN-59bd828207564540-P021-B003",
+            "CN-59bd828207564540-P021-B004",
+            "CN-d6fd7140f106f9b5-P008-B011",
+            "CN-d6fd7140f106f9b5-P008-B012",
+            "CN-d6fd7140f106f9b5-P012-B018",
+            "CN-d6fd7140f106f9b5-P032-B002",
+            "CN-d6fd7140f106f9b5-P045-B015",
+            "CN-d6fd7140f106f9b5-P046-B003",
+            "CN-d6fd7140f106f9b5-P062-B005",
+            "CN-d6fd7140f106f9b5-P062-B006",
+            "CN-d6fd7140f106f9b5-P062-B009",
+            "CN-d6fd7140f106f9b5-P062-B011",
+            "CN-d6fd7140f106f9b5-P063-B004",
+            "CN-d6fd7140f106f9b5-P063-B006",
+            "CN-d6fd7140f106f9b5-P068-B002",
+            "CN-d6fd7140f106f9b5-P071-B017",
+            "CN-d6fd7140f106f9b5-P074-B013",
+            "CN-d6fd7140f106f9b5-P074-B014",
+            "CN-d6fd7140f106f9b5-P080-B001",
+            "CN-d6fd7140f106f9b5-P080-B011",
+            "CN-d6fd7140f106f9b5-P080-B012",
+            "CN-d6fd7140f106f9b5-P080-B013",
+            "CN-d6fd7140f106f9b5-P080-B014",
+            "CN-d6fd7140f106f9b5-P080-B015",
+            "CN-d6fd7140f106f9b5-P080-B016",
+            "CN-d6fd7140f106f9b5-P080-B017",
+            "OGN-009/298",
+            "OGN-010/298",
+            "OGN-037/298",
+            "OGN-064/298",
+            "OGN-221/298",
+            "OGN-254/298",
+            "SFD-045/221",
+            "UNL-106/219",
+            "UNL-118/219",
+            "UNL-118A/219",
+            "UNL-142/219",
+            "UNL-180/219"
+          ],
+          "sourceManifest": {
+            "path": "docs/evidence/graveyard-source-occupation-2026-10-20/source-manifest.json",
+            "sha256": "576921675682987d6efe6d9c9d2db0032063b7b32913e8fd8cdbd032b29ff602",
+            "role": "source-manifest"
+          },
+          "state": "RECORDED",
+          "branchScope": "Both paid skills independently reference the same graveyard card; either original order permits the first normal effect play.",
+          "decision": {
+            "state": "OPEN",
+            "reason": "Limited current controlled behavior, two exact-format sibling ordinary prefixes and independent safety guards. New fixed full, real SQL, other ordinary branches and current visible/physical product remain open."
+          },
+          "semanticReview": "LIMITED_CURRENT_CN_EXACT_SOURCE_AND_BRANCHES",
+          "implementation": "SHARED_TYPED_SKILL_SOURCE_CARD_OCCUPATION_AND_GENERATION_GUARDS",
+          "testExecution": "CURRENT_SEVEN_CASES133_ADJACENT_FOUR_ORIGINAL_SCORE_GAMES_AND_SOLECHECK_PASS",
+          "ordinaryTestExecution": "TWO_EXACT_FORMAT_BLANK_SEED0_SIBLING_PREFIXES_INDEPENDENTLY_READ",
+          "realSql": "OPEN",
+          "actualCaseKeys": [
+            "4a0bd26f661c0f69a91d5f717a7ac46302ad98938c6e983e5e33c2962ef63a7e",
+            "1ef6474c7cef2bea3af89762bb4c1545e6b411df56c4925eba8ce5f4480af503",
+            "d5fc32fb16deb8af6aec3347607e07e3f92d7341024d4c0b74b618ceeb4b08e4",
+            "cec13bc253ac0ca7a4f35d2e069639351db8ccfa5e21782be568b59ca3dc01c4"
+          ],
+          "actualTestMatrix": {
+            "path": "docs/evidence/graveyard-source-occupation-2026-10-20/bounded-behavior-matrix.json",
+            "sha256": "cc2f81e36d5948ca4aef56b2dc691b90e1a272176ef5efebe236195b6b2fe624",
+            "role": "bounded-behavior-matrix"
+          },
+          "fixedCommitCi": "PENDING_NEW_FIXED_FULL",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false,
+          "remaining": [
+            "CORRESPONDING_REAL_SQL",
+            "OTHER_ORDINARY_BRANCHES",
+            "NEW_FIXED_FULL",
+            "VISIBLE_NATIVE_CONTROLS_PAIRED_RECONNECT_NORMAL_SCORE_REPLAY",
+            "PHYSICAL_WINDOWS",
+            "OTHER_CONSUMERS_AND_WHOLE_PRINTING"
+          ]
+        },
+        {
+          "id": "LEGIT_SOURCE_REENTRY_NEW_CONFIRMATION_AND_OLD_GENERATION_NOOP",
+          "sourceRefs": [
+            "CN-59bd828207564540-P021-B002",
+            "CN-59bd828207564540-P021-B003",
+            "CN-59bd828207564540-P021-B004",
+            "CN-d6fd7140f106f9b5-P008-B011",
+            "CN-d6fd7140f106f9b5-P008-B012",
+            "CN-d6fd7140f106f9b5-P012-B018",
+            "CN-d6fd7140f106f9b5-P032-B002",
+            "CN-d6fd7140f106f9b5-P045-B015",
+            "CN-d6fd7140f106f9b5-P046-B003",
+            "CN-d6fd7140f106f9b5-P062-B005",
+            "CN-d6fd7140f106f9b5-P062-B006",
+            "CN-d6fd7140f106f9b5-P062-B009",
+            "CN-d6fd7140f106f9b5-P062-B011",
+            "CN-d6fd7140f106f9b5-P063-B004",
+            "CN-d6fd7140f106f9b5-P063-B006",
+            "CN-d6fd7140f106f9b5-P068-B002",
+            "CN-d6fd7140f106f9b5-P071-B017",
+            "CN-d6fd7140f106f9b5-P074-B013",
+            "CN-d6fd7140f106f9b5-P074-B014",
+            "CN-d6fd7140f106f9b5-P080-B001",
+            "CN-d6fd7140f106f9b5-P080-B011",
+            "CN-d6fd7140f106f9b5-P080-B012",
+            "CN-d6fd7140f106f9b5-P080-B013",
+            "CN-d6fd7140f106f9b5-P080-B014",
+            "CN-d6fd7140f106f9b5-P080-B015",
+            "CN-d6fd7140f106f9b5-P080-B016",
+            "CN-d6fd7140f106f9b5-P080-B017",
+            "OGN-009/298",
+            "OGN-010/298",
+            "OGN-037/298",
+            "OGN-064/298",
+            "OGN-221/298",
+            "OGN-254/298",
+            "SFD-045/221",
+            "UNL-106/219",
+            "UNL-118/219",
+            "UNL-118A/219",
+            "UNL-142/219",
+            "UNL-180/219"
+          ],
+          "sourceManifest": {
+            "path": "docs/evidence/graveyard-source-occupation-2026-10-20/source-manifest.json",
+            "sha256": "576921675682987d6efe6d9c9d2db0032063b7b32913e8fd8cdbd032b29ff602",
+            "role": "source-manifest"
+          },
+          "state": "RECORDED",
+          "branchScope": "Actual extra-cost destruction creates a new graveyard incarnation and its own confirmation. Declining it never lets the old paid ability borrow that new incarnation.",
+          "decision": {
+            "state": "OPEN",
+            "reason": "Limited current controlled behavior, two exact-format sibling ordinary prefixes and independent safety guards. New fixed full, real SQL, other ordinary branches and current visible/physical product remain open."
+          },
+          "semanticReview": "LIMITED_CURRENT_CN_EXACT_SOURCE_AND_BRANCHES",
+          "implementation": "SHARED_TYPED_SKILL_SOURCE_CARD_OCCUPATION_AND_GENERATION_GUARDS",
+          "testExecution": "CURRENT_SEVEN_CASES133_ADJACENT_FOUR_ORIGINAL_SCORE_GAMES_AND_SOLECHECK_PASS",
+          "ordinaryTestExecution": "OPEN",
+          "realSql": "OPEN",
+          "actualCaseKeys": [
+            "4a0bd26f661c0f69a91d5f717a7ac46302ad98938c6e983e5e33c2962ef63a7e",
+            "cec13bc253ac0ca7a4f35d2e069639351db8ccfa5e21782be568b59ca3dc01c4"
+          ],
+          "actualTestMatrix": {
+            "path": "docs/evidence/graveyard-source-occupation-2026-10-20/bounded-behavior-matrix.json",
+            "sha256": "cc2f81e36d5948ca4aef56b2dc691b90e1a272176ef5efebe236195b6b2fe624",
+            "role": "bounded-behavior-matrix"
+          },
+          "fixedCommitCi": "PENDING_NEW_FIXED_FULL",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false,
+          "remaining": [
+            "CORRESPONDING_REAL_SQL",
+            "OTHER_ORDINARY_BRANCHES",
+            "NEW_FIXED_FULL",
+            "VISIBLE_NATIVE_CONTROLS_PAIRED_RECONNECT_NORMAL_SCORE_REPLAY",
+            "PHYSICAL_WINDOWS",
+            "OTHER_CONSUMERS_AND_WHOLE_PRINTING"
+          ]
+        },
+        {
+          "id": "REAL_STACK_CARD_OCCUPATION_REJECTION_REMAINS_ATOMIC",
+          "sourceRefs": [
+            "CN-59bd828207564540-P021-B002",
+            "CN-59bd828207564540-P021-B003",
+            "CN-59bd828207564540-P021-B004",
+            "CN-d6fd7140f106f9b5-P008-B011",
+            "CN-d6fd7140f106f9b5-P008-B012",
+            "CN-d6fd7140f106f9b5-P012-B018",
+            "CN-d6fd7140f106f9b5-P032-B002",
+            "CN-d6fd7140f106f9b5-P045-B015",
+            "CN-d6fd7140f106f9b5-P046-B003",
+            "CN-d6fd7140f106f9b5-P062-B005",
+            "CN-d6fd7140f106f9b5-P062-B006",
+            "CN-d6fd7140f106f9b5-P062-B009",
+            "CN-d6fd7140f106f9b5-P062-B011",
+            "CN-d6fd7140f106f9b5-P063-B004",
+            "CN-d6fd7140f106f9b5-P063-B006",
+            "CN-d6fd7140f106f9b5-P068-B002",
+            "CN-d6fd7140f106f9b5-P071-B017",
+            "CN-d6fd7140f106f9b5-P074-B013",
+            "CN-d6fd7140f106f9b5-P074-B014",
+            "CN-d6fd7140f106f9b5-P080-B001",
+            "CN-d6fd7140f106f9b5-P080-B011",
+            "CN-d6fd7140f106f9b5-P080-B012",
+            "CN-d6fd7140f106f9b5-P080-B013",
+            "CN-d6fd7140f106f9b5-P080-B014",
+            "CN-d6fd7140f106f9b5-P080-B015",
+            "CN-d6fd7140f106f9b5-P080-B016",
+            "CN-d6fd7140f106f9b5-P080-B017",
+            "OGN-009/298",
+            "OGN-010/298",
+            "OGN-037/298",
+            "OGN-064/298",
+            "OGN-221/298",
+            "OGN-254/298",
+            "SFD-045/221",
+            "UNL-106/219",
+            "UNL-118/219",
+            "UNL-118A/219",
+            "UNL-142/219",
+            "UNL-180/219"
+          ],
+          "sourceManifest": {
+            "path": "docs/evidence/graveyard-source-occupation-2026-10-20/source-manifest.json",
+            "sha256": "576921675682987d6efe6d9c9d2db0032063b7b32913e8fd8cdbd032b29ff602",
+            "role": "source-manifest"
+          },
+          "state": "RECORDED",
+          "branchScope": "A real spell card occupying the stack still rejects duplicate play without state or event changes.",
+          "decision": {
+            "state": "OPEN",
+            "reason": "Limited current controlled behavior, two exact-format sibling ordinary prefixes and independent safety guards. New fixed full, real SQL, other ordinary branches and current visible/physical product remain open."
+          },
+          "semanticReview": "LIMITED_CURRENT_CN_EXACT_SOURCE_AND_BRANCHES",
+          "implementation": "SHARED_TYPED_SKILL_SOURCE_CARD_OCCUPATION_AND_GENERATION_GUARDS",
+          "testExecution": "CURRENT_SEVEN_CASES133_ADJACENT_FOUR_ORIGINAL_SCORE_GAMES_AND_SOLECHECK_PASS",
+          "ordinaryTestExecution": "OPEN",
+          "realSql": "OPEN",
+          "actualCaseKeys": [
+            "bfec2ba65dc2bd8abb57d80d82830df91e9cfda24d190eb2236ac1e5bb2a5fda"
+          ],
+          "actualTestMatrix": {
+            "path": "docs/evidence/graveyard-source-occupation-2026-10-20/bounded-behavior-matrix.json",
+            "sha256": "cc2f81e36d5948ca4aef56b2dc691b90e1a272176ef5efebe236195b6b2fe624",
+            "role": "bounded-behavior-matrix"
+          },
+          "fixedCommitCi": "PENDING_NEW_FIXED_FULL",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false,
+          "remaining": [
+            "CORRESPONDING_REAL_SQL",
+            "OTHER_ORDINARY_BRANCHES",
+            "NEW_FIXED_FULL",
+            "VISIBLE_NATIVE_CONTROLS_PAIRED_RECONNECT_NORMAL_SCORE_REPLAY",
+            "PHYSICAL_WINDOWS",
+            "OTHER_CONSUMERS_AND_WHOLE_PRINTING"
+          ]
+        },
+        {
+          "id": "TYPED_SKILL_DESCRIPTORS_DO_NOT_CREATE_CHOSEN_COUNTER_TARGETS",
+          "sourceRefs": [
+            "CN-59bd828207564540-P021-B002",
+            "CN-59bd828207564540-P021-B003",
+            "CN-59bd828207564540-P021-B004",
+            "CN-d6fd7140f106f9b5-P008-B011",
+            "CN-d6fd7140f106f9b5-P008-B012",
+            "CN-d6fd7140f106f9b5-P012-B018",
+            "CN-d6fd7140f106f9b5-P032-B002",
+            "CN-d6fd7140f106f9b5-P045-B015",
+            "CN-d6fd7140f106f9b5-P046-B003",
+            "CN-d6fd7140f106f9b5-P062-B005",
+            "CN-d6fd7140f106f9b5-P062-B006",
+            "CN-d6fd7140f106f9b5-P062-B009",
+            "CN-d6fd7140f106f9b5-P062-B011",
+            "CN-d6fd7140f106f9b5-P063-B004",
+            "CN-d6fd7140f106f9b5-P063-B006",
+            "CN-d6fd7140f106f9b5-P068-B002",
+            "CN-d6fd7140f106f9b5-P071-B017",
+            "CN-d6fd7140f106f9b5-P074-B013",
+            "CN-d6fd7140f106f9b5-P074-B014",
+            "CN-d6fd7140f106f9b5-P080-B001",
+            "CN-d6fd7140f106f9b5-P080-B011",
+            "CN-d6fd7140f106f9b5-P080-B012",
+            "CN-d6fd7140f106f9b5-P080-B013",
+            "CN-d6fd7140f106f9b5-P080-B014",
+            "CN-d6fd7140f106f9b5-P080-B015",
+            "CN-d6fd7140f106f9b5-P080-B016",
+            "CN-d6fd7140f106f9b5-P080-B017",
+            "OGN-009/298",
+            "OGN-010/298",
+            "OGN-037/298",
+            "OGN-064/298",
+            "OGN-221/298",
+            "OGN-254/298",
+            "SFD-045/221",
+            "UNL-106/219",
+            "UNL-118/219",
+            "UNL-118A/219",
+            "UNL-142/219",
+            "UNL-180/219"
+          ],
+          "sourceManifest": {
+            "path": "docs/evidence/graveyard-source-occupation-2026-10-20/source-manifest.json",
+            "sha256": "576921675682987d6efe6d9c9d2db0032063b7b32913e8fd8cdbd032b29ff602",
+            "role": "source-manifest"
+          },
+          "state": "RECORDED",
+          "branchScope": "The two typed skills have ability descriptors. Spell-only and chosen-friendly-unit counter previews and commands remain independently rejected for these automatic references.",
+          "decision": {
+            "state": "OPEN",
+            "reason": "Limited current controlled behavior, two exact-format sibling ordinary prefixes and independent safety guards. New fixed full, real SQL, other ordinary branches and current visible/physical product remain open."
+          },
+          "semanticReview": "LIMITED_CURRENT_CN_EXACT_SOURCE_AND_BRANCHES",
+          "implementation": "SHARED_TYPED_SKILL_SOURCE_CARD_OCCUPATION_AND_GENERATION_GUARDS",
+          "testExecution": "CURRENT_SEVEN_CASES133_ADJACENT_FOUR_ORIGINAL_SCORE_GAMES_AND_SOLECHECK_PASS",
+          "ordinaryTestExecution": "OPEN",
+          "realSql": "OPEN",
+          "actualCaseKeys": [
+            "a4e637b456cc405af1c54b7c61c2920b16bcd69ef52ccfd54720d585b07863ba",
+            "120fc11b4a28b31a564e70ed29bc20d917c67eb71a34a7996697561668a89028"
+          ],
+          "actualTestMatrix": {
+            "path": "docs/evidence/graveyard-source-occupation-2026-10-20/bounded-behavior-matrix.json",
+            "sha256": "cc2f81e36d5948ca4aef56b2dc691b90e1a272176ef5efebe236195b6b2fe624",
+            "role": "bounded-behavior-matrix"
+          },
+          "fixedCommitCi": "PENDING_NEW_FIXED_FULL",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false,
+          "remaining": [
+            "CORRESPONDING_REAL_SQL",
+            "OTHER_ORDINARY_BRANCHES",
+            "NEW_FIXED_FULL",
+            "VISIBLE_NATIVE_CONTROLS_PAIRED_RECONNECT_NORMAL_SCORE_REPLAY",
+            "PHYSICAL_WINDOWS",
+            "OTHER_CONSUMERS_AND_WHOLE_PRINTING"
           ]
         }
       ]
@@ -37578,6 +38859,24 @@
       "fixedCommitCi": "PENDING",
       "productAcceptance": "OPEN",
       "wholePrintingCertified": false
+    },
+    {
+      "id": "GRAVEYARD_SOURCE_OCCUPATION_FIXED_FULL_SIBLING_SQL_VISIBLE_AND_WINDOWS",
+      "state": "OPEN",
+      "region": "CN",
+      "language": "zh-CN",
+      "sourceManifest": {
+        "path": "docs/evidence/graveyard-source-occupation-2026-10-20/source-manifest.json",
+        "sha256": "576921675682987d6efe6d9c9d2db0032063b7b32913e8fd8cdbd032b29ff602",
+        "role": "source-manifest"
+      },
+      "requirement": "Current fixed full all original cases/methods/Theories/143 games110pairs seeds/replay and45 SQL execution identities; additionally current sibling real SQL, remaining ordinary branches, current visible paired native and physical Windows. Two-format sibling ordinary prefixes are separately passed.",
+      "semanticReview": "LIMITED_BRANCHES_ONLY",
+      "implementation": "SHARED_ABILITY_SOURCE_CARD_OCCUPATION",
+      "testExecution": "CURRENT_SEVEN_AND133_ADJACENT_TWO_ORDINARY_PREFIXES_AND_SOLECHECK_PASS",
+      "fixedCommitCi": "PENDING",
+      "productAcceptance": "OPEN",
+      "wholePrintingCertified": false
     }
   ],
   "note": "Current inventory and remaining obligations, with independently dated rule sources and separately recorded source deltas. No source fetch or semantic certification by this checker.",
@@ -37755,5 +39054,10 @@
     "path": "docs/evidence/destruction-graveyard-2026-10-20/global-source-followup/source-window-instability-readback-v1.json",
     "sha256": "b0d8f025155f6cd1c4983ea855d9d36787649ae8590912c976aea371eb1c9d89",
     "role": "source-window-instability-readback-v1"
+  },
+  "currentGraveyardSourceOccupationInputChange": {
+    "path": "docs/evidence/graveyard-source-occupation-2026-10-20/source-manifest.json",
+    "sha256": "576921675682987d6efe6d9c9d2db0032063b7b32913e8fd8cdbd032b29ff602",
+    "role": "source-manifest"
   }
 }

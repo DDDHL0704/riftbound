@@ -1,0 +1,38 @@
+{
+  "atUtc": "2026-10-19T23:25:24.729064+00:00",
+  "fixedCommit": "e262ebf164e448cc9738d94db8e557f302cfc295",
+  "productionNativeGatewaySourcesExtractedDirectlyFromFixedGitCommit": {
+    "tests/Riftbound.NativeNetworkSmoke/Program.cs": "fb5ae02de974fd964c7c844a5f4b84631e219405b09564369ab22ed7375cd5ea",
+    "clients/godot/scripts/RiftboundGameHubClient.cs": "50fcd5c6fdde075a7c267b27d169409bf8949ca5054f83ae6ce7d604dde66561",
+    "clients/godot/scripts/SnapshotCardRef.cs": "88ee91f317e692c51ec92bdab92ce91dc5a2ad82002e05374901b274f789c1f8"
+  },
+  "actualCurrentCiNet8References": {
+    "Riftbound-A.app/Contents/Resources/data_Riftbound.GodotClient_macos_arm64/Microsoft.AspNetCore.Connections.Abstractions.dll": "314817256550bff0d5282d90973cb2de151a42e915faa5dedb1b37edf6ab7b41",
+    "Riftbound-A.app/Contents/Resources/data_Riftbound.GodotClient_macos_arm64/Microsoft.AspNetCore.Http.Connections.Client.dll": "5b83111616e0b2b145ac9c82491a6b3da81d450371fb6f0f10180e1c48a4a10d",
+    "Riftbound-A.app/Contents/Resources/data_Riftbound.GodotClient_macos_arm64/Microsoft.Extensions.Logging.dll": "4330a5efe9d110afb7f8e567d5b43eee976e0f7f6802d13a211b65d747529179",
+    "Riftbound-A.app/Contents/Resources/data_Riftbound.GodotClient_macos_arm64/Microsoft.AspNetCore.Http.Connections.Common.dll": "dda233b632278fe15f847bddf83eb73443ba5a55ec87efa79ea9437f0bc26901",
+    "Riftbound-A.app/Contents/Resources/data_Riftbound.GodotClient_macos_arm64/Microsoft.Extensions.Logging.Abstractions.dll": "29e6bfaf5ce079ad4d70dc547d966038992a7428df6e726084eb9010ec837715",
+    "Riftbound-A.app/Contents/Resources/data_Riftbound.GodotClient_macos_arm64/Microsoft.AspNetCore.SignalR.Protocols.Json.dll": "d982ae2af17e90280977277acae22d653fcda9d02ebe81c6a3f319e1917e0bff",
+    "Riftbound-A.app/Contents/Resources/data_Riftbound.GodotClient_macos_arm64/Microsoft.AspNetCore.SignalR.Client.dll": "6080c2d4270f741c6a33205eb14956487d4e5d707339cf01d6f193e5e8c96788",
+    "Riftbound-A.app/Contents/Resources/data_Riftbound.GodotClient_macos_arm64/Microsoft.Extensions.Primitives.dll": "446ff16e903e7479558816e213a3adee9a1c1adad65a56d853801b10933e29d7",
+    "Riftbound-A.app/Contents/Resources/data_Riftbound.GodotClient_macos_arm64/Microsoft.Extensions.DependencyInjection.dll": "8d6e7b64cce554f0a0fbdb2ba80745895fa0b4e6cc378b9fedfe8ce86f0d8ae4",
+    "Riftbound-A.app/Contents/Resources/data_Riftbound.GodotClient_macos_arm64/Microsoft.AspNetCore.SignalR.Common.dll": "db1d41e6ff262a5118c9b0eca99ebc3334b895e42c2844db9b7e02312be5ced6",
+    "Riftbound-A.app/Contents/Resources/data_Riftbound.GodotClient_macos_arm64/Microsoft.Extensions.Options.dll": "5f9b0e589f1ce9ca656588cd92cc0bd53803fdfad258fb2916aaa14aedce682c",
+    "Riftbound-A.app/Contents/Resources/data_Riftbound.GodotClient_macos_arm64/System.IO.Pipelines.dll": "86d0f5bfaaf1b2ab19331b543a736d87b5b58e72158f4ded282122b2e6665f83",
+    "Riftbound-A.app/Contents/Resources/data_Riftbound.GodotClient_macos_arm64/Microsoft.Extensions.Features.dll": "f67d51cd82729cfbcfee3bb2d149cd0e6e30da6db54664001b023c9a321901ab",
+    "Riftbound-A.app/Contents/Resources/data_Riftbound.GodotClient_macos_arm64/Microsoft.Extensions.DependencyInjection.Abstractions.dll": "a0106a638facae621f870eda720cb6c980c1d5d49c2f4351134e3fe043b9291b",
+    "Riftbound-A.app/Contents/Resources/data_Riftbound.GodotClient_macos_arm64/Microsoft.AspNetCore.SignalR.Client.Core.dll": "5db41ee59bddc0b741311be7271e9b633401f34b49bccd1e8c5ac2286c852d11",
+    "Riftbound-A.app/Contents/Resources/data_Riftbound.GodotClient_macos_arm64/Riftbound.Contracts.dll": "c4d2ddf60531c4cc120e4b8e41691ca352a42c49606a96e456782d7e0fb64182"
+  },
+  "sourceFiles": {
+    "native-network/network.csproj": "ada4ccdfae6a96c0ef25d7b674c123e19c2f935aa219248c51a47873f069f27d",
+    "native-network/SnapshotCardRef.cs": "88ee91f317e692c51ec92bdab92ce91dc5a2ad82002e05374901b274f789c1f8",
+    "native-network/RiftboundGameHubClient.cs": "50fcd5c6fdde075a7c267b27d169409bf8949ca5054f83ae6ce7d604dde66561",
+    "native-network/Program.cs": "fb5ae02de974fd964c7c844a5f4b84631e219405b09564369ab22ed7375cd5ea",
+    "score-network/score.csproj": "32238808c32066693872832e90278a621fcb949b91fc1ec64ccdd48b2e864a2e",
+    "score-network/Program.cs": "e67e3fbf380f4cbdaf88142d7c277f9de11fdcd22c832e51fe26de802b8cc1a8"
+  },
+  "priorScoringHelperOriginalSha256": "a12da5572388e02973b7365f2ff7f7a9550bc2d72cccd0dcf2f4b7865bf514c5",
+  "scoringHelperChangeOnlyGateAndRoomLabels": true,
+  "noGodotSdkProjectOrUserProcessBuild": true
+}

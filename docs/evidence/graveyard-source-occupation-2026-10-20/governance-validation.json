@@ -1,0 +1,12 @@
+{
+  "governanceValid": true,
+  "errors": [],
+  "remainingObligationCount": 16908,
+  "remainingIds": {
+    "path": "docs/evidence/graveyard-source-occupation-2026-10-20/remaining-obligation-ids.json.gz",
+    "sha256": "762e795bcdea43a998c565357e6e54b08aad38406bf438ccd2cfaa250727910d",
+    "role": "remaining-obligation-ids.json"
+  },
+  "currentInputRevision": "1b7e2f06fb9d628d4b9c9fbf379d458c5d3b65bb0de180c0e5715f05aadc96ac",
+  "semanticCoverageCertified": false
+}

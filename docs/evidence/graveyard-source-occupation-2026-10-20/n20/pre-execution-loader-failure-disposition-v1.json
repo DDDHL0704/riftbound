@@ -1,0 +1,10 @@
+{
+  "status": "FIRST_PROBE_DID_NOT_REACH_ANY_GAME_COMMAND_NOT_RULE_COUNTEREXAMPLE",
+  "originalExecutionLogSha256": "3d9d496aa8b9201defe868eb54317f57b40421f8bb76a232276abc48e8a295c0",
+  "failure": "Missing explicit runtime dependency entry for Riftbound.CardCatalog with Private=false reference; copied DLL alone did not enter .NET deps graph.",
+  "zeroOriginalGameCommandsExecuted": true,
+  "v2Correction": "Same exact Program.cs, declare the three exact frozen API assembly references Private=true so the probe deps graph resolves them. No production/runtime/source change.",
+  "originalProgramSha256": "2b3bdd58018ea5aa33e88880a7bb2491194d4ed083ed95a40e24d49ed03cc188",
+  "v2ProgramSha256": "2b3bdd58018ea5aa33e88880a7bb2491194d4ed083ed95a40e24d49ed03cc188",
+  "originalFailureAndInputsRetained": true
+}

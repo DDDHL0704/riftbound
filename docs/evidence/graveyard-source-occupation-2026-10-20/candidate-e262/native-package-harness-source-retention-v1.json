@@ -1,0 +1,26 @@
+{
+  "records": [
+    {
+      "originalPath": "var/qa/hwei-fixed-08fd-20261020/download-fixed-native-v1.py",
+      "originalSha256": "f148cf8473d74749ca56fbc2890fce80bc57c95f68ea20207894b9795e6c85ba",
+      "currentPath": "var/qa/destruction-fixed-e262-20261020/download-fixed-native-v1.py",
+      "currentSha256": "59ebe3b49ae43123b7fa9dafc00f84c2840eebd24733a4c63184f6848d4e1cef",
+      "changes": "Exact fixed commit/run and candidate labels only; all payload, signature, CRC, actual boot/lifecycle and exit assertions retained."
+    },
+    {
+      "originalPath": "var/qa/hwei-fixed-08fd-20261020/prepare-fixed-native-apps-v1.py",
+      "originalSha256": "ab97fd56fd80cb24008db37c8189c0c93a9a93b04b3c3a58fac3018768ce0349",
+      "currentPath": "var/qa/destruction-fixed-e262-20261020/prepare-fixed-native-apps-v1.py",
+      "currentSha256": "66e04b1676b347df0c56f9df1d2b0ee1bc1034778b1a63cd2bdd92c23daa508b",
+      "changes": "Exact fixed commit/run and candidate labels only; all payload, signature, CRC, actual boot/lifecycle and exit assertions retained."
+    },
+    {
+      "originalPath": "var/qa/hwei-fixed-08fd-20261020/verify-fixed-native-default-boot-v1.py",
+      "originalSha256": "ab5737579df05fff5cf9656bf11914a6e448d9001f4a8e01933fbe17332d5ddf",
+      "currentPath": "var/qa/destruction-fixed-e262-20261020/verify-fixed-native-default-boot-v1.py",
+      "currentSha256": "6010fe8884dc272e49d715c95071e73d658a240821bd0e791fe6aa95c45cac59",
+      "changes": "Exact fixed commit/run and candidate labels only; all payload, signature, CRC, actual boot/lifecycle and exit assertions retained."
+    }
+  ],
+  "noGodotBuildOrDownloadStarted": true
+}

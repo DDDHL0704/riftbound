@@ -1,0 +1,109 @@
+{
+  "atUtc": "2026-10-20T00:31:44.944877+00:00",
+  "fixedCommit": "e262ebf164e448cc9738d94db8e557f302cfc295",
+  "data": {
+    "total_count": 5,
+    "artifacts": [
+      {
+        "id": 12231861079,
+        "node_id": "MDg6QXJ0aWZhY3QxMjIzMTg2MTA3OQ==",
+        "name": "postgres-partition-2",
+        "size_in_bytes": 548056,
+        "url": "https://api.github.com/repos/DDDHL0704/riftbound/actions/artifacts/12231861079",
+        "archive_download_url": "https://api.github.com/repos/DDDHL0704/riftbound/actions/artifacts/12231861079/zip",
+        "expired": false,
+        "digest": "sha256:df02fcda2232c4d73495c5577e8c03f8506aafaaa9d2938815f67e76587b79b0",
+        "created_at": "2026-10-20T00:23:43Z",
+        "updated_at": "2026-10-20T00:23:43Z",
+        "expires_at": "2026-10-27T00:23:42Z",
+        "workflow_run": {
+          "id": 39340733951,
+          "repository_id": 1248382570,
+          "head_repository_id": 1248382570,
+          "head_branch": "main",
+          "head_sha": "e262ebf164e448cc9738d94db8e557f302cfc295"
+        }
+      },
+      {
+        "id": 12229485349,
+        "node_id": "MDg6QXJ0aWZhY3QxMjIyOTQ4NTM0OQ==",
+        "name": "native-macos-latest",
+        "size_in_bytes": 142899191,
+        "url": "https://api.github.com/repos/DDDHL0704/riftbound/actions/artifacts/12229485349",
+        "archive_download_url": "https://api.github.com/repos/DDDHL0704/riftbound/actions/artifacts/12229485349/zip",
+        "expired": false,
+        "digest": "sha256:a31601b275f27bcf354723f780bc333fcb4ccf799a7b7a591b627f810b86cdda",
+        "created_at": "2026-10-19T23:21:09Z",
+        "updated_at": "2026-10-19T23:21:09Z",
+        "expires_at": "2026-10-26T23:21:04Z",
+        "workflow_run": {
+          "id": 39340733951,
+          "repository_id": 1248382570,
+          "head_repository_id": 1248382570,
+          "head_branch": "main",
+          "head_sha": "e262ebf164e448cc9738d94db8e557f302cfc295"
+        }
+      },
+      {
+        "id": 12229200700,
+        "node_id": "MDg6QXJ0aWZhY3QxMjIyOTIwMDcwMA==",
+        "name": "native-windows-latest",
+        "size_in_bytes": 89127557,
+        "url": "https://api.github.com/repos/DDDHL0704/riftbound/actions/artifacts/12229200700",
+        "archive_download_url": "https://api.github.com/repos/DDDHL0704/riftbound/actions/artifacts/12229200700/zip",
+        "expired": false,
+        "digest": "sha256:8e72d367a732efa588552be5a7bfcf3194c7e24babdbfc737f5eb69bbe7410de",
+        "created_at": "2026-10-19T23:21:26Z",
+        "updated_at": "2026-10-19T23:21:26Z",
+        "expires_at": "2026-10-26T23:21:24Z",
+        "workflow_run": {
+          "id": 39340733951,
+          "repository_id": 1248382570,
+          "head_repository_id": 1248382570,
+          "head_branch": "main",
+          "head_sha": "e262ebf164e448cc9738d94db8e557f302cfc295"
+        }
+      },
+      {
+        "id": 12228314853,
+        "node_id": "MDg6QXJ0aWZhY3QxMjIyODMxNDg1Mw==",
+        "name": "native-network-results",
+        "size_in_bytes": 1765,
+        "url": "https://api.github.com/repos/DDDHL0704/riftbound/actions/artifacts/12228314853",
+        "archive_download_url": "https://api.github.com/repos/DDDHL0704/riftbound/actions/artifacts/12228314853/zip",
+        "expired": false,
+        "digest": "sha256:d04ce8015389413f86839294beed316b2d1d0ab6f2365201f1764741ccad1595",
+        "created_at": "2026-10-19T23:20:14Z",
+        "updated_at": "2026-10-19T23:20:14Z",
+        "expires_at": "2026-10-26T23:20:13Z",
+        "workflow_run": {
+          "id": 39340733951,
+          "repository_id": 1248382570,
+          "head_repository_id": 1248382570,
+          "head_branch": "main",
+          "head_sha": "e262ebf164e448cc9738d94db8e557f302cfc295"
+        }
+      },
+      {
+        "id": 12227354712,
+        "node_id": "MDg6QXJ0aWZhY3QxMjIyNzM1NDcxMg==",
+        "name": "verification-scope",
+        "size_in_bytes": 1390422,
+        "url": "https://api.github.com/repos/DDDHL0704/riftbound/actions/artifacts/12227354712",
+        "archive_download_url": "https://api.github.com/repos/DDDHL0704/riftbound/actions/artifacts/12227354712/zip",
+        "expired": false,
+        "digest": "sha256:8da7ed3129686a3b6622f7ca9230e29ca287c7faaea5c716316cafdbde7b6666",
+        "created_at": "2026-10-19T23:18:46Z",
+        "updated_at": "2026-10-19T23:18:46Z",
+        "expires_at": "2026-11-18T23:18:45Z",
+        "workflow_run": {
+          "id": 39340733951,
+          "repository_id": 1248382570,
+          "head_repository_id": 1248382570,
+          "head_branch": "main",
+          "head_sha": "e262ebf164e448cc9738d94db8e557f302cfc295"
+        }
+      }
+    ]
+  }
+}

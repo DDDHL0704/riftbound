@@ -1,0 +1,51 @@
+{
+  "status": "PASS_ALL_ORIGINAL172_178_184_AUDIT_AND35_NATIVE_SUBSETS_AND_ALL190_39_CURRENT_ROOMS_SEVEN_TABLES_EXACT",
+  "fixedCommit": "e262ebf164e448cc9738d94db8e557f302cfc295",
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+    "implementationSha256": "30f77f36a65bf645b8443d6ce7cc217c0bcf3e3a2e4bb2a848631fdcc3343273",
+    "identitySha256": "591dc1232bb160b3e5191a287a5e75d429e1e87069d7a37fd0e90b0d706b7bb6"
+  },
+  "startedAtUtc": "2026-10-19T23:55:49.305410+00:00",
+  "lockAtStart": {
+    "atUtc": "2026-10-19T23:55:49.327676+00:00",
+    "roots": [
+      {
+        "rootLocked": true,
+        "sessions": [
+          true
+        ]
+      }
+    ],
+    "unknownIsNotUnlocked": true
+  },
+  "sourceInputCount": 3302,
+  "allOriginalAuditSubsets172178184SevenTablesExact": true,
+  "allOriginal35NativeRoomsSevenTablesExact": true,
+  "allCurrent190AuditAnd39NativeRoomsSevenTablesExactToIndependentReadOnlyBaseline": true,
+  "all3302FixedSourcesAndFrozenApiInputsStillExact": true,
+  "bothDatabaseConnectionsReadOnlyEnforced": true,
+  "allOriginalGameSeedsAcceptedRejectedHistoryAndPrivateViewsRetained": true,
+  "rootSourceStillExactBeforeNextFix": true,
+  "visibleNativeControlsPairedWindows": "OPEN",
+  "ownPostgresSmartStopped": true,
+  "boundIdleSleepAssertionEnded": true,
+  "finishedAtUtc": "2026-10-19T23:56:38.674867+00:00",
+  "lockAtEnd": {
+    "atUtc": "2026-10-19T23:56:38.696748+00:00",
+    "roots": [
+      {
+        "rootLocked": true,
+        "sessions": [
+          true
+        ]
+      }
+    ],
+    "unknownIsNotUnlocked": true
+  },
+  "originalDatabaseRetained": true
+}

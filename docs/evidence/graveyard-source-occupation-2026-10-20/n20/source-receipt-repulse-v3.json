@@ -1,0 +1,37 @@
+{
+  "label": "repulse",
+  "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+  "request": {
+    "pageNum": 1,
+    "pageSize": 100,
+    "searchContent": "击退",
+    "cardCategoryList": [],
+    "cardColorList": [],
+    "rarityList": [],
+    "productCodeList": []
+  },
+  "startedAtUtc": "2026-10-19T23:52:33.058215+00:00",
+  "region": "CN",
+  "language": "zh-CN",
+  "individualPublicationDate": null,
+  "individualEffectiveDate": null,
+  "httpStatus": 200,
+  "httpDate": "Mon, 19 Oct 2026 23:52:33 GMT",
+  "resolvedUrl": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+  "rawBytes": 1220,
+  "rawSha256": "f4e71499f7b439eb7da05c66e071d36830919e8e4e70768ccf5e27b887bdae34",
+  "path": "var/qa/graveyard-lifecycle-source-followup-20261020/repulse-pre-fix-refresh-v3.json.gz",
+  "returnedRows": 1,
+  "reportedTotal": 1,
+  "exactRows": [
+    {
+      "apiId": 34644,
+      "cardNo": "UNL-106/219",
+      "name": "击退",
+      "entireRowMatchesCn16": true,
+      "fullRawRowSha256": "975154aad0487c78a3abbe4d68f32d67dc3e737cdb23c24449ebb40a9572886e"
+    }
+  ],
+  "status": "ACQUIRED_AND_EXACT_VERSION_COMPARED",
+  "receivedAtUtc": "2026-10-19T23:52:33.175665+00:00"
+}

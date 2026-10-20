@@ -1,0 +1,10 @@
+{
+  "startedAtUtc": "2026-10-20T00:40:20.631429+00:00",
+  "ownedDriverPid": 90269,
+  "idleAssertionPid": 90270,
+  "assertionBoundToExactDriverOnly": true,
+  "noPersistentPowerOrDisplayLockMutation": true,
+  "finishedAtUtc": "2026-10-20T00:40:56.537491+00:00",
+  "exitCode": 0,
+  "boundIdleAssertionEnded": true
+}

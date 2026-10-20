@@ -1,0 +1,37 @@
+{
+  "label": "windwall",
+  "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+  "request": {
+    "pageNum": 1,
+    "pageSize": 100,
+    "searchContent": "风之障壁",
+    "cardCategoryList": [],
+    "cardColorList": [],
+    "rarityList": [],
+    "productCodeList": []
+  },
+  "startedAtUtc": "2026-10-19T23:52:33.048757+00:00",
+  "region": "CN",
+  "language": "zh-CN",
+  "individualPublicationDate": null,
+  "individualEffectiveDate": null,
+  "httpStatus": 200,
+  "httpDate": "Mon, 19 Oct 2026 23:52:33 GMT",
+  "resolvedUrl": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+  "rawBytes": 1129,
+  "rawSha256": "30ae6b0d6c67728ef10e2983e250339bd1582f92899fb029a0b8600dc2a9aaab",
+  "path": "var/qa/graveyard-lifecycle-source-followup-20261020/windwall-pre-fix-refresh-v3.json.gz",
+  "returnedRows": 1,
+  "reportedTotal": 1,
+  "exactRows": [
+    {
+      "apiId": 31276,
+      "cardNo": "OGN·064/298",
+      "name": "风之障壁",
+      "entireRowMatchesCn16": true,
+      "fullRawRowSha256": "809c50a9b9384249ca323d42da68b30ad02ef2e4081dc0df1dbd928c04129ba9"
+    }
+  ],
+  "status": "ACQUIRED_AND_EXACT_VERSION_COMPARED",
+  "receivedAtUtc": "2026-10-19T23:52:33.158543+00:00"
+}

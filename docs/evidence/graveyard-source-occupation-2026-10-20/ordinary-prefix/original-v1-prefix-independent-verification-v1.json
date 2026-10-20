@@ -1,0 +1,18 @@
+{
+  "status": "PASS_INDEPENDENT_ORIGINAL_ORDINARY_PREFIX_WITH_CORRECT_TIMING_REJECTION",
+  "commands": 92,
+  "events": 407,
+  "accepted": 91,
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+    "implementationSha256": "c72232511d08db3f3e06ee35f83385507b10ec0e7591280847b3fa34041d836f",
+    "identitySha256": "063c0cea0b0a527789b16a1d8a0658cb66130ebbff48042474fb1b3e3d0e0a20"
+  },
+  "originalAllFieldsNullAndFullReplay": true,
+  "noNewGameplayOrHistoryRewrite": true,
+  "siblingSuccessClaimed": false
+}

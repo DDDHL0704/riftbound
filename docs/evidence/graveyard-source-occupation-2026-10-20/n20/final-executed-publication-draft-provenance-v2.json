@@ -1,0 +1,11 @@
+{
+  "recordedAtUtc": "2026-10-20T01:07:04.821049+00:00",
+  "actualPublisherSha256": "dbd4e6d81b259027130af496c0157537de37ed1280c09c99cc4bf4fed36bad86",
+  "actualAuditDraftSha256": "76d3f8fc5e0bc28534dbfc57c2288289cc5724b62c0f8a8037dc4436ce635afd",
+  "actualSoleCheck": "only-check-retention-and-disposition-v1.json",
+  "soleCheck13107Cases7467MethodsAllPassed": true,
+  "finalSharedConsumerParentsVersion": "shared-typed-stack-finite-consumer-followup-v2.json",
+  "twoOrdinaryFormatsClosure": "../graveyard-source-ordinary-continuation-20261020/ordinary-two-format-original-prefix-closure-v1.json",
+  "previousDraftV1WasBeforeLocalCaseLookupCorrectionAndNotExecuted": true,
+  "lockObservationAtCheckEnd": "Root IOConsoleLocked=false; no CGSSession boolean returned. Preserve these raw values; not proof of full interval lock or reliable visible desktop access. No screen lock or persistent power settings changed."
+}

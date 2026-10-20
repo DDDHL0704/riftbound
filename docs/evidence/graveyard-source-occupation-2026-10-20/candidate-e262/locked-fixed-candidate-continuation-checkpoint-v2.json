@@ -1,0 +1,150 @@
+{
+  "status": "PASS_BOUNDED_LOCKED_FIXED_SQL_EXPORTED_RESULT_RETRY_NATIVE_GATEWAY_COLD_SCORE_SOCKET_INDEPENDENT_ORIGINAL_REPLAY_AND_DATABASE_INTEGRITY",
+  "fixedCommit": "e262ebf164e448cc9738d94db8e557f302cfc295",
+  "actualServerReleaseRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+    "implementationSha256": "30f77f36a65bf645b8443d6ce7cc217c0bcf3e3a2e4bb2a848631fdcc3343273",
+    "identitySha256": "591dc1232bb160b3e5191a287a5e75d429e1e87069d7a37fd0e90b0d706b7bb6"
+  },
+  "recordedAtUtc": "2026-10-19T23:58:42.941941+00:00",
+  "actualFreshSql": {
+    "branches": 6,
+    "commands": 648,
+    "events": 2772,
+    "coldRestores": 44,
+    "originalNextCommandsMatched": 36,
+    "atomicRejections": 20
+  },
+  "actualThreeNativeOriginalFrames": [
+    {
+      "room": "GRACEFUL-E262-NATIVE-adf640f8d2d9",
+      "originalFrame": "exported-graceful-original-frame.json.gz",
+      "commands": 7,
+      "events": 12,
+      "rejectedCommands": 1,
+      "storedAndFrozenAllFieldsExact": true,
+      "originalNonzeroPrivateSeedPreserved": true,
+      "fullOriginalActionEventStateReplay": true
+    },
+    {
+      "room": "STALE2-E262-NATIVE-275a299d4602",
+      "originalFrame": "exported-stale-retry-v2-original-frame.json.gz",
+      "commands": 8,
+      "events": 19,
+      "rejectedCommands": 1,
+      "storedAndFrozenAllFieldsExact": true,
+      "originalNonzeroPrivateSeedPreserved": true,
+      "fullOriginalActionEventStateReplay": true
+    },
+    {
+      "room": "LOCKED-E262-SCORE-9572a6090eaf",
+      "originalFrame": "score-paired-after-continuation-original-frame.json.gz",
+      "commands": 46,
+      "events": 308,
+      "rejectedCommands": 0,
+      "storedAndFrozenAllFieldsExact": true,
+      "originalNonzeroPrivateSeedPreserved": true,
+      "fullOriginalActionEventStateReplay": true
+    }
+  ],
+  "actualCooperativeNormalScore": {
+    "commands": 46,
+    "events": 308,
+    "finalScores": {
+      "locka9572a6090eaf": 8,
+      "lockb9572a6090eaf": 0
+    },
+    "allOriginalAcceptedAndNoSurrenderOrBurnout": true
+  },
+  "actualNativeSocketIndependentRejectedActions": 15,
+  "leakedPrivateMessages": 0,
+  "allCurrent190Audit39NativeAndOriginal172178184Audit35NativeSubsetsSevenTablesExact": true,
+  "actualLockAtCrossStageStart": {
+    "atUtc": "2026-10-19T23:55:49.327676+00:00",
+    "roots": [
+      {
+        "rootLocked": true,
+        "sessions": [
+          true
+        ]
+      }
+    ],
+    "unknownIsNotUnlocked": true
+  },
+  "actualLockAtCrossStageEnd": {
+    "atUtc": "2026-10-19T23:56:38.696748+00:00",
+    "roots": [
+      {
+        "rootLocked": true,
+        "sessions": [
+          true
+        ]
+      }
+    ],
+    "unknownIsNotUnlocked": true
+  },
+  "all3302FixedSourceInputsExactBeforeNextSourceMutation": true,
+  "allOwnDatabaseAndApiProcessesEnded": true,
+  "oldReaderAndChainFailureNotRelabelledPass": "fixed-native-chain-verification-v1.json remains failed. Separate v2 reader corrects case ticks/counts and adds every-historical-payload checks without rerunning game stages.",
+  "currentVisibleNativeControlsAndPairedWindows": "OPEN",
+  "physicalWindows": "OPEN",
+  "actualFullCi": {
+    "runId": 39340733951,
+    "state": "PENDING_TERMINAL",
+    "lastJobsSnapshot": "var/qa/destruction-fixed-e262-20261020/fixed-ci-jobs-v4.json"
+  },
+  "newSiblingPhoenixSourceOccupationDefectStillOpen": "var/qa/graveyard-lifecycle-source-followup-20261020/concrete-sibling-skill-source-rejection-checkpoint-v1.json",
+  "noWholePrintingOrGlobalCertification": true,
+  "receipts": [
+    {
+      "path": "var/qa/destruction-fixed-e262-20261020/real-sql-verification-v1.json",
+      "sha256": "beb69567ab026568e7781523a668138ce03c066b39c65ad9be94c16a609d5420",
+      "status": "PASS_REAL_SQL_SIX_ORIGINALS_PARTITION_DISPATCH_AND_INDEPENDENT_READONLY_FULL_REPLAY"
+    },
+    {
+      "path": "var/qa/destruction-fixed-e262-20261020/current-native-headless-boot-verification.json",
+      "sha256": "95f2862f532a6d61faf7d8348ca1fdecf4e98e5cfa867789833a3a0dfa7f61df",
+      "status": "CURRENT_FIXED_DEFAULT_MAIN_HEADLESS_BOOT_PASS"
+    },
+    {
+      "path": "var/qa/destruction-fixed-e262-20261020/exported-graceful-pair-verification.json",
+      "sha256": "9789cdb92b200a75552acec44cf2dfda67d2de5ac1fd395c101d047d83db89f1",
+      "status": "PASS_HEADLESS_EXPORTED_NATIVE_RESULT_PATH_AND_NORMAL_EXIT"
+    },
+    {
+      "path": "var/qa/destruction-fixed-e262-20261020/exported-stale-retry-v2-verification-v1.json",
+      "sha256": "1e41629ae5aa9187a400926d05068031e6cc64a7a004bb51d42e18949637930b",
+      "status": "PASS_ACTUAL_EXPORTED_NATIVE_STALE_REJECTION_NEW_PROMPT_RETRY_RESULT_AND_FULL_REPLAY"
+    },
+    {
+      "path": "var/qa/destruction-fixed-e262-20261020/score-without-desktop-verification.json",
+      "sha256": "7929e9a7d48efce313a83149b3405d494fa03e8efefedf42519029e5f4d53925",
+      "status": "PASS"
+    },
+    {
+      "path": "var/qa/destruction-fixed-e262-20261020/fixed-socket-identity-verification-v1.json",
+      "sha256": "e93d0f1e17aa697bbb0267d0ec15422e3e87bcff9402e49cf86fd72b70a6e995",
+      "status": "PASS_ACTUAL_NATIVE_SOCKET_RESTORE_REJECTED_TOKEN_AND15_IDENTITY_REJECTIONS_REAL_PG"
+    },
+    {
+      "path": "var/qa/destruction-fixed-e262-20261020/fixed-native-independent-verification-v2.json",
+      "sha256": "f9a384028bab311f96c3af21fd5bc86ff97c7357752d8b5ec6872ff42e376673",
+      "status": "PASS_INDEPENDENT_ACTUAL_READONLY_THREE_NATIVE_ORIGINALS_AND_REJECTED_RETRY"
+    },
+    {
+      "path": "var/qa/destruction-fixed-e262-20261020/cross-stage-original-database-and-input-integrity-v1.json",
+      "sha256": "01c08576858a3541e9a944a3b0d49b13036b7a3150ea7bd82cb5ba216bd3826a",
+      "status": "PASS_ALL_ORIGINAL172_178_184_AUDIT_AND35_NATIVE_SUBSETS_AND_ALL190_39_CURRENT_ROOMS_SEVEN_TABLES_EXACT"
+    },
+    {
+      "path": "var/qa/destruction-fixed-e262-20261020/prior-native-pair-retirement.json",
+      "sha256": "2f80e3386b367c8cfc01851dfb39ba83f686b4de69674a75b3517314ec987fed",
+      "status": "ONLY_LATEST_E262_NATIVE_PAIR_AND_TWO_CANONICAL_ARCHIVES_RETAINED"
+    }
+  ],
+  "nextBoundedFixMayNowChangeRootSourcesWhileRemoteCiKeepsItsFixedCommit": true
+}

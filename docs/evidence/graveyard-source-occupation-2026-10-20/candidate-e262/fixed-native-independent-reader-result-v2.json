@@ -1,0 +1,46 @@
+{
+  "status": "PASS_INDEPENDENT_ACTUAL_READONLY_THREE_NATIVE_ORIGINALS_AND_REJECTED_RETRY",
+  "checks": [
+    {
+      "room": "GRACEFUL-E262-NATIVE-adf640f8d2d9",
+      "originalFrame": "exported-graceful-original-frame.json.gz",
+      "commands": 7,
+      "events": 12,
+      "rejectedCommands": 1,
+      "storedAndFrozenAllFieldsExact": true,
+      "originalNonzeroPrivateSeedPreserved": true,
+      "fullOriginalActionEventStateReplay": true
+    },
+    {
+      "room": "STALE2-E262-NATIVE-275a299d4602",
+      "originalFrame": "exported-stale-retry-v2-original-frame.json.gz",
+      "commands": 8,
+      "events": 19,
+      "rejectedCommands": 1,
+      "storedAndFrozenAllFieldsExact": true,
+      "originalNonzeroPrivateSeedPreserved": true,
+      "fullOriginalActionEventStateReplay": true
+    },
+    {
+      "room": "LOCKED-E262-SCORE-9572a6090eaf",
+      "originalFrame": "score-paired-after-continuation-original-frame.json.gz",
+      "commands": 46,
+      "events": 308,
+      "rejectedCommands": 0,
+      "storedAndFrozenAllFieldsExact": true,
+      "originalNonzeroPrivateSeedPreserved": true,
+      "fullOriginalActionEventStateReplay": true
+    }
+  ],
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+    "implementationSha256": "30f77f36a65bf645b8443d6ce7cc217c0bcf3e3a2e4bb2a848631fdcc3343273",
+    "identitySha256": "591dc1232bb160b3e5191a287a5e75d429e1e87069d7a37fd0e90b0d706b7bb6"
+  },
+  "noHistorySeedOrStateRewrite": true,
+  "visibleAndPhysicalWindows": "OPEN"
+}

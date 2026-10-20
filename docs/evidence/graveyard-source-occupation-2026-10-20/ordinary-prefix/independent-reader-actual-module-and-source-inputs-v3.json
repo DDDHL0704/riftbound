@@ -1,0 +1,19 @@
+{
+  "atUtc": "2026-10-20T00:46:48.373281+00:00",
+  "actualCopiedThreeCoreModules": [
+    {
+      "originalSource": "tests/Riftbound.ConformanceTests/bin/Debug/net10.0/Riftbound.Engine.dll",
+      "sha256": "36f3ae3abaf13c90445f2e61d892c1a27318556fe8154acf818424b12c30f07f"
+    },
+    {
+      "originalSource": "tests/Riftbound.ConformanceTests/bin/Debug/net10.0/Riftbound.Contracts.dll",
+      "sha256": "872baece3db647f326b1ffd05f4c4e2941ddeb5b805f87cbc2ecb08438f6b558"
+    },
+    {
+      "originalSource": "tests/Riftbound.ConformanceTests/bin/Debug/net10.0/Riftbound.CardCatalog.dll",
+      "sha256": "e04f6273402f4fab7857dd757386b5cb4b7204fcc7bfd53508edca542c62647e"
+    }
+  ],
+  "actualReaderSourceSha256": "e80561342ceb03fdce31cfbb2f199a102f3e5aff6ce99c080ef4cea4251b63ac",
+  "notRootProjectBuild": true
+}

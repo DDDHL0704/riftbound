@@ -1,0 +1,198 @@
+{
+  "status": "CURRENT_CN_FINITE_LIFECYCLE_SOURCE_INTAKE_ONLY_PIXEL_SEMANTIC_EXECUTION_OPEN",
+  "fixedCandidate": "e262ebf164e448cc9738d94db8e557f302cfc295",
+  "region": "CN",
+  "language": "zh-CN",
+  "applicableRulesBaseline": "2026-10-16",
+  "recordedAtUtc": "2026-10-19T23:32:36.726011+00:00",
+  "baselineSource": {
+    "path": "data/official/upstream/2026-10-16/source-refresh-20261015T160523Z/card-catalog.zh-CN.json",
+    "sha256": "4f6a981a51d95e395820c1980f734645e1a5b56e454dbb8758ac3ce331162624"
+  },
+  "records": [
+    {
+      "label": "ruination",
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "破败之咒",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "startedAtUtc": "2026-10-19T23:32:36.535142+00:00",
+      "httpStatus": 200,
+      "httpDate": "Mon, 19 Oct 2026 23:32:36 GMT",
+      "resolvedUrl": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "receivedAtUtc": "2026-10-19T23:32:36.649294+00:00",
+      "rawSha256": "0a0f83ec0460ba920e0c8b3eccea2451d5e777efd93ad46cc71d31c7548134f3",
+      "rawBytes": 1124,
+      "stored": "var/qa/graveyard-lifecycle-source-followup-20261020/ruination-original-api.json.gz",
+      "reportedTotal": 1,
+      "exactRows": [
+        {
+          "apiId": 34733,
+          "cardNo": "UNL-180/219",
+          "cardName": "破败之咒",
+          "row": {
+            "id": 34733,
+            "cardCategoryList": [
+              "spell"
+            ],
+            "cardCategoryNameList": [
+              "法术"
+            ],
+            "cardNo": "UNL-180/219",
+            "cardName": "破败之咒",
+            "subTitle": "",
+            "extendType": null,
+            "extendTypeName": "",
+            "cardColorList": [
+              "yellow"
+            ],
+            "hero": "",
+            "region": "",
+            "tag": "",
+            "artist": "Oliver Chipping",
+            "cardEffect": "摧毁所有单位。",
+            "flavorText": "“任何代价，一概不论。一切暴行，但求有功。为她，我必当如此。”\n——佛耶戈",
+            "energy": 9,
+            "returnEnergy": 3,
+            "power": null,
+            "productCodeList": [
+              "UNL(进阶补充包)",
+              "UNL(标准补充包)"
+            ],
+            "productNameList": [
+              "破限系列 进阶补充包",
+              "破限系列 基础补充包"
+            ],
+            "cardQaList": null,
+            "craftLevel": 0,
+            "rarity": "rune_core",
+            "rarityName": "史诗",
+            "extendRarity": "base_inscript",
+            "extendRarityName": "平卡",
+            "frontImage": "https://cdn.playloltcg.com/lol/card/20260321/f648f3b8e8d24c0eb652e1a22e990f59.webp",
+            "backImage": "",
+            "listSort": 1291,
+            "status": 1,
+            "cardGroupLimit": null,
+            "isPreview": false,
+            "errata": "",
+            "otherDesc": 0
+          },
+          "entireRowMatchesCn16": true,
+          "changedFields": [],
+          "individualPublicationDate": null,
+          "individualEffectiveDate": null
+        }
+      ],
+      "actualFrontImage": {
+        "apiId": 34733,
+        "url": "https://cdn.playloltcg.com/lol/card/20260321/f648f3b8e8d24c0eb652e1a22e990f59.webp",
+        "path": "var/qa/graveyard-lifecycle-source-followup-20261020/ruination-original-front.webp",
+        "sha256": "21b63dda18c61d4e0ac6c066a23cc5ff54cbc29071e229b4811aaceef8caa4e5",
+        "bytes": 89844,
+        "contentType": "image/webp",
+        "pixelsRead": "PENDING"
+      }
+    },
+    {
+      "label": "cruel-revival",
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "残酷复活",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "startedAtUtc": "2026-10-19T23:32:36.537866+00:00",
+      "httpStatus": 200,
+      "httpDate": "Mon, 19 Oct 2026 23:32:36 GMT",
+      "resolvedUrl": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "receivedAtUtc": "2026-10-19T23:32:36.655203+00:00",
+      "rawSha256": "70362d3c56c1389d8296ca2133ad5e3a3615bd8a2cbc7c955db24d8ce0d44215",
+      "rawBytes": 1268,
+      "stored": "var/qa/graveyard-lifecycle-source-followup-20261020/cruel-revival-original-api.json.gz",
+      "reportedTotal": 1,
+      "exactRows": [
+        {
+          "apiId": 34685,
+          "cardNo": "UNL-142/219",
+          "cardName": "残酷复活",
+          "row": {
+            "id": 34685,
+            "cardCategoryList": [
+              "spell"
+            ],
+            "cardCategoryNameList": [
+              "法术"
+            ],
+            "cardNo": "UNL-142/219",
+            "cardName": "残酷复活",
+            "subTitle": "",
+            "extendType": null,
+            "extendTypeName": "",
+            "cardColorList": [
+              "purple"
+            ],
+            "hero": "",
+            "region": "",
+            "tag": "",
+            "artist": "Kudos Productions",
+            "cardEffect": "{{反应}}（可在任意时机打出，甚至先于其他法术和技能的结算。）\n你必须摧毁一名友方单位，作为打出此牌的额外费用。\n从你的废牌堆中打出一名法力和符能费用不高于被摧毁单位的单位，无视其费用。",
+            "flavorText": "",
+            "energy": 2,
+            "returnEnergy": 1,
+            "power": null,
+            "productCodeList": [
+              "UNL(进阶补充包)",
+              "UNL(标准补充包)"
+            ],
+            "productNameList": [
+              "破限系列 进阶补充包",
+              "破限系列 基础补充包"
+            ],
+            "cardQaList": null,
+            "craftLevel": 0,
+            "rarity": "rune_shard",
+            "rarityName": "稀有",
+            "extendRarity": "base_inscript",
+            "extendRarityName": "平卡",
+            "frontImage": "https://cdn.playloltcg.com/lol/card/20260319/7fb7a4a30255442b9e35e5d9a78e0f1a.webp",
+            "backImage": "",
+            "listSort": 1339,
+            "status": 1,
+            "cardGroupLimit": null,
+            "isPreview": false,
+            "errata": "",
+            "otherDesc": 0
+          },
+          "entireRowMatchesCn16": true,
+          "changedFields": [],
+          "individualPublicationDate": null,
+          "individualEffectiveDate": null
+        }
+      ],
+      "actualFrontImage": {
+        "apiId": 34685,
+        "url": "https://cdn.playloltcg.com/lol/card/20260319/7fb7a4a30255442b9e35e5d9a78e0f1a.webp",
+        "path": "var/qa/graveyard-lifecycle-source-followup-20261020/cruel-revival-original-front.webp",
+        "sha256": "9f5db757de03d8d9310964624bb833be026b42a66e6a4cecec43a7fea5d64ccb",
+        "bytes": 88536,
+        "contentType": "image/webp",
+        "pixelsRead": "PENDING"
+      }
+    }
+  ],
+  "allOriginalUniversesObligationsAndDatesRetained": true,
+  "noRuntimeOrCanonicalManifestMutation": true,
+  "newTemporalDeltaInferred": false,
+  "noCurrentTestOrProductPassClaim": true
+}

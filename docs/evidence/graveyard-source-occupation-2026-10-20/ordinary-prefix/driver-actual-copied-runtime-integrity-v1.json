@@ -1,0 +1,23 @@
+{
+  "atUtc": "2026-10-20T00:36:14.817557+00:00",
+  "status": "COPIED_THREE_CURRENT_FROZEN_CORE_MODULES_EXACT",
+  "modules": [
+    {
+      "source": "tests/Riftbound.ConformanceTests/bin/Debug/net10.0/Riftbound.Engine.dll",
+      "sha256": "36f3ae3abaf13c90445f2e61d892c1a27318556fe8154acf818424b12c30f07f",
+      "actualPrivateCopiedRuntimeExact": true
+    },
+    {
+      "source": "tests/Riftbound.ConformanceTests/bin/Debug/net10.0/Riftbound.Contracts.dll",
+      "sha256": "872baece3db647f326b1ffd05f4c4e2941ddeb5b805f87cbc2ecb08438f6b558",
+      "actualPrivateCopiedRuntimeExact": true
+    },
+    {
+      "source": "tests/Riftbound.ConformanceTests/bin/Debug/net10.0/Riftbound.CardCatalog.dll",
+      "sha256": "e04f6273402f4fab7857dd757386b5cb4b7204fcc7bfd53508edca542c62647e",
+      "actualPrivateCopiedRuntimeExact": true
+    }
+  ],
+  "noRootSourceOrRuntimeBuild": true,
+  "actualDriverSourceSha256": "7eb87a0e3adf86e7d7238a75e14c91e23e04e7e2e29fe985cdb80c729843eca9"
+}

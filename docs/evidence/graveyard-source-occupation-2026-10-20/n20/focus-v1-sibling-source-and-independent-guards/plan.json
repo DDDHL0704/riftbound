@@ -1,0 +1,19 @@
+{
+  "profile": "focus",
+  "discoveredMethods": 7608,
+  "jobs": 4,
+  "includeGames": false,
+  "testAssemblySha256": "90c856d19eb7c4592c46af62a63a4896e0c4a59a0fab235601f746bb4ae45ae8",
+  "timings": "/Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/TestResults/mechanical-full.trx",
+  "shards": [
+    {
+      "name": "focus",
+      "methods": [
+        "Riftbound.ConformanceTests.DestructionGraveyardSourceOccupationTests.ActualSpellCardOccupyingStackStillRejectsDuplicatePlayWithoutStateOrEventChange",
+        "Riftbound.ConformanceTests.DestructionGraveyardSourceOccupationTests.SiblingEarnedSkillsAllowOriginalPlayAndCannotBorrowLaterGraveyardEntry",
+        "Riftbound.ConformanceTests.DestructionGraveyardSourceOccupationTests.TypedAutomaticSkillsRemainUnavailableToSpellOnlyAndChosenUnitCounters"
+      ],
+      "filter": "(FullyQualifiedName~DestructionGraveyardSourceOccupationTests)&FullyQualifiedName!~Riftbound.ConformanceTests.FullGameEndToEndTests."
+    }
+  ]
+}

@@ -18564,6 +18564,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
 
         if (state.StackItems.Any(item => string.Equals(item.SourceObjectId, command.SourceObjectId, StringComparison.Ordinal)
+            && !StackObjectRules.IsAbility(item)
             && !(state.PendingEffectPlay is { SourceZone: "BANISHED" }
                 && EffectPlaySources(state, intent.PlayerId).Contains(command.SourceObjectId))
             && !(item.DeckPlayPendingCard is not null && ValidDeckPlayPendingCard(state, item))

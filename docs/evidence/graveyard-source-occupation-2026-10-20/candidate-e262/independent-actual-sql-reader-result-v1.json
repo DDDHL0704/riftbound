@@ -1,0 +1,131 @@
+{
+  "status": "PASS_ACTUAL_INDEPENDENT_READONLY_DESTRUCTION_ORIGINAL_FRAMES",
+  "checks": [
+    {
+      "room": "postgres-destruction-graveyard-f3a109a7fd154524b582683495a59fec",
+      "format": "CoreRules",
+      "profile": "SELF_PAY",
+      "commands": 90,
+      "events": 408,
+      "allStoredFieldsAndNullsAndPrivateViewsExact": true,
+      "originalSeed": 0,
+      "originalPhysicalGeneration": 4,
+      "originalHistoricalPayloadsRoundtripped": {
+        "state_snapshots": 90,
+        "snapshots": 176,
+        "action_prompts": 176
+      },
+      "confirmations": 1,
+      "declines": 0,
+      "independentSourceResponsibilityAndDelayedTick": true,
+      "fullOriginalReplayMatched": true
+    },
+    {
+      "room": "postgres-destruction-graveyard-2d419950f124443aadeb7688b837935d",
+      "format": "CoreRules",
+      "profile": "DECREE_PAY",
+      "commands": 119,
+      "events": 495,
+      "allStoredFieldsAndNullsAndPrivateViewsExact": true,
+      "originalSeed": 0,
+      "originalPhysicalGeneration": 4,
+      "originalHistoricalPayloadsRoundtripped": {
+        "state_snapshots": 119,
+        "snapshots": 234,
+        "action_prompts": 234
+      },
+      "confirmations": 1,
+      "declines": 1,
+      "independentSourceResponsibilityAndDelayedTick": true,
+      "fullOriginalReplayMatched": true
+    },
+    {
+      "room": "postgres-destruction-graveyard-c0addda7d2d041f99fed3f675a852433",
+      "format": "CoreRules",
+      "profile": "DECREE_DECLINE",
+      "commands": 115,
+      "events": 483,
+      "allStoredFieldsAndNullsAndPrivateViewsExact": true,
+      "originalSeed": 0,
+      "originalPhysicalGeneration": 3,
+      "originalHistoricalPayloadsRoundtripped": {
+        "state_snapshots": 115,
+        "snapshots": 226,
+        "action_prompts": 226
+      },
+      "confirmations": 0,
+      "declines": 2,
+      "independentSourceResponsibilityAndDelayedTick": true,
+      "fullOriginalReplayMatched": true
+    },
+    {
+      "room": "postgres-destruction-graveyard-69efda035dac4fb4a83e8382af899626",
+      "format": "ChinaStandard20260724",
+      "profile": "SELF_PAY",
+      "commands": 90,
+      "events": 408,
+      "allStoredFieldsAndNullsAndPrivateViewsExact": true,
+      "originalSeed": 0,
+      "originalPhysicalGeneration": 4,
+      "originalHistoricalPayloadsRoundtripped": {
+        "state_snapshots": 90,
+        "snapshots": 176,
+        "action_prompts": 176
+      },
+      "confirmations": 1,
+      "declines": 0,
+      "independentSourceResponsibilityAndDelayedTick": true,
+      "fullOriginalReplayMatched": true
+    },
+    {
+      "room": "postgres-destruction-graveyard-fee9f1c061374a2e83d05d3c533f7a69",
+      "format": "ChinaStandard20260724",
+      "profile": "DECREE_PAY",
+      "commands": 119,
+      "events": 495,
+      "allStoredFieldsAndNullsAndPrivateViewsExact": true,
+      "originalSeed": 0,
+      "originalPhysicalGeneration": 4,
+      "originalHistoricalPayloadsRoundtripped": {
+        "state_snapshots": 119,
+        "snapshots": 234,
+        "action_prompts": 234
+      },
+      "confirmations": 1,
+      "declines": 1,
+      "independentSourceResponsibilityAndDelayedTick": true,
+      "fullOriginalReplayMatched": true
+    },
+    {
+      "room": "postgres-destruction-graveyard-a0728c91591e44f4a726b26a0fa14d1b",
+      "format": "ChinaStandard20260724",
+      "profile": "DECREE_DECLINE",
+      "commands": 115,
+      "events": 483,
+      "allStoredFieldsAndNullsAndPrivateViewsExact": true,
+      "originalSeed": 0,
+      "originalPhysicalGeneration": 3,
+      "originalHistoricalPayloadsRoundtripped": {
+        "state_snapshots": 115,
+        "snapshots": 226,
+        "action_prompts": 226
+      },
+      "confirmations": 0,
+      "declines": 2,
+      "independentSourceResponsibilityAndDelayedTick": true,
+      "fullOriginalReplayMatched": true
+    }
+  ],
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+    "implementationSha256": "30f77f36a65bf645b8443d6ce7cc217c0bcf3e3a2e4bb2a848631fdcc3343273",
+    "identitySha256": "591dc1232bb160b3e5191a287a5e75d429e1e87069d7a37fd0e90b0d706b7bb6"
+  },
+  "noNewRoomStateSeedOrHistoryRewrite": true,
+  "completeGameOrWholeCardCertification": false,
+  "visibleAndPhysicalWindows": "OPEN"
+}

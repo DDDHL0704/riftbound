@@ -1,0 +1,399 @@
+{
+  "status": "COMPLETED_STARTUP_AND_CONTROLLED_DRIVER_DERIVATIVES_RETIRED_ORIGINAL_SOURCE_JOURNAL_AND_CURRENT_REPLAY_RUNTIME_RETAINED",
+  "atUtc": "2026-10-19T23:45:46.373076+00:00",
+  "directories": [
+    "current-fixed-probe/bin",
+    "current-fixed-probe/obj",
+    "current-fixed-probe-v2/bin",
+    "current-fixed-probe-v2/obj",
+    "failed-prefix-reader/bin",
+    "failed-prefix-reader/obj"
+  ],
+  "removedFiles": {
+    "current-fixed-probe/bin/Release/net10.0/probe.pdb": {
+      "bytes": 18336,
+      "sha256": "2818b95e5b3d62f578a1f0f11a642193451a538feaae316672a838d576b012f4"
+    },
+    "current-fixed-probe/bin/Release/net10.0/Riftbound.CardCatalog.dll": {
+      "bytes": 337408,
+      "sha256": "2c5e0652f096b114482d62931d0086cdbf0cd6630aa46c3dd00a7a7f1b5e4ab3"
+    },
+    "current-fixed-probe/bin/Release/net10.0/probe.runtimeconfig.json": {
+      "bytes": 330,
+      "sha256": "9950d4583cfc9a106857c0d5b8a75b53e8774852b57b80bc3823a74d44a4d87f"
+    },
+    "current-fixed-probe/bin/Release/net10.0/probe.dll": {
+      "bytes": 39936,
+      "sha256": "485b87b723d7dfa4956666db4dcb355361227d017d4607366c6ce63a2a97fa92"
+    },
+    "current-fixed-probe/bin/Release/net10.0/probe.deps.json": {
+      "bytes": 387,
+      "sha256": "03f495e30bfcbbaba9da8b4fdb92bc803f878a7b1dca5fd5990cc28aac7be58b"
+    },
+    "current-fixed-probe/bin/Release/net10.0/Riftbound.Contracts.dll": {
+      "bytes": 338432,
+      "sha256": "496301c757649a8561cd93a29c7c86b68988198d6bc31c8a844d1459153463eb"
+    },
+    "current-fixed-probe/bin/Release/net10.0/Riftbound.Engine.dll": {
+      "bytes": 4519936,
+      "sha256": "ed7d5e017f76ea6bd146e7f54b167917f281e048ea075c990ce0a97dd5dafae2"
+    },
+    "current-fixed-probe/bin/Release/net10.0/probe": {
+      "bytes": 124712,
+      "sha256": "7b599981d9e582803ebd3ee529192ba25055985dae087dd75377fc00201608bc"
+    },
+    "current-fixed-probe/obj/probe.csproj.nuget.g.targets": {
+      "bytes": 149,
+      "sha256": "b14461e0cb1be3f77fcf9fe2fdd62889325ca92523d0f606980ed59eb5c4aa1c"
+    },
+    "current-fixed-probe/obj/project.nuget.cache": {
+      "bytes": 261,
+      "sha256": "6c7161be6d56a2413db062ee81b8d4afa7b416e7b0814da3626a88c063e59357"
+    },
+    "current-fixed-probe/obj/probe.csproj.nuget.dgspec.json": {
+      "bytes": 21424,
+      "sha256": "e1a771d8816b566eda79b4a9f5f5d56803ceb87fa55d9af83c2daf4f2d60bcef"
+    },
+    "current-fixed-probe/obj/probe.csproj.nuget.g.props": {
+      "bytes": 1130,
+      "sha256": "fc3164a419c5b2121a87fb47d38735c1397640d10e208c775a65a02edd6e231e"
+    },
+    "current-fixed-probe/obj/project.assets.json": {
+      "bytes": 20650,
+      "sha256": "42f37cc559cff2fa74011f682b773a9795c95c55d12babcd0aa4a5a998df6fa3"
+    },
+    "current-fixed-probe/obj/Release/net10.0/probe.pdb": {
+      "bytes": 18336,
+      "sha256": "2818b95e5b3d62f578a1f0f11a642193451a538feaae316672a838d576b012f4"
+    },
+    "current-fixed-probe/obj/Release/net10.0/probe.GeneratedMSBuildEditorConfig.editorconfig": {
+      "bytes": 872,
+      "sha256": "96e8d7ff77d2ce507341dde083a086e86ea09734d92af0e7f01662aaaf773077"
+    },
+    "current-fixed-probe/obj/Release/net10.0/probe.GlobalUsings.g.cs": {
+      "bytes": 231,
+      "sha256": "8f86a2cbf00ff3eee0bda2bc0eb5e1fc19c8544d5dc650c53d0132325956b592"
+    },
+    "current-fixed-probe/obj/Release/net10.0/probe.dll": {
+      "bytes": 39936,
+      "sha256": "485b87b723d7dfa4956666db4dcb355361227d017d4607366c6ce63a2a97fa92"
+    },
+    "current-fixed-probe/obj/Release/net10.0/apphost": {
+      "bytes": 124712,
+      "sha256": "7b599981d9e582803ebd3ee529192ba25055985dae087dd75377fc00201608bc"
+    },
+    "current-fixed-probe/obj/Release/net10.0/probe.csproj.CoreCompileInputs.cache": {
+      "bytes": 65,
+      "sha256": "8c03de8730f9df583e32c27b390ba490280cbf22d85d78db62f1f7b8d9f37dfd"
+    },
+    "current-fixed-probe/obj/Release/net10.0/probe.csproj.AssemblyReference.cache": {
+      "bytes": 3143,
+      "sha256": "27d7fcf46a8b757fca5d44549184e1d3889f221110c28d6065659bfa9cf1d4e9"
+    },
+    "current-fixed-probe/obj/Release/net10.0/.NETCoreApp,Version=v10.0.AssemblyAttributes.cs": {
+      "bytes": 196,
+      "sha256": "f79c1ad9a9fc76110b3655f5bfb5ff4e3168e9addceff05b937c0796f0ec34eb"
+    },
+    "current-fixed-probe/obj/Release/net10.0/probe.assets.cache": {
+      "bytes": 155,
+      "sha256": "9e430c3ecae6c7e89eda1e479c341f6a05098de045a82f2a374eaf26dcbb5ff7"
+    },
+    "current-fixed-probe/obj/Release/net10.0/probe.AssemblyInfo.cs": {
+      "bytes": 969,
+      "sha256": "d6b1299eb70ec174302b2d2dfda6faa5372ec8c4a269ca43828b33dd1542e95d"
+    },
+    "current-fixed-probe/obj/Release/net10.0/probe.csproj.FileListAbsolute.txt": {
+      "bytes": 2440,
+      "sha256": "973a219e63c3287a7c42485a9b417491c61fc8bc0e6b2d1a6a777f5354893b63"
+    },
+    "current-fixed-probe/obj/Release/net10.0/probe.genruntimeconfig.cache": {
+      "bytes": 65,
+      "sha256": "375a9e7ccd3ef7b000ed4611eb359128c861010f8a5f01fc7f79bcdc05091849"
+    },
+    "current-fixed-probe/obj/Release/net10.0/probe.sourcelink.json": {
+      "bytes": 157,
+      "sha256": "4973e120837de007b65908e5a3287cc717558f00b68be20991c75f2eabf57240"
+    },
+    "current-fixed-probe/obj/Release/net10.0/probe.AssemblyInfoInputs.cache": {
+      "bytes": 65,
+      "sha256": "0a1a4c1f14e90c74d72ae46b3cfec4d900aabfee2c89c007a890c694c0894046"
+    },
+    "current-fixed-probe/obj/Release/net10.0/ref/probe.dll": {
+      "bytes": 14336,
+      "sha256": "a153071af8cc4b8c572a9559de01677452b060e0b686101c3cc72894a4b1acd1"
+    },
+    "current-fixed-probe/obj/Release/net10.0/refint/probe.dll": {
+      "bytes": 14336,
+      "sha256": "a153071af8cc4b8c572a9559de01677452b060e0b686101c3cc72894a4b1acd1"
+    },
+    "current-fixed-probe-v2/bin/Release/net10.0/probe.pdb": {
+      "bytes": 18340,
+      "sha256": "658f9529429d88ed365b549ac1ad00f9b521aae84bda2bf601f5119aca3ee0b3"
+    },
+    "current-fixed-probe-v2/bin/Release/net10.0/Riftbound.CardCatalog.dll": {
+      "bytes": 337408,
+      "sha256": "2c5e0652f096b114482d62931d0086cdbf0cd6630aa46c3dd00a7a7f1b5e4ab3"
+    },
+    "current-fixed-probe-v2/bin/Release/net10.0/Riftbound.Contracts.pdb": {
+      "bytes": 56764,
+      "sha256": "19711479a827aae5d1e26268cb273ff23fe29ac0719486689fb059613ead4887"
+    },
+    "current-fixed-probe-v2/bin/Release/net10.0/Riftbound.Engine.pdb": {
+      "bytes": 767732,
+      "sha256": "a1d84558a5f72ac5192e164e56a9babaa17b91945628b6798236e39d0b41d4d1"
+    },
+    "current-fixed-probe-v2/bin/Release/net10.0/probe.runtimeconfig.json": {
+      "bytes": 330,
+      "sha256": "9950d4583cfc9a106857c0d5b8a75b53e8774852b57b80bc3823a74d44a4d87f"
+    },
+    "current-fixed-probe-v2/bin/Release/net10.0/Riftbound.CardCatalog.pdb": {
+      "bytes": 56628,
+      "sha256": "f180f5ae2d54a94bf9a99d7861b1120bd13411aee4435aee8c7f5c2852012731"
+    },
+    "current-fixed-probe-v2/bin/Release/net10.0/probe.dll": {
+      "bytes": 39936,
+      "sha256": "5d0c6e28d81002a88482ec82482725fc5795d0929e07966d0854ea31e84398ab"
+    },
+    "current-fixed-probe-v2/bin/Release/net10.0/probe.deps.json": {
+      "bytes": 1532,
+      "sha256": "0f11ea5722433b63f2f140999eed5081b412c16eff52cddd35c61d4777f60386"
+    },
+    "current-fixed-probe-v2/bin/Release/net10.0/Riftbound.Contracts.dll": {
+      "bytes": 338432,
+      "sha256": "496301c757649a8561cd93a29c7c86b68988198d6bc31c8a844d1459153463eb"
+    },
+    "current-fixed-probe-v2/bin/Release/net10.0/Riftbound.Engine.dll": {
+      "bytes": 4519936,
+      "sha256": "ed7d5e017f76ea6bd146e7f54b167917f281e048ea075c990ce0a97dd5dafae2"
+    },
+    "current-fixed-probe-v2/bin/Release/net10.0/probe": {
+      "bytes": 124712,
+      "sha256": "7b599981d9e582803ebd3ee529192ba25055985dae087dd75377fc00201608bc"
+    },
+    "current-fixed-probe-v2/obj/probe.csproj.nuget.g.targets": {
+      "bytes": 149,
+      "sha256": "b14461e0cb1be3f77fcf9fe2fdd62889325ca92523d0f606980ed59eb5c4aa1c"
+    },
+    "current-fixed-probe-v2/obj/project.nuget.cache": {
+      "bytes": 264,
+      "sha256": "4292d36d17029f9772310b53ffcc208d9dfb4f3a0439c70a2bb3b0e134dbede6"
+    },
+    "current-fixed-probe-v2/obj/probe.csproj.nuget.dgspec.json": {
+      "bytes": 21439,
+      "sha256": "a03aa4ed97f80a364e043d3a3297eb6c63d2be444053c18b6e8597b1691623d0"
+    },
+    "current-fixed-probe-v2/obj/probe.csproj.nuget.g.props": {
+      "bytes": 1130,
+      "sha256": "fc3164a419c5b2121a87fb47d38735c1397640d10e208c775a65a02edd6e231e"
+    },
+    "current-fixed-probe-v2/obj/project.assets.json": {
+      "bytes": 20659,
+      "sha256": "3bfdabc7916950b8e49cc30e01be9f9204ffa5566816b50fbd84a1aa5bc152c2"
+    },
+    "current-fixed-probe-v2/obj/Release/net10.0/probe.pdb": {
+      "bytes": 18340,
+      "sha256": "658f9529429d88ed365b549ac1ad00f9b521aae84bda2bf601f5119aca3ee0b3"
+    },
+    "current-fixed-probe-v2/obj/Release/net10.0/probe.GeneratedMSBuildEditorConfig.editorconfig": {
+      "bytes": 875,
+      "sha256": "82485836f0768094d910423ac860587111c9833292234df8bbe8bab76c8e617c"
+    },
+    "current-fixed-probe-v2/obj/Release/net10.0/probe.GlobalUsings.g.cs": {
+      "bytes": 231,
+      "sha256": "8f86a2cbf00ff3eee0bda2bc0eb5e1fc19c8544d5dc650c53d0132325956b592"
+    },
+    "current-fixed-probe-v2/obj/Release/net10.0/probe.dll": {
+      "bytes": 39936,
+      "sha256": "5d0c6e28d81002a88482ec82482725fc5795d0929e07966d0854ea31e84398ab"
+    },
+    "current-fixed-probe-v2/obj/Release/net10.0/apphost": {
+      "bytes": 124712,
+      "sha256": "7b599981d9e582803ebd3ee529192ba25055985dae087dd75377fc00201608bc"
+    },
+    "current-fixed-probe-v2/obj/Release/net10.0/probe.csproj.CoreCompileInputs.cache": {
+      "bytes": 65,
+      "sha256": "8c03de8730f9df583e32c27b390ba490280cbf22d85d78db62f1f7b8d9f37dfd"
+    },
+    "current-fixed-probe-v2/obj/Release/net10.0/probe.csproj.Up2Date": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "current-fixed-probe-v2/obj/Release/net10.0/probe.csproj.AssemblyReference.cache": {
+      "bytes": 3143,
+      "sha256": "27d7fcf46a8b757fca5d44549184e1d3889f221110c28d6065659bfa9cf1d4e9"
+    },
+    "current-fixed-probe-v2/obj/Release/net10.0/.NETCoreApp,Version=v10.0.AssemblyAttributes.cs": {
+      "bytes": 196,
+      "sha256": "f79c1ad9a9fc76110b3655f5bfb5ff4e3168e9addceff05b937c0796f0ec34eb"
+    },
+    "current-fixed-probe-v2/obj/Release/net10.0/probe.assets.cache": {
+      "bytes": 155,
+      "sha256": "a0b5837239b3ffcb32c169601debe04d53c3e5b3f76ba397df7ca0f6e8383e53"
+    },
+    "current-fixed-probe-v2/obj/Release/net10.0/probe.AssemblyInfo.cs": {
+      "bytes": 969,
+      "sha256": "d6b1299eb70ec174302b2d2dfda6faa5372ec8c4a269ca43828b33dd1542e95d"
+    },
+    "current-fixed-probe-v2/obj/Release/net10.0/probe.csproj.FileListAbsolute.txt": {
+      "bytes": 3589,
+      "sha256": "66182eb71f77dd0aaca0e884745c08cec30df09555d3338af938b5bdf625326e"
+    },
+    "current-fixed-probe-v2/obj/Release/net10.0/probe.genruntimeconfig.cache": {
+      "bytes": 65,
+      "sha256": "eb288649eae526af53c3f0c8c1d23095cc1c4551eb51b6c19ae451a7b2e212f8"
+    },
+    "current-fixed-probe-v2/obj/Release/net10.0/probe.sourcelink.json": {
+      "bytes": 157,
+      "sha256": "4973e120837de007b65908e5a3287cc717558f00b68be20991c75f2eabf57240"
+    },
+    "current-fixed-probe-v2/obj/Release/net10.0/probe.AssemblyInfoInputs.cache": {
+      "bytes": 65,
+      "sha256": "0a1a4c1f14e90c74d72ae46b3cfec4d900aabfee2c89c007a890c694c0894046"
+    },
+    "current-fixed-probe-v2/obj/Release/net10.0/ref/probe.dll": {
+      "bytes": 14336,
+      "sha256": "a153071af8cc4b8c572a9559de01677452b060e0b686101c3cc72894a4b1acd1"
+    },
+    "current-fixed-probe-v2/obj/Release/net10.0/refint/probe.dll": {
+      "bytes": 14336,
+      "sha256": "a153071af8cc4b8c572a9559de01677452b060e0b686101c3cc72894a4b1acd1"
+    },
+    "failed-prefix-reader/bin/Release/net10.0/probe.pdb": {
+      "bytes": 16412,
+      "sha256": "e7ad1dca5db8515fceff31b75759b6a75e5f8cb0464f83450f25877106ed8139"
+    },
+    "failed-prefix-reader/bin/Release/net10.0/Riftbound.CardCatalog.dll": {
+      "bytes": 337408,
+      "sha256": "2c5e0652f096b114482d62931d0086cdbf0cd6630aa46c3dd00a7a7f1b5e4ab3"
+    },
+    "failed-prefix-reader/bin/Release/net10.0/Riftbound.Contracts.pdb": {
+      "bytes": 56764,
+      "sha256": "19711479a827aae5d1e26268cb273ff23fe29ac0719486689fb059613ead4887"
+    },
+    "failed-prefix-reader/bin/Release/net10.0/Riftbound.Engine.pdb": {
+      "bytes": 767732,
+      "sha256": "a1d84558a5f72ac5192e164e56a9babaa17b91945628b6798236e39d0b41d4d1"
+    },
+    "failed-prefix-reader/bin/Release/net10.0/probe.runtimeconfig.json": {
+      "bytes": 330,
+      "sha256": "9950d4583cfc9a106857c0d5b8a75b53e8774852b57b80bc3823a74d44a4d87f"
+    },
+    "failed-prefix-reader/bin/Release/net10.0/Riftbound.CardCatalog.pdb": {
+      "bytes": 56628,
+      "sha256": "f180f5ae2d54a94bf9a99d7861b1120bd13411aee4435aee8c7f5c2852012731"
+    },
+    "failed-prefix-reader/bin/Release/net10.0/probe.dll": {
+      "bytes": 30720,
+      "sha256": "5274d6ecb489d08d36aff92f3a3aa0d6eeaaf098ecfe9677729a27c591303ba3"
+    },
+    "failed-prefix-reader/bin/Release/net10.0/probe.deps.json": {
+      "bytes": 1532,
+      "sha256": "0f11ea5722433b63f2f140999eed5081b412c16eff52cddd35c61d4777f60386"
+    },
+    "failed-prefix-reader/bin/Release/net10.0/Riftbound.Contracts.dll": {
+      "bytes": 338432,
+      "sha256": "496301c757649a8561cd93a29c7c86b68988198d6bc31c8a844d1459153463eb"
+    },
+    "failed-prefix-reader/bin/Release/net10.0/Riftbound.Engine.dll": {
+      "bytes": 4519936,
+      "sha256": "ed7d5e017f76ea6bd146e7f54b167917f281e048ea075c990ce0a97dd5dafae2"
+    },
+    "failed-prefix-reader/bin/Release/net10.0/probe": {
+      "bytes": 124712,
+      "sha256": "7b599981d9e582803ebd3ee529192ba25055985dae087dd75377fc00201608bc"
+    },
+    "failed-prefix-reader/obj/probe.csproj.nuget.g.targets": {
+      "bytes": 149,
+      "sha256": "b14461e0cb1be3f77fcf9fe2fdd62889325ca92523d0f606980ed59eb5c4aa1c"
+    },
+    "failed-prefix-reader/obj/project.nuget.cache": {
+      "bytes": 262,
+      "sha256": "d133c78c49086e85438234d297cc9158ec93c3752bc00f0edfa20758c3e5de01"
+    },
+    "failed-prefix-reader/obj/probe.csproj.nuget.dgspec.json": {
+      "bytes": 21429,
+      "sha256": "a78742bc4be78153bd6646c304487d64f0fbb6953194abe69defb9bb254a17c3"
+    },
+    "failed-prefix-reader/obj/probe.csproj.nuget.g.props": {
+      "bytes": 1130,
+      "sha256": "fc3164a419c5b2121a87fb47d38735c1397640d10e208c775a65a02edd6e231e"
+    },
+    "failed-prefix-reader/obj/project.assets.json": {
+      "bytes": 20653,
+      "sha256": "0944571107b979a4bbbd4a2c39d79171125e48d83646f56c76497d6c014b67d7"
+    },
+    "failed-prefix-reader/obj/Release/net10.0/probe.pdb": {
+      "bytes": 16412,
+      "sha256": "e7ad1dca5db8515fceff31b75759b6a75e5f8cb0464f83450f25877106ed8139"
+    },
+    "failed-prefix-reader/obj/Release/net10.0/probe.GeneratedMSBuildEditorConfig.editorconfig": {
+      "bytes": 873,
+      "sha256": "7d54c7bc0e6ed9bc8e50d4dba9725d1cb1f0d0e7d90edb6c32968fad415ce7ce"
+    },
+    "failed-prefix-reader/obj/Release/net10.0/probe.GlobalUsings.g.cs": {
+      "bytes": 231,
+      "sha256": "8f86a2cbf00ff3eee0bda2bc0eb5e1fc19c8544d5dc650c53d0132325956b592"
+    },
+    "failed-prefix-reader/obj/Release/net10.0/probe.dll": {
+      "bytes": 30720,
+      "sha256": "5274d6ecb489d08d36aff92f3a3aa0d6eeaaf098ecfe9677729a27c591303ba3"
+    },
+    "failed-prefix-reader/obj/Release/net10.0/apphost": {
+      "bytes": 124712,
+      "sha256": "7b599981d9e582803ebd3ee529192ba25055985dae087dd75377fc00201608bc"
+    },
+    "failed-prefix-reader/obj/Release/net10.0/probe.csproj.CoreCompileInputs.cache": {
+      "bytes": 65,
+      "sha256": "8c03de8730f9df583e32c27b390ba490280cbf22d85d78db62f1f7b8d9f37dfd"
+    },
+    "failed-prefix-reader/obj/Release/net10.0/probe.csproj.Up2Date": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "failed-prefix-reader/obj/Release/net10.0/probe.csproj.AssemblyReference.cache": {
+      "bytes": 3143,
+      "sha256": "27d7fcf46a8b757fca5d44549184e1d3889f221110c28d6065659bfa9cf1d4e9"
+    },
+    "failed-prefix-reader/obj/Release/net10.0/.NETCoreApp,Version=v10.0.AssemblyAttributes.cs": {
+      "bytes": 196,
+      "sha256": "f79c1ad9a9fc76110b3655f5bfb5ff4e3168e9addceff05b937c0796f0ec34eb"
+    },
+    "failed-prefix-reader/obj/Release/net10.0/probe.assets.cache": {
+      "bytes": 155,
+      "sha256": "1571fe1df53e0b81244c3f7133da3f243de1b8e02257247b6155de051e0873ad"
+    },
+    "failed-prefix-reader/obj/Release/net10.0/probe.AssemblyInfo.cs": {
+      "bytes": 969,
+      "sha256": "d6b1299eb70ec174302b2d2dfda6faa5372ec8c4a269ca43828b33dd1542e95d"
+    },
+    "failed-prefix-reader/obj/Release/net10.0/probe.csproj.FileListAbsolute.txt": {
+      "bytes": 3543,
+      "sha256": "a6b1e0b1954931bac30da9da566a696eb31d04bb0983a6ea60b3b21a477703e1"
+    },
+    "failed-prefix-reader/obj/Release/net10.0/probe.genruntimeconfig.cache": {
+      "bytes": 65,
+      "sha256": "c09e97b2ebc635ccdf3aaf5d2d6410293415efec5f4c66a0507a01b10e843f39"
+    },
+    "failed-prefix-reader/obj/Release/net10.0/probe.sourcelink.json": {
+      "bytes": 157,
+      "sha256": "4973e120837de007b65908e5a3287cc717558f00b68be20991c75f2eabf57240"
+    },
+    "failed-prefix-reader/obj/Release/net10.0/probe.AssemblyInfoInputs.cache": {
+      "bytes": 65,
+      "sha256": "0a1a4c1f14e90c74d72ae46b3cfec4d900aabfee2c89c007a890c694c0894046"
+    },
+    "failed-prefix-reader/obj/Release/net10.0/ref/probe.dll": {
+      "bytes": 12800,
+      "sha256": "ca2a5eded83a14047a3ff3e0174b1e70ccc3588e4bafba9dab85315f23a63611"
+    },
+    "failed-prefix-reader/obj/Release/net10.0/refint/probe.dll": {
+      "bytes": 12800,
+      "sha256": "ca2a5eded83a14047a3ff3e0174b1e70ccc3588e4bafba9dab85315f23a63611"
+    }
+  },
+  "removedLogicalBytes": 18670801,
+  "actualOldApiRuleRuntimeAndLatestIndependentReaderRetained": true,
+  "allOriginalAcceptedRejectedCommandsStateSnapshotsAndSourceRetained": true,
+  "retiredProbeExecutablesNotClaimedStillPresent": true,
+  "originalSourceAndHashesAllowRebuildNotByteRetentionClaim": true
+}

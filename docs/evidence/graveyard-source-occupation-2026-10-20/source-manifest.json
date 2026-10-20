@@ -1,0 +1,164 @@
+{
+  "recordedAtUtc": "2026-10-20T01:09:27.988888+00:00",
+  "region": "CN",
+  "language": "zh-CN",
+  "applicableAsOf": "2026-10-16",
+  "observedAtAsiaShanghai": "2026-10-20",
+  "baseCommit": "e262ebf164e448cc9738d94db8e557f302cfc295",
+  "includesExplicitUncommittedImplementation": true,
+  "exactPrintings": [
+    "OGN-037/298",
+    "OGN-221/298",
+    "OGN-254/298",
+    "UNL-180/219",
+    "UNL-142/219",
+    "OGN-064/298",
+    "UNL-106/219",
+    "SFD-045/221",
+    "OGN-010/298"
+  ],
+  "sourceRefs": [
+    "CN-59bd828207564540-P021-B002",
+    "CN-59bd828207564540-P021-B003",
+    "CN-59bd828207564540-P021-B004",
+    "CN-d6fd7140f106f9b5-P008-B011",
+    "CN-d6fd7140f106f9b5-P008-B012",
+    "CN-d6fd7140f106f9b5-P012-B018",
+    "CN-d6fd7140f106f9b5-P032-B002",
+    "CN-d6fd7140f106f9b5-P045-B015",
+    "CN-d6fd7140f106f9b5-P046-B003",
+    "CN-d6fd7140f106f9b5-P062-B005",
+    "CN-d6fd7140f106f9b5-P062-B006",
+    "CN-d6fd7140f106f9b5-P062-B009",
+    "CN-d6fd7140f106f9b5-P062-B011",
+    "CN-d6fd7140f106f9b5-P063-B004",
+    "CN-d6fd7140f106f9b5-P063-B006",
+    "CN-d6fd7140f106f9b5-P068-B002",
+    "CN-d6fd7140f106f9b5-P071-B017",
+    "CN-d6fd7140f106f9b5-P074-B013",
+    "CN-d6fd7140f106f9b5-P074-B014",
+    "CN-d6fd7140f106f9b5-P080-B001",
+    "CN-d6fd7140f106f9b5-P080-B011",
+    "CN-d6fd7140f106f9b5-P080-B012",
+    "CN-d6fd7140f106f9b5-P080-B013",
+    "CN-d6fd7140f106f9b5-P080-B014",
+    "CN-d6fd7140f106f9b5-P080-B015",
+    "CN-d6fd7140f106f9b5-P080-B016",
+    "CN-d6fd7140f106f9b5-P080-B017",
+    "OGN-009/298",
+    "OGN-010/298",
+    "OGN-037/298",
+    "OGN-064/298",
+    "OGN-221/298",
+    "OGN-254/298",
+    "SFD-045/221",
+    "UNL-106/219",
+    "UNL-118/219",
+    "UNL-118A/219",
+    "UNL-142/219",
+    "UNL-180/219"
+  ],
+  "existing22ParentObligationIds": [
+    "CARD:OGN-037/298",
+    "CARD:OGN-221/298",
+    "CARD:OGN-009/298",
+    "CARD:UNL-118/219",
+    "CARD:UNL-118A/219",
+    "RULE:CN-d6fd7140f106f9b5-P062-B011",
+    "RULE:CN-d6fd7140f106f9b5-P071-B017",
+    "RULE:CN-d6fd7140f106f9b5-P080-B011",
+    "RULE:CN-d6fd7140f106f9b5-P080-B012",
+    "RULE:CN-d6fd7140f106f9b5-P080-B013",
+    "RULE:CN-d6fd7140f106f9b5-P080-B014",
+    "RULE:CN-d6fd7140f106f9b5-P080-B015",
+    "RULE:CN-d6fd7140f106f9b5-P080-B016",
+    "RULE:CN-d6fd7140f106f9b5-P080-B017",
+    "RULE:CN-59bd828207564540-P021-B002",
+    "RULE:CN-59bd828207564540-P021-B003",
+    "RULE:CN-59bd828207564540-P021-B004",
+    "CARD:OGN-254/298",
+    "RULE:CN-d6fd7140f106f9b5-P032-B002",
+    "RULE:CN-d6fd7140f106f9b5-P074-B013",
+    "RULE:CN-d6fd7140f106f9b5-P074-B014",
+    "RULE:CN-d6fd7140f106f9b5-P068-B002"
+  ],
+  "currentNineRequestSourceRefresh": {
+    "path": "docs/evidence/graveyard-source-occupation-2026-10-20/n20/pre-fix-current-source-refresh-v3.json",
+    "sha256": "26c5ce16e90bcb3879b4434d696e3b2bc547ca5ed2a76ad8fae64a2647cc0dd7",
+    "role": "pre-fix-current-source-refresh-v3"
+  },
+  "additionalTwoCardApisAndOriginalPixels": {
+    "path": "docs/evidence/graveyard-source-occupation-2026-10-20/n20/current-source-intake-v1.json",
+    "sha256": "7f242efda9f446c03b6452a2a1dbac84a41affda601e8a15c92aaf43ca96854a",
+    "role": "current-source-intake-v1"
+  },
+  "additionalTwoOriginalCardFaceReadback": {
+    "path": "docs/evidence/graveyard-source-occupation-2026-10-20/n20/source-pixel-readback-v1.json",
+    "sha256": "31f952b2335c27ae0d79e2f85623f404481b2e4b8bae45d9430076fcabaf2b70",
+    "role": "source-pixel-readback-v1"
+  },
+  "currentCoreClauses": {
+    "path": "docs/evidence/graveyard-source-occupation-2026-10-20/n20/current-core-source-reference-readback-v1.json",
+    "sha256": "a16bb2f7dcf552cd94b5eed95b30dbe5327bd4457526495e854b3de613002504",
+    "role": "current-core-source-reference-readback-v1"
+  },
+  "costInstructionAndNonTargetClauses": {
+    "path": "docs/evidence/graveyard-source-occupation-2026-10-20/n20/current-core-cost-instruction-and-counter-scope-readback-v2.json",
+    "sha256": "5b3d08dcc65da9aedeaa42b3e4691f03ccc923d3086e8211fa943b64685785e0",
+    "role": "current-core-cost-instruction-and-counter-scope-readback-v2"
+  },
+  "otherFiniteTypedStackConsumersRemainOpen": {
+    "path": "docs/evidence/graveyard-source-occupation-2026-10-20/n20/shared-typed-stack-finite-consumer-followup-v2.json",
+    "sha256": "3bdef3e7f0c2fedf8f75179228bec64183028905e498f32cff6cd80f5a383dec",
+    "role": "shared-typed-stack-finite-consumer-followup-v2"
+  },
+  "unchangedSourceBytesNotNewTemporalDelta": true,
+  "unknownSinglePrintingDatesRemainNull": true,
+  "originalE262ControlledCounterexample": {
+    "path": "docs/evidence/graveyard-source-occupation-2026-10-20/n20/original-prefix-independent-verification-v2.json",
+    "sha256": "40d14c5bd01925230e8e108f54961d68a9e2103acca46e8c01b92e1d6d936d00",
+    "role": "original-prefix-independent-verification-v2"
+  },
+  "currentConformanceDebugRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+    "implementationSha256": "c72232511d08db3f3e06ee35f83385507b10ec0e7591280847b3fa34041d836f",
+    "identitySha256": "063c0cea0b0a527789b16a1d8a0658cb66130ebbff48042474fb1b3e3d0e0a20"
+  },
+  "priorFixedE262ReleaseRuleInputsOnly": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+    "implementationSha256": "30f77f36a65bf645b8443d6ce7cc217c0bcf3e3a2e4bb2a848631fdcc3343273",
+    "identitySha256": "591dc1232bb160b3e5191a287a5e75d429e1e87069d7a37fd0e90b0d706b7bb6"
+  },
+  "oldE262LockedNativeSqlProofOnly": {
+    "path": "docs/evidence/graveyard-source-occupation-2026-10-20/candidate-e262/locked-fixed-candidate-continuation-checkpoint-v2.json",
+    "sha256": "ef8ea36b3742ea05f67242e41674c11d13928c92391a855d2e8800866bed8e34",
+    "role": "locked-fixed-candidate-continuation-checkpoint-v2"
+  },
+  "separateRuntimeVersionsNeverInterchanged": true,
+  "currentControlledLifecycleCases": 7,
+  "currentSiblingTwoFormatOrdinaryPrefixProof": {
+    "path": "docs/evidence/graveyard-source-occupation-2026-10-20/ordinary-prefix/ordinary-two-format-original-prefix-closure-v1.json",
+    "sha256": "78ce623e7f08102983efda473a73b2891da2921ab851023cfa10164322ab7dc4",
+    "role": "ordinary-two-format-original-prefix-closure-v1"
+  },
+  "additionalExactLegionCurrentSourceReceipt": {
+    "path": "docs/evidence/graveyard-source-occupation-2026-10-20/ordinary-prefix/legion-current-source-receipt-v2.json",
+    "sha256": "19c9fb289c1540677d6bb4384573bb127d9259869c1ab4f40ab6dabf4f30ca83",
+    "role": "legion-current-source-receipt-v2"
+  },
+  "newSiblingRealSql": "OPEN",
+  "ordinaryLegitimateReentry": "OPEN",
+  "currentVisibleNativeProduct": "OPEN",
+  "newFixedFull": "PENDING",
+  "physicalWindows": "OPEN",
+  "wholePrintingCertified": false,
+  "semanticCoverageCertified": false
+}

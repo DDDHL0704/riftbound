@@ -1,0 +1,21 @@
+{
+  "finishedAtUtc": "2026-10-20T01:05:55.001464+00:00",
+  "checkExitCode": 0,
+  "inputManifestSha256": "3f53a5cee6a316e9dd0603af6998538fbb001077873d124121914d7a3b39447c",
+  "changedSourceInputs": [],
+  "changedConformanceRuntimeFiles": [],
+  "allDeclaredInputsAndRuntimeFilesStable": true,
+  "lockedAtEnd": {
+    "atUtc": "2026-10-20T01:05:55.027362+00:00",
+    "roots": [
+      {
+        "rootLocked": false,
+        "sessions": []
+      }
+    ],
+    "unknownIsNotUnlocked": true
+  },
+  "boundIdleSleepAssertionEnded": true,
+  "databaseClaimNotInferredFromOptionalSmokeReturn": true,
+  "noSecondCheck": true
+}

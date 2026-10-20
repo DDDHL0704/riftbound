@@ -23641,6 +23641,65 @@
         "docs/evidence/destruction-graveyard-2026-10-20/n19/catalog-boundary-independent-old-current-comparison-v1.json",
         "docs/evidence/destruction-graveyard-2026-10-20/n19/postcheck-three-failures-current-closure-v2.json"
       ]
+    },
+    {
+      "id": "graveyard-source-reference-occupation-and-original-generation-2026-10-20",
+      "scope": "CN/zh-CN current core effective2026-10-16; independent skill source/card occupation and original graveyard incarnations only.",
+      "status": "LIMITED_CURRENT_SEVEN_CASES133_ADJACENT_TWO_FORMAT_ORDINARY_PREFIX_SOLECHECK_PASS_SQL_FIXEDFULL_PRODUCT_OPEN",
+      "subjects": [
+        "OGN-037/298",
+        "OGN-221/298",
+        "OGN-254/298",
+        "UNL-180/219",
+        "UNL-142/219",
+        "OGN-064/298",
+        "UNL-106/219",
+        "SFD-045/221",
+        "OGN-010/298"
+      ],
+      "ruleRecords": [
+        "DOC-01-P008-B011",
+        "DOC-01-P008-B012",
+        "DOC-01-P032-B002",
+        "DOC-01-P045-B015",
+        "DOC-01-P062-B005",
+        "DOC-01-P062-B006",
+        "DOC-01-P062-B009",
+        "DOC-01-P062-B011",
+        "DOC-01-P063-B004",
+        "DOC-01-P063-B006",
+        "DOC-01-P012-B018",
+        "DOC-01-P046-B003",
+        "DOC-01-P080-B001",
+        "DOC-01-P080-B013"
+      ],
+      "pendingRuleRecords": [],
+      "sourceManifest": {
+        "path": "docs/evidence/graveyard-source-occupation-2026-10-20/source-manifest.json",
+        "sha256": "576921675682987d6efe6d9c9d2db0032063b7b32913e8fd8cdbd032b29ff602",
+        "role": "source-manifest"
+      },
+      "auditDocument": "docs/GRAVEYARD_SOURCE_OCCUPATION_AUDIT_2026-10-20.md",
+      "evidence": [
+        "docs/evidence/graveyard-source-occupation-2026-10-20/n20/only-check-retention-and-disposition-v1.json",
+        "docs/evidence/graveyard-source-occupation-2026-10-20/n20/affected-original-full-games-and-shared-consumers-v5-verification.json",
+        "docs/evidence/graveyard-source-occupation-2026-10-20/n20/all-e262-test-tool-and-original-fullgame-source-retention-v1.json",
+        "docs/evidence/graveyard-source-occupation-2026-10-20/n20/original-prefix-independent-verification-v2.json",
+        "docs/evidence/graveyard-source-occupation-2026-10-20/n20/focus-first-four-failures-new-test-scope-disposition-v1.json",
+        "docs/evidence/graveyard-source-occupation-2026-10-20/candidate-e262/locked-fixed-candidate-continuation-checkpoint-v2.json",
+        "docs/evidence/graveyard-source-occupation-2026-10-20/ordinary-prefix/ordinary-two-format-original-prefix-closure-v1.json",
+        "docs/evidence/graveyard-source-occupation-2026-10-20/ordinary-prefix/independent-core-original-verification-v3.json",
+        "docs/evidence/graveyard-source-occupation-2026-10-20/ordinary-prefix/independent-china-original-verification-v3.json",
+        "docs/evidence/graveyard-source-occupation-2026-10-20/ordinary-prefix/original-v1-prefix-independent-verification-v1.json",
+        "docs/evidence/graveyard-source-occupation-2026-10-20/bounded-behavior-matrix.json"
+      ],
+      "exclusions": [
+        "WHOLE_PRINTING_OTHER_CONSUMERS_AND_GLOBAL_SOURCE_GAPS",
+        "NEW_SIBLING_REAL_SQL_AND_OTHER_ORDINARY_BRANCHES",
+        "CURRENT_FIXED_FULL",
+        "VISIBLE_NATIVE_PRODUCT",
+        "PHYSICAL_WINDOWS"
+      ]
     }
   ]
 }

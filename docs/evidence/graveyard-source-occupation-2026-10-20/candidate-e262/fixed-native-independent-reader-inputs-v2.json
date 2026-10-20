@@ -1,0 +1,34 @@
+{
+  "fixedCommit": "e262ebf164e448cc9738d94db8e557f302cfc295",
+  "files": {
+    "fixed-native-independent-reader-v2/bin/Release/net10.0/Riftbound.CardCatalog.dll": "2c5e0652f096b114482d62931d0086cdbf0cd6630aa46c3dd00a7a7f1b5e4ab3",
+    "fixed-native-independent-reader-v2/bin/Release/net10.0/Riftbound.Contracts.pdb": "19711479a827aae5d1e26268cb273ff23fe29ac0719486689fb059613ead4887",
+    "fixed-native-independent-reader-v2/bin/Release/net10.0/Riftbound.Engine.pdb": "a1d84558a5f72ac5192e164e56a9babaa17b91945628b6798236e39d0b41d4d1",
+    "fixed-native-independent-reader-v2/bin/Release/net10.0/Riftbound.CardCatalog.pdb": "f180f5ae2d54a94bf9a99d7861b1120bd13411aee4435aee8c7f5c2852012731",
+    "fixed-native-independent-reader-v2/bin/Release/net10.0/Npgsql.dll": "9d8db086e9eda5ff20c4a7f83fa3eae7689198f57277ff9ceea1ee3526f5fcf8",
+    "fixed-native-independent-reader-v2/bin/Release/net10.0/independentnative.deps.json": "397a5eeaa91c871539a3e33c721e80bdf30b9596405068563deb80fdcb9feba2",
+    "fixed-native-independent-reader-v2/bin/Release/net10.0/Riftbound.Contracts.dll": "496301c757649a8561cd93a29c7c86b68988198d6bc31c8a844d1459153463eb",
+    "fixed-native-independent-reader-v2/bin/Release/net10.0/Riftbound.Engine.dll": "ed7d5e017f76ea6bd146e7f54b167917f281e048ea075c990ce0a97dd5dafae2",
+    "fixed-native-independent-reader-v2/bin/Release/net10.0/Riftbound.Persistence.pdb": "5fdfaf6155f8652a43f240ada7027cc815fd065fe7fbc5a89b4fe8a0f550b313",
+    "fixed-native-independent-reader-v2/bin/Release/net10.0/independentnative": "177e5d04fa1ed19c9b4d7962f438021435d99be64746126739136b3d6b2263bc",
+    "fixed-native-independent-reader-v2/bin/Release/net10.0/independentnative.dll": "286c7af48df7285a3d24168b982b262afe4744b1bb701813abacc7831e5220cb",
+    "fixed-native-independent-reader-v2/bin/Release/net10.0/independentnative.runtimeconfig.json": "f8bd1713a3691d58eb332a71675f129385b91e852b66e7b6761cae1f34d4efd2",
+    "fixed-native-independent-reader-v2/bin/Release/net10.0/Riftbound.Persistence.dll": "d50a47c448a0b1af10291541c6651c09884e5a9cd543b406d08f1083e43d8a78",
+    "fixed-native-independent-reader-v2/bin/Release/net10.0/independentnative.pdb": "d505f2501673a0bfca91c51a387045302754a2a3d90c4d474853e78cd1a4620c",
+    "fixed-native-independent-reader-v2/Program.cs": "1710d23d0989b8b24065a3cfe250d061519e54d9d18d7296176d3acabb76baad",
+    "fixed-native-independent-reader-v2/reader.csproj": "8209f81f68c6999e8a654ac0645050de31063da36271b166e4380036ef2149d1",
+    "exported-graceful-original-frame.json.gz": "8b9b99728d0d2dcef880ef8018c201c2effd83ad3f9b1fb3aaaf006e5be99c15",
+    "exported-stale-retry-v2-original-frame.json.gz": "a282702a2702f39ffa0aa33f76c9cf9d7108a7e06a76b5c74729d14178cf9947",
+    "score-paired-after-continuation-original-frame.json.gz": "c3f804eb6402e20bb1f86dc8570e0302783588459d4d793bf381eb47ca2e6a46",
+    "score-paired-before-restart-original-frame.json.gz": "af43e3cd33dfc02cc6c661df8013c651e16ab04564984dc0d0a76f2cb8d08a1b"
+  },
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+    "implementationSha256": "30f77f36a65bf645b8443d6ce7cc217c0bcf3e3a2e4bb2a848631fdcc3343273",
+    "identitySha256": "591dc1232bb160b3e5191a287a5e75d429e1e87069d7a37fd0e90b0d706b7bb6"
+  }
+}

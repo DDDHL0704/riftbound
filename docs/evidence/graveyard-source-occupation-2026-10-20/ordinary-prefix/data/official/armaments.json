@@ -1,0 +1,288 @@
+{
+  "schemaVersion": 1,
+  "sourceSnapshot": "data/official/upstream/2026-10-11/card-gallery.en-US.json",
+  "sourceSha256": "cdf1fad1874125e1cd3ff148e630b713c5b2e8e6cf140b4310613e6d4b343322",
+  "scope": "Current engine prints only; separate armament effect text retained as official English source, not a claim of implemented behavior.",
+  "records": [
+    {
+      "cardNo": "SFD·009/221",
+      "sourceCardNo": "SFD-009/221",
+      "baseMightBonus": 0,
+      "effectText": "[Assault 2] (+2 :rb_might: while I'm an attacker.)",
+      "cardImageUrl": "https://cdn.playloltcg.com/lol/card/20251217/1d2005b27489499f839da2a805b985f8.png"
+    },
+    {
+      "cardNo": "SFD·016/221",
+      "sourceCardNo": "SFD-016/221",
+      "baseMightBonus": 0,
+      "effectText": "When I attack or defend, deal 2 to an enemy unit here.",
+      "cardImageUrl": "https://cdn.playloltcg.com/lol/card/20251217/d1a50c803abf4109bc1079ab725394af.png"
+    },
+    {
+      "cardNo": "SFD·022/221",
+      "sourceCardNo": "SFD-022/221",
+      "baseMightBonus": 2,
+      "effectText": "",
+      "cardImageUrl": "https://cdn.playloltcg.com/lol/card/20251217/48ad3f52ea5a4fc4bef6b90e0186d6c7.png"
+    },
+    {
+      "cardNo": "SFD·030/221",
+      "sourceCardNo": "SFD-030/221",
+      "baseMightBonus": 2,
+      "effectText": "My hold effects are also conquer effects, and vice versa.",
+      "cardImageUrl": "https://cdn.playloltcg.com/lol/card/20251217/ca519b1a4c5149a69f0aebccb8991bda.png"
+    },
+    {
+      "cardNo": "SFD·033/221",
+      "sourceCardNo": "SFD-033/221",
+      "baseMightBonus": 1,
+      "effectText": "[Tank] (I must be assigned combat damage first.)",
+      "cardImageUrl": "https://cdn.playloltcg.com/lol/card/20251217/074701dac87b4b53b23a540122bda822.png"
+    },
+    {
+      "cardNo": "SFD·042/221",
+      "sourceCardNo": "SFD-042/221",
+      "baseMightBonus": 1,
+      "effectText": "If this was attached to me this turn, I have an additional +2 :rb_might:.",
+      "cardImageUrl": "https://cdn.playloltcg.com/lol/card/20251217/4da831212c3748a8b6f0e58c605972c2.png"
+    },
+    {
+      "cardNo": "SFD·051/221",
+      "sourceCardNo": "SFD-051/221",
+      "baseMightBonus": 1,
+      "effectText": "If I would die, kill Guardian Angel instead. Heal me, exhaust me, and recall me.",
+      "cardImageUrl": "https://cdn.playloltcg.com/lol/card/20251217/cbbc137ed7644a529456560f55cce23e.png"
+    },
+    {
+      "cardNo": "SFD·056/221",
+      "sourceCardNo": "SFD-056/221",
+      "baseMightBonus": 3,
+      "effectText": "",
+      "cardImageUrl": "https://cdn.playloltcg.com/lol/card/20251217/b9a16b698fb64b93ba88ca7b96303d2c.png"
+    },
+    {
+      "cardNo": "SFD·059/221",
+      "sourceCardNo": "SFD-059/221",
+      "baseMightBonus": 0,
+      "effectText": "",
+      "cardImageUrl": "https://cdn.playloltcg.com/lol/card/20251217/3fb9c51990c64735b1d613e27e53f2a7.png",
+      "copiesHostPrintedRulesText": true
+    },
+    {
+      "cardNo": "SFD·064/221",
+      "sourceCardNo": "SFD-064/221",
+      "baseMightBonus": 0,
+      "effectText": "[Shield 2] (+2 :rb_might: while I'm a defender.)",
+      "cardImageUrl": "https://cdn.playloltcg.com/lol/card/20251217/d31c7e8423b74a6b8f476fc48b0a6e9f.png"
+    },
+    {
+      "cardNo": "SFD·073/221",
+      "sourceCardNo": "SFD-073/221",
+      "baseMightBonus": 1,
+      "effectText": "I am a Mech.",
+      "cardImageUrl": "https://cdn.playloltcg.com/lol/card/20251217/ca537f6376c24628a1865a1ef0820519.png"
+    },
+    {
+      "cardNo": "SFD·086/221",
+      "sourceCardNo": "SFD-086/221",
+      "baseMightBonus": 2,
+      "effectText": "When I hold, play two Gold gear tokens exhausted.",
+      "cardImageUrl": "https://cdn.playloltcg.com/lol/card/20251217/2d9dab4fe9ab43789b44936bcae350fd.png"
+    },
+    {
+      "cardNo": "SFD·090/221",
+      "sourceCardNo": "SFD-090/221",
+      "baseMightBonus": 2,
+      "effectText": "[Deathknell] — Banish me. (When I die, get the effect.)",
+      "cardImageUrl": "https://cdn.playloltcg.com/lol/card/20251217/5f86f798e1034532a5f1ca0478b39d9f.png"
+    },
+    {
+      "cardNo": "SFD·095/221",
+      "sourceCardNo": "SFD-095/221",
+      "baseMightBonus": 2,
+      "effectText": "",
+      "cardImageUrl": "https://cdn.playloltcg.com/lol/card/20251217/ea875fe56f0e42098b5d0617c491e5f3.png"
+    },
+    {
+      "cardNo": "SFD·102/221",
+      "sourceCardNo": "SFD-102/221",
+      "baseMightBonus": 1,
+      "effectText": "[Deflect] (Opponents must pay :rb_rune_rainbow: to choose me with a spell or ability.)",
+      "cardImageUrl": "https://cdn.playloltcg.com/lol/card/20251217/5cb0d360db1d434ebd4670e324feeb7e.png"
+    },
+    {
+      "cardNo": "SFD·108/221",
+      "sourceCardNo": "SFD-108/221",
+      "baseMightBonus": 1,
+      "effectText": "When I conquer, buff me. (If I don't have a buff, I get a +1 :rb_might: buff.)",
+      "cardImageUrl": "https://cdn.playloltcg.com/lol/card/20251217/bd6fa98eb467496cb564b8f95d0ddb80.png"
+    },
+    {
+      "cardNo": "SFD·115/221",
+      "sourceCardNo": "SFD-115/221",
+      "baseMightBonus": 2,
+      "effectText": "When I hold, score 1 point.",
+      "cardImageUrl": "https://cdn.playloltcg.com/lol/card/20251217/d481cd43228e4ad5901fe2d058d01593.png"
+    },
+    {
+      "cardNo": "SFD·118/221",
+      "sourceCardNo": "SFD-118/221",
+      "baseMightBonus": 2,
+      "effectText": "When I conquer, channel 1 rune exhausted.",
+      "cardImageUrl": "https://cdn.playloltcg.com/lol/card/20251217/9e8fa915f43d42f2b4634dcf2e6f496b.png"
+    },
+    {
+      "cardNo": "SFD·118a/221·P",
+      "sourceCardNo": "SFD-118/221",
+      "baseMightBonus": 2,
+      "effectText": "When I conquer, channel 1 rune exhausted.",
+      "cardImageUrl": "https://cdn.playloltcg.com/lol/card/20260130/4a1b6acd9057487e8d104b9b2375bce3.png"
+    },
+    {
+      "cardNo": "SFD·124/221",
+      "sourceCardNo": "SFD-124/221",
+      "baseMightBonus": 1,
+      "effectText": "When I conquer, discard 1, then draw 1.",
+      "cardImageUrl": "https://cdn.playloltcg.com/lol/card/20251217/72b73f8855f64e46b13c68ba694e15f1.png"
+    },
+    {
+      "cardNo": "SFD·133/221",
+      "sourceCardNo": "SFD-133/221",
+      "baseMightBonus": 2,
+      "effectText": "[Ganking] (I can move from battlefield to battlefield.)",
+      "cardImageUrl": "https://cdn.playloltcg.com/lol/card/20251217/d694b9a10e9c405e9eb5109316f20078.png"
+    },
+    {
+      "cardNo": "SFD·134/221",
+      "sourceCardNo": "SFD-134/221",
+      "baseMightBonus": 1,
+      "effectText": "When I conquer, play a Gold gear token exhausted.",
+      "cardImageUrl": "https://cdn.playloltcg.com/lol/card/20251217/8d84b89359f94941ac589d509006360b.png"
+    },
+    {
+      "cardNo": "SFD·139/221",
+      "sourceCardNo": "SFD-139/221",
+      "baseMightBonus": 2,
+      "effectText": "",
+      "cardImageUrl": "https://cdn.playloltcg.com/lol/card/20251217/3772585868e94929a85477e5d58cda09.png"
+    },
+    {
+      "cardNo": "SFD·150/221",
+      "sourceCardNo": "SFD-150/221",
+      "baseMightBonus": 2,
+      "effectText": "When I conquer or hold, you may play a unit from your trash. (You still pay its costs.)",
+      "cardImageUrl": "https://cdn.playloltcg.com/lol/card/20251217/aedfdfbe1a394446a7449258702ef61f.png"
+    },
+    {
+      "cardNo": "SFD·153/221",
+      "sourceCardNo": "SFD-153/221",
+      "baseMightBonus": 0,
+      "effectText": "When I move, play a 1 :rb_might: Recruit unit token here.",
+      "cardImageUrl": "https://cdn.playloltcg.com/lol/card/20251217/327a71f28d88482cacebb67322c2c37f.png"
+    },
+    {
+      "cardNo": "SFD·161/221",
+      "sourceCardNo": "SFD-161/221",
+      "baseMightBonus": 3,
+      "effectText": "",
+      "cardImageUrl": "https://cdn.playloltcg.com/lol/card/20251217/e6a2f0b37e4a41b1b713bcc9eb0d7287.png"
+    },
+    {
+      "cardNo": "SFD·172/221",
+      "sourceCardNo": "SFD-172/221",
+      "baseMightBonus": 1,
+      "effectText": "[Deathknell] — Draw 1. (When I die, get the effect.)",
+      "cardImageUrl": "https://cdn.playloltcg.com/lol/card/20251217/54b8194b26f64d01859d71766eaf43e1.png"
+    },
+    {
+      "cardNo": "SFD·178/221",
+      "sourceCardNo": "SFD-178/221",
+      "baseMightBonus": 4,
+      "effectText": "",
+      "cardImageUrl": "https://cdn.playloltcg.com/lol/card/20251217/53ef6ac60d7d4654b8eed0ba8a485c8b.png"
+    },
+    {
+      "cardNo": "SFD·186/221",
+      "sourceCardNo": "SFD-186/221",
+      "baseMightBonus": 3,
+      "effectText": "",
+      "cardImageUrl": "https://cdn.playloltcg.com/lol/card/20251217/0639abe218a74627b49ab15846218ea6.png"
+    },
+    {
+      "cardNo": "SFD·190/221",
+      "sourceCardNo": "SFD-190/221",
+      "baseMightBonus": 3,
+      "effectText": "When I attack or defend, deal 2 to all enemy units here.",
+      "cardImageUrl": "https://cdn.playloltcg.com/lol/card/20251217/3a33a78a86674d2ea12dab75faefca49.png"
+    },
+    {
+      "cardNo": "SFD·191/221",
+      "sourceCardNo": "SFD-191/221",
+      "baseMightBonus": 3,
+      "effectText": "Your spells and abilities deal 3 Bonus Damage (while this is attached).",
+      "cardImageUrl": "https://cdn.playloltcg.com/lol/card/20251217/67c65e3a2f854381948c55e1ba47ea5a.png"
+    },
+    {
+      "cardNo": "SFD·192/221",
+      "sourceCardNo": "SFD-192/221",
+      "baseMightBonus": 2,
+      "effectText": "Your units here have [Ganking]. (We can move from battlefield to battlefield.)",
+      "cardImageUrl": "https://cdn.playloltcg.com/lol/card/20251217/679bf5b2aa4c46d1a0a58cb640992a50.png"
+    },
+    {
+      "cardNo": "UNL-019/219",
+      "sourceCardNo": "UNL-019/219",
+      "baseMightBonus": 4,
+      "effectText": "At the end of your turn, if I didn't conquer this turn, unattach this and deal 4 to me.",
+      "cardImageUrl": "https://cdn.playloltcg.com/lol/card/20260320/7d138597c0844ab5864e58e29e950227.webp"
+    },
+    {
+      "cardNo": "UNL-039/219",
+      "sourceCardNo": "UNL-039/219",
+      "baseMightBonus": 1,
+      "effectText": "[Level 3][>] I have an additional +1 :rb_might:. (While you have 3+ XP, get the effect.)",
+      "cardImageUrl": "https://cdn.playloltcg.com/lol/card/20260321/2578dd9aed844bafa139d869cb67b7ba.webp"
+    },
+    {
+      "cardNo": "UNL-096/219",
+      "sourceCardNo": "UNL-096/219",
+      "baseMightBonus": 2,
+      "effectText": "[Hunt] (When I conquer or hold, gain 1 XP.)",
+      "cardImageUrl": "https://cdn.playloltcg.com/lol/card/20260319/ba0362fdd1184709ae22b32658a4b236.webp"
+    },
+    {
+      "cardNo": "UNL-158/219",
+      "sourceCardNo": "UNL-158/219",
+      "baseMightBonus": 2,
+      "effectText": "",
+      "cardImageUrl": "https://cdn.playloltcg.com/lol/card/20260328/c357165bebcd41158065e7e3679967b7.webp"
+    },
+    {
+      "cardNo": "UNL-188/219",
+      "sourceCardNo": "UNL-188/219",
+      "baseMightBonus": 3,
+      "effectText": "When I conquer, if you assigned 3 or more excess damage, draw 1.",
+      "cardImageUrl": "https://cdn.playloltcg.com/lol/card/20260320/bf4279fe48f54deb9eeb9bb5e6ebec41.webp"
+    },
+    {
+      "cardNo": "VEN·137",
+      "sourceCardNo": "VEN-137/166",
+      "baseMightBonus": 0,
+      "effectText": "I am a copy of the chosen unit.",
+      "cardImageUrl": "https://cdn.playloltcg.com/lol/card/20260710/8a07c2cb2fec4243804bc923af0b6752.png",
+      "copiesChosenFriendlyUnit": true
+    }
+  ],
+  "scopedAdditions": [
+    {
+      "cardNo": "VEN·137",
+      "cnSourceCardNo": "VEN·137",
+      "enSourceCardNo": "VEN-137/166",
+      "cnRecordSha256": "55bb2269433a3e18fd418f1c826093ecf30530e02f0efa829c034cfd2386b227",
+      "enRecordSha256": "e1f16b0b3eedfcfbd205e56c90c46b946ce27dd1d5bf140285d502ed0e4631b1",
+      "cnFetchedAt": "2026-10-12T23:58:04.942054+00:00",
+      "enFetchedAt": "2026-10-13T00:02:30.667790+00:00",
+      "scope": "Current CN registered printing and separately identified EN lower box; no exact printing identity merge"
+    }
+  ]
+}

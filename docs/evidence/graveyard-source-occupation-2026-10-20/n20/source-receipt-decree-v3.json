@@ -1,0 +1,37 @@
+{
+  "label": "decree",
+  "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+  "request": {
+    "pageNum": 1,
+    "pageSize": 100,
+    "searchContent": "帝国谕令",
+    "cardCategoryList": [],
+    "cardColorList": [],
+    "rarityList": [],
+    "productCodeList": []
+  },
+  "startedAtUtc": "2026-10-19T23:52:32.944237+00:00",
+  "region": "CN",
+  "language": "zh-CN",
+  "individualPublicationDate": null,
+  "individualEffectiveDate": null,
+  "httpStatus": 200,
+  "httpDate": "Mon, 19 Oct 2026 23:52:33 GMT",
+  "resolvedUrl": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+  "rawBytes": 1182,
+  "rawSha256": "2663c295bd4bf3a058d4bb8e0d54b4e9b9ef5f5ca9a650029f368c0b70924f9d",
+  "path": "var/qa/graveyard-lifecycle-source-followup-20261020/decree-pre-fix-refresh-v3.json.gz",
+  "returnedRows": 1,
+  "reportedTotal": 1,
+  "exactRows": [
+    {
+      "apiId": 31459,
+      "cardNo": "OGN·221/298",
+      "name": "帝国谕令",
+      "entireRowMatchesCn16": true,
+      "fullRawRowSha256": "7ed5f0f9cb236c9392e2fa1c3d04d258b0a030737a8cd3f24d83dc8f9ad2bb88"
+    }
+  ],
+  "status": "ACQUIRED_AND_EXACT_VERSION_COMPARED",
+  "receivedAtUtc": "2026-10-19T23:52:33.062200+00:00"
+}

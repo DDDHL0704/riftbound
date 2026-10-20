@@ -1,0 +1,15 @@
+{
+  "atUtc": "2026-10-20T00:39:50.236695+00:00",
+  "status": "CORRECT_NEUTRAL_CLOSED_SWIFT_CARD_REJECTION_NOT_IMPLEMENTATION_BUG",
+  "originalV1Commands": 92,
+  "originalV1Accepted": 91,
+  "originalV1Rejected": 1,
+  "originalV1Events": 407,
+  "originalInputsAllRetained": true,
+  "v1DriverSourceSha256": "7eb87a0e3adf86e7d7238a75e14c91e23e04e7e2e29fe985cdb80c729843eca9",
+  "v1ActualFrameSha256": "3d643886a8e63ddc2900eeb712aac3fb93eb7f9165f1d60d8cb5ee563c65b1d7",
+  "scopeCorrection": "V1 assumed Swift Ray can respond to an ordered ability in NEUTRAL_CLOSED. Actual prompt and timing disallow it; refusal atomic. New V2 uses declared legal deck with three SFD018 fillers replaced by Ruination, no ordinary starting-state or private seed injection. All original root tests, recipe, fixture, decks and game history unchanged.",
+  "wholeSiblingOrdinarySuccessClaimed": false,
+  "rootSourceOrRuntimeMutated": false,
+  "idleAssertionAttempt": "Driver already finished, prelaunch existence guard rejected binding. No caffeinate or persistent power mutation started."
+}

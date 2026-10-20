@@ -1,0 +1,104 @@
+{
+  "status": "CURRENT_SEVEN_CONTROLLED_CASES_PRECISE_BRANCH_MATRIX_NOT_WHOLE_CARD_CERTIFICATION",
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+    "implementationSha256": "c72232511d08db3f3e06ee35f83385507b10ec0e7591280847b3fa34041d836f",
+    "identitySha256": "063c0cea0b0a527789b16a1d8a0658cb66130ebbff48042474fb1b3e3d0e0a20"
+  },
+  "observations": [
+    {
+      "key": "4a0bd26f661c0f69a91d5f717a7ac46302ad98938c6e983e5e33c2962ef63a7e",
+      "method": "Riftbound.ConformanceTests.DestructionGraveyardSourceOccupationTests.SiblingEarnedSkillsAllowOriginalPlayAndCannotBorrowLaterGraveyardEntry",
+      "actualCaseName": "Riftbound.ConformanceTests.DestructionGraveyardSourceOccupationTests.SiblingEarnedSkillsAllowOriginalPlayAndCannotBorrowLaterGraveyardEntry(reverse: True, reenter: True)",
+      "outcome": "Passed",
+      "sourceTrxSha256": "a1482234f61b6600f89b26d694af6e3bc6bbe1173110e5ae9120211c4968f5f9"
+    },
+    {
+      "key": "a4e637b456cc405af1c54b7c61c2920b16bcd69ef52ccfd54720d585b07863ba",
+      "method": "Riftbound.ConformanceTests.DestructionGraveyardSourceOccupationTests.TypedAutomaticSkillsRemainUnavailableToSpellOnlyAndChosenUnitCounters",
+      "actualCaseName": "Riftbound.ConformanceTests.DestructionGraveyardSourceOccupationTests.TypedAutomaticSkillsRemainUnavailableToSpellOnlyAndChosenUnitCounters(delayed: True)",
+      "outcome": "Passed",
+      "sourceTrxSha256": "a1482234f61b6600f89b26d694af6e3bc6bbe1173110e5ae9120211c4968f5f9"
+    },
+    {
+      "key": "120fc11b4a28b31a564e70ed29bc20d917c67eb71a34a7996697561668a89028",
+      "method": "Riftbound.ConformanceTests.DestructionGraveyardSourceOccupationTests.TypedAutomaticSkillsRemainUnavailableToSpellOnlyAndChosenUnitCounters",
+      "actualCaseName": "Riftbound.ConformanceTests.DestructionGraveyardSourceOccupationTests.TypedAutomaticSkillsRemainUnavailableToSpellOnlyAndChosenUnitCounters(delayed: False)",
+      "outcome": "Passed",
+      "sourceTrxSha256": "a1482234f61b6600f89b26d694af6e3bc6bbe1173110e5ae9120211c4968f5f9"
+    },
+    {
+      "key": "1ef6474c7cef2bea3af89762bb4c1545e6b411df56c4925eba8ce5f4480af503",
+      "method": "Riftbound.ConformanceTests.DestructionGraveyardSourceOccupationTests.SiblingEarnedSkillsAllowOriginalPlayAndCannotBorrowLaterGraveyardEntry",
+      "actualCaseName": "Riftbound.ConformanceTests.DestructionGraveyardSourceOccupationTests.SiblingEarnedSkillsAllowOriginalPlayAndCannotBorrowLaterGraveyardEntry(reverse: True, reenter: False)",
+      "outcome": "Passed",
+      "sourceTrxSha256": "a1482234f61b6600f89b26d694af6e3bc6bbe1173110e5ae9120211c4968f5f9"
+    },
+    {
+      "key": "d5fc32fb16deb8af6aec3347607e07e3f92d7341024d4c0b74b618ceeb4b08e4",
+      "method": "Riftbound.ConformanceTests.DestructionGraveyardSourceOccupationTests.SiblingEarnedSkillsAllowOriginalPlayAndCannotBorrowLaterGraveyardEntry",
+      "actualCaseName": "Riftbound.ConformanceTests.DestructionGraveyardSourceOccupationTests.SiblingEarnedSkillsAllowOriginalPlayAndCannotBorrowLaterGraveyardEntry(reverse: False, reenter: False)",
+      "outcome": "Passed",
+      "sourceTrxSha256": "a1482234f61b6600f89b26d694af6e3bc6bbe1173110e5ae9120211c4968f5f9"
+    },
+    {
+      "key": "cec13bc253ac0ca7a4f35d2e069639351db8ccfa5e21782be568b59ca3dc01c4",
+      "method": "Riftbound.ConformanceTests.DestructionGraveyardSourceOccupationTests.SiblingEarnedSkillsAllowOriginalPlayAndCannotBorrowLaterGraveyardEntry",
+      "actualCaseName": "Riftbound.ConformanceTests.DestructionGraveyardSourceOccupationTests.SiblingEarnedSkillsAllowOriginalPlayAndCannotBorrowLaterGraveyardEntry(reverse: False, reenter: True)",
+      "outcome": "Passed",
+      "sourceTrxSha256": "a1482234f61b6600f89b26d694af6e3bc6bbe1173110e5ae9120211c4968f5f9"
+    },
+    {
+      "key": "bfec2ba65dc2bd8abb57d80d82830df91e9cfda24d190eb2236ac1e5bb2a5fda",
+      "method": "Riftbound.ConformanceTests.DestructionGraveyardSourceOccupationTests.ActualSpellCardOccupyingStackStillRejectsDuplicatePlayWithoutStateOrEventChange",
+      "actualCaseName": "Riftbound.ConformanceTests.DestructionGraveyardSourceOccupationTests.ActualSpellCardOccupyingStackStillRejectsDuplicatePlayWithoutStateOrEventChange",
+      "outcome": "Passed",
+      "sourceTrxSha256": "a1482234f61b6600f89b26d694af6e3bc6bbe1173110e5ae9120211c4968f5f9"
+    }
+  ],
+  "branches": [
+    {
+      "id": "SIBLING_SKILL_REFERENCES_DO_NOT_OCCUPY_THE_SOURCE_CARD",
+      "scope": "Both paid skills independently reference the same graveyard card; either original order permits the first normal effect play.",
+      "actualCaseKeys": [
+        "4a0bd26f661c0f69a91d5f717a7ac46302ad98938c6e983e5e33c2962ef63a7e",
+        "1ef6474c7cef2bea3af89762bb4c1545e6b411df56c4925eba8ce5f4480af503",
+        "d5fc32fb16deb8af6aec3347607e07e3f92d7341024d4c0b74b618ceeb4b08e4",
+        "cec13bc253ac0ca7a4f35d2e069639351db8ccfa5e21782be568b59ca3dc01c4"
+      ]
+    },
+    {
+      "id": "LEGIT_SOURCE_REENTRY_NEW_CONFIRMATION_AND_OLD_GENERATION_NOOP",
+      "scope": "Actual extra-cost destruction creates a new graveyard incarnation and its own confirmation. Declining it never lets the old paid ability borrow that new incarnation.",
+      "actualCaseKeys": [
+        "4a0bd26f661c0f69a91d5f717a7ac46302ad98938c6e983e5e33c2962ef63a7e",
+        "cec13bc253ac0ca7a4f35d2e069639351db8ccfa5e21782be568b59ca3dc01c4"
+      ]
+    },
+    {
+      "id": "REAL_STACK_CARD_OCCUPATION_REJECTION_REMAINS_ATOMIC",
+      "scope": "A real spell card occupying the stack still rejects duplicate play without state or event changes.",
+      "actualCaseKeys": [
+        "bfec2ba65dc2bd8abb57d80d82830df91e9cfda24d190eb2236ac1e5bb2a5fda"
+      ]
+    },
+    {
+      "id": "TYPED_SKILL_DESCRIPTORS_DO_NOT_CREATE_CHOSEN_COUNTER_TARGETS",
+      "scope": "The two typed skills have ability descriptors. Spell-only and chosen-friendly-unit counter previews and commands remain independently rejected for these automatic references.",
+      "actualCaseKeys": [
+        "a4e637b456cc405af1c54b7c61c2920b16bcd69ef52ccfd54720d585b07863ba",
+        "120fc11b4a28b31a564e70ed29bc20d917c67eb71a34a7996697561668a89028"
+      ]
+    }
+  ],
+  "ordinarySiblingTwoFormatPrefixWitnesses": {
+    "path": "docs/evidence/graveyard-source-occupation-2026-10-20/ordinary-prefix/ordinary-two-format-original-prefix-closure-v1.json",
+    "sha256": "78ce623e7f08102983efda473a73b2891da2921ab851023cfa10164322ab7dc4",
+    "role": "ordinary-two-format-original-prefix-closure-v1"
+  },
+  "siblingSqlOtherOrdinaryBranchesAndVisibleScopeStillOpen": true
+}

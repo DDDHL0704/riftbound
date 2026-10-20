@@ -1,0 +1,227 @@
+{
+  "atUtc": "2026-10-20T00:32:03.128337+00:00",
+  "fixedCommit": "e262ebf164e448cc9738d94db8e557f302cfc295",
+  "run": 39340733951,
+  "artifactId": 12231861079,
+  "archiveSha256": "df02fcda2232c4d73495c5577e8c03f8506aafaaa9d2938815f67e76587b79b0",
+  "allEntryCrcVerified": true,
+  "entries": [
+    {
+      "path": "ci-postgres/conquest-token/alternate-plain/explicit-fixture-initial.json",
+      "bytes": 4840
+    },
+    {
+      "path": "ci-postgres/conquest-token/alternate-plain/receipt.json",
+      "bytes": 1441
+    },
+    {
+      "path": "ci-postgres/conquest-token/alternate-reaction/explicit-fixture-initial.json",
+      "bytes": 5479
+    },
+    {
+      "path": "ci-postgres/conquest-token/alternate-reaction/receipt.json",
+      "bytes": 1808
+    },
+    {
+      "path": "ci-postgres/conquest-token/primary-plain/explicit-fixture-initial.json",
+      "bytes": 4835
+    },
+    {
+      "path": "ci-postgres/conquest-token/primary-plain/receipt.json",
+      "bytes": 1436
+    },
+    {
+      "path": "ci-postgres/conquest-token/primary-reaction/explicit-fixture-initial.json",
+      "bytes": 5474
+    },
+    {
+      "path": "ci-postgres/conquest-token/primary-reaction/receipt.json",
+      "bytes": 1803
+    },
+    {
+      "path": "ci-postgres/copied-duel-insight/receipt.json",
+      "bytes": 27533
+    },
+    {
+      "path": "ci-postgres/copied-duel-insight/songs-1-ChinaStandard20260724-ALL_PAY_KEEP-original-frame.json.gz",
+      "bytes": 40407
+    },
+    {
+      "path": "ci-postgres/copied-duel-insight/songs-1-ChinaStandard20260724-MIXED_PAY_RECYCLE-original-frame.json.gz",
+      "bytes": 40159
+    },
+    {
+      "path": "ci-postgres/copied-duel-insight/songs-1-CoreRules-ALL_PAY_KEEP-original-frame.json.gz",
+      "bytes": 40407
+    },
+    {
+      "path": "ci-postgres/copied-duel-insight/songs-1-CoreRules-MIXED_PAY_RECYCLE-original-frame.json.gz",
+      "bytes": 40159
+    },
+    {
+      "path": "ci-postgres/copied-duel-insight/songs-2-ChinaStandard20260724-ALL_PAY_KEEP-original-frame.json.gz",
+      "bytes": 42895
+    },
+    {
+      "path": "ci-postgres/copied-duel-insight/songs-2-ChinaStandard20260724-MIXED_PAY_RECYCLE-original-frame.json.gz",
+      "bytes": 42348
+    },
+    {
+      "path": "ci-postgres/copied-duel-insight/songs-2-CoreRules-ALL_PAY_KEEP-original-frame.json.gz",
+      "bytes": 42896
+    },
+    {
+      "path": "ci-postgres/copied-duel-insight/songs-2-CoreRules-MIXED_PAY_RECYCLE-original-frame.json.gz",
+      "bytes": 42346
+    },
+    {
+      "path": "ci-postgres/granted-origin-haste/sacrifice/receipt.json",
+      "bytes": 1890
+    },
+    {
+      "path": "ci-postgres/granted-origin-haste/unit/receipt.json",
+      "bytes": 1886
+    },
+    {
+      "path": "ci-postgres/here-location-control/receipt.json",
+      "bytes": 4494
+    },
+    {
+      "path": "ci-postgres/insight-repeat/abandon/explicit-fixture-initial.json",
+      "bytes": 15153
+    },
+    {
+      "path": "ci-postgres/insight-repeat/abandon/receipt.json",
+      "bytes": 1553
+    },
+    {
+      "path": "ci-postgres/insight-repeat/all/explicit-fixture-initial.json",
+      "bytes": 11032
+    },
+    {
+      "path": "ci-postgres/insight-repeat/all/receipt.json",
+      "bytes": 1549
+    },
+    {
+      "path": "ci-postgres/insight-repeat/burnout/explicit-fixture-initial.json",
+      "bytes": 6397
+    },
+    {
+      "path": "ci-postgres/insight-repeat/burnout/receipt.json",
+      "bytes": 1552
+    },
+    {
+      "path": "ci-postgres/insight-repeat/counter/explicit-fixture-initial.json",
+      "bytes": 11032
+    },
+    {
+      "path": "ci-postgres/insight-repeat/counter/receipt.json",
+      "bytes": 1462
+    },
+    {
+      "path": "ci-postgres/insight-repeat/eclipse/explicit-fixture-initial.json",
+      "bytes": 12058
+    },
+    {
+      "path": "ci-postgres/insight-repeat/eclipse/receipt.json",
+      "bytes": 1457
+    },
+    {
+      "path": "ci-postgres/insight-repeat/once/explicit-fixture-initial.json",
+      "bytes": 11032
+    },
+    {
+      "path": "ci-postgres/insight-repeat/once/receipt.json",
+      "bytes": 1645
+    },
+    {
+      "path": "ci-postgres/insight-repeat/twice/explicit-fixture-initial.json",
+      "bytes": 11576
+    },
+    {
+      "path": "ci-postgres/insight-repeat/twice/receipt.json",
+      "bytes": 1838
+    },
+    {
+      "path": "ci-postgres/observed-play-window/ordinary-observed-window-2-true.json.gz",
+      "bytes": 31136
+    },
+    {
+      "path": "ci-postgres/observed-play-window/ordinary-observed-window-3-false.json.gz",
+      "bytes": 31417
+    },
+    {
+      "path": "ci-postgres/observed-play-window/ordinary-observed-window-3-true.json.gz",
+      "bytes": 31559
+    },
+    {
+      "path": "ci-postgres/observed-play-window/receipt.json",
+      "bytes": 12317
+    },
+    {
+      "path": "ci-postgres/optional-costs/receipt.json",
+      "bytes": 55079
+    },
+    {
+      "path": "ci-postgres/paka-dual-type-reveal/dual-type-paka-ChinaStandard20260724-original-frame.json.gz",
+      "bytes": 33140
+    },
+    {
+      "path": "ci-postgres/paka-dual-type-reveal/dual-type-paka-CoreRules-original-frame.json.gz",
+      "bytes": 33137
+    },
+    {
+      "path": "ci-postgres/paka-dual-type-reveal/receipt.json",
+      "bytes": 2403
+    },
+    {
+      "path": "ci-postgres/partition-receipt.json",
+      "bytes": 15919
+    },
+    {
+      "path": "ci-postgres/printed-predict/explicit-fixture-initial.json",
+      "bytes": 5747
+    },
+    {
+      "path": "ci-postgres/result.json",
+      "bytes": 2380
+    },
+    {
+      "path": "ci-postgres/printed-predict/receipt.json",
+      "bytes": 1669
+    },
+    {
+      "path": "ci-postgres/sql-counts.json",
+      "bytes": 184
+    },
+    {
+      "path": "ci-postgres/typed-play-history/control/explicit-fixture-initial.json",
+      "bytes": 7649
+    },
+    {
+      "path": "ci-postgres/typed-play-history/control/receipt.json",
+      "bytes": 3080
+    },
+    {
+      "path": "ci-postgres/typed-play-history/countered/explicit-fixture-initial.json",
+      "bytes": 7019
+    },
+    {
+      "path": "ci-postgres/typed-play-history/countered/receipt.json",
+      "bytes": 2378
+    },
+    {
+      "path": "ci-postgres/typed-play-history/resolved/explicit-fixture-initial.json",
+      "bytes": 7019
+    },
+    {
+      "path": "ci-postgres/typed-play-history/resolved/receipt.json",
+      "bytes": 1890
+    },
+    {
+      "path": "ci-postgres-partition-commit.txt",
+      "bytes": 41
+    }
+  ],
+  "notWholeFourPartitionCertification": true
+}

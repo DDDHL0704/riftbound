@@ -1,0 +1,970 @@
+{
+  "status": "ORIGINAL_CANCELLED_SQL_ARTIFACT_METADATA_READBACK_NOT_NEW_EXECUTION_OR_BENCHMARK",
+  "originalFixedCommit": "b294bb150d877b3399cd9e120bbaec5c75e353cf",
+  "originalRun": 39275773327,
+  "originalArchiveSha256": "a0e3f38f0f97c2d50d4e00d08fd94539bef6ec73ed15198f018ae08f93c179f0",
+  "observedAtUtc": "2026-10-19T23:24:32.874340+00:00",
+  "perOriginalCaseArtifactTimestamps": [
+    {
+      "caseId": "attached-predict",
+      "newFixedPartition": 0,
+      "originalFileCount": 9,
+      "earliestZipTimestamp": [
+        2026,
+        10,
+        19,
+        16,
+        52,
+        4
+      ],
+      "latestZipTimestamp": [
+        2026,
+        10,
+        19,
+        17,
+        15,
+        18
+      ],
+      "containsReceiptNamedFileNotAutomaticCompleteAcceptance": true
+    },
+    {
+      "caseId": "attached-recycle-lifecycle",
+      "newFixedPartition": 1,
+      "originalFileCount": 12,
+      "earliestZipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        23,
+        14
+      ],
+      "latestZipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        23,
+        54
+      ],
+      "containsReceiptNamedFileNotAutomaticCompleteAcceptance": true
+    },
+    {
+      "caseId": "banish-effect-play",
+      "newFixedPartition": 1,
+      "originalFileCount": 1,
+      "earliestZipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        58,
+        46
+      ],
+      "latestZipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        58,
+        46
+      ],
+      "containsReceiptNamedFileNotAutomaticCompleteAcceptance": true
+    },
+    {
+      "caseId": "battle-history",
+      "newFixedPartition": 3,
+      "originalFileCount": 4,
+      "earliestZipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        22,
+        6
+      ],
+      "latestZipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        22,
+        48
+      ],
+      "containsReceiptNamedFileNotAutomaticCompleteAcceptance": false
+    },
+    {
+      "caseId": "battlefield-play-damage",
+      "newFixedPartition": 0,
+      "originalFileCount": 1,
+      "earliestZipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        52,
+        26
+      ],
+      "latestZipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        52,
+        26
+      ],
+      "containsReceiptNamedFileNotAutomaticCompleteAcceptance": true
+    },
+    {
+      "caseId": "battlefield-play-recovery",
+      "newFixedPartition": 3,
+      "originalFileCount": 1,
+      "earliestZipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        50,
+        50
+      ],
+      "latestZipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        50,
+        50
+      ],
+      "containsReceiptNamedFileNotAutomaticCompleteAcceptance": true
+    },
+    {
+      "caseId": "clairvoyance",
+      "newFixedPartition": 1,
+      "originalFileCount": 10,
+      "earliestZipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        24,
+        12
+      ],
+      "latestZipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        24,
+        14
+      ],
+      "containsReceiptNamedFileNotAutomaticCompleteAcceptance": true
+    },
+    {
+      "caseId": "combat-assignment",
+      "newFixedPartition": 3,
+      "originalFileCount": 20,
+      "earliestZipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        24,
+        18
+      ],
+      "latestZipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        25,
+        42
+      ],
+      "containsReceiptNamedFileNotAutomaticCompleteAcceptance": true
+    },
+    {
+      "caseId": "confirmed-play-origin",
+      "newFixedPartition": 0,
+      "originalFileCount": 2,
+      "earliestZipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        26,
+        16
+      ],
+      "latestZipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        26,
+        58
+      ],
+      "containsReceiptNamedFileNotAutomaticCompleteAcceptance": true
+    },
+    {
+      "caseId": "conquest-token",
+      "newFixedPartition": 2,
+      "originalFileCount": 8,
+      "earliestZipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        22,
+        56
+      ],
+      "latestZipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        23,
+        0
+      ],
+      "containsReceiptNamedFileNotAutomaticCompleteAcceptance": true
+    },
+    {
+      "caseId": "copied-duel-insight",
+      "newFixedPartition": 2,
+      "originalFileCount": 9,
+      "earliestZipTimestamp": [
+        2026,
+        10,
+        19,
+        18,
+        25,
+        44
+      ],
+      "latestZipTimestamp": [
+        2026,
+        10,
+        19,
+        19,
+        14,
+        36
+      ],
+      "containsReceiptNamedFileNotAutomaticCompleteAcceptance": true
+    },
+    {
+      "caseId": "copied-last-breath-insight",
+      "newFixedPartition": 1,
+      "originalFileCount": 9,
+      "earliestZipTimestamp": [
+        2026,
+        10,
+        19,
+        17,
+        21,
+        38
+      ],
+      "latestZipTimestamp": [
+        2026,
+        10,
+        19,
+        18,
+        20,
+        28
+      ],
+      "containsReceiptNamedFileNotAutomaticCompleteAcceptance": true
+    },
+    {
+      "caseId": "created-token-ready",
+      "newFixedPartition": 1,
+      "originalFileCount": 4,
+      "earliestZipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        15,
+        34
+      ],
+      "latestZipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        21,
+        46
+      ],
+      "containsReceiptNamedFileNotAutomaticCompleteAcceptance": false
+    },
+    {
+      "caseId": "empowered-insight",
+      "newFixedPartition": 3,
+      "originalFileCount": 13,
+      "earliestZipTimestamp": [
+        2026,
+        10,
+        19,
+        19,
+        16,
+        10
+      ],
+      "latestZipTimestamp": [
+        2026,
+        10,
+        19,
+        20,
+        9,
+        46
+      ],
+      "containsReceiptNamedFileNotAutomaticCompleteAcceptance": true
+    },
+    {
+      "caseId": "empty-observed-repeat",
+      "newFixedPartition": 1,
+      "originalFileCount": 4,
+      "earliestZipTimestamp": [
+        2026,
+        10,
+        19,
+        16,
+        31,
+        26
+      ],
+      "latestZipTimestamp": [
+        2026,
+        10,
+        19,
+        16,
+        34,
+        58
+      ],
+      "containsReceiptNamedFileNotAutomaticCompleteAcceptance": true
+    },
+    {
+      "caseId": "empty-reveal-followup",
+      "newFixedPartition": 1,
+      "originalFileCount": 1,
+      "earliestZipTimestamp": [
+        2026,
+        10,
+        19,
+        21,
+        7,
+        26
+      ],
+      "latestZipTimestamp": [
+        2026,
+        10,
+        19,
+        21,
+        7,
+        26
+      ],
+      "containsReceiptNamedFileNotAutomaticCompleteAcceptance": false
+    },
+    {
+      "caseId": "fate-weaver",
+      "newFixedPartition": 3,
+      "originalFileCount": 1,
+      "earliestZipTimestamp": [
+        2026,
+        10,
+        19,
+        16,
+        18,
+        0
+      ],
+      "latestZipTimestamp": [
+        2026,
+        10,
+        19,
+        16,
+        18,
+        0
+      ],
+      "containsReceiptNamedFileNotAutomaticCompleteAcceptance": true
+    },
+    {
+      "caseId": "granted-origin-haste",
+      "newFixedPartition": 2,
+      "originalFileCount": 2,
+      "earliestZipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        30,
+        52
+      ],
+      "latestZipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        32,
+        14
+      ],
+      "containsReceiptNamedFileNotAutomaticCompleteAcceptance": true
+    },
+    {
+      "caseId": "granted-predict",
+      "newFixedPartition": 1,
+      "originalFileCount": 2,
+      "earliestZipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        22,
+        50
+      ],
+      "latestZipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        22,
+        50
+      ],
+      "containsReceiptNamedFileNotAutomaticCompleteAcceptance": true
+    },
+    {
+      "caseId": "granted-token-haste",
+      "newFixedPartition": 1,
+      "originalFileCount": 2,
+      "earliestZipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        46,
+        8
+      ],
+      "latestZipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        49,
+        22
+      ],
+      "containsReceiptNamedFileNotAutomaticCompleteAcceptance": true
+    },
+    {
+      "caseId": "here-location-control",
+      "newFixedPartition": 2,
+      "originalFileCount": 1,
+      "earliestZipTimestamp": [
+        2026,
+        10,
+        19,
+        16,
+        15,
+        26
+      ],
+      "latestZipTimestamp": [
+        2026,
+        10,
+        19,
+        16,
+        15,
+        26
+      ],
+      "containsReceiptNamedFileNotAutomaticCompleteAcceptance": true
+    },
+    {
+      "caseId": "insight-repeat",
+      "newFixedPartition": 2,
+      "originalFileCount": 14,
+      "earliestZipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        24,
+        14
+      ],
+      "latestZipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        24,
+        18
+      ],
+      "containsReceiptNamedFileNotAutomaticCompleteAcceptance": true
+    },
+    {
+      "caseId": "masked-attendant",
+      "newFixedPartition": 0,
+      "originalFileCount": 7,
+      "earliestZipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        22,
+        50
+      ],
+      "latestZipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        22,
+        50
+      ],
+      "containsReceiptNamedFileNotAutomaticCompleteAcceptance": true
+    },
+    {
+      "caseId": "multi-controller-trigger-order",
+      "newFixedPartition": 0,
+      "originalFileCount": 1,
+      "earliestZipTimestamp": [
+        2026,
+        10,
+        19,
+        16,
+        29,
+        16
+      ],
+      "latestZipTimestamp": [
+        2026,
+        10,
+        19,
+        16,
+        29,
+        16
+      ],
+      "containsReceiptNamedFileNotAutomaticCompleteAcceptance": true
+    },
+    {
+      "caseId": "observed-play-window",
+      "newFixedPartition": 2,
+      "originalFileCount": 4,
+      "earliestZipTimestamp": [
+        2026,
+        10,
+        19,
+        16,
+        38,
+        6
+      ],
+      "latestZipTimestamp": [
+        2026,
+        10,
+        19,
+        16,
+        43,
+        20
+      ],
+      "containsReceiptNamedFileNotAutomaticCompleteAcceptance": true
+    },
+    {
+      "caseId": "opponent-battlefield-control",
+      "newFixedPartition": 3,
+      "originalFileCount": 2,
+      "earliestZipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        33,
+        16
+      ],
+      "latestZipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        36,
+        16
+      ],
+      "containsReceiptNamedFileNotAutomaticCompleteAcceptance": true
+    },
+    {
+      "caseId": "optional-costs",
+      "newFixedPartition": 2,
+      "originalFileCount": 1,
+      "earliestZipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        49,
+        56
+      ],
+      "latestZipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        49,
+        56
+      ],
+      "containsReceiptNamedFileNotAutomaticCompleteAcceptance": true
+    },
+    {
+      "caseId": "optional-sacrifice",
+      "newFixedPartition": 0,
+      "originalFileCount": 2,
+      "earliestZipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        39,
+        26
+      ],
+      "latestZipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        43,
+        28
+      ],
+      "containsReceiptNamedFileNotAutomaticCompleteAcceptance": true
+    },
+    {
+      "caseId": "paka-move-reveal",
+      "newFixedPartition": 0,
+      "originalFileCount": 11,
+      "earliestZipTimestamp": [
+        2026,
+        10,
+        19,
+        20,
+        11,
+        14
+      ],
+      "latestZipTimestamp": [
+        2026,
+        10,
+        19,
+        20,
+        57,
+        24
+      ],
+      "containsReceiptNamedFileNotAutomaticCompleteAcceptance": true
+    },
+    {
+      "caseId": "physical-origin-cost",
+      "newFixedPartition": 1,
+      "originalFileCount": 2,
+      "earliestZipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        28,
+        16
+      ],
+      "latestZipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        29,
+        32
+      ],
+      "containsReceiptNamedFileNotAutomaticCompleteAcceptance": true
+    },
+    {
+      "caseId": "porobot",
+      "newFixedPartition": 3,
+      "originalFileCount": 8,
+      "earliestZipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        23,
+        54
+      ],
+      "latestZipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        23,
+        56
+      ],
+      "containsReceiptNamedFileNotAutomaticCompleteAcceptance": true
+    },
+    {
+      "caseId": "printed-predict",
+      "newFixedPartition": 2,
+      "originalFileCount": 2,
+      "earliestZipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        22,
+        50
+      ],
+      "latestZipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        22,
+        50
+      ],
+      "containsReceiptNamedFileNotAutomaticCompleteAcceptance": true
+    },
+    {
+      "caseId": "private-opening",
+      "newFixedPartition": 0,
+      "originalFileCount": 3,
+      "earliestZipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        13,
+        42
+      ],
+      "latestZipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        13,
+        58
+      ],
+      "containsReceiptNamedFileNotAutomaticCompleteAcceptance": true
+    },
+    {
+      "caseId": "ravenbloom-put-hand",
+      "newFixedPartition": 3,
+      "originalFileCount": 5,
+      "earliestZipTimestamp": [
+        2026,
+        10,
+        19,
+        16,
+        44,
+        40
+      ],
+      "latestZipTimestamp": [
+        2026,
+        10,
+        19,
+        16,
+        48,
+        46
+      ],
+      "containsReceiptNamedFileNotAutomaticCompleteAcceptance": true
+    },
+    {
+      "caseId": "recycle-boon-lifecycle",
+      "newFixedPartition": 0,
+      "originalFileCount": 6,
+      "earliestZipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        23,
+        4
+      ],
+      "latestZipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        23,
+        14
+      ],
+      "containsReceiptNamedFileNotAutomaticCompleteAcceptance": true
+    },
+    {
+      "caseId": "recycled-card-boon",
+      "newFixedPartition": 3,
+      "originalFileCount": 12,
+      "earliestZipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        23,
+        0
+      ],
+      "latestZipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        23,
+        4
+      ],
+      "containsReceiptNamedFileNotAutomaticCompleteAcceptance": true
+    },
+    {
+      "caseId": "rune-destination",
+      "newFixedPartition": 0,
+      "originalFileCount": 4,
+      "earliestZipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        22,
+        52
+      ],
+      "latestZipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        22,
+        54
+      ],
+      "containsReceiptNamedFileNotAutomaticCompleteAcceptance": true
+    },
+    {
+      "caseId": "sivir-optional",
+      "newFixedPartition": 3,
+      "originalFileCount": 8,
+      "earliestZipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        22,
+        50
+      ],
+      "latestZipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        22,
+        52
+      ],
+      "containsReceiptNamedFileNotAutomaticCompleteAcceptance": true
+    },
+    {
+      "caseId": "sivir-payment",
+      "newFixedPartition": 1,
+      "originalFileCount": 8,
+      "earliestZipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        22,
+        54
+      ],
+      "latestZipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        22,
+        56
+      ],
+      "containsReceiptNamedFileNotAutomaticCompleteAcceptance": true
+    },
+    {
+      "caseId": "typed-play-history",
+      "newFixedPartition": 2,
+      "originalFileCount": 6,
+      "earliestZipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        23,
+        54
+      ],
+      "latestZipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        23,
+        54
+      ],
+      "containsReceiptNamedFileNotAutomaticCompleteAcceptance": true
+    },
+    {
+      "caseId": "typed-play-history-causal",
+      "newFixedPartition": 0,
+      "originalFileCount": 1,
+      "earliestZipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        24,
+        12
+      ],
+      "latestZipTimestamp": [
+        2026,
+        10,
+        19,
+        15,
+        24,
+        12
+      ],
+      "containsReceiptNamedFileNotAutomaticCompleteAcceptance": true
+    }
+  ],
+  "partialEmptyRevealHasOnlyOneOriginalFrame": true,
+  "newFixedFourPartitionPlan": {
+    "0": [
+      "private-opening",
+      "masked-attendant",
+      "rune-destination",
+      "recycle-boon-lifecycle",
+      "typed-play-history-causal",
+      "confirmed-play-origin",
+      "optional-sacrifice",
+      "battlefield-play-damage",
+      "multi-controller-trigger-order",
+      "attached-predict",
+      "paka-move-reveal",
+      "destruction-graveyard"
+    ],
+    "1": [
+      "created-token-ready",
+      "granted-predict",
+      "sivir-payment",
+      "attached-recycle-lifecycle",
+      "clairvoyance",
+      "physical-origin-cost",
+      "granted-token-haste",
+      "banish-effect-play",
+      "empty-observed-repeat",
+      "copied-last-breath-insight",
+      "empty-reveal-followup"
+    ],
+    "2": [
+      "core-opening",
+      "printed-predict",
+      "conquest-token",
+      "typed-play-history",
+      "insight-repeat",
+      "granted-origin-haste",
+      "optional-costs",
+      "here-location-control",
+      "observed-play-window",
+      "copied-duel-insight",
+      "paka-dual-type-reveal"
+    ],
+    "3": [
+      "battle-history",
+      "sivir-optional",
+      "recycled-card-boon",
+      "porobot",
+      "combat-assignment",
+      "opponent-battlefield-control",
+      "battlefield-play-recovery",
+      "fate-weaver",
+      "ravenbloom-put-hand",
+      "empowered-insight",
+      "hwei-move-discard-types"
+    ]
+  },
+  "interpretation": "Original file timestamps span nearly the six-hour job and progress through successive finite helpers; no evidence of one helper running for all six hours. Timestamp intervals are not precise CPU or per-helper benchmarks. Only actual new four-part terminal can close the timeout gate.",
+  "originalCancelledFullRetainedAsFailure": true,
+  "newFullPassedClaimed": false
+}

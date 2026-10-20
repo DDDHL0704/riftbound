@@ -1,0 +1,12 @@
+{
+  "atUtc": "2026-10-20T01:08:04.468265+00:00",
+  "sourceSha256": "dbd4e6d81b259027130af496c0157537de37ed1280c09c99cc4bf4fed36bad86",
+  "allBytesValidUtf8": true,
+  "canonicalEvidenceDirectoryNotCreated": true,
+  "originalReviewCountStill142": true,
+  "noGameplaySourceTestRuntimeMutation": true,
+  "initialDirectInvocationError": "SyntaxError: Non-UTF-8 code starting with byte e5 on line233, no encoding declared; source all bytes independently UTF8 valid.",
+  "pyCompileStatus": "PASS",
+  "compileBytesStatus": "PASS",
+  "compileUtf8TextStatus": "PASS"
+}

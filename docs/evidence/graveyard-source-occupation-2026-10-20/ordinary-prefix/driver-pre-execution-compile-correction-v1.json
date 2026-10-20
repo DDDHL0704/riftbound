@@ -1,0 +1,13 @@
+{
+  "recordedAtUtc": "2026-10-20T00:36:13.050054+00:00",
+  "status": "DRIVER_ONLY_COMPILE_ERRORS_BEFORE_ANY_GAME_COMMAND",
+  "originalSource": "var/qa/graveyard-source-ordinary-continuation-20261020/driver-prebuild-source-v1.cs.gz",
+  "originalSourceSha256": "e036069cb702bf45adfa42a402dad033d5e4b46a41e442cfda94e57f4aa33123",
+  "originalBuildLog": "driver-build-v1.log",
+  "causes": [
+    "Local C# pattern name shadowing",
+    "Diagnostic property uses TurnNumber in actual contract"
+  ],
+  "rootProductionTestRuntimeFilesChanged": false,
+  "noOriginalGameplayHistoryExisted": true
+}

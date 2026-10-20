@@ -1,0 +1,46 @@
+{
+  "status": "SOLE_CHECK_ALL_CASES_PASS",
+  "profile": "check",
+  "cases": 13107,
+  "methods": 7467,
+  "passed": 13107,
+  "failed": 0,
+  "skipped": 0,
+  "all13100OriginalCaseMultisetRetained": true,
+  "all7464OriginalMethodsRetained": true,
+  "newCases": [
+    "Riftbound.ConformanceTests.DestructionGraveyardSourceOccupationTests.ActualSpellCardOccupyingStackStillRejectsDuplicatePlayWithoutStateOrEventChange",
+    "Riftbound.ConformanceTests.DestructionGraveyardSourceOccupationTests.SiblingEarnedSkillsAllowOriginalPlayAndCannotBorrowLaterGraveyardEntry(reverse: False, reenter: False)",
+    "Riftbound.ConformanceTests.DestructionGraveyardSourceOccupationTests.SiblingEarnedSkillsAllowOriginalPlayAndCannotBorrowLaterGraveyardEntry(reverse: False, reenter: True)",
+    "Riftbound.ConformanceTests.DestructionGraveyardSourceOccupationTests.SiblingEarnedSkillsAllowOriginalPlayAndCannotBorrowLaterGraveyardEntry(reverse: True, reenter: False)",
+    "Riftbound.ConformanceTests.DestructionGraveyardSourceOccupationTests.SiblingEarnedSkillsAllowOriginalPlayAndCannotBorrowLaterGraveyardEntry(reverse: True, reenter: True)",
+    "Riftbound.ConformanceTests.DestructionGraveyardSourceOccupationTests.TypedAutomaticSkillsRemainUnavailableToSpellOnlyAndChosenUnitCounters(delayed: False)",
+    "Riftbound.ConformanceTests.DestructionGraveyardSourceOccupationTests.TypedAutomaticSkillsRemainUnavailableToSpellOnlyAndChosenUnitCounters(delayed: True)"
+  ],
+  "newMethodNames": [
+    "Riftbound.ConformanceTests.DestructionGraveyardSourceOccupationTests.ActualSpellCardOccupyingStackStillRejectsDuplicatePlayWithoutStateOrEventChange",
+    "Riftbound.ConformanceTests.DestructionGraveyardSourceOccupationTests.SiblingEarnedSkillsAllowOriginalPlayAndCannotBorrowLaterGraveyardEntry",
+    "Riftbound.ConformanceTests.DestructionGraveyardSourceOccupationTests.TypedAutomaticSkillsRemainUnavailableToSpellOnlyAndChosenUnitCounters"
+  ],
+  "all7NewSourceOccupationCasesPassed": true,
+  "failures": [],
+  "unresolvedFailureCount": 0,
+  "allFrozenInputsAndRuntimeStable": true,
+  "declaredSourceInputCount": 3303,
+  "runtimeFileCount": 1399,
+  "actualConformanceDebugRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+    "implementationSha256": "c72232511d08db3f3e06ee35f83385507b10ec0e7591280847b3fa34041d836f",
+    "identitySha256": "063c0cea0b0a527789b16a1d8a0658cb66130ebbff48042474fb1b3e3d0e0a20"
+  },
+  "rawTrxSha256": "a1482234f61b6600f89b26d694af6e3bc6bbe1173110e5ae9120211c4968f5f9",
+  "baselineTrxSha256": "520a181c0240853963831ab5609fbf9f8d7ec4593e487987563442d4b90727a8",
+  "onlyOneCheck": true,
+  "noSecondCheck": true,
+  "fixedFullRequired": true,
+  "visibleAndPhysicalWindows": "OPEN"
+}

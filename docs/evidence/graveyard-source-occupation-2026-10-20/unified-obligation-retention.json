@@ -1,0 +1,20 @@
+{
+  "priorRemainingObligations": 16903,
+  "currentRemainingObligations": 16908,
+  "all16903OriginalIdsAnd22OldParentsRetained": true,
+  "newObligationIds": [
+    "BRANCH:graveyard-source-reference-occupation-and-original-generation-2026-10-20:LEGIT_SOURCE_REENTRY_NEW_CONFIRMATION_AND_OLD_GENERATION_NOOP",
+    "BRANCH:graveyard-source-reference-occupation-and-original-generation-2026-10-20:REAL_STACK_CARD_OCCUPATION_REJECTION_REMAINS_ATOMIC",
+    "BRANCH:graveyard-source-reference-occupation-and-original-generation-2026-10-20:SIBLING_SKILL_REFERENCES_DO_NOT_OCCUPY_THE_SOURCE_CARD",
+    "BRANCH:graveyard-source-reference-occupation-and-original-generation-2026-10-20:TYPED_SKILL_DESCRIPTORS_DO_NOT_CREATE_CHOSEN_COUNTER_TARGETS",
+    "GATE:GRAVEYARD_SOURCE_OCCUPATION_FIXED_FULL_SIBLING_SQL_VISIBLE_AND_WINDOWS"
+  ],
+  "all142OldSemanticReviewDictionariesExact": true,
+  "all57OriginalContextsPreservedBeforeExplicitRebind": true,
+  "all234OldGateDictionariesAndFiveSourceDeltasExact": true,
+  "currentReviews": 143,
+  "currentContexts": 58,
+  "currentGates": 235,
+  "allOriginal1740Printings36HistoricalDocuments14293BlocksDatesEn8GapsCn236DispositionsAndOtherSourceGapsRetained": true,
+  "semanticCoverageCertified": false
+}

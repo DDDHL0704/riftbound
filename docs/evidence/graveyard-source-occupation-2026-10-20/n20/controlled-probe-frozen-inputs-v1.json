@@ -1,0 +1,26 @@
+{
+  "fixedCommit": "e262ebf164e448cc9738d94db8e557f302cfc295",
+  "actualExpectedRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+    "implementationSha256": "30f77f36a65bf645b8443d6ce7cc217c0bcf3e3a2e4bb2a848631fdcc3343273",
+    "identitySha256": "591dc1232bb160b3e5191a287a5e75d429e1e87069d7a37fd0e90b0d706b7bb6"
+  },
+  "files": {
+    "current-fixed-probe/bin/Release/net10.0/probe.pdb": "2818b95e5b3d62f578a1f0f11a642193451a538feaae316672a838d576b012f4",
+    "current-fixed-probe/bin/Release/net10.0/Riftbound.CardCatalog.dll": "2c5e0652f096b114482d62931d0086cdbf0cd6630aa46c3dd00a7a7f1b5e4ab3",
+    "current-fixed-probe/bin/Release/net10.0/probe.runtimeconfig.json": "9950d4583cfc9a106857c0d5b8a75b53e8774852b57b80bc3823a74d44a4d87f",
+    "current-fixed-probe/bin/Release/net10.0/probe.dll": "485b87b723d7dfa4956666db4dcb355361227d017d4607366c6ce63a2a97fa92",
+    "current-fixed-probe/bin/Release/net10.0/probe.deps.json": "03f495e30bfcbbaba9da8b4fdb92bc803f878a7b1dca5fd5990cc28aac7be58b",
+    "current-fixed-probe/bin/Release/net10.0/Riftbound.Contracts.dll": "496301c757649a8561cd93a29c7c86b68988198d6bc31c8a844d1459153463eb",
+    "current-fixed-probe/bin/Release/net10.0/Riftbound.Engine.dll": "ed7d5e017f76ea6bd146e7f54b167917f281e048ea075c990ce0a97dd5dafae2",
+    "current-fixed-probe/bin/Release/net10.0/probe": "7b599981d9e582803ebd3ee529192ba25055985dae087dd75377fc00201608bc",
+    "current-fixed-probe/Program.cs": "2b3bdd58018ea5aa33e88880a7bb2491194d4ed083ed95a40e24d49ed03cc188",
+    "current-fixed-probe/probe.csproj": "eb88003631a992ba02ca9d0e8f1a169e314b8c05e5fde1c8fadbec08b76f0692"
+  },
+  "declaredControlledInitialPositionNotOrdinaryBlankSqlOrNative": true,
+  "atUtc": "2026-10-19T23:35:43.626517+00:00"
+}

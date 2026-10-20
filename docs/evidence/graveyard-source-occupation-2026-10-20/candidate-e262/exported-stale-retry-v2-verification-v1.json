@@ -1,0 +1,225 @@
+{
+  "startedAtUtc": "2026-10-19T23:45:42.517669+00:00",
+  "fixedCommit": "e262ebf164e448cc9738d94db8e557f302cfc295",
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+    "implementationSha256": "30f77f36a65bf645b8443d6ce7cc217c0bcf3e3a2e4bb2a848631fdcc3343273",
+    "identitySha256": "591dc1232bb160b3e5191a287a5e75d429e1e87069d7a37fd0e90b0d706b7bb6"
+  },
+  "fixedSqlIndependentReceiptSha256": "beb69567ab026568e7781523a668138ce03c066b39c65ad9be94c16a609d5420",
+  "nativeInputsSha256": "4232fddf343b474774460e14bb891172e95dcd6b6fdf2c9ed24488810f7ebbd3",
+  "runnerSourceSha256": "1516be736aab304685b1e80825731a5e1c81584290ec147917e2a79ef5d635a7",
+  "room": "STALE2-E262-NATIVE-275a299d4602",
+  "lockAtStart": {
+    "atUtc": "2026-10-19T23:45:42.541292+00:00",
+    "roots": [
+      {
+        "rootLocked": true,
+        "sessions": [
+          true
+        ]
+      }
+    ],
+    "unknownIsNotUnlocked": true
+  },
+  "status": "PASS_ACTUAL_EXPORTED_NATIVE_STALE_REJECTION_NEW_PROMPT_RETRY_RESULT_AND_FULL_REPLAY",
+  "currentDefaultHeadlessBootReceiptSha256": "95f2862f532a6d61faf7d8348ca1fdecf4e98e5cfa867789833a3a0dfa7f61df",
+  "scope": "Actual exported default Main pair under one bounded unmodified-payload localhost ordering fault. Hold original A mulligan until first B surrender is in flight; only forward that surrender after real A acceptance advances the authoritative tick. Require real stale rejection, actual native retry with a new prompt, both result views, normal exit and original SQL full replay. Visible, scoring and physical Windows remain separate.",
+  "visibleControls": "OPEN",
+  "normalVisiblePairedScoring": "OPEN",
+  "physicalWindows": "OPEN",
+  "faultProxyReusedFrozenIndependentTransportToolPath": "/Users/dinghaolin/MyProjects/riftbound/var/qa/public-reveal-wording-20261019/retry-fault-proxy-inputs-v2.json",
+  "faultProxyInputsSha256": "78fa7ad9264ece6091d26dd532dfb190e14fa821a36f75f68dd9188af11ae495",
+  "boundIdleSleepAssertionPid": 78532,
+  "priorNativeRooms": [
+    "GRACEFUL-07AC-NATIVE-dacbf6fc6871",
+    "GRACEFUL-08FD-NATIVE-05edcc4e33f3",
+    "GRACEFUL-6D9A-NATIVE-ddcb62ee3fe7",
+    "GRACEFUL-797F-NATIVE-39197e26c612",
+    "GRACEFUL-C519-NATIVE-5730eb6d86f9",
+    "GRACEFUL-E262-NATIVE-adf640f8d2d9",
+    "HEADLESS-C519-NATIVE-8c6ab9a22dcc",
+    "LOCKED-07AC-SCORE-ce0eeedf0d12",
+    "LOCKED-08FD-SCORE-9b8c2b9c5df3",
+    "LOCKED-3D-PAIR-a2b6fbee06eb",
+    "LOCKED-6D9A-SCORE-56a5ca8dd0c7",
+    "LOCKED-797F-SCORE-124d350bed58",
+    "LOCKED-A9-PAIR-6e81dcfc9912",
+    "LOCKED-C519-PAIR-bee30b68c79b",
+    "LOCKED-C519-SCORE-8bfd1b8c08d8",
+    "LOCKED-C6-PAIR-7e5381965c69",
+    "LOCKED-C6-SCORE-c6cf989117d0",
+    "LOCKED-PAIR-829a1df810a9",
+    "LOCKED-PAIR-8f2413d6f2af",
+    "LOCKED-PAIR-fc82f3c58107",
+    "NETWORK-087b47dc4652",
+    "NETWORK-13f1c75bd8e1",
+    "NETWORK-14c1cbb4bdea",
+    "NETWORK-3852221bd8db",
+    "NETWORK-5af8dc418888",
+    "NETWORK-5dc1ce5878fd",
+    "NETWORK-5e4b0fc8b42d",
+    "NETWORK-d933ac25b19e",
+    "NETWORK-ef01657e6741",
+    "STALE2-07AC-NATIVE-79e8d04ba862",
+    "STALE2-08FD-NATIVE-4ef5d00244e2",
+    "STALE2-797F-NATIVE-e428ca757055",
+    "paired-controller-46a990fe-20261018",
+    "paired-empty-view-48c6ae96-20261018",
+    "paired-here-control-20261018",
+    "paired-observed-window-8c6d569e-20261018"
+  ],
+  "priorNativeSevenTables": {
+    "matches": "0f552a66494ca301d7ea1fdefb3e0138b722ff286a509b11ca4c856640404483",
+    "match_players": "dccdc77882c65c2fcc990064901802e5f5095ce142673deb8c3954f81c8d745a",
+    "command_log": "43c3ac46ddd773b657cb1672cc1a440e2e355df73f4fd9666c2a761a62fb24e7",
+    "game_events": "75b300102fed7a2b2218c4788216f6cf4e80c2b48d83b6af58ef4ef7d15b0c2d",
+    "state_snapshots": "0aea5b36509408279f1c88be64911c3432a3255d4ad62575d6f5d9a0b42af8a4",
+    "snapshots": "13bc36e0806cd646a544ff64f2434b60f42480eb3cbd457f7f24b040870dc702",
+    "action_prompts": "ddaaf27b811fef0688f659a9d44b52b22bf03185cac7fcc020a6b632c014cdb4"
+  },
+  "priorAuditSevenTables": {
+    "matches": "c3fc72d983ea2761f7b0cb8404815d49c80bdc63a587432738f42417d594bf19",
+    "match_players": "32ca1b7d7ffcd68fc65bfba45297facdb7ca1ed787508016e7129831a80f4a2c",
+    "command_log": "3e2762235ccc89b5eebe03607ad48d8d335264489dd103b38d8bb3a3f889c8e6",
+    "game_events": "ba051764218f625a02c458fc3d64f39427cd9e2b7d99c22c17effce15362aeb2",
+    "state_snapshots": "bdc8b2e70108e6a61d81fd341c5218e150cee0ed92abd2826996e50f4db19d15",
+    "snapshots": "6bfc6b8282568e95e117774d55a62d07a8d4dcb7716f11428aa30f54b2316c82",
+    "action_prompts": "db8297feb9047ca164e6ad5b39058ed13128908ef8284b85761d546f6c33f9a4"
+  },
+  "ownApiPid": 78610,
+  "ownLocalFaultProxyPid": 78614,
+  "nativeClients": [
+    {
+      "label": "a",
+      "ownNativePid": 78617,
+      "log": "exported-stale-retry-v2-a.log",
+      "profile": "never-written-exported-stale-retry-v2-a.json",
+      "app": "/Users/dinghaolin/MyProjects/riftbound/var/qa/destruction-fixed-e262-20261020/Riftbound-A.app",
+      "defaultMain": true,
+      "headless": true,
+      "logSha256": "d6e25a42a1c0e94cdce6aecffe7c519a2cc9119e67c4ebedcc612aa6385c29ad",
+      "bootMarker": true,
+      "catalogMarker": true,
+      "resultMessageAndViewConstructed": true,
+      "matchWonReceived": true,
+      "ephemeralNoProfileWritten": true,
+      "noGodotErrorOrUnhandledException": true
+    },
+    {
+      "label": "b",
+      "ownNativePid": 78618,
+      "log": "exported-stale-retry-v2-b.log",
+      "profile": "never-written-exported-stale-retry-v2-b.json",
+      "app": "/Users/dinghaolin/MyProjects/riftbound/var/qa/destruction-fixed-e262-20261020/Riftbound-B.app",
+      "defaultMain": true,
+      "headless": true,
+      "logSha256": "4df8c23ff1857592abf49d5d390f3c21a96d7088c48e3c6a3c2d59249c569865",
+      "bootMarker": true,
+      "catalogMarker": true,
+      "resultMessageAndViewConstructed": true,
+      "matchWonReceived": true,
+      "ephemeralNoProfileWritten": true,
+      "noGodotErrorOrUnhandledException": true
+    }
+  ],
+  "bothNativeNormalExitCodes": [
+    0,
+    0
+  ],
+  "actualStaleSurrenderRejectionThenNewPromptRetryObserved": true,
+  "actualTransportOrderingFault": {
+    "payloadsNeverRewritten": true,
+    "boundedLocalhostOnly": true,
+    "heldAFirstMulligan": true,
+    "heldBFirstSurrender": true,
+    "heldSurrenderTick": 3,
+    "acceptedMulliganTick": 5,
+    "trace": [
+      {
+        "stage": "HOLD_ORIGINAL_B_SURRENDER",
+        "tick": 3,
+        "sha256": "83d8d41d9f152f94bd06af6ae5379330c401b581ba8611d02afc154d4a69336d"
+      },
+      {
+        "stage": "HOLD_ORIGINAL_A_MULLIGAN",
+        "tick": 3,
+        "sha256": "beef198dc6b2660a98d13e6f952be1fb2c56372b40c1cf14d15abe69d3c09d27"
+      },
+      {
+        "stage": "FORWARD_ORIGINAL_A_MULLIGAN_UNMODIFIED",
+        "tick": 3
+      },
+      {
+        "stage": "REAL_SERVER_ACCEPTED_A_MULLIGAN",
+        "authoritativeTick": 5
+      },
+      {
+        "stage": "FORWARD_ORIGINAL_STALE_B_SURRENDER_UNMODIFIED",
+        "tick": 3,
+        "authoritativeTick": 5
+      },
+      {
+        "stage": "ACTUAL_NATIVE_B_RETRY_UNMODIFIED",
+        "tick": 5
+      }
+    ]
+  },
+  "ownProxyNormalStop": true,
+  "noSigtermNeededForEitherSuccessfulNativeProcess": true,
+  "ownApiGracefulStop": true,
+  "originalReplay": {
+    "status": "ORIGINAL_REAL_NATIVE_NETWORK_FRAME_FULL_REPLAY_PASS",
+    "room": "STALE2-E262-NATIVE-275a299d4602",
+    "commands": 8,
+    "events": 19,
+    "stateHash": "d090d2dba0c7400a7a2c20e1cdd0b7437bbe0a903a94d0ec495811e14846912f",
+    "actualRuleInputs": {
+      "schemaVersion": 1,
+      "region": "CN",
+      "language": "zh-CN",
+      "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+      "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+      "implementationSha256": "30f77f36a65bf645b8443d6ce7cc217c0bcf3e3a2e4bb2a848631fdcc3343273",
+      "identitySha256": "591dc1232bb160b3e5191a287a5e75d429e1e87069d7a37fd0e90b0d706b7bb6"
+    },
+    "originalNonZeroPrivateSeedPreserved": true,
+    "noOldHistoryMigration": true
+  },
+  "originalFrameSha256": "a282702a2702f39ffa0aa33f76c9cf9d7108a7e06a76b5c74729d14178cf9947",
+  "all190AuditAnd36PriorNativeRoomsSevenTablesExact": true,
+  "newOriginalRoomSevenTables": {
+    "matches": "f21c3f6d018d1c13171c3030a377809a379cfa998ec39318952779a197758601",
+    "match_players": "5951792ef65b50024e648aef98fe182eb8c2123dae16d102c31a12bbae4db6db",
+    "command_log": "3d5a96929126a9fc2389fbaae8aa8ace46477f64b4cce6e76debd44eb041a551",
+    "game_events": "802a9efac23131d07f53bd6c38324cd869151dde55dfa0f8616bd33430f61ffc",
+    "state_snapshots": "0d3702a55ae90881b4ea316ad2f4a859675f464fef1a97a7bfbdef8f3f72cd54",
+    "snapshots": "69aeb1a3c1bff7c2bb32d215d67ab3ee6bffa18e2357031581698a5431075651",
+    "action_prompts": "2988587c987c21df92e25774cb674aea510b8f380ac70d94c7a0b25b9c3a5edb"
+  },
+  "nativeRoomCount": 37,
+  "auditRoomCount": 190,
+  "successfulPreviousFunctionalStepsNotRerun": true,
+  "ownPostgresSmartStopped": true,
+  "boundIdleSleepAssertionEnded": true,
+  "finishedAtUtc": "2026-10-19T23:46:44.298269+00:00",
+  "lockAtEnd": {
+    "atUtc": "2026-10-19T23:46:44.320885+00:00",
+    "roots": [
+      {
+        "rootLocked": true,
+        "sessions": [
+          true
+        ]
+      }
+    ],
+    "unknownIsNotUnlocked": true
+  },
+  "allFrozenFixedPublicationsAndAcceptanceRuntimesStillExact": true,
+  "originalDatabaseRetained": true,
+  "allNativeCiPayloadsStillExact": true
+}

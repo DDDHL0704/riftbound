@@ -1,0 +1,48 @@
+{
+  "records": [
+    {
+      "path": "run-fixed-exported-native-result-v1.py",
+      "priorSource": "var/qa/hwei-fixed-08fd-20261020/run-fixed-exported-native-result-v1.py",
+      "priorSha256": "386b740883393e5f9869d88d3a3f8b6dd9b5b8a87887e815e62a7e95942035be",
+      "currentSha256": "ae829656d010b32be1156b7b6c327dd96d4533a67b9f1542bdc84d3979783d97",
+      "changes": "Exact current common/publication, room labels, existing audit190/native35-39 counts. Original native, rejection, private-view, scoring, replay, signature and seven-table invariance assertions retained."
+    },
+    {
+      "path": "run-fixed-exported-stale-retry-v1.py",
+      "priorSource": "var/qa/hwei-fixed-08fd-20261020/run-fixed-exported-stale-retry-v1.py",
+      "priorSha256": "ae9945d57b7c8d6257744d940e3217a5645266276fd0c2c8a7ee74071b7ad19b",
+      "currentSha256": "1516be736aab304685b1e80825731a5e1c81584290ec147917e2a79ef5d635a7",
+      "changes": "Exact current common/publication, room labels, existing audit190/native35-39 counts. Original native, rejection, private-view, scoring, replay, signature and seven-table invariance assertions retained."
+    },
+    {
+      "path": "run-fixed-score-without-desktop-v1.py",
+      "priorSource": "var/qa/hwei-fixed-08fd-20261020/run-fixed-score-without-desktop-v1.py",
+      "priorSha256": "e93a2ee70b6ac3710e534c204cee1e8dffae9d45f942a4892c10336d4915a99e",
+      "currentSha256": "d6333fab6fea0d69b754ce2f89fe4597e4874b14e39353729f311f96438bb1b3",
+      "changes": "Exact current common/publication, room labels, existing audit190/native35-39 counts. Original native, rejection, private-view, scoring, replay, signature and seven-table invariance assertions retained."
+    },
+    {
+      "path": "run-fixed-socket-identity-v1.py",
+      "priorSource": "var/qa/hwei-fixed-08fd-20261020/run-fixed-socket-identity-v1.py",
+      "priorSha256": "bc66d3594a4de59e1e790f2c88a83a877f38afc1a0fbd4f60261896e1774de7d",
+      "currentSha256": "033db98a96545e39a73894dea646fe03f283c8f39a301f94bce3af0fcb9cf67b",
+      "changes": "Exact current common/publication, room labels, existing audit190/native35-39 counts. Original native, rejection, private-view, scoring, replay, signature and seven-table invariance assertions retained."
+    },
+    {
+      "path": "verify-fixed-native-originals-readonly-v1.py",
+      "priorSource": "var/qa/hwei-fixed-08fd-20261020/verify-fixed-native-originals-readonly-v1.py",
+      "priorSha256": "b48dd0ba05adee20769084cae68a3d77e20696b8f32408f7cb7d1e45e7101f7c",
+      "currentSha256": "7540047eebbdd18eacedd5fa75e6363ec4dd5cb03144c378bb6009544592a4c6",
+      "changes": "Exact current common/publication, room labels, existing audit190/native35-39 counts. Original native, rejection, private-view, scoring, replay, signature and seven-table invariance assertions retained."
+    },
+    {
+      "path": "build-fixed-native-gateways-v1.py",
+      "priorSource": "var/qa/hwei-fixed-08fd-20261020/build-fixed-native-gateways-v1.py",
+      "priorSha256": "9864869fb528c0b3f8b3f18640b292bc279e8c04a05028424b57dbe5beecfc98",
+      "currentSha256": "1cdb135fdacd8bf3b4e23d228c4e8a32fb3c0b441d9bdb177598fa52f2c47aa0",
+      "changes": "Extract same three production gateway sources and original score fixture directly from exact fixed Git, use new CI app, preserve all reference/source/build assertions; update exact room/gate/publication labels."
+    }
+  ],
+  "allOriginalTestSourcesAndAssertionsRetained": true,
+  "noCurrentNativeResultClaimed": true
+}

@@ -1,0 +1,11 @@
+{
+  "atUtc": "2026-10-20T01:09:26.787461+00:00",
+  "status": "IDENTICAL_SOURCE_BYTES_COMPILED_AND_EXECUTED_WITH_EXPLICIT_ORIGINAL_FILE_CONTEXT",
+  "publisherSha256": "dbd4e6d81b259027130af496c0157537de37ed1280c09c99cc4bf4fed36bad86",
+  "loaderSha256": "0871723b8121ae5a849359fdb3f79cb3202f5b186cd252bd42bb7f9aca4f0d79",
+  "twoPreviousDirectFileParsingFailuresBeforeAnyPublicationMutation": true,
+  "identicalSourceBytesPassPyCompileAndCompileInSamePython39": true,
+  "underlyingDirectFileReaderCause": "UNDETERMINED",
+  "original142Reviews57Contexts234Gates16903ObligationsStillUnmodifiedBeforeLoader": true,
+  "noGameplayChangeOrCheckRerun": true
+}

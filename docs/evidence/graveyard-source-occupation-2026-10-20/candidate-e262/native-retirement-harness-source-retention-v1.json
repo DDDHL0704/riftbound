@@ -1,0 +1,6 @@
+{
+  "originalPath": "var/qa/hwei-fixed-08fd-20261020/retire-prior-native-pair-v1.py",
+  "originalSha256": "0928029ac0ece48ef00bf1f04911096409d041717f5a2666c39be1f58e3e3eca",
+  "currentSha256": "97fe0f01b6b2ab91e092cf5a42a4cc5625112758e60a9a2d6f10e0dc9649af9c",
+  "changes": "Exact old/new fixed commit/run/root and explicit actual pending SQL status; all original exact-four-target, payload, signature, CRC, process absence and evidence preservation checks retained."
+}

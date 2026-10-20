@@ -1,0 +1,49 @@
+{
+  "status": "PASS_EXACT_FIXED_API_SQL_AND_READERS_PUBLISHED",
+  "fixedCommit": "e262ebf164e448cc9738d94db8e557f302cfc295",
+  "startedAtUtc": "2026-10-19T23:20:37.552779+00:00",
+  "noGodotSdkOrProjectBuild": true,
+  "noWholeCheckoutOrNewDatabase": true,
+  "builds": [
+    {
+      "project": "src/Riftbound.Api/Riftbound.Api.csproj",
+      "target": "fixed-api",
+      "exitCode": 0
+    },
+    {
+      "project": "tests/Riftbound.PostgresAcceptance/Riftbound.PostgresAcceptance.csproj",
+      "target": "frozen-sql-v1",
+      "exitCode": 0
+    },
+    {
+      "project": "native-frame-reader/nativeframe.csproj",
+      "exitCode": 0
+    },
+    {
+      "project": "fixed-native-independent-reader/reader.csproj",
+      "exitCode": 0
+    },
+    {
+      "project": "independent-reader-v2/reader.csproj",
+      "exitCode": 0
+    }
+  ],
+  "ownRunnerPid": 73102,
+  "boundIdleSleepAssertionPid": 73105,
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+    "implementationSha256": "30f77f36a65bf645b8443d6ce7cc217c0bcf3e3a2e4bb2a848631fdcc3343273",
+    "identitySha256": "591dc1232bb160b3e5191a287a5e75d429e1e87069d7a37fd0e90b0d706b7bb6"
+  },
+  "allFourSharedApiSqlModulesByteExact": true,
+  "all3302FixedSourcesStillExact": true,
+  "precommitSqlIdentityExact": false,
+  "precommitFourSharedModuleBytesExact": false,
+  "visibleAndPhysicalWindows": "OPEN",
+  "boundIdleSleepAssertionEnded": true,
+  "finishedAtUtc": "2026-10-19T23:20:52.533193+00:00"
+}
