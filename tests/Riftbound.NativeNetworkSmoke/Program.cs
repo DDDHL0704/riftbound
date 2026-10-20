@@ -35,7 +35,7 @@ using var deadline = new CancellationTokenSource(TimeSpan.FromSeconds(60));
 await using var proxy = new DropProxy(upstream, deadline.Token);
 await using var client = new RiftboundGameHubClient(proxy.Url);
 var suffix = Guid.NewGuid().ToString("N");
-var handle = "native" + suffix[..12];
+var handle = "NaTiVe" + suffix[..12];
 var key = "native-network-test-" + suffix;
 var room = "NETWORK-" + suffix[..12];
 string? reconnectToken = null;
@@ -48,6 +48,9 @@ var recoveryCalls = 0;
 var failRecovery = false;
 client.ServerMessageReceived += (kind, message) =>
 {
+    if ((kind is "Joined" or "Snapshot" or "Prompt")
+        && message.PlayerId != handle.ToLowerInvariant())
+        errors.Enqueue("Room response did not use the authenticated canonical actor.");
     if (kind == "Joined" && message.Payload is JsonElement payload)
     {
         reconnectToken = payload.GetProperty("reconnectToken").GetString();
@@ -67,13 +70,13 @@ client.RestoreSession += async () =>
     Interlocked.Increment(ref recoveryCalls);
     var auth = await client.AuthenticateAsync(handle, key, deadline.Token);
     if (!auth.Authenticated) throw new InvalidOperationException("Recovery authentication failed.");
-    await client.ReconnectAsync(room, auth.Handle, failRecovery ? "invalid-test-token" : reconnectToken!, deadline.Token);
-    await client.RequestSnapshotAsync(room, auth.Handle, deadline.Token);
+    await client.ReconnectAsync(room, handle.ToUpperInvariant(), failRecovery ? "invalid-test-token" : reconnectToken!, deadline.Token);
+    await client.RequestSnapshotAsync(room, " " + handle + " ", deadline.Token);
 };
 await client.StartAsync(deadline.Token);
 var authenticated = await client.AuthenticateAsync(handle, key, deadline.Token);
 if (!authenticated.Authenticated) throw new InvalidOperationException("Initial authentication failed.");
-await client.JoinRoomAsync(room, authenticated.Handle, null, deadline.Token);
+await client.JoinRoomAsync(room, " " + handle + " ", null, deadline.Token);
 await joined.Task.WaitAsync(deadline.Token);
 await client.RequestSnapshotAsync(room, authenticated.Handle, deadline.Token);
 var initialSnapshots = Volatile.Read(ref snapshots);
@@ -82,6 +85,7 @@ proxy.DropConnections();
 await restored.Task.WaitAsync(deadline.Token);
 if (!client.IsConnected || recoveryCalls != 1 || snapshots <= initialSnapshots || !errors.IsEmpty)
     throw new InvalidOperationException("Native client did not restore authentication, room membership and a fresh snapshot.");
+Console.WriteLine("Native canonical room identity passed: mixed-case join, canonical snapshot, uppercase reconnect, spaced snapshot; original private identity boundary retained.");
 // An invalid reconnect receipt must never turn a transport connection into a usable session.
 failRecovery = true;
 proxy.DropConnections();

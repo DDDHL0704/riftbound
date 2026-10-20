@@ -1,0 +1,150 @@
+{
+  "recordedAtUtc": "2026-10-20T22:40:09.396323+00:00",
+  "status": "SCOPED_CANONICAL_ROOM_IDENTITY_CHECK_NATIVE_SOURCE_TOOL_SQL_AND_ORIGINAL_HISTORY_PASS_NEW_FIXED_FULL_VISIBLE_WINDOWS_OPEN",
+  "region": "CN",
+  "language": "zh-CN",
+  "adoptedCoreEffectiveAsOf": "2026-10-16",
+  "observationAsOf": "2026-10-21",
+  "sourceManifestAtExecution": {
+    "path": "docs/evidence/source-round-2026-10-21/source-manifest.json",
+    "sha256": "be041f4548b530a5454ac87ecd688ae1c6f027d73ab3ccc424fa5176bb5cddf5",
+    "role": "source-round21"
+  },
+  "sourceDatesAndOriginalCertificationScopeUnchanged": true,
+  "baseCommit": "f4704291ff87c99b1599d93f0fc71700f0433cae",
+  "actualTestedSourceIncludedDeclaredUncommittedChanges": true,
+  "issue": 77,
+  "exactSourceAndAll47Api23Native22Network74HelperRuntimeFiles": {
+    "path": "docs/evidence/canonical-room-identity-2026-10-21/actual-candidate-source-and-runtime-inputs.json",
+    "sha256": "c6540d7ded09d7f0d517c585eb67ed1d9f968ff5c55ce3ec6efd79d02f15e56e",
+    "role": "actual-source-and-platform-runtime-inputs"
+  },
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+    "implementationSha256": "c93608f0f03f054efc024217f9d2d82e975e81b59523b22e9ec102c8f4733a4c",
+    "identitySha256": "e9e74d3e8f998876310b41a6f821118aa50f79591a1ea63062cf055a0af8b88f"
+  },
+  "platformApiAssemblySha256": "b65f49cb4d67fe49cca49f8e7d69a112dfccf2a10a19baa50f4fed7f45629725",
+  "platformNativeClientAssemblySha256": "538e27947d625542af8664e68954c4d74d010e7e73b4b99c1d5d92e31b434a54",
+  "actualRuleInputIdentitySameAsCleanFixedF470EngineButPlatformApiAndMainSourceChanged": true,
+  "futureFixedCiRuntimeIdentityMustBeRecordedSeparately": true,
+  "semanticReview": "PLATFORM_CANONICAL_ACCOUNT_BOUNDARY_ONLY_NOT_CARD_OR_RULE_CERTIFICATION",
+  "implementation": "FIVE_CONFIGURED_AUTHORITY_ROOM_BOUNDARIES_USE_EXISTING_ACCOUNT_NORMALIZATION_BEFORE_INDEPENDENT_AUTHORIZATION_NO_OLD_SEAT_FALLBACK",
+  "testExecution": {
+    "red": {
+      "path": "docs/evidence/canonical-room-identity-2026-10-21/red-reproduction.json",
+      "sha256": "544a1af5b22ed53548bb36671c9242e79d97f5df9b116042e2096995490e425f",
+      "role": "red"
+    },
+    "focus80": {
+      "path": "docs/evidence/canonical-room-identity-2026-10-21/focus80.json",
+      "sha256": "bdc5438941b8eedf22982e22e89ce29b180f3d20b20bda0e4631b6ff4046617f",
+      "role": "focus"
+    },
+    "allGameHubAndIdentity284": {
+      "path": "docs/evidence/canonical-room-identity-2026-10-21/focus284.json",
+      "sha256": "8feb5e359b4d6a0ec1cbc864973c8853f0c8fdf6d4ad626686863dfc7adacc2a",
+      "role": "adjacent"
+    },
+    "oneCheck": {
+      "path": "docs/evidence/canonical-room-identity-2026-10-21/check-original-retention.json",
+      "sha256": "86be9360273c3710236e25b5e4a4c6352321ef0c4aaff4aa8c82586408c06745",
+      "role": "check"
+    },
+    "python73": {
+      "path": "docs/evidence/canonical-room-identity-2026-10-21/python-verification.json",
+      "sha256": "3822ec772034332a199d8b7170b84aa5f57aa2b57e157b015c5070b7be17889c",
+      "role": "python"
+    }
+  },
+  "sourceToolAcceptance": {
+    "terminal": {
+      "path": "docs/evidence/canonical-room-identity-2026-10-21/native-same-room-normal-score-and-network-terminal.json",
+      "sha256": "efac995c38f72df79351d5cdb69f419a52b8d783c45a7cdccd2fe7b8b10475a0",
+      "role": "source-tool-native-and-normal-score"
+    },
+    "independentAllHistory": {
+      "path": "docs/evidence/canonical-room-identity-2026-10-21/native-80-original-history.json",
+      "sha256": "0d0b70b2bdd1d0973b179d8991298424c5329bbd15d2319f3ea04c97747fbe62",
+      "role": "independent-sql-history"
+    },
+    "actualCanonicalAccountsAndSeats": {
+      "path": "docs/evidence/canonical-room-identity-2026-10-21/actual-canonical-sql-account-seat-binding.json",
+      "sha256": "8d7a5f1a3f2e68c3bd23d82c86e3e6b5db2092dfc0d2d07b3f106488fe3b6593",
+      "role": "independent-account-seat-binding"
+    },
+    "commands": 80,
+    "events": 547,
+    "states": 80,
+    "bothPlayersCombinedPrivateSnapshots": 156,
+    "bothPlayersCombinedPrivatePrompts": 156,
+    "gatewayOpening": 60,
+    "nativeInteractionControllerCommands": 3,
+    "normalGatewayContinuation": 17,
+    "score": "8:0",
+    "turn": 50,
+    "hardwareButtonsOrVisibleAcceptance": false
+  },
+  "fixedCommitCi": "PENDING_NEW_COHERENT_COMMIT_FULL",
+  "productAcceptance": {
+    "currentFixedCiExportedPair": "OPEN",
+    "visiblePairedSqlNetworkNormalScoreAndReplay": "OPEN",
+    "physicalWindows": "OPEN"
+  },
+  "previousA56137ActualCompleteFull": {
+    "path": "docs/evidence/canonical-room-identity-2026-10-21/previous-a56137-full.json",
+    "sha256": "f1ca124117a32c463544a9c0283893f4643c72421afa28caf75ce2f477ba9cd7",
+    "role": "prior-fixed-full"
+  },
+  "f470PartialCi": {
+    "path": "docs/evidence/canonical-room-identity-2026-10-21/fixed-f470-parts12-only.json",
+    "sha256": "ac4da306f7291257590de31514d04d5a3ef833b1f5b00dcf826f078b25b06aea",
+    "role": "fixed-f470-partial-originals"
+  },
+  "originalA56137NativeAliasFailureAndSameOldGatewayContinuationRemainExactlyTheirOldScopes": {
+    "path": "docs/evidence/spell-remake-single-friendly-unit-2026-10-21/native-handle-case-original-failure.json",
+    "sha256": "c00d912c935f539bac700ce15f4d7baffc1f20f7460310893a07d1aecc31b592",
+    "role": "exact-native-product-source-failure-issue77"
+  },
+  "existingUnifiedAcceptanceGate": "ROOM_IDENTITY_BOUNDARY",
+  "previousGate": {
+    "path": "docs/evidence/canonical-room-identity-2026-10-21/previous-room-identity-gate.json",
+    "sha256": "55bca6319aac40bf328a334828a178df7e1db55a2ee9b1e1e97d1258b2f26cb5",
+    "role": "prior-identity-gate"
+  },
+  "allOriginal150Reviews65ContextScopes245GateIdsSevenDeltas16944ObligationIds1740Printings14293BlocksCn236En8And139NewsRetained": true,
+  "previousFourMainImplementationContexts": {
+    "path": "docs/evidence/canonical-room-identity-2026-10-21/previous-four-platform-implementation-contexts.json",
+    "sha256": "4e6322b1584f0f029d4204d9485f941f69c04c6241bbc417bb866f6a2f1691c2",
+    "role": "prior-platform-contexts"
+  },
+  "storage": {
+    "inventory": {
+      "path": "docs/evidence/canonical-room-identity-2026-10-21/latest-only-native-app-inventory.json",
+      "sha256": "a082338dcfffdc19e510f7bc2a95c1063945e759e67348a9f66ff44b38c18ab2",
+      "role": "latest-only-native-inventory"
+    },
+    "obsoleteQaBuildStaging": {
+      "path": "docs/evidence/canonical-room-identity-2026-10-21/obsolete-build-staging-retirement.json",
+      "sha256": "88504320dcfc926d34ddd47cd7dd00b1c169c5051d156048b04306e62519204d",
+      "role": "build-staging-retirement"
+    },
+    "duplicateGodotToolDownload": {
+      "path": "docs/evidence/canonical-room-identity-2026-10-21/duplicate-godot-download-retirement.json",
+      "sha256": "7c3174ddddea217fb091b9af3b024dde87a4f4a023debf429650001891398c7b",
+      "role": "tool-download-retirement"
+    },
+    "newSdkCheckoutDatabaseNativeAppOrInstallerCopies": false
+  },
+  "completedOriginals": {
+    "path": "docs/evidence/canonical-room-identity-2026-10-21/archive-map.json",
+    "sha256": "4847e966e1811d82c41736a14c419f8c578e8122544618f19d45219b93143d41",
+    "role": "all-declared-originals"
+  },
+  "wholePrintingOrGlobalSemanticCertification": false,
+  "goalComplete": false
+}

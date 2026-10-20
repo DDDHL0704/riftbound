@@ -1,0 +1,899 @@
+{
+  "atUtc": "2026-10-20T22:14:43.904252+00:00",
+  "status": "ONLY_14_OBSOLETE_QA_BUILD_STAGING_DIRECTORIES_RETIRED_ALL_EXECUTED_PAYLOADS_SOURCE_LOGS_FAILURES_AND_DATABASES_RETAINED",
+  "records": [
+    {
+      "path": "var/qa/canonical-room-player-identity-20261021/canonical-native-prefix-source-v2/bin",
+      "files": {},
+      "logicalBytes": 0,
+      "reason": "GENERATED_QA_BUILD_STAGING_ONLY; actual executed immutable runtime payloads independently verified and retained; all source/projects/logs/failures retained"
+    },
+    {
+      "path": "var/qa/canonical-room-player-identity-20261021/canonical-native-prefix-source-v2/obj",
+      "files": {
+        "probe.csproj.nuget.g.targets": {
+          "bytes": 149,
+          "sha256": "b14461e0cb1be3f77fcf9fe2fdd62889325ca92523d0f606980ed59eb5c4aa1c"
+        },
+        "project.nuget.cache": {
+          "bytes": 270,
+          "sha256": "80438141e13a8efd88ce5f261761f288d992b2ccce8a3db56d854431e2034a4b"
+        },
+        "probe.csproj.nuget.dgspec.json": {
+          "bytes": 21496,
+          "sha256": "47c82cc83b1ba9422b6de3a7362ad2153c4c342e43d2e9252ef3e696ed672a3a"
+        },
+        "probe.csproj.nuget.g.props": {
+          "bytes": 1130,
+          "sha256": "fc3164a419c5b2121a87fb47d38735c1397640d10e208c775a65a02edd6e231e"
+        },
+        "project.assets.json": {
+          "bytes": 20704,
+          "sha256": "739e9e835a290d9f3f0b266741d2124de18893d532084d8ac2f96d63d350f613"
+        },
+        "Release/net10.0/probe.GeneratedMSBuildEditorConfig.editorconfig": {
+          "bytes": 881,
+          "sha256": "28b83570c284e65a18e8a99aecae8b9080cde084a278bc575e5fcf4a6f3ab312"
+        },
+        "Release/net10.0/probe.GlobalUsings.g.cs": {
+          "bytes": 231,
+          "sha256": "8f86a2cbf00ff3eee0bda2bc0eb5e1fc19c8544d5dc650c53d0132325956b592"
+        },
+        "Release/net10.0/probe.csproj.CoreCompileInputs.cache": {
+          "bytes": 65,
+          "sha256": "4ee23c7181f91a5cc3b666d78de452007a47c4a769da5a355cc4900d48a8103a"
+        },
+        "Release/net10.0/probe.csproj.AssemblyReference.cache": {
+          "bytes": 22047,
+          "sha256": "45f032f204a215529e4ec6f248b66f2f98cb91835cbab1724accd42e6848010e"
+        },
+        "Release/net10.0/.NETCoreApp,Version=v10.0.AssemblyAttributes.cs": {
+          "bytes": 196,
+          "sha256": "f79c1ad9a9fc76110b3655f5bfb5ff4e3168e9addceff05b937c0796f0ec34eb"
+        },
+        "Release/net10.0/probe.assets.cache": {
+          "bytes": 155,
+          "sha256": "46f3f645d7d1fcb52a3a5ea3067d957068efb64a5ec058e599e7161aa52e45ba"
+        },
+        "Release/net10.0/probe.AssemblyInfo.cs": {
+          "bytes": 1050,
+          "sha256": "5ef60d9c049d5905ea2cf1aae03332b5a1d8b9c58db12ea7e9f9f17384003d78"
+        },
+        "Release/net10.0/probe.csproj.FileListAbsolute.txt": {
+          "bytes": 1037,
+          "sha256": "1ce321139f6c7663446d55e052c930bd6835e8dd6b6b18ba8b4f6b8b1e5e4a8e"
+        },
+        "Release/net10.0/probe.sourcelink.json": {
+          "bytes": 157,
+          "sha256": "f92cfbf572e851f9839b865a92e30f961439705bdbbbb83333a574575540b475"
+        },
+        "Release/net10.0/probe.AssemblyInfoInputs.cache": {
+          "bytes": 65,
+          "sha256": "dccb731811a885abdc08bbe7886309740b29b5d6e4c54f9f39153e0ef08e82a2"
+        }
+      },
+      "logicalBytes": 69633,
+      "reason": "GENERATED_QA_BUILD_STAGING_ONLY; actual executed immutable runtime payloads independently verified and retained; all source/projects/logs/failures retained"
+    },
+    {
+      "path": "var/qa/canonical-room-player-identity-20261021/canonical-native-prefix-source-v3/bin",
+      "files": {
+        "Release/net10.0/Fixed564SafeNativeReversalPrefix.dll": {
+          "bytes": 53760,
+          "sha256": "9c12e526303bd141e2840d53548df1902b1603a86f37ca63875a2e07e0d3453e"
+        },
+        "Release/net10.0/Microsoft.AspNetCore.Connections.Abstractions.dll": {
+          "bytes": 39760,
+          "sha256": "7f279e0b78d0652ad9b053b25e80cc7f186b36cc1de1e32d24105bff9a98c0f3"
+        },
+        "Release/net10.0/Microsoft.AspNetCore.Http.Connections.Client.dll": {
+          "bytes": 119080,
+          "sha256": "08e97e198d957f7fd5de7fee7d6409155e1ac6565a8d3c0926b090c8591e3036"
+        },
+        "Release/net10.0/Fixed564SafeNativeReversalPrefix": {
+          "bytes": 124712,
+          "sha256": "7cec0818857cdb6805c7104df19234dac113d05d3ee5c64eaab52fc6a326cadc"
+        },
+        "Release/net10.0/Microsoft.Extensions.Logging.dll": {
+          "bytes": 50976,
+          "sha256": "b2cfba2e05ee89a91e9bc9cf112468a5f4fa05d1a77ea81c131ea656f3d133c2"
+        },
+        "Release/net10.0/Riftbound.Contracts.pdb": {
+          "bytes": 56768,
+          "sha256": "a2a7590b30a2b0948cc0ae7633b9f92e3658d28e15d74d5ed4624564420000dc"
+        },
+        "Release/net10.0/Microsoft.AspNetCore.Http.Connections.Common.dll": {
+          "bytes": 28496,
+          "sha256": "4446d96d3d88fe38498187a8f3c342ba97d9a0d7914e309555b528ae7e294499"
+        },
+        "Release/net10.0/Microsoft.Extensions.Logging.Abstractions.dll": {
+          "bytes": 65288,
+          "sha256": "bb853130f5afaf335be7858d661f8212ec653835100f5a4e3aa2c66a4d4f685d"
+        },
+        "Release/net10.0/Microsoft.AspNetCore.SignalR.Protocols.Json.dll": {
+          "bytes": 37160,
+          "sha256": "337bd529119666700dcbfceb2395ef28d25f3735e52cb2e513e600a2fcf1ffb7"
+        },
+        "Release/net10.0/Microsoft.AspNetCore.SignalR.Client.dll": {
+          "bytes": 20264,
+          "sha256": "85b7b98f638a0e1d021b8d99ea4f1411dc9cb0bbc9aa3b90476abde58004e8ee"
+        },
+        "Release/net10.0/Fixed564SafeNativeReversalPrefix.pdb": {
+          "bytes": 25364,
+          "sha256": "e809d46ae20803db1537290e7422036b7edf235c6af5ebf05106c977c6c7918c"
+        },
+        "Release/net10.0/Microsoft.Extensions.Primitives.dll": {
+          "bytes": 43680,
+          "sha256": "446ff16e903e7479558816e213a3adee9a1c1adad65a56d853801b10933e29d7"
+        },
+        "Release/net10.0/Microsoft.Extensions.DependencyInjection.dll": {
+          "bytes": 92952,
+          "sha256": "158761ce778e799949f3a3060c461b1055bb35f1f5a65eff0e42397849f09ecd"
+        },
+        "Release/net10.0/Microsoft.AspNetCore.SignalR.Common.dll": {
+          "bytes": 42280,
+          "sha256": "550058f27f5577e20184a0e0d198c90c87079b45dffab170423f6fe030c0687d"
+        },
+        "Release/net10.0/Riftbound.Contracts.dll": {
+          "bytes": 338432,
+          "sha256": "bd09869f44f6fcb44006bda2cddbd64fc702d59a07f1fc0475a25fe6fdc3e6c3"
+        },
+        "Release/net10.0/Microsoft.Extensions.Options.dll": {
+          "bytes": 64776,
+          "sha256": "5e01894cbc0661bacb8ca8f485a40d5ee4e02f28fef58007668a0276431b4693"
+        },
+        "Release/net10.0/Fixed564SafeNativeReversalPrefix.deps.json": {
+          "bytes": 7254,
+          "sha256": "70f2242b22e7f987733b8df4d7f6cd44e8a62904eae5f7c4b7906cf97248edd8"
+        },
+        "Release/net10.0/Microsoft.Extensions.Features.dll": {
+          "bytes": 25896,
+          "sha256": "75dd3372396a3b06bfb7b3b0d92ffd7e87e53efe61429eccc8970d8983c9ebc0"
+        },
+        "Release/net10.0/Microsoft.Extensions.DependencyInjection.Abstractions.dll": {
+          "bytes": 63768,
+          "sha256": "67fa4325000db017dc0c35829b416f024f042d24efb868bcf17a895ee6500a93"
+        },
+        "Release/net10.0/Microsoft.AspNetCore.SignalR.Client.Core.dll": {
+          "bytes": 199504,
+          "sha256": "feaa6dbd94bb63e1dcdfa9013032f6fcf7133bf8457c69b4bef24fc9537ab544"
+        },
+        "Release/net10.0/Fixed564SafeNativeReversalPrefix.runtimeconfig.json": {
+          "bytes": 330,
+          "sha256": "9950d4583cfc9a106857c0d5b8a75b53e8774852b57b80bc3823a74d44a4d87f"
+        },
+        "Release/net10.0/Fixtures/reversal-target-openings.json": {
+          "bytes": 14435,
+          "sha256": "f566e012152924e697af83e718594a9dc2dfbfedc1b9af43e6003dcf56719260"
+        }
+      },
+      "logicalBytes": 1514935,
+      "reason": "GENERATED_QA_BUILD_STAGING_ONLY; actual executed immutable runtime payloads independently verified and retained; all source/projects/logs/failures retained"
+    },
+    {
+      "path": "var/qa/canonical-room-player-identity-20261021/canonical-native-prefix-source-v3/obj",
+      "files": {
+        "probe.csproj.nuget.g.targets": {
+          "bytes": 149,
+          "sha256": "b14461e0cb1be3f77fcf9fe2fdd62889325ca92523d0f606980ed59eb5c4aa1c"
+        },
+        "project.nuget.cache": {
+          "bytes": 270,
+          "sha256": "c1e144a9e004782b00db8dbb0f746addbfb52a4ea26cc94e1f1623e738acf4c9"
+        },
+        "probe.csproj.nuget.dgspec.json": {
+          "bytes": 21496,
+          "sha256": "b34a2b0fc24cc69e91ebb113480d39008f6d46346972a60784f2b9c4b2ac6853"
+        },
+        "probe.csproj.nuget.g.props": {
+          "bytes": 1130,
+          "sha256": "fc3164a419c5b2121a87fb47d38735c1397640d10e208c775a65a02edd6e231e"
+        },
+        "project.assets.json": {
+          "bytes": 20704,
+          "sha256": "4ea434f23869319719ebbf0d0906eea2f9e0f07f714eaff63a908b567cfed6ce"
+        },
+        "Release/net10.0/probe.GeneratedMSBuildEditorConfig.editorconfig": {
+          "bytes": 881,
+          "sha256": "79c52397d4202ca07a6ddd787f3c4217f06aa200a405ed4fe841daa15c11195b"
+        },
+        "Release/net10.0/Fixed564SafeNativeReversalPrefix.dll": {
+          "bytes": 53760,
+          "sha256": "9c12e526303bd141e2840d53548df1902b1603a86f37ca63875a2e07e0d3453e"
+        },
+        "Release/net10.0/probe.GlobalUsings.g.cs": {
+          "bytes": 231,
+          "sha256": "8f86a2cbf00ff3eee0bda2bc0eb5e1fc19c8544d5dc650c53d0132325956b592"
+        },
+        "Release/net10.0/apphost": {
+          "bytes": 124712,
+          "sha256": "7cec0818857cdb6805c7104df19234dac113d05d3ee5c64eaab52fc6a326cadc"
+        },
+        "Release/net10.0/Fixed564SafeNativeReversalPrefix.pdb": {
+          "bytes": 25364,
+          "sha256": "e809d46ae20803db1537290e7422036b7edf235c6af5ebf05106c977c6c7918c"
+        },
+        "Release/net10.0/probe.csproj.CoreCompileInputs.cache": {
+          "bytes": 65,
+          "sha256": "4ee23c7181f91a5cc3b666d78de452007a47c4a769da5a355cc4900d48a8103a"
+        },
+        "Release/net10.0/probe.csproj.Up2Date": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "Release/net10.0/probe.csproj.AssemblyReference.cache": {
+          "bytes": 22047,
+          "sha256": "45f032f204a215529e4ec6f248b66f2f98cb91835cbab1724accd42e6848010e"
+        },
+        "Release/net10.0/.NETCoreApp,Version=v10.0.AssemblyAttributes.cs": {
+          "bytes": 196,
+          "sha256": "f79c1ad9a9fc76110b3655f5bfb5ff4e3168e9addceff05b937c0796f0ec34eb"
+        },
+        "Release/net10.0/probe.assets.cache": {
+          "bytes": 155,
+          "sha256": "7049db8e4fff16dbdafce6fd9cd2d46dcc2fc8cfe9c8e48d89422d57e054ed88"
+        },
+        "Release/net10.0/probe.AssemblyInfo.cs": {
+          "bytes": 1050,
+          "sha256": "5ef60d9c049d5905ea2cf1aae03332b5a1d8b9c58db12ea7e9f9f17384003d78"
+        },
+        "Release/net10.0/probe.csproj.FileListAbsolute.txt": {
+          "bytes": 6061,
+          "sha256": "f2e1d7d36fd5908f96c3f2b8cf54e214377eca67ecb5454a99ca689e6daa42c7"
+        },
+        "Release/net10.0/probe.genruntimeconfig.cache": {
+          "bytes": 65,
+          "sha256": "1256cc11107489d78bb5f48a744f9aabfe69fe2a555f78c60af2da23df108fb6"
+        },
+        "Release/net10.0/probe.sourcelink.json": {
+          "bytes": 157,
+          "sha256": "f92cfbf572e851f9839b865a92e30f961439705bdbbbb83333a574575540b475"
+        },
+        "Release/net10.0/probe.AssemblyInfoInputs.cache": {
+          "bytes": 65,
+          "sha256": "dccb731811a885abdc08bbe7886309740b29b5d6e4c54f9f39153e0ef08e82a2"
+        },
+        "Release/net10.0/ref/Fixed564SafeNativeReversalPrefix.dll": {
+          "bytes": 13312,
+          "sha256": "9d7b70497ca0232e9140790a939b5dfeece5005e806a049ec93d29538a8a032f"
+        },
+        "Release/net10.0/refint/Fixed564SafeNativeReversalPrefix.dll": {
+          "bytes": 13312,
+          "sha256": "9d7b70497ca0232e9140790a939b5dfeece5005e806a049ec93d29538a8a032f"
+        }
+      },
+      "logicalBytes": 305182,
+      "reason": "GENERATED_QA_BUILD_STAGING_ONLY; actual executed immutable runtime payloads independently verified and retained; all source/projects/logs/failures retained"
+    },
+    {
+      "path": "var/qa/canonical-room-player-identity-20261021/canonical-score-helper-source-v2/bin",
+      "files": {
+        "Release/net10.0/Microsoft.AspNetCore.Connections.Abstractions.dll": {
+          "bytes": 39760,
+          "sha256": "7f279e0b78d0652ad9b053b25e80cc7f186b36cc1de1e32d24105bff9a98c0f3"
+        },
+        "Release/net10.0/Microsoft.AspNetCore.Http.Connections.Client.dll": {
+          "bytes": 119080,
+          "sha256": "08e97e198d957f7fd5de7fee7d6409155e1ac6565a8d3c0926b090c8591e3036"
+        },
+        "Release/net10.0/Fixed564SafeBandleScore.dll": {
+          "bytes": 43520,
+          "sha256": "a031beba2cff8a11b85847df515d92b54e218a7e56f0aa81630d0b31f219b31d"
+        },
+        "Release/net10.0/Microsoft.Extensions.Logging.dll": {
+          "bytes": 50976,
+          "sha256": "b2cfba2e05ee89a91e9bc9cf112468a5f4fa05d1a77ea81c131ea656f3d133c2"
+        },
+        "Release/net10.0/Riftbound.Contracts.pdb": {
+          "bytes": 56768,
+          "sha256": "a2a7590b30a2b0948cc0ae7633b9f92e3658d28e15d74d5ed4624564420000dc"
+        },
+        "Release/net10.0/Fixed564SafeBandleScore.runtimeconfig.json": {
+          "bytes": 330,
+          "sha256": "9950d4583cfc9a106857c0d5b8a75b53e8774852b57b80bc3823a74d44a4d87f"
+        },
+        "Release/net10.0/Microsoft.AspNetCore.Http.Connections.Common.dll": {
+          "bytes": 28496,
+          "sha256": "4446d96d3d88fe38498187a8f3c342ba97d9a0d7914e309555b528ae7e294499"
+        },
+        "Release/net10.0/Microsoft.Extensions.Logging.Abstractions.dll": {
+          "bytes": 65288,
+          "sha256": "bb853130f5afaf335be7858d661f8212ec653835100f5a4e3aa2c66a4d4f685d"
+        },
+        "Release/net10.0/Microsoft.AspNetCore.SignalR.Protocols.Json.dll": {
+          "bytes": 37160,
+          "sha256": "337bd529119666700dcbfceb2395ef28d25f3735e52cb2e513e600a2fcf1ffb7"
+        },
+        "Release/net10.0/Fixed564SafeBandleScore.pdb": {
+          "bytes": 22948,
+          "sha256": "19dc155540421efa407cef7e2ad22d0d70e1a7c41d18e727e82b5afb4ea7147b"
+        },
+        "Release/net10.0/Microsoft.AspNetCore.SignalR.Client.dll": {
+          "bytes": 20264,
+          "sha256": "85b7b98f638a0e1d021b8d99ea4f1411dc9cb0bbc9aa3b90476abde58004e8ee"
+        },
+        "Release/net10.0/Microsoft.Extensions.Primitives.dll": {
+          "bytes": 43680,
+          "sha256": "446ff16e903e7479558816e213a3adee9a1c1adad65a56d853801b10933e29d7"
+        },
+        "Release/net10.0/Microsoft.Extensions.DependencyInjection.dll": {
+          "bytes": 92952,
+          "sha256": "158761ce778e799949f3a3060c461b1055bb35f1f5a65eff0e42397849f09ecd"
+        },
+        "Release/net10.0/Microsoft.AspNetCore.SignalR.Common.dll": {
+          "bytes": 42280,
+          "sha256": "550058f27f5577e20184a0e0d198c90c87079b45dffab170423f6fe030c0687d"
+        },
+        "Release/net10.0/Riftbound.Contracts.dll": {
+          "bytes": 338432,
+          "sha256": "bd09869f44f6fcb44006bda2cddbd64fc702d59a07f1fc0475a25fe6fdc3e6c3"
+        },
+        "Release/net10.0/Microsoft.Extensions.Options.dll": {
+          "bytes": 64776,
+          "sha256": "5e01894cbc0661bacb8ca8f485a40d5ee4e02f28fef58007668a0276431b4693"
+        },
+        "Release/net10.0/Fixed564SafeBandleScore": {
+          "bytes": 124712,
+          "sha256": "c3880a780b027bc1cd73b630c93709c5658749536cc1db4f800fb68b444ea07d"
+        },
+        "Release/net10.0/Microsoft.Extensions.Features.dll": {
+          "bytes": 25896,
+          "sha256": "75dd3372396a3b06bfb7b3b0d92ffd7e87e53efe61429eccc8970d8983c9ebc0"
+        },
+        "Release/net10.0/Microsoft.Extensions.DependencyInjection.Abstractions.dll": {
+          "bytes": 63768,
+          "sha256": "67fa4325000db017dc0c35829b416f024f042d24efb868bcf17a895ee6500a93"
+        },
+        "Release/net10.0/Microsoft.AspNetCore.SignalR.Client.Core.dll": {
+          "bytes": 199504,
+          "sha256": "feaa6dbd94bb63e1dcdfa9013032f6fcf7133bf8457c69b4bef24fc9537ab544"
+        },
+        "Release/net10.0/Fixed564SafeBandleScore.deps.json": {
+          "bytes": 7227,
+          "sha256": "e07faaa06cc3b76eed4e697b3b4b0dae5f18c5a95e0bd1365724962407d93a0c"
+        }
+      },
+      "logicalBytes": 1487817,
+      "reason": "GENERATED_QA_BUILD_STAGING_ONLY; actual executed immutable runtime payloads independently verified and retained; all source/projects/logs/failures retained"
+    },
+    {
+      "path": "var/qa/canonical-room-player-identity-20261021/canonical-score-helper-source-v2/obj",
+      "files": {
+        "probe.csproj.nuget.g.targets": {
+          "bytes": 149,
+          "sha256": "b14461e0cb1be3f77fcf9fe2fdd62889325ca92523d0f606980ed59eb5c4aa1c"
+        },
+        "project.nuget.cache": {
+          "bytes": 269,
+          "sha256": "9248e7e2552f32ed1790d63a83ed549627239cf7569d8a96dd3620fc63ce32a1"
+        },
+        "probe.csproj.nuget.dgspec.json": {
+          "bytes": 21482,
+          "sha256": "99390f56fc967046d04607aaf19ca1a950173bf432540e1c9fc75706a7921610"
+        },
+        "probe.csproj.nuget.g.props": {
+          "bytes": 1130,
+          "sha256": "fc3164a419c5b2121a87fb47d38735c1397640d10e208c775a65a02edd6e231e"
+        },
+        "project.assets.json": {
+          "bytes": 20692,
+          "sha256": "146ba57cb0df47eb49851008c5f0256d805029549f15e7d6b2a432e16f1b333b"
+        },
+        "Release/net10.0/probe.GeneratedMSBuildEditorConfig.editorconfig": {
+          "bytes": 880,
+          "sha256": "459fb31ed3730f9a4f3eaa9a5e708e815af501b784d0cd32e6ea264200d23537"
+        },
+        "Release/net10.0/Fixed564SafeBandleScore.dll": {
+          "bytes": 43520,
+          "sha256": "a031beba2cff8a11b85847df515d92b54e218a7e56f0aa81630d0b31f219b31d"
+        },
+        "Release/net10.0/probe.GlobalUsings.g.cs": {
+          "bytes": 231,
+          "sha256": "8f86a2cbf00ff3eee0bda2bc0eb5e1fc19c8544d5dc650c53d0132325956b592"
+        },
+        "Release/net10.0/Fixed564SafeBandleScore.pdb": {
+          "bytes": 22948,
+          "sha256": "19dc155540421efa407cef7e2ad22d0d70e1a7c41d18e727e82b5afb4ea7147b"
+        },
+        "Release/net10.0/apphost": {
+          "bytes": 124712,
+          "sha256": "c3880a780b027bc1cd73b630c93709c5658749536cc1db4f800fb68b444ea07d"
+        },
+        "Release/net10.0/probe.csproj.CoreCompileInputs.cache": {
+          "bytes": 65,
+          "sha256": "4ee23c7181f91a5cc3b666d78de452007a47c4a769da5a355cc4900d48a8103a"
+        },
+        "Release/net10.0/probe.csproj.Up2Date": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "Release/net10.0/probe.csproj.AssemblyReference.cache": {
+          "bytes": 22047,
+          "sha256": "45f032f204a215529e4ec6f248b66f2f98cb91835cbab1724accd42e6848010e"
+        },
+        "Release/net10.0/.NETCoreApp,Version=v10.0.AssemblyAttributes.cs": {
+          "bytes": 196,
+          "sha256": "f79c1ad9a9fc76110b3655f5bfb5ff4e3168e9addceff05b937c0796f0ec34eb"
+        },
+        "Release/net10.0/probe.assets.cache": {
+          "bytes": 155,
+          "sha256": "e3b7154c11dc2552188c976418fd9563057f901272df8a210da565c53d511a49"
+        },
+        "Release/net10.0/probe.AssemblyInfo.cs": {
+          "bytes": 1023,
+          "sha256": "40d680cba3f4c5c162136c6a03dbeb5c4297ee225ce2c022f8354e11ad6c2795"
+        },
+        "Release/net10.0/probe.csproj.FileListAbsolute.txt": {
+          "bytes": 5768,
+          "sha256": "2c35931594a2409a8b57a8191ffd49f055ae7e61373724663d7cd4cdb67b8ac5"
+        },
+        "Release/net10.0/probe.genruntimeconfig.cache": {
+          "bytes": 65,
+          "sha256": "19fc28c67552b585f342ffb45657b3a8613485e2089c3f0b5f084655893da26a"
+        },
+        "Release/net10.0/probe.sourcelink.json": {
+          "bytes": 157,
+          "sha256": "f92cfbf572e851f9839b865a92e30f961439705bdbbbb83333a574575540b475"
+        },
+        "Release/net10.0/probe.AssemblyInfoInputs.cache": {
+          "bytes": 65,
+          "sha256": "fb9aa74c9d0bbb120c7e5005ad3d8f3ace5c6d459eeffbafaac424d51f9c089e"
+        },
+        "Release/net10.0/ref/Fixed564SafeBandleScore.dll": {
+          "bytes": 12288,
+          "sha256": "e008b4e88c4849b5c8841133072e8e8470d1573d03f0af04ae54091b7b33b2e2"
+        },
+        "Release/net10.0/refint/Fixed564SafeBandleScore.dll": {
+          "bytes": 12288,
+          "sha256": "e008b4e88c4849b5c8841133072e8e8470d1573d03f0af04ae54091b7b33b2e2"
+        }
+      },
+      "logicalBytes": 290130,
+      "reason": "GENERATED_QA_BUILD_STAGING_ONLY; actual executed immutable runtime payloads independently verified and retained; all source/projects/logs/failures retained"
+    },
+    {
+      "path": "var/qa/canonical-room-player-identity-20261021/canonical-room-history-reader-source-v1/bin",
+      "files": {
+        "Release/net10.0/CurrentCanonicalRoomSqlReaderV1.deps.json": {
+          "bytes": 465,
+          "sha256": "fd3e3e93f88f5f8040d6b33fedecafd9a7873c55f9c015bc6b55a5e644d88753"
+        },
+        "Release/net10.0/CurrentCanonicalRoomSqlReaderV1.runtimeconfig.json": {
+          "bytes": 330,
+          "sha256": "9950d4583cfc9a106857c0d5b8a75b53e8774852b57b80bc3823a74d44a4d87f"
+        },
+        "Release/net10.0/CurrentCanonicalRoomSqlReaderV1.pdb": {
+          "bytes": 21168,
+          "sha256": "4c7f04bdfdd05781b1149572870293f7cc6bf7f387c7456dad13c343f1c98706"
+        },
+        "Release/net10.0/CurrentCanonicalRoomSqlReaderV1.dll": {
+          "bytes": 47104,
+          "sha256": "5e68aa36647511d0ab9f4f7d6ac5c3dc3a90106ac8c5c832d4aa1c401978171a"
+        }
+      },
+      "logicalBytes": 69067,
+      "reason": "GENERATED_QA_BUILD_STAGING_ONLY; actual executed immutable runtime payloads independently verified and retained; all source/projects/logs/failures retained"
+    },
+    {
+      "path": "var/qa/canonical-room-player-identity-20261021/canonical-room-history-reader-source-v1/obj",
+      "files": {
+        "probe.csproj.nuget.g.targets": {
+          "bytes": 149,
+          "sha256": "b14461e0cb1be3f77fcf9fe2fdd62889325ca92523d0f606980ed59eb5c4aa1c"
+        },
+        "project.nuget.cache": {
+          "bytes": 276,
+          "sha256": "4f7254e5b07a4e8d62a76f5f2af9f8dd5cfd2bb5cc4f4929ae1c067f1b64f7ab"
+        },
+        "probe.csproj.nuget.dgspec.json": {
+          "bytes": 21525,
+          "sha256": "5b740786aa468c4b142f83b43c5f4967da1a26c865fa1145eb3c47a8b94a765d"
+        },
+        "probe.csproj.nuget.g.props": {
+          "bytes": 1130,
+          "sha256": "fc3164a419c5b2121a87fb47d38735c1397640d10e208c775a65a02edd6e231e"
+        },
+        "project.assets.json": {
+          "bytes": 20721,
+          "sha256": "f3a89f631e1b8f42773b4814d71d17d762dc5f72f574cc71e5024581ef65b940"
+        },
+        "Release/net10.0/probe.GeneratedMSBuildEditorConfig.editorconfig": {
+          "bytes": 887,
+          "sha256": "f73170835f8e45e24c241fbe8f7e0c4f70b505e5c378165a0819799d56783315"
+        },
+        "Release/net10.0/probe.GlobalUsings.g.cs": {
+          "bytes": 231,
+          "sha256": "8f86a2cbf00ff3eee0bda2bc0eb5e1fc19c8544d5dc650c53d0132325956b592"
+        },
+        "Release/net10.0/probe.csproj.CoreCompileInputs.cache": {
+          "bytes": 65,
+          "sha256": "87d969539b0397ed5466f2b205426b32ec8ecc8c9ff996157ba8248c0bc1d69e"
+        },
+        "Release/net10.0/probe.csproj.AssemblyReference.cache": {
+          "bytes": 7927,
+          "sha256": "16e09deb8734a30c032fd8e7efb8c43d7d8fc7464b5843df0ef85716bf33d11d"
+        },
+        "Release/net10.0/.NETCoreApp,Version=v10.0.AssemblyAttributes.cs": {
+          "bytes": 196,
+          "sha256": "f79c1ad9a9fc76110b3655f5bfb5ff4e3168e9addceff05b937c0796f0ec34eb"
+        },
+        "Release/net10.0/CurrentCanonicalRoomSqlReaderV1.pdb": {
+          "bytes": 21168,
+          "sha256": "4c7f04bdfdd05781b1149572870293f7cc6bf7f387c7456dad13c343f1c98706"
+        },
+        "Release/net10.0/probe.assets.cache": {
+          "bytes": 155,
+          "sha256": "91915e7ca16f870d1810b500186fe6213f6452d9368bb137cd6f7904bab85a11"
+        },
+        "Release/net10.0/probe.AssemblyInfo.cs": {
+          "bytes": 1047,
+          "sha256": "9e708c6693f288a71650ceb95e2a9feaee97236c2b68a61c97ca8da855e80e5c"
+        },
+        "Release/net10.0/probe.csproj.FileListAbsolute.txt": {
+          "bytes": 2736,
+          "sha256": "35aa080e4c2f70586f141fb1581bab3747684fa2e97eaa4681b1c59ae270c105"
+        },
+        "Release/net10.0/CurrentCanonicalRoomSqlReaderV1.dll": {
+          "bytes": 47104,
+          "sha256": "5e68aa36647511d0ab9f4f7d6ac5c3dc3a90106ac8c5c832d4aa1c401978171a"
+        },
+        "Release/net10.0/probe.genruntimeconfig.cache": {
+          "bytes": 65,
+          "sha256": "ce993d62cc6f4d839d2b9d73b36646bada35a92b902cb14b35c22ee02e78e384"
+        },
+        "Release/net10.0/probe.sourcelink.json": {
+          "bytes": 157,
+          "sha256": "f92cfbf572e851f9839b865a92e30f961439705bdbbbb83333a574575540b475"
+        },
+        "Release/net10.0/probe.AssemblyInfoInputs.cache": {
+          "bytes": 65,
+          "sha256": "d0c6f7ccbabe421b946accc97b446460400b42adbc914c0b493e37e493d549a8"
+        },
+        "Release/net10.0/ref/CurrentCanonicalRoomSqlReaderV1.dll": {
+          "bytes": 9216,
+          "sha256": "6b6cfb3719e63e77d6fab834e4b939dcea64499147a9db52fe1b1c2f228b60b5"
+        },
+        "Release/net10.0/refint/CurrentCanonicalRoomSqlReaderV1.dll": {
+          "bytes": 9216,
+          "sha256": "6b6cfb3719e63e77d6fab834e4b939dcea64499147a9db52fe1b1c2f228b60b5"
+        }
+      },
+      "logicalBytes": 144036,
+      "reason": "GENERATED_QA_BUILD_STAGING_ONLY; actual executed immutable runtime payloads independently verified and retained; all source/projects/logs/failures retained"
+    },
+    {
+      "path": "var/qa/canonical-room-player-identity-20261021/canonical-room-history-reader-source-v2/bin",
+      "files": {
+        "Release/net10.0/CurrentCanonicalRoomSqlReaderV2.runtimeconfig.json": {
+          "bytes": 330,
+          "sha256": "9950d4583cfc9a106857c0d5b8a75b53e8774852b57b80bc3823a74d44a4d87f"
+        },
+        "Release/net10.0/CurrentCanonicalRoomSqlReaderV2.deps.json": {
+          "bytes": 465,
+          "sha256": "184c3b80e7d3bd62a5bd4baa13767469f74ac0f71e37cd0b736e437023e131d8"
+        },
+        "Release/net10.0/CurrentCanonicalRoomSqlReaderV2.pdb": {
+          "bytes": 21176,
+          "sha256": "2e3136a940c99d3c89e382a5242e6baeca987c4a30d3d7bb8717075477e766fb"
+        },
+        "Release/net10.0/CurrentCanonicalRoomSqlReaderV2.dll": {
+          "bytes": 47104,
+          "sha256": "f0b2c58f2c3df4dd391e7c352eeaf651b115d67590010a492776d54f4eb85fe5"
+        }
+      },
+      "logicalBytes": 69075,
+      "reason": "GENERATED_QA_BUILD_STAGING_ONLY; actual executed immutable runtime payloads independently verified and retained; all source/projects/logs/failures retained"
+    },
+    {
+      "path": "var/qa/canonical-room-player-identity-20261021/canonical-room-history-reader-source-v2/obj",
+      "files": {
+        "probe.csproj.nuget.g.targets": {
+          "bytes": 149,
+          "sha256": "b14461e0cb1be3f77fcf9fe2fdd62889325ca92523d0f606980ed59eb5c4aa1c"
+        },
+        "project.nuget.cache": {
+          "bytes": 276,
+          "sha256": "d154943fa1c6b141883d75eabfb67a9db24060c20287cdf6d946012585c6a9ed"
+        },
+        "probe.csproj.nuget.dgspec.json": {
+          "bytes": 21525,
+          "sha256": "05d4b2cb1570e8025e15aed5b6fef664090123a9f950c3c3d3bd43affbf724ba"
+        },
+        "probe.csproj.nuget.g.props": {
+          "bytes": 1130,
+          "sha256": "fc3164a419c5b2121a87fb47d38735c1397640d10e208c775a65a02edd6e231e"
+        },
+        "project.assets.json": {
+          "bytes": 20721,
+          "sha256": "facb979a59de0f4d2a1550843329e51c888590ddf38451698f99363e5ec63d1b"
+        },
+        "Release/net10.0/probe.GeneratedMSBuildEditorConfig.editorconfig": {
+          "bytes": 887,
+          "sha256": "243663706d61afbcf7871752b40135aa7715db0cdc9f69c29dfa1bf27946c9d2"
+        },
+        "Release/net10.0/probe.GlobalUsings.g.cs": {
+          "bytes": 231,
+          "sha256": "8f86a2cbf00ff3eee0bda2bc0eb5e1fc19c8544d5dc650c53d0132325956b592"
+        },
+        "Release/net10.0/probe.csproj.CoreCompileInputs.cache": {
+          "bytes": 65,
+          "sha256": "87d969539b0397ed5466f2b205426b32ec8ecc8c9ff996157ba8248c0bc1d69e"
+        },
+        "Release/net10.0/CurrentCanonicalRoomSqlReaderV2.pdb": {
+          "bytes": 21176,
+          "sha256": "2e3136a940c99d3c89e382a5242e6baeca987c4a30d3d7bb8717075477e766fb"
+        },
+        "Release/net10.0/probe.csproj.AssemblyReference.cache": {
+          "bytes": 7927,
+          "sha256": "16e09deb8734a30c032fd8e7efb8c43d7d8fc7464b5843df0ef85716bf33d11d"
+        },
+        "Release/net10.0/.NETCoreApp,Version=v10.0.AssemblyAttributes.cs": {
+          "bytes": 196,
+          "sha256": "f79c1ad9a9fc76110b3655f5bfb5ff4e3168e9addceff05b937c0796f0ec34eb"
+        },
+        "Release/net10.0/probe.assets.cache": {
+          "bytes": 155,
+          "sha256": "4db25a962fa1fd5a92145ef1b8862f1930ac6a00c73b6166f694701396938859"
+        },
+        "Release/net10.0/probe.AssemblyInfo.cs": {
+          "bytes": 1047,
+          "sha256": "1f88059eb906b07964e108e4e740f7f0c5900c0a6b68d27af50d66391742025f"
+        },
+        "Release/net10.0/probe.csproj.FileListAbsolute.txt": {
+          "bytes": 2736,
+          "sha256": "97d8b2b7b8febc987a9d1618e5caee16c7c0a797ced59173bb2c49e729cec456"
+        },
+        "Release/net10.0/CurrentCanonicalRoomSqlReaderV2.dll": {
+          "bytes": 47104,
+          "sha256": "f0b2c58f2c3df4dd391e7c352eeaf651b115d67590010a492776d54f4eb85fe5"
+        },
+        "Release/net10.0/probe.genruntimeconfig.cache": {
+          "bytes": 65,
+          "sha256": "a80438f5063067770b326dba0ee5b0de3a28453ac1b103523bb2309a24b4f3c1"
+        },
+        "Release/net10.0/probe.sourcelink.json": {
+          "bytes": 157,
+          "sha256": "f92cfbf572e851f9839b865a92e30f961439705bdbbbb83333a574575540b475"
+        },
+        "Release/net10.0/probe.AssemblyInfoInputs.cache": {
+          "bytes": 65,
+          "sha256": "016d01b375eb224a35e8cfa3ea7c020ba6a42f28be9aa3ea3115daaf7631f2ae"
+        },
+        "Release/net10.0/ref/CurrentCanonicalRoomSqlReaderV2.dll": {
+          "bytes": 9216,
+          "sha256": "2c5736f38bea4b2765ffc6a1b7c6b69d91d2cc792da2a7c054c13ac07b034bb0"
+        },
+        "Release/net10.0/refint/CurrentCanonicalRoomSqlReaderV2.dll": {
+          "bytes": 9216,
+          "sha256": "2c5736f38bea4b2765ffc6a1b7c6b69d91d2cc792da2a7c054c13ac07b034bb0"
+        }
+      },
+      "logicalBytes": 144044,
+      "reason": "GENERATED_QA_BUILD_STAGING_ONLY; actual executed immutable runtime payloads independently verified and retained; all source/projects/logs/failures retained"
+    },
+    {
+      "path": "var/qa/candlelit-current-cn16-recertification-20261021/sql-prototype-source-v1/bin",
+      "files": {
+        "Release/net10.0/CurrentCandlelitSqlPrototypeV1.runtimeconfig.json": {
+          "bytes": 330,
+          "sha256": "9950d4583cfc9a106857c0d5b8a75b53e8774852b57b80bc3823a74d44a4d87f"
+        },
+        "Release/net10.0/CurrentCandlelitSqlPrototypeV1.pdb": {
+          "bytes": 20120,
+          "sha256": "98b2f9dc51eee2fe14fa14c31270f1a1ec97f2c344da639a45145516c524b408"
+        },
+        "Release/net10.0/CurrentCandlelitSqlPrototypeV1.deps.json": {
+          "bytes": 462,
+          "sha256": "a3fdb26d8fdd46b2becd2b87c17d088b85db6012bd45524f21ea29104151b6ce"
+        },
+        "Release/net10.0/CurrentCandlelitSqlPrototypeV1.dll": {
+          "bytes": 47616,
+          "sha256": "867dcfa1abecafcc3d933ad8f7ad44ea124683e372593bc69dd4f0f951816aef"
+        }
+      },
+      "logicalBytes": 68528,
+      "reason": "GENERATED_QA_BUILD_STAGING_ONLY; actual executed immutable runtime payloads independently verified and retained; all source/projects/logs/failures retained"
+    },
+    {
+      "path": "var/qa/candlelit-current-cn16-recertification-20261021/sql-prototype-source-v1/obj",
+      "files": {
+        "probe.csproj.nuget.g.targets": {
+          "bytes": 149,
+          "sha256": "b14461e0cb1be3f77fcf9fe2fdd62889325ca92523d0f606980ed59eb5c4aa1c"
+        },
+        "project.nuget.cache": {
+          "bytes": 268,
+          "sha256": "09c59483ad613e5846c1e295851bae45de8e0a8160a637b3fe5cde606aff1071"
+        },
+        "probe.csproj.nuget.dgspec.json": {
+          "bytes": 21484,
+          "sha256": "bf0ab6afbe6c8a0ef361dce59b4e28f9b942683992849f0551c77644d9cb8849"
+        },
+        "probe.csproj.nuget.g.props": {
+          "bytes": 1130,
+          "sha256": "fc3164a419c5b2121a87fb47d38735c1397640d10e208c775a65a02edd6e231e"
+        },
+        "project.assets.json": {
+          "bytes": 20696,
+          "sha256": "beb41259e626f7985b2d165cbab9f22a173f672f5779bef727eb1b1d6ff678d1"
+        },
+        "Release/net10.0/probe.GeneratedMSBuildEditorConfig.editorconfig": {
+          "bytes": 879,
+          "sha256": "6f88b935a1b285029a93628c2d5de08e5cbf5b4b1f6d1e7bca9cdc138d81f832"
+        },
+        "Release/net10.0/probe.GlobalUsings.g.cs": {
+          "bytes": 231,
+          "sha256": "8f86a2cbf00ff3eee0bda2bc0eb5e1fc19c8544d5dc650c53d0132325956b592"
+        },
+        "Release/net10.0/probe.csproj.CoreCompileInputs.cache": {
+          "bytes": 65,
+          "sha256": "0e0efea7d93711e722b4f49bc5543b4252fe8fa6854de8512262c676f9fabf48"
+        },
+        "Release/net10.0/probe.csproj.AssemblyReference.cache": {
+          "bytes": 7912,
+          "sha256": "beebfc33a8bc4ebaf78e016f005902f38454c5e12c534c3205d32d5c1ecaeaf7"
+        },
+        "Release/net10.0/.NETCoreApp,Version=v10.0.AssemblyAttributes.cs": {
+          "bytes": 196,
+          "sha256": "f79c1ad9a9fc76110b3655f5bfb5ff4e3168e9addceff05b937c0796f0ec34eb"
+        },
+        "Release/net10.0/CurrentCandlelitSqlPrototypeV1.pdb": {
+          "bytes": 20120,
+          "sha256": "98b2f9dc51eee2fe14fa14c31270f1a1ec97f2c344da639a45145516c524b408"
+        },
+        "Release/net10.0/probe.assets.cache": {
+          "bytes": 155,
+          "sha256": "dfa0c5f104e6aaec366deca93f06cf4c00e8e5193248d0a6b1e92d731996d723"
+        },
+        "Release/net10.0/probe.AssemblyInfo.cs": {
+          "bytes": 1044,
+          "sha256": "bb8d905ca04f5b918cde4e205ed78da36ce2d2dc8534506080b3e4f67174ca79"
+        },
+        "Release/net10.0/probe.csproj.FileListAbsolute.txt": {
+          "bytes": 2608,
+          "sha256": "ef54d9e3503463a25c5557c67488dfd54bfda554a1b22e0c9a3adf20f1fb241f"
+        },
+        "Release/net10.0/probe.genruntimeconfig.cache": {
+          "bytes": 65,
+          "sha256": "2e7fd774423a1b8fd30aa2fb533cd88acc9dfcda22a42009a7acd3c452307ea4"
+        },
+        "Release/net10.0/CurrentCandlelitSqlPrototypeV1.dll": {
+          "bytes": 47616,
+          "sha256": "867dcfa1abecafcc3d933ad8f7ad44ea124683e372593bc69dd4f0f951816aef"
+        },
+        "Release/net10.0/probe.sourcelink.json": {
+          "bytes": 157,
+          "sha256": "f92cfbf572e851f9839b865a92e30f961439705bdbbbb83333a574575540b475"
+        },
+        "Release/net10.0/probe.AssemblyInfoInputs.cache": {
+          "bytes": 65,
+          "sha256": "b8abf0ecf7ae37e166f0adab4d431c94b8b89ddd62c8e79d21772e2789fb143b"
+        },
+        "Release/net10.0/ref/CurrentCandlelitSqlPrototypeV1.dll": {
+          "bytes": 14848,
+          "sha256": "77ad9144aeecf48759c5d4583c0a6d44aed17e2b6a7e43ecaf2ebdbd1c9f941c"
+        },
+        "Release/net10.0/refint/CurrentCandlelitSqlPrototypeV1.dll": {
+          "bytes": 14848,
+          "sha256": "77ad9144aeecf48759c5d4583c0a6d44aed17e2b6a7e43ecaf2ebdbd1c9f941c"
+        }
+      },
+      "logicalBytes": 154536,
+      "reason": "GENERATED_QA_BUILD_STAGING_ONLY; actual executed immutable runtime payloads independently verified and retained; all source/projects/logs/failures retained"
+    },
+    {
+      "path": "var/qa/candlelit-current-cn16-recertification-20261021/independent-reader-source-v1/bin",
+      "files": {
+        "Release/net10.0/CurrentCandlelitIndependentSqlReaderV1.dll": {
+          "bytes": 43520,
+          "sha256": "2b118b06c1b500aef0217b5d1f241627087f1b49b8474c2b7b7d8ff006b967cd"
+        },
+        "Release/net10.0/CurrentCandlelitIndependentSqlReaderV1.pdb": {
+          "bytes": 19476,
+          "sha256": "aecce39494e4fcca648f17eff58e074f0edf8416c791e26bac0778423d143391"
+        },
+        "Release/net10.0/CurrentCandlelitIndependentSqlReaderV1.runtimeconfig.json": {
+          "bytes": 330,
+          "sha256": "9950d4583cfc9a106857c0d5b8a75b53e8774852b57b80bc3823a74d44a4d87f"
+        },
+        "Release/net10.0/CurrentCandlelitIndependentSqlReaderV1.deps.json": {
+          "bytes": 486,
+          "sha256": "e1b20397908a1ce4634b52ef732f75e67982c4e4cff41814b58769d948ba77ec"
+        }
+      },
+      "logicalBytes": 63812,
+      "reason": "GENERATED_QA_BUILD_STAGING_ONLY; actual executed immutable runtime payloads independently verified and retained; all source/projects/logs/failures retained"
+    },
+    {
+      "path": "var/qa/candlelit-current-cn16-recertification-20261021/independent-reader-source-v1/obj",
+      "files": {
+        "probe.csproj.nuget.g.targets": {
+          "bytes": 149,
+          "sha256": "b14461e0cb1be3f77fcf9fe2fdd62889325ca92523d0f606980ed59eb5c4aa1c"
+        },
+        "project.nuget.cache": {
+          "bytes": 273,
+          "sha256": "0405c0770f747295ef36242c2796e417c3ecce563e31b3bcff1a9a73865d99fa"
+        },
+        "probe.csproj.nuget.dgspec.json": {
+          "bytes": 21517,
+          "sha256": "0eeea86f4d1125ef88016275605b5fb6eb99689e784475faf96649bbbbe297b1"
+        },
+        "probe.csproj.nuget.g.props": {
+          "bytes": 1130,
+          "sha256": "fc3164a419c5b2121a87fb47d38735c1397640d10e208c775a65a02edd6e231e"
+        },
+        "project.assets.json": {
+          "bytes": 20719,
+          "sha256": "ff3efa05365a51f85843fc501e86c1712a45aff1924f0ec1429ad25a623ebebe"
+        },
+        "Release/net10.0/probe.GeneratedMSBuildEditorConfig.editorconfig": {
+          "bytes": 884,
+          "sha256": "8dc1c67ff3793712da86ba515cdcabeb2f171d641549c306c4cff8ecdc7c51d2"
+        },
+        "Release/net10.0/CurrentCandlelitIndependentSqlReaderV1.dll": {
+          "bytes": 43520,
+          "sha256": "2b118b06c1b500aef0217b5d1f241627087f1b49b8474c2b7b7d8ff006b967cd"
+        },
+        "Release/net10.0/probe.GlobalUsings.g.cs": {
+          "bytes": 231,
+          "sha256": "8f86a2cbf00ff3eee0bda2bc0eb5e1fc19c8544d5dc650c53d0132325956b592"
+        },
+        "Release/net10.0/CurrentCandlelitIndependentSqlReaderV1.pdb": {
+          "bytes": 19476,
+          "sha256": "aecce39494e4fcca648f17eff58e074f0edf8416c791e26bac0778423d143391"
+        },
+        "Release/net10.0/probe.csproj.CoreCompileInputs.cache": {
+          "bytes": 65,
+          "sha256": "0e0efea7d93711e722b4f49bc5543b4252fe8fa6854de8512262c676f9fabf48"
+        },
+        "Release/net10.0/probe.csproj.AssemblyReference.cache": {
+          "bytes": 7912,
+          "sha256": "beebfc33a8bc4ebaf78e016f005902f38454c5e12c534c3205d32d5c1ecaeaf7"
+        },
+        "Release/net10.0/.NETCoreApp,Version=v10.0.AssemblyAttributes.cs": {
+          "bytes": 196,
+          "sha256": "f79c1ad9a9fc76110b3655f5bfb5ff4e3168e9addceff05b937c0796f0ec34eb"
+        },
+        "Release/net10.0/probe.assets.cache": {
+          "bytes": 155,
+          "sha256": "a69730cb78101cc74264e0993497e8b434ca80203ef9abeb31f88cb62f1ac743"
+        },
+        "Release/net10.0/probe.AssemblyInfo.cs": {
+          "bytes": 1068,
+          "sha256": "9f6afa9dbc1259d3211e312ec9a147410a635fd5cf7e65eb2877cc66a40e8ed3"
+        },
+        "Release/net10.0/probe.csproj.FileListAbsolute.txt": {
+          "bytes": 2747,
+          "sha256": "421a5b55e79ed63bc407ced574f2c85a2ec94753b42d5471f7512cb82b7a2c96"
+        },
+        "Release/net10.0/probe.genruntimeconfig.cache": {
+          "bytes": 65,
+          "sha256": "fc863509a7473e40f5eb6d9727d87d7c74d3772be2f1de4a551fd7586f926b74"
+        },
+        "Release/net10.0/probe.sourcelink.json": {
+          "bytes": 157,
+          "sha256": "f92cfbf572e851f9839b865a92e30f961439705bdbbbb83333a574575540b475"
+        },
+        "Release/net10.0/probe.AssemblyInfoInputs.cache": {
+          "bytes": 65,
+          "sha256": "9446625859e53823d54a6636d4513556c1ded904b78200cf0148d08741b0b43f"
+        },
+        "Release/net10.0/ref/CurrentCandlelitIndependentSqlReaderV1.dll": {
+          "bytes": 12800,
+          "sha256": "c7c4e024483dbffbfaeed8461214326bf60acfd2a3602a476617d51c8d311cde"
+        },
+        "Release/net10.0/refint/CurrentCandlelitIndependentSqlReaderV1.dll": {
+          "bytes": 12800,
+          "sha256": "c7c4e024483dbffbfaeed8461214326bf60acfd2a3602a476617d51c8d311cde"
+        }
+      },
+      "logicalBytes": 145929,
+      "reason": "GENERATED_QA_BUILD_STAGING_ONLY; actual executed immutable runtime payloads independently verified and retained; all source/projects/logs/failures retained"
+    }
+  ],
+  "logicalBytesRetired": 4526724,
+  "actualPhysicalApfsSavingsNotAssumed": true,
+  "runningCheckAll3318SourcesAnd1419ConformanceInputsExactBeforeAndAfter": true,
+  "sharedGlobalSdkUserEditorLatestAppsAndTwoPlatformArchivesUntouched": true
+}

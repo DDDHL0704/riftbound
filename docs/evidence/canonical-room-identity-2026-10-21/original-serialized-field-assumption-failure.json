@@ -1,0 +1,14 @@
+{
+  "atUtc": "2026-10-20T21:40:57.074868+00:00",
+  "status": "POST_NATIVE_VERIFIER_FIELD_ASSUMPTION_FAILURE_NOT_PRODUCT_OR_SQL_WRITER_FAILURE",
+  "originalAssumption": "Serialized MatchState contains pendingRuleChoice.",
+  "actualContract": "pendingRuleChoice is an ignored typed property; serialized state stores pendingPayment.",
+  "originalRoom": "N27-RETARGET-7BE2F7C504",
+  "originalGatewayPrefix": 60,
+  "actualNativeAcceptedCommands": 3,
+  "afterNativeCommands": 63,
+  "sameOriginalRoomMustContinueWithoutReset": true,
+  "pendingPaymentActuallyNullAndStackEmpty": true,
+  "originalLogsSourceFramesAndFailureRetained": true,
+  "currentSourceCandidateNotFixedCiOrVisibleAcceptance": true
+}

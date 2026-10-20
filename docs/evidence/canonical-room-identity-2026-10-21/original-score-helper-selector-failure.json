@@ -1,0 +1,9 @@
+{
+  "atUtc": "2026-10-20T21:42:35.458720+00:00",
+  "status": "QA_SELECTOR_FAILURE_BEFORE_ANY_SCORE_COMMAND",
+  "cause": "Both real players selected OGN278; the old Contains(card-number).Single selector matched two legal public destinations.",
+  "correction": "Retain exact OGN278 match and select the actual active canonical account's returned legal destination. Preserve all original normal-win/replay assertions.",
+  "sameOriginalRoomAnd63AcceptedHistoryRetained": true,
+  "originalSourceLogAndPrivateWirePreserved": true,
+  "old48RoomsUnchanged": true
+}

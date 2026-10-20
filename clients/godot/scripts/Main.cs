@@ -183,7 +183,8 @@ public partial class Main : Control
         _ = LoadDecksAsync();
         _ = LoadPublicMatchesAsync();
 
-        if ((AutoConnectOnReady || _autoSmoke) && !_autoSmokeQuickMatch && !_autoSmokePublicMatch && !_autoSmokeJoinPublicMatch)
+        if ((AutoConnectOnReady || _autoSmoke || args.Contains("--riftbound-smoke-connect-only"))
+            && !_autoSmokeQuickMatch && !_autoSmokePublicMatch && !_autoSmokeJoinPublicMatch)
         {
             await ConnectAndRequestSnapshotAsync(useReconnectToken: true);
         }

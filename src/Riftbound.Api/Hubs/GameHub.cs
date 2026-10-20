@@ -246,7 +246,7 @@ public sealed class GameHub(
 
     public async Task JoinRoom(string roomId, string playerId, string? reconnectToken = null)
     {
-        var normalizedPlayerId = playerId?.Trim() ?? string.Empty;
+        var normalizedPlayerId = NormalizeRoomPlayerId(playerId);
         if (RoomIdentityError(normalizedPlayerId) is { } identityError)
         {
             await SendClientError(roomId, normalizedPlayerId, identityError.Code, identityError.Message);
@@ -286,7 +286,7 @@ public sealed class GameHub(
 
     public async Task Reconnect(string roomId, string playerId, string reconnectToken)
     {
-        var normalizedPlayerId = playerId?.Trim() ?? string.Empty;
+        var normalizedPlayerId = NormalizeRoomPlayerId(playerId);
         if (RoomIdentityError(normalizedPlayerId) is { } identityError)
         {
             await SendClientError(roomId, normalizedPlayerId, identityError.Code, identityError.Message);
@@ -325,7 +325,7 @@ public sealed class GameHub(
 
     public async Task RequestSnapshot(string roomId, string playerId)
     {
-        var normalizedPlayerId = playerId?.Trim() ?? string.Empty;
+        var normalizedPlayerId = NormalizeRoomPlayerId(playerId);
         if (RoomIdentityError(normalizedPlayerId) is { } identityError)
         {
             await SendClientError(roomId, normalizedPlayerId, identityError.Code, identityError.Message);
@@ -415,7 +415,7 @@ public sealed class GameHub(
 
     public async Task SeedScenario(string roomId, string playerId, string scenarioId, string clientIntentId)
     {
-        var normalizedPlayerId = playerId?.Trim() ?? string.Empty;
+        var normalizedPlayerId = NormalizeRoomPlayerId(playerId);
         if (RoomIdentityError(normalizedPlayerId) is { } identityError)
         {
             await SendClientError(roomId, normalizedPlayerId, identityError.Code, identityError.Message);
@@ -490,7 +490,7 @@ public sealed class GameHub(
         GameCommand command,
         JsonElement rawCommand)
     {
-        var normalizedPlayerId = playerId?.Trim() ?? string.Empty;
+        var normalizedPlayerId = NormalizeRoomPlayerId(playerId);
         if (RoomIdentityError(normalizedPlayerId) is { } identityError)
         {
             await SendClientError(roomId, normalizedPlayerId, identityError.Code, identityError.Message);
@@ -703,6 +703,10 @@ public sealed class GameHub(
     {
         return GameEventObjectRefProjector.ProjectEvents(events, state);
     }
+
+    private string NormalizeRoomPlayerId(string playerId) => playerIdentity is null
+        ? playerId?.Trim() ?? string.Empty
+        : PlayerIdentityService.NormalizeHandle(playerId);
 
     private ErrorDto? RoomIdentityError(string playerId)
     {

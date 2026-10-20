@@ -1,0 +1,129 @@
+{
+  "atUtc": "2026-10-20T22:28:15.454186+00:00",
+  "status": "PASS_ONLY_FIXED_F470_PARTITIONS1_AND2_ORIGINALS_NOT_ENTIRE_FULL",
+  "fixedCommit": "f4704291ff87c99b1599d93f0fc71700f0433cae",
+  "runId": 39499635645,
+  "records": [
+    {
+      "partitionIndex": 1,
+      "artifactId": 12304481233,
+      "path": "var/qa/canonical-room-player-identity-20261021/fixed-f470-ci-parts12-originals-v1/postgres-partition-1.zip",
+      "bytes": 946725,
+      "sha256": "5126e874dff253dfba4d5a06747e6068d2407c4590aa0ef4b204b4f8ece07b4d",
+      "receiptSha256": "2667b0ebc09b8523ba60256c19be00718c043eed89ccef2e12d5d902e7195f1a",
+      "exactOriginalOrdered12Executions": [
+        "created-token-ready",
+        "granted-predict",
+        "sivir-payment",
+        "attached-recycle-lifecycle",
+        "clairvoyance",
+        "physical-origin-cost",
+        "granted-token-haste",
+        "banish-effect-play",
+        "empty-observed-repeat",
+        "copied-last-breath-insight",
+        "empty-reveal-followup",
+        "conditional-counter-payment"
+      ],
+      "allOriginalFileBytesHashesAndClosedMemberSetVerified": true,
+      "outputFiles": 71,
+      "actualCiRuleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+        "implementationSha256": "2b48799ba22b36b7aa1419d5e5823357b7baf879a5d1edeaf9e9b0f547d94429",
+        "identitySha256": "da12223037c836e60a7eac118e4c988eb2c8cdbc087deb6cc76d9479a9e48698"
+      },
+      "ciReportedRuntimeAssemblies": [
+        {
+          "file": "Riftbound.PostgresAcceptance.dll",
+          "sha256": "518b9a4a98833b4026b50e04d544e5dea5efbe2fc8660bd3c82e97f74adc302a",
+          "mvid": "a5012c83-f287-4329-9dda-c20a99e67bd9"
+        },
+        {
+          "file": "Riftbound.Engine.dll",
+          "sha256": "0b2ed5bc9a69b3efa856acad1a184096ec8b585682ffdaf0475ff1471a545892",
+          "mvid": "a4c4b64a-fa6b-4a6b-b284-dc8bd5272a2c"
+        },
+        {
+          "file": "Riftbound.Contracts.dll",
+          "sha256": "53508c45d46dab4c684287545a1c9dd1e6284eef372018840945f79f029878de",
+          "mvid": "1d40955d-57ff-48cd-9701-40202390f478"
+        },
+        {
+          "file": "Riftbound.CardCatalog.dll",
+          "sha256": "cb1d754311144d517bf55c49130454c3d227f96b4da8cd3eee5bef6860353637",
+          "mvid": "e6aad434-730e-40ed-aa9a-d4097cc9035c"
+        },
+        {
+          "file": "Riftbound.Persistence.dll",
+          "sha256": "4a10e03197d58d9314d693cf7faa692e2a2b4948130140bef5b674a9eba1685a",
+          "mvid": "168c7c46-d805-4667-874f-8f52066dba64"
+        }
+      ]
+    },
+    {
+      "partitionIndex": 2,
+      "artifactId": 12302984513,
+      "path": "var/qa/canonical-room-player-identity-20261021/fixed-f470-ci-parts12-originals-v1/postgres-partition-2.zip",
+      "bytes": 1165557,
+      "sha256": "d940c2ed1a5047669843bbcd4c66f56c3c5df449b0a6bd4889670507ce45868b",
+      "receiptSha256": "f0f3450040c0e1171f621b40f8d45765dccfc24434d7f8a587fd091f4d38ac8d",
+      "exactOriginalOrdered12Executions": [
+        "core-opening",
+        "printed-predict",
+        "conquest-token",
+        "typed-play-history",
+        "insight-repeat",
+        "granted-origin-haste",
+        "optional-costs",
+        "here-location-control",
+        "observed-play-window",
+        "copied-duel-insight",
+        "paka-dual-type-reveal",
+        "reversal-target-choice"
+      ],
+      "allOriginalFileBytesHashesAndClosedMemberSetVerified": true,
+      "outputFiles": 67,
+      "actualCiRuleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+        "implementationSha256": "2b48799ba22b36b7aa1419d5e5823357b7baf879a5d1edeaf9e9b0f547d94429",
+        "identitySha256": "da12223037c836e60a7eac118e4c988eb2c8cdbc087deb6cc76d9479a9e48698"
+      },
+      "ciReportedRuntimeAssemblies": [
+        {
+          "file": "Riftbound.PostgresAcceptance.dll",
+          "sha256": "518b9a4a98833b4026b50e04d544e5dea5efbe2fc8660bd3c82e97f74adc302a",
+          "mvid": "a5012c83-f287-4329-9dda-c20a99e67bd9"
+        },
+        {
+          "file": "Riftbound.Engine.dll",
+          "sha256": "0b2ed5bc9a69b3efa856acad1a184096ec8b585682ffdaf0475ff1471a545892",
+          "mvid": "a4c4b64a-fa6b-4a6b-b284-dc8bd5272a2c"
+        },
+        {
+          "file": "Riftbound.Contracts.dll",
+          "sha256": "53508c45d46dab4c684287545a1c9dd1e6284eef372018840945f79f029878de",
+          "mvid": "1d40955d-57ff-48cd-9701-40202390f478"
+        },
+        {
+          "file": "Riftbound.CardCatalog.dll",
+          "sha256": "cb1d754311144d517bf55c49130454c3d227f96b4da8cd3eee5bef6860353637",
+          "mvid": "e6aad434-730e-40ed-aa9a-d4097cc9035c"
+        },
+        {
+          "file": "Riftbound.Persistence.dll",
+          "sha256": "4a10e03197d58d9314d693cf7faa692e2a2b4948130140bef5b674a9eba1685a",
+          "mvid": "168c7c46-d805-4667-874f-8f52066dba64"
+        }
+      ]
+    }
+  ],
+  "fullRuleAndSql0Sql3StableGatesVisibleWindowsWholeSource": "OPEN"
+}

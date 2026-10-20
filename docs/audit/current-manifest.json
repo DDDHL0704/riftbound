@@ -11322,7 +11322,7 @@
     },
     "targeted-insight-repeat-declarations-and-native-wire-2026-10-15": {
       "evidenceCommit": "9e426a31386aefa980bf2d48f02b237098cb2914",
-      "currentImplementationCommit": "a56137a93d48a38d6e2e62b5b7195aa03412577f",
+      "currentImplementationCommit": "f4704291ff87c99b1599d93f0fc71700f0433cae",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact base plus explicit new uncommitted targeted rule/client/test inputs; old full cannot certify these inputs.",
       "ciState": "PENDING",
@@ -11349,7 +11349,7 @@
         },
         {
           "path": "clients/godot/scripts/Main.cs",
-          "sha256": "3c2b511c7260b2b5b927ca5dc396a7af085e627614a02e827c343d3cfa48a56e"
+          "sha256": "f5901d4e65e8cda068e4066b5a9a7c0be3335746767d0704f01f4be51df1430c"
         },
         {
           "path": "clients/godot/scripts/ClientCommandSerializer.cs",
@@ -11783,7 +11783,12 @@
           },
           "scope": "Only current declared single-friendly-unit preflight and append-only SQL helper verification. Every old scope, source date and evidence remains; current fixed full and product still required."
         }
-      ]
+      ],
+      "currentPlatformInputEvidence": {
+        "path": "docs/evidence/canonical-room-identity-2026-10-21/source-manifest.json",
+        "sha256": "2933ff079c75dd22861e9889f9518155f5f6838140f0901e5a0b8071845733c7",
+        "role": "current-canonical-account-platform-input-change"
+      }
     },
     "combat-event-journal-wire-and-single-defender-choice-2026-10-15": {
       "evidenceCommit": "9e426a31386aefa980bf2d48f02b237098cb2914",
@@ -23630,7 +23635,7 @@
     "observed-source-native-ui-2026-10-18": {
       "evidenceCommit": "8c6d569e7be024b278cda46c09c262f061e53ab8",
       "evidenceCommitScope": "Prior fixed8c Release d4 visible46/282/normal8:0 is separate. Current uncommitted Debug bad341/combined47228 and actual native client modules pinned independently. Fixed48 CI cancelled by3h timeout, never full success.",
-      "currentImplementationCommit": "a56137a93d48a38d6e2e62b5b7195aa03412577f",
+      "currentImplementationCommit": "f4704291ff87c99b1599d93f0fc71700f0433cae",
       "currentImplementationIncludesUncommittedChanges": true,
       "currentInputRevision": "816510de29c4c161efef9bf564db861cb2de5d2ac71519413d56d39ede7268bb",
       "ciState": "PENDING",
@@ -23643,7 +23648,7 @@
         },
         {
           "path": "clients/godot/scripts/Main.cs",
-          "sha256": "3c2b511c7260b2b5b927ca5dc396a7af085e627614a02e827c343d3cfa48a56e",
+          "sha256": "f5901d4e65e8cda068e4066b5a9a7c0be3335746767d0704f01f4be51df1430c",
           "role": "implementation"
         },
         {
@@ -24034,7 +24039,12 @@
           "scope": "Only current declared single-friendly-unit preflight and append-only SQL helper verification. Every old scope, source date and evidence remains; current fixed full and product still required."
         }
       ],
-      "revalidationReason": "New bounded shared single-friendly-unit preflight; prior fixed CI does not cover current input. Original scopes/evidence retained, current full and product remain required."
+      "revalidationReason": "New bounded shared single-friendly-unit preflight; prior fixed CI does not cover current input. Original scopes/evidence retained, current full and product remain required.",
+      "currentPlatformInputEvidence": {
+        "path": "docs/evidence/canonical-room-identity-2026-10-21/source-manifest.json",
+        "sha256": "2933ff079c75dd22861e9889f9518155f5f6838140f0901e5a0b8071845733c7",
+        "role": "current-canonical-account-platform-input-change"
+      }
     },
     "ravenbloom-put-hand-2026-10-18": {
       "evidenceCommit": "21e505c32e29e1595251ccd571d80d176b95c98c",
@@ -30648,7 +30658,7 @@
     },
     "observed-disclosure-wording-and-stale-native-smoke-2026-10-19": {
       "evidenceCommit": "6d9aee51e5259313b319ad555f8f44572563b3df",
-      "currentImplementationCommit": "a56137a93d48a38d6e2e62b5b7195aa03412577f",
+      "currentImplementationCommit": "f4704291ff87c99b1599d93f0fc71700f0433cae",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Actual precommit N12 Debug identity in32 controlled and12 ordinary cases and one check; prior fixed6d9 actual Release acceptance is separate. New native source fix is not yet a native execution certificate.",
       "currentInputRevision": "816510de29c4c161efef9bf564db861cb2de5d2ac71519413d56d39ede7268bb",
@@ -30690,7 +30700,7 @@
         },
         {
           "path": "clients/godot/scripts/Main.cs",
-          "sha256": "3c2b511c7260b2b5b927ca5dc396a7af085e627614a02e827c343d3cfa48a56e",
+          "sha256": "f5901d4e65e8cda068e4066b5a9a7c0be3335746767d0704f01f4be51df1430c",
           "role": "implementation"
         }
       ],
@@ -31427,7 +31437,12 @@
           "scope": "Only current declared single-friendly-unit preflight and append-only SQL helper verification. Every old scope, source date and evidence remains; current fixed full and product still required."
         }
       ],
-      "revalidationReason": "New bounded shared single-friendly-unit preflight; prior fixed CI does not cover current input. Original scopes/evidence retained, current full and product remain required."
+      "revalidationReason": "New bounded shared single-friendly-unit preflight; prior fixed CI does not cover current input. Original scopes/evidence retained, current full and product remain required.",
+      "currentPlatformInputEvidence": {
+        "path": "docs/evidence/canonical-room-identity-2026-10-21/source-manifest.json",
+        "sha256": "2933ff079c75dd22861e9889f9518155f5f6838140f0901e5a0b8071845733c7",
+        "role": "current-canonical-account-platform-input-change"
+      }
     },
     "initial-empty-reveal-followup-specific432-2026-10-19": {
       "evidenceCommit": "07ac3ac93098c476179297ad755b18e9aa3f2e95",
@@ -34878,7 +34893,7 @@
     },
     "native-offline-start-same-server-preconstructed-retry-2026-10-20": {
       "evidenceCommit": "9a57068e986850a5e86bbeb9d0bbb2a92f44b7b4",
-      "currentImplementationCommit": "a56137a93d48a38d6e2e62b5b7195aa03412577f",
+      "currentImplementationCommit": "f4704291ff87c99b1599d93f0fc71700f0433cae",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Fixed9a actual negative and preceding native score; base9a plus one Main source change for this check. No new compiled Main acceptance claimed.",
       "currentInputRevision": "816510de29c4c161efef9bf564db861cb2de5d2ac71519413d56d39ede7268bb",
@@ -34895,7 +34910,7 @@
       "implementation": [
         {
           "path": "clients/godot/scripts/Main.cs",
-          "sha256": "3c2b511c7260b2b5b927ca5dc396a7af085e627614a02e827c343d3cfa48a56e",
+          "sha256": "f5901d4e65e8cda068e4066b5a9a7c0be3335746767d0704f01f4be51df1430c",
           "role": "implementation"
         }
       ],
@@ -35036,7 +35051,12 @@
           "scope": "Only current declared single-friendly-unit preflight and append-only SQL helper verification. Every old scope, source date and evidence remains; current fixed full and product still required."
         }
       ],
-      "revalidationReason": "New bounded shared single-friendly-unit preflight; prior fixed CI does not cover current input. Original scopes/evidence retained, current full and product remain required."
+      "revalidationReason": "New bounded shared single-friendly-unit preflight; prior fixed CI does not cover current input. Original scopes/evidence retained, current full and product remain required.",
+      "currentPlatformInputEvidence": {
+        "path": "docs/evidence/canonical-room-identity-2026-10-21/source-manifest.json",
+        "sha256": "2933ff079c75dd22861e9889f9518155f5f6838140f0901e5a0b8071845733c7",
+        "role": "current-canonical-account-platform-input-change"
+      }
     },
     "conditional-counter-target-controller-mana-and-printed-echo-2026-10-20": {
       "evidenceCommit": "48e7ff8702dc43a1b5a3991365d87068506ae137",
@@ -37996,7 +38016,7 @@
       "implementation": [
         {
           "path": "src/Riftbound.Api/Hubs/GameHub.cs",
-          "sha256": "e5558540a436d1113aa7134771ea6cad0af543ec28c9276557478b6ba57fac33"
+          "sha256": "62e438808b1a0c3eab77ab2a5f0a2b2bbba6e17366f30f4098b716deebd23c93"
         }
       ],
       "sourceSemanticsChanged": false,
@@ -38007,6 +38027,23 @@
         "newFixedFullStillPending": false,
         "allBroaderSecuritySemanticsCertified": false,
         "fixedFullReceipt": "docs/evidence/room-identity-2026-10-15/full-ci-a8f.json"
+      },
+      "priorImplementationAndAllPreviousEvidence": {
+        "path": "docs/evidence/canonical-room-identity-2026-10-21/previous-room-identity-gate.json",
+        "sha256": "55bca6319aac40bf328a334828a178df7e1db55a2ee9b1e1e97d1258b2f26cb5",
+        "role": "prior-identity-gate"
+      },
+      "currentCanonicalAccountEvidence": {
+        "path": "docs/evidence/canonical-room-identity-2026-10-21/source-manifest.json",
+        "sha256": "2933ff079c75dd22861e9889f9518155f5f6838140f0901e5a0b8071845733c7",
+        "role": "current-canonical-account-platform-input-change"
+      },
+      "currentStatus": {
+        "semanticReview": "PLATFORM_IDENTITY_ONLY",
+        "implementation": "SCOPED_CURRENT_SOURCE",
+        "testExecution": "FOCUS80_ALL_GAMEHUB284_ONLY_CHECK13219_NATIVE3_PLUS_SAME_ROOM80_547_AND_NETWORK15_REJECTS_PASS",
+        "fixedCommitCi": "PENDING_NEW_FULL",
+        "visibleAndPhysicalWindows": "OPEN"
       }
     },
     {
@@ -50182,5 +50219,15 @@
     "path": "docs/evidence/spell-remake-single-friendly-unit-2026-10-21/native-handle-case-original-failure.json",
     "sha256": "c00d912c935f539bac700ce15f4d7baffc1f20f7460310893a07d1aecc31b592",
     "role": "exact-native-product-source-failure-issue77"
+  },
+  "currentCanonicalRoomAccountIdentityInputChange": {
+    "path": "docs/evidence/canonical-room-identity-2026-10-21/source-manifest.json",
+    "sha256": "2933ff079c75dd22861e9889f9518155f5f6838140f0901e5a0b8071845733c7",
+    "role": "current-canonical-account-platform-input-change"
+  },
+  "precedingFixedA56137ActualCompleteFullCiReadback": {
+    "path": "docs/evidence/canonical-room-identity-2026-10-21/previous-a56137-full.json",
+    "sha256": "f1ca124117a32c463544a9c0283893f4643c72421afa28caf75ce2f477ba9cd7",
+    "role": "previous-fixed-a56137-entire-full"
   }
 }

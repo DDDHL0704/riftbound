@@ -1,0 +1,28 @@
+{
+  "atUtc": "2026-10-20T22:44:35.360918+00:00",
+  "status": "PASS_INDEPENDENT_CANONICAL_ACCOUNT_SOURCE_ALL_DECLARED_ORIGINALS_AND_SCOPE_RETENTION",
+  "sourceManifestSha256": "2933ff079c75dd22861e9889f9518155f5f6838140f0901e5a0b8071845733c7",
+  "rootCurrentManifestSha256": "681b9d12ffe582c802addae1420b627b20bff71174a9433fe402de9ccfc2161c",
+  "all191DeclaredOriginalFilesByteExactInLosslessArchiveAndLocalSource": true,
+  "explicitPrivacyExclusionsStillLocalAndHashExact": 11,
+  "all150OriginalReviewObjectsAnd65ContextScopesEvidenceBranchesRetained": true,
+  "onlyFourMainImplementationBindingsRefreshed": [
+    "targeted-insight-repeat-declarations-and-native-wire-2026-10-15",
+    "observed-source-native-ui-2026-10-18",
+    "observed-disclosure-wording-and-stale-native-smoke-2026-10-19",
+    "native-offline-start-same-server-preconstructed-retry-2026-10-20"
+  ],
+  "all245GateIdsRetainedOther244GateObjectsExact": true,
+  "previousIdentityGateWholeObjectRetainedAndCurrentInputExplicitlyUpdated": true,
+  "all16944OriginalObligationIdsAndAllOther16943ObjectsExact": true,
+  "allOriginalSourceDatesScopeCardCoverageSevenDeltasAndCountsExact": true,
+  "all3318SourceHashesAndModesMatchTheOnlyCheck": true,
+  "onlyCheck": {
+    "cases": 13219,
+    "methods": 7501,
+    "addedCases": 5,
+    "addedMethods": 2
+  },
+  "newFixedFullCurrentVisibleWindowsAndWholePrintingAcceptance": "OPEN",
+  "goalComplete": false
+}

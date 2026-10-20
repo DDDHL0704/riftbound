@@ -1,0 +1,1238 @@
+{
+  "atUtc": "2026-10-20T22:40:09.391008+00:00",
+  "status": "ALL_DECLARED_COMPLETED_ORIGINAL_BYTES_VERIFIED_WITH_EXACT_PRIVACY_EXCLUSIONS",
+  "archive": {
+    "path": "docs/evidence/canonical-room-identity-2026-10-21/completed-originals.tar.xz",
+    "sha256": "601356573c61dbe973c08e2756bd7942e1b3b47918670a64db3cf920b396347f",
+    "role": "completed-originals"
+  },
+  "records": [
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/actual-current-network-smoke-v1.log",
+      "member": "originals/actual-current-network-smoke-v1.log",
+      "bytes": 764,
+      "sha256": "2efe955d7c2f3b6cea791dcf7fb318e8f2f588340b091a359e1907890939fb3c"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/actual-current-only-pair-and-two-platform-archive-inventory-v1.json",
+      "member": "originals/actual-current-only-pair-and-two-platform-archive-inventory-v1.json",
+      "bytes": 882,
+      "sha256": "a082338dcfffdc19e510f7bc2a95c1063945e759e67348a9f66ff44b38c18ab2"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/actual-duplicate-godot-tool-download-retirement-v1.json",
+      "member": "originals/actual-duplicate-godot-tool-download-retirement-v1.json",
+      "bytes": 40618,
+      "sha256": "7c3174ddddea217fb091b9af3b024dde87a4f4a023debf429650001891398c7b"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/actual-obsolete-qa-build-staging-cleanup-v1.json",
+      "member": "originals/actual-obsolete-qa-build-staging-cleanup-v1.json",
+      "bytes": 41487,
+      "sha256": "88504320dcfc926d34ddd47cd7dd00b1c169c5051d156048b04306e62519204d"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/actual-python-verification-v1.log",
+      "member": "originals/actual-python-verification-v1.log",
+      "bytes": 8401,
+      "sha256": "910909fa633663a07d901e30640f1e30e5bbe573fa5b610c975cdf719c85f149"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/actual-safe-native-main-v1/actual-tool-native-cold-reconnect-v1.json",
+      "member": "originals/actual-safe-native-main-v1/actual-tool-native-cold-reconnect-v1.json",
+      "bytes": 1006,
+      "sha256": "b9f68ac5b9f85eedc6c30b64265bbf3d5c8e4ecc01a2a4ae1fd30e23717a8cbb"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/actual-safe-native-main-v1/after-native-priority-pass-2-original-frame-v1-metadata.json",
+      "member": "originals/actual-safe-native-main-v1/after-native-priority-pass-2-original-frame-v1-metadata.json",
+      "bytes": 847,
+      "sha256": "898da3762af052177e431f8212d4dedd466a1ac8f20a0711fced7203035fdbf8"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/actual-safe-native-main-v1/after-native-priority-pass-2-original-frame-v1.json.gz",
+      "member": "originals/actual-safe-native-main-v1/after-native-priority-pass-2-original-frame-v1.json.gz",
+      "bytes": 47430,
+      "sha256": "9e97373396939862a5ca33d0021af28c786d57c802419a983eec58a916d9c9b0"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/actual-safe-native-main-v1/after-tool-native-keep-original-frame-v1-metadata.json",
+      "member": "originals/actual-safe-native-main-v1/after-tool-native-keep-original-frame-v1-metadata.json",
+      "bytes": 847,
+      "sha256": "2ccb8d764aa4b6fe8f0b09993da3cc60199be3195e9f0deceffd17719c6cca3a"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/actual-safe-native-main-v1/after-tool-native-keep-original-frame-v1.json.gz",
+      "member": "originals/actual-safe-native-main-v1/after-tool-native-keep-original-frame-v1.json.gz",
+      "bytes": 41360,
+      "sha256": "a67e375b4db9fbbc1189b0d61f7650d4c43780a1b7282e587046429529c03c47"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/actual-safe-native-main-v1/before-tool-native-cold-reconnect-original-frame-v1-metadata.json",
+      "member": "originals/actual-safe-native-main-v1/before-tool-native-cold-reconnect-original-frame-v1-metadata.json",
+      "bytes": 861,
+      "sha256": "57731b30a7d30142d753df871daca0bfb3c70cfb5999f6ac0bb9587ccd5d1d8e"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/actual-safe-native-main-v1/before-tool-native-cold-reconnect-original-frame-v1.json.gz",
+      "member": "originals/actual-safe-native-main-v1/before-tool-native-cold-reconnect-original-frame-v1.json.gz",
+      "bytes": 54506,
+      "sha256": "8954abc7e676ef51fdfc8bf7c38d60b940be80e9ad049d403afd71367f94ff1a"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/actual-safe-native-main-v1/both-tool-main-after-cold-original-frame-v1-metadata.json",
+      "member": "originals/actual-safe-native-main-v1/both-tool-main-after-cold-original-frame-v1-metadata.json",
+      "bytes": 861,
+      "sha256": "57731b30a7d30142d753df871daca0bfb3c70cfb5999f6ac0bb9587ccd5d1d8e"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/actual-safe-native-main-v1/both-tool-main-after-cold-original-frame-v1.json.gz",
+      "member": "originals/actual-safe-native-main-v1/both-tool-main-after-cold-original-frame-v1.json.gz",
+      "bytes": 54506,
+      "sha256": "8954abc7e676ef51fdfc8bf7c38d60b940be80e9ad049d403afd71367f94ff1a"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/actual-safe-native-main-v1/both-tool-main-before-cold-original-frame-v1-metadata.json",
+      "member": "originals/actual-safe-native-main-v1/both-tool-main-before-cold-original-frame-v1-metadata.json",
+      "bytes": 861,
+      "sha256": "57731b30a7d30142d753df871daca0bfb3c70cfb5999f6ac0bb9587ccd5d1d8e"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/actual-safe-native-main-v1/both-tool-main-before-cold-original-frame-v1.json.gz",
+      "member": "originals/actual-safe-native-main-v1/both-tool-main-before-cold-original-frame-v1.json.gz",
+      "bytes": 54506,
+      "sha256": "8954abc7e676ef51fdfc8bf7c38d60b940be80e9ad049d403afd71367f94ff1a"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/actual-safe-native-main-v1/original231-audit48-native-seven-table-baseline-v1.json",
+      "member": "originals/actual-safe-native-main-v1/original231-audit48-native-seven-table-baseline-v1.json",
+      "bytes": 18079,
+      "sha256": "71ca1544a6ff28bd564f26982fc07874918c973a0ac77db49da4a65210541531"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/actual-safe-native-main-v1/owner-final-current-tool-native-original-frame-v1-metadata.json",
+      "member": "originals/actual-safe-native-main-v1/owner-final-current-tool-native-original-frame-v1-metadata.json",
+      "bytes": 847,
+      "sha256": "898da3762af052177e431f8212d4dedd466a1ac8f20a0711fced7203035fdbf8"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/actual-safe-native-main-v1/owner-final-current-tool-native-original-frame-v1.json.gz",
+      "member": "originals/actual-safe-native-main-v1/owner-final-current-tool-native-original-frame-v1.json.gz",
+      "bytes": 47430,
+      "sha256": "9e97373396939862a5ca33d0021af28c786d57c802419a983eec58a916d9c9b0"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/actual-safe-native-prefix-v1/a-original-opponent-snapshot.json",
+      "member": "originals/actual-safe-native-prefix-v1/a-original-opponent-snapshot.json",
+      "bytes": 44277,
+      "sha256": "3170ad11f473d6c7d4108ab410fe9f782bf0331e35c8388635a80d7bd7c43714"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/actual-safe-native-prefix-v1/a-original-opponent-wait-prompt.json",
+      "member": "originals/actual-safe-native-prefix-v1/a-original-opponent-wait-prompt.json",
+      "bytes": 7240,
+      "sha256": "9d0cfa7d1d7a1d64c72f79c19d6a3f753e073c6a8eb8fa60733fceda1550fdf9"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/actual-safe-native-prefix-v1/b-original-target-choice-prompt.json",
+      "member": "originals/actual-safe-native-prefix-v1/b-original-target-choice-prompt.json",
+      "bytes": 33534,
+      "sha256": "859ba2a8bf8744843ded4003456d02d99982e734eba693dc634192686b8e4366"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/actual-safe-native-prefix-v1/b-original-target-choice-snapshot.json",
+      "member": "originals/actual-safe-native-prefix-v1/b-original-target-choice-snapshot.json",
+      "bytes": 44299,
+      "sha256": "926ca582069149d1c56a0284cd6cae187934816d329a66e219376edf5d3ce440"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/actual-safe-native-prefix-v1/original-accepted-native-prefix-intents.json",
+      "member": "originals/actual-safe-native-prefix-v1/original-accepted-native-prefix-intents.json",
+      "bytes": 141259,
+      "sha256": "819cf347f54916ac00eb183f37c3da7f5197d59ece9c6c5a303a37eba50e7a2a"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/actual-safe-native-prefix-v1/pending-original-native-prefix-receipt.json",
+      "member": "originals/actual-safe-native-prefix-v1/pending-original-native-prefix-receipt.json",
+      "bytes": 1115,
+      "sha256": "84caf1f2f0b8ea343c145e9aa5175c9b9e6614d0177c3409cdc40e365d86f9ed"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/actual-safe-normal-score-continuation-v2/all-original-normal-score-continuation-intents.json",
+      "member": "originals/actual-safe-normal-score-continuation-v2/all-original-normal-score-continuation-intents.json",
+      "bytes": 48120,
+      "sha256": "c093dbc949199c5badb9e1222ca3c1fa739ef0d7a81a5f8d10d03ec1d3d6ea2a"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/actual-safe-normal-score-continuation-v2/normal-original-score-continuation-receipt.json",
+      "member": "originals/actual-safe-normal-score-continuation-v2/normal-original-score-continuation-receipt.json",
+      "bytes": 603,
+      "sha256": "031f428b15f7faa2bbf1b548a44d3f08fe4c6563e8ea67c4e405f0d3a077501b"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/api-publish-candidate-v1.log",
+      "member": "originals/api-publish-candidate-v1.log",
+      "bytes": 766,
+      "sha256": "5e38a685d570c13bb90ea27989996f9d36bceec085039a1bdbc4434408afd3d9"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/candidate-freeze-v1-missing-helper-reference-disposition.json",
+      "member": "originals/candidate-freeze-v1-missing-helper-reference-disposition.json",
+      "bytes": 454,
+      "sha256": "c36085868d6a1f4d40f287324cd854e9ad72ab920275db78cb2d65f43407f7e9"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/candidate-prefix-v2-local-function-scope-build-failure-disposition.json",
+      "member": "originals/candidate-prefix-v2-local-function-scope-build-failure-disposition.json",
+      "bytes": 371,
+      "sha256": "f7c2a5a94fba13b168be4b8d992ed60357ff3ac208943afa73e72f30bae01719"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/candidate-three-builds-v1.json",
+      "member": "originals/candidate-three-builds-v1.json",
+      "bytes": 1019,
+      "sha256": "bfeac748e3a11d4f40e7b7567246f7329b06ad2dc255d83e7fab0e2fbb038ff9"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/canonical-native-prefix-source-v1/ActualProductionNativeGateway.cs",
+      "member": "originals/canonical-native-prefix-source-v1/ActualProductionNativeGateway.cs",
+      "bytes": 8279,
+      "sha256": "50fcd5c6fdde075a7c267b27d169409bf8949ca5054f83ae6ce7d604dde66561"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/canonical-native-prefix-source-v1/Fixtures/reversal-target-openings.json",
+      "member": "originals/canonical-native-prefix-source-v1/Fixtures/reversal-target-openings.json",
+      "bytes": 14435,
+      "sha256": "f566e012152924e697af83e718594a9dc2dfbfedc1b9af43e6003dcf56719260"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/canonical-native-prefix-source-v1/Program.cs",
+      "member": "originals/canonical-native-prefix-source-v1/Program.cs",
+      "bytes": 14858,
+      "sha256": "cbcd8e2abb8e0d1c3093d9ec813f8a67786a42d4435eea9ebc51cd196491ca98"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/canonical-native-prefix-source-v1/probe.csproj",
+      "member": "originals/canonical-native-prefix-source-v1/probe.csproj",
+      "bytes": 4557,
+      "sha256": "2bcd1888f002086c4fc06ba6447c8d5cd9ae0cbef8007229e2fe3c94d82f6350"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/canonical-native-prefix-source-v2/ActualProductionNativeGateway.cs",
+      "member": "originals/canonical-native-prefix-source-v2/ActualProductionNativeGateway.cs",
+      "bytes": 8279,
+      "sha256": "50fcd5c6fdde075a7c267b27d169409bf8949ca5054f83ae6ce7d604dde66561"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/canonical-native-prefix-source-v2/Fixtures/reversal-target-openings.json",
+      "member": "originals/canonical-native-prefix-source-v2/Fixtures/reversal-target-openings.json",
+      "bytes": 14435,
+      "sha256": "f566e012152924e697af83e718594a9dc2dfbfedc1b9af43e6003dcf56719260"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/canonical-native-prefix-source-v2/Program.cs",
+      "member": "originals/canonical-native-prefix-source-v2/Program.cs",
+      "bytes": 14858,
+      "sha256": "cbcd8e2abb8e0d1c3093d9ec813f8a67786a42d4435eea9ebc51cd196491ca98"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/canonical-native-prefix-source-v2/probe.csproj",
+      "member": "originals/canonical-native-prefix-source-v2/probe.csproj",
+      "bytes": 4730,
+      "sha256": "d9454f8259eb964c081a254a74405e02bc0acf2464a3a38e5e5283b666794d71"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/canonical-native-prefix-source-v3/ActualProductionNativeGateway.cs",
+      "member": "originals/canonical-native-prefix-source-v3/ActualProductionNativeGateway.cs",
+      "bytes": 8279,
+      "sha256": "50fcd5c6fdde075a7c267b27d169409bf8949ca5054f83ae6ce7d604dde66561"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/canonical-native-prefix-source-v3/Fixtures/reversal-target-openings.json",
+      "member": "originals/canonical-native-prefix-source-v3/Fixtures/reversal-target-openings.json",
+      "bytes": 14435,
+      "sha256": "f566e012152924e697af83e718594a9dc2dfbfedc1b9af43e6003dcf56719260"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/canonical-native-prefix-source-v3/Program.cs",
+      "member": "originals/canonical-native-prefix-source-v3/Program.cs",
+      "bytes": 14876,
+      "sha256": "71715b93f6c659d6e470c611c4683d8700c14a98445514bbb298a017d7c4af4b"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/canonical-native-prefix-source-v3/probe.csproj",
+      "member": "originals/canonical-native-prefix-source-v3/probe.csproj",
+      "bytes": 4730,
+      "sha256": "d9454f8259eb964c081a254a74405e02bc0acf2464a3a38e5e5283b666794d71"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/canonical-prefix-build-v2.log",
+      "member": "originals/canonical-prefix-build-v2.log",
+      "bytes": 858,
+      "sha256": "201bfacd46ca46b993432679aaf4c80b65455f79fa0aad097b9a904b941fc104"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/canonical-prefix-build-v3.log",
+      "member": "originals/canonical-prefix-build-v3.log",
+      "bytes": 78,
+      "sha256": "d3bdf1856b0006807fe3bfc641fb8f019fe2232fd52efa4744e2cb4b94d1af80"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/canonical-room-history-reader-build-v1.log",
+      "member": "originals/canonical-room-history-reader-build-v1.log",
+      "bytes": 78,
+      "sha256": "49df2449a9185071a821bd8532ae9fbb82daa8ff482e336f13f1e7f4c5d7744a"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/canonical-room-history-reader-build-v2.log",
+      "member": "originals/canonical-room-history-reader-build-v2.log",
+      "bytes": 78,
+      "sha256": "b23fe437b544e9dbb11519d69905162f683fe98c595187897d3fd3b027dd5cb9"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/canonical-room-history-reader-source-v1/Program.cs",
+      "member": "originals/canonical-room-history-reader-source-v1/Program.cs",
+      "bytes": 16107,
+      "sha256": "4bf4e4d1807e87c24dfe9761083ab1b9a85cb4c0a9bb19c2ee23dc6ecb658d85"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/canonical-room-history-reader-source-v1/probe.csproj",
+      "member": "originals/canonical-room-history-reader-source-v1/probe.csproj",
+      "bytes": 994,
+      "sha256": "d3fc6aa3c4b3152f67bf8df2a0e60a7fdb63a27ec2410ad54a96761d461f977b"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/canonical-room-history-reader-source-v2/Program.cs",
+      "member": "originals/canonical-room-history-reader-source-v2/Program.cs",
+      "bytes": 16107,
+      "sha256": "ac9b2a45200cb0cb7840cad2c8ada74d74908fe5c67437c15bcffa4f7ddb088f"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/canonical-room-history-reader-source-v2/probe.csproj",
+      "member": "originals/canonical-room-history-reader-source-v2/probe.csproj",
+      "bytes": 994,
+      "sha256": "369f8f2727b589abf005fac47c12e67602ee9c679c73dabc7a5e3a25ddb551ad"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/canonical-score-helper-build-v2.log",
+      "member": "originals/canonical-score-helper-build-v2.log",
+      "bytes": 78,
+      "sha256": "24eb4826232bcdaedfd4e488cf1409029ffc7da1ee1cf02228a064b74b5a7399"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/canonical-score-helper-runtime-v2.json",
+      "member": "originals/canonical-score-helper-runtime-v2.json",
+      "bytes": 8169,
+      "sha256": "7624d339f43b51046521217ba19b92ba0a2a117845d98a9255f5ed1fd9eed52a"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/canonical-score-helper-source-v2/ActualProductionNativeGateway.cs",
+      "member": "originals/canonical-score-helper-source-v2/ActualProductionNativeGateway.cs",
+      "bytes": 8279,
+      "sha256": "50fcd5c6fdde075a7c267b27d169409bf8949ca5054f83ae6ce7d604dde66561"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/canonical-score-helper-source-v2/Program.cs",
+      "member": "originals/canonical-score-helper-source-v2/Program.cs",
+      "bytes": 10472,
+      "sha256": "8ece5dce0618dc8f96a12bfe0c719466a5c534dfcd3208dae63048d8ffab346f"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/canonical-score-helper-source-v2/probe.csproj",
+      "member": "originals/canonical-score-helper-source-v2/probe.csproj",
+      "bytes": 4599,
+      "sha256": "28c48bd21d4570bd8984ac819d013d43013e12b94c06241e676d09a5cb0945e4"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/check-original-case-method-and-input-retention-v2.json",
+      "member": "originals/check-original-case-method-and-input-retention-v2.json",
+      "bytes": 3059,
+      "sha256": "86be9360273c3710236e25b5e4a4c6352321ef0c4aaff4aa8c82586408c06745"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/ci-39481821852-actual-status-20261020T2136-v1.json",
+      "member": "originals/ci-39481821852-actual-status-20261020T2136-v1.json",
+      "bytes": 19032,
+      "sha256": "261de2041a98dddf228cc443e19f95c85277ee85e93c6b2086bd5a5bf401cf09"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/ci-39499635645-actual-status-20261020T2136-v1.json",
+      "member": "originals/ci-39499635645-actual-status-20261020T2136-v1.json",
+      "bytes": 18438,
+      "sha256": "17277b1e3992ea2cbf16364c2dd101a118749b901b88b9c54de6b68f04025e42"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/continue-same-canonical-room-and-network-v1.log",
+      "member": "originals/continue-same-canonical-room-and-network-v1.log",
+      "bytes": 560,
+      "sha256": "5e3f65bbc3a0656f0c05fa360d7b9f67fe36dd19c7081338e45fb279f6b93157"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/continue-same-canonical-room-and-network-v1.py",
+      "member": "originals/continue-same-canonical-room-and-network-v1.py",
+      "bytes": 9918,
+      "sha256": "78a7bd386ca65f979fb7c8b30cab59d5f217f3c76f7b2cd2497e36fe639d8c68"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/continue-same-canonical-room-and-network-v2.log",
+      "member": "originals/continue-same-canonical-room-and-network-v2.log",
+      "bytes": 330,
+      "sha256": "93d9e52a0c70ba2d2161bce790e6e5d13d96bef7b18fc246a23765c2d0b03368"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/continue-same-canonical-room-and-network-v2.py",
+      "member": "originals/continue-same-canonical-room-and-network-v2.py",
+      "bytes": 10217,
+      "sha256": "b66f7268994aefda530864493b9305a5d439b27c1256ad48b7abcc75c34435dc"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/current-tool-original-field-assumption-failure-disposition-v1.json",
+      "member": "originals/current-tool-original-field-assumption-failure-disposition-v1.json",
+      "bytes": 694,
+      "sha256": "6f3ce3e7d9c2a3cf5e8ff0c8f8824c3b368587166ec3a227091adf3a14fcabc7"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/entry-and-original-source-retention-v1.json",
+      "member": "originals/entry-and-original-source-retention-v1.json",
+      "bytes": 1087,
+      "sha256": "c0f9f76a72b945c982f16ca3feac26d64a222d6bc2356da3b14b3bccfced7c3d"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/fixed-f470-ci-artifacts-before-parts12-v1.json",
+      "member": "originals/fixed-f470-ci-artifacts-before-parts12-v1.json",
+      "bytes": 4158,
+      "sha256": "24e256c2ed9833d428df79302ff890f434c71ba6e2b337794eee8b60e20b9d69"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/fixed-f470-ci-parts12-originals-v1/postgres-partition-1.zip",
+      "member": "originals/fixed-f470-ci-parts12-originals-v1/postgres-partition-1.zip",
+      "bytes": 946725,
+      "sha256": "5126e874dff253dfba4d5a06747e6068d2407c4590aa0ef4b204b4f8ece07b4d"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/fixed-f470-ci-parts12-originals-v1/postgres-partition-2.zip",
+      "member": "originals/fixed-f470-ci-parts12-originals-v1/postgres-partition-2.zip",
+      "bytes": 1165557,
+      "sha256": "d940c2ed1a5047669843bbcd4c66f56c3c5df449b0a6bd4889670507ce45868b"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/fixed-f470-only-parts12-original-independent-readback-v1.json",
+      "member": "originals/fixed-f470-only-parts12-original-independent-readback-v1.json",
+      "bytes": 5341,
+      "sha256": "ac4da306f7291257590de31514d04d5a3ef833b1f5b00dcf826f078b25b06aea"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/freeze-candidate-and-prepare-ordinary-prefix-v1.log",
+      "member": "originals/freeze-candidate-and-prepare-ordinary-prefix-v1.log",
+      "bytes": 276,
+      "sha256": "e2b43c2c50640d50d965ff57e60f028bb87adc579782aa5ad9df0f7b4a13468f"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/freeze-candidate-and-prepare-ordinary-prefix-v1.py",
+      "member": "originals/freeze-candidate-and-prepare-ordinary-prefix-v1.py",
+      "bytes": 7284,
+      "sha256": "a8abdc253d244aa2e16b247450f4a5de5a0ca903721bdd0c110c7f94c70a29d5"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/freeze-candidate-and-prepare-ordinary-prefix-v2.log",
+      "member": "originals/freeze-candidate-and-prepare-ordinary-prefix-v2.log",
+      "bytes": 248,
+      "sha256": "c509a81688d03c22ba25604e428fd079fef158d39a6a29dc0d4e8578501d51ca"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/freeze-candidate-and-prepare-ordinary-prefix-v2.py",
+      "member": "originals/freeze-candidate-and-prepare-ordinary-prefix-v2.py",
+      "bytes": 7423,
+      "sha256": "f3ff15a71acb25533d0a3880206f56911c45a265f002a8c430d046e0b92b28ef"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/freeze-candidate-and-prepare-ordinary-prefix-v3.log",
+      "member": "originals/freeze-candidate-and-prepare-ordinary-prefix-v3.log",
+      "bytes": 98,
+      "sha256": "35b096f04f0e34ecaa6c324a4a0dbb53e9055515d4748eee832abb1c95b1b9b6"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/freeze-candidate-and-prepare-ordinary-prefix-v3.py",
+      "member": "originals/freeze-candidate-and-prepare-ordinary-prefix-v3.py",
+      "bytes": 7671,
+      "sha256": "78823400b0d84af11af123ed6100b8f41dc136018acff5aaae888e63090ad21b"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/frozen-current-canonical-candidate-inputs-v3.json",
+      "member": "originals/frozen-current-canonical-candidate-inputs-v3.json",
+      "bytes": 864430,
+      "sha256": "c6540d7ded09d7f0d517c585eb67ed1d9f968ff5c55ce3ec6efd79d02f15e56e"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/green-all-gamehub-identity-focus-v2/build.log",
+      "member": "originals/green-all-gamehub-identity-focus-v2/build.log",
+      "bytes": 78,
+      "sha256": "043e1f6500773c6df499bc32893c5f1b41d93d8cba52bc88826cddc6d42c7293"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/green-all-gamehub-identity-focus-v2/discovery.log",
+      "member": "originals/green-all-gamehub-identity-focus-v2/discovery.log",
+      "bytes": 1992902,
+      "sha256": "b8ca7da255e90034fa1a5cbcc3069449204da50e9db14eb1f85f34e8c99fdc09"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/green-all-gamehub-identity-focus-v2/focus/results.trx",
+      "member": "originals/green-all-gamehub-identity-focus-v2/focus/results.trx",
+      "bytes": 419306,
+      "sha256": "733d61154cea461ef56f1ebd64864a4e9259f15aaa4acfbcba372c9bd9981468"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/green-all-gamehub-identity-focus-v2/focus/test.log",
+      "member": "originals/green-all-gamehub-identity-focus-v2/focus/test.log",
+      "bytes": 513,
+      "sha256": "8d0d49cbd8eae329f16ba66dc4f329471c7833ef1f8e57a013c6cee97f5fb40c"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/green-all-gamehub-identity-focus-v2/plan.json",
+      "member": "originals/green-all-gamehub-identity-focus-v2/plan.json",
+      "bytes": 31449,
+      "sha256": "bc75269275d2b13d9ac452bef06eda63a12b75a6641a153bdc91edd620ab62ae"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/green-all-gamehub-identity-focus-v2/summary.json",
+      "member": "originals/green-all-gamehub-identity-focus-v2/summary.json",
+      "bytes": 276,
+      "sha256": "8feb5e359b4d6a0ec1cbc864973c8853f0c8fdf6d4ad626686863dfc7adacc2a"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/green-all-gamehub-identity-focus-v2.log",
+      "member": "originals/green-all-gamehub-identity-focus-v2.log",
+      "bytes": 447,
+      "sha256": "e0654a426b67f0583e92a6bffc88aea7e5c86751e12b4686f28dc73fa44bb67d"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/green-canonical-boundary-focus-v1/build.log",
+      "member": "originals/green-canonical-boundary-focus-v1/build.log",
+      "bytes": 78,
+      "sha256": "a15c7f873541533eeeb5fab916e24cbf5934c8c0b56470b528ba269eeeeb5202"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/green-canonical-boundary-focus-v1/discovery.log",
+      "member": "originals/green-canonical-boundary-focus-v1/discovery.log",
+      "bytes": 1992902,
+      "sha256": "b8ca7da255e90034fa1a5cbcc3069449204da50e9db14eb1f85f34e8c99fdc09"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/green-canonical-boundary-focus-v1/focus/results.trx",
+      "member": "originals/green-canonical-boundary-focus-v1/focus/results.trx",
+      "bytes": 120452,
+      "sha256": "455eb3738dd074c26d553f1ca12bebda5386455a256dcfd44736ac2f68853165"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/green-canonical-boundary-focus-v1/focus/test.log",
+      "member": "originals/green-canonical-boundary-focus-v1/focus/test.log",
+      "bytes": 510,
+      "sha256": "101dba99d0e73f3266187cf4095b8241186e6a6fb81cbe675769c35de605a3f6"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/green-canonical-boundary-focus-v1/plan.json",
+      "member": "originals/green-canonical-boundary-focus-v1/plan.json",
+      "bytes": 6194,
+      "sha256": "34d354a70865ee19717dea22b18002ef7ae3005aac2df385c8d98c943e2bc8bd"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/green-canonical-boundary-focus-v1/summary.json",
+      "member": "originals/green-canonical-boundary-focus-v1/summary.json",
+      "bytes": 272,
+      "sha256": "bdc5438941b8eedf22982e22e89ce29b180f3d20b20bda0e4631b6ff4046617f"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/green-canonical-boundary-focus-v1.log",
+      "member": "originals/green-canonical-boundary-focus-v1.log",
+      "bytes": 438,
+      "sha256": "0aa3c72f6bb31934f2a7bff302e664647bba016d8bce2c1b66af2e7eb12b9883"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/independent-canonical-room-history-result-v2.json",
+      "member": "originals/independent-canonical-room-history-result-v2.json",
+      "bytes": 1557,
+      "sha256": "0d0b70b2bdd1d0973b179d8991298424c5329bbd15d2319f3ea04c97747fbe62"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/independent-canonical-room-history-run-v2.json",
+      "member": "originals/independent-canonical-room-history-run-v2.json",
+      "bytes": 10066,
+      "sha256": "328462729ee2deed8d898f17cb4d8798087d1fdca6fa0e587b187054be440626"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/independent-canonical-room-history-v2.log",
+      "member": "originals/independent-canonical-room-history-v2.log",
+      "bytes": 1558,
+      "sha256": "139a85aeffbea05ef0d287b49e9218879264487546860f9b617994a020b995ee"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/independent-current-canonical-sql-account-seat-binding-v1.json",
+      "member": "originals/independent-current-canonical-sql-account-seat-binding-v1.json",
+      "bytes": 659,
+      "sha256": "8d7a5f1a3f2e68c3bd23d82c86e3e6b5db2092dfc0d2d07b3f106488fe3b6593"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/issue77-discussion-before-current-update-v1.json",
+      "member": "originals/issue77-discussion-before-current-update-v1.json",
+      "bytes": 3708,
+      "sha256": "1cb494284c6b8b28a30fbd2b1324c8df504f4fcb079ff4540fbfc24f07a9787b"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/live-current-tool-main-owner-terminal-v1.json",
+      "member": "originals/live-current-tool-main-owner-terminal-v1.json",
+      "bytes": 10343,
+      "sha256": "0863b2a76c2a887f20684f7dd40f7d97936083e638597b55ec4342483d4cef49"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/live-current-tool-owner-state-v1.json",
+      "member": "originals/live-current-tool-owner-state-v1.json",
+      "bytes": 4973,
+      "sha256": "4d8925ce29e65150b479287fafcf7ad9c5082dea38362fe0bddb338a81a931a4"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/live-current-tool-postgres-v1.log",
+      "member": "originals/live-current-tool-postgres-v1.log",
+      "bytes": 1283,
+      "sha256": "7e84e5e75aa3a25db9047f3f30a3d2a5e22a570f6a0113d859f5114a4d3b57b5"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/live-current-tool-prefix-writer-v1.log",
+      "member": "originals/live-current-tool-prefix-writer-v1.log",
+      "bytes": 1116,
+      "sha256": "5eec885c6508ae3b1278d7aede6401cb6cc2432dd4513d7863600614fb2f542a"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/live-tool-native-observe-a-v1.log",
+      "member": "originals/live-tool-native-observe-a-v1.log",
+      "bytes": 4273,
+      "sha256": "49c0bdd91954f1ad6d66cb07163acbac377471dedc2173193e03b6b28a9887ef"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/live-tool-native-observe-b-v1.log",
+      "member": "originals/live-tool-native-observe-b-v1.log",
+      "bytes": 4321,
+      "sha256": "c5efb1b1ee5d3471f3e3831e0e6dc14a21fabca6c6f2025cd16fb2ce4ecb9ce1"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/live-tool-native-ui-keep-b-v1.log",
+      "member": "originals/live-tool-native-ui-keep-b-v1.log",
+      "bytes": 3780,
+      "sha256": "ca38315de9f2912f907a7101194360108e99889c24a84bea4f747020343eccec"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/live-tool-native-ui-pass-a-v1.log",
+      "member": "originals/live-tool-native-ui-pass-a-v1.log",
+      "bytes": 5777,
+      "sha256": "fd3d81b0a25f49c471c284248339d81bc84dfaa3ae0a3d734a909ac6b9361add"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/live-tool-native-ui-pass-b-v1.log",
+      "member": "originals/live-tool-native-ui-pass-b-v1.log",
+      "bytes": 4645,
+      "sha256": "b99f4d24a8362b917215ea2433eb04670dd8e2b2b7952f389e4f14ca88fe8bad"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/native-client-build-v1.log",
+      "member": "originals/native-client-build-v1.log",
+      "bytes": 78,
+      "sha256": "6e13c844106875523b804cb9d158b96f04b89454bbd893e6306029f7e2791772"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/native-network-build-v1.log",
+      "member": "originals/native-network-build-v1.log",
+      "bytes": 78,
+      "sha256": "c828b9ee02b42ed0552d592f9bdcda48daf6da1194dc46c141874941b5e45ba7"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/native-network-original-source-v1.json",
+      "member": "originals/native-network-original-source-v1.json",
+      "bytes": 200,
+      "sha256": "85ded2309f73097f7315a8f894da78003e074b256ab807c9bc9dc94b76e0b78d"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/only-check-owner-started-v1.json",
+      "member": "originals/only-check-owner-started-v1.json",
+      "bytes": 167,
+      "sha256": "d4ca6f10703ba44a1a4a7b6e93b682a1b7aac029af604df82f19290bc3e60485"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/only-check-owner-terminal-v1.json",
+      "member": "originals/only-check-owner-terminal-v1.json",
+      "bytes": 710,
+      "sha256": "d180a2a27c4d41c3d6d3ebcbe7c0c4136aec1c8383541b76131834af162d0f16"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/only-check-reader-v1-discovery-versus-planned-method-assumption-disposition.json",
+      "member": "originals/only-check-reader-v1-discovery-versus-planned-method-assumption-disposition.json",
+      "bytes": 598,
+      "sha256": "4b5185a537de4143c772d1663f5de579e70c5ae2c89ab35c6cdcb56b6bfa98fc"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/only-check-start-inputs-v1.json",
+      "member": "originals/only-check-start-inputs-v1.json",
+      "bytes": 1122888,
+      "sha256": "4f7824aa034cab8493cbe0ea4ba360baf99389f330d5e3eea0b3dd1054764368"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/only-check-v1/build.log",
+      "member": "originals/only-check-v1/build.log",
+      "bytes": 78,
+      "sha256": "15c97e602119fd938791b468ec9caa27d7175baf60c0bf741987d181b59811fe"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/only-check-v1/check/results.trx",
+      "member": "originals/only-check-v1/check/results.trx",
+      "bytes": 20497178,
+      "sha256": "d63ec658da02c603ad11db710bdac9c0bde8479235dcb61bc3f2941c4143c019"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/only-check-v1/check/test.log",
+      "member": "originals/only-check-v1/check/test.log",
+      "bytes": 496,
+      "sha256": "b79dcd499f84a5dae7ad7704a2bc0d90993fab39282f96ebe3e75a0814b303d7"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/only-check-v1/discovery.log",
+      "member": "originals/only-check-v1/discovery.log",
+      "bytes": 1992902,
+      "sha256": "b8ca7da255e90034fa1a5cbcc3069449204da50e9db14eb1f85f34e8c99fdc09"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/only-check-v1/plan.json",
+      "member": "originals/only-check-v1/plan.json",
+      "bytes": 1000483,
+      "sha256": "4141fd7afbd4666c7bdd309a8513eff8fcf8c036eace1fe1283c930325a8c9e7"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/only-check-v1/summary.json",
+      "member": "originals/only-check-v1/summary.json",
+      "bytes": 285,
+      "sha256": "bc43f23d3abda829dbac39397835a7588d0b1122d34c7916df34809fa9e7fa03"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/only-check-v1.log",
+      "member": "originals/only-check-v1.log",
+      "bytes": 439,
+      "sha256": "bfade06076afc76d69744fa6590a6ce2c4e4900526f5e5d564663e29b0d259da"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/original-before-change/clients/godot/scripts/Main.cs",
+      "member": "originals/original-before-change/clients/godot/scripts/Main.cs",
+      "bytes": 196704,
+      "sha256": "3c2b511c7260b2b5b927ca5dc396a7af085e627614a02e827c343d3cfa48a56e"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/original-before-change/src/Riftbound.Api/Hubs/GameHub.cs",
+      "member": "originals/original-before-change/src/Riftbound.Api/Hubs/GameHub.cs",
+      "bytes": 33521,
+      "sha256": "e5558540a436d1113aa7134771ea6cad0af543ec28c9276557478b6ba57fac33"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/original-before-change/tests/Riftbound.ConformanceTests/GameHubIdentityBoundaryTests.cs",
+      "member": "originals/original-before-change/tests/Riftbound.ConformanceTests/GameHubIdentityBoundaryTests.cs",
+      "bytes": 9574,
+      "sha256": "d464e3bb061bfd391a476aa17fb9f5168da5c42ff04ba965bf133e043fa87635"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/original-before-change/tests/Riftbound.NativeNetworkSmoke/Program.cs",
+      "member": "originals/original-before-change/tests/Riftbound.NativeNetworkSmoke/Program.cs",
+      "bytes": 10613,
+      "sha256": "fb5ae02de974fd964c7c844a5f4b84631e219405b09564369ab22ed7375cd5ea"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/original-governance-before-publication-v1/docs/PROJECT_STATUS.md",
+      "member": "originals/original-governance-before-publication-v1/docs/PROJECT_STATUS.md",
+      "bytes": 216910,
+      "sha256": "e4f74b51693a053adeff8b83407ce6003a8121cd3d3f7fb54311748f501db230"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/original-governance-before-publication-v1/docs/audit/current-manifest.json",
+      "member": "originals/original-governance-before-publication-v1/docs/audit/current-manifest.json",
+      "bytes": 2678199,
+      "sha256": "4ec423b95f3d947df99ebf542ce3ac09fa87fcfebc24741b15b987ffa80c3d49"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/original-governance-before-publication-v1/docs/evidence/rules-reaudit-2026-10-11/review-decisions.json",
+      "member": "originals/original-governance-before-publication-v1/docs/evidence/rules-reaudit-2026-10-11/review-decisions.json",
+      "bytes": 1068574,
+      "sha256": "0f83da87a194c5236391eebc39f92607c1315e23294023b7c85eea9a65a06e03"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/original-governance-before-publication-v1.json",
+      "member": "originals/original-governance-before-publication-v1.json",
+      "bytes": 662,
+      "sha256": "b20178264ee8661eaef9ab6e0d86165d7e56a1f5cade53d1eb937a4d11673787"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/planned-canonical-account-audit-v1.md",
+      "member": "originals/planned-canonical-account-audit-v1.md",
+      "bytes": 5052,
+      "sha256": "3979f45c075b61a4fe3560ee1d40b212206c9292fed2ef59616ecf0ec5287fa3"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/preceding-a56137-actual-terminal-all11-jobs-v1.json",
+      "member": "originals/preceding-a56137-actual-terminal-all11-jobs-v1.json",
+      "bytes": 22495,
+      "sha256": "c6b1817207ec969636dc298308a5dd0978636c9d346029b713454ae77402d5ea"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/preceding-a56137-artifacts-original-v1.json",
+      "member": "originals/preceding-a56137-artifacts-original-v1.json",
+      "bytes": 4846,
+      "sha256": "35ab58b75040569dd36a930ef2ec33bda40f989526f6c1008e763bbd9d901452"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/preceding-a56137-artifacts-original-v2.json",
+      "member": "originals/preceding-a56137-artifacts-original-v2.json",
+      "bytes": 5533,
+      "sha256": "56ebdaf3f411f0a8c121901dc14e65e1137b23a1bb9350b78d4ea4df1fdeb2fc"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/preceding-a56137-conformance-results-original-v1.zip",
+      "member": "originals/preceding-a56137-conformance-results-original-v1.zip",
+      "bytes": 3903374,
+      "sha256": "b23a400efb31b7f500eabf2659d7c770c2a64f45e4556c2fba03b037ed5855a5"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/preceding-a56137-entire-full-independent-original-verification-v1.json",
+      "member": "originals/preceding-a56137-entire-full-independent-original-verification-v1.json",
+      "bytes": 82771,
+      "sha256": "f1ca124117a32c463544a9c0283893f4643c72421afa28caf75ce2f477ba9cd7"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/preceding-a56137-final-originals-download-v1.json",
+      "member": "originals/preceding-a56137-final-originals-download-v1.json",
+      "bytes": 13865,
+      "sha256": "0da8612c05abbd66d6788880e2cdefd4308f63cfc2839c6557524515c858ec02"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/preceding-a56137-final-originals-v1/full-verification-gate.zip",
+      "member": "originals/preceding-a56137-final-originals-v1/full-verification-gate.zip",
+      "bytes": 299,
+      "sha256": "6db470828b738177a1a52cb51b0e67ac942a902047ac77b769df9f8c51e698ef"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/preceding-a56137-final-originals-v1/postgres-partition-0.zip",
+      "member": "originals/preceding-a56137-final-originals-v1/postgres-partition-0.zip",
+      "bytes": 1030830,
+      "sha256": "5cd20117016b4f67d3a2ab15cee3813ebae0491481a43af8df52ea02afb99e3e"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/preceding-a56137-final-originals-v1/postgres-results.zip",
+      "member": "originals/preceding-a56137-final-originals-v1/postgres-results.zip",
+      "bytes": 2139,
+      "sha256": "645bc0128e9984ce30e13692d0cd58d2135dac29e30b44dedb56741921917eef"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/preceding-a56137-parts12-independent-readback-v1.json",
+      "member": "originals/preceding-a56137-parts12-independent-readback-v1.json",
+      "bytes": 4932,
+      "sha256": "15f85ba47a8633a354feeb698e92b14ffa18ff533a05773acdddfe55275fff49"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/preceding-a56137-parts12-originals-v1/postgres-partition-1.zip",
+      "member": "originals/preceding-a56137-parts12-originals-v1/postgres-partition-1.zip",
+      "bytes": 946328,
+      "sha256": "59170b8012b2dccf61ce531198a1ee13439c98d88099981a17253c195f788c8c"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/preceding-a56137-parts12-originals-v1/postgres-partition-2.zip",
+      "member": "originals/preceding-a56137-parts12-originals-v1/postgres-partition-2.zip",
+      "bytes": 1166354,
+      "sha256": "a773f6872587080ac64727d69c70148fad99034e56a9714827b014bae8a1a360"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/preceding-a56137-rule-suite-independent-original-readback-v1.json",
+      "member": "originals/preceding-a56137-rule-suite-independent-original-readback-v1.json",
+      "bytes": 15974,
+      "sha256": "6fcb884a3fedbff0976ec2cf639e68c98b263c4217672957ddc0a382a747fc45"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/preceding-a56137-terminal-artifacts-metadata-v3.json",
+      "member": "originals/preceding-a56137-terminal-artifacts-metadata-v3.json",
+      "bytes": 7589,
+      "sha256": "8216890e16fc644a4f73c5c1d9e3a40f078d4ea7dc5f1e3bb5884fd3181f99ae"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/prepare-next-candlelit-source-intake-v1.log",
+      "member": "originals/prepare-next-candlelit-source-intake-v1.log",
+      "bytes": 1026,
+      "sha256": "3684cc2b0b21b58cc0fb2c969c3f6fc4de79d73dec70afe864a37f0e17595d54"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/prepare-next-candlelit-source-intake-v1.py",
+      "member": "originals/prepare-next-candlelit-source-intake-v1.py",
+      "bytes": 5082,
+      "sha256": "ee968007c0c13d0c880558b32af4fb27c472406650461a4ccc549acffb71b6d1"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/prior-n28-ten-original-sql-preflight-readback-v1.json",
+      "member": "originals/prior-n28-ten-original-sql-preflight-readback-v1.json",
+      "bytes": 6505,
+      "sha256": "8ebc58a64bd25115db26603293f9ed8faca64843d3eb4a8d8f9cd1a716b904bf"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/prior-n28-ten-original-sql-preflight-reader-v1.log",
+      "member": "originals/prior-n28-ten-original-sql-preflight-reader-v1.log",
+      "bytes": 6506,
+      "sha256": "00ea8240dfa77c12211f72ca7f8085f09c644328046db53e3356e3bd5a088939"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/publish-canonical-account-batch-v1.py",
+      "member": "originals/publish-canonical-account-batch-v1.py",
+      "bytes": 17278,
+      "sha256": "f053af3fe9e7db915448700ff089891eacbe87adb0a4c7c72852945b8889cfd4"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/read-a56137-conformance-original-v1.log",
+      "member": "originals/read-a56137-conformance-original-v1.log",
+      "bytes": 120,
+      "sha256": "b124726d1eb7ee0b2c8543187c615d6a7bb4cb750aff05bf88f747d02413a178"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/read-a56137-conformance-original-v1.py",
+      "member": "originals/read-a56137-conformance-original-v1.py",
+      "bytes": 5031,
+      "sha256": "57238ab7a5014d7829fa7f440627b8a6472303a9abf24e015770904fe0682b95"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/read-remaining-a56137-parts12-v1.log",
+      "member": "originals/read-remaining-a56137-parts12-v1.log",
+      "bytes": 138,
+      "sha256": "bcba3aa7f86bf2b2922e262bd4e3448b8efab562e00c75947442dd495292f886"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/read-remaining-a56137-parts12-v1.py",
+      "member": "originals/read-remaining-a56137-parts12-v1.py",
+      "bytes": 3871,
+      "sha256": "ebe678a06746ece371d1b3b662dcf30545c3910b6e34ff5c4f8dfc044d33310c"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/red-before-product-change-v2.json",
+      "member": "originals/red-before-product-change-v2.json",
+      "bytes": 4212,
+      "sha256": "544a1af5b22ed53548bb36671c9242e79d97f5df9b116042e2096995490e425f"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/red-canonical-alias-focus-v1/build.log",
+      "member": "originals/red-canonical-alias-focus-v1/build.log",
+      "bytes": 920,
+      "sha256": "393c4f8ab00dd2a21978eb304de25ef0d0246047cdc602d3ee24bbc630e8c14f"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/red-canonical-alias-focus-v1.log",
+      "member": "originals/red-canonical-alias-focus-v1.log",
+      "bytes": 344,
+      "sha256": "ce2be3064183f577baaebae562cc37d0c1d9bd3b793b470382f00e1879d46e31"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/red-canonical-alias-focus-v2/build.log",
+      "member": "originals/red-canonical-alias-focus-v2/build.log",
+      "bytes": 78,
+      "sha256": "b07e55423f3ad892730695355ca01b4a279be031163a8bbc070982308f6abf0e"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/red-canonical-alias-focus-v2/discovery.log",
+      "member": "originals/red-canonical-alias-focus-v2/discovery.log",
+      "bytes": 1992902,
+      "sha256": "b8ca7da255e90034fa1a5cbcc3069449204da50e9db14eb1f85f34e8c99fdc09"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/red-canonical-alias-focus-v2/focus/results.trx",
+      "member": "originals/red-canonical-alias-focus-v2/focus/results.trx",
+      "bytes": 21951,
+      "sha256": "d4892b1d48ed577cf16137f6d7c44060a48be69653906a129c9442aa35d745d9"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/red-canonical-alias-focus-v2/focus/test.log",
+      "member": "originals/red-canonical-alias-focus-v2/focus/test.log",
+      "bytes": 1487,
+      "sha256": "b5da485dc81e07476781f104c6468115e6c4a031b5f13f5c08734c34f79cec01"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/red-canonical-alias-focus-v2/plan.json",
+      "member": "originals/red-canonical-alias-focus-v2/plan.json",
+      "bytes": 911,
+      "sha256": "dc531a01459f3795bde4e7b56c52a942511732469b66be1f4b1f1293ed0b5d0f"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/red-canonical-alias-focus-v2.log",
+      "member": "originals/red-canonical-alias-focus-v2.log",
+      "bytes": 355,
+      "sha256": "8f382f8f73f77a7791092029d6864b5e2af5c5e060e7b9f26b9c5c0d8f659d7a"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/red-canonical-alias-test-source-v2.cs",
+      "member": "originals/red-canonical-alias-test-source-v2.cs",
+      "bytes": 7301,
+      "sha256": "633145226f382b3138dea760bf3c544709b7cb927cbafcf52325bd798b90ef44"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/run-current-source-tool-main-pair-v1.log",
+      "member": "originals/run-current-source-tool-main-pair-v1.log",
+      "bytes": 767,
+      "sha256": "6909bc57b0fa5de28c642da829f437343702261b8db23c32f6ad25391ac66353"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/run-current-source-tool-main-pair-v1.py",
+      "member": "originals/run-current-source-tool-main-pair-v1.py",
+      "bytes": 19414,
+      "sha256": "70f828fb457c619de0d30d293e5ccbe582c4d32454ac95c69f795058f3be270e"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/run-independent-canonical-room-history-v2.log",
+      "member": "originals/run-independent-canonical-room-history-v2.log",
+      "bytes": 119,
+      "sha256": "139be6c6e429a263c8517324687a39543100db7756c18fa860878002ee07df0f"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/run-independent-canonical-room-history-v2.py",
+      "member": "originals/run-independent-canonical-room-history-v2.py",
+      "bytes": 3428,
+      "sha256": "8cb9c73ca0d036f0d9897c9ad816d7b8095e30d56be5e4bda4863ce37639605c"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/same-canonical-continuation-owner-state-v1.json",
+      "member": "originals/same-canonical-continuation-owner-state-v1.json",
+      "bytes": 2127,
+      "sha256": "a2aeb73c7368b5d3fa3d3d57f4c98d1a02273af015c912408136c302d0969648"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/same-canonical-continuation-owner-state-v2.json",
+      "member": "originals/same-canonical-continuation-owner-state-v2.json",
+      "bytes": 2728,
+      "sha256": "cacc3f5cabced789d207e022e599a05ef8551e00dda912bafa0c605954a35c7d"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/same-canonical-continuation-postgres-v1.log",
+      "member": "originals/same-canonical-continuation-postgres-v1.log",
+      "bytes": 1277,
+      "sha256": "89d53b23a2ae8cb2b1b352e9563671205fef05a4c49d84016568915980379e5b"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/same-canonical-continuation-postgres-v2.log",
+      "member": "originals/same-canonical-continuation-postgres-v2.log",
+      "bytes": 1282,
+      "sha256": "f4930152d64c9537852787c906a0b63a050914f9f3db8a88f29847e42c888f19"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/same-canonical-normal-score-writer-v1.log",
+      "member": "originals/same-canonical-normal-score-writer-v1.log",
+      "bytes": 647,
+      "sha256": "35d1cb3b69d855d9f449128c19f1210172a62fe8ea551a5d297006697cc9a543"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/same-canonical-normal-score-writer-v2.log",
+      "member": "originals/same-canonical-normal-score-writer-v2.log",
+      "bytes": 604,
+      "sha256": "70b300ece0c6f2da57f8aa2a75642dfb73dc61bf75824fa8a2cd9a0ae7107432"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/same-canonical-original-room-continuation-v1/before-same-original-canonical-score-continuation-v1-metadata.json",
+      "member": "originals/same-canonical-original-room-continuation-v1/before-same-original-canonical-score-continuation-v1-metadata.json",
+      "bytes": 847,
+      "sha256": "898da3762af052177e431f8212d4dedd466a1ac8f20a0711fced7203035fdbf8"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/same-canonical-original-room-continuation-v1/before-same-original-canonical-score-continuation-v1.json.gz",
+      "member": "originals/same-canonical-original-room-continuation-v1/before-same-original-canonical-score-continuation-v1.json.gz",
+      "bytes": 47430,
+      "sha256": "9e97373396939862a5ca33d0021af28c786d57c802419a983eec58a916d9c9b0"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/same-canonical-original-room-continuation-v1/same-original63-command-frame-before-any-new-writer-v1.json",
+      "member": "originals/same-canonical-original-room-continuation-v1/same-original63-command-frame-before-any-new-writer-v1.json",
+      "bytes": 287,
+      "sha256": "eda4070ac4365b65486766dfefd2262099e569d869cbf729522973a4edd170e6"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/same-canonical-original-room-continuation-v2/after-same-original-canonical-normal-score-final-frame-v1-metadata.json",
+      "member": "originals/same-canonical-original-room-continuation-v2/after-same-original-canonical-normal-score-final-frame-v1-metadata.json",
+      "bytes": 847,
+      "sha256": "60a154036be1a1a0507e7b90d1de4349a31095cc0354f587d131804d29d9660b"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/same-canonical-original-room-continuation-v2/after-same-original-canonical-normal-score-final-frame-v1.json.gz",
+      "member": "originals/same-canonical-original-room-continuation-v2/after-same-original-canonical-normal-score-final-frame-v1.json.gz",
+      "bytes": 43997,
+      "sha256": "fed0c2fae9c4069633ee3ca7c02fd639ab40c084efdb66361f3cd3327ae558a8"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/same-canonical-original-room-continuation-v2/before-same-original-canonical-score-continuation-v1-metadata.json",
+      "member": "originals/same-canonical-original-room-continuation-v2/before-same-original-canonical-score-continuation-v1-metadata.json",
+      "bytes": 847,
+      "sha256": "898da3762af052177e431f8212d4dedd466a1ac8f20a0711fced7203035fdbf8"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/same-canonical-original-room-continuation-v2/before-same-original-canonical-score-continuation-v1.json.gz",
+      "member": "originals/same-canonical-original-room-continuation-v2/before-same-original-canonical-score-continuation-v1.json.gz",
+      "bytes": 47430,
+      "sha256": "9e97373396939862a5ca33d0021af28c786d57c802419a983eec58a916d9c9b0"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/same-canonical-original-room-continuation-v2/same-original63-command-frame-before-any-new-writer-v1.json",
+      "member": "originals/same-canonical-original-room-continuation-v2/same-original63-command-frame-before-any-new-writer-v1.json",
+      "bytes": 287,
+      "sha256": "97762e457ba37ad1388ab9fac8bbb0cbe13ef17fee598427abfdf964ea5ff29f"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/same-canonical-room-owner-terminal-v1.json",
+      "member": "originals/same-canonical-room-owner-terminal-v1.json",
+      "bytes": 4449,
+      "sha256": "eb5496c82c54f8e72032ad05ff6898db415842759b82c70b3b7e28681740c7d1"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/same-canonical-room-owner-terminal-v2.json",
+      "member": "originals/same-canonical-room-owner-terminal-v2.json",
+      "bytes": 5692,
+      "sha256": "efac995c38f72df79351d5cdb69f419a52b8d783c45a7cdccd2fe7b8b10475a0"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/same-canonical-room-score-ready-v2.json",
+      "member": "originals/same-canonical-room-score-ready-v2.json",
+      "bytes": 2973,
+      "sha256": "c23888eadb61abfc93e11036831eeafd91cdf801df7438e2e183e5bff9c4f448"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/same-canonical-room-stop-v2.json",
+      "member": "originals/same-canonical-room-stop-v2.json",
+      "bytes": 551,
+      "sha256": "4e5cddf2177ed47e5ffba5cde314d7383181051b932ee02398f729d1cb9056cf"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/score-helper-ambiguous-battlefield-disposition-v1.json",
+      "member": "originals/score-helper-ambiguous-battlefield-disposition-v1.json",
+      "bytes": 556,
+      "sha256": "11885c673750210e7ac0104599757c5f002f94430ce678299d763b81aa26815c"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/start-and-own-only-check-v1.log",
+      "member": "originals/start-and-own-only-check-v1.log",
+      "bytes": 58,
+      "sha256": "2876edf6f0e038a0ae06df1a905852a47aeeee2120b36a870bb1fd8b4879b6bf"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/start-and-own-only-check-v1.py",
+      "member": "originals/start-and-own-only-check-v1.py",
+      "bytes": 6213,
+      "sha256": "33d0c546f10346ceac21250c970615260995d010055d23ad3669b50de56f8427"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/verify-a56137-entire-completed-full-v1.log",
+      "member": "originals/verify-a56137-entire-completed-full-v1.log",
+      "bytes": 136,
+      "sha256": "89201510413355e21c7e2d58a46c03b92d568d9ccc1f7c3febf8d6f48dee6de3"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/verify-a56137-entire-completed-full-v1.py",
+      "member": "originals/verify-a56137-entire-completed-full-v1.py",
+      "bytes": 10280,
+      "sha256": "28d8a29c19851eac0573198dd44dc3b7aadc979cc9902ae8e7fa48196da90c20"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/verify-current-only-check-retention-v1.log",
+      "member": "originals/verify-current-only-check-retention-v1.log",
+      "bytes": 311,
+      "sha256": "66722787c7715c105621a78e7182b5d52f04d46bed7df9a7ba349e61ee3b1ed0"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/verify-current-only-check-retention-v1.py",
+      "member": "originals/verify-current-only-check-retention-v1.py",
+      "bytes": 5866,
+      "sha256": "dacda8f1ccd627dc853c298c573fd43a78e96460eeb65779214cf6895412f884"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/verify-current-only-check-retention-v2.log",
+      "member": "originals/verify-current-only-check-retention-v2.log",
+      "bytes": 96,
+      "sha256": "02060f492d899ddf898267ab7c60947c0392831fcc0fc7d0711c69dedfb08ad2"
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/verify-current-only-check-retention-v2.py",
+      "member": "originals/verify-current-only-check-retention-v2.py",
+      "bytes": 6061,
+      "sha256": "679b5c85878ee0e384f9ec92c9dbd092df20414a55778c29ef65ee49788ea5da"
+    }
+  ],
+  "explicitPrivateExclusions": [
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/actual-safe-native-prefix-v1/original-private-native-wire-snapshots-prompts.ndjson.gz",
+      "sha256": "d5080b0adfa67595aa9bc6e1af8234fa514e7be6424d87542a51cd9f7eddead9",
+      "bytes": 685037,
+      "reason": "EXPLICIT_AUTH_SESSION_OR_PRIVATE_OPERATIONAL_WIRE_LOG_RETAINED_LOCALLY",
+      "retainedLocally": true
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/actual-safe-native-prefix-v1/session-native-a.json",
+      "sha256": "499c71eeb2463287414b7ce1016662a97b8ab00fe5fdd8c98861d016edd94b38",
+      "bytes": 285,
+      "reason": "EXPLICIT_AUTH_SESSION_OR_PRIVATE_OPERATIONAL_WIRE_LOG_RETAINED_LOCALLY",
+      "retainedLocally": true
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/actual-safe-native-prefix-v1/session-native-b.json",
+      "sha256": "8a01053098e1b18aab50f302952ca1641db5eaa6ac7cc2cf15b3f152f15b44cb",
+      "bytes": 285,
+      "reason": "EXPLICIT_AUTH_SESSION_OR_PRIVATE_OPERATIONAL_WIRE_LOG_RETAINED_LOCALLY",
+      "retainedLocally": true
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/actual-safe-normal-score-continuation-v1/original-private-score-gateway-wire.ndjson.gz",
+      "sha256": "88159f940e931ff1f687843bd32bd6caccb387cbf7717cc7ed2d7efd000c44bf",
+      "bytes": 31489,
+      "reason": "EXPLICIT_AUTH_SESSION_OR_PRIVATE_OPERATIONAL_WIRE_LOG_RETAINED_LOCALLY",
+      "retainedLocally": true
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/actual-safe-normal-score-continuation-v2/original-private-score-gateway-wire.ndjson.gz",
+      "sha256": "5991314942c6a991a94d730a4cda41b4b4b214d56b2aa614d36569c4ded9bc1a",
+      "bytes": 266338,
+      "reason": "EXPLICIT_AUTH_SESSION_OR_PRIVATE_OPERATIONAL_WIRE_LOG_RETAINED_LOCALLY",
+      "retainedLocally": true
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/live-current-tool-api-1-v1.log",
+      "sha256": "7edc771c8fc47b04e5a5d375ee9e9f165710867c61df968bb1eca5fb2b439e60",
+      "bytes": 36310,
+      "reason": "EXPLICIT_AUTH_SESSION_OR_PRIVATE_OPERATIONAL_WIRE_LOG_RETAINED_LOCALLY",
+      "retainedLocally": true
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/live-current-tool-api-2-v1.log",
+      "sha256": "238fb0819c0c4580f5c4ebafeb7256ed9a68602a0165c132cd61e65258b89dc4",
+      "bytes": 48783,
+      "reason": "EXPLICIT_AUTH_SESSION_OR_PRIVATE_OPERATIONAL_WIRE_LOG_RETAINED_LOCALLY",
+      "retainedLocally": true
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/same-canonical-continuation-api-1-v1.log",
+      "sha256": "d835e221e93a0c9f34f4417545e4fccc4c299d1eeaaef1540d8ece09c6744590",
+      "bytes": 10407,
+      "reason": "EXPLICIT_AUTH_SESSION_OR_PRIVATE_OPERATIONAL_WIRE_LOG_RETAINED_LOCALLY",
+      "retainedLocally": true
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/same-canonical-continuation-api-v2-1-v1.log",
+      "sha256": "a193c3da6443e5f8a5eacc7f8237321a8c939e45e98ff6e4787b18ca122159ef",
+      "bytes": 32201,
+      "reason": "EXPLICIT_AUTH_SESSION_OR_PRIVATE_OPERATIONAL_WIRE_LOG_RETAINED_LOCALLY",
+      "retainedLocally": true
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/session-a.json",
+      "sha256": "bb1413dfa37b956e939f2038c42160ab16e75a008e84a5b05958da55f6dc5788",
+      "bytes": 285,
+      "reason": "EXPLICIT_AUTH_SESSION_OR_PRIVATE_OPERATIONAL_WIRE_LOG_RETAINED_LOCALLY",
+      "retainedLocally": true
+    },
+    {
+      "originalPath": "var/qa/canonical-room-player-identity-20261021/session-b.json",
+      "sha256": "72436b37c11b8edcea24753623d34b04b8745e266f07c67f167e3bb507f3f747",
+      "bytes": 285,
+      "reason": "EXPLICIT_AUTH_SESSION_OR_PRIVATE_OPERATIONAL_WIRE_LOG_RETAINED_LOCALLY",
+      "retainedLocally": true
+    }
+  ],
+  "allExecutedImmutableRuntimePayloadsRemainLocalAndAreNotDuplicatedIntoArchive": true,
+  "allSourceMethodsTheoryRowsFailuresDatabaseAndNeededTracesRetained": true
+}
