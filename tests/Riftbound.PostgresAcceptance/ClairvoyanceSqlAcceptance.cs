@@ -1,3 +1,4 @@
+using System.IO.Compression;
 using System.Text.Json;
 using Npgsql;
 using Riftbound.Contracts;
@@ -34,6 +35,9 @@ internal static class ClairvoyanceSqlAcceptance
                 await Submit("P1", new PassPriorityCommand());
                 await Submit("P2", new PlayCardCommand("REVERSAL", "OGN·080/298", [parent], OptionalCosts: []));
                 for (var i = 0; i < 2; i++) await Submit(current.PriorityPlayerId!, new PassPriorityCommand());
+                var request = current.PendingRuleChoice!.Request;
+                Check(request.PlayerId == "P2" && request.Kind == "SPELL_CHOICE_REMAKE", "The new controller must explicitly retain the original spell choices.");
+                await Submit("P2", new PayCostCommand(request.Id, "RULE_REPLACEMENT", ["KEEP_ALL"]));
             }
             for (var i = 0; i < 2; i++) await Submit(current.PriorityPlayerId!, new PassPriorityCommand());
             var actor = branch == "control" ? "P2" : "P1";
@@ -58,6 +62,10 @@ internal static class ClairvoyanceSqlAcceptance
             Check(current.Status == (branch == "burnout" ? MatchStatuses.Finished : MatchStatuses.InProgress), "Post-Insight draw burnout/winner mismatch.");
             Check(current.CardPlays.Resolved.Single(e => e.Source.ObjectId == "SPELL").PlayerId == actor
                 && current.CardPlays.Finalized.Single(e => e.Source.ObjectId == "SPELL").PlayerId == "P1", "History must preserve finalizer versus resolver.");
+            var original = await store.LoadAsync(room, default) ?? throw new InvalidOperationException("Original successful SQL frame required before fixture cleanup.");
+            await using (var file = new FileStream(Path.Combine(output, "complete-original-frame.json.gz"), FileMode.CreateNew))
+            await using (var zip = new GZipStream(file, CompressionLevel.SmallestSize))
+                await JsonSerializer.SerializeAsync(zip, original, json);
             await File.WriteAllTextAsync(Path.Combine(output, "receipt.json"), JsonSerializer.Serialize(new {
                 status = "REAL_POSTGRES_CLAIRVOYANCE_PRIVATE_ORDER_DRAW_COLD_REPLAY_TAMPER_PASS", room, branch,
                 submitted, events = sequence, coldRecoveries = checks.Count, structuralTamperRejections = tamper, checks,

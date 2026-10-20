@@ -1,0 +1,42 @@
+{
+  "atUtc": "2026-10-20T14:43:50.973226+00:00",
+  "status": "PASS_BOUNDED_FIXED0366_COMPLETED_PART2_ORIGINAL_NOT_FULL_SUCCESS",
+  "fixedCommit": "0366bc247c1ac06502ed24bc065b8442ba769391",
+  "runId": 39426075071,
+  "artifactId": 12274280050,
+  "artifactBytes": 1166431,
+  "artifactSha256": "a0898c1a34353e2f95e9aea5e74a3d60d51b03ee28ad74dfe1c3cef4f5036e91",
+  "backendDigestSizeAndAllZipCrcVerified": true,
+  "completedCases": [
+    "core-opening",
+    "printed-predict",
+    "conquest-token",
+    "typed-play-history",
+    "insight-repeat",
+    "granted-origin-haste",
+    "optional-costs",
+    "here-location-control",
+    "observed-play-window",
+    "copied-duel-insight",
+    "paka-dual-type-reveal",
+    "reversal-target-choice"
+  ],
+  "completedCaseCount": 12,
+  "actualOutputFilesAllOriginalBytesAndSha256Verified": 67,
+  "all47OriginalManifestIdsAndOrderExact": true,
+  "fiveRuntimeAssembliesAndFourActualRuleInputsExactToOriginalPart3": true,
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+    "implementationSha256": "7a95963c24605ee93b294c5c5f9aaa41951189ab0b6309b23d806f8b8a10a5a5",
+    "identitySha256": "85b620eb62c8025293f9ef9f30e51836679845cafbd67cce542a02c21fda690d"
+  },
+  "knownPart1FailureStillFailure": true,
+  "lastObservedOtherRunStatesIn": "fixed0366-live-during-followup-check-v3.json",
+  "followupWorktreeNotCertifiedByOldFixedArtifact": true,
+  "noInstallerDownloadedOrExtractedOutputCopies": true,
+  "originalFailedDownloadBytesAndReceiptRetained": true
+}

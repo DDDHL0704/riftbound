@@ -1,0 +1,35 @@
+{
+  "status": "PASS_BOUNDED_FIXED0366_COMPLETED_SQL_PART3_AND_NATIVE_NETWORK_ORIGINALS_WITH_KNOWN_PART1_FAILURE_RETAINED",
+  "atUtc": "2026-10-20T14:09:30.321187+00:00",
+  "fixedCommit": "0366bc247c1ac06502ed24bc065b8442ba769391",
+  "runId": 39426075071,
+  "completedPart3CaseCount": 11,
+  "completedPart3Cases": [
+    "battle-history",
+    "sivir-optional",
+    "recycled-card-boon",
+    "porobot",
+    "combat-assignment",
+    "opponent-battlefield-control",
+    "battlefield-play-recovery",
+    "fate-weaver",
+    "ravenbloom-put-hand",
+    "empowered-insight",
+    "hwei-move-discard-types"
+  ],
+  "completedPart3OutputFiles": 79,
+  "part3ActualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+    "implementationSha256": "7a95963c24605ee93b294c5c5f9aaa41951189ab0b6309b23d806f8b8a10a5a5",
+    "identitySha256": "85b620eb62c8025293f9ef9f30e51836679845cafbd67cce542a02c21fda690d"
+  },
+  "networkRejectedActions": 15,
+  "networkPrivateLeaks": 0,
+  "networkValidTokenAndThreeIndependentIdentities": true,
+  "originalPart1ClairvoyanceFailureAndOverallNotSuccessRetained": true,
+  "followupWorktreeSourceNotCertifiedByTheseArtifacts": true
+}

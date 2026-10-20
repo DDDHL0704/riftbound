@@ -1,0 +1,46 @@
+{
+  "status": "PASS_ACTUAL_LOCKED_NATIVE_HEADLESS_CONTROLS",
+  "recordedAtUtc": "2026-10-20T14:01:35.453634+00:00",
+  "exitCode": 0,
+  "lockAtStart": {
+    "atUtc": "2026-10-20T14:01:33.620031+00:00",
+    "roots": [
+      {
+        "rootLocked": true,
+        "sessions": [
+          true
+        ]
+      }
+    ],
+    "missingValuesRemainUnknown": true
+  },
+  "lockAtEnd": {
+    "atUtc": "2026-10-20T14:01:35.220246+00:00",
+    "roots": [
+      {
+        "rootLocked": true,
+        "sessions": [
+          true
+        ]
+      }
+    ],
+    "missingValuesRemainUnknown": true
+  },
+  "actualReceipt": {
+    "status": "PASS_ORIGINAL_SQL_NATIVE_SPELL_CHOICE_CONTROLS_AND_PRESENTATION",
+    "commands": 6,
+    "actualViews": 12,
+    "syntheticStartViews": 12,
+    "errors": [],
+    "actualClientAssemblySha256": "07fc514b5b2ede0df041c0d1345ee38fa6a88db2ef451e4432bda8185ea62e69",
+    "actualClientMvid": "50ca881d-0a50-415c-924d-426cf2229b53",
+    "displayDriver": "headless",
+    "syntheticTurnStartIsNotLiveGameEvidence": true,
+    "visibleOrPhysicalWindowsAcceptance": false
+  },
+  "all3314CheckSourceInputsAnd23NativeRuntimeFilesStable": true,
+  "actualClientAssemblySha256": "07fc514b5b2ede0df041c0d1345ee38fa6a88db2ef451e4432bda8185ea62e69",
+  "actualLogSha256": "d208343ac447f72903e58258c656ba53b4db55684d90eb92d600a4bf253f2f0d",
+  "noScreenUnlockLockPersistentPowerSettingOrOriginalDatabaseChange": true,
+  "visibleDesktopOrWindowsPhysicalAcceptance": false
+}

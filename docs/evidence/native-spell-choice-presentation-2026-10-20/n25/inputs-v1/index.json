@@ -1,0 +1,164 @@
+[
+  {
+    "name": "reversal-ChinaStandard20260724-False-target-choice",
+    "framePath": "/Users/dinghaolin/MyProjects/riftbound/docs/evidence/reversal-target-choice-2026-10-20/n24/actual-sql-partition-v1/reversal-target-choice/reversal-ChinaStandard20260724-False-target-choice-original-frame.json.gz",
+    "frameSha256": "92f1bf5b4746a8a2fb2f6a75d4bfd752a062ea6eb4b9faed6460ef150943559e",
+    "finalOriginalFramePath": "/Users/dinghaolin/MyProjects/riftbound/docs/evidence/reversal-target-choice-2026-10-20/n24/actual-sql-partition-v1/reversal-target-choice/reversal-ChinaStandard20260724-False-final-original-frame.json.gz",
+    "finalOriginalFrameSha256": "4fc097e9b0378f20f85ac37298285d5b74709c0c2655ad0d4e662cb3cefc0d52",
+    "originalPrefixCommands": 52,
+    "expectedOriginalNextRawCommand": {
+      "cmdType": "PAY_COST",
+      "promptId": "postgres-reversal-target-8794341338774e17981055bafcac1c8c:51:P2:PAY_COST,SURRENDER",
+      "paymentId": "REPLACEMENT:50:0",
+      "snapshotTick": 51,
+      "paymentWindow": "RULE_REPLACEMENT",
+      "paymentChoiceIds": [
+        "KEEP_ALL"
+      ]
+    },
+    "actualSqlRuleInputs": {
+      "schemaVersion": 1,
+      "region": "CN",
+      "language": "zh-CN",
+      "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+      "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+      "implementationSha256": "9707c006c57f97800fb785086c2f086b8e89d532d16e7f3e0f0dbf73b892d5ca",
+      "identitySha256": "4659c132143775006b6fe039cbe13cb827bd2c9f6cfee34fc1c913b89564d526"
+    }
+  },
+  {
+    "name": "reversal-ChinaStandard20260724-True-draft",
+    "framePath": "/Users/dinghaolin/MyProjects/riftbound/docs/evidence/reversal-target-choice-2026-10-20/n24/actual-sql-partition-v1/reversal-target-choice/reversal-ChinaStandard20260724-True-draft-original-frame.json.gz",
+    "frameSha256": "39eeb65a60e31bd64172e7bb8433b7e82f7f8e0f7d1f732332e662f49e4aea93",
+    "finalOriginalFramePath": "/Users/dinghaolin/MyProjects/riftbound/docs/evidence/reversal-target-choice-2026-10-20/n24/actual-sql-partition-v1/reversal-target-choice/reversal-ChinaStandard20260724-True-final-original-frame.json.gz",
+    "finalOriginalFrameSha256": "2661fb2ddbb11385876d48e23e06a82a6a581218f05f6a9fa1eb063a30163c64",
+    "originalPrefixCommands": 53,
+    "expectedOriginalNextRawCommand": {
+      "cmdType": "PAY_COST",
+      "promptId": "postgres-reversal-target-ac28a268c58f4a17a58f2449d104174a:52:P2:PAY_COST,SURRENDER",
+      "paymentId": "REPLACEMENT:50:1",
+      "snapshotTick": 52,
+      "paymentWindow": "RULE_REPLACEMENT",
+      "paymentChoiceIds": [
+        "CONFIRM"
+      ]
+    },
+    "actualSqlRuleInputs": {
+      "schemaVersion": 1,
+      "region": "CN",
+      "language": "zh-CN",
+      "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+      "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+      "implementationSha256": "9707c006c57f97800fb785086c2f086b8e89d532d16e7f3e0f0dbf73b892d5ca",
+      "identitySha256": "4659c132143775006b6fe039cbe13cb827bd2c9f6cfee34fc1c913b89564d526"
+    }
+  },
+  {
+    "name": "reversal-ChinaStandard20260724-True-target-choice",
+    "framePath": "/Users/dinghaolin/MyProjects/riftbound/docs/evidence/reversal-target-choice-2026-10-20/n24/actual-sql-partition-v1/reversal-target-choice/reversal-ChinaStandard20260724-True-target-choice-original-frame.json.gz",
+    "frameSha256": "749aaf5f1355f70d5ce0d12eb75f1e83b6e79ecb1c743f51021cfefa4df06762",
+    "finalOriginalFramePath": "/Users/dinghaolin/MyProjects/riftbound/docs/evidence/reversal-target-choice-2026-10-20/n24/actual-sql-partition-v1/reversal-target-choice/reversal-ChinaStandard20260724-True-final-original-frame.json.gz",
+    "finalOriginalFrameSha256": "2661fb2ddbb11385876d48e23e06a82a6a581218f05f6a9fa1eb063a30163c64",
+    "originalPrefixCommands": 52,
+    "expectedOriginalNextRawCommand": {
+      "cmdType": "PAY_COST",
+      "promptId": "postgres-reversal-target-ac28a268c58f4a17a58f2449d104174a:51:P2:PAY_COST,SURRENDER",
+      "paymentId": "REPLACEMENT:50:0",
+      "snapshotTick": 51,
+      "paymentWindow": "RULE_REPLACEMENT",
+      "paymentChoiceIds": [
+        "EDIT:0:becf0463bdb2596d4f1f4739d2936044c67dd5dae8e4e2b6d193ec5b81c1b866"
+      ]
+    },
+    "actualSqlRuleInputs": {
+      "schemaVersion": 1,
+      "region": "CN",
+      "language": "zh-CN",
+      "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+      "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+      "implementationSha256": "9707c006c57f97800fb785086c2f086b8e89d532d16e7f3e0f0dbf73b892d5ca",
+      "identitySha256": "4659c132143775006b6fe039cbe13cb827bd2c9f6cfee34fc1c913b89564d526"
+    }
+  },
+  {
+    "name": "reversal-CoreRules-False-target-choice",
+    "framePath": "/Users/dinghaolin/MyProjects/riftbound/docs/evidence/reversal-target-choice-2026-10-20/n24/actual-sql-partition-v1/reversal-target-choice/reversal-CoreRules-False-target-choice-original-frame.json.gz",
+    "frameSha256": "6807dde4100cb6d9d040821fb246f6f59692a88deb75b8188c97da10715883aa",
+    "finalOriginalFramePath": "/Users/dinghaolin/MyProjects/riftbound/docs/evidence/reversal-target-choice-2026-10-20/n24/actual-sql-partition-v1/reversal-target-choice/reversal-CoreRules-False-final-original-frame.json.gz",
+    "finalOriginalFrameSha256": "2b8f058b31d62757b226c05da9a3dd91944fab7898bab23b90f107d91402b4d2",
+    "originalPrefixCommands": 52,
+    "expectedOriginalNextRawCommand": {
+      "cmdType": "PAY_COST",
+      "promptId": "postgres-reversal-target-e9285a6ec4274c47ab07c51ceddaf991:51:P2:PAY_COST,SURRENDER",
+      "paymentId": "REPLACEMENT:50:0",
+      "snapshotTick": 51,
+      "paymentWindow": "RULE_REPLACEMENT",
+      "paymentChoiceIds": [
+        "KEEP_ALL"
+      ]
+    },
+    "actualSqlRuleInputs": {
+      "schemaVersion": 1,
+      "region": "CN",
+      "language": "zh-CN",
+      "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+      "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+      "implementationSha256": "9707c006c57f97800fb785086c2f086b8e89d532d16e7f3e0f0dbf73b892d5ca",
+      "identitySha256": "4659c132143775006b6fe039cbe13cb827bd2c9f6cfee34fc1c913b89564d526"
+    }
+  },
+  {
+    "name": "reversal-CoreRules-True-draft",
+    "framePath": "/Users/dinghaolin/MyProjects/riftbound/docs/evidence/reversal-target-choice-2026-10-20/n24/actual-sql-partition-v1/reversal-target-choice/reversal-CoreRules-True-draft-original-frame.json.gz",
+    "frameSha256": "e80f3f974044c3a976dd1bbb738202b56b14a8a7a919a975661a82fc41ca2f67",
+    "finalOriginalFramePath": "/Users/dinghaolin/MyProjects/riftbound/docs/evidence/reversal-target-choice-2026-10-20/n24/actual-sql-partition-v1/reversal-target-choice/reversal-CoreRules-True-final-original-frame.json.gz",
+    "finalOriginalFrameSha256": "a1b6d7c468d3a4d0b5999cc8dc23619529b8b7a82efc434cb6137935e6209b34",
+    "originalPrefixCommands": 53,
+    "expectedOriginalNextRawCommand": {
+      "cmdType": "PAY_COST",
+      "promptId": "postgres-reversal-target-fea18fec0b1f4b1aaa9102e6f8b1ba61:52:P2:PAY_COST,SURRENDER",
+      "paymentId": "REPLACEMENT:50:1",
+      "snapshotTick": 52,
+      "paymentWindow": "RULE_REPLACEMENT",
+      "paymentChoiceIds": [
+        "CONFIRM"
+      ]
+    },
+    "actualSqlRuleInputs": {
+      "schemaVersion": 1,
+      "region": "CN",
+      "language": "zh-CN",
+      "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+      "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+      "implementationSha256": "9707c006c57f97800fb785086c2f086b8e89d532d16e7f3e0f0dbf73b892d5ca",
+      "identitySha256": "4659c132143775006b6fe039cbe13cb827bd2c9f6cfee34fc1c913b89564d526"
+    }
+  },
+  {
+    "name": "reversal-CoreRules-True-target-choice",
+    "framePath": "/Users/dinghaolin/MyProjects/riftbound/docs/evidence/reversal-target-choice-2026-10-20/n24/actual-sql-partition-v1/reversal-target-choice/reversal-CoreRules-True-target-choice-original-frame.json.gz",
+    "frameSha256": "f30b9e1b311ec2d046ef543b2481c841ed5d06439bb536725d73f943fa7162f9",
+    "finalOriginalFramePath": "/Users/dinghaolin/MyProjects/riftbound/docs/evidence/reversal-target-choice-2026-10-20/n24/actual-sql-partition-v1/reversal-target-choice/reversal-CoreRules-True-final-original-frame.json.gz",
+    "finalOriginalFrameSha256": "a1b6d7c468d3a4d0b5999cc8dc23619529b8b7a82efc434cb6137935e6209b34",
+    "originalPrefixCommands": 52,
+    "expectedOriginalNextRawCommand": {
+      "cmdType": "PAY_COST",
+      "promptId": "postgres-reversal-target-fea18fec0b1f4b1aaa9102e6f8b1ba61:51:P2:PAY_COST,SURRENDER",
+      "paymentId": "REPLACEMENT:50:0",
+      "snapshotTick": 51,
+      "paymentWindow": "RULE_REPLACEMENT",
+      "paymentChoiceIds": [
+        "EDIT:0:becf0463bdb2596d4f1f4739d2936044c67dd5dae8e4e2b6d193ec5b81c1b866"
+      ]
+    },
+    "actualSqlRuleInputs": {
+      "schemaVersion": 1,
+      "region": "CN",
+      "language": "zh-CN",
+      "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+      "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+      "implementationSha256": "9707c006c57f97800fb785086c2f086b8e89d532d16e7f3e0f0dbf73b892d5ca",
+      "identitySha256": "4659c132143775006b6fe039cbe13cb827bd2c9f6cfee34fc1c913b89564d526"
+    }
+  }
+]

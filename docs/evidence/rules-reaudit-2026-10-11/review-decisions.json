@@ -23860,6 +23860,60 @@
         "ZERO_TARGET_OR_NO_LEGAL_NEW_CHOICE_BRANCH_REQUIRES_EXACT_RULE753_2_REVIEW_NOT_CERTIFIED_BY_CURRENT_OPENING_FLOW",
         "WHOLE_PRINTING_FAMILY_AND_ALL_SOURCE_GAPS"
       ]
+    },
+    {
+      "id": "native-spell-choice-presentation-and-original-sql-driver-2026-10-20",
+      "scope": "Exact existing native public spell-choice owner/phase and atomic original intents, plus old controlled SQL driver completion. No rule-engine change or whole-printing certification.",
+      "subjects": [
+        "OGN-080/298",
+        "VEN-152",
+        "VEN-152/166",
+        "VEN-056",
+        "VEN-056/166"
+      ],
+      "ruleRecords": [
+        "CN-d6fd7140f106f9b5-P111-B016",
+        "CN-d6fd7140f106f9b5-P111-B018",
+        "CN-d6fd7140f106f9b5-P111-B020",
+        "CN-d6fd7140f106f9b5-P111-B021",
+        "CN-d6fd7140f106f9b5-P111-B022",
+        "CN-d6fd7140f106f9b5-P111-B024"
+      ],
+      "pendingRuleRecords": [],
+      "status": "BOUNDED_NATIVE6_PLUS_OLD33_LOCKED_HEADLESS_SQL5_EXPLICIT_INITIAL_CHECK13166_NEW_FIXED_FULL_PRODUCT_WINDOWS_OPEN",
+      "sourceManifest": {
+        "path": "docs/evidence/native-spell-choice-presentation-2026-10-20/source-manifest.json",
+        "sha256": "f2d5571f0a79cae36dcabb23c445259fd1da487bc99965d9e3fc3c24a9f67657",
+        "role": "source-manifest"
+      },
+      "auditDocument": "docs/NATIVE_SPELL_CHOICE_PRESENTATION_AUDIT_2026-10-20.md",
+      "validation": {
+        "nativeOriginalCommands": 6,
+        "actualOriginalProjectionViews": 12,
+        "syntheticTurnStartControls": 12,
+        "oldNativeOriginalCommands": 33,
+        "oldLookRevealOrdinaryRows": 20,
+        "controlledSqlBranches": 5,
+        "controlledSqlCommands": 28,
+        "controlledSqlEvents": 65,
+        "coldRecoveries": 28,
+        "structuralRejects": 15,
+        "checkCases": 13166,
+        "checkMethods": 7490,
+        "allOriginalCasesMethodsTheoriesAndFullGameAssertionsPreserved": true
+      },
+      "exclusions": [
+        "NEW_FIXED_COMPLETE_FULL_WITH_ALL143_METHODS110_PAIRS47_SQL",
+        "CURRENT_FIXED_VISIBLE_NATIVE_PAIRED_SQL_NETWORK_COLD_RESTORE_NORMAL_SCORE_AND_FULL_ORIGINAL_REPLAY",
+        "PHYSICAL_WINDOWS",
+        "INTRINSICALLY_UNTARGETED_NEW_CHOICE_AND_CORE753_2",
+        "ZERO_ORIGINALLY_DECLARED_OPTIONAL_TARGETS_NEW_LEGAL_TARGETS",
+        "NO_LEGAL_COMPLETE_REMAKE_PARTIAL_DRAFT_EDIT_SCOPE",
+        "RELATIVE_ORIGINAL_BASE_AND_NEW_CONTROLLER_SOURCE_RESTRICTIONS",
+        "EXTERNALLY_GRANTED_ECHO_ON_CONTROL_SPELLS",
+        "OTHER_CONSUMERS_PRINTINGS_DATES_REGIONS_AND_ALL_ORIGINAL_SOURCE_GAPS",
+        "SERVER_REMAKE_REASON_INTERNAL_EFFECT_KIND_TEXT_OUTSIDE_CURRENT_TWO_SOURCE_PHASE_FIX"
+      ]
     }
   ]
 }

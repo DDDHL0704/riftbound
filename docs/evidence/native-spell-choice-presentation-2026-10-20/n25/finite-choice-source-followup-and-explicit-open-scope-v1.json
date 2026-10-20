@@ -1,0 +1,66 @@
+{
+  "atUtc": "2026-10-20T14:00:45.895255+00:00",
+  "status": "READONLY_PRECISE_REMAINING_CHOICE_SOURCE_REVIEW_NOT_SEMANTIC_CERTIFICATION",
+  "region": "CN",
+  "language": "zh-CN",
+  "applicableAsOf": "2026-10-20",
+  "core": {
+    "id": "DOC-01",
+    "url": "https://cdn.playloltcg.com/lol/2026/10/2026-10-10/a21ead876c6b44d6abe386b6ae54ea28.pdf",
+    "sha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11",
+    "versionDate": "2026-10-10",
+    "effectiveDate": "2026-10-16",
+    "region": "CN",
+    "language": "zh-CN",
+    "role": "PRIMARY_CORE",
+    "applicability": "SCHEDULED_CN_DATE_REACHED_SOURCE_VERSION_ONLY_NOT_COMPLETE_SEMANTIC_CERTIFICATION"
+  },
+  "unchangedOriginalPdf": "var/qa/cn-effective-20261016/whole-rule-source-readback/CN/DOC-01.pdf",
+  "readClauses": [
+    {
+      "page": 47,
+      "anchor": "355.13",
+      "boundedFinding": "Printed any-number/up-to target instructions allow selecting zero and permit playing without targets. This is distinct from an intrinsically untargeted spell."
+    },
+    {
+      "page": 111,
+      "anchors": [
+        "751",
+        "752.1",
+        "752.2",
+        "753",
+        "753.1",
+        "753.2",
+        "753.3",
+        "754"
+      ],
+      "boundedFinding": "Remakes must obey the granted scope and complete legality; no legal new choices rescinds the instruction; selecting the same actual object again can retrigger targeting."
+    },
+    {
+      "page": 91,
+      "anchor": "451.1",
+      "boundedFinding": "The movement source supplies additional destination legality requirements; the fact that a destination is stored explicitly does not alone certify a particular spell."
+    }
+  ],
+  "finiteRemainingBranches": [
+    "INTRINSICALLY_UNTARGETED_SPELL_NO_NEW_TARGET_DECISION_SCOPE",
+    "PRINTED_OPTIONAL_TARGET_SPELL_ORIGINALLY_CHOSE_ZERO_WITH_NEW_LEGAL_TARGETS",
+    "NO_LEGAL_COMPLETE_REMAKE_WHILE_PARTIAL_DRAFT_EDITS_EXIST",
+    "ORIGINAL_EXPLICIT_BASE_DESTINATION_AND_NEW_CONTROLLER_RESTRICTIONS"
+  ],
+  "implementationReadOnlyFinding": "Destinations are stored as explicit BASE:seat values; movement declaration player is separately retained for structural recovery. No implicit BASE rebinding defect is established by this read. Whole legal choice and actual resolution branches still need exact source/case evidence.",
+  "officialPrimarySearch": {
+    "queries": [
+      "site:riftbound.leagueoflegends.com \"Mystic Reversal\" \"targets\"",
+      "site:riftbound.leagueoflegends.com \"new choices\" \"legal\"",
+      "site:playloltcg.com \"倒转神通\" \"目标\""
+    ],
+    "actualResult": "Empty indexed results; no absence-of-rulings or source-gap closure inferred."
+  },
+  "additionalSourceConfirmedUiTextOpen": "The existing server remake reason still includes an internal effectKind string. Current two-source native phase/summary fix does not certify all server prompt wording.",
+  "noSourceCodeRuntimeCatalogFixtureAcceptedHistoryOrFrozenCheckInputsChanged": true,
+  "existingGateRequirementsRetained": [
+    "REVERSAL_REMAINING_ECHO_BASE_DESTINATION_OTHER_TARGET_CONSUMERS_PRINTINGS_SOURCE_APPLICABILITY",
+    "REVERSAL_TARGET_CHOICES_CURRENT_FIXED_FULL_NATIVE_PAIRED_SQL_RECONNECT_NORMAL_SCORE_REPLAY_AND_WINDOWS"
+  ]
+}

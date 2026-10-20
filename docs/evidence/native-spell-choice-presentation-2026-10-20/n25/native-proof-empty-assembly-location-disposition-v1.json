@@ -1,0 +1,13 @@
+{
+  "atUtc": "2026-10-20T13:08:46.871990+00:00",
+  "status": "ORIGINAL_GODOT_PROOF_RECEIPT_INSTRUMENTATION_FAILURE_NOT_RELABELLED",
+  "exitCode": 1,
+  "originalRun": "native-original-before-fix-run-v1.json",
+  "originalLog": "native-original-before-fix-v1.log",
+  "actualAcceptedIntentComparisonsReached": 6,
+  "originalGeneratedCommandsRetained": "native-original-before-fix-v1",
+  "error": "ArgumentException path empty at typeof(Main).Assembly.Location; Godot loads this managed assembly from a stream.",
+  "correction": "Require exact external managed file argument, verify its PE MVID equals the actual loaded Main module, then hash that exact file. Keep all title, guidance, controller, button and entire accepted-intent assertions.",
+  "productionSourcesUntouched": true,
+  "noPassingOrCompleteProductRedClaim": true
+}

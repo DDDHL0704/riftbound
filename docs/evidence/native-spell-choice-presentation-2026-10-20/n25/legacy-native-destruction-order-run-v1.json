@@ -1,0 +1,38 @@
+{
+  "name": "destruction-order",
+  "exitCode": 0,
+  "sourceSha256": "38dc4d3259cf990e40a8373cc31ea9c20e7ed0ebd1a954917de0161c2c248e62",
+  "actualClientAssemblySha256": "07fc514b5b2ede0df041c0d1345ee38fa6a88db2ef451e4432bda8185ea62e69",
+  "actualArguments": [
+    "/Users/dinghaolin/.local/share/riftbound-tools/godot-4.7.2/Godot_mono.app/Contents/MacOS/Godot",
+    "--headless",
+    "--path",
+    "/Users/dinghaolin/MyProjects/riftbound/clients/godot",
+    "res://scenes/debug/DestructionOrderInteractionProof.tscn",
+    "--",
+    "--evidence=/Users/dinghaolin/MyProjects/riftbound/var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/destruction-order"
+  ],
+  "logSha256": "9d54d104dd95af69e496cefc2fc1772a53acd737824373a4b9869b9c9708f7bd",
+  "lockAtStart": {
+    "atUtc": "2026-10-20T13:43:40.645375+00:00",
+    "roots": [
+      {
+        "rootLocked": false,
+        "sessions": []
+      }
+    ],
+    "missingValuesRemainUnknown": true
+  },
+  "lockAtEnd": {
+    "atUtc": "2026-10-20T13:43:41.039909+00:00",
+    "roots": [
+      {
+        "rootLocked": false,
+        "sessions": []
+      }
+    ],
+    "missingValuesRemainUnknown": true
+  },
+  "originalGeneratedCommandCount": 6,
+  "allOriginalCommandFieldsAndPromptTicksExact": true
+}

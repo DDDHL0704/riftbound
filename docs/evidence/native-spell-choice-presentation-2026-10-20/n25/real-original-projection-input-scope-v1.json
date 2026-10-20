@@ -1,0 +1,17 @@
+{
+  "atUtc": "2026-10-20T13:01:54.373251+00:00",
+  "status": "PREPARED_SIX_ORIGINAL_SQL_PUBLIC_VIEW_AND_NATIVE_COMMAND_INPUTS_NOT_YET_EXECUTED",
+  "sourceFixedCommit": "0366bc247c1ac06502ed24bc065b8442ba769391",
+  "originalFrames": 6,
+  "originalProjectionViews": 12,
+  "actualOriginalNextCommands": 6,
+  "formats": [
+    "CoreRules",
+    "ChinaStandard20260724"
+  ],
+  "noOriginalGameOrAcceptedIntentsMutated": true,
+  "ordinarySourceIdentitySeparatelyPreserved": true,
+  "futureTurnStartPresentationControlsAreSyntheticAndNotLiveMatchEvidence": true,
+  "visibleDualClientAndWindowsAcceptanceNotInferred": true,
+  "originalPreparatoryFailure": "First preparation expected six frames but found four because the two real draft-stage frames had been excluded by the prior publisher. That assertion failed before any index or gameplay execution; originals now explicitly supplemented."
+}

@@ -1,0 +1,11 @@
+{
+  "atUtc": "2026-10-20T14:43:45.155061+00:00",
+  "status": "FAILED_FIRST_ARTIFACT_DOWNLOAD_EOF_NOT_VALID_ZIP",
+  "actualExitCode": 1,
+  "actualOriginalBytes": 0,
+  "originalSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "failure": "GitHub artifact download returned EOF",
+  "originalRawBytesLosslesslyRetainedIn": "var/qa/native-spell-choice-presentation-20261020/fixed0366-ci-originals/39426075071-postgres-partition-2-failed-original-bytes-v1.gz",
+  "emptyFailedMaterializationRetired": true,
+  "willRetryNewFileWithoutOverwritingFailure": true
+}

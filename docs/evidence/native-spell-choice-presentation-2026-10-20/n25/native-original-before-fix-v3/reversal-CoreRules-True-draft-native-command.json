@@ -1,0 +1,1 @@
+{"cmdType":"PAY_COST","paymentId":"REPLACEMENT:50:1","paymentWindow":"RULE_REPLACEMENT","paymentChoiceIds":["CONFIRM"],"promptId":"postgres-reversal-target-fea18fec0b1f4b1aaa9102e6f8b1ba61:52:P2:PAY_COST,SURRENDER","snapshotTick":52}

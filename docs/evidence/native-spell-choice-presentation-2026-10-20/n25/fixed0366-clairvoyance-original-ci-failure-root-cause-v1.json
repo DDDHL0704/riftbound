@@ -1,0 +1,22 @@
+{
+  "atUtc": "2026-10-20T13:22:24.830777+00:00",
+  "failedFixedCommit": "0366bc247c1ac06502ed24bc065b8442ba769391",
+  "runId": 39426075071,
+  "jobId": 118639050066,
+  "case": "clairvoyance",
+  "branch": "control",
+  "actualOriginalExitCode": 134,
+  "actualFirstFourBranchesPassed": [
+    "keep",
+    "some",
+    "all",
+    "burnout"
+  ],
+  "actualFailure": "The old SQL driver sent PASS_PRIORITY while the new controller owned the pending SPELL_CHOICE_REMAKE. Authoritative rejection said 请由当前结算选择的玩家确认。",
+  "oldSourceSha256": "7e5d8dcee5ad1e087077a7a740f9fc05fa80e1e3d80e101fa44fa5c0c127c001",
+  "boundedCorrection": "Insert explicit server-owned KEEP_ALL before the original next two priority passes, retaining every old assertion, branch, command, cold/idempotent replay and structural tamper rejection. Save successful complete original SQL frames before existing own-room cleanup for independent readback.",
+  "gameRuleImplementationChangeRequiredForThisDriverCorrection": false,
+  "zeroTargetNoNewChoice753_2SemanticScopeStillSeparatelyOpen": true,
+  "ciOriginalFailedControlRawFrameWasNotExportedBeforeOriginalCleanup": "Unavailable; preserve actual failed job log, artifact, control initial fixture and source without inventing a replacement original frame.",
+  "noCurrentUiOrRuleFamilyExpansionWhileClosingFullFailure": true
+}

@@ -1,0 +1,13 @@
+{
+  "atUtc": "2026-10-20T14:10:46.348643+00:00",
+  "status": "PASS_COMPACT_LOSSLESS_ALL253_ORIGINAL_INPUTS_AND33_NATIVE_COMMANDS",
+  "entries": 286,
+  "originalInputs": 253,
+  "originalGeneratedCommands": 33,
+  "originalBytes": 9156774,
+  "compressedBytes": 686830,
+  "bundleSha256": "228076e54cfad320709d788333c454b5ab38914e926dfc028601ec1b214d6fbf",
+  "allOriginalUtf8BytesPathsFieldsAndNullsRestoredExactly": true,
+  "allOriginalInputsAndPriorExpectedCommandsUnmodified": true,
+  "publicationMayOmitRepeatedMaterializedDirectoryOnlyBecauseEveryByteIsInThisVerifiedBundle": true
+}

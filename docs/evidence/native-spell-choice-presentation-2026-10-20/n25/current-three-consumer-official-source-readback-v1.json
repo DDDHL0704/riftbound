@@ -1,0 +1,101 @@
+{
+  "startedAtUtc": "2026-10-20T13:56:49.397176+00:00",
+  "region": "CN",
+  "language": "zh-CN",
+  "applicableAsOf": "2026-10-20",
+  "adoptedCoreEffectiveDate": "2026-10-16",
+  "priorWholeSourceView": "var/qa/typed-stack-consumer-source-readback-20261020/current-complete-cn-source-version-view-v1.json",
+  "priorWholeSourceViewSha256": "48dba865ab1127cf627937e512d5b8ff094eb05d959bc56d6d4a0ed8bde65ddb",
+  "records": [
+    {
+      "name": "倒转神通",
+      "exactApiId": 31296,
+      "exactCardNo": "OGN·080/298",
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "倒转神通",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "requestedAtUtc": "2026-10-20T13:56:49.399427+00:00",
+      "receivedAtUtc": "2026-10-20T13:56:49.509705+00:00",
+      "httpStatus": 200,
+      "httpDate": "Tue, 20 Oct 2026 13:56:49 GMT",
+      "bytes": 1196,
+      "sha256": "18c005b1bd3b543b1b5ea2db439cb2ff0fe1d9e5663b4f7fff4a8eec949882a3",
+      "originalResponse": "var/qa/native-spell-choice-presentation-20261020/current-three-consumer-sources-v1/31296-entire-original-response.json.gz",
+      "entireRawCardRowExactToPriorCompleteCn20Source": true,
+      "canonicalEntireRowSha256": "460237da0a8c7486fe3d6a9eb65ef61763d5d2aff578b66856125483a20e94bd"
+    },
+    {
+      "name": "灵魂折镜",
+      "exactApiId": 37855,
+      "exactCardNo": "VEN·152",
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "灵魂折镜",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "requestedAtUtc": "2026-10-20T13:56:49.510628+00:00",
+      "receivedAtUtc": "2026-10-20T13:56:49.621421+00:00",
+      "httpStatus": 200,
+      "httpDate": "Tue, 20 Oct 2026 13:56:49 GMT",
+      "bytes": 1336,
+      "sha256": "f0c8d726345ca6a401378105d44c521bc2e661601f0e14fdfe2d4dd53b852e93",
+      "originalResponse": "var/qa/native-spell-choice-presentation-20261020/current-three-consumer-sources-v1/37855-entire-original-response.json.gz",
+      "entireRawCardRowExactToPriorCompleteCn20Source": true,
+      "canonicalEntireRowSha256": "43ef80d968d667e857016925329530e042062d04941e1bb07937223585c2fb1d"
+    },
+    {
+      "name": "千里眼",
+      "exactApiId": 37747,
+      "exactCardNo": "VEN·056",
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "千里眼",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "requestedAtUtc": "2026-10-20T13:56:49.621834+00:00",
+      "receivedAtUtc": "2026-10-20T13:56:49.723548+00:00",
+      "httpStatus": 200,
+      "httpDate": "Tue, 20 Oct 2026 13:56:49 GMT",
+      "bytes": 1241,
+      "sha256": "73087f9c322ec8cc18510c979cc11cbbe80d62f90f09a49f202e300c5b1a4e70",
+      "originalResponse": "var/qa/native-spell-choice-presentation-20261020/current-three-consumer-sources-v1/37747-entire-original-response.json.gz",
+      "entireRawCardRowExactToPriorCompleteCn20Source": true,
+      "canonicalEntireRowSha256": "a13ec4f079660647bf15005ac219b50aedf86245ac5e2d01173257b8c830d475",
+      "currentActualFaceReadback": {
+        "url": "https://cdn.playloltcg.com/lol/card/20260714/5ed345cadc6b45d0961aa3aa26805a5f.png",
+        "requestedAtUtc": "2026-10-20T13:56:49.723961+00:00",
+        "receivedAtUtc": "2026-10-20T13:56:49.837443+00:00",
+        "httpStatus": 200,
+        "httpDate": "Wed, 05 Aug 2026 04:39:27 GMT",
+        "bytes": 246903,
+        "sha256": "b747d085470b43a8cc33bcbf3b98d265e5e84e2b0f95c2e7d56881003c078791",
+        "existingOriginal": "var/qa/clairvoyance-20261015/card-image.png",
+        "entireFaceByteExact": true,
+        "duplicateImageNotSaved": true
+      }
+    }
+  ],
+  "singlePrintingPublishedAndIndependentEffectiveDates": null,
+  "noRuntimeLedgerPriorEvidenceDateOrGameHistoryMutation": true,
+  "allSixGameSourceDeltasRemainRetained": true,
+  "wholePrintingCertified": false,
+  "status": "PASS_THREE_CURRENT_EXACT_CONSUMER_ENTIRE_ROWS_AND_CURRENT_CLAIRVOYANCE_FACE_UNCHANGED",
+  "finishedAtUtc": "2026-10-20T13:56:49.838107+00:00"
+}

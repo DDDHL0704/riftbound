@@ -1,0 +1,9 @@
+{
+  "atUtc": "2026-10-20T14:22:27.576569+00:00",
+  "status": "PASS_EXACT_PREPARED_NATIVE_CHOICE_PUBLICATION_FILTER_PRIVATE_AUTH_VALUE_PREFLIGHT",
+  "filesConsidered": 389,
+  "privateExistingProfileValuesScannedWithoutDisclosure": 8,
+  "exactProseOnlyDraftExclusionPreservesRealDraftStageData": true,
+  "allOriginalMaterializedInputBytesInVerifiedCompactBundle": true,
+  "noCanonicalDocumentOrFrozenSourceMutation": true
+}

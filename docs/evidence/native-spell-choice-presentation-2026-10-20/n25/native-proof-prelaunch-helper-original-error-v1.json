@@ -1,0 +1,8 @@
+{
+  "atUtc": "2026-10-20T13:07:21.669838+00:00",
+  "status": "FAILED_HELPER_LOCK_OBSERVATION_BEFORE_ANY_GODOT_PROCESS_OR_OUTPUT",
+  "actualError": "AttributeError: 'str' object has no attribute 'get'",
+  "cause": "Raw ioreg plist was a dictionary; initial helper assumed a list.",
+  "correction": "Reuse the existing exact observe_lock helper handling dict or list.",
+  "productFailureOrUiProofInferred": false
+}

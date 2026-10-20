@@ -1,0 +1,7 @@
+{
+  "atUtc": "2026-10-20T13:22:35.008330+00:00",
+  "exitCode": 0,
+  "allOriginalClairvoyanceLinesAndAssertionsExactSubsequence": true,
+  "manifest47IdsAndOriginalOrderUntouched": true,
+  "scope": "Only old controlled-SQL flow completion and original successful frame preservation; rule implementation unchanged."
+}

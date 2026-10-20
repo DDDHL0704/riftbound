@@ -1,0 +1,1829 @@
+{
+  "atUtc": "2026-10-20T13:42:41.517923+00:00",
+  "unchangedOriginalProofSourcesAndAssertions": true,
+  "historicalOrPriorOrdinaryProjectionScopeNotNewLiveAcceptance": true,
+  "oldIncompleteObservationProjectionsNotRewritten": "Use the later actual LOOK/REVEAL original ordinary projections; earlier pre-disclosure inputs lack the required public kind and are not current-contract inputs.",
+  "records": [
+    {
+      "name": "grouped-target",
+      "source": "var/qa/grouped-target/native",
+      "inputRoot": "/Users/dinghaolin/MyProjects/riftbound/var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/grouped-target",
+      "scene": "GroupedTargetInteractionProof",
+      "flags": [],
+      "expectedCommandCount": 6,
+      "marker": "GROUPED_TARGET_PASS",
+      "sourceSha256": "2eca235ce8f567a858f180677ed2a5dedad4f529a40db4d94cd2875869bfc135",
+      "sourcePath": "clients/godot/scripts/debug/GroupedTargetInteractionProof.cs",
+      "originalInputs": [
+        {
+          "originalPath": "var/qa/grouped-target/native/power/0/prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/grouped-target/power/0/prompt.json",
+          "sha256": "22409aeeaecf25f955f27a853afb5b88200dc2ee7a9fe88bc39b29b72de75415"
+        },
+        {
+          "originalPath": "var/qa/grouped-target/native/power/0/result-snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/grouped-target/power/0/result-snapshot.json",
+          "sha256": "27f56a35e239d4c4f8a2d48f914046a633a87ed893cc1425e62e29e25c801f71"
+        },
+        {
+          "originalPath": "var/qa/grouped-target/native/power/0/selection.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/grouped-target/power/0/selection.json",
+          "sha256": "e263b5d7460a0b608a775eef7f1b5071d82aab25c7cfcbc9a76f3081b352b602"
+        },
+        {
+          "originalPath": "var/qa/grouped-target/native/power/0/snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/grouped-target/power/0/snapshot.json",
+          "sha256": "55c5b8926c15eac7e4a9bad24ddc9698e7f6b92735240a7e8da1facd7f13e5b2"
+        },
+        {
+          "originalPath": "var/qa/grouped-target/native/power/1/prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/grouped-target/power/1/prompt.json",
+          "sha256": "953b7a3bd3fc3d53054310675e2170184dc0c81432cc5252e55a9bd7fe0b85af"
+        },
+        {
+          "originalPath": "var/qa/grouped-target/native/power/1/result-snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/grouped-target/power/1/result-snapshot.json",
+          "sha256": "7411dd07668af43adcaa5c4b2c91b5afd1777a648a42a5feb331ff149a57aa76"
+        },
+        {
+          "originalPath": "var/qa/grouped-target/native/power/1/selection.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/grouped-target/power/1/selection.json",
+          "sha256": "102f531f12591ba1ccf9b755e97584c2db740d1e0828dd940ef6d92b22bd4152"
+        },
+        {
+          "originalPath": "var/qa/grouped-target/native/power/1/snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/grouped-target/power/1/snapshot.json",
+          "sha256": "27f56a35e239d4c4f8a2d48f914046a633a87ed893cc1425e62e29e25c801f71"
+        },
+        {
+          "originalPath": "var/qa/grouped-target/native/power/2/prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/grouped-target/power/2/prompt.json",
+          "sha256": "b6e11e10521f84914f7466e5d5ae214079638c11f781763d114560dde95ed237"
+        },
+        {
+          "originalPath": "var/qa/grouped-target/native/power/2/result-snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/grouped-target/power/2/result-snapshot.json",
+          "sha256": "7c05348e0b48a2d82b0486c85fe4f91a1de90aefe18546c39339bf330ea14478"
+        },
+        {
+          "originalPath": "var/qa/grouped-target/native/power/2/selection.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/grouped-target/power/2/selection.json",
+          "sha256": "e31aba81f1f5497478bfcae7de6db1b6faba386bd001c8f35d736adb20ea7474"
+        },
+        {
+          "originalPath": "var/qa/grouped-target/native/power/2/snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/grouped-target/power/2/snapshot.json",
+          "sha256": "7411dd07668af43adcaa5c4b2c91b5afd1777a648a42a5feb331ff149a57aa76"
+        },
+        {
+          "originalPath": "var/qa/grouped-target/native/split/0/prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/grouped-target/split/0/prompt.json",
+          "sha256": "cf2cffd9644d33035078fd8d0ce88b7a96ed0767eee1467a52d146402aacbfb1"
+        },
+        {
+          "originalPath": "var/qa/grouped-target/native/split/0/result-snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/grouped-target/split/0/result-snapshot.json",
+          "sha256": "18102f53c41b3627f1c46aa6eb99bacf0722cd925c7ed3feca2f99ebd096a69d"
+        },
+        {
+          "originalPath": "var/qa/grouped-target/native/split/0/selection.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/grouped-target/split/0/selection.json",
+          "sha256": "e263b5d7460a0b608a775eef7f1b5071d82aab25c7cfcbc9a76f3081b352b602"
+        },
+        {
+          "originalPath": "var/qa/grouped-target/native/split/0/snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/grouped-target/split/0/snapshot.json",
+          "sha256": "96a374d1230b9c5ee0d9a3bcaa1d7d1575100a31576fc10b6d829fd8ed831722"
+        },
+        {
+          "originalPath": "var/qa/grouped-target/native/split/1/prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/grouped-target/split/1/prompt.json",
+          "sha256": "a7025a9600a463f286ddcf9c2c45b5e7ad99ba4fe8c85a8fd0609f2cffbd3bfb"
+        },
+        {
+          "originalPath": "var/qa/grouped-target/native/split/1/result-snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/grouped-target/split/1/result-snapshot.json",
+          "sha256": "b53c55942b9982f62a75486cdf73093759018ffa20723b59e5c37230a47827c6"
+        },
+        {
+          "originalPath": "var/qa/grouped-target/native/split/1/selection.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/grouped-target/split/1/selection.json",
+          "sha256": "102f531f12591ba1ccf9b755e97584c2db740d1e0828dd940ef6d92b22bd4152"
+        },
+        {
+          "originalPath": "var/qa/grouped-target/native/split/1/snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/grouped-target/split/1/snapshot.json",
+          "sha256": "18102f53c41b3627f1c46aa6eb99bacf0722cd925c7ed3feca2f99ebd096a69d"
+        },
+        {
+          "originalPath": "var/qa/grouped-target/native/split/2/prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/grouped-target/split/2/prompt.json",
+          "sha256": "9aac98adc364de848ae53318cbd036528e482edc309bc984a4b6888503d7a217"
+        },
+        {
+          "originalPath": "var/qa/grouped-target/native/split/2/result-snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/grouped-target/split/2/result-snapshot.json",
+          "sha256": "539c62a0432d25bba34c7d2d9803bca44542ced7ee1a72569daba364ad6c266b"
+        },
+        {
+          "originalPath": "var/qa/grouped-target/native/split/2/selection.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/grouped-target/split/2/selection.json",
+          "sha256": "e31aba81f1f5497478bfcae7de6db1b6faba386bd001c8f35d736adb20ea7474"
+        },
+        {
+          "originalPath": "var/qa/grouped-target/native/split/2/snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/grouped-target/split/2/snapshot.json",
+          "sha256": "b53c55942b9982f62a75486cdf73093759018ffa20723b59e5c37230a47827c6"
+        }
+      ],
+      "originalExpectedCommands": {
+        "power/0/command.json": {
+          "originalPath": "var/qa/grouped-target/native/power/0/command.json",
+          "sha256": "873803ed4dcf4a0d4d06ee11816f4e2075223b486eaad4696faef0193b14657d",
+          "expected": {
+            "cmdType": "PAY_COST",
+            "paymentId": "REPLACEMENT:2:0",
+            "paymentWindow": "RULE_REPLACEMENT",
+            "paymentChoiceIds": [
+              "REMOVE:D"
+            ],
+            "promptId": "death-duel:3:P1:PAY_COST,SURRENDER",
+            "snapshotTick": 3
+          }
+        },
+        "power/1/command.json": {
+          "originalPath": "var/qa/grouped-target/native/power/1/command.json",
+          "sha256": "79e8246c2e801f8eece1654e88dad15bd33efe8d748b88935aef32190d1bfc1a",
+          "expected": {
+            "cmdType": "PAY_COST",
+            "paymentId": "REPLACEMENT:2:1",
+            "paymentWindow": "RULE_REPLACEMENT",
+            "paymentChoiceIds": [
+              "REMOVE:D2"
+            ],
+            "promptId": "death-duel:4:P1:PAY_COST,SURRENDER",
+            "snapshotTick": 4
+          }
+        },
+        "power/2/command.json": {
+          "originalPath": "var/qa/grouped-target/native/power/2/command.json",
+          "sha256": "5388eda5155c8d6cbc03dc7e1d155e14e94a502307a234ec1377698f9114ed86",
+          "expected": {
+            "cmdType": "PAY_COST",
+            "paymentId": "REPLACEMENT:2:2",
+            "paymentWindow": "RULE_REPLACEMENT",
+            "paymentChoiceIds": [
+              "CONFIRM"
+            ],
+            "promptId": "death-duel:5:P1:PAY_COST,SURRENDER",
+            "snapshotTick": 5
+          }
+        },
+        "split/0/command.json": {
+          "originalPath": "var/qa/grouped-target/native/split/0/command.json",
+          "sha256": "873803ed4dcf4a0d4d06ee11816f4e2075223b486eaad4696faef0193b14657d",
+          "expected": {
+            "cmdType": "PAY_COST",
+            "paymentId": "REPLACEMENT:2:0",
+            "paymentWindow": "RULE_REPLACEMENT",
+            "paymentChoiceIds": [
+              "REMOVE:D"
+            ],
+            "promptId": "death-duel:3:P1:PAY_COST,SURRENDER",
+            "snapshotTick": 3
+          }
+        },
+        "split/1/command.json": {
+          "originalPath": "var/qa/grouped-target/native/split/1/command.json",
+          "sha256": "79e8246c2e801f8eece1654e88dad15bd33efe8d748b88935aef32190d1bfc1a",
+          "expected": {
+            "cmdType": "PAY_COST",
+            "paymentId": "REPLACEMENT:2:1",
+            "paymentWindow": "RULE_REPLACEMENT",
+            "paymentChoiceIds": [
+              "REMOVE:D2"
+            ],
+            "promptId": "death-duel:4:P1:PAY_COST,SURRENDER",
+            "snapshotTick": 4
+          }
+        },
+        "split/2/command.json": {
+          "originalPath": "var/qa/grouped-target/native/split/2/command.json",
+          "sha256": "5388eda5155c8d6cbc03dc7e1d155e14e94a502307a234ec1377698f9114ed86",
+          "expected": {
+            "cmdType": "PAY_COST",
+            "paymentId": "REPLACEMENT:2:2",
+            "paymentWindow": "RULE_REPLACEMENT",
+            "paymentChoiceIds": [
+              "CONFIRM"
+            ],
+            "promptId": "death-duel:5:P1:PAY_COST,SURRENDER",
+            "snapshotTick": 5
+          }
+        }
+      }
+    },
+    {
+      "name": "destruction-order",
+      "source": "var/qa/destruction-order/native",
+      "inputRoot": "/Users/dinghaolin/MyProjects/riftbound/var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/destruction-order",
+      "scene": "DestructionOrderInteractionProof",
+      "flags": [],
+      "expectedCommandCount": 6,
+      "marker": "DESTRUCTION_ORDER_PASS",
+      "sourceSha256": "38dc4d3259cf990e40a8373cc31ea9c20e7ed0ebd1a954917de0161c2c248e62",
+      "sourcePath": "clients/godot/scripts/debug/DestructionOrderInteractionProof.cs",
+      "originalInputs": [
+        {
+          "originalPath": "var/qa/destruction-order/native/altar-decline/prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/destruction-order/altar-decline/prompt.json",
+          "sha256": "2c2e6e94701bc3abd1839a13ec9f53719adcbf5b96e31563e4a1d4109947186e"
+        },
+        {
+          "originalPath": "var/qa/destruction-order/native/altar-decline/selection.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/destruction-order/altar-decline/selection.json",
+          "sha256": "6993ebde67a643e4be1bee133d412337308f11fa888460796aad28c5b67af389"
+        },
+        {
+          "originalPath": "var/qa/destruction-order/native/altar-decline/snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/destruction-order/altar-decline/snapshot.json",
+          "sha256": "817abeb7b46d6988368ad7aa40bc35f6fb571c0c0db0e022d0c558df847afb50"
+        },
+        {
+          "originalPath": "var/qa/destruction-order/native/altar-pay/prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/destruction-order/altar-pay/prompt.json",
+          "sha256": "2c2e6e94701bc3abd1839a13ec9f53719adcbf5b96e31563e4a1d4109947186e"
+        },
+        {
+          "originalPath": "var/qa/destruction-order/native/altar-pay/selection.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/destruction-order/altar-pay/selection.json",
+          "sha256": "89b9124c7592c84dc527a689139bc4dec8f29427450ef0ca909713c0cf905809"
+        },
+        {
+          "originalPath": "var/qa/destruction-order/native/altar-pay/snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/destruction-order/altar-pay/snapshot.json",
+          "sha256": "817abeb7b46d6988368ad7aa40bc35f6fb571c0c0db0e022d0c558df847afb50"
+        },
+        {
+          "originalPath": "var/qa/destruction-order/native/banish/prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/destruction-order/banish/prompt.json",
+          "sha256": "c269904b2d6ce3bab94d4c1bb06d166aeae41fd98210a8f68d8acdfd9ceb2414"
+        },
+        {
+          "originalPath": "var/qa/destruction-order/native/banish/selection.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/destruction-order/banish/selection.json",
+          "sha256": "702f44a1a6da146667e57aba0df40dae01683198ac999da9fabd2b77164b8c90"
+        },
+        {
+          "originalPath": "var/qa/destruction-order/native/banish/snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/destruction-order/banish/snapshot.json",
+          "sha256": "820d034a902d6e8465af0cfb1e1965173b9cd055c5e81b7ef21999aede60512f"
+        },
+        {
+          "originalPath": "var/qa/destruction-order/native/gear/prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/destruction-order/gear/prompt.json",
+          "sha256": "e81451cf3872f37ba9249437c5ae463dbded379370420ff417e886c29682bb87"
+        },
+        {
+          "originalPath": "var/qa/destruction-order/native/gear/selection.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/destruction-order/gear/selection.json",
+          "sha256": "abe4c0630fbe008d873d75771d91615037efa48756d537645ab8602f1468e502"
+        },
+        {
+          "originalPath": "var/qa/destruction-order/native/gear/snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/destruction-order/gear/snapshot.json",
+          "sha256": "ae1c8921fca7d8b448dff577054d0cfafd23f99b02715a141fbdafce74a93281"
+        },
+        {
+          "originalPath": "var/qa/destruction-order/native/mandatory/prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/destruction-order/mandatory/prompt.json",
+          "sha256": "b99122d2083bbbd00d4d29b3d484a970cbe519dc42406c0183a09950919a2a86"
+        },
+        {
+          "originalPath": "var/qa/destruction-order/native/mandatory/selection.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/destruction-order/mandatory/selection.json",
+          "sha256": "fb965b7b9d8326b384f9c1c22708682a17552ec9434a80c82f2b0675e88b8bf9"
+        },
+        {
+          "originalPath": "var/qa/destruction-order/native/mandatory/snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/destruction-order/mandatory/snapshot.json",
+          "sha256": "2e3f86b74bcd7c7202dba525d7502ba8cfd52aa5ae70ef208d7b6a5d03ccb9ce"
+        },
+        {
+          "originalPath": "var/qa/destruction-order/native/sett/prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/destruction-order/sett/prompt.json",
+          "sha256": "e81451cf3872f37ba9249437c5ae463dbded379370420ff417e886c29682bb87"
+        },
+        {
+          "originalPath": "var/qa/destruction-order/native/sett/selection.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/destruction-order/sett/selection.json",
+          "sha256": "bbaae1b06e0294272eb38f4c3dbf08cbbcce3d3c724f737ccc6078aa6ee80c4e"
+        },
+        {
+          "originalPath": "var/qa/destruction-order/native/sett/snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/destruction-order/sett/snapshot.json",
+          "sha256": "ae1c8921fca7d8b448dff577054d0cfafd23f99b02715a141fbdafce74a93281"
+        }
+      ],
+      "originalExpectedCommands": {
+        "altar-decline/command.json": {
+          "originalPath": "var/qa/destruction-order/native/altar-decline/command.json",
+          "sha256": "5ee30902812a0eb0bda6e6273a2e7f419197275bd4b13e802bfef8b01352716a",
+          "expected": {
+            "cmdType": "PAY_COST",
+            "paymentId": "REPLACEMENT:5:0",
+            "paymentWindow": "RULE_REPLACEMENT",
+            "paymentChoiceIds": [
+              "DECLINE"
+            ],
+            "promptId": "death-duel:6:P2:PAY_COST,SURRENDER",
+            "snapshotTick": 6
+          }
+        },
+        "altar-pay/command.json": {
+          "originalPath": "var/qa/destruction-order/native/altar-pay/command.json",
+          "sha256": "82fcc6f390761a84515eb4a66260ffe14c334bf4b2dcdaa40325b78293eaa0c4",
+          "expected": {
+            "cmdType": "PAY_COST",
+            "paymentId": "REPLACEMENT:5:0",
+            "paymentWindow": "RULE_REPLACEMENT",
+            "paymentChoiceIds": [
+              "ALTAR:D:BF"
+            ],
+            "promptId": "death-duel:6:P2:PAY_COST,SURRENDER",
+            "snapshotTick": 6
+          }
+        },
+        "banish/command.json": {
+          "originalPath": "var/qa/destruction-order/native/banish/command.json",
+          "sha256": "c67f196caf02e35d07d887638c6dc5aba8a033b60632eb7e067063e3d8de8675",
+          "expected": {
+            "cmdType": "PAY_COST",
+            "paymentId": "REPLACEMENT:2:0",
+            "paymentWindow": "RULE_REPLACEMENT",
+            "paymentChoiceIds": [
+              "BANISH:D"
+            ],
+            "promptId": "death-duel:3:P2:PAY_COST,SURRENDER",
+            "snapshotTick": 3
+          }
+        },
+        "gear/command.json": {
+          "originalPath": "var/qa/destruction-order/native/gear/command.json",
+          "sha256": "a41a11853b831b236331253e773e71d12aeb198d051f8edeace66a15aed4d874",
+          "expected": {
+            "cmdType": "PAY_COST",
+            "paymentId": "REPLACEMENT:2:0",
+            "paymentWindow": "RULE_REPLACEMENT",
+            "paymentChoiceIds": [
+              "GEAR:D:G1"
+            ],
+            "promptId": "death-duel:3:P2:PAY_COST,SURRENDER",
+            "snapshotTick": 3
+          }
+        },
+        "mandatory/command.json": {
+          "originalPath": "var/qa/destruction-order/native/mandatory/command.json",
+          "sha256": "0d046546d2f22ebb4cb640b18d3fee1c998ac9e5be27bdafc5beb143d320b114",
+          "expected": {
+            "cmdType": "PAY_COST",
+            "paymentId": "REPLACEMENT:2:0",
+            "paymentWindow": "RULE_REPLACEMENT",
+            "paymentChoiceIds": [
+              "GEAR:D2:G1"
+            ],
+            "promptId": "death-duel:3:P2:PAY_COST,SURRENDER",
+            "snapshotTick": 3
+          }
+        },
+        "sett/command.json": {
+          "originalPath": "var/qa/destruction-order/native/sett/command.json",
+          "sha256": "e261f231c3e6c44921d35eefe7c4b502846f8b3fabfcbec03f05e1f3c4c471ee",
+          "expected": {
+            "cmdType": "PAY_COST",
+            "paymentId": "REPLACEMENT:2:0",
+            "paymentWindow": "RULE_REPLACEMENT",
+            "paymentChoiceIds": [
+              "SETT:D:LEGEND:ANY"
+            ],
+            "promptId": "death-duel:3:P2:PAY_COST,SURRENDER",
+            "snapshotTick": 3
+          }
+        }
+      }
+    },
+    {
+      "name": "local-destruction",
+      "source": "var/qa/local-destruction-recall/native",
+      "inputRoot": "/Users/dinghaolin/MyProjects/riftbound/var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/local-destruction",
+      "scene": "LocalDestructionRecallInteractionProof",
+      "flags": [],
+      "expectedCommandCount": 4,
+      "marker": "LOCAL_DESTRUCTION_RECALL_PASS",
+      "sourceSha256": "e1cc661ae3ceffac361a7ab081a56644d4f766c181378eb725fb34fc6539b8d9",
+      "sourcePath": "clients/godot/scripts/debug/LocalDestructionRecallInteractionProof.cs",
+      "originalInputs": [
+        {
+          "originalPath": "var/qa/local-destruction-recall/native/gear/prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/local-destruction/gear/prompt.json",
+          "sha256": "758aef6b969d00d5d3901952d3ca4ca64364ed2f1d1115fa97f9c8e9cd0e5931"
+        },
+        {
+          "originalPath": "var/qa/local-destruction-recall/native/gear/result-snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/local-destruction/gear/result-snapshot.json",
+          "sha256": "e4ca3e9623e8a82e6256d70817f01fc27a167014e8f0883483fdfe4851b90b76"
+        },
+        {
+          "originalPath": "var/qa/local-destruction-recall/native/gear/selection.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/local-destruction/gear/selection.json",
+          "sha256": "abe4c0630fbe008d873d75771d91615037efa48756d537645ab8602f1468e502"
+        },
+        {
+          "originalPath": "var/qa/local-destruction-recall/native/gear/snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/local-destruction/gear/snapshot.json",
+          "sha256": "616c71de599998e8aec9f422b222f19ffbd878f40809269ab92ccc183ec4af10"
+        },
+        {
+          "originalPath": "var/qa/local-destruction-recall/native/local/prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/local-destruction/local/prompt.json",
+          "sha256": "758aef6b969d00d5d3901952d3ca4ca64364ed2f1d1115fa97f9c8e9cd0e5931"
+        },
+        {
+          "originalPath": "var/qa/local-destruction-recall/native/local/result-snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/local-destruction/local/result-snapshot.json",
+          "sha256": "ef74412845e8ce4f04b7cacb468d305180015e6c780b544e70ab42353512389d"
+        },
+        {
+          "originalPath": "var/qa/local-destruction-recall/native/local/selection.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/local-destruction/local/selection.json",
+          "sha256": "f67f69f9eea17f3be3080d2e3df71fa1d0727616019303080695769f4b0e8679"
+        },
+        {
+          "originalPath": "var/qa/local-destruction-recall/native/local/snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/local-destruction/local/snapshot.json",
+          "sha256": "616c71de599998e8aec9f422b222f19ffbd878f40809269ab92ccc183ec4af10"
+        },
+        {
+          "originalPath": "var/qa/local-destruction-recall/native/simultaneous/prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/local-destruction/simultaneous/prompt.json",
+          "sha256": "f104ec28f9f3518cc9bf3111af475de7e06bd876ab3f1c393cc8d2960709a2f2"
+        },
+        {
+          "originalPath": "var/qa/local-destruction-recall/native/simultaneous/result-snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/local-destruction/simultaneous/result-snapshot.json",
+          "sha256": "7c88a6b12a64435aababd1b32b96d951f79a1cd8066eb6f298f81c5c0717d117"
+        },
+        {
+          "originalPath": "var/qa/local-destruction-recall/native/simultaneous/selection.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/local-destruction/simultaneous/selection.json",
+          "sha256": "44a9ce6adee15e5f416d388d3d45cc6b457d2b6b947fc1d4832739f7532686b8"
+        },
+        {
+          "originalPath": "var/qa/local-destruction-recall/native/simultaneous/snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/local-destruction/simultaneous/snapshot.json",
+          "sha256": "a73b9def40d9349970566457291005416ae0aa65bdba6714caac9b76a97cca31"
+        },
+        {
+          "originalPath": "var/qa/local-destruction-recall/native/source-after/prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/local-destruction/source-after/prompt.json",
+          "sha256": "b0d92d4e6c29f08ae252ef5d25e39ae850fd91a083e127ca7c8f9832ecd5ac2c"
+        },
+        {
+          "originalPath": "var/qa/local-destruction-recall/native/source-after/result-snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/local-destruction/source-after/result-snapshot.json",
+          "sha256": "7bd0022c1756ef589e36d36e82e85bd804e9c19727de913a1039eed7a5f7be2b"
+        },
+        {
+          "originalPath": "var/qa/local-destruction-recall/native/source-after/selection.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/local-destruction/source-after/selection.json",
+          "sha256": "f67f69f9eea17f3be3080d2e3df71fa1d0727616019303080695769f4b0e8679"
+        },
+        {
+          "originalPath": "var/qa/local-destruction-recall/native/source-after/snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/local-destruction/source-after/snapshot.json",
+          "sha256": "956857e7214ffbfcc32eb05ffbbe805d4d2f593347c3b341bc918977682964a9"
+        }
+      ],
+      "originalExpectedCommands": {
+        "gear/command.json": {
+          "originalPath": "var/qa/local-destruction-recall/native/gear/command.json",
+          "sha256": "a41a11853b831b236331253e773e71d12aeb198d051f8edeace66a15aed4d874",
+          "expected": {
+            "cmdType": "PAY_COST",
+            "paymentId": "REPLACEMENT:2:0",
+            "paymentWindow": "RULE_REPLACEMENT",
+            "paymentChoiceIds": [
+              "GEAR:D:G1"
+            ],
+            "promptId": "death-duel:3:P2:PAY_COST,SURRENDER",
+            "snapshotTick": 3
+          }
+        },
+        "local/command.json": {
+          "originalPath": "var/qa/local-destruction-recall/native/local/command.json",
+          "sha256": "3d5dd1b2e812f81865d49c901e71695d17686611830722604b951ba07d3d8594",
+          "expected": {
+            "cmdType": "PAY_COST",
+            "paymentId": "REPLACEMENT:2:0",
+            "paymentWindow": "RULE_REPLACEMENT",
+            "paymentChoiceIds": [
+              "LOCAL_RECALL:D:S"
+            ],
+            "promptId": "death-duel:3:P2:PAY_COST,SURRENDER",
+            "snapshotTick": 3
+          }
+        },
+        "simultaneous/command.json": {
+          "originalPath": "var/qa/local-destruction-recall/native/simultaneous/command.json",
+          "sha256": "464aebfffb0485dcbbd01128495ab2482d26de27fb9a3b5e86850f7270eb5bd9",
+          "expected": {
+            "cmdType": "PAY_COST",
+            "paymentId": "REPLACEMENT:2:0",
+            "paymentWindow": "RULE_REPLACEMENT",
+            "paymentChoiceIds": [
+              "LOCAL_RECALL:D2:S"
+            ],
+            "promptId": "death-duel:3:P2:PAY_COST,SURRENDER",
+            "snapshotTick": 3
+          }
+        },
+        "source-after/command.json": {
+          "originalPath": "var/qa/local-destruction-recall/native/source-after/command.json",
+          "sha256": "98e650b9bdc0e07853b0636e68f52de408124439bb80c675090b351ea1076f23",
+          "expected": {
+            "cmdType": "PAY_COST",
+            "paymentId": "REPLACEMENT:2:1",
+            "paymentWindow": "RULE_REPLACEMENT",
+            "paymentChoiceIds": [
+              "LOCAL_RECALL:D:S"
+            ],
+            "promptId": "death-duel:4:P2:PAY_COST,SURRENDER",
+            "snapshotTick": 4
+          }
+        }
+      }
+    },
+    {
+      "name": "sett-replacement",
+      "source": "var/qa/sett-replacement/native",
+      "inputRoot": "/Users/dinghaolin/MyProjects/riftbound/var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/sett-replacement",
+      "scene": "TriggerCostInteractionProof",
+      "flags": [
+        "--sett-replacement"
+      ],
+      "expectedCommandCount": 4,
+      "marker": "SETT_REPLACEMENT_INTERACTION_PASS",
+      "sourceSha256": "3720c3a5cd6a740635a8ffe5b045b6b08c8cc8a8ae70058f4569e9b99ac2bbad",
+      "sourcePath": "clients/godot/scripts/debug/TriggerCostInteractionProof.cs",
+      "originalInputs": [
+        {
+          "originalPath": "var/qa/sett-replacement/native/sett-accept/prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/sett-replacement/sett-accept/prompt.json",
+          "sha256": "901cbe7ff955938d70c60f7916bce89fd9276141a3b000afebe6a3e0b17ed24c"
+        },
+        {
+          "originalPath": "var/qa/sett-replacement/native/sett-accept/snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/sett-replacement/sett-accept/snapshot.json",
+          "sha256": "5766a5473dcbb268b403f2d1f05b3948d33df40ec82f5c3bc29d90262117e325"
+        },
+        {
+          "originalPath": "var/qa/sett-replacement/native/sett-decline/prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/sett-replacement/sett-decline/prompt.json",
+          "sha256": "901cbe7ff955938d70c60f7916bce89fd9276141a3b000afebe6a3e0b17ed24c"
+        },
+        {
+          "originalPath": "var/qa/sett-replacement/native/sett-decline/snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/sett-replacement/sett-decline/snapshot.json",
+          "sha256": "5766a5473dcbb268b403f2d1f05b3948d33df40ec82f5c3bc29d90262117e325"
+        },
+        {
+          "originalPath": "var/qa/sett-replacement/native/sett-rune-accept/prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/sett-replacement/sett-rune-accept/prompt.json",
+          "sha256": "3e175d9dfe458b32da75a753c0e12306d6484950079210ca6a570ee28fea83cb"
+        },
+        {
+          "originalPath": "var/qa/sett-replacement/native/sett-rune-accept/snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/sett-replacement/sett-rune-accept/snapshot.json",
+          "sha256": "60ed5c9394baa4eca41f0358407f3122ba2dd7cef2f15e2d0da99284638dfaae"
+        },
+        {
+          "originalPath": "var/qa/sett-replacement/native/sett-rune-decline/prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/sett-replacement/sett-rune-decline/prompt.json",
+          "sha256": "3e175d9dfe458b32da75a753c0e12306d6484950079210ca6a570ee28fea83cb"
+        },
+        {
+          "originalPath": "var/qa/sett-replacement/native/sett-rune-decline/snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/sett-replacement/sett-rune-decline/snapshot.json",
+          "sha256": "60ed5c9394baa4eca41f0358407f3122ba2dd7cef2f15e2d0da99284638dfaae"
+        }
+      ],
+      "originalExpectedCommands": {
+        "sett-accept/command.json": {
+          "originalPath": "var/qa/sett-replacement/native/sett-accept/command.json",
+          "sha256": "b5dbc520ca3281a41267d3686d36b2b8f5d3f276eef446079b4cacda9f2a7323",
+          "expected": {
+            "cmdType": "PAY_COST",
+            "paymentId": "REPLACEMENT:2:0",
+            "paymentWindow": "RULE_REPLACEMENT",
+            "paymentChoiceIds": [
+              "SETT:D2:LEGEND:ANY"
+            ],
+            "promptId": "death-duel:3:P2:PAY_COST,SURRENDER",
+            "snapshotTick": 3
+          }
+        },
+        "sett-decline/command.json": {
+          "originalPath": "var/qa/sett-replacement/native/sett-decline/command.json",
+          "sha256": "6f65939921ccda72f9a6d489b8b4aadf7ee5b8e3c0795f28612c14768a73790a",
+          "expected": {
+            "cmdType": "PAY_COST",
+            "paymentId": "REPLACEMENT:2:0",
+            "paymentWindow": "RULE_REPLACEMENT",
+            "paymentChoiceIds": [
+              "DECLINE"
+            ],
+            "promptId": "death-duel:3:P2:PAY_COST,SURRENDER",
+            "snapshotTick": 3
+          }
+        },
+        "sett-rune-accept/command.json": {
+          "originalPath": "var/qa/sett-replacement/native/sett-rune-accept/command.json",
+          "sha256": "9be0ed3786884a00c958adb7d5eef41c24bef29fbb07d216438e4d2ce66f340e",
+          "expected": {
+            "cmdType": "PAY_COST",
+            "paymentId": "REPLACEMENT:2:0",
+            "paymentWindow": "RULE_REPLACEMENT",
+            "paymentChoiceIds": [
+              "SETT:D2:LEGEND:RUNE:RUNE"
+            ],
+            "promptId": "death-duel:3:P2:PAY_COST,SURRENDER",
+            "snapshotTick": 3
+          }
+        },
+        "sett-rune-decline/command.json": {
+          "originalPath": "var/qa/sett-replacement/native/sett-rune-decline/command.json",
+          "sha256": "6f65939921ccda72f9a6d489b8b4aadf7ee5b8e3c0795f28612c14768a73790a",
+          "expected": {
+            "cmdType": "PAY_COST",
+            "paymentId": "REPLACEMENT:2:0",
+            "paymentWindow": "RULE_REPLACEMENT",
+            "paymentChoiceIds": [
+              "DECLINE"
+            ],
+            "promptId": "death-duel:3:P2:PAY_COST,SURRENDER",
+            "snapshotTick": 3
+          }
+        }
+      }
+    },
+    {
+      "name": "rule-choice",
+      "source": "var/qa/rule-choice-native-20261016/green-export-v2",
+      "inputRoot": "/Users/dinghaolin/MyProjects/riftbound/var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice",
+      "scene": "RuleChoiceNativePromptProof",
+      "flags": [],
+      "expectedCommandCount": 13,
+      "marker": "RULE_CHOICE_NATIVE_PROMPT_PASS",
+      "sourceSha256": "2bc438a273b380b6f127567fa97949a4f9d4e667287fb756b64b2abc40c3798d",
+      "sourcePath": "clients/godot/scripts/debug/RuleChoiceNativePromptProof.cs",
+      "originalInputs": [
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/hide-free/defend-step-0-prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/hide-free/defend-step-0-prompt.json",
+          "sha256": "5312c3dbc0870816ebc4968d1c846d4c1fd9d839b1278a4117a40236e68ad013"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/hide-free/defend-step-0-quote.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/hide-free/defend-step-0-quote.json",
+          "sha256": "f80d03f717da20401e428ae3b6f4eaf9a32cd0c465365b9cad3a9a83cdcd3d58"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/hide-free/defend-step-0-selection.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/hide-free/defend-step-0-selection.json",
+          "sha256": "1838dc8fd23e9d3646fe938c494b7d9d66aaf3344b43f0496431b5e3c22caf44"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/hide-free/defend-step-0-snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/hide-free/defend-step-0-snapshot.json",
+          "sha256": "6b3efab5e51e57bae125e2f2963399fa6bf2fb00f546b5c00d5c8141c110fd74"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/hide-free/defend-step-1-prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/hide-free/defend-step-1-prompt.json",
+          "sha256": "e296c66992d693c03d8c4bcc5ef5dd6ffef65fdf5228c3d34419d3665c197f27"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/hide-free/defend-step-1-selection.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/hide-free/defend-step-1-selection.json",
+          "sha256": "277bb3360c83da7125d1bdf36883285d56a1812bbb34babf2a30e39c51b0af3f"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/hide-free/defend-step-1-snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/hide-free/defend-step-1-snapshot.json",
+          "sha256": "7de70cdaf5333287df9ad9b51779723de516e4bd26cf782a18b2f17fac880f96"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/hide-free/defend-step-2-prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/hide-free/defend-step-2-prompt.json",
+          "sha256": "6075e8f1807bb7fe23fe5dfc82bc21d5e3f5d6e555baff15983d9500aa066a63"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/hide-free/defend-step-2-selection.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/hide-free/defend-step-2-selection.json",
+          "sha256": "277bb3360c83da7125d1bdf36883285d56a1812bbb34babf2a30e39c51b0af3f"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/hide-free/defend-step-2-snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/hide-free/defend-step-2-snapshot.json",
+          "sha256": "5fca56f5aff823400cf2c9b240764dcabdf2d1df4c952affbb059c7208dc4a0a"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/hide-free/defend-step-3-prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/hide-free/defend-step-3-prompt.json",
+          "sha256": "60dd4568b4bccc63a0bfa21771718bb3abfc65ed5e5a4488d1e40b612027f4f2"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/hide-free/defend-step-3-selection.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/hide-free/defend-step-3-selection.json",
+          "sha256": "f3c28c353114fb0eb3914fe7b8097df6747dc39526391eadb9d0b8944c5e467a"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/hide-free/defend-step-3-snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/hide-free/defend-step-3-snapshot.json",
+          "sha256": "f33ac980e53266bdf028903e574a35d07f942f2df823c121fd3ecd77abd49147"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/hide-free/pending-prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/hide-free/pending-prompt.json",
+          "sha256": "60dd4568b4bccc63a0bfa21771718bb3abfc65ed5e5a4488d1e40b612027f4f2"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/hide-ordinary/defend-step-0-prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/hide-ordinary/defend-step-0-prompt.json",
+          "sha256": "5fd764db61b1e5a9835ba92c09d5c950cd78499bf8284fb236e5d447a954b2da"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/hide-ordinary/defend-step-0-selection.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/hide-ordinary/defend-step-0-selection.json",
+          "sha256": "6456eb012ebe60cc57af8cd78526b466d250eb7e0bdc59ead7ed2060c9746e68"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/hide-ordinary/defend-step-0-snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/hide-ordinary/defend-step-0-snapshot.json",
+          "sha256": "4d9ceb318dfd2d3b8ffdb9be604079c8ba4b2a4aae865903fa607309744806df"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/hide-ordinary/pending-prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/hide-ordinary/pending-prompt.json",
+          "sha256": "5fd764db61b1e5a9835ba92c09d5c950cd78499bf8284fb236e5d447a954b2da"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/hide-teemo/defend-step-0-prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/hide-teemo/defend-step-0-prompt.json",
+          "sha256": "9653f5667aa4ab7205dee73da0eaa4d00173b72fb77304fb0def035df1f47931"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/hide-teemo/defend-step-0-selection.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/hide-teemo/defend-step-0-selection.json",
+          "sha256": "eab0e67d4d523918055d8275c02f8f3d73b6749ee62c763e5c4fc0d28f2af1a5"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/hide-teemo/defend-step-0-snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/hide-teemo/defend-step-0-snapshot.json",
+          "sha256": "39a1fcebb85e87c6fb4b82a1a13f964bbc2b6f3e87016ff95c7537a6a02085ae"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/hide-teemo/pending-prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/hide-teemo/pending-prompt.json",
+          "sha256": "9653f5667aa4ab7205dee73da0eaa4d00173b72fb77304fb0def035df1f47931"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-alternate-False/defend-step-0-prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/token-alternate-False/defend-step-0-prompt.json",
+          "sha256": "81676552d731ef56d7f2719db80b1d16637321a947eda39902c226ae688277fa"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-alternate-False/defend-step-0-quote.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/token-alternate-False/defend-step-0-quote.json",
+          "sha256": "7227881049e31e9e3c6453b2b29ca5e9f6de7314c4427a339b6ee60452015102"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-alternate-False/defend-step-0-selection.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/token-alternate-False/defend-step-0-selection.json",
+          "sha256": "fa9da85eb146d554a2b503050562a2da8f59db826b6406437033c54582914948"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-alternate-False/defend-step-0-snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/token-alternate-False/defend-step-0-snapshot.json",
+          "sha256": "427b382b34f937e45443d33a7bfee97579bc66d2dabe7efa36824f7566cd544a"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-alternate-False/defend-step-1-prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/token-alternate-False/defend-step-1-prompt.json",
+          "sha256": "1a31c8317324bb240b5e8d57bbdd88a25e3d80f69759cbeb53359df5c3c020ae"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-alternate-False/defend-step-1-selection.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/token-alternate-False/defend-step-1-selection.json",
+          "sha256": "277bb3360c83da7125d1bdf36883285d56a1812bbb34babf2a30e39c51b0af3f"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-alternate-False/defend-step-1-snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/token-alternate-False/defend-step-1-snapshot.json",
+          "sha256": "65f36c7001d27fe7b32b977129228cf707cd8b4749c1483b1e978833cfcea683"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-alternate-False/defend-step-2-prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/token-alternate-False/defend-step-2-prompt.json",
+          "sha256": "96dd0f0b70bc9c718b35f79da1fff25d0c196b3b53b9894d97082f007df86cf4"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-alternate-False/defend-step-2-selection.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/token-alternate-False/defend-step-2-selection.json",
+          "sha256": "277bb3360c83da7125d1bdf36883285d56a1812bbb34babf2a30e39c51b0af3f"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-alternate-False/defend-step-2-snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/token-alternate-False/defend-step-2-snapshot.json",
+          "sha256": "8f4c753c414c920b4ad84806cbbd713fe11488caf3cb1d0ff7f914e1afa92eee"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-alternate-False/defend-step-3-opponent-snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/token-alternate-False/defend-step-3-opponent-snapshot.json",
+          "sha256": "d305c59ef40e54b174871c7f14e327d8a7188ff34637e627c825da561f89fe59"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-alternate-False/defend-step-3-prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/token-alternate-False/defend-step-3-prompt.json",
+          "sha256": "a0c822089e84f0a6cd5571cfb5365ccc889ffbf64774bb27ee72bdfe23fe4a7f"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-alternate-False/defend-step-3-selection.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/token-alternate-False/defend-step-3-selection.json",
+          "sha256": "511c17b0286ba072887b7066c52a8b2c7a80d5d33d43f03a2cfd83c03472ae0d"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-alternate-False/defend-step-3-snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/token-alternate-False/defend-step-3-snapshot.json",
+          "sha256": "b0100b5dac1d24beb5f6612ffb5c4218631e5127d4a4d21547dbd05a6e36ceab"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-alternate-False/defend-step-4-opponent-snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/token-alternate-False/defend-step-4-opponent-snapshot.json",
+          "sha256": "5e14d756138adfd63bbef756c25c6c5ff0fdfc4274f97f87e422d8cbfec6d27d"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-alternate-False/defend-step-4-prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/token-alternate-False/defend-step-4-prompt.json",
+          "sha256": "b36596c1a9688e45f95b2bd35ef1088c2f284cc37e25827b02dcc38db3a90551"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-alternate-False/defend-step-4-selection.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/token-alternate-False/defend-step-4-selection.json",
+          "sha256": "d88034811f35f66808fb2fcab1c885b1c013f6f62c323f3801014f0bed3eac14"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-alternate-False/defend-step-4-snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/token-alternate-False/defend-step-4-snapshot.json",
+          "sha256": "e92fb0886e105bc7eb6203fcd9bba7dfa2eac23bee8aa2c44dca9b6e955bbdcc"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-alternate-False/defend-step-5-opponent-snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/token-alternate-False/defend-step-5-opponent-snapshot.json",
+          "sha256": "d2776b0d8dd36ac3c50be8a230f3daf71c182661a746c6afb91afce592e60f2b"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-alternate-False/defend-step-5-prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/token-alternate-False/defend-step-5-prompt.json",
+          "sha256": "a34f5a8237c337744a0ab4988d7e538c0cfd164dc2cf0e58d77c657e80e3398c"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-alternate-False/defend-step-5-selection.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/token-alternate-False/defend-step-5-selection.json",
+          "sha256": "42c4ce5af9ef67287b9278a23bb6e17d473b53a09cbe5f6b22a53a958a3a534e"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-alternate-False/defend-step-5-snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/token-alternate-False/defend-step-5-snapshot.json",
+          "sha256": "5beb6cc5ff0ac7d48cbf3e0080fe7d4db6f1121e2483be21bc8f0ba83482d4bd"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-alternate-False/pending-prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/token-alternate-False/pending-prompt.json",
+          "sha256": "a34f5a8237c337744a0ab4988d7e538c0cfd164dc2cf0e58d77c657e80e3398c"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-alternate-True/defend-step-0-prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/token-alternate-True/defend-step-0-prompt.json",
+          "sha256": "a76afb34f96a69dcd5920c6d60bcee5dfb4a6d8a72f2040deb382926e67a7241"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-alternate-True/defend-step-0-quote.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/token-alternate-True/defend-step-0-quote.json",
+          "sha256": "4dfd582150fecbd0129f41fdf77cd4f00c87802b91dae9fdb98041378eb0301f"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-alternate-True/defend-step-0-selection.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/token-alternate-True/defend-step-0-selection.json",
+          "sha256": "fa9da85eb146d554a2b503050562a2da8f59db826b6406437033c54582914948"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-alternate-True/defend-step-0-snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/token-alternate-True/defend-step-0-snapshot.json",
+          "sha256": "ee5dc964d73060206b627186e17d7301514f59491487d755599f59b9b298f3c7"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-alternate-True/defend-step-1-prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/token-alternate-True/defend-step-1-prompt.json",
+          "sha256": "aa28e0c3b954a8c42888e94a2ec98b8ff8b3d88291f68e407bf39b5be5eab525"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-alternate-True/defend-step-1-selection.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/token-alternate-True/defend-step-1-selection.json",
+          "sha256": "277bb3360c83da7125d1bdf36883285d56a1812bbb34babf2a30e39c51b0af3f"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-alternate-True/defend-step-1-snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/token-alternate-True/defend-step-1-snapshot.json",
+          "sha256": "d2c7247c88f756e9d1089b34ea0f8fa07925bd575168727c6b14d86680afc0b9"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-alternate-True/defend-step-2-prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/token-alternate-True/defend-step-2-prompt.json",
+          "sha256": "96dd0f0b70bc9c718b35f79da1fff25d0c196b3b53b9894d97082f007df86cf4"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-alternate-True/defend-step-2-selection.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/token-alternate-True/defend-step-2-selection.json",
+          "sha256": "277bb3360c83da7125d1bdf36883285d56a1812bbb34babf2a30e39c51b0af3f"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-alternate-True/defend-step-2-snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/token-alternate-True/defend-step-2-snapshot.json",
+          "sha256": "69bdad582190aa69047967b257974b9306cc3c65630034373e098ffb95efae87"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-alternate-True/defend-step-3-opponent-snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/token-alternate-True/defend-step-3-opponent-snapshot.json",
+          "sha256": "c911e78fc3bc5cbc1af4869d8ba53283aba8d1fea279f02c150c1c3c62804845"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-alternate-True/defend-step-3-prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/token-alternate-True/defend-step-3-prompt.json",
+          "sha256": "c22614ce8dee629d1bd1be6abf95f51745c39d83d97cb42ba791953521fe40dd"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-alternate-True/defend-step-3-selection.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/token-alternate-True/defend-step-3-selection.json",
+          "sha256": "d721c9100906dade57268888f40ae8b521ad03c1c24b0326e74a61af6ad80fee"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-alternate-True/defend-step-3-snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/token-alternate-True/defend-step-3-snapshot.json",
+          "sha256": "ec8c67b85a3333b8b62a55790c47e70a23c3d0e72c6069ca86e3686d4a79cc98"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-alternate-True/defend-step-4-opponent-snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/token-alternate-True/defend-step-4-opponent-snapshot.json",
+          "sha256": "ee994dfc4f6df2915061dd270d2e63a22119980c4ed4a261796cdeae0898754b"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-alternate-True/defend-step-4-prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/token-alternate-True/defend-step-4-prompt.json",
+          "sha256": "828ed3a1e0f9e70d7da2f12fbc7b03a7b7a0e093ddd8eeb23356171fe0a86bee"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-alternate-True/defend-step-4-selection.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/token-alternate-True/defend-step-4-selection.json",
+          "sha256": "b6148bbedb658b7ee7f85522bfde039d4bb9d7d53a704050b44d7be5a18566c0"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-alternate-True/defend-step-4-snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/token-alternate-True/defend-step-4-snapshot.json",
+          "sha256": "501a8d18ff26c9e9bdefb89e87cb0da00c8bbfad3bf4e9300e6f9316f18b978e"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-alternate-True/pending-prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/token-alternate-True/pending-prompt.json",
+          "sha256": "828ed3a1e0f9e70d7da2f12fbc7b03a7b7a0e093ddd8eeb23356171fe0a86bee"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-normal-False/defend-step-0-prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/token-normal-False/defend-step-0-prompt.json",
+          "sha256": "a7ba6851ab543cbd7cfe8fd9369ecdc0153bb404c5b2bca1596965c015d3bd7c"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-normal-False/defend-step-0-quote.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/token-normal-False/defend-step-0-quote.json",
+          "sha256": "7227881049e31e9e3c6453b2b29ca5e9f6de7314c4427a339b6ee60452015102"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-normal-False/defend-step-0-selection.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/token-normal-False/defend-step-0-selection.json",
+          "sha256": "fa9da85eb146d554a2b503050562a2da8f59db826b6406437033c54582914948"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-normal-False/defend-step-0-snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/token-normal-False/defend-step-0-snapshot.json",
+          "sha256": "81ff54d26269a56508ec7b61abce471cc116459a6a7c0cf734980b68b06f45bc"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-normal-False/defend-step-1-prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/token-normal-False/defend-step-1-prompt.json",
+          "sha256": "1a31c8317324bb240b5e8d57bbdd88a25e3d80f69759cbeb53359df5c3c020ae"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-normal-False/defend-step-1-selection.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/token-normal-False/defend-step-1-selection.json",
+          "sha256": "277bb3360c83da7125d1bdf36883285d56a1812bbb34babf2a30e39c51b0af3f"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-normal-False/defend-step-1-snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/token-normal-False/defend-step-1-snapshot.json",
+          "sha256": "9fb5c99f0b779ee646efcb55dd025399552151b5ac3f3598c25708290aca914d"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-normal-False/defend-step-2-prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/token-normal-False/defend-step-2-prompt.json",
+          "sha256": "96dd0f0b70bc9c718b35f79da1fff25d0c196b3b53b9894d97082f007df86cf4"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-normal-False/defend-step-2-selection.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/token-normal-False/defend-step-2-selection.json",
+          "sha256": "277bb3360c83da7125d1bdf36883285d56a1812bbb34babf2a30e39c51b0af3f"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-normal-False/defend-step-2-snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/token-normal-False/defend-step-2-snapshot.json",
+          "sha256": "92d661f00119250015e1bce52edccbd574bf71cc90e0ece3ad5cebed698ed4a0"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-normal-False/defend-step-3-opponent-snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/token-normal-False/defend-step-3-opponent-snapshot.json",
+          "sha256": "56f58ebfa8155b62b8b3c2743a90dbe5c81c8ac9d6ea575b5fb3d790ffcbd24d"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-normal-False/defend-step-3-prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/token-normal-False/defend-step-3-prompt.json",
+          "sha256": "a0c822089e84f0a6cd5571cfb5365ccc889ffbf64774bb27ee72bdfe23fe4a7f"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-normal-False/defend-step-3-selection.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/token-normal-False/defend-step-3-selection.json",
+          "sha256": "511c17b0286ba072887b7066c52a8b2c7a80d5d33d43f03a2cfd83c03472ae0d"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-normal-False/defend-step-3-snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/token-normal-False/defend-step-3-snapshot.json",
+          "sha256": "a260cdec28fd3a1356f8c06119b281fd2a843631ec1aa4c497633d18eec9c104"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-normal-False/defend-step-4-opponent-snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/token-normal-False/defend-step-4-opponent-snapshot.json",
+          "sha256": "92b5aea3e1addf523a1e92bd6a8ce8d6e0a5d4ee5bcdd13a4009cd420e4532d1"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-normal-False/defend-step-4-prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/token-normal-False/defend-step-4-prompt.json",
+          "sha256": "b36596c1a9688e45f95b2bd35ef1088c2f284cc37e25827b02dcc38db3a90551"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-normal-False/defend-step-4-selection.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/token-normal-False/defend-step-4-selection.json",
+          "sha256": "d88034811f35f66808fb2fcab1c885b1c013f6f62c323f3801014f0bed3eac14"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-normal-False/defend-step-4-snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/token-normal-False/defend-step-4-snapshot.json",
+          "sha256": "c22b9565294c5dfa99edfb9808180cfc2931d767bf9864c4c1bb4ba5c778f87e"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-normal-False/defend-step-5-opponent-snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/token-normal-False/defend-step-5-opponent-snapshot.json",
+          "sha256": "b2bec345da721e5d75f5a5b38c36e69644b9de6064e96e481f0f28efc39dc52a"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-normal-False/defend-step-5-prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/token-normal-False/defend-step-5-prompt.json",
+          "sha256": "a34f5a8237c337744a0ab4988d7e538c0cfd164dc2cf0e58d77c657e80e3398c"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-normal-False/defend-step-5-selection.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/token-normal-False/defend-step-5-selection.json",
+          "sha256": "42c4ce5af9ef67287b9278a23bb6e17d473b53a09cbe5f6b22a53a958a3a534e"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-normal-False/defend-step-5-snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/token-normal-False/defend-step-5-snapshot.json",
+          "sha256": "fc2cdf261cd42e7e671fb7ab04d5d5fd67b4683ad2423ff78c431d8c16e70314"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-normal-False/pending-prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/token-normal-False/pending-prompt.json",
+          "sha256": "a34f5a8237c337744a0ab4988d7e538c0cfd164dc2cf0e58d77c657e80e3398c"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-normal-True/defend-step-0-prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/token-normal-True/defend-step-0-prompt.json",
+          "sha256": "b74590b98d26b69726ee364e45b15e2c071ec6ef79ab8de6264a1e19c585dc90"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-normal-True/defend-step-0-quote.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/token-normal-True/defend-step-0-quote.json",
+          "sha256": "4dfd582150fecbd0129f41fdf77cd4f00c87802b91dae9fdb98041378eb0301f"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-normal-True/defend-step-0-selection.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/token-normal-True/defend-step-0-selection.json",
+          "sha256": "fa9da85eb146d554a2b503050562a2da8f59db826b6406437033c54582914948"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-normal-True/defend-step-0-snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/token-normal-True/defend-step-0-snapshot.json",
+          "sha256": "e44c7f8b52739d7bb9e96023d0a16fc9453d782d5bd401bf5cd1f9ecd89bfdb0"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-normal-True/defend-step-1-prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/token-normal-True/defend-step-1-prompt.json",
+          "sha256": "aa28e0c3b954a8c42888e94a2ec98b8ff8b3d88291f68e407bf39b5be5eab525"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-normal-True/defend-step-1-selection.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/token-normal-True/defend-step-1-selection.json",
+          "sha256": "277bb3360c83da7125d1bdf36883285d56a1812bbb34babf2a30e39c51b0af3f"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-normal-True/defend-step-1-snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/token-normal-True/defend-step-1-snapshot.json",
+          "sha256": "bc45e6e4f7b5b3ce202b5ada69597bd1023756e0957749212e1470c1c566c2ff"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-normal-True/defend-step-2-prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/token-normal-True/defend-step-2-prompt.json",
+          "sha256": "96dd0f0b70bc9c718b35f79da1fff25d0c196b3b53b9894d97082f007df86cf4"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-normal-True/defend-step-2-selection.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/token-normal-True/defend-step-2-selection.json",
+          "sha256": "277bb3360c83da7125d1bdf36883285d56a1812bbb34babf2a30e39c51b0af3f"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-normal-True/defend-step-2-snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/token-normal-True/defend-step-2-snapshot.json",
+          "sha256": "4ec79b9dec6c53cb9d13ea98a718a623ae04589194c7d067c399265b93bfac85"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-normal-True/defend-step-3-opponent-snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/token-normal-True/defend-step-3-opponent-snapshot.json",
+          "sha256": "537efb56939170849ae1ec41428679f3c655b84f58baa632ba3455b0764d1dbb"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-normal-True/defend-step-3-prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/token-normal-True/defend-step-3-prompt.json",
+          "sha256": "c22614ce8dee629d1bd1be6abf95f51745c39d83d97cb42ba791953521fe40dd"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-normal-True/defend-step-3-selection.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/token-normal-True/defend-step-3-selection.json",
+          "sha256": "d721c9100906dade57268888f40ae8b521ad03c1c24b0326e74a61af6ad80fee"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-normal-True/defend-step-3-snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/token-normal-True/defend-step-3-snapshot.json",
+          "sha256": "e6876879afed6644fb5c7401db87e8100757d0f8c74b2827168d1d43464ea38f"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-normal-True/defend-step-4-opponent-snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/token-normal-True/defend-step-4-opponent-snapshot.json",
+          "sha256": "c65f32b11a9760d1dcfa4d516e4666b91d08bafe4331561b09260539d88d3012"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-normal-True/defend-step-4-prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/token-normal-True/defend-step-4-prompt.json",
+          "sha256": "828ed3a1e0f9e70d7da2f12fbc7b03a7b7a0e093ddd8eeb23356171fe0a86bee"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-normal-True/defend-step-4-selection.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/token-normal-True/defend-step-4-selection.json",
+          "sha256": "b6148bbedb658b7ee7f85522bfde039d4bb9d7d53a704050b44d7be5a18566c0"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-normal-True/defend-step-4-snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/token-normal-True/defend-step-4-snapshot.json",
+          "sha256": "1fe11f24f544873bd4e584b12accc243ad58197262bcfff9cd0edbe543f51b74"
+        },
+        {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-normal-True/pending-prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice/token-normal-True/pending-prompt.json",
+          "sha256": "828ed3a1e0f9e70d7da2f12fbc7b03a7b7a0e093ddd8eeb23356171fe0a86bee"
+        }
+      ],
+      "originalExpectedCommands": {
+        "hide-free/defend-step-3-command.json": {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/hide-free/defend-step-3-command.json",
+          "sha256": "24f2f3b709e0030729b61d4de3856071584f4ed102d4af8a4b8692033b671892",
+          "expected": {
+            "cmdType": "HIDE_CARD",
+            "sourceObjectId": "SHADOW",
+            "cardNo": "OGN·135/298",
+            "destination": "BATTLEFIELD:STANDBY-TEST-FIELD",
+            "optionalCosts": [
+              "STANDBY_FREE"
+            ],
+            "promptId": "HOLD-TEST:3:P1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 3
+          }
+        },
+        "hide-ordinary/defend-step-0-command.json": {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/hide-ordinary/defend-step-0-command.json",
+          "sha256": "55eb4f6b9010522d570cfd16cef36107b2d572383e70c845594b5bb7af55d3b6",
+          "expected": {
+            "cmdType": "HIDE_CARD",
+            "sourceObjectId": "SHADOW",
+            "cardNo": "OGN·135/298",
+            "destination": "BATTLEFIELD:STANDBY-TEST-FIELD",
+            "optionalCosts": [
+              "STANDBY_A"
+            ],
+            "promptId": "HOLD-TEST:0:P1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 0
+          }
+        },
+        "hide-teemo/defend-step-0-command.json": {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/hide-teemo/defend-step-0-command.json",
+          "sha256": "b6932fe7ab3be89bf13b38eb1ed1a3072c2641a89c23d9897930019aedbd57e2",
+          "expected": {
+            "cmdType": "HIDE_CARD",
+            "sourceObjectId": "SHADOW",
+            "cardNo": "OGN·135/298",
+            "destination": "BATTLEFIELD:STANDBY-TEST-FIELD",
+            "optionalCosts": [
+              "STANDBY_TEEMO_MANA"
+            ],
+            "promptId": "HOLD-TEST:0:P1:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+            "snapshotTick": 0
+          }
+        },
+        "token-alternate-False/defend-step-3-command.json": {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-alternate-False/defend-step-3-command.json",
+          "sha256": "fc711875c96db6612690d0a897d4bd6c0123d6d9921df2594ec767fe700ea68e",
+          "expected": {
+            "cmdType": "PAY_COST",
+            "paymentId": "REPLACEMENT:2:0",
+            "paymentWindow": "RULE_REPLACEMENT",
+            "paymentChoiceIds": [
+              "TAP_RUNE:CHOICE-RUNE"
+            ],
+            "promptId": "HOLD-TEST:3:P1:PAY_COST,SURRENDER",
+            "snapshotTick": 3
+          }
+        },
+        "token-alternate-False/defend-step-4-command.json": {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-alternate-False/defend-step-4-command.json",
+          "sha256": "bc961477d204598c39241e2ade9b00a1bfeca3cabb74ca050c0cd678a9dcac02",
+          "expected": {
+            "cmdType": "PAY_COST",
+            "paymentId": "REPLACEMENT:2:1",
+            "paymentWindow": "RULE_REPLACEMENT",
+            "paymentChoiceIds": [
+              "RECYCLE_RUNE:CHOICE-RUNE"
+            ],
+            "promptId": "HOLD-TEST:4:P1:PAY_COST,SURRENDER",
+            "snapshotTick": 4
+          }
+        },
+        "token-alternate-False/defend-step-5-command.json": {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-alternate-False/defend-step-5-command.json",
+          "sha256": "fc796c04ef936445d0fcdbd3f12762fd0313b4f27fc9c934c5708f57acdd9cc6",
+          "expected": {
+            "cmdType": "PAY_COST",
+            "paymentId": "REPLACEMENT:2:2",
+            "paymentWindow": "RULE_REPLACEMENT",
+            "paymentChoiceIds": [
+              "PAY:TRAIT:red"
+            ],
+            "promptId": "HOLD-TEST:5:P1:PAY_COST,SURRENDER",
+            "snapshotTick": 5
+          }
+        },
+        "token-alternate-True/defend-step-3-command.json": {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-alternate-True/defend-step-3-command.json",
+          "sha256": "7d2b25117f2890ba84c40189b8ec6cdd39088715916815fd147d0dcb50986c91",
+          "expected": {
+            "cmdType": "PAY_COST",
+            "paymentId": "REPLACEMENT:2:0",
+            "paymentWindow": "RULE_REPLACEMENT",
+            "paymentChoiceIds": [
+              "RECYCLE_RUNE:CHOICE-RUNE"
+            ],
+            "promptId": "HOLD-TEST:3:P1:PAY_COST,SURRENDER",
+            "snapshotTick": 3
+          }
+        },
+        "token-alternate-True/defend-step-4-command.json": {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-alternate-True/defend-step-4-command.json",
+          "sha256": "ce987f087c5b69e4ab38699e9520cac3c3418427151498cd73635fd9e320e242",
+          "expected": {
+            "cmdType": "PAY_COST",
+            "paymentId": "REPLACEMENT:2:1",
+            "paymentWindow": "RULE_REPLACEMENT",
+            "paymentChoiceIds": [
+              "PAY:TRAIT:red"
+            ],
+            "promptId": "HOLD-TEST:4:P1:PAY_COST,SURRENDER",
+            "snapshotTick": 4
+          }
+        },
+        "token-normal-False/defend-step-3-command.json": {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-normal-False/defend-step-3-command.json",
+          "sha256": "fc711875c96db6612690d0a897d4bd6c0123d6d9921df2594ec767fe700ea68e",
+          "expected": {
+            "cmdType": "PAY_COST",
+            "paymentId": "REPLACEMENT:2:0",
+            "paymentWindow": "RULE_REPLACEMENT",
+            "paymentChoiceIds": [
+              "TAP_RUNE:CHOICE-RUNE"
+            ],
+            "promptId": "HOLD-TEST:3:P1:PAY_COST,SURRENDER",
+            "snapshotTick": 3
+          }
+        },
+        "token-normal-False/defend-step-4-command.json": {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-normal-False/defend-step-4-command.json",
+          "sha256": "bc961477d204598c39241e2ade9b00a1bfeca3cabb74ca050c0cd678a9dcac02",
+          "expected": {
+            "cmdType": "PAY_COST",
+            "paymentId": "REPLACEMENT:2:1",
+            "paymentWindow": "RULE_REPLACEMENT",
+            "paymentChoiceIds": [
+              "RECYCLE_RUNE:CHOICE-RUNE"
+            ],
+            "promptId": "HOLD-TEST:4:P1:PAY_COST,SURRENDER",
+            "snapshotTick": 4
+          }
+        },
+        "token-normal-False/defend-step-5-command.json": {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-normal-False/defend-step-5-command.json",
+          "sha256": "fc796c04ef936445d0fcdbd3f12762fd0313b4f27fc9c934c5708f57acdd9cc6",
+          "expected": {
+            "cmdType": "PAY_COST",
+            "paymentId": "REPLACEMENT:2:2",
+            "paymentWindow": "RULE_REPLACEMENT",
+            "paymentChoiceIds": [
+              "PAY:TRAIT:red"
+            ],
+            "promptId": "HOLD-TEST:5:P1:PAY_COST,SURRENDER",
+            "snapshotTick": 5
+          }
+        },
+        "token-normal-True/defend-step-3-command.json": {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-normal-True/defend-step-3-command.json",
+          "sha256": "7d2b25117f2890ba84c40189b8ec6cdd39088715916815fd147d0dcb50986c91",
+          "expected": {
+            "cmdType": "PAY_COST",
+            "paymentId": "REPLACEMENT:2:0",
+            "paymentWindow": "RULE_REPLACEMENT",
+            "paymentChoiceIds": [
+              "RECYCLE_RUNE:CHOICE-RUNE"
+            ],
+            "promptId": "HOLD-TEST:3:P1:PAY_COST,SURRENDER",
+            "snapshotTick": 3
+          }
+        },
+        "token-normal-True/defend-step-4-command.json": {
+          "originalPath": "var/qa/rule-choice-native-20261016/green-export-v2/token-normal-True/defend-step-4-command.json",
+          "sha256": "ce987f087c5b69e4ab38699e9520cac3c3418427151498cd73635fd9e320e242",
+          "expected": {
+            "cmdType": "PAY_COST",
+            "paymentId": "REPLACEMENT:2:1",
+            "paymentWindow": "RULE_REPLACEMENT",
+            "paymentChoiceIds": [
+              "PAY:TRAIT:red"
+            ],
+            "promptId": "HOLD-TEST:4:P1:PAY_COST,SURRENDER",
+            "snapshotTick": 4
+          }
+        }
+      }
+    },
+    {
+      "name": "observed-disclosure",
+      "source": "var/qa/public-reveal-wording-20261019/ordinary-disclosure-projections-v1",
+      "inputRoot": "/Users/dinghaolin/MyProjects/riftbound/var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/observed-disclosure",
+      "scene": "ObservedSourcePresentationProof",
+      "flags": [],
+      "expectedCommandCount": 0,
+      "marker": "OBSERVED_SOURCE_PRESENTATION_PASS: 20",
+      "sourceSha256": "45071214d1d0ba2c88050fb58002b70f65a4d2f98adec3f86fc91a6cd6b0d4f5",
+      "sourcePath": "clients/godot/scripts/debug/ObservedSourcePresentationProof.cs",
+      "originalInputs": [
+        {
+          "originalPath": "var/qa/public-reveal-wording-20261019/ordinary-disclosure-projections-v1/LOOK-ChinaStandard20260724-BANISH_DECLINE-banish/P1-prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/observed-disclosure/LOOK-ChinaStandard20260724-BANISH_DECLINE-banish/P1-prompt.json",
+          "sha256": "5e11de272719ddf4abbb6bd1ef3b44903c61eab58a002db94fd1abb1a64da974"
+        },
+        {
+          "originalPath": "var/qa/public-reveal-wording-20261019/ordinary-disclosure-projections-v1/LOOK-ChinaStandard20260724-BANISH_DECLINE-banish/P1-snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/observed-disclosure/LOOK-ChinaStandard20260724-BANISH_DECLINE-banish/P1-snapshot.json",
+          "sha256": "e932990a45d2286a9d35ee87f2cd5f6f4729290b2520df8c7afb2ed155a12127"
+        },
+        {
+          "originalPath": "var/qa/public-reveal-wording-20261019/ordinary-disclosure-projections-v1/LOOK-ChinaStandard20260724-BANISH_DECLINE-banish/P2-prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/observed-disclosure/LOOK-ChinaStandard20260724-BANISH_DECLINE-banish/P2-prompt.json",
+          "sha256": "037429048f23905666109741585d8a4f89cf9c7c65576f8412504373dbd66808"
+        },
+        {
+          "originalPath": "var/qa/public-reveal-wording-20261019/ordinary-disclosure-projections-v1/LOOK-ChinaStandard20260724-BANISH_DECLINE-banish/P2-snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/observed-disclosure/LOOK-ChinaStandard20260724-BANISH_DECLINE-banish/P2-snapshot.json",
+          "sha256": "1cc41871cbfb77a43f4dd62db710ceb52e82aa898629055f7fbfac33e46a7aaf"
+        },
+        {
+          "originalPath": "var/qa/public-reveal-wording-20261019/ordinary-disclosure-projections-v1/LOOK-ChinaStandard20260724-BANISH_DECLINE-play/P1-prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/observed-disclosure/LOOK-ChinaStandard20260724-BANISH_DECLINE-play/P1-prompt.json",
+          "sha256": "1377e1a92f96c7fd304fed4e3711a7013506c72d2dfa6a397917f855f8170c87"
+        },
+        {
+          "originalPath": "var/qa/public-reveal-wording-20261019/ordinary-disclosure-projections-v1/LOOK-ChinaStandard20260724-BANISH_DECLINE-play/P1-snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/observed-disclosure/LOOK-ChinaStandard20260724-BANISH_DECLINE-play/P1-snapshot.json",
+          "sha256": "557b536b447b9f2f92c503fbdd27f44985edc725fa9c8efddd53a4ca08f36075"
+        },
+        {
+          "originalPath": "var/qa/public-reveal-wording-20261019/ordinary-disclosure-projections-v1/LOOK-ChinaStandard20260724-BANISH_DECLINE-play/P2-prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/observed-disclosure/LOOK-ChinaStandard20260724-BANISH_DECLINE-play/P2-prompt.json",
+          "sha256": "def825e4bf0fd8720ba4d73f5ce96625cb885d6387ee9c3f4f75069d29c09c07"
+        },
+        {
+          "originalPath": "var/qa/public-reveal-wording-20261019/ordinary-disclosure-projections-v1/LOOK-ChinaStandard20260724-BANISH_DECLINE-play/P2-snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/observed-disclosure/LOOK-ChinaStandard20260724-BANISH_DECLINE-play/P2-snapshot.json",
+          "sha256": "c01ce4265e7e821c81edd085c5fbdbe09ee80b5756bfa7504a541812e46c7a94"
+        },
+        {
+          "originalPath": "var/qa/public-reveal-wording-20261019/ordinary-disclosure-projections-v1/LOOK-ChinaStandard20260724-BANISH_PLAY-banish/P1-prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/observed-disclosure/LOOK-ChinaStandard20260724-BANISH_PLAY-banish/P1-prompt.json",
+          "sha256": "5e11de272719ddf4abbb6bd1ef3b44903c61eab58a002db94fd1abb1a64da974"
+        },
+        {
+          "originalPath": "var/qa/public-reveal-wording-20261019/ordinary-disclosure-projections-v1/LOOK-ChinaStandard20260724-BANISH_PLAY-banish/P1-snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/observed-disclosure/LOOK-ChinaStandard20260724-BANISH_PLAY-banish/P1-snapshot.json",
+          "sha256": "e932990a45d2286a9d35ee87f2cd5f6f4729290b2520df8c7afb2ed155a12127"
+        },
+        {
+          "originalPath": "var/qa/public-reveal-wording-20261019/ordinary-disclosure-projections-v1/LOOK-ChinaStandard20260724-BANISH_PLAY-banish/P2-prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/observed-disclosure/LOOK-ChinaStandard20260724-BANISH_PLAY-banish/P2-prompt.json",
+          "sha256": "037429048f23905666109741585d8a4f89cf9c7c65576f8412504373dbd66808"
+        },
+        {
+          "originalPath": "var/qa/public-reveal-wording-20261019/ordinary-disclosure-projections-v1/LOOK-ChinaStandard20260724-BANISH_PLAY-banish/P2-snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/observed-disclosure/LOOK-ChinaStandard20260724-BANISH_PLAY-banish/P2-snapshot.json",
+          "sha256": "1cc41871cbfb77a43f4dd62db710ceb52e82aa898629055f7fbfac33e46a7aaf"
+        },
+        {
+          "originalPath": "var/qa/public-reveal-wording-20261019/ordinary-disclosure-projections-v1/LOOK-ChinaStandard20260724-BANISH_PLAY-play/P1-prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/observed-disclosure/LOOK-ChinaStandard20260724-BANISH_PLAY-play/P1-prompt.json",
+          "sha256": "1377e1a92f96c7fd304fed4e3711a7013506c72d2dfa6a397917f855f8170c87"
+        },
+        {
+          "originalPath": "var/qa/public-reveal-wording-20261019/ordinary-disclosure-projections-v1/LOOK-ChinaStandard20260724-BANISH_PLAY-play/P1-snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/observed-disclosure/LOOK-ChinaStandard20260724-BANISH_PLAY-play/P1-snapshot.json",
+          "sha256": "557b536b447b9f2f92c503fbdd27f44985edc725fa9c8efddd53a4ca08f36075"
+        },
+        {
+          "originalPath": "var/qa/public-reveal-wording-20261019/ordinary-disclosure-projections-v1/LOOK-ChinaStandard20260724-BANISH_PLAY-play/P2-prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/observed-disclosure/LOOK-ChinaStandard20260724-BANISH_PLAY-play/P2-prompt.json",
+          "sha256": "def825e4bf0fd8720ba4d73f5ce96625cb885d6387ee9c3f4f75069d29c09c07"
+        },
+        {
+          "originalPath": "var/qa/public-reveal-wording-20261019/ordinary-disclosure-projections-v1/LOOK-ChinaStandard20260724-BANISH_PLAY-play/P2-snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/observed-disclosure/LOOK-ChinaStandard20260724-BANISH_PLAY-play/P2-snapshot.json",
+          "sha256": "c01ce4265e7e821c81edd085c5fbdbe09ee80b5756bfa7504a541812e46c7a94"
+        },
+        {
+          "originalPath": "var/qa/public-reveal-wording-20261019/ordinary-disclosure-projections-v1/LOOK-ChinaStandard20260724-KEEP-banish/P1-prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/observed-disclosure/LOOK-ChinaStandard20260724-KEEP-banish/P1-prompt.json",
+          "sha256": "5e11de272719ddf4abbb6bd1ef3b44903c61eab58a002db94fd1abb1a64da974"
+        },
+        {
+          "originalPath": "var/qa/public-reveal-wording-20261019/ordinary-disclosure-projections-v1/LOOK-ChinaStandard20260724-KEEP-banish/P1-snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/observed-disclosure/LOOK-ChinaStandard20260724-KEEP-banish/P1-snapshot.json",
+          "sha256": "e932990a45d2286a9d35ee87f2cd5f6f4729290b2520df8c7afb2ed155a12127"
+        },
+        {
+          "originalPath": "var/qa/public-reveal-wording-20261019/ordinary-disclosure-projections-v1/LOOK-ChinaStandard20260724-KEEP-banish/P2-prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/observed-disclosure/LOOK-ChinaStandard20260724-KEEP-banish/P2-prompt.json",
+          "sha256": "037429048f23905666109741585d8a4f89cf9c7c65576f8412504373dbd66808"
+        },
+        {
+          "originalPath": "var/qa/public-reveal-wording-20261019/ordinary-disclosure-projections-v1/LOOK-ChinaStandard20260724-KEEP-banish/P2-snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/observed-disclosure/LOOK-ChinaStandard20260724-KEEP-banish/P2-snapshot.json",
+          "sha256": "1cc41871cbfb77a43f4dd62db710ceb52e82aa898629055f7fbfac33e46a7aaf"
+        },
+        {
+          "originalPath": "var/qa/public-reveal-wording-20261019/ordinary-disclosure-projections-v1/LOOK-CoreRules-BANISH_DECLINE-banish/P1-prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/observed-disclosure/LOOK-CoreRules-BANISH_DECLINE-banish/P1-prompt.json",
+          "sha256": "91a12a1306bc7bd0e7009506ea6b9e5f00dd2063f70af321d9c85416096b9e6a"
+        },
+        {
+          "originalPath": "var/qa/public-reveal-wording-20261019/ordinary-disclosure-projections-v1/LOOK-CoreRules-BANISH_DECLINE-banish/P1-snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/observed-disclosure/LOOK-CoreRules-BANISH_DECLINE-banish/P1-snapshot.json",
+          "sha256": "e932990a45d2286a9d35ee87f2cd5f6f4729290b2520df8c7afb2ed155a12127"
+        },
+        {
+          "originalPath": "var/qa/public-reveal-wording-20261019/ordinary-disclosure-projections-v1/LOOK-CoreRules-BANISH_DECLINE-banish/P2-prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/observed-disclosure/LOOK-CoreRules-BANISH_DECLINE-banish/P2-prompt.json",
+          "sha256": "db815794e69e61281f56e5c92537b40d1e70c71d4ca83bceadd70e42d294ec53"
+        },
+        {
+          "originalPath": "var/qa/public-reveal-wording-20261019/ordinary-disclosure-projections-v1/LOOK-CoreRules-BANISH_DECLINE-banish/P2-snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/observed-disclosure/LOOK-CoreRules-BANISH_DECLINE-banish/P2-snapshot.json",
+          "sha256": "1cc41871cbfb77a43f4dd62db710ceb52e82aa898629055f7fbfac33e46a7aaf"
+        },
+        {
+          "originalPath": "var/qa/public-reveal-wording-20261019/ordinary-disclosure-projections-v1/LOOK-CoreRules-BANISH_DECLINE-play/P1-prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/observed-disclosure/LOOK-CoreRules-BANISH_DECLINE-play/P1-prompt.json",
+          "sha256": "b778a59d165c53a89eb791297d94503e895461d5bfec34b009b23877131372a6"
+        },
+        {
+          "originalPath": "var/qa/public-reveal-wording-20261019/ordinary-disclosure-projections-v1/LOOK-CoreRules-BANISH_DECLINE-play/P1-snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/observed-disclosure/LOOK-CoreRules-BANISH_DECLINE-play/P1-snapshot.json",
+          "sha256": "557b536b447b9f2f92c503fbdd27f44985edc725fa9c8efddd53a4ca08f36075"
+        },
+        {
+          "originalPath": "var/qa/public-reveal-wording-20261019/ordinary-disclosure-projections-v1/LOOK-CoreRules-BANISH_DECLINE-play/P2-prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/observed-disclosure/LOOK-CoreRules-BANISH_DECLINE-play/P2-prompt.json",
+          "sha256": "d3f741ba63a7afbe4b5a8883a04bbf2abdf2d0ad1bcd53bc5453bb77fb540685"
+        },
+        {
+          "originalPath": "var/qa/public-reveal-wording-20261019/ordinary-disclosure-projections-v1/LOOK-CoreRules-BANISH_DECLINE-play/P2-snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/observed-disclosure/LOOK-CoreRules-BANISH_DECLINE-play/P2-snapshot.json",
+          "sha256": "c01ce4265e7e821c81edd085c5fbdbe09ee80b5756bfa7504a541812e46c7a94"
+        },
+        {
+          "originalPath": "var/qa/public-reveal-wording-20261019/ordinary-disclosure-projections-v1/LOOK-CoreRules-BANISH_PLAY-banish/P1-prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/observed-disclosure/LOOK-CoreRules-BANISH_PLAY-banish/P1-prompt.json",
+          "sha256": "91a12a1306bc7bd0e7009506ea6b9e5f00dd2063f70af321d9c85416096b9e6a"
+        },
+        {
+          "originalPath": "var/qa/public-reveal-wording-20261019/ordinary-disclosure-projections-v1/LOOK-CoreRules-BANISH_PLAY-banish/P1-snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/observed-disclosure/LOOK-CoreRules-BANISH_PLAY-banish/P1-snapshot.json",
+          "sha256": "e932990a45d2286a9d35ee87f2cd5f6f4729290b2520df8c7afb2ed155a12127"
+        },
+        {
+          "originalPath": "var/qa/public-reveal-wording-20261019/ordinary-disclosure-projections-v1/LOOK-CoreRules-BANISH_PLAY-banish/P2-prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/observed-disclosure/LOOK-CoreRules-BANISH_PLAY-banish/P2-prompt.json",
+          "sha256": "db815794e69e61281f56e5c92537b40d1e70c71d4ca83bceadd70e42d294ec53"
+        },
+        {
+          "originalPath": "var/qa/public-reveal-wording-20261019/ordinary-disclosure-projections-v1/LOOK-CoreRules-BANISH_PLAY-banish/P2-snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/observed-disclosure/LOOK-CoreRules-BANISH_PLAY-banish/P2-snapshot.json",
+          "sha256": "1cc41871cbfb77a43f4dd62db710ceb52e82aa898629055f7fbfac33e46a7aaf"
+        },
+        {
+          "originalPath": "var/qa/public-reveal-wording-20261019/ordinary-disclosure-projections-v1/LOOK-CoreRules-BANISH_PLAY-play/P1-prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/observed-disclosure/LOOK-CoreRules-BANISH_PLAY-play/P1-prompt.json",
+          "sha256": "b778a59d165c53a89eb791297d94503e895461d5bfec34b009b23877131372a6"
+        },
+        {
+          "originalPath": "var/qa/public-reveal-wording-20261019/ordinary-disclosure-projections-v1/LOOK-CoreRules-BANISH_PLAY-play/P1-snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/observed-disclosure/LOOK-CoreRules-BANISH_PLAY-play/P1-snapshot.json",
+          "sha256": "557b536b447b9f2f92c503fbdd27f44985edc725fa9c8efddd53a4ca08f36075"
+        },
+        {
+          "originalPath": "var/qa/public-reveal-wording-20261019/ordinary-disclosure-projections-v1/LOOK-CoreRules-BANISH_PLAY-play/P2-prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/observed-disclosure/LOOK-CoreRules-BANISH_PLAY-play/P2-prompt.json",
+          "sha256": "d3f741ba63a7afbe4b5a8883a04bbf2abdf2d0ad1bcd53bc5453bb77fb540685"
+        },
+        {
+          "originalPath": "var/qa/public-reveal-wording-20261019/ordinary-disclosure-projections-v1/LOOK-CoreRules-BANISH_PLAY-play/P2-snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/observed-disclosure/LOOK-CoreRules-BANISH_PLAY-play/P2-snapshot.json",
+          "sha256": "c01ce4265e7e821c81edd085c5fbdbe09ee80b5756bfa7504a541812e46c7a94"
+        },
+        {
+          "originalPath": "var/qa/public-reveal-wording-20261019/ordinary-disclosure-projections-v1/LOOK-CoreRules-KEEP-banish/P1-prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/observed-disclosure/LOOK-CoreRules-KEEP-banish/P1-prompt.json",
+          "sha256": "91a12a1306bc7bd0e7009506ea6b9e5f00dd2063f70af321d9c85416096b9e6a"
+        },
+        {
+          "originalPath": "var/qa/public-reveal-wording-20261019/ordinary-disclosure-projections-v1/LOOK-CoreRules-KEEP-banish/P1-snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/observed-disclosure/LOOK-CoreRules-KEEP-banish/P1-snapshot.json",
+          "sha256": "e932990a45d2286a9d35ee87f2cd5f6f4729290b2520df8c7afb2ed155a12127"
+        },
+        {
+          "originalPath": "var/qa/public-reveal-wording-20261019/ordinary-disclosure-projections-v1/LOOK-CoreRules-KEEP-banish/P2-prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/observed-disclosure/LOOK-CoreRules-KEEP-banish/P2-prompt.json",
+          "sha256": "db815794e69e61281f56e5c92537b40d1e70c71d4ca83bceadd70e42d294ec53"
+        },
+        {
+          "originalPath": "var/qa/public-reveal-wording-20261019/ordinary-disclosure-projections-v1/LOOK-CoreRules-KEEP-banish/P2-snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/observed-disclosure/LOOK-CoreRules-KEEP-banish/P2-snapshot.json",
+          "sha256": "1cc41871cbfb77a43f4dd62db710ceb52e82aa898629055f7fbfac33e46a7aaf"
+        },
+        {
+          "originalPath": "var/qa/public-reveal-wording-20261019/ordinary-disclosure-projections-v1/REVEAL-ChinaStandard20260724-BANISH_DECLINE-banish/P1-prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/observed-disclosure/REVEAL-ChinaStandard20260724-BANISH_DECLINE-banish/P1-prompt.json",
+          "sha256": "9bf43c33deb36eb620b99955c312c6b758168ba72011af7685be3cbdb742c377"
+        },
+        {
+          "originalPath": "var/qa/public-reveal-wording-20261019/ordinary-disclosure-projections-v1/REVEAL-ChinaStandard20260724-BANISH_DECLINE-banish/P1-snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/observed-disclosure/REVEAL-ChinaStandard20260724-BANISH_DECLINE-banish/P1-snapshot.json",
+          "sha256": "e3dde83282917b277f69fc16d45634aaaf3a197d261e4f7a9ea52c847f66cd83"
+        },
+        {
+          "originalPath": "var/qa/public-reveal-wording-20261019/ordinary-disclosure-projections-v1/REVEAL-ChinaStandard20260724-BANISH_DECLINE-banish/P2-prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/observed-disclosure/REVEAL-ChinaStandard20260724-BANISH_DECLINE-banish/P2-prompt.json",
+          "sha256": "39abc59aac98d1045f278c1be88d15083bb05c567c66591bbf968d364b39aeb9"
+        },
+        {
+          "originalPath": "var/qa/public-reveal-wording-20261019/ordinary-disclosure-projections-v1/REVEAL-ChinaStandard20260724-BANISH_DECLINE-banish/P2-snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/observed-disclosure/REVEAL-ChinaStandard20260724-BANISH_DECLINE-banish/P2-snapshot.json",
+          "sha256": "db67a74d9a6a09937073129a9525bb3093eebe1d433d9b760f49ededc443fd9b"
+        },
+        {
+          "originalPath": "var/qa/public-reveal-wording-20261019/ordinary-disclosure-projections-v1/REVEAL-ChinaStandard20260724-BANISH_DECLINE-play/P1-prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/observed-disclosure/REVEAL-ChinaStandard20260724-BANISH_DECLINE-play/P1-prompt.json",
+          "sha256": "bba6e4853d0d0b042e0c469b8649a3ef41103f935fa5866eb1b9a6f631b2e745"
+        },
+        {
+          "originalPath": "var/qa/public-reveal-wording-20261019/ordinary-disclosure-projections-v1/REVEAL-ChinaStandard20260724-BANISH_DECLINE-play/P1-snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/observed-disclosure/REVEAL-ChinaStandard20260724-BANISH_DECLINE-play/P1-snapshot.json",
+          "sha256": "0ecc0ce38bce97d8ca16515fc30a425e434792920aa0d7dc326b14429a567981"
+        },
+        {
+          "originalPath": "var/qa/public-reveal-wording-20261019/ordinary-disclosure-projections-v1/REVEAL-ChinaStandard20260724-BANISH_DECLINE-play/P2-prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/observed-disclosure/REVEAL-ChinaStandard20260724-BANISH_DECLINE-play/P2-prompt.json",
+          "sha256": "9d5f929a47ff300de924232dc5b0faee6f7cd12bb0c704a7f76e782c1d52ee36"
+        },
+        {
+          "originalPath": "var/qa/public-reveal-wording-20261019/ordinary-disclosure-projections-v1/REVEAL-ChinaStandard20260724-BANISH_DECLINE-play/P2-snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/observed-disclosure/REVEAL-ChinaStandard20260724-BANISH_DECLINE-play/P2-snapshot.json",
+          "sha256": "16bffcf493addc016dad31a27ac6a1b676625517491d6ec8d23fd988761284d7"
+        },
+        {
+          "originalPath": "var/qa/public-reveal-wording-20261019/ordinary-disclosure-projections-v1/REVEAL-ChinaStandard20260724-BANISH_PLAY-banish/P1-prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/observed-disclosure/REVEAL-ChinaStandard20260724-BANISH_PLAY-banish/P1-prompt.json",
+          "sha256": "9bf43c33deb36eb620b99955c312c6b758168ba72011af7685be3cbdb742c377"
+        },
+        {
+          "originalPath": "var/qa/public-reveal-wording-20261019/ordinary-disclosure-projections-v1/REVEAL-ChinaStandard20260724-BANISH_PLAY-banish/P1-snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/observed-disclosure/REVEAL-ChinaStandard20260724-BANISH_PLAY-banish/P1-snapshot.json",
+          "sha256": "e3dde83282917b277f69fc16d45634aaaf3a197d261e4f7a9ea52c847f66cd83"
+        },
+        {
+          "originalPath": "var/qa/public-reveal-wording-20261019/ordinary-disclosure-projections-v1/REVEAL-ChinaStandard20260724-BANISH_PLAY-banish/P2-prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/observed-disclosure/REVEAL-ChinaStandard20260724-BANISH_PLAY-banish/P2-prompt.json",
+          "sha256": "39abc59aac98d1045f278c1be88d15083bb05c567c66591bbf968d364b39aeb9"
+        },
+        {
+          "originalPath": "var/qa/public-reveal-wording-20261019/ordinary-disclosure-projections-v1/REVEAL-ChinaStandard20260724-BANISH_PLAY-banish/P2-snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/observed-disclosure/REVEAL-ChinaStandard20260724-BANISH_PLAY-banish/P2-snapshot.json",
+          "sha256": "db67a74d9a6a09937073129a9525bb3093eebe1d433d9b760f49ededc443fd9b"
+        },
+        {
+          "originalPath": "var/qa/public-reveal-wording-20261019/ordinary-disclosure-projections-v1/REVEAL-ChinaStandard20260724-BANISH_PLAY-play/P1-prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/observed-disclosure/REVEAL-ChinaStandard20260724-BANISH_PLAY-play/P1-prompt.json",
+          "sha256": "bba6e4853d0d0b042e0c469b8649a3ef41103f935fa5866eb1b9a6f631b2e745"
+        },
+        {
+          "originalPath": "var/qa/public-reveal-wording-20261019/ordinary-disclosure-projections-v1/REVEAL-ChinaStandard20260724-BANISH_PLAY-play/P1-snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/observed-disclosure/REVEAL-ChinaStandard20260724-BANISH_PLAY-play/P1-snapshot.json",
+          "sha256": "0ecc0ce38bce97d8ca16515fc30a425e434792920aa0d7dc326b14429a567981"
+        },
+        {
+          "originalPath": "var/qa/public-reveal-wording-20261019/ordinary-disclosure-projections-v1/REVEAL-ChinaStandard20260724-BANISH_PLAY-play/P2-prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/observed-disclosure/REVEAL-ChinaStandard20260724-BANISH_PLAY-play/P2-prompt.json",
+          "sha256": "9d5f929a47ff300de924232dc5b0faee6f7cd12bb0c704a7f76e782c1d52ee36"
+        },
+        {
+          "originalPath": "var/qa/public-reveal-wording-20261019/ordinary-disclosure-projections-v1/REVEAL-ChinaStandard20260724-BANISH_PLAY-play/P2-snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/observed-disclosure/REVEAL-ChinaStandard20260724-BANISH_PLAY-play/P2-snapshot.json",
+          "sha256": "16bffcf493addc016dad31a27ac6a1b676625517491d6ec8d23fd988761284d7"
+        },
+        {
+          "originalPath": "var/qa/public-reveal-wording-20261019/ordinary-disclosure-projections-v1/REVEAL-ChinaStandard20260724-KEEP-banish/P1-prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/observed-disclosure/REVEAL-ChinaStandard20260724-KEEP-banish/P1-prompt.json",
+          "sha256": "9bf43c33deb36eb620b99955c312c6b758168ba72011af7685be3cbdb742c377"
+        },
+        {
+          "originalPath": "var/qa/public-reveal-wording-20261019/ordinary-disclosure-projections-v1/REVEAL-ChinaStandard20260724-KEEP-banish/P1-snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/observed-disclosure/REVEAL-ChinaStandard20260724-KEEP-banish/P1-snapshot.json",
+          "sha256": "e3dde83282917b277f69fc16d45634aaaf3a197d261e4f7a9ea52c847f66cd83"
+        },
+        {
+          "originalPath": "var/qa/public-reveal-wording-20261019/ordinary-disclosure-projections-v1/REVEAL-ChinaStandard20260724-KEEP-banish/P2-prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/observed-disclosure/REVEAL-ChinaStandard20260724-KEEP-banish/P2-prompt.json",
+          "sha256": "39abc59aac98d1045f278c1be88d15083bb05c567c66591bbf968d364b39aeb9"
+        },
+        {
+          "originalPath": "var/qa/public-reveal-wording-20261019/ordinary-disclosure-projections-v1/REVEAL-ChinaStandard20260724-KEEP-banish/P2-snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/observed-disclosure/REVEAL-ChinaStandard20260724-KEEP-banish/P2-snapshot.json",
+          "sha256": "db67a74d9a6a09937073129a9525bb3093eebe1d433d9b760f49ededc443fd9b"
+        },
+        {
+          "originalPath": "var/qa/public-reveal-wording-20261019/ordinary-disclosure-projections-v1/REVEAL-CoreRules-BANISH_DECLINE-banish/P1-prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/observed-disclosure/REVEAL-CoreRules-BANISH_DECLINE-banish/P1-prompt.json",
+          "sha256": "1ccb354f4e909cd1a7745d027db7cadbcde4ab6bf1bc53a3ae594078ee238d8b"
+        },
+        {
+          "originalPath": "var/qa/public-reveal-wording-20261019/ordinary-disclosure-projections-v1/REVEAL-CoreRules-BANISH_DECLINE-banish/P1-snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/observed-disclosure/REVEAL-CoreRules-BANISH_DECLINE-banish/P1-snapshot.json",
+          "sha256": "e3dde83282917b277f69fc16d45634aaaf3a197d261e4f7a9ea52c847f66cd83"
+        },
+        {
+          "originalPath": "var/qa/public-reveal-wording-20261019/ordinary-disclosure-projections-v1/REVEAL-CoreRules-BANISH_DECLINE-banish/P2-prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/observed-disclosure/REVEAL-CoreRules-BANISH_DECLINE-banish/P2-prompt.json",
+          "sha256": "4e1319509271c98528cd8a6c05101c48e645e4814c7795fde3706ce0bfdcb227"
+        },
+        {
+          "originalPath": "var/qa/public-reveal-wording-20261019/ordinary-disclosure-projections-v1/REVEAL-CoreRules-BANISH_DECLINE-banish/P2-snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/observed-disclosure/REVEAL-CoreRules-BANISH_DECLINE-banish/P2-snapshot.json",
+          "sha256": "db67a74d9a6a09937073129a9525bb3093eebe1d433d9b760f49ededc443fd9b"
+        },
+        {
+          "originalPath": "var/qa/public-reveal-wording-20261019/ordinary-disclosure-projections-v1/REVEAL-CoreRules-BANISH_DECLINE-play/P1-prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/observed-disclosure/REVEAL-CoreRules-BANISH_DECLINE-play/P1-prompt.json",
+          "sha256": "a4567c7aae635891c0a1b74547be518597400fa3ad90d0be6fd77535d816a81d"
+        },
+        {
+          "originalPath": "var/qa/public-reveal-wording-20261019/ordinary-disclosure-projections-v1/REVEAL-CoreRules-BANISH_DECLINE-play/P1-snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/observed-disclosure/REVEAL-CoreRules-BANISH_DECLINE-play/P1-snapshot.json",
+          "sha256": "0ecc0ce38bce97d8ca16515fc30a425e434792920aa0d7dc326b14429a567981"
+        },
+        {
+          "originalPath": "var/qa/public-reveal-wording-20261019/ordinary-disclosure-projections-v1/REVEAL-CoreRules-BANISH_DECLINE-play/P2-prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/observed-disclosure/REVEAL-CoreRules-BANISH_DECLINE-play/P2-prompt.json",
+          "sha256": "b90c73ecc919d7d57322dbd8e257a7636f2ccdd313123ecc7bf275ff7e12ea78"
+        },
+        {
+          "originalPath": "var/qa/public-reveal-wording-20261019/ordinary-disclosure-projections-v1/REVEAL-CoreRules-BANISH_DECLINE-play/P2-snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/observed-disclosure/REVEAL-CoreRules-BANISH_DECLINE-play/P2-snapshot.json",
+          "sha256": "16bffcf493addc016dad31a27ac6a1b676625517491d6ec8d23fd988761284d7"
+        },
+        {
+          "originalPath": "var/qa/public-reveal-wording-20261019/ordinary-disclosure-projections-v1/REVEAL-CoreRules-BANISH_PLAY-banish/P1-prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/observed-disclosure/REVEAL-CoreRules-BANISH_PLAY-banish/P1-prompt.json",
+          "sha256": "1ccb354f4e909cd1a7745d027db7cadbcde4ab6bf1bc53a3ae594078ee238d8b"
+        },
+        {
+          "originalPath": "var/qa/public-reveal-wording-20261019/ordinary-disclosure-projections-v1/REVEAL-CoreRules-BANISH_PLAY-banish/P1-snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/observed-disclosure/REVEAL-CoreRules-BANISH_PLAY-banish/P1-snapshot.json",
+          "sha256": "e3dde83282917b277f69fc16d45634aaaf3a197d261e4f7a9ea52c847f66cd83"
+        },
+        {
+          "originalPath": "var/qa/public-reveal-wording-20261019/ordinary-disclosure-projections-v1/REVEAL-CoreRules-BANISH_PLAY-banish/P2-prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/observed-disclosure/REVEAL-CoreRules-BANISH_PLAY-banish/P2-prompt.json",
+          "sha256": "4e1319509271c98528cd8a6c05101c48e645e4814c7795fde3706ce0bfdcb227"
+        },
+        {
+          "originalPath": "var/qa/public-reveal-wording-20261019/ordinary-disclosure-projections-v1/REVEAL-CoreRules-BANISH_PLAY-banish/P2-snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/observed-disclosure/REVEAL-CoreRules-BANISH_PLAY-banish/P2-snapshot.json",
+          "sha256": "db67a74d9a6a09937073129a9525bb3093eebe1d433d9b760f49ededc443fd9b"
+        },
+        {
+          "originalPath": "var/qa/public-reveal-wording-20261019/ordinary-disclosure-projections-v1/REVEAL-CoreRules-BANISH_PLAY-play/P1-prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/observed-disclosure/REVEAL-CoreRules-BANISH_PLAY-play/P1-prompt.json",
+          "sha256": "a4567c7aae635891c0a1b74547be518597400fa3ad90d0be6fd77535d816a81d"
+        },
+        {
+          "originalPath": "var/qa/public-reveal-wording-20261019/ordinary-disclosure-projections-v1/REVEAL-CoreRules-BANISH_PLAY-play/P1-snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/observed-disclosure/REVEAL-CoreRules-BANISH_PLAY-play/P1-snapshot.json",
+          "sha256": "0ecc0ce38bce97d8ca16515fc30a425e434792920aa0d7dc326b14429a567981"
+        },
+        {
+          "originalPath": "var/qa/public-reveal-wording-20261019/ordinary-disclosure-projections-v1/REVEAL-CoreRules-BANISH_PLAY-play/P2-prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/observed-disclosure/REVEAL-CoreRules-BANISH_PLAY-play/P2-prompt.json",
+          "sha256": "b90c73ecc919d7d57322dbd8e257a7636f2ccdd313123ecc7bf275ff7e12ea78"
+        },
+        {
+          "originalPath": "var/qa/public-reveal-wording-20261019/ordinary-disclosure-projections-v1/REVEAL-CoreRules-BANISH_PLAY-play/P2-snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/observed-disclosure/REVEAL-CoreRules-BANISH_PLAY-play/P2-snapshot.json",
+          "sha256": "16bffcf493addc016dad31a27ac6a1b676625517491d6ec8d23fd988761284d7"
+        },
+        {
+          "originalPath": "var/qa/public-reveal-wording-20261019/ordinary-disclosure-projections-v1/REVEAL-CoreRules-KEEP-banish/P1-prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/observed-disclosure/REVEAL-CoreRules-KEEP-banish/P1-prompt.json",
+          "sha256": "1ccb354f4e909cd1a7745d027db7cadbcde4ab6bf1bc53a3ae594078ee238d8b"
+        },
+        {
+          "originalPath": "var/qa/public-reveal-wording-20261019/ordinary-disclosure-projections-v1/REVEAL-CoreRules-KEEP-banish/P1-snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/observed-disclosure/REVEAL-CoreRules-KEEP-banish/P1-snapshot.json",
+          "sha256": "e3dde83282917b277f69fc16d45634aaaf3a197d261e4f7a9ea52c847f66cd83"
+        },
+        {
+          "originalPath": "var/qa/public-reveal-wording-20261019/ordinary-disclosure-projections-v1/REVEAL-CoreRules-KEEP-banish/P2-prompt.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/observed-disclosure/REVEAL-CoreRules-KEEP-banish/P2-prompt.json",
+          "sha256": "4e1319509271c98528cd8a6c05101c48e645e4814c7795fde3706ce0bfdcb227"
+        },
+        {
+          "originalPath": "var/qa/public-reveal-wording-20261019/ordinary-disclosure-projections-v1/REVEAL-CoreRules-KEEP-banish/P2-snapshot.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/observed-disclosure/REVEAL-CoreRules-KEEP-banish/P2-snapshot.json",
+          "sha256": "db67a74d9a6a09937073129a9525bb3093eebe1d433d9b760f49ededc443fd9b"
+        },
+        {
+          "originalPath": "var/qa/public-reveal-wording-20261019/ordinary-disclosure-projections-v1/index.json",
+          "materializedPath": "var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/observed-disclosure/index.json",
+          "sha256": "0196d1f7ec20f1aa8e7b5d9b3e5b8a0c10448e5f7b43161a2ed970a94d2f6be6"
+        }
+      ],
+      "originalExpectedCommands": {}
+    }
+  ]
+}

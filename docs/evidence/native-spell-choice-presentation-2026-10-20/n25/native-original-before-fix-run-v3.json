@@ -1,0 +1,40 @@
+{
+  "atUtc": "2026-10-20T13:10:27.156712+00:00",
+  "exitCode": 1,
+  "lockAtStart": {
+    "atUtc": "2026-10-20T13:10:26.569493+00:00",
+    "roots": [
+      {
+        "rootLocked": false,
+        "sessions": []
+      }
+    ],
+    "missingValuesRemainUnknown": true
+  },
+  "lockAtEnd": {
+    "atUtc": "2026-10-20T13:10:27.184455+00:00",
+    "roots": [
+      {
+        "rootLocked": false,
+        "sessions": []
+      }
+    ],
+    "missingValuesRemainUnknown": true
+  },
+  "actualArguments": [
+    "/Users/dinghaolin/.local/share/riftbound-tools/godot-4.7.2/Godot_mono.app/Contents/MacOS/Godot",
+    "--headless",
+    "--path",
+    "/Users/dinghaolin/MyProjects/riftbound/clients/godot",
+    "res://scenes/debug/SpellChoiceRemakeInteractionProof.tscn",
+    "--",
+    "--evidence=/Users/dinghaolin/MyProjects/riftbound/var/qa/native-spell-choice-presentation-20261020/inputs-v1",
+    "--output=/Users/dinghaolin/MyProjects/riftbound/var/qa/native-spell-choice-presentation-20261020/native-original-before-fix-v3",
+    "--client-assembly=/Users/dinghaolin/MyProjects/riftbound/clients/godot/.godot/mono/temp/bin/Debug/Riftbound.GodotClient.dll"
+  ],
+  "actualClientAssemblySha256": "60c4938174ff28d99a3e0fb3942efdb7a56d9fb1b171679d485b8f3df10b9912",
+  "actualLogSha256": "bfe8b20be8d40bddc3aaadde686c948db64ebf31db363b29fdd5641884298449",
+  "bothOriginalProductionPresentationAndSelectionSourcesByteExactBeforeAfter": true,
+  "genuineGodotControlProofNotVisibleAcceptance": true,
+  "receiptExists": true
+}

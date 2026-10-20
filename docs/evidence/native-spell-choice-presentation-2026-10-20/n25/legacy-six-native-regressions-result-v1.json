@@ -1,0 +1,244 @@
+{
+  "status": "PASS_SIX_UNCHANGED_ORIGINAL_NATIVE_CONTROL_SCENES_ALL_INPUTS_AND_COMMANDS_EXACT",
+  "atUtc": "2026-10-20T13:43:44.069412+00:00",
+  "results": [
+    {
+      "name": "grouped-target",
+      "exitCode": 0,
+      "sourceSha256": "2eca235ce8f567a858f180677ed2a5dedad4f529a40db4d94cd2875869bfc135",
+      "actualClientAssemblySha256": "07fc514b5b2ede0df041c0d1345ee38fa6a88db2ef451e4432bda8185ea62e69",
+      "actualArguments": [
+        "/Users/dinghaolin/.local/share/riftbound-tools/godot-4.7.2/Godot_mono.app/Contents/MacOS/Godot",
+        "--headless",
+        "--path",
+        "/Users/dinghaolin/MyProjects/riftbound/clients/godot",
+        "res://scenes/debug/GroupedTargetInteractionProof.tscn",
+        "--",
+        "--evidence=/Users/dinghaolin/MyProjects/riftbound/var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/grouped-target"
+      ],
+      "logSha256": "27121410a50cf9bf249d399ea90c5e76232913344323cae31ca132644a936277",
+      "lockAtStart": {
+        "atUtc": "2026-10-20T13:43:39.865873+00:00",
+        "roots": [
+          {
+            "rootLocked": false,
+            "sessions": []
+          }
+        ],
+        "missingValuesRemainUnknown": true
+      },
+      "lockAtEnd": {
+        "atUtc": "2026-10-20T13:43:40.422612+00:00",
+        "roots": [
+          {
+            "rootLocked": false,
+            "sessions": []
+          }
+        ],
+        "missingValuesRemainUnknown": true
+      },
+      "originalGeneratedCommandCount": 6,
+      "allOriginalCommandFieldsAndPromptTicksExact": true
+    },
+    {
+      "name": "destruction-order",
+      "exitCode": 0,
+      "sourceSha256": "38dc4d3259cf990e40a8373cc31ea9c20e7ed0ebd1a954917de0161c2c248e62",
+      "actualClientAssemblySha256": "07fc514b5b2ede0df041c0d1345ee38fa6a88db2ef451e4432bda8185ea62e69",
+      "actualArguments": [
+        "/Users/dinghaolin/.local/share/riftbound-tools/godot-4.7.2/Godot_mono.app/Contents/MacOS/Godot",
+        "--headless",
+        "--path",
+        "/Users/dinghaolin/MyProjects/riftbound/clients/godot",
+        "res://scenes/debug/DestructionOrderInteractionProof.tscn",
+        "--",
+        "--evidence=/Users/dinghaolin/MyProjects/riftbound/var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/destruction-order"
+      ],
+      "logSha256": "9d54d104dd95af69e496cefc2fc1772a53acd737824373a4b9869b9c9708f7bd",
+      "lockAtStart": {
+        "atUtc": "2026-10-20T13:43:40.645375+00:00",
+        "roots": [
+          {
+            "rootLocked": false,
+            "sessions": []
+          }
+        ],
+        "missingValuesRemainUnknown": true
+      },
+      "lockAtEnd": {
+        "atUtc": "2026-10-20T13:43:41.039909+00:00",
+        "roots": [
+          {
+            "rootLocked": false,
+            "sessions": []
+          }
+        ],
+        "missingValuesRemainUnknown": true
+      },
+      "originalGeneratedCommandCount": 6,
+      "allOriginalCommandFieldsAndPromptTicksExact": true
+    },
+    {
+      "name": "local-destruction",
+      "exitCode": 0,
+      "sourceSha256": "e1cc661ae3ceffac361a7ab081a56644d4f766c181378eb725fb34fc6539b8d9",
+      "actualClientAssemblySha256": "07fc514b5b2ede0df041c0d1345ee38fa6a88db2ef451e4432bda8185ea62e69",
+      "actualArguments": [
+        "/Users/dinghaolin/.local/share/riftbound-tools/godot-4.7.2/Godot_mono.app/Contents/MacOS/Godot",
+        "--headless",
+        "--path",
+        "/Users/dinghaolin/MyProjects/riftbound/clients/godot",
+        "res://scenes/debug/LocalDestructionRecallInteractionProof.tscn",
+        "--",
+        "--evidence=/Users/dinghaolin/MyProjects/riftbound/var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/local-destruction"
+      ],
+      "logSha256": "ac65022b3f429d9ba2482d81b5a3669009a1f4ebc100d03b01b8d360ca6afd8e",
+      "lockAtStart": {
+        "atUtc": "2026-10-20T13:43:41.267260+00:00",
+        "roots": [
+          {
+            "rootLocked": false,
+            "sessions": []
+          }
+        ],
+        "missingValuesRemainUnknown": true
+      },
+      "lockAtEnd": {
+        "atUtc": "2026-10-20T13:43:41.653689+00:00",
+        "roots": [
+          {
+            "rootLocked": false,
+            "sessions": []
+          }
+        ],
+        "missingValuesRemainUnknown": true
+      },
+      "originalGeneratedCommandCount": 4,
+      "allOriginalCommandFieldsAndPromptTicksExact": true
+    },
+    {
+      "name": "sett-replacement",
+      "exitCode": 0,
+      "sourceSha256": "3720c3a5cd6a740635a8ffe5b045b6b08c8cc8a8ae70058f4569e9b99ac2bbad",
+      "actualClientAssemblySha256": "07fc514b5b2ede0df041c0d1345ee38fa6a88db2ef451e4432bda8185ea62e69",
+      "actualArguments": [
+        "/Users/dinghaolin/.local/share/riftbound-tools/godot-4.7.2/Godot_mono.app/Contents/MacOS/Godot",
+        "--headless",
+        "--path",
+        "/Users/dinghaolin/MyProjects/riftbound/clients/godot",
+        "res://scenes/debug/TriggerCostInteractionProof.tscn",
+        "--",
+        "--evidence=/Users/dinghaolin/MyProjects/riftbound/var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/sett-replacement",
+        "--sett-replacement"
+      ],
+      "logSha256": "267892949b0fd99078ea3f9e3b571e05a52e93423485b063a26aa297f5f4ba5b",
+      "lockAtStart": {
+        "atUtc": "2026-10-20T13:43:41.877051+00:00",
+        "roots": [
+          {
+            "rootLocked": false,
+            "sessions": []
+          }
+        ],
+        "missingValuesRemainUnknown": true
+      },
+      "lockAtEnd": {
+        "atUtc": "2026-10-20T13:43:42.271562+00:00",
+        "roots": [
+          {
+            "rootLocked": false,
+            "sessions": []
+          }
+        ],
+        "missingValuesRemainUnknown": true
+      },
+      "originalGeneratedCommandCount": 4,
+      "allOriginalCommandFieldsAndPromptTicksExact": true
+    },
+    {
+      "name": "rule-choice",
+      "exitCode": 0,
+      "sourceSha256": "2bc438a273b380b6f127567fa97949a4f9d4e667287fb756b64b2abc40c3798d",
+      "actualClientAssemblySha256": "07fc514b5b2ede0df041c0d1345ee38fa6a88db2ef451e4432bda8185ea62e69",
+      "actualArguments": [
+        "/Users/dinghaolin/.local/share/riftbound-tools/godot-4.7.2/Godot_mono.app/Contents/MacOS/Godot",
+        "--headless",
+        "--path",
+        "/Users/dinghaolin/MyProjects/riftbound/clients/godot",
+        "res://scenes/debug/RuleChoiceNativePromptProof.tscn",
+        "--",
+        "--evidence=/Users/dinghaolin/MyProjects/riftbound/var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/rule-choice"
+      ],
+      "logSha256": "5f2341e54b0e6020b8eee9706a7b493814090ab99f3234b3b10dfbfdf2c90baf",
+      "lockAtStart": {
+        "atUtc": "2026-10-20T13:43:42.511174+00:00",
+        "roots": [
+          {
+            "rootLocked": false,
+            "sessions": []
+          }
+        ],
+        "missingValuesRemainUnknown": true
+      },
+      "lockAtEnd": {
+        "atUtc": "2026-10-20T13:43:43.032691+00:00",
+        "roots": [
+          {
+            "rootLocked": false,
+            "sessions": []
+          }
+        ],
+        "missingValuesRemainUnknown": true
+      },
+      "originalGeneratedCommandCount": 13,
+      "allOriginalCommandFieldsAndPromptTicksExact": true
+    },
+    {
+      "name": "observed-disclosure",
+      "exitCode": 0,
+      "sourceSha256": "45071214d1d0ba2c88050fb58002b70f65a4d2f98adec3f86fc91a6cd6b0d4f5",
+      "actualClientAssemblySha256": "07fc514b5b2ede0df041c0d1345ee38fa6a88db2ef451e4432bda8185ea62e69",
+      "actualArguments": [
+        "/Users/dinghaolin/.local/share/riftbound-tools/godot-4.7.2/Godot_mono.app/Contents/MacOS/Godot",
+        "--headless",
+        "--path",
+        "/Users/dinghaolin/MyProjects/riftbound/clients/godot",
+        "res://scenes/debug/ObservedSourcePresentationProof.tscn",
+        "--",
+        "--evidence=/Users/dinghaolin/MyProjects/riftbound/var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/observed-disclosure"
+      ],
+      "logSha256": "250e0bd8739347689f3d8b9606fd340c3e81c9260f841f71cd943fbc1db3de8c",
+      "lockAtStart": {
+        "atUtc": "2026-10-20T13:43:43.292084+00:00",
+        "roots": [
+          {
+            "rootLocked": false,
+            "sessions": []
+          }
+        ],
+        "missingValuesRemainUnknown": true
+      },
+      "lockAtEnd": {
+        "atUtc": "2026-10-20T13:43:43.865926+00:00",
+        "roots": [
+          {
+            "rootLocked": false,
+            "sessions": []
+          }
+        ],
+        "missingValuesRemainUnknown": true
+      },
+      "originalGeneratedCommandCount": 0,
+      "allOriginalCommandFieldsAndPromptTicksExact": true
+    }
+  ],
+  "originalCommands": 33,
+  "ordinaryLookRevealPresentationRows": 20,
+  "originalNativeProofSourcesAndAssertionsUnchanged": true,
+  "all253OriginalInputsAndGeneratedCommandsExact": true,
+  "all3314CurrentSourcesAndNativeClientBinaryStable": true,
+  "legacyRuleChoiceActualTokenHeadings": 20,
+  "legacyRuleChoiceSyntheticTurnStartChecks": 20,
+  "legacyRuleChoiceOtherPublicKindSyntheticChecks": 80,
+  "newCurrentVisibleProductAndWindowsNotInferred": true
+}

@@ -1,0 +1,71 @@
+{
+  "priorEntireManifest": {
+    "path": "docs/evidence/native-spell-choice-presentation-2026-10-20/n25/prior-entire-current-manifest.json.gz",
+    "sha256": "e808b82ffd4cf576b190077aaaf2788555dfc6f8f452e269be6ea621278a1650",
+    "role": "prior-entire-manifest"
+  },
+  "allOriginal62ScopesSourceVersionsAndEvidenceRetained": true,
+  "currentInputRevision": "e28db2f9733f3448aeea3efc0a800ae364b85cdc8b3b3eb5eaeec418fb627632",
+  "changedContexts": [
+    {
+      "review": "native-rule-choice-prompts-2026-10-16",
+      "changedPins": [
+        {
+          "field": "implementation",
+          "path": "clients/godot/scripts/ui/MatchPhasePresentation.cs",
+          "previousSha256": "991c5b2c4969e6c4322a84baa8b291e18f2ee62f9359fe5e0c2fa5fe88be2525",
+          "currentSha256": "404523f8029c7c1af3eeb15527e4dd7cb53d9a6369517efcb5151389b711ff89"
+        }
+      ],
+      "priorContextSha256": "20c8110b3d01b290ff9acb3e09d44e88fc881fc3e63b8f67589209131267b0b9"
+    },
+    {
+      "review": "fate-weaver-private-spell-choice-2026-10-18",
+      "changedPins": [
+        {
+          "field": "verificationSources",
+          "path": "clients/godot/scripts/interaction/PromptInteractionController.cs",
+          "previousSha256": "70df82fdd953087e17fd6041413828308ed600cc44b8e3034b72ecc93d8d5eb8",
+          "currentSha256": "a8fd77459d9f4a60d7474a4431202ca3be042f75059c4bd866234bef6490a8f5"
+        }
+      ],
+      "priorContextSha256": "f86b11301ea8abfed33035091c53c48690c99813d7adf6937116d48d9e2f68f4"
+    },
+    {
+      "review": "observed-source-native-ui-2026-10-18",
+      "changedPins": [
+        {
+          "field": "implementation",
+          "path": "clients/godot/scripts/ui/MatchPhasePresentation.cs",
+          "previousSha256": "991c5b2c4969e6c4322a84baa8b291e18f2ee62f9359fe5e0c2fa5fe88be2525",
+          "currentSha256": "404523f8029c7c1af3eeb15527e4dd7cb53d9a6369517efcb5151389b711ff89"
+        }
+      ],
+      "priorContextSha256": "35ed9969ba1f0aeecf977f33e371b4a0ce3875dbecbb949e4b00db76bcf34b89"
+    },
+    {
+      "review": "observed-disclosure-wording-and-stale-native-smoke-2026-10-19",
+      "changedPins": [
+        {
+          "field": "implementation",
+          "path": "clients/godot/scripts/ui/MatchPhasePresentation.cs",
+          "previousSha256": "991c5b2c4969e6c4322a84baa8b291e18f2ee62f9359fe5e0c2fa5fe88be2525",
+          "currentSha256": "404523f8029c7c1af3eeb15527e4dd7cb53d9a6369517efcb5151389b711ff89"
+        }
+      ],
+      "priorContextSha256": "f4b8dc90fdb6c30e4dbbf648bad2171a01c29ab0b0a768cb60b48acc84f1fc0a"
+    },
+    {
+      "review": "conditional-counter-target-controller-mana-and-printed-echo-2026-10-20",
+      "changedPins": [
+        {
+          "field": "implementation",
+          "path": "clients/godot/scripts/ui/MatchPhasePresentation.cs",
+          "previousSha256": "991c5b2c4969e6c4322a84baa8b291e18f2ee62f9359fe5e0c2fa5fe88be2525",
+          "currentSha256": "404523f8029c7c1af3eeb15527e4dd7cb53d9a6369517efcb5151389b711ff89"
+        }
+      ],
+      "priorContextSha256": "fce53bd79e998f1d4c962931922b7e50d9d9bbe28bb24708cc850eb9a6cbc7b7"
+    }
+  ]
+}

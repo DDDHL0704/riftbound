@@ -1,0 +1,39 @@
+{
+  "name": "sett-replacement",
+  "exitCode": 0,
+  "sourceSha256": "3720c3a5cd6a740635a8ffe5b045b6b08c8cc8a8ae70058f4569e9b99ac2bbad",
+  "actualClientAssemblySha256": "07fc514b5b2ede0df041c0d1345ee38fa6a88db2ef451e4432bda8185ea62e69",
+  "actualArguments": [
+    "/Users/dinghaolin/.local/share/riftbound-tools/godot-4.7.2/Godot_mono.app/Contents/MacOS/Godot",
+    "--headless",
+    "--path",
+    "/Users/dinghaolin/MyProjects/riftbound/clients/godot",
+    "res://scenes/debug/TriggerCostInteractionProof.tscn",
+    "--",
+    "--evidence=/Users/dinghaolin/MyProjects/riftbound/var/qa/native-spell-choice-presentation-20261020/legacy-native-inputs-v1/sett-replacement",
+    "--sett-replacement"
+  ],
+  "logSha256": "267892949b0fd99078ea3f9e3b571e05a52e93423485b063a26aa297f5f4ba5b",
+  "lockAtStart": {
+    "atUtc": "2026-10-20T13:43:41.877051+00:00",
+    "roots": [
+      {
+        "rootLocked": false,
+        "sessions": []
+      }
+    ],
+    "missingValuesRemainUnknown": true
+  },
+  "lockAtEnd": {
+    "atUtc": "2026-10-20T13:43:42.271562+00:00",
+    "roots": [
+      {
+        "rootLocked": false,
+        "sessions": []
+      }
+    ],
+    "missingValuesRemainUnknown": true
+  },
+  "originalGeneratedCommandCount": 4,
+  "allOriginalCommandFieldsAndPromptTicksExact": true
+}
