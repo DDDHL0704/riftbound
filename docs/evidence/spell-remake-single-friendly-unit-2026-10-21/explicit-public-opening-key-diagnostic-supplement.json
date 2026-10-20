@@ -1,0 +1,10 @@
+{
+  "status": "EXPLICIT_PUBLIC_METADATA_SUPPLEMENT_ORIGINAL_ARCHIVE_AND_EXCLUSIONS_UNCHANGED",
+  "reason": "Initial conservative name filter withheld this private-row-key diagnostic. Its reviewed content contains public test actor IDs and row tick/sequence metadata, no authentication secrets. The original failure and actual storage-key analysis must remain reviewable.",
+  "originalPath": "var/qa/fixed-a56137-native-locked-20261021/private-row-key-original-preexisting-opening-disposition-v1.json",
+  "canonicalPath": "docs/evidence/spell-remake-single-friendly-unit-2026-10-21/same-room-private-row-key-original-read-only-disposition.json",
+  "sha256": "43e85a7a6213618ebdc0a235bcc3ccc6b99f66d0bca4bb02ae765a197c94b9e3",
+  "bytes": 2369,
+  "originalArchiveMapSha256": "b07eab3b6b75a9fc575246ed85243fb9b09ad783815cab447c3343b9c0614fef",
+  "noOriginalRewrittenOrSqlRerun": true
+}

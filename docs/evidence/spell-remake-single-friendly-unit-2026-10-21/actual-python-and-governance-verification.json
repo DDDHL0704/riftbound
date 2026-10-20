@@ -1,0 +1,32 @@
+{
+  "status": "PASS_ACTUAL73_PYTHON_VERIFICATION_TESTS_AND_CURRENT_GOVERNANCE",
+  "pythonTests": 73,
+  "pythonExitCode": 0,
+  "actualGovernanceValid": true,
+  "semanticCoverageCertified": false,
+  "reviewCount": 150,
+  "contextCount": 65,
+  "gateCount": 245,
+  "sourceDeltas": 7,
+  "remainingObligations": 16944,
+  "originalCompleteGovernanceReport": {
+    "path": "var/qa/n28-current-governance-20261021-v1.json",
+    "sha256": "98c2e9960b97e1eb8971ab3ca1f3cff41f33dffe685113e34ae15beb7cfb9417",
+    "bytes": 18423188
+  },
+  "sourceCounts": {
+    "combinedExactPrintingNumbers": 1740,
+    "sourceDocuments": 36,
+    "sourceBlocks": 14293,
+    "cnOfficialPrintings": 1504,
+    "enReturnedPrintings": 1408,
+    "enReportedTotal": 1416,
+    "enSourceCountGap": 8,
+    "activeCatalogEntries": 1035,
+    "outsideActiveCatalog": 705,
+    "cnQaFields": 1504,
+    "cnNonemptyQaFields": 0
+  },
+  "allSourceGapsAndCertificationLimitationsRetained": true,
+  "firstSupplementPreparationError": "The saved full governance report has remainingObligations as an array; remainingObligationCount exists only in the printed summary. No test or SQL failure; all previously copied source/log bytes retained exact."
+}

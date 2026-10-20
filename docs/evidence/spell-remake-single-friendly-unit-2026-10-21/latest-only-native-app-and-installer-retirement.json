@@ -1,0 +1,39 @@
+{
+  "atUtc": "2026-10-20T19:44:51.709845+00:00",
+  "status": "LATEST_USABLE_A56137_PAIR_AND_ONE_ARCHIVE_PER_PLATFORM_OLD564_RETIRED",
+  "newFixedCommit": "a56137a93d48a38d6e2e62b5b7195aa03412577f",
+  "newCiRun": 39481821852,
+  "removed": [
+    {
+      "path": "/Users/dinghaolin/MyProjects/riftbound/var/qa/fixed-reversal-native-locked-20261020/Riftbound-A.app",
+      "files": 416,
+      "logicalBytes": 356959168,
+      "old373PayloadHashesAndDeepStrictSignatureVerifiedBeforeRetirement": true
+    },
+    {
+      "path": "/Users/dinghaolin/MyProjects/riftbound/var/qa/fixed-reversal-native-locked-20261020/Riftbound-B.app",
+      "files": 416,
+      "logicalBytes": 356959168,
+      "old373PayloadHashesAndDeepStrictSignatureVerifiedBeforeRetirement": true
+    },
+    {
+      "path": "/Users/dinghaolin/MyProjects/riftbound/var/qa/fixed-reversal-native-locked-20261020/native-current/mac-ci-artifact.zip",
+      "bytes": 142913793,
+      "sha256": "e99667eba0bb842e4297f352dd1a63022f6a42968a927cd47e3ed41f5ab271d0",
+      "backendDigestAndCrcOriginalProofRetained": true
+    },
+    {
+      "path": "/Users/dinghaolin/MyProjects/riftbound/var/qa/fixed-reversal-native-locked-20261020/native-current/windows-ci-artifact.zip",
+      "bytes": 89135525,
+      "sha256": "c4bd911eeb063b2d6cd1a686558f11aa64e0581c4294bab3c4766c2885449e95",
+      "backendDigestAndCrcOriginalProofRetained": true
+    }
+  ],
+  "logicalBytesRetired": 945967654,
+  "newBootAndAll373CiPayloadsAndSignaturesVerified": true,
+  "newMacAndWindowsBackendDigestsAndCrcVerified": true,
+  "allOldSourceTestsLogsReceiptsDatabaseRetained": true,
+  "physicalDiskSavingsNotAssumedFromLogicalBytesDueToApfsClones": true,
+  "userGodotEditorNotTouched": true,
+  "visibleAndPhysicalWindowsAcceptance": "OPEN"
+}

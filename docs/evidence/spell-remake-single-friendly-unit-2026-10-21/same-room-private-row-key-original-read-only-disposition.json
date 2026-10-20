@@ -1,0 +1,85 @@
+{
+  "atUtc": "2026-10-20T20:50:14.131768+00:00",
+  "status": "READ_ONLY_DIAGNOSIS_OF_VERIFIER_OPENING_COVERAGE_ASSUMPTION_NOT_WRITER_FAILURE",
+  "room": "N27-RETARGET-8B4ABACF1A",
+  "records": [
+    {
+      "table": "snapshots",
+      "actualUniquePrivateKeys": 92,
+      "allMissingKeysFromBothViewersAll48Commands": [
+        {
+          "ordinal": 1,
+          "commandType": "SUBMIT_DECK",
+          "commandActor": "Q29A561-B-efd0fee9",
+          "missingViewer": "Q29A561-A-2155c951",
+          "tick": 2,
+          "sequence": 2
+        },
+        {
+          "ordinal": 1,
+          "commandType": "SUBMIT_DECK",
+          "commandActor": "Q29A561-B-efd0fee9",
+          "missingViewer": "Q29A561-B-efd0fee9",
+          "tick": 2,
+          "sequence": 2
+        },
+        {
+          "ordinal": 2,
+          "commandType": "READY",
+          "commandActor": "Q29A561-A-2155c951",
+          "missingViewer": "Q29A561-A-2155c951",
+          "tick": 2,
+          "sequence": 3
+        },
+        {
+          "ordinal": 2,
+          "commandType": "READY",
+          "commandActor": "Q29A561-A-2155c951",
+          "missingViewer": "Q29A561-B-efd0fee9",
+          "tick": 2,
+          "sequence": 3
+        }
+      ]
+    },
+    {
+      "table": "action_prompts",
+      "actualUniquePrivateKeys": 92,
+      "allMissingKeysFromBothViewersAll48Commands": [
+        {
+          "ordinal": 1,
+          "commandType": "SUBMIT_DECK",
+          "commandActor": "Q29A561-B-efd0fee9",
+          "missingViewer": "Q29A561-A-2155c951",
+          "tick": 2,
+          "sequence": 2
+        },
+        {
+          "ordinal": 1,
+          "commandType": "SUBMIT_DECK",
+          "commandActor": "Q29A561-B-efd0fee9",
+          "missingViewer": "Q29A561-B-efd0fee9",
+          "tick": 2,
+          "sequence": 2
+        },
+        {
+          "ordinal": 2,
+          "commandType": "READY",
+          "commandActor": "Q29A561-A-2155c951",
+          "missingViewer": "Q29A561-A-2155c951",
+          "tick": 2,
+          "sequence": 3
+        },
+        {
+          "ordinal": 2,
+          "commandType": "READY",
+          "commandActor": "Q29A561-A-2155c951",
+          "missingViewer": "Q29A561-B-efd0fee9",
+          "tick": 2,
+          "sequence": 3
+        }
+      ]
+    }
+  ],
+  "allOriginal48Commands259EventsUnchanged": true,
+  "noSqlWriterRerunOrSourceMutation": true
+}

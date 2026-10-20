@@ -15,7 +15,7 @@ internal static class SpellRemakeDeclarationSqlAcceptance
         if (Directory.Exists(output)) throw new InvalidOperationException("Never overwrite an original declaration-scope SQL run.");
         Directory.CreateDirectory(output);
         foreach (var mirror in new[] { false, true })
-        foreach (var branch in new[] { "draw", "mode", "zero", "echo" })
+        foreach (var branch in new[] { "draw", "mode", "zero", "echo", "no-complete" })
             await RunBranch(source, Path.Combine(output, (mirror ? "mirror-" : "reversal-") + branch), mirror, branch);
     }
 
@@ -24,8 +24,9 @@ internal static class SpellRemakeDeclarationSqlAcceptance
         Directory.CreateDirectory(output);
         var json = new JsonSerializerOptions(JsonSerializerDefaults.Web) { WriteIndented = true };
         var room = "declaration-scope-" + Guid.NewGuid().ToString("N");
-        var card = branch == "draw" ? "OGN·083/298" : branch == "mode" ? "UNL-182/219" : "SFD·080/221";
-        var initial = Initial(room, card, mirror);
+        var noComplete = branch == "no-complete";
+        var card = noComplete ? "OGN·046/298" : branch == "draw" ? "OGN·083/298" : branch == "mode" ? "UNL-182/219" : "SFD·080/221";
+        var initial = Initial(room, card, mirror, noComplete);
         await File.WriteAllTextAsync(Path.Combine(output, "explicit-fixture-initial.json"), JsonSerializer.Serialize(initial, json));
         var engine = new CoreRuleEngine(); var journal = new PostgresMatchJournal(source);
         var players = new PostgresMatchPlayerStore(source); var store = new PostgresMatchRecoveryStore(source);
@@ -34,7 +35,7 @@ internal static class SpellRemakeDeclarationSqlAcceptance
                 ReconnectTokenHasher.Hash(Convert.ToBase64String(RandomNumberGenerator.GetBytes(32))), default);
         IMatchSession session = new MatchSession(initial, engine, journal, players);
         var state = initial; var commands = 0; var cold = 0; var rejected = 0;
-        await Submit("P1", new PlayCardCommand("SPELL", card, [], branch == "mode" ? "DRAW_1" : "", branch == "echo" ? ["ECHO"] : []));
+        await Submit("P1", new PlayCardCommand("SPELL", card, noComplete ? ["UNIT-1"] : [], branch == "mode" ? "DRAW_1" : "", branch == "echo" ? ["ECHO"] : []));
         var parent = state.StackItems.Single().StackItemId;
         var casterPaid = state.RunePools["P1"];
         await Submit("P1", new PassPriorityCommand());
@@ -69,7 +70,7 @@ internal static class SpellRemakeDeclarationSqlAcceptance
         }
         else
         {
-            Check(state.PendingRuleChoice is null, "No empty remake decision may interrupt an intrinsically untargeted declaration.");
+            Check(state.PendingRuleChoice is null, "No impossible or intrinsically empty remake decision may interrupt control.");
             await Reject("P2", new PayCostCommand("empty-remake", "RULE_REPLACEMENT", ["CONFIRM"]));
         }
         var controlled = state.StackItems.Single();
@@ -78,14 +79,19 @@ internal static class SpellRemakeDeclarationSqlAcceptance
         if (branch == "echo")
             Check(controlled.TargetObjectIds.Count == 0 && controlled.RepeatExecutions is { Count: 2 } repeats
                 && repeats[0].TargetObjectIds.Count == 0 && repeats[1].TargetObjectIds.SequenceEqual(new[] { "UNIT-1" }), "Zero targets in the first execution do not suppress the second execution.");
-        else Check(controlled.TargetObjectIds.SequenceEqual(targetChoice ? new[] { "UNIT-1" } : []), "The explicit permitted declaration is retained.");
+        else Check(controlled.TargetObjectIds.SequenceEqual(targetChoice || noComplete ? new[] { "UNIT-1" } : []), "The explicit permitted declaration is retained.");
         var controllerPaid = state.RunePools["P2"];
         await Save("after-control"); await Top();
         var draws = branch == "draw" ? 2 : branch == "mode" ? 1 : 0;
         Check(state.StackItems.Count == 0 && state.PendingRuleChoice is null && state.PendingCardChoice is null
             && state.Status == MatchStatuses.InProgress, "The controlled source completes without an artificial choice or burnout.");
-        Check(state.PlayerZones["P2"].Hand.SequenceEqual(initial.PlayerZones["P2"].MainDeck.Take(draws))
-            && state.PlayerZones["P1"].MainDeck.SequenceEqual(initial.PlayerZones["P1"].MainDeck), "Only the resolving controller draws from their own deck.");
+        if (noComplete)
+            Check(state.PlayerZones["P2"].Hand.SequenceEqual(new[] { "UNIT-2" })
+                && state.PlayerZones["P1"].MainDeck.SequenceEqual(initial.PlayerZones["P1"].MainDeck),
+                "A unit in hand cannot make a complete friendly-unit declaration; the original target stays unchanged.");
+        else
+            Check(state.PlayerZones["P2"].Hand.SequenceEqual(initial.PlayerZones["P2"].MainDeck.Take(draws))
+                && state.PlayerZones["P1"].MainDeck.SequenceEqual(initial.PlayerZones["P1"].MainDeck), "Only the resolving controller draws from their own deck.");
         Check(state.CardObjects["UNIT-1"].Damage == (targetChoice ? 1 : 0) && state.CardObjects["UNIT-2"].Damage == 0
             && state.CardObjects["UNIT-1"].Power == 9 && state.CardObjects["UNIT-2"].Power == 9, "Literal damage marks and stored Might remain distinct.");
         Check(JsonNode.DeepEquals(JsonSerializer.SerializeToNode(state.RunePools["P1"]), JsonSerializer.SerializeToNode(casterPaid))
@@ -169,10 +175,10 @@ internal static class SpellRemakeDeclarationSqlAcceptance
         }
     }
 
-    private static MatchState Initial(string room, string spell, bool mirror)
+    private static MatchState Initial(string room, string spell, bool mirror, bool noFriendly = false)
     {
         var cards = new Dictionary<string, CardObjectState> {
-            ["SPELL"] = new("SPELL", cardNo: spell, manaCost: spell == "SFD·080/221" ? 1 : 4, ownerId: "P1", controllerId: "P1", tags: [CardObjectTags.SpellCard]),
+            ["SPELL"] = new("SPELL", cardNo: spell, manaCost: spell is "SFD·080/221" or "OGN·046/298" ? 1 : 4, ownerId: "P1", controllerId: "P1", tags: [CardObjectTags.SpellCard]),
             ["CONTROL"] = new("CONTROL", cardNo: mirror ? "VEN·152" : "OGN·080/298", ownerId: "P2", controllerId: "P2", tags: [CardObjectTags.SpellCard]),
             ["UNIT-1"] = new("UNIT-1", power: 9, cardNo: "OGN·001/298", ownerId: "P1", controllerId: "P1", tags: [CardObjectTags.UnitCard]),
             ["UNIT-2"] = new("UNIT-2", power: 9, cardNo: "OGN·001/298", ownerId: "P2", controllerId: "P2", tags: [CardObjectTags.UnitCard]) };
@@ -183,7 +189,7 @@ internal static class SpellRemakeDeclarationSqlAcceptance
             status: MatchStatuses.InProgress, phase: MatchPhases.Main, timingState: TimingStates.NeutralOpen, cardObjects: cards,
             playerZones: new Dictionary<string, PlayerZones> {
                 ["P1"] = PlayerZones.Empty with { Hand = ["SPELL"], Base = ["UNIT-1"], MainDeck = Enumerable.Range(0, 8).Select(i => "P1-DECK-" + i).ToArray() },
-                ["P2"] = PlayerZones.Empty with { Hand = ["CONTROL"], Base = ["UNIT-2"], MainDeck = Enumerable.Range(0, 8).Select(i => "P2-DECK-" + i).ToArray() } },
+                ["P2"] = PlayerZones.Empty with { Hand = noFriendly ? ["CONTROL", "UNIT-2"] : ["CONTROL"], Base = noFriendly ? [] : ["UNIT-2"], MainDeck = Enumerable.Range(0, 8).Select(i => "P2-DECK-" + i).ToArray() } },
             runePools: new Dictionary<string, RunePool> { ["P1"] = new(30, 30), ["P2"] = new(30, 30) });
     }
 

@@ -114,6 +114,7 @@ public sealed partial class CoreRuleEngine
             spell.TargetGenerations ?? new Dictionary<string, long>(), spell.MovementDestinations, spell.Destination)]).ToArray();
         remade = false;
         if (!executions.Any(e => HasRemakableSpellDeclaration(spell, e, targetsOnly))) return spell;
+        if (HasNoLegalSingleTargetRemake(state, spell, resolvingItemId, executions, targetsOnly)) return spell;
         while (true)
         {
             var options = new List<RuleChoiceOption> { new("KEEP_ALL", "不做新的选择：保留所有原选择（包括已不合法的选择）") };
@@ -198,6 +199,37 @@ public sealed partial class CoreRuleEngine
             || !targetsOnly && (behavior.CommandedMovement is not null || behavior.MovesTargetsToChosenLocation
                 || behavior.MovesTargetsSequentially
                 || CardBehaviorRegistry.GetAll().Any(other => other.CardNo == spell.CardNo && other.EffectKind != execution.EffectKind));
+    }
+
+    private static bool HasNoLegalSingleTargetRemake(MatchState state, StackItemState spell, string resolvingItemId,
+        IReadOnlyList<SpellExecutionState> executions, bool targetsOnly)
+    {
+        // A friendly unit declaration uses card objects. With one target slot
+        // and other declarations fixed, zero and each unit exhaust its choices.
+        if (executions.Count != 1 || spell.EffectRepeatCount != 1 || spell.PlayedFromStandby is not null
+            || spell.OptionalCosts.Count != 0) return false;
+        var execution = executions[0];
+        if (!CardBehaviorRegistry.TryGetByEffectKind(execution.EffectKind, out var behavior)
+            || behavior.TargetScope != CardTargetScopes.FriendlyUnit
+            || behavior.RequiredTargetCount != 1 || behavior.AnyNumberOfTargets
+            || behavior.UsesFriendlyBattlefieldUnitCountAsMaxTargetCount
+            || behavior.CommandedMovement is not null || behavior.MovesTargetsToChosenLocation || behavior.MovesTargetsSequentially
+            || !string.IsNullOrEmpty(execution.Destination) || execution.MovementDestinations is { Count: > 0 }
+            || !targetsOnly && CardBehaviorRegistry.GetAll().Any(b => b.CardNo == spell.CardNo && b.EffectKind != execution.EffectKind)
+            || MaxTargetCount(state, spell.ControllerId, behavior, TargetCountConditionApplies(state, spell.ControllerId, behavior)) > 1)
+            return false;
+        if (HasLegalRemadeExecution(state, spell, execution)
+            || HasLegalRemadeExecution(state, spell, execution with { TargetObjectIds = [], TargetGenerations = new Dictionary<string, long>() }))
+            return false;
+        foreach (var id in state.CardObjects.Keys.Concat(state.StackItems
+            .Where(s => s.StackItemId != spell.StackItemId && s.StackItemId != resolvingItemId).Select(s => s.StackItemId)))
+        {
+            var generations = new Dictionary<string, long>();
+            if (state.CardObjects.TryGetValue(id, out var card)) generations[id] = card.ObjectGeneration;
+            if (HasLegalRemadeExecution(state, spell, execution with { TargetObjectIds = [id], TargetGenerations = generations }))
+                return false;
+        }
+        return true;
     }
 
     private static string ChoiceObjectLabel(MatchState state, string id)

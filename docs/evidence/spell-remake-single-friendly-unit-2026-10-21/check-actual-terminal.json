@@ -1,0 +1,26 @@
+{
+  "status": "CHECK_PROCESS_EXIT_ZERO_INDEPENDENT_PARITY_STILL_REQUIRED",
+  "startedAtUtc": "2026-10-20T19:55:48.695952+00:00",
+  "boundIdleAssertionPid": 99171,
+  "ownedTestRunnerPid": 99172,
+  "exitCode": 0,
+  "finishedAtUtc": "2026-10-20T20:50:22.501748+00:00",
+  "seconds": 3273.8,
+  "lockAtEnd": {
+    "atUtc": "2026-10-20T20:50:22.525534+00:00",
+    "roots": [
+      {
+        "rootLocked": true,
+        "sessions": [
+          true
+        ]
+      }
+    ],
+    "missingValuesRemainUnknown": true
+  },
+  "all3317SourceHashesUnchanged": true,
+  "allSourceModesUnchanged": true,
+  "allConformanceInputPayloadsUnchanged": true,
+  "all23NativePayloadsUnchanged": true,
+  "boundIdleAssertionEnded": true
+}

@@ -23989,6 +23989,83 @@
         "CURRENT_FIXED_VISIBLE_PAIRED_REAL_SQL_RECONNECT_NORMAL_SCORE_FULL_REPLAY",
         "PHYSICAL_WINDOWS"
       ]
+    },
+    {
+      "id": "spell-remake-single-friendly-unit-no-complete-choice-2026-10-21",
+      "scope": "Rule753.2 finite hand-cast single friendly-unit target declarations: no complete legal new target under the new controller, with one execution/one target slot and all other declarations fixed. Preserve original choices and finish control. No general reachability, other targets, repeats, paid optional costs, standby or movement/mode/destination certification.",
+      "subjects": [
+        "OGN-053/298",
+        "UNL-165/219",
+        "OGN-069/298",
+        "OGN-046/298",
+        "UNL-095/219",
+        "OGN-102/298",
+        "OGN-104/298",
+        "UNL-184/219",
+        "OGN-080/298",
+        "VEN-152",
+        "VEN-152/166"
+      ],
+      "ruleRecords": [
+        "CN-d6fd7140f106f9b5-P111-B022"
+      ],
+      "pendingRuleRecords": [],
+      "status": "BOUNDED_EIGHT_DECLARATION_CONSUMERS_FOCUS134_SQL10_OLD_CLAIR5_ORIGINAL38_HELPERS_ONLY_CHECK13214_PASS_FIXED_FULL_AND_PRODUCT_OPEN",
+      "sourceManifest": {
+        "path": "docs/evidence/spell-remake-single-friendly-unit-2026-10-21/source-manifest.json",
+        "sha256": "27563accba12416c12eada92a35cb2c4b1f05a0ac0f776ed140ab290376bf0ff",
+        "role": "source-manifest"
+      },
+      "auditDocument": "docs/SPELL_REMAKE_SINGLE_FRIENDLY_UNIT_COMPLETION_AUDIT_2026-10-21.md",
+      "validation": {
+        "newCases": 38,
+        "newMethods": 5,
+        "finiteConsumerFocusCases": 134,
+        "finiteConsumerFocusMethods": 42,
+        "earlierBoundedFocusCases": 162,
+        "earlierBoundedFocusMethods": 67,
+        "originalFullGameSmokeMethods": 2,
+        "additionalOriginalAffectedPairHelpers": 38,
+        "actualOnlyCheckCases": 13214,
+        "actualOnlyCheckMethods": 7499,
+        "failed": 0,
+        "skipped": 0,
+        "allOriginal13176CaseMultiplicitiesAnd7494MethodsRetained": true,
+        "original143FullMethods110Pairs11Decks424242AndAssertionsRetained": true,
+        "actualControlledSql": {
+          "defaultIdentitiesAndOrder": 48,
+          "originalEightBranchesPreserved": true,
+          "currentControlledScenarios": 10,
+          "commands": 84,
+          "events": 175,
+          "coldRecoveries": 84,
+          "directAtomicRejects": 20,
+          "independentAuthorityStates": 84,
+          "bothPlayersCombinedHistoricalSnapshots": 168,
+          "bothPlayersCombinedHistoricalPrompts": 168,
+          "originalClairvoyanceBranches": 5,
+          "clairCommands": 27,
+          "clairEvents": 64,
+          "clairColdRecoveries": 27,
+          "clairStructuralTamperRejects": 15,
+          "oldClairIntermediateRowsStillCleanedByUnchangedHelperNotClaimedRetained": true,
+          "original221Audit47NativeSevenTablesExact": true,
+          "newAuditRoomsRetained": 10,
+          "resultingAuditRooms": 231,
+          "ordinaryOpeningOrWholeCardClaim": false
+        },
+        "currentFixedCi": "PENDING",
+        "productAcceptance": "OPEN_WITH_EXACT_PRIOR_NATIVE_CASE_FAILURE_ISSUE77",
+        "allOriginalSourceUniversesAndObligationIdentitiesRetained": true
+      },
+      "exclusions": [
+        "All other target scopes and behavior constraints",
+        "More than one target or execution; external repeats and paid optional costs",
+        "Standby declarations, modes, destinations and movement consumers",
+        "All other printings and aliases; complete effects of the eight cards beyond this declaration decision",
+        "Current final fixed full and ordinary-product acceptance, including issue77, visible pair and physical Windows",
+        "All original source gaps and full-source obligations"
+      ]
     }
   ]
 }

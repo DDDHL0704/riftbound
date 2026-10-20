@@ -1,0 +1,84 @@
+{
+  "atUtc": "2026-10-20T20:30:59.481432+00:00",
+  "status": "PASS_FIXED_A56137_ONLY_PARTITION3_AND_NETWORK_ORIGINALS_NOT_ENTIRE_FULL",
+  "fixedCommit": "a56137a93d48a38d6e2e62b5b7195aa03412577f",
+  "runId": 39481821852,
+  "fixedOrderedSqlManifestSha256": "ce301be0115ba843cd8c128d520b9a54ed922d5fd303bb062351e0950399c938",
+  "allOriginal48SqlIdsAndOrderRetained": true,
+  "verifiedPartition": 3,
+  "verifiedPartitionCases": [
+    "battle-history",
+    "sivir-optional",
+    "recycled-card-boon",
+    "porobot",
+    "combat-assignment",
+    "opponent-battlefield-control",
+    "battlefield-play-recovery",
+    "fate-weaver",
+    "ravenbloom-put-hand",
+    "empowered-insight",
+    "hwei-move-discard-types",
+    "spell-remake-declaration"
+  ],
+  "all12ExecutionsActuallyPassed": true,
+  "original120OutputFilesByteSizeHashAndClosedMemberSetExact": true,
+  "partitionReceiptSha256": "fbf42230bf17bec6d7e3b0e40eaa3074190789d9790c8b467cdb7fe5f212fb2a",
+  "actualCiRuntimeAssemblyIdentityReports": [
+    {
+      "file": "Riftbound.PostgresAcceptance.dll",
+      "sha256": "ebb3bf8bbf1421267ca28063d7563060e89f8ea5cc4f1ce6e0a7e87d431b61ec",
+      "mvid": "dcb0da96-f35a-47c8-9306-85099e637898"
+    },
+    {
+      "file": "Riftbound.Engine.dll",
+      "sha256": "99e1d580bf813549d8d14fa845527f65607afe28c405b93bfdcc1c8b44b4a838",
+      "mvid": "82e9f879-718f-4978-84e7-10957d6f2e1c"
+    },
+    {
+      "file": "Riftbound.Contracts.dll",
+      "sha256": "d475e882bb654e2c7d8fa8bb1f501afe12d0b7bd6920359272248b80c0010774",
+      "mvid": "d8f370ef-01e3-4196-b9d7-6886b36c14f3"
+    },
+    {
+      "file": "Riftbound.CardCatalog.dll",
+      "sha256": "e75547369b2eb81b841d2202c07d8e56c729cd0bfc87b64cf84aabc999e177f6",
+      "mvid": "3ccc30de-f4d2-45d0-bd26-43ff990bc16c"
+    },
+    {
+      "file": "Riftbound.Persistence.dll",
+      "sha256": "32662edf06576a37c78080a49eb26f12fa45883a35b73bbc86c04eba6e5c328a",
+      "mvid": "88a28926-7f8c-46c1-aaf8-74eb42efbf5f"
+    }
+  ],
+  "actualCiRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+    "implementationSha256": "ff6329625c8f8569f203bf575ebc0606c370e184e036f77e53e651e822162f63",
+    "identitySha256": "71bf9ed206ff86b4e10622887237be4b0ebacb854a4d2258e68b8cd614ab7ae6"
+  },
+  "originalEightDeclarationBranches": {
+    "commands": 69,
+    "events": 145,
+    "coldRecoveries": 69,
+    "directAtomicRejections": 18,
+    "controlledExplicitFixturesNotOrdinaryFullGames": true
+  },
+  "networkOriginalEvidence": {
+    "room": "NETWORK-aed7e9919893",
+    "rejectedActions": 15,
+    "identities": [
+      "ANONYMOUS",
+      "FAILED_KEY",
+      "OTHER_HANDLE"
+    ],
+    "leakedPrivateMessages": 0,
+    "validReconnectTokenWasSupplied": true
+  },
+  "allOriginalNetworkRestorePassMarkersPresent": true,
+  "backendZipProof": "current-ci-part3-and-network-original-download-v1.json",
+  "otherThreeSqlPartsRuleSuiteStableAggregateAndAllSourceSemanticCompletion": "OPEN",
+  "local210fcAndBde6RuntimeNotConflatedWithCiFf632Runtime": true
+}

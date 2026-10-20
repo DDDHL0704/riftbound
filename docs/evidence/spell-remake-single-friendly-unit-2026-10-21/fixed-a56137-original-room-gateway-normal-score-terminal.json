@@ -1,0 +1,162 @@
+{
+  "status": "PASS_SAME_ORIGINAL_ROOM_GATEWAY_NORMAL_SCORE_AND_INDEPENDENT_SQL_REPLAY_NATIVE_ACCEPTANCE_STILL_FAILED",
+  "startedAtUtc": "2026-10-20T20:41:02.130494+00:00",
+  "fixedCommit": "a56137a93d48a38d6e2e62b5b7195aa03412577f",
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+    "implementationSha256": "bde6c35e4600f4b77c8e9c11ad6046b1276dc7e553be943b71ac7428ae2dd4da",
+    "identitySha256": "a56b1c8b3de64ae3f9dd02c6fd45a64cf2277344ec008a3abf8758a1ed2b4ea9"
+  },
+  "room": "N27-RETARGET-8B4ABACF1A",
+  "originalGatewayPrefixCommands": 28,
+  "originalNativeAcceptedGameplayCommands": 0,
+  "originalNativeFailureIssue": 77,
+  "originalNativeFailureNotRelabeled": true,
+  "ownedApiProcesses": [
+    {
+      "pid": 8471,
+      "index": 3,
+      "health": {
+        "status": "ok",
+        "service": "riftbound-dotnet",
+        "environment": "Production",
+        "dotnet": "10.0.13",
+        "persistenceMode": "postgres",
+        "signalRScaleMode": "single-instance",
+        "redisBackplaneConfigured": false,
+        "redisChannelPrefix": "riftbound",
+        "metricsEnabled": true,
+        "configuredCorsOriginCount": 6,
+        "developmentLoopbackCorsFallback": false,
+        "dependencies": [
+          {
+            "name": "persistence",
+            "mode": "postgres",
+            "status": "configured"
+          },
+          {
+            "name": "signalr-backplane",
+            "mode": "single-instance",
+            "status": "ok"
+          }
+        ]
+      },
+      "log": "live-fixed-ci-api-3-v1.log",
+      "atUtc": "2026-10-20T20:41:26.470522+00:00"
+    }
+  ],
+  "lockAtStart": {
+    "atUtc": "2026-10-20T20:41:02.155182+00:00",
+    "roots": [
+      {
+        "rootLocked": true,
+        "sessions": [
+          true
+        ]
+      }
+    ],
+    "missingValuesRemainUnknown": true
+  },
+  "ownPid": 8326,
+  "boundIdleAssertionPid": 8352,
+  "stage": "WAITING_INDEPENDENT_ORIGINAL_SQL_HISTORY_AND_FULL_REPLAY_NATIVE_FAILURE_STILL_OPEN",
+  "updatedAtUtc": "2026-10-20T20:41:58.302621+00:00",
+  "totalCommands": 48,
+  "events": 259,
+  "gatewayContinuationCommands": 20,
+  "nativeAcceptedGameplayCommands": 0,
+  "winningScore": 8,
+  "losingScore": 0,
+  "finalTurn": 18,
+  "original28PrefixAllFieldsEventsPrivateSeedAndBlankInitialExact": true,
+  "allOriginalFiveHistoryTablesRowBytesAndMultiplicityRetained": true,
+  "allOriginal231Audit47NativeSevenTablesExact": true,
+  "independentReadback": {
+    "atUtc": "2026-10-20T20:52:52.038482+00:00",
+    "room": "N27-RETARGET-8B4ABACF1A",
+    "independentReadOnlyHistoryAndFullReplayPass": true,
+    "result": "/Users/dinghaolin/MyProjects/riftbound/var/qa/fixed-a56137-native-locked-20261021/independent-same-original-room-all-sql-history-result-v2.json",
+    "resultSha256": "662609a6c3efce13990366fb306cca45c33608c9cb87f9899ab4505cb55bf2a6",
+    "commands": 48,
+    "events": 259,
+    "normalGatewayContinuationCommands": 20,
+    "nativeAcceptedGameplayCommands": 0,
+    "originalNativeFailureIssue77StillOpen": true
+  },
+  "latestOwnRoomOriginalFrameRetained": true,
+  "ownApiStopped": true,
+  "allOriginal231AuditSevenTablesExactAtStop": true,
+  "allOriginal47NativeSevenTablesExactAtStop": true,
+  "actualNativeRoomsAtStop": [
+    "GRACEFUL-07AC-NATIVE-dacbf6fc6871",
+    "GRACEFUL-08FD-NATIVE-05edcc4e33f3",
+    "GRACEFUL-6D9A-NATIVE-ddcb62ee3fe7",
+    "GRACEFUL-797F-NATIVE-39197e26c612",
+    "GRACEFUL-C519-NATIVE-5730eb6d86f9",
+    "GRACEFUL-E262-NATIVE-adf640f8d2d9",
+    "HEADLESS-C519-NATIVE-8c6ab9a22dcc",
+    "LOCKED-07AC-SCORE-ce0eeedf0d12",
+    "LOCKED-08FD-SCORE-9b8c2b9c5df3",
+    "LOCKED-3D-PAIR-a2b6fbee06eb",
+    "LOCKED-6D9A-SCORE-56a5ca8dd0c7",
+    "LOCKED-797F-SCORE-124d350bed58",
+    "LOCKED-A9-PAIR-6e81dcfc9912",
+    "LOCKED-C519-PAIR-bee30b68c79b",
+    "LOCKED-C519-SCORE-8bfd1b8c08d8",
+    "LOCKED-C6-PAIR-7e5381965c69",
+    "LOCKED-C6-SCORE-c6cf989117d0",
+    "LOCKED-E262-SCORE-9572a6090eaf",
+    "LOCKED-PAIR-829a1df810a9",
+    "LOCKED-PAIR-8f2413d6f2af",
+    "LOCKED-PAIR-fc82f3c58107",
+    "N22-PAY-6F8A57AF6E",
+    "N22-PAY-C0F39208FA",
+    "N23-PAY-24A69F6D03",
+    "N26-RETARGET-DC5C1D40DE",
+    "N27-RETARGET-8B4ABACF1A",
+    "N27-RETARGET-A843ED44AB",
+    "NETWORK-087b47dc4652",
+    "NETWORK-13f1c75bd8e1",
+    "NETWORK-14c1cbb4bdea",
+    "NETWORK-3852221bd8db",
+    "NETWORK-40e424ab23cb",
+    "NETWORK-5af8dc418888",
+    "NETWORK-5dc1ce5878fd",
+    "NETWORK-5e4b0fc8b42d",
+    "NETWORK-83847ed4749d",
+    "NETWORK-d933ac25b19e",
+    "NETWORK-ef01657e6741",
+    "RB-9A5706",
+    "RB-B67RVX",
+    "STALE2-07AC-NATIVE-79e8d04ba862",
+    "STALE2-08FD-NATIVE-4ef5d00244e2",
+    "STALE2-797F-NATIVE-e428ca757055",
+    "STALE2-E262-NATIVE-275a299d4602",
+    "paired-controller-46a990fe-20261018",
+    "paired-empty-view-48c6ae96-20261018",
+    "paired-here-control-20261018",
+    "paired-observed-window-8c6d569e-20261018"
+  ],
+  "ownPostgresSmartStopped": true,
+  "boundIdleAssertionEnded": true,
+  "finishedAtUtc": "2026-10-20T20:53:12.303445+00:00",
+  "lockAtEnd": {
+    "atUtc": "2026-10-20T20:53:12.326110+00:00",
+    "roots": [
+      {
+        "rootLocked": true,
+        "sessions": [
+          true
+        ]
+      }
+    ],
+    "missingValuesRemainUnknown": true
+  },
+  "allFrozenCurrentApiHelpersAndBoth373CiPayloadHashesExact": true,
+  "originalNativeFailureIssue77StillOpen": true,
+  "visibleAndPhysicalWindowsAcceptance": false
+}

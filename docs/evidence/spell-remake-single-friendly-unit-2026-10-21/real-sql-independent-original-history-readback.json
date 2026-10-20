@@ -1,0 +1,185 @@
+{
+  "status": "PASS_INDEPENDENT_CURRENT_TEN_ACTUAL_SQL_HISTORY_AND_FIVE_ORIGINAL_CLAIRVOYANCE_FULL_REPLAYS",
+  "retainedActualSqlFixtures": 10,
+  "originalExportedClairvoyanceFixtures": 5,
+  "totalAuthoritativeHistoricalSqlStates": 84,
+  "bothPlayersCombinedHistoricalSqlSnapshots": 168,
+  "bothPlayersCombinedHistoricalSqlPrompts": 168,
+  "actualSqlResults": [
+    {
+      "room": "declaration-scope-fefe1f12f201441fa50180a7d4654031",
+      "mirror": true,
+      "branch": "draw",
+      "commands": 8,
+      "events": 17,
+      "historicalStates": 8,
+      "historicalPrivateSnapshots": 16,
+      "historicalPrivatePrompts": 16,
+      "pendingRemakes": 0,
+      "drafts": 0,
+      "originalExplicitInitialSha256": "d0165cf5d53178922043a240ac5088143f1ed5d464fec5249483270fdad550a8"
+    },
+    {
+      "room": "declaration-scope-3efb4bff9a3840cbbf246fc43954a75d",
+      "mirror": true,
+      "branch": "echo",
+      "commands": 10,
+      "events": 22,
+      "historicalStates": 10,
+      "historicalPrivateSnapshots": 20,
+      "historicalPrivatePrompts": 20,
+      "pendingRemakes": 2,
+      "drafts": 1,
+      "originalExplicitInitialSha256": "262a0bf45037577ea357e16f1cd6832baee09a9c5f68686a879c8661d8e37dd8"
+    },
+    {
+      "room": "declaration-scope-b2dcfea058a347cebd2fbe3cc4cd5bfd",
+      "mirror": true,
+      "branch": "mode",
+      "commands": 9,
+      "events": 18,
+      "historicalStates": 9,
+      "historicalPrivateSnapshots": 18,
+      "historicalPrivatePrompts": 18,
+      "pendingRemakes": 1,
+      "drafts": 0,
+      "originalExplicitInitialSha256": "c048fea7abf85bcc52f777a73445d36be9fb2a4672f18142a79d84a954efe8c0"
+    },
+    {
+      "room": "declaration-scope-948c7970489043009c15ddb2b49c4cf0",
+      "mirror": true,
+      "branch": "no-complete",
+      "commands": 8,
+      "events": 16,
+      "historicalStates": 8,
+      "historicalPrivateSnapshots": 16,
+      "historicalPrivatePrompts": 16,
+      "pendingRemakes": 0,
+      "drafts": 0,
+      "originalExplicitInitialSha256": "91e6025088c2974e60340c8fa2e170cd6c350cb9cbfae8e22c5f0a341443b871"
+    },
+    {
+      "room": "declaration-scope-06d8e844a9114147b8fb38e7a5b89914",
+      "mirror": true,
+      "branch": "zero",
+      "commands": 10,
+      "events": 20,
+      "historicalStates": 10,
+      "historicalPrivateSnapshots": 20,
+      "historicalPrivatePrompts": 20,
+      "pendingRemakes": 2,
+      "drafts": 1,
+      "originalExplicitInitialSha256": "f8827db66aa72571784767382357b13febfb779a9192e84059556029c98107f4"
+    },
+    {
+      "room": "declaration-scope-d5a4f635edc44dccaa354582c43f212a",
+      "mirror": false,
+      "branch": "draw",
+      "commands": 7,
+      "events": 15,
+      "historicalStates": 7,
+      "historicalPrivateSnapshots": 14,
+      "historicalPrivatePrompts": 14,
+      "pendingRemakes": 0,
+      "drafts": 0,
+      "originalExplicitInitialSha256": "6c4d985741f4890ee3d90de51bd52e481233c2bfa5e05fa227b1a61def060d31"
+    },
+    {
+      "room": "declaration-scope-472921aa56ae4488b01df2670c6e2c75",
+      "mirror": false,
+      "branch": "echo",
+      "commands": 9,
+      "events": 20,
+      "historicalStates": 9,
+      "historicalPrivateSnapshots": 18,
+      "historicalPrivatePrompts": 18,
+      "pendingRemakes": 2,
+      "drafts": 1,
+      "originalExplicitInitialSha256": "2cd78814694f6d4532db79e5b9418a02b2fc76bae760508f52366628d735a3ee"
+    },
+    {
+      "room": "declaration-scope-46387721c9aa40499bd510ab490be07a",
+      "mirror": false,
+      "branch": "mode",
+      "commands": 7,
+      "events": 15,
+      "historicalStates": 7,
+      "historicalPrivateSnapshots": 14,
+      "historicalPrivatePrompts": 14,
+      "pendingRemakes": 0,
+      "drafts": 0,
+      "originalExplicitInitialSha256": "dae4b8e40063ca665bbc9ac9d626a6d6c2154434407d9d0a42e42e9b3fdaf835"
+    },
+    {
+      "room": "declaration-scope-707cb5ae713b49e8beeeffec1c637fa7",
+      "mirror": false,
+      "branch": "no-complete",
+      "commands": 7,
+      "events": 14,
+      "historicalStates": 7,
+      "historicalPrivateSnapshots": 14,
+      "historicalPrivatePrompts": 14,
+      "pendingRemakes": 0,
+      "drafts": 0,
+      "originalExplicitInitialSha256": "ee77e3d9757fdbd1ce58e2e0674daa857be48d74e1a58923a90970acbfb08a4a"
+    },
+    {
+      "room": "declaration-scope-ae4af0faf3204770a8233ecaff74638e",
+      "mirror": false,
+      "branch": "zero",
+      "commands": 9,
+      "events": 18,
+      "historicalStates": 9,
+      "historicalPrivateSnapshots": 18,
+      "historicalPrivatePrompts": 18,
+      "pendingRemakes": 2,
+      "drafts": 1,
+      "originalExplicitInitialSha256": "7ba20aa8abd83f7a98ee9b0ddacc9de10cee974429fa650f6ba0c48ddb40b8b2"
+    }
+  ],
+  "clairvoyanceOriginalFileResults": [
+    {
+      "branch": "keep",
+      "commands": 5,
+      "events": 11,
+      "sourceScope": "Original exported frames; original fixture cleanup retained, no claim that deleted intermediate SQL rows remain present"
+    },
+    {
+      "branch": "some",
+      "commands": 5,
+      "events": 12,
+      "sourceScope": "Original exported frames; original fixture cleanup retained, no claim that deleted intermediate SQL rows remain present"
+    },
+    {
+      "branch": "all",
+      "commands": 4,
+      "events": 11,
+      "sourceScope": "Original exported frames; original fixture cleanup retained, no claim that deleted intermediate SQL rows remain present"
+    },
+    {
+      "branch": "burnout",
+      "commands": 4,
+      "events": 11,
+      "sourceScope": "Original exported frames; original fixture cleanup retained, no claim that deleted intermediate SQL rows remain present"
+    },
+    {
+      "branch": "control",
+      "commands": 9,
+      "events": 19,
+      "sourceScope": "Original exported frames; original fixture cleanup retained, no claim that deleted intermediate SQL rows remain present"
+    }
+  ],
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+    "implementationSha256": "210fcdae92470dfc218a94db0436c02bc4581fdf3154d2778491659d3966f6c2",
+    "identitySha256": "a349bc2fd883fa6b98b660ff6b2a7015988cc78ec7c20d0a6894d7c67cc590d4"
+  },
+  "everyOriginalFieldNullAndConditionalOmissionPreserved": true,
+  "actualReadOnlyConnection": true,
+  "noOriginalBlankMetadataAcceptedHistoryOrDatabaseWrites": true,
+  "ordinaryOpeningNativeAndWholePrintingCertification": false
+}
