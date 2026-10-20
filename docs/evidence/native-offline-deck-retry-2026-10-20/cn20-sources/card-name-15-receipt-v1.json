@@ -1,0 +1,52 @@
+{
+  "label": "card-name-15",
+  "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+  "request": {
+    "pageNum": 1,
+    "pageSize": 100,
+    "searchContent": "缄默术",
+    "cardCategoryList": [],
+    "cardColorList": [],
+    "rarityList": [],
+    "productCodeList": []
+  },
+  "requestedAtUtc": "2026-10-20T02:41:17.103205+00:00",
+  "region": "CN",
+  "language": "zh-CN",
+  "singlePrintingPublicationDate": null,
+  "singlePrintingEffectiveDate": null,
+  "httpStatus": 200,
+  "httpDate": "Tue, 20 Oct 2026 02:41:17 GMT",
+  "resolvedUrl": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+  "rawSha256": "d6c8d9691f7f760318bd4d03b7b592315fa1bfe5f47bc4fee3c4e9f4f5bfafcf",
+  "rawBytes": 1187,
+  "completeResponse": "var/qa/typed-stack-consumer-source-readback-20261020/card-name-15-complete-response-v1.json.gz",
+  "returnedRows": 1,
+  "reportedTotal": 1,
+  "completeReturnedPageCompared": true,
+  "searchName": "缄默术",
+  "everyReturnedRowComparedToOriginal1504": [
+    {
+      "apiId": 40110,
+      "cardNo": "RAD·041/167",
+      "entireRowMatchesOriginal": false,
+      "fullRowSha256": "2a828b85d41e3c08dc43fc9ce16ade3b721cb3c80fd85c7bdf5f1d461dc6933c"
+    }
+  ],
+  "exactDistinctPrintingTargets": [
+    {
+      "apiId": 39534,
+      "retainedPrintingIdentity": "RAD-041/167",
+      "exactParentIds": [
+        "CARD:RAD-041/167"
+      ],
+      "returned": false,
+      "rawCardNo": null,
+      "exactSameRawOriginalRow": false,
+      "fullRowSha256": null,
+      "wholePrintingSemanticCertification": false
+    }
+  ],
+  "status": "ACQUIRED_COMPLETE_RESPONSE_AND_EXACT_IDENTITY_COMPARISON",
+  "receivedAtUtc": "2026-10-20T02:41:17.215126+00:00"
+}

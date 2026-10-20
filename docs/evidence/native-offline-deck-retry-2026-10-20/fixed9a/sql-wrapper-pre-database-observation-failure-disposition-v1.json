@@ -1,0 +1,14 @@
+{
+  "atUtc": "2026-10-20T01:20:10.122035+00:00",
+  "status": "ORIGINAL_V1_WRAPPER_FAILED_BEFORE_DATABASE_START_OR_GAMEPLAY",
+  "originalWrapperSha256": "ca6d32fa66484875395a88596c4023cfdf1cdd206452468ba532e698170a4cf4",
+  "originalWrapperRetained": true,
+  "error": "AttributeError: str object has no attribute get in lock_observation, including finally observation; ioreg returned a dictionary, not a list.",
+  "cause": "Local observation wrapper omitted the already-known dictionary/list adapter; production API/helpers were not involved.",
+  "clusterStillStoppedAfterFailure": true,
+  "noOriginalResultOutputOrRoomCreated": true,
+  "ownBoundCaffeinateTerminatedByFinallyBeforeSecondObservationError": true,
+  "v2ChangesOnlyObservationAdapterAndFreshOutputNames": true,
+  "apiAndHelperBuildsUnchanged": true,
+  "notSqlPass": true
+}

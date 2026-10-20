@@ -1,0 +1,9 @@
+{
+  "observedAtUtc": "2026-10-20T01:36:45.979Z",
+  "fixedCommit": "9a57068e986850a5e86bbeb9d0bbb2a92f44b7b4",
+  "source": "cua native B text input and screenshot",
+  "screenshotSha256": "f17019371e7eefdc456181ccf4cab67fea93f3ddc25ac21f909c540c7f2ad523",
+  "player": "QA9A-B",
+  "room": "RB-9A5706",
+  "scope": "native menu controls before connect only"
+}

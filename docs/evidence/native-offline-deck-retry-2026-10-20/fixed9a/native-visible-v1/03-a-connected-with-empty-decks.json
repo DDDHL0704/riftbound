@@ -1,0 +1,7 @@
+{
+  "observedAtUtc": "2026-10-20T01:41:56.179Z",
+  "fixedCommit": "9a57068e986850a5e86bbeb9d0bbb2a92f44b7b4",
+  "source": "cua original native A screenshot after same-server connect",
+  "screenshotSha256": "852e5fd4255d4b69405e2c314ecbccca8f46e30bccd23ab96647c14b8131ba52",
+  "finding": "A started before API availability; now connected but deck selector remains empty. Independent live endpoint returns 11 decks. Product startup path remains unpassed."
+}

@@ -1,0 +1,7 @@
+{
+  "requestedAtUtc": "2026-10-20T02:21:10.516967+00:00",
+  "reason": "Both real native victory dialogs captured; exact original 28/206 normal-score frame, all four original full replays and actual historical payloads independently validated. Request original-row integrity proof and own API/PG graceful stop.",
+  "independentReceiptSha256": "970342a472e0b200fd0ece82af2477b19611555bc6e9e2291a13a60769b45def",
+  "clientsExitedNormallyViaNativeCmdQ": true,
+  "launchServicesExitCodeNotObservable": true
+}

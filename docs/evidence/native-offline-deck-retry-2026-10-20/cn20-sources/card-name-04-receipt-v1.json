@@ -1,0 +1,52 @@
+{
+  "label": "card-name-04",
+  "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+  "request": {
+    "pageNum": 1,
+    "pageSize": 100,
+    "searchContent": "极速反制",
+    "cardCategoryList": [],
+    "cardColorList": [],
+    "rarityList": [],
+    "productCodeList": []
+  },
+  "requestedAtUtc": "2026-10-20T02:41:16.861731+00:00",
+  "region": "CN",
+  "language": "zh-CN",
+  "singlePrintingPublicationDate": null,
+  "singlePrintingEffectiveDate": null,
+  "httpStatus": 200,
+  "httpDate": "Tue, 20 Oct 2026 02:41:16 GMT",
+  "resolvedUrl": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+  "rawSha256": "9bbe31f8ff851b2b0b8ef759af8cf34fe2d31078d272a4534c2187b20f1726ce",
+  "rawBytes": 1170,
+  "completeResponse": "var/qa/typed-stack-consumer-source-readback-20261020/card-name-04-complete-response-v1.json.gz",
+  "returnedRows": 1,
+  "reportedTotal": 1,
+  "completeReturnedPageCompared": true,
+  "searchName": "极速反制",
+  "everyReturnedRowComparedToOriginal1504": [
+    {
+      "apiId": 33121,
+      "cardNo": "SFD·045/221",
+      "entireRowMatchesOriginal": true,
+      "fullRowSha256": "3b7e3fcbc134bb5c329fd467a0fe66a0e5c4b2b1405b791404a7a69e6b9050f1"
+    }
+  ],
+  "exactDistinctPrintingTargets": [
+    {
+      "apiId": 33121,
+      "retainedPrintingIdentity": "SFD-045/221",
+      "exactParentIds": [
+        "CARD:SFD-045/221"
+      ],
+      "returned": true,
+      "rawCardNo": "SFD·045/221",
+      "exactSameRawOriginalRow": true,
+      "fullRowSha256": "3b7e3fcbc134bb5c329fd467a0fe66a0e5c4b2b1405b791404a7a69e6b9050f1",
+      "wholePrintingSemanticCertification": false
+    }
+  ],
+  "status": "ACQUIRED_COMPLETE_RESPONSE_AND_EXACT_IDENTITY_COMPARISON",
+  "receivedAtUtc": "2026-10-20T02:41:16.973689+00:00"
+}

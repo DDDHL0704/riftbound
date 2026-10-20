@@ -1,0 +1,52 @@
+{
+  "label": "card-name-11",
+  "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+  "request": {
+    "pageNum": 1,
+    "pageSize": 100,
+    "searchContent": "暴怒箴言",
+    "cardCategoryList": [],
+    "cardColorList": [],
+    "rarityList": [],
+    "productCodeList": []
+  },
+  "requestedAtUtc": "2026-10-20T02:41:16.991202+00:00",
+  "region": "CN",
+  "language": "zh-CN",
+  "singlePrintingPublicationDate": null,
+  "singlePrintingEffectiveDate": null,
+  "httpStatus": 200,
+  "httpDate": "Tue, 20 Oct 2026 02:41:17 GMT",
+  "resolvedUrl": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+  "rawSha256": "e2b1a92d4d64c308296c8a2ed8023e4f62fa7e9b09c2e80e23ad9d9486361552",
+  "rawBytes": 1195,
+  "completeResponse": "var/qa/typed-stack-consumer-source-readback-20261020/card-name-11-complete-response-v1.json.gz",
+  "returnedRows": 1,
+  "reportedTotal": 1,
+  "completeReturnedPageCompared": true,
+  "searchName": "暴怒箴言",
+  "everyReturnedRowComparedToOriginal1504": [
+    {
+      "apiId": 37700,
+      "cardNo": "VEN·015",
+      "entireRowMatchesOriginal": true,
+      "fullRowSha256": "066b8048cfe1c40543e1d3515db4fdd0613d04c478875555c405d3ed07499731"
+    }
+  ],
+  "exactDistinctPrintingTargets": [
+    {
+      "apiId": 37700,
+      "retainedPrintingIdentity": "VEN-015",
+      "exactParentIds": [
+        "CARD:VEN-015"
+      ],
+      "returned": true,
+      "rawCardNo": "VEN·015",
+      "exactSameRawOriginalRow": true,
+      "fullRowSha256": "066b8048cfe1c40543e1d3515db4fdd0613d04c478875555c405d3ed07499731",
+      "wholePrintingSemanticCertification": false
+    }
+  ],
+  "status": "ACQUIRED_COMPLETE_RESPONSE_AND_EXACT_IDENTITY_COMPARISON",
+  "receivedAtUtc": "2026-10-20T02:41:17.099219+00:00"
+}

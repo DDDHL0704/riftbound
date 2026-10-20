@@ -1,0 +1,33 @@
+{
+  "status": "SOLE_CHECK13107_ALL_ORIGINAL_CASES_AND7467_METHODS_EXACTLY_RETAINED_PASS",
+  "recordedAtUtc": "2026-10-20T03:25:54.359783+00:00",
+  "cases": 13107,
+  "methods": 7467,
+  "failed": 0,
+  "skipped": 0,
+  "sourceInputCount": 3303,
+  "runtimeInputCount": 1399,
+  "allOriginalCaseMultisetAndMethodsExactlyEqual": true,
+  "originalTestAndScriptFiles": 1859,
+  "unchangedGitExecutableModePaths": 1859,
+  "originalFullGameSourceFiles": 9,
+  "originalFullGameMethodIdentities": 143,
+  "original110PairsSeed424242VictoryReplayAssertionsNotModified": true,
+  "actualTrxSha256": "43970f78e7eaa595713a60166c0923ba69ed273a16e6aee2827b954a43170214",
+  "previousCheckTrxSha256": "a1482234f61b6600f89b26d694af6e3bc6bbe1173110e5ae9120211c4968f5f9",
+  "allSourceAndRuntimeInputsStableThroughTerminal": true,
+  "actualConformanceRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+    "implementationSha256": "c63ae717fad6369c7cb7b7d08346e1215fcbe4f2b41285fb6125e2fbce72f193",
+    "identitySha256": "a53b5c192638fa08996f7603554ce23a3c9d1e18a6081f21c0d2c406b01d7bc6"
+  },
+  "mainChangedLineNotExecutedByConformance": true,
+  "newFixedNativeOfflineSameServerRegressionRequired": true,
+  "noOptionalSqlSmokeMisrepresentedAsRealDatabase": true,
+  "noGodotSdkOrProjectBuild": true,
+  "noSecondCheck": true
+}

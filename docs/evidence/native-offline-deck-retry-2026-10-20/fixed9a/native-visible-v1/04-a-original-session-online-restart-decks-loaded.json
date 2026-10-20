@@ -1,0 +1,6 @@
+{
+  "observedAtUtc": "2026-10-20T01:51:22.139Z",
+  "fixedCommit": "9a57068e986850a5e86bbeb9d0bbb2a92f44b7b4",
+  "screenshotSha256": "c6ec63d98bd4dd1980226db2edb68e260ac99f4cd9ed269b41bb00f03baa832d",
+  "scope": "A restored existing current-version session after normal UI quit/reopen; server already available; workaround only, original offline-start defect remains open"
+}

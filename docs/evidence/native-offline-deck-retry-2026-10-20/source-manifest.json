@@ -1,0 +1,96 @@
+{
+  "recordedAtUtc": "2026-10-20T03:27:51.132762+00:00",
+  "region": "CN",
+  "language": "zh-CN",
+  "applicableRuleBaseline": "2026-10-16",
+  "scope": "One native empty-list fetch retry; independent preceding fixed9a SQL/native and source-only CN20 version evidence.",
+  "baseCommit": "9a57068e986850a5e86bbeb9d0bbb2a92f44b7b4",
+  "includesOneUncommittedNativeImplementationChange": true,
+  "implementation": {
+    "path": "clients/godot/scripts/Main.cs",
+    "sha256": "3c2b511c7260b2b5b927ca5dc396a7af085e627614a02e827c343d3cfa48a56e",
+    "role": "implementation"
+  },
+  "allEngineContractsCatalogDataAndTestSourceFilesUnchanged": true,
+  "originalFailure": {
+    "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/native-visible-v1/offline-start-deck-list-defect-checkpoint-v1.json",
+    "sha256": "4a8b93b63479bc9f44435a5083b086ed5283f4747d7b51a4c1f84d7bbaababd3",
+    "role": "offline-start-deck-list-defect-checkpoint-v1"
+  },
+  "nativeIssue": "https://github.com/DDDHL0704/riftbound/issues/70",
+  "sourceVersionIssue": "https://github.com/DDDHL0704/riftbound/issues/71",
+  "oldFixed9aRestartWorkaroundDoesNotFixOriginalPath": true,
+  "currentFocus": {
+    "cases": 18,
+    "methods": 17,
+    "actualNewMainOfflineRetryNotExercised": true
+  },
+  "soleCheck": {
+    "path": "docs/evidence/native-offline-deck-retry-2026-10-20/native-batch/only-check-retention-and-disposition-v1.json",
+    "sha256": "fbd3d324666e5a54fc319a68880e768077f81d9abece0b75faabda0329a5ec86",
+    "role": "sole-check-all-original-cases-retained"
+  },
+  "actualCurrentConformanceDebugInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+    "implementationSha256": "c63ae717fad6369c7cb7b7d08346e1215fcbe4f2b41285fb6125e2fbce72f193",
+    "identitySha256": "a53b5c192638fa08996f7603554ce23a3c9d1e18a6081f21c0d2c406b01d7bc6"
+  },
+  "fixed9aMacReleaseInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+    "implementationSha256": "6fc6766353379fd13d4a60356accd26dde58d85a319c5717b4b48069dfac15be",
+    "identitySha256": "10ab1c62f40e746464e28cd54919021f8311eb1e15d0aab9506dcb9314e5139e"
+  },
+  "actualLinuxCiInputsSeparatelyRecordedInOriginalReceipts": true,
+  "earlierE262FullCi": {
+    "path": "docs/evidence/native-offline-deck-retry-2026-10-20/native-batch/prior-e262-full-ci-independent-all-gates-readback-v1.json",
+    "sha256": "eb26381dfdae8c13a5b1b98ee47aaf25fb6d8d0ed5fa29cd26738c0ddbecca15",
+    "role": "prior-e262-full-ci-independent"
+  },
+  "earlierE262Network": {
+    "path": "docs/evidence/native-offline-deck-retry-2026-10-20/native-batch/prior-e262-network-original-log-independent-readback-v1.json",
+    "sha256": "1c3f4dd5edce5b77fab547f43353e2cf9f4ec16ad369a8af39b526c4dfbea797",
+    "role": "prior-e262-original-network-independent"
+  },
+  "fixed9aSiblingSql": {
+    "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/fixed-sibling-real-sql-verification-v2.json",
+    "sha256": "ac02bb9d7e456543e84ab9a94f04225a74efb1b9fc2c30b858fc8878130dbb4f",
+    "role": "fixed9a-two-format-sibling-real-sql"
+  },
+  "fixed9aVisibleProduct": {
+    "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/native-visible-v1/fixed-visible-mac-native-acceptance-v1.json",
+    "sha256": "37cc41d77da68ee18c685de502fea610c5b07944f2c3988cf6e38928bb4e915d",
+    "role": "fixed9a-visible-native-original-score"
+  },
+  "fixed9aAllFourSqlAndNetworkCi": {
+    "path": "docs/evidence/native-offline-deck-retry-2026-10-20/native-batch/nine-a-four-sql-and-native-network-independent-original-readback-v1.json",
+    "sha256": "2821927bd1721f243f822dbdd91cd4ca25d79711b06622dd74922933b0910c55",
+    "role": "fixed9a-original-sql-and-network-ci"
+  },
+  "newCandidateNativeSameProcessOfflineOnlineSameServerSubmission": "OPEN_AWAIT_NEW_FIXED_NATIVE_PACKAGE_ACTUAL_PATH",
+  "newCandidateFixedFull": "PENDING_AFTER_COMMIT",
+  "physicalWindows": "OPEN",
+  "currentCn20SourceImpact": {
+    "path": "docs/evidence/native-offline-deck-retry-2026-10-20/cn20-sources/current-source-change-and-doc03-visual-impact-disposition-v1.json",
+    "sha256": "4912925d2e080e80005ef09d7fa96f3b135a580a069ebdce2af992471c462c3b",
+    "role": "cn20-source-impact"
+  },
+  "currentCn20FullSourceView": {
+    "path": "docs/evidence/native-offline-deck-retry-2026-10-20/cn20-sources/current-complete-cn-source-version-view-v1.json",
+    "sha256": "48dba865ab1127cf627937e512d5b8ff094eb05d959bc56d6d4a0ed8bde65ddb",
+    "role": "cn20-complete-source-version"
+  },
+  "newSourceVersionRecordedWithoutRuntimeAdoption": true,
+  "wholeCardOrWholeFamilyOrGlobalAuditCertified": false,
+  "allOriginal143FullGameMethods110PairsAndSeedsRetained": true,
+  "noOldDevelopmentMatchMigrationOrDslExpansion": true,
+  "onlyLatestUsablePairAndOnePackagePerOsRetained": true,
+  "noNewLocalGodotSdkProjectBuildWholeCheckoutOrDatabase": true
+}

@@ -1,0 +1,19 @@
+{
+  "startedAtUtc": "2026-10-20T02:19:13.401952+00:00",
+  "buildExit": 0,
+  "status": "PASS_FROZEN_NATIVE_INDEPENDENT_READER_PUBLICATION",
+  "finishedAtUtc": "2026-10-20T02:19:17.241727+00:00",
+  "fixedCommit": "9a57068e986850a5e86bbeb9d0bbb2a92f44b7b4",
+  "sourceHashes": {
+    "Program.cs": "a4695d3586fed4637c2adaf0ff4d8da5b067d80946ff6256f390a74f632f2324",
+    "probe.csproj": "91c913084bb48cd3b7dccc5c455fff696625931358846e6bd346bf8449f7168d"
+  },
+  "fiveExactFixedApiModules": {
+    "Riftbound.Engine.dll": "e0d8cf0895807738f7f7f265f235e9a11239728eacb94611b05e44dfdccec356",
+    "Riftbound.Contracts.dll": "4dfd2cb16885fa93a0fecbda5358d15bf131a57b67622a2ed3115826f91eb688",
+    "Riftbound.CardCatalog.dll": "b8b57eb1ddaa9b5ffb7ab966754925be8313863ba766f961650f394de95dbc6a",
+    "Riftbound.Persistence.dll": "7837149a800f3cb5baa37e1f2aefcf405813f63aabfe58edbc9ef76df7c1ab52",
+    "Npgsql.dll": "9d8db086e9eda5ff20c4a7f83fa3eae7689198f57277ff9ceea1ee3526f5fcf8"
+  },
+  "all3303RootSourceAndFixedApiInputsUnchanged": true
+}

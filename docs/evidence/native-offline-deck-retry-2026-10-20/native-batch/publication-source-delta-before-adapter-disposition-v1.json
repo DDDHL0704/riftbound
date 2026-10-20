@@ -1,0 +1,22 @@
+{
+  "status": "CORRECTED_AUDIT_BEFORE_SIDE_WRAPPER_AFTER_ORIGINAL_PUBLISHER_SHAPE_FAILURE",
+  "recordedAtUtc": "2026-10-20T03:31:27.013357+00:00",
+  "originalPublisherSourceSha256": "d8f2b376400f8b86e5a538a7d32dc598ce1e50235b839ef94fb6f13efea40bc4",
+  "originalFailedPublicationLog": "publication-v1.log",
+  "originalFailure": "KeyError: cards in existing source_delta before side, after root draft was written.",
+  "originalDraftSnapshotSha256": "e65cdd5b6f30e4d24c8479388a314d291a729435c731822c8b1064f5192aed33",
+  "originalCn19RawSourceView": {
+    "path": "docs/evidence/public-reveal-wording-2026-10-19/cn-source-delta-view.json",
+    "sha256": "d5a8d909fffee0bc33010ab7f679009de8ac62c13e18800d24771dd6a23534c1",
+    "role": "cn-source-delta-view"
+  },
+  "adapter": {
+    "path": "docs/evidence/native-offline-deck-retry-2026-10-20/cn19-before-source-delta-adapter.json",
+    "sha256": "ddd3e7e4188cadf91707ba094ac170759a35ce089495ba76e3d112a500159c24",
+    "role": "cn19-before-source-delta-adapter"
+  },
+  "all1504OriginalRowsAndOrderExactlyEqual": true,
+  "allOriginalFiveDeltaDictionariesAndSourceVersionsPreserved": true,
+  "noOriginalSourceOrGameplayOrTestChange": true,
+  "noSecondCheckOrCiRerun": true
+}

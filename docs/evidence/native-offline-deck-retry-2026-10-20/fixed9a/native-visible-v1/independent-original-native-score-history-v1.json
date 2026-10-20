@@ -1,0 +1,46 @@
+{
+  "status": "PASS_INDEPENDENT_ACTUAL_NATIVE_DATABASE_NORMAL_SCORE_AND_ALL_ORIGINAL_REPLAYS",
+  "observedAtUtc": "2026-10-20T02:19:58.863797+00:00",
+  "fixedCommit": "9a57068e986850a5e86bbeb9d0bbb2a92f44b7b4",
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+    "implementationSha256": "6fc6766353379fd13d4a60356accd26dde58d85a319c5717b4b48069dfac15be",
+    "identitySha256": "10ab1c62f40e746464e28cd54919021f8311eb1e15d0aab9506dcb9314e5139e"
+  },
+  "room": "RB-9A5706",
+  "acceptedCommands": 28,
+  "events": 206,
+  "finalTurn": 17,
+  "finalTick": 27,
+  "winner": "qa9a-b",
+  "scoreB": 8,
+  "scoreA": 0,
+  "scoreReasons": {
+    "conquest": 1,
+    "holding": 7
+  },
+  "originalNonZeroPrivateSeedPreserved": true,
+  "wholeFrameExact": true,
+  "allFourFullOriginalReplaysPass": true,
+  "allFourOriginalPrefixesUnchanged": true,
+  "allFourHistoricalCheckpointsMatched": true,
+  "actualHistoricalPayloads": {
+    "state_snapshots": 28,
+    "snapshots": 52,
+    "action_prompts": 52
+  },
+  "originalFrameHashes": {
+    "05-before-first-mulligan-original-frame.json.gz": "6e974ea4bcef99a47995347fd1264a847daa45b44216a55189035db3316615d5",
+    "07-before-api-cold-restart-original-frame.json.gz": "b470a619610905423440ae3fb17737b80858d1b6ec1916fa53445a0ae25a383a",
+    "09-after-api-cold-restart-original-frame.json.gz": "b470a619610905423440ae3fb17737b80858d1b6ec1916fa53445a0ae25a383a",
+    "15-final-eight-score-original-frame.json.gz": "bc52d09ac0b961a259f01e5d50c680cf631c467096289e3f6dc5698adb1a4f78"
+  },
+  "historicalExportSha256": "3ce1b9de6568ce8a07e203a6c50206b91355a6b1a5d2c8b6dd88f3a1f5b55cea",
+  "actualDatabaseEnforcedReadOnly": true,
+  "twoActualDecksIndependentlyLegalInBothNamedFormats": true,
+  "wholeCardOrWindowsOrAll110PairingsCertifiedByThisSingleNativeGame": false
+}

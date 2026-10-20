@@ -1,0 +1,2217 @@
+{
+  "recordedAtUtc": "2026-10-20T02:58:13.625946+00:00",
+  "records": [
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/actual-independent-sibling-sql-readonly-v2.json",
+      "originalSha256": "f0fe6b21a666c12088d9ba60f9337e89dd8a70e4ad30a3623f970a8950af277c",
+      "originalBytes": 1909,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/actual-independent-sibling-sql-readonly-v2.json",
+        "sha256": "f0fe6b21a666c12088d9ba60f9337e89dd8a70e4ad30a3623f970a8950af277c"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/actual-sibling-sql-v2/ChinaStandard20260724/derived-legal-82-prefix-original-frame.json.gz",
+      "originalSha256": "b3bb3b6f857579dcf989110ba73abf90bc54e72d7c819309e5d03e3a7f76ddb6",
+      "originalBytes": 50062,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/actual-sibling-sql-v2/ChinaStandard20260724/derived-legal-82-prefix-original-frame.json.gz",
+        "sha256": "b3bb3b6f857579dcf989110ba73abf90bc54e72d7c819309e5d03e3a7f76ddb6"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/actual-sibling-sql-v2/ChinaStandard20260724/final-original-frame.json.gz",
+      "originalSha256": "036ab6c13a560f8eacf4d55ab6eb4bf698339da9bcb77832d43a96c499468086",
+      "originalBytes": 50285,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/actual-sibling-sql-v2/ChinaStandard20260724/final-original-frame.json.gz",
+        "sha256": "036ab6c13a560f8eacf4d55ab6eb4bf698339da9bcb77832d43a96c499468086"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/actual-sibling-sql-v2/ChinaStandard20260724/last-original-frame.json.gz",
+      "originalSha256": "d90b00b217d5ab2e8c96afd0949e63ffe4121c8b988634df235cc0172ec6e51a",
+      "originalBytes": 43100,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/actual-sibling-sql-v2/ChinaStandard20260724/last-original-frame.json.gz",
+        "sha256": "d90b00b217d5ab2e8c96afd0949e63ffe4121c8b988634df235cc0172ec6e51a"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/actual-sibling-sql-v2/ChinaStandard20260724/milestones.json",
+      "originalSha256": "181d6892f884d6e79926b7d2508241bed2791f4668981059436bc7291907c919",
+      "originalBytes": 921,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/actual-sibling-sql-v2/ChinaStandard20260724/milestones.json",
+        "sha256": "181d6892f884d6e79926b7d2508241bed2791f4668981059436bc7291907c919"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/actual-sibling-sql-v2/ChinaStandard20260724/original-command-attempts.json.gz",
+      "originalSha256": "6a416baedea1f2194d6a4231e7f4ac4f9f843d970d38449de8672c65ed94950a",
+      "originalBytes": 2855678,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/actual-sibling-sql-v2/ChinaStandard20260724/original-command-attempts.json.gz",
+        "sha256": "6a416baedea1f2194d6a4231e7f4ac4f9f843d970d38449de8672c65ed94950a"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/actual-sibling-sql-v2/ChinaStandard20260724/original-effect-play-with-sibling-original-frame.json.gz",
+      "originalSha256": "4a556a3a1f77c0f2807ba4fb668f6cb50cb36c4b753d91bbc3edea35d0705d15",
+      "originalBytes": 49975,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/actual-sibling-sql-v2/ChinaStandard20260724/original-effect-play-with-sibling-original-frame.json.gz",
+        "sha256": "4a556a3a1f77c0f2807ba4fb668f6cb50cb36c4b753d91bbc3edea35d0705d15"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/actual-sibling-sql-v2/ChinaStandard20260724/original-self-skill-declined-original-frame.json.gz",
+      "originalSha256": "87ba67313ff373018edb7b074c7b8f220c9fffc921db5c6192d0812f3c04ce4e",
+      "originalBytes": 53067,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/actual-sibling-sql-v2/ChinaStandard20260724/original-self-skill-declined-original-frame.json.gz",
+        "sha256": "87ba67313ff373018edb7b074c7b8f220c9fffc921db5c6192d0812f3c04ce4e"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/actual-sibling-sql-v2/ChinaStandard20260724/receipt.json",
+      "originalSha256": "dae8ed5e2d080680057705f8483672fd543aea3cce206e5843faa340b5da7203",
+      "originalBytes": 2174,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/actual-sibling-sql-v2/ChinaStandard20260724/receipt.json",
+        "sha256": "dae8ed5e2d080680057705f8483672fd543aea3cce206e5843faa340b5da7203"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/actual-sibling-sql-v2/ChinaStandard20260724/two-original-skills-paid-original-frame.json.gz",
+      "originalSha256": "ad70042251a8662c607bbc84bc63ed6f02af6e25b18e22711f1cf3f9fbf7048e",
+      "originalBytes": 47032,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/actual-sibling-sql-v2/ChinaStandard20260724/two-original-skills-paid-original-frame.json.gz",
+        "sha256": "ad70042251a8662c607bbc84bc63ed6f02af6e25b18e22711f1cf3f9fbf7048e"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/actual-sibling-sql-v2/CoreRules/derived-legal-82-prefix-original-frame.json.gz",
+      "originalSha256": "23c316c3c80db89f2651c266b70e614b619fea1023a374346f27395f994d83c0",
+      "originalBytes": 50025,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/actual-sibling-sql-v2/CoreRules/derived-legal-82-prefix-original-frame.json.gz",
+        "sha256": "23c316c3c80db89f2651c266b70e614b619fea1023a374346f27395f994d83c0"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/actual-sibling-sql-v2/CoreRules/final-original-frame.json.gz",
+      "originalSha256": "723f7c31d7f8cd88d46f7c595c0085b7f8b54ceea0cc3fae4765722c5b782ef1",
+      "originalBytes": 50246,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/actual-sibling-sql-v2/CoreRules/final-original-frame.json.gz",
+        "sha256": "723f7c31d7f8cd88d46f7c595c0085b7f8b54ceea0cc3fae4765722c5b782ef1"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/actual-sibling-sql-v2/CoreRules/last-original-frame.json.gz",
+      "originalSha256": "85ae5b752366fb57775667da68b023f903c40a1afc0616722888d5ee0856fe67",
+      "originalBytes": 43066,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/actual-sibling-sql-v2/CoreRules/last-original-frame.json.gz",
+        "sha256": "85ae5b752366fb57775667da68b023f903c40a1afc0616722888d5ee0856fe67"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/actual-sibling-sql-v2/CoreRules/milestones.json",
+      "originalSha256": "5c265d7d6ed15665a2508d128d0279cfa2eefe4375096c4aa3e59da081fc0c4e",
+      "originalBytes": 921,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/actual-sibling-sql-v2/CoreRules/milestones.json",
+        "sha256": "5c265d7d6ed15665a2508d128d0279cfa2eefe4375096c4aa3e59da081fc0c4e"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/actual-sibling-sql-v2/CoreRules/original-command-attempts.json.gz",
+      "originalSha256": "5956b422942b732417a28104cd763150925aba33843a7a88131734050e562512",
+      "originalBytes": 2853969,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/actual-sibling-sql-v2/CoreRules/original-command-attempts.json.gz",
+        "sha256": "5956b422942b732417a28104cd763150925aba33843a7a88131734050e562512"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/actual-sibling-sql-v2/CoreRules/original-effect-play-with-sibling-original-frame.json.gz",
+      "originalSha256": "722e06cb038258c321814771cb7f43ccd3cbb0d9370104167aeedf098ce5dfc7",
+      "originalBytes": 49938,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/actual-sibling-sql-v2/CoreRules/original-effect-play-with-sibling-original-frame.json.gz",
+        "sha256": "722e06cb038258c321814771cb7f43ccd3cbb0d9370104167aeedf098ce5dfc7"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/actual-sibling-sql-v2/CoreRules/original-self-skill-declined-original-frame.json.gz",
+      "originalSha256": "4e9cd78fbe2af1ee6a05fc711637060b9d6488689034fa8852dc2eca339b02a5",
+      "originalBytes": 53033,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/actual-sibling-sql-v2/CoreRules/original-self-skill-declined-original-frame.json.gz",
+        "sha256": "4e9cd78fbe2af1ee6a05fc711637060b9d6488689034fa8852dc2eca339b02a5"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/actual-sibling-sql-v2/CoreRules/receipt.json",
+      "originalSha256": "6a45de707de71bccb05695a56e01badf39adf0429d713a897de60b9bc4357b9a",
+      "originalBytes": 2162,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/actual-sibling-sql-v2/CoreRules/receipt.json",
+        "sha256": "6a45de707de71bccb05695a56e01badf39adf0429d713a897de60b9bc4357b9a"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/actual-sibling-sql-v2/CoreRules/two-original-skills-paid-original-frame.json.gz",
+      "originalSha256": "edb937b822fe6d1ccaf766ebff43fc0378fc0e74c10ee2967bb06ddd80f725cf",
+      "originalBytes": 46994,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/actual-sibling-sql-v2/CoreRules/two-original-skills-paid-original-frame.json.gz",
+        "sha256": "edb937b822fe6d1ccaf766ebff43fc0378fc0e74c10ee2967bb06ddd80f725cf"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/after-sibling-writers-before-readonly-baseline-v2.json",
+      "originalSha256": "8ec396e381ca4b5c047ea7e68d5fbeb6edf20db0df82cb426839f1d49977e24e",
+      "originalBytes": 15323,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/after-sibling-writers-before-readonly-baseline-v2.json",
+        "sha256": "8ec396e381ca4b5c047ea7e68d5fbeb6edf20db0df82cb426839f1d49977e24e"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/build-fixed-api-and-sql-prefix-v1.py",
+      "originalSha256": "f557b95f824418ed364f39f84dda9480bd1e1e8ee30cb3661175b55e622ae0ba",
+      "originalBytes": 4852,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/build-fixed-api-and-sql-prefix-v1.py.gz",
+        "sha256": "0e57ac6c8cfd76b9a07fbfd9302091c36a2d8aeb29c2f7717e18c8bca324be74"
+      },
+      "gzipOriginalBytes": true,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/ci-progress-after-native-score-v1.json",
+      "originalSha256": "f99d048df30062854d4dee504783954d8b6c17eb9e156db67799c078f96358d3",
+      "originalBytes": 62431,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/ci-progress-after-native-score-v1.json",
+        "sha256": "f99d048df30062854d4dee504783954d8b6c17eb9e156db67799c078f96358d3"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/client-a.log",
+      "originalSha256": "7e0c85521f1c833f7593434febb32c070d9581f253ee5e9b769a850742f8c1e0",
+      "originalBytes": 38504,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/client-a.log.gz",
+        "sha256": "7d1e7dde109afc005a9d268df5c50d674e5b8aae1a88903a8069a91463264d6b"
+      },
+      "gzipOriginalBytes": true,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/client-b.log",
+      "originalSha256": "d9372bcd77be7398a5fa306ba51c36d31592bcb2a6dbd8d39157808c4e376300",
+      "originalBytes": 39304,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/client-b.log.gz",
+        "sha256": "b6936d26beb28a0a824197d4c40ebfc87d149ab6934310c36c3bc99257449da3"
+      },
+      "gzipOriginalBytes": true,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/current-native-default-headless-a.log",
+      "originalSha256": "7f99a97f303b844aea609eb961342c64224fd5721bb32be857541d02cc8a0910",
+      "originalBytes": 394,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/current-native-default-headless-a.log.gz",
+        "sha256": "fa3de4f7ac765972fd12398baf15b24dcd5cc50157562cb30045a8118353f9c7"
+      },
+      "gzipOriginalBytes": true,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/current-native-default-headless-b.log",
+      "originalSha256": "46f171672cac8069a2212553ea13815bcab2c712f1ea9b41842f4cccead24178",
+      "originalBytes": 394,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/current-native-default-headless-b.log.gz",
+        "sha256": "29e4e3adfeb5b49817b6fac576670908bafc21fd5b660ad095c442e6952dae65"
+      },
+      "gzipOriginalBytes": true,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/current-native-headless-boot-verification.json",
+      "originalSha256": "9ff28e2966ad2ef925df035ecb95d78196364a3507f076d765f9267f175a30a1",
+      "originalBytes": 2600,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/current-native-headless-boot-verification.json",
+        "sha256": "9ff28e2966ad2ef925df035ecb95d78196364a3507f076d765f9267f175a30a1"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/download-fixed-native-v1.py",
+      "originalSha256": "613da56ffb4ad4a243acfc5370f7ff4cdebff1767a36a7a2020732989f84fa6b",
+      "originalBytes": 1568,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/download-fixed-native-v1.py.gz",
+        "sha256": "4a956de626e9af0ad683378a7623de65b38fd976ac3aca650f2e3342cb8c1e01"
+      },
+      "gzipOriginalBytes": true,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/fixed-api-and-sql-helper-publication-v1.json",
+      "originalSha256": "d70ef34d3643bf534e4cbd737a6948d51ac8ebf9d2a4ed3eb139ec778b9cdd81",
+      "originalBytes": 11640,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/fixed-api-and-sql-helper-publication-v1.json",
+        "sha256": "d70ef34d3643bf534e4cbd737a6948d51ac8ebf9d2a4ed3eb139ec778b9cdd81"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/fixed-api-publish-v1.log",
+      "originalSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "originalBytes": 0,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/fixed-api-publish-v1.log.gz",
+        "sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64"
+      },
+      "gzipOriginalBytes": true,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/fixed-ci-artifacts-v1.json",
+      "originalSha256": "ddce4eced20605de677a449bf72a961a03886ff79a7f9305d6b0d809755a7fb4",
+      "originalBytes": 3762,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/fixed-ci-artifacts-v1.json",
+        "sha256": "ddce4eced20605de677a449bf72a961a03886ff79a7f9305d6b0d809755a7fb4"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/fixed-ci-discovery-v1.json",
+      "originalSha256": "b0e1b92316f03e1f0fb8f44633e8009036d6f72db9a8a1a85ae8088ef45e2624",
+      "originalBytes": 469,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/fixed-ci-discovery-v1.json",
+        "sha256": "b0e1b92316f03e1f0fb8f44633e8009036d6f72db9a8a1a85ae8088ef45e2624"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/fixed-ci-first-wave-v1.json",
+      "originalSha256": "d20ceccbc70e57f67c3a6a8b6cc64645306fdd263734429ba3e31bdfda3002d6",
+      "originalBytes": 35328,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/fixed-ci-first-wave-v1.json",
+        "sha256": "d20ceccbc70e57f67c3a6a8b6cc64645306fdd263734429ba3e31bdfda3002d6"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/fixed-commit-inputs-v1.json",
+      "originalSha256": "9a368e5da9cb3ab95da6b16799188643694d1c66c5b403260832b2308fbc5c81",
+      "originalBytes": 518215,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/fixed-commit-inputs-v1.json",
+        "sha256": "9a368e5da9cb3ab95da6b16799188643694d1c66c5b403260832b2308fbc5c81"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/fixed-native-artifact-index-v1.json",
+      "originalSha256": "47d7eac0f4f26f7d77579444ce172cb4dd3fadbcb912cfc892bc5eb7f225b359",
+      "originalBytes": 3865,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/fixed-native-artifact-index-v1.json",
+        "sha256": "47d7eac0f4f26f7d77579444ce172cb4dd3fadbcb912cfc892bc5eb7f225b359"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/fixed-native-download-v1.json",
+      "originalSha256": "aa5dee4fc12a773f4841507705e867e1367e282941ee9bb41fa9fb85fc57462f",
+      "originalBytes": 2518,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/fixed-native-download-v1.json",
+        "sha256": "aa5dee4fc12a773f4841507705e867e1367e282941ee9bb41fa9fb85fc57462f"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/fixed-sibling-real-sql-verification-v2.json",
+      "originalSha256": "ac02bb9d7e456543e84ab9a94f04225a74efb1b9fc2c30b858fc8878130dbb4f",
+      "originalBytes": 23915,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/fixed-sibling-real-sql-verification-v2.json",
+        "sha256": "ac02bb9d7e456543e84ab9a94f04225a74efb1b9fc2c30b858fc8878130dbb4f"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/issue69-before-fixed-nine-a-evidence-v1.json",
+      "originalSha256": "64a9fee60c2c0f279d7499343d27d3ff72085ad5e591f8e700cda004802c3118",
+      "originalBytes": 11260,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/issue69-before-fixed-nine-a-evidence-v1.json",
+        "sha256": "64a9fee60c2c0f279d7499343d27d3ff72085ad5e591f8e700cda004802c3118"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/issue69-fixed-nine-a-followup-body-v1.md",
+      "originalSha256": "9379608aef4d20bae4732ce54877ef942862c9f269b58cad3970ffad8f1dc693",
+      "originalBytes": 2808,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/issue69-fixed-nine-a-followup-body-v1.md.gz",
+        "sha256": "a9646e8eb4de3951ba83825a13a86ef7be8a03a4f2e3f801e2266fb980bc6390"
+      },
+      "gzipOriginalBytes": true,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/n20-commit-v1.log",
+      "originalSha256": "62f1c213fec650afebd2997cb19671c17ba85c1ba60bd8428381371b6f6c8445",
+      "originalBytes": 49513,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/n20-commit-v1.log.gz",
+        "sha256": "1cef6b147424fa6c85b0aab650cb9afac61a81a69e1c5442ff2ebd856b3d5c7c"
+      },
+      "gzipOriginalBytes": true,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/native-app-inputs.json",
+      "originalSha256": "18799dfebf593b1a5265487270465287bbece92da5ad74f7a1fc7973d4be3d3a",
+      "originalBytes": 132063,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/native-app-inputs.json",
+        "sha256": "18799dfebf593b1a5265487270465287bbece92da5ad74f7a1fc7973d4be3d3a"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/native-current/ci-logs/mac/exported-boot.log",
+      "originalSha256": "349b84175d16407fd335b18dc7910db4ac7d9026bf4c18e14e4772f5f09ca9a6",
+      "originalBytes": 10597,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/native-current/ci-logs/mac/exported-boot.log.gz",
+        "sha256": "0f8d0bd4af7dd59aaf7c3bc54e53f631130aad712f625a982c287f2215c2de11"
+      },
+      "gzipOriginalBytes": true,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/native-current/ci-logs/mac/rune-table-lifecycle.log",
+      "originalSha256": "e84a0713ccdf974f1763afbd355174fdfe2abcaa9cda608b4d67c87f08b0d437",
+      "originalBytes": 151,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/native-current/ci-logs/mac/rune-table-lifecycle.log.gz",
+        "sha256": "3ee6eb0257cba61fcb4f0b70cd61d77cfe958b8b3a0d43f0707386171d80574c"
+      },
+      "gzipOriginalBytes": true,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/native-current/ci-logs/windows/exported-boot.log",
+      "originalSha256": "292ce88c5113d207d700ab24e0842fd604de5b1e0a2ab8043e84be7bc0ba87fc",
+      "originalBytes": 10830,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/native-current/ci-logs/windows/exported-boot.log.gz",
+        "sha256": "8810c2cf35dfed9eabd26de433e9cbcc2ed70424b38f19541b20a6992ac420d4"
+      },
+      "gzipOriginalBytes": true,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/native-current/ci-logs/windows/rune-table-lifecycle.log",
+      "originalSha256": "5e7dfd1dcc6a32d91f793e317af735921a7ebee8ae3fb95ba86fb6067cfa4f88",
+      "originalBytes": 154,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/native-current/ci-logs/windows/rune-table-lifecycle.log.gz",
+        "sha256": "47ed6aad5f8d66c98c8ed3aed531e5f17707fc73bf79a466e0f194da05ed4ac1"
+      },
+      "gzipOriginalBytes": true,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/native-current/mac-ci-artifact.zip",
+      "originalSha256": "288fc8937d06d0993df64697201ba0a5e8d745856eb4b909265d12609ddff096",
+      "originalBytes": 142899153,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/native-current/mac-ci-artifact.zip",
+        "sha256": "288fc8937d06d0993df64697201ba0a5e8d745856eb4b909265d12609ddff096"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/native-current/windows-ci-artifact.zip",
+      "originalSha256": "32b4e5bdc86e8199a58b3d0c33232179b70dd20ad5dc4dad67aec6ac68e40e64",
+      "originalBytes": 89127536,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/native-current/windows-ci-artifact.zip",
+        "sha256": "32b4e5bdc86e8199a58b3d0c33232179b70dd20ad5dc4dad67aec6ac68e40e64"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/native-frame-reader/Program.cs",
+      "originalSha256": "923689c0fa2a0b9dc7f0262cb3dccbb743d08804e5deec0f665541adc4aaf5a4",
+      "originalBytes": 2830,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/native-frame-reader/Program.cs.gz",
+        "sha256": "ca7f4d90a071a78c015203eef99b43bb12148ebf6cbae01b8a183ee18b7fe929"
+      },
+      "gzipOriginalBytes": true,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/native-frame-reader/probe.csproj",
+      "originalSha256": "91c913084bb48cd3b7dccc5c455fff696625931358846e6bd346bf8449f7168d",
+      "originalBytes": 889,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/native-frame-reader/probe.csproj.gz",
+        "sha256": "e389e58ae3d31522ee5247652fce72f0e38073149a2ef4bb6da26c4264340d13"
+      },
+      "gzipOriginalBytes": true,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/native-frame-reader-build-v1.log",
+      "originalSha256": "2d3b0e3208a7e7708c145e5ba3392c2687375a9c5b5192305a7951c5bc0a95a8",
+      "originalBytes": 78,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/native-frame-reader-build-v1.log.gz",
+        "sha256": "e2e12c29efaef6841a1bb7ecca649afa343ce587d0a6757284664d3ee9c70b9e"
+      },
+      "gzipOriginalBytes": true,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/native-frame-reader-publication-v1.json",
+      "originalSha256": "695c552287ded35c456ff2fdce1b66be2c94e6dfe2e64b912783892eb523dff7",
+      "originalBytes": 2802,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/native-frame-reader-publication-v1.json",
+        "sha256": "695c552287ded35c456ff2fdce1b66be2c94e6dfe2e64b912783892eb523dff7"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/native-independent-reader/Program.cs",
+      "originalSha256": "a4695d3586fed4637c2adaf0ff4d8da5b067d80946ff6256f390a74f632f2324",
+      "originalBytes": 10168,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/native-independent-reader/Program.cs.gz",
+        "sha256": "c3461fdb1c56ea8e3500bcdd34ea8367a2041beb990446124fb0e4cebe1bfdf0"
+      },
+      "gzipOriginalBytes": true,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/native-independent-reader/probe.csproj",
+      "originalSha256": "91c913084bb48cd3b7dccc5c455fff696625931358846e6bd346bf8449f7168d",
+      "originalBytes": 889,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/native-independent-reader/probe.csproj.gz",
+        "sha256": "e389e58ae3d31522ee5247652fce72f0e38073149a2ef4bb6da26c4264340d13"
+      },
+      "gzipOriginalBytes": true,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/native-independent-reader-build-v1.log",
+      "originalSha256": "86a89018ec7c27d0daac926393cb120659772cc1b360b5a25048f6e0ffc90ef1",
+      "originalBytes": 78,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/native-independent-reader-build-v1.log.gz",
+        "sha256": "cc5e84569abf7676fe20bcaefe8dde7719974f2e2a03b8873a3538d4cfcddfbf"
+      },
+      "gzipOriginalBytes": true,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/native-independent-reader-publication-v1.json",
+      "originalSha256": "a3dcafbdcfe52c1b58ca92d1857d907321f6ad1b0d44c63574997676492bc00e",
+      "originalBytes": 1028,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/native-independent-reader-publication-v1.json",
+        "sha256": "a3dcafbdcfe52c1b58ca92d1857d907321f6ad1b0d44c63574997676492bc00e"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/native-independent-reader-run-v1.log",
+      "originalSha256": "b82f475d680365d8f5152e4130678340e09b2e92f9fd0f996ea2f3d7b3c3d610",
+      "originalBytes": 78,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/native-independent-reader-run-v1.log.gz",
+        "sha256": "8243ee85a445f792711094be02f91a20822d356dae831d538a9f865003947859"
+      },
+      "gzipOriginalBytes": true,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/native-visible-v1/01-a-native-input-before-server.json",
+      "originalSha256": "2b06c90882fd575a8be787d6bddd61cdcec2aae4c1310b043c5d6b285220e5dd",
+      "originalBytes": 587,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/native-visible-v1/01-a-native-input-before-server.json",
+        "sha256": "2b06c90882fd575a8be787d6bddd61cdcec2aae4c1310b043c5d6b285220e5dd"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/native-visible-v1/01-a-native-input-before-server.png",
+      "originalSha256": "1df5f0f859147b719f9b3d0c41410624a014cfd75c9bf13534f3c3596928e1c4",
+      "originalBytes": 87723,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/native-visible-v1/01-a-native-input-before-server.png",
+        "sha256": "1df5f0f859147b719f9b3d0c41410624a014cfd75c9bf13534f3c3596928e1c4"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/native-visible-v1/02-b-native-input-before-connect.json",
+      "originalSha256": "9f1d9ce74fb5bb9160d316cc98ef679a614cdd0c969fbee6565e67d48ef10847",
+      "originalBytes": 355,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/native-visible-v1/02-b-native-input-before-connect.json",
+        "sha256": "9f1d9ce74fb5bb9160d316cc98ef679a614cdd0c969fbee6565e67d48ef10847"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/native-visible-v1/02-b-native-input-before-connect.png",
+      "originalSha256": "f17019371e7eefdc456181ccf4cab67fea93f3ddc25ac21f909c540c7f2ad523",
+      "originalBytes": 85270,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/native-visible-v1/02-b-native-input-before-connect.png",
+        "sha256": "f17019371e7eefdc456181ccf4cab67fea93f3ddc25ac21f909c540c7f2ad523"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/native-visible-v1/03-a-connected-with-empty-decks.json",
+      "originalSha256": "058c1e43f48f6c842e5c79ff867a90a662a9a1fcdabddb79b726977901f69988",
+      "originalBytes": 456,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/native-visible-v1/03-a-connected-with-empty-decks.json",
+        "sha256": "058c1e43f48f6c842e5c79ff867a90a662a9a1fcdabddb79b726977901f69988"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/native-visible-v1/03-a-connected-with-empty-decks.png",
+      "originalSha256": "852e5fd4255d4b69405e2c314ecbccca8f46e30bccd23ab96647c14b8131ba52",
+      "originalBytes": 86186,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/native-visible-v1/03-a-connected-with-empty-decks.png",
+        "sha256": "852e5fd4255d4b69405e2c314ecbccca8f46e30bccd23ab96647c14b8131ba52"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/native-visible-v1/04-a-original-session-online-restart-decks-loaded.json",
+      "originalSha256": "31cba06e0d395ad1bd75e01c62a1bed9192f3cf95aa516a27dcbe0eb50fac1cd",
+      "originalBytes": 374,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/native-visible-v1/04-a-original-session-online-restart-decks-loaded.json",
+        "sha256": "31cba06e0d395ad1bd75e01c62a1bed9192f3cf95aa516a27dcbe0eb50fac1cd"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/native-visible-v1/04-a-original-session-online-restart-decks-loaded.png",
+      "originalSha256": "c6ec63d98bd4dd1980226db2edb68e260ac99f4cd9ed269b41bb00f03baa832d",
+      "originalBytes": 109148,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/native-visible-v1/04-a-original-session-online-restart-decks-loaded.png",
+        "sha256": "c6ec63d98bd4dd1980226db2edb68e260ac99f4cd9ed269b41bb00f03baa832d"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/native-visible-v1/05-b-visible-initial-mulligan.json",
+      "originalSha256": "81fc570a42714d830445482e4433ece89e33a5ac1fbde27ec4f87c5fab9bd256",
+      "originalBytes": 513,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/native-visible-v1/05-b-visible-initial-mulligan.json",
+        "sha256": "81fc570a42714d830445482e4433ece89e33a5ac1fbde27ec4f87c5fab9bd256"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/native-visible-v1/05-b-visible-initial-mulligan.png",
+      "originalSha256": "64d15df0e11ce0e3b9bd498592c745bf8ae87ccf05da4d13673bdad93c92ec83",
+      "originalBytes": 94677,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/native-visible-v1/05-b-visible-initial-mulligan.png",
+        "sha256": "64d15df0e11ce0e3b9bd498592c745bf8ae87ccf05da4d13673bdad93c92ec83"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/native-visible-v1/05-before-first-mulligan-original-frame.json.gz",
+      "originalSha256": "6e974ea4bcef99a47995347fd1264a847daa45b44216a55189035db3316615d5",
+      "originalBytes": 15729,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/native-visible-v1/05-before-first-mulligan-original-frame.json.gz",
+        "sha256": "6e974ea4bcef99a47995347fd1264a847daa45b44216a55189035db3316615d5"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/native-visible-v1/06-a-visible-initial-mulligan.json",
+      "originalSha256": "91e74fa0643f6333b88bf03bcd753bfcd66051326a2bd8378e18006ba061faff",
+      "originalBytes": 476,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/native-visible-v1/06-a-visible-initial-mulligan.json",
+        "sha256": "91e74fa0643f6333b88bf03bcd753bfcd66051326a2bd8378e18006ba061faff"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/native-visible-v1/06-a-visible-initial-mulligan.png",
+      "originalSha256": "89a7f0100ab586777d78aebf3dc3c4848ffdd3ff1e01505d87c00dad1fd4127e",
+      "originalBytes": 126070,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/native-visible-v1/06-a-visible-initial-mulligan.png",
+        "sha256": "89a7f0100ab586777d78aebf3dc3c4848ffdd3ff1e01505d87c00dad1fd4127e"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/native-visible-v1/07-a-before-api-cold-restart.json",
+      "originalSha256": "1361b8a4cb9f7031148bf38fd103091f1245bbd687dbd58581a94c5fff211316",
+      "originalBytes": 459,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/native-visible-v1/07-a-before-api-cold-restart.json",
+        "sha256": "1361b8a4cb9f7031148bf38fd103091f1245bbd687dbd58581a94c5fff211316"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/native-visible-v1/07-a-before-api-cold-restart.png",
+      "originalSha256": "41761a181995c494d71170bc871ec02b5ec39affd168537b887f0ad93dcc0f1d",
+      "originalBytes": 131510,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/native-visible-v1/07-a-before-api-cold-restart.png",
+        "sha256": "41761a181995c494d71170bc871ec02b5ec39affd168537b887f0ad93dcc0f1d"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/native-visible-v1/07-before-api-cold-restart-original-frame.json.gz",
+      "originalSha256": "b470a619610905423440ae3fb17737b80858d1b6ec1916fa53445a0ae25a383a",
+      "originalBytes": 21470,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/native-visible-v1/07-before-api-cold-restart-original-frame.json.gz",
+        "sha256": "b470a619610905423440ae3fb17737b80858d1b6ec1916fa53445a0ae25a383a"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/native-visible-v1/07-before-api-cold-restart-reader.json",
+      "originalSha256": "e47a430ab52a7c634ef4dca7bdd46c1fdae858022ab20de7754781659892aeeb",
+      "originalBytes": 752,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/native-visible-v1/07-before-api-cold-restart-reader.json",
+        "sha256": "e47a430ab52a7c634ef4dca7bdd46c1fdae858022ab20de7754781659892aeeb"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/native-visible-v1/08-b-before-api-cold-restart.json",
+      "originalSha256": "d5dbffc987d056337b183a95ff70b4c873bece88d6d7fafe6570ffef72e79604",
+      "originalBytes": 448,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/native-visible-v1/08-b-before-api-cold-restart.json",
+        "sha256": "d5dbffc987d056337b183a95ff70b4c873bece88d6d7fafe6570ffef72e79604"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/native-visible-v1/08-b-before-api-cold-restart.png",
+      "originalSha256": "977cda9719ad8576f79dc90bef0096ae3bd0a62cc4a1d5928d237cb81a219a1d",
+      "originalBytes": 137432,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/native-visible-v1/08-b-before-api-cold-restart.png",
+        "sha256": "977cda9719ad8576f79dc90bef0096ae3bd0a62cc4a1d5928d237cb81a219a1d"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/native-visible-v1/09-a-after-api-cold-restart.json",
+      "originalSha256": "e5eae281477ff6493b427bef006d6ef588fbe84593806c28b7365d6b786688c1",
+      "originalBytes": 477,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/native-visible-v1/09-a-after-api-cold-restart.json",
+        "sha256": "e5eae281477ff6493b427bef006d6ef588fbe84593806c28b7365d6b786688c1"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/native-visible-v1/09-a-after-api-cold-restart.png",
+      "originalSha256": "6ee8c58d031eeeae044c2ebce2cfb2f0ad8d313f9f5628b1ca26c0d8a02ccfdf",
+      "originalBytes": 131515,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/native-visible-v1/09-a-after-api-cold-restart.png",
+        "sha256": "6ee8c58d031eeeae044c2ebce2cfb2f0ad8d313f9f5628b1ca26c0d8a02ccfdf"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/native-visible-v1/09-after-api-cold-restart-original-frame.json.gz",
+      "originalSha256": "b470a619610905423440ae3fb17737b80858d1b6ec1916fa53445a0ae25a383a",
+      "originalBytes": 21470,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/native-visible-v1/09-after-api-cold-restart-original-frame.json.gz",
+        "sha256": "b470a619610905423440ae3fb17737b80858d1b6ec1916fa53445a0ae25a383a"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/native-visible-v1/09-after-api-cold-restart-reader.json",
+      "originalSha256": "e47a430ab52a7c634ef4dca7bdd46c1fdae858022ab20de7754781659892aeeb",
+      "originalBytes": 752,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/native-visible-v1/09-after-api-cold-restart-reader.json",
+        "sha256": "e47a430ab52a7c634ef4dca7bdd46c1fdae858022ab20de7754781659892aeeb"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/native-visible-v1/10-b-after-api-cold-restart.json",
+      "originalSha256": "17b8bfa0a93aa328f9c00256ad97d4a96082e4464364a70ca011610fef7e41a0",
+      "originalBytes": 456,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/native-visible-v1/10-b-after-api-cold-restart.json",
+        "sha256": "17b8bfa0a93aa328f9c00256ad97d4a96082e4464364a70ca011610fef7e41a0"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/native-visible-v1/10-b-after-api-cold-restart.png",
+      "originalSha256": "80c3ae1f5faa056bd9eb86c46609eba278a246ff0201c4f3d850157d376d3978",
+      "originalBytes": 139957,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/native-visible-v1/10-b-after-api-cold-restart.png",
+        "sha256": "80c3ae1f5faa056bd9eb86c46609eba278a246ff0201c4f3d850157d376d3978"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/native-visible-v1/11-b-native-unit-move-with-visible-cancel.json",
+      "originalSha256": "6a9c9c9c59e69c2df2b121d19d0acac338d80fbe9ab7ca69416667f667a2990a",
+      "originalBytes": 465,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/native-visible-v1/11-b-native-unit-move-with-visible-cancel.json",
+        "sha256": "6a9c9c9c59e69c2df2b121d19d0acac338d80fbe9ab7ca69416667f667a2990a"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/native-visible-v1/11-b-native-unit-move-with-visible-cancel.png",
+      "originalSha256": "95baca86fa78fa9ed811d48e4d7450b3445fe3866ce60a8ad0f5e43fe5da1475",
+      "originalBytes": 164858,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/native-visible-v1/11-b-native-unit-move-with-visible-cancel.png",
+        "sha256": "95baca86fa78fa9ed811d48e4d7450b3445fe3866ce60a8ad0f5e43fe5da1475"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/native-visible-v1/12-b-seven-score-before-winning-round.json",
+      "originalSha256": "be10b46f3c2af743cc1807d429d9675a4c2d89829c3af89315aa30c8dfcef002",
+      "originalBytes": 447,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/native-visible-v1/12-b-seven-score-before-winning-round.json",
+        "sha256": "be10b46f3c2af743cc1807d429d9675a4c2d89829c3af89315aa30c8dfcef002"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/native-visible-v1/12-b-seven-score-before-winning-round.png",
+      "originalSha256": "54a99cb2e3feefedd7b54b7eae447e8a68ab1da17fb7fed01beb4c0856468d66",
+      "originalBytes": 252058,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/native-visible-v1/12-b-seven-score-before-winning-round.png",
+        "sha256": "54a99cb2e3feefedd7b54b7eae447e8a68ab1da17fb7fed01beb4c0856468d66"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/native-visible-v1/13-b-visible-eight-score-victory.json",
+      "originalSha256": "d6de20c61cfbf5fa75c36fd02b1a3ecfc834abcc7ed37cda6e5df64c1a2bdb7a",
+      "originalBytes": 498,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/native-visible-v1/13-b-visible-eight-score-victory.json",
+        "sha256": "d6de20c61cfbf5fa75c36fd02b1a3ecfc834abcc7ed37cda6e5df64c1a2bdb7a"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/native-visible-v1/13-b-visible-eight-score-victory.png",
+      "originalSha256": "7896819399c92cf468c1ed224a5fec4348cfa1b564eb33d34319a3f6ede2b449",
+      "originalBytes": 104154,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/native-visible-v1/13-b-visible-eight-score-victory.png",
+        "sha256": "7896819399c92cf468c1ed224a5fec4348cfa1b564eb33d34319a3f6ede2b449"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/native-visible-v1/14-a-visible-eight-score-defeat.json",
+      "originalSha256": "463579de2e3f008fc54cf2f9e7f3fe559033332b4a2bed16c465bd0bd3ba474a",
+      "originalBytes": 486,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/native-visible-v1/14-a-visible-eight-score-defeat.json",
+        "sha256": "463579de2e3f008fc54cf2f9e7f3fe559033332b4a2bed16c465bd0bd3ba474a"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/native-visible-v1/14-a-visible-eight-score-defeat.png",
+      "originalSha256": "743bc3b26dcf6c77cc06208ce89b9bedaa16024fb0d174aecbae890f3111d64b",
+      "originalBytes": 95792,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/native-visible-v1/14-a-visible-eight-score-defeat.png",
+        "sha256": "743bc3b26dcf6c77cc06208ce89b9bedaa16024fb0d174aecbae890f3111d64b"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/native-visible-v1/15-final-eight-score-original-frame-reader.json",
+      "originalSha256": "e962dabbdc418c55ce56e72ad13e215a1836550e30053a4d12658c5c2ccbb8ef",
+      "originalBytes": 754,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/native-visible-v1/15-final-eight-score-original-frame-reader.json",
+        "sha256": "e962dabbdc418c55ce56e72ad13e215a1836550e30053a4d12658c5c2ccbb8ef"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/native-visible-v1/15-final-eight-score-original-frame.json.gz",
+      "originalSha256": "bc52d09ac0b961a259f01e5d50c680cf631c467096289e3f6dc5698adb1a4f78",
+      "originalBytes": 29191,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/native-visible-v1/15-final-eight-score-original-frame.json.gz",
+        "sha256": "bc52d09ac0b961a259f01e5d50c680cf631c467096289e3f6dc5698adb1a4f78"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/native-visible-v1/a-first-offline-start-client-log-original.txt.gz",
+      "originalSha256": "8c4f0947e34f24823eb60dae0aad6135386340051bee0b2c29813fb45d71d2bb",
+      "originalBytes": 875,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/native-visible-v1/a-first-offline-start-client-log-original.txt.gz",
+        "sha256": "8c4f0947e34f24823eb60dae0aad6135386340051bee0b2c29813fb45d71d2bb"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/native-visible-v1/actual-original-native-historical-payloads-v1.ndjson.gz",
+      "originalSha256": "3ce1b9de6568ce8a07e203a6c50206b91355a6b1a5d2c8b6dd88f3a1f5b55cea",
+      "originalBytes": 253652,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/native-visible-v1/actual-original-native-historical-payloads-v1.ndjson.gz",
+        "sha256": "3ce1b9de6568ce8a07e203a6c50206b91355a6b1a5d2c8b6dd88f3a1f5b55cea"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/native-visible-v1/api-cold-restart-original-frame-comparison-v1.json",
+      "originalSha256": "47620f7195e1d94525b9b8829182cfb360013ad566c59e80eebfe77dc4eccc90",
+      "originalBytes": 1120,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/native-visible-v1/api-cold-restart-original-frame-comparison-v1.json",
+        "sha256": "47620f7195e1d94525b9b8829182cfb360013ad566c59e80eebfe77dc4eccc90"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/native-visible-v1/fixed-visible-mac-native-acceptance-v1.json",
+      "originalSha256": "37cc41d77da68ee18c685de502fea610c5b07944f2c3988cf6e38928bb4e915d",
+      "originalBytes": 5367,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/native-visible-v1/fixed-visible-mac-native-acceptance-v1.json",
+        "sha256": "37cc41d77da68ee18c685de502fea610c5b07944f2c3988cf6e38928bb4e915d"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/native-visible-v1/independent-original-native-score-history-v1.json",
+      "originalSha256": "970342a472e0b200fd0ece82af2477b19611555bc6e9e2291a13a60769b45def",
+      "originalBytes": 2008,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/native-visible-v1/independent-original-native-score-history-v1.json",
+        "sha256": "970342a472e0b200fd0ece82af2477b19611555bc6e9e2291a13a60769b45def"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/native-visible-v1/initial-reader-metadata-key-disposition-v1.json",
+      "originalSha256": "1c09a89000dc80df7ee151a7cd546fd3a3b10ebe011c71943f1c931bbb969c49",
+      "originalBytes": 644,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/native-visible-v1/initial-reader-metadata-key-disposition-v1.json",
+        "sha256": "1c09a89000dc80df7ee151a7cd546fd3a3b10ebe011c71943f1c931bbb969c49"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/native-visible-v1/live-api-eleven-preconstructed-decks-original.json.gz",
+      "originalSha256": "0875b9be0554039f29de1ad22fd9dfe2f3b4a13e98a08ea8fde37449b1fd0989",
+      "originalBytes": 1606,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/native-visible-v1/live-api-eleven-preconstructed-decks-original.json.gz",
+        "sha256": "0875b9be0554039f29de1ad22fd9dfe2f3b4a13e98a08ea8fde37449b1fd0989"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/native-visible-v1/offline-start-deck-list-defect-checkpoint-v1.json",
+      "originalSha256": "4a8b93b63479bc9f44435a5083b086ed5283f4747d7b51a4c1f84d7bbaababd3",
+      "originalBytes": 1586,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/native-visible-v1/offline-start-deck-list-defect-checkpoint-v1.json",
+        "sha256": "4a8b93b63479bc9f44435a5083b086ed5283f4747d7b51a4c1f84d7bbaababd3"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/offline-start-deck-retry-issue-body-v1.md",
+      "originalSha256": "4c868a248b736f5d76b35bd5a8479ace19b7eb835f5a9e007cc8b26e803a5d08",
+      "originalBytes": 2374,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/offline-start-deck-retry-issue-body-v1.md.gz",
+        "sha256": "f8119b4137d5d3cff06f5e49a727fc54913c14ad09f24e197620b3b7598b43ec"
+      },
+      "gzipOriginalBytes": true,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/open-issue-title-dedup-before-offline-deck-fix-v1.json",
+      "originalSha256": "e2f86c5aec0bccbfdd0cafd27d9a3a5732da7ada4693234316a60efb67bcc437",
+      "originalBytes": 25344,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/open-issue-title-dedup-before-offline-deck-fix-v1.json",
+        "sha256": "e2f86c5aec0bccbfdd0cafd27d9a3a5732da7ada4693234316a60efb67bcc437"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/original-e262-ci-postgres-partition-1.zip",
+      "originalSha256": "ce1978b4b0dcb0da22f23d889f4376ca48a5da3bd579287c81b42a43a19faf57",
+      "originalBytes": 566852,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/original-e262-ci-postgres-partition-1.zip",
+        "sha256": "ce1978b4b0dcb0da22f23d889f4376ca48a5da3bd579287c81b42a43a19faf57"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/own-sibling-sql-postgres-v2.log",
+      "originalSha256": "cec70a4ef392ee54b15fea34127dcb43454f836e7327627378ef3dab98ce0587",
+      "originalBytes": 1645,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/own-sibling-sql-postgres-v2.log.gz",
+        "sha256": "7a274417b404bea5a6077b110ce4d9ce14ff23d52cf3a39ce80ae22b59761c9c"
+      },
+      "gzipOriginalBytes": true,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/precommit-standalone-sql-preparation-v1.json",
+      "originalSha256": "21b219eb48f448b3dbd850b76ca0a2c25fe403469ea5d37b720d7553627db78a",
+      "originalBytes": 556,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/precommit-standalone-sql-preparation-v1.json",
+        "sha256": "21b219eb48f448b3dbd850b76ca0a2c25fe403469ea5d37b720d7553627db78a"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/prepare-fixed-native-apps-v1.py",
+      "originalSha256": "955d260109cbb425e4e05dee557010f1bb5adac4fcee029eb79d36a800d5df36",
+      "originalBytes": 4842,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/prepare-fixed-native-apps-v1.py.gz",
+        "sha256": "57519486542e3831c24544ebe035f5f8ab11277a132af199fc387853d2748e7d"
+      },
+      "gzipOriginalBytes": true,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/previous-e262-ci-progress-v1.json",
+      "originalSha256": "b24fc3fcc8c82b5859db6e5110df53db293edc746a3fb24c6e60d746af8efffa",
+      "originalBytes": 57698,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/previous-e262-ci-progress-v1.json",
+        "sha256": "b24fc3fcc8c82b5859db6e5110df53db293edc746a3fb24c6e60d746af8efffa"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/previous-e262-partition1-independent-readback-v1.json",
+      "originalSha256": "c5464fb452fb08b399689a5df0bfdc52e5ad6ef12734de3590b841153f59048d",
+      "originalBytes": 4956,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/previous-e262-partition1-independent-readback-v1.json",
+        "sha256": "c5464fb452fb08b399689a5df0bfdc52e5ad6ef12734de3590b841153f59048d"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/prior-e262-native-pair-retirement-v1.json",
+      "originalSha256": "fc8eb66bf9b0b62c17fe89b982cb6acb51e82a6b9353f91a03de10fad64a90c5",
+      "originalBytes": 267804,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/prior-e262-native-pair-retirement-v1.json",
+        "sha256": "fc8eb66bf9b0b62c17fe89b982cb6acb51e82a6b9353f91a03de10fad64a90c5"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/push-and-remote-parity-v1.json",
+      "originalSha256": "3658aefbeac6c0b691aa384ffafc905fdcb4dfbf3ea36494c8447cb4cbb2460e",
+      "originalBytes": 442,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/push-and-remote-parity-v1.json",
+        "sha256": "3658aefbeac6c0b691aa384ffafc905fdcb4dfbf3ea36494c8447cb4cbb2460e"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/push-v1.log",
+      "originalSha256": "4ebef74075d9f06f4da1bb83681067bfa7a6a947c0c35705820a18961c403d74",
+      "originalBytes": 74,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/push-v1.log.gz",
+        "sha256": "370a0a0126b0f83da067189995dd0f6c6720aeb01c165f34c33400cdf05514dd"
+      },
+      "gzipOriginalBytes": true,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/qa-launcher-a.c",
+      "originalSha256": "10c1aea343f2703e222e3998c18abcff21e3d6ff4947200fd2613f9431cb68c2",
+      "originalBytes": 726,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/qa-launcher-a.c.gz",
+        "sha256": "62c5818d46f1cc4a0c41902f0ec0b63300cfd90435b5ab0675c6743c2e9ed852"
+      },
+      "gzipOriginalBytes": true,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/qa-launcher-b.c",
+      "originalSha256": "2aa7a06678665ea49af10fa845cf1718afb3bcfef0a5a9432b599d0ff6035f42",
+      "originalBytes": 726,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/qa-launcher-b.c.gz",
+        "sha256": "438607287e95dc29787b74c7c2b0e32cdcc7a32f71eb23e1dce620c3215eae8c"
+      },
+      "gzipOriginalBytes": true,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/run-fixed-sibling-sql-v1.py",
+      "originalSha256": "ca6d32fa66484875395a88596c4023cfdf1cdd206452468ba532e698170a4cf4",
+      "originalBytes": 10088,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/run-fixed-sibling-sql-v1.py.gz",
+        "sha256": "28a078c44318597e5343cd9424fee021f97ffb67d67ebf3403f4eb59408450b7"
+      },
+      "gzipOriginalBytes": true,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/run-fixed-sibling-sql-v2.py",
+      "originalSha256": "72c44b8f46adba8e639a160b035f88f751bbbd0f1fb28223219843bfaeabe5bf",
+      "originalBytes": 10126,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/run-fixed-sibling-sql-v2.py.gz",
+        "sha256": "2276a076c83c9eb94a656d495cdd90febd29dae2debb75e55d13e6f1cda5a724"
+      },
+      "gzipOriginalBytes": true,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/run-visible-native-api-v1.py",
+      "originalSha256": "7df03a3130896f03879c60925fef64c0b4053280adbe61692e76b47547c31adb",
+      "originalBytes": 9637,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/run-visible-native-api-v1.py.gz",
+        "sha256": "7edff28249cdc85267bbdae8a4927fd489a6c672fae07df81545c4574989f1e3"
+      },
+      "gzipOriginalBytes": true,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/sql-independent-reader/Program.cs",
+      "originalSha256": "7a2db9a4107944ae84b864550c845441ad297de6e4dd474bd15ea7a414c2d36f",
+      "originalBytes": 10161,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/sql-independent-reader/Program.cs.gz",
+        "sha256": "a31d2e6e48f6ae83a758739898d1d896df0341a2e79b5d83b875123feeef6fbb"
+      },
+      "gzipOriginalBytes": true,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/sql-independent-reader/probe.csproj",
+      "originalSha256": "91c913084bb48cd3b7dccc5c455fff696625931358846e6bd346bf8449f7168d",
+      "originalBytes": 889,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/sql-independent-reader/probe.csproj.gz",
+        "sha256": "e389e58ae3d31522ee5247652fce72f0e38073149a2ef4bb6da26c4264340d13"
+      },
+      "gzipOriginalBytes": true,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/sql-independent-reader-build-v1.log",
+      "originalSha256": "c4b264462745c321a59d3a41ab503ec3c8be3a0f4f502fe167eddbed81e4e666",
+      "originalBytes": 78,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/sql-independent-reader-build-v1.log.gz",
+        "sha256": "f66cde8dd44ae64a8c074384f26f326a37ab6099611001e68d55982c036aac04"
+      },
+      "gzipOriginalBytes": true,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/sql-independent-reader-execution-v2.log",
+      "originalSha256": "a27ecec80f4d45e261da11a5397052e1c2db5b663c2dea539af482623e0d46a9",
+      "originalBytes": 87,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/sql-independent-reader-execution-v2.log.gz",
+        "sha256": "e8358a6716bba0dce287a1cb09455151cbe97252ef12dae4d078e1f8157ba490"
+      },
+      "gzipOriginalBytes": true,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/sql-prefix-driver/Program.cs",
+      "originalSha256": "94d78e3bd7733f5a96de2b2182ddfbe2b99e443c42157f5d8ee83fb760b03f45",
+      "originalBytes": 16699,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/sql-prefix-driver/Program.cs.gz",
+        "sha256": "2c7b4b284662b6475196d5b63239939c261a0c9258a9bea3c1dcdb253344285d"
+      },
+      "gzipOriginalBytes": true,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/sql-prefix-driver/probe.csproj",
+      "originalSha256": "91c913084bb48cd3b7dccc5c455fff696625931358846e6bd346bf8449f7168d",
+      "originalBytes": 889,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/sql-prefix-driver/probe.csproj.gz",
+        "sha256": "e389e58ae3d31522ee5247652fce72f0e38073149a2ef4bb6da26c4264340d13"
+      },
+      "gzipOriginalBytes": true,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/sql-prefix-driver-build-v1.log",
+      "originalSha256": "5857c35fe22d9c8c870dbd783f1fcfc8ad88f20df713eae3e8095e239b7fd02d",
+      "originalBytes": 78,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/sql-prefix-driver-build-v1.log.gz",
+        "sha256": "77fbbddbd8d0196cccf48e3ad9d9d4dd9526dc80be60588f1c695a532a35b6ad"
+      },
+      "gzipOriginalBytes": true,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/sql-wrapper-pre-database-observation-failure-disposition-v1.json",
+      "originalSha256": "365d395af2ff2cbf18674e478eec1b106f83c6b23df851386ffc23ac26184e2b",
+      "originalBytes": 834,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/sql-wrapper-pre-database-observation-failure-disposition-v1.json",
+        "sha256": "365d395af2ff2cbf18674e478eec1b106f83c6b23df851386ffc23ac26184e2b"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/sql-writer-ChinaStandard20260724-v2.log",
+      "originalSha256": "6f94c889c414cffab2601289de6e362534011ebe96b241227b24bbd132ab883d",
+      "originalBytes": 83,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/sql-writer-ChinaStandard20260724-v2.log.gz",
+        "sha256": "7889a040f83049f171866294591681def594e626118a91e65485593a5f1254ea"
+      },
+      "gzipOriginalBytes": true,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/sql-writer-CoreRules-v2.log",
+      "originalSha256": "6f94c889c414cffab2601289de6e362534011ebe96b241227b24bbd132ab883d",
+      "originalBytes": 83,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/sql-writer-CoreRules-v2.log.gz",
+        "sha256": "7889a040f83049f171866294591681def594e626118a91e65485593a5f1254ea"
+      },
+      "gzipOriginalBytes": true,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/verify-fixed-native-default-boot-v1.py",
+      "originalSha256": "6aec24707f81d09ed63b681dd001eb21cbbc20ecf01dc42e241e2d1b5f14adbb",
+      "originalBytes": 3452,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/verify-fixed-native-default-boot-v1.py.gz",
+        "sha256": "8880a03e5d4d5b9f8f2f967142f01367bf9e42e37677b5a8f61d11cad48ffa47"
+      },
+      "gzipOriginalBytes": true,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/visible-native-api-0.log",
+      "originalSha256": "4809d25bf63f130db4fc2c27a0357ef2e8daaded84ad17387979ad96d87e3ca9",
+      "originalBytes": 31945,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/visible-native-api-0.log.gz",
+        "sha256": "fcca5896d6aab47c6ac13cfc85469db3bdb9ef0b0965304b1832b311a56710c8"
+      },
+      "gzipOriginalBytes": true,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/visible-native-api-1.log",
+      "originalSha256": "5b1bac586486fe5edbba69eaae7005846fc28fc8fe73c1774e4c71d75b875ce7",
+      "originalBytes": 10419,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/visible-native-api-1.log.gz",
+        "sha256": "c06e8233d3f4cfa812c148fe3db61471e2fcc6f6d14ee5fe83711934f2603c4e"
+      },
+      "gzipOriginalBytes": true,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/visible-native-api-owner-v1.json",
+      "originalSha256": "860a38cd042bee456ae39542950a0114427cbe636d547585c49217c067289d17",
+      "originalBytes": 20333,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/visible-native-api-owner-v1.json",
+        "sha256": "860a38cd042bee456ae39542950a0114427cbe636d547585c49217c067289d17"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/visible-native-api-ready-v1.json",
+      "originalSha256": "b29ff94d24e00e7bd5681c039cc003be8cb568586a38b31f73831e8e8f897052",
+      "originalBytes": 710,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/visible-native-api-ready-v1.json",
+        "sha256": "b29ff94d24e00e7bd5681c039cc003be8cb568586a38b31f73831e8e8f897052"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/visible-native-api-restart-complete-v1.json",
+      "originalSha256": "2f9e15a34ae48e4642cf1cd80fbd46a430f909a1f508eef2ad2495c9c0e4a2c1",
+      "originalBytes": 623,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/visible-native-api-restart-complete-v1.json",
+        "sha256": "2f9e15a34ae48e4642cf1cd80fbd46a430f909a1f508eef2ad2495c9c0e4a2c1"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/visible-native-api-restart-request-v1.json",
+      "originalSha256": "64b8635b8ac2b8256cb959b92cdc2e88c8d6ce0e96c8810de367f58a05233da0",
+      "originalBytes": 450,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/visible-native-api-restart-request-v1.json",
+        "sha256": "64b8635b8ac2b8256cb959b92cdc2e88c8d6ce0e96c8810de367f58a05233da0"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/visible-native-api-stop-v1.json",
+      "originalSha256": "1222c749959633458ed41287da63798a8db3c3b7ff9085b51c7d00f3988f3bda",
+      "originalBytes": 504,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/visible-native-api-stop-v1.json",
+        "sha256": "1222c749959633458ed41287da63798a8db3c3b7ff9085b51c7d00f3988f3bda"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/graveyard-source-fixed-candidate-20261020/visible-native-postgres-v1.log",
+      "originalSha256": "b9ccc1fa8e8cae8cc9f9de2cbc3bb13e721a419dff9b621a810b4aee5e581559",
+      "originalBytes": 3820,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/fixed9a/visible-native-postgres-v1.log.gz",
+        "sha256": "cdad69bd0a40a0171974dd9aacb8734108de509e428b3476efa103a936410984"
+      },
+      "gzipOriginalBytes": true,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/typed-stack-consumer-source-readback-20261020/acquire-complete-cn-and-compare-prior-v1.py",
+      "originalSha256": "a7b5ddc61c7decde0dc7d88dcefb141a434163081812dcc43055805175953b69",
+      "originalBytes": 4967,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/cn20-sources/acquire-complete-cn-and-compare-prior-v1.py.gz",
+        "sha256": "b0beb392d5886c969cdcc4c0b5dcf01ab231e397a982ecefe9a176bdfcdcd8ad"
+      },
+      "gzipOriginalBytes": true,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/typed-stack-consumer-source-readback-20261020/acquire-current-bounded-sources-v1.py",
+      "originalSha256": "84b5284a6d6647960c9c224c5ccd039a96ff5889de675ce153d9d1727b29315c",
+      "originalBytes": 6532,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/cn20-sources/acquire-current-bounded-sources-v1.py.gz",
+        "sha256": "89e678c72a28c8d5130b195b8a25efbb3780709e8aa1a5b89d418ed813d768b3"
+      },
+      "gzipOriginalBytes": true,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/typed-stack-consumer-source-readback-20261020/acquisition-run-v1.log",
+      "originalSha256": "7194e6be003eab3dfd70a1996c9c2dcc4cd0371dd3240de0da593e4cdb4739d6",
+      "originalBytes": 127,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/cn20-sources/acquisition-run-v1.log.gz",
+        "sha256": "8de7eab50591f058f4e86945f157efd46276efabe2d0cd02048681b82099963f"
+      },
+      "gzipOriginalBytes": true,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/typed-stack-consumer-source-readback-20261020/card-name-01-complete-response-v1.json.gz",
+      "originalSha256": "a9dd53e80361750bc5cd83f23ae29d8a11038fe42bf20c9bbbfac631fa4c21f7",
+      "originalBytes": 790,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/cn20-sources/card-name-01-complete-response-v1.json.gz",
+        "sha256": "a9dd53e80361750bc5cd83f23ae29d8a11038fe42bf20c9bbbfac631fa4c21f7"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/typed-stack-consumer-source-readback-20261020/card-name-01-receipt-v1.json",
+      "originalSha256": "3ca17131043b97b92da1927bb75d8a500ddd586206a692ca5b99665284b53ecb",
+      "originalBytes": 1747,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/cn20-sources/card-name-01-receipt-v1.json",
+        "sha256": "3ca17131043b97b92da1927bb75d8a500ddd586206a692ca5b99665284b53ecb"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/typed-stack-consumer-source-readback-20261020/card-name-02-complete-response-v1.json.gz",
+      "originalSha256": "472c7912f34bd43c9c45df042e3b3f03bf2e20577e84ab7002031a43f6479534",
+      "originalBytes": 781,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/cn20-sources/card-name-02-complete-response-v1.json.gz",
+        "sha256": "472c7912f34bd43c9c45df042e3b3f03bf2e20577e84ab7002031a43f6479534"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/typed-stack-consumer-source-readback-20261020/card-name-02-receipt-v1.json",
+      "originalSha256": "3384bbdf3df615b0746a472856f778a6e0135b998287ae63fdfe3b47b9219318",
+      "originalBytes": 1759,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/cn20-sources/card-name-02-receipt-v1.json",
+        "sha256": "3384bbdf3df615b0746a472856f778a6e0135b998287ae63fdfe3b47b9219318"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/typed-stack-consumer-source-readback-20261020/card-name-03-complete-response-v1.json.gz",
+      "originalSha256": "44dedb8b420d254e73430d688595ea100c7977abbd3ad95ea4f6b0d2bcf05d18",
+      "originalBytes": 796,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/cn20-sources/card-name-03-complete-response-v1.json.gz",
+        "sha256": "44dedb8b420d254e73430d688595ea100c7977abbd3ad95ea4f6b0d2bcf05d18"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/typed-stack-consumer-source-readback-20261020/card-name-03-receipt-v1.json",
+      "originalSha256": "2dffe5eb47c14f35f8919a2be600e55cb9a3b7bfc911ffcdaea757c02796e3be",
+      "originalBytes": 1759,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/cn20-sources/card-name-03-receipt-v1.json",
+        "sha256": "2dffe5eb47c14f35f8919a2be600e55cb9a3b7bfc911ffcdaea757c02796e3be"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/typed-stack-consumer-source-readback-20261020/card-name-04-complete-response-v1.json.gz",
+      "originalSha256": "2ba85bb4de5a28e2c3f8f9447bfb4cb521e15bc9b021bd3b053f9bafd4af0147",
+      "originalBytes": 790,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/cn20-sources/card-name-04-complete-response-v1.json.gz",
+        "sha256": "2ba85bb4de5a28e2c3f8f9447bfb4cb521e15bc9b021bd3b053f9bafd4af0147"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/typed-stack-consumer-source-readback-20261020/card-name-04-receipt-v1.json",
+      "originalSha256": "9e3384c1fae370632535146b4ddde64977a7123b9b6408cbc516eaacdd6619bc",
+      "originalBytes": 1759,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/cn20-sources/card-name-04-receipt-v1.json",
+        "sha256": "9e3384c1fae370632535146b4ddde64977a7123b9b6408cbc516eaacdd6619bc"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/typed-stack-consumer-source-readback-20261020/card-name-05-complete-response-v1.json.gz",
+      "originalSha256": "0633468985e847eeb8fef4fc3776bed025d783c7e9f4206fffc162995ab1b07c",
+      "originalBytes": 859,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/cn20-sources/card-name-05-complete-response-v1.json.gz",
+        "sha256": "0633468985e847eeb8fef4fc3776bed025d783c7e9f4206fffc162995ab1b07c"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/typed-stack-consumer-source-readback-20261020/card-name-05-receipt-v1.json",
+      "originalSha256": "f50f809cf41cc997b0b7cfb9a3b5b9001c8c08e33ad5ff8d415aed62c5698eec",
+      "originalBytes": 1759,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/cn20-sources/card-name-05-receipt-v1.json",
+        "sha256": "f50f809cf41cc997b0b7cfb9a3b5b9001c8c08e33ad5ff8d415aed62c5698eec"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/typed-stack-consumer-source-readback-20261020/card-name-06-complete-response-v1.json.gz",
+      "originalSha256": "eaad4d0090bbffb67394c06fc14e6778f36a6f605ed9d05208b57044fb9cc32d",
+      "originalBytes": 931,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/cn20-sources/card-name-06-complete-response-v1.json.gz",
+        "sha256": "eaad4d0090bbffb67394c06fc14e6778f36a6f605ed9d05208b57044fb9cc32d"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/typed-stack-consumer-source-readback-20261020/card-name-06-receipt-v1.json",
+      "originalSha256": "0cd259ed2077739f1b05e0f5a0c060200028435fa6434bdf94568fb3c0a3342c",
+      "originalBytes": 1771,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/cn20-sources/card-name-06-receipt-v1.json",
+        "sha256": "0cd259ed2077739f1b05e0f5a0c060200028435fa6434bdf94568fb3c0a3342c"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/typed-stack-consumer-source-readback-20261020/card-name-07-complete-response-v1.json.gz",
+      "originalSha256": "178f35323371b4465c26ad5883e03dc940c403f6895bf089b40ec72e1d5401cc",
+      "originalBytes": 834,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/cn20-sources/card-name-07-complete-response-v1.json.gz",
+        "sha256": "178f35323371b4465c26ad5883e03dc940c403f6895bf089b40ec72e1d5401cc"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/typed-stack-consumer-source-readback-20261020/card-name-07-receipt-v1.json",
+      "originalSha256": "03d1fabd8227f260a9d0aba2281778dd27ebd4ed91e247b2651d6e77ae463b8a",
+      "originalBytes": 1757,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/cn20-sources/card-name-07-receipt-v1.json",
+        "sha256": "03d1fabd8227f260a9d0aba2281778dd27ebd4ed91e247b2651d6e77ae463b8a"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/typed-stack-consumer-source-readback-20261020/card-name-08-complete-response-v1.json.gz",
+      "originalSha256": "eb80476e6516b04874ad38fada31800be919422de6f49f65edc673cb685dd6e3",
+      "originalBytes": 811,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/cn20-sources/card-name-08-complete-response-v1.json.gz",
+        "sha256": "eb80476e6516b04874ad38fada31800be919422de6f49f65edc673cb685dd6e3"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/typed-stack-consumer-source-readback-20261020/card-name-08-receipt-v1.json",
+      "originalSha256": "a9a9cbd6f91e3689e645f8e613fa51250ec936c0d2585e85db36f663a878571e",
+      "originalBytes": 1745,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/cn20-sources/card-name-08-receipt-v1.json",
+        "sha256": "a9a9cbd6f91e3689e645f8e613fa51250ec936c0d2585e85db36f663a878571e"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/typed-stack-consumer-source-readback-20261020/card-name-09-complete-response-v1.json.gz",
+      "originalSha256": "cde8f2653de511f07d48824c203c3ba088e259fe0ec6e8e55032a457fd873893",
+      "originalBytes": 868,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/cn20-sources/card-name-09-complete-response-v1.json.gz",
+        "sha256": "cde8f2653de511f07d48824c203c3ba088e259fe0ec6e8e55032a457fd873893"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/typed-stack-consumer-source-readback-20261020/card-name-09-receipt-v1.json",
+      "originalSha256": "dd54de5cd919ad676e26f491f1032e0c139d2d4e1c50ea54c6c9b169e3a4bd68",
+      "originalBytes": 1745,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/cn20-sources/card-name-09-receipt-v1.json",
+        "sha256": "dd54de5cd919ad676e26f491f1032e0c139d2d4e1c50ea54c6c9b169e3a4bd68"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/typed-stack-consumer-source-readback-20261020/card-name-10-complete-response-v1.json.gz",
+      "originalSha256": "a15a5389ade5d4c45cb46b0c902264651ec40d1da8e995a2d76f11cf5703fae3",
+      "originalBytes": 856,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/cn20-sources/card-name-10-complete-response-v1.json.gz",
+        "sha256": "a15a5389ade5d4c45cb46b0c902264651ec40d1da8e995a2d76f11cf5703fae3"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/typed-stack-consumer-source-readback-20261020/card-name-10-receipt-v1.json",
+      "originalSha256": "27f9945138967aeda50c281886acea9acd71b3a48b955bb3749aeb35eb575ac9",
+      "originalBytes": 1751,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/cn20-sources/card-name-10-receipt-v1.json",
+        "sha256": "27f9945138967aeda50c281886acea9acd71b3a48b955bb3749aeb35eb575ac9"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/typed-stack-consumer-source-readback-20261020/card-name-11-complete-response-v1.json.gz",
+      "originalSha256": "22e299c91ddc67cb59d734c4148c565c56a7de324e7888629369056cc97437b2",
+      "originalBytes": 815,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/cn20-sources/card-name-11-complete-response-v1.json.gz",
+        "sha256": "22e299c91ddc67cb59d734c4148c565c56a7de324e7888629369056cc97437b2"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/typed-stack-consumer-source-readback-20261020/card-name-11-receipt-v1.json",
+      "originalSha256": "21aa6783519c9951e7110d3514deb489e6b28c743e70d88dd6180261bc18bcf4",
+      "originalBytes": 1743,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/cn20-sources/card-name-11-receipt-v1.json",
+        "sha256": "21aa6783519c9951e7110d3514deb489e6b28c743e70d88dd6180261bc18bcf4"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/typed-stack-consumer-source-readback-20261020/card-name-12-complete-response-v1.json.gz",
+      "originalSha256": "c5f01e95b6edca8c301b8a30ab27a6879835c33e47dfefb15b96291a4980254c",
+      "originalBytes": 811,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/cn20-sources/card-name-12-complete-response-v1.json.gz",
+        "sha256": "c5f01e95b6edca8c301b8a30ab27a6879835c33e47dfefb15b96291a4980254c"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/typed-stack-consumer-source-readback-20261020/card-name-12-receipt-v1.json",
+      "originalSha256": "b00704d14bfb40ac0ba0634136e5ea62bec805bb7f088d9554d079dea1fd719f",
+      "originalBytes": 1743,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/cn20-sources/card-name-12-receipt-v1.json",
+        "sha256": "b00704d14bfb40ac0ba0634136e5ea62bec805bb7f088d9554d079dea1fd719f"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/typed-stack-consumer-source-readback-20261020/card-name-13-complete-response-v1.json.gz",
+      "originalSha256": "8b81477c6f79f9d33b0c9afd72a70a4ccb81fc4a1efe8ac8b0796a4fa7d4b3bd",
+      "originalBytes": 2080,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/cn20-sources/card-name-13-complete-response-v1.json.gz",
+        "sha256": "8b81477c6f79f9d33b0c9afd72a70a4ccb81fc4a1efe8ac8b0796a4fa7d4b3bd"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/typed-stack-consumer-source-readback-20261020/card-name-13-receipt-v1.json",
+      "originalSha256": "3c38d6227b04fa8d969d6fe949a21040c0afcd78c94d18a2302113dfc2651d91",
+      "originalBytes": 4227,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/cn20-sources/card-name-13-receipt-v1.json",
+        "sha256": "3c38d6227b04fa8d969d6fe949a21040c0afcd78c94d18a2302113dfc2651d91"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/typed-stack-consumer-source-readback-20261020/card-name-14-complete-response-v1.json.gz",
+      "originalSha256": "c6934716fdf0463f4415194082708df73a8c0f5342a71cbba31aafdc71c98a66",
+      "originalBytes": 923,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/cn20-sources/card-name-14-complete-response-v1.json.gz",
+        "sha256": "c6934716fdf0463f4415194082708df73a8c0f5342a71cbba31aafdc71c98a66"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/typed-stack-consumer-source-readback-20261020/card-name-14-receipt-v1.json",
+      "originalSha256": "90b4b20edb86f2862eabc082534715c7a88dd96cc595c0d636fe3dc6d1081f24",
+      "originalBytes": 1743,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/cn20-sources/card-name-14-receipt-v1.json",
+        "sha256": "90b4b20edb86f2862eabc082534715c7a88dd96cc595c0d636fe3dc6d1081f24"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/typed-stack-consumer-source-readback-20261020/card-name-15-complete-response-v1.json.gz",
+      "originalSha256": "00d09493439bbbf51186a2abbdc966d842f427674adc544753df8e127ce96df3",
+      "originalBytes": 813,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/cn20-sources/card-name-15-complete-response-v1.json.gz",
+        "sha256": "00d09493439bbbf51186a2abbdc966d842f427674adc544753df8e127ce96df3"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/typed-stack-consumer-source-readback-20261020/card-name-15-receipt-v1.json",
+      "originalSha256": "c362a55cc3ea78fc52afc5f6a358347a4c03ba2887e80eb4d19e479367c0e034",
+      "originalBytes": 1684,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/cn20-sources/card-name-15-receipt-v1.json",
+        "sha256": "c362a55cc3ea78fc52afc5f6a358347a4c03ba2887e80eb4d19e479367c0e034"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/typed-stack-consumer-source-readback-20261020/cn20-source-version-transition-and-field-impact-v1.json",
+      "originalSha256": "285991fe4cd9c6c578a2352711191a5dbce21cda521d00be0493197697b9c042",
+      "originalBytes": 243554,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/cn20-sources/cn20-source-version-transition-and-field-impact-v1.json",
+        "sha256": "285991fe4cd9c6c578a2352711191a5dbce21cda521d00be0493197697b9c042"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/typed-stack-consumer-source-readback-20261020/complete-cn-comparison-run-v1.log",
+      "originalSha256": "d4fc71709185b2a8cfb5963d7ef0fea9637caf96c8e392b81816738357c373f6",
+      "originalBytes": 445,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/cn20-sources/complete-cn-comparison-run-v1.log.gz",
+        "sha256": "e4847bd6c7ba1d3c14f92872af3c9c0358c4f461f9e21666ae87ea918675d842"
+      },
+      "gzipOriginalBytes": true,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/typed-stack-consumer-source-readback-20261020/core-receipt-v1.json",
+      "originalSha256": "061e3231c3dade39f0578ca455d5ca9b2285f193284b49796517e0a0c1ccb365",
+      "originalBytes": 898,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/cn20-sources/core-receipt-v1.json",
+        "sha256": "061e3231c3dade39f0578ca455d5ca9b2285f193284b49796517e0a0c1ccb365"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/typed-stack-consumer-source-readback-20261020/current-complete-cn-source-version-view-v1.json",
+      "originalSha256": "48dba865ab1127cf627937e512d5b8ff094eb05d959bc56d6d4a0ed8bde65ddb",
+      "originalBytes": 2142406,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/cn20-sources/current-complete-cn-source-version-view-v1.json",
+        "sha256": "48dba865ab1127cf627937e512d5b8ff094eb05d959bc56d6d4a0ed8bde65ddb"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/typed-stack-consumer-source-readback-20261020/current-doc03-official-pdf-hash-and-page-binding-v2.json",
+      "originalSha256": "f21c11687833a9ff95725b6a47d855f1bc1fbba9ed0604bcedafb92abe07d916",
+      "originalBytes": 1858,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/cn20-sources/current-doc03-official-pdf-hash-and-page-binding-v2.json",
+        "sha256": "f21c11687833a9ff95725b6a47d855f1bc1fbba9ed0604bcedafb92abe07d916"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/typed-stack-consumer-source-readback-20261020/current-source-change-and-doc03-visual-impact-disposition-v1.json",
+      "originalSha256": "4912925d2e080e80005ef09d7fa96f3b135a580a069ebdce2af992471c462c3b",
+      "originalBytes": 20439,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/cn20-sources/current-source-change-and-doc03-visual-impact-disposition-v1.json",
+        "sha256": "4912925d2e080e80005ef09d7fa96f3b135a580a069ebdce2af992471c462c3b"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/typed-stack-consumer-source-readback-20261020/doc03-current-visual-readback/page-1.png",
+      "originalSha256": "38d9e5910b77fc83729b4277a5ef3344673b72eed0094ddca6ce3b03a78a1d91",
+      "originalBytes": 173717,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/cn20-sources/doc03-current-visual-readback/page-1.png",
+        "sha256": "38d9e5910b77fc83729b4277a5ef3344673b72eed0094ddca6ce3b03a78a1d91"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/typed-stack-consumer-source-readback-20261020/doc03-current-visual-readback/page-2.png",
+      "originalSha256": "86a2dc0c2fa4afc1a7a0e7743d0835becc0f3fa887bddb6f72f285ff65f30816",
+      "originalBytes": 153463,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/cn20-sources/doc03-current-visual-readback/page-2.png",
+        "sha256": "86a2dc0c2fa4afc1a7a0e7743d0835becc0f3fa887bddb6f72f285ff65f30816"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/typed-stack-consumer-source-readback-20261020/doc03-current-visual-readback/page-3.png",
+      "originalSha256": "1a204285053e988555c0567ba8fc9600f1db80a61a258be8f1711dda7eac020b",
+      "originalBytes": 220688,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/cn20-sources/doc03-current-visual-readback/page-3.png",
+        "sha256": "1a204285053e988555c0567ba8fc9600f1db80a61a258be8f1711dda7eac020b"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/typed-stack-consumer-source-readback-20261020/doc03-current-visual-readback/page-4.png",
+      "originalSha256": "31b8acec01c82cf1d592ba6b0793780048a7541613df646f3cccd1de42bf6868",
+      "originalBytes": 201302,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/cn20-sources/doc03-current-visual-readback/page-4.png",
+        "sha256": "31b8acec01c82cf1d592ba6b0793780048a7541613df646f3cccd1de42bf6868"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/typed-stack-consumer-source-readback-20261020/doc03-initial-relative-path-receipt-failure-disposition-v1.json",
+      "originalSha256": "07c928288bf921bf61a34dabd476310d7a6724438c29eb717aacc1d9d8164079",
+      "originalBytes": 585,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/cn20-sources/doc03-initial-relative-path-receipt-failure-disposition-v1.json",
+        "sha256": "07c928288bf921bf61a34dabd476310d7a6724438c29eb717aacc1d9d8164079"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/typed-stack-consumer-source-readback-20261020/faq-receipt-v1.json",
+      "originalSha256": "ac9b2436001376bd66007d2e5b29319ef77da646bd0fbfa533f7e95070a72fd1",
+      "originalBytes": 882,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/cn20-sources/faq-receipt-v1.json",
+        "sha256": "ac9b2436001376bd66007d2e5b29319ef77da646bd0fbfa533f7e95070a72fd1"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/typed-stack-consumer-source-readback-20261020/rules-directory-complete-response-v1.json.gz",
+      "originalSha256": "be43eb79eda2c3b3888bd5549654e88fd807c61a850214e14f88940eee16a021",
+      "originalBytes": 1173,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/cn20-sources/rules-directory-complete-response-v1.json.gz",
+        "sha256": "be43eb79eda2c3b3888bd5549654e88fd807c61a850214e14f88940eee16a021"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/typed-stack-consumer-source-readback-20261020/rules-directory-receipt-v1.json",
+      "originalSha256": "bed506a52216003640e800e1223141a5b344a44f106f783ade76119104b40c02",
+      "originalBytes": 984,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/cn20-sources/rules-directory-receipt-v1.json",
+        "sha256": "bed506a52216003640e800e1223141a5b344a44f106f783ade76119104b40c02"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/typed-stack-consumer-source-readback-20261020/silence-after-whole-list-complete-response-v1.json.gz",
+      "originalSha256": "cb6358892613d4a409f2f251c39f41512ceccb6460c265d55e52bb21a253f004",
+      "originalBytes": 811,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/cn20-sources/silence-after-whole-list-complete-response-v1.json.gz",
+        "sha256": "cb6358892613d4a409f2f251c39f41512ceccb6460c265d55e52bb21a253f004"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/typed-stack-consumer-source-readback-20261020/source-version-and-impact-readback-v1.json",
+      "originalSha256": "3d208fc11daf98e9a2f03fbed4f49b0506d68c69fc4c9b25aae6eb235d055e2c",
+      "originalBytes": 36023,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/cn20-sources/source-version-and-impact-readback-v1.json",
+        "sha256": "3d208fc11daf98e9a2f03fbed4f49b0506d68c69fc4c9b25aae6eb235d055e2c"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/typed-stack-consumer-source-readback-20261020/whole-cn-page01-complete-response-v1.json.gz",
+      "originalSha256": "a19ac546b31d11afae32213944def1a6feda0da2d0a69da3168d32b51923592c",
+      "originalBytes": 188114,
+      "canonical": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/cn20-sources/whole-cn-page01-complete-response-v1.json.gz",
+        "sha256": "a19ac546b31d11afae32213944def1a6feda0da2d0a69da3168d32b51923592c"
+      },
+      "gzipOriginalBytes": false,
+      "rawBytesNotNormalized": true,
+      "samePhysicalFileHardlinked": true
+    }
+  ],
+  "newCandidateCheckStillInProgressExcludedFromThisStage": true,
+  "authenticationProfilesAndRuntimeBinariesNotArchived": true,
+  "allFourSpecificLocalCredentialValuesAbsentFromNonZipArchivePayloads": true,
+  "logicalCanonicalBytes": 245706196
+}

@@ -1,0 +1,10 @@
+{
+  "observedAtUtc": "2026-10-20T01:32:32.976Z",
+  "fixedCommit": "9a57068e986850a5e86bbeb9d0bbb2a92f44b7b4",
+  "source": "cua native app screenshot and actual coordinate/keyboard input",
+  "appPath": "/Users/dinghaolin/MyProjects/riftbound/var/qa/graveyard-source-fixed-candidate-20261020/Riftbound-A.app",
+  "screenshotSha256": "1df5f0f859147b719f9b3d0c41410624a014cfd75c9bf13534f3c3596928e1c4",
+  "expectedVisiblePlayerName": "QA9A-A",
+  "expectedVisibleRoom": "RB-9A5706",
+  "scope": "actual native menu text controls only; server not yet started; no paired game or victory claim"
+}

@@ -1,0 +1,52 @@
+{
+  "label": "card-name-06",
+  "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+  "request": {
+    "pageNum": 1,
+    "pageSize": 100,
+    "searchContent": "劳伦特心眼刀",
+    "cardCategoryList": [],
+    "cardColorList": [],
+    "rarityList": [],
+    "productCodeList": []
+  },
+  "requestedAtUtc": "2026-10-20T02:41:16.872359+00:00",
+  "region": "CN",
+  "language": "zh-CN",
+  "singlePrintingPublicationDate": null,
+  "singlePrintingEffectiveDate": null,
+  "httpStatus": 200,
+  "httpDate": "Tue, 20 Oct 2026 02:41:16 GMT",
+  "resolvedUrl": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+  "rawSha256": "4b5d06860505fd14e9a1581edc51fc12f6121194c17e95a58a7affddef4bb065",
+  "rawBytes": 1377,
+  "completeResponse": "var/qa/typed-stack-consumer-source-readback-20261020/card-name-06-complete-response-v1.json.gz",
+  "returnedRows": 1,
+  "reportedTotal": 1,
+  "completeReturnedPageCompared": true,
+  "searchName": "劳伦特心眼刀",
+  "everyReturnedRowComparedToOriginal1504": [
+    {
+      "apiId": 33305,
+      "cardNo": "SFD·206/221",
+      "entireRowMatchesOriginal": true,
+      "fullRowSha256": "99ac601f96663fa63477c4f01be22edc7d4219d1ab5448c467d16f6b2349a19a"
+    }
+  ],
+  "exactDistinctPrintingTargets": [
+    {
+      "apiId": 33305,
+      "retainedPrintingIdentity": "SFD-206/221",
+      "exactParentIds": [
+        "CARD:SFD-206/221"
+      ],
+      "returned": true,
+      "rawCardNo": "SFD·206/221",
+      "exactSameRawOriginalRow": true,
+      "fullRowSha256": "99ac601f96663fa63477c4f01be22edc7d4219d1ab5448c467d16f6b2349a19a",
+      "wholePrintingSemanticCertification": false
+    }
+  ],
+  "status": "ACQUIRED_COMPLETE_RESPONSE_AND_EXACT_IDENTITY_COMPARISON",
+  "receivedAtUtc": "2026-10-20T02:41:16.977899+00:00"
+}

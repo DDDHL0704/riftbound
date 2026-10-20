@@ -1,0 +1,11 @@
+{
+  "requestedAtUtc": "2026-10-20T02:02:13.160970+00:00",
+  "ownCurrentApiPid": 24714,
+  "sameFixedPublishedApiAndExistingDatabaseOnly": true,
+  "room": "RB-9A5706",
+  "originalBeforeStateHash": "8ed34a9c81a817f1977ac6b5342b26f9b11201700bdc642f241a25d994dbff4b",
+  "beforeCommands": 6,
+  "beforeEvents": 18,
+  "originalBeforeFrameSha256": "b470a619610905423440ae3fb17737b80858d1b6ec1916fa53445a0ae25a383a",
+  "noGameplayInputWhileRestarting": true
+}

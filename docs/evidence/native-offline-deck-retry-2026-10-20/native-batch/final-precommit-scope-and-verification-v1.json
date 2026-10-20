@@ -1,0 +1,28 @@
+{
+  "status": "PASS_PRECOMMIT_NATIVE_ONE_LINE_AND_ALL_EVIDENCE_GOVERNANCE_TOOL_CHECKS",
+  "recordedAtUtc": "2026-10-20T03:37:20.670913+00:00",
+  "parentCommit": "9a57068e986850a5e86bbeb9d0bbb2a92f44b7b4",
+  "productionSourceDelta": {
+    "path": "clients/godot/scripts/Main.cs",
+    "insertions": 1,
+    "deletions": 1
+  },
+  "soleCheck": {
+    "cases": 13107,
+    "uniqueMethods": 7467,
+    "allOriginalCasesAnd1859SourceFileExecutableModesRetained": true,
+    "failed": 0,
+    "skipped": 0
+  },
+  "pythonToolTestsPassed": 73,
+  "pythonToolLogSha256": "f742e1a160c1baa1c53f8a5a2c9d3a98dc1193fc43eab2aaa87c7bd17d83fdb4",
+  "governanceValid": true,
+  "governanceCliReceiptSha256": "c7708659404f70cdccbbfadcd4f80908c4f5304ff939be81cd48a18863e58e09",
+  "remainingObligations": 16911,
+  "allOriginal16908IdsRetained": true,
+  "originalSourceRowsBeforeAdapterExactlyRetained": 1504,
+  "allActiveCheck3303Source1399RuntimeInputsStillExact": true,
+  "newActualNativeMainOfflineRetryAndFixedFullAndPhysicalWindows": "OPEN",
+  "globalSemanticCoverageCertified": false,
+  "noSecondCheck": true
+}

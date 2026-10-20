@@ -1,0 +1,8 @@
+{
+  "observedAtUtc": "2026-10-20T02:01:41.019Z",
+  "fixedCommit": "9a57068e986850a5e86bbeb9d0bbb2a92f44b7b4",
+  "backendRuleInputIdentity": "10ab1c62f40e746464e28cd54919021f8311eb1e15d0aab9506dcb9314e5139e",
+  "source": "cua real native screenshot",
+  "screenshotSha256": "41761a181995c494d71170bc871ec02b5ec39affd168537b887f0ad93dcc0f1d",
+  "scope": "After both zero-selection mulligans, before any game action and before controlled own API cold restart."
+}

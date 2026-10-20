@@ -23700,6 +23700,31 @@
         "VISIBLE_NATIVE_PRODUCT",
         "PHYSICAL_WINDOWS"
       ]
+    },
+    {
+      "id": "native-offline-start-same-server-preconstructed-retry-2026-10-20",
+      "scope": "Native lobby preconstructed fetch after offline startup and later same-server connection; no rule semantics change.",
+      "status": "ONE_NATIVE_CONDITION_FOCUS18_SOLECHECK13107_PASS_NEW_FIXED_NATIVE_AND_FULL_OPEN",
+      "subjects": [],
+      "ruleRecords": [],
+      "pendingRuleRecords": [],
+      "sourceManifest": {
+        "path": "docs/evidence/native-offline-deck-retry-2026-10-20/source-manifest.json",
+        "sha256": "54ae0e03d1c7812d86c26063d8af48e3b3920c8bcf1dae2d33c7a97fca066914",
+        "role": "source-manifest"
+      },
+      "auditDocument": "docs/NATIVE_OFFLINE_DECK_RETRY_AUDIT_2026-10-20.md",
+      "testExecution": {
+        "cases": 18,
+        "conformanceCheckCases": 13107,
+        "actualChangedMainPathExercised": false
+      },
+      "exclusions": [
+        "WHOLE_CARD_OR_RULE_FAMILY_SEMANTICS",
+        "NEW_MAIN_NATIVE_OFFLINE_RETRY_ACCEPTANCE",
+        "CURRENT_FIXED_FULL",
+        "PHYSICAL_WINDOWS"
+      ]
     }
   ]
 }

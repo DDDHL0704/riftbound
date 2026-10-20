@@ -1,0 +1,8 @@
+{
+  "recordedAtUtc": "2026-10-20T03:10:03.725661+00:00",
+  "stage": "Before publisher file creation or execution.",
+  "error": "Python bootstrap used nested identical triple-quote delimiters around a publisher containing Markdown strings; SyntaxError at embedded document text.",
+  "rootPublicationNotExecuted": true,
+  "noSourceCheckInputOrEvidenceMutation": true,
+  "correction": "Use distinct outer/inner string delimiters or a direct file patch; keep source and runtime assertions before publication."
+}

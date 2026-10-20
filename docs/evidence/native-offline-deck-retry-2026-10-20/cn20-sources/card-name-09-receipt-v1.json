@@ -1,0 +1,52 @@
+{
+  "label": "card-name-09",
+  "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+  "request": {
+    "pageNum": 1,
+    "pageSize": 100,
+    "searchContent": "遗弃",
+    "cardCategoryList": [],
+    "cardColorList": [],
+    "rarityList": [],
+    "productCodeList": []
+  },
+  "requestedAtUtc": "2026-10-20T02:41:16.978060+00:00",
+  "region": "CN",
+  "language": "zh-CN",
+  "singlePrintingPublicationDate": null,
+  "singlePrintingEffectiveDate": null,
+  "httpStatus": 200,
+  "httpDate": "Tue, 20 Oct 2026 02:41:17 GMT",
+  "resolvedUrl": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+  "rawSha256": "235d689e9552b897aca55282b66de0de9d82fe03a7122ba464f33db93472cbc4",
+  "rawBytes": 1268,
+  "completeResponse": "var/qa/typed-stack-consumer-source-readback-20261020/card-name-09-complete-response-v1.json.gz",
+  "returnedRows": 1,
+  "reportedTotal": 1,
+  "completeReturnedPageCompared": true,
+  "searchName": "遗弃",
+  "everyReturnedRowComparedToOriginal1504": [
+    {
+      "apiId": 34674,
+      "cardNo": "UNL-131/219",
+      "entireRowMatchesOriginal": true,
+      "fullRowSha256": "00b6f0d082f785a53b253d6d5d397263982bf9dfce87e409d27ad0309173476f"
+    }
+  ],
+  "exactDistinctPrintingTargets": [
+    {
+      "apiId": 34674,
+      "retainedPrintingIdentity": "UNL-131/219",
+      "exactParentIds": [
+        "CARD:UNL-131/219"
+      ],
+      "returned": true,
+      "rawCardNo": "UNL-131/219",
+      "exactSameRawOriginalRow": true,
+      "fullRowSha256": "00b6f0d082f785a53b253d6d5d397263982bf9dfce87e409d27ad0309173476f",
+      "wholePrintingSemanticCertification": false
+    }
+  ],
+  "status": "ACQUIRED_COMPLETE_RESPONSE_AND_EXACT_IDENTITY_COMPARISON",
+  "receivedAtUtc": "2026-10-20T02:41:17.084261+00:00"
+}

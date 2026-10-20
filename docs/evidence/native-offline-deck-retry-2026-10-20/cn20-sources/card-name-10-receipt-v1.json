@@ -1,0 +1,52 @@
+{
+  "label": "card-name-10",
+  "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+  "request": {
+    "pageNum": 1,
+    "pageSize": 100,
+    "searchContent": "夜阑谣",
+    "cardCategoryList": [],
+    "cardColorList": [],
+    "rarityList": [],
+    "productCodeList": []
+  },
+  "requestedAtUtc": "2026-10-20T02:41:16.986919+00:00",
+  "region": "CN",
+  "language": "zh-CN",
+  "singlePrintingPublicationDate": null,
+  "singlePrintingEffectiveDate": null,
+  "httpStatus": 200,
+  "httpDate": "Tue, 20 Oct 2026 02:41:17 GMT",
+  "resolvedUrl": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+  "rawSha256": "406b2d2a78de85a04a00121d2ddec44942e1ee07d125d82c09af22d691325250",
+  "rawBytes": 1233,
+  "completeResponse": "var/qa/typed-stack-consumer-source-readback-20261020/card-name-10-complete-response-v1.json.gz",
+  "returnedRows": 1,
+  "reportedTotal": 1,
+  "completeReturnedPageCompared": true,
+  "searchName": "夜阑谣",
+  "everyReturnedRowComparedToOriginal1504": [
+    {
+      "apiId": 34743,
+      "cardNo": "UNL-190/219",
+      "entireRowMatchesOriginal": true,
+      "fullRowSha256": "ce444f8766b0c61f658b1987a251f69fdd8d024c539ac02642058ca757a86529"
+    }
+  ],
+  "exactDistinctPrintingTargets": [
+    {
+      "apiId": 34743,
+      "retainedPrintingIdentity": "UNL-190/219",
+      "exactParentIds": [
+        "CARD:UNL-190/219"
+      ],
+      "returned": true,
+      "rawCardNo": "UNL-190/219",
+      "exactSameRawOriginalRow": true,
+      "fullRowSha256": "ce444f8766b0c61f658b1987a251f69fdd8d024c539ac02642058ca757a86529",
+      "wholePrintingSemanticCertification": false
+    }
+  ],
+  "status": "ACQUIRED_COMPLETE_RESPONSE_AND_EXACT_IDENTITY_COMPARISON",
+  "receivedAtUtc": "2026-10-20T02:41:17.103051+00:00"
+}

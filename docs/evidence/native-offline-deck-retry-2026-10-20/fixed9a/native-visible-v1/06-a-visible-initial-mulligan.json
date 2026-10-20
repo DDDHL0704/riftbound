@@ -1,0 +1,8 @@
+{
+  "observedAtUtc": "2026-10-20T01:57:45.062Z",
+  "fixedCommit": "9a57068e986850a5e86bbeb9d0bbb2a92f44b7b4",
+  "backendRuleInputIdentity": "10ab1c62f40e746464e28cd54919021f8311eb1e15d0aab9506dcb9314e5139e",
+  "source": "cua real native screenshot",
+  "screenshotSha256": "89a7f0100ab586777d78aebf3dc3c4848ffdd3ff1e01505d87c00dad1fd4127e",
+  "scope": "Original A perspective after both real READY commands; cross-check with original database frame, no injected game state."
+}

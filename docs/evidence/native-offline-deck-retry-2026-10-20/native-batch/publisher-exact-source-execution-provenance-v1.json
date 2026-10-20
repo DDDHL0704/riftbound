@@ -1,0 +1,7 @@
+{
+  "startedAtUtc": "2026-10-20T03:27:49.727970+00:00",
+  "publisherSource": "/Users/dinghaolin/MyProjects/riftbound/var/qa/native-offline-deck-retry-20261020/publish-bounded-native-and-cn20-source-audit-v1.py",
+  "exactExecutedSourceSha256": "d8f2b376400f8b86e5a538a7d32dc598ce1e50235b839ef94fb6f13efea40bc4",
+  "mechanism": "ASCII byte loader compiles and executes exact verified UTF-8 source with original __file__; no source transcription or runtime modification.",
+  "soleCheckAlreadyEndedPass": true
+}

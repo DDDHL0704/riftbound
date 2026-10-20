@@ -1055,7 +1055,7 @@ public partial class Main : Control
         }
         ServerUrl = _session.ServerUrl!;
         await SaveSessionAsync();
-        if (serverChanged)
+        if (serverChanged || _decks.Count == 0)
         {
             await LoadDecksAsync();
             await LoadPublicMatchesAsync();

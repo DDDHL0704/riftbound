@@ -1,0 +1,942 @@
+{
+  "status": "CURRENT_BOUNDED_TYPED_STACK_CONSUMER_SOURCE_READBACK_NOT_SEMANTIC_CERTIFICATION",
+  "recordedAtUtc": "2026-10-20T02:41:33.039945+00:00",
+  "region": "CN",
+  "language": "zh-CN",
+  "rulesApplicableBaseline": "2026-10-16",
+  "priorCandidateManifest": "var/qa/graveyard-lifecycle-source-followup-20261020/shared-typed-stack-finite-consumer-followup-v2.json",
+  "priorManifestSha256": "3bdef3e7f0c2fedf8f75179228bec64183028905e498f32cff6cd80f5a383dec",
+  "distinctPrintingTargetCount": 17,
+  "nameRequestCount": 15,
+  "totalRequests": 18,
+  "records": [
+    {
+      "label": "rules-directory",
+      "url": "https://lol-api.playloltcg.com/xcx/gameRule/getGameRuleList",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 1000
+      },
+      "requestedAtUtc": "2026-10-20T02:41:16.650778+00:00",
+      "region": "CN",
+      "language": "zh-CN",
+      "singlePrintingPublicationDate": null,
+      "singlePrintingEffectiveDate": null,
+      "httpStatus": 200,
+      "httpDate": "Tue, 20 Oct 2026 02:41:16 GMT",
+      "resolvedUrl": "https://lol-api.playloltcg.com/xcx/gameRule/getGameRuleList",
+      "rawSha256": "280d9d581a9b3f977799b6268054f16d83d615a37d9a31bf79a0ee38a0164e73",
+      "rawBytes": 4527,
+      "completeResponse": "var/qa/typed-stack-consumer-source-readback-20261020/rules-directory-complete-response-v1.json.gz",
+      "returnedRows": 14,
+      "reportedTotal": null,
+      "completeReturnedPageCompared": true,
+      "allOriginalDirectoryRowsExactAndInSameOrder": true,
+      "status": "ACQUIRED_COMPLETE_RESPONSE_AND_EXACT_IDENTITY_COMPARISON",
+      "receivedAtUtc": "2026-10-20T02:41:16.861521+00:00"
+    },
+    {
+      "label": "card-name-01",
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "蔑视",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "requestedAtUtc": "2026-10-20T02:41:16.653731+00:00",
+      "region": "CN",
+      "language": "zh-CN",
+      "singlePrintingPublicationDate": null,
+      "singlePrintingEffectiveDate": null,
+      "httpStatus": 200,
+      "httpDate": "Tue, 20 Oct 2026 02:41:16 GMT",
+      "resolvedUrl": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "rawSha256": "d74ddee46fba214d9ea6b129ed097715de238fa6efa5b5d4dfe150e24364ddff",
+      "rawBytes": 1162,
+      "completeResponse": "var/qa/typed-stack-consumer-source-readback-20261020/card-name-01-complete-response-v1.json.gz",
+      "returnedRows": 1,
+      "reportedTotal": 1,
+      "completeReturnedPageCompared": true,
+      "searchName": "蔑视",
+      "everyReturnedRowComparedToOriginal1504": [
+        {
+          "apiId": 31257,
+          "cardNo": "OGN·045/298",
+          "entireRowMatchesOriginal": true,
+          "fullRowSha256": "92afaf781e5c258fc1e19058935f52320346b14c856bdbba453a349eb60f5e22"
+        }
+      ],
+      "exactDistinctPrintingTargets": [
+        {
+          "apiId": 31257,
+          "retainedPrintingIdentity": "OGN-045/298",
+          "exactParentIds": [
+            "CARD:OGN-045/298"
+          ],
+          "returned": true,
+          "rawCardNo": "OGN·045/298",
+          "exactSameRawOriginalRow": true,
+          "fullRowSha256": "92afaf781e5c258fc1e19058935f52320346b14c856bdbba453a349eb60f5e22",
+          "wholePrintingSemanticCertification": false
+        }
+      ],
+      "status": "ACQUIRED_COMPLETE_RESPONSE_AND_EXACT_IDENTITY_COMPARISON",
+      "receivedAtUtc": "2026-10-20T02:41:16.868699+00:00"
+    },
+    {
+      "label": "card-name-02",
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "风之障壁",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "requestedAtUtc": "2026-10-20T02:41:16.657601+00:00",
+      "region": "CN",
+      "language": "zh-CN",
+      "singlePrintingPublicationDate": null,
+      "singlePrintingEffectiveDate": null,
+      "httpStatus": 200,
+      "httpDate": "Tue, 20 Oct 2026 02:41:16 GMT",
+      "resolvedUrl": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "rawSha256": "14173924118b71eda758cb6cf2f8fae253e048c035500db8226327c02b058a7a",
+      "rawBytes": 1129,
+      "completeResponse": "var/qa/typed-stack-consumer-source-readback-20261020/card-name-02-complete-response-v1.json.gz",
+      "returnedRows": 1,
+      "reportedTotal": 1,
+      "completeReturnedPageCompared": true,
+      "searchName": "风之障壁",
+      "everyReturnedRowComparedToOriginal1504": [
+        {
+          "apiId": 31276,
+          "cardNo": "OGN·064/298",
+          "entireRowMatchesOriginal": true,
+          "fullRowSha256": "809c50a9b9384249ca323d42da68b30ad02ef2e4081dc0df1dbd928c04129ba9"
+        }
+      ],
+      "exactDistinctPrintingTargets": [
+        {
+          "apiId": 31276,
+          "retainedPrintingIdentity": "OGN-064/298",
+          "exactParentIds": [
+            "CARD:OGN-064/298"
+          ],
+          "returned": true,
+          "rawCardNo": "OGN·064/298",
+          "exactSameRawOriginalRow": true,
+          "fullRowSha256": "809c50a9b9384249ca323d42da68b30ad02ef2e4081dc0df1dbd928c04129ba9",
+          "wholePrintingSemanticCertification": false
+        }
+      ],
+      "status": "ACQUIRED_COMPLETE_RESPONSE_AND_EXACT_IDENTITY_COMPARISON",
+      "receivedAtUtc": "2026-10-20T02:41:16.876459+00:00"
+    },
+    {
+      "label": "card-name-03",
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "坚毅不倒",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "requestedAtUtc": "2026-10-20T02:41:16.661125+00:00",
+      "region": "CN",
+      "language": "zh-CN",
+      "singlePrintingPublicationDate": null,
+      "singlePrintingEffectiveDate": null,
+      "httpStatus": 200,
+      "httpDate": "Tue, 20 Oct 2026 02:41:16 GMT",
+      "resolvedUrl": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "rawSha256": "37f27f18223ead7f38fefa8654a388b6ca66a0aee0a7453102b656ca913fa3a9",
+      "rawBytes": 1170,
+      "completeResponse": "var/qa/typed-stack-consumer-source-readback-20261020/card-name-03-complete-response-v1.json.gz",
+      "returnedRows": 1,
+      "reportedTotal": 1,
+      "completeReturnedPageCompared": true,
+      "searchName": "坚毅不倒",
+      "everyReturnedRowComparedToOriginal1504": [
+        {
+          "apiId": 31369,
+          "cardNo": "OGN·145/298",
+          "entireRowMatchesOriginal": true,
+          "fullRowSha256": "cbde15af175c0fa19f1adea5280b72075fe41a0b5819be401e978af8e9723215"
+        }
+      ],
+      "exactDistinctPrintingTargets": [
+        {
+          "apiId": 31369,
+          "retainedPrintingIdentity": "OGN-145/298",
+          "exactParentIds": [
+            "CARD:OGN-145/298"
+          ],
+          "returned": true,
+          "rawCardNo": "OGN·145/298",
+          "exactSameRawOriginalRow": true,
+          "fullRowSha256": "cbde15af175c0fa19f1adea5280b72075fe41a0b5819be401e978af8e9723215",
+          "wholePrintingSemanticCertification": false
+        }
+      ],
+      "status": "ACQUIRED_COMPLETE_RESPONSE_AND_EXACT_IDENTITY_COMPARISON",
+      "receivedAtUtc": "2026-10-20T02:41:16.872232+00:00"
+    },
+    {
+      "label": "card-name-04",
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "极速反制",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "requestedAtUtc": "2026-10-20T02:41:16.861731+00:00",
+      "region": "CN",
+      "language": "zh-CN",
+      "singlePrintingPublicationDate": null,
+      "singlePrintingEffectiveDate": null,
+      "httpStatus": 200,
+      "httpDate": "Tue, 20 Oct 2026 02:41:16 GMT",
+      "resolvedUrl": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "rawSha256": "9bbe31f8ff851b2b0b8ef759af8cf34fe2d31078d272a4534c2187b20f1726ce",
+      "rawBytes": 1170,
+      "completeResponse": "var/qa/typed-stack-consumer-source-readback-20261020/card-name-04-complete-response-v1.json.gz",
+      "returnedRows": 1,
+      "reportedTotal": 1,
+      "completeReturnedPageCompared": true,
+      "searchName": "极速反制",
+      "everyReturnedRowComparedToOriginal1504": [
+        {
+          "apiId": 33121,
+          "cardNo": "SFD·045/221",
+          "entireRowMatchesOriginal": true,
+          "fullRowSha256": "3b7e3fcbc134bb5c329fd467a0fe66a0e5c4b2b1405b791404a7a69e6b9050f1"
+        }
+      ],
+      "exactDistinctPrintingTargets": [
+        {
+          "apiId": 33121,
+          "retainedPrintingIdentity": "SFD-045/221",
+          "exactParentIds": [
+            "CARD:SFD-045/221"
+          ],
+          "returned": true,
+          "rawCardNo": "SFD·045/221",
+          "exactSameRawOriginalRow": true,
+          "fullRowSha256": "3b7e3fcbc134bb5c329fd467a0fe66a0e5c4b2b1405b791404a7a69e6b9050f1",
+          "wholePrintingSemanticCertification": false
+        }
+      ],
+      "status": "ACQUIRED_COMPLETE_RESPONSE_AND_EXACT_IDENTITY_COMPARISON",
+      "receivedAtUtc": "2026-10-20T02:41:16.973689+00:00"
+    },
+    {
+      "label": "card-name-05",
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "强买强卖",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "requestedAtUtc": "2026-10-20T02:41:16.868858+00:00",
+      "region": "CN",
+      "language": "zh-CN",
+      "singlePrintingPublicationDate": null,
+      "singlePrintingEffectiveDate": null,
+      "httpStatus": 200,
+      "httpDate": "Tue, 20 Oct 2026 02:41:16 GMT",
+      "resolvedUrl": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "rawSha256": "3b23502f6a5487ce11edcff876e36c6cf0041acabb6ec78e3daa238b75e7a37c",
+      "rawBytes": 1260,
+      "completeResponse": "var/qa/typed-stack-consumer-source-readback-20261020/card-name-05-complete-response-v1.json.gz",
+      "returnedRows": 1,
+      "reportedTotal": 1,
+      "completeReturnedPageCompared": true,
+      "searchName": "强买强卖",
+      "everyReturnedRowComparedToOriginal1504": [
+        {
+          "apiId": 33226,
+          "cardNo": "SFD·136/221",
+          "entireRowMatchesOriginal": true,
+          "fullRowSha256": "f27a166d2f967d62cf0e7426eb59d568c4214c53d95e1ef1a394dfe90d2ed06c"
+        }
+      ],
+      "exactDistinctPrintingTargets": [
+        {
+          "apiId": 33226,
+          "retainedPrintingIdentity": "SFD-136/221",
+          "exactParentIds": [
+            "CARD:SFD-136/221"
+          ],
+          "returned": true,
+          "rawCardNo": "SFD·136/221",
+          "exactSameRawOriginalRow": true,
+          "fullRowSha256": "f27a166d2f967d62cf0e7426eb59d568c4214c53d95e1ef1a394dfe90d2ed06c",
+          "wholePrintingSemanticCertification": false
+        }
+      ],
+      "status": "ACQUIRED_COMPLETE_RESPONSE_AND_EXACT_IDENTITY_COMPARISON",
+      "receivedAtUtc": "2026-10-20T02:41:16.986610+00:00"
+    },
+    {
+      "label": "card-name-06",
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "劳伦特心眼刀",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "requestedAtUtc": "2026-10-20T02:41:16.872359+00:00",
+      "region": "CN",
+      "language": "zh-CN",
+      "singlePrintingPublicationDate": null,
+      "singlePrintingEffectiveDate": null,
+      "httpStatus": 200,
+      "httpDate": "Tue, 20 Oct 2026 02:41:16 GMT",
+      "resolvedUrl": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "rawSha256": "4b5d06860505fd14e9a1581edc51fc12f6121194c17e95a58a7affddef4bb065",
+      "rawBytes": 1377,
+      "completeResponse": "var/qa/typed-stack-consumer-source-readback-20261020/card-name-06-complete-response-v1.json.gz",
+      "returnedRows": 1,
+      "reportedTotal": 1,
+      "completeReturnedPageCompared": true,
+      "searchName": "劳伦特心眼刀",
+      "everyReturnedRowComparedToOriginal1504": [
+        {
+          "apiId": 33305,
+          "cardNo": "SFD·206/221",
+          "entireRowMatchesOriginal": true,
+          "fullRowSha256": "99ac601f96663fa63477c4f01be22edc7d4219d1ab5448c467d16f6b2349a19a"
+        }
+      ],
+      "exactDistinctPrintingTargets": [
+        {
+          "apiId": 33305,
+          "retainedPrintingIdentity": "SFD-206/221",
+          "exactParentIds": [
+            "CARD:SFD-206/221"
+          ],
+          "returned": true,
+          "rawCardNo": "SFD·206/221",
+          "exactSameRawOriginalRow": true,
+          "fullRowSha256": "99ac601f96663fa63477c4f01be22edc7d4219d1ab5448c467d16f6b2349a19a",
+          "wholePrintingSemanticCertification": false
+        }
+      ],
+      "status": "ACQUIRED_COMPLETE_RESPONSE_AND_EXACT_IDENTITY_COMPARISON",
+      "receivedAtUtc": "2026-10-20T02:41:16.977899+00:00"
+    },
+    {
+      "label": "card-name-07",
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "羽毛旋风",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "requestedAtUtc": "2026-10-20T02:41:16.876600+00:00",
+      "region": "CN",
+      "language": "zh-CN",
+      "singlePrintingPublicationDate": null,
+      "singlePrintingEffectiveDate": null,
+      "httpStatus": 200,
+      "httpDate": "Tue, 20 Oct 2026 02:41:16 GMT",
+      "resolvedUrl": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "rawSha256": "28912be17a8e9f3ed61c32bbb54e0ab97735dc4e95a5f88212af165b3b278e0d",
+      "rawBytes": 1206,
+      "completeResponse": "var/qa/typed-stack-consumer-source-readback-20261020/card-name-07-complete-response-v1.json.gz",
+      "returnedRows": 1,
+      "reportedTotal": 1,
+      "completeReturnedPageCompared": true,
+      "searchName": "羽毛旋风",
+      "everyReturnedRowComparedToOriginal1504": [
+        {
+          "apiId": 34572,
+          "cardNo": "UNL-044/219",
+          "entireRowMatchesOriginal": true,
+          "fullRowSha256": "00026caf9320de1e44f34924f9633d5eef74c658095ebc02241fbd6e45339302"
+        }
+      ],
+      "exactDistinctPrintingTargets": [
+        {
+          "apiId": 34572,
+          "retainedPrintingIdentity": "UNL-044/219",
+          "exactParentIds": [
+            "CARD:UNL-044/219"
+          ],
+          "returned": true,
+          "rawCardNo": "UNL-044/219",
+          "exactSameRawOriginalRow": true,
+          "fullRowSha256": "00026caf9320de1e44f34924f9633d5eef74c658095ebc02241fbd6e45339302",
+          "wholePrintingSemanticCertification": false
+        }
+      ],
+      "status": "ACQUIRED_COMPLETE_RESPONSE_AND_EXACT_IDENTITY_COMPARISON",
+      "receivedAtUtc": "2026-10-20T02:41:16.991058+00:00"
+    },
+    {
+      "label": "card-name-08",
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "击退",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "requestedAtUtc": "2026-10-20T02:41:16.973888+00:00",
+      "region": "CN",
+      "language": "zh-CN",
+      "singlePrintingPublicationDate": null,
+      "singlePrintingEffectiveDate": null,
+      "httpStatus": 200,
+      "httpDate": "Tue, 20 Oct 2026 02:41:17 GMT",
+      "resolvedUrl": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "rawSha256": "b947eae82327f12144a6459184147d671ec61669ac4784c677d9231088d6d562",
+      "rawBytes": 1220,
+      "completeResponse": "var/qa/typed-stack-consumer-source-readback-20261020/card-name-08-complete-response-v1.json.gz",
+      "returnedRows": 1,
+      "reportedTotal": 1,
+      "completeReturnedPageCompared": true,
+      "searchName": "击退",
+      "everyReturnedRowComparedToOriginal1504": [
+        {
+          "apiId": 34644,
+          "cardNo": "UNL-106/219",
+          "entireRowMatchesOriginal": true,
+          "fullRowSha256": "975154aad0487c78a3abbe4d68f32d67dc3e737cdb23c24449ebb40a9572886e"
+        }
+      ],
+      "exactDistinctPrintingTargets": [
+        {
+          "apiId": 34644,
+          "retainedPrintingIdentity": "UNL-106/219",
+          "exactParentIds": [
+            "CARD:UNL-106/219"
+          ],
+          "returned": true,
+          "rawCardNo": "UNL-106/219",
+          "exactSameRawOriginalRow": true,
+          "fullRowSha256": "975154aad0487c78a3abbe4d68f32d67dc3e737cdb23c24449ebb40a9572886e",
+          "wholePrintingSemanticCertification": false
+        }
+      ],
+      "status": "ACQUIRED_COMPLETE_RESPONSE_AND_EXACT_IDENTITY_COMPARISON",
+      "receivedAtUtc": "2026-10-20T02:41:17.087564+00:00"
+    },
+    {
+      "label": "card-name-09",
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "遗弃",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "requestedAtUtc": "2026-10-20T02:41:16.978060+00:00",
+      "region": "CN",
+      "language": "zh-CN",
+      "singlePrintingPublicationDate": null,
+      "singlePrintingEffectiveDate": null,
+      "httpStatus": 200,
+      "httpDate": "Tue, 20 Oct 2026 02:41:17 GMT",
+      "resolvedUrl": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "rawSha256": "235d689e9552b897aca55282b66de0de9d82fe03a7122ba464f33db93472cbc4",
+      "rawBytes": 1268,
+      "completeResponse": "var/qa/typed-stack-consumer-source-readback-20261020/card-name-09-complete-response-v1.json.gz",
+      "returnedRows": 1,
+      "reportedTotal": 1,
+      "completeReturnedPageCompared": true,
+      "searchName": "遗弃",
+      "everyReturnedRowComparedToOriginal1504": [
+        {
+          "apiId": 34674,
+          "cardNo": "UNL-131/219",
+          "entireRowMatchesOriginal": true,
+          "fullRowSha256": "00b6f0d082f785a53b253d6d5d397263982bf9dfce87e409d27ad0309173476f"
+        }
+      ],
+      "exactDistinctPrintingTargets": [
+        {
+          "apiId": 34674,
+          "retainedPrintingIdentity": "UNL-131/219",
+          "exactParentIds": [
+            "CARD:UNL-131/219"
+          ],
+          "returned": true,
+          "rawCardNo": "UNL-131/219",
+          "exactSameRawOriginalRow": true,
+          "fullRowSha256": "00b6f0d082f785a53b253d6d5d397263982bf9dfce87e409d27ad0309173476f",
+          "wholePrintingSemanticCertification": false
+        }
+      ],
+      "status": "ACQUIRED_COMPLETE_RESPONSE_AND_EXACT_IDENTITY_COMPARISON",
+      "receivedAtUtc": "2026-10-20T02:41:17.084261+00:00"
+    },
+    {
+      "label": "card-name-10",
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "夜阑谣",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "requestedAtUtc": "2026-10-20T02:41:16.986919+00:00",
+      "region": "CN",
+      "language": "zh-CN",
+      "singlePrintingPublicationDate": null,
+      "singlePrintingEffectiveDate": null,
+      "httpStatus": 200,
+      "httpDate": "Tue, 20 Oct 2026 02:41:17 GMT",
+      "resolvedUrl": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "rawSha256": "406b2d2a78de85a04a00121d2ddec44942e1ee07d125d82c09af22d691325250",
+      "rawBytes": 1233,
+      "completeResponse": "var/qa/typed-stack-consumer-source-readback-20261020/card-name-10-complete-response-v1.json.gz",
+      "returnedRows": 1,
+      "reportedTotal": 1,
+      "completeReturnedPageCompared": true,
+      "searchName": "夜阑谣",
+      "everyReturnedRowComparedToOriginal1504": [
+        {
+          "apiId": 34743,
+          "cardNo": "UNL-190/219",
+          "entireRowMatchesOriginal": true,
+          "fullRowSha256": "ce444f8766b0c61f658b1987a251f69fdd8d024c539ac02642058ca757a86529"
+        }
+      ],
+      "exactDistinctPrintingTargets": [
+        {
+          "apiId": 34743,
+          "retainedPrintingIdentity": "UNL-190/219",
+          "exactParentIds": [
+            "CARD:UNL-190/219"
+          ],
+          "returned": true,
+          "rawCardNo": "UNL-190/219",
+          "exactSameRawOriginalRow": true,
+          "fullRowSha256": "ce444f8766b0c61f658b1987a251f69fdd8d024c539ac02642058ca757a86529",
+          "wholePrintingSemanticCertification": false
+        }
+      ],
+      "status": "ACQUIRED_COMPLETE_RESPONSE_AND_EXACT_IDENTITY_COMPARISON",
+      "receivedAtUtc": "2026-10-20T02:41:17.103051+00:00"
+    },
+    {
+      "label": "card-name-11",
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "暴怒箴言",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "requestedAtUtc": "2026-10-20T02:41:16.991202+00:00",
+      "region": "CN",
+      "language": "zh-CN",
+      "singlePrintingPublicationDate": null,
+      "singlePrintingEffectiveDate": null,
+      "httpStatus": 200,
+      "httpDate": "Tue, 20 Oct 2026 02:41:17 GMT",
+      "resolvedUrl": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "rawSha256": "e2b1a92d4d64c308296c8a2ed8023e4f62fa7e9b09c2e80e23ad9d9486361552",
+      "rawBytes": 1195,
+      "completeResponse": "var/qa/typed-stack-consumer-source-readback-20261020/card-name-11-complete-response-v1.json.gz",
+      "returnedRows": 1,
+      "reportedTotal": 1,
+      "completeReturnedPageCompared": true,
+      "searchName": "暴怒箴言",
+      "everyReturnedRowComparedToOriginal1504": [
+        {
+          "apiId": 37700,
+          "cardNo": "VEN·015",
+          "entireRowMatchesOriginal": true,
+          "fullRowSha256": "066b8048cfe1c40543e1d3515db4fdd0613d04c478875555c405d3ed07499731"
+        }
+      ],
+      "exactDistinctPrintingTargets": [
+        {
+          "apiId": 37700,
+          "retainedPrintingIdentity": "VEN-015",
+          "exactParentIds": [
+            "CARD:VEN-015"
+          ],
+          "returned": true,
+          "rawCardNo": "VEN·015",
+          "exactSameRawOriginalRow": true,
+          "fullRowSha256": "066b8048cfe1c40543e1d3515db4fdd0613d04c478875555c405d3ed07499731",
+          "wholePrintingSemanticCertification": false
+        }
+      ],
+      "status": "ACQUIRED_COMPLETE_RESPONSE_AND_EXACT_IDENTITY_COMPARISON",
+      "receivedAtUtc": "2026-10-20T02:41:17.099219+00:00"
+    },
+    {
+      "label": "card-name-12",
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "崩解之沙",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "requestedAtUtc": "2026-10-20T02:41:17.084432+00:00",
+      "region": "CN",
+      "language": "zh-CN",
+      "singlePrintingPublicationDate": null,
+      "singlePrintingEffectiveDate": null,
+      "httpStatus": 200,
+      "httpDate": "Tue, 20 Oct 2026 02:41:17 GMT",
+      "resolvedUrl": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "rawSha256": "87adb705e18106cf181b17ca187063a2b20b694f859d5250012d9cdf1c06563a",
+      "rawBytes": 1201,
+      "completeResponse": "var/qa/typed-stack-consumer-source-readback-20261020/card-name-12-complete-response-v1.json.gz",
+      "returnedRows": 1,
+      "reportedTotal": 1,
+      "completeReturnedPageCompared": true,
+      "searchName": "崩解之沙",
+      "everyReturnedRowComparedToOriginal1504": [
+        {
+          "apiId": 37728,
+          "cardNo": "VEN·039",
+          "entireRowMatchesOriginal": true,
+          "fullRowSha256": "073428f2e3ee8ee7f244fe8148797b47587dd1cfad5f7f34c188d64c20d6998a"
+        }
+      ],
+      "exactDistinctPrintingTargets": [
+        {
+          "apiId": 37728,
+          "retainedPrintingIdentity": "VEN-039",
+          "exactParentIds": [
+            "CARD:VEN-039"
+          ],
+          "returned": true,
+          "rawCardNo": "VEN·039",
+          "exactSameRawOriginalRow": true,
+          "fullRowSha256": "073428f2e3ee8ee7f244fe8148797b47587dd1cfad5f7f34c188d64c20d6998a",
+          "wholePrintingSemanticCertification": false
+        }
+      ],
+      "status": "ACQUIRED_COMPLETE_RESPONSE_AND_EXACT_IDENTITY_COMPARISON",
+      "receivedAtUtc": "2026-10-20T02:41:17.205854+00:00"
+    },
+    {
+      "label": "card-name-13",
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "梅尔",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "requestedAtUtc": "2026-10-20T02:41:17.087801+00:00",
+      "region": "CN",
+      "language": "zh-CN",
+      "singlePrintingPublicationDate": null,
+      "singlePrintingEffectiveDate": null,
+      "httpStatus": 200,
+      "httpDate": "Tue, 20 Oct 2026 02:41:17 GMT",
+      "resolvedUrl": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "rawSha256": "93cbc6cf42f84ae3b191ca5f46dbf9b12d473a60638c6a5eb914eec0a4084ddf",
+      "rawBytes": 10630,
+      "completeResponse": "var/qa/typed-stack-consumer-source-readback-20261020/card-name-13-complete-response-v1.json.gz",
+      "returnedRows": 10,
+      "reportedTotal": 10,
+      "completeReturnedPageCompared": true,
+      "searchName": "梅尔",
+      "everyReturnedRowComparedToOriginal1504": [
+        {
+          "apiId": 37762,
+          "cardNo": "VEN·069",
+          "entireRowMatchesOriginal": true,
+          "fullRowSha256": "0d7c64df791a860e477f4144ea2d85c98142b808d58ac517abfc763e3c99eea4"
+        },
+        {
+          "apiId": 37763,
+          "cardNo": "VEN·069a",
+          "entireRowMatchesOriginal": true,
+          "fullRowSha256": "bcf7f858f8ac07aaa645358992bf06845eabf403ad9ee6c9ec6a52f52c2c818f"
+        },
+        {
+          "apiId": 37807,
+          "cardNo": "VEN·110",
+          "entireRowMatchesOriginal": true,
+          "fullRowSha256": "2a0f83a56d5fdcf4e3253da4c7e6fdfa2dd907a5565ae667a3a5e622c737851c"
+        },
+        {
+          "apiId": 37808,
+          "cardNo": "VEN·110a",
+          "entireRowMatchesOriginal": true,
+          "fullRowSha256": "0c741e3aa3670ae0569709e89f964f089a674715fa69075db7b96ec9e1bec97e"
+        },
+        {
+          "apiId": 37854,
+          "cardNo": "VEN·151",
+          "entireRowMatchesOriginal": true,
+          "fullRowSha256": "6eef95279e91d50c7d64e45162b0a7d8eb8e87b01a2a97265d4a4f2733a9d7c8"
+        },
+        {
+          "apiId": 37855,
+          "cardNo": "VEN·152",
+          "entireRowMatchesOriginal": true,
+          "fullRowSha256": "43ef80d968d667e857016925329530e042062d04941e1bb07937223585c2fb1d"
+        },
+        {
+          "apiId": 37891,
+          "cardNo": "VEN·188",
+          "entireRowMatchesOriginal": true,
+          "fullRowSha256": "5f5dd4fe1d77667fc9081d66b06f186f1a83ab97672d8fdd8475ab8ea70485e7"
+        },
+        {
+          "apiId": 37905,
+          "cardNo": "VEN·195*",
+          "entireRowMatchesOriginal": true,
+          "fullRowSha256": "e3bf21e416d4cd5d23a170d7fcf5f1e0ce2d2db2060f05bd5850a4a802d093d8"
+        },
+        {
+          "apiId": 37942,
+          "cardNo": "VEN·195",
+          "entireRowMatchesOriginal": true,
+          "fullRowSha256": "af7f60ad75a55959c9b415e20bce68ea8bc45e85b9d208af125d33dafcb253ae"
+        },
+        {
+          "apiId": 38298,
+          "cardNo": "VEN·069b",
+          "entireRowMatchesOriginal": true,
+          "fullRowSha256": "2eb2ab5ca38de1ce453b2d33def695f26a5f7eb48cbc627a71777e391ed2c5ce"
+        }
+      ],
+      "exactDistinctPrintingTargets": [
+        {
+          "apiId": 37762,
+          "retainedPrintingIdentity": "VEN-069",
+          "exactParentIds": [
+            "CARD:VEN-069"
+          ],
+          "returned": true,
+          "rawCardNo": "VEN·069",
+          "exactSameRawOriginalRow": true,
+          "fullRowSha256": "0d7c64df791a860e477f4144ea2d85c98142b808d58ac517abfc763e3c99eea4",
+          "wholePrintingSemanticCertification": false
+        },
+        {
+          "apiId": 37763,
+          "retainedPrintingIdentity": "VEN-069A",
+          "exactParentIds": [
+            "CARD:VEN-069A"
+          ],
+          "returned": true,
+          "rawCardNo": "VEN·069a",
+          "exactSameRawOriginalRow": true,
+          "fullRowSha256": "bcf7f858f8ac07aaa645358992bf06845eabf403ad9ee6c9ec6a52f52c2c818f",
+          "wholePrintingSemanticCertification": false
+        },
+        {
+          "apiId": 38298,
+          "retainedPrintingIdentity": "VEN-069B",
+          "exactParentIds": [
+            "CARD:VEN-069B"
+          ],
+          "returned": true,
+          "rawCardNo": "VEN·069b",
+          "exactSameRawOriginalRow": true,
+          "fullRowSha256": "2eb2ab5ca38de1ce453b2d33def695f26a5f7eb48cbc627a71777e391ed2c5ce",
+          "wholePrintingSemanticCertification": false
+        }
+      ],
+      "status": "ACQUIRED_COMPLETE_RESPONSE_AND_EXACT_IDENTITY_COMPARISON",
+      "receivedAtUtc": "2026-10-20T02:41:17.202929+00:00"
+    },
+    {
+      "label": "card-name-14",
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "灵魂折镜",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "requestedAtUtc": "2026-10-20T02:41:17.099426+00:00",
+      "region": "CN",
+      "language": "zh-CN",
+      "singlePrintingPublicationDate": null,
+      "singlePrintingEffectiveDate": null,
+      "httpStatus": 200,
+      "httpDate": "Tue, 20 Oct 2026 02:41:17 GMT",
+      "resolvedUrl": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "rawSha256": "1f52a926815d7119a77eef25b1a4b01f5529459d1a1250304e9e2e3f812381ae",
+      "rawBytes": 1336,
+      "completeResponse": "var/qa/typed-stack-consumer-source-readback-20261020/card-name-14-complete-response-v1.json.gz",
+      "returnedRows": 1,
+      "reportedTotal": 1,
+      "completeReturnedPageCompared": true,
+      "searchName": "灵魂折镜",
+      "everyReturnedRowComparedToOriginal1504": [
+        {
+          "apiId": 37855,
+          "cardNo": "VEN·152",
+          "entireRowMatchesOriginal": true,
+          "fullRowSha256": "43ef80d968d667e857016925329530e042062d04941e1bb07937223585c2fb1d"
+        }
+      ],
+      "exactDistinctPrintingTargets": [
+        {
+          "apiId": 37855,
+          "retainedPrintingIdentity": "VEN-152",
+          "exactParentIds": [
+            "CARD:VEN-152"
+          ],
+          "returned": true,
+          "rawCardNo": "VEN·152",
+          "exactSameRawOriginalRow": true,
+          "fullRowSha256": "43ef80d968d667e857016925329530e042062d04941e1bb07937223585c2fb1d",
+          "wholePrintingSemanticCertification": false
+        }
+      ],
+      "status": "ACQUIRED_COMPLETE_RESPONSE_AND_EXACT_IDENTITY_COMPARISON",
+      "receivedAtUtc": "2026-10-20T02:41:17.215037+00:00"
+    },
+    {
+      "label": "card-name-15",
+      "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100,
+        "searchContent": "缄默术",
+        "cardCategoryList": [],
+        "cardColorList": [],
+        "rarityList": [],
+        "productCodeList": []
+      },
+      "requestedAtUtc": "2026-10-20T02:41:17.103205+00:00",
+      "region": "CN",
+      "language": "zh-CN",
+      "singlePrintingPublicationDate": null,
+      "singlePrintingEffectiveDate": null,
+      "httpStatus": 200,
+      "httpDate": "Tue, 20 Oct 2026 02:41:17 GMT",
+      "resolvedUrl": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "rawSha256": "d6c8d9691f7f760318bd4d03b7b592315fa1bfe5f47bc4fee3c4e9f4f5bfafcf",
+      "rawBytes": 1187,
+      "completeResponse": "var/qa/typed-stack-consumer-source-readback-20261020/card-name-15-complete-response-v1.json.gz",
+      "returnedRows": 1,
+      "reportedTotal": 1,
+      "completeReturnedPageCompared": true,
+      "searchName": "缄默术",
+      "everyReturnedRowComparedToOriginal1504": [
+        {
+          "apiId": 40110,
+          "cardNo": "RAD·041/167",
+          "entireRowMatchesOriginal": false,
+          "fullRowSha256": "2a828b85d41e3c08dc43fc9ce16ade3b721cb3c80fd85c7bdf5f1d461dc6933c"
+        }
+      ],
+      "exactDistinctPrintingTargets": [
+        {
+          "apiId": 39534,
+          "retainedPrintingIdentity": "RAD-041/167",
+          "exactParentIds": [
+            "CARD:RAD-041/167"
+          ],
+          "returned": false,
+          "rawCardNo": null,
+          "exactSameRawOriginalRow": false,
+          "fullRowSha256": null,
+          "wholePrintingSemanticCertification": false
+        }
+      ],
+      "status": "ACQUIRED_COMPLETE_RESPONSE_AND_EXACT_IDENTITY_COMPARISON",
+      "receivedAtUtc": "2026-10-20T02:41:17.215126+00:00"
+    },
+    {
+      "label": "core",
+      "url": "https://cdn.playloltcg.com/lol/2026/10/2026-10-10/a21ead876c6b44d6abe386b6ae54ea28.pdf",
+      "request": null,
+      "requestedAtUtc": "2026-10-20T02:41:17.203404+00:00",
+      "region": "CN",
+      "language": "zh-CN",
+      "singlePrintingPublicationDate": null,
+      "singlePrintingEffectiveDate": null,
+      "httpStatus": 200,
+      "httpDate": "Sat, 10 Oct 2026 00:46:49 GMT",
+      "resolvedUrl": "https://cdn.playloltcg.com/lol/2026/10/2026-10-10/a21ead876c6b44d6abe386b6ae54ea28.pdf",
+      "rawSha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11",
+      "rawBytes": 40278538,
+      "retainedCanonical": "var/qa/colorless-token-haste-20261016/DOC-01-current.pdf",
+      "exactSameBytesAsRetainedCanonical": true,
+      "unchangedDuplicatePdfNotRetained": true,
+      "status": "ACQUIRED_COMPLETE_RESPONSE_AND_EXACT_IDENTITY_COMPARISON",
+      "receivedAtUtc": "2026-10-20T02:41:33.039654+00:00"
+    },
+    {
+      "label": "faq",
+      "url": "https://cdn.playloltcg.com/lol/2026/08/2026-08-13/612b1cd53f9f41baaf3c8734c1881a3b.pdf",
+      "request": null,
+      "requestedAtUtc": "2026-10-20T02:41:17.205987+00:00",
+      "region": "CN",
+      "language": "zh-CN",
+      "singlePrintingPublicationDate": null,
+      "singlePrintingEffectiveDate": null,
+      "httpStatus": 200,
+      "httpDate": "Thu, 13 Aug 2026 11:45:53 GMT",
+      "resolvedUrl": "https://cdn.playloltcg.com/lol/2026/08/2026-08-13/612b1cd53f9f41baaf3c8734c1881a3b.pdf",
+      "rawSha256": "59bd828207564540aa3c9885f9dfc39764034f633eb6fb84d49440c9edef4742",
+      "rawBytes": 12449344,
+      "retainedCanonical": "var/qa/porobot-20261015/resume-DOC-06.pdf",
+      "exactSameBytesAsRetainedCanonical": true,
+      "unchangedDuplicatePdfNotRetained": true,
+      "status": "ACQUIRED_COMPLETE_RESPONSE_AND_EXACT_IDENTITY_COMPARISON",
+      "receivedAtUtc": "2026-10-20T02:41:24.688707+00:00"
+    }
+  ],
+  "allOriginalParentIdsAndRawIdentitiesPreserved": true,
+  "futureOrNonRuntimeEntriesRequireIndependentApplicabilityDisposition": true,
+  "newSourceVersionNeverSilentlyAdopted": true,
+  "noSourceTestsOrRuntimeOrOriginalHistoryMutation": true,
+  "entireCardOrRuleFamilyCertified": false
+}

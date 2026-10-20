@@ -1,0 +1,20 @@
+{
+  "label": "core",
+  "url": "https://cdn.playloltcg.com/lol/2026/10/2026-10-10/a21ead876c6b44d6abe386b6ae54ea28.pdf",
+  "request": null,
+  "requestedAtUtc": "2026-10-20T02:41:17.203404+00:00",
+  "region": "CN",
+  "language": "zh-CN",
+  "singlePrintingPublicationDate": null,
+  "singlePrintingEffectiveDate": null,
+  "httpStatus": 200,
+  "httpDate": "Sat, 10 Oct 2026 00:46:49 GMT",
+  "resolvedUrl": "https://cdn.playloltcg.com/lol/2026/10/2026-10-10/a21ead876c6b44d6abe386b6ae54ea28.pdf",
+  "rawSha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11",
+  "rawBytes": 40278538,
+  "retainedCanonical": "var/qa/colorless-token-haste-20261016/DOC-01-current.pdf",
+  "exactSameBytesAsRetainedCanonical": true,
+  "unchangedDuplicatePdfNotRetained": true,
+  "status": "ACQUIRED_COMPLETE_RESPONSE_AND_EXACT_IDENTITY_COMPARISON",
+  "receivedAtUtc": "2026-10-20T02:41:33.039654+00:00"
+}

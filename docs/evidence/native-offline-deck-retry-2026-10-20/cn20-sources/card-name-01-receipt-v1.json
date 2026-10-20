@@ -1,0 +1,52 @@
+{
+  "label": "card-name-01",
+  "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+  "request": {
+    "pageNum": 1,
+    "pageSize": 100,
+    "searchContent": "蔑视",
+    "cardCategoryList": [],
+    "cardColorList": [],
+    "rarityList": [],
+    "productCodeList": []
+  },
+  "requestedAtUtc": "2026-10-20T02:41:16.653731+00:00",
+  "region": "CN",
+  "language": "zh-CN",
+  "singlePrintingPublicationDate": null,
+  "singlePrintingEffectiveDate": null,
+  "httpStatus": 200,
+  "httpDate": "Tue, 20 Oct 2026 02:41:16 GMT",
+  "resolvedUrl": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+  "rawSha256": "d74ddee46fba214d9ea6b129ed097715de238fa6efa5b5d4dfe150e24364ddff",
+  "rawBytes": 1162,
+  "completeResponse": "var/qa/typed-stack-consumer-source-readback-20261020/card-name-01-complete-response-v1.json.gz",
+  "returnedRows": 1,
+  "reportedTotal": 1,
+  "completeReturnedPageCompared": true,
+  "searchName": "蔑视",
+  "everyReturnedRowComparedToOriginal1504": [
+    {
+      "apiId": 31257,
+      "cardNo": "OGN·045/298",
+      "entireRowMatchesOriginal": true,
+      "fullRowSha256": "92afaf781e5c258fc1e19058935f52320346b14c856bdbba453a349eb60f5e22"
+    }
+  ],
+  "exactDistinctPrintingTargets": [
+    {
+      "apiId": 31257,
+      "retainedPrintingIdentity": "OGN-045/298",
+      "exactParentIds": [
+        "CARD:OGN-045/298"
+      ],
+      "returned": true,
+      "rawCardNo": "OGN·045/298",
+      "exactSameRawOriginalRow": true,
+      "fullRowSha256": "92afaf781e5c258fc1e19058935f52320346b14c856bdbba453a349eb60f5e22",
+      "wholePrintingSemanticCertification": false
+    }
+  ],
+  "status": "ACQUIRED_COMPLETE_RESPONSE_AND_EXACT_IDENTITY_COMPARISON",
+  "receivedAtUtc": "2026-10-20T02:41:16.868699+00:00"
+}

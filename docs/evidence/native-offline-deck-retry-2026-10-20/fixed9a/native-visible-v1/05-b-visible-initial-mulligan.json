@@ -1,0 +1,8 @@
+{
+  "observedAtUtc": "2026-10-20T01:57:40.514Z",
+  "fixedCommit": "9a57068e986850a5e86bbeb9d0bbb2a92f44b7b4",
+  "backendRuleInputIdentity": "10ab1c62f40e746464e28cd54919021f8311eb1e15d0aab9506dcb9314e5139e",
+  "source": "cua real native screenshot",
+  "screenshotSha256": "64d15df0e11ce0e3b9bd498592c745bf8ae87ccf05da4d13673bdad93c92ec83",
+  "scope": "Original B after both actual deck submissions and READY; first visible mulligan; offline-start catalog defect remains open despite client restart workaround."
+}

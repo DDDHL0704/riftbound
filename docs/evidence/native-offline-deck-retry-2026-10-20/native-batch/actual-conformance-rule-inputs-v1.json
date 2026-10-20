@@ -1,0 +1,26 @@
+{
+  "status": "PASS_ACTUAL_CHECK_RUNTIME_RULE_IDENTITY_READ_FROM_EXACT_FROZEN_CORE_FILES",
+  "observedAtUtc": "2026-10-20T03:04:30.521836+00:00",
+  "baseCommit": "9a57068e986850a5e86bbeb9d0bbb2a92f44b7b4",
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+    "implementationSha256": "c63ae717fad6369c7cb7b7d08346e1215fcbe4f2b41285fb6125e2fbce72f193",
+    "identitySha256": "a53b5c192638fa08996f7603554ce23a3c9d1e18a6081f21c0d2c406b01d7bc6"
+  },
+  "fiveModulesExactlyMatchActiveConformanceRuntime": {
+    "Riftbound.Engine.dll": "fb567f1f9f70bdffc7e48105d4dbe8d373bfd3f940fc7dea669a26dc482e172c",
+    "Riftbound.Contracts.dll": "38d3c20cdb79f78fc5cfc121d75aa89b358411d526c6f6cf9a1c3f104fe42380",
+    "Riftbound.CardCatalog.dll": "6a72a2f99ace090a866f43ef03ae53d08dce40db241dd27eccf51f5874b01d83",
+    "Riftbound.Persistence.dll": "0355d295a07d48beebda368216207c5e9c5dbdded7ddf17c137fd304a748b09e",
+    "Npgsql.dll": "9d8db086e9eda5ff20c4a7f83fa3eae7689198f57277ff9ceea1ee3526f5fcf8"
+  },
+  "knownReaderHostSource": "../graveyard-source-fixed-candidate-20261020/native-frame-reader/Program.cs",
+  "readerHostSha256": "3e076b0e2415cda7eab7b2e953d3c3d34d92d6e2e0830908c392e0ee54f01641",
+  "noProjectBuildDatabaseOrGameplayPerformed": true,
+  "allActiveCheck3303SourceAndRuntimeFilesUnchanged": true,
+  "separateFromFixedNineAMacReleaseAndLinuxCiIdentities": true
+}

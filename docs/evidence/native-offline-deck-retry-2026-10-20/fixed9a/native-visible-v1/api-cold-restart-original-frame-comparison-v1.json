@@ -1,0 +1,24 @@
+{
+  "atUtc": "2026-10-20T02:04:32.440021+00:00",
+  "status": "PASS_ORIGINAL_NATIVE_FRAME_ALL_FIELDS_PRIVATE_VIEWS_AND_REPLAY_EXACT_ACROSS_OWN_API_COLD_RESTART",
+  "originalApiPid": 24714,
+  "newApiPid": 40394,
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+    "implementationSha256": "6fc6766353379fd13d4a60356accd26dde58d85a319c5717b4b48069dfac15be",
+    "identitySha256": "10ab1c62f40e746464e28cd54919021f8311eb1e15d0aab9506dcb9314e5139e"
+  },
+  "originalCommands": 6,
+  "originalEvents": 18,
+  "originalCurrentTick": 5,
+  "entireOriginalBeforeAfterFrameDictExact": true,
+  "beforeFrameSha256": "b470a619610905423440ae3fb17737b80858d1b6ec1916fa53445a0ae25a383a",
+  "afterFrameSha256": "b470a619610905423440ae3fb17737b80858d1b6ec1916fa53445a0ae25a383a",
+  "bothFullOriginalReplaysPassed": true,
+  "originalPrivateSeedNeverReplacedOrPrinted": true,
+  "noGameplayInputDuringApiRestart": true
+}
