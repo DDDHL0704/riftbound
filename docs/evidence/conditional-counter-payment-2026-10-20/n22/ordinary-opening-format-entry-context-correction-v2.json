@@ -1,0 +1,21 @@
+{
+  "atUtc": "2026-10-20T05:02:15.821092+00:00",
+  "retainedEarlierMisattribution": {
+    "path": "ordinary-opening-default-vex-format-failure-disposition-v1.json",
+    "sha256": "54812c51c1ce244fc2019d8b4b7c24f6cad275af8e34281ba11c1c1392e4ae34"
+  },
+  "correction": "The explorer called Build(catalog), which defaults to CoreRules. Its validation against ChinaStandard correctly failed. This did not establish an invalid production Vex deck. The actual API explicitly passes ChinaStandard20260724, and the builder first filters the catalog by that named format.",
+  "actualApiSource": "src/Riftbound.Api/Program.cs",
+  "actualApiSourceSha256": "8852e932a137dd4acbd846e4b83222e1044996e6ce46a4a15012251c15c72303",
+  "builderSource": "src/Riftbound.Engine/PreconstructedDeckCatalog.cs",
+  "builderSourceSha256": "fe8529ad546fff0f9979b1fdba9f956aee93d37b63e876fdcea3bd8a23b337f0",
+  "existingActualApiJhinAndVexBattlefields": [
+    "OGN·275/298",
+    "OGN·277/298",
+    "OGN·278/298"
+  ],
+  "newExplorationCorrection": "Build the prospective new test decks through the same explicit ChinaStandard20260724 entry, then independently validate both formats; no manual battlefield substitution is needed.",
+  "noProductDefectOrNewObligationInferredFromExplorerInputMismatch": true,
+  "noAcceptedGameplayCommandsOrHistoryBeforeFailure": true,
+  "v3ManualBattlefieldEditWasNeverExecuted": true
+}

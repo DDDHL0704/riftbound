@@ -1,0 +1,32 @@
+{
+  "atUtc": "2026-10-20T05:06:30.157768+00:00",
+  "parentFixedCommit": "48e7ff8702dc43a1b5a3991365d87068506ae137",
+  "actualUncommittedConditionalCounterModules": {
+    "Riftbound.Engine.dll": "653ba2efd6dad59f5489ea7b8e48053ff494b3b1b682156ecd52641399b00f30",
+    "Riftbound.Contracts.dll": "1304a12fe94eb97e62bd74a21a3f0c3935bce85a38dbbafa48f94c3307b0b133",
+    "Riftbound.CardCatalog.dll": "da4c092a39f0c7b9176b65db5b04bef51500418023cb32480b3c719690de8f6b"
+  },
+  "sourceHashes": {
+    "probe.csproj": "29bc76563834cad703bd551c2dcfc810f5b68788ff58b48b17c76a787a1c2617",
+    "Program.cs": "a4ce15146d78d21c60abf02f4dde4bc5e73276c1a13f2bbcff284a3e082e498a"
+  },
+  "runtimeHashes": {
+    "probe.pdb": "f0039ca338c33a14fe140392749765505d99e4c99f48837fc1c80c0f8b3eaff8",
+    "Riftbound.CardCatalog.dll": "da4c092a39f0c7b9176b65db5b04bef51500418023cb32480b3c719690de8f6b",
+    "Riftbound.Contracts.pdb": "993b08379b090843c189329dfc1baceb708271820d468296a6a673c3e098fe26",
+    "Riftbound.Engine.pdb": "3c99634b0ec66210bd0a5c43db09f357fb08a999d9180c607b9d9da7ff462647",
+    "probe.runtimeconfig.json": "f8bd1713a3691d58eb332a71675f129385b91e852b66e7b6761cae1f34d4efd2",
+    "Riftbound.CardCatalog.pdb": "de6ee825fa4cfb1cbc4bcf388d4d6462943313d09db64496941b4934abeb1cf1",
+    "probe.dll": "2fcc4fc51f9115925eb1fa2d112e03eb115d1908538db9100c7b647b71d88887",
+    "probe.deps.json": "0f11ea5722433b63f2f140999eed5081b412c16eff52cddd35c61d4777f60386",
+    "Riftbound.Contracts.dll": "1304a12fe94eb97e62bd74a21a3f0c3935bce85a38dbbafa48f94c3307b0b133",
+    "Riftbound.Engine.dll": "653ba2efd6dad59f5489ea7b8e48053ff494b3b1b682156ecd52641399b00f30",
+    "probe": "7b599981d9e582803ebd3ee529192ba25055985dae087dd75377fc00201608bc",
+    "data/official/rule-input-scope.json": "cc07cf3eef6a9af403454642a0435d061544400b5e01d08d3fdc65869bdad180",
+    "data/official/armaments.json": "ddcd838300e558c11df480ee79ccfab08c7af380df36544c666841720850bda8",
+    "data/official/card-catalog.zh-CN.json": "d521d7346392f2ea947c73c437c140d7bfe13a90cbca8642f7ae135b7b11f479"
+  },
+  "retainedOriginalFailedPrefix": "ordinary-opening-exploration-original-journal-v1.ndjson.gz",
+  "newExplorationStem": "v3",
+  "nativeApiAndDatabaseNotStarted": true
+}

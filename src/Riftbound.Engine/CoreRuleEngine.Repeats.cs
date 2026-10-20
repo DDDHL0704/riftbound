@@ -69,6 +69,7 @@ public sealed partial class CoreRuleEngine
             // Other counters still need their follow-up choices, restrictions,
             // ability targets or optional payments checked before charging Echo.
             && (!behavior.CountersTargetStackSpell || SupportsTargetedInsightRepeat(behavior)
+                || behavior.CounterUnlessControllerPaysMana > 0
                 || behavior.EffectKind is "WIND_WALL_COUNTER_SPELL" or "NIGHTFALL_LULLABY_COUNTER_SPELL_AND_SPELL_LOCK");
 
     private static StackResolutionResult ResolveSeparateSpellExecutions(MatchState state, StackItemState original)

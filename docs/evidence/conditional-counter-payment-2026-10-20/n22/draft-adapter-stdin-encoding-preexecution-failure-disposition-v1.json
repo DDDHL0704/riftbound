@@ -1,0 +1,8 @@
+{
+  "atUtc": "2026-10-20T06:52:41.050253+00:00",
+  "status": "DRAFT_ADAPTER_STDIN_PARSE_FAILURE_NO_SCRIPT_BODY_EXECUTED",
+  "error": "SyntaxError: Non-UTF-8 code starting with byte0xe5 in stdin line12",
+  "productionOrOriginalEvidenceMutatedByFailedInvocation": false,
+  "correction": "UTF8 draft files created through apply_patch; metadata helper uses ASCII source.",
+  "rootDocumentsNotPublishedAtThisPoint": true
+}

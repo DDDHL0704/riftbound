@@ -1,0 +1,6 @@
+{
+  "source": "var/qa/graveyard-source-fixed-candidate-20261020/download-fixed-native-v1.py",
+  "sourceSha256": "613da56ffb4ad4a243acfc5370f7ff4cdebff1767a36a7a2020732989f84fa6b",
+  "derivedSha256": "d41068bf97be7d8bebe3c49900a35ed00c13967ecd7a2474c5599ddbed144c63",
+  "changes": "Exact new commit/run/index path and old pair designation only; same digest/size/CRC verification"
+}

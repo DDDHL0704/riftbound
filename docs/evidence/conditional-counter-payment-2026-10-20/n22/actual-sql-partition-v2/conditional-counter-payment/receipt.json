@@ -1,0 +1,302 @@
+{
+  "status": "REAL_POSTGRES_ORIGINAL_CONDITIONAL_COUNTER_EIGHT_BRANCHES_COLD_REPLAY_PASS",
+  "regionalTournamentEligibilityCertified": false,
+  "results": [
+    {
+      "room": "postgres-conditional-counter-d7926a0b45ab4a83bf01853b5c17e323",
+      "format": "CoreRules",
+      "profile": "BASE_PAY",
+      "commands": 40,
+      "events": 164,
+      "coldRestores": 6,
+      "originalNextCommandsMatched": 5,
+      "atomicRejections": 4,
+      "originalOpeningCommands": 32,
+      "originalBlankSeed": 0,
+      "sourceCardNo": "SFD\u00B7136/221",
+      "targetCardNo": "UNL-061/219",
+      "sourceObjectId": "P2-MAIN-SFD-136-221-01",
+      "targetStackItemIds": [
+        "STACK-25-P1-MAIN-UNL-061-219-01",
+        "STACK-26-P1-MAIN-UNL-061-219-03"
+      ],
+      "targetSourceObjectIds": [
+        "P1-MAIN-UNL-061-219-01",
+        "P1-MAIN-UNL-061-219-03"
+      ],
+      "actualRuleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+        "implementationSha256": "71b556f147411b9397abde9719c67f69f18ef1c69984309cc5199acb9534d1e1",
+        "identitySha256": "19d849273fa6fde794cd61ed7de58abeed7de17e916bf72051741a245dc8ab05"
+      },
+      "originalFullReplayMatched": true,
+      "bothOriginalPrivateViewsAndPromptsExact": true,
+      "sevenOriginalTablesUnchangedByColdAndInvalidDirectIntents": true,
+      "noStateSeedOrAcceptedHistoryInjection": true,
+      "completeGameOrWholeCardCertification": false
+    },
+    {
+      "room": "postgres-conditional-counter-a10904926a7b48d19d023e682e0ebacf",
+      "format": "CoreRules",
+      "profile": "BASE_DECLINE",
+      "commands": 38,
+      "events": 160,
+      "coldRestores": 6,
+      "originalNextCommandsMatched": 5,
+      "atomicRejections": 4,
+      "originalOpeningCommands": 32,
+      "originalBlankSeed": 0,
+      "sourceCardNo": "SFD\u00B7136/221",
+      "targetCardNo": "UNL-061/219",
+      "sourceObjectId": "P2-MAIN-SFD-136-221-01",
+      "targetStackItemIds": [
+        "STACK-25-P1-MAIN-UNL-061-219-01",
+        "STACK-26-P1-MAIN-UNL-061-219-03"
+      ],
+      "targetSourceObjectIds": [
+        "P1-MAIN-UNL-061-219-01",
+        "P1-MAIN-UNL-061-219-03"
+      ],
+      "actualRuleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+        "implementationSha256": "71b556f147411b9397abde9719c67f69f18ef1c69984309cc5199acb9534d1e1",
+        "identitySha256": "19d849273fa6fde794cd61ed7de58abeed7de17e916bf72051741a245dc8ab05"
+      },
+      "originalFullReplayMatched": true,
+      "bothOriginalPrivateViewsAndPromptsExact": true,
+      "sevenOriginalTablesUnchangedByColdAndInvalidDirectIntents": true,
+      "noStateSeedOrAcceptedHistoryInjection": true,
+      "completeGameOrWholeCardCertification": false
+    },
+    {
+      "room": "postgres-conditional-counter-79660a8d94c2410bb7be765d3bc024ad",
+      "format": "CoreRules",
+      "profile": "ECHO_PAY_BOTH",
+      "commands": 41,
+      "events": 168,
+      "coldRestores": 8,
+      "originalNextCommandsMatched": 6,
+      "atomicRejections": 8,
+      "originalOpeningCommands": 32,
+      "originalBlankSeed": 0,
+      "sourceCardNo": "SFD\u00B7136/221",
+      "targetCardNo": "UNL-061/219",
+      "sourceObjectId": "P2-MAIN-SFD-136-221-01",
+      "targetStackItemIds": [
+        "STACK-25-P1-MAIN-UNL-061-219-01",
+        "STACK-26-P1-MAIN-UNL-061-219-03"
+      ],
+      "targetSourceObjectIds": [
+        "P1-MAIN-UNL-061-219-01",
+        "P1-MAIN-UNL-061-219-03"
+      ],
+      "actualRuleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+        "implementationSha256": "71b556f147411b9397abde9719c67f69f18ef1c69984309cc5199acb9534d1e1",
+        "identitySha256": "19d849273fa6fde794cd61ed7de58abeed7de17e916bf72051741a245dc8ab05"
+      },
+      "originalFullReplayMatched": true,
+      "bothOriginalPrivateViewsAndPromptsExact": true,
+      "sevenOriginalTablesUnchangedByColdAndInvalidDirectIntents": true,
+      "noStateSeedOrAcceptedHistoryInjection": true,
+      "completeGameOrWholeCardCertification": false
+    },
+    {
+      "room": "postgres-conditional-counter-6135d2dd910c4eb9a8f28062c7fe9485",
+      "format": "CoreRules",
+      "profile": "ECHO_PAY_THEN_DECLINE",
+      "commands": 39,
+      "events": 164,
+      "coldRestores": 8,
+      "originalNextCommandsMatched": 6,
+      "atomicRejections": 8,
+      "originalOpeningCommands": 32,
+      "originalBlankSeed": 0,
+      "sourceCardNo": "SFD\u00B7136/221",
+      "targetCardNo": "UNL-061/219",
+      "sourceObjectId": "P2-MAIN-SFD-136-221-01",
+      "targetStackItemIds": [
+        "STACK-25-P1-MAIN-UNL-061-219-01",
+        "STACK-26-P1-MAIN-UNL-061-219-03"
+      ],
+      "targetSourceObjectIds": [
+        "P1-MAIN-UNL-061-219-01",
+        "P1-MAIN-UNL-061-219-03"
+      ],
+      "actualRuleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+        "implementationSha256": "71b556f147411b9397abde9719c67f69f18ef1c69984309cc5199acb9534d1e1",
+        "identitySha256": "19d849273fa6fde794cd61ed7de58abeed7de17e916bf72051741a245dc8ab05"
+      },
+      "originalFullReplayMatched": true,
+      "bothOriginalPrivateViewsAndPromptsExact": true,
+      "sevenOriginalTablesUnchangedByColdAndInvalidDirectIntents": true,
+      "noStateSeedOrAcceptedHistoryInjection": true,
+      "completeGameOrWholeCardCertification": false
+    },
+    {
+      "room": "postgres-conditional-counter-9ad193a377184515ab397b47129055e8",
+      "format": "ChinaStandard20260724",
+      "profile": "BASE_PAY",
+      "commands": 40,
+      "events": 164,
+      "coldRestores": 6,
+      "originalNextCommandsMatched": 5,
+      "atomicRejections": 4,
+      "originalOpeningCommands": 32,
+      "originalBlankSeed": 0,
+      "sourceCardNo": "SFD\u00B7136/221",
+      "targetCardNo": "UNL-061/219",
+      "sourceObjectId": "P2-MAIN-SFD-136-221-01",
+      "targetStackItemIds": [
+        "STACK-25-P1-MAIN-UNL-061-219-01",
+        "STACK-26-P1-MAIN-UNL-061-219-03"
+      ],
+      "targetSourceObjectIds": [
+        "P1-MAIN-UNL-061-219-01",
+        "P1-MAIN-UNL-061-219-03"
+      ],
+      "actualRuleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+        "implementationSha256": "71b556f147411b9397abde9719c67f69f18ef1c69984309cc5199acb9534d1e1",
+        "identitySha256": "19d849273fa6fde794cd61ed7de58abeed7de17e916bf72051741a245dc8ab05"
+      },
+      "originalFullReplayMatched": true,
+      "bothOriginalPrivateViewsAndPromptsExact": true,
+      "sevenOriginalTablesUnchangedByColdAndInvalidDirectIntents": true,
+      "noStateSeedOrAcceptedHistoryInjection": true,
+      "completeGameOrWholeCardCertification": false
+    },
+    {
+      "room": "postgres-conditional-counter-0d331b25576a426994f6bfb7eedde1d4",
+      "format": "ChinaStandard20260724",
+      "profile": "BASE_DECLINE",
+      "commands": 38,
+      "events": 160,
+      "coldRestores": 6,
+      "originalNextCommandsMatched": 5,
+      "atomicRejections": 4,
+      "originalOpeningCommands": 32,
+      "originalBlankSeed": 0,
+      "sourceCardNo": "SFD\u00B7136/221",
+      "targetCardNo": "UNL-061/219",
+      "sourceObjectId": "P2-MAIN-SFD-136-221-01",
+      "targetStackItemIds": [
+        "STACK-25-P1-MAIN-UNL-061-219-01",
+        "STACK-26-P1-MAIN-UNL-061-219-03"
+      ],
+      "targetSourceObjectIds": [
+        "P1-MAIN-UNL-061-219-01",
+        "P1-MAIN-UNL-061-219-03"
+      ],
+      "actualRuleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+        "implementationSha256": "71b556f147411b9397abde9719c67f69f18ef1c69984309cc5199acb9534d1e1",
+        "identitySha256": "19d849273fa6fde794cd61ed7de58abeed7de17e916bf72051741a245dc8ab05"
+      },
+      "originalFullReplayMatched": true,
+      "bothOriginalPrivateViewsAndPromptsExact": true,
+      "sevenOriginalTablesUnchangedByColdAndInvalidDirectIntents": true,
+      "noStateSeedOrAcceptedHistoryInjection": true,
+      "completeGameOrWholeCardCertification": false
+    },
+    {
+      "room": "postgres-conditional-counter-05cf881b3ffd49b09e40429d6e6590ba",
+      "format": "ChinaStandard20260724",
+      "profile": "ECHO_PAY_BOTH",
+      "commands": 41,
+      "events": 168,
+      "coldRestores": 8,
+      "originalNextCommandsMatched": 6,
+      "atomicRejections": 8,
+      "originalOpeningCommands": 32,
+      "originalBlankSeed": 0,
+      "sourceCardNo": "SFD\u00B7136/221",
+      "targetCardNo": "UNL-061/219",
+      "sourceObjectId": "P2-MAIN-SFD-136-221-01",
+      "targetStackItemIds": [
+        "STACK-25-P1-MAIN-UNL-061-219-01",
+        "STACK-26-P1-MAIN-UNL-061-219-03"
+      ],
+      "targetSourceObjectIds": [
+        "P1-MAIN-UNL-061-219-01",
+        "P1-MAIN-UNL-061-219-03"
+      ],
+      "actualRuleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+        "implementationSha256": "71b556f147411b9397abde9719c67f69f18ef1c69984309cc5199acb9534d1e1",
+        "identitySha256": "19d849273fa6fde794cd61ed7de58abeed7de17e916bf72051741a245dc8ab05"
+      },
+      "originalFullReplayMatched": true,
+      "bothOriginalPrivateViewsAndPromptsExact": true,
+      "sevenOriginalTablesUnchangedByColdAndInvalidDirectIntents": true,
+      "noStateSeedOrAcceptedHistoryInjection": true,
+      "completeGameOrWholeCardCertification": false
+    },
+    {
+      "room": "postgres-conditional-counter-97f7c991fafb47139d662c7c3060b00a",
+      "format": "ChinaStandard20260724",
+      "profile": "ECHO_PAY_THEN_DECLINE",
+      "commands": 39,
+      "events": 164,
+      "coldRestores": 8,
+      "originalNextCommandsMatched": 6,
+      "atomicRejections": 8,
+      "originalOpeningCommands": 32,
+      "originalBlankSeed": 0,
+      "sourceCardNo": "SFD\u00B7136/221",
+      "targetCardNo": "UNL-061/219",
+      "sourceObjectId": "P2-MAIN-SFD-136-221-01",
+      "targetStackItemIds": [
+        "STACK-25-P1-MAIN-UNL-061-219-01",
+        "STACK-26-P1-MAIN-UNL-061-219-03"
+      ],
+      "targetSourceObjectIds": [
+        "P1-MAIN-UNL-061-219-01",
+        "P1-MAIN-UNL-061-219-03"
+      ],
+      "actualRuleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+        "implementationSha256": "71b556f147411b9397abde9719c67f69f18ef1c69984309cc5199acb9534d1e1",
+        "identitySha256": "19d849273fa6fde794cd61ed7de58abeed7de17e916bf72051741a245dc8ab05"
+      },
+      "originalFullReplayMatched": true,
+      "bothOriginalPrivateViewsAndPromptsExact": true,
+      "sevenOriginalTablesUnchangedByColdAndInvalidDirectIntents": true,
+      "noStateSeedOrAcceptedHistoryInjection": true,
+      "completeGameOrWholeCardCertification": false
+    }
+  ]
+}

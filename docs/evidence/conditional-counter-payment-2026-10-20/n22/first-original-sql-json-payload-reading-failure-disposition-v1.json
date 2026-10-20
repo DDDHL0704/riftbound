@@ -1,0 +1,37 @@
+{
+  "atUtc": "2026-10-20T05:27:30.803789+00:00",
+  "status": "ORIGINAL_SQL40_BEHAVIOR_AND_FULL_HISTORY_PASS_NEW_HELPER_JSON_REPRESENTATION_ASSERTION_CORRECTED",
+  "originalFailedWriter": "real-sql-verification-v1.json",
+  "originalFailureRemainsFailure": true,
+  "originalNewRoom": "postgres-conditional-counter-fcd39b0439a64d598dca8fe3a3993737",
+  "originalAcceptedCommands": 40,
+  "originalEvents": 164,
+  "actualHistoricalStates": 40,
+  "actualHistoricalPrivateSnapshots": 76,
+  "actualHistoricalPrompts": 76,
+  "originalFrameSha256": "35fac28629e6e9205166ce43d2b184f8481b8feeb67dece093a3b35c361a9bf7",
+  "independentReadback": "original-failed-sql-independent-readback-owner-v1.json",
+  "exactActualPaymentEvent": {
+    "sequence": 156,
+    "tick": 35,
+    "order": 2,
+    "event": {
+      "kind": "COST_PAID",
+      "description": "支付 2 法力，保留法术",
+      "payload": {
+        "mana": 2,
+        "power": 0,
+        "reason": "COUNTER_TARGET_MANA_PAYMENT",
+        "playerId": "P1",
+        "sourceObjectId": "P2-MAIN-SFD-136-221-01",
+        "targetStackItemId": "STACK-25-P1-MAIN-UNL-061-219-01"
+      },
+      "objectRefs": null
+    }
+  },
+  "cause": "PostgresMatchRecoveryStore deserializes payload object values as JsonElement. Equals(object,string) in the new SQL helper returned false even though the exact original JSON payment reason/cost was correct.",
+  "correction": "Only the new SQL helper reads textual event payloads through JsonSerializer.SerializeToElement and GetString; exact target, payment count and Echo execution assertions retained.",
+  "productionEngineContractsCatalogDataNotChangedByCorrection": true,
+  "old193Audit41NativeSevenTablesExactAndRetained": true,
+  "nextFreshEightCaseSqlNotYetPassed": true
+}

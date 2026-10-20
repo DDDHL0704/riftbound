@@ -1,0 +1,7 @@
+{
+  "atUtc": "2026-10-20T05:55:28.863Z",
+  "clientCommit": "48e7ff8702dc43a1b5a3991365d87068506ae137",
+  "backendIdentity": "19d849273fa6fde794cd61ed7de58abeed7de17e916bf72051741a245dc8ab05",
+  "scope": "Before-fix source audit only; not current fixed-candidate product acceptance",
+  "sha256": "407081a2246248bf19436807ba603082028d69798b6b5bb8634ff05980b41557"
+}

@@ -1,0 +1,51 @@
+{
+  "atUtc": "2026-10-20T04:35:56.237386+00:00",
+  "region": "CN",
+  "language": "zh-CN",
+  "applicabilityDate": "2026-10-20",
+  "coreEffectiveDate": "2026-10-16",
+  "exactApiId": 33226,
+  "exactPrinting": "SFD·136/221",
+  "parentWholePrintingObligationId": "CARD:SFD-136/221",
+  "sourceManifest": "bounded-current-official-source-readback-v2.json",
+  "sourceManifestSha256": "8bef14a18b34fce313975045b359188e20c0208a52407c6edaf993d89d9b947f",
+  "actualCardFaceVisuallyInspected": {
+    "path": "current-exact-sfd136-card-face.png",
+    "sha256": "ac49decff35317f02294540775272596ef9ea0708e4d2a24da488df006821841",
+    "observedPrintedIdentity": "SFD 136/221",
+    "observedBaseMana": 2,
+    "observedPrintedChaosPower": 1,
+    "observedPrintedEchoMana": 2,
+    "observedWhoChoosesConditionalTwoMana": "Target spell controller during resolution; not a caster-declared mode."
+  },
+  "actualPdfPagesVisuallyInspected": [
+    {
+      "page": 89,
+      "sha256": "4ddcefc4ab8b923bc837a08fd4ae39372297a62d746511d25cf4a2b2c091f65f"
+    },
+    {
+      "page": 110,
+      "sha256": "bba92add8bc81eee571a3630d8db5b09778cc445627f284dc1783e8711ad673f"
+    },
+    {
+      "page": 122,
+      "sha256": "da1a9d1f760f6b2a6cdb5cc821b26f185f0c4a920d59f9c3ed600bb1f8529434"
+    },
+    {
+      "page": 123,
+      "sha256": "6a7a347d521638bbffdcf46297a5d46630705fa62e61993b8b68b75854709d9e"
+    }
+  ],
+  "currentClauses": [
+    "445.1-445.2.c: spend actual pool resources; optional in-effect payment may be declined; reaction resource-gaining skills may be immediately finalized/resolved while instructed to pay",
+    "740.4.a.1: in-text spell costs are paid while resolving",
+    "820.1-820.3.a: printed optional extra cost repeats resolution instructions; initial and repeat choices may differ; play counted once"
+  ],
+  "currentCnDoc13FullTextQueriedNoCardSpecificHardBargainRulingLocated": true,
+  "globalOfficialSpiritforgedFaqQueriedNoHardBargainSpecificParagraphLocatedNotPromotedToCnAuthority": true,
+  "oldResourceHelperCommentNumbers429_3And444_2cAreNotCurrentCnDoc01Locators": true,
+  "scope": "Only exact current SFD136 conditional target-controller mana payment and printed repeated execution; remaining 17-consumer family branches and whole printing certification stay open.",
+  "singlePrintingPublicationAndEffectiveDatesStillIndependentlyUnknown": true,
+  "allPriorSixSourceDeltasNotChangedAndNoNewBytesAdopted": true,
+  "wholeCardOrAllSourceSemanticsCertified": false
+}

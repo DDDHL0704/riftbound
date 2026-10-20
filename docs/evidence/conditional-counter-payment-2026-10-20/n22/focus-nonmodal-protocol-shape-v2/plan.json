@@ -1,0 +1,17 @@
+{
+  "profile": "focus",
+  "discoveredMethods": 7619,
+  "jobs": 4,
+  "includeGames": false,
+  "testAssemblySha256": "a0238f49761550e4d5e75b4c5091e8695b17be6281b2de94f2b6744ae2190de1",
+  "timings": "/Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/TestResults/mechanical-full.trx",
+  "shards": [
+    {
+      "name": "focus",
+      "methods": [
+        "Riftbound.ConformanceTests.ConformanceFixtureShapeTests.ActionPromptExposesPlayableReactionCardsDuringStackPriority"
+      ],
+      "filter": "(FullyQualifiedName~ActionPromptExposesPlayableReactionCardsDuringStackPriority)&FullyQualifiedName!~Riftbound.ConformanceTests.FullGameEndToEndTests."
+    }
+  ]
+}

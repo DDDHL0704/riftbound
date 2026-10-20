@@ -1,0 +1,68 @@
+{
+  "atUtc": "2026-10-20T06:27:04.681772+00:00",
+  "status": "FIXED48_ORIGINAL_SQL_PARTITION1_CASES_OUTPUTS_IDENTITY_INDEPENDENT_READBACK_PASS",
+  "run": 39365877913,
+  "fixedCommit": "48e7ff8702dc43a1b5a3991365d87068506ae137",
+  "artifact": {
+    "id": 12242678403,
+    "path": "var/qa/native-offline-deck-retry-fixed-48e7ff87-20261020/ci-originals/39365877913-postgres-partition-1.zip",
+    "bytes": 566710,
+    "sha256": "214b56025af6e662ec53c6b1df0c88faed1e640d829413e1bcb85ac6e8ea758b"
+  },
+  "immutable45CaseManifestSha256": "971d597869a7e726ade4fb6a2f5b9a02d23089389565234e37039aee808eab22",
+  "completedCaseIds": [
+    "created-token-ready",
+    "granted-predict",
+    "sivir-payment",
+    "attached-recycle-lifecycle",
+    "clairvoyance",
+    "physical-origin-cost",
+    "granted-token-haste",
+    "banish-effect-play",
+    "empty-observed-repeat",
+    "copied-last-breath-insight",
+    "empty-reveal-followup"
+  ],
+  "caseCount": 11,
+  "outputCount": 57,
+  "allOriginalOutputsHashesExact": true,
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+    "implementationSha256": "dd965d12e123019fcbf9a21caddee65dfcce2c4c969c202ccf312d1b99e4a38b",
+    "identitySha256": "0fd9c1b45e9cc9d7d0dd9f34aa5944009583096af64bf63f3a963e2e721c803f"
+  },
+  "runtimeAssemblies": [
+    {
+      "file": "Riftbound.PostgresAcceptance.dll",
+      "sha256": "62034047912fa297d9a49a1133fa0d339ca63fa87e379a7eacf7b018139a5891",
+      "mvid": "7bce8fa6-4537-4ad1-914b-adc02cd97d56"
+    },
+    {
+      "file": "Riftbound.Engine.dll",
+      "sha256": "8ed567634c41d8e091bd3960f066329cc4fe9f3e95d788fcbc4ebea3cf8f4b6d",
+      "mvid": "dc2b66ff-16d8-4452-bc6d-43ef5d7ec3cb"
+    },
+    {
+      "file": "Riftbound.Contracts.dll",
+      "sha256": "53b54c9837f5c95c3eb666bccacaade95b12ea1e7b7e3fcc92e73da488f02ffd",
+      "mvid": "4cd39a05-317c-4bda-bbeb-7777ab2beb57"
+    },
+    {
+      "file": "Riftbound.CardCatalog.dll",
+      "sha256": "3e2c59089aa516ad4875a6b1d5f8c05b43ee5580dceac371060eb12b09d6b60e",
+      "mvid": "3c681768-6e36-453f-938d-8c8d9ff102fd"
+    },
+    {
+      "file": "Riftbound.Persistence.dll",
+      "sha256": "6800f1fb38df3c4f0acf2310fced151db8303e80ad7328e9164d5a3241116cc1",
+      "mvid": "178438c4-c7de-43d3-835b-d25c444bb6a7"
+    }
+  ],
+  "currentDirty46ManifestNotUsedForOldRun": true,
+  "wholeFullTerminalAndSql0StillSeparate": true,
+  "currentN22CodeAndPhysicalWindowsNotCovered": true
+}

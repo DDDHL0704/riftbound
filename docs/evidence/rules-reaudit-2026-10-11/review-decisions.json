@@ -23725,6 +23725,60 @@
         "CURRENT_FIXED_FULL",
         "PHYSICAL_WINDOWS"
       ]
+    },
+    {
+      "id": "conditional-counter-target-controller-mana-and-printed-echo-2026-10-20",
+      "scope": "Conditional target-current-controller two-mana resolution payment, printed Echo and their bounded native wording only. CN/zh-CN, observed2026-10-20, core effective2026-10-16.",
+      "status": "LIMITED32_CURRENT_FOCUS35_HISTORICAL_SOLECHECK13139_SQL8_PASS_NEW_FIXEDFULL_NATIVE_WINDOWS_OPEN",
+      "subjects": [
+        "SFD-136/221"
+      ],
+      "ruleRecords": [
+        "CN-d6fd7140f106f9b5-P089-B016",
+        "CN-d6fd7140f106f9b5-P089-B017",
+        "CN-d6fd7140f106f9b5-P089-B018",
+        "CN-d6fd7140f106f9b5-P089-B019",
+        "CN-d6fd7140f106f9b5-P110-B018",
+        "CN-d6fd7140f106f9b5-P110-B019",
+        "CN-d6fd7140f106f9b5-P110-B020",
+        "CN-d6fd7140f106f9b5-P122-B017",
+        "CN-d6fd7140f106f9b5-P122-B018",
+        "CN-d6fd7140f106f9b5-P122-B019",
+        "CN-d6fd7140f106f9b5-P122-B020",
+        "CN-d6fd7140f106f9b5-P122-B021",
+        "CN-d6fd7140f106f9b5-P122-B022",
+        "CN-d6fd7140f106f9b5-P122-B023",
+        "CN-d6fd7140f106f9b5-P122-B024",
+        "CN-d6fd7140f106f9b5-P122-B025",
+        "CN-d6fd7140f106f9b5-P123-B002",
+        "CN-d6fd7140f106f9b5-P123-B003",
+        "CN-d6fd7140f106f9b5-P123-B004",
+        "CN-d6fd7140f106f9b5-P123-B005",
+        "CN-d6fd7140f106f9b5-P123-B006"
+      ],
+      "pendingRuleRecords": [],
+      "sourceManifest": {
+        "path": "docs/evidence/conditional-counter-payment-2026-10-20/source-manifest.json",
+        "sha256": "4fe8733c072bd8fac24bf61b72304d911dc79264de779e5ba2ca1eab9e9e6b78",
+        "role": "source-manifest"
+      },
+      "auditDocument": "docs/CONDITIONAL_COUNTER_PAYMENT_AUDIT_2026-10-20.md",
+      "validation": {
+        "boundedCurrentCases": 32,
+        "currentFocusCases": 35,
+        "soleCheckHistoricalCases": 13139,
+        "ordinaryRealSqlBranches": 8,
+        "originalFullGamesInCurrentFocus": 2,
+        "allMeaningfulSourceTestsRetained": true
+      },
+      "exclusions": [
+        "WHOLE_PRINTING_AND_OTHER_FAMILY_CONSUMERS",
+        "CURRENT_FIXED_FULL",
+        "CURRENT_FIXED_NATIVE_CONTROLS_PAIRED_RECONNECT_SCORE_REPLAY",
+        "PHYSICAL_WINDOWS",
+        "SEPARATE_NATIVE_DEPENDENCY_PATCH_AND_RUNTIME_APPLICABILITY",
+        "ALL_ORIGINAL_SOURCE_GAPS"
+      ]
     }
   ]
 }

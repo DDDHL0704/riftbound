@@ -5750,14 +5750,14 @@ public sealed class ConformanceFixtureShapeTests
         Assert.True(playCandidate.Enabled);
         Assert.Equal(["P2-SPELL-HARD-BARGAIN"], (playCandidate.Sources ?? []).Select(source => source.Id).ToArray());
         Assert.Equal(["STACK-1-P1-SPELL-INCINERATE"], (playCandidate.Targets ?? []).Select(target => target.Id).ToArray());
-        Assert.Equal(["TARGET_DECLINES_PAY_2_NO_ECHO"], (playCandidate.Modes ?? []).Select(mode => mode.Id).ToArray());
+        Assert.Empty(playCandidate.Modes ?? []);
 
         var metadata = Assert.IsType<Dictionary<string, object?>>(playCandidate.Metadata);
         var sourceRequirement = Assert.Single(Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
             metadata["sourceRequirements"]));
         Assert.Equal("P2-SPELL-HARD-BARGAIN", Assert.IsType<string>(sourceRequirement["sourceObjectId"]));
         Assert.Equal("SFD·136/221", Assert.IsType<string>(sourceRequirement["cardNo"]));
-        Assert.Equal("TARGET_DECLINES_PAY_2_NO_ECHO", Assert.IsType<string>(sourceRequirement["mode"]));
+        Assert.Null(sourceRequirement["mode"]);
         Assert.True(Assert.IsType<bool>(sourceRequirement["composable"]));
 
         var targetChoicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(

@@ -1,0 +1,7 @@
+{
+  "atUtc": "2026-10-20T06:01:02.644Z",
+  "room": "N22-PAY-6F8A57AF6E",
+  "sha256": "e44f68a39dc957ff0b947cc72a95ea83a007ee6173cee093ca4826d1a88765c0",
+  "expectedDecision": "SPEND_MANA:2",
+  "notSubmittedYet": true
+}

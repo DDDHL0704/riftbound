@@ -1,0 +1,24 @@
+{
+  "priorReviews": 144,
+  "currentReviews": 145,
+  "priorContexts": 59,
+  "currentContexts": 60,
+  "priorGates": 237,
+  "currentGates": 239,
+  "priorRemainingObligations": 16911,
+  "currentRemainingObligations": 16918,
+  "allOriginalIdsRetained": true,
+  "newIds": [
+    "BRANCH:conditional-counter-target-controller-mana-and-printed-echo-2026-10-20:ATOMIC_AUTHORITY_AND_INDEPENDENT_RECOVERY_VALIDATION",
+    "BRANCH:conditional-counter-target-controller-mana-and-printed-echo-2026-10-20:NATIVE_PAYMENT_PHASE_ACTION_AND_SELECTION_WORDING",
+    "BRANCH:conditional-counter-target-controller-mana-and-printed-echo-2026-10-20:NORMAL_DECLARATION_AND_ACTUAL_TARGET_CONTROLLER",
+    "BRANCH:conditional-counter-target-controller-mana-and-printed-echo-2026-10-20:OPTIONAL_PAYMENT_AND_IMMEDIATE_REACTION_RESOURCES",
+    "BRANCH:conditional-counter-target-controller-mana-and-printed-echo-2026-10-20:PRINTED_ECHO_INDEPENDENT_EXECUTIONS_AND_ORDINARY_OPENINGS",
+    "GATE:CONDITIONAL_COUNTER_PAYMENT_CURRENT_FIXED_FULL_NATIVE_PAIRED_RECONNECT_SCORE_REPLAY_AND_WINDOWS",
+    "GATE:NATIVE_SIGNALR_COMMON_CVE_2026_70159_ACTUAL_DEPENDENCY_PATCH_RUNTIME_AND_NETWORK_ACCEPTANCE"
+  ],
+  "allOriginal237GateKeyValues144ReviewsSixSourceDeltasPreserved": true,
+  "allOriginal1740Printings14293RuleBlocksEn8GapsAndCn236DispositionsRemain": true,
+  "noGameSourceDeltaAddedForSeparateDependencyFinding": true,
+  "semanticCoverageCertified": false
+}

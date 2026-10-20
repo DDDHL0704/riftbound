@@ -1,0 +1,10 @@
+{
+  "atUtc": "2026-10-20T03:57:59.210129+00:00",
+  "originalSourceSha256": "ea21ce696501dfd9ad9491b3f7cf73b975a28e27d9a3c378256458c98e3a592e",
+  "originalSourceRetainedLosslessly": "var/qa/native-offline-deck-retry-fixed-48e7ff87-20261020/offline-retry-independent-reader-initial-status-symbol-error-source-v1.cs.gz",
+  "originalCompilerLog": "offline-retry-independent-reader-build-v1.log",
+  "failure": "CS0117 MatchStatuses has no Mulligan; Mulligan is a MatchPhases constant. Initial independent helper never executed against database.",
+  "actualNativeOwnerAndFourCommandTenEventOriginalFramePassedAndUnchanged": true,
+  "readOnlyInspectionPathExpressionErrorHadNoFileOrDatabaseMutation": true,
+  "correction": "Check IN_PROGRESS status together with MULLIGAN phase; rebuild helper only into same unpublished helper output, fresh log."
+}

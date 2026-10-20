@@ -1,0 +1,29 @@
+{
+  "profile": "focus",
+  "discoveredMethods": 7619,
+  "jobs": 4,
+  "includeGames": false,
+  "testAssemblySha256": "14380b580e4e15992f36665d602399d2e760a13b7cdf54d5075ab451ea1e0265",
+  "timings": "/Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/TestResults/mechanical-full.trx",
+  "shards": [
+    {
+      "name": "focus",
+      "methods": [
+        "Riftbound.ConformanceTests.ConditionalCounterPaymentTests.CurrentSpellControllerPaysEvenWhenItsPhysicalOwnerIsTheOtherPlayer",
+        "Riftbound.ConformanceTests.ConditionalCounterPaymentTests.DecliningOrBeingUnableToPayCountersOnlyTheDeclaredSpell",
+        "Riftbound.ConformanceTests.ConditionalCounterPaymentTests.EchoDoesNotAskForPaymentForATargetAlreadyCounteredByItsFirstExecution",
+        "Riftbound.ConformanceTests.ConditionalCounterPaymentTests.EchoRechecksResourcesAfterItsFirstIndependentPayment",
+        "Riftbound.ConformanceTests.ConditionalCounterPaymentTests.NormalDeclarationDoesNotChooseTheOpponentsPaymentInAdvance",
+        "Riftbound.ConformanceTests.ConditionalCounterPaymentTests.PrintedEchoOffersTwoIndependentTargetControllerPayments",
+        "Riftbound.ConformanceTests.ConditionalCounterPaymentTests.RecoveryIndependentlyRejectsChangesToTheActualPaymentDecision",
+        "Riftbound.ConformanceTests.ConditionalCounterPaymentTests.TargetControllerCanPayAtResolutionAndKeepItsOriginalSpell",
+        "Riftbound.ConformanceTests.ConditionalCounterPaymentTests.TargetControllerCanTapItsRuneWhilePayingAndMayStillDecline",
+        "Riftbound.ConformanceTests.ConditionalCounterPaymentTests.TargetControllerCanUseItsReactionResourceEquipmentDuringResolution",
+        "Riftbound.ConformanceTests.ConditionalCounterPaymentTests.UnauthorizedOrForgedPaymentCommandsRejectWithoutChangingAnyState",
+        "Riftbound.ConformanceTests.ConformanceFixtureRunnerTests.CoreRuleEnginePlaysHardBargainCounterSpellWhenTargetDeclinesPay",
+        "Riftbound.ConformanceTests.ConformanceFixtureRunnerTests.CoreRuleEngineRejectsHardBargainAgainstUnitStackItem"
+      ],
+      "filter": "(FullyQualifiedName~ConditionalCounterPaymentTests|FullyQualifiedName~HardBargain)&FullyQualifiedName!~Riftbound.ConformanceTests.FullGameEndToEndTests."
+    }
+  ]
+}

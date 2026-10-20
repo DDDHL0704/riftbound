@@ -1,0 +1,161 @@
+{
+  "status": "PASS_INDEPENDENT_READONLY_REAL_POSTGRES_EIGHT_CONDITIONAL_COUNTER_ORIGINALS",
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+    "implementationSha256": "71b556f147411b9397abde9719c67f69f18ef1c69984309cc5199acb9534d1e1",
+    "identitySha256": "19d849273fa6fde794cd61ed7de58abeed7de17e916bf72051741a245dc8ab05"
+  },
+  "checks": [
+    {
+      "room": "postgres-conditional-counter-d7926a0b45ab4a83bf01853b5c17e323",
+      "format": "CoreRules",
+      "profile": "BASE_PAY",
+      "commands": 40,
+      "events": 164,
+      "originalFrameSha256": "7ccf0d57196eb85c88d08b77303e5738a914d376307423a7d186f520655e99b9",
+      "actualHistoricalPayloads": {
+        "state_snapshots": 40,
+        "snapshots": 76,
+        "action_prompts": 76
+      },
+      "originalPendingStates": 1,
+      "originalSecondPaymentStates": 0,
+      "allOriginalFieldsNullsAndPrivateHistoryMatch": true,
+      "original32IntentPayloadsAndActorsExact": true,
+      "fullOriginalReplayMatched": true
+    },
+    {
+      "room": "postgres-conditional-counter-a10904926a7b48d19d023e682e0ebacf",
+      "format": "CoreRules",
+      "profile": "BASE_DECLINE",
+      "commands": 38,
+      "events": 160,
+      "originalFrameSha256": "f0af885d7bd310713fdfdc0e4a0719c4c943ea9602b4812d5ec1bcb3506710df",
+      "actualHistoricalPayloads": {
+        "state_snapshots": 38,
+        "snapshots": 72,
+        "action_prompts": 72
+      },
+      "originalPendingStates": 1,
+      "originalSecondPaymentStates": 0,
+      "allOriginalFieldsNullsAndPrivateHistoryMatch": true,
+      "original32IntentPayloadsAndActorsExact": true,
+      "fullOriginalReplayMatched": true
+    },
+    {
+      "room": "postgres-conditional-counter-79660a8d94c2410bb7be765d3bc024ad",
+      "format": "CoreRules",
+      "profile": "ECHO_PAY_BOTH",
+      "commands": 41,
+      "events": 168,
+      "originalFrameSha256": "2a9452209d6e161c3e6c4ffed700cf2513f9f96292e043ca621e418abeb10a95",
+      "actualHistoricalPayloads": {
+        "state_snapshots": 41,
+        "snapshots": 78,
+        "action_prompts": 78
+      },
+      "originalPendingStates": 2,
+      "originalSecondPaymentStates": 1,
+      "allOriginalFieldsNullsAndPrivateHistoryMatch": true,
+      "original32IntentPayloadsAndActorsExact": true,
+      "fullOriginalReplayMatched": true
+    },
+    {
+      "room": "postgres-conditional-counter-6135d2dd910c4eb9a8f28062c7fe9485",
+      "format": "CoreRules",
+      "profile": "ECHO_PAY_THEN_DECLINE",
+      "commands": 39,
+      "events": 164,
+      "originalFrameSha256": "876d5678712af7405e966112ca88eb777eb68f6c63cf747de17c44809b757139",
+      "actualHistoricalPayloads": {
+        "state_snapshots": 39,
+        "snapshots": 74,
+        "action_prompts": 74
+      },
+      "originalPendingStates": 2,
+      "originalSecondPaymentStates": 1,
+      "allOriginalFieldsNullsAndPrivateHistoryMatch": true,
+      "original32IntentPayloadsAndActorsExact": true,
+      "fullOriginalReplayMatched": true
+    },
+    {
+      "room": "postgres-conditional-counter-9ad193a377184515ab397b47129055e8",
+      "format": "ChinaStandard20260724",
+      "profile": "BASE_PAY",
+      "commands": 40,
+      "events": 164,
+      "originalFrameSha256": "b058949c634c8e120ea450dc163faaac243f7f14f6be3071773fa58cb93ddf47",
+      "actualHistoricalPayloads": {
+        "state_snapshots": 40,
+        "snapshots": 76,
+        "action_prompts": 76
+      },
+      "originalPendingStates": 1,
+      "originalSecondPaymentStates": 0,
+      "allOriginalFieldsNullsAndPrivateHistoryMatch": true,
+      "original32IntentPayloadsAndActorsExact": true,
+      "fullOriginalReplayMatched": true
+    },
+    {
+      "room": "postgres-conditional-counter-0d331b25576a426994f6bfb7eedde1d4",
+      "format": "ChinaStandard20260724",
+      "profile": "BASE_DECLINE",
+      "commands": 38,
+      "events": 160,
+      "originalFrameSha256": "a64619f453c836b34e81c335c89c4477a3bb33a97d7d72b28e28caf0f7ad6de7",
+      "actualHistoricalPayloads": {
+        "state_snapshots": 38,
+        "snapshots": 72,
+        "action_prompts": 72
+      },
+      "originalPendingStates": 1,
+      "originalSecondPaymentStates": 0,
+      "allOriginalFieldsNullsAndPrivateHistoryMatch": true,
+      "original32IntentPayloadsAndActorsExact": true,
+      "fullOriginalReplayMatched": true
+    },
+    {
+      "room": "postgres-conditional-counter-05cf881b3ffd49b09e40429d6e6590ba",
+      "format": "ChinaStandard20260724",
+      "profile": "ECHO_PAY_BOTH",
+      "commands": 41,
+      "events": 168,
+      "originalFrameSha256": "a52a1c3be56a936d56f553edaaf36b1102a7e5d1991ad325e1efaa785e95c3d7",
+      "actualHistoricalPayloads": {
+        "state_snapshots": 41,
+        "snapshots": 78,
+        "action_prompts": 78
+      },
+      "originalPendingStates": 2,
+      "originalSecondPaymentStates": 1,
+      "allOriginalFieldsNullsAndPrivateHistoryMatch": true,
+      "original32IntentPayloadsAndActorsExact": true,
+      "fullOriginalReplayMatched": true
+    },
+    {
+      "room": "postgres-conditional-counter-97f7c991fafb47139d662c7c3060b00a",
+      "format": "ChinaStandard20260724",
+      "profile": "ECHO_PAY_THEN_DECLINE",
+      "commands": 39,
+      "events": 164,
+      "originalFrameSha256": "29555c06bb6b566f14f66069770624d4db991a7a17a148ccc5640350d5f691da",
+      "actualHistoricalPayloads": {
+        "state_snapshots": 39,
+        "snapshots": 74,
+        "action_prompts": 74
+      },
+      "originalPendingStates": 2,
+      "originalSecondPaymentStates": 1,
+      "allOriginalFieldsNullsAndPrivateHistoryMatch": true,
+      "original32IntentPayloadsAndActorsExact": true,
+      "fullOriginalReplayMatched": true
+    }
+  ],
+  "noNewGameplayStateSeedOrHistoryRewrite": true,
+  "completeGameOrWholeCardCertification": false,
+  "visibleNativeAndPhysicalWindows": "OPEN"
+}

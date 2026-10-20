@@ -1,0 +1,19 @@
+{
+  "profile": "focus",
+  "discoveredMethods": 7611,
+  "jobs": 4,
+  "includeGames": false,
+  "testAssemblySha256": "6ddb351acf2ab93b6924be7e7767114e7e50a44b208babc92c5a1fd916743716",
+  "timings": "/Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/TestResults/mechanical-full.trx",
+  "shards": [
+    {
+      "name": "focus",
+      "methods": [
+        "Riftbound.ConformanceTests.ConditionalCounterPaymentTests.NormalDeclarationDoesNotChooseTheOpponentsPaymentInAdvance",
+        "Riftbound.ConformanceTests.ConditionalCounterPaymentTests.PrintedEchoOffersTwoIndependentTargetControllerPayments",
+        "Riftbound.ConformanceTests.ConditionalCounterPaymentTests.TargetControllerCanPayAtResolutionAndKeepItsOriginalSpell"
+      ],
+      "filter": "(FullyQualifiedName~ConditionalCounterPaymentTests)&FullyQualifiedName!~Riftbound.ConformanceTests.FullGameEndToEndTests."
+    }
+  ]
+}

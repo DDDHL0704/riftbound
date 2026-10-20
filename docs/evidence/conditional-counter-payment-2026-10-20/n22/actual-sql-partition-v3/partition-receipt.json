@@ -1,0 +1,155 @@
+{
+  "status": "REAL_POSTGRES_PARTITION_COMPLETE",
+  "fixedCommit": null,
+  "partitionIndex": 45,
+  "partitionCount": 46,
+  "manifestSha256": "e93d89bc42816ca5acb2e36688a1ddb9e6e103e7dd6d5431b0b0716187c5348b",
+  "orderedDefaultCases": [
+    "private-opening",
+    "created-token-ready",
+    "core-opening",
+    "battle-history",
+    "masked-attendant",
+    "granted-predict",
+    "printed-predict",
+    "sivir-optional",
+    "rune-destination",
+    "sivir-payment",
+    "conquest-token",
+    "recycled-card-boon",
+    "recycle-boon-lifecycle",
+    "attached-recycle-lifecycle",
+    "typed-play-history",
+    "porobot",
+    "typed-play-history-causal",
+    "clairvoyance",
+    "insight-repeat",
+    "combat-assignment",
+    "confirmed-play-origin",
+    "physical-origin-cost",
+    "granted-origin-haste",
+    "opponent-battlefield-control",
+    "optional-sacrifice",
+    "granted-token-haste",
+    "optional-costs",
+    "battlefield-play-recovery",
+    "battlefield-play-damage",
+    "banish-effect-play",
+    "here-location-control",
+    "fate-weaver",
+    "multi-controller-trigger-order",
+    "empty-observed-repeat",
+    "observed-play-window",
+    "ravenbloom-put-hand",
+    "attached-predict",
+    "copied-last-breath-insight",
+    "copied-duel-insight",
+    "empowered-insight",
+    "paka-move-reveal",
+    "empty-reveal-followup",
+    "paka-dual-type-reveal",
+    "hwei-move-discard-types",
+    "destruction-graveyard",
+    "conditional-counter-payment"
+  ],
+  "expectedCases": [
+    "conditional-counter-payment"
+  ],
+  "completedCases": [
+    "conditional-counter-payment"
+  ],
+  "executions": [
+    {
+      "id": "conditional-counter-payment",
+      "ordinal": 45,
+      "status": "PASSED",
+      "startedAtUtc": "2026-10-20T06:41:40.736433+00:00",
+      "finishedAtUtc": "2026-10-20T06:45:44.963257+00:00",
+      "seconds": 244.2266911
+    }
+  ],
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+    "implementationSha256": "19ebca568f916f0eabb8332260ce569c501fac500a55bd98c9e16152292fe088",
+    "identitySha256": "713878058baf394915f4b0a7387d62e971c185f36edbd4cff60aaf10f4e5e88e"
+  },
+  "outputFiles": [
+    {
+      "path": "conditional-counter-payment/conditional-counter-ChinaStandard20260724-BASE_DECLINE-original-frame.json.gz",
+      "bytes": 41420,
+      "sha256": "f3832b242ee5650fa060899c3e5a5d3a551a3801493b638a54d0f71279def419"
+    },
+    {
+      "path": "conditional-counter-payment/conditional-counter-ChinaStandard20260724-BASE_PAY-original-frame.json.gz",
+      "bytes": 40741,
+      "sha256": "dbc6d4154e82e873fda31e080297eed40df06a6162bbb788a591b8f5e1afb0f9"
+    },
+    {
+      "path": "conditional-counter-payment/conditional-counter-ChinaStandard20260724-ECHO_PAY_BOTH-original-frame.json.gz",
+      "bytes": 35853,
+      "sha256": "648e975d6732e478698bc6bdcb247ae822d801267fade65a17138c72abab76c2"
+    },
+    {
+      "path": "conditional-counter-payment/conditional-counter-ChinaStandard20260724-ECHO_PAY_THEN_DECLINE-original-frame.json.gz",
+      "bytes": 40929,
+      "sha256": "8eaed2de1a2986bec75ab5f773589b6edb9a267f246040dc8ff3018c3b36e346"
+    },
+    {
+      "path": "conditional-counter-payment/conditional-counter-CoreRules-BASE_DECLINE-original-frame.json.gz",
+      "bytes": 41416,
+      "sha256": "c69235842fe435acfc050a25c738faeb7cdf926015be99859b5644a5e44477f3"
+    },
+    {
+      "path": "conditional-counter-payment/conditional-counter-CoreRules-BASE_PAY-original-frame.json.gz",
+      "bytes": 40744,
+      "sha256": "a056df0be4743fc16f9963571a3922f46e170dd8369a204be382d3b0d4171c12"
+    },
+    {
+      "path": "conditional-counter-payment/conditional-counter-CoreRules-ECHO_PAY_BOTH-original-frame.json.gz",
+      "bytes": 35853,
+      "sha256": "a2ee69bf0825739ad1f7e92139b95826ffb224d2bef7472c231b1161cdc3e144"
+    },
+    {
+      "path": "conditional-counter-payment/conditional-counter-CoreRules-ECHO_PAY_THEN_DECLINE-original-frame.json.gz",
+      "bytes": 40929,
+      "sha256": "28a07608d4810b678d0407109b4a75466f09e092476bf5fd606f960dbd2c30c3"
+    },
+    {
+      "path": "conditional-counter-payment/receipt.json",
+      "bytes": 12166,
+      "sha256": "e9380c25c3f73a0f3dfe03fff426632aa72adf1bff7bd80de39a4338019b0ecd"
+    }
+  ],
+  "runtimeAssemblies": [
+    {
+      "file": "Riftbound.PostgresAcceptance.dll",
+      "sha256": "fe655d198cb8bfb0ea2c9717d98dd74f9bbb065186aaf44c80055f68ff8c1323",
+      "mvid": "e072088c-cf6d-4aa8-a86e-5eae93174de0"
+    },
+    {
+      "file": "Riftbound.Engine.dll",
+      "sha256": "9282082c0a71711d39fdd45ea7f457760c040f2817a75dd1ee58d2d497f8eac9",
+      "mvid": "73c20941-cafc-4402-aa35-95a19f5bab73"
+    },
+    {
+      "file": "Riftbound.Contracts.dll",
+      "sha256": "97224894ecfeba8f94e94bfbec401cad168db4e10c10409f70ef0dee4c1b6fb8",
+      "mvid": "9d05a3ff-104c-40c3-a7d4-1356683ee807"
+    },
+    {
+      "file": "Riftbound.CardCatalog.dll",
+      "sha256": "8abe21bc97de6894c94729e63befa7aa48b2ba5792be4bfb29b2598e2de30435",
+      "mvid": "a8d2a7f7-3729-4cbd-9cb1-0e1edca202c6"
+    },
+    {
+      "file": "Riftbound.Persistence.dll",
+      "sha256": "f1f26fbb02ac000a9a799c9d42cb5312f9bbd1b787fa58da6c8727570d5642a0",
+      "mvid": "b3509cb1-9cf8-476a-844d-34ef6e85234d"
+    }
+  ],
+  "nativeVisibleOrWholeRuleCertification": false
+}

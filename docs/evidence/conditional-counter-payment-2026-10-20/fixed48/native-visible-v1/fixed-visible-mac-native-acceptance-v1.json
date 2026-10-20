@@ -1,0 +1,150 @@
+{
+  "status": "PASS_FIXED_CURRENT_EXPORTED_MAC_VISIBLE_PAIRED_NATIVE_CONTROLS_COLD_RECONNECT_REAL_SQL_NORMAL_EIGHT_SCORE_AND_ORIGINAL_REPLAYS",
+  "observedAtUtc": "2026-10-20T04:20:40.987488+00:00",
+  "fixedCommit": "48e7ff8702dc43a1b5a3991365d87068506ae137",
+  "fixedCiRun": 39365877913,
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+    "implementationSha256": "1b0cf060b27446ab890bab55266119090caf8ba2c6bba1c79a08ec33cbdbd994",
+    "identitySha256": "10954b5c1ad3ae8c0b56b2d9f0637ca72a10803b02e5ee3de484fbe117582e4a"
+  },
+  "room": "RB-B67RVX",
+  "acceptedCommands": 29,
+  "events": 215,
+  "turn": 18,
+  "tick": 28,
+  "winner": "qa48offline-b",
+  "scoreB": 8,
+  "scoreA": 0,
+  "normalScoreReasons": {
+    "conquest": 1,
+    "holding": 7
+  },
+  "originalNonzeroPrivateSeedRetainedNeverPrinted": true,
+  "sameOriginalHeadlessOfflineRetryRoomContinuedVisibly": true,
+  "nativeControlsActuallyExercised": [
+    "enter original saved room",
+    "both original mulligan confirmations",
+    "two actual rune taps",
+    "actual two-mana student play confirmation",
+    "movement unit selection and destination confirmation",
+    "visible Cancel button",
+    "Escape after original transient input transport recovery",
+    "both focus passes",
+    "seventeen ordinary end-turn submissions",
+    "both eight-point result dialogs"
+  ],
+  "firstEscapeTransportInterruptionOriginalCheckpointRetained": true,
+  "allFiveOriginalFramesExactAndImmutablePrefixesAndFullReplays": true,
+  "allActualHistoricalStatePrivateSnapshotPromptFieldsAndNullsExact": {
+    "state_snapshots": 29,
+    "snapshots": 53,
+    "action_prompts": 53
+  },
+  "independentReadbackSha256": "4623c550f7b7e33d66c91ca30d79d3cc841d7ea3310e4e0c4908f4df2540d856",
+  "actualScreenshotRecords": [
+    {
+      "path": "native-visible-v1/01-a-current-saved-session-lobby.png",
+      "sha256": "55308f9d7c0e2e2d603de9d2a56defa93b0aeebef2503ed4bed6f21875da33a2",
+      "bytes": 110149,
+      "observedAtUtc": "2026-10-20T04:00:41.739Z",
+      "scope": "Actual current exported A; original headless room and same saved profile; no visible command yet."
+    },
+    {
+      "path": "native-visible-v1/02-a-original-room-mulligan-restored.png",
+      "sha256": "8b158d390f10da9d6874fe78eaf254c7cbafad4fa039c7985bf0682f263f3d26",
+      "bytes": 89925,
+      "observedAtUtc": "2026-10-20T04:01:00.837Z",
+      "scope": "Actual native enter-room control restored the original current-version headless checkpoint; no resubmitted deck."
+    },
+    {
+      "path": "native-visible-v1/03-b-current-saved-session-lobby.png",
+      "sha256": "a7817ffa4262265cfb619ded0f6892c5e6f9f9d66a60c712e7695a2dc03e2561",
+      "bytes": 110127,
+      "observedAtUtc": "2026-10-20T04:01:29.561Z",
+      "scope": "Actual current exported B after successful same-process headless retry; same saved profile and original room."
+    },
+    {
+      "path": "native-visible-v1/04-b-original-room-mulligan-restored.png",
+      "sha256": "86589ae52b69f3fe942fdf58ee27e45a5cfc3acb33ca8133abf9aac0da3f4711",
+      "bytes": 125077,
+      "observedAtUtc": "2026-10-20T04:01:47.713Z",
+      "scope": "Actual B enter-room control restored the same original current room; initial headless deck submission retained."
+    },
+    {
+      "path": "native-visible-v1/06-a-original-main-phase-after-both-mulligans.png",
+      "sha256": "0d9ca99074e69b2b8513395f756952e5c56245e6431317389a29f899ec84a3b7",
+      "bytes": 140164,
+      "observedAtUtc": "2026-10-20T04:02:56.158Z",
+      "scope": "Both original native mulligan controls accepted without replacement; current original game before dedicated API cold restart."
+    },
+    {
+      "path": "native-visible-v1/08-b-after-dedicated-api-cold-restart.png",
+      "sha256": "2c0d605eedbc64fd8eeea94f26ccd483ae09feea5f9ac4e6e5652cc5f823d2ae",
+      "bytes": 133155,
+      "observedAtUtc": "2026-10-20T04:03:45.667Z",
+      "scope": "Actual B remained open across the dedicated current fixed API cold restart; original room and current match retained."
+    },
+    {
+      "path": "native-visible-v1/10-b-visible-two-mana-unit-confirmation.png",
+      "sha256": "e41d56fd61041d04bf17ec269aa20994d9d089d276beb04c16d80e122a3b4d27",
+      "bytes": 165506,
+      "observedAtUtc": "2026-10-20T04:05:41.828Z",
+      "scope": "Actual native PLAY_CARD confirmation for 拉文布鲁姆学生, paying two actual mana; server-authorized destination base."
+    },
+    {
+      "path": "native-visible-v1/11-b-visible-movement-cancel-control.png",
+      "sha256": "af1ae58da7b97d1f1bb695b1b64977a0bdacc298117f8ceb47c0caa0cdb2ac39",
+      "bytes": 170813,
+      "observedAtUtc": "2026-10-20T04:06:36.162Z",
+      "scope": "Actual native movement selection; verify Cancel/Escape dismisses without submitting gameplay or changing turn."
+    },
+    {
+      "path": "native-visible-v1/12-b-click-cancel-restores-end-turn.png",
+      "sha256": "8509df963371b88ddb236a2e8b0d9ac403e152f49fb7fae057dd41f87708e9bb",
+      "bytes": 189291,
+      "observedAtUtc": "2026-10-20T04:08:01.082Z",
+      "scope": "Actual native Cancel control dismissed movement selection and reenabled end-turn; Escape transport attempt remains separately unverified."
+    },
+    {
+      "path": "native-visible-v1/13-b-first-natural-conquest-score.png",
+      "sha256": "8562c7c7910879eb7548681ce6a497925c145771f786e9725263f5e59c21e6c2",
+      "bytes": 190633,
+      "observedAtUtc": "2026-10-20T04:10:02.292Z",
+      "scope": "Actual original native room; two server-authorized focus passes completed uncontested movement and natural first conquest point."
+    },
+    {
+      "path": "native-visible-v1/14-b-visible-escape-cancel-restores-end-turn.png",
+      "sha256": "e58648ad0c3eb200085a8319700f5a733f376dbd41abd073b1ee0f2141d614df",
+      "bytes": 254763,
+      "observedAtUtc": "2026-10-20T04:15:10.006Z",
+      "scope": "Actual Escape retry after transient native input transport recovered; dismiss movement and verify end-turn remains available without server command."
+    },
+    {
+      "path": "native-visible-v1/15-b-visible-normal-eight-score-victory.png",
+      "sha256": "2470574386e4e6d43449d8830acece125a7210c0badc58b5031f1ce18d983cac",
+      "bytes": 105492,
+      "observedAtUtc": "2026-10-20T04:16:01.860Z",
+      "scope": "Actual native B victory dialog after original ordinary game reached eight points; no surrender or injected state."
+    },
+    {
+      "path": "native-visible-v1/16-a-visible-normal-eight-score-defeat.png",
+      "sha256": "dd781faf691859236451349f58df9e1109c460be0a05157ebcd40961757d624f",
+      "bytes": 94051,
+      "observedAtUtc": "2026-10-20T04:16:04.419Z",
+      "scope": "Actual native A defeat dialog in the same original room; normal eight-point score result."
+    }
+  ],
+  "bothNativeAppsNormalCommandQAndObservedStopped": true,
+  "appServicesExitCodesNotDirectlyObservable": true,
+  "all373CiManagedPckFilesPerAppStillExactAndDeepStrictSignaturePass": true,
+  "credentialCheckActualFourValuesOnlyCanonicalTwoPrivateProfiles": true,
+  "currentFullStillRunningNotInferredFromPriorNineA": true,
+  "physicalWindows": "OPEN",
+  "entireCardOrRuleOrAll110MatrixNotCertifiedByThisSingleGame": true,
+  "lockStateNotAssumedFromMissingSessionValues": true
+}

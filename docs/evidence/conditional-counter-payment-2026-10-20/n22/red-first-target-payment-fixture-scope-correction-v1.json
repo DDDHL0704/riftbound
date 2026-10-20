@@ -1,0 +1,7 @@
+{
+  "atUtc": "2026-10-20T04:38:21.507287+00:00",
+  "priorReceipt": "three-original-conditional-payment-red-cases-v1.json",
+  "correction": "First and Echo red cases reached missing behavior; target-controller test stopped earlier because reused Position had tick1 while strict journal helper requires a tick0 origin. The first receipt label overstates semantic reach of that third failure; original TRX/message/source retained.",
+  "fixtureCorrectionOnly": "Set this new controlled fixture Tick to0; no production or original1859 test/script changes. Rerun three cases under unchanged engine to obtain meaningful target-payment red evidence.",
+  "originalNewTestSourceSha256": "039ae92810b66a0728510102249e26c20814a14072567d85de98e8020d90f0ea"
+}

@@ -1,0 +1,11 @@
+{
+  "atUtc": "2026-10-20T04:41:15.163547+00:00",
+  "parentFixedCommit": "48e7ff8702dc43a1b5a3991365d87068506ae137",
+  "path": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-hard-bargain-counter-spell-decline-pay.fixture.json",
+  "originalSha256": "fd9e55ab9e0bcee47e49b05d4e1659978b3876573137ef1c1b123c8a1508ccd1",
+  "updatedSha256": "5d61716da5d091c1f29f5849620d0157cdf77c89d3d8b47b5bf747e7f75df6e1",
+  "onlyChanged": "Two caster-declared fake mode values removed, two expected effect kind values use actual conditional behavior, current scoped source note clarified.",
+  "allFiveCommandsIntentActorsTypesTargetsOrderSeedAndVictoryReplayAssertionsPreserved": true,
+  "originalBytesRetainedAtGitParent": true,
+  "oldAcceptedDatabaseOrActionHistoryNotRewritten": true
+}

@@ -1,0 +1,9 @@
+{
+  "atUtc": "2026-10-20T06:16:19.018321+00:00",
+  "reason": "Actual native four-command payment flow independently validated; phase/action wording gaps recorded; both owned clients normal Quit confirmed.",
+  "room": "N22-PAY-6F8A57AF6E",
+  "acceptedCommands": 71,
+  "events": 452,
+  "normalFullGameAndNewFixedCandidateNotClaimed": true,
+  "leaveOriginalDatabaseAndHistoryRetained": true
+}

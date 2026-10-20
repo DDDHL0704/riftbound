@@ -1,0 +1,32 @@
+{
+  "atUtc": "2026-10-20T05:03:02.363751+00:00",
+  "parentFixedCommit": "48e7ff8702dc43a1b5a3991365d87068506ae137",
+  "scope": "Uncommitted conditional-counter implementation, exact current Debug modules; prospective new strict-CN ordinary opening.",
+  "moduleHashes": {
+    "Riftbound.Engine.dll": "653ba2efd6dad59f5489ea7b8e48053ff494b3b1b682156ecd52641399b00f30",
+    "Riftbound.Contracts.dll": "1304a12fe94eb97e62bd74a21a3f0c3935bce85a38dbbafa48f94c3307b0b133",
+    "Riftbound.CardCatalog.dll": "da4c092a39f0c7b9176b65db5b04bef51500418023cb32480b3c719690de8f6b"
+  },
+  "sourceHashes": {
+    "probe.csproj": "29bc76563834cad703bd551c2dcfc810f5b68788ff58b48b17c76a787a1c2617",
+    "Program.cs": "fd54c6805e10ffb285a62f7b3db7ad0af778810378d4a6662e00bb3993551e85"
+  },
+  "runtimeHashes": {
+    "probe.pdb": "fa125df8350c6462504ac75e28c182fb2cdd986474effacb151774c2e09577b9",
+    "Riftbound.CardCatalog.dll": "da4c092a39f0c7b9176b65db5b04bef51500418023cb32480b3c719690de8f6b",
+    "Riftbound.Contracts.pdb": "993b08379b090843c189329dfc1baceb708271820d468296a6a673c3e098fe26",
+    "Riftbound.Engine.pdb": "3c99634b0ec66210bd0a5c43db09f357fb08a999d9180c607b9d9da7ff462647",
+    "probe.runtimeconfig.json": "f8bd1713a3691d58eb332a71675f129385b91e852b66e7b6761cae1f34d4efd2",
+    "Riftbound.CardCatalog.pdb": "de6ee825fa4cfb1cbc4bcf388d4d6462943313d09db64496941b4934abeb1cf1",
+    "probe.dll": "3691b438b3ec6c748598974bd37160d19f055ddd554b90d6ce9949f5acc2846f",
+    "probe.deps.json": "0f11ea5722433b63f2f140999eed5081b412c16eff52cddd35c61d4777f60386",
+    "Riftbound.Contracts.dll": "1304a12fe94eb97e62bd74a21a3f0c3935bce85a38dbbafa48f94c3307b0b133",
+    "Riftbound.Engine.dll": "653ba2efd6dad59f5489ea7b8e48053ff494b3b1b682156ecd52641399b00f30",
+    "probe": "7b599981d9e582803ebd3ee529192ba25055985dae087dd75377fc00201608bc",
+    "data/official/rule-input-scope.json": "cc07cf3eef6a9af403454642a0435d061544400b5e01d08d3fdc65869bdad180",
+    "data/official/armaments.json": "ddcd838300e558c11df480ee79ccfab08c7af380df36544c666841720850bda8",
+    "data/official/card-catalog.zh-CN.json": "d521d7346392f2ea947c73c437c140d7bfe13a90cbca8642f7ae135b7b11f479"
+  },
+  "previousFailureBeforeGameplayRetained": "opening-explorer-execution-v1.log",
+  "originalPrefixJournalNowRetainedEvenOnInterruption": true
+}

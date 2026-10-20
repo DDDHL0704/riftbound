@@ -1,0 +1,30 @@
+{
+  "atUtc": "2026-10-20T06:20:40.039975+00:00",
+  "status": "CONCRETE_NARROW_WORDING_FIX_PENDING_ORIGINAL_FROZEN_CHECK_TERMINAL",
+  "sourceCaptures": "native-source-visual-v1/source-audit-steps-findings-and-limits-v1.json",
+  "changes": [
+    {
+      "path": "src/Riftbound.Engine/MatchSession.cs",
+      "where": "PAY_COST selection step for COUNTER_TARGET_MANA_PAYMENT",
+      "before": "选择替换对象与支付方式，或不替换",
+      "after": "支付法力保留法术，或不支付"
+    },
+    {
+      "path": "src/Riftbound.Engine/MatchSession.cs",
+      "where": "PAY_COST candidate label for COUNTER_TARGET_MANA_PAYMENT",
+      "before": "选择摧毁替换",
+      "after": "决定是否支付法力"
+    },
+    {
+      "path": "clients/godot/scripts/ui/MatchPhasePresentation.cs",
+      "where": "public RULE_REPLACEMENT phase presentation for COUNTER_TARGET_MANA_PAYMENT",
+      "before": "摧毁替换 · 等待选择",
+      "after": "法术结算 · 付款选择"
+    }
+  ],
+  "allOtherKindsLayoutsStylesAndServerAuthorityPreserved": true,
+  "noAdditionalLowImpactLiteralStringUnitTestsPlanned": true,
+  "rerunMeaningfulPaymentRecoveryReplayAndCurrentInputSqlAfterActualProjectionModuleChange": true,
+  "oneOriginalCheckOnlyNoRetrospectiveInputPromotion": true,
+  "newFixedFullAndCorrectedNativeCandidateStillRequired": true
+}

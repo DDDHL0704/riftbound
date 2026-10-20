@@ -1,0 +1,28 @@
+{
+  "atUtc": "2026-10-20T03:54:54.905253+00:00",
+  "fixedCommit": "48e7ff8702dc43a1b5a3991365d87068506ae137",
+  "oldFixedCommit": "9a57068e986850a5e86bbeb9d0bbb2a92f44b7b4",
+  "oldPairWasStopped": true,
+  "newBothPlatformDigestCrcAnd373ManagedPckAndSignaturesAndDefaultMainBootVerifiedBeforeRetirement": true,
+  "retiredExactPaths": [
+    "/Users/dinghaolin/MyProjects/riftbound/var/qa/graveyard-source-fixed-candidate-20261020/Riftbound-A.app",
+    "/Users/dinghaolin/MyProjects/riftbound/var/qa/graveyard-source-fixed-candidate-20261020/Riftbound-B.app",
+    "/Users/dinghaolin/MyProjects/riftbound/var/qa/graveyard-source-fixed-candidate-20261020/native-current/mac-ci-artifact.zip",
+    "/Users/dinghaolin/MyProjects/riftbound/var/qa/graveyard-source-fixed-candidate-20261020/native-current/windows-ci-artifact.zip"
+  ],
+  "retiredLogicalBytes": 945870385,
+  "freeBytesBefore": 48048422912,
+  "freeBytesAfter": 48808648704,
+  "freeDeltaNotEquatedToLogicalBytesOrSolelyAttributed": true,
+  "originalRetiredFileManifest": "/Users/dinghaolin/MyProjects/riftbound/var/qa/native-offline-deck-retry-fixed-48e7ff87-20261020/superseded-nine-a-native-retirement-original-file-manifest-v1.json.gz",
+  "manifestSha256": "208a02b204c5a8a1b80d4268658974204a96eefccffac9a59c5c080489882ebc",
+  "retainedLatestAppPair": [
+    "/Users/dinghaolin/MyProjects/riftbound/var/qa/native-offline-deck-retry-fixed-48e7ff87-20261020/Riftbound-A.app",
+    "/Users/dinghaolin/MyProjects/riftbound/var/qa/native-offline-deck-retry-fixed-48e7ff87-20261020/Riftbound-B.app"
+  ],
+  "retainedLatestMacAndWindowsArchives": [
+    "/Users/dinghaolin/MyProjects/riftbound/var/qa/native-offline-deck-retry-fixed-48e7ff87-20261020/native-current/mac-ci-artifact.zip",
+    "/Users/dinghaolin/MyProjects/riftbound/var/qa/native-offline-deck-retry-fixed-48e7ff87-20261020/native-current/windows-ci-artifact.zip"
+  ],
+  "allPriorEvidenceOriginalDatabaseAndFixedOldApiRetained": true
+}

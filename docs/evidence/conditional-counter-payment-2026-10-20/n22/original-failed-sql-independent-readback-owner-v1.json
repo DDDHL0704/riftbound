@@ -1,0 +1,54 @@
+{
+  "status": "PASS_ORIGINAL_FAILED_SQL_WRITER40_COMMAND_HISTORY_INDEPENDENT_READONLY_FULL_REPLAY",
+  "atUtc": "2026-10-20T05:25:49.991896+00:00",
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+    "implementationSha256": "71b556f147411b9397abde9719c67f69f18ef1c69984309cc5199acb9534d1e1",
+    "identitySha256": "19d849273fa6fde794cd61ed7de58abeed7de17e916bf72051741a245dc8ab05"
+  },
+  "writerAndOriginal89RuntimeFilesRetained": true,
+  "lockAtStart": {
+    "atUtc": "2026-10-20T05:25:50.019338+00:00",
+    "roots": [
+      {
+        "rootLocked": false,
+        "sessions": []
+      }
+    ],
+    "missingValuesRemainUnknown": true
+  },
+  "readerSourceSha256": "b0d5e7106ebd9aa1b8f893b7ee1752f9f4bd66b60e7a09ef4d2e9bf0f45bd3eb",
+  "readerDllSha256": "8d2eb63c9b207a0e1146c8135b4eae43cdd38fb3eebe350a5405b3d6034a51e5",
+  "ownPid": 11728,
+  "boundPowerPid": 11733,
+  "originalRoom": "postgres-conditional-counter-fcd39b0439a64d598dca8fe3a3993737",
+  "originalFrame": "var/qa/conditional-counter-payment-audit-20261020/original-failed-first-sql-base-pay-40commands-frame-v1.json.gz",
+  "originalFrameSha256": "35fac28629e6e9205166ce43d2b184f8481b8feeb67dece093a3b35c361a9bf7",
+  "all193Audit41NativeSevenTablesUnchanged": true,
+  "originalCommands": 40,
+  "originalEvents": 164,
+  "actualHistoricalPayloads": {
+    "state_snapshots": 40,
+    "snapshots": 76,
+    "action_prompts": 76
+  },
+  "notAnEngineBehaviorFailure": true,
+  "ownPostgresSmartStopped": true,
+  "boundIdleSleepAssertionEnded": true,
+  "finishedAtUtc": "2026-10-20T05:26:46.669442+00:00",
+  "lockAtEnd": {
+    "atUtc": "2026-10-20T05:26:46.698534+00:00",
+    "roots": [
+      {
+        "rootLocked": false,
+        "sessions": []
+      }
+    ],
+    "missingValuesRemainUnknown": true
+  },
+  "originalDatabaseRetained": true
+}

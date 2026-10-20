@@ -1,0 +1,21 @@
+{
+  "atUtc": "2026-10-20T05:13:50.152540+00:00",
+  "status": "FIXED48_ORIGINAL_NATIVE_NETWORK_BEHAVIOR_INDEPENDENT_READBACK_PASS",
+  "run": 39365877913,
+  "fixedCommit": "48e7ff8702dc43a1b5a3991365d87068506ae137",
+  "artifactSha256": "29504b5e95fd6d3cf89f94fbde93336ef4d88faa0327f7b8d3a3bab0a78c0932",
+  "actualIdentityEvidence": {
+    "room": "NETWORK-691116a5c56d",
+    "rejectedActions": 15,
+    "identities": [
+      "ANONYMOUS",
+      "FAILED_KEY",
+      "OTHER_HANDLE"
+    ],
+    "leakedPrivateMessages": 0,
+    "validReconnectTokenWasSupplied": true
+  },
+  "actualSocketLossAuthenticatedRestoreFreshSnapshotRejectedTokenGuard": true,
+  "originalProjectionGuardPassed": true,
+  "wholeFullAndWindowsPhysicalAndDirtyN22Separate": true
+}

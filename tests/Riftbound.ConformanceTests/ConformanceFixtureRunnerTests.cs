@@ -23406,8 +23406,7 @@ public sealed class ConformanceFixtureRunnerTests
             new PlayCardCommand(
                 "P2-SPELL-HARD-BARGAIN",
                 "SFD·136/221",
-                ["STACK-1-P1-UNIT-SCUTTLE"],
-                Mode: "TARGET_DECLINES_PAY_2_NO_ECHO"),
+                ["STACK-1-P1-UNIT-SCUTTLE"]),
             CancellationToken.None);
 
         Assert.False(result.Accepted);

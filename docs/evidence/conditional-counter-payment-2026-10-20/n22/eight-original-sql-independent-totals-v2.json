@@ -1,0 +1,14 @@
+{
+  "atUtc": "2026-10-20T05:40:10.475262+00:00",
+  "status": "EIGHT_ORIGINAL_SQL_FRAMES_FULL_FIELD_NULL_HISTORY_REPLAY_TOTALS_INDEPENDENTLY_MATCH",
+  "actualHistoricalStates": 316,
+  "actualHistoricalPrivateSnapshots": 600,
+  "actualHistoricalPrompts": 600,
+  "originalPaymentPendingStates": 12,
+  "originalSecondPaymentPendingStates": 4,
+  "actualCommands": 316,
+  "actualEvents": 1312,
+  "allEightSavedOriginalFrameHashesExact": true,
+  "original193Audit41NativeAndAll201ReadbackSevenTablesExact": true,
+  "fixedCommitCiAndVisibleNativeAndPhysicalWindowsSeparate": true
+}

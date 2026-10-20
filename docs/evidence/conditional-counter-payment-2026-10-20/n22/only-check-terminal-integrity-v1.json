@@ -1,0 +1,20 @@
+{
+  "finishedAtUtc": "2026-10-20T06:26:24.604840+00:00",
+  "checkExitCode": 0,
+  "inputManifestSha256": "f8c45a38358c3f26bd3d7c86eb62159d1222d47914e4306998d90ab9abba1acb",
+  "changedSourceInputs": [],
+  "changedConformanceRuntimeFiles": [],
+  "allDeclaredInputsAndRuntimeFilesStable": true,
+  "lockAtEnd": {
+    "atUtc": "2026-10-20T06:26:24.628924+00:00",
+    "roots": [
+      {
+        "rootLocked": false,
+        "sessions": []
+      }
+    ],
+    "missingValuesUnknown": true
+  },
+  "boundIdleSleepAssertionEnded": true,
+  "noSecondCheck": true
+}

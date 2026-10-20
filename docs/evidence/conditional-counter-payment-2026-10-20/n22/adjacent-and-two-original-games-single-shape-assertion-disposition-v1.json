@@ -1,0 +1,23 @@
+{
+  "atUtc": "2026-10-20T04:49:30.711222+00:00",
+  "status": "151_ADJACENT_CASES_AND_BOTH_ORIGINAL_COMPLETE_COUNTER_GAMES_PASS_ONE_NONMODAL_PROTOCOL_ASSERTION_CORRECTED_PENDING_RERUN",
+  "originalTrxSha256": "eb8d38cd6ca58bd9e13eefcc6faa577639831ccd48129f50bb54cfa171234c57",
+  "originalTotal": 152,
+  "originalPassed": 151,
+  "originalFailed": [
+    "Riftbound.ConformanceTests.ConformanceFixtureShapeTests.ActionPromptExposesPlayableReactionCardsDuringStackPriority"
+  ],
+  "bothOriginalCompleteGames": [
+    {
+      "case": "Riftbound.ConformanceTests.FullGameEndToEndTests.AuditedCounteredAzirContinuesToScoreVictoryAndReplays(copied: False)",
+      "outcome": "Passed"
+    },
+    {
+      "case": "Riftbound.ConformanceTests.FullGameEndToEndTests.AuditedCounteredAzirContinuesToScoreVictoryAndReplays(copied: True)",
+      "outcome": "Passed"
+    }
+  ],
+  "failureMeaning": "Nonmodal sourceRequirements.mode uses existing null representation; test had expected empty string. Correct exact expected null, keep no-mode/candidate/target/wait/composable and all other assertions. No production workaround.",
+  "sourceApiCardExplicitlyNonModal": true,
+  "originalFailureRetained": true
+}

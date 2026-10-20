@@ -34,8 +34,9 @@ var pakaRevealOnly = args.SequenceEqual(new[] { "--paka-move-reveal-only" });
 var emptyRevealFollowupOnly = args.SequenceEqual(new[] { "--empty-reveal-followup-only" });
 var hweiMoveDiscardTypesOnly = args.SequenceEqual(new[] { "--hwei-move-discard-types-only" });
 var destructionGraveyardOnly = args.SequenceEqual(new[] { "--destruction-graveyard-only" });
+var conditionalCounterPaymentOnly = args.SequenceEqual(new[] { "--conditional-counter-payment-only" });
 var pakaDualTypeRevealOnly = args.SequenceEqual(new[] { "--paka-dual-type-reveal-only" });
-if (args.Length != 0 && !openingRandomnessOnly && !optionalCostsOnly && !battlefieldPlayRecoveryOnly && !battlefieldPlayDamageOnly && !banishEffectPlayOnly && !hereLocationOnly && !fateWeaverOnly && !multiControllerOrderOnly && !emptyObservedRepeatOnly && !observedPlayWindowOnly && !ravenbloomPutHandOnly && !attachedPredictOnly && !copiedLastBreathOnly && !copiedDuelOnly && !empoweredInsightOnly && !pakaRevealOnly && !emptyRevealFollowupOnly && !pakaDualTypeRevealOnly && !hweiMoveDiscardTypesOnly && !destructionGraveyardOnly && !partition.IsPartition) throw new ArgumentException("Unknown PostgreSQL acceptance selector.");
+if (args.Length != 0 && !openingRandomnessOnly && !optionalCostsOnly && !battlefieldPlayRecoveryOnly && !battlefieldPlayDamageOnly && !banishEffectPlayOnly && !hereLocationOnly && !fateWeaverOnly && !multiControllerOrderOnly && !emptyObservedRepeatOnly && !observedPlayWindowOnly && !ravenbloomPutHandOnly && !attachedPredictOnly && !copiedLastBreathOnly && !copiedDuelOnly && !empoweredInsightOnly && !pakaRevealOnly && !emptyRevealFollowupOnly && !pakaDualTypeRevealOnly && !hweiMoveDiscardTypesOnly && !destructionGraveyardOnly && !conditionalCounterPaymentOnly && !partition.IsPartition) throw new ArgumentException("Unknown PostgreSQL acceptance selector.");
 var json = new JsonSerializerOptions(JsonSerializerDefaults.Web) { WriteIndented = true };
 await using var dataSource = NpgsqlDataSource.Create(connectionString);
 await using (var connection = await dataSource.OpenConnectionAsync()) {
@@ -43,6 +44,12 @@ await using (var connection = await dataSource.OpenConnectionAsync()) {
         await using var command = new NpgsqlCommand(await File.ReadAllTextAsync(path), connection);
         await command.ExecuteNonQueryAsync();
     }
+}
+if (conditionalCounterPaymentOnly)
+{
+    await ConditionalCounterPaymentSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "conditional-counter-payment"));
+    Console.WriteLine("SCOPED_POSTGRES_ONLY: conditional-counter-payment; the retained complete SQL suite was not requested.");
+    return;
 }
 if (destructionGraveyardOnly)
 {
@@ -322,5 +329,6 @@ await partition.RunAsync("empty-reveal-followup", () => EmptyRevealSqlAcceptance
 await partition.RunAsync("paka-dual-type-reveal", () => PakaaDualTypeRevealSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "paka-dual-type-reveal")));
 await partition.RunAsync("hwei-move-discard-types", () => HweiMoveDiscardTypesSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "hwei-move-discard-types")));
 await partition.RunAsync("destruction-graveyard", () => DestructionGraveyardSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "destruction-graveyard")));
+await partition.RunAsync("conditional-counter-payment", () => ConditionalCounterPaymentSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "conditional-counter-payment")));
 
 await partition.CompleteAsync(output);

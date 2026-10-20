@@ -1,0 +1,8 @@
+{
+  "atUtc": "2026-10-20T06:00:22.660Z",
+  "room": "N22-PAY-6F8A57AF6E",
+  "clientCommit": "48e7ff8702dc43a1b5a3991365d87068506ae137",
+  "backendIdentity": "19d849273fa6fde794cd61ed7de58abeed7de17e916bf72051741a245dc8ab05",
+  "sha256": "2ccc7f1b17b31a5a6347ceff72cb4f5d28dda2b3595d994e390fd07ff44f0a54",
+  "scope": "Actual first payment selection controls before submission"
+}

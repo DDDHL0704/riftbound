@@ -24858,6 +24858,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             foreach (var targetStackItemId in stackItem.TargetObjectIds)
             {
+                if (behavior.CounterUnlessControllerPaysMana > 0
+                    && TargetSpellControllerPaysCounterCost(state, playerZones, cardObjects, runePools,
+                        targetStackItemId, stackItem, behavior.CounterUnlessControllerPaysMana, events))
+                    continue;
                 // The restriction refers to the target's controller at resolution,
                 // independently of whether the counter instruction succeeds.
                 if (behavior.PreventsTargetSpellControllerPlayingSpellsThisTurn

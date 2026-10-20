@@ -1,0 +1,27 @@
+{
+  "atUtc": "2026-10-20T06:13:07.047Z",
+  "quitMethod": "Native application Cmd+Q; no surrender",
+  "nativeApps": [
+    {
+      "displayName": "Riftbound-A",
+      "id": "com.riftbound.qa.current-48e7ff87.a",
+      "isRunning": true,
+      "lastUsedDate": 814147200,
+      "useCount": 3
+    },
+    {
+      "displayName": "Riftbound-B",
+      "id": "com.riftbound.qa.current-48e7ff87.b",
+      "isRunning": false,
+      "lastUsedDate": 814147200,
+      "useCount": 3
+    }
+  ],
+  "userGodot": {
+    "displayName": "Godot",
+    "id": "org.godotengine.godot",
+    "isRunning": true
+  },
+  "appServicesProcNotFoundAfterQuitObserved": true,
+  "exitCodesNotAvailableThroughAppServices": true
+}

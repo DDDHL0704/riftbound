@@ -1,0 +1,6 @@
+{
+  "atUtc": "2026-10-20T06:01:36.345Z",
+  "room": "N22-PAY-6F8A57AF6E",
+  "sha256": "647029d448c89ce91e819cf030ba09cd9c9897d0bd537fba41d481ac020ecca2",
+  "scope": "Observe next current prompt after one native PayCost; exact DB readback still required"
+}

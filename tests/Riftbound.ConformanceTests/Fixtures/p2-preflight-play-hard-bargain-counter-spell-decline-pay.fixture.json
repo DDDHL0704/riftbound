@@ -12,7 +12,7 @@
     {
       "source": "official/card-catalog.zh-CN.json",
       "locator": "SFD·136/221 强买强卖; OGS·003/024 焚烧",
-      "note": "官方卡面：《强买强卖》费用 2；反应；回响 2；选择一个法术，除非其控制者选择支付 2，否则无效化该法术。《焚烧》用于提供结算链上的法术目标。当前 fixture 用 PLAY_CARD.mode 记录目标控制者不支付 2 且不支付回响的代表分支。"
+      "note": "官方卡面：《强买强卖》费用 2；反应；回响 2；选择一个法术，除非其控制者选择支付 2，否则无效化该法术。《焚烧》用于提供结算链上的法术目标。该原代表分支中，目标控制者打出焚烧后法力为 0 且无可用资源，无法支付 2；不由施法者声明其拒付，不支付回响。2026-10-20 依当前中文核心445/820校正普通声明，保留原5命令身份/次序、种子及结果断言。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",
@@ -131,7 +131,7 @@
         "cmdType": "PLAY_CARD",
         "sourceObjectId": "P2-SPELL-HARD-BARGAIN",
         "cardNo": "SFD·136/221",
-        "mode": "TARGET_DECLINES_PAY_2_NO_ECHO",
+        "mode": "",
         "targetObjectIds": [
           "STACK-1-P1-SPELL-INCINERATE"
         ]
@@ -213,11 +213,11 @@
           "controllerId": "P2",
           "sourceObjectId": "P2-SPELL-HARD-BARGAIN",
           "cardNo": "SFD·136/221",
-          "mode": "TARGET_DECLINES_PAY_2_NO_ECHO",
+          "mode": "",
           "targetObjectIds": [
             "STACK-1-P1-SPELL-INCINERATE"
           ],
-          "effectKind": "HARD_BARGAIN_COUNTER_SPELL_TARGET_DECLINES_PAY_2_NO_ECHO"
+          "effectKind": "HARD_BARGAIN_COUNTER_SPELL_UNLESS_CONTROLLER_PAYS_2"
         }
       },
       {
@@ -232,7 +232,7 @@
           "stackItemId": "STACK-3-P2-SPELL-HARD-BARGAIN",
           "controllerId": "P2",
           "sourceObjectId": "P2-SPELL-HARD-BARGAIN",
-          "effectKind": "HARD_BARGAIN_COUNTER_SPELL_TARGET_DECLINES_PAY_2_NO_ECHO"
+          "effectKind": "HARD_BARGAIN_COUNTER_SPELL_UNLESS_CONTROLLER_PAYS_2"
         }
       },
       {

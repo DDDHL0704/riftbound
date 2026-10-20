@@ -1,0 +1,6 @@
+{
+  "requestedAtUtc": "2026-10-20T04:20:40.987984+00:00",
+  "reason": "Original current room finished normally; all five original full replays and all historical fields independently pass; both actual native clients normally closed. Complete original-row guards then stop only owned API/Postgres/power assertion.",
+  "nativeAcceptanceReceiptSha256": "382dac62ecdfa8490dfe66a16a0efd3b4194d904800e9dfef2eeb6b7076afcaf",
+  "noOriginalDatabaseDeletion": true
+}

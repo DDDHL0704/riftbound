@@ -1,0 +1,17 @@
+{
+  "atUtc": "2026-10-20T05:23:29.548672+00:00",
+  "status": "ONE_EXISTING_TOOL_TEST_EXPECTATION_FAILS_AFTER_DECLARED_46TH_SQL_ID",
+  "originalSource": "scripts/tests/test_sql_ci_gate.py",
+  "originalSha256": "0d91a3189e4323cffe0f41c865b7ebbd8d846283e1bfbf5d17df4f9265099550",
+  "retainedOriginalSource": "var/qa/conditional-counter-payment-audit-20261020/original45-sql-count-test-before-new46-v1.py.gz",
+  "tests": 8,
+  "passed": 7,
+  "failed": 1,
+  "failedMethod": "test_exact_all_default_cases_including_original_core_are_required_once",
+  "actualFailure": "self.assertEqual(45, result[caseCount]); AssertionError: 45 != 46",
+  "cause": "New declared conditional-counter-payment identity appended after the original ordered45; unchanged gate correctly reports46.",
+  "plannedCorrection": "Change the independently pinned expected total to46; retain original full-order, original-core-once, missing/duplicate/tamper/runtime/child-state and first-wave assertions.",
+  "correctionDeferredUntilFrozenSqlOwnerCompletesToKeep3308SourceInputsExact": true,
+  "notAnEngineBehaviorOrSqlExecutionFailure": true,
+  "soleCheckNotRun": true
+}

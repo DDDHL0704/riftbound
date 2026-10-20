@@ -1,0 +1,253 @@
+{
+  "recordedAtUtc": "2026-10-20T06:53:19.866597+00:00",
+  "region": "CN",
+  "language": "zh-CN",
+  "applicabilityObservedAt": "2026-10-20",
+  "adoptedCoreEffectiveDate": "2026-10-16",
+  "exactPrinting": "SFD·136/221",
+  "exactApiId": 33226,
+  "parentWholePrintingObligation": "CARD:SFD-136/221",
+  "printingPublishedAt": null,
+  "printingEffectiveAtIndependentlyVerified": null,
+  "scope": "Conditional target-current-controller two-mana resolution payment, printed Echo and their bounded native wording only.",
+  "sourceAuthorityReadback": {
+    "path": "docs/evidence/conditional-counter-payment-2026-10-20/n22/bounded-current-official-source-readback-v2.json",
+    "sha256": "8bef14a18b34fce313975045b359188e20c0208a52407c6edaf993d89d9b947f",
+    "role": "current-official-source-readback"
+  },
+  "sourceVisualSemanticReview": {
+    "path": "docs/evidence/conditional-counter-payment-2026-10-20/n22/current-source-exact-visual-semantic-scope-v2.json",
+    "sha256": "ffe556836a22afd92fa487408d42967d81f8bdd39cf73234fb5b811efe38be25",
+    "role": "exact-current-source-visual-review"
+  },
+  "exactPrintingAndClauseRefs": [
+    "SFD-136/221",
+    "CN-d6fd7140f106f9b5-P089-B016",
+    "CN-d6fd7140f106f9b5-P089-B017",
+    "CN-d6fd7140f106f9b5-P089-B018",
+    "CN-d6fd7140f106f9b5-P089-B019",
+    "CN-d6fd7140f106f9b5-P110-B018",
+    "CN-d6fd7140f106f9b5-P110-B019",
+    "CN-d6fd7140f106f9b5-P110-B020",
+    "CN-d6fd7140f106f9b5-P122-B017",
+    "CN-d6fd7140f106f9b5-P122-B018",
+    "CN-d6fd7140f106f9b5-P122-B019",
+    "CN-d6fd7140f106f9b5-P122-B020",
+    "CN-d6fd7140f106f9b5-P122-B021",
+    "CN-d6fd7140f106f9b5-P122-B022",
+    "CN-d6fd7140f106f9b5-P122-B023",
+    "CN-d6fd7140f106f9b5-P122-B024",
+    "CN-d6fd7140f106f9b5-P122-B025",
+    "CN-d6fd7140f106f9b5-P123-B002",
+    "CN-d6fd7140f106f9b5-P123-B003",
+    "CN-d6fd7140f106f9b5-P123-B004",
+    "CN-d6fd7140f106f9b5-P123-B005",
+    "CN-d6fd7140f106f9b5-P123-B006"
+  ],
+  "baseCommit": "48e7ff8702dc43a1b5a3991365d87068506ae137",
+  "includesUncommittedImplementation": true,
+  "implementation": [
+    {
+      "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+      "sha256": "75e61f36823170b998704202f49d658f94f290da53a8dfba5030c42c1b017147",
+      "role": "implementation"
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+      "sha256": "06500754b75fddee9dacb0cb0dae001cb643aaf60e958e5e9a756ad537ccaf4d",
+      "role": "implementation"
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.Repeats.cs",
+      "sha256": "8faa2e824ae427e1a191b751aaf906f07da6167136bd1e93b4b06526d14adccb",
+      "role": "implementation"
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.ConditionalCounterPayment.cs",
+      "sha256": "e26712738a91cec441d5543ed1e14da98207fb6914f06aa8041b03e02658501e",
+      "role": "implementation"
+    },
+    {
+      "path": "src/Riftbound.Engine/MatchSession.cs",
+      "sha256": "c18b79033c3b0c112d77f672ee60a9ecee9150676859cdf0b0866ea2ee3324fc",
+      "role": "implementation"
+    },
+    {
+      "path": "clients/godot/scripts/ui/MatchPhasePresentation.cs",
+      "sha256": "991c5b2c4969e6c4322a84baa8b291e18f2ee62f9359fe5e0c2fa5fe88be2525",
+      "role": "implementation"
+    }
+  ],
+  "verificationSources": [
+    {
+      "path": "tests/Riftbound.ConformanceTests/ConditionalCounterPaymentTests.cs",
+      "sha256": "2c244f03fe01752d97aa864c35f935a97b1a7e032acfeaed00c358dab35abde9",
+      "role": "verification"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/ConditionalCounterPaymentOpeningTests.cs",
+      "sha256": "b1996cff8c839141ecc976eaffd7a800900bdf4311bf3c419a4b3b1f489576c6",
+      "role": "verification"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+      "sha256": "cd28df8b9ed3160d6f0136861c25ff4fb8e98d4773fa2ec145cdb2d58f7163e9",
+      "role": "verification"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureShapeTests.cs",
+      "sha256": "d47b32dc7db72844bb5aeac4677b7573b2e95ffab3697543eb5fc34d7c03b955",
+      "role": "verification"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/Fixtures/conditional-counter-openings.json",
+      "sha256": "8ee045d4c477901f1e9894c08b57d302ec96071593fdc0289cbd7a27bd2a7df0",
+      "role": "verification"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-hard-bargain-counter-spell-decline-pay.fixture.json",
+      "sha256": "5d61716da5d091c1f29f5849620d0157cdf77c89d3d8b47b5bf747e7f75df6e1",
+      "role": "verification"
+    },
+    {
+      "path": "tests/Riftbound.PostgresAcceptance/ConditionalCounterPaymentSqlAcceptance.cs",
+      "sha256": "67dbfab1d771cf0e988fea8f79f2a919c5f79b65864040a3a74f56a03a17bf29",
+      "role": "verification"
+    },
+    {
+      "path": "tests/Riftbound.PostgresAcceptance/Program.cs",
+      "sha256": "7fc5572ab2076d26f4fcad432af940b4851b053f39e21cc446eb4714f648935e",
+      "role": "verification"
+    },
+    {
+      "path": "tests/Riftbound.PostgresAcceptance/Riftbound.PostgresAcceptance.csproj",
+      "sha256": "e4ce209b9c219e0edbb1e9ba7e513d80251891e26f5f8b18d2e9a3a9e3a9ad9d",
+      "role": "verification"
+    },
+    {
+      "path": "tests/Riftbound.PostgresAcceptance/SqlAcceptanceCases.json",
+      "sha256": "e93d89bc42816ca5acb2e36688a1ddb9e6e103e7dd6d5431b0b0716187c5348b",
+      "role": "verification"
+    },
+    {
+      "path": "scripts/tests/test_sql_ci_gate.py",
+      "sha256": "e5d49a5169afb6341f66645cba9a320e2e8a1062ba604a9d1a2ce05aa273fca0",
+      "role": "verification"
+    }
+  ],
+  "soleCheckHistoricalInputEvidence": {
+    "path": "docs/evidence/conditional-counter-payment-2026-10-20/n22/only-check-retention-and-disposition-v1.json",
+    "sha256": "9f6853d42904644e00e9dcc7a4f3d09ae4760ed3595991eaa156c3f0804a5a73",
+    "role": "historical-sole-check13139"
+  },
+  "soleCheckIncludesLaterTwoPresentationEdits": false,
+  "postCheckPresentationEdits": {
+    "path": "docs/evidence/conditional-counter-payment-2026-10-20/n22/post-sole-check-native-wording-source-change-v1.json",
+    "sha256": "7041813a1a40a7adeabe2cd8e73e5f9e57a3e83d7264e58c841ffe9c2b7c762e",
+    "role": "two-post-check-presentation-source-corrections"
+  },
+  "currentFocused35": {
+    "path": "docs/evidence/conditional-counter-payment-2026-10-20/n22/post-wording-current35-focus-independent-readback-v1.json",
+    "sha256": "ab7426faa598bb94ce7c02d307cd0ee3aa668b28272bb6bd5cca5c3d70172079",
+    "role": "current-post-wording-focus35"
+  },
+  "historicalDebugRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+    "implementationSha256": "6c679af5e013a772984d53cb5313b4481da873a8545cabab4d2ec67413125599",
+    "identitySha256": "63e858eda14cb2c357f8a088e59ed74d256f2da58aa38ed5534e714e9f6fc6fc"
+  },
+  "preWordingReleaseRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+    "implementationSha256": "71b556f147411b9397abde9719c67f69f18ef1c69984309cc5199acb9534d1e1",
+    "identitySha256": "19d849273fa6fde794cd61ed7de58abeed7de17e916bf72051741a245dc8ab05"
+  },
+  "currentActualReleaseRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+    "implementationSha256": "19ebca568f916f0eabb8332260ce569c501fac500a55bd98c9e16152292fe088",
+    "identitySha256": "713878058baf394915f4b0a7387d62e971c185f36edbd4cff60aaf10f4e5e88e"
+  },
+  "currentEightActualSqlBranches": {
+    "path": "docs/evidence/conditional-counter-payment-2026-10-20/n22/real-sql-verification-v3.json",
+    "sha256": "b7f31079adf77e3be6937d38c38372918d408ae91372b097660ca02883230ee2",
+    "role": "current-release-eight-real-sql-and-independent-replay"
+  },
+  "currentSqlIndependentOriginalReader": {
+    "path": "docs/evidence/conditional-counter-payment-2026-10-20/n22/independent-actual-sql-readonly-result-v3.json",
+    "sha256": "a59dc3e43c1cb20b1ae5e3945cf638b46eb74102e8e09f805a4f884c57469ec8",
+    "role": "current-real-sql-independent-original-reader"
+  },
+  "preWordingMixedVersionNativeSourceAudit": {
+    "path": "docs/evidence/conditional-counter-payment-2026-10-20/n22/native-current-source-audit-closure-v1.json",
+    "sha256": "696c5dd2acfaf2253700255d8b32308dd6c285334e7ea114ebd3350db4c47c6a",
+    "role": "pre-wording-mixed-version-native-source-audit"
+  },
+  "sourceAuditNativeClientCommit": "48e7ff8702dc43a1b5a3991365d87068506ae137",
+  "sourceAuditNativeBackendIdentity": "19d849273fa6fde794cd61ed7de58abeed7de17e916bf72051741a245dc8ab05",
+  "sourceAuditIsCurrentFixedCandidateAcceptance": false,
+  "currentBehaviorMatrix": {
+    "path": "docs/evidence/conditional-counter-payment-2026-10-20/n22/bounded-five-branch-case-matrix-v1.json",
+    "sha256": "f5205cac0f0c9c43500b2b7fa80fc90b67b63f79602f7c99e7f0d8f5dffb9ee9",
+    "role": "bounded-actual32-case-five-branch-matrix"
+  },
+  "originalTestAndFixtureRetention": {
+    "path": "docs/evidence/conditional-counter-payment-2026-10-20/n22/original1859-tests-tools-five-command-fixture-and-nine-fullgames-retention-v2.json",
+    "sha256": "cfc7398e170a8c6582bbe3d90c277e69ea8e2082371dc37b95db501d24d1f818",
+    "role": "all-original-tests-fixture-fullgames-retained"
+  },
+  "newSqlIdentity": "conditional-counter-payment",
+  "original45SqlIdsAndOrderRetainedNew46thOnlyAppended": true,
+  "precedingFixed48VisibleNative": {
+    "path": "docs/evidence/conditional-counter-payment-2026-10-20/fixed48/native-visible-v1/fixed-visible-mac-native-acceptance-v1.json",
+    "sha256": "382dac62ecdfa8490dfe66a16a0efd3b4194d904800e9dfef2eeb6b7076afcaf",
+    "role": "preceding-fixed48-visible-native-score-and-replay"
+  },
+  "precedingFixed48DefaultOfflineRetry": {
+    "path": "docs/evidence/conditional-counter-payment-2026-10-20/fixed48/actual-default-main-offline-retry-owner-v1.json",
+    "sha256": "fda3cee903ad53974d2e53c54369e47441f032fccf10dfe10574ef52901c3d3f",
+    "role": "fixed48-real-default-main-offline-retry"
+  },
+  "precedingFixed48PartialCi": {
+    "path": "docs/evidence/conditional-counter-payment-2026-10-20/fixed48/current48-original-rules13256-and-sql3-independent-readback-v1.json",
+    "sha256": "2234c90d0ae12362d0932bce5a33971cbc1418dced8a06cef2cd4a3d9483b82f",
+    "role": "fixed48-original-rules-and-sql3"
+  },
+  "precedingFixed48Network": {
+    "path": "docs/evidence/conditional-counter-payment-2026-10-20/fixed48/current48-original-network-content-independent-readback-v1.json",
+    "sha256": "9d88eb56fbf022187a57396351f7c61919d0eb57f95904ec726c47432a421dec",
+    "role": "fixed48-original-native-network"
+  },
+  "precedingFixed48CiSql0AndWholeTerminal": "PENDING_AT_THIS_PUBLICATION_SEE_ORIGINAL_SNAPSHOTS",
+  "priorFixedNineAFullCi": {
+    "path": "docs/evidence/conditional-counter-payment-2026-10-20/prior9a/nine-a-full-ci-terminal-independent-original-readback-v1.json",
+    "sha256": "e15bb445ef77ede0a510f38793c35fb69b833a2cc3dfd52e6f00573a4760e0a8",
+    "role": "prior9a-original-full-ci-terminal"
+  },
+  "newCandidateFixedFull": "PENDING_AFTER_COMMIT",
+  "currentFixedNativeControlsPairedReconnectNormalScoreReplay": "OPEN",
+  "physicalWindows": "OPEN",
+  "separateNativeDependencyFinding": {
+    "path": "docs/evidence/conditional-counter-payment-2026-10-20/n22/native-signalr-current-artifact-dependency-version-finding-v1.json",
+    "sha256": "17659ffd1a46bda9991e7102e333b8a2b662f62f822eb75000e04c025b5c5cda",
+    "role": "separate-native-dependency-finding"
+  },
+  "separateDependencyIssue": "https://github.com/DDDHL0704/riftbound/issues/73",
+  "dependencyFindingIsOfficialGameSourceDelta": false,
+  "sixOriginalGameSourceDeltasUnchanged": true,
+  "sourceUniverseAndAllOriginalGapsRetained": true,
+  "wholePrintingOrFamilyOrGlobalSemanticsCertified": false,
+  "noOldDevelopmentMatchMigrationOrDslExpansion": true,
+  "onlyLatestUsableNativePairAndOnePackagePerOs": true,
+  "noNewGodotSdkWholeCheckoutOrDatabase": true
+}

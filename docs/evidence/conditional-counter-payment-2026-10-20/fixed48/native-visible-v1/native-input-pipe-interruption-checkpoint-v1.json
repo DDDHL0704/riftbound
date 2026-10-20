@@ -1,0 +1,19 @@
+{
+  "atUtc": "2026-10-20T04:07:31.978694+00:00",
+  "nativeToolError": "Sky Computer Use native pipe closed before response",
+  "attemptedAction": "Escape in B movement selector",
+  "actionDeliveryAndVisibleResult": "UNKNOWN_NO_ACCEPTANCE_CLAIM",
+  "sameOriginalSqlCountsAfterPipeError": true,
+  "counts": {
+    "matches": 1,
+    "match_players": 2,
+    "command_log": 12,
+    "game_events": 54,
+    "state_snapshots": 12,
+    "snapshots": 19,
+    "action_prompts": 19
+  },
+  "originalCurrentRoomPreserved": "RB-B67RVX",
+  "backgroundApiSqlAndCiCanContinue": true,
+  "noUnlockRequestOrSecuritySettingChanges": true
+}

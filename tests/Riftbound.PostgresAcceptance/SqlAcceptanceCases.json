@@ -182,6 +182,10 @@
     {
       "id": "destruction-graveyard",
       "sourceType": "DestructionGraveyardSqlAcceptance"
+    },
+    {
+      "id": "conditional-counter-payment",
+      "sourceType": "ConditionalCounterPaymentSqlAcceptance"
     }
   ]
 }

@@ -1,0 +1,28 @@
+{
+  "observedAtUtc": "2026-10-20T04:19:12.485Z",
+  "fixedCommit": "48e7ff8702dc43a1b5a3991365d87068506ae137",
+  "quitAction": "Native Command-Q to each exact current QA client after score result screenshots",
+  "inventory": [
+    {
+      "displayName": "Godot",
+      "id": "org.godotengine.godot",
+      "isRunning": true
+    },
+    {
+      "displayName": "Riftbound-A",
+      "id": "com.riftbound.qa.current-48e7ff87.a",
+      "isRunning": false,
+      "lastUsedDate": 814147200,
+      "useCount": 2
+    },
+    {
+      "displayName": "Riftbound-B",
+      "id": "com.riftbound.qa.current-48e7ff87.b",
+      "isRunning": false,
+      "lastUsedDate": 814147200,
+      "useCount": 1
+    }
+  ],
+  "launchedViaAppServicesExitCodesNotDirectlyObservable": true,
+  "userGodotNotOperated": true
+}

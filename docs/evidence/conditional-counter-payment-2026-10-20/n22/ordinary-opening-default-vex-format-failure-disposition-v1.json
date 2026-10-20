@@ -1,0 +1,26 @@
+{
+  "atUtc": "2026-10-20T05:00:33.836822+00:00",
+  "failedExplorerExecution": "opening-explorer-execution-v1.log",
+  "originalExplorerSourceSha256": "4cc6c2e0ffa41d9503a52582b89a603f88c9bb541305e79be4bfcaf30f73e6bc",
+  "originalSourceRetainedLosslessly": "var/qa/conditional-counter-payment-audit-20261020/opening-explorer-pre-validation-failure-source-v1.cs.gz",
+  "failure": "Actual CN standard deck validation rejected a default vex-response battlefield as banned since2026-07-24.",
+  "actualApiDefaultVexBattlefields": [
+    {
+      "cardNo": "OGN·275/298",
+      "cardName": "团结圣坛"
+    },
+    {
+      "cardNo": "OGN·277/298",
+      "cardName": "后巷酒吧"
+    },
+    {
+      "cardNo": "OGN·278/298",
+      "cardName": "班德尔树"
+    }
+  ],
+  "beforeAnyRoomOrJournalOrGameplayCommand": true,
+  "currentRuntimeDeckFormatNotRelaxed": true,
+  "correctionForThisBoundedNewTestInput": "Use the independently validated Jhin battlefield list in the new Vex test deck only; existing eleven production defaults and all original110 pairs unchanged.",
+  "defaultDeckNativeCnFormatApplicabilityRequiresSeparateObligationAndIssue": true,
+  "noOfficialSourceBytesChanged": true
+}

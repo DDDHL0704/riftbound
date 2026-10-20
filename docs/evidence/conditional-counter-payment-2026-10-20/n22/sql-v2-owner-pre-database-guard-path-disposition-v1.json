@@ -1,0 +1,9 @@
+{
+  "atUtc": "2026-10-20T05:28:36.819941+00:00",
+  "status": "OWNER_V2_GUARD_SOURCE_PATH_CORRECTED_BEFORE_ANY_DATABASE_OPERATION",
+  "originalScriptSha256": "a5b5472c551e42f4b28d7fdabfd8810c966df05e894e731c4fb5a56fb01c1a7f",
+  "retainedOriginalScript": "var/qa/conditional-counter-payment-audit-20261020/sql-v2-owner-pre-database-guard-path-source-v1.py.gz",
+  "error": "FileNotFoundError: run-visible-native-api-v2.py",
+  "cause": "The new receipt/run suffix update accidentally affected the existing read-only guard function source path.",
+  "correction": "Restore the existing original run-visible-native-api-v1.py reference; no production, SQL runtime, source inputs or database changed."
+}
