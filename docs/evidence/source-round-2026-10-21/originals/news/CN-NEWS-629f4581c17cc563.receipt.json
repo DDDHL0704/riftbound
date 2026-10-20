@@ -1,0 +1,41 @@
+{
+  "url": "https://mp.weixin.qq.com/s/k7K4L67r_DBTdDIsqjSjsw",
+  "request": null,
+  "attemptedAtUtc": "2026-10-20T16:16:22.691685+00:00",
+  "roundApplicableAsOf": "2026-10-21",
+  "region": "CN",
+  "language": "zh-CN",
+  "timezone": "Asia/Shanghai",
+  "firstPublicationIndependentlyConfirmed": null,
+  "effectiveDateIndependentlyConfirmed": null,
+  "semanticReview": "OPEN",
+  "runtimeAuthorityChanged": false,
+  "resolvedUrl": "https://mp.weixin.qq.com/s/k7K4L67r_DBTdDIsqjSjsw",
+  "httpStatus": 200,
+  "responseHeaders": {
+    "Last-Modified": "Wed, 21 Oct 2026 00:16:24 +0800",
+    "Content-Type": "text/html; charset=UTF-8"
+  },
+  "status": "SOURCE_EXTRACTION_GAP_WITH_ORIGINAL_RESPONSE_RETAINED",
+  "receivedAtUtc": "2026-10-20T16:16:27.226102+00:00",
+  "path": "var/qa/source-round-20261021/news/CN-NEWS-629f4581c17cc563.html.gz",
+  "sha256": "f839211bd20ac653cbd2c1f311abc012c9b02d6f12fe633dd0cb555b184f5d09",
+  "bytes": 3446450,
+  "compressedSha256": "78e498d9757442a2a341ffef76f25b370b1895df24ddce095defbb8d81c199fb",
+  "losslessGzipOriginalBytes": true,
+  "id": "CN-NEWS-629f4581c17cc563",
+  "allListingRows": [
+    {
+      "name": "城市挑战赛 西安WE主场特别场",
+      "image": "https://cdn.playloltcg.com/lol/2026/04/2026-04-24/dbf0b06c41064102a5f2129087e6e6b1.png",
+      "pushDate": "2026-04-24",
+      "jumpType": "h5",
+      "appId": "",
+      "jumpUrl": "https://mp.weixin.qq.com/s/k7K4L67r_DBTdDIsqjSjsw",
+      "sort": 121
+    }
+  ],
+  "publishedAsListed": "2026-04-24",
+  "extractionErrorType": "TypeError",
+  "extractionError": "'int' object is not callable"
+}

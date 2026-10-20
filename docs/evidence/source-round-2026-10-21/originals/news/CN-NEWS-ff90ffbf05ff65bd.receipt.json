@@ -1,0 +1,41 @@
+{
+  "url": "https://mp.weixin.qq.com/s/s_6STtiA52gQdCj4G14RBQ",
+  "request": null,
+  "attemptedAtUtc": "2026-10-20T16:16:58.807981+00:00",
+  "roundApplicableAsOf": "2026-10-21",
+  "region": "CN",
+  "language": "zh-CN",
+  "timezone": "Asia/Shanghai",
+  "firstPublicationIndependentlyConfirmed": null,
+  "effectiveDateIndependentlyConfirmed": null,
+  "semanticReview": "OPEN",
+  "runtimeAuthorityChanged": false,
+  "resolvedUrl": "https://mp.weixin.qq.com/s/s_6STtiA52gQdCj4G14RBQ",
+  "httpStatus": 200,
+  "responseHeaders": {
+    "Last-Modified": "Wed, 21 Oct 2026 00:16:59 +0800",
+    "Content-Type": "text/html; charset=UTF-8"
+  },
+  "status": "SOURCE_EXTRACTION_GAP_WITH_ORIGINAL_RESPONSE_RETAINED",
+  "receivedAtUtc": "2026-10-20T16:17:01.262835+00:00",
+  "path": "var/qa/source-round-20261021/news/CN-NEWS-ff90ffbf05ff65bd.html.gz",
+  "sha256": "951534683e3c72ac1ce2fe9e4dcf4c8041bce4550e8241dd31ad6eb43f652f17",
+  "bytes": 3447283,
+  "compressedSha256": "7c2f8edf5d954adcdedb5ebcef1febd2a2797684c3f03ace5002280cb37c23b3",
+  "losslessGzipOriginalBytes": true,
+  "id": "CN-NEWS-ff90ffbf05ff65bd",
+  "allListingRows": [
+    {
+      "name": "符文战场全新任务系统即将上线",
+      "image": "https://cdn.playloltcg.com/lol/2026/07/2026-07-30/871e17c5353c4389b1800e029adfb86b.jpg",
+      "pushDate": "2026-07-30",
+      "jumpType": "h5",
+      "appId": "",
+      "jumpUrl": "https://mp.weixin.qq.com/s/s_6STtiA52gQdCj4G14RBQ",
+      "sort": 146
+    }
+  ],
+  "publishedAsListed": "2026-07-30",
+  "extractionErrorType": "TypeError",
+  "extractionError": "'int' object is not callable"
+}

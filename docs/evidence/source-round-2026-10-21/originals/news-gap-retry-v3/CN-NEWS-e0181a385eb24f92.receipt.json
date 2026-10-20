@@ -1,0 +1,106 @@
+{
+  "id": "CN-NEWS-e0181a385eb24f92",
+  "url": "https://mp.weixin.qq.com/s/eYhlojxzsgTFKeAu_X5PAA",
+  "attemptedAtUtc": "2026-10-20T16:22:06.920059+00:00",
+  "roundApplicableAsOf": "2026-10-21",
+  "region": "CN",
+  "language": "zh-CN",
+  "firstPublicationIndependentlyConfirmed": null,
+  "effectiveDateIndependentlyConfirmed": null,
+  "previousOriginalReceipt": {
+    "path": "var/qa/source-round-20261021/news/CN-NEWS-e0181a385eb24f92.receipt.json",
+    "sha256": "a972e6c57efdf4e07e6a958385629c96b15674f147fe2f63833a0d146aea1663"
+  },
+  "normalTlsValidationNoBypass": true,
+  "attemptsThisRetryPass": 1,
+  "exitCode": 0,
+  "stderr": "",
+  "receivedAtUtc": "2026-10-20T16:22:09.091708+00:00",
+  "rawPath": "var/qa/source-round-20261021/news-gap-retry-v3/CN-NEWS-e0181a385eb24f92.original.gz",
+  "rawSha256": "038065258d445fe90861ccbb3e5f6b4613fc380bedba4628ccebf8f7d2dcc289",
+  "rawBytes": 3481944,
+  "compressedSha256": "bb93f3e976b508249f9db9b4ea0f978c54b68b094e8bd662117ae835b08b94e1",
+  "status": "FETCHED_COMPLETE_LITERAL_ROOT_WITH_NORMAL_TLS_RETRY_NOT_CERTIFICATION",
+  "literalRootSha256": "b2e5b9ca120e0a4bd6ebca44cb02ffaae33064872a7b182bc2723b156e54ae4b",
+  "literalRootCharacters": 9354,
+  "bodyTextSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "bodyTextCharacters": 0,
+  "images": [
+    {
+      "url": "https://mmecoa.qpic.cn/mmecoa_gif/M9v64QVNlqI9FsoW2ic0z99JXq4Zpmdc5Tsd90t6vicia2ObLY9OnVHzvvD6bwcxC1qvqePWBmXVGdmfEeJ0ftUKg/640?wx_fmt=gif",
+      "data-src": "https://mmecoa.qpic.cn/mmecoa_gif/M9v64QVNlqI9FsoW2ic0z99JXq4Zpmdc5Tsd90t6vicia2ObLY9OnVHzvvD6bwcxC1qvqePWBmXVGdmfEeJ0ftUKg/640?wx_fmt=gif",
+      "data-w": "1080",
+      "data-ratio": "0.34444444444444444"
+    },
+    {
+      "url": "https://mmecoa.qpic.cn/mmecoa_jpg/M9v64QVNlqI9FsoW2ic0z99JXq4Zpmdc5uuo529SauAYI6pFfXmokgIdkALCEP0nLTfvJoCnbGd6yeFCrHM7PDA/640?wx_fmt=jpeg",
+      "data-src": "https://mmecoa.qpic.cn/mmecoa_jpg/M9v64QVNlqI9FsoW2ic0z99JXq4Zpmdc5uuo529SauAYI6pFfXmokgIdkALCEP0nLTfvJoCnbGd6yeFCrHM7PDA/640?wx_fmt=jpeg",
+      "data-w": "1080",
+      "data-ratio": "1.9166666666666667"
+    },
+    {
+      "url": "https://mmecoa.qpic.cn/mmecoa_jpg/M9v64QVNlqI9FsoW2ic0z99JXq4Zpmdc5NnTBZhzkCyWunxo4EvyXib4HuiaLzf58UKLy8ibc3iaxFZ79Q5JsHs7KJg/640?wx_fmt=jpeg",
+      "data-src": "https://mmecoa.qpic.cn/mmecoa_jpg/M9v64QVNlqI9FsoW2ic0z99JXq4Zpmdc5NnTBZhzkCyWunxo4EvyXib4HuiaLzf58UKLy8ibc3iaxFZ79Q5JsHs7KJg/640?wx_fmt=jpeg",
+      "data-w": "1080",
+      "data-ratio": "0.7407407407407407"
+    },
+    {
+      "url": "https://mmecoa.qpic.cn/mmecoa_jpg/M9v64QVNlqI9FsoW2ic0z99JXq4Zpmdc5L1gzIVM9Dgj5IT3ZC96sjcnAZKfA4v7Qyic8soZs9MicNtSXBL6dyCGg/640?wx_fmt=jpeg",
+      "data-src": "https://mmecoa.qpic.cn/mmecoa_jpg/M9v64QVNlqI9FsoW2ic0z99JXq4Zpmdc5L1gzIVM9Dgj5IT3ZC96sjcnAZKfA4v7Qyic8soZs9MicNtSXBL6dyCGg/640?wx_fmt=jpeg",
+      "data-w": "1080",
+      "data-ratio": "0.42685185185185187"
+    },
+    {
+      "url": "https://mmecoa.qpic.cn/mmecoa_jpg/M9v64QVNlqJTicQbzHavs9CYSYdRRbv01dGiaQdkbBGXhiaSzOOKt7AvFl8JT5JUE0IXLD9MKcRxkge0HQqGqibNWA/640?wx_fmt=jpeg&from=appmsg",
+      "data-src": "https://mmecoa.qpic.cn/mmecoa_jpg/M9v64QVNlqJTicQbzHavs9CYSYdRRbv01dGiaQdkbBGXhiaSzOOKt7AvFl8JT5JUE0IXLD9MKcRxkge0HQqGqibNWA/640?wx_fmt=jpeg&from=appmsg",
+      "data-type": "jpeg",
+      "data-w": "1080",
+      "data-ratio": "1.0083333333333333"
+    },
+    {
+      "url": "https://mmecoa.qpic.cn/mmecoa_jpg/M9v64QVNlqI9FsoW2ic0z99JXq4Zpmdc5bUOLHftmRYNWAuYkG1muCeEyPREWicGsx0PyhZiaxpCmYN0jy8cwOhaQ/640?wx_fmt=jpeg",
+      "data-src": "https://mmecoa.qpic.cn/mmecoa_jpg/M9v64QVNlqI9FsoW2ic0z99JXq4Zpmdc5bUOLHftmRYNWAuYkG1muCeEyPREWicGsx0PyhZiaxpCmYN0jy8cwOhaQ/640?wx_fmt=jpeg",
+      "data-w": "1080",
+      "data-ratio": "0.925"
+    },
+    {
+      "url": "https://mmecoa.qpic.cn/mmecoa_jpg/M9v64QVNlqI9FsoW2ic0z99JXq4Zpmdc5yxhPKEPabG8aBXB29m9PYyOBId3lE5moRWAwa711z6icRLkEEXWcfwg/640?wx_fmt=jpeg",
+      "data-src": "https://mmecoa.qpic.cn/mmecoa_jpg/M9v64QVNlqI9FsoW2ic0z99JXq4Zpmdc5yxhPKEPabG8aBXB29m9PYyOBId3lE5moRWAwa711z6icRLkEEXWcfwg/640?wx_fmt=jpeg",
+      "data-w": "1080",
+      "data-ratio": "0.26851851851851855"
+    },
+    {
+      "url": "https://mmecoa.qpic.cn/mmecoa_jpg/M9v64QVNlqI9FsoW2ic0z99JXq4Zpmdc5GAJyr8cjnIEWHiaicFmJ38ADMFArY7Uu38X5ib770EtsIeI4gicoGg1GcQ/640?wx_fmt=jpeg",
+      "data-src": "https://mmecoa.qpic.cn/mmecoa_jpg/M9v64QVNlqI9FsoW2ic0z99JXq4Zpmdc5GAJyr8cjnIEWHiaicFmJ38ADMFArY7Uu38X5ib770EtsIeI4gicoGg1GcQ/640?wx_fmt=jpeg",
+      "data-w": "1080",
+      "data-ratio": "1.5898148148148148"
+    },
+    {
+      "url": "https://mmecoa.qpic.cn/mmecoa_jpg/M9v64QVNlqKFZApjJnia39QODnPzQ700V2nuVBM81ZhOl49o4fKqM2kDUYb1VqWMUYLIgvYex9iaxXpVCERmib0Hg/640?wx_fmt=jpeg&from=appmsg",
+      "data-src": "https://mmecoa.qpic.cn/mmecoa_jpg/M9v64QVNlqKFZApjJnia39QODnPzQ700V2nuVBM81ZhOl49o4fKqM2kDUYb1VqWMUYLIgvYex9iaxXpVCERmib0Hg/640?wx_fmt=jpeg&from=appmsg",
+      "data-w": "1080",
+      "data-ratio": "1.4490740740740742"
+    },
+    {
+      "url": "https://mmecoa.qpic.cn/mmecoa_jpg/M9v64QVNlqI9FsoW2ic0z99JXq4Zpmdc5NnjD0sl2EzoEBn6ibDgDurP8SdCicz264ibBKxJYmVjr27jtiavLahrweg/640?wx_fmt=jpeg",
+      "data-src": "https://mmecoa.qpic.cn/mmecoa_jpg/M9v64QVNlqI9FsoW2ic0z99JXq4Zpmdc5NnjD0sl2EzoEBn6ibDgDurP8SdCicz264ibBKxJYmVjr27jtiavLahrweg/640?wx_fmt=jpeg",
+      "data-w": "1080",
+      "data-ratio": "1.0324074074074074"
+    },
+    {
+      "url": "https://mmecoa.qpic.cn/mmecoa_gif/M9v64QVNlqI9FsoW2ic0z99JXq4Zpmdc540YFJicuKSvrUTDkeqb1FG0LUrIfGr0ZPXI5EBm4EGSbNlNibibeSdcUw/640?wx_fmt=gif",
+      "data-src": "https://mmecoa.qpic.cn/mmecoa_gif/M9v64QVNlqI9FsoW2ic0z99JXq4Zpmdc540YFJicuKSvrUTDkeqb1FG0LUrIfGr0ZPXI5EBm4EGSbNlNibibeSdcUw/640?wx_fmt=gif",
+      "data-w": "1080",
+      "data-ratio": "0.34444444444444444"
+    }
+  ],
+  "links": [],
+  "articleRootFoundAndClosed": true,
+  "bodyTextPath": "var/qa/source-round-20261021/news-gap-retry-v3/CN-NEWS-e0181a385eb24f92.body.txt.gz",
+  "priorRawPath": "var/qa/official-news-body-20261016/remaining-110/CN-NEWS-e0181a385eb24f92.html",
+  "priorRawSha256": "93af0feb4b8c720337b16833446d73c7847b4e4700d65cdc3cfd617ea1720b88",
+  "literalRootMatchesPrior": true,
+  "bodyTextMatchesPrior": true,
+  "imagesAllAttributesAndOrderMatchPrior": true,
+  "linksAndOrderMatchPrior": true
+}

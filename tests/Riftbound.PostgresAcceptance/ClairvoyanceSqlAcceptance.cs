@@ -35,9 +35,9 @@ internal static class ClairvoyanceSqlAcceptance
                 await Submit("P1", new PassPriorityCommand());
                 await Submit("P2", new PlayCardCommand("REVERSAL", "OGN·080/298", [parent], OptionalCosts: []));
                 for (var i = 0; i < 2; i++) await Submit(current.PriorityPlayerId!, new PassPriorityCommand());
-                var request = current.PendingRuleChoice!.Request;
-                Check(request.PlayerId == "P2" && request.Kind == "SPELL_CHOICE_REMAKE", "The new controller must explicitly retain the original spell choices.");
-                await Submit("P2", new PayCostCommand(request.Id, "RULE_REPLACEMENT", ["KEEP_ALL"]));
+                Check(current.PendingRuleChoice is null && current.StackItems.Single().ControllerId == "P2"
+                    && current.StackItems.Single().TargetObjectIds.Count == 0,
+                    "An untargeted spell has no new targets to choose; control must finish without an empty decision.");
             }
             for (var i = 0; i < 2; i++) await Submit(current.PriorityPlayerId!, new PassPriorityCommand());
             var actor = branch == "control" ? "P2" : "P1";

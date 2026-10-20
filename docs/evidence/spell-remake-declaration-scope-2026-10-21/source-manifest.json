@@ -1,0 +1,238 @@
+{
+  "recordedAtUtc": "2026-10-20T19:07:47.870029+00:00",
+  "region": "CN",
+  "language": "zh-CN",
+  "applicableAsOf": "2026-10-21",
+  "adoptedCoreEffectiveDate": "2026-10-16",
+  "baseCommit": "564e433d54d47f98b405787eed97cbdd48b7c394",
+  "includesDeclaredUncommittedChanges": true,
+  "scope": "Intrinsic absence of a declaration in the controlling permission scope; exact SFD080 up-to-zero cast and retarget including separately retained Echo executions. No general rule753.2 completion reachability claim.",
+  "currentEntireSourceRound": {
+    "path": "docs/evidence/source-round-2026-10-21/source-manifest.json",
+    "sha256": "be041f4548b530a5454ac87ecd688ae1c6f027d73ab3ccc424fa5176bb5cddf5",
+    "role": "current21-source-round"
+  },
+  "exactFiveCurrentFullApiRowsAndFaces": {
+    "role": "current-exact-five-faces",
+    "path": "docs/evidence/spell-remake-declaration-scope-2026-10-21/n27/current-card-faces/all-five-exact-face-and-full-row-readbacks-v1.json",
+    "sha256": "dab7c85648a2b546146f39ab7a268a1a1994dc69d6bdf2627e8b329750206368"
+  },
+  "sixthExactUnl182Face": {
+    "role": "current-exact-unl182",
+    "path": "docs/evidence/spell-remake-declaration-scope-2026-10-21/n27/current-card-faces/additional-perfect-finale-mode-control-face-v1.json",
+    "sha256": "ffd65411ea2ca4e2381bb9c47bd982cfede6cc24c040ffb6377aba21022d35a1"
+  },
+  "coreExactClauseBindings": {
+    "role": "exact-current-core-records",
+    "path": "docs/evidence/spell-remake-declaration-scope-2026-10-21/n27/current-exact-core-clause-block-bindings-v1.json",
+    "sha256": "f295feb11e08280c2674b0e39e81f4329ffe6f19938e9a64cba266962b461d79"
+  },
+  "allOriginalPrintingAndClauseRecordsSourceDatesAndGapsPreserved": true,
+  "implementation": [
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.SpellChoiceControl.cs",
+      "sha256": "c2baf7955a82a209729d5ba93360d50720085821cb87bdb5a6b760446d02a8f7",
+      "role": "implementation"
+    },
+    {
+      "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+      "sha256": "913ff4a7b3432dc1f8919b410736290d9b25e1ffbc9608e4fb7b0a3c456ad8d8",
+      "role": "implementation"
+    }
+  ],
+  "verificationSources": [
+    {
+      "path": "tests/Riftbound.ConformanceTests/SpellRemakeDeclarationScopeTests.cs",
+      "sha256": "3fbbef08d2988d51599cea6c0136eede543c7c3b7ebd96d425593da0ebc5db4c",
+      "role": "verification-source"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/ReversalTargetChoiceTests.cs",
+      "sha256": "84acabcf097f9dff3f417d15c30b44de2b33b9ab1e5f8b5760b5c7219a4a76c3",
+      "role": "verification-source"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/ClairvoyanceTests.cs",
+      "sha256": "c2af64a1074c08836d73d22e6f84acec1fd7ec66bac9573638bb6aea8ea2cd8b",
+      "role": "verification-source"
+    },
+    {
+      "path": "tests/Riftbound.PostgresAcceptance/SpellRemakeDeclarationSqlAcceptance.cs",
+      "sha256": "6b901119cfa8572645060c8406a6ad5da5825acf16c05a7c5d37fe0a9a630b29",
+      "role": "verification-source"
+    },
+    {
+      "path": "tests/Riftbound.PostgresAcceptance/ClairvoyanceSqlAcceptance.cs",
+      "sha256": "06db35b293a5188d934381e6677fc8eff4c68be0219085afe0bdc431c294037b",
+      "role": "verification-source"
+    },
+    {
+      "path": "tests/Riftbound.PostgresAcceptance/Program.cs",
+      "sha256": "4a6efaa8435f25f213be38816afaecb19631f931674fdf1e54acb9614850b4d3",
+      "role": "verification-source"
+    },
+    {
+      "path": "tests/Riftbound.PostgresAcceptance/SqlAcceptanceCases.json",
+      "sha256": "ce301be0115ba843cd8c128d520b9a54ed922d5fd303bb062351e0950399c938",
+      "role": "verification-source"
+    },
+    {
+      "path": "scripts/tests/test_sql_ci_gate.py",
+      "sha256": "a72247a5ddc707ec06dfd80b9d0e4aa0cce7c1c5f2d67ac2d37ff4b9ba95af35",
+      "role": "verification-source"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/DeckPlaySequenceTests.cs",
+      "sha256": "26e80b555924cbc93c71649c7b77a0af938824d6aa37abfe5fb605bf59d1679b",
+      "role": "verification-source"
+    }
+  ],
+  "focus85Cases39Methods": "ACTUAL_PASS",
+  "adjacent2982Cases2105MethodsAndTwoOriginalGames": {
+    "role": "adjacent-focus",
+    "path": "docs/evidence/spell-remake-declaration-scope-2026-10-21/n27/adjacent-original-games-actual-terminal-and-method-retention-v1.json",
+    "sha256": "7894d2cfc555f4f6d3bf9c5d909cd073c16e8b8e17a357e8ef2f6bebc55edd6e"
+  },
+  "additional20AffectedOriginalHelpers": {
+    "role": "actual-original-affected-pairs",
+    "path": "docs/evidence/spell-remake-declaration-scope-2026-10-21/n27/affected20-independent-seven-field-identity-and-original-output-readback-v1.json",
+    "sha256": "589c0b13d265977725e829e88beb10abe54617eb509d5ef92ce5afc7781bdcd6"
+  },
+  "actualNewControlledSql8": {
+    "commands": 69,
+    "events": 145,
+    "coldRecoveries": 69,
+    "directAtomicRejects": 18,
+    "wholeGameOrOrdinaryOpening": false
+  },
+  "actualOriginalClairvoyance5": {
+    "commands": 27,
+    "events": 64,
+    "coldRecoveries": 27,
+    "structuralTamperRejects": 15,
+    "originalIntermediateSqlRowsCleanedByUnchangedOldHelper": true,
+    "allOriginalExportedFullFramesAndFinalPrivateRowsReadBack": true
+  },
+  "independentSqlHistoricalReadback": {
+    "role": "independent-sql-actual-history-and-original-clair-full-replay",
+    "path": "docs/evidence/spell-remake-declaration-scope-2026-10-21/n27/independent-current-eight-and-clair-originals-result-v2.json",
+    "sha256": "fd112a267ace4df447051d5212374d3521dac10820584b640e2cda7bd3b10d24"
+  },
+  "actualSqlOwner": {
+    "role": "actual-sql-owner-normal-stop-and-original-database-retention",
+    "path": "docs/evidence/spell-remake-declaration-scope-2026-10-21/n27/actual-eight-and-clairvoyance-owner-v1.json",
+    "sha256": "2a4f953765d2c63e816b1c1dda1cc1591c59579da0e9bc9295472e9d73d883f8"
+  },
+  "actualCurrentReleaseRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+    "implementationSha256": "e4402984b8db9e2a1f91636b8fdecff3288d1da7af9a54e697ea29ed0f3e4faf",
+    "identitySha256": "6f12c0fb012e9b6eac9abb19f81bb816f1506c098d7f7e992823a9f751fae2a3"
+  },
+  "soleCheck": {
+    "path": "docs/evidence/spell-remake-declaration-scope-2026-10-21/n27/only-check-failure-retention-and-focused-correction-disposition-v2.json",
+    "sha256": "4c6d106893598662a93307aad6964af187c012ac723debf6396505574e276364",
+    "role": "check"
+  },
+  "frozenCheckInputs": {
+    "role": "check-running-frozen-inputs",
+    "path": "docs/evidence/spell-remake-declaration-scope-2026-10-21/n27/only-check-start-inputs-v1.json",
+    "sha256": "80020f0b8e64fff3445d615cff4cfef57f4484fbad5a4e0f809cf15b478dcbaf"
+  },
+  "expectedCheckNotResult": {
+    "cases": 13176,
+    "methods": 7494
+  },
+  "expectedFullNotResult": {
+    "cases": 13325,
+    "methods": 7635,
+    "sqlExecutionIdentities": 48,
+    "fullGameMethods": 143,
+    "pairs": 110,
+    "decks": 11,
+    "seed": 424242
+  },
+  "old47DefaultSqlCasesExactPrefixOf48": true,
+  "oldAllMethodsTheoryRows110PairsOriginalSeedsAndVictoryReplayAssertionsRetained": true,
+  "precedingFixed564CompleteFullAndBoundedLockedNative": {
+    "path": "docs/evidence/fixed-564-native-and-full-2026-10-21/source-manifest.json",
+    "sha256": "480178c81014c6a6c754f4e6799147aa335133d75e46843fac6aa926487601d3",
+    "role": "preceding-fixed564-separate-complete-ci-and-bounded-native"
+  },
+  "newFixedCompleteCiAndCurrentVisiblePairedPhysicalWindows": "OPEN",
+  "existingAcceptanceGateDependencies": [
+    "REVERSAL_TARGET_CHOICES_CURRENT_FIXED_FULL_NATIVE_PAIRED_SQL_RECONNECT_NORMAL_SCORE_REPLAY_AND_WINDOWS",
+    "REVERSAL_REMAINING_ECHO_BASE_DESTINATION_OTHER_TARGET_CONSUMERS_PRINTINGS_SOURCE_APPLICABILITY"
+  ],
+  "currentCandidateRequirementAll48DefaultSqlAndAll143FullMethods110Pairs": "ADDITIVE_TO_EXISTING_RETAINED47_SQL_GATE_NOT_A_REDUCTION",
+  "remaining": [
+    "NO_LEGAL_COMPLETE_REMAKE_DESPITE_PARTIAL_EDITS",
+    "ORIGINAL_BASE_AND_NEW_CONTROLLER_SOURCE_RESTRICTIONS",
+    "EXTERNALLY_GRANTED_ECHO",
+    "STANDBY_OTHER_CONSUMERS_AND_ALL_PRINTINGS_DATES_REGIONS_SOURCE_GAPS",
+    "CURRENT_FIXED_VISIBLE_PAIRED_REAL_SQL_RECONNECT_NORMAL_SCORE_FULL_REPLAY",
+    "PHYSICAL_WINDOWS"
+  ],
+  "wholePrintingAndGlobalSemanticCertification": false,
+  "actualSoleCheck": {
+    "cases": 13176,
+    "methods": 7494,
+    "passed": 13175,
+    "failed": 1,
+    "skipped": 0,
+    "allOriginal13166CaseMultisetAnd7490MethodsRetained": true,
+    "sourceInputs": 3316,
+    "nonOutputConformancePayloads": 1419,
+    "nativePayloads": 23,
+    "allInputsAndModesStableDuringSoleCheck": true,
+    "exactOneActualRun": true
+  },
+  "postCheckOnlyVerificationCorrection": {
+    "source": "tests/Riftbound.ConformanceTests/DeckPlaySequenceTests.cs",
+    "change": "Remove obsolete empty-remake KEEP action; add no-rule-choice and no-card-choice assertions; all original other actions/assertions/replay remain.",
+    "focusCases": 167,
+    "focusMethods": 72,
+    "allPassed": true,
+    "gameplayRulesCatalogNativeApiAndSqlSourceChanges": false,
+    "newFixedFullForFinalInputsRequired": true
+  },
+  "actualFinalAfterFocusedCorrectionInputs": {
+    "path": "docs/evidence/spell-remake-declaration-scope-2026-10-21/n27/post-check-final-focused-source-and-payload-inputs-v1.json",
+    "sha256": "e90481a4a74f6310f82ac18d3e4f052f57bda7d94e52db789cebe4d148f63fcd",
+    "role": "final-source-and-payload-inputs-after-one-verification-correction"
+  },
+  "brightFutureCurrentSourceAndVisualBasis": {
+    "path": "docs/evidence/spell-remake-declaration-scope-2026-10-21/n27/current-card-faces/bright-future-post-check-driver-source-v1.json",
+    "sha256": "e654637b0e46ecaba397c1b4c77c9bc2ee50a01ba1bb6aff9fa64bf349083285",
+    "role": "current-bright-future-declaration-source"
+  },
+  "brightFutureActualVisualAndOnlyOldDriverCorrection": {
+    "path": "docs/evidence/spell-remake-declaration-scope-2026-10-21/n27/current-card-faces/bright-future-actual-visual-and-old-driver-correction-v1.json",
+    "sha256": "c52eabda7eceac84fdee6bf772474ed8422b91be770b15bfcf8b5be9442989e8",
+    "role": "actual-visual-and-verification-only-correction"
+  },
+  "preciseRemaining7532ActualControlledDiagnostic": {
+    "path": "docs/evidence/spell-remake-declaration-scope-2026-10-21/remaining-source-7532/independent-original-diagnostic-readback-v1.json",
+    "sha256": "d6f6b5af308794b2d6a6eb997dd6752e179098b6ea5f2ea9fc77f0c2dc234b64",
+    "role": "remaining-source-only-not-rule-pass"
+  },
+  "actualCurrentZeroTargetPublicPromptAndLockedHeadlessComposer": {
+    "path": "docs/evidence/spell-remake-declaration-scope-2026-10-21/n27/zero-target-public-prompt-and-locked-composer-finite-readback-v1.json",
+    "sha256": "6655e798f1d4d8baad1178d1e6f81d3c91138d986b65bc7ac9ba4fceba4876bb",
+    "role": "native-zero-composer-and-synthetic-quote-freshness-only"
+  },
+  "actualControlFaceFootersAndApiShortIdentityNotMerged": {
+    "path": "docs/evidence/spell-remake-declaration-scope-2026-10-21/n27/current-card-faces/two-control-actual-visual-footer-and-permission-readback-v1.json",
+    "sha256": "dd9a16438eab8998596eab1a33f336cad198dde7dc95c3aa2019dcd0b9c2a23c",
+    "role": "exact-control-footer-source-differences"
+  },
+  "originalTracePathsInsideReceiptsResolveThroughCanonicalArchiveMap": true,
+  "archiveMap": {
+    "path": "docs/evidence/spell-remake-declaration-scope-2026-10-21/archive-map.json",
+    "sha256": "58f1a73e642b2ddc4c64569c37937f58da9b9a686391e6c07fa534bea2bf34b6",
+    "role": "original-byte-map"
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "url": "https://riftbound.leagueoflegends.com/en-us/news/rules-and-releases/riftbound-spiritforged-errata/",
+  "request": null,
+  "attemptedAtUtc": "2026-10-20T16:11:52.894989+00:00",
+  "region": "GLOBAL",
+  "language": "en-US",
+  "roundApplicableAsOf": "2026-10-21",
+  "timezone": "Asia/Shanghai",
+  "firstPublicationIndependentlyConfirmed": null,
+  "effectiveDateIndependentlyConfirmed": null,
+  "semanticCertification": false,
+  "runtimeAuthorityAdopted": false,
+  "resolvedUrl": "https://playriftbound.com/en-us/news/rules-and-releases/riftbound-spiritforged-errata/",
+  "httpStatus": 200,
+  "responseHeaders": {
+    "Date": "Tue, 20 Oct 2026 16:11:54 GMT",
+    "ETag": "\"xzvpfs2d013cli\"",
+    "Age": "269",
+    "Cache-Control": "public,max-age=0,must-revalidate",
+    "Content-Type": "text/html; charset=utf-8"
+  },
+  "receivedAtUtc": "2026-10-20T16:11:55.013576+00:00",
+  "sha256": "bd24e7f2c83afa76d93a1715b3013bcc09d27e7e3dac1d7579a7508c2d0bffbb",
+  "bytes": 156394,
+  "path": "var/qa/source-round-20261021/rules/GLOBAL-ec750afded41fb5e.gz",
+  "losslessGzipRawResponse": true,
+  "compressedSha256": "71979990447c86fb46810db4660205e2e668ac9a4660f3ddbe16d0b3658dd576",
+  "status": "FETCHED_CURRENT_ORIGINAL_BYTES_NOT_CERTIFICATION",
+  "kind": "article",
+  "priorReference": {
+    "path": "var/qa/cn-effective-20261016/whole-rule-source-readback/GLOBAL/ec750afded41fb5e",
+    "sha256": "75a276ea48bf7adebb19c7f4ba33b600108410453e9e352de0ec4e6888182c57"
+  },
+  "matchesPriorRawBytes": false,
+  "title": "Riftbound Spiritforged Errata",
+  "displayedPublishDate": "2026-01-14T02:00:00.000Z",
+  "revision": "lUOsIMoAHmGZdg2cOiAhmD",
+  "contentBladeTypes": [
+    "riotbar",
+    "articleMasthead",
+    "articleRichText",
+    "articleCardCarousel"
+  ],
+  "bodyPath": "var/qa/source-round-20261021/rules/GLOBAL-ec750afded41fb5e.body.html.gz",
+  "bodyHtmlSha256": "01d9982336a8991c27fe5131ea075253b9674c183ec5e34d207d641b8f3846c7",
+  "bodyMatchesLatestPrior": true,
+  "bodyMatchesFrozenOctober12": true,
+  "newUrlNotInFrozenInventory": false
+}

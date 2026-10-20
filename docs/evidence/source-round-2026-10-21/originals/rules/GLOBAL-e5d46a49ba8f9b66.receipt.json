@@ -1,0 +1,49 @@
+{
+  "url": "https://playriftbound.com/en-us/news/rules-and-releases/vendetta-rules-faq-and-clarifications/",
+  "request": null,
+  "attemptedAtUtc": "2026-10-20T16:11:36.860581+00:00",
+  "region": "GLOBAL",
+  "language": "en-US",
+  "roundApplicableAsOf": "2026-10-21",
+  "timezone": "Asia/Shanghai",
+  "firstPublicationIndependentlyConfirmed": null,
+  "effectiveDateIndependentlyConfirmed": null,
+  "semanticCertification": false,
+  "runtimeAuthorityAdopted": false,
+  "resolvedUrl": "https://playriftbound.com/en-us/news/rules-and-releases/vendetta-rules-faq-and-clarifications/",
+  "httpStatus": 200,
+  "responseHeaders": {
+    "Date": "Tue, 20 Oct 2026 16:11:37 GMT",
+    "ETag": "\"btsgeux5d44rvf\"",
+    "Age": "6",
+    "Cache-Control": "public,max-age=0,must-revalidate",
+    "Content-Type": "text/html; charset=utf-8"
+  },
+  "receivedAtUtc": "2026-10-20T16:11:37.934638+00:00",
+  "sha256": "c32e5d94407b1de26cda2bdf4f7ca7c72a5d81f390d9d2c9aba8bc5983fe443f",
+  "bytes": 223797,
+  "path": "var/qa/source-round-20261021/rules/GLOBAL-e5d46a49ba8f9b66.gz",
+  "losslessGzipRawResponse": true,
+  "compressedSha256": "0b68cf237a573183d6384a3b0cde6b5004932f08201f808ac851ae7e6f03db76",
+  "status": "FETCHED_CURRENT_ORIGINAL_BYTES_NOT_CERTIFICATION",
+  "kind": "article",
+  "priorReference": {
+    "path": "var/qa/cn-effective-20261016/whole-rule-source-readback/GLOBAL/e5d46a49ba8f9b66",
+    "sha256": "b53989de079fda60d3485121965f612aa582928e18b2cd4b2c259218d961c751"
+  },
+  "matchesPriorRawBytes": false,
+  "title": "Vendetta Rules FAQ and Clarifications",
+  "displayedPublishDate": "2026-08-14T01:00:00.000Z",
+  "revision": "xOUhMZ9vc49S6GmzdkrIRK",
+  "contentBladeTypes": [
+    "riotbar",
+    "articleMasthead",
+    "articleRichText",
+    "articleCardCarousel"
+  ],
+  "bodyPath": "var/qa/source-round-20261021/rules/GLOBAL-e5d46a49ba8f9b66.body.html.gz",
+  "bodyHtmlSha256": "ca5137a80d898ab546eaad090876b8aac358023e17df7ff9090fbb17bc2ea578",
+  "bodyMatchesLatestPrior": true,
+  "bodyMatchesFrozenOctober12": true,
+  "newUrlNotInFrozenInventory": false
+}

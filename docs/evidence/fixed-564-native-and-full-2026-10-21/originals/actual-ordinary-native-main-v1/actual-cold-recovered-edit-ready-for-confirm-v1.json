@@ -1,0 +1,18 @@
+{
+  "atUtc": "2026-10-20T15:04:30.625434+00:00",
+  "allOriginalFrameFieldsNullAndHistoryValuesExact": true,
+  "bothActualNativeDisconnectedAndRestoredSceneReceipts": true,
+  "sameFixedInputsAndApiFiles": true,
+  "lock": {
+    "atUtc": "2026-10-20T15:04:30.647382+00:00",
+    "roots": [
+      {
+        "rootLocked": true,
+        "sessions": [
+          true
+        ]
+      }
+    ],
+    "missingValuesRemainUnknown": true
+  }
+}

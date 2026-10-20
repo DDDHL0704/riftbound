@@ -1,0 +1,49 @@
+{
+  "url": "https://playriftbound.com/en-us/news/announcements/core-rules-radiance-patch-notes-effective-october-16-2026/",
+  "request": null,
+  "attemptedAtUtc": "2026-10-20T16:11:51.300989+00:00",
+  "region": "GLOBAL",
+  "language": "en-US",
+  "roundApplicableAsOf": "2026-10-21",
+  "timezone": "Asia/Shanghai",
+  "firstPublicationIndependentlyConfirmed": null,
+  "effectiveDateIndependentlyConfirmed": null,
+  "semanticCertification": false,
+  "runtimeAuthorityAdopted": false,
+  "resolvedUrl": "https://playriftbound.com/en-us/news/announcements/core-rules-radiance-patch-notes-effective-october-16-2026/",
+  "httpStatus": 200,
+  "responseHeaders": {
+    "Date": "Tue, 20 Oct 2026 16:11:52 GMT",
+    "ETag": "\"bbsle188bw460c\"",
+    "Age": "63",
+    "Cache-Control": "public,max-age=0,must-revalidate",
+    "Content-Type": "text/html; charset=utf-8"
+  },
+  "receivedAtUtc": "2026-10-20T16:11:52.397235+00:00",
+  "sha256": "7e9ae399ad2a2bb4db25e3eb3aa45dfd34f068e04f05b883e250b9cf91d178d4",
+  "bytes": 194984,
+  "path": "var/qa/source-round-20261021/rules/GLOBAL-35aea89dd294444d.gz",
+  "losslessGzipRawResponse": true,
+  "compressedSha256": "c3a9ff1d4e5083644068b17ca651eac4456e5ad193db5cbbfcd5d24e96859ab8",
+  "status": "FETCHED_CURRENT_ORIGINAL_BYTES_NOT_CERTIFICATION",
+  "kind": "article",
+  "priorReference": {
+    "path": "var/qa/cn-effective-20261016/whole-rule-source-readback/GLOBAL/35aea89dd294444d",
+    "sha256": "95a3be9c38d40a57690f2f6383dcd82610f491b113ad70ce9e64c635ca4f2dd4"
+  },
+  "matchesPriorRawBytes": false,
+  "title": "Core Rules: Radiance Patch Notes (Effective October 16, 2026)",
+  "displayedPublishDate": "2026-10-09T16:00:00.000Z",
+  "revision": "ry10dByU7EEFU2qpX6EE6c",
+  "contentBladeTypes": [
+    "riotbar",
+    "articleMasthead",
+    "articleRichText",
+    "articleCardCarousel"
+  ],
+  "bodyPath": "var/qa/source-round-20261021/rules/GLOBAL-35aea89dd294444d.body.html.gz",
+  "bodyHtmlSha256": "3211758fcd716cf82702cbbb1f13e43c0d0b6d0205ea6891f3b4a96fd4c6af9b",
+  "bodyMatchesLatestPrior": true,
+  "bodyMatchesFrozenOctober12": true,
+  "newUrlNotInFrozenInventory": false
+}

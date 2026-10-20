@@ -1,0 +1,41 @@
+{
+  "url": "https://mp.weixin.qq.com/s/QJfkMncRRlaRF0ytggBK-w",
+  "request": null,
+  "attemptedAtUtc": "2026-10-20T16:14:53.390163+00:00",
+  "roundApplicableAsOf": "2026-10-21",
+  "region": "CN",
+  "language": "zh-CN",
+  "timezone": "Asia/Shanghai",
+  "firstPublicationIndependentlyConfirmed": null,
+  "effectiveDateIndependentlyConfirmed": null,
+  "semanticReview": "OPEN",
+  "runtimeAuthorityChanged": false,
+  "resolvedUrl": "https://mp.weixin.qq.com/s/QJfkMncRRlaRF0ytggBK-w",
+  "httpStatus": 200,
+  "responseHeaders": {
+    "Last-Modified": "Wed, 21 Oct 2026 00:14:55 +0800",
+    "Content-Type": "text/html; charset=UTF-8"
+  },
+  "status": "SOURCE_EXTRACTION_GAP_WITH_ORIGINAL_RESPONSE_RETAINED",
+  "receivedAtUtc": "2026-10-20T16:14:57.938265+00:00",
+  "path": "var/qa/source-round-20261021/news/CN-NEWS-48a0db3bf07e1955.html.gz",
+  "sha256": "670c40e095c6a4f61ba934c1a06ec51e21a2e30eb06f6e8b0340e962abc1c8e4",
+  "bytes": 3482164,
+  "compressedSha256": "1b448ff2f79eb8fee019922955fba6e839975d19de115fd30a090fc93a90538d",
+  "losslessGzipOriginalBytes": true,
+  "id": "CN-NEWS-48a0db3bf07e1955",
+  "allListingRows": [
+    {
+      "name": "【内含抽奖】超前试玩，全国开“战”！",
+      "image": "https://cdn.playloltcg.com/lol/2025/07/2025-07-09/42a385f51bf2475eb531ed8a7dfdc3d8.jpg",
+      "pushDate": "2025-07-09",
+      "jumpType": "h5",
+      "appId": "",
+      "jumpUrl": "https://mp.weixin.qq.com/s/QJfkMncRRlaRF0ytggBK-w",
+      "sort": 31
+    }
+  ],
+  "publishedAsListed": "2025-07-09",
+  "extractionErrorType": "TypeError",
+  "extractionError": "'int' object is not callable"
+}

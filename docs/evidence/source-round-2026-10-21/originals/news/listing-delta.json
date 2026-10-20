@@ -1,0 +1,84 @@
+{
+  "status": "CURRENT_COMPLETE_LISTING_METADATA_COMPARISON_NOT_BODY_OR_APPLICABILITY_CERTIFICATION",
+  "recordedAtUtc": "2026-10-20T16:14:14.002840+00:00",
+  "roundApplicableAsOf": "2026-10-21",
+  "reportedTotal": 139,
+  "returned": 139,
+  "priorRows": 138,
+  "allOriginalRowsAndOrderExact": false,
+  "listingReceipts": [
+    {
+      "url": "https://lol-api.playloltcg.com/xcx/information/page",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 100
+      },
+      "attemptedAtUtc": "2026-10-20T16:14:13.754201+00:00",
+      "roundApplicableAsOf": "2026-10-21",
+      "region": "CN",
+      "language": "zh-CN",
+      "timezone": "Asia/Shanghai",
+      "firstPublicationIndependentlyConfirmed": null,
+      "effectiveDateIndependentlyConfirmed": null,
+      "semanticReview": "OPEN",
+      "runtimeAuthorityChanged": false,
+      "resolvedUrl": "https://lol-api.playloltcg.com/xcx/information/page",
+      "httpStatus": 200,
+      "responseHeaders": {
+        "Date": "Tue, 20 Oct 2026 16:14:13 GMT",
+        "Content-Type": "application/json"
+      },
+      "status": "FETCHED_ORIGINAL_BYTES_NOT_SEMANTIC_CERTIFICATION",
+      "receivedAtUtc": "2026-10-20T16:14:13.894316+00:00",
+      "path": "var/qa/source-round-20261021/news/official-news-page1.json.gz",
+      "sha256": "524cca8026ba9db54fe1668c024c77792a0ad541a2704420ab63f3acc59e7c9c",
+      "bytes": 27918,
+      "compressedSha256": "4cf0a89eb0f69659cd6222799db53ded7ebca7cef5bc6acb6276ecea43a4d615",
+      "losslessGzipOriginalBytes": true
+    },
+    {
+      "url": "https://lol-api.playloltcg.com/xcx/information/page",
+      "request": {
+        "pageNum": 2,
+        "pageSize": 100
+      },
+      "attemptedAtUtc": "2026-10-20T16:14:13.894742+00:00",
+      "roundApplicableAsOf": "2026-10-21",
+      "region": "CN",
+      "language": "zh-CN",
+      "timezone": "Asia/Shanghai",
+      "firstPublicationIndependentlyConfirmed": null,
+      "effectiveDateIndependentlyConfirmed": null,
+      "semanticReview": "OPEN",
+      "runtimeAuthorityChanged": false,
+      "resolvedUrl": "https://lol-api.playloltcg.com/xcx/information/page",
+      "httpStatus": 200,
+      "responseHeaders": {
+        "Date": "Tue, 20 Oct 2026 16:14:13 GMT",
+        "Content-Type": "application/json"
+      },
+      "status": "FETCHED_ORIGINAL_BYTES_NOT_SEMANTIC_CERTIFICATION",
+      "receivedAtUtc": "2026-10-20T16:14:14.001112+00:00",
+      "path": "var/qa/source-round-20261021/news/official-news-page2.json.gz",
+      "sha256": "35d754a4864836f81a20d77f3931d92b04bad65a8a37de11f705d1bdc48e687a",
+      "bytes": 10865,
+      "compressedSha256": "cef3ee780c7e02077cd84cae252ce8f22508d5fd36925407fe6f0baf878de212",
+      "losslessGzipOriginalBytes": true
+    }
+  ],
+  "added": [
+    {
+      "name": "聚光开幕丨辉耀群星发售纪念活动",
+      "image": "https://cdn.playloltcg.com/lol/2026/10/2026-10-20/69b37aac408449f48a304a5249207464.png",
+      "pushDate": "2026-10-20",
+      "jumpType": "h5",
+      "appId": "",
+      "jumpUrl": "https://mp.weixin.qq.com/s/11k9oH0Ib6KexrKrVBIv9w",
+      "sort": 167
+    }
+  ],
+  "unreturnedPrior": [],
+  "changed": [],
+  "sourceUniverseReduced": false,
+  "semanticCertification": false
+}

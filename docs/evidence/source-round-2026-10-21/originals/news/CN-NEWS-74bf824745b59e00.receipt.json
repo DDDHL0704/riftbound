@@ -1,0 +1,41 @@
+{
+  "url": "https://mp.weixin.qq.com/s/WSAT6i7a0RWwmCT-CXpLiA",
+  "request": null,
+  "attemptedAtUtc": "2026-10-20T16:15:48.174281+00:00",
+  "roundApplicableAsOf": "2026-10-21",
+  "region": "CN",
+  "language": "zh-CN",
+  "timezone": "Asia/Shanghai",
+  "firstPublicationIndependentlyConfirmed": null,
+  "effectiveDateIndependentlyConfirmed": null,
+  "semanticReview": "OPEN",
+  "runtimeAuthorityChanged": false,
+  "resolvedUrl": "https://mp.weixin.qq.com/s/WSAT6i7a0RWwmCT-CXpLiA",
+  "httpStatus": 200,
+  "responseHeaders": {
+    "Last-Modified": "Wed, 21 Oct 2026 00:15:49 +0800",
+    "Content-Type": "text/html; charset=UTF-8"
+  },
+  "status": "SOURCE_EXTRACTION_GAP_WITH_ORIGINAL_RESPONSE_RETAINED",
+  "receivedAtUtc": "2026-10-20T16:15:52.019297+00:00",
+  "path": "var/qa/source-round-20261021/news/CN-NEWS-74bf824745b59e00.html.gz",
+  "sha256": "995bc8ccb621424cc3dfef57d7ef03430ab0f9033b9cf8c62b3c57ede0b69112",
+  "bytes": 3472038,
+  "compressedSha256": "48d7512ffc02f9f307e5955bc353ff63277e0ff825daf5a9fad79d54df47b3f3",
+  "losslessGzipOriginalBytes": true,
+  "id": "CN-NEWS-74bf824745b59e00",
+  "allListingRows": [
+    {
+      "name": "符文战场｜第二赛季城市挑战赛出征在即！",
+      "image": "https://cdn.playloltcg.com/lol/2025/12/2025-12-07/af0fb516e0ee4c999d2015d12af88b5d.jpg",
+      "pushDate": "2025-12-07",
+      "jumpType": "h5",
+      "appId": "",
+      "jumpUrl": "https://mp.weixin.qq.com/s/WSAT6i7a0RWwmCT-CXpLiA",
+      "sort": 90
+    }
+  ],
+  "publishedAsListed": "2025-12-07",
+  "extractionErrorType": "TypeError",
+  "extractionError": "'int' object is not callable"
+}

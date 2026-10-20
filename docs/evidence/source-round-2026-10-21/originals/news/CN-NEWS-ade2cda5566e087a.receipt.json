@@ -1,0 +1,30 @@
+{
+  "url": "https://mp.weixin.qq.com/s/Itmyn0c-vQeUPJr2SCDXpw",
+  "request": null,
+  "attemptedAtUtc": "2026-10-20T16:15:52.098665+00:00",
+  "roundApplicableAsOf": "2026-10-21",
+  "region": "CN",
+  "language": "zh-CN",
+  "timezone": "Asia/Shanghai",
+  "firstPublicationIndependentlyConfirmed": null,
+  "effectiveDateIndependentlyConfirmed": null,
+  "semanticReview": "OPEN",
+  "runtimeAuthorityChanged": false,
+  "status": "SOURCE_GAP_NORMAL_TLS_FETCH_ERROR",
+  "receivedAtUtc": "2026-10-20T16:15:55.160052+00:00",
+  "errorType": "URLError",
+  "error": "<urlopen error EOF occurred in violation of protocol (_ssl.c:1129)>",
+  "id": "CN-NEWS-ade2cda5566e087a",
+  "allListingRows": [
+    {
+      "name": "城市挑战赛第二赛季第一周赛事安排",
+      "image": "https://cdn.playloltcg.com/lol/2025/12/2025-12-12/28b893a98b6e4501b11fea482be75587.jpg",
+      "pushDate": "2025-12-12",
+      "jumpType": "h5",
+      "appId": "",
+      "jumpUrl": "https://mp.weixin.qq.com/s/Itmyn0c-vQeUPJr2SCDXpw",
+      "sort": 94
+    }
+  ],
+  "publishedAsListed": "2025-12-12"
+}

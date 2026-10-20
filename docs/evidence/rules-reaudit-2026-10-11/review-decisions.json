@@ -23914,6 +23914,81 @@
         "OTHER_CONSUMERS_PRINTINGS_DATES_REGIONS_AND_ALL_ORIGINAL_SOURCE_GAPS",
         "SERVER_REMAKE_REASON_INTERNAL_EFFECT_KIND_TEXT_OUTSIDE_CURRENT_TWO_SOURCE_PHASE_FIX"
       ]
+    },
+    {
+      "id": "spell-remake-no-intrinsic-declarations-and-sfd080-zero-targets-2026-10-21",
+      "scope": "Intrinsic absence of a declaration in the controlling permission scope; exact SFD080 up-to-zero cast and retarget including separately retained Echo executions. No general rule753.2 completion reachability claim.",
+      "subjects": [
+        "OGN-080/298",
+        "VEN-152",
+        "VEN-152/166",
+        "OGN-083/298",
+        "SFD-087/221",
+        "SFD-080/221",
+        "UNL-182/219",
+        "VEN-056",
+        "VEN-056/166",
+        "OGN-115/298"
+      ],
+      "ruleRecords": [
+        "CN-d6fd7140f106f9b5-P047-B006",
+        "CN-d6fd7140f106f9b5-P111-B016",
+        "CN-d6fd7140f106f9b5-P111-B017",
+        "CN-d6fd7140f106f9b5-P111-B018",
+        "CN-d6fd7140f106f9b5-P111-B019",
+        "CN-d6fd7140f106f9b5-P111-B020",
+        "CN-d6fd7140f106f9b5-P111-B021",
+        "CN-d6fd7140f106f9b5-P111-B022",
+        "CN-d6fd7140f106f9b5-P111-B023",
+        "CN-d6fd7140f106f9b5-P111-B024",
+        "CN-d6fd7140f106f9b5-P112-B001",
+        "CN-d6fd7140f106f9b5-P112-B002"
+      ],
+      "pendingRuleRecords": [],
+      "status": "BOUNDED_SOURCE_FOCUS85_ADJACENT2982_SQL8_CLAIR5_SOLECHECK13175_PASS1_OLD_DRIVER_FAILURE_POSTFOCUS167_PASS_NEW_FULL_AND_PRODUCT_OPEN",
+      "sourceManifest": {
+        "path": "docs/evidence/spell-remake-declaration-scope-2026-10-21/source-manifest.json",
+        "sha256": "4cab4a583e0afae12f4de4dc23fabd090e6bce94d608a6946d9768720f839244",
+        "role": "source-manifest"
+      },
+      "auditDocument": "docs/SPELL_REMAKE_DECLARATION_SCOPE_AUDIT_2026-10-21.md",
+      "validation": {
+        "newCases": 10,
+        "newMethods": 4,
+        "focusedCases": 85,
+        "focusedMethods": 39,
+        "adjacentCases": 2982,
+        "adjacentMethods": 2105,
+        "originalFullGames": 2,
+        "additionalOriginalAffectedPairHelpers": 20,
+        "newControlledSqlScenarios": 8,
+        "newSqlCommands": 69,
+        "newSqlEvents": 145,
+        "newSqlCold": 69,
+        "newDirectRejects": 18,
+        "retainedClairvoyanceBranches": 5,
+        "retainedClairCommands": 27,
+        "retainedClairEvents": 64,
+        "retainedStructuralRejects": 15,
+        "allOriginalMethodsTheoryRowsFullGamesMatrixSeedsAndAssertionsPreserved": true,
+        "soleCheck": "ACTUAL13175_PASS_ONE_OLD_DRIVER_FAILURE_RETAINED_POSTCHECK_FOCUS167_PASS",
+        "checkCases": 13176,
+        "checkMethods": 7494,
+        "checkPassed": 13175,
+        "checkFailed": 1,
+        "checkSkipped": 0,
+        "postCheckFocusCases": 167,
+        "postCheckFocusMethods": 72,
+        "actualLockedHeadlessZeroTargetComposerAndOriginalSyntheticQuoteFreshnessOnly": true
+      },
+      "exclusions": [
+        "NO_LEGAL_COMPLETE_REMAKE_DESPITE_PARTIAL_EDITS",
+        "ORIGINAL_BASE_AND_NEW_CONTROLLER_SOURCE_RESTRICTIONS",
+        "EXTERNALLY_GRANTED_ECHO",
+        "STANDBY_OTHER_CONSUMERS_AND_ALL_PRINTINGS_DATES_REGIONS_SOURCE_GAPS",
+        "CURRENT_FIXED_VISIBLE_PAIRED_REAL_SQL_RECONNECT_NORMAL_SCORE_FULL_REPLAY",
+        "PHYSICAL_WINDOWS"
+      ]
     }
   ]
 }

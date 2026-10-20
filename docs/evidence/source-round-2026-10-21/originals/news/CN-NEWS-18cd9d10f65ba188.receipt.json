@@ -1,0 +1,41 @@
+{
+  "url": "https://mp.weixin.qq.com/s/rkllvfBJAtAB_L_DIQH0Fw",
+  "request": null,
+  "attemptedAtUtc": "2026-10-20T16:17:16.401535+00:00",
+  "roundApplicableAsOf": "2026-10-21",
+  "region": "CN",
+  "language": "zh-CN",
+  "timezone": "Asia/Shanghai",
+  "firstPublicationIndependentlyConfirmed": null,
+  "effectiveDateIndependentlyConfirmed": null,
+  "semanticReview": "OPEN",
+  "runtimeAuthorityChanged": false,
+  "resolvedUrl": "https://mp.weixin.qq.com/s/rkllvfBJAtAB_L_DIQH0Fw",
+  "httpStatus": 200,
+  "responseHeaders": {
+    "Last-Modified": "Wed, 21 Oct 2026 00:17:17 +0800",
+    "Content-Type": "text/html; charset=UTF-8"
+  },
+  "status": "SOURCE_EXTRACTION_GAP_WITH_ORIGINAL_RESPONSE_RETAINED",
+  "receivedAtUtc": "2026-10-20T16:17:20.442545+00:00",
+  "path": "var/qa/source-round-20261021/news/CN-NEWS-18cd9d10f65ba188.html.gz",
+  "sha256": "66007c7c0c7af7f215e61d352e1025e553d1aa8fbe9b595d04a538dc43a47d36",
+  "bytes": 3459252,
+  "compressedSha256": "b4891cce50fab8a01782e8efbb3f9909353cd2e1745bb92fc93e2556006fb961",
+  "losslessGzipOriginalBytes": true,
+  "id": "CN-NEWS-18cd9d10f65ba188",
+  "allListingRows": [
+    {
+      "name": "赛事手册丨沈阳站召唤师商店",
+      "image": "https://cdn.playloltcg.com/lol/2026/09/2026-09-12/8e2f8e2d61e44aba845fd64b85a86698.jpg",
+      "pushDate": "2026-09-10",
+      "jumpType": "h5",
+      "appId": "",
+      "jumpUrl": "https://mp.weixin.qq.com/s/rkllvfBJAtAB_L_DIQH0Fw",
+      "sort": 155
+    }
+  ],
+  "publishedAsListed": "2026-09-10",
+  "extractionErrorType": "TypeError",
+  "extractionError": "'int' object is not callable"
+}

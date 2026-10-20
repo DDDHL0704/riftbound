@@ -1,0 +1,41 @@
+{
+  "url": "https://mp.weixin.qq.com/s/dxkQyF46gS4_RE7iJ83eow?token=760186298&lang=zh_CN",
+  "request": null,
+  "attemptedAtUtc": "2026-10-20T16:17:28.222463+00:00",
+  "roundApplicableAsOf": "2026-10-21",
+  "region": "CN",
+  "language": "zh-CN",
+  "timezone": "Asia/Shanghai",
+  "firstPublicationIndependentlyConfirmed": null,
+  "effectiveDateIndependentlyConfirmed": null,
+  "semanticReview": "OPEN",
+  "runtimeAuthorityChanged": false,
+  "resolvedUrl": "https://mp.weixin.qq.com/s/dxkQyF46gS4_RE7iJ83eow?token=760186298&lang=zh_CN",
+  "httpStatus": 200,
+  "responseHeaders": {
+    "Last-Modified": "Wed, 21 Oct 2026 00:17:29 +0800",
+    "Content-Type": "text/html; charset=UTF-8"
+  },
+  "status": "SOURCE_EXTRACTION_GAP_WITH_ORIGINAL_RESPONSE_RETAINED",
+  "receivedAtUtc": "2026-10-20T16:17:31.635514+00:00",
+  "path": "var/qa/source-round-20261021/news/CN-NEWS-df83d2b84e2dce2f.html.gz",
+  "sha256": "aecb92eb6445ae2427768eea09b8674c5a87db5b81d59dbbccf8428ece0c6774",
+  "bytes": 3484323,
+  "compressedSha256": "e64b944f929581aedeac4295ad9f31c59b1ef81164f400ad9ae1d0532c3e0ba3",
+  "losslessGzipOriginalBytes": true,
+  "id": "CN-NEWS-df83d2b84e2dce2f",
+  "allListingRows": [
+    {
+      "name": "「辉耀群星」预览指南",
+      "image": "https://cdn.playloltcg.com/lol/2026/09/2026-09-22/69e95a3392bd41cebb63fc00ee8e6c69.jpg",
+      "pushDate": "2026-09-22",
+      "jumpType": "h5",
+      "appId": "",
+      "jumpUrl": "https://mp.weixin.qq.com/s/dxkQyF46gS4_RE7iJ83eow?token=760186298&lang=zh_CN",
+      "sort": 161
+    }
+  ],
+  "publishedAsListed": "2026-09-22",
+  "extractionErrorType": "TypeError",
+  "extractionError": "'int' object is not callable"
+}

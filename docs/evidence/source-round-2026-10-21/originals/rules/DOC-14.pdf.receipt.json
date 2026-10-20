@@ -1,0 +1,41 @@
+{
+  "url": "https://cdn.playloltcg.com/lol/2026/04/2026-04-15/铸魂淬炼系列_裁判FAQ.pdf",
+  "request": null,
+  "attemptedAtUtc": "2026-10-20T16:11:24.060018+00:00",
+  "region": "CN",
+  "language": "zh-CN",
+  "roundApplicableAsOf": "2026-10-21",
+  "timezone": "Asia/Shanghai",
+  "firstPublicationIndependentlyConfirmed": null,
+  "effectiveDateIndependentlyConfirmed": null,
+  "semanticCertification": false,
+  "runtimeAuthorityAdopted": false,
+  "resolvedUrl": "https://cdn.playloltcg.com/lol/2026/04/2026-04-15/%E9%93%B8%E9%AD%82%E6%B7%AC%E7%82%BC%E7%B3%BB%E5%88%97_%E8%A3%81%E5%88%A4FAQ.pdf",
+  "httpStatus": 200,
+  "responseHeaders": {
+    "Date": "Fri, 18 Sep 2026 03:03:13 GMT",
+    "ETag": "\"6ae198cde1a07cb013fe16c5f426ba13\"",
+    "Age": "0",
+    "Last-Modified": "Wed, 15 Apr 2026 03:22:45 GMT",
+    "Content-Length": "25623614",
+    "Content-Type": "application/pdf"
+  },
+  "receivedAtUtc": "2026-10-20T16:11:33.619297+00:00",
+  "sha256": "16eeeea28baeeee2dae3765876c609f79cc77fdbdd6928d73f1b8fa5d5c277bc",
+  "bytes": 25623614,
+  "path": "var/qa/cn-effective-20261016/whole-rule-source-readback/CN/DOC-14.pdf",
+  "losslessGzipRawResponse": false,
+  "status": "FETCHED_CURRENT_ORIGINAL_BYTES_NOT_CERTIFICATION",
+  "kind": "pdf",
+  "priorReference": {
+    "path": "var/qa/cn-effective-20261016/whole-rule-source-readback/CN/DOC-14.pdf",
+    "sha256": "16eeeea28baeeee2dae3765876c609f79cc77fdbdd6928d73f1b8fa5d5c277bc"
+  },
+  "matchesPriorRawBytes": true,
+  "freshNetworkReadbackReusesVerifiedExactExistingBytes": true,
+  "identicalTemporaryCompressedCopyRetired": {
+    "path": "var/qa/source-round-20261021/rules/DOC-14.pdf.gz",
+    "sha256": "b1ca6f92ffb14f2cb4bc442a4b6060de274809e0d2dc8d0f9fff69098f393361",
+    "bytes": 25577667
+  }
+}

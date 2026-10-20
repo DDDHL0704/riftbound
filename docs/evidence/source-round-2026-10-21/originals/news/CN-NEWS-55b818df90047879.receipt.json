@@ -1,0 +1,41 @@
+{
+  "url": "https://mp.weixin.qq.com/s/hSqfA5o_sAUlkHm579DSQQ",
+  "request": null,
+  "attemptedAtUtc": "2026-10-20T16:17:26.253534+00:00",
+  "roundApplicableAsOf": "2026-10-21",
+  "region": "CN",
+  "language": "zh-CN",
+  "timezone": "Asia/Shanghai",
+  "firstPublicationIndependentlyConfirmed": null,
+  "effectiveDateIndependentlyConfirmed": null,
+  "semanticReview": "OPEN",
+  "runtimeAuthorityChanged": false,
+  "resolvedUrl": "https://mp.weixin.qq.com/s/hSqfA5o_sAUlkHm579DSQQ",
+  "httpStatus": 200,
+  "responseHeaders": {
+    "Last-Modified": "Wed, 21 Oct 2026 00:17:27 +0800",
+    "Content-Type": "text/html; charset=UTF-8"
+  },
+  "status": "SOURCE_EXTRACTION_GAP_WITH_ORIGINAL_RESPONSE_RETAINED",
+  "receivedAtUtc": "2026-10-20T16:17:29.595927+00:00",
+  "path": "var/qa/source-round-20261021/news/CN-NEWS-55b818df90047879.html.gz",
+  "sha256": "434cbe4f5e31ed47696dcc00bbf26192fa72001f08ed9cc62a71b462e2a0541c",
+  "bytes": 3447220,
+  "compressedSha256": "283692dd544ddd56d2105b795a7b4f1f18e958f5c6743506677c982961ce8c30",
+  "losslessGzipOriginalBytes": true,
+  "id": "CN-NEWS-55b818df90047879",
+  "allListingRows": [
+    {
+      "name": "一周年纪念套装发售渠道",
+      "image": "https://cdn.playloltcg.com/lol/2026/09/2026-09-28/06b1a26f73c74243930cc41da2b871d7.jpg",
+      "pushDate": "2026-09-24",
+      "jumpType": "h5",
+      "appId": "",
+      "jumpUrl": "https://mp.weixin.qq.com/s/hSqfA5o_sAUlkHm579DSQQ",
+      "sort": 161
+    }
+  ],
+  "publishedAsListed": "2026-09-24",
+  "extractionErrorType": "TypeError",
+  "extractionError": "'int' object is not callable"
+}

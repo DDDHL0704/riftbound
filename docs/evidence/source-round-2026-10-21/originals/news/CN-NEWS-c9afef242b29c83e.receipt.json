@@ -1,0 +1,41 @@
+{
+  "url": "https://mp.weixin.qq.com/s/9TYs-zptk76GijFITn2giQ",
+  "request": null,
+  "attemptedAtUtc": "2026-10-20T16:16:33.953524+00:00",
+  "roundApplicableAsOf": "2026-10-21",
+  "region": "CN",
+  "language": "zh-CN",
+  "timezone": "Asia/Shanghai",
+  "firstPublicationIndependentlyConfirmed": null,
+  "effectiveDateIndependentlyConfirmed": null,
+  "semanticReview": "OPEN",
+  "runtimeAuthorityChanged": false,
+  "resolvedUrl": "https://mp.weixin.qq.com/s/9TYs-zptk76GijFITn2giQ",
+  "httpStatus": 200,
+  "responseHeaders": {
+    "Last-Modified": "Wed, 21 Oct 2026 00:16:34 +0800",
+    "Content-Type": "text/html; charset=UTF-8"
+  },
+  "status": "SOURCE_EXTRACTION_GAP_WITH_ORIGINAL_RESPONSE_RETAINED",
+  "receivedAtUtc": "2026-10-20T16:16:37.300993+00:00",
+  "path": "var/qa/source-round-20261021/news/CN-NEWS-c9afef242b29c83e.html.gz",
+  "sha256": "a151565642ac0834b87ebb40f6edcc094aae8ef6614c2bec596cea8278a11750",
+  "bytes": 3504653,
+  "compressedSha256": "c6d422d31aa5850590891cf7c3cf9b33407d947f8b110add371d4728043faf6f",
+  "losslessGzipOriginalBytes": true,
+  "id": "CN-NEWS-c9afef242b29c83e",
+  "allListingRows": [
+    {
+      "name": "区域公开赛（苏州）赛后判例",
+      "image": "https://cdn.playloltcg.com/lol/2026/05/2026-05-20/69e5d6f25fc44c67996ebcf0e5e68132.png",
+      "pushDate": "2026-05-20",
+      "jumpType": "h5",
+      "appId": "",
+      "jumpUrl": "https://mp.weixin.qq.com/s/9TYs-zptk76GijFITn2giQ",
+      "sort": 129
+    }
+  ],
+  "publishedAsListed": "2026-05-20",
+  "extractionErrorType": "TypeError",
+  "extractionError": "'int' object is not callable"
+}

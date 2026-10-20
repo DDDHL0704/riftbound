@@ -1,0 +1,16 @@
+{
+  "atUtc": "2026-10-20T17:57:17.021413+00:00",
+  "status": "PASS_ACTUAL_ADJACENT_2982_CASES_2105_METHODS_AND_TWO_ORIGINAL_FULL_GAMES",
+  "cases": 2982,
+  "methods": 2105,
+  "failed": 0,
+  "skipped": 0,
+  "actualOriginalFullGameMethods": [
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameResolvesMaraiSpireEchoCostReductionAndScoreVictoryActionLogReplaysToFinalStateHash",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameResolvesPiltoverAcademyHeldNextSpellEchoAndScoreVictoryActionLogReplaysToFinalStateHash"
+  ],
+  "trxSha256": "1d1b585e2fc0e0896df589f5a890d5b22b4253947d143c1d2917fd2f8a23b930",
+  "actualTestAssemblySha256": "99347440d426ebe5d703e172dfea1e9565b3b7b4fb74670f32c9f9eeeb292583",
+  "all3316FrozenSourceInputsStillExact": true,
+  "full143Methods110PairsAndFinalFixedCiRemainSeparate": true
+}

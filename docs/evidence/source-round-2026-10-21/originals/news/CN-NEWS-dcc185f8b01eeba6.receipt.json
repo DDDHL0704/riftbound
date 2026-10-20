@@ -1,0 +1,41 @@
+{
+  "url": "https://mp.weixin.qq.com/s/CiyOvN7KgNki0wpWw40Gwg",
+  "request": null,
+  "attemptedAtUtc": "2026-10-20T16:16:59.056526+00:00",
+  "roundApplicableAsOf": "2026-10-21",
+  "region": "CN",
+  "language": "zh-CN",
+  "timezone": "Asia/Shanghai",
+  "firstPublicationIndependentlyConfirmed": null,
+  "effectiveDateIndependentlyConfirmed": null,
+  "semanticReview": "OPEN",
+  "runtimeAuthorityChanged": false,
+  "resolvedUrl": "https://mp.weixin.qq.com/s/CiyOvN7KgNki0wpWw40Gwg",
+  "httpStatus": 200,
+  "responseHeaders": {
+    "Last-Modified": "Wed, 21 Oct 2026 00:17:00 +0800",
+    "Content-Type": "text/html; charset=UTF-8"
+  },
+  "status": "SOURCE_EXTRACTION_GAP_WITH_ORIGINAL_RESPONSE_RETAINED",
+  "receivedAtUtc": "2026-10-20T16:17:03.405557+00:00",
+  "path": "var/qa/source-round-20261021/news/CN-NEWS-dcc185f8b01eeba6.html.gz",
+  "sha256": "4e16775334f967a7b190e596cb2144460850b68769cc4d978374f6c5414ce6a4",
+  "bytes": 3447556,
+  "compressedSha256": "eb5fd6e94ecd5264b8694605cf9ec4ee52e92806957a074fbfa381af43a31595",
+  "losslessGzipOriginalBytes": true,
+  "id": "CN-NEWS-dcc185f8b01eeba6",
+  "allListingRows": [
+    {
+      "name": " 水晶玫瑰绽放丨八月限定主题活动浪漫开启",
+      "image": "https://cdn.playloltcg.com/lol/2026/07/2026-07-31/4d320c165ade4af2bf0cfd9ae502e764.jpg",
+      "pushDate": "2026-07-30",
+      "jumpType": "h5",
+      "appId": "",
+      "jumpUrl": "https://mp.weixin.qq.com/s/CiyOvN7KgNki0wpWw40Gwg",
+      "sort": 147
+    }
+  ],
+  "publishedAsListed": "2026-07-30",
+  "extractionErrorType": "TypeError",
+  "extractionError": "'int' object is not callable"
+}

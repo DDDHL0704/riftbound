@@ -1,0 +1,41 @@
+{
+  "url": "https://mp.weixin.qq.com/s/rdnl3mi7StUPBdoPCOeGrA",
+  "request": null,
+  "attemptedAtUtc": "2026-10-20T16:14:45.475609+00:00",
+  "roundApplicableAsOf": "2026-10-21",
+  "region": "CN",
+  "language": "zh-CN",
+  "timezone": "Asia/Shanghai",
+  "firstPublicationIndependentlyConfirmed": null,
+  "effectiveDateIndependentlyConfirmed": null,
+  "semanticReview": "OPEN",
+  "runtimeAuthorityChanged": false,
+  "resolvedUrl": "https://mp.weixin.qq.com/s/rdnl3mi7StUPBdoPCOeGrA",
+  "httpStatus": 200,
+  "responseHeaders": {
+    "Last-Modified": "Wed, 21 Oct 2026 00:14:46 +0800",
+    "Content-Type": "text/html; charset=UTF-8"
+  },
+  "status": "SOURCE_EXTRACTION_GAP_WITH_ORIGINAL_RESPONSE_RETAINED",
+  "receivedAtUtc": "2026-10-20T16:14:50.032275+00:00",
+  "path": "var/qa/source-round-20261021/news/CN-NEWS-ed084cda3d1569b2.html.gz",
+  "sha256": "c24fb241b0db2794f45b203a3f7b3c3b854e621f38bfc35863db4ce19df1f0e8",
+  "bytes": 3476104,
+  "compressedSha256": "f6ed66138087ac5b7a1ea8f4d8d9afaf3edd4c749ecba041fa88e222cf7cfc92",
+  "losslessGzipOriginalBytes": true,
+  "id": "CN-NEWS-ed084cda3d1569b2",
+  "allListingRows": [
+    {
+      "name": "CJ参展确认，线下试玩即将来袭！",
+      "image": "https://cdn.playloltcg.com/lol/2025/06/2025-06-24/4211d4d47a48442bbb43c3e900e77328.jpg",
+      "pushDate": "2025-06-24",
+      "jumpType": "h5",
+      "appId": "",
+      "jumpUrl": "https://mp.weixin.qq.com/s/rdnl3mi7StUPBdoPCOeGrA",
+      "sort": 27
+    }
+  ],
+  "publishedAsListed": "2025-06-24",
+  "extractionErrorType": "TypeError",
+  "extractionError": "'int' object is not callable"
+}

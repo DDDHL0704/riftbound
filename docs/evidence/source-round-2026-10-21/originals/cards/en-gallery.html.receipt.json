@@ -1,0 +1,17 @@
+{
+  "url": "https://playriftbound.com/en-us/card-gallery/",
+  "request": null,
+  "fetchedAtUtc": "2026-10-20T16:05:03.864230+00:00",
+  "path": "var/qa/source-round-20261021/cards/en-gallery.html.gz",
+  "sha256": "de61c4f6e205afb9f7092850ae2f974b56d73e08f929a8c59612120ca682a285",
+  "bytes": 3981786,
+  "losslessGzipRawResponse": true,
+  "compressedSha256": "fbebf8cfc98864b81425be6f8464da8e2b9aceeaf1a358cd2d7c7738debf5409",
+  "responseHeaders": {
+    "Date": "Tue, 20 Oct 2026 16:05:02 GMT",
+    "ETag": "\"ahitcyyv672db9r\"",
+    "Age": "39",
+    "Cache-Control": "public,max-age=0,must-revalidate"
+  },
+  "priorAttempts": []
+}

@@ -1,0 +1,41 @@
+{
+  "url": "https://mp.weixin.qq.com/s/oBp_HXp9Ygp4ifwlXf7DNw",
+  "request": null,
+  "attemptedAtUtc": "2026-10-20T16:14:22.591406+00:00",
+  "roundApplicableAsOf": "2026-10-21",
+  "region": "CN",
+  "language": "zh-CN",
+  "timezone": "Asia/Shanghai",
+  "firstPublicationIndependentlyConfirmed": null,
+  "effectiveDateIndependentlyConfirmed": null,
+  "semanticReview": "OPEN",
+  "runtimeAuthorityChanged": false,
+  "resolvedUrl": "https://mp.weixin.qq.com/s/oBp_HXp9Ygp4ifwlXf7DNw",
+  "httpStatus": 200,
+  "responseHeaders": {
+    "Last-Modified": "Wed, 21 Oct 2026 00:14:23 +0800",
+    "Content-Type": "text/html; charset=UTF-8"
+  },
+  "status": "SOURCE_EXTRACTION_GAP_WITH_ORIGINAL_RESPONSE_RETAINED",
+  "receivedAtUtc": "2026-10-20T16:14:26.662340+00:00",
+  "path": "var/qa/source-round-20261021/news/CN-NEWS-96449da93bff56bb.html.gz",
+  "sha256": "5721f10bbdc7b12e10a1a8388440554c66bce962ecdb628540c46845a93ce9d1",
+  "bytes": 3473275,
+  "compressedSha256": "1d764d2680c7ae6fba1d83683c55e5368c2d2cdfdf9261818d5428d58bd104e7",
+  "losslessGzipOriginalBytes": true,
+  "id": "CN-NEWS-96449da93bff56bb",
+  "allListingRows": [
+    {
+      "name": "《符文战场》超前试玩派对重庆站即将开始！",
+      "image": "https://cdn.playloltcg.com/lol/a676aa521b744edfb8c972c2801870e4.jpg",
+      "pushDate": "2024-12-28",
+      "jumpType": "h5",
+      "appId": "",
+      "jumpUrl": "https://mp.weixin.qq.com/s/oBp_HXp9Ygp4ifwlXf7DNw",
+      "sort": 7
+    }
+  ],
+  "publishedAsListed": "2024-12-28",
+  "extractionErrorType": "TypeError",
+  "extractionError": "'int' object is not callable"
+}

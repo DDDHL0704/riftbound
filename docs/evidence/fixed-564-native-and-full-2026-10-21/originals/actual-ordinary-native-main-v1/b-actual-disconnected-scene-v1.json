@@ -1,0 +1,317 @@
+{
+	"buttonSignals": [
+		{
+			"meaning": "PAY_COST",
+			"node": "MatchScreen/MatchLayout/@PanelContainer@157/ActionBar/ActionLayout/ActionRow/ActionScroll/ActionChoices/@Button@649",
+			"text": "为法术做出新的选择"
+		},
+		{
+			"meaning": "EDIT:0:80a9fcd8f04f612d06229c0411a63a814ef81b476af018d882cdb22656c5d762",
+			"node": "MatchScreen/MatchLayout/@PanelContainer@157/ActionBar/ActionLayout/SelectionRow/ChoiceScroll/StepChoices/@Button@653",
+			"text": "第 1 次：重选目标 1 为 强强魄罗（qa4…"
+		},
+		{
+			"meaning": "SUBMIT:EDIT:0:80a9fcd8f04f612d06229c0411a63a814ef81b476af018d882cdb22656c5d762",
+			"node": "MatchScreen/MatchLayout/@PanelContainer@157/ActionBar/ActionLayout/SelectionRow/SubmitButton",
+			"text": "确认行动"
+		}
+	],
+	"buttons": [
+		{
+			"disabled": false,
+			"node": "MatchScreen/MatchLayout/@PanelContainer@32/@HBoxContainer@33/@CheckButton@38",
+			"text": "减少动画"
+		},
+		{
+			"disabled": true,
+			"node": "MatchScreen/MatchLayout/@HBoxContainer@168/@Button@166",
+			"text": "重新连接"
+		},
+		{
+			"disabled": false,
+			"node": "MatchScreen/MatchLayout/@HBoxContainer@168/@Button@167",
+			"text": "返回大厅"
+		},
+		{
+			"disabled": true,
+			"node": "MatchScreen/MatchLayout/@HBoxContainer@39/@VBoxContainer@40/@PanelContainer@102/@HBoxContainer@103/@VBoxContainer@104/@Button@106",
+			"text": "我方基地"
+		},
+		{
+			"disabled": true,
+			"node": "MatchScreen/MatchLayout/@HBoxContainer@39/@VBoxContainer@40/@PanelContainer@102/@HBoxContainer@103/@ScrollContainer@109/@HBoxContainer@110/baseRunesZone/@HBoxContainer@688/@Button@691",
+			"text": "批量"
+		},
+		{
+			"disabled": true,
+			"node": "MatchScreen/MatchLayout/@HBoxContainer@39/@VBoxContainer@40/@PanelContainer@102/@HBoxContainer@103/@ScrollContainer@109/@HBoxContainer@110/baseRunesZone/@HBoxContainer@692/@VBoxContainer@693/@Button@694",
+			"text": "回收"
+		},
+		{
+			"disabled": true,
+			"node": "MatchScreen/MatchLayout/@HBoxContainer@39/@VBoxContainer@40/@PanelContainer@102/@HBoxContainer@103/@ScrollContainer@109/@HBoxContainer@110/baseRunesZone/@HBoxContainer@692/@VBoxContainer@695/@Button@696",
+			"text": "回收"
+		},
+		{
+			"disabled": true,
+			"node": "MatchScreen/MatchLayout/@HBoxContainer@39/@VBoxContainer@40/@PanelContainer@102/@HBoxContainer@103/@ScrollContainer@109/@HBoxContainer@110/baseRunesZone/@HBoxContainer@692/@VBoxContainer@697/@Button@698",
+			"text": "回收"
+		},
+		{
+			"disabled": true,
+			"node": "MatchScreen/MatchLayout/@HBoxContainer@39/@VBoxContainer@40/@PanelContainer@102/@HBoxContainer@103/@ScrollContainer@109/@HBoxContainer@110/baseRunesZone/@HBoxContainer@692/@VBoxContainer@699/@Button@700",
+			"text": "回收"
+		},
+		{
+			"disabled": true,
+			"node": "MatchScreen/MatchLayout/@HBoxContainer@39/@VBoxContainer@40/@PanelContainer@102/@HBoxContainer@103/@ScrollContainer@109/@HBoxContainer@110/baseRunesZone/@HBoxContainer@692/@VBoxContainer@701/@Button@702",
+			"text": "回收"
+		},
+		{
+			"disabled": true,
+			"node": "MatchScreen/MatchLayout/@HBoxContainer@39/@VBoxContainer@40/@PanelContainer@102/@HBoxContainer@103/@ScrollContainer@109/@HBoxContainer@110/baseRunesZone/@HBoxContainer@692/@VBoxContainer@703/@Button@704",
+			"text": "回收"
+		},
+		{
+			"disabled": true,
+			"node": "MatchScreen/MatchLayout/@HBoxContainer@39/@VBoxContainer@40/@PanelContainer@102/@HBoxContainer@103/@ScrollContainer@109/@HBoxContainer@110/baseRunesZone/@HBoxContainer@692/@VBoxContainer@705/@Button@706",
+			"text": "回收"
+		},
+		{
+			"disabled": true,
+			"node": "MatchScreen/MatchLayout/@HBoxContainer@39/@VBoxContainer@40/@PanelContainer@102/@HBoxContainer@103/@ScrollContainer@109/@HBoxContainer@110/baseRunesZone/@HBoxContainer@692/@VBoxContainer@707/@Button@708",
+			"text": "回收"
+		},
+		{
+			"disabled": true,
+			"node": "MatchScreen/MatchLayout/@HBoxContainer@39/@VBoxContainer@40/@PanelContainer@102/@HBoxContainer@103/@ScrollContainer@109/@HBoxContainer@110/baseRunesZone/@HBoxContainer@692/@VBoxContainer@709/@Button@710",
+			"text": "回收"
+		},
+		{
+			"disabled": false,
+			"node": "MatchScreen/MatchLayout/@HBoxContainer@39/@VBoxContainer@120/@ScrollContainer@131/@VBoxContainer@132/@PanelContainer@142/@VBoxContainer@143/@ScrollContainer@147/@VBoxContainer@148/@VBoxContainer@739/@Button@740",
+			"text": "下一项  倒转神通"
+		},
+		{
+			"disabled": false,
+			"node": "MatchScreen/MatchLayout/@HBoxContainer@39/@VBoxContainer@120/@ScrollContainer@131/@VBoxContainer@132/@PanelContainer@142/@VBoxContainer@143/@ScrollContainer@147/@VBoxContainer@148/@VBoxContainer@742/@Button@743",
+			"text": "2.  “敲”诈"
+		}
+	],
+	"displayDriver": "headless",
+	"fixedCommit": "564e433d54d47f98b405787eed97cbdd48b7c394",
+	"labels": [
+		{
+			"node": "MatchScreen/MatchLayout/@PanelContainer@32/@HBoxContainer@33/@VBoxContainer@34/@Label@35",
+			"text": "符文战场"
+		},
+		{
+			"node": "MatchScreen/MatchLayout/@PanelContainer@32/@HBoxContainer@33/@Label@36",
+			"text": "我方  0    :    0  对手"
+		},
+		{
+			"node": "MatchScreen/MatchLayout/@PanelContainer@32/@HBoxContainer@33/@Label@37",
+			"text": "第 34 回合  ·  8 分获胜"
+		},
+		{
+			"node": "MatchScreen/MatchLayout/@HBoxContainer@168/@Label@165",
+			"text": "连接中断，正在恢复对局… 当前显示断线前的局面。"
+		},
+		{
+			"node": "MatchScreen/MatchLayout/@HBoxContainer@39/@VBoxContainer@40/@PanelContainer@41/@HBoxContainer@42/@Label@43",
+			"text": "对手\n主牌 18 · 符文 0/12\n法力 0 · 符能 0"
+		},
+		{
+			"node": "MatchScreen/MatchLayout/@HBoxContainer@39/@VBoxContainer@40/@PanelContainer@41/@HBoxContainer@42/@ScrollContainer@46/@HBoxContainer@47/legendZone/@HBoxContainer@656/@Label@657",
+			"text": "传奇"
+		},
+		{
+			"node": "MatchScreen/MatchLayout/@HBoxContainer@39/@VBoxContainer@40/@PanelContainer@41/@HBoxContainer@42/@ScrollContainer@46/@HBoxContainer@47/heroZone/@HBoxContainer@658/@Label@659",
+			"text": "英雄"
+		},
+		{
+			"node": "MatchScreen/MatchLayout/@HBoxContainer@39/@VBoxContainer@40/@PanelContainer@41/@HBoxContainer@42/@ScrollContainer@46/@HBoxContainer@47/baseZone/@HBoxContainer@660/@Label@661",
+			"text": "基地"
+		},
+		{
+			"node": "MatchScreen/MatchLayout/@HBoxContainer@39/@VBoxContainer@40/@PanelContainer@41/@HBoxContainer@42/@ScrollContainer@46/@HBoxContainer@47/baseZone/@HBoxContainer@662/OfficialCardView/CardLayer/CountBadge/CountLabel",
+			"text": "2"
+		},
+		{
+			"node": "MatchScreen/MatchLayout/@HBoxContainer@39/@VBoxContainer@40/@PanelContainer@41/@HBoxContainer@42/@ScrollContainer@46/@HBoxContainer@47/baseRunesZone/@HBoxContainer@663/@Label@664",
+			"text": "基地符文"
+		},
+		{
+			"node": "MatchScreen/MatchLayout/@HBoxContainer@39/@VBoxContainer@40/@PanelContainer@41/@HBoxContainer@42/@ScrollContainer@46/@HBoxContainer@47/baseRunesZone/@HBoxContainer@665/OfficialCardView/CardLayer/ExhaustedLabel",
+			"text": "休眠"
+		},
+		{
+			"node": "MatchScreen/MatchLayout/@HBoxContainer@39/@VBoxContainer@40/@PanelContainer@41/@HBoxContainer@42/@ScrollContainer@46/@HBoxContainer@47/graveyardZone/@HBoxContainer@677/@Label@678",
+			"text": "废牌 0"
+		},
+		{
+			"node": "MatchScreen/MatchLayout/@HBoxContainer@39/@VBoxContainer@40/@PanelContainer@41/@HBoxContainer@42/@ScrollContainer@46/@HBoxContainer@47/banishedZone/@HBoxContainer@679/@Label@680",
+			"text": "放逐 0"
+		},
+		{
+			"node": "MatchScreen/MatchLayout/@HBoxContainer@39/@VBoxContainer@40/@PanelContainer@41/@HBoxContainer@42/@HBoxContainer@48/OfficialCardView/CardLayer/CountBadge/CountLabel",
+			"text": "19"
+		},
+		{
+			"node": "MatchScreen/MatchLayout/@HBoxContainer@39/@VBoxContainer@40/@HBoxContainer@49/@PanelContainer@50/@VBoxContainer@52/@HBoxContainer@53/@VBoxContainer@55/@Label@56",
+			"text": "团结圣坛"
+		},
+		{
+			"node": "MatchScreen/MatchLayout/@HBoxContainer@39/@VBoxContainer@40/@HBoxContainer@49/@PanelContainer@50/@VBoxContainer@52/@HBoxContainer@53/@VBoxContainer@55/@Label@57",
+			"text": "尚未控制"
+		},
+		{
+			"node": "MatchScreen/MatchLayout/@HBoxContainer@39/@VBoxContainer@40/@HBoxContainer@49/@PanelContainer@50/@VBoxContainer@52/@HBoxContainer@59/@HBoxContainer@60/@Label@61",
+			"text": "对\n手"
+		},
+		{
+			"node": "MatchScreen/MatchLayout/@HBoxContainer@39/@VBoxContainer@40/@HBoxContainer@49/@PanelContainer@50/@VBoxContainer@52/@HBoxContainer@59/@HBoxContainer@60/@ScrollContainer@64/@HBoxContainer@65/@Label@733",
+			"text": "暂无对手单位"
+		},
+		{
+			"node": "MatchScreen/MatchLayout/@HBoxContainer@39/@VBoxContainer@40/@HBoxContainer@49/@PanelContainer@50/@VBoxContainer@52/@HBoxContainer@59/@HBoxContainer@67/@Label@68",
+			"text": "我\n方"
+		},
+		{
+			"node": "MatchScreen/MatchLayout/@HBoxContainer@39/@VBoxContainer@40/@HBoxContainer@49/@PanelContainer@50/@VBoxContainer@52/@HBoxContainer@59/@HBoxContainer@67/@ScrollContainer@71/@HBoxContainer@72/@Label@734",
+			"text": "暂无我方单位"
+		},
+		{
+			"node": "MatchScreen/MatchLayout/@HBoxContainer@39/@VBoxContainer@40/@HBoxContainer@49/@PanelContainer@50/@VBoxContainer@52/@HBoxContainer@73/@HBoxContainer@74/@Label@735",
+			"text": "待命区为空"
+		},
+		{
+			"node": "MatchScreen/MatchLayout/@HBoxContainer@39/@VBoxContainer@40/@HBoxContainer@49/@PanelContainer@50/@VBoxContainer@52/@HBoxContainer@73/@Label@75",
+			"text": "战力  0 : 0"
+		},
+		{
+			"node": "MatchScreen/MatchLayout/@HBoxContainer@39/@VBoxContainer@40/@HBoxContainer@49/@PanelContainer@76/@VBoxContainer@78/@HBoxContainer@79/@VBoxContainer@81/@Label@82",
+			"text": "班德尔树"
+		},
+		{
+			"node": "MatchScreen/MatchLayout/@HBoxContainer@39/@VBoxContainer@40/@HBoxContainer@49/@PanelContainer@76/@VBoxContainer@78/@HBoxContainer@79/@VBoxContainer@81/@Label@83",
+			"text": "尚未控制"
+		},
+		{
+			"node": "MatchScreen/MatchLayout/@HBoxContainer@39/@VBoxContainer@40/@HBoxContainer@49/@PanelContainer@76/@VBoxContainer@78/@HBoxContainer@85/@HBoxContainer@86/@Label@87",
+			"text": "对\n手"
+		},
+		{
+			"node": "MatchScreen/MatchLayout/@HBoxContainer@39/@VBoxContainer@40/@HBoxContainer@49/@PanelContainer@76/@VBoxContainer@78/@HBoxContainer@85/@HBoxContainer@86/@ScrollContainer@90/@HBoxContainer@91/@Label@736",
+			"text": "暂无对手单位"
+		},
+		{
+			"node": "MatchScreen/MatchLayout/@HBoxContainer@39/@VBoxContainer@40/@HBoxContainer@49/@PanelContainer@76/@VBoxContainer@78/@HBoxContainer@85/@HBoxContainer@93/@Label@94",
+			"text": "我\n方"
+		},
+		{
+			"node": "MatchScreen/MatchLayout/@HBoxContainer@39/@VBoxContainer@40/@HBoxContainer@49/@PanelContainer@76/@VBoxContainer@78/@HBoxContainer@85/@HBoxContainer@93/@ScrollContainer@97/@HBoxContainer@98/@Label@737",
+			"text": "暂无我方单位"
+		},
+		{
+			"node": "MatchScreen/MatchLayout/@HBoxContainer@39/@VBoxContainer@40/@HBoxContainer@49/@PanelContainer@76/@VBoxContainer@78/@HBoxContainer@99/@HBoxContainer@100/@Label@738",
+			"text": "待命区为空"
+		},
+		{
+			"node": "MatchScreen/MatchLayout/@HBoxContainer@39/@VBoxContainer@40/@HBoxContainer@49/@PanelContainer@76/@VBoxContainer@78/@HBoxContainer@99/@Label@101",
+			"text": "战力  0 : 0"
+		},
+		{
+			"node": "MatchScreen/MatchLayout/@HBoxContainer@39/@VBoxContainer@40/@PanelContainer@102/@HBoxContainer@103/@VBoxContainer@104/@Label@105",
+			"text": "我方\n主牌 18 · 符文 3/12\n法力 0 · 符能 0"
+		},
+		{
+			"node": "MatchScreen/MatchLayout/@HBoxContainer@39/@VBoxContainer@40/@PanelContainer@102/@HBoxContainer@103/@ScrollContainer@109/@HBoxContainer@110/legendZone/@HBoxContainer@681/@Label@682",
+			"text": "传奇"
+		},
+		{
+			"node": "MatchScreen/MatchLayout/@HBoxContainer@39/@VBoxContainer@40/@PanelContainer@102/@HBoxContainer@103/@ScrollContainer@109/@HBoxContainer@110/heroZone/@HBoxContainer@683/@Label@684",
+			"text": "英雄"
+		},
+		{
+			"node": "MatchScreen/MatchLayout/@HBoxContainer@39/@VBoxContainer@40/@PanelContainer@102/@HBoxContainer@103/@ScrollContainer@109/@HBoxContainer@110/baseZone/@HBoxContainer@685/@Label@686",
+			"text": "基地"
+		},
+		{
+			"node": "MatchScreen/MatchLayout/@HBoxContainer@39/@VBoxContainer@40/@PanelContainer@102/@HBoxContainer@103/@ScrollContainer@109/@HBoxContainer@110/baseZone/@HBoxContainer@687/OfficialCardView/CardLayer/CountBadge/CountLabel",
+			"text": "2"
+		},
+		{
+			"node": "MatchScreen/MatchLayout/@HBoxContainer@39/@VBoxContainer@40/@PanelContainer@102/@HBoxContainer@103/@ScrollContainer@109/@HBoxContainer@110/baseRunesZone/@HBoxContainer@688/@Label@689",
+			"text": "基地符文"
+		},
+		{
+			"node": "MatchScreen/MatchLayout/@HBoxContainer@39/@VBoxContainer@40/@PanelContainer@102/@HBoxContainer@103/@ScrollContainer@109/@HBoxContainer@110/baseRunesZone/@HBoxContainer@688/@Label@690",
+			"text": "点击横置 · Shift 多选"
+		},
+		{
+			"node": "MatchScreen/MatchLayout/@HBoxContainer@39/@VBoxContainer@40/@PanelContainer@102/@HBoxContainer@103/@ScrollContainer@109/@HBoxContainer@110/baseRunesZone/@HBoxContainer@692/@VBoxContainer@693/OfficialCardView/CardLayer/ExhaustedLabel",
+			"text": "休眠"
+		},
+		{
+			"node": "MatchScreen/MatchLayout/@HBoxContainer@39/@VBoxContainer@40/@PanelContainer@102/@HBoxContainer@103/@ScrollContainer@109/@HBoxContainer@110/baseRunesZone/@HBoxContainer@692/@VBoxContainer@695/OfficialCardView/CardLayer/ExhaustedLabel",
+			"text": "休眠"
+		},
+		{
+			"node": "MatchScreen/MatchLayout/@HBoxContainer@39/@VBoxContainer@40/@PanelContainer@102/@HBoxContainer@103/@ScrollContainer@109/@HBoxContainer@110/graveyardZone/@HBoxContainer@711/@Label@712",
+			"text": "废牌 0"
+		},
+		{
+			"node": "MatchScreen/MatchLayout/@HBoxContainer@39/@VBoxContainer@40/@PanelContainer@102/@HBoxContainer@103/@ScrollContainer@109/@HBoxContainer@110/banishedZone/@HBoxContainer@713/@Label@714",
+			"text": "放逐 0"
+		},
+		{
+			"node": "MatchScreen/MatchLayout/@HBoxContainer@39/@VBoxContainer@40/@PanelContainer@111/@VBoxContainer@112/@HBoxContainer@113/@Label@114",
+			"text": "手牌 · 拖动或点选出牌 · 悬停预览，右键看完整卡牌"
+		},
+		{
+			"node": "MatchScreen/MatchLayout/@HBoxContainer@39/@VBoxContainer@40/@PanelContainer@111/@VBoxContainer@112/@HBoxContainer@113/@Label@115",
+			"text": "19 张 · 法力 0 · 符能 0"
+		},
+		{
+			"node": "MatchScreen/MatchLayout/@HBoxContainer@39/@VBoxContainer@120/@PanelContainer@121/@VBoxContainer@122/@Label@123",
+			"text": "法术结算 · 重新选择"
+		},
+		{
+			"node": "MatchScreen/MatchLayout/@HBoxContainer@39/@VBoxContainer@120/@PanelContainer@121/@VBoxContainer@122/@Label@126",
+			"text": "正在恢复连接"
+		},
+		{
+			"node": "MatchScreen/MatchLayout/@HBoxContainer@39/@VBoxContainer@120/@PanelContainer@121/@VBoxContainer@122/@Label@127",
+			"text": "同步最新局面后可继续行动。"
+		},
+		{
+			"node": "MatchScreen/MatchLayout/@HBoxContainer@39/@VBoxContainer@120/@PanelContainer@121/@VBoxContainer@122/@Label@128",
+			"text": "确认后继续原结算；选择期间不能插入其他行动。"
+		},
+		{
+			"node": "MatchScreen/MatchLayout/@HBoxContainer@39/@VBoxContainer@120/@ScrollContainer@131/@VBoxContainer@132/@PanelContainer@142/@VBoxContainer@143/@Label@144",
+			"text": "结算链"
+		},
+		{
+			"node": "MatchScreen/MatchLayout/@HBoxContainer@39/@VBoxContainer@120/@ScrollContainer@131/@VBoxContainer@132/@PanelContainer@142/@VBoxContainer@143/@ScrollContainer@147/@VBoxContainer@148/@VBoxContainer@739/@Label@741",
+			"text": "我方 → 卡牌"
+		},
+		{
+			"node": "MatchScreen/MatchLayout/@HBoxContainer@39/@VBoxContainer@120/@ScrollContainer@131/@VBoxContainer@132/@PanelContainer@142/@VBoxContainer@143/@ScrollContainer@147/@VBoxContainer@148/@VBoxContainer@742/@Label@744",
+			"text": "我方 → 强强魄罗"
+		},
+		{
+			"node": "MatchScreen/MatchLayout/@HBoxContainer@39/@VBoxContainer@120/@ScrollContainer@131/@VBoxContainer@132/@PanelContainer@149/@VBoxContainer@150/@Label@151",
+			"text": "最近战况"
+		},
+		{
+			"node": "MatchScreen/MatchLayout/@HBoxContainer@39/@VBoxContainer@120/@ScrollContainer@131/@VBoxContainer@132/@PanelContainer@149/@VBoxContainer@150/@ScrollContainer@154/@VBoxContainer@155/@Label@655",
+			"text": "可重新指定目标；原模式、终点和已支付的额外费用保持不变。确认时，保留的选择也必须合法。也可保留全部原选择。当前选择：第 1 次 EXTORTION_POWER_MINUS_1_MIN_1_DRAW_1：强强魄罗（qa48offline-a-MAIN-OGN-052-298-06） "
+		}
+	],
+	"lineEditsAuthAndOriginalPrivateSessionFilesNotRecorded": true,
+	"role": "b",
+	"room": "N26-RETARGET-DC5C1D40DE",
+	"scope": "ACTUAL_LOCAL_GODOT_MAIN_HEADLESS_NATIVE_BUTTONS_ONLY_NOT_VISIBLE_OR_CI_EXPORTED_APP_OR_PHYSICAL_WINDOWS"
+}

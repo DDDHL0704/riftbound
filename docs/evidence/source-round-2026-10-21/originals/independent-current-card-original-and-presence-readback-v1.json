@@ -1,0 +1,34 @@
+{
+  "status": "PASS_ALL26_ORIGINAL_HTTP_SIZE_RAW_AND_GZIP_HASHES_AND_FULL_EXACT_CARD_ROW_KEY_PRESENCE_COMPARISON",
+  "cnExactUnchangedRows": 1504,
+  "enExactIdentitySet": 1408,
+  "enReportedMinusReturned": 8,
+  "preciseChanges": [
+    {
+      "id": "rad-044-167",
+      "publicCode": "RAD-044/167",
+      "name": "Hunting Blind",
+      "fields": [
+        {
+          "field": "flags",
+          "presentBefore": true,
+          "before": [
+            {
+              "id": "new",
+              "label": "New"
+            }
+          ],
+          "presentAfter": false,
+          "after": null
+        }
+      ],
+      "everyOtherFieldAndPresenceExact": true
+    }
+  ],
+  "cnQaFieldStates": {
+    "null": 1504
+  },
+  "noRuntimeCatalogOrOldSourceEvidenceChanged": true,
+  "existingRad044SourceTypeDiscrepancyNotResolvedByBadgeChange": true,
+  "wholePrintingOrSourceUniverseCertification": false
+}

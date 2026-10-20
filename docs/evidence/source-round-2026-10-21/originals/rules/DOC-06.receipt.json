@@ -1,0 +1,353 @@
+{
+  "url": "https://cdn.playloltcg.com/lol/2026/08/2026-08-13/612b1cd53f9f41baaf3c8734c1881a3b.pdf",
+  "request": null,
+  "attemptedAtUtc": "2026-10-20T16:11:01.997909+00:00",
+  "region": "CN",
+  "language": "zh-CN",
+  "roundApplicableAsOf": "2026-10-21",
+  "timezone": "Asia/Shanghai",
+  "firstPublicationIndependentlyConfirmed": null,
+  "effectiveDateIndependentlyConfirmed": null,
+  "semanticCertification": false,
+  "runtimeAuthorityAdopted": false,
+  "resolvedUrl": "https://cdn.playloltcg.com/lol/2026/08/2026-08-13/612b1cd53f9f41baaf3c8734c1881a3b.pdf",
+  "httpStatus": 200,
+  "responseHeaders": {
+    "Date": "Fri, 14 Aug 2026 02:00:39 GMT",
+    "ETag": "\"2bd8f370add4497ee5171ca7db83538e\"",
+    "Age": "20351",
+    "Last-Modified": "Thu, 13 Aug 2026 11:45:47 GMT",
+    "Content-Length": "12449344",
+    "Content-Type": "application/pdf"
+  },
+  "receivedAtUtc": "2026-10-20T16:11:10.078930+00:00",
+  "sha256": "59bd828207564540aa3c9885f9dfc39764034f633eb6fb84d49440c9edef4742",
+  "bytes": 12449344,
+  "path": "var/qa/cn-effective-20261016/whole-rule-source-readback/CN/DOC-06.pdf",
+  "losslessGzipRawResponse": false,
+  "status": "FETCHED_CURRENT_ORIGINAL_BYTES_NOT_CERTIFICATION",
+  "kind": "pdf",
+  "priorReference": {
+    "path": "var/qa/cn-effective-20261016/whole-rule-source-readback/CN/DOC-06.pdf",
+    "sha256": "59bd828207564540aa3c9885f9dfc39764034f633eb6fb84d49440c9edef4742"
+  },
+  "matchesPriorRawBytes": true,
+  "freshNetworkReadbackReusesVerifiedExactExistingBytes": true,
+  "identicalTemporaryCompressedCopyRetired": {
+    "path": "var/qa/source-round-20261021/rules/DOC-06.pdf.gz",
+    "sha256": "858a614a87f957d910f87eac7967d23fe712a66bde74e0904453597c9ba7a6e1",
+    "bytes": 12414193
+  },
+  "id": "DOC-06",
+  "exactFrozenSourceIdentity": {
+    "id": "DOC-06",
+    "title": "化神争锋系列 官方FAQ",
+    "url": "https://cdn.playloltcg.com/lol/2026/08/2026-08-13/612b1cd53f9f41baaf3c8734c1881a3b.pdf",
+    "sha256": "59bd828207564540aa3c9885f9dfc39764034f633eb6fb84d49440c9edef4742",
+    "updated": "2026-08-14",
+    "effectiveDate": null,
+    "pages": [
+      {
+        "page": 1,
+        "blocks": [
+          "DOC-06-P001-B001",
+          "DOC-06-P001-B002",
+          "DOC-06-P001-B003",
+          "DOC-06-P001-B004",
+          "DOC-06-P001-B005",
+          "DOC-06-P001-B006",
+          "DOC-06-P001-B007"
+        ],
+        "requiresVisualReview": false
+      },
+      {
+        "page": 2,
+        "blocks": [
+          "DOC-06-P002-B001",
+          "DOC-06-P002-B002",
+          "DOC-06-P002-B003",
+          "DOC-06-P002-B004",
+          "DOC-06-P002-B005",
+          "DOC-06-P002-B006",
+          "DOC-06-P002-B007",
+          "DOC-06-P002-B008",
+          "DOC-06-P002-B009"
+        ],
+        "requiresVisualReview": false
+      },
+      {
+        "page": 3,
+        "blocks": [
+          "DOC-06-P003-B001",
+          "DOC-06-P003-B002",
+          "DOC-06-P003-B003",
+          "DOC-06-P003-B004",
+          "DOC-06-P003-B005",
+          "DOC-06-P003-B006",
+          "DOC-06-P003-B007",
+          "DOC-06-P003-B008"
+        ],
+        "requiresVisualReview": false
+      },
+      {
+        "page": 4,
+        "blocks": [
+          "DOC-06-P004-B001",
+          "DOC-06-P004-B002",
+          "DOC-06-P004-B003",
+          "DOC-06-P004-B004",
+          "DOC-06-P004-B005",
+          "DOC-06-P004-B006",
+          "DOC-06-P004-B007",
+          "DOC-06-P004-B008",
+          "DOC-06-P004-B009"
+        ],
+        "requiresVisualReview": false
+      },
+      {
+        "page": 5,
+        "blocks": [
+          "DOC-06-P005-B001",
+          "DOC-06-P005-B002",
+          "DOC-06-P005-B003",
+          "DOC-06-P005-B004",
+          "DOC-06-P005-B005",
+          "DOC-06-P005-B006",
+          "DOC-06-P005-B007"
+        ],
+        "requiresVisualReview": false
+      },
+      {
+        "page": 6,
+        "blocks": [
+          "DOC-06-P006-B001",
+          "DOC-06-P006-B002",
+          "DOC-06-P006-B003",
+          "DOC-06-P006-B004",
+          "DOC-06-P006-B005",
+          "DOC-06-P006-B006",
+          "DOC-06-P006-B007",
+          "DOC-06-P006-B008",
+          "DOC-06-P006-B009"
+        ],
+        "requiresVisualReview": false
+      },
+      {
+        "page": 7,
+        "blocks": [
+          "DOC-06-P007-B001",
+          "DOC-06-P007-B002",
+          "DOC-06-P007-B003",
+          "DOC-06-P007-B004",
+          "DOC-06-P007-B005",
+          "DOC-06-P007-B006",
+          "DOC-06-P007-B007"
+        ],
+        "requiresVisualReview": false
+      },
+      {
+        "page": 8,
+        "blocks": [
+          "DOC-06-P008-B001",
+          "DOC-06-P008-B002",
+          "DOC-06-P008-B003",
+          "DOC-06-P008-B004",
+          "DOC-06-P008-B005",
+          "DOC-06-P008-B006",
+          "DOC-06-P008-B007"
+        ],
+        "requiresVisualReview": false
+      },
+      {
+        "page": 9,
+        "blocks": [
+          "DOC-06-P009-B001",
+          "DOC-06-P009-B002",
+          "DOC-06-P009-B003",
+          "DOC-06-P009-B004",
+          "DOC-06-P009-B005",
+          "DOC-06-P009-B006",
+          "DOC-06-P009-B007",
+          "DOC-06-P009-B008"
+        ],
+        "requiresVisualReview": false
+      },
+      {
+        "page": 10,
+        "blocks": [
+          "DOC-06-P010-B001",
+          "DOC-06-P010-B002",
+          "DOC-06-P010-B003",
+          "DOC-06-P010-B004",
+          "DOC-06-P010-B005",
+          "DOC-06-P010-B006",
+          "DOC-06-P010-B007"
+        ],
+        "requiresVisualReview": false
+      },
+      {
+        "page": 11,
+        "blocks": [
+          "DOC-06-P011-B001",
+          "DOC-06-P011-B002",
+          "DOC-06-P011-B003",
+          "DOC-06-P011-B004",
+          "DOC-06-P011-B005",
+          "DOC-06-P011-B006"
+        ],
+        "requiresVisualReview": false
+      },
+      {
+        "page": 12,
+        "blocks": [
+          "DOC-06-P012-B001",
+          "DOC-06-P012-B002",
+          "DOC-06-P012-B003",
+          "DOC-06-P012-B004",
+          "DOC-06-P012-B005",
+          "DOC-06-P012-B006",
+          "DOC-06-P012-B007"
+        ],
+        "requiresVisualReview": false
+      },
+      {
+        "page": 13,
+        "blocks": [
+          "DOC-06-P013-B001",
+          "DOC-06-P013-B002",
+          "DOC-06-P013-B003",
+          "DOC-06-P013-B004",
+          "DOC-06-P013-B005",
+          "DOC-06-P013-B006",
+          "DOC-06-P013-B007",
+          "DOC-06-P013-B008"
+        ],
+        "requiresVisualReview": false
+      },
+      {
+        "page": 14,
+        "blocks": [
+          "DOC-06-P014-B001",
+          "DOC-06-P014-B002",
+          "DOC-06-P014-B003",
+          "DOC-06-P014-B004",
+          "DOC-06-P014-B005",
+          "DOC-06-P014-B006",
+          "DOC-06-P014-B007",
+          "DOC-06-P014-B008"
+        ],
+        "requiresVisualReview": false
+      },
+      {
+        "page": 15,
+        "blocks": [
+          "DOC-06-P015-B001",
+          "DOC-06-P015-B002",
+          "DOC-06-P015-B003",
+          "DOC-06-P015-B004",
+          "DOC-06-P015-B005",
+          "DOC-06-P015-B006",
+          "DOC-06-P015-B007",
+          "DOC-06-P015-B008"
+        ],
+        "requiresVisualReview": false
+      },
+      {
+        "page": 16,
+        "blocks": [
+          "DOC-06-P016-B001",
+          "DOC-06-P016-B002",
+          "DOC-06-P016-B003",
+          "DOC-06-P016-B004",
+          "DOC-06-P016-B005"
+        ],
+        "requiresVisualReview": false
+      },
+      {
+        "page": 17,
+        "blocks": [
+          "DOC-06-P017-B001",
+          "DOC-06-P017-B002",
+          "DOC-06-P017-B003",
+          "DOC-06-P017-B004",
+          "DOC-06-P017-B005",
+          "DOC-06-P017-B006",
+          "DOC-06-P017-B007"
+        ],
+        "requiresVisualReview": false
+      },
+      {
+        "page": 18,
+        "blocks": [
+          "DOC-06-P018-B001",
+          "DOC-06-P018-B002",
+          "DOC-06-P018-B003",
+          "DOC-06-P018-B004",
+          "DOC-06-P018-B005",
+          "DOC-06-P018-B006"
+        ],
+        "requiresVisualReview": false
+      },
+      {
+        "page": 19,
+        "blocks": [
+          "DOC-06-P019-B001",
+          "DOC-06-P019-B002",
+          "DOC-06-P019-B003",
+          "DOC-06-P019-B004",
+          "DOC-06-P019-B005",
+          "DOC-06-P019-B006"
+        ],
+        "requiresVisualReview": false
+      },
+      {
+        "page": 20,
+        "blocks": [
+          "DOC-06-P020-B001",
+          "DOC-06-P020-B002",
+          "DOC-06-P020-B003",
+          "DOC-06-P020-B004",
+          "DOC-06-P020-B005",
+          "DOC-06-P020-B006",
+          "DOC-06-P020-B007"
+        ],
+        "requiresVisualReview": false
+      },
+      {
+        "page": 21,
+        "blocks": [
+          "DOC-06-P021-B001",
+          "DOC-06-P021-B002",
+          "DOC-06-P021-B003",
+          "DOC-06-P021-B004",
+          "DOC-06-P021-B005",
+          "DOC-06-P021-B006",
+          "DOC-06-P021-B007"
+        ],
+        "requiresVisualReview": false
+      },
+      {
+        "page": 22,
+        "blocks": [
+          "DOC-06-P022-B001",
+          "DOC-06-P022-B002",
+          "DOC-06-P022-B003",
+          "DOC-06-P022-B004",
+          "DOC-06-P022-B005",
+          "DOC-06-P022-B006",
+          "DOC-06-P022-B007",
+          "DOC-06-P022-B008"
+        ],
+        "requiresVisualReview": false
+      }
+    ]
+  },
+  "currentListing": {
+    "ruleCategory": "化神争锋系列 FAQ",
+    "ruleName": "化神争锋系列 官方FAQ",
+    "coverUrl": "https://cdn.playloltcg.com/lol/2026/08/2026-08-13/b12f3a27b677490da7065297f5683fc3.jpg",
+    "updateDate": "2026-08-14",
+    "ruleDocUrl": "https://cdn.playloltcg.com/lol/2026/08/2026-08-13/612b1cd53f9f41baaf3c8734c1881a3b.pdf"
+  },
+  "historicalSupersededSourceRetained": false
+}

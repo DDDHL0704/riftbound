@@ -1,0 +1,21 @@
+{
+  "url": "https://playriftbound.com/zh-cn/news/announcements/the-radiance-overview/",
+  "attemptedAtUtc": "2026-10-20T16:33:17.661838+00:00",
+  "roundApplicableAsOf": "2026-10-21",
+  "region": "GLOBAL",
+  "requestedLanguage": "zh-cn",
+  "exitCode": 0,
+  "stderr": "",
+  "resolvedUrl": "https://playriftbound.com/zh-cn/news/announcements/the-radiance-overview/",
+  "normalTlsOnlyNoBypass": true,
+  "priorFailureRetained": true,
+  "rawPath": "var/qa/source-round-20261021/global-supplement-retry-v2/original.html.gz",
+  "rawSha256": "982ac8e54f386df6fb4eb6f528f1f22bd6db185ba80d93ac08fe930d51fc0c3a",
+  "rawBytes": 168048,
+  "compressedSha256": "b7f1155fbc1e5aa058057760bfd3664048f350d4d295e7e6ebeff8c1881d27e3",
+  "status": "FETCHED_COMPLETE_GLOBAL_ZHCN_ARTICLE_BODY_NORMAL_TLS_RETRY_NOT_CN_ADOPTION",
+  "bodyPath": "var/qa/source-round-20261021/global-supplement-retry-v2/body.html.gz",
+  "bodyHtmlSha256": "8c1efae7543d0750d4c9f07405ad73949da4101cb6a6f84b50e844c29ae1f506",
+  "title": "“辉耀群星”系列概览",
+  "displayedPublishDate": "2026-09-25T22:30:00.000Z"
+}

@@ -1,0 +1,15 @@
+{
+  "status": "KNOWN_SUPPLEMENTAL_GLOBAL_URLS_AND_CURRENT_NEWS_INDEX_READBACK_OLD20_CRAWL_LIMITATION_CORRECTED",
+  "recordedAtUtc": "2026-10-20T16:31:04.047997+00:00",
+  "freshAdditionalFetches": 8,
+  "knownUrlExactRedirectTargetsAlreadyFetched": 8,
+  "gaps": [
+    "https://playriftbound.com/zh-cn/news/announcements/the-radiance-overview/"
+  ],
+  "bodyHashNotPreviouslyBoundOrChanged": [
+    "https://playriftbound.com/en-us/news/announcements/the-vendetta-overview/"
+  ],
+  "original20SourcesAndFirst31UrlReceiptsUnmodified": true,
+  "fullGlobalNewsHistoryAndTransitiveMediaNotCertified": true,
+  "noRuntimeInputsOrOldSourceApplicabilityChanged": true
+}

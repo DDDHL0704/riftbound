@@ -1,0 +1,41 @@
+{
+  "url": "https://mp.weixin.qq.com/s/8OBFhnO4yNPUcnOVCRoItw",
+  "request": null,
+  "attemptedAtUtc": "2026-10-20T16:16:42.454389+00:00",
+  "roundApplicableAsOf": "2026-10-21",
+  "region": "CN",
+  "language": "zh-CN",
+  "timezone": "Asia/Shanghai",
+  "firstPublicationIndependentlyConfirmed": null,
+  "effectiveDateIndependentlyConfirmed": null,
+  "semanticReview": "OPEN",
+  "runtimeAuthorityChanged": false,
+  "resolvedUrl": "https://mp.weixin.qq.com/s/8OBFhnO4yNPUcnOVCRoItw",
+  "httpStatus": 200,
+  "responseHeaders": {
+    "Last-Modified": "Wed, 21 Oct 2026 00:16:44 +0800",
+    "Content-Type": "text/html; charset=UTF-8"
+  },
+  "status": "SOURCE_EXTRACTION_GAP_WITH_ORIGINAL_RESPONSE_RETAINED",
+  "receivedAtUtc": "2026-10-20T16:16:47.377704+00:00",
+  "path": "var/qa/source-round-20261021/news/CN-NEWS-6fb909f8e9cc43cc.html.gz",
+  "sha256": "4a2db5a3aebfd85ae45663e02e6c7878482ca810e4396275070938764477c245",
+  "bytes": 3451553,
+  "compressedSha256": "40f9ba2f2dd12929c96f3d46ee5139e25be5b4a7ba9667fc63867c744e9e109c",
+  "losslessGzipOriginalBytes": true,
+  "id": "CN-NEWS-6fb909f8e9cc43cc",
+  "allListingRows": [
+    {
+      "name": "高考交卷 符文接棒",
+      "image": "https://cdn.playloltcg.com/lol/2026/06/2026-06-06/59c3a2ddf92b4b548ea95dca19443f8a.jpg",
+      "pushDate": "2026-06-06",
+      "jumpType": "h5",
+      "appId": "",
+      "jumpUrl": "https://mp.weixin.qq.com/s/8OBFhnO4yNPUcnOVCRoItw",
+      "sort": 135
+    }
+  ],
+  "publishedAsListed": "2026-06-06",
+  "extractionErrorType": "TypeError",
+  "extractionError": "'int' object is not callable"
+}

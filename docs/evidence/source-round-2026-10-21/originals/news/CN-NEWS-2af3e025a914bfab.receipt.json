@@ -1,0 +1,41 @@
+{
+  "url": "https://mp.weixin.qq.com/s/_8ppou_4fE5NPqlRyTwCSg",
+  "request": null,
+  "attemptedAtUtc": "2026-10-20T16:14:41.311020+00:00",
+  "roundApplicableAsOf": "2026-10-21",
+  "region": "CN",
+  "language": "zh-CN",
+  "timezone": "Asia/Shanghai",
+  "firstPublicationIndependentlyConfirmed": null,
+  "effectiveDateIndependentlyConfirmed": null,
+  "semanticReview": "OPEN",
+  "runtimeAuthorityChanged": false,
+  "resolvedUrl": "https://mp.weixin.qq.com/s/_8ppou_4fE5NPqlRyTwCSg",
+  "httpStatus": 200,
+  "responseHeaders": {
+    "Last-Modified": "Wed, 21 Oct 2026 00:14:42 +0800",
+    "Content-Type": "text/html; charset=UTF-8"
+  },
+  "status": "SOURCE_EXTRACTION_GAP_WITH_ORIGINAL_RESPONSE_RETAINED",
+  "receivedAtUtc": "2026-10-20T16:14:45.394136+00:00",
+  "path": "var/qa/source-round-20261021/news/CN-NEWS-2af3e025a914bfab.html.gz",
+  "sha256": "925ab987581b392c1c16ca6443c1e519eae656039cf04d56dee1737850971a5a",
+  "bytes": 3544223,
+  "compressedSha256": "ceb5a6dd7058d0995d61ef6254615c562a536f84ca33e78a454f34346bf09811",
+  "losslessGzipOriginalBytes": true,
+  "id": "CN-NEWS-2af3e025a914bfab",
+  "allListingRows": [
+    {
+      "name": "第一集｜新手必看！从认识符文战场开始",
+      "image": "https://cdn.playloltcg.com/lol/2025/06/2025-06-18/d4048408b9bc496c82edea2ccc00905a.png",
+      "pushDate": "2025-06-18",
+      "jumpType": "h5",
+      "appId": "",
+      "jumpUrl": "https://mp.weixin.qq.com/s/_8ppou_4fE5NPqlRyTwCSg",
+      "sort": 23
+    }
+  ],
+  "publishedAsListed": "2025-06-18",
+  "extractionErrorType": "TypeError",
+  "extractionError": "'int' object is not callable"
+}

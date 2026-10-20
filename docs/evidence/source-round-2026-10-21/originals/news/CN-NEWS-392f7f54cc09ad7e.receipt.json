@@ -1,0 +1,41 @@
+{
+  "url": "https://mp.weixin.qq.com/s/3Blc2IZp-CqJkRF4PZW5cw",
+  "request": null,
+  "attemptedAtUtc": "2026-10-20T16:17:13.626138+00:00",
+  "roundApplicableAsOf": "2026-10-21",
+  "region": "CN",
+  "language": "zh-CN",
+  "timezone": "Asia/Shanghai",
+  "firstPublicationIndependentlyConfirmed": null,
+  "effectiveDateIndependentlyConfirmed": null,
+  "semanticReview": "OPEN",
+  "runtimeAuthorityChanged": false,
+  "resolvedUrl": "https://mp.weixin.qq.com/s/3Blc2IZp-CqJkRF4PZW5cw",
+  "httpStatus": 200,
+  "responseHeaders": {
+    "Last-Modified": "Wed, 21 Oct 2026 00:17:15 +0800",
+    "Content-Type": "text/html; charset=UTF-8"
+  },
+  "status": "SOURCE_EXTRACTION_GAP_WITH_ORIGINAL_RESPONSE_RETAINED",
+  "receivedAtUtc": "2026-10-20T16:17:18.192662+00:00",
+  "path": "var/qa/source-round-20261021/news/CN-NEWS-392f7f54cc09ad7e.html.gz",
+  "sha256": "3c8b225768e30a1cac12f991959f7389fd28063bbd333fa983dcc024828c70ff",
+  "bytes": 3493958,
+  "compressedSha256": "cc678e9cf59b8b78d571cd624eae9e081d1549870193864d471dc9a0fa1e1cc7",
+  "losslessGzipOriginalBytes": true,
+  "id": "CN-NEWS-392f7f54cc09ad7e",
+  "allListingRows": [
+    {
+      "name": "赛事手册丨沈阳站场外活动",
+      "image": "https://cdn.playloltcg.com/lol/2026/09/2026-09-12/b4e22a34d76b4d738187389af1e11ac8.jpg",
+      "pushDate": "2026-09-09",
+      "jumpType": "h5",
+      "appId": "",
+      "jumpUrl": "https://mp.weixin.qq.com/s/3Blc2IZp-CqJkRF4PZW5cw",
+      "sort": 154
+    }
+  ],
+  "publishedAsListed": "2026-09-09",
+  "extractionErrorType": "TypeError",
+  "extractionError": "'int' object is not callable"
+}

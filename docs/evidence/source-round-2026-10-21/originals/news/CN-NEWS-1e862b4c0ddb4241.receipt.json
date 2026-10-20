@@ -1,0 +1,41 @@
+{
+  "url": "https://mp.weixin.qq.com/s/6kATcviAfN_HykutwrBiRQ",
+  "request": null,
+  "attemptedAtUtc": "2026-10-20T16:15:12.162018+00:00",
+  "roundApplicableAsOf": "2026-10-21",
+  "region": "CN",
+  "language": "zh-CN",
+  "timezone": "Asia/Shanghai",
+  "firstPublicationIndependentlyConfirmed": null,
+  "effectiveDateIndependentlyConfirmed": null,
+  "semanticReview": "OPEN",
+  "runtimeAuthorityChanged": false,
+  "resolvedUrl": "https://mp.weixin.qq.com/s/6kATcviAfN_HykutwrBiRQ",
+  "httpStatus": 200,
+  "responseHeaders": {
+    "Last-Modified": "Wed, 21 Oct 2026 00:15:13 +0800",
+    "Content-Type": "text/html; charset=UTF-8"
+  },
+  "status": "SOURCE_EXTRACTION_GAP_WITH_ORIGINAL_RESPONSE_RETAINED",
+  "receivedAtUtc": "2026-10-20T16:15:21.278954+00:00",
+  "path": "var/qa/source-round-20261021/news/CN-NEWS-1e862b4c0ddb4241.html.gz",
+  "sha256": "181da9854f2274ce99fe253c8d5de8191ea270d054e53d251318f98da69f5fe7",
+  "bytes": 3549903,
+  "compressedSha256": "55c26841d1e6c09e4dbdbe7c27c884ac220988ee577cebf778aefc2cc4a2b7c0",
+  "losslessGzipOriginalBytes": true,
+  "id": "CN-NEWS-1e862b4c0ddb4241",
+  "allListingRows": [
+    {
+      "name": "规则判例丨广州站赛后判例更新",
+      "image": "https://cdn.playloltcg.com/lol/2025/08/2025-08-30/7fdb6195bbed42f893a3e42ce2e9307b.jpg",
+      "pushDate": "2025-08-30",
+      "jumpType": "h5",
+      "appId": "",
+      "jumpUrl": "https://mp.weixin.qq.com/s/6kATcviAfN_HykutwrBiRQ",
+      "sort": 64
+    }
+  ],
+  "publishedAsListed": "2025-08-30",
+  "extractionErrorType": "TypeError",
+  "extractionError": "'int' object is not callable"
+}

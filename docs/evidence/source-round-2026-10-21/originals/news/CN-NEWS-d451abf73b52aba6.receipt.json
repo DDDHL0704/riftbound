@@ -1,0 +1,41 @@
+{
+  "url": "https://mp.weixin.qq.com/s/5-N5r0CzBNFJ3Uz04mPajw",
+  "request": null,
+  "attemptedAtUtc": "2026-10-20T16:14:31.462833+00:00",
+  "roundApplicableAsOf": "2026-10-21",
+  "region": "CN",
+  "language": "zh-CN",
+  "timezone": "Asia/Shanghai",
+  "firstPublicationIndependentlyConfirmed": null,
+  "effectiveDateIndependentlyConfirmed": null,
+  "semanticReview": "OPEN",
+  "runtimeAuthorityChanged": false,
+  "resolvedUrl": "https://mp.weixin.qq.com/s/5-N5r0CzBNFJ3Uz04mPajw",
+  "httpStatus": 200,
+  "responseHeaders": {
+    "Last-Modified": "Wed, 21 Oct 2026 00:14:32 +0800",
+    "Content-Type": "text/html; charset=UTF-8"
+  },
+  "status": "SOURCE_EXTRACTION_GAP_WITH_ORIGINAL_RESPONSE_RETAINED",
+  "receivedAtUtc": "2026-10-20T16:14:34.294919+00:00",
+  "path": "var/qa/source-round-20261021/news/CN-NEWS-d451abf73b52aba6.html.gz",
+  "sha256": "c56f2848487f6c9c6f812333925b7b9e5e9c5bd460efa6606c48b562a57cee66",
+  "bytes": 3464068,
+  "compressedSha256": "570ca705bc69441c2975c27c7fc06343d0f9462930e18a68d0792ebb31070135",
+  "losslessGzipOriginalBytes": true,
+  "id": "CN-NEWS-d451abf73b52aba6",
+  "allListingRows": [
+    {
+      "name": "广州场超前试玩派对精彩回顾！",
+      "image": "https://cdn.playloltcg.com/lol/a9f19e90f6d7407f89671d9ad9679b3c.jpg",
+      "pushDate": "2025-01-23",
+      "jumpType": "h5",
+      "appId": "",
+      "jumpUrl": "https://mp.weixin.qq.com/s/5-N5r0CzBNFJ3Uz04mPajw",
+      "sort": 15
+    }
+  ],
+  "publishedAsListed": "2025-01-23",
+  "extractionErrorType": "TypeError",
+  "extractionError": "'int' object is not callable"
+}

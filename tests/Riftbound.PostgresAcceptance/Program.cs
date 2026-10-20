@@ -36,8 +36,9 @@ var hweiMoveDiscardTypesOnly = args.SequenceEqual(new[] { "--hwei-move-discard-t
 var destructionGraveyardOnly = args.SequenceEqual(new[] { "--destruction-graveyard-only" });
 var conditionalCounterPaymentOnly = args.SequenceEqual(new[] { "--conditional-counter-payment-only" });
 var reversalTargetChoiceOnly = args.SequenceEqual(new[] { "--reversal-target-choice-only" });
+var spellRemakeDeclarationOnly = args.SequenceEqual(new[] { "--spell-remake-declaration-only" });
 var pakaDualTypeRevealOnly = args.SequenceEqual(new[] { "--paka-dual-type-reveal-only" });
-if (args.Length != 0 && !openingRandomnessOnly && !optionalCostsOnly && !battlefieldPlayRecoveryOnly && !battlefieldPlayDamageOnly && !banishEffectPlayOnly && !hereLocationOnly && !fateWeaverOnly && !multiControllerOrderOnly && !emptyObservedRepeatOnly && !observedPlayWindowOnly && !ravenbloomPutHandOnly && !attachedPredictOnly && !copiedLastBreathOnly && !copiedDuelOnly && !empoweredInsightOnly && !pakaRevealOnly && !emptyRevealFollowupOnly && !pakaDualTypeRevealOnly && !hweiMoveDiscardTypesOnly && !destructionGraveyardOnly && !conditionalCounterPaymentOnly && !reversalTargetChoiceOnly && !partition.IsPartition) throw new ArgumentException("Unknown PostgreSQL acceptance selector.");
+if (args.Length != 0 && !openingRandomnessOnly && !optionalCostsOnly && !battlefieldPlayRecoveryOnly && !battlefieldPlayDamageOnly && !banishEffectPlayOnly && !hereLocationOnly && !fateWeaverOnly && !multiControllerOrderOnly && !emptyObservedRepeatOnly && !observedPlayWindowOnly && !ravenbloomPutHandOnly && !attachedPredictOnly && !copiedLastBreathOnly && !copiedDuelOnly && !empoweredInsightOnly && !pakaRevealOnly && !emptyRevealFollowupOnly && !pakaDualTypeRevealOnly && !hweiMoveDiscardTypesOnly && !destructionGraveyardOnly && !conditionalCounterPaymentOnly && !reversalTargetChoiceOnly && !spellRemakeDeclarationOnly && !partition.IsPartition) throw new ArgumentException("Unknown PostgreSQL acceptance selector.");
 var json = new JsonSerializerOptions(JsonSerializerDefaults.Web) { WriteIndented = true };
 await using var dataSource = NpgsqlDataSource.Create(connectionString);
 await using (var connection = await dataSource.OpenConnectionAsync()) {
@@ -45,6 +46,12 @@ await using (var connection = await dataSource.OpenConnectionAsync()) {
         await using var command = new NpgsqlCommand(await File.ReadAllTextAsync(path), connection);
         await command.ExecuteNonQueryAsync();
     }
+}
+if (spellRemakeDeclarationOnly)
+{
+    await SpellRemakeDeclarationSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "spell-remake-declaration"));
+    Console.WriteLine("SCOPED_POSTGRES_ONLY: spell-remake-declaration; the retained complete SQL suite was not requested.");
+    return;
 }
 if (reversalTargetChoiceOnly)
 {
@@ -339,5 +346,6 @@ await partition.RunAsync("destruction-graveyard", () => DestructionGraveyardSqlA
 await partition.RunAsync("conditional-counter-payment", () => ConditionalCounterPaymentSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "conditional-counter-payment")));
 
 await partition.RunAsync("reversal-target-choice", () => ReversalTargetChoiceSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "reversal-target-choice")));
+await partition.RunAsync("spell-remake-declaration", () => SpellRemakeDeclarationSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "spell-remake-declaration")));
 
 await partition.CompleteAsync(output);

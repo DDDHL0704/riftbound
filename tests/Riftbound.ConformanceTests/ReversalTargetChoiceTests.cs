@@ -14,7 +14,7 @@ public sealed class ReversalTargetChoiceTests
 
     internal static async Task<MatchState> Open(MatchState? initial = null, string spell = "OGN·095/298",
         IReadOnlyList<string>? targets = null, string mode = "", IReadOnlyList<string>? costs = null,
-        string destination = "", IReadOnlyList<string>? movementDestinations = null)
+        string destination = "", IReadOnlyList<string>? movementDestinations = null, bool expectsChoice = true)
     {
         var played = await Act(initial ?? Position(spell), "P1", new PlayCardCommand("R-SPELL", spell,
             targets ?? ["R-TARGET"], mode, costs, destination, MovementDestinations: movementDestinations));
@@ -22,9 +22,13 @@ public sealed class ReversalTargetChoiceTests
         var control = await Act(handed.State, "P2", new PlayCardCommand("REVERSAL", Card,
             [Assert.Single(played.State.StackItems).StackItemId]));
         var opened = await Top(control.State);
-        Assert.NotNull(opened.State.PendingRuleChoice);
-        Assert.Equal("SPELL_CHOICE_REMAKE", opened.State.PendingRuleChoice.Request.Kind);
-        Assert.Equal("P2", opened.State.PendingRuleChoice.Request.PlayerId);
+        if (expectsChoice)
+        {
+            Assert.NotNull(opened.State.PendingRuleChoice);
+            Assert.Equal("SPELL_CHOICE_REMAKE", opened.State.PendingRuleChoice.Request.Kind);
+            Assert.Equal("P2", opened.State.PendingRuleChoice.Request.PlayerId);
+        }
+        else Assert.Null(opened.State.PendingRuleChoice);
         Restore(opened.State); ArmamentMightTests.PublicRecovery(opened.State);
         return opened.State;
     }
@@ -60,9 +64,9 @@ public sealed class ReversalTargetChoiceTests
     [Fact]
     public async Task NewTargetsDoNotGrantANewMode()
     {
-        var s = await Open(spell: "UNL-182/219", targets: [], mode: "DRAW_1");
-        Assert.DoesNotContain(s.PendingRuleChoice!.Request.Options, o => o.Label.Contains("模式 "));
-        s = await RebuttalRulesTests.Choose(s, "KEEP_ALL");
+        var s = await Open(spell: "UNL-182/219", targets: [], mode: "DRAW_1", expectsChoice: false);
+        Assert.DoesNotContain(s.PendingRuleChoice?.Request.Options ?? [], o => o.Label.Contains("模式 "));
+        Assert.Null(s.PendingRuleChoice);
         Assert.Equal("PERFECT_FINALE_DRAW_1", Assert.Single(s.StackItems).EffectKind);
         Restore(s);
     }

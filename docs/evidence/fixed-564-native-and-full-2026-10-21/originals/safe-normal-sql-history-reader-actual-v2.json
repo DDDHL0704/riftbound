@@ -1,0 +1,32 @@
+{
+  "status": "PASS_INDEPENDENT_ACTUAL_SQL_ALL_HISTORY_FIELDS_PRIVATE_PROJECTIONS_AND_FULL_ORIGINAL_NORMAL_SCORE_REPLAY",
+  "room": "N27-RETARGET-A843ED44AB",
+  "commands": 54,
+  "events": 306,
+  "originalPrefix": 33,
+  "actualNativeButtonCommands": 4,
+  "actualProductionGatewayScoreCommands": 17,
+  "winningScore": 8,
+  "losingScore": 0,
+  "finalTurn": 23,
+  "actualHistoricalPayloads": {
+    "state_snapshots": 54,
+    "snapshots": 104,
+    "action_prompts": 104
+  },
+  "originalPendingStates": 2,
+  "originalDraftStates": 1,
+  "allOriginalFieldsNullConditionalOmissionsAndPrivateProjectionValuesExact": true,
+  "literalNativeTargetDrawOwnerAndNormalConquestHoldWinChecks": true,
+  "originalNonzeroPrivateSeedAndBlankOpeningPreservedNotPrinted": true,
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+    "implementationSha256": "74e5b72ea195d9692299e3651fc00ba4acf3db5e3abc224dcb5bfc2a9a3952fa",
+    "identitySha256": "024a2aa1f46dfffddb2877738c3bcb09683cb65f40288d4ba94c37444d8efa0d"
+  },
+  "visibleCiExportedAndPhysicalWindowsAcceptance": false
+}

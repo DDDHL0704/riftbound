@@ -1,0 +1,41 @@
+{
+  "url": "https://mp.weixin.qq.com/s/SAsR9D6dEhvwE8vce4ycJw",
+  "request": null,
+  "attemptedAtUtc": "2026-10-20T16:14:54.351071+00:00",
+  "roundApplicableAsOf": "2026-10-21",
+  "region": "CN",
+  "language": "zh-CN",
+  "timezone": "Asia/Shanghai",
+  "firstPublicationIndependentlyConfirmed": null,
+  "effectiveDateIndependentlyConfirmed": null,
+  "semanticReview": "OPEN",
+  "runtimeAuthorityChanged": false,
+  "resolvedUrl": "https://mp.weixin.qq.com/s/SAsR9D6dEhvwE8vce4ycJw",
+  "httpStatus": 200,
+  "responseHeaders": {
+    "Last-Modified": "Wed, 21 Oct 2026 00:14:55 +0800",
+    "Content-Type": "text/html; charset=UTF-8"
+  },
+  "status": "SOURCE_EXTRACTION_GAP_WITH_ORIGINAL_RESPONSE_RETAINED",
+  "receivedAtUtc": "2026-10-20T16:14:58.797705+00:00",
+  "path": "var/qa/source-round-20261021/news/CN-NEWS-416214410c2778ce.html.gz",
+  "sha256": "95a6f9daceb427bbdd74fc77072235e96036da13c8642ff43a2193474898731b",
+  "bytes": 3451669,
+  "compressedSha256": "3d5bb920c3efc69868c5ef2c4cdde7bad167ffb9c2d2059e08bf60327a36a50c",
+  "losslessGzipOriginalBytes": true,
+  "id": "CN-NEWS-416214410c2778ce",
+  "allListingRows": [
+    {
+      "name": "2025符文战场官方皮城学院导师面试详情",
+      "image": "https://cdn.playloltcg.com/lol/2025/07/2025-07-12/ea45343a9ed747f7ab3ec466a4aaf336.jpg",
+      "pushDate": "2025-07-12",
+      "jumpType": "h5",
+      "appId": "",
+      "jumpUrl": "https://mp.weixin.qq.com/s/SAsR9D6dEhvwE8vce4ycJw",
+      "sort": 32
+    }
+  ],
+  "publishedAsListed": "2025-07-12",
+  "extractionErrorType": "TypeError",
+  "extractionError": "'int' object is not callable"
+}

@@ -1,0 +1,41 @@
+{
+  "url": "https://mp.weixin.qq.com/s/doxSFIWrvdJ5q5ljh1uFCg",
+  "request": null,
+  "attemptedAtUtc": "2026-10-20T16:17:30.390955+00:00",
+  "roundApplicableAsOf": "2026-10-21",
+  "region": "CN",
+  "language": "zh-CN",
+  "timezone": "Asia/Shanghai",
+  "firstPublicationIndependentlyConfirmed": null,
+  "effectiveDateIndependentlyConfirmed": null,
+  "semanticReview": "OPEN",
+  "runtimeAuthorityChanged": false,
+  "resolvedUrl": "https://mp.weixin.qq.com/s/doxSFIWrvdJ5q5ljh1uFCg",
+  "httpStatus": 200,
+  "responseHeaders": {
+    "Last-Modified": "Wed, 21 Oct 2026 00:17:31 +0800",
+    "Content-Type": "text/html; charset=UTF-8"
+  },
+  "status": "SOURCE_EXTRACTION_GAP_WITH_ORIGINAL_RESPONSE_RETAINED",
+  "receivedAtUtc": "2026-10-20T16:17:36.760229+00:00",
+  "path": "var/qa/source-round-20261021/news/CN-NEWS-86e9e71450811e36.html.gz",
+  "sha256": "ec460b7ae4aeab789be082dfbb5d59dd4b0e355c30646159e4c30a7aed949e93",
+  "bytes": 3460815,
+  "compressedSha256": "25b962ffa1bcf591c4498270232229d7516390bd381b67a663b1e4c2cf50e9a9",
+  "losslessGzipOriginalBytes": true,
+  "id": "CN-NEWS-86e9e71450811e36",
+  "allListingRows": [
+    {
+      "name": "赛事手册丨成都全国公开赛召唤师商店",
+      "image": "https://cdn.playloltcg.com/lol/2026/09/2026-09-30/9634b9646e9b4f96b436db2fa9a6cbc1.jpg",
+      "pushDate": "2026-09-30",
+      "jumpType": "h5",
+      "appId": "",
+      "jumpUrl": "https://mp.weixin.qq.com/s/doxSFIWrvdJ5q5ljh1uFCg",
+      "sort": 163
+    }
+  ],
+  "publishedAsListed": "2026-09-30",
+  "extractionErrorType": "TypeError",
+  "extractionError": "'int' object is not callable"
+}

@@ -1,0 +1,436 @@
+[
+  {
+    "intent": "mirror-no-complete-0",
+    "actor": "P1",
+    "commandType": "PLAY_CARD",
+    "command": {
+      "sourceObjectId": "SPELL",
+      "cardNo": "OGN\u00B7046/298",
+      "targetObjectIds": [
+        "UNIT-1"
+      ],
+      "mode": "",
+      "destination": "",
+      "repeatChoices": null,
+      "movementDestinations": null,
+      "cmdType": "PLAY_CARD"
+    },
+    "events": [
+      {
+        "kind": "CARD_PLAYED",
+        "description": "P1 \u6253\u51FA\u51B3\u6597\u67B6\u52BF",
+        "payload": {
+          "playerId": "P1",
+          "sourceObjectId": "SPELL",
+          "cardNo": "OGN\u00B7046/298",
+          "mode": "",
+          "destination": ""
+        },
+        "objectRefs": null
+      },
+      {
+        "kind": "COST_PAID",
+        "description": "P1 \u652F\u4ED8 1 \u70B9\u8D39\u7528",
+        "payload": {
+          "playerId": "P1",
+          "mana": 1,
+          "power": 0,
+          "powerByTrait": {},
+          "experience": 0,
+          "baseMana": 1,
+          "costReductionMana": 0,
+          "optionalCostManaReduction": 0,
+          "battlefieldEchoCostReductionMana": 0,
+          "battlefieldEquipmentCostReductionMana": 0,
+          "nextSpellCostReductionMana": 0,
+          "battlefieldSpellCostReductionMana": 0,
+          "battlefieldHeldUnitCostIncreaseMana": 0,
+          "spellshieldTaxPower": 0,
+          "spellshieldTaxTargetObjectIds": [],
+          "optionalCosts": [],
+          "paymentResourceActions": [],
+          "recycledRuneObjectIds": [],
+          "luxSpellOnlyResourceActions": [],
+          "luxSpellOnlyResourceSourceObjectIds": [],
+          "luxSpellOnlyGeneratedMana": 0,
+          "luxSpellOnlyConsumedMana": 0,
+          "luxSpellOnlyRemainingMana": 0,
+          "paymentId": "PLAY_CARD:1:P1:SPELL",
+          "paymentWindow": "PLAY_CARD",
+          "remainingMana": 29,
+          "remainingPower": 30,
+          "remainingPowerByTrait": {},
+          "remainingExperience": 0,
+          "baseManaCost": 1,
+          "totalManaCost": 1,
+          "genericPower": 0,
+          "totalPowerCost": 0,
+          "experienceCost": 0,
+          "extraCosts": [],
+          "legalPaymentChoiceIds": [],
+          "reason": "DUELING_STANCE_FRIENDLY_POWER_PLUS_1_BASE",
+          "sourceObjectId": "SPELL",
+          "dragonUnitCostReductionMana": 0
+        },
+        "objectRefs": null
+      },
+      {
+        "kind": "STACK_ITEM_ADDED",
+        "description": "\u51B3\u6597\u67B6\u52BF\u52A0\u5165\u7ED3\u7B97\u94FE",
+        "payload": {
+          "stackItemId": "STACK-1-SPELL",
+          "controllerId": "P1",
+          "sourceObjectId": "SPELL",
+          "cardNo": "OGN\u00B7046/298",
+          "targetObjectIds": [
+            "UNIT-1"
+          ],
+          "effectKind": "DUELING_STANCE_FRIENDLY_POWER_PLUS_1_BASE",
+          "mode": "",
+          "effectRepeatCount": 1,
+          "playedAfterAnotherCardThisTurn": false
+        },
+        "objectRefs": null
+      }
+    ],
+    "beforeStateHash": "1260952a73426fc66f01efcd1ee8719bb76ebd9fed4ec2a159656ef5771d8997",
+    "afterStateHash": "55d1932f63d3ce0b33e2592e950af2c1b5b91076ec1eaa6f47c74cbeac9a3796"
+  },
+  {
+    "intent": "mirror-no-complete-1",
+    "actor": "P1",
+    "commandType": "PASS_PRIORITY",
+    "command": {
+      "cmdType": "PASS_PRIORITY"
+    },
+    "events": [
+      {
+        "kind": "PRIORITY_PASSED",
+        "description": "P1 \u8BA9\u8FC7\u4F18\u5148\u884C\u52A8\u6743",
+        "payload": {
+          "playerId": "P1",
+          "priorityPlayerId": "P1"
+        },
+        "objectRefs": null
+      }
+    ],
+    "beforeStateHash": "55d1932f63d3ce0b33e2592e950af2c1b5b91076ec1eaa6f47c74cbeac9a3796",
+    "afterStateHash": "14139212d87e08f65cf25e3f0d9c53c603629db6541c894c9c9ac5c38e11c657"
+  },
+  {
+    "intent": "mirror-no-complete-2",
+    "actor": "P2",
+    "commandType": "PLAY_CARD",
+    "command": {
+      "sourceObjectId": "CONTROL",
+      "cardNo": "VEN\u00B7152",
+      "targetObjectIds": [
+        "STACK-1-SPELL"
+      ],
+      "mode": "",
+      "destination": "",
+      "repeatChoices": null,
+      "movementDestinations": null,
+      "cmdType": "PLAY_CARD"
+    },
+    "events": [
+      {
+        "kind": "CARD_PLAYED",
+        "description": "P2 \u6253\u51FA\u7075\u9B42\u6298\u955C",
+        "payload": {
+          "playerId": "P2",
+          "sourceObjectId": "CONTROL",
+          "cardNo": "VEN\u00B7152",
+          "mode": "",
+          "destination": ""
+        },
+        "objectRefs": null
+      },
+      {
+        "kind": "COST_PAID",
+        "description": "P2 \u652F\u4ED8 1 \u70B9\u8D39\u7528",
+        "payload": {
+          "playerId": "P2",
+          "mana": 1,
+          "power": 1,
+          "powerByTrait": {
+            "blue": 1
+          },
+          "experience": 0,
+          "baseMana": 1,
+          "costReductionMana": 0,
+          "optionalCostManaReduction": 0,
+          "battlefieldEchoCostReductionMana": 0,
+          "battlefieldEquipmentCostReductionMana": 0,
+          "nextSpellCostReductionMana": 0,
+          "battlefieldSpellCostReductionMana": 0,
+          "battlefieldHeldUnitCostIncreaseMana": 0,
+          "spellshieldTaxPower": 0,
+          "spellshieldTaxTargetObjectIds": [],
+          "optionalCosts": [],
+          "paymentResourceActions": [],
+          "recycledRuneObjectIds": [],
+          "luxSpellOnlyResourceActions": [],
+          "luxSpellOnlyResourceSourceObjectIds": [],
+          "luxSpellOnlyGeneratedMana": 0,
+          "luxSpellOnlyConsumedMana": 0,
+          "luxSpellOnlyRemainingMana": 0,
+          "paymentId": "PLAY_CARD:3:P2:CONTROL",
+          "paymentWindow": "PLAY_CARD",
+          "remainingMana": 29,
+          "remainingPower": 29,
+          "remainingPowerByTrait": {},
+          "remainingExperience": 0,
+          "baseManaCost": 1,
+          "totalManaCost": 1,
+          "genericPower": 0,
+          "totalPowerCost": 1,
+          "experienceCost": 0,
+          "extraCosts": [],
+          "legalPaymentChoiceIds": [],
+          "reason": "OPTIONAL_POWER_CONTROL_OR_COUNTER_SPELL",
+          "sourceObjectId": "CONTROL",
+          "dragonUnitCostReductionMana": 0
+        },
+        "objectRefs": null
+      },
+      {
+        "kind": "STACK_ITEM_ADDED",
+        "description": "\u7075\u9B42\u6298\u955C\u52A0\u5165\u7ED3\u7B97\u94FE",
+        "payload": {
+          "stackItemId": "STACK-3-CONTROL",
+          "controllerId": "P2",
+          "sourceObjectId": "CONTROL",
+          "cardNo": "VEN\u00B7152",
+          "targetObjectIds": [
+            "STACK-1-SPELL"
+          ],
+          "effectKind": "OPTIONAL_POWER_CONTROL_OR_COUNTER_SPELL",
+          "mode": "",
+          "effectRepeatCount": 1,
+          "playedAfterAnotherCardThisTurn": false
+        },
+        "objectRefs": null
+      }
+    ],
+    "beforeStateHash": "14139212d87e08f65cf25e3f0d9c53c603629db6541c894c9c9ac5c38e11c657",
+    "afterStateHash": "477ca2de743c3f3b939695b0ee0c4b56895d401c07595ac23ff36d125e74bd58"
+  },
+  {
+    "intent": "mirror-no-complete-3",
+    "actor": "P2",
+    "commandType": "PASS_PRIORITY",
+    "command": {
+      "cmdType": "PASS_PRIORITY"
+    },
+    "events": [
+      {
+        "kind": "PRIORITY_PASSED",
+        "description": "P2 \u8BA9\u8FC7\u4F18\u5148\u884C\u52A8\u6743",
+        "payload": {
+          "playerId": "P2",
+          "priorityPlayerId": "P2"
+        },
+        "objectRefs": null
+      }
+    ],
+    "beforeStateHash": "477ca2de743c3f3b939695b0ee0c4b56895d401c07595ac23ff36d125e74bd58",
+    "afterStateHash": "7b56e41d23cc9b3adc6932c77b1a6935c2945a0eb2489ef5605e0d304651733d"
+  },
+  {
+    "intent": "mirror-no-complete-4",
+    "actor": "P1",
+    "commandType": "PASS_PRIORITY",
+    "command": {
+      "cmdType": "PASS_PRIORITY"
+    },
+    "events": [
+      {
+        "kind": "RULE_CHOICE_REQUESTED",
+        "description": "\u7ED3\u7B97\u65F6\u53EF\u652F\u4ED8 1 \u70B9\u4EFB\u610F\u7B26\u80FD\uFF0C\u83B7\u5F97\u6CD5\u672F\u63A7\u5236\u6743\u5E76\u53EF\u91CD\u9009\uFF1B\u4E0D\u652F\u4ED8\u5219\u5C1D\u8BD5\u65E0\u6548\u5316\u3002",
+        "payload": {
+          "playerId": "P2",
+          "choiceId": "REPLACEMENT:4:0"
+        },
+        "objectRefs": null
+      }
+    ],
+    "beforeStateHash": "7b56e41d23cc9b3adc6932c77b1a6935c2945a0eb2489ef5605e0d304651733d",
+    "afterStateHash": "acaae142c6e67f81f6a23591154643f1d9002ab14ad906e8516d8f0b83af5076"
+  },
+  {
+    "intent": "mirror-no-complete-5",
+    "actor": "P2",
+    "commandType": "PAY_COST",
+    "command": {
+      "paymentId": "REPLACEMENT:4:0",
+      "paymentWindow": "RULE_REPLACEMENT",
+      "paymentChoiceIds": [
+        "PAY:ANY"
+      ],
+      "cmdType": "PAY_COST"
+    },
+    "events": [
+      {
+        "kind": "RULE_CHOICE_REQUESTED",
+        "description": "\u53EF\u4E3A\u4EFB\u610F\u76EE\u6807\u6216\u6A21\u5F0F\u505A\u51FA\u65B0\u7684\u9009\u62E9\uFF1B\u786E\u8BA4\u65F6\uFF0C\u4FDD\u7559\u7684\u9009\u62E9\u4E5F\u5FC5\u987B\u5408\u6CD5\u3002\u4E5F\u53EF\u4FDD\u7559\u5168\u90E8\u539F\u9009\u62E9\u3002\u5F53\u524D\u9009\u62E9\uFF1A\u7B2C 1 \u6B21 DUELING_STANCE_FRIENDLY_POWER_PLUS_1_BASE\uFF1A\u707C\u7130\u98DE\u9F99\uFF08UNIT-1\uFF09 ",
+        "payload": {
+          "playerId": "P2",
+          "choiceId": "REPLACEMENT:4:1"
+        },
+        "objectRefs": null
+      }
+    ],
+    "beforeStateHash": "acaae142c6e67f81f6a23591154643f1d9002ab14ad906e8516d8f0b83af5076",
+    "afterStateHash": "5e8843e0c751039cc6337efcee68fb90ead7b6c6075981335b85d8cc1532ed47"
+  },
+  {
+    "intent": "mirror-no-complete-6",
+    "actor": "P2",
+    "commandType": "PAY_COST",
+    "command": {
+      "paymentId": "REPLACEMENT:4:1",
+      "paymentWindow": "RULE_REPLACEMENT",
+      "paymentChoiceIds": [
+        "EDIT:0:3b926b67a4c1dbdb0a0773d9d4763e6258a171bd8c052cc43445677e1c5b8204"
+      ],
+      "cmdType": "PAY_COST"
+    },
+    "events": [
+      {
+        "kind": "RULE_CHOICE_REQUESTED",
+        "description": "\u53EF\u4E3A\u4EFB\u610F\u76EE\u6807\u6216\u6A21\u5F0F\u505A\u51FA\u65B0\u7684\u9009\u62E9\uFF1B\u786E\u8BA4\u65F6\uFF0C\u4FDD\u7559\u7684\u9009\u62E9\u4E5F\u5FC5\u987B\u5408\u6CD5\u3002\u4E5F\u53EF\u4FDD\u7559\u5168\u90E8\u539F\u9009\u62E9\u3002\u5F53\u524D\u9009\u62E9\uFF1A\u7B2C 1 \u6B21 DUELING_STANCE_FRIENDLY_POWER_PLUS_1_BASE\uFF1A ",
+        "payload": {
+          "playerId": "P2",
+          "choiceId": "REPLACEMENT:4:2"
+        },
+        "objectRefs": null
+      }
+    ],
+    "beforeStateHash": "5e8843e0c751039cc6337efcee68fb90ead7b6c6075981335b85d8cc1532ed47",
+    "afterStateHash": "31045ff15c430b7a4386d4ab2f3a2ca3e7f9da8205d41b102ef8daad3d215313"
+  },
+  {
+    "intent": "mirror-no-complete-7",
+    "actor": "P2",
+    "commandType": "PAY_COST",
+    "command": {
+      "paymentId": "REPLACEMENT:4:2",
+      "paymentWindow": "RULE_REPLACEMENT",
+      "paymentChoiceIds": [
+        "KEEP_ALL"
+      ],
+      "cmdType": "PAY_COST"
+    },
+    "events": [
+      {
+        "kind": "PRIORITY_PASSED",
+        "description": "P1 \u8BA9\u8FC7\u4F18\u5148\u884C\u52A8\u6743",
+        "payload": {
+          "playerId": "P1",
+          "priorityPlayerId": "P1"
+        },
+        "objectRefs": null
+      },
+      {
+        "kind": "STACK_ITEM_RESOLVED",
+        "description": "STACK-3-CONTROL \u7ED3\u7B97",
+        "payload": {
+          "stackItemId": "STACK-3-CONTROL",
+          "controllerId": "P2",
+          "sourceObjectId": "CONTROL",
+          "effectKind": "OPTIONAL_POWER_CONTROL_OR_COUNTER_SPELL",
+          "cardNo": "VEN\u00B7152",
+          "targetObjectIds": [
+            "STACK-1-SPELL"
+          ]
+        },
+        "objectRefs": null
+      },
+      {
+        "kind": "COST_PAID",
+        "description": "\u652F\u4ED8\u7ED3\u7B97\u4E2D\u7684 1 \u70B9\u4EFB\u610F\u7B26\u80FD",
+        "payload": {
+          "playerId": "P2",
+          "mana": 0,
+          "power": 1,
+          "powerByTrait": {},
+          "sourceObjectId": "CONTROL",
+          "reason": "OPTIONAL_SPELL_CONTROL_PAYMENT"
+        },
+        "objectRefs": null
+      },
+      {
+        "kind": "STACK_ITEM_CONTROL_GAINED",
+        "description": "\u7075\u9B42\u6298\u955C\u83B7\u5F97\u6CD5\u672F\u63A7\u5236\u6743",
+        "payload": {
+          "stackItemId": "STACK-1-SPELL",
+          "sourceObjectId": "CONTROL",
+          "targetSourceObjectId": "SPELL",
+          "previousControllerId": "P1",
+          "controllerId": "P2"
+        },
+        "objectRefs": null
+      }
+    ],
+    "beforeStateHash": "31045ff15c430b7a4386d4ab2f3a2ca3e7f9da8205d41b102ef8daad3d215313",
+    "afterStateHash": "1b0c5ccd2a3f418e2c564c5b7f00f289f49d586cfa9b235839caf71ab0ffe6b5"
+  },
+  {
+    "intent": "mirror-no-complete-8",
+    "actor": "P2",
+    "commandType": "PASS_PRIORITY",
+    "command": {
+      "cmdType": "PASS_PRIORITY"
+    },
+    "events": [
+      {
+        "kind": "PRIORITY_PASSED",
+        "description": "P2 \u8BA9\u8FC7\u4F18\u5148\u884C\u52A8\u6743",
+        "payload": {
+          "playerId": "P2",
+          "priorityPlayerId": "P2"
+        },
+        "objectRefs": null
+      }
+    ],
+    "beforeStateHash": "1b0c5ccd2a3f418e2c564c5b7f00f289f49d586cfa9b235839caf71ab0ffe6b5",
+    "afterStateHash": "94c3997d8b1a7406c130cb3539eba0cbec954d0a6239e6eb9c42bd7ae7933054"
+  },
+  {
+    "intent": "mirror-no-complete-9",
+    "actor": "P1",
+    "commandType": "PASS_PRIORITY",
+    "command": {
+      "cmdType": "PASS_PRIORITY"
+    },
+    "events": [
+      {
+        "kind": "PRIORITY_PASSED",
+        "description": "P1 \u8BA9\u8FC7\u4F18\u5148\u884C\u52A8\u6743",
+        "payload": {
+          "playerId": "P1",
+          "priorityPlayerId": "P1"
+        },
+        "objectRefs": null
+      },
+      {
+        "kind": "STACK_ITEM_RESOLVED",
+        "description": "STACK-1-SPELL \u7ED3\u7B97",
+        "payload": {
+          "stackItemId": "STACK-1-SPELL",
+          "controllerId": "P2",
+          "sourceObjectId": "SPELL",
+          "effectKind": "DUELING_STANCE_FRIENDLY_POWER_PLUS_1_BASE",
+          "cardNo": "OGN\u00B7046/298",
+          "targetObjectIds": [
+            "UNIT-1"
+          ]
+        },
+        "objectRefs": null
+      }
+    ],
+    "beforeStateHash": "94c3997d8b1a7406c130cb3539eba0cbec954d0a6239e6eb9c42bd7ae7933054",
+    "afterStateHash": "d011b1bbf7990f1f2669e3f429aff4b06083ce1e716a9ef9b69fd33d2afffdab"
+  }
+]

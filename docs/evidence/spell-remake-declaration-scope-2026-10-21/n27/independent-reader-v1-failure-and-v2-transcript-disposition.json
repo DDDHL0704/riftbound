@@ -1,0 +1,9 @@
+{
+  "atUtc": "2026-10-20T17:17:07.114574+00:00",
+  "actualFailure": "Reader counted the required prior PAY:ANY answer as a declaration draft. Actual read-only SQL inspection shows9remake states and exactly4EDIT drafts, with payment separately preceding mirror decisions.",
+  "correction": "Count EDIT answer entries and enforce original preceding PAY:ANY plus exact transcript length. Preserve all state/payload/private/replay checks.",
+  "originalReaderExitCode": -6,
+  "originalSourceRuntimeLogsAndRawDiagnosisRetained": true,
+  "noWriterRerunOrDatabaseOriginalHistoryMutation": true,
+  "ownerRemainsFrozenAwaitingIndependentReader": true
+}

@@ -1,0 +1,20 @@
+{
+  "status": "PASS_COMPLETED_ORIGINAL_BYTES_RETAINED_IN_VERIFIED_LOSSLESS_ARCHIVE_ONLY_REDUNDANT_MATERIALIZATIONS_RETIRED",
+  "verifiedAtUtc": "2026-10-20T16:35:06.432587+00:00",
+  "archivePath": "var/qa/source-round-20261021/completed-news-originals-v1.tar.xz",
+  "archiveSha256": "daee12586a2a525009a2b33c0b09e3037eef20f02ee5d6dd09a89499be451bca",
+  "archiveBytes": 1447872,
+  "originalGzipFiles": 142,
+  "originalGzipBytes": 105321947,
+  "originalHttpEntityBytes": 474812444,
+  "originalContentSha256AndOriginalCompressedBytesBothRecoverable": true,
+  "onlyCompletedOwnDuplicatedMaterializationsRetired": true,
+  "nativeAppsInstallersToolsTestsSourcesAndOriginalDatabaseUntouched": true,
+  "retiredAtUtc": "2026-10-20T16:35:06.480267+00:00",
+  "availableBytesBefore": 83279839232,
+  "availableBytesAfter": 83382804480,
+  "logicalMaterializationBytesMinusArchiveBytes": 103874075,
+  "beforeAfterFreeSpaceMayIncludeOtherConcurrentSystemActivity": true,
+  "oldAcquisitionReceiptsRetainOriginalPathsAndTemporalClaimsWithThisExplicitRetirementMap": true,
+  "nextReadbackUsesArchiveMembersNoNeedToRefetchOrMaterializeAllBodies": true
+}

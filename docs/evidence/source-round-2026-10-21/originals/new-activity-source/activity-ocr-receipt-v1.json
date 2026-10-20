@@ -1,0 +1,22 @@
+{
+  "status": "OCR_LOCATORS_ONLY_REQUIRES_ORIGINAL_VISUAL_REVIEW",
+  "atUtc": "2026-10-20T16:20:34.589299+00:00",
+  "exitCode": 0,
+  "arguments": [
+    "/opt/homebrew/bin/tesseract",
+    "var/qa/source-round-20261021/new-activity-source/official-activity-original.png",
+    "var/qa/source-round-20261021/new-activity-source/activity-ocr-locators-v1",
+    "-l",
+    "chi_sim+eng",
+    "--psm",
+    "11",
+    "txt",
+    "tsv"
+  ],
+  "sourceSha256": "c91c884f148ed8c15efbca2d4f9a4ca6b7505949e25c28eeaf3988c350abe66b",
+  "outputHashes": {
+    "activity-ocr-locators-v1.tsv": "f826978c571c3a35241122181b3c57d4ea2b63639e718ec54bf7a8b32219e47e",
+    "activity-ocr-locators-v1.txt": "2e3b66f374e32101dc7b73353d4daf799d765e2d930f1b5a82656dbcfb1eb4d3"
+  },
+  "newPackagesOrSdksInstalled": false
+}

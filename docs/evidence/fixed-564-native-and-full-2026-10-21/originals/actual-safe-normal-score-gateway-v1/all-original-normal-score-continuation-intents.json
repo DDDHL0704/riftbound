@@ -1,0 +1,1527 @@
+[
+  {
+    "actor": "qa48offline-a",
+    "rawCommand": {
+      "cmdType": "MOVE_UNIT",
+      "sourceObjectId": "qa48offline-a-MAIN-OGN-052-298-05",
+      "origin": "BASE",
+      "destination": "BATTLEFIELD:qa48offline-a-BATTLEFIELD-OGN-278-298-01",
+      "promptId": "N27-RETARGET-A843ED44AB:36:qa48offline-a:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+      "snapshotTick": 36
+    },
+    "receipt": {
+      "roomId": "N27-RETARGET-A843ED44AB",
+      "playerId": "qa48offline-a",
+      "clientIntentId": "native-counter-prefix-7a5701736d8c44979803488ec63f4635",
+      "cmdType": "MOVE_UNIT",
+      "accepted": true,
+      "serverTick": 37,
+      "state": "ACCEPTED",
+      "message": "\u670D\u52A1\u7AEF\u5DF2\u63A5\u53D7\u547D\u4EE4\uFF0C\u540E\u7EED\u4EE5\u5FEB\u7167\u548C\u89C4\u5219\u4E8B\u4EF6\u4E3A\u51C6\u3002",
+      "promptId": "N27-RETARGET-A843ED44AB:36:qa48offline-a:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+      "snapshotTick": 36,
+      "followup": {
+        "serverTick": 37,
+        "eventCount": 3,
+        "snapshotCount": 2,
+        "promptCount": 2,
+        "state": "events",
+        "summary": "tick 37 \u5DF2\u751F\u6210 3 \u6761\u516C\u5F00\u4E8B\u4EF6\u30012 \u4E2A\u5FEB\u7167\u30012 \u4E2A\u63D0\u793A\u3002",
+        "eventKinds": [
+          "UNIT_MOVED_TO_BATTLEFIELD",
+          "BATTLEFIELD_CONTESTED",
+          "SPELL_DUEL_STARTED"
+        ],
+        "eventRefs": [
+          {
+            "serverTick": 37,
+            "order": 0,
+            "kind": "UNIT_MOVED_TO_BATTLEFIELD"
+          },
+          {
+            "serverTick": 37,
+            "order": 1,
+            "kind": "BATTLEFIELD_CONTESTED"
+          },
+          {
+            "serverTick": 37,
+            "order": 2,
+            "kind": "SPELL_DUEL_STARTED"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "actor": "qa48offline-a",
+    "rawCommand": {
+      "cmdType": "PASS_FOCUS",
+      "promptId": "N27-RETARGET-A843ED44AB:37:qa48offline-a:TAP_RUNE,RECYCLE_RUNE,PASS_FOCUS,SURRENDER",
+      "snapshotTick": 37
+    },
+    "receipt": {
+      "roomId": "N27-RETARGET-A843ED44AB",
+      "playerId": "qa48offline-a",
+      "clientIntentId": "native-counter-prefix-7f8fd1bde5a848b18d78ca099e37c1fd",
+      "cmdType": "PASS_FOCUS",
+      "accepted": true,
+      "serverTick": 38,
+      "state": "ACCEPTED",
+      "message": "\u670D\u52A1\u7AEF\u5DF2\u63A5\u53D7\u547D\u4EE4\uFF0C\u540E\u7EED\u4EE5\u5FEB\u7167\u548C\u89C4\u5219\u4E8B\u4EF6\u4E3A\u51C6\u3002",
+      "promptId": "N27-RETARGET-A843ED44AB:37:qa48offline-a:TAP_RUNE,RECYCLE_RUNE,PASS_FOCUS,SURRENDER",
+      "snapshotTick": 37,
+      "followup": {
+        "serverTick": 38,
+        "eventCount": 1,
+        "snapshotCount": 2,
+        "promptCount": 2,
+        "state": "events",
+        "summary": "tick 38 \u5DF2\u751F\u6210 1 \u6761\u516C\u5F00\u4E8B\u4EF6\u30012 \u4E2A\u5FEB\u7167\u30012 \u4E2A\u63D0\u793A\u3002",
+        "eventKinds": [
+          "FOCUS_PASSED"
+        ],
+        "eventRefs": [
+          {
+            "serverTick": 38,
+            "order": 0,
+            "kind": "FOCUS_PASSED"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "actor": "qa48offline-b",
+    "rawCommand": {
+      "cmdType": "PASS_FOCUS",
+      "promptId": "N27-RETARGET-A843ED44AB:38:qa48offline-b:TAP_RUNE,RECYCLE_RUNE,PASS_FOCUS,SURRENDER",
+      "snapshotTick": 38
+    },
+    "receipt": {
+      "roomId": "N27-RETARGET-A843ED44AB",
+      "playerId": "qa48offline-b",
+      "clientIntentId": "native-counter-prefix-64e3f0d44344445a89486c956ea19ac1",
+      "cmdType": "PASS_FOCUS",
+      "accepted": true,
+      "serverTick": 39,
+      "state": "ACCEPTED",
+      "message": "\u670D\u52A1\u7AEF\u5DF2\u63A5\u53D7\u547D\u4EE4\uFF0C\u540E\u7EED\u4EE5\u5FEB\u7167\u548C\u89C4\u5219\u4E8B\u4EF6\u4E3A\u51C6\u3002",
+      "promptId": "N27-RETARGET-A843ED44AB:38:qa48offline-b:TAP_RUNE,RECYCLE_RUNE,PASS_FOCUS,SURRENDER",
+      "snapshotTick": 38,
+      "followup": {
+        "serverTick": 39,
+        "eventCount": 5,
+        "snapshotCount": 2,
+        "promptCount": 2,
+        "state": "events",
+        "summary": "tick 39 \u5DF2\u751F\u6210 5 \u6761\u516C\u5F00\u4E8B\u4EF6\u30012 \u4E2A\u5FEB\u7167\u30012 \u4E2A\u63D0\u793A\u3002",
+        "eventKinds": [
+          "FOCUS_PASSED",
+          "SPELL_DUEL_CLOSED",
+          "BATTLEFIELD_CONTROL_RESOLVED",
+          "BATTLEFIELD_CONQUERED",
+          "SCORE_GAINED"
+        ],
+        "eventRefs": [
+          {
+            "serverTick": 39,
+            "order": 0,
+            "kind": "FOCUS_PASSED"
+          },
+          {
+            "serverTick": 39,
+            "order": 1,
+            "kind": "SPELL_DUEL_CLOSED"
+          },
+          {
+            "serverTick": 39,
+            "order": 2,
+            "kind": "BATTLEFIELD_CONTROL_RESOLVED"
+          },
+          {
+            "serverTick": 39,
+            "order": 3,
+            "kind": "BATTLEFIELD_CONQUERED"
+          },
+          {
+            "serverTick": 39,
+            "order": 4,
+            "kind": "SCORE_GAINED"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "actor": "qa48offline-a",
+    "rawCommand": {
+      "cmdType": "END_TURN",
+      "promptId": "N27-RETARGET-A843ED44AB:39:qa48offline-a:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+      "snapshotTick": 39
+    },
+    "receipt": {
+      "roomId": "N27-RETARGET-A843ED44AB",
+      "playerId": "qa48offline-a",
+      "clientIntentId": "native-counter-prefix-fb3f89d72b764aaaabe4c4e3e27c3a1e",
+      "cmdType": "END_TURN",
+      "accepted": true,
+      "serverTick": 40,
+      "state": "ACCEPTED",
+      "message": "\u670D\u52A1\u7AEF\u5DF2\u63A5\u53D7\u547D\u4EE4\uFF0C\u540E\u7EED\u4EE5\u5FEB\u7167\u548C\u89C4\u5219\u4E8B\u4EF6\u4E3A\u51C6\u3002",
+      "promptId": "N27-RETARGET-A843ED44AB:39:qa48offline-a:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+      "snapshotTick": 39,
+      "followup": {
+        "serverTick": 40,
+        "eventCount": 13,
+        "snapshotCount": 2,
+        "promptCount": 2,
+        "state": "events",
+        "summary": "tick 40 \u5DF2\u751F\u6210 13 \u6761\u516C\u5F00\u4E8B\u4EF6\u30012 \u4E2A\u5FEB\u7167\u30012 \u4E2A\u63D0\u793A\u3002",
+        "eventKinds": [
+          "TURN_END_DECLARED",
+          "TURN_END_CLEANUP_STARTED",
+          "UNTIL_END_OF_TURN_EXPIRED",
+          "POWER_MODIFIER_EXPIRED",
+          "RUNE_POOL_CLEARED",
+          "CLEANUP_REPEATED",
+          "TURN_PLAYER_ADVANCED",
+          "TURN_START_BEGAN",
+          "OBJECTS_READIED",
+          "RUNES_CALLED",
+          "CARD_DRAWN",
+          "RUNE_POOL_CLEARED",
+          "MAIN_PHASE_BEGAN"
+        ],
+        "eventRefs": [
+          {
+            "serverTick": 40,
+            "order": 0,
+            "kind": "TURN_END_DECLARED"
+          },
+          {
+            "serverTick": 40,
+            "order": 1,
+            "kind": "TURN_END_CLEANUP_STARTED"
+          },
+          {
+            "serverTick": 40,
+            "order": 2,
+            "kind": "UNTIL_END_OF_TURN_EXPIRED"
+          },
+          {
+            "serverTick": 40,
+            "order": 3,
+            "kind": "POWER_MODIFIER_EXPIRED"
+          },
+          {
+            "serverTick": 40,
+            "order": 4,
+            "kind": "RUNE_POOL_CLEARED"
+          },
+          {
+            "serverTick": 40,
+            "order": 5,
+            "kind": "CLEANUP_REPEATED"
+          },
+          {
+            "serverTick": 40,
+            "order": 6,
+            "kind": "TURN_PLAYER_ADVANCED"
+          },
+          {
+            "serverTick": 40,
+            "order": 7,
+            "kind": "TURN_START_BEGAN"
+          },
+          {
+            "serverTick": 40,
+            "order": 8,
+            "kind": "OBJECTS_READIED"
+          },
+          {
+            "serverTick": 40,
+            "order": 9,
+            "kind": "RUNES_CALLED"
+          },
+          {
+            "serverTick": 40,
+            "order": 10,
+            "kind": "CARD_DRAWN"
+          },
+          {
+            "serverTick": 40,
+            "order": 11,
+            "kind": "RUNE_POOL_CLEARED"
+          },
+          {
+            "serverTick": 40,
+            "order": 12,
+            "kind": "MAIN_PHASE_BEGAN"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "actor": "qa48offline-b",
+    "rawCommand": {
+      "cmdType": "END_TURN",
+      "promptId": "N27-RETARGET-A843ED44AB:40:qa48offline-b:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+      "snapshotTick": 40
+    },
+    "receipt": {
+      "roomId": "N27-RETARGET-A843ED44AB",
+      "playerId": "qa48offline-b",
+      "clientIntentId": "native-counter-prefix-978fce4f238a4029a00ba3ca7a6061c0",
+      "cmdType": "END_TURN",
+      "accepted": true,
+      "serverTick": 41,
+      "state": "ACCEPTED",
+      "message": "\u670D\u52A1\u7AEF\u5DF2\u63A5\u53D7\u547D\u4EE4\uFF0C\u540E\u7EED\u4EE5\u5FEB\u7167\u548C\u89C4\u5219\u4E8B\u4EF6\u4E3A\u51C6\u3002",
+      "promptId": "N27-RETARGET-A843ED44AB:40:qa48offline-b:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+      "snapshotTick": 40,
+      "followup": {
+        "serverTick": 41,
+        "eventCount": 12,
+        "snapshotCount": 2,
+        "promptCount": 2,
+        "state": "events",
+        "summary": "tick 41 \u5DF2\u751F\u6210 12 \u6761\u516C\u5F00\u4E8B\u4EF6\u30012 \u4E2A\u5FEB\u7167\u30012 \u4E2A\u63D0\u793A\u3002",
+        "eventKinds": [
+          "TURN_END_DECLARED",
+          "TURN_END_CLEANUP_STARTED",
+          "RUNE_POOL_CLEARED",
+          "TURN_PLAYER_ADVANCED",
+          "TURN_START_BEGAN",
+          "OBJECTS_READIED",
+          "BATTLEFIELD_HELD",
+          "SCORE_GAINED",
+          "RUNES_CALLED",
+          "CARD_DRAWN",
+          "RUNE_POOL_CLEARED",
+          "MAIN_PHASE_BEGAN"
+        ],
+        "eventRefs": [
+          {
+            "serverTick": 41,
+            "order": 0,
+            "kind": "TURN_END_DECLARED"
+          },
+          {
+            "serverTick": 41,
+            "order": 1,
+            "kind": "TURN_END_CLEANUP_STARTED"
+          },
+          {
+            "serverTick": 41,
+            "order": 2,
+            "kind": "RUNE_POOL_CLEARED"
+          },
+          {
+            "serverTick": 41,
+            "order": 3,
+            "kind": "TURN_PLAYER_ADVANCED"
+          },
+          {
+            "serverTick": 41,
+            "order": 4,
+            "kind": "TURN_START_BEGAN"
+          },
+          {
+            "serverTick": 41,
+            "order": 5,
+            "kind": "OBJECTS_READIED"
+          },
+          {
+            "serverTick": 41,
+            "order": 6,
+            "kind": "BATTLEFIELD_HELD"
+          },
+          {
+            "serverTick": 41,
+            "order": 7,
+            "kind": "SCORE_GAINED"
+          },
+          {
+            "serverTick": 41,
+            "order": 8,
+            "kind": "RUNES_CALLED"
+          },
+          {
+            "serverTick": 41,
+            "order": 9,
+            "kind": "CARD_DRAWN"
+          },
+          {
+            "serverTick": 41,
+            "order": 10,
+            "kind": "RUNE_POOL_CLEARED"
+          },
+          {
+            "serverTick": 41,
+            "order": 11,
+            "kind": "MAIN_PHASE_BEGAN"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "actor": "qa48offline-a",
+    "rawCommand": {
+      "cmdType": "END_TURN",
+      "promptId": "N27-RETARGET-A843ED44AB:41:qa48offline-a:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+      "snapshotTick": 41
+    },
+    "receipt": {
+      "roomId": "N27-RETARGET-A843ED44AB",
+      "playerId": "qa48offline-a",
+      "clientIntentId": "native-counter-prefix-35da19c7a46c40cbbb03fb3b0a7ca111",
+      "cmdType": "END_TURN",
+      "accepted": true,
+      "serverTick": 42,
+      "state": "ACCEPTED",
+      "message": "\u670D\u52A1\u7AEF\u5DF2\u63A5\u53D7\u547D\u4EE4\uFF0C\u540E\u7EED\u4EE5\u5FEB\u7167\u548C\u89C4\u5219\u4E8B\u4EF6\u4E3A\u51C6\u3002",
+      "promptId": "N27-RETARGET-A843ED44AB:41:qa48offline-a:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+      "snapshotTick": 41,
+      "followup": {
+        "serverTick": 42,
+        "eventCount": 11,
+        "snapshotCount": 2,
+        "promptCount": 2,
+        "state": "events",
+        "summary": "tick 42 \u5DF2\u751F\u6210 11 \u6761\u516C\u5F00\u4E8B\u4EF6\u30012 \u4E2A\u5FEB\u7167\u30012 \u4E2A\u63D0\u793A\u3002",
+        "eventKinds": [
+          "TURN_END_DECLARED",
+          "TURN_END_CLEANUP_STARTED",
+          "UNTIL_END_OF_TURN_EXPIRED",
+          "RUNE_POOL_CLEARED",
+          "CLEANUP_REPEATED",
+          "TURN_PLAYER_ADVANCED",
+          "TURN_START_BEGAN",
+          "RUNES_CALLED",
+          "CARD_DRAWN",
+          "RUNE_POOL_CLEARED",
+          "MAIN_PHASE_BEGAN"
+        ],
+        "eventRefs": [
+          {
+            "serverTick": 42,
+            "order": 0,
+            "kind": "TURN_END_DECLARED"
+          },
+          {
+            "serverTick": 42,
+            "order": 1,
+            "kind": "TURN_END_CLEANUP_STARTED"
+          },
+          {
+            "serverTick": 42,
+            "order": 2,
+            "kind": "UNTIL_END_OF_TURN_EXPIRED"
+          },
+          {
+            "serverTick": 42,
+            "order": 3,
+            "kind": "RUNE_POOL_CLEARED"
+          },
+          {
+            "serverTick": 42,
+            "order": 4,
+            "kind": "CLEANUP_REPEATED"
+          },
+          {
+            "serverTick": 42,
+            "order": 5,
+            "kind": "TURN_PLAYER_ADVANCED"
+          },
+          {
+            "serverTick": 42,
+            "order": 6,
+            "kind": "TURN_START_BEGAN"
+          },
+          {
+            "serverTick": 42,
+            "order": 7,
+            "kind": "RUNES_CALLED"
+          },
+          {
+            "serverTick": 42,
+            "order": 8,
+            "kind": "CARD_DRAWN"
+          },
+          {
+            "serverTick": 42,
+            "order": 9,
+            "kind": "RUNE_POOL_CLEARED"
+          },
+          {
+            "serverTick": 42,
+            "order": 10,
+            "kind": "MAIN_PHASE_BEGAN"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "actor": "qa48offline-b",
+    "rawCommand": {
+      "cmdType": "END_TURN",
+      "promptId": "N27-RETARGET-A843ED44AB:42:qa48offline-b:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+      "snapshotTick": 42
+    },
+    "receipt": {
+      "roomId": "N27-RETARGET-A843ED44AB",
+      "playerId": "qa48offline-b",
+      "clientIntentId": "native-counter-prefix-fbff590063ca45398947a7397815c11e",
+      "cmdType": "END_TURN",
+      "accepted": true,
+      "serverTick": 43,
+      "state": "ACCEPTED",
+      "message": "\u670D\u52A1\u7AEF\u5DF2\u63A5\u53D7\u547D\u4EE4\uFF0C\u540E\u7EED\u4EE5\u5FEB\u7167\u548C\u89C4\u5219\u4E8B\u4EF6\u4E3A\u51C6\u3002",
+      "promptId": "N27-RETARGET-A843ED44AB:42:qa48offline-b:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+      "snapshotTick": 42,
+      "followup": {
+        "serverTick": 43,
+        "eventCount": 11,
+        "snapshotCount": 2,
+        "promptCount": 2,
+        "state": "events",
+        "summary": "tick 43 \u5DF2\u751F\u6210 11 \u6761\u516C\u5F00\u4E8B\u4EF6\u30012 \u4E2A\u5FEB\u7167\u30012 \u4E2A\u63D0\u793A\u3002",
+        "eventKinds": [
+          "TURN_END_DECLARED",
+          "TURN_END_CLEANUP_STARTED",
+          "RUNE_POOL_CLEARED",
+          "TURN_PLAYER_ADVANCED",
+          "TURN_START_BEGAN",
+          "BATTLEFIELD_HELD",
+          "SCORE_GAINED",
+          "RUNES_CALLED",
+          "CARD_DRAWN",
+          "RUNE_POOL_CLEARED",
+          "MAIN_PHASE_BEGAN"
+        ],
+        "eventRefs": [
+          {
+            "serverTick": 43,
+            "order": 0,
+            "kind": "TURN_END_DECLARED"
+          },
+          {
+            "serverTick": 43,
+            "order": 1,
+            "kind": "TURN_END_CLEANUP_STARTED"
+          },
+          {
+            "serverTick": 43,
+            "order": 2,
+            "kind": "RUNE_POOL_CLEARED"
+          },
+          {
+            "serverTick": 43,
+            "order": 3,
+            "kind": "TURN_PLAYER_ADVANCED"
+          },
+          {
+            "serverTick": 43,
+            "order": 4,
+            "kind": "TURN_START_BEGAN"
+          },
+          {
+            "serverTick": 43,
+            "order": 5,
+            "kind": "BATTLEFIELD_HELD"
+          },
+          {
+            "serverTick": 43,
+            "order": 6,
+            "kind": "SCORE_GAINED"
+          },
+          {
+            "serverTick": 43,
+            "order": 7,
+            "kind": "RUNES_CALLED"
+          },
+          {
+            "serverTick": 43,
+            "order": 8,
+            "kind": "CARD_DRAWN"
+          },
+          {
+            "serverTick": 43,
+            "order": 9,
+            "kind": "RUNE_POOL_CLEARED"
+          },
+          {
+            "serverTick": 43,
+            "order": 10,
+            "kind": "MAIN_PHASE_BEGAN"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "actor": "qa48offline-a",
+    "rawCommand": {
+      "cmdType": "END_TURN",
+      "promptId": "N27-RETARGET-A843ED44AB:43:qa48offline-a:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+      "snapshotTick": 43
+    },
+    "receipt": {
+      "roomId": "N27-RETARGET-A843ED44AB",
+      "playerId": "qa48offline-a",
+      "clientIntentId": "native-counter-prefix-5f08d60db99343b6bd8b650af2b9ac0a",
+      "cmdType": "END_TURN",
+      "accepted": true,
+      "serverTick": 44,
+      "state": "ACCEPTED",
+      "message": "\u670D\u52A1\u7AEF\u5DF2\u63A5\u53D7\u547D\u4EE4\uFF0C\u540E\u7EED\u4EE5\u5FEB\u7167\u548C\u89C4\u5219\u4E8B\u4EF6\u4E3A\u51C6\u3002",
+      "promptId": "N27-RETARGET-A843ED44AB:43:qa48offline-a:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+      "snapshotTick": 43,
+      "followup": {
+        "serverTick": 44,
+        "eventCount": 11,
+        "snapshotCount": 2,
+        "promptCount": 2,
+        "state": "events",
+        "summary": "tick 44 \u5DF2\u751F\u6210 11 \u6761\u516C\u5F00\u4E8B\u4EF6\u30012 \u4E2A\u5FEB\u7167\u30012 \u4E2A\u63D0\u793A\u3002",
+        "eventKinds": [
+          "TURN_END_DECLARED",
+          "TURN_END_CLEANUP_STARTED",
+          "UNTIL_END_OF_TURN_EXPIRED",
+          "RUNE_POOL_CLEARED",
+          "CLEANUP_REPEATED",
+          "TURN_PLAYER_ADVANCED",
+          "TURN_START_BEGAN",
+          "RUNES_CALLED",
+          "CARD_DRAWN",
+          "RUNE_POOL_CLEARED",
+          "MAIN_PHASE_BEGAN"
+        ],
+        "eventRefs": [
+          {
+            "serverTick": 44,
+            "order": 0,
+            "kind": "TURN_END_DECLARED"
+          },
+          {
+            "serverTick": 44,
+            "order": 1,
+            "kind": "TURN_END_CLEANUP_STARTED"
+          },
+          {
+            "serverTick": 44,
+            "order": 2,
+            "kind": "UNTIL_END_OF_TURN_EXPIRED"
+          },
+          {
+            "serverTick": 44,
+            "order": 3,
+            "kind": "RUNE_POOL_CLEARED"
+          },
+          {
+            "serverTick": 44,
+            "order": 4,
+            "kind": "CLEANUP_REPEATED"
+          },
+          {
+            "serverTick": 44,
+            "order": 5,
+            "kind": "TURN_PLAYER_ADVANCED"
+          },
+          {
+            "serverTick": 44,
+            "order": 6,
+            "kind": "TURN_START_BEGAN"
+          },
+          {
+            "serverTick": 44,
+            "order": 7,
+            "kind": "RUNES_CALLED"
+          },
+          {
+            "serverTick": 44,
+            "order": 8,
+            "kind": "CARD_DRAWN"
+          },
+          {
+            "serverTick": 44,
+            "order": 9,
+            "kind": "RUNE_POOL_CLEARED"
+          },
+          {
+            "serverTick": 44,
+            "order": 10,
+            "kind": "MAIN_PHASE_BEGAN"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "actor": "qa48offline-b",
+    "rawCommand": {
+      "cmdType": "END_TURN",
+      "promptId": "N27-RETARGET-A843ED44AB:44:qa48offline-b:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+      "snapshotTick": 44
+    },
+    "receipt": {
+      "roomId": "N27-RETARGET-A843ED44AB",
+      "playerId": "qa48offline-b",
+      "clientIntentId": "native-counter-prefix-c4c5208f356b4ac7bd14771f6a6481db",
+      "cmdType": "END_TURN",
+      "accepted": true,
+      "serverTick": 45,
+      "state": "ACCEPTED",
+      "message": "\u670D\u52A1\u7AEF\u5DF2\u63A5\u53D7\u547D\u4EE4\uFF0C\u540E\u7EED\u4EE5\u5FEB\u7167\u548C\u89C4\u5219\u4E8B\u4EF6\u4E3A\u51C6\u3002",
+      "promptId": "N27-RETARGET-A843ED44AB:44:qa48offline-b:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+      "snapshotTick": 44,
+      "followup": {
+        "serverTick": 45,
+        "eventCount": 11,
+        "snapshotCount": 2,
+        "promptCount": 2,
+        "state": "events",
+        "summary": "tick 45 \u5DF2\u751F\u6210 11 \u6761\u516C\u5F00\u4E8B\u4EF6\u30012 \u4E2A\u5FEB\u7167\u30012 \u4E2A\u63D0\u793A\u3002",
+        "eventKinds": [
+          "TURN_END_DECLARED",
+          "TURN_END_CLEANUP_STARTED",
+          "RUNE_POOL_CLEARED",
+          "TURN_PLAYER_ADVANCED",
+          "TURN_START_BEGAN",
+          "BATTLEFIELD_HELD",
+          "SCORE_GAINED",
+          "RUNES_CALLED",
+          "CARD_DRAWN",
+          "RUNE_POOL_CLEARED",
+          "MAIN_PHASE_BEGAN"
+        ],
+        "eventRefs": [
+          {
+            "serverTick": 45,
+            "order": 0,
+            "kind": "TURN_END_DECLARED"
+          },
+          {
+            "serverTick": 45,
+            "order": 1,
+            "kind": "TURN_END_CLEANUP_STARTED"
+          },
+          {
+            "serverTick": 45,
+            "order": 2,
+            "kind": "RUNE_POOL_CLEARED"
+          },
+          {
+            "serverTick": 45,
+            "order": 3,
+            "kind": "TURN_PLAYER_ADVANCED"
+          },
+          {
+            "serverTick": 45,
+            "order": 4,
+            "kind": "TURN_START_BEGAN"
+          },
+          {
+            "serverTick": 45,
+            "order": 5,
+            "kind": "BATTLEFIELD_HELD"
+          },
+          {
+            "serverTick": 45,
+            "order": 6,
+            "kind": "SCORE_GAINED"
+          },
+          {
+            "serverTick": 45,
+            "order": 7,
+            "kind": "RUNES_CALLED"
+          },
+          {
+            "serverTick": 45,
+            "order": 8,
+            "kind": "CARD_DRAWN"
+          },
+          {
+            "serverTick": 45,
+            "order": 9,
+            "kind": "RUNE_POOL_CLEARED"
+          },
+          {
+            "serverTick": 45,
+            "order": 10,
+            "kind": "MAIN_PHASE_BEGAN"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "actor": "qa48offline-a",
+    "rawCommand": {
+      "cmdType": "END_TURN",
+      "promptId": "N27-RETARGET-A843ED44AB:45:qa48offline-a:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+      "snapshotTick": 45
+    },
+    "receipt": {
+      "roomId": "N27-RETARGET-A843ED44AB",
+      "playerId": "qa48offline-a",
+      "clientIntentId": "native-counter-prefix-367298c394bb4de4bdd8f37b73956b2f",
+      "cmdType": "END_TURN",
+      "accepted": true,
+      "serverTick": 46,
+      "state": "ACCEPTED",
+      "message": "\u670D\u52A1\u7AEF\u5DF2\u63A5\u53D7\u547D\u4EE4\uFF0C\u540E\u7EED\u4EE5\u5FEB\u7167\u548C\u89C4\u5219\u4E8B\u4EF6\u4E3A\u51C6\u3002",
+      "promptId": "N27-RETARGET-A843ED44AB:45:qa48offline-a:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+      "snapshotTick": 45,
+      "followup": {
+        "serverTick": 46,
+        "eventCount": 11,
+        "snapshotCount": 2,
+        "promptCount": 2,
+        "state": "events",
+        "summary": "tick 46 \u5DF2\u751F\u6210 11 \u6761\u516C\u5F00\u4E8B\u4EF6\u30012 \u4E2A\u5FEB\u7167\u30012 \u4E2A\u63D0\u793A\u3002",
+        "eventKinds": [
+          "TURN_END_DECLARED",
+          "TURN_END_CLEANUP_STARTED",
+          "UNTIL_END_OF_TURN_EXPIRED",
+          "RUNE_POOL_CLEARED",
+          "CLEANUP_REPEATED",
+          "TURN_PLAYER_ADVANCED",
+          "TURN_START_BEGAN",
+          "RUNES_CALLED",
+          "CARD_DRAWN",
+          "RUNE_POOL_CLEARED",
+          "MAIN_PHASE_BEGAN"
+        ],
+        "eventRefs": [
+          {
+            "serverTick": 46,
+            "order": 0,
+            "kind": "TURN_END_DECLARED"
+          },
+          {
+            "serverTick": 46,
+            "order": 1,
+            "kind": "TURN_END_CLEANUP_STARTED"
+          },
+          {
+            "serverTick": 46,
+            "order": 2,
+            "kind": "UNTIL_END_OF_TURN_EXPIRED"
+          },
+          {
+            "serverTick": 46,
+            "order": 3,
+            "kind": "RUNE_POOL_CLEARED"
+          },
+          {
+            "serverTick": 46,
+            "order": 4,
+            "kind": "CLEANUP_REPEATED"
+          },
+          {
+            "serverTick": 46,
+            "order": 5,
+            "kind": "TURN_PLAYER_ADVANCED"
+          },
+          {
+            "serverTick": 46,
+            "order": 6,
+            "kind": "TURN_START_BEGAN"
+          },
+          {
+            "serverTick": 46,
+            "order": 7,
+            "kind": "RUNES_CALLED"
+          },
+          {
+            "serverTick": 46,
+            "order": 8,
+            "kind": "CARD_DRAWN"
+          },
+          {
+            "serverTick": 46,
+            "order": 9,
+            "kind": "RUNE_POOL_CLEARED"
+          },
+          {
+            "serverTick": 46,
+            "order": 10,
+            "kind": "MAIN_PHASE_BEGAN"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "actor": "qa48offline-b",
+    "rawCommand": {
+      "cmdType": "END_TURN",
+      "promptId": "N27-RETARGET-A843ED44AB:46:qa48offline-b:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+      "snapshotTick": 46
+    },
+    "receipt": {
+      "roomId": "N27-RETARGET-A843ED44AB",
+      "playerId": "qa48offline-b",
+      "clientIntentId": "native-counter-prefix-648271c5ec144fadb6e955450bedebd5",
+      "cmdType": "END_TURN",
+      "accepted": true,
+      "serverTick": 47,
+      "state": "ACCEPTED",
+      "message": "\u670D\u52A1\u7AEF\u5DF2\u63A5\u53D7\u547D\u4EE4\uFF0C\u540E\u7EED\u4EE5\u5FEB\u7167\u548C\u89C4\u5219\u4E8B\u4EF6\u4E3A\u51C6\u3002",
+      "promptId": "N27-RETARGET-A843ED44AB:46:qa48offline-b:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+      "snapshotTick": 46,
+      "followup": {
+        "serverTick": 47,
+        "eventCount": 11,
+        "snapshotCount": 2,
+        "promptCount": 2,
+        "state": "events",
+        "summary": "tick 47 \u5DF2\u751F\u6210 11 \u6761\u516C\u5F00\u4E8B\u4EF6\u30012 \u4E2A\u5FEB\u7167\u30012 \u4E2A\u63D0\u793A\u3002",
+        "eventKinds": [
+          "TURN_END_DECLARED",
+          "TURN_END_CLEANUP_STARTED",
+          "RUNE_POOL_CLEARED",
+          "TURN_PLAYER_ADVANCED",
+          "TURN_START_BEGAN",
+          "BATTLEFIELD_HELD",
+          "SCORE_GAINED",
+          "RUNES_CALLED",
+          "CARD_DRAWN",
+          "RUNE_POOL_CLEARED",
+          "MAIN_PHASE_BEGAN"
+        ],
+        "eventRefs": [
+          {
+            "serverTick": 47,
+            "order": 0,
+            "kind": "TURN_END_DECLARED"
+          },
+          {
+            "serverTick": 47,
+            "order": 1,
+            "kind": "TURN_END_CLEANUP_STARTED"
+          },
+          {
+            "serverTick": 47,
+            "order": 2,
+            "kind": "RUNE_POOL_CLEARED"
+          },
+          {
+            "serverTick": 47,
+            "order": 3,
+            "kind": "TURN_PLAYER_ADVANCED"
+          },
+          {
+            "serverTick": 47,
+            "order": 4,
+            "kind": "TURN_START_BEGAN"
+          },
+          {
+            "serverTick": 47,
+            "order": 5,
+            "kind": "BATTLEFIELD_HELD"
+          },
+          {
+            "serverTick": 47,
+            "order": 6,
+            "kind": "SCORE_GAINED"
+          },
+          {
+            "serverTick": 47,
+            "order": 7,
+            "kind": "RUNES_CALLED"
+          },
+          {
+            "serverTick": 47,
+            "order": 8,
+            "kind": "CARD_DRAWN"
+          },
+          {
+            "serverTick": 47,
+            "order": 9,
+            "kind": "RUNE_POOL_CLEARED"
+          },
+          {
+            "serverTick": 47,
+            "order": 10,
+            "kind": "MAIN_PHASE_BEGAN"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "actor": "qa48offline-a",
+    "rawCommand": {
+      "cmdType": "END_TURN",
+      "promptId": "N27-RETARGET-A843ED44AB:47:qa48offline-a:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+      "snapshotTick": 47
+    },
+    "receipt": {
+      "roomId": "N27-RETARGET-A843ED44AB",
+      "playerId": "qa48offline-a",
+      "clientIntentId": "native-counter-prefix-3944633256c1479ca63cab75397f1850",
+      "cmdType": "END_TURN",
+      "accepted": true,
+      "serverTick": 48,
+      "state": "ACCEPTED",
+      "message": "\u670D\u52A1\u7AEF\u5DF2\u63A5\u53D7\u547D\u4EE4\uFF0C\u540E\u7EED\u4EE5\u5FEB\u7167\u548C\u89C4\u5219\u4E8B\u4EF6\u4E3A\u51C6\u3002",
+      "promptId": "N27-RETARGET-A843ED44AB:47:qa48offline-a:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+      "snapshotTick": 47,
+      "followup": {
+        "serverTick": 48,
+        "eventCount": 11,
+        "snapshotCount": 2,
+        "promptCount": 2,
+        "state": "events",
+        "summary": "tick 48 \u5DF2\u751F\u6210 11 \u6761\u516C\u5F00\u4E8B\u4EF6\u30012 \u4E2A\u5FEB\u7167\u30012 \u4E2A\u63D0\u793A\u3002",
+        "eventKinds": [
+          "TURN_END_DECLARED",
+          "TURN_END_CLEANUP_STARTED",
+          "UNTIL_END_OF_TURN_EXPIRED",
+          "RUNE_POOL_CLEARED",
+          "CLEANUP_REPEATED",
+          "TURN_PLAYER_ADVANCED",
+          "TURN_START_BEGAN",
+          "RUNES_CALLED",
+          "CARD_DRAWN",
+          "RUNE_POOL_CLEARED",
+          "MAIN_PHASE_BEGAN"
+        ],
+        "eventRefs": [
+          {
+            "serverTick": 48,
+            "order": 0,
+            "kind": "TURN_END_DECLARED"
+          },
+          {
+            "serverTick": 48,
+            "order": 1,
+            "kind": "TURN_END_CLEANUP_STARTED"
+          },
+          {
+            "serverTick": 48,
+            "order": 2,
+            "kind": "UNTIL_END_OF_TURN_EXPIRED"
+          },
+          {
+            "serverTick": 48,
+            "order": 3,
+            "kind": "RUNE_POOL_CLEARED"
+          },
+          {
+            "serverTick": 48,
+            "order": 4,
+            "kind": "CLEANUP_REPEATED"
+          },
+          {
+            "serverTick": 48,
+            "order": 5,
+            "kind": "TURN_PLAYER_ADVANCED"
+          },
+          {
+            "serverTick": 48,
+            "order": 6,
+            "kind": "TURN_START_BEGAN"
+          },
+          {
+            "serverTick": 48,
+            "order": 7,
+            "kind": "RUNES_CALLED"
+          },
+          {
+            "serverTick": 48,
+            "order": 8,
+            "kind": "CARD_DRAWN"
+          },
+          {
+            "serverTick": 48,
+            "order": 9,
+            "kind": "RUNE_POOL_CLEARED"
+          },
+          {
+            "serverTick": 48,
+            "order": 10,
+            "kind": "MAIN_PHASE_BEGAN"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "actor": "qa48offline-b",
+    "rawCommand": {
+      "cmdType": "END_TURN",
+      "promptId": "N27-RETARGET-A843ED44AB:48:qa48offline-b:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+      "snapshotTick": 48
+    },
+    "receipt": {
+      "roomId": "N27-RETARGET-A843ED44AB",
+      "playerId": "qa48offline-b",
+      "clientIntentId": "native-counter-prefix-11d08e917fb24301bdad190474e32eb1",
+      "cmdType": "END_TURN",
+      "accepted": true,
+      "serverTick": 49,
+      "state": "ACCEPTED",
+      "message": "\u670D\u52A1\u7AEF\u5DF2\u63A5\u53D7\u547D\u4EE4\uFF0C\u540E\u7EED\u4EE5\u5FEB\u7167\u548C\u89C4\u5219\u4E8B\u4EF6\u4E3A\u51C6\u3002",
+      "promptId": "N27-RETARGET-A843ED44AB:48:qa48offline-b:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+      "snapshotTick": 48,
+      "followup": {
+        "serverTick": 49,
+        "eventCount": 11,
+        "snapshotCount": 2,
+        "promptCount": 2,
+        "state": "events",
+        "summary": "tick 49 \u5DF2\u751F\u6210 11 \u6761\u516C\u5F00\u4E8B\u4EF6\u30012 \u4E2A\u5FEB\u7167\u30012 \u4E2A\u63D0\u793A\u3002",
+        "eventKinds": [
+          "TURN_END_DECLARED",
+          "TURN_END_CLEANUP_STARTED",
+          "RUNE_POOL_CLEARED",
+          "TURN_PLAYER_ADVANCED",
+          "TURN_START_BEGAN",
+          "BATTLEFIELD_HELD",
+          "SCORE_GAINED",
+          "RUNES_CALLED",
+          "CARD_DRAWN",
+          "RUNE_POOL_CLEARED",
+          "MAIN_PHASE_BEGAN"
+        ],
+        "eventRefs": [
+          {
+            "serverTick": 49,
+            "order": 0,
+            "kind": "TURN_END_DECLARED"
+          },
+          {
+            "serverTick": 49,
+            "order": 1,
+            "kind": "TURN_END_CLEANUP_STARTED"
+          },
+          {
+            "serverTick": 49,
+            "order": 2,
+            "kind": "RUNE_POOL_CLEARED"
+          },
+          {
+            "serverTick": 49,
+            "order": 3,
+            "kind": "TURN_PLAYER_ADVANCED"
+          },
+          {
+            "serverTick": 49,
+            "order": 4,
+            "kind": "TURN_START_BEGAN"
+          },
+          {
+            "serverTick": 49,
+            "order": 5,
+            "kind": "BATTLEFIELD_HELD"
+          },
+          {
+            "serverTick": 49,
+            "order": 6,
+            "kind": "SCORE_GAINED"
+          },
+          {
+            "serverTick": 49,
+            "order": 7,
+            "kind": "RUNES_CALLED"
+          },
+          {
+            "serverTick": 49,
+            "order": 8,
+            "kind": "CARD_DRAWN"
+          },
+          {
+            "serverTick": 49,
+            "order": 9,
+            "kind": "RUNE_POOL_CLEARED"
+          },
+          {
+            "serverTick": 49,
+            "order": 10,
+            "kind": "MAIN_PHASE_BEGAN"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "actor": "qa48offline-a",
+    "rawCommand": {
+      "cmdType": "END_TURN",
+      "promptId": "N27-RETARGET-A843ED44AB:49:qa48offline-a:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+      "snapshotTick": 49
+    },
+    "receipt": {
+      "roomId": "N27-RETARGET-A843ED44AB",
+      "playerId": "qa48offline-a",
+      "clientIntentId": "native-counter-prefix-857353e3acd34c8dbe0fce6c18d42afa",
+      "cmdType": "END_TURN",
+      "accepted": true,
+      "serverTick": 50,
+      "state": "ACCEPTED",
+      "message": "\u670D\u52A1\u7AEF\u5DF2\u63A5\u53D7\u547D\u4EE4\uFF0C\u540E\u7EED\u4EE5\u5FEB\u7167\u548C\u89C4\u5219\u4E8B\u4EF6\u4E3A\u51C6\u3002",
+      "promptId": "N27-RETARGET-A843ED44AB:49:qa48offline-a:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+      "snapshotTick": 49,
+      "followup": {
+        "serverTick": 50,
+        "eventCount": 11,
+        "snapshotCount": 2,
+        "promptCount": 2,
+        "state": "events",
+        "summary": "tick 50 \u5DF2\u751F\u6210 11 \u6761\u516C\u5F00\u4E8B\u4EF6\u30012 \u4E2A\u5FEB\u7167\u30012 \u4E2A\u63D0\u793A\u3002",
+        "eventKinds": [
+          "TURN_END_DECLARED",
+          "TURN_END_CLEANUP_STARTED",
+          "UNTIL_END_OF_TURN_EXPIRED",
+          "RUNE_POOL_CLEARED",
+          "CLEANUP_REPEATED",
+          "TURN_PLAYER_ADVANCED",
+          "TURN_START_BEGAN",
+          "RUNES_CALLED",
+          "CARD_DRAWN",
+          "RUNE_POOL_CLEARED",
+          "MAIN_PHASE_BEGAN"
+        ],
+        "eventRefs": [
+          {
+            "serverTick": 50,
+            "order": 0,
+            "kind": "TURN_END_DECLARED"
+          },
+          {
+            "serverTick": 50,
+            "order": 1,
+            "kind": "TURN_END_CLEANUP_STARTED"
+          },
+          {
+            "serverTick": 50,
+            "order": 2,
+            "kind": "UNTIL_END_OF_TURN_EXPIRED"
+          },
+          {
+            "serverTick": 50,
+            "order": 3,
+            "kind": "RUNE_POOL_CLEARED"
+          },
+          {
+            "serverTick": 50,
+            "order": 4,
+            "kind": "CLEANUP_REPEATED"
+          },
+          {
+            "serverTick": 50,
+            "order": 5,
+            "kind": "TURN_PLAYER_ADVANCED"
+          },
+          {
+            "serverTick": 50,
+            "order": 6,
+            "kind": "TURN_START_BEGAN"
+          },
+          {
+            "serverTick": 50,
+            "order": 7,
+            "kind": "RUNES_CALLED"
+          },
+          {
+            "serverTick": 50,
+            "order": 8,
+            "kind": "CARD_DRAWN"
+          },
+          {
+            "serverTick": 50,
+            "order": 9,
+            "kind": "RUNE_POOL_CLEARED"
+          },
+          {
+            "serverTick": 50,
+            "order": 10,
+            "kind": "MAIN_PHASE_BEGAN"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "actor": "qa48offline-b",
+    "rawCommand": {
+      "cmdType": "END_TURN",
+      "promptId": "N27-RETARGET-A843ED44AB:50:qa48offline-b:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+      "snapshotTick": 50
+    },
+    "receipt": {
+      "roomId": "N27-RETARGET-A843ED44AB",
+      "playerId": "qa48offline-b",
+      "clientIntentId": "native-counter-prefix-cc4cc8f9ff0c4651a0758b5fbaea346c",
+      "cmdType": "END_TURN",
+      "accepted": true,
+      "serverTick": 51,
+      "state": "ACCEPTED",
+      "message": "\u670D\u52A1\u7AEF\u5DF2\u63A5\u53D7\u547D\u4EE4\uFF0C\u540E\u7EED\u4EE5\u5FEB\u7167\u548C\u89C4\u5219\u4E8B\u4EF6\u4E3A\u51C6\u3002",
+      "promptId": "N27-RETARGET-A843ED44AB:50:qa48offline-b:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+      "snapshotTick": 50,
+      "followup": {
+        "serverTick": 51,
+        "eventCount": 11,
+        "snapshotCount": 2,
+        "promptCount": 2,
+        "state": "events",
+        "summary": "tick 51 \u5DF2\u751F\u6210 11 \u6761\u516C\u5F00\u4E8B\u4EF6\u30012 \u4E2A\u5FEB\u7167\u30012 \u4E2A\u63D0\u793A\u3002",
+        "eventKinds": [
+          "TURN_END_DECLARED",
+          "TURN_END_CLEANUP_STARTED",
+          "RUNE_POOL_CLEARED",
+          "TURN_PLAYER_ADVANCED",
+          "TURN_START_BEGAN",
+          "BATTLEFIELD_HELD",
+          "SCORE_GAINED",
+          "RUNES_CALLED",
+          "CARD_DRAWN",
+          "RUNE_POOL_CLEARED",
+          "MAIN_PHASE_BEGAN"
+        ],
+        "eventRefs": [
+          {
+            "serverTick": 51,
+            "order": 0,
+            "kind": "TURN_END_DECLARED"
+          },
+          {
+            "serverTick": 51,
+            "order": 1,
+            "kind": "TURN_END_CLEANUP_STARTED"
+          },
+          {
+            "serverTick": 51,
+            "order": 2,
+            "kind": "RUNE_POOL_CLEARED"
+          },
+          {
+            "serverTick": 51,
+            "order": 3,
+            "kind": "TURN_PLAYER_ADVANCED"
+          },
+          {
+            "serverTick": 51,
+            "order": 4,
+            "kind": "TURN_START_BEGAN"
+          },
+          {
+            "serverTick": 51,
+            "order": 5,
+            "kind": "BATTLEFIELD_HELD"
+          },
+          {
+            "serverTick": 51,
+            "order": 6,
+            "kind": "SCORE_GAINED"
+          },
+          {
+            "serverTick": 51,
+            "order": 7,
+            "kind": "RUNES_CALLED"
+          },
+          {
+            "serverTick": 51,
+            "order": 8,
+            "kind": "CARD_DRAWN"
+          },
+          {
+            "serverTick": 51,
+            "order": 9,
+            "kind": "RUNE_POOL_CLEARED"
+          },
+          {
+            "serverTick": 51,
+            "order": 10,
+            "kind": "MAIN_PHASE_BEGAN"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "actor": "qa48offline-a",
+    "rawCommand": {
+      "cmdType": "END_TURN",
+      "promptId": "N27-RETARGET-A843ED44AB:51:qa48offline-a:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+      "snapshotTick": 51
+    },
+    "receipt": {
+      "roomId": "N27-RETARGET-A843ED44AB",
+      "playerId": "qa48offline-a",
+      "clientIntentId": "native-counter-prefix-c57c61b1ca2a4f188430ee3130fb7659",
+      "cmdType": "END_TURN",
+      "accepted": true,
+      "serverTick": 52,
+      "state": "ACCEPTED",
+      "message": "\u670D\u52A1\u7AEF\u5DF2\u63A5\u53D7\u547D\u4EE4\uFF0C\u540E\u7EED\u4EE5\u5FEB\u7167\u548C\u89C4\u5219\u4E8B\u4EF6\u4E3A\u51C6\u3002",
+      "promptId": "N27-RETARGET-A843ED44AB:51:qa48offline-a:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+      "snapshotTick": 51,
+      "followup": {
+        "serverTick": 52,
+        "eventCount": 11,
+        "snapshotCount": 2,
+        "promptCount": 2,
+        "state": "events",
+        "summary": "tick 52 \u5DF2\u751F\u6210 11 \u6761\u516C\u5F00\u4E8B\u4EF6\u30012 \u4E2A\u5FEB\u7167\u30012 \u4E2A\u63D0\u793A\u3002",
+        "eventKinds": [
+          "TURN_END_DECLARED",
+          "TURN_END_CLEANUP_STARTED",
+          "UNTIL_END_OF_TURN_EXPIRED",
+          "RUNE_POOL_CLEARED",
+          "CLEANUP_REPEATED",
+          "TURN_PLAYER_ADVANCED",
+          "TURN_START_BEGAN",
+          "RUNES_CALLED",
+          "CARD_DRAWN",
+          "RUNE_POOL_CLEARED",
+          "MAIN_PHASE_BEGAN"
+        ],
+        "eventRefs": [
+          {
+            "serverTick": 52,
+            "order": 0,
+            "kind": "TURN_END_DECLARED"
+          },
+          {
+            "serverTick": 52,
+            "order": 1,
+            "kind": "TURN_END_CLEANUP_STARTED"
+          },
+          {
+            "serverTick": 52,
+            "order": 2,
+            "kind": "UNTIL_END_OF_TURN_EXPIRED"
+          },
+          {
+            "serverTick": 52,
+            "order": 3,
+            "kind": "RUNE_POOL_CLEARED"
+          },
+          {
+            "serverTick": 52,
+            "order": 4,
+            "kind": "CLEANUP_REPEATED"
+          },
+          {
+            "serverTick": 52,
+            "order": 5,
+            "kind": "TURN_PLAYER_ADVANCED"
+          },
+          {
+            "serverTick": 52,
+            "order": 6,
+            "kind": "TURN_START_BEGAN"
+          },
+          {
+            "serverTick": 52,
+            "order": 7,
+            "kind": "RUNES_CALLED"
+          },
+          {
+            "serverTick": 52,
+            "order": 8,
+            "kind": "CARD_DRAWN"
+          },
+          {
+            "serverTick": 52,
+            "order": 9,
+            "kind": "RUNE_POOL_CLEARED"
+          },
+          {
+            "serverTick": 52,
+            "order": 10,
+            "kind": "MAIN_PHASE_BEGAN"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "actor": "qa48offline-b",
+    "rawCommand": {
+      "cmdType": "END_TURN",
+      "promptId": "N27-RETARGET-A843ED44AB:52:qa48offline-b:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+      "snapshotTick": 52
+    },
+    "receipt": {
+      "roomId": "N27-RETARGET-A843ED44AB",
+      "playerId": "qa48offline-b",
+      "clientIntentId": "native-counter-prefix-c5957f87f5864ad5b32f79fe85adc0eb",
+      "cmdType": "END_TURN",
+      "accepted": true,
+      "serverTick": 53,
+      "state": "ACCEPTED",
+      "message": "\u670D\u52A1\u7AEF\u5DF2\u63A5\u53D7\u547D\u4EE4\uFF0C\u540E\u7EED\u4EE5\u5FEB\u7167\u548C\u89C4\u5219\u4E8B\u4EF6\u4E3A\u51C6\u3002",
+      "promptId": "N27-RETARGET-A843ED44AB:52:qa48offline-b:PLAY_CARD,ACTIVATE_ABILITY,ASSEMBLE_EQUIPMENT,MOVE_UNIT,DECLARE_BATTLE,HIDE_CARD,REVEAL_CARD,TAP_RUNE,RECYCLE_RUNE,LEGEND_ACT,END_TURN,SURRENDER",
+      "snapshotTick": 52,
+      "followup": {
+        "serverTick": 53,
+        "eventCount": 8,
+        "snapshotCount": 2,
+        "promptCount": 2,
+        "state": "events",
+        "summary": "tick 53 \u5DF2\u751F\u6210 8 \u6761\u516C\u5F00\u4E8B\u4EF6\u30012 \u4E2A\u5FEB\u7167\u30012 \u4E2A\u63D0\u793A\u3002",
+        "eventKinds": [
+          "TURN_END_DECLARED",
+          "TURN_END_CLEANUP_STARTED",
+          "RUNE_POOL_CLEARED",
+          "TURN_PLAYER_ADVANCED",
+          "TURN_START_BEGAN",
+          "BATTLEFIELD_HELD",
+          "SCORE_GAINED",
+          "MATCH_WON"
+        ],
+        "eventRefs": [
+          {
+            "serverTick": 53,
+            "order": 0,
+            "kind": "TURN_END_DECLARED"
+          },
+          {
+            "serverTick": 53,
+            "order": 1,
+            "kind": "TURN_END_CLEANUP_STARTED"
+          },
+          {
+            "serverTick": 53,
+            "order": 2,
+            "kind": "RUNE_POOL_CLEARED"
+          },
+          {
+            "serverTick": 53,
+            "order": 3,
+            "kind": "TURN_PLAYER_ADVANCED"
+          },
+          {
+            "serverTick": 53,
+            "order": 4,
+            "kind": "TURN_START_BEGAN"
+          },
+          {
+            "serverTick": 53,
+            "order": 5,
+            "kind": "BATTLEFIELD_HELD"
+          },
+          {
+            "serverTick": 53,
+            "order": 6,
+            "kind": "SCORE_GAINED"
+          },
+          {
+            "serverTick": 53,
+            "order": 7,
+            "kind": "MATCH_WON"
+          }
+        ]
+      }
+    }
+  }
+]

@@ -1,0 +1,49 @@
+{
+  "url": "https://playriftbound.com/en-us/rules-hub/",
+  "request": null,
+  "attemptedAtUtc": "2026-10-20T16:11:36.860288+00:00",
+  "region": "GLOBAL",
+  "language": "en-US",
+  "roundApplicableAsOf": "2026-10-21",
+  "timezone": "Asia/Shanghai",
+  "firstPublicationIndependentlyConfirmed": null,
+  "effectiveDateIndependentlyConfirmed": null,
+  "semanticCertification": false,
+  "runtimeAuthorityAdopted": false,
+  "resolvedUrl": "https://playriftbound.com/en-us/rules-hub/",
+  "httpStatus": 200,
+  "responseHeaders": {
+    "Date": "Tue, 20 Oct 2026 16:11:38 GMT",
+    "ETag": "\"15x7xjcjlbl33f2\"",
+    "Age": "9",
+    "Cache-Control": "public,max-age=0,must-revalidate",
+    "Content-Type": "text/html; charset=utf-8"
+  },
+  "receivedAtUtc": "2026-10-20T16:11:38.698273+00:00",
+  "sha256": "bbb36ffa371c733a79cda990f65463bc0bbc7a031a108699a31fcb8c47cff831",
+  "bytes": 144466,
+  "path": "var/qa/source-round-20261021/rules/GLOBAL-b1371c7bd31de051.gz",
+  "losslessGzipRawResponse": true,
+  "compressedSha256": "bc195bf06c1c559a4421c4dc9dd1f91cace860478f14bba894c9a87d71ee58e6",
+  "status": "FETCHED_CURRENT_ORIGINAL_BYTES_NOT_CERTIFICATION",
+  "kind": "article",
+  "priorReference": {
+    "path": "var/qa/cn-effective-20261016/whole-rule-source-readback/GLOBAL/b1371c7bd31de051",
+    "sha256": "95c12bf6927275da9ee39613de9bebc49a33aedd6eb304233c5ec96ab5f8675e"
+  },
+  "matchesPriorRawBytes": false,
+  "title": "Rules Hub",
+  "displayedPublishDate": "2026-07-17T00:30:00.000Z",
+  "revision": "T4xYXIZ0qoV31nY2YA0myb",
+  "contentBladeTypes": [
+    "riotbar",
+    "articleMasthead",
+    "articleRichText",
+    "articleCardCarousel"
+  ],
+  "bodyPath": "var/qa/source-round-20261021/rules/GLOBAL-b1371c7bd31de051.body.html.gz",
+  "bodyHtmlSha256": "d04dcdfc4db6d108b516e6705123e83174d5893e7ce384b5f20dd917cc9f232d",
+  "bodyMatchesLatestPrior": true,
+  "bodyMatchesFrozenOctober12": true,
+  "newUrlNotInFrozenInventory": false
+}

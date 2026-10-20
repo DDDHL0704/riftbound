@@ -1,0 +1,22 @@
+{
+  "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+  "request": {
+    "pageNum": 4,
+    "pageSize": 100,
+    "searchContent": "",
+    "cardCategoryList": [],
+    "cardColorList": [],
+    "rarityList": [],
+    "productCodeList": []
+  },
+  "fetchedAtUtc": "2026-10-20T16:04:43.767831+00:00",
+  "path": "var/qa/source-round-20261021/cards/cn-page-004.json.gz",
+  "sha256": "347bfcb71bc58e0adff80eafd7ce76070cfd2ce11fa9f3af090a09fa03e41b4a",
+  "bytes": 106111,
+  "losslessGzipRawResponse": true,
+  "compressedSha256": "28cb537b08b0b194c82d8424874bcdb6ddec34c3336b8c481015e3a23bff9155",
+  "responseHeaders": {
+    "Date": "Tue, 20 Oct 2026 16:04:43 GMT"
+  },
+  "priorAttempts": []
+}

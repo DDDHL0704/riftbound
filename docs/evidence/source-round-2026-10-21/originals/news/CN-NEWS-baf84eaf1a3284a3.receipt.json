@@ -1,0 +1,30 @@
+{
+  "url": "https://lol.playloltcg.com/rules/game-rules.html",
+  "request": null,
+  "attemptedAtUtc": "2026-10-20T16:15:27.970282+00:00",
+  "roundApplicableAsOf": "2026-10-21",
+  "region": "CN",
+  "language": "zh-CN",
+  "timezone": "Asia/Shanghai",
+  "firstPublicationIndependentlyConfirmed": null,
+  "effectiveDateIndependentlyConfirmed": null,
+  "semanticReview": "OPEN",
+  "runtimeAuthorityChanged": false,
+  "status": "SOURCE_GAP_NORMAL_TLS_FETCH_ERROR",
+  "receivedAtUtc": "2026-10-20T16:15:33.056828+00:00",
+  "errorType": "URLError",
+  "error": "<urlopen error EOF occurred in violation of protocol (_ssl.c:1129)>",
+  "id": "CN-NEWS-baf84eaf1a3284a3",
+  "allListingRows": [
+    {
+      "name": "核心规则｜符文战场官方规则书",
+      "image": "https://cdn.playloltcg.com/lol/2025/06/2025-06-18/aca4eb81aced4bf4912334bcdc641df6.jpg",
+      "pushDate": "2025-10-24",
+      "jumpType": "h5",
+      "appId": "",
+      "jumpUrl": "https://lol.playloltcg.com/rules/game-rules.html",
+      "sort": 75
+    }
+  ],
+  "publishedAsListed": "2025-10-24"
+}

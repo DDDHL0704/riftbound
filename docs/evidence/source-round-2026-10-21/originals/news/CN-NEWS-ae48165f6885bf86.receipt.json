@@ -1,0 +1,41 @@
+{
+  "url": "https://mp.weixin.qq.com/s/kU9sVsIRwPAh-6Iu7Geh0A",
+  "request": null,
+  "attemptedAtUtc": "2026-10-20T16:17:01.340271+00:00",
+  "roundApplicableAsOf": "2026-10-21",
+  "region": "CN",
+  "language": "zh-CN",
+  "timezone": "Asia/Shanghai",
+  "firstPublicationIndependentlyConfirmed": null,
+  "effectiveDateIndependentlyConfirmed": null,
+  "semanticReview": "OPEN",
+  "runtimeAuthorityChanged": false,
+  "resolvedUrl": "https://mp.weixin.qq.com/s/kU9sVsIRwPAh-6Iu7Geh0A",
+  "httpStatus": 200,
+  "responseHeaders": {
+    "Last-Modified": "Wed, 21 Oct 2026 00:17:02 +0800",
+    "Content-Type": "text/html; charset=UTF-8"
+  },
+  "status": "SOURCE_EXTRACTION_GAP_WITH_ORIGINAL_RESPONSE_RETAINED",
+  "receivedAtUtc": "2026-10-20T16:17:05.959341+00:00",
+  "path": "var/qa/source-round-20261021/news/CN-NEWS-ae48165f6885bf86.html.gz",
+  "sha256": "48507858ca46b06d545797864c08cba27d0e0930272f1e2cc103dbf51ccae940",
+  "bytes": 3457918,
+  "compressedSha256": "34f23272f0a07f0d6864f35e9067d370bfb66432596130c802b55c05aa1325b1",
+  "losslessGzipOriginalBytes": true,
+  "id": "CN-NEWS-ae48165f6885bf86",
+  "allListingRows": [
+    {
+      "name": "一周年庆典｜8月29-30日，武汉见！",
+      "image": "https://cdn.playloltcg.com/lol/2026/08/2026-08-09/bf90d89372a9455c84a925e4d6f5b7a6.png",
+      "pushDate": "2026-08-09",
+      "jumpType": "h5",
+      "appId": "",
+      "jumpUrl": "https://mp.weixin.qq.com/s/kU9sVsIRwPAh-6Iu7Geh0A",
+      "sort": 149
+    }
+  ],
+  "publishedAsListed": "2026-08-09",
+  "extractionErrorType": "TypeError",
+  "extractionError": "'int' object is not callable"
+}

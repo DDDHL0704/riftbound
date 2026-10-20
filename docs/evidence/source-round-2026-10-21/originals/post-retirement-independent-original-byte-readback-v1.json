@@ -1,0 +1,8 @@
+{
+  "status": "PASS_POST_RETIREMENT_ALL142_ORIGINAL_HTTP_AND_GZIP_BYTES_RECOVERABLE_AND_ALL267_ORIGINAL_NEWS_READER_INPUT_HASHES_EXACT",
+  "verifiedAtUtc": "2026-10-20T17:17:24.274526+00:00",
+  "archiveSha256": "daee12586a2a525009a2b33c0b09e3037eef20f02ee5d6dd09a89499be451bca",
+  "originalHttpResponses": 142,
+  "originalFrozenReaderInputs": 267,
+  "noMaterializationOrRefetchOrOriginalReceiptMutation": true
+}

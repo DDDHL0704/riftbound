@@ -1,0 +1,41 @@
+{
+  "url": "https://mp.weixin.qq.com/s/s4_C0gWHdKlqnnbYMAClXQ",
+  "request": null,
+  "attemptedAtUtc": "2026-10-20T16:15:32.776931+00:00",
+  "roundApplicableAsOf": "2026-10-21",
+  "region": "CN",
+  "language": "zh-CN",
+  "timezone": "Asia/Shanghai",
+  "firstPublicationIndependentlyConfirmed": null,
+  "effectiveDateIndependentlyConfirmed": null,
+  "semanticReview": "OPEN",
+  "runtimeAuthorityChanged": false,
+  "resolvedUrl": "https://mp.weixin.qq.com/s/s4_C0gWHdKlqnnbYMAClXQ",
+  "httpStatus": 200,
+  "responseHeaders": {
+    "Last-Modified": "Wed, 21 Oct 2026 00:15:33 +0800",
+    "Content-Type": "text/html; charset=UTF-8"
+  },
+  "status": "SOURCE_EXTRACTION_GAP_WITH_ORIGINAL_RESPONSE_RETAINED",
+  "receivedAtUtc": "2026-10-20T16:15:37.708141+00:00",
+  "path": "var/qa/source-round-20261021/news/CN-NEWS-ccd11618dae3d87e.html.gz",
+  "sha256": "730a8ced8b72b980853d88684bb1fa2f5a4c05eefba447f5aa7075ce405d5fae",
+  "bytes": 3489252,
+  "compressedSha256": "289fc2cd3105122bd77ae377c83aed306e3790162f5e778e43de39ecc5cd4af0",
+  "losslessGzipOriginalBytes": true,
+  "id": "CN-NEWS-ccd11618dae3d87e",
+  "allListingRows": [
+    {
+      "name": "本命传奇挑战 | 补充包获奖名单公示",
+      "image": "https://cdn.playloltcg.com/lol/2025/11/2025-11-07/9f5300d991724ae795020eac8fe36645.jpg",
+      "pushDate": "2025-11-07",
+      "jumpType": "h5",
+      "appId": "",
+      "jumpUrl": "https://mp.weixin.qq.com/s/s4_C0gWHdKlqnnbYMAClXQ",
+      "sort": 78
+    }
+  ],
+  "publishedAsListed": "2025-11-07",
+  "extractionErrorType": "TypeError",
+  "extractionError": "'int' object is not callable"
+}

@@ -1,0 +1,286 @@
+{
+  "url": "https://cdn.playloltcg.com/lol/2026/04/2026-04-15/铸魂淬炼系列_官方FAQ_260114.pdf",
+  "request": null,
+  "attemptedAtUtc": "2026-10-20T16:11:24.052820+00:00",
+  "region": "CN",
+  "language": "zh-CN",
+  "roundApplicableAsOf": "2026-10-21",
+  "timezone": "Asia/Shanghai",
+  "firstPublicationIndependentlyConfirmed": null,
+  "effectiveDateIndependentlyConfirmed": null,
+  "semanticCertification": false,
+  "runtimeAuthorityAdopted": false,
+  "resolvedUrl": "https://cdn.playloltcg.com/lol/2026/04/2026-04-15/%E9%93%B8%E9%AD%82%E6%B7%AC%E7%82%BC%E7%B3%BB%E5%88%97_%E5%AE%98%E6%96%B9FAQ_260114.pdf",
+  "httpStatus": 200,
+  "responseHeaders": {
+    "Date": "Fri, 03 Jul 2026 15:05:30 GMT",
+    "ETag": "\"4a7ca51cf9ea5541416778c25c06aa5d\"",
+    "Age": "0",
+    "Last-Modified": "Wed, 15 Apr 2026 03:22:14 GMT",
+    "Content-Length": "17319674",
+    "Content-Type": "application/pdf"
+  },
+  "receivedAtUtc": "2026-10-20T16:11:36.831194+00:00",
+  "sha256": "d0b1e139a35e5bced809bf5656789b019692e07880d0265e99f9bd11d8179f01",
+  "bytes": 17319674,
+  "path": "var/qa/cn-effective-20261016/whole-rule-source-readback/CN/DOC-13.pdf",
+  "losslessGzipRawResponse": false,
+  "status": "FETCHED_CURRENT_ORIGINAL_BYTES_NOT_CERTIFICATION",
+  "kind": "pdf",
+  "priorReference": {
+    "path": "var/qa/cn-effective-20261016/whole-rule-source-readback/CN/DOC-13.pdf",
+    "sha256": "d0b1e139a35e5bced809bf5656789b019692e07880d0265e99f9bd11d8179f01"
+  },
+  "matchesPriorRawBytes": true,
+  "freshNetworkReadbackReusesVerifiedExactExistingBytes": true,
+  "identicalTemporaryCompressedCopyRetired": {
+    "path": "var/qa/source-round-20261021/rules/DOC-13.pdf.gz",
+    "sha256": "7bf6978b787445e8ae867b10f9833889bc890ae69211b2f4adf918f79507e6be",
+    "bytes": 17283254
+  },
+  "id": "DOC-13",
+  "exactFrozenSourceIdentity": {
+    "id": "DOC-13",
+    "title": "铸魂淬炼系列 官方FAQ",
+    "url": "https://cdn.playloltcg.com/lol/2026/04/2026-04-15/铸魂淬炼系列_官方FAQ_260114.pdf",
+    "sha256": "d0b1e139a35e5bced809bf5656789b019692e07880d0265e99f9bd11d8179f01",
+    "updated": "2026-01-14",
+    "effectiveDate": null,
+    "pages": [
+      {
+        "page": 1,
+        "blocks": [
+          "DOC-13-P001-B001",
+          "DOC-13-P001-B002",
+          "DOC-13-P001-B003",
+          "DOC-13-P001-B004",
+          "DOC-13-P001-B005",
+          "DOC-13-P001-B006",
+          "DOC-13-P001-B007",
+          "DOC-13-P001-B008"
+        ],
+        "requiresVisualReview": false
+      },
+      {
+        "page": 2,
+        "blocks": [
+          "DOC-13-P002-B001",
+          "DOC-13-P002-B002",
+          "DOC-13-P002-B003",
+          "DOC-13-P002-B004",
+          "DOC-13-P002-B005",
+          "DOC-13-P002-B006",
+          "DOC-13-P002-B007",
+          "DOC-13-P002-B008"
+        ],
+        "requiresVisualReview": false
+      },
+      {
+        "page": 3,
+        "blocks": [
+          "DOC-13-P003-B001",
+          "DOC-13-P003-B002",
+          "DOC-13-P003-B003",
+          "DOC-13-P003-B004"
+        ],
+        "requiresVisualReview": false
+      },
+      {
+        "page": 4,
+        "blocks": [
+          "DOC-13-P004-B001",
+          "DOC-13-P004-B002",
+          "DOC-13-P004-B003",
+          "DOC-13-P004-B004",
+          "DOC-13-P004-B005",
+          "DOC-13-P004-B006",
+          "DOC-13-P004-B007"
+        ],
+        "requiresVisualReview": false
+      },
+      {
+        "page": 5,
+        "blocks": [
+          "DOC-13-P005-B001",
+          "DOC-13-P005-B002",
+          "DOC-13-P005-B003",
+          "DOC-13-P005-B004"
+        ],
+        "requiresVisualReview": false
+      },
+      {
+        "page": 6,
+        "blocks": [
+          "DOC-13-P006-B001",
+          "DOC-13-P006-B002"
+        ],
+        "requiresVisualReview": false
+      },
+      {
+        "page": 7,
+        "blocks": [
+          "DOC-13-P007-B001",
+          "DOC-13-P007-B002",
+          "DOC-13-P007-B003"
+        ],
+        "requiresVisualReview": false
+      },
+      {
+        "page": 8,
+        "blocks": [
+          "DOC-13-P008-B001",
+          "DOC-13-P008-B002",
+          "DOC-13-P008-B003",
+          "DOC-13-P008-B004",
+          "DOC-13-P008-B005",
+          "DOC-13-P008-B006"
+        ],
+        "requiresVisualReview": false
+      },
+      {
+        "page": 9,
+        "blocks": [
+          "DOC-13-P009-B001",
+          "DOC-13-P009-B002",
+          "DOC-13-P009-B003",
+          "DOC-13-P009-B004"
+        ],
+        "requiresVisualReview": false
+      },
+      {
+        "page": 10,
+        "blocks": [
+          "DOC-13-P010-B001",
+          "DOC-13-P010-B002",
+          "DOC-13-P010-B003",
+          "DOC-13-P010-B004"
+        ],
+        "requiresVisualReview": false
+      },
+      {
+        "page": 11,
+        "blocks": [
+          "DOC-13-P011-B001",
+          "DOC-13-P011-B002",
+          "DOC-13-P011-B003",
+          "DOC-13-P011-B004"
+        ],
+        "requiresVisualReview": false
+      },
+      {
+        "page": 12,
+        "blocks": [
+          "DOC-13-P012-B001",
+          "DOC-13-P012-B002",
+          "DOC-13-P012-B003",
+          "DOC-13-P012-B004",
+          "DOC-13-P012-B005"
+        ],
+        "requiresVisualReview": false
+      },
+      {
+        "page": 13,
+        "blocks": [
+          "DOC-13-P013-B001",
+          "DOC-13-P013-B002",
+          "DOC-13-P013-B003",
+          "DOC-13-P013-B004",
+          "DOC-13-P013-B005",
+          "DOC-13-P013-B006"
+        ],
+        "requiresVisualReview": false
+      },
+      {
+        "page": 14,
+        "blocks": [
+          "DOC-13-P014-B001",
+          "DOC-13-P014-B002",
+          "DOC-13-P014-B003",
+          "DOC-13-P014-B004"
+        ],
+        "requiresVisualReview": false
+      },
+      {
+        "page": 15,
+        "blocks": [
+          "DOC-13-P015-B001",
+          "DOC-13-P015-B002"
+        ],
+        "requiresVisualReview": false
+      },
+      {
+        "page": 16,
+        "blocks": [
+          "DOC-13-P016-B001",
+          "DOC-13-P016-B002",
+          "DOC-13-P016-B003",
+          "DOC-13-P016-B004"
+        ],
+        "requiresVisualReview": false
+      },
+      {
+        "page": 17,
+        "blocks": [
+          "DOC-13-P017-B001",
+          "DOC-13-P017-B002",
+          "DOC-13-P017-B003",
+          "DOC-13-P017-B004",
+          "DOC-13-P017-B005",
+          "DOC-13-P017-B006",
+          "DOC-13-P017-B007"
+        ],
+        "requiresVisualReview": false
+      },
+      {
+        "page": 18,
+        "blocks": [
+          "DOC-13-P018-B001",
+          "DOC-13-P018-B002",
+          "DOC-13-P018-B003",
+          "DOC-13-P018-B004"
+        ],
+        "requiresVisualReview": false
+      },
+      {
+        "page": 19,
+        "blocks": [
+          "DOC-13-P019-B001",
+          "DOC-13-P019-B002",
+          "DOC-13-P019-B003",
+          "DOC-13-P019-B004"
+        ],
+        "requiresVisualReview": false
+      },
+      {
+        "page": 20,
+        "blocks": [
+          "DOC-13-P020-B001",
+          "DOC-13-P020-B002",
+          "DOC-13-P020-B003",
+          "DOC-13-P020-B004"
+        ],
+        "requiresVisualReview": false
+      },
+      {
+        "page": 21,
+        "blocks": [
+          "DOC-13-P021-B001",
+          "DOC-13-P021-B002",
+          "DOC-13-P021-B003",
+          "DOC-13-P021-B004",
+          "DOC-13-P021-B005",
+          "DOC-13-P021-B006"
+        ],
+        "requiresVisualReview": false
+      }
+    ]
+  },
+  "currentListing": {
+    "ruleCategory": "铸魂淬炼系列 FAQ",
+    "ruleName": "铸魂淬炼系列 官方FAQ",
+    "coverUrl": "https://cdn.playloltcg.com/lol/2026/01/2026-01-14/c8fe15554b65440e82a8bbb3517b2cc4.jpeg",
+    "updateDate": "2026-01-14",
+    "ruleDocUrl": "https://cdn.playloltcg.com/lol/2026/04/2026-04-15/铸魂淬炼系列_官方FAQ_260114.pdf"
+  },
+  "historicalSupersededSourceRetained": false
+}

@@ -1,0 +1,41 @@
+{
+  "url": "https://mp.weixin.qq.com/s/FjGfnw8RU-nsnWwZFw5ibQ",
+  "request": null,
+  "attemptedAtUtc": "2026-10-20T16:17:36.347838+00:00",
+  "roundApplicableAsOf": "2026-10-21",
+  "region": "CN",
+  "language": "zh-CN",
+  "timezone": "Asia/Shanghai",
+  "firstPublicationIndependentlyConfirmed": null,
+  "effectiveDateIndependentlyConfirmed": null,
+  "semanticReview": "OPEN",
+  "runtimeAuthorityChanged": false,
+  "resolvedUrl": "https://mp.weixin.qq.com/s/FjGfnw8RU-nsnWwZFw5ibQ",
+  "httpStatus": 200,
+  "responseHeaders": {
+    "Last-Modified": "Wed, 21 Oct 2026 00:17:36 +0800",
+    "Content-Type": "text/html; charset=UTF-8"
+  },
+  "status": "SOURCE_EXTRACTION_GAP_WITH_ORIGINAL_RESPONSE_RETAINED",
+  "receivedAtUtc": "2026-10-20T16:17:40.036030+00:00",
+  "path": "var/qa/source-round-20261021/news/CN-NEWS-aa0f91460ccc801c.html.gz",
+  "sha256": "066321f8f794da960daf51ae462acdbc338239306f326db3e440c5965be9dd9a",
+  "bytes": 3448052,
+  "compressedSha256": "96cdcb8792ec95304e9b42890b6558a44da5a13689a4543c6826a9fae04e5d02",
+  "losslessGzipOriginalBytes": true,
+  "id": "CN-NEWS-aa0f91460ccc801c",
+  "allListingRows": [
+    {
+      "name": "辉耀群星售前现开赛报名开启",
+      "image": "https://cdn.playloltcg.com/lol/2026/10/2026-10-09/efbe1a5dac9547fab5143053566a4d16.png",
+      "pushDate": "2026-10-09",
+      "jumpType": "h5",
+      "appId": "",
+      "jumpUrl": "https://mp.weixin.qq.com/s/FjGfnw8RU-nsnWwZFw5ibQ",
+      "sort": 166
+    }
+  ],
+  "publishedAsListed": "2026-10-09",
+  "extractionErrorType": "TypeError",
+  "extractionError": "'int' object is not callable"
+}

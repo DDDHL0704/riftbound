@@ -1,0 +1,65 @@
+{
+  "attemptedAtUtc": "2026-10-20T18:06:22.148360+00:00",
+  "receivedAtUtc": "2026-10-20T18:06:22.248229+00:00",
+  "region": "CN",
+  "language": "zh-CN",
+  "roundApplicableAsOf": "2026-10-21",
+  "apiId": 31258,
+  "fullCurrentApiRow": {
+    "id": 31258,
+    "cardCategoryList": [
+      "spell"
+    ],
+    "cardCategoryNameList": [
+      "法术"
+    ],
+    "cardNo": "OGN·046/298",
+    "cardName": "决斗架势",
+    "subTitle": "",
+    "extendType": null,
+    "extendTypeName": "",
+    "cardColorList": [
+      "green"
+    ],
+    "hero": "",
+    "region": "",
+    "tag": "",
+    "artist": "Kudos Productions",
+    "cardEffect": "{{反应}}（可在任意时机打出，甚至先于其他法术和技能的结算。）\n让一名友方单位本回合内{{S}}+1，如果它是你在该处唯一控制的单位，则它本回合内额外获得{{S}}+1。",
+    "flavorText": "“这也称得上是挑战吗？”\n——菲奥娜",
+    "energy": 1,
+    "returnEnergy": null,
+    "power": null,
+    "productCodeList": [
+      "OGS",
+      "OGN(进阶补充包)",
+      "OGN(进阶补充包)"
+    ],
+    "productNameList": [
+      "起源 试炼之地",
+      "起源 进阶补充包",
+      "起源 进阶补充包"
+    ],
+    "cardQaList": null,
+    "craftLevel": 0,
+    "rarity": "rune_dust",
+    "rarityName": "普通",
+    "extendRarity": "base_inscript",
+    "extendRarityName": "平卡",
+    "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/922e71f6a0684b52ae9fe69bf4bb0b5c.png",
+    "backImage": "",
+    "listSort": 447,
+    "status": 1,
+    "cardGroupLimit": null,
+    "isPreview": false,
+    "errata": "",
+    "otherDesc": 0
+  },
+  "url": "https://cdn.playloltcg.com/lol/card/20250731/922e71f6a0684b52ae9fe69bf4bb0b5c.png",
+  "resolvedUrl": "https://cdn.playloltcg.com/lol/card/20250731/922e71f6a0684b52ae9fe69bf4bb0b5c.png",
+  "path": "var/qa/spell-remake-no-complete-choice-20261021/current-exact-dueling-stance-31258.png",
+  "sha256": "c153f47de537d5409c929229989a78a9fd9c791d3f59cc07158a1771f982002d",
+  "bytes": 186945,
+  "independentPrintingPublicationOrEffectiveDate": null,
+  "wholePrintingCertification": false
+}

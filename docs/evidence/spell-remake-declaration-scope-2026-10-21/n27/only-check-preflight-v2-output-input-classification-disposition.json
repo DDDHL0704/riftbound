@@ -1,0 +1,14 @@
+{
+  "atUtc": "2026-10-20T17:58:48.727100+00:00",
+  "status": "PRE_CHECK_COUNTING_ASSUMPTION_FAILED_NO_TEST_RUN",
+  "actualExitCode": 1,
+  "originalAllFiles": 3447,
+  "generatedQaOutputFiles": 2028,
+  "actualFrozenNonOutputInputs": 1419,
+  "allOriginal1401InputPathsPresent": true,
+  "additionalApphostSqlAndStaticResourceInputs": 18,
+  "originalNoSourceOrTestChanges": true,
+  "allGeneratedEvidenceRetainedNoDeletion": true,
+  "noCheckStartedOrRepeated": true,
+  "v3FreezesEveryNonOutputFileRatherThanApplyingPreviousCount": true
+}

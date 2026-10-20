@@ -1,0 +1,41 @@
+{
+  "url": "https://mp.weixin.qq.com/s/toapQ_rXpqC1b2cWMTkZdA",
+  "request": null,
+  "attemptedAtUtc": "2026-10-20T16:17:18.273462+00:00",
+  "roundApplicableAsOf": "2026-10-21",
+  "region": "CN",
+  "language": "zh-CN",
+  "timezone": "Asia/Shanghai",
+  "firstPublicationIndependentlyConfirmed": null,
+  "effectiveDateIndependentlyConfirmed": null,
+  "semanticReview": "OPEN",
+  "runtimeAuthorityChanged": false,
+  "resolvedUrl": "https://mp.weixin.qq.com/s/toapQ_rXpqC1b2cWMTkZdA",
+  "httpStatus": 200,
+  "responseHeaders": {
+    "Last-Modified": "Wed, 21 Oct 2026 00:17:19 +0800",
+    "Content-Type": "text/html; charset=UTF-8"
+  },
+  "status": "SOURCE_EXTRACTION_GAP_WITH_ORIGINAL_RESPONSE_RETAINED",
+  "receivedAtUtc": "2026-10-20T16:17:22.952643+00:00",
+  "path": "var/qa/source-round-20261021/news/CN-NEWS-3386d627b43ed268.html.gz",
+  "sha256": "06b339e8af6b5a3aa50a64e22b7cd545b3db77fcbd59959d157e08f367941ab9",
+  "bytes": 3457674,
+  "compressedSha256": "246783c3da7e2a2e4440c182efa471ffd55d77a189043444625694a6860fc959",
+  "losslessGzipOriginalBytes": true,
+  "id": "CN-NEWS-3386d627b43ed268",
+  "allListingRows": [
+    {
+      "name": "赛前提醒丨区域公开赛 沈阳站",
+      "image": "https://cdn.playloltcg.com/lol/2026/09/2026-09-12/1d9eeef2207445a081b4c3c755a10951.png",
+      "pushDate": "2026-09-11",
+      "jumpType": "h5",
+      "appId": "",
+      "jumpUrl": "https://mp.weixin.qq.com/s/toapQ_rXpqC1b2cWMTkZdA",
+      "sort": 156
+    }
+  ],
+  "publishedAsListed": "2026-09-11",
+  "extractionErrorType": "TypeError",
+  "extractionError": "'int' object is not callable"
+}

@@ -1,0 +1,41 @@
+{
+  "url": "https://mp.weixin.qq.com/s/rzHd3RjPBzivjy1aRqkm6A",
+  "request": null,
+  "attemptedAtUtc": "2026-10-20T16:16:14.917938+00:00",
+  "roundApplicableAsOf": "2026-10-21",
+  "region": "CN",
+  "language": "zh-CN",
+  "timezone": "Asia/Shanghai",
+  "firstPublicationIndependentlyConfirmed": null,
+  "effectiveDateIndependentlyConfirmed": null,
+  "semanticReview": "OPEN",
+  "runtimeAuthorityChanged": false,
+  "resolvedUrl": "https://mp.weixin.qq.com/s/rzHd3RjPBzivjy1aRqkm6A",
+  "httpStatus": 200,
+  "responseHeaders": {
+    "Last-Modified": "Wed, 21 Oct 2026 00:16:15 +0800",
+    "Content-Type": "text/html; charset=UTF-8"
+  },
+  "status": "SOURCE_EXTRACTION_GAP_WITH_ORIGINAL_RESPONSE_RETAINED",
+  "receivedAtUtc": "2026-10-20T16:16:19.357080+00:00",
+  "path": "var/qa/source-round-20261021/news/CN-NEWS-65e8e099d39e5d25.html.gz",
+  "sha256": "56c0ec5bf08679fdbfd56020ddd3ee29060b31c4fb1c9f23ae0307caecc81e9d",
+  "bytes": 3552227,
+  "compressedSha256": "ec1a1d965531b714e4dabbe7172da4046c39a4fed106307dc28eb61f2c48c40d",
+  "losslessGzipOriginalBytes": true,
+  "id": "CN-NEWS-65e8e099d39e5d25",
+  "allListingRows": [
+    {
+      "name": "极境见真魄丨深圳全国公开赛赛事手册来袭",
+      "image": "https://cdn.playloltcg.com/lol/2026/03/2026-03-09/0485ea47963d4a798bc37ef3b2aa763d.JPG",
+      "pushDate": "2026-03-09",
+      "jumpType": "h5",
+      "appId": "",
+      "jumpUrl": "https://mp.weixin.qq.com/s/rzHd3RjPBzivjy1aRqkm6A",
+      "sort": 113
+    }
+  ],
+  "publishedAsListed": "2026-03-09",
+  "extractionErrorType": "TypeError",
+  "extractionError": "'int' object is not callable"
+}

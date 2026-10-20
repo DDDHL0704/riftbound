@@ -1,0 +1,41 @@
+{
+  "url": "https://mp.weixin.qq.com/s/RT5wGZnhd2LN1V8j2iWYSA",
+  "request": null,
+  "attemptedAtUtc": "2026-10-20T16:16:26.019663+00:00",
+  "roundApplicableAsOf": "2026-10-21",
+  "region": "CN",
+  "language": "zh-CN",
+  "timezone": "Asia/Shanghai",
+  "firstPublicationIndependentlyConfirmed": null,
+  "effectiveDateIndependentlyConfirmed": null,
+  "semanticReview": "OPEN",
+  "runtimeAuthorityChanged": false,
+  "resolvedUrl": "https://mp.weixin.qq.com/s/RT5wGZnhd2LN1V8j2iWYSA",
+  "httpStatus": 200,
+  "responseHeaders": {
+    "Last-Modified": "Wed, 21 Oct 2026 00:16:27 +0800",
+    "Content-Type": "text/html; charset=UTF-8"
+  },
+  "status": "SOURCE_EXTRACTION_GAP_WITH_ORIGINAL_RESPONSE_RETAINED",
+  "receivedAtUtc": "2026-10-20T16:16:30.038836+00:00",
+  "path": "var/qa/source-round-20261021/news/CN-NEWS-37608c35b22f4db4.html.gz",
+  "sha256": "d63dd124e0aef7e62086383bc17e345b83fef6ead5c0c07d58e4a580fd8edc69",
+  "bytes": 3447644,
+  "compressedSha256": "1bb0704bfeea54eb1228779a7dc34758e8fbd5b3aad461f1d52bb242184608a8",
+  "losslessGzipOriginalBytes": true,
+  "id": "CN-NEWS-37608c35b22f4db4",
+  "allListingRows": [
+    {
+      "name": "第三赛季区域公开赛赛事奖励卡牌",
+      "image": "https://cdn.playloltcg.com/lol/2026/04/2026-04-26/11291f09dceb43fd9cec8d8d670feec3.png",
+      "pushDate": "2026-04-26",
+      "jumpType": "h5",
+      "appId": "",
+      "jumpUrl": "https://mp.weixin.qq.com/s/RT5wGZnhd2LN1V8j2iWYSA",
+      "sort": 123
+    }
+  ],
+  "publishedAsListed": "2026-04-26",
+  "extractionErrorType": "TypeError",
+  "extractionError": "'int' object is not callable"
+}

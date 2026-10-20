@@ -1,0 +1,41 @@
+{
+  "url": "https://mp.weixin.qq.com/s/Cjv_C8HpehRExj_sZuejZw",
+  "request": null,
+  "attemptedAtUtc": "2026-10-20T16:16:19.439601+00:00",
+  "roundApplicableAsOf": "2026-10-21",
+  "region": "CN",
+  "language": "zh-CN",
+  "timezone": "Asia/Shanghai",
+  "firstPublicationIndependentlyConfirmed": null,
+  "effectiveDateIndependentlyConfirmed": null,
+  "semanticReview": "OPEN",
+  "runtimeAuthorityChanged": false,
+  "resolvedUrl": "https://mp.weixin.qq.com/s/Cjv_C8HpehRExj_sZuejZw",
+  "httpStatus": 200,
+  "responseHeaders": {
+    "Last-Modified": "Wed, 21 Oct 2026 00:16:20 +0800",
+    "Content-Type": "text/html; charset=UTF-8"
+  },
+  "status": "SOURCE_EXTRACTION_GAP_WITH_ORIGINAL_RESPONSE_RETAINED",
+  "receivedAtUtc": "2026-10-20T16:16:24.383572+00:00",
+  "path": "var/qa/source-round-20261021/news/CN-NEWS-8216a7517bcd52ca.html.gz",
+  "sha256": "0bb471d438a3d4b447f975f7ffbafe032b2a0e8a0a955bba412210d5a17e1f46",
+  "bytes": 3463954,
+  "compressedSha256": "25ffe5a815ead90c09570f4f18d13f0d6748c1b664484aa80e1fb4c5b2a8ea84",
+  "losslessGzipOriginalBytes": true,
+  "id": "CN-NEWS-8216a7517bcd52ca",
+  "allListingRows": [
+    {
+      "name": "「破限」简体中文版本预览指南",
+      "image": "https://cdn.playloltcg.com/lol/2026/03/2026-03-17/a315e58e55324e0ba6f123c4cde15648.png",
+      "pushDate": "2026-03-16",
+      "jumpType": "h5",
+      "appId": "",
+      "jumpUrl": "https://mp.weixin.qq.com/s/Cjv_C8HpehRExj_sZuejZw",
+      "sort": 115
+    }
+  ],
+  "publishedAsListed": "2026-03-16",
+  "extractionErrorType": "TypeError",
+  "extractionError": "'int' object is not callable"
+}

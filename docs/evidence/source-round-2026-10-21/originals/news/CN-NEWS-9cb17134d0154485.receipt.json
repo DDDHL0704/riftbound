@@ -1,0 +1,41 @@
+{
+  "url": "https://mp.weixin.qq.com/s/F7ZIr-1qISHAEwXljlib4g",
+  "request": null,
+  "attemptedAtUtc": "2026-10-20T16:17:05.118772+00:00",
+  "roundApplicableAsOf": "2026-10-21",
+  "region": "CN",
+  "language": "zh-CN",
+  "timezone": "Asia/Shanghai",
+  "firstPublicationIndependentlyConfirmed": null,
+  "effectiveDateIndependentlyConfirmed": null,
+  "semanticReview": "OPEN",
+  "runtimeAuthorityChanged": false,
+  "resolvedUrl": "https://mp.weixin.qq.com/s/F7ZIr-1qISHAEwXljlib4g",
+  "httpStatus": 200,
+  "responseHeaders": {
+    "Last-Modified": "Wed, 21 Oct 2026 00:17:06 +0800",
+    "Content-Type": "text/html; charset=UTF-8"
+  },
+  "status": "SOURCE_EXTRACTION_GAP_WITH_ORIGINAL_RESPONSE_RETAINED",
+  "receivedAtUtc": "2026-10-20T16:17:09.255187+00:00",
+  "path": "var/qa/source-round-20261021/news/CN-NEWS-9cb17134d0154485.html.gz",
+  "sha256": "3cf7a7e2c5a7ad91621a5ea1279b7a94316bacb6daef791faba811aee010018d",
+  "bytes": 3568323,
+  "compressedSha256": "021bed7d0907755a35de2be92e4bcdbda56597dd8faf8761b52ac87015956e77",
+  "losslessGzipOriginalBytes": true,
+  "id": "CN-NEWS-9cb17134d0154485",
+  "allListingRows": [
+    {
+      "name": "赛事手册｜共鸣公开赛 - 团队赛",
+      "image": "https://cdn.playloltcg.com/lol/2026/08/2026-08-13/d9789e8c59304ce3a032dffb36f1eb41.jpg",
+      "pushDate": "2026-08-13",
+      "jumpType": "h5",
+      "appId": "",
+      "jumpUrl": "https://mp.weixin.qq.com/s/F7ZIr-1qISHAEwXljlib4g",
+      "sort": 151
+    }
+  ],
+  "publishedAsListed": "2026-08-13",
+  "extractionErrorType": "TypeError",
+  "extractionError": "'int' object is not callable"
+}

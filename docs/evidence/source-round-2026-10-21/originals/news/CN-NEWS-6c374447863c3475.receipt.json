@@ -1,0 +1,41 @@
+{
+  "url": "https://mp.weixin.qq.com/s/-8KW_AflfK-D68yXucUHhw",
+  "request": null,
+  "attemptedAtUtc": "2026-10-20T16:15:33.314248+00:00",
+  "roundApplicableAsOf": "2026-10-21",
+  "region": "CN",
+  "language": "zh-CN",
+  "timezone": "Asia/Shanghai",
+  "firstPublicationIndependentlyConfirmed": null,
+  "effectiveDateIndependentlyConfirmed": null,
+  "semanticReview": "OPEN",
+  "runtimeAuthorityChanged": false,
+  "resolvedUrl": "https://mp.weixin.qq.com/s/-8KW_AflfK-D68yXucUHhw",
+  "httpStatus": 200,
+  "responseHeaders": {
+    "Last-Modified": "Wed, 21 Oct 2026 00:15:34 +0800",
+    "Content-Type": "text/html; charset=UTF-8"
+  },
+  "status": "SOURCE_EXTRACTION_GAP_WITH_ORIGINAL_RESPONSE_RETAINED",
+  "receivedAtUtc": "2026-10-20T16:15:38.656206+00:00",
+  "path": "var/qa/source-round-20261021/news/CN-NEWS-6c374447863c3475.html.gz",
+  "sha256": "38676a021bb81ec6c38df8f6917ebd4e71b7b5e5cacd01037993eb60f2fd5c8e",
+  "bytes": 3507429,
+  "compressedSha256": "b14810d02bd9a271c08c5f5daabd207bc0879bc3cebe876d0f6cc1cf4d1145fe",
+  "losslessGzipOriginalBytes": true,
+  "id": "CN-NEWS-6c374447863c3475",
+  "allListingRows": [
+    {
+      "name": "符文战场｜云顶之弈全球总决赛观赛活动 ",
+      "image": "https://cdn.playloltcg.com/lol/2025/11/2025-11-11/93efea0acf854cdfa65eff8389d458eb.jpg",
+      "pushDate": "2025-11-08",
+      "jumpType": "h5",
+      "appId": "",
+      "jumpUrl": "https://mp.weixin.qq.com/s/-8KW_AflfK-D68yXucUHhw",
+      "sort": 81
+    }
+  ],
+  "publishedAsListed": "2025-11-08",
+  "extractionErrorType": "TypeError",
+  "extractionError": "'int' object is not callable"
+}

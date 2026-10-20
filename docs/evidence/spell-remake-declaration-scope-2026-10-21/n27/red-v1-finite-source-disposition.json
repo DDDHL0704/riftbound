@@ -1,0 +1,11 @@
+{
+  "atUtc": "2026-10-20T16:48:18.945873+00:00",
+  "status": "RED_SCOPE_5_EMPTY_REMAKE_WINDOWS_PLUS_2_REAL_ZERO_TARGET_REJECTIONS_AND_1_BROADER_MODE_CONTROL_PASS",
+  "failedCases": 7,
+  "passedCases": 1,
+  "methods": 3,
+  "originalNewTestSourceSha256": "21982fee9b89ba9d164266aa840cc187564a366d6fcf05bc8d2ba76de826fffe",
+  "newZeroTargetFailuresNotFixtureCorrections": true,
+  "additionalSourceReview": "Current exact SFD080 printed face/API and DOC01 355.13 permit zero; inspect current FAQ before changing one registration. DOC13 extraction emitted reconstruction warning and is not complete semantic certification.",
+  "noReachabilitySearchOrOtherCardFamilyExpansion": true
+}

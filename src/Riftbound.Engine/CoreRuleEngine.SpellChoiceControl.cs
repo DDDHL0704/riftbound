@@ -113,6 +113,7 @@ public sealed partial class CoreRuleEngine
         var executions = (spell.RepeatExecutions ?? [new(spell.EffectKind, spell.TargetObjectIds,
             spell.TargetGenerations ?? new Dictionary<string, long>(), spell.MovementDestinations, spell.Destination)]).ToArray();
         remade = false;
+        if (!executions.Any(e => HasRemakableSpellDeclaration(spell, e, targetsOnly))) return spell;
         while (true)
         {
             var options = new List<RuleChoiceOption> { new("KEEP_ALL", "不做新的选择：保留所有原选择（包括已不合法的选择）") };
@@ -186,6 +187,17 @@ public sealed partial class CoreRuleEngine
             if (selected == "CONFIRM") { remade = true; return ApplyRemadeExecutions(state, spell, executions); }
             var edit = edits[selected]; executions[edit.Index] = edit.Execution;
         }
+    }
+
+    private static bool HasRemakableSpellDeclaration(StackItemState spell, SpellExecutionState execution, bool targetsOnly)
+    {
+        if (!CardBehaviorRegistry.TryGetByEffectKind(execution.EffectKind, out var behavior)) return false;
+        return behavior.RequiredTargetCount > 0 || behavior.AnyNumberOfTargets
+            || behavior.UsesFriendlyBattlefieldUnitCountAsMaxTargetCount
+            || IsStandbyReactionStackItem(behavior, spell)
+            || !targetsOnly && (behavior.CommandedMovement is not null || behavior.MovesTargetsToChosenLocation
+                || behavior.MovesTargetsSequentially
+                || CardBehaviorRegistry.GetAll().Any(other => other.CardNo == spell.CardNo && other.EffectKind != execution.EffectKind));
     }
 
     private static string ChoiceObjectLabel(MatchState state, string id)

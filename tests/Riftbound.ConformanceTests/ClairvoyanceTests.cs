@@ -179,7 +179,8 @@ public sealed class ClairvoyanceTests
         state = (await Act(state, "P1", new PassPriorityCommand())).State;
         state = (await Act(state, "P2", new PlayCardCommand("REVERSAL", "OGN·080/298", [parent], OptionalCosts: []))).State;
         state = (await ResolveTop(state)).State;
-        state = await RebuttalRulesTests.Choose(state, "KEEP_ALL");
+        Assert.Null(state.PendingRuleChoice);
+        Assert.Equal("P2", Assert.Single(state.StackItems).ControllerId);
         state = (await ResolveTop(state)).State;
         var choice = Assert.IsType<PendingCardChoiceState>(state.PendingCardChoice);
         Assert.Equal("P2", choice.PlayerId); Assert.Equal(new[] { "E1", "E2" }, choice.ContextObjectIds);

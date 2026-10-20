@@ -1,0 +1,41 @@
+{
+  "url": "https://mp.weixin.qq.com/s/o-omeFHEMP9K424dQmdKkA",
+  "request": null,
+  "attemptedAtUtc": "2026-10-20T16:15:14.995050+00:00",
+  "roundApplicableAsOf": "2026-10-21",
+  "region": "CN",
+  "language": "zh-CN",
+  "timezone": "Asia/Shanghai",
+  "firstPublicationIndependentlyConfirmed": null,
+  "effectiveDateIndependentlyConfirmed": null,
+  "semanticReview": "OPEN",
+  "runtimeAuthorityChanged": false,
+  "resolvedUrl": "https://mp.weixin.qq.com/s/o-omeFHEMP9K424dQmdKkA",
+  "httpStatus": 200,
+  "responseHeaders": {
+    "Last-Modified": "Wed, 21 Oct 2026 00:15:15 +0800",
+    "Content-Type": "text/html; charset=UTF-8"
+  },
+  "status": "SOURCE_EXTRACTION_GAP_WITH_ORIGINAL_RESPONSE_RETAINED",
+  "receivedAtUtc": "2026-10-20T16:15:19.219175+00:00",
+  "path": "var/qa/source-round-20261021/news/CN-NEWS-81ca799467dfae8f.html.gz",
+  "sha256": "5d238c58b22754569cd277e2bcd3b695a5a0485620b1782e0df4fe71b30fff2c",
+  "bytes": 3458583,
+  "compressedSha256": "24dd2878638687fe2141301dbd31aae80c60ef68eed2c9786434f9b5138290c3",
+  "losslessGzipOriginalBytes": true,
+  "id": "CN-NEWS-81ca799467dfae8f",
+  "allListingRows": [
+    {
+      "name": "活跃福利 | LPL总决赛邀你观赛",
+      "image": "https://cdn.playloltcg.com/lol/2025/09/2025-09-03/3a3a3e39e9054d1bb7f51dd469dde587.jpg",
+      "pushDate": "2025-09-03",
+      "jumpType": "h5",
+      "appId": "",
+      "jumpUrl": "https://mp.weixin.qq.com/s/o-omeFHEMP9K424dQmdKkA",
+      "sort": 66
+    }
+  ],
+  "publishedAsListed": "2025-09-03",
+  "extractionErrorType": "TypeError",
+  "extractionError": "'int' object is not callable"
+}

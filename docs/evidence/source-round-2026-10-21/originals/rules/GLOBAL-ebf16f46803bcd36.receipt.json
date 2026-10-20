@@ -1,0 +1,49 @@
+{
+  "url": "https://riftbound.leagueoflegends.com/en-us/news/rules-and-releases/riftbound-origins-card-errata/",
+  "request": null,
+  "attemptedAtUtc": "2026-10-20T16:11:52.409258+00:00",
+  "region": "GLOBAL",
+  "language": "en-US",
+  "roundApplicableAsOf": "2026-10-21",
+  "timezone": "Asia/Shanghai",
+  "firstPublicationIndependentlyConfirmed": null,
+  "effectiveDateIndependentlyConfirmed": null,
+  "semanticCertification": false,
+  "runtimeAuthorityAdopted": false,
+  "resolvedUrl": "https://playriftbound.com/en-us/news/rules-and-releases/riftbound-origins-card-errata/",
+  "httpStatus": 200,
+  "responseHeaders": {
+    "Date": "Tue, 20 Oct 2026 16:11:54 GMT",
+    "ETag": "\"14cc2p0slvh3o4k\"",
+    "Age": "221",
+    "Cache-Control": "public,max-age=0,must-revalidate",
+    "Content-Type": "text/html; charset=utf-8"
+  },
+  "receivedAtUtc": "2026-10-20T16:11:54.931554+00:00",
+  "sha256": "eee9c277e5507c3702d96bdffbf2cc15089ca1f5a08ff3941cb177d220825418",
+  "bytes": 171460,
+  "path": "var/qa/source-round-20261021/rules/GLOBAL-ebf16f46803bcd36.gz",
+  "losslessGzipRawResponse": true,
+  "compressedSha256": "3ece410dd40a9a5cfa262241ca238ffa4c623f97586b72df9fc1a1bccf2cb888",
+  "status": "FETCHED_CURRENT_ORIGINAL_BYTES_NOT_CERTIFICATION",
+  "kind": "article",
+  "priorReference": {
+    "path": "var/qa/cn-effective-20261016/whole-rule-source-readback/GLOBAL/ebf16f46803bcd36",
+    "sha256": "c2f5b5589175e78b04d1b9af86b7d7ab3a68f1c4ddfb126de0287257174a0144"
+  },
+  "matchesPriorRawBytes": false,
+  "title": "Riftbound: Origins Card Errata",
+  "displayedPublishDate": "2025-10-28T01:00:00.000Z",
+  "revision": "P2jdEKc6GZf6O4yCyb7qAi",
+  "contentBladeTypes": [
+    "riotbar",
+    "articleMasthead",
+    "articleRichText",
+    "articleCardCarousel"
+  ],
+  "bodyPath": "var/qa/source-round-20261021/rules/GLOBAL-ebf16f46803bcd36.body.html.gz",
+  "bodyHtmlSha256": "b4df1ce3b9e19c988544e2206d124567ed088d61b16c90e16b6c063ca713183a",
+  "bodyMatchesLatestPrior": true,
+  "bodyMatchesFrozenOctober12": true,
+  "newUrlNotInFrozenInventory": false
+}

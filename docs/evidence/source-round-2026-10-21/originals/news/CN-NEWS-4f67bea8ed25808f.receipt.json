@@ -1,0 +1,41 @@
+{
+  "url": "https://mp.weixin.qq.com/s/tkrxH3wJxHUa4ru2aPKr2A",
+  "request": null,
+  "attemptedAtUtc": "2026-10-20T16:14:14.009954+00:00",
+  "roundApplicableAsOf": "2026-10-21",
+  "region": "CN",
+  "language": "zh-CN",
+  "timezone": "Asia/Shanghai",
+  "firstPublicationIndependentlyConfirmed": null,
+  "effectiveDateIndependentlyConfirmed": null,
+  "semanticReview": "OPEN",
+  "runtimeAuthorityChanged": false,
+  "resolvedUrl": "https://mp.weixin.qq.com/s/tkrxH3wJxHUa4ru2aPKr2A",
+  "httpStatus": 200,
+  "responseHeaders": {
+    "Last-Modified": "Wed, 21 Oct 2026 00:14:15 +0800",
+    "Content-Type": "text/html; charset=UTF-8"
+  },
+  "status": "SOURCE_EXTRACTION_GAP_WITH_ORIGINAL_RESPONSE_RETAINED",
+  "receivedAtUtc": "2026-10-20T16:14:18.186695+00:00",
+  "path": "var/qa/source-round-20261021/news/CN-NEWS-4f67bea8ed25808f.html.gz",
+  "sha256": "121b9789e94323b0eba66112d173305e94e1e8fec5b412f268cdeefb2d407a0c",
+  "bytes": 3490255,
+  "compressedSha256": "e158efc857dd8f09115eed1401ac031dbe330e60911e4625a58bfec2a4446886",
+  "losslessGzipOriginalBytes": true,
+  "id": "CN-NEWS-4f67bea8ed25808f",
+  "allListingRows": [
+    {
+      "name": "《符文战场：英雄联盟对战卡牌》正式官宣。",
+      "image": "https://cdn.playloltcg.com/lol/841c85d5927040fd98738e84302517b9.png",
+      "pushDate": "2024-12-06",
+      "jumpType": "h5",
+      "appId": "",
+      "jumpUrl": "https://mp.weixin.qq.com/s/tkrxH3wJxHUa4ru2aPKr2A",
+      "sort": 1
+    }
+  ],
+  "publishedAsListed": "2024-12-06",
+  "extractionErrorType": "TypeError",
+  "extractionError": "'int' object is not callable"
+}

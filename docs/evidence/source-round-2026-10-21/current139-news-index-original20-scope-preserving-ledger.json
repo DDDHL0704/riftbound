@@ -1,0 +1,4590 @@
+{
+  "schemaVersion": 1,
+  "kind": "OFFICIAL_CN_NEWS_SOURCE_OBLIGATIONS",
+  "region": "CN",
+  "language": "zh-CN",
+  "applicableAsOf": "2026-10-16",
+  "semanticCoverageCertified": false,
+  "cardSource": {
+    "path": "data/official/upstream/2026-10-16/source-refresh-20261015T160523Z/card-catalog.zh-CN.json",
+    "sha256": "4f6a981a51d95e395820c1980f734645e1a5b56e454dbb8758ac3ce331162624"
+  },
+  "candidateInventory": {
+    "path": "docs/evidence/source-listing-2026-10-15/official-rule-news-candidates.json",
+    "sha256": "65a19685124ac21ed37ee2c54bbf5ae8aa3bff85c1c322a58e9bc799b3cd6ac9"
+  },
+  "documents": [
+    {
+      "id": "CN-NEWS-5bb5334bbf2c8df2",
+      "titleAsListed": "区域公开赛（沈阳）赛后判例",
+      "publishedAsListed": "2026-09-16",
+      "url": "https://mp.weixin.qq.com/s/Da9k8gCbcEpzYYKqV3xS8w",
+      "region": "CN",
+      "language": "zh-CN",
+      "auditApplicableAsOf": "2026-10-16",
+      "effectiveDate": null,
+      "publicationDateIndependentlyConfirmed": false,
+      "originalAttempt": {
+        "id": "CN-NEWS-5bb5334bbf2c8df2",
+        "titleAsListed": "区域公开赛（沈阳）赛后判例",
+        "publishedAsListed": "2026-09-16",
+        "url": "https://mp.weixin.qq.com/s/Da9k8gCbcEpzYYKqV3xS8w",
+        "fetchedAtUtc": "2026-10-15T11:00:36.191991+00:00",
+        "bodyStatus": "SOURCE_GAP_FETCH_ERROR",
+        "error": "URLError: <urlopen error [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1010)>"
+      },
+      "applicability": "OPEN_REQUIRES_CURRENT_REGIONAL_AND_CLAUSE_RECONCILIATION",
+      "semanticReview": "OPEN",
+      "wholePrintingCertified": false,
+      "blocks": [
+        {
+          "id": "CN-NEWS-5bb5334bbf2c8df2-T001",
+          "firstLine": 1,
+          "lastLine": 3,
+          "textSha256": "7f8747161c6c57bbfe576d5ed3785b25ff5912f8becd11a0449243be3a8db19e",
+          "referencedNames": [],
+          "exactNamePrintingCandidates": [],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-5bb5334bbf2c8df2-T002",
+          "firstLine": 4,
+          "lastLine": 8,
+          "textSha256": "297e7d899aca42947acc190537d440609b373182b817401fcad7bcd828ac82c0",
+          "referencedNames": [
+            "我流奥义！隼舞",
+            "天角牧者",
+            "迅捷蟹"
+          ],
+          "exactNamePrintingCandidates": [
+            {
+              "sourceId": 37843,
+              "printing": "VEN-140",
+              "nameAsReferenced": "我流奥义！隼舞",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            },
+            {
+              "sourceId": 33124,
+              "printing": "SFD-048/221",
+              "nameAsReferenced": "天角牧者",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            },
+            {
+              "sourceId": 34582,
+              "printing": "UNL-053/219",
+              "nameAsReferenced": "迅捷蟹",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            }
+          ],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-5bb5334bbf2c8df2-T003",
+          "firstLine": 9,
+          "lastLine": 11,
+          "textSha256": "bc4ee24ecf4d3bc962c61ceef5dba2a3ad36951d4bf33fd6bf29a71419b44624",
+          "referencedNames": [
+            "灵魂折镜"
+          ],
+          "exactNamePrintingCandidates": [
+            {
+              "sourceId": 37855,
+              "printing": "VEN-152",
+              "nameAsReferenced": "灵魂折镜",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            }
+          ],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-5bb5334bbf2c8df2-T004",
+          "firstLine": 12,
+          "lastLine": 14,
+          "textSha256": "42afd1bc5e4e75e4a3b83982f3400f8b3b911aa401136bbc74952f598fe86cbf",
+          "referencedNames": [
+            "换换乐",
+            "月蚀"
+          ],
+          "exactNamePrintingCandidates": [
+            {
+              "sourceId": 33237,
+              "printing": "SFD-145/221",
+              "nameAsReferenced": "换换乐",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            },
+            {
+              "sourceId": 34596,
+              "printing": "UNL-063/219",
+              "nameAsReferenced": "月蚀",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            }
+          ],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-5bb5334bbf2c8df2-T005",
+          "firstLine": 15,
+          "lastLine": 17,
+          "textSha256": "06949756afc850baa61a5b962e633f09fc39435ea0d333e72d6f1145c825b45f",
+          "referencedNames": [
+            "恶意收购",
+            "星界灵鹭"
+          ],
+          "exactNamePrintingCandidates": [
+            {
+              "sourceId": 33301,
+              "printing": "SFD-202/221",
+              "nameAsReferenced": "恶意收购",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            },
+            {
+              "sourceId": 37983,
+              "printing": "VEN-044",
+              "nameAsReferenced": "星界灵鹭",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            }
+          ],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-5bb5334bbf2c8df2-T006",
+          "firstLine": 18,
+          "lastLine": 20,
+          "textSha256": "4dc47356b6c288872a48155e65b99ddd318459925ec8533fb272de80e9411e4f",
+          "referencedNames": [
+            "派克 - 深渊再临"
+          ],
+          "exactNamePrintingCandidates": [
+            {
+              "sourceId": 34689,
+              "printing": "UNL-145/219",
+              "nameAsReferenced": "派克 - 深渊再临",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            },
+            {
+              "sourceId": 34690,
+              "printing": "UNL-145A/219",
+              "nameAsReferenced": "派克 - 深渊再临",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            }
+          ],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        }
+      ],
+      "images": [],
+      "acquisitionState": "ARTICLE_RETRIEVED",
+      "fetchedAtUtc": "2026-10-15T16:37:43.185592+00:00",
+      "receivedAtUtc": "2026-10-15T16:37:49.817477+00:00",
+      "archivedHtml": {
+        "gzip": {
+          "path": "data/official/upstream/2026-10-16/news-readback-20261015T163742Z/CN-NEWS-5bb5334bbf2c8df2.html.gz",
+          "sha256": "a300ded390e6fb0dd692850cd030f173639e58a364d24f358e540ec47c1240da"
+        },
+        "rawSha256": "c591578e7a75dbb3d547585a31841e983eefec7262fa80bb7f7ac4225126f5e1",
+        "rawBytes": 3493438
+      },
+      "bodyText": {
+        "path": "data/official/upstream/2026-10-16/news-readback-20261015T163742Z/CN-NEWS-5bb5334bbf2c8df2.txt",
+        "sha256": "aad2a4bc149db65d68ff5e84228b3a249f08ad9fb6934c2a74d01b98f6e7e8e5"
+      },
+      "extractionVersion": "js-content-tag-stack-v2",
+      "textExtractionCoverage": "TAG_STACK_ROOT_CLOSED_ALL_TEXT_RETAINED_IMAGES_SEPARATE"
+    },
+    {
+      "id": "CN-NEWS-e3423780ce3aad29",
+      "titleAsListed": "第三赛季全国公开赛（北京）赛后判例",
+      "publishedAsListed": "2026-07-23",
+      "url": "https://mp.weixin.qq.com/s/VjPMb6KSVJ7XgpajrQKcLg",
+      "region": "CN",
+      "language": "zh-CN",
+      "auditApplicableAsOf": "2026-10-16",
+      "effectiveDate": null,
+      "publicationDateIndependentlyConfirmed": false,
+      "originalAttempt": {
+        "id": "CN-NEWS-e3423780ce3aad29",
+        "titleAsListed": "第三赛季全国公开赛（北京）赛后判例",
+        "publishedAsListed": "2026-07-23",
+        "url": "https://mp.weixin.qq.com/s/VjPMb6KSVJ7XgpajrQKcLg",
+        "fetchedAtUtc": "2026-10-15T11:00:36.192330+00:00",
+        "bodyStatus": "SOURCE_GAP_FETCH_ERROR",
+        "error": "URLError: <urlopen error [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1010)>"
+      },
+      "applicability": "OPEN_REQUIRES_CURRENT_REGIONAL_AND_CLAUSE_RECONCILIATION",
+      "semanticReview": "OPEN",
+      "wholePrintingCertified": false,
+      "blocks": [
+        {
+          "id": "CN-NEWS-e3423780ce3aad29-T001",
+          "firstLine": 1,
+          "lastLine": 2,
+          "textSha256": "699953a158508b6d2aebe89e204a9cab59e3da339b4b9982ae8ce9e9066518b9",
+          "referencedNames": [],
+          "exactNamePrintingCandidates": [],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-e3423780ce3aad29-T002",
+          "firstLine": 3,
+          "lastLine": 7,
+          "textSha256": "5c7e6f5e8c9effcabbfb3373555a5755212dc2175c7bbbf9c31704b947b520f0",
+          "referencedNames": [
+            "提莫 - 军事家",
+            "造化弄人",
+            "禁忌荒原"
+          ],
+          "exactNamePrintingCandidates": [
+            {
+              "sourceId": 31342,
+              "printing": "OGN-121/298",
+              "nameAsReferenced": "提莫 - 军事家",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            },
+            {
+              "sourceId": 31343,
+              "printing": "OGN-121A/298",
+              "nameAsReferenced": "提莫 - 军事家",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            },
+            {
+              "sourceId": 33334,
+              "printing": "SFD-230/221",
+              "nameAsReferenced": "提莫 - 军事家",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            },
+            {
+              "sourceId": 33335,
+              "printing": "SFD-230*/221",
+              "nameAsReferenced": "提莫 - 军事家",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            },
+            {
+              "sourceId": 34671,
+              "printing": "UNL-128/219",
+              "nameAsReferenced": "造化弄人",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            },
+            {
+              "sourceId": 34763,
+              "printing": "UNL-210/219",
+              "nameAsReferenced": "禁忌荒原",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            }
+          ],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-e3423780ce3aad29-T003",
+          "firstLine": 8,
+          "lastLine": 12,
+          "textSha256": "f063f04b85839b45637031457b281cd5b84ab415698d31e31bbf7de11e8d5090",
+          "referencedNames": [
+            "乐芙兰 - 诡术妖姬",
+            "流星疗泉",
+            "织魂者",
+            "罡风",
+            "映像"
+          ],
+          "exactNamePrintingCandidates": [
+            {
+              "sourceId": 34768,
+              "printing": "UNL-215/219",
+              "nameAsReferenced": "流星疗泉",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            },
+            {
+              "sourceId": 37823,
+              "printing": "VEN-123",
+              "nameAsReferenced": "织魂者",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            },
+            {
+              "sourceId": 31399,
+              "printing": "OGN-169/298",
+              "nameAsReferenced": "罡风",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            }
+          ],
+          "unboundReferenceNames": [
+            "乐芙兰 - 诡术妖姬",
+            "映像"
+          ],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-e3423780ce3aad29-T004",
+          "firstLine": 13,
+          "lastLine": 19,
+          "textSha256": "b9cc89ca9a6528da96b8120d872914b8bf96b2741cc500b10fc201dc20cc8952",
+          "referencedNames": [
+            "远见面具",
+            "迅捷蟹",
+            "雷恩加尔 - 异兽猎手"
+          ],
+          "exactNamePrintingCandidates": [
+            {
+              "sourceId": 31272,
+              "printing": "OGN-060/298",
+              "nameAsReferenced": "远见面具",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            },
+            {
+              "sourceId": 34582,
+              "printing": "UNL-053/219",
+              "nameAsReferenced": "迅捷蟹",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            },
+            {
+              "sourceId": 34662,
+              "printing": "UNL-120/219",
+              "nameAsReferenced": "雷恩加尔 - 异兽猎手",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            },
+            {
+              "sourceId": 34663,
+              "printing": "UNL-120A/219",
+              "nameAsReferenced": "雷恩加尔 - 异兽猎手",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            },
+            {
+              "sourceId": 37882,
+              "printing": "VEN-179",
+              "nameAsReferenced": "雷恩加尔 - 异兽猎手",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            }
+          ],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        }
+      ],
+      "images": [],
+      "acquisitionState": "ARTICLE_RETRIEVED",
+      "fetchedAtUtc": "2026-10-15T16:37:43.185876+00:00",
+      "receivedAtUtc": "2026-10-15T16:37:48.039411+00:00",
+      "archivedHtml": {
+        "gzip": {
+          "path": "data/official/upstream/2026-10-16/news-readback-20261015T163742Z/CN-NEWS-e3423780ce3aad29.html.gz",
+          "sha256": "f7562f3ad168030ccda67fcd8248806c118d9a90488e312b4bf32e3d04409331"
+        },
+        "rawSha256": "26e4b6331005edcb055a5aa1ec0b5ceafdb334c901aec145cc2d5bef9316db13",
+        "rawBytes": 3502850
+      },
+      "bodyText": {
+        "path": "data/official/upstream/2026-10-16/news-readback-20261015T163742Z/CN-NEWS-e3423780ce3aad29.txt",
+        "sha256": "82180ed2343c32127344977e3a13938760c85edc450e5cff2e029096f9940a60"
+      },
+      "extractionVersion": "js-content-tag-stack-v2",
+      "textExtractionCoverage": "TAG_STACK_ROOT_CLOSED_ALL_TEXT_RETAINED_IMAGES_SEPARATE"
+    },
+    {
+      "id": "CN-NEWS-edff34f774e4ef51",
+      "titleAsListed": "核心规则 更新",
+      "publishedAsListed": "2026-07-17",
+      "url": "https://mp.weixin.qq.com/s/wStrxHZX-8xDBQ94run9yw",
+      "region": "CN",
+      "language": "zh-CN",
+      "auditApplicableAsOf": "2026-10-16",
+      "effectiveDate": null,
+      "publicationDateIndependentlyConfirmed": false,
+      "originalAttempt": {
+        "id": "CN-NEWS-edff34f774e4ef51",
+        "titleAsListed": "核心规则 更新",
+        "publishedAsListed": "2026-07-17",
+        "url": "https://mp.weixin.qq.com/s/wStrxHZX-8xDBQ94run9yw",
+        "fetchedAtUtc": "2026-10-15T11:00:36.192562+00:00",
+        "bodyStatus": "SOURCE_GAP_FETCH_ERROR",
+        "error": "URLError: <urlopen error [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1010)>"
+      },
+      "applicability": "OPEN_REQUIRES_CURRENT_REGIONAL_AND_CLAUSE_RECONCILIATION",
+      "semanticReview": "OPEN",
+      "wholePrintingCertified": false,
+      "blocks": [
+        {
+          "id": "CN-NEWS-edff34f774e4ef51-T001",
+          "firstLine": 1,
+          "lastLine": 316,
+          "textSha256": "c8b60fe11a86bca53a2f935dbd6684811161d2865839f72485d028f4863b5d1e",
+          "referencedNames": [],
+          "exactNamePrintingCandidates": [],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        }
+      ],
+      "images": [
+        {
+          "id": "CN-NEWS-edff34f774e4ef51-I001",
+          "ordinal": 1,
+          "url": "https://mmecoa.qpic.cn/mmecoa_png/QD913GwJEgAoDzKAwq8JPnVf8ia936t1EqKQnlicenMV2Rf3pqo4RHVT3xKMhrVsrZcbhgerwABcrYprunwuAiaItISj53RrDoTOCyrSaTzzk4/640?wx_fmt=png&from=appmsg",
+          "bytes": {
+            "path": "data/official/upstream/2026-10-16/news-readback-20261015T163742Z/images/756cec8d776409562dcefe16edaf1de54a277d5b244e3e6e05c88587040b292e.png",
+            "sha256": "756cec8d776409562dcefe16edaf1de54a277d5b244e3e6e05c88587040b292e"
+          },
+          "visualReview": "OPEN",
+          "semanticReview": "OPEN",
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN"
+        },
+        {
+          "id": "CN-NEWS-edff34f774e4ef51-I002",
+          "ordinal": 2,
+          "url": "https://mmecoa.qpic.cn/mmecoa_png/QD913GwJEgD3r4uSo8XFK4fnxichE4QeOWBaEKDwWSUd2icC7pPVcOsyZ700rsOlwCSHV1eAsGG7JuZ4kYic1W7ibiaAHTmCCveSax25yCKWLO9w/640?wx_fmt=png&from=appmsg",
+          "bytes": {
+            "path": "data/official/upstream/2026-10-16/news-readback-20261015T163742Z/images/ac363fa7e8f27ec0b7ebd35c4bb584b9bf98f632b77b975a79551994e7c68222.png",
+            "sha256": "ac363fa7e8f27ec0b7ebd35c4bb584b9bf98f632b77b975a79551994e7c68222"
+          },
+          "visualReview": "OPEN",
+          "semanticReview": "OPEN",
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN"
+        },
+        {
+          "id": "CN-NEWS-edff34f774e4ef51-I003",
+          "ordinal": 3,
+          "url": "https://mmecoa.qpic.cn/mmecoa_png/QD913GwJEgD9SvHAGvq5u2mdqZuVN1C83UQyuRhTtXfyzpoS5aGccLhDmJib0Z62icqC6LP5CXROyCES4wNMwpdU5uMG80m0HJn31mzrLpQjc/640?wx_fmt=png&from=appmsg",
+          "bytes": {
+            "path": "data/official/upstream/2026-10-16/news-readback-20261015T163742Z/images/fd8d4fac3e9efba8179468e10f9ecc4a35272f6a95e74defb7b5d7eb4aae99fa.png",
+            "sha256": "fd8d4fac3e9efba8179468e10f9ecc4a35272f6a95e74defb7b5d7eb4aae99fa"
+          },
+          "visualReview": "OPEN",
+          "semanticReview": "OPEN",
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN"
+        },
+        {
+          "id": "CN-NEWS-edff34f774e4ef51-I004",
+          "ordinal": 4,
+          "url": "https://mmecoa.qpic.cn/mmecoa_png/QD913GwJEgDXQHDLq8R01YYSlhwAMjiajSU2axv4piajBFO0fI7lnArFfgcKp1Oiake6lVmw3SdtxqD7twBS3c08a3HYIscoUnvMna7E1ibXTek/640?wx_fmt=png&from=appmsg",
+          "bytes": {
+            "path": "data/official/upstream/2026-10-16/news-readback-20261015T163742Z/images/6b9392bf794f7b6d8a9d48fc353acc700c91f3fad5d978c42e41791f28d2e25a.png",
+            "sha256": "6b9392bf794f7b6d8a9d48fc353acc700c91f3fad5d978c42e41791f28d2e25a"
+          },
+          "visualReview": "OPEN",
+          "semanticReview": "OPEN",
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN"
+        },
+        {
+          "id": "CN-NEWS-edff34f774e4ef51-I005",
+          "ordinal": 5,
+          "url": "https://mmecoa.qpic.cn/sz_mmecoa_png/QD913GwJEgDBBGwkxUEPA5ia4LLUby8YSeo3cfuymLict5EVG1GPqibkA4kz57EkmicVSZohRl3REjOfOypDLtpQq2zF6hzAPQkFufVMffEBQWQ/640?wx_fmt=png&from=appmsg",
+          "bytes": {
+            "path": "data/official/upstream/2026-10-16/news-readback-20261015T163742Z/images/7b2756112780ce8910b4b9b36a2b02014fc0fc308f3747583eb2a1b06a84c49f.png",
+            "sha256": "7b2756112780ce8910b4b9b36a2b02014fc0fc308f3747583eb2a1b06a84c49f"
+          },
+          "visualReview": "OPEN",
+          "semanticReview": "OPEN",
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN"
+        },
+        {
+          "id": "CN-NEWS-edff34f774e4ef51-I006",
+          "ordinal": 6,
+          "url": "https://mmecoa.qpic.cn/sz_mmecoa_png/QD913GwJEgA8OrIWMibxrdZP2oN9lUu4sbowEobvXysVI1FJ5DlpCqCLDpklz4TDiaRlcFiaNTp9NdMoHzL3Tlribh5v7ee6sg2CTfiaQWsALiajQ/640?wx_fmt=png&from=appmsg",
+          "bytes": {
+            "path": "data/official/upstream/2026-10-16/news-readback-20261015T163742Z/images/b5dcf39f4ea0bd0605fab7c8328e06e9ee72cee51f09e503eefff6aaf634ea7e.png",
+            "sha256": "b5dcf39f4ea0bd0605fab7c8328e06e9ee72cee51f09e503eefff6aaf634ea7e"
+          },
+          "visualReview": "OPEN",
+          "semanticReview": "OPEN",
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN"
+        },
+        {
+          "id": "CN-NEWS-edff34f774e4ef51-I007",
+          "ordinal": 7,
+          "url": "https://mmecoa.qpic.cn/mmecoa_png/QD913GwJEgBVzOCbAiclF4UGmcegActDibKzXbpO12d7JnyV58gHicgibzicG9OrsWewANiaEH0ajR2QicoO2ZRNYyf7bOXTJibcuubIPxuWlGn8LKs/640?wx_fmt=png&from=appmsg",
+          "bytes": {
+            "path": "data/official/upstream/2026-10-16/news-readback-20261015T163742Z/images/dfb4a3f58de6b35a300fd1f9611296313004bde64b504bff1d44ec4e55a97622.png",
+            "sha256": "dfb4a3f58de6b35a300fd1f9611296313004bde64b504bff1d44ec4e55a97622"
+          },
+          "visualReview": "OPEN",
+          "semanticReview": "OPEN",
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN"
+        },
+        {
+          "id": "CN-NEWS-edff34f774e4ef51-I008",
+          "ordinal": 8,
+          "url": "https://mmecoa.qpic.cn/sz_mmecoa_png/QD913GwJEgDlqLRY3JSBnMdSaMfGWk4tuur3v332qiamqibiaVoxIKGubpRqWicvic7xkibybgG2fq62ictZIIot4p0iaapHD0zJZtUaAFTtzdTPgAM/640?wx_fmt=png&from=appmsg",
+          "bytes": {
+            "path": "data/official/upstream/2026-10-16/news-readback-20261015T163742Z/images/d23a651578d6b4547d42d9e007d772b9379d19f8f36fa37f80d8949f8cf3e761.png",
+            "sha256": "d23a651578d6b4547d42d9e007d772b9379d19f8f36fa37f80d8949f8cf3e761"
+          },
+          "visualReview": "OPEN",
+          "semanticReview": "OPEN",
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN"
+        },
+        {
+          "id": "CN-NEWS-edff34f774e4ef51-I009",
+          "ordinal": 9,
+          "url": "https://mmecoa.qpic.cn/mmecoa_png/QD913GwJEgAcpvxW9zoUfzEu7KUyq4N0A1WkFr9IyPqUaed0HYxiaRBDBJvt7jlkMibjUhjrL75RJwxe1Pu116sQSehEzkoKKmaDTpic6gHibKk/640?wx_fmt=png&from=appmsg",
+          "bytes": {
+            "path": "data/official/upstream/2026-10-16/news-readback-20261015T163742Z/images/58996a17a8d95a8817ed09ac646799a42276c01ee3e4bb89429980385d1589aa.png",
+            "sha256": "58996a17a8d95a8817ed09ac646799a42276c01ee3e4bb89429980385d1589aa"
+          },
+          "visualReview": "OPEN",
+          "semanticReview": "OPEN",
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN"
+        },
+        {
+          "id": "CN-NEWS-edff34f774e4ef51-I010",
+          "ordinal": 10,
+          "url": "https://mmecoa.qpic.cn/mmecoa_png/QD913GwJEgAs4gpA2icetgFrG6vGIqbtUSMBUvJqpoqJC3xMo3AiaicLWsekUfsickJGBluJzHXHzXtg3icUaxljPqoMib9Y7qb6LPgYo3ibJn9ofs/640?wx_fmt=png&from=appmsg",
+          "bytes": {
+            "path": "data/official/upstream/2026-10-16/news-readback-20261015T163742Z/images/4175e3817bacd7199c3bd5fe094941346d745b57e006891fbb4bacfadac137ae.png",
+            "sha256": "4175e3817bacd7199c3bd5fe094941346d745b57e006891fbb4bacfadac137ae"
+          },
+          "visualReview": "OPEN",
+          "semanticReview": "OPEN",
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN"
+        },
+        {
+          "id": "CN-NEWS-edff34f774e4ef51-I011",
+          "ordinal": 11,
+          "url": "https://mmecoa.qpic.cn/sz_mmecoa_png/QD913GwJEgCOHIxuA53j08jtI1Z9Gia6OWzfSulZzPtzEOwLfbr4E19QbiaSRhDJG2ZMhBlRujyWcalwesmOr41dG2F1hv90ribUDxa7pBGDaY/640?wx_fmt=png&from=appmsg",
+          "bytes": {
+            "path": "data/official/upstream/2026-10-16/news-readback-20261015T163742Z/images/7229e5f865b909fec533eb729f46879815b553bb71a52bf706608aeeeb294ea2.png",
+            "sha256": "7229e5f865b909fec533eb729f46879815b553bb71a52bf706608aeeeb294ea2"
+          },
+          "visualReview": "OPEN",
+          "semanticReview": "OPEN",
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN"
+        },
+        {
+          "id": "CN-NEWS-edff34f774e4ef51-I012",
+          "ordinal": 12,
+          "url": "https://mmecoa.qpic.cn/sz_mmecoa_png/QD913GwJEgCRJBn4AXwg20J1m8ichu7fTha0u3AzoEEHN5hiboGVwel4AGnVBQYceDiaoLy3PED6orBBwPrCkAwXaujTgpAcWQfR06oOTOVNicg/640?wx_fmt=png&from=appmsg",
+          "bytes": {
+            "path": "data/official/upstream/2026-10-16/news-readback-20261015T163742Z/images/0bc14fa32bb17fb7e7b9e3c84fafc4c4ab7a9b51efd452cfcda0e5d1fa6d3fec.png",
+            "sha256": "0bc14fa32bb17fb7e7b9e3c84fafc4c4ab7a9b51efd452cfcda0e5d1fa6d3fec"
+          },
+          "visualReview": "OPEN",
+          "semanticReview": "OPEN",
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN"
+        },
+        {
+          "id": "CN-NEWS-edff34f774e4ef51-I013",
+          "ordinal": 13,
+          "url": "https://mmecoa.qpic.cn/sz_mmecoa_png/QD913GwJEgCR1gSVnbaKod6RNloIr84YGIarSGicUNO89CgbFogIiaSzHkS5Ca8g7KK6AV6icAJveiaWIDdibVibkCJSpvL6qq2tr3GibaQrg5wSG8/640?wx_fmt=png&from=appmsg",
+          "bytes": {
+            "path": "data/official/upstream/2026-10-16/news-readback-20261015T163742Z/images/b71188a37b9179129c6304b1ec13b922e63e70fdb32246803fab3eadc560c616.png",
+            "sha256": "b71188a37b9179129c6304b1ec13b922e63e70fdb32246803fab3eadc560c616"
+          },
+          "visualReview": "OPEN",
+          "semanticReview": "OPEN",
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN"
+        },
+        {
+          "id": "CN-NEWS-edff34f774e4ef51-I014",
+          "ordinal": 14,
+          "url": "https://mmecoa.qpic.cn/sz_mmecoa_png/QD913GwJEgCovOO4puwo0odcibPWNAEYbD6ibxJ9EnvThbnAugcodPPSjLFVv3XbDuXdOUkF5b9u95FJqttt1PJdzufBPbiciaxK7WBCW5Sh6aA/640?wx_fmt=png&from=appmsg",
+          "bytes": {
+            "path": "data/official/upstream/2026-10-16/news-readback-20261015T163742Z/images/906596304dae677ccbc54656dc75d60feff010bd71f14614fd49825bc282a3e0.png",
+            "sha256": "906596304dae677ccbc54656dc75d60feff010bd71f14614fd49825bc282a3e0"
+          },
+          "visualReview": "OPEN",
+          "semanticReview": "OPEN",
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN"
+        },
+        {
+          "id": "CN-NEWS-edff34f774e4ef51-I015",
+          "ordinal": 15,
+          "url": "https://mmecoa.qpic.cn/mmecoa_jpg/QD913GwJEgCM8NpdMSTuQunu1Y2t4QUAxIcgK0ic5EMIicMC7HEiaEc4wZQNiaiclALict8k1knVpg9qEoxrIM0sT9UZqL7UjbGQHopHoQCGbmtQg/640?wx_fmt=jpeg&from=appmsg",
+          "bytes": {
+            "path": "data/official/upstream/2026-10-16/news-readback-20261015T163742Z/images/3ef3ddb2acb171944a0954dd9feabf2f170a10b998eb2bbc2adff994c21eaf21.jpg",
+            "sha256": "3ef3ddb2acb171944a0954dd9feabf2f170a10b998eb2bbc2adff994c21eaf21"
+          },
+          "visualReview": "OPEN",
+          "semanticReview": "OPEN",
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN"
+        }
+      ],
+      "acquisitionState": "ARTICLE_RETRIEVED",
+      "fetchedAtUtc": "2026-10-15T16:37:43.185993+00:00",
+      "receivedAtUtc": "2026-10-15T16:37:46.832382+00:00",
+      "archivedHtml": {
+        "gzip": {
+          "path": "data/official/upstream/2026-10-16/news-readback-20261015T163742Z/CN-NEWS-edff34f774e4ef51.html.gz",
+          "sha256": "6061521a441951335ace0517c97156276b85112063347754d3c0f5f41b2d6f0d"
+        },
+        "rawSha256": "6aff2d04d131b9efcf09455c8e94ba5ce5697bd30f58a476a74a4015330d3f8b",
+        "rawBytes": 3592985
+      },
+      "bodyText": {
+        "path": "data/official/upstream/2026-10-16/news-readback-20261015T163742Z/CN-NEWS-edff34f774e4ef51.txt",
+        "sha256": "c8b60fe11a86bca53a2f935dbd6684811161d2865839f72485d028f4863b5d1e"
+      },
+      "extractionVersion": "js-content-tag-stack-v2",
+      "textExtractionCoverage": "TAG_STACK_ROOT_CLOSED_ALL_TEXT_RETAINED_IMAGES_SEPARATE"
+    },
+    {
+      "id": "CN-NEWS-1c3bc93cde7f68e1",
+      "titleAsListed": " 区域公开赛（天津）赛后判例",
+      "publishedAsListed": "2026-06-10",
+      "url": "https://mp.weixin.qq.com/s/IdRg5ReGWyMFyhzsVz9q4g",
+      "region": "CN",
+      "language": "zh-CN",
+      "auditApplicableAsOf": "2026-10-16",
+      "effectiveDate": null,
+      "publicationDateIndependentlyConfirmed": false,
+      "originalAttempt": {
+        "id": "CN-NEWS-1c3bc93cde7f68e1",
+        "titleAsListed": " 区域公开赛（天津）赛后判例",
+        "publishedAsListed": "2026-06-10",
+        "url": "https://mp.weixin.qq.com/s/IdRg5ReGWyMFyhzsVz9q4g",
+        "fetchedAtUtc": "2026-10-15T11:00:36.192732+00:00",
+        "bodyStatus": "SOURCE_GAP_FETCH_ERROR",
+        "error": "URLError: <urlopen error [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1010)>"
+      },
+      "applicability": "OPEN_REQUIRES_CURRENT_REGIONAL_AND_CLAUSE_RECONCILIATION",
+      "semanticReview": "OPEN",
+      "wholePrintingCertified": false,
+      "blocks": [
+        {
+          "id": "CN-NEWS-1c3bc93cde7f68e1-T001",
+          "firstLine": 1,
+          "lastLine": 2,
+          "textSha256": "699953a158508b6d2aebe89e204a9cab59e3da339b4b9982ae8ce9e9066518b9",
+          "referencedNames": [],
+          "exactNamePrintingCandidates": [],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-1c3bc93cde7f68e1-T002",
+          "firstLine": 3,
+          "lastLine": 5,
+          "textSha256": "a9492050fd1fa501ad5c24eb84c56706bb77264ce5748e10aaebf55c26e39a58",
+          "referencedNames": [
+            "黛安娜 - 皎月化身"
+          ],
+          "exactNamePrintingCandidates": [
+            {
+              "sourceId": 34612,
+              "printing": "UNL-079/219",
+              "nameAsReferenced": "黛安娜 - 皎月化身",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            },
+            {
+              "sourceId": 34613,
+              "printing": "UNL-079A/219",
+              "nameAsReferenced": "黛安娜 - 皎月化身",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            }
+          ],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-1c3bc93cde7f68e1-T003",
+          "firstLine": 6,
+          "lastLine": 8,
+          "textSha256": "b748881160f7a619574d5bdbebbd4ee61394ee0105658d990456d5a6719f29cb",
+          "referencedNames": [
+            "黛安娜 - 皎月化身",
+            "罡风"
+          ],
+          "exactNamePrintingCandidates": [
+            {
+              "sourceId": 34612,
+              "printing": "UNL-079/219",
+              "nameAsReferenced": "黛安娜 - 皎月化身",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            },
+            {
+              "sourceId": 34613,
+              "printing": "UNL-079A/219",
+              "nameAsReferenced": "黛安娜 - 皎月化身",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            },
+            {
+              "sourceId": 31399,
+              "printing": "OGN-169/298",
+              "nameAsReferenced": "罡风",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            }
+          ],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-1c3bc93cde7f68e1-T004",
+          "firstLine": 9,
+          "lastLine": 13,
+          "textSha256": "72cb72673540141a126e627eaf89322444559c5939889818e9b4171d69412069",
+          "referencedNames": [
+            "黛安娜 - 皎月化身",
+            "驭风而行"
+          ],
+          "exactNamePrintingCandidates": [
+            {
+              "sourceId": 34612,
+              "printing": "UNL-079/219",
+              "nameAsReferenced": "黛安娜 - 皎月化身",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            },
+            {
+              "sourceId": 34613,
+              "printing": "UNL-079A/219",
+              "nameAsReferenced": "黛安娜 - 皎月化身",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            },
+            {
+              "sourceId": 31403,
+              "printing": "OGN-173/298",
+              "nameAsReferenced": "驭风而行",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            }
+          ],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-1c3bc93cde7f68e1-T005",
+          "firstLine": 14,
+          "lastLine": 19,
+          "textSha256": "1859c73c574659d8aca542fc813c3d1a094718e67981ebebe414b62b29b55c28",
+          "referencedNames": [
+            "薇古丝 - 冷眼旁观",
+            "控潮者"
+          ],
+          "exactNamePrintingCandidates": [
+            {
+              "sourceId": 34697,
+              "printing": "UNL-150/219",
+              "nameAsReferenced": "薇古丝 - 冷眼旁观",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            },
+            {
+              "sourceId": 34698,
+              "printing": "UNL-150A/219",
+              "nameAsReferenced": "薇古丝 - 冷眼旁观",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            },
+            {
+              "sourceId": 31433,
+              "printing": "OGN-199/298",
+              "nameAsReferenced": "控潮者",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            }
+          ],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-1c3bc93cde7f68e1-T006",
+          "firstLine": 20,
+          "lastLine": 25,
+          "textSha256": "14311e5d0a4a2243376dc13bf3ae7c5c158dd3b6e681de70f04a94fb3a25f9ed",
+          "referencedNames": [
+            "魅惑妖术",
+            "雷恩加尔 - 异兽猎手",
+            "蕾欧娜 - 炽诚者"
+          ],
+          "exactNamePrintingCandidates": [
+            {
+              "sourceId": 31255,
+              "printing": "OGN-043/298",
+              "nameAsReferenced": "魅惑妖术",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            },
+            {
+              "sourceId": 34662,
+              "printing": "UNL-120/219",
+              "nameAsReferenced": "雷恩加尔 - 异兽猎手",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            },
+            {
+              "sourceId": 34663,
+              "printing": "UNL-120A/219",
+              "nameAsReferenced": "雷恩加尔 - 异兽猎手",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            },
+            {
+              "sourceId": 37882,
+              "printing": "VEN-179",
+              "nameAsReferenced": "雷恩加尔 - 异兽猎手",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            },
+            {
+              "sourceId": 31476,
+              "printing": "OGN-238/298",
+              "nameAsReferenced": "蕾欧娜 - 炽诚者",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            },
+            {
+              "sourceId": 31477,
+              "printing": "OGN-238A/298",
+              "nameAsReferenced": "蕾欧娜 - 炽诚者",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            },
+            {
+              "sourceId": 37887,
+              "printing": "VEN-184",
+              "nameAsReferenced": "蕾欧娜 - 炽诚者",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            }
+          ],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        }
+      ],
+      "images": [],
+      "acquisitionState": "ARTICLE_RETRIEVED",
+      "fetchedAtUtc": "2026-10-15T16:37:46.833769+00:00",
+      "receivedAtUtc": "2026-10-15T16:37:50.747920+00:00",
+      "archivedHtml": {
+        "gzip": {
+          "path": "data/official/upstream/2026-10-16/news-readback-20261015T163742Z/CN-NEWS-1c3bc93cde7f68e1.html.gz",
+          "sha256": "732c99b0a37e1e0cbff67f6825a3bf8bc74def32be6b2285dfaeb86debe0e369"
+        },
+        "rawSha256": "c6a139c9d9e723b0edf1b4a1101bea98c299a6b5ba962323bdcabc3fa78d408e",
+        "rawBytes": 3476827
+      },
+      "bodyText": {
+        "path": "data/official/upstream/2026-10-16/news-readback-20261015T163742Z/CN-NEWS-1c3bc93cde7f68e1.txt",
+        "sha256": "aeceeca9932bdf969e64aa4ecb03e597baf0e2402188ac72a6a77fb7b7090310"
+      },
+      "extractionVersion": "js-content-tag-stack-v2",
+      "textExtractionCoverage": "TAG_STACK_ROOT_CLOSED_ALL_TEXT_RETAINED_IMAGES_SEPARATE"
+    },
+    {
+      "id": "CN-NEWS-7b5fe85db30616cf",
+      "titleAsListed": "区域公开赛（西安）赛后判例",
+      "publishedAsListed": "2026-06-05",
+      "url": "https://mp.weixin.qq.com/s/l1v1WbRO8vg3IzEdhlX5og",
+      "region": "CN",
+      "language": "zh-CN",
+      "auditApplicableAsOf": "2026-10-16",
+      "effectiveDate": null,
+      "publicationDateIndependentlyConfirmed": false,
+      "originalAttempt": {
+        "id": "CN-NEWS-7b5fe85db30616cf",
+        "titleAsListed": "区域公开赛（西安）赛后判例",
+        "publishedAsListed": "2026-06-05",
+        "url": "https://mp.weixin.qq.com/s/l1v1WbRO8vg3IzEdhlX5og",
+        "fetchedAtUtc": "2026-10-15T11:00:36.323554+00:00",
+        "bodyStatus": "SOURCE_GAP_FETCH_ERROR",
+        "error": "URLError: <urlopen error [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1010)>"
+      },
+      "applicability": "OPEN_REQUIRES_CURRENT_REGIONAL_AND_CLAUSE_RECONCILIATION",
+      "semanticReview": "OPEN",
+      "wholePrintingCertified": false,
+      "blocks": [
+        {
+          "id": "CN-NEWS-7b5fe85db30616cf-T001",
+          "firstLine": 1,
+          "lastLine": 2,
+          "textSha256": "699953a158508b6d2aebe89e204a9cab59e3da339b4b9982ae8ce9e9066518b9",
+          "referencedNames": [],
+          "exactNamePrintingCandidates": [],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-7b5fe85db30616cf-T002",
+          "firstLine": 3,
+          "lastLine": 5,
+          "textSha256": "6783283749decdbdfa232df500b3d0ade936d56ac0d84e6748f2267f061f944a",
+          "referencedNames": [
+            "涌泉之恨",
+            "中娅沙漏"
+          ],
+          "exactNamePrintingCandidates": [
+            {
+              "sourceId": 34739,
+              "printing": "UNL-186/219",
+              "nameAsReferenced": "涌泉之恨",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            },
+            {
+              "sourceId": 31291,
+              "printing": "OGN-077/298",
+              "nameAsReferenced": "中娅沙漏",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            }
+          ],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-7b5fe85db30616cf-T003",
+          "firstLine": 6,
+          "lastLine": 8,
+          "textSha256": "f212c946badb1aee910b8745b094e66855bf0c080957bd8d61c0202b21cc2c07",
+          "referencedNames": [
+            "薇古丝 - 冷眼旁观",
+            "闪耀极光"
+          ],
+          "exactNamePrintingCandidates": [
+            {
+              "sourceId": 34697,
+              "printing": "UNL-150/219",
+              "nameAsReferenced": "薇古丝 - 冷眼旁观",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            },
+            {
+              "sourceId": 34698,
+              "printing": "UNL-150A/219",
+              "nameAsReferenced": "薇古丝 - 冷眼旁观",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            },
+            {
+              "sourceId": 31386,
+              "printing": "OGN-160/298",
+              "nameAsReferenced": "闪耀极光",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            }
+          ],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-7b5fe85db30616cf-T004",
+          "firstLine": 9,
+          "lastLine": 14,
+          "textSha256": "6cd4cb2f6db43e6747e553b5dfef535671061eb6f2b439536a4abb72dbb061e7",
+          "referencedNames": [
+            "彗 - 焚心绘华",
+            "猛龙摆尾"
+          ],
+          "exactNamePrintingCandidates": [
+            {
+              "sourceId": 34614,
+              "printing": "UNL-080/219",
+              "nameAsReferenced": "彗 - 焚心绘华",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            },
+            {
+              "sourceId": 31500,
+              "printing": "OGN-258/298",
+              "nameAsReferenced": "猛龙摆尾",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            }
+          ],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-7b5fe85db30616cf-T005",
+          "firstLine": 15,
+          "lastLine": 17,
+          "textSha256": "5584eea130cf8172bb8b63a5da57a3af524032cb21b7ad972d8b6ad46f09cf32",
+          "referencedNames": [
+            "皮城学院",
+            "遗弃",
+            "卡牌骗术"
+          ],
+          "exactNamePrintingCandidates": [
+            {
+              "sourceId": 34769,
+              "printing": "UNL-216/219",
+              "nameAsReferenced": "皮城学院",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            },
+            {
+              "sourceId": 34674,
+              "printing": "UNL-131/219",
+              "nameAsReferenced": "遗弃",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            },
+            {
+              "sourceId": 38015,
+              "printing": "OGN-183/298",
+              "nameAsReferenced": "卡牌骗术",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            }
+          ],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-7b5fe85db30616cf-T006",
+          "firstLine": 18,
+          "lastLine": 20,
+          "textSha256": "46adf3eed9e036d4554a8345a422030a7916e1afe85190e53a4a165c504ff7ba",
+          "referencedNames": [
+            "娜美 - 移海之志"
+          ],
+          "exactNamePrintingCandidates": [
+            {
+              "sourceId": 34581,
+              "printing": "UNL-052/219",
+              "nameAsReferenced": "娜美 - 移海之志",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            }
+          ],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-7b5fe85db30616cf-T007",
+          "firstLine": 21,
+          "lastLine": 25,
+          "textSha256": "39fdb70cb489d52dc9528349e17af2ceb69136b10f0cbbb5f05204eaf845fc0f",
+          "referencedNames": [
+            "前来相助",
+            "拉文布鲁姆学生"
+          ],
+          "exactNamePrintingCandidates": [
+            {
+              "sourceId": 33197,
+              "printing": "SFD-111/221",
+              "nameAsReferenced": "前来相助",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            },
+            {
+              "sourceId": 31321,
+              "printing": "OGN-103/298",
+              "nameAsReferenced": "拉文布鲁姆学生",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            }
+          ],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        }
+      ],
+      "images": [],
+      "acquisitionState": "ARTICLE_RETRIEVED",
+      "fetchedAtUtc": "2026-10-15T16:37:48.040822+00:00",
+      "receivedAtUtc": "2026-10-15T16:37:51.472130+00:00",
+      "archivedHtml": {
+        "gzip": {
+          "path": "data/official/upstream/2026-10-16/news-readback-20261015T163742Z/CN-NEWS-7b5fe85db30616cf.html.gz",
+          "sha256": "1a9f25712b1656d4197aafd56623dd674baa660155d53d083954450d1a38b9a7"
+        },
+        "rawSha256": "88ac52a591c03269dec183b8ad4bf0904df7e6e30a4fe1a0ae9729367bd296bc",
+        "rawBytes": 3479368
+      },
+      "bodyText": {
+        "path": "data/official/upstream/2026-10-16/news-readback-20261015T163742Z/CN-NEWS-7b5fe85db30616cf.txt",
+        "sha256": "fc7c9ffd98ea269e594c14de3bdf0f6c851a33163a14d831471de638fc67265a"
+      },
+      "extractionVersion": "js-content-tag-stack-v2",
+      "textExtractionCoverage": "TAG_STACK_ROOT_CLOSED_ALL_TEXT_RETAINED_IMAGES_SEPARATE"
+    },
+    {
+      "id": "CN-NEWS-c9afef242b29c83e",
+      "titleAsListed": "区域公开赛（苏州）赛后判例",
+      "publishedAsListed": "2026-05-20",
+      "url": "https://mp.weixin.qq.com/s/9TYs-zptk76GijFITn2giQ",
+      "region": "CN",
+      "language": "zh-CN",
+      "auditApplicableAsOf": "2026-10-16",
+      "effectiveDate": null,
+      "publicationDateIndependentlyConfirmed": false,
+      "originalAttempt": {
+        "id": "CN-NEWS-c9afef242b29c83e",
+        "titleAsListed": "区域公开赛（苏州）赛后判例",
+        "publishedAsListed": "2026-05-20",
+        "url": "https://mp.weixin.qq.com/s/9TYs-zptk76GijFITn2giQ",
+        "fetchedAtUtc": "2026-10-15T11:00:36.593375+00:00",
+        "bodyStatus": "SOURCE_GAP_FETCH_ERROR",
+        "error": "URLError: <urlopen error [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1010)>"
+      },
+      "applicability": "OPEN_REQUIRES_CURRENT_REGIONAL_AND_CLAUSE_RECONCILIATION",
+      "semanticReview": "OPEN",
+      "wholePrintingCertified": false,
+      "blocks": [
+        {
+          "id": "CN-NEWS-c9afef242b29c83e-T001",
+          "firstLine": 1,
+          "lastLine": 3,
+          "textSha256": "7f8747161c6c57bbfe576d5ed3785b25ff5912f8becd11a0449243be3a8db19e",
+          "referencedNames": [],
+          "exactNamePrintingCandidates": [],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-c9afef242b29c83e-T002",
+          "firstLine": 4,
+          "lastLine": 9,
+          "textSha256": "d9670fa2c8def90983bb9b92907b5e9d96c47665e2fa17847c6fb63d74a86857",
+          "referencedNames": [
+            "月之降临",
+            "罡风"
+          ],
+          "exactNamePrintingCandidates": [
+            {
+              "sourceId": 34751,
+              "printing": "UNL-198/219",
+              "nameAsReferenced": "月之降临",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            },
+            {
+              "sourceId": 31399,
+              "printing": "OGN-169/298",
+              "nameAsReferenced": "罡风",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            }
+          ],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-c9afef242b29c83e-T003",
+          "firstLine": 10,
+          "lastLine": 12,
+          "textSha256": "72d4e19f3b0f8d878f5dfa7d02106d0f569e31a44640223957f3ea0f8d189ded",
+          "referencedNames": [
+            "牺牲",
+            "峡谷先锋"
+          ],
+          "exactNamePrintingCandidates": [
+            {
+              "sourceId": 34722,
+              "printing": "UNL-173/219",
+              "nameAsReferenced": "牺牲",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            },
+            {
+              "sourceId": 34731,
+              "printing": "UNL-179/219",
+              "nameAsReferenced": "峡谷先锋",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            },
+            {
+              "sourceId": 34732,
+              "printing": "UNL-179A/219",
+              "nameAsReferenced": "峡谷先锋",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            }
+          ],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-c9afef242b29c83e-T004",
+          "firstLine": 13,
+          "lastLine": 15,
+          "textSha256": "af1a753eedff7d00a22b1c30c32e15499225d88a509e63416a71a35394034fec",
+          "referencedNames": [
+            "卡银娜·薇蕊泽",
+            "卡兹克 - 恐怖畸变"
+          ],
+          "exactNamePrintingCandidates": [
+            {
+              "sourceId": 33276,
+              "printing": "SFD-179/221",
+              "nameAsReferenced": "卡银娜·薇蕊泽",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            },
+            {
+              "sourceId": 34686,
+              "printing": "UNL-143/219",
+              "nameAsReferenced": "卡兹克 - 恐怖畸变",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            },
+            {
+              "sourceId": 34687,
+              "printing": "UNL-143A/219",
+              "nameAsReferenced": "卡兹克 - 恐怖畸变",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            }
+          ],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-c9afef242b29c83e-T005",
+          "firstLine": 16,
+          "lastLine": 18,
+          "textSha256": "171a29b0597c405356ccfd66b31968f4b1cdae7ff294bd9f63a3c9e95cffcad8",
+          "referencedNames": [
+            "厄塔汗",
+            "中娅沙漏",
+            "奥恩 - 铁匠"
+          ],
+          "exactNamePrintingCandidates": [
+            {
+              "sourceId": 34718,
+              "printing": "UNL-170/219",
+              "nameAsReferenced": "厄塔汗",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            },
+            {
+              "sourceId": 31291,
+              "printing": "OGN-077/298",
+              "nameAsReferenced": "中娅沙漏",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            },
+            {
+              "sourceId": 33137,
+              "printing": "SFD-058/221",
+              "nameAsReferenced": "奥恩 - 铁匠",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            },
+            {
+              "sourceId": 33138,
+              "printing": "SFD-058A/221",
+              "nameAsReferenced": "奥恩 - 铁匠",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            }
+          ],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-c9afef242b29c83e-T006",
+          "firstLine": 19,
+          "lastLine": 21,
+          "textSha256": "72dc0f7e9f8a185f688e68f3286585893d9d3b64e2dcdd79ec93c95da1b7103e",
+          "referencedNames": [
+            "莱卓斯指挥官",
+            "中娅沙漏"
+          ],
+          "exactNamePrintingCandidates": [
+            {
+              "sourceId": 31469,
+              "printing": "OGN-231/298",
+              "nameAsReferenced": "莱卓斯指挥官",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            },
+            {
+              "sourceId": 31291,
+              "printing": "OGN-077/298",
+              "nameAsReferenced": "中娅沙漏",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            }
+          ],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-c9afef242b29c83e-T007",
+          "firstLine": 22,
+          "lastLine": 24,
+          "textSha256": "46ce160c4c7bca07ea28f5f13986e369ac0f3f188343edf04a88cecbeac0267e",
+          "referencedNames": [
+            "断魂一扼",
+            "中娅沙漏"
+          ],
+          "exactNamePrintingCandidates": [
+            {
+              "sourceId": 33257,
+              "printing": "SFD-163/221",
+              "nameAsReferenced": "断魂一扼",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            },
+            {
+              "sourceId": 31291,
+              "printing": "OGN-077/298",
+              "nameAsReferenced": "中娅沙漏",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            }
+          ],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-c9afef242b29c83e-T008",
+          "firstLine": 25,
+          "lastLine": 27,
+          "textSha256": "a52ac4eadea98efb6f9a2c94c35777b7a39f94a11f009832e9bdbffc95754686",
+          "referencedNames": [
+            "残酷复活",
+            "中娅沙漏"
+          ],
+          "exactNamePrintingCandidates": [
+            {
+              "sourceId": 34685,
+              "printing": "UNL-142/219",
+              "nameAsReferenced": "残酷复活",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            },
+            {
+              "sourceId": 31291,
+              "printing": "OGN-077/298",
+              "nameAsReferenced": "中娅沙漏",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            }
+          ],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-c9afef242b29c83e-T009",
+          "firstLine": 28,
+          "lastLine": 32,
+          "textSha256": "2a47b30420d7b0833a3c5f006cabd95c59ee936668ceba0ef279cb5d75e81b8c",
+          "referencedNames": [
+            "海兽钓钩",
+            "中娅沙漏"
+          ],
+          "exactNamePrintingCandidates": [
+            {
+              "sourceId": 31482,
+              "printing": "OGN-242/298",
+              "nameAsReferenced": "海兽钓钩",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            },
+            {
+              "sourceId": 31291,
+              "printing": "OGN-077/298",
+              "nameAsReferenced": "中娅沙漏",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            }
+          ],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-c9afef242b29c83e-T010",
+          "firstLine": 33,
+          "lastLine": 38,
+          "textSha256": "353bd0f6719e5a7dfde1e1afcb2a34e9f582458988d6e8e3dbb3b76443771fa9",
+          "referencedNames": [
+            "禁赛"
+          ],
+          "exactNamePrintingCandidates": [],
+          "unboundReferenceNames": [
+            "禁赛"
+          ],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        }
+      ],
+      "images": [],
+      "acquisitionState": "ARTICLE_RETRIEVED",
+      "fetchedAtUtc": "2026-10-15T16:37:49.818818+00:00",
+      "receivedAtUtc": "2026-10-15T16:37:54.580433+00:00",
+      "archivedHtml": {
+        "gzip": {
+          "path": "data/official/upstream/2026-10-16/news-readback-20261015T163742Z/CN-NEWS-c9afef242b29c83e.html.gz",
+          "sha256": "e255e62f11a90a03657d2c4131c53c66bfabbf0d10573f1b99747aea33f4cca3"
+        },
+        "rawSha256": "3e49d3f41155cd02214d1ef82044089ff8eb316b2924d251d27cdc60e321ef60",
+        "rawBytes": 3500342
+      },
+      "bodyText": {
+        "path": "data/official/upstream/2026-10-16/news-readback-20261015T163742Z/CN-NEWS-c9afef242b29c83e.txt",
+        "sha256": "e05dcad85e911e5e4f9d5752ec2449550fc13225bc00e4e1c9258d0dcac2c151"
+      },
+      "extractionVersion": "js-content-tag-stack-v2",
+      "textExtractionCoverage": "TAG_STACK_ROOT_CLOSED_ALL_TEXT_RETAINED_IMAGES_SEPARATE"
+    },
+    {
+      "id": "CN-NEWS-9a6a07c522280c06",
+      "titleAsListed": "深圳全国公开赛赛后判例",
+      "publishedAsListed": "2026-03-27",
+      "url": "https://mp.weixin.qq.com/s/_5jI268xYHBlwD7oCd_s9w",
+      "region": "CN",
+      "language": "zh-CN",
+      "auditApplicableAsOf": "2026-10-16",
+      "effectiveDate": null,
+      "publicationDateIndependentlyConfirmed": false,
+      "originalAttempt": {
+        "id": "CN-NEWS-9a6a07c522280c06",
+        "titleAsListed": "深圳全国公开赛赛后判例",
+        "publishedAsListed": "2026-03-27",
+        "url": "https://mp.weixin.qq.com/s/_5jI268xYHBlwD7oCd_s9w",
+        "fetchedAtUtc": "2026-10-15T11:00:36.718952+00:00",
+        "bodyStatus": "SOURCE_GAP_FETCH_ERROR",
+        "error": "URLError: <urlopen error [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1010)>"
+      },
+      "applicability": "OPEN_REQUIRES_CURRENT_REGIONAL_AND_CLAUSE_RECONCILIATION",
+      "semanticReview": "OPEN",
+      "wholePrintingCertified": false,
+      "blocks": [
+        {
+          "id": "CN-NEWS-9a6a07c522280c06-T001",
+          "firstLine": 1,
+          "lastLine": 3,
+          "textSha256": "7f8747161c6c57bbfe576d5ed3785b25ff5912f8becd11a0449243be3a8db19e",
+          "referencedNames": [],
+          "exactNamePrintingCandidates": [],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-9a6a07c522280c06-T002",
+          "firstLine": 4,
+          "lastLine": 6,
+          "textSha256": "cad31953a0e9a7cd389faa58edb1e33d3e3ac233d18ba46e48532121e2acf70f",
+          "referencedNames": [
+            "阿兹尔 - 帝君",
+            "阿兹尔",
+            "恶意收购",
+            "黄沙士兵"
+          ],
+          "exactNamePrintingCandidates": [
+            {
+              "sourceId": 33273,
+              "printing": "SFD-177/221",
+              "nameAsReferenced": "阿兹尔 - 帝君",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            },
+            {
+              "sourceId": 33274,
+              "printing": "SFD-177A/221",
+              "nameAsReferenced": "阿兹尔 - 帝君",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            },
+            {
+              "sourceId": 33126,
+              "printing": "SFD-050/221",
+              "nameAsReferenced": "阿兹尔",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            },
+            {
+              "sourceId": 33127,
+              "printing": "SFD-050A/221",
+              "nameAsReferenced": "阿兹尔",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            },
+            {
+              "sourceId": 33273,
+              "printing": "SFD-177/221",
+              "nameAsReferenced": "阿兹尔",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            },
+            {
+              "sourceId": 33274,
+              "printing": "SFD-177A/221",
+              "nameAsReferenced": "阿兹尔",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            },
+            {
+              "sourceId": 33301,
+              "printing": "SFD-202/221",
+              "nameAsReferenced": "恶意收购",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            },
+            {
+              "sourceId": 33364,
+              "printing": "SFD-T02",
+              "nameAsReferenced": "黄沙士兵",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            }
+          ],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-9a6a07c522280c06-T003",
+          "firstLine": 7,
+          "lastLine": 11,
+          "textSha256": "efb7e7b33d7479c0d1db2157690f51f26bd4c072500d3163b68dfd0a2846c212",
+          "referencedNames": [
+            "德莱文 - 艺高胆大",
+            "铁甲先锋"
+          ],
+          "exactNamePrintingCandidates": [
+            {
+              "sourceId": 33240,
+              "printing": "SFD-148/221",
+              "nameAsReferenced": "德莱文 - 艺高胆大",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            },
+            {
+              "sourceId": 33241,
+              "printing": "SFD-148A/221",
+              "nameAsReferenced": "德莱文 - 艺高胆大",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            },
+            {
+              "sourceId": 33094,
+              "printing": "SFD-021/221",
+              "nameAsReferenced": "铁甲先锋",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            }
+          ],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-9a6a07c522280c06-T004",
+          "firstLine": 12,
+          "lastLine": 15,
+          "textSha256": "5f6f1a4c6fcbcdbefa4e00511ea80bbb6cb4ef8b3ac4e30445d8f3c199a24771",
+          "referencedNames": [
+            "单局判负",
+            "警告"
+          ],
+          "exactNamePrintingCandidates": [],
+          "unboundReferenceNames": [
+            "单局判负",
+            "警告"
+          ],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-9a6a07c522280c06-T005",
+          "firstLine": 16,
+          "lastLine": 21,
+          "textSha256": "6bfe98fdf364cc323ca268e5c55adae5388300442d412d6422ebac0cf3ed46d6",
+          "referencedNames": [
+            "取消资格",
+            "禁赛"
+          ],
+          "exactNamePrintingCandidates": [],
+          "unboundReferenceNames": [
+            "取消资格",
+            "禁赛"
+          ],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        }
+      ],
+      "images": [],
+      "acquisitionState": "ARTICLE_RETRIEVED",
+      "fetchedAtUtc": "2026-10-15T16:37:50.749300+00:00",
+      "receivedAtUtc": "2026-10-15T16:37:55.254267+00:00",
+      "archivedHtml": {
+        "gzip": {
+          "path": "data/official/upstream/2026-10-16/news-readback-20261015T163742Z/CN-NEWS-9a6a07c522280c06.html.gz",
+          "sha256": "68599cdfb137d08708b7411bf31526d382a753e31b6baf43a1b5940d09a478fc"
+        },
+        "rawSha256": "d08e82d7317aa0222f6b09a47d284b08598c63cabb14be23a9c92cfbbfaa83f6",
+        "rawBytes": 3477991
+      },
+      "bodyText": {
+        "path": "data/official/upstream/2026-10-16/news-readback-20261015T163742Z/CN-NEWS-9a6a07c522280c06.txt",
+        "sha256": "b36204c400c2f3dba26039fb7d0654d5f4bfeeace8cab13ebbe6406e526e7e71"
+      },
+      "extractionVersion": "js-content-tag-stack-v2",
+      "textExtractionCoverage": "TAG_STACK_ROOT_CLOSED_ALL_TEXT_RETAINED_IMAGES_SEPARATE"
+    },
+    {
+      "id": "CN-NEWS-190b5721e319c0e3",
+      "titleAsListed": "规则更新丨符文战场规则体系现已更新!",
+      "publishedAsListed": "2025-12-07",
+      "url": "https://mp.weixin.qq.com/s/_bxW1aFq6VAX0v-ZXsMXuw",
+      "region": "CN",
+      "language": "zh-CN",
+      "auditApplicableAsOf": "2026-10-16",
+      "effectiveDate": null,
+      "publicationDateIndependentlyConfirmed": false,
+      "originalAttempt": {
+        "id": "CN-NEWS-190b5721e319c0e3",
+        "titleAsListed": "规则更新丨符文战场规则体系现已更新!",
+        "publishedAsListed": "2025-12-07",
+        "url": "https://mp.weixin.qq.com/s/_bxW1aFq6VAX0v-ZXsMXuw",
+        "fetchedAtUtc": "2026-10-15T11:00:37.641340+00:00",
+        "bodyStatus": "SOURCE_GAP_FETCH_ERROR",
+        "error": "URLError: <urlopen error [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1010)>"
+      },
+      "applicability": "OPEN_REQUIRES_CURRENT_REGIONAL_AND_CLAUSE_RECONCILIATION",
+      "semanticReview": "OPEN",
+      "wholePrintingCertified": false,
+      "blocks": [],
+      "images": [
+        {
+          "id": "CN-NEWS-190b5721e319c0e3-I001",
+          "ordinal": 1,
+          "url": "https://mmecoa.qpic.cn/mmecoa_gif/M9v64QVNlqKH9S2RhIQaF71xBrCumjGicbqpqAIpb4XeOHUSuWa35s3yQAwobcfXFAR67icauQBPlM6CSMoXT5UA/640?wx_fmt=gif",
+          "bytes": {
+            "path": "data/official/upstream/2026-10-16/news-readback-20261015T163742Z/images/d6635a363ce723199a7fe57be3cb4dbf4f3e1b98824c1a6ce0fdb6272d694933.gif",
+            "sha256": "d6635a363ce723199a7fe57be3cb4dbf4f3e1b98824c1a6ce0fdb6272d694933"
+          },
+          "visualReview": "OPEN",
+          "semanticReview": "OPEN",
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN"
+        },
+        {
+          "id": "CN-NEWS-190b5721e319c0e3-I002",
+          "ordinal": 2,
+          "url": "https://mmecoa.qpic.cn/mmecoa_png/M9v64QVNlqJnFt8I6ldAeCBKV1ibf89SaDHwEMJ79aU3DcWHaFdE8h6WgnbBld7236CMcMVv4uXWQQO83Tlq3Cw/640?wx_fmt=png",
+          "bytes": {
+            "path": "data/official/upstream/2026-10-16/news-readback-20261015T163742Z/images/46cd6b8a65c4288f7ac997defade3e7444e76537b35f79f055971b14b690e6fb.png",
+            "sha256": "46cd6b8a65c4288f7ac997defade3e7444e76537b35f79f055971b14b690e6fb"
+          },
+          "visualReview": "INSPECTED_SOURCE_IMAGE_ONLY",
+          "semanticReview": "OPEN_CURRENT_VERSION_RECONCILIATION",
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "visualObservation": "Rule-system update banner"
+        },
+        {
+          "id": "CN-NEWS-190b5721e319c0e3-I003",
+          "ordinal": 3,
+          "url": "https://mmecoa.qpic.cn/mmecoa_png/M9v64QVNlqJnFt8I6ldAeCBKV1ibf89SaYxOe5C5rSJPys2e46vlKjrJ5p8YicCqGB1hWKsq3KISR9WhwAEGrWHQ/640?wx_fmt=png",
+          "bytes": {
+            "path": "data/official/upstream/2026-10-16/news-readback-20261015T163742Z/images/920eb1b5d979b34a2c39bd54368e289ecad0ce9745a30d348215fde9455da92b.png",
+            "sha256": "920eb1b5d979b34a2c39bd54368e289ecad0ce9745a30d348215fde9455da92b"
+          },
+          "visualReview": "INSPECTED_SOURCE_IMAGE_ONLY",
+          "semanticReview": "OPEN_CURRENT_VERSION_RECONCILIATION",
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "visualObservation": "Historical mini-program rules, errata and judge FAQ entry screenshot"
+        },
+        {
+          "id": "CN-NEWS-190b5721e319c0e3-I004",
+          "ordinal": 4,
+          "url": "https://mmecoa.qpic.cn/mmecoa_png/M9v64QVNlqJnFt8I6ldAeCBKV1ibf89SaJlcvNibgEdzhAicRp8qiat3tTeN6K2UeUYxpMNhM54pPVAoExWBHXU7zA/640?wx_fmt=png",
+          "bytes": {
+            "path": "data/official/upstream/2026-10-16/news-readback-20261015T163742Z/images/fe0ef22104095cef57d6ef4695a7d332044d17fb62583c902006c629d8ed83a0.png",
+            "sha256": "fe0ef22104095cef57d6ef4695a7d332044d17fb62583c902006c629d8ed83a0"
+          },
+          "visualReview": "INSPECTED_SOURCE_IMAGE_ONLY",
+          "semanticReview": "OPEN_CURRENT_VERSION_RECONCILIATION",
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "visualObservation": "Equipment, attach, quick draw and weaponmaster summary"
+        },
+        {
+          "id": "CN-NEWS-190b5721e319c0e3-I005",
+          "ordinal": 5,
+          "url": "https://mmecoa.qpic.cn/mmecoa_png/M9v64QVNlqJnFt8I6ldAeCBKV1ibf89SadfJrOhFS4gY3A9uRia8FrA7YygIptDy0dwia7rg6ZFcxqG8cXxXnoMSQ/640?wx_fmt=png",
+          "bytes": {
+            "path": "data/official/upstream/2026-10-16/news-readback-20261015T163742Z/images/62947dbe878cf61c7b34c3ec0291e6aeed320b764a5c6f909a6bc34a0443981b.png",
+            "sha256": "62947dbe878cf61c7b34c3ec0291e6aeed320b764a5c6f909a6bc34a0443981b"
+          },
+          "visualReview": "INSPECTED_SOURCE_IMAGE_ONLY",
+          "semanticReview": "OPEN_CURRENT_VERSION_RECONCILIATION",
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "visualObservation": "Attach, double and swap summary"
+        },
+        {
+          "id": "CN-NEWS-190b5721e319c0e3-I006",
+          "ordinal": 6,
+          "url": "https://mmecoa.qpic.cn/mmecoa_png/M9v64QVNlqJnFt8I6ldAeCBKV1ibf89SapQUTr3CRm7clDxSIBgHzsoI3d7ct1UcMRHMichMyKH177ibKYGtZibRqA/640?wx_fmt=png",
+          "bytes": {
+            "path": "data/official/upstream/2026-10-16/news-readback-20261015T163742Z/images/a5ecb75b4d047049f4ce47888439cc959870859d3cc615b5893638dc93829b2a.png",
+            "sha256": "a5ecb75b4d047049f4ce47888439cc959870859d3cc615b5893638dc93829b2a"
+          },
+          "visualReview": "INSPECTED_SOURCE_IMAGE_ONLY",
+          "semanticReview": "OPEN_CURRENT_VERSION_RECONCILIATION",
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "visualObservation": "Historical numbered rule change list"
+        },
+        {
+          "id": "CN-NEWS-190b5721e319c0e3-I007",
+          "ordinal": 7,
+          "url": "https://mmecoa.qpic.cn/mmecoa_png/M9v64QVNlqJnFt8I6ldAeCBKV1ibf89Sa3iaWnfKQibYzOv06XL45gJ8BoMGGynaV6OLOr6ZefseOdbqvYATRZt6w/640?wx_fmt=png",
+          "bytes": {
+            "path": "data/official/upstream/2026-10-16/news-readback-20261015T163742Z/images/7ee5e64f65e4039fbbb2bb00876f8e58f7ae52b677cc28ca946c1d5f8469aaea.png",
+            "sha256": "7ee5e64f65e4039fbbb2bb00876f8e58f7ae52b677cc28ca946c1d5f8469aaea"
+          },
+          "visualReview": "INSPECTED_SOURCE_IMAGE_ONLY",
+          "semanticReview": "OPEN_CURRENT_VERSION_RECONCILIATION",
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "visualObservation": "Official mini-program and public account footer"
+        },
+        {
+          "id": "CN-NEWS-190b5721e319c0e3-I008",
+          "ordinal": 8,
+          "url": "https://mmecoa.qpic.cn/mmecoa_gif/M9v64QVNlqKH9S2RhIQaF71xBrCumjGic6pcrXolVLYAMErHtibWtdmHZPmuDmX8HQowzuAjYic1AfLBFp70pWnpQ/640?wx_fmt=gif",
+          "bytes": {
+            "path": "data/official/upstream/2026-10-16/news-readback-20261015T163742Z/images/200efa3c4abae2ac43678a64071d2fd9806dae965eb69f8ca0c7d87fe550a646.gif",
+            "sha256": "200efa3c4abae2ac43678a64071d2fd9806dae965eb69f8ca0c7d87fe550a646"
+          },
+          "visualReview": "OPEN",
+          "semanticReview": "OPEN",
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN"
+        }
+      ],
+      "acquisitionState": "ARTICLE_RETRIEVED",
+      "fetchedAtUtc": "2026-10-15T16:37:51.473418+00:00",
+      "receivedAtUtc": "2026-10-15T16:38:00.536876+00:00",
+      "archivedHtml": {
+        "gzip": {
+          "path": "data/official/upstream/2026-10-16/news-readback-20261015T163742Z/CN-NEWS-190b5721e319c0e3.html.gz",
+          "sha256": "5bc2d87505b05e828c35a1fcd9f431072c09a55267c9f961bf65ecb8a3c5dde5"
+        },
+        "rawSha256": "f46a0f61d8f7ee36c49be4a625827b6447534e6f7309b1a552d4fe5b667e5604",
+        "rawBytes": 3459647
+      },
+      "bodyText": {
+        "path": "data/official/upstream/2026-10-16/news-readback-20261015T163742Z/CN-NEWS-190b5721e319c0e3.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "extractionVersion": "js-content-tag-stack-v2",
+      "textExtractionCoverage": "TAG_STACK_ROOT_CLOSED_ALL_TEXT_RETAINED_IMAGES_SEPARATE"
+    },
+    {
+      "id": "CN-NEWS-75c3e527d06ebee1",
+      "titleAsListed": "第一赛季全国公开赛赛后判例",
+      "publishedAsListed": "2025-11-13",
+      "url": "https://mp.weixin.qq.com/s/y-gOWgtHb4mR-lVBc7_Epw",
+      "region": "CN",
+      "language": "zh-CN",
+      "auditApplicableAsOf": "2026-10-16",
+      "effectiveDate": null,
+      "publicationDateIndependentlyConfirmed": false,
+      "originalAttempt": {
+        "id": "CN-NEWS-75c3e527d06ebee1",
+        "titleAsListed": "第一赛季全国公开赛赛后判例",
+        "publishedAsListed": "2025-11-13",
+        "url": "https://mp.weixin.qq.com/s/y-gOWgtHb4mR-lVBc7_Epw",
+        "fetchedAtUtc": "2026-10-15T11:00:37.848323+00:00",
+        "bodyStatus": "SOURCE_GAP_FETCH_ERROR",
+        "error": "URLError: <urlopen error [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1010)>"
+      },
+      "applicability": "OPEN_REQUIRES_CURRENT_REGIONAL_AND_CLAUSE_RECONCILIATION",
+      "semanticReview": "OPEN",
+      "wholePrintingCertified": false,
+      "blocks": [
+        {
+          "id": "CN-NEWS-75c3e527d06ebee1-T001",
+          "firstLine": 1,
+          "lastLine": 16,
+          "textSha256": "881e3636830ffb85dc028977c9b72c839ce84eb19da9aa37c9f0685882d1dc83",
+          "referencedNames": [],
+          "exactNamePrintingCandidates": [],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-75c3e527d06ebee1-T002",
+          "firstLine": 17,
+          "lastLine": 20,
+          "textSha256": "1a1146053573d2de7066dd56ab2e3a9ae2f367abf554c7c9034e4f0d2bcd3204",
+          "referencedNames": [
+            "未来熔炉"
+          ],
+          "exactNamePrintingCandidates": [
+            {
+              "sourceId": 31448,
+              "printing": "OGN-212/298",
+              "nameAsReferenced": "未来熔炉",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            }
+          ],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-75c3e527d06ebee1-T003",
+          "firstLine": 21,
+          "lastLine": 34,
+          "textSha256": "803b015f4a18c8cbcda5a290c55cbe0361fec68e94ce67d769782f74bbe49e1d",
+          "referencedNames": [
+            "闪耀极光",
+            "亡花掠食者",
+            "苍炎守护者"
+          ],
+          "exactNamePrintingCandidates": [
+            {
+              "sourceId": 31386,
+              "printing": "OGN-160/298",
+              "nameAsReferenced": "闪耀极光",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            },
+            {
+              "sourceId": 31387,
+              "printing": "OGN-161/298",
+              "nameAsReferenced": "亡花掠食者",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            },
+            {
+              "sourceId": 31298,
+              "printing": "OGN-082/298",
+              "nameAsReferenced": "苍炎守护者",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            }
+          ],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-75c3e527d06ebee1-T004",
+          "firstLine": 35,
+          "lastLine": 45,
+          "textSha256": "88b0f272d61559be5942dbb6d25fe5f8d13386c983e1d25331e8a45cf2451dbe",
+          "referencedNames": [
+            "幻梦之树",
+            "战或逃",
+            "旅行商人"
+          ],
+          "exactNamePrintingCandidates": [
+            {
+              "sourceId": 31537,
+              "printing": "OGN-292/298",
+              "nameAsReferenced": "幻梦之树",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            },
+            {
+              "sourceId": 31398,
+              "printing": "OGN-168/298",
+              "nameAsReferenced": "战或逃",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            },
+            {
+              "sourceId": 31415,
+              "printing": "OGN-185/298",
+              "nameAsReferenced": "旅行商人",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            }
+          ],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-75c3e527d06ebee1-T005",
+          "firstLine": 46,
+          "lastLine": 48,
+          "textSha256": "89974a508ee4e99743ac79216e32adf64a6ede5513da2a616df2111b70031bd9",
+          "referencedNames": [
+            "背水一战",
+            "中娅沙漏",
+            "瞬息"
+          ],
+          "exactNamePrintingCandidates": [
+            {
+              "sourceId": 31282,
+              "printing": "OGN-069/298",
+              "nameAsReferenced": "背水一战",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            },
+            {
+              "sourceId": 31291,
+              "printing": "OGN-077/298",
+              "nameAsReferenced": "中娅沙漏",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            }
+          ],
+          "unboundReferenceNames": [
+            "瞬息"
+          ],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-75c3e527d06ebee1-T006",
+          "firstLine": 49,
+          "lastLine": 53,
+          "textSha256": "de74252d58cfa21b56a40c43033ff74bd291f497c3e630e0756ec32496be82ad",
+          "referencedNames": [
+            "卑鄙之喉的巢穴",
+            "战或逃"
+          ],
+          "exactNamePrintingCandidates": [
+            {
+              "sourceId": 31541,
+              "printing": "OGN-295/298",
+              "nameAsReferenced": "卑鄙之喉的巢穴",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            },
+            {
+              "sourceId": 31398,
+              "printing": "OGN-168/298",
+              "nameAsReferenced": "战或逃",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            }
+          ],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-75c3e527d06ebee1-T007",
+          "firstLine": 54,
+          "lastLine": 58,
+          "textSha256": "d23a8874687c395fdca3922518d184abc051fa4915c560de0693ae727e19b015",
+          "referencedNames": [
+            "废物利用"
+          ],
+          "exactNamePrintingCandidates": [
+            {
+              "sourceId": 31462,
+              "printing": "OGN-224/298",
+              "nameAsReferenced": "废物利用",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            }
+          ],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        }
+      ],
+      "images": [],
+      "acquisitionState": "ARTICLE_RETRIEVED",
+      "fetchedAtUtc": "2026-10-15T16:37:54.581914+00:00",
+      "receivedAtUtc": "2026-10-15T16:37:58.054762+00:00",
+      "archivedHtml": {
+        "gzip": {
+          "path": "data/official/upstream/2026-10-16/news-readback-20261015T163742Z/CN-NEWS-75c3e527d06ebee1.html.gz",
+          "sha256": "d731d581d6f4e0201181005c78ccdd9d807dd265c08b2f33436cfa4377eaf973"
+        },
+        "rawSha256": "2d80fe06408e06aa300a05a88ed336b788e88eee490246d4cc6080fdc70cb2fa",
+        "rawBytes": 3481793
+      },
+      "bodyText": {
+        "path": "data/official/upstream/2026-10-16/news-readback-20261015T163742Z/CN-NEWS-75c3e527d06ebee1.txt",
+        "sha256": "e74fda28e8af40b2a954e06df07063fb1374b204c6e4a7871c091fdc2dd22d9e"
+      },
+      "extractionVersion": "js-content-tag-stack-v2",
+      "textExtractionCoverage": "TAG_STACK_ROOT_CLOSED_ALL_TEXT_RETAINED_IMAGES_SEPARATE"
+    },
+    {
+      "id": "CN-NEWS-92d3cd4106bc1173",
+      "titleAsListed": "起源系列丨勘误汇总",
+      "publishedAsListed": "2025-10-28",
+      "url": "https://lol.playloltcg.com/rules/rules_1026.html",
+      "region": "CN",
+      "language": "zh-CN",
+      "auditApplicableAsOf": "2026-10-16",
+      "effectiveDate": null,
+      "publicationDateIndependentlyConfirmed": false,
+      "originalAttempt": {
+        "id": "CN-NEWS-92d3cd4106bc1173",
+        "titleAsListed": "起源系列丨勘误汇总",
+        "publishedAsListed": "2025-10-28",
+        "url": "https://lol.playloltcg.com/rules/rules_1026.html",
+        "fetchedAtUtc": "2026-10-15T11:00:37.956156+00:00",
+        "bodyStatus": "SOURCE_GAP_FETCH_ERROR",
+        "error": "URLError: <urlopen error [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1010)>"
+      },
+      "applicability": "OPEN_REQUIRES_CURRENT_REGIONAL_AND_CLAUSE_RECONCILIATION",
+      "semanticReview": "OPEN",
+      "wholePrintingCertified": false,
+      "blocks": [],
+      "images": [],
+      "acquisitionState": "SOURCE_GAP",
+      "latestAttempt": {
+        "id": "CN-NEWS-92d3cd4106bc1173",
+        "titleAsListed": "起源系列丨勘误汇总",
+        "publishedAsListed": "2025-10-28",
+        "url": "https://lol.playloltcg.com/rules/rules_1026.html",
+        "fetchedAtUtc": "2026-10-15T16:41:36.006178+00:00",
+        "attempt": 2,
+        "normalTls": true,
+        "previousReceipt": "body-fetch-receipts.json",
+        "status": "SOURCE_GAP_FETCH_ERROR",
+        "error": "URLError: <urlopen error [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1010)>",
+        "receivedAtUtc": "2026-10-15T16:41:41.018878+00:00"
+      },
+      "gapReason": "NORMAL_TLS_CONNECTION_FAILURE"
+    },
+    {
+      "id": "CN-NEWS-baf84eaf1a3284a3",
+      "titleAsListed": "核心规则｜符文战场官方规则书",
+      "publishedAsListed": "2025-10-24",
+      "url": "https://lol.playloltcg.com/rules/game-rules.html",
+      "region": "CN",
+      "language": "zh-CN",
+      "auditApplicableAsOf": "2026-10-16",
+      "effectiveDate": null,
+      "publicationDateIndependentlyConfirmed": false,
+      "originalAttempt": {
+        "id": "CN-NEWS-baf84eaf1a3284a3",
+        "titleAsListed": "核心规则｜符文战场官方规则书",
+        "publishedAsListed": "2025-10-24",
+        "url": "https://lol.playloltcg.com/rules/game-rules.html",
+        "fetchedAtUtc": "2026-10-15T11:00:38.114972+00:00",
+        "bodyStatus": "SOURCE_GAP_FETCH_ERROR",
+        "error": "URLError: <urlopen error [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1010)>"
+      },
+      "applicability": "OPEN_REQUIRES_CURRENT_REGIONAL_AND_CLAUSE_RECONCILIATION",
+      "semanticReview": "OPEN",
+      "wholePrintingCertified": false,
+      "blocks": [],
+      "images": [],
+      "acquisitionState": "SOURCE_GAP",
+      "latestAttempt": {
+        "id": "CN-NEWS-baf84eaf1a3284a3",
+        "titleAsListed": "核心规则｜符文战场官方规则书",
+        "publishedAsListed": "2025-10-24",
+        "url": "https://lol.playloltcg.com/rules/game-rules.html",
+        "fetchedAtUtc": "2026-10-15T16:41:41.018948+00:00",
+        "attempt": 2,
+        "normalTls": true,
+        "previousReceipt": "body-fetch-receipts.json",
+        "status": "SOURCE_GAP_FETCH_ERROR",
+        "error": "URLError: <urlopen error [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1010)>",
+        "receivedAtUtc": "2026-10-15T16:41:46.022334+00:00"
+      },
+      "gapReason": "NORMAL_TLS_CONNECTION_FAILURE"
+    },
+    {
+      "id": "CN-NEWS-57e4da7a5605ca98",
+      "titleAsListed": "更新公告丨首个大型规则版本更新",
+      "publishedAsListed": "2025-10-24",
+      "url": "https://mp.weixin.qq.com/s/VGjnjwEEh1L0B8ZaRlW8Fw",
+      "region": "CN",
+      "language": "zh-CN",
+      "auditApplicableAsOf": "2026-10-16",
+      "effectiveDate": null,
+      "publicationDateIndependentlyConfirmed": false,
+      "originalAttempt": {
+        "id": "CN-NEWS-57e4da7a5605ca98",
+        "titleAsListed": "更新公告丨首个大型规则版本更新",
+        "publishedAsListed": "2025-10-24",
+        "url": "https://mp.weixin.qq.com/s/VGjnjwEEh1L0B8ZaRlW8Fw",
+        "fetchedAtUtc": "2026-10-15T11:00:38.289311+00:00",
+        "bodyStatus": "SOURCE_GAP_FETCH_ERROR",
+        "error": "URLError: <urlopen error [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1010)>"
+      },
+      "applicability": "OPEN_REQUIRES_CURRENT_REGIONAL_AND_CLAUSE_RECONCILIATION",
+      "semanticReview": "OPEN",
+      "wholePrintingCertified": false,
+      "blocks": [
+        {
+          "id": "CN-NEWS-57e4da7a5605ca98-T001",
+          "firstLine": 1,
+          "lastLine": 209,
+          "textSha256": "2a41cc5fa1ee7c9ad8cd019762d4d9cae90ae028bbc62d2bbdaa5343f38cff5b",
+          "referencedNames": [],
+          "exactNamePrintingCandidates": [],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        }
+      ],
+      "images": [],
+      "acquisitionState": "ARTICLE_RETRIEVED",
+      "fetchedAtUtc": "2026-10-15T16:38:00.259424+00:00",
+      "receivedAtUtc": "2026-10-15T16:38:03.348555+00:00",
+      "archivedHtml": {
+        "gzip": {
+          "path": "data/official/upstream/2026-10-16/news-readback-20261015T163742Z/CN-NEWS-57e4da7a5605ca98.html.gz",
+          "sha256": "beabfc5f0b0f31a9d857870f6982aac94b1bf8f6933ffb9674e144e84c636ac4"
+        },
+        "rawSha256": "645f2044f5cba02df6f97c9656c28ad52cf29f6a34b56ed12c1ab9f1266fcc70",
+        "rawBytes": 3659393
+      },
+      "bodyText": {
+        "path": "data/official/upstream/2026-10-16/news-readback-20261015T163742Z/CN-NEWS-57e4da7a5605ca98.txt",
+        "sha256": "2a41cc5fa1ee7c9ad8cd019762d4d9cae90ae028bbc62d2bbdaa5343f38cff5b"
+      },
+      "extractionVersion": "js-content-tag-stack-v2",
+      "textExtractionCoverage": "TAG_STACK_ROOT_CLOSED_ALL_TEXT_RETAINED_IMAGES_SEPARATE"
+    },
+    {
+      "id": "CN-NEWS-0683cfee5fdc40c0",
+      "titleAsListed": "《符文战场：英雄联盟对战卡牌》裁判招募",
+      "publishedAsListed": "2025-09-15",
+      "url": "https://mp.weixin.qq.com/s/jjJS1kjnfVbQ-xinpiYdiQ",
+      "region": "CN",
+      "language": "zh-CN",
+      "auditApplicableAsOf": "2026-10-16",
+      "effectiveDate": null,
+      "publicationDateIndependentlyConfirmed": false,
+      "originalAttempt": {
+        "id": "CN-NEWS-0683cfee5fdc40c0",
+        "titleAsListed": "《符文战场：英雄联盟对战卡牌》裁判招募",
+        "publishedAsListed": "2025-09-15",
+        "url": "https://mp.weixin.qq.com/s/jjJS1kjnfVbQ-xinpiYdiQ",
+        "fetchedAtUtc": "2026-10-15T11:00:38.428239+00:00",
+        "bodyStatus": "SOURCE_GAP_FETCH_ERROR",
+        "error": "URLError: <urlopen error [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1010)>"
+      },
+      "applicability": "OPEN_REQUIRES_CURRENT_REGIONAL_AND_CLAUSE_RECONCILIATION",
+      "semanticReview": "OPEN",
+      "wholePrintingCertified": false,
+      "blocks": [
+        {
+          "id": "CN-NEWS-0683cfee5fdc40c0-T001",
+          "firstLine": 1,
+          "lastLine": 17,
+          "textSha256": "ed1ae2ed896d9a3e8c589eb2c3d9f756f5e8eedf63106c0d6f082fe232303b46",
+          "referencedNames": [],
+          "exactNamePrintingCandidates": [],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-0683cfee5fdc40c0-T002",
+          "firstLine": 18,
+          "lastLine": 18,
+          "textSha256": "c0afe6c3140340bf8ea21cc9a943fadf3fb64be185eb2a8934b35967880df54d",
+          "referencedNames": [],
+          "exactNamePrintingCandidates": [],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-0683cfee5fdc40c0-T003",
+          "firstLine": 19,
+          "lastLine": 20,
+          "textSha256": "2bbbaf6591b1882c0334325005f54f6ebc415ef53c400f3346e576eed9e2a623",
+          "referencedNames": [],
+          "exactNamePrintingCandidates": [],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-0683cfee5fdc40c0-T004",
+          "firstLine": 21,
+          "lastLine": 24,
+          "textSha256": "5c9146296b2c2d3478df377fd4a498fb0b5703f9f3e20bde35f47f72508be6ff",
+          "referencedNames": [],
+          "exactNamePrintingCandidates": [],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-0683cfee5fdc40c0-T005",
+          "firstLine": 25,
+          "lastLine": 25,
+          "textSha256": "7ebb36615d816f1b9abfbf362fc08046f260cd43dffe3d7510a7ea5bbd89caf0",
+          "referencedNames": [],
+          "exactNamePrintingCandidates": [],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-0683cfee5fdc40c0-T006",
+          "firstLine": 26,
+          "lastLine": 26,
+          "textSha256": "5be5d2146729183bc11a7c1e7fc727a07821c31456fa198e7965f861da1a46ec",
+          "referencedNames": [],
+          "exactNamePrintingCandidates": [],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-0683cfee5fdc40c0-T007",
+          "firstLine": 27,
+          "lastLine": 27,
+          "textSha256": "ac1af18deb13066b80609dc378d7eb3196141dcebf020a64467c827fdabf50cb",
+          "referencedNames": [],
+          "exactNamePrintingCandidates": [],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-0683cfee5fdc40c0-T008",
+          "firstLine": 28,
+          "lastLine": 28,
+          "textSha256": "612a6590470f41c43b0b0bf04fefc1d5789cf2a3eea85edc613c16790943164e",
+          "referencedNames": [],
+          "exactNamePrintingCandidates": [],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-0683cfee5fdc40c0-T009",
+          "firstLine": 29,
+          "lastLine": 31,
+          "textSha256": "75700255abd60424a8b2e62f50715a49348bfe435fa80cf8f72eee44ec7433cf",
+          "referencedNames": [],
+          "exactNamePrintingCandidates": [],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-0683cfee5fdc40c0-T010",
+          "firstLine": 32,
+          "lastLine": 35,
+          "textSha256": "6f12ab5f1d356beee341cdcda06675d23b83aa69c7d2ee9a3918e10ba59df0d6",
+          "referencedNames": [],
+          "exactNamePrintingCandidates": [],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-0683cfee5fdc40c0-T011",
+          "firstLine": 36,
+          "lastLine": 37,
+          "textSha256": "ebac6d8a234fca4df5e9c8d7c6f9beccc823ca11a7792897055a8335ed84b218",
+          "referencedNames": [],
+          "exactNamePrintingCandidates": [],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        }
+      ],
+      "images": [
+        {
+          "id": "CN-NEWS-0683cfee5fdc40c0-I001",
+          "ordinal": 1,
+          "url": "https://mmecoa.qpic.cn/mmecoa_jpg/M9v64QVNlqKicVgcfVibwozC9AibQ6mVTnhXFo7lvdLYLsejrYKwic5dt1zrRnGRFF9wyibGb8EibGey3EK8b0Y9zmhA/640?wx_fmt=jpeg",
+          "bytes": {
+            "path": "data/official/upstream/2026-10-16/news-readback-20261015T163742Z/images/40361d7380d310e70432e526ddb5ff2356d3ff0c0db59980039974ed49afd1f0.jpg",
+            "sha256": "40361d7380d310e70432e526ddb5ff2356d3ff0c0db59980039974ed49afd1f0"
+          },
+          "visualReview": "OPEN",
+          "semanticReview": "OPEN",
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN"
+        },
+        {
+          "id": "CN-NEWS-0683cfee5fdc40c0-I002",
+          "ordinal": 2,
+          "url": "https://mmecoa.qpic.cn/mmecoa_png/M9v64QVNlqKicVgcfVibwozC9AibQ6mVTnhynuJJ8fIxsbprC6C4Q0rLy4lQrAuC1qaPXBliaY5DuIQsBO2L1QGe5w/640?wx_fmt=png",
+          "bytes": {
+            "path": "data/official/upstream/2026-10-16/news-readback-20261015T163742Z/images/1cf97d8d943276763b1d298dc3b712a1ffbc000f97ca5ac958c7b3fcc083dad4.png",
+            "sha256": "1cf97d8d943276763b1d298dc3b712a1ffbc000f97ca5ac958c7b3fcc083dad4"
+          },
+          "visualReview": "OPEN",
+          "semanticReview": "OPEN",
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN"
+        },
+        {
+          "id": "CN-NEWS-0683cfee5fdc40c0-I003",
+          "ordinal": 3,
+          "url": "https://mmecoa.qpic.cn/mmecoa_jpg/M9v64QVNlqKicVgcfVibwozC9AibQ6mVTnhAcXxiaKbeicib1rpFN4zYyW8GcqnUTuEOeW8ZjoY3DMXKibbmibGrWtlcYA/640?wx_fmt=jpeg",
+          "bytes": {
+            "path": "data/official/upstream/2026-10-16/news-readback-20261015T163742Z/images/f9ca37f44bb79ef87bb7c4a6ba515908a77c4bf050cd505a6d6c4f36758fd9c8.jpg",
+            "sha256": "f9ca37f44bb79ef87bb7c4a6ba515908a77c4bf050cd505a6d6c4f36758fd9c8"
+          },
+          "visualReview": "OPEN",
+          "semanticReview": "OPEN",
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN"
+        },
+        {
+          "id": "CN-NEWS-0683cfee5fdc40c0-I004",
+          "ordinal": 4,
+          "url": "https://mmecoa.qpic.cn/mmecoa_jpg/M9v64QVNlqKicVgcfVibwozC9AibQ6mVTnhaaqT2najYgdVxMoODgq1FvsG06cN688fzJh6SjlMq0KHx8O0DbILlQ/640?wx_fmt=jpeg",
+          "bytes": {
+            "path": "data/official/upstream/2026-10-16/news-readback-20261015T163742Z/images/7240d8627e72ffc0f270c551646456bea071a8eeee3c4120dfd752cd703d61de.jpg",
+            "sha256": "7240d8627e72ffc0f270c551646456bea071a8eeee3c4120dfd752cd703d61de"
+          },
+          "visualReview": "OPEN",
+          "semanticReview": "OPEN",
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN"
+        },
+        {
+          "id": "CN-NEWS-0683cfee5fdc40c0-I005",
+          "ordinal": 5,
+          "url": "https://mmecoa.qpic.cn/mmecoa_png/M9v64QVNlqKicVgcfVibwozC9AibQ6mVTnh3nW3M9BhGy4aZZjtBjIIBDpBI1XZHM7QadPte58ymwDEhYJePldjvw/640?wx_fmt=png",
+          "bytes": {
+            "path": "data/official/upstream/2026-10-16/news-readback-20261015T163742Z/images/43593dce138bbc37a44a6e3c33dffed5b2bbc4dd1115d80ae14b25a4beeecb52.png",
+            "sha256": "43593dce138bbc37a44a6e3c33dffed5b2bbc4dd1115d80ae14b25a4beeecb52"
+          },
+          "visualReview": "OPEN",
+          "semanticReview": "OPEN",
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN"
+        }
+      ],
+      "acquisitionState": "ARTICLE_RETRIEVED",
+      "fetchedAtUtc": "2026-10-15T16:38:00.538399+00:00",
+      "receivedAtUtc": "2026-10-15T16:38:04.786037+00:00",
+      "archivedHtml": {
+        "gzip": {
+          "path": "data/official/upstream/2026-10-16/news-readback-20261015T163742Z/CN-NEWS-0683cfee5fdc40c0.html.gz",
+          "sha256": "5663e82f33eda26c60aaa1b81343513efcf23b4a90830e1e7ea39359b7f7ba2c"
+        },
+        "rawSha256": "48e97b7cfaab5140d2fd5ff304814edc2f61ae769cbb9981429e905fecddf174",
+        "rawBytes": 3537084
+      },
+      "bodyText": {
+        "path": "data/official/upstream/2026-10-16/news-readback-20261015T163742Z/CN-NEWS-0683cfee5fdc40c0.txt",
+        "sha256": "43533ddbe5bef3d3adfaed4c01c461864472e92cd6262aa887871c2b8b351085"
+      },
+      "extractionVersion": "js-content-tag-stack-v2",
+      "textExtractionCoverage": "TAG_STACK_ROOT_CLOSED_ALL_TEXT_RETAINED_IMAGES_SEPARATE"
+    },
+    {
+      "id": "CN-NEWS-f180bb603da914e0",
+      "titleAsListed": "规则判例丨重庆站赛后判例更新",
+      "publishedAsListed": "2025-09-12",
+      "url": "https://mp.weixin.qq.com/s/3ykTX9fBFtNMPvDtFtAq8Q",
+      "region": "CN",
+      "language": "zh-CN",
+      "auditApplicableAsOf": "2026-10-16",
+      "effectiveDate": null,
+      "publicationDateIndependentlyConfirmed": false,
+      "originalAttempt": {
+        "id": "CN-NEWS-f180bb603da914e0",
+        "titleAsListed": "规则判例丨重庆站赛后判例更新",
+        "publishedAsListed": "2025-09-12",
+        "url": "https://mp.weixin.qq.com/s/3ykTX9fBFtNMPvDtFtAq8Q",
+        "fetchedAtUtc": "2026-10-15T11:00:38.568761+00:00",
+        "bodyStatus": "SOURCE_GAP_FETCH_ERROR",
+        "error": "URLError: <urlopen error [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1010)>"
+      },
+      "applicability": "OPEN_REQUIRES_CURRENT_REGIONAL_AND_CLAUSE_RECONCILIATION",
+      "semanticReview": "OPEN",
+      "wholePrintingCertified": false,
+      "blocks": [
+        {
+          "id": "CN-NEWS-f180bb603da914e0-T001",
+          "firstLine": 1,
+          "lastLine": 2,
+          "textSha256": "52c125d16b0207b33efb2c09180e89344e4ceb47c482084e7c7b7caeb7cdc73b",
+          "referencedNames": [],
+          "exactNamePrintingCandidates": [],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-f180bb603da914e0-T002",
+          "firstLine": 3,
+          "lastLine": 5,
+          "textSha256": "8d6e13cbfc3743784ecd3d6d32aea271f7b95dda838baeb8ee8d2a20c0e1d558",
+          "referencedNames": [],
+          "exactNamePrintingCandidates": [],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-f180bb603da914e0-T003",
+          "firstLine": 6,
+          "lastLine": 6,
+          "textSha256": "704153a4654fb17b70ea979c42d5a88beee7e9ccc115fc9e6b59f4493c11b7e2",
+          "referencedNames": [],
+          "exactNamePrintingCandidates": [],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-f180bb603da914e0-T004",
+          "firstLine": 7,
+          "lastLine": 12,
+          "textSha256": "00bae18e404e400a3d25d70aba7a27fa20567f4c58e40f9510b4532a8aac6269",
+          "referencedNames": [],
+          "exactNamePrintingCandidates": [],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-f180bb603da914e0-T005",
+          "firstLine": 13,
+          "lastLine": 19,
+          "textSha256": "7851f0101e26643abb8501822b786dd2a66989aa03ea5620ee0e34142be29238",
+          "referencedNames": [
+            "伤害分配",
+            "无极剑圣，入门",
+            "易，锋芒毕现",
+            "警觉的哨兵",
+            "忠实的工坊主",
+            "艾克，溯时洄光",
+            "帝国谕令",
+            "先锋队长",
+            "苍炎守护者"
+          ],
+          "exactNamePrintingCandidates": [
+            {
+              "sourceId": 31314,
+              "printing": "OGN-096/298",
+              "nameAsReferenced": "警觉的哨兵",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            },
+            {
+              "sourceId": 31447,
+              "printing": "OGN-211/298",
+              "nameAsReferenced": "忠实的工坊主",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            },
+            {
+              "sourceId": 31459,
+              "printing": "OGN-221/298",
+              "nameAsReferenced": "帝国谕令",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            },
+            {
+              "sourceId": 31456,
+              "printing": "OGN-218/298",
+              "nameAsReferenced": "先锋队长",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            },
+            {
+              "sourceId": 31298,
+              "printing": "OGN-082/298",
+              "nameAsReferenced": "苍炎守护者",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            }
+          ],
+          "unboundReferenceNames": [
+            "伤害分配",
+            "无极剑圣，入门",
+            "易，锋芒毕现",
+            "艾克，溯时洄光"
+          ],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        }
+      ],
+      "images": [],
+      "acquisitionState": "ARTICLE_RETRIEVED",
+      "fetchedAtUtc": "2026-10-15T16:38:03.058935+00:00",
+      "receivedAtUtc": "2026-10-15T16:38:07.418907+00:00",
+      "archivedHtml": {
+        "gzip": {
+          "path": "data/official/upstream/2026-10-16/news-readback-20261015T163742Z/CN-NEWS-f180bb603da914e0.html.gz",
+          "sha256": "e79b3f3846eeb8f8d72d5313b5d51b3b79448b55fa9e60dcad4c65aaec9def4a"
+        },
+        "rawSha256": "88893728853a99f323fd35095defbbeec8339e0a39adb66a0ecff237530b8243",
+        "rawBytes": 3463109
+      },
+      "bodyText": {
+        "path": "data/official/upstream/2026-10-16/news-readback-20261015T163742Z/CN-NEWS-f180bb603da914e0.txt",
+        "sha256": "40cc1fe371e43323dc17acbc2d2532df9187ec40a0cada40b0e6a53ae50df2fa"
+      },
+      "extractionVersion": "js-content-tag-stack-v2",
+      "textExtractionCoverage": "TAG_STACK_ROOT_CLOSED_ALL_TEXT_RETAINED_IMAGES_SEPARATE"
+    },
+    {
+      "id": "CN-NEWS-4e27346f125d4c84",
+      "titleAsListed": "规则判例丨北京站赛后判例更新",
+      "publishedAsListed": "2025-09-05",
+      "url": "https://mp.weixin.qq.com/s/M2SUeNZu5bHUs0dX3KlRCQ",
+      "region": "CN",
+      "language": "zh-CN",
+      "auditApplicableAsOf": "2026-10-16",
+      "effectiveDate": null,
+      "publicationDateIndependentlyConfirmed": false,
+      "originalAttempt": {
+        "id": "CN-NEWS-4e27346f125d4c84",
+        "titleAsListed": "规则判例丨北京站赛后判例更新",
+        "publishedAsListed": "2025-09-05",
+        "url": "https://mp.weixin.qq.com/s/M2SUeNZu5bHUs0dX3KlRCQ",
+        "fetchedAtUtc": "2026-10-15T11:00:38.714955+00:00",
+        "bodyStatus": "SOURCE_GAP_FETCH_ERROR",
+        "error": "URLError: <urlopen error [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1010)>"
+      },
+      "applicability": "OPEN_REQUIRES_CURRENT_REGIONAL_AND_CLAUSE_RECONCILIATION",
+      "semanticReview": "OPEN",
+      "wholePrintingCertified": false,
+      "blocks": [
+        {
+          "id": "CN-NEWS-4e27346f125d4c84-T001",
+          "firstLine": 1,
+          "lastLine": 2,
+          "textSha256": "d36d70322f1a78b2b348bcd895347e8cdd3e654dff8d1c26d8590509314662ac",
+          "referencedNames": [],
+          "exactNamePrintingCandidates": [],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-4e27346f125d4c84-T002",
+          "firstLine": 3,
+          "lastLine": 4,
+          "textSha256": "8a093dffefdc60dec1c5a9d2f08e6efd4bd8a86158f0d8d873884f3e60db7a0e",
+          "referencedNames": [],
+          "exactNamePrintingCandidates": [],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-4e27346f125d4c84-T003",
+          "firstLine": 5,
+          "lastLine": 8,
+          "textSha256": "e27b485b507fec3ad49b370f240f2ad56378a51a0fc9ee34f0be4abc1e2383ee",
+          "referencedNames": [],
+          "exactNamePrintingCandidates": [],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-4e27346f125d4c84-T004",
+          "firstLine": 9,
+          "lastLine": 9,
+          "textSha256": "4f6562cccfdb9061708f1e2cce2352908716cde5d3a162db84c8536e185eb06e",
+          "referencedNames": [],
+          "exactNamePrintingCandidates": [],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-4e27346f125d4c84-T005",
+          "firstLine": 10,
+          "lastLine": 12,
+          "textSha256": "ee09d4c7b02ed9a2c263c18359817a4f8dd4e097b4910dfa2ecef02218ebb3e4",
+          "referencedNames": [],
+          "exactNamePrintingCandidates": [],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-4e27346f125d4c84-T006",
+          "firstLine": 13,
+          "lastLine": 13,
+          "textSha256": "7231e8e5692ee8cd9ce50d93202f2770667812131e1d5d3ea18a5781ee333a0a",
+          "referencedNames": [],
+          "exactNamePrintingCandidates": [],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-4e27346f125d4c84-T007",
+          "firstLine": 14,
+          "lastLine": 14,
+          "textSha256": "566e7d4400a820e798884545444a05036d91f4f470d93322dcc3591f3aa3e4ba",
+          "referencedNames": [],
+          "exactNamePrintingCandidates": [],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-4e27346f125d4c84-T008",
+          "firstLine": 15,
+          "lastLine": 15,
+          "textSha256": "6d6bee99163b49a190916a529a5cdeeed85831042bfc147d9fb47f8b41a2c46f",
+          "referencedNames": [],
+          "exactNamePrintingCandidates": [],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-4e27346f125d4c84-T009",
+          "firstLine": 16,
+          "lastLine": 16,
+          "textSha256": "69014385e7b11c5ed38668f7fd774c1731e2442c91c9d861a88c150d2eedb101",
+          "referencedNames": [],
+          "exactNamePrintingCandidates": [],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-4e27346f125d4c84-T010",
+          "firstLine": 17,
+          "lastLine": 21,
+          "textSha256": "c1c6192619f83433cfc78dfad570532e5826a40bef921c1fc3415f0159612a67",
+          "referencedNames": [],
+          "exactNamePrintingCandidates": [],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-4e27346f125d4c84-T011",
+          "firstLine": 22,
+          "lastLine": 24,
+          "textSha256": "a4f0f94a5efb887abd8d7bc2c00c4f15b4d220ed818aec45645a43ecaf0c68ac",
+          "referencedNames": [
+            "天声震落"
+          ],
+          "exactNamePrintingCandidates": [
+            {
+              "sourceId": 31492,
+              "printing": "OGN-250/298",
+              "nameAsReferenced": "天声震落",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            }
+          ],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-4e27346f125d4c84-T012",
+          "firstLine": 25,
+          "lastLine": 31,
+          "textSha256": "d6d1d11898f823bea11fec4f196bd5321b6e0eb65f6660b51beda3c5f95520e2",
+          "referencedNames": [
+            "沃利贝尔，雄浑巨力"
+          ],
+          "exactNamePrintingCandidates": [],
+          "unboundReferenceNames": [
+            "沃利贝尔，雄浑巨力"
+          ],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-4e27346f125d4c84-T013",
+          "firstLine": 32,
+          "lastLine": 34,
+          "textSha256": "d94072d243d58bf7c677f49a48b8f132d370d7c4dc9103a0a0076072e0e7d186",
+          "referencedNames": [
+            "加农炮幕"
+          ],
+          "exactNamePrintingCandidates": [
+            {
+              "sourceId": 31351,
+              "printing": "OGN-127/298",
+              "nameAsReferenced": "加农炮幕",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            }
+          ],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-4e27346f125d4c84-T014",
+          "firstLine": 35,
+          "lastLine": 37,
+          "textSha256": "4eae3a246c71b159f37a5f446183eb57774c71de8c0200af77c8837224609887",
+          "referencedNames": [
+            "大副",
+            "奇亚娜，所向披靡"
+          ],
+          "exactNamePrintingCandidates": [
+            {
+              "sourceId": 31356,
+              "printing": "OGN-132/298",
+              "nameAsReferenced": "大副",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            }
+          ],
+          "unboundReferenceNames": [
+            "奇亚娜，所向披靡"
+          ],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-4e27346f125d4c84-T015",
+          "firstLine": 38,
+          "lastLine": 42,
+          "textSha256": "e9413aec3854f31d67864ab32b22f2b48d54e8c786b3d6a447c43acca4b7de0b",
+          "referencedNames": [
+            "奇亚娜，所向披靡"
+          ],
+          "exactNamePrintingCandidates": [],
+          "unboundReferenceNames": [
+            "奇亚娜，所向披靡"
+          ],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        }
+      ],
+      "images": [],
+      "acquisitionState": "ARTICLE_RETRIEVED",
+      "fetchedAtUtc": "2026-10-15T16:38:03.350257+00:00",
+      "receivedAtUtc": "2026-10-15T16:38:07.291438+00:00",
+      "archivedHtml": {
+        "gzip": {
+          "path": "data/official/upstream/2026-10-16/news-readback-20261015T163742Z/CN-NEWS-4e27346f125d4c84.html.gz",
+          "sha256": "3630ed5e3c188482fe1c54c6f2600166907565c8188913a1d7b5613b1c719551"
+        },
+        "rawSha256": "55cbd342ce075b22eb42b72d6e0aeb56a0c53d160a6cbe34acf402a557f039da",
+        "rawBytes": 3477216
+      },
+      "bodyText": {
+        "path": "data/official/upstream/2026-10-16/news-readback-20261015T163742Z/CN-NEWS-4e27346f125d4c84.txt",
+        "sha256": "0c6c6b0f7f8c08a80f1e612a712ed3818674c5f525a6e871222179c0d4ca7ab4"
+      },
+      "extractionVersion": "js-content-tag-stack-v2",
+      "textExtractionCoverage": "TAG_STACK_ROOT_CLOSED_ALL_TEXT_RETAINED_IMAGES_SEPARATE"
+    },
+    {
+      "id": "CN-NEWS-1e862b4c0ddb4241",
+      "titleAsListed": "规则判例丨广州站赛后判例更新",
+      "publishedAsListed": "2025-08-30",
+      "url": "https://mp.weixin.qq.com/s/6kATcviAfN_HykutwrBiRQ",
+      "region": "CN",
+      "language": "zh-CN",
+      "auditApplicableAsOf": "2026-10-16",
+      "effectiveDate": null,
+      "publicationDateIndependentlyConfirmed": false,
+      "originalAttempt": {
+        "id": "CN-NEWS-1e862b4c0ddb4241",
+        "titleAsListed": "规则判例丨广州站赛后判例更新",
+        "publishedAsListed": "2025-08-30",
+        "url": "https://mp.weixin.qq.com/s/6kATcviAfN_HykutwrBiRQ",
+        "fetchedAtUtc": "2026-10-15T11:00:38.814154+00:00",
+        "bodyStatus": "SOURCE_GAP_FETCH_ERROR",
+        "error": "URLError: <urlopen error [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1010)>"
+      },
+      "applicability": "OPEN_REQUIRES_CURRENT_REGIONAL_AND_CLAUSE_RECONCILIATION",
+      "semanticReview": "OPEN",
+      "wholePrintingCertified": false,
+      "blocks": [
+        {
+          "id": "CN-NEWS-1e862b4c0ddb4241-T001",
+          "firstLine": 1,
+          "lastLine": 5,
+          "textSha256": "0238aa47d077d37eb2114a224acd17b2e5ca429778a00fafd31862c6f23e3237",
+          "referencedNames": [],
+          "exactNamePrintingCandidates": [],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-1e862b4c0ddb4241-T002",
+          "firstLine": 6,
+          "lastLine": 7,
+          "textSha256": "ab4074bde4c5b80c6dcb098fea9e013ee582e0a06281cb58f0fcd2d5439a3e80",
+          "referencedNames": [
+            "拉文布鲁姆学生"
+          ],
+          "exactNamePrintingCandidates": [
+            {
+              "sourceId": 31321,
+              "printing": "OGN-103/298",
+              "nameAsReferenced": "拉文布鲁姆学生",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            }
+          ],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-1e862b4c0ddb4241-T003",
+          "firstLine": 8,
+          "lastLine": 9,
+          "textSha256": "501521b5637b7733b0e6e7fbf5e2d95de77340fb4ca50f72cb1787e303406f8b",
+          "referencedNames": [],
+          "exactNamePrintingCandidates": [],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-1e862b4c0ddb4241-T004",
+          "firstLine": 10,
+          "lastLine": 11,
+          "textSha256": "af150208a3752faaae01309e9fda98c288f002b6e7fa76cd556ec2f0e528b078",
+          "referencedNames": [],
+          "exactNamePrintingCandidates": [],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-1e862b4c0ddb4241-T005",
+          "firstLine": 12,
+          "lastLine": 13,
+          "textSha256": "2bccec4d147eed8985016277ca28af1839e3cf5ce104957e84de009216cf2a6a",
+          "referencedNames": [],
+          "exactNamePrintingCandidates": [],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-1e862b4c0ddb4241-T006",
+          "firstLine": 14,
+          "lastLine": 15,
+          "textSha256": "fe13c55de6b27eeeb28af91634212a2c10a071545ba66f32e63f174384fff879",
+          "referencedNames": [],
+          "exactNamePrintingCandidates": [],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-1e862b4c0ddb4241-T007",
+          "firstLine": 16,
+          "lastLine": 17,
+          "textSha256": "0029c54e60950e0fa6911715073f2079ba2b32a7d159ce55b7588a1dea42033b",
+          "referencedNames": [],
+          "exactNamePrintingCandidates": [],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-1e862b4c0ddb4241-T008",
+          "firstLine": 18,
+          "lastLine": 21,
+          "textSha256": "be0c802234af39327d75986e3c3238decd14ba7e7cdf6af36fc4a5cabf9b05b1",
+          "referencedNames": [],
+          "exactNamePrintingCandidates": [],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-1e862b4c0ddb4241-T009",
+          "firstLine": 22,
+          "lastLine": 22,
+          "textSha256": "0709be85dea1a9d9bd46c7e43d939227cd33d645294d9ea6426711080b7bd2ac",
+          "referencedNames": [],
+          "exactNamePrintingCandidates": [],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-1e862b4c0ddb4241-T010",
+          "firstLine": 23,
+          "lastLine": 23,
+          "textSha256": "22957112129fac5fdca762f00dcd6537d031b0761dccd4f0f72e4f0fac1ef09b",
+          "referencedNames": [],
+          "exactNamePrintingCandidates": [],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-1e862b4c0ddb4241-T011",
+          "firstLine": 24,
+          "lastLine": 24,
+          "textSha256": "58f8e3fef27def9cada2d3793d33752957b847a1ed19514838c9e90027f738af",
+          "referencedNames": [],
+          "exactNamePrintingCandidates": [],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-1e862b4c0ddb4241-T012",
+          "firstLine": 25,
+          "lastLine": 25,
+          "textSha256": "0e098e9f054fda37db2ab8bbcceef7b3b710228f689eb9cac33af61f2548b57f",
+          "referencedNames": [],
+          "exactNamePrintingCandidates": [],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-1e862b4c0ddb4241-T013",
+          "firstLine": 26,
+          "lastLine": 26,
+          "textSha256": "68c51a46de91cda91b91e17ed10f32e4cb01a34f3724a236cefea3d569c744c1",
+          "referencedNames": [],
+          "exactNamePrintingCandidates": [],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-1e862b4c0ddb4241-T014",
+          "firstLine": 27,
+          "lastLine": 30,
+          "textSha256": "0fe301be583a9923df4f2d18b48b8db8d1c765ec67a09607381ec9ff2cd4b870",
+          "referencedNames": [],
+          "exactNamePrintingCandidates": [],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-1e862b4c0ddb4241-T015",
+          "firstLine": 31,
+          "lastLine": 40,
+          "textSha256": "52bbce295abe8d3e523db150f5733a91d5c44cc9e608b213da66ed7f3633dad2",
+          "referencedNames": [
+            "幻梦之树",
+            "冥想",
+            "清理门户",
+            "控潮者",
+            "星落",
+            "艾卡西亚暴雨"
+          ],
+          "exactNamePrintingCandidates": [
+            {
+              "sourceId": 31537,
+              "printing": "OGN-292/298",
+              "nameAsReferenced": "幻梦之树",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            },
+            {
+              "sourceId": 34844,
+              "printing": "OGN-048/298",
+              "nameAsReferenced": "冥想",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            },
+            {
+              "sourceId": 31445,
+              "printing": "OGN-209/298",
+              "nameAsReferenced": "清理门户",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            },
+            {
+              "sourceId": 31433,
+              "printing": "OGN-199/298",
+              "nameAsReferenced": "控潮者",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            },
+            {
+              "sourceId": 31236,
+              "printing": "OGN-029/298",
+              "nameAsReferenced": "星落",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            },
+            {
+              "sourceId": 31490,
+              "printing": "OGN-248/298",
+              "nameAsReferenced": "艾卡西亚暴雨",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            }
+          ],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-1e862b4c0ddb4241-T016",
+          "firstLine": 41,
+          "lastLine": 45,
+          "textSha256": "73a4d9d39a67ea8a94200a9cb499c9679b63b7d76a33b74af7ead2287c35be4a",
+          "referencedNames": [
+            "艾卡西亚暴雨",
+            "星落",
+            "星芒凝汇"
+          ],
+          "exactNamePrintingCandidates": [
+            {
+              "sourceId": 31490,
+              "printing": "OGN-248/298",
+              "nameAsReferenced": "艾卡西亚暴雨",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            },
+            {
+              "sourceId": 31236,
+              "printing": "OGN-029/298",
+              "nameAsReferenced": "星落",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            },
+            {
+              "sourceId": 31323,
+              "printing": "OGN-105/298",
+              "nameAsReferenced": "星芒凝汇",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            }
+          ],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-1e862b4c0ddb4241-T017",
+          "firstLine": 46,
+          "lastLine": 60,
+          "textSha256": "3b67d2f4279a476595a48fb2396e682da0ca0fabb7d5db89bfbea0357e63693f",
+          "referencedNames": [
+            "中娅沙漏",
+            "艾卡西亚暴雨"
+          ],
+          "exactNamePrintingCandidates": [
+            {
+              "sourceId": 31291,
+              "printing": "OGN-077/298",
+              "nameAsReferenced": "中娅沙漏",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            },
+            {
+              "sourceId": 31490,
+              "printing": "OGN-248/298",
+              "nameAsReferenced": "艾卡西亚暴雨",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            }
+          ],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-1e862b4c0ddb4241-T018",
+          "firstLine": 61,
+          "lastLine": 62,
+          "textSha256": "71fbb23385060368fdbbe45109713fa68ddf6422b6db4427088b2d33b6d41a83",
+          "referencedNames": [],
+          "exactNamePrintingCandidates": [],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-1e862b4c0ddb4241-T019",
+          "firstLine": 63,
+          "lastLine": 67,
+          "textSha256": "82c479b032a32d2d3e9e23484b9db6b183aeb5e15de2eeb9472e5da9d6033456",
+          "referencedNames": [
+            "暗刃",
+            "中娅沙漏"
+          ],
+          "exactNamePrintingCandidates": [
+            {
+              "sourceId": 31449,
+              "printing": "OGN-213/298",
+              "nameAsReferenced": "暗刃",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            },
+            {
+              "sourceId": 31291,
+              "printing": "OGN-077/298",
+              "nameAsReferenced": "中娅沙漏",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            }
+          ],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-1e862b4c0ddb4241-T020",
+          "firstLine": 68,
+          "lastLine": 69,
+          "textSha256": "d82a5bb23c75f432c13aab841fb883dd929e00db300c39965975d03a887340ae",
+          "referencedNames": [
+            "坚毅不倒",
+            "食肉蛇藤",
+            "决斗",
+            "猛龙摆尾",
+            "狂风绝息斩"
+          ],
+          "exactNamePrintingCandidates": [
+            {
+              "sourceId": 31369,
+              "printing": "OGN-145/298",
+              "nameAsReferenced": "坚毅不倒",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            },
+            {
+              "sourceId": 31373,
+              "printing": "OGN-149/298",
+              "nameAsReferenced": "食肉蛇藤",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            },
+            {
+              "sourceId": 31352,
+              "printing": "OGN-128/298",
+              "nameAsReferenced": "决斗",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            },
+            {
+              "sourceId": 31500,
+              "printing": "OGN-258/298",
+              "nameAsReferenced": "猛龙摆尾",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            },
+            {
+              "sourceId": 31502,
+              "printing": "OGN-260/298",
+              "nameAsReferenced": "狂风绝息斩",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            }
+          ],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-1e862b4c0ddb4241-T021",
+          "firstLine": 70,
+          "lastLine": 72,
+          "textSha256": "10cbf85cf90a081609b9fd5c29a337621c42c872c0e296f585f2b36a6fc468c3",
+          "referencedNames": [],
+          "exactNamePrintingCandidates": [],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-1e862b4c0ddb4241-T022",
+          "firstLine": 73,
+          "lastLine": 74,
+          "textSha256": "7bf4f1e769bf691789001d2358bcb860fefdba2e1d59ef575baa4356c2a04ad7",
+          "referencedNames": [
+            "烟幕弹",
+            "“敲”诈"
+          ],
+          "exactNamePrintingCandidates": [
+            {
+              "sourceId": 31311,
+              "printing": "OGN-093/298",
+              "nameAsReferenced": "烟幕弹",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            },
+            {
+              "sourceId": 31313,
+              "printing": "OGN-095/298",
+              "nameAsReferenced": "“敲”诈",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            }
+          ],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-1e862b4c0ddb4241-T023",
+          "firstLine": 75,
+          "lastLine": 76,
+          "textSha256": "494d1fe19a853c4db396c12ca513649a0a635f0a816330fb032d13300066154e",
+          "referencedNames": [
+            "食肉蛇藤"
+          ],
+          "exactNamePrintingCandidates": [
+            {
+              "sourceId": 31373,
+              "printing": "OGN-149/298",
+              "nameAsReferenced": "食肉蛇藤",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            }
+          ],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-1e862b4c0ddb4241-T024",
+          "firstLine": 77,
+          "lastLine": 78,
+          "textSha256": "fc0707c927525dbb7340e6f44455b6c6659d5be86643ae4172503fcfe2f8e75f",
+          "referencedNames": [
+            "卡莎，虚空之女"
+          ],
+          "exactNamePrintingCandidates": [],
+          "unboundReferenceNames": [
+            "卡莎，虚空之女"
+          ],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-1e862b4c0ddb4241-T025",
+          "firstLine": 79,
+          "lastLine": 80,
+          "textSha256": "851ee6aa8385a640431c9ac6bddfd540b761b6b39a68b1446e3e64e3eb4a35f1",
+          "referencedNames": [
+            "蔑视",
+            "风之障壁",
+            "拉文布鲁姆学生"
+          ],
+          "exactNamePrintingCandidates": [
+            {
+              "sourceId": 31257,
+              "printing": "OGN-045/298",
+              "nameAsReferenced": "蔑视",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            },
+            {
+              "sourceId": 31276,
+              "printing": "OGN-064/298",
+              "nameAsReferenced": "风之障壁",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            },
+            {
+              "sourceId": 31321,
+              "printing": "OGN-103/298",
+              "nameAsReferenced": "拉文布鲁姆学生",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            }
+          ],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-1e862b4c0ddb4241-T026",
+          "firstLine": 81,
+          "lastLine": 82,
+          "textSha256": "f3abee61d43c39bd9a6c0cfee67f0519d84207854cc07c2613eb23b74949dd06",
+          "referencedNames": [],
+          "exactNamePrintingCandidates": [],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-1e862b4c0ddb4241-T027",
+          "firstLine": 83,
+          "lastLine": 87,
+          "textSha256": "b41051cf360b080cbb74d675266eacb732628cda66cadfd9d57cad03e276e9d6",
+          "referencedNames": [
+            "瞬息",
+            "精灵",
+            "爆裂球果仙灵"
+          ],
+          "exactNamePrintingCandidates": [
+            {
+              "sourceId": 31517,
+              "printing": "OGN-274/298",
+              "nameAsReferenced": "精灵",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            },
+            {
+              "sourceId": 31315,
+              "printing": "OGN-097/298",
+              "nameAsReferenced": "爆裂球果仙灵",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            }
+          ],
+          "unboundReferenceNames": [
+            "瞬息"
+          ],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-1e862b4c0ddb4241-T028",
+          "firstLine": 88,
+          "lastLine": 90,
+          "textSha256": "38708b3842d111243f22bed62efbf6b11be5ea9ebb7f495690b695cc1194f90f",
+          "referencedNames": [
+            "卑鄙之喉的巢穴"
+          ],
+          "exactNamePrintingCandidates": [
+            {
+              "sourceId": 31541,
+              "printing": "OGN-295/298",
+              "nameAsReferenced": "卑鄙之喉的巢穴",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            }
+          ],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-1e862b4c0ddb4241-T029",
+          "firstLine": 91,
+          "lastLine": 95,
+          "textSha256": "f80383e837693abf380cddc3c885300d8e8d12aa378b89de6ec4886fea816b2d",
+          "referencedNames": [
+            "德莱厄斯，崔法利"
+          ],
+          "exactNamePrintingCandidates": [],
+          "unboundReferenceNames": [
+            "德莱厄斯，崔法利"
+          ],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-1e862b4c0ddb4241-T030",
+          "firstLine": 96,
+          "lastLine": 98,
+          "textSha256": "556014fce3fb5c9687f13b7b79dece324a4e6470dc0e816cc88b901ff0cfadee",
+          "referencedNames": [
+            "烈阳徽记"
+          ],
+          "exactNamePrintingCandidates": [
+            {
+              "sourceId": 31465,
+              "printing": "OGN-227/298",
+              "nameAsReferenced": "烈阳徽记",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            }
+          ],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-1e862b4c0ddb4241-T031",
+          "firstLine": 99,
+          "lastLine": 101,
+          "textSha256": "2e8d11ebee93e6f6c77c6169ac73400ae507af1062b869813e7f111c4a72d4cb",
+          "referencedNames": [
+            "共同献身"
+          ],
+          "exactNamePrintingCandidates": [
+            {
+              "sourceId": 31594,
+              "printing": "OGS-015/024",
+              "nameAsReferenced": "共同献身",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            }
+          ],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-1e862b4c0ddb4241-T032",
+          "firstLine": 102,
+          "lastLine": 104,
+          "textSha256": "3597f05ffebea283a55eeef5117ca9a75f98647985588dbbf6904f1d8a97d348",
+          "referencedNames": [
+            "天顶之刃"
+          ],
+          "exactNamePrintingCandidates": [
+            {
+              "sourceId": 31504,
+              "printing": "OGN-262/298",
+              "nameAsReferenced": "天顶之刃",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            }
+          ],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-1e862b4c0ddb4241-T033",
+          "firstLine": 105,
+          "lastLine": 107,
+          "textSha256": "85e3abd2a66a2d78990bb4319fc1226dc846faaf36e82586b8ac68c582abd60f",
+          "referencedNames": [
+            "法术对决"
+          ],
+          "exactNamePrintingCandidates": [],
+          "unboundReferenceNames": [
+            "法术对决"
+          ],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-1e862b4c0ddb4241-T034",
+          "firstLine": 108,
+          "lastLine": 110,
+          "textSha256": "5680a6703f12079513d1266d843101279678a6d3b3b7d74b28421c7d54ed9848",
+          "referencedNames": [
+            "蕾欧娜，曙光女神"
+          ],
+          "exactNamePrintingCandidates": [],
+          "unboundReferenceNames": [
+            "蕾欧娜，曙光女神"
+          ],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-1e862b4c0ddb4241-T035",
+          "firstLine": 111,
+          "lastLine": 117,
+          "textSha256": "aaea47f5aec3539487c9a08a9a188994a575bb710212d7321a39ec0b6d5b8f19",
+          "referencedNames": [
+            "虚空索敌",
+            "闪现",
+            "坚毅不倒"
+          ],
+          "exactNamePrintingCandidates": [
+            {
+              "sourceId": 31230,
+              "printing": "OGN-024/298",
+              "nameAsReferenced": "虚空索敌",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            },
+            {
+              "sourceId": 31590,
+              "printing": "OGS-011/024",
+              "nameAsReferenced": "闪现",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            },
+            {
+              "sourceId": 31369,
+              "printing": "OGN-145/298",
+              "nameAsReferenced": "坚毅不倒",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            }
+          ],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-1e862b4c0ddb4241-T036",
+          "firstLine": 118,
+          "lastLine": 120,
+          "textSha256": "abf7b7c2eef25fb6877c981c8755dfe754c69d3130233edbc2cc482b6db98437",
+          "referencedNames": [
+            "祖安地沟"
+          ],
+          "exactNamePrintingCandidates": [
+            {
+              "sourceId": 31544,
+              "printing": "OGN-298/298",
+              "nameAsReferenced": "祖安地沟",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            }
+          ],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-1e862b4c0ddb4241-T037",
+          "firstLine": 121,
+          "lastLine": 123,
+          "textSha256": "5433b9c2aa079dc2d567fd77a06804fdbc86ec335440f43189bf1686f02f4175",
+          "referencedNames": [
+            "超究极死神飞弹！",
+            "金克丝，暴走萝莉",
+            "祖安地沟"
+          ],
+          "exactNamePrintingCandidates": [
+            {
+              "sourceId": 31494,
+              "printing": "OGN-252/298",
+              "nameAsReferenced": "超究极死神飞弹！",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            },
+            {
+              "sourceId": 31544,
+              "printing": "OGN-298/298",
+              "nameAsReferenced": "祖安地沟",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            }
+          ],
+          "unboundReferenceNames": [
+            "金克丝，暴走萝莉"
+          ],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-1e862b4c0ddb4241-T038",
+          "firstLine": 124,
+          "lastLine": 126,
+          "textSha256": "cd79f3c08d4669c1bb7d7631459f6d29f2db3fce6596f1b02d4ac3084281f135",
+          "referencedNames": [
+            "清理门户"
+          ],
+          "exactNamePrintingCandidates": [
+            {
+              "sourceId": 31445,
+              "printing": "OGN-209/298",
+              "nameAsReferenced": "清理门户",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            }
+          ],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-1e862b4c0ddb4241-T039",
+          "firstLine": 127,
+          "lastLine": 129,
+          "textSha256": "67056c56ce8ebc6724fe0f1b57af471a5c5a499608313e7d2f861daa69d449a6",
+          "referencedNames": [
+            "未来熔炉"
+          ],
+          "exactNamePrintingCandidates": [
+            {
+              "sourceId": 31448,
+              "printing": "OGN-212/298",
+              "nameAsReferenced": "未来熔炉",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            }
+          ],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-1e862b4c0ddb4241-T040",
+          "firstLine": 130,
+          "lastLine": 132,
+          "textSha256": "491e1249bcebb5c88266de7be997ccfe80122d1f10ef0b8a7427f558b30e0a3f",
+          "referencedNames": [],
+          "exactNamePrintingCandidates": [],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-1e862b4c0ddb4241-T041",
+          "firstLine": 133,
+          "lastLine": 135,
+          "textSha256": "4c0bf011ef23cbfd2ea9900a37561fc7699ed3946368ee1b0f93019fa5dbe6ed",
+          "referencedNames": [
+            "维克托，奥术先驱"
+          ],
+          "exactNamePrintingCandidates": [],
+          "unboundReferenceNames": [
+            "维克托，奥术先驱"
+          ],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-1e862b4c0ddb4241-T042",
+          "firstLine": 136,
+          "lastLine": 138,
+          "textSha256": "ddfa7ed20cd67b7ce0faf3fd0971b2e158d5085952ad1275e87a5ac63c1996df",
+          "referencedNames": [
+            "强攻"
+          ],
+          "exactNamePrintingCandidates": [],
+          "unboundReferenceNames": [
+            "强攻"
+          ],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-1e862b4c0ddb4241-T043",
+          "firstLine": 139,
+          "lastLine": 141,
+          "textSha256": "a1ac739d578496d564f81c962dc8fce444c501f344eeed1d349a385411a7364f",
+          "referencedNames": [
+            "闪耀极光"
+          ],
+          "exactNamePrintingCandidates": [
+            {
+              "sourceId": 31386,
+              "printing": "OGN-160/298",
+              "nameAsReferenced": "闪耀极光",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            }
+          ],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-1e862b4c0ddb4241-T044",
+          "firstLine": 142,
+          "lastLine": 144,
+          "textSha256": "9d983c7a3dad2ebb3d847f8012ba90182d561c3ba51a5ae216631e13cadb4289",
+          "referencedNames": [
+            "废物利用"
+          ],
+          "exactNamePrintingCandidates": [
+            {
+              "sourceId": 31462,
+              "printing": "OGN-224/298",
+              "nameAsReferenced": "废物利用",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            }
+          ],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-1e862b4c0ddb4241-T045",
+          "firstLine": 145,
+          "lastLine": 147,
+          "textSha256": "3c77ea6b9392aa1425a412eee1d5554eb445d80e5fa982d444d75064b72e35c9",
+          "referencedNames": [
+            "顺劈"
+          ],
+          "exactNamePrintingCandidates": [
+            {
+              "sourceId": 31208,
+              "printing": "OGN-004/298",
+              "nameAsReferenced": "顺劈",
+              "identityBinding": "EXACT_API_DISPLAY_NAME_CANDIDATE_REQUIRES_PRINTING_APPLICABILITY_REVIEW"
+            }
+          ],
+          "unboundReferenceNames": [],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "CN-NEWS-1e862b4c0ddb4241-T046",
+          "firstLine": 148,
+          "lastLine": 152,
+          "textSha256": "01843962280c4b5ac4a9ae730eb41b65d1b34011c5fc2cf6febc39ac3ec5645e",
+          "referencedNames": [
+            "瑟提，铁拳"
+          ],
+          "exactNamePrintingCandidates": [],
+          "unboundReferenceNames": [
+            "瑟提，铁拳"
+          ],
+          "semanticReview": "OPEN",
+          "implementationEvidence": [],
+          "testEvidence": [],
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "wholePrintingCertified": false
+        }
+      ],
+      "images": [],
+      "acquisitionState": "ARTICLE_RETRIEVED",
+      "fetchedAtUtc": "2026-10-15T16:38:04.787400+00:00",
+      "receivedAtUtc": "2026-10-15T16:38:09.212045+00:00",
+      "archivedHtml": {
+        "gzip": {
+          "path": "data/official/upstream/2026-10-16/news-readback-20261015T163742Z/CN-NEWS-1e862b4c0ddb4241.html.gz",
+          "sha256": "f4cbb0c9166efa5b60b6c75571295e8a109157faa095fe48b9048b5a5896b9aa"
+        },
+        "rawSha256": "07701ced68d899a206cb70a72662e5f95ed8dbb1e81a3caef1a7c51faf121020",
+        "rawBytes": 3545994
+      },
+      "bodyText": {
+        "path": "data/official/upstream/2026-10-16/news-readback-20261015T163742Z/CN-NEWS-1e862b4c0ddb4241.txt",
+        "sha256": "c5d990f9468f70d462d0697dfa1e69eb75fbdc660be03b1455d589e732097b8a"
+      },
+      "extractionVersion": "js-content-tag-stack-v2",
+      "textExtractionCoverage": "TAG_STACK_ROOT_CLOSED_ALL_TEXT_RETAINED_IMAGES_SEPARATE"
+    },
+    {
+      "id": "CN-NEWS-2f839dcbfd979cc9",
+      "titleAsListed": "赛前提醒丨补录细则与规则补充",
+      "publishedAsListed": "2025-08-22",
+      "url": "https://mp.weixin.qq.com/s/XBfZitSkb3FxQ9nhtJqz7w",
+      "region": "CN",
+      "language": "zh-CN",
+      "auditApplicableAsOf": "2026-10-16",
+      "effectiveDate": null,
+      "publicationDateIndependentlyConfirmed": false,
+      "originalAttempt": {
+        "id": "CN-NEWS-2f839dcbfd979cc9",
+        "titleAsListed": "赛前提醒丨补录细则与规则补充",
+        "publishedAsListed": "2025-08-22",
+        "url": "https://mp.weixin.qq.com/s/XBfZitSkb3FxQ9nhtJqz7w",
+        "fetchedAtUtc": "2026-10-15T11:00:38.857149+00:00",
+        "bodyStatus": "SOURCE_GAP_FETCH_ERROR",
+        "error": "URLError: <urlopen error [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1010)>"
+      },
+      "applicability": "OPEN_REQUIRES_CURRENT_REGIONAL_AND_CLAUSE_RECONCILIATION",
+      "semanticReview": "OPEN",
+      "wholePrintingCertified": false,
+      "blocks": [],
+      "images": [
+        {
+          "id": "CN-NEWS-2f839dcbfd979cc9-I001",
+          "ordinal": 1,
+          "url": "https://mmecoa.qpic.cn/mmecoa_gif/M9v64QVNlqKYicynBJsDt1nSPRO3CZFHMgSbOMLgURPV0OvXVkOiclsJ9Bsndqje3kpcaCrs8j844jXqD0xPNydw/640?wx_fmt=gif",
+          "bytes": {
+            "path": "data/official/upstream/2026-10-16/news-readback-20261015T163742Z/images/5a699cab9f95438a84fb803804018d86fa9372ba1ab580308edb46a8cd387eac.gif",
+            "sha256": "5a699cab9f95438a84fb803804018d86fa9372ba1ab580308edb46a8cd387eac"
+          },
+          "visualReview": "OPEN",
+          "semanticReview": "OPEN",
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN"
+        },
+        {
+          "id": "CN-NEWS-2f839dcbfd979cc9-I002",
+          "ordinal": 2,
+          "url": "https://mmecoa.qpic.cn/mmecoa_jpg/M9v64QVNlqKYicynBJsDt1nSPRO3CZFHMib0Qx6WkeHK26Q4hticoAJicD8rvh3L8td9KthibdTj7AyqLnSCXb3BUkg/640?wx_fmt=jpeg",
+          "bytes": {
+            "path": "data/official/upstream/2026-10-16/news-readback-20261015T163742Z/images/5d97ade6bcfb33beefe1995eb6a846c4989e8794189e4334b73423e55a725b5a.jpg",
+            "sha256": "5d97ade6bcfb33beefe1995eb6a846c4989e8794189e4334b73423e55a725b5a"
+          },
+          "visualReview": "INSPECTED_SOURCE_IMAGE_ONLY",
+          "semanticReview": "OPEN_CURRENT_VERSION_RECONCILIATION",
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "visualObservation": "Guangzhou historical check-in and wait-list timetable"
+        },
+        {
+          "id": "CN-NEWS-2f839dcbfd979cc9-I003",
+          "ordinal": 3,
+          "url": "https://mmecoa.qpic.cn/mmecoa_jpg/M9v64QVNlqKYicynBJsDt1nSPRO3CZFHMTrFQ3hsy3ogFRL6gWuf7Z4wwU7iatT05dys6b3OdTs7q7LaAReBXpuw/640?wx_fmt=jpeg",
+          "bytes": {
+            "path": "data/official/upstream/2026-10-16/news-readback-20261015T163742Z/images/cce3821d967ee41f6372ffc2cf1708b7ceb279e52bfbadda6535623e96cccd90.jpg",
+            "sha256": "cce3821d967ee41f6372ffc2cf1708b7ceb279e52bfbadda6535623e96cccd90"
+          },
+          "visualReview": "INSPECTED_SOURCE_IMAGE_ONLY",
+          "semanticReview": "OPEN_CURRENT_VERSION_RECONCILIATION",
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "visualObservation": "Historical tournament points, tools and seven-step game preparation"
+        },
+        {
+          "id": "CN-NEWS-2f839dcbfd979cc9-I004",
+          "ordinal": 4,
+          "url": "https://mmecoa.qpic.cn/mmecoa_gif/M9v64QVNlqKYicynBJsDt1nSPRO3CZFHM0fqhEpibZVViaoOvp34NKU17KhXuIRKKujl41dlJ9NiaJwt6gf6CvZiccQ/640?wx_fmt=gif",
+          "bytes": {
+            "path": "data/official/upstream/2026-10-16/news-readback-20261015T163742Z/images/51c04ec908d9eea4be437c3e9ebe0eeb72fec757d94fe3c09c3fcef78da13ca8.gif",
+            "sha256": "51c04ec908d9eea4be437c3e9ebe0eeb72fec757d94fe3c09c3fcef78da13ca8"
+          },
+          "visualReview": "OPEN",
+          "semanticReview": "OPEN",
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN"
+        }
+      ],
+      "acquisitionState": "ARTICLE_RETRIEVED",
+      "fetchedAtUtc": "2026-10-15T16:38:07.292795+00:00",
+      "receivedAtUtc": "2026-10-15T16:38:10.937215+00:00",
+      "archivedHtml": {
+        "gzip": {
+          "path": "data/official/upstream/2026-10-16/news-readback-20261015T163742Z/CN-NEWS-2f839dcbfd979cc9.html.gz",
+          "sha256": "36dce815b0eac40082a6d127b449672a32a03fcbbe0207f339954321519b1241"
+        },
+        "rawSha256": "45647050f23a9ee9632442ee0128e89401996282f0a7ec69f884f1027bf41c57",
+        "rawBytes": 3456557
+      },
+      "bodyText": {
+        "path": "data/official/upstream/2026-10-16/news-readback-20261015T163742Z/CN-NEWS-2f839dcbfd979cc9.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "extractionVersion": "js-content-tag-stack-v2",
+      "textExtractionCoverage": "TAG_STACK_ROOT_CLOSED_ALL_TEXT_RETAINED_IMAGES_SEPARATE"
+    },
+    {
+      "id": "CN-NEWS-3ca6f28b5c257454",
+      "titleAsListed": "赛事详情｜第一赛季 区域公开赛赛事规则",
+      "publishedAsListed": "2025-08-22",
+      "url": "https://mp.weixin.qq.com/s/ieuQu79Kiji53Mm9DPUz0Q",
+      "region": "CN",
+      "language": "zh-CN",
+      "auditApplicableAsOf": "2026-10-16",
+      "effectiveDate": null,
+      "publicationDateIndependentlyConfirmed": false,
+      "originalAttempt": {
+        "id": "CN-NEWS-3ca6f28b5c257454",
+        "titleAsListed": "赛事详情｜第一赛季 区域公开赛赛事规则",
+        "publishedAsListed": "2025-08-22",
+        "url": "https://mp.weixin.qq.com/s/ieuQu79Kiji53Mm9DPUz0Q",
+        "fetchedAtUtc": "2026-10-15T11:00:39.000606+00:00",
+        "bodyStatus": "SOURCE_GAP_FETCH_ERROR",
+        "error": "URLError: <urlopen error [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1010)>"
+      },
+      "applicability": "OPEN_REQUIRES_CURRENT_REGIONAL_AND_CLAUSE_RECONCILIATION",
+      "semanticReview": "OPEN",
+      "wholePrintingCertified": false,
+      "blocks": [],
+      "images": [
+        {
+          "id": "CN-NEWS-3ca6f28b5c257454-I001",
+          "ordinal": 1,
+          "url": "https://mmecoa.qpic.cn/mmecoa_gif/M9v64QVNlqLWbZoIjntI9peibH5GJibnVSJibiaRdBhVZk0l2Afm2fgs6t79b7FgmJXcChEyRSbiamxU1Er1eN3XJow/640?wx_fmt=gif",
+          "bytes": {
+            "path": "data/official/upstream/2026-10-16/news-readback-20261015T163742Z/images/5a699cab9f95438a84fb803804018d86fa9372ba1ab580308edb46a8cd387eac.gif",
+            "sha256": "5a699cab9f95438a84fb803804018d86fa9372ba1ab580308edb46a8cd387eac"
+          },
+          "visualReview": "OPEN",
+          "semanticReview": "OPEN",
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN"
+        },
+        {
+          "id": "CN-NEWS-3ca6f28b5c257454-I002",
+          "ordinal": 2,
+          "url": "https://mmecoa.qpic.cn/mmecoa_jpg/M9v64QVNlqLWbZoIjntI9peibH5GJibnVS8lQFibLDr1eNXAGwVdQiartSPgPBtibXWlQBzJ9J7hI4Ij4ZptMg57Hjg/640?wx_fmt=jpeg",
+          "bytes": {
+            "path": "data/official/upstream/2026-10-16/news-readback-20261015T163742Z/images/ce918380f5e03a92bd9feba531d61fb404e73d3cf14da5dfc0accf18f8258e6c.jpg",
+            "sha256": "ce918380f5e03a92bd9feba531d61fb404e73d3cf14da5dfc0accf18f8258e6c"
+          },
+          "visualReview": "OPEN",
+          "semanticReview": "OPEN",
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN"
+        },
+        {
+          "id": "CN-NEWS-3ca6f28b5c257454-I003",
+          "ordinal": 3,
+          "url": "https://mmecoa.qpic.cn/mmecoa_jpg/M9v64QVNlqLWbZoIjntI9peibH5GJibnVSHsapdLOibFScj9CJOeRuvdD1Wnc2CyxSRZx1I0icM9GokOIvEPmKhy1g/640?wx_fmt=jpeg",
+          "bytes": {
+            "path": "data/official/upstream/2026-10-16/news-readback-20261015T163742Z/images/4586db67e11a21f29f8670c875140a797ea4521aaf35bda0c32d7d9019c00fe9.jpg",
+            "sha256": "4586db67e11a21f29f8670c875140a797ea4521aaf35bda0c32d7d9019c00fe9"
+          },
+          "visualReview": "INSPECTED_SOURCE_IMAGE_ONLY",
+          "semanticReview": "OPEN_CURRENT_VERSION_RECONCILIATION",
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN",
+          "visualObservation": "Historical regional Swiss/elimination match and time-limit table"
+        },
+        {
+          "id": "CN-NEWS-3ca6f28b5c257454-I004",
+          "ordinal": 4,
+          "url": "https://mmecoa.qpic.cn/mmecoa_jpg/M9v64QVNlqLWbZoIjntI9peibH5GJibnVSG8S6LwCQHrGyUHz9LxKnDbbbgJGtIUq4xj3osN77icKJ6dvWEenIMCQ/640?wx_fmt=jpeg",
+          "bytes": {
+            "path": "data/official/upstream/2026-10-16/news-readback-20261015T163742Z/images/36f36009a8120f7483965cb5e2ac98e1d8db06e0394ea6c0e9e0baa447a63df1.jpg",
+            "sha256": "36f36009a8120f7483965cb5e2ac98e1d8db06e0394ea6c0e9e0baa447a63df1"
+          },
+          "visualReview": "OPEN",
+          "semanticReview": "OPEN",
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN"
+        },
+        {
+          "id": "CN-NEWS-3ca6f28b5c257454-I005",
+          "ordinal": 5,
+          "url": "https://mmecoa.qpic.cn/mmecoa_jpg/M9v64QVNlqLWbZoIjntI9peibH5GJibnVS7l8X6NvIfUho4LnRjFoBY50JRCqT00VPHZcicHV9oLZyXq9NFHt1dkg/640?wx_fmt=jpeg",
+          "bytes": {
+            "path": "data/official/upstream/2026-10-16/news-readback-20261015T163742Z/images/1427ffe6ef79836e3ba298e7369e1b46218559ad2390a8bc4a7411dde1cd27f5.jpg",
+            "sha256": "1427ffe6ef79836e3ba298e7369e1b46218559ad2390a8bc4a7411dde1cd27f5"
+          },
+          "visualReview": "OPEN",
+          "semanticReview": "OPEN",
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN"
+        },
+        {
+          "id": "CN-NEWS-3ca6f28b5c257454-I006",
+          "ordinal": 6,
+          "url": "https://mmecoa.qpic.cn/mmecoa_jpg/M9v64QVNlqLWbZoIjntI9peibH5GJibnVS1rhHkh4m9PokgkKdudo3WG2ibhLicDic2S8dJ4NqvRGrhqCU4qCBQMe3A/640?wx_fmt=jpeg",
+          "bytes": {
+            "path": "data/official/upstream/2026-10-16/news-readback-20261015T163742Z/images/a87642a65361a13c6420363a767cfb60f853206fdfe33dd8ed06f9c031efa3a9.jpg",
+            "sha256": "a87642a65361a13c6420363a767cfb60f853206fdfe33dd8ed06f9c031efa3a9"
+          },
+          "visualReview": "OPEN",
+          "semanticReview": "OPEN",
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN"
+        },
+        {
+          "id": "CN-NEWS-3ca6f28b5c257454-I007",
+          "ordinal": 7,
+          "url": "https://mmecoa.qpic.cn/mmecoa_gif/M9v64QVNlqLWbZoIjntI9peibH5GJibnVS2PHW4Vcb7WY21ycRYCND8mspO5LYXtxicQCQsxgnvwW0hFzoO4WdwXA/640?wx_fmt=gif",
+          "bytes": {
+            "path": "data/official/upstream/2026-10-16/news-readback-20261015T163742Z/images/a5f2293e0ac7fa2242420db2527590cc135dec0db450e04cef4074835fec9f9e.gif",
+            "sha256": "a5f2293e0ac7fa2242420db2527590cc135dec0db450e04cef4074835fec9f9e"
+          },
+          "visualReview": "OPEN",
+          "semanticReview": "OPEN",
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN"
+        },
+        {
+          "id": "CN-NEWS-3ca6f28b5c257454-I008",
+          "ordinal": 8,
+          "url": "https://mmecoa.qpic.cn/mmecoa_gif/M9v64QVNlqLWbZoIjntI9peibH5GJibnVS8gAqlzoMt4wF87Btb81BEb9e5iaCmnzACNCxwJiaa4h0BicjPm7xmoSAw/640?wx_fmt=gif",
+          "bytes": {
+            "path": "data/official/upstream/2026-10-16/news-readback-20261015T163742Z/images/99bbf41f0e74b8fddb67a183863edd839f228bb7ed21b94fc99b0377a731a3ca.gif",
+            "sha256": "99bbf41f0e74b8fddb67a183863edd839f228bb7ed21b94fc99b0377a731a3ca"
+          },
+          "visualReview": "OPEN",
+          "semanticReview": "OPEN",
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN"
+        },
+        {
+          "id": "CN-NEWS-3ca6f28b5c257454-I009",
+          "ordinal": 9,
+          "url": "https://mmecoa.qpic.cn/mmecoa_gif/M9v64QVNlqLWbZoIjntI9peibH5GJibnVScFdATR5PfRtIrwrw0N6NKJtQHBuHYc1dibiaBwdj3Bel637uMEibyKqtw/640?wx_fmt=gif",
+          "bytes": {
+            "path": "data/official/upstream/2026-10-16/news-readback-20261015T163742Z/images/2a221c9cda4edf814123f89b9eace3ef8f1891a75cf046f844ea6c17502124fb.gif",
+            "sha256": "2a221c9cda4edf814123f89b9eace3ef8f1891a75cf046f844ea6c17502124fb"
+          },
+          "visualReview": "OPEN",
+          "semanticReview": "OPEN",
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN"
+        },
+        {
+          "id": "CN-NEWS-3ca6f28b5c257454-I010",
+          "ordinal": 10,
+          "url": "https://mmecoa.qpic.cn/mmecoa_gif/M9v64QVNlqLWbZoIjntI9peibH5GJibnVSz2FDKw7D3GMalNFFW6428H9rKEW5GaCpZlThyanxv6DvicBgv5aQE4A/640?wx_fmt=gif",
+          "bytes": {
+            "path": "data/official/upstream/2026-10-16/news-readback-20261015T163742Z/images/5ee1ac80e92f30a4e0e38a7e3b347d6bc8d916fe5ba453729e2efba344a2e1a8.gif",
+            "sha256": "5ee1ac80e92f30a4e0e38a7e3b347d6bc8d916fe5ba453729e2efba344a2e1a8"
+          },
+          "visualReview": "OPEN",
+          "semanticReview": "OPEN",
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN"
+        },
+        {
+          "id": "CN-NEWS-3ca6f28b5c257454-I011",
+          "ordinal": 11,
+          "url": "https://mmecoa.qpic.cn/mmecoa_gif/M9v64QVNlqLWbZoIjntI9peibH5GJibnVS5pdULV5N8qj1d4YqibFNXhw6XZic69E5iaMCHic3iaLMZNWDjawKsdJdIZA/640?wx_fmt=gif",
+          "bytes": {
+            "path": "data/official/upstream/2026-10-16/news-readback-20261015T163742Z/images/51c04ec908d9eea4be437c3e9ebe0eeb72fec757d94fe3c09c3fcef78da13ca8.gif",
+            "sha256": "51c04ec908d9eea4be437c3e9ebe0eeb72fec757d94fe3c09c3fcef78da13ca8"
+          },
+          "visualReview": "OPEN",
+          "semanticReview": "OPEN",
+          "fixedCommitCi": "OPEN_FOR_APPLICABLE_BEHAVIOR",
+          "productAcceptance": "OPEN"
+        }
+      ],
+      "acquisitionState": "ARTICLE_RETRIEVED",
+      "fetchedAtUtc": "2026-10-15T16:38:07.420249+00:00",
+      "receivedAtUtc": "2026-10-15T16:38:11.895665+00:00",
+      "archivedHtml": {
+        "gzip": {
+          "path": "data/official/upstream/2026-10-16/news-readback-20261015T163742Z/CN-NEWS-3ca6f28b5c257454.html.gz",
+          "sha256": "61257ed6acc65e5cf50a72f0a08ef2524175a8fed76dbbc8fe465a3667ff10de"
+        },
+        "rawSha256": "9570f537ff5afaaae1d2a860f06a1c2ae324989fff2ae0d4c682ff49f08d3674",
+        "rawBytes": 3477081
+      },
+      "bodyText": {
+        "path": "data/official/upstream/2026-10-16/news-readback-20261015T163742Z/CN-NEWS-3ca6f28b5c257454.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "extractionVersion": "js-content-tag-stack-v2",
+      "textExtractionCoverage": "TAG_STACK_ROOT_CLOSED_ALL_TEXT_RETAINED_IMAGES_SEPARATE"
+    },
+    {
+      "id": "CN-NEWS-4316592c21720ace",
+      "titleAsListed": "【核心规则Q&A】中文版",
+      "publishedAsListed": "2025-08-21",
+      "url": "https://playloltcg.com/rules.html",
+      "region": "CN",
+      "language": "zh-CN",
+      "auditApplicableAsOf": "2026-10-16",
+      "effectiveDate": null,
+      "publicationDateIndependentlyConfirmed": false,
+      "originalAttempt": {
+        "id": "CN-NEWS-4316592c21720ace",
+        "titleAsListed": "【核心规则Q&A】中文版",
+        "publishedAsListed": "2025-08-21",
+        "url": "https://playloltcg.com/rules.html",
+        "fetchedAtUtc": "2026-10-15T11:00:39.045592+00:00",
+        "httpStatus": 200,
+        "finalUrl": "https://playloltcg.com/rules.html",
+        "path": "var/qa/paired-0cbee-20261015/source-readback/news-bodies/4316592c21720ace.html",
+        "sha256": "574cfebe168c9dedd2f9099b7ea604550c8fe9ecca62383abaad80710893ac2b",
+        "bytes": 2858,
+        "bodyStatus": "HTTP_BODY_REQUIRES_AUTHORITY_CONTENT_REVIEW",
+        "htmlTitle": "符文战场：英雄联盟对战卡牌"
+      },
+      "applicability": "RULES_HUB_ALIAS_REQUIRES_EXACT_RULE_DOCUMENT_MAPPING",
+      "semanticReview": "OPEN",
+      "wholePrintingCertified": false,
+      "blocks": [],
+      "images": [],
+      "acquisitionState": "RULES_HUB_RESPONSE_NOT_INDEPENDENT_QA",
+      "fetchedAtUtc": "2026-10-15T17:03:38.054293+00:00",
+      "archivedHtml": {
+        "gzip": {
+          "path": "data/official/upstream/2026-10-16/news-readback-20261015T163742Z/CN-NEWS-4316592c21720ace.html.gz",
+          "sha256": "4a1d6f604f5ff22ea727c8321cf5d188e6162d872363f6e6c19a4197bf740111"
+        },
+        "rawSha256": "574cfebe168c9dedd2f9099b7ea604550c8fe9ecca62383abaad80710893ac2b",
+        "rawBytes": 2858
+      },
+      "independentFaqBodyRetrieved": false,
+      "bodyByteIdenticalToPrevious": true
+    },
+    {
+      "id": "CN-NEWS-19bead1944fcb5ec",
+      "titleAsListed": "赛事规则上线，赛事详情全解析",
+      "publishedAsListed": "2025-08-13",
+      "url": "https://mp.weixin.qq.com/s/RxhUnZEhtc43WyuTAYV6dA",
+      "region": "CN",
+      "language": "zh-CN",
+      "auditApplicableAsOf": "2026-10-16",
+      "effectiveDate": null,
+      "publicationDateIndependentlyConfirmed": false,
+      "originalAttempt": {
+        "id": "CN-NEWS-19bead1944fcb5ec",
+        "titleAsListed": "赛事规则上线，赛事详情全解析",
+        "publishedAsListed": "2025-08-13",
+        "url": "https://mp.weixin.qq.com/s/RxhUnZEhtc43WyuTAYV6dA",
+        "fetchedAtUtc": "2026-10-15T11:00:39.270463+00:00",
+        "bodyStatus": "SOURCE_GAP_FETCH_ERROR",
+        "error": "URLError: <urlopen error [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1010)>"
+      },
+      "applicability": "OPEN_REQUIRES_CURRENT_REGIONAL_AND_CLAUSE_RECONCILIATION",
+      "semanticReview": "OPEN",
+      "wholePrintingCertified": false,
+      "blocks": [],
+      "images": [],
+      "acquisitionState": "SOURCE_GAP",
+      "latestAttempt": {
+        "id": "CN-NEWS-19bead1944fcb5ec",
+        "titleAsListed": "赛事规则上线，赛事详情全解析",
+        "publishedAsListed": "2025-08-13",
+        "url": "https://mp.weixin.qq.com/s/RxhUnZEhtc43WyuTAYV6dA",
+        "fetchedAtUtc": "2026-10-15T16:41:46.022422+00:00",
+        "attempt": 2,
+        "normalTls": true,
+        "previousReceipt": "body-fetch-receipts.json",
+        "receivedAtUtc": "2026-10-15T16:41:47.395357+00:00",
+        "status": "RETRIEVED_REQUIRES_EXTRACTION",
+        "sha256": "322f59d2a164829cea361be79b05b6e561a03676e4a0fc2c4966d9b8a9c0ba4a",
+        "bytes": 18164,
+        "finalUrl": "https://mp.weixin.qq.com/mp/wappoc_appmsgcaptcha?poc_token=HEsC0WqjPqtx_x7YGYWRMfFZNln87OfrckNz32dB&target_url=https%3A%2F%2Fmp.weixin.qq.com%2Fs%2FRxhUnZEhtc43WyuTAYV6dA",
+        "rawPath": "var/qa/cn-effective-20261016/news/CN-NEWS-19bead1944fcb5ec-retry.html"
+      },
+      "gapReason": "ARTICLE_ROOT_MISSING_ENVIRONMENT_VERIFICATION_PAGE"
+    }
+  ],
+  "boundaries": [
+    "News-list dates are not independently verified publication or effective dates.",
+    "Event-specific rulings are retained and require current applicability and supersession review.",
+    "The Guangzhou article explicitly says its event cases are not the official FAQ.",
+    "Paragraph and image identity is a locator, not a semantic rule or implementation certificate.",
+    "No historical scoped review, accepted match or runtime input was migrated."
+  ],
+  "newsListingResponses": [
+    {
+      "path": "docs/evidence/source-round-2026-10-21/news-current-139-listing/official-news-page1.json",
+      "sha256": "524cca8026ba9db54fe1668c024c77792a0ad541a2704420ab63f3acc59e7c9c",
+      "role": "current21-exact-http-json-reader-adapter"
+    },
+    {
+      "path": "docs/evidence/source-round-2026-10-21/news-current-139-listing/official-news-page2.json",
+      "sha256": "35d754a4864836f81a20d77f3931d92b04bad65a8a37de11f705d1bdc48e687a",
+      "role": "current21-exact-http-json-reader-adapter"
+    }
+  ],
+  "unclassifiedMetadataBodiesRemainOpen": 119,
+  "previousEntireNewsLedger": {
+    "path": "docs/evidence/cn-effective-2026-10-16/news-obligations.json",
+    "sha256": "852848590b04939d8780cb3dbd0e7c6e6ebca16eedfbe22a5163e95b353e8762",
+    "role": "unchanged-original20-paragraph-and138-listing-obligation-ledger"
+  },
+  "currentObservationRound": {
+    "path": "docs/evidence/source-round-2026-10-21/source-manifest.json",
+    "sha256": "be041f4548b530a5454ac87ecd688ae1c6f027d73ab3ccc424fa5176bb5cddf5",
+    "role": "current21-independent-source-round"
+  },
+  "currentObservationAsOf": "2026-10-21",
+  "scopeIsOriginalCn16CertificationTargetNotAnObservationOrPublicationDate": true,
+  "allOriginal20DocumentRecordsCandidateInventoryAndCn16CardSourceExact": true,
+  "newUnclassifiedIndexIdentityHasSeparatePreciseBoundedSurfaceReview": {
+    "id": "CN-NEWS-d7e10972978590af",
+    "metadata": {
+      "name": "聚光开幕丨辉耀群星发售纪念活动",
+      "image": "https://cdn.playloltcg.com/lol/2026/10/2026-10-20/69b37aac408449f48a304a5249207464.png",
+      "pushDate": "2026-10-20",
+      "jumpType": "h5",
+      "appId": "",
+      "jumpUrl": "https://mp.weixin.qq.com/s/11k9oH0Ib6KexrKrVBIv9w",
+      "sort": 167
+    },
+    "currentFullBodyPrimaryImageAndFutureDateDisposition": {
+      "role": "finite-new-activity-surface",
+      "path": "docs/evidence/source-round-2026-10-21/originals/new-activity-source/visual-current-date-and-finite-identity-disposition-v1.json",
+      "sha256": "c8134b489f4ff1eb140021f42dea412adea4c5419a4e0c56b59e6bbd18d506a5"
+    },
+    "finiteSourceIdentityAndMiniappObligations": [
+      {
+        "id": "CN21_ACTIVITY_20261020_PERIOD_AND_NON_GAMEPLAY_SURFACE",
+        "disposition": "FUTURE_EVENT_PERIOD_RECORDED_NO_NEW_ENGINE_INSTRUCTION_ON_THIS_REVIEWED_SURFACE",
+        "semanticReview": "BOUNDED_IMAGE_SURFACE_ONLY",
+        "implementation": "NO_NEW_GAMEPLAY_CHANGE_JUSTIFIED_BY_THIS_SURFACE",
+        "testExecution": "NOT_A_GAMEPLAY_PASS",
+        "fixedCommitCi": "SEPARATE",
+        "productAcceptance": "SEPARATE"
+      },
+      {
+        "id": "CN21_ACTIVITY_20261020_PRECISE_PROMO_PRINTING_IDENTITY",
+        "disposition": "OPEN_SOURCE_IDENTITY_NO_EXISTING_PRINTING_MERGE"
+      },
+      {
+        "id": "CN21_ACTIVITY_20261020_OFFICIAL_MINIAPP_FULL_ELIGIBILITY",
+        "disposition": "OPEN_SOURCE_ACCESS_AND_CURRENT_REGIONAL_DATE_APPLICABILITY"
+      },
+      {
+        "id": "CN21_ACTIVITY_20261020_REDEMPTION_AND_DEADLINE_SCOPE",
+        "disposition": "PRINTED_DEADLINE_RECORDED_MINIAPP_CONDITIONS_AND_TIMEZONE_OPEN"
+      }
+    ],
+    "genericLegacyOpenLabelIsConservativeNoClaimBodyAbsentOrUnfetched": true,
+    "noExistingCardOrPromoIdentityMerged": true,
+    "wholeSourceOrPrintingCertified": false
+  }
+}

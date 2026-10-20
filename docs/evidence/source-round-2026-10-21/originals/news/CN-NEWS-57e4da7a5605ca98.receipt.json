@@ -1,0 +1,41 @@
+{
+  "url": "https://mp.weixin.qq.com/s/VGjnjwEEh1L0B8ZaRlW8Fw",
+  "request": null,
+  "attemptedAtUtc": "2026-10-20T16:15:23.901101+00:00",
+  "roundApplicableAsOf": "2026-10-21",
+  "region": "CN",
+  "language": "zh-CN",
+  "timezone": "Asia/Shanghai",
+  "firstPublicationIndependentlyConfirmed": null,
+  "effectiveDateIndependentlyConfirmed": null,
+  "semanticReview": "OPEN",
+  "runtimeAuthorityChanged": false,
+  "resolvedUrl": "https://mp.weixin.qq.com/s/VGjnjwEEh1L0B8ZaRlW8Fw",
+  "httpStatus": 200,
+  "responseHeaders": {
+    "Last-Modified": "Wed, 21 Oct 2026 00:15:24 +0800",
+    "Content-Type": "text/html; charset=UTF-8"
+  },
+  "status": "SOURCE_EXTRACTION_GAP_WITH_ORIGINAL_RESPONSE_RETAINED",
+  "receivedAtUtc": "2026-10-20T16:15:27.888826+00:00",
+  "path": "var/qa/source-round-20261021/news/CN-NEWS-57e4da7a5605ca98.html.gz",
+  "sha256": "73300d7c2705218fe91c16e65a21457e076c4eccadd18c00f5580454072a73e3",
+  "bytes": 3663354,
+  "compressedSha256": "c3018d4609ec6df13fa83b8d7f988acafd02d32f9aaceebbbf0a52025372fa46",
+  "losslessGzipOriginalBytes": true,
+  "id": "CN-NEWS-57e4da7a5605ca98",
+  "allListingRows": [
+    {
+      "name": "更新公告丨首个大型规则版本更新",
+      "image": "https://cdn.playloltcg.com/lol/2025/10/2025-10-24/f2efd26b91e745db8f10d4b7889db353.jpg",
+      "pushDate": "2025-10-24",
+      "jumpType": "h5",
+      "appId": "",
+      "jumpUrl": "https://mp.weixin.qq.com/s/VGjnjwEEh1L0B8ZaRlW8Fw",
+      "sort": 74
+    }
+  ],
+  "publishedAsListed": "2025-10-24",
+  "extractionErrorType": "TypeError",
+  "extractionError": "'int' object is not callable"
+}

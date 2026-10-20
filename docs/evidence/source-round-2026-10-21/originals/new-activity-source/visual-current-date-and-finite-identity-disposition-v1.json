@@ -1,0 +1,119 @@
+{
+  "status": "ORIGINAL_PRIMARY_IMAGE_VISUALLY_REVIEWED_FUTURE_EVENT_SURFACE_ONLY_PRECISE_PROMO_IDENTITY_AND_MINIAPP_DETAILS_OPEN",
+  "reviewedAtUtc": "2026-10-20T16:37:33.031476+00:00",
+  "region": "CN",
+  "language": "zh-CN",
+  "roundApplicableAsOf": "2026-10-21",
+  "sourceArticleId": "CN-NEWS-d7e10972978590af",
+  "articleUrl": "https://mp.weixin.qq.com/s/11k9oH0Ib6KexrKrVBIv9w",
+  "listedPushDate": "2026-10-20",
+  "firstPublicationIndependentlyConfirmed": null,
+  "originalImage": {
+    "sourceArticleId": "CN-NEWS-d7e10972978590af",
+    "officialArticleUrl": "https://mp.weixin.qq.com/s/11k9oH0Ib6KexrKrVBIv9w",
+    "sourceImageUrl": "https://mmecoa.qpic.cn/sz_mmecoa_png/QD913GwJEgA3otF9jgRoOsKE0ibeugRtn66Kic5Mhl8db0OcLa2euV391eVrs3yGXdibTheZVwdfKcftojZAhIoHYvqCvreBPNXaWchw69p89g/640?wx_fmt=png&from=appmsg",
+    "resolvedUrl": "https://mmecoa.qpic.cn/sz_mmecoa_png/QD913GwJEgA3otF9jgRoOsKE0ibeugRtn66Kic5Mhl8db0OcLa2euV391eVrs3yGXdibTheZVwdfKcftojZAhIoHYvqCvreBPNXaWchw69p89g/640?wx_fmt=png&from=appmsg",
+    "attemptedAtUtc": "2026-10-20T16:20:21.569313+00:00",
+    "receivedAtUtc": "2026-10-20T16:20:22.401972+00:00",
+    "path": "var/qa/source-round-20261021/new-activity-source/official-activity-original.png",
+    "sha256": "c91c884f148ed8c15efbca2d4f9a4ca6b7505949e25c28eeaf3988c350abe66b",
+    "bytes": 2471995,
+    "headers": {
+      "Date": "Tue, 20 Oct 2026 08:46:09 GMT",
+      "Content-Type": "image/png",
+      "Last-Modified": "Tue, 20 Oct 2026 07:29:05 GMT"
+    },
+    "region": "CN",
+    "language": "zh-CN",
+    "roundApplicableAsOf": "2026-10-21",
+    "imageSemanticsAndEffectiveDateDisposition": "OPEN"
+  },
+  "originalImageDimensions": {
+    "width": 1080,
+    "height": 1440
+  },
+  "visualReviewMethod": "Actual original image pixels viewed; OCR used only as locators and its character errors retained",
+  "sourceImageSurface": "Single declared primary image and complete static article root with empty text and no links",
+  "activityPeriod": {
+    "starts": "2026-10-23",
+    "ends": "2026-11-30",
+    "sourceIsEventParticipationPeriodNotBlanketCardLegalityDate": true
+  },
+  "redemptionDeadlineAsPrinted": "2026-12-03 23:59:59",
+  "deadlineTimezoneNotIndependentlySpecified": true,
+  "observedParticipationCondition": {
+    "eventTypes": [
+      "符文竞技",
+      "符文之夜",
+      "城市挑战赛"
+    ],
+    "participateAndVerifyCount": 2,
+    "perPersonPerSeasonRewardLimit": 1
+  },
+  "rewardAsDisplayed": {
+    "cardName": "嘉文四世",
+    "subTitle": "冕武天骄",
+    "kind": "限定P卡兑换券",
+    "exactPromotionalCollectorId": "OPEN_NOT_LEGIBLE_OR_INDEPENDENTLY_BOUND",
+    "smallDisplayedFaceRules": "NOT_CERTIFIED_FROM_THIS_POSTER"
+  },
+  "sameNameSubtitleApiCandidatesKeptDistinctNotMergedIntoNewPromo": [
+    {
+      "id": 40214,
+      "cardNo": "RAD·133/167",
+      "cardName": "嘉文四世",
+      "subTitle": "冕武天骄",
+      "energy": 7,
+      "power": 7,
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20261012/34be87efdc3741d4b4a0820180bac1f2.png"
+    },
+    {
+      "id": 40215,
+      "cardNo": "RAD·133a/167",
+      "cardName": "嘉文四世",
+      "subTitle": "冕武天骄",
+      "energy": 7,
+      "power": 7,
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20261012/f834690440794f7aa06a9812bc6a7237.png"
+    }
+  ],
+  "additionalReferencedSurfaces": [
+    {
+      "surface": "official Riftbound miniapp",
+      "scope": "Full event eligibility and reward mechanism; QR/miniapp details not retrieved",
+      "status": "OPEN"
+    },
+    {
+      "surface": "闪魂 miniapp",
+      "scope": "Physical redemption order terms not retrieved",
+      "status": "OPEN"
+    }
+  ],
+  "finiteIntakeObligations": [
+    {
+      "id": "CN21_ACTIVITY_20261020_PERIOD_AND_NON_GAMEPLAY_SURFACE",
+      "disposition": "FUTURE_EVENT_PERIOD_RECORDED_NO_NEW_ENGINE_INSTRUCTION_ON_THIS_REVIEWED_SURFACE",
+      "semanticReview": "BOUNDED_IMAGE_SURFACE_ONLY",
+      "implementation": "NO_NEW_GAMEPLAY_CHANGE_JUSTIFIED_BY_THIS_SURFACE",
+      "testExecution": "NOT_A_GAMEPLAY_PASS",
+      "fixedCommitCi": "SEPARATE",
+      "productAcceptance": "SEPARATE"
+    },
+    {
+      "id": "CN21_ACTIVITY_20261020_PRECISE_PROMO_PRINTING_IDENTITY",
+      "disposition": "OPEN_SOURCE_IDENTITY_NO_EXISTING_PRINTING_MERGE"
+    },
+    {
+      "id": "CN21_ACTIVITY_20261020_OFFICIAL_MINIAPP_FULL_ELIGIBILITY",
+      "disposition": "OPEN_SOURCE_ACCESS_AND_CURRENT_REGIONAL_DATE_APPLICABILITY"
+    },
+    {
+      "id": "CN21_ACTIVITY_20261020_REDEMPTION_AND_DEADLINE_SCOPE",
+      "disposition": "PRINTED_DEADLINE_RECORDED_MINIAPP_CONDITIONS_AND_TIMEZONE_OPEN"
+    }
+  ],
+  "existingAlreadyStartedPreriftApplicabilityAndAllOldSourceDispositionsPreserved": true,
+  "noClaimAllRadianceEntriesInapplicableBeforeGeneralRelease": true,
+  "noCurrentRuntimeOrCardCatalogOrOldEvidenceChanged": true,
+  "wholePrintingOrWholeSourceSemanticCertification": false
+}

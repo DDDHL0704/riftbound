@@ -1,0 +1,49 @@
+{
+  "atUtc": "2026-10-20T14:55:48.681267+00:00",
+  "status": "PASS_ORIGINAL_SUCCESSFUL_PREFIX_BUILD_WITH_CORRECT_SIGNALR_ASSEMBLY_IDENTITY_CHECK",
+  "fixedCommit": "564e433d54d47f98b405787eed97cbdd48b7c394",
+  "sourceHashes": {
+    "probe.csproj": "6b53759c3326eb263cdf96bd95bddc4c94482194c8aa2f7ebac57d0d95fc3007",
+    "ActualProductionNativeGateway.cs": "50fcd5c6fdde075a7c267b27d169409bf8949ca5054f83ae6ce7d604dde66561",
+    "Program.cs": "37bad037a624a031dc7fc15eae14af8cb28aaad2a8c23119f16482f5356967aa",
+    "Fixtures/reversal-target-openings.json": "f566e012152924e697af83e718594a9dc2dfbfedc1b9af43e6003dcf56719260"
+  },
+  "runtimeHashes": {
+    "Microsoft.AspNetCore.Connections.Abstractions.dll": "7f279e0b78d0652ad9b053b25e80cc7f186b36cc1de1e32d24105bff9a98c0f3",
+    "Microsoft.AspNetCore.Http.Connections.Client.dll": "08e97e198d957f7fd5de7fee7d6409155e1ac6565a8d3c0926b090c8591e3036",
+    "Fixed564NativeReversalPrefix.runtimeconfig.json": "9950d4583cfc9a106857c0d5b8a75b53e8774852b57b80bc3823a74d44a4d87f",
+    "Microsoft.Extensions.Logging.dll": "b2cfba2e05ee89a91e9bc9cf112468a5f4fa05d1a77ea81c131ea656f3d133c2",
+    "Riftbound.Contracts.pdb": "4320d13b695fb0b966460bdc3cd147193111fa9cdac8574fca6a665d5a1b3936",
+    "Fixed564NativeReversalPrefix.dll": "153ac9798c3d7fcb3a2b734cde4a573a8859b32181a7dc72619438c263be259b",
+    "Microsoft.AspNetCore.Http.Connections.Common.dll": "4446d96d3d88fe38498187a8f3c342ba97d9a0d7914e309555b528ae7e294499",
+    "Microsoft.Extensions.Logging.Abstractions.dll": "bb853130f5afaf335be7858d661f8212ec653835100f5a4e3aa2c66a4d4f685d",
+    "Microsoft.AspNetCore.SignalR.Protocols.Json.dll": "337bd529119666700dcbfceb2395ef28d25f3735e52cb2e513e600a2fcf1ffb7",
+    "Microsoft.AspNetCore.SignalR.Client.dll": "85b7b98f638a0e1d021b8d99ea4f1411dc9cb0bbc9aa3b90476abde58004e8ee",
+    "Microsoft.Extensions.Primitives.dll": "446ff16e903e7479558816e213a3adee9a1c1adad65a56d853801b10933e29d7",
+    "Microsoft.Extensions.DependencyInjection.dll": "158761ce778e799949f3a3060c461b1055bb35f1f5a65eff0e42397849f09ecd",
+    "Microsoft.AspNetCore.SignalR.Common.dll": "550058f27f5577e20184a0e0d198c90c87079b45dffab170423f6fe030c0687d",
+    "Riftbound.Contracts.dll": "2e0af1fb35beabab83cb4510b1dbce5e7fb3e439752759a618900f125ea28eb5",
+    "Microsoft.Extensions.Options.dll": "5e01894cbc0661bacb8ca8f485a40d5ee4e02f28fef58007668a0276431b4693",
+    "Fixed564NativeReversalPrefix.pdb": "711ad48bc27db0624957f405b47a5b53490cb872eca860a7a75ab846dedbfc51",
+    "Fixed564NativeReversalPrefix.deps.json": "325aff2e09660ebd77853d68a228c478ebb6247c3bb25e027cce573cc7853522",
+    "Fixed564NativeReversalPrefix": "16bc3d99576a070ae952e17538d340c7c0164006822a9d59ee96ebce45fb7b3a",
+    "Microsoft.Extensions.Features.dll": "75dd3372396a3b06bfb7b3b0d92ffd7e87e53efe61429eccc8970d8983c9ebc0",
+    "Microsoft.Extensions.DependencyInjection.Abstractions.dll": "67fa4325000db017dc0c35829b416f024f042d24efb868bcf17a895ee6500a93",
+    "Microsoft.AspNetCore.SignalR.Client.Core.dll": "feaa6dbd94bb63e1dcdfa9013032f6fcf7133bf8457c69b4bef24fc9537ab544",
+    "Fixtures/reversal-target-openings.json": "f566e012152924e697af83e718594a9dc2dfbfedc1b9af43e6003dcf56719260"
+  },
+  "allFourActualPatchedNativeSignalR8_0_32BytesExactToIndependentlyVerifiedFixed43Prefix": {
+    "Microsoft.AspNetCore.SignalR.Client.dll": "85b7b98f638a0e1d021b8d99ea4f1411dc9cb0bbc9aa3b90476abde58004e8ee",
+    "Microsoft.AspNetCore.SignalR.Client.Core.dll": "feaa6dbd94bb63e1dcdfa9013032f6fcf7133bf8457c69b4bef24fc9537ab544",
+    "Microsoft.AspNetCore.SignalR.Common.dll": "550058f27f5577e20184a0e0d198c90c87079b45dffab170423f6fe030c0687d",
+    "Microsoft.AspNetCore.SignalR.Protocols.Json.dll": "337bd529119666700dcbfceb2395ef28d25f3735e52cb2e513e600a2fcf1ffb7"
+  },
+  "actualSignalRCommonSha256": "550058f27f5577e20184a0e0d198c90c87079b45dffab170423f6fe030c0687d",
+  "actualDifferentHttpConnectionsCommonSha256": "4446d96d3d88fe38498187a8f3c342ba97d9a0d7914e309555b528ae7e294499",
+  "originalWrongFilenameAssertionAndIncorrectFirstDiagnosisRetainedWithExplicitCorrection": true,
+  "sameOriginalBinaryNoRebuildOrWeakenedPackageCheck": true,
+  "all3314FixedSourceInputsExact": true,
+  "nativeGatewayActualRootSourceAndOriginalOpeningFixtureExact": true,
+  "contractExactToCurrentFixedApi": true,
+  "newLiveGameNotYetExecuted": true
+}

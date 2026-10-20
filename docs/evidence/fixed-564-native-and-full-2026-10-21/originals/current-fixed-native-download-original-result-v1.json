@@ -1,0 +1,95 @@
+{
+  "atUtc": "2026-10-20T15:16:53.393473+00:00",
+  "fixedCommit": "564e433d54d47f98b405787eed97cbdd48b7c394",
+  "runId": 39442248507,
+  "artifacts": [
+    {
+      "name": "native-macos-latest",
+      "id": 12274873268,
+      "filename": "mac-ci-artifact.zip",
+      "actualDownloadExitCode": 0,
+      "actualBytes": 142913793,
+      "actualSha256": "e99667eba0bb842e4297f352dd1a63022f6a42968a927cd47e3ed41f5ab271d0",
+      "expectedBytes": 142913793,
+      "expectedDigest": "sha256:e99667eba0bb842e4297f352dd1a63022f6a42968a927cd47e3ed41f5ab271d0",
+      "allOuterZipCrcVerified": true,
+      "entries": [
+        {
+          "name": "ci-logs/build.log",
+          "bytes": 596,
+          "crc32": "f1e030d2"
+        },
+        {
+          "name": "ci-logs/exported-boot.log",
+          "bytes": 10597,
+          "crc32": "51a77a53"
+        },
+        {
+          "name": "ci-logs/export.log",
+          "bytes": 263625,
+          "crc32": "d50cef46"
+        },
+        {
+          "name": "ci-logs/import.log",
+          "bytes": 17946,
+          "crc32": "0c2952f2"
+        },
+        {
+          "name": "ci-logs/rune-table-lifecycle.log",
+          "bytes": 151,
+          "crc32": "66fd1edb"
+        },
+        {
+          "name": "macos/Riftbound.zip",
+          "bytes": 142620046,
+          "crc32": "3236e21b"
+        }
+      ]
+    },
+    {
+      "name": "native-windows-latest",
+      "id": 12274787827,
+      "filename": "windows-ci-artifact.zip",
+      "actualDownloadExitCode": 0,
+      "actualBytes": 89135525,
+      "actualSha256": "c4bd911eeb063b2d6cd1a686558f11aa64e0581c4294bab3c4766c2885449e95",
+      "expectedBytes": 89135525,
+      "expectedDigest": "sha256:c4bd911eeb063b2d6cd1a686558f11aa64e0581c4294bab3c4766c2885449e95",
+      "allOuterZipCrcVerified": true,
+      "entries": [
+        {
+          "name": "ci-logs/export.log",
+          "bytes": 115105,
+          "crc32": "d61bc314"
+        },
+        {
+          "name": "ci-logs/build.log",
+          "bytes": 552,
+          "crc32": "33fefe91"
+        },
+        {
+          "name": "ci-logs/import.log",
+          "bytes": 18220,
+          "crc32": "1c7e5899"
+        },
+        {
+          "name": "ci-logs/exported-boot.log",
+          "bytes": 10830,
+          "crc32": "3f05b35e"
+        },
+        {
+          "name": "ci-logs/rune-table-lifecycle.log",
+          "bytes": 154,
+          "crc32": "911a7238"
+        },
+        {
+          "name": "windows/Riftbound-windows-x64.zip",
+          "bytes": 88989804,
+          "crc32": "7be72851"
+        }
+      ]
+    }
+  ],
+  "previousFixed43PairRetainedUntilNewUsabilityVerified": true,
+  "newBootInnerPayloadAndPhysicalWindowsStillPending": true
+}

@@ -1,0 +1,41 @@
+{
+  "url": "https://mp.weixin.qq.com/s/ayaVo-xm0xQpphgoQmXpYw",
+  "request": null,
+  "attemptedAtUtc": "2026-10-20T16:16:13.631650+00:00",
+  "roundApplicableAsOf": "2026-10-21",
+  "region": "CN",
+  "language": "zh-CN",
+  "timezone": "Asia/Shanghai",
+  "firstPublicationIndependentlyConfirmed": null,
+  "effectiveDateIndependentlyConfirmed": null,
+  "semanticReview": "OPEN",
+  "runtimeAuthorityChanged": false,
+  "resolvedUrl": "https://mp.weixin.qq.com/s/ayaVo-xm0xQpphgoQmXpYw",
+  "httpStatus": 200,
+  "responseHeaders": {
+    "Last-Modified": "Wed, 21 Oct 2026 00:16:14 +0800",
+    "Content-Type": "text/html; charset=UTF-8"
+  },
+  "status": "SOURCE_EXTRACTION_GAP_WITH_ORIGINAL_RESPONSE_RETAINED",
+  "receivedAtUtc": "2026-10-20T16:16:17.278960+00:00",
+  "path": "var/qa/source-round-20261021/news/CN-NEWS-9253b02b6904792f.html.gz",
+  "sha256": "f0b9917b221faa665609ceb7a38c2ba364b967206b3c29153691bec7eb4f6740",
+  "bytes": 3448110,
+  "compressedSha256": "dbac7fa78637a7de4d3b97b366ce1b1decfe6ae3ecee03af7a777d559919cf64",
+  "losslessGzipOriginalBytes": true,
+  "id": "CN-NEWS-9253b02b6904792f",
+  "allListingRows": [
+    {
+      "name": "新春献礼丨2026微信专属红包封面预告",
+      "image": "https://cdn.playloltcg.com/lol/2026/02/2026-02-09/84b450aae5424e3f8c9af5c7abce8d2a.png",
+      "pushDate": "2026-02-09",
+      "jumpType": "h5",
+      "appId": "",
+      "jumpUrl": "https://mp.weixin.qq.com/s/ayaVo-xm0xQpphgoQmXpYw",
+      "sort": 111
+    }
+  ],
+  "publishedAsListed": "2026-02-09",
+  "extractionErrorType": "TypeError",
+  "extractionError": "'int' object is not callable"
+}

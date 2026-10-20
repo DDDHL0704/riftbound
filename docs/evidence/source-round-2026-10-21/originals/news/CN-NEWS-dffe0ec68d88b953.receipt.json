@@ -1,0 +1,41 @@
+{
+  "url": "https://mp.weixin.qq.com/s/Jd7hn-1ALQ4dWGtAEpv6Ag",
+  "request": null,
+  "attemptedAtUtc": "2026-10-20T16:17:00.499806+00:00",
+  "roundApplicableAsOf": "2026-10-21",
+  "region": "CN",
+  "language": "zh-CN",
+  "timezone": "Asia/Shanghai",
+  "firstPublicationIndependentlyConfirmed": null,
+  "effectiveDateIndependentlyConfirmed": null,
+  "semanticReview": "OPEN",
+  "runtimeAuthorityChanged": false,
+  "resolvedUrl": "https://mp.weixin.qq.com/s/Jd7hn-1ALQ4dWGtAEpv6Ag",
+  "httpStatus": 200,
+  "responseHeaders": {
+    "Last-Modified": "Wed, 21 Oct 2026 00:17:01 +0800",
+    "Content-Type": "text/html; charset=UTF-8"
+  },
+  "status": "SOURCE_EXTRACTION_GAP_WITH_ORIGINAL_RESPONSE_RETAINED",
+  "receivedAtUtc": "2026-10-20T16:17:05.040628+00:00",
+  "path": "var/qa/source-round-20261021/news/CN-NEWS-dffe0ec68d88b953.html.gz",
+  "sha256": "137bdbfec11c359101a41ce04474258fff041946dcd81c9e022225945d4611cb",
+  "bytes": 3463472,
+  "compressedSha256": "5bc84df543f8fd31b38ae38a7354dfa1634e826ef55f483b0adf9bb587886d82",
+  "losslessGzipOriginalBytes": true,
+  "id": "CN-NEWS-dffe0ec68d88b953",
+  "allListingRows": [
+    {
+      "name": "T1冠军签名限定礼盒活动获取汇总",
+      "image": "https://cdn.playloltcg.com/lol/2026/08/2026-08-06/570dce1d6e694f15a99ba6353c49766e.jpg",
+      "pushDate": "2026-08-04",
+      "jumpType": "h5",
+      "appId": "",
+      "jumpUrl": "https://mp.weixin.qq.com/s/Jd7hn-1ALQ4dWGtAEpv6Ag",
+      "sort": 148
+    }
+  ],
+  "publishedAsListed": "2026-08-04",
+  "extractionErrorType": "TypeError",
+  "extractionError": "'int' object is not callable"
+}

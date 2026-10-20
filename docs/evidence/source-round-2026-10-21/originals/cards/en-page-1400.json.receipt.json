@@ -1,0 +1,15 @@
+{
+  "url": "https://content.publishing.riotgames.com/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=en_US&limit=200&from=1400",
+  "request": null,
+  "fetchedAtUtc": "2026-10-20T16:04:55.041248+00:00",
+  "path": "var/qa/source-round-20261021/cards/en-page-1400.json.gz",
+  "sha256": "fca8b2816c05830427b7233c7fef9835e9aa19fdb022156892a86010b57ae7d9",
+  "bytes": 48267,
+  "losslessGzipRawResponse": true,
+  "compressedSha256": "8f92f5d0f1718a70a7c50357e6be001ddfb21cb3f340d9df68d02a34de8ae387",
+  "responseHeaders": {
+    "Date": "Tue, 20 Oct 2026 16:04:54 GMT",
+    "Cache-Control": "no-cache, private"
+  },
+  "priorAttempts": []
+}

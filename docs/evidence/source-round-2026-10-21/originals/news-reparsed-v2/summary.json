@@ -1,0 +1,149 @@
+{
+  "status": "READONLY_CORRECTED_EXTRACTOR_COMPLETE_ORIGINAL_READBACK_NOT_REFETCH_OR_SEMANTIC_CERTIFICATION",
+  "recordedAtUtc": "2026-10-20T16:18:46.442935+00:00",
+  "roundApplicableAsOf": "2026-10-21",
+  "original139SourceIdentities": 139,
+  "originalInputFilesFrozenAndUnchanged": 267,
+  "completeRoots": 117,
+  "changedLiteralRootIds": [],
+  "changedTextIds": [],
+  "changedImageAttributeIds": [],
+  "remainingAcquisitionOrExtractionGaps": [
+    {
+      "id": "CN-NEWS-e13207b2ccdfd6ee",
+      "url": "https://mp.weixin.qq.com/s/5oNBSj8r40O1PLmUg_NP4A",
+      "status": "READONLY_EXTRACTION_GAP_WITH_ORIGINAL_BYTES_RETAINED",
+      "error": "No complete js_content root"
+    },
+    {
+      "id": "CN-NEWS-a22278a3803fe2ea",
+      "url": "https://mp.weixin.qq.com/s/A2RILu_IhePj4CAPvGDaew",
+      "status": "READONLY_EXTRACTION_GAP_WITH_ORIGINAL_BYTES_RETAINED",
+      "error": "No complete js_content root"
+    },
+    {
+      "id": "CN-NEWS-9028e683b9db5aec",
+      "url": "https://mp.weixin.qq.com/s/t12HwcGC5bAr34BwYLaK0g",
+      "status": "READONLY_EXTRACTION_GAP_WITH_ORIGINAL_BYTES_RETAINED",
+      "error": "No complete js_content root"
+    },
+    {
+      "id": "CN-NEWS-4316592c21720ace",
+      "url": "https://playloltcg.com/rules.html",
+      "status": "READONLY_EXTRACTION_GAP_WITH_ORIGINAL_BYTES_RETAINED",
+      "error": "No complete js_content root"
+    },
+    {
+      "id": "CN-NEWS-baf84eaf1a3284a3",
+      "url": "https://lol.playloltcg.com/rules/game-rules.html",
+      "status": "ORIGINAL_ACQUISITION_GAP_RETAINED",
+      "error": "<urlopen error EOF occurred in violation of protocol (_ssl.c:1129)>"
+    },
+    {
+      "id": "CN-NEWS-92d3cd4106bc1173",
+      "url": "https://lol.playloltcg.com/rules/rules_1026.html",
+      "status": "ORIGINAL_ACQUISITION_GAP_RETAINED",
+      "error": "<urlopen error EOF occurred in violation of protocol (_ssl.c:1129)>"
+    },
+    {
+      "id": "CN-NEWS-7d1c1f8719440ac4",
+      "url": "https://mp.weixin.qq.com/s/0IsHz8ixDiKtFdBCweUMcA",
+      "status": "READONLY_EXTRACTION_GAP_WITH_ORIGINAL_BYTES_RETAINED",
+      "error": "No complete js_content root"
+    },
+    {
+      "id": "CN-NEWS-190b5721e319c0e3",
+      "url": "https://mp.weixin.qq.com/s/_bxW1aFq6VAX0v-ZXsMXuw",
+      "status": "ORIGINAL_ACQUISITION_GAP_RETAINED",
+      "error": "<urlopen error EOF occurred in violation of protocol (_ssl.c:1129)>"
+    },
+    {
+      "id": "CN-NEWS-e0181a385eb24f92",
+      "url": "https://mp.weixin.qq.com/s/eYhlojxzsgTFKeAu_X5PAA",
+      "status": "ORIGINAL_ACQUISITION_GAP_RETAINED",
+      "error": "<urlopen error EOF occurred in violation of protocol (_ssl.c:1129)>"
+    },
+    {
+      "id": "CN-NEWS-5c3d2beb59c9dde2",
+      "url": "https://mp.weixin.qq.com/s/KKcSRVIhUGNJH3hM9s300Q",
+      "status": "ORIGINAL_ACQUISITION_GAP_RETAINED",
+      "error": "<urlopen error EOF occurred in violation of protocol (_ssl.c:1129)>"
+    },
+    {
+      "id": "CN-NEWS-ade2cda5566e087a",
+      "url": "https://mp.weixin.qq.com/s/Itmyn0c-vQeUPJr2SCDXpw",
+      "status": "ORIGINAL_ACQUISITION_GAP_RETAINED",
+      "error": "<urlopen error EOF occurred in violation of protocol (_ssl.c:1129)>"
+    },
+    {
+      "id": "CN-NEWS-b0ff907de745ff61",
+      "url": "https://mp.weixin.qq.com/s/VQgLZcojDTQ2N8Jm5iW5Zw",
+      "status": "ORIGINAL_ACQUISITION_GAP_RETAINED",
+      "error": "<urlopen error EOF occurred in violation of protocol (_ssl.c:1129)>"
+    },
+    {
+      "id": "CN-NEWS-4582a087cb6deabe",
+      "url": "https://mp.weixin.qq.com/s/ORKLrnLynkHNT5xlcZhLDA",
+      "status": "ORIGINAL_ACQUISITION_GAP_RETAINED",
+      "error": "<urlopen error EOF occurred in violation of protocol (_ssl.c:1129)>"
+    },
+    {
+      "id": "CN-NEWS-2a4d026260b327cd",
+      "url": "https://mp.weixin.qq.com/s/F1YMY2ju0Xmm6m_IwQZEzw",
+      "status": "ORIGINAL_ACQUISITION_GAP_RETAINED",
+      "error": "<urlopen error EOF occurred in violation of protocol (_ssl.c:1129)>"
+    },
+    {
+      "id": "CN-NEWS-50d2109abf1e40d5",
+      "url": "https://mp.weixin.qq.com/s/fy46yQsiAm4JVfxDvlmaEQ",
+      "status": "ORIGINAL_ACQUISITION_GAP_RETAINED",
+      "error": "<urlopen error EOF occurred in violation of protocol (_ssl.c:1129)>"
+    },
+    {
+      "id": "CN-NEWS-c96a18796a7728b3",
+      "url": "https://mp.weixin.qq.com/s/6ZF9-Ayp-Wzzhbr0VeXCdQ",
+      "status": "ORIGINAL_ACQUISITION_GAP_RETAINED",
+      "error": "<urlopen error EOF occurred in violation of protocol (_ssl.c:1129)>"
+    },
+    {
+      "id": "CN-NEWS-b6e18f57c89c1e90",
+      "url": "https://mp.weixin.qq.com/s/4a_tF4_lQ3FPgR6fa9pN_Q",
+      "status": "ORIGINAL_ACQUISITION_GAP_RETAINED",
+      "error": "<urlopen error EOF occurred in violation of protocol (_ssl.c:1129)>"
+    },
+    {
+      "id": "CN-NEWS-362f8d08ca68c5db",
+      "url": "https://mp.weixin.qq.com/s/RRIZmq76rFhe7HxXWngJaA",
+      "status": "ORIGINAL_ACQUISITION_GAP_RETAINED",
+      "error": "<urlopen error EOF occurred in violation of protocol (_ssl.c:1129)>"
+    },
+    {
+      "id": "CN-NEWS-74efdeaab95df409",
+      "url": "https://mp.weixin.qq.com/s/iCT-RJH8RrQI12vwWXWKdg",
+      "status": "ORIGINAL_ACQUISITION_GAP_RETAINED",
+      "error": "<urlopen error EOF occurred in violation of protocol (_ssl.c:1129)>"
+    },
+    {
+      "id": "CN-NEWS-a5a0cab6f21e671b",
+      "url": "https://mp.weixin.qq.com/s/qCd-0jS-BDi8M2lzPp3GSw",
+      "status": "ORIGINAL_ACQUISITION_GAP_RETAINED",
+      "error": "<urlopen error EOF occurred in violation of protocol (_ssl.c:1129)>"
+    },
+    {
+      "id": "CN-NEWS-472f8954155e1040",
+      "url": "https://mp.weixin.qq.com/s/32eK9AU5ghS-Wu5EXUQ0Qw",
+      "status": "ORIGINAL_ACQUISITION_GAP_RETAINED",
+      "error": "<urlopen error EOF occurred in violation of protocol (_ssl.c:1129)>"
+    },
+    {
+      "id": "CN-NEWS-e27c9267fb11ea99",
+      "url": "/subPackages/marketing/T1-giftbox-activity",
+      "status": "ORIGINAL_ACQUISITION_GAP_RETAINED",
+      "error": "unknown url type: '/subPackages/marketing/T1-giftbox-activity'"
+    }
+  ],
+  "correctedToolFailure": "LiteralRoot.offset method collided with HTMLParser offset integer; corrected helper name only",
+  "noHttpRefetchOrOriginalSourceMutation": true,
+  "originalFailureReceiptsPreserved": true,
+  "remoteImageBytesDynamicMediaAndWholePrintingSemanticCertification": false
+}

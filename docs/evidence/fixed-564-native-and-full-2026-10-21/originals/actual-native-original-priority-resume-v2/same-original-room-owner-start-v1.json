@@ -1,0 +1,36 @@
+{
+  "status": "STARTING_SAME_ORIGINAL_ROOM_TWO_NATIVE_PRIORITY_BUTTONS",
+  "startedAtUtc": "2026-10-20T15:12:52.850824+00:00",
+  "fixedCommit": "564e433d54d47f98b405787eed97cbdd48b7c394",
+  "room": "N26-RETARGET-DC5C1D40DE",
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+    "implementationSha256": "74e5b72ea195d9692299e3651fc00ba4acf3db5e3abc224dcb5bfc2a9a3952fa",
+    "identitySha256": "024a2aa1f46dfffddb2877738c3bcb09683cb65f40288d4ba94c37444d8efa0d"
+  },
+  "originalPrefixCommands": 58,
+  "originalNativePayCostCommandsAlreadyAccepted": 2,
+  "originalOwnerFailureAndBothColdFramesRetained": true,
+  "noOpeningSeedOrRoomReplayRestart": true,
+  "ownedApiProcesses": [],
+  "ownedNativeProcesses": [],
+  "lockAtStart": {
+    "atUtc": "2026-10-20T15:12:52.871940+00:00",
+    "roots": [
+      {
+        "rootLocked": true,
+        "sessions": [
+          true
+        ]
+      }
+    ],
+    "missingValuesRemainUnknown": true
+  },
+  "visibleCiExportedAndPhysicalWindowsAcceptance": false,
+  "ownPid": 42536,
+  "boundIdleAssertionPid": 42541
+}

@@ -1,0 +1,49 @@
+{
+  "url": "https://playriftbound.com/en-us/news/announcements/radiance-errata-updates",
+  "request": null,
+  "attemptedAtUtc": "2026-10-20T16:11:56.555742+00:00",
+  "region": "GLOBAL",
+  "language": "en-US",
+  "roundApplicableAsOf": "2026-10-21",
+  "timezone": "Asia/Shanghai",
+  "firstPublicationIndependentlyConfirmed": null,
+  "effectiveDateIndependentlyConfirmed": null,
+  "semanticCertification": false,
+  "runtimeAuthorityAdopted": false,
+  "resolvedUrl": "https://playriftbound.com/en-us/news/announcements/radiance-errata-updates/",
+  "httpStatus": 200,
+  "responseHeaders": {
+    "Date": "Tue, 20 Oct 2026 16:11:58 GMT",
+    "ETag": "\"5lkbosmmly2y8l\"",
+    "Age": "224",
+    "Cache-Control": "public,max-age=0,must-revalidate",
+    "Content-Type": "text/html; charset=utf-8"
+  },
+  "receivedAtUtc": "2026-10-20T16:11:59.499899+00:00",
+  "sha256": "0c6bb166226389f34aafeee14396b42f03b04800f63f068d7bcf2fb88bb77a9c",
+  "bytes": 137725,
+  "path": "var/qa/source-round-20261021/rules/GLOBAL-f52aca82551fb14f.gz",
+  "losslessGzipRawResponse": true,
+  "compressedSha256": "f38eb6e7fde426b84516cddb76082ba57406642815504a4c6c38d20e131fc45d",
+  "status": "FETCHED_CURRENT_ORIGINAL_BYTES_NOT_CERTIFICATION",
+  "kind": "article",
+  "priorReference": {
+    "path": "var/qa/cn-effective-20261016/whole-rule-source-readback/GLOBAL/f52aca82551fb14f",
+    "sha256": "3401089a01cb292dc0dc71fe342757946ad3ada77add2d90d45815d194dc0a29"
+  },
+  "matchesPriorRawBytes": false,
+  "title": "Radiance Errata Updates",
+  "displayedPublishDate": "2026-10-09T16:00:00.000Z",
+  "revision": "xazD1NydBvxtmIxXWIWiO4",
+  "contentBladeTypes": [
+    "riotbar",
+    "articleMasthead",
+    "articleRichText",
+    "articleCardCarousel"
+  ],
+  "bodyPath": "var/qa/source-round-20261021/rules/GLOBAL-f52aca82551fb14f.body.html.gz",
+  "bodyHtmlSha256": "f8fa7cb58daddebb0ca053d7fe69f3dd381f8a3e8c99334262fe9ea6baf36cb4",
+  "bodyMatchesLatestPrior": true,
+  "bodyMatchesFrozenOctober12": true,
+  "newUrlNotInFrozenInventory": false
+}

@@ -1,0 +1,30 @@
+{
+  "url": "https://lol.playloltcg.com/rules/rules_1026.html",
+  "request": null,
+  "attemptedAtUtc": "2026-10-20T16:15:28.305083+00:00",
+  "roundApplicableAsOf": "2026-10-21",
+  "region": "CN",
+  "language": "zh-CN",
+  "timezone": "Asia/Shanghai",
+  "firstPublicationIndependentlyConfirmed": null,
+  "effectiveDateIndependentlyConfirmed": null,
+  "semanticReview": "OPEN",
+  "runtimeAuthorityChanged": false,
+  "status": "SOURCE_GAP_NORMAL_TLS_FETCH_ERROR",
+  "receivedAtUtc": "2026-10-20T16:15:33.312047+00:00",
+  "errorType": "URLError",
+  "error": "<urlopen error EOF occurred in violation of protocol (_ssl.c:1129)>",
+  "id": "CN-NEWS-92d3cd4106bc1173",
+  "allListingRows": [
+    {
+      "name": "起源系列丨勘误汇总",
+      "image": "https://cdn.playloltcg.com/lol/2025/10/2025-10-28/8127b7f184164d729f0ef4c607419263.jpeg",
+      "pushDate": "2025-10-28",
+      "jumpType": "h5",
+      "appId": "",
+      "jumpUrl": "https://lol.playloltcg.com/rules/rules_1026.html",
+      "sort": 76
+    }
+  ],
+  "publishedAsListed": "2025-10-28"
+}

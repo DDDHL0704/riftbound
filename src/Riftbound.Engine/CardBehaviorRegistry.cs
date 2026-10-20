@@ -8400,7 +8400,7 @@ public static class CardBehaviorRegistry
             1,
             3,
             TargetScope: CardTargetScopes.AnyUnit,
-            MinTargetCount: 1),
+            MinTargetCount: 0),
         new(
             "UNL-044/219",
             "羽毛旋风",

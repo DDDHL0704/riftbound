@@ -1,0 +1,48 @@
+{
+  "status": "ONE_BOUNDED_NORMAL_TLS_PUBLIC_GAP_RETRY_PASS_NOT_SOURCE_ABSENCE_OR_SEMANTIC_CERTIFICATION",
+  "recordedAtUtc": "2026-10-20T16:22:23.270229+00:00",
+  "attempted": 20,
+  "completeRoots": 13,
+  "changedLiteralRootIds": [],
+  "changedTextIds": [],
+  "remainingGaps": [
+    {
+      "id": "CN-NEWS-e13207b2ccdfd6ee",
+      "url": "https://mp.weixin.qq.com/s/5oNBSj8r40O1PLmUg_NP4A",
+      "status": "RETRY_ACQUISITION_OR_EXTRACTION_GAP"
+    },
+    {
+      "id": "CN-NEWS-a22278a3803fe2ea",
+      "url": "https://mp.weixin.qq.com/s/A2RILu_IhePj4CAPvGDaew",
+      "status": "RETRY_ACQUISITION_OR_EXTRACTION_GAP"
+    },
+    {
+      "id": "CN-NEWS-9028e683b9db5aec",
+      "url": "https://mp.weixin.qq.com/s/t12HwcGC5bAr34BwYLaK0g",
+      "status": "RETRY_ACQUISITION_OR_EXTRACTION_GAP"
+    },
+    {
+      "id": "CN-NEWS-baf84eaf1a3284a3",
+      "url": "https://lol.playloltcg.com/rules/game-rules.html",
+      "status": "SOURCE_ACCESS_GAP_RETRY_FAILED_ORIGINAL_BYTES_RETAINED"
+    },
+    {
+      "id": "CN-NEWS-92d3cd4106bc1173",
+      "url": "https://lol.playloltcg.com/rules/rules_1026.html",
+      "status": "SOURCE_ACCESS_GAP_RETRY_FAILED_ORIGINAL_BYTES_RETAINED"
+    },
+    {
+      "id": "CN-NEWS-7d1c1f8719440ac4",
+      "url": "https://mp.weixin.qq.com/s/0IsHz8ixDiKtFdBCweUMcA",
+      "status": "RETRY_ACQUISITION_OR_EXTRACTION_GAP"
+    },
+    {
+      "id": "CN-NEWS-472f8954155e1040",
+      "url": "https://mp.weixin.qq.com/s/32eK9AU5ghS-Wu5EXUQ0Qw",
+      "status": "RETRY_ACQUISITION_OR_EXTRACTION_GAP"
+    }
+  ],
+  "original139AcquisitionAndCorrectedReadbackUnmodified": true,
+  "allMediaBytesAndSemanticCertification": false,
+  "rulesIndexAliasAndMiniappRouteRetainSeparateExplicitDisposition": true
+}

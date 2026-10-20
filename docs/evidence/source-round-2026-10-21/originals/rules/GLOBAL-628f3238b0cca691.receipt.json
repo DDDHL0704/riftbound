@@ -1,0 +1,49 @@
+{
+  "url": "https://playriftbound.com/en-us/news/rules-and-releases/unleashed-errata-updates/",
+  "request": null,
+  "attemptedAtUtc": "2026-10-20T16:11:54.942828+00:00",
+  "region": "GLOBAL",
+  "language": "en-US",
+  "roundApplicableAsOf": "2026-10-21",
+  "timezone": "Asia/Shanghai",
+  "firstPublicationIndependentlyConfirmed": null,
+  "effectiveDateIndependentlyConfirmed": null,
+  "semanticCertification": false,
+  "runtimeAuthorityAdopted": false,
+  "resolvedUrl": "https://playriftbound.com/en-us/news/rules-and-releases/unleashed-errata-updates/",
+  "httpStatus": 200,
+  "responseHeaders": {
+    "Date": "Tue, 20 Oct 2026 16:11:56 GMT",
+    "ETag": "\"zp6anmy2ds322m\"",
+    "Age": "36",
+    "Cache-Control": "public,max-age=0,must-revalidate",
+    "Content-Type": "text/html; charset=utf-8"
+  },
+  "receivedAtUtc": "2026-10-20T16:11:57.122066+00:00",
+  "sha256": "e1db9a7d3728c17cb70f589b5bf704fad094d9173fcb18391c2b708cdf635cec",
+  "bytes": 142714,
+  "path": "var/qa/source-round-20261021/rules/GLOBAL-628f3238b0cca691.gz",
+  "losslessGzipRawResponse": true,
+  "compressedSha256": "d93e017f71a18e125c1863a942db0b453ea71ae096cd6c44b3d3f1441e1f8f9d",
+  "status": "FETCHED_CURRENT_ORIGINAL_BYTES_NOT_CERTIFICATION",
+  "kind": "article",
+  "priorReference": {
+    "path": "var/qa/cn-effective-20261016/whole-rule-source-readback/GLOBAL/628f3238b0cca691",
+    "sha256": "f74068397d81e45da2ec58b67ba050909871003e80b2fbdf7bc1c05a5fbc90e5"
+  },
+  "matchesPriorRawBytes": false,
+  "title": "Unleashed Errata Updates",
+  "displayedPublishDate": "2026-04-03T01:00:00.000Z",
+  "revision": "CBOnzl0gEDUl3TLD2Ros2W",
+  "contentBladeTypes": [
+    "riotbar",
+    "articleMasthead",
+    "articleRichText",
+    "articleCardCarousel"
+  ],
+  "bodyPath": "var/qa/source-round-20261021/rules/GLOBAL-628f3238b0cca691.body.html.gz",
+  "bodyHtmlSha256": "eea9309756bc2bc6aa9e12fabac0d15c612de6d256ea765c69e10c2662e53bf2",
+  "bodyMatchesLatestPrior": true,
+  "bodyMatchesFrozenOctober12": true,
+  "newUrlNotInFrozenInventory": false
+}

@@ -1,0 +1,49 @@
+{
+  "url": "https://playriftbound.com/en-us/news/announcements/october-2026-tournament-rules-changelog/",
+  "request": null,
+  "attemptedAtUtc": "2026-10-20T16:11:37.948681+00:00",
+  "region": "GLOBAL",
+  "language": "en-US",
+  "roundApplicableAsOf": "2026-10-21",
+  "timezone": "Asia/Shanghai",
+  "firstPublicationIndependentlyConfirmed": null,
+  "effectiveDateIndependentlyConfirmed": null,
+  "semanticCertification": false,
+  "runtimeAuthorityAdopted": false,
+  "resolvedUrl": "https://playriftbound.com/en-us/news/announcements/october-2026-tournament-rules-changelog/",
+  "httpStatus": 200,
+  "responseHeaders": {
+    "Date": "Tue, 20 Oct 2026 16:11:38 GMT",
+    "ETag": "\"h4lc4ohu1037vs\"",
+    "Age": "204",
+    "Cache-Control": "public,max-age=0,must-revalidate",
+    "Content-Type": "text/html; charset=utf-8"
+  },
+  "receivedAtUtc": "2026-10-20T16:11:38.956616+00:00",
+  "sha256": "e77fd123babb0616490573a0b45bc1209a2bc0f89c877a2cc9ec9a2f87908ffb",
+  "bytes": 150252,
+  "path": "var/qa/source-round-20261021/rules/GLOBAL-654e362a3ee0c61b.gz",
+  "losslessGzipRawResponse": true,
+  "compressedSha256": "5b7ac243cb70365c8f23529346ab3c0d42557bf1c16f3d2a57765c7c28382bc3",
+  "status": "FETCHED_CURRENT_ORIGINAL_BYTES_NOT_CERTIFICATION",
+  "kind": "article",
+  "priorReference": {
+    "path": "var/qa/cn-effective-20261016/whole-rule-source-readback/GLOBAL/654e362a3ee0c61b",
+    "sha256": "7b668e2c4cbb07ccfe41e84a1d558d743269c42a1b189b345995756ea17bb47c"
+  },
+  "matchesPriorRawBytes": false,
+  "title": "October 2026 Tournament Rules Changelog",
+  "displayedPublishDate": "2026-10-09T16:00:00.000Z",
+  "revision": "aIne9AgEfAXBycQYLghncw",
+  "contentBladeTypes": [
+    "riotbar",
+    "articleMasthead",
+    "articleRichText",
+    "articleCardCarousel"
+  ],
+  "bodyPath": "var/qa/source-round-20261021/rules/GLOBAL-654e362a3ee0c61b.body.html.gz",
+  "bodyHtmlSha256": "7c8fd0d1ed6d3bb7e11071aea69c1ccf4a13549ce0e2d3a580fdaa1aa267ffd2",
+  "bodyMatchesLatestPrior": true,
+  "bodyMatchesFrozenOctober12": true,
+  "newUrlNotInFrozenInventory": false
+}

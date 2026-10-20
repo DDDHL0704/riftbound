@@ -1,0 +1,30 @@
+{
+  "url": "https://mp.weixin.qq.com/s/eYhlojxzsgTFKeAu_X5PAA",
+  "request": null,
+  "attemptedAtUtc": "2026-10-20T16:15:50.511380+00:00",
+  "roundApplicableAsOf": "2026-10-21",
+  "region": "CN",
+  "language": "zh-CN",
+  "timezone": "Asia/Shanghai",
+  "firstPublicationIndependentlyConfirmed": null,
+  "effectiveDateIndependentlyConfirmed": null,
+  "semanticReview": "OPEN",
+  "runtimeAuthorityChanged": false,
+  "status": "SOURCE_GAP_NORMAL_TLS_FETCH_ERROR",
+  "receivedAtUtc": "2026-10-20T16:15:52.095815+00:00",
+  "errorType": "URLError",
+  "error": "<urlopen error EOF occurred in violation of protocol (_ssl.c:1129)>",
+  "id": "CN-NEWS-e0181a385eb24f92",
+  "allListingRows": [
+    {
+      "name": "铸魂淬炼｜符文竞技场两大巅峰活动即将来袭",
+      "image": "https://cdn.playloltcg.com/lol/2025/11/2025-11-29/d015eac7bdaf44c0876aec8624a5b806.jpg",
+      "pushDate": "2025-11-29",
+      "jumpType": "h5",
+      "appId": "",
+      "jumpUrl": "https://mp.weixin.qq.com/s/eYhlojxzsgTFKeAu_X5PAA",
+      "sort": 92
+    }
+  ],
+  "publishedAsListed": "2025-11-29"
+}

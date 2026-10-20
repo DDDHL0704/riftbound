@@ -1,0 +1,26 @@
+{
+  "id": "CN-NEWS-a22278a3803fe2ea",
+  "url": "https://mp.weixin.qq.com/s/A2RILu_IhePj4CAPvGDaew",
+  "attemptedAtUtc": "2026-10-20T16:21:57.233262+00:00",
+  "roundApplicableAsOf": "2026-10-21",
+  "region": "CN",
+  "language": "zh-CN",
+  "firstPublicationIndependentlyConfirmed": null,
+  "effectiveDateIndependentlyConfirmed": null,
+  "previousOriginalReceipt": {
+    "path": "var/qa/source-round-20261021/news/CN-NEWS-a22278a3803fe2ea.receipt.json",
+    "sha256": "592de177705d18e7f42f18bbb63069b2181db8de66f2439238db7b4b7bf6b0f0"
+  },
+  "normalTlsValidationNoBypass": true,
+  "attemptsThisRetryPass": 1,
+  "exitCode": 0,
+  "stderr": "",
+  "receivedAtUtc": "2026-10-20T16:21:59.950137+00:00",
+  "rawPath": "var/qa/source-round-20261021/news-gap-retry-v3/CN-NEWS-a22278a3803fe2ea.original.gz",
+  "rawSha256": "50c081076979bd7d5d5b4a4ed7a9d909189bba9babbb7895ab6a60850cc87a02",
+  "rawBytes": 2583682,
+  "compressedSha256": "0858f1b4a1bfcd8661f3b598ab02911a9507e651169b7478cecca6bc7844ed62",
+  "status": "RETRY_ACQUISITION_OR_EXTRACTION_GAP",
+  "errorType": "AssertionError",
+  "error": "No complete js_content root"
+}

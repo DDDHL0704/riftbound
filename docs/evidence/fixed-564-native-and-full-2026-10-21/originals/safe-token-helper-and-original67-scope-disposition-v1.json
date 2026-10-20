@@ -1,0 +1,20 @@
+{
+  "atUtc": "2026-10-20T15:40:50.753893+00:00",
+  "status": "PREPARED_SAFE_TOKEN_PERSISTENCE_AND_FRESH_CURRENT_VERSION_QA_TRIAL",
+  "projects": [
+    {
+      "name": "native-reversal-prefix-safe-v1",
+      "files": 22
+    },
+    {
+      "name": "normal-bandle-score-safe-v1",
+      "files": 21
+    }
+  ],
+  "oldRoom": "N26-RETARGET-DC5C1D40DE",
+  "oldActualCommands": 67,
+  "oldFourNativeAnd62CommandReplayScopesPreserved": true,
+  "noDatabaseTokenResetMigrationOrAcceptedHistoryRewrite": true,
+  "newScoreBattlefield": "OGN·278/298 班德尔树",
+  "newScoreExpectationsUseActualStartingTurnAndOriginalPrefixCount": true
+}

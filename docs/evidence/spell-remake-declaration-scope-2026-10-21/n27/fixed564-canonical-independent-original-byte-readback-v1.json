@@ -1,0 +1,10 @@
+{
+  "atUtc": "2026-10-20T18:37:42.343377+00:00",
+  "status": "PASS_ALL312_FIXED564_CANONICAL_ORIGINAL_BYTES_HASHES_AND_HARDLINKS_PRIOR0366_FAILURE_RETAINED",
+  "originals": 312,
+  "allActual11JobsSuccess13315Cases7631Methods143Full110Pairs47Sql271Outputs": true,
+  "nativeToolMainAndExportedBootSeparate": true,
+  "currentN27SourceChangesVisiblePairedAndPhysicalWindowsNotCovered": true,
+  "originalPrivateAuthProfilesAndWireRemainLocalOnly": true,
+  "wholePrintingOrGlobalCertification": false
+}

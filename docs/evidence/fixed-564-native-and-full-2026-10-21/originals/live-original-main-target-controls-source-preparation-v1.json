@@ -1,0 +1,11 @@
+{
+  "atUtc": "2026-10-20T14:37:12.141712+00:00",
+  "status": "PREPARED_NOT_EXECUTED_TWO_ORIGINAL_MAIN_NATIVE_CHOICES_CONTROLS",
+  "scriptSha256": "fe1db6f42ce9dc6e14bccdd5c2aed19e984851b6f1ac1d41471697c0337f2025",
+  "sceneSha256": "ed8d1404a187f8ecbebf5cca15c821e4b5e99ebc39ea3af51ce6a8e3dcbf1d10",
+  "usesOneUnmodifiedOriginalMainPerClient": true,
+  "onlyNativeActionChoiceAndSubmitButtonSignals": true,
+  "noRawIntentInjectionSeedStateHistoryChangesOrBackgroundDesktopClaim": true,
+  "waitForActualFixedCandidateBeforeConnectingOrWritingAnyGame": true,
+  "requiresActualOwnerSqlEditColdRestoreAndConfirmCheckpoints": true
+}

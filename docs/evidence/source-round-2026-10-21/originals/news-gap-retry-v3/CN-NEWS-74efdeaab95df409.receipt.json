@@ -1,0 +1,74 @@
+{
+  "id": "CN-NEWS-74efdeaab95df409",
+  "url": "https://mp.weixin.qq.com/s/iCT-RJH8RrQI12vwWXWKdg",
+  "attemptedAtUtc": "2026-10-20T16:22:19.527810+00:00",
+  "roundApplicableAsOf": "2026-10-21",
+  "region": "CN",
+  "language": "zh-CN",
+  "firstPublicationIndependentlyConfirmed": null,
+  "effectiveDateIndependentlyConfirmed": null,
+  "previousOriginalReceipt": {
+    "path": "var/qa/source-round-20261021/news/CN-NEWS-74efdeaab95df409.receipt.json",
+    "sha256": "64708b362fece3f805772616e4a9ddff870ba17032786291c4b48cef09f1c11b"
+  },
+  "normalTlsValidationNoBypass": true,
+  "attemptsThisRetryPass": 1,
+  "exitCode": 0,
+  "stderr": "",
+  "receivedAtUtc": "2026-10-20T16:22:22.642065+00:00",
+  "rawPath": "var/qa/source-round-20261021/news-gap-retry-v3/CN-NEWS-74efdeaab95df409.original.gz",
+  "rawSha256": "cc54a104a42e5da052b4d0a87f85ea1161bb0570c043c51112ac0647783a85ea",
+  "rawBytes": 3455859,
+  "compressedSha256": "ffc87b7acd2f94986e466c7736119a9de23e99e23a71bae78c64f4586a5003fc",
+  "status": "FETCHED_COMPLETE_LITERAL_ROOT_WITH_NORMAL_TLS_RETRY_NOT_CERTIFICATION",
+  "literalRootSha256": "0a858b3ecde7e1fd97853f992d7f43f7501d2a652b077b9748de56a393013dc3",
+  "literalRootCharacters": 2464,
+  "bodyTextSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "bodyTextCharacters": 0,
+  "images": [
+    {
+      "url": "https://mmecoa.qpic.cn/mmecoa_jpg/M9v64QVNlqJLRoaANtsDdzZRoklvLe0SBO0vJeYkMIsvFIabwYBz8ghszn9QbNDQboVvtamEFgs9ian1wY5SrjA/640?wx_fmt=jpeg&from=appmsg",
+      "data-src": "https://mmecoa.qpic.cn/mmecoa_jpg/M9v64QVNlqJLRoaANtsDdzZRoklvLe0SBO0vJeYkMIsvFIabwYBz8ghszn9QbNDQboVvtamEFgs9ian1wY5SrjA/640?wx_fmt=jpeg&from=appmsg",
+      "data-type": "jpeg",
+      "data-w": "750",
+      "data-ratio": "1.636"
+    },
+    {
+      "url": "https://mmecoa.qpic.cn/mmecoa_jpg/M9v64QVNlqJLRoaANtsDdzZRoklvLe0SicicXLEKhG9QN0qjEYNZk4ibaErDeXwRfROmFtKqJ1Cf3aYygAaXYRQjQ/640?wx_fmt=jpeg&from=appmsg",
+      "data-src": "https://mmecoa.qpic.cn/mmecoa_jpg/M9v64QVNlqJLRoaANtsDdzZRoklvLe0SicicXLEKhG9QN0qjEYNZk4ibaErDeXwRfROmFtKqJ1Cf3aYygAaXYRQjQ/640?wx_fmt=jpeg&from=appmsg",
+      "data-type": "jpeg",
+      "data-w": "750",
+      "data-ratio": "1.5266666666666666"
+    },
+    {
+      "url": "https://mmecoa.qpic.cn/mmecoa_jpg/M9v64QVNlqJLRoaANtsDdzZRoklvLe0SsjRWgeVNHwgjo8tR4hHj28cWkycDkbqibwzKk5vh37OGGVibcdADdyFQ/640?wx_fmt=jpeg&from=appmsg",
+      "data-src": "https://mmecoa.qpic.cn/mmecoa_jpg/M9v64QVNlqJLRoaANtsDdzZRoklvLe0SsjRWgeVNHwgjo8tR4hHj28cWkycDkbqibwzKk5vh37OGGVibcdADdyFQ/640?wx_fmt=jpeg&from=appmsg",
+      "data-type": "jpeg",
+      "data-w": "750",
+      "data-ratio": "2.644"
+    },
+    {
+      "url": "https://mmecoa.qpic.cn/mmecoa_jpg/M9v64QVNlqJLRoaANtsDdzZRoklvLe0SlnBL2rUFBNhjOOYgqxjUF0n5D6IJiaIia9Lmx5ib2tcfsrzVIVNZzib4pQ/640?wx_fmt=jpeg&from=appmsg",
+      "data-src": "https://mmecoa.qpic.cn/mmecoa_jpg/M9v64QVNlqJLRoaANtsDdzZRoklvLe0SlnBL2rUFBNhjOOYgqxjUF0n5D6IJiaIia9Lmx5ib2tcfsrzVIVNZzib4pQ/640?wx_fmt=jpeg&from=appmsg",
+      "data-type": "jpeg",
+      "data-w": "750",
+      "data-ratio": "2.944"
+    },
+    {
+      "url": "https://mmecoa.qpic.cn/mmecoa_jpg/M9v64QVNlqJLRoaANtsDdzZRoklvLe0SicCopb4iasRia0YibYC4ibnCs2hcckycicVS9iaSUWkrLMk0VgfEW9clHDxEQ/640?wx_fmt=jpeg&from=appmsg",
+      "data-src": "https://mmecoa.qpic.cn/mmecoa_jpg/M9v64QVNlqJLRoaANtsDdzZRoklvLe0SicCopb4iasRia0YibYC4ibnCs2hcckycicVS9iaSUWkrLMk0VgfEW9clHDxEQ/640?wx_fmt=jpeg&from=appmsg",
+      "data-type": "jpeg",
+      "data-w": "750",
+      "data-ratio": "2.604"
+    }
+  ],
+  "links": [],
+  "articleRootFoundAndClosed": true,
+  "bodyTextPath": "var/qa/source-round-20261021/news-gap-retry-v3/CN-NEWS-74efdeaab95df409.body.txt.gz",
+  "priorRawPath": "var/qa/official-news-body-20261016/remaining-110/CN-NEWS-74efdeaab95df409.html",
+  "priorRawSha256": "79f3282b6dbba6db35759dd016bb7e0a878ae9b6c9d16ee1a61a2aea6266e1b4",
+  "literalRootMatchesPrior": true,
+  "bodyTextMatchesPrior": true,
+  "imagesAllAttributesAndOrderMatchPrior": true,
+  "linksAndOrderMatchPrior": true
+}

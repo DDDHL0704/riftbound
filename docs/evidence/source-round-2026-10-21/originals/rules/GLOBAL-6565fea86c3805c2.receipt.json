@@ -1,0 +1,42 @@
+{
+  "url": "https://cmsassets.rgpub.io/sanity/files/dsfx7636/news_live/44d1c3c1185a8360b290ddfbb1ba7f7aaae34e62.pdf",
+  "request": null,
+  "attemptedAtUtc": "2026-10-20T16:11:59.064035+00:00",
+  "region": "GLOBAL",
+  "language": "en-US",
+  "roundApplicableAsOf": "2026-10-21",
+  "timezone": "Asia/Shanghai",
+  "firstPublicationIndependentlyConfirmed": null,
+  "effectiveDateIndependentlyConfirmed": null,
+  "semanticCertification": false,
+  "runtimeAuthorityAdopted": false,
+  "resolvedUrl": "https://cmsassets.rgpub.io/sanity/files/dsfx7636/news_live/44d1c3c1185a8360b290ddfbb1ba7f7aaae34e62.pdf",
+  "httpStatus": 200,
+  "responseHeaders": {
+    "Date": "Tue, 20 Oct 2026 16:12:00 GMT",
+    "ETag": "\"65d4562349e50e124b8aae205e7bd424\"",
+    "Cache-Control": "public, max-age=31387642, s-maxage=2592000",
+    "Last-Modified": "Tue, 13 Jan 2026 19:11:03 GMT",
+    "Content-Length": "94673",
+    "Content-Type": "application/pdf"
+  },
+  "receivedAtUtc": "2026-10-20T16:12:00.222616+00:00",
+  "sha256": "9b4c8cc70b3d2c4e02f7efe741e6367d129c97281de6c8792fd2e75f2e9fede4",
+  "bytes": 94673,
+  "path": "var/qa/cn-effective-20261016/whole-rule-source-readback/GLOBAL/6565fea86c3805c2",
+  "losslessGzipRawResponse": false,
+  "status": "FETCHED_CURRENT_ORIGINAL_BYTES_NOT_CERTIFICATION",
+  "kind": "pdf",
+  "priorReference": {
+    "path": "var/qa/cn-effective-20261016/whole-rule-source-readback/GLOBAL/6565fea86c3805c2",
+    "sha256": "9b4c8cc70b3d2c4e02f7efe741e6367d129c97281de6c8792fd2e75f2e9fede4"
+  },
+  "matchesPriorRawBytes": true,
+  "freshNetworkReadbackReusesVerifiedExactExistingBytes": true,
+  "identicalTemporaryCompressedCopyRetired": {
+    "path": "var/qa/source-round-20261021/rules/GLOBAL-6565fea86c3805c2.gz",
+    "sha256": "11b5361955189ff6e31d3c80b51b145ea39a4d553856c2e93d2bec2e48c445e9",
+    "bytes": 63715
+  },
+  "newUrlNotInFrozenInventory": false
+}

@@ -1,0 +1,41 @@
+{
+  "url": "https://mp.weixin.qq.com/s/SzA77dEj1559eKqsGuKSww",
+  "request": null,
+  "attemptedAtUtc": "2026-10-20T16:16:17.356131+00:00",
+  "roundApplicableAsOf": "2026-10-21",
+  "region": "CN",
+  "language": "zh-CN",
+  "timezone": "Asia/Shanghai",
+  "firstPublicationIndependentlyConfirmed": null,
+  "effectiveDateIndependentlyConfirmed": null,
+  "semanticReview": "OPEN",
+  "runtimeAuthorityChanged": false,
+  "resolvedUrl": "https://mp.weixin.qq.com/s/SzA77dEj1559eKqsGuKSww",
+  "httpStatus": 200,
+  "responseHeaders": {
+    "Last-Modified": "Wed, 21 Oct 2026 00:16:19 +0800",
+    "Content-Type": "text/html; charset=UTF-8"
+  },
+  "status": "SOURCE_EXTRACTION_GAP_WITH_ORIGINAL_RESPONSE_RETAINED",
+  "receivedAtUtc": "2026-10-20T16:16:22.146846+00:00",
+  "path": "var/qa/source-round-20261021/news/CN-NEWS-51efc66abee11830.html.gz",
+  "sha256": "4f477d699a8b44f917d42560a8f045f3c5df43601d0fb34da17ad9726001b177",
+  "bytes": 3450329,
+  "compressedSha256": "54d88ace3863d1d00b3fedc63bd95a08561d99ad60335a011f1f51f5141f8946",
+  "losslessGzipOriginalBytes": true,
+  "id": "CN-NEWS-51efc66abee11830",
+  "allListingRows": [
+    {
+      "name": "《符文战场》破限系列发售定档",
+      "image": "https://cdn.playloltcg.com/lol/2026/03/2026-03-17/110951aaab86481e8d9361579c207368.png",
+      "pushDate": "2026-03-16",
+      "jumpType": "h5",
+      "appId": "",
+      "jumpUrl": "https://mp.weixin.qq.com/s/SzA77dEj1559eKqsGuKSww",
+      "sort": 114
+    }
+  ],
+  "publishedAsListed": "2026-03-16",
+  "extractionErrorType": "TypeError",
+  "extractionError": "'int' object is not callable"
+}

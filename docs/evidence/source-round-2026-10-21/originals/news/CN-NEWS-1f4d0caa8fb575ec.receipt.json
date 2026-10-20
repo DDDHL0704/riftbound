@@ -1,0 +1,41 @@
+{
+  "url": "https://mp.weixin.qq.com/s/C2lIq00Lf9w6_BzFK7Ul3A",
+  "request": null,
+  "attemptedAtUtc": "2026-10-20T16:14:19.186383+00:00",
+  "roundApplicableAsOf": "2026-10-21",
+  "region": "CN",
+  "language": "zh-CN",
+  "timezone": "Asia/Shanghai",
+  "firstPublicationIndependentlyConfirmed": null,
+  "effectiveDateIndependentlyConfirmed": null,
+  "semanticReview": "OPEN",
+  "runtimeAuthorityChanged": false,
+  "resolvedUrl": "https://mp.weixin.qq.com/s/C2lIq00Lf9w6_BzFK7Ul3A",
+  "httpStatus": 200,
+  "responseHeaders": {
+    "Last-Modified": "Wed, 21 Oct 2026 00:14:21 +0800",
+    "Content-Type": "text/html; charset=UTF-8"
+  },
+  "status": "SOURCE_EXTRACTION_GAP_WITH_ORIGINAL_RESPONSE_RETAINED",
+  "receivedAtUtc": "2026-10-20T16:14:23.398447+00:00",
+  "path": "var/qa/source-round-20261021/news/CN-NEWS-1f4d0caa8fb575ec.html.gz",
+  "sha256": "f14e8250ca902ad1f34ae0a8a50fb4afb409f0fc1baf3c72ae8104df1bdfcfb6",
+  "bytes": 3479369,
+  "compressedSha256": "3a3e7f2582555223b848a6fdc36730ef9b1ef7fe97ce1f5182c56087587887b4",
+  "losslessGzipOriginalBytes": true,
+  "id": "CN-NEWS-1f4d0caa8fb575ec",
+  "allListingRows": [
+    {
+      "name": "《符文战场》超前试玩派对上海站回顾",
+      "image": "https://cdn.playloltcg.com/lol/2d066382fd204ad89ef08df52612b623.jpg",
+      "pushDate": "2024-12-28",
+      "jumpType": "h5",
+      "appId": "",
+      "jumpUrl": "https://mp.weixin.qq.com/s/C2lIq00Lf9w6_BzFK7Ul3A",
+      "sort": 5
+    }
+  ],
+  "publishedAsListed": "2024-12-28",
+  "extractionErrorType": "TypeError",
+  "extractionError": "'int' object is not callable"
+}

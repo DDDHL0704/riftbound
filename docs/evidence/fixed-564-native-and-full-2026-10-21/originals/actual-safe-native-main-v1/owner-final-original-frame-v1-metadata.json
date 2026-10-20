@@ -1,0 +1,20 @@
+{
+  "status": "ACTUAL_ORIGINAL_FRAME_READONLY_EXPORT",
+  "room": "N27-RETARGET-A843ED44AB",
+  "commands": 37,
+  "events": 143,
+  "tick": 36,
+  "pendingKind": null,
+  "priorAnswers": null,
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+    "implementationSha256": "74e5b72ea195d9692299e3651fc00ba4acf3db5e3abc224dcb5bfc2a9a3952fa",
+    "identitySha256": "024a2aa1f46dfffddb2877738c3bcb09683cb65f40288d4ba94c37444d8efa0d"
+  },
+  "authoritativeStateBytesSha256": "f479c70078efb690ed499ec500f66bfd0e6604ec3beaee15f12b2480bcd3466b",
+  "originalFrameSha256": "6cdbccfc6bc1d551732ff817ec31db9f63bbfcb6c2076c8ca5ef7ce2cd0edafc"
+}

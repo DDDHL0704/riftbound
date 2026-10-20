@@ -1,0 +1,41 @@
+{
+  "url": "https://mp.weixin.qq.com/s/c0GX0V78GnO0uSApXK3zTg",
+  "request": null,
+  "attemptedAtUtc": "2026-10-20T16:14:37.923837+00:00",
+  "roundApplicableAsOf": "2026-10-21",
+  "region": "CN",
+  "language": "zh-CN",
+  "timezone": "Asia/Shanghai",
+  "firstPublicationIndependentlyConfirmed": null,
+  "effectiveDateIndependentlyConfirmed": null,
+  "semanticReview": "OPEN",
+  "runtimeAuthorityChanged": false,
+  "resolvedUrl": "https://mp.weixin.qq.com/s/c0GX0V78GnO0uSApXK3zTg",
+  "httpStatus": 200,
+  "responseHeaders": {
+    "Last-Modified": "Wed, 21 Oct 2026 00:14:40 +0800",
+    "Content-Type": "text/html; charset=UTF-8"
+  },
+  "status": "SOURCE_EXTRACTION_GAP_WITH_ORIGINAL_RESPONSE_RETAINED",
+  "receivedAtUtc": "2026-10-20T16:14:42.751803+00:00",
+  "path": "var/qa/source-round-20261021/news/CN-NEWS-69597e833e1c8d58.html.gz",
+  "sha256": "ce67c561afe8f00745f92d681bbc0adc50f4654238f2f9a4adb64ebcf755f3c3",
+  "bytes": 3540878,
+  "compressedSha256": "f38ea60552194d9ea3b38333f55116678893953944de6b0a0d22f4ef323aa9fd",
+  "losslessGzipOriginalBytes": true,
+  "id": "CN-NEWS-69597e833e1c8d58",
+  "allListingRows": [
+    {
+      "name": "单卡速通｜一口气看完《符文战场》上周新卡",
+      "image": "https://cdn.playloltcg.com/lol/2025/06/2025-06-18/9e783b0cd48d4a3d8c1f17a13cb2a3c4.png",
+      "pushDate": "2025-06-18",
+      "jumpType": "h5",
+      "appId": "",
+      "jumpUrl": "https://mp.weixin.qq.com/s/c0GX0V78GnO0uSApXK3zTg",
+      "sort": 21
+    }
+  ],
+  "publishedAsListed": "2025-06-18",
+  "extractionErrorType": "TypeError",
+  "extractionError": "'int' object is not callable"
+}

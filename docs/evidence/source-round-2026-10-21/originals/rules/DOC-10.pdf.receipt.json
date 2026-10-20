@@ -1,0 +1,41 @@
+{
+  "url": "https://cdn.playloltcg.com/lol/2026/04/2026-04-15/破限系列_勘误汇总_260403.pdf",
+  "request": null,
+  "attemptedAtUtc": "2026-10-20T16:11:10.451663+00:00",
+  "region": "CN",
+  "language": "zh-CN",
+  "roundApplicableAsOf": "2026-10-21",
+  "timezone": "Asia/Shanghai",
+  "firstPublicationIndependentlyConfirmed": null,
+  "effectiveDateIndependentlyConfirmed": null,
+  "semanticCertification": false,
+  "runtimeAuthorityAdopted": false,
+  "resolvedUrl": "https://cdn.playloltcg.com/lol/2026/04/2026-04-15/%E7%A0%B4%E9%99%90%E7%B3%BB%E5%88%97_%E5%8B%98%E8%AF%AF%E6%B1%87%E6%80%BB_260403.pdf",
+  "httpStatus": 200,
+  "responseHeaders": {
+    "Date": "Tue, 22 Sep 2026 18:03:15 GMT",
+    "ETag": "\"82ef3e36a71ca6596583dff81121f8a3\"",
+    "Age": "0",
+    "Last-Modified": "Wed, 15 Apr 2026 03:14:37 GMT",
+    "Content-Length": "143957",
+    "Content-Type": "application/pdf"
+  },
+  "receivedAtUtc": "2026-10-20T16:11:10.601455+00:00",
+  "sha256": "1dbb6a746d334390617e121cc0281a0bf606d7729e0a5dcf60f9ddcff14f775f",
+  "bytes": 143957,
+  "path": "var/qa/cn-effective-20261016/whole-rule-source-readback/CN/DOC-10.pdf",
+  "losslessGzipRawResponse": false,
+  "status": "FETCHED_CURRENT_ORIGINAL_BYTES_NOT_CERTIFICATION",
+  "kind": "pdf",
+  "priorReference": {
+    "path": "var/qa/cn-effective-20261016/whole-rule-source-readback/CN/DOC-10.pdf",
+    "sha256": "1dbb6a746d334390617e121cc0281a0bf606d7729e0a5dcf60f9ddcff14f775f"
+  },
+  "matchesPriorRawBytes": true,
+  "freshNetworkReadbackReusesVerifiedExactExistingBytes": true,
+  "identicalTemporaryCompressedCopyRetired": {
+    "path": "var/qa/source-round-20261021/rules/DOC-10.pdf.gz",
+    "sha256": "0106c2e03051b8793c884b001af587467ceb1b0fdbee0a1011edc3f55cba63c7",
+    "bytes": 132190
+  }
+}

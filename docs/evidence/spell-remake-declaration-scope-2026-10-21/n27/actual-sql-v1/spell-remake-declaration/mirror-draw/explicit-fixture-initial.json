@@ -1,0 +1,564 @@
+{
+  "ruleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+    "implementationSha256": "e4402984b8db9e2a1f91636b8fdecff3288d1da7af9a54e697ea29ed0f3e4faf",
+    "identitySha256": "6f12c0fb012e9b6eac9abb19f81bb816f1506c098d7f7e992823a9f751fae2a3"
+  },
+  "faceDownLookPermissions": [],
+  "linkedExiles": [],
+  "deathLedger": {
+    "turnNumber": 0,
+    "counts": {}
+  },
+  "drawLedger": {
+    "turnNumber": 0,
+    "counts": {}
+  },
+  "cardPlays": {
+    "turnNumber": 0,
+    "finalized": [],
+    "resolved": []
+  },
+  "delayedResourceGains": [],
+  "roomId": "declaration-scope-de0d1eb77d9f469d924d4337428075b5",
+  "tick": 0,
+  "turnNumber": 1,
+  "activePlayerId": "P1",
+  "seats": {
+    "P1": "P1",
+    "P2": "P2"
+  },
+  "status": "IN_PROGRESS",
+  "readyPlayerIds": [],
+  "turnPlayerId": "P1",
+  "phase": "MAIN",
+  "timingState": "NEUTRAL_OPEN",
+  "turnWindow": {
+    "state": "NEUTRAL_OPEN",
+    "isSpellDuel": false,
+    "isClosed": false,
+    "hasStack": false,
+    "actingPlayerId": "P1"
+  },
+  "spellDuelState": {
+    "isActive": false,
+    "isClosed": false,
+    "spellDuelId": null,
+    "battlefieldObjectId": null,
+    "focusPlayerId": null,
+    "passedFocusPlayerIds": [],
+    "stackItemIds": [],
+    "stackControllerIds": []
+  },
+  "battleState": {
+    "isActive": false,
+    "battleId": null,
+    "battlefieldObjectId": null,
+    "attackerObjectIds": [],
+    "defenderObjectIds": [],
+    "participantControllerIds": {}
+  },
+  "runePools": {
+    "P1": {
+      "mana": 30,
+      "power": 30,
+      "powerByTrait": {}
+    },
+    "P2": {
+      "mana": 30,
+      "power": 30,
+      "powerByTrait": {}
+    }
+  },
+  "playerZones": {
+    "P1": {
+      "mainDeck": [
+        "P1-DECK-0",
+        "P1-DECK-1",
+        "P1-DECK-2",
+        "P1-DECK-3",
+        "P1-DECK-4",
+        "P1-DECK-5",
+        "P1-DECK-6",
+        "P1-DECK-7"
+      ],
+      "runeDeck": [],
+      "hand": [
+        "SPELL"
+      ],
+      "base": [
+        "UNIT-1"
+      ],
+      "battlefields": [],
+      "graveyard": [],
+      "banished": [],
+      "legendZone": [],
+      "championZone": []
+    },
+    "P2": {
+      "mainDeck": [
+        "P2-DECK-0",
+        "P2-DECK-1",
+        "P2-DECK-2",
+        "P2-DECK-3",
+        "P2-DECK-4",
+        "P2-DECK-5",
+        "P2-DECK-6",
+        "P2-DECK-7"
+      ],
+      "runeDeck": [],
+      "hand": [
+        "CONTROL"
+      ],
+      "base": [
+        "UNIT-2"
+      ],
+      "battlefields": [],
+      "graveyard": [],
+      "banished": [],
+      "legendZone": [],
+      "championZone": []
+    }
+  },
+  "objectLocations": {},
+  "battlefieldStates": {},
+  "pendingCleanupTasks": [],
+  "battlefieldTasks": [],
+  "battlefieldResolutions": [],
+  "battleResolutions": [],
+  "pendingTaskQueue": {
+    "hasTasks": false,
+    "isBlocking": false,
+    "phase": "IDLE",
+    "activeTaskId": null,
+    "tasks": []
+  },
+  "continuousEffects": [],
+  "pendingPayment": null,
+  "pendingHandChoice": null,
+  "pendingCardChoice": null,
+  "playerScores": {},
+  "playerExperience": {},
+  "playerCardsPlayedThisTurn": {},
+  "playerDecklists": {},
+  "mulliganCompletedPlayerIds": [],
+  "openingSecondActionPlayerId": null,
+  "cardObjects": {
+    "SPELL": {
+      "objectId": "SPELL",
+      "damage": 0,
+      "untilEndOfTurnEffects": [],
+      "isFaceDown": false,
+      "isAttacking": false,
+      "isDefending": false,
+      "power": 0,
+      "untilEndOfTurnPowerModifier": 0,
+      "isExhausted": false,
+      "tags": [
+        "CARD_TYPE:SPELL"
+      ],
+      "manaCost": 4,
+      "attachedToObjectId": null,
+      "cardNo": "OGN\u00B7083/298",
+      "ownerId": "P1",
+      "controllerId": "P1",
+      "untilEndOfTurnPowerModifiers": []
+    },
+    "CONTROL": {
+      "objectId": "CONTROL",
+      "damage": 0,
+      "untilEndOfTurnEffects": [],
+      "isFaceDown": false,
+      "isAttacking": false,
+      "isDefending": false,
+      "power": 0,
+      "untilEndOfTurnPowerModifier": 0,
+      "isExhausted": false,
+      "tags": [
+        "CARD_TYPE:SPELL"
+      ],
+      "manaCost": 0,
+      "attachedToObjectId": null,
+      "cardNo": "VEN\u00B7152",
+      "ownerId": "P2",
+      "controllerId": "P2",
+      "untilEndOfTurnPowerModifiers": []
+    },
+    "UNIT-1": {
+      "objectId": "UNIT-1",
+      "damage": 0,
+      "untilEndOfTurnEffects": [],
+      "isFaceDown": false,
+      "isAttacking": false,
+      "isDefending": false,
+      "power": 9,
+      "untilEndOfTurnPowerModifier": 0,
+      "isExhausted": false,
+      "tags": [
+        "CARD_TYPE:UNIT"
+      ],
+      "manaCost": 0,
+      "attachedToObjectId": null,
+      "cardNo": "OGN\u00B7001/298",
+      "ownerId": "P1",
+      "controllerId": "P1",
+      "untilEndOfTurnPowerModifiers": []
+    },
+    "UNIT-2": {
+      "objectId": "UNIT-2",
+      "damage": 0,
+      "untilEndOfTurnEffects": [],
+      "isFaceDown": false,
+      "isAttacking": false,
+      "isDefending": false,
+      "power": 9,
+      "untilEndOfTurnPowerModifier": 0,
+      "isExhausted": false,
+      "tags": [
+        "CARD_TYPE:UNIT"
+      ],
+      "manaCost": 0,
+      "attachedToObjectId": null,
+      "cardNo": "OGN\u00B7001/298",
+      "ownerId": "P2",
+      "controllerId": "P2",
+      "untilEndOfTurnPowerModifiers": []
+    },
+    "P1-DECK-0": {
+      "objectId": "P1-DECK-0",
+      "damage": 0,
+      "untilEndOfTurnEffects": [],
+      "isFaceDown": false,
+      "isAttacking": false,
+      "isDefending": false,
+      "power": 0,
+      "untilEndOfTurnPowerModifier": 0,
+      "isExhausted": false,
+      "tags": [
+        "CARD_TYPE:SPELL"
+      ],
+      "manaCost": 0,
+      "attachedToObjectId": null,
+      "cardNo": "OGN\u00B7048/298",
+      "ownerId": "P1",
+      "controllerId": "P1",
+      "untilEndOfTurnPowerModifiers": []
+    },
+    "P1-DECK-1": {
+      "objectId": "P1-DECK-1",
+      "damage": 0,
+      "untilEndOfTurnEffects": [],
+      "isFaceDown": false,
+      "isAttacking": false,
+      "isDefending": false,
+      "power": 0,
+      "untilEndOfTurnPowerModifier": 0,
+      "isExhausted": false,
+      "tags": [
+        "CARD_TYPE:SPELL"
+      ],
+      "manaCost": 0,
+      "attachedToObjectId": null,
+      "cardNo": "OGN\u00B7048/298",
+      "ownerId": "P1",
+      "controllerId": "P1",
+      "untilEndOfTurnPowerModifiers": []
+    },
+    "P1-DECK-2": {
+      "objectId": "P1-DECK-2",
+      "damage": 0,
+      "untilEndOfTurnEffects": [],
+      "isFaceDown": false,
+      "isAttacking": false,
+      "isDefending": false,
+      "power": 0,
+      "untilEndOfTurnPowerModifier": 0,
+      "isExhausted": false,
+      "tags": [
+        "CARD_TYPE:SPELL"
+      ],
+      "manaCost": 0,
+      "attachedToObjectId": null,
+      "cardNo": "OGN\u00B7048/298",
+      "ownerId": "P1",
+      "controllerId": "P1",
+      "untilEndOfTurnPowerModifiers": []
+    },
+    "P1-DECK-3": {
+      "objectId": "P1-DECK-3",
+      "damage": 0,
+      "untilEndOfTurnEffects": [],
+      "isFaceDown": false,
+      "isAttacking": false,
+      "isDefending": false,
+      "power": 0,
+      "untilEndOfTurnPowerModifier": 0,
+      "isExhausted": false,
+      "tags": [
+        "CARD_TYPE:SPELL"
+      ],
+      "manaCost": 0,
+      "attachedToObjectId": null,
+      "cardNo": "OGN\u00B7048/298",
+      "ownerId": "P1",
+      "controllerId": "P1",
+      "untilEndOfTurnPowerModifiers": []
+    },
+    "P1-DECK-4": {
+      "objectId": "P1-DECK-4",
+      "damage": 0,
+      "untilEndOfTurnEffects": [],
+      "isFaceDown": false,
+      "isAttacking": false,
+      "isDefending": false,
+      "power": 0,
+      "untilEndOfTurnPowerModifier": 0,
+      "isExhausted": false,
+      "tags": [
+        "CARD_TYPE:SPELL"
+      ],
+      "manaCost": 0,
+      "attachedToObjectId": null,
+      "cardNo": "OGN\u00B7048/298",
+      "ownerId": "P1",
+      "controllerId": "P1",
+      "untilEndOfTurnPowerModifiers": []
+    },
+    "P1-DECK-5": {
+      "objectId": "P1-DECK-5",
+      "damage": 0,
+      "untilEndOfTurnEffects": [],
+      "isFaceDown": false,
+      "isAttacking": false,
+      "isDefending": false,
+      "power": 0,
+      "untilEndOfTurnPowerModifier": 0,
+      "isExhausted": false,
+      "tags": [
+        "CARD_TYPE:SPELL"
+      ],
+      "manaCost": 0,
+      "attachedToObjectId": null,
+      "cardNo": "OGN\u00B7048/298",
+      "ownerId": "P1",
+      "controllerId": "P1",
+      "untilEndOfTurnPowerModifiers": []
+    },
+    "P1-DECK-6": {
+      "objectId": "P1-DECK-6",
+      "damage": 0,
+      "untilEndOfTurnEffects": [],
+      "isFaceDown": false,
+      "isAttacking": false,
+      "isDefending": false,
+      "power": 0,
+      "untilEndOfTurnPowerModifier": 0,
+      "isExhausted": false,
+      "tags": [
+        "CARD_TYPE:SPELL"
+      ],
+      "manaCost": 0,
+      "attachedToObjectId": null,
+      "cardNo": "OGN\u00B7048/298",
+      "ownerId": "P1",
+      "controllerId": "P1",
+      "untilEndOfTurnPowerModifiers": []
+    },
+    "P1-DECK-7": {
+      "objectId": "P1-DECK-7",
+      "damage": 0,
+      "untilEndOfTurnEffects": [],
+      "isFaceDown": false,
+      "isAttacking": false,
+      "isDefending": false,
+      "power": 0,
+      "untilEndOfTurnPowerModifier": 0,
+      "isExhausted": false,
+      "tags": [
+        "CARD_TYPE:SPELL"
+      ],
+      "manaCost": 0,
+      "attachedToObjectId": null,
+      "cardNo": "OGN\u00B7048/298",
+      "ownerId": "P1",
+      "controllerId": "P1",
+      "untilEndOfTurnPowerModifiers": []
+    },
+    "P2-DECK-0": {
+      "objectId": "P2-DECK-0",
+      "damage": 0,
+      "untilEndOfTurnEffects": [],
+      "isFaceDown": false,
+      "isAttacking": false,
+      "isDefending": false,
+      "power": 0,
+      "untilEndOfTurnPowerModifier": 0,
+      "isExhausted": false,
+      "tags": [
+        "CARD_TYPE:SPELL"
+      ],
+      "manaCost": 0,
+      "attachedToObjectId": null,
+      "cardNo": "OGN\u00B7048/298",
+      "ownerId": "P2",
+      "controllerId": "P2",
+      "untilEndOfTurnPowerModifiers": []
+    },
+    "P2-DECK-1": {
+      "objectId": "P2-DECK-1",
+      "damage": 0,
+      "untilEndOfTurnEffects": [],
+      "isFaceDown": false,
+      "isAttacking": false,
+      "isDefending": false,
+      "power": 0,
+      "untilEndOfTurnPowerModifier": 0,
+      "isExhausted": false,
+      "tags": [
+        "CARD_TYPE:SPELL"
+      ],
+      "manaCost": 0,
+      "attachedToObjectId": null,
+      "cardNo": "OGN\u00B7048/298",
+      "ownerId": "P2",
+      "controllerId": "P2",
+      "untilEndOfTurnPowerModifiers": []
+    },
+    "P2-DECK-2": {
+      "objectId": "P2-DECK-2",
+      "damage": 0,
+      "untilEndOfTurnEffects": [],
+      "isFaceDown": false,
+      "isAttacking": false,
+      "isDefending": false,
+      "power": 0,
+      "untilEndOfTurnPowerModifier": 0,
+      "isExhausted": false,
+      "tags": [
+        "CARD_TYPE:SPELL"
+      ],
+      "manaCost": 0,
+      "attachedToObjectId": null,
+      "cardNo": "OGN\u00B7048/298",
+      "ownerId": "P2",
+      "controllerId": "P2",
+      "untilEndOfTurnPowerModifiers": []
+    },
+    "P2-DECK-3": {
+      "objectId": "P2-DECK-3",
+      "damage": 0,
+      "untilEndOfTurnEffects": [],
+      "isFaceDown": false,
+      "isAttacking": false,
+      "isDefending": false,
+      "power": 0,
+      "untilEndOfTurnPowerModifier": 0,
+      "isExhausted": false,
+      "tags": [
+        "CARD_TYPE:SPELL"
+      ],
+      "manaCost": 0,
+      "attachedToObjectId": null,
+      "cardNo": "OGN\u00B7048/298",
+      "ownerId": "P2",
+      "controllerId": "P2",
+      "untilEndOfTurnPowerModifiers": []
+    },
+    "P2-DECK-4": {
+      "objectId": "P2-DECK-4",
+      "damage": 0,
+      "untilEndOfTurnEffects": [],
+      "isFaceDown": false,
+      "isAttacking": false,
+      "isDefending": false,
+      "power": 0,
+      "untilEndOfTurnPowerModifier": 0,
+      "isExhausted": false,
+      "tags": [
+        "CARD_TYPE:SPELL"
+      ],
+      "manaCost": 0,
+      "attachedToObjectId": null,
+      "cardNo": "OGN\u00B7048/298",
+      "ownerId": "P2",
+      "controllerId": "P2",
+      "untilEndOfTurnPowerModifiers": []
+    },
+    "P2-DECK-5": {
+      "objectId": "P2-DECK-5",
+      "damage": 0,
+      "untilEndOfTurnEffects": [],
+      "isFaceDown": false,
+      "isAttacking": false,
+      "isDefending": false,
+      "power": 0,
+      "untilEndOfTurnPowerModifier": 0,
+      "isExhausted": false,
+      "tags": [
+        "CARD_TYPE:SPELL"
+      ],
+      "manaCost": 0,
+      "attachedToObjectId": null,
+      "cardNo": "OGN\u00B7048/298",
+      "ownerId": "P2",
+      "controllerId": "P2",
+      "untilEndOfTurnPowerModifiers": []
+    },
+    "P2-DECK-6": {
+      "objectId": "P2-DECK-6",
+      "damage": 0,
+      "untilEndOfTurnEffects": [],
+      "isFaceDown": false,
+      "isAttacking": false,
+      "isDefending": false,
+      "power": 0,
+      "untilEndOfTurnPowerModifier": 0,
+      "isExhausted": false,
+      "tags": [
+        "CARD_TYPE:SPELL"
+      ],
+      "manaCost": 0,
+      "attachedToObjectId": null,
+      "cardNo": "OGN\u00B7048/298",
+      "ownerId": "P2",
+      "controllerId": "P2",
+      "untilEndOfTurnPowerModifiers": []
+    },
+    "P2-DECK-7": {
+      "objectId": "P2-DECK-7",
+      "damage": 0,
+      "untilEndOfTurnEffects": [],
+      "isFaceDown": false,
+      "isAttacking": false,
+      "isDefending": false,
+      "power": 0,
+      "untilEndOfTurnPowerModifier": 0,
+      "isExhausted": false,
+      "tags": [
+        "CARD_TYPE:SPELL"
+      ],
+      "manaCost": 0,
+      "attachedToObjectId": null,
+      "cardNo": "OGN\u00B7048/298",
+      "ownerId": "P2",
+      "controllerId": "P2",
+      "untilEndOfTurnPowerModifiers": []
+    }
+  },
+  "priorityPlayerId": null,
+  "passedPriorityPlayerIds": [],
+  "stackItems": [],
+  "triggerQueue": [],
+  "focusPlayerId": null,
+  "passedFocusPlayerIds": [],
+  "winnerPlayerId": null,
+  "destroyedUnitOwnerIdsThisTurn": [],
+  "seed": 0,
+  "rngCursor": 0,
+  "untilEndOfTurnEffects": [],
+  "extraTurnPlayerId": null
+}

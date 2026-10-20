@@ -1,0 +1,24 @@
+{
+  "atUtc": "2026-10-20T18:41:34.544138+00:00",
+  "status": "PASS_CURRENT_RELEASE_PUBLIC_ZERO_TO_THREE_AND_ACTUAL_EXISTING_LOCKED_HEADLESS_COMPOSER_DEFAULT_EMPTY_SELECTION_AND_QUOTE_FRESHNESS_ONLY",
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+    "implementationSha256": "e4402984b8db9e2a1f91636b8fdecff3288d1da7af9a54e697ea29ed0f3e4faf",
+    "identitySha256": "6f12c0fb012e9b6eac9abb19f81bb816f1506c098d7f7e992823a9f751fae2a3"
+  },
+  "actualMinimum": 0,
+  "actualMaximum": 3,
+  "originalPublicCandidateSha256": "30c6b2e9bfaabc219739dcb2da8766b67911437c469f8373dec8df6634c4ccda",
+  "actualNativeReceiptSha256": "4f8a763ec2a5263e51f0dd9e9c11dee2a91d523770374f7224a3dbf32e33bb97",
+  "originalNativeProofSourceUnchangedAndExecuted": true,
+  "bothRootAndSessionLockedAtBothEnds": true,
+  "allFrozenSourcesAndNativePayloadsStillExact": true,
+  "quoteApprovalsAreOriginalSyntheticFreshnessControlsNotServerPaymentQuotes": true,
+  "noPlayCommandSubmissionHttpQuoteSqlOrVisiblePairedOrWindowsAcceptanceClaim": true,
+  "new8Sql69CommandsAreSeparateCurrentSemanticEvidence": true,
+  "wholePrintingCertified": false
+}

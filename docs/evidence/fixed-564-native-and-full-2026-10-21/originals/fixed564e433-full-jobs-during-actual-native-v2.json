@@ -1,0 +1,1180 @@
+{
+  "atUtc": "2026-10-20T15:04:44.095234+00:00",
+  "run": {
+    "id": 39442248507,
+    "name": "Native desktop and China rules",
+    "node_id": "WFR_kwLOSmjOas8AAAAJLvDzOw",
+    "head_branch": "main",
+    "head_sha": "564e433d54d47f98b405787eed97cbdd48b7c394",
+    "path": ".github/workflows/native-desktop.yml",
+    "display_title": "fix: clarify spell choice prompts and complete SQL confirmation",
+    "run_number": 230,
+    "event": "push",
+    "status": "in_progress",
+    "conclusion": null,
+    "workflow_id": 379331940,
+    "check_suite_id": 106881999671,
+    "check_suite_node_id": "CS_kwDOSmjOas8AAAAY4qnjNw",
+    "url": "https://api.github.com/repos/DDDHL0704/riftbound/actions/runs/39442248507",
+    "html_url": "https://github.com/DDDHL0704/riftbound/actions/runs/39442248507",
+    "pull_requests": [],
+    "created_at": "2026-10-20T14:46:07Z",
+    "updated_at": "2026-10-20T14:52:01Z",
+    "actor": {
+      "login": "DDDHL0704",
+      "id": 73247745,
+      "node_id": "MDQ6VXNlcjczMjQ3NzQ1",
+      "avatar_url": "https://avatars.githubusercontent.com/u/73247745?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/DDDHL0704",
+      "html_url": "https://github.com/DDDHL0704",
+      "followers_url": "https://api.github.com/users/DDDHL0704/followers",
+      "following_url": "https://api.github.com/users/DDDHL0704/following{/other_user}",
+      "gists_url": "https://api.github.com/users/DDDHL0704/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/DDDHL0704/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/DDDHL0704/subscriptions",
+      "organizations_url": "https://api.github.com/users/DDDHL0704/orgs",
+      "repos_url": "https://api.github.com/users/DDDHL0704/repos",
+      "events_url": "https://api.github.com/users/DDDHL0704/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/DDDHL0704/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "run_attempt": 1,
+    "referenced_workflows": [],
+    "run_started_at": "2026-10-20T14:46:07Z",
+    "triggering_actor": {
+      "login": "DDDHL0704",
+      "id": 73247745,
+      "node_id": "MDQ6VXNlcjczMjQ3NzQ1",
+      "avatar_url": "https://avatars.githubusercontent.com/u/73247745?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/DDDHL0704",
+      "html_url": "https://github.com/DDDHL0704",
+      "followers_url": "https://api.github.com/users/DDDHL0704/followers",
+      "following_url": "https://api.github.com/users/DDDHL0704/following{/other_user}",
+      "gists_url": "https://api.github.com/users/DDDHL0704/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/DDDHL0704/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/DDDHL0704/subscriptions",
+      "organizations_url": "https://api.github.com/users/DDDHL0704/orgs",
+      "repos_url": "https://api.github.com/users/DDDHL0704/repos",
+      "events_url": "https://api.github.com/users/DDDHL0704/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/DDDHL0704/received_events",
+      "type": "User",
+      "user_view_type": "public",
+      "site_admin": false
+    },
+    "jobs_url": "https://api.github.com/repos/DDDHL0704/riftbound/actions/runs/39442248507/jobs",
+    "logs_url": "https://api.github.com/repos/DDDHL0704/riftbound/actions/runs/39442248507/logs",
+    "check_suite_url": "https://api.github.com/repos/DDDHL0704/riftbound/check-suites/106881999671",
+    "artifacts_url": "https://api.github.com/repos/DDDHL0704/riftbound/actions/runs/39442248507/artifacts",
+    "cancel_url": "https://api.github.com/repos/DDDHL0704/riftbound/actions/runs/39442248507/cancel",
+    "rerun_url": "https://api.github.com/repos/DDDHL0704/riftbound/actions/runs/39442248507/rerun",
+    "previous_attempt_url": null,
+    "workflow_url": "https://api.github.com/repos/DDDHL0704/riftbound/actions/workflows/379331940",
+    "head_commit": {
+      "id": "564e433d54d47f98b405787eed97cbdd48b7c394",
+      "tree_id": "e6e98884085da7cdf6b81bff88044dbbea6f9a6b",
+      "message": "fix: clarify spell choice prompts and complete SQL confirmation",
+      "timestamp": "2026-10-20T14:45:34Z",
+      "author": {
+        "name": "dinghl",
+        "email": "haolin.ding@kingstartech.com"
+      },
+      "committer": {
+        "name": "dinghl",
+        "email": "haolin.ding@kingstartech.com"
+      }
+    },
+    "repository": {
+      "id": 1248382570,
+      "node_id": "R_kgDOSmjOag",
+      "name": "riftbound",
+      "full_name": "DDDHL0704/riftbound",
+      "private": false,
+      "owner": {
+        "login": "DDDHL0704",
+        "id": 73247745,
+        "node_id": "MDQ6VXNlcjczMjQ3NzQ1",
+        "avatar_url": "https://avatars.githubusercontent.com/u/73247745?v=4",
+        "gravatar_id": "",
+        "url": "https://api.github.com/users/DDDHL0704",
+        "html_url": "https://github.com/DDDHL0704",
+        "followers_url": "https://api.github.com/users/DDDHL0704/followers",
+        "following_url": "https://api.github.com/users/DDDHL0704/following{/other_user}",
+        "gists_url": "https://api.github.com/users/DDDHL0704/gists{/gist_id}",
+        "starred_url": "https://api.github.com/users/DDDHL0704/starred{/owner}{/repo}",
+        "subscriptions_url": "https://api.github.com/users/DDDHL0704/subscriptions",
+        "organizations_url": "https://api.github.com/users/DDDHL0704/orgs",
+        "repos_url": "https://api.github.com/users/DDDHL0704/repos",
+        "events_url": "https://api.github.com/users/DDDHL0704/events{/privacy}",
+        "received_events_url": "https://api.github.com/users/DDDHL0704/received_events",
+        "type": "User",
+        "user_view_type": "public",
+        "site_admin": false
+      },
+      "html_url": "https://github.com/DDDHL0704/riftbound",
+      "description": null,
+      "fork": false,
+      "url": "https://api.github.com/repos/DDDHL0704/riftbound",
+      "forks_url": "https://api.github.com/repos/DDDHL0704/riftbound/forks",
+      "keys_url": "https://api.github.com/repos/DDDHL0704/riftbound/keys{/key_id}",
+      "collaborators_url": "https://api.github.com/repos/DDDHL0704/riftbound/collaborators{/collaborator}",
+      "teams_url": "https://api.github.com/repos/DDDHL0704/riftbound/teams",
+      "hooks_url": "https://api.github.com/repos/DDDHL0704/riftbound/hooks",
+      "issue_events_url": "https://api.github.com/repos/DDDHL0704/riftbound/issues/events{/number}",
+      "events_url": "https://api.github.com/repos/DDDHL0704/riftbound/events",
+      "assignees_url": "https://api.github.com/repos/DDDHL0704/riftbound/assignees{/user}",
+      "branches_url": "https://api.github.com/repos/DDDHL0704/riftbound/branches{/branch}",
+      "tags_url": "https://api.github.com/repos/DDDHL0704/riftbound/tags",
+      "blobs_url": "https://api.github.com/repos/DDDHL0704/riftbound/git/blobs{/sha}",
+      "git_tags_url": "https://api.github.com/repos/DDDHL0704/riftbound/git/tags{/sha}",
+      "git_refs_url": "https://api.github.com/repos/DDDHL0704/riftbound/git/refs{/sha}",
+      "trees_url": "https://api.github.com/repos/DDDHL0704/riftbound/git/trees{/sha}",
+      "statuses_url": "https://api.github.com/repos/DDDHL0704/riftbound/statuses/{sha}",
+      "languages_url": "https://api.github.com/repos/DDDHL0704/riftbound/languages",
+      "stargazers_url": "https://api.github.com/repos/DDDHL0704/riftbound/stargazers",
+      "contributors_url": "https://api.github.com/repos/DDDHL0704/riftbound/contributors",
+      "subscribers_url": "https://api.github.com/repos/DDDHL0704/riftbound/subscribers",
+      "subscription_url": "https://api.github.com/repos/DDDHL0704/riftbound/subscription",
+      "commits_url": "https://api.github.com/repos/DDDHL0704/riftbound/commits{/sha}",
+      "git_commits_url": "https://api.github.com/repos/DDDHL0704/riftbound/git/commits{/sha}",
+      "comments_url": "https://api.github.com/repos/DDDHL0704/riftbound/comments{/number}",
+      "issue_comment_url": "https://api.github.com/repos/DDDHL0704/riftbound/issues/comments{/number}",
+      "contents_url": "https://api.github.com/repos/DDDHL0704/riftbound/contents/{+path}",
+      "compare_url": "https://api.github.com/repos/DDDHL0704/riftbound/compare/{base}...{head}",
+      "merges_url": "https://api.github.com/repos/DDDHL0704/riftbound/merges",
+      "archive_url": "https://api.github.com/repos/DDDHL0704/riftbound/{archive_format}{/ref}",
+      "downloads_url": "https://api.github.com/repos/DDDHL0704/riftbound/downloads",
+      "issues_url": "https://api.github.com/repos/DDDHL0704/riftbound/issues{/number}",
+      "pulls_url": "https://api.github.com/repos/DDDHL0704/riftbound/pulls{/number}",
+      "milestones_url": "https://api.github.com/repos/DDDHL0704/riftbound/milestones{/number}",
+      "notifications_url": "https://api.github.com/repos/DDDHL0704/riftbound/notifications{?since,all,participating}",
+      "labels_url": "https://api.github.com/repos/DDDHL0704/riftbound/labels{/name}",
+      "releases_url": "https://api.github.com/repos/DDDHL0704/riftbound/releases{/id}",
+      "deployments_url": "https://api.github.com/repos/DDDHL0704/riftbound/deployments"
+    },
+    "head_repository": {
+      "id": 1248382570,
+      "node_id": "R_kgDOSmjOag",
+      "name": "riftbound",
+      "full_name": "DDDHL0704/riftbound",
+      "private": false,
+      "owner": {
+        "login": "DDDHL0704",
+        "id": 73247745,
+        "node_id": "MDQ6VXNlcjczMjQ3NzQ1",
+        "avatar_url": "https://avatars.githubusercontent.com/u/73247745?v=4",
+        "gravatar_id": "",
+        "url": "https://api.github.com/users/DDDHL0704",
+        "html_url": "https://github.com/DDDHL0704",
+        "followers_url": "https://api.github.com/users/DDDHL0704/followers",
+        "following_url": "https://api.github.com/users/DDDHL0704/following{/other_user}",
+        "gists_url": "https://api.github.com/users/DDDHL0704/gists{/gist_id}",
+        "starred_url": "https://api.github.com/users/DDDHL0704/starred{/owner}{/repo}",
+        "subscriptions_url": "https://api.github.com/users/DDDHL0704/subscriptions",
+        "organizations_url": "https://api.github.com/users/DDDHL0704/orgs",
+        "repos_url": "https://api.github.com/users/DDDHL0704/repos",
+        "events_url": "https://api.github.com/users/DDDHL0704/events{/privacy}",
+        "received_events_url": "https://api.github.com/users/DDDHL0704/received_events",
+        "type": "User",
+        "user_view_type": "public",
+        "site_admin": false
+      },
+      "html_url": "https://github.com/DDDHL0704/riftbound",
+      "description": null,
+      "fork": false,
+      "url": "https://api.github.com/repos/DDDHL0704/riftbound",
+      "forks_url": "https://api.github.com/repos/DDDHL0704/riftbound/forks",
+      "keys_url": "https://api.github.com/repos/DDDHL0704/riftbound/keys{/key_id}",
+      "collaborators_url": "https://api.github.com/repos/DDDHL0704/riftbound/collaborators{/collaborator}",
+      "teams_url": "https://api.github.com/repos/DDDHL0704/riftbound/teams",
+      "hooks_url": "https://api.github.com/repos/DDDHL0704/riftbound/hooks",
+      "issue_events_url": "https://api.github.com/repos/DDDHL0704/riftbound/issues/events{/number}",
+      "events_url": "https://api.github.com/repos/DDDHL0704/riftbound/events",
+      "assignees_url": "https://api.github.com/repos/DDDHL0704/riftbound/assignees{/user}",
+      "branches_url": "https://api.github.com/repos/DDDHL0704/riftbound/branches{/branch}",
+      "tags_url": "https://api.github.com/repos/DDDHL0704/riftbound/tags",
+      "blobs_url": "https://api.github.com/repos/DDDHL0704/riftbound/git/blobs{/sha}",
+      "git_tags_url": "https://api.github.com/repos/DDDHL0704/riftbound/git/tags{/sha}",
+      "git_refs_url": "https://api.github.com/repos/DDDHL0704/riftbound/git/refs{/sha}",
+      "trees_url": "https://api.github.com/repos/DDDHL0704/riftbound/git/trees{/sha}",
+      "statuses_url": "https://api.github.com/repos/DDDHL0704/riftbound/statuses/{sha}",
+      "languages_url": "https://api.github.com/repos/DDDHL0704/riftbound/languages",
+      "stargazers_url": "https://api.github.com/repos/DDDHL0704/riftbound/stargazers",
+      "contributors_url": "https://api.github.com/repos/DDDHL0704/riftbound/contributors",
+      "subscribers_url": "https://api.github.com/repos/DDDHL0704/riftbound/subscribers",
+      "subscription_url": "https://api.github.com/repos/DDDHL0704/riftbound/subscription",
+      "commits_url": "https://api.github.com/repos/DDDHL0704/riftbound/commits{/sha}",
+      "git_commits_url": "https://api.github.com/repos/DDDHL0704/riftbound/git/commits{/sha}",
+      "comments_url": "https://api.github.com/repos/DDDHL0704/riftbound/comments{/number}",
+      "issue_comment_url": "https://api.github.com/repos/DDDHL0704/riftbound/issues/comments{/number}",
+      "contents_url": "https://api.github.com/repos/DDDHL0704/riftbound/contents/{+path}",
+      "compare_url": "https://api.github.com/repos/DDDHL0704/riftbound/compare/{base}...{head}",
+      "merges_url": "https://api.github.com/repos/DDDHL0704/riftbound/merges",
+      "archive_url": "https://api.github.com/repos/DDDHL0704/riftbound/{archive_format}{/ref}",
+      "downloads_url": "https://api.github.com/repos/DDDHL0704/riftbound/downloads",
+      "issues_url": "https://api.github.com/repos/DDDHL0704/riftbound/issues{/number}",
+      "pulls_url": "https://api.github.com/repos/DDDHL0704/riftbound/pulls{/number}",
+      "milestones_url": "https://api.github.com/repos/DDDHL0704/riftbound/milestones{/number}",
+      "notifications_url": "https://api.github.com/repos/DDDHL0704/riftbound/notifications{?since,all,participating}",
+      "labels_url": "https://api.github.com/repos/DDDHL0704/riftbound/labels{/name}",
+      "releases_url": "https://api.github.com/repos/DDDHL0704/riftbound/releases{/id}",
+      "deployments_url": "https://api.github.com/repos/DDDHL0704/riftbound/deployments"
+    }
+  },
+  "jobs": {
+    "total_count": 9,
+    "jobs": [
+      {
+        "id": 118694847512,
+        "run_id": 39442248507,
+        "workflow_name": "Native desktop and China rules",
+        "head_branch": "main",
+        "run_url": "https://api.github.com/repos/DDDHL0704/riftbound/actions/runs/39442248507",
+        "run_attempt": 1,
+        "node_id": "CR_kwDOSmjOas8AAAAbosOkGA",
+        "head_sha": "564e433d54d47f98b405787eed97cbdd48b7c394",
+        "url": "https://api.github.com/repos/DDDHL0704/riftbound/actions/jobs/118694847512",
+        "html_url": "https://github.com/DDDHL0704/riftbound/actions/runs/39442248507/job/118694847512",
+        "status": "completed",
+        "conclusion": "success",
+        "created_at": "2026-10-20T14:46:07Z",
+        "started_at": "2026-10-20T14:46:11Z",
+        "completed_at": "2026-10-20T14:46:46Z",
+        "name": "scope",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1,
+            "started_at": "2026-10-20T14:46:12Z",
+            "completed_at": "2026-10-20T14:46:13Z"
+          },
+          {
+            "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2,
+            "started_at": "2026-10-20T14:46:13Z",
+            "completed_at": "2026-10-20T14:46:37Z"
+          },
+          {
+            "name": "Verification safeguards",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3,
+            "started_at": "2026-10-20T14:46:37Z",
+            "completed_at": "2026-10-20T14:46:38Z"
+          },
+          {
+            "name": "Determine scope from fixed Git inputs",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4,
+            "started_at": "2026-10-20T14:46:38Z",
+            "completed_at": "2026-10-20T14:46:38Z"
+          },
+          {
+            "name": "Source-index and governance integrity",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5,
+            "started_at": "2026-10-20T14:46:38Z",
+            "completed_at": "2026-10-20T14:46:41Z"
+          },
+          {
+            "name": "Check committed diff formatting",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6,
+            "started_at": "2026-10-20T14:46:41Z",
+            "completed_at": "2026-10-20T14:46:41Z"
+          },
+          {
+            "name": "Run actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7,
+            "started_at": "2026-10-20T14:46:41Z",
+            "completed_at": "2026-10-20T14:46:43Z"
+          },
+          {
+            "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 14,
+            "started_at": "2026-10-20T14:46:43Z",
+            "completed_at": "2026-10-20T14:46:44Z"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 15,
+            "started_at": "2026-10-20T14:46:44Z",
+            "completed_at": "2026-10-20T14:46:44Z"
+          }
+        ],
+        "check_run_url": "https://api.github.com/repos/DDDHL0704/riftbound/check-runs/118694847512",
+        "labels": [
+          "ubuntu-latest"
+        ],
+        "runner_id": 1000001309,
+        "runner_name": "GitHub Actions 1000001309",
+        "runner_group_id": 0,
+        "runner_group_name": "GitHub Actions"
+      },
+      {
+        "id": 118695192577,
+        "run_id": 39442248507,
+        "workflow_name": "Native desktop and China rules",
+        "head_branch": "main",
+        "run_url": "https://api.github.com/repos/DDDHL0704/riftbound/actions/runs/39442248507",
+        "run_attempt": 1,
+        "node_id": "CR_kwDOSmjOas8AAAAbosjoAQ",
+        "head_sha": "564e433d54d47f98b405787eed97cbdd48b7c394",
+        "url": "https://api.github.com/repos/DDDHL0704/riftbound/actions/jobs/118695192577",
+        "html_url": "https://github.com/DDDHL0704/riftbound/actions/runs/39442248507/job/118695192577",
+        "status": "in_progress",
+        "conclusion": null,
+        "created_at": "2026-10-20T14:46:46Z",
+        "started_at": "2026-10-20T14:46:49Z",
+        "completed_at": null,
+        "name": "rule_suite",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1,
+            "started_at": "2026-10-20T14:46:50Z",
+            "completed_at": "2026-10-20T14:46:52Z"
+          },
+          {
+            "name": "Initialize containers",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2,
+            "started_at": "2026-10-20T14:46:52Z",
+            "completed_at": "2026-10-20T14:47:12Z"
+          },
+          {
+            "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3,
+            "started_at": "2026-10-20T14:47:12Z",
+            "completed_at": "2026-10-20T14:47:27Z"
+          },
+          {
+            "name": "Run actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4,
+            "started_at": "2026-10-20T14:47:27Z",
+            "completed_at": "2026-10-20T14:47:28Z"
+          },
+          {
+            "name": "Test runner coverage safeguards",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5,
+            "started_at": "2026-10-20T14:47:28Z",
+            "completed_at": "2026-10-20T14:47:30Z"
+          },
+          {
+            "name": "Record the fixed rule suite commit",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6,
+            "started_at": "2026-10-20T14:47:30Z",
+            "completed_at": "2026-10-20T14:47:30Z"
+          },
+          {
+            "name": "Complete rule suite with checked process shards",
+            "status": "in_progress",
+            "conclusion": null,
+            "number": 7,
+            "started_at": "2026-10-20T14:47:30Z",
+            "completed_at": null
+          },
+          {
+            "name": "Run actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a",
+            "status": "pending",
+            "conclusion": null,
+            "number": 8,
+            "started_at": null,
+            "completed_at": null
+          },
+          {
+            "name": "Post Run actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68",
+            "status": "pending",
+            "conclusion": null,
+            "number": 14,
+            "started_at": null,
+            "completed_at": null
+          },
+          {
+            "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "status": "pending",
+            "conclusion": null,
+            "number": 15,
+            "started_at": null,
+            "completed_at": null
+          },
+          {
+            "name": "Stop containers",
+            "status": "pending",
+            "conclusion": null,
+            "number": 16,
+            "started_at": null,
+            "completed_at": null
+          }
+        ],
+        "check_run_url": "https://api.github.com/repos/DDDHL0704/riftbound/check-runs/118695192577",
+        "labels": [
+          "ubuntu-latest"
+        ],
+        "runner_id": 1000001314,
+        "runner_name": "GitHub Actions 1000001314",
+        "runner_group_id": 0,
+        "runner_group_name": "GitHub Actions"
+      },
+      {
+        "id": 118695192578,
+        "run_id": 39442248507,
+        "workflow_name": "Native desktop and China rules",
+        "head_branch": "main",
+        "run_url": "https://api.github.com/repos/DDDHL0704/riftbound/actions/runs/39442248507",
+        "run_attempt": 1,
+        "node_id": "CR_kwDOSmjOas8AAAAbosjoAg",
+        "head_sha": "564e433d54d47f98b405787eed97cbdd48b7c394",
+        "url": "https://api.github.com/repos/DDDHL0704/riftbound/actions/jobs/118695192578",
+        "html_url": "https://github.com/DDDHL0704/riftbound/actions/runs/39442248507/job/118695192578",
+        "status": "completed",
+        "conclusion": "success",
+        "created_at": "2026-10-20T14:46:46Z",
+        "started_at": "2026-10-20T14:52:00Z",
+        "completed_at": "2026-10-20T14:53:50Z",
+        "name": "desktop (macos-latest)",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1,
+            "started_at": "2026-10-20T14:52:01Z",
+            "completed_at": "2026-10-20T14:52:02Z"
+          },
+          {
+            "name": "Documentation-only scope; packaging not executed",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 2,
+            "started_at": "2026-10-20T14:52:02Z",
+            "completed_at": "2026-10-20T14:52:02Z"
+          },
+          {
+            "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3,
+            "started_at": "2026-10-20T14:52:02Z",
+            "completed_at": "2026-10-20T14:52:25Z"
+          },
+          {
+            "name": "Run actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4,
+            "started_at": "2026-10-20T14:52:25Z",
+            "completed_at": "2026-10-20T14:52:39Z"
+          },
+          {
+            "name": "Run python3 clients/godot/tools/ci-desktop.py",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5,
+            "started_at": "2026-10-20T14:52:39Z",
+            "completed_at": "2026-10-20T14:53:44Z"
+          },
+          {
+            "name": "Run actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6,
+            "started_at": "2026-10-20T14:53:44Z",
+            "completed_at": "2026-10-20T14:53:47Z"
+          },
+          {
+            "name": "Post Run actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 11,
+            "started_at": "2026-10-20T14:53:47Z",
+            "completed_at": "2026-10-20T14:53:47Z"
+          },
+          {
+            "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 12,
+            "started_at": "2026-10-20T14:53:47Z",
+            "completed_at": "2026-10-20T14:53:47Z"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 13,
+            "started_at": "2026-10-20T14:53:47Z",
+            "completed_at": "2026-10-20T14:53:48Z"
+          }
+        ],
+        "check_run_url": "https://api.github.com/repos/DDDHL0704/riftbound/check-runs/118695192578",
+        "labels": [
+          "macos-latest"
+        ],
+        "runner_id": 1000001318,
+        "runner_name": "GitHub Actions 1000001318",
+        "runner_group_id": 0,
+        "runner_group_name": "GitHub Actions"
+      },
+      {
+        "id": 118695192623,
+        "run_id": 39442248507,
+        "workflow_name": "Native desktop and China rules",
+        "head_branch": "main",
+        "run_url": "https://api.github.com/repos/DDDHL0704/riftbound/actions/runs/39442248507",
+        "run_attempt": 1,
+        "node_id": "CR_kwDOSmjOas8AAAAbosjoLw",
+        "head_sha": "564e433d54d47f98b405787eed97cbdd48b7c394",
+        "url": "https://api.github.com/repos/DDDHL0704/riftbound/actions/jobs/118695192623",
+        "html_url": "https://github.com/DDDHL0704/riftbound/actions/runs/39442248507/job/118695192623",
+        "status": "in_progress",
+        "conclusion": null,
+        "created_at": "2026-10-20T14:46:46Z",
+        "started_at": "2026-10-20T14:46:50Z",
+        "completed_at": null,
+        "name": "postgres_partitions (1)",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1,
+            "started_at": "2026-10-20T14:46:50Z",
+            "completed_at": "2026-10-20T14:46:51Z"
+          },
+          {
+            "name": "Initialize containers",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2,
+            "started_at": "2026-10-20T14:46:51Z",
+            "completed_at": "2026-10-20T14:47:06Z"
+          },
+          {
+            "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3,
+            "started_at": "2026-10-20T14:47:06Z",
+            "completed_at": "2026-10-20T14:47:30Z"
+          },
+          {
+            "name": "Run actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4,
+            "started_at": "2026-10-20T14:47:30Z",
+            "completed_at": "2026-10-20T14:47:31Z"
+          },
+          {
+            "name": "Record the fixed PostgreSQL and network commit",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5,
+            "started_at": "2026-10-20T14:47:31Z",
+            "completed_at": "2026-10-20T14:47:31Z"
+          },
+          {
+            "name": "Real PostgreSQL complete checked partition",
+            "status": "in_progress",
+            "conclusion": null,
+            "number": 6,
+            "started_at": "2026-10-20T14:47:31Z",
+            "completed_at": null
+          },
+          {
+            "name": "Run actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a",
+            "status": "pending",
+            "conclusion": null,
+            "number": 7,
+            "started_at": null,
+            "completed_at": null
+          },
+          {
+            "name": "Post Run actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68",
+            "status": "pending",
+            "conclusion": null,
+            "number": 12,
+            "started_at": null,
+            "completed_at": null
+          },
+          {
+            "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "status": "pending",
+            "conclusion": null,
+            "number": 13,
+            "started_at": null,
+            "completed_at": null
+          },
+          {
+            "name": "Stop containers",
+            "status": "pending",
+            "conclusion": null,
+            "number": 14,
+            "started_at": null,
+            "completed_at": null
+          }
+        ],
+        "check_run_url": "https://api.github.com/repos/DDDHL0704/riftbound/check-runs/118695192623",
+        "labels": [
+          "ubuntu-latest"
+        ],
+        "runner_id": 1000001312,
+        "runner_name": "GitHub Actions 1000001312",
+        "runner_group_id": 0,
+        "runner_group_name": "GitHub Actions"
+      },
+      {
+        "id": 118695192660,
+        "run_id": 39442248507,
+        "workflow_name": "Native desktop and China rules",
+        "head_branch": "main",
+        "run_url": "https://api.github.com/repos/DDDHL0704/riftbound/actions/runs/39442248507",
+        "run_attempt": 1,
+        "node_id": "CR_kwDOSmjOas8AAAAbosjoVA",
+        "head_sha": "564e433d54d47f98b405787eed97cbdd48b7c394",
+        "url": "https://api.github.com/repos/DDDHL0704/riftbound/actions/jobs/118695192660",
+        "html_url": "https://github.com/DDDHL0704/riftbound/actions/runs/39442248507/job/118695192660",
+        "status": "completed",
+        "conclusion": "success",
+        "created_at": "2026-10-20T14:46:46Z",
+        "started_at": "2026-10-20T14:46:50Z",
+        "completed_at": "2026-10-20T14:48:49Z",
+        "name": "native_network",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1,
+            "started_at": "2026-10-20T14:46:51Z",
+            "completed_at": "2026-10-20T14:46:53Z"
+          },
+          {
+            "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2,
+            "started_at": "2026-10-20T14:46:53Z",
+            "completed_at": "2026-10-20T14:47:19Z"
+          },
+          {
+            "name": "Run actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3,
+            "started_at": "2026-10-20T14:47:19Z",
+            "completed_at": "2026-10-20T14:47:21Z"
+          },
+          {
+            "name": "Record the fixed native network commit",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4,
+            "started_at": "2026-10-20T14:47:21Z",
+            "completed_at": "2026-10-20T14:47:21Z"
+          },
+          {
+            "name": "Native client connection recovery",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5,
+            "started_at": "2026-10-20T14:47:21Z",
+            "completed_at": "2026-10-20T14:48:45Z"
+          },
+          {
+            "name": "Run actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6,
+            "started_at": "2026-10-20T14:48:45Z",
+            "completed_at": "2026-10-20T14:48:46Z"
+          },
+          {
+            "name": "Post Run actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 11,
+            "started_at": "2026-10-20T14:48:46Z",
+            "completed_at": "2026-10-20T14:48:46Z"
+          },
+          {
+            "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 12,
+            "started_at": "2026-10-20T14:48:46Z",
+            "completed_at": "2026-10-20T14:48:47Z"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 13,
+            "started_at": "2026-10-20T14:48:47Z",
+            "completed_at": "2026-10-20T14:48:47Z"
+          }
+        ],
+        "check_run_url": "https://api.github.com/repos/DDDHL0704/riftbound/check-runs/118695192660",
+        "labels": [
+          "ubuntu-latest"
+        ],
+        "runner_id": 1000001316,
+        "runner_name": "GitHub Actions 1000001316",
+        "runner_group_id": 0,
+        "runner_group_name": "GitHub Actions"
+      },
+      {
+        "id": 118695192686,
+        "run_id": 39442248507,
+        "workflow_name": "Native desktop and China rules",
+        "head_branch": "main",
+        "run_url": "https://api.github.com/repos/DDDHL0704/riftbound/actions/runs/39442248507",
+        "run_attempt": 1,
+        "node_id": "CR_kwDOSmjOas8AAAAbosjobg",
+        "head_sha": "564e433d54d47f98b405787eed97cbdd48b7c394",
+        "url": "https://api.github.com/repos/DDDHL0704/riftbound/actions/jobs/118695192686",
+        "html_url": "https://github.com/DDDHL0704/riftbound/actions/runs/39442248507/job/118695192686",
+        "status": "completed",
+        "conclusion": "success",
+        "created_at": "2026-10-20T14:46:46Z",
+        "started_at": "2026-10-20T14:46:49Z",
+        "completed_at": "2026-10-20T14:50:38Z",
+        "name": "desktop (windows-latest)",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1,
+            "started_at": "2026-10-20T14:46:50Z",
+            "completed_at": "2026-10-20T14:46:51Z"
+          },
+          {
+            "name": "Documentation-only scope; packaging not executed",
+            "status": "completed",
+            "conclusion": "skipped",
+            "number": 2,
+            "started_at": "2026-10-20T14:46:51Z",
+            "completed_at": "2026-10-20T14:46:51Z"
+          },
+          {
+            "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3,
+            "started_at": "2026-10-20T14:46:51Z",
+            "completed_at": "2026-10-20T14:47:16Z"
+          },
+          {
+            "name": "Run actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4,
+            "started_at": "2026-10-20T14:47:16Z",
+            "completed_at": "2026-10-20T14:48:48Z"
+          },
+          {
+            "name": "Run python3 clients/godot/tools/ci-desktop.py",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5,
+            "started_at": "2026-10-20T14:48:48Z",
+            "completed_at": "2026-10-20T14:50:32Z"
+          },
+          {
+            "name": "Run actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6,
+            "started_at": "2026-10-20T14:50:32Z",
+            "completed_at": "2026-10-20T14:50:34Z"
+          },
+          {
+            "name": "Post Run actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 11,
+            "started_at": "2026-10-20T14:50:34Z",
+            "completed_at": "2026-10-20T14:50:34Z"
+          },
+          {
+            "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 12,
+            "started_at": "2026-10-20T14:50:34Z",
+            "completed_at": "2026-10-20T14:50:37Z"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 13,
+            "started_at": "2026-10-20T14:50:37Z",
+            "completed_at": "2026-10-20T14:50:37Z"
+          }
+        ],
+        "check_run_url": "https://api.github.com/repos/DDDHL0704/riftbound/check-runs/118695192686",
+        "labels": [
+          "windows-latest"
+        ],
+        "runner_id": 1000001310,
+        "runner_name": "GitHub Actions 1000001310",
+        "runner_group_id": 0,
+        "runner_group_name": "GitHub Actions"
+      },
+      {
+        "id": 118695192703,
+        "run_id": 39442248507,
+        "workflow_name": "Native desktop and China rules",
+        "head_branch": "main",
+        "run_url": "https://api.github.com/repos/DDDHL0704/riftbound/actions/runs/39442248507",
+        "run_attempt": 1,
+        "node_id": "CR_kwDOSmjOas8AAAAbosjofw",
+        "head_sha": "564e433d54d47f98b405787eed97cbdd48b7c394",
+        "url": "https://api.github.com/repos/DDDHL0704/riftbound/actions/jobs/118695192703",
+        "html_url": "https://github.com/DDDHL0704/riftbound/actions/runs/39442248507/job/118695192703",
+        "status": "in_progress",
+        "conclusion": null,
+        "created_at": "2026-10-20T14:46:46Z",
+        "started_at": "2026-10-20T14:46:50Z",
+        "completed_at": null,
+        "name": "postgres_partitions (2)",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1,
+            "started_at": "2026-10-20T14:46:51Z",
+            "completed_at": "2026-10-20T14:46:52Z"
+          },
+          {
+            "name": "Initialize containers",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2,
+            "started_at": "2026-10-20T14:46:52Z",
+            "completed_at": "2026-10-20T14:47:05Z"
+          },
+          {
+            "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3,
+            "started_at": "2026-10-20T14:47:05Z",
+            "completed_at": "2026-10-20T14:47:24Z"
+          },
+          {
+            "name": "Run actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4,
+            "started_at": "2026-10-20T14:47:24Z",
+            "completed_at": "2026-10-20T14:47:43Z"
+          },
+          {
+            "name": "Record the fixed PostgreSQL and network commit",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5,
+            "started_at": "2026-10-20T14:47:43Z",
+            "completed_at": "2026-10-20T14:47:43Z"
+          },
+          {
+            "name": "Real PostgreSQL complete checked partition",
+            "status": "in_progress",
+            "conclusion": null,
+            "number": 6,
+            "started_at": "2026-10-20T14:47:43Z",
+            "completed_at": null
+          },
+          {
+            "name": "Run actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a",
+            "status": "pending",
+            "conclusion": null,
+            "number": 7,
+            "started_at": null,
+            "completed_at": null
+          },
+          {
+            "name": "Post Run actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68",
+            "status": "pending",
+            "conclusion": null,
+            "number": 12,
+            "started_at": null,
+            "completed_at": null
+          },
+          {
+            "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "status": "pending",
+            "conclusion": null,
+            "number": 13,
+            "started_at": null,
+            "completed_at": null
+          },
+          {
+            "name": "Stop containers",
+            "status": "pending",
+            "conclusion": null,
+            "number": 14,
+            "started_at": null,
+            "completed_at": null
+          }
+        ],
+        "check_run_url": "https://api.github.com/repos/DDDHL0704/riftbound/check-runs/118695192703",
+        "labels": [
+          "ubuntu-latest"
+        ],
+        "runner_id": 1000001315,
+        "runner_name": "GitHub Actions 1000001315",
+        "runner_group_id": 0,
+        "runner_group_name": "GitHub Actions"
+      },
+      {
+        "id": 118695192734,
+        "run_id": 39442248507,
+        "workflow_name": "Native desktop and China rules",
+        "head_branch": "main",
+        "run_url": "https://api.github.com/repos/DDDHL0704/riftbound/actions/runs/39442248507",
+        "run_attempt": 1,
+        "node_id": "CR_kwDOSmjOas8AAAAbosjong",
+        "head_sha": "564e433d54d47f98b405787eed97cbdd48b7c394",
+        "url": "https://api.github.com/repos/DDDHL0704/riftbound/actions/jobs/118695192734",
+        "html_url": "https://github.com/DDDHL0704/riftbound/actions/runs/39442248507/job/118695192734",
+        "status": "in_progress",
+        "conclusion": null,
+        "created_at": "2026-10-20T14:46:46Z",
+        "started_at": "2026-10-20T14:46:49Z",
+        "completed_at": null,
+        "name": "postgres_partitions (3)",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1,
+            "started_at": "2026-10-20T14:46:50Z",
+            "completed_at": "2026-10-20T14:46:52Z"
+          },
+          {
+            "name": "Initialize containers",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2,
+            "started_at": "2026-10-20T14:46:52Z",
+            "completed_at": "2026-10-20T14:47:08Z"
+          },
+          {
+            "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3,
+            "started_at": "2026-10-20T14:47:08Z",
+            "completed_at": "2026-10-20T14:47:27Z"
+          },
+          {
+            "name": "Run actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4,
+            "started_at": "2026-10-20T14:47:27Z",
+            "completed_at": "2026-10-20T14:47:45Z"
+          },
+          {
+            "name": "Record the fixed PostgreSQL and network commit",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5,
+            "started_at": "2026-10-20T14:47:45Z",
+            "completed_at": "2026-10-20T14:47:45Z"
+          },
+          {
+            "name": "Real PostgreSQL complete checked partition",
+            "status": "in_progress",
+            "conclusion": null,
+            "number": 6,
+            "started_at": "2026-10-20T14:47:45Z",
+            "completed_at": null
+          },
+          {
+            "name": "Run actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a",
+            "status": "pending",
+            "conclusion": null,
+            "number": 7,
+            "started_at": null,
+            "completed_at": null
+          },
+          {
+            "name": "Post Run actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68",
+            "status": "pending",
+            "conclusion": null,
+            "number": 12,
+            "started_at": null,
+            "completed_at": null
+          },
+          {
+            "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "status": "pending",
+            "conclusion": null,
+            "number": 13,
+            "started_at": null,
+            "completed_at": null
+          },
+          {
+            "name": "Stop containers",
+            "status": "pending",
+            "conclusion": null,
+            "number": 14,
+            "started_at": null,
+            "completed_at": null
+          }
+        ],
+        "check_run_url": "https://api.github.com/repos/DDDHL0704/riftbound/check-runs/118695192734",
+        "labels": [
+          "ubuntu-latest"
+        ],
+        "runner_id": 1000001313,
+        "runner_name": "GitHub Actions 1000001313",
+        "runner_group_id": 0,
+        "runner_group_name": "GitHub Actions"
+      },
+      {
+        "id": 118695193202,
+        "run_id": 39442248507,
+        "workflow_name": "Native desktop and China rules",
+        "head_branch": "main",
+        "run_url": "https://api.github.com/repos/DDDHL0704/riftbound/actions/runs/39442248507",
+        "run_attempt": 1,
+        "node_id": "CR_kwDOSmjOas8AAAAbosjqcg",
+        "head_sha": "564e433d54d47f98b405787eed97cbdd48b7c394",
+        "url": "https://api.github.com/repos/DDDHL0704/riftbound/actions/jobs/118695193202",
+        "html_url": "https://github.com/DDDHL0704/riftbound/actions/runs/39442248507/job/118695193202",
+        "status": "in_progress",
+        "conclusion": null,
+        "created_at": "2026-10-20T14:46:46Z",
+        "started_at": "2026-10-20T14:46:50Z",
+        "completed_at": null,
+        "name": "postgres_partitions (0)",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1,
+            "started_at": "2026-10-20T14:46:51Z",
+            "completed_at": "2026-10-20T14:46:52Z"
+          },
+          {
+            "name": "Initialize containers",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2,
+            "started_at": "2026-10-20T14:46:52Z",
+            "completed_at": "2026-10-20T14:47:04Z"
+          },
+          {
+            "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3,
+            "started_at": "2026-10-20T14:47:04Z",
+            "completed_at": "2026-10-20T14:47:23Z"
+          },
+          {
+            "name": "Run actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4,
+            "started_at": "2026-10-20T14:47:23Z",
+            "completed_at": "2026-10-20T14:47:36Z"
+          },
+          {
+            "name": "Record the fixed PostgreSQL and network commit",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5,
+            "started_at": "2026-10-20T14:47:36Z",
+            "completed_at": "2026-10-20T14:47:36Z"
+          },
+          {
+            "name": "Real PostgreSQL complete checked partition",
+            "status": "in_progress",
+            "conclusion": null,
+            "number": 6,
+            "started_at": "2026-10-20T14:47:36Z",
+            "completed_at": null
+          },
+          {
+            "name": "Run actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a",
+            "status": "pending",
+            "conclusion": null,
+            "number": 7,
+            "started_at": null,
+            "completed_at": null
+          },
+          {
+            "name": "Post Run actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68",
+            "status": "pending",
+            "conclusion": null,
+            "number": 12,
+            "started_at": null,
+            "completed_at": null
+          },
+          {
+            "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "status": "pending",
+            "conclusion": null,
+            "number": 13,
+            "started_at": null,
+            "completed_at": null
+          },
+          {
+            "name": "Stop containers",
+            "status": "pending",
+            "conclusion": null,
+            "number": 14,
+            "started_at": null,
+            "completed_at": null
+          }
+        ],
+        "check_run_url": "https://api.github.com/repos/DDDHL0704/riftbound/check-runs/118695193202",
+        "labels": [
+          "ubuntu-latest"
+        ],
+        "runner_id": 1000001317,
+        "runner_name": "GitHub Actions 1000001317",
+        "runner_group_id": 0,
+        "runner_group_name": "GitHub Actions"
+      }
+    ]
+  }
+}

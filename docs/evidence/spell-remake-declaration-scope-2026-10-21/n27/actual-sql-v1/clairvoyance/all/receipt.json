@@ -1,0 +1,56 @@
+{
+  "status": "REAL_POSTGRES_CLAIRVOYANCE_PRIVATE_ORDER_DRAW_COLD_REPLAY_TAMPER_PASS",
+  "room": "clairvoyance-5c427373b59b4dc0881f7d55cc121a9f",
+  "branch": "all",
+  "submitted": 4,
+  "events": 11,
+  "coldRecoveries": 4,
+  "structuralTamperRejections": 3,
+  "checks": [
+    {
+      "tick": 1,
+      "sequence": 3,
+      "hand": 0,
+      "pending": null,
+      "isMatch": true
+    },
+    {
+      "tick": 2,
+      "sequence": 4,
+      "hand": 0,
+      "pending": null,
+      "isMatch": true
+    },
+    {
+      "tick": 3,
+      "sequence": 7,
+      "hand": 0,
+      "pending": "INSIGHT",
+      "isMatch": true
+    },
+    {
+      "tick": 4,
+      "sequence": 11,
+      "hand": 2,
+      "pending": null,
+      "isMatch": true
+    }
+  ],
+  "matchStatus": "IN_PROGRESS",
+  "winnerPlayerId": null,
+  "drawn": [
+    "D6",
+    "D7"
+  ],
+  "finalHash": "0f3298d5f151fffbf33f324d94edd2b805feab6feabf3b34e7ec89f8ae87906d",
+  "ruleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+    "implementationSha256": "e4402984b8db9e2a1f91636b8fdecff3288d1da7af9a54e697ea29ed0f3e4faf",
+    "identitySha256": "6f12c0fb012e9b6eac9abb19f81bb816f1506c098d7f7e992823a9f751fae2a3"
+  },
+  "scope": "Explicit rules fixture: actual SQL/private projections/command and event replay, counted Insight before post-choice draw, owner/controller and winning burnout. Not a normal full opening or whole-card certification."
+}

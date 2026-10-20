@@ -1,0 +1,52 @@
+{
+  "url": "https://playriftbound.com/zh-cn/news/announcements/preparing-for-the-radiance-pre-rift/",
+  "attemptedAtUtc": "2026-10-20T16:30:59.454892+00:00",
+  "roundApplicableAsOf": "2026-10-21",
+  "region": "GLOBAL",
+  "requestedLanguage": "zh-cn",
+  "languageAndCnApplicabilityRequireExplicitBodyDisposition": true,
+  "firstPublicationIndependentlyConfirmed": null,
+  "effectiveDateIndependentlyConfirmed": null,
+  "semanticCertification": false,
+  "resolvedUrl": "https://playriftbound.com/zh-cn/news/announcements/preparing-for-the-radiance-pre-rift/",
+  "httpStatus": 200,
+  "headers": {
+    "Date": "Tue, 20 Oct 2026 16:31:00 GMT",
+    "Content-Type": "text/html; charset=utf-8",
+    "ETag": "\"10yenmayt3r32tx\""
+  },
+  "status": "FETCHED_COMPLETE_ARTICLE_BODY_NOT_SEMANTIC_CERTIFICATION",
+  "receivedAtUtc": "2026-10-20T16:31:00.452158+00:00",
+  "rawPath": "var/qa/source-round-20261021/global-supplement/0b48d0fd49ceef60.html.gz",
+  "rawSha256": "76b8e7aa8dca2616d9136a101bfc0b5a3c0e85db51e8451696e5cb46f39347df",
+  "rawBytes": 158137,
+  "compressedSha256": "ce0ba3a4c2c6c7d6fbbbe49d356d73953b222c9096366295f9a8645ee1d95a2d",
+  "title": "“辉耀群星”系列售前现开赛准备指南",
+  "displayedPublishDate": "2026-10-12T16:00:00.000Z",
+  "revision": "bl9UGXuyMPSXbfJsMUl4qo",
+  "contentBladeTypes": [
+    "riotbar",
+    "articleMasthead",
+    "articleRichText",
+    "articleCardCarousel"
+  ],
+  "actualPagePropsLocale": null,
+  "exactObservedNewsLinks": [
+    "https://playriftbound.com/zh-cn/news/announcements",
+    "https://playriftbound.com/zh-cn/news/announcements/core-rules-radiance-patch-notes-effective-october-16-2026",
+    "https://playriftbound.com/zh-cn/news/announcements/october-2026-tournament-rules-changelog",
+    "https://playriftbound.com/zh-cn/news/announcements/product-drawing-faq/",
+    "https://playriftbound.com/zh-cn/news/announcements/radiance-errata-updates",
+    "https://playriftbound.com/zh-cn/news/announcements/radiance-preview-season",
+    "https://playriftbound.com/zh-cn/news/announcements/september-ban-list-updates-effective-september-18-2026",
+    "https://playriftbound.com/zh-cn/news/announcements/the-radiance-overview"
+  ],
+  "bodyPath": "var/qa/source-round-20261021/global-supplement/0b48d0fd49ceef60.body.html.gz",
+  "bodyHtmlSha256": "dc974a1b9db8d779afe203c6b1ae7eaff4411d601024b0ca19e8e8d293ef34ad",
+  "matchesAnyRecordedExactBodyHash": true,
+  "priorRecordedBodyHashes": {
+    "dc974a1b9db8d779afe203c6b1ae7eaff4411d601024b0ca19e8e8d293ef34ad": [
+      "docs/evidence/battlefield-play-damage-2026-10-17/global-zh-cn-source-variant-discovery.json"
+    ]
+  }
+}

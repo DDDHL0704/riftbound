@@ -1,0 +1,41 @@
+{
+  "url": "https://mp.weixin.qq.com/s/qXg8Zim3d524XHNtanlONg",
+  "request": null,
+  "attemptedAtUtc": "2026-10-20T16:17:06.753738+00:00",
+  "roundApplicableAsOf": "2026-10-21",
+  "region": "CN",
+  "language": "zh-CN",
+  "timezone": "Asia/Shanghai",
+  "firstPublicationIndependentlyConfirmed": null,
+  "effectiveDateIndependentlyConfirmed": null,
+  "semanticReview": "OPEN",
+  "runtimeAuthorityChanged": false,
+  "resolvedUrl": "https://mp.weixin.qq.com/s/qXg8Zim3d524XHNtanlONg",
+  "httpStatus": 200,
+  "responseHeaders": {
+    "Last-Modified": "Wed, 21 Oct 2026 00:17:10 +0800",
+    "Content-Type": "text/html; charset=UTF-8"
+  },
+  "status": "SOURCE_EXTRACTION_GAP_WITH_ORIGINAL_RESPONSE_RETAINED",
+  "receivedAtUtc": "2026-10-20T16:17:16.321859+00:00",
+  "path": "var/qa/source-round-20261021/news/CN-NEWS-331f070a33a2bf87.html.gz",
+  "sha256": "866f42fc63bb538a23e3493d05ff7b030e67f5069e0047cf9724c542b3f149bd",
+  "bytes": 3489907,
+  "compressedSha256": "b78dd6b9bc4b53eb4b0572f7d8c9f7a8a36ccab2501f0384365ed8892fa88640",
+  "losslessGzipOriginalBytes": true,
+  "id": "CN-NEWS-331f070a33a2bf87",
+  "allListingRows": [
+    {
+      "name": "赛事手册｜区域公开赛「沈阳站」",
+      "image": "https://cdn.playloltcg.com/lol/2026/08/2026-08-26/17d9bf1a43fa487985bbea9246487399.jpg",
+      "pushDate": "2026-08-26",
+      "jumpType": "h5",
+      "appId": "",
+      "jumpUrl": "https://mp.weixin.qq.com/s/qXg8Zim3d524XHNtanlONg",
+      "sort": 152
+    }
+  ],
+  "publishedAsListed": "2026-08-26",
+  "extractionErrorType": "TypeError",
+  "extractionError": "'int' object is not callable"
+}

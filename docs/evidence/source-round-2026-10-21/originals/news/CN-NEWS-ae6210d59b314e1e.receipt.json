@@ -1,0 +1,41 @@
+{
+  "url": "https://mp.weixin.qq.com/s/C2vEiod-N5qPZRhyQPIoWg",
+  "request": null,
+  "attemptedAtUtc": "2026-10-20T16:17:12.239528+00:00",
+  "roundApplicableAsOf": "2026-10-21",
+  "region": "CN",
+  "language": "zh-CN",
+  "timezone": "Asia/Shanghai",
+  "firstPublicationIndependentlyConfirmed": null,
+  "effectiveDateIndependentlyConfirmed": null,
+  "semanticReview": "OPEN",
+  "runtimeAuthorityChanged": false,
+  "resolvedUrl": "https://mp.weixin.qq.com/s/C2vEiod-N5qPZRhyQPIoWg",
+  "httpStatus": 200,
+  "responseHeaders": {
+    "Last-Modified": "Wed, 21 Oct 2026 00:17:15 +0800",
+    "Content-Type": "text/html; charset=UTF-8"
+  },
+  "status": "SOURCE_EXTRACTION_GAP_WITH_ORIGINAL_RESPONSE_RETAINED",
+  "receivedAtUtc": "2026-10-20T16:17:18.004357+00:00",
+  "path": "var/qa/source-round-20261021/news/CN-NEWS-ae6210d59b314e1e.html.gz",
+  "sha256": "b9c1b36f4cea24f33f010bbca5434a812c3c407d5b92f83bd24652a27c5a99fa",
+  "bytes": 3494376,
+  "compressedSha256": "94e941d36e29a3e88b7a5cfa3b17f17e21eb8a4b9241c6c961cbe42205626bdf",
+  "losslessGzipOriginalBytes": true,
+  "id": "CN-NEWS-ae6210d59b314e1e",
+  "allListingRows": [
+    {
+      "name": "赛事手册｜武汉站场外活动",
+      "image": "https://cdn.playloltcg.com/lol/2026/08/2026-08-16/96cca53e2d574f54ad3062578d77950c.jpg",
+      "pushDate": "2026-08-16",
+      "jumpType": "h5",
+      "appId": "",
+      "jumpUrl": "https://mp.weixin.qq.com/s/C2vEiod-N5qPZRhyQPIoWg",
+      "sort": 153
+    }
+  ],
+  "publishedAsListed": "2026-08-16",
+  "extractionErrorType": "TypeError",
+  "extractionError": "'int' object is not callable"
+}

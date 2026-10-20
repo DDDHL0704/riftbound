@@ -1,0 +1,100 @@
+{
+  "url": "https://cdn.playloltcg.com/lol/2026/10/2026-10-10/ade3c71d000c4dd0abf978d5d48b24ef.pdf",
+  "request": null,
+  "attemptedAtUtc": "2026-10-20T16:10:41.062210+00:00",
+  "region": "CN",
+  "language": "zh-CN",
+  "roundApplicableAsOf": "2026-10-21",
+  "timezone": "Asia/Shanghai",
+  "firstPublicationIndependentlyConfirmed": null,
+  "effectiveDateIndependentlyConfirmed": null,
+  "semanticCertification": false,
+  "runtimeAuthorityAdopted": false,
+  "resolvedUrl": "https://cdn.playloltcg.com/lol/2026/10/2026-10-10/ade3c71d000c4dd0abf978d5d48b24ef.pdf",
+  "httpStatus": 200,
+  "responseHeaders": {
+    "Date": "Sat, 10 Oct 2026 00:32:53 GMT",
+    "ETag": "\"1a8771486b021047d236f37c1f0627a0\"",
+    "Age": "0",
+    "Last-Modified": "Fri, 09 Oct 2026 16:58:25 GMT",
+    "Content-Length": "2558041",
+    "Content-Type": "application/pdf"
+  },
+  "receivedAtUtc": "2026-10-20T16:10:42.641448+00:00",
+  "sha256": "8643a1f637346c94bc2b716c8773611136af30338cc0b49a87c1126b2e31de73",
+  "bytes": 2558041,
+  "path": "var/qa/cn-effective-20261016/whole-rule-source-readback/CN/DOC-03.pdf",
+  "losslessGzipRawResponse": false,
+  "status": "FETCHED_CURRENT_ORIGINAL_BYTES_NOT_CERTIFICATION",
+  "kind": "pdf",
+  "priorReference": {
+    "path": "var/qa/cn-effective-20261016/whole-rule-source-readback/CN/DOC-03.pdf",
+    "sha256": "8643a1f637346c94bc2b716c8773611136af30338cc0b49a87c1126b2e31de73"
+  },
+  "matchesPriorRawBytes": true,
+  "freshNetworkReadbackReusesVerifiedExactExistingBytes": true,
+  "identicalTemporaryCompressedCopyRetired": {
+    "path": "var/qa/source-round-20261021/rules/DOC-03.pdf.gz",
+    "sha256": "d9dac4e02d6cce8d89cf474c2e3e82bb611414c9766d717db10f5bd5218e6c2b",
+    "bytes": 2537562
+  },
+  "id": "DOC-03",
+  "exactFrozenSourceIdentity": {
+    "id": "DOC-03",
+    "title": "《符文战场》勘误汇总（10.16生效）",
+    "url": "https://cdn.playloltcg.com/lol/2026/10/2026-10-10/ade3c71d000c4dd0abf978d5d48b24ef.pdf",
+    "sha256": "8643a1f637346c94bc2b716c8773611136af30338cc0b49a87c1126b2e31de73",
+    "updated": "2026-10-10",
+    "effectiveDate": null,
+    "pages": [
+      {
+        "page": 1,
+        "blocks": [
+          "DOC-03-P001-B001",
+          "DOC-03-P001-B002",
+          "DOC-03-P001-B003",
+          "DOC-03-P001-B004",
+          "DOC-03-P001-B005",
+          "DOC-03-P001-B006",
+          "DOC-03-P001-B007"
+        ],
+        "requiresVisualReview": false
+      },
+      {
+        "page": 2,
+        "blocks": [
+          "DOC-03-P002-B001",
+          "DOC-03-P002-B002",
+          "DOC-03-P002-B003"
+        ],
+        "requiresVisualReview": false
+      },
+      {
+        "page": 3,
+        "blocks": [
+          "DOC-03-P003-B001",
+          "DOC-03-P003-B002",
+          "DOC-03-P003-B003"
+        ],
+        "requiresVisualReview": false
+      },
+      {
+        "page": 4,
+        "blocks": [
+          "DOC-03-P004-B001",
+          "DOC-03-P004-B002",
+          "DOC-03-P004-B003"
+        ],
+        "requiresVisualReview": false
+      }
+    ]
+  },
+  "currentListing": {
+    "ruleCategory": "勘误汇总",
+    "ruleName": "《符文战场》勘误汇总",
+    "coverUrl": "https://cdn.playloltcg.com/lol/2026/10/2026-10-10/aca9901897e647bb9356c06b742f6aba.jpg",
+    "updateDate": "2026-10-10",
+    "ruleDocUrl": "https://cdn.playloltcg.com/lol/2026/10/2026-10-10/ade3c71d000c4dd0abf978d5d48b24ef.pdf"
+  },
+  "historicalSupersededSourceRetained": false
+}

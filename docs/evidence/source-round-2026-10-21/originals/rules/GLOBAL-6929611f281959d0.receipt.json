@@ -1,0 +1,50 @@
+{
+  "url": "https://riftbound.leagueoflegends.com/en-us/news/rules-and-releases/riftbound-core-rules-spiritforged-patch-notes/",
+  "request": null,
+  "attemptedAtUtc": "2026-10-20T16:11:47.270264+00:00",
+  "region": "GLOBAL",
+  "language": "en-US",
+  "roundApplicableAsOf": "2026-10-21",
+  "timezone": "Asia/Shanghai",
+  "firstPublicationIndependentlyConfirmed": null,
+  "effectiveDateIndependentlyConfirmed": null,
+  "semanticCertification": false,
+  "runtimeAuthorityAdopted": false,
+  "resolvedUrl": "https://playriftbound.com/en-us/news/rules-and-releases/riftbound-core-rules-spiritforged-patch-notes/",
+  "httpStatus": 200,
+  "responseHeaders": {
+    "Date": "Tue, 20 Oct 2026 16:11:49 GMT",
+    "ETag": "\"pi204zkbfq3pem\"",
+    "Age": "232",
+    "Cache-Control": "public,max-age=0,must-revalidate",
+    "Content-Type": "text/html; charset=utf-8"
+  },
+  "receivedAtUtc": "2026-10-20T16:11:50.547138+00:00",
+  "sha256": "596a938ea06595553ff45bd8333fc3a677cb66a79fa0b796694db5a945c360cc",
+  "bytes": 173164,
+  "path": "var/qa/source-round-20261021/rules/GLOBAL-6929611f281959d0.gz",
+  "losslessGzipRawResponse": true,
+  "compressedSha256": "bf0d736dfcb64ec924d4cb6b9f55fae5d98eb8559ffafc72c60f1ee6ffe98ab2",
+  "status": "FETCHED_CURRENT_ORIGINAL_BYTES_NOT_CERTIFICATION",
+  "kind": "article",
+  "priorReference": {
+    "path": "var/official/2026-10-12/global/6929611f281959d0",
+    "sha256": "5505f3c816bd1c2707e82663ee361387f0568001f74f04251744ec4b10a6c167"
+  },
+  "matchesPriorRawBytes": false,
+  "title": "Riftbound Core Rules: Spiritforged Patch Notes",
+  "displayedPublishDate": "2025-12-05T02:00:00.000Z",
+  "revision": "P2jdEKc6GZf6O4yCyb7qAi",
+  "contentBladeTypes": [
+    "riotbar",
+    "articleMasthead",
+    "articleRichText",
+    "articleRichText",
+    "articleCardCarousel"
+  ],
+  "bodyPath": "var/qa/source-round-20261021/rules/GLOBAL-6929611f281959d0.body.html.gz",
+  "bodyHtmlSha256": "23230cd1b073fd32352a938372be7068ba91514ae4993dc624d3d479ae991162",
+  "bodyMatchesLatestPrior": null,
+  "bodyMatchesFrozenOctober12": true,
+  "newUrlNotInFrozenInventory": false
+}

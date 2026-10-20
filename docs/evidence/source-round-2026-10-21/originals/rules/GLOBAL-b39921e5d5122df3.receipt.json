@@ -1,0 +1,54 @@
+{
+  "url": "https://riftbound.leagueoflegends.com/en-us/news/rules-and-releases/riftbound-core-rules-patch-notes/",
+  "request": null,
+  "attemptedAtUtc": "2026-10-20T16:11:44.010043+00:00",
+  "region": "GLOBAL",
+  "language": "en-US",
+  "roundApplicableAsOf": "2026-10-21",
+  "timezone": "Asia/Shanghai",
+  "firstPublicationIndependentlyConfirmed": null,
+  "effectiveDateIndependentlyConfirmed": null,
+  "semanticCertification": false,
+  "runtimeAuthorityAdopted": false,
+  "resolvedUrl": "https://playriftbound.com/en-us/news/rules-and-releases/riftbound-core-rules-patch-notes/",
+  "httpStatus": 200,
+  "responseHeaders": {
+    "Date": "Tue, 20 Oct 2026 16:11:46 GMT",
+    "ETag": "\"bsfkfj43ve42x4\"",
+    "Age": "262",
+    "Cache-Control": "public,max-age=0,must-revalidate",
+    "Content-Type": "text/html; charset=utf-8"
+  },
+  "receivedAtUtc": "2026-10-20T16:11:47.256713+00:00",
+  "sha256": "33fb659fd7c76e10824d34070857fccc2090d4482f3e7ea48fb4397470f3781b",
+  "bytes": 190796,
+  "path": "var/qa/cn-effective-20261016/whole-rule-source-readback/GLOBAL/b39921e5d5122df3",
+  "losslessGzipRawResponse": false,
+  "status": "FETCHED_CURRENT_ORIGINAL_BYTES_NOT_CERTIFICATION",
+  "kind": "article",
+  "priorReference": {
+    "path": "var/qa/cn-effective-20261016/whole-rule-source-readback/GLOBAL/b39921e5d5122df3",
+    "sha256": "33fb659fd7c76e10824d34070857fccc2090d4482f3e7ea48fb4397470f3781b"
+  },
+  "matchesPriorRawBytes": true,
+  "freshNetworkReadbackReusesVerifiedExactExistingBytes": true,
+  "identicalTemporaryCompressedCopyRetired": {
+    "path": "var/qa/source-round-20261021/rules/GLOBAL-b39921e5d5122df3.gz",
+    "sha256": "bf3aded0426ae31bbbb9e5f05da83d3f40ca1d5c86b09e747e1d9a14846cd3f1",
+    "bytes": 35232
+  },
+  "title": "Riftbound Core Rules: Patch Notes",
+  "displayedPublishDate": "2025-10-24T01:00:00.000Z",
+  "revision": "P2jdEKc6GZf6O4yCyb7qAi",
+  "contentBladeTypes": [
+    "riotbar",
+    "articleMasthead",
+    "articleRichText",
+    "articleCardCarousel"
+  ],
+  "bodyPath": "var/qa/source-round-20261021/rules/GLOBAL-b39921e5d5122df3.body.html.gz",
+  "bodyHtmlSha256": "2c0c4b69e20fff1858c0c4363e29383244db3c24deb3c5ce7f29a7e1225b2687",
+  "bodyMatchesLatestPrior": true,
+  "bodyMatchesFrozenOctober12": true,
+  "newUrlNotInFrozenInventory": false
+}

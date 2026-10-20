@@ -1,0 +1,352 @@
+[
+  {
+    "apiId": 31299,
+    "exactRawCardNo": "OGN·083/298",
+    "cardName": "借鉴历史",
+    "sourceImageUrl": "https://cdn.playloltcg.com/lol/card/20250731/5bae64f236e94afd8128f6592edf1861.png",
+    "resolvedUrl": "https://cdn.playloltcg.com/lol/card/20250731/5bae64f236e94afd8128f6592edf1861.png",
+    "attemptedAtUtc": "2026-10-20T16:45:45.733068+00:00",
+    "receivedAtUtc": "2026-10-20T16:45:45.911859+00:00",
+    "sha256": "31bb5c96d6201fefefa335d439150f1a1bb90a543c3333edefc58ea9d6498a63",
+    "bytes": 206655,
+    "path": "var/qa/spell-remake-no-declaration-20261021/current-card-faces/31299.png",
+    "headers": {
+      "Date": "Sat, 09 May 2026 15:10:29 GMT",
+      "Content-Type": "image/png",
+      "Last-Modified": "Tue, 02 Dec 2025 16:15:51 GMT"
+    },
+    "fullCurrentApiRow": {
+      "id": 31299,
+      "cardCategoryList": [
+        "spell"
+      ],
+      "cardCategoryNameList": [
+        "法术"
+      ],
+      "cardNo": "OGN·083/298",
+      "cardName": "借鉴历史",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "blue"
+      ],
+      "hero": "",
+      "region": "",
+      "tag": "",
+      "artist": "Kudos Productions",
+      "cardEffect": "{{待命}}（支付{{A}}正面朝下放置此牌，之后可支付{{0}}将其当作反应牌打出。）\n{{反应}}（可在任意时机打出，甚至先于其他法术和技能的结算。）\n抽两张牌。",
+      "flavorText": "",
+      "energy": 4,
+      "returnEnergy": null,
+      "power": null,
+      "productCodeList": [
+        "OGN(英雄预组 维克托)",
+        "OGN(标准补充包)",
+        "OGN(进阶补充包)",
+        "SFD(英雄预组 兰博)"
+      ],
+      "productNameList": [
+        "起源 英雄预组 维克托",
+        "起源 标准补充包",
+        "起源 进阶补充包",
+        "铸魂淬炼 英雄预组 兰博"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_dust",
+      "rarityName": "普通",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/5bae64f236e94afd8128f6592edf1861.png",
+      "backImage": "",
+      "listSort": 406,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    "region": "CN",
+    "language": "zh-CN",
+    "roundApplicableAsOf": "2026-10-21",
+    "wholePrintingSemanticCertification": false
+  },
+  {
+    "apiId": 33170,
+    "exactRawCardNo": "SFD·087/221",
+    "cardName": "先知之兆",
+    "sourceImageUrl": "https://cdn.playloltcg.com/lol/card/20251217/2d3eeaa198c849628be2ca436471d0f9.png",
+    "resolvedUrl": "https://cdn.playloltcg.com/lol/card/20251217/2d3eeaa198c849628be2ca436471d0f9.png",
+    "attemptedAtUtc": "2026-10-20T16:45:45.733741+00:00",
+    "receivedAtUtc": "2026-10-20T16:45:45.931808+00:00",
+    "sha256": "4e092f82362c64078f7261f65dbdfa72cb3ff9e5e609b41a3a9215c75c1dee80",
+    "bytes": 310432,
+    "path": "var/qa/spell-remake-no-declaration-20261021/current-card-faces/33170.png",
+    "headers": {
+      "Date": "Sat, 06 Jun 2026 01:15:00 GMT",
+      "Content-Type": "image/png",
+      "Last-Modified": "Wed, 17 Dec 2025 03:04:41 GMT"
+    },
+    "fullCurrentApiRow": {
+      "id": 33170,
+      "cardCategoryList": [
+        "spell"
+      ],
+      "cardCategoryNameList": [
+        "法术"
+      ],
+      "cardNo": "SFD·087/221",
+      "cardName": "先知之兆",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "blue"
+      ],
+      "hero": "",
+      "region": "",
+      "tag": "",
+      "artist": "Polar Engine Studio",
+      "cardEffect": "{{反应}}（可在任意时机打出，甚至先于其他法术和技能的结算。）\n抽三张牌。",
+      "flavorText": "智慧源于力量，力量生自智慧。",
+      "energy": 2,
+      "returnEnergy": 3,
+      "power": null,
+      "productCodeList": [
+        "SFD(标准补充包)",
+        "SFD(进阶补充包)"
+      ],
+      "productNameList": [
+        "铸魂淬炼 标准补充包",
+        "铸魂淬炼 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_core",
+      "rarityName": "史诗",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20251217/2d3eeaa198c849628be2ca436471d0f9.png",
+      "backImage": "",
+      "listSort": 903,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    "region": "CN",
+    "language": "zh-CN",
+    "roundApplicableAsOf": "2026-10-21",
+    "wholePrintingSemanticCertification": false
+  },
+  {
+    "apiId": 33160,
+    "exactRawCardNo": "SFD·080/221",
+    "cardName": "风箱炎息",
+    "sourceImageUrl": "https://cdn.playloltcg.com/lol/card/20251217/80605fa4b1714c9ebd08b5a71ceb432c.png",
+    "resolvedUrl": "https://cdn.playloltcg.com/lol/card/20251217/80605fa4b1714c9ebd08b5a71ceb432c.png",
+    "attemptedAtUtc": "2026-10-20T16:45:45.911993+00:00",
+    "receivedAtUtc": "2026-10-20T16:45:46.104892+00:00",
+    "sha256": "29d643e3e8eba982ed9cdcac989dab7b1d14e4ac7c37f777fe98f02822e159bc",
+    "bytes": 203365,
+    "path": "var/qa/spell-remake-no-declaration-20261021/current-card-faces/33160.png",
+    "headers": {
+      "Date": "Tue, 14 Jul 2026 13:48:42 GMT",
+      "Content-Type": "image/png",
+      "Last-Modified": "Wed, 17 Dec 2025 03:04:39 GMT"
+    },
+    "fullCurrentApiRow": {
+      "id": 33160,
+      "cardCategoryList": [
+        "spell"
+      ],
+      "cardCategoryNameList": [
+        "法术"
+      ],
+      "cardNo": "SFD·080/221",
+      "cardName": "风箱炎息",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "blue"
+      ],
+      "hero": "",
+      "region": "",
+      "tag": "",
+      "artist": "Kudos Productions",
+      "cardEffect": "{{迅捷}}（可在你的回合或法术对决中打出。）\n{{回响1蓝色}}（你可以选择支付此额外费用，以重复此法术效果。）\n对同一位置的最多三名单位各造成1点伤害。",
+      "flavorText": "“炉火的咆哮，金属的鸣响，就是我的作品正在发声。”\n——奥恩",
+      "energy": 1,
+      "returnEnergy": 1,
+      "power": null,
+      "productCodeList": [
+        "SFD(标准补充包)",
+        "SFD(进阶补充包)"
+      ],
+      "productNameList": [
+        "铸魂淬炼 标准补充包",
+        "铸魂淬炼 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_shard",
+      "rarityName": "稀有",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20251217/80605fa4b1714c9ebd08b5a71ceb432c.png",
+      "backImage": "",
+      "listSort": 913,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    "region": "CN",
+    "language": "zh-CN",
+    "roundApplicableAsOf": "2026-10-21",
+    "wholePrintingSemanticCertification": false
+  },
+  {
+    "apiId": 31296,
+    "exactRawCardNo": "OGN·080/298",
+    "cardName": "倒转神通",
+    "sourceImageUrl": "https://cdn.playloltcg.com/lol/card/20250731/ffe2498048ae4bd9b218ac8e86fd0dbf.png",
+    "resolvedUrl": "https://cdn.playloltcg.com/lol/card/20250731/ffe2498048ae4bd9b218ac8e86fd0dbf.png",
+    "attemptedAtUtc": "2026-10-20T16:45:45.931959+00:00",
+    "receivedAtUtc": "2026-10-20T16:45:46.137681+00:00",
+    "sha256": "3b11b2fa748b61c83ffa2b11a8b1890d75dd175d0311eec894cd993cc1a83014",
+    "bytes": 288283,
+    "path": "var/qa/spell-remake-no-declaration-20261021/current-card-faces/31296.png",
+    "headers": {
+      "Date": "Tue, 01 Sep 2026 16:52:03 GMT",
+      "Content-Type": "image/png",
+      "Last-Modified": "Tue, 02 Dec 2025 16:16:03 GMT"
+    },
+    "fullCurrentApiRow": {
+      "id": 31296,
+      "cardCategoryList": [
+        "spell"
+      ],
+      "cardCategoryNameList": [
+        "法术"
+      ],
+      "cardNo": "OGN·080/298",
+      "cardName": "倒转神通",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "green"
+      ],
+      "hero": "",
+      "region": "",
+      "tag": "",
+      "artist": "Polar Engine Studio",
+      "cardEffect": "{{反应}}（可在任意时机打出，甚至先于其他法术和技能的结算。）\n获得一个法术的控制权。你可以选择为其指定新的目标。",
+      "flavorText": "二流法师只想借，一流法师直接偷。",
+      "energy": 4,
+      "returnEnergy": 3,
+      "power": null,
+      "productCodeList": [
+        "OGN(标准补充包)",
+        "OGN(进阶补充包)"
+      ],
+      "productNameList": [
+        "起源 标准补充包",
+        "起源 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_core",
+      "rarityName": "史诗",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/ffe2498048ae4bd9b218ac8e86fd0dbf.png",
+      "backImage": "",
+      "listSort": 409,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    "region": "CN",
+    "language": "zh-CN",
+    "roundApplicableAsOf": "2026-10-21",
+    "wholePrintingSemanticCertification": false
+  },
+  {
+    "apiId": 37855,
+    "exactRawCardNo": "VEN·152",
+    "cardName": "灵魂折镜",
+    "sourceImageUrl": "https://cdn.playloltcg.com/lol/card/20260713/436ec0b21d0740bf971935953c9acbd2.png",
+    "resolvedUrl": "https://cdn.playloltcg.com/lol/card/20260713/436ec0b21d0740bf971935953c9acbd2.png",
+    "attemptedAtUtc": "2026-10-20T16:45:46.105009+00:00",
+    "receivedAtUtc": "2026-10-20T16:45:46.272810+00:00",
+    "sha256": "dfe791a4d6482e8161d600a836db88cfd46981ddeeaabae73af402f3164dae04",
+    "bytes": 308774,
+    "path": "var/qa/spell-remake-no-declaration-20261021/current-card-faces/37855.png",
+    "headers": {
+      "Date": "Mon, 17 Aug 2026 12:53:04 GMT",
+      "Content-Type": "image/png",
+      "Last-Modified": "Mon, 13 Jul 2026 09:15:44 GMT"
+    },
+    "fullCurrentApiRow": {
+      "id": 37855,
+      "cardCategoryList": [
+        "exclusive_spell"
+      ],
+      "cardCategoryNameList": [
+        "专属法术"
+      ],
+      "cardNo": "VEN·152",
+      "cardName": "灵魂折镜",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "blue",
+        "purple"
+      ],
+      "hero": "梅尔",
+      "region": "",
+      "tag": "",
+      "artist": "小牛设计",
+      "cardEffect": "{{反应}}（可在任意时机打出，甚至先于其他法术和技能的结算。）\n选择一个法力费用不高于{{4}}的法术。你可以选择支付{{A}}。若如此做，则你获得此法术的控制权，你可以选择为其做出新的选择。否则将其无效化。",
+      "flavorText": "“斗转乾坤！”\n——梅尔",
+      "energy": 1,
+      "returnEnergy": 1,
+      "power": null,
+      "productCodeList": [
+        "VEN(标准补充包)",
+        "VEN(进阶补充包)"
+      ],
+      "productNameList": [
+        "化神争锋 标准补充包",
+        "化神争锋 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_core",
+      "rarityName": "史诗",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260713/436ec0b21d0740bf971935953c9acbd2.png",
+      "backImage": "",
+      "listSort": 1831,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    "region": "CN",
+    "language": "zh-CN",
+    "roundApplicableAsOf": "2026-10-21",
+    "wholePrintingSemanticCertification": false
+  }
+]

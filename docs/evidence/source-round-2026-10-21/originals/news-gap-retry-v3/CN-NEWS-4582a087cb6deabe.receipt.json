@@ -1,0 +1,111 @@
+{
+  "id": "CN-NEWS-4582a087cb6deabe",
+  "url": "https://mp.weixin.qq.com/s/ORKLrnLynkHNT5xlcZhLDA",
+  "attemptedAtUtc": "2026-10-20T16:22:11.683938+00:00",
+  "roundApplicableAsOf": "2026-10-21",
+  "region": "CN",
+  "language": "zh-CN",
+  "firstPublicationIndependentlyConfirmed": null,
+  "effectiveDateIndependentlyConfirmed": null,
+  "previousOriginalReceipt": {
+    "path": "var/qa/source-round-20261021/news/CN-NEWS-4582a087cb6deabe.receipt.json",
+    "sha256": "76bf8b5a35481a8bd6e8c052fa5ff8bcf0681e7a5df3c5aabb6b0bc703a6661f"
+  },
+  "normalTlsValidationNoBypass": true,
+  "attemptsThisRetryPass": 1,
+  "exitCode": 0,
+  "stderr": "",
+  "receivedAtUtc": "2026-10-20T16:22:13.397458+00:00",
+  "rawPath": "var/qa/source-round-20261021/news-gap-retry-v3/CN-NEWS-4582a087cb6deabe.original.gz",
+  "rawSha256": "244f5fc09ae3ff786dac57b2cdb57ca65fc9c5cc1fb0e5ea9834b125e3401c41",
+  "rawBytes": 3492220,
+  "compressedSha256": "f6ddaae53b0d89d3bd0a7814785a8aae74ea133c7675a3abc1db52cfd5d63b90",
+  "status": "FETCHED_COMPLETE_LITERAL_ROOT_WITH_NORMAL_TLS_RETRY_NOT_CERTIFICATION",
+  "literalRootSha256": "ab15a753b7f3af96d29cd4dfe3f0868e87687b31986228079f553cf29a123e0d",
+  "literalRootCharacters": 13770,
+  "bodyTextSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "bodyTextCharacters": 0,
+  "images": [
+    {
+      "url": "https://mmecoa.qpic.cn/mmecoa_gif/M9v64QVNlqKQ7pgu5vIg6ib2daNy6T0Q8SibwOI50DlblVn9OH6MTTBxibo7RfVkvQ7wFOOWbwibOEvI7mY3jj23QA/640?wx_fmt=gif",
+      "data-src": "https://mmecoa.qpic.cn/mmecoa_gif/M9v64QVNlqKQ7pgu5vIg6ib2daNy6T0Q8SibwOI50DlblVn9OH6MTTBxibo7RfVkvQ7wFOOWbwibOEvI7mY3jj23QA/640?wx_fmt=gif",
+      "data-w": "1080",
+      "data-ratio": "0.34444444444444444"
+    },
+    {
+      "url": "https://mmecoa.qpic.cn/mmecoa_jpg/M9v64QVNlqInpdYtA1vjsiaudej5iaW0qMYTtNpeOKqSALGZQqJOOuP8YMO7snmpM1up3dCVicsdcbXsUlNNnZyRg/640?wx_fmt=jpeg",
+      "data-src": "https://mmecoa.qpic.cn/mmecoa_jpg/M9v64QVNlqInpdYtA1vjsiaudej5iaW0qMYTtNpeOKqSALGZQqJOOuP8YMO7snmpM1up3dCVicsdcbXsUlNNnZyRg/640?wx_fmt=jpeg",
+      "data-w": "1080",
+      "data-ratio": "1.1861111111111111"
+    },
+    {
+      "url": "https://mmecoa.qpic.cn/mmecoa_jpg/M9v64QVNlqInpdYtA1vjsiaudej5iaW0qMB9MreJqYGoVnwFeXsUKGZdy8eIAbKUNygIGUIjnl3M4hcz2k2WT6aQ/640?wx_fmt=jpeg",
+      "data-src": "https://mmecoa.qpic.cn/mmecoa_jpg/M9v64QVNlqInpdYtA1vjsiaudej5iaW0qMB9MreJqYGoVnwFeXsUKGZdy8eIAbKUNygIGUIjnl3M4hcz2k2WT6aQ/640?wx_fmt=jpeg",
+      "data-w": "1080",
+      "data-ratio": "1.387962962962963"
+    },
+    {
+      "url": "https://mmecoa.qpic.cn/mmecoa_jpg/M9v64QVNlqInpdYtA1vjsiaudej5iaW0qM5fNmaYvuZR0IWdQ7wNFTaO5hiaOTE1MmvFEtvFZLguGw05VIWC91RUw/640?wx_fmt=jpeg",
+      "data-src": "https://mmecoa.qpic.cn/mmecoa_jpg/M9v64QVNlqInpdYtA1vjsiaudej5iaW0qM5fNmaYvuZR0IWdQ7wNFTaO5hiaOTE1MmvFEtvFZLguGw05VIWC91RUw/640?wx_fmt=jpeg",
+      "data-w": "1080",
+      "data-ratio": "0.1962962962962963"
+    },
+    {
+      "url": "https://mmecoa.qpic.cn/mmecoa_jpg/M9v64QVNlqInpdYtA1vjsiaudej5iaW0qMD0x9lk1PMVwVJiaOibHreHtPzTicCJXT4UvWRZG1taMCFt6njWCMIDWJg/640?wx_fmt=jpeg",
+      "data-src": "https://mmecoa.qpic.cn/mmecoa_jpg/M9v64QVNlqInpdYtA1vjsiaudej5iaW0qMD0x9lk1PMVwVJiaOibHreHtPzTicCJXT4UvWRZG1taMCFt6njWCMIDWJg/640?wx_fmt=jpeg",
+      "data-w": "1080",
+      "data-ratio": "0.25462962962962965"
+    },
+    {
+      "url": "https://mmecoa.qpic.cn/mmecoa_jpg/M9v64QVNlqInpdYtA1vjsiaudej5iaW0qMkOXte7Agj6cicBoDw3TMyicnc1SsteO6sxC1o3TaOame1AOgOk6wsf6w/640?wx_fmt=jpeg",
+      "data-src": "https://mmecoa.qpic.cn/mmecoa_jpg/M9v64QVNlqInpdYtA1vjsiaudej5iaW0qMkOXte7Agj6cicBoDw3TMyicnc1SsteO6sxC1o3TaOame1AOgOk6wsf6w/640?wx_fmt=jpeg",
+      "data-w": "1080",
+      "data-ratio": "0.24166666666666667"
+    },
+    {
+      "url": "https://mmecoa.qpic.cn/mmecoa_jpg/M9v64QVNlqInpdYtA1vjsiaudej5iaW0qMYdxj86D1G8ZaKsPqjs1snibPib4UJuYN388L1IGS4xqIebrjZb0CqZpw/640?wx_fmt=jpeg",
+      "data-src": "https://mmecoa.qpic.cn/mmecoa_jpg/M9v64QVNlqInpdYtA1vjsiaudej5iaW0qMYdxj86D1G8ZaKsPqjs1snibPib4UJuYN388L1IGS4xqIebrjZb0CqZpw/640?wx_fmt=jpeg",
+      "data-w": "1080",
+      "data-ratio": "2.1305555555555555"
+    },
+    {
+      "url": "https://mmecoa.qpic.cn/mmecoa_jpg/M9v64QVNlqInpdYtA1vjsiaudej5iaW0qMrW7CLA3P5kU0pR12Y4KshGx9tIT6cNlTLhcibSQbYdeqMVIugw0xuKA/640?wx_fmt=jpeg",
+      "data-src": "https://mmecoa.qpic.cn/mmecoa_jpg/M9v64QVNlqInpdYtA1vjsiaudej5iaW0qMrW7CLA3P5kU0pR12Y4KshGx9tIT6cNlTLhcibSQbYdeqMVIugw0xuKA/640?wx_fmt=jpeg",
+      "data-w": "1080",
+      "data-ratio": "3.2037037037037037"
+    },
+    {
+      "url": "https://mmecoa.qpic.cn/mmecoa_jpg/M9v64QVNlqInpdYtA1vjsiaudej5iaW0qMteL4a7EtZtPHMukk6uw8f9IbHP5h2jIjRCzO1Bibdpfvd6AatIPcbPw/640?wx_fmt=jpeg",
+      "data-src": "https://mmecoa.qpic.cn/mmecoa_jpg/M9v64QVNlqInpdYtA1vjsiaudej5iaW0qMteL4a7EtZtPHMukk6uw8f9IbHP5h2jIjRCzO1Bibdpfvd6AatIPcbPw/640?wx_fmt=jpeg",
+      "data-w": "1080",
+      "data-ratio": "2.075"
+    },
+    {
+      "url": "https://mmecoa.qpic.cn/mmecoa_jpg/M9v64QVNlqInpdYtA1vjsiaudej5iaW0qMbzV9vFiaUOHiboMHRxxgqDFj58OwZnGfR1gAg5UvicUWnvicIXh3CiahUhQ/640?wx_fmt=jpeg",
+      "data-src": "https://mmecoa.qpic.cn/mmecoa_jpg/M9v64QVNlqInpdYtA1vjsiaudej5iaW0qMbzV9vFiaUOHiboMHRxxgqDFj58OwZnGfR1gAg5UvicUWnvicIXh3CiahUhQ/640?wx_fmt=jpeg",
+      "data-w": "1080",
+      "data-ratio": "2.8814814814814813"
+    },
+    {
+      "url": "https://mmecoa.qpic.cn/mmecoa_jpg/M9v64QVNlqInpdYtA1vjsiaudej5iaW0qMDGCaEfPOKoQsfsIMYStapUDbQSRNB4LSQpKZJXwJlk0oU1bkiat9X1g/640?wx_fmt=jpeg",
+      "data-src": "https://mmecoa.qpic.cn/mmecoa_jpg/M9v64QVNlqInpdYtA1vjsiaudej5iaW0qMDGCaEfPOKoQsfsIMYStapUDbQSRNB4LSQpKZJXwJlk0oU1bkiat9X1g/640?wx_fmt=jpeg",
+      "data-w": "1080",
+      "data-ratio": "1.8120370370370371"
+    },
+    {
+      "url": "https://mmecoa.qpic.cn/mmecoa_gif/M9v64QVNlqKQ7pgu5vIg6ib2daNy6T0Q8MiaQZh0oRfMWfotmF0lOX2EQNShHunDvjZyJNNMzAG6CATZX1U7QicBA/640?wx_fmt=gif",
+      "data-src": "https://mmecoa.qpic.cn/mmecoa_gif/M9v64QVNlqKQ7pgu5vIg6ib2daNy6T0Q8MiaQZh0oRfMWfotmF0lOX2EQNShHunDvjZyJNNMzAG6CATZX1U7QicBA/640?wx_fmt=gif",
+      "data-w": "1080",
+      "data-ratio": "0.34444444444444444"
+    }
+  ],
+  "links": [],
+  "articleRootFoundAndClosed": true,
+  "bodyTextPath": "var/qa/source-round-20261021/news-gap-retry-v3/CN-NEWS-4582a087cb6deabe.body.txt.gz",
+  "priorRawPath": "var/qa/official-news-body-20261016/remaining-110/CN-NEWS-4582a087cb6deabe.html",
+  "priorRawSha256": "b30c94f51e29b302ceca81931070a1e5f7105e0cc8b6ca67d41fb2161d978196",
+  "literalRootMatchesPrior": true,
+  "bodyTextMatchesPrior": true,
+  "imagesAllAttributesAndOrderMatchPrior": true,
+  "linksAndOrderMatchPrior": true
+}

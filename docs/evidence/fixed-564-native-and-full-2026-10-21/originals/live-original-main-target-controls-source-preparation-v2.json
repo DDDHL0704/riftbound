@@ -1,0 +1,11 @@
+{
+  "atUtc": "2026-10-20T14:38:55.907708+00:00",
+  "status": "PREPARED_PARSER_ONLY_NATIVE_MAIN_WITH_BOTH_ACTUAL_DISCONNECT_RESTORE_SCENES",
+  "actualParserExitCode": 0,
+  "originalPreparedV1AndParserPreserved": true,
+  "scriptSha256": "8529c6070851a22e76cc6d4d98979ae2ae6697c6b820830657a3bc6666fe2aee",
+  "sceneSha256": "bfaab75eb315dafba0995ba8e11e6b786f2dd98c3f90140485f336f735706a7e",
+  "logSha256": "d8febeeee242b86ed1a9617ba11a50d0f429648c59fe85dfc1ecc4db03a2f265",
+  "actualNetworkButtonsSqlColdRestoreOrNewFixedCandidateNotYetExecuted": true,
+  "noFrozenSourceOrRuntimeChanges": true
+}

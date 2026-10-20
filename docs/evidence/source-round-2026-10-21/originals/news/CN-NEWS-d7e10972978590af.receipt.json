@@ -1,0 +1,41 @@
+{
+  "url": "https://mp.weixin.qq.com/s/11k9oH0Ib6KexrKrVBIv9w",
+  "request": null,
+  "attemptedAtUtc": "2026-10-20T16:17:36.449336+00:00",
+  "roundApplicableAsOf": "2026-10-21",
+  "region": "CN",
+  "language": "zh-CN",
+  "timezone": "Asia/Shanghai",
+  "firstPublicationIndependentlyConfirmed": null,
+  "effectiveDateIndependentlyConfirmed": null,
+  "semanticReview": "OPEN",
+  "runtimeAuthorityChanged": false,
+  "resolvedUrl": "https://mp.weixin.qq.com/s/11k9oH0Ib6KexrKrVBIv9w",
+  "httpStatus": 200,
+  "responseHeaders": {
+    "Last-Modified": "Wed, 21 Oct 2026 00:17:37 +0800",
+    "Content-Type": "text/html; charset=UTF-8"
+  },
+  "status": "SOURCE_EXTRACTION_GAP_WITH_ORIGINAL_RESPONSE_RETAINED",
+  "receivedAtUtc": "2026-10-20T16:17:39.379468+00:00",
+  "path": "var/qa/source-round-20261021/news/CN-NEWS-d7e10972978590af.html.gz",
+  "sha256": "2daa4b5762d7740719a8cb4bb53a52d74b2c7d5dad748404881e3f3e2af6668f",
+  "bytes": 3448158,
+  "compressedSha256": "8987d15fbd313bf0fe30d5b7b0f416374ba36e542287634631ab5f0a31c3727c",
+  "losslessGzipOriginalBytes": true,
+  "id": "CN-NEWS-d7e10972978590af",
+  "allListingRows": [
+    {
+      "name": "聚光开幕丨辉耀群星发售纪念活动",
+      "image": "https://cdn.playloltcg.com/lol/2026/10/2026-10-20/69b37aac408449f48a304a5249207464.png",
+      "pushDate": "2026-10-20",
+      "jumpType": "h5",
+      "appId": "",
+      "jumpUrl": "https://mp.weixin.qq.com/s/11k9oH0Ib6KexrKrVBIv9w",
+      "sort": 167
+    }
+  ],
+  "publishedAsListed": "2026-10-20",
+  "extractionErrorType": "TypeError",
+  "extractionError": "'int' object is not callable"
+}

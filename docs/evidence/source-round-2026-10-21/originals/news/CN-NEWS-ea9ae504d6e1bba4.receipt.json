@@ -1,0 +1,41 @@
+{
+  "url": "https://mp.weixin.qq.com/s/LykICKgditkyzKg44HCdNw",
+  "request": null,
+  "attemptedAtUtc": "2026-10-20T16:15:19.300140+00:00",
+  "roundApplicableAsOf": "2026-10-21",
+  "region": "CN",
+  "language": "zh-CN",
+  "timezone": "Asia/Shanghai",
+  "firstPublicationIndependentlyConfirmed": null,
+  "effectiveDateIndependentlyConfirmed": null,
+  "semanticReview": "OPEN",
+  "runtimeAuthorityChanged": false,
+  "resolvedUrl": "https://mp.weixin.qq.com/s/LykICKgditkyzKg44HCdNw",
+  "httpStatus": 200,
+  "responseHeaders": {
+    "Last-Modified": "Wed, 21 Oct 2026 00:15:20 +0800",
+    "Content-Type": "text/html; charset=UTF-8"
+  },
+  "status": "SOURCE_EXTRACTION_GAP_WITH_ORIGINAL_RESPONSE_RETAINED",
+  "receivedAtUtc": "2026-10-20T16:15:23.739470+00:00",
+  "path": "var/qa/source-round-20261021/news/CN-NEWS-ea9ae504d6e1bba4.html.gz",
+  "sha256": "eebcb7419654de8dc1f323319aeeacf5570411dc82f027d96074f4ca96334c82",
+  "bytes": 3563925,
+  "compressedSha256": "573de935df236fcda12002020e1c856d3a2ecc7fcd03f9d83379c194636b98b3",
+  "losslessGzipOriginalBytes": true,
+  "id": "CN-NEWS-ea9ae504d6e1bba4",
+  "allListingRows": [
+    {
+      "name": "赛事详情｜区域公开赛杭州站信息汇总",
+      "image": "https://cdn.playloltcg.com/lol/2025/09/2025-09-09/665f630c6b814f869d57da230bc16927.jpg",
+      "pushDate": "2025-09-09",
+      "jumpType": "h5",
+      "appId": "",
+      "jumpUrl": "https://mp.weixin.qq.com/s/LykICKgditkyzKg44HCdNw",
+      "sort": 68
+    }
+  ],
+  "publishedAsListed": "2025-09-09",
+  "extractionErrorType": "TypeError",
+  "extractionError": "'int' object is not callable"
+}

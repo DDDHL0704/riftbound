@@ -1,0 +1,47 @@
+{
+  "atUtc": "2026-10-20T18:13:51.641982+00:00",
+  "originalLedger": {
+    "path": "docs/evidence/cn-effective-2026-10-16/news-obligations.json",
+    "sha256": "852848590b04939d8780cb3dbd0e7c6e6ebca16eedfbe22a5163e95b353e8762",
+    "role": "old-ledger"
+  },
+  "currentDerivedLedger": {
+    "path": "docs/evidence/source-round-2026-10-21/current139-news-index-original20-scope-preserving-ledger.json",
+    "sha256": "548b9992ac61e689248f6243ed64b98890c0acb20bd8e3b0de29693f09e8ab1f",
+    "role": "current139-exact-listing-overlay"
+  },
+  "uncompressedReaderAdapters": [
+    {
+      "json": {
+        "path": "docs/evidence/source-round-2026-10-21/news-current-139-listing/official-news-page1.json",
+        "sha256": "524cca8026ba9db54fe1668c024c77792a0ad541a2704420ab63f3acc59e7c9c",
+        "role": "current21-exact-http-json-reader-adapter"
+      },
+      "originalGzip": {
+        "path": "docs/evidence/source-round-2026-10-21/originals/news/official-news-page1.json.gz",
+        "sha256": "4cf0a89eb0f69659cd6222799db53ded7ebca7cef5bc6acb6276ecea43a4d615",
+        "role": "current21-original-http-gzip"
+      },
+      "rawBytesAndSha256ExactlyPreserved": true
+    },
+    {
+      "json": {
+        "path": "docs/evidence/source-round-2026-10-21/news-current-139-listing/official-news-page2.json",
+        "sha256": "35d754a4864836f81a20d77f3931d92b04bad65a8a37de11f705d1bdc48e687a",
+        "role": "current21-exact-http-json-reader-adapter"
+      },
+      "originalGzip": {
+        "path": "docs/evidence/source-round-2026-10-21/originals/news/official-news-page2.json.gz",
+        "sha256": "cef3ee780c7e02077cd84cae252ce8f22508d5fd36925407fe6f0baf878de212",
+        "role": "current21-original-http-gzip"
+      },
+      "rawBytesAndSha256ExactlyPreserved": true
+    }
+  ],
+  "allOriginal138ListRowsAndOrderExact": true,
+  "allOriginal20DocumentRecordsAndCandidateInventoryAndCardSourceExact": true,
+  "originalCertificationTargetAndAllObservationPublicationEffectiveDatesDistinct": true,
+  "newSourceDocumentId": "CN-NEWS-d7e10972978590af",
+  "onlyOneNewNewsSourceObligationExpected": true,
+  "oldAndNewSourceEvidenceNotRewritten": true
+}

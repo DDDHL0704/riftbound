@@ -1,0 +1,13 @@
+{
+  "atUtc": "2026-10-20T18:56:53.699154+00:00",
+  "status": "ACTUAL_SOLE_CHECK13176_COMPLETED13175_PASS_ONE_OLD_CONTROL_DRIVER_NULL_REFERENCE_NO_SKIPS",
+  "cases": 13176,
+  "passed": 13175,
+  "failed": 1,
+  "skipped": 0,
+  "originalFailureMethod": "Riftbound.ConformanceTests.DeckPlaySequenceTests.RealControlChangeKeepsTheTurnPlayersChoiceOrderAndFinishesTheSourceBeforeConfirmation",
+  "sourceLine": 151,
+  "allSourceHashesModesConformanceAndNativeInputsStableDuringActualCheck": true,
+  "noSecondCheckRunAuthorizedOrStarted": true,
+  "originalBeforeAnyCorrection": "var/qa/spell-remake-no-declaration-20261021/original-before-post-check-expectation-correction/tests/Riftbound.ConformanceTests/DeckPlaySequenceTests.cs"
+}

@@ -1,0 +1,39 @@
+{
+  "id": "CN-NEWS-a22278a3803fe2ea",
+  "url": "https://mp.weixin.qq.com/s/A2RILu_IhePj4CAPvGDaew",
+  "roundApplicableAsOf": "2026-10-21",
+  "region": "CN",
+  "language": "zh-CN",
+  "rawOriginalPath": "var/qa/source-round-20261021/news-gap-retry-v3/CN-NEWS-a22278a3803fe2ea.original.gz",
+  "rawOriginalSha256": "50c081076979bd7d5d5b4a4ed7a9d909189bba9babbb7895ab6a60850cc87a02",
+  "literalListSha256": "cf880943454f9911eed433f697fb6383e0f396c751bfb89c7658b017dec692d2",
+  "captionSha256": "83d6b06930b71da1ddd8a49b72de4078b9dc4b09081b5e1eb8d431daf4a25576",
+  "primaryImages": [
+    {
+      "ordinal": 1,
+      "url": "https://mmecoa.qpic.cn/mmecoa_jpg/M9v64QVNlqKDQvlX1Sd2ibhSdHhzFSj7WLxP7Jc5TYK8xsGNVsUF8Y7XyhwxjL2ce2eVY6zRSOLavic3A7iclfxRQ/0?wx_fmt=jpeg&from=appmsg",
+      "rawEntryLiteralSha256": "0679ed51b558ce8ab5d8980b9d385834db93a7e9b016613631856406a2615658"
+    }
+  ],
+  "priorLiteralListSha256": "cf880943454f9911eed433f697fb6383e0f396c751bfb89c7658b017dec692d2",
+  "priorCaptionSha256": "83d6b06930b71da1ddd8a49b72de4078b9dc4b09081b5e1eb8d431daf4a25576",
+  "allImageListLiteralBytesExact": true,
+  "captionExact": true,
+  "imageUrlExact": true,
+  "freshImageAttemptedAtUtc": "2026-10-20T16:31:47.052379+00:00",
+  "firstPublicationIndependentlyConfirmed": null,
+  "effectiveDateIndependentlyConfirmed": null,
+  "noJavascriptExecutedOrChallengeBypassed": true,
+  "imageResolvedUrl": "https://mmecoa.qpic.cn/mmecoa_jpg/M9v64QVNlqKDQvlX1Sd2ibhSdHhzFSj7WLxP7Jc5TYK8xsGNVsUF8Y7XyhwxjL2ce2eVY6zRSOLavic3A7iclfxRQ/0?wx_fmt=jpeg&from=appmsg",
+  "imageHttpStatus": 200,
+  "freshImageReceivedAtUtc": "2026-10-20T16:31:47.163694+00:00",
+  "imageSha256": "16f48b5df3ff67131366149185cd253ffe769cee5847540469bfd3efab2dab6a",
+  "imageBytes": 173055,
+  "imageBytesExact": true,
+  "imageMatchesOldVerifiedHash": true,
+  "verifiedExistingExactImagePath": "/Users/dinghaolin/MyProjects/riftbound/var/qa/official-news-body-20261016/complete-image-acquisition/904eb8b40eb2d8e55a80d8da.source",
+  "status": "CURRENT_STATIC_LITERAL_CAPTION_AND_IMAGE_RECONFIRMED_ONLY",
+  "priorBoundedSurfaceDisposition": "Historical June2025 region lore/preview and sample-deck giveaway; no legible exact card face or operative gameplay rule.",
+  "remainingDynamicAndOtherTemplateSurfaces": "OPEN",
+  "wholeSourceOrPrintingCertified": false
+}

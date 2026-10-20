@@ -1,0 +1,187 @@
+{
+  "status": "REAL_POSTGRES_PARTITION_COMPLETE",
+  "fixedCommit": null,
+  "partitionIndex": 17,
+  "partitionCount": 48,
+  "manifestSha256": "ce301be0115ba843cd8c128d520b9a54ed922d5fd303bb062351e0950399c938",
+  "orderedDefaultCases": [
+    "private-opening",
+    "created-token-ready",
+    "core-opening",
+    "battle-history",
+    "masked-attendant",
+    "granted-predict",
+    "printed-predict",
+    "sivir-optional",
+    "rune-destination",
+    "sivir-payment",
+    "conquest-token",
+    "recycled-card-boon",
+    "recycle-boon-lifecycle",
+    "attached-recycle-lifecycle",
+    "typed-play-history",
+    "porobot",
+    "typed-play-history-causal",
+    "clairvoyance",
+    "insight-repeat",
+    "combat-assignment",
+    "confirmed-play-origin",
+    "physical-origin-cost",
+    "granted-origin-haste",
+    "opponent-battlefield-control",
+    "optional-sacrifice",
+    "granted-token-haste",
+    "optional-costs",
+    "battlefield-play-recovery",
+    "battlefield-play-damage",
+    "banish-effect-play",
+    "here-location-control",
+    "fate-weaver",
+    "multi-controller-trigger-order",
+    "empty-observed-repeat",
+    "observed-play-window",
+    "ravenbloom-put-hand",
+    "attached-predict",
+    "copied-last-breath-insight",
+    "copied-duel-insight",
+    "empowered-insight",
+    "paka-move-reveal",
+    "empty-reveal-followup",
+    "paka-dual-type-reveal",
+    "hwei-move-discard-types",
+    "destruction-graveyard",
+    "conditional-counter-payment",
+    "reversal-target-choice",
+    "spell-remake-declaration"
+  ],
+  "expectedCases": [
+    "clairvoyance"
+  ],
+  "completedCases": [
+    "clairvoyance"
+  ],
+  "executions": [
+    {
+      "id": "clairvoyance",
+      "ordinal": 17,
+      "status": "PASSED",
+      "startedAtUtc": "2026-10-20T17:08:26.22885+00:00",
+      "finishedAtUtc": "2026-10-20T17:08:32.016873+00:00",
+      "seconds": 5.787989
+    }
+  ],
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+    "implementationSha256": "e4402984b8db9e2a1f91636b8fdecff3288d1da7af9a54e697ea29ed0f3e4faf",
+    "identitySha256": "6f12c0fb012e9b6eac9abb19f81bb816f1506c098d7f7e992823a9f751fae2a3"
+  },
+  "outputFiles": [
+    {
+      "path": "clairvoyance/all/complete-original-frame.json.gz",
+      "bytes": 15034,
+      "sha256": "9503d6f63dc3e4a68470e9fdf50184ceaa29e408e644aed14679ded5162318a9"
+    },
+    {
+      "path": "clairvoyance/all/explicit-fixture-initial.json",
+      "bytes": 8406,
+      "sha256": "760494c31bfa31081adbdb30fa74f80e6ef9f72b2871f21ea638d7abf6e5d9a2"
+    },
+    {
+      "path": "clairvoyance/all/receipt.json",
+      "bytes": 1597,
+      "sha256": "f8d62437c62538ddf5c60de43d526748d823e0c7a7c2c9477204dd1c01ceab21"
+    },
+    {
+      "path": "clairvoyance/burnout/complete-original-frame.json.gz",
+      "bytes": 8376,
+      "sha256": "0a4b4d30876b002194fefdf52a21c0afe4b69d527bd7b8ce4741d4129dfc34a7"
+    },
+    {
+      "path": "clairvoyance/burnout/explicit-fixture-initial.json",
+      "bytes": 5322,
+      "sha256": "c7fe7263709451d283f1baf533c558a1f2ebe90839361409c1e51153bbf371d9"
+    },
+    {
+      "path": "clairvoyance/burnout/receipt.json",
+      "bytes": 1588,
+      "sha256": "0212118e7fbfe0349526cd64b8864dffd7a64241ab9e65640d05631e6cb7b8f5"
+    },
+    {
+      "path": "clairvoyance/control/complete-original-frame.json.gz",
+      "bytes": 15032,
+      "sha256": "2acceb509a14afabc4daf0da51eccc6be76d11ad61d7b665023373a134d49081"
+    },
+    {
+      "path": "clairvoyance/control/explicit-fixture-initial.json",
+      "bytes": 8944,
+      "sha256": "bdd5d40814a722d0261961054eaca59c817ed8f83bbbf674470b64773d51d95c"
+    },
+    {
+      "path": "clairvoyance/control/receipt.json",
+      "bytes": 2181,
+      "sha256": "dc9bc642e5e1b3d9fb6c5f1fed2562ab5a322c6c21fe52dd731fe8c011f13c55"
+    },
+    {
+      "path": "clairvoyance/keep/complete-original-frame.json.gz",
+      "bytes": 15096,
+      "sha256": "fdc4179a1cf249ed27c98a0e893cfe55334a9977f865a2e80e092e04fd222752"
+    },
+    {
+      "path": "clairvoyance/keep/explicit-fixture-initial.json",
+      "bytes": 8406,
+      "sha256": "d9d09ec1325881f2f19fa7084e9a1997a4686514a4f8ccc5abcf4d22bcae5faf"
+    },
+    {
+      "path": "clairvoyance/keep/receipt.json",
+      "bytes": 1722,
+      "sha256": "769f23bb1648d27d76a3396e59009037c25c6b4f4e33428feae8f0d26beed2df"
+    },
+    {
+      "path": "clairvoyance/some/complete-original-frame.json.gz",
+      "bytes": 15157,
+      "sha256": "72de5b4d8c20509584daa7a4c1b348b85c01b92ce80c76fe259b1c67c0c0af91"
+    },
+    {
+      "path": "clairvoyance/some/explicit-fixture-initial.json",
+      "bytes": 8406,
+      "sha256": "fd139702ad0d2e381e7b3d922fb0a89afbebfb5472ce8cf5e667e2a0a46cedae"
+    },
+    {
+      "path": "clairvoyance/some/receipt.json",
+      "bytes": 1722,
+      "sha256": "a871416b145826be7acc843c2eb17d07c414faae3b1db47f586894f16435dfff"
+    }
+  ],
+  "runtimeAssemblies": [
+    {
+      "file": "Riftbound.PostgresAcceptance.dll",
+      "sha256": "76dc6e838f3f777643f3f9d9dcde2badc79480a434766193266476a1661431d1",
+      "mvid": "f6b11cca-d1d2-4ca2-8556-f51492bd09b8"
+    },
+    {
+      "file": "Riftbound.Engine.dll",
+      "sha256": "11eeaa97df56821b8f217b410dd08d9260366e0201a91f7978a22e4f4f74709c",
+      "mvid": "0fbd820d-5044-4fe2-9a83-49389a24be8c"
+    },
+    {
+      "file": "Riftbound.Contracts.dll",
+      "sha256": "2e0af1fb35beabab83cb4510b1dbce5e7fb3e439752759a618900f125ea28eb5",
+      "mvid": "8e19a7df-ef14-4878-ae41-042e61103672"
+    },
+    {
+      "file": "Riftbound.CardCatalog.dll",
+      "sha256": "12cf579c6a3d98fbb75ca4f348c4f888e59d3e1aaade857e555a311bbaf49bb5",
+      "mvid": "897aec30-c6ea-4fec-ada4-97beab35eb65"
+    },
+    {
+      "file": "Riftbound.Persistence.dll",
+      "sha256": "d2f36d5bcf366cdac9f311d0125ae92ecd7f24ee5b45785dbd16814c28f8bc1e",
+      "mvid": "400e3cc1-2745-457c-8af2-ed3bb20ca230"
+    }
+  ],
+  "nativeVisibleOrWholeRuleCertification": false
+}

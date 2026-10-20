@@ -1,0 +1,9 @@
+{
+  "atUtc": "2026-10-20T15:55:37.544101+00:00",
+  "status": "ORIGINAL_V1_READER_TICK_ONLY_IDENTITY_ASSUMPTION_FAILED",
+  "originalSourceLogAndNegativeExitRetained": true,
+  "actualSchemaCausalBinding": "state tick plus last_event_sequence",
+  "actualDbNoDuplicateCausalKeysAndNoPrivateTickZeroRows": true,
+  "v2KeepsAll54StatesAndAllOriginalTypedPrivateProjectionReplayAndLiteralAssertions": true,
+  "noSqlWriterRerunOrOriginalDataNormalization": true
+}

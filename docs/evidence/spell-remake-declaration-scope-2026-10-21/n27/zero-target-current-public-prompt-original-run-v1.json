@@ -1,0 +1,8 @@
+{
+  "startedAtUtc": "2026-10-20T18:37:57.072486+00:00",
+  "finishedAtUtc": "2026-10-20T18:38:00.729457+00:00",
+  "exitCode": 0,
+  "actualHelperDllSha256": "4c8553512e612263ac64fe206055c98dd69f1a623d13d0da2ecc88ad42f16b2f",
+  "all3316CurrentCheckSourceHashesStable": true,
+  "noApiDatabaseNativeOrVisibleAcceptanceInferred": true
+}

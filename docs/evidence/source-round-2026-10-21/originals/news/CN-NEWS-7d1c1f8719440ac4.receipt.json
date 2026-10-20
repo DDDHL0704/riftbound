@@ -1,0 +1,41 @@
+{
+  "url": "https://mp.weixin.qq.com/s/0IsHz8ixDiKtFdBCweUMcA",
+  "request": null,
+  "attemptedAtUtc": "2026-10-20T16:15:37.785416+00:00",
+  "roundApplicableAsOf": "2026-10-21",
+  "region": "CN",
+  "language": "zh-CN",
+  "timezone": "Asia/Shanghai",
+  "firstPublicationIndependentlyConfirmed": null,
+  "effectiveDateIndependentlyConfirmed": null,
+  "semanticReview": "OPEN",
+  "runtimeAuthorityChanged": false,
+  "resolvedUrl": "https://mp.weixin.qq.com/s/0IsHz8ixDiKtFdBCweUMcA",
+  "httpStatus": 200,
+  "responseHeaders": {
+    "Last-Modified": "Wed, 21 Oct 2026 00:15:38 +0800",
+    "Content-Type": "text/html; charset=UTF-8"
+  },
+  "status": "SOURCE_EXTRACTION_GAP_WITH_ORIGINAL_RESPONSE_RETAINED",
+  "receivedAtUtc": "2026-10-20T16:15:40.463585+00:00",
+  "path": "var/qa/source-round-20261021/news/CN-NEWS-7d1c1f8719440ac4.html.gz",
+  "sha256": "a82d0f83d8e535bc487c2d04928f0c829407cded3ede49a0c7688e29526b7625",
+  "bytes": 2580501,
+  "compressedSha256": "9a3cf288a542127a2bdd09a2293ee66e8f5d4062595c1a10a9cb259d1f693605",
+  "losslessGzipOriginalBytes": true,
+  "id": "CN-NEWS-7d1c1f8719440ac4",
+  "allListingRows": [
+    {
+      "name": "久等了,铸魂淬炼全新征途即将开启！",
+      "image": "https://cdn.playloltcg.com/lol/2025/11/2025-11-11/484d94a59ed541e69e5d42dbf561e646.jpg",
+      "pushDate": "2025-11-11",
+      "jumpType": "h5",
+      "appId": "",
+      "jumpUrl": "https://mp.weixin.qq.com/s/0IsHz8ixDiKtFdBCweUMcA",
+      "sort": 82
+    }
+  ],
+  "publishedAsListed": "2025-11-11",
+  "extractionErrorType": "AssertionError",
+  "extractionError": ""
+}

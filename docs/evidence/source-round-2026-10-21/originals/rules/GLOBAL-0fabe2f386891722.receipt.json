@@ -1,0 +1,49 @@
+{
+  "url": "https://playriftbound.com/en-us/news/announcements/core-rules-vendetta-patch-notes",
+  "request": null,
+  "attemptedAtUtc": "2026-10-20T16:11:50.558537+00:00",
+  "region": "GLOBAL",
+  "language": "en-US",
+  "roundApplicableAsOf": "2026-10-21",
+  "timezone": "Asia/Shanghai",
+  "firstPublicationIndependentlyConfirmed": null,
+  "effectiveDateIndependentlyConfirmed": null,
+  "semanticCertification": false,
+  "runtimeAuthorityAdopted": false,
+  "resolvedUrl": "https://playriftbound.com/en-us/news/announcements/core-rules-vendetta-patch-notes/",
+  "httpStatus": 200,
+  "responseHeaders": {
+    "Date": "Tue, 20 Oct 2026 16:11:52 GMT",
+    "ETag": "\"fd7i9dvwa04b47\"",
+    "Age": "268",
+    "Cache-Control": "public,max-age=0,must-revalidate",
+    "Content-Type": "text/html; charset=utf-8"
+  },
+  "receivedAtUtc": "2026-10-20T16:11:52.877296+00:00",
+  "sha256": "ac54d7d412e7f25b477ce0526796c586e1bd0ea47bf25f56e7a354c8342c640b",
+  "bytes": 201649,
+  "path": "var/qa/source-round-20261021/rules/GLOBAL-0fabe2f386891722.gz",
+  "losslessGzipRawResponse": true,
+  "compressedSha256": "a9afe8da5ee9302c01fe145c75cbb00248ddaa19c526ba6baea0fe8bd1772958",
+  "status": "FETCHED_CURRENT_ORIGINAL_BYTES_NOT_CERTIFICATION",
+  "kind": "article",
+  "priorReference": {
+    "path": "var/qa/cn-effective-20261016/whole-rule-source-readback/GLOBAL/0fabe2f386891722",
+    "sha256": "6da2a19047c7c7b5b85d578efde05cd1f66afdee2e3bf094cd192c338d6f91ac"
+  },
+  "matchesPriorRawBytes": false,
+  "title": "Core Rules: Vendetta Patch Notes",
+  "displayedPublishDate": "2026-07-17T00:30:00.000Z",
+  "revision": "JxwKjQ4plLez7JxHpqarfH",
+  "contentBladeTypes": [
+    "riotbar",
+    "articleMasthead",
+    "articleRichText",
+    "articleCardCarousel"
+  ],
+  "bodyPath": "var/qa/source-round-20261021/rules/GLOBAL-0fabe2f386891722.body.html.gz",
+  "bodyHtmlSha256": "838cc550bfa0a1828521da4cc21ffee780cf9c90fad527995e088b84fa7b2aed",
+  "bodyMatchesLatestPrior": true,
+  "bodyMatchesFrozenOctober12": true,
+  "newUrlNotInFrozenInventory": false
+}

@@ -1,0 +1,7 @@
+{
+  "actualPassed": 81,
+  "actualFailed": 2,
+  "failureScope": "New test wrongly expected damage to lower stored Power. Card face says deal1 damage; correct literal expectation is Damage1 and storedPower9. No production damage behavior change justified.",
+  "allOriginalFailureLogsAndTrxAndNewTestSourceRetained": true,
+  "sourceSha256": "21982fee9b89ba9d164266aa840cc187564a366d6fcf05bc8d2ba76de826fffe"
+}

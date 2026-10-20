@@ -1,0 +1,41 @@
+{
+  "url": "https://mp.weixin.qq.com/s/dJwRi6vZdM2fGzMKCD2yeQ",
+  "request": null,
+  "attemptedAtUtc": "2026-10-20T16:15:06.022179+00:00",
+  "roundApplicableAsOf": "2026-10-21",
+  "region": "CN",
+  "language": "zh-CN",
+  "timezone": "Asia/Shanghai",
+  "firstPublicationIndependentlyConfirmed": null,
+  "effectiveDateIndependentlyConfirmed": null,
+  "semanticReview": "OPEN",
+  "runtimeAuthorityChanged": false,
+  "resolvedUrl": "https://mp.weixin.qq.com/s/dJwRi6vZdM2fGzMKCD2yeQ",
+  "httpStatus": 200,
+  "responseHeaders": {
+    "Last-Modified": "Wed, 21 Oct 2026 00:15:07 +0800",
+    "Content-Type": "text/html; charset=UTF-8"
+  },
+  "status": "SOURCE_EXTRACTION_GAP_WITH_ORIGINAL_RESPONSE_RETAINED",
+  "receivedAtUtc": "2026-10-20T16:15:10.974321+00:00",
+  "path": "var/qa/source-round-20261021/news/CN-NEWS-10b9fcc69c05f9d2.html.gz",
+  "sha256": "f3cf49431517cf01fc6f38b726ff12c3227d76d34e2c6b4de388d6cfefb4e985",
+  "bytes": 3458739,
+  "compressedSha256": "afc459d3a67e153572daaaf7e9d48ec1b4b871d555419a31d38e7eb059257d48",
+  "losslessGzipOriginalBytes": true,
+  "id": "CN-NEWS-10b9fcc69c05f9d2",
+  "allListingRows": [
+    {
+      "name": "交通指引｜区域公开赛广州站",
+      "image": "https://cdn.playloltcg.com/lol/2025/08/2025-08-18/1310d6a35bbf4bee80ebcb44c0d14d04.png",
+      "pushDate": "2025-08-18",
+      "jumpType": "h5",
+      "appId": "",
+      "jumpUrl": "https://mp.weixin.qq.com/s/dJwRi6vZdM2fGzMKCD2yeQ",
+      "sort": 59
+    }
+  ],
+  "publishedAsListed": "2025-08-18",
+  "extractionErrorType": "TypeError",
+  "extractionError": "'int' object is not callable"
+}

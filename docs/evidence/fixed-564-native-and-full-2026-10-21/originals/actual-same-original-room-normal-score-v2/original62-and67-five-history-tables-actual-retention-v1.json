@@ -1,0 +1,12 @@
+{
+  "atUtc": "2026-10-20T15:33:00.185142+00:00",
+  "original62EveryRowAndMultiplicityActuallyVerified": true,
+  "actual67BeforeCounts": {
+    "command_log": 67,
+    "game_events": 400,
+    "state_snapshots": 67,
+    "snapshots": 130,
+    "action_prompts": 130
+  },
+  "originalCounterPython39FailureNotRelabelled": true
+}

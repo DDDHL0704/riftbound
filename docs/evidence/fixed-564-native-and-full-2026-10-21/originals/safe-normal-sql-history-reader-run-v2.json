@@ -1,0 +1,8 @@
+{
+  "atUtc": "2026-10-20T15:55:50.892384+00:00",
+  "actualExitCode": 0,
+  "all48FixedRuntimeHashesStable": true,
+  "actualReadOnlyDatabase": true,
+  "logSha256": "d101d7f2f42cfebc1e4866bbe5ac5238fc0431757859c7429e591f0f171beda0",
+  "oldReaderFailureAndOriginalSqlNotRewritten": true
+}

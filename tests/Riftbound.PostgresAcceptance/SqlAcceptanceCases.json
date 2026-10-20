@@ -190,6 +190,10 @@
     {
       "id": "reversal-target-choice",
       "sourceType": "ReversalTargetChoiceSqlAcceptance"
+    },
+    {
+      "id": "spell-remake-declaration",
+      "sourceType": "SpellRemakeDeclarationSqlAcceptance"
     }
   ]
 }

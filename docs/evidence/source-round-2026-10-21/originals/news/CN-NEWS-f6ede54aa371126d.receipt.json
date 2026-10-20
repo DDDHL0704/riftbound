@@ -1,0 +1,41 @@
+{
+  "url": "https://mp.weixin.qq.com/s/DHeOKzR0V86DOvL04DHHZA",
+  "request": null,
+  "attemptedAtUtc": "2026-10-20T16:14:48.759330+00:00",
+  "roundApplicableAsOf": "2026-10-21",
+  "region": "CN",
+  "language": "zh-CN",
+  "timezone": "Asia/Shanghai",
+  "firstPublicationIndependentlyConfirmed": null,
+  "effectiveDateIndependentlyConfirmed": null,
+  "semanticReview": "OPEN",
+  "runtimeAuthorityChanged": false,
+  "resolvedUrl": "https://mp.weixin.qq.com/s/DHeOKzR0V86DOvL04DHHZA",
+  "httpStatus": 200,
+  "responseHeaders": {
+    "Last-Modified": "Wed, 21 Oct 2026 00:14:50 +0800",
+    "Content-Type": "text/html; charset=UTF-8"
+  },
+  "status": "SOURCE_EXTRACTION_GAP_WITH_ORIGINAL_RESPONSE_RETAINED",
+  "receivedAtUtc": "2026-10-20T16:14:53.310936+00:00",
+  "path": "var/qa/source-round-20261021/news/CN-NEWS-f6ede54aa371126d.html.gz",
+  "sha256": "5c9bdfac1240bc3cdf8a07e36eeba14132a94adc1179b24dd4029a05c45e9890",
+  "bytes": 3501703,
+  "compressedSha256": "59700f1e5a58f590bc8069892888e9031c197fda08597d9366a3465c52e3c485",
+  "losslessGzipOriginalBytes": true,
+  "id": "CN-NEWS-f6ede54aa371126d",
+  "allListingRows": [
+    {
+      "name": "第二集｜新手友好！符文战场常见关键词",
+      "image": "https://cdn.playloltcg.com/lol/2025/06/2025-06-24/de846fd65bab49719b3e9e504737b7e9.jpg",
+      "pushDate": "2025-06-24",
+      "jumpType": "h5",
+      "appId": "",
+      "jumpUrl": "https://mp.weixin.qq.com/s/DHeOKzR0V86DOvL04DHHZA",
+      "sort": 28
+    }
+  ],
+  "publishedAsListed": "2025-06-24",
+  "extractionErrorType": "TypeError",
+  "extractionError": "'int' object is not callable"
+}

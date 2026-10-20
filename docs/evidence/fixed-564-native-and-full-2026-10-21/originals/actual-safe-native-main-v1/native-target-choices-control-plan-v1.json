@@ -1,0 +1,31 @@
+{
+  "fixedCommit": "564e433d54d47f98b405787eed97cbdd48b7c394",
+  "room": "N27-RETARGET-A843ED44AB",
+  "editChoiceIndex": 2,
+  "editChoiceId": "EDIT:0:7149573d8bc15ce0e35c5abea11b30e8729c05acbf7683edbe719b668ffce42c",
+  "editChoiceShortLabel": "第 1 次：重选目标 1 为 强强魄罗（qa4…",
+  "originalTargetObjectId": "qa48offline-b-MAIN-OGN-052-298-05",
+  "newTargetObjectId": "qa48offline-a-MAIN-OGN-052-298-05",
+  "originalPromptId": "N27-RETARGET-A843ED44AB:32:qa48offline-b:PAY_COST,SURRENDER",
+  "originalSnapshotTick": 32,
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+    "implementationSha256": "74e5b72ea195d9692299e3651fc00ba4acf3db5e3abc224dcb5bfc2a9a3952fa",
+    "identitySha256": "024a2aa1f46dfffddb2877738c3bcb09683cb65f40288d4ba94c37444d8efa0d"
+  },
+  "originalRawEditExpected": {
+    "cmdType": "PAY_COST",
+    "promptId": "N27-RETARGET-A843ED44AB:32:qa48offline-b:PAY_COST,SURRENDER",
+    "snapshotTick": 32,
+    "paymentId": "REPLACEMENT:31:0",
+    "paymentWindow": "RULE_REPLACEMENT",
+    "paymentChoiceIds": [
+      "EDIT:0:7149573d8bc15ce0e35c5abea11b30e8729c05acbf7683edbe719b668ffce42c"
+    ]
+  },
+  "noGameStateOrAcceptedHistoryInjection": true
+}

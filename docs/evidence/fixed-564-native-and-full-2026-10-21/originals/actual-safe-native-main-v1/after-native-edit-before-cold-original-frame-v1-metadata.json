@@ -1,0 +1,20 @@
+{
+  "status": "ACTUAL_ORIGINAL_FRAME_READONLY_EXPORT",
+  "room": "N27-RETARGET-A843ED44AB",
+  "commands": 34,
+  "events": 134,
+  "tick": 33,
+  "pendingKind": "SPELL_CHOICE_REMAKE",
+  "priorAnswers": 1,
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+    "implementationSha256": "74e5b72ea195d9692299e3651fc00ba4acf3db5e3abc224dcb5bfc2a9a3952fa",
+    "identitySha256": "024a2aa1f46dfffddb2877738c3bcb09683cb65f40288d4ba94c37444d8efa0d"
+  },
+  "authoritativeStateBytesSha256": "350ef4aad34bd9f511e658ec504354290ed2bfd32d37aa5c6ee6c1f40ed2e82e",
+  "originalFrameSha256": "a2f7eddeb13d15bdf7b15565ecc2368fc4a4c2c53899e3ae904f76d0f1d6e986"
+}

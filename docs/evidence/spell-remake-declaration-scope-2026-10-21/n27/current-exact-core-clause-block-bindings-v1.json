@@ -1,0 +1,155 @@
+{
+  "sourceCorpus": {
+    "path": "docs/evidence/rules-reaudit-2026-10-11/official-corpus.json",
+    "sha256": "b97836ed4e1c5c6e13a08e443011a0a96e4549a30613afa6dd01e21c440f382f",
+    "atCommit": "4a2b4d4659ae36f18e4ab104efd2f1523d04b602"
+  },
+  "exactSourceRecords": [
+    {
+      "id": "DOC-01-P047-B006",
+      "document": "DOC-01",
+      "page": 47,
+      "clauseAnchors": [
+        "355.13"
+      ],
+      "text": "355.13.       如果卡牌指示玩家选择“任意数量”或“最多”一定数量的游戏物体并对其施加效果,则该玩家可以从可用目标中选择任\n              意数量(包括 0)。如果选择了 0 为数量,则该法术或技能可以在没有任何目标的情况下打出。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P111-B016",
+      "document": "DOC-01",
+      "page": 111,
+      "clauseAnchors": [
+        "751"
+      ],
+      "text": "751.       某些游戏效果会指示玩家为结算链上已确认的项目另做选择。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P111-B017",
+      "document": "DOC-01",
+      "page": 111,
+      "clauseAnchors": [
+        "752"
+      ],
+      "text": "752.       这种情况通常指在确定时做出的选择,但有些情况除外。\n                想获取更多有关信息,请查阅规则 355.做出相关的选择。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P111-B018",
+      "document": "DOC-01",
+      "page": 111,
+      "clauseAnchors": [
+        "752.1"
+      ],
+      "text": "752.1.           这些游戏效果可以重新做出的选择有:打出的地点、模式、终点位置和目标。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P111-B019",
+      "document": "DOC-01",
+      "page": 111,
+      "clauseAnchors": [
+        "752.2"
+      ],
+      "text": "752.2.           这不包括“打出此牌时”或“打出我时”所做的选择,也不包括为“可选额外费用”所做的选择。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P111-B020",
+      "document": "DOC-01",
+      "page": 111,
+      "clauseAnchors": [
+        "753"
+      ],
+      "text": "753.       以这种方式做出新选择时,玩家必须重新做出针对结算链项目的所有选择,即使新选择会与先前相同。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P111-B021",
+      "document": "DOC-01",
+      "page": 111,
+      "clauseAnchors": [
+        "753.1"
+      ],
+      "text": "753.1.           玩家不得以这种方式做出非法选择或会导致非法状态的选择,即使没有其他选项也不例外。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P111-B022",
+      "document": "DOC-01",
+      "page": 111,
+      "clauseAnchors": [
+        "753.2"
+      ],
+      "text": "753.2.           如果不存在能以这种方式做出的合法选择,则玩家不得为结算链项目另做选择。在这种情况下,要求做出新选择的\n                 指示会被撤销。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P111-B023",
+      "document": "DOC-01",
+      "page": 111,
+      "clauseAnchors": [
+        "753.3"
+      ],
+      "text": "753.3.           对结算链项目施加的限制和要求,同样会施加于以这种方式为该结算链项目做出的新选择。\n                      举例:如果一张卡牌是从正面朝下的状态打出,则该卡牌会受到限制,只能选择其被打出的战场上的游戏\n                     物体为目标,除非其目标选取有限制条件,导致其无法选择该战场上的单位。如果玩家为此类卡牌重新做\n                     出选择,则其仍然必须从该战场上的物体中进行选择。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P111-B024",
+      "document": "DOC-01",
+      "page": 111,
+      "clauseAnchors": [
+        "754"
+      ],
+      "text": "754.       如果因为另做选择而导致该结算链项目将某个游戏物体选取为目标(即使先前已选取过同一个游戏物体为目标),则该游戏物\n           体 的所有指目标效果 都会相应触发。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P112-B001",
+      "document": "DOC-01",
+      "page": 112,
+      "clauseAnchors": [
+        "755"
+      ],
+      "text": "755.       以这种方式另做选择而产生的任何“以此打出”该结算链项目所需的费用均会被无视。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P112-B002",
+      "document": "DOC-01",
+      "page": 112,
+      "clauseAnchors": [
+        "755.1"
+      ],
+      "text": "755.1.         该结算链项目已经打出,且其费用已经支付。后续产生的任何费用都不会影响已确认的结算链项目。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    }
+  ],
+  "originalClauseAnchorsTextAndDatesNotRewritten": true,
+  "semanticWholeClauseCertification": false
+}

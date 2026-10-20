@@ -1,0 +1,8 @@
+{
+	"autoConnect": false,
+	"childCount": 8,
+	"displayDriver": "headless",
+	"mainScript": "res://scripts/Main.cs",
+	"networkOrVisibleAcceptance": false,
+	"status": "OFFLINE_SINGLE_ORIGINAL_MAIN_SCENE_PROBE_PASS"
+}

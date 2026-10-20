@@ -1,0 +1,9 @@
+{
+  "atUtc": "2026-10-20T16:12:52.564744+00:00",
+  "exitCode": 1,
+  "rawBytes": 0,
+  "rawSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderr": "Get \"https://productionresultssa2.blob.core.windows.net/actions-results/d8db6579-6724-88d8-b87c-5fd5acf1e93f/workflow-job-run-d9285819-c832-5072-bacb-3bb88782e117/artifacts/a62b79570784b38d13262dc69c22d2cd4cc96c3c4fa7ea5f11256293b4fa9a8f.zip?rscd=attachment%3B+filename%3D%22postgres-partition-3.zip%22&rsct=application%2Fzip&se=2026-10-20T16%3A22%3A49Z&sig=YJl%2FiTjtp1cGGJsl3RrxCX4%2F8D%2B%2BItDkao3C0iruwBs%3D&ske=2026-10-20T18%3A02%3A39Z&skoid=ca7593d4-ee42-46cd-af88-8b886a2f84eb&sks=b&skt=2026-10-20T14%3A02%3A39Z&sktid=398a6654-997b-47e9-b12b-9515b896b4de&skv=2025-11-05&sp=r&spr=https&sr=b&st=2026-10-20T16%3A12%3A44Z&sv=2025-11-05\": EOF\n",
+  "originalFailedBytesGzip": "var/qa/fixed-reversal-native-locked-20261020/ci-fixed564/postgres-partition-3-failed-1.original.gz",
+  "notAValidResultArtifact": true
+}

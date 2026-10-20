@@ -1,0 +1,26 @@
+{
+  "status": "CHECK_FAILED_OR_INTERRUPTED_ORIGINAL_OUTPUT_RETAINED",
+  "startedAtUtc": "2026-10-20T17:58:49.142958+00:00",
+  "boundIdleAssertionPid": 75396,
+  "ownedTestRunnerPid": 75397,
+  "exitCode": 1,
+  "finishedAtUtc": "2026-10-20T18:53:20.024739+00:00",
+  "seconds": 3270.88,
+  "lockAtEnd": {
+    "atUtc": "2026-10-20T18:53:20.049459+00:00",
+    "roots": [
+      {
+        "rootLocked": true,
+        "sessions": [
+          true
+        ]
+      }
+    ],
+    "missingValuesRemainUnknown": true
+  },
+  "all3316SourceHashesUnchanged": true,
+  "allSourceModesUnchanged": true,
+  "allConformanceInputPayloadsUnchanged": true,
+  "all23NativePayloadsUnchanged": true,
+  "boundIdleAssertionEnded": true
+}

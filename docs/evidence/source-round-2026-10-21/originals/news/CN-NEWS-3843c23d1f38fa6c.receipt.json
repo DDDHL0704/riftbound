@@ -1,0 +1,41 @@
+{
+  "url": "https://mp.weixin.qq.com/s/1U04gNxvANQOHCeHZ6Ee1Q",
+  "request": null,
+  "attemptedAtUtc": "2026-10-20T16:16:11.139171+00:00",
+  "roundApplicableAsOf": "2026-10-21",
+  "region": "CN",
+  "language": "zh-CN",
+  "timezone": "Asia/Shanghai",
+  "firstPublicationIndependentlyConfirmed": null,
+  "effectiveDateIndependentlyConfirmed": null,
+  "semanticReview": "OPEN",
+  "runtimeAuthorityChanged": false,
+  "resolvedUrl": "https://mp.weixin.qq.com/s/1U04gNxvANQOHCeHZ6Ee1Q",
+  "httpStatus": 200,
+  "responseHeaders": {
+    "Last-Modified": "Wed, 21 Oct 2026 00:16:12 +0800",
+    "Content-Type": "text/html; charset=UTF-8"
+  },
+  "status": "SOURCE_EXTRACTION_GAP_WITH_ORIGINAL_RESPONSE_RETAINED",
+  "receivedAtUtc": "2026-10-20T16:16:14.839017+00:00",
+  "path": "var/qa/source-round-20261021/news/CN-NEWS-3843c23d1f38fa6c.html.gz",
+  "sha256": "854e45754f9bac02f39f8695f75bca8ee35642f15dab223b4f50a5ec254521a4",
+  "bytes": 3446583,
+  "compressedSha256": "56009afe05254d0f1b47a0db1edd943f195a6c63c4ef3a8db3052157a923ff5b",
+  "losslessGzipOriginalBytes": true,
+  "id": "CN-NEWS-3843c23d1f38fa6c",
+  "allListingRows": [
+    {
+      "name": "符文战场丨英雄联盟手游联动正式开启",
+      "image": "https://cdn.playloltcg.com/lol/2026/02/2026-02-02/d0b9223cd53543f5b886b2115060c709.png",
+      "pushDate": "2026-02-02",
+      "jumpType": "h5",
+      "appId": "",
+      "jumpUrl": "https://mp.weixin.qq.com/s/1U04gNxvANQOHCeHZ6Ee1Q",
+      "sort": 110
+    }
+  ],
+  "publishedAsListed": "2026-02-02",
+  "extractionErrorType": "TypeError",
+  "extractionError": "'int' object is not callable"
+}

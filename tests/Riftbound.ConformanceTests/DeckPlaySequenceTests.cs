@@ -148,7 +148,8 @@ public sealed class DeckPlaySequenceTests
         var driver = Driver(initial, "bright-future-real-control-change");
         await driver.Act("P2", new PlayCardCommand("PARENT", BrightFuture, [])); await driver.Act("P2", new PassPriorityCommand());
         await driver.Act("P1", new PlayCardCommand("REFLECTION", "OGN·080/298", [Assert.Single(driver.State.StackItems).StackItemId])); await driver.Top();
-        await driver.Act("P1", new PayCostCommand(driver.State.PendingRuleChoice!.Request.Id, "RULE_REPLACEMENT", ["KEEP_ALL"]));
+        Assert.Null(driver.State.PendingRuleChoice);
+        Assert.Null(driver.State.PendingCardChoice);
         Assert.Equal("P1", Assert.Single(driver.State.StackItems).ControllerId); await driver.Top();
         Assert.Equal("P2", driver.State.PendingCardChoice!.PlayerId); await Select(driver,"P2_TOP"); await Select(driver,"P1_TOP");
         Assert.Equal(["P1_TOP","P2_TOP"],driver.State.StackItems.Select(i => i.SourceObjectId));

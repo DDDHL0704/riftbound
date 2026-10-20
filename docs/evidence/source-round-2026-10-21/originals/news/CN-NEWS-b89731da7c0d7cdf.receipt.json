@@ -1,0 +1,41 @@
+{
+  "url": "https://mp.weixin.qq.com/s/jEe3BxcryCHAv1tR0Qhq-A",
+  "request": null,
+  "attemptedAtUtc": "2026-10-20T16:15:43.224410+00:00",
+  "roundApplicableAsOf": "2026-10-21",
+  "region": "CN",
+  "language": "zh-CN",
+  "timezone": "Asia/Shanghai",
+  "firstPublicationIndependentlyConfirmed": null,
+  "effectiveDateIndependentlyConfirmed": null,
+  "semanticReview": "OPEN",
+  "runtimeAuthorityChanged": false,
+  "resolvedUrl": "https://mp.weixin.qq.com/s/jEe3BxcryCHAv1tR0Qhq-A",
+  "httpStatus": 200,
+  "responseHeaders": {
+    "Last-Modified": "Wed, 21 Oct 2026 00:15:44 +0800",
+    "Content-Type": "text/html; charset=UTF-8"
+  },
+  "status": "SOURCE_EXTRACTION_GAP_WITH_ORIGINAL_RESPONSE_RETAINED",
+  "receivedAtUtc": "2026-10-20T16:15:48.094726+00:00",
+  "path": "var/qa/source-round-20261021/news/CN-NEWS-b89731da7c0d7cdf.html.gz",
+  "sha256": "bced75186fa17b229a5d6a3081660d60255733f831aafe6f68b37b8e7c6a8290",
+  "bytes": 3514566,
+  "compressedSha256": "0bfd9f4a76e170e646c0b747dfdc0b16d336ddfe2d02b64cf66e0941b93bd638",
+  "losslessGzipOriginalBytes": true,
+  "id": "CN-NEWS-b89731da7c0d7cdf",
+  "allListingRows": [
+    {
+      "name": "符文战场 | 全新系列与未来赛事的分享",
+      "image": "https://cdn.playloltcg.com/lol/2025/11/2025-11-24/0d829f08749744d3aab53026a0a908df.jpeg",
+      "pushDate": "2025-11-24",
+      "jumpType": "h5",
+      "appId": "",
+      "jumpUrl": "https://mp.weixin.qq.com/s/jEe3BxcryCHAv1tR0Qhq-A",
+      "sort": 87
+    }
+  ],
+  "publishedAsListed": "2025-11-24",
+  "extractionErrorType": "TypeError",
+  "extractionError": "'int' object is not callable"
+}

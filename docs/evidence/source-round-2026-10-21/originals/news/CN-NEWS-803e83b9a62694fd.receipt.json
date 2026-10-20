@@ -1,0 +1,41 @@
+{
+  "url": "https://mp.weixin.qq.com/s/5OdW59WUrn-EMkFkIV3SlQ",
+  "request": null,
+  "attemptedAtUtc": "2026-10-20T16:15:33.059922+00:00",
+  "roundApplicableAsOf": "2026-10-21",
+  "region": "CN",
+  "language": "zh-CN",
+  "timezone": "Asia/Shanghai",
+  "firstPublicationIndependentlyConfirmed": null,
+  "effectiveDateIndependentlyConfirmed": null,
+  "semanticReview": "OPEN",
+  "runtimeAuthorityChanged": false,
+  "resolvedUrl": "https://mp.weixin.qq.com/s/5OdW59WUrn-EMkFkIV3SlQ",
+  "httpStatus": 200,
+  "responseHeaders": {
+    "Last-Modified": "Wed, 21 Oct 2026 00:15:34 +0800",
+    "Content-Type": "text/html; charset=UTF-8"
+  },
+  "status": "SOURCE_EXTRACTION_GAP_WITH_ORIGINAL_RESPONSE_RETAINED",
+  "receivedAtUtc": "2026-10-20T16:15:38.872256+00:00",
+  "path": "var/qa/source-round-20261021/news/CN-NEWS-803e83b9a62694fd.html.gz",
+  "sha256": "19fc36a1235bc382a333a4417acb3dbd0f1df0ec5f70cc21e315d9f8099e457f",
+  "bytes": 3471306,
+  "compressedSha256": "f909a9fc91ad358924ec03543d39e13bc695d2495b28b62b7291424cecdc51e9",
+  "losslessGzipOriginalBytes": true,
+  "id": "CN-NEWS-803e83b9a62694fd",
+  "allListingRows": [
+    {
+      "name": "起源系列｜现开礼盒震撼登场",
+      "image": "https://cdn.playloltcg.com/lol/2025/11/2025-11-11/16fa76774bd84139b2a42ad973e341cb.jpg",
+      "pushDate": "2025-11-08",
+      "jumpType": "h5",
+      "appId": "",
+      "jumpUrl": "https://mp.weixin.qq.com/s/5OdW59WUrn-EMkFkIV3SlQ",
+      "sort": 79
+    }
+  ],
+  "publishedAsListed": "2025-11-08",
+  "extractionErrorType": "TypeError",
+  "extractionError": "'int' object is not callable"
+}

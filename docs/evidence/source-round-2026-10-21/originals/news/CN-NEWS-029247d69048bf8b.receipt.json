@@ -1,0 +1,41 @@
+{
+  "url": "https://mp.weixin.qq.com/s/tQnlQ6eMkhyRjGsFiGFShw",
+  "request": null,
+  "attemptedAtUtc": "2026-10-20T16:15:46.767273+00:00",
+  "roundApplicableAsOf": "2026-10-21",
+  "region": "CN",
+  "language": "zh-CN",
+  "timezone": "Asia/Shanghai",
+  "firstPublicationIndependentlyConfirmed": null,
+  "effectiveDateIndependentlyConfirmed": null,
+  "semanticReview": "OPEN",
+  "runtimeAuthorityChanged": false,
+  "resolvedUrl": "https://mp.weixin.qq.com/s/tQnlQ6eMkhyRjGsFiGFShw",
+  "httpStatus": 200,
+  "responseHeaders": {
+    "Last-Modified": "Wed, 21 Oct 2026 00:15:47 +0800",
+    "Content-Type": "text/html; charset=UTF-8"
+  },
+  "status": "SOURCE_EXTRACTION_GAP_WITH_ORIGINAL_RESPONSE_RETAINED",
+  "receivedAtUtc": "2026-10-20T16:15:50.432090+00:00",
+  "path": "var/qa/source-round-20261021/news/CN-NEWS-029247d69048bf8b.html.gz",
+  "sha256": "9c6eed83e663363caaf0556fdbac41001efd491b3e43eebaaf9c12c3c0679dbe",
+  "bytes": 3499613,
+  "compressedSha256": "0367a349bc1c3605203bdb452a34034a49ff212969279333626d90a257c4255b",
+  "losslessGzipOriginalBytes": true,
+  "id": "CN-NEWS-029247d69048bf8b",
+  "allListingRows": [
+    {
+      "name": "符文战场 | 铸魂淬炼系列发售渠道公布",
+      "image": "https://cdn.playloltcg.com/lol/2025/12/2025-12-07/41894248f1eb41beb122101333c1718c.jpg",
+      "pushDate": "2025-12-07",
+      "jumpType": "h5",
+      "appId": "",
+      "jumpUrl": "https://mp.weixin.qq.com/s/tQnlQ6eMkhyRjGsFiGFShw",
+      "sort": 89
+    }
+  ],
+  "publishedAsListed": "2025-12-07",
+  "extractionErrorType": "TypeError",
+  "extractionError": "'int' object is not callable"
+}

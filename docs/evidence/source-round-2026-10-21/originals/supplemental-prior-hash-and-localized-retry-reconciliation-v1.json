@@ -1,0 +1,20 @@
+{
+  "status": "PASS_SUPPLEMENTAL_PRIOR_HASH_BINDING_COMPLETED_WITHOUT_REWRITING_INITIAL_SCOPED_LOOKUP_OR_RETRY_FAILURE",
+  "vendettaOverviewFullBodyUnchanged": true,
+  "initialPriorHashLookupHadNoBindingNotContentChange": true,
+  "globalZhCnRadianceOverviewFullBodyUnchangedAfterNormalTlsRetry": true,
+  "oldSourceLanguageAndRegionalPrecedenceAndEffectiveDateGapsUnmodified": true,
+  "refs": [
+    {
+      "url": "https://playriftbound.com/en-us/news/announcements/the-vendetta-overview/",
+      "currentBodySha256": "069ab6bbebe2417267654c58884533e7b97548fd20e0bf3605b48a3107b1586c",
+      "oldSource": "docs/evidence/empowered-insight-2026-10-19/vendetta-release-observation.json"
+    },
+    {
+      "url": "https://playriftbound.com/zh-cn/news/announcements/the-radiance-overview/",
+      "currentBodySha256": "8c1efae7543d0750d4c9f07405ad73949da4101cb6a6f84b50e844c29ae1f506",
+      "oldSource": "docs/evidence/battlefield-play-damage-2026-10-17/global-zh-cn-source-variant-discovery.json"
+    }
+  ],
+  "newRuntimeOrPrintingCertification": false
+}

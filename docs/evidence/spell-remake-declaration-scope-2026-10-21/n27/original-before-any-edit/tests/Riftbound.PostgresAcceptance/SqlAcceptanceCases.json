@@ -1,0 +1,195 @@
+{
+  "schemaVersion": 1,
+  "kind": "SQL_EXECUTION_IDENTITIES_NOT_RULE_CERTIFICATION",
+  "defaultPartitionCount": 4,
+  "cases": [
+    {
+      "id": "private-opening",
+      "sourceType": "OpeningRandomnessSqlAcceptance"
+    },
+    {
+      "id": "created-token-ready",
+      "sourceType": "CreatedTokenReadySqlAcceptance"
+    },
+    {
+      "id": "core-opening",
+      "sourceType": "PROGRAM_CORE_OPENING"
+    },
+    {
+      "id": "battle-history",
+      "sourceType": "BattleHistorySqlAcceptance"
+    },
+    {
+      "id": "masked-attendant",
+      "sourceType": "MaskedAttendantSqlAcceptance"
+    },
+    {
+      "id": "granted-predict",
+      "sourceType": "GrantedPredictSqlAcceptance"
+    },
+    {
+      "id": "printed-predict",
+      "sourceType": "PrintedPredictSqlAcceptance"
+    },
+    {
+      "id": "sivir-optional",
+      "sourceType": "SivirOptionalSqlAcceptance"
+    },
+    {
+      "id": "rune-destination",
+      "sourceType": "RuneRecycleDestinationSqlAcceptance"
+    },
+    {
+      "id": "sivir-payment",
+      "sourceType": "SivirPaymentSqlAcceptance"
+    },
+    {
+      "id": "conquest-token",
+      "sourceType": "ConquestTokenSqlAcceptance"
+    },
+    {
+      "id": "recycled-card-boon",
+      "sourceType": "RecycledCardBoonSqlAcceptance"
+    },
+    {
+      "id": "recycle-boon-lifecycle",
+      "sourceType": "RecycleBoonLifecycleSqlAcceptance"
+    },
+    {
+      "id": "attached-recycle-lifecycle",
+      "sourceType": "AttachedRecycleLifecycleSqlAcceptance"
+    },
+    {
+      "id": "typed-play-history",
+      "sourceType": "CardPlayHistorySqlAcceptance"
+    },
+    {
+      "id": "porobot",
+      "sourceType": "PatchedPorobotSqlAcceptance"
+    },
+    {
+      "id": "typed-play-history-causal",
+      "sourceType": "CardPlayHistoryCausalSqlAcceptance"
+    },
+    {
+      "id": "clairvoyance",
+      "sourceType": "ClairvoyanceSqlAcceptance"
+    },
+    {
+      "id": "insight-repeat",
+      "sourceType": "InsightRepeatSqlAcceptance"
+    },
+    {
+      "id": "combat-assignment",
+      "sourceType": "CombatAssignmentSqlAcceptance"
+    },
+    {
+      "id": "confirmed-play-origin",
+      "sourceType": "ConfirmedPlayOriginSqlAcceptance"
+    },
+    {
+      "id": "physical-origin-cost",
+      "sourceType": "PhysicalOriginCostSqlAcceptance"
+    },
+    {
+      "id": "granted-origin-haste",
+      "sourceType": "GrantedOriginHasteSqlAcceptance"
+    },
+    {
+      "id": "opponent-battlefield-control",
+      "sourceType": "OpponentBattlefieldControlSqlAcceptance"
+    },
+    {
+      "id": "optional-sacrifice",
+      "sourceType": "OptionalSacrificeSqlAcceptance"
+    },
+    {
+      "id": "granted-token-haste",
+      "sourceType": "GrantedTokenHasteSqlAcceptance"
+    },
+    {
+      "id": "optional-costs",
+      "sourceType": "OptionalCostsSqlAcceptance"
+    },
+    {
+      "id": "battlefield-play-recovery",
+      "sourceType": "BattlefieldPlayRecoverySqlAcceptance"
+    },
+    {
+      "id": "battlefield-play-damage",
+      "sourceType": "BattlefieldPlayDamageSqlAcceptance"
+    },
+    {
+      "id": "banish-effect-play",
+      "sourceType": "BanishEffectPlaySqlAcceptance"
+    },
+    {
+      "id": "here-location-control",
+      "sourceType": "HereLocationSqlAcceptance"
+    },
+    {
+      "id": "fate-weaver",
+      "sourceType": "FateWeaverSqlAcceptance"
+    },
+    {
+      "id": "multi-controller-trigger-order",
+      "sourceType": "MultiControllerTriggerSqlAcceptance"
+    },
+    {
+      "id": "empty-observed-repeat",
+      "sourceType": "EmptyObservedDeckRepeatSqlAcceptance"
+    },
+    {
+      "id": "observed-play-window",
+      "sourceType": "ObservedDeckPlayWindowSqlAcceptance"
+    },
+    {
+      "id": "ravenbloom-put-hand",
+      "sourceType": "RavenbloomPutIntoHandSqlAcceptance"
+    },
+    {
+      "id": "attached-predict",
+      "sourceType": "AttachedPredictSqlAcceptance"
+    },
+    {
+      "id": "copied-last-breath-insight",
+      "sourceType": "CopiedLastBreathInsightSqlAcceptance"
+    },
+    {
+      "id": "copied-duel-insight",
+      "sourceType": "CopiedDuelInsightSqlAcceptance"
+    },
+    {
+      "id": "empowered-insight",
+      "sourceType": "EmpoweredInsightSqlAcceptance"
+    },
+    {
+      "id": "paka-move-reveal",
+      "sourceType": "PakaaProtectorSqlAcceptance"
+    },
+    {
+      "id": "empty-reveal-followup",
+      "sourceType": "EmptyRevealSqlAcceptance"
+    },
+    {
+      "id": "paka-dual-type-reveal",
+      "sourceType": "PakaaDualTypeRevealSqlAcceptance"
+    },
+    {
+      "id": "hwei-move-discard-types",
+      "sourceType": "HweiMoveDiscardTypesSqlAcceptance"
+    },
+    {
+      "id": "destruction-graveyard",
+      "sourceType": "DestructionGraveyardSqlAcceptance"
+    },
+    {
+      "id": "conditional-counter-payment",
+      "sourceType": "ConditionalCounterPaymentSqlAcceptance"
+    },
+    {
+      "id": "reversal-target-choice",
+      "sourceType": "ReversalTargetChoiceSqlAcceptance"
+    }
+  ]
+}

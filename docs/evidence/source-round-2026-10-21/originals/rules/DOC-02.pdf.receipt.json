@@ -1,0 +1,41 @@
+{
+  "url": "https://cdn.playloltcg.com/lol/2026/10/2026-10-10/0d5c26b5535345d48e1afafb3e2a0018.pdf",
+  "request": null,
+  "attemptedAtUtc": "2026-10-20T16:10:34.273289+00:00",
+  "region": "CN",
+  "language": "zh-CN",
+  "roundApplicableAsOf": "2026-10-21",
+  "timezone": "Asia/Shanghai",
+  "firstPublicationIndependentlyConfirmed": null,
+  "effectiveDateIndependentlyConfirmed": null,
+  "semanticCertification": false,
+  "runtimeAuthorityAdopted": false,
+  "resolvedUrl": "https://cdn.playloltcg.com/lol/2026/10/2026-10-10/0d5c26b5535345d48e1afafb3e2a0018.pdf",
+  "httpStatus": 200,
+  "responseHeaders": {
+    "Date": "Sat, 10 Oct 2026 00:47:06 GMT",
+    "ETag": "\"e3eff05df1d47579e452afc899053a60\"",
+    "Age": "0",
+    "Last-Modified": "Fri, 09 Oct 2026 16:53:56 GMT",
+    "Content-Length": "12731066",
+    "Content-Type": "application/pdf"
+  },
+  "receivedAtUtc": "2026-10-20T16:10:41.036122+00:00",
+  "sha256": "4d50574d355d57ba4de766243717320a9471951976e230bb9f91b78ab1dde74d",
+  "bytes": 12731066,
+  "path": "var/qa/cn-effective-20261016/whole-rule-source-readback/CN/DOC-02.pdf",
+  "losslessGzipRawResponse": false,
+  "status": "FETCHED_CURRENT_ORIGINAL_BYTES_NOT_CERTIFICATION",
+  "kind": "pdf",
+  "priorReference": {
+    "path": "var/qa/cn-effective-20261016/whole-rule-source-readback/CN/DOC-02.pdf",
+    "sha256": "4d50574d355d57ba4de766243717320a9471951976e230bb9f91b78ab1dde74d"
+  },
+  "matchesPriorRawBytes": true,
+  "freshNetworkReadbackReusesVerifiedExactExistingBytes": true,
+  "identicalTemporaryCompressedCopyRetired": {
+    "path": "var/qa/source-round-20261021/rules/DOC-02.pdf.gz",
+    "sha256": "0a76133532e5054b4e241dd8b0a15e36d1fbc3fad326977c4d2e86f19e27d0bf",
+    "bytes": 12101377
+  }
+}

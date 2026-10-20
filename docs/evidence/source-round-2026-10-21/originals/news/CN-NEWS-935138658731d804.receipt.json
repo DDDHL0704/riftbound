@@ -1,0 +1,41 @@
+{
+  "url": "https://mp.weixin.qq.com/s/BHAYWcizp74CpBHh2O8uBQ",
+  "request": null,
+  "attemptedAtUtc": "2026-10-20T16:14:26.739959+00:00",
+  "roundApplicableAsOf": "2026-10-21",
+  "region": "CN",
+  "language": "zh-CN",
+  "timezone": "Asia/Shanghai",
+  "firstPublicationIndependentlyConfirmed": null,
+  "effectiveDateIndependentlyConfirmed": null,
+  "semanticReview": "OPEN",
+  "runtimeAuthorityChanged": false,
+  "resolvedUrl": "https://mp.weixin.qq.com/s/BHAYWcizp74CpBHh2O8uBQ",
+  "httpStatus": 200,
+  "responseHeaders": {
+    "Last-Modified": "Wed, 21 Oct 2026 00:14:27 +0800",
+    "Content-Type": "text/html; charset=UTF-8"
+  },
+  "status": "SOURCE_EXTRACTION_GAP_WITH_ORIGINAL_RESPONSE_RETAINED",
+  "receivedAtUtc": "2026-10-20T16:14:29.832489+00:00",
+  "path": "var/qa/source-round-20261021/news/CN-NEWS-935138658731d804.html.gz",
+  "sha256": "618eb10db3879564b19b5dc0460edabf7059ac681e8c10a57d6d9210736d8a07",
+  "bytes": 3492713,
+  "compressedSha256": "358c489e8090fce58279d00e6d6682a94ac814b3c6f2f66650d330daa8755aba",
+  "losslessGzipOriginalBytes": true,
+  "id": "CN-NEWS-935138658731d804",
+  "allListingRows": [
+    {
+      "name": "符文战场超前试玩会广州站震撼来袭！",
+      "image": "https://cdn.playloltcg.com/lol/e6bc5bc3a0054cd3b49f148418c8d583.jpg",
+      "pushDate": "2025-01-04",
+      "jumpType": "h5",
+      "appId": "",
+      "jumpUrl": "https://mp.weixin.qq.com/s/BHAYWcizp74CpBHh2O8uBQ",
+      "sort": 10
+    }
+  ],
+  "publishedAsListed": "2025-01-04",
+  "extractionErrorType": "TypeError",
+  "extractionError": "'int' object is not callable"
+}

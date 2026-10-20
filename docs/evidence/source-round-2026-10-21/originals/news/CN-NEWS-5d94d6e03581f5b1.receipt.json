@@ -1,0 +1,41 @@
+{
+  "url": "https://mp.weixin.qq.com/s/Nfsx8o170H4J56FqPreqpA",
+  "request": null,
+  "attemptedAtUtc": "2026-10-20T16:15:00.196995+00:00",
+  "roundApplicableAsOf": "2026-10-21",
+  "region": "CN",
+  "language": "zh-CN",
+  "timezone": "Asia/Shanghai",
+  "firstPublicationIndependentlyConfirmed": null,
+  "effectiveDateIndependentlyConfirmed": null,
+  "semanticReview": "OPEN",
+  "runtimeAuthorityChanged": false,
+  "resolvedUrl": "https://mp.weixin.qq.com/s/Nfsx8o170H4J56FqPreqpA",
+  "httpStatus": 200,
+  "responseHeaders": {
+    "Last-Modified": "Wed, 21 Oct 2026 00:15:01 +0800",
+    "Content-Type": "text/html; charset=UTF-8"
+  },
+  "status": "SOURCE_EXTRACTION_GAP_WITH_ORIGINAL_RESPONSE_RETAINED",
+  "receivedAtUtc": "2026-10-20T16:15:04.054804+00:00",
+  "path": "var/qa/source-round-20261021/news/CN-NEWS-5d94d6e03581f5b1.html.gz",
+  "sha256": "a549d529102770694a4927a5f763fbecf485b08ff6ded94a1c2c98512f95630d",
+  "bytes": 3496172,
+  "compressedSha256": "b3b07faff975df5bde5e0eeb78c2601ee18ba48e383c139d5d658a7aa3b901b9",
+  "losslessGzipOriginalBytes": true,
+  "id": "CN-NEWS-5d94d6e03581f5b1",
+  "allListingRows": [
+    {
+      "name": "报名开启丨第一赛季区域公开赛广州赛区",
+      "image": "https://cdn.playloltcg.com/lol/2025/08/2025-08-04/64dc6fbbd38949969c99806f7285e569.jpg",
+      "pushDate": "2025-08-04",
+      "jumpType": "h5",
+      "appId": "",
+      "jumpUrl": "https://mp.weixin.qq.com/s/Nfsx8o170H4J56FqPreqpA",
+      "sort": 54
+    }
+  ],
+  "publishedAsListed": "2025-08-04",
+  "extractionErrorType": "TypeError",
+  "extractionError": "'int' object is not callable"
+}

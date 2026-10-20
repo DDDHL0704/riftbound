@@ -1,0 +1,54 @@
+{
+  "url": "https://playriftbound.com/en-us/news/organizedplay/regional-championships-competitive-integrity-prizing/",
+  "attemptedAtUtc": "2026-10-20T16:31:00.461741+00:00",
+  "roundApplicableAsOf": "2026-10-21",
+  "region": "GLOBAL",
+  "requestedLanguage": "en-us",
+  "languageAndCnApplicabilityRequireExplicitBodyDisposition": true,
+  "firstPublicationIndependentlyConfirmed": null,
+  "effectiveDateIndependentlyConfirmed": null,
+  "semanticCertification": false,
+  "resolvedUrl": "https://playriftbound.com/en-us/news/organizedplay/regional-championships-competitive-integrity-prizing/",
+  "httpStatus": 200,
+  "headers": {
+    "Date": "Tue, 20 Oct 2026 16:31:01 GMT",
+    "Content-Type": "text/html; charset=utf-8",
+    "ETag": "\"10b5wizdqv232wk\""
+  },
+  "status": "FETCHED_COMPLETE_ARTICLE_BODY_NOT_SEMANTIC_CERTIFICATION",
+  "receivedAtUtc": "2026-10-20T16:31:01.748810+00:00",
+  "rawPath": "var/qa/source-round-20261021/global-supplement/2a4b8c08325d29e3.html.gz",
+  "rawSha256": "a54420717faa8b66fc4ba1a4de6cbea0ef4d810abf0d9507804ba3f0ea3f7987",
+  "rawBytes": 143786,
+  "compressedSha256": "24729ce6029711c6b427f0d9eca7321efd7e555c725512fb532a91df240c5c4a",
+  "title": "Regional Championships: Competitive Integrity & Prizing",
+  "displayedPublishDate": "2026-10-15T15:00:00.000Z",
+  "revision": "4YaxgFXRXaInuhxZNvUuTX",
+  "contentBladeTypes": [
+    "riotbar",
+    "articleMasthead",
+    "articleRichText",
+    "articleCardCarousel"
+  ],
+  "actualPagePropsLocale": null,
+  "exactObservedNewsLinks": [
+    "https://playriftbound.com/en-us/news/organizedplay",
+    "https://playriftbound.com/en-us/news/organizedplay/all-eyes-on-barcelona",
+    "https://playriftbound.com/en-us/news/organizedplay/all-eyes-on-los-angeles",
+    "https://playriftbound.com/en-us/news/organizedplay/all-eyes-on-singapore",
+    "https://playriftbound.com/en-us/news/organizedplay/august-2026-state-of-play",
+    "https://playriftbound.com/en-us/news/organizedplay/barcelonas-top-decks",
+    "https://playriftbound.com/en-us/news/organizedplay/los-angeles-top-decks",
+    "https://playriftbound.com/en-us/news/organizedplay/regional-championships-competitive-integrity-prizing",
+    "https://playriftbound.com/en-us/news/organizedplay/singapores-top-decks",
+    "https://playriftbound.com/en-us/news/organizedplay/testing-start-of-game-rules"
+  ],
+  "bodyPath": "var/qa/source-round-20261021/global-supplement/2a4b8c08325d29e3.body.html.gz",
+  "bodyHtmlSha256": "8a4169fec5b3cae4f614bcd392405ad96bbae0702d172b05093f6f73bd30fcdb",
+  "matchesAnyRecordedExactBodyHash": true,
+  "priorRecordedBodyHashes": {
+    "8a4169fec5b3cae4f614bcd392405ad96bbae0702d172b05093f6f73bd30fcdb": [
+      "docs/evidence/empowered-insight-2026-10-19/official-event-source-manifest.json"
+    ]
+  }
+}

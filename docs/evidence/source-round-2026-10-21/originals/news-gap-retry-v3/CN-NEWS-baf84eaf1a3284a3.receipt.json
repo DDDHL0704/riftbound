@@ -1,0 +1,24 @@
+{
+  "id": "CN-NEWS-baf84eaf1a3284a3",
+  "url": "https://lol.playloltcg.com/rules/game-rules.html",
+  "attemptedAtUtc": "2026-10-20T16:21:59.950504+00:00",
+  "roundApplicableAsOf": "2026-10-21",
+  "region": "CN",
+  "language": "zh-CN",
+  "firstPublicationIndependentlyConfirmed": null,
+  "effectiveDateIndependentlyConfirmed": null,
+  "previousOriginalReceipt": {
+    "path": "var/qa/source-round-20261021/news/CN-NEWS-baf84eaf1a3284a3.receipt.json",
+    "sha256": "5b60faf38ce5baf83799ccb47d4b6488c455fbf7916b71d1093d72008fde3742"
+  },
+  "normalTlsValidationNoBypass": true,
+  "attemptsThisRetryPass": 1,
+  "exitCode": 35,
+  "stderr": "curl: (35) LibreSSL SSL_connect: SSL_ERROR_SYSCALL in connection to lol.playloltcg.com:443 \n",
+  "receivedAtUtc": "2026-10-20T16:22:04.964621+00:00",
+  "rawPath": "var/qa/source-round-20261021/news-gap-retry-v3/CN-NEWS-baf84eaf1a3284a3.original.gz",
+  "rawSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "rawBytes": 0,
+  "compressedSha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+  "status": "SOURCE_ACCESS_GAP_RETRY_FAILED_ORIGINAL_BYTES_RETAINED"
+}

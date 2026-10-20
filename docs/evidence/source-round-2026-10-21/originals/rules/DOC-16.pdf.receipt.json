@@ -1,0 +1,41 @@
+{
+  "url": "https://cdn.playloltcg.com/lol/2025/12/2025-12-03/《符文战场》勘误汇总_1028.pdf",
+  "request": null,
+  "attemptedAtUtc": "2026-10-20T16:11:33.890566+00:00",
+  "region": "CN",
+  "language": "zh-CN",
+  "roundApplicableAsOf": "2026-10-21",
+  "timezone": "Asia/Shanghai",
+  "firstPublicationIndependentlyConfirmed": null,
+  "effectiveDateIndependentlyConfirmed": null,
+  "semanticCertification": false,
+  "runtimeAuthorityAdopted": false,
+  "resolvedUrl": "https://cdn.playloltcg.com/lol/2025/12/2025-12-03/%E3%80%8A%E7%AC%A6%E6%96%87%E6%88%98%E5%9C%BA%E3%80%8B%E5%8B%98%E8%AF%AF%E6%B1%87%E6%80%BB_1028.pdf",
+  "httpStatus": 200,
+  "responseHeaders": {
+    "Date": "Fri, 24 Apr 2026 10:03:18 GMT",
+    "ETag": "\"ffc4d990930d6649e8502f3cab2d4495\"",
+    "Age": "20376",
+    "Last-Modified": "Wed, 03 Dec 2025 10:12:12 GMT",
+    "Content-Length": "158532",
+    "Content-Type": "application/pdf"
+  },
+  "receivedAtUtc": "2026-10-20T16:11:34.091392+00:00",
+  "sha256": "1e8fc5c52f1c98a4b7d759e4c048f11cfae882ce87826bf87a86bc475c26036c",
+  "bytes": 158532,
+  "path": "var/qa/cn-effective-20261016/whole-rule-source-readback/CN/DOC-16.pdf",
+  "losslessGzipRawResponse": false,
+  "status": "FETCHED_CURRENT_ORIGINAL_BYTES_NOT_CERTIFICATION",
+  "kind": "pdf",
+  "priorReference": {
+    "path": "var/qa/cn-effective-20261016/whole-rule-source-readback/CN/DOC-16.pdf",
+    "sha256": "1e8fc5c52f1c98a4b7d759e4c048f11cfae882ce87826bf87a86bc475c26036c"
+  },
+  "matchesPriorRawBytes": true,
+  "freshNetworkReadbackReusesVerifiedExactExistingBytes": true,
+  "identicalTemporaryCompressedCopyRetired": {
+    "path": "var/qa/source-round-20261021/rules/DOC-16.pdf.gz",
+    "sha256": "10e731b4c6a6958b9f1b98136f95332844bf6f5dc8a6e241c62abf218a566890",
+    "bytes": 125084
+  }
+}

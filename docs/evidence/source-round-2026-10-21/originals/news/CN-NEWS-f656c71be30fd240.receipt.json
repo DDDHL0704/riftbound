@@ -1,0 +1,41 @@
+{
+  "url": "https://mp.weixin.qq.com/s/vo9vj4dRVy6h3kyU_RzAPA",
+  "request": null,
+  "attemptedAtUtc": "2026-10-20T16:15:40.523708+00:00",
+  "roundApplicableAsOf": "2026-10-21",
+  "region": "CN",
+  "language": "zh-CN",
+  "timezone": "Asia/Shanghai",
+  "firstPublicationIndependentlyConfirmed": null,
+  "effectiveDateIndependentlyConfirmed": null,
+  "semanticReview": "OPEN",
+  "runtimeAuthorityChanged": false,
+  "resolvedUrl": "https://mp.weixin.qq.com/s/vo9vj4dRVy6h3kyU_RzAPA",
+  "httpStatus": 200,
+  "responseHeaders": {
+    "Last-Modified": "Wed, 21 Oct 2026 00:15:42 +0800",
+    "Content-Type": "text/html; charset=UTF-8"
+  },
+  "status": "SOURCE_EXTRACTION_GAP_WITH_ORIGINAL_RESPONSE_RETAINED",
+  "receivedAtUtc": "2026-10-20T16:15:46.687895+00:00",
+  "path": "var/qa/source-round-20261021/news/CN-NEWS-f656c71be30fd240.html.gz",
+  "sha256": "ec0a8dce64dfdbf21ea8cf224b933123c6093b9730876530b46b669bfd44874c",
+  "bytes": 3469369,
+  "compressedSha256": "fc0f83a8998c08844415301a5c16a66cc1dcbce9d05b1c3650e349c26e4ef5df",
+  "losslessGzipOriginalBytes": true,
+  "id": "CN-NEWS-f656c71be30fd240",
+  "allListingRows": [
+    {
+      "name": "符文战场2V2对战，等你并肩作战！",
+      "image": "https://cdn.playloltcg.com/lol/2025/11/2025-11-12/f6587c2ecb4b4b8ba173774840ae1fef.jpg",
+      "pushDate": "2025-11-12",
+      "jumpType": "h5",
+      "appId": "",
+      "jumpUrl": "https://mp.weixin.qq.com/s/vo9vj4dRVy6h3kyU_RzAPA",
+      "sort": 85
+    }
+  ],
+  "publishedAsListed": "2025-11-12",
+  "extractionErrorType": "TypeError",
+  "extractionError": "'int' object is not callable"
+}

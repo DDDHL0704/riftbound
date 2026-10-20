@@ -1,0 +1,47 @@
+{
+  "atUtc": "2026-10-20T14:34:25.615218+00:00",
+  "status": "PASS_OFFLINE_EXTERNAL_SCENE_WITH_SINGLE_ORIGINAL_MAIN",
+  "actualExitCode": 0,
+  "baseCommit": "0366bc247c1ac06502ed24bc065b8442ba769391",
+  "currentNativeIncludesDeclaredN25UiAndProofInputs": true,
+  "lockAtStart": {
+    "atUtc": "2026-10-20T14:34:22.708895+00:00",
+    "roots": [
+      {
+        "rootLocked": true,
+        "sessions": [
+          true
+        ]
+      }
+    ],
+    "missingValuesRemainUnknown": true
+  },
+  "lockAtEnd": {
+    "atUtc": "2026-10-20T14:34:25.610029+00:00",
+    "roots": [
+      {
+        "rootLocked": true,
+        "sessions": [
+          true
+        ]
+      }
+    ],
+    "missingValuesRemainUnknown": true
+  },
+  "sceneSha256": "453db23ba442b9fefd6eabbc64ca815eda6d7f6bc994cf062b8fd3f03947b1bc",
+  "scriptSha256": "cd2a13e79ab1bae3caf54a5feda0d9f7d71273f95bcb9ec0fc211b1d6438c924",
+  "logSha256": "6245937f5b2ee2d091613e1ef01fe231713e64f854e2c4405061d37c906b8e34",
+  "actualState": {
+    "autoConnect": false,
+    "childCount": 8,
+    "displayDriver": "headless",
+    "mainScript": "res://scripts/Main.cs",
+    "networkOrVisibleAcceptance": false,
+    "status": "OFFLINE_SINGLE_ORIGINAL_MAIN_SCENE_PROBE_PASS"
+  },
+  "allOriginal23CurrentNativeRuntimeFilesExact": true,
+  "ephemeralProfileNotWritten": true,
+  "noDatabaseOrApiStarted": true,
+  "futureFixedCandidateLiveNetworkControlsAndVisibleWindows": "NOT_EXECUTED",
+  "purpose": "Verify a single original Main can be hosted by an external headless scene using the existing Godot tool; this is neither CI-exported app nor paired acceptance."
+}

@@ -1,0 +1,41 @@
+{
+  "url": "https://mp.weixin.qq.com/s/EI7WZBEACBW2tZa642_nzg",
+  "request": null,
+  "attemptedAtUtc": "2026-10-20T16:15:38.735537+00:00",
+  "roundApplicableAsOf": "2026-10-21",
+  "region": "CN",
+  "language": "zh-CN",
+  "timezone": "Asia/Shanghai",
+  "firstPublicationIndependentlyConfirmed": null,
+  "effectiveDateIndependentlyConfirmed": null,
+  "semanticReview": "OPEN",
+  "runtimeAuthorityChanged": false,
+  "resolvedUrl": "https://mp.weixin.qq.com/s/EI7WZBEACBW2tZa642_nzg",
+  "httpStatus": 200,
+  "responseHeaders": {
+    "Last-Modified": "Wed, 21 Oct 2026 00:15:39 +0800",
+    "Content-Type": "text/html; charset=UTF-8"
+  },
+  "status": "SOURCE_EXTRACTION_GAP_WITH_ORIGINAL_RESPONSE_RETAINED",
+  "receivedAtUtc": "2026-10-20T16:15:41.677723+00:00",
+  "path": "var/qa/source-round-20261021/news/CN-NEWS-d8c929e2b6783fa0.html.gz",
+  "sha256": "e8e6c529e7374e6b90411dfb50a2b80460fe9b9d3e2eec4a632520f6b027941a",
+  "bytes": 3505375,
+  "compressedSha256": "b5e604a67390b8e3ba1d7bcb4edd020afd7fdd43457b3e1a02f5ef91c308c5fc",
+  "losslessGzipOriginalBytes": true,
+  "id": "CN-NEWS-d8c929e2b6783fa0",
+  "allListingRows": [
+    {
+      "name": "前瞻爆料｜全新系列铸魂淬炼即将来袭！",
+      "image": "https://cdn.playloltcg.com/lol/2025/11/2025-11-12/b03bc55128234548943cbbd7a31b41a9.jpeg",
+      "pushDate": "2025-11-12",
+      "jumpType": "h5",
+      "appId": "",
+      "jumpUrl": "https://mp.weixin.qq.com/s/EI7WZBEACBW2tZa642_nzg",
+      "sort": 83
+    }
+  ],
+  "publishedAsListed": "2025-11-12",
+  "extractionErrorType": "TypeError",
+  "extractionError": "'int' object is not callable"
+}

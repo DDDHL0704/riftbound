@@ -1,0 +1,41 @@
+{
+  "url": "https://mp.weixin.qq.com/s/uHg8fnW3RuwuhwK31OyyLA",
+  "request": null,
+  "attemptedAtUtc": "2026-10-20T16:14:42.830971+00:00",
+  "roundApplicableAsOf": "2026-10-21",
+  "region": "CN",
+  "language": "zh-CN",
+  "timezone": "Asia/Shanghai",
+  "firstPublicationIndependentlyConfirmed": null,
+  "effectiveDateIndependentlyConfirmed": null,
+  "semanticReview": "OPEN",
+  "runtimeAuthorityChanged": false,
+  "resolvedUrl": "https://mp.weixin.qq.com/s/uHg8fnW3RuwuhwK31OyyLA",
+  "httpStatus": 200,
+  "responseHeaders": {
+    "Last-Modified": "Wed, 21 Oct 2026 00:14:45 +0800",
+    "Content-Type": "text/html; charset=UTF-8"
+  },
+  "status": "SOURCE_EXTRACTION_GAP_WITH_ORIGINAL_RESPONSE_RETAINED",
+  "receivedAtUtc": "2026-10-20T16:14:48.677723+00:00",
+  "path": "var/qa/source-round-20261021/news/CN-NEWS-389db4506df5fa38.html.gz",
+  "sha256": "9b5850d821619b9b68c8fc3de9cee77b5cb12371bb49d97fd4934d3600597c82",
+  "bytes": 3555276,
+  "compressedSha256": "34083dd8d27829915a5162aeb2a0805080f17d3b4aa2ec5730d758e38d6d9afd",
+  "losslessGzipOriginalBytes": true,
+  "id": "CN-NEWS-389db4506df5fa38",
+  "allListingRows": [
+    {
+      "name": "战场速报｜本周新卡全图鉴来袭",
+      "image": "https://cdn.playloltcg.com/lol/2025/06/2025-06-24/1b1b25906cdc427f964d03789ded6788.jpg",
+      "pushDate": "2025-06-24",
+      "jumpType": "h5",
+      "appId": "",
+      "jumpUrl": "https://mp.weixin.qq.com/s/uHg8fnW3RuwuhwK31OyyLA",
+      "sort": 25
+    }
+  ],
+  "publishedAsListed": "2025-06-24",
+  "extractionErrorType": "TypeError",
+  "extractionError": "'int' object is not callable"
+}

@@ -1,0 +1,47 @@
+{
+  "atUtc": "2026-10-20T15:48:14.331280+00:00",
+  "status": "RETIRED_ONLY_SUPERSEDED_FIXED43_PAIR_AND_TWO_INSTALLERS_AFTER_LATEST_FIXED564_USABILITY",
+  "oldFixedCommit": "43d5b84e867eb09ca0570ed8774832ce70b04d87",
+  "latestFixedCommit": "564e433d54d47f98b405787eed97cbdd48b7c394",
+  "removed": [
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/Riftbound-A.app",
+      "kind": "superseded-qa-app",
+      "files": 416,
+      "logicalBytes": 356921064,
+      "allOriginalFileSha256RetainedIn": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/native-app-inputs.json"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/Riftbound-B.app",
+      "kind": "superseded-qa-app",
+      "files": 416,
+      "logicalBytes": 356921064,
+      "allOriginalFileSha256RetainedIn": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/native-app-inputs.json"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/native-current/mac-ci-artifact.zip",
+      "kind": "superseded-installer-zip",
+      "bytes": 142898213,
+      "sha256": "f37c6469d479f981a487c195d200b88fb7b05126adfcd2060a81c1e20c269e7b"
+    },
+    {
+      "path": "var/qa/native-signalr-runtime-patch-fixed-43d5b84e-20261020/native-current/windows-ci-artifact.zip",
+      "kind": "superseded-installer-zip",
+      "bytes": 89127011,
+      "sha256": "c2ecbc736c0dfd76e3ea4c83d02eb469e76e322a028b5be934ee23a25fe288e4"
+    }
+  ],
+  "latestApps": [
+    "/Users/dinghaolin/MyProjects/riftbound/var/qa/fixed-reversal-native-locked-20261020/Riftbound-A.app",
+    "/Users/dinghaolin/MyProjects/riftbound/var/qa/fixed-reversal-native-locked-20261020/Riftbound-B.app"
+  ],
+  "onlyLatestVerifiedMacAndWindowsZipRetained": true,
+  "oldSourceTestsAllEvidenceCiLogsProfilesAndDatabasesPreserved": true,
+  "noActiveOldQaBinaryOrUserGodotProcessStopped": true,
+  "beforeAvailableBytes": 61409366016,
+  "afterAvailableBytes": 62169776128,
+  "netObservedAvailableBytesChange": 760410112,
+  "netDiskChangeMayIncludeConcurrentOwnedDatabaseWrites": true,
+  "sharedOrClonedLogicalBytesNotDoubleCountedAsFreed": true,
+  "oldOriginalBinaryFilesNowRetiredNotClaimedRetained": true
+}

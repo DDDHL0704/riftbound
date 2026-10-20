@@ -1,0 +1,8 @@
+{
+  "atUtc": "2026-10-20T17:57:16.734018+00:00",
+  "status": "PRE_CHECK_PREFLIGHT_FAILED_NO_CHECK_STARTED",
+  "originalLog": "var/qa/spell-remake-no-declaration-20261021/start-and-own-only-check-v1.log",
+  "actualExitCode": 1,
+  "reason": "Wrapper compared integer permission bits to recorded octal-string mode. File modes did not change. V2 compares exact octal strings and corrects the baseline directory before any run.",
+  "noOriginalCheckAttemptOrOutputDirectoryOrSourceMutation": true
+}

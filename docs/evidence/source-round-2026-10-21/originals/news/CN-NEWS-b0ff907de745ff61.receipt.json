@@ -1,0 +1,30 @@
+{
+  "url": "https://mp.weixin.qq.com/s/VQgLZcojDTQ2N8Jm5iW5Zw",
+  "request": null,
+  "attemptedAtUtc": "2026-10-20T16:15:52.100558+00:00",
+  "roundApplicableAsOf": "2026-10-21",
+  "region": "CN",
+  "language": "zh-CN",
+  "timezone": "Asia/Shanghai",
+  "firstPublicationIndependentlyConfirmed": null,
+  "effectiveDateIndependentlyConfirmed": null,
+  "semanticReview": "OPEN",
+  "runtimeAuthorityChanged": false,
+  "status": "SOURCE_GAP_NORMAL_TLS_FETCH_ERROR",
+  "receivedAtUtc": "2026-10-20T16:16:07.274401+00:00",
+  "errorType": "URLError",
+  "error": "<urlopen error EOF occurred in violation of protocol (_ssl.c:1129)>",
+  "id": "CN-NEWS-b0ff907de745ff61",
+  "allListingRows": [
+    {
+      "name": "第二赛季区域公开赛赛程&符文誓约全面揭晓",
+      "image": "https://cdn.playloltcg.com/lol/2025/12/2025-12-14/e057619df554464fbbb81a4b6c0fc18b.png",
+      "pushDate": "2025-12-14",
+      "jumpType": "h5",
+      "appId": "",
+      "jumpUrl": "https://mp.weixin.qq.com/s/VQgLZcojDTQ2N8Jm5iW5Zw",
+      "sort": 95
+    }
+  ],
+  "publishedAsListed": "2025-12-14"
+}

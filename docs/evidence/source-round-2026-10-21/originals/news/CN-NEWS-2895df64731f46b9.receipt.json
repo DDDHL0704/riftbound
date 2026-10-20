@@ -1,0 +1,41 @@
+{
+  "url": "https://mp.weixin.qq.com/s/3WX_lz5alaqdEyg2E48Eqw",
+  "request": null,
+  "attemptedAtUtc": "2026-10-20T16:17:31.713119+00:00",
+  "roundApplicableAsOf": "2026-10-21",
+  "region": "CN",
+  "language": "zh-CN",
+  "timezone": "Asia/Shanghai",
+  "firstPublicationIndependentlyConfirmed": null,
+  "effectiveDateIndependentlyConfirmed": null,
+  "semanticReview": "OPEN",
+  "runtimeAuthorityChanged": false,
+  "resolvedUrl": "https://mp.weixin.qq.com/s/3WX_lz5alaqdEyg2E48Eqw",
+  "httpStatus": 200,
+  "responseHeaders": {
+    "Last-Modified": "Wed, 21 Oct 2026 00:17:32 +0800",
+    "Content-Type": "text/html; charset=UTF-8"
+  },
+  "status": "SOURCE_EXTRACTION_GAP_WITH_ORIGINAL_RESPONSE_RETAINED",
+  "receivedAtUtc": "2026-10-20T16:17:36.267516+00:00",
+  "path": "var/qa/source-round-20261021/news/CN-NEWS-2895df64731f46b9.html.gz",
+  "sha256": "473e5794da24419f558e45a9cfadffdfbf61ffe90d8ae94421dd6bb14896f420",
+  "bytes": 3532824,
+  "compressedSha256": "a15f3409a56359b0a2758560a61190f53af97cc0432574bdd7b172401ea1d3de",
+  "losslessGzipOriginalBytes": true,
+  "id": "CN-NEWS-2895df64731f46b9",
+  "allListingRows": [
+    {
+      "name": "场外活动｜第四赛季成都全国公开赛",
+      "image": "https://cdn.playloltcg.com/lol/2026/10/2026-10-01/b1ed2fe7efa3404cb2406611fa3f8833.JPG",
+      "pushDate": "2026-10-01",
+      "jumpType": "h5",
+      "appId": "",
+      "jumpUrl": "https://mp.weixin.qq.com/s/3WX_lz5alaqdEyg2E48Eqw",
+      "sort": 164
+    }
+  ],
+  "publishedAsListed": "2026-10-01",
+  "extractionErrorType": "TypeError",
+  "extractionError": "'int' object is not callable"
+}
