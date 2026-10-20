@@ -1,0 +1,37 @@
+{
+  "status": "ACTUAL_TWO_PRODUCTION_GATEWAYS_ORDINARY_ECHO_TARGET_PAYMENT_PENDING_NOT_NATIVE_CONTROLS_ACCEPTANCE",
+  "room": "N22-PAY-C0F39208FA",
+  "server": "http://127.0.0.1:15847",
+  "players": [
+    "qa48offline-a",
+    "qa48offline-b"
+  ],
+  "acceptedCommands": 83,
+  "actualTick": 82,
+  "actualTurn": 60,
+  "sourceObjectId": "qa48offline-b-MAIN-SFD-136-221-03",
+  "targetStackItemIds": [
+    "STACK-73-qa48offline-a-MAIN-UNL-061-219-01",
+    "STACK-74-qa48offline-a-MAIN-UNL-061-219-02"
+  ],
+  "targetSourceObjectIds": [
+    "qa48offline-a-MAIN-UNL-061-219-01",
+    "qa48offline-a-MAIN-UNL-061-219-02"
+  ],
+  "targetControllerMana": 4,
+  "counterControllerMana": 0,
+  "actualPaymentKind": "COUNTER_TARGET_MANA_PAYMENT",
+  "snapshotCounts": [
+    85,
+    85
+  ],
+  "promptCounts": [
+    85,
+    85
+  ],
+  "originalBlankOpeningNoSeedOrStateInjection": true,
+  "actualRandomOpeningSeedNotPrinted": true,
+  "existingNativeProfilesUnchangedByRunner": true,
+  "originalAuthValuesOnlyInPrivateSessionFiles": true,
+  "visibleControlsFixedCommitWindowsAndWholeCardAcceptance": false
+}

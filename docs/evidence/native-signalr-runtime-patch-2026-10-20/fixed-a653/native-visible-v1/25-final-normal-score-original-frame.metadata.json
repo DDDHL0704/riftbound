@@ -1,0 +1,20 @@
+{
+  "status": "ACTUAL_ORIGINAL_FRAME_READONLY_EXPORT",
+  "room": "N22-PAY-C0F39208FA",
+  "commands": 105,
+  "events": 718,
+  "tick": 104,
+  "pendingKind": null,
+  "priorAnswers": null,
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+    "implementationSha256": "f045d74c987d7c75fb0ec2a11849dedd10927e9298ccd7e5ca9de817a964c883",
+    "identitySha256": "7c3e24e80603f5f160f729908c7fd6bc86dc0ea0d01101e1902f18c5a9d48fce"
+  },
+  "authoritativeStateBytesSha256": "1f9d45060674d2d1c575f06855032f73bb0559c56dc8157bcbd982614a719e70",
+  "originalFrameSha256": "3e8ed9d289cb53306c7b0dba137f1a3625b85ab2d6059d69b10b136e64abb4b9"
+}

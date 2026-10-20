@@ -1,0 +1,67 @@
+{
+  "atUtc": "2026-10-20T07:22:50.888141+00:00",
+  "fixedCommit": "a653e54772bddb4ed14d85c4f0b13150f2f3cbfa",
+  "fixedCiRun": 39383332057,
+  "lockAtStart": {
+    "rootLocked": false,
+    "sessions": []
+  },
+  "records": [
+    {
+      "label": "a",
+      "ownNativePid": 53984,
+      "returnCode": 0,
+      "defaultMainBootMarker": true,
+      "officialCatalogBootMarker": true,
+      "noGodotErrorOrUnhandledException": true,
+      "log": "current-native-default-headless-a.log",
+      "logSha256": "7f99a97f303b844aea609eb961342c64224fd5721bb32be857541d02cc8a0910",
+      "outsideCheckoutCwd": "/tmp",
+      "exactArguments": [
+        "/Users/dinghaolin/MyProjects/riftbound/var/qa/conditional-counter-payment-fixed-a653e547-20261020/Riftbound-A.app/Contents/MacOS/\u7b26\u6587\u6218\u573a",
+        "--headless",
+        "--quit-after",
+        "600",
+        "--",
+        "--riftbound-ephemeral-session",
+        "--riftbound-server=http://127.0.0.1:15847",
+        "--riftbound-session-file=/Users/dinghaolin/MyProjects/riftbound/var/qa/conditional-counter-payment-fixed-a653e547-20261020/never-written-default-headless-a-session.json"
+      ],
+      "ephemeralNoProfileWritten": true,
+      "all373OriginalCiManagedAndPckFilesStillExact": true,
+      "deepStrictSignaturePass": true
+    },
+    {
+      "label": "b",
+      "ownNativePid": 54041,
+      "returnCode": 0,
+      "defaultMainBootMarker": true,
+      "officialCatalogBootMarker": true,
+      "noGodotErrorOrUnhandledException": true,
+      "log": "current-native-default-headless-b.log",
+      "logSha256": "46f171672cac8069a2212553ea13815bcab2c712f1ea9b41842f4cccead24178",
+      "outsideCheckoutCwd": "/tmp",
+      "exactArguments": [
+        "/Users/dinghaolin/MyProjects/riftbound/var/qa/conditional-counter-payment-fixed-a653e547-20261020/Riftbound-B.app/Contents/MacOS/\u7b26\u6587\u6218\u573a",
+        "--headless",
+        "--quit-after",
+        "600",
+        "--",
+        "--riftbound-ephemeral-session",
+        "--riftbound-server=http://127.0.0.1:15847",
+        "--riftbound-session-file=/Users/dinghaolin/MyProjects/riftbound/var/qa/conditional-counter-payment-fixed-a653e547-20261020/never-written-default-headless-b-session.json"
+      ],
+      "ephemeralNoProfileWritten": true,
+      "all373OriginalCiManagedAndPckFilesStillExact": true,
+      "deepStrictSignaturePass": true
+    }
+  ],
+  "notVisibleControlsOrPairedGameAcceptance": true,
+  "physicalWindows": "OPEN",
+  "status": "CURRENT_FIXED_DEFAULT_MAIN_HEADLESS_BOOT_PASS",
+  "finishedAtUtc": "2026-10-20T07:23:05.232976+00:00",
+  "lockAtEnd": {
+    "rootLocked": false,
+    "sessions": []
+  }
+}

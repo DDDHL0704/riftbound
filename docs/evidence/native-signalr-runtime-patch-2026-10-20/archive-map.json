@@ -1,0 +1,2301 @@
+{
+  "records": [
+    {
+      "originalPath": "var/qa/native-signalr-runtime-patch-20261020/actual-api-loaded-assemblies-v1.ndjson",
+      "originalSha256": "66e78b316fb5608720ca58d1b9d5f5fc12b7aa306101acfa555f69c3b6f0732d",
+      "originalBytes": 4947,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/n23/actual-api-loaded-assemblies-v1.ndjson.gz",
+        "sha256": "d7d87229f546e47e71d73a896cec93637fa8cf81e2665928a8b47be1d84d0769",
+        "role": "actual-api-loaded-assemblies-v1.ndjson"
+      },
+      "gzipOriginalBytes": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/native-signalr-runtime-patch-20261020/actual-native-network-loaded-assemblies-v1.ndjson",
+      "originalSha256": "07f7bf5acb5eff0be633e3cbb49cd70f5cbd355959469d27608bae426ef2b98c",
+      "originalBytes": 3426,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/n23/actual-native-network-loaded-assemblies-v1.ndjson.gz",
+        "sha256": "5592946cd122e5564ff312ec3ac0cc28db845692bc2881429b6313b61041ff73",
+        "role": "actual-native-network-loaded-assemblies-v1.ndjson"
+      },
+      "gzipOriginalBytes": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/native-signalr-runtime-patch-20261020/actual-network-postgres-v1.log",
+      "originalSha256": "48e8d259f570ebc963d48e906c39d3e0047543034d70c1c0d77d430e6ccf74ae",
+      "originalBytes": 1277,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/n23/actual-network-postgres-v1.log.gz",
+        "sha256": "21df2c41b76e0952dde9bdf2fd75e58f77a08dd678e27d78aa28829a8ab67cd4",
+        "role": "actual-network-postgres-v1.log"
+      },
+      "gzipOriginalBytes": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/native-signalr-runtime-patch-20261020/actual-patched-api-network-v1.log",
+      "originalSha256": "8955ac3fdd94442fa6b4850033c91bb695ad7c62f9124bc2f15bbdb8be1f1224",
+      "originalBytes": 29046,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/n23/actual-patched-api-network-v1.log.gz",
+        "sha256": "8ed0e7288958e79132ab9e6064017447b04ffc3e8c0462f81dd8a60f22cce51d",
+        "role": "actual-patched-api-network-v1.log"
+      },
+      "gzipOriginalBytes": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/native-signalr-runtime-patch-20261020/actual-patched-native-network-v1.log",
+      "originalSha256": "5acd178b5db3caff453eeca6250f5da0e21566fb87de0bd735015e7ed5c97324",
+      "originalBytes": 605,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/n23/actual-patched-native-network-v1.log.gz",
+        "sha256": "f5d7273f3d91bc9f8215b2c68443dcb60185976977156836bf9e50876bde5fee",
+        "role": "actual-patched-native-network-v1.log"
+      },
+      "gzipOriginalBytes": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/native-signalr-runtime-patch-20261020/actual-real-patched-network-verification-v1.json",
+      "originalSha256": "8496e818ac918ca0b6efc4a7bbbad2d2f472f2231cd6ad935fd2f042d09cd6e6",
+      "originalBytes": 6766,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/n23/actual-real-patched-network-verification-v1.json",
+        "sha256": "8496e818ac918ca0b6efc4a7bbbad2d2f472f2231cd6ad935fd2f042d09cd6e6",
+        "role": "actual-real-patched-network-verification-v1"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/native-signalr-runtime-patch-20261020/actual-runtime-minimum-old-host-negative-verification-v1.json",
+      "originalSha256": "a04516a2b5ebb80be7760a736c87c9130f6db3d9e3c34b3fac2be76a472b9380",
+      "originalBytes": 966,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/n23/actual-runtime-minimum-old-host-negative-verification-v1.json",
+        "sha256": "a04516a2b5ebb80be7760a736c87c9130f6db3d9e3c34b3fac2be76a472b9380",
+        "role": "actual-runtime-minimum-old-host-negative-verification-v1"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/native-signalr-runtime-patch-20261020/actual-sole-check-testhost-mapped-framework-v1.json",
+      "originalSha256": "096309c1aa14f33b093e7781fc41984281e72e8e347ed4f6bdbc2e86f5d0cb24",
+      "originalBytes": 712,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/n23/actual-sole-check-testhost-mapped-framework-v1.json",
+        "sha256": "096309c1aa14f33b093e7781fc41984281e72e8e347ed4f6bdbc2e86f5d0cb24",
+        "role": "actual-sole-check-testhost-mapped-framework-v1"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/native-signalr-runtime-patch-20261020/assembly-audit-hook/StartupHook.cs",
+      "originalSha256": "3f68ff3f6814f3114f9cec44e7fb6c6826ef8b64a990fe767654eb741bccd219",
+      "originalBytes": 1948,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/n23/assembly-audit-hook/StartupHook.cs.gz",
+        "sha256": "65a60a09b39f84a84a01c89e46cda2a10800ff89e796ae04580db96f4e73fbca",
+        "role": "StartupHook.cs"
+      },
+      "gzipOriginalBytes": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/native-signalr-runtime-patch-20261020/assembly-audit-hook/probe.csproj",
+      "originalSha256": "bbe890aa53038171dc61806cfa15ad2e88482e63127fecc0518609bb060f8abd",
+      "originalBytes": 120,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/n23/assembly-audit-hook/probe.csproj.gz",
+        "sha256": "a194fc8a212cb4f7b322885da6828c50f411be8c79c308fcf2a836fa968016b1",
+        "role": "probe.csproj"
+      },
+      "gzipOriginalBytes": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/native-signalr-runtime-patch-20261020/before-security-dependency-edit-all-source-test-retention-v1.json",
+      "originalSha256": "4153ef81b827769a2059cd65157d480870607a9d9a6ffc1717c7647ac1d4a932",
+      "originalBytes": 828177,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/n23/before-security-dependency-edit-all-source-test-retention-v1.json",
+        "sha256": "4153ef81b827769a2059cd65157d480870607a9d9a6ffc1717c7647ac1d4a932",
+        "role": "before-security-dependency-edit-all-source-test-retention-v1"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/native-signalr-runtime-patch-20261020/bounded-four-build-input-edit-scope-v1.json",
+      "originalSha256": "0dd023d2c9d197745535ea1144e3fae4c15eebdca55d7af53a4c6c2a15d63126",
+      "originalBytes": 575,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/n23/bounded-four-build-input-edit-scope-v1.json",
+        "sha256": "0dd023d2c9d197745535ea1144e3fae4c15eebdca55d7af53a4c6c2a15d63126",
+        "role": "bounded-four-build-input-edit-scope-v1"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/native-signalr-runtime-patch-20261020/client8-package-versions-original-response-v1.json.gz",
+      "originalSha256": "6e34ed2b0bea9a9050a08723df3d2cb3255e5bf133d5bd2671a4f6f81ee2f8eb",
+      "originalBytes": 1055,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/n23/client8-package-versions-original-response-v1.json.gz",
+        "sha256": "6e34ed2b0bea9a9050a08723df3d2cb3255e5bf133d5bd2671a4f6f81ee2f8eb",
+        "role": "client8-package-versions-original-response-v1.json"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/native-signalr-runtime-patch-20261020/completed-helper-obj-retirement-v1.json",
+      "originalSha256": "1eddd5294f36832278b80fa9e5610f8b35889d371709d0c9164c0d446e2b5576",
+      "originalBytes": 25918,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/n23/completed-helper-obj-retirement-v1.json",
+        "sha256": "1eddd5294f36832278b80fa9e5610f8b35889d371709d0c9164c0d446e2b5576",
+        "role": "completed-helper-obj-retirement-v1"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/native-signalr-runtime-patch-20261020/current-native-net8-transitive-audit-mode-readback-v1.json",
+      "originalSha256": "0cc41b7641818dfcf4c6c8c5b17769c6f042b9e58bf2c0fc22a216015adeafa6",
+      "originalBytes": 112,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/n23/current-native-net8-transitive-audit-mode-readback-v1.json",
+        "sha256": "0cc41b7641818dfcf4c6c8c5b17769c6f042b9e58bf2c0fc22a216015adeafa6",
+        "role": "current-native-net8-transitive-audit-mode-readback-v1"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/native-signalr-runtime-patch-20261020/current-patched-host-conformance-prepare-build-v1.log",
+      "originalSha256": "7db211e45134ef0693132e59f99afd9ef3079f4fbcb93931f5641c8ee12ab856",
+      "originalBytes": 866,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/n23/current-patched-host-conformance-prepare-build-v1.log.gz",
+        "sha256": "c2cfd7f1889f5fb6f430da15bc6cc6a5788b0f56060142501fed1fd7705ea782",
+        "role": "current-patched-host-conformance-prepare-build-v1.log"
+      },
+      "gzipOriginalBytes": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/native-signalr-runtime-patch-20261020/current-primary-patched-version-readback-v2.json",
+      "originalSha256": "f869cb36d895eb3daa3bfef0d7c9a14ac42eaef17e445777b3bfeb7afce5af88",
+      "originalBytes": 2299,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/n23/current-primary-patched-version-readback-v2.json",
+        "sha256": "f869cb36d895eb3daa3bfef0d7c9a14ac42eaef17e445777b3bfeb7afce5af88",
+        "role": "current-primary-patched-version-readback-v2"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/native-signalr-runtime-patch-20261020/default-host-actual-api-startup-v1.log",
+      "originalSha256": "fee234f284dbce91a99070e1d5435ed534b09a422273731256c924d2af244337",
+      "originalBytes": 1819,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/n23/default-host-actual-api-startup-v1.log.gz",
+        "sha256": "dfc5b521cfa8c9bbc0cbeaca03da01ff479a0a1ce63c461b63d9bf430544902d",
+        "role": "default-host-actual-api-startup-v1.log"
+      },
+      "gzipOriginalBytes": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/native-signalr-runtime-patch-20261020/default-host-actual-loaded-assemblies-v1.ndjson",
+      "originalSha256": "4e6f1913af2a174ff68f2389506ba5c0c3ef4a91808cb067fbdcab33d0825a52",
+      "originalBytes": 4649,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/n23/default-host-actual-loaded-assemblies-v1.ndjson.gz",
+        "sha256": "35cfbb4aad7d9c0c191c0c627bdeb59acb72a09d8983d14d30cef5d1d2729161",
+        "role": "default-host-actual-loaded-assemblies-v1.ndjson"
+      },
+      "gzipOriginalBytes": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/native-signalr-runtime-patch-20261020/default-host-positive-api-startup-verification-v1.json",
+      "originalSha256": "f97250a8033ee6e6061892a42b372c05435ce806a42f83731feffe974ed649a1",
+      "originalBytes": 2033,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/n23/default-host-positive-api-startup-verification-v1.json",
+        "sha256": "f97250a8033ee6e6061892a42b372c05435ce806a42f83731feffe974ed649a1",
+        "role": "default-host-positive-api-startup-verification-v1"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/native-signalr-runtime-patch-20261020/default-user-runtime-additive-patch-verification-v1.json",
+      "originalSha256": "f60978b98bbc3bbd85d782dca13f57b72aaad457ec7e7ecea591bd87d480d4d3",
+      "originalBytes": 92908,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/n23/default-user-runtime-additive-patch-verification-v1.json",
+        "sha256": "f60978b98bbc3bbd85d782dca13f57b72aaad457ec7e7ecea591bd87d480d4d3",
+        "role": "default-user-runtime-additive-patch-verification-v1"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/native-signalr-runtime-patch-20261020/dotnet10-release-metadata-original-response-v1.json.gz",
+      "originalSha256": "05ae6fa8ecca07be7007ba9d7ecbfb03c1a53c8ae97adad337d9705a51f89000",
+      "originalBytes": 216855,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/n23/dotnet10-release-metadata-original-response-v1.json.gz",
+        "sha256": "05ae6fa8ecca07be7007ba9d7ecbfb03c1a53c8ae97adad337d9705a51f89000",
+        "role": "dotnet10-release-metadata-original-response-v1.json"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/native-signalr-runtime-patch-20261020/fixed-a653-ci-progress-v1.json",
+      "originalSha256": "3aa12e779ee4dc45a649edd445bc9506badcc7c2475304e169842d714c554313",
+      "originalBytes": 18510,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/n23/fixed-a653-ci-progress-v1.json",
+        "sha256": "3aa12e779ee4dc45a649edd445bc9506badcc7c2475304e169842d714c554313",
+        "role": "fixed-a653-ci-progress-v1"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/native-signalr-runtime-patch-20261020/focus-native-auth-identity-prompts-v1/build.log",
+      "originalSha256": "a6cb634c362b499bde173abf8ded356cdb68f22f70ae0ff4355f97273c96b6d2",
+      "originalBytes": 78,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/n23/focus-native-auth-identity-prompts-v1/build.log.gz",
+        "sha256": "12051c1cd14bcb935e0f035d240e101ad79b467e6baee786b5a6e01e63f71ad6",
+        "role": "build.log"
+      },
+      "gzipOriginalBytes": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/native-signalr-runtime-patch-20261020/focus-native-auth-identity-prompts-v1/discovery.log",
+      "originalSha256": "d978348f3d117fe32502befb2d1542fc3263d08d29cd02183ece601e55b59405",
+      "originalBytes": 1980087,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/n23/focus-native-auth-identity-prompts-v1/discovery.log.gz",
+        "sha256": "f047e789c22f6baab5d11cab5891e73e1a592f92bff07c75fe2976748f24ea62",
+        "role": "discovery.log"
+      },
+      "gzipOriginalBytes": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/native-signalr-runtime-patch-20261020/focus-native-auth-identity-prompts-v1/focus/results.trx",
+      "originalSha256": "901d8c45833b7340b3805fadc4fc4fc0bc8826f2f17529e78b265c1da1fc2f87",
+      "originalBytes": 458035,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/n23/focus-native-auth-identity-prompts-v1/focus/results.trx.gz",
+        "sha256": "4b431ad2d49f31f8c0f3278448440f980aa474a4cba9a700cddd7374d483b9f9",
+        "role": "results.trx"
+      },
+      "gzipOriginalBytes": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/native-signalr-runtime-patch-20261020/focus-native-auth-identity-prompts-v1/focus/test.log",
+      "originalSha256": "fb28c6e677f212585ed1c510f2f639e8d28c2c9caf6dd6ff7d4c6978245fc996",
+      "originalBytes": 513,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/n23/focus-native-auth-identity-prompts-v1/focus/test.log.gz",
+        "sha256": "90e4c704a3f57589f0ce0d369c7e0cf7cdcc81e73744b774f8ca6aa8ccaa91f0",
+        "role": "test.log"
+      },
+      "gzipOriginalBytes": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/native-signalr-runtime-patch-20261020/focus-native-auth-identity-prompts-v1/plan.json",
+      "originalSha256": "cb7f9b15861af1bb2857d39a7dbc1e7c224502d35024037a88c205feee525552",
+      "originalBytes": 32889,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/n23/focus-native-auth-identity-prompts-v1/plan.json",
+        "sha256": "cb7f9b15861af1bb2857d39a7dbc1e7c224502d35024037a88c205feee525552",
+        "role": "plan"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/native-signalr-runtime-patch-20261020/focus-native-auth-identity-prompts-v1/summary.json",
+      "originalSha256": "121cd41f487dab01f4c3a2ec5ece20ce54e239693448fc565beed8d2673347f5",
+      "originalBytes": 275,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/n23/focus-native-auth-identity-prompts-v1/summary.json",
+        "sha256": "121cd41f487dab01f4c3a2ec5ece20ce54e239693448fc565beed8d2673347f5",
+        "role": "summary"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/native-signalr-runtime-patch-20261020/initial-check-cli-parse-only-rejection-disposition-v1.json",
+      "originalSha256": "cc861aa6d813d725fcc7ad84803965243b96b0a8267e257326712d1c26df23d1",
+      "originalBytes": 543,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/n23/initial-check-cli-parse-only-rejection-disposition-v1.json",
+        "sha256": "cc861aa6d813d725fcc7ad84803965243b96b0a8267e257326712d1c26df23d1",
+        "role": "initial-check-cli-parse-only-rejection-disposition-v1"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/native-signalr-runtime-patch-20261020/issue73-original-discussion-before-patch-v1.json",
+      "originalSha256": "eb37b428ad05a6c65097c87530e67a9caf30b9020d35acacb2ecc4c28b884bbf",
+      "originalBytes": 2826,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/n23/issue73-original-discussion-before-patch-v1.json",
+        "sha256": "eb37b428ad05a6c65097c87530e67a9caf30b9020d35acacb2ecc4c28b884bbf",
+        "role": "issue73-original-discussion-before-patch-v1"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/native-signalr-runtime-patch-20261020/old-common-transitive-audit-policy-negative-verification-v1.json",
+      "originalSha256": "c960325861b0727484e73e38b10118ed1e31991d83dfe15a9eaf1008734db3a8",
+      "originalBytes": 440,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/n23/old-common-transitive-audit-policy-negative-verification-v1.json",
+        "sha256": "c960325861b0727484e73e38b10118ed1e31991d83dfe15a9eaf1008734db3a8",
+        "role": "old-common-transitive-audit-policy-negative-verification-v1"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/native-signalr-runtime-patch-20261020/old-native8-common-transitive-policy-negative-v1.log",
+      "originalSha256": "c0c67684c49d45484f04c49b15ff2851abe69460ac027e3f30c9482960e13c49",
+      "originalBytes": 523,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/n23/old-native8-common-transitive-policy-negative-v1.log.gz",
+        "sha256": "bf31a73340cb9e1846dbf379528e7af2635e59407a2bfac02dcf31d326ceaf88",
+        "role": "old-native8-common-transitive-policy-negative-v1.log"
+      },
+      "gzipOriginalBytes": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/native-signalr-runtime-patch-20261020/old-transitive-native-policy-negative-v1/probe.csproj",
+      "originalSha256": "117097d2eedb3a2031934875875733fb292b8c5c07cbcc1f555fcf4b4c651eaf",
+      "originalBytes": 221,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/n23/old-transitive-native-policy-negative-v1/probe.csproj.gz",
+        "sha256": "ca9e04c2ae25763ecff65f6f39b889e9c4243526698164b95adc53ee321cab0e",
+        "role": "probe.csproj"
+      },
+      "gzipOriginalBytes": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/native-signalr-runtime-patch-20261020/only-check/build.log",
+      "originalSha256": "7e0d6d50c7935790ebb5c79d40bf7266760f5dab26f964877979adbc04ceabb9",
+      "originalBytes": 78,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/n23/only-check/build.log.gz",
+        "sha256": "f12151bb881762cbe1fc3549b8ee2f81ea1e7a57643a2b940ce1721d00640e1a",
+        "role": "build.log"
+      },
+      "gzipOriginalBytes": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/native-signalr-runtime-patch-20261020/only-check/check/results.trx",
+      "originalSha256": "1d37239a3764b84f15f4bd8bd17fad58110b46f509fb8c393c0cff18982167c2",
+      "originalBytes": 20368226,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/n23/only-check/check/results.trx.gz",
+        "sha256": "25df1304e0c44974f5a4434810237eff7bf240c2cd9158e59f0910548f1895b6",
+        "role": "results.trx"
+      },
+      "gzipOriginalBytes": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/native-signalr-runtime-patch-20261020/only-check/check/test.log",
+      "originalSha256": "196290ac18fc08fee9d8350a64e8c93d945f74a528ea624a1f2e0666c24623f6",
+      "originalBytes": 489,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/n23/only-check/check/test.log.gz",
+        "sha256": "ff660a3f18053fef84f98837ff4b52029e537a1aee983a06541f6d7a4c68916f",
+        "role": "test.log"
+      },
+      "gzipOriginalBytes": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/native-signalr-runtime-patch-20261020/only-check/discovery.log",
+      "originalSha256": "d978348f3d117fe32502befb2d1542fc3263d08d29cd02183ece601e55b59405",
+      "originalBytes": 1980087,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/n23/only-check/discovery.log.gz",
+        "sha256": "f047e789c22f6baab5d11cab5891e73e1a592f92bff07c75fe2976748f24ea62",
+        "role": "discovery.log"
+      },
+      "gzipOriginalBytes": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/native-signalr-runtime-patch-20261020/only-check/plan.json",
+      "originalSha256": "0b3b2631e1bb056e480516df2404df8315ad6180d077ee66cea348fbf6ce8b2c",
+      "originalBytes": 997614,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/n23/only-check/plan.json",
+        "sha256": "0b3b2631e1bb056e480516df2404df8315ad6180d077ee66cea348fbf6ce8b2c",
+        "role": "plan"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/native-signalr-runtime-patch-20261020/only-check/summary.json",
+      "originalSha256": "56f8668b361e38efc9ee31d0f10903b94a08780c663da98315828b32f94795b3",
+      "originalBytes": 286,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/n23/only-check/summary.json",
+        "sha256": "56f8668b361e38efc9ee31d0f10903b94a08780c663da98315828b32f94795b3",
+        "role": "summary"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/native-signalr-runtime-patch-20261020/only-check-retention-and-disposition-v1.json",
+      "originalSha256": "c09c1ec668de59a743dc998bbede84132ae0bd899904083ae402d546d6088ed4",
+      "originalBytes": 1928,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/n23/only-check-retention-and-disposition-v1.json",
+        "sha256": "c09c1ec668de59a743dc998bbede84132ae0bd899904083ae402d546d6088ed4",
+        "role": "only-check-retention-and-disposition-v1"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/native-signalr-runtime-patch-20261020/only-check-runner-v1.log",
+      "originalSha256": "f04193e12ba97007d4fddfa24fd19b6dbac7cb0d82f8548bc67c2a49aeae8c16",
+      "originalBytes": 351,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/n23/only-check-runner-v1.log.gz",
+        "sha256": "643d3270bcb75f4278bee7da4b9cc09dfcbee5a5ab5a92b91cc7bc30adc33a26",
+        "role": "only-check-runner-v1.log"
+      },
+      "gzipOriginalBytes": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/native-signalr-runtime-patch-20261020/only-check-runner-v2.log",
+      "originalSha256": "951d1a4a070443d853ea2dd2579638ffc0ceccd7c195fd9ac3212d298f4a9106",
+      "originalBytes": 435,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/n23/only-check-runner-v2.log.gz",
+        "sha256": "5b9bc6dfcb01594ec3b70566147b3bee8b4f2415f83850a737455cae879ed4bd",
+        "role": "only-check-runner-v2.log"
+      },
+      "gzipOriginalBytes": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/native-signalr-runtime-patch-20261020/only-check-start-inputs-v1.json",
+      "originalSha256": "12a6324e5b2a5e1630438660c2db5e505baefb5c741b47f172f5d96abcad03f8",
+      "originalBytes": 790993,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/n23/only-check-start-inputs-v1.json",
+        "sha256": "12a6324e5b2a5e1630438660c2db5e505baefb5c741b47f172f5d96abcad03f8",
+        "role": "only-check-start-inputs-v1"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/native-signalr-runtime-patch-20261020/only-check-start-inputs-v2.json",
+      "originalSha256": "5169035c6fa3bc471e1a8cf3afcef0e436180d9464baa4305d0140d305723873",
+      "originalBytes": 790993,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/n23/only-check-start-inputs-v2.json",
+        "sha256": "5169035c6fa3bc471e1a8cf3afcef0e436180d9464baa4305d0140d305723873",
+        "role": "only-check-start-inputs-v2"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/native-signalr-runtime-patch-20261020/only-check-terminal-integrity-v1.json",
+      "originalSha256": "7aafe2210dc284778635afdee3fa5883dbb9ddbdcfc4d8a5f6ec057e1c435aed",
+      "originalBytes": 354,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/n23/only-check-terminal-integrity-v1.json",
+        "sha256": "7aafe2210dc284778635afdee3fa5883dbb9ddbdcfc4d8a5f6ec057e1c435aed",
+        "role": "only-check-terminal-integrity-v1"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/native-signalr-runtime-patch-20261020/only-check-terminal-integrity-v2.json",
+      "originalSha256": "906c2e01a4d7b71a902a9ba9b622fa4f2ccc0dace5166dd7d6230c6359a852e4",
+      "originalBytes": 354,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/n23/only-check-terminal-integrity-v2.json",
+        "sha256": "906c2e01a4d7b71a902a9ba9b622fa4f2ccc0dace5166dd7d6230c6359a852e4",
+        "role": "only-check-terminal-integrity-v2"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/native-signalr-runtime-patch-20261020/original-four-build-inputs/Directory.Build.props.gz",
+      "originalSha256": "a9b43eabc6f9e4d338143f4f32178f5a14367aa9991bac0f6b692c4c966c582f",
+      "originalBytes": 146,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/n23/original-four-build-inputs/Directory.Build.props.gz",
+        "sha256": "a9b43eabc6f9e4d338143f4f32178f5a14367aa9991bac0f6b692c4c966c582f",
+        "role": "Directory.Build.props"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/native-signalr-runtime-patch-20261020/original-four-build-inputs/clients/godot/Riftbound.GodotClient.csproj.gz",
+      "originalSha256": "83cb0ee6e0573c17e809d75a2fe5088ce721258a204c69b23b04e03802f1b340",
+      "originalBytes": 457,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/n23/original-four-build-inputs/clients/godot/Riftbound.GodotClient.csproj.gz",
+        "sha256": "83cb0ee6e0573c17e809d75a2fe5088ce721258a204c69b23b04e03802f1b340",
+        "role": "Riftbound.GodotClient.csproj"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/native-signalr-runtime-patch-20261020/original-four-build-inputs/src/Riftbound.Api/Riftbound.Api.csproj.gz",
+      "originalSha256": "953b1aacf5e46d6bbe3b1035c4fa6fa594bf2da9390d8d477a95d9a5f6690402",
+      "originalBytes": 383,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/n23/original-four-build-inputs/src/Riftbound.Api/Riftbound.Api.csproj.gz",
+        "sha256": "953b1aacf5e46d6bbe3b1035c4fa6fa594bf2da9390d8d477a95d9a5f6690402",
+        "role": "Riftbound.Api.csproj"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/native-signalr-runtime-patch-20261020/original-four-build-inputs/tests/Riftbound.NativeNetworkSmoke/Riftbound.NativeNetworkSmoke.csproj.gz",
+      "originalSha256": "1313e47019da43026c065761a9702488d1b689782d346d9c5b17b8e4a3e7d263",
+      "originalBytes": 286,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/n23/original-four-build-inputs/tests/Riftbound.NativeNetworkSmoke/Riftbound.NativeNetworkSmoke.csproj.gz",
+        "sha256": "1313e47019da43026c065761a9702488d1b689782d346d9c5b17b8e4a3e7d263",
+        "role": "Riftbound.NativeNetworkSmoke.csproj"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/native-signalr-runtime-patch-20261020/original-native-net8-audit-mode-msbuild-readback-v1.log",
+      "originalSha256": "43c33b8c73dcd8fb3eb2318d3cc033d4761a28d4c1bf70746254f347b534fc76",
+      "originalBytes": 116,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/n23/original-native-net8-audit-mode-msbuild-readback-v1.log.gz",
+        "sha256": "904f81fcf2a65218ad32417490970f31eb6eb65d92ecf12d65b404a7e0395037",
+        "role": "original-native-net8-audit-mode-msbuild-readback-v1.log"
+      },
+      "gzipOriginalBytes": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/native-signalr-runtime-patch-20261020/original-older-host-rejection-v1.log",
+      "originalSha256": "758f565a1981df7fca3d5ef6cf94b507b82ab717b7c7d0f4651258c71202b6e7",
+      "originalBytes": 773,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/n23/original-older-host-rejection-v1.log.gz",
+        "sha256": "fda898f130d4a592e6483a4ace95a94f54adda803364522e898d5bb1bb7f4b83",
+        "role": "original-older-host-rejection-v1.log"
+      },
+      "gzipOriginalBytes": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/native-signalr-runtime-patch-20261020/patched-production-runtime-publication-v1.json",
+      "originalSha256": "6445c3739958531d0a7a508c7497979146910fd7535299d185b0dcc9e443b903",
+      "originalBytes": 580099,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/n23/patched-production-runtime-publication-v1.json",
+        "sha256": "6445c3739958531d0a7a508c7497979146910fd7535299d185b0dcc9e443b903",
+        "role": "patched-production-runtime-publication-v1"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/native-signalr-runtime-patch-20261020/prepare-private-patched-runtime-v1.py",
+      "originalSha256": "55291b9af86a109d49e5d497c33796e7cba2dd0158e51a682ce75cc96b652419",
+      "originalBytes": 5567,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/n23/prepare-private-patched-runtime-v1.py.gz",
+        "sha256": "1b55932e8d85f8e8c1b9d1dad19b12a673f9ca1bb29824346bade68681337834",
+        "role": "prepare-private-patched-runtime-v1.py"
+      },
+      "gzipOriginalBytes": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/native-signalr-runtime-patch-20261020/prior-original-current-manifest.json.gz",
+      "originalSha256": "92b1833442ef1a13819369af9b0f08cc272bdf8af956c08c51c239d54d1571e5",
+      "originalBytes": 270586,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/n23/prior-original-current-manifest.json.gz",
+        "sha256": "92b1833442ef1a13819369af9b0f08cc272bdf8af956c08c51c239d54d1571e5",
+        "role": "prior-original-current-manifest.json"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/native-signalr-runtime-patch-20261020/prior-original-review-decisions.json.gz",
+      "originalSha256": "5ee4b8b1b5e0bbb81612e56f298042c52894c8c6ba2bbba7e709e602a1fe6d9c",
+      "originalBytes": 161726,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/n23/prior-original-review-decisions.json.gz",
+        "sha256": "5ee4b8b1b5e0bbb81612e56f298042c52894c8c6ba2bbba7e709e602a1fe6d9c",
+        "role": "prior-original-review-decisions.json"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/native-signalr-runtime-patch-20261020/private-patched-runtime-publication-v1.json",
+      "originalSha256": "844f929ab3f27d6208419a3f723857ee4f69dc245b40f986e5c50667a3917201",
+      "originalBytes": 52016,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/n23/private-patched-runtime-publication-v1.json",
+        "sha256": "844f929ab3f27d6208419a3f723857ee4f69dc245b40f986e5c50667a3917201",
+        "role": "private-patched-runtime-publication-v1"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/native-signalr-runtime-patch-20261020/publish-security-runtime-and-fixed-native-audit-v1.py",
+      "originalSha256": "e09b3990f011c5d38d6b22eec1cf2ca4327008d5ea229cf48a2312762dd26621",
+      "originalBytes": 21189,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/n23/publish-security-runtime-and-fixed-native-audit-v1.py.gz",
+        "sha256": "b0060d1c0abbd7f892a9938fa127f29a69ef786b6f1c5f1379cdf5818cc1bfca",
+        "role": "publish-security-runtime-and-fixed-native-audit-v1.py"
+      },
+      "gzipOriginalBytes": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/native-signalr-runtime-patch-20261020/publisher-advisory-original-response-v1.json.gz",
+      "originalSha256": "5f793feb33cb108bb06147fb0a18a8c52a1ba1e42da3b46f5bc5473907ab91ba",
+      "originalBytes": 2765,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/n23/publisher-advisory-original-response-v1.json.gz",
+        "sha256": "5f793feb33cb108bb06147fb0a18a8c52a1ba1e42da3b46f5bc5473907ab91ba",
+        "role": "publisher-advisory-original-response-v1.json"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/native-signalr-runtime-patch-20261020/python-verification-tools-v1.json",
+      "originalSha256": "f0b5141e93e60888ac165ada5f6b04e4281ce894a7a0ca20ac2379ff18534ae9",
+      "originalBytes": 350,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/n23/python-verification-tools-v1.json",
+        "sha256": "f0b5141e93e60888ac165ada5f6b04e4281ce894a7a0ca20ac2379ff18534ae9",
+        "role": "python-verification-tools-v1"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/native-signalr-runtime-patch-20261020/python-verification-tools-v1.log",
+      "originalSha256": "dcac1730734bad102b957e2105a98e221a10aa7e058d723b70a3a82e39be407a",
+      "originalBytes": 8401,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/n23/python-verification-tools-v1.log.gz",
+        "sha256": "f1df3071f2c1422ed3473c87387bf72337c854e6d7780e49d242b5c5c303d862",
+        "role": "python-verification-tools-v1.log"
+      },
+      "gzipOriginalBytes": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/native-signalr-runtime-patch-20261020/run-only-check-v1.py",
+      "originalSha256": "13bd297416ee2efdee4a46511677305770382c12eb4125ff4d4ad3abc072468a",
+      "originalBytes": 4194,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/n23/run-only-check-v1.py.gz",
+        "sha256": "017fe1093eb3404904f8de4dc2b4715840b6cd812a11d892a49a4712d64e8270",
+        "role": "run-only-check-v1.py"
+      },
+      "gzipOriginalBytes": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/native-signalr-runtime-patch-20261020/run-only-check-v2.py",
+      "originalSha256": "b3427e55563e9fa73864f13611ce2efa12a8b3aa19fbdc799fef2cf6ae856e5f",
+      "originalBytes": 4163,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/n23/run-only-check-v2.py.gz",
+        "sha256": "db3077eb2a89e117fedc322c47b1063cce87c0b415d5832550346f61449efb8d",
+        "role": "run-only-check-v2.py"
+      },
+      "gzipOriginalBytes": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/native-signalr-runtime-patch-20261020/run-real-patched-network-v1.py",
+      "originalSha256": "f5f1331851e0666442cd4e1619c17fbaabedf85adba33fb9cc4e5fbd9be15a83",
+      "originalBytes": 10897,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/n23/run-real-patched-network-v1.py.gz",
+        "sha256": "7339e71e7f4663cf0e465aabe93c13a09c02e57f8b58fb8c7ece0ac5d03be7d0",
+        "role": "run-real-patched-network-v1.py"
+      },
+      "gzipOriginalBytes": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/native-signalr-runtime-patch-20261020/verify-only-check-original-retention-v1.py",
+      "originalSha256": "11b4860bbdf0584674d8a0730ba90dd606220c1a3fa8b1395a956048e582421a",
+      "originalBytes": 5141,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/n23/verify-only-check-original-retention-v1.py.gz",
+        "sha256": "c16b0877cb847fb8fc6cec41397397e1c7d378cf01a26770646b6fd0cf7cab34",
+        "role": "verify-only-check-original-retention-v1.py"
+      },
+      "gzipOriginalBytes": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/actual-native-control-prefix-v1/a-original-payment-prompt.json",
+      "originalSha256": "73ac24544bd281a80dd8793c5e0645aabf11ec1cbcab3d27f12c0c4ccda41334",
+      "originalBytes": 90391,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/actual-native-control-prefix-v1/a-original-payment-prompt.json",
+        "sha256": "73ac24544bd281a80dd8793c5e0645aabf11ec1cbcab3d27f12c0c4ccda41334",
+        "role": "a-original-payment-prompt"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/actual-native-control-prefix-v1/a-original-payment-snapshot.json",
+      "originalSha256": "3ce4bb5157aa0426df39d57a4ba0b1dc99462c8cbf54eeab6ecfed5fb51a072d",
+      "originalBytes": 50080,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/actual-native-control-prefix-v1/a-original-payment-snapshot.json",
+        "sha256": "3ce4bb5157aa0426df39d57a4ba0b1dc99462c8cbf54eeab6ecfed5fb51a072d",
+        "role": "a-original-payment-snapshot"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/actual-native-control-prefix-v1/b-original-opponent-snapshot.json",
+      "originalSha256": "95d48e1de5ba99eeca93f1b237a33e83d2fbdd7561e0861f324f6b8bc5be985a",
+      "originalBytes": 50645,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/actual-native-control-prefix-v1/b-original-opponent-snapshot.json",
+        "sha256": "95d48e1de5ba99eeca93f1b237a33e83d2fbdd7561e0861f324f6b8bc5be985a",
+        "role": "b-original-opponent-snapshot"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/actual-native-control-prefix-v1/b-original-opponent-wait-prompt.json",
+      "originalSha256": "1be931744d18e49c39b6f7bdb335eaf82500d7d93a3a1bc461caf4a5962878c5",
+      "originalBytes": 14336,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/actual-native-control-prefix-v1/b-original-opponent-wait-prompt.json",
+        "sha256": "1be931744d18e49c39b6f7bdb335eaf82500d7d93a3a1bc461caf4a5962878c5",
+        "role": "b-original-opponent-wait-prompt"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/actual-native-control-prefix-v1/original-accepted-native-prefix-intents.json",
+      "originalSha256": "29080e67344d0f5e6c3437c7a2a5629a1778b69d6fa97ece8b0548a27316f7cb",
+      "originalBytes": 200336,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/actual-native-control-prefix-v1/original-accepted-native-prefix-intents.json",
+        "sha256": "29080e67344d0f5e6c3437c7a2a5629a1778b69d6fa97ece8b0548a27316f7cb",
+        "role": "original-accepted-native-prefix-intents"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/actual-native-control-prefix-v1/original-private-native-wire-snapshots-prompts.ndjson.gz",
+      "originalSha256": "67e730c932d30ec58bfe3e721547646cf5b91ffea6b67af417dd784f4b921bc5",
+      "originalBytes": 1034375,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/actual-native-control-prefix-v1/original-private-native-wire-snapshots-prompts.ndjson.gz",
+        "sha256": "67e730c932d30ec58bfe3e721547646cf5b91ffea6b67af417dd784f4b921bc5",
+        "role": "original-private-native-wire-snapshots-prompts.ndjson"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/actual-native-control-prefix-v1/pending-original-native-prefix-receipt.json",
+      "originalSha256": "63fa0c4f2029a135f68b4a3c92b61ee97afc76ca5827aa0703f88383c7633a11",
+      "originalBytes": 1083,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/actual-native-control-prefix-v1/pending-original-native-prefix-receipt.json",
+        "sha256": "63fa0c4f2029a135f68b4a3c92b61ee97afc76ca5827aa0703f88383c7633a11",
+        "role": "pending-original-native-prefix-receipt"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/ci-progress-after-visible-normal-score-v3.json",
+      "originalSha256": "a1de6dff8347dd71d04fdf5ea0fbe67c21ac8447499e5060c2a50a402d422e98",
+      "originalBytes": 29724,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/ci-progress-after-visible-normal-score-v3.json",
+        "sha256": "a1de6dff8347dd71d04fdf5ea0fbe67c21ac8447499e5060c2a50a402d422e98",
+        "role": "ci-progress-after-visible-normal-score-v3"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/ci-progress-at-security-publication-v4.json",
+      "originalSha256": "a9fccf2d02f28293c0ec5022d7caac6e3c2b869feb973b429fa40171b64c61b6",
+      "originalBytes": 29724,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/ci-progress-at-security-publication-v4.json",
+        "sha256": "a9fccf2d02f28293c0ec5022d7caac6e3c2b869feb973b429fa40171b64c61b6",
+        "role": "ci-progress-at-security-publication-v4"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/ci-progress-during-headless-control-source-probe-v2.json",
+      "originalSha256": "7b5acb3fdde4fe1d310eedd666cbedc1d9785e65be3297134f0fbeaf6faf2d1f",
+      "originalBytes": 18636,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/ci-progress-during-headless-control-source-probe-v2.json",
+        "sha256": "7b5acb3fdde4fe1d310eedd666cbedc1d9785e65be3297134f0fbeaf6faf2d1f",
+        "role": "ci-progress-during-headless-control-source-probe-v2"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/client-a.log",
+      "originalSha256": "0e5156c3910f1a6f76795633c6cb334398ba96ea6681b4960e03b224e5d12979",
+      "originalBytes": 30647,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/client-a.log.gz",
+        "sha256": "3bfcdae9f49d44e4c473dd8c8281200e8327b7aae68bc87854b84d51ae7661de",
+        "role": "client-a.log"
+      },
+      "gzipOriginalBytes": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/client-b.log",
+      "originalSha256": "e50c3ae14268e7d76196185b970eee206948bf4f8c884ff482ca4aeb0db46244",
+      "originalBytes": 28432,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/client-b.log.gz",
+        "sha256": "8614d8d1aa1c49aa38e0e52b2fad8c3e21f7e3b49e1bf048cf27aabd32cd9e3a",
+        "role": "client-b.log"
+      },
+      "gzipOriginalBytes": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/current-native-default-headless-a.log",
+      "originalSha256": "7f99a97f303b844aea609eb961342c64224fd5721bb32be857541d02cc8a0910",
+      "originalBytes": 394,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/current-native-default-headless-a.log.gz",
+        "sha256": "fa3de4f7ac765972fd12398baf15b24dcd5cc50157562cb30045a8118353f9c7",
+        "role": "current-native-default-headless-a.log"
+      },
+      "gzipOriginalBytes": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/current-native-default-headless-b.log",
+      "originalSha256": "46f171672cac8069a2212553ea13815bcab2c712f1ea9b41842f4cccead24178",
+      "originalBytes": 394,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/current-native-default-headless-b.log.gz",
+        "sha256": "29e4e3adfeb5b49817b6fac576670908bafc21fd5b660ad095c442e6952dae65",
+        "role": "current-native-default-headless-b.log"
+      },
+      "gzipOriginalBytes": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/current-native-headless-boot-verification.json",
+      "originalSha256": "cb8b1736a172bed729189d891984c9e7f09a0eb80651079838a02b641cf1f613",
+      "originalBytes": 2640,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/current-native-headless-boot-verification.json",
+        "sha256": "cb8b1736a172bed729189d891984c9e7f09a0eb80651079838a02b641cf1f613",
+        "role": "current-native-headless-boot-verification"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/download-fixed-native-v1.py",
+      "originalSha256": "7290c9bf9a222b347e093387d836cb6dd27ddae264df80ee9186ea624219062f",
+      "originalBytes": 1582,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/download-fixed-native-v1.py.gz",
+        "sha256": "fa43a672835a05d1edc2653a6a6baa39522bba92b03d5a1f509d88e841d50cbf",
+        "role": "download-fixed-native-v1.py"
+      },
+      "gzipOriginalBytes": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/exported-cli-actual-help-v1.log",
+      "originalSha256": "a3655c591b421c63e11c040afe71e0f5260bf33be6a5961bc8dcc576742c618e",
+      "originalBytes": 7671,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/exported-cli-actual-help-v1.log.gz",
+        "sha256": "7d002a0e1b13040879993ab13c4f775c8b751fac4fb283c4aaac6f31538016f4",
+        "role": "exported-cli-actual-help-v1.log"
+      },
+      "gzipOriginalBytes": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/external-driver-release-template-capability-disposition-v1.json",
+      "originalSha256": "7d2b8220b0224c8a3ebf530c7ba9d30a1b3efe237222252e61e3f7767206d5f2",
+      "originalBytes": 477,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/external-driver-release-template-capability-disposition-v1.json",
+        "sha256": "7d2b8220b0224c8a3ebf530c7ba9d30a1b3efe237222252e61e3f7767206d5f2",
+        "role": "external-driver-release-template-capability-disposition-v1"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/fixed-api-publication-v1.json",
+      "originalSha256": "ec28cb6cd775fc6a1539cdcfadb938d037b0933ee1e019ae548873a957409de6",
+      "originalBytes": 526176,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/fixed-api-publication-v1.json",
+        "sha256": "ec28cb6cd775fc6a1539cdcfadb938d037b0933ee1e019ae548873a957409de6",
+        "role": "fixed-api-publication-v1"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/fixed-api-publish-v1.log",
+      "originalSha256": "6219d6d3a0cb1c745cb2dcf18dfc8c569d358264068109dab4dc0dfb09ca49f5",
+      "originalBytes": 773,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/fixed-api-publish-v1.log.gz",
+        "sha256": "3099c41fbc5a49e05e7b4a4dca9bccefbe959b0041dc1332fb1810dd47a4404d",
+        "role": "fixed-api-publish-v1.log"
+      },
+      "gzipOriginalBytes": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/fixed-native-control-api-0.log",
+      "originalSha256": "1294684d8fd946424b6ecd50007e09167f3853077900a589324f323ca82ab8e8",
+      "originalBytes": 40834,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/fixed-native-control-api-0.log.gz",
+        "sha256": "6c1864e8277f67b031a30d8767e6c8e9e5dc8a1d7ed7bf1b6e3ecd6c5a46fb3f",
+        "role": "fixed-native-control-api-0.log"
+      },
+      "gzipOriginalBytes": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/fixed-native-control-api-1.log",
+      "originalSha256": "d8a784f0f4cc5ea9c146a045306082a9a9fb7ef0b703ac755891ba04fc997ba3",
+      "originalBytes": 14813,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/fixed-native-control-api-1.log.gz",
+        "sha256": "1dc3fd02731ca2672e0bc97a63b52fc8555b12e1ae4b6da34c671f38be11111f",
+        "role": "fixed-native-control-api-1.log"
+      },
+      "gzipOriginalBytes": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/fixed-native-control-api-restarted-v1.json",
+      "originalSha256": "ebfd0ddf72c5746c33d73ebbf464aa5e33a448f6da9aa639db33208d2d117f34",
+      "originalBytes": 1123,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/fixed-native-control-api-restarted-v1.json",
+        "sha256": "ebfd0ddf72c5746c33d73ebbf464aa5e33a448f6da9aa639db33208d2d117f34",
+        "role": "fixed-native-control-api-restarted-v1"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/fixed-native-control-original209-audit43-native-baseline-v1.json",
+      "originalSha256": "040d711c2f7c1d05bb9456c225d8ac9c615f6da5541ee1119f06385a9aee72ec",
+      "originalBytes": 16631,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/fixed-native-control-original209-audit43-native-baseline-v1.json",
+        "sha256": "040d711c2f7c1d05bb9456c225d8ac9c615f6da5541ee1119f06385a9aee72ec",
+        "role": "fixed-native-control-original209-audit43-native-baseline-v1"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/fixed-native-control-owner-v1.json",
+      "originalSha256": "7800ebf6fefc1b0bf3832ee2fa2f28e6eb56d783984cba2ae057793b34e8b68b",
+      "originalBytes": 5129,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/fixed-native-control-owner-v1.json",
+        "sha256": "7800ebf6fefc1b0bf3832ee2fa2f28e6eb56d783984cba2ae057793b34e8b68b",
+        "role": "fixed-native-control-owner-v1"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/fixed-native-control-postgres-v1.log",
+      "originalSha256": "87e0b8bd57c20c8bdcb6b828938d7a6e90deb665e51d941f24695e023fbec81f",
+      "originalBytes": 3837,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/fixed-native-control-postgres-v1.log.gz",
+        "sha256": "85aa0fc2448acf9657bb16ef4af2c7c7d17a4273b3c0756195a8b5bbe77d798b",
+        "role": "fixed-native-control-postgres-v1.log"
+      },
+      "gzipOriginalBytes": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/fixed-native-control-prefix-writer-v1.log",
+      "originalSha256": "36e0ad2273de3d405de2bb7f876eaf3b83f6da3e1553b477ae40de70ae9eddf0",
+      "originalBytes": 1084,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/fixed-native-control-prefix-writer-v1.log.gz",
+        "sha256": "b25c822caac29276fba0cf9e574cb8fe7d782d918231b52fb3dd280db655a951",
+        "role": "fixed-native-control-prefix-writer-v1.log"
+      },
+      "gzipOriginalBytes": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/fixed-native-control-ready-v1.json",
+      "originalSha256": "6f64cea484a1e90dae800009dc02d2f6883395f90de38664148220901de1b1c1",
+      "originalBytes": 770,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/fixed-native-control-ready-v1.json",
+        "sha256": "6f64cea484a1e90dae800009dc02d2f6883395f90de38664148220901de1b1c1",
+        "role": "fixed-native-control-ready-v1"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/fixed-native-control-restart-request-v1.json",
+      "originalSha256": "b2e9846c01271beb4bb5b529c481b5fe6e32228bceeadd7a34a8c57a55ee960c",
+      "originalBytes": 270,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/fixed-native-control-restart-request-v1.json",
+        "sha256": "b2e9846c01271beb4bb5b529c481b5fe6e32228bceeadd7a34a8c57a55ee960c",
+        "role": "fixed-native-control-restart-request-v1"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/fixed-native-control-stop-v1.json",
+      "originalSha256": "c8b08b4f0446ccba781f094a6677ee62ece60ba5505c7e2f5375b649bbd0f91f",
+      "originalBytes": 258,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/fixed-native-control-stop-v1.json",
+        "sha256": "c8b08b4f0446ccba781f094a6677ee62ece60ba5505c7e2f5375b649bbd0f91f",
+        "role": "fixed-native-control-stop-v1"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/fixed-native-download-v1.json",
+      "originalSha256": "4b92da24cf8e24b04e48141744c0e7516deeb2d2796c0fc60eb251db83b013b5",
+      "originalBytes": 2536,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/fixed-native-download-v1.json",
+        "sha256": "4b92da24cf8e24b04e48141744c0e7516deeb2d2796c0fc60eb251db83b013b5",
+        "role": "fixed-native-download-v1"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/fixed-native-original-normal-score-independent-readback-v3.json",
+      "originalSha256": "7eb7c48b2f71b2a7cc9a31fe8d0dd1b2be5cb3eb50c638e9b525a647cd26e3e7",
+      "originalBytes": 1583,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/fixed-native-original-normal-score-independent-readback-v3.json",
+        "sha256": "7eb7c48b2f71b2a7cc9a31fe8d0dd1b2be5cb3eb50c638e9b525a647cd26e3e7",
+        "role": "fixed-native-original-normal-score-independent-readback-v3"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/fixed-native-original-normal-score-independent-reader-v3.log",
+      "originalSha256": "7eb7c48b2f71b2a7cc9a31fe8d0dd1b2be5cb3eb50c638e9b525a647cd26e3e7",
+      "originalBytes": 1583,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/fixed-native-original-normal-score-independent-reader-v3.log.gz",
+        "sha256": "9d6be6ad0c5db888469cb75e52546bb775ea5f63a60f544b906a38c071012dd1",
+        "role": "fixed-native-original-normal-score-independent-reader-v3.log"
+      },
+      "gzipOriginalBytes": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/fixed-native-original-payment-independent-readback-v1.json",
+      "originalSha256": "3f51079654afcedd1e1ccaec132485050665fb78d290f863b99e799849fcea3d",
+      "originalBytes": 1337,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/fixed-native-original-payment-independent-readback-v1.json",
+        "sha256": "3f51079654afcedd1e1ccaec132485050665fb78d290f863b99e799849fcea3d",
+        "role": "fixed-native-original-payment-independent-readback-v1"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/fixed-native-original-payment-independent-readback-v2.json",
+      "originalSha256": "8a5755d8095ff7635fb10bec8d85a45b9f120eb432a942a092d78f7258fe8742",
+      "originalBytes": 1409,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/fixed-native-original-payment-independent-readback-v2.json",
+        "sha256": "8a5755d8095ff7635fb10bec8d85a45b9f120eb432a942a092d78f7258fe8742",
+        "role": "fixed-native-original-payment-independent-readback-v2"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/fixed-native-original-payment-independent-reader-v1.log",
+      "originalSha256": "88707c6e793b593ad98420be3386cb2cbb491a636e8bbaf1d990fcc4fdb70f66",
+      "originalBytes": 1338,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/fixed-native-original-payment-independent-reader-v1.log.gz",
+        "sha256": "7bd646c57fe792e9c92f335b7b438541350835e38a40ce86ce50431efa643963",
+        "role": "fixed-native-original-payment-independent-reader-v1.log"
+      },
+      "gzipOriginalBytes": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/fixed-native-original-payment-independent-reader-v2.log",
+      "originalSha256": "2acdd322ce0a8be7c9043816e7f089536c18637b3a8fb9adec70bfb0cf951179",
+      "originalBytes": 1410,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/fixed-native-original-payment-independent-reader-v2.log.gz",
+        "sha256": "f935f21e824e11337e913c857df2df0b0a51d88ddee35395c3e29e82a245ce32",
+        "role": "fixed-native-original-payment-independent-reader-v2.log"
+      },
+      "gzipOriginalBytes": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/fixed-native-visible-controls-and-normal-score-publication-v1.json",
+      "originalSha256": "6bebfe30c02c4e4c35f2948d7a80296393de51283366a1537bdc7a6bb20e8553",
+      "originalBytes": 5858,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/fixed-native-visible-controls-and-normal-score-publication-v1.json",
+        "sha256": "6bebfe30c02c4e4c35f2948d7a80296393de51283366a1537bdc7a6bb20e8553",
+        "role": "fixed-native-visible-controls-and-normal-score-publication-v1"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/fixed-original-frame-export-reader-publication-v1.json",
+      "originalSha256": "5fa8f323a6f04bf67c128fa305b262ae2d133a6197f76f8435dcd99bf0bd8720",
+      "originalBytes": 5336,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/fixed-original-frame-export-reader-publication-v1.json",
+        "sha256": "5fa8f323a6f04bf67c128fa305b262ae2d133a6197f76f8435dcd99bf0bd8720",
+        "role": "fixed-original-frame-export-reader-publication-v1"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/fixed-prefix-and-reader-publication-v1.json",
+      "originalSha256": "ec15d4303ae47bdc2614640e52661fca5e62e77aefcd5c278214fe35bed4f646",
+      "originalBytes": 9281,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/fixed-prefix-and-reader-publication-v1.json",
+        "sha256": "ec15d4303ae47bdc2614640e52661fca5e62e77aefcd5c278214fe35bed4f646",
+        "role": "fixed-prefix-and-reader-publication-v1"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/fixed-source-before-api-build-v1.json",
+      "originalSha256": "60b78268e823f4c4c5814fc5e1680db2ef3e41f66e0941199b7b70f6b124b7e0",
+      "originalBytes": 518711,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/fixed-source-before-api-build-v1.json",
+        "sha256": "60b78268e823f4c4c5814fc5e1680db2ef3e41f66e0941199b7b70f6b124b7e0",
+        "role": "fixed-source-before-api-build-v1"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/frame-export/Program.cs",
+      "originalSha256": "fd03976b63b307e770823ba6d1bb0ef929530414289d4e9f4abd5f113db1a142",
+      "originalBytes": 2339,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/frame-export/Program.cs.gz",
+        "sha256": "bb5bf098cb58ada5eecebc82e8efc07a8bc739287c39871366547a917fdc81e5",
+        "role": "Program.cs"
+      },
+      "gzipOriginalBytes": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/frame-export/probe.csproj",
+      "originalSha256": "2e9ed97fdc53dabb227a60158878036ba0a6da8c194db5c877e82141f0be6e83",
+      "originalBytes": 777,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/frame-export/probe.csproj.gz",
+        "sha256": "ec99b0c8df69fd9586f42d369a0b2ca334cb9327b27a69300770660d79b45306",
+        "role": "probe.csproj"
+      },
+      "gzipOriginalBytes": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/headless-before-api-cold-restart-v1.json.gz",
+      "originalSha256": "b0ae3bca7b0d3ff6583c5cacc626240d780f20b3a0f4004633e0c4c8f083691e",
+      "originalBytes": 59647,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/headless-before-api-cold-restart-v1.json.gz",
+        "sha256": "b0ae3bca7b0d3ff6583c5cacc626240d780f20b3a0f4004633e0c4c8f083691e",
+        "role": "headless-before-api-cold-restart-v1.json"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/headless-before-api-cold-restart-v1.json.metadata.json",
+      "originalSha256": "101baa1085c45e7fa663a35b5a0a92653d28c0f6ffec99743649a3d3ec810be6",
+      "originalBytes": 865,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/headless-before-api-cold-restart-v1.json.metadata.json",
+        "sha256": "101baa1085c45e7fa663a35b5a0a92653d28c0f6ffec99743649a3d3ec810be6",
+        "role": "headless-before-api-cold-restart-v1.json.metadata"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/native-app-inputs.json",
+      "originalSha256": "13ec1caf492184e6a74bf8133d2e25edf5e160ec29e6a829fe3fffebd76d88da",
+      "originalBytes": 132123,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/native-app-inputs.json",
+        "sha256": "13ec1caf492184e6a74bf8133d2e25edf5e160ec29e6a829fe3fffebd76d88da",
+        "role": "native-app-inputs"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/native-control-inspect-v1.gd",
+      "originalSha256": "90078a7c6d8383cfc839e81822e674d7d25be1d32ac6973a311279daa1615f0d",
+      "originalBytes": 2212,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/native-control-inspect-v1.gd.gz",
+        "sha256": "db6e569521190d8567fc60b5715961b6153f5f3a096d68d8fe07e1e8152c5a7f",
+        "role": "native-control-inspect-v1.gd"
+      },
+      "gzipOriginalBytes": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/native-current/ci-logs/mac/exported-boot.log",
+      "originalSha256": "349b84175d16407fd335b18dc7910db4ac7d9026bf4c18e14e4772f5f09ca9a6",
+      "originalBytes": 10597,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/native-current/ci-logs/mac/exported-boot.log.gz",
+        "sha256": "0f8d0bd4af7dd59aaf7c3bc54e53f631130aad712f625a982c287f2215c2de11",
+        "role": "exported-boot.log"
+      },
+      "gzipOriginalBytes": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/native-current/ci-logs/mac/rune-table-lifecycle.log",
+      "originalSha256": "e84a0713ccdf974f1763afbd355174fdfe2abcaa9cda608b4d67c87f08b0d437",
+      "originalBytes": 151,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/native-current/ci-logs/mac/rune-table-lifecycle.log.gz",
+        "sha256": "3ee6eb0257cba61fcb4f0b70cd61d77cfe958b8b3a0d43f0707386171d80574c",
+        "role": "rune-table-lifecycle.log"
+      },
+      "gzipOriginalBytes": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/native-current/ci-logs/windows/exported-boot.log",
+      "originalSha256": "e41c64a3da41d8adbd0ce80103640c5bce18f487c52f2bb75f32fb26dd960acf",
+      "originalBytes": 10830,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/native-current/ci-logs/windows/exported-boot.log.gz",
+        "sha256": "78f8eb852411ce2d320eb32f3f799f66a958a4452605681b4eb60d88381c4bb6",
+        "role": "exported-boot.log"
+      },
+      "gzipOriginalBytes": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/native-current/ci-logs/windows/rune-table-lifecycle.log",
+      "originalSha256": "5e7dfd1dcc6a32d91f793e317af735921a7ebee8ae3fb95ba86fb6067cfa4f88",
+      "originalBytes": 154,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/native-current/ci-logs/windows/rune-table-lifecycle.log.gz",
+        "sha256": "47ed6aad5f8d66c98c8ed3aed531e5f17707fc73bf79a466e0f194da05ed4ac1",
+        "role": "rune-table-lifecycle.log"
+      },
+      "gzipOriginalBytes": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/native-current-fixed-reader-publication-v2.json",
+      "originalSha256": "0bb23b9735e232a51ae5f2df6772aef77f29b9a6910af761807ce5623738c325",
+      "originalBytes": 5970,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/native-current-fixed-reader-publication-v2.json",
+        "sha256": "0bb23b9735e232a51ae5f2df6772aef77f29b9a6910af761807ce5623738c325",
+        "role": "native-current-fixed-reader-publication-v2"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/native-current-reader-v2/Program.cs",
+      "originalSha256": "babf22da2d64626eec19243ead0337cb7c8c71ac6684c893bee9afaf5e28c9d6",
+      "originalBytes": 10505,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/native-current-reader-v2/Program.cs.gz",
+        "sha256": "6e774806e5cb67138e2a281edd6608d29678c18489b23df5d82885414fd885f5",
+        "role": "Program.cs"
+      },
+      "gzipOriginalBytes": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/native-current-reader-v2/probe.csproj",
+      "originalSha256": "2e07db24b93d01bc779fe430604e892eb9e560db2fec3caf1d0072dd17e7622a",
+      "originalBytes": 894,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/native-current-reader-v2/probe.csproj.gz",
+        "sha256": "73adb7c4167122cd5f3f7f2a7efde073bafef1e5bcd09d9fc2ad5b80e2875dc7",
+        "role": "probe.csproj"
+      },
+      "gzipOriginalBytes": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/native-current-reader-v2/runtime/Riftbound.Api.staticwebassets.endpoints.json",
+      "originalSha256": "da947440264c31a98ff93ee234d451818d08cbcc950f87c3e2ab632402e4aedb",
+      "originalBytes": 22732,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/native-current-reader-v2/runtime/Riftbound.Api.staticwebassets.endpoints.json",
+        "sha256": "da947440264c31a98ff93ee234d451818d08cbcc950f87c3e2ab632402e4aedb",
+        "role": "Riftbound.Api.staticwebassets.endpoints"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/native-current-reader-v2/runtime/appsettings.Development.json",
+      "originalSha256": "109fcebd5e1b2ded13ad0622e0faae3b0c5cfe238ee7036a1d2f6a292db860a4",
+      "originalBytes": 100,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/native-current-reader-v2/runtime/appsettings.Development.json",
+        "sha256": "109fcebd5e1b2ded13ad0622e0faae3b0c5cfe238ee7036a1d2f6a292db860a4",
+        "role": "appsettings.Development"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/native-current-reader-v2/runtime/data/official/armaments.json",
+      "originalSha256": "ddcd838300e558c11df480ee79ccfab08c7af380df36544c666841720850bda8",
+      "originalBytes": 11743,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/native-current-reader-v2/runtime/data/official/armaments.json",
+        "sha256": "ddcd838300e558c11df480ee79ccfab08c7af380df36544c666841720850bda8",
+        "role": "armaments"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/native-current-reader-v2/runtime/data/official/card-catalog.zh-CN.json",
+      "originalSha256": "d521d7346392f2ea947c73c437c140d7bfe13a90cbca8642f7ae135b7b11f479",
+      "originalBytes": 1362891,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/native-current-reader-v2/runtime/data/official/card-catalog.zh-CN.json",
+        "sha256": "d521d7346392f2ea947c73c437c140d7bfe13a90cbca8642f7ae135b7b11f479",
+        "role": "card-catalog.zh-CN"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/native-current-reader-v2/runtime/data/official/rule-input-scope.json",
+      "originalSha256": "cc07cf3eef6a9af403454642a0435d061544400b5e01d08d3fdc65869bdad180",
+      "originalBytes": 14749,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/native-current-reader-v2/runtime/data/official/rule-input-scope.json",
+        "sha256": "cc07cf3eef6a9af403454642a0435d061544400b5e01d08d3fdc65869bdad180",
+        "role": "rule-input-scope"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/native-current-reader-v2/runtime/wwwroot/assets/index-C566mL2B.css.gz",
+      "originalSha256": "0614ced8774334de7e45b80ec1643dfb742b9293d003f7bb443ccd14f3b1cbc9",
+      "originalBytes": 75099,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/native-current-reader-v2/runtime/wwwroot/assets/index-C566mL2B.css.gz",
+        "sha256": "0614ced8774334de7e45b80ec1643dfb742b9293d003f7bb443ccd14f3b1cbc9",
+        "role": "index-C566mL2B.css"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/native-current-reader-v2/runtime/wwwroot/assets/index-DM9fjVi6.js.gz",
+      "originalSha256": "dc17f76c05c467f00db2b91a75fde06794b8ce0d6ab34993417a0e1e838a302d",
+      "originalBytes": 315456,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/native-current-reader-v2/runtime/wwwroot/assets/index-DM9fjVi6.js.gz",
+        "sha256": "dc17f76c05c467f00db2b91a75fde06794b8ce0d6ab34993417a0e1e838a302d",
+        "role": "index-DM9fjVi6.js"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/native-current-reader-v2/runtime/wwwroot/assets/tts-playmat-default.png",
+      "originalSha256": "61b6dea721cbeb6130876a3e8a70e787e7f1ab08b23726a542a3de026d872105",
+      "originalBytes": 673225,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/native-current-reader-v2/runtime/wwwroot/assets/tts-playmat-default.png",
+        "sha256": "61b6dea721cbeb6130876a3e8a70e787e7f1ab08b23726a542a3de026d872105",
+        "role": "tts-playmat-default"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/native-current-reader-v2/runtime/wwwroot/index.html.gz",
+      "originalSha256": "12130f6cc5b2ac167dc581d6aee36538d2bc6f250b270901d7b185ffd4c254fa",
+      "originalBytes": 321,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/native-current-reader-v2/runtime/wwwroot/index.html.gz",
+        "sha256": "12130f6cc5b2ac167dc581d6aee36538d2bc6f250b270901d7b185ffd4c254fa",
+        "role": "index.html"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/native-current-ready-ci-artifacts-v1.json",
+      "originalSha256": "f3ab9b7fae3580b519355ef11e2cfe6ba086df42c7fdc2d4972412618de2a0fd",
+      "originalBytes": 2783,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/native-current-ready-ci-artifacts-v1.json",
+        "sha256": "f3ab9b7fae3580b519355ef11e2cfe6ba086df42c7fdc2d4972412618de2a0fd",
+        "role": "native-current-ready-ci-artifacts-v1"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/native-headless-inspection-a-v1.log",
+      "originalSha256": "a38595b952b29eed1cb63a9cf7238edd3608daf3108ec07018fa1220c70d7e3e",
+      "originalBytes": 1419,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/native-headless-inspection-a-v1.log.gz",
+        "sha256": "03a23b6a8c099f6d2991d9bcfe093eedd71bc5520c2c64e5853023621d38baff",
+        "role": "native-headless-inspection-a-v1.log"
+      },
+      "gzipOriginalBytes": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/native-headless-inspection-b-v1.log",
+      "originalSha256": "7b87e5af96dc4cd943ecaa84e7f599968db290704c67852eee009172ca5f74ab",
+      "originalBytes": 1429,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/native-headless-inspection-b-v1.log.gz",
+        "sha256": "d4da4e76c2834c2bca1c52a3f914a816860396249f84341f28cfd72fcdf1a688",
+        "role": "native-headless-inspection-b-v1.log"
+      },
+      "gzipOriginalBytes": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/native-headless-scene-inspection-processes-v1.json",
+      "originalSha256": "132159ffc8ec2983768f0641725289cf4d8f2a19a0c14d1c880605088dba697a",
+      "originalBytes": 377,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/native-headless-scene-inspection-processes-v1.json",
+        "sha256": "132159ffc8ec2983768f0641725289cf4d8f2a19a0c14d1c880605088dba697a",
+        "role": "native-headless-scene-inspection-processes-v1"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/native-normal-score-reader-build-v3.log",
+      "originalSha256": "17d6ced731999ed92f5458b29958a034ace33ab7c2dd6a6391ebfeeec684f43e",
+      "originalBytes": 467,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/native-normal-score-reader-build-v3.log.gz",
+        "sha256": "eba75b3086dfdcccd25b7401c8954b0647c1f94461de7e59eead5267624bbcd6",
+        "role": "native-normal-score-reader-build-v3.log"
+      },
+      "gzipOriginalBytes": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/native-normal-score-reader-runtime-publication-v3.json",
+      "originalSha256": "d6462a8fc96180dd4cb003b985e42c09bdb59b131be7c25fb84d88d21297e287",
+      "originalBytes": 5785,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/native-normal-score-reader-runtime-publication-v3.json",
+        "sha256": "d6462a8fc96180dd4cb003b985e42c09bdb59b131be7c25fb84d88d21297e287",
+        "role": "native-normal-score-reader-runtime-publication-v3"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/native-normal-score-reader-source-publication-v3.json",
+      "originalSha256": "4b81d10d167a34319a2a22f60dcd438dee5fb3deabde36b79e348186198971d8",
+      "originalBytes": 561,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/native-normal-score-reader-source-publication-v3.json",
+        "sha256": "4b81d10d167a34319a2a22f60dcd438dee5fb3deabde36b79e348186198971d8",
+        "role": "native-normal-score-reader-source-publication-v3"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/native-normal-score-reader-v3/Program.cs",
+      "originalSha256": "f65407a08af36d90c3f442a48667f144d61d2b691f33eaab4d8a73f2ef7ea321",
+      "originalBytes": 13792,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/native-normal-score-reader-v3/Program.cs.gz",
+        "sha256": "371aefe9fadd4603ee43deb967e545b082bd4ef92817ae0ad909e96cd09f4f72",
+        "role": "Program.cs"
+      },
+      "gzipOriginalBytes": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/native-normal-score-reader-v3/probe.csproj",
+      "originalSha256": "4ee3ee9771d619aeefaef6e5810c1209eb4718a3b0f8843b8c0a42d0b9f81f99",
+      "originalBytes": 898,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/native-normal-score-reader-v3/probe.csproj.gz",
+        "sha256": "8f700e2e5ab33c5bad52bd63058b5c990a384a9fb57020642e360fb095662f4c",
+        "role": "probe.csproj"
+      },
+      "gzipOriginalBytes": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/native-preparation-source-derivation-v1.json",
+      "originalSha256": "36b8fb05248a80e6d1404d7c51ebcf58a7be5cd322b98524531df9582588b535",
+      "originalBytes": 463,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/native-preparation-source-derivation-v1.json",
+        "sha256": "36b8fb05248a80e6d1404d7c51ebcf58a7be5cd322b98524531df9582588b535",
+        "role": "native-preparation-source-derivation-v1"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/native-reader-original-hardcoded-context-fields-disposition-v1.json",
+      "originalSha256": "0538223363a64302f602ec8742caee42dfdd7005f75a4510727116dccd15947b",
+      "originalBytes": 830,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/native-reader-original-hardcoded-context-fields-disposition-v1.json",
+        "sha256": "0538223363a64302f602ec8742caee42dfdd7005f75a4510727116dccd15947b",
+        "role": "native-reader-original-hardcoded-context-fields-disposition-v1"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/native-visible-v1/01-a-fixed-current-lobby.metadata.json",
+      "originalSha256": "ab1abd31e4f82117dd278d67d74429ff5a323c302d3e30505491d233dddcda65",
+      "originalBytes": 359,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/native-visible-v1/01-a-fixed-current-lobby.metadata.json",
+        "sha256": "ab1abd31e4f82117dd278d67d74429ff5a323c302d3e30505491d233dddcda65",
+        "role": "01-a-fixed-current-lobby.metadata"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/native-visible-v1/01-a-fixed-current-lobby.png",
+      "originalSha256": "f8678d92a3af5ad872f1586beb58d47f58e7b38646b465765b4cf96093372cf4",
+      "originalBytes": 110805,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/native-visible-v1/01-a-fixed-current-lobby.png",
+        "sha256": "f8678d92a3af5ad872f1586beb58d47f58e7b38646b465765b4cf96093372cf4",
+        "role": "01-a-fixed-current-lobby"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/native-visible-v1/02-a-fixed-first-payment.metadata.json",
+      "originalSha256": "3ef4bd49150df1123d538209642e9b2126dda7e93123b20600b37277d9902dc4",
+      "originalBytes": 224,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/native-visible-v1/02-a-fixed-first-payment.metadata.json",
+        "sha256": "3ef4bd49150df1123d538209642e9b2126dda7e93123b20600b37277d9902dc4",
+        "role": "02-a-fixed-first-payment.metadata"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/native-visible-v1/02-a-fixed-first-payment.png",
+      "originalSha256": "a18cbe8cb9e140c457a5ce763a6a00c011c963ab022e872bc9e1ae8ce9b69802",
+      "originalBytes": 236842,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/native-visible-v1/02-a-fixed-first-payment.png",
+        "sha256": "a18cbe8cb9e140c457a5ce763a6a00c011c963ab022e872bc9e1ae8ce9b69802",
+        "role": "02-a-fixed-first-payment"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/native-visible-v1/03-b-fixed-lobby.png",
+      "originalSha256": "6909ea61902b15e38e3922a60a7dab5bea3e67f0e178283b62a491c85bba98d8",
+      "originalBytes": 110472,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/native-visible-v1/03-b-fixed-lobby.png",
+        "sha256": "6909ea61902b15e38e3922a60a7dab5bea3e67f0e178283b62a491c85bba98d8",
+        "role": "03-b-fixed-lobby"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/native-visible-v1/04-b-fixed-opponent-payment-wait.png",
+      "originalSha256": "bf54db1f3efb97354c4adbd945a3ce8ea2a0fa8365d3b98a3afc6221e557b164",
+      "originalBytes": 234325,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/native-visible-v1/04-b-fixed-opponent-payment-wait.png",
+        "sha256": "bf54db1f3efb97354c4adbd945a3ce8ea2a0fa8365d3b98a3afc6221e557b164",
+        "role": "04-b-fixed-opponent-payment-wait"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/native-visible-v1/05-a-fixed-first-payment-options.png",
+      "originalSha256": "232a89bf0efb6eb0226f7997909afcf8f4d165100c4287b2ad6a76fb734f7b3b",
+      "originalBytes": 233389,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/native-visible-v1/05-a-fixed-first-payment-options.png",
+        "sha256": "232a89bf0efb6eb0226f7997909afcf8f4d165100c4287b2ad6a76fb734f7b3b",
+        "role": "05-a-fixed-first-payment-options"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/native-visible-v1/06-a-fixed-two-mana-selected.png",
+      "originalSha256": "3481ab26f3e53862977483fe67ca2b3c2625b35916db669e819a50b68099d170",
+      "originalBytes": 225201,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/native-visible-v1/06-a-fixed-two-mana-selected.png",
+        "sha256": "3481ab26f3e53862977483fe67ca2b3c2625b35916db669e819a50b68099d170",
+        "role": "06-a-fixed-two-mana-selected"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/native-visible-v1/07-a-fixed-second-payment-two-mana-preview.png",
+      "originalSha256": "fd826b084e4c5bc0a64f80537b7262ea8f569ab81f935dd94e19271c76a08d5e",
+      "originalBytes": 235800,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/native-visible-v1/07-a-fixed-second-payment-two-mana-preview.png",
+        "sha256": "fd826b084e4c5bc0a64f80537b7262ea8f569ab81f935dd94e19271c76a08d5e",
+        "role": "07-a-fixed-second-payment-two-mana-preview"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/native-visible-v1/08-a-fixed-second-payment-after-api-cold-reconnect.png",
+      "originalSha256": "57a9f1d489a49e8dfce94bce39af2007c5d430a719722e199ffc4ca0103bb38f",
+      "originalBytes": 238284,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/native-visible-v1/08-a-fixed-second-payment-after-api-cold-reconnect.png",
+        "sha256": "57a9f1d489a49e8dfce94bce39af2007c5d430a719722e199ffc4ca0103bb38f",
+        "role": "08-a-fixed-second-payment-after-api-cold-reconnect"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/native-visible-v1/09-b-fixed-opponent-wait-after-api-cold-reconnect.png",
+      "originalSha256": "06ebd3fab560f9e52867ab21cc8a56ca32467273dc547dbd5c23da078ac3d3df",
+      "originalBytes": 236112,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/native-visible-v1/09-b-fixed-opponent-wait-after-api-cold-reconnect.png",
+        "sha256": "06ebd3fab560f9e52867ab21cc8a56ca32467273dc547dbd5c23da078ac3d3df",
+        "role": "09-b-fixed-opponent-wait-after-api-cold-reconnect"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/native-visible-v1/10-a-fixed-restored-second-options-reset.png",
+      "originalSha256": "1c435950965fe0f64776586525974cb19116274f81f97164effdb95f5f478809",
+      "originalBytes": 235244,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/native-visible-v1/10-a-fixed-restored-second-options-reset.png",
+        "sha256": "1c435950965fe0f64776586525974cb19116274f81f97164effdb95f5f478809",
+        "role": "10-a-fixed-restored-second-options-reset"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/native-visible-v1/11-a-fixed-second-decline-with-two-mana.png",
+      "originalSha256": "7bbd3bca5901636078bfaa5abc1f316a36556ac456a5e271cc096ee73f7e0e35",
+      "originalBytes": 227139,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/native-visible-v1/11-a-fixed-second-decline-with-two-mana.png",
+        "sha256": "7bbd3bca5901636078bfaa5abc1f316a36556ac456a5e271cc096ee73f7e0e35",
+        "role": "11-a-fixed-second-decline-with-two-mana"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/native-visible-v1/12-a-fixed-second-target-only-countered.png",
+      "originalSha256": "00dda2ad68a628a11e0ec85ecf181ec10316f9b38e179dd1ca2c590f24b5648f",
+      "originalBytes": 244760,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/native-visible-v1/12-a-fixed-second-target-only-countered.png",
+        "sha256": "00dda2ad68a628a11e0ec85ecf181ec10316f9b38e179dd1ca2c590f24b5648f",
+        "role": "12-a-fixed-second-target-only-countered"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/native-visible-v1/13-a-fixed-first-normal-pass.png",
+      "originalSha256": "1c8b283cf966b86096a2deccdab19205cbb743614daac97eb12c9e8ad5748c88",
+      "originalBytes": 238448,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/native-visible-v1/13-a-fixed-first-normal-pass.png",
+        "sha256": "1c8b283cf966b86096a2deccdab19205cbb743614daac97eb12c9e8ad5748c88",
+        "role": "13-a-fixed-first-normal-pass"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/native-visible-v1/14-b-fixed-original-surviving-spell-priority.png",
+      "originalSha256": "4844282704a38c0a82eee30283d811560b3779429f8f64b73da7c45a83537bc4",
+      "originalBytes": 244540,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/native-visible-v1/14-b-fixed-original-surviving-spell-priority.png",
+        "sha256": "4844282704a38c0a82eee30283d811560b3779429f8f64b73da7c45a83537bc4",
+        "role": "14-b-fixed-original-surviving-spell-priority"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/native-visible-v1/15-b-fixed-original-spell-resolved.png",
+      "originalSha256": "4ab0694ca084b9b7e6d14e2f9a6bb46db412fe5c63bad9dba83ded4b2ee0bb43",
+      "originalBytes": 229064,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/native-visible-v1/15-b-fixed-original-spell-resolved.png",
+        "sha256": "4ab0694ca084b9b7e6d14e2f9a6bb46db412fe5c63bad9dba83ded4b2ee0bb43",
+        "role": "15-b-fixed-original-spell-resolved"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/native-visible-v1/16-a-fixed-original-spell-draw-one-and-two-mana.png",
+      "originalSha256": "604cdc2099e0cecc10c6d5419fdf9c4f17c303c2d15360299fc7d4bc6914e6f2",
+      "originalBytes": 237430,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/native-visible-v1/16-a-fixed-original-spell-draw-one-and-two-mana.png",
+        "sha256": "604cdc2099e0cecc10c6d5419fdf9c4f17c303c2d15360299fc7d4bc6914e6f2",
+        "role": "16-a-fixed-original-spell-draw-one-and-two-mana"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/native-visible-v1/17-final-original-fixed-native-payment-frame.json.gz",
+      "originalSha256": "372fe28abcd0a62e1e4f2fad97e6256ff25f56ed66c2fc817da51445b4bb1cad",
+      "originalBytes": 55506,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/native-visible-v1/17-final-original-fixed-native-payment-frame.json.gz",
+        "sha256": "372fe28abcd0a62e1e4f2fad97e6256ff25f56ed66c2fc817da51445b4bb1cad",
+        "role": "17-final-original-fixed-native-payment-frame.json"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/native-visible-v1/18-final-original-current-context-payment-frame.json.gz",
+      "originalSha256": "372fe28abcd0a62e1e4f2fad97e6256ff25f56ed66c2fc817da51445b4bb1cad",
+      "originalBytes": 55506,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/native-visible-v1/18-final-original-current-context-payment-frame.json.gz",
+        "sha256": "372fe28abcd0a62e1e4f2fad97e6256ff25f56ed66c2fc817da51445b4bb1cad",
+        "role": "18-final-original-current-context-payment-frame.json"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/native-visible-v1/19-A-first-field-showdown.png",
+      "originalSha256": "5ba69d77a0ff234c415546323e3e7806403a017d04be74bb3423678048f92d86",
+      "originalBytes": 278332,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/native-visible-v1/19-A-first-field-showdown.png",
+        "sha256": "5ba69d77a0ff234c415546323e3e7806403a017d04be74bb3423678048f92d86",
+        "role": "19-A-first-field-showdown"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/native-visible-v1/20-A-two-fields-conquered-score2.png",
+      "originalSha256": "0f12522759a0e46ee6df269b633a8f506cd0d69326a828aea364262c4d6cfa58",
+      "originalBytes": 272495,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/native-visible-v1/20-A-two-fields-conquered-score2.png",
+        "sha256": "0f12522759a0e46ee6df269b633a8f506cd0d69326a828aea364262c4d6cfa58",
+        "role": "20-A-two-fields-conquered-score2"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/native-visible-v1/21-A-normal-hold-score4-turn64.png",
+      "originalSha256": "f8a0465fd375a23f9dbd777874b9c679c1071000aa23462fefeee589e200047f",
+      "originalBytes": 274307,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/native-visible-v1/21-A-normal-hold-score4-turn64.png",
+        "sha256": "f8a0465fd375a23f9dbd777874b9c679c1071000aa23462fefeee589e200047f",
+        "role": "21-A-normal-hold-score4-turn64"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/native-visible-v1/22-A-normal-hold-score6-turn66.png",
+      "originalSha256": "d102824901ff90fa0ec619727cd687081884631813d01b1b42f26f12a5e33cc5",
+      "originalBytes": 274313,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/native-visible-v1/22-A-normal-hold-score6-turn66.png",
+        "sha256": "d102824901ff90fa0ec619727cd687081884631813d01b1b42f26f12a5e33cc5",
+        "role": "22-A-normal-hold-score6-turn66"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/native-visible-v1/23-B-normal-score-defeat-turn68.png",
+      "originalSha256": "54fc955d48822288262f69352f773fc516d14bf889f39ee1817019fdab8154a8",
+      "originalBytes": 99784,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/native-visible-v1/23-B-normal-score-defeat-turn68.png",
+        "sha256": "54fc955d48822288262f69352f773fc516d14bf889f39ee1817019fdab8154a8",
+        "role": "23-B-normal-score-defeat-turn68"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/native-visible-v1/24-A-normal-score-victory-turn68.png",
+      "originalSha256": "85e0efe85fb47dca24452274933baab28354f55ced31e4d02f5b26601ff6e969",
+      "originalBytes": 111077,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/native-visible-v1/24-A-normal-score-victory-turn68.png",
+        "sha256": "85e0efe85fb47dca24452274933baab28354f55ced31e4d02f5b26601ff6e969",
+        "role": "24-A-normal-score-victory-turn68"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/native-visible-v1/25-final-normal-score-original-frame.json.gz",
+      "originalSha256": "3e8ed9d289cb53306c7b0dba137f1a3625b85ab2d6059d69b10b136e64abb4b9",
+      "originalBytes": 46760,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/native-visible-v1/25-final-normal-score-original-frame.json.gz",
+        "sha256": "3e8ed9d289cb53306c7b0dba137f1a3625b85ab2d6059d69b10b136e64abb4b9",
+        "role": "25-final-normal-score-original-frame.json"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/native-visible-v1/25-final-normal-score-original-frame.metadata.json",
+      "originalSha256": "dc076ac88083bef0731e33b6db514d15aaa40df07148b530a0d0b3027656a7c4",
+      "originalBytes": 845,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/native-visible-v1/25-final-normal-score-original-frame.metadata.json",
+        "sha256": "dc076ac88083bef0731e33b6db514d15aaa40df07148b530a0d0b3027656a7c4",
+        "role": "25-final-normal-score-original-frame.metadata"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/native-visible-v1/26-final-independent-normal-score-full-frame-v3.json.gz",
+      "originalSha256": "3e8ed9d289cb53306c7b0dba137f1a3625b85ab2d6059d69b10b136e64abb4b9",
+      "originalBytes": 46760,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/native-visible-v1/26-final-independent-normal-score-full-frame-v3.json.gz",
+        "sha256": "3e8ed9d289cb53306c7b0dba137f1a3625b85ab2d6059d69b10b136e64abb4b9",
+        "role": "26-final-independent-normal-score-full-frame-v3.json"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/native-visible-v1/27-A-normal-score-returned-lobby.png",
+      "originalSha256": "67e61465b6f37ed6c952f6fd03269daed967a745779dd784ff6d55f3d179a01b",
+      "originalBytes": 107796,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/native-visible-v1/27-A-normal-score-returned-lobby.png",
+        "sha256": "67e61465b6f37ed6c952f6fd03269daed967a745779dd784ff6d55f3d179a01b",
+        "role": "27-A-normal-score-returned-lobby"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/native-visible-v1/28-B-normal-score-returned-lobby.png",
+      "originalSha256": "bfecfec2c64e609a670b13e152428790a43649ba0d9857188f0d2b1136defdab",
+      "originalBytes": 108067,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/native-visible-v1/28-B-normal-score-returned-lobby.png",
+        "sha256": "bfecfec2c64e609a670b13e152428790a43649ba0d9857188f0d2b1136defdab",
+        "role": "28-B-normal-score-returned-lobby"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/native-visible-v1/first-payment-before-cold-restart-visible-capture-index-v1.json",
+      "originalSha256": "6b799fd27a91fb0d4226bd1d5aa00ce41ffa1c9b11d26d6880aa7f7038214096",
+      "originalBytes": 2384,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/native-visible-v1/first-payment-before-cold-restart-visible-capture-index-v1.json",
+        "sha256": "6b799fd27a91fb0d4226bd1d5aa00ce41ffa1c9b11d26d6880aa7f7038214096",
+        "role": "first-payment-before-cold-restart-visible-capture-index-v1"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/post-runtime-patch-default-native-boot-disposition-v1.json",
+      "originalSha256": "94f7808d63e0073004003a372adfd083cf42726d7bbbd8722022c8a67d930f8c",
+      "originalBytes": 237,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/post-runtime-patch-default-native-boot-disposition-v1.json",
+        "sha256": "94f7808d63e0073004003a372adfd083cf42726d7bbbd8722022c8a67d930f8c",
+        "role": "post-runtime-patch-default-native-boot-disposition-v1"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/post-runtime-patch-default-native-boot-v1.log",
+      "originalSha256": "e3e197bbe62adb35dd3e401ea802dda74b3741716a130bed34fdda4e6c9655a5",
+      "originalBytes": 267,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/post-runtime-patch-default-native-boot-v1.log.gz",
+        "sha256": "015085a425a8d3a2a848547736374014045ec142a6d859c3136e57d8a597659b",
+        "role": "post-runtime-patch-default-native-boot-v1.log"
+      },
+      "gzipOriginalBytes": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/prepare-fixed-native-apps-v1.py",
+      "originalSha256": "3fb12c8c53b576badca5621232a50a3be12fab98712b478c6081bbf90ca4708e",
+      "originalBytes": 4842,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/prepare-fixed-native-apps-v1.py.gz",
+        "sha256": "fab0b34b48f55aefa6475fb92eb72e1eb52eee8ae754baf21bf9f5ad1330fff3",
+        "role": "prepare-fixed-native-apps-v1.py"
+      },
+      "gzipOriginalBytes": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/qa-launcher-a.c",
+      "originalSha256": "9b9b9a592ff7267cf8cb0378984be6275b409edca132293f95075171758ecd9e",
+      "originalBytes": 756,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/qa-launcher-a.c.gz",
+        "sha256": "11dc1e9eabdeed18e0a9579f92ce611a5ee31cf211a3eb98165b1b950d50d86e",
+        "role": "qa-launcher-a.c"
+      },
+      "gzipOriginalBytes": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/qa-launcher-b.c",
+      "originalSha256": "098c71067fe5e796eeaefc52512ddd219d116bb676ff1bb82be3b125724f912a",
+      "originalBytes": 756,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/qa-launcher-b.c.gz",
+        "sha256": "4db5d021cf0fcb455f0537947f4871758a697b68e50ce3f7b400ce118d408cce",
+        "role": "qa-launcher-b.c"
+      },
+      "gzipOriginalBytes": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/run-fixed-native-control-v1.py",
+      "originalSha256": "433222a0f4de77ac4207c5d538cdb2c3321b92e28db6b0811cdfb8931742a132",
+      "originalBytes": 11398,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/run-fixed-native-control-v1.py.gz",
+        "sha256": "975075d46784f302bb7f047019189923964133ad63f120609f24bf0362c73ba9",
+        "role": "run-fixed-native-control-v1.py"
+      },
+      "gzipOriginalBytes": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/superseded-fixed48-native-original-file-manifest-v1.json.gz",
+      "originalSha256": "6e83c6dc92e24b7a7d51fbfbe8210cd33f8b574a503cc312870bf5c7e7a97014",
+      "originalBytes": 45353,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/superseded-fixed48-native-original-file-manifest-v1.json.gz",
+        "sha256": "6e83c6dc92e24b7a7d51fbfbe8210cd33f8b574a503cc312870bf5c7e7a97014",
+        "role": "superseded-fixed48-native-original-file-manifest-v1.json"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/superseded-fixed48-native-pair-and-two-packages-retirement-v1.json",
+      "originalSha256": "45b89cf69b5f38ef8581a85c31a15d32040c6ad6a5a6a14bb189c0530908a941",
+      "originalBytes": 2215,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/superseded-fixed48-native-pair-and-two-packages-retirement-v1.json",
+        "sha256": "45b89cf69b5f38ef8581a85c31a15d32040c6ad6a5a6a14bb189c0530908a941",
+        "role": "superseded-fixed48-native-pair-and-two-packages-retirement-v1"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/verify-fixed-native-default-boot-v1.py",
+      "originalSha256": "b28dbb8a4aab7a063531954ff8a06c5f3814f4dcb44d68958489ba74efce7263",
+      "originalBytes": 3452,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/verify-fixed-native-default-boot-v1.py.gz",
+        "sha256": "bcd3558a964e335696d5217dad23ac62e0bc66d95499580c87ae98d77080f016",
+        "role": "verify-fixed-native-default-boot-v1.py"
+      },
+      "gzipOriginalBytes": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/visible-after-api-cold-reconnect-v1.json.gz",
+      "originalSha256": "b0ae3bca7b0d3ff6583c5cacc626240d780f20b3a0f4004633e0c4c8f083691e",
+      "originalBytes": 59647,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/visible-after-api-cold-reconnect-v1.json.gz",
+        "sha256": "b0ae3bca7b0d3ff6583c5cacc626240d780f20b3a0f4004633e0c4c8f083691e",
+        "role": "visible-after-api-cold-reconnect-v1.json"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/conditional-counter-payment-fixed-a653e547-20261020/visible-native-entire-frame-cold-reconnect-equality-v1.json",
+      "originalSha256": "49f4eec44705044026e488dc066f22b69ea1f095322d63578b619aecd8dbc787",
+      "originalBytes": 1191,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed-a653/visible-native-entire-frame-cold-reconnect-equality-v1.json",
+        "sha256": "49f4eec44705044026e488dc066f22b69ea1f095322d63578b619aecd8dbc787",
+        "role": "visible-native-entire-frame-cold-reconnect-equality-v1"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/native-offline-deck-retry-fixed-48e7ff87-20261020/fixed48-full-ci-terminal-independent-original-readback-v1.json",
+      "originalSha256": "4b6e87225b18f4454c78e77babdc16ac77433a2fa060216b1f6600228aa22617",
+      "originalBytes": 47099,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed48-terminal/fixed48-full-ci-terminal-independent-original-readback-v1.json",
+        "sha256": "4b6e87225b18f4454c78e77babdc16ac77433a2fa060216b1f6600228aa22617",
+        "role": "fixed48-full-ci-terminal-independent-original-readback-v1"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/native-offline-deck-retry-fixed-48e7ff87-20261020/verify-fixed48-terminal-original-ci-v2.py",
+      "originalSha256": "8b56610520dd23bf61f11c8a699f1e3cc7d3d571bbbae1ffb50c8c3727b1a902",
+      "originalBytes": 9046,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed48-terminal/verify-fixed48-terminal-original-ci-v2.py.gz",
+        "sha256": "36000d8f7670e609b31a1c76372473ed1d9b83aa9761acd6a841101e9547b93c",
+        "role": "verify-fixed48-terminal-original-ci-v2.py"
+      },
+      "gzipOriginalBytes": true,
+      "samePhysicalFileHardlinked": false
+    },
+    {
+      "originalPath": "var/qa/native-offline-deck-retry-fixed-48e7ff87-20261020/fixed48-terminal-artifacts-v1.json",
+      "originalSha256": "b11a41c9975e0df4591d16b01a2e4943db058084f797629e0f62aecd6ef3efd8",
+      "originalBytes": 7587,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed48-terminal/fixed48-terminal-artifacts-v1.json",
+        "sha256": "b11a41c9975e0df4591d16b01a2e4943db058084f797629e0f62aecd6ef3efd8",
+        "role": "fixed48-terminal-artifacts-v1"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/native-offline-deck-retry-fixed-48e7ff87-20261020/ci-progress-during-following-security-batch-v6.json",
+      "originalSha256": "612bddd44e8ec07a6b9d8eb7709ab4783205d0479d0c1979554bb977835065c3",
+      "originalBytes": 22425,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed48-terminal/ci-progress-during-following-security-batch-v6.json",
+        "sha256": "612bddd44e8ec07a6b9d8eb7709ab4783205d0479d0c1979554bb977835065c3",
+        "role": "ci-progress-during-following-security-batch-v6"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/native-offline-deck-retry-fixed-48e7ff87-20261020/full-terminal-reader-zip-layout-correction-disposition-v1.json",
+      "originalSha256": "1c7c23208f1438f08dbb6a129300f2e2f7ccdc3963a7143c0a8610679ed23533",
+      "originalBytes": 700,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed48-terminal/full-terminal-reader-zip-layout-correction-disposition-v1.json",
+        "sha256": "1c7c23208f1438f08dbb6a129300f2e2f7ccdc3963a7143c0a8610679ed23533",
+        "role": "full-terminal-reader-zip-layout-correction-disposition-v1"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/native-offline-deck-retry-fixed-48e7ff87-20261020/ci-originals/39365877913-full-verification-gate.zip",
+      "originalSha256": "b9664797506d2bf7bac7c91c5dd80c7369a51a124692b7ae1dca5a925079fc04",
+      "originalBytes": 298,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed48-terminal/ci-originals/39365877913-full-verification-gate.zip",
+        "sha256": "b9664797506d2bf7bac7c91c5dd80c7369a51a124692b7ae1dca5a925079fc04",
+        "role": "39365877913-full-verification-gate"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/native-offline-deck-retry-fixed-48e7ff87-20261020/ci-originals/39365877913-postgres-partition-0.zip",
+      "originalSha256": "af87e69585a9bfeb4e162b89035edeaaf6ff51bb6eac45d91f24711dfe7d0ec4",
+      "originalBytes": 1031104,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed48-terminal/ci-originals/39365877913-postgres-partition-0.zip",
+        "sha256": "af87e69585a9bfeb4e162b89035edeaaf6ff51bb6eac45d91f24711dfe7d0ec4",
+        "role": "39365877913-postgres-partition-0"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    },
+    {
+      "originalPath": "var/qa/native-offline-deck-retry-fixed-48e7ff87-20261020/ci-originals/39365877913-postgres-results.zip",
+      "originalSha256": "b474578c7c6768beaf129a763e880030032fc4bc88b05940145756ebc5fbd7f8",
+      "originalBytes": 2083,
+      "canonical": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/fixed48-terminal/ci-originals/39365877913-postgres-results.zip",
+        "sha256": "b474578c7c6768beaf129a763e880030032fc4bc88b05940145756ebc5fbd7f8",
+        "role": "39365877913-postgres-results"
+      },
+      "gzipOriginalBytes": false,
+      "samePhysicalFileHardlinked": true
+    }
+  ],
+  "allOriginalBytesAndHashesVerified": true,
+  "eightPrivateProfileValuesScannedWithoutDisclosure": true,
+  "allPrivateAuthProfilesExcluded": true,
+  "allRuntimeSdkInstallPackagesDatabaseAndUnneededCacheExcluded": true,
+  "originalSourceLogsFailuresTrxVisualCapturesAndFramesRetained": true
+}

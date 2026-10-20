@@ -1,0 +1,44 @@
+{
+  "atUtc": "2026-10-20T07:08:38.682926+00:00",
+  "sources": [
+    {
+      "label": "publisher-advisory",
+      "url": "https://api.github.com/repos/dotnet/aspnetcore/security-advisories/GHSA-334f-vvp4-7g6p",
+      "originalResponse": "var/qa/native-signalr-runtime-patch-20261020/publisher-advisory-original-response-v1.json.gz",
+      "originalResponseMtimeUtc": "2026-10-20T07:04:47.620932+00:00",
+      "rawBytes": 7664,
+      "rawSha256": "ff52ac73cab9146f808a7972e9e63610d9eb93ec335bc13263ef8f179465f493",
+      "transportHeadersNotRetainedByFirstAdapter": true
+    },
+    {
+      "label": "dotnet10-release-metadata",
+      "url": "https://builds.dotnet.microsoft.com/dotnet/release-metadata/10.0/releases.json",
+      "originalResponse": "var/qa/native-signalr-runtime-patch-20261020/dotnet10-release-metadata-original-response-v1.json.gz",
+      "originalResponseMtimeUtc": "2026-10-20T07:04:56.817573+00:00",
+      "rawBytes": 1100901,
+      "rawSha256": "8ba714cf0020d35ff4a3cb163376df2f4ccaf8e6e1d7021fcb1bd7dd628299d2",
+      "transportHeadersNotRetainedByFirstAdapter": true
+    },
+    {
+      "label": "client8-package-versions",
+      "url": "https://api.nuget.org/v3-flatcontainer/microsoft.aspnetcore.signalr.client/index.json",
+      "originalResponse": "var/qa/native-signalr-runtime-patch-20261020/client8-package-versions-original-response-v1.json.gz",
+      "originalResponseMtimeUtc": "2026-10-20T07:04:48.554102+00:00",
+      "rawBytes": 5499,
+      "rawSha256": "3ba7a59cf045dbd58cd38e8216d0b947bf4cd0c723d1aa95959732aa8f549010",
+      "transportHeadersNotRetainedByFirstAdapter": true
+    }
+  ],
+  "releaseVersion": "10.0.13",
+  "releaseDate": "2026-10-13",
+  "selectedAspNetRuntime": {
+    "name": "aspnetcore-runtime-osx-arm64.tar.gz",
+    "rid": "osx-arm64",
+    "url": "https://builds.dotnet.microsoft.com/dotnet/aspnetcore/Runtime/10.0.13/aspnetcore-runtime-10.0.13-osx-arm64.tar.gz",
+    "hash": "b1ddbf6c4441cf4938016b8366065f1399551d43a0b12e7e6b2d45355a9550f4f39f6944cddbae3e8d698a06213b1f85b9f8e224d9daa8eaf51a2048a062de72"
+  },
+  "notAnSdk": true,
+  "previousGenericRidSuffixSelectorMatchedRuntimeCompositeAndTargetingVariantsBeforeAnyBinaryDownload": true,
+  "originalThreeResponsesReusedWithoutRedownload": true,
+  "noRootSourceOrGlobalRuntimeChanged": true
+}

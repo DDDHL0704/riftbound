@@ -1,0 +1,180 @@
+{
+  "status": "PASS_PATCHED_ACTUAL_COMMON8_0_32_AND_SERVER10_0_13_REAL_DB_ORIGINAL15_REJECTS_AUTH_SOCKET_RECOVERY",
+  "startedAtUtc": "2026-10-20T07:30:27.055197+00:00",
+  "baseCommit": "a653e54772bddb4ed14d85c4f0b13150f2f3cbfa",
+  "includesFourUncommittedBuildInputChanges": true,
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+    "implementationSha256": "f045d74c987d7c75fb0ec2a11849dedd10927e9298ccd7e5ca9de817a964c883",
+    "identitySha256": "7c3e24e80603f5f160f729908c7fd6bc86dc0ea0d01101e1902f18c5a9d48fce"
+  },
+  "lockAtStart": {
+    "atUtc": "2026-10-20T07:30:27.079625+00:00",
+    "roots": [
+      {
+        "rootLocked": false,
+        "sessions": []
+      }
+    ],
+    "missingValuesRemainUnknown": true
+  },
+  "scope": "Original native network/authentication/reconnect gate with real existing PostgreSQL and actual loaded assembly observation; no visible or Windows claim.",
+  "ownRunnerPid": 56555,
+  "boundIdleAssertionPid": 56560,
+  "ownApiPid": 56649,
+  "actualHealth": {
+    "status": "ok",
+    "service": "riftbound-dotnet",
+    "environment": "Production",
+    "dotnet": "10.0.13",
+    "persistenceMode": "postgres",
+    "signalRScaleMode": "single-instance",
+    "redisBackplaneConfigured": false,
+    "redisChannelPrefix": "riftbound",
+    "metricsEnabled": true,
+    "configuredCorsOriginCount": 6,
+    "developmentLoopbackCorsFallback": false,
+    "dependencies": [
+      {
+        "name": "persistence",
+        "mode": "postgres",
+        "status": "configured"
+      },
+      {
+        "name": "signalr-backplane",
+        "mode": "single-instance",
+        "status": "ok"
+      }
+    ]
+  },
+  "actualNegotiationFeatureReadback": [
+    {
+      "requestedStatefulReconnect": false,
+      "actualGrantedStatefulReconnect": false,
+      "negotiateVersion": 1,
+      "availableTransports": [
+        {
+          "transport": "WebSockets",
+          "transferFormats": [
+            "Text",
+            "Binary"
+          ]
+        },
+        {
+          "transport": "ServerSentEvents",
+          "transferFormats": [
+            "Text"
+          ]
+        },
+        {
+          "transport": "LongPolling",
+          "transferFormats": [
+            "Text",
+            "Binary"
+          ]
+        }
+      ],
+      "originalResponseSha256": "6ed19cec5a374438cf227751803140aa03eae656d3a70aee0c2874c3caa62626",
+      "transportIdAndTokenNotRetained": true
+    },
+    {
+      "requestedStatefulReconnect": true,
+      "actualGrantedStatefulReconnect": false,
+      "negotiateVersion": 1,
+      "availableTransports": [
+        {
+          "transport": "WebSockets",
+          "transferFormats": [
+            "Text",
+            "Binary"
+          ]
+        },
+        {
+          "transport": "ServerSentEvents",
+          "transferFormats": [
+            "Text"
+          ]
+        },
+        {
+          "transport": "LongPolling",
+          "transferFormats": [
+            "Text",
+            "Binary"
+          ]
+        }
+      ],
+      "originalResponseSha256": "44390565ec9cfc57380232b58d3f593c6fa5f86b1370b69b9799dfa27652a4b8",
+      "transportIdAndTokenNotRetained": true
+    }
+  ],
+  "ownNativeNetworkPid": 56674,
+  "clientExitCode": 0,
+  "actualServerCommon": {
+    "observedAtUtc": "2026-10-20T07:30:45.329365+00:00",
+    "processId": 56649,
+    "name": "Microsoft.AspNetCore.SignalR.Common",
+    "assemblyVersion": "10.0.0.0",
+    "informationalVersion": "10.0.13+4099f83977f4d29604a9aeb971fb0a7bc1d5f699",
+    "mvid": "35aab7c6-0058-4747-b5a2-be03ea73ae64",
+    "path": "/Users/dinghaolin/MyProjects/riftbound/var/qa/native-signalr-runtime-patch-20261020/patched-runtime/shared/Microsoft.AspNetCore.App/10.0.13/Microsoft.AspNetCore.SignalR.Common.dll",
+    "sha256": "835b5af8e8bb5599a06558403738369ee9d22cc2f22213e0c0ec537d6561549f"
+  },
+  "actualClientCommon": {
+    "observedAtUtc": "2026-10-20T07:30:45.947487+00:00",
+    "processId": 56674,
+    "name": "Microsoft.AspNetCore.SignalR.Common",
+    "assemblyVersion": "8.0.0.0",
+    "informationalVersion": "8.0.32+7413d24330774263a78a4f3837ca53493518455a",
+    "mvid": "128d9c25-3d77-40a0-8e09-5e64d9b21e26",
+    "path": "/Users/dinghaolin/MyProjects/riftbound/var/qa/native-signalr-runtime-patch-20261020/patched-native-network-v1/Microsoft.AspNetCore.SignalR.Common.dll",
+    "sha256": "550058f27f5577e20184a0e0d198c90c87079b45dffab170423f6fe030c0687d"
+  },
+  "actualServerCoreRuntime": {
+    "observedAtUtc": "2026-10-20T07:30:45.300361+00:00",
+    "processId": 56649,
+    "name": "System.Private.CoreLib",
+    "assemblyVersion": "10.0.0.0",
+    "informationalVersion": "10.0.13-servicing.26504.104+4099f83977f4d29604a9aeb971fb0a7bc1d5f699",
+    "mvid": "93c1d838-6571-45fd-83b4-4916a2650ce5",
+    "path": "/Users/dinghaolin/MyProjects/riftbound/var/qa/native-signalr-runtime-patch-20261020/patched-runtime/shared/Microsoft.NETCore.App/10.0.13/System.Private.CoreLib.dll",
+    "sha256": "b435af0b749740a312891b3ab0d014091b1b75573dfede5b1c3eff96c533332b"
+  },
+  "nativeIdentityRejects": 15,
+  "actualTokenPossessionRejected": true,
+  "originalSocketLossAuthenticatedRestoreFreshSnapshotInvalidTokenGuardPassed": true,
+  "actualNewRoom": "NETWORK-83847ed4749d",
+  "allOriginal209Audit42NativeSevenTablesExact": true,
+  "newRoomSevenTableDigests": {
+    "matches": "f782fa677d8a320cccff456ae80f2f94a09e5a4009464c0ba57b60c6a55bade9",
+    "match_players": "cced05215de931bf119c8e78d0df10d81052d605a979d591d41cd93ff8d1fab0",
+    "command_log": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+    "game_events": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+    "state_snapshots": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+    "snapshots": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+    "action_prompts": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+  },
+  "sourceOnlyOrVersionStringOnlyNotUsedAsRuntimeProof": true,
+  "visibleNativeCurrentFixedFullAndPhysicalWindows": "OPEN",
+  "ownApiGracefulExitCode": 0,
+  "allPrior209AuditSevenTablesStillExactAtStop": true,
+  "allPrior42NativeSevenTablesStillExactAtStop": true,
+  "ownPostgresSmartStopped": true,
+  "boundIdleAssertionEnded": true,
+  "finishedAtUtc": "2026-10-20T07:31:20.686001+00:00",
+  "lockAtEnd": {
+    "atUtc": "2026-10-20T07:31:20.709484+00:00",
+    "roots": [
+      {
+        "rootLocked": false,
+        "sessions": []
+      }
+    ],
+    "missingValuesRemainUnknown": true
+  },
+  "frozenSourcesAllRuntimeAndObserverInputsExact": true,
+  "originalDatabaseRetained": true
+}

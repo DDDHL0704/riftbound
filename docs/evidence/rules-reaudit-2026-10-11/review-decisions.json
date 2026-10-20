@@ -23779,6 +23779,37 @@
         "SEPARATE_NATIVE_DEPENDENCY_PATCH_AND_RUNTIME_APPLICABILITY",
         "ALL_ORIGINAL_SOURCE_GAPS"
       ]
+    },
+    {
+      "id": "native-signalr-dependency-and-runtime-patch-2026-10-20",
+      "scope": "Software dependency/runtime patch and separate preceding fixed native product evidence; no game source adoption.",
+      "status": "BOUNDED_DEPENDENCY_PATCH_ACTUAL_RUNTIME_NETWORK_CHECK_PASS_NEW_FIXED_FULL_PATCHED_ARTIFACTS_NATIVE_WINDOWS_OPEN",
+      "subjects": [],
+      "ruleRecords": [],
+      "pendingRuleRecords": [],
+      "sourceManifest": {
+        "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/source-manifest.json",
+        "sha256": "f89cdfdfd5c0ac45da69c45d39bd59242fc99c5650ae3971e1158e237c2b2f98",
+        "role": "source-manifest"
+      },
+      "auditDocument": "docs/NATIVE_SIGNALR_RUNTIME_PATCH_AUDIT_2026-10-20.md",
+      "validation": {
+        "focusCases": 309,
+        "focusMethods": 260,
+        "soleCheckCases": 13139,
+        "soleCheckMethods": 7479,
+        "actualPatchedNetworkIdentityRejects": 15,
+        "originalAssertionsRetained": true,
+        "precedingFixedNativeOriginalCommands": 105,
+        "precedingFixedNativeOriginalEvents": 718
+      },
+      "exclusions": [
+        "ACTUAL_EXPLOIT_OR_BLANKET_RUNTIME_IMMUNITY",
+        "NEW_SECURITY_FIXED_FULL",
+        "NEW_SECURITY_DESKTOP_ARTIFACTS_AND_VISIBLE_PRODUCT",
+        "PHYSICAL_WINDOWS",
+        "WHOLE_CARD_AND_ALL_ORIGINAL_GAME_SOURCE_OBLIGATIONS"
+      ]
     }
   ]
 }

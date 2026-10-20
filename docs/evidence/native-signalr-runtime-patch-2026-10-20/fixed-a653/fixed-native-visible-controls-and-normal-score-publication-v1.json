@@ -1,0 +1,149 @@
+{
+  "atUtc": "2026-10-20T08:46:00.220205+00:00",
+  "status": "ACTUAL_FIXED_NATIVE_PAIRED_CONTROLS_COLD_RECONNECT_NORMAL_SCORE_AND_FULL_ORIGINAL_REPLAY_PASS",
+  "fixedCommit": "a653e54772bddb4ed14d85c4f0b13150f2f3cbfa",
+  "room": "N22-PAY-C0F39208FA",
+  "visibleCaptureCount": 24,
+  "captures": [
+    {
+      "path": "native-visible-v1/01-a-fixed-current-lobby.png",
+      "bytes": 110805,
+      "sha256": "f8678d92a3af5ad872f1586beb58d47f58e7b38646b465765b4cf96093372cf4"
+    },
+    {
+      "path": "native-visible-v1/02-a-fixed-first-payment.png",
+      "bytes": 236842,
+      "sha256": "a18cbe8cb9e140c457a5ce763a6a00c011c963ab022e872bc9e1ae8ce9b69802"
+    },
+    {
+      "path": "native-visible-v1/03-b-fixed-lobby.png",
+      "bytes": 110472,
+      "sha256": "6909ea61902b15e38e3922a60a7dab5bea3e67f0e178283b62a491c85bba98d8"
+    },
+    {
+      "path": "native-visible-v1/04-b-fixed-opponent-payment-wait.png",
+      "bytes": 234325,
+      "sha256": "bf54db1f3efb97354c4adbd945a3ce8ea2a0fa8365d3b98a3afc6221e557b164"
+    },
+    {
+      "path": "native-visible-v1/05-a-fixed-first-payment-options.png",
+      "bytes": 233389,
+      "sha256": "232a89bf0efb6eb0226f7997909afcf8f4d165100c4287b2ad6a76fb734f7b3b"
+    },
+    {
+      "path": "native-visible-v1/06-a-fixed-two-mana-selected.png",
+      "bytes": 225201,
+      "sha256": "3481ab26f3e53862977483fe67ca2b3c2625b35916db669e819a50b68099d170"
+    },
+    {
+      "path": "native-visible-v1/07-a-fixed-second-payment-two-mana-preview.png",
+      "bytes": 235800,
+      "sha256": "fd826b084e4c5bc0a64f80537b7262ea8f569ab81f935dd94e19271c76a08d5e"
+    },
+    {
+      "path": "native-visible-v1/08-a-fixed-second-payment-after-api-cold-reconnect.png",
+      "bytes": 238284,
+      "sha256": "57a9f1d489a49e8dfce94bce39af2007c5d430a719722e199ffc4ca0103bb38f"
+    },
+    {
+      "path": "native-visible-v1/09-b-fixed-opponent-wait-after-api-cold-reconnect.png",
+      "bytes": 236112,
+      "sha256": "06ebd3fab560f9e52867ab21cc8a56ca32467273dc547dbd5c23da078ac3d3df"
+    },
+    {
+      "path": "native-visible-v1/10-a-fixed-restored-second-options-reset.png",
+      "bytes": 235244,
+      "sha256": "1c435950965fe0f64776586525974cb19116274f81f97164effdb95f5f478809"
+    },
+    {
+      "path": "native-visible-v1/11-a-fixed-second-decline-with-two-mana.png",
+      "bytes": 227139,
+      "sha256": "7bbd3bca5901636078bfaa5abc1f316a36556ac456a5e271cc096ee73f7e0e35"
+    },
+    {
+      "path": "native-visible-v1/12-a-fixed-second-target-only-countered.png",
+      "bytes": 244760,
+      "sha256": "00dda2ad68a628a11e0ec85ecf181ec10316f9b38e179dd1ca2c590f24b5648f"
+    },
+    {
+      "path": "native-visible-v1/13-a-fixed-first-normal-pass.png",
+      "bytes": 238448,
+      "sha256": "1c8b283cf966b86096a2deccdab19205cbb743614daac97eb12c9e8ad5748c88"
+    },
+    {
+      "path": "native-visible-v1/14-b-fixed-original-surviving-spell-priority.png",
+      "bytes": 244540,
+      "sha256": "4844282704a38c0a82eee30283d811560b3779429f8f64b73da7c45a83537bc4"
+    },
+    {
+      "path": "native-visible-v1/15-b-fixed-original-spell-resolved.png",
+      "bytes": 229064,
+      "sha256": "4ab0694ca084b9b7e6d14e2f9a6bb46db412fe5c63bad9dba83ded4b2ee0bb43"
+    },
+    {
+      "path": "native-visible-v1/16-a-fixed-original-spell-draw-one-and-two-mana.png",
+      "bytes": 237430,
+      "sha256": "604cdc2099e0cecc10c6d5419fdf9c4f17c303c2d15360299fc7d4bc6914e6f2"
+    },
+    {
+      "path": "native-visible-v1/19-A-first-field-showdown.png",
+      "bytes": 278332,
+      "sha256": "5ba69d77a0ff234c415546323e3e7806403a017d04be74bb3423678048f92d86"
+    },
+    {
+      "path": "native-visible-v1/20-A-two-fields-conquered-score2.png",
+      "bytes": 272495,
+      "sha256": "0f12522759a0e46ee6df269b633a8f506cd0d69326a828aea364262c4d6cfa58"
+    },
+    {
+      "path": "native-visible-v1/21-A-normal-hold-score4-turn64.png",
+      "bytes": 274307,
+      "sha256": "f8a0465fd375a23f9dbd777874b9c679c1071000aa23462fefeee589e200047f"
+    },
+    {
+      "path": "native-visible-v1/22-A-normal-hold-score6-turn66.png",
+      "bytes": 274313,
+      "sha256": "d102824901ff90fa0ec619727cd687081884631813d01b1b42f26f12a5e33cc5"
+    },
+    {
+      "path": "native-visible-v1/23-B-normal-score-defeat-turn68.png",
+      "bytes": 99784,
+      "sha256": "54fc955d48822288262f69352f773fc516d14bf889f39ee1817019fdab8154a8"
+    },
+    {
+      "path": "native-visible-v1/24-A-normal-score-victory-turn68.png",
+      "bytes": 111077,
+      "sha256": "85e0efe85fb47dca24452274933baab28354f55ced31e4d02f5b26601ff6e969"
+    },
+    {
+      "path": "native-visible-v1/27-A-normal-score-returned-lobby.png",
+      "bytes": 107796,
+      "sha256": "67e61465b6f37ed6c952f6fd03269daed967a745779dd784ff6d55f3d179a01b"
+    },
+    {
+      "path": "native-visible-v1/28-B-normal-score-returned-lobby.png",
+      "bytes": 108067,
+      "sha256": "bfecfec2c64e609a670b13e152428790a43649ba0d9857188f0d2b1136defdab"
+    }
+  ],
+  "actualNativeAcceptedCommands": 22,
+  "paymentAndNormalPassCommands": 4,
+  "normalScoreContinuationCommands": 18,
+  "fullOriginalCommands": 105,
+  "fullOriginalEvents": 718,
+  "finalTurn": 68,
+  "winner": "A",
+  "score": [
+    8,
+    0
+  ],
+  "normalScoreOnlyNoSurrender": true,
+  "bothReturnedToLobbyAndQuitThroughOriginalControls": true,
+  "bothOwnedNativeProcessesAbsent": true,
+  "independentReadback": "fixed-native-original-normal-score-independent-readback-v3.json",
+  "originalPaymentCheckpoint": "fixed-native-original-payment-independent-readback-v2.json",
+  "coldEntireFrameEquality": "visible-native-entire-frame-cold-reconnect-equality-v1.json",
+  "windowsPhysicalAcceptance": false,
+  "newUncommittedSecurityDependencyCandidateNotAcceptedByTheseOldFixedNativeBytes": true,
+  "limits": "Exact CN fixed a653 native candidate/payment flow/normal-score lifecycle only; no whole-card or whole-universe certification."
+}

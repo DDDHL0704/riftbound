@@ -1,0 +1,23 @@
+{
+  "priorEntireManifest": {
+    "path": "docs/evidence/native-signalr-runtime-patch-2026-10-20/n23/prior-original-current-manifest.json.gz",
+    "sha256": "92b1833442ef1a13819369af9b0f08cc272bdf8af956c08c51c239d54d1571e5",
+    "role": "previous-entire-current-manifest"
+  },
+  "allOriginal60ContextsAndScopesPreserved": true,
+  "newInputRevision": "1b599451bd9ab539f299f54170f28b3dd9017ff62159021f090a99f1a0bf6f7e",
+  "changedContexts": [
+    {
+      "review": "optional-sacrifice-printed-cost-and-paid-entry-2026-10-16",
+      "previousEntireContextSha256": "7461154b1a141953b9bc32b28bc3bf262a8d06e7410b5ceba43f293c4103feea",
+      "changedPins": [
+        {
+          "field": "implementation",
+          "path": "src/Riftbound.Api/Riftbound.Api.csproj",
+          "previousSha256": "98cefe0bc7f292856462fa5bb394f2b8490cd2c328998d42c22acd8ee22468dd",
+          "currentSha256": "d304ff1b808847f247260a4fc2d4c27a70cded3905212d01bf01760c35642f2c"
+        }
+      ]
+    }
+  ]
+}

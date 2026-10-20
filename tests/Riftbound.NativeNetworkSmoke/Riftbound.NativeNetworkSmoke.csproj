@@ -4,6 +4,6 @@
     <Compile Include="../../clients/godot/scripts/RiftboundGameHubClient.cs" Link="RiftboundGameHubClient.cs" />
     <Compile Include="../../clients/godot/scripts/SnapshotCardRef.cs" Link="SnapshotCardRef.cs" />
     <ProjectReference Include="../../src/Riftbound.Contracts/Riftbound.Contracts.csproj" />
-    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="8.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="8.0.32" />
   </ItemGroup>
 </Project>

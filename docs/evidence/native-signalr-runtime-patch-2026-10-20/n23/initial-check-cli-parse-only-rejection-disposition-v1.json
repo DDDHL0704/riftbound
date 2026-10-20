@@ -1,0 +1,10 @@
+{
+  "atUtc": "2026-10-20T07:46:22.214852+00:00",
+  "status": "CHECK_NOT_EXECUTED_FULL_ONLY_EXPECT_TRX_ARGUMENT_REJECTED_BEFORE_BUILD_OR_OUTPUT_CREATION",
+  "originalRunnerSourceSha256": "13bd297416ee2efdee4a46511677305770382c12eb4125ff4d4ad3abc072468a",
+  "originalExitCode": 2,
+  "originalSourcesAndRuntimeUnchanged": true,
+  "noCheckOutputDirectoryCreated": true,
+  "correction": "Execute the only check without full-only flag; independently compare every actual original case and method after terminal.",
+  "notASecondExecutedCheck": true
+}

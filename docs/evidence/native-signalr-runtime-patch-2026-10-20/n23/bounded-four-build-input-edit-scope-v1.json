@@ -1,0 +1,14 @@
+{
+  "atUtc": "2026-10-20T07:12:06.531263+00:00",
+  "exactChangedPaths": [
+    "Directory.Build.props",
+    "clients/godot/Riftbound.GodotClient.csproj",
+    "src/Riftbound.Api/Riftbound.Api.csproj",
+    "tests/Riftbound.NativeNetworkSmoke/Riftbound.NativeNetworkSmoke.csproj"
+  ],
+  "allOther3304SourceInputsByteExact": true,
+  "allOriginalTestMethodsTheoryRowsAndFullGamesByteExact": true,
+  "defaultSqlAll46CaseOrderUnchanged": true,
+  "onlyNativeSmokeCsprojDependencyVersionChangesWithinTestToolFiles": true,
+  "noSdkDatabaseCheckoutProtocolOrGameplaySourceChange": true
+}

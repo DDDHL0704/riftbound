@@ -1,0 +1,6 @@
+{
+  "atUtc": "2026-10-20T08:14:23.670593+00:00",
+  "scope": "Cold restart only the owned fixed API after real first native payment; original database and accepted journal retained.",
+  "expectedAcceptedCommands": 84,
+  "currentIndependentSecondChoiceMustSurvive": true
+}

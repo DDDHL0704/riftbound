@@ -1,0 +1,31 @@
+{
+  "status": "PASS_INDEPENDENT_READONLY_ACTUAL_NATIVE_PAY_THEN_DECLINE_AND_ORIGINAL_FULL_REPLAY",
+  "room": "N22-PAY-C0F39208FA",
+  "commands": 87,
+  "events": 596,
+  "originalGatewayPrefixCommands": 83,
+  "actualNativeButtonCommands": 4,
+  "actualHistoricalPayloads": {
+    "state_snapshots": 87,
+    "snapshots": 170,
+    "action_prompts": 170
+  },
+  "originalPaymentStates": 2,
+  "originalSecondPaymentStates": 1,
+  "actualBackendRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+    "implementationSha256": "f045d74c987d7c75fb0ec2a11849dedd10927e9298ccd7e5ca9de817a964c883",
+    "identitySha256": "7c3e24e80603f5f160f729908c7fd6bc86dc0ea0d01101e1902f18c5a9d48fce"
+  },
+  "originalNonzeroPrivateSeedRetainedNotPrinted": true,
+  "originalRawPrefixCommandsExact": true,
+  "originalAllFieldsNullsPrivateHistoryAndFullReplayMatched": true,
+  "originalFrameSha256": "372fe28abcd0a62e1e4f2fad97e6256ff25f56ed66c2fc817da51445b4bb1cad",
+  "phaseAndActionTitleCorrectionStillRequired": true,
+  "nativeClientCommit": "48e7ff8702dc43a1b5a3991365d87068506ae137",
+  "noCurrentFixedCandidateWholeGameOrWindowsAcceptanceClaim": true
+}

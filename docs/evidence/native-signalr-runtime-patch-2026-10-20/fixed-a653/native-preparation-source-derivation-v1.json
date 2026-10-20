@@ -1,0 +1,8 @@
+{
+  "atUtc": "2026-10-20T07:17:48.866448+00:00",
+  "source": "/Users/dinghaolin/MyProjects/riftbound/var/qa/native-offline-deck-retry-fixed-48e7ff87-20261020/prepare-fixed-native-apps-v1.py",
+  "sourceSha256": "ab9c4a72d99ed09ea74b337eedf72a2d39978ed9ae7bcc7a6a6e9b300df136fd",
+  "onlyCandidateIdentityRunAndBundleIdSubstituted": true,
+  "cpCloneFileCrcSignatureAnd373PayloadChecksRetained": true,
+  "onlyLatestInstructionOldPairRetiredAfterUsableNewBoot": true
+}

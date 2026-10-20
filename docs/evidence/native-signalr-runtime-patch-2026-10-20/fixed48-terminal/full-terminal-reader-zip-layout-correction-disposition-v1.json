@@ -1,0 +1,14 @@
+{
+  "atUtc": "2026-10-20T07:22:50.301011+00:00",
+  "initialInlineAdapterError": "KeyError: no ci-native-network/native-network.log entry",
+  "actualOriginalZipLayout": [
+    "commit.txt",
+    "native-api.log",
+    "native-network.log"
+  ],
+  "noOriginalArtifactOrProductionInputChanged": true,
+  "firstAttemptDidNotPublishTerminalAcceptance": "TRUE",
+  "correctedIndependentReaderSource": "/Users/dinghaolin/MyProjects/riftbound/var/qa/native-offline-deck-retry-fixed-48e7ff87-20261020/verify-fixed48-terminal-original-ci-v2.py",
+  "derivedRetainedOriginalVerifierSha256": "9e7f91aa1cf61576b98c12fe7028349aff10c85664f9a9d1a54d15d4453d0a71",
+  "immutableFixed48SqlManifestUsedInsteadOfDirty46": true
+}
