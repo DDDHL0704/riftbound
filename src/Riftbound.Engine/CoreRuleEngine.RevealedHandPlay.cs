@@ -46,7 +46,7 @@ public sealed partial class CoreRuleEngine
     {
         var hand = pending.RevealedHand!;
         var choice = new PendingCardChoiceState(pending.ChoiceId, "REVEALED_HAND_PLAY", pending.PlayerId, 0,
-            pending.Sources.Count > 0 ? 1 : 0, pending.Sources.Keys.ToArray(), hand.Cards.Keys.ToArray(),
+            pending.Sources.Count > 0 ? 1 : 0, pending.Sources.Keys.Order(StringComparer.Ordinal).ToArray(), hand.Cards.Keys.Order(StringComparer.Ordinal).ToArray(),
             "对手已展示手牌：选择一名单位，让对手打到指定战场；也可以放弃。", pending.Parent.SourceObjectId, pending.Parent.EffectKind);
         var choiceState = state with { PendingCardChoice = choice };
         var own = ActionPromptBuilder.Build(choiceState, pending.PlayerId, true, choice.Reason, [CommandTypes.ChooseCards, CommandTypes.Surrender]);
@@ -54,7 +54,7 @@ public sealed partial class CoreRuleEngine
             Label = "选择展示的单位 / 放弃",
             Metadata = new Dictionary<string,object?>(c.Metadata!) {
                 ["viewedCardsPublic"] = true,
-                ["viewedCards"] = hand.Cards.Keys.Select(id => new ActionPromptChoiceDto(id, DeckChoiceLabel(state,id), "已公开展示")).ToArray()
+                ["viewedCards"] = hand.Cards.Keys.Order(StringComparer.Ordinal).Select(id => new ActionPromptChoiceDto(id, DeckChoiceLabel(state,id), "已公开展示")).ToArray()
             } }).ToArray() };
         return state.Seats.Keys.ToDictionary(id => id, id => id == pending.PlayerId ? own
             : ActionPromptBuilder.Build(state, id, false, "手牌已展示，等待对手选择单位或放弃", ["WAIT", CommandTypes.Surrender]));

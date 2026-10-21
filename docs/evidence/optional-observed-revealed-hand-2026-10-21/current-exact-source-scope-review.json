@@ -1,0 +1,204 @@
+{
+  "atUtc": "2026-10-21T04:32:01.187135+00:00",
+  "status": "BOUNDED_CURRENT_CN16_OPTIONAL_OBSERVED_PERMISSION_AND_REVEALED_HAND_PRESENTATION_SOURCE_REVIEW_WITH_SEPARATE_VOID_GATE_GAP",
+  "region": "CN",
+  "language": "zh-CN",
+  "applicableCoreDate": "2026-10-16",
+  "currentSourceManifestAndAllPriorSourceDatesUnchanged": true,
+  "subjectPrintings": [
+    "OGN-194/298",
+    "OGN-291/298",
+    "UNL-139/219",
+    "OGN-208/298"
+  ],
+  "supportingControlledObjectsNotWholeCardCertification": [
+    "OGN-004/298",
+    "OGN-096/298",
+    "OGN-296/298"
+  ],
+  "ruleRecords": [
+    "DOC-01-P041-B013",
+    "DOC-01-P050-B012",
+    "DOC-01-P059-B002",
+    "DOC-01-P059-B009",
+    "DOC-01-P059-B010",
+    "DOC-01-P075-B015",
+    "DOC-09-P020-B001",
+    "DOC-09-P020-B002",
+    "DOC-09-P020-B003",
+    "DOC-10-P002-B005",
+    "DOC-10-P002-B006",
+    "DOC-10-P002-B007",
+    "DOC-10-P002-B008"
+  ],
+  "openSupportingFieldSourceGapRuleRecords": [
+    "DOC-16-P012-B006",
+    "DOC-16-P012-B007"
+  ],
+  "exactOriginalRuleTextHashes": {
+    "DOC-01-P041-B013": "cd158489362112d67b46cafb3db250542c0201072bb2f259cfaeab8899a565ea",
+    "DOC-01-P050-B012": "5df6aa6eed9c14804bb742295544b9d47cf3438180fc814ea97ec22c23ba296f",
+    "DOC-01-P059-B002": "95b51c5aa5072ca4c6f6b1a351a9a553189a9884ed2934f85134b82920cf0f90",
+    "DOC-01-P059-B009": "4d53c7692bc92d287c15e512d3ec38d804c060d2dc9f63f390de8a7b52fd34a2",
+    "DOC-01-P059-B010": "3e7d5cd5f5fc14d807453a2b756d7ca0605e7e9da76f3db36d3b78fd5c601c58",
+    "DOC-01-P075-B015": "05845c6c0c46c9ce56f4471252a895cffc1f1ff3d2cf85a6c7431fb568bdfa80",
+    "DOC-09-P020-B001": "1439ee9170bd62cff158cdb2210a004f869e4bce65f4a662b37a8b0da963ce09",
+    "DOC-09-P020-B002": "51bab56c28a6d873588549e2cc048c41d270f3cd3616001d248f457b5a185e55",
+    "DOC-09-P020-B003": "78de45e2f59bcfecc6f39e0492c8d3d6716337001255fbe5d72215cf1490f770",
+    "DOC-10-P002-B005": "6d0e8e30eb22c3c8c65d84707b7cc793bfabad22712a1f94338b0e093e93a584",
+    "DOC-10-P002-B006": "942b6d0774f137679c62cf445f693032939dbc3a308202e38ec66287b4c5c88d",
+    "DOC-10-P002-B007": "3a6d4a6a434cca84ea6706ac43711d9ee047bff19036ee57b7498a7f921da810",
+    "DOC-10-P002-B008": "7913754e87e987a0c31add057940da7f4bed0f4587677bf6c8ba26140a528867",
+    "DOC-16-P012-B006": "0ada2145fb54b092069ce7573cbc42fa5232139346f32709304ee9cbc70665ab",
+    "DOC-16-P012-B007": "0c3fa6c7d6647582b834566633d09699de6de24cb7c69d27df5490639313cdc3"
+  },
+  "currentSourceEvidence": [
+    {
+      "path": "var/qa/nocturne-optional-current-cn16-20261021/current-nocturne-optional-original-source-intake-v1.json",
+      "sha256": "25a29b31728d90efe44d2019b97720faa961518de428c93caa7535a547bbc202"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/next-revealed-hand-current-source-intake-v1.json",
+      "sha256": "c6dd7598f7f04b0b031a21d77e4f6c90d984f2a940c5b757c39e466d2ebfc4ad"
+    },
+    {
+      "path": "var/qa/nocturne-optional-current-cn16-20261021/current-hand-supporting-exact-api-source-intake-v1.json",
+      "sha256": "83b8c74b8fdb6279e8a4341a2cd1f17d9b622359cecf2aa1bcb60825c6f00a70"
+    },
+    {
+      "path": "var/qa/nocturne-optional-current-cn16-20261021/bone-current-official-new-vs-old-source-review-v1.json",
+      "sha256": "48538711de7cadd7c37fcb9e76001e367b4f60d7448a3d0c02af27cd8d7ddd7f"
+    },
+    {
+      "path": "var/qa/nocturne-optional-current-cn16-20261021/current-source-optional-scope-and-visible-page-readback-v1.json",
+      "sha256": "4d033ca9a001f9b23a0d01d78b226ca977a3f7dcd4ecd87dd9af7b6b86244705"
+    }
+  ],
+  "newCompletePhysicalCorePagesActuallyViewed": [
+    {
+      "page": 50,
+      "path": "var/qa/nocturne-optional-current-cn16-20261021/bone-current-primary-pages-v1/core-p50.png",
+      "sha256": "9f7cbe942c17407af222b632f37906814a49da7f7d8aac2b6e6a1b8cf8c9a8b2"
+    },
+    {
+      "page": 75,
+      "path": "var/qa/nocturne-optional-current-cn16-20261021/bone-current-primary-pages-v1/core-p75.png",
+      "sha256": "458e609410f554b0c4ba3d177223321f2103abe395ef3f637861d33ddef2ae36"
+    }
+  ],
+  "retainedCompleteFAQAndErrataPhysicalPageReadback": [
+    {
+      "path": "var/qa/nocturne-optional-current-cn16-20261021/bone-current-primary-pages-v1/errata-p2.png",
+      "sha256": "e32d058ee8543cb6cc93716ae4c748d447f9af9deff828659f0c2567ea78bdac"
+    },
+    {
+      "path": "var/qa/nocturne-optional-current-cn16-20261021/bone-current-primary-pages-v1/judge-faq-p20.png",
+      "sha256": "120b36b71dc6fecf9ab518a32c240033fc108158f156b997d899790f99457988"
+    }
+  ],
+  "noNewOfficialSourceVersionDiscovered": true,
+  "officialSourceDeltaCountRemainsSeven": true,
+  "separateRuntimeCatalogAdoption": {
+    "oldRawFileSha256": "d521d7346392f2ea947c73c437c140d7bfe13a90cbca8642f7ae135b7b11f479",
+    "newRawFileSha256": "1831ee8b32d7a081602f2a6b7a44472853bba0f35f9db84225ce0ee3e743c801",
+    "exactRowId": 34682,
+    "exactField": "cardEffect",
+    "exactPrinting": "UNL-139/219",
+    "currentNonemptyApiErrataAndPrimaryExplicitNewTextMatch": true,
+    "oldCatalogMatchesPrimaryExplicitOldText": true,
+    "oldAcquisitionPublicationAndEffectiveDatesNotOverwritten": true
+  },
+  "boundedBehaviorBranches": [
+    {
+      "id": "observed-affordable-optional-decline",
+      "sourceRefs": [
+        "OGN-194/298",
+        "OGN-291/298",
+        "DOC-01-P059-B002",
+        "DOC-01-P059-B009"
+      ]
+    },
+    {
+      "id": "observed-unaffordable-optional-decline",
+      "sourceRefs": [
+        "OGN-194/298",
+        "OGN-291/298",
+        "DOC-01-P059-B002",
+        "DOC-01-P059-B009"
+      ]
+    },
+    {
+      "id": "observed-decline-first-play-second",
+      "sourceRefs": [
+        "OGN-194/298",
+        "OGN-291/298",
+        "DOC-01-P041-B013",
+        "DOC-01-P059-B002"
+      ]
+    },
+    {
+      "id": "revealed-hand-stable-ordinal-cold-prompt-owner-confirmation-and-stun",
+      "sourceRefs": [
+        "UNL-139/219",
+        "OGN-208/298",
+        "DOC-01-P050-B012",
+        "DOC-09-P020-B001",
+        "DOC-09-P020-B002",
+        "DOC-09-P020-B003",
+        "DOC-10-P002-B005",
+        "DOC-10-P002-B006"
+      ]
+    },
+    {
+      "id": "revealed-hand-optional-decline-returns-privacy",
+      "sourceRefs": [
+        "UNL-139/219",
+        "DOC-10-P002-B005",
+        "DOC-10-P002-B006"
+      ]
+    },
+    {
+      "id": "bone-exact-current-erratum-catalog-adoption",
+      "sourceRefs": [
+        "UNL-139/219",
+        "DOC-10-P002-B005",
+        "DOC-10-P002-B006",
+        "DOC-10-P002-B007",
+        "DOC-10-P002-B008"
+      ]
+    }
+  ],
+  "separateSupportingFieldCatalogGap": {
+    "id": "supporting-void-gate-current-official-erratum-not-yet-adopted",
+    "sourceRefs": [
+      "OGN-296/298",
+      "DOC-16-P012-B006",
+      "DOC-16-P012-B007"
+    ],
+    "state": "OPEN",
+    "issue": "https://github.com/DDDHL0704/riftbound/issues/81",
+    "evidence": {
+      "path": "var/qa/nocturne-optional-current-cn16-20261021/supporting-void-field-exact-provenance-and-open-disposition-v1.json",
+      "sha256": "dd96fe3a4e3f29d7796c75dad2353af478c8bce96dc7260a3b7abf7d60e291e2"
+    },
+    "noDamageInAnyCurrentControlledBranch": {
+      "path": "var/qa/nocturne-optional-current-cn16-20261021/all-five-current-controlled-branches-no-damage-events-v1.json",
+      "sha256": "6feda19ad8879129097b8c15479bf5008f0e30d67d5c7498a86cb2fa41e44016"
+    },
+    "originalSourceVersionAndRunningFrozenInputsRetained": true,
+    "notRuntimeSemanticCertification": true
+  },
+  "sourceReadButNotNewlyCertified": [
+    "DOC-01-P075-B015 delayed play battlefield timing; this batch does not certify all related interactions",
+    "DOC-09-P020-B009 through B012 exhausted Reksai capture and failure during confirmation remain a separate remaining branch"
+  ],
+  "exclusions": [
+    "Whole printings, standby, copies, absent-field and played-unit replacement/prevention interactions",
+    "Initial simultaneous replacement-choice ordering rights",
+    "All other finite observation consumers and unresolved source gaps",
+    "Final current fixed complete CI, visible hardware controls and paired clients, and physical Windows"
+  ],
+  "noOldDevelopmentMatchMigration": true,
+  "wholePrintingOrGlobalCertification": false,
+  "initialSupportingRowPreflightFailureRetained": "All-four-normalized-equal assertion failed before any scope result was written; the exact fourth-row source gap was independently reviewed and registered, never coerced to equal"
+}

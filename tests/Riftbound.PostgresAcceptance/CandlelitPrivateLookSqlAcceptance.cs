@@ -12,10 +12,13 @@ using Riftbound.Persistence;
 internal static class CandlelitPrivateLookSqlAcceptance
 {
     public static Task RunAsync(NpgsqlDataSource source,string output)
-        => RunBranchesAsync(source,output,["keep-reverse","recycle-one","recycle-two","short-empty","short-one","nocturne-zero","nocturne-one","nocturne-two"]);
+        => RunBranchesAsync(source,output,["keep-reverse","recycle-one","recycle-two","short-empty","short-one","nocturne-zero","nocturne-one","nocturne-two","optional-decline","unaffordable-decline","decline-first-play-second"]);
 
     public static Task RunObservedAsync(NpgsqlDataSource source,string output)
         => RunBranchesAsync(source,output,["nocturne-zero","nocturne-one","nocturne-two"]);
+
+    public static Task RunOptionalObservedAsync(NpgsqlDataSource source,string output)
+        => RunBranchesAsync(source,output,["optional-decline","unaffordable-decline","decline-first-play-second"]);
 
     private static async Task RunBranchesAsync(NpgsqlDataSource source,string output,IReadOnlyList<string> branches)
     {
@@ -29,15 +32,17 @@ internal static class CandlelitPrivateLookSqlAcceptance
             var room="candlelit-private-look-"+Guid.NewGuid().ToString("N");var count=branch=="short-empty"?0:branch=="short-one"?1:3;
             var cards=new Dictionary<string,CardObjectState>();
             foreach(var id in new[]{"DRAW1","DRAW2","DRAW3"})cards[id]=new(id,cardNo:"OGN·004/298",tags:[CardObjectTags.SpellCard],ownerId:"P1",controllerId:"P1");
-            var banish=branch switch {"nocturne-zero"=>0,"nocturne-one"=>1,"nocturne-two"=>2,_=>-1};
+            var optionalObserved=branch is "optional-decline" or "unaffordable-decline" or "decline-first-play-second";var unaffordable=branch=="unaffordable-decline";
+            var banish=branch switch {"nocturne-zero"=>0,"nocturne-one" or "optional-decline" or "unaffordable-decline"=>1,"nocturne-two" or "decline-first-play-second"=>2,_=>-1};
             if(banish>=0)foreach(var id in new[]{"DRAW1","DRAW2"})cards[id]=new(id,cardNo:"OGN·194/298",power:4,manaCost:4,tags:[CardObjectTags.UnitCard,"游走"],ownerId:"P1",controllerId:"P1");
             cards["BF"]=new("BF",cardNo:"OGN·291/298",tags:[P6TokenFactoryCatalog.BattlefieldCardTag],ownerId:"P2");
             cards["UNIT"]=new("UNIT",cardNo:"OGN·096/298",power:1,tags:[CardObjectTags.UnitCard],ownerId:"P1",controllerId:"P1");
             cards["RUNE"]=new("RUNE",cardNo:"OGN·007/298",tags:[CardObjectTags.RuneCard],ownerId:"P1",controllerId:"P1",isExhausted:true);cards["RUNE2"]=cards["RUNE"] with {ObjectId="RUNE2"};
+            if(unaffordable){cards.Remove("RUNE");cards.Remove("RUNE2");}
             var deck=new[]{"DRAW1","DRAW2","DRAW3"};
             var initial=new MatchState(room,0,5,"P1",new Dictionary<string,string>{{"P1","P1"},{"P2","P2"}},status:MatchStatuses.InProgress,readyPlayerIds:["P1","P2"],turnPlayerId:"P1",phase:MatchPhases.Main,timingState:TimingStates.NeutralOpen,
-                playerZones:new Dictionary<string,PlayerZones>{["P1"]=PlayerZones.Empty with {Base=["UNIT","RUNE","RUNE2"],Hand=deck.Skip(count).ToArray(),MainDeck=deck.Take(count).ToArray()},["P2"]=PlayerZones.Empty with {Battlefields=["BF"]}},
-                cardObjects:cards,playerScores:new Dictionary<string,int>{{"P1",0},{"P2",0}},runePools:new Dictionary<string,RunePool>{{"P1",new(10,10)},{"P2",RunePool.Empty}});
+                playerZones:new Dictionary<string,PlayerZones>{["P1"]=PlayerZones.Empty with {Base=unaffordable?["UNIT"]:["UNIT","RUNE","RUNE2"],Hand=deck.Skip(count).ToArray(),MainDeck=deck.Take(count).ToArray()},["P2"]=PlayerZones.Empty with {Battlefields=["BF"]}},
+                cardObjects:cards,playerScores:new Dictionary<string,int>{{"P1",0},{"P2",0}},runePools:new Dictionary<string,RunePool>{{"P1",new(10,unaffordable?0:10)},{"P2",RunePool.Empty}});
             await File.WriteAllTextAsync(Path.Combine(directory,"explicit-original-controlled-initial.json"),JsonSerializer.Serialize(initial,json));
             var engine=new CoreRuleEngine();var journal=new PostgresMatchJournal(source);var players=new PostgresMatchPlayerStore(source);var store=new PostgresMatchRecoveryStore(source);
             foreach(var actor in initial.Seats.Keys)await players.SavePlayerSessionAsync(room,actor,actor,ReconnectTokenHasher.Hash(Convert.ToBase64String(RandomNumberGenerator.GetBytes(32))),default);
@@ -108,14 +113,29 @@ internal static class CandlelitPrivateLookSqlAcceptance
                     await Save("before-original-pending-"+id);
                     await Reject("P2",new PlayCardCommand(id,"OGN·194/298",[]));
                     if(id=="DRAW1"&&banish==2)await Reject("P1",new PlayCardCommand("DRAW2","OGN·194/298",[]));
-                    await Submit("P1",new PlayCardCommand(id,"OGN·194/298",[]));
-                    Check(state.PlayerZones["P1"].Base.Contains(id)&&state.CardObjects[id].CardNo=="OGN·194/298","Original confirmed unit enters its owner's base.");
+                    if(optionalObserved&&id=="DRAW1")
+                    {
+                        var play=new PlayCardCommand(id,"OGN·194/298",[]);
+                        var quote=engine.PreviewPlayCard(state,"P1",new("optional-quote-"+state.Tick,session.PromptFor("P1").PromptId!,state.Tick,play));
+                        Check(pending.Optional&&quote.CanPay==!unaffordable,"Exact optional permission; power exists or no pool power/base rune can pay.");
+                        var decline=new ChooseCardsCommand(pending.ChoiceId,"EFFECT_PLAY",[]);
+                        await Reject("P2",decline);await Reject("P1",new ChooseCardsCommand("stale-"+pending.ChoiceId,"EFFECT_PLAY",[]));
+                        if(unaffordable)await Reject("P1",play);
+                        await Submit("P1",decline);
+                        Check(state.PlayerZones["P1"].Banished.Contains(id)&&!state.PlayerZones["P1"].Base.Contains(id),"Declined original source stays banished with no automatic payment or play.");
+                    }
+                    else
+                    {
+                        await Submit("P1",new PlayCardCommand(id,"OGN·194/298",[]));
+                        Check(state.PlayerZones["P1"].Base.Contains(id)&&state.CardObjects[id].CardNo=="OGN·194/298","Original confirmed unit enters its owner's base.");
+                    }
                 }
                 var expected=banish==0?new[]{"DRAW2","DRAW1","DRAW3"}:banish==1?new[]{"DRAW2","DRAW3"}:new[]{"DRAW3"};
                 Check(state.PlayerZones["P1"].MainDeck.SequenceEqual(expected)&&state.PendingEffectPlay is null&&state.PendingRuleChoice is null&&state.ObservedDeckPlays is null,"Exact retained original deck and no residual observation or pending permission.");
-                Check(state.RunePools["P1"].Mana==initial.RunePools["P1"].Mana&&state.RunePools["P1"].Power==initial.RunePools["P1"].Power-banish&&state.RngCursor==initial.RngCursor,"Each accepted original Nocturne pays exactly one generic power, without base mana or recycling RNG.");
+                Check(state.RunePools["P1"].Mana==initial.RunePools["P1"].Mana&&state.RunePools["P1"].Power==initial.RunePools["P1"].Power-(optionalObserved?(banish==2?1:0):banish)&&state.RngCursor==initial.RngCursor,"Each accepted original Nocturne pays exactly one generic power, without base mana or recycling RNG.");
             }
             var final=await Save("final");var resultDeck=state.PlayerZones["P1"].MainDeck;
+            if(optionalObserved)Check(state.PlayerZones["P1"].Banished.SequenceEqual(new[]{"DRAW1"})&&final.Events.Count(e=>e.Event.Kind=="EFFECT_PLAY_DECLINED")==1&&final.Events.Count(e=>e.Event.Kind=="UNIT_PLAYED_TO_BASE")== (banish==2?1:0),"Exactly one explicit original decline and only the optional second actual play.");
             Check(state.Status==MatchStatuses.InProgress&&state.PlayerScores["P1"]==1&&state.PlayerScores["P2"]==0&&state.PendingCardChoice is null&&state.StackItems.Count==0,"One original conquest; no draw, burnout, extra score or residual window.");
             if(branch=="keep-reverse")Check(resultDeck.SequenceEqual(new[]{"DRAW2","DRAW1","DRAW3"})&&state.RngCursor==initial.RngCursor,"Literal chosen reverse top order; no randomization for zero recycle.");
             if(branch=="recycle-one")Check(resultDeck.SequenceEqual(new[]{"DRAW2","DRAW3","DRAW1"})&&state.RngCursor==initial.RngCursor,"One exact original card recycled to bottom; retained top is exact.");

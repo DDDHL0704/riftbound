@@ -1,0 +1,450 @@
+{
+  "atUtc": "2026-10-21T04:34:36.453435+00:00",
+  "beforeCommit": "39eacb2e22ce365c2d56750382518bfcd1bdf32a",
+  "currentCommit": "f0593b1648a7fd4437b7d7512429f517d86bdda2",
+  "samePairIdsAnd424242Seed": true,
+  "sameTerminalHashes": 0,
+  "changedTerminalHashes": {
+    "jhin-lowcurve-vs-kaisa-red-control": {
+      "old": "034425172666c3cee34d73e90b7e592bc08c8f1783249d901eaa9a20aebf3fdd",
+      "current": "84e3e7bdcb6cc3674d644be06ecc6ebb9c8b26a65795435752136bffef89a9b7"
+    },
+    "jhin-lowcurve-vs-kaisa-red-tempo": {
+      "old": "4750b2b0172459e116b1ea569b2caf1da11c50525a8f916ea2dc226d540b3ab9",
+      "current": "27ab80729bb663c84bd2f6125b4a3200bedc00c8add1257203b10ba4178a7065"
+    },
+    "jhin-lowcurve-vs-lillia-lowcurve": {
+      "old": "45f77fda21af7e558152e95995db291c8423225de2219e705d3bcab73c1541e1",
+      "current": "2c4f0fe9711171662cc57092d588aa9ffa316d55cea8320fdf1ba08b048b9a7e"
+    },
+    "jhin-lowcurve-vs-poppy-demacia": {
+      "old": "847c81103cf1fbdb001a17720ed0b55eec93ca6178f6bcc5fd737c15a6b5874e",
+      "current": "3e241fefcc5749944d2628e447a1f74ec7b53ff47bb7d249273fafddfa4044a7"
+    },
+    "jhin-lowcurve-vs-poppy-standby": {
+      "old": "d6fd00eaa81455ecd75fcd3ebb3de291d60c64ab7984c4dcf3e7df1b1144f33e",
+      "current": "1975e729781814e68e34dfd07358eba7b49345f50c55ea622cd5fb5e08b88c66"
+    },
+    "jhin-lowcurve-vs-rumble-armaments": {
+      "old": "380181f84b59abebf198064d29687165a235ac15fc8256351d75140281fe424e",
+      "current": "c4de8ccfcdd09279fafa49384abf5acc601748e7793cdc9e5f88234a5ab8ad13"
+    },
+    "jhin-lowcurve-vs-rumble-lowcurve": {
+      "old": "01fd010a301ea49f0ee593c764c257b8e9da10a3c9217e32b0c74e14f9ca69dd",
+      "current": "5a8e7ca3d5342c841c153e931c90d8f0b8d696d6d52a3bfa9c6d19fd32ac3708"
+    },
+    "jhin-lowcurve-vs-vex-battlefields": {
+      "old": "02f357db1370aae460b9952260368656de665de7cccf2dd56e178f314f517dbb",
+      "current": "27822ad7afe31011eb100f18c0d489c9be2d116a95d2b8856e5d2c76d8f07a77"
+    },
+    "jhin-lowcurve-vs-vex-response": {
+      "old": "2d3c9fb2cfb0ae9439e1ff274d5fb012131b46002345bd06bc683d5db4628d5a",
+      "current": "b7564365d970cb9c59e765ac494d7a781cc76d7892ee8e42d30cc4dd7d3ef9bb"
+    },
+    "jhin-lowcurve-vs-vex-spells": {
+      "old": "a5fd523a7d714550a76d006c31fc49cef9f5c3abf93edb58b2aa5b662df638f2",
+      "current": "43bb7049c6e4254a83f5c5f3a8ea751edf41ce26cf4e770bccb967d791c0ed36"
+    },
+    "kaisa-red-control-vs-jhin-lowcurve": {
+      "old": "76427a41029bca6d40afbfd0eb69b6e3d181bdf74e2310f3545bd75e771379ca",
+      "current": "35e3fe23d154c5aeb7786920a1e5eb439571ffbddc8bd99a4ff222add2c9cac2"
+    },
+    "kaisa-red-control-vs-kaisa-red-tempo": {
+      "old": "87ed5981749d579aff8c2248291d985e6006a352c7d598cc36bce204843c2901",
+      "current": "4f67b51235ba328ed162ac30519cccc6e93532d8b1ee68d47e50e04582d47eb3"
+    },
+    "kaisa-red-control-vs-lillia-lowcurve": {
+      "old": "55ba5895cf40893869e859bb21b4e97555549697a5a64203e6835a8560a8af36",
+      "current": "c6e3f09a79c641ee9808d51d70435ca1fd1ac093f6934f325dc658feb78958ab"
+    },
+    "kaisa-red-control-vs-poppy-demacia": {
+      "old": "c86d40af8131b662b206f9adc49fc0aab0db50493b9b70ae01bbdd0700c66c04",
+      "current": "89560d8377a6d98898ce1cc0bc90add0132289c2a8680649c2d39d73e186baed"
+    },
+    "kaisa-red-control-vs-poppy-standby": {
+      "old": "5ad668a2e6cf0feb5d6892c2e172e0ea3a47e203b3f6b21699c4e00b3033c268",
+      "current": "b65b077e48347a5f69b64b71fcd5ed5ee906a4fc864dc3ab2c1f72ef55f7c16d"
+    },
+    "kaisa-red-control-vs-rumble-armaments": {
+      "old": "393b3188c74cea32c0df24a7028e2117607bbf4f7b348512edc0a2cd0ea324bd",
+      "current": "45d3fb54beab8474507f3e0010464cc49bf6a023f576a7b26e89104ce8ffa70a"
+    },
+    "kaisa-red-control-vs-rumble-lowcurve": {
+      "old": "95d707e0e1e63d8c9d590c0e3a43c59cf6540c0146ed1e79223ab4961ca43286",
+      "current": "ed55300ad36f63cf70bfcfe51c1079906d50ce53184b0a196087e158277ce671"
+    },
+    "kaisa-red-control-vs-vex-battlefields": {
+      "old": "d968eb3b2f5fba39fcd76b129af3d0d4df7dd8edd9a5a5232e7f53bc3f7e7f25",
+      "current": "f8fec129d560d978badf9ff65647aa44c73829b801dfe0e2e8dd31e8d2ab7fba"
+    },
+    "kaisa-red-control-vs-vex-response": {
+      "old": "3f4e415176912d1488087e0e40adc4580138959c3e2fd2fb06c9cef7c82d00e9",
+      "current": "330cd1ae6d1438bacfbd43003eace31d4f28c742a416882384a7cf5d3d8150b1"
+    },
+    "kaisa-red-control-vs-vex-spells": {
+      "old": "d162bc420e4804b3f11fdfc293964973662f1d3e64ce820b8368dd55cd7a2953",
+      "current": "37b61698f3ed1cb7c8375d2d47fc5138487e2aac679eb796f0052b9801fdbea0"
+    },
+    "kaisa-red-tempo-vs-jhin-lowcurve": {
+      "old": "50d348d57f1f6a85448e18df6db099fb416912fe799e8e2f3b64a757bec296cc",
+      "current": "764e061cd7a504ed0a63573a106d71299b37baa164a5f801dc1fbae7cc74422f"
+    },
+    "kaisa-red-tempo-vs-kaisa-red-control": {
+      "old": "c6027162a53f4c4a65c59c126d171af709e914c048403b3fd68755cc01ae8a93",
+      "current": "50833cc98de62286d144287cfe91e704d90dc61235c7948ae9fbeeb7251bacc2"
+    },
+    "kaisa-red-tempo-vs-lillia-lowcurve": {
+      "old": "aef6b72eed2688531e1fbbb60fe4c846e992ccdd78f0ec6baa142515775e45ef",
+      "current": "9bec073963d1b7ca3a66845bcb06495943017b075b2be2dd0a36473bad5ea047"
+    },
+    "kaisa-red-tempo-vs-poppy-demacia": {
+      "old": "7007524c2936bc68811eaf3deaffeae8df8c357a0715d342d0ad6e60cad5604f",
+      "current": "fad9ebda6fedf1bedb36bc4ed115e0c2eb87640a5a084d2a880b56d137730a88"
+    },
+    "kaisa-red-tempo-vs-poppy-standby": {
+      "old": "29bf843da9b8199f15bb42cc9a896c5b0b23d520b6b26c17f748a188508ea3d3",
+      "current": "cdab33d341dde7217df2430464326c6380bddda08a417fff4ebbe96e053a56a0"
+    },
+    "kaisa-red-tempo-vs-rumble-armaments": {
+      "old": "4beb6a87cfdf055d27e95de3ea5fbbbda8ad66344688bb45cb2c9a215e207b73",
+      "current": "a4b59fbe942a71f9d55674014b97f87892e59e1ac9684fdc234b82e7a935b926"
+    },
+    "kaisa-red-tempo-vs-rumble-lowcurve": {
+      "old": "647366d265cd2376814e69fb1bb29fe13dbb0bf58c22362fbceb1dddb6bc46bd",
+      "current": "6f4626f22388b3248b7726441381e3147f6275fd2b14f77bb1f53021c1133d6b"
+    },
+    "kaisa-red-tempo-vs-vex-battlefields": {
+      "old": "703f1c8af0627ca4005dd05c9a71a8d6ad7508291fc5db168593fcd1ae478b51",
+      "current": "869cfea255efbd3c56d02157a3e5ffcbd0296bb1793ca0d609594058fb38e77e"
+    },
+    "kaisa-red-tempo-vs-vex-response": {
+      "old": "310c49161bc645cdbdeb4cb010596f29d96c75d95945e7db0f110345e0244c0b",
+      "current": "ae30fbfb360cdcc07ac92779723ffb8b5df743cdc2a889cbd2a7200895c898d9"
+    },
+    "kaisa-red-tempo-vs-vex-spells": {
+      "old": "966436aa1583682c1b90e5ea2ff510cf661b30d7839a6fedab39c3aa96a235ec",
+      "current": "758e1bdd77f5a8555859f447ca57cc08d2096320e7240c3836b747a88c076417"
+    },
+    "lillia-lowcurve-vs-jhin-lowcurve": {
+      "old": "3306c58b28b1c5f0e108b01c6cd8120b97cfa0038873ff910fbee630908a4a30",
+      "current": "7676ad54394767876de46f0a1101a6e69be5018dc2ae03bebebe23091743c0c0"
+    },
+    "lillia-lowcurve-vs-kaisa-red-control": {
+      "old": "c73d6f05909bdba4ca002138b7dacbc7d2979d2aa831f641900ab0116567fbd0",
+      "current": "2a30a383063f403f656b1bcfd60ca4bb8aa9818a27847369a9379db0c14c9f11"
+    },
+    "lillia-lowcurve-vs-kaisa-red-tempo": {
+      "old": "a772a1963d39dc9b774fa7ee4dd16e79d423602587f9b5745814ff58c87ef4bd",
+      "current": "b37d0086c2a6626eecad70f3148750541577ef2c3b2fddcc4f52432b4a131725"
+    },
+    "lillia-lowcurve-vs-poppy-demacia": {
+      "old": "b0c639f7c3f6f7909fc881af15abeab155d44983d3daf7e5f02e18962622b62d",
+      "current": "d537d57e3c54acdab56c1e5dd37ecbe1f0e0a7cabea9be621b51e0b702ae7af4"
+    },
+    "lillia-lowcurve-vs-poppy-standby": {
+      "old": "a08eaad390ed821ac394e5b431e8e8b0dde53dbaae612599c433ec13bcad51ee",
+      "current": "78fe3cc763b048860b0962dafcea4d6c6d5b76a9ae1a5569e299acc2f765c1ba"
+    },
+    "lillia-lowcurve-vs-rumble-armaments": {
+      "old": "efbb57350687b0644ae6187f7a4704eabd030116697202b0df78efabc9f37d19",
+      "current": "cf9cdbe68b2649902128553c403c525e09d7efcb538bc19f9a7a7e5550cec862"
+    },
+    "lillia-lowcurve-vs-rumble-lowcurve": {
+      "old": "1f96df5352ce209326ea8dc3ac162e83a1200300ec98c263eb7fbb864cf32fc4",
+      "current": "29fc91d7789cb86804f50617cf5389ca1c32855cf5485475ab4972aecee03c83"
+    },
+    "lillia-lowcurve-vs-vex-battlefields": {
+      "old": "70aff13292a632860fbbf1785f13cd303cae63b64e21d739a3405f7bf7cd2462",
+      "current": "f9cc4ba110aebac39162e4a053b6499e01c10cb7d4426ab298ac4bbf01584433"
+    },
+    "lillia-lowcurve-vs-vex-response": {
+      "old": "f91da9eadf96930e0d58e33b221e500e05bfe4ef28e3c5ba982839178d04d99f",
+      "current": "28eb4ed1a6a849869ef961f7204b7a719a85f9692153be26557db859bd5a6db5"
+    },
+    "lillia-lowcurve-vs-vex-spells": {
+      "old": "7ea8fed07c0d279e5245b890e4bb1de5ce1ca5f7ecfcb9527528ac2043a183bd",
+      "current": "00cdc8f4e20ebef91334784113cb34ba695f83fe929d7de7fdf001457bf19826"
+    },
+    "poppy-demacia-vs-jhin-lowcurve": {
+      "old": "cfdf6b461f8de8bac76016930dfacaae785fec027524961bb923af9948f542af",
+      "current": "3a7c3ca75f2424b59ad96bea6cff1d994f067c3c762e15ce80fe5c494e0c2bb1"
+    },
+    "poppy-demacia-vs-kaisa-red-control": {
+      "old": "6ad7492b2e11c453e8854af2f0d4db4b373eacf03a4cc2a14f185f8dc35c52ea",
+      "current": "5609654885fde79d05875756337f6a30ae5f1c8b050db5b160283130210db3f4"
+    },
+    "poppy-demacia-vs-kaisa-red-tempo": {
+      "old": "711bde34d31cce231ae29b41f59dd1cef2da240c18aa8b04679f0e0be290babf",
+      "current": "0802ae3f5c2122384ef1c1af9b03aa027625616bf0c1364f006dc7fd09d0390c"
+    },
+    "poppy-demacia-vs-lillia-lowcurve": {
+      "old": "583a0a67f2be0d334e082cdb0847a85c4a6af0fc5e2c01b164a04cdaad489105",
+      "current": "438efbad984a8625633a0703150c83153c94bc8da8974666474f0c1138769e81"
+    },
+    "poppy-demacia-vs-poppy-standby": {
+      "old": "91fcec5a002b444555141bc8091aea09372bf67ec2d289c43905b7839a55dbae",
+      "current": "c8d0bfc049fa2d44a506b8177522d2863ebed5989b0030db6d6f77e1efa5da21"
+    },
+    "poppy-demacia-vs-rumble-armaments": {
+      "old": "280e4575a3646a0f21ccbaf3950386505fa93ff2582e6f6dd9f771bf66389ff0",
+      "current": "a280365f8d330aadbcef63727b850274472558a05b55847504f1587fd691e3ee"
+    },
+    "poppy-demacia-vs-rumble-lowcurve": {
+      "old": "a8c5d258a7dd49642f43a84396e1383b5d5924a28f4091398bc71b8d6b4b4bbc",
+      "current": "9ba6125d205dfcbe3858d3a486203e802e72bdbf23d7648b78e643f00a9e1bce"
+    },
+    "poppy-demacia-vs-vex-battlefields": {
+      "old": "65c9405c4ce6200252548b1a64e591c27d239cecd5bdd78ec5eaa5a9d0ef5047",
+      "current": "b6d19f7c00fc86c41d5a5a55bf6ed4b9a4014cec1dcda8977b67c2a8633ebc6d"
+    },
+    "poppy-demacia-vs-vex-response": {
+      "old": "1a540ae56e0bce9797534f726a06a5b1293e14d299456998685bc896d16626e6",
+      "current": "7a2919b272d7b497bad66f41035ce920268b98b58407b6a874d9aa7cd800a6f8"
+    },
+    "poppy-demacia-vs-vex-spells": {
+      "old": "139d4f8e5753576c22917c4a36a0f2eb0ebe0af67440c9b7ce47a62821b7d513",
+      "current": "079bff9ef746b49a68eb807fd2ccfc1fccb3316a0313e87da55e9b75cbcbf195"
+    },
+    "poppy-standby-vs-jhin-lowcurve": {
+      "old": "c860d76d004f37186910eb958b9d3cf688c2c8d9075c999c31e6a55422abc266",
+      "current": "cb636b6e7555f46be0fb71f603bb7b6f5a5697c068523e3054dda4fd9ed0d02d"
+    },
+    "poppy-standby-vs-kaisa-red-control": {
+      "old": "6d68a16f465dec5103f3a6da356f24d12d7913db0d97576dcd5a17446000cf23",
+      "current": "d26445dd5e610363a542881d3782b19ccb1a5b7992d946563f96a6f6accdd8fe"
+    },
+    "poppy-standby-vs-kaisa-red-tempo": {
+      "old": "16ec5b3d67f9ce3006a774d9ddfc578382c5291a7437e19205ed6101969df112",
+      "current": "2c2c689c620f4bdd6532d9dd98d056fcca3878cdaba5e985ef58a7d4190614d5"
+    },
+    "poppy-standby-vs-lillia-lowcurve": {
+      "old": "012b6ed726cf6bc99d42ce59fb3a3b05091aa09939449c0467e787cd70a8290b",
+      "current": "cb1d24b7f82e44eb4bc2ed5fae2f90c7bcb72aef61c1d768ad7d06d744eaddf3"
+    },
+    "poppy-standby-vs-poppy-demacia": {
+      "old": "942453c9e72b83349273de7970fbbcedd4a3257c5a77dc95b74f3b1cd071ea35",
+      "current": "c8810b6a79a27d9c8ce4c3719ede5cfa8ce263b0b8ec8325990e9134d91d178c"
+    },
+    "poppy-standby-vs-rumble-armaments": {
+      "old": "72853632263ab82077d0e8e4afa7ddbf6a37700f88601c0a20ecd135687f285e",
+      "current": "eb11e74093e3b8d5c38118e56110a0bdc2d9e133f4ca105965ebb74acb14733d"
+    },
+    "poppy-standby-vs-rumble-lowcurve": {
+      "old": "9877c06639abc983b12555356c8259ab2019e15808753e7034824f81e715a315",
+      "current": "ca67cb58515b1ac24586fc6423ec85774ae35509f5b22f6761eb971657cf0f03"
+    },
+    "poppy-standby-vs-vex-battlefields": {
+      "old": "083b87deba0fa004d665e1687376bb036917f9d1c32c347c600776df4bc8d7f4",
+      "current": "2ff6accd81bac951f38ae94dbe02cc63df744f1559cff750ec3b1d2fe1443fc4"
+    },
+    "poppy-standby-vs-vex-response": {
+      "old": "fe59d3da5e4859b56922d542e1a50ce7d4bbae01641f1356d9b9870f51243f9f",
+      "current": "870a90bfbfaffc7b77a6bfb0a5bc9311689163cff20f080e099e9d783a59bce7"
+    },
+    "poppy-standby-vs-vex-spells": {
+      "old": "18431d2cea1c8602f8b8e1482d54770211233e30c138ee88f8219bd1778e660b",
+      "current": "267c26c839a89aff358b571c3a9aa31ef6a9e44f0fd63020feca11634b7f2e42"
+    },
+    "rumble-armaments-vs-jhin-lowcurve": {
+      "old": "49a8695b04f9d5304725a701f2f96d758c17fb3b66b52c261591710450d2d78b",
+      "current": "79a466c4b1fdbe34a53322a5d9c1593d2523897eca92ed975df0cdf2360caefe"
+    },
+    "rumble-armaments-vs-kaisa-red-control": {
+      "old": "c03ad72cc45372b690d29a7986025e71357365f6908230e27aa319bc697e64f0",
+      "current": "e46f587f60faabce05c56a739fb5e21e9d2dfcbb257b5657ea86798bc9b14067"
+    },
+    "rumble-armaments-vs-kaisa-red-tempo": {
+      "old": "3e9fb301f7736cfa0cdd1ddc65481994e52b4bf41b0bfd6854f6aabf05242d2b",
+      "current": "fdd061c8835f832b4d5eaeb01b96193b436169a1046827c7ad16ca3c7d61dbeb"
+    },
+    "rumble-armaments-vs-lillia-lowcurve": {
+      "old": "f1eda0fdcaa8d836d650294bfb033445321968da0650cc3c07d1db82d1e971a8",
+      "current": "7da0b251b8fc66cfce8515d0ca1a4f2cbccca4ff2d5d9d0792e02adb7bafff49"
+    },
+    "rumble-armaments-vs-poppy-demacia": {
+      "old": "94922d62a68aa93b2d32a4f57fb9ab135c42f993ce05f10d8e809953ffc84717",
+      "current": "1cfbb28d65eba5afdc9c6f979b1befa64ecdc401e1c9e19fd4b32701c36fb09c"
+    },
+    "rumble-armaments-vs-poppy-standby": {
+      "old": "a1bf66cf7978684d0d098e594d9f33b3107f42748f5434bcd3b55a44b2bd8f93",
+      "current": "ded901224bb3af6f3c5e6ba8adea40f93a3433dc12045e68f1332a627dc58b90"
+    },
+    "rumble-armaments-vs-rumble-lowcurve": {
+      "old": "8d3d41873d36523a2aa37576e72ed5b3e6151c732f7f46b9522e434684051d1c",
+      "current": "e59404b2f815b0bcc4013db324943848bb13f277cae28235bc3dc8b7e45d9e9e"
+    },
+    "rumble-armaments-vs-vex-battlefields": {
+      "old": "0e285ba931c6f0d55b8f8a3f8616158f367f2f2e749a0bcc0e8ebb510e9bd338",
+      "current": "94177c4f6e739648234ea02c69b05b8d023a2fbd8eb963e6ca1be3c57615d2e6"
+    },
+    "rumble-armaments-vs-vex-response": {
+      "old": "f9cda6e978530d142edbad5ea67e9cec48896d60ae09173058fe7af9010d81f2",
+      "current": "4ad400e55d228067e5400023696589dbde9ca1e862389fca53a8ad67e18e9b69"
+    },
+    "rumble-armaments-vs-vex-spells": {
+      "old": "bff7467aaea8f5c9bd2f8d196b8703ae377217339407f42ae392f88e30dc6f80",
+      "current": "864cb560959cd1915311f5ce12beda9cfafaff768944333369eaf7c3eb6ae469"
+    },
+    "rumble-lowcurve-vs-jhin-lowcurve": {
+      "old": "93e8f4abef48a4b75e8ce02c548e465ee828a11f5af05baa571d3a59d73dee83",
+      "current": "6825e6a601413ef77537508821073789e79d34319b969582d76b8f1ec9cfb567"
+    },
+    "rumble-lowcurve-vs-kaisa-red-control": {
+      "old": "d69b271565c3b22c29389cc60c65864f7c2b51c6c093959f7f43659f9fe41867",
+      "current": "f8c5704286555803b1898cb0adcf62c3d50b5d6d49007983420c2b54aded67e8"
+    },
+    "rumble-lowcurve-vs-kaisa-red-tempo": {
+      "old": "e0457715218d1fc31a30e353e173233866065d2fa9089fbedb49c923bdd87cfb",
+      "current": "80bd7798ecd2e61a69064f433eb76cb4c1af648ef3d89e7c3fad305f45734cab"
+    },
+    "rumble-lowcurve-vs-lillia-lowcurve": {
+      "old": "3d726fde368adab1814e46527265e4403001ab194616dd01a9f920c437ce5375",
+      "current": "3e8294ab57c0b688d229ab3a525ad7ec2d813e1159489d17731c61b210ffa8f4"
+    },
+    "rumble-lowcurve-vs-poppy-demacia": {
+      "old": "7665d203f7303a5f2ae470f7c1660c3e07a227dae7d2d8636b90595ec943302a",
+      "current": "8d37b7baab3fe7e1e182572d4f43185353a9f92f424caef0500e8f1c4b6b65cc"
+    },
+    "rumble-lowcurve-vs-poppy-standby": {
+      "old": "0667902a37d8e3ff7543d1bfb8af7381f7ead702ec584df4141b22be04f953dc",
+      "current": "f88a8ad7ab5a589ea8ccfda85da6bc6088c3ba4c6bf0c43b2e7a49296e9ef629"
+    },
+    "rumble-lowcurve-vs-rumble-armaments": {
+      "old": "651de7fc8b3f2431e77f4dd4957a15e23027108a369717b46913e77f3f89b0e6",
+      "current": "b8cf03d418e0d65732d41a55b41daaf8ae39274a8b55e061e2416f750cbd427d"
+    },
+    "rumble-lowcurve-vs-vex-battlefields": {
+      "old": "93d44ea6c67898bbb85977ddee6b794c47fec9ef38b15fc7e23f77a40a485620",
+      "current": "5c32c0bca519915e1e871409b2ba327b50a1b121a03f0e6529e9a9254fc01e89"
+    },
+    "rumble-lowcurve-vs-vex-response": {
+      "old": "bdbf47ddfd42660cd9091db594a4cd2640937b85fee5b07560efe48de32b2fa7",
+      "current": "b7d896169ced20975592a8ee36d02b1fcda2af88a42df710a3c0ac135e7e0f27"
+    },
+    "rumble-lowcurve-vs-vex-spells": {
+      "old": "b72181e0e727ab3454a9daeb401c761c5de080032474a57edcc83b8aa2f3731a",
+      "current": "6d361d7cb89481263c8f91c07a024727f0c0b0f5ed2d5dc6ec13dc897d48685c"
+    },
+    "vex-battlefields-vs-jhin-lowcurve": {
+      "old": "0484be7de3d8f0f3857a4f5b439e85a66640af89984332d12c33fa5029b20c01",
+      "current": "67900150d28f9bdb3d2ddfd81451c31bdf35f237f00918c4d8db27f3fb3739c8"
+    },
+    "vex-battlefields-vs-kaisa-red-control": {
+      "old": "1efc35af98ec106a4f658ac8567043603882bddbb1b8ab43c17f4917f470520a",
+      "current": "35f143aca929b10c9e9acdbbbc6d75531084346b5324939c5dde591c51206ca3"
+    },
+    "vex-battlefields-vs-kaisa-red-tempo": {
+      "old": "d79b2fd1484c5704e25eb706bee0797aab850fa372c0e59e11d8ddac2192fa1d",
+      "current": "94f1a23a13428adc49fe5b7e6fd013c374d03fa1e28110f230d906932f0f9499"
+    },
+    "vex-battlefields-vs-lillia-lowcurve": {
+      "old": "2f78a5491a1a211221ee2104242ca332e9adc6c2c0d7e08ce7929b96c923f8d7",
+      "current": "b9665a8b8507270bb785d357d3b34aeb0f2f27383989529ebe6406e151eb6e53"
+    },
+    "vex-battlefields-vs-poppy-demacia": {
+      "old": "adf19e7da1760903258f1cafba655f0b668b150c974404f675a662aad7906db9",
+      "current": "1716eb917e8635d7d857c43b4c810126c637e43ab946f7e9464365b949ba0247"
+    },
+    "vex-battlefields-vs-poppy-standby": {
+      "old": "c3b3ab8c12533d115853195f1948b74d631a9192b7419d790a5906d06b83f95a",
+      "current": "e5822bce8e7ae0ce63a01f7d7f6c03c4e92d99f02d6b504c6aed1f768d780c4a"
+    },
+    "vex-battlefields-vs-rumble-armaments": {
+      "old": "773ccc564ad2972753dc4bdea0ee8caa61c6eccbd40b578f664fd2b592f89e09",
+      "current": "1f373eba0c78168ef6e2d019a107d1522435f9361dacb365bd3bb442a08c4af6"
+    },
+    "vex-battlefields-vs-rumble-lowcurve": {
+      "old": "83f4553bc340b55a6f07f09d5429f4ad17760936c685ce590168e043e2ee3679",
+      "current": "341431d644a367eb8ac7da383ec6f7bbfda7739c84f70b62d4020db1a50a400c"
+    },
+    "vex-battlefields-vs-vex-response": {
+      "old": "33f85ec3eea23096a63a14b3fd037f18b8c240313a467813b6b8fec515d4adc0",
+      "current": "e6c2009fc6ff5a473769cd9a1736bd866511fc2ff78fc1b1628ee9a466adec74"
+    },
+    "vex-battlefields-vs-vex-spells": {
+      "old": "3f116ab5963c7f95bbdb5ec9c755f02b5b645fade6ee1f71b1c03979ec93bd57",
+      "current": "5fdef14a9587d7a72227dbcc0b0f926b2a0b5b468ee772004858acf415826558"
+    },
+    "vex-response-vs-jhin-lowcurve": {
+      "old": "8c60fca190d4649160801a18c59183f19fda93a9203c08a047779b6504bb4723",
+      "current": "8ba25fde0bf65080764721003eb6d01c1ad4ea08cbe0fb8d454a4970515f4177"
+    },
+    "vex-response-vs-kaisa-red-control": {
+      "old": "d6f5c11f99b4316330d0bc2962e441c8005dcdeea19d985b8ca0cb85ab07082c",
+      "current": "425fe0ed084cf5922f271c3b9af2cf410e921ed4d42aab5af77f3d5910c20cea"
+    },
+    "vex-response-vs-kaisa-red-tempo": {
+      "old": "cc3fd2179889a8a35713f1a16c96104e9307afd5103f1da5631c334eafdac5e1",
+      "current": "f77a1da501043235755dae5fc524b936b23135d10e45bb69651e5e8590f805da"
+    },
+    "vex-response-vs-lillia-lowcurve": {
+      "old": "b2dbdea1ff51cc4b19fab1514e66ce60e3c56acb1da047560e11942c62eb284c",
+      "current": "a437ebfbcef809ee9bcb3c2c9533012889dfc5089ff91e96b9a5d16e8f88d1a3"
+    },
+    "vex-response-vs-poppy-demacia": {
+      "old": "b4c4b13403fd8dd7695d145a3cf65e3b0893290e8a1a1df2365314d8483cb0e4",
+      "current": "f2419426540897d8102e3a95a4cad70bdfdf8e1e19e6e81ae45646759170ed94"
+    },
+    "vex-response-vs-poppy-standby": {
+      "old": "4a70e92dc976a964028d5b1b2ecdefebeb925c9fdfe5302284debaa61b318f58",
+      "current": "79d3605b27174d191edf41dd903c3e2e6287f59afd76137347b113456e5956f6"
+    },
+    "vex-response-vs-rumble-armaments": {
+      "old": "d060f5e1ce2880ba0126ffb155e1d57e519bd22efdb539b15667ceb02610fd82",
+      "current": "2808e3a3db14e91d748d38d7965c0ef537a81de810017fc918d8f876ef755719"
+    },
+    "vex-response-vs-rumble-lowcurve": {
+      "old": "5e7db26932706a085ae59da677acdc8167484559d2c17465ca27a6a6fae53c54",
+      "current": "5d22ff60a5b2f35bd2e8311d41347af0048f216f83859b862d6d1d5df5febfe9"
+    },
+    "vex-response-vs-vex-battlefields": {
+      "old": "9d12be51b7b2a635b08b4ca17bcde05c662f7faa6d9ed957e681ca21cebb253b",
+      "current": "5d6a1bbe4ed49cff8e94244c59e5002fe65da917d10e454698e9c96df6118b42"
+    },
+    "vex-response-vs-vex-spells": {
+      "old": "acbb342139aae2bbc4c6a6fb4ab97b5f7baec6e56f986186a5c51a5ac026d585",
+      "current": "7cbb178b5f8ebdf9ba7393cc63c3cb9098012b7a2da857131212f9d029e23f97"
+    },
+    "vex-spells-vs-jhin-lowcurve": {
+      "old": "52e28526ea23a7fce56287c7af6ed08008d07c4f1d882636e6f0282f0a35100d",
+      "current": "5e1ad4e6aada0e70848a7f5a0e557d4689a80a6b07bdcb06a7f8fc9793f29d51"
+    },
+    "vex-spells-vs-kaisa-red-control": {
+      "old": "1ed590ad5f9111d428f45c7634b593143623c3be23800641d92d886a8ebe28b7",
+      "current": "33e4244daf00dec88b08e92c97b4e423ece3fa1ba6ef9beca0b286cbbef4ec33"
+    },
+    "vex-spells-vs-kaisa-red-tempo": {
+      "old": "62163b071b51eab45ef046664e24e41d9372a8d28e2a74783b1a1fe5a579280b",
+      "current": "77d8547fb09bd514d93318e869ae9f464e40958b4fda5d80e3d6cbe756975acb"
+    },
+    "vex-spells-vs-lillia-lowcurve": {
+      "old": "731a17b2fcab4a76732fb92321b6fb904e4bc453fabe84c3159dbaa675a04bd8",
+      "current": "2801746aeec51e362bc285774063c10d0f63eec7ae425f47ed33dc97ac3fc2f9"
+    },
+    "vex-spells-vs-poppy-demacia": {
+      "old": "f84193f0e2f4a7adc1fb2508a2f38bebbd14e15a6cb3d154af7e971958c0f032",
+      "current": "1ee1781202d48f26d68f94bf123ecc1e430bcfb4c9abab0b7225862f4dfe74f6"
+    },
+    "vex-spells-vs-poppy-standby": {
+      "old": "9bfc7ba90ba833de9cc4ca126d9f179bae911e5d60b410f35bb0a227f7bc618d",
+      "current": "859daa772d1a336f77526bf8e38a87841169563de8a5ea87e601f0e3e25791db"
+    },
+    "vex-spells-vs-rumble-armaments": {
+      "old": "57f91985c6ec083ea16f1df66f204dab0eb1028f1273a44c363bbac0b8011da7",
+      "current": "055c2107f122336109f1162f97b7d674aa75c1d9f8944782ca49b4bc80b4cb46"
+    },
+    "vex-spells-vs-rumble-lowcurve": {
+      "old": "9dafef651b41a2c9459fe2ada78a0cdf3f22a738df9e961ca8be9c99bdfbd95a",
+      "current": "e5c67f2b31e59a5d96f1ad8897177e452b594dc9f345c1c29089d1b9aa4b459b"
+    },
+    "vex-spells-vs-vex-battlefields": {
+      "old": "b758864a03fbbf710186a7c784d7f7435c2594b39552576578fbb08565db41cb",
+      "current": "7bd116ed3ffdaf4ea3aee99cf1835a23573792e6e74dc858ddca85ade9822784"
+    },
+    "vex-spells-vs-vex-response": {
+      "old": "08f481bb769fb4474acf6e4caee393e601475c4c5422cdb88efe5d7241627e91",
+      "current": "71a6f9dd8c7897db5b9db85ceff9e390a374d8c4d1e8ef382a661af597268692"
+    }
+  },
+  "noOriginalAssertionOrTerminalHashRewritten": true
+}

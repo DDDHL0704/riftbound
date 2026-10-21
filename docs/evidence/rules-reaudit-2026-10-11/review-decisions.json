@@ -24256,6 +24256,68 @@
         "Current fixed complete CI and corresponding visible paired native controls, SQL/reconnect/normal score/full replay and physical Windows",
         "Adjacent revealed-hand viewedCards presentation and independent source-provenance finding remains separate OPEN"
       ]
+    },
+    {
+      "id": "optional-observed-revealed-hand-current-cn16-2026-10-21",
+      "scope": "Only three current optional observed permissions and two revealed-hand owner-play/decline branches, stable prompts and exact Bone effective-text adoption; the supporting Void Gate effective-text gap remains separately OPEN.",
+      "subjects": [
+        "OGN-194/298",
+        "OGN-291/298",
+        "UNL-139/219",
+        "OGN-208/298",
+        "OGN-296/298"
+      ],
+      "ruleRecords": [
+        "DOC-01-P041-B013",
+        "DOC-01-P050-B012",
+        "DOC-01-P059-B002",
+        "DOC-01-P059-B009",
+        "DOC-01-P059-B010",
+        "DOC-01-P075-B015",
+        "DOC-09-P020-B001",
+        "DOC-09-P020-B002",
+        "DOC-09-P020-B003",
+        "DOC-10-P002-B005",
+        "DOC-10-P002-B006",
+        "DOC-10-P002-B007",
+        "DOC-10-P002-B008"
+      ],
+      "pendingRuleRecords": [
+        "DOC-16-P012-B006",
+        "DOC-16-P012-B007"
+      ],
+      "status": "BOUNDED_OPTIONAL3_HAND2_SQL36_94_CHECK13229PASS_2SOURCE_EXPECTATIONS_REMEDIATED_FOCUS38_SEPARATE_VOID_GATE_GAP_FULL_PRODUCT_OPEN",
+      "sourceManifest": {
+        "path": "docs/evidence/optional-observed-revealed-hand-2026-10-21/source-manifest.json",
+        "sha256": "54dba1cafa47144b743d58b3b8d945d062acda9f0509ab5256cf42d8e347aaac",
+        "role": "source-manifest"
+      },
+      "auditDocument": "docs/OPTIONAL_OBSERVED_REVEALED_HAND_CURRENT_CN16_AUDIT_2026-10-21.md",
+      "validation": {
+        "newConformanceCases": 1,
+        "newConformanceMethods": 1,
+        "distinctFocusCases": 171,
+        "distinctFocusMethods": 86,
+        "checkCases": 13231,
+        "checkMethods": 7505,
+        "checkPassed": 13229,
+        "checkFailed": 2,
+        "postCheckRemediationFocusCases": 38,
+        "postCheckRemediationFocusMethods": 15,
+        "sqlCommands": 36,
+        "sqlEvents": 94,
+        "sqlColdRecoveries": 36,
+        "allOriginal50SqlIdentitiesAnd143FullMethodsRetained": true,
+        "wholeCardCertification": false
+      },
+      "exclusions": [
+        "Whole printings, standby, copies, absent-field and played-unit replacement/prevention interactions",
+        "Initial simultaneous replacement-choice ordering rights",
+        "All other finite observation consumers and unresolved source gaps",
+        "Final current fixed complete CI, visible hardware controls and paired clients, and physical Windows",
+        "Void Gate runtime adoption and damage semantics",
+        "Exhausted Reksai source confirmation behavior"
+      ]
     }
   ]
 }

@@ -1,0 +1,12 @@
+{
+  "atUtc": "2026-10-21T04:13:37.845419+00:00",
+  "status": "COMPLETED_39E_SQL_EXTRACTION_RETIRED_AFTER_EVERY_ORIGINAL_MEMBER_BYTE_AND_CLOSED_SET_VERIFIED",
+  "files": 359,
+  "logicalBytes": 5752899,
+  "originalEightVerifiedCiArchivesRetained": true,
+  "all143FullMethods110PairsAndOriginalSqlResultsRetainedInVerifiedArchives": true,
+  "manifest": "ci-39e-completed-duplicate-extraction-exact-original-member-manifest-v1.json.gz",
+  "manifestSha256": "08afc161a09730679200770cd037d056d5a9e1ea556ecb8544f2b79f2b46ac16",
+  "physicalReclaimNotInferred": true,
+  "onlyGeneratedDuplicateExtractionRemoved": "var/qa/deck-play-ordered-observation-20261021/ci-39e-independent-sql-members-v1"
+}

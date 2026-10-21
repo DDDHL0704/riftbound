@@ -1,0 +1,48 @@
+{
+  "status": "PASS_INDEPENDENT_CURRENT_REVEALED_HAND_ORDINAL_PROMPT_OWNER_PLAY_DECLINE_ALL_HISTORY_PRIVATE_FIELDS_EVERY_ORIGINAL_REPLAY",
+  "rooms": [
+    "revealed-hand-order-652c3885233846858203a4a89f4d0e42",
+    "revealed-hand-order-8facf91cd91f41baa3eb65f1fb60f689"
+  ],
+  "cases": 2,
+  "commands": 9,
+  "events": 26,
+  "authoritativeHistoricalStates": 9,
+  "privateSnapshots": 18,
+  "privatePrompts": 18,
+  "independentStructuralRejections": 24,
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "d5dbe0401fc52312c0f9033702b8090ff4063499db878706317dc259d051ac29",
+    "implementationSha256": "a196c026223fa33ed3c53e2b7141d9f0f6ef71dc250de5266fe288b947e5223e",
+    "identitySha256": "237043ed771b479594ebfe530a679e866777b60b6e329ec4656cef9a5bce771b"
+  },
+  "results": [
+    {
+      "branch": "owner-play",
+      "room": "revealed-hand-order-652c3885233846858203a4a89f4d0e42",
+      "commands": 5,
+      "events": 17,
+      "states": 5,
+      "snapshots": 10,
+      "prompts": 10,
+      "allFieldsAndEveryOriginalActionEventReplayExact": true
+    },
+    {
+      "branch": "decline",
+      "room": "revealed-hand-order-8facf91cd91f41baa3eb65f1fb60f689",
+      "commands": 4,
+      "events": 9,
+      "states": 4,
+      "snapshots": 8,
+      "prompts": 8,
+      "allFieldsAndEveryOriginalActionEventReplayExact": true
+    }
+  ],
+  "actualReadOnlyConnection": true,
+  "originalBlankReplayMetadataNotRewritten": true,
+  "visibleNormalOpeningWindowsOrWholePrintingAcceptance": false
+}

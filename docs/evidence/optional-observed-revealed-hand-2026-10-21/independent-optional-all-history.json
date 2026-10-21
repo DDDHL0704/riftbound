@@ -1,0 +1,59 @@
+{
+  "status": "PASS_INDEPENDENT_INTEGRATED_CN16_NOCTURNE_OPTIONAL_UNAFFORDABLE_MIXED_ALL_SQL_HISTORY_PRIVATE_FIELDS_AND_EXPLICIT_INITIAL_REPLAY",
+  "rooms": [
+    "candlelit-private-look-64a2eba300784f428ec92cded19b3d1d",
+    "candlelit-private-look-92f97913a2754fd891ee96cb7dbd6616",
+    "candlelit-private-look-e17e417c0d534bc29c22f86bd4d61e14"
+  ],
+  "cases": 3,
+  "commands": 27,
+  "events": 68,
+  "authoritativeHistoricalStates": 27,
+  "privateSnapshots": 54,
+  "privatePrompts": 54,
+  "independentStructuralRejections": 18,
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "d5dbe0401fc52312c0f9033702b8090ff4063499db878706317dc259d051ac29",
+    "implementationSha256": "a196c026223fa33ed3c53e2b7141d9f0f6ef71dc250de5266fe288b947e5223e",
+    "identitySha256": "237043ed771b479594ebfe530a679e866777b60b6e329ec4656cef9a5bce771b"
+  },
+  "results": [
+    {
+      "branch": "optional-decline",
+      "room": "candlelit-private-look-64a2eba300784f428ec92cded19b3d1d",
+      "commands": 9,
+      "events": 22,
+      "states": 9,
+      "snapshots": 18,
+      "prompts": 18,
+      "allFieldsAndOriginalActionEventReplayExact": true
+    },
+    {
+      "branch": "unaffordable-decline",
+      "room": "candlelit-private-look-92f97913a2754fd891ee96cb7dbd6616",
+      "commands": 9,
+      "events": 22,
+      "states": 9,
+      "snapshots": 18,
+      "prompts": 18,
+      "allFieldsAndOriginalActionEventReplayExact": true
+    },
+    {
+      "branch": "decline-first-play-second",
+      "room": "candlelit-private-look-e17e417c0d534bc29c22f86bd4d61e14",
+      "commands": 9,
+      "events": 24,
+      "states": 9,
+      "snapshots": 18,
+      "prompts": 18,
+      "allFieldsAndOriginalActionEventReplayExact": true
+    }
+  ],
+  "actualReadOnlyConnection": true,
+  "originalBlankReplayMetadataNotRewritten": true,
+  "visibleNormalOpeningWindowsOrWholePrintingAcceptance": false
+}
