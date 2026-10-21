@@ -1,0 +1,76 @@
+{
+  "atUtc": "2026-10-21T04:59:46.605475+00:00",
+  "parentCommit": "646783cc05bb48ce19d69fc1c2fff50969438134",
+  "sourceBuiltFrozenN33CodeAndDeclaredDataOverlayOnly": true,
+  "exactOneRowFieldDifference": [
+    [
+      31542,
+      [
+        "cardEffect"
+      ]
+    ]
+  ],
+  "runs": [
+    {
+      "name": "old-current-effective-text",
+      "exitCode": 0,
+      "sourceEffect": "以此处的单位作为目标的法术或技能，造成的伤害+1（每段伤害都+1）。",
+      "actualRuleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "d5dbe0401fc52312c0f9033702b8090ff4063499db878706317dc259d051ac29",
+        "implementationSha256": "a196c026223fa33ed3c53e2b7141d9f0f6ef71dc250de5266fe288b947e5223e",
+        "identitySha256": "237043ed771b479594ebfe530a679e866777b60b6e329ec4656cef9a5bce771b"
+      },
+      "actualDamage": 4,
+      "expectedDamage": 4,
+      "parsedStaticAbilities": [
+        {
+          "kind": "BATTLEFIELD_TARGET_SPELL_SKILL_DAMAGE_BONUS",
+          "text": "以此处的单位作为目标的法术或技能，造成的伤害+1（每段伤害都+1）",
+          "status": "unimplemented",
+          "reason": "Battlefield target spell/skill damage bonus parsed for B4 routing; execution is available when engine support reads BehaviorSpec.StaticAbilities.",
+          "amount": 1,
+          "requiredPowerThreshold": null,
+          "grantedKeywords": null,
+          "targetFilter": null,
+          "requiredPlayerExperience": null,
+          "maxControllerHandCount": null,
+          "requiredOtherControlledUnitTag": null,
+          "requiredOpponentControlledBattlefieldCount": null,
+          "requiredOtherControllerBaseUnitCount": null,
+          "requiresBattlefieldDestination": null,
+          "requiresUnitDestroyedThisTurn": null,
+          "requiredExactOtherFriendlyBattlefieldUnits": null
+        }
+      ],
+      "allThreeRealOriginalCommandsAccepted": true,
+      "outcomeSha256": "cea63f41117227be3c405d1871de7f2d2ae5cc0d21b1b5b3951ae861c911257a"
+    },
+    {
+      "name": "current-official-erratum-text",
+      "exitCode": -6,
+      "sourceEffect": "法术和技能对此处的单位造成的伤害+1（每段伤害都+1）。",
+      "actualRuleInputs": {
+        "schemaVersion": 1,
+        "region": "CN",
+        "language": "zh-CN",
+        "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "catalogSha256": "a940e5f8bcd5e1ead68a85c7f983e530333d6179a4b8429ed1f8fe2ee20b8397",
+        "implementationSha256": "a196c026223fa33ed3c53e2b7141d9f0f6ef71dc250de5266fe288b947e5223e",
+        "identitySha256": "cae363c4fb49287901954e65f7f43301c1794124166a261d07771db8bbd15670"
+      },
+      "actualDamage": 3,
+      "expectedDamage": 4,
+      "parsedStaticAbilities": [],
+      "allThreeRealOriginalCommandsAccepted": true,
+      "outcomeSha256": "6236afcdd63f5347976951a7d7831c55d3cad32a5f6be64e34b86f4acea7f38f"
+    }
+  ],
+  "notRootIntegrationOrWholePrintingCertification": true,
+  "status": "COUNTEREXAMPLE_CONFIRMED_CURRENT_OFFICIAL_VOID_GATE_TEXT_ADOPTION_LOSES_BONUS_WITH_UNCHANGED_SHARED_PARSER",
+  "allFrozenN33RuntimeAndRunningCheck3323SourceHashesUntouched": true,
+  "noExistingMatchOrDatabaseChanged": true
+}

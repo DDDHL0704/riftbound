@@ -1,18 +1,23 @@
 {
   "schemaVersion": 2,
   "fixtureId": "p2-preflight-play-firestorm-damage-enemy-battlefield-units",
-  "description": "Firestorm deals 3 damage to every enemy battlefield unit in the current single-battlefield model.",
+  "description": "Firestorm selects one real battlefield and deals 3 damage to its enemy units; original security and damage assertions retained.",
   "source": "manual-pdf-faq-preflight",
-  "auditStatus": "RULE_AUDITED",
-  "rulesVersion": "rules-260330",
-  "faqVersion": "official-pdf-faq-set-2026-04-28",
-  "catalogVersion": "official-2026-04-27",
+  "auditStatus": "SCOPED_CURRENT_SELECTED_BATTLEFIELD_DAMAGE",
+  "rulesVersion": "CN-2026-10-16",
+  "faqVersion": "CN16-source-manifest-no-card-specific-FAQ-invoked",
+  "catalogVersion": "official-live-2026-10-21T05:26:27Z-API31581",
   "seed": 2603302145,
   "rulesEvidence": [
     {
+      "source": "docs/evidence/rules-reaudit-2026-10-11/official-corpus.json",
+      "locator": "DOC-01-P044-B022/B023; CN core effective 2026-10-16; exact API31581 OGS·002/024 read back 2026-10-21T05:26:27Z",
+      "note": "当前限定分支选择一处真实战场，受影响单位不作为目标。原旧版本标签、夹具、种子和完整断言已另存原件；下方旧手工来源只保留历史依据，不作当前整卡认证。"
+    },
+    {
       "source": "official/card-catalog.zh-CN.json",
       "locator": "OGS·002/024 烈火风暴",
-      "note": "官方卡面：费用 6；对一处战场的所有敌方单位各造成 3 点伤害。当前 fixture 锁定单战场区域模型下的敌方战场单位范围。"
+        "note": "官方卡面：费用 6；对一处战场的所有敌方单位各造成 3 点伤害。2026-10-21复核精确API31581；本夹具选择真实战场，受影响单位不作为目标。原旧夹具与哈希另存。"
     },
     {
       "source": "《符文战场》核心规则_260330.pdf",
@@ -52,7 +57,7 @@
         "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
         "hand": ["P1-SPELL-FIRESTORM"],
         "base": [],
-        "battlefields": ["P1-FRIENDLY-BATTLEFIELD-UNIT"],
+        "battlefields": ["FRIENDLY-BF", "P1-FRIENDLY-BATTLEFIELD-UNIT"],
         "graveyard": [],
         "banished": [],
         "legendZone": ["P1-LEGEND-001"],
@@ -63,30 +68,43 @@
         "runeDeck": ["P2-RUNE-001", "P2-RUNE-002"],
         "hand": [],
         "base": ["P2-ENEMY-BASE-UNIT"],
-        "battlefields": ["P2-ENEMY-BATTLEFIELD-UNIT-001", "P2-ENEMY-BATTLEFIELD-UNIT-002"],
+        "battlefields": ["BF", "P2-ENEMY-BATTLEFIELD-UNIT-001", "P2-ENEMY-BATTLEFIELD-UNIT-002"],
         "graveyard": [],
         "banished": [],
         "legendZone": ["P2-LEGEND-001"],
         "championZone": ["P2-CHAMPION-001"]
       }
     },
+    "objectLocations": {
+      "BF": { "playerId": "P2", "zone": "BATTLEFIELD", "battlefieldObjectId": "BF" },
+      "FRIENDLY-BF": { "playerId": "P1", "zone": "BATTLEFIELD", "battlefieldObjectId": "FRIENDLY-BF" },
+      "P1-FRIENDLY-BATTLEFIELD-UNIT": { "playerId": "P1", "zone": "BATTLEFIELD", "battlefieldObjectId": "FRIENDLY-BF" },
+      "P2-ENEMY-BATTLEFIELD-UNIT-001": { "playerId": "P2", "zone": "BATTLEFIELD", "battlefieldObjectId": "BF" },
+      "P2-ENEMY-BATTLEFIELD-UNIT-002": { "playerId": "P2", "zone": "BATTLEFIELD", "battlefieldObjectId": "BF" }
+    },
     "cardObjects": {
+      "BF": { "cardNo": "OGN·275/298", "tags": ["CARD_TYPE:BATTLEFIELD"], "ownerId": "P2", "controllerId": "P2" },
+      "FRIENDLY-BF": { "cardNo": "OGN·275/298", "tags": ["CARD_TYPE:BATTLEFIELD"], "ownerId": "P1", "controllerId": "P1" },
       "P1-FRIENDLY-BATTLEFIELD-UNIT": {
+        "cardNo": "SFD·125/221", "tags": ["CARD_TYPE:UNIT"], "ownerId": "P1", "controllerId": "P1",
         "damage": 0,
         "power": 4,
         "untilEndOfTurnEffects": []
       },
       "P2-ENEMY-BASE-UNIT": {
+        "cardNo": "SFD·125/221", "tags": ["CARD_TYPE:UNIT"], "ownerId": "P2", "controllerId": "P2",
         "damage": 0,
         "power": 4,
         "untilEndOfTurnEffects": []
       },
       "P2-ENEMY-BATTLEFIELD-UNIT-001": {
+        "cardNo": "SFD·125/221", "tags": ["CARD_TYPE:UNIT"], "ownerId": "P2", "controllerId": "P2",
         "damage": 0,
         "power": 4,
         "untilEndOfTurnEffects": []
       },
       "P2-ENEMY-BATTLEFIELD-UNIT-002": {
+        "cardNo": "SFD·125/221", "tags": ["CARD_TYPE:UNIT"], "ownerId": "P2", "controllerId": "P2",
         "damage": 0,
         "power": 5,
         "untilEndOfTurnEffects": []
@@ -101,7 +119,7 @@
         "cmdType": "PLAY_CARD",
         "sourceObjectId": "P1-SPELL-FIRESTORM",
         "cardNo": "OGS·002/024",
-        "targetObjectIds": []
+        "targetObjectIds": ["BF"]
       }
     },
     {
@@ -147,7 +165,7 @@
           "controllerId": "P1",
           "sourceObjectId": "P1-SPELL-FIRESTORM",
           "cardNo": "OGS·002/024",
-          "targetObjectIds": [],
+          "targetObjectIds": ["BF"],
           "effectKind": "FIRESTORM_DAMAGE_ALL_ENEMY_BATTLEFIELD_UNITS_3"
         }
       },
@@ -192,12 +210,12 @@
       "players": {
         "P1": {
           "hand": [],
-          "battlefields": ["P1-FRIENDLY-BATTLEFIELD-UNIT"],
+          "battlefields": ["FRIENDLY-BF", "P1-FRIENDLY-BATTLEFIELD-UNIT"],
           "graveyard": ["P1-SPELL-FIRESTORM"]
         },
         "P2": {
           "base": ["P2-ENEMY-BASE-UNIT"],
-          "battlefields": ["P2-ENEMY-BATTLEFIELD-UNIT-001", "P2-ENEMY-BATTLEFIELD-UNIT-002"],
+          "battlefields": ["BF", "P2-ENEMY-BATTLEFIELD-UNIT-001", "P2-ENEMY-BATTLEFIELD-UNIT-002"],
           "graveyard": []
         }
       },

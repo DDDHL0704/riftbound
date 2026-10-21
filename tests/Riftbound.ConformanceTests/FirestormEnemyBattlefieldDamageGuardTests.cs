@@ -9,6 +9,7 @@ public sealed class FirestormEnemyBattlefieldDamageGuardTests
 {
     private const string FirestormObjectId = "P1-SPELL-FIRESTORM";
     private const string FirestormCardNo = "OGS·002/024";
+    private const string BattlefieldId = "FIRESTORM-BATTLEFIELD";
 
     [Fact]
     public async Task FirestormDamagesOnlyEnemyPublicBattlefieldUnits()
@@ -16,7 +17,7 @@ public sealed class FirestormEnemyBattlefieldDamageGuardTests
         var engine = new CoreRuleEngine();
         var state = BuildFirestormState();
 
-        var played = await PlayFirestormAsync(engine, state, []);
+        var played = await PlayFirestormAsync(engine, state, [BattlefieldId]);
         Assert.True(played.Accepted, played.ErrorMessage);
         Assert.Equal(1, played.State.Tick);
         Assert.Equal(new RunePool(0, 0), played.State.RunePools["P1"]);
@@ -68,6 +69,7 @@ public sealed class FirestormEnemyBattlefieldDamageGuardTests
     [Fact]
     public void FirestormPlayCardPromptDoesNotExposeExplicitTargets()
     {
+        // Retained method identity: affected units are not targets; the battlefield is selected.
         var state = BuildFirestormState();
         var session = new MatchSession(state, new CoreRuleEngine(), new RecordingMatchJournal());
         session.EnsurePlayer("P1");
@@ -85,7 +87,7 @@ public sealed class FirestormEnemyBattlefieldDamageGuardTests
         Assert.Contains(playCandidate.Sources ?? [], source => string.Equals(source.Id, FirestormObjectId, StringComparison.Ordinal));
         var targetCandidates = playCandidate.Targets ?? [];
         var targetIds = targetCandidates.Select(target => target.Id).ToArray();
-        Assert.Empty(targetCandidates);
+        Assert.Equal([BattlefieldId, "OTHER-BATTLEFIELD"], targetIds.Order(StringComparer.Ordinal));
         Assert.DoesNotContain("P2-FIRESTORM-BATTLEFIELD-UNIT-001", targetIds);
         Assert.DoesNotContain("P2-FIRESTORM-BATTLEFIELD-UNIT-002", targetIds);
         Assert.DoesNotContain("P2-BATTLEFIELD-EQUIPMENT", targetIds);
@@ -106,20 +108,22 @@ public sealed class FirestormEnemyBattlefieldDamageGuardTests
                 && string.Equals(sourceObjectId as string, FirestormObjectId, StringComparison.Ordinal));
         var targetChoicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(
             firestormRequirement["targetChoicesByIndex"]);
-        Assert.Empty(targetChoicesByIndex);
+        Assert.Equal([BattlefieldId, "OTHER-BATTLEFIELD"],
+            Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(targetChoicesByIndex["0"]).Select(choice => choice.Id));
         if (firestormRequirement.TryGetValue("legalTargetSelections", out var rawLegalTargetSelections))
         {
-            Assert.Empty(Assert.IsAssignableFrom<IEnumerable<IReadOnlyList<string>>>(rawLegalTargetSelections));
+            Assert.Equal(new[] { BattlefieldId, "OTHER-BATTLEFIELD" },
+                Assert.IsAssignableFrom<IEnumerable<IReadOnlyList<string>>>(rawLegalTargetSelections).Select(selection => Assert.Single(selection)));
         }
 
         if (firestormRequirement.TryGetValue("minTargetCount", out var rawMinTargetCount))
         {
-            Assert.Equal(0, Assert.IsType<int>(rawMinTargetCount));
+            Assert.Equal(1, Assert.IsType<int>(rawMinTargetCount));
         }
 
         if (firestormRequirement.TryGetValue("maxTargetCount", out var rawMaxTargetCount))
         {
-            Assert.Equal(0, Assert.IsType<int>(rawMaxTargetCount));
+            Assert.Equal(1, Assert.IsType<int>(rawMaxTargetCount));
         }
     }
 
@@ -153,7 +157,7 @@ public sealed class FirestormEnemyBattlefieldDamageGuardTests
         var command = new PlayCardCommand(
             FirestormObjectId,
             FirestormCardNo,
-            []);
+            [BattlefieldId]);
 
         var prompt = session.PromptFor("P1");
         Assert.True(prompt.Actionable);
@@ -389,7 +393,7 @@ public sealed class FirestormEnemyBattlefieldDamageGuardTests
         Assert.Equal(CommandTypes.PlayCard, rawCommand.GetProperty("cmdType").GetString());
         Assert.Equal(FirestormObjectId, rawCommand.GetProperty("cardObjectId").GetString());
         Assert.Equal(FirestormCardNo, rawCommand.GetProperty("cardNo").GetString());
-        Assert.Empty(rawCommand.GetProperty("targetObjectIds").EnumerateArray());
+        Assert.Equal([BattlefieldId], rawCommand.GetProperty("targetObjectIds").EnumerateArray().Select(v => v.GetString()));
         Assert.Empty(rawCommand.GetProperty("optionalCosts").EnumerateArray());
         Assert.Equal(prompt.PromptId, rawCommand.GetProperty("promptId").GetString());
         Assert.True(prompt.SnapshotTick.HasValue);
@@ -411,10 +415,11 @@ public sealed class FirestormEnemyBattlefieldDamageGuardTests
         Assert.Empty(result.State.PassedFocusPlayerIds);
         Assert.Equal(new RunePool(0, 0), result.State.RunePools["P1"]);
         Assert.Empty(result.State.PlayerZones["P1"].Hand);
-        Assert.Equal(["P1-FRIENDLY-BATTLEFIELD-UNIT"], result.State.PlayerZones["P1"].Battlefields);
+        Assert.Equal([BattlefieldId, "P1-FRIENDLY-BATTLEFIELD-UNIT"], result.State.PlayerZones["P1"].Battlefields);
         Assert.Equal(["P2-BASE-UNIT"], result.State.PlayerZones["P2"].Base);
         Assert.Equal(
             [
+                "OTHER-BATTLEFIELD",
                 "P2-FIRESTORM-BATTLEFIELD-UNIT-001",
                 "P2-FIRESTORM-BATTLEFIELD-UNIT-002",
                 "P2-BATTLEFIELD-EQUIPMENT",
@@ -440,7 +445,7 @@ public sealed class FirestormEnemyBattlefieldDamageGuardTests
         var stackItem = Assert.Single(result.State.StackItems);
         Assert.Equal(FirestormObjectId, stackItem.SourceObjectId);
         Assert.Equal(FirestormCardNo, stackItem.CardNo);
-        Assert.Empty(stackItem.TargetObjectIds);
+        Assert.Equal([BattlefieldId], stackItem.TargetObjectIds);
         Assert.Empty(stackItem.OptionalCosts);
         Assert.Equal("FIRESTORM_DAMAGE_ALL_ENEMY_BATTLEFIELD_UNITS_3", stackItem.EffectKind);
         if (expectedStackItem is not null)
@@ -505,13 +510,14 @@ public sealed class FirestormEnemyBattlefieldDamageGuardTests
                 ["P1"] = PlayerZones.Empty with
                 {
                     Hand = ["P1-SPELL-FIRESTORM"],
-                    Battlefields = ["P1-FRIENDLY-BATTLEFIELD-UNIT"]
+                    Battlefields = [BattlefieldId, "P1-FRIENDLY-BATTLEFIELD-UNIT"]
                 },
                 ["P2"] = PlayerZones.Empty with
                 {
                     Base = ["P2-BASE-UNIT"],
                     Battlefields =
                     [
+                        "OTHER-BATTLEFIELD",
                         "P2-FIRESTORM-BATTLEFIELD-UNIT-001",
                         "P2-FIRESTORM-BATTLEFIELD-UNIT-002",
                         "P2-BATTLEFIELD-EQUIPMENT",
@@ -524,6 +530,8 @@ public sealed class FirestormEnemyBattlefieldDamageGuardTests
             },
             cardObjects: new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
             {
+                [BattlefieldId] = new(BattlefieldId, cardNo: "OGN·275/298", tags: [P6TokenFactoryCatalog.BattlefieldCardTag], ownerId: "P1", controllerId: "P2"),
+                ["OTHER-BATTLEFIELD"] = new("OTHER-BATTLEFIELD", cardNo: "OGN·275/298", tags: [P6TokenFactoryCatalog.BattlefieldCardTag], ownerId: "P2", controllerId: "P1"),
                 ["P1-SPELL-FIRESTORM"] = Firestorm(),
                 ["P1-FRIENDLY-BATTLEFIELD-UNIT"] = Unit("P1-FRIENDLY-BATTLEFIELD-UNIT", power: 8),
                 ["P2-BASE-UNIT"] = Unit("P2-BASE-UNIT", power: 8, ownerId: "P2", controllerId: "P2"),
@@ -552,6 +560,14 @@ public sealed class FirestormEnemyBattlefieldDamageGuardTests
                     "P2-DIRTY-P1-CONTROLLED-BATTLEFIELD-UNIT",
                     power: 8),
                 ["P2-STALE-UNIT"] = Unit("P2-STALE-UNIT", power: 8, ownerId: "P2", controllerId: "P2")
+            },
+            objectLocations: new Dictionary<string, ObjectLocationState> {
+                [BattlefieldId] = new("P1", "BATTLEFIELD", BattlefieldId),
+                ["OTHER-BATTLEFIELD"] = new("P2", "BATTLEFIELD", "OTHER-BATTLEFIELD"),
+                ["P1-FRIENDLY-BATTLEFIELD-UNIT"] = new("P1", "BATTLEFIELD", "OTHER-BATTLEFIELD"),
+                ["P2-FIRESTORM-BATTLEFIELD-UNIT-001"] = new("P2", "BATTLEFIELD", BattlefieldId),
+                ["P2-FIRESTORM-BATTLEFIELD-UNIT-002"] = new("P2", "BATTLEFIELD", BattlefieldId),
+                ["P2-DIRTY-P1-CONTROLLED-BATTLEFIELD-UNIT"] = new("P2", "BATTLEFIELD", "OTHER-BATTLEFIELD")
             });
     }
 

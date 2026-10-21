@@ -206,6 +206,10 @@
     {
       "id": "revealed-hand-prompt-order",
       "sourceType": "RevealedHandPromptOrderSqlAcceptance"
+    },
+    {
+      "id": "battlefield-spell-damage",
+      "sourceType": "BattlefieldSpellDamageSqlAcceptance"
     }
   ]
 }

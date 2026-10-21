@@ -3,7 +3,7 @@ using Riftbound.Contracts;
 namespace Riftbound.Engine;
 
 public sealed record SelectedBattlefieldEffectSpec(int EnemyPowerModifier, bool MoveOptionalEnemy,
-    int FriendlyPowerModifier = 0);
+    int FriendlyPowerModifier = 0, bool DamagesEnemyUnits = false);
 
 public sealed partial class CoreRuleEngine
 {
@@ -21,7 +21,8 @@ public sealed partial class CoreRuleEngine
     private static void ResolveSelectedBattlefieldEffect(MatchState state,
         Dictionary<string, PlayerZones> zones, Dictionary<string, CardObjectState> cards,
         Dictionary<string, ObjectLocationState> locations, CardBehaviorDefinition behavior,
-        StackItemState item, List<GameEvent> events)
+        StackItemState item, List<GameEvent> events, ISet<string> damageTriggeredDestroyTargets,
+        bool preventDamage)
     {
         if (behavior.SelectedBattlefieldEffect is not { } spec || item.TargetObjectIds.Count == 0
             || string.IsNullOrWhiteSpace(item.TargetObjectIds[0])) return;
@@ -46,6 +47,14 @@ public sealed partial class CoreRuleEngine
             var powerState = current with { CardObjects = cards.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal) };
             foreach (var id in affected)
             {
+                if (spec.DamagesEnemyUnits && IsEnemyBattlefieldUnitObject(current, item.ControllerId, id))
+                {
+                    var damage = ApplyDamageToCardObject(cards, item.ControllerId, id,
+                        ResolveDamageAmount(current, item, behavior, id), damageTriggeredDestroyTargets,
+                        preventDamage, PreventSpellAndSkillDamageThisTurnEffectId);
+                    events.Add(new("DAMAGE_APPLIED", $"{behavior.DisplayName}造成 {damage.DamageAmount} 点伤害",
+                        BuildDamagePayload(item.SourceObjectId, id, damage)));
+                }
                 var delta = IsPlayerControlledFieldUnitObject(current, item.ControllerId, id)
                     ? spec.FriendlyPowerModifier : IsEnemyBattlefieldUnitObject(current, item.ControllerId, id)
                         ? spec.EnemyPowerModifier : 0;

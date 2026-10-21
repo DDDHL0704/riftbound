@@ -25477,7 +25477,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         else if (behavior.SelectedBattlefieldEffect is not null)
         {
             var locations = (resolvedObjectLocations ?? state.ObjectLocations).ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
-            ResolveSelectedBattlefieldEffect(state, playerZones, cardObjects, locations, behavior, stackItem, events);
+            ResolveSelectedBattlefieldEffect(state, playerZones, cardObjects, locations, behavior, stackItem, events,
+                damageTriggeredDestroyTargetObjectIds, preventDamageFromThisStackItem);
             resolvedObjectLocations = ReconcileObjectLocations(locations, playerZones);
         }
         else if (behavior.ModifiesAllFriendlyBattlefieldUnits

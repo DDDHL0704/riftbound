@@ -243,6 +243,9 @@ public sealed class AhriCombatMightTests
         // Only these exact printings adopt the reviewed applicable errata.
         // Keep the archived source and every other historical field unchanged.
         var errata = new Dictionary<string,(string Before,string After)> {
+            // DOC-16-P012-B006/B007: exact current and old Void Gate text.
+            ["OGN·296/298"] = ("以此处的单位作为目标的法术或技能，造成的伤害+1（每段伤害都+1）。",
+                "法术和技能对此处的单位造成的伤害+1（每段伤害都+1）。"),
             // DOC-10-P002-B005 through B008 explicitly distinguish current and old text.
             ["UNL-139/219"] = ("{{待命}}（支付{{A}}正面朝下放置此牌，之后可支付{{0}}将其当作反应牌打出。）\n选择一处战场。让一名对手展示自己的手牌。你可以从中选择一名单位。让该对手将该单位打出到该战场，无视一切费用。当对手如此做时，{{眩晕}}该单位。（使其在本回合内无法造成战斗伤害。）",
                 "{{待命}}（支付{{A}}正面朝下放置此牌，之后可支付{{0}}将其当作反应牌打出。）\n\n选择一处战场。让一名对手展示自己的手牌。你可以从中选择一名单位。该对手将该单位打出到该战场，无视一切费用。若其如此做，则进行一次：{{眩晕}}该单位。（使其在本回合内无法造成战斗伤害。）"),

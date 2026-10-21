@@ -1,0 +1,340 @@
+{
+  "atUtc": "2026-10-21T07:44:25.750849+00:00",
+  "status": "BOUNDED_CN16_VOID_KNOWN_ERRATUM_AND_FIRESTORM_SELECTED_FIELD_SQL_ONLY_CHECK_ONE_SOURCE_EXPECTATION_REMEDIATED_NEW_FIXED_FULL_PRODUCT_OPEN",
+  "region": "CN",
+  "language": "zh-CN",
+  "observedAsOf": "2026-10-21",
+  "adoptedCoreEffectiveDate": "2026-10-16",
+  "exactCurrentSourceReview": {
+    "atUtc": "2026-10-21T07:37:31.245640+00:00",
+    "status": "BOUNDED_CURRENT_CN16_VOID_EXISTING_ERRATUM_ADOPTION_AND_ONE_SELECTED_BATTLEFIELD_FIRESTORM_DAMAGE_BRANCH_REVIEW",
+    "region": "CN",
+    "language": "zh-CN",
+    "observedAsOf": "2026-10-21",
+    "adoptedCoreEffectiveDate": "2026-10-16",
+    "subjectPrintings": [
+      "OGN-296/298",
+      "OGS-002/024",
+      "UNL-007/219"
+    ],
+    "adjacentSelectedFieldConsumersRegressionOnly": [
+      "OGN-266/298",
+      "UNL-198/219"
+    ],
+    "ruleRecords": [
+      "DOC-01-P044-B022",
+      "DOC-01-P044-B023",
+      "DOC-16-P012-B006",
+      "DOC-16-P012-B007",
+      "DOC-01-P106-B009",
+      "DOC-01-P106-B010",
+      "DOC-01-P106-B011",
+      "DOC-01-P106-B012",
+      "DOC-01-P106-B013",
+      "DOC-01-P106-B014",
+      "DOC-01-P106-B015"
+    ],
+    "pendingRuleRecords": [
+      "DOC-01-P106-B016",
+      "DOC-01-P106-B017",
+      "DOC-01-P106-B018"
+    ],
+    "exactOriginalRuleTextHashes": {
+      "DOC-01-P044-B022": "f63b77e017dc93e5c0cc2611ddd6c9121980fbe8df2f74e075f90ccc21194854",
+      "DOC-01-P044-B023": "2d8324c2c5c077ca2071e47a43a3624c62aafcab3a88f99ead346c25f4dfa52a",
+      "DOC-16-P012-B006": "0ada2145fb54b092069ce7573cbc42fa5232139346f32709304ee9cbc70665ab",
+      "DOC-16-P012-B007": "0c3fa6c7d6647582b834566633d09699de6de24cb7c69d27df5490639313cdc3",
+      "DOC-01-P106-B009": "4a9824520b8f9884f2f061ad6361df665e9724252916dab6858b92f401a62df9",
+      "DOC-01-P106-B010": "24aaeae8e56e025a865f68d709e133af32067c92d13569346705f0dc4ecebd7e",
+      "DOC-01-P106-B011": "baa5f0bf4590819d3d79b1a60935236e08c33b5a8a18423ddec14712ba83c446",
+      "DOC-01-P106-B012": "a71cd99ee02619dfb5336b8c107b5263724dc4eb1bbb80ba33721ae296dd81b8",
+      "DOC-01-P106-B013": "e8f26ae705119aebc1f2a2a67d44b6f18f8b530c2aad1d270a3991972c32aa63",
+      "DOC-01-P106-B014": "f2049d943e9104700ab004e5f92059e94bb3193b807b1706680d1d120d36ef6b",
+      "DOC-01-P106-B015": "c4445eeabd574361d1190f034e2f335d384d991aa8942aabc9769aa788c375b5",
+      "DOC-01-P106-B016": "0f67746d5d793a941626ff50457ab6ecca0917ae554b1a9bc5fa7de9c8916a94",
+      "DOC-01-P106-B017": "6fab5347ecb64184cc182d0ac5a7f379f2d37213f84040f839db162956e11b9d",
+      "DOC-01-P106-B018": "b35ec62456061c1332f94186352ab85a85e3d29325b90977c88bb8ba5412fb12"
+    },
+    "currentSourceEvidence": [
+      {
+        "path": "var/qa/void-gate-current-erratum-20261021/current-finite-void-and-second-legend-source-intake-v1.json",
+        "sha256": "554603c7c08d3dc13f0426673364b2f202c2ae3a0a3df84c5e4a762baaff2ae8"
+      },
+      {
+        "path": "var/qa/void-gate-current-erratum-20261021/current-two-adjacent-selected-field-source-intake-v1.json",
+        "sha256": "88e7f1ad162f999480082304a970aac1a49a1e467a6a3227c557e10d8e7af6b7"
+      },
+      {
+        "path": "var/qa/nocturne-optional-current-cn16-20261021/supporting-void-field-exact-provenance-and-open-disposition-v1.json",
+        "sha256": "dd96fe3a4e3f29d7796c75dad2353af478c8bce96dc7260a3b7abf7d60e291e2"
+      },
+      {
+        "path": "var/qa/nocturne-optional-current-cn16-20261021/supporting-void-field-current-primary-errata-readback-v1.json",
+        "sha256": "bf1ea7fda705312d8764a316d22bdda9055df8fddfd143e810e0b04c7992be90"
+      }
+    ],
+    "primarySources": [
+      {
+        "id": "DOC-01",
+        "title": "《符文战场：英雄联盟对战卡牌》核心规则（10.16生效）",
+        "url": "https://cdn.playloltcg.com/lol/2026/10/2026-10-10/a21ead876c6b44d6abe386b6ae54ea28.pdf",
+        "sha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11",
+        "updated": "2026-10-10",
+        "effectiveDate": null
+      },
+      {
+        "id": "DOC-16",
+        "title": "《符文战场：英雄联盟对战卡牌》起源系列 勘误汇总",
+        "url": "https://cdn.playloltcg.com/lol/2025/12/2025-12-03/《符文战场》勘误汇总_1028.pdf",
+        "sha256": "1e8fc5c52f1c98a4b7d759e4c048f11cfae882ce87826bf87a86bc475c26036c",
+        "updated": "2025-10-28",
+        "effectiveDate": null
+      }
+    ],
+    "completePhysicalPagesActuallyViewed": [
+      {
+        "document": "DOC-01",
+        "page": 44,
+        "path": "var/qa/void-gate-current-erratum-20261021/current-core-selected-objects-p44.png",
+        "sha256": "737f3bdec5f8a935a2e12c9d329361d7da44f848b612602578dc07f1aaa82235"
+      },
+      {
+        "document": "DOC-01",
+        "page": 106,
+        "path": "var/qa/void-gate-current-erratum-20261021/current-core-damage-p106.png",
+        "sha256": "0c06b584b0b5c5aefffcb8d5fae36c26f35673d5d6261403bfacc401f4fa282b"
+      },
+      {
+        "document": "DOC-16",
+        "page": 12,
+        "path": "var/qa/nocturne-optional-current-cn16-20261021/bone-current-primary-pages-v1/next-void-field-errata-p12.png",
+        "sha256": "41e744d472eef52a4d9ae79482fb9eaeb9e90ed043082dc8b1d5c90d4cb1b861"
+      }
+    ],
+    "noNewOfficialSourceVersionDiscovered": true,
+    "officialSourceDeltaCountRemainsSeven": true,
+    "existingOldSourceGapObjectRetainedUnchanged": "supporting-void-gate-current-official-erratum-not-yet-adopted",
+    "runtimeAdoption": {
+      "atUtc": "2026-10-21T05:30:18.159697+00:00",
+      "parentCommit": "2b83ed2e6243f9e73cd92269f549867f02ea98ea",
+      "changes": [
+        {
+          "id": 31542,
+          "fields": [
+            "cardEffect"
+          ]
+        }
+      ],
+      "beforeSha256": "1831ee8b32d7a081602f2a6b7a44472853bba0f35f9db84225ce0ee3e743c801",
+      "afterSha256": "f9b2394507ef8e35846d16e5fc1c2a767766757476bfe4a17a3cddc18df509de",
+      "noSourceDatesOrOtherFieldsChanged": true,
+      "sameCurrentOfficialApiAndPrimaryNewText": true
+    },
+    "sourceOverlayCounterexample": {
+      "path": "var/qa/void-gate-current-erratum-20261021/current-void-gate-source-adoption-parser-regression-original-proof-v1.json",
+      "sha256": "2bee1a2601101f929f2d81eeb183b61d197e28be6b1a26a44bc651f1e32a9032"
+    },
+    "boundedBehaviorBranches": [
+      {
+        "id": "void-exact-existing-official-erratum-runtime-adoption",
+        "sourceRefs": [
+          "OGN-296/298",
+          "DOC-16-P012-B006",
+          "DOC-16-P012-B007"
+        ]
+      },
+      {
+        "id": "void-targeted-unit-spell-local-bonus",
+        "sourceRefs": [
+          "OGN-296/298",
+          "UNL-007/219",
+          "DOC-01-P106-B014"
+        ]
+      },
+      {
+        "id": "void-selected-battlefield-group-spell-local-bonus",
+        "sourceRefs": [
+          "OGN-296/298",
+          "OGS-002/024",
+          "DOC-01-P044-B022",
+          "DOC-01-P044-B023",
+          "DOC-16-P012-B006"
+        ]
+      },
+      {
+        "id": "firestorm-other-battlefield-only-its-enemy-occupants-base-three",
+        "sourceRefs": [
+          "OGS-002/024",
+          "OGN-296/298",
+          "DOC-01-P044-B022",
+          "DOC-16-P012-B006"
+        ]
+      },
+      {
+        "id": "firestorm-empty-real-battlefield-without-damage",
+        "sourceRefs": [
+          "OGS-002/024",
+          "DOC-01-P044-B022",
+          "DOC-01-P044-B023"
+        ]
+      },
+      {
+        "id": "firestorm-exactly-one-real-battlefield-atomic-invalid-intent",
+        "sourceRefs": [
+          "OGS-002/024",
+          "DOC-01-P044-B022",
+          "DOC-01-P044-B023"
+        ]
+      },
+      {
+        "id": "selected-field-damage-current-identity-full-frame-and-original-replay-forgery-rejection",
+        "sourceRefs": [
+          "OGS-002/024",
+          "UNL-007/219",
+          "OGN-296/298",
+          "DOC-16-P012-B006"
+        ]
+      }
+    ],
+    "interpretationBoundary": "355.5 requires one battlefield selected by Firestorm; enemy units there are affected occupants, not unit targets. Current erratum is location-based, including this bounded group spell. Empty/other battlefield and invalid selection are separately executed.",
+    "openDamageSemanticReview": "715.3 distribution, 715.4 absence of a damage action versus evaluated zero, 715.4.a prevention/replacement, all other spell and ability consumers remain OPEN. No unverified zero-damage issue asserted.",
+    "exclusions": [
+      "Whole printings and all extra damage, skills, prevention, replacement, distribution and zero-action branches",
+      "Exhausted Reksai two printings and both confirmation orders remain the next separate batch",
+      "All prior finite observation consumers, source gaps and complete 1740 printing /14293 rule universe",
+      "Current new fixed full, visible hardware controls and paired clients, physical Windows and final-candidate product acceptance"
+    ],
+    "actualRuleInputs": {
+      "schemaVersion": 1,
+      "region": "CN",
+      "language": "zh-CN",
+      "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+      "catalogSha256": "a940e5f8bcd5e1ead68a85c7f983e530333d6179a4b8429ed1f8fe2ee20b8397",
+      "implementationSha256": "1aec705424aa2584db7929604850b1449645c2ef172fadd11fde1439c47b4e6c",
+      "identitySha256": "56c99976fcff04946577dcfc8fd185084981b1463f96c7a852f59311870d9598"
+    },
+    "noOldDevelopmentMatchMigration": true,
+    "wholePrintingOrGlobalCertification": false
+  },
+  "baseCommit": "2b83ed2e6243f9e73cd92269f549867f02ea98ea",
+  "implementationIncludesDeclaredUncommittedChanges": true,
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "a940e5f8bcd5e1ead68a85c7f983e530333d6179a4b8429ed1f8fe2ee20b8397",
+    "implementationSha256": "1aec705424aa2584db7929604850b1449645c2ef172fadd11fde1439c47b4e6c",
+    "identitySha256": "56c99976fcff04946577dcfc8fd185084981b1463f96c7a852f59311870d9598"
+  },
+  "implementation": [
+    {
+      "path": "data/official/card-catalog.zh-CN.json",
+      "sha256": "f9b2394507ef8e35846d16e5fc1c2a767766757476bfe4a17a3cddc18df509de",
+      "role": "implementation"
+    },
+    {
+      "path": "src/Riftbound.CardCatalog/RuleTextParsers.cs",
+      "sha256": "fafb0dfac6dd4445fe8400f42bfec15e27b94fb512c8c1b086b97be1448063f5",
+      "role": "implementation"
+    },
+    {
+      "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+      "sha256": "c4e6be8d733ac6b4575a9bf6e99d1be2b886063d84ae59f69549a896f184c5bd",
+      "role": "implementation"
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.SelectedBattlefield.cs",
+      "sha256": "b3f14caa2cf5e937e7f3a7ed07d7251a2924308c3bd192bf58d0143c12535897",
+      "role": "implementation"
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+      "sha256": "0724598002046a0ba0a74a2649685b595ddc55ace0bdf69008853b584b6f5da3",
+      "role": "implementation"
+    }
+  ],
+  "verificationSources": [
+    {
+      "path": "tests/Riftbound.ConformanceTests/CurrentVoidGateErratumTests.cs",
+      "sha256": "74a21492919342a5ee83e9b2ad8e758b666f426cb1a7b9f24c422f41fa9e78d0",
+      "role": "verification-source"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/FirestormEnemyBattlefieldDamageGuardTests.cs",
+      "sha256": "aea92f4be80d8df022648dfbbb5ab90e474fec2a4bf153c115cccef9652c9eb5",
+      "role": "verification-source"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/CardCatalogBaselineTests.cs",
+      "sha256": "4ef23f0d49eeb16a7b2453ddc50f95353a5e8176a8f8ed4d6c61665589f0186b",
+      "role": "verification-source"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/Cn16RuleInputSelectionTests.cs",
+      "sha256": "dcfa361743f827984fbb254d4c7342c5e77ab522aaf50cf51a6db9dcaccbbb08",
+      "role": "verification-source"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/AhriCombatMightTests.cs",
+      "sha256": "5a9d2704df28e8b65784fbcbfb575604e31f99f2d58a90fdd74d784f8880640d",
+      "role": "verification-source"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-firestorm-damage-enemy-battlefield-units.fixture.json",
+      "sha256": "d82b00548666da258e467709649b476ef5a5003b2a2a6c27734dd48ba9c619bc",
+      "role": "verification-source"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/Fixtures/p4-play-firestorm-explicit-unit-target-rejected.fixture.json",
+      "sha256": "25f65f512ba7aecfedff314e57c1b6c6cf42a42ce238f69f82b8550bafb47d56",
+      "role": "verification-source"
+    },
+    {
+      "path": "tests/Riftbound.PostgresAcceptance/BattlefieldSpellDamageSqlAcceptance.cs",
+      "sha256": "f52e27a4d3034c954268de024934b11be2e5a7548654304bf3fc4bcf3578c705",
+      "role": "verification-source"
+    },
+    {
+      "path": "tests/Riftbound.PostgresAcceptance/Program.cs",
+      "sha256": "28df71a772e8136e93871e6c2ff7b11c64376371363af7875ebe2ba16c1e7083",
+      "role": "verification-source"
+    },
+    {
+      "path": "tests/Riftbound.PostgresAcceptance/SqlAcceptanceCases.json",
+      "sha256": "c4c89c1566c81ad82a13c6aa66be630a4e50ce6de5be84bfca92b98645682484",
+      "role": "verification-source"
+    },
+    {
+      "path": "scripts/tests/test_sql_ci_gate.py",
+      "sha256": "b612794ebe52581cb605d87f568af506a15f37acc635dcd97ec603cb3926559f",
+      "role": "verification-source"
+    }
+  ],
+  "onlyCheckActualOutcome": {
+    "cases": 13238,
+    "methods": 7508,
+    "passed": 13237,
+    "failed": 1,
+    "skipped": 0
+  },
+  "postOnlyCheckThreeVerificationInputsCorrected": {
+    "path": "docs/evidence/void-gate-selected-battlefield-2026-10-21/post-only-check-source-expectation-remediation.json",
+    "sha256": "9a9cdac15ca285062a2b490d8ee44194547146d0f458ed874924e46e58d92aff"
+  },
+  "gameCatalogAndSqlInputsUnchangedAfterSoleCheck": true,
+  "allOriginal51SqlIdentitiesAndOrderRetainedOnly52ndAppended": "battlefield-spell-damage",
+  "allOriginal154ReviewObjectsRetained": true,
+  "fortyFourOnlyCurrentImplementationBindingsRefreshed": {
+    "path": "docs/evidence/void-gate-selected-battlefield-2026-10-21/forty-four-current-input-only-context-refresh.json",
+    "sha256": "5923a92b1e0ec469b398a47fa2e08487ef11a308b9b3164c09976a57b75f46c1"
+  },
+  "archive": {
+    "path": "docs/evidence/void-gate-selected-battlefield-2026-10-21/completed-void-field-originals.tar.xz",
+    "sha256": "1120c2161bffc0918e5f17dbbc4d8d94200e7700275a4774c2c0c32ea79070bc"
+  },
+  "wholePrintingCertified": false,
+  "fixedCommitFullCurrentVisibleHardwarePairAndPhysicalWindows": "OPEN",
+  "precedingFixed2b83NativeNotNew56RuntimeProductAcceptance": true,
+  "noOldDevelopmentMatchMigration": true
+}

@@ -24318,6 +24318,63 @@
         "Void Gate runtime adoption and damage semantics",
         "Exhausted Reksai source confirmation behavior"
       ]
+    },
+    {
+      "id": "void-gate-selected-battlefield-current-cn16-2026-10-21",
+      "scope": "Only existing Void Gate official erratum adoption, one selected battlefield Firestorm enemy damage and targeted-unit spell contrast, empty/other field and atomic invalid intents; all broader damage semantics and products remain OPEN.",
+      "subjects": [
+        "OGN-296/298",
+        "OGS-002/024",
+        "UNL-007/219"
+      ],
+      "ruleRecords": [
+        "DOC-01-P044-B022",
+        "DOC-01-P044-B023",
+        "DOC-16-P012-B006",
+        "DOC-16-P012-B007",
+        "DOC-01-P106-B009",
+        "DOC-01-P106-B010",
+        "DOC-01-P106-B011",
+        "DOC-01-P106-B012",
+        "DOC-01-P106-B013",
+        "DOC-01-P106-B014",
+        "DOC-01-P106-B015"
+      ],
+      "pendingRuleRecords": [
+        "DOC-01-P106-B016",
+        "DOC-01-P106-B017",
+        "DOC-01-P106-B018"
+      ],
+      "status": "BOUNDED_VOID_SELECTED_FIELD_SQL12_29_CHECK13237PASS_1SOURCE_EXPECTATION_REMEDIATED_FOCUS161_NEW_FULL_PRODUCT_OPEN",
+      "sourceManifest": {
+        "path": "docs/evidence/void-gate-selected-battlefield-2026-10-21/source-manifest.json",
+        "sha256": "0cdd28917fbab982e4ed949a46fe5598cec63fb2e457b331774bc3210e567e85",
+        "role": "source-manifest"
+      },
+      "auditDocument": "docs/VOID_GATE_SELECTED_BATTLEFIELD_CURRENT_CN16_AUDIT_2026-10-21.md",
+      "validation": {
+        "newConformanceCases": 7,
+        "newConformanceMethods": 3,
+        "distinctFocusCases": 306,
+        "distinctFocusMethods": 217,
+        "checkCases": 13238,
+        "checkMethods": 7508,
+        "checkPassed": 13237,
+        "checkFailed": 1,
+        "postCheckRemediationFocusCases": 161,
+        "postCheckRemediationFocusMethods": 153,
+        "sqlCommands": 12,
+        "sqlEvents": 29,
+        "sqlColdRecoveries": 12,
+        "allOriginal51SqlIdentitiesAnd143FullMethodsRetained": true,
+        "wholeCardCertification": false
+      },
+      "exclusions": [
+        "Whole printings and all extra damage, skills, prevention, replacement, distribution and zero-action branches",
+        "Exhausted Reksai two printings and both confirmation orders remain the next separate batch",
+        "All prior finite observation consumers, source gaps and complete 1740 printing /14293 rule universe",
+        "Current new fixed full, visible hardware controls and paired clients, physical Windows and final-candidate product acceptance"
+      ]
     }
   ]
 }

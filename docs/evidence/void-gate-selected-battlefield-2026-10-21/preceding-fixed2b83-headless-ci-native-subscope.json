@@ -1,0 +1,194 @@
+{
+  "atUtc": "2026-10-21T07:22:27.110159+00:00",
+  "status": "FIXED2B83_ACTUAL_CI_DEFAULT_MAIN_HEADLESS_PAIR_CANONICAL_COLD_RECONNECT_NORMAL_SCORE_AND_INDEPENDENT_ALL_HISTORY_PASS",
+  "fixedCommit": "2b83ed2e6243f9e73cd92269f549867f02ea98ea",
+  "ciRun": 39549071591,
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "d5dbe0401fc52312c0f9033702b8090ff4063499db878706317dc259d051ac29",
+    "implementationSha256": "99edc1c3fab538bcbdfe687db52d2ec4addcaeb931b5a9d09db236ef75ff0cd0",
+    "identitySha256": "1cfbe29d37990c639e587dbb5ec512f55c8af651fb2abe489fd3ca24cff750df"
+  },
+  "actualRoom": "N27-RETARGET-4EBBBF9607",
+  "gatewayPrefix": 54,
+  "nativeControllerCommands": 3,
+  "normalGatewayContinuation": 17,
+  "totalCommands": 74,
+  "events": 493,
+  "finalTurn": 44,
+  "score": [
+    8,
+    0
+  ],
+  "ownedNativeProcesses": [
+    {
+      "role": "a",
+      "label": "observe-a",
+      "pid": 10169,
+      "actualCommand": [
+        "/Users/dinghaolin/MyProjects/riftbound/var/qa/void-gate-current-erratum-20261021/Riftbound-A.app/Contents/MacOS/\u7b26\u6587\u6218\u573a",
+        "--headless",
+        "--max-fps",
+        "60",
+        "--quit-after",
+        "3600",
+        "--",
+        "--riftbound-server=http://127.0.0.1:15847",
+        "--riftbound-session-file=/Users/dinghaolin/MyProjects/riftbound/var/qa/void-gate-current-erratum-20261021/fixed2b83-native-attempt-v2/session-a.json",
+        "--riftbound-smoke-connect-only"
+      ],
+      "log": "current2b83-pty-ci-native-observe-a-v2.log",
+      "action": null,
+      "nativeProcessOwnsPtyStdoutOnlyNoDesktopOrInputEvents": true,
+      "all373FixedCiPayloadsAndSignatureVerified": true,
+      "exitCode": 0,
+      "logSha256": "fe13172a5de9eeb2adc95c5e70595d895b34d7c4a94f12138715312d264fd0bc",
+      "ptyFullyDrained": true
+    },
+    {
+      "role": "b",
+      "label": "observe-b",
+      "pid": 10171,
+      "actualCommand": [
+        "/Users/dinghaolin/MyProjects/riftbound/var/qa/void-gate-current-erratum-20261021/Riftbound-B.app/Contents/MacOS/\u7b26\u6587\u6218\u573a",
+        "--headless",
+        "--max-fps",
+        "60",
+        "--quit-after",
+        "3600",
+        "--",
+        "--riftbound-server=http://127.0.0.1:15847",
+        "--riftbound-session-file=/Users/dinghaolin/MyProjects/riftbound/var/qa/void-gate-current-erratum-20261021/fixed2b83-native-attempt-v2/session-b.json",
+        "--riftbound-smoke-connect-only"
+      ],
+      "log": "current2b83-pty-ci-native-observe-b-v2.log",
+      "action": null,
+      "nativeProcessOwnsPtyStdoutOnlyNoDesktopOrInputEvents": true,
+      "all373FixedCiPayloadsAndSignatureVerified": true,
+      "exitCode": 0,
+      "logSha256": "99fba27a42929ef076025cbc185f075c403d275d66991801d22ab92161edce92",
+      "ptyFullyDrained": true
+    },
+    {
+      "role": "a",
+      "label": "ui-pass-a",
+      "pid": 10455,
+      "actualCommand": [
+        "/Users/dinghaolin/MyProjects/riftbound/var/qa/void-gate-current-erratum-20261021/Riftbound-A.app/Contents/MacOS/\u7b26\u6587\u6218\u573a",
+        "--headless",
+        "--max-fps",
+        "60",
+        "--quit-after",
+        "2400",
+        "--",
+        "--riftbound-server=http://127.0.0.1:15847",
+        "--riftbound-session-file=/Users/dinghaolin/MyProjects/riftbound/var/qa/void-gate-current-erratum-20261021/fixed2b83-native-attempt-v2/session-a.json",
+        "--riftbound-smoke-connect-only",
+        "--riftbound-smoke-ui-action=PASS_PRIORITY",
+        "--riftbound-smoke-ui-submit"
+      ],
+      "log": "current2b83-pty-ci-native-ui-pass-a-v2.log",
+      "action": "PASS_PRIORITY",
+      "nativeProcessOwnsPtyStdoutOnlyNoDesktopOrInputEvents": true,
+      "all373FixedCiPayloadsAndSignatureVerified": true,
+      "exitCode": 0,
+      "logSha256": "b46db3d00cd3e76acbfe6135b43116c7b4f5c22b06d5d610ddb370fcb37c0ae6",
+      "ptyFullyDrained": true
+    },
+    {
+      "role": "b",
+      "label": "ui-keep-b",
+      "pid": 10460,
+      "actualCommand": [
+        "/Users/dinghaolin/MyProjects/riftbound/var/qa/void-gate-current-erratum-20261021/Riftbound-B.app/Contents/MacOS/\u7b26\u6587\u6218\u573a",
+        "--headless",
+        "--max-fps",
+        "60",
+        "--quit-after",
+        "600",
+        "--",
+        "--riftbound-server=http://127.0.0.1:15847",
+        "--riftbound-session-file=/Users/dinghaolin/MyProjects/riftbound/var/qa/void-gate-current-erratum-20261021/fixed2b83-native-attempt-v2/session-b.json",
+        "--riftbound-smoke-connect-only",
+        "--riftbound-smoke-ui-action=PAY_COST",
+        "--riftbound-smoke-ui-submit"
+      ],
+      "log": "current2b83-pty-ci-native-ui-keep-b-v2.log",
+      "action": "PAY_COST",
+      "nativeProcessOwnsPtyStdoutOnlyNoDesktopOrInputEvents": true,
+      "all373FixedCiPayloadsAndSignatureVerified": true,
+      "exitCode": 0,
+      "logSha256": "267b5996370018eec2b856a8a57b47aaa7c0ca1c92ca545bd6a13088515e0966",
+      "ptyFullyDrained": true
+    },
+    {
+      "role": "b",
+      "label": "ui-pass-b",
+      "pid": 10508,
+      "actualCommand": [
+        "/Users/dinghaolin/MyProjects/riftbound/var/qa/void-gate-current-erratum-20261021/Riftbound-B.app/Contents/MacOS/\u7b26\u6587\u6218\u573a",
+        "--headless",
+        "--max-fps",
+        "60",
+        "--quit-after",
+        "600",
+        "--",
+        "--riftbound-server=http://127.0.0.1:15847",
+        "--riftbound-session-file=/Users/dinghaolin/MyProjects/riftbound/var/qa/void-gate-current-erratum-20261021/fixed2b83-native-attempt-v2/session-b.json",
+        "--riftbound-smoke-connect-only",
+        "--riftbound-smoke-ui-action=PASS_PRIORITY",
+        "--riftbound-smoke-ui-submit"
+      ],
+      "log": "current2b83-pty-ci-native-ui-pass-b-v2.log",
+      "action": "PASS_PRIORITY",
+      "nativeProcessOwnsPtyStdoutOnlyNoDesktopOrInputEvents": true,
+      "all373FixedCiPayloadsAndSignatureVerified": true,
+      "exitCode": 0,
+      "logSha256": "9f2bbd5783fbea1c85ea01feb196b3cfdd4036cb4870844afdf2d10bb09455b9",
+      "ptyFullyDrained": true
+    }
+  ],
+  "allHistoricalStates": 74,
+  "privateSnapshots": 144,
+  "privatePrompts": 144,
+  "allOriginalFieldsNullsRawActorsPromptsTicksActionEventPrefixesAndEverySequentialReplayCompared": true,
+  "productionRecoveryFrameReplayValidatorAlsoPassed": true,
+  "network": {
+    "room": "NETWORK-e651480742e5",
+    "rejectedActions": 15,
+    "identities": [
+      "ANONYMOUS",
+      "FAILED_KEY",
+      "OTHER_HANDLE"
+    ],
+    "leakedPrivateMessages": 0,
+    "validReconnectTokenWasSupplied": true
+  },
+  "allOriginal271AuditAnd56NativeSevenTablesExact": true,
+  "nativeRoomsAtStop": 58,
+  "auditRoomsUnchanged": 271,
+  "ownApiAndPostgresStopped": true,
+  "latestAppDefaultProfilesRestoredFromThisSameCurrentCandidateOnly": [
+    {
+      "role": "a",
+      "source": "var/qa/void-gate-current-erratum-20261021/fixed2b83-native-attempt-v2/session-a.json",
+      "target": "var/qa/void-gate-current-erratum-20261021/session-a.json",
+      "sha256": "6b8f927cb6f328567dbca6e07b0cd5c1df24d071caacee9097c08eded838938d",
+      "sameCurrentFinishedRoomAndCandidateOnly": true
+    },
+    {
+      "role": "b",
+      "source": "var/qa/void-gate-current-erratum-20261021/fixed2b83-native-attempt-v2/session-b.json",
+      "target": "var/qa/void-gate-current-erratum-20261021/session-b.json",
+      "sha256": "aeb21531fd3435920c5e1b2125001d470d6a7afa10ed79a035a43a0f75283227",
+      "sameCurrentFinishedRoomAndCandidateOnly": true
+    }
+  ],
+  "firstMissingProfileAttemptZeroGameCommandsAndFailureRetained": true,
+  "sameAuthorityCatalogButPrior237SqlAndThis1cfApiImplementationRemainSeparate": true,
+  "currentN34DamageIdentity56NotCovered": true,
+  "visibleControlsPhysicalWindowsAndWholePrintingCertification": false
+}

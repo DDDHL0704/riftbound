@@ -3873,7 +3873,7 @@ public sealed class CardCatalogBaselineTests
             voidGate.StaticAbilities,
             ability => string.Equals(ability.Kind, StaticAbilityKinds.BattlefieldTargetSpellSkillDamageBonus, StringComparison.Ordinal));
         Assert.Equal(StaticAbilityKinds.BattlefieldTargetSpellSkillDamageBonus, targetDamageBonus.Kind);
-        Assert.Contains("以此处的单位作为目标的法术或技能", targetDamageBonus.Text, StringComparison.Ordinal);
+        Assert.Contains("法术和技能对此处的单位", targetDamageBonus.Text, StringComparison.Ordinal);
         Assert.Contains("造成的伤害+1", targetDamageBonus.Text, StringComparison.Ordinal);
         Assert.Equal(1, targetDamageBonus.Amount);
         Assert.Equal(BehaviorImplementationStatuses.Implemented, targetDamageBonus.Status);

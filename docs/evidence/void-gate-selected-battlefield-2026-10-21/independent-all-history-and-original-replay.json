@@ -1,0 +1,70 @@
+{
+  "status": "PASS_INDEPENDENT_CURRENT_VOID_FIRESTORM_FOUR_BRANCHES_ALL_HISTORY_PRIVATE_FIELDS_EVERY_ORIGINAL_REPLAY",
+  "rooms": [
+    "current-field-damage-67b8d3a5dedb445081e2f7bd6a4ed36b",
+    "current-field-damage-b231d4cea6f542099c7d635e9c403a0d",
+    "current-field-damage-6fc5e9a4b4b548b9a340264151a1c939",
+    "current-field-damage-5e377b50638744a494adb14f3ae99524"
+  ],
+  "cases": 4,
+  "commands": 12,
+  "events": 29,
+  "authoritativeHistoricalStates": 12,
+  "privateSnapshots": 24,
+  "privatePrompts": 24,
+  "independentStructuralRejections": 36,
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "a940e5f8bcd5e1ead68a85c7f983e530333d6179a4b8429ed1f8fe2ee20b8397",
+    "implementationSha256": "1aec705424aa2584db7929604850b1449645c2ef172fadd11fde1439c47b4e6c",
+    "identitySha256": "56c99976fcff04946577dcfc8fd185084981b1463f96c7a852f59311870d9598"
+  },
+  "results": [
+    {
+      "branch": "targeted-unit",
+      "room": "current-field-damage-67b8d3a5dedb445081e2f7bd6a4ed36b",
+      "commands": 3,
+      "events": 8,
+      "states": 3,
+      "snapshots": 6,
+      "prompts": 6,
+      "allFieldsAndEveryOriginalActionEventReplayExact": true
+    },
+    {
+      "branch": "group-void",
+      "room": "current-field-damage-b231d4cea6f542099c7d635e9c403a0d",
+      "commands": 3,
+      "events": 8,
+      "states": 3,
+      "snapshots": 6,
+      "prompts": 6,
+      "allFieldsAndEveryOriginalActionEventReplayExact": true
+    },
+    {
+      "branch": "group-other",
+      "room": "current-field-damage-6fc5e9a4b4b548b9a340264151a1c939",
+      "commands": 3,
+      "events": 7,
+      "states": 3,
+      "snapshots": 6,
+      "prompts": 6,
+      "allFieldsAndEveryOriginalActionEventReplayExact": true
+    },
+    {
+      "branch": "group-empty",
+      "room": "current-field-damage-5e377b50638744a494adb14f3ae99524",
+      "commands": 3,
+      "events": 6,
+      "states": 3,
+      "snapshots": 6,
+      "prompts": 6,
+      "allFieldsAndEveryOriginalActionEventReplayExact": true
+    }
+  ],
+  "actualReadOnlyConnection": true,
+  "originalBlankReplayMetadataNotRewritten": true,
+  "visibleNormalOpeningWindowsOrWholePrintingAcceptance": false
+}

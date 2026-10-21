@@ -1,0 +1,1827 @@
+{
+  "atUtc": "2026-10-21T07:44:25.741281+00:00",
+  "archive": {
+    "path": "docs/evidence/void-gate-selected-battlefield-2026-10-21/completed-void-field-originals.tar.xz",
+    "sha256": "1120c2161bffc0918e5f17dbbc4d8d94200e7700275a4774c2c0c32ea79070bc"
+  },
+  "members": [
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/31509-current-adjacent-exact-original-api-v1.json.gz",
+      "bytes": 851,
+      "sha256": "017a524f54a5e8ed97debcad755cb94075f8f05fa269dd73d50541c6dcbaaa26"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/31581-current-exact-original-api-v1.json.gz",
+      "bytes": 709,
+      "sha256": "4079edc5f9b6be6b1b88119781ca19246d7b6d64baaf468fb860a9556962ef4f"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/33354-current-exact-original-api-v1.json.gz",
+      "bytes": 944,
+      "sha256": "687a3bdbd1592de04272996f8797a357872fdb99c6f0238e36bbc8eba2bf73d1"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/34530-current-exact-original-api-v1.json.gz",
+      "bytes": 817,
+      "sha256": "2f41ecf082a6d947a30a0434ea763a9fdc99abdb4c2e90f74200d7e3d2135314"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/34751-current-adjacent-exact-original-api-v1.json.gz",
+      "bytes": 870,
+      "sha256": "bf47c4c53ae67b3aed48c2d7202d3dd358e34dcf8043ed4fcb469c232e58812e"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/actual-current-field-damage-writer-v1.log",
+      "bytes": 1112,
+      "sha256": "cc8a07bb0e3eeae5e3842fedd38b0975553cd9fc80c5d680d172d4b1c64e2a7d"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/actual-current-field-damage-writer-v2.log",
+      "bytes": 488,
+      "sha256": "0cdc9c9d575a4068a9396b6d94ea751adf215a69965f77ba547c74ae5083f8f3"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/actual-current-four-field-damage-sql-owner-terminal-v1.json",
+      "bytes": 20803,
+      "sha256": "383555bfc6be5d515e9fd5538345f6121a905f9e285ed1cbd998f35ce859e3b4"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/actual-current-four-field-damage-sql-owner-terminal-v2.json",
+      "bytes": 28728,
+      "sha256": "e2c3880d702308e46a879bfc40923f453c2ce661a5ec7edcbaff0804814676a1"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/actual-current-four-field-damage-sql-v1/battlefield-spell-damage/targeted-unit/confirmed-before-damage-original-frame.json.gz",
+      "bytes": 9807,
+      "sha256": "9e88d1a20372987ad64d1bdd45c72f7369c11f2f882b84c860ae7c715a0e27bb"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/actual-current-four-field-damage-sql-v1/battlefield-spell-damage/targeted-unit/explicit-original-controlled-initial.json",
+      "bytes": 9814,
+      "sha256": "b9747de083c15503ebbebf5c0559851d567dc30159645f8c26c941d1750263ff"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/actual-current-four-field-damage-sql-v2/battlefield-spell-damage/group-empty/all-original-accepted-intents.json",
+      "bytes": 995,
+      "sha256": "aaef33939346b05277b69fa98c202d3762dfa64722ab6539d350743b3d5cc83e"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/actual-current-four-field-damage-sql-v2/battlefield-spell-damage/group-empty/confirmed-before-damage-original-frame.json.gz",
+      "bytes": 9899,
+      "sha256": "41a6c2a168d8ef8ade7769a31832a2b2dda0f2cd5b0b67798bdbd899ded8b5e6"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/actual-current-four-field-damage-sql-v2/battlefield-spell-damage/group-empty/explicit-original-controlled-initial.json",
+      "bytes": 9749,
+      "sha256": "9279bef0150f6eff50c9d9a8e43df90b02779c6eaefff481cf0ffe328133c7aa"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/actual-current-four-field-damage-sql-v2/battlefield-spell-damage/group-empty/final-original-frame.json.gz",
+      "bytes": 17811,
+      "sha256": "1dd13aa8204d34dd8c82da8928bcf0fe87fdd01d7bdd90e360cd04bb15cb9262"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/actual-current-four-field-damage-sql-v2/battlefield-spell-damage/group-empty/receipt.json",
+      "bytes": 880,
+      "sha256": "806424be29e73d238f2bdc4db379009c4f52bdc5d65a488b38f22b8d45520be8"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/actual-current-four-field-damage-sql-v2/battlefield-spell-damage/group-other/all-original-accepted-intents.json",
+      "bytes": 996,
+      "sha256": "1c9e5bf03abc9130d478913a443cef93cfc9befc4bfa5199fc5713ecc37a6f05"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/actual-current-four-field-damage-sql-v2/battlefield-spell-damage/group-other/confirmed-before-damage-original-frame.json.gz",
+      "bytes": 9922,
+      "sha256": "922658f824844d77b8d907a83081473a75d52e793b1ae4bd3e5392f0e919bdfa"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/actual-current-four-field-damage-sql-v2/battlefield-spell-damage/group-other/explicit-original-controlled-initial.json",
+      "bytes": 9819,
+      "sha256": "56ffeed50a98d59ca5394f19e8a5bb906d785b7dcb15113eff671d679afe2d88"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/actual-current-four-field-damage-sql-v2/battlefield-spell-damage/group-other/final-original-frame.json.gz",
+      "bytes": 18003,
+      "sha256": "85c9daecde2be5aef70f6cf95b60fee23ef61265706b60ec226112158e445a93"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/actual-current-four-field-damage-sql-v2/battlefield-spell-damage/group-other/receipt.json",
+      "bytes": 880,
+      "sha256": "11479c73ebfa1c5fa5270a37a4aad0f064d8b0fee09facfac241c718f058ccfe"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/actual-current-four-field-damage-sql-v2/battlefield-spell-damage/group-void/all-original-accepted-intents.json",
+      "bytes": 995,
+      "sha256": "855ce38b94e81c293ab4d6bab92284dc1355e6da3fe8ae8977cd00de7994a304"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/actual-current-four-field-damage-sql-v2/battlefield-spell-damage/group-void/confirmed-before-damage-original-frame.json.gz",
+      "bytes": 9919,
+      "sha256": "f831e1af1d04a4583f3ab0eadd705d8ec1b42dc08deb143b4d75a31ea84358f3"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/actual-current-four-field-damage-sql-v2/battlefield-spell-damage/group-void/explicit-original-controlled-initial.json",
+      "bytes": 9819,
+      "sha256": "2eaa3844f565cbcd8f3182deadad742c53d7571a1ee267c5df0a7914465b66e0"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/actual-current-four-field-damage-sql-v2/battlefield-spell-damage/group-void/final-original-frame.json.gz",
+      "bytes": 18040,
+      "sha256": "7dc881514472cf62ce6e96b7b470b30be396e353e414b7688c2358534d6e4524"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/actual-current-four-field-damage-sql-v2/battlefield-spell-damage/group-void/receipt.json",
+      "bytes": 879,
+      "sha256": "9b83335adf318be8c24b5542ccf0918ba2887efa88136722a28c99f7fbfe9da3"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/actual-current-four-field-damage-sql-v2/battlefield-spell-damage/targeted-unit/all-original-accepted-intents.json",
+      "bytes": 990,
+      "sha256": "09a773827c51d87b298f6d14f4819583a0a3283413dd59a93ef0d52c389bef9b"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/actual-current-four-field-damage-sql-v2/battlefield-spell-damage/targeted-unit/confirmed-before-damage-original-frame.json.gz",
+      "bytes": 9808,
+      "sha256": "122fe5cc68dae78eb8aa5b4f940e8cc59f065a0c5cdb0250d97f410d8fe93885"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/actual-current-four-field-damage-sql-v2/battlefield-spell-damage/targeted-unit/explicit-original-controlled-initial.json",
+      "bytes": 9814,
+      "sha256": "262522493102639d29b947ee4fea7b2fcb087cabe5c0d911ef0d72cf0c7096ff"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/actual-current-four-field-damage-sql-v2/battlefield-spell-damage/targeted-unit/final-original-frame.json.gz",
+      "bytes": 18219,
+      "sha256": "01e3cb85f5f4f4f8f99a1868772fdaf646aa9d5206f187244852afcbf73359b7"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/actual-current-four-field-damage-sql-v2/battlefield-spell-damage/targeted-unit/receipt.json",
+      "bytes": 882,
+      "sha256": "7bcb2786bdb49e4a281a9136ebe00219b35a4b178f177ebacc04445aa652c8fb"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/actual-safe-native-main-v2/original271-audit56-native-seven-table-baseline-v2.json",
+      "bytes": 20779,
+      "sha256": "c13f0e33190940b40297bc2574c75c0e8521a263bc8d17ec593b088cbd665609"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/affected-original20-current-result-v1.json",
+      "bytes": 4024,
+      "sha256": "2a18eee104db1ae2b02a8b5f5137423da40fa8467a221aa191d5b29455fcc025"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/affected-original20-current-result-v1.json.plan.json",
+      "bytes": 7223,
+      "sha256": "89f6ed9b5175a247aa19f6950da37cc6866909963e3e0241f989c1081a235f8d"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/affected-original20-current-v1.log",
+      "bytes": 3730,
+      "sha256": "5d1ca4b7172e600717f599f61e2dfee691ed4e2657b47e0f15d055d0470cdd24"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/affected-original20-owner-terminal-v1.json",
+      "bytes": 2136,
+      "sha256": "ad60f15c9c3219aabf6076fa8d5a5ad43f6eaad66b4783a4cdfd0bc390045c5c"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/affected-original20-owner-v1.log",
+      "bytes": 83,
+      "sha256": "4696cbbd0747ec8c32f1e87487442b23e9cc14a2f86f30bfbc95e54b1f5d6345"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/affected-pair-frozen-inputs-v1.json",
+      "bytes": 860100,
+      "sha256": "5cb421943d896eddf8090a5fed460a3ad2b2ba35e0b8bca5e4563dfdebed73a2"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/affected-pair-helper-build-v1.log",
+      "bytes": 78,
+      "sha256": "ee52b18caff3089c25d4e3ddf72f8dd7a31c135e2d7786453c2172f1668f974f"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/affected-pair-source-v1/Program.cs",
+      "bytes": 4656,
+      "sha256": "9c6845a1fadf969ddb167dd6069fc160cbc002ee166c2dea6dec4740be44e02d"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/affected-pair-source-v1/probe.csproj",
+      "bytes": 804,
+      "sha256": "794610d9ccbc4614ebead644041e998dd243da2046d2d480ef42e6bc3f8571c7"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/after-sole-check-before-exact-source-expectation-remediation-v1/tests/Riftbound.ConformanceTests/CardCatalogBaselineTests.cs.gz",
+      "bytes": 50610,
+      "sha256": "760213ce9ca52eee05a71d79bb2ebd18d563d1d8bcfbf83aa018fcb210d3f7de"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/after-sole-check-before-exact-source-expectation-remediation-v1/tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-firestorm-damage-enemy-battlefield-units.fixture.json.gz",
+      "bytes": 2031,
+      "sha256": "6bdd8cac8f02db28bdacaae8317c3969706f88b2a5ea05eea9a86bcd2b63582f"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/after-sole-check-before-exact-source-expectation-remediation-v1/tests/Riftbound.ConformanceTests/Fixtures/p4-play-firestorm-explicit-unit-target-rejected.fixture.json.gz",
+      "bytes": 1484,
+      "sha256": "2187799a8d878eff0b1730e80fd90acbf21ea108be25525a765b3e068a7c1fd7"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/before-current-void-and-exhausted-sql-integration-v1.json",
+      "bytes": 851484,
+      "sha256": "f0ee10cd77ff60c0a6bde57a1bdd89f7918b86ed17158b38eb93ef3e90f54599"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/before-finite-firestorm-source-alignment-v1/src/Riftbound.Engine/CardBehaviorRegistry.cs.gz",
+      "bytes": 38030,
+      "sha256": "1c8ea3ea4739098ef99a8190fc78220d3c661674ee2413cad4f6f424799dc1fc"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/before-finite-firestorm-source-alignment-v1/src/Riftbound.Engine/CoreRuleEngine.SelectedBattlefield.cs.gz",
+      "bytes": 1228,
+      "sha256": "7055e64c9cd397ad3c90961dc98f3e00e873e726d2e2c87d6f1c7c039d532724"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/before-finite-firestorm-source-alignment-v1/src/Riftbound.Engine/CoreRuleEngine.cs.gz",
+      "bytes": 187230,
+      "sha256": "34e4d61aff2bb8de35e39d5044cde4150a97d078e6b45352777de1785d50f57b"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/before-finite-firestorm-source-alignment-v1/tests/Riftbound.ConformanceTests/CurrentVoidGateErratumTests.cs.gz",
+      "bytes": 1163,
+      "sha256": "9158a19d9d607fdb87239c74da1d3494b68035bf089dd273c89bc7a3d67f714a"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/before-finite-firestorm-source-alignment-v1/tests/Riftbound.ConformanceTests/FirestormEnemyBattlefieldDamageGuardTests.cs.gz",
+      "bytes": 4730,
+      "sha256": "0f73a81f699bb63f0c3e3fbaa88fc6ff6ade7055a98e8eefc5ccab9f4de76e1e"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/before-finite-firestorm-source-alignment-v1/tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-firestorm-damage-enemy-battlefield-units.fixture.json.gz",
+      "bytes": 1748,
+      "sha256": "9c6f6df414ea816fcfcaa8d5c20f9f162a4ff382b4ca54345b47e13b73c19336"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/before-finite-firestorm-source-alignment-v1/tests/Riftbound.ConformanceTests/Fixtures/p4-play-firestorm-explicit-unit-target-rejected.fixture.json.gz",
+      "bytes": 1399,
+      "sha256": "c42ad09ef2b561a135cc7606deb914ef041fcee80312a0b3b8af45d160aa7325"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/before-finite-firestorm-source-alignment-v1.json",
+      "bytes": 3475,
+      "sha256": "18a61e1a3d4224763f4b4cd0815dbd882f873063c32c1f7db47b66ade0ef7b2a"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/before-post-check-void-baseline-source-phrase-v1.cs.gz",
+      "bytes": 50610,
+      "sha256": "760213ce9ca52eee05a71d79bb2ebd18d563d1d8bcfbf83aa018fcb210d3f7de"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/build-clean-fixed2b83-api-v1.log",
+      "bytes": 807,
+      "sha256": "d2e78f5884221e886c7be0f5456ff697e89e4da41f8694f0c9f7e0065c4282f9"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/build-fixed2b83-native-history-reader-v1.log",
+      "bytes": 78,
+      "sha256": "1fd2cc9eb64a410a26e94296bb60581b84cf7e2ebf10ca5541a16b8afcc901c2"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/build-source-overlay-probe-v1.log",
+      "bytes": 442,
+      "sha256": "eceabb6c1460194b9b4676bf532c0b083d574c2d3fccdf03954e96cf7926bc43"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/check-original-case-method-and-input-retention-v1.json",
+      "bytes": 3215,
+      "sha256": "d3d746c343947a1eef3b4ee7a460fb8deda03a87ed7a975211422c5df558a3ae"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/check-original-case-method-and-input-retention-v2.json",
+      "bytes": 3994,
+      "sha256": "39ae54c127f34b8b932783ae049b0ad0d452d4f4bb7e8a29633496cc5bb3848e"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/ci-39539455481-snapshot-20261021T053313Z.json",
+      "bytes": 28245,
+      "sha256": "b8615ded1d34a84fb6becef5ec2e3f6af14beb409f42ae6a3325cb612d870224"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/ci-39539455481-snapshot-20261021T054309Z.json",
+      "bytes": 19230,
+      "sha256": "ab5e48c2ff8be2ef182385f1d27f827af3cbd0ff4c3ea926144ad98aeb4827ba"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/ci-39539455481-snapshot-20261021T055425Z.json",
+      "bytes": 19230,
+      "sha256": "ab5e48c2ff8be2ef182385f1d27f827af3cbd0ff4c3ea926144ad98aeb4827ba"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/ci-39539455481-snapshot-20261021T060251Z.json",
+      "bytes": 19230,
+      "sha256": "ab5e48c2ff8be2ef182385f1d27f827af3cbd0ff4c3ea926144ad98aeb4827ba"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/ci-39539455481-snapshot-20261021T061054Z.json",
+      "bytes": 19230,
+      "sha256": "ab5e48c2ff8be2ef182385f1d27f827af3cbd0ff4c3ea926144ad98aeb4827ba"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/ci-39539455481-snapshot-20261021T061933Z.json",
+      "bytes": 19230,
+      "sha256": "ab5e48c2ff8be2ef182385f1d27f827af3cbd0ff4c3ea926144ad98aeb4827ba"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/ci-39539455481-snapshot-20261021T062722Z.json",
+      "bytes": 19230,
+      "sha256": "ab5e48c2ff8be2ef182385f1d27f827af3cbd0ff4c3ea926144ad98aeb4827ba"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/ci-39539455481-snapshot-20261021T064225Z.json",
+      "bytes": 19230,
+      "sha256": "ab5e48c2ff8be2ef182385f1d27f827af3cbd0ff4c3ea926144ad98aeb4827ba"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/ci-39539455481-snapshot-20261021T070139Z.json",
+      "bytes": 22353,
+      "sha256": "9e010d417b02797b55a8abbb6e0ec64cc302b728186fe7e02ebcd08d77602211"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/ci-39549071591-snapshot-20261021T053315Z.json",
+      "bytes": 27093,
+      "sha256": "f9f54cf3c39278d10ee4228ddf8187d722249a05fa7ea9316e90b25607ca8556"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/ci-39549071591-snapshot-20261021T054311Z.json",
+      "bytes": 18438,
+      "sha256": "36974a988e18adf3513755281c4c33a4d6230d6a38fb2500674a5715dd872757"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/ci-39549071591-snapshot-20261021T055427Z.json",
+      "bytes": 18438,
+      "sha256": "36974a988e18adf3513755281c4c33a4d6230d6a38fb2500674a5715dd872757"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/ci-39549071591-snapshot-20261021T060253Z.json",
+      "bytes": 18438,
+      "sha256": "36974a988e18adf3513755281c4c33a4d6230d6a38fb2500674a5715dd872757"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/ci-39549071591-snapshot-20261021T061102Z.json",
+      "bytes": 18438,
+      "sha256": "36974a988e18adf3513755281c4c33a4d6230d6a38fb2500674a5715dd872757"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/ci-39549071591-snapshot-20261021T061935Z.json",
+      "bytes": 18438,
+      "sha256": "36974a988e18adf3513755281c4c33a4d6230d6a38fb2500674a5715dd872757"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/ci-39549071591-snapshot-20261021T062725Z.json",
+      "bytes": 18438,
+      "sha256": "36974a988e18adf3513755281c4c33a4d6230d6a38fb2500674a5715dd872757"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/ci-39549071591-snapshot-20261021T064228Z.json",
+      "bytes": 18636,
+      "sha256": "bfcf19eb27f1f4d1069f7d0491a9abf5a954f3f4bd7f6ec028faab7244d3c7b8"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/ci-39549071591-snapshot-20261021T070141Z.json",
+      "bytes": 18834,
+      "sha256": "2e28bc77477d7835fc1d60867fa7601f9a1e0fb37095ae964b5e39ac9ceadbb0"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/ci-39549071591-snapshot-20261021T072901Z.json",
+      "bytes": 19027,
+      "sha256": "dde5d941ee7a0f4bbf5b93e4dbf68e1931767e0f099ea2f81c85a93af322fb66"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/ci-64678-complete-backend-artifact-metadata-v1.json",
+      "bytes": 7590,
+      "sha256": "9b8eae8962f75a3a4d7368dcc22b2859dd0f97639d49a6c31faff5462c6d606f"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/ci-64678-complete-originals-v1/conformance-results-attempt-1.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/ci-64678-complete-originals-v1/conformance-results.zip",
+      "bytes": 3918301,
+      "sha256": "a62167c77e52c46f8724db83f9bbcf47307c5a63ffbbe39572be6be49c37bc05"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/ci-64678-complete-originals-v1/full-verification-gate-attempt-1.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/ci-64678-complete-originals-v1/full-verification-gate.zip",
+      "bytes": 298,
+      "sha256": "bf5409879c816601c3f8031af8cec5554321156e30459aae5c90ef0aa1a1edc3"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/ci-64678-complete-originals-v1/native-network-results-attempt-1.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/ci-64678-complete-originals-v1/native-network-results.zip",
+      "bytes": 1831,
+      "sha256": "a8e6a7ccc29f30d7d225cf3e1560a67801df2fc069dd2be322c11f1618137e4a"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/ci-64678-complete-originals-v1/postgres-partition-0-attempt-1.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/ci-64678-complete-originals-v1/postgres-partition-0.zip",
+      "bytes": 1585927,
+      "sha256": "1d3b60e0f4a2d87659a331c502314d32e611a7d0124e5dc19950a2f9d081b9d5"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/ci-64678-complete-originals-v1/postgres-partition-1-attempt-1.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/ci-64678-complete-originals-v1/postgres-partition-1.zip",
+      "bytes": 1197353,
+      "sha256": "d83916a934f8eed5671f3a3828521516c97ff1bf8b2f64517b9881e88c979b2b"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/ci-64678-complete-originals-v1/postgres-partition-2-attempt-1.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/ci-64678-complete-originals-v1/postgres-partition-2.zip",
+      "bytes": 1167266,
+      "sha256": "5699a9d13679be781438a93d43500262d3a933165fe0825ff7925af5be5d9e80"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/ci-64678-complete-originals-v1/postgres-partition-3-attempt-1.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/ci-64678-complete-originals-v1/postgres-partition-3.zip",
+      "bytes": 1313314,
+      "sha256": "03d28ffacd4686881bdb4d7383dfc75946d2336d97de1286608973b176dc3010"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/ci-64678-complete-originals-v1/postgres-results-attempt-1.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/ci-64678-complete-originals-v1/postgres-results.zip",
+      "bytes": 2172,
+      "sha256": "770c820b7fbf2c6cd790f47061f8f717059ef2778b5b3ae1c5887aeb37b33ac1"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/ci-64678-complete-originals-v1/verification-scope-attempt-1.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/ci-64678-complete-originals-v1/verification-scope.zip",
+      "bytes": 1517776,
+      "sha256": "7e0b5614990fa5eccfdcf59a3caa49478d3916545c754ca39c2176b4d7428be1"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/ci-64678-completed-duplicate-extraction-exact-original-member-manifest-v1.json.gz",
+      "bytes": 21261,
+      "sha256": "08df0835a81c905c2a3b878565c0f2c49b4e18f44efb30dfb391942a654dd07a"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/ci-64678-completed-duplicate-extraction-retirement-v1.json",
+      "bytes": 508,
+      "sha256": "5517a5dcb72f3f93204f892473edb7fb19f705bece419969035a0f8c06f88de4"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/ci-64678-entire-full-independent-verification-v1.json",
+      "bytes": 33397,
+      "sha256": "b15872ef4eb8d800cf9ce5f601399c11da3a408381b5f545765d10ae29c202bb"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/ci-64678-entire-terminal-snapshot-v1.json",
+      "bytes": 22353,
+      "sha256": "9e010d417b02797b55a8abbb6e0ec64cc302b728186fe7e02ebcd08d77602211"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/ci-64678-original-artifacts-download-receipt-v1.json",
+      "bytes": 6590,
+      "sha256": "1826067af62b85f3533c25c5e723546c3fbb846b8f58e84f7430161633c27ff5"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/ci-64678-vs-f059-original-terminal-hash-comparison-v1.json",
+      "bytes": 24073,
+      "sha256": "75f83b686261f683bf0135868a587cc525c93b7a4957c6b9a9d60fc304a912d2"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/ci39549071591-artifact-metadata-initial-v1.json",
+      "bytes": 2783,
+      "sha256": "2ff1c7f9ac601d6e98b7be977c67cae83c3606ed785d3b2af7123a5922e295a6"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/completed-helper-generated-staging-original-file-manifest-v1.json.gz",
+      "bytes": 7529,
+      "sha256": "a46176a1f6180e8c88daca06a9e1da0aae8a98913e77f6f5974a5ef2d9c2295d"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/completed-helper-generated-staging-predeletion-verification-v1.json",
+      "bytes": 12134,
+      "sha256": "6909a7ebc00158b9160ee7c6e5a44fb93a3615874865519d4e9ef1c5111aa48b"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/completed-helper-generated-staging-retirement-v1.json",
+      "bytes": 879,
+      "sha256": "0fb967deebec94300dc392b9c9c1122abe4df37f7a19004bb8ed519dfeb64bb0"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/current-core-damage-p106.png",
+      "bytes": 594380,
+      "sha256": "0c06b584b0b5c5aefffcb8d5fae36c26f35673d5d6261403bfacc401f4fa282b"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/current-core-selected-objects-p44.png",
+      "bytes": 339079,
+      "sha256": "737f3bdec5f8a935a2e12c9d329361d7da44f848b612602578dc07f1aaa82235"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/current-field-damage-postgres-v1.log",
+      "bytes": 1280,
+      "sha256": "39642f5af4de756d15b4eb6ee657444189fc786fb79c56eabc21fd210ee2561d"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/current-field-damage-postgres-v2.log",
+      "bytes": 1280,
+      "sha256": "837483bafda7b73daf07059c6918f9c2977e558933c7c9358ba2bcffca562b0a"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/current-finite-void-and-second-legend-source-intake-v1.json",
+      "bytes": 7700,
+      "sha256": "554603c7c08d3dc13f0426673364b2f202c2ae3a0a3df84c5e4a762baaff2ae8"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/current-fixed-native-download-original-result-v1.json",
+      "bytes": 2689,
+      "sha256": "1cd1a4c1dcf1a7cfda2237dce15044679b41b50520131769e10a6169fb81f515"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/current-fixed2b83-ci-main-owner-v1.log",
+      "bytes": 600,
+      "sha256": "7b6b6b7b8d48191f88e609c2cfe1600d5c23db5e3e47579064bbfb020d7ab214"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/current-fixed2b83-ci-native-combined-subscope-readback-v1.json",
+      "bytes": 7837,
+      "sha256": "35849a83d4bc541707f77b75e642da4ee4ef054bd2cbfcf38f89a6c16bcd56a0"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/current-implementation-context-hash-differences-prepublication-v1.json",
+      "bytes": 25859,
+      "sha256": "c55cbb4925f07ba2265d9a67d444a3a2ce02d2973c68e4259b57e874cfe14dfc"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/current-integrated-actual-rule-inputs-v1.json",
+      "bytes": 424,
+      "sha256": "a0840aaf6e0c85a1538f4da766ccbd5bd6abdb013f3cc9653b0acf451a2e5823"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/current-integrated-actual-rule-inputs-v2.json",
+      "bytes": 424,
+      "sha256": "a0840aaf6e0c85a1538f4da766ccbd5bd6abdb013f3cc9653b0acf451a2e5823"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/current-integrated-sql-build-v1.log",
+      "bytes": 78,
+      "sha256": "f6d643645f87b8fd75522e05e28671f2173b8267bd03d853826a9b9a248b50b7"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/current-integrated-sql-build-v2.log",
+      "bytes": 78,
+      "sha256": "d387bc7b3f419ee6b4f9a6a291edb3f881035ea6f7680a9ec89dc15ac1379395"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/current-integrated-sql-frozen-inputs-v1.json",
+      "bytes": 856811,
+      "sha256": "f3f61d3b0c98d0d0d9552ac58789fb0fdadc8063060571547d4aec1b7075bbd4"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/current-integrated-sql-frozen-inputs-v2.json",
+      "bytes": 856933,
+      "sha256": "4ab4838395cacb1785de55535a322bfec22d42e1afce2d25d4a2a19430efa3ee"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/current-native-default-headless-a.log",
+      "bytes": 394,
+      "sha256": "7f99a97f303b844aea609eb961342c64224fd5721bb32be857541d02cc8a0910"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/current-native-default-headless-b.log",
+      "bytes": 394,
+      "sha256": "7f99a97f303b844aea609eb961342c64224fd5721bb32be857541d02cc8a0910"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/current-native-headless-boot-verification.json",
+      "bytes": 2906,
+      "sha256": "f524690202e0a6a4cf469eb1500d73b1a80bb32f93d931f3d49cbe52f69f05c3"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/current-official-erratum-text-actual-outcome-v1.json",
+      "bytes": 315236,
+      "sha256": "6236afcdd63f5347976951a7d7831c55d3cad32a5f6be64e34b86f4acea7f38f"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/current-official-erratum-text-frozen-inputs-v1.json",
+      "bytes": 11060,
+      "sha256": "0798724e7f0c9e89511918e9b4b60cba457d24c2f2f265a9547fe0160563b3d7"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/current-official-erratum-text-original-process-v1.log",
+      "bytes": 445,
+      "sha256": "1cc265203947d87497f3ba9863f1a6a39495a64a25c7d57e796592d3a49b689a"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/current-two-adjacent-selected-field-source-intake-v1.json",
+      "bytes": 5447,
+      "sha256": "88e7f1ad162f999480082304a970aac1a49a1e467a6a3227c557e10d8e7af6b7"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/current-void-and-selected-battlefield-exact-source-scope-review-v1.json",
+      "bytes": 8674,
+      "sha256": "b18c559868e0e0016c5eedc31fe46b4eadd343f0fc382a29a095f0e0be9c0f9c"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/current-void-gate-source-adoption-parser-regression-original-proof-v1.json",
+      "bytes": 3381,
+      "sha256": "2bee1a2601101f929f2d81eeb183b61d197e28be6b1a26a44bc651f1e32a9032"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/diagnose-structural-and-replay-original-v2.log",
+      "bytes": 3226,
+      "sha256": "6a59a0196f88fd603a26a091ea1ccc76e386b0f927175e2a58b1d5304b37a16b"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/diagnose-structural-and-replay-original-v3.log",
+      "bytes": 3072,
+      "sha256": "4bf1cd7db2def40846aa95b8e79121380324c679ae2ef9070502546bcf681e66"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/diagnose-structural-build-v1.log",
+      "bytes": 78,
+      "sha256": "3526e26e46093fb6b8f6b7669b2653906438d5eb4211a2fa6e9ca6c5faa733ca"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/diagnose-structural-build-v2.log",
+      "bytes": 78,
+      "sha256": "a7d08e721619bb2779ac6a2b050b0d685dd0aade21ffc7d1159c16075f600ba7"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/diagnose-structural-build-v3.log",
+      "bytes": 78,
+      "sha256": "0861c17249fa8df10cb675b6f44b18b683ea2c206255df84c04ad2a5616e9f51"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/diagnose-structural-frozen-inputs-v1.json",
+      "bytes": 11265,
+      "sha256": "1705ac12db7628d456366d274a5e8a6110427b86016511d67e06e692ae2c0ab7"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/diagnose-structural-frozen-inputs-v2.json",
+      "bytes": 11265,
+      "sha256": "1f773ec3adb6b324e5135d0b0482fc95dcbc55f298e2d3f708c2004b619839c6"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/diagnose-structural-frozen-inputs-v3.json",
+      "bytes": 11265,
+      "sha256": "457f7f176fd6f3e80c1535dd992cc90fb350a21c79e130d3521e618ad2783fa5"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/diagnose-structural-source-v1/Program.cs",
+      "bytes": 1515,
+      "sha256": "753403b242aea29153a6586cb85efe42aee69293b27cd1b60a0e86bc17dcf4a1"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/diagnose-structural-source-v1/probe.csproj",
+      "bytes": 1482,
+      "sha256": "13854c3ac55be3dc16b53184f39ec328e757bfe73a0b9db3972311781513ab77"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/diagnose-structural-source-v2/Program.cs",
+      "bytes": 2329,
+      "sha256": "a565729269b910c39826490cef7dada26189accb6995358f5e100415b616fbd4"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/diagnose-structural-source-v2/probe.csproj",
+      "bytes": 1482,
+      "sha256": "bf1f4ecaebe5be4b9e369f06776e190b2da35ab76637f402f16ae60281c81814"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/diagnose-structural-source-v3/Program.cs",
+      "bytes": 2342,
+      "sha256": "3975a66c9921327acb9edd0b6f7148a7d3c4afe67cc33fd2900491c01a416c9c"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/diagnose-structural-source-v3/probe.csproj",
+      "bytes": 1482,
+      "sha256": "6891a7c8bbf2391efa01c38fcd09f0429ef8e16bb8f13a9abb4d91ffec757ab0"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/download-completed-fixed64678-full-originals-owner-v1.log",
+      "bytes": 528,
+      "sha256": "7f82a541848e88906c03565a1671db88a6ce26b1cf684d0eebded984865b9431"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/download-completed-fixed64678-full-originals-v1.py",
+      "bytes": 2266,
+      "sha256": "8a766ac6381827f721631ffb9f184bb56aeb38b83d950d073eb9aec68e57c6d0"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/download-current-fixed2b83-native-owner-v1.log",
+      "bytes": 139,
+      "sha256": "9ea41a50ee07570f7a5edb3119e2268cf52aeb2f436210801555802721376dba"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/download-current-fixed2b83-native-v1.py",
+      "bytes": 2047,
+      "sha256": "63ded144186852115eba32feccb534fa65223527a66143ffa36b977a56a29783"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/exact-fixed-64678-sql-manifest-original-v1.json",
+      "bytes": 5202,
+      "sha256": "a8177a2b705b35955684d8abd8cb253faf61a3940c4caf2da25bf9957001909b"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/exact-void-current-catalog-adoption-v1.json",
+      "bytes": 477,
+      "sha256": "d126790c28f96ac15bdf0614237160611b4dff8227b54306025b633ab50fe35e"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/final-focus-after-exact-source-remediation-union-v1.json",
+      "bytes": 271,
+      "sha256": "98ed50d0e0d3b4d7fec6fdba6c12abc135483b68182d1fd60580c1148d037451"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/firestorm-created-issue-exact-readback-v1.json",
+      "bytes": 291,
+      "sha256": "25446aabc0d640e35208a4eafad8fe739ebc1010f0a8f5db6d9ac3078405ef6f"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/firestorm-created-issue-v1.json",
+      "bytes": 2658,
+      "sha256": "d620218262bc1313a31d032ee0237a2641a650368b4342e8668967ce42a1fad0"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/firestorm-issue-original-body-v1.md",
+      "bytes": 2235,
+      "sha256": "344f6413d901412e7e91a6bf8df5933792bad3983f2778ab757cd29652830783"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/fixed2b83-api-actual-rule-inputs-v1.json",
+      "bytes": 424,
+      "sha256": "fe5b8a200e63fe1240a45a694a844c4d9303ea3af2a6484bff521f75e6013b86"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/fixed2b83-api-vs-prior-sql-identity-distinction-v1.json",
+      "bytes": 1275,
+      "sha256": "169f113c980b30698b493c87f7141142051815029984f9a298735da15f6851e2"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/fixed2b83-clean-api-frozen-inputs-v1.json",
+      "bytes": 850222,
+      "sha256": "6bb3f4aa5632ca9c06a31c8d56ad31ad145379bd3c7d2996d18384f4899bd6c6"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/fixed2b83-native-attempt-v2/actual-current-network-smoke-v2.log",
+      "bytes": 764,
+      "sha256": "8c5841d95ae3f02d0c3645739ad22442f28abfe3836cd3a7460b02008cb38cde"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/fixed2b83-native-attempt-v2/actual-safe-native-main-v2/actual-ci-native-cold-reconnect-v2.json",
+      "bytes": 1006,
+      "sha256": "20fd74b47d2d2a21f1a88001daa27c540e20be8524ec076e73c8a965f7b5a603"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/fixed2b83-native-attempt-v2/actual-safe-native-main-v2/after-ci-native-keep-original-frame-v2-metadata.json",
+      "bytes": 847,
+      "sha256": "24a3df3ba86100bddc54c576bb77e66888fe137591775e655cf7502c32d5e70e"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/fixed2b83-native-attempt-v2/actual-safe-native-main-v2/after-ci-native-keep-original-frame-v2.json.gz",
+      "bytes": 40489,
+      "sha256": "24809064eacc235927c5f51c15ee752c575fafdd831beaa63f2fddfbd6f5d24d"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/fixed2b83-native-attempt-v2/actual-safe-native-main-v2/after-current-ci-native-normal-score-final-original-frame-v2-metadata.json",
+      "bytes": 847,
+      "sha256": "bc4c63d4184e9582ba7aabad237e90ecbf1eff18b1cd8975d5d6998f93092e4e"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/fixed2b83-native-attempt-v2/actual-safe-native-main-v2/after-current-ci-native-normal-score-final-original-frame-v2.json.gz",
+      "bytes": 42919,
+      "sha256": "06bc9b65522f68caebd9e04b8e6b325af243d9128fbb155a65df428578ffa58a"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/fixed2b83-native-attempt-v2/actual-safe-native-main-v2/after-native-priority-pass-2-original-frame-v2-metadata.json",
+      "bytes": 847,
+      "sha256": "e2fa7f862b60f69bfac96405831a1bee28e64cb968b250d63516347ed89ccd91"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/fixed2b83-native-attempt-v2/actual-safe-native-main-v2/after-native-priority-pass-2-original-frame-v2.json.gz",
+      "bytes": 46552,
+      "sha256": "4c5065fd3f86f28b3a1a8aff1fa34b4b2eae4c687b53bd3a45aea9a1ae6997fe"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/fixed2b83-native-attempt-v2/actual-safe-native-main-v2/before-ci-native-cold-reconnect-original-frame-v2-metadata.json",
+      "bytes": 861,
+      "sha256": "9a8deaf4ae96f683fb3fed3c7c654a416d8785394e3de1263849cb125041d032"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/fixed2b83-native-attempt-v2/actual-safe-native-main-v2/before-ci-native-cold-reconnect-original-frame-v2.json.gz",
+      "bytes": 53333,
+      "sha256": "d64bcc38531a49dec4f6f38202f96927db63936a1b1bffbd73ea6bfdb7f12ffe"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/fixed2b83-native-attempt-v2/actual-safe-native-main-v2/both-ci-main-after-cold-original-frame-v2-metadata.json",
+      "bytes": 861,
+      "sha256": "9a8deaf4ae96f683fb3fed3c7c654a416d8785394e3de1263849cb125041d032"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/fixed2b83-native-attempt-v2/actual-safe-native-main-v2/both-ci-main-after-cold-original-frame-v2.json.gz",
+      "bytes": 53333,
+      "sha256": "d64bcc38531a49dec4f6f38202f96927db63936a1b1bffbd73ea6bfdb7f12ffe"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/fixed2b83-native-attempt-v2/actual-safe-native-main-v2/both-ci-main-before-cold-original-frame-v2-metadata.json",
+      "bytes": 861,
+      "sha256": "9a8deaf4ae96f683fb3fed3c7c654a416d8785394e3de1263849cb125041d032"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/fixed2b83-native-attempt-v2/actual-safe-native-main-v2/both-ci-main-before-cold-original-frame-v2.json.gz",
+      "bytes": 53333,
+      "sha256": "d64bcc38531a49dec4f6f38202f96927db63936a1b1bffbd73ea6bfdb7f12ffe"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/fixed2b83-native-attempt-v2/actual-safe-native-main-v2/original271-audit56-native-seven-table-baseline-v2.json",
+      "bytes": 20779,
+      "sha256": "1bc5268caf35fae9a1c1eb71c2dca83dfd190ab86d3c7f2b4eace28e466e39e6"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/fixed2b83-native-attempt-v2/actual-safe-native-main-v2/owner-final-current-ci-native-original-frame-v2-metadata.json",
+      "bytes": 847,
+      "sha256": "bc4c63d4184e9582ba7aabad237e90ecbf1eff18b1cd8975d5d6998f93092e4e"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/fixed2b83-native-attempt-v2/actual-safe-native-main-v2/owner-final-current-ci-native-original-frame-v2.json.gz",
+      "bytes": 42919,
+      "sha256": "06bc9b65522f68caebd9e04b8e6b325af243d9128fbb155a65df428578ffa58a"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/fixed2b83-native-attempt-v2/actual-safe-native-prefix-v2/a-original-opponent-snapshot.json",
+      "bytes": 39329,
+      "sha256": "e20445514c1a42405d02b3f54122d0a619fd0b6edfae08ef15e1ee7578e9361a"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/fixed2b83-native-attempt-v2/actual-safe-native-prefix-v2/a-original-opponent-wait-prompt.json",
+      "bytes": 7086,
+      "sha256": "ade690177d6f1a696daf7db9172820b4dc43f7d774114fc156ff0b02b36f5623"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/fixed2b83-native-attempt-v2/actual-safe-native-prefix-v2/b-original-target-choice-prompt.json",
+      "bytes": 33268,
+      "sha256": "c721471afdf370bcfb57fded40fc6b82f0e48814ce1879cfaafcdd2d9d2cf530"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/fixed2b83-native-attempt-v2/actual-safe-native-prefix-v2/b-original-target-choice-snapshot.json",
+      "bytes": 39351,
+      "sha256": "6a5448431c5b7c308387597bebb142d21ba68991d84e0c837593c7d5e2d310ab"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/fixed2b83-native-attempt-v2/actual-safe-native-prefix-v2/original-accepted-native-prefix-intents.json",
+      "bytes": 123129,
+      "sha256": "bf268459961111614e15d190009f2804153a52e9c1d21044ae35c37e27ecf3a4"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/fixed2b83-native-attempt-v2/actual-safe-native-prefix-v2/original-private-native-wire-snapshots-prompts.ndjson.gz",
+      "bytes": 596911,
+      "sha256": "6f1967f8c04142551c296e1c24045e8990ab6417702bcd5d49d2eae226b31072"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/fixed2b83-native-attempt-v2/actual-safe-native-prefix-v2/pending-original-native-prefix-receipt.json",
+      "bytes": 1066,
+      "sha256": "73ef1ea641c65e440eb576b38bab308e272b197d421410e185d24520b18589e9"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/fixed2b83-native-attempt-v2/actual-safe-normal-score-continuation-v2/all-original-normal-score-continuation-intents.json",
+      "bytes": 47630,
+      "sha256": "6c7baaefcc538995b4f1009486647668670e3bc0d573415c37e7e84fd8d94a03"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/fixed2b83-native-attempt-v2/actual-safe-normal-score-continuation-v2/normal-original-score-continuation-receipt.json",
+      "bytes": 597,
+      "sha256": "441a5ffabc4dc66738d4a46b9828bac4adf8eaa89191cabed19e13b29a05e2c9"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/fixed2b83-native-attempt-v2/actual-safe-normal-score-continuation-v2/original-private-score-gateway-wire.ndjson.gz",
+      "bytes": 262557,
+      "sha256": "365747dbddbcb8d58548d3255ee87573fe57cf28844ecf8b193abdbd145c7491"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/fixed2b83-native-attempt-v2/current-fixed2b83-ci-main-independent-owner-v1.log",
+      "bytes": 120,
+      "sha256": "8c03b4657bbd5f22fea2e38c24678958759945755c0bb8c0c00664ecf14ca5c5"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/fixed2b83-native-attempt-v2/current-fixed2b83-ci-main-owner-v1.log",
+      "bytes": 510,
+      "sha256": "c1ceac23627f73918f7d7b442fd81b863537b96f59e95dfcaaa104bd8ea4b171"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/fixed2b83-native-attempt-v2/current2b83-pty-ci-native-observe-a-v2.log",
+      "bytes": 4242,
+      "sha256": "fe13172a5de9eeb2adc95c5e70595d895b34d7c4a94f12138715312d264fd0bc"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/fixed2b83-native-attempt-v2/current2b83-pty-ci-native-observe-b-v2.log",
+      "bytes": 4289,
+      "sha256": "99fba27a42929ef076025cbc185f075c403d275d66991801d22ab92161edce92"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/fixed2b83-native-attempt-v2/current2b83-pty-ci-native-ui-keep-b-v2.log",
+      "bytes": 3753,
+      "sha256": "267b5996370018eec2b856a8a57b47aaa7c0ca1c92ca545bd6a13088515e0966"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/fixed2b83-native-attempt-v2/current2b83-pty-ci-native-ui-pass-a-v2.log",
+      "bytes": 6054,
+      "sha256": "b46db3d00cd3e76acbfe6135b43116c7b4f5c22b06d5d610ddb370fcb37c0ae6"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/fixed2b83-native-attempt-v2/current2b83-pty-ci-native-ui-pass-b-v2.log",
+      "bytes": 4667,
+      "sha256": "9f2bbd5783fbea1c85ea01feb196b3cfdd4036cb4870844afdf2d10bb09455b9"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/fixed2b83-native-attempt-v2/fixed2b83-native-history-reader-frozen-v1.json",
+      "bytes": 5620,
+      "sha256": "018840552aa52b07f537b9e770113f8d654fc4202ac63a187b4534ec958c5834"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/fixed2b83-native-attempt-v2/fresh-two-profile-bootstrap-without-old-room-state-v1.json",
+      "bytes": 1605,
+      "sha256": "df5a25d0b4e1cbae76e15f3090c049596e26c02237e4c1640f74c2e91ef9e5ef"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/fixed2b83-native-attempt-v2/frozen-fixed2b83-native-composition-v1.json",
+      "bytes": 80614,
+      "sha256": "3ac540876cbbe2790677f12fc7144bcd581dd301dcaab6dcf11587ab1cf2ed5f"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/fixed2b83-native-attempt-v2/independent-fixed2b83-native-history-result-v1.json",
+      "bytes": 1851,
+      "sha256": "397f2e21aa2c114b0c4d8e52e6e057fbac84b66f12ce2072422cfeff3eb78344"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/fixed2b83-native-attempt-v2/independent-fixed2b83-native-history-run-v1.json",
+      "bytes": 6583,
+      "sha256": "4e5b8eb90f81ac436c2f22646b2ef517a79fb3eb4319b0c0b521fb718d9aed10"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/fixed2b83-native-attempt-v2/independent-fixed2b83-native-history-v1.log",
+      "bytes": 5957,
+      "sha256": "f9ccbeb8372b763f34fcea4ea936b9de7609c6cba1edf12d4843c4d4763c2069"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/fixed2b83-native-attempt-v2/live-current-ci-api-1-v2.log",
+      "bytes": 36323,
+      "sha256": "e25f534a6233443026614bc6b04ab7d36a30a69b63ad8c1691deecfa283b6dd7"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/fixed2b83-native-attempt-v2/live-current-ci-api-2-v2.log",
+      "bytes": 76626,
+      "sha256": "5bda991c9920d999a1e30671ac00fa77b8c3d2ea26788945e2fef216c2374b01"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/fixed2b83-native-attempt-v2/live-current-ci-main-owner-terminal-v2.json",
+      "bytes": 12640,
+      "sha256": "baf9d56572ddfcbb659bae95dcf90b7033f529ee2ec8b0076f872550634383f5"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/fixed2b83-native-attempt-v2/live-current-ci-main-ready-v2.json",
+      "bytes": 9917,
+      "sha256": "abaea60df7a7647f51c4590b26ffdc1f3fc4d626ed1d55cb9acbfa8ffca8ad63"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/fixed2b83-native-attempt-v2/live-current-ci-main-stop-v2.json",
+      "bytes": 587,
+      "sha256": "b1539aa2879a49da62f9c020e66fa9f6f53efef860a9019d00c28d994d02bc48"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/fixed2b83-native-attempt-v2/live-current-ci-normal-score-writer-v2.log",
+      "bytes": 598,
+      "sha256": "ec03297f9480c202da74271bcceffa559328a3cf96fe2dd104ec8665784aaf0c"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/fixed2b83-native-attempt-v2/live-current-ci-owner-state-v2.json",
+      "bytes": 9402,
+      "sha256": "55ee6e58aa2795964dc2e54edebbad368d161762ff8173be4e326434b496ee25"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/fixed2b83-native-attempt-v2/live-current-ci-postgres-v2.log",
+      "bytes": 1629,
+      "sha256": "ce17b0bc729d882d20340b48c1a055c79ae13d78f1fb66d2c471b66f5e8ff01b"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/fixed2b83-native-attempt-v2/live-current-ci-prefix-writer-v2.log",
+      "bytes": 1067,
+      "sha256": "4f4af7a4739581a8576fb1b524e947c6f2d3584ff24d3e0ec3e67543a75a2a5d"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/fixed2b83-native-attempt-v2/run-fixed2b83-ci-main-pair-v1.py",
+      "bytes": 20481,
+      "sha256": "ccca66bea169cc716908cd44d7128c769e491f86f9a7b6bc576ca147f3d5feb0"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/fixed2b83-native-attempt-v2/run-independent-fixed2b83-native-history-v1.py",
+      "bytes": 3696,
+      "sha256": "5c6a40cd6ed467ff7ad63091a15cb9f20378689899af914c7f7db45ded5b6beb"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/fixed2b83-native-history-reader-frozen-v1.json",
+      "bytes": 5620,
+      "sha256": "018840552aa52b07f537b9e770113f8d654fc4202ac63a187b4534ec958c5834"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/fixed2b83-native-history-reader-source-v1/Program.cs",
+      "bytes": 19004,
+      "sha256": "dedb508d19bb371e9869d5c47ae22808fc23ede7f2cb03cef8dcb0aa9adcc599"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/fixed2b83-native-history-reader-source-v1/probe.csproj",
+      "bytes": 1073,
+      "sha256": "3a913be855243e82e83ca851756403997b615d77e5ff81842b26058b28192683"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/focus-all-three-selected-field-consumers-and-source-security-owner-v1.log",
+      "bytes": 468,
+      "sha256": "6909d4ed17237a44beade368937c55487009c098aa366e20095fb28adab0c5a8"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/focus-all-three-selected-field-consumers-and-source-security-v1/build.log",
+      "bytes": 78,
+      "sha256": "aee5998c651a8b4eb9b4be40f29fb876141981e09235873cd19cf03ceda23fbf"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/focus-all-three-selected-field-consumers-and-source-security-v1/discovery.log",
+      "bytes": 1995619,
+      "sha256": "3e9263fbdfde2c1f9bc01478629506a5c9def2fe197be6e0a181dbb524ddfe45"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/focus-all-three-selected-field-consumers-and-source-security-v1/focus/results.trx",
+      "bytes": 395894,
+      "sha256": "bf06f16f4a3791041bd32faa2e2eef951092d8966d62d4b303588b571b68ada4"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/focus-all-three-selected-field-consumers-and-source-security-v1/focus/test.log",
+      "bytes": 536,
+      "sha256": "5a2a8bbeba9bf1d6898c099db8b74ea942bd579675506ef9251366f3e2fdae1d"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/focus-all-three-selected-field-consumers-and-source-security-v1/plan.json",
+      "bytes": 25320,
+      "sha256": "faa2598387905c787735e09553557e2522bc3ed1531367b89ad6a083690fcaf7"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/focus-all-three-selected-field-consumers-and-source-security-v1/summary.json",
+      "bytes": 275,
+      "sha256": "0b151f43d2763e00a9a03339160dba3513801b227fe6231c76f40f7ddfd1b2de"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/focus-current-void-after-parser-and-source-guard-fix-v1/build.log",
+      "bytes": 78,
+      "sha256": "efc23a1a950cb79fe56a4849b12c790fae40664746eb09af86085fd034a29787"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/focus-current-void-after-parser-and-source-guard-fix-v1/discovery.log",
+      "bytes": 1994941,
+      "sha256": "7d293a8ef41717301408eaf6415cff9b8ac6c5b561739bc676595c68b1e6958a"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/focus-current-void-after-parser-and-source-guard-fix-v1/focus/results.trx",
+      "bytes": 63311,
+      "sha256": "5f1ff926a1a8618c057378a42a5f4eff160d70c1c98d83f116abe9950425482b"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/focus-current-void-after-parser-and-source-guard-fix-v1/focus/test.log",
+      "bytes": 715,
+      "sha256": "5f38f8a3d9e1ded5fe01eae11ff95888a01f167180fc643552024ddcaa28b6c3"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/focus-current-void-after-parser-and-source-guard-fix-v1/plan.json",
+      "bytes": 2524,
+      "sha256": "703238cdc8fe17059e9125f4f8079e07eed635dab8d8f1a96877cfc8eb1900a1"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/focus-current-void-after-parser-fix-owner-v1.log",
+      "bytes": 400,
+      "sha256": "8d7bdf3f6eb7f55e67cbceffc94b81c6c7370d769cbcc9098725a7219610c3c1"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/focus-current-void-before-parser-fix-owner-v1.log",
+      "bytes": 367,
+      "sha256": "4b5cc2162b47ed3aa9fc4aa86325e02c088eeaefe402fc977447d52693b4faed"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/focus-current-void-before-parser-fix-v1/build.log",
+      "bytes": 78,
+      "sha256": "d41dc5652d596a5dddcd1060bcd9cc9b38b7220addb3eea6a6734da85b041e8b"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/focus-current-void-before-parser-fix-v1/discovery.log",
+      "bytes": 1994941,
+      "sha256": "7d293a8ef41717301408eaf6415cff9b8ac6c5b561739bc676595c68b1e6958a"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/focus-current-void-before-parser-fix-v1/focus/results.trx",
+      "bytes": 7542,
+      "sha256": "9c9212fb32992ad66227d57185e2efbfbb2745a7a45ad6e32950b5d6b963cb21"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/focus-current-void-before-parser-fix-v1/focus/test.log",
+      "bytes": 890,
+      "sha256": "32f108a2923015f09de8f13dfef31c8730591abecf6eb470703ab977c3b04ef3"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/focus-current-void-before-parser-fix-v1/plan.json",
+      "bytes": 660,
+      "sha256": "e8f4d8504cf839c6efe7b89ddcb0f9974b55d67bcfd29613da9e5655fe625a57"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/focus-finite-selected-battlefield-damage-owner-v1.log",
+      "bytes": 376,
+      "sha256": "40499132981ce5992121be8023173b3e47f00752fc3da9dce39b5493acf12da1"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/focus-finite-selected-battlefield-damage-owner-v2.log",
+      "bytes": 376,
+      "sha256": "ea1411d25821aa36adff0e45c2abeac9c3fa1a8ee52b1ef356367b3787313447"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/focus-finite-selected-battlefield-damage-owner-v3.log",
+      "bytes": 449,
+      "sha256": "50aa32800fe13835158b7660e7a78f10d559dc84a81b283b9ba8734fbe14da72"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/focus-finite-selected-battlefield-damage-v1/build.log",
+      "bytes": 78,
+      "sha256": "be8668a4ed66ef5def87c36fbd1eece08814d7b177f890473edcfab54a7a58dc"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/focus-finite-selected-battlefield-damage-v1/discovery.log",
+      "bytes": 1994941,
+      "sha256": "7d293a8ef41717301408eaf6415cff9b8ac6c5b561739bc676595c68b1e6958a"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/focus-finite-selected-battlefield-damage-v1/focus/results.trx",
+      "bytes": 183876,
+      "sha256": "bd297214b69403aaf69a5bdccd4b07577cb35548c00f844160b9a65a6b10a7e9"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/focus-finite-selected-battlefield-damage-v1/focus/test.log",
+      "bytes": 2913,
+      "sha256": "44dee0c8822cf0ccd2983091c8cc9a6ec0520c670fc85814a6426a361624add3"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/focus-finite-selected-battlefield-damage-v1/plan.json",
+      "bytes": 6252,
+      "sha256": "49a144d6255e4e353775e0ccee07ae43d23d69330851e67137fffc074883c556"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/focus-finite-selected-battlefield-damage-v2/build.log",
+      "bytes": 78,
+      "sha256": "2e39877e5aa27fdcdbb178b6dbb189af2bffc7be8f7ec59e0155e0c08dca87cf"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/focus-finite-selected-battlefield-damage-v2/discovery.log",
+      "bytes": 1994941,
+      "sha256": "7d293a8ef41717301408eaf6415cff9b8ac6c5b561739bc676595c68b1e6958a"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/focus-finite-selected-battlefield-damage-v2/focus/results.trx",
+      "bytes": 159124,
+      "sha256": "f532ec0f561c12f480b76513d21776af52910511cf29bdc07c1ff7429037c318"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/focus-finite-selected-battlefield-damage-v2/focus/test.log",
+      "bytes": 670,
+      "sha256": "a373b22887946ffea4034515c1c6a35493b410b912ce8a9752e6bb68e963a8a8"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/focus-finite-selected-battlefield-damage-v2/plan.json",
+      "bytes": 6252,
+      "sha256": "7ade093427203e455aa5e7dd66c38664cb1e1744b96b6522b9212f762df3d8e9"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/focus-finite-selected-battlefield-damage-v3/build.log",
+      "bytes": 78,
+      "sha256": "a354856a8e2d18ae92101566e8fabe16cd22565e6147ec7d200dfb82906c5c1e"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/focus-finite-selected-battlefield-damage-v3/discovery.log",
+      "bytes": 1995619,
+      "sha256": "3e9263fbdfde2c1f9bc01478629506a5c9def2fe197be6e0a181dbb524ddfe45"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/focus-finite-selected-battlefield-damage-v3/focus/results.trx",
+      "bytes": 163874,
+      "sha256": "561187e0935b60a7b326877b35ce1c6f802d0504436bf1679cf031a8fe5912db"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/focus-finite-selected-battlefield-damage-v3/focus/test.log",
+      "bytes": 516,
+      "sha256": "af22120d82a7fc67b1adfd30401ddf0235a2b7a7abaa71ee59d8edcb94cd08ab"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/focus-finite-selected-battlefield-damage-v3/plan.json",
+      "bytes": 6505,
+      "sha256": "79dd2776d3b8aa90539b03ce85a41fb655261b6bf1587f2813687a5cdd420390"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/focus-finite-selected-battlefield-damage-v3/summary.json",
+      "bytes": 276,
+      "sha256": "7d593fd8c2404c8fba6fe5862f864a394b04a99071c9d7acbb28e50dec4fe812"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/focus-original-void-candlelit-full-win-replay-owner-v1.log",
+      "bytes": 443,
+      "sha256": "3c8b82d0afc00d75730babf92d684649fd02b271a844d97e479abedd3f792857"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/focus-original-void-candlelit-full-win-replay-v1/build.log",
+      "bytes": 78,
+      "sha256": "043e1f6500773c6df499bc32893c5f1b41d93d8cba52bc88826cddc6d42c7293"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/focus-original-void-candlelit-full-win-replay-v1/discovery.log",
+      "bytes": 1995619,
+      "sha256": "3e9263fbdfde2c1f9bc01478629506a5c9def2fe197be6e0a181dbb524ddfe45"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/focus-original-void-candlelit-full-win-replay-v1/focus/results.trx",
+      "bytes": 4766,
+      "sha256": "0c92a99f8dff38cd302419364bbacefda34386b046f46aefd74d364bc702ebcd"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/focus-original-void-candlelit-full-win-replay-v1/focus/test.log",
+      "bytes": 521,
+      "sha256": "06146a1cbfa35507ea6d5867fba8d189b139529aae0f6ab91d893fdcec7333d2"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/focus-original-void-candlelit-full-win-replay-v1/plan.json",
+      "bytes": 1004,
+      "sha256": "20da7efd0949d556a1aae764717e64d7cf7432942526e4b3852982eaf8ef52b6"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/focus-original-void-candlelit-full-win-replay-v1/summary.json",
+      "bytes": 269,
+      "sha256": "1734a1f1d517a565a89ccd6901b991b2eb0382a261fe014e0ab6e61bc31adf61"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/focus-post-only-check-exact-void-source-phrase-and-fixture-provenance-v1/build.log",
+      "bytes": 78,
+      "sha256": "53a3bae6bd48bb5eaf165ed72f2d16086d1953c20318f72857f18df9467b7fd9"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/focus-post-only-check-exact-void-source-phrase-and-fixture-provenance-v1/discovery.log",
+      "bytes": 1995619,
+      "sha256": "3e9263fbdfde2c1f9bc01478629506a5c9def2fe197be6e0a181dbb524ddfe45"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/focus-post-only-check-exact-void-source-phrase-and-fixture-provenance-v1/focus/results.trx",
+      "bytes": 239117,
+      "sha256": "f748826d9f24039a1958b695cf10a70229c5cb0d29650d814d8a4556a45a2c30"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/focus-post-only-check-exact-void-source-phrase-and-fixture-provenance-v1/focus/test.log",
+      "bytes": 544,
+      "sha256": "d0b15f9fe586296136801cbe455598479738ca3fd6ea5d0f1754393d0511f777"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/focus-post-only-check-exact-void-source-phrase-and-fixture-provenance-v1/plan.json",
+      "bytes": 20164,
+      "sha256": "387382c77bb58307426ffc8b09ceffd31cb3fa5eaa95f1ed12746b6ac90a56f3"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/focus-post-only-check-exact-void-source-phrase-and-fixture-provenance-v1/summary.json",
+      "bytes": 276,
+      "sha256": "448843ef4f14efe4ebf3452e85c02205610f305a8571e6d292ca6e1c947d2303"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/focus-post-only-check-exact-void-source-remediation-owner-v1.log",
+      "bytes": 479,
+      "sha256": "e5d9b465be26e27c42eceea96a1f7610f64f02ccaf27dd8eb6b3910e0441e49c"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/frozen-fixed2b83-native-composition-v1.json",
+      "bytes": 80614,
+      "sha256": "3ac540876cbbe2790677f12fc7144bcd581dd301dcaab6dcf11587ab1cf2ed5f"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/independent-current-field-damage-all-history-v2.log",
+      "bytes": 122,
+      "sha256": "53679b425ea0b75a91e1e6a180c928581ffdd7d76f2b8b6af0893e110fe7feee"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/independent-current-four-field-damage-all-history-v2.json",
+      "bytes": 2306,
+      "sha256": "27d69dfe84a89024d155379e2070b048a67c7942459ad3f5363789e44835d2fa"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/independent-reader-build-v1.log",
+      "bytes": 78,
+      "sha256": "8a1a8e6f8d725fae2abf663178800270707b725c065bf27873585b7cc9327561"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/independent-reader-build-v2.log",
+      "bytes": 78,
+      "sha256": "a7d08e721619bb2779ac6a2b050b0d685dd0aade21ffc7d1159c16075f600ba7"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/independent-reader-frozen-inputs-v1.json",
+      "bytes": 11433,
+      "sha256": "53d9ae90a19427e6b626e0014473e0e854907eb4d4ec0ce5ac98cfa7afdaeb9f"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/independent-reader-frozen-inputs-v2.json",
+      "bytes": 11433,
+      "sha256": "116e1d65360e7741bc7a6a2b219ca67dd8723d87804cfaffedf37b96d32f5b2e"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/independent-reader-source-v1/Program.cs",
+      "bytes": 13543,
+      "sha256": "64f1f6d4631b4534d7761a23132c8a6d86a88b46a65011c95218836d5ed01abd"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/independent-reader-source-v1/probe.csproj",
+      "bytes": 1494,
+      "sha256": "25797568d53b97aeade93f937ab7816521555cb8d0d5b6e4d80a2f9d1f748c1b"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/independent-reader-source-v2/Program.cs",
+      "bytes": 13947,
+      "sha256": "24c90260abf684e3d619609075a708041f2b58aeb64db8687e7083fd7d7cc6c0"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/independent-reader-source-v2/probe.csproj",
+      "bytes": 1494,
+      "sha256": "965e191766d5013907a74d0d7cce38ffbc98a27a8b5a74876cddeeb0bb546f12"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/issue81-after-parser-counterexample-original-readback-v1.json",
+      "bytes": 3729,
+      "sha256": "3989318cea6d458c8e6a0694897584f09ae1252a4e3bbba43d4081ca75d9d727"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/issue81-parser-source-counterexample-comment-create-v1.txt",
+      "bytes": 73,
+      "sha256": "b5c0f9fb73dbc1d2cdf56a43c7b35336d4a147fb27a050855e1bb1e5d7636db6"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/issue81-parser-source-counterexample-comment-exact-readback-v1.json",
+      "bytes": 268,
+      "sha256": "ad6f7c0511c5d85a08027b7d9bb60f86737435f760b8b786613b0fddde91fa04"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/issue81-parser-source-counterexample-comment-v1.md",
+      "bytes": 1217,
+      "sha256": "1ad01b2c7b1f80b8475b16f9532cc00dd3ed893fee7994a32c2db7336a44b94e"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/issues-original-open-inventory-before-firestorm-v1.json",
+      "bytes": 193691,
+      "sha256": "7c71293fa5ab86f1ab056228fbedb3c546e22d3d7b48c5e099b898ce8112997f"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/live-current-ci-api-1-v2.log",
+      "bytes": 3469,
+      "sha256": "0559e8c1d8ff9e79938d7e2fdfefc9a7126431c97c3c7f969964cf76888e9043"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/live-current-ci-main-owner-terminal-v2.json",
+      "bytes": 5058,
+      "sha256": "bf63ef62532a1d5c04748e669f7f8e0bb49803331502ed96e7efbe1e322dae39"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/live-current-ci-owner-state-v2.json",
+      "bytes": 2441,
+      "sha256": "315d20da4a8a047425e2a12ff660e77f1d8cc6d7156752d2b78c6715bc0a2dc1"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/live-current-ci-postgres-v2.log",
+      "bytes": 1263,
+      "sha256": "7a283711fc3c7cb667bf90958e352e1238a59f2732483cd6007f22f8f4236cd2"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/live-current-ci-prefix-writer-v2.log",
+      "bytes": 1798,
+      "sha256": "803cb3414a537023d9273e0a7b5affa9004ecca5a7a803f6f5f840ac2d9aa57a"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/native-app-inputs.json",
+      "bytes": 132000,
+      "sha256": "d62e9c07d1478dcdb89220904ac3113db4705cf50e574c44c5b79b2375aa0e11"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/native-current-ready-ci-artifacts-v1.json",
+      "bytes": 3448,
+      "sha256": "eaa6490d0f9d529a558108d40b67ed2fdc8487f24d6a4f7f9109ad6042c04517"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/old-current-effective-text-actual-outcome-v1.json",
+      "bytes": 316231,
+      "sha256": "cea63f41117227be3c405d1871de7f2d2ae5cc0d21b1b5b3951ae861c911257a"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/old-current-effective-text-frozen-inputs-v1.json",
+      "bytes": 11058,
+      "sha256": "de2258e5ae2c672c8d7923de25c921b00c9217f9184bcface7530331abc03555"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/old-current-effective-text-original-process-v1.log",
+      "bytes": 83,
+      "sha256": "b1c6af159ec84a610891fa299a18527fe1b96b567303a5350ec6347bf4352065"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/only-check-actual-outcome-before-one-source-phrase-remediation-v1.json",
+      "bytes": 2450,
+      "sha256": "a42a9bb5a3831ffc47fdb2a362be17928bbaf58e339fd5f7ca1ac68244e6fb1a"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/only-check-owner-started-v1.json",
+      "bytes": 167,
+      "sha256": "75bcd15e8b1b2ad5791e73ee0dd8144a401bbd909a592ef11bd9f8f7d53e37db"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/only-check-owner-terminal-v1.json",
+      "bytes": 682,
+      "sha256": "d97d57308ca1841e34708a1e4b3057bc9692e7c442788d93c31587b188e226c1"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/only-check-owner-v1.log",
+      "bytes": 283,
+      "sha256": "279e32f966e79466f3e4282672997e2c6a4dd5961634b853133ab986f87ce27c"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/only-check-start-inputs-v1.json",
+      "bytes": 1124568,
+      "sha256": "3a87cd2b0f31b6a27155d1df7a02ec8ad26a09d301069484728fedb206da19bf"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/only-check-v1/build.log",
+      "bytes": 78,
+      "sha256": "d199ff32f9a675cdc87eb1d16b9cb4142dcb37034b2c6ec1540010d0c51c7657"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/only-check-v1/check/results.trx",
+      "bytes": 20527895,
+      "sha256": "9c960df95d16464f498afdd2f496c9e1544923f0d087eadfd66597aaacf7f513"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/only-check-v1/check/test.log",
+      "bytes": 635,
+      "sha256": "270b9880b472059a83b21188a202f23263b74668cb76c450ad7e57a86aba4b57"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/only-check-v1/discovery.log",
+      "bytes": 1995619,
+      "sha256": "3e9263fbdfde2c1f9bc01478629506a5c9def2fe197be6e0a181dbb524ddfe45"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/only-check-v1/plan.json",
+      "bytes": 1001436,
+      "sha256": "9cde0f4a13c5b348507305ecc5b2a5a66d6449d58cd1485d22826bae110de0e0"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/only-check-v1.log",
+      "bytes": 318,
+      "sha256": "f6337da4d6cdc3b23b5437e0d8f1a6b4346a9e0eff1e9aa3d50556641a5c6626"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/original-current-sql-structural-and-full-replay-rejection-diagnosis-v3.json",
+      "bytes": 4171,
+      "sha256": "7f324721963f46ed599c1650f9565b8e983e520d83d699a58f127ee4850b7716"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/original-current-sql-structural-rejection-layer-diagnosis-v1.json",
+      "bytes": 1275,
+      "sha256": "f9c5e61d22a0ac2cf3dae9b7cc706d0b9ba0978f8512ad93ad91d3b32d16a7a3"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/original-tests-sql-and-final-focus-union-retention-v1.json",
+      "bytes": 4678,
+      "sha256": "0a435f3deafa55a1efec998471e8c6eeee06469b69cf2031dfa497442133145e"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/original262-audit56-native-seven-table-baseline-v1.json",
+      "bytes": 20215,
+      "sha256": "b08d285304da437fa1ecc9e35220a85b9932631ceb8772a5dea5d87d8e8fbc9c"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/original263-audit56-native-seven-table-baseline-v2.json",
+      "bytes": 20276,
+      "sha256": "c7409454e63d4a326181accbca8e124f2a420d47207ccb4c18f2dbb0ccfa80bb"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/pending-post-check-exact-void-baseline-phrase-remediation-v1.json",
+      "bytes": 794,
+      "sha256": "168d0b08fe0c83568c2534103bf23150fe139a768d366bc9e41fbfd9993e654a"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/planned-sql-source-v1/BattlefieldSpellDamageSqlAcceptance.cs",
+      "bytes": 12508,
+      "sha256": "a7302dcd74d40cd0e7f30635eb6edb842c41f6f8ad63c28063225273844b613f"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/post-only-check-exact-source-expectation-remediation-v1.json",
+      "bytes": 846650,
+      "sha256": "9a9cdac15ca285062a2b490d8ee44194547146d0f458ed874924e46e58d92aff"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/prepare-current-fixed2b83-native-apps-v1.py",
+      "bytes": 4854,
+      "sha256": "e50dc5f8045f829258b1b26764f3ba5b826825c93206e329b74e112c81007222"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/prepare-current-fixed2b83-native-owner-v1.log",
+      "bytes": 177,
+      "sha256": "817521239051229d08943ceabf7b471eb8b79d7bc3750a51ccf92ded24601e24"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/prepare-current-void-source-and-governance-v1.py",
+      "bytes": 9299,
+      "sha256": "4b4df114872e6975c0d333f79e2dbcfc71ff79bf7208b89f9eabb5cf5967c4b4"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/prepare-current-void-source-before-hash-enumeration-correction-v1.py.gz",
+      "bytes": 3792,
+      "sha256": "0ada636df66f6d9081bc4ad2cc45d7332e1d8617212980baa7f00ae461e7585c"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/prior-coherent-publication-governance-v1/PROJECT_STATUS.md.gz",
+      "bytes": 78734,
+      "sha256": "d3b3422fa0d05edd243a03d85d1cce33fa9189d1c1a7c08c3d8078ad120e6a80"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/prior-coherent-publication-governance-v1/current-manifest.json.gz",
+      "bytes": 336164,
+      "sha256": "f4180a4cad7dd519f55fe0d08593b319af52a88571d47db4ee3c52cfc4803537"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/prior-coherent-publication-governance-v1/forty-four-complete-current-contexts-before-refresh.json.gz",
+      "bytes": 182072,
+      "sha256": "7228f5fdfdd7c4006f5d8b450a58699a33945247ef912104ad2a7bed4912245a"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/prior-coherent-publication-governance-v1/prepublication-index-observation.json",
+      "bytes": 5828,
+      "sha256": "4f7577bfa142d845fd582c28504ac364128edab4d966c124970469d4a54d78de"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/prior-coherent-publication-governance-v1/remaining-obligation-ids.json.gz",
+      "bytes": 57968,
+      "sha256": "1f795c8740416a81d68241a869216695e0c1e68d9475d762d25315278bba12b0"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/prior-coherent-publication-governance-v1/review-decisions.json.gz",
+      "bytes": 167268,
+      "sha256": "d4d3f5a63713c080860467343a9d5fe631ddfc20fc57a2cb571c2bd855c6b40a"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/prior-current-void-publication-v1/AhriCombatMightTests.cs.gz",
+      "bytes": 6354,
+      "sha256": "ad895367f5af11d22b95873b2f9e35cd14deff26c2499e2cbc02c8ec8af6eaf3"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/prior-current-void-publication-v1/CandlelitLegendPendingSqlAcceptance.cs.gz",
+      "bytes": 5344,
+      "sha256": "3851885b7ca9130d5507d6df37a28ee09769b35679208e78f012735469301cdb"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/prior-current-void-publication-v1/Cn16RuleInputSelectionTests.cs.gz",
+      "bytes": 1741,
+      "sha256": "3a1894fdc6aff8eddb3b0a772cc53d8dc394cac8df3f6c174fc8ca3b58409774"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/prior-current-void-publication-v1/PROJECT_STATUS.md.gz",
+      "bytes": 78734,
+      "sha256": "d3b3422fa0d05edd243a03d85d1cce33fa9189d1c1a7c08c3d8078ad120e6a80"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/prior-current-void-publication-v1/Program.cs.gz",
+      "bytes": 6213,
+      "sha256": "9ea133bed66f862599af650466ea528c30bbd2cfab834685dd7257b3e1573266"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/prior-current-void-publication-v1/RuleTextParsers.cs.gz",
+      "bytes": 28624,
+      "sha256": "6b4ecde244d78891e9756929c93fc954926ae2b5f9889096c9be074b5ea0f89f"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/prior-current-void-publication-v1/card-catalog.zh-CN.json.gz",
+      "bytes": 136452,
+      "sha256": "9de564301decb212d6d72be4f60c668f3149efdb98b34069fb6657f025ef8a7e"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/prior-current-void-publication-v1/current-manifest.json.gz",
+      "bytes": 336164,
+      "sha256": "f4180a4cad7dd519f55fe0d08593b319af52a88571d47db4ee3c52cfc4803537"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/publish-void-field-coherent-batch-v1.py",
+      "bytes": 16812,
+      "sha256": "da097e8fa9299926e8184f27601bae5e837dddc59c5dd57b2fb9981eab3d7727"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/python-all-original-tools-v1.log",
+      "bytes": 8514,
+      "sha256": "8d185decbee23a7f59e22f48080653965ac531a9638d75bac1a2845438d73c99"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/qa-launcher-a.c",
+      "bytes": 738,
+      "sha256": "e3bc9206441b9974401a711c62ece07047d4a6692bc5d85d7049ba2a782cfdc6"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/qa-launcher-b.c",
+      "bytes": 738,
+      "sha256": "3f08988152e74a5c3b79741bab6d1fc2c8bee4e94a9b0c1f8f5c238c9906f954"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/retire-completed-helper-staging-v1.py",
+      "bytes": 5258,
+      "sha256": "323f23f4d8d8e6761d0819e085a639fd878b7986d61890039d092f35f0c1a35a"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/retire-superseded-fixed64678-native-owner-v1.log",
+      "bytes": 91,
+      "sha256": "ac50c1177cf1ee92831660e6c65a67b89488ed409ff6f761bd7e616f9becb2b7"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/retire-superseded-fixed64678-native-v1.py",
+      "bytes": 4071,
+      "sha256": "a051c33ec7202cee3a46bdcf08cf7c8a7ad763cae4eb9becac2ac77c2266310e"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/run-current-four-field-damage-sql-owner-v1.log",
+      "bytes": 449,
+      "sha256": "d7f82617a0cd021717df3afb1b48d72a1ea293fdba7526b188c21373353c3abe"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/run-current-four-field-damage-sql-owner-v2.log",
+      "bytes": 152,
+      "sha256": "7c59f0c2ffded4ed1751c5b495f53ddbd1657856de77739b51f9cea73452f03f"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/run-current-four-field-damage-sql-v1.py",
+      "bytes": 7688,
+      "sha256": "18dbd045e9addce1d7fed6a32e62283f0b13aabdf1d9bb11b43ba86db1f3e986"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/run-current-four-field-damage-sql-v2.py",
+      "bytes": 7758,
+      "sha256": "66a862029b03d70cac51303a55c8ef82386ee8eac331e5ed3f19b5062a8bbeb3"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/run-current20-original-void-pairs-v1.py",
+      "bytes": 3487,
+      "sha256": "302e7a5c97e076ea40dc06639449ac97c8270bcdb70d7bb974b832b6bdf4eab9"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/run-fixed2b83-ci-main-pair-v1.py",
+      "bytes": 20481,
+      "sha256": "ccca66bea169cc716908cd44d7128c769e491f86f9a7b6bc576ca147f3d5feb0"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/run-independent-fixed2b83-native-history-v1.py",
+      "bytes": 3696,
+      "sha256": "5c6a40cd6ed467ff7ad63091a15cb9f20378689899af914c7f7db45ded5b6beb"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/source-overlay-probe-v1/Program.cs",
+      "bytes": 3342,
+      "sha256": "c5f5030db4502e84fdc548815e311c311b82ee41f380d3772c0877f317415a44"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/source-overlay-probe-v1/probe.csproj",
+      "bytes": 1508,
+      "sha256": "c2d354712a08708a320f621a6f3322fe2bdf9ca8919808561368a25da2f93212"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/source-scope-preparation-first-original-failure-v1.json",
+      "bytes": 512,
+      "sha256": "229c0e7cd688fcd3af5a05981457961486c87206b0797504ab3cd0c13e47abaa"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/start-and-own-only-check-v1.py",
+      "bytes": 5860,
+      "sha256": "7c6de93dc676370edc41e90bf7988bc6818fd32cc2ab0b35324fda7c665beef6"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/superseded-fixed64678-native-original-file-manifest-v1.json.gz",
+      "bytes": 44879,
+      "sha256": "23083bd2d9c10f57285a12fa6275b24ec69cd3aa77423784761cb0c6bf9e9f8d"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/superseded-fixed64678-native-pair-and-two-archives-retirement-v1.json",
+      "bytes": 1110,
+      "sha256": "c9ab7604bb39c502e64602f1e50d6067837c58ed3100349ab1b40a5197f08e49"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/verify-completed-fixed64678-full-originals-owner-v1.log",
+      "bytes": 156,
+      "sha256": "1dd7bf167cbab014dbf049e24e2e86e8802a7b791eabbcc224bf4312ba2026db"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/verify-completed-fixed64678-full-originals-v1.py",
+      "bytes": 6965,
+      "sha256": "e62061ee2aa8678aaf6fa7d8f0757e016f6ba1850d36312cd357e54ea5311f9a"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/verify-current-fixed2b83-native-default-boot-owner-v1.log",
+      "bytes": 46,
+      "sha256": "e4a2c3dacee8863f1a876e476d95b53e6d6f4f74cc7ac05985061614ee28c574"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/verify-current-fixed2b83-native-default-boot-v1.py",
+      "bytes": 3560,
+      "sha256": "3612398e79aaf6291c00eece6d2e740caddc596da9a8906852d883c134a2f0d1"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/void-field-audit-draft-v1.md",
+      "bytes": 9250,
+      "sha256": "e10c7be8140fcfccb6d4ecd30fa25c3ed58689b98d6552e13e16ffcdae92d6e0"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/void-field-status-lead-v1.md",
+      "bytes": 2810,
+      "sha256": "8c6dafcd306673672d631b671fa5cc88a0b8a716c4bc2d2fa4e2d534ea4c1ddc"
+    },
+    {
+      "path": "var/qa/nocturne-optional-current-cn16-20261021/supporting-void-field-exact-provenance-and-open-disposition-v1.json",
+      "bytes": 1625,
+      "sha256": "dd96fe3a4e3f29d7796c75dad2353af478c8bce96dc7260a3b7abf7d60e291e2"
+    },
+    {
+      "path": "var/qa/nocturne-optional-current-cn16-20261021/supporting-void-field-current-primary-errata-readback-v1.json",
+      "bytes": 1065,
+      "sha256": "bf1ea7fda705312d8764a316d22bdda9055df8fddfd143e810e0b04c7992be90"
+    },
+    {
+      "path": "var/qa/nocturne-optional-current-cn16-20261021/current-hand-supporting-exact-api-source-intake-v1.json",
+      "bytes": 13260,
+      "sha256": "83b8c74b8fdb6279e8a4341a2cd1f17d9b622359cecf2aa1bcb60825c6f00a70"
+    },
+    {
+      "path": "var/qa/nocturne-optional-current-cn16-20261021/bone-current-primary-pages-v1/next-void-field-errata-p12.png",
+      "bytes": 217825,
+      "sha256": "41e744d472eef52a4d9ae79482fb9eaeb9e90ed043082dc8b1d5c90d4cb1b861"
+    }
+  ],
+  "explicitOperationalOrRunningPublicationExclusionsRetainedLocally": [
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/fixed2b83-native-attempt-v2/actual-safe-native-prefix-v2/session-native-a.json",
+      "reason": "Private operational launch/account profile retained locally"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/fixed2b83-native-attempt-v2/actual-safe-native-prefix-v2/session-native-b.json",
+      "reason": "Private operational launch/account profile retained locally"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/fixed2b83-native-attempt-v2/session-a.json",
+      "reason": "Private operational launch/account profile retained locally"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/fixed2b83-native-attempt-v2/session-b.json",
+      "reason": "Private operational launch/account profile retained locally"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/publish-void-field-owner-v1.log",
+      "reason": "Running publication stdout retained complete separately after publication"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/session-a.json",
+      "reason": "Private operational launch/account profile retained locally"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/session-b.json",
+      "reason": "Private operational launch/account profile retained locally"
+    }
+  ],
+  "allMemberBytesHashesAndClosedSetVerified": true,
+  "runtimeApplicationsInstallersPrimaryPdfOriginalsNotDuplicated": true,
+  "nextN35ExhaustedLegendPrototypeNotThisCertificationScope": true
+}

@@ -40175,7 +40175,7 @@
       "region": "",
       "tag": "",
       "artist": "Envar Studio",
-      "cardEffect": "以此处的单位作为目标的法术或技能，造成的伤害+1（每段伤害都+1）。",
+      "cardEffect": "法术和技能对此处的单位造成的伤害+1（每段伤害都+1）。",
       "flavorText": "艾卡西亚的法师们自取灭亡，但他们的回响直到今天仍在人们耳畔萦绕。",
       "energy": null,
       "returnEnergy": null,

@@ -510,8 +510,9 @@ public static class CardBehaviorRegistry
             6,
             "FIRESTORM_DAMAGE_ALL_ENEMY_BATTLEFIELD_UNITS_3",
             3,
-            0,
-            DamagesAllEnemyBattlefieldUnits: true),
+            1,
+            TargetScope: CardTargetScopes.Battlefield,
+            SelectedBattlefieldEffect: new(0, MoveOptionalEnemy: false, DamagesEnemyUnits: true)),
         new(
             "OGN·268/298",
             "弹幕时间",
