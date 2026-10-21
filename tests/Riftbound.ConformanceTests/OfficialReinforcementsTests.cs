@@ -17,7 +17,7 @@ public sealed class OfficialReinforcementsTests
         var pending = Assert.IsType<PendingEffectPlayState>(state.PendingEffectPlay);
         Assert.Equal("STACK", pending.SourceZone);
         Assert.Null(pending.ViewedCardIds);
-        Assert.Equal(["U", "N1", "N2", "N3", "N4"], pending.Parent.DeckPlaySequence!.Viewed["P1"].Keys);
+        Assert.Equal(["U", "N1", "N2", "N3", "N4"], pending.Parent.DeckPlaySequence!.Viewed["P1"].Select(card => card.ObjectId));
         Assert.Equal(["U"], pending.Sources.Keys);
         Assert.Contains("\"U\"", JsonSerializer.Serialize(opened.Prompts["P2"])); // Chosen card is now a public pending stack item.
         Assert.DoesNotContain("\"N1\"", JsonSerializer.Serialize(opened.Snapshots["P2"]));

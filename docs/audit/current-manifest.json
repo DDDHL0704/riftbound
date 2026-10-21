@@ -102,7 +102,7 @@
     },
     "reviews": {
       "path": "docs/evidence/rules-reaudit-2026-10-11/review-decisions.json",
-      "sha256": "9e77ad36d8da9fa37e010912923ece26dd9e6dbd4e05aa8d808dff3498e01907",
+      "sha256": "1e913343c719a24e695190fa9d6e6cbe7acdb21331d6517e0271bd8d5c1b0622",
       "role": "reviews"
     },
     "summary": {
@@ -4138,7 +4138,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.DeckPlaySequence.cs",
-          "sha256": "0ba9729fcc7e25c01c99b333fceb03c070fbc00c118fc732805d049c527a8569"
+          "sha256": "2c74c35b0f9d4bcbc6fa20c13aea88732186e88f87b72ecda9c031d59bcfa0c1"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.BeginningRecycle.cs",
@@ -4488,7 +4488,7 @@
         }
       ],
       "evidenceCommit": "7649d573f884ffd7517a502f7eebe01d0aa186c4",
-      "currentImplementationCommit": "a56137a93d48a38d6e2e62b5b7195aa03412577f",
+      "currentImplementationCommit": "f0593b1648a7fd4437b7d7512429f517d86bdda2",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -4875,7 +4875,12 @@
         }
       },
       "currentProductAcceptance": "OPEN_AFTER_SHARED_NATIVE_PROMPT_INPUT_CHANGE_OLD_VISIBLE_EVIDENCE_RETAINS_EXACT_SCOPE",
-      "currentInputRevision": "816510de29c4c161efef9bf564db861cb2de5d2ac71519413d56d39ede7268bb"
+      "currentInputRevision": "816510de29c4c161efef9bf564db861cb2de5d2ac71519413d56d39ede7268bb",
+      "currentOrderedObservationInputRefresh": {
+        "path": "docs/evidence/deck-play-ordered-jsonb-2026-10-21/seven-context-current-input-refresh.json",
+        "sha256": "7f2ad7305e8cd40241920908918564c2d731d4b728c557db559a6311f82217ee",
+        "role": "current-input-refresh"
+      }
     },
     "battlefield-conquer-rune-destination-2026-10-15": {
       "implementation": [
@@ -6526,7 +6531,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.DeckPlaySequence.cs",
-          "sha256": "0ba9729fcc7e25c01c99b333fceb03c070fbc00c118fc732805d049c527a8569"
+          "sha256": "2c74c35b0f9d4bcbc6fa20c13aea88732186e88f87b72ecda9c031d59bcfa0c1"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.FieldTriggers.cs",
@@ -7234,7 +7239,7 @@
         }
       ],
       "evidenceCommit": "a0406e1d878598b3c0fd88f5bfa7f9831d6a2cc6",
-      "currentImplementationCommit": "a56137a93d48a38d6e2e62b5b7195aa03412577f",
+      "currentImplementationCommit": "f0593b1648a7fd4437b7d7512429f517d86bdda2",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -7581,7 +7586,12 @@
           "sha256": "05632566219de2496735cf6a87afb324b7d224165f0789f447b974c4ddb3f61a"
         }
       },
-      "currentInputRevision": "816510de29c4c161efef9bf564db861cb2de5d2ac71519413d56d39ede7268bb"
+      "currentInputRevision": "816510de29c4c161efef9bf564db861cb2de5d2ac71519413d56d39ede7268bb",
+      "currentOrderedObservationInputRefresh": {
+        "path": "docs/evidence/deck-play-ordered-jsonb-2026-10-21/seven-context-current-input-refresh.json",
+        "sha256": "7f2ad7305e8cd40241920908918564c2d731d4b728c557db559a6311f82217ee",
+        "role": "current-input-refresh"
+      }
     },
     "copied-recycle-boon-ceased-source-2026-10-15": {
       "implementation": [
@@ -15049,7 +15059,7 @@
     },
     "optional-sacrifice-printed-cost-and-paid-entry-2026-10-16": {
       "evidenceCommit": "8d7571c5a5572b1ed542a5ff1d8eaeb533bac1bc",
-      "currentImplementationCommit": "a56137a93d48a38d6e2e62b5b7195aa03412577f",
+      "currentImplementationCommit": "f0593b1648a7fd4437b7d7512429f517d86bdda2",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Fixed8d baseline plus exact15 executable/fixture patch files. Earlier full8d,113 old review dictionaries, source dates and original143/110/424242 remain retained. New candidate full required.",
       "ciState": "PENDING",
@@ -15077,7 +15087,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.EffectPlay.cs",
-          "sha256": "5b2db15674d5781b3eb52c396e0b1433578e6b4750e3fa847c83e8fa67265fee"
+          "sha256": "f67c74dbadb064463e6cd2b025118df1f455e74d6d43c6cb5f1278c82430ca96"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
@@ -15586,7 +15596,12 @@
           "scope": "Only current declared single-friendly-unit preflight and append-only SQL helper verification. Every old scope, source date and evidence remains; current fixed full and product still required."
         }
       ],
-      "revalidationReason": "New bounded shared single-friendly-unit preflight; prior fixed CI does not cover current input. Original scopes/evidence retained, current full and product remain required."
+      "revalidationReason": "New bounded shared single-friendly-unit preflight; prior fixed CI does not cover current input. Original scopes/evidence retained, current full and product remain required.",
+      "currentOrderedObservationInputRefresh": {
+        "path": "docs/evidence/deck-play-ordered-jsonb-2026-10-21/seven-context-current-input-refresh.json",
+        "sha256": "7f2ad7305e8cd40241920908918564c2d731d4b728c557db559a6311f82217ee",
+        "role": "current-input-refresh"
+      }
     },
     "granted-colorless-token-haste-payment-2026-10-16": {
       "evidenceCommit": "daf394e20997ebdb028e91ba9fdfe6c24eb492eb",
@@ -18832,7 +18847,7 @@
     "banish-owner-effect-play-2026-10-18": {
       "evidenceCommit": "62bf7afc7a59bc743e1e578712e156686666c060",
       "evidenceCommitScope": "Previous fixed62bf baseline only. Later Hunting Rhythm source, fixture and SQL changes are uncommitted and are not covered by62bf.",
-      "currentImplementationCommit": "a56137a93d48a38d6e2e62b5b7195aa03412577f",
+      "currentImplementationCommit": "f0593b1648a7fd4437b7d7512429f517d86bdda2",
       "currentImplementationIncludesUncommittedChanges": true,
       "ciState": "PENDING",
       "ciReceipts": [],
@@ -18847,7 +18862,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.EffectPlay.cs",
-          "sha256": "5b2db15674d5781b3eb52c396e0b1433578e6b4750e3fa847c83e8fa67265fee"
+          "sha256": "f67c74dbadb064463e6cd2b025118df1f455e74d6d43c6cb5f1278c82430ca96"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.RevealedHandPlay.cs",
@@ -19349,7 +19364,12 @@
           "scope": "Only current declared single-friendly-unit preflight and append-only SQL helper verification. Every old scope, source date and evidence remains; current fixed full and product still required."
         }
       ],
-      "revalidationReason": "New bounded shared single-friendly-unit preflight; prior fixed CI does not cover current input. Original scopes/evidence retained, current full and product remain required."
+      "revalidationReason": "New bounded shared single-friendly-unit preflight; prior fixed CI does not cover current input. Original scopes/evidence retained, current full and product remain required.",
+      "currentOrderedObservationInputRefresh": {
+        "path": "docs/evidence/deck-play-ordered-jsonb-2026-10-21/seven-context-current-input-refresh.json",
+        "sha256": "7f2ad7305e8cd40241920908918564c2d731d4b728c557db559a6311f82217ee",
+        "role": "current-input-refresh"
+      }
     },
     "permanent-here-location-control-2026-10-18": {
       "evidenceCommit": "c69aef543b7bb46a987719cc77cd77ea49782527",
@@ -27636,7 +27656,7 @@
     },
     "private-opening-resource-driver-2026-10-19": {
       "evidenceCommit": "3d690c3511ee8f96e57bad87c2e34691a3148e30",
-      "currentImplementationCommit": "a56137a93d48a38d6e2e62b5b7195aa03412577f",
+      "currentImplementationCommit": "f0593b1648a7fd4437b7d7512429f517d86bdda2",
       "evidenceCommitScope": "Uncommitted actual Debug70ce scoped201,ordinary16,SQL8,original116 and one check12781pass4diagnosticexpectationfailures,repairedby32focusonbyteidenticalCore.TestDLL/PDBphase separatelypinned.Fixed3d Release24e locked native is separate; its actual full failed on original driver. New fixed full pending.",
       "currentImplementationIncludesUncommittedChanges": true,
       "currentInputRevision": "816510de29c4c161efef9bf564db861cb2de5d2ac71519413d56d39ede7268bb",
@@ -27653,7 +27673,7 @@
       "implementation": [
         {
           "path": "tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs",
-          "sha256": "dfe0e3a60b4fba076892ce78e823987ab9255f0348cb6687902428f36481e72d",
+          "sha256": "302d072ea9badc28a288928c08c04e1d606af5d9a6105e74a410b67bed72d0a3",
           "role": "implementation"
         }
       ],
@@ -28110,7 +28130,12 @@
           "scope": "Only current declared single-friendly-unit preflight and append-only SQL helper verification. Every old scope, source date and evidence remains; current fixed full and product still required."
         }
       ],
-      "revalidationReason": "New bounded shared single-friendly-unit preflight; prior fixed CI does not cover current input. Original scopes/evidence retained, current full and product remain required."
+      "revalidationReason": "New bounded shared single-friendly-unit preflight; prior fixed CI does not cover current input. Original scopes/evidence retained, current full and product remain required.",
+      "currentOrderedObservationInputRefresh": {
+        "path": "docs/evidence/deck-play-ordered-jsonb-2026-10-21/seven-context-current-input-refresh.json",
+        "sha256": "7f2ad7305e8cd40241920908918564c2d731d4b728c557db559a6311f82217ee",
+        "role": "current-input-refresh"
+      }
     },
     "empowered-insight-2026-10-19": {
       "evidenceCommit": "c6af0a41d28326b7dd2ec18b9b1a3d176a6a2b99",
@@ -30658,7 +30683,7 @@
     },
     "observed-disclosure-wording-and-stale-native-smoke-2026-10-19": {
       "evidenceCommit": "6d9aee51e5259313b319ad555f8f44572563b3df",
-      "currentImplementationCommit": "f4704291ff87c99b1599d93f0fc71700f0433cae",
+      "currentImplementationCommit": "f0593b1648a7fd4437b7d7512429f517d86bdda2",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Actual precommit N12 Debug identity in32 controlled and12 ordinary cases and one check; prior fixed6d9 actual Release acceptance is separate. New native source fix is not yet a native execution certificate.",
       "currentInputRevision": "816510de29c4c161efef9bf564db861cb2de5d2ac71519413d56d39ede7268bb",
@@ -30680,7 +30705,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.EffectPlay.cs",
-          "sha256": "5b2db15674d5781b3eb52c396e0b1433578e6b4750e3fa847c83e8fa67265fee",
+          "sha256": "f67c74dbadb064463e6cd2b025118df1f455e74d6d43c6cb5f1278c82430ca96",
           "role": "implementation"
         },
         {
@@ -31442,6 +31467,11 @@
         "path": "docs/evidence/canonical-room-identity-2026-10-21/source-manifest.json",
         "sha256": "2933ff079c75dd22861e9889f9518155f5f6838140f0901e5a0b8071845733c7",
         "role": "current-canonical-account-platform-input-change"
+      },
+      "currentOrderedObservationInputRefresh": {
+        "path": "docs/evidence/deck-play-ordered-jsonb-2026-10-21/seven-context-current-input-refresh.json",
+        "sha256": "7f2ad7305e8cd40241920908918564c2d731d4b728c557db559a6311f82217ee",
+        "role": "current-input-refresh"
       }
     },
     "initial-empty-reveal-followup-specific432-2026-10-19": {
@@ -33096,7 +33126,7 @@
     },
     "destruction-attribution-delayed-skill-graveyard-play-2026-10-20": {
       "evidenceCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
-      "currentImplementationCommit": "a56137a93d48a38d6e2e62b5b7195aa03412577f",
+      "currentImplementationCommit": "f0593b1648a7fd4437b7d7512429f517d86bdda2",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Base08fd plus declared uncommitted source/test/SQL/CI inputs. Actual precommit Debug and Release evidence distinct from old08fd native and future fixed modules.",
       "currentInputRevision": "816510de29c4c161efef9bf564db861cb2de5d2ac71519413d56d39ede7268bb",
@@ -33143,7 +33173,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.EffectPlay.cs",
-          "sha256": "5b2db15674d5781b3eb52c396e0b1433578e6b4750e3fa847c83e8fa67265fee",
+          "sha256": "f67c74dbadb064463e6cd2b025118df1f455e74d6d43c6cb5f1278c82430ca96",
           "role": "implementation"
         },
         {
@@ -34348,7 +34378,12 @@
           "scope": "Only current declared single-friendly-unit preflight and append-only SQL helper verification. Every old scope, source date and evidence remains; current fixed full and product still required."
         }
       ],
-      "revalidationReason": "New bounded shared single-friendly-unit preflight; prior fixed CI does not cover current input. Original scopes/evidence retained, current full and product remain required."
+      "revalidationReason": "New bounded shared single-friendly-unit preflight; prior fixed CI does not cover current input. Original scopes/evidence retained, current full and product remain required.",
+      "currentOrderedObservationInputRefresh": {
+        "path": "docs/evidence/deck-play-ordered-jsonb-2026-10-21/seven-context-current-input-refresh.json",
+        "sha256": "7f2ad7305e8cd40241920908918564c2d731d4b728c557db559a6311f82217ee",
+        "role": "current-input-refresh"
+      }
     },
     "graveyard-source-reference-occupation-and-original-generation-2026-10-20": {
       "evidenceCommit": "e262ebf164e448cc9738d94db8e557f302cfc295",
@@ -38161,6 +38196,284 @@
         }
       ],
       "allOriginal151Reviews66ContextsAndTheirSourceDatesRemainUnchanged": true
+    },
+    "deck-play-ordered-jsonb-current-cn16-2026-10-21": {
+      "evidenceCommit": "f0593b1648a7fd4437b7d7512429f517d86bdda2",
+      "currentImplementationCommit": "f0593b1648a7fd4437b7d7512429f517d86bdda2",
+      "currentImplementationIncludesUncommittedChanges": true,
+      "ciState": "PENDING",
+      "ciReceipts": [],
+      "region": "CN",
+      "language": "zh-CN",
+      "applicableAsOf": "2026-10-21",
+      "adoptedCoreEffectiveDate": "2026-10-16",
+      "sourceManifest": {
+        "path": "docs/evidence/deck-play-ordered-jsonb-2026-10-21/source-manifest.json",
+        "sha256": "fbdd0ed477cc6358f50d58453afe80e6fd1d35057a006ff2cac33eb07ccc8334",
+        "role": "source-manifest"
+      },
+      "implementation": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeckPlaySequence.cs",
+          "sha256": "2c74c35b0f9d4bcbc6fa20c13aea88732186e88f87b72ecda9c031d59bcfa0c1",
+          "role": "implementation"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.EffectPlay.cs",
+          "sha256": "f67c74dbadb064463e6cd2b025118df1f455e74d6d43c6cb5f1278c82430ca96",
+          "role": "implementation"
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.cs",
+          "sha256": "cf66d4df80998c685f70a6981b66df4047557f70b0b6773d59be86cec5733ba9",
+          "role": "implementation"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeckObservation.cs",
+          "sha256": "23d38876ad376bbaa79fe1db46723fc547986027aa3cc7479a6e8f25528a0371",
+          "role": "implementation"
+        }
+      ],
+      "verificationSources": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/DeckPlayObservationOrderTests.cs",
+          "sha256": "f133ffac5f1b6e62b4fb6cf8fab12bb0d160711ad7faefe341218463be2a7804",
+          "role": "verification-source"
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/OfficialReinforcementsTests.cs",
+          "sha256": "6f2752469e89b62e784facb860eaf0c451b9c8208b3fbe2bee7904009d837d33",
+          "role": "verification-source"
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/EndDeckPlayTests.cs",
+          "sha256": "551a8cb6f218c25eb00b05c08c4c5044440901a746f0ac040ea378bf41ca0c23",
+          "role": "verification-source"
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs",
+          "sha256": "302d072ea9badc28a288928c08c04e1d606af5d9a6105e74a410b67bed72d0a3",
+          "role": "verification-source"
+        },
+        {
+          "path": "tests/Riftbound.PostgresAcceptance/CandlelitLegendPendingSqlAcceptance.cs",
+          "sha256": "75330705f71319da395a4d53e69ef00f6c03b84dc9e56ef9b553d5be51e788b3",
+          "role": "verification-source"
+        },
+        {
+          "path": "tests/Riftbound.PostgresAcceptance/Program.cs",
+          "sha256": "ed75223f0e46e62b0fe72f4b9e67bcea4ab675e5e18ad304ad9b3f2577525dc6",
+          "role": "verification-source"
+        },
+        {
+          "path": "tests/Riftbound.PostgresAcceptance/SqlAcceptanceCases.json",
+          "sha256": "a8177a2b705b35955684d8abd8cb253faf61a3940c4caf2da25bf9957001909b",
+          "role": "verification-source"
+        },
+        {
+          "path": "scripts/tests/test_sql_ci_gate.py",
+          "sha256": "71d1901c11a2ddfce080188e7a3a57bf7f80f2235f0c2a16d4fce39576bf3f94",
+          "role": "verification-source"
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/evidence/deck-play-ordered-jsonb-2026-10-21/focus-executed-distinct-scope.json",
+          "sha256": "f464268cc38e70d9577aecaaa07021b4e4fd8a03b004a89eaf831482648042ce",
+          "role": "focus"
+        },
+        {
+          "path": "docs/evidence/deck-play-ordered-jsonb-2026-10-21/check-original-case-method-and-input-retention.json",
+          "sha256": "808cf57ca93167df209343439c24da75fc85f26aa896cf5442e0cad653a44a0c",
+          "role": "check"
+        },
+        {
+          "path": "docs/evidence/deck-play-ordered-jsonb-2026-10-21/real-sql-both-legend-orders-terminal.json",
+          "sha256": "2a1f62d85ac1e4ce9f0898fca6dec925ac08576a8233a637c63fda4f9f717631",
+          "role": "sql"
+        },
+        {
+          "path": "docs/evidence/deck-play-ordered-jsonb-2026-10-21/independent-both-orders-all-historical-replays.json",
+          "sha256": "80640e9a6947f3bc55e97693f106685ad251e25dae10bb0ac7be9d0de75e8b8a",
+          "role": "independent-sql"
+        }
+      ],
+      "branches": [
+        {
+          "id": "ORDERED_DECK_OBSERVATION_IDENTITY_GENERATION_JSONB",
+          "state": "RECORDED",
+          "scope": "Ordered bindings retain exact observation order and generations under unordered JSON object serialization; negative cases still reject.",
+          "sourceRefs": [
+            "OGN-025/298",
+            "OGN-062/298",
+            "OGN-115/298",
+            "SFD-188/221",
+            "SFD-187/221",
+            "OGN-291/298",
+            "OGN-160/298",
+            "OGN-242/298",
+            "SFD-170/221",
+            "SFD-170A/221",
+            "SFD-243/221",
+            "DOC-01-P041-B011",
+            "DOC-01-P041-B013",
+            "DOC-01-P041-B015",
+            "DOC-01-P041-B016",
+            "DOC-01-P064-B002",
+            "DOC-01-P064-B003",
+            "DOC-12-P007-B003",
+            "DOC-13-P004-B004",
+            "DOC-13-P005-B001"
+          ],
+          "sourceManifest": {
+            "path": "docs/evidence/deck-play-ordered-jsonb-2026-10-21/source-manifest.json",
+            "sha256": "fbdd0ed477cc6358f50d58453afe80e6fd1d35057a006ff2cac33eb07ccc8334",
+            "role": "source-manifest"
+          },
+          "semanticReview": {
+            "state": "BOUNDED_CURRENT_SOURCE_ORDER_AND_TWO_PENDING_ORDER_BRANCHES",
+            "wholeClauseOrPrintingCertified": false
+          },
+          "implementation": {
+            "state": "EXISTING_FINITE_SHARED_CONTEXT_NOW_USES_ORDERED_IDENTITY_GENERATION_BINDINGS"
+          },
+          "testExecution": {
+            "state": "ACTUAL_FOCUS_SQL_COLD_DEDUP_INDEPENDENT_ALL_HISTORY_AND_REPLAY_PASS"
+          },
+          "fixedCommitCi": {
+            "state": "PENDING_NEW_FIXED_FULL"
+          },
+          "productAcceptance": {
+            "state": "OPEN"
+          },
+          "decision": {
+            "state": "OPEN",
+            "reason": "Bounded tests do not close fixed full, all semantics or candidate product obligations."
+          },
+          "wholePrintingCertified": false,
+          "existingAcceptanceGateDependencies": [
+            "DECK_OBSERVATION_FAMILY_ALL_APPLICABLE_CONSUMERS",
+            "FIXED_CURRENT_CANDIDATE_FULL",
+            "USER_WINDOWS_RUNTIME"
+          ]
+        },
+        {
+          "id": "CANDLELIT_REKSAI_CN16_LEGEND_FIRST",
+          "state": "RECORDED",
+          "scope": "Both original pending abilities confirm source exhaust before legend first reveal/play then original battlefield private look/order.",
+          "sourceRefs": [
+            "OGN-025/298",
+            "OGN-062/298",
+            "OGN-115/298",
+            "SFD-188/221",
+            "SFD-187/221",
+            "OGN-291/298",
+            "OGN-160/298",
+            "OGN-242/298",
+            "SFD-170/221",
+            "SFD-170A/221",
+            "SFD-243/221",
+            "DOC-01-P041-B011",
+            "DOC-01-P041-B013",
+            "DOC-01-P041-B015",
+            "DOC-01-P041-B016",
+            "DOC-01-P064-B002",
+            "DOC-01-P064-B003",
+            "DOC-12-P007-B003",
+            "DOC-13-P004-B004",
+            "DOC-13-P005-B001"
+          ],
+          "sourceManifest": {
+            "path": "docs/evidence/deck-play-ordered-jsonb-2026-10-21/source-manifest.json",
+            "sha256": "fbdd0ed477cc6358f50d58453afe80e6fd1d35057a006ff2cac33eb07ccc8334",
+            "role": "source-manifest"
+          },
+          "semanticReview": {
+            "state": "BOUNDED_CURRENT_SOURCE_ORDER_AND_TWO_PENDING_ORDER_BRANCHES",
+            "wholeClauseOrPrintingCertified": false
+          },
+          "implementation": {
+            "state": "EXISTING_FINITE_SHARED_CONTEXT_NOW_USES_ORDERED_IDENTITY_GENERATION_BINDINGS"
+          },
+          "testExecution": {
+            "state": "ACTUAL_FOCUS_SQL_COLD_DEDUP_INDEPENDENT_ALL_HISTORY_AND_REPLAY_PASS"
+          },
+          "fixedCommitCi": {
+            "state": "PENDING_NEW_FIXED_FULL"
+          },
+          "productAcceptance": {
+            "state": "OPEN"
+          },
+          "decision": {
+            "state": "OPEN",
+            "reason": "Bounded tests do not close fixed full, all semantics or candidate product obligations."
+          },
+          "wholePrintingCertified": false,
+          "existingAcceptanceGateDependencies": [
+            "DECK_OBSERVATION_FAMILY_ALL_APPLICABLE_CONSUMERS",
+            "FIXED_CURRENT_CANDIDATE_FULL",
+            "USER_WINDOWS_RUNTIME"
+          ]
+        },
+        {
+          "id": "CANDLELIT_REKSAI_CN16_BATTLEFIELD_FIRST",
+          "state": "RECORDED",
+          "scope": "Both original pending abilities confirm source exhaust before original battlefield reverse order then actual JSONB cold reveal/play of the new first original card.",
+          "sourceRefs": [
+            "OGN-025/298",
+            "OGN-062/298",
+            "OGN-115/298",
+            "SFD-188/221",
+            "SFD-187/221",
+            "OGN-291/298",
+            "OGN-160/298",
+            "OGN-242/298",
+            "SFD-170/221",
+            "SFD-170A/221",
+            "SFD-243/221",
+            "DOC-01-P041-B011",
+            "DOC-01-P041-B013",
+            "DOC-01-P041-B015",
+            "DOC-01-P041-B016",
+            "DOC-01-P064-B002",
+            "DOC-01-P064-B003",
+            "DOC-12-P007-B003",
+            "DOC-13-P004-B004",
+            "DOC-13-P005-B001"
+          ],
+          "sourceManifest": {
+            "path": "docs/evidence/deck-play-ordered-jsonb-2026-10-21/source-manifest.json",
+            "sha256": "fbdd0ed477cc6358f50d58453afe80e6fd1d35057a006ff2cac33eb07ccc8334",
+            "role": "source-manifest"
+          },
+          "semanticReview": {
+            "state": "BOUNDED_CURRENT_SOURCE_ORDER_AND_TWO_PENDING_ORDER_BRANCHES",
+            "wholeClauseOrPrintingCertified": false
+          },
+          "implementation": {
+            "state": "EXISTING_FINITE_SHARED_CONTEXT_NOW_USES_ORDERED_IDENTITY_GENERATION_BINDINGS"
+          },
+          "testExecution": {
+            "state": "ACTUAL_FOCUS_SQL_COLD_DEDUP_INDEPENDENT_ALL_HISTORY_AND_REPLAY_PASS"
+          },
+          "fixedCommitCi": {
+            "state": "PENDING_NEW_FIXED_FULL"
+          },
+          "productAcceptance": {
+            "state": "OPEN"
+          },
+          "decision": {
+            "state": "OPEN",
+            "reason": "Bounded tests do not close fixed full, all semantics or candidate product obligations."
+          },
+          "wholePrintingCertified": false,
+          "existingAcceptanceGateDependencies": [
+            "DECK_OBSERVATION_FAMILY_ALL_APPLICABLE_CONSUMERS",
+            "FIXED_CURRENT_CANDIDATE_FULL",
+            "USER_WINDOWS_RUNTIME"
+          ]
+        }
+      ]
     }
   },
   "acceptanceGates": [
@@ -38306,7 +38619,13 @@
     {
       "id": "DECK_OBSERVATION_FAMILY",
       "state": "OPEN",
-      "requirement": "All applicable observation/choice/pending/play consumers and phase/generation/order/visibility/progress"
+      "requirement": "All applicable observation/choice/pending/play consumers and phase/generation/order/visibility/progress",
+      "currentAdjacentRevealedHandPresentationObservation": {
+        "path": "docs/evidence/deck-play-ordered-jsonb-2026-10-21/next-hand-presentation-finding.json",
+        "sha256": "a66a841a2a8de68830c15aeb5bc4b04532bdb4419066e15c95ec456a5c0ed450",
+        "role": "separate-open-presentation-finding"
+      },
+      "currentAdjacentFindingBoundary": "Only controlled offline viewedCards order differs; state/snapshot/selection/structural recovery remain valid. Real SQL/current source adoption/visible and fixed verification remain OPEN. See issue79."
     },
     {
       "id": "FIXED_CURRENT_CANDIDATE_FULL",
@@ -51083,5 +51402,15 @@
     "path": "docs/evidence/candlelit-nocturne-current-cn16-2026-10-21/source-manifest.json",
     "sha256": "70519d77f3d6dc62c0cd957f8206fef130f5b36bc09253931c3ef8d1b5dfd4f3",
     "role": "source-manifest"
+  },
+  "currentOrderedDeckPlayJsonbInputChange": {
+    "path": "docs/evidence/deck-play-ordered-jsonb-2026-10-21/source-manifest.json",
+    "sha256": "fbdd0ed477cc6358f50d58453afe80e6fd1d35057a006ff2cac33eb07ccc8334",
+    "role": "source-manifest"
+  },
+  "precedingFixedC2ActualCompleteFullCiReadback": {
+    "path": "docs/evidence/deck-play-ordered-jsonb-2026-10-21/prior-c2-full-independent-verification.json",
+    "sha256": "b517ab9edba51fa853b1bbbbe8355c5b3345bfbd9d654cba692baa15f2d3f795",
+    "role": "prior-fixed-full"
   }
 }

@@ -223,7 +223,7 @@ public sealed class EndDeckPlayTests
         if(mutation=="permission")p=p with {IgnoreAllCosts=false};
         if(mutation=="source-generation")p=p with {Parent=p.Parent with {DeckPlaySequence=p.Parent.DeckPlaySequence! with {Source=new("GEAR",99)}}};
         if(mutation=="second-unit")p=p with {Parent=p.Parent with {DeckPlaySequence=p.Parent.DeckPlaySequence! with {
-            Viewed=new Dictionary<string,IReadOnlyDictionary<string,long>> { ["P1"]=new Dictionary<string,long>{{"END_UNIT",0},{"HOOK_TOP",0}} }}}};
+            Viewed=new Dictionary<string,IReadOnlyList<ObjectBinding>> { ["P1"]=[new("END_UNIT",0),new("HOOK_TOP",0)] }}}};
         Assert.Contains(OfficialInsightAndSpellLockTests.Errors(driver.State with {PendingEffectPlay=p}),e=>e.Contains("deck"));
     }
 

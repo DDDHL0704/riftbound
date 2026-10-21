@@ -1,0 +1,86 @@
+{
+  "atUtc": "2026-10-21T03:26:56.996865+00:00",
+  "status": "CHECK_AND_EXACT_CASE_METHOD_PARITY_PASS",
+  "oldCasesPreserved": true,
+  "oldMethodsPreserved": true,
+  "frozenInputsUnchanged": true,
+  "failed": 0,
+  "skipped": 0,
+  "profile": "check",
+  "baseCommit": "f0593b1648a7fd4437b7d7512429f517d86bdda2",
+  "actualCases": 13230,
+  "actualMethods": 7504,
+  "fullDiscoveryMethodsNotExecutedCount": 7645,
+  "allOriginal13219CaseNameCountMultisetAnd7501MethodsPreserved": true,
+  "newCases": 11,
+  "newMethods": 3,
+  "addedCases": [
+    "Riftbound.ConformanceTests.DeckPlayObservationOrderTests.RecoveryStillRejectsMalformedOrForgedOrderedObservations(mutation: \"outside\")",
+    "Riftbound.ConformanceTests.DeckPlayObservationOrderTests.ObjectMemberReorderingPreservesObservedOrderThroughBothChoicesAndPendingPlays(reinforcement: True)",
+    "Riftbound.ConformanceTests.DeckPlayObservationOrderTests.ObjectMemberReorderingKeepsTheFirstRevealedUnitLastAndItsOriginalFreePlayPermission",
+    "Riftbound.ConformanceTests.DeckPlayObservationOrderTests.RecoveryStillRejectsMalformedOrForgedOrderedObservations(mutation: \"generation\")",
+    "Riftbound.ConformanceTests.DeckPlayObservationOrderTests.RecoveryStillRejectsMalformedOrForgedOrderedObservations(mutation: \"duplicate\")",
+    "Riftbound.ConformanceTests.DeckPlayObservationOrderTests.RecoveryStillRejectsMalformedOrForgedOrderedObservations(mutation: \"missing\")",
+    "Riftbound.ConformanceTests.DeckPlayObservationOrderTests.RecoveryStillRejectsMalformedOrForgedOrderedObservations(mutation: \"order\")",
+    "Riftbound.ConformanceTests.DeckPlayObservationOrderTests.RecoveryStillRejectsMalformedOrForgedOrderedObservations(mutation: \"null-id\")",
+    "Riftbound.ConformanceTests.DeckPlayObservationOrderTests.ObjectMemberReorderingPreservesObservedOrderThroughBothChoicesAndPendingPlays(reinforcement: False)",
+    "Riftbound.ConformanceTests.DeckPlayObservationOrderTests.RecoveryStillRejectsMalformedOrForgedOrderedObservations(mutation: \"null-binding\")",
+    "Riftbound.ConformanceTests.DeckPlayObservationOrderTests.RecoveryStillRejectsMalformedOrForgedOrderedObservations(mutation: \"null-list\")"
+  ],
+  "addedMethods": [
+    "Riftbound.ConformanceTests.DeckPlayObservationOrderTests.ObjectMemberReorderingKeepsTheFirstRevealedUnitLastAndItsOriginalFreePlayPermission",
+    "Riftbound.ConformanceTests.DeckPlayObservationOrderTests.ObjectMemberReorderingPreservesObservedOrderThroughBothChoicesAndPendingPlays",
+    "Riftbound.ConformanceTests.DeckPlayObservationOrderTests.RecoveryStillRejectsMalformedOrForgedOrderedObservations"
+  ],
+  "allOriginalMethodsTheoryRows143FullMethodsNineSources110Pairs11Decks424242VictoryReplayAssertionsRetained": true,
+  "fullGamePrivacyAssertionOnlyAdaptsOrderedBindingLookup": true,
+  "allOriginal49SqlExecutionIdentitiesAndOrderRetainedOnly50thAppended": true,
+  "all3321SourceHashesAndModes1419ConformanceAnd23NativeInputsStableThroughoutCheck": true,
+  "baselineTrxSha256": "060fe9188ccd57744ef0bb81efc62724978a9d973a14477533b1dad44a8c67b8",
+  "actualTrxSha256": "36aa69972434c488852286a5cdbc1d83d4d9bbef805fa28b6e10a1dcefde8a0c",
+  "actualTestAssemblySha256": "c1e9f924d23be571bcdb835aa62da415bd35118d9420d5a4ccfa94571f4182e7",
+  "onlyOneCheckForCoherentBatch": true,
+  "summary": {
+    "status": "PASSED",
+    "profile": "check",
+    "seconds": 3515.05,
+    "total": 13230,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "check",
+        "total": 13230,
+        "passed": 13230,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 3510.81
+      }
+    ]
+  },
+  "owner": {
+    "status": "CHECK_PROCESS_EXIT_ZERO_INDEPENDENT_PARITY_STILL_REQUIRED",
+    "startedAtUtc": "2026-10-21T02:26:40.396134+00:00",
+    "boundIdleAssertionPid": 19122,
+    "ownedTestRunnerPid": 19123,
+    "exitCode": 0,
+    "finishedAtUtc": "2026-10-21T03:25:15.495073+00:00",
+    "seconds": 3515.09,
+    "lockAtEnd": {
+      "atUtc": "2026-10-21T03:25:15.518040+00:00",
+      "roots": [
+        {
+          "rootLocked": false,
+          "sessions": []
+        }
+      ],
+      "missingValuesRemainUnknown": true
+    },
+    "all3321SourceHashesUnchanged": true,
+    "allSourceModesUnchanged": true,
+    "allConformanceInputPayloadsUnchanged": true,
+    "all23NativePayloadsUnchanged": true,
+    "boundIdleAssertionEnded": true
+  },
+  "fixedCommitFullCurrentVisibleAndPhysicalWindows": "OPEN",
+  "wholePrintingOrAuditCertified": false
+}

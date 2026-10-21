@@ -1,0 +1,410 @@
+{
+  "atUtc": "2026-10-21T02:35:08.777604+00:00",
+  "status": "CURRENT_CN16_ORDER_PRESERVATION_REVIEW_ALL_TEN_FINITE_CONSUMERS_NOT_WHOLE_PRINTINGS",
+  "region": "CN",
+  "language": "zh-CN",
+  "observedAsOf": "2026-10-21",
+  "adoptedCoreEffectiveDate": "2026-10-16",
+  "exactApiPrintingIdentities": [
+    {
+      "apiId": 31231,
+      "printing": "OGN·025/298",
+      "wholePrintingCertified": false
+    },
+    {
+      "apiId": 31274,
+      "printing": "OGN·062/298",
+      "wholePrintingCertified": false
+    },
+    {
+      "apiId": 31334,
+      "printing": "OGN·115/298",
+      "wholePrintingCertified": false
+    },
+    {
+      "apiId": 33286,
+      "printing": "SFD·188/221",
+      "wholePrintingCertified": false
+    },
+    {
+      "apiId": 33285,
+      "printing": "SFD·187/221",
+      "wholePrintingCertified": false
+    },
+    {
+      "apiId": 31536,
+      "printing": "OGN·291/298",
+      "wholePrintingCertified": false
+    },
+    {
+      "apiId": 31386,
+      "printing": "OGN·160/298",
+      "wholePrintingCertified": false
+    },
+    {
+      "apiId": 31482,
+      "printing": "OGN·242/298",
+      "wholePrintingCertified": false
+    },
+    {
+      "apiId": 33264,
+      "printing": "SFD·170/221",
+      "wholePrintingCertified": false
+    },
+    {
+      "apiId": 33265,
+      "printing": "SFD·170a/221",
+      "wholePrintingCertified": false
+    },
+    {
+      "apiId": 33354,
+      "printing": "SFD·243/221",
+      "wholePrintingCertified": false
+    }
+  ],
+  "finiteConsumerInventory": {
+    "status": "FINITE_CURRENT_DECK_PLAY_CONSUMER_INPUT_INVENTORY_AND_OLD_UNORDERED_SCHEMA_REJECTION",
+    "actualRuleInputs": {
+      "schemaVersion": 1,
+      "region": "CN",
+      "language": "zh-CN",
+      "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+      "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+      "implementationSha256": "47d0482fefd85a354cdc4a06addbd53b41bf963b24d664ed762adc7edf4a18f4",
+      "identitySha256": "86b2e165e536ff25c4f172dec375b209f6e8cb06dd0a546b34c1e0221084ac68"
+    },
+    "rows": [
+      {
+        "cardNo": "OGN·062/298",
+        "kind": "SINGLE_PRIVATE_UNIT_PLAY",
+        "origin": "registered effect",
+        "effectKind": "REINFORCEMENTS_LOOK_PLAY_REDUCED_UNIT"
+      },
+      {
+        "cardNo": "SFD·188/221",
+        "kind": "SINGLE_PUBLIC_PLAY",
+        "origin": "registered effect",
+        "effectKind": "VOID_RUSH_REVEAL_BANISH_PLAY_DRAW_REST"
+      },
+      {
+        "cardNo": "OGN·025/298",
+        "kind": "OPPONENT_REVEAL_PLAY",
+        "origin": "registered effect",
+        "effectKind": "BLIND_FURY_REVEAL_BANISH_EFFECT_PLAY"
+      },
+      {
+        "cardNo": "OGN·115/298",
+        "kind": "EACH_PLAYER_LOOK_PLAY",
+        "origin": "registered effect",
+        "effectKind": "PROMISING_FUTURE_LOOK_BANISH_SEQUENTIAL_PLAY"
+      },
+      {
+        "cardNo": "SFD·170/221",
+        "kind": "UNIT_ATTACK_REVEAL_BANISH_PLAY",
+        "origin": "AttackDeckPlaySpec"
+      },
+      {
+        "cardNo": "SFD·170a/221",
+        "kind": "UNIT_ATTACK_REVEAL_BANISH_PLAY",
+        "origin": "AttackDeckPlaySpec"
+      },
+      {
+        "cardNo": "SFD·187/221",
+        "kind": "EXHAUST_DECK_PLAY",
+        "origin": "LegendConquestDefinition"
+      },
+      {
+        "cardNo": "SFD·243/221",
+        "kind": "EXHAUST_DECK_PLAY",
+        "origin": "LegendConquestDefinition"
+      },
+      {
+        "cardNo": "OGN·160/298",
+        "kind": "TURN_END_REVEAL_UNTIL_UNIT",
+        "origin": "EndSpec"
+      },
+      {
+        "cardNo": "OGN·242/298",
+        "kind": "SINGLE_PRIVATE_LIMITED_UNIT_PLAY",
+        "origin": "OGN_242_298_DESTROY_FRIENDLY_UNIT_LOOK_TOP_PLAY_POWER_PLUS_ONE_RECYCLE_REST"
+      }
+    ],
+    "exactConsumers": [
+      "OGN·025/298",
+      "OGN·062/298",
+      "OGN·115/298",
+      "OGN·160/298",
+      "OGN·242/298",
+      "SFD·170/221",
+      "SFD·170a/221",
+      "SFD·187/221",
+      "SFD·188/221",
+      "SFD·243/221"
+    ],
+    "originalDecks": [
+      {
+        "id": "jhin-lowcurve",
+        "matchingConsumers": []
+      },
+      {
+        "id": "rumble-lowcurve",
+        "matchingConsumers": []
+      },
+      {
+        "id": "lillia-lowcurve",
+        "matchingConsumers": []
+      },
+      {
+        "id": "rumble-armaments",
+        "matchingConsumers": []
+      },
+      {
+        "id": "vex-spells",
+        "matchingConsumers": []
+      },
+      {
+        "id": "vex-battlefields",
+        "matchingConsumers": []
+      },
+      {
+        "id": "vex-response",
+        "matchingConsumers": []
+      },
+      {
+        "id": "poppy-standby",
+        "matchingConsumers": []
+      },
+      {
+        "id": "poppy-demacia",
+        "matchingConsumers": []
+      },
+      {
+        "id": "kaisa-red-tempo",
+        "matchingConsumers": []
+      },
+      {
+        "id": "kaisa-red-control",
+        "matchingConsumers": []
+      }
+    ],
+    "allOriginal110Pairs": [
+      "jhin-lowcurve-vs-rumble-lowcurve",
+      "jhin-lowcurve-vs-lillia-lowcurve",
+      "jhin-lowcurve-vs-rumble-armaments",
+      "jhin-lowcurve-vs-vex-spells",
+      "jhin-lowcurve-vs-vex-battlefields",
+      "jhin-lowcurve-vs-vex-response",
+      "jhin-lowcurve-vs-poppy-standby",
+      "jhin-lowcurve-vs-poppy-demacia",
+      "jhin-lowcurve-vs-kaisa-red-tempo",
+      "jhin-lowcurve-vs-kaisa-red-control",
+      "rumble-lowcurve-vs-jhin-lowcurve",
+      "rumble-lowcurve-vs-lillia-lowcurve",
+      "rumble-lowcurve-vs-rumble-armaments",
+      "rumble-lowcurve-vs-vex-spells",
+      "rumble-lowcurve-vs-vex-battlefields",
+      "rumble-lowcurve-vs-vex-response",
+      "rumble-lowcurve-vs-poppy-standby",
+      "rumble-lowcurve-vs-poppy-demacia",
+      "rumble-lowcurve-vs-kaisa-red-tempo",
+      "rumble-lowcurve-vs-kaisa-red-control",
+      "lillia-lowcurve-vs-jhin-lowcurve",
+      "lillia-lowcurve-vs-rumble-lowcurve",
+      "lillia-lowcurve-vs-rumble-armaments",
+      "lillia-lowcurve-vs-vex-spells",
+      "lillia-lowcurve-vs-vex-battlefields",
+      "lillia-lowcurve-vs-vex-response",
+      "lillia-lowcurve-vs-poppy-standby",
+      "lillia-lowcurve-vs-poppy-demacia",
+      "lillia-lowcurve-vs-kaisa-red-tempo",
+      "lillia-lowcurve-vs-kaisa-red-control",
+      "rumble-armaments-vs-jhin-lowcurve",
+      "rumble-armaments-vs-rumble-lowcurve",
+      "rumble-armaments-vs-lillia-lowcurve",
+      "rumble-armaments-vs-vex-spells",
+      "rumble-armaments-vs-vex-battlefields",
+      "rumble-armaments-vs-vex-response",
+      "rumble-armaments-vs-poppy-standby",
+      "rumble-armaments-vs-poppy-demacia",
+      "rumble-armaments-vs-kaisa-red-tempo",
+      "rumble-armaments-vs-kaisa-red-control",
+      "vex-spells-vs-jhin-lowcurve",
+      "vex-spells-vs-rumble-lowcurve",
+      "vex-spells-vs-lillia-lowcurve",
+      "vex-spells-vs-rumble-armaments",
+      "vex-spells-vs-vex-battlefields",
+      "vex-spells-vs-vex-response",
+      "vex-spells-vs-poppy-standby",
+      "vex-spells-vs-poppy-demacia",
+      "vex-spells-vs-kaisa-red-tempo",
+      "vex-spells-vs-kaisa-red-control",
+      "vex-battlefields-vs-jhin-lowcurve",
+      "vex-battlefields-vs-rumble-lowcurve",
+      "vex-battlefields-vs-lillia-lowcurve",
+      "vex-battlefields-vs-rumble-armaments",
+      "vex-battlefields-vs-vex-spells",
+      "vex-battlefields-vs-vex-response",
+      "vex-battlefields-vs-poppy-standby",
+      "vex-battlefields-vs-poppy-demacia",
+      "vex-battlefields-vs-kaisa-red-tempo",
+      "vex-battlefields-vs-kaisa-red-control",
+      "vex-response-vs-jhin-lowcurve",
+      "vex-response-vs-rumble-lowcurve",
+      "vex-response-vs-lillia-lowcurve",
+      "vex-response-vs-rumble-armaments",
+      "vex-response-vs-vex-spells",
+      "vex-response-vs-vex-battlefields",
+      "vex-response-vs-poppy-standby",
+      "vex-response-vs-poppy-demacia",
+      "vex-response-vs-kaisa-red-tempo",
+      "vex-response-vs-kaisa-red-control",
+      "poppy-standby-vs-jhin-lowcurve",
+      "poppy-standby-vs-rumble-lowcurve",
+      "poppy-standby-vs-lillia-lowcurve",
+      "poppy-standby-vs-rumble-armaments",
+      "poppy-standby-vs-vex-spells",
+      "poppy-standby-vs-vex-battlefields",
+      "poppy-standby-vs-vex-response",
+      "poppy-standby-vs-poppy-demacia",
+      "poppy-standby-vs-kaisa-red-tempo",
+      "poppy-standby-vs-kaisa-red-control",
+      "poppy-demacia-vs-jhin-lowcurve",
+      "poppy-demacia-vs-rumble-lowcurve",
+      "poppy-demacia-vs-lillia-lowcurve",
+      "poppy-demacia-vs-rumble-armaments",
+      "poppy-demacia-vs-vex-spells",
+      "poppy-demacia-vs-vex-battlefields",
+      "poppy-demacia-vs-vex-response",
+      "poppy-demacia-vs-poppy-standby",
+      "poppy-demacia-vs-kaisa-red-tempo",
+      "poppy-demacia-vs-kaisa-red-control",
+      "kaisa-red-tempo-vs-jhin-lowcurve",
+      "kaisa-red-tempo-vs-rumble-lowcurve",
+      "kaisa-red-tempo-vs-lillia-lowcurve",
+      "kaisa-red-tempo-vs-rumble-armaments",
+      "kaisa-red-tempo-vs-vex-spells",
+      "kaisa-red-tempo-vs-vex-battlefields",
+      "kaisa-red-tempo-vs-vex-response",
+      "kaisa-red-tempo-vs-poppy-standby",
+      "kaisa-red-tempo-vs-poppy-demacia",
+      "kaisa-red-tempo-vs-kaisa-red-control",
+      "kaisa-red-control-vs-jhin-lowcurve",
+      "kaisa-red-control-vs-rumble-lowcurve",
+      "kaisa-red-control-vs-lillia-lowcurve",
+      "kaisa-red-control-vs-rumble-armaments",
+      "kaisa-red-control-vs-vex-spells",
+      "kaisa-red-control-vs-vex-battlefields",
+      "kaisa-red-control-vs-vex-response",
+      "kaisa-red-control-vs-poppy-standby",
+      "kaisa-red-control-vs-poppy-demacia",
+      "kaisa-red-control-vs-kaisa-red-tempo"
+    ],
+    "affectedOriginalPairIds": [],
+    "oldUnorderedFrameRejectedWithoutMigration": "JsonException",
+    "originalFrameOnlyRead": true,
+    "wholePrintingCertification": false
+  },
+  "currentOfficialApiRecordsAllFieldsPresenceAndNullsChecked": true,
+  "knownSfd187ApiPrintedVersusEffectiveErrataStillExactlySameAsPriorIntake": true,
+  "doc12Doc13EffectiveSourcePreflightRetained": {
+    "atUtc": "2026-10-21T01:20:02.034340+00:00",
+    "status": "NEXT_BOUNDED_TWO_ORDER_LEGEND_SOURCE_PREFLIGHT_NOT_IMPLEMENTATION_OR_TEST_COMPLETION",
+    "region": "CN",
+    "language": "zh-CN",
+    "observedAsOf": "2026-10-21",
+    "adoptedCoreEffectiveAsOf": "2026-10-16",
+    "printedApi187TextDoesNotOverrideStillAvailableDoc12ErrataAndDoc13Faq": true,
+    "exactLegendPrinting": "SFD·187/221",
+    "exactBattlefieldPrinting": "OGN·291/298",
+    "exactPlayedUnitPrinting": "SFD·125/221",
+    "grandFaePrintedManaCost": 4,
+    "grandFaePrintedPowerCost": 0,
+    "grandFaeMoveAbilityDoesNotTriggerFromPlayToBase": true,
+    "grandFaeFullOfficialFaceActuallyViewed": {
+      "path": "var/qa/fixed-39eacb2e-candlelit-pending-20261021/grand-fae-current-official-face.png",
+      "sha256": "477b5455f5cceff45d670cee5c017919ed491ce0fa5a8c4073ed902f64f3c150"
+    },
+    "freshDoc13OriginalReadbackPath": "var/qa/fixed-39eacb2e-candlelit-pending-20261021/legend-current-spiritforged-faq-original-readback-v1.json",
+    "completeOriginalDoc13PhysicalPages4And5ActuallyViewed": [
+      {
+        "path": "var/qa/fixed-39eacb2e-candlelit-pending-20261021/current-rule-full-pages-v1/DOC-13-p4.png",
+        "sha256": "17ab9d8d8e6024cddfcb364e290c28c0c005e8447f1cf015d6920764cb291aa8"
+      },
+      {
+        "path": "var/qa/fixed-39eacb2e-candlelit-pending-20261021/current-rule-full-pages-v1/DOC-13-p5.png",
+        "sha256": "4accee842e315d986adccc354c6074e4e217a5ad42149fa845438f15425a77db"
+      }
+    ],
+    "officialRuleBasis": [
+      "383.3.a optional trigger confirmation",
+      "383.3.d same-controller simultaneous order choice",
+      "337.1.b oldest pending confirms first",
+      "337.3 all pending finalize before ordinary execution/resolution",
+      "DOC12-P007-B003 and DOC13-P004-B004/P005-B001 banish-then-play and recycle remaining"
+    ],
+    "expectedOrders": [
+      {
+        "resolution": "legend-first",
+        "firstReveal": [
+          "DRAW1",
+          "DRAW2"
+        ],
+        "played": "DRAW1",
+        "laterCandlelitLook": [
+          "DRAW3",
+          "DRAW2"
+        ],
+        "finalDeck": [
+          "DRAW2",
+          "DRAW3"
+        ]
+      },
+      {
+        "resolution": "battlefield-first",
+        "firstPrivateLook": [
+          "DRAW1",
+          "DRAW2"
+        ],
+        "firstRetainedOrder": [
+          "DRAW2",
+          "DRAW1"
+        ],
+        "laterReveal": [
+          "DRAW2",
+          "DRAW1"
+        ],
+        "played": "DRAW2",
+        "finalDeck": [
+          "DRAW3",
+          "DRAW1"
+        ]
+      }
+    ],
+    "bothBranchesMustPayLegendExhaustCostBeforeAnyLook": true,
+    "expectedFinalMana": 16,
+    "expectedFinalPower": 10,
+    "wholePrintingAnyOtherLegendNocturneOrProductCertification": false,
+    "currentNocturneThreeBranchSoleCheckStillRunningRootSourceUnchanged": true
+  },
+  "newSourceDeltaFromTheseRecords": false,
+  "threeCurrentPrimaryPdfHashesSame": true,
+  "rulesDirectoryAllOriginalRecordFieldsSame": true,
+  "ruleRecords": [
+    "DOC-01-P041-B011",
+    "DOC-01-P041-B013",
+    "DOC-01-P041-B015",
+    "DOC-01-P041-B016",
+    "DOC-01-P064-B002",
+    "DOC-01-P064-B003",
+    "DOC-12-P007-B003",
+    "DOC-13-P004-B004",
+    "DOC-13-P005-B001"
+  ],
+  "semanticScope": "Only preserving ordered captured identities and generations under unordered JSON object serialization, original private/public observation choices, first revealed unit, costs and pending play. Both exact Candlelit/Reksai controlled resolution orders also checked; not whole cards/clauses.",
+  "applicabilityAndSourceDatesNeverBackfilled": true,
+  "unknownPublicationAndPrintingEffectiveDatesRemainNull": true,
+  "allOriginalSourceUniverseAndGapsRetained": true,
+  "oldDevelopmentMatchesNotMigrated": true,
+  "noNewDslOrWholeRewrite": true,
+  "fixedFullVisiblePairPhysicalWindowsAndWholeAuditStillOpen": true
+}

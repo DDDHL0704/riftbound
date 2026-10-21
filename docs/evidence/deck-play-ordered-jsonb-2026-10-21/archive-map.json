@@ -1,0 +1,956 @@
+{
+  "atUtc": "2026-10-21T03:27:04.775109+00:00",
+  "archive": {
+    "path": "docs/evidence/deck-play-ordered-jsonb-2026-10-21/completed-ordered-jsonb-originals.tar.xz",
+    "sha256": "32a67dd25ac25bd111b6a2b80dbebab203a70f94d1f5399af3c15ee264c21592"
+  },
+  "members": [
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/acquire-current-shared-ordered-sources-v1.py",
+      "bytes": 6004,
+      "sha256": "1d11ceab618748b180337de378fdb2b65743533eea97a1be18e191ba57de3959"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/acquire-current-supplemental-sequence-sources-v1.py",
+      "bytes": 4486,
+      "sha256": "d98e4a725a89f10057141477d2eddcf86996b616b6f6773176a0e58a64bff380"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/actual-ci-39510792920-snapshot-v1.json",
+      "bytes": 22485,
+      "sha256": "952f1257501e6f5c7bd499588e46ad9b5b1443088be0580eba46949610b03db6"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/actual-ci-39520536954-fetch-stderr-v4.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/actual-ci-39520536954-snapshot-v1.json",
+      "bytes": 18966,
+      "sha256": "871ceb0767131bc9a496a511fe45a17309a899af32f959a52efdc174507a3540"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/actual-ci-39520536954-snapshot-v2.json",
+      "bytes": 18966,
+      "sha256": "871ceb0767131bc9a496a511fe45a17309a899af32f959a52efdc174507a3540"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/actual-ci-39520536954-snapshot-v3.json",
+      "bytes": 19164,
+      "sha256": "0c6b66822f6357c21d52bc6b533daac1909c396a2dde88c50973e419101912bd"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/actual-ci-39520536954-snapshot-v4.json",
+      "bytes": 19164,
+      "sha256": "0c6b66822f6357c21d52bc6b533daac1909c396a2dde88c50973e419101912bd"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/actual-ci-39530834010-fetch-stderr-v4.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/actual-ci-39530834010-snapshot-v1.json",
+      "bytes": 18570,
+      "sha256": "35154a369be882e6c0bc8182c32759eec9d1bf27f81ca9f17d6fff749fbb494c"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/actual-ci-39530834010-snapshot-v2.json",
+      "bytes": 18570,
+      "sha256": "35154a369be882e6c0bc8182c32759eec9d1bf27f81ca9f17d6fff749fbb494c"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/actual-ci-39530834010-snapshot-v4.json",
+      "bytes": 18570,
+      "sha256": "35154a369be882e6c0bc8182c32759eec9d1bf27f81ca9f17d6fff749fbb494c"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/actual-two-ordered-legend-sql-owner-terminal-v1.json",
+      "bytes": 23087,
+      "sha256": "2a1f62d85ac1e4ce9f0898fca6dec925ac08576a8233a637c63fda4f9f717631"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/actual-two-ordered-legend-sql-owner-v1.log",
+      "bytes": 164,
+      "sha256": "a29ae75ee79c05979cdb36461718145cca37872c398aff0ed27a331aaa08b8d1"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/actual-two-ordered-legend-sql-v1/candlelit-legend-pending/battlefield-first/all-original-accepted-intents.json",
+      "bytes": 4088,
+      "sha256": "253c5120691db73d9d7c69a1d53b3b60f993ce26d45536fcc213cc2b8f5d2244"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/actual-two-ordered-legend-sql-v1/candlelit-legend-pending/battlefield-first/all-pending-confirmed-before-look-original-frame.json.gz",
+      "bytes": 11440,
+      "sha256": "84e1a1a687d86ba2610152ce55d969a7b962fc2b40498048efd8850a4f3c7256"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/actual-two-ordered-legend-sql-v1/candlelit-legend-pending/battlefield-first/before-legend-cost-original-frame.json.gz",
+      "bytes": 16321,
+      "sha256": "c44d1d882d7587b340f1cafc3705c7b897430c298541ee1ab69569704652aec7"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/actual-two-ordered-legend-sql-v1/candlelit-legend-pending/battlefield-first/before-order-original-frame.json.gz",
+      "bytes": 14494,
+      "sha256": "84d704aab75c58995b885d17843f09408c5d91250381ddeb7b7f4975789091fc"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/actual-two-ordered-legend-sql-v1/candlelit-legend-pending/battlefield-first/explicit-original-controlled-initial.json",
+      "bytes": 7803,
+      "sha256": "cd71cd33f3b4e20d83ff90aa530b52fb67e7e15c2b2a8d7ffda39f707d93231a"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/actual-two-ordered-legend-sql-v1/candlelit-legend-pending/battlefield-first/final-original-frame.json.gz",
+      "bytes": 20472,
+      "sha256": "562899832cded1e0181cbb5dd44df30698e8672f8fb11f93e91b74246a1cb6ab"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/actual-two-ordered-legend-sql-v1/candlelit-legend-pending/battlefield-first/legend-banish-before-play-original-frame.json.gz",
+      "bytes": 20494,
+      "sha256": "9734ad21e47af86306d72bb13cbe4f175b806b3bf975530b8a34ab175cf13f5c"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/actual-two-ordered-legend-sql-v1/candlelit-legend-pending/battlefield-first/legend-public-selection-original-frame.json.gz",
+      "bytes": 18396,
+      "sha256": "32f80e4a56970c75a39f70e8c9bd17af294118465dfa1abd58cb4b3fca8cf4cf"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/actual-two-ordered-legend-sql-v1/candlelit-legend-pending/battlefield-first/private-look-original-frame.json.gz",
+      "bytes": 17762,
+      "sha256": "a9e7654cc52f8434d5977c01dc5656cebd75edcf539b5811e9dab97e5e698515"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/actual-two-ordered-legend-sql-v1/candlelit-legend-pending/battlefield-first/receipt.json",
+      "bytes": 1031,
+      "sha256": "498abb6b82b04d0efe9e5b958edf7a9e7d32a6389246cae5b67a5a328f91135a"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/actual-two-ordered-legend-sql-v1/candlelit-legend-pending/legend-first/all-original-accepted-intents.json",
+      "bytes": 4088,
+      "sha256": "f8d554a28dd44b20fbbac8bddd76d761c4f85c5ff80c69f1458f9bcd2ecc995e"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/actual-two-ordered-legend-sql-v1/candlelit-legend-pending/legend-first/all-pending-confirmed-before-look-original-frame.json.gz",
+      "bytes": 11429,
+      "sha256": "e1366c3ecd9cb7074f6fc398322ff2a6480b0a8317232b3b966d62bcba69acdd"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/actual-two-ordered-legend-sql-v1/candlelit-legend-pending/legend-first/before-legend-cost-original-frame.json.gz",
+      "bytes": 16333,
+      "sha256": "9581e8d67947f4186c6ccaad06f1561a1fb4b31510e8df8c32cf4e87748bdd9a"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/actual-two-ordered-legend-sql-v1/candlelit-legend-pending/legend-first/before-order-original-frame.json.gz",
+      "bytes": 14497,
+      "sha256": "ca42b6fa7c287789188f8e5cf747834a99ae09d4b47228ce515517304038c0a4"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/actual-two-ordered-legend-sql-v1/candlelit-legend-pending/legend-first/explicit-original-controlled-initial.json",
+      "bytes": 7803,
+      "sha256": "eb7cc3f287f217bd0300dd639d269a375e0931b3b8fe83b145b4fe6b4add107f"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/actual-two-ordered-legend-sql-v1/candlelit-legend-pending/legend-first/final-original-frame.json.gz",
+      "bytes": 20466,
+      "sha256": "5dabc02912ed60ab287ff8a03bb1c8c81c787faea7c8d831a2b53941aeddd80e"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/actual-two-ordered-legend-sql-v1/candlelit-legend-pending/legend-first/legend-banish-before-play-original-frame.json.gz",
+      "bytes": 20233,
+      "sha256": "bbebf9f48f74195d952877ca58b847d04aed8d368ce1fa3703dd0d309df208d2"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/actual-two-ordered-legend-sql-v1/candlelit-legend-pending/legend-first/legend-public-selection-original-frame.json.gz",
+      "bytes": 17989,
+      "sha256": "9dca2d3960b7d7402d9a85ec23401aeed15284fc5fdee23ca2517e4933c62d16"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/actual-two-ordered-legend-sql-v1/candlelit-legend-pending/legend-first/private-look-original-frame.json.gz",
+      "bytes": 20261,
+      "sha256": "59958e1bf07932ed5f3b1a2179dedba8f09f79ff2080fc2bd2ce1bedf8458b1e"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/actual-two-ordered-legend-sql-v1/candlelit-legend-pending/legend-first/receipt.json",
+      "bytes": 1026,
+      "sha256": "12ecd31af05b257556c33d65b155a5a0c5af56370fb59fc4aa56f9b750bf9f71"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/actual-two-ordered-legend-sql-writer-v1.log",
+      "bytes": 338,
+      "sha256": "6dd402c4357563b18484440c7cc405edc9092ce7452bbc1f12cffefb46274569"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/before-ordered-observation-change-v1.json",
+      "bytes": 850394,
+      "sha256": "8c7580f4e9171d93aaaf4af181d2f87b69a338cc376d394bfc1eda12d3341d07"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/build-current-sql-v1.log",
+      "bytes": 78,
+      "sha256": "888f9d981c459152f04717aec1a625956f7bda7920772ab12e665cf2140c179f"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/build-independent-legend-reader-v1.log",
+      "bytes": 2830,
+      "sha256": "2c2a16760051c2b14adecf123103b6b3051aa653a893cb546c92979dea454749"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/build-independent-legend-reader-v2.log",
+      "bytes": 78,
+      "sha256": "8a1a8e6f8d725fae2abf663178800270707b725c065bf27873585b7cc9327561"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/build-input-inventory-v1.log",
+      "bytes": 1382,
+      "sha256": "d49bd8e7565e51e8c72292c1c73c323da2db84951c6cc5f1e36378a45e37cc92"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/build-input-inventory-v2.log",
+      "bytes": 78,
+      "sha256": "c21d8e08dbc2d0aa5686fb140ede2c0e847245d06b42fd7e4077aa6459785e21"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/build-next-hand-order-diagnostic-v1.log",
+      "bytes": 78,
+      "sha256": "c21d8e08dbc2d0aa5686fb140ede2c0e847245d06b42fd7e4077aa6459785e21"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/build-next-hand-order-diagnostic-v2.log",
+      "bytes": 78,
+      "sha256": "5857c35fe22d9c8c870dbd783f1fcfc8ad88f20df713eae3e8095e239b7fd02d"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/check-original-case-method-and-input-retention-v1.json",
+      "bytes": 4463,
+      "sha256": "808cf57ca93167df209343439c24da75fc85f26aa896cf5442e0cad653a44a0c"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/check-original-retention-independent-readback-v1.log",
+      "bytes": 150,
+      "sha256": "139227f8130942bbe021a884019c372449132223038c38a646a4312479f39cac"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/ci-c2-actual-terminal-artifacts-v1.json",
+      "bytes": 7589,
+      "sha256": "373ae1afc7b28a884bc0a285bf1ae3779a883c06e7a747356979006390d6e7c9"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/ci-c2-complete-originals-v1/conformance-results.zip",
+      "bytes": 3920359,
+      "sha256": "5d3d3ccb20dcce0223c59a13400f05f89245991212264e2ef23320f42a32b866"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/ci-c2-complete-originals-v1/full-verification-gate.zip",
+      "bytes": 298,
+      "sha256": "72d913d172764700a2bb817aa2de0cf216e41be441bdd244308565504e7e4fb9"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/ci-c2-complete-originals-v1/native-network-results.zip",
+      "bytes": 1831,
+      "sha256": "4b1c370088cb6698d6f96cae81180165ae79656b3286376af1581d24f362156e"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/ci-c2-complete-originals-v1/postgres-partition-0.zip",
+      "bytes": 1030650,
+      "sha256": "e3f4dd9e8875498cd5a41d4e87b0bb633565471692994e4d0ab7fb55265aa436"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/ci-c2-complete-originals-v1/postgres-partition-1.zip",
+      "bytes": 946204,
+      "sha256": "d42f0d35c9e553416c323934d1d4832cbf358b789dc1317710a7027e026a183e"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/ci-c2-complete-originals-v1/postgres-partition-2.zip",
+      "bytes": 1166577,
+      "sha256": "9bc9f47b15ccd7f4c9bb28f713d9f661cbbfdd6e4bcbdffc204d067f4f445300"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/ci-c2-complete-originals-v1/postgres-partition-3.zip",
+      "bytes": 1314015,
+      "sha256": "82198350b6e877c65049d7f621c29e4e62a22f8bcafe4175d9939c0e801b2eb9"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/ci-c2-complete-originals-v1/postgres-results.attempt1-incomplete.zip",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/ci-c2-complete-originals-v1/postgres-results.attempt2.zip",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/ci-c2-complete-originals-v1/postgres-results.attempt3.zip",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/ci-c2-complete-originals-v1/postgres-results.zip",
+      "bytes": 2136,
+      "sha256": "b9bedb8671c927087966a8fb53d4838f5123d4a4372dcee3f09e2682ae72cd1d"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/ci-c2-entire-full-independent-verification-v2.json",
+      "bytes": 56450,
+      "sha256": "b517ab9edba51fa853b1bbbbe8355c5b3345bfbd9d654cba692baa15f2d3f795"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/ci-c2-independent-full-readback-v1.log",
+      "bytes": 295,
+      "sha256": "7f8a24add75007bd93bddea52457d7b2a3acf220c2d1240186015e81112aec33"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/ci-c2-independent-full-readback-v2.log",
+      "bytes": 129,
+      "sha256": "d72083d8fd98db0f53ecb08eeb71bb203768d318e8c693a956932b39cfbeedcc"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/ci-c2-original-artifacts-download-receipt-v2.json",
+      "bytes": 31178,
+      "sha256": "c30f3478a34afa10f65f93f23f533cdf94afda7de2c965ed589476539be12b19"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/ci-c2-vs-f470-original-terminal-hash-comparison-v1.json",
+      "bytes": 24153,
+      "sha256": "291c20df6bb0d37055faf38ef5b24a819a08e30ef6ac1993475ead88f2818b80"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/completed-bounded-helper-generated-staging-retirement-v1.json",
+      "bytes": 47693,
+      "sha256": "162c03c9a41137a76b005f6ab0e917ad68461fb7bffd4061af2fe6d26252f97b"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/completed-ci-extraction-exact-original-retention-before-retirement-v1.json",
+      "bytes": 170508,
+      "sha256": "242e4fa4d442d9775c06b6a61e716a417d8e453fcfebb2f7b711bb58787b9fd9"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/current-ordered-actual-runtime-identity-v1.json",
+      "bytes": 395,
+      "sha256": "a6e2c1d758d3e351c8ed024d8c7061f7fc39032dfd9060abe8837148a0ecbdb6"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/current-ordered-deck-play-source-review-and-finite-scope-v1.json",
+      "bytes": 13862,
+      "sha256": "bb0e1196116c8a4d63722bd85ef28bd5a1974a2513b2a4eb4e29b30481316a8c"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/current-ordered-sql-frozen-inputs-v1.json",
+      "bytes": 855968,
+      "sha256": "1d7f28bb80093697c658f3774a6c6484efee1c13e438d10783386e2ea88cee2d"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/current-original-rules-directory-v2.json.gz",
+      "bytes": 1172,
+      "sha256": "1a37cacbbba72be17aeb17a3344b4789fe5d8364ab849be867d8b0c598f850f8"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/current-shared-ordered-source-intake-v1.json",
+      "bytes": 24385,
+      "sha256": "e7df6ceec62120c264bba56e1412b3b1a4be9d7afaeab8febc9950592082d51a"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/current-source-intake-v1.log",
+      "bytes": 934,
+      "sha256": "4c4638637f42fe82e659c59ba13c31a2ad3c86deb4859d7433fff83b9319c560"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/current-supplemental-sequence-source-intake-v1.json",
+      "bytes": 17779,
+      "sha256": "f2fa3af6f1f8096b24a54f6105b8c81d9179b08e86a39911abb6e6e56f06b61b"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/current-supplemental-sequence-source-intake-v1.log",
+      "bytes": 546,
+      "sha256": "089e4b495f471c803e6e7b7206ebb78624a1bec5147d80770723269a84cd9e6e"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/exact-fixed-c2-sql-manifest-original-v1.json",
+      "bytes": 4984,
+      "sha256": "ce301be0115ba843cd8c128d520b9a54ed922d5fd303bb062351e0950399c938"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/finite-current-deck-play-consumer-and-no-migration-inventory-v1.json",
+      "bytes": 7878,
+      "sha256": "528ddcdb6044c993cc4af2dbb0ac4cf9859075f1c75784db6e30ec6ea89d51db"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/finite-current-deck-play-inventory-v1.log",
+      "bytes": 119,
+      "sha256": "38d7614e87a9818186c1e419a68d0fdb26a4bb01a3ccd8f5c912fab1daa60803"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/finite-deck-play-inventory-owner-v1.json",
+      "bytes": 12155,
+      "sha256": "80357e22bc71a042146e8af2502c120d6dd908278d41cabf02b79a762debcd66"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/focus-additional-sequence-consumers-v1/build.log",
+      "bytes": 78,
+      "sha256": "a6aa3c3a187d31a283e2398e6f94d3839495340c15c40dc924663200fd1316ea"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/focus-additional-sequence-consumers-v1/discovery.log",
+      "bytes": 1994490,
+      "sha256": "4950cf300239adcfeff6b03cf5978df330c02d4199ebbd9c35bac8f2caddeb74"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/focus-additional-sequence-consumers-v1/focus/results.trx",
+      "bytes": 105614,
+      "sha256": "30524412cf4b72d1f7bfcb481b411bab41e10af882920d3fe1944dda81171462"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/focus-additional-sequence-consumers-v1/focus/test.log",
+      "bytes": 515,
+      "sha256": "dbc9018761f7f8c48bdf0ea4f8fac39e4a0ee3a7dc3eaa43888c80ab2444da7c"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/focus-additional-sequence-consumers-v1/plan.json",
+      "bytes": 4860,
+      "sha256": "56a96ff8b0dd7e40013558153702b8bbbb0989830caf9359ac86a1da32901afd"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/focus-additional-sequence-consumers-v1/summary.json",
+      "bytes": 273,
+      "sha256": "795368e46573c42c8ffb82733cc9224452979dc53696d459926c2e117e36f333"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/focus-additional-sequence-consumers-v1.log",
+      "bytes": 444,
+      "sha256": "9214c16dce269bc5639a6c5c16e879e75fea24fe4eba2d5bbc0eb53a00af8eb6"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/focus-object-member-order-after-v1/build.log",
+      "bytes": 78,
+      "sha256": "913099e1b08a4d9a771d5ba2d1f81ccfc7825445cc893f9cd2a476f3c2e86fe7"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/focus-object-member-order-after-v1/discovery.log",
+      "bytes": 1993223,
+      "sha256": "963b254acc69afa8424d8414377049be21ac549ac836b1c62cd89a0d8fa1aad2"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/focus-object-member-order-after-v1/focus/results.trx",
+      "bytes": 4705,
+      "sha256": "1057408886cfcb57b9e1f045ca0ca8cd97026781e5429d407f910f39e04e0ac6"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/focus-object-member-order-after-v1/focus/test.log",
+      "bytes": 510,
+      "sha256": "3a580d59c1609c1ad02380de36c0284fb98dbc11db142fbf723590211eeb320f"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/focus-object-member-order-after-v1/plan.json",
+      "bytes": 670,
+      "sha256": "727bcaafd8a28de7bd1150a35c78cc7cf3bfa85df92ddfdd6cce2f3aaf064da8"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/focus-object-member-order-after-v1/summary.json",
+      "bytes": 269,
+      "sha256": "af567d2294b103e13afe98fbfd740e7d1a467fb961695af7e62aafc2ff57c12e"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/focus-object-member-order-after-v1.log",
+      "bytes": 433,
+      "sha256": "9729b6fc289e033021da3409ad506b85a3e972e59acfb4018b4ef085818bcfdd"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/focus-object-member-order-before-v1/build.log",
+      "bytes": 78,
+      "sha256": "5a5fb7ac7bb6c08007818db2a9f6d671436f60abdcc8ce7892f59e2d8d38b505"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/focus-object-member-order-before-v1/discovery.log",
+      "bytes": 1993223,
+      "sha256": "963b254acc69afa8424d8414377049be21ac549ac836b1c62cd89a0d8fa1aad2"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/focus-object-member-order-before-v1/focus/results.trx",
+      "bytes": 8922,
+      "sha256": "6c1b00fcbc5470fb0ce2592ca52158b0755a343c17d8530e9161d69d9aa2948b"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/focus-object-member-order-before-v1/focus/test.log",
+      "bytes": 892,
+      "sha256": "caa808fc539bf0b708a7ab89d414e66e29006c1d43f2aafea95d7abf2b93bc59"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/focus-object-member-order-before-v1/plan.json",
+      "bytes": 670,
+      "sha256": "372e80541dbf8736323da313722b303da275642f50d589c6d963d80d6b3f0f30"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/focus-object-member-order-before-v1.log",
+      "bytes": 367,
+      "sha256": "658f8bb4ef2ce481d1e7f322503f98dba82d7c3c119a64053d4e7fc403c0b1bd"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/focus-shared-ordered-family-v1/build.log",
+      "bytes": 924,
+      "sha256": "e624d9386d8b29875fff77c4f51c3f32f883a2e7bdea2d2937b4796b3b699787"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/focus-shared-ordered-family-v1.log",
+      "bytes": 345,
+      "sha256": "8d65bc8639f9e1e9bc2f7abb69ec62974d5cd2d585988f6800e4bc33cd475e5f"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/focus-shared-ordered-family-v2/build.log",
+      "bytes": 78,
+      "sha256": "8b3b3d95bb4d7fb79044ab175e1eda4c28e3479e2ab5fa05b825b9d4cc82a6fb"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/focus-shared-ordered-family-v2/discovery.log",
+      "bytes": 1994490,
+      "sha256": "4950cf300239adcfeff6b03cf5978df330c02d4199ebbd9c35bac8f2caddeb74"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/focus-shared-ordered-family-v2/focus/results.trx",
+      "bytes": 394065,
+      "sha256": "cdfcb29b959ffd5d555e14f8316b3b093ac6a59ab433b545091c7fd1e48a4aba"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/focus-shared-ordered-family-v2/focus/test.log",
+      "bytes": 511,
+      "sha256": "3e818c6b7144243c2c7c59ef763db9314c87d3b3ac11739f020b94f131b260d2"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/focus-shared-ordered-family-v2/plan.json",
+      "bytes": 15164,
+      "sha256": "609d955ced51c040d221aec6736c6a0f62952cb5f463b79df1125ba1c15bbb52"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/focus-shared-ordered-family-v2/summary.json",
+      "bytes": 278,
+      "sha256": "ec4d268d41f91d67249d0f5af6e47b5844b72769b0640cc17ee98685737e4ae7"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/focus-shared-ordered-family-v2.log",
+      "bytes": 444,
+      "sha256": "e93b8f8cd3c8c41c5852c3be34d68260bd7a2b1e60e0fd423ebff78cdd7a505e"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/independent-legend-reader-frozen-inputs-v2.json",
+      "bytes": 11864,
+      "sha256": "f5f99a9a6a60cab4b4f5aea4b452ef995bcbfa53be3a543eb3f32bc48a4fc1f8"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/independent-legend-reader-source-v1/Program.cs",
+      "bytes": 14511,
+      "sha256": "ad40e7a57865828893aad770699d8371aabb4c948f19613e4e8eae118e58662a"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/independent-legend-reader-source-v1/probe.csproj",
+      "bytes": 1495,
+      "sha256": "529f8ba55be9ad77e3c907389f796a4fa2faef3616d0d06b0a305b8c66d0acf2"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/independent-legend-reader-source-v2/Program.cs",
+      "bytes": 14724,
+      "sha256": "e37bebae18577c4c4359956767b992e8f2d76b5493443124ca576d8db134549b"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/independent-legend-reader-source-v2/probe.csproj",
+      "bytes": 1495,
+      "sha256": "54825ac5228f95c2b426e7c1ddae303a9231569113d715ceb6cf438e21d4e198"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/independent-two-ordered-legend-all-history-v1.json",
+      "bytes": 1666,
+      "sha256": "80640e9a6947f3bc55e97693f106685ad251e25dae10bb0ac7be9d0de75e8b8a"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/independent-two-ordered-legend-all-history-v1.log",
+      "bytes": 109,
+      "sha256": "433647b976f711fe66fbdc25930637fd98c20fa63692220f842d6935457a9755"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/input-inventory-source-v1/Program.cs",
+      "bytes": 3665,
+      "sha256": "61bb33b6d3ac4b9059a85584901b1f16fa15e6f698aff68e9828862cd6d059dc"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/input-inventory-source-v1/probe.csproj",
+      "bytes": 1486,
+      "sha256": "0a9f38113eb233772c046b0d55ed1b10cc87c28bb8ab6ba6f456a96a9f90fdfc"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/input-inventory-source-v2/Program.cs",
+      "bytes": 3692,
+      "sha256": "fcd1ed34af1a48a6d9970706b5881f11e742170d9c6d6ad203d4c39bf6cf5790"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/input-inventory-source-v2/probe.csproj",
+      "bytes": 1486,
+      "sha256": "6a8a76ee1c3bd5eca7eaf093f3c5e2d50ac31928ed9ead1dc1764a3b3951641a"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/jsonb-order-issue-body-v1.md",
+      "bytes": 1192,
+      "sha256": "687465d30cddfe8870c2f435501e63920372e088484514dd9e6dc8e767eb3fc6"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/jsonb-order-issue-created-v1.txt",
+      "bytes": 49,
+      "sha256": "e524887ae9cb6b3b805b590db7cb6b132e876a11c0e77d99452603bb64b2fa45"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/jsonb-order-issue-original-readback-v1.json",
+      "bytes": 1631,
+      "sha256": "1ae001ec73afbb7777396dd67f521433757041182e772eb7bb49b99985a8270c"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/next-adjacent-revealed-hand-order-diagnostic-v1.log",
+      "bytes": 299,
+      "sha256": "68c4b9ccd48c6e6dc2c5149e99edd4f5c700fbb73b88a7edcaca2004c727dbbe"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/next-adjacent-revealed-hand-order-diagnostic-v2.log",
+      "bytes": 89,
+      "sha256": "b0a72e9951bcf4bd013db59aea931cc1dd7b94fd697b6553879ed844f1c6d73f"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/next-adjacent-revealed-hand-order-original-diagnostic-v2.json",
+      "bytes": 63154,
+      "sha256": "c0f0449a83826081e65642b8260f1cba31353eed94d67dce792fa199c19b18c9"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/next-hand-current-official-errata-and-faq-readback-v1.json",
+      "bytes": 1751,
+      "sha256": "3e5342ec37a5328e03e7a7f2b78a6b84bc562711a632d86cc7a0ff7848071140"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/next-hand-order-diagnostic-frozen-owner-v1.json",
+      "bytes": 12096,
+      "sha256": "456e8272c5dc2f9a127bf758a6d0ac41636435a52835b0a725c64ef9d9f210cc"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/next-hand-order-diagnostic-frozen-owner-v2.json",
+      "bytes": 12095,
+      "sha256": "acf084399d90e253d575eb54d83a288375c3f8e4048767f030d48ace34ae5392"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/next-hand-order-diagnostic-source-v1/Program.cs",
+      "bytes": 4056,
+      "sha256": "d7f14283094cf5c0793280beee28a6bb98216b062ee4aafc0d0807ef1d4db700"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/next-hand-order-diagnostic-source-v1/probe.csproj",
+      "bytes": 1490,
+      "sha256": "f447e1f4f1d40e6ec1e779fb5121b50b0d795c50264a81a90db708c8b02664c8"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/next-hand-order-diagnostic-source-v2/Program.cs",
+      "bytes": 4405,
+      "sha256": "380d0a077e267a083da28d69a1893da6dabfbff2f3da29236b03db4d476c80d8"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/next-hand-order-diagnostic-source-v2/probe.csproj",
+      "bytes": 1490,
+      "sha256": "23015382c852e62e5c876d5db033198c92fe2afadecdc006dac736073f57ef15"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/next-hand-order-issue-body-v1.md",
+      "bytes": 1492,
+      "sha256": "9d9ba58b239d14f7c9415ca1e162b0ce68ea585068b6e5f9b1f9fa24c15b48c3"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/next-hand-order-issue-create-stderr-v1.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/next-hand-order-issue-created-v1.txt",
+      "bytes": 49,
+      "sha256": "cb61797b62ad33d77d5b6af6ba6bc9c7525fbbaae8c169cfe77c0c3a2044e2fd"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/next-hand-order-issue-original-readback-v1.json",
+      "bytes": 1911,
+      "sha256": "86d0bb91715256ebffa4a451105bf7709fad8c4768e70498e06a772546dbeb96"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/next-revealed-hand-current-original-api-response-v1.json.gz",
+      "bytes": 971,
+      "sha256": "87dd979b338d59929afd6245e741c1d363df102565edf3652cc1552404681024"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/next-revealed-hand-current-source-intake-v1.json",
+      "bytes": 2891,
+      "sha256": "c6dd7598f7f04b0b031a21d77e4f6c90d984f2a940c5b757c39e466d2ebfc4ad"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/next-revealed-hand-exact-finding-and-source-disposition-v1.json",
+      "bytes": 2223,
+      "sha256": "a66a841a2a8de68830c15aeb5bc4b04532bdb4419066e15c95ec456a5c0ed450"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/old-context-current-input-staleness-exact-audit-v1.json",
+      "bytes": 304711,
+      "sha256": "fd5d71da66752fd4aeca8853f51021940b20d78a54768180034a109ce96df17e"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/only-check-owner-started-v1.json",
+      "bytes": 167,
+      "sha256": "ec6d8560262800b12c692fa9931c90cc37c72c53b9973fdd0d8286673065b322"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/only-check-owner-terminal-v1.json",
+      "bytes": 687,
+      "sha256": "a02ea119fdcdee67b14cab988e5399bfb480d19dc6de041ba04f93633e8d312a"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/only-check-owner-v1.log",
+      "bytes": 58,
+      "sha256": "2876edf6f0e038a0ae06df1a905852a47aeeee2120b36a870bb1fd8b4879b6bf"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/only-check-running-process-health-v1.json",
+      "bytes": 1274,
+      "sha256": "e4747155c6393dbc9df873c91e93600e4ea95fcb37b1dd2544f89e58e815365a"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/only-check-start-inputs-v1.json",
+      "bytes": 1123568,
+      "sha256": "66f158f972edcbaf338b39029a0ba3e77459efb5e530c7772751905ec4fdacb7"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/only-check-v1/build.log",
+      "bytes": 78,
+      "sha256": "b3c95470863881f3c1080122d051492c25b19611be464c9d7b0bf8bfef1f1713"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/only-check-v1/check/results.trx",
+      "bytes": 20514091,
+      "sha256": "36aa69972434c488852286a5cdbc1d83d4d9bbef805fa28b6e10a1dcefde8a0c"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/only-check-v1/check/test.log",
+      "bytes": 495,
+      "sha256": "64535a277298550442fc5e07d5335aa4007e37f566f816786219dcdfdd00bbcd"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/only-check-v1/discovery.log",
+      "bytes": 1994490,
+      "sha256": "4950cf300239adcfeff6b03cf5978df330c02d4199ebbd9c35bac8f2caddeb74"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/only-check-v1/plan.json",
+      "bytes": 1000906,
+      "sha256": "35faa97838aaeaceefc9abb295dbd275342962bb34d2eee76de60150aa04b17d"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/only-check-v1/summary.json",
+      "bytes": 286,
+      "sha256": "2490b8e85b7d96a9f104858cb8dcff4c8db2dd976932700fa2fba1ecf9524aae"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/only-check-v1.log",
+      "bytes": 439,
+      "sha256": "819530993f2335ba2487275a1a17f5f7f40509e24906e2db0f1db18beb0eeee2"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/ordered-deck-play-audit-draft-v1.md",
+      "bytes": 6006,
+      "sha256": "4e09ef1036a435fb4f22f2d981e92558985ca65127c3133ba78687c96a9ac884"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/ordered-legend-postgres-v1.log",
+      "bytes": 1282,
+      "sha256": "a5cd81031c786c4f882b961a0892a553bd0255d79539f86b7bf6d99cf3e257c5"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/original-full-tests-sql-and-focus-union-retention-v1.json",
+      "bytes": 5408,
+      "sha256": "4ee9d5c7260ddc6761f84e04e45c9e2b3d69474de208816a0416759612140e2a"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/original250-audit54-native-seven-table-baseline-v1.json",
+      "bytes": 19417,
+      "sha256": "94e5f433f39b7a1d2143ec384cf9d4f55abf1d841e42eb9d6fff8ca05597a01a"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/own-current-ordered-legend-sql-v1.py",
+      "bytes": 7517,
+      "sha256": "6c0c6da21663171acfde52e5f12feda40133aa576d931f72155831329341a7df"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/prepublication-stale-implementation-pins-v1/report.json",
+      "bytes": 18511456,
+      "sha256": "55cfb50c1bda5189732243a3ab38f5ce8ebef9bdf900d4329ead1b1c562218df"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/prepublication-stale-implementation-pins-v1.log",
+      "bytes": 50717,
+      "sha256": "7b86a6245ba826a245f61bd31fa65bd8fe7d9e44ae5b306f121c6182fa30c59f"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/prior-ordered-publication-governance-v1/PROJECT_STATUS.md.gz",
+      "bytes": 77354,
+      "sha256": "4b81ce67a926bc01a68f3e7464b5b6b8b0afe31a379e7cdaa555b0d0e5950398"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/prior-ordered-publication-governance-v1/current-manifest.json.gz",
+      "bytes": 330576,
+      "sha256": "158e0b1fddf27c7c6e4e2e4b304c8b83fd109f7afbabd6d5ac6ea79a4ebf5539"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/prior-ordered-publication-governance-v1/review-decisions.json.gz",
+      "bytes": 166259,
+      "sha256": "1645f11701f2b83933864c9d29ff8d4c76a712d2392af475226e49122ffa4ddd"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/publication-exact-source-and-gate-preflight-v1.json",
+      "bytes": 960,
+      "sha256": "54db6393a9d30743cdce498cde0fc670a007162bf3c3fca0bbeaafe4098bf373"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/publication-ordered-owner-v1.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/publish-ordered-deck-play-batch-v1.py",
+      "bytes": 18346,
+      "sha256": "94271c918dade1ba57a6e1a7224f86b5c0b9858f04f6b23ad601df1f4999d9af"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/python-tools-current-v1.log",
+      "bytes": 8514,
+      "sha256": "2ad4e6c51c20f6b46e06331b6f9166bcaba788a6e9eb6d908c127b5b175dd504"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/retained-initial-red-source-and-actual-trx-binding-v1.json",
+      "bytes": 830,
+      "sha256": "708f18c689c467f41eb3366e098419a184c3cc068fce430e2b3db0e10b24d12d"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/retained-original-red-two-case-test-source-from-initial-patch.cs.txt",
+      "bytes": 4331,
+      "sha256": "5214eea9c96e8a6e6a618c9043e1b562b209ffd00d0a5c671e2278dcae7f6650"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/shared-31231-current-original-card-search-v2.json.gz",
+      "bytes": 837,
+      "sha256": "710a1ee4c54284c31cd132ebf1da20d9e0585cf8e369c7abd1723fe904260a35"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/shared-31274-current-original-card-search-v2.json.gz",
+      "bytes": 810,
+      "sha256": "18c35236fa0917fee6fa6c46821e17820aa2855e435e9046567d3495c65b79ab"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/shared-31334-current-original-card-search-v2.json.gz",
+      "bytes": 863,
+      "sha256": "15f144a319ddbd5ed722fea8b30d028ef6237295a54e61881d01f5c82c8e0bce"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/shared-31386-current-original-card-search-v2.json.gz",
+      "bytes": 874,
+      "sha256": "d931b974433a302157f663a87be2d2fac935d6885b1eb880a685e3b64b3f9f7d"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/shared-31482-current-original-card-search-v2.json.gz",
+      "bytes": 941,
+      "sha256": "b703c69cffce72496643b1cdd3160724884efa8692e4405b0725b17b726fc524"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/shared-31536-current-original-card-search-v2.json.gz",
+      "bytes": 829,
+      "sha256": "eb2c895425e13c7644c765af438797468518f9b6a7ac8cb19cc699d152ab7fb1"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/shared-33264-current-original-card-search-v2.json.gz",
+      "bytes": 1673,
+      "sha256": "d6a2e13edb79061db232d3f53d7775c57443043ce2f7137469f70c7ca883def9"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/shared-33265-current-original-card-search-v2.json.gz",
+      "bytes": 1672,
+      "sha256": "50d9b5abefd2c739bb45c8f256ef2f1ab81b9d7dffb1a5a8fe0a804e6ad6ec2c"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/shared-33285-current-original-card-search-v2.json.gz",
+      "bytes": 943,
+      "sha256": "9451c5e0387f1294303a2b27a54148f3c80fb434fce9571deb790d26b5cbaa75"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/shared-33286-current-original-card-search-v2.json.gz",
+      "bytes": 835,
+      "sha256": "8e3c3f93a2c53ffb4e6e1035ac1595398e5865c7f898478d1c7ba49960683a78"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/shared-33354-current-original-card-search-v2.json.gz",
+      "bytes": 944,
+      "sha256": "502e41fb50ab79e16021807f512ed0c510f07461c22aa5bbe62ec0e8256f0f1b"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/start-and-own-only-check-v1.py",
+      "bytes": 5669,
+      "sha256": "d2a1b6d62766cb09514c5df3ddcad1833dab9dc92c4a617ede107220d6b4cbd3"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/verify-c2-full-originals-v1.py",
+      "bytes": 6403,
+      "sha256": "3a0bc11dbb8ace87980f8cb241706ecbdde22918693b7df45e941ef67505264c"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/verify-c2-full-originals-v2.py",
+      "bytes": 6946,
+      "sha256": "06039c9f865634af5b84801985494e991a78b91078226747f048df20600f819e"
+    },
+    {
+      "path": "var/qa/deck-play-ordered-observation-20261021/verify-sole-check-and-original-retention-v1.py",
+      "bytes": 4259,
+      "sha256": "dd875afb89394625646688f7a4d8dcbdc53b0e9f518c9d8871005187ce334075"
+    },
+    {
+      "path": "var/qa/fixed-39eacb2e-candlelit-pending-20261021/legend-pending-additional-source-review-preflight-v1.json",
+      "bytes": 2702,
+      "sha256": "167365655f8acdee4f7e5250d82592f613e83f046c936650bfd49456886404f4"
+    },
+    {
+      "path": "var/qa/fixed-39eacb2e-candlelit-pending-20261021/legend-current-spiritforged-faq-original-readback-v1.json",
+      "bytes": 1039,
+      "sha256": "3f4dd912b2eb7822f5f989434060f88ff656f16e560c23626c94223a017c2b55"
+    },
+    {
+      "path": "var/qa/fixed-39eacb2e-candlelit-pending-20261021/current-ogins-and-spiritforged-errata-original-readback-v1.json",
+      "bytes": 2575,
+      "sha256": "5c89ce9f95cf81e8b14c82a34010d28b3e8c5a09147d1cb51c3a5729ec73adee"
+    },
+    {
+      "path": "var/qa/fixed-39eacb2e-candlelit-pending-20261021/current-rule-full-pages-v1/DOC-13-p4.png",
+      "bytes": 587728,
+      "sha256": "17ab9d8d8e6024cddfcb364e290c28c0c005e8447f1cf015d6920764cb291aa8"
+    },
+    {
+      "path": "var/qa/fixed-39eacb2e-candlelit-pending-20261021/current-rule-full-pages-v1/DOC-13-p5.png",
+      "bytes": 817552,
+      "sha256": "4accee842e315d986adccc354c6074e4e217a5ad42149fa845438f15425a77db"
+    }
+  ],
+  "explicitOperationalExclusionsRetainedLocally": [],
+  "allMemberBytesHashesAndClosedSetVerified": true,
+  "runtimeAppsInstallersAndExistingPrimaryPdfOriginalsReferencedLocallyNotDuplicated": true,
+  "adjacentHandPresentationDiagnosisIsSeparateOpenFindingNotCurrentFixCertification": true,
+  "selfPublicationOutputSnapshotDisposition": {
+    "recordedAtUtc": "2026-10-21T03:29:29.474161+00:00",
+    "archiveMember": {
+      "path": "var/qa/deck-play-ordered-observation-20261021/publication-ordered-owner-v1.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "role": "EMPTY_SELF_PUBLICATION_STDOUT_SNAPSHOT_AT_ARCHIVE_CAPTURE_NOT_TEST_INPUT_OR_FINAL_RESULT",
+    "snapshotBytesAreCorrectAndRetained": true,
+    "completeFinalOperationalOutput": {
+      "path": "docs/evidence/deck-play-ordered-jsonb-2026-10-21/publication-final-output.txt",
+      "bytes": 151,
+      "sha256": "b82eb416661894ac4973fe3ef4d073db757cc410d4f9b20b26f6698f4a1785bf"
+    },
+    "allMandatoryCheckSqlReplaySourcesAndRuntimeReceiptsWereClosedBeforeArchive": true,
+    "noMandatoryEvidenceLostOrRewritten": true,
+    "finalOutputExtensionChangedOnlyToPreserveExplicitTrackedEvidence": true
+  }
+}

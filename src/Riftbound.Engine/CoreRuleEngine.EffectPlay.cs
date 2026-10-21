@@ -72,8 +72,8 @@ public sealed partial class CoreRuleEngine
         => state.DeckObservationView is {Public:true} v && v.Cards.TryGetValue(id,out var observedGeneration)
             && state.CardObjects.TryGetValue(id,out var observedCard) && observedCard.ObjectGeneration==observedGeneration
             || state.StackItems.LastOrDefault() is { DeckPlaySequence: { } sequence } item && DeckPlaySequenceReveals(item)
-            && sequence.Viewed.Values.Any(v => v.TryGetValue(id, out var generation)
-                && state.CardObjects.TryGetValue(id, out var card) && card.ObjectGeneration == generation);
+            && sequence.Viewed.Values.SelectMany(v => v).Any(binding => binding.ObjectId == id
+                && state.CardObjects.TryGetValue(id, out var card) && card.ObjectGeneration == binding.Generation);
 
     internal static IReadOnlyList<string> EffectPlaySources(MatchState state, string playerId)
     {

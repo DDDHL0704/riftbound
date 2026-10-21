@@ -1,0 +1,123 @@
+{
+  "atUtc": "2026-10-21T02:30:56.069540+00:00",
+  "status": "ALL_ORIGINAL143_FULL_METHODS_ASSERTIONS_AND49_SQL_IDS_RETAINED_FOCUS_UNION_VERIFIED",
+  "newCases": 11,
+  "newMethods": 3,
+  "actualDistinctFocusCases": 275,
+  "actualDistinctFocusMethods": 123,
+  "overlapCases": 45,
+  "focusSources": {
+    "var/qa/deck-play-ordered-observation-20261021/focus-shared-ordered-family-v2/focus/results.trx": "cdfcb29b959ffd5d555e14f8316b3b093ac6a59ab433b545091c7fd1e48a4aba",
+    "var/qa/deck-play-ordered-observation-20261021/focus-additional-sequence-consumers-v1/focus/results.trx": "30524412cf4b72d1f7bfcb481b411bab41e10af882920d3fe1944dda81171462"
+  },
+  "allFullGameSources": {
+    "tests/Riftbound.ConformanceTests/FullGameEndToEndTests.AbilityCounters.cs": {
+      "oldSha256": "cb22a9f99b3c7a04b5e43b206bcd6103c354d1104d66c1afe98c65d69c0030c8",
+      "newSha256": "cb22a9f99b3c7a04b5e43b206bcd6103c354d1104d66c1afe98c65d69c0030c8",
+      "allOriginalMethodsAndAssertionsRetainedWithOnlyRequiredBindingLookupTypeAdaptation": true
+    },
+    "tests/Riftbound.ConformanceTests/FullGameEndToEndTests.AttachedRuleText.cs": {
+      "oldSha256": "9060a2f104b644c91a0582b714c1cf84920a9ec65636e968734c93a7c40b31f7",
+      "newSha256": "9060a2f104b644c91a0582b714c1cf84920a9ec65636e968734c93a7c40b31f7",
+      "allOriginalMethodsAndAssertionsRetainedWithOnlyRequiredBindingLookupTypeAdaptation": true
+    },
+    "tests/Riftbound.ConformanceTests/FullGameEndToEndTests.AttachmentModes.cs": {
+      "oldSha256": "b2367853c297452804ea2abba698d4091df56e9033b746effe89bb61de87fa39",
+      "newSha256": "b2367853c297452804ea2abba698d4091df56e9033b746effe89bb61de87fa39",
+      "allOriginalMethodsAndAssertionsRetainedWithOnlyRequiredBindingLookupTypeAdaptation": true
+    },
+    "tests/Riftbound.ConformanceTests/FullGameEndToEndTests.AttackDamage.cs": {
+      "oldSha256": "ebd30b96a75712ddc672b6ee36e9256d21db9afdaaa80c50fa4dad5831ac48b8",
+      "newSha256": "ebd30b96a75712ddc672b6ee36e9256d21db9afdaaa80c50fa4dad5831ac48b8",
+      "allOriginalMethodsAndAssertionsRetainedWithOnlyRequiredBindingLookupTypeAdaptation": true
+    },
+    "tests/Riftbound.ConformanceTests/FullGameEndToEndTests.Azir.cs": {
+      "oldSha256": "1264a5a522abfb7c0b69a018c924b9e7414213d476357de4a2f7dd6e7c0aa710",
+      "newSha256": "1264a5a522abfb7c0b69a018c924b9e7414213d476357de4a2f7dd6e7c0aa710",
+      "allOriginalMethodsAndAssertionsRetainedWithOnlyRequiredBindingLookupTypeAdaptation": true
+    },
+    "tests/Riftbound.ConformanceTests/FullGameEndToEndTests.CopiedAttachment.cs": {
+      "oldSha256": "b679ac9beba8839ed89fc0ece94d57f4d5db02623ff5d7a17433653b95a4ae37",
+      "newSha256": "b679ac9beba8839ed89fc0ece94d57f4d5db02623ff5d7a17433653b95a4ae37",
+      "allOriginalMethodsAndAssertionsRetainedWithOnlyRequiredBindingLookupTypeAdaptation": true
+    },
+    "tests/Riftbound.ConformanceTests/FullGameEndToEndTests.MovementDiscard.cs": {
+      "oldSha256": "7d9145c135ca7c8c25756e1fb283907da93894125e0c9e0ee1d8bf034065e99a",
+      "newSha256": "7d9145c135ca7c8c25756e1fb283907da93894125e0c9e0ee1d8bf034065e99a",
+      "allOriginalMethodsAndAssertionsRetainedWithOnlyRequiredBindingLookupTypeAdaptation": true
+    },
+    "tests/Riftbound.ConformanceTests/FullGameEndToEndTests.Tempered.cs": {
+      "oldSha256": "60e4a732bfba46be843c1997ed83cebd620a822cd33e2abdc2122a9a36b28830",
+      "newSha256": "60e4a732bfba46be843c1997ed83cebd620a822cd33e2abdc2122a9a36b28830",
+      "allOriginalMethodsAndAssertionsRetainedWithOnlyRequiredBindingLookupTypeAdaptation": true
+    },
+    "tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs": {
+      "oldSha256": "dfe0e3a60b4fba076892ce78e823987ab9255f0348cb6687902428f36481e72d",
+      "newSha256": "302d072ea9badc28a288928c08c04e1d606af5d9a6105e74a410b67bed72d0a3",
+      "allOriginalMethodsAndAssertionsRetainedWithOnlyRequiredBindingLookupTypeAdaptation": true
+    }
+  },
+  "originalFullMethods": 143,
+  "originalSqlIds": [
+    "private-opening",
+    "created-token-ready",
+    "core-opening",
+    "battle-history",
+    "masked-attendant",
+    "granted-predict",
+    "printed-predict",
+    "sivir-optional",
+    "rune-destination",
+    "sivir-payment",
+    "conquest-token",
+    "recycled-card-boon",
+    "recycle-boon-lifecycle",
+    "attached-recycle-lifecycle",
+    "typed-play-history",
+    "porobot",
+    "typed-play-history-causal",
+    "clairvoyance",
+    "insight-repeat",
+    "combat-assignment",
+    "confirmed-play-origin",
+    "physical-origin-cost",
+    "granted-origin-haste",
+    "opponent-battlefield-control",
+    "optional-sacrifice",
+    "granted-token-haste",
+    "optional-costs",
+    "battlefield-play-recovery",
+    "battlefield-play-damage",
+    "banish-effect-play",
+    "here-location-control",
+    "fate-weaver",
+    "multi-controller-trigger-order",
+    "empty-observed-repeat",
+    "observed-play-window",
+    "ravenbloom-put-hand",
+    "attached-predict",
+    "copied-last-breath-insight",
+    "copied-duel-insight",
+    "empowered-insight",
+    "paka-move-reveal",
+    "empty-reveal-followup",
+    "paka-dual-type-reveal",
+    "hwei-move-discard-types",
+    "destruction-graveyard",
+    "conditional-counter-payment",
+    "reversal-target-choice",
+    "spell-remake-declaration",
+    "candlelit-private-look"
+  ],
+  "onlyNewSqlId": "candlelit-legend-pending",
+  "original110Pairs11Decks424242Retained": true,
+  "noChangesToAnyOriginalTheoryRows": true,
+  "newMethodNames": [
+    "Riftbound.ConformanceTests.DeckPlayObservationOrderTests.ObjectMemberReorderingKeepsTheFirstRevealedUnitLastAndItsOriginalFreePlayPermission",
+    "Riftbound.ConformanceTests.DeckPlayObservationOrderTests.ObjectMemberReorderingPreservesObservedOrderThroughBothChoicesAndPendingPlays",
+    "Riftbound.ConformanceTests.DeckPlayObservationOrderTests.RecoveryStillRejectsMalformedOrForgedOrderedObservations"
+  ],
+  "newConformanceCases": 11,
+  "newConformanceMethods": 3,
+  "wholePrintingCertified": false
+}

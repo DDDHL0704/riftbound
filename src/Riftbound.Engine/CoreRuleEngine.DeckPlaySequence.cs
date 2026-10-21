@@ -3,7 +3,7 @@ using Riftbound.Contracts;
 namespace Riftbound.Engine;
 
 public sealed record DeckPlaySequenceContext(string Kind, ObjectBinding Source, string CardNo, string ControllerId,
-    IReadOnlyList<string> Players, IReadOnlyDictionary<string,IReadOnlyDictionary<string,long>> Viewed,
+    IReadOnlyList<string> Players, IReadOnlyDictionary<string,IReadOnlyList<ObjectBinding>> Viewed,
     IReadOnlyDictionary<string,ObjectBinding> Selected, int SelectionIndex, int PlayIndex, bool ParentCompleted = false)
 {
     public int ExecutionIndex { get; init; }
@@ -33,7 +33,7 @@ public sealed partial class CoreRuleEngine
     private static string[] DeckPlayLegalSelection(MatchState state, StackItemState item, DeckPlaySequenceContext c, string owner)
     {
         TryGetEffectPlayDefinition(item, out var definition);
-        return c.Viewed[owner].Keys.Where(id => c.Kind is not ("SINGLE_PRIVATE_UNIT_PLAY" or "SINGLE_PRIVATE_LIMITED_UNIT_PLAY" or "SINGLE_REVEAL_UNTIL_UNIT")
+        return c.Viewed[owner].Select(card => card.ObjectId).Where(id => c.Kind is not ("SINGLE_PRIVATE_UNIT_PLAY" or "SINGLE_PRIVATE_LIMITED_UNIT_PLAY" or "SINGLE_REVEAL_UNTIL_UNIT")
             || state.CardObjects[id].Tags.Contains(CardObjectTags.UnitCard)
                 && (c.Kind != "SINGLE_PRIVATE_LIMITED_UNIT_PLAY" || definition.DeckPlayMaximumUnitMight is { } maximum
                     && state.CardObjects[id].Power <= maximum)).ToArray();
@@ -62,23 +62,24 @@ public sealed partial class CoreRuleEngine
         {
             var players = DeckPlayPlayers(state, item.ControllerId, definition.DeckPlayKind);
             var count = DeckPlayLookCount(definition);
-            var viewed = players.ToDictionary(p => p, p => (IReadOnlyDictionary<string,long>)(definition.DeckPlayKind == "SINGLE_REVEAL_UNTIL_UNIT"
+            // Observation order is rule state; JSON object member order is not persistent data.
+            var viewed = players.ToDictionary(p => p, p => (IReadOnlyList<ObjectBinding>)(definition.DeckPlayKind == "SINGLE_REVEAL_UNTIL_UNIT"
                 ? state.PlayerZones[p].MainDeck.TakeWhile(id => !state.CardObjects[id].Tags.Contains(CardObjectTags.UnitCard))
                     .Concat(state.PlayerZones[p].MainDeck.SkipWhile(id => !state.CardObjects[id].Tags.Contains(CardObjectTags.UnitCard)).Take(1))
                 : state.PlayerZones[p].MainDeck.Take(count))
-                .ToDictionary(id => id, id => state.CardObjects[id].ObjectGeneration), StringComparer.Ordinal);
+                .Select(id => new ObjectBinding(id, state.CardObjects[id].ObjectGeneration)).ToArray(), StringComparer.Ordinal);
             var generation = item.EndAbility?.Source.ObjectGeneration ?? item.DestroyDeckPlay?.Source.Generation ?? (item.FieldContext is { Kind: "ATTACK_DECK_PLAY" } field ? field.SourceGeneration : state.CardObjects[item.SourceObjectId].ObjectGeneration);
             if (DeckPlaySequenceReveals(item))
                 foreach (var player in players)
                     if (viewed[player].Count > 0) events.Add(new("CARDS_REVEALED", "展示原效果看到的顶部卡牌", new Dictionary<string,object?> {
                         ["playerId"] = player, ["sourceObjectId"] = item.SourceObjectId, ["count"] = viewed[player].Count,
-                        ["cards"] = viewed[player].Keys.Select(id => new { objectId = id, cardNo = state.CardObjects[id].CardNo }).ToArray() }));
+                        ["cards"] = viewed[player].Select(card => new { objectId = card.ObjectId, cardNo = state.CardObjects[card.ObjectId].CardNo }).ToArray() }));
             var observationZones=NormalizeZonesForSeats(state);var observationCards=state.CardObjects.ToDictionary();
             foreach(var player in definition.DeckPlayKind=="EACH_PLAYER_LOOK_PLAY"?Array.Empty<string>():players)
             {
-                var remaining=ObserveDeckCards(state,observationZones,observationCards,item,player,viewed[player].Keys.ToArray(),
+                var remaining=ObserveDeckCards(state,observationZones,observationCards,item,player,viewed[player].Select(card=>card.ObjectId).ToArray(),
                     DeckPlaySequenceReveals(item)?"REVEAL":"LOOK",0,events);
-                viewed[player]=remaining.ToDictionary(id=>id,id=>observationCards[id].ObjectGeneration);
+                viewed[player]=remaining.Select(id=>new ObjectBinding(id,observationCards[id].ObjectGeneration)).ToArray();
             }
             state=state with {PlayerZones=observationZones,CardObjects=observationCards,ObjectLocations=ReconcileObjectLocations(state.ObjectLocations,observationZones)};
             c = new(definition.DeckPlayKind, new(item.SourceObjectId, generation),
@@ -90,9 +91,9 @@ public sealed partial class CoreRuleEngine
             if(c.Kind=="EACH_PLAYER_LOOK_PLAY" && !c.ObservedPlayers.Contains(player))
             {
                 var zones=NormalizeZonesForSeats(state);var cards=state.CardObjects.ToDictionary();
-                var remaining=ObserveDeckCards(state,zones,cards,item,player,c.Viewed[player].Keys.ToArray(),"LOOK",c.ExecutionIndex,events);
+                var remaining=ObserveDeckCards(state,zones,cards,item,player,c.Viewed[player].Select(card=>card.ObjectId).ToArray(),"LOOK",c.ExecutionIndex,events);
                 state=state with {PlayerZones=zones,CardObjects=cards,ObjectLocations=ReconcileObjectLocations(state.ObjectLocations,zones)};
-                c=c with {Viewed=new Dictionary<string,IReadOnlyDictionary<string,long>>(c.Viewed){[player]=remaining.ToDictionary(id=>id,id=>cards[id].ObjectGeneration)},
+                c=c with {Viewed=new Dictionary<string,IReadOnlyList<ObjectBinding>>(c.Viewed){[player]=remaining.Select(id=>new ObjectBinding(id,cards[id].ObjectGeneration)).ToArray()},
                     ObservedPlayers=c.ObservedPlayers.Append(player).ToArray()};
             }
             if(c.Viewed[player].Count>0)break;
@@ -102,7 +103,7 @@ public sealed partial class CoreRuleEngine
         if (c.SelectionIndex < c.Players.Count)
         {
             var owner = c.Players[c.SelectionIndex];
-            var ids = c.Viewed[owner].Keys.ToArray();
+            var ids = c.Viewed[owner].Select(card => card.ObjectId).ToArray();
             var legal = DeckPlayLegalSelection(state, item, c, owner);
             if (c.Kind == "SINGLE_REVEAL_UNTIL_UNIT")
             {
@@ -140,19 +141,19 @@ public sealed partial class CoreRuleEngine
             var count = DeckPlayLookCount(definition);
             c = c with { ExecutionIndex = c.ExecutionIndex + 1, SelectionIndex = 0,
                 Selected = new Dictionary<string,ObjectBinding>(), ObservedPlayers=[], Viewed = c.Players.ToDictionary(p => p,
-                    p => (IReadOnlyDictionary<string,long>)state.PlayerZones[p].MainDeck.Take(count).ToDictionary(id => id,id => state.CardObjects[id].ObjectGeneration)) };
+                    p => (IReadOnlyList<ObjectBinding>)state.PlayerZones[p].MainDeck.Take(count).Select(id => new ObjectBinding(id,state.CardObjects[id].ObjectGeneration)).ToArray()) };
             if (DeckPlaySequenceReveals(item))
                 foreach (var player in c.Players)
                     if (c.Viewed[player].Count > 0) events.Add(new("CARDS_REVEALED", "下一次执行展示主牌堆顶部的卡牌", new Dictionary<string,object?> {
                         ["playerId"] = player, ["sourceObjectId"] = item.SourceObjectId, ["count"] = c.Viewed[player].Count,
-                        ["cards"] = c.Viewed[player].Keys.Select(id => new { objectId = id, cardNo = state.CardObjects[id].CardNo }).ToArray() }));
+                        ["cards"] = c.Viewed[player].Select(card => new { objectId = card.ObjectId, cardNo = state.CardObjects[card.ObjectId].CardNo }).ToArray() }));
             var repeatedZones=NormalizeZonesForSeats(state);var repeatedCards=state.CardObjects.ToDictionary();
             var repeatedViewed=c.Viewed.ToDictionary();
             foreach(var player in c.Kind=="EACH_PLAYER_LOOK_PLAY"?Array.Empty<string>():c.Players)
             {
-                var remaining=ObserveDeckCards(state,repeatedZones,repeatedCards,item,player,c.Viewed[player].Keys.ToArray(),
+                var remaining=ObserveDeckCards(state,repeatedZones,repeatedCards,item,player,c.Viewed[player].Select(card=>card.ObjectId).ToArray(),
                     DeckPlaySequenceReveals(item)?"REVEAL":"LOOK",c.ExecutionIndex,events);
-                repeatedViewed[player]=remaining.ToDictionary(id=>id,id=>repeatedCards[id].ObjectGeneration);
+                repeatedViewed[player]=remaining.Select(id=>new ObjectBinding(id,repeatedCards[id].ObjectGeneration)).ToArray();
             }
             state=state with {PlayerZones=repeatedZones,CardObjects=repeatedCards,ObjectLocations=ReconcileObjectLocations(state.ObjectLocations,repeatedZones)};
             c=c with {Viewed=repeatedViewed};
@@ -236,7 +237,7 @@ public sealed partial class CoreRuleEngine
                 ["playerId"] = owner, ["sourceObjectId"] = item.SourceObjectId, ["targetObjectId"] = id,
                 ["cardNo"] = cards[id].CardNo, ["destinationZone"] = "BANISHED" }));
         }
-        var remaining = c.Viewed[owner].Keys.Where(x => x != id).ToArray();
+        var remaining = c.Viewed[owner].Select(card => card.ObjectId).Where(x => x != id).ToArray();
         if (definition.DeckPlayDrawsUnselected)
             ApplyDrawToPlayer(state, zones, state.PlayerScores, owner, remaining.Length, state.RngCursor, events);
         else
@@ -287,19 +288,22 @@ public sealed partial class CoreRuleEngine
         for (var i=0;i<players.Length;i++)
         {
             var player=players[i];var viewed=c.Viewed[player];
+            if (viewed is null || viewed.Any(p => p is null || string.IsNullOrWhiteSpace(p.ObjectId) || p.Generation < 0
+                    || !state.CardObjects.TryGetValue(p.ObjectId,out var card) || card.ObjectGeneration < p.Generation)
+                || viewed.Select(p => p.ObjectId).Distinct(StringComparer.Ordinal).Count() != viewed.Count
+                || c.Kind != "SINGLE_REVEAL_UNTIL_UNIT" && viewed.Count > DeckPlayLookCount(b)) return false;
+            var ids=viewed.Select(p=>p.ObjectId).ToArray();
             var expectedObserved=ObservedRemainingDeckCards(state,item,player,c.ExecutionIndex);
-            if(expectedObserved is not null && !expectedObserved.SequenceEqual(viewed.Keys))return false;
-            if (viewed is null || c.Kind != "SINGLE_REVEAL_UNTIL_UNIT" && viewed.Count > DeckPlayLookCount(b)
-                || viewed.Any(p => p.Value < 0 || !state.CardObjects.TryGetValue(p.Key,out var card) || card.ObjectGeneration < p.Value)) return false;
+            if(expectedObserved is not null && !expectedObserved.SequenceEqual(ids))return false;
             if (c.Kind == "SINGLE_REVEAL_UNTIL_UNIT")
             {
-                var units = viewed.Keys.Where(id => state.CardObjects[id].Tags.Contains(CardObjectTags.UnitCard)).ToArray();
-                if (units.Length > 1 || units.Length == 1 && viewed.Keys.Last() != units[0]
+                var units = ids.Where(id => state.CardObjects[id].Tags.Contains(CardObjectTags.UnitCard)).ToArray();
+                if (units.Length > 1 || units.Length == 1 && ids[^1] != units[0]
                     || i < c.SelectionIndex && units.Length == 1 && (!c.Selected.TryGetValue(player, out var firstUnit) || firstUnit.ObjectId != units[0])
                     || units.Length == 0 && c.Selected.ContainsKey(player)) return false;
                 if (units.Length == 0 && i < c.SelectionIndex) continue;
             }
-            if (i >= c.SelectionIndex && !state.PlayerZones[player].MainDeck.Take(viewed.Count).SequenceEqual(viewed.Keys)) return false;
+            if (i >= c.SelectionIndex && !state.PlayerZones[player].MainDeck.Take(viewed.Count).SequenceEqual(ids)) return false;
             if (i < c.SelectionIndex && viewed.Count > 0)
             {
                 if (!c.Selected.ContainsKey(player) && b.EffectPlayOptional)
@@ -307,8 +311,8 @@ public sealed partial class CoreRuleEngine
                     if (c.ParentCompleted && c.Queue.Any(q => q.OwnerId == player && q.ExecutionIndex == c.ExecutionIndex)) return false;
                     continue;
                 }
-                if (!c.Selected.TryGetValue(player,out var picked) || picked is null || !viewed.TryGetValue(picked.ObjectId,out var before)
-                    || picked.Generation != before+1 || !state.CardObjects.TryGetValue(picked.ObjectId,out var card) || card.ObjectGeneration < picked.Generation
+                if (!c.Selected.TryGetValue(player,out var picked) || picked is null || viewed.FirstOrDefault(p => p.ObjectId == picked.ObjectId) is not { } before
+                    || picked.Generation != before.Generation+1 || !state.CardObjects.TryGetValue(picked.ObjectId,out var card) || card.ObjectGeneration < picked.Generation
                     || c.Kind == "SINGLE_PRIVATE_LIMITED_UNIT_PLAY" && (!card.Tags.Contains(CardObjectTags.UnitCard)
                         || b.DeckPlayMaximumUnitMight is not { } maximum || card.Power > maximum)
                     || !c.ParentCompleted && !state.PlayerZones[player].Banished.Contains(picked.ObjectId)) return false;
@@ -337,7 +341,7 @@ public sealed partial class CoreRuleEngine
         var item = state.StackItems.LastOrDefault();
         if (item?.DeckPlaySequence is not { } c || !ValidDeckPlaySequence(state, item) || c.SelectionIndex >= c.Players.Count) return false;
         TryGetEffectPlayDefinition(item, out var definition);
-        var owner = c.Players[c.SelectionIndex]; var ids = c.Viewed[owner].Keys.ToArray();
+        var owner = c.Players[c.SelectionIndex]; var ids = c.Viewed[owner].Select(card => card.ObjectId).ToArray();
         var legal = DeckPlayLegalSelection(state, item, c, owner);
         return choice.ChoiceWindow == DeckPlayChoiceWindow && choice.ChoiceId == DeckPlaySelectionId(item, c)
             && choice.PlayerId == (c.Kind == "OPPONENT_REVEAL_PLAY" ? c.ControllerId : c.Players[c.SelectionIndex])

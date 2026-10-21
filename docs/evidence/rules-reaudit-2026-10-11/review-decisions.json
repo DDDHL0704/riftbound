@@ -24202,6 +24202,60 @@
         "Simultaneous legend order prototype, reactions, other printings/full semantics",
         "Final fixed full, visible hardware pair, physical Windows and all original source gaps"
       ]
+    },
+    {
+      "id": "deck-play-ordered-jsonb-current-cn16-2026-10-21",
+      "scope": "Only ordered observed bindings across ten finite DeckPlaySequence consumers and two exact Candlelit291/Reksai187 controlled pending orders in current CN16; original semantic scopes and whole-printing/final-product obligations remain open.",
+      "subjects": [
+        "OGN-025/298",
+        "OGN-062/298",
+        "OGN-115/298",
+        "SFD-188/221",
+        "SFD-187/221",
+        "OGN-291/298",
+        "OGN-160/298",
+        "OGN-242/298",
+        "SFD-170/221",
+        "SFD-170A/221",
+        "SFD-243/221"
+      ],
+      "ruleRecords": [
+        "DOC-01-P041-B011",
+        "DOC-01-P041-B013",
+        "DOC-01-P041-B015",
+        "DOC-01-P041-B016",
+        "DOC-01-P064-B002",
+        "DOC-01-P064-B003",
+        "DOC-12-P007-B003",
+        "DOC-13-P004-B004",
+        "DOC-13-P005-B001"
+      ],
+      "pendingRuleRecords": [],
+      "status": "BOUNDED_ORDER_CAPTURE_AND_SQL2_26_78_INDEPENDENT_EVERY_HISTORY_CHECK13230_PASS_FIXED_FULL_PRODUCT_OPEN",
+      "sourceManifest": {
+        "path": "docs/evidence/deck-play-ordered-jsonb-2026-10-21/source-manifest.json",
+        "sha256": "fbdd0ed477cc6358f50d58453afe80e6fd1d35057a006ff2cac33eb07ccc8334",
+        "role": "source-manifest"
+      },
+      "auditDocument": "docs/DECK_PLAY_ORDERED_JSONB_AUDIT_2026-10-21.md",
+      "validation": {
+        "newConformanceCases": 11,
+        "newConformanceMethods": 3,
+        "distinctFocusCases": 275,
+        "distinctFocusMethods": 123,
+        "checkCases": 13230,
+        "checkMethods": 7504,
+        "sqlCommands": 26,
+        "sqlEvents": 78,
+        "sqlColdRecoveries": 26,
+        "allOriginal49SqlIdsAnd143FullMethodsRetained": true,
+        "wholeCardCertification": false
+      },
+      "exclusions": [
+        "Full semantics of all ten consumers, copies, indirect consumers and all source gaps",
+        "Current fixed complete CI and corresponding visible paired native controls, SQL/reconnect/normal score/full replay and physical Windows",
+        "Adjacent revealed-hand viewedCards presentation and independent source-provenance finding remains separate OPEN"
+      ]
     }
   ]
 }

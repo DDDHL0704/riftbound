@@ -1,0 +1,82 @@
+{
+  "atUtc": "2026-10-21T03:26:57.294004+00:00",
+  "status": "SEVEN_CURRENT_INPUT_BINDINGS_ONLY_REFRESH_OLD_EVIDENCE_AND_SCOPE_RETAINED",
+  "records": [
+    {
+      "id": "sivir-optional-rune-recycle-2026-10-15",
+      "changedCurrentImplementationInputs": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeckPlaySequence.cs",
+          "beforeSha256": "0ba9729fcc7e25c01c99b333fceb03c070fbc00c118fc732805d049c527a8569",
+          "afterSha256": "2c74c35b0f9d4bcbc6fa20c13aea88732186e88f87b72ecda9c031d59bcfa0c1"
+        }
+      ]
+    },
+    {
+      "id": "own-main-deck-recycle-card-boon-2026-10-15",
+      "changedCurrentImplementationInputs": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeckPlaySequence.cs",
+          "beforeSha256": "0ba9729fcc7e25c01c99b333fceb03c070fbc00c118fc732805d049c527a8569",
+          "afterSha256": "2c74c35b0f9d4bcbc6fa20c13aea88732186e88f87b72ecda9c031d59bcfa0c1"
+        }
+      ]
+    },
+    {
+      "id": "optional-sacrifice-printed-cost-and-paid-entry-2026-10-16",
+      "changedCurrentImplementationInputs": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.EffectPlay.cs",
+          "beforeSha256": "5b2db15674d5781b3eb52c396e0b1433578e6b4750e3fa847c83e8fa67265fee",
+          "afterSha256": "f67c74dbadb064463e6cd2b025118df1f455e74d6d43c6cb5f1278c82430ca96"
+        }
+      ]
+    },
+    {
+      "id": "banish-owner-effect-play-2026-10-18",
+      "changedCurrentImplementationInputs": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.EffectPlay.cs",
+          "beforeSha256": "5b2db15674d5781b3eb52c396e0b1433578e6b4750e3fa847c83e8fa67265fee",
+          "afterSha256": "f67c74dbadb064463e6cd2b025118df1f455e74d6d43c6cb5f1278c82430ca96"
+        }
+      ]
+    },
+    {
+      "id": "private-opening-resource-driver-2026-10-19",
+      "changedCurrentImplementationInputs": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs",
+          "beforeSha256": "dfe0e3a60b4fba076892ce78e823987ab9255f0348cb6687902428f36481e72d",
+          "afterSha256": "302d072ea9badc28a288928c08c04e1d606af5d9a6105e74a410b67bed72d0a3"
+        }
+      ]
+    },
+    {
+      "id": "observed-disclosure-wording-and-stale-native-smoke-2026-10-19",
+      "changedCurrentImplementationInputs": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.EffectPlay.cs",
+          "beforeSha256": "5b2db15674d5781b3eb52c396e0b1433578e6b4750e3fa847c83e8fa67265fee",
+          "afterSha256": "f67c74dbadb064463e6cd2b025118df1f455e74d6d43c6cb5f1278c82430ca96"
+        }
+      ]
+    },
+    {
+      "id": "destruction-attribution-delayed-skill-graveyard-play-2026-10-20",
+      "changedCurrentImplementationInputs": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.EffectPlay.cs",
+          "beforeSha256": "5b2db15674d5781b3eb52c396e0b1433578e6b4750e3fa847c83e8fa67265fee",
+          "afterSha256": "f67c74dbadb064463e6cd2b025118df1f455e74d6d43c6cb5f1278c82430ca96"
+        }
+      ]
+    }
+  ],
+  "originalComplete67ContextsAnd152Reviews": {
+    "localOriginalPath": "var/qa/deck-play-ordered-observation-20261021/prior-ordered-publication-governance-v1",
+    "retainedAsExactArchiveMembers": true
+  },
+  "oldReviewSourceDatesScopesAndEvidenceNotRelabeled": true,
+  "newFixedFullAndCurrentProductStillOpen": true
+}

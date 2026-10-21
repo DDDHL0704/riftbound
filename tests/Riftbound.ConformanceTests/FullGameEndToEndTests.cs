@@ -25460,7 +25460,7 @@ public sealed partial class FullGameEndToEndTests
                         Assert.Contains(objectId,exposedStringValues);
                     }
                     else if (result.State.StackItems.LastOrDefault()?.DeckPlaySequence is { Kind: "OPPONENT_REVEAL_PLAY" or "SINGLE_PUBLIC_PLAY" } revealed
-                        && revealed.Viewed.TryGetValue(playerId, out var cards) && cards.TryGetValue(objectId, out var generation))
+                        && revealed.Viewed.TryGetValue(playerId, out var cards) && cards.FirstOrDefault(c => c.ObjectId == objectId) is { } binding)
                     {
                         var parent = result.State.StackItems.Last();
                         if (revealed.Kind == "OPPONENT_REVEAL_PLAY") { Assert.Equal("OGN·025/298", parent.CardNo); Assert.Single(cards); }
@@ -25468,7 +25468,7 @@ public sealed partial class FullGameEndToEndTests
                         Assert.Equal(parent.ControllerId, revealed.ControllerId);
                         Assert.Equal(parent.SourceObjectId, revealed.Source.ObjectId);
                         Assert.Contains(objectId, zones.MainDeck.Take(cards.Count));
-                        Assert.Equal(generation, result.State.CardObjects[objectId].ObjectGeneration);
+                        Assert.Equal(binding.Generation, result.State.CardObjects[objectId].ObjectGeneration);
                     }
                     else Assert.DoesNotContain(objectId, exposedStringValues);
                 }

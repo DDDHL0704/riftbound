@@ -1,0 +1,48 @@
+{
+  "status": "PASS_INDEPENDENT_CURRENT_CN16_BOTH_LEGEND_PENDING_ORDERS_ALL_SQL_HISTORY_PRIVATE_FIELDS_AND_EVERY_EXPLICIT_INITIAL_REPLAY",
+  "rooms": [
+    "ordered-legend-pending-87f1cdaba55c479bb0c548448ca2776f",
+    "ordered-legend-pending-8469901cc83541a188eda071f8e75c35"
+  ],
+  "cases": 2,
+  "commands": 26,
+  "events": 78,
+  "authoritativeHistoricalStates": 26,
+  "privateSnapshots": 52,
+  "privatePrompts": 52,
+  "independentStructuralRejections": 8,
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+    "implementationSha256": "47d0482fefd85a354cdc4a06addbd53b41bf963b24d664ed762adc7edf4a18f4",
+    "identitySha256": "86b2e165e536ff25c4f172dec375b209f6e8cb06dd0a546b34c1e0221084ac68"
+  },
+  "results": [
+    {
+      "branch": "legend-first",
+      "room": "ordered-legend-pending-87f1cdaba55c479bb0c548448ca2776f",
+      "commands": 13,
+      "events": 39,
+      "states": 13,
+      "snapshots": 26,
+      "prompts": 26,
+      "allFieldsAndAllOriginalHistoricalReplaysExact": true
+    },
+    {
+      "branch": "battlefield-first",
+      "room": "ordered-legend-pending-8469901cc83541a188eda071f8e75c35",
+      "commands": 13,
+      "events": 39,
+      "states": 13,
+      "snapshots": 26,
+      "prompts": 26,
+      "allFieldsAndAllOriginalHistoricalReplaysExact": true
+    }
+  ],
+  "actualReadOnlyConnection": true,
+  "originalBlankReplayMetadataNotRewritten": true,
+  "visibleNormalOpeningWindowsOrWholePrintingAcceptance": false
+}

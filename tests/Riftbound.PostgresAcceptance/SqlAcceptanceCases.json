@@ -198,6 +198,10 @@
     {
       "id": "candlelit-private-look",
       "sourceType": "CandlelitPrivateLookSqlAcceptance"
+    },
+    {
+      "id": "candlelit-legend-pending",
+      "sourceType": "CandlelitLegendPendingSqlAcceptance"
     }
   ]
 }
