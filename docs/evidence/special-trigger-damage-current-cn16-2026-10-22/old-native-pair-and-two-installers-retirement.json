@@ -1,0 +1,27 @@
+{
+  "atUtc": "2026-10-21T14:41:43.351852+00:00",
+  "status": "ONLY_PREVIOUS_FIXED99E_A_B_AND_TWO_INSTALLER_ARCHIVES_RETIRED_AFTER_NEW7A_USABILITY_AND_ALL373_PAYLOAD_VERIFICATION",
+  "oldCommit": "99e20b4f0640d7b32adbfb9e7dc0c7661b22d37a",
+  "currentCommit": "7a334e7c1cab701d9506b6cf94f3f3a86d316ef8",
+  "filesAndLinks": 834,
+  "logicalBytes": 945969407,
+  "originalManifest": {
+    "path": "var/qa/fixed7a-early-native-20261021/superseded-fixed99e-native-original-file-manifest-v1.json.gz",
+    "sha256": "a67adb6225c6d021566c3a8e14a0767878f600493682203fb14f5c93bb46fc3e"
+  },
+  "retiredPaths": [
+    "var/qa/fixed99e-early-native-20261021/Riftbound-A.app",
+    "var/qa/fixed99e-early-native-20261021/Riftbound-B.app",
+    "var/qa/fixed99e-early-native-20261021/native-current/mac-ci-artifact.zip",
+    "var/qa/fixed99e-early-native-20261021/native-current/windows-ci-artifact.zip"
+  ],
+  "onlyLatestPairAndOneArchivePerPlatformKept": [
+    "/Users/dinghaolin/MyProjects/riftbound/var/qa/fixed7a-early-native-20261021/Riftbound-A.app",
+    "/Users/dinghaolin/MyProjects/riftbound/var/qa/fixed7a-early-native-20261021/Riftbound-B.app",
+    "/Users/dinghaolin/MyProjects/riftbound/var/qa/fixed7a-early-native-20261021/native-current/mac-ci-artifact.zip",
+    "/Users/dinghaolin/MyProjects/riftbound/var/qa/fixed7a-early-native-20261021/native-current/windows-ci-artifact.zip"
+  ],
+  "allOldSourcesVerificationReceiptsExecutedHelpersAndDatabaseRetained": true,
+  "rootOnlyCheckSourceAndRuntimeInputsUntouched": true,
+  "physicalApfsReclaimNotInferred": true
+}

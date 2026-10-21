@@ -169,7 +169,8 @@ public sealed class ElderDragonTests
             ObjectLocations=new Dictionary<string,ObjectLocationState>(s.ObjectLocations){["ELDER"]=new("P1","GRAVEYARD")},
             CardObjects=new Dictionary<string,CardObjectState>(s.CardObjects){["ELDER"]=s.CardObjects["ELDER"] with {ObjectGeneration=s.CardObjects["ELDER"].ObjectGeneration+1}}};
         Restore(s);var done=await Top(s);
-        Assert.Equal(1,done.State.CardObjects["D"].Damage);Assert.Equal(1,done.State.CardObjects["E"].Damage);Assert.DoesNotContain("D",done.State.PlayerZones["P2"].Graveyard);Assert.DoesNotContain("E",done.State.PlayerZones["P2"].Graveyard);Restore(done.State);
+        // The captured skill remains; Void Gate still adds one at D's battlefield.
+        Assert.Equal(2,done.State.CardObjects["D"].Damage);Assert.Equal(1,done.State.CardObjects["E"].Damage);Assert.DoesNotContain("D",done.State.PlayerZones["P2"].Graveyard);Assert.DoesNotContain("E",done.State.PlayerZones["P2"].Graveyard);Restore(done.State);
     }
     [Fact]
     public async Task TwoTargetWardCannotBeForgedToCostOnePower()

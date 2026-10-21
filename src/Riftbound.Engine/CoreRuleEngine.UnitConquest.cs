@@ -84,7 +84,8 @@ public sealed partial class CoreRuleEngine
             || item.TargetGenerations?.GetValueOrDefault(target,-1)!=state.CardObjects.GetValueOrDefault(target)?.ObjectGeneration
             || !state.CardObjects.TryGetValue(item.SourceObjectId,out var source) || source.ObjectGeneration!=context.SourceGeneration
             || !IsObjectOnField(state.PlayerZones,source.ObjectId)) return result;
-        var amount=ResolveCurrentFieldUnitPower(state,source);if(amount<=0) return result;
+        var amount=ApplySpellSkillDamageBonuses(state,item.ControllerId,target,ResolveCurrentFieldUnitPower(state,source));
+        if(amount<=0) return result;
         var zones=NormalizeZonesForSeats(state);var cards=state.CardObjects.ToDictionary(e=>e.Key,e=>e.Value);
         var destroyed=new HashSet<string>(StringComparer.Ordinal);
         var prevention=state.UntilEndOfTurnEffects.Contains(PreventSpellAndSkillDamageThisTurnEffectId);

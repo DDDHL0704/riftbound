@@ -1,0 +1,2520 @@
+{
+  "branches": [
+    {
+      "id": "special-trigger-da52ea0d631ef65e0fad",
+      "sourceRefs": [
+        "SFD-116/221",
+        "OGS-001/024",
+        "OGN-296/298",
+        "DOC-01-P074-B008",
+        "DOC-01-P106-B010",
+        "DOC-01-P106-B013",
+        "DOC-01-P106-B014"
+      ],
+      "state": "RECORDED",
+      "sourceManifest": {
+        "path": "docs/evidence/special-trigger-damage-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "cbdc91c7ccae450e2c7d702e3e3644c2d9ae0dc55878c059f0b880cf1e335062",
+        "role": "source-manifest"
+      },
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.SpecialTriggerDamageBonusTests.BothSkillPathsReadOnlyTheirControllersSourcesStillOnTheFieldAtResolution(location: False, branch: \"departed\")",
+        "parameters": {
+          "location": false,
+          "branch": "departed"
+        },
+        "literalSourceGroundedExpectedValues": {
+          "damageWithoutIneligibleAnnie": 5
+        },
+        "controlledSqlSamePrintingCountAndLocationBranch": false
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CURRENT_SOURCE_REVIEW",
+        "combinedGeneralRulesNotOfficialYoneNumericExample": true
+      },
+      "implementation": {
+        "state": "TWO_EXISTING_SPECIAL_DAMAGE_CALLS_REUSE_SHARED_HELPER"
+      },
+      "testExecution": {
+        "state": "FOCUS_CHECK_ALL110_AND_SIXTEEN_EXACT_SQL_SCOPE_PASS"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_CURRENT_CANDIDATE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded implementation/tests do not certify whole printing, future fixed full or current product gates."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "special-trigger-045a9b1c12b207e71f33",
+      "sourceRefs": [
+        "SFD-116/221",
+        "OGS-001/024",
+        "OGN-296/298",
+        "DOC-01-P074-B008",
+        "DOC-01-P106-B010",
+        "DOC-01-P106-B013",
+        "DOC-01-P106-B014"
+      ],
+      "state": "RECORDED",
+      "sourceManifest": {
+        "path": "docs/evidence/special-trigger-damage-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "cbdc91c7ccae450e2c7d702e3e3644c2d9ae0dc55878c059f0b880cf1e335062",
+        "role": "source-manifest"
+      },
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.SpecialTriggerDamageBonusTests.BothSkillPathsReadOnlyTheirControllersSourcesStillOnTheFieldAtResolution(location: False, branch: \"graveyard\")",
+        "parameters": {
+          "location": false,
+          "branch": "graveyard"
+        },
+        "literalSourceGroundedExpectedValues": {
+          "damageWithoutIneligibleAnnie": 5
+        },
+        "controlledSqlSamePrintingCountAndLocationBranch": false
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CURRENT_SOURCE_REVIEW",
+        "combinedGeneralRulesNotOfficialYoneNumericExample": true
+      },
+      "implementation": {
+        "state": "TWO_EXISTING_SPECIAL_DAMAGE_CALLS_REUSE_SHARED_HELPER"
+      },
+      "testExecution": {
+        "state": "FOCUS_CHECK_ALL110_AND_SIXTEEN_EXACT_SQL_SCOPE_PASS"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_CURRENT_CANDIDATE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded implementation/tests do not certify whole printing, future fixed full or current product gates."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "special-trigger-1cb6e13c494dd56ffe6f",
+      "sourceRefs": [
+        "SFD-116/221",
+        "OGS-001/024",
+        "OGN-296/298",
+        "DOC-01-P074-B008",
+        "DOC-01-P106-B010",
+        "DOC-01-P106-B013",
+        "DOC-01-P106-B014"
+      ],
+      "state": "RECORDED",
+      "sourceManifest": {
+        "path": "docs/evidence/special-trigger-damage-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "cbdc91c7ccae450e2c7d702e3e3644c2d9ae0dc55878c059f0b880cf1e335062",
+        "role": "source-manifest"
+      },
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.SpecialTriggerDamageBonusTests.BothSkillPathsReadOnlyTheirControllersSourcesStillOnTheFieldAtResolution(location: False, branch: \"hand\")",
+        "parameters": {
+          "location": false,
+          "branch": "hand"
+        },
+        "literalSourceGroundedExpectedValues": {
+          "damageWithoutIneligibleAnnie": 5
+        },
+        "controlledSqlSamePrintingCountAndLocationBranch": false
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CURRENT_SOURCE_REVIEW",
+        "combinedGeneralRulesNotOfficialYoneNumericExample": true
+      },
+      "implementation": {
+        "state": "TWO_EXISTING_SPECIAL_DAMAGE_CALLS_REUSE_SHARED_HELPER"
+      },
+      "testExecution": {
+        "state": "FOCUS_CHECK_ALL110_AND_SIXTEEN_EXACT_SQL_SCOPE_PASS"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_CURRENT_CANDIDATE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded implementation/tests do not certify whole printing, future fixed full or current product gates."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "special-trigger-0f3492cf48ec478bb1eb",
+      "sourceRefs": [
+        "SFD-116/221",
+        "OGS-001/024",
+        "OGN-296/298",
+        "DOC-01-P074-B008",
+        "DOC-01-P106-B010",
+        "DOC-01-P106-B013",
+        "DOC-01-P106-B014"
+      ],
+      "state": "RECORDED",
+      "sourceManifest": {
+        "path": "docs/evidence/special-trigger-damage-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "cbdc91c7ccae450e2c7d702e3e3644c2d9ae0dc55878c059f0b880cf1e335062",
+        "role": "source-manifest"
+      },
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.SpecialTriggerDamageBonusTests.BothSkillPathsReadOnlyTheirControllersSourcesStillOnTheFieldAtResolution(location: False, branch: \"opponent\")",
+        "parameters": {
+          "location": false,
+          "branch": "opponent"
+        },
+        "literalSourceGroundedExpectedValues": {
+          "damageWithoutIneligibleAnnie": 5
+        },
+        "controlledSqlSamePrintingCountAndLocationBranch": false
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CURRENT_SOURCE_REVIEW",
+        "combinedGeneralRulesNotOfficialYoneNumericExample": true
+      },
+      "implementation": {
+        "state": "TWO_EXISTING_SPECIAL_DAMAGE_CALLS_REUSE_SHARED_HELPER"
+      },
+      "testExecution": {
+        "state": "FOCUS_CHECK_ALL110_AND_SIXTEEN_EXACT_SQL_SCOPE_PASS"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_CURRENT_CANDIDATE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded implementation/tests do not certify whole printing, future fixed full or current product gates."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "special-trigger-82832c23960efa740a19",
+      "sourceRefs": [
+        "UNL-118/219",
+        "OGS-001/024",
+        "OGN-296/298",
+        "DOC-01-P074-B008",
+        "DOC-01-P106-B010",
+        "DOC-01-P106-B013",
+        "DOC-01-P106-B014"
+      ],
+      "state": "RECORDED",
+      "sourceManifest": {
+        "path": "docs/evidence/special-trigger-damage-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "cbdc91c7ccae450e2c7d702e3e3644c2d9ae0dc55878c059f0b880cf1e335062",
+        "role": "source-manifest"
+      },
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.SpecialTriggerDamageBonusTests.BothSkillPathsReadOnlyTheirControllersSourcesStillOnTheFieldAtResolution(location: True, branch: \"departed\")",
+        "parameters": {
+          "location": true,
+          "branch": "departed"
+        },
+        "literalSourceGroundedExpectedValues": {
+          "damageWithoutIneligibleAnnie": 1
+        },
+        "controlledSqlSamePrintingCountAndLocationBranch": false
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CURRENT_SOURCE_REVIEW",
+        "combinedGeneralRulesNotOfficialYoneNumericExample": true
+      },
+      "implementation": {
+        "state": "TWO_EXISTING_SPECIAL_DAMAGE_CALLS_REUSE_SHARED_HELPER"
+      },
+      "testExecution": {
+        "state": "FOCUS_CHECK_ALL110_AND_SIXTEEN_EXACT_SQL_SCOPE_PASS"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_CURRENT_CANDIDATE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded implementation/tests do not certify whole printing, future fixed full or current product gates."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "special-trigger-1391cc34d4d4891bf4e6",
+      "sourceRefs": [
+        "UNL-118/219",
+        "OGS-001/024",
+        "OGN-296/298",
+        "DOC-01-P074-B008",
+        "DOC-01-P106-B010",
+        "DOC-01-P106-B013",
+        "DOC-01-P106-B014"
+      ],
+      "state": "RECORDED",
+      "sourceManifest": {
+        "path": "docs/evidence/special-trigger-damage-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "cbdc91c7ccae450e2c7d702e3e3644c2d9ae0dc55878c059f0b880cf1e335062",
+        "role": "source-manifest"
+      },
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.SpecialTriggerDamageBonusTests.BothSkillPathsReadOnlyTheirControllersSourcesStillOnTheFieldAtResolution(location: True, branch: \"graveyard\")",
+        "parameters": {
+          "location": true,
+          "branch": "graveyard"
+        },
+        "literalSourceGroundedExpectedValues": {
+          "damageWithoutIneligibleAnnie": 1
+        },
+        "controlledSqlSamePrintingCountAndLocationBranch": false
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CURRENT_SOURCE_REVIEW",
+        "combinedGeneralRulesNotOfficialYoneNumericExample": true
+      },
+      "implementation": {
+        "state": "TWO_EXISTING_SPECIAL_DAMAGE_CALLS_REUSE_SHARED_HELPER"
+      },
+      "testExecution": {
+        "state": "FOCUS_CHECK_ALL110_AND_SIXTEEN_EXACT_SQL_SCOPE_PASS"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_CURRENT_CANDIDATE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded implementation/tests do not certify whole printing, future fixed full or current product gates."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "special-trigger-dd262bb2be3c89e685f9",
+      "sourceRefs": [
+        "UNL-118/219",
+        "OGS-001/024",
+        "OGN-296/298",
+        "DOC-01-P074-B008",
+        "DOC-01-P106-B010",
+        "DOC-01-P106-B013",
+        "DOC-01-P106-B014"
+      ],
+      "state": "RECORDED",
+      "sourceManifest": {
+        "path": "docs/evidence/special-trigger-damage-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "cbdc91c7ccae450e2c7d702e3e3644c2d9ae0dc55878c059f0b880cf1e335062",
+        "role": "source-manifest"
+      },
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.SpecialTriggerDamageBonusTests.BothSkillPathsReadOnlyTheirControllersSourcesStillOnTheFieldAtResolution(location: True, branch: \"hand\")",
+        "parameters": {
+          "location": true,
+          "branch": "hand"
+        },
+        "literalSourceGroundedExpectedValues": {
+          "damageWithoutIneligibleAnnie": 1
+        },
+        "controlledSqlSamePrintingCountAndLocationBranch": false
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CURRENT_SOURCE_REVIEW",
+        "combinedGeneralRulesNotOfficialYoneNumericExample": true
+      },
+      "implementation": {
+        "state": "TWO_EXISTING_SPECIAL_DAMAGE_CALLS_REUSE_SHARED_HELPER"
+      },
+      "testExecution": {
+        "state": "FOCUS_CHECK_ALL110_AND_SIXTEEN_EXACT_SQL_SCOPE_PASS"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_CURRENT_CANDIDATE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded implementation/tests do not certify whole printing, future fixed full or current product gates."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "special-trigger-3e0282db3e0d5d38e0d7",
+      "sourceRefs": [
+        "UNL-118/219",
+        "OGS-001/024",
+        "OGN-296/298",
+        "DOC-01-P074-B008",
+        "DOC-01-P106-B010",
+        "DOC-01-P106-B013",
+        "DOC-01-P106-B014"
+      ],
+      "state": "RECORDED",
+      "sourceManifest": {
+        "path": "docs/evidence/special-trigger-damage-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "cbdc91c7ccae450e2c7d702e3e3644c2d9ae0dc55878c059f0b880cf1e335062",
+        "role": "source-manifest"
+      },
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.SpecialTriggerDamageBonusTests.BothSkillPathsReadOnlyTheirControllersSourcesStillOnTheFieldAtResolution(location: True, branch: \"opponent\")",
+        "parameters": {
+          "location": true,
+          "branch": "opponent"
+        },
+        "literalSourceGroundedExpectedValues": {
+          "damageWithoutIneligibleAnnie": 1
+        },
+        "controlledSqlSamePrintingCountAndLocationBranch": false
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CURRENT_SOURCE_REVIEW",
+        "combinedGeneralRulesNotOfficialYoneNumericExample": true
+      },
+      "implementation": {
+        "state": "TWO_EXISTING_SPECIAL_DAMAGE_CALLS_REUSE_SHARED_HELPER"
+      },
+      "testExecution": {
+        "state": "FOCUS_CHECK_ALL110_AND_SIXTEEN_EXACT_SQL_SCOPE_PASS"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_CURRENT_CANDIDATE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded implementation/tests do not certify whole printing, future fixed full or current product gates."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "special-trigger-f20735c8a254dd9ec375",
+      "sourceRefs": [
+        "SFD-116/221",
+        "OGS-001/024",
+        "OGN-296/298",
+        "DOC-01-P074-B008",
+        "DOC-01-P106-B010",
+        "DOC-01-P106-B013",
+        "DOC-01-P106-B014"
+      ],
+      "state": "RECORDED",
+      "sourceManifest": {
+        "path": "docs/evidence/special-trigger-damage-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "cbdc91c7ccae450e2c7d702e3e3644c2d9ae0dc55878c059f0b880cf1e335062",
+        "role": "source-manifest"
+      },
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.SpecialTriggerDamageBonusTests.ConquestBonusRetainsExistingSpellSkillAndUnitPrevention(prevention: \"global\")",
+        "parameters": {
+          "prevention": "global"
+        },
+        "literalSourceGroundedExpectedValues": {
+          "targetDamage": 0,
+          "preventedDamage": 6,
+          "targetSurvives": true
+        },
+        "controlledSqlSamePrintingCountAndLocationBranch": false
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CURRENT_SOURCE_REVIEW",
+        "combinedGeneralRulesNotOfficialYoneNumericExample": true
+      },
+      "implementation": {
+        "state": "TWO_EXISTING_SPECIAL_DAMAGE_CALLS_REUSE_SHARED_HELPER"
+      },
+      "testExecution": {
+        "state": "FOCUS_CHECK_ALL110_AND_SIXTEEN_EXACT_SQL_SCOPE_PASS"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_CURRENT_CANDIDATE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded implementation/tests do not certify whole printing, future fixed full or current product gates."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "special-trigger-a6f89d6784a9a4cf1b0a",
+      "sourceRefs": [
+        "SFD-116/221",
+        "OGS-001/024",
+        "OGN-296/298",
+        "DOC-01-P074-B008",
+        "DOC-01-P106-B010",
+        "DOC-01-P106-B013",
+        "DOC-01-P106-B014"
+      ],
+      "state": "RECORDED",
+      "sourceManifest": {
+        "path": "docs/evidence/special-trigger-damage-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "cbdc91c7ccae450e2c7d702e3e3644c2d9ae0dc55878c059f0b880cf1e335062",
+        "role": "source-manifest"
+      },
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.SpecialTriggerDamageBonusTests.ConquestBonusRetainsExistingSpellSkillAndUnitPrevention(prevention: \"immune\")",
+        "parameters": {
+          "prevention": "immune"
+        },
+        "literalSourceGroundedExpectedValues": {
+          "targetDamage": 0,
+          "preventedDamage": 6,
+          "targetSurvives": true
+        },
+        "controlledSqlSamePrintingCountAndLocationBranch": false
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CURRENT_SOURCE_REVIEW",
+        "combinedGeneralRulesNotOfficialYoneNumericExample": true
+      },
+      "implementation": {
+        "state": "TWO_EXISTING_SPECIAL_DAMAGE_CALLS_REUSE_SHARED_HELPER"
+      },
+      "testExecution": {
+        "state": "FOCUS_CHECK_ALL110_AND_SIXTEEN_EXACT_SQL_SCOPE_PASS"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_CURRENT_CANDIDATE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded implementation/tests do not certify whole printing, future fixed full or current product gates."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "special-trigger-63bdbb6241a8daf61732",
+      "sourceRefs": [
+        "SFD-116/221",
+        "OGS-001/024",
+        "OGN-296/298",
+        "DOC-01-P074-B008",
+        "DOC-01-P106-B010",
+        "DOC-01-P106-B013",
+        "DOC-01-P106-B014"
+      ],
+      "state": "RECORDED",
+      "sourceManifest": {
+        "path": "docs/evidence/special-trigger-damage-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "cbdc91c7ccae450e2c7d702e3e3644c2d9ae0dc55878c059f0b880cf1e335062",
+        "role": "source-manifest"
+      },
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.SpecialTriggerDamageBonusTests.ConquestBonusRetainsExistingSpellSkillAndUnitPrevention(prevention: \"next\")",
+        "parameters": {
+          "prevention": "next"
+        },
+        "literalSourceGroundedExpectedValues": {
+          "targetDamage": 0,
+          "preventedDamage": 6,
+          "targetSurvives": true
+        },
+        "controlledSqlSamePrintingCountAndLocationBranch": false
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CURRENT_SOURCE_REVIEW",
+        "combinedGeneralRulesNotOfficialYoneNumericExample": true
+      },
+      "implementation": {
+        "state": "TWO_EXISTING_SPECIAL_DAMAGE_CALLS_REUSE_SHARED_HELPER"
+      },
+      "testExecution": {
+        "state": "FOCUS_CHECK_ALL110_AND_SIXTEEN_EXACT_SQL_SCOPE_PASS"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_CURRENT_CANDIDATE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded implementation/tests do not certify whole printing, future fixed full or current product gates."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "special-trigger-c701f91f493eb44c2edb",
+      "sourceRefs": [
+        "SFD-116/221",
+        "OGS-001/024",
+        "OGN-296/298",
+        "DOC-01-P074-B008",
+        "DOC-01-P106-B010",
+        "DOC-01-P106-B013",
+        "DOC-01-P106-B014"
+      ],
+      "state": "RECORDED",
+      "sourceManifest": {
+        "path": "docs/evidence/special-trigger-damage-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "cbdc91c7ccae450e2c7d702e3e3644c2d9ae0dc55878c059f0b880cf1e335062",
+        "role": "source-manifest"
+      },
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.SpecialTriggerDamageBonusTests.ConquestSkillAddsBonusToItsCurrentPowerIncludingAZeroValuedDamageInstruction(printing: \"SFD·116/221\", copies: 0, power: 0)",
+        "parameters": {
+          "printing": "SFD·116/221",
+          "copies": 0,
+          "power": 0
+        },
+        "literalSourceGroundedExpectedValues": {
+          "targetBaseDamage": 0,
+          "sourceVoidGateAddsToBaseTarget": false,
+          "zeroEffectiveDamageEmitsNoAppliedEvent": true
+        },
+        "controlledSqlSamePrintingCountAndLocationBranch": true
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CURRENT_SOURCE_REVIEW",
+        "combinedGeneralRulesNotOfficialYoneNumericExample": true
+      },
+      "implementation": {
+        "state": "TWO_EXISTING_SPECIAL_DAMAGE_CALLS_REUSE_SHARED_HELPER"
+      },
+      "testExecution": {
+        "state": "FOCUS_CHECK_ALL110_AND_SIXTEEN_EXACT_SQL_SCOPE_PASS"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_CURRENT_CANDIDATE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded implementation/tests do not certify whole printing, future fixed full or current product gates."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "special-trigger-c9324c1581414042d2f3",
+      "sourceRefs": [
+        "SFD-116/221",
+        "OGS-001/024",
+        "OGN-296/298",
+        "DOC-01-P074-B008",
+        "DOC-01-P106-B010",
+        "DOC-01-P106-B013",
+        "DOC-01-P106-B014"
+      ],
+      "state": "RECORDED",
+      "sourceManifest": {
+        "path": "docs/evidence/special-trigger-damage-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "cbdc91c7ccae450e2c7d702e3e3644c2d9ae0dc55878c059f0b880cf1e335062",
+        "role": "source-manifest"
+      },
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.SpecialTriggerDamageBonusTests.ConquestSkillAddsBonusToItsCurrentPowerIncludingAZeroValuedDamageInstruction(printing: \"SFD·116/221\", copies: 0, power: 5)",
+        "parameters": {
+          "printing": "SFD·116/221",
+          "copies": 0,
+          "power": 5
+        },
+        "literalSourceGroundedExpectedValues": {
+          "targetBaseDamage": 5,
+          "sourceVoidGateAddsToBaseTarget": false,
+          "zeroEffectiveDamageEmitsNoAppliedEvent": false
+        },
+        "controlledSqlSamePrintingCountAndLocationBranch": true
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CURRENT_SOURCE_REVIEW",
+        "combinedGeneralRulesNotOfficialYoneNumericExample": true
+      },
+      "implementation": {
+        "state": "TWO_EXISTING_SPECIAL_DAMAGE_CALLS_REUSE_SHARED_HELPER"
+      },
+      "testExecution": {
+        "state": "FOCUS_CHECK_ALL110_AND_SIXTEEN_EXACT_SQL_SCOPE_PASS"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_CURRENT_CANDIDATE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded implementation/tests do not certify whole printing, future fixed full or current product gates."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "special-trigger-32399ada441aa3045649",
+      "sourceRefs": [
+        "SFD-116/221",
+        "OGS-001/024",
+        "OGN-296/298",
+        "DOC-01-P074-B008",
+        "DOC-01-P106-B010",
+        "DOC-01-P106-B013",
+        "DOC-01-P106-B014"
+      ],
+      "state": "RECORDED",
+      "sourceManifest": {
+        "path": "docs/evidence/special-trigger-damage-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "cbdc91c7ccae450e2c7d702e3e3644c2d9ae0dc55878c059f0b880cf1e335062",
+        "role": "source-manifest"
+      },
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.SpecialTriggerDamageBonusTests.ConquestSkillAddsBonusToItsCurrentPowerIncludingAZeroValuedDamageInstruction(printing: \"SFD·116/221\", copies: 1, power: 0)",
+        "parameters": {
+          "printing": "SFD·116/221",
+          "copies": 1,
+          "power": 0
+        },
+        "literalSourceGroundedExpectedValues": {
+          "targetBaseDamage": 1,
+          "sourceVoidGateAddsToBaseTarget": false,
+          "zeroEffectiveDamageEmitsNoAppliedEvent": false
+        },
+        "controlledSqlSamePrintingCountAndLocationBranch": false
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CURRENT_SOURCE_REVIEW",
+        "combinedGeneralRulesNotOfficialYoneNumericExample": true
+      },
+      "implementation": {
+        "state": "TWO_EXISTING_SPECIAL_DAMAGE_CALLS_REUSE_SHARED_HELPER"
+      },
+      "testExecution": {
+        "state": "FOCUS_CHECK_ALL110_AND_SIXTEEN_EXACT_SQL_SCOPE_PASS"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_CURRENT_CANDIDATE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded implementation/tests do not certify whole printing, future fixed full or current product gates."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "special-trigger-18fb6a1c5d473c63eca9",
+      "sourceRefs": [
+        "SFD-116/221",
+        "OGS-001/024",
+        "OGN-296/298",
+        "DOC-01-P074-B008",
+        "DOC-01-P106-B010",
+        "DOC-01-P106-B013",
+        "DOC-01-P106-B014"
+      ],
+      "state": "RECORDED",
+      "sourceManifest": {
+        "path": "docs/evidence/special-trigger-damage-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "cbdc91c7ccae450e2c7d702e3e3644c2d9ae0dc55878c059f0b880cf1e335062",
+        "role": "source-manifest"
+      },
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.SpecialTriggerDamageBonusTests.ConquestSkillAddsBonusToItsCurrentPowerIncludingAZeroValuedDamageInstruction(printing: \"SFD·116/221\", copies: 1, power: 5)",
+        "parameters": {
+          "printing": "SFD·116/221",
+          "copies": 1,
+          "power": 5
+        },
+        "literalSourceGroundedExpectedValues": {
+          "targetBaseDamage": 6,
+          "sourceVoidGateAddsToBaseTarget": false,
+          "zeroEffectiveDamageEmitsNoAppliedEvent": false
+        },
+        "controlledSqlSamePrintingCountAndLocationBranch": false
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CURRENT_SOURCE_REVIEW",
+        "combinedGeneralRulesNotOfficialYoneNumericExample": true
+      },
+      "implementation": {
+        "state": "TWO_EXISTING_SPECIAL_DAMAGE_CALLS_REUSE_SHARED_HELPER"
+      },
+      "testExecution": {
+        "state": "FOCUS_CHECK_ALL110_AND_SIXTEEN_EXACT_SQL_SCOPE_PASS"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_CURRENT_CANDIDATE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded implementation/tests do not certify whole printing, future fixed full or current product gates."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "special-trigger-17ec1198a97e69f322b4",
+      "sourceRefs": [
+        "SFD-116/221",
+        "OGS-001/024",
+        "OGN-296/298",
+        "DOC-01-P074-B008",
+        "DOC-01-P106-B010",
+        "DOC-01-P106-B013",
+        "DOC-01-P106-B014"
+      ],
+      "state": "RECORDED",
+      "sourceManifest": {
+        "path": "docs/evidence/special-trigger-damage-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "cbdc91c7ccae450e2c7d702e3e3644c2d9ae0dc55878c059f0b880cf1e335062",
+        "role": "source-manifest"
+      },
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.SpecialTriggerDamageBonusTests.ConquestSkillAddsBonusToItsCurrentPowerIncludingAZeroValuedDamageInstruction(printing: \"SFD·116/221\", copies: 2, power: 0)",
+        "parameters": {
+          "printing": "SFD·116/221",
+          "copies": 2,
+          "power": 0
+        },
+        "literalSourceGroundedExpectedValues": {
+          "targetBaseDamage": 2,
+          "sourceVoidGateAddsToBaseTarget": false,
+          "zeroEffectiveDamageEmitsNoAppliedEvent": false
+        },
+        "controlledSqlSamePrintingCountAndLocationBranch": true
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CURRENT_SOURCE_REVIEW",
+        "combinedGeneralRulesNotOfficialYoneNumericExample": true
+      },
+      "implementation": {
+        "state": "TWO_EXISTING_SPECIAL_DAMAGE_CALLS_REUSE_SHARED_HELPER"
+      },
+      "testExecution": {
+        "state": "FOCUS_CHECK_ALL110_AND_SIXTEEN_EXACT_SQL_SCOPE_PASS"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_CURRENT_CANDIDATE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded implementation/tests do not certify whole printing, future fixed full or current product gates."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "special-trigger-1d877cc7f3fe610581a2",
+      "sourceRefs": [
+        "SFD-116/221",
+        "OGS-001/024",
+        "OGN-296/298",
+        "DOC-01-P074-B008",
+        "DOC-01-P106-B010",
+        "DOC-01-P106-B013",
+        "DOC-01-P106-B014"
+      ],
+      "state": "RECORDED",
+      "sourceManifest": {
+        "path": "docs/evidence/special-trigger-damage-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "cbdc91c7ccae450e2c7d702e3e3644c2d9ae0dc55878c059f0b880cf1e335062",
+        "role": "source-manifest"
+      },
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.SpecialTriggerDamageBonusTests.ConquestSkillAddsBonusToItsCurrentPowerIncludingAZeroValuedDamageInstruction(printing: \"SFD·116/221\", copies: 2, power: 5)",
+        "parameters": {
+          "printing": "SFD·116/221",
+          "copies": 2,
+          "power": 5
+        },
+        "literalSourceGroundedExpectedValues": {
+          "targetBaseDamage": 7,
+          "sourceVoidGateAddsToBaseTarget": false,
+          "zeroEffectiveDamageEmitsNoAppliedEvent": false
+        },
+        "controlledSqlSamePrintingCountAndLocationBranch": true
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CURRENT_SOURCE_REVIEW",
+        "combinedGeneralRulesNotOfficialYoneNumericExample": true
+      },
+      "implementation": {
+        "state": "TWO_EXISTING_SPECIAL_DAMAGE_CALLS_REUSE_SHARED_HELPER"
+      },
+      "testExecution": {
+        "state": "FOCUS_CHECK_ALL110_AND_SIXTEEN_EXACT_SQL_SCOPE_PASS"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_CURRENT_CANDIDATE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded implementation/tests do not certify whole printing, future fixed full or current product gates."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "special-trigger-128b27fec89ecf69b391",
+      "sourceRefs": [
+        "SFD-233*/221",
+        "OGS-001/024",
+        "OGN-296/298",
+        "DOC-01-P074-B008",
+        "DOC-01-P106-B010",
+        "DOC-01-P106-B013",
+        "DOC-01-P106-B014"
+      ],
+      "state": "RECORDED",
+      "sourceManifest": {
+        "path": "docs/evidence/special-trigger-damage-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "cbdc91c7ccae450e2c7d702e3e3644c2d9ae0dc55878c059f0b880cf1e335062",
+        "role": "source-manifest"
+      },
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.SpecialTriggerDamageBonusTests.ConquestSkillAddsBonusToItsCurrentPowerIncludingAZeroValuedDamageInstruction(printing: \"SFD·233*/221\", copies: 0, power: 0)",
+        "parameters": {
+          "printing": "SFD·233*/221",
+          "copies": 0,
+          "power": 0
+        },
+        "literalSourceGroundedExpectedValues": {
+          "targetBaseDamage": 0,
+          "sourceVoidGateAddsToBaseTarget": false,
+          "zeroEffectiveDamageEmitsNoAppliedEvent": true
+        },
+        "controlledSqlSamePrintingCountAndLocationBranch": true
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CURRENT_SOURCE_REVIEW",
+        "combinedGeneralRulesNotOfficialYoneNumericExample": true
+      },
+      "implementation": {
+        "state": "TWO_EXISTING_SPECIAL_DAMAGE_CALLS_REUSE_SHARED_HELPER"
+      },
+      "testExecution": {
+        "state": "FOCUS_CHECK_ALL110_AND_SIXTEEN_EXACT_SQL_SCOPE_PASS"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_CURRENT_CANDIDATE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded implementation/tests do not certify whole printing, future fixed full or current product gates."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "special-trigger-976e60d3b0f4a36a9fa4",
+      "sourceRefs": [
+        "SFD-233*/221",
+        "OGS-001/024",
+        "OGN-296/298",
+        "DOC-01-P074-B008",
+        "DOC-01-P106-B010",
+        "DOC-01-P106-B013",
+        "DOC-01-P106-B014"
+      ],
+      "state": "RECORDED",
+      "sourceManifest": {
+        "path": "docs/evidence/special-trigger-damage-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "cbdc91c7ccae450e2c7d702e3e3644c2d9ae0dc55878c059f0b880cf1e335062",
+        "role": "source-manifest"
+      },
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.SpecialTriggerDamageBonusTests.ConquestSkillAddsBonusToItsCurrentPowerIncludingAZeroValuedDamageInstruction(printing: \"SFD·233*/221\", copies: 0, power: 5)",
+        "parameters": {
+          "printing": "SFD·233*/221",
+          "copies": 0,
+          "power": 5
+        },
+        "literalSourceGroundedExpectedValues": {
+          "targetBaseDamage": 5,
+          "sourceVoidGateAddsToBaseTarget": false,
+          "zeroEffectiveDamageEmitsNoAppliedEvent": false
+        },
+        "controlledSqlSamePrintingCountAndLocationBranch": true
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CURRENT_SOURCE_REVIEW",
+        "combinedGeneralRulesNotOfficialYoneNumericExample": true
+      },
+      "implementation": {
+        "state": "TWO_EXISTING_SPECIAL_DAMAGE_CALLS_REUSE_SHARED_HELPER"
+      },
+      "testExecution": {
+        "state": "FOCUS_CHECK_ALL110_AND_SIXTEEN_EXACT_SQL_SCOPE_PASS"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_CURRENT_CANDIDATE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded implementation/tests do not certify whole printing, future fixed full or current product gates."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "special-trigger-55bd9225a664e5dd2bba",
+      "sourceRefs": [
+        "SFD-233*/221",
+        "OGS-001/024",
+        "OGN-296/298",
+        "DOC-01-P074-B008",
+        "DOC-01-P106-B010",
+        "DOC-01-P106-B013",
+        "DOC-01-P106-B014"
+      ],
+      "state": "RECORDED",
+      "sourceManifest": {
+        "path": "docs/evidence/special-trigger-damage-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "cbdc91c7ccae450e2c7d702e3e3644c2d9ae0dc55878c059f0b880cf1e335062",
+        "role": "source-manifest"
+      },
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.SpecialTriggerDamageBonusTests.ConquestSkillAddsBonusToItsCurrentPowerIncludingAZeroValuedDamageInstruction(printing: \"SFD·233*/221\", copies: 1, power: 0)",
+        "parameters": {
+          "printing": "SFD·233*/221",
+          "copies": 1,
+          "power": 0
+        },
+        "literalSourceGroundedExpectedValues": {
+          "targetBaseDamage": 1,
+          "sourceVoidGateAddsToBaseTarget": false,
+          "zeroEffectiveDamageEmitsNoAppliedEvent": false
+        },
+        "controlledSqlSamePrintingCountAndLocationBranch": false
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CURRENT_SOURCE_REVIEW",
+        "combinedGeneralRulesNotOfficialYoneNumericExample": true
+      },
+      "implementation": {
+        "state": "TWO_EXISTING_SPECIAL_DAMAGE_CALLS_REUSE_SHARED_HELPER"
+      },
+      "testExecution": {
+        "state": "FOCUS_CHECK_ALL110_AND_SIXTEEN_EXACT_SQL_SCOPE_PASS"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_CURRENT_CANDIDATE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded implementation/tests do not certify whole printing, future fixed full or current product gates."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "special-trigger-642a051cdb16788239b7",
+      "sourceRefs": [
+        "SFD-233*/221",
+        "OGS-001/024",
+        "OGN-296/298",
+        "DOC-01-P074-B008",
+        "DOC-01-P106-B010",
+        "DOC-01-P106-B013",
+        "DOC-01-P106-B014"
+      ],
+      "state": "RECORDED",
+      "sourceManifest": {
+        "path": "docs/evidence/special-trigger-damage-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "cbdc91c7ccae450e2c7d702e3e3644c2d9ae0dc55878c059f0b880cf1e335062",
+        "role": "source-manifest"
+      },
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.SpecialTriggerDamageBonusTests.ConquestSkillAddsBonusToItsCurrentPowerIncludingAZeroValuedDamageInstruction(printing: \"SFD·233*/221\", copies: 1, power: 5)",
+        "parameters": {
+          "printing": "SFD·233*/221",
+          "copies": 1,
+          "power": 5
+        },
+        "literalSourceGroundedExpectedValues": {
+          "targetBaseDamage": 6,
+          "sourceVoidGateAddsToBaseTarget": false,
+          "zeroEffectiveDamageEmitsNoAppliedEvent": false
+        },
+        "controlledSqlSamePrintingCountAndLocationBranch": false
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CURRENT_SOURCE_REVIEW",
+        "combinedGeneralRulesNotOfficialYoneNumericExample": true
+      },
+      "implementation": {
+        "state": "TWO_EXISTING_SPECIAL_DAMAGE_CALLS_REUSE_SHARED_HELPER"
+      },
+      "testExecution": {
+        "state": "FOCUS_CHECK_ALL110_AND_SIXTEEN_EXACT_SQL_SCOPE_PASS"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_CURRENT_CANDIDATE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded implementation/tests do not certify whole printing, future fixed full or current product gates."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "special-trigger-2086ba356b094bd9b7c2",
+      "sourceRefs": [
+        "SFD-233*/221",
+        "OGS-001/024",
+        "OGN-296/298",
+        "DOC-01-P074-B008",
+        "DOC-01-P106-B010",
+        "DOC-01-P106-B013",
+        "DOC-01-P106-B014"
+      ],
+      "state": "RECORDED",
+      "sourceManifest": {
+        "path": "docs/evidence/special-trigger-damage-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "cbdc91c7ccae450e2c7d702e3e3644c2d9ae0dc55878c059f0b880cf1e335062",
+        "role": "source-manifest"
+      },
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.SpecialTriggerDamageBonusTests.ConquestSkillAddsBonusToItsCurrentPowerIncludingAZeroValuedDamageInstruction(printing: \"SFD·233*/221\", copies: 2, power: 0)",
+        "parameters": {
+          "printing": "SFD·233*/221",
+          "copies": 2,
+          "power": 0
+        },
+        "literalSourceGroundedExpectedValues": {
+          "targetBaseDamage": 2,
+          "sourceVoidGateAddsToBaseTarget": false,
+          "zeroEffectiveDamageEmitsNoAppliedEvent": false
+        },
+        "controlledSqlSamePrintingCountAndLocationBranch": true
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CURRENT_SOURCE_REVIEW",
+        "combinedGeneralRulesNotOfficialYoneNumericExample": true
+      },
+      "implementation": {
+        "state": "TWO_EXISTING_SPECIAL_DAMAGE_CALLS_REUSE_SHARED_HELPER"
+      },
+      "testExecution": {
+        "state": "FOCUS_CHECK_ALL110_AND_SIXTEEN_EXACT_SQL_SCOPE_PASS"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_CURRENT_CANDIDATE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded implementation/tests do not certify whole printing, future fixed full or current product gates."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "special-trigger-2e43af0a0e289912601d",
+      "sourceRefs": [
+        "SFD-233*/221",
+        "OGS-001/024",
+        "OGN-296/298",
+        "DOC-01-P074-B008",
+        "DOC-01-P106-B010",
+        "DOC-01-P106-B013",
+        "DOC-01-P106-B014"
+      ],
+      "state": "RECORDED",
+      "sourceManifest": {
+        "path": "docs/evidence/special-trigger-damage-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "cbdc91c7ccae450e2c7d702e3e3644c2d9ae0dc55878c059f0b880cf1e335062",
+        "role": "source-manifest"
+      },
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.SpecialTriggerDamageBonusTests.ConquestSkillAddsBonusToItsCurrentPowerIncludingAZeroValuedDamageInstruction(printing: \"SFD·233*/221\", copies: 2, power: 5)",
+        "parameters": {
+          "printing": "SFD·233*/221",
+          "copies": 2,
+          "power": 5
+        },
+        "literalSourceGroundedExpectedValues": {
+          "targetBaseDamage": 7,
+          "sourceVoidGateAddsToBaseTarget": false,
+          "zeroEffectiveDamageEmitsNoAppliedEvent": false
+        },
+        "controlledSqlSamePrintingCountAndLocationBranch": true
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CURRENT_SOURCE_REVIEW",
+        "combinedGeneralRulesNotOfficialYoneNumericExample": true
+      },
+      "implementation": {
+        "state": "TWO_EXISTING_SPECIAL_DAMAGE_CALLS_REUSE_SHARED_HELPER"
+      },
+      "testExecution": {
+        "state": "FOCUS_CHECK_ALL110_AND_SIXTEEN_EXACT_SQL_SCOPE_PASS"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_CURRENT_CANDIDATE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded implementation/tests do not certify whole printing, future fixed full or current product gates."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "special-trigger-ee28e636782e62c4411f",
+      "sourceRefs": [
+        "SFD-233/221",
+        "OGS-001/024",
+        "OGN-296/298",
+        "DOC-01-P074-B008",
+        "DOC-01-P106-B010",
+        "DOC-01-P106-B013",
+        "DOC-01-P106-B014"
+      ],
+      "state": "RECORDED",
+      "sourceManifest": {
+        "path": "docs/evidence/special-trigger-damage-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "cbdc91c7ccae450e2c7d702e3e3644c2d9ae0dc55878c059f0b880cf1e335062",
+        "role": "source-manifest"
+      },
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.SpecialTriggerDamageBonusTests.ConquestSkillAddsBonusToItsCurrentPowerIncludingAZeroValuedDamageInstruction(printing: \"SFD·233/221\", copies: 0, power: 0)",
+        "parameters": {
+          "printing": "SFD·233/221",
+          "copies": 0,
+          "power": 0
+        },
+        "literalSourceGroundedExpectedValues": {
+          "targetBaseDamage": 0,
+          "sourceVoidGateAddsToBaseTarget": false,
+          "zeroEffectiveDamageEmitsNoAppliedEvent": true
+        },
+        "controlledSqlSamePrintingCountAndLocationBranch": true
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CURRENT_SOURCE_REVIEW",
+        "combinedGeneralRulesNotOfficialYoneNumericExample": true
+      },
+      "implementation": {
+        "state": "TWO_EXISTING_SPECIAL_DAMAGE_CALLS_REUSE_SHARED_HELPER"
+      },
+      "testExecution": {
+        "state": "FOCUS_CHECK_ALL110_AND_SIXTEEN_EXACT_SQL_SCOPE_PASS"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_CURRENT_CANDIDATE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded implementation/tests do not certify whole printing, future fixed full or current product gates."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "special-trigger-58c57598852ba5affa1b",
+      "sourceRefs": [
+        "SFD-233/221",
+        "OGS-001/024",
+        "OGN-296/298",
+        "DOC-01-P074-B008",
+        "DOC-01-P106-B010",
+        "DOC-01-P106-B013",
+        "DOC-01-P106-B014"
+      ],
+      "state": "RECORDED",
+      "sourceManifest": {
+        "path": "docs/evidence/special-trigger-damage-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "cbdc91c7ccae450e2c7d702e3e3644c2d9ae0dc55878c059f0b880cf1e335062",
+        "role": "source-manifest"
+      },
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.SpecialTriggerDamageBonusTests.ConquestSkillAddsBonusToItsCurrentPowerIncludingAZeroValuedDamageInstruction(printing: \"SFD·233/221\", copies: 0, power: 5)",
+        "parameters": {
+          "printing": "SFD·233/221",
+          "copies": 0,
+          "power": 5
+        },
+        "literalSourceGroundedExpectedValues": {
+          "targetBaseDamage": 5,
+          "sourceVoidGateAddsToBaseTarget": false,
+          "zeroEffectiveDamageEmitsNoAppliedEvent": false
+        },
+        "controlledSqlSamePrintingCountAndLocationBranch": true
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CURRENT_SOURCE_REVIEW",
+        "combinedGeneralRulesNotOfficialYoneNumericExample": true
+      },
+      "implementation": {
+        "state": "TWO_EXISTING_SPECIAL_DAMAGE_CALLS_REUSE_SHARED_HELPER"
+      },
+      "testExecution": {
+        "state": "FOCUS_CHECK_ALL110_AND_SIXTEEN_EXACT_SQL_SCOPE_PASS"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_CURRENT_CANDIDATE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded implementation/tests do not certify whole printing, future fixed full or current product gates."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "special-trigger-967f554db9ac5bbe7cb0",
+      "sourceRefs": [
+        "SFD-233/221",
+        "OGS-001/024",
+        "OGN-296/298",
+        "DOC-01-P074-B008",
+        "DOC-01-P106-B010",
+        "DOC-01-P106-B013",
+        "DOC-01-P106-B014"
+      ],
+      "state": "RECORDED",
+      "sourceManifest": {
+        "path": "docs/evidence/special-trigger-damage-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "cbdc91c7ccae450e2c7d702e3e3644c2d9ae0dc55878c059f0b880cf1e335062",
+        "role": "source-manifest"
+      },
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.SpecialTriggerDamageBonusTests.ConquestSkillAddsBonusToItsCurrentPowerIncludingAZeroValuedDamageInstruction(printing: \"SFD·233/221\", copies: 1, power: 0)",
+        "parameters": {
+          "printing": "SFD·233/221",
+          "copies": 1,
+          "power": 0
+        },
+        "literalSourceGroundedExpectedValues": {
+          "targetBaseDamage": 1,
+          "sourceVoidGateAddsToBaseTarget": false,
+          "zeroEffectiveDamageEmitsNoAppliedEvent": false
+        },
+        "controlledSqlSamePrintingCountAndLocationBranch": false
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CURRENT_SOURCE_REVIEW",
+        "combinedGeneralRulesNotOfficialYoneNumericExample": true
+      },
+      "implementation": {
+        "state": "TWO_EXISTING_SPECIAL_DAMAGE_CALLS_REUSE_SHARED_HELPER"
+      },
+      "testExecution": {
+        "state": "FOCUS_CHECK_ALL110_AND_SIXTEEN_EXACT_SQL_SCOPE_PASS"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_CURRENT_CANDIDATE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded implementation/tests do not certify whole printing, future fixed full or current product gates."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "special-trigger-da9f944f3bff544870e3",
+      "sourceRefs": [
+        "SFD-233/221",
+        "OGS-001/024",
+        "OGN-296/298",
+        "DOC-01-P074-B008",
+        "DOC-01-P106-B010",
+        "DOC-01-P106-B013",
+        "DOC-01-P106-B014"
+      ],
+      "state": "RECORDED",
+      "sourceManifest": {
+        "path": "docs/evidence/special-trigger-damage-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "cbdc91c7ccae450e2c7d702e3e3644c2d9ae0dc55878c059f0b880cf1e335062",
+        "role": "source-manifest"
+      },
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.SpecialTriggerDamageBonusTests.ConquestSkillAddsBonusToItsCurrentPowerIncludingAZeroValuedDamageInstruction(printing: \"SFD·233/221\", copies: 1, power: 5)",
+        "parameters": {
+          "printing": "SFD·233/221",
+          "copies": 1,
+          "power": 5
+        },
+        "literalSourceGroundedExpectedValues": {
+          "targetBaseDamage": 6,
+          "sourceVoidGateAddsToBaseTarget": false,
+          "zeroEffectiveDamageEmitsNoAppliedEvent": false
+        },
+        "controlledSqlSamePrintingCountAndLocationBranch": false
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CURRENT_SOURCE_REVIEW",
+        "combinedGeneralRulesNotOfficialYoneNumericExample": true
+      },
+      "implementation": {
+        "state": "TWO_EXISTING_SPECIAL_DAMAGE_CALLS_REUSE_SHARED_HELPER"
+      },
+      "testExecution": {
+        "state": "FOCUS_CHECK_ALL110_AND_SIXTEEN_EXACT_SQL_SCOPE_PASS"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_CURRENT_CANDIDATE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded implementation/tests do not certify whole printing, future fixed full or current product gates."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "special-trigger-61361ce1e82d0e191ef7",
+      "sourceRefs": [
+        "SFD-233/221",
+        "OGS-001/024",
+        "OGN-296/298",
+        "DOC-01-P074-B008",
+        "DOC-01-P106-B010",
+        "DOC-01-P106-B013",
+        "DOC-01-P106-B014"
+      ],
+      "state": "RECORDED",
+      "sourceManifest": {
+        "path": "docs/evidence/special-trigger-damage-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "cbdc91c7ccae450e2c7d702e3e3644c2d9ae0dc55878c059f0b880cf1e335062",
+        "role": "source-manifest"
+      },
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.SpecialTriggerDamageBonusTests.ConquestSkillAddsBonusToItsCurrentPowerIncludingAZeroValuedDamageInstruction(printing: \"SFD·233/221\", copies: 2, power: 0)",
+        "parameters": {
+          "printing": "SFD·233/221",
+          "copies": 2,
+          "power": 0
+        },
+        "literalSourceGroundedExpectedValues": {
+          "targetBaseDamage": 2,
+          "sourceVoidGateAddsToBaseTarget": false,
+          "zeroEffectiveDamageEmitsNoAppliedEvent": false
+        },
+        "controlledSqlSamePrintingCountAndLocationBranch": true
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CURRENT_SOURCE_REVIEW",
+        "combinedGeneralRulesNotOfficialYoneNumericExample": true
+      },
+      "implementation": {
+        "state": "TWO_EXISTING_SPECIAL_DAMAGE_CALLS_REUSE_SHARED_HELPER"
+      },
+      "testExecution": {
+        "state": "FOCUS_CHECK_ALL110_AND_SIXTEEN_EXACT_SQL_SCOPE_PASS"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_CURRENT_CANDIDATE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded implementation/tests do not certify whole printing, future fixed full or current product gates."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "special-trigger-412b885a1f51fa81e2d0",
+      "sourceRefs": [
+        "SFD-233/221",
+        "OGS-001/024",
+        "OGN-296/298",
+        "DOC-01-P074-B008",
+        "DOC-01-P106-B010",
+        "DOC-01-P106-B013",
+        "DOC-01-P106-B014"
+      ],
+      "state": "RECORDED",
+      "sourceManifest": {
+        "path": "docs/evidence/special-trigger-damage-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "cbdc91c7ccae450e2c7d702e3e3644c2d9ae0dc55878c059f0b880cf1e335062",
+        "role": "source-manifest"
+      },
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.SpecialTriggerDamageBonusTests.ConquestSkillAddsBonusToItsCurrentPowerIncludingAZeroValuedDamageInstruction(printing: \"SFD·233/221\", copies: 2, power: 5)",
+        "parameters": {
+          "printing": "SFD·233/221",
+          "copies": 2,
+          "power": 5
+        },
+        "literalSourceGroundedExpectedValues": {
+          "targetBaseDamage": 7,
+          "sourceVoidGateAddsToBaseTarget": false,
+          "zeroEffectiveDamageEmitsNoAppliedEvent": false
+        },
+        "controlledSqlSamePrintingCountAndLocationBranch": true
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CURRENT_SOURCE_REVIEW",
+        "combinedGeneralRulesNotOfficialYoneNumericExample": true
+      },
+      "implementation": {
+        "state": "TWO_EXISTING_SPECIAL_DAMAGE_CALLS_REUSE_SHARED_HELPER"
+      },
+      "testExecution": {
+        "state": "FOCUS_CHECK_ALL110_AND_SIXTEEN_EXACT_SQL_SCOPE_PASS"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_CURRENT_CANDIDATE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded implementation/tests do not certify whole printing, future fixed full or current product gates."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "special-trigger-1a53837a43be66f6501b",
+      "sourceRefs": [
+        "UNL-118/219",
+        "OGS-001/024",
+        "OGN-296/298",
+        "DOC-01-P074-B008",
+        "DOC-01-P106-B010",
+        "DOC-01-P106-B013",
+        "DOC-01-P106-B014"
+      ],
+      "state": "RECORDED",
+      "sourceManifest": {
+        "path": "docs/evidence/special-trigger-damage-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "cbdc91c7ccae450e2c7d702e3e3644c2d9ae0dc55878c059f0b880cf1e335062",
+        "role": "source-manifest"
+      },
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.SpecialTriggerDamageBonusTests.PerLocationBonusesReachExistingPreventionBeforeElderLethality(prevention: \"global\")",
+        "parameters": {
+          "prevention": "global"
+        },
+        "literalSourceGroundedExpectedValues": {
+          "fieldDamage": 0,
+          "baseDamage": 0,
+          "fieldTargetSurvives": true
+        },
+        "controlledSqlSamePrintingCountAndLocationBranch": false
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CURRENT_SOURCE_REVIEW",
+        "combinedGeneralRulesNotOfficialYoneNumericExample": true
+      },
+      "implementation": {
+        "state": "TWO_EXISTING_SPECIAL_DAMAGE_CALLS_REUSE_SHARED_HELPER"
+      },
+      "testExecution": {
+        "state": "FOCUS_CHECK_ALL110_AND_SIXTEEN_EXACT_SQL_SCOPE_PASS"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_CURRENT_CANDIDATE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded implementation/tests do not certify whole printing, future fixed full or current product gates."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "special-trigger-e60402e778a4ac88aaba",
+      "sourceRefs": [
+        "UNL-118/219",
+        "OGS-001/024",
+        "OGN-296/298",
+        "DOC-01-P074-B008",
+        "DOC-01-P106-B010",
+        "DOC-01-P106-B013",
+        "DOC-01-P106-B014"
+      ],
+      "state": "RECORDED",
+      "sourceManifest": {
+        "path": "docs/evidence/special-trigger-damage-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "cbdc91c7ccae450e2c7d702e3e3644c2d9ae0dc55878c059f0b880cf1e335062",
+        "role": "source-manifest"
+      },
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.SpecialTriggerDamageBonusTests.PerLocationBonusesReachExistingPreventionBeforeElderLethality(prevention: \"immune\")",
+        "parameters": {
+          "prevention": "immune"
+        },
+        "literalSourceGroundedExpectedValues": {
+          "fieldDamage": 0,
+          "baseDamage": 2,
+          "fieldTargetSurvives": true
+        },
+        "controlledSqlSamePrintingCountAndLocationBranch": false
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CURRENT_SOURCE_REVIEW",
+        "combinedGeneralRulesNotOfficialYoneNumericExample": true
+      },
+      "implementation": {
+        "state": "TWO_EXISTING_SPECIAL_DAMAGE_CALLS_REUSE_SHARED_HELPER"
+      },
+      "testExecution": {
+        "state": "FOCUS_CHECK_ALL110_AND_SIXTEEN_EXACT_SQL_SCOPE_PASS"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_CURRENT_CANDIDATE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded implementation/tests do not certify whole printing, future fixed full or current product gates."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "special-trigger-b9806135dfec9414a5dc",
+      "sourceRefs": [
+        "UNL-118/219",
+        "OGS-001/024",
+        "OGN-296/298",
+        "DOC-01-P074-B008",
+        "DOC-01-P106-B010",
+        "DOC-01-P106-B013",
+        "DOC-01-P106-B014"
+      ],
+      "state": "RECORDED",
+      "sourceManifest": {
+        "path": "docs/evidence/special-trigger-damage-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "cbdc91c7ccae450e2c7d702e3e3644c2d9ae0dc55878c059f0b880cf1e335062",
+        "role": "source-manifest"
+      },
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.SpecialTriggerDamageBonusTests.PerLocationBonusesReachExistingPreventionBeforeElderLethality(prevention: \"next\")",
+        "parameters": {
+          "prevention": "next"
+        },
+        "literalSourceGroundedExpectedValues": {
+          "fieldDamage": 0,
+          "baseDamage": 2,
+          "fieldTargetSurvives": true
+        },
+        "controlledSqlSamePrintingCountAndLocationBranch": false
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CURRENT_SOURCE_REVIEW",
+        "combinedGeneralRulesNotOfficialYoneNumericExample": true
+      },
+      "implementation": {
+        "state": "TWO_EXISTING_SPECIAL_DAMAGE_CALLS_REUSE_SHARED_HELPER"
+      },
+      "testExecution": {
+        "state": "FOCUS_CHECK_ALL110_AND_SIXTEEN_EXACT_SQL_SCOPE_PASS"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_CURRENT_CANDIDATE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded implementation/tests do not certify whole printing, future fixed full or current product gates."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "special-trigger-567a9814fbc1e3150c6c",
+      "sourceRefs": [
+        "UNL-118/219",
+        "OGS-001/024",
+        "OGN-296/298",
+        "DOC-01-P074-B008",
+        "DOC-01-P106-B010",
+        "DOC-01-P106-B013",
+        "DOC-01-P106-B014"
+      ],
+      "state": "RECORDED",
+      "sourceManifest": {
+        "path": "docs/evidence/special-trigger-damage-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "cbdc91c7ccae450e2c7d702e3e3644c2d9ae0dc55878c059f0b880cf1e335062",
+        "role": "source-manifest"
+      },
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.SpecialTriggerDamageBonusTests.PerLocationPlaySkillAddsCurrentControllerAndEachTargetsLocalBonus(printing: \"UNL-118/219\", copies: 0, local: False)",
+        "parameters": {
+          "printing": "UNL-118/219",
+          "copies": 0,
+          "local": false
+        },
+        "literalSourceGroundedExpectedValues": {
+          "fieldDamage": 1,
+          "baseDamage": 1,
+          "oneSelectedUnitPerLocation": true
+        },
+        "controlledSqlSamePrintingCountAndLocationBranch": false
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CURRENT_SOURCE_REVIEW",
+        "combinedGeneralRulesNotOfficialYoneNumericExample": true
+      },
+      "implementation": {
+        "state": "TWO_EXISTING_SPECIAL_DAMAGE_CALLS_REUSE_SHARED_HELPER"
+      },
+      "testExecution": {
+        "state": "FOCUS_CHECK_ALL110_AND_SIXTEEN_EXACT_SQL_SCOPE_PASS"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_CURRENT_CANDIDATE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded implementation/tests do not certify whole printing, future fixed full or current product gates."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "special-trigger-6e8e4ec61f5be4344279",
+      "sourceRefs": [
+        "UNL-118/219",
+        "OGS-001/024",
+        "OGN-296/298",
+        "DOC-01-P074-B008",
+        "DOC-01-P106-B010",
+        "DOC-01-P106-B013",
+        "DOC-01-P106-B014"
+      ],
+      "state": "RECORDED",
+      "sourceManifest": {
+        "path": "docs/evidence/special-trigger-damage-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "cbdc91c7ccae450e2c7d702e3e3644c2d9ae0dc55878c059f0b880cf1e335062",
+        "role": "source-manifest"
+      },
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.SpecialTriggerDamageBonusTests.PerLocationPlaySkillAddsCurrentControllerAndEachTargetsLocalBonus(printing: \"UNL-118/219\", copies: 0, local: True)",
+        "parameters": {
+          "printing": "UNL-118/219",
+          "copies": 0,
+          "local": true
+        },
+        "literalSourceGroundedExpectedValues": {
+          "fieldDamage": 2,
+          "baseDamage": 1,
+          "oneSelectedUnitPerLocation": true
+        },
+        "controlledSqlSamePrintingCountAndLocationBranch": true
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CURRENT_SOURCE_REVIEW",
+        "combinedGeneralRulesNotOfficialYoneNumericExample": true
+      },
+      "implementation": {
+        "state": "TWO_EXISTING_SPECIAL_DAMAGE_CALLS_REUSE_SHARED_HELPER"
+      },
+      "testExecution": {
+        "state": "FOCUS_CHECK_ALL110_AND_SIXTEEN_EXACT_SQL_SCOPE_PASS"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_CURRENT_CANDIDATE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded implementation/tests do not certify whole printing, future fixed full or current product gates."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "special-trigger-6fd59afc97f3a1542044",
+      "sourceRefs": [
+        "UNL-118/219",
+        "OGS-001/024",
+        "OGN-296/298",
+        "DOC-01-P074-B008",
+        "DOC-01-P106-B010",
+        "DOC-01-P106-B013",
+        "DOC-01-P106-B014"
+      ],
+      "state": "RECORDED",
+      "sourceManifest": {
+        "path": "docs/evidence/special-trigger-damage-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "cbdc91c7ccae450e2c7d702e3e3644c2d9ae0dc55878c059f0b880cf1e335062",
+        "role": "source-manifest"
+      },
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.SpecialTriggerDamageBonusTests.PerLocationPlaySkillAddsCurrentControllerAndEachTargetsLocalBonus(printing: \"UNL-118/219\", copies: 1, local: False)",
+        "parameters": {
+          "printing": "UNL-118/219",
+          "copies": 1,
+          "local": false
+        },
+        "literalSourceGroundedExpectedValues": {
+          "fieldDamage": 2,
+          "baseDamage": 2,
+          "oneSelectedUnitPerLocation": true
+        },
+        "controlledSqlSamePrintingCountAndLocationBranch": false
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CURRENT_SOURCE_REVIEW",
+        "combinedGeneralRulesNotOfficialYoneNumericExample": true
+      },
+      "implementation": {
+        "state": "TWO_EXISTING_SPECIAL_DAMAGE_CALLS_REUSE_SHARED_HELPER"
+      },
+      "testExecution": {
+        "state": "FOCUS_CHECK_ALL110_AND_SIXTEEN_EXACT_SQL_SCOPE_PASS"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_CURRENT_CANDIDATE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded implementation/tests do not certify whole printing, future fixed full or current product gates."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "special-trigger-9be95920bd42784586b4",
+      "sourceRefs": [
+        "UNL-118/219",
+        "OGS-001/024",
+        "OGN-296/298",
+        "DOC-01-P074-B008",
+        "DOC-01-P106-B010",
+        "DOC-01-P106-B013",
+        "DOC-01-P106-B014"
+      ],
+      "state": "RECORDED",
+      "sourceManifest": {
+        "path": "docs/evidence/special-trigger-damage-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "cbdc91c7ccae450e2c7d702e3e3644c2d9ae0dc55878c059f0b880cf1e335062",
+        "role": "source-manifest"
+      },
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.SpecialTriggerDamageBonusTests.PerLocationPlaySkillAddsCurrentControllerAndEachTargetsLocalBonus(printing: \"UNL-118/219\", copies: 1, local: True)",
+        "parameters": {
+          "printing": "UNL-118/219",
+          "copies": 1,
+          "local": true
+        },
+        "literalSourceGroundedExpectedValues": {
+          "fieldDamage": 3,
+          "baseDamage": 2,
+          "oneSelectedUnitPerLocation": true
+        },
+        "controlledSqlSamePrintingCountAndLocationBranch": false
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CURRENT_SOURCE_REVIEW",
+        "combinedGeneralRulesNotOfficialYoneNumericExample": true
+      },
+      "implementation": {
+        "state": "TWO_EXISTING_SPECIAL_DAMAGE_CALLS_REUSE_SHARED_HELPER"
+      },
+      "testExecution": {
+        "state": "FOCUS_CHECK_ALL110_AND_SIXTEEN_EXACT_SQL_SCOPE_PASS"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_CURRENT_CANDIDATE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded implementation/tests do not certify whole printing, future fixed full or current product gates."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "special-trigger-a4e53cf019c9a53ccfac",
+      "sourceRefs": [
+        "UNL-118/219",
+        "OGS-001/024",
+        "OGN-296/298",
+        "DOC-01-P074-B008",
+        "DOC-01-P106-B010",
+        "DOC-01-P106-B013",
+        "DOC-01-P106-B014"
+      ],
+      "state": "RECORDED",
+      "sourceManifest": {
+        "path": "docs/evidence/special-trigger-damage-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "cbdc91c7ccae450e2c7d702e3e3644c2d9ae0dc55878c059f0b880cf1e335062",
+        "role": "source-manifest"
+      },
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.SpecialTriggerDamageBonusTests.PerLocationPlaySkillAddsCurrentControllerAndEachTargetsLocalBonus(printing: \"UNL-118/219\", copies: 2, local: False)",
+        "parameters": {
+          "printing": "UNL-118/219",
+          "copies": 2,
+          "local": false
+        },
+        "literalSourceGroundedExpectedValues": {
+          "fieldDamage": 3,
+          "baseDamage": 3,
+          "oneSelectedUnitPerLocation": true
+        },
+        "controlledSqlSamePrintingCountAndLocationBranch": false
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CURRENT_SOURCE_REVIEW",
+        "combinedGeneralRulesNotOfficialYoneNumericExample": true
+      },
+      "implementation": {
+        "state": "TWO_EXISTING_SPECIAL_DAMAGE_CALLS_REUSE_SHARED_HELPER"
+      },
+      "testExecution": {
+        "state": "FOCUS_CHECK_ALL110_AND_SIXTEEN_EXACT_SQL_SCOPE_PASS"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_CURRENT_CANDIDATE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded implementation/tests do not certify whole printing, future fixed full or current product gates."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "special-trigger-e4e4b94847c25dcf4637",
+      "sourceRefs": [
+        "UNL-118/219",
+        "OGS-001/024",
+        "OGN-296/298",
+        "DOC-01-P074-B008",
+        "DOC-01-P106-B010",
+        "DOC-01-P106-B013",
+        "DOC-01-P106-B014"
+      ],
+      "state": "RECORDED",
+      "sourceManifest": {
+        "path": "docs/evidence/special-trigger-damage-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "cbdc91c7ccae450e2c7d702e3e3644c2d9ae0dc55878c059f0b880cf1e335062",
+        "role": "source-manifest"
+      },
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.SpecialTriggerDamageBonusTests.PerLocationPlaySkillAddsCurrentControllerAndEachTargetsLocalBonus(printing: \"UNL-118/219\", copies: 2, local: True)",
+        "parameters": {
+          "printing": "UNL-118/219",
+          "copies": 2,
+          "local": true
+        },
+        "literalSourceGroundedExpectedValues": {
+          "fieldDamage": 4,
+          "baseDamage": 3,
+          "oneSelectedUnitPerLocation": true
+        },
+        "controlledSqlSamePrintingCountAndLocationBranch": true
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CURRENT_SOURCE_REVIEW",
+        "combinedGeneralRulesNotOfficialYoneNumericExample": true
+      },
+      "implementation": {
+        "state": "TWO_EXISTING_SPECIAL_DAMAGE_CALLS_REUSE_SHARED_HELPER"
+      },
+      "testExecution": {
+        "state": "FOCUS_CHECK_ALL110_AND_SIXTEEN_EXACT_SQL_SCOPE_PASS"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_CURRENT_CANDIDATE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded implementation/tests do not certify whole printing, future fixed full or current product gates."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "special-trigger-5057878d6e42e9f18c35",
+      "sourceRefs": [
+        "UNL-118A/219",
+        "OGS-001/024",
+        "OGN-296/298",
+        "DOC-01-P074-B008",
+        "DOC-01-P106-B010",
+        "DOC-01-P106-B013",
+        "DOC-01-P106-B014"
+      ],
+      "state": "RECORDED",
+      "sourceManifest": {
+        "path": "docs/evidence/special-trigger-damage-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "cbdc91c7ccae450e2c7d702e3e3644c2d9ae0dc55878c059f0b880cf1e335062",
+        "role": "source-manifest"
+      },
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.SpecialTriggerDamageBonusTests.PerLocationPlaySkillAddsCurrentControllerAndEachTargetsLocalBonus(printing: \"UNL-118a/219\", copies: 0, local: False)",
+        "parameters": {
+          "printing": "UNL-118a/219",
+          "copies": 0,
+          "local": false
+        },
+        "literalSourceGroundedExpectedValues": {
+          "fieldDamage": 1,
+          "baseDamage": 1,
+          "oneSelectedUnitPerLocation": true
+        },
+        "controlledSqlSamePrintingCountAndLocationBranch": false
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CURRENT_SOURCE_REVIEW",
+        "combinedGeneralRulesNotOfficialYoneNumericExample": true
+      },
+      "implementation": {
+        "state": "TWO_EXISTING_SPECIAL_DAMAGE_CALLS_REUSE_SHARED_HELPER"
+      },
+      "testExecution": {
+        "state": "FOCUS_CHECK_ALL110_AND_SIXTEEN_EXACT_SQL_SCOPE_PASS"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_CURRENT_CANDIDATE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded implementation/tests do not certify whole printing, future fixed full or current product gates."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "special-trigger-a616742ec8d5cc3954d4",
+      "sourceRefs": [
+        "UNL-118A/219",
+        "OGS-001/024",
+        "OGN-296/298",
+        "DOC-01-P074-B008",
+        "DOC-01-P106-B010",
+        "DOC-01-P106-B013",
+        "DOC-01-P106-B014"
+      ],
+      "state": "RECORDED",
+      "sourceManifest": {
+        "path": "docs/evidence/special-trigger-damage-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "cbdc91c7ccae450e2c7d702e3e3644c2d9ae0dc55878c059f0b880cf1e335062",
+        "role": "source-manifest"
+      },
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.SpecialTriggerDamageBonusTests.PerLocationPlaySkillAddsCurrentControllerAndEachTargetsLocalBonus(printing: \"UNL-118a/219\", copies: 0, local: True)",
+        "parameters": {
+          "printing": "UNL-118a/219",
+          "copies": 0,
+          "local": true
+        },
+        "literalSourceGroundedExpectedValues": {
+          "fieldDamage": 2,
+          "baseDamage": 1,
+          "oneSelectedUnitPerLocation": true
+        },
+        "controlledSqlSamePrintingCountAndLocationBranch": true
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CURRENT_SOURCE_REVIEW",
+        "combinedGeneralRulesNotOfficialYoneNumericExample": true
+      },
+      "implementation": {
+        "state": "TWO_EXISTING_SPECIAL_DAMAGE_CALLS_REUSE_SHARED_HELPER"
+      },
+      "testExecution": {
+        "state": "FOCUS_CHECK_ALL110_AND_SIXTEEN_EXACT_SQL_SCOPE_PASS"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_CURRENT_CANDIDATE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded implementation/tests do not certify whole printing, future fixed full or current product gates."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "special-trigger-efa20442c31969ea35f9",
+      "sourceRefs": [
+        "UNL-118A/219",
+        "OGS-001/024",
+        "OGN-296/298",
+        "DOC-01-P074-B008",
+        "DOC-01-P106-B010",
+        "DOC-01-P106-B013",
+        "DOC-01-P106-B014"
+      ],
+      "state": "RECORDED",
+      "sourceManifest": {
+        "path": "docs/evidence/special-trigger-damage-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "cbdc91c7ccae450e2c7d702e3e3644c2d9ae0dc55878c059f0b880cf1e335062",
+        "role": "source-manifest"
+      },
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.SpecialTriggerDamageBonusTests.PerLocationPlaySkillAddsCurrentControllerAndEachTargetsLocalBonus(printing: \"UNL-118a/219\", copies: 1, local: False)",
+        "parameters": {
+          "printing": "UNL-118a/219",
+          "copies": 1,
+          "local": false
+        },
+        "literalSourceGroundedExpectedValues": {
+          "fieldDamage": 2,
+          "baseDamage": 2,
+          "oneSelectedUnitPerLocation": true
+        },
+        "controlledSqlSamePrintingCountAndLocationBranch": false
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CURRENT_SOURCE_REVIEW",
+        "combinedGeneralRulesNotOfficialYoneNumericExample": true
+      },
+      "implementation": {
+        "state": "TWO_EXISTING_SPECIAL_DAMAGE_CALLS_REUSE_SHARED_HELPER"
+      },
+      "testExecution": {
+        "state": "FOCUS_CHECK_ALL110_AND_SIXTEEN_EXACT_SQL_SCOPE_PASS"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_CURRENT_CANDIDATE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded implementation/tests do not certify whole printing, future fixed full or current product gates."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "special-trigger-b50306a4f83344d71bb9",
+      "sourceRefs": [
+        "UNL-118A/219",
+        "OGS-001/024",
+        "OGN-296/298",
+        "DOC-01-P074-B008",
+        "DOC-01-P106-B010",
+        "DOC-01-P106-B013",
+        "DOC-01-P106-B014"
+      ],
+      "state": "RECORDED",
+      "sourceManifest": {
+        "path": "docs/evidence/special-trigger-damage-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "cbdc91c7ccae450e2c7d702e3e3644c2d9ae0dc55878c059f0b880cf1e335062",
+        "role": "source-manifest"
+      },
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.SpecialTriggerDamageBonusTests.PerLocationPlaySkillAddsCurrentControllerAndEachTargetsLocalBonus(printing: \"UNL-118a/219\", copies: 1, local: True)",
+        "parameters": {
+          "printing": "UNL-118a/219",
+          "copies": 1,
+          "local": true
+        },
+        "literalSourceGroundedExpectedValues": {
+          "fieldDamage": 3,
+          "baseDamage": 2,
+          "oneSelectedUnitPerLocation": true
+        },
+        "controlledSqlSamePrintingCountAndLocationBranch": false
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CURRENT_SOURCE_REVIEW",
+        "combinedGeneralRulesNotOfficialYoneNumericExample": true
+      },
+      "implementation": {
+        "state": "TWO_EXISTING_SPECIAL_DAMAGE_CALLS_REUSE_SHARED_HELPER"
+      },
+      "testExecution": {
+        "state": "FOCUS_CHECK_ALL110_AND_SIXTEEN_EXACT_SQL_SCOPE_PASS"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_CURRENT_CANDIDATE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded implementation/tests do not certify whole printing, future fixed full or current product gates."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "special-trigger-abb29a056be47e934655",
+      "sourceRefs": [
+        "UNL-118A/219",
+        "OGS-001/024",
+        "OGN-296/298",
+        "DOC-01-P074-B008",
+        "DOC-01-P106-B010",
+        "DOC-01-P106-B013",
+        "DOC-01-P106-B014"
+      ],
+      "state": "RECORDED",
+      "sourceManifest": {
+        "path": "docs/evidence/special-trigger-damage-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "cbdc91c7ccae450e2c7d702e3e3644c2d9ae0dc55878c059f0b880cf1e335062",
+        "role": "source-manifest"
+      },
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.SpecialTriggerDamageBonusTests.PerLocationPlaySkillAddsCurrentControllerAndEachTargetsLocalBonus(printing: \"UNL-118a/219\", copies: 2, local: False)",
+        "parameters": {
+          "printing": "UNL-118a/219",
+          "copies": 2,
+          "local": false
+        },
+        "literalSourceGroundedExpectedValues": {
+          "fieldDamage": 3,
+          "baseDamage": 3,
+          "oneSelectedUnitPerLocation": true
+        },
+        "controlledSqlSamePrintingCountAndLocationBranch": false
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CURRENT_SOURCE_REVIEW",
+        "combinedGeneralRulesNotOfficialYoneNumericExample": true
+      },
+      "implementation": {
+        "state": "TWO_EXISTING_SPECIAL_DAMAGE_CALLS_REUSE_SHARED_HELPER"
+      },
+      "testExecution": {
+        "state": "FOCUS_CHECK_ALL110_AND_SIXTEEN_EXACT_SQL_SCOPE_PASS"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_CURRENT_CANDIDATE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded implementation/tests do not certify whole printing, future fixed full or current product gates."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "special-trigger-7b4b19835e3243bac71c",
+      "sourceRefs": [
+        "UNL-118A/219",
+        "OGS-001/024",
+        "OGN-296/298",
+        "DOC-01-P074-B008",
+        "DOC-01-P106-B010",
+        "DOC-01-P106-B013",
+        "DOC-01-P106-B014"
+      ],
+      "state": "RECORDED",
+      "sourceManifest": {
+        "path": "docs/evidence/special-trigger-damage-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "cbdc91c7ccae450e2c7d702e3e3644c2d9ae0dc55878c059f0b880cf1e335062",
+        "role": "source-manifest"
+      },
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.SpecialTriggerDamageBonusTests.PerLocationPlaySkillAddsCurrentControllerAndEachTargetsLocalBonus(printing: \"UNL-118a/219\", copies: 2, local: True)",
+        "parameters": {
+          "printing": "UNL-118a/219",
+          "copies": 2,
+          "local": true
+        },
+        "literalSourceGroundedExpectedValues": {
+          "fieldDamage": 4,
+          "baseDamage": 3,
+          "oneSelectedUnitPerLocation": true
+        },
+        "controlledSqlSamePrintingCountAndLocationBranch": true
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CURRENT_SOURCE_REVIEW",
+        "combinedGeneralRulesNotOfficialYoneNumericExample": true
+      },
+      "implementation": {
+        "state": "TWO_EXISTING_SPECIAL_DAMAGE_CALLS_REUSE_SHARED_HELPER"
+      },
+      "testExecution": {
+        "state": "FOCUS_CHECK_ALL110_AND_SIXTEEN_EXACT_SQL_SCOPE_PASS"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_CURRENT_CANDIDATE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded implementation/tests do not certify whole printing, future fixed full or current product gates."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    }
+  ]
+}

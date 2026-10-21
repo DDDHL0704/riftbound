@@ -1,0 +1,26 @@
+{
+  "status": "PASS_INDEPENDENT_ORIGINAL_LATE_PARTIAL_67_ACTIONS_ALL_HISTORY_REPLAY_NOT_A_COMPLETED_GAME",
+  "room": "N27-RETARGET-E7879B5EEF",
+  "commands": 67,
+  "events": 530,
+  "histories": 67,
+  "actualHistoricalPayloads": {
+    "state_snapshots": 67,
+    "snapshots": 130,
+    "action_prompts": 130
+  },
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "e7455edc32d43f8253a9d0c6fedb83c347bebafbef064f9b8dffaaabc4b4d266",
+    "implementationSha256": "69417fc30bec0e700ab92824e11b13812402631164b689d039986a7b40247607",
+    "identitySha256": "ec217d6fa40c76c0fa4da67cefa8a2f7b184a196bdcdef03e26acfcddede1468"
+  },
+  "actualReadOnlyConnection": true,
+  "everyOriginalFieldNullOmissionAndPrivateProjectionExact": true,
+  "originalSeedBlankOpeningAndAcceptedHistoryUnchanged": true,
+  "originalNineCardPreconditionFailed": true,
+  "completedGameOrNativeControlAcceptance": false
+}

@@ -24575,6 +24575,133 @@
         "Current fixed full, visible native controls/paired windows and physical Windows remain open.",
         "All1740printings14293ruleblocks,705outside-active,236CNdispositions,8ENgap,139news and all original dates/deltas remain."
       ]
+    },
+    {
+      "id": "special-trigger-damage-current-cn16-2026-10-22",
+      "scope": "Five exact Elder/Yone printings, two existing damage routes,44 bounded conformance cases,16 controlled SQL cases. Separate confirmed Frost controller and fixed7a early-seat replay findings remain OPEN.",
+      "subjects": [
+        "UNL-118/219",
+        "UNL-118A/219",
+        "SFD-116/221",
+        "SFD-233/221",
+        "SFD-233*/221",
+        "OGS-001/024",
+        "OGN-296/298"
+      ],
+      "ruleRecords": [
+        "DOC-01-P074-B007",
+        "DOC-01-P074-B008",
+        "DOC-01-P074-B011",
+        "DOC-01-P074-B012",
+        "DOC-01-P074-B013",
+        "DOC-01-P074-B014",
+        "DOC-01-P074-B015",
+        "DOC-01-P074-B018",
+        "DOC-01-P106-B009",
+        "DOC-01-P106-B010",
+        "DOC-01-P106-B013",
+        "DOC-01-P106-B014",
+        "DOC-01-P106-B015",
+        "DOC-01-P106-B016",
+        "DOC-01-P106-B017",
+        "DOC-01-P057-B004",
+        "DOC-01-P057-B012",
+        "DOC-01-P057-B014",
+        "DOC-01-P030-B007",
+        "DOC-01-P030-B010",
+        "DOC-01-P029-B006",
+        "DOC-01-P029-B007",
+        "DOC-01-P029-B008",
+        "DOC-01-P029-B009",
+        "DOC-01-P101-B004"
+      ],
+      "status": "BOUNDED_TWO_SPECIAL_DAMAGE_ROUTES44_CASES_FOCUS191_CHECK13348_SQL88_ALL110_PASS_FIXED_FULL_AND_PRODUCT_OPEN",
+      "sourceManifest": {
+        "path": "docs/evidence/special-trigger-damage-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "cbdc91c7ccae450e2c7d702e3e3644c2d9ae0dc55878c059f0b880cf1e335062",
+        "role": "source-manifest"
+      },
+      "auditDocument": "docs/SPECIAL_TRIGGER_DAMAGE_CURRENT_CN16_AUDIT_2026-10-22.md",
+      "validation": {
+        "newCases": 44,
+        "newMethods": 5,
+        "focusCases": 191,
+        "focusMethods": 59,
+        "checkCases": 13348,
+        "checkMethods": 7521,
+        "sqlCases": 16,
+        "sqlCommands": 88,
+        "sqlEvents": 241,
+        "sqlColdRecoveries": 88,
+        "allOriginal143FullMethods110Pairs11Decks424242AndAssertionsRetained": true,
+        "wholePrintingCertified": false
+      },
+      "exclusions": [
+        "Whole printings, remaining damage consumers, copies/grants/control changes, Deathcap and further replacement branches remain open.",
+        "N38 fixed full and its current candidate product acceptance remain pending.",
+        "Fixed7a visible score8:0 does not pass every historical replay: issue85 confirmed; Windows physical acceptance remains open.",
+        "Frost source-controller counterexample is issue84 and is not repaired in this batch.",
+        "All original source dates, seven source deltas, 1740 printings/14293 blocks and all coverage gaps remain."
+      ]
+    },
+    {
+      "id": "frost-controlled-start-source-finding-2026-10-22",
+      "scope": "CONFIRMED_OPEN_FINDING_NOT_REPAIRED",
+      "subjects": [
+        "UNL-212/219"
+      ],
+      "ruleRecords": [
+        "DOC-01-P029-B006",
+        "DOC-01-P029-B007",
+        "DOC-01-P029-B008",
+        "DOC-01-P029-B009"
+      ],
+      "status": "CONFIRMED_OPEN_FINDING_NOT_REPAIRED",
+      "sourceManifest": {
+        "path": "docs/evidence/special-trigger-damage-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "cbdc91c7ccae450e2c7d702e3e3644c2d9ae0dc55878c059f0b880cf1e335062",
+        "role": "source-manifest"
+      },
+      "auditDocument": "docs/SPECIAL_TRIGGER_DAMAGE_CURRENT_CN16_AUDIT_2026-10-22.md",
+      "validation": {
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/84",
+        "counterexampleConfirmed": true,
+        "wholePrintingCertified": false
+      },
+      "exclusions": [
+        "Whole printings, remaining damage consumers, copies/grants/control changes, Deathcap and further replacement branches remain open.",
+        "N38 fixed full and its current candidate product acceptance remain pending.",
+        "Fixed7a visible score8:0 does not pass every historical replay: issue85 confirmed; Windows physical acceptance remains open.",
+        "Frost source-controller counterexample is issue84 and is not repaired in this batch.",
+        "All original source dates, seven source deltas, 1740 printings/14293 blocks and all coverage gaps remain."
+      ]
+    },
+    {
+      "id": "native-late-seat-historical-replay-finding-2026-10-22",
+      "scope": "CONFIRMED_OPEN_FINDING_NOT_REPAIRED",
+      "subjects": [],
+      "ruleRecords": [
+        "DOC-01-P101-B004"
+      ],
+      "status": "CONFIRMED_OPEN_FINDING_NOT_REPAIRED",
+      "sourceManifest": {
+        "path": "docs/evidence/special-trigger-damage-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "cbdc91c7ccae450e2c7d702e3e3644c2d9ae0dc55878c059f0b880cf1e335062",
+        "role": "source-manifest"
+      },
+      "auditDocument": "docs/SPECIAL_TRIGGER_DAMAGE_CURRENT_CN16_AUDIT_2026-10-22.md",
+      "validation": {
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/85",
+        "counterexampleConfirmed": true,
+        "wholePrintingCertified": false
+      },
+      "exclusions": [
+        "Whole printings, remaining damage consumers, copies/grants/control changes, Deathcap and further replacement branches remain open.",
+        "N38 fixed full and its current candidate product acceptance remain pending.",
+        "Fixed7a visible score8:0 does not pass every historical replay: issue85 confirmed; Windows physical acceptance remains open.",
+        "Frost source-controller counterexample is issue84 and is not repaired in this batch.",
+        "All original source dates, seven source deltas, 1740 printings/14293 blocks and all coverage gaps remain."
+      ]
     }
   ]
 }

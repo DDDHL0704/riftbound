@@ -1,0 +1,891 @@
+{
+  "status": "FIXED99E_FULL_ORIGINALS_ALL11_JOBS_AND_INDEPENDENT54_SQL_NETWORK_GATE_VERIFIED",
+  "atUtc": "2026-10-21T14:49:23.945044+00:00",
+  "commit": "99e20b4f0640d7b32adbfb9e7dc0c7661b22d37a",
+  "runId": 39594660433,
+  "jobs": {
+    "scope": "success",
+    "native_network": "success",
+    "desktop (macos-latest)": "success",
+    "postgres_partitions (1)": "success",
+    "rule_suite": "success",
+    "desktop (windows-latest)": "success",
+    "postgres_partitions (0)": "success",
+    "postgres_partitions (2)": "success",
+    "postgres_partitions (3)": "success",
+    "postgres": "success",
+    "rules": "success"
+  },
+  "actualCases": 13403,
+  "actualMethods": 7651,
+  "original25cAll13387CaseMultiset7649MethodsRetained": true,
+  "addedCases": {
+    "Riftbound.ConformanceTests.CurrentTeemoCountedDamageTests.ActualDefendChoiceAppliesVoidBonusToOneCountedActionAndKeepsZeroCountWithoutDamage(printing: \"SFD\u00b7230*/221\", count: 0)": 1,
+    "Riftbound.ConformanceTests.CurrentTeemoCountedDamageTests.ActualDefendChoiceAppliesVoidBonusToOneCountedActionAndKeepsZeroCountWithoutDamage(printing: \"OGN\u00b7121a/298\", count: 2)": 1,
+    "Riftbound.ConformanceTests.CurrentTeemoCountedDamageTests.FourExactPrintingsAdoptTheCurrentOfficialDefendOnlyErratum(id: 33334, printing: \"SFD\u00b7230/221\")": 1,
+    "Riftbound.ConformanceTests.CurrentTeemoCountedDamageTests.ActualDefendChoiceAppliesVoidBonusToOneCountedActionAndKeepsZeroCountWithoutDamage(printing: \"SFD\u00b7230/221\", count: 1)": 1,
+    "Riftbound.ConformanceTests.CurrentTeemoCountedDamageTests.ActualDefendChoiceAppliesVoidBonusToOneCountedActionAndKeepsZeroCountWithoutDamage(printing: \"OGN\u00b7121/298\", count: 2)": 1,
+    "Riftbound.ConformanceTests.CurrentTeemoCountedDamageTests.ActualDefendChoiceAppliesVoidBonusToOneCountedActionAndKeepsZeroCountWithoutDamage(printing: \"SFD\u00b7230*/221\", count: 1)": 1,
+    "Riftbound.ConformanceTests.CurrentTeemoCountedDamageTests.FourExactPrintingsAdoptTheCurrentOfficialDefendOnlyErratum(id: 33335, printing: \"SFD\u00b7230*/221\")": 1,
+    "Riftbound.ConformanceTests.CurrentTeemoCountedDamageTests.FourExactPrintingsAdoptTheCurrentOfficialDefendOnlyErratum(id: 31343, printing: \"OGN\u00b7121a/298\")": 1,
+    "Riftbound.ConformanceTests.CurrentTeemoCountedDamageTests.ActualDefendChoiceAppliesVoidBonusToOneCountedActionAndKeepsZeroCountWithoutDamage(printing: \"OGN\u00b7121a/298\", count: 1)": 1,
+    "Riftbound.ConformanceTests.CurrentTeemoCountedDamageTests.ActualDefendChoiceAppliesVoidBonusToOneCountedActionAndKeepsZeroCountWithoutDamage(printing: \"OGN\u00b7121a/298\", count: 0)": 1,
+    "Riftbound.ConformanceTests.CurrentTeemoCountedDamageTests.FourExactPrintingsAdoptTheCurrentOfficialDefendOnlyErratum(id: 31342, printing: \"OGN\u00b7121/298\")": 1,
+    "Riftbound.ConformanceTests.CurrentTeemoCountedDamageTests.ActualDefendChoiceAppliesVoidBonusToOneCountedActionAndKeepsZeroCountWithoutDamage(printing: \"SFD\u00b7230*/221\", count: 2)": 1,
+    "Riftbound.ConformanceTests.CurrentTeemoCountedDamageTests.ActualDefendChoiceAppliesVoidBonusToOneCountedActionAndKeepsZeroCountWithoutDamage(printing: \"OGN\u00b7121/298\", count: 0)": 1,
+    "Riftbound.ConformanceTests.CurrentTeemoCountedDamageTests.ActualDefendChoiceAppliesVoidBonusToOneCountedActionAndKeepsZeroCountWithoutDamage(printing: \"OGN\u00b7121/298\", count: 1)": 1,
+    "Riftbound.ConformanceTests.CurrentTeemoCountedDamageTests.ActualDefendChoiceAppliesVoidBonusToOneCountedActionAndKeepsZeroCountWithoutDamage(printing: \"SFD\u00b7230/221\", count: 2)": 1,
+    "Riftbound.ConformanceTests.CurrentTeemoCountedDamageTests.ActualDefendChoiceAppliesVoidBonusToOneCountedActionAndKeepsZeroCountWithoutDamage(printing: \"SFD\u00b7230/221\", count: 0)": 1
+  },
+  "addedMethods": [
+    "Riftbound.ConformanceTests.CurrentTeemoCountedDamageTests.ActualDefendChoiceAppliesVoidBonusToOneCountedActionAndKeepsZeroCountWithoutDamage",
+    "Riftbound.ConformanceTests.CurrentTeemoCountedDamageTests.FourExactPrintingsAdoptTheCurrentOfficialDefendOnlyErratum"
+  ],
+  "fullGameMethods": 143,
+  "matrix": {
+    "seed": 424242,
+    "deckCount": 11,
+    "pairCount": 110,
+    "completed": {
+      "jhin-lowcurve-vs-kaisa-red-control": "8fc9fe572fd1debfb07df7f35d7c05cf5edf645146c5c557d58effc11ae7d297",
+      "jhin-lowcurve-vs-kaisa-red-tempo": "c97e17e2c0c153cb781252803d495f92d1a90ccb793abb977444bbd5e08c035d",
+      "jhin-lowcurve-vs-lillia-lowcurve": "ff2d7335dd927b0a20434fcd686bcdaaba9e996a41f90d9cd87db154fdc0fed9",
+      "jhin-lowcurve-vs-poppy-demacia": "3c52447f86cb28a78d4b2db08ac200e479533c7f0344c9f141c79b065af988ba",
+      "jhin-lowcurve-vs-poppy-standby": "9d8327c3b792d2b5b9526c93c3908de67646013df332a9a600e08bd0d4e9d786",
+      "jhin-lowcurve-vs-rumble-armaments": "63d049162a1ca2eb230f5a7636de6339b90cfcfc33e3fa84eeedbf990a43f54f",
+      "jhin-lowcurve-vs-rumble-lowcurve": "4ed1cbc8412bf697b616762e7023698f7c34d65af6fbca46a4e8579e24ce7a85",
+      "jhin-lowcurve-vs-vex-battlefields": "08dd5290f9f4de6a6ec518d31fae4828db8ae8ecd7aaabf4fefc5b0890a6d53b",
+      "jhin-lowcurve-vs-vex-response": "18b4d2146c3b74d1bc67b217b494cf30f0ecb444b8b82148f637930fcec519d2",
+      "jhin-lowcurve-vs-vex-spells": "e5bcfa9655fcbb190240157e9d9c80f4c81f7183da2a681dfc16f574746cd706",
+      "kaisa-red-control-vs-jhin-lowcurve": "88efd49c156a74e14dcc45af8eb45be54e04ea2023095b4bf79ed354ae820b5a",
+      "kaisa-red-control-vs-kaisa-red-tempo": "45777241becad6f5410855f67416f4c4539252cc02b72d4ec7bfa396aae38c60",
+      "kaisa-red-control-vs-lillia-lowcurve": "59249103ac9fba4539cf6d0ffa696a502166ee7505d1fc787bf78692de4b15e7",
+      "kaisa-red-control-vs-poppy-demacia": "9de29f960b783e2d2726a9ae04870630f280d279ed48cd37ef4d22858e46bc5d",
+      "kaisa-red-control-vs-poppy-standby": "8cdb358166848330da83f7addc3ba541a100d81ef40b4081735cb2966b1cbf85",
+      "kaisa-red-control-vs-rumble-armaments": "33fc5729e8c161d246aee56e4bed936b90dabcaeb4724c60c1c186d235ebc4ed",
+      "kaisa-red-control-vs-rumble-lowcurve": "78961721fcc306d60c865a8a0059e34fc4e0cbcadfc1c7c7495aa8d74ba89a06",
+      "kaisa-red-control-vs-vex-battlefields": "dfdf921dd1f3bfe6d9e634ec0ee0d183408899d134fbe54caafa78b4f785b4cb",
+      "kaisa-red-control-vs-vex-response": "d442d8172ab48d8fab2f5f50096af45412bb11fd89e85bf5d5eba2ce40ba6509",
+      "kaisa-red-control-vs-vex-spells": "098e9873a45bd1443090b21efb0020ec885471d688822b52988d3631726c204c",
+      "kaisa-red-tempo-vs-jhin-lowcurve": "654df0cc868766af800e2b9e13a4cf686c9b26d6ec4d6ef0eea373bf60175739",
+      "kaisa-red-tempo-vs-kaisa-red-control": "226df0189559d0d4b2f482e5be7c15245b047ccfe2fa06d84d25285b06ee923b",
+      "kaisa-red-tempo-vs-lillia-lowcurve": "c69ae752d39b0f1ca5a27a6a73d1352cfd7d96877a2a5b28fdfd1221a432b6ee",
+      "kaisa-red-tempo-vs-poppy-demacia": "340318743cf2f22d5a067eed49e7ddee50458094f098ca26b94b5a7ed3a43631",
+      "kaisa-red-tempo-vs-poppy-standby": "b1a5250af01f64eb14c1e4de90b46e7eaaf1c4cdd298bb21a8841edcc57277b1",
+      "kaisa-red-tempo-vs-rumble-armaments": "719d281f039b2d26447cbd99c4639c5b184c9f823061f32f282e3eaa3ee2471c",
+      "kaisa-red-tempo-vs-rumble-lowcurve": "6404de20aeb465181534546a32b43b00168cabb77b724f8c28ccd7e0d6f8107d",
+      "kaisa-red-tempo-vs-vex-battlefields": "d55da0c32ff1ec553c48350344ee672d4b06a40e73afe341683c7c303d026677",
+      "kaisa-red-tempo-vs-vex-response": "1d96efa639cfdda9a10756a2e12c2d23a96de99f3d28b0f824de0764d3718bdc",
+      "kaisa-red-tempo-vs-vex-spells": "f443363e38d3f769aaec89a968f90a3d3ca64146cccdead4c8066560f6b9a8e9",
+      "lillia-lowcurve-vs-jhin-lowcurve": "997a15abe09028a5e18b2b37f6b2bf2928ed376a38856a9695b3cc0ce0f937f3",
+      "lillia-lowcurve-vs-kaisa-red-control": "a7a43cb25f14e21fd3fedc43635fffb261ea8255a2765641574f334cd9d8a7bd",
+      "lillia-lowcurve-vs-kaisa-red-tempo": "a8dcdf64c87d5c04a80b8bdda4dd97b393f9d4e93bc6e179d908d4802db44879",
+      "lillia-lowcurve-vs-poppy-demacia": "7396624c359d3942c8c1437200898d1cd660d84d1dec9f8e0a280c4aeebcb198",
+      "lillia-lowcurve-vs-poppy-standby": "617765026c6692f754a736db2333f64ee268bd2c2e0dc6c4339c83c96c875c52",
+      "lillia-lowcurve-vs-rumble-armaments": "21b7daeb362d798a46b0d05b417e28eb28152a0ce84899191d3e87d2209e16e5",
+      "lillia-lowcurve-vs-rumble-lowcurve": "5e9a6a957b38bb306cb0786aa7f94b1bb295aa8439efbf89c0f310c7ab92a2f3",
+      "lillia-lowcurve-vs-vex-battlefields": "590ff63c4b3e9ef29e77304227a12c51fccca2763846214f3293845c68536d00",
+      "lillia-lowcurve-vs-vex-response": "7d65158ad724b1291b6497214972cd026d41df5f419603f6efd005d98ec08388",
+      "lillia-lowcurve-vs-vex-spells": "4f3c60f1fad16d73c7f12b4a1289962b37846cb881d7b907b6713fbf44e76303",
+      "poppy-demacia-vs-jhin-lowcurve": "c4a7fbed96d62e495bd05cc447a308e9c2d7d966e7d9368ffe41aca37ed09ebc",
+      "poppy-demacia-vs-kaisa-red-control": "6b1f4bfdcdef8f0801d611076c34a9f3e5bf8ee0a2d0d025b81f2443cb07ab23",
+      "poppy-demacia-vs-kaisa-red-tempo": "88f982f8f117a712742e3de23604e76514b49a656ff9d9f998cc25293cb1fec2",
+      "poppy-demacia-vs-lillia-lowcurve": "fc3f60dab4ed4a3211012ca52aaf2d2cbdf35ba7735223a780216766c22bf206",
+      "poppy-demacia-vs-poppy-standby": "e18b2812fcbefca994d04720b3598e5f7a86a4db3dd2215679668e14154103f1",
+      "poppy-demacia-vs-rumble-armaments": "fdd9faf8e009fd7657df0f1e96323ef6a21a35e67b3fd772b145ca84288ac156",
+      "poppy-demacia-vs-rumble-lowcurve": "33ed4c424a097d7fe60a504cc67003d90457dd267c4a78cacea9d1fb256d9eb7",
+      "poppy-demacia-vs-vex-battlefields": "47deca1f12d23d04390cd4fa91c3acd8a11f4dc2c01a1ab7096b6b0b52ef2cb9",
+      "poppy-demacia-vs-vex-response": "e89e4c3a928520b0abcdcb725d986c1a14ece21ef988653d02f6bf7f8047a041",
+      "poppy-demacia-vs-vex-spells": "e0a62a25840fa81f5757b4788fa772a31a939d1e47b08572ae43e810f8e72b5e",
+      "poppy-standby-vs-jhin-lowcurve": "9885b0541f6416ab78a7929b1216fa92096ea126f30a56b8272fecb24df45c62",
+      "poppy-standby-vs-kaisa-red-control": "7782a44b854658f2a6e8b9f71e88c4f1c611af61adb6e0f9443f91329080a4f8",
+      "poppy-standby-vs-kaisa-red-tempo": "fe93d0e175e357e405a8fb487f43f1f0785ca81a7735ddf15261f741c2b0b699",
+      "poppy-standby-vs-lillia-lowcurve": "0360ef4669abc59809f432389082eecf5b598d944fc3da343b788b2cf30ec1f0",
+      "poppy-standby-vs-poppy-demacia": "8649dc5e0a88ea14b2cb0ae9889b16b06b224a9259acbd563ed7ed5aaa1d9784",
+      "poppy-standby-vs-rumble-armaments": "a6202a50852c1aed93b47462842e787657e433acd18165c873995c904843d7f3",
+      "poppy-standby-vs-rumble-lowcurve": "9f09920dc255b345e0f62ea816253ec2b8b393a4b176084115cfbf8a68914dfe",
+      "poppy-standby-vs-vex-battlefields": "655306b5ae4cf4ff1fc56c5dd753484d2b0ac35ca7ecb56b5a732f24967e45f3",
+      "poppy-standby-vs-vex-response": "bcadd4091dd8333ad42e28860fbbc7d263ab1ad3f8da16d3de63020a92d48fb4",
+      "poppy-standby-vs-vex-spells": "91274c82999393fb20fd5fa84d28b9298ddddc4aaea9063ef5b73d9d3edc39c7",
+      "rumble-armaments-vs-jhin-lowcurve": "1171dd487f97c02a7095f799934432bd0ebbb1338ec29c06af27ec4b7db8b53d",
+      "rumble-armaments-vs-kaisa-red-control": "25255cb514f1a3115ec506906388a26647632ad827d17bc0f7ee37bda584b655",
+      "rumble-armaments-vs-kaisa-red-tempo": "158772ccada6db7e1b01245aeb991a2f5a30e2188d5a6a874b10bd053a727d6f",
+      "rumble-armaments-vs-lillia-lowcurve": "fbf6a4bb68e610a3dbb3cceb9f91413caf9cda83f68e6dc9ac70ee5172e57f89",
+      "rumble-armaments-vs-poppy-demacia": "10a242bb923c37d52c42d0d602a389172c4ae13069d7c2b03158bff920c65ef0",
+      "rumble-armaments-vs-poppy-standby": "80dfca954ba2ccfcb695d16e1380363b1bb282b0e951ffb73abe996f76d33d9d",
+      "rumble-armaments-vs-rumble-lowcurve": "2c68f303d581c2bc4edfd053134495c04fbef8d54361b5e4c9f7d57a34eea6b2",
+      "rumble-armaments-vs-vex-battlefields": "1530a2c15f2d13a434227e1f06de02723958e3342e240f4951e081d5128b5e98",
+      "rumble-armaments-vs-vex-response": "cc6f3bfcbe778d945a6bf6b857a8ebf0f61ffc79b9fcb06eab57ff2d0fbb51ff",
+      "rumble-armaments-vs-vex-spells": "faff40034ffb027d296004d3fc15ecaae420712955be9b1dc1b3f2df3521aed0",
+      "rumble-lowcurve-vs-jhin-lowcurve": "b8c6384d5fef4118ec284556182518589b8c75a79f162582b72879455b692386",
+      "rumble-lowcurve-vs-kaisa-red-control": "758ed50f478904410ae5b07fa1404984a5462aa2430c4a8816cc0bca0aa99486",
+      "rumble-lowcurve-vs-kaisa-red-tempo": "12a77452fbf0d9bfd80e4c552250d65f50c3e2d44c2c01ffd7d75912d17d77e8",
+      "rumble-lowcurve-vs-lillia-lowcurve": "7b4bd3f7a2e1c47e953c701b143c4cd37586b211011fe9fcf282eb2534d018bf",
+      "rumble-lowcurve-vs-poppy-demacia": "9d1cb4a72ad8824d3a2da6926f364d3f8b5f780bfb262d1b046a8d6e0c015ca0",
+      "rumble-lowcurve-vs-poppy-standby": "1429137437e42e6566ee96940b26cb6ecdc40c44cb952617a31823e87668e2ee",
+      "rumble-lowcurve-vs-rumble-armaments": "271ef8a9dadcd5bbcff88c02371f1301df1c99fb50d68a664926350850925311",
+      "rumble-lowcurve-vs-vex-battlefields": "b1a8532c42a77a328883c5b128e56824c3035106f073cb687fb7fa71c139216a",
+      "rumble-lowcurve-vs-vex-response": "3ed83105065eb0dabac865c14d539d22eb191bb6f9b733764ab85b9dedafd646",
+      "rumble-lowcurve-vs-vex-spells": "aaa6063d87e077dac3191a7bc8dbf468b034fd9e2a29231ed7925e79686edf6b",
+      "vex-battlefields-vs-jhin-lowcurve": "54c09aaf1af13cb5ef423f187a8a9fc3abb76f6ecea83e6c992ce44fa4de009f",
+      "vex-battlefields-vs-kaisa-red-control": "0b461d31b5a8403934f0eefc7c876d0badde6566498bc3f460d911b9329fffd6",
+      "vex-battlefields-vs-kaisa-red-tempo": "f6c1c79a52a16c41033dbfd5dcbcd813b51b42548740b52a7c3c04c3d1442f2d",
+      "vex-battlefields-vs-lillia-lowcurve": "ab83aba393292efad32baab98e6aaf85aac97cb205802cab9e0e369175f93678",
+      "vex-battlefields-vs-poppy-demacia": "d826949e810290873a79a34d7c215927ae7398a9eff2c8c599dbabf139457647",
+      "vex-battlefields-vs-poppy-standby": "15865885152f87fa0172570960d85fc2a460b6ed6e335582e41325c043da8334",
+      "vex-battlefields-vs-rumble-armaments": "849c54a4da40d1434eb4eda38404306d21d539493d30624328a7ad4bab9e5c16",
+      "vex-battlefields-vs-rumble-lowcurve": "95232413579fc85052825f1131d1e0de3fbba96334852b8dec00b48371c9645e",
+      "vex-battlefields-vs-vex-response": "b108716db474c465e72eb143786a3b8e760936994ab8158efb973176f680c7d3",
+      "vex-battlefields-vs-vex-spells": "d2264558e7f9f891307e33992da8cebda7905f7fbd547b5dcbc6421a613ff78c",
+      "vex-response-vs-jhin-lowcurve": "75e22e5f21c07baa0c8963ea2a5f5068ca9610d9183c2cec0bca16901c5a4220",
+      "vex-response-vs-kaisa-red-control": "07470ed71ae743ab4f01d415ce41f8761f0e708a73db0892747a274fd37d01fd",
+      "vex-response-vs-kaisa-red-tempo": "a94f4b0f6c819b209709193f3d061c8734829a38fd0b733a800034c71ec6a942",
+      "vex-response-vs-lillia-lowcurve": "df1efd6137945edbe632ad81956239924ad2119efc782263d9811c0a018a8d9b",
+      "vex-response-vs-poppy-demacia": "7d457b4f58223a327ae207dadec3005e011e64aabd24d31257afcca9d005eba4",
+      "vex-response-vs-poppy-standby": "9db14358098f5f0f0f6d701cb2b09304aaf07c530c39872ce7737b3d48851d39",
+      "vex-response-vs-rumble-armaments": "6e4c4cf974e225472af3a8c74b94228b33fe8ecd9d489c405ee4c96b9c3c21b6",
+      "vex-response-vs-rumble-lowcurve": "5f7a6a508674941d110f600e6393e78d636052dfd1c1c7bcaa1ed78e86e803d4",
+      "vex-response-vs-vex-battlefields": "f011bd1f8223ea2465097d0c0fdda61b17ebc6404af1ec796b996871247d1fa2",
+      "vex-response-vs-vex-spells": "57f0945f8dde63bc503c041a01e30d878cf7f587a89c7f9897896af512dbebf6",
+      "vex-spells-vs-jhin-lowcurve": "f83e348f34b15692586e73e5b1a362e9c9f209f274762b53e6deadc1503d54df",
+      "vex-spells-vs-kaisa-red-control": "d2b80a26ee4609abe6de0fc226048bf1a7932829df2e451c352bb05115f40f73",
+      "vex-spells-vs-kaisa-red-tempo": "063bef8862c292d819f16ebee857daa9ec244d849782f46e51e267796c9e1982",
+      "vex-spells-vs-lillia-lowcurve": "d53be0b673cbb092b494939d9973d9b27bbcdd2a182bf70a6d441df756919e16",
+      "vex-spells-vs-poppy-demacia": "866e175f804dbe9d487b8d73c03c5ed9e349409f77b79aa44a4f32d263d3d65a",
+      "vex-spells-vs-poppy-standby": "ddeaa1ca0c2d50c1ee977fd18c87a49f35a4f0a1563b4fb30a5346805030e5d4",
+      "vex-spells-vs-rumble-armaments": "b6a8ba275a4cc4a1e593818161474358cf2fa63fc5a3c5ad6fe860025897d0b1",
+      "vex-spells-vs-rumble-lowcurve": "9caf8ced77b03bc18ed14ce9a95605063fd681d5194bf069c58f3f4d06d8096e",
+      "vex-spells-vs-vex-battlefields": "5ae503af58be689963a276df04202c0382feedbd4670458d118dd8809f7a5163",
+      "vex-spells-vs-vex-response": "ff46113fbf38f5bccd3452ea9fbd305ad73fb9a9186aca9841f4d36e05c5ff33"
+    }
+  },
+  "allOriginal110PairIds11DecksAnd424242SeedRetained": true,
+  "trxSha256": {
+    "ci-rules/games-1/results.trx": "fe859e3a70f8384337b69435dd1e3e01bb11c7cdb23ee68340962c90481cd897",
+    "ci-rules/games-2/results.trx": "67003670ffd39210f2f2019b163d852b37bea7d8c4d82587550cd032a6edabc7",
+    "ci-rules/games-3/results.trx": "8eb7f304b26185374c5d6ae97a85a660d01f191ea78b5f023b9bed7b1b4a58c4",
+    "ci-rules/games-4/results.trx": "17331912e097b68df95df209be18bec35e8b71870b35d3be6bd4fd671a5081fb",
+    "ci-rules/rules/results.trx": "8c40ca8068fe06298295d006cff5f83dfa64bfdcc2d7e7ceeabb6df02583a235"
+  },
+  "sql": {
+    "status": "FIXED_COMMIT_ALL_SQL_PARTITIONS_AND_NATIVE_NETWORK_PASS",
+    "fixedCommit": "99e20b4f0640d7b32adbfb9e7dc0c7661b22d37a",
+    "manifestSha256": "342ec965272cce90842d00401cdc52606d6aaffee7ff541f5a2695337b26ea20",
+    "caseCount": 54,
+    "orderedDefaultCases": [
+      "private-opening",
+      "created-token-ready",
+      "core-opening",
+      "battle-history",
+      "masked-attendant",
+      "granted-predict",
+      "printed-predict",
+      "sivir-optional",
+      "rune-destination",
+      "sivir-payment",
+      "conquest-token",
+      "recycled-card-boon",
+      "recycle-boon-lifecycle",
+      "attached-recycle-lifecycle",
+      "typed-play-history",
+      "porobot",
+      "typed-play-history-causal",
+      "clairvoyance",
+      "insight-repeat",
+      "combat-assignment",
+      "confirmed-play-origin",
+      "physical-origin-cost",
+      "granted-origin-haste",
+      "opponent-battlefield-control",
+      "optional-sacrifice",
+      "granted-token-haste",
+      "optional-costs",
+      "battlefield-play-recovery",
+      "battlefield-play-damage",
+      "banish-effect-play",
+      "here-location-control",
+      "fate-weaver",
+      "multi-controller-trigger-order",
+      "empty-observed-repeat",
+      "observed-play-window",
+      "ravenbloom-put-hand",
+      "attached-predict",
+      "copied-last-breath-insight",
+      "copied-duel-insight",
+      "empowered-insight",
+      "paka-move-reveal",
+      "empty-reveal-followup",
+      "paka-dual-type-reveal",
+      "hwei-move-discard-types",
+      "destruction-graveyard",
+      "conditional-counter-payment",
+      "reversal-target-choice",
+      "spell-remake-declaration",
+      "candlelit-private-look",
+      "candlelit-legend-pending",
+      "revealed-hand-prompt-order",
+      "battlefield-spell-damage",
+      "exhausted-legend-confirmation",
+      "teemo-counted-damage"
+    ],
+    "partitionCount": 4,
+    "partitions": [
+      {
+        "partitionIndex": 0,
+        "cases": [
+          "private-opening",
+          "masked-attendant",
+          "rune-destination",
+          "recycle-boon-lifecycle",
+          "typed-play-history-causal",
+          "confirmed-play-origin",
+          "optional-sacrifice",
+          "battlefield-play-damage",
+          "multi-controller-trigger-order",
+          "attached-predict",
+          "paka-move-reveal",
+          "destruction-graveyard",
+          "candlelit-private-look",
+          "exhausted-legend-confirmation"
+        ],
+        "receiptSha256": "5d67985559f308c67c2f2b9ad0e332f9397e898a10661469774f510317e71ac9",
+        "runtimeAssemblies": [
+          {
+            "file": "Riftbound.PostgresAcceptance.dll",
+            "sha256": "d2933d44fea98b6b45f812bd7614d593701694b83c956e56ec2f0d9d7b103c4e",
+            "mvid": "cbcccab7-2e09-46f5-b528-72accb1673b0"
+          },
+          {
+            "file": "Riftbound.Engine.dll",
+            "sha256": "e095090b53afe9c74ad95600b522b957f099a98baf691d71b016dce8eafdd471",
+            "mvid": "c4769db9-6c18-4544-82b5-f2f82782829a"
+          },
+          {
+            "file": "Riftbound.Contracts.dll",
+            "sha256": "3c0663b08b80e6974e66ba6f2a46cabe464251152bb37456d67ecbf42e20420d",
+            "mvid": "224b7744-5d46-486f-bc9e-8419046654f6"
+          },
+          {
+            "file": "Riftbound.CardCatalog.dll",
+            "sha256": "980f057639f6f24320426c18a3e53c6c5b3601b7db8ee0397930f177293511f6",
+            "mvid": "911b0698-ce44-4e2c-b4d5-4fbf81729337"
+          },
+          {
+            "file": "Riftbound.Persistence.dll",
+            "sha256": "e954d50abbe0d2ac884798244ee7ff82a1d5234888988c00d4bed59c9cae64e7",
+            "mvid": "4c5ee9e9-90f8-48dc-aa17-b8deb9849629"
+          }
+        ],
+        "actualRuleInputs": {
+          "schemaVersion": 1,
+          "region": "CN",
+          "language": "zh-CN",
+          "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+          "catalogSha256": "e7455edc32d43f8253a9d0c6fedb83c347bebafbef064f9b8dffaaabc4b4d266",
+          "implementationSha256": "5623f52f713a23cf4febd40e4a798e6321864cb406b4437c3482fd30d4af0d27",
+          "identitySha256": "c7ebb04b253264a01334c126723ddf142b43416d7189774e47aec3be6c82f1f4"
+        }
+      },
+      {
+        "partitionIndex": 1,
+        "cases": [
+          "created-token-ready",
+          "granted-predict",
+          "sivir-payment",
+          "attached-recycle-lifecycle",
+          "clairvoyance",
+          "physical-origin-cost",
+          "granted-token-haste",
+          "banish-effect-play",
+          "empty-observed-repeat",
+          "copied-last-breath-insight",
+          "empty-reveal-followup",
+          "conditional-counter-payment",
+          "candlelit-legend-pending",
+          "teemo-counted-damage"
+        ],
+        "receiptSha256": "b66396fc1340ed2fd5ac0dcbde4b8cd9efa9db7572a92dfe05a45e3d800274a8",
+        "runtimeAssemblies": [
+          {
+            "file": "Riftbound.PostgresAcceptance.dll",
+            "sha256": "d2933d44fea98b6b45f812bd7614d593701694b83c956e56ec2f0d9d7b103c4e",
+            "mvid": "cbcccab7-2e09-46f5-b528-72accb1673b0"
+          },
+          {
+            "file": "Riftbound.Engine.dll",
+            "sha256": "e095090b53afe9c74ad95600b522b957f099a98baf691d71b016dce8eafdd471",
+            "mvid": "c4769db9-6c18-4544-82b5-f2f82782829a"
+          },
+          {
+            "file": "Riftbound.Contracts.dll",
+            "sha256": "3c0663b08b80e6974e66ba6f2a46cabe464251152bb37456d67ecbf42e20420d",
+            "mvid": "224b7744-5d46-486f-bc9e-8419046654f6"
+          },
+          {
+            "file": "Riftbound.CardCatalog.dll",
+            "sha256": "980f057639f6f24320426c18a3e53c6c5b3601b7db8ee0397930f177293511f6",
+            "mvid": "911b0698-ce44-4e2c-b4d5-4fbf81729337"
+          },
+          {
+            "file": "Riftbound.Persistence.dll",
+            "sha256": "e954d50abbe0d2ac884798244ee7ff82a1d5234888988c00d4bed59c9cae64e7",
+            "mvid": "4c5ee9e9-90f8-48dc-aa17-b8deb9849629"
+          }
+        ],
+        "actualRuleInputs": {
+          "schemaVersion": 1,
+          "region": "CN",
+          "language": "zh-CN",
+          "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+          "catalogSha256": "e7455edc32d43f8253a9d0c6fedb83c347bebafbef064f9b8dffaaabc4b4d266",
+          "implementationSha256": "5623f52f713a23cf4febd40e4a798e6321864cb406b4437c3482fd30d4af0d27",
+          "identitySha256": "c7ebb04b253264a01334c126723ddf142b43416d7189774e47aec3be6c82f1f4"
+        }
+      },
+      {
+        "partitionIndex": 2,
+        "cases": [
+          "core-opening",
+          "printed-predict",
+          "conquest-token",
+          "typed-play-history",
+          "insight-repeat",
+          "granted-origin-haste",
+          "optional-costs",
+          "here-location-control",
+          "observed-play-window",
+          "copied-duel-insight",
+          "paka-dual-type-reveal",
+          "reversal-target-choice",
+          "revealed-hand-prompt-order"
+        ],
+        "receiptSha256": "0b86977211db8bd1ffdee36592522b99d35717e068389f9dd412615fa8f96e6d",
+        "runtimeAssemblies": [
+          {
+            "file": "Riftbound.PostgresAcceptance.dll",
+            "sha256": "d2933d44fea98b6b45f812bd7614d593701694b83c956e56ec2f0d9d7b103c4e",
+            "mvid": "cbcccab7-2e09-46f5-b528-72accb1673b0"
+          },
+          {
+            "file": "Riftbound.Engine.dll",
+            "sha256": "e095090b53afe9c74ad95600b522b957f099a98baf691d71b016dce8eafdd471",
+            "mvid": "c4769db9-6c18-4544-82b5-f2f82782829a"
+          },
+          {
+            "file": "Riftbound.Contracts.dll",
+            "sha256": "3c0663b08b80e6974e66ba6f2a46cabe464251152bb37456d67ecbf42e20420d",
+            "mvid": "224b7744-5d46-486f-bc9e-8419046654f6"
+          },
+          {
+            "file": "Riftbound.CardCatalog.dll",
+            "sha256": "980f057639f6f24320426c18a3e53c6c5b3601b7db8ee0397930f177293511f6",
+            "mvid": "911b0698-ce44-4e2c-b4d5-4fbf81729337"
+          },
+          {
+            "file": "Riftbound.Persistence.dll",
+            "sha256": "e954d50abbe0d2ac884798244ee7ff82a1d5234888988c00d4bed59c9cae64e7",
+            "mvid": "4c5ee9e9-90f8-48dc-aa17-b8deb9849629"
+          }
+        ],
+        "actualRuleInputs": {
+          "schemaVersion": 1,
+          "region": "CN",
+          "language": "zh-CN",
+          "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+          "catalogSha256": "e7455edc32d43f8253a9d0c6fedb83c347bebafbef064f9b8dffaaabc4b4d266",
+          "implementationSha256": "5623f52f713a23cf4febd40e4a798e6321864cb406b4437c3482fd30d4af0d27",
+          "identitySha256": "c7ebb04b253264a01334c126723ddf142b43416d7189774e47aec3be6c82f1f4"
+        }
+      },
+      {
+        "partitionIndex": 3,
+        "cases": [
+          "battle-history",
+          "sivir-optional",
+          "recycled-card-boon",
+          "porobot",
+          "combat-assignment",
+          "opponent-battlefield-control",
+          "battlefield-play-recovery",
+          "fate-weaver",
+          "ravenbloom-put-hand",
+          "empowered-insight",
+          "hwei-move-discard-types",
+          "spell-remake-declaration",
+          "battlefield-spell-damage"
+        ],
+        "receiptSha256": "3a1ff64bffcfddbdd5ae94c3c36f5c526b754744a5a837a5426c07f7236616a7",
+        "runtimeAssemblies": [
+          {
+            "file": "Riftbound.PostgresAcceptance.dll",
+            "sha256": "d2933d44fea98b6b45f812bd7614d593701694b83c956e56ec2f0d9d7b103c4e",
+            "mvid": "cbcccab7-2e09-46f5-b528-72accb1673b0"
+          },
+          {
+            "file": "Riftbound.Engine.dll",
+            "sha256": "e095090b53afe9c74ad95600b522b957f099a98baf691d71b016dce8eafdd471",
+            "mvid": "c4769db9-6c18-4544-82b5-f2f82782829a"
+          },
+          {
+            "file": "Riftbound.Contracts.dll",
+            "sha256": "3c0663b08b80e6974e66ba6f2a46cabe464251152bb37456d67ecbf42e20420d",
+            "mvid": "224b7744-5d46-486f-bc9e-8419046654f6"
+          },
+          {
+            "file": "Riftbound.CardCatalog.dll",
+            "sha256": "980f057639f6f24320426c18a3e53c6c5b3601b7db8ee0397930f177293511f6",
+            "mvid": "911b0698-ce44-4e2c-b4d5-4fbf81729337"
+          },
+          {
+            "file": "Riftbound.Persistence.dll",
+            "sha256": "e954d50abbe0d2ac884798244ee7ff82a1d5234888988c00d4bed59c9cae64e7",
+            "mvid": "4c5ee9e9-90f8-48dc-aa17-b8deb9849629"
+          }
+        ],
+        "actualRuleInputs": {
+          "schemaVersion": 1,
+          "region": "CN",
+          "language": "zh-CN",
+          "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+          "catalogSha256": "e7455edc32d43f8253a9d0c6fedb83c347bebafbef064f9b8dffaaabc4b4d266",
+          "implementationSha256": "5623f52f713a23cf4febd40e4a798e6321864cb406b4437c3482fd30d4af0d27",
+          "identitySha256": "c7ebb04b253264a01334c126723ddf142b43416d7189774e47aec3be6c82f1f4"
+        }
+      }
+    ],
+    "jobs": {
+      "scope": "success",
+      "postgres_partitions": "success",
+      "native_network": "success"
+    },
+    "nativeVisibleOrWholeRuleCertification": false
+  },
+  "originalNetwork": {
+    "room": "NETWORK-e9ec305cc40a",
+    "rejectedActions": 15,
+    "identities": [
+      "ANONYMOUS",
+      "FAILED_KEY",
+      "OTHER_HANDLE"
+    ],
+    "leakedPrivateMessages": 0,
+    "validReconnectTokenWasSupplied": true
+  },
+  "artifacts": [
+    {
+      "name": "postgres-partition-0",
+      "id": 12348298019,
+      "path": "/Users/dinghaolin/MyProjects/riftbound/var/qa/special-trigger-damage-current-cn16-20261021/ci99e-complete-originals-v1/postgres-partition-0.zip",
+      "bytes": 2160739,
+      "sha256": "8f5aa5160962f80e80be4ee8c7ed58f3cb16571f716c964021ad57f66800b0d9",
+      "backendDigest": "sha256:8f5aa5160962f80e80be4ee8c7ed58f3cb16571f716c964021ad57f66800b0d9",
+      "allZipCrcVerified": true,
+      "attempts": [
+        {
+          "attempt": 1,
+          "returnCode": 0,
+          "bytes": 2160739,
+          "sha256": "8f5aa5160962f80e80be4ee8c7ed58f3cb16571f716c964021ad57f66800b0d9",
+          "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "backendSizeAndDigestMatch": true
+        }
+      ]
+    },
+    {
+      "name": "postgres-partition-1",
+      "id": 12350201128,
+      "path": "/Users/dinghaolin/MyProjects/riftbound/var/qa/special-trigger-damage-current-cn16-20261021/ci99e-complete-originals-v1/postgres-partition-1.zip",
+      "bytes": 1826500,
+      "sha256": "2d6e38a9c58b5ccb7841599ee9d8c92ac1593343fb1916e1ab8aa331df02baac",
+      "backendDigest": "sha256:2d6e38a9c58b5ccb7841599ee9d8c92ac1593343fb1916e1ab8aa331df02baac",
+      "allZipCrcVerified": true,
+      "attempts": [
+        {
+          "attempt": 1,
+          "returnCode": 0,
+          "bytes": 1826500,
+          "sha256": "2d6e38a9c58b5ccb7841599ee9d8c92ac1593343fb1916e1ab8aa331df02baac",
+          "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "backendSizeAndDigestMatch": true
+        }
+      ]
+    },
+    {
+      "name": "postgres-partition-2",
+      "id": 12347671364,
+      "path": "/Users/dinghaolin/MyProjects/riftbound/var/qa/special-trigger-damage-current-cn16-20261021/ci99e-complete-originals-v1/postgres-partition-2.zip",
+      "bytes": 1260343,
+      "sha256": "ee32826e08e7f9c300b25022b54334dab178064ca497b3d6290e1410cb884dad",
+      "backendDigest": "sha256:ee32826e08e7f9c300b25022b54334dab178064ca497b3d6290e1410cb884dad",
+      "allZipCrcVerified": true,
+      "attempts": [
+        {
+          "attempt": 1,
+          "returnCode": 0,
+          "bytes": 1260343,
+          "sha256": "ee32826e08e7f9c300b25022b54334dab178064ca497b3d6290e1410cb884dad",
+          "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "backendSizeAndDigestMatch": true
+        }
+      ]
+    },
+    {
+      "name": "postgres-partition-3",
+      "id": 12347923075,
+      "path": "/Users/dinghaolin/MyProjects/riftbound/var/qa/special-trigger-damage-current-cn16-20261021/ci99e-complete-originals-v1/postgres-partition-3.zip",
+      "bytes": 1441218,
+      "sha256": "9d454652d05540d6081aa728b32f468887cf710a585b9ee7a47a383ae5460641",
+      "backendDigest": "sha256:9d454652d05540d6081aa728b32f468887cf710a585b9ee7a47a383ae5460641",
+      "allZipCrcVerified": true,
+      "attempts": [
+        {
+          "attempt": 1,
+          "returnCode": 0,
+          "bytes": 1441218,
+          "sha256": "9d454652d05540d6081aa728b32f468887cf710a585b9ee7a47a383ae5460641",
+          "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "backendSizeAndDigestMatch": true
+        }
+      ]
+    },
+    {
+      "name": "postgres-results",
+      "id": 12350295511,
+      "path": "/Users/dinghaolin/MyProjects/riftbound/var/qa/special-trigger-damage-current-cn16-20261021/ci99e-complete-originals-v1/postgres-results.zip",
+      "bytes": 2237,
+      "sha256": "5ddbfe859457bbe1c8d937dd70466f449a9371783a2175cbce207073e5190094",
+      "backendDigest": "sha256:5ddbfe859457bbe1c8d937dd70466f449a9371783a2175cbce207073e5190094",
+      "allZipCrcVerified": true,
+      "attempts": [
+        {
+          "attempt": 1,
+          "returnCode": 0,
+          "bytes": 2237,
+          "sha256": "5ddbfe859457bbe1c8d937dd70466f449a9371783a2175cbce207073e5190094",
+          "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "backendSizeAndDigestMatch": true
+        }
+      ]
+    },
+    {
+      "name": "native-network-results",
+      "id": 12343886702,
+      "path": "/Users/dinghaolin/MyProjects/riftbound/var/qa/special-trigger-damage-current-cn16-20261021/ci99e-complete-originals-v1/native-network-results.zip",
+      "bytes": 1820,
+      "sha256": "6bc6288fd64098e0c44522b0ed6f180c2e9b08ebfb2945ce0c1913efc93507b1",
+      "backendDigest": "sha256:6bc6288fd64098e0c44522b0ed6f180c2e9b08ebfb2945ce0c1913efc93507b1",
+      "allZipCrcVerified": true,
+      "attempts": [
+        {
+          "attempt": 1,
+          "returnCode": 0,
+          "bytes": 1820,
+          "sha256": "6bc6288fd64098e0c44522b0ed6f180c2e9b08ebfb2945ce0c1913efc93507b1",
+          "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "backendSizeAndDigestMatch": true
+        }
+      ]
+    },
+    {
+      "name": "verification-scope",
+      "id": 12343891052,
+      "path": "/Users/dinghaolin/MyProjects/riftbound/var/qa/special-trigger-damage-current-cn16-20261021/ci99e-complete-originals-v1/verification-scope.zip",
+      "bytes": 1544932,
+      "sha256": "2efc4321e58ec33c29937d1546a0666bd5729335702b5581ee56ce676292a8e8",
+      "backendDigest": "sha256:2efc4321e58ec33c29937d1546a0666bd5729335702b5581ee56ce676292a8e8",
+      "allZipCrcVerified": true,
+      "attempts": [
+        {
+          "attempt": 1,
+          "returnCode": 0,
+          "bytes": 1544932,
+          "sha256": "2efc4321e58ec33c29937d1546a0666bd5729335702b5581ee56ce676292a8e8",
+          "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "backendSizeAndDigestMatch": true
+        }
+      ]
+    },
+    {
+      "name": "conformance-results",
+      "id": 12354225574,
+      "path": "/Users/dinghaolin/MyProjects/riftbound/var/qa/special-trigger-damage-current-cn16-20261021/ci99e-complete-originals-v1/conformance-results.zip",
+      "bytes": 3934814,
+      "sha256": "41750320cef7e0ae25623eefce4d6c91afd0adb0994195d4e7d3132a2f8df180",
+      "backendDigest": "sha256:41750320cef7e0ae25623eefce4d6c91afd0adb0994195d4e7d3132a2f8df180",
+      "allZipCrcVerified": true,
+      "attempts": [
+        {
+          "attempt": 1,
+          "returnCode": 0,
+          "bytes": 3934814,
+          "sha256": "41750320cef7e0ae25623eefce4d6c91afd0adb0994195d4e7d3132a2f8df180",
+          "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "backendSizeAndDigestMatch": true
+        }
+      ]
+    },
+    {
+      "name": "full-verification-gate",
+      "id": 12352698793,
+      "path": "/Users/dinghaolin/MyProjects/riftbound/var/qa/special-trigger-damage-current-cn16-20261021/ci99e-complete-originals-v1/full-verification-gate.zip",
+      "bytes": 298,
+      "sha256": "1afa435a4baf668839abf099122ce974519d6768a3797f555abc7bc8d8df5610",
+      "backendDigest": "sha256:1afa435a4baf668839abf099122ce974519d6768a3797f555abc7bc8d8df5610",
+      "allZipCrcVerified": true,
+      "attempts": [
+        {
+          "attempt": 1,
+          "returnCode": 0,
+          "bytes": 298,
+          "sha256": "1afa435a4baf668839abf099122ce974519d6768a3797f555abc7bc8d8df5610",
+          "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "backendSizeAndDigestMatch": true
+        }
+      ]
+    }
+  ],
+  "originalCollectorSourceSha256": "405387f6a422f31953d7f7a621ac4a954224a405b11f9033ccf607766c1b0d28",
+  "exactTargetSqlGateSourceSha256": "9bba242dfdce754f4855bb3098c2a8aadae1edaa64fb4b3b840afeb2112624a0",
+  "scopeDecision": {
+    "full": true,
+    "reason": "Executable input, unknown path or non-regular documentation",
+    "event": "push",
+    "headSha": "99e20b4f0640d7b32adbfb9e7dc0c7661b22d37a",
+    "baseSha": "25c628e74b25ea13f02602bae0d1056cc5b190ae",
+    "changes": [
+      {
+        "path": "data/official/card-catalog.zh-CN.json",
+        "oldMode": "100644",
+        "newMode": "100644",
+        "status": "M"
+      },
+      {
+        "path": "docs/PROJECT_STATUS.md",
+        "oldMode": "100644",
+        "newMode": "100644",
+        "status": "M"
+      },
+      {
+        "path": "docs/TEEMO_COUNTED_CURRENT_CN16_AUDIT_2026-10-21.md",
+        "oldMode": "000000",
+        "newMode": "100644",
+        "status": "A"
+      },
+      {
+        "path": "docs/audit/current-manifest.json",
+        "oldMode": "100644",
+        "newMode": "100644",
+        "status": "M"
+      },
+      {
+        "path": "docs/evidence/rules-reaudit-2026-10-11/review-decisions.json",
+        "oldMode": "100644",
+        "newMode": "100644",
+        "status": "M"
+      },
+      {
+        "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/affected-original80-results.json",
+        "oldMode": "000000",
+        "newMode": "100644",
+        "status": "A"
+      },
+      {
+        "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/affected-original80-terminal.json",
+        "oldMode": "000000",
+        "newMode": "100644",
+        "status": "A"
+      },
+      {
+        "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/archive-map.json",
+        "oldMode": "000000",
+        "newMode": "100644",
+        "status": "A"
+      },
+      {
+        "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/check-original-case-method-and-input-retention.json",
+        "oldMode": "000000",
+        "newMode": "100644",
+        "status": "A"
+      },
+      {
+        "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/completed-helper-staging-retirement.json",
+        "oldMode": "000000",
+        "newMode": "100644",
+        "status": "A"
+      },
+      {
+        "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/completed-teemo-counted-and-open-annie-originals.tar.xz",
+        "oldMode": "000000",
+        "newMode": "100644",
+        "status": "A"
+      },
+      {
+        "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/completed708-duplicate-extraction-retirement.json",
+        "oldMode": "000000",
+        "newMode": "100644",
+        "status": "A"
+      },
+      {
+        "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/current-exact-source-scope-review.json",
+        "oldMode": "000000",
+        "newMode": "100644",
+        "status": "A"
+      },
+      {
+        "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/final-focus-executed-distinct-scope.json",
+        "oldMode": "000000",
+        "newMode": "100644",
+        "status": "A"
+      },
+      {
+        "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/first-real-sql-failure-original.json",
+        "oldMode": "000000",
+        "newMode": "100644",
+        "status": "A"
+      },
+      {
+        "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/forty-current-input-context-refresh.json",
+        "oldMode": "000000",
+        "newMode": "100644",
+        "status": "A"
+      },
+      {
+        "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/four-exact-effective-text-fields.json",
+        "oldMode": "000000",
+        "newMode": "100644",
+        "status": "A"
+      },
+      {
+        "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/independent-all-history-and-original-replay.json",
+        "oldMode": "000000",
+        "newMode": "100644",
+        "status": "A"
+      },
+      {
+        "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/independent-publication-and-retention-verification.json",
+        "oldMode": "000000",
+        "newMode": "100644",
+        "status": "A"
+      },
+      {
+        "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/independent-publication-verifier.py",
+        "oldMode": "000000",
+        "newMode": "100644",
+        "status": "A"
+      },
+      {
+        "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/post-only-check-source-expectation-remediation.json",
+        "oldMode": "000000",
+        "newMode": "100644",
+        "status": "A"
+      },
+      {
+        "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/postpublication-all-python-tests.log",
+        "oldMode": "000000",
+        "newMode": "100644",
+        "status": "A"
+      },
+      {
+        "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/postpublication-current-governance-original.json.gz",
+        "oldMode": "000000",
+        "newMode": "100644",
+        "status": "A"
+      },
+      {
+        "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/preceding-fixed708-all52-sql-network-independent.json",
+        "oldMode": "000000",
+        "newMode": "100644",
+        "status": "A"
+      },
+      {
+        "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/publication-original-obligation-retention.json",
+        "oldMode": "000000",
+        "newMode": "100644",
+        "status": "A"
+      },
+      {
+        "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/real-twelve-sql-terminal.json",
+        "oldMode": "000000",
+        "newMode": "100644",
+        "status": "A"
+      },
+      {
+        "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/separate-open-annie-counterexample.json",
+        "oldMode": "000000",
+        "newMode": "100644",
+        "status": "A"
+      },
+      {
+        "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/separate-open-annie-exact-issue-readback.json",
+        "oldMode": "000000",
+        "newMode": "100644",
+        "status": "A"
+      },
+      {
+        "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/source-manifest.json",
+        "oldMode": "000000",
+        "newMode": "100644",
+        "status": "A"
+      },
+      {
+        "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/two-prior-findings-explicit-current-stage-followups.json",
+        "oldMode": "000000",
+        "newMode": "100644",
+        "status": "A"
+      },
+      {
+        "path": "scripts/tests/test_sql_ci_gate.py",
+        "oldMode": "100644",
+        "newMode": "100644",
+        "status": "M"
+      },
+      {
+        "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+        "oldMode": "100644",
+        "newMode": "100644",
+        "status": "M"
+      },
+      {
+        "path": "tests/Riftbound.ConformanceTests/AhriCombatMightTests.cs",
+        "oldMode": "100644",
+        "newMode": "100644",
+        "status": "M"
+      },
+      {
+        "path": "tests/Riftbound.ConformanceTests/Cn16RuleInputSelectionTests.cs",
+        "oldMode": "100644",
+        "newMode": "100644",
+        "status": "M"
+      },
+      {
+        "path": "tests/Riftbound.ConformanceTests/CurrentTeemoCountedDamageTests.cs",
+        "oldMode": "000000",
+        "newMode": "100644",
+        "status": "A"
+      },
+      {
+        "path": "tests/Riftbound.PostgresAcceptance/Program.cs",
+        "oldMode": "100644",
+        "newMode": "100644",
+        "status": "M"
+      },
+      {
+        "path": "tests/Riftbound.PostgresAcceptance/SqlAcceptanceCases.json",
+        "oldMode": "100644",
+        "newMode": "100644",
+        "status": "M"
+      },
+      {
+        "path": "tests/Riftbound.PostgresAcceptance/TeemoCountedDamageSqlAcceptance.cs",
+        "oldMode": "000000",
+        "newMode": "100644",
+        "status": "A"
+      }
+    ],
+    "selectorSha256": "94d6c361bf474b35171cb15d17f2406146fd015cc7b3f885c2dab0b6fdf01db9",
+    "ruleAndPackagingExecution": "REQUIRED"
+  },
+  "governanceSemanticCertificationRemainsFalse": true,
+  "new7aController55SqlNotCoveredByThis54SqlRun": true,
+  "wholePrintingVisiblePhysicalWindowsAndGoalComplete": false
+}

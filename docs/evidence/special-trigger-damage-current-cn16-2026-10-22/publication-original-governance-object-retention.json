@@ -1,0 +1,17 @@
+{
+  "atUtc": "2026-10-21T16:52:17.062903+00:00",
+  "oldReviews": 158,
+  "oldContexts": 73,
+  "oldGates": 245,
+  "oldDeltas": 7,
+  "allCompleteOldObjectsExact": true,
+  "originalObligationCount": 17042,
+  "addedBranches": 44,
+  "addedOpenFindings": 2,
+  "expectedRemainingObligations": 17088,
+  "priorCompleteObjectsAndObligations": {
+    "path": "var/qa/special-trigger-damage-current-cn16-20261021/prior-special-trigger-publication-v1/prior-governance-before-coherent-publication-v1.json.gz",
+    "sha256": "60de88deeb3260722a4caa6a7bbecfd394afb780165afab7cc241b175f4a06a5"
+  },
+  "semanticCoverageCertified": false
+}

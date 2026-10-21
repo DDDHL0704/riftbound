@@ -1,0 +1,18 @@
+{
+  "atUtc": "2026-10-21T16:50:46.835208+00:00",
+  "status": "BOUNDED_FOCUS_PASS",
+  "distinctCases": 191,
+  "distinctMethods": 59,
+  "newMethodNames": [
+    "Riftbound.ConformanceTests.SpecialTriggerDamageBonusTests.BothSkillPathsReadOnlyTheirControllersSourcesStillOnTheFieldAtResolution",
+    "Riftbound.ConformanceTests.SpecialTriggerDamageBonusTests.ConquestBonusRetainsExistingSpellSkillAndUnitPrevention",
+    "Riftbound.ConformanceTests.SpecialTriggerDamageBonusTests.ConquestSkillAddsBonusToItsCurrentPowerIncludingAZeroValuedDamageInstruction",
+    "Riftbound.ConformanceTests.SpecialTriggerDamageBonusTests.PerLocationBonusesReachExistingPreventionBeforeElderLethality",
+    "Riftbound.ConformanceTests.SpecialTriggerDamageBonusTests.PerLocationPlaySkillAddsCurrentControllerAndEachTargetsLocalBonus"
+  ],
+  "actualTrx": {
+    "path": "var/qa/special-trigger-damage-current-cn16-20261021/current-special-trigger-focus-v4/focus/results.trx",
+    "sha256": "2cc93eb57f5605af11a3b4bf5574a2b54dff1b504c5176688c197229c37e9498"
+  },
+  "notFullCiWholeCardOrProductCertification": true
+}

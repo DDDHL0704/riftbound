@@ -1,0 +1,83 @@
+{
+  "atUtc": "2026-10-21T16:41:14.077789+00:00",
+  "status": "CHECK_AND_EXACT_CASE_METHOD_PARITY_PASS",
+  "actualCases": 13348,
+  "actualMethods": 7521,
+  "passed": 13348,
+  "failed": 0,
+  "skipped": 0,
+  "oldCases": 13304,
+  "oldMethods": 7516,
+  "oldCasesMultisetPreserved": true,
+  "oldMethodsPreserved": true,
+  "oldOriginalCheckOutcomesRetainedNotRelabeled": {
+    "Passed": 13304
+  },
+  "newCases": 44,
+  "newMethods": 5,
+  "newMethodNames": [
+    "Riftbound.ConformanceTests.SpecialTriggerDamageBonusTests.BothSkillPathsReadOnlyTheirControllersSourcesStillOnTheFieldAtResolution",
+    "Riftbound.ConformanceTests.SpecialTriggerDamageBonusTests.ConquestBonusRetainsExistingSpellSkillAndUnitPrevention",
+    "Riftbound.ConformanceTests.SpecialTriggerDamageBonusTests.ConquestSkillAddsBonusToItsCurrentPowerIncludingAZeroValuedDamageInstruction",
+    "Riftbound.ConformanceTests.SpecialTriggerDamageBonusTests.PerLocationBonusesReachExistingPreventionBeforeElderLethality",
+    "Riftbound.ConformanceTests.SpecialTriggerDamageBonusTests.PerLocationPlaySkillAddsCurrentControllerAndEachTargetsLocalBonus"
+  ],
+  "sourceInputs": 3332,
+  "conformanceRuntimeFiles": 1419,
+  "nativeDebugRuntimeFilesStableNotCurrentNativeExecutionCertification": 23,
+  "allFrozenAndExecutedInputsUnchanged": true,
+  "onlyCheckTrx": {
+    "path": "var/qa/special-trigger-damage-current-cn16-20261021/only-check-v1/check/results.trx",
+    "sha256": "a90224961f4309df1def9e197001e4224411511f87426870a8c12a8c16ad3a14"
+  },
+  "originalBaselineTrx": {
+    "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/only-check-v1/check/results.trx",
+    "sha256": "bed297c0fc35c60fe33feca0f9a6b8e18897ca32348c062c2a9654b417b4c201"
+  },
+  "allOriginalConformanceSourcesByteExactExceptOneExactExpectationCalibration": true,
+  "soleCalibration": {
+    "path": "tests/Riftbound.ConformanceTests/ElderDragonTests.cs",
+    "oldSha256": "d7e71c1befce2d8fc34e0d61e70e8f974f3c29973ca40d920dd9efea775ae976",
+    "newSha256": "4a22567d91f3264c672f64de348d38a41905c29310d5b1fcb21463541df12c31",
+    "change": "Void Gate target D damage1->2, original base E=1 and all original survival/restore/assertions retained"
+  },
+  "allNineOriginalFullSourcesByteExactAgainst7a": {
+    "tests/Riftbound.ConformanceTests/FullGameEndToEndTests.AbilityCounters.cs": "cb22a9f99b3c7a04b5e43b206bcd6103c354d1104d66c1afe98c65d69c0030c8",
+    "tests/Riftbound.ConformanceTests/FullGameEndToEndTests.AttachedRuleText.cs": "9060a2f104b644c91a0582b714c1cf84920a9ec65636e968734c93a7c40b31f7",
+    "tests/Riftbound.ConformanceTests/FullGameEndToEndTests.AttachmentModes.cs": "b2367853c297452804ea2abba698d4091df56e9033b746effe89bb61de87fa39",
+    "tests/Riftbound.ConformanceTests/FullGameEndToEndTests.AttackDamage.cs": "ebd30b96a75712ddc672b6ee36e9256d21db9afdaaa80c50fa4dad5831ac48b8",
+    "tests/Riftbound.ConformanceTests/FullGameEndToEndTests.Azir.cs": "1264a5a522abfb7c0b69a018c924b9e7414213d476357de4a2f7dd6e7c0aa710",
+    "tests/Riftbound.ConformanceTests/FullGameEndToEndTests.CopiedAttachment.cs": "b679ac9beba8839ed89fc0ece94d57f4d5db02623ff5d7a17433653b95a4ae37",
+    "tests/Riftbound.ConformanceTests/FullGameEndToEndTests.MovementDiscard.cs": "7d9145c135ca7c8c25756e1fb283907da93894125e0c9e0ee1d8bf034065e99a",
+    "tests/Riftbound.ConformanceTests/FullGameEndToEndTests.Tempered.cs": "60e4a732bfba46be843c1997ed83cebd620a822cd33e2abdc2122a9a36b28830",
+    "tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs": "302d072ea9badc28a288928c08c04e1d606af5d9a6105e74a410b67bed72d0a3"
+  },
+  "allOriginal143PublicFullMethods110Pairs11Decks424242AndVictoryReplayAssertionsRetained": true,
+  "actual110OriginalHelperDirectionsExecutedSeparately": {
+    "path": "var/qa/special-trigger-damage-current-cn16-20261021/original-all110-pairs-owner-terminal-v1.json",
+    "sha256": "cfa86611f1c1d3f6854eb9583677b5e5209cb215d28ca6b857e1040284b9a1c2"
+  },
+  "allOriginal55SqlIdentitiesObjectsOrderAndClassSourcesRetainedOnly56Appended": true,
+  "lockAtStart": {
+    "atUtc": "2026-10-21T15:11:53.894628+00:00",
+    "roots": [
+      {
+        "rootLocked": false,
+        "sessions": []
+      }
+    ],
+    "missingValuesRemainUnknown": true
+  },
+  "lockAtStop": {
+    "atUtc": "2026-10-21T16:30:01.526418+00:00",
+    "roots": [
+      {
+        "rootLocked": false,
+        "sessions": []
+      }
+    ],
+    "missingValuesRemainUnknown": true
+  },
+  "currentFixedFullVisibleAndPhysicalWindowsAndWholePrintingCertification": "OPEN",
+  "noSecondCheck": true
+}

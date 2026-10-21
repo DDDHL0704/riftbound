@@ -1,0 +1,32 @@
+{
+  "status": "PASS_CURRENT_SPECIAL_TRIGGER_ALL110_ORIGINAL_PAIR_HELPERS_NOT_ALL143_PUBLIC_METHODS_OR_FULL_CI",
+  "startedAtUtc": "2026-10-21T15:11:54.304404+00:00",
+  "parentCommit": "7a334e7c1cab701d9506b6cf94f3f3a86d316ef8",
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "e7455edc32d43f8253a9d0c6fedb83c347bebafbef064f9b8dffaaabc4b4d266",
+    "implementationSha256": "c919621730f5747019c826b08b27b71231eff20bb0631f95c1ee42ca71e81e07",
+    "identitySha256": "b8817f46b4abfd81dccbf54892260694ae7341145c4b315f5a11c363beeadf8d"
+  },
+  "command": [
+    "/Users/dinghaolin/.dotnet/dotnet",
+    "exec",
+    "--depsfile",
+    "/Users/dinghaolin/MyProjects/riftbound/var/qa/special-trigger-damage-current-cn16-20261021/special-trigger-runtime-v1/Riftbound.PostgresAcceptance.deps.json",
+    "--runtimeconfig",
+    "/Users/dinghaolin/MyProjects/riftbound/var/qa/special-trigger-damage-current-cn16-20261021/special-trigger-runtime-v1/Riftbound.PostgresAcceptance.runtimeconfig.json",
+    "/Users/dinghaolin/MyProjects/riftbound/var/qa/special-trigger-damage-current-cn16-20261021/special-trigger-runtime-v1/CurrentControllerOriginalAll110PairRunnerV1.dll",
+    "/Users/dinghaolin/MyProjects/riftbound/var/qa/special-trigger-damage-current-cn16-20261021/original-all110-pairs-result-v1.json"
+  ],
+  "sameOriginal143PublicMethodsNineSources110Pairs11DecksSeed424242AndAssertionsRetained": true,
+  "notFullCiOrVisiblePhysicalWindowsCertification": true,
+  "exitCode": 0,
+  "unchangedOriginalHelperResultStatus": "PASS_CURRENT_CONTROLLER_ALL110_ORIGINAL_PAIR_HELPERS_NOT_ALL143_PUBLIC_METHODS_OR_FULL_CI",
+  "resultSha256": "c09187a3004fa5a6ba93688575d0d620b9d4f35b1268278a0b22cc7bd2b20791",
+  "actualOriginalDirections": 110,
+  "allFrozenRuntimeAndSourceHashesStable": true,
+  "finishedAtUtc": "2026-10-21T15:35:08.049914+00:00"
+}

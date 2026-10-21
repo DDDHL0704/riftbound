@@ -1,0 +1,27 @@
+{
+  "atUtc": "2026-10-21T15:33:37.741085+00:00",
+  "changedRoomTableKeysAfterActualVisibleReconnect": [
+    "matches",
+    "match_players"
+  ],
+  "originalBaseline": {
+    "matches": "38823afb3252faad00f6947aac3a210580f562b4287689f01100d8a606e887d1",
+    "match_players": "eed7df04cac20d0bcaabc1857bfcb42e51cdb4c04c3df23912d5ee284c97d76c",
+    "command_log": "34593493f9ce6cb2dbb62ad4aba2be957f1dec81fce11fcdcf2a0ba9412f1183",
+    "game_events": "3af4f68ddf3d726384719b0c95c3415c57a8b440307c5480472c8e73b9c7dc0c",
+    "state_snapshots": "89053d0494b66750c625c1e9eef3746ada810a4d04c8e4503cbc87f5b627cc99",
+    "snapshots": "cffc1de1a7cb288496cc7d254177d3bbf1bcdf0802bed98ab48fadfa041d1498",
+    "action_prompts": "ac232afd518d84bf258b7241cf4d555d760f58a9047e5ea66993032f52e3a729"
+  },
+  "current": {
+    "matches": "92c9cd0b16cb808855a0e3ef267b834a28d3c335bffb1e78e83af5c4f415da64",
+    "match_players": "302ac566d252f835b35cbd54318f45308fc61eb91c840d08c178c0f8b6168f36",
+    "command_log": "34593493f9ce6cb2dbb62ad4aba2be957f1dec81fce11fcdcf2a0ba9412f1183",
+    "game_events": "3af4f68ddf3d726384719b0c95c3415c57a8b440307c5480472c8e73b9c7dc0c",
+    "state_snapshots": "89053d0494b66750c625c1e9eef3746ada810a4d04c8e4503cbc87f5b627cc99",
+    "snapshots": "cffc1de1a7cb288496cc7d254177d3bbf1bcdf0802bed98ab48fadfa041d1498",
+    "action_prompts": "ac232afd518d84bf258b7241cf4d555d760f58a9047e5ea66993032f52e3a729"
+  },
+  "allOriginal65NativeSevenTablesExact": false,
+  "firstReadOnlyAttemptMissingTablesBindingNoMutation": true
+}

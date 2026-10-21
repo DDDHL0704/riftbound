@@ -222,6 +222,10 @@
     {
       "id": "controller-damage-bonus",
       "sourceType": "ControllerDamageBonusSqlAcceptance"
+    },
+    {
+      "id": "special-trigger-damage-bonus",
+      "sourceType": "SpecialTriggerDamageBonusSqlAcceptance"
     }
   ]
 }

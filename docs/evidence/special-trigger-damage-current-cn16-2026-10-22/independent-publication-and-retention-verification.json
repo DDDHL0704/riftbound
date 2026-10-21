@@ -1,0 +1,34 @@
+{
+  "atUtc": "2026-10-21T16:55:42.978866+00:00",
+  "status": "INDEPENDENT_CANONICAL_SPECIAL_TRIGGER_PUBLICATION_AND_ORIGINAL_RETENTION_PASS",
+  "original17042ObligationIdentitiesRetained": true,
+  "actualObligations": 17088,
+  "addedBoundedBranches": 44,
+  "addedConfirmedOpenFindings": 2,
+  "allOriginal158Reviews73Contexts245GatesSevenDeltasCompleteObjectsExact": true,
+  "allOriginalCoverageCountsDatesSourcesAndGapsUnchanged": true,
+  "actualReviews": 161,
+  "actualContexts": 76,
+  "semanticCoverageCertified": false,
+  "governanceErrors": [],
+  "canonicalArchiveClosedSetMembers": 523,
+  "existingIdenticalMembersReused": 3,
+  "allArchivedAndReusedOriginalBytesIndependentlyVerified": true,
+  "allCurrentEvidenceSourceAndImplementationPinsVerified": true,
+  "fortyFourActualCasesSixteenExactSqlCasesBoundIndependently": true,
+  "onlyCheck13348Methods7521OriginalMultisetAndSourcesRetained": true,
+  "fixed7aVisible41NormalScoreDoesNotCloseConfirmedHistoryFailure": true,
+  "frostController84AndNativeHistory85RemainOpen": true,
+  "verificationToolTests": 74,
+  "newFixedFullCurrentNativeAndWindows": "OPEN",
+  "finalGovernance": {
+    "path": "docs/evidence/special-trigger-damage-current-cn16-2026-10-22/final-governance.json.gz",
+    "sha256": "06c395fffa9b941e9e7f2c9aaa436ee708e3c821ba59f2fbd2ca75957ecb2d9f"
+  },
+  "sourceManifest": {
+    "path": "docs/evidence/special-trigger-damage-current-cn16-2026-10-22/source-manifest.json",
+    "sha256": "cbdc91c7ccae450e2c7d702e3e3644c2d9ae0dc55878c059f0b880cf1e335062"
+  },
+  "noSecondCheck": true,
+  "goalComplete": false
+}
