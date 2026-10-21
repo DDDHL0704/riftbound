@@ -102,7 +102,7 @@
     },
     "reviews": {
       "path": "docs/evidence/rules-reaudit-2026-10-11/review-decisions.json",
-      "sha256": "ccefba0dab75df27bc24a4993173e374865148b599b746430add4da15d1534cb",
+      "sha256": "37ed86f2f19d7d47cd1fb194440e7d6d39d09f0fd46cb28fa0b8239bd070b2e5",
       "role": "reviews"
     },
     "summary": {
@@ -39504,6 +39504,397 @@
           ]
         }
       ]
+    },
+    "exhausted-reksai-current-cn16-2026-10-21": {
+      "evidenceCommit": "708a3558040f9acd4c66122a00db8ca085f460cf",
+      "currentImplementationCommit": "708a3558040f9acd4c66122a00db8ca085f460cf",
+      "currentImplementationIncludesUncommittedChanges": true,
+      "ciState": "PENDING",
+      "ciReceipts": [],
+      "region": "CN",
+      "language": "zh-CN",
+      "applicableAsOf": "2026-10-21",
+      "adoptedCoreEffectiveDate": "2026-10-16",
+      "sourceManifest": {
+        "path": "docs/evidence/exhausted-reksai-current-cn16-2026-10-21/source-manifest.json",
+        "sha256": "c19153125d36499c811f78afb8373ce5f89dccf903f8a6571c51972694818212",
+        "role": "source-manifest"
+      },
+      "implementation": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.LegendConquest.cs",
+          "sha256": "5d7676f8c2464a6ac30e12478975a335f4eed30de45620387c3cbb88cae56d98",
+          "role": "implementation"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.TriggerCosts.cs",
+          "sha256": "749444aceb0aa41d341379c2935e9c553c51c65a6d5aab92e976b4b1ebddf225",
+          "role": "implementation"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.Insight.cs",
+          "sha256": "2cb19722ef01712fcf0825f96ebb9068295fbf0e9bef6bb0beb7c5df540c0fc2",
+          "role": "implementation"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeckObservation.cs",
+          "sha256": "23d38876ad376bbaa79fe1db46723fc547986027aa3cc7479a6e8f25528a0371",
+          "role": "implementation"
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.cs",
+          "sha256": "cf66d4df80998c685f70a6981b66df4047557f70b0b6773d59be86cec5733ba9",
+          "role": "implementation"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "sha256": "0724598002046a0ba0a74a2649685b595ddc55ace0bdf69008853b584b6f5da3",
+          "role": "implementation"
+        },
+        {
+          "path": "data/official/card-catalog.zh-CN.json",
+          "sha256": "f9b2394507ef8e35846d16e5fc1c2a767766757476bfe4a17a3cddc18df509de",
+          "role": "implementation"
+        }
+      ],
+      "verificationSources": [
+        {
+          "path": "tests/Riftbound.PostgresAcceptance/ExhaustedLegendConfirmationSqlAcceptance.cs",
+          "sha256": "04eb606ecf15a626304f2aff2ee0fb0ec981106664a78ed22aa6f111c5eeca75",
+          "role": "verification-source"
+        },
+        {
+          "path": "tests/Riftbound.PostgresAcceptance/Program.cs",
+          "sha256": "6792241874383577a296cd3faf5c75ef77837d36355d50b2dfad8c180daf0ece",
+          "role": "verification-source"
+        },
+        {
+          "path": "tests/Riftbound.PostgresAcceptance/SqlAcceptanceCases.json",
+          "sha256": "3c082df4d9bac8341d2bb408351a122e93e986a3f2341e9fee8b25191a5deb28",
+          "role": "verification-source"
+        },
+        {
+          "path": "scripts/tests/test_sql_ci_gate.py",
+          "sha256": "72ff2b6a1af3ffaedd5035573ce59fcd390aaa1a1879743ec3b36663be791380",
+          "role": "verification-source"
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/OfficialLegendDeckPlayTests.cs",
+          "sha256": "aca98a4b19148b3dbfc298976e7973779545b9f4ddbdd5db6f6b48a9c0586ce8",
+          "role": "verification-source"
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/evidence/exhausted-reksai-current-cn16-2026-10-21/focus-executed-distinct-scope.json",
+          "sha256": "603680e7199892fb7c90fe8ef4c84076a8deb77d5a29492d192023088ab8c1b6",
+          "role": "focus"
+        },
+        {
+          "path": "docs/evidence/exhausted-reksai-current-cn16-2026-10-21/check-original-case-method-and-input-retention.json",
+          "sha256": "591b3a9e16fb897c4f003a20bcb8ca8f3af86ae68f1bba190178af583ef60c9d",
+          "role": "check"
+        },
+        {
+          "path": "docs/evidence/exhausted-reksai-current-cn16-2026-10-21/real-integrated-four-sql-terminal.json",
+          "sha256": "dd39f26a103370967afec45f0996c105395a582e155cf0f13580fbcce2faa0f2",
+          "role": "sql"
+        },
+        {
+          "path": "docs/evidence/exhausted-reksai-current-cn16-2026-10-21/independent-all-history-and-original-replay.json",
+          "sha256": "1ac9b3b8314a31ca191190ef9cc439bf038a6553f01964f53c2ca75f4316c698",
+          "role": "independent-sql"
+        }
+      ],
+      "branches": [
+        {
+          "id": "exhausted-reksai-187-legend-first-capture-confirmation-discard-and-independent-candlelit-private-look",
+          "sourceRefs": [
+            "SFD-187/221",
+            "OGN-291/298",
+            "DOC-09-P020-B009",
+            "DOC-09-P020-B010",
+            "DOC-09-P020-B011",
+            "DOC-09-P020-B012",
+            "DOC-01-P041-B011",
+            "DOC-01-P041-B012",
+            "DOC-01-P041-B013",
+            "DOC-01-P041-B015",
+            "DOC-01-P041-B016",
+            "DOC-01-P085-B003",
+            "DOC-01-P085-B004"
+          ],
+          "state": "RECORDED",
+          "sourceManifest": {
+            "path": "docs/evidence/exhausted-reksai-current-cn16-2026-10-21/source-manifest.json",
+            "sha256": "c19153125d36499c811f78afb8373ce5f89dccf903f8a6571c51972694818212",
+            "role": "source-manifest"
+          },
+          "semanticReview": {
+            "state": "BOUNDED_CURRENT_SOURCE_BRANCH_REVIEW",
+            "wholeClauseOrPrintingCertified": false
+          },
+          "implementation": {
+            "state": "EXISTING_SHARED_CONFIRMATION_AND_INSIGHT_NO_GAMEPLAY_CHANGE"
+          },
+          "testExecution": {
+            "state": "ACTUAL_CURRENT_FOCUS_REAL_SQL_COLD_DEDUP_INDEPENDENT_ALL_HISTORY_ORIGINAL_REPLAY_AND_FORGERY_PASS"
+          },
+          "fixedCommitCi": {
+            "state": "PENDING_NEW_FIXED_FULL"
+          },
+          "productAcceptance": {
+            "state": "OPEN"
+          },
+          "decision": {
+            "state": "OPEN",
+            "reason": "Bounded four-branch evidence does not close new fixed full, all semantic branches or final product acceptance."
+          },
+          "wholePrintingCertified": false,
+          "existingAcceptanceGateDependencies": [
+            "DECK_OBSERVATION_FAMILY_ALL_APPLICABLE_CONSUMERS",
+            "FIXED_CURRENT_CANDIDATE_FULL",
+            "USER_WINDOWS_RUNTIME"
+          ]
+        },
+        {
+          "id": "exhausted-reksai-187-battlefield-first-capture-confirmation-discard-and-independent-candlelit-private-look",
+          "sourceRefs": [
+            "SFD-187/221",
+            "OGN-291/298",
+            "DOC-09-P020-B009",
+            "DOC-09-P020-B010",
+            "DOC-09-P020-B011",
+            "DOC-09-P020-B012",
+            "DOC-01-P041-B011",
+            "DOC-01-P041-B012",
+            "DOC-01-P041-B013",
+            "DOC-01-P041-B015",
+            "DOC-01-P041-B016",
+            "DOC-01-P085-B003",
+            "DOC-01-P085-B004"
+          ],
+          "state": "RECORDED",
+          "sourceManifest": {
+            "path": "docs/evidence/exhausted-reksai-current-cn16-2026-10-21/source-manifest.json",
+            "sha256": "c19153125d36499c811f78afb8373ce5f89dccf903f8a6571c51972694818212",
+            "role": "source-manifest"
+          },
+          "semanticReview": {
+            "state": "BOUNDED_CURRENT_SOURCE_BRANCH_REVIEW",
+            "wholeClauseOrPrintingCertified": false
+          },
+          "implementation": {
+            "state": "EXISTING_SHARED_CONFIRMATION_AND_INSIGHT_NO_GAMEPLAY_CHANGE"
+          },
+          "testExecution": {
+            "state": "ACTUAL_CURRENT_FOCUS_REAL_SQL_COLD_DEDUP_INDEPENDENT_ALL_HISTORY_ORIGINAL_REPLAY_AND_FORGERY_PASS"
+          },
+          "fixedCommitCi": {
+            "state": "PENDING_NEW_FIXED_FULL"
+          },
+          "productAcceptance": {
+            "state": "OPEN"
+          },
+          "decision": {
+            "state": "OPEN",
+            "reason": "Bounded four-branch evidence does not close new fixed full, all semantic branches or final product acceptance."
+          },
+          "wholePrintingCertified": false,
+          "existingAcceptanceGateDependencies": [
+            "DECK_OBSERVATION_FAMILY_ALL_APPLICABLE_CONSUMERS",
+            "FIXED_CURRENT_CANDIDATE_FULL",
+            "USER_WINDOWS_RUNTIME"
+          ]
+        },
+        {
+          "id": "exhausted-reksai-243-legend-first-capture-confirmation-discard-and-independent-candlelit-private-look",
+          "sourceRefs": [
+            "SFD-243/221",
+            "OGN-291/298",
+            "DOC-09-P020-B009",
+            "DOC-09-P020-B010",
+            "DOC-09-P020-B011",
+            "DOC-09-P020-B012",
+            "DOC-01-P041-B011",
+            "DOC-01-P041-B012",
+            "DOC-01-P041-B013",
+            "DOC-01-P041-B015",
+            "DOC-01-P041-B016",
+            "DOC-01-P085-B003",
+            "DOC-01-P085-B004"
+          ],
+          "state": "RECORDED",
+          "sourceManifest": {
+            "path": "docs/evidence/exhausted-reksai-current-cn16-2026-10-21/source-manifest.json",
+            "sha256": "c19153125d36499c811f78afb8373ce5f89dccf903f8a6571c51972694818212",
+            "role": "source-manifest"
+          },
+          "semanticReview": {
+            "state": "BOUNDED_CURRENT_SOURCE_BRANCH_REVIEW",
+            "wholeClauseOrPrintingCertified": false
+          },
+          "implementation": {
+            "state": "EXISTING_SHARED_CONFIRMATION_AND_INSIGHT_NO_GAMEPLAY_CHANGE"
+          },
+          "testExecution": {
+            "state": "ACTUAL_CURRENT_FOCUS_REAL_SQL_COLD_DEDUP_INDEPENDENT_ALL_HISTORY_ORIGINAL_REPLAY_AND_FORGERY_PASS"
+          },
+          "fixedCommitCi": {
+            "state": "PENDING_NEW_FIXED_FULL"
+          },
+          "productAcceptance": {
+            "state": "OPEN"
+          },
+          "decision": {
+            "state": "OPEN",
+            "reason": "Bounded four-branch evidence does not close new fixed full, all semantic branches or final product acceptance."
+          },
+          "wholePrintingCertified": false,
+          "existingAcceptanceGateDependencies": [
+            "DECK_OBSERVATION_FAMILY_ALL_APPLICABLE_CONSUMERS",
+            "FIXED_CURRENT_CANDIDATE_FULL",
+            "USER_WINDOWS_RUNTIME"
+          ]
+        },
+        {
+          "id": "exhausted-reksai-243-battlefield-first-capture-confirmation-discard-and-independent-candlelit-private-look",
+          "sourceRefs": [
+            "SFD-243/221",
+            "OGN-291/298",
+            "DOC-09-P020-B009",
+            "DOC-09-P020-B010",
+            "DOC-09-P020-B011",
+            "DOC-09-P020-B012",
+            "DOC-01-P041-B011",
+            "DOC-01-P041-B012",
+            "DOC-01-P041-B013",
+            "DOC-01-P041-B015",
+            "DOC-01-P041-B016",
+            "DOC-01-P085-B003",
+            "DOC-01-P085-B004"
+          ],
+          "state": "RECORDED",
+          "sourceManifest": {
+            "path": "docs/evidence/exhausted-reksai-current-cn16-2026-10-21/source-manifest.json",
+            "sha256": "c19153125d36499c811f78afb8373ce5f89dccf903f8a6571c51972694818212",
+            "role": "source-manifest"
+          },
+          "semanticReview": {
+            "state": "BOUNDED_CURRENT_SOURCE_BRANCH_REVIEW",
+            "wholeClauseOrPrintingCertified": false
+          },
+          "implementation": {
+            "state": "EXISTING_SHARED_CONFIRMATION_AND_INSIGHT_NO_GAMEPLAY_CHANGE"
+          },
+          "testExecution": {
+            "state": "ACTUAL_CURRENT_FOCUS_REAL_SQL_COLD_DEDUP_INDEPENDENT_ALL_HISTORY_ORIGINAL_REPLAY_AND_FORGERY_PASS"
+          },
+          "fixedCommitCi": {
+            "state": "PENDING_NEW_FIXED_FULL"
+          },
+          "productAcceptance": {
+            "state": "OPEN"
+          },
+          "decision": {
+            "state": "OPEN",
+            "reason": "Bounded four-branch evidence does not close new fixed full, all semantic branches or final product acceptance."
+          },
+          "wholePrintingCertified": false,
+          "existingAcceptanceGateDependencies": [
+            "DECK_OBSERVATION_FAMILY_ALL_APPLICABLE_CONSUMERS",
+            "FIXED_CURRENT_CANDIDATE_FULL",
+            "USER_WINDOWS_RUNTIME"
+          ]
+        },
+        {
+          "id": "supporting-teemo-four-current-official-errata-not-adopted",
+          "sourceRefs": [
+            "OGN-121/298",
+            "OGN-121A/298",
+            "SFD-230/221",
+            "SFD-230*/221",
+            "DOC-16-P009-B004",
+            "DOC-16-P009-B005"
+          ],
+          "state": "OPEN",
+          "sourceManifest": {
+            "path": "docs/evidence/exhausted-reksai-current-cn16-2026-10-21/source-manifest.json",
+            "sha256": "c19153125d36499c811f78afb8373ce5f89dccf903f8a6571c51972694818212",
+            "role": "source-manifest"
+          },
+          "findingEvidence": {
+            "path": "docs/evidence/exhausted-reksai-current-cn16-2026-10-21/separate-open-teemo-source-and-positive-damage-findings.json",
+            "sha256": "f76a20285cbc36b9b6cf4412ca33c4771f03812fdfba25cf02304ad67688b57b"
+          },
+          "issue": "https://github.com/DDDHL0704/riftbound/issues/81#issuecomment-6311998222",
+          "semanticReview": {
+            "state": "EXACT_CURRENT_SOURCE_ADOPTION_GAP_OR_POSITIVE_DAMAGE_COUNTEREXAMPLE_CONFIRMED_NOT_FIXED"
+          },
+          "implementation": {
+            "state": "OPEN_UNCHANGED_CURRENT_GAMEPLAY"
+          },
+          "testExecution": {
+            "state": "SOURCE_EVIDENCE_AND_EIGHT_ACTUAL_COMMAND_COUNTEREXAMPLES_NOT_IMPLEMENTATION_PASS"
+          },
+          "fixedCommitCi": {
+            "state": "OPEN"
+          },
+          "productAcceptance": {
+            "state": "OPEN"
+          },
+          "decision": {
+            "state": "OPEN",
+            "reason": "Four exact runtime text gaps and four positive-count missing bonuses require separate fixes; four zero-count controls already match. No current branch certification."
+          },
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "supporting-teemo-positive-counted-defense-omits-void-local-bonus",
+          "sourceRefs": [
+            "OGN-121/298",
+            "OGN-121A/298",
+            "SFD-230/221",
+            "SFD-230*/221",
+            "OGN-296/298",
+            "DOC-16-P012-B006",
+            "DOC-01-P106-B009",
+            "DOC-01-P106-B013",
+            "DOC-01-P106-B017"
+          ],
+          "state": "OPEN",
+          "sourceManifest": {
+            "path": "docs/evidence/exhausted-reksai-current-cn16-2026-10-21/source-manifest.json",
+            "sha256": "c19153125d36499c811f78afb8373ce5f89dccf903f8a6571c51972694818212",
+            "role": "source-manifest"
+          },
+          "findingEvidence": {
+            "path": "docs/evidence/exhausted-reksai-current-cn16-2026-10-21/separate-open-teemo-source-and-positive-damage-findings.json",
+            "sha256": "f76a20285cbc36b9b6cf4412ca33c4771f03812fdfba25cf02304ad67688b57b"
+          },
+          "issue": "https://github.com/DDDHL0704/riftbound/issues/81#issuecomment-6311998222",
+          "semanticReview": {
+            "state": "EXACT_CURRENT_SOURCE_ADOPTION_GAP_OR_POSITIVE_DAMAGE_COUNTEREXAMPLE_CONFIRMED_NOT_FIXED"
+          },
+          "implementation": {
+            "state": "OPEN_UNCHANGED_CURRENT_GAMEPLAY"
+          },
+          "testExecution": {
+            "state": "SOURCE_EVIDENCE_AND_EIGHT_ACTUAL_COMMAND_COUNTEREXAMPLES_NOT_IMPLEMENTATION_PASS"
+          },
+          "fixedCommitCi": {
+            "state": "OPEN"
+          },
+          "productAcceptance": {
+            "state": "OPEN"
+          },
+          "decision": {
+            "state": "OPEN",
+            "reason": "Four exact runtime text gaps and four positive-count missing bonuses require separate fixes; four zero-count controls already match. No current branch certification."
+          },
+          "wholePrintingCertified": false
+        }
+      ]
     }
   },
   "acceptanceGates": [
@@ -39632,6 +40023,10 @@
         "path": "docs/evidence/void-gate-selected-battlefield-2026-10-21/source-manifest.json",
         "sha256": "0cdd28917fbab982e4ed949a46fe5598cec63fb2e457b331774bc3210e567e85",
         "role": "source-manifest"
+      },
+      "currentSupportingTeemoTwoSeparateOpenSourceDamageFindings": {
+        "path": "docs/evidence/exhausted-reksai-current-cn16-2026-10-21/separate-open-teemo-source-and-positive-damage-findings.json",
+        "sha256": "f76a20285cbc36b9b6cf4412ca33c4771f03812fdfba25cf02304ad67688b57b"
       }
     },
     {
@@ -39671,7 +40066,12 @@
         "sha256": "54dba1cafa47144b743d58b3b8d945d062acda9f0509ab5256cf42d8e347aaac",
         "role": "source-manifest"
       },
-      "currentOptionalHandBoundary": "Six bounded behavior/source-adoption branches recorded; whole family, new fixed full and current visible/physical Windows remain OPEN. Earlier adjacent finding remains as originally recorded."
+      "currentOptionalHandBoundary": "Six bounded behavior/source-adoption branches recorded; whole family, new fixed full and current visible/physical Windows remain OPEN. Earlier adjacent finding remains as originally recorded.",
+      "currentExhaustedReksaiFourIntegratedSqlBranches": {
+        "path": "docs/evidence/exhausted-reksai-current-cn16-2026-10-21/source-manifest.json",
+        "sha256": "c19153125d36499c811f78afb8373ce5f89dccf903f8a6571c51972694818212",
+        "role": "source-manifest"
+      }
     },
     {
       "id": "FIXED_CURRENT_CANDIDATE_FULL",
@@ -52492,6 +52892,25 @@
   "precedingFixed2b83BoundedHeadlessCiNativeReadback": {
     "path": "docs/evidence/void-gate-selected-battlefield-2026-10-21/preceding-fixed2b83-headless-ci-native-subscope.json",
     "sha256": "35849a83d4bc541707f77b75e642da4ee4ef054bd2cbfcf38f89a6c16bcd56a0",
+    "role": "preceding-fixed-headless-native-subscope"
+  },
+  "currentExhaustedReksaiFourIntegratedSqlInputChange": {
+    "path": "docs/evidence/exhausted-reksai-current-cn16-2026-10-21/source-manifest.json",
+    "sha256": "c19153125d36499c811f78afb8373ce5f89dccf903f8a6571c51972694818212",
+    "role": "source-manifest"
+  },
+  "currentSupportingTeemoOpenSourceAndCountedDamageFindings": {
+    "path": "docs/evidence/exhausted-reksai-current-cn16-2026-10-21/separate-open-teemo-source-and-positive-damage-findings.json",
+    "sha256": "f76a20285cbc36b9b6cf4412ca33c4771f03812fdfba25cf02304ad67688b57b"
+  },
+  "precedingFixed2b83ActualCompleteFullCiReadback": {
+    "path": "docs/evidence/exhausted-reksai-current-cn16-2026-10-21/prior2b83-full-independent.json",
+    "sha256": "bc4a63faf5812c5a8fc9a05989d57007f913d3bd43f1f694275e9a4d1cef64f9",
+    "role": "prior-fixed-full"
+  },
+  "precedingFixed708BoundedHeadlessCiNativeReadback": {
+    "path": "docs/evidence/exhausted-reksai-current-cn16-2026-10-21/preceding-fixed708-headless-ci-native-subscope.json",
+    "sha256": "772100b11ffe27f15512519c7702238c8a7f88b22f65ee0400657157a3289aff",
     "role": "preceding-fixed-headless-native-subscope"
   }
 }

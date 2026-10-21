@@ -43,8 +43,9 @@ var candlelitOptionalObservedOnly = args.SequenceEqual(new[] { "--candlelit-obse
 var candlelitLegendPendingOnly = args.SequenceEqual(new[] { "--candlelit-legend-pending-only" });
 var revealedHandPromptOrderOnly = args.SequenceEqual(new[] { "--revealed-hand-prompt-order-only" });
 var battlefieldSpellDamageOnly = args.SequenceEqual(new[] { "--battlefield-spell-damage-only" });
+var exhaustedLegendConfirmationOnly = args.SequenceEqual(new[] { "--exhausted-legend-confirmation-only" });
 var pakaDualTypeRevealOnly = args.SequenceEqual(new[] { "--paka-dual-type-reveal-only" });
-if (args.Length != 0 && !openingRandomnessOnly && !optionalCostsOnly && !battlefieldPlayRecoveryOnly && !battlefieldPlayDamageOnly && !banishEffectPlayOnly && !hereLocationOnly && !fateWeaverOnly && !multiControllerOrderOnly && !emptyObservedRepeatOnly && !observedPlayWindowOnly && !ravenbloomPutHandOnly && !attachedPredictOnly && !copiedLastBreathOnly && !copiedDuelOnly && !empoweredInsightOnly && !pakaRevealOnly && !emptyRevealFollowupOnly && !pakaDualTypeRevealOnly && !hweiMoveDiscardTypesOnly && !destructionGraveyardOnly && !conditionalCounterPaymentOnly && !reversalTargetChoiceOnly && !spellRemakeDeclarationOnly && !candlelitPrivateLookOnly && !candlelitObservedPendingOnly && !candlelitOptionalObservedOnly && !candlelitLegendPendingOnly && !revealedHandPromptOrderOnly && !battlefieldSpellDamageOnly && !partition.IsPartition) throw new ArgumentException("Unknown PostgreSQL acceptance selector.");
+if (args.Length != 0 && !openingRandomnessOnly && !optionalCostsOnly && !battlefieldPlayRecoveryOnly && !battlefieldPlayDamageOnly && !banishEffectPlayOnly && !hereLocationOnly && !fateWeaverOnly && !multiControllerOrderOnly && !emptyObservedRepeatOnly && !observedPlayWindowOnly && !ravenbloomPutHandOnly && !attachedPredictOnly && !copiedLastBreathOnly && !copiedDuelOnly && !empoweredInsightOnly && !pakaRevealOnly && !emptyRevealFollowupOnly && !pakaDualTypeRevealOnly && !hweiMoveDiscardTypesOnly && !destructionGraveyardOnly && !conditionalCounterPaymentOnly && !reversalTargetChoiceOnly && !spellRemakeDeclarationOnly && !candlelitPrivateLookOnly && !candlelitObservedPendingOnly && !candlelitOptionalObservedOnly && !candlelitLegendPendingOnly && !revealedHandPromptOrderOnly && !battlefieldSpellDamageOnly && !exhaustedLegendConfirmationOnly && !partition.IsPartition) throw new ArgumentException("Unknown PostgreSQL acceptance selector.");
 var json = new JsonSerializerOptions(JsonSerializerDefaults.Web) { WriteIndented = true };
 await using var dataSource = NpgsqlDataSource.Create(connectionString);
 await using (var connection = await dataSource.OpenConnectionAsync()) {
@@ -52,6 +53,12 @@ await using (var connection = await dataSource.OpenConnectionAsync()) {
         await using var command = new NpgsqlCommand(await File.ReadAllTextAsync(path), connection);
         await command.ExecuteNonQueryAsync();
     }
+}
+if (exhaustedLegendConfirmationOnly)
+{
+    await ExhaustedLegendConfirmationSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "exhausted-legend-confirmation"));
+    Console.WriteLine("SCOPED_POSTGRES_ONLY: exhausted-legend-confirmation; the retained complete SQL suite was not requested.");
+    return;
 }
 if (battlefieldSpellDamageOnly)
 {
@@ -394,5 +401,7 @@ await partition.RunAsync("candlelit-legend-pending", () => CandlelitLegendPendin
 
 await partition.RunAsync("revealed-hand-prompt-order", () => RevealedHandPromptOrderSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "revealed-hand-prompt-order")));
 await partition.RunAsync("battlefield-spell-damage", () => BattlefieldSpellDamageSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "battlefield-spell-damage")));
+
+await partition.RunAsync("exhausted-legend-confirmation", () => ExhaustedLegendConfirmationSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "exhausted-legend-confirmation")));
 
 await partition.CompleteAsync(output);

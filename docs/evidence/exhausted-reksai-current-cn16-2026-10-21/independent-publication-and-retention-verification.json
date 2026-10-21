@@ -1,0 +1,47 @@
+{
+  "atUtc": "2026-10-21T09:16:04.886215+00:00",
+  "status": "INDEPENDENT_SOURCE_ARCHIVE_CLOSED_SET_OLD_REVIEW_CONTEXT_GATE_OBLIGATION_IDS_AND_FINAL_PYTHON_PASS",
+  "all155OldReviewsAnd70WholeContextsExact": true,
+  "all245OldGateFieldsStatesAndOrderExact243WholeGateObjectsExact": true,
+  "allOldSourceUniverseDatesDeltasCoverageRetained": true,
+  "all16969OriginalObligationIdsRetained": true,
+  "newObligations": [
+    "BRANCH:exhausted-reksai-current-cn16-2026-10-21:exhausted-reksai-187-battlefield-first-capture-confirmation-discard-and-independent-candlelit-private-look",
+    "BRANCH:exhausted-reksai-current-cn16-2026-10-21:exhausted-reksai-187-legend-first-capture-confirmation-discard-and-independent-candlelit-private-look",
+    "BRANCH:exhausted-reksai-current-cn16-2026-10-21:exhausted-reksai-243-battlefield-first-capture-confirmation-discard-and-independent-candlelit-private-look",
+    "BRANCH:exhausted-reksai-current-cn16-2026-10-21:exhausted-reksai-243-legend-first-capture-confirmation-discard-and-independent-candlelit-private-look",
+    "BRANCH:exhausted-reksai-current-cn16-2026-10-21:supporting-teemo-four-current-official-errata-not-adopted",
+    "BRANCH:exhausted-reksai-current-cn16-2026-10-21:supporting-teemo-positive-counted-defense-omits-void-local-bonus"
+  ],
+  "newBoundedSqlBranches": 4,
+  "newSeparateOpenSourceDamageFindings": 2,
+  "currentObligations": 16975,
+  "semanticCoverageCertified": false,
+  "all332ArchiveMembersExactAndClosedSetVerified": true,
+  "archive": {
+    "path": "docs/evidence/exhausted-reksai-current-cn16-2026-10-21/completed-exhausted-and-separate-open-findings-originals.tar.xz",
+    "sha256": "fb6ec72a225b5fd333b7b796102659b69327e4b71496cbf50d67687d1f29cf3d"
+  },
+  "all3326ActualSourceInputsStillExact": true,
+  "all52OriginalSqlIdentitiesOrderAndSourceClassesExactOnly53rdAppend": true,
+  "toolTests": 74,
+  "toolTestLog": {
+    "path": "docs/evidence/exhausted-reksai-current-cn16-2026-10-21/postpublication-all-python-tests.log",
+    "sha256": "6234722f1fe4e35a4b37d125db4ad648b327a46618c529f551559bbae648a8fd"
+  },
+  "originalGovernanceOutput": {
+    "rawBytes": 18655104,
+    "rawSha256": "0ace186f4013c89333aa9c71af948e3d1b4699abe441d20d659919f00ba5f8f6",
+    "losslessGzip": {
+      "path": "docs/evidence/exhausted-reksai-current-cn16-2026-10-21/postpublication-current-governance-original.json.gz",
+      "sha256": "190e0724d3cdc3014a6ae0ac85e4fe7acde47b8a7fefd4ae519a886f38d9083e"
+    },
+    "plainRetiredAfterExactLosslessVerification": true
+  },
+  "verifierSource": {
+    "path": "docs/evidence/exhausted-reksai-current-cn16-2026-10-21/independent-publication-verifier.py",
+    "sha256": "dafba28abce37163d8fe1d615b43f47914727a91b88fa4168b15ab04ef1e432a"
+  },
+  "onlyOneCheckAndNoPostCheckGameplayOrVerificationInputChanges": true,
+  "newFixedFullVisiblePhysicalWindowsAndWholePrintingCertification": "OPEN"
+}

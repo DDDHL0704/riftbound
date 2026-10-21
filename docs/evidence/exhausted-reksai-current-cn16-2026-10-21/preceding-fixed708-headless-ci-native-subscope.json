@@ -1,0 +1,61 @@
+{
+  "atUtc": "2026-10-21T08:31:42.608521+00:00",
+  "status": "FIXED708_ACTUAL_CI_EXPORTED_NATIVE_PAIR_COLD_RECONNECT_SAME_ORIGINAL83_NORMAL_SCORE_NETWORK_AND_INDEPENDENT_ALL_HISTORY_PASS",
+  "fixedCommit": "708a3558040f9acd4c66122a00db8ca085f460cf",
+  "ciRun": 39564582452,
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "a940e5f8bcd5e1ead68a85c7f983e530333d6179a4b8429ed1f8fe2ee20b8397",
+    "implementationSha256": "c2de3407d28681359149e7852659d6ca97e993423075c2ddb3f0c4a057c5a57b",
+    "identitySha256": "7c999c7d27167085fe16bf545d51338f872587cd79cdb5db9d64dc764b7c429c"
+  },
+  "apiGameSourceClosureExactFixed708UnrelatedSql53VerificationChangesDeclared": true,
+  "actualRoom": "N27-RETARGET-4ADCFED915",
+  "gatewayPrefix": 63,
+  "nativeControllerCommands": 3,
+  "normalGatewayContinuation": 17,
+  "totalCommands": 83,
+  "events": 574,
+  "finalTurn": 53,
+  "score": {
+    "winning": 8,
+    "losing": 0
+  },
+  "authoritativeHistoricalStates": 83,
+  "privateSnapshots": 162,
+  "privatePrompts": 162,
+  "everyOriginalFieldNullOmissionRawActorPromptTickActionEventAndSequentialStateReplayCompared": true,
+  "completeProductionRecoveryFrameAlsoValidated": true,
+  "allFiveOriginalCiNativeProcessesExitZeroAndPtyFullyDrained": true,
+  "sameTwoNativeProcessesAuthenticatedColdReconnectAlreadyProvedBeforeScoringHelperFailure": true,
+  "initialFailureAtOldOgn277AssumptionAfter66OriginalActionsRetained": {
+    "path": "var/qa/fixed708-early-native-20261021/live-current-ci-main-owner-terminal-v2.json",
+    "sha256": "bd0aa33185374e5d97ff6ea9a22c5c79e8a822b510c90085496aa4cc3f7e2332"
+  },
+  "exactActualOgn278SourceAndScoreHelperAssertionOnlyCalibrated": true,
+  "first66CommandsEventsSeedAndBlankInitialNotResubmittedOrRewritten": true,
+  "newOnly17ScoringGatewayCommandsAfterRestart": true,
+  "network": {
+    "room": "NETWORK-a6de766779ee",
+    "rejectedActions": 15,
+    "identities": [
+      "ANONYMOUS",
+      "FAILED_KEY",
+      "OTHER_HANDLE"
+    ],
+    "leakedPrivateMessages": 0,
+    "validReconnectTokenWasSupplied": true
+  },
+  "allOriginal275AuditAnd58NativeSevenTablesExact": true,
+  "auditRoomsAtStop": 275,
+  "nativeRoomsAtStop": 60,
+  "ownApiAndPostgresStopped": true,
+  "currentN35SqlAndThisApiActualInputIdentityMeasuredEqual": true,
+  "futureFixedN35BuildIdentityNotAssumed": "OPEN",
+  "onlyLatest708NativePairAndOneArchivePerPlatform": true,
+  "visibleHardwareControlsPhysicalWindowsAndWholePrintingCertification": false,
+  "newFixedCompleteCiPendingIndependentActualTerminalReadback": true
+}

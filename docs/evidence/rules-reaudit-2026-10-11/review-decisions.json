@@ -24375,6 +24375,70 @@
         "All prior finite observation consumers, source gaps and complete 1740 printing /14293 rule universe",
         "Current new fixed full, visible hardware controls and paired clients, physical Windows and final-candidate product acceptance"
       ]
+    },
+    {
+      "id": "exhausted-reksai-current-cn16-2026-10-21",
+      "scope": "Only two exact exhausted Reksai printings in both original confirmation orders, independent Candlelit private Insight and source/identity/cold replay; separately record two OPEN current Teemo source-adoption and positive-count damage gaps without implementation changes.",
+      "subjects": [
+        "SFD-187/221",
+        "SFD-243/221",
+        "OGN-291/298",
+        "OGN-121/298",
+        "OGN-121A/298",
+        "SFD-230/221",
+        "SFD-230*/221",
+        "OGN-296/298"
+      ],
+      "ruleRecords": [
+        "DOC-09-P020-B009",
+        "DOC-09-P020-B010",
+        "DOC-09-P020-B011",
+        "DOC-09-P020-B012",
+        "DOC-01-P041-B011",
+        "DOC-01-P041-B012",
+        "DOC-01-P041-B013",
+        "DOC-01-P041-B015",
+        "DOC-01-P041-B016",
+        "DOC-01-P085-B003",
+        "DOC-01-P085-B004"
+      ],
+      "pendingRuleRecords": [
+        "DOC-16-P009-B004",
+        "DOC-16-P009-B005",
+        "DOC-16-P012-B006",
+        "DOC-01-P106-B009",
+        "DOC-01-P106-B013",
+        "DOC-01-P106-B017"
+      ],
+      "status": "BOUNDED_INTEGRATED_EXHAUSTED4_SQL32_88_CHECK13238PASS_TWO_SEPARATE_TEEMO_SOURCE_DAMAGE_GAPS_OPEN_FULL_PRODUCT_OPEN",
+      "sourceManifest": {
+        "path": "docs/evidence/exhausted-reksai-current-cn16-2026-10-21/source-manifest.json",
+        "sha256": "c19153125d36499c811f78afb8373ce5f89dccf903f8a6571c51972694818212",
+        "role": "source-manifest"
+      },
+      "auditDocument": "docs/EXHAUSTED_REKSAI_CURRENT_CN16_SQL_AUDIT_2026-10-21.md",
+      "validation": {
+        "newConformanceCases": 0,
+        "newConformanceMethods": 0,
+        "distinctFocusCases": 54,
+        "distinctFocusMethods": 27,
+        "checkCases": 13238,
+        "checkMethods": 7508,
+        "checkPassed": 13238,
+        "checkFailed": 0,
+        "sqlCommands": 32,
+        "sqlEvents": 88,
+        "sqlColdRecoveries": 32,
+        "allOriginal52SqlCasesAnd143FullMethodsRetained": true,
+        "wholeCardCertification": false
+      },
+      "exclusions": [
+        "Whole printings, other Legendary identities, other conquest skills or all simultaneous-order cases",
+        "Ready-source optional payment, paying and declining, target source destruction/control/generation replacement and all other cost branches",
+        "All deck sizes and recycle selections, reveal/play permissions, other finite observation consumers and unresolved source gaps",
+        "New fixed commit full CI and current visible/hardware paired controls, physical Windows and final-candidate product acceptance",
+        "Both separate Teemo catalog-adoption and positive counted-damage gaps remain unimplemented; zero-count controls already match, broader count/zero/prevention semantics OPEN"
+      ]
     }
   ]
 }

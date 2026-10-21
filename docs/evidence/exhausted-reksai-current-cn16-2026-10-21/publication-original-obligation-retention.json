@@ -1,0 +1,20 @@
+{
+  "atUtc": "2026-10-21T09:10:00.699706+00:00",
+  "status": "BOUNDED_INTEGRATED_EXHAUSTED4_AND_SEPARATE_OPEN_TEEMO2_NOT_GOAL_COMPLETION",
+  "allOriginal155ReviewObjectsExact": true,
+  "allOriginal70CompleteContextsExact": true,
+  "all245OldGateFieldsAndStatesExact": true,
+  "all243OtherGatesWholeObjectsExact": true,
+  "allSourceUniverseDatesDeltasAndCoverageRetained": true,
+  "original16969ObligationIdsMustRemain": true,
+  "newBoundedBranches": 4,
+  "newSeparateOpenSourceDamageBranches": 2,
+  "expectedCurrentObligations": 16975,
+  "sourceManifest": {
+    "path": "docs/evidence/exhausted-reksai-current-cn16-2026-10-21/source-manifest.json",
+    "sha256": "c19153125d36499c811f78afb8373ce5f89dccf903f8a6571c51972694818212",
+    "role": "source-manifest"
+  },
+  "archiveMembers": 332,
+  "archiveBytes": 17124292
+}
