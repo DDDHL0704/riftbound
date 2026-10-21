@@ -568,12 +568,16 @@ def current_audit(root, manifest):
             evidence=context['evidence'] if context else review.get('evidence',[]),
             remaining=['WHOLE_PRINTING_AND_CLAUSE_SEMANTICS','PRODUCT_ACCEPTANCE'] + ([] if context else ['SOURCE_BRANCH_AND_EVIDENCE_MAPPING']),
             recordedLegacyStatus=review.get('status')))
+    def rule_review_references(identity, source_record):
+        associated = set(reviewed_rules.get(identity, [])) | set(reviewed_rules.get(source_record, []))
+        return [review for review in raw_reviews if review in associated]
+
     remaining = [dict(id='CARD:'+k,kind='PRINTING',sourceLedger=manifest['inputs']['cards'],sourceRecord=k,
                       sourceVersions=v['sources'],semanticReview='NOT_CERTIFIED',behaviorBranchMapping='REQUIRED',
                       scopedReviewRefs=subjects.get(k,[]),applicability='REQUIRES_REGIONAL_DATE_DISPOSITION') for k,v in cards.items()]
     remaining += [dict(id='RULE:'+k,kind='RULE_RECORD',sourceLedger=manifest['inputs']['rules'],sourceRecord=k,
                        document=v['document'],textHash=v['textHash'],semanticReview='NOT_CERTIFIED',behaviorBranchMapping='REQUIRED',
-                       scopedReviewRefs=reviewed_rules.get(k,reviewed_rules.get(v.get('sourceRecord'),[])),
+                       scopedReviewRefs=rule_review_references(k,v.get('sourceRecord')),
                        applicability='REQUIRES_DOCUMENT_AND_CLAUSE_DISPOSITION') for k,v in rules.items()]
     for gate in manifest['acceptanceGates']:
         if gate['state'] not in {'OPEN','BLOCKED_EXTERNAL'} or not gate['id'] or not gate['requirement']:

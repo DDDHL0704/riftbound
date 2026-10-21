@@ -37,8 +37,9 @@ var destructionGraveyardOnly = args.SequenceEqual(new[] { "--destruction-graveya
 var conditionalCounterPaymentOnly = args.SequenceEqual(new[] { "--conditional-counter-payment-only" });
 var reversalTargetChoiceOnly = args.SequenceEqual(new[] { "--reversal-target-choice-only" });
 var spellRemakeDeclarationOnly = args.SequenceEqual(new[] { "--spell-remake-declaration-only" });
+var candlelitPrivateLookOnly = args.SequenceEqual(new[] { "--candlelit-private-look-only" });
 var pakaDualTypeRevealOnly = args.SequenceEqual(new[] { "--paka-dual-type-reveal-only" });
-if (args.Length != 0 && !openingRandomnessOnly && !optionalCostsOnly && !battlefieldPlayRecoveryOnly && !battlefieldPlayDamageOnly && !banishEffectPlayOnly && !hereLocationOnly && !fateWeaverOnly && !multiControllerOrderOnly && !emptyObservedRepeatOnly && !observedPlayWindowOnly && !ravenbloomPutHandOnly && !attachedPredictOnly && !copiedLastBreathOnly && !copiedDuelOnly && !empoweredInsightOnly && !pakaRevealOnly && !emptyRevealFollowupOnly && !pakaDualTypeRevealOnly && !hweiMoveDiscardTypesOnly && !destructionGraveyardOnly && !conditionalCounterPaymentOnly && !reversalTargetChoiceOnly && !spellRemakeDeclarationOnly && !partition.IsPartition) throw new ArgumentException("Unknown PostgreSQL acceptance selector.");
+if (args.Length != 0 && !openingRandomnessOnly && !optionalCostsOnly && !battlefieldPlayRecoveryOnly && !battlefieldPlayDamageOnly && !banishEffectPlayOnly && !hereLocationOnly && !fateWeaverOnly && !multiControllerOrderOnly && !emptyObservedRepeatOnly && !observedPlayWindowOnly && !ravenbloomPutHandOnly && !attachedPredictOnly && !copiedLastBreathOnly && !copiedDuelOnly && !empoweredInsightOnly && !pakaRevealOnly && !emptyRevealFollowupOnly && !pakaDualTypeRevealOnly && !hweiMoveDiscardTypesOnly && !destructionGraveyardOnly && !conditionalCounterPaymentOnly && !reversalTargetChoiceOnly && !spellRemakeDeclarationOnly && !candlelitPrivateLookOnly && !partition.IsPartition) throw new ArgumentException("Unknown PostgreSQL acceptance selector.");
 var json = new JsonSerializerOptions(JsonSerializerDefaults.Web) { WriteIndented = true };
 await using var dataSource = NpgsqlDataSource.Create(connectionString);
 await using (var connection = await dataSource.OpenConnectionAsync()) {
@@ -46,6 +47,12 @@ await using (var connection = await dataSource.OpenConnectionAsync()) {
         await using var command = new NpgsqlCommand(await File.ReadAllTextAsync(path), connection);
         await command.ExecuteNonQueryAsync();
     }
+}
+if (candlelitPrivateLookOnly)
+{
+    await CandlelitPrivateLookSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "candlelit-private-look"));
+    Console.WriteLine("SCOPED_POSTGRES_ONLY: candlelit-private-look; the retained complete SQL suite was not requested.");
+    return;
 }
 if (spellRemakeDeclarationOnly)
 {
@@ -347,5 +354,6 @@ await partition.RunAsync("conditional-counter-payment", () => ConditionalCounter
 
 await partition.RunAsync("reversal-target-choice", () => ReversalTargetChoiceSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "reversal-target-choice")));
 await partition.RunAsync("spell-remake-declaration", () => SpellRemakeDeclarationSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "spell-remake-declaration")));
+await partition.RunAsync("candlelit-private-look", () => CandlelitPrivateLookSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "candlelit-private-look")));
 
 await partition.CompleteAsync(output);

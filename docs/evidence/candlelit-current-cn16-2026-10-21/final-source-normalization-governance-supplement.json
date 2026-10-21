@@ -1,0 +1,39 @@
+{
+  "atUtc": "2026-10-21T00:18:03.666430+00:00",
+  "status": "FINAL_SOURCE_AFTER_EMPTY_LINE_NORMALIZATION_FULL_GOVERNANCE_AND_STRICT_OLD_REFERENCE_RETENTION_ORIGINALS_VERIFIED",
+  "archive": {
+    "path": "docs/evidence/candlelit-current-cn16-2026-10-21/final-source-normalization-governance-originals.tar.xz",
+    "bytes": 1014100,
+    "sha256": "d2233bdf4af447d4e6bf75cf9f893dc724086dc49c9851f996328b2ba0aab496"
+  },
+  "members": [
+    {
+      "path": "var/qa/candlelit-current-cn16-recertification-20261021/actual-final-governance-v4.json",
+      "bytes": 18484605,
+      "sha256": "acaac98a524ded2bc5acaab7a5b40cc79ea7c8fdd8a2ee8d39dc0318ce622089"
+    },
+    {
+      "path": "var/qa/candlelit-current-cn16-recertification-20261021/actual-final-governance-v4.log",
+      "bytes": 49686,
+      "sha256": "a2df16503a637f457ddb7b994ad61b5f81015e28ef02e42e9f8b3d3d0043cf50"
+    },
+    {
+      "path": "var/qa/candlelit-current-cn16-recertification-20261021/verify-published-candlelit-cn16-batch-v4.py",
+      "bytes": 5939,
+      "sha256": "b9e60fb995a4f72f7c295a977c64bbf374e49c1e8b78bd1732460ded86f1c9c5"
+    },
+    {
+      "path": "var/qa/candlelit-current-cn16-recertification-20261021/verify-published-candlelit-cn16-batch-v4.log",
+      "bytes": 174,
+      "sha256": "c378ed2fecb01428b4c1e34de9d35218fc15a0567b627c69ca5a779160559ef5"
+    },
+    {
+      "path": "var/qa/candlelit-current-cn16-recertification-20261021/publication-independent-readback-v4.json",
+      "bytes": 2435,
+      "sha256": "3b8aa44054bb9c77a2c2eb7956756ca4739a2c2b9a5dc2a0c50b1f9633ab5043"
+    }
+  ],
+  "noNewGameplayOrVerificationLogicAfter74ToolsPass": true,
+  "originalUntouchedTestedSourceAndOriginalHashPreservedInGzip": true,
+  "firstUnpushedFormatFailureCommitWillBeReplacedOnlyBeforeRemotePublication": true
+}

@@ -1,0 +1,341 @@
+{
+  "atUtc": "2026-10-21T00:02:24.740024+00:00",
+  "status": "BOUNDED_CN16_CANDLELIT_PRIVATE_LOOK_SQL49_SOURCE_AND_EXECUTION_READBACK_FULL_AND_PRODUCT_OPEN",
+  "region": "CN",
+  "language": "zh-CN",
+  "observedAsOf": "2026-10-21",
+  "adoptedCoreEffectiveAsOf": "2026-10-16",
+  "exactPrinting": {
+    "apiId": 31536,
+    "printing": "OGN-291/298",
+    "printedName": "烛光圣殿",
+    "firstPublicationDate": null,
+    "printingEffectiveDate": null
+  },
+  "officialObservation": {
+    "atUtc": "2026-10-20T21:50:04.165335+00:00",
+    "status": "EXACT_CURRENT_SOURCE_INTAKE_ONLY_BEFORE_CN16_SEMANTIC_REVIEW",
+    "regionalAuthority": "CN/zh-CN",
+    "currentAdoptedCoreEffectiveDate": "2026-10-16",
+    "oldCandlelitJulyRuleReviewRetainedAsHistorical": true,
+    "cardReceipts": [
+      {
+        "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+        "request": {
+          "pageNum": 1,
+          "pageSize": 100,
+          "searchContent": "烛光",
+          "cardCategoryList": [],
+          "cardColorList": [],
+          "rarityList": [],
+          "productCodeList": []
+        },
+        "attemptedAtUtc": "2026-10-20T21:49:46.626549+00:00",
+        "region": "CN",
+        "language": "zh-CN",
+        "observedAsOf": "2026-10-21",
+        "publicationDate": null,
+        "effectiveDateIndependentlyConfirmed": null,
+        "semanticCertification": false,
+        "httpStatus": 200,
+        "resolvedUrl": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+        "responseHeaders": {
+          "Date": "Tue, 20 Oct 2026 21:49:46 GMT",
+          "Content-Length": "1214",
+          "Content-Type": "application/json"
+        },
+        "receivedAtUtc": "2026-10-20T21:49:46.731123+00:00",
+        "sha256": "9f54b0c44703c9a1bd5d4160990159a217bfc23beaadd5e5fbb66a465dc39b8c",
+        "bytes": 1214,
+        "status": "FETCHED_ORIGINAL_CURRENT_BYTES_NOT_SEMANTIC_CERTIFICATION",
+        "path": "var/qa/candlelit-current-cn16-recertification-20261021/candlelit-current-card-search-v1.gz",
+        "losslessGzipRawResponse": true,
+        "compressedSha256": "91e8d66b530876f722bbda3846541b6f9a5c69447fdf8a439f8413607521bd28"
+      },
+      {
+        "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+        "request": {
+          "pageNum": 1,
+          "pageSize": 100,
+          "searchContent": "光明未来",
+          "cardCategoryList": [],
+          "cardColorList": [],
+          "rarityList": [],
+          "productCodeList": []
+        },
+        "attemptedAtUtc": "2026-10-20T21:49:46.731760+00:00",
+        "region": "CN",
+        "language": "zh-CN",
+        "observedAsOf": "2026-10-21",
+        "publicationDate": null,
+        "effectiveDateIndependentlyConfirmed": null,
+        "semanticCertification": false,
+        "httpStatus": 200,
+        "resolvedUrl": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+        "responseHeaders": {
+          "Date": "Tue, 20 Oct 2026 21:49:46 GMT",
+          "Content-Length": "1446",
+          "Content-Type": "application/json"
+        },
+        "receivedAtUtc": "2026-10-20T21:49:46.863727+00:00",
+        "sha256": "710c5d46710950b7af50646d9e6bb05c818f2d6ad296c2cad6495c79d0ee0a06",
+        "bytes": 1446,
+        "status": "FETCHED_ORIGINAL_CURRENT_BYTES_NOT_SEMANTIC_CERTIFICATION",
+        "path": "var/qa/candlelit-current-cn16-recertification-20261021/bright-future-current-card-search-v1.gz",
+        "losslessGzipRawResponse": true,
+        "compressedSha256": "ad704733e5270fdd23c1d06e2ddc2c136c451da4dc1429b7029f4c1ac98ef9a7"
+      }
+    ],
+    "rulesDirectoryReceipt": {
+      "url": "https://lol-api.playloltcg.com/xcx/gameRule/getGameRuleList",
+      "request": {
+        "pageNum": 1,
+        "pageSize": 1000
+      },
+      "attemptedAtUtc": "2026-10-20T21:49:46.864292+00:00",
+      "region": "CN",
+      "language": "zh-CN",
+      "observedAsOf": "2026-10-21",
+      "publicationDate": null,
+      "effectiveDateIndependentlyConfirmed": null,
+      "semanticCertification": false,
+      "httpStatus": 200,
+      "resolvedUrl": "https://lol-api.playloltcg.com/xcx/gameRule/getGameRuleList",
+      "responseHeaders": {
+        "Date": "Tue, 20 Oct 2026 21:49:46 GMT",
+        "Content-Length": "4527",
+        "Content-Type": "application/json"
+      },
+      "receivedAtUtc": "2026-10-20T21:49:46.975429+00:00",
+      "sha256": "57cfc4a392a001c40eedf48a6d412e202846205e5f48603e764edac0687e47a4",
+      "bytes": 4527,
+      "status": "FETCHED_ORIGINAL_CURRENT_BYTES_NOT_SEMANTIC_CERTIFICATION",
+      "path": "var/qa/candlelit-current-cn16-recertification-20261021/cn-current-rules-directory-v1.gz",
+      "losslessGzipRawResponse": true,
+      "compressedSha256": "5c3e272d9b29bd6bb4c16f1225f4f9262863e5b7e8e635c71c02e8f77e716b70"
+    },
+    "currentThreePrimaryPdfReceipts": [
+      {
+        "url": "https://cdn.playloltcg.com/lol/2026/10/2026-10-10/a21ead876c6b44d6abe386b6ae54ea28.pdf",
+        "request": null,
+        "attemptedAtUtc": "2026-10-20T21:49:46.976552+00:00",
+        "region": "CN",
+        "language": "zh-CN",
+        "observedAsOf": "2026-10-21",
+        "publicationDate": null,
+        "effectiveDateIndependentlyConfirmed": null,
+        "semanticCertification": false,
+        "httpStatus": 200,
+        "resolvedUrl": "https://cdn.playloltcg.com/lol/2026/10/2026-10-10/a21ead876c6b44d6abe386b6ae54ea28.pdf",
+        "responseHeaders": {
+          "Date": "Sat, 10 Oct 2026 00:46:49 GMT",
+          "ETag": "\"fd4b064bd191585ab9789505ddc7c416\"",
+          "Age": "151631",
+          "Last-Modified": "Fri, 09 Oct 2026 16:55:24 GMT",
+          "Content-Length": "40278538",
+          "Content-Type": "application/pdf"
+        },
+        "receivedAtUtc": "2026-10-20T21:49:59.585373+00:00",
+        "sha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11",
+        "bytes": 40278538,
+        "status": "FETCHED_ORIGINAL_CURRENT_BYTES_NOT_SEMANTIC_CERTIFICATION",
+        "path": "var/qa/cn-effective-20261016/whole-rule-source-readback/CN/DOC-01.pdf",
+        "losslessGzipRawResponse": false,
+        "compressedSha256": "4619c6854bfd1cc508439b2ed3dd99914c668131643198138eca8cd9414aec6b",
+        "priorRawReference": {
+          "path": "var/qa/cn-effective-20261016/whole-rule-source-readback/CN/DOC-01.pdf",
+          "sha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11"
+        },
+        "exactOriginalReused": true,
+        "retiredIdenticalTemporaryGzip": {
+          "bytes": 38983897,
+          "sha256": "4619c6854bfd1cc508439b2ed3dd99914c668131643198138eca8cd9414aec6b"
+        }
+      },
+      {
+        "url": "https://cdn.playloltcg.com/lol/2026/10/2026-10-10/0d5c26b5535345d48e1afafb3e2a0018.pdf",
+        "request": null,
+        "attemptedAtUtc": "2026-10-20T21:49:59.625445+00:00",
+        "region": "CN",
+        "language": "zh-CN",
+        "observedAsOf": "2026-10-21",
+        "publicationDate": null,
+        "effectiveDateIndependentlyConfirmed": null,
+        "semanticCertification": false,
+        "httpStatus": 200,
+        "resolvedUrl": "https://cdn.playloltcg.com/lol/2026/10/2026-10-10/0d5c26b5535345d48e1afafb3e2a0018.pdf",
+        "responseHeaders": {
+          "Date": "Sat, 10 Oct 2026 00:47:06 GMT",
+          "ETag": "\"e3eff05df1d47579e452afc899053a60\"",
+          "Age": "314966",
+          "Last-Modified": "Fri, 09 Oct 2026 16:53:56 GMT",
+          "Content-Length": "12731066",
+          "Content-Type": "application/pdf"
+        },
+        "receivedAtUtc": "2026-10-20T21:50:03.372596+00:00",
+        "sha256": "4d50574d355d57ba4de766243717320a9471951976e230bb9f91b78ab1dde74d",
+        "bytes": 12731066,
+        "status": "FETCHED_ORIGINAL_CURRENT_BYTES_NOT_SEMANTIC_CERTIFICATION",
+        "path": "var/qa/cn-effective-20261016/whole-rule-source-readback/CN/DOC-02.pdf",
+        "losslessGzipRawResponse": false,
+        "compressedSha256": "0a76133532e5054b4e241dd8b0a15e36d1fbc3fad326977c4d2e86f19e27d0bf",
+        "priorRawReference": {
+          "path": "var/qa/cn-effective-20261016/whole-rule-source-readback/CN/DOC-02.pdf",
+          "sha256": "4d50574d355d57ba4de766243717320a9471951976e230bb9f91b78ab1dde74d"
+        },
+        "exactOriginalReused": true,
+        "retiredIdenticalTemporaryGzip": {
+          "bytes": 12101377,
+          "sha256": "0a76133532e5054b4e241dd8b0a15e36d1fbc3fad326977c4d2e86f19e27d0bf"
+        }
+      },
+      {
+        "url": "https://cdn.playloltcg.com/lol/2026/10/2026-10-10/ade3c71d000c4dd0abf978d5d48b24ef.pdf",
+        "request": null,
+        "attemptedAtUtc": "2026-10-20T21:50:03.385021+00:00",
+        "region": "CN",
+        "language": "zh-CN",
+        "observedAsOf": "2026-10-21",
+        "publicationDate": null,
+        "effectiveDateIndependentlyConfirmed": null,
+        "semanticCertification": false,
+        "httpStatus": 200,
+        "resolvedUrl": "https://cdn.playloltcg.com/lol/2026/10/2026-10-10/ade3c71d000c4dd0abf978d5d48b24ef.pdf",
+        "responseHeaders": {
+          "Date": "Sat, 10 Oct 2026 00:32:57 GMT",
+          "ETag": "\"1a8771486b021047d236f37c1f0627a0\"",
+          "Age": "293600",
+          "Last-Modified": "Fri, 09 Oct 2026 16:58:25 GMT",
+          "Content-Length": "2558041",
+          "Content-Type": "application/pdf"
+        },
+        "receivedAtUtc": "2026-10-20T21:50:04.158196+00:00",
+        "sha256": "8643a1f637346c94bc2b716c8773611136af30338cc0b49a87c1126b2e31de73",
+        "bytes": 2558041,
+        "status": "FETCHED_ORIGINAL_CURRENT_BYTES_NOT_SEMANTIC_CERTIFICATION",
+        "path": "var/qa/cn-effective-20261016/whole-rule-source-readback/CN/DOC-03.pdf",
+        "losslessGzipRawResponse": false,
+        "compressedSha256": "d9dac4e02d6cce8d89cf474c2e3e82bb611414c9766d717db10f5bd5218e6c2b",
+        "priorRawReference": {
+          "path": "var/qa/cn-effective-20261016/whole-rule-source-readback/CN/DOC-03.pdf",
+          "sha256": "8643a1f637346c94bc2b716c8773611136af30338cc0b49a87c1126b2e31de73"
+        },
+        "exactOriginalReused": true,
+        "retiredIdenticalTemporaryGzip": {
+          "bytes": 2537562,
+          "sha256": "d9dac4e02d6cce8d89cf474c2e3e82bb611414c9766d717db10f5bd5218e6c2b"
+        }
+      }
+    ],
+    "allOtherPrintingsClausesConsumersAndProductObligationsRetained": true,
+    "runtimeSourceTestsOrAcceptedDatabaseHistoriesChanged": false
+  },
+  "exactClauseAndBranchReview": {
+    "path": "docs/evidence/candlelit-current-cn16-2026-10-21/five-current-source-branch-records.json",
+    "sha256": "3e4b53b18ae04d264324c109bd5575b82de750ceed16a2e5d6872774ff35b41c"
+  },
+  "allCompleteOriginalPhysicalPagesViewed": [
+    8,
+    9,
+    29,
+    40,
+    41,
+    63,
+    69,
+    73,
+    82,
+    85
+  ],
+  "oldReviewOriginalDateJulySourceEightBranchesAndEvidenceUnchanged": true,
+  "noOfficialBodyChangeDetectedInExactTwoCardRowsDirectoryAndThreePrimaryPdfsOnly": true,
+  "cardQaNullAndLiteralTermAbsenceDoNotProveNoFaq": true,
+  "originalAllPrintingsRuleQaNewsSourceGapsAndSevenDeltasRetained": true,
+  "sourceRefreshDoesNotReplaceFinalApplicableSourceRefresh": true,
+  "implementationChange": "NO_GAMEPLAY_SOURCE_CHANGE_NEW_PERMANENT_SQL_VERIFICATION_ONLY",
+  "parentCommit": "c2bea309e2b73cdd730f57bf8761bb04a6c42ce8",
+  "actualFinalRootSqlRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+    "implementationSha256": "427fc6a535a9cd32338acb2b1c30b2505167ec22afe55344b24e96536e934c4a",
+    "identitySha256": "9b84e7ef747cba607ce4c7e8c3e6e81cf0a66a13ef326b0908b67ae6c9a8e3be"
+  },
+  "actualPrototypeF470RuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+    "implementationSha256": "c93608f0f03f054efc024217f9d2d82e975e81b59523b22e9ec102c8f4733a4c",
+    "identitySha256": "e9e74d3e8f998876310b41a6f821118aa50f79591a1ea63062cf055a0af8b88f"
+  },
+  "prototypeAndFinalRunsRetainedSeparatelyNotMerged": true,
+  "sourceInputCount": 3319,
+  "onlyChangedExistingInputs": [
+    "tests/Riftbound.PostgresAcceptance/Program.cs",
+    "tests/Riftbound.PostgresAcceptance/SqlAcceptanceCases.json",
+    "scripts/tests/test_sql_ci_gate.py"
+  ],
+  "newSource": {
+    "path": "tests/Riftbound.PostgresAcceptance/CandlelitPrivateLookSqlAcceptance.cs",
+    "sha256": "775e1e2d76a913bb7d1a46daa160864b06560f68b9cebf2f826949896e84ea78"
+  },
+  "original48SqlIdsAndOrderOnly49thAdded": true,
+  "currentSqlFive": {
+    "commands": 30,
+    "events": 90,
+    "coldRecoveries": 30,
+    "directAtomicRejections": 21,
+    "independentStructuralRejections": 20,
+    "authorityHistories": 30,
+    "privateSnapshots": 60,
+    "privatePrompts": 60,
+    "controlledInitialNotOrdinaryOpening": true,
+    "originalBlankReplayMetadataNotRewritten": true,
+    "structuralRejectionsUseForgedCopiesOfActualStoredFrameNotDatabaseMutation": true
+  },
+  "focus": {
+    "cases": 76,
+    "methods": 47,
+    "originalCandlelitScoreVictoryAndFullReplayIncluded": true
+  },
+  "onlyCheck": {
+    "path": "docs/evidence/candlelit-current-cn16-2026-10-21/check-exact-original-case-method-and-input-retention.json",
+    "sha256": "00c71aba3fc5baed3b6830e19d0f56adbbefb600e511ebcc717ee196890c1934"
+  },
+  "pythonTools": {
+    "passed": 73,
+    "originalMethodsAndNegativeAssertionsPreserved": true
+  },
+  "precedingFixedC2HeadlessCiNativeScope": {
+    "path": "docs/evidence/candlelit-current-cn16-2026-10-21/fixed-c2-ci-native-combined-subscope.json",
+    "sha256": "e952faf03cf3d5995fcdaf8b6346de3b84682ba4064b161488de9d8312495879"
+  },
+  "precedingF470Sql48Native15Only": {
+    "path": "docs/evidence/candlelit-current-cn16-2026-10-21/preceding-f470-all4-sql-originals.json",
+    "sha256": "023e436c05342da4447b77ed67eaff7af527ccfdd88503890b4346291e6c05af"
+  },
+  "archives": [
+    {
+      "path": "docs/evidence/candlelit-current-cn16-2026-10-21/candlelit-completed-originals.tar.xz",
+      "sha256": "17cc21cce5e77e752c973d4ebc7727588220da94d2ebb7e900cc452f89f07241"
+    },
+    {
+      "path": "docs/evidence/candlelit-current-cn16-2026-10-21/fixed-c2-native-completed-originals.tar.xz",
+      "sha256": "b04c9048f6c40f5fb2e58d755fe86599f035309db18482311c6efd5118015ffd"
+    }
+  ],
+  "archiveMap": {
+    "path": "docs/evidence/candlelit-current-cn16-2026-10-21/archive-map.json",
+    "sha256": "c5fd3034da72595c20c8da826057f5b475b1d90c9a26ac3546743210a9630ce8"
+  },
+  "finalCurrentFixedFullVisibleHardwareAndPhysicalWindowsAcceptance": "OPEN",
+  "wholePrintingOrGlobalCertification": false,
+  "precedingFixedF470ActualCompleteFull": {
+    "path": "docs/evidence/candlelit-current-cn16-2026-10-21/preceding-f470-entire-full-originals.json",
+    "sha256": "62df54b28dfe5d588f2f8fccc2907c45126bce2bfc3229d640d3c3276779b4dd",
+    "role": "previous-fixed-full"
+  }
+}

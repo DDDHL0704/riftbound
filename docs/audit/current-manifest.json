@@ -102,7 +102,7 @@
     },
     "reviews": {
       "path": "docs/evidence/rules-reaudit-2026-10-11/review-decisions.json",
-      "sha256": "0f83da87a194c5236391eebc39f92607c1315e23294023b7c85eea9a65a06e03",
+      "sha256": "d033febc4cdd584757b7c57f6c8d8450403373dfdd4bed0559c7a1e1ceae877b",
       "role": "reviews"
     },
     "summary": {
@@ -37354,6 +37354,547 @@
       ],
       "currentDefaultSqlExecutionIdentities": 48,
       "semanticWholePrintingCertified": false
+    },
+    "candlelit-current-cn16-five-private-look-sql-2026-10-21": {
+      "evidenceCommit": "c2bea309e2b73cdd730f57bf8761bb04a6c42ce8",
+      "currentImplementationCommit": "c2bea309e2b73cdd730f57bf8761bb04a6c42ce8",
+      "currentImplementationIncludesUncommittedChanges": true,
+      "ciState": "PENDING",
+      "ciReceipts": [],
+      "region": "CN",
+      "language": "zh-CN",
+      "applicableAsOf": "2026-10-21",
+      "adoptedCoreEffectiveDate": "2026-10-16",
+      "sourceManifest": {
+        "path": "docs/evidence/candlelit-current-cn16-2026-10-21/source-manifest.json",
+        "sha256": "9516453ea8bc38a0fa8cb3af3fa664042c24c6e893fb9c016be228f471ee66ba",
+        "role": "source-manifest"
+      },
+      "implementation": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.Conquest.cs",
+          "sha256": "87c139a46b4bfa61701b8bbd714635e38707091ff49b068f643fb2f15c01e0d3",
+          "role": "implementation"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.InsightTriggers.cs",
+          "sha256": "037218963a2fdca65a306fd5ada7e4f2de824ab65d2f1169a7374fae2654a204",
+          "role": "implementation"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.Insight.cs",
+          "sha256": "2cb19722ef01712fcf0825f96ebb9068295fbf0e9bef6bb0beb7c5df540c0fc2",
+          "role": "implementation"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DeckObservation.cs",
+          "sha256": "23d38876ad376bbaa79fe1db46723fc547986027aa3cc7479a6e8f25528a0371",
+          "role": "implementation"
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.cs",
+          "sha256": "cf66d4df80998c685f70a6981b66df4047557f70b0b6773d59be86cec5733ba9",
+          "role": "implementation"
+        },
+        {
+          "path": "src/Riftbound.CardCatalog/RuleTextParsers.cs",
+          "sha256": "d277b2d4234cf7b98822d12673757cac176b01365566e65c685b91a8f68df708",
+          "role": "implementation"
+        }
+      ],
+      "verificationSources": [
+        {
+          "path": "tests/Riftbound.PostgresAcceptance/CandlelitPrivateLookSqlAcceptance.cs",
+          "sha256": "4075d380348b02438d0713d2197d48e246a58bf818b09d5cbe54130efe7141d4",
+          "role": "verification-source",
+          "actualTestedSourceSha256BeforeWhitespaceOnlyNormalization": "775e1e2d76a913bb7d1a46daa160864b06560f68b9cebf2f826949896e84ea78"
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/CandlelitSanctumTests.cs",
+          "sha256": "c6bc227ebde6862f5dfeb06f435f314ea3054100bb82bf19b1bffdbd63739259",
+          "role": "unchanged-original-test-source"
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/evidence/candlelit-current-cn16-2026-10-21/focus-original-candlelit-and-adjacent.json",
+          "sha256": "ed177ef0ad07c724a8f7591c2450716d3d3e3c1ce5960931c62342fc6de03f4a",
+          "role": "focus"
+        },
+        {
+          "path": "docs/evidence/candlelit-current-cn16-2026-10-21/check-exact-original-case-method-and-input-retention.json",
+          "sha256": "00c71aba3fc5baed3b6830e19d0f56adbbefb600e511ebcc717ee196890c1934",
+          "role": "check"
+        },
+        {
+          "path": "docs/evidence/candlelit-current-cn16-2026-10-21/real-sql-final-root-five-terminal.json",
+          "sha256": "f3c1ae3e6319286f0420fca2b2818feb857e54f156d8a3b0294cba7059352f01",
+          "role": "sql-actual-terminal"
+        },
+        {
+          "path": "docs/evidence/candlelit-current-cn16-2026-10-21/real-sql-independent-all-history.json",
+          "sha256": "9307751861a197972772ff252ca9be944afd16057d77db8c554c771d4f50050b",
+          "role": "independent-sql-readback"
+        }
+      ],
+      "branches": [
+        {
+          "id": "CANDLELIT_CN16_KEEP_REVERSE",
+          "sqlBranch": "keep-reverse",
+          "scope": "Mandatory original conquest ability is responseable before private top2 LOOK; zero recycle and exact reverse retained-top order without RNG advancement.",
+          "semanticReview": {
+            "state": "BOUNDED_CURRENT_SOURCE_AND_LITERAL_BRANCH_REVIEW_PASS",
+            "region": "CN",
+            "language": "zh-CN",
+            "observedAsOf": "2026-10-21",
+            "adoptedCoreEffectiveAsOf": "2026-10-16",
+            "wholeClauseOrPrintingCertified": false
+          },
+          "implementation": {
+            "state": "EXISTING_SHARED_CONQUEST_INSIGHT_PRIVATE_CHOICE_FLOW_NO_GAMEPLAY_SOURCE_CHANGE"
+          },
+          "testExecution": {
+            "state": "ACTUAL_FINAL_ROOT_SQL_AND_INDEPENDENT_WHOLE_HISTORY_PASS",
+            "requiredExistingMethod": "Riftbound.ConformanceTests.CandlelitSanctumTests.ConquestQueuesAResponseableAbilityWithoutLookingRecyclingOrLeakingTheDeck",
+            "sqlCommandsEventsColdInReceipt": true
+          },
+          "fixedCommitCi": {
+            "state": "PENDING_NEW49_SQL_FIXED_CANDIDATE"
+          },
+          "productAcceptance": {
+            "state": "OPEN",
+            "visiblePairedHardwareAndPhysicalWindows": "OPEN"
+          },
+          "sourceRefs": [
+            "OGN-291/298",
+            "CN-d6fd7140f106f9b5-P040-B012",
+            "CN-d6fd7140f106f9b5-P041-B002",
+            "CN-d6fd7140f106f9b5-P041-B011",
+            "CN-d6fd7140f106f9b5-P041-B013",
+            "CN-d6fd7140f106f9b5-P041-B014",
+            "CN-d6fd7140f106f9b5-P041-B015",
+            "CN-d6fd7140f106f9b5-P041-B016",
+            "CN-d6fd7140f106f9b5-P063-B006",
+            "CN-d6fd7140f106f9b5-P063-B008",
+            "CN-d6fd7140f106f9b5-P063-B009",
+            "CN-d6fd7140f106f9b5-P069-B003",
+            "CN-d6fd7140f106f9b5-P069-B004",
+            "CN-d6fd7140f106f9b5-P069-B005",
+            "CN-d6fd7140f106f9b5-P069-B006",
+            "CN-d6fd7140f106f9b5-P073-B005",
+            "CN-d6fd7140f106f9b5-P073-B008",
+            "CN-d6fd7140f106f9b5-P073-B012",
+            "CN-d6fd7140f106f9b5-P073-B013",
+            "CN-d6fd7140f106f9b5-P082-B002",
+            "CN-d6fd7140f106f9b5-P082-B003",
+            "CN-d6fd7140f106f9b5-P085-B003",
+            "CN-d6fd7140f106f9b5-P085-B004",
+            "CN-d6fd7140f106f9b5-P085-B009",
+            "CN-d6fd7140f106f9b5-P085-B010",
+            "CN-d6fd7140f106f9b5-P008-B017",
+            "CN-d6fd7140f106f9b5-P009-B004",
+            "CN-d6fd7140f106f9b5-P009-B005",
+            "CN-d6fd7140f106f9b5-P009-B006",
+            "CN-d6fd7140f106f9b5-P009-B008",
+            "CN-d6fd7140f106f9b5-P009-B014",
+            "CN-d6fd7140f106f9b5-P029-B001",
+            "CN-d6fd7140f106f9b5-P029-B006",
+            "CN-d6fd7140f106f9b5-P029-B007",
+            "CN-d6fd7140f106f9b5-P029-B008",
+            "CN-d6fd7140f106f9b5-P029-B009",
+            "CN-d6fd7140f106f9b5-P029-B010"
+          ],
+          "remaining": [
+            "NOCTURNE_ORIGINAL_SET_AND_SIMULTANEOUS_PENDING_VARIANTS",
+            "ACTUAL_REACTION_ADJUSTED_DECK_AND_OTHER_CONSUMERS",
+            "COPY_OTHER_PRINTINGS_AND_WHOLE_EFFECT",
+            "NEW_FIXED_FULL_AND_FINAL_PRODUCT_ACCEPTANCE"
+          ],
+          "state": "RECORDED",
+          "sourceManifest": {
+            "path": "docs/evidence/candlelit-current-cn16-2026-10-21/source-manifest.json",
+            "sha256": "9516453ea8bc38a0fa8cb3af3fa664042c24c6e893fb9c016be228f471ee66ba",
+            "role": "source-manifest"
+          },
+          "decision": {
+            "state": "OPEN",
+            "reason": "Bounded current source and exact execution pass are recorded separately; final fixed49 full/product and other semantic obligations remain."
+          },
+          "wholePrintingCertified": false,
+          "existingAcceptanceGateDependencies": [
+            "DECK_OBSERVATION_FAMILY_ALL_APPLICABLE_CONSUMERS",
+            "FIXED_CURRENT_CANDIDATE_FULL",
+            "USER_WINDOWS_RUNTIME"
+          ]
+        },
+        {
+          "id": "CANDLELIT_CN16_RECYCLE_ONE",
+          "sqlBranch": "recycle-one",
+          "scope": "Choose only original DRAW1 for bottom; exact retained DRAW2/DRAW3 top order, no RNG advancement.",
+          "semanticReview": {
+            "state": "BOUNDED_CURRENT_SOURCE_AND_LITERAL_BRANCH_REVIEW_PASS",
+            "region": "CN",
+            "language": "zh-CN",
+            "observedAsOf": "2026-10-21",
+            "adoptedCoreEffectiveAsOf": "2026-10-16",
+            "wholeClauseOrPrintingCertified": false
+          },
+          "implementation": {
+            "state": "EXISTING_SHARED_CONQUEST_INSIGHT_PRIVATE_CHOICE_FLOW_NO_GAMEPLAY_SOURCE_CHANGE"
+          },
+          "testExecution": {
+            "state": "ACTUAL_FINAL_ROOT_SQL_AND_INDEPENDENT_WHOLE_HISTORY_PASS",
+            "requiredExistingMethod": "Riftbound.ConformanceTests.CandlelitSanctumTests.TheControllerChoosesAnyRecycleSubsetThenOrdersOnlyTheRetainedCards",
+            "sqlCommandsEventsColdInReceipt": true
+          },
+          "fixedCommitCi": {
+            "state": "PENDING_NEW49_SQL_FIXED_CANDIDATE"
+          },
+          "productAcceptance": {
+            "state": "OPEN",
+            "visiblePairedHardwareAndPhysicalWindows": "OPEN"
+          },
+          "sourceRefs": [
+            "OGN-291/298",
+            "CN-d6fd7140f106f9b5-P040-B012",
+            "CN-d6fd7140f106f9b5-P041-B002",
+            "CN-d6fd7140f106f9b5-P041-B011",
+            "CN-d6fd7140f106f9b5-P041-B013",
+            "CN-d6fd7140f106f9b5-P041-B014",
+            "CN-d6fd7140f106f9b5-P041-B015",
+            "CN-d6fd7140f106f9b5-P041-B016",
+            "CN-d6fd7140f106f9b5-P063-B006",
+            "CN-d6fd7140f106f9b5-P063-B008",
+            "CN-d6fd7140f106f9b5-P063-B009",
+            "CN-d6fd7140f106f9b5-P069-B003",
+            "CN-d6fd7140f106f9b5-P069-B004",
+            "CN-d6fd7140f106f9b5-P069-B005",
+            "CN-d6fd7140f106f9b5-P069-B006",
+            "CN-d6fd7140f106f9b5-P073-B005",
+            "CN-d6fd7140f106f9b5-P073-B008",
+            "CN-d6fd7140f106f9b5-P073-B012",
+            "CN-d6fd7140f106f9b5-P073-B013",
+            "CN-d6fd7140f106f9b5-P082-B002",
+            "CN-d6fd7140f106f9b5-P082-B003",
+            "CN-d6fd7140f106f9b5-P085-B003",
+            "CN-d6fd7140f106f9b5-P085-B004",
+            "CN-d6fd7140f106f9b5-P085-B009",
+            "CN-d6fd7140f106f9b5-P085-B010",
+            "CN-d6fd7140f106f9b5-P008-B017",
+            "CN-d6fd7140f106f9b5-P009-B004",
+            "CN-d6fd7140f106f9b5-P009-B005",
+            "CN-d6fd7140f106f9b5-P009-B006",
+            "CN-d6fd7140f106f9b5-P009-B008",
+            "CN-d6fd7140f106f9b5-P009-B014",
+            "CN-d6fd7140f106f9b5-P029-B001",
+            "CN-d6fd7140f106f9b5-P029-B006",
+            "CN-d6fd7140f106f9b5-P029-B007",
+            "CN-d6fd7140f106f9b5-P029-B008",
+            "CN-d6fd7140f106f9b5-P029-B009",
+            "CN-d6fd7140f106f9b5-P029-B010"
+          ],
+          "remaining": [
+            "NOCTURNE_ORIGINAL_SET_AND_SIMULTANEOUS_PENDING_VARIANTS",
+            "ACTUAL_REACTION_ADJUSTED_DECK_AND_OTHER_CONSUMERS",
+            "COPY_OTHER_PRINTINGS_AND_WHOLE_EFFECT",
+            "NEW_FIXED_FULL_AND_FINAL_PRODUCT_ACCEPTANCE"
+          ],
+          "state": "RECORDED",
+          "sourceManifest": {
+            "path": "docs/evidence/candlelit-current-cn16-2026-10-21/source-manifest.json",
+            "sha256": "9516453ea8bc38a0fa8cb3af3fa664042c24c6e893fb9c016be228f471ee66ba",
+            "role": "source-manifest"
+          },
+          "decision": {
+            "state": "OPEN",
+            "reason": "Bounded current source and exact execution pass are recorded separately; final fixed49 full/product and other semantic obligations remain."
+          },
+          "wholePrintingCertified": false,
+          "existingAcceptanceGateDependencies": [
+            "DECK_OBSERVATION_FAMILY_ALL_APPLICABLE_CONSUMERS",
+            "FIXED_CURRENT_CANDIDATE_FULL",
+            "USER_WINDOWS_RUNTIME"
+          ]
+        },
+        {
+          "id": "CANDLELIT_CN16_RECYCLE_TWO",
+          "sqlBranch": "recycle-two",
+          "scope": "Only both original viewed cards recycle; untouched DRAW3 remains top, selected pair is the bottom group and RNG advances once.",
+          "semanticReview": {
+            "state": "BOUNDED_CURRENT_SOURCE_AND_LITERAL_BRANCH_REVIEW_PASS",
+            "region": "CN",
+            "language": "zh-CN",
+            "observedAsOf": "2026-10-21",
+            "adoptedCoreEffectiveAsOf": "2026-10-16",
+            "wholeClauseOrPrintingCertified": false
+          },
+          "implementation": {
+            "state": "EXISTING_SHARED_CONQUEST_INSIGHT_PRIVATE_CHOICE_FLOW_NO_GAMEPLAY_SOURCE_CHANGE"
+          },
+          "testExecution": {
+            "state": "ACTUAL_FINAL_ROOT_SQL_AND_INDEPENDENT_WHOLE_HISTORY_PASS",
+            "requiredExistingMethod": "Riftbound.ConformanceTests.CandlelitSanctumTests.TheControllerChoosesAnyRecycleSubsetThenOrdersOnlyTheRetainedCards",
+            "sqlCommandsEventsColdInReceipt": true
+          },
+          "fixedCommitCi": {
+            "state": "PENDING_NEW49_SQL_FIXED_CANDIDATE"
+          },
+          "productAcceptance": {
+            "state": "OPEN",
+            "visiblePairedHardwareAndPhysicalWindows": "OPEN"
+          },
+          "sourceRefs": [
+            "OGN-291/298",
+            "CN-d6fd7140f106f9b5-P040-B012",
+            "CN-d6fd7140f106f9b5-P041-B002",
+            "CN-d6fd7140f106f9b5-P041-B011",
+            "CN-d6fd7140f106f9b5-P041-B013",
+            "CN-d6fd7140f106f9b5-P041-B014",
+            "CN-d6fd7140f106f9b5-P041-B015",
+            "CN-d6fd7140f106f9b5-P041-B016",
+            "CN-d6fd7140f106f9b5-P063-B006",
+            "CN-d6fd7140f106f9b5-P063-B008",
+            "CN-d6fd7140f106f9b5-P063-B009",
+            "CN-d6fd7140f106f9b5-P069-B003",
+            "CN-d6fd7140f106f9b5-P069-B004",
+            "CN-d6fd7140f106f9b5-P069-B005",
+            "CN-d6fd7140f106f9b5-P069-B006",
+            "CN-d6fd7140f106f9b5-P073-B005",
+            "CN-d6fd7140f106f9b5-P073-B008",
+            "CN-d6fd7140f106f9b5-P073-B012",
+            "CN-d6fd7140f106f9b5-P073-B013",
+            "CN-d6fd7140f106f9b5-P082-B002",
+            "CN-d6fd7140f106f9b5-P082-B003",
+            "CN-d6fd7140f106f9b5-P085-B003",
+            "CN-d6fd7140f106f9b5-P085-B004",
+            "CN-d6fd7140f106f9b5-P085-B009",
+            "CN-d6fd7140f106f9b5-P085-B010",
+            "CN-d6fd7140f106f9b5-P008-B017",
+            "CN-d6fd7140f106f9b5-P009-B004",
+            "CN-d6fd7140f106f9b5-P009-B005",
+            "CN-d6fd7140f106f9b5-P009-B006",
+            "CN-d6fd7140f106f9b5-P009-B008",
+            "CN-d6fd7140f106f9b5-P009-B014",
+            "CN-d6fd7140f106f9b5-P029-B001",
+            "CN-d6fd7140f106f9b5-P029-B006",
+            "CN-d6fd7140f106f9b5-P029-B007",
+            "CN-d6fd7140f106f9b5-P029-B008",
+            "CN-d6fd7140f106f9b5-P029-B009",
+            "CN-d6fd7140f106f9b5-P029-B010"
+          ],
+          "remaining": [
+            "NOCTURNE_ORIGINAL_SET_AND_SIMULTANEOUS_PENDING_VARIANTS",
+            "ACTUAL_REACTION_ADJUSTED_DECK_AND_OTHER_CONSUMERS",
+            "COPY_OTHER_PRINTINGS_AND_WHOLE_EFFECT",
+            "NEW_FIXED_FULL_AND_FINAL_PRODUCT_ACCEPTANCE"
+          ],
+          "state": "RECORDED",
+          "sourceManifest": {
+            "path": "docs/evidence/candlelit-current-cn16-2026-10-21/source-manifest.json",
+            "sha256": "9516453ea8bc38a0fa8cb3af3fa664042c24c6e893fb9c016be228f471ee66ba",
+            "role": "source-manifest"
+          },
+          "decision": {
+            "state": "OPEN",
+            "reason": "Bounded current source and exact execution pass are recorded separately; final fixed49 full/product and other semantic obligations remain."
+          },
+          "wholePrintingCertified": false,
+          "existingAcceptanceGateDependencies": [
+            "DECK_OBSERVATION_FAMILY_ALL_APPLICABLE_CONSUMERS",
+            "FIXED_CURRENT_CANDIDATE_FULL",
+            "USER_WINDOWS_RUNTIME"
+          ]
+        },
+        {
+          "id": "CANDLELIT_CN16_SHORT_EMPTY",
+          "sqlBranch": "short-empty",
+          "scope": "Zero existing cards resolves without an impossible private choice, extra score, draw or burnout.",
+          "semanticReview": {
+            "state": "BOUNDED_CURRENT_SOURCE_AND_LITERAL_BRANCH_REVIEW_PASS",
+            "region": "CN",
+            "language": "zh-CN",
+            "observedAsOf": "2026-10-21",
+            "adoptedCoreEffectiveAsOf": "2026-10-16",
+            "wholeClauseOrPrintingCertified": false
+          },
+          "implementation": {
+            "state": "EXISTING_SHARED_CONQUEST_INSIGHT_PRIVATE_CHOICE_FLOW_NO_GAMEPLAY_SOURCE_CHANGE"
+          },
+          "testExecution": {
+            "state": "ACTUAL_FINAL_ROOT_SQL_AND_INDEPENDENT_WHOLE_HISTORY_PASS",
+            "requiredExistingMethod": "Riftbound.ConformanceTests.CandlelitSanctumTests.AShortDeckLooksOnlyAtExistingCardsWithoutDrawingOrBurning",
+            "sqlCommandsEventsColdInReceipt": true
+          },
+          "fixedCommitCi": {
+            "state": "PENDING_NEW49_SQL_FIXED_CANDIDATE"
+          },
+          "productAcceptance": {
+            "state": "OPEN",
+            "visiblePairedHardwareAndPhysicalWindows": "OPEN"
+          },
+          "sourceRefs": [
+            "OGN-291/298",
+            "CN-d6fd7140f106f9b5-P040-B012",
+            "CN-d6fd7140f106f9b5-P041-B002",
+            "CN-d6fd7140f106f9b5-P041-B011",
+            "CN-d6fd7140f106f9b5-P041-B013",
+            "CN-d6fd7140f106f9b5-P041-B014",
+            "CN-d6fd7140f106f9b5-P041-B015",
+            "CN-d6fd7140f106f9b5-P041-B016",
+            "CN-d6fd7140f106f9b5-P063-B006",
+            "CN-d6fd7140f106f9b5-P063-B008",
+            "CN-d6fd7140f106f9b5-P063-B009",
+            "CN-d6fd7140f106f9b5-P069-B003",
+            "CN-d6fd7140f106f9b5-P069-B004",
+            "CN-d6fd7140f106f9b5-P069-B005",
+            "CN-d6fd7140f106f9b5-P069-B006",
+            "CN-d6fd7140f106f9b5-P073-B005",
+            "CN-d6fd7140f106f9b5-P073-B008",
+            "CN-d6fd7140f106f9b5-P073-B012",
+            "CN-d6fd7140f106f9b5-P073-B013",
+            "CN-d6fd7140f106f9b5-P082-B002",
+            "CN-d6fd7140f106f9b5-P082-B003",
+            "CN-d6fd7140f106f9b5-P085-B003",
+            "CN-d6fd7140f106f9b5-P085-B004",
+            "CN-d6fd7140f106f9b5-P085-B009",
+            "CN-d6fd7140f106f9b5-P085-B010",
+            "CN-d6fd7140f106f9b5-P008-B017",
+            "CN-d6fd7140f106f9b5-P009-B004",
+            "CN-d6fd7140f106f9b5-P009-B005",
+            "CN-d6fd7140f106f9b5-P009-B006",
+            "CN-d6fd7140f106f9b5-P009-B008",
+            "CN-d6fd7140f106f9b5-P009-B014",
+            "CN-d6fd7140f106f9b5-P029-B001",
+            "CN-d6fd7140f106f9b5-P029-B006",
+            "CN-d6fd7140f106f9b5-P029-B007",
+            "CN-d6fd7140f106f9b5-P029-B008",
+            "CN-d6fd7140f106f9b5-P029-B009",
+            "CN-d6fd7140f106f9b5-P029-B010"
+          ],
+          "remaining": [
+            "NOCTURNE_ORIGINAL_SET_AND_SIMULTANEOUS_PENDING_VARIANTS",
+            "ACTUAL_REACTION_ADJUSTED_DECK_AND_OTHER_CONSUMERS",
+            "COPY_OTHER_PRINTINGS_AND_WHOLE_EFFECT",
+            "NEW_FIXED_FULL_AND_FINAL_PRODUCT_ACCEPTANCE"
+          ],
+          "state": "RECORDED",
+          "sourceManifest": {
+            "path": "docs/evidence/candlelit-current-cn16-2026-10-21/source-manifest.json",
+            "sha256": "9516453ea8bc38a0fa8cb3af3fa664042c24c6e893fb9c016be228f471ee66ba",
+            "role": "source-manifest"
+          },
+          "decision": {
+            "state": "OPEN",
+            "reason": "Bounded current source and exact execution pass are recorded separately; final fixed49 full/product and other semantic obligations remain."
+          },
+          "wholePrintingCertified": false,
+          "existingAcceptanceGateDependencies": [
+            "DECK_OBSERVATION_FAMILY_ALL_APPLICABLE_CONSUMERS",
+            "FIXED_CURRENT_CANDIDATE_FULL",
+            "USER_WINDOWS_RUNTIME"
+          ]
+        },
+        {
+          "id": "CANDLELIT_CN16_SHORT_ONE",
+          "sqlBranch": "short-one",
+          "scope": "One existing card permits zero-to-one private choice; keeping it leaves the literal deck, no draw or burnout.",
+          "semanticReview": {
+            "state": "BOUNDED_CURRENT_SOURCE_AND_LITERAL_BRANCH_REVIEW_PASS",
+            "region": "CN",
+            "language": "zh-CN",
+            "observedAsOf": "2026-10-21",
+            "adoptedCoreEffectiveAsOf": "2026-10-16",
+            "wholeClauseOrPrintingCertified": false
+          },
+          "implementation": {
+            "state": "EXISTING_SHARED_CONQUEST_INSIGHT_PRIVATE_CHOICE_FLOW_NO_GAMEPLAY_SOURCE_CHANGE"
+          },
+          "testExecution": {
+            "state": "ACTUAL_FINAL_ROOT_SQL_AND_INDEPENDENT_WHOLE_HISTORY_PASS",
+            "requiredExistingMethod": "Riftbound.ConformanceTests.CandlelitSanctumTests.AShortDeckLooksOnlyAtExistingCardsWithoutDrawingOrBurning",
+            "sqlCommandsEventsColdInReceipt": true
+          },
+          "fixedCommitCi": {
+            "state": "PENDING_NEW49_SQL_FIXED_CANDIDATE"
+          },
+          "productAcceptance": {
+            "state": "OPEN",
+            "visiblePairedHardwareAndPhysicalWindows": "OPEN"
+          },
+          "sourceRefs": [
+            "OGN-291/298",
+            "CN-d6fd7140f106f9b5-P040-B012",
+            "CN-d6fd7140f106f9b5-P041-B002",
+            "CN-d6fd7140f106f9b5-P041-B011",
+            "CN-d6fd7140f106f9b5-P041-B013",
+            "CN-d6fd7140f106f9b5-P041-B014",
+            "CN-d6fd7140f106f9b5-P041-B015",
+            "CN-d6fd7140f106f9b5-P041-B016",
+            "CN-d6fd7140f106f9b5-P063-B006",
+            "CN-d6fd7140f106f9b5-P063-B008",
+            "CN-d6fd7140f106f9b5-P063-B009",
+            "CN-d6fd7140f106f9b5-P069-B003",
+            "CN-d6fd7140f106f9b5-P069-B004",
+            "CN-d6fd7140f106f9b5-P069-B005",
+            "CN-d6fd7140f106f9b5-P069-B006",
+            "CN-d6fd7140f106f9b5-P073-B005",
+            "CN-d6fd7140f106f9b5-P073-B008",
+            "CN-d6fd7140f106f9b5-P073-B012",
+            "CN-d6fd7140f106f9b5-P073-B013",
+            "CN-d6fd7140f106f9b5-P082-B002",
+            "CN-d6fd7140f106f9b5-P082-B003",
+            "CN-d6fd7140f106f9b5-P085-B003",
+            "CN-d6fd7140f106f9b5-P085-B004",
+            "CN-d6fd7140f106f9b5-P085-B009",
+            "CN-d6fd7140f106f9b5-P085-B010",
+            "CN-d6fd7140f106f9b5-P008-B017",
+            "CN-d6fd7140f106f9b5-P009-B004",
+            "CN-d6fd7140f106f9b5-P009-B005",
+            "CN-d6fd7140f106f9b5-P009-B006",
+            "CN-d6fd7140f106f9b5-P009-B008",
+            "CN-d6fd7140f106f9b5-P009-B014",
+            "CN-d6fd7140f106f9b5-P029-B001",
+            "CN-d6fd7140f106f9b5-P029-B006",
+            "CN-d6fd7140f106f9b5-P029-B007",
+            "CN-d6fd7140f106f9b5-P029-B008",
+            "CN-d6fd7140f106f9b5-P029-B009",
+            "CN-d6fd7140f106f9b5-P029-B010"
+          ],
+          "remaining": [
+            "NOCTURNE_ORIGINAL_SET_AND_SIMULTANEOUS_PENDING_VARIANTS",
+            "ACTUAL_REACTION_ADJUSTED_DECK_AND_OTHER_CONSUMERS",
+            "COPY_OTHER_PRINTINGS_AND_WHOLE_EFFECT",
+            "NEW_FIXED_FULL_AND_FINAL_PRODUCT_ACCEPTANCE"
+          ],
+          "state": "RECORDED",
+          "sourceManifest": {
+            "path": "docs/evidence/candlelit-current-cn16-2026-10-21/source-manifest.json",
+            "sha256": "9516453ea8bc38a0fa8cb3af3fa664042c24c6e893fb9c016be228f471ee66ba",
+            "role": "source-manifest"
+          },
+          "decision": {
+            "state": "OPEN",
+            "reason": "Bounded current source and exact execution pass are recorded separately; final fixed49 full/product and other semantic obligations remain."
+          },
+          "wholePrintingCertified": false,
+          "existingAcceptanceGateDependencies": [
+            "DECK_OBSERVATION_FAMILY_ALL_APPLICABLE_CONSUMERS",
+            "FIXED_CURRENT_CANDIDATE_FULL",
+            "USER_WINDOWS_RUNTIME"
+          ]
+        }
+      ],
+      "oldCandlelitJulySourceContextRetainedWholeAndUnchanged": true,
+      "postCheckVerificationToolCorrection": {
+        "path": "docs/evidence/candlelit-current-cn16-2026-10-21/post-check-governance-alias-correction.json",
+        "sha256": "89233e29a7a53cbaf17be52a7a421c36c19f1de9f03505b63bc91e16d5bdd46e",
+        "role": "post-check-verification-tool-correction"
+      },
+      "postCheckWhitespaceOnlyNormalization": {
+        "path": "docs/evidence/candlelit-current-cn16-2026-10-21/post-check-sql-whitespace-normalization.json",
+        "sha256": "87c824e151dcf0f2fcb6ca33cf41c6bbeb942f3a2527b1bfcd12cb11d37364fc",
+        "role": "post-check-whitespace-only-source-normalization"
+      }
     }
   },
   "acceptanceGates": [
@@ -38044,7 +38585,13 @@
         "testExecution": "FOCUS80_ALL_GAMEHUB284_ONLY_CHECK13219_NATIVE3_PLUS_SAME_ROOM80_547_AND_NETWORK15_REJECTS_PASS",
         "fixedCommitCi": "PENDING_NEW_FULL",
         "visibleAndPhysicalWindows": "OPEN"
-      }
+      },
+      "currentFixedC2CiExportedHeadlessPairObservation": {
+        "path": "docs/evidence/candlelit-current-cn16-2026-10-21/fixed-c2-ci-native-combined-subscope.json",
+        "sha256": "e952faf03cf3d5995fcdaf8b6346de3b84682ba4064b161488de9d8312495879",
+        "role": "fixed-ci-headless-pair-subscope"
+      },
+      "currentFixedC2PlatformLimit": "Actual current CI373x2/clean API cold pair/native3/SQL59 normal8/full replay pass; earlier failures retained; whole fixed full, visible hardware and physical Windows remain separate OPEN."
     },
     {
       "id": "NATIVE_OUTGOING_COMMAND_SCHEMA",
@@ -50229,5 +50776,35 @@
     "path": "docs/evidence/canonical-room-identity-2026-10-21/previous-a56137-full.json",
     "sha256": "f1ca124117a32c463544a9c0283893f4643c72421afa28caf75ce2f477ba9cd7",
     "role": "previous-fixed-a56137-entire-full"
+  },
+  "currentCandlelitCn16FivePrivateLookSqlInputChange": {
+    "path": "docs/evidence/candlelit-current-cn16-2026-10-21/source-manifest.json",
+    "sha256": "9516453ea8bc38a0fa8cb3af3fa664042c24c6e893fb9c016be228f471ee66ba",
+    "role": "source-manifest"
+  },
+  "precedingFixedC2ActualLockedCiNativePairReadback": {
+    "path": "docs/evidence/candlelit-current-cn16-2026-10-21/fixed-c2-ci-native-combined-subscope.json",
+    "sha256": "e952faf03cf3d5995fcdaf8b6346de3b84682ba4064b161488de9d8312495879",
+    "role": "fixed-ci-headless-pair-subscope"
+  },
+  "precedingFixedF470ActualAllFourSqlAndNetworkOnlyReadback": {
+    "path": "docs/evidence/candlelit-current-cn16-2026-10-21/preceding-f470-all4-sql-originals.json",
+    "sha256": "023e436c05342da4447b77ed67eaff7af527ccfdd88503890b4346291e6c05af",
+    "role": "partial-ci-sql48-network15"
+  },
+  "precedingFixedF470ActualCompleteFullCiReadback": {
+    "path": "docs/evidence/candlelit-current-cn16-2026-10-21/preceding-f470-entire-full-originals.json",
+    "sha256": "62df54b28dfe5d588f2f8fccc2907c45126bce2bfc3229d640d3c3276779b4dd",
+    "role": "previous-fixed-full"
+  },
+  "currentGovernanceRuleReviewAliasMergeCorrection": {
+    "path": "docs/evidence/candlelit-current-cn16-2026-10-21/post-check-governance-alias-correction.json",
+    "sha256": "89233e29a7a53cbaf17be52a7a421c36c19f1de9f03505b63bc91e16d5bdd46e",
+    "role": "post-check-verification-tool-correction"
+  },
+  "currentCandlelitSqlWhitespaceOnlyNormalization": {
+    "path": "docs/evidence/candlelit-current-cn16-2026-10-21/post-check-sql-whitespace-normalization.json",
+    "sha256": "87c824e151dcf0f2fcb6ca33cf41c6bbeb942f3a2527b1bfcd12cb11d37364fc",
+    "role": "post-check-whitespace-only-source-normalization"
   }
 }

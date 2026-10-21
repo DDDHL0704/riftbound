@@ -1,0 +1,126 @@
+{
+  "atUtc": "2026-10-20T23:37:09.447134+00:00",
+  "status": "COMPLETED_OWNED_DUPLICATE_BUILD_STAGING_RETIRED_DURING_SOLE_CHECK_WITH_ALL_RUNNING_INPUTS_EXACT",
+  "removed": [
+    {
+      "path": "var/qa/candlelit-current-cn16-recertification-20261021/root-sql-build-staging-v1",
+      "files": 89,
+      "logicalBytes": 13166165,
+      "completedBuildOnlyActualExecutedImmutableRuntimeAndSourceLogRetained": true
+    },
+    {
+      "path": "var/qa/candlelit-current-cn16-recertification-20261021/root-final-sql-v1/independent-reader-source-v1/bin",
+      "files": 4,
+      "logicalBytes": 63834,
+      "completedBuildOnlyActualExecutedImmutableRuntimeAndSourceLogRetained": true
+    },
+    {
+      "path": "var/qa/candlelit-current-cn16-recertification-20261021/root-final-sql-v1/independent-reader-source-v1/obj",
+      "files": 20,
+      "logicalBytes": 155461,
+      "completedBuildOnlyActualExecutedImmutableRuntimeAndSourceLogRetained": true
+    },
+    {
+      "path": "var/qa/fixed-c2bea309-native-locked-20261021/fixed-canonical-room-reader-source-v1/bin",
+      "files": 4,
+      "logicalBytes": 69035,
+      "completedBuildOnlyActualExecutedImmutableRuntimeAndSourceLogRetained": true
+    },
+    {
+      "path": "var/qa/fixed-c2bea309-native-locked-20261021/fixed-canonical-room-reader-source-v1/obj",
+      "files": 20,
+      "logicalBytes": 143894,
+      "completedBuildOnlyActualExecutedImmutableRuntimeAndSourceLogRetained": true
+    },
+    {
+      "path": "var/qa/fixed-c2bea309-native-locked-20261021/fixed-canonical-room-reader-source-v2/bin",
+      "files": 4,
+      "logicalBytes": 69035,
+      "completedBuildOnlyActualExecutedImmutableRuntimeAndSourceLogRetained": true
+    },
+    {
+      "path": "var/qa/fixed-c2bea309-native-locked-20261021/fixed-canonical-room-reader-source-v2/obj",
+      "files": 20,
+      "logicalBytes": 143894,
+      "completedBuildOnlyActualExecutedImmutableRuntimeAndSourceLogRetained": true
+    },
+    {
+      "path": "var/qa/fixed-c2bea309-native-locked-20261021/same-original-fixed-ci-reader-source-v1/bin",
+      "files": 4,
+      "logicalBytes": 69115,
+      "completedBuildOnlyActualExecutedImmutableRuntimeAndSourceLogRetained": true
+    },
+    {
+      "path": "var/qa/fixed-c2bea309-native-locked-20261021/same-original-fixed-ci-reader-source-v1/obj",
+      "files": 20,
+      "logicalBytes": 144144,
+      "completedBuildOnlyActualExecutedImmutableRuntimeAndSourceLogRetained": true
+    },
+    {
+      "path": "var/qa/fixed-c2bea309-native-locked-20261021/same-original-fixed-ci-reader-source-v2/bin",
+      "files": 4,
+      "logicalBytes": 69115,
+      "completedBuildOnlyActualExecutedImmutableRuntimeAndSourceLogRetained": true
+    },
+    {
+      "path": "var/qa/fixed-c2bea309-native-locked-20261021/same-original-fixed-ci-reader-source-v2/obj",
+      "files": 20,
+      "logicalBytes": 144144,
+      "completedBuildOnlyActualExecutedImmutableRuntimeAndSourceLogRetained": true
+    },
+    {
+      "path": "var/qa/fixed-c2bea309-native-locked-20261021/fixed-c2-ci59-history-reader-source-v1/bin",
+      "files": 4,
+      "logicalBytes": 69044,
+      "completedBuildOnlyActualExecutedImmutableRuntimeAndSourceLogRetained": true
+    },
+    {
+      "path": "var/qa/fixed-c2bea309-native-locked-20261021/fixed-c2-ci59-history-reader-source-v1/obj",
+      "files": 20,
+      "logicalBytes": 143878,
+      "completedBuildOnlyActualExecutedImmutableRuntimeAndSourceLogRetained": true
+    },
+    {
+      "path": "var/qa/fixed-c2bea309-native-locked-20261021/fixed-c2-ci59-history-reader-source-v2/bin",
+      "files": 4,
+      "logicalBytes": 69040,
+      "completedBuildOnlyActualExecutedImmutableRuntimeAndSourceLogRetained": true
+    },
+    {
+      "path": "var/qa/fixed-c2bea309-native-locked-20261021/fixed-c2-ci59-history-reader-source-v2/obj",
+      "files": 20,
+      "logicalBytes": 143874,
+      "completedBuildOnlyActualExecutedImmutableRuntimeAndSourceLogRetained": true
+    },
+    {
+      "path": "var/qa/fixed-c2bea309-native-locked-20261021/same-original-explicit-score-source-v1/bin",
+      "files": 21,
+      "logicalBytes": 1487802,
+      "completedBuildOnlyActualExecutedImmutableRuntimeAndSourceLogRetained": true
+    },
+    {
+      "path": "var/qa/fixed-c2bea309-native-locked-20261021/same-original-explicit-score-source-v1/obj",
+      "files": 22,
+      "logicalBytes": 290378,
+      "completedBuildOnlyActualExecutedImmutableRuntimeAndSourceLogRetained": true
+    },
+    {
+      "path": "var/qa/fixed-c2bea309-native-locked-20261021/same-original-explicit-score-source-v2/bin",
+      "files": 21,
+      "logicalBytes": 1487906,
+      "completedBuildOnlyActualExecutedImmutableRuntimeAndSourceLogRetained": true
+    },
+    {
+      "path": "var/qa/fixed-c2bea309-native-locked-20261021/same-original-explicit-score-source-v2/obj",
+      "files": 22,
+      "logicalBytes": 290482,
+      "completedBuildOnlyActualExecutedImmutableRuntimeAndSourceLogRetained": true
+    }
+  ],
+  "logicalBytesRetired": 18220240,
+  "all3319SourceModes1419ConformanceAnd23NativeInputsExactBeforeAfter": true,
+  "allActualExecutedSqlScoreAndIndependentReaderImmutableFilesKept": true,
+  "allSourcesOfficialFacesPageRendersOriginalFailuresLogsAndDatabasesKept": true,
+  "userEditorSharedSdkAndToolTemplateUntouched": true,
+  "physicalDiskReclaimNotInferredFromLogicalBytes": true
+}

@@ -24066,6 +24066,85 @@
         "Current final fixed full and ordinary-product acceptance, including issue77, visible pair and physical Windows",
         "All original source gaps and full-source obligations"
       ]
+    },
+    {
+      "id": "candlelit-current-cn16-five-private-look-sql-2026-10-21",
+      "scope": "Current CN16 exact OGN291 mandatory conquest response, private top2 optional recycle/retained order and zero/one short deck only; five controlled SQL branches. No gameplay implementation change or whole-card/other-consumer certification.",
+      "subjects": [
+        "OGN-291/298"
+      ],
+      "ruleRecords": [
+        "CN-d6fd7140f106f9b5-P040-B012",
+        "CN-d6fd7140f106f9b5-P041-B002",
+        "CN-d6fd7140f106f9b5-P041-B011",
+        "CN-d6fd7140f106f9b5-P041-B013",
+        "CN-d6fd7140f106f9b5-P041-B014",
+        "CN-d6fd7140f106f9b5-P041-B015",
+        "CN-d6fd7140f106f9b5-P041-B016",
+        "CN-d6fd7140f106f9b5-P063-B006",
+        "CN-d6fd7140f106f9b5-P063-B008",
+        "CN-d6fd7140f106f9b5-P063-B009",
+        "CN-d6fd7140f106f9b5-P069-B003",
+        "CN-d6fd7140f106f9b5-P069-B004",
+        "CN-d6fd7140f106f9b5-P069-B005",
+        "CN-d6fd7140f106f9b5-P069-B006",
+        "CN-d6fd7140f106f9b5-P073-B005",
+        "CN-d6fd7140f106f9b5-P073-B008",
+        "CN-d6fd7140f106f9b5-P073-B012",
+        "CN-d6fd7140f106f9b5-P073-B013",
+        "CN-d6fd7140f106f9b5-P082-B002",
+        "CN-d6fd7140f106f9b5-P082-B003",
+        "CN-d6fd7140f106f9b5-P085-B003",
+        "CN-d6fd7140f106f9b5-P085-B004",
+        "CN-d6fd7140f106f9b5-P085-B009",
+        "CN-d6fd7140f106f9b5-P085-B010",
+        "CN-d6fd7140f106f9b5-P008-B017",
+        "CN-d6fd7140f106f9b5-P009-B004",
+        "CN-d6fd7140f106f9b5-P009-B005",
+        "CN-d6fd7140f106f9b5-P009-B006",
+        "CN-d6fd7140f106f9b5-P009-B008",
+        "CN-d6fd7140f106f9b5-P009-B014",
+        "CN-d6fd7140f106f9b5-P029-B001",
+        "CN-d6fd7140f106f9b5-P029-B006",
+        "CN-d6fd7140f106f9b5-P029-B007",
+        "CN-d6fd7140f106f9b5-P029-B008",
+        "CN-d6fd7140f106f9b5-P029-B009",
+        "CN-d6fd7140f106f9b5-P029-B010"
+      ],
+      "pendingRuleRecords": [],
+      "status": "BOUNDED_CURRENT_SOURCE_FOCUS76_SQL5_30_90_INDEPENDENT_HISTORY_ONLY_CHECK13219_PASS_NEW_FIXED_FULL_PRODUCT_OPEN",
+      "sourceManifest": {
+        "path": "docs/evidence/candlelit-current-cn16-2026-10-21/source-manifest.json",
+        "sha256": "9516453ea8bc38a0fa8cb3af3fa664042c24c6e893fb9c016be228f471ee66ba",
+        "role": "source-manifest"
+      },
+      "auditDocument": "docs/CANDLELIT_CURRENT_CN16_SQL_AUDIT_2026-10-21.md",
+      "validation": {
+        "newConformanceCases": 0,
+        "newConformanceMethods": 0,
+        "currentFocusCases": 76,
+        "currentFocusMethods": 47,
+        "currentSqlBranches": 5,
+        "currentSqlCommands": 30,
+        "currentSqlEvents": 90,
+        "currentCheckCases": 13219,
+        "currentCheckMethods": 7501,
+        "original48SqlOrderOnly49thAdded": true,
+        "wholeCardCertification": false,
+        "pythonToolsBeforePostCheckCorrection": 73,
+        "pythonToolsAfterPostCheckCorrection": 74,
+        "verificationOnlyCorrectionAfterSoleRuleCheck": {
+          "path": "docs/evidence/candlelit-current-cn16-2026-10-21/post-check-governance-alias-correction.json",
+          "sha256": "89233e29a7a53cbaf17be52a7a421c36c19f1de9f03505b63bc91e16d5bdd46e",
+          "role": "post-check-verification-tool-correction"
+        }
+      },
+      "exclusions": [
+        "Nocturne original-set, simultaneous legend and other pending items require their own current SQL/product evidence",
+        "Actual reaction adjusted deck, copies, other consumers/printings and full effects",
+        "New fixed49 full and final visible paired hardware and physical Windows",
+        "All retained official source gaps, later changes and full-scope obligations"
+      ]
     }
   ]
 }

@@ -1,5 +1,6 @@
 import copy
 import importlib.util
+import json
 from pathlib import Path
 import tempfile
 import unittest
@@ -155,6 +156,53 @@ class GovernanceTests(unittest.TestCase):
         self.assertFalse(result['semanticCertification'])
         with self.assertRaisesRegex(ValueError, 'Unsupported source delta kind'):
             gov.source_delta({}, {}, 'unknown')
+
+    def test_current_rule_review_references_merge_ledger_and_corpus_ids(self):
+        for name in gov.CANONICAL_DOCS:
+            path = self.root / name
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text('# Fixture governance document\n')
+
+        def store(name, value):
+            path = self.root / (name + '.json')
+            path.write_text(json.dumps(value))
+            return dict(path=path.name, sha256=gov.hashlib.sha256(path.read_bytes()).hexdigest())
+
+        inputs = {key: store(key, value) for key, value in self.data.items() if key != 'qa'}
+        qa = dict(catalogSha256=inputs['cn']['sha256'], entries=[
+            dict(id=row['id'], cardNo=row['cardNo'], cardQaList=None) for row in self.data['cn']['cards']])
+        inputs['qa'] = store('qa', qa)
+        historical = store('historical', dict(reviews=[]))
+        coverage = store('coverage', dict(scopedReviewDecisions=dict(sha256=historical['sha256']),
+            counts={key: self.data['summary'][key] for key in ['combinedExactPrintingNumbers',
+                'cnOfficialPrintings', 'enReturnedPrintings', 'enReportedTotal', 'enSourceCountGap', 'activeCatalogEntries']}))
+        manifest = dict(schemaVersion=1, semanticCoverageCertified=False,
+            certificationScope=dict(applicableAsOf='2026-10-11', region='CN', language='zh-CN',
+                productPlayers=2, allOfficialObligationsRetained=True,
+                sourceDates=dict.fromkeys(['cards', 'rules', 'corpus', 'summary'], '2026-10-11')),
+            inputs=inputs, historicalReviewPin=historical, cardCoverageManifest=coverage,
+            reviewContexts={}, acceptanceGates=[], laterSourceDeltas=[])
+        original = copy.deepcopy(self.data['reviews']['reviews'][0])
+        canonical = self.data['rules']['records'][0]['id']
+        global_rule = self.data['rules']['records'][1]['id']
+        both = dict(original, id='both', ruleRecords=['DOC-01-P001-B001', canonical])
+        later = dict(original, id='later', ruleRecords=[canonical, global_rule])
+        for rows, expected_cn, expected_global in [
+            ([original], ['partial'], []),
+            ([original, both], ['partial', 'both'], []),
+            ([original, both, later], ['partial', 'both', 'later'], ['later']),
+        ]:
+            with self.subTest(reviews=[r['id'] for r in rows]):
+                manifest['inputs']['reviews'] = store('reviews', dict(self.data['reviews'], reviews=rows))
+                result = gov.current_audit(self.root, manifest)
+                self.assertTrue(result['governanceValid'], result['errors'])
+                self.assertFalse(result['semanticCoverageCertified'])
+                rules = {r['sourceRecord']: r for r in result['remainingObligations'] if r['kind'] == 'RULE_RECORD'}
+                self.assertEqual(expected_cn, rules[canonical]['scopedReviewRefs'])
+                self.assertEqual(expected_global, rules[global_rule]['scopedReviewRefs'])
+                self.assertEqual('NOT_CERTIFIED', rules[canonical]['semanticReview'])
+                self.assertEqual({'RULE:' + canonical, 'RULE:' + global_rule},
+                    {r['id'] for r in rules.values()})
 
 
 

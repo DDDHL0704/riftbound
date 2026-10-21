@@ -1,0 +1,17 @@
+{
+  "atUtc": "2026-10-21T00:15:59.749062+00:00",
+  "status": "POST_CHECK_NEW_SQL_SOURCE_EMPTY_LINE_TRAILING_WHITESPACE_ONLY_NORMALIZED_BEFORE_FIRST_PUSH",
+  "originalTestedSourceSha256": "775e1e2d76a913bb7d1a46daa160864b06560f68b9cebf2f826949896e84ea78",
+  "finalSourceSha256": "4075d380348b02438d0713d2197d48e246a58bf818b09d5cbe54130efe7141d4",
+  "originalSourceBackup": {
+    "path": "docs/evidence/candlelit-current-cn16-2026-10-21/post-check-sql-source-before-whitespace-normalization.cs.gz",
+    "sha256": "17e3a01fbeb51fb84cd8890949217c611aaa8b37ae7378497f2f7af83e25dd63"
+  },
+  "removedWhitespaceBytes": 8,
+  "allNonWhitespaceSourceTokensAndEveryOriginalAssertionIdentical": true,
+  "originalSoleCheckAndActualSqlRuntimeEvidenceKept": true,
+  "noGameplayOrConformanceSourceRuntimeChange": true,
+  "noSecondRuleCheckForWhitespaceOnlyChange": true,
+  "firstLocalCommitCreatedDespiteStagedFormatFailureNotPushed": "2d64d0ca296c6a4149fc1f6c5504162207b8f1e3",
+  "finalFixedCiRequired": true
+}

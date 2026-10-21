@@ -1,0 +1,744 @@
+{
+  "atUtc": "2026-10-20T23:46:53.654213+00:00",
+  "status": "FIVE_PRECISE_CN16_BRANCH_REVIEW_RECORDS_PREPARED_FOR_FINAL_CHECK_AND_FIXED_FULL_NOT_WHOLE_CARD",
+  "exactPrinting": "OGN-291/298",
+  "apiId": 31536,
+  "printedName": "烛光圣殿",
+  "region": "CN",
+  "language": "zh-CN",
+  "observedAsOf": "2026-10-21",
+  "adoptedCoreEffectiveAsOf": "2026-10-16",
+  "oldJulySourceReviewAndAllEightOriginalBranchesPreserved": true,
+  "exactSourceClauseRecords": [
+    {
+      "exactRuleRecord": "CN-d6fd7140f106f9b5-P040-B012",
+      "originalCorpusRecord": "DOC-01-P040-B012",
+      "physicalPage": 40,
+      "clauseAnchors": [
+        "329"
+      ],
+      "text": "329.       被打出的卡牌、指示物与技能,在成为已确认的结算链项目 之前,会先以待处理项目的状态加入结算链。",
+      "textSha256": "689280cbc302f19a5d99b77af463c6b350ebe07d7fe8e0162f9e3aeafe1a0941",
+      "semanticReview": "REQUIRES_EXPLICIT_PARENT_AND_CONSUMER_DISPOSITION"
+    },
+    {
+      "exactRuleRecord": "CN-d6fd7140f106f9b5-P041-B002",
+      "originalCorpusRecord": "DOC-01-P041-B002",
+      "physicalPage": 41,
+      "clauseAnchors": [
+        "334"
+      ],
+      "text": "334.         每当玩家执行一个或多个会产生任务的行动时,应参考 HOT FEPR(任务后确-执-让-结)流程:处理未决任务(Handle\n             Outstanding Tasks);然后确认(Finalize)、执行(Execute)、让过(Pass)、结算(Resolve)。",
+      "textSha256": "85a9d3bcf3279e688a769f91ff1e3973bed95613c3d931dec4c1f5fc93117404",
+      "semanticReview": "REQUIRES_EXPLICIT_PARENT_AND_CONSUMER_DISPOSITION"
+    },
+    {
+      "exactRuleRecord": "CN-d6fd7140f106f9b5-P041-B011",
+      "originalCorpusRecord": "DOC-01-P041-B011",
+      "physicalPage": 41,
+      "clauseAnchors": [
+        "337.1"
+      ],
+      "text": "337.1.            如果有至少一个结算链项目处于待处理状态,则其中最早的待处理结算链项目 的控制者必须完成打出该待处理项目\n                  的所有步骤,直到其成为已确认项目或离开结算链。\n                       想获取更多有关确认结算链项目的信息,请查阅规则 349.打出卡牌。",
+      "textSha256": "86991cfc177d256879e801f623f435611500f7b66da16336e4a9bdfea571e85b",
+      "semanticReview": "REQUIRES_EXPLICIT_PARENT_AND_CONSUMER_DISPOSITION"
+    },
+    {
+      "exactRuleRecord": "CN-d6fd7140f106f9b5-P041-B013",
+      "originalCorpusRecord": "DOC-01-P041-B013",
+      "physicalPage": 41,
+      "clauseAnchors": [
+        "337.1.b"
+      ],
+      "text": "337.1.b.               结算链项目会按照被添加到结算链的顺序进行确认。",
+      "textSha256": "cd158489362112d67b46cafb3db250542c0201072bb2f259cfaeab8899a565ea",
+      "semanticReview": "REQUIRES_EXPLICIT_PARENT_AND_CONSUMER_DISPOSITION"
+    },
+    {
+      "exactRuleRecord": "CN-d6fd7140f106f9b5-P041-B014",
+      "originalCorpusRecord": "DOC-01-P041-B014",
+      "physicalPage": 41,
+      "clauseAnchors": [
+        "337.2"
+      ],
+      "text": "337.2.            如果在结算链项目完成确认后,该项目为单位、装备或获得资源的技能,则会立即结算——进入步骤 4:结算。\n                       想获取更多有关信息,请查阅规则 349.打出卡牌。",
+      "textSha256": "6ec02dedef47a12c95b110a3f156d55b9c2525f7e7feb5653ebac22db5e8a65c",
+      "semanticReview": "REQUIRES_EXPLICIT_PARENT_AND_CONSUMER_DISPOSITION"
+    },
+    {
+      "exactRuleRecord": "CN-d6fd7140f106f9b5-P041-B015",
+      "originalCorpusRecord": "DOC-01-P041-B015",
+      "physicalPage": 41,
+      "clauseAnchors": [
+        "337.3"
+      ],
+      "text": "337.3.            如果在结算链项目完成确认后,仍有待处理的结算链项目,则返回步骤 1:确认。",
+      "textSha256": "148713c4e5968a0a78b7fcf6484b455599bfd498a9a1edec599bd2904f9cd160",
+      "semanticReview": "REQUIRES_EXPLICIT_PARENT_AND_CONSUMER_DISPOSITION"
+    },
+    {
+      "exactRuleRecord": "CN-d6fd7140f106f9b5-P041-B016",
+      "originalCorpusRecord": "DOC-01-P041-B016",
+      "physicalPage": 41,
+      "clauseAnchors": [
+        "337.4"
+      ],
+      "text": "337.4.            如果在结算链项目完成确认后,结算链上不再有需要确认的项目,则结算链上的下一个项目的控制者将获得优先行\n                  动权 。进入步骤 2:执行。",
+      "textSha256": "5edc6a1f57c0e52c8a725623ffc5bee47358de96a88887c44f64415a95a50770",
+      "semanticReview": "REQUIRES_EXPLICIT_PARENT_AND_CONSUMER_DISPOSITION"
+    },
+    {
+      "exactRuleRecord": "CN-d6fd7140f106f9b5-P063-B006",
+      "originalCorpusRecord": "DOC-01-P063-B006",
+      "physicalPage": 63,
+      "clauseAnchors": [
+        "383.3.a"
+      ],
+      "text": "383.3.a.            如果触发式技能的效果开头为“你可以选择”或“该玩家可以选择”,则其来源的控制者将在确认阶段选择是\n                    否执行该触发式技能。\n                         举例:“控潮者”拥有“当你打出我时,你可以选择另一处位置受你控制的一名单位,然后把我移\n                         动到其所在位置,再将其移动到我原来的位置”的效果。其中的“你可以选择”出现在效果的开\n                         头,因此该选择代表是否执行该触发式技能。",
+      "textSha256": "619b43be5d349577fa43982f754c0ba064281f5d1f6a22087ec261fadead4226",
+      "semanticReview": "REQUIRES_EXPLICIT_PARENT_AND_CONSUMER_DISPOSITION"
+    },
+    {
+      "exactRuleRecord": "CN-d6fd7140f106f9b5-P063-B008",
+      "originalCorpusRecord": "DOC-01-P063-B008",
+      "physicalPage": 63,
+      "clauseAnchors": [
+        "383.3.a.2"
+      ],
+      "text": "383.3.a.2.               如果该触发式技能的控制者在确认阶段选择不执行该触发式技能,则该技能将从结算链中移\n                         除,并视为未触发。",
+      "textSha256": "92aac75f7026edf5261e024979ef8fee1bf3447483ad5b5bb9ffa3d1f1b11cfc",
+      "semanticReview": "REQUIRES_EXPLICIT_PARENT_AND_CONSUMER_DISPOSITION"
+    },
+    {
+      "exactRuleRecord": "CN-d6fd7140f106f9b5-P063-B009",
+      "originalCorpusRecord": "DOC-01-P063-B009",
+      "physicalPage": 63,
+      "clauseAnchors": [
+        "383.3.a.3"
+      ],
+      "text": "383.3.a.3.               当“你可以选择”或“该玩家可以选择”出现在触发式技能效果的后半部分时,则该选择将在结算阶\n                         段决定。\n                              举例:“奥恩 - 铁匠”的描述为:“当你打出我时,或当我据守一处战场时,查看你主牌\n                              堆顶部的四张牌。你可以选择从中展示一件装备,并抽取该卡牌。然后回收其余的卡\n                              牌。”其中的“你可以选择”并非出现在效果的开头部分,因此该决定将在结算阶段做\n                              出。该技能始终会被确认并放入结算链。",
+      "textSha256": "071795755db2451fce0db9ccb2b778125e00e214a2f87058ea3956949d0cec98",
+      "semanticReview": "REQUIRES_EXPLICIT_PARENT_AND_CONSUMER_DISPOSITION"
+    },
+    {
+      "exactRuleRecord": "CN-d6fd7140f106f9b5-P069-B003",
+      "originalCorpusRecord": "DOC-01-P069-B003",
+      "physicalPage": 69,
+      "clauseAnchors": [
+        "400"
+      ],
+      "text": "400.       打出或激活技能时,需遵循与打出卡牌相同的步骤。",
+      "textSha256": "359018d8b4d7988975445c73baea17b2efacc117adce647083876eeb70ddfa8c",
+      "semanticReview": "REQUIRES_EXPLICIT_PARENT_AND_CONSUMER_DISPOSITION"
+    },
+    {
+      "exactRuleRecord": "CN-d6fd7140f106f9b5-P069-B004",
+      "originalCorpusRecord": "DOC-01-P069-B004",
+      "physicalPage": 69,
+      "clauseAnchors": [
+        "401"
+      ],
+      "text": "401.       放入结算链的技能会成为待处理项目,直到它们完成打出的步骤。",
+      "textSha256": "063e04163d7d19b1dc1bf13b3762dcce818d7175d5335a72649f3245bb5350c4",
+      "semanticReview": "REQUIRES_EXPLICIT_PARENT_AND_CONSUMER_DISPOSITION"
+    },
+    {
+      "exactRuleRecord": "CN-d6fd7140f106f9b5-P069-B005",
+      "originalCorpusRecord": "DOC-01-P069-B005",
+      "physicalPage": 69,
+      "clauseAnchors": [
+        "401.1"
+      ],
+      "text": "401.1.          当技能完成打出步骤后,它会像法术一样变为已确认的结算链项目 。",
+      "textSha256": "6049e8974bc2051d7a60e22f7436d36466ff129b42da521f8e4ff40cf01d8e8b",
+      "semanticReview": "REQUIRES_EXPLICIT_PARENT_AND_CONSUMER_DISPOSITION"
+    },
+    {
+      "exactRuleRecord": "CN-d6fd7140f106f9b5-P069-B006",
+      "originalCorpusRecord": "DOC-01-P069-B006",
+      "physicalPage": 69,
+      "clauseAnchors": [
+        "401.2"
+      ],
+      "text": "401.2.          当[获得]资源效果的技能确认后,它会像打出单位或装备一样立即结算。",
+      "textSha256": "e549f9da0ebda63220a8bf7c5eda54175ba0dd56f927bb96f28852aebc5bbce5",
+      "semanticReview": "REQUIRES_EXPLICIT_PARENT_AND_CONSUMER_DISPOSITION"
+    },
+    {
+      "exactRuleRecord": "CN-d6fd7140f106f9b5-P073-B005",
+      "originalCorpusRecord": "DOC-01-P073-B005",
+      "physicalPage": 73,
+      "clauseAnchors": [
+        "417.1"
+      ],
+      "text": "417.1.            回收 卡牌是指玩家从特定区域选择一张或多张卡牌,然后将其放到相应牌堆的底部。",
+      "textSha256": "4e8080f00afb6006c4be9879b96c21ec31c8a29545761d29bf292f8025ffd7c8",
+      "semanticReview": "REQUIRES_EXPLICIT_PARENT_AND_CONSUMER_DISPOSITION"
+    },
+    {
+      "exactRuleRecord": "CN-d6fd7140f106f9b5-P073-B008",
+      "originalCorpusRecord": "DOC-01-P073-B008",
+      "physicalPage": 73,
+      "clauseAnchors": [
+        "417.1.c"
+      ],
+      "text": "417.1.c.               每名玩家回收卡牌时,都需要将其放回自己的主牌堆与符文牌堆。这与游戏指示由哪名玩家进行回收行动\n                       无关。",
+      "textSha256": "c5688fef55e667f3a5143beb92d05a45a3a33983f1c6978192c9e9372989cd35",
+      "semanticReview": "REQUIRES_EXPLICIT_PARENT_AND_CONSUMER_DISPOSITION"
+    },
+    {
+      "exactRuleRecord": "CN-d6fd7140f106f9b5-P073-B012",
+      "originalCorpusRecord": "DOC-01-P073-B012",
+      "physicalPage": 73,
+      "clauseAnchors": [
+        "417.4"
+      ],
+      "text": "417.4.            回收 作为效果的一部分时,玩家必须从指定区域回收 所有能被回收 的卡牌。",
+      "textSha256": "956b44dc2347ee85560cf8976d993ee03fb9fe81f68f697d1fe7202257dec02d",
+      "semanticReview": "REQUIRES_EXPLICIT_PARENT_AND_CONSUMER_DISPOSITION"
+    },
+    {
+      "exactRuleRecord": "CN-d6fd7140f106f9b5-P073-B013",
+      "originalCorpusRecord": "DOC-01-P073-B013",
+      "physicalPage": 73,
+      "clauseAnchors": [
+        "417.5"
+      ],
+      "text": "417.5.            如果同时有 2 张或以上的卡牌被回收到主牌堆,则要以随机顺序放置到牌堆底部。\n                       举例:“拾荒小能手”拥有“从你的废牌堆中回收三张牌,支付[1],[E]:抽一张牌”的技能。要支付激活这一\n                       技能的费用,需要其控制者从自己的废牌堆中选择三张卡牌,将其以随机顺序放到主牌堆底部。",
+      "textSha256": "ea22221d5ea639a898af1078bc3e9df90691557634f8048fd88b3aa05c6fbf2b",
+      "semanticReview": "REQUIRES_EXPLICIT_PARENT_AND_CONSUMER_DISPOSITION"
+    },
+    {
+      "exactRuleRecord": "CN-d6fd7140f106f9b5-P082-B002",
+      "originalCorpusRecord": "DOC-01-P082-B002",
+      "physicalPage": 82,
+      "clauseAnchors": [
+        "432.1.c"
+      ],
+      "text": "432.1.c.               如果游戏指示要求玩家查看或展示玩家主牌堆中的卡牌,且数量超过主牌堆剩余卡牌的数量,则该玩家尽\n                       可能查看或展示最大数量的卡牌,但不需要执行“燃尽”,随后正常进行指示的剩余部分。",
+      "textSha256": "0f2f4f1cfcd5eb30cd6a94fb46cf17e2d16e4b66be4e1aed68348f454e36dbe0",
+      "semanticReview": "REQUIRES_EXPLICIT_PARENT_AND_CONSUMER_DISPOSITION"
+    },
+    {
+      "exactRuleRecord": "CN-d6fd7140f106f9b5-P082-B003",
+      "originalCorpusRecord": "DOC-01-P082-B003",
+      "physicalPage": 82,
+      "clauseAnchors": [
+        "432.1.c.1"
+      ],
+      "text": "432.1.c.1.                  如果查看或展示的卡牌张数不足以进行对查看或展示卡牌执行的后续行动,则撤销指示的后续\n                            部分。即使后续指示需要使查看或展示的卡牌改变区域,这种情况也不会导致燃尽。\n                                 提示:卡牌在被查看或展示时,视为其处于“原始位置”。在这种情况下,其原始位置\n                                 为主牌堆。",
+      "textSha256": "aabeae9496f2315ce6d35c4caaf00a285bd5c1fe6c36fa66a690d2d3df7a842e",
+      "semanticReview": "REQUIRES_EXPLICIT_PARENT_AND_CONSUMER_DISPOSITION"
+    },
+    {
+      "exactRuleRecord": "CN-d6fd7140f106f9b5-P085-B003",
+      "originalCorpusRecord": "DOC-01-P085-B003",
+      "physicalPage": 85,
+      "clauseAnchors": [
+        "437.1"
+      ],
+      "text": "437.1.              洞察 一张卡牌指的是查看主牌堆 顶部的一张牌并选择是否回收 的行动。",
+      "textSha256": "2d8eaa99da20fa4ed456bfb416e64587180e9bd8dee7320bcf4b39d8b724007b",
+      "semanticReview": "REQUIRES_EXPLICIT_PARENT_AND_CONSUMER_DISPOSITION"
+    },
+    {
+      "exactRuleRecord": "CN-d6fd7140f106f9b5-P085-B004",
+      "originalCorpusRecord": "DOC-01-P085-B004",
+      "physicalPage": 85,
+      "clauseAnchors": [
+        "437.1.a"
+      ],
+      "text": "437.1.a.                 当洞察多张卡牌时,进行洞察的玩家查看相应数量的卡牌,回收其中任意数量的卡牌,然后将其余卡牌\n                         以任意顺序放回其主牌堆顶部。",
+      "textSha256": "653c57ecdb518c75c50a605864c0aa0b4b2abb2c9773328b94fcf86ce8733f68",
+      "semanticReview": "REQUIRES_EXPLICIT_PARENT_AND_CONSUMER_DISPOSITION"
+    },
+    {
+      "exactRuleRecord": "CN-d6fd7140f106f9b5-P085-B009",
+      "originalCorpusRecord": "DOC-01-P085-B009",
+      "physicalPage": 85,
+      "clauseAnchors": [
+        "437.4"
+      ],
+      "text": "437.4.              如果玩家尝试洞察的卡牌数量超过他们主牌堆中剩余的卡牌数量,则会改为尽可能多地进行洞察。",
+      "textSha256": "893f22aac9ff9fd546e16f15b8968c41e51b0f3c979a879099bee17bbd40f984",
+      "semanticReview": "REQUIRES_EXPLICIT_PARENT_AND_CONSUMER_DISPOSITION"
+    },
+    {
+      "exactRuleRecord": "CN-d6fd7140f106f9b5-P085-B010",
+      "originalCorpusRecord": "DOC-01-P085-B010",
+      "physicalPage": 85,
+      "clauseAnchors": [
+        "437.4.a"
+      ],
+      "text": "437.4.a.                 牌堆中卡牌数量过少时,玩家不会因洞察而执行燃尽。",
+      "textSha256": "1e4855926ea2453be220175a392ff7cf60a978a2e9706ec27d7869a1fa1c3b15",
+      "semanticReview": "REQUIRES_EXPLICIT_PARENT_AND_CONSUMER_DISPOSITION"
+    },
+    {
+      "exactRuleRecord": "CN-d6fd7140f106f9b5-P008-B017",
+      "originalCorpusRecord": "DOC-01-P008-B017",
+      "physicalPage": 8,
+      "text": "127.1.         就本游戏而言,卡牌的所属者是指将该卡牌带入游戏的玩家。这包括玩家的传奇卡牌、战场、其主牌堆或符文牌堆\n               中的卡牌,以及其在游戏过程中创建出来的卡牌。游戏过程中,卡牌的“现实合法拥有者”是谁并不重要。\n                    举例:小波没带牌,所以爱丽丝借了他一组牌。虽然这组牌的“现实合法拥有者”是爱丽丝,但在游戏过程\n                    中,小波将被视为这组牌的所属者。",
+      "rawTextSha256": "d3d87cd5a810e799473f20a183cc31e2b931178a5df43ab2bddaee368ce49c6b",
+      "ledgerCanonicalTextHash": "8b9a8e31db4598bcaf00cc3eff1b86facfef4f287d5837b68e3aa7012fab5561"
+    },
+    {
+      "exactRuleRecord": "CN-d6fd7140f106f9b5-P009-B004",
+      "originalCorpusRecord": "DOC-01-P009-B004",
+      "physicalPage": 9,
+      "text": "128.2.a.              除非卡牌状态另有说明,否则卡牌的隐私属性与其所在区域相同。",
+      "rawTextSha256": "df87222a2c8d8253ad4232072b25acb494c0ea9c88aaf3fe294f0f8528765675",
+      "ledgerCanonicalTextHash": "c1dc4f441582654ac2bb9b3c16eed5ff1f18dad7e8efc03b94626412673f9d52"
+    },
+    {
+      "exactRuleRecord": "CN-d6fd7140f106f9b5-P009-B005",
+      "originalCorpusRecord": "DOC-01-P009-B005",
+      "physicalPage": 9,
+      "text": "128.3.          隐秘: 此隐私等级表示,任何玩家都不得阅读卡面文字,也不得查看卡面。",
+      "rawTextSha256": "64d94ef85db81e5b9b979402e934d40fb1c1a25fa771722d522f09a6f927fc63",
+      "ledgerCanonicalTextHash": "2666cd8b51093cc24f13184661ae7adf489b6f7b499908ce0e60fa480ae8c092"
+    },
+    {
+      "exactRuleRecord": "CN-d6fd7140f106f9b5-P009-B006",
+      "originalCorpusRecord": "DOC-01-P009-B006",
+      "physicalPage": 9,
+      "text": "128.4.          私密: 此隐私等级表示,当卡牌位于场上时,只有卡牌的控制者可以阅读卡面文字,或查看卡面;当卡牌位于其他\n                区域时,只有其所属者可以阅读卡面文字,或查看卡面。\n                     举例:玩家的手牌为该玩家所有。只有该玩家可以阅读卡面文字,或查看卡面。",
+      "rawTextSha256": "d846e227a91acae12957aea7425b0bd36ba115656d31b7f1230d9f055e64d792",
+      "ledgerCanonicalTextHash": "802a7c73eb7fe97034f9a4c6035a9d301ef287803ada241914089b52eca0997e"
+    },
+    {
+      "exactRuleRecord": "CN-d6fd7140f106f9b5-P009-B008",
+      "originalCorpusRecord": "DOC-01-P009-B008",
+      "physicalPage": 9,
+      "text": "128.5.          公开: 此隐私等级表示,所有玩家都可以阅读卡面文字,或查看卡面。",
+      "rawTextSha256": "73009a956c5588be995e737330bb3bee35545e064f822a9cbfe2072615144930",
+      "ledgerCanonicalTextHash": "a5e8395e8d284fb503b3b437f3222bf35b72e9e4cf6e495dfdde3ab3f2c7940d"
+    },
+    {
+      "exactRuleRecord": "CN-d6fd7140f106f9b5-P009-B014",
+      "originalCorpusRecord": "DOC-01-P009-B014",
+      "physicalPage": 9,
+      "text": "129.3.          卡牌处于私密或隐秘状态时,将以卡背展示,以隐藏卡面的信息。举例来说,主牌堆的卡牌和手牌将以背面展示。",
+      "rawTextSha256": "bb4445f059a30d58aa76e5f1689f925f11dc0ef0b938007e01ae3352e67f2647",
+      "ledgerCanonicalTextHash": "b5ae6c1325b2d539ff548555ac1c82ed4d9185c655c67db7fead602e5f37257b"
+    },
+    {
+      "exactRuleRecord": "CN-d6fd7140f106f9b5-P029-B001",
+      "originalCorpusRecord": "DOC-01-P029-B001",
+      "physicalPage": 29,
+      "text": "190.4.          在战场进入争夺状态后,当法术对决或战斗结束时,在该战场拥有单位的玩家,会建立对该战场的控制权。",
+      "rawTextSha256": "7c3d7ac46fcedadaff4c609e19b583c8d90b49ac921bfe331eaad37574ab169d",
+      "ledgerCanonicalTextHash": "f074bd266add43fe0431cc37a41519c25cb4d2b024073ae72aaa44e30d4fad44"
+    },
+    {
+      "exactRuleRecord": "CN-d6fd7140f106f9b5-P029-B006",
+      "originalCorpusRecord": "DOC-01-P029-B006",
+      "physicalPage": 29,
+      "text": "190.6.          战场控制权 决定了战场技能 的控制权 。",
+      "rawTextSha256": "c453e7c3f0cc353fc59e08b6c93080bfd3611a68ba621055098450b8dba3d78a",
+      "ledgerCanonicalTextHash": "1421f0eba5c415e3d1193feb094377936cfe80793e7614861571c4e1843cae53"
+    },
+    {
+      "exactRuleRecord": "CN-d6fd7140f106f9b5-P029-B007",
+      "originalCorpusRecord": "DOC-01-P029-B007",
+      "physicalPage": 29,
+      "text": "190.6.a.             战场 受到玩家控制 时,其技能 由其控制者 控制,除非技能指示由其他玩家控制。控制者玩家负责在适当时\n                     机将技能添加至结算链,并在需要时进行相应技能的所有决策(除非另行说明)。",
+      "rawTextSha256": "296bb8793557557d260bb6e3ddcb4e17e548e629e80dacd2a3536f4ba289c220",
+      "ledgerCanonicalTextHash": "bd1717508761b9b76639d9032fb89c7f1bcb22bd5bd22cce3ea73b27f4f75422"
+    },
+    {
+      "exactRuleRecord": "CN-d6fd7140f106f9b5-P029-B008",
+      "originalCorpusRecord": "DOC-01-P029-B008",
+      "physicalPage": 29,
+      "text": "190.6.b.             若战场未受控制,则其技能也视为未受控制,除非技能指示该技能由某玩家控制。若没有此类指示,则当\n                     有战场技能在未受控制状态下触发时,由回合玩家负责在适当时机将该技能添加至结算链,并在需要时进\n                     行相应技能的所有决策(除非另行说明)。如果游戏规则或效果需要明确该技能的控制者,则将回合玩家\n                     视为控制者。\n                           举例:“荣耀竞技场”是一张战场牌,其描述为:“每名玩家在各自的第一个回合开始阶段,获得 1\n                           分”。这个技能通常会在战场未受控制时触发。如果技能触发,则由回合玩家完成将技能添加至\n                           结算链的步骤,并在完成后获得优先行动权(与其控制该技能的情况一致)。",
+      "rawTextSha256": "962dc565d7981dc1307e36a3b200fd43ca107cbac93f285ba8da9e55a453a726",
+      "ledgerCanonicalTextHash": "43586d730d98d5a24a5834aa9ac0abf76191358d7ce4be1aed2a012eb1df5752"
+    },
+    {
+      "exactRuleRecord": "CN-d6fd7140f106f9b5-P029-B009",
+      "originalCorpusRecord": "DOC-01-P029-B009",
+      "physicalPage": 29,
+      "text": "190.6.c.             如果战场上的技能指示特定玩家做出选择,则该玩家即为该技能的控制者。在这种情况下,该玩家负责在\n                     适当时机将其置入结算链,并做出该技能要求的所有选择。该技能由且仅由该玩家控制,与战场的控制者\n                     无关。\n                           举例:“废弃大厅”是一张战场牌,其描述为:“当一名玩家打出一个法术时,该玩家可以选择给\n                           予自己在此处控制的一名单位在本回合内战力+1。”该技能指示由打出法术的玩家做出选择,因\n                           此,该玩家负责将该技能置入结算链,并做出技能要求的所有选择。该玩家控制该触发式技\n                           能。",
+      "rawTextSha256": "a3626fbd76e0519b456bb5a0017f6d4ef209226e8b7a96edca6cb33d4f09047b",
+      "ledgerCanonicalTextHash": "eb339a6461e229fffc413974dd57fb9d5c8e4b9aaaecfb3e30d6547172b2242b"
+    },
+    {
+      "exactRuleRecord": "CN-d6fd7140f106f9b5-P029-B010",
+      "originalCorpusRecord": "DOC-01-P029-B010",
+      "physicalPage": 29,
+      "text": "190.6.d.             战场技能中的“你”指代战场的控制者,包括“抽一张牌”这类未指明玩家,但暗指由“你”执行的指示,也是\n                     如此指代。如果该战场没有控制者,则“你”不会指代任何人,玩家应无视一切相应指示。",
+      "rawTextSha256": "d21b4eada0f9a326a66aa4aa558fa9b0520efbe23a1b16bd088c55b932059608",
+      "ledgerCanonicalTextHash": "ff0ba8759e869b22dfb57d4d34b4c7040395df396e79ac5693a8e6d8931fc93c"
+    }
+  ],
+  "fiveBranches": [
+    {
+      "id": "CANDLELIT_CN16_KEEP_REVERSE",
+      "sqlBranch": "keep-reverse",
+      "scope": "Mandatory original conquest ability is responseable before private top2 LOOK; zero recycle and exact reverse retained-top order without RNG advancement.",
+      "semanticReview": {
+        "state": "BOUNDED_CURRENT_SOURCE_AND_LITERAL_BRANCH_REVIEW_PASS",
+        "region": "CN",
+        "language": "zh-CN",
+        "observedAsOf": "2026-10-21",
+        "adoptedCoreEffectiveAsOf": "2026-10-16",
+        "wholeClauseOrPrintingCertified": false
+      },
+      "implementation": {
+        "state": "EXISTING_SHARED_CONQUEST_INSIGHT_PRIVATE_CHOICE_FLOW_NO_GAMEPLAY_SOURCE_CHANGE"
+      },
+      "testExecution": {
+        "state": "ACTUAL_FINAL_ROOT_SQL_AND_INDEPENDENT_WHOLE_HISTORY_PASS",
+        "requiredExistingMethod": "Riftbound.ConformanceTests.CandlelitSanctumTests.ConquestQueuesAResponseableAbilityWithoutLookingRecyclingOrLeakingTheDeck",
+        "sqlCommandsEventsColdInReceipt": true
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW49_SQL_FIXED_CANDIDATE"
+      },
+      "productAcceptance": {
+        "state": "OPEN",
+        "visiblePairedHardwareAndPhysicalWindows": "OPEN"
+      },
+      "sourceRefs": [
+        "OGN-291/298",
+        "CN-d6fd7140f106f9b5-P040-B012",
+        "CN-d6fd7140f106f9b5-P041-B002",
+        "CN-d6fd7140f106f9b5-P041-B011",
+        "CN-d6fd7140f106f9b5-P041-B013",
+        "CN-d6fd7140f106f9b5-P041-B014",
+        "CN-d6fd7140f106f9b5-P041-B015",
+        "CN-d6fd7140f106f9b5-P041-B016",
+        "CN-d6fd7140f106f9b5-P063-B006",
+        "CN-d6fd7140f106f9b5-P063-B008",
+        "CN-d6fd7140f106f9b5-P063-B009",
+        "CN-d6fd7140f106f9b5-P069-B003",
+        "CN-d6fd7140f106f9b5-P069-B004",
+        "CN-d6fd7140f106f9b5-P069-B005",
+        "CN-d6fd7140f106f9b5-P069-B006",
+        "CN-d6fd7140f106f9b5-P073-B005",
+        "CN-d6fd7140f106f9b5-P073-B008",
+        "CN-d6fd7140f106f9b5-P073-B012",
+        "CN-d6fd7140f106f9b5-P073-B013",
+        "CN-d6fd7140f106f9b5-P082-B002",
+        "CN-d6fd7140f106f9b5-P082-B003",
+        "CN-d6fd7140f106f9b5-P085-B003",
+        "CN-d6fd7140f106f9b5-P085-B004",
+        "CN-d6fd7140f106f9b5-P085-B009",
+        "CN-d6fd7140f106f9b5-P085-B010",
+        "CN-d6fd7140f106f9b5-P008-B017",
+        "CN-d6fd7140f106f9b5-P009-B004",
+        "CN-d6fd7140f106f9b5-P009-B005",
+        "CN-d6fd7140f106f9b5-P009-B006",
+        "CN-d6fd7140f106f9b5-P009-B008",
+        "CN-d6fd7140f106f9b5-P009-B014",
+        "CN-d6fd7140f106f9b5-P029-B001",
+        "CN-d6fd7140f106f9b5-P029-B006",
+        "CN-d6fd7140f106f9b5-P029-B007",
+        "CN-d6fd7140f106f9b5-P029-B008",
+        "CN-d6fd7140f106f9b5-P029-B009",
+        "CN-d6fd7140f106f9b5-P029-B010"
+      ],
+      "remaining": [
+        "NOCTURNE_ORIGINAL_SET_AND_SIMULTANEOUS_PENDING_VARIANTS",
+        "ACTUAL_REACTION_ADJUSTED_DECK_AND_OTHER_CONSUMERS",
+        "COPY_OTHER_PRINTINGS_AND_WHOLE_EFFECT",
+        "NEW_FIXED_FULL_AND_FINAL_PRODUCT_ACCEPTANCE"
+      ]
+    },
+    {
+      "id": "CANDLELIT_CN16_RECYCLE_ONE",
+      "sqlBranch": "recycle-one",
+      "scope": "Choose only original DRAW1 for bottom; exact retained DRAW2/DRAW3 top order, no RNG advancement.",
+      "semanticReview": {
+        "state": "BOUNDED_CURRENT_SOURCE_AND_LITERAL_BRANCH_REVIEW_PASS",
+        "region": "CN",
+        "language": "zh-CN",
+        "observedAsOf": "2026-10-21",
+        "adoptedCoreEffectiveAsOf": "2026-10-16",
+        "wholeClauseOrPrintingCertified": false
+      },
+      "implementation": {
+        "state": "EXISTING_SHARED_CONQUEST_INSIGHT_PRIVATE_CHOICE_FLOW_NO_GAMEPLAY_SOURCE_CHANGE"
+      },
+      "testExecution": {
+        "state": "ACTUAL_FINAL_ROOT_SQL_AND_INDEPENDENT_WHOLE_HISTORY_PASS",
+        "requiredExistingMethod": "Riftbound.ConformanceTests.CandlelitSanctumTests.TheControllerChoosesAnyRecycleSubsetThenOrdersOnlyTheRetainedCards",
+        "sqlCommandsEventsColdInReceipt": true
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW49_SQL_FIXED_CANDIDATE"
+      },
+      "productAcceptance": {
+        "state": "OPEN",
+        "visiblePairedHardwareAndPhysicalWindows": "OPEN"
+      },
+      "sourceRefs": [
+        "OGN-291/298",
+        "CN-d6fd7140f106f9b5-P040-B012",
+        "CN-d6fd7140f106f9b5-P041-B002",
+        "CN-d6fd7140f106f9b5-P041-B011",
+        "CN-d6fd7140f106f9b5-P041-B013",
+        "CN-d6fd7140f106f9b5-P041-B014",
+        "CN-d6fd7140f106f9b5-P041-B015",
+        "CN-d6fd7140f106f9b5-P041-B016",
+        "CN-d6fd7140f106f9b5-P063-B006",
+        "CN-d6fd7140f106f9b5-P063-B008",
+        "CN-d6fd7140f106f9b5-P063-B009",
+        "CN-d6fd7140f106f9b5-P069-B003",
+        "CN-d6fd7140f106f9b5-P069-B004",
+        "CN-d6fd7140f106f9b5-P069-B005",
+        "CN-d6fd7140f106f9b5-P069-B006",
+        "CN-d6fd7140f106f9b5-P073-B005",
+        "CN-d6fd7140f106f9b5-P073-B008",
+        "CN-d6fd7140f106f9b5-P073-B012",
+        "CN-d6fd7140f106f9b5-P073-B013",
+        "CN-d6fd7140f106f9b5-P082-B002",
+        "CN-d6fd7140f106f9b5-P082-B003",
+        "CN-d6fd7140f106f9b5-P085-B003",
+        "CN-d6fd7140f106f9b5-P085-B004",
+        "CN-d6fd7140f106f9b5-P085-B009",
+        "CN-d6fd7140f106f9b5-P085-B010",
+        "CN-d6fd7140f106f9b5-P008-B017",
+        "CN-d6fd7140f106f9b5-P009-B004",
+        "CN-d6fd7140f106f9b5-P009-B005",
+        "CN-d6fd7140f106f9b5-P009-B006",
+        "CN-d6fd7140f106f9b5-P009-B008",
+        "CN-d6fd7140f106f9b5-P009-B014",
+        "CN-d6fd7140f106f9b5-P029-B001",
+        "CN-d6fd7140f106f9b5-P029-B006",
+        "CN-d6fd7140f106f9b5-P029-B007",
+        "CN-d6fd7140f106f9b5-P029-B008",
+        "CN-d6fd7140f106f9b5-P029-B009",
+        "CN-d6fd7140f106f9b5-P029-B010"
+      ],
+      "remaining": [
+        "NOCTURNE_ORIGINAL_SET_AND_SIMULTANEOUS_PENDING_VARIANTS",
+        "ACTUAL_REACTION_ADJUSTED_DECK_AND_OTHER_CONSUMERS",
+        "COPY_OTHER_PRINTINGS_AND_WHOLE_EFFECT",
+        "NEW_FIXED_FULL_AND_FINAL_PRODUCT_ACCEPTANCE"
+      ]
+    },
+    {
+      "id": "CANDLELIT_CN16_RECYCLE_TWO",
+      "sqlBranch": "recycle-two",
+      "scope": "Only both original viewed cards recycle; untouched DRAW3 remains top, selected pair is the bottom group and RNG advances once.",
+      "semanticReview": {
+        "state": "BOUNDED_CURRENT_SOURCE_AND_LITERAL_BRANCH_REVIEW_PASS",
+        "region": "CN",
+        "language": "zh-CN",
+        "observedAsOf": "2026-10-21",
+        "adoptedCoreEffectiveAsOf": "2026-10-16",
+        "wholeClauseOrPrintingCertified": false
+      },
+      "implementation": {
+        "state": "EXISTING_SHARED_CONQUEST_INSIGHT_PRIVATE_CHOICE_FLOW_NO_GAMEPLAY_SOURCE_CHANGE"
+      },
+      "testExecution": {
+        "state": "ACTUAL_FINAL_ROOT_SQL_AND_INDEPENDENT_WHOLE_HISTORY_PASS",
+        "requiredExistingMethod": "Riftbound.ConformanceTests.CandlelitSanctumTests.TheControllerChoosesAnyRecycleSubsetThenOrdersOnlyTheRetainedCards",
+        "sqlCommandsEventsColdInReceipt": true
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW49_SQL_FIXED_CANDIDATE"
+      },
+      "productAcceptance": {
+        "state": "OPEN",
+        "visiblePairedHardwareAndPhysicalWindows": "OPEN"
+      },
+      "sourceRefs": [
+        "OGN-291/298",
+        "CN-d6fd7140f106f9b5-P040-B012",
+        "CN-d6fd7140f106f9b5-P041-B002",
+        "CN-d6fd7140f106f9b5-P041-B011",
+        "CN-d6fd7140f106f9b5-P041-B013",
+        "CN-d6fd7140f106f9b5-P041-B014",
+        "CN-d6fd7140f106f9b5-P041-B015",
+        "CN-d6fd7140f106f9b5-P041-B016",
+        "CN-d6fd7140f106f9b5-P063-B006",
+        "CN-d6fd7140f106f9b5-P063-B008",
+        "CN-d6fd7140f106f9b5-P063-B009",
+        "CN-d6fd7140f106f9b5-P069-B003",
+        "CN-d6fd7140f106f9b5-P069-B004",
+        "CN-d6fd7140f106f9b5-P069-B005",
+        "CN-d6fd7140f106f9b5-P069-B006",
+        "CN-d6fd7140f106f9b5-P073-B005",
+        "CN-d6fd7140f106f9b5-P073-B008",
+        "CN-d6fd7140f106f9b5-P073-B012",
+        "CN-d6fd7140f106f9b5-P073-B013",
+        "CN-d6fd7140f106f9b5-P082-B002",
+        "CN-d6fd7140f106f9b5-P082-B003",
+        "CN-d6fd7140f106f9b5-P085-B003",
+        "CN-d6fd7140f106f9b5-P085-B004",
+        "CN-d6fd7140f106f9b5-P085-B009",
+        "CN-d6fd7140f106f9b5-P085-B010",
+        "CN-d6fd7140f106f9b5-P008-B017",
+        "CN-d6fd7140f106f9b5-P009-B004",
+        "CN-d6fd7140f106f9b5-P009-B005",
+        "CN-d6fd7140f106f9b5-P009-B006",
+        "CN-d6fd7140f106f9b5-P009-B008",
+        "CN-d6fd7140f106f9b5-P009-B014",
+        "CN-d6fd7140f106f9b5-P029-B001",
+        "CN-d6fd7140f106f9b5-P029-B006",
+        "CN-d6fd7140f106f9b5-P029-B007",
+        "CN-d6fd7140f106f9b5-P029-B008",
+        "CN-d6fd7140f106f9b5-P029-B009",
+        "CN-d6fd7140f106f9b5-P029-B010"
+      ],
+      "remaining": [
+        "NOCTURNE_ORIGINAL_SET_AND_SIMULTANEOUS_PENDING_VARIANTS",
+        "ACTUAL_REACTION_ADJUSTED_DECK_AND_OTHER_CONSUMERS",
+        "COPY_OTHER_PRINTINGS_AND_WHOLE_EFFECT",
+        "NEW_FIXED_FULL_AND_FINAL_PRODUCT_ACCEPTANCE"
+      ]
+    },
+    {
+      "id": "CANDLELIT_CN16_SHORT_EMPTY",
+      "sqlBranch": "short-empty",
+      "scope": "Zero existing cards resolves without an impossible private choice, extra score, draw or burnout.",
+      "semanticReview": {
+        "state": "BOUNDED_CURRENT_SOURCE_AND_LITERAL_BRANCH_REVIEW_PASS",
+        "region": "CN",
+        "language": "zh-CN",
+        "observedAsOf": "2026-10-21",
+        "adoptedCoreEffectiveAsOf": "2026-10-16",
+        "wholeClauseOrPrintingCertified": false
+      },
+      "implementation": {
+        "state": "EXISTING_SHARED_CONQUEST_INSIGHT_PRIVATE_CHOICE_FLOW_NO_GAMEPLAY_SOURCE_CHANGE"
+      },
+      "testExecution": {
+        "state": "ACTUAL_FINAL_ROOT_SQL_AND_INDEPENDENT_WHOLE_HISTORY_PASS",
+        "requiredExistingMethod": "Riftbound.ConformanceTests.CandlelitSanctumTests.AShortDeckLooksOnlyAtExistingCardsWithoutDrawingOrBurning",
+        "sqlCommandsEventsColdInReceipt": true
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW49_SQL_FIXED_CANDIDATE"
+      },
+      "productAcceptance": {
+        "state": "OPEN",
+        "visiblePairedHardwareAndPhysicalWindows": "OPEN"
+      },
+      "sourceRefs": [
+        "OGN-291/298",
+        "CN-d6fd7140f106f9b5-P040-B012",
+        "CN-d6fd7140f106f9b5-P041-B002",
+        "CN-d6fd7140f106f9b5-P041-B011",
+        "CN-d6fd7140f106f9b5-P041-B013",
+        "CN-d6fd7140f106f9b5-P041-B014",
+        "CN-d6fd7140f106f9b5-P041-B015",
+        "CN-d6fd7140f106f9b5-P041-B016",
+        "CN-d6fd7140f106f9b5-P063-B006",
+        "CN-d6fd7140f106f9b5-P063-B008",
+        "CN-d6fd7140f106f9b5-P063-B009",
+        "CN-d6fd7140f106f9b5-P069-B003",
+        "CN-d6fd7140f106f9b5-P069-B004",
+        "CN-d6fd7140f106f9b5-P069-B005",
+        "CN-d6fd7140f106f9b5-P069-B006",
+        "CN-d6fd7140f106f9b5-P073-B005",
+        "CN-d6fd7140f106f9b5-P073-B008",
+        "CN-d6fd7140f106f9b5-P073-B012",
+        "CN-d6fd7140f106f9b5-P073-B013",
+        "CN-d6fd7140f106f9b5-P082-B002",
+        "CN-d6fd7140f106f9b5-P082-B003",
+        "CN-d6fd7140f106f9b5-P085-B003",
+        "CN-d6fd7140f106f9b5-P085-B004",
+        "CN-d6fd7140f106f9b5-P085-B009",
+        "CN-d6fd7140f106f9b5-P085-B010",
+        "CN-d6fd7140f106f9b5-P008-B017",
+        "CN-d6fd7140f106f9b5-P009-B004",
+        "CN-d6fd7140f106f9b5-P009-B005",
+        "CN-d6fd7140f106f9b5-P009-B006",
+        "CN-d6fd7140f106f9b5-P009-B008",
+        "CN-d6fd7140f106f9b5-P009-B014",
+        "CN-d6fd7140f106f9b5-P029-B001",
+        "CN-d6fd7140f106f9b5-P029-B006",
+        "CN-d6fd7140f106f9b5-P029-B007",
+        "CN-d6fd7140f106f9b5-P029-B008",
+        "CN-d6fd7140f106f9b5-P029-B009",
+        "CN-d6fd7140f106f9b5-P029-B010"
+      ],
+      "remaining": [
+        "NOCTURNE_ORIGINAL_SET_AND_SIMULTANEOUS_PENDING_VARIANTS",
+        "ACTUAL_REACTION_ADJUSTED_DECK_AND_OTHER_CONSUMERS",
+        "COPY_OTHER_PRINTINGS_AND_WHOLE_EFFECT",
+        "NEW_FIXED_FULL_AND_FINAL_PRODUCT_ACCEPTANCE"
+      ]
+    },
+    {
+      "id": "CANDLELIT_CN16_SHORT_ONE",
+      "sqlBranch": "short-one",
+      "scope": "One existing card permits zero-to-one private choice; keeping it leaves the literal deck, no draw or burnout.",
+      "semanticReview": {
+        "state": "BOUNDED_CURRENT_SOURCE_AND_LITERAL_BRANCH_REVIEW_PASS",
+        "region": "CN",
+        "language": "zh-CN",
+        "observedAsOf": "2026-10-21",
+        "adoptedCoreEffectiveAsOf": "2026-10-16",
+        "wholeClauseOrPrintingCertified": false
+      },
+      "implementation": {
+        "state": "EXISTING_SHARED_CONQUEST_INSIGHT_PRIVATE_CHOICE_FLOW_NO_GAMEPLAY_SOURCE_CHANGE"
+      },
+      "testExecution": {
+        "state": "ACTUAL_FINAL_ROOT_SQL_AND_INDEPENDENT_WHOLE_HISTORY_PASS",
+        "requiredExistingMethod": "Riftbound.ConformanceTests.CandlelitSanctumTests.AShortDeckLooksOnlyAtExistingCardsWithoutDrawingOrBurning",
+        "sqlCommandsEventsColdInReceipt": true
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW49_SQL_FIXED_CANDIDATE"
+      },
+      "productAcceptance": {
+        "state": "OPEN",
+        "visiblePairedHardwareAndPhysicalWindows": "OPEN"
+      },
+      "sourceRefs": [
+        "OGN-291/298",
+        "CN-d6fd7140f106f9b5-P040-B012",
+        "CN-d6fd7140f106f9b5-P041-B002",
+        "CN-d6fd7140f106f9b5-P041-B011",
+        "CN-d6fd7140f106f9b5-P041-B013",
+        "CN-d6fd7140f106f9b5-P041-B014",
+        "CN-d6fd7140f106f9b5-P041-B015",
+        "CN-d6fd7140f106f9b5-P041-B016",
+        "CN-d6fd7140f106f9b5-P063-B006",
+        "CN-d6fd7140f106f9b5-P063-B008",
+        "CN-d6fd7140f106f9b5-P063-B009",
+        "CN-d6fd7140f106f9b5-P069-B003",
+        "CN-d6fd7140f106f9b5-P069-B004",
+        "CN-d6fd7140f106f9b5-P069-B005",
+        "CN-d6fd7140f106f9b5-P069-B006",
+        "CN-d6fd7140f106f9b5-P073-B005",
+        "CN-d6fd7140f106f9b5-P073-B008",
+        "CN-d6fd7140f106f9b5-P073-B012",
+        "CN-d6fd7140f106f9b5-P073-B013",
+        "CN-d6fd7140f106f9b5-P082-B002",
+        "CN-d6fd7140f106f9b5-P082-B003",
+        "CN-d6fd7140f106f9b5-P085-B003",
+        "CN-d6fd7140f106f9b5-P085-B004",
+        "CN-d6fd7140f106f9b5-P085-B009",
+        "CN-d6fd7140f106f9b5-P085-B010",
+        "CN-d6fd7140f106f9b5-P008-B017",
+        "CN-d6fd7140f106f9b5-P009-B004",
+        "CN-d6fd7140f106f9b5-P009-B005",
+        "CN-d6fd7140f106f9b5-P009-B006",
+        "CN-d6fd7140f106f9b5-P009-B008",
+        "CN-d6fd7140f106f9b5-P009-B014",
+        "CN-d6fd7140f106f9b5-P029-B001",
+        "CN-d6fd7140f106f9b5-P029-B006",
+        "CN-d6fd7140f106f9b5-P029-B007",
+        "CN-d6fd7140f106f9b5-P029-B008",
+        "CN-d6fd7140f106f9b5-P029-B009",
+        "CN-d6fd7140f106f9b5-P029-B010"
+      ],
+      "remaining": [
+        "NOCTURNE_ORIGINAL_SET_AND_SIMULTANEOUS_PENDING_VARIANTS",
+        "ACTUAL_REACTION_ADJUSTED_DECK_AND_OTHER_CONSUMERS",
+        "COPY_OTHER_PRINTINGS_AND_WHOLE_EFFECT",
+        "NEW_FIXED_FULL_AND_FINAL_PRODUCT_ACCEPTANCE"
+      ]
+    }
+  ],
+  "all36ParentAndRelatedRecordsRemainWholeClauseUncertified": true,
+  "newConformanceCasesAndMethods": 0,
+  "originalSourceUniverseAndCoverageUnchanged": true
+}

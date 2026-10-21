@@ -194,6 +194,10 @@
     {
       "id": "spell-remake-declaration",
       "sourceType": "SpellRemakeDeclarationSqlAcceptance"
+    },
+    {
+      "id": "candlelit-private-look",
+      "sourceType": "CandlelitPrivateLookSqlAcceptance"
     }
   ]
 }
