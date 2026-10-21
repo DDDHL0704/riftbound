@@ -1,0 +1,1877 @@
+{
+  "atUtc": "2026-10-21T14:01:25.615433+00:00",
+  "archive": {
+    "path": "docs/evidence/controller-damage-current-cn16-2026-10-21/original-execution-and-source-records.tar.gz",
+    "sha256": "ddb925c99357e0314b7e61060ad4cb322f92ad449691d068566b564d99445438"
+  },
+  "members": [
+    {
+      "path": "var/qa/fixed708-early-native-20261021/verify-completed-fixed2b83-full-originals-v1.py",
+      "bytes": 6957,
+      "sha256": "405387f6a422f31953d7f7a621ac4a954224a405b11f9033ccf607766c1b0d28"
+    },
+    {
+      "path": "var/qa/fixed99e-early-native-20261021/actual-current-network-smoke-v2.log",
+      "bytes": 764,
+      "sha256": "d268c965f882683eece278821ba43e7f9f727fe66b82cc622a75ceab5906eaa8"
+    },
+    {
+      "path": "var/qa/fixed99e-early-native-20261021/actual-safe-native-main-v2/actual-ci-native-cold-reconnect-v2.json",
+      "bytes": 1006,
+      "sha256": "895e92974d5c8352bbc99fcf37f8d882d772190a85d0bb3a77153ad7bbf5fdb1"
+    },
+    {
+      "path": "var/qa/fixed99e-early-native-20261021/actual-safe-native-main-v2/after-ci-native-keep-original-frame-v2-metadata.json",
+      "bytes": 847,
+      "sha256": "d58dbac484044a51831375731b69a519b9a0880642d1cdcbb26b8d9f156d6196"
+    },
+    {
+      "path": "var/qa/fixed99e-early-native-20261021/actual-safe-native-main-v2/after-ci-native-keep-original-frame-v2.json.gz",
+      "bytes": 44767,
+      "sha256": "af8d35b31fdb7ff616499a9e2b582df40d403cb9a97dc8f0c456bd6652f992e5"
+    },
+    {
+      "path": "var/qa/fixed99e-early-native-20261021/actual-safe-native-main-v2/after-current-ci-native-normal-score-final-original-frame-v2-metadata.json",
+      "bytes": 847,
+      "sha256": "9798f089d5df7cd672f2624309680a863a959ac913212ff4d7ba5d8db4637cd6"
+    },
+    {
+      "path": "var/qa/fixed99e-early-native-20261021/actual-safe-native-main-v2/after-current-ci-native-normal-score-final-original-frame-v2.json.gz",
+      "bytes": 46989,
+      "sha256": "417fb50f5e7d1e03d90419498cbb714743ceb1853feebff59504f9f37800fe9c"
+    },
+    {
+      "path": "var/qa/fixed99e-early-native-20261021/actual-safe-native-main-v2/after-native-priority-pass-2-original-frame-v2-metadata.json",
+      "bytes": 847,
+      "sha256": "52c71119ece79f00b5b7cdc6df3fe2407cf6fd597f192a8aa0b0a57743ede6c9"
+    },
+    {
+      "path": "var/qa/fixed99e-early-native-20261021/actual-safe-native-main-v2/after-native-priority-pass-2-original-frame-v2.json.gz",
+      "bytes": 50706,
+      "sha256": "58bb7f2fb95c8d954b8f7a34dc27e5f06b7683bad080e6781df2b0f1bc670d58"
+    },
+    {
+      "path": "var/qa/fixed99e-early-native-20261021/actual-safe-native-main-v2/before-ci-native-cold-reconnect-original-frame-v2-metadata.json",
+      "bytes": 861,
+      "sha256": "d575412d7564461b6531949096578576c5a7490c3da9c7772cc12bc98b3ad20a"
+    },
+    {
+      "path": "var/qa/fixed99e-early-native-20261021/actual-safe-native-main-v2/before-ci-native-cold-reconnect-original-frame-v2.json.gz",
+      "bytes": 57683,
+      "sha256": "b9a035ed5707101986cf76b298ef612330f70e2e75867abdcf1b1087f91d3846"
+    },
+    {
+      "path": "var/qa/fixed99e-early-native-20261021/actual-safe-native-main-v2/both-ci-main-after-cold-original-frame-v2-metadata.json",
+      "bytes": 861,
+      "sha256": "d575412d7564461b6531949096578576c5a7490c3da9c7772cc12bc98b3ad20a"
+    },
+    {
+      "path": "var/qa/fixed99e-early-native-20261021/actual-safe-native-main-v2/both-ci-main-after-cold-original-frame-v2.json.gz",
+      "bytes": 57683,
+      "sha256": "b9a035ed5707101986cf76b298ef612330f70e2e75867abdcf1b1087f91d3846"
+    },
+    {
+      "path": "var/qa/fixed99e-early-native-20261021/actual-safe-native-main-v2/both-ci-main-before-cold-original-frame-v2-metadata.json",
+      "bytes": 861,
+      "sha256": "d575412d7564461b6531949096578576c5a7490c3da9c7772cc12bc98b3ad20a"
+    },
+    {
+      "path": "var/qa/fixed99e-early-native-20261021/actual-safe-native-main-v2/both-ci-main-before-cold-original-frame-v2.json.gz",
+      "bytes": 57683,
+      "sha256": "b9a035ed5707101986cf76b298ef612330f70e2e75867abdcf1b1087f91d3846"
+    },
+    {
+      "path": "var/qa/fixed99e-early-native-20261021/actual-safe-native-main-v2/original288-audit60-native-seven-table-baseline-v2.json",
+      "bytes": 21963,
+      "sha256": "c8819e156d49227fbaa6fc98b41ac9e383fa2708bb53c7c98395983a65f91570"
+    },
+    {
+      "path": "var/qa/fixed99e-early-native-20261021/actual-safe-native-main-v2/owner-final-current-ci-native-original-frame-v2-metadata.json",
+      "bytes": 847,
+      "sha256": "9798f089d5df7cd672f2624309680a863a959ac913212ff4d7ba5d8db4637cd6"
+    },
+    {
+      "path": "var/qa/fixed99e-early-native-20261021/actual-safe-native-main-v2/owner-final-current-ci-native-original-frame-v2.json.gz",
+      "bytes": 46989,
+      "sha256": "417fb50f5e7d1e03d90419498cbb714743ceb1853feebff59504f9f37800fe9c"
+    },
+    {
+      "path": "var/qa/fixed99e-early-native-20261021/actual-safe-native-prefix-v2/a-original-opponent-snapshot.json",
+      "bytes": 45914,
+      "sha256": "735ea53bd5cc6315d93404976dd7e5a7e7ca1dec9f319112ef2a99dc72e4fe44"
+    },
+    {
+      "path": "var/qa/fixed99e-early-native-20261021/actual-safe-native-prefix-v2/a-original-opponent-wait-prompt.json",
+      "bytes": 7086,
+      "sha256": "608403104f2beb6386baec29a8a1bac97a7f85969d6f877eda57f5eec0450ead"
+    },
+    {
+      "path": "var/qa/fixed99e-early-native-20261021/actual-safe-native-prefix-v2/b-original-target-choice-prompt.json",
+      "bytes": 33268,
+      "sha256": "84ea4cb7cc14d856a7b5e0b56896687eae312acf10eda44c08c3911a16214c30"
+    },
+    {
+      "path": "var/qa/fixed99e-early-native-20261021/actual-safe-native-prefix-v2/b-original-target-choice-snapshot.json",
+      "bytes": 45203,
+      "sha256": "2857fa8d54e0d996de3ee46a9f9805bcfb6ef29cfd8e44785c7fa9fb4e6eac93"
+    },
+    {
+      "path": "var/qa/fixed99e-early-native-20261021/actual-safe-native-prefix-v2/original-accepted-native-prefix-intents.json",
+      "bytes": 174808,
+      "sha256": "7866fb74c9f7d0759dbec5d7c3aa18a64f63831270dc5241292b7950f4292161"
+    },
+    {
+      "path": "var/qa/fixed99e-early-native-20261021/actual-safe-native-prefix-v2/original-private-native-wire-snapshots-prompts.ndjson.gz",
+      "bytes": 869701,
+      "sha256": "c295de1388f7563d4d81efbfd8be292a8618f3a50cb9101be25af7f69446cb17"
+    },
+    {
+      "path": "var/qa/fixed99e-early-native-20261021/actual-safe-native-prefix-v2/pending-original-native-prefix-receipt.json",
+      "bytes": 1066,
+      "sha256": "aace2f91f2af715e3f3e4baad5d2ffb9b4bd01ae08759b50e071de533c4ff670"
+    },
+    {
+      "path": "var/qa/fixed99e-early-native-20261021/actual-safe-normal-score-continuation-v2/all-original-normal-score-continuation-intents.json",
+      "bytes": 47630,
+      "sha256": "708beb1831076a0bba1dc43262d18ce0550c0385fc35b3698241946e2d0e1f09"
+    },
+    {
+      "path": "var/qa/fixed99e-early-native-20261021/actual-safe-normal-score-continuation-v2/normal-original-score-continuation-receipt.json",
+      "bytes": 597,
+      "sha256": "41a0be361073c5f21bb09e13e3695bf9d8d4590c4db3c1563dbad03e89c09a82"
+    },
+    {
+      "path": "var/qa/fixed99e-early-native-20261021/actual-safe-normal-score-continuation-v2/original-private-score-gateway-wire.ndjson.gz",
+      "bytes": 274920,
+      "sha256": "7054eabe6d637f537414469bbca0f4a322a3714cc492a8a6052aae3a05efadbf"
+    },
+    {
+      "path": "var/qa/fixed99e-early-native-20261021/build-fixed99e-exact-api-closure-v1.log",
+      "bytes": 867,
+      "sha256": "71ee7d92d6ef69af1ff9a2b3d46036b7e0b04f2371a0426a75210a4241c776c4"
+    },
+    {
+      "path": "var/qa/fixed99e-early-native-20261021/build-fixed99e-exact-api-closure-v1.py",
+      "bytes": 2592,
+      "sha256": "ca88507cbd6af8b61f6f4fdb70792f56793396d431799e3970649b5039eedc86"
+    },
+    {
+      "path": "var/qa/fixed99e-early-native-20261021/build-fixed99e-native-history-reader-v1.log",
+      "bytes": 462,
+      "sha256": "60b1585b91330e6b6a64a7cfd0a7eb922b4f8acd4ed9aa522f643495db118086"
+    },
+    {
+      "path": "var/qa/fixed99e-early-native-20261021/build-frozen-fixed99e-native-helpers-v1.py",
+      "bytes": 5578,
+      "sha256": "22c2443acfcd5083d6d6a61cc7d4e698b2f35a7dd375f0c55ca0745f2f1523c4"
+    },
+    {
+      "path": "var/qa/fixed99e-early-native-20261021/current-fixed-native-download-original-result-v1.json",
+      "bytes": 3131,
+      "sha256": "96bfecf51376fa4d337e0458ca4fc52f014b259e3503eee73c3608274fe163b4"
+    },
+    {
+      "path": "var/qa/fixed99e-early-native-20261021/current-native-default-headless-a.log",
+      "bytes": 394,
+      "sha256": "7f99a97f303b844aea609eb961342c64224fd5721bb32be857541d02cc8a0910"
+    },
+    {
+      "path": "var/qa/fixed99e-early-native-20261021/current-native-default-headless-b.log",
+      "bytes": 394,
+      "sha256": "7f99a97f303b844aea609eb961342c64224fd5721bb32be857541d02cc8a0910"
+    },
+    {
+      "path": "var/qa/fixed99e-early-native-20261021/current-native-headless-boot-verification.json",
+      "bytes": 2940,
+      "sha256": "a1d68da876f60f0797ba44c61ca9f78f4981da4bebed3e8c7f1dd61a43d1a61a"
+    },
+    {
+      "path": "var/qa/fixed99e-early-native-20261021/current-two-fixed-ci-39576095226-jobs-20261021T1225Z-v1.json",
+      "bytes": 36738,
+      "sha256": "893efcc5c2b7e3b3c0ddf89d5137d2b93fc538c9bfee67a1e6d64211cce85370"
+    },
+    {
+      "path": "var/qa/fixed99e-early-native-20261021/current-two-fixed-ci-39594660433-jobs-20261021T1225Z-v1.json",
+      "bytes": 35316,
+      "sha256": "701fc8a371a9c3749d281edef831c362c2039330216edca809d83c86b0a78bf3"
+    },
+    {
+      "path": "var/qa/fixed99e-early-native-20261021/current99e-pty-ci-native-observe-a-v2.log",
+      "bytes": 4242,
+      "sha256": "3d9e21d73064a43f3c22c60247233c34e90ba6c848e71aaac3073fca371e44ef"
+    },
+    {
+      "path": "var/qa/fixed99e-early-native-20261021/current99e-pty-ci-native-observe-b-v2.log",
+      "bytes": 4289,
+      "sha256": "c48967b9ceee68064544df79419ed48b1a78c986f956e58314c024788c054279"
+    },
+    {
+      "path": "var/qa/fixed99e-early-native-20261021/current99e-pty-ci-native-ui-keep-b-v2.log",
+      "bytes": 3753,
+      "sha256": "e98410f7f34c9a082fd8e20fd6f38a31a3d73428de304de9841f9b029f33f65f"
+    },
+    {
+      "path": "var/qa/fixed99e-early-native-20261021/current99e-pty-ci-native-ui-pass-a-v2.log",
+      "bytes": 6054,
+      "sha256": "cb25dffcc16d7a319957b5605dcbf01fdcca5d34e8c0f25e3ebeb897ab33cc20"
+    },
+    {
+      "path": "var/qa/fixed99e-early-native-20261021/current99e-pty-ci-native-ui-pass-b-v2.log",
+      "bytes": 4667,
+      "sha256": "c3ef56bcfe4ac6027004c9257d915a1b9df26e9f8b98ee1cca24c9841c4f0072"
+    },
+    {
+      "path": "var/qa/fixed99e-early-native-20261021/download-current-fixed99e-native-v1.py",
+      "bytes": 2509,
+      "sha256": "bf9cbf8b47d83dfd6a196a177bd4ee4de553bde58d1dbcf152a28679455bf0e0"
+    },
+    {
+      "path": "var/qa/fixed99e-early-native-20261021/first-pre-game-session-preparation-failure-v1/actual-safe-native-main-v2/original288-audit60-native-seven-table-baseline-v2.json",
+      "bytes": 21963,
+      "sha256": "5819e612c305b9483e018413917d2f312855533de40831cc0e8a4471c4d1e724"
+    },
+    {
+      "path": "var/qa/fixed99e-early-native-20261021/first-pre-game-session-preparation-failure-v1/live-current-ci-api-1-v2.log",
+      "bytes": 3481,
+      "sha256": "ca95729c4bdf2c60f1f2ab81d23850e68c6292ba08a4422742cac9956cf2b309"
+    },
+    {
+      "path": "var/qa/fixed99e-early-native-20261021/first-pre-game-session-preparation-failure-v1/live-current-ci-main-owner-terminal-v2.json",
+      "bytes": 23865,
+      "sha256": "f1d3b55201d22f098bf7cf42f1d4935981d2b6191a6967606489295af3ecae77"
+    },
+    {
+      "path": "var/qa/fixed99e-early-native-20261021/first-pre-game-session-preparation-failure-v1/live-current-ci-owner-state-v2.json",
+      "bytes": 2466,
+      "sha256": "e9d4d3a8eda801ed6a4779e0e267685f3c6f8cc08d30b492a545d81eb50cc0aa"
+    },
+    {
+      "path": "var/qa/fixed99e-early-native-20261021/first-pre-game-session-preparation-failure-v1/live-current-ci-postgres-v2.log",
+      "bytes": 1275,
+      "sha256": "d161066907d58c905a56e58cdd7a8419e695a1c6b8fa0cef380d8756c2dec183"
+    },
+    {
+      "path": "var/qa/fixed99e-early-native-20261021/first-pre-game-session-preparation-failure-v1/live-current-ci-prefix-writer-v2.log",
+      "bytes": 1790,
+      "sha256": "8520fccdae95bea7bf003dc55f6f485cf93757d117c96ef71d3a148dfe0ced60"
+    },
+    {
+      "path": "var/qa/fixed99e-early-native-20261021/fixed99e-api-actual-rule-inputs-v1.json",
+      "bytes": 424,
+      "sha256": "d980f26d36509282274d6a42475e68c9e9bbf0b19d10aef02aca5285fe4095a3"
+    },
+    {
+      "path": "var/qa/fixed99e-early-native-20261021/fixed99e-api-gameplay-closure-frozen-inputs-v1.json",
+      "bytes": 36660,
+      "sha256": "d5c42026fa53e15d2943284aa8cbe978b1d3de6960ede3d689748f2c7d974f1c"
+    },
+    {
+      "path": "var/qa/fixed99e-early-native-20261021/fixed99e-native-helper-and-network-frozen-v1.json",
+      "bytes": 18963,
+      "sha256": "36d781c19b34a5a69e417948661f5434131255b44ea3a1087271f4262d17b34e"
+    },
+    {
+      "path": "var/qa/fixed99e-early-native-20261021/fixed99e-native-history-reader-frozen-v1.json",
+      "bytes": 5990,
+      "sha256": "73b8aad58a6d54578ca4dc25f49b3f9b876b5fef67ca9487942937022e7aef54"
+    },
+    {
+      "path": "var/qa/fixed99e-early-native-20261021/fixed99e-native-history-reader-source-v1/Program.cs",
+      "bytes": 19185,
+      "sha256": "55c2bef1b9e3550efdd4a19f3f379e955ae0acda2504c4b21e311ce0266b9520"
+    },
+    {
+      "path": "var/qa/fixed99e-early-native-20261021/fixed99e-native-history-reader-source-v1/probe.csproj",
+      "bytes": 1492,
+      "sha256": "df180fe842daa475ae7319d3804756326c393fccce9bc1dd33776f3f2a6b58f9"
+    },
+    {
+      "path": "var/qa/fixed99e-early-native-20261021/frozen-fixed99e-native-composition-v1.json",
+      "bytes": 82216,
+      "sha256": "a094522fd3ae16c320b6345bb0da68d1b65f09518115a4d7b48df9bf32a01f79"
+    },
+    {
+      "path": "var/qa/fixed99e-early-native-20261021/independent-fixed99e-native-history-result-v2.json",
+      "bytes": 1850,
+      "sha256": "d62ebe1557f2e376c5b9e6ceb2985fc76896db43ced803c0904c261d868386cd"
+    },
+    {
+      "path": "var/qa/fixed99e-early-native-20261021/independent-fixed99e-native-history-run-v2.json",
+      "bytes": 6879,
+      "sha256": "b12c1dd1131650181d8e8b04ced88d497aac5c8e25dc10bb6aeda5e3dbdca8f5"
+    },
+    {
+      "path": "var/qa/fixed99e-early-native-20261021/independent-fixed99e-native-history-v2.log",
+      "bytes": 7022,
+      "sha256": "273be5eb19aa5f1d58c9f1ef0f832daaa816cad9c2c10ed4c2e27c7949b333ae"
+    },
+    {
+      "path": "var/qa/fixed99e-early-native-20261021/live-current-ci-api-1-v2.log",
+      "bytes": 36340,
+      "sha256": "640abe0ae43d002ee89e9246fdcbfbefec263dce52c338afb18a45a17c5b130d"
+    },
+    {
+      "path": "var/qa/fixed99e-early-native-20261021/live-current-ci-api-2-v2.log",
+      "bytes": 76632,
+      "sha256": "b8bcbbc3af4bf624a71cbd7b63f9475a56043350396fd851a3c38a10142fee11"
+    },
+    {
+      "path": "var/qa/fixed99e-early-native-20261021/live-current-ci-main-owner-terminal-v2.json",
+      "bytes": 31227,
+      "sha256": "3d7ee6d9309d61e10d90de1710f419dd976413ca4529c615226cbc9188408265"
+    },
+    {
+      "path": "var/qa/fixed99e-early-native-20261021/live-current-ci-main-ready-v2.json",
+      "bytes": 9693,
+      "sha256": "1ce6ffdd438be57c1903aa79116871970f30eab5f76f1dc3dd9dd2ff0c97cdff"
+    },
+    {
+      "path": "var/qa/fixed99e-early-native-20261021/live-current-ci-main-stop-v2.json",
+      "bytes": 554,
+      "sha256": "868c6099c399ddeba4dfd58fe4c98083b38909b97002068b8d9ce61eea4ff09f"
+    },
+    {
+      "path": "var/qa/fixed99e-early-native-20261021/live-current-ci-normal-score-writer-v2.log",
+      "bytes": 598,
+      "sha256": "eba9b0058e7c447944791830c007083b7c2960df39ea6cd9d0d0f5fee2e12615"
+    },
+    {
+      "path": "var/qa/fixed99e-early-native-20261021/live-current-ci-owner-state-v2.json",
+      "bytes": 9242,
+      "sha256": "8081576f531819cf59f58f44fca68d5f8d5caca4b045c5cdccc2908ac585fcf3"
+    },
+    {
+      "path": "var/qa/fixed99e-early-native-20261021/live-current-ci-postgres-v2.log",
+      "bytes": 1282,
+      "sha256": "bb1b259387adff32d842277899a1750349ecc772952797b3ff22b7a930514c5d"
+    },
+    {
+      "path": "var/qa/fixed99e-early-native-20261021/live-current-ci-prefix-writer-v2.log",
+      "bytes": 1067,
+      "sha256": "253c1ac2405a48616866392d72223a740c03e26d316f3df0449b4121a1ee5831"
+    },
+    {
+      "path": "var/qa/fixed99e-early-native-20261021/native-app-inputs.json",
+      "bytes": 131974,
+      "sha256": "28048a4108b9c1367e404c3c6c2feee1edf5bc70b39c54d54d35857fd7003474"
+    },
+    {
+      "path": "var/qa/fixed99e-early-native-20261021/native-current-ready-ci-artifacts-v1.json",
+      "bytes": 3782,
+      "sha256": "4c641cbdb8f6bd09f9a3b461fb3ccb4f3990bd21cb4e1c9f07284ebd423574c1"
+    },
+    {
+      "path": "var/qa/fixed99e-early-native-20261021/native-owner-preserved-original-controls-and-score-assertion-plan-v1.json",
+      "bytes": 2262,
+      "sha256": "42601bf2e95edd2b3ac320f26a67f5c0e6d59e625bcf4e94a9333b9286be5570"
+    },
+    {
+      "path": "var/qa/fixed99e-early-native-20261021/pre-game-session-preparation-failure-and-exact-recovery-v1.json",
+      "bytes": 3517,
+      "sha256": "65f12b29acc972bdd36c27b92e982f01f4cf3725cc017bc18eca1ba35226e626"
+    },
+    {
+      "path": "var/qa/fixed99e-early-native-20261021/prepare-current-fixed99e-native-apps-v1.py",
+      "bytes": 4852,
+      "sha256": "eb1253876174563f9d4cdbcbb291d0568377fd89186bc0f6171bbd0453ff7879"
+    },
+    {
+      "path": "var/qa/fixed99e-early-native-20261021/qa-launcher-a.c",
+      "bytes": 726,
+      "sha256": "2250b9aad87dc53bf26416210510b28a1843cc294d9240454b72ada10b1dc886"
+    },
+    {
+      "path": "var/qa/fixed99e-early-native-20261021/qa-launcher-b.c",
+      "bytes": 726,
+      "sha256": "5169de349f3ca6f4897cfe5ee8de1fb749658bb342546775301674bdfd5e9be7"
+    },
+    {
+      "path": "var/qa/fixed99e-early-native-20261021/retire-superseded-fixed708-apps-and-two-archives-v1.py",
+      "bytes": 3423,
+      "sha256": "85b08c85fdd5efa6b3972fbb29d649c05e4dcb23e727ad42d504ab2559682c5a"
+    },
+    {
+      "path": "var/qa/fixed99e-early-native-20261021/run-fixed99e-ci-main-pair-v1.py",
+      "bytes": 20518,
+      "sha256": "7119cbd6d3087e2f80d4990d360cf57a961819a08121f66e66118781ad9a420d"
+    },
+    {
+      "path": "var/qa/fixed99e-early-native-20261021/run-independent-fixed99e-native-history-v1.py",
+      "bytes": 3689,
+      "sha256": "2ea4710951e51770bc8bcf6ce86dabac4d0eee7c3777b26f34c753e4e2494b2b"
+    },
+    {
+      "path": "var/qa/fixed99e-early-native-20261021/superseded-fixed708-native-original-file-manifest-v1.json.gz",
+      "bytes": 44838,
+      "sha256": "99a68e7a027362367819b2e35a7601d2d42cccad7867d580e735c5952ba29c1c"
+    },
+    {
+      "path": "var/qa/fixed99e-early-native-20261021/superseded-fixed708-native-pair-and-two-archives-retirement-v1.json",
+      "bytes": 1564,
+      "sha256": "5cd9d9134d8956a547cb2019beade3dc4076aeffd609ba6f5e0c60afea76174a"
+    },
+    {
+      "path": "var/qa/fixed99e-early-native-20261021/verify-current-fixed99e-native-default-boot-v1.py",
+      "bytes": 3560,
+      "sha256": "14e03782db3c5b2c94b6510913f272a87cf0305f216a582f5a6de4b6464b2cd7"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/actual-after-metadata-link-repair-executing-assemblies-v2.json",
+      "bytes": 1707,
+      "sha256": "b9a61c0857d2e9016df61a28b9cb55382b27d98f4ca1adf038761fab207deb04"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/actual-before-metadata-link-repair-executing-assemblies-v1.json",
+      "bytes": 1692,
+      "sha256": "4ecf79b5c9699a641b49d5abcaeb1c84637755a3eb485e58c33b6bb3e87f1e2e"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/actual-current-controller-sql-owner-terminal-v1.json",
+      "bytes": 43523,
+      "sha256": "12ea3af7179c257793b465c92857616d56e581fbbfd81a3f2b8b3eb953c675de"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/actual-current-controller-sql-v1/controller-damage-bonus/OGN-121-298/count-0/all-original-accepted-intents.json",
+      "bytes": 1394,
+      "sha256": "c5800e5cc2ffba5bb7997f5fdc6c83a13cfdb3addada3d9431eda0da4a6fd99d"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/actual-current-controller-sql-v1/controller-damage-bonus/OGN-121-298/count-0/explicit-original-controlled-initial.json",
+      "bytes": 10528,
+      "sha256": "86ea7b78582ea9d14b2ed6e54ce7861041a13fa3fad7fd8800243bc79a79e15a"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/actual-current-controller-sql-v1/controller-damage-bonus/OGN-121-298/count-0/receipt.json",
+      "bytes": 932,
+      "sha256": "3e161a64006069716cee57602fb69bc27a3d363af94c18efc919ca0bb8b2428e"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/actual-current-controller-sql-v1/controller-damage-bonus/OGN-121-298/count-0/step-01-original-frame.json.gz",
+      "bytes": 15427,
+      "sha256": "b7d17ab93eeda11fb3da5bed4c1ae03b923493f4a1d3eb8434d8e4ba2a791d6b"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/actual-current-controller-sql-v1/controller-damage-bonus/OGN-121-298/count-0/step-02-original-frame.json.gz",
+      "bytes": 11074,
+      "sha256": "ce1261c230f8e51cbf5ef6788e658de9b596d8f41de3d129a17b9e9591113e11"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/actual-current-controller-sql-v1/controller-damage-bonus/OGN-121-298/count-0/step-03-original-frame.json.gz",
+      "bytes": 11148,
+      "sha256": "db1f6ea97c91cf08ba57079d5fd79e3ed56b04dd29a49fc65485c0b02f215c2a"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/actual-current-controller-sql-v1/controller-damage-bonus/OGN-121-298/count-0/step-04-original-frame.json.gz",
+      "bytes": 10959,
+      "sha256": "6728881240283214450383b5a841388cac08919046099b787c8906ef6a26f4f8"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/actual-current-controller-sql-v1/controller-damage-bonus/OGN-121-298/count-1/all-original-accepted-intents.json",
+      "bytes": 1394,
+      "sha256": "1db609d45582fdf26ad47822568abdc60a776b11a0bb104cc2b95406c5daf7b4"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/actual-current-controller-sql-v1/controller-damage-bonus/OGN-121-298/count-1/explicit-original-controlled-initial.json",
+      "bytes": 10528,
+      "sha256": "c20f6b8c92b036af61bc825a5752f8bf35aba7176c9e0502994a48ce279c8640"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/actual-current-controller-sql-v1/controller-damage-bonus/OGN-121-298/count-1/receipt.json",
+      "bytes": 932,
+      "sha256": "5ae15eac56f99906e79d24e2c2d02fb13c24dc2975cdd09e7de17413c91c7940"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/actual-current-controller-sql-v1/controller-damage-bonus/OGN-121-298/count-1/step-01-original-frame.json.gz",
+      "bytes": 15428,
+      "sha256": "b470940f7c200fbcdbff5c40b859d616c60a3b8a01c4b253ffac46041658d510"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/actual-current-controller-sql-v1/controller-damage-bonus/OGN-121-298/count-1/step-02-original-frame.json.gz",
+      "bytes": 11068,
+      "sha256": "18cd630f9389bcfc2e95093aa4c1ae7caf1996cc334e59cc5e21827c237d982a"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/actual-current-controller-sql-v1/controller-damage-bonus/OGN-121-298/count-1/step-03-original-frame.json.gz",
+      "bytes": 11141,
+      "sha256": "e24174a9d80c63ecbfddbeb13de547e1ea390929d7ea31b718d24595022bf4aa"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/actual-current-controller-sql-v1/controller-damage-bonus/OGN-121-298/count-1/step-04-original-frame.json.gz",
+      "bytes": 11117,
+      "sha256": "e3c6bf3ca635f3098283b09e39480d24b6136b117d08f301d589e31d3d92760d"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/actual-current-controller-sql-v1/controller-damage-bonus/OGN-121-298/count-2/all-original-accepted-intents.json",
+      "bytes": 1394,
+      "sha256": "259b8921c83e93158ea2b0ea07f898267093428c923449d64a52a2ae984b1599"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/actual-current-controller-sql-v1/controller-damage-bonus/OGN-121-298/count-2/explicit-original-controlled-initial.json",
+      "bytes": 10528,
+      "sha256": "a2909e347440c18fe22467a561dd1a1cd4922f94a4dbb0dfdbbfc139c232e1f6"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/actual-current-controller-sql-v1/controller-damage-bonus/OGN-121-298/count-2/receipt.json",
+      "bytes": 932,
+      "sha256": "e4c713f1ed24a573af3ff976a013d1ce65e0ba83fd173542cf09ae8563f7b5d9"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/actual-current-controller-sql-v1/controller-damage-bonus/OGN-121-298/count-2/step-01-original-frame.json.gz",
+      "bytes": 15427,
+      "sha256": "b9735ed36f9415e73bd0832053883f0cf088f606d724aba492fbdce7f6e1fd5e"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/actual-current-controller-sql-v1/controller-damage-bonus/OGN-121-298/count-2/step-02-original-frame.json.gz",
+      "bytes": 11068,
+      "sha256": "d2bcc5ee100552da8a12ee2f256335a7ed404a789e7f189b269d8281c3641c16"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/actual-current-controller-sql-v1/controller-damage-bonus/OGN-121-298/count-2/step-03-original-frame.json.gz",
+      "bytes": 11141,
+      "sha256": "4e44785d263b42bd0c825373b0bf0bb7bd3283351abbfb2dac4411bf88f5fd88"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/actual-current-controller-sql-v1/controller-damage-bonus/OGN-121-298/count-2/step-04-original-frame.json.gz",
+      "bytes": 11115,
+      "sha256": "003eaf494db614770e33f1d29a3974c2848f8544f573891263c9b43725650486"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/actual-current-controller-sql-v1/controller-damage-bonus/OGN-121a-298/count-0/all-original-accepted-intents.json",
+      "bytes": 1394,
+      "sha256": "bab708b280f3917f9556a701be96a6a14abfcd10d986b65e8e0a38bbd513c6dc"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/actual-current-controller-sql-v1/controller-damage-bonus/OGN-121a-298/count-0/explicit-original-controlled-initial.json",
+      "bytes": 10529,
+      "sha256": "e20706c4a9293f2bdff1ea45ce47d7136ac0df858819685c02fa911148b5a46b"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/actual-current-controller-sql-v1/controller-damage-bonus/OGN-121a-298/count-0/receipt.json",
+      "bytes": 933,
+      "sha256": "9df664f126d85ef91f0540d76bd24d22d619ca7f27156f9a7acf404dcf436183"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/actual-current-controller-sql-v1/controller-damage-bonus/OGN-121a-298/count-0/step-01-original-frame.json.gz",
+      "bytes": 15431,
+      "sha256": "e088a8a7a577c068d40ca2da0952357848dae220bdc8172f0362f6a547e0e93c"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/actual-current-controller-sql-v1/controller-damage-bonus/OGN-121a-298/count-0/step-02-original-frame.json.gz",
+      "bytes": 11079,
+      "sha256": "db9be78c4a1b3f7b064a4e43f613889f22dca3aadff0d223988c885a304146e8"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/actual-current-controller-sql-v1/controller-damage-bonus/OGN-121a-298/count-0/step-03-original-frame.json.gz",
+      "bytes": 11150,
+      "sha256": "204293c269c86d898950f0c460420b2ecdb9cc8f52e1c9a2ede0bf49ff2d599c"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/actual-current-controller-sql-v1/controller-damage-bonus/OGN-121a-298/count-0/step-04-original-frame.json.gz",
+      "bytes": 10958,
+      "sha256": "5fc36b858dac020ebddb5996ef2e912ae6eb5953d4b612a375b78b34dc452d9e"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/actual-current-controller-sql-v1/controller-damage-bonus/OGN-121a-298/count-1/all-original-accepted-intents.json",
+      "bytes": 1394,
+      "sha256": "1b8bb75b173798b43b6edf57c6e2aaf4c9c2560395df6264dce9a5cde8155d92"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/actual-current-controller-sql-v1/controller-damage-bonus/OGN-121a-298/count-1/explicit-original-controlled-initial.json",
+      "bytes": 10529,
+      "sha256": "19221e1da7b3ee74f60074172e07991e556e2ee72c52ee7182c86d1a067a2ba0"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/actual-current-controller-sql-v1/controller-damage-bonus/OGN-121a-298/count-1/receipt.json",
+      "bytes": 933,
+      "sha256": "a4146ee5f0101faf4d12abb93eea8d51b1f5f7fe1414ff77788339898d64d72a"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/actual-current-controller-sql-v1/controller-damage-bonus/OGN-121a-298/count-1/step-01-original-frame.json.gz",
+      "bytes": 15433,
+      "sha256": "fa1c8e85bc93001b0a97e03ed40ce99aadc8eeaed4617809b8f8b7ac58f1a4b1"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/actual-current-controller-sql-v1/controller-damage-bonus/OGN-121a-298/count-1/step-02-original-frame.json.gz",
+      "bytes": 11075,
+      "sha256": "cbabb97a17bb052d5972326bbeff282c34be370eb6f6dda19474b9675eceec25"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/actual-current-controller-sql-v1/controller-damage-bonus/OGN-121a-298/count-1/step-03-original-frame.json.gz",
+      "bytes": 11147,
+      "sha256": "ca4871f3badc69ec6906bb208c8eed9dd9ee18064ecee27cf622bda3c9c00594"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/actual-current-controller-sql-v1/controller-damage-bonus/OGN-121a-298/count-1/step-04-original-frame.json.gz",
+      "bytes": 11123,
+      "sha256": "c7caee67e7e1b42531cb4e027c2fc6375bdf7156b0ab21162f1459d057a4e0b5"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/actual-current-controller-sql-v1/controller-damage-bonus/OGN-121a-298/count-2/all-original-accepted-intents.json",
+      "bytes": 1394,
+      "sha256": "39f34d00c31367aeab69473583f6f8361a968eb62582a1d6c54e170e63e3b321"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/actual-current-controller-sql-v1/controller-damage-bonus/OGN-121a-298/count-2/explicit-original-controlled-initial.json",
+      "bytes": 10529,
+      "sha256": "97ec6f9a54a8296cd0629228b1707d97afb6b6f7c8478ac04298e7ac0d26d8cb"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/actual-current-controller-sql-v1/controller-damage-bonus/OGN-121a-298/count-2/receipt.json",
+      "bytes": 933,
+      "sha256": "92a9f56b00c42d8d309ddfb0ea77d81316447720b04045e54e8a32a2f93fdbe8"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/actual-current-controller-sql-v1/controller-damage-bonus/OGN-121a-298/count-2/step-01-original-frame.json.gz",
+      "bytes": 15430,
+      "sha256": "3cc76a4714f9953742b4a98736e01a6cfb89a52b50222bfc4b25adbfe988826e"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/actual-current-controller-sql-v1/controller-damage-bonus/OGN-121a-298/count-2/step-02-original-frame.json.gz",
+      "bytes": 11079,
+      "sha256": "35c100fb98412f10a6efa3df0fe6177f3bd0ea9d8432aca4ee0b458bfd8007a2"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/actual-current-controller-sql-v1/controller-damage-bonus/OGN-121a-298/count-2/step-03-original-frame.json.gz",
+      "bytes": 11148,
+      "sha256": "b08ca46837597f3b0b1fffc8491d2a49e83ffbd8bc3bfa44eb9f2687678696a8"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/actual-current-controller-sql-v1/controller-damage-bonus/OGN-121a-298/count-2/step-04-original-frame.json.gz",
+      "bytes": 11124,
+      "sha256": "6d89bb872436478e36812afa3591589136bfc2a95b354ea1fedbe2309365e480"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/actual-current-controller-sql-v1/controller-damage-bonus/SFD-230-221/count-0/all-original-accepted-intents.json",
+      "bytes": 1394,
+      "sha256": "b6a9c63061526bced298a2cc0383166f3428529fb2d87cf9277fe628a44276b3"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/actual-current-controller-sql-v1/controller-damage-bonus/SFD-230-221/count-0/explicit-original-controlled-initial.json",
+      "bytes": 10528,
+      "sha256": "65e91ad9f82518fea710818e78ac4a57e42b1dbe20243a4fb26e9792e8a74d37"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/actual-current-controller-sql-v1/controller-damage-bonus/SFD-230-221/count-0/receipt.json",
+      "bytes": 932,
+      "sha256": "c4b62a0fb2c04c84f335704824339a0428f8438e8a2f8a2e0fdcb5e372b96546"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/actual-current-controller-sql-v1/controller-damage-bonus/SFD-230-221/count-0/step-01-original-frame.json.gz",
+      "bytes": 15438,
+      "sha256": "ef6895ccedec977c10c4a503a03f89a6bda1fd69e1e09cb99628e57f1b1a73d0"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/actual-current-controller-sql-v1/controller-damage-bonus/SFD-230-221/count-0/step-02-original-frame.json.gz",
+      "bytes": 11070,
+      "sha256": "d1a0aa56eeb73950809cac0775b25149328003774e5edce04ea185ff5e7a80d0"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/actual-current-controller-sql-v1/controller-damage-bonus/SFD-230-221/count-0/step-03-original-frame.json.gz",
+      "bytes": 11147,
+      "sha256": "80366bc201928e70c66e2861b7c913c5a1afa067911b5ccddbcb2edc6c753699"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/actual-current-controller-sql-v1/controller-damage-bonus/SFD-230-221/count-0/step-04-original-frame.json.gz",
+      "bytes": 10941,
+      "sha256": "c9e57f27450310ffd1c5763847d918cab5a73592024de1fad28b2a2aa4cc9c31"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/actual-current-controller-sql-v1/controller-damage-bonus/SFD-230-221/count-1/all-original-accepted-intents.json",
+      "bytes": 1394,
+      "sha256": "6845c80a97d0c4483e634f9a8e36563ef8eb4e997fbf3d017d05c7c6eaeea874"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/actual-current-controller-sql-v1/controller-damage-bonus/SFD-230-221/count-1/explicit-original-controlled-initial.json",
+      "bytes": 10528,
+      "sha256": "9415d569c19cbcc2f0a345cf6d252127b2c47dce127b3824e8f4f760d37410df"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/actual-current-controller-sql-v1/controller-damage-bonus/SFD-230-221/count-1/receipt.json",
+      "bytes": 932,
+      "sha256": "9e0bde80ed12178f3d9f59e4a77013af2ed198d996fc2caedb06b30d2c6c9f01"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/actual-current-controller-sql-v1/controller-damage-bonus/SFD-230-221/count-1/step-01-original-frame.json.gz",
+      "bytes": 15438,
+      "sha256": "769ea293237f25d628b02a0a0d22c16c6dde623e84e2337d8e9ccfe1c2ad76c0"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/actual-current-controller-sql-v1/controller-damage-bonus/SFD-230-221/count-1/step-02-original-frame.json.gz",
+      "bytes": 11076,
+      "sha256": "3fec320401d29db557bc1684ad02e63cd98679ee90b6f374d66bcc97d2b64f04"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/actual-current-controller-sql-v1/controller-damage-bonus/SFD-230-221/count-1/step-03-original-frame.json.gz",
+      "bytes": 11154,
+      "sha256": "dd70fb28941dac6877c1f65eac231e0235d9d852186522fb9583b19cbb9a68db"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/actual-current-controller-sql-v1/controller-damage-bonus/SFD-230-221/count-1/step-04-original-frame.json.gz",
+      "bytes": 11120,
+      "sha256": "276ee7a9010b716e1daff45c64636cd0ca7b74c4b7f48e191c7fe694d9a1b605"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/actual-current-controller-sql-v1/controller-damage-bonus/SFD-230-221/count-2/all-original-accepted-intents.json",
+      "bytes": 1394,
+      "sha256": "c55a1d8743d423e59e85f94e5d7729e641f476e5af74575b967579119a251b93"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/actual-current-controller-sql-v1/controller-damage-bonus/SFD-230-221/count-2/explicit-original-controlled-initial.json",
+      "bytes": 10528,
+      "sha256": "48f76ca8fc6ef4dbb6d2c3a4c93aafd3111c9353f99ad61359e3e8fdc926e813"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/actual-current-controller-sql-v1/controller-damage-bonus/SFD-230-221/count-2/receipt.json",
+      "bytes": 932,
+      "sha256": "b59c64728ddf705a81acf992e30051e8c0a7c24a56af0fe51679634c4240b0e8"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/actual-current-controller-sql-v1/controller-damage-bonus/SFD-230-221/count-2/step-01-original-frame.json.gz",
+      "bytes": 15439,
+      "sha256": "027d4b5297b24f0caba25a676e437565f428a299afe3a70d4694b1c8666bcb05"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/actual-current-controller-sql-v1/controller-damage-bonus/SFD-230-221/count-2/step-02-original-frame.json.gz",
+      "bytes": 11077,
+      "sha256": "667acbaa429d808e85031fdce7b749dbe4bb86cd90544ef0f1cef6b907173b2c"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/actual-current-controller-sql-v1/controller-damage-bonus/SFD-230-221/count-2/step-03-original-frame.json.gz",
+      "bytes": 11151,
+      "sha256": "3c9777f344de6d37239f417f0d064c398859e6181e3c3046b063126bc3840641"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/actual-current-controller-sql-v1/controller-damage-bonus/SFD-230-221/count-2/step-04-original-frame.json.gz",
+      "bytes": 11117,
+      "sha256": "b08e0a4fa869bd1f64c1a0b8ae36d552fc90a8b621a30f9954dd86482fcd5c12"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/actual-current-controller-sql-v1/controller-damage-bonus/SFD-230s-221/count-0/all-original-accepted-intents.json",
+      "bytes": 1394,
+      "sha256": "eba963ec199fe988e77a1d471f67d25d1c5b7e25d5fdb4e7cab5f327c2ffd8c5"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/actual-current-controller-sql-v1/controller-damage-bonus/SFD-230s-221/count-0/explicit-original-controlled-initial.json",
+      "bytes": 10529,
+      "sha256": "062ad1192177bb5b797f4d1cead1ae276c58c0c709492ebd67fb692661f438eb"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/actual-current-controller-sql-v1/controller-damage-bonus/SFD-230s-221/count-0/receipt.json",
+      "bytes": 933,
+      "sha256": "8eee5ccdf3054c66d61f38b140d637650836ea9eace39bc3cb7fa7c58b7c21f4"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/actual-current-controller-sql-v1/controller-damage-bonus/SFD-230s-221/count-0/step-01-original-frame.json.gz",
+      "bytes": 15435,
+      "sha256": "2d6a4c92fc42751d3a222bd880dd7b303ad2abebf396252bc85e2b8da447c010"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/actual-current-controller-sql-v1/controller-damage-bonus/SFD-230s-221/count-0/step-02-original-frame.json.gz",
+      "bytes": 11081,
+      "sha256": "8d55ae0b335c22f377f2e02a0e959734fa3f9d31a7b27ae0e42dc12c127b01a8"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/actual-current-controller-sql-v1/controller-damage-bonus/SFD-230s-221/count-0/step-03-original-frame.json.gz",
+      "bytes": 11149,
+      "sha256": "8c70824fc60f7bbb6d0bbcba40617e5084c025d6586923de3ee4e732c3ab9ae8"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/actual-current-controller-sql-v1/controller-damage-bonus/SFD-230s-221/count-0/step-04-original-frame.json.gz",
+      "bytes": 10946,
+      "sha256": "38f78f5bcc3ae15b775379f8a129d55c14bc568909c8f764ff94990dce843ceb"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/actual-current-controller-sql-v1/controller-damage-bonus/SFD-230s-221/count-1/all-original-accepted-intents.json",
+      "bytes": 1394,
+      "sha256": "ce9b01b19e458fc92679876bd010cacd35f9b2d8f88d2e4434f83dd2dc4df5d1"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/actual-current-controller-sql-v1/controller-damage-bonus/SFD-230s-221/count-1/explicit-original-controlled-initial.json",
+      "bytes": 10529,
+      "sha256": "487ce384c51f1335dee556a11681b67e986056c72b28b4fea9ebe4b7b376dca1"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/actual-current-controller-sql-v1/controller-damage-bonus/SFD-230s-221/count-1/receipt.json",
+      "bytes": 933,
+      "sha256": "80fbad3150175ac2517a71be374ae9d07858fa6cdadf0047c4ce077589130f2d"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/actual-current-controller-sql-v1/controller-damage-bonus/SFD-230s-221/count-1/step-01-original-frame.json.gz",
+      "bytes": 15445,
+      "sha256": "ade31aa6ae079aa45120f3069f3ed0c470aff3ae8d25a82982dbcee32c59d5b5"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/actual-current-controller-sql-v1/controller-damage-bonus/SFD-230s-221/count-1/step-02-original-frame.json.gz",
+      "bytes": 11084,
+      "sha256": "113c4a4d3585825166e00ff854b0c9573c7c8e37a7ec4514ee6ecf6b62f7bcfa"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/actual-current-controller-sql-v1/controller-damage-bonus/SFD-230s-221/count-1/step-03-original-frame.json.gz",
+      "bytes": 11154,
+      "sha256": "907a0cf277280e9e2b9309020c5cbff93708e1c6f0beed697fed7326e928f7d1"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/actual-current-controller-sql-v1/controller-damage-bonus/SFD-230s-221/count-1/step-04-original-frame.json.gz",
+      "bytes": 11123,
+      "sha256": "4b10af32acf9bb734a827c8606f87ebc299e49b2627d03db6287fae10c420506"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/actual-current-controller-sql-v1/controller-damage-bonus/SFD-230s-221/count-2/all-original-accepted-intents.json",
+      "bytes": 1394,
+      "sha256": "57175e1a87ab3e370603c63d579e2a14afb2f374b8c2cad1859731f47e3aa76f"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/actual-current-controller-sql-v1/controller-damage-bonus/SFD-230s-221/count-2/explicit-original-controlled-initial.json",
+      "bytes": 10529,
+      "sha256": "3812840871e91f1bcb9137ea165645574c5ec90fea9f8662008eeb3ec835e92b"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/actual-current-controller-sql-v1/controller-damage-bonus/SFD-230s-221/count-2/receipt.json",
+      "bytes": 933,
+      "sha256": "d8c101e66d824542ec00765998fcd5e0acfc0056b97f37bd43d631e86edb85c8"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/actual-current-controller-sql-v1/controller-damage-bonus/SFD-230s-221/count-2/step-01-original-frame.json.gz",
+      "bytes": 15442,
+      "sha256": "a0a435a627e0dee5df7560a34e23ac0da4181a9d04e82f54f30bd2fe924d2df6"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/actual-current-controller-sql-v1/controller-damage-bonus/SFD-230s-221/count-2/step-02-original-frame.json.gz",
+      "bytes": 11082,
+      "sha256": "1dfbfb694c9218d029dd9f63d4d9ddff0cf762fb1d7090c8fdcfa7346033b15f"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/actual-current-controller-sql-v1/controller-damage-bonus/SFD-230s-221/count-2/step-03-original-frame.json.gz",
+      "bytes": 11151,
+      "sha256": "d2444a6f04a10cbe142f61f3badf2f95a06d108fe83993bdf78b1672d2556b12"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/actual-current-controller-sql-v1/controller-damage-bonus/SFD-230s-221/count-2/step-04-original-frame.json.gz",
+      "bytes": 11121,
+      "sha256": "71c2518315cfc7fbe4fb071d1948fa72382b0ad9e65d81e45d6cbc45c1c97746"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/actual-current-controller-writer-v1.log",
+      "bytes": 1376,
+      "sha256": "7bd1bdb46c355a4fab49c68e43656216901432495101fc8e975dc268985f9ebc"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/actual-frozen-current55-sql-execution-manifest-v1.json",
+      "bytes": 5897,
+      "sha256": "3c35097406c57c41d09891d578d53c82388be12468b8d5d27f94fd1473909763"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/actual-runtime-loader-link-correction-v1.json",
+      "bytes": 2088,
+      "sha256": "18b172155a8ccdbe20b684b559e56a2d6beb7062b7694e4f9f84527267842dde"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/adjacent-damage-source-identity-focus-v1.log",
+      "bytes": 467,
+      "sha256": "a173c7ab1054073679a921369fe6eca7862ddf9a763b535fdd453579061a8bd1"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/adjacent-damage-source-identity-focus-v1/build.log",
+      "bytes": 78,
+      "sha256": "c014c090ab72fd8deeb10c69e6090a19d9412e8c44abee3dbddf3268a32a6352"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/adjacent-damage-source-identity-focus-v1/discovery.log",
+      "bytes": 2007136,
+      "sha256": "4dc274b218c9e85b7e76e4679ec88c7ce8c09fb4fd866cdefafb89172729031e"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/adjacent-damage-source-identity-focus-v1/focus/results.trx",
+      "bytes": 1321279,
+      "sha256": "c7470142d180fe017bce5fc9f012f0686b212238397198408119926a67446792"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/adjacent-damage-source-identity-focus-v1/focus/test.log",
+      "bytes": 534,
+      "sha256": "875486e6738c84d2ddd75dd1d0c4d290ea18b410e2233d2b5cafbc8711e3c40c"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/adjacent-damage-source-identity-focus-v1/plan.json",
+      "bytes": 71554,
+      "sha256": "b7c60eeea2c61f1206bbee95863880435f541c37a95365d21b2d430767c59378"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/adjacent-damage-source-identity-focus-v1/summary.json",
+      "bytes": 278,
+      "sha256": "9a20b189e83065b67f622c96dabde12e65e2d0d6563cdaf16f327b8b0f1b847d"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/after-fix-first-and-unchanged-pool-focus-v1.log",
+      "bytes": 464,
+      "sha256": "0b99b6b1e984e339fa931d4e8b3036626789820c926dc8837924e06e31e9197a"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/after-fix-first-and-unchanged-pool-focus-v1/build.log",
+      "bytes": 78,
+      "sha256": "1dba72fd51f1eab84d6e71e9b21cac2b7cd962f131197cf58e1a929ce2d424f5"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/after-fix-first-and-unchanged-pool-focus-v1/discovery.log",
+      "bytes": 2007136,
+      "sha256": "4dc274b218c9e85b7e76e4679ec88c7ce8c09fb4fd866cdefafb89172729031e"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/after-fix-first-and-unchanged-pool-focus-v1/focus/results.trx",
+      "bytes": 179918,
+      "sha256": "c03ecb32f1e7e57c61663f9decea52f4b8a6ce9824183b89eb1d6aacaadb015a"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/after-fix-first-and-unchanged-pool-focus-v1/focus/test.log",
+      "bytes": 533,
+      "sha256": "88cda40909c5e64bb41d98861f397f4ce946630b40a6fbf085990f50873b13a9"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/after-fix-first-and-unchanged-pool-focus-v1/plan.json",
+      "bytes": 4244,
+      "sha256": "00bde023ad7db328d85432f01a5b6cfcc72825596a1078420d8915826b6cdeb8"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/after-fix-first-and-unchanged-pool-focus-v1/summary.json",
+      "bytes": 275,
+      "sha256": "83496c7a269e4a3e3244dffe0642f4027032aed20620d89c3548dd1feef1bac8"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/all-fifty-current-controller-actual-new-case-identities-v1.json",
+      "bytes": 9445,
+      "sha256": "bd4b647f31707eb83d1c7473e6b9d30bdead1493297adad1981954a967b4a25c"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/all-retained-cn-corpus-annie-mention-source-role-review-v1.json",
+      "bytes": 2358,
+      "sha256": "085c77649ec287c2b1fa779b62489d3d9fe35b66249310663f50fd77d7f76204"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/before-fix-actual-xerath-v3.log",
+      "bytes": 377,
+      "sha256": "8bbd8e124d7f88032c1730107cc5fb12f5fb0cb1ff3c06c90fdd861d29942938"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/before-fix-actual-xerath-v3/build.log",
+      "bytes": 78,
+      "sha256": "90cf9a9336bdb7a73a3c18f710375b5cad3a1be20d1444fcb4e90c24f03d1acb"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/before-fix-actual-xerath-v3/discovery.log",
+      "bytes": 2007136,
+      "sha256": "4dc274b218c9e85b7e76e4679ec88c7ce8c09fb4fd866cdefafb89172729031e"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/before-fix-actual-xerath-v3/focus/results.trx",
+      "bytes": 16657,
+      "sha256": "7edd86ea0844de72cdb6bd09e1f7b7c88dc0e8145202d8d9c684ff186551e514"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/before-fix-actual-xerath-v3/focus/test.log",
+      "bytes": 1248,
+      "sha256": "e663e61e3a97a96d717c6b7a5b6a956e300d5ad94bfde22081b1ddf3e637b3aa"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/before-fix-actual-xerath-v3/plan.json",
+      "bytes": 679,
+      "sha256": "48ea13f39b19da51f193f9989e4c58c5d82517d050e4230b41a4f9df5d22bc98"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/before-fix-corrected-response-and-xerath-v2.log",
+      "bytes": 409,
+      "sha256": "4ba1389b2720d66ffa03e75f6f4c4d4ce0e245276363be9f86d743beb3d40ea4"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/before-fix-corrected-response-and-xerath-v2/build.log",
+      "bytes": 78,
+      "sha256": "5671d78b8deb17e0de82979bd60e9de97a146a8117e48acfa258ad8f6e701027"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/before-fix-corrected-response-and-xerath-v2/discovery.log",
+      "bytes": 2007136,
+      "sha256": "4dc274b218c9e85b7e76e4679ec88c7ce8c09fb4fd866cdefafb89172729031e"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/before-fix-corrected-response-and-xerath-v2/focus/results.trx",
+      "bytes": 136939,
+      "sha256": "7a47e45d9a367eb238d9afff79db3373d0737d7da43caeb4bcd66e7f3a01492f"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/before-fix-corrected-response-and-xerath-v2/focus/test.log",
+      "bytes": 7288,
+      "sha256": "899704cbeb6e7081026635796a15bb00ee38e667f27e4592e829dfe793df2e6e"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/before-fix-corrected-response-and-xerath-v2/plan.json",
+      "bytes": 1356,
+      "sha256": "bcdc5da00b9ac0a761bed10278498bba8fcda1262cb16f21617d6b004c902a75"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/before-fix-current-controller-tests-original-v1.cs.gz",
+      "bytes": 2386,
+      "sha256": "c000208d2fc7a6b6336a397d0f63c4f60a350c5f5dbd25a3f6e4bbac14a9e3ad"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/before-fix-current-controller-tests-response-and-first-xerath-v2.cs.gz",
+      "bytes": 2643,
+      "sha256": "640468018a91e2e42ec229f9a79f2410803c2327090add50523bb860e3a5924d"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/before-fix-exact-original-focus-v1.json",
+      "bytes": 9811,
+      "sha256": "7072cd42718d714e556d933ce49c1e5e4afa6e913020faa864ed841a37c56c6e"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/before-fix-focus-v1.log",
+      "bytes": 361,
+      "sha256": "6e96db760582e554887b09ce65706da203daa09cd5f9c1518a9e5d8be6665e19"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/before-fix-focus-v1/build.log",
+      "bytes": 78,
+      "sha256": "3f3bfc9af865978e2a4616c2d6aebce50b355664fe403f41fc26bb423b33a326"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/before-fix-focus-v1/discovery.log",
+      "bytes": 2006221,
+      "sha256": "90a3825ee8ce21aecbadeb84b76ff43faef7192713442de75f2384c23ef794b3"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/before-fix-focus-v1/focus/results.trx",
+      "bytes": 117790,
+      "sha256": "a8bbf8a34cc8fa26c3520a1087245577ea5f8fe8d02b451e341d77a98f942fbc"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/before-fix-focus-v1/focus/test.log",
+      "bytes": 6325,
+      "sha256": "b925817be9532bf35d73d11ca1de67131c52443b277b8b6e364bb017d66b19d8"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/before-fix-focus-v1/plan.json",
+      "bytes": 1221,
+      "sha256": "0b02efb0d7fca05b814985b4f6492ef038b87f46f41a624c2bfbde1daaddd043"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/check-original-case-method-and-input-retention-v1.json",
+      "bytes": 3404,
+      "sha256": "9db50b090cf1ed99397d2fdd06f1fed80be0ee0284560e9621b2c1a7fcb07ed9"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/ci25c-all-nine-original-artifacts-receipt-v1.json",
+      "bytes": 9495,
+      "sha256": "5e8b5bcee4cadea6eecf7fa4f5d4784c91fe5db39f716ab4359d4c8a7e295534"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/ci25c-all11-jobs-original-v1.json.gz",
+      "bytes": 2321,
+      "sha256": "3161ac48cb1c02970ac5348bcf9214e0b9f7b1b0000634b5b53876b7d59b64a8"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/ci25c-backend-artifacts-original-v1.json.gz",
+      "bytes": 1422,
+      "sha256": "68dd102b4ee60fa224915d270827e4af8e421e9f677a7976f1ec3ecfcb6cbc85"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/ci25c-complete-originals-v1/conformance-results.zip",
+      "bytes": 3928197,
+      "sha256": "cf1223a9616452ab7a8dbea9a019849cc711fefa49a6e03e6ade6ff1df20f607"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/ci25c-complete-originals-v1/full-verification-gate.zip",
+      "bytes": 298,
+      "sha256": "742dab340cf76e2ee5af3755cf1128d43740d59b34977bc47e0b01cbcd6123cb"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/ci25c-complete-originals-v1/native-network-results.zip",
+      "bytes": 1821,
+      "sha256": "d2d555d84644c9d998d2f3a0249e5699fca2e1d622b282391d3871f4a0582636"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/ci25c-complete-originals-v1/postgres-partition-0.zip",
+      "bytes": 2159151,
+      "sha256": "368709a99313c24149172b5cd50a7dffb4c6ab1747a57302781489543bf53310"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/ci25c-complete-originals-v1/postgres-partition-1.zip",
+      "bytes": 1197269,
+      "sha256": "258cf481c563ce0755f1783dad4d8c697500fe3fd01e960ea67f0cca0e446709"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/ci25c-complete-originals-v1/postgres-partition-2.zip",
+      "bytes": 1262751,
+      "sha256": "62bca97e992b52757356cedac82632f6bd1f7f2f0ef77b81bf477122a12e613b"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/ci25c-complete-originals-v1/postgres-partition-3.zip",
+      "bytes": 1441048,
+      "sha256": "c67afff523e9d5fec2407e4ae2d3e6111ded3187045532caa258fda06fc90599"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/ci25c-complete-originals-v1/postgres-results.zip",
+      "bytes": 2220,
+      "sha256": "a951da023bdd1782106fefaa7639bd524156b6acb69b13e1f6f82c30a348b810"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/ci25c-complete-originals-v1/verification-scope.zip",
+      "bytes": 1535785,
+      "sha256": "963cc112ccf79a6863c75bc068c95bdf0105012299780645168bda25e134798b"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/ci25c-entire-full-independent-verification-v1.json",
+      "bytes": 39589,
+      "sha256": "a5353156eb253650f388304dfc3a3b7116e04fa52dd4c5f6214bb78c60c733f7"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/ci25c-original-sql-zip-member-extraction-manifest-v1.json.gz",
+      "bytes": 28395,
+      "sha256": "24610f10bb6f9a485fc275db015cdc81e44c8b24198ff8e9fee6cdedeba0fe04"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/ci25c-terminal-original-v1.json.gz",
+      "bytes": 1528,
+      "sha256": "88635cccbe541240e0667f24bbb27d7a470448e3bbea8d418054c9cec3dc7b07"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/ci25c-vs-708-original-terminal-hash-comparison-v1.json",
+      "bytes": 26798,
+      "sha256": "968123d18102688d6f5da7cd56b705726ebbeb89923d2d193f5bf2749c3c5679"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/compile-new-controller-sql-v1.log",
+      "bytes": 760,
+      "sha256": "5d2f458f14a0fb14b8f6dcb0dc469ad31e7d08646187ad1669a7f8562f9bb38c"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/completed-controller-three-helper-staging-original-manifest-v1.json.gz",
+      "bytes": 2962,
+      "sha256": "13c6617d84bf34707baba4262f53929edc23ca12aeb48a9df0fbaf33a4197307"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/completed-controller-three-helper-staging-retirement-v1.json",
+      "bytes": 856,
+      "sha256": "2f501f0eb479c058694732596366c4195277c4cbac7637804ff0d9d83140487c"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/completed-fixed25c-duplicate-extraction-retirement-v1.json",
+      "bytes": 563,
+      "sha256": "de020774dbc9f4439342e9707a5a8ad06206d0ab82a0877cf56eb327956689e2"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/controller-independent-reader-source-v1-build-v1.log",
+      "bytes": 509,
+      "sha256": "794d6073823132d92cdd85472c9bd78056384a0f85aee2e78f42e5587491fc29"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/controller-independent-reader-source-v1/Program.cs",
+      "bytes": 13844,
+      "sha256": "7c5dc7c883a3906cf4cc786c90bb6551c7ca4615d6f214b3e1127d4ca76844f2"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/controller-independent-reader-source-v1/probe.csproj",
+      "bytes": 1509,
+      "sha256": "0c999c7b426af1bcd7f17693777cff4ef006a4a98983ad69431dbe2866c32870"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/corrected-before-production-fix-current-controller-tests-v3.cs.gz",
+      "bytes": 2684,
+      "sha256": "8fdc429e27cc7d1962bd28753e610361f1039a2bd544b19a7f1cb3840425be6a"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/corrected-xerath-actual-bonus-counterexamples-v3.json",
+      "bytes": 715,
+      "sha256": "a59c7f1cb500dc1a41dcfae70cc6ce869d2f1fbd7341a8e365998d2567e13ecd"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/current-31323-whole-official-response-v1.json.gz",
+      "bytes": 760,
+      "sha256": "ebc4fc6db9fe4cb488fbeaef89a392e9eb70511ea169a95ea8279a7b0e7cee24"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/current-31580-whole-official-response-v1.json.gz",
+      "bytes": 1255,
+      "sha256": "505319702c9f34bc0b6f7609bf3cf0539626805665e50c1143bd76beddc8b099"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/current-34551-whole-official-response-v1.json.gz",
+      "bytes": 835,
+      "sha256": "e502a6158fe1d2a8dcafdd25393042d76e544f07c3d8666142e7021517a8f508"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/current-controller-audit-draft-v1.md",
+      "bytes": 6935,
+      "sha256": "35eb00e359e7881655ec9caffaafec386dbab35ccae289977c545d0d1fb24631"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/current-controller-bonus-two-exact-source-reacquisitions-v1.json",
+      "bytes": 5154,
+      "sha256": "2aa90a943f513cf7c6c3bebe4c3f21719d9f3bb35687fb75f064890b86ae6b5a"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/current-controller-frozen-runtime-inputs-v1.json",
+      "bytes": 865676,
+      "sha256": "ac8fdc73b74cb063bea0bc58dee527ed0197d77791b3cb5a3dfca8fd30c99b67"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/current-controller-frozen-runtime-inputs-v2.json",
+      "bytes": 867671,
+      "sha256": "71992bf4b825e14a83687007ad896c13a80d9780a8ffe517c6dd0f86415c7bea"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/current-controller-postgres-v1.log",
+      "bytes": 1356,
+      "sha256": "eca484ff0c92a30b7a256e1cfa6368960a7ffb5e5dff382d8242d25f44468cb4"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/current-controller-three-paths-exact-source-scope-review-v1.json",
+      "bytes": 6455,
+      "sha256": "21993cdd18fb2d71bfed419f45237e302591a620f0d468549bbca8a68b3cbf99"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/current-controller-three-paths-exact-source-scope-review-v2.json",
+      "bytes": 7903,
+      "sha256": "20a0bdea47cd1c18f807db5d852f0071b8b335ad9b25bb618a3acf5f269bbb83"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/current-controller-three-paths-exact-source-scope-review-v3.json",
+      "bytes": 8224,
+      "sha256": "86e6796621cdecb9d7c7a22c9d28838164e61c846afe2e013eaed21d88969473"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/current-core-damage-source-p74.png",
+      "bytes": 462330,
+      "sha256": "ece574cb40024ca17b29fe780a8432b509da8f5f56635bf56b1a2f25f53c3cba"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/current-core-passive-source-p57.png",
+      "bytes": 279142,
+      "sha256": "f0a39eb71b7df9e312e85e572a2c2356faa1a6e8a7ec3409b20314bf8c51f626"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/current-core-skill-controller-p30.png",
+      "bytes": 284964,
+      "sha256": "b4de7a7465f3f8914fc2825ede94f91043a6900cb007f93a1a9835a2e15d48f2"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/current-fixed99e-jobs-source-readback-v1.json",
+      "bytes": 1557,
+      "sha256": "51d0c4c535bce13485b1f0bec5fe280cca182f5962a3d39471191573ae0c2823"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/current-fixed99e-jobs-source-readback-v1.json.gz",
+      "bytes": 1979,
+      "sha256": "e4652bee3b20cb614f105c989e66c5c448d773adedc6b3642b181c4bbe4aa039"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/current-four-primary-rule-page-render-provenance-v3.json",
+      "bytes": 1471,
+      "sha256": "b6fe92a0bce140309531788eaf0e0f4522beb7885819b4ad3ab74f0bd5d6c7f8"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/current-two-primary-rule-page-render-provenance-v1.json",
+      "bytes": 821,
+      "sha256": "a039c5db05526dc1b1aaa5dad3483a87ea569345043f1d2f0f80d6c9b82b7650"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/current-xerath-exact-whole-source-reacquisition-v1.json",
+      "bytes": 2282,
+      "sha256": "e6b044d1382c0eb20b70b05451fdf629a92df9e29eb2614d3b92797c1767ee2e"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/download-completed-fixed25c-nine-originals-v1.py",
+      "bytes": 4305,
+      "sha256": "0010fa12ccc326c87843379e20f31c7c7bfc950d28d3dea95fbf9fb41e609276"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/exact-fixed25c-sql-ci-gate-original-v1.py",
+      "bytes": 6805,
+      "sha256": "9bba242dfdce754f4855bb3098c2a8aadae1edaa64fb4b3b840afeb2112624a0"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/exact-fixed25c-sql-manifest-original-v1.json",
+      "bytes": 5548,
+      "sha256": "3c082df4d9bac8341d2bb408351a122e93e986a3f2341e9fee8b25191a5deb28"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/fifty-source-bound-controller-behavior-branch-identities-v1.json",
+      "bytes": 101021,
+      "sha256": "dbc5d23971da491d7c3af1b01423328179a55edeb4e146466bd6f4eb44318599"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/final-current-controller-focus-union-v1.json",
+      "bytes": 830,
+      "sha256": "d112c2616785df1bbba2d2ec6f5b4e0b9b53bd0edcf07a1916a23772e40be2f4"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/first-publication-relative-artifact-path-failure-v1/executed-publisher-original-v1.py.gz",
+      "bytes": 8010,
+      "sha256": "1ff7312d3638fde0acef3abc18e79003a5943ac9223b320ababfb7020ee7f75d"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/first-publication-relative-artifact-path-failure-v1/failure-and-exact-prepublication-state-v1.json",
+      "bytes": 4158,
+      "sha256": "cd0a50c52c298a6898e5256e8dcb7fb586aa7d9ee87c7313d4a595c1e5e45e8c"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/first-publication-relative-artifact-path-failure-v1/owner-original.log",
+      "bytes": 686,
+      "sha256": "68a1583c6f2620f437ba89c18b827d22c6b8b17cf0ff34192363087ecf6cec92"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/first-publication-relative-artifact-path-failure-v1/provisional-evidence-copies/37-prior-complete-contexts.json.gz",
+      "bytes": 150218,
+      "sha256": "65fcce88e6234dc3edc22ae2e315fac79f418376672956f51655e25701384138"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/first-publication-relative-artifact-path-failure-v1/provisional-evidence-copies/actual-executing-assemblies-after-loader-correction.json",
+      "bytes": 1707,
+      "sha256": "b9a61c0857d2e9016df61a28b9cb55382b27d98f4ca1adf038761fab207deb04"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/first-publication-relative-artifact-path-failure-v1/provisional-evidence-copies/actual-runtime-loader-link-correction.json",
+      "bytes": 2088,
+      "sha256": "18b172155a8ccdbe20b684b559e56a2d6beb7062b7694e4f9f84527267842dde"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/first-publication-relative-artifact-path-failure-v1/provisional-evidence-copies/all-direct-damage-callsite-scope.json",
+      "bytes": 19325,
+      "sha256": "d22b04e292cfc3370297e23ebe1dba6ab9f86364ae9fa63e63d08ede2a80d44b"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/first-publication-relative-artifact-path-failure-v1/provisional-evidence-copies/all-fifty-exact-case-identities.json",
+      "bytes": 9445,
+      "sha256": "bd4b647f31707eb83d1c7473e6b9d30bdead1493297adad1981954a967b4a25c"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/first-publication-relative-artifact-path-failure-v1/provisional-evidence-copies/check-original-case-method-and-input-retention.json",
+      "bytes": 3404,
+      "sha256": "9db50b090cf1ed99397d2fdd06f1fed80be0ee0284560e9621b2c1a7fcb07ed9"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/first-publication-relative-artifact-path-failure-v1/provisional-evidence-copies/completed-duplicate-ci-extraction-retirement.json",
+      "bytes": 563,
+      "sha256": "de020774dbc9f4439342e9707a5a8ad06206d0ab82a0877cf56eb327956689e2"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/first-publication-relative-artifact-path-failure-v1/provisional-evidence-copies/completed-helper-staging-retirement.json",
+      "bytes": 856,
+      "sha256": "2f501f0eb479c058694732596366c4195277c4cbac7637804ff0d9d83140487c"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/first-publication-relative-artifact-path-failure-v1/provisional-evidence-copies/current-exact-source-review.json",
+      "bytes": 8224,
+      "sha256": "86e6796621cdecb9d7c7a22c9d28838164e61c846afe2e013eaed21d88969473"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/first-publication-relative-artifact-path-failure-v1/provisional-evidence-copies/final-distinct-focus-execution.json",
+      "bytes": 830,
+      "sha256": "d112c2616785df1bbba2d2ec6f5b4e0b9b53bd0edcf07a1916a23772e40be2f4"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/first-publication-relative-artifact-path-failure-v1/provisional-evidence-copies/independent-all-history-and-original-replay.json",
+      "bytes": 5560,
+      "sha256": "b45ffc273ee5ba267d4a6714b3ce073848cb334c495642b916f7c0d7767d8418"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/first-publication-relative-artifact-path-failure-v1/provisional-evidence-copies/original-all110-independent-readback.json",
+      "bytes": 1618,
+      "sha256": "042163ee8ad6aa1808bbcc82c34d6669651b2d37bd1350a774181f6b84fd5c7f"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/first-publication-relative-artifact-path-failure-v1/provisional-evidence-copies/original-all110-owner-wrapper-failure-retained.json",
+      "bytes": 1764,
+      "sha256": "13fd5f2df056b1afaf41db532f694278e7909a3b17398c437b53826cf804d644"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/first-publication-relative-artifact-path-failure-v1/provisional-evidence-copies/preceding-fixed25c-complete-full.json",
+      "bytes": 39589,
+      "sha256": "a5353156eb253650f388304dfc3a3b7116e04fa52dd4c5f6214bb78c60c733f7"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/first-publication-relative-artifact-path-failure-v1/provisional-evidence-copies/preceding-fixed708-complete-full.json",
+      "bytes": 32713,
+      "sha256": "a1894b8862515657bfc1911cd659f7707bd8c0d73482c719f41fef4c7743f440"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/first-publication-relative-artifact-path-failure-v1/provisional-evidence-copies/preceding-fixed99e-native-independent-readback.json",
+      "bytes": 1850,
+      "sha256": "d62ebe1557f2e376c5b9e6ceb2985fc76896db43ced803c0904c261d868386cd"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/first-publication-relative-artifact-path-failure-v1/provisional-evidence-copies/preceding-fixed99e-native-owner.json",
+      "bytes": 31227,
+      "sha256": "3d7ee6d9309d61e10d90de1710f419dd976413ca4529c615226cbc9188408265"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/first-publication-relative-artifact-path-failure-v1/provisional-evidence-copies/real-twelve-sql-terminal.json",
+      "bytes": 43523,
+      "sha256": "12ea3af7179c257793b465c92857616d56e581fbbfd81a3f2b8b3eb953c675de"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/first-publication-relative-artifact-path-failure-v1/provisional-evidence-copies/superseded-native-pair-and-two-installers-retirement.json",
+      "bytes": 1564,
+      "sha256": "5cd9d9134d8956a547cb2019beade3dc4076aeffd609ba6f5e0c60afea76174a"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/independent-current-controller-all-history-v1.json",
+      "bytes": 5560,
+      "sha256": "b45ffc273ee5ba267d4a6714b3ce073848cb334c495642b916f7c0d7767d8418"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/independent-current-controller-all-history-v1.log",
+      "bytes": 123,
+      "sha256": "2f3e86dbf78940e2445ea794af4c3f06bf6ea5d75e977f7a0363947687523d1d"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/issue83-original-whole-discussion-before-change-v1.json",
+      "bytes": 3061,
+      "sha256": "188b9e468495eb3002d74cd9e7980aae93b1b2559268587b87530a46eb70c270"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/new-sql-helper-retains-entire-original-counted-verification-v1.json",
+      "bytes": 3476,
+      "sha256": "6b0af5e964bd2cbef3cd505f038693033d8a78f008a43e7e8486bc7f1578e6db"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/only-check-console-v1.log",
+      "bytes": 452,
+      "sha256": "cb24549e744b72a8b2fc92ceae57ea25fa97c930262943a054f49a621a62b5ff"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/only-check-owner-terminal-v1.json",
+      "bytes": 930,
+      "sha256": "a35a666af60a1bd397029659f35a8c5a16bb6ad9ae75b4634f88cf053f7ff55e"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/only-check-start-inputs-v1.json",
+      "bytes": 1125497,
+      "sha256": "53cf15a9ac28c1fa6ad4634bc48a21b3eaefee771c102e5fb0bb7665d4fbdf4c"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/only-check-v1/build.log",
+      "bytes": 78,
+      "sha256": "d8e5e97bf57b076ac93f287bf8e21e069854d5ee3ad7f3d823270cac2bd9a145"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/only-check-v1/check/results.trx",
+      "bytes": 20632535,
+      "sha256": "bed297c0fc35c60fe33feca0f9a6b8e18897ca32348c062c2a9654b417b4c201"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/only-check-v1/check/test.log",
+      "bytes": 508,
+      "sha256": "29dada2b20442d34316940d81cbc92ae94714f1eac49503266383f4ed11408c7"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/only-check-v1/discovery.log",
+      "bytes": 2007136,
+      "sha256": "4dc274b218c9e85b7e76e4679ec88c7ce8c09fb4fd866cdefafb89172729031e"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/only-check-v1/plan.json",
+      "bytes": 1002544,
+      "sha256": "7107e5577d0cdd1b8fd0c5e43568f135beca852e68432774bf12191cacd961b4"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/only-check-v1/summary.json",
+      "bytes": 286,
+      "sha256": "e601ec05aadad266c9398dee614d000377758c193e642bd65ba56b11308f3683"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/original-all110-pair-source-v1-build-v1.log",
+      "bytes": 498,
+      "sha256": "fe6532491e1e28aeb189a7693c91a37a9aba7bc4d5570e0153e45fc50309eee8"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/original-all110-pair-source-v1/Program.cs",
+      "bytes": 4662,
+      "sha256": "c0cc77c280bde0ffa8d913809cb3540d140ea08140b3734be3429310889b1800"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/original-all110-pair-source-v1/probe.csproj",
+      "bytes": 1516,
+      "sha256": "7600823461001176074c24ec230831e1bf63efc126f7d7c90b8f657dda2dae21"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/original-all110-pairs-independent-exact-readback-v2.json",
+      "bytes": 1618,
+      "sha256": "042163ee8ad6aa1808bbcc82c34d6669651b2d37bd1350a774181f6b84fd5c7f"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/original-all110-pairs-owner-terminal-v1.json",
+      "bytes": 1764,
+      "sha256": "13fd5f2df056b1afaf41db532f694278e7909a3b17398c437b53826cf804d644"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/original-all110-pairs-result-v1.json",
+      "bytes": 17260,
+      "sha256": "95aef3736a81cfcce104975d87a59faec9f3c351c8a1ae3ee03417e2b3393e1a"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/original-all110-pairs-result-v1.json.plan.json",
+      "bytes": 22820,
+      "sha256": "f54fa59a36abac381f5ed7da273c6c249f2c54040e884080c5ceef2f74538f09"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/original-all110-pairs-v1.log",
+      "bytes": 19802,
+      "sha256": "df8bbdde6b00e91d78457fdbea62eba5b94e801bab073f3d1d5ed1132339b5e6"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/original288-audit62-native-seven-table-baseline-v1.json",
+      "bytes": 22023,
+      "sha256": "81a7e7980c81499359c208dd97e1c3828e530fbfa317161cdd6e1d7571901b4e"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/own-current-controller-sql-v1.py",
+      "bytes": 7619,
+      "sha256": "fd57ff35f70e3f402cbc0e7dcf7c61a6433f3756e70bae018c6751f7c6bd42f9"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/own-only-current-controller-check-v1.py",
+      "bytes": 3695,
+      "sha256": "b3f6838f402039c8c49e4bf9142c4ccf431ef33dc78887eede8a08125e8fae1c"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/own-original-all110-pairs-v1.py",
+      "bytes": 3035,
+      "sha256": "0b71fe4b21ca59e2d025c7b43b78977e8bcfae597a39cb1cad58a444afc8b9f0"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/pre-change-all-direct-damage-callsite-classification-v1.json",
+      "bytes": 19026,
+      "sha256": "f892773b1448b4ccbcfd6c3a04c29383cb4679b1999f96199495c9cc7d8aa7f4"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/pre-change-exact-callsite-classification-clarification-v2.json",
+      "bytes": 19325,
+      "sha256": "d22b04e292cfc3370297e23ebe1dba6ab9f86364ae9fa63e63d08ede2a80d44b"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/pre-fix-response-and-first-xerath-diagnostic-v2.json",
+      "bytes": 6817,
+      "sha256": "da77376a74c8af9f8888e65e5c156179ed6ea605712f87cdeb0f91a33a2c02b3"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/prepare-fifty-controller-branch-identities-v1.py",
+      "bytes": 6172,
+      "sha256": "7dd86c95d8fed73116a0d721beee2be31219b10d7391e24459c20e4ad12d6109"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/prepare-freeze-controller-runtime-v1.py",
+      "bytes": 8477,
+      "sha256": "4d59d27046430039257bf9f870221aacbbec69f02436cb410c03e97cf1cb30b1"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/prior-current-controller-publication-v1/PROJECT_STATUS.md.gz",
+      "bytes": 81278,
+      "sha256": "b2339b2027ebf844fe8c060efa02bf64530f29354822f2952009bfabd5d2c925"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/prior-current-controller-publication-v1/RULE_TEST_WORKFLOW.md.gz",
+      "bytes": 5134,
+      "sha256": "19b82d5eb0f79eb4bebc5716520b595b7a1bf468ed7daf341f29792035a82a18"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/prior-current-controller-publication-v1/complete-current-contexts-before-input-refresh.json.gz",
+      "bytes": 150218,
+      "sha256": "65fcce88e6234dc3edc22ae2e315fac79f418376672956f51655e25701384138"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/prior-current-controller-publication-v1/current-manifest.json.gz",
+      "bytes": 351578,
+      "sha256": "436396d012b775320a7182e08fd55f7df66a97d152fbc5ae245778f0faf243f0"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/prior-current-controller-publication-v1/review-decisions.json.gz",
+      "bytes": 168902,
+      "sha256": "9f6a91c514e24255c5b255fede1548a4e01e3111dc6789f02cb5dbdfb0e8e70f"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/prior-fixed-full-and-new-native-evidence-to-publish-with-coherent-batch-v1.json",
+      "bytes": 1260,
+      "sha256": "d237480354410ffa5a936f56102992ab475c0bb57ce1aa789fec8338a70d3136"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/prior-fixed99e-actual-before-controller-publication-v1.json.gz",
+      "bytes": 3806,
+      "sha256": "e9d334d5df50b32c24efc4c1f8ac1ae2b1fc0d6054894cc1730b57c1d6406c88"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/publish-current-controller-coherent-batch-v1.py",
+      "bytes": 20604,
+      "sha256": "093375c1aab3049d47adcad6ef1bed15e7b95349091a6aae1248608ce14da6b6"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/publish-current-controller-coherent-batch-v2.py",
+      "bytes": 21027,
+      "sha256": "1467016af68e7759937d10f89cb8c2c987f313fef8a7de6137e1591e7e030e69"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/response-driver-diagnostic-v1.log",
+      "bytes": 381,
+      "sha256": "9a195204bddd405147dae893891ca517726560a3a28c899650b63f1e0f968193"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/response-driver-diagnostic-v1/build.log",
+      "bytes": 78,
+      "sha256": "9fff2d720771850a3f089a50995adb8300c94c47187f8bf9ab4e0f14508f74bd"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/response-driver-diagnostic-v1/discovery.log",
+      "bytes": 2006221,
+      "sha256": "90a3825ee8ce21aecbadeb84b76ff43faef7192713442de75f2384c23ef794b3"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/response-driver-diagnostic-v1/focus/results.trx",
+      "bytes": 6122,
+      "sha256": "62ba1f41ee5dea0915ea1021697d8d900218bc8e13fce0b762e83f9b89eae45e"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/response-driver-diagnostic-v1/focus/test.log",
+      "bytes": 678,
+      "sha256": "6e15d4cd2ee399f5fa36946fde46c74d3f6076370bc1086930d7d01892adbb10"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/response-driver-diagnostic-v1/plan.json",
+      "bytes": 690,
+      "sha256": "b96ac8bc986cd71224d3cf34fbe8a4196b5c3b1ac69ad4a7a266a0a357eaf172"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/runtime-input-load-probe-build-v1.log",
+      "bytes": 498,
+      "sha256": "1e733ea053c3b9dd5634d29fe13e90fef6a3d3b82b2afef9cd0b29a6d663f7f5"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/runtime-input-load-probe-executed-v1/CurrentControllerRuntimeLoadProbeV1.dll",
+      "bytes": 10240,
+      "sha256": "7e09524e084ecaa75c1ddf05ca172850aaf38364c649b0caccd4206a0d4f8cfa"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/runtime-input-load-probe-executed-v1/CurrentControllerRuntimeLoadProbeV1.pdb",
+      "bytes": 12716,
+      "sha256": "aebbed7e3907f9264a37ced89615079691fc72c87afbb2fbf7ce9ab084a5f278"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/runtime-input-load-probe-source-v1/Program.cs",
+      "bytes": 818,
+      "sha256": "c6fb485722033d71b83462c7c4e59b0fb9ac6b7640c579ec201dda8ac2c72e58"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/runtime-input-load-probe-source-v1/probe.csproj",
+      "bytes": 1048,
+      "sha256": "1d393ee73be1971674fe76c61af27ca953a5685e51d42046be73751cbea22691"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/sql-owner-original-baseline-and-preserved-assertions-v1.json",
+      "bytes": 678,
+      "sha256": "df6b1a25975048961ed5d2b430ef41661eb2e67e1b20620fe6dcb6a813e0001c"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/tool-tests-v1.log",
+      "bytes": 173,
+      "sha256": "a0172a293ad55f98f9e86ee677e418f93e6f6241e5fe341c34d1c21ace5e5ca8"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/verify-completed-fixed25c-full-originals-v1.py",
+      "bytes": 7509,
+      "sha256": "0bdd4b33d76670b13c3295717bc0507f59b3f1a5119951ab1a7f6872becefb14"
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/verify-only-controller-check-retention-v1.py",
+      "bytes": 4620,
+      "sha256": "455a3b3086caff3fe88ea8dc7d9226e2243328ce0cc0f2e0f53809dd7119f8bf"
+    },
+    {
+      "path": "var/qa/teemo-counted-damage-current-cn16-20261021/ci708-all-nine-original-artifacts-receipt-v1.json",
+      "bytes": 6243,
+      "sha256": "afe3dda6b65e98d1d9c8b448cea75af4b9bac64c2afcbd2b02fac77f508cdc4e"
+    },
+    {
+      "path": "var/qa/teemo-counted-damage-current-cn16-20261021/ci708-complete-backend-artifact-metadata-v1.json",
+      "bytes": 9396,
+      "sha256": "55a2c5f185e3e742a748fb9bf0659dc3acb20df60dfdee126177afa65320d5f8"
+    },
+    {
+      "path": "var/qa/teemo-counted-damage-current-cn16-20261021/ci708-complete-originals-v1/conformance-results.zip",
+      "bytes": 3932068,
+      "sha256": "1e7ba811d50dca7bf68ecd9b87cb42f4a88ece134bedb22b2edda3c66a1895ae"
+    },
+    {
+      "path": "var/qa/teemo-counted-damage-current-cn16-20261021/ci708-complete-originals-v1/full-verification-gate.zip",
+      "bytes": 298,
+      "sha256": "71666a70bd00392b60ee089d1752993f39cc9a8b122c4336136df2a5dd0d07b6"
+    },
+    {
+      "path": "var/qa/teemo-counted-damage-current-cn16-20261021/ci708-entire-full-independent-verification-v1.json",
+      "bytes": 32713,
+      "sha256": "a1894b8862515657bfc1911cd659f7707bd8c0d73482c719f41fef4c7743f440"
+    },
+    {
+      "path": "var/qa/teemo-counted-damage-current-cn16-20261021/ci708-entire-terminal-snapshot-v1.json",
+      "bytes": 32738,
+      "sha256": "410cdded5acefd91231fae58564e16a0f7f68176590e77eab1a8b7fc0d1e7ee9"
+    },
+    {
+      "path": "var/qa/teemo-counted-damage-current-cn16-20261021/ci708-terminal-successful-original-readback-reuse-v1.json",
+      "bytes": 451,
+      "sha256": "f954b682e28309d6c35f91101348e6a59b0f559927ea534ae27048131a60ec7d"
+    },
+    {
+      "path": "var/qa/teemo-counted-damage-current-cn16-20261021/ci708-vs-2b83-original-terminal-hash-comparison-v1.json",
+      "bytes": 26802,
+      "sha256": "40e035faf7b68bdc531e1ddcc24d3a3d643f7f5c31c5bb7fd9b77200b21720dc"
+    },
+    {
+      "path": "var/qa/teemo-counted-damage-current-cn16-20261021/verify-completed-fixed708-full-originals-v1.py",
+      "bytes": 7134,
+      "sha256": "f5aa7cc1da072b3d32c4755577f5f26b250d6a349b214083c4a99b1b900ff1c3"
+    },
+    {
+      "path": "var/qa/void-gate-current-erratum-20261021/current-core-damage-p106.png",
+      "bytes": 594380,
+      "sha256": "0c06b584b0b5c5aefffcb8d5fae36c26f35673d5d6261403bfacc401f4fa282b"
+    }
+  ],
+  "existingIdenticalOlderArchiveMembersNotDuplicated": [
+    {
+      "path": "var/qa/teemo-counted-damage-current-cn16-20261021/ci708-sql-terminal-rules-pending-actual-111707.json",
+      "sha256": "b2d36a8fb9a7a7b5bf457bc5b261beb07e728d66752a2562017bbe86718cc4d5",
+      "existingArchiveMap": {
+        "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/archive-map.json",
+        "sha256": "835e0b8b1fad46fd73c3c77dc84e01da43d51753d5975bb505018a7450a8a1f2"
+      }
+    },
+    {
+      "path": "var/qa/teemo-counted-damage-current-cn16-20261021/ci708-seven-complete-available-originals-recovery-v2.json",
+      "sha256": "7bee73d0535f360f5b79cf1f2832e0058846204eb22e05ccff0062ea972af4df",
+      "existingArchiveMap": {
+        "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/archive-map.json",
+        "sha256": "835e0b8b1fad46fd73c3c77dc84e01da43d51753d5975bb505018a7450a8a1f2"
+      }
+    },
+    {
+      "path": "var/qa/teemo-counted-damage-current-cn16-20261021/ci708-current-available-artifact-metadata-v1.json",
+      "sha256": "5722f9d296d7f8dc500fd31d285a146751e173d6394f1db6f9b3e9ba26c4c6d1",
+      "existingArchiveMap": {
+        "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/archive-map.json",
+        "sha256": "835e0b8b1fad46fd73c3c77dc84e01da43d51753d5975bb505018a7450a8a1f2"
+      }
+    },
+    {
+      "path": "var/qa/teemo-counted-damage-current-cn16-20261021/ci708-completed-duplicate-extraction-original-member-manifest-v1.json.gz",
+      "sha256": "6cb848db28ec58bf88f5df68b5c619c7b45a906a974d89220a5e646669f1272e",
+      "existingArchiveMap": {
+        "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/archive-map.json",
+        "sha256": "835e0b8b1fad46fd73c3c77dc84e01da43d51753d5975bb505018a7450a8a1f2"
+      }
+    },
+    {
+      "path": "var/qa/teemo-counted-damage-current-cn16-20261021/ci708-complete52-sql-network-independent-verification-v1.json",
+      "sha256": "f99af67395421192df7c474edee25ef8a9089c02fed9775544746c26bd70e5bc",
+      "existingArchiveMap": {
+        "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/archive-map.json",
+        "sha256": "835e0b8b1fad46fd73c3c77dc84e01da43d51753d5975bb505018a7450a8a1f2"
+      }
+    },
+    {
+      "path": "var/qa/teemo-counted-damage-current-cn16-20261021/ci708-completed-duplicate-extraction-retirement-v1.json",
+      "sha256": "2acaa716cf26115c90c1774365f44cf338f8451af7fb3b8674f0f5f17a84d1e4",
+      "existingArchiveMap": {
+        "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/archive-map.json",
+        "sha256": "835e0b8b1fad46fd73c3c77dc84e01da43d51753d5975bb505018a7450a8a1f2"
+      }
+    },
+    {
+      "path": "var/qa/teemo-counted-damage-current-cn16-20261021/ci708-available-originals-download-receipt-v1.json",
+      "sha256": "4130451b94d3db1391ecab403b13319e5a2cf555361438bd58b0f5aa165e2664",
+      "existingArchiveMap": {
+        "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/archive-map.json",
+        "sha256": "835e0b8b1fad46fd73c3c77dc84e01da43d51753d5975bb505018a7450a8a1f2"
+      }
+    },
+    {
+      "path": "var/qa/teemo-counted-damage-current-cn16-20261021/ci708-complete-originals-v1/postgres-partition-0.zip",
+      "sha256": "4c9a8dc7e4ef33ef3011b13b6bfcd5401dce398a4425338e52f52547aed63523",
+      "existingArchiveMap": {
+        "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/archive-map.json",
+        "sha256": "835e0b8b1fad46fd73c3c77dc84e01da43d51753d5975bb505018a7450a8a1f2"
+      }
+    },
+    {
+      "path": "var/qa/teemo-counted-damage-current-cn16-20261021/ci708-complete-originals-v1/postgres-partition-1-attempt-2.zip",
+      "sha256": "654e22c78e7e5397748a162362d621ee7a53cf5c30a64b28d52b495cd96ee17a",
+      "existingArchiveMap": {
+        "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/archive-map.json",
+        "sha256": "835e0b8b1fad46fd73c3c77dc84e01da43d51753d5975bb505018a7450a8a1f2"
+      }
+    },
+    {
+      "path": "var/qa/teemo-counted-damage-current-cn16-20261021/ci708-complete-originals-v1/postgres-partition-2.zip",
+      "sha256": "216b48dd1fb0bc9a13e588c8069ef29ffe77e72f2d8fbd5c7d8dfee23a9aef3c",
+      "existingArchiveMap": {
+        "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/archive-map.json",
+        "sha256": "835e0b8b1fad46fd73c3c77dc84e01da43d51753d5975bb505018a7450a8a1f2"
+      }
+    },
+    {
+      "path": "var/qa/teemo-counted-damage-current-cn16-20261021/ci708-complete-originals-v1/postgres-partition-3.zip",
+      "sha256": "41b57aee80728db38b89900ea7f767163f3982028de827330963d8f28191dc43",
+      "existingArchiveMap": {
+        "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/archive-map.json",
+        "sha256": "835e0b8b1fad46fd73c3c77dc84e01da43d51753d5975bb505018a7450a8a1f2"
+      }
+    },
+    {
+      "path": "var/qa/teemo-counted-damage-current-cn16-20261021/ci708-complete-originals-v1/postgres-results.zip",
+      "sha256": "cccca8b43d38663b3756a7eef12ed25abe737324fd30c8a6f538447ce14efa6d",
+      "existingArchiveMap": {
+        "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/archive-map.json",
+        "sha256": "835e0b8b1fad46fd73c3c77dc84e01da43d51753d5975bb505018a7450a8a1f2"
+      }
+    },
+    {
+      "path": "var/qa/teemo-counted-damage-current-cn16-20261021/ci708-complete-originals-v1/native-network-results.zip",
+      "sha256": "119c9c211c21c54c43664343aee739cf2cd364b847cdbe524cb5b164c1571847",
+      "existingArchiveMap": {
+        "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/archive-map.json",
+        "sha256": "835e0b8b1fad46fd73c3c77dc84e01da43d51753d5975bb505018a7450a8a1f2"
+      }
+    },
+    {
+      "path": "var/qa/teemo-counted-damage-current-cn16-20261021/ci708-complete-originals-v1/verification-scope-attempt-2.zip",
+      "sha256": "d9a0c484761b82df847ff28f0ca45c957df0bd4d0474b37bcfb1dcd76132ecce",
+      "existingArchiveMap": {
+        "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/archive-map.json",
+        "sha256": "835e0b8b1fad46fd73c3c77dc84e01da43d51753d5975bb505018a7450a8a1f2"
+      }
+    }
+  ],
+  "privateOrOperationalExclusionsRetainedLocally": [
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/publish-current-controller-owner-v2.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "reason": "PRIVATE_SESSION_OR_OPERATIONAL_PUBLICATION_OUTPUT_RETAINED_SEPARATELY"
+    },
+    {
+      "path": "var/qa/fixed99e-early-native-20261021/actual-safe-native-prefix-v2/session-native-a.json",
+      "sha256": "0b204cc0c235fc8a3ab37582e645f334aee8f73a56d9269acac5e518d9974211",
+      "reason": "PRIVATE_SESSION_OR_OPERATIONAL_PUBLICATION_OUTPUT_RETAINED_SEPARATELY"
+    },
+    {
+      "path": "var/qa/fixed99e-early-native-20261021/actual-safe-native-prefix-v2/session-native-b.json",
+      "sha256": "6a5b30af43ac4b737aefb4f09ec82e75e0f29d625115fe6ddaa22df5d0eae5e6",
+      "reason": "PRIVATE_SESSION_OR_OPERATIONAL_PUBLICATION_OUTPUT_RETAINED_SEPARATELY"
+    },
+    {
+      "path": "var/qa/fixed99e-early-native-20261021/session-a.json",
+      "sha256": "c581e057fcd78702bb2b11dc69ec153339eda23c04463d88db3bbb3d8facc00c",
+      "reason": "PRIVATE_SESSION_OR_OPERATIONAL_PUBLICATION_OUTPUT_RETAINED_SEPARATELY"
+    },
+    {
+      "path": "var/qa/fixed99e-early-native-20261021/session-b.json",
+      "sha256": "437000b06932d08e2e26b389614729927b5154f0b7b127758a9c29d070ed634f",
+      "reason": "PRIVATE_SESSION_OR_OPERATIONAL_PUBLICATION_OUTPUT_RETAINED_SEPARATELY"
+    }
+  ],
+  "allMembersBytesHashesAndClosedSetVerified": true,
+  "applicationsInstallersEqualPrimaryPdfsAndFrozenRuntimePayloadsNotDuplicated": true
+}

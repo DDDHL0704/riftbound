@@ -1,0 +1,212 @@
+{
+  "atUtc": "2026-10-21T12:27:21.274326+00:00",
+  "parentCommit": "99e20b4f0640d7b32adbfb9e7dc0c7661b22d37a",
+  "ruleRegion": "CN",
+  "language": "zh-CN",
+  "currentCoreEffectiveDate": "2026-10-16",
+  "issue": 83,
+  "plan": "Share existing current on-field controller-bonus enumeration already used by distribution with ResolveDamageAmount, positive counted damage and Xerath; retain zero-action guard and old local helper; distribution and independent safety logic unchanged. No certification of direct special routes or whole cards.",
+  "directDamageCallSites": [
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.BattlefieldStart.cs",
+      "lineAtParent99e": 71,
+      "methodHeader": "private static StackResolutionResult ResolveBattlefieldStart",
+      "parentSourceSha256": "886a2f98c9f52c60943676537c059ec146a6f14a78a1359a42b6b8c94946b871",
+      "currentCallText": "            var damage = ApplyDamageToCardObject(cards, item.ControllerId, id, context.Damage, destroyed,\n                state.UntilEndOfTurnEffects.Contains(PreventSpellAndSkillDamageThisTurnEffectId), PreventSpellAndSkillDamageThisTurnEffectId)",
+      "scope": "SEPARATE_DIRECT_DAMAGE_ROUTE_OPEN_NOT_CERTIFIED_BY_THIS_BOUNDED_PATCH"
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.DamageDistribution.cs",
+      "lineAtParent99e": 222,
+      "methodHeader": "private static StackResolutionResult ResolveDistributedDamage",
+      "parentSourceSha256": "4544a3f1eeedd171dd17140eb07e5bff300a4a5d8df5ffab1bc24a7257c404e6",
+      "currentCallText": "            var damage = ApplyDamageToCardObject(cards, item.ControllerId, assignment.TargetObjectId, assignment.Damage, destroyed,\n                state.UntilEndOfTurnEffects.Contains(PreventSpellAndSkillDamageThisTurnEffectId), PreventSpellAndSkillDamageThisTurnEffectId)",
+      "scope": "EXISTING_POOL_BONUS_EXPLICITLY_UNCHANGED_NO_SECOND_APPLICATION_715_3"
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.LocationDamage.cs",
+      "lineAtParent99e": 71,
+      "methodHeader": "private static StackResolutionResult ResolveLocationDamage",
+      "parentSourceSha256": "c9b162bf68c53afeda0e772fdbee1e4bf9b74ec3a2e6a2c2ae91b4f793a40055",
+      "currentCallText": "            var damage = ApplyDamageToCardObject(cards, item.ControllerId, id, behavior.PlayDamagePerLocation, destroyed,\n                state.UntilEndOfTurnEffects.Contains(PreventSpellAndSkillDamageThisTurnEffectId), PreventSpellAndSkillDamageThisTurnEffectId)",
+      "scope": "SEPARATE_DIRECT_DAMAGE_ROUTE_OPEN_NOT_CERTIFIED_BY_THIS_BOUNDED_PATCH"
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.ReflexiveDuel.cs",
+      "lineAtParent99e": 102,
+      "methodHeader": "private static StackResolutionResult ResolveReflexiveDuel",
+      "parentSourceSha256": "ad39a5e3460f94f3d3698524f808ac8888448f8257e920c428d95ac0006b406b",
+      "currentCallText": "            var damage = ApplyDamageToCardObject(cards, EffectiveFieldControllerId(state.PlayerZones, source, state.CardObjects[source])!, target, amount, destroyed)",
+      "scope": "EXCLUDED_COMBAT_OR_EXPLICIT_UNIT_DAMAGE_SOURCE_418_6_b_3"
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.SelectedBattlefield.cs",
+      "lineAtParent99e": 52,
+      "methodHeader": "private static void ResolveSelectedBattlefieldEffect",
+      "parentSourceSha256": "b3f14caa2cf5e937e7f3a7ed07d7251a2924308c3bd192bf58d0143c12535897",
+      "currentCallText": "                    var damage = ApplyDamageToCardObject(cards, item.ControllerId, id,\n                        ResolveDamageAmount(current, item, behavior, id), damageTriggeredDestroyTargets,\n                        preventDamage, PreventSpellAndSkillDamageThisTurnEffectId)",
+      "scope": "THREE_EXISTING_SHARED_AMOUNT_PATHS_OR_THEIR_CURRENT_CONSUMERS_CANDIDATE_TESTS_REQUIRED"
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.UnitConquest.cs",
+      "lineAtParent99e": 91,
+      "methodHeader": "private static StackResolutionResult ResolveConquestDamage",
+      "parentSourceSha256": "fa3ed2997c3ce6caf091f369c58c5869fe4bc7696204592f01bdc98fec68840c",
+      "currentCallText": "        var damage=ApplyDamageToCardObject(cards,item.ControllerId,target,amount,destroyed,prevention,PreventSpellAndSkillDamageThisTurnEffectId)",
+      "scope": "SEPARATE_DIRECT_DAMAGE_ROUTE_OPEN_NOT_CERTIFIED_BY_THIS_BOUNDED_PATCH"
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+      "lineAtParent99e": 2463,
+      "methodHeader": "private static void ApplySubmittedCombatDamage",
+      "parentSourceSha256": "f089c62032c01ab57c2bd1c19a788c095bf91126b14f631e54cab013f3847951",
+      "currentCallText": "            var damageApplication = ApplyDamageToCardObject(\n                cardObjects,\n                EffectiveFieldControllerId(state.PlayerZones, assignment.SourceObjectId, state.CardObjects[assignment.SourceObjectId])!,\n                assignment.TargetObjectId,\n                assignment.Damage,\n                damageTriggeredDestroyTargetObjectIds)",
+      "scope": "EXCLUDED_COMBAT_OR_EXPLICIT_UNIT_DAMAGE_SOURCE_418_6_b_3"
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+      "lineAtParent99e": 12666,
+      "methodHeader": "private static ResolutionResult ResolveDeclareBattle",
+      "parentSourceSha256": "f089c62032c01ab57c2bd1c19a788c095bf91126b14f631e54cab013f3847951",
+      "currentCallText": "                    var attackerDamageApplication = ApplyDamageToCardObject(\n                        cardObjects,\n                        intent.PlayerId,\n                        assignment.ObjectId,\n                        damageAmount,\n                        damageTriggeredDestroyTargetObjectIds)",
+      "scope": "EXCLUDED_COMBAT_OR_EXPLICIT_UNIT_DAMAGE_SOURCE_418_6_b_3"
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+      "lineAtParent99e": 12746,
+      "methodHeader": "private static ResolutionResult ResolveDeclareBattle",
+      "parentSourceSha256": "f089c62032c01ab57c2bd1c19a788c095bf91126b14f631e54cab013f3847951",
+      "currentCallText": "                    var defenderDamageApplication = ApplyDamageToCardObject(\n                        cardObjects,\n                        defendingPlayerId!,\n                        attackerAssignment.ObjectId,\n                        damageAmount,\n                        damageTriggeredDestroyTargetObjectIds)",
+      "scope": "EXCLUDED_COMBAT_OR_EXPLICIT_UNIT_DAMAGE_SOURCE_418_6_b_3"
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+      "lineAtParent99e": 13587,
+      "methodHeader": "private static IReadOnlyList<GameEvent> ResolveSourceAttackDamageToFirstDefenderTriggers",
+      "parentSourceSha256": "f089c62032c01ab57c2bd1c19a788c095bf91126b14f631e54cab013f3847951",
+      "currentCallText": "            var damageApplication = ApplyDamageToCardObject(\n                cardObjects,\n                playerId,\n                targetObjectId,\n                damageAmount,\n                damageTriggeredDestroyTargetObjectIds)",
+      "scope": "SEPARATE_DIRECT_DAMAGE_ROUTE_OPEN_NOT_CERTIFIED_BY_THIS_BOUNDED_PATCH"
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+      "lineAtParent99e": 25778,
+      "methodHeader": "private static StackResolutionResult ResolveStackItemEffectCore",
+      "parentSourceSha256": "f089c62032c01ab57c2bd1c19a788c095bf91126b14f631e54cab013f3847951",
+      "currentCallText": "                        var damageApplication = ApplyDamageToCardObject(\n                            cardObjects,\n                            EffectiveFieldControllerId(playerZones, firstTargetObjectId, cardObjects[firstTargetObjectId])!,\n                            secondTargetObjectId,\n                            firstTargetPower,\n                            damageTriggeredDestroyTargetObjectIds,\n                            preventDamageFromThisStackItem,\n                            PreventSpellAndSkillDamageThisTurnEffectId)",
+      "scope": "SEPARATE_DIRECT_DAMAGE_ROUTE_OPEN_NOT_CERTIFIED_BY_THIS_BOUNDED_PATCH"
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+      "lineAtParent99e": 25799,
+      "methodHeader": "private static StackResolutionResult ResolveStackItemEffectCore",
+      "parentSourceSha256": "f089c62032c01ab57c2bd1c19a788c095bf91126b14f631e54cab013f3847951",
+      "currentCallText": "                        var damageApplication = ApplyDamageToCardObject(\n                            cardObjects,\n                            EffectiveFieldControllerId(playerZones, secondTargetObjectId, cardObjects[secondTargetObjectId])!,\n                            firstTargetObjectId,\n                            secondTargetPower,\n                            damageTriggeredDestroyTargetObjectIds,\n                            preventDamageFromThisStackItem,\n                            PreventSpellAndSkillDamageThisTurnEffectId)",
+      "scope": "SEPARATE_DIRECT_DAMAGE_ROUTE_OPEN_NOT_CERTIFIED_BY_THIS_BOUNDED_PATCH"
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+      "lineAtParent99e": 25836,
+      "methodHeader": "private static StackResolutionResult ResolveStackItemEffectCore",
+      "parentSourceSha256": "f089c62032c01ab57c2bd1c19a788c095bf91126b14f631e54cab013f3847951",
+      "currentCallText": "                    var damageApplication = ApplyDamageToCardObject(\n                        cardObjects,\n                        EffectiveFieldControllerId(playerZones, stackItem.SourceObjectId, cardObjects[stackItem.SourceObjectId])!,\n                        targetObjectId,\n                        sourcePower,\n                        damageTriggeredDestroyTargetObjectIds,\n                        preventDamageFromThisStackItem,\n                        PreventSpellAndSkillDamageThisTurnEffectId)",
+      "scope": "SEPARATE_DIRECT_DAMAGE_ROUTE_OPEN_NOT_CERTIFIED_BY_THIS_BOUNDED_PATCH"
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+      "lineAtParent99e": 25857,
+      "methodHeader": "private static StackResolutionResult ResolveStackItemEffectCore",
+      "parentSourceSha256": "f089c62032c01ab57c2bd1c19a788c095bf91126b14f631e54cab013f3847951",
+      "currentCallText": "                    var damageApplication = ApplyDamageToCardObject(\n                        cardObjects,\n                        EffectiveFieldControllerId(playerZones, targetObjectId, cardObjects[targetObjectId])!,\n                        stackItem.SourceObjectId,\n                        targetPower,\n                        damageTriggeredDestroyTargetObjectIds,\n                        preventDamageFromThisStackItem,\n                        PreventSpellAndSkillDamageThisTurnEffectId)",
+      "scope": "SEPARATE_DIRECT_DAMAGE_ROUTE_OPEN_NOT_CERTIFIED_BY_THIS_BOUNDED_PATCH"
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+      "lineAtParent99e": 25891,
+      "methodHeader": "private static StackResolutionResult ResolveStackItemEffectCore",
+      "parentSourceSha256": "f089c62032c01ab57c2bd1c19a788c095bf91126b14f631e54cab013f3847951",
+      "currentCallText": "                    var damageApplication = ApplyDamageToCardObject(\n                        cardObjects,\n                        stackItem.ControllerId,\n                        damagedTargetObjectId,\n                        damageAmount,\n                        damageTriggeredDestroyTargetObjectIds,\n                        preventDamageFromThisStackItem,\n                        PreventSpellAndSkillDamageThisTurnEffectId)",
+      "scope": "SEPARATE_DIRECT_DAMAGE_ROUTE_OPEN_NOT_CERTIFIED_BY_THIS_BOUNDED_PATCH"
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+      "lineAtParent99e": 25937,
+      "methodHeader": "private static StackResolutionResult ResolveStackItemEffectCore",
+      "parentSourceSha256": "f089c62032c01ab57c2bd1c19a788c095bf91126b14f631e54cab013f3847951",
+      "currentCallText": "                    var damageApplication = ApplyDamageToCardObject(\n                        cardObjects,\n                        stackItem.ControllerId,\n                        damagedTargetObjectId,\n                        damageAmount,\n                        damageTriggeredDestroyTargetObjectIds,\n                        preventDamageFromThisStackItem,\n                        PreventSpellAndSkillDamageThisTurnEffectId)",
+      "scope": "SEPARATE_DIRECT_DAMAGE_ROUTE_OPEN_NOT_CERTIFIED_BY_THIS_BOUNDED_PATCH"
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+      "lineAtParent99e": 26276,
+      "methodHeader": "private static StackResolutionResult ResolveStackItemEffectCore",
+      "parentSourceSha256": "f089c62032c01ab57c2bd1c19a788c095bf91126b14f631e54cab013f3847951",
+      "currentCallText": "                        var damageApplication = ApplyDamageToCardObject(\n                            cardObjects,\n                            stackItem.ControllerId,\n                            targetObjectId,\n                            damageAmount,\n                            damageTriggeredDestroyTargetObjectIds,\n                            preventDamageFromThisStackItem,\n                            PreventSpellAndSkillDamageThisTurnEffectId)",
+      "scope": "THREE_EXISTING_SHARED_AMOUNT_PATHS_OR_THEIR_CURRENT_CONSUMERS_CANDIDATE_TESTS_REQUIRED"
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+      "lineAtParent99e": 27682,
+      "methodHeader": "private static StackResolutionResult ResolveUnitLastBreathSourceBattlefieldAoeDamageStackItem",
+      "parentSourceSha256": "f089c62032c01ab57c2bd1c19a788c095bf91126b14f631e54cab013f3847951",
+      "currentCallText": "                var damageApplication = ApplyDamageToCardObject(\n                    cardObjects,\n                    stackItem.ControllerId,\n                    targetObjectId,\n                    damageAmount)",
+      "scope": "SEPARATE_DIRECT_DAMAGE_ROUTE_OPEN_NOT_CERTIFIED_BY_THIS_BOUNDED_PATCH"
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+      "lineAtParent99e": 28303,
+      "methodHeader": "private static StackResolutionResult ResolveXerathDamageAbilityStackItem",
+      "parentSourceSha256": "f089c62032c01ab57c2bd1c19a788c095bf91126b14f631e54cab013f3847951",
+      "currentCallText": "            var damageApplication = ApplyDamageToCardObject(\n                cardObjects,\n                stackItem.ControllerId,\n                targetObjectId,\n                damageAmount,\n                damageTriggeredDestroyTargetObjectIds,\n                preventDamage,\n                PreventSpellAndSkillDamageThisTurnEffectId)",
+      "scope": "THREE_EXISTING_SHARED_AMOUNT_PATHS_OR_THEIR_CURRENT_CONSUMERS_CANDIDATE_TESTS_REQUIRED"
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+      "lineAtParent99e": 29024,
+      "methodHeader": "private static void ApplyDamageToBattlefieldUnits",
+      "parentSourceSha256": "f089c62032c01ab57c2bd1c19a788c095bf91126b14f631e54cab013f3847951",
+      "currentCallText": "            var damageApplication = ApplyDamageToCardObject(\n                cardObjects,\n                stackItem.ControllerId,\n                targetObjectId,\n                damageAmount,\n                damageTriggeredDestroyTargetObjectIds,\n                preventDamage,\n                preventionEffectId)",
+      "scope": "THREE_EXISTING_SHARED_AMOUNT_PATHS_OR_THEIR_CURRENT_CONSUMERS_CANDIDATE_TESTS_REQUIRED"
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+      "lineAtParent99e": 29116,
+      "methodHeader": "private static void ApplyDamageToEnemyCombatUnits",
+      "parentSourceSha256": "f089c62032c01ab57c2bd1c19a788c095bf91126b14f631e54cab013f3847951",
+      "currentCallText": "            var damageApplication = ApplyDamageToCardObject(\n                cardObjects,\n                stackItem.ControllerId,\n                targetObjectId,\n                damageAmount,\n                damageTriggeredDestroyTargetObjectIds,\n                preventDamage,\n                preventionEffectId)",
+      "scope": "THREE_EXISTING_SHARED_AMOUNT_PATHS_OR_THEIR_CURRENT_CONSUMERS_CANDIDATE_TESTS_REQUIRED"
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+      "lineAtParent99e": 29149,
+      "methodHeader": "private static void ApplyDamageToEnemyBattlefieldUnits",
+      "parentSourceSha256": "f089c62032c01ab57c2bd1c19a788c095bf91126b14f631e54cab013f3847951",
+      "currentCallText": "            var damageApplication = ApplyDamageToCardObject(\n                cardObjects,\n                stackItem.ControllerId,\n                targetObjectId,\n                damageAmount,\n                damageTriggeredDestroyTargetObjectIds,\n                preventDamage,\n                preventionEffectId)",
+      "scope": "THREE_EXISTING_SHARED_AMOUNT_PATHS_OR_THEIR_CURRENT_CONSUMERS_CANDIDATE_TESTS_REQUIRED"
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+      "lineAtParent99e": 29188,
+      "methodHeader": "private static void ApplyDamageToOtherEnemyBattlefieldUnits",
+      "parentSourceSha256": "f089c62032c01ab57c2bd1c19a788c095bf91126b14f631e54cab013f3847951",
+      "currentCallText": "            var damageApplication = ApplyDamageToCardObject(\n                cardObjects,\n                stackItem.ControllerId,\n                targetObjectId,\n                damageAmount,\n                damageTriggeredDestroyTargetObjectIds,\n                preventDamage,\n                preventionEffectId)",
+      "scope": "SEPARATE_DIRECT_DAMAGE_ROUTE_OPEN_NOT_CERTIFIED_BY_THIS_BOUNDED_PATCH"
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+      "lineAtParent99e": 31616,
+      "methodHeader": "private static RecycleResult ResolveCountedMainDeckDamage",
+      "parentSourceSha256": "f089c62032c01ab57c2bd1c19a788c095bf91126b14f631e54cab013f3847951",
+      "currentCallText": "                var damageApplication = ApplyDamageToCardObject(\n                    cardObjects,\n                    stackItem.ControllerId,\n                    targetObjectId,\n                    ApplyBattlefieldTargetSpellSkillDamageBonus(state, targetObjectId, damageAmount),\n                    damageTriggeredDestroyTargetObjectIds,\n                    preventDamage,\n                    preventionEffectId)",
+      "scope": "THREE_EXISTING_SHARED_AMOUNT_PATHS_OR_THEIR_CURRENT_CONSUMERS_CANDIDATE_TESTS_REQUIRED"
+    }
+  ],
+  "classificationCounts": {
+    "SEPARATE_DIRECT_DAMAGE_ROUTE_OPEN_NOT_CERTIFIED_BY_THIS_BOUNDED_PATCH": 12,
+    "EXISTING_POOL_BONUS_EXPLICITLY_UNCHANGED_NO_SECOND_APPLICATION_715_3": 1,
+    "EXCLUDED_COMBAT_OR_EXPLICIT_UNIT_DAMAGE_SOURCE_418_6_b_3": 4,
+    "THREE_EXISTING_SHARED_AMOUNT_PATHS_OR_THEIR_CURRENT_CONSUMERS_CANDIDATE_TESTS_REQUIRED": 7
+  },
+  "allOriginalMethodsTheoriesAndFullMatrixRemainUnchanged": true,
+  "visibleAndPhysicalWindowsAcceptance": "OPEN",
+  "classificationClarification": "The common targeted damage sink at parent line26276 receives ResolveDamageAmount at line26247; it is included despite being more than 12 lines away. All explicit unit-source, legacy direct, distribution and other routes remain separately scoped."
+}

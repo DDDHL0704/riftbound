@@ -24507,6 +24507,74 @@
         "Current new fixed full, visible paired native controls/reconnect/normal scoring/full replay and physical Windows remain open.",
         "All source gaps, original dates,143 original full-game methods,110 pairs,11 decks,seed424242 and assertions are retained."
       ]
+    },
+    {
+      "id": "controller-damage-current-cn16-2026-10-21",
+      "scope": "Only three existing shared spell/skill amount routes and50 bounded cases;12 exact counted SQL cases. Other direct consumers, complete printings, current fixed full, visible/physical Windows remain open.",
+      "subjects": [
+        "OGS-001/024",
+        "OGN-121/298",
+        "OGN-121A/298",
+        "SFD-230/221",
+        "SFD-230*/221",
+        "OGN-296/298",
+        "OGN-105/298",
+        "OGS-002/024",
+        "UNL-026/219",
+        "SFD-163/221"
+      ],
+      "ruleRecords": [
+        "DOC-01-P074-B007",
+        "DOC-01-P074-B008",
+        "DOC-01-P074-B011",
+        "DOC-01-P074-B012",
+        "DOC-01-P074-B013",
+        "DOC-01-P074-B014",
+        "DOC-01-P074-B015",
+        "DOC-01-P074-B018",
+        "DOC-01-P106-B009",
+        "DOC-01-P106-B010",
+        "DOC-01-P106-B013",
+        "DOC-01-P106-B014",
+        "DOC-01-P106-B015",
+        "DOC-01-P106-B016",
+        "DOC-01-P106-B017",
+        "DOC-01-P057-B004",
+        "DOC-01-P057-B012",
+        "DOC-01-P057-B014",
+        "DOC-01-P030-B007",
+        "DOC-01-P030-B010"
+      ],
+      "status": "BOUNDED_CURRENT_CONTROLLER_THREE_PATHS_FOCUS863_CHECK13304_SQL48_ALL110_PASS_NEW_FIXED_FULL_AND_PRODUCT_OPEN",
+      "sourceManifest": {
+        "path": "docs/evidence/controller-damage-current-cn16-2026-10-21/source-manifest.json",
+        "sha256": "49605809c37e239c52141dc60befc4ffee88c1518e954a18cafc0718bab223db",
+        "role": "source-manifest"
+      },
+      "auditDocument": "docs/CONTROLLER_DAMAGE_CURRENT_CN16_AUDIT_2026-10-21.md",
+      "validation": {
+        "newConformanceCases": 50,
+        "newConformanceMethods": 6,
+        "distinctFocusCases": 863,
+        "distinctFocusMethods": 522,
+        "checkCases": 13304,
+        "checkMethods": 7516,
+        "sqlCases": 12,
+        "sqlCommands": 48,
+        "sqlEvents": 152,
+        "sqlColdRecoveries": 48,
+        "originalPairHelperDirections": 110,
+        "allOriginal143FullMethods54SqlIdentitiesAndTheoriesRetained": true,
+        "wholeCardCertification": false
+      },
+      "exclusions": [
+        "Whole Annie, four Teemo printings, Starfall, Firestorm, Xerath and all other cards are not certified.",
+        "Count3..5, all source departure/reentry/control/copy/grant branches, prevention/replacement/resistance, Rabadon and legacy direct damage routes remain separately open.",
+        "Existing distribution tests retain exact scope; passing adjacent tests cannot promote whole-card or all-family semantics.",
+        "Fixed99e native evidence is the prior implementation, not the new controller-bonus candidate.",
+        "Current fixed full, visible native controls/paired windows and physical Windows remain open.",
+        "All1740printings14293ruleblocks,705outside-active,236CNdispositions,8ENgap,139news and all original dates/deltas remain."
+      ]
     }
   ]
 }

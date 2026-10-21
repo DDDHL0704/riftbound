@@ -1,0 +1,171 @@
+{
+  "atUtc": "2026-10-21T13:59:07.990279+00:00",
+  "state": "BOUNDED_CURRENT_SOURCE_FOCUS_SQL_ALL110_AND_ONE_CHECK_PASS_NEW_FIXED_FULL_AND_PRODUCT_OPEN",
+  "region": "CN",
+  "language": "zh-CN",
+  "applicableAsOf": "2026-10-21",
+  "adoptedCoreEffectiveDate": "2026-10-16",
+  "primaryCoreId": "DOC-01",
+  "primaryCoreSha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11",
+  "ruleRecords": [
+    {
+      "id": "DOC-01-P074-B007",
+      "textSha256": "42426fa0095c3711daae80f7db223171b1130ef79545ec51c4af001a5ec40ac6"
+    },
+    {
+      "id": "DOC-01-P074-B008",
+      "textSha256": "076379c1013a3a2884859a3a1a32dcbe6969a25dc67fd2662b469bbbb346f8da"
+    },
+    {
+      "id": "DOC-01-P074-B011",
+      "textSha256": "fd0953a6add6836e2d1a75c94ec5fc8fae14e6e99e5cc16f1fbbf436dbc881fa"
+    },
+    {
+      "id": "DOC-01-P074-B012",
+      "textSha256": "c78d1cb1a077b1c667c40a2fe85dff992a0ff3a5e9372133197e4c5966381954"
+    },
+    {
+      "id": "DOC-01-P074-B013",
+      "textSha256": "67efc9a9f351d41684f060c88e286d8668ed1d6efcd87b8320657e81242c0f04"
+    },
+    {
+      "id": "DOC-01-P074-B014",
+      "textSha256": "f9a53bd8197bd37c9fa2bfa8729979a527c49fd03fa65b9cccfa07cff5217466"
+    },
+    {
+      "id": "DOC-01-P074-B015",
+      "textSha256": "1628e4881dd6c53be54bfdf4530821a511be2870156487ee60e1b0eb0b1dc4eb"
+    },
+    {
+      "id": "DOC-01-P074-B018",
+      "textSha256": "1f8c746a89a6c986ad92ceb216180011bd4975f674c4324d454f9be597168c82"
+    },
+    {
+      "id": "DOC-01-P106-B009",
+      "textSha256": "4a9824520b8f9884f2f061ad6361df665e9724252916dab6858b92f401a62df9"
+    },
+    {
+      "id": "DOC-01-P106-B010",
+      "textSha256": "24aaeae8e56e025a865f68d709e133af32067c92d13569346705f0dc4ecebd7e"
+    },
+    {
+      "id": "DOC-01-P106-B013",
+      "textSha256": "e8f26ae705119aebc1f2a2a67d44b6f18f8b530c2aad1d270a3991972c32aa63"
+    },
+    {
+      "id": "DOC-01-P106-B014",
+      "textSha256": "f2049d943e9104700ab004e5f92059e94bb3193b807b1706680d1d120d36ef6b"
+    },
+    {
+      "id": "DOC-01-P106-B015",
+      "textSha256": "c4445eeabd574361d1190f034e2f335d384d991aa8942aabc9769aa788c375b5"
+    },
+    {
+      "id": "DOC-01-P106-B016",
+      "textSha256": "0f67746d5d793a941626ff50457ab6ecca0917ae554b1a9bc5fa7de9c8916a94"
+    },
+    {
+      "id": "DOC-01-P106-B017",
+      "textSha256": "6fab5347ecb64184cc182d0ac5a7f379f2d37213f84040f839db162956e11b9d"
+    },
+    {
+      "id": "DOC-01-P057-B004",
+      "textSha256": "0f1b08f7b4d4eadd04f4ce9b582477dc3e6e9899af245d492db17fb2929b2360"
+    },
+    {
+      "id": "DOC-01-P057-B012",
+      "textSha256": "1184d0c346d9d6428d0ccdce89d9919e0fca39c5943d340d196fa79f1a4df478"
+    },
+    {
+      "id": "DOC-01-P057-B014",
+      "textSha256": "b2b25cd731ce0f72ff3639eb774ca02968954ae5b9028b632d689027cbec4aaf"
+    },
+    {
+      "id": "DOC-01-P030-B007",
+      "textSha256": "7b6c2c1d08f859f7da806fa1131e6e003d646f9d9b1711141a48d84c3c72a280"
+    },
+    {
+      "id": "DOC-01-P030-B010",
+      "textSha256": "4708793247d25e2d066881c2b1fab609c7dcc7d70329f581c79bb72308f6060c"
+    }
+  ],
+  "exactFreshWholeApiRows": [
+    31580,
+    31323,
+    34551
+  ],
+  "freshRowsAllKeysValuesNullsEqualRecordedCN16": true,
+  "wholeSourceMonitorAndAllOriginalDeltasRetained": "var/qa/current-whole-source-monitor-20261021",
+  "sourceReasoning": {
+    "sourceScope": "418.6 assigns default damage to the describing spell/skill, while explicit unit damage and combat keep their own sources; they are not routed through the new modifier helper.",
+    "oneCountedAction": "418.8 explicitly makes each-per counted instructions one aggregated damage action; its printed example is Riven, three armaments and one6 damage. This is supporting general-rule grounding, not an official numeric Teemo two-card+Annie example.",
+    "bonuses": "714 adds simultaneous bonuses once;715.1 applies to a target;715.2 has the exact Annie+Starfall six-to-seven-per-target example;715.3 modifies a distributed pool once.",
+    "zeroCount": "715.4 has the exact zero-count Teemo example: there is no damage action to receive bonus. The original guard stays outside the shared numeric helper.",
+    "boundedDirectConsumers": "Only the existing common ResolveDamageAmount path, performed counted damage, and Xerath activated damage now share current on-field controller bonuses. SelectedBattlefield already uses the common amount path.",
+    "distribution": "Existing distribution source enumeration is reused with null target location for controller bonuses only. Distribution execution and its independent provenance validation are unchanged; existing pool and departure tests passed.",
+    "lifecycle": "A real response sacrifices Annie before the original Starfall resolves. An explicit nonempty draw deck avoids conflating this with burnout recycling, and the unchanged spell then deals six per target.",
+    "passiveSourceZones": "364/365.1 identify the statement as a passive permanent ability normally enabled on the field.366.1 requires an explicit off-field applicability description; Annie has none. Hand/graveyard negatives are bounded tests of this default, not a claim that all passive abilities everywhere are disabled.",
+    "skillController": "191.5.a gives the default source controller, and191.5.b keeps the skill controller unchanged when its source changes control. The three amount paths use the captured stack controller; broad source-control-change behavior remains untested/open."
+  },
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "e7455edc32d43f8253a9d0c6fedb83c347bebafbef064f9b8dffaaabc4b4d266",
+    "implementationSha256": "fe6be52031342a5032e8d4e9fec068092c1ebf3e51b8466008fcc7a233e8b432",
+    "identitySha256": "62a383258beca3bbdc6ff53ad295bf95f737f95afeffde10a993feb3218f26db"
+  },
+  "runtimeLoaderCorrection": "actual-runtime-loader-link-correction-v1.json",
+  "soleCheck": {
+    "status": "CHECK_AND_EXACT_CASE_METHOD_PARITY_PASS",
+    "cases": 13304,
+    "methods": 7516,
+    "failed": 0,
+    "skipped": 0
+  },
+  "focusDistinct": {
+    "cases": 863,
+    "methods": 522
+  },
+  "newConformance": {
+    "cases": 50,
+    "methods": 6
+  },
+  "sqlScope": {
+    "cases": 12,
+    "commands": 48,
+    "events": 152,
+    "coldRecoveries": 48,
+    "directAtomicRejections": 48,
+    "independentStructuralRejections": 48,
+    "authoritativeHistoricalStates": 48,
+    "privateSnapshots": 96,
+    "privatePrompts": 96,
+    "scope": "Four exact Teemo printings x count0/1/2, own faceup on-field Annie plus Void. No SQL certification of Starfall/Firestorm/Xerath from these counted cases."
+  },
+  "originalPairValidation": {
+    "directions": 110,
+    "seed": 424242,
+    "originalVictoryAndReplayAssertionHelper": true,
+    "publicFull143MethodsNotAllExecutedByHelper": true,
+    "proof": "original-all110-pairs-independent-exact-readback-v2.json"
+  },
+  "boundaries": [
+    "Whole Annie, four Teemo printings, Starfall, Firestorm, Xerath and all other cards are not certified.",
+    "Count3..5, all source departure/reentry/control/copy/grant branches, prevention/replacement/resistance, Rabadon and legacy direct damage routes remain separately open.",
+    "Existing distribution tests retain exact scope; passing adjacent tests cannot promote whole-card or all-family semantics.",
+    "Fixed99e native evidence is the prior implementation, not the new controller-bonus candidate.",
+    "Current fixed full, visible native controls/paired windows and physical Windows remain open.",
+    "All1740printings14293ruleblocks,705outside-active,236CNdispositions,8ENgap,139news and all original dates/deltas remain."
+  ],
+  "wholePrintingOrGoalComplete": false,
+  "priorSourceReview": {
+    "path": "current-controller-three-paths-exact-source-scope-review-v1.json",
+    "sha256": "21993cdd18fb2d71bfed419f45237e302591a620f0d468549bbca8a68b3cbf99"
+  },
+  "priorSourceReviewBeforeCheckClosed": {
+    "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/current-controller-three-paths-exact-source-scope-review-v2.json",
+    "sha256": "20a0bdea47cd1c18f807db5d852f0071b8b335ad9b25bb618a3acf5f269bbb83"
+  }
+}

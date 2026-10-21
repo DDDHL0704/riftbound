@@ -1,0 +1,11 @@
+{
+  "atUtc": "2026-10-21T13:09:36.568001+00:00",
+  "status": "COMPLETED_FIXED25C_DUPLICATE_SQL_EXTRACTION_RETIRED_AFTER_ALL_ZIP_MEMBERS_BYTE_EXACT_AND_INDEPENDENT_GATE_PASS",
+  "files": 493,
+  "logicalBytes": 7264006,
+  "originalNineVerificationZipsAndExact53ManifestKept": true,
+  "memberManifest": "ci25c-original-sql-zip-member-extraction-manifest-v1.json.gz",
+  "memberManifestSha256": "24610f10bb6f9a485fc275db015cdc81e44c8b24198ff8e9fee6cdedeba0fe04",
+  "runningCheckRuntimeAndAllOriginalDatabasesUntouched": true,
+  "physicalApfsReclaimNotInferred": true
+}

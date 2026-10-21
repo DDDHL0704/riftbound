@@ -28293,8 +28293,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             var damageAmount = stackItem.DamageAmount > 0
                 ? stackItem.DamageAmount
                 : P4ActivatedAbilityCatalog.XerathDamageAbilityDamageAmount;
-            damageAmount = ApplyBattlefieldTargetSpellSkillDamageBonus(
+            damageAmount = ApplySpellSkillDamageBonuses(
                 state,
+                stackItem.ControllerId,
                 targetObjectId,
                 damageAmount);
             var preventDamage = state.UntilEndOfTurnEffects.Contains(
@@ -31603,7 +31604,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var remainingViewed=ObserveDeckCards(state,playerZones,cardObjects,stackItem,stackItem.ControllerId,viewedCardIds,"REVEAL",0,events);
 
         // A zero count performs no damage action (715.4). For a performed
-        // counted action, apply its local bonus before damage prevention.
+        // counted action, apply its bonuses before damage prevention.
         if (damageAmount > 0)
         {
             foreach (var targetObjectId in stackItem.TargetObjectIds)
@@ -31617,7 +31618,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     cardObjects,
                     stackItem.ControllerId,
                     targetObjectId,
-                    ApplyBattlefieldTargetSpellSkillDamageBonus(state, targetObjectId, damageAmount),
+                    ApplySpellSkillDamageBonuses(state, stackItem.ControllerId, targetObjectId, damageAmount),
                     damageTriggeredDestroyTargetObjectIds,
                     preventDamage,
                     preventionEffectId);
@@ -33973,10 +33974,20 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             && behavior.DamageAmount == 0 && behavior.ConditionalDamageAmount == 0)
             return 0;
 
-        return ApplyBattlefieldTargetSpellSkillDamageBonus(
+        return ApplySpellSkillDamageBonuses(
             state,
+            stackItem.ControllerId,
             targetObjectId,
             damageAmount);
+    }
+
+    private static int ApplySpellSkillDamageBonuses(MatchState state, string controllerId, string? targetObjectId, int damageAmount)
+    {
+        if (damageAmount < 0) return damageAmount;
+        // Reuse the current controlled field sources already read for a
+        // distributed pool. That pool applies its bonuses separately, once.
+        var controllerBonus = DistributionBonuses(state, controllerId, null).Sum(b => b.Amount);
+        return ApplyBattlefieldTargetSpellSkillDamageBonus(state, targetObjectId, checked(damageAmount + controllerBonus));
     }
 
     private static int ApplyBattlefieldTargetSpellSkillDamageBonus(MatchState state, string? targetObjectId, int damageAmount)

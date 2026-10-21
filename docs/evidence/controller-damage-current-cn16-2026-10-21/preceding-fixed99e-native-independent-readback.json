@@ -1,0 +1,39 @@
+{
+  "status": "PASS_INDEPENDENT_FIXED99E_CI_EXPORTED_NATIVE3_GATEWAY17_ALL_SQL_HISTORY_AND_NORMAL_SCORE_REPLAY_NOT_VISIBLE_OR_WINDOWS",
+  "room": "N27-RETARGET-46CF412136",
+  "commands": 93,
+  "events": 664,
+  "originalPrefix": 73,
+  "gatewayContinuationCommands": 17,
+  "nativeAcceptedGameplayCommands": 3,
+  "actualHistoricalPayloads": {
+    "state_snapshots": 93,
+    "snapshots": 182,
+    "action_prompts": 182
+  },
+  "originalPendingStates": 1,
+  "originalDraftStates": 0,
+  "winningScore": 8,
+  "losingScore": 0,
+  "finalTurn": 63,
+  "allOriginalFieldsNullConditionalOmissionsAndPrivateProjectionValuesExact": true,
+  "everyOriginalHistoricalStateReplayedExactlyOnce": true,
+  "verificationMethod": "Independent literal sequential replay plus unchanged complete production recovery-frame validation",
+  "usesPreviouslyVerifiedLinearHarness": true,
+  "priorCandidateQuadraticTimeoutNotThisRun": true,
+  "originalRoomAllAcceptedHistoryPrivateSeedAndBlankInitialPreserved": true,
+  "literalKeepTargetCostDrawOwnerAndOneConquestSevenHoldsChecks": true,
+  "actualReadOnlyConnection": true,
+  "privateStorageContract": "Latest projection per viewer/tick; same-tick earlier authoritative histories remain retained, superseded private rows are not claimed",
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "e7455edc32d43f8253a9d0c6fedb83c347bebafbef064f9b8dffaaabc4b4d266",
+    "implementationSha256": "bac4b4da3e4ed59fcec17c39d78b9e15dc892550f3df2f80341080740e71f65f",
+    "identitySha256": "95244231b5f59fcbe7df511412aabdf4ceab59dae72c97b8f52aa0f63e822e8c"
+  },
+  "completeCurrentCandidateFullCiVisibleAndWindowsAcceptanceRemainSeparate": true,
+  "visibleAndPhysicalWindowsAcceptance": false
+}

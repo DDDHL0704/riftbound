@@ -1,0 +1,12 @@
+{
+  "atUtc": "2026-10-21T14:11:48.506222+00:00",
+  "status": "EXACT_ORIGINAL_CURRENT_GOVERNANCE_LOSSLESS_GZIP_VERIFIED_BEFORE_PLAINTEXT_RETIREMENT",
+  "originalPath": "var/qa/spell-skill-controller-damage-current-cn16-20261021/postpublication-current-governance-original-v1.json",
+  "originalBytes": 18962834,
+  "originalSha256": "37ab0a9f8eec7e5768fc014b5e6b2f723a29b21a99497da525ccc7b785482817",
+  "retainedGzipPath": "docs/evidence/controller-damage-current-cn16-2026-10-21/postpublication-current-governance-original.json.gz",
+  "gzipBytes": 1574240,
+  "gzipSha256": "60de88deeb3260722a4caa6a7bbecfd394afb780165afab7cc241b175f4a06a5",
+  "all17042OriginalObligationRowsAndFullFieldsRecoverable": true,
+  "noSemanticStatusOrScopeChanged": true
+}

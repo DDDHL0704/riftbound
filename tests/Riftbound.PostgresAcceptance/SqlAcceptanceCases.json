@@ -218,6 +218,10 @@
     {
       "id": "teemo-counted-damage",
       "sourceType": "TeemoCountedDamageSqlAcceptance"
+    },
+    {
+      "id": "controller-damage-bonus",
+      "sourceType": "ControllerDamageBonusSqlAcceptance"
     }
   ]
 }

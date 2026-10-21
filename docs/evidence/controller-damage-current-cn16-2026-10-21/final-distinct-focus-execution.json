@@ -1,0 +1,21 @@
+{
+  "atUtc": "2026-10-21T12:54:35.621443+00:00",
+  "status": "PASS_CURRENT_CONTROLLER_EXACT_DISTINCT_FOCUS_CASE_AND_METHOD_UNION_NOT_FULL",
+  "executions": [
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/after-fix-first-and-unchanged-pool-focus-v1/focus/results.trx",
+      "sha256": "c03ecb32f1e7e57c61663f9decea52f4b8a6ce9824183b89eb1d6aacaadb015a",
+      "cases": 113,
+      "methods": 26
+    },
+    {
+      "path": "var/qa/spell-skill-controller-damage-current-cn16-20261021/adjacent-damage-source-identity-focus-v1/focus/results.trx",
+      "sha256": "c7470142d180fe017bce5fc9f012f0686b212238397198408119926a67446792",
+      "cases": 860,
+      "methods": 521
+    }
+  ],
+  "distinctCases": 863,
+  "distinctMethods": 522,
+  "allOriginalConformanceMethodsTheoriesAndAssertionsRetained": true
+}

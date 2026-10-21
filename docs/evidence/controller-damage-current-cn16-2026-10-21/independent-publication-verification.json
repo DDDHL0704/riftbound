@@ -1,0 +1,22 @@
+{
+  "atUtc": "2026-10-21T14:09:47.517591+00:00",
+  "status": "PASS_INDEPENDENT_CONTROLLER_PUBLICATION_ALL_OLD_IDS_SOURCES_SCOPES_AND_ARCHIVE_CLOSED_SET_RETAINED",
+  "originalReviewsExact": 157,
+  "newReviewCount": 158,
+  "originalWholeContextsExact": 35,
+  "currentInputContextsRefreshedWithCompleteOldObjects": 37,
+  "currentContexts": 73,
+  "all245GateObjectsAndSevenSourceDeltasWholeExact": true,
+  "historicalAnnieCounterexampleActual1NotRelabeledCurrent2FollowupSeparate": true,
+  "originalObligationIdsRetained": 16992,
+  "newBranches": 50,
+  "currentObligations": 17042,
+  "allSourceUniverseCountsDatesAndScopesExact": true,
+  "archiveMembers": 345,
+  "archiveBytes": 26280923,
+  "allArchiveAndPriorReferencedMemberBytesHashesExact": true,
+  "privateSessionsExcluded": true,
+  "governanceValid": true,
+  "semanticCoverageCertified": false,
+  "currentFixedFullVisiblePhysicalWindowsAndGoalCompletion": "OPEN"
+}

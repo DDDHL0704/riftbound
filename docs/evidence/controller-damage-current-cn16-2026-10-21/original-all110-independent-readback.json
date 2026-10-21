@@ -1,0 +1,29 @@
+{
+  "atUtc": "2026-10-21T13:04:11.944026+00:00",
+  "status": "PASS_INDEPENDENT_CURRENT_ALL110_ORIGINAL_HELPER_DIRECTIONS_SAME_424242_AND_VICTORY_REPLAY_ASSERTIONS_NO_RERUN",
+  "originalOwnerWrapperFailureRetained": {
+    "path": "original-all110-pairs-owner-terminal-v1.json",
+    "sha256": "13fd5f2df056b1afaf41db532f694278e7909a3b17398c437b53826cf804d644",
+    "reason": "Helper uses default PascalCase for nested RuleInputIdentity while wrapper compared its complete raw object to a camelCase receipt. All seven exact schema fields and values now independently compared; no engine, source, action, seed, result or assertions changed."
+  },
+  "result": {
+    "path": "original-all110-pairs-result-v1.json",
+    "sha256": "95aef3736a81cfcce104975d87a59faec9f3c351c8a1ae3ee03417e2b3393e1a"
+  },
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "e7455edc32d43f8253a9d0c6fedb83c347bebafbef064f9b8dffaaabc4b4d266",
+    "implementationSha256": "fe6be52031342a5032e8d4e9fec068092c1ebf3e51b8466008fcc7a233e8b432",
+    "identitySha256": "62a383258beca3bbdc6ff53ad295bf95f737f95afeffde10a993feb3218f26db"
+  },
+  "originalDecks": 11,
+  "originalPairs": 110,
+  "seed": 424242,
+  "allOriginal143PublicMethodsAndNineSourcesRetainedButOnly110OriginalHelperDirectionsExecuted": true,
+  "currentFullCiVisiblePhysicalWindowsAndWholePrintingCertification": "OPEN",
+  "allFrozen102FilesAnd3330SourceHashesStable": true,
+  "noOriginalGameOrTestExecutionRepeatedOrRewritten": true
+}
