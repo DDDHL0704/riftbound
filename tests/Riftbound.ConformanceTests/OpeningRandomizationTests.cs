@@ -220,13 +220,13 @@ public sealed class OpeningRandomizationTests
         await session.EnsurePlayerAsync("alice", default); await session.EnsurePlayerAsync("bob", default);
         var seed = Assert.Single(store.Seeds.Distinct());
         Assert.NotEqual(0, seed);
-        var initial = MatchReplayInitialStateBuilder.FromSeats(session.RoomId,
-            new Dictionary<string, string> { ["alice"] = "P1", ["bob"] = "P2" }) with { Seed = seed };
+        // Durable room entries now precede both original deck submissions.
+        var initial = MatchState.Create(session.RoomId) with { Seed = seed };
         var catalog = await OfficialCardCatalog.LoadDefaultAsync();
         var deck = PreconstructedDeckCatalog.Build(catalog).First().Decklist;
         var command = new SubmitDeckCommand(deck.LegendCardNo, deck.ChampionCardNo,
             deck.MainDeck, deck.RuneDeck, deck.Battlefields);
-        foreach (var player in initial.Seats.Keys)
+        foreach (var player in new[] { "alice", "bob" })
             Assert.True((await session.SubmitDeckAsync(player, "deck", command, Raw(command), default)).Accepted);
         Assert.True((await session.ReadyAsync("alice", "ready", Raw(new ReadyCommand()), default)).Accepted);
         var result = await session.ReadyAsync("bob", "ready", Raw(new ReadyCommand()), default);
@@ -346,6 +346,14 @@ public sealed class OpeningRandomizationTests
         public ValueTask SavePlayerSessionAsync(string room, string player, string seat, string hash,
             CancellationToken token, long openingSeed = 0)
         { Seeds.Add(openingSeed); return ValueTask.CompletedTask; }
+        public async ValueTask CommitRoomSeatAsync(MatchJournalEntry entry, string reconnectTokenHash,
+            IMatchJournal journal, CancellationToken cancellationToken)
+        {
+            await SavePlayerSessionAsync(entry.RoomId, entry.PlayerId, entry.AuthoritativeState.Seats[entry.PlayerId],
+                reconnectTokenHash, cancellationToken, entry.OpeningSeed);
+            await journal.RecordAsync(entry, cancellationToken);
+        }
+
         public ValueTask<bool> HasReconnectTokenHashAsync(string room, string player, string hash, CancellationToken token)
             => ValueTask.FromResult(false);
     }

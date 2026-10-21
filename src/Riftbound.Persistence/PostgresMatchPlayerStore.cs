@@ -20,6 +20,25 @@ public sealed class PostgresMatchPlayerStore(NpgsqlDataSource dataSource) : IMat
         await using var connection = await dataSource.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
         await using var transaction = await connection.BeginTransactionAsync(cancellationToken).ConfigureAwait(false);
 
+        await SavePlayerSessionInTransactionAsync(connection, transaction, roomId, playerId, seat,
+            reconnectTokenHash, cancellationToken, openingSeed).ConfigureAwait(false);
+
+        await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
+    }
+
+    public ValueTask CommitRoomSeatAsync(MatchJournalEntry entry, string reconnectTokenHash,
+        IMatchJournal journal, CancellationToken cancellationToken)
+    {
+        if (journal is not IMatchRoomSeatJournal atomic)
+            throw new MatchSessionException(ErrorCodes.RecoveryInconsistent,
+                "durable room seats require an atomic player-session and journal commit");
+        return atomic.RecordRoomSeatAsync(entry, reconnectTokenHash, cancellationToken);
+    }
+
+    internal static async Task SavePlayerSessionInTransactionAsync(NpgsqlConnection connection,
+        NpgsqlTransaction transaction, string roomId, string playerId, string seat,
+        string reconnectTokenHash, CancellationToken cancellationToken, long openingSeed)
+    {
         await AcquireMatchPlayerSeatLockAsync(connection, transaction, roomId, cancellationToken).ConfigureAwait(false);
         await EnsureMatchAsync(connection, transaction, roomId, openingSeed, cancellationToken).ConfigureAwait(false);
         try
@@ -38,8 +57,6 @@ public sealed class PostgresMatchPlayerStore(NpgsqlDataSource dataSource) : IMat
         {
             throw PlayerSeatConflict(roomId, playerId, seat, exception);
         }
-
-        await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
     }
 
     public async ValueTask<bool> HasReconnectTokenHashAsync(

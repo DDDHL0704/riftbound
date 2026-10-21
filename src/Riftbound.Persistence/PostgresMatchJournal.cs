@@ -8,7 +8,7 @@ using Riftbound.Engine;
 
 namespace Riftbound.Persistence;
 
-public sealed class PostgresMatchJournal(NpgsqlDataSource dataSource) : IMatchJournal
+public sealed class PostgresMatchJournal(NpgsqlDataSource dataSource) : IMatchRoomSeatJournal
 {
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -23,14 +23,35 @@ public sealed class PostgresMatchJournal(NpgsqlDataSource dataSource) : IMatchJo
         await using var connection = await dataSource.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
         await using var transaction = await connection.BeginTransactionAsync(cancellationToken).ConfigureAwait(false);
 
+        await RecordInTransactionAsync(connection, transaction, entry, cancellationToken).ConfigureAwait(false);
+
+        await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
+    }
+
+    public async ValueTask RecordRoomSeatAsync(MatchJournalEntry entry, string reconnectTokenHash,
+        CancellationToken cancellationToken)
+    {
+        entry.ValidateRuleInputs();
+        if (entry.CommandType != MatchSession.RoomSeatCommandType || !entry.Accepted || entry.ErrorMessage is not null
+            || !entry.AuthoritativeState.Seats.TryGetValue(entry.PlayerId, out var seat) || seat is not ("P1" or "P2"))
+            throw new MatchSessionException(ErrorCodes.RecoveryInconsistent, "invalid original room seat commit");
+        await using var connection = await dataSource.OpenConnectionAsync(cancellationToken).ConfigureAwait(false);
+        await using var transaction = await connection.BeginTransactionAsync(cancellationToken).ConfigureAwait(false);
+        await PostgresMatchPlayerStore.SavePlayerSessionInTransactionAsync(connection, transaction,
+            entry.RoomId, entry.PlayerId, seat, reconnectTokenHash, cancellationToken, entry.OpeningSeed).ConfigureAwait(false);
+        await RecordInTransactionAsync(connection, transaction, entry, cancellationToken).ConfigureAwait(false);
+        await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
+    }
+
+    private static async Task RecordInTransactionAsync(NpgsqlConnection connection, NpgsqlTransaction transaction,
+        MatchJournalEntry entry, CancellationToken cancellationToken)
+    {
         await UpsertMatchAsync(connection, transaction, entry, cancellationToken).ConfigureAwait(false);
         await InsertCommandAsync(connection, transaction, entry, cancellationToken).ConfigureAwait(false);
         await InsertEventsAsync(connection, transaction, entry, cancellationToken).ConfigureAwait(false);
         await UpsertStateSnapshotAsync(connection, transaction, entry, cancellationToken).ConfigureAwait(false);
         await UpsertSnapshotsAsync(connection, transaction, entry, cancellationToken).ConfigureAwait(false);
         await UpsertPromptsAsync(connection, transaction, entry, cancellationToken).ConfigureAwait(false);
-
-        await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
     }
 
     private static async Task UpsertMatchAsync(

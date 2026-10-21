@@ -1,0 +1,266 @@
+{
+  "status": "COMPLETE_CURRENT_EXPLICIT_EN_VIEWS_READ_AND_LATEST_REGISTERED_DIFF_DEFAULT_LOCALE_HYPOTHESIS_SEPARATE",
+  "startedAtUtc": "2026-10-21T18:22:05.416122+00:00",
+  "noCertificateValidationDisabled": true,
+  "noRootTrackedSourcesOrManifestsChanged": true,
+  "region": "GLOBAL",
+  "language": "en-US",
+  "publicationEffectiveDatesNotInferredFromFetchTime": true,
+  "reportedTotal": 1416,
+  "returnedUnique": 1408,
+  "reportedButUnreturned": 8,
+  "currentViewComparison": {
+    "reportedTotal": 1416,
+    "returnedEntries": 1408,
+    "reportedMinusReturned": 8,
+    "views": [
+      {
+        "name": "currentPagination",
+        "rawEntries": 1408,
+        "distinctEntries": 1408,
+        "identicalDuplicateIds": {},
+        "missingFromCurrentUnion": []
+      },
+      {
+        "name": "currentWholeList",
+        "rawEntries": 1408,
+        "distinctEntries": 1408,
+        "identicalDuplicateIds": {},
+        "missingFromCurrentUnion": []
+      },
+      {
+        "name": "currentSsr",
+        "rawEntries": 1408,
+        "distinctEntries": 1408,
+        "identicalDuplicateIds": {},
+        "missingFromCurrentUnion": []
+      }
+    ]
+  },
+  "latestAlreadyRegisteredSourceVersion": {
+    "role": "full-exact-current-rows-wrapper-only",
+    "path": "docs/evidence/source-round-2026-10-21/originals/en-after-full-rows-checker-adapter-v1.json",
+    "sha256": "9dc226a71cc03e16dc7868735741f65df640c3f4f86da354371cce81e449f4e1"
+  },
+  "diffAgainstLatestRegisteredVersion": {
+    "previousRows": 1408,
+    "currentRows": 1408,
+    "addedIds": [],
+    "unreturnedPreviousIds": [],
+    "changedCompleteRows": [],
+    "allCompleteRowsKeysValuesAndNullsExact": true,
+    "canonicalCurrentRowsSha256": "f8180b9cd6582e6ba4478d4ef08ff825761cf4d8a1f95922ec44148ac998acdd"
+  },
+  "boundedDefaultLocaleGapHypothesis": {
+    "actualMetadata": {
+      "channelMachineName": "riftbound_website",
+      "channelHostname": "playriftbound.com",
+      "smartListMachineName": "riftbound_gallery_cards",
+      "from": 0,
+      "limit": 2000,
+      "overrideSize": 0,
+      "totalItems": 1416,
+      "totalPages": 1,
+      "locale": "en-us",
+      "resultsUpdatedAt": "2026-10-21T18:22:35.243031276Z"
+    },
+    "returnedRows": 1408,
+    "distinctIds": 1408,
+    "idsNotInCurrentExplicitEnglishViews": [],
+    "explicitEnglishIdsMissing": [],
+    "noMergeWithoutLocaleEvidence": true,
+    "backendCauseNotInferred": true
+  },
+  "finishedAtUtc": "2026-10-21T18:22:39.237889+00:00",
+  "originalResponseReceipts": [
+    {
+      "url": "https://content.publishing.riotgames.com/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?limit=2000&from=0",
+      "startedAtUtc": "2026-10-21T18:22:33.963002+00:00",
+      "receivedAtUtc": "2026-10-21T18:22:39.178769+00:00",
+      "curlExitCode": 0,
+      "httpStatus": 200,
+      "resolvedUrl": "https://content.publishing.riotgames.com/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?limit=2000&from=0",
+      "selectedResponseHeaders": {
+        "date": "Wed, 21 Oct 2026 18:22:35 GMT",
+        "content-type": "application/json",
+        "cache-control": "no-cache, private"
+      },
+      "originalRawSha256": "3a606781f50d59be05ac5211f4161ba5c2d0830fb2669f03712b30579be3ee7a",
+      "originalRawBytes": 3836069,
+      "losslessCompressedOriginal": "var/qa/current-whole-source-monitor-20261022/en-curl-originals-v1/default-locale-whole.json.gz",
+      "compressedSha256": "28256ce1c8882b2d25be04221289453643f1f1bbc97edea641e7f329597ae89b"
+    },
+    {
+      "url": "https://playriftbound.com/en-us/card-gallery/",
+      "startedAtUtc": "2026-10-21T18:22:27.894333+00:00",
+      "receivedAtUtc": "2026-10-21T18:22:33.750631+00:00",
+      "curlExitCode": 0,
+      "httpStatus": 200,
+      "resolvedUrl": "https://playriftbound.com/en-us/card-gallery/",
+      "selectedResponseHeaders": {
+        "age": "10",
+        "cache-control": "public,max-age=0,must-revalidate",
+        "content-type": "text/html; charset=utf-8",
+        "date": "Wed, 21 Oct 2026 18:22:28 GMT",
+        "etag": "W/\"12rct56kwgh2db9r\""
+      },
+      "originalRawSha256": "4ac870a04b697acf0c19823c101f5724cb7e672f65effba01a7e01a97b17a47d",
+      "originalRawBytes": 3981786,
+      "losslessCompressedOriginal": "var/qa/current-whole-source-monitor-20261022/en-curl-originals-v1/en-gallery.html.gz",
+      "compressedSha256": "deff526c8c9ec0565441c9f795d03aa723310e57ca614b836083485cf1f86529"
+    },
+    {
+      "url": "https://content.publishing.riotgames.com/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=en_US&limit=200&from=0",
+      "startedAtUtc": "2026-10-21T18:22:05.416305+00:00",
+      "receivedAtUtc": "2026-10-21T18:22:07.314987+00:00",
+      "curlExitCode": 0,
+      "httpStatus": 200,
+      "resolvedUrl": "https://content.publishing.riotgames.com/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=en_US&limit=200&from=0",
+      "selectedResponseHeaders": {
+        "date": "Wed, 21 Oct 2026 18:22:06 GMT",
+        "content-type": "application/json",
+        "cache-control": "no-cache, private"
+      },
+      "originalRawSha256": "b12f1fbae1c78bfc7de089a15825912f38e6eff97d037158943f58682bd32d01",
+      "originalRawBytes": 536605,
+      "losslessCompressedOriginal": "var/qa/current-whole-source-monitor-20261022/en-curl-originals-v1/en-page-0000.json.gz",
+      "compressedSha256": "7825d7e4ba887dcb4cd682fabbfda98a915ff2153fc255c333d5e8fbb161a321"
+    },
+    {
+      "url": "https://content.publishing.riotgames.com/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=en_US&limit=200&from=200",
+      "startedAtUtc": "2026-10-21T18:22:07.323986+00:00",
+      "receivedAtUtc": "2026-10-21T18:22:08.899270+00:00",
+      "curlExitCode": 0,
+      "httpStatus": 200,
+      "resolvedUrl": "https://content.publishing.riotgames.com/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=en_US&limit=200&from=200",
+      "selectedResponseHeaders": {
+        "date": "Wed, 21 Oct 2026 18:22:08 GMT",
+        "content-type": "application/json",
+        "cache-control": "no-cache, private"
+      },
+      "originalRawSha256": "0e1dee81e92cbe1ae18871bc0d298bd0ae0160c01e2b66346b652efc39b998f4",
+      "originalRawBytes": 545569,
+      "losslessCompressedOriginal": "var/qa/current-whole-source-monitor-20261022/en-curl-originals-v1/en-page-0200.json.gz",
+      "compressedSha256": "4d84ad665f1ad081695cd31c796b49b3aea6d2be6cfecb6e125938f6d092874e"
+    },
+    {
+      "url": "https://content.publishing.riotgames.com/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=en_US&limit=200&from=400",
+      "startedAtUtc": "2026-10-21T18:22:07.324112+00:00",
+      "receivedAtUtc": "2026-10-21T18:22:13.272473+00:00",
+      "curlExitCode": 0,
+      "httpStatus": 200,
+      "resolvedUrl": "https://content.publishing.riotgames.com/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=en_US&limit=200&from=400",
+      "selectedResponseHeaders": {
+        "date": "Wed, 21 Oct 2026 18:22:09 GMT",
+        "content-type": "application/json",
+        "cache-control": "no-cache, private"
+      },
+      "originalRawSha256": "371662f48a9d2462919e503ea92bf550fade854d79c15f96b32f02306ba3501c",
+      "originalRawBytes": 529676,
+      "losslessCompressedOriginal": "var/qa/current-whole-source-monitor-20261022/en-curl-originals-v1/en-page-0400.json.gz",
+      "compressedSha256": "1ee46d4ab8a3dd49adbef3c61ef70c5c30776519aad65544803ce6ffb3a63406"
+    },
+    {
+      "url": "https://content.publishing.riotgames.com/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=en_US&limit=200&from=600",
+      "startedAtUtc": "2026-10-21T18:22:07.327870+00:00",
+      "receivedAtUtc": "2026-10-21T18:22:18.951507+00:00",
+      "curlExitCode": 0,
+      "httpStatus": 200,
+      "resolvedUrl": "https://content.publishing.riotgames.com/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=en_US&limit=200&from=600",
+      "selectedResponseHeaders": {
+        "date": "Wed, 21 Oct 2026 18:22:08 GMT",
+        "content-type": "application/json",
+        "cache-control": "no-cache, private"
+      },
+      "originalRawSha256": "e7887395231325cab93fb9975c54e16d4222cfcac15e41a1936c5fa1c537a021",
+      "originalRawBytes": 567142,
+      "losslessCompressedOriginal": "var/qa/current-whole-source-monitor-20261022/en-curl-originals-v1/en-page-0600.json.gz",
+      "compressedSha256": "36fb65ade84ba1cbfc98504246a4339f03801d64e1aa9a36141ebe5adade5488"
+    },
+    {
+      "url": "https://content.publishing.riotgames.com/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=en_US&limit=200&from=800",
+      "startedAtUtc": "2026-10-21T18:22:08.908457+00:00",
+      "receivedAtUtc": "2026-10-21T18:22:10.479358+00:00",
+      "curlExitCode": 0,
+      "httpStatus": 200,
+      "resolvedUrl": "https://content.publishing.riotgames.com/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=en_US&limit=200&from=800",
+      "selectedResponseHeaders": {
+        "date": "Wed, 21 Oct 2026 18:22:09 GMT",
+        "content-type": "application/json",
+        "cache-control": "no-cache, private"
+      },
+      "originalRawSha256": "ad1a4d8eda3ad56607ac77370c79b32a739d0aea0d1b90e1ad574c20379dee3b",
+      "originalRawBytes": 535967,
+      "losslessCompressedOriginal": "var/qa/current-whole-source-monitor-20261022/en-curl-originals-v1/en-page-0800.json.gz",
+      "compressedSha256": "7978efddc694920c40254837c0b5b8b753df4f0ae7a0d869abee29221f959d96"
+    },
+    {
+      "url": "https://content.publishing.riotgames.com/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=en_US&limit=200&from=1000",
+      "startedAtUtc": "2026-10-21T18:22:10.487769+00:00",
+      "receivedAtUtc": "2026-10-21T18:22:11.761952+00:00",
+      "curlExitCode": 0,
+      "httpStatus": 200,
+      "resolvedUrl": "https://content.publishing.riotgames.com/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=en_US&limit=200&from=1000",
+      "selectedResponseHeaders": {
+        "date": "Wed, 21 Oct 2026 18:22:10 GMT",
+        "content-type": "application/json",
+        "cache-control": "no-cache, private"
+      },
+      "originalRawSha256": "d6d5d001019a48287bf03563b72f9d1e47d697b3a5e3bd7d6105dafa8180e301",
+      "originalRawBytes": 541013,
+      "losslessCompressedOriginal": "var/qa/current-whole-source-monitor-20261022/en-curl-originals-v1/en-page-1000.json.gz",
+      "compressedSha256": "960bc4507b19065a1a3b0cd49b5b66daf6101258afbe7141a3bbe6021d696b6a"
+    },
+    {
+      "url": "https://content.publishing.riotgames.com/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=en_US&limit=200&from=1200",
+      "startedAtUtc": "2026-10-21T18:22:11.771197+00:00",
+      "receivedAtUtc": "2026-10-21T18:22:21.620480+00:00",
+      "curlExitCode": 0,
+      "httpStatus": 200,
+      "resolvedUrl": "https://content.publishing.riotgames.com/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=en_US&limit=200&from=1200",
+      "selectedResponseHeaders": {
+        "date": "Wed, 21 Oct 2026 18:22:12 GMT",
+        "content-type": "application/json",
+        "cache-control": "no-cache, private"
+      },
+      "originalRawSha256": "aac03da8befd86d753f391027b7461a4340e536edfe32dbc815e3c493afb03d9",
+      "originalRawBytes": 538460,
+      "losslessCompressedOriginal": "var/qa/current-whole-source-monitor-20261022/en-curl-originals-v1/en-page-1200.json.gz",
+      "compressedSha256": "0f4838f119f807082bf44ba5ad1fc137a8b734ada44f60376cbd3f907a9888bd"
+    },
+    {
+      "url": "https://content.publishing.riotgames.com/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=en_US&limit=200&from=1400",
+      "startedAtUtc": "2026-10-21T18:22:13.281711+00:00",
+      "receivedAtUtc": "2026-10-21T18:22:15.170470+00:00",
+      "curlExitCode": 0,
+      "httpStatus": 200,
+      "resolvedUrl": "https://content.publishing.riotgames.com/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=en_US&limit=200&from=1400",
+      "selectedResponseHeaders": {
+        "date": "Wed, 21 Oct 2026 18:22:14 GMT",
+        "content-type": "application/json",
+        "cache-control": "no-cache, private"
+      },
+      "originalRawSha256": "2043b3b9b32509634e462a36895459b0bd225f7aa95b9b96e942f2e99a69405c",
+      "originalRawBytes": 48267,
+      "losslessCompressedOriginal": "var/qa/current-whole-source-monitor-20261022/en-curl-originals-v1/en-page-1400.json.gz",
+      "compressedSha256": "75d5085e16e00af8f50733118a89fabc930427336d521744b1480ee33fe2a672"
+    },
+    {
+      "url": "https://content.publishing.riotgames.com/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=en_US&limit=2000&from=0",
+      "startedAtUtc": "2026-10-21T18:22:21.629528+00:00",
+      "receivedAtUtc": "2026-10-21T18:22:27.831250+00:00",
+      "curlExitCode": 0,
+      "httpStatus": 200,
+      "resolvedUrl": "https://content.publishing.riotgames.com/publishing-content/v2.0/public/channel/riftbound_website/list/riftbound_gallery_cards?locale=en_US&limit=2000&from=0",
+      "selectedResponseHeaders": {
+        "date": "Wed, 21 Oct 2026 18:22:23 GMT",
+        "content-type": "application/json",
+        "cache-control": "no-cache, private"
+      },
+      "originalRawSha256": "a7076f6d639b7eed45781d9dc418461870623803c3457dfb7e430c56334b21d1",
+      "originalRawBytes": 3836066,
+      "losslessCompressedOriginal": "var/qa/current-whole-source-monitor-20261022/en-curl-originals-v1/en-whole.json.gz",
+      "compressedSha256": "9856980b4a1110f63510fca0bc639c3dcca8daa51fa5089e584f4bfa31e82dfb"
+    }
+  ]
+}

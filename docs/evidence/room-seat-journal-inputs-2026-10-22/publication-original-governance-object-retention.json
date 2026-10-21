@@ -1,0 +1,20 @@
+{
+  "atUtc": "2026-10-21T19:40:29.435307+00:00",
+  "oldReviews": 161,
+  "oldContexts": 76,
+  "oldGates": 245,
+  "oldDeltas": 7,
+  "allCompleteOldReviewGateAndDeltaObjectsExact": true,
+  "oldContextsExact": 28,
+  "oldContextsOnlyCurrentImplementationRefreshWithCompleteOriginalsRetained": 48,
+  "originalObligationCount": 17088,
+  "newBehaviorBranches": 21,
+  "newGlobalAnnouncementSourceGates": 5,
+  "expectedRemainingObligations": 17114,
+  "originalCompleteManifestAndReviewsInArchive": true,
+  "baselineGovernance": {
+    "path": "docs/evidence/special-trigger-damage-current-cn16-2026-10-22/final-governance.json.gz",
+    "sha256": "06c395fffa9b941e9e7f2c9aaa436ee708e3c821ba59f2fbd2ca75957ecb2d9f"
+  },
+  "semanticCoverageCertified": false
+}

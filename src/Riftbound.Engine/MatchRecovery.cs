@@ -181,14 +181,19 @@ public static class MatchActionLogReplayer
                 errors.Add($"action-log replay initial state turn number {replayInitialState.TurnNumber} must be 1");
             }
 
-            if (replayInitialState.Seats.Count == 0)
+            var recordedRoomSeats = recovery.Commands[0].Accepted && recovery.Commands[0].CommandType == MatchSession.RoomSeatCommandType;
+            if (replayInitialState.Seats.Count == 0 && !recordedRoomSeats)
             {
                 errors.Add("action-log replay initial state seats are required");
             }
 
+            if (recordedRoomSeats && replayInitialState.Seats.Count != 0)
+                errors.Add("recorded room seat journal requires empty replay initial seats");
+
             ValidateReplayInitialSeats(replayInitialState.Seats, errors);
 
             if (recovery.AuthoritativeState is { } authoritativeState
+                && !recordedRoomSeats
                 && !StringMapEquals(replayInitialState.Seats, authoritativeState.Seats))
             {
                 errors.Add("action-log replay initial state seats do not match authoritative final state seats");
@@ -337,10 +342,11 @@ public static class MatchActionLogReplayer
                     $"action-log replay initial state turn player {replayInitialState.TurnPlayerId} must be {expectedInitialPlayerId}");
             }
 
-            if (!string.Equals(replayInitialState.Status, MatchStatuses.Seating, StringComparison.Ordinal))
+            var expectedInitialStatus = recordedRoomSeats ? MatchStatuses.Empty : MatchStatuses.Seating;
+            if (!string.Equals(replayInitialState.Status, expectedInitialStatus, StringComparison.Ordinal))
             {
                 errors.Add(
-                    $"action-log replay initial state status {replayInitialState.Status} must be {MatchStatuses.Seating}");
+                    $"action-log replay initial state status {replayInitialState.Status} must be {expectedInitialStatus}");
             }
 
             if (!string.Equals(replayInitialState.Phase, MatchPhases.Room, StringComparison.Ordinal))
@@ -729,6 +735,9 @@ public static class MatchActionLogReplayer
         RecoveredCommand recovered,
         CancellationToken cancellationToken)
     {
+        if (recovered.Accepted && recovered.CommandType == MatchSession.RoomSeatCommandType)
+            return await session.ReplayRoomSeatAsync(recovered, cancellationToken).ConfigureAwait(false);
+
         if (recovered.CommandType.StartsWith(DevSeedScenarioPrefix, StringComparison.Ordinal))
         {
             return await session.SeedScenarioAsync(
@@ -1078,6 +1087,8 @@ public static partial class MatchRecoveryValidator
             errors.Add("authoritative rule input identity is missing or differs from running inputs");
         if (commands.Any(command => !RuleInputIdentity.IsCurrent(command.RuleInputs)))
             errors.Add("command rule input identity is missing or differs from running inputs");
+
+        RoomSeatRecoveryValidator.Validate(commands, events, errors);
 
         if (string.IsNullOrWhiteSpace(roomId))
         {

@@ -1,0 +1,752 @@
+{
+  "atUtc": "2026-10-21T19:49:07.123216+00:00",
+  "status": "RETIRED_ONLY_UNUSED_OWN_HELPER_BIN_OBJ_AND_EXACT_CANONICAL_GOVERNANCE_DUPLICATE",
+  "retiredDirectories": [
+    "var/qa/late-seat-command-inputs-20261022/probe-source-v1/bin",
+    "var/qa/late-seat-command-inputs-20261022/probe-source-v1/obj",
+    "var/qa/late-seat-command-inputs-20261022/independent-reader-source-v1/bin",
+    "var/qa/late-seat-command-inputs-20261022/independent-reader-source-v1/obj",
+    "var/qa/late-seat-command-inputs-20261022/room-seat-failed-journal-sql-probe-source-v1/bin",
+    "var/qa/late-seat-command-inputs-20261022/room-seat-failed-journal-sql-probe-source-v1/obj",
+    "var/qa/late-seat-command-inputs-20261022/independent-reader-source-v3/bin",
+    "var/qa/late-seat-command-inputs-20261022/independent-reader-source-v3/obj",
+    "var/qa/late-seat-command-inputs-20261022/current-private-opening-only-runner-source-v1/bin",
+    "var/qa/late-seat-command-inputs-20261022/current-private-opening-only-runner-source-v1/obj"
+  ],
+  "files": [
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/probe-source-v1/bin/Release/net10.0/CurrentBe0eLateSeatProbeV1.deps.json",
+      "bytes": 450,
+      "sha256": "066c0ccd9a38c87ea921dbd1473cff25a416640d89a0f146f06844fd3c7e6065",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/probe-source-v1/bin/Release/net10.0/CurrentBe0eLateSeatProbeV1.dll",
+      "bytes": 30208,
+      "sha256": "18d9aa10ad77827292b8e40ebe57c0cbb8561e06209a41ccd20761e782825fa4",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/probe-source-v1/bin/Release/net10.0/CurrentBe0eLateSeatProbeV1.pdb",
+      "bytes": 15548,
+      "sha256": "91e5eab412e603bfc61a3b1fb4b5661986944c5d81df3e276d4ad4e3bed88b17",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/probe-source-v1/bin/Release/net10.0/CurrentBe0eLateSeatProbeV1.runtimeconfig.json",
+      "bytes": 330,
+      "sha256": "9950d4583cfc9a106857c0d5b8a75b53e8774852b57b80bc3823a74d44a4d87f",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/probe-source-v1/obj/Release/net10.0/.NETCoreApp,Version=v10.0.AssemblyAttributes.cs",
+      "bytes": 196,
+      "sha256": "f79c1ad9a9fc76110b3655f5bfb5ff4e3168e9addceff05b937c0796f0ec34eb",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/probe-source-v1/obj/Release/net10.0/CurrentBe0eLateSeatProbeV1.dll",
+      "bytes": 30208,
+      "sha256": "18d9aa10ad77827292b8e40ebe57c0cbb8561e06209a41ccd20761e782825fa4",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/probe-source-v1/obj/Release/net10.0/CurrentBe0eLateSeatProbeV1.pdb",
+      "bytes": 15548,
+      "sha256": "91e5eab412e603bfc61a3b1fb4b5661986944c5d81df3e276d4ad4e3bed88b17",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/probe-source-v1/obj/Release/net10.0/probe.AssemblyInfo.cs",
+      "bytes": 1032,
+      "sha256": "385f000c3a50c705d6944f96fe9ebdfd2526726ac41c9a2e8c8bdf943fc1ce2c",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/probe-source-v1/obj/Release/net10.0/probe.AssemblyInfoInputs.cache",
+      "bytes": 65,
+      "sha256": "ff95ed017282b1a423514e6e3ed617be9f0853c056f335c8edd469d7638bff12",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/probe-source-v1/obj/Release/net10.0/probe.GeneratedMSBuildEditorConfig.editorconfig",
+      "bytes": 857,
+      "sha256": "1587be1cdf1dd734eefe041d0d44587acb58cbefaee52be9e0d338b8d21dfeac",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/probe-source-v1/obj/Release/net10.0/probe.GlobalUsings.g.cs",
+      "bytes": 231,
+      "sha256": "8f86a2cbf00ff3eee0bda2bc0eb5e1fc19c8544d5dc650c53d0132325956b592",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/probe-source-v1/obj/Release/net10.0/probe.assets.cache",
+      "bytes": 155,
+      "sha256": "f3b6c28f9a6efa754f616d7035abcf7779101f31e84f52e74281cfc509307de4",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/probe-source-v1/obj/Release/net10.0/probe.csproj.AssemblyReference.cache",
+      "bytes": 16887,
+      "sha256": "60bcf1759158f894e37c3ebf204d73c6cee542c245bf383fc95e2eb7bd0c9d97",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/probe-source-v1/obj/Release/net10.0/probe.csproj.CoreCompileInputs.cache",
+      "bytes": 65,
+      "sha256": "46e820383ed3bd6a7fde6c490c12984d9996c99bbbaf2f1cbc53902de84f9b58",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/probe-source-v1/obj/Release/net10.0/probe.csproj.FileListAbsolute.txt",
+      "bytes": 2246,
+      "sha256": "791cf651669da6808388028674830cd5df2b31304658804a3cafc51a14f8999d",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/probe-source-v1/obj/Release/net10.0/probe.genruntimeconfig.cache",
+      "bytes": 65,
+      "sha256": "66cb4f85049ae7eb9ba50dfb5092ad920ac1069dd44f0e0c3e81c5e55ddd0e8f",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/probe-source-v1/obj/Release/net10.0/probe.sourcelink.json",
+      "bytes": 157,
+      "sha256": "d77faa671abb9f18409300ae6e6559fc59591645adfb574585df5093119fdd1f",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/probe-source-v1/obj/Release/net10.0/ref/CurrentBe0eLateSeatProbeV1.dll",
+      "bytes": 8704,
+      "sha256": "4ffea267c82a2595cc300472348ee2f7ac8572b633e0017d7840f2f717490893",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/probe-source-v1/obj/Release/net10.0/refint/CurrentBe0eLateSeatProbeV1.dll",
+      "bytes": 8704,
+      "sha256": "4ffea267c82a2595cc300472348ee2f7ac8572b633e0017d7840f2f717490893",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/probe-source-v1/obj/probe.csproj.nuget.dgspec.json",
+      "bytes": 21370,
+      "sha256": "09eb2c1c862d6e67ea438d2fcfcb34a4d5a5a2389efbac8a07d278af6e7d4849",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/probe-source-v1/obj/probe.csproj.nuget.g.props",
+      "bytes": 1130,
+      "sha256": "fc3164a419c5b2121a87fb47d38735c1397640d10e208c775a65a02edd6e231e",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/probe-source-v1/obj/probe.csproj.nuget.g.targets",
+      "bytes": 149,
+      "sha256": "b14461e0cb1be3f77fcf9fe2fdd62889325ca92523d0f606980ed59eb5c4aa1c",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/probe-source-v1/obj/project.assets.json",
+      "bytes": 20626,
+      "sha256": "b6ee17e8a8df7ebf5b114363caadb14367ae62ce3d11f5f98eb5b27e899fb556",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/probe-source-v1/obj/project.nuget.cache",
+      "bytes": 246,
+      "sha256": "73462f95d348305a7bf5a72ed77505038cbdf92f072355c886ddd8077b7b272c",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/independent-reader-source-v1/bin/Release/net10.0/CurrentRoomSeatIndependentReaderV1.deps.json",
+      "bytes": 474,
+      "sha256": "ba8543a7f3d753c6a4ff8b214d2cc2cebfdaa12e240a17576b0d00cbcc32c5ee",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/independent-reader-source-v1/bin/Release/net10.0/CurrentRoomSeatIndependentReaderV1.dll",
+      "bytes": 52224,
+      "sha256": "55bbd52ffdc6de854d172a1fd5e71723d48dfa400ca5b7006cf89f3880b339bf",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/independent-reader-source-v1/bin/Release/net10.0/CurrentRoomSeatIndependentReaderV1.pdb",
+      "bytes": 21200,
+      "sha256": "c3842063dadb07cbfb9a8a5f23362416fea1a5ce72ff83528463452ecca3fdfc",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/independent-reader-source-v1/bin/Release/net10.0/CurrentRoomSeatIndependentReaderV1.runtimeconfig.json",
+      "bytes": 330,
+      "sha256": "9950d4583cfc9a106857c0d5b8a75b53e8774852b57b80bc3823a74d44a4d87f",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/independent-reader-source-v1/obj/Release/net10.0/.NETCoreApp,Version=v10.0.AssemblyAttributes.cs",
+      "bytes": 196,
+      "sha256": "f79c1ad9a9fc76110b3655f5bfb5ff4e3168e9addceff05b937c0796f0ec34eb",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/independent-reader-source-v1/obj/Release/net10.0/CurrentRoomSeatIndependentReaderV1.dll",
+      "bytes": 52224,
+      "sha256": "55bbd52ffdc6de854d172a1fd5e71723d48dfa400ca5b7006cf89f3880b339bf",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/independent-reader-source-v1/obj/Release/net10.0/CurrentRoomSeatIndependentReaderV1.pdb",
+      "bytes": 21200,
+      "sha256": "c3842063dadb07cbfb9a8a5f23362416fea1a5ce72ff83528463452ecca3fdfc",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/independent-reader-source-v1/obj/Release/net10.0/probe.AssemblyInfo.cs",
+      "bytes": 1056,
+      "sha256": "12211d87baa56cc7f8119397c613956d766d4f7e5ef745bea04c9e44ee5e0718",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/independent-reader-source-v1/obj/Release/net10.0/probe.AssemblyInfoInputs.cache",
+      "bytes": 65,
+      "sha256": "a8dc5b5240371355532255bad80960d83b67e5a030b7adba61912f02bd1a84de",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/independent-reader-source-v1/obj/Release/net10.0/probe.GeneratedMSBuildEditorConfig.editorconfig",
+      "bytes": 870,
+      "sha256": "0955abcd58f01f9387cadc42ef65b763f436981b05d1791c918be24ce305ebc6",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/independent-reader-source-v1/obj/Release/net10.0/probe.GlobalUsings.g.cs",
+      "bytes": 231,
+      "sha256": "8f86a2cbf00ff3eee0bda2bc0eb5e1fc19c8544d5dc650c53d0132325956b592",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/independent-reader-source-v1/obj/Release/net10.0/probe.assets.cache",
+      "bytes": 155,
+      "sha256": "24d03ce710c119d616f9e8426237a87bf4507b540d63e7f3714554f15cb57ab7",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/independent-reader-source-v1/obj/Release/net10.0/probe.csproj.AssemblyReference.cache",
+      "bytes": 16769,
+      "sha256": "aa543517799c96b75da97c06a91d6f9841e3391c19d80b2b72e9784547c4e9aa",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/independent-reader-source-v1/obj/Release/net10.0/probe.csproj.CoreCompileInputs.cache",
+      "bytes": 65,
+      "sha256": "d3af85d8a53730a4cf02d0200dcba38b517ffca22066907fee1738936b3e0a33",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/independent-reader-source-v1/obj/Release/net10.0/probe.csproj.FileListAbsolute.txt",
+      "bytes": 2505,
+      "sha256": "0ed15939e14464bdf8b8b10ba6f33dfd2217dbfcb4bb4431c5ac8add45bc327d",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/independent-reader-source-v1/obj/Release/net10.0/probe.genruntimeconfig.cache",
+      "bytes": 65,
+      "sha256": "b55d26ff0483b98f7a5c2fa47383b2f0615927828f17daa7514dffcd71ec1c88",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/independent-reader-source-v1/obj/Release/net10.0/probe.sourcelink.json",
+      "bytes": 157,
+      "sha256": "d77faa671abb9f18409300ae6e6559fc59591645adfb574585df5093119fdd1f",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/independent-reader-source-v1/obj/Release/net10.0/ref/CurrentRoomSeatIndependentReaderV1.dll",
+      "bytes": 9216,
+      "sha256": "6e8e1825a2f29ef378c2a3e973d957c70553a3c18bf9b797c19c3e40a5bfac3a",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/independent-reader-source-v1/obj/Release/net10.0/refint/CurrentRoomSeatIndependentReaderV1.dll",
+      "bytes": 9216,
+      "sha256": "6e8e1825a2f29ef378c2a3e973d957c70553a3c18bf9b797c19c3e40a5bfac3a",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/independent-reader-source-v1/obj/probe.csproj.nuget.dgspec.json",
+      "bytes": 21443,
+      "sha256": "838020c8a24223dac30eaecca93e1ae93cbb82f781a367943b8f66d6fb4512e9",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/independent-reader-source-v1/obj/probe.csproj.nuget.g.props",
+      "bytes": 1130,
+      "sha256": "fc3164a419c5b2121a87fb47d38735c1397640d10e208c775a65a02edd6e231e",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/independent-reader-source-v1/obj/probe.csproj.nuget.g.targets",
+      "bytes": 149,
+      "sha256": "b14461e0cb1be3f77fcf9fe2fdd62889325ca92523d0f606980ed59eb5c4aa1c",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/independent-reader-source-v1/obj/project.assets.json",
+      "bytes": 20673,
+      "sha256": "7677fea507537113bef90ed9da2ff62e75e39a314079ebff51d10f9071a7b690",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/independent-reader-source-v1/obj/project.nuget.cache",
+      "bytes": 259,
+      "sha256": "973d2b226c0e0d427f1ec39035a0735e999e5e238e4f022d9021b3735ea00125",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/room-seat-failed-journal-sql-probe-source-v1/bin/Release/net10.0/CurrentRoomSeatFailedJournalSqlProbeV1.deps.json",
+      "bytes": 486,
+      "sha256": "c9c5bde222d6c4bd5c0027aa6c38ff65b1ea4aa2b25b778cd2ccce4e8fbcf2fd",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/room-seat-failed-journal-sql-probe-source-v1/bin/Release/net10.0/CurrentRoomSeatFailedJournalSqlProbeV1.dll",
+      "bytes": 27136,
+      "sha256": "aee4bb6a1bd400220dd660c01f08110f4eafa2ed6e0673c5c8477feb2760806c",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/room-seat-failed-journal-sql-probe-source-v1/bin/Release/net10.0/CurrentRoomSeatFailedJournalSqlProbeV1.pdb",
+      "bytes": 15384,
+      "sha256": "46d578d536bc81c0b4f86eaac0165f982021cf3ca1f4e1211472d0125084dab8",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/room-seat-failed-journal-sql-probe-source-v1/bin/Release/net10.0/CurrentRoomSeatFailedJournalSqlProbeV1.runtimeconfig.json",
+      "bytes": 330,
+      "sha256": "9950d4583cfc9a106857c0d5b8a75b53e8774852b57b80bc3823a74d44a4d87f",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/room-seat-failed-journal-sql-probe-source-v1/obj/Release/net10.0/.NETCoreApp,Version=v10.0.AssemblyAttributes.cs",
+      "bytes": 196,
+      "sha256": "f79c1ad9a9fc76110b3655f5bfb5ff4e3168e9addceff05b937c0796f0ec34eb",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/room-seat-failed-journal-sql-probe-source-v1/obj/Release/net10.0/CurrentRoomSeatFailedJournalSqlProbeV1.dll",
+      "bytes": 27136,
+      "sha256": "aee4bb6a1bd400220dd660c01f08110f4eafa2ed6e0673c5c8477feb2760806c",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/room-seat-failed-journal-sql-probe-source-v1/obj/Release/net10.0/CurrentRoomSeatFailedJournalSqlProbeV1.pdb",
+      "bytes": 15384,
+      "sha256": "46d578d536bc81c0b4f86eaac0165f982021cf3ca1f4e1211472d0125084dab8",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/room-seat-failed-journal-sql-probe-source-v1/obj/Release/net10.0/probe.AssemblyInfo.cs",
+      "bytes": 1068,
+      "sha256": "f2fd8bd94e49b2fafb374359f36ec463518bef5f42a639c73db33943ebfba147",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/room-seat-failed-journal-sql-probe-source-v1/obj/Release/net10.0/probe.AssemblyInfoInputs.cache",
+      "bytes": 65,
+      "sha256": "7c44501bf568358ead74332637c41f753dff316e91adebe2ac82be71ac1d8391",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/room-seat-failed-journal-sql-probe-source-v1/obj/Release/net10.0/probe.GeneratedMSBuildEditorConfig.editorconfig",
+      "bytes": 886,
+      "sha256": "2ac7554af52a617a7d29c9bed27f78bbeffd7052f4eeb93786a5f9db8c7f7ef1",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/room-seat-failed-journal-sql-probe-source-v1/obj/Release/net10.0/probe.GlobalUsings.g.cs",
+      "bytes": 231,
+      "sha256": "8f86a2cbf00ff3eee0bda2bc0eb5e1fc19c8544d5dc650c53d0132325956b592",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/room-seat-failed-journal-sql-probe-source-v1/obj/Release/net10.0/probe.assets.cache",
+      "bytes": 155,
+      "sha256": "917c51546048f86726a28ef9c90833df4aeb39393d21f1c4860a7dd6e8670980",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/room-seat-failed-journal-sql-probe-source-v1/obj/Release/net10.0/probe.csproj.AssemblyReference.cache",
+      "bytes": 16769,
+      "sha256": "058fa34f6e707bb5e8d509e94218be514e9a1bae4a2ad4788531d77fd032b1d3",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/room-seat-failed-journal-sql-probe-source-v1/obj/Release/net10.0/probe.csproj.CoreCompileInputs.cache",
+      "bytes": 65,
+      "sha256": "d3af85d8a53730a4cf02d0200dcba38b517ffca22066907fee1738936b3e0a33",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/room-seat-failed-journal-sql-probe-source-v1/obj/Release/net10.0/probe.csproj.FileListAbsolute.txt",
+      "bytes": 2777,
+      "sha256": "44e6a5c80c9f86df3838169af1d3eb75f946e9134eb578e69bf93e2a30085fc4",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/room-seat-failed-journal-sql-probe-source-v1/obj/Release/net10.0/probe.genruntimeconfig.cache",
+      "bytes": 65,
+      "sha256": "883f2e489cf6bf3a1ca8a7053501464cd82651853068efb8800710c7b2bf89c5",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/room-seat-failed-journal-sql-probe-source-v1/obj/Release/net10.0/probe.sourcelink.json",
+      "bytes": 157,
+      "sha256": "d77faa671abb9f18409300ae6e6559fc59591645adfb574585df5093119fdd1f",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/room-seat-failed-journal-sql-probe-source-v1/obj/Release/net10.0/ref/CurrentRoomSeatFailedJournalSqlProbeV1.dll",
+      "bytes": 8192,
+      "sha256": "bd57c0327f8fa378c04d92f71da61d7621cc626e321522ce0d03dfa7d545702c",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/room-seat-failed-journal-sql-probe-source-v1/obj/Release/net10.0/refint/CurrentRoomSeatFailedJournalSqlProbeV1.dll",
+      "bytes": 8192,
+      "sha256": "bd57c0327f8fa378c04d92f71da61d7621cc626e321522ce0d03dfa7d545702c",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/room-seat-failed-journal-sql-probe-source-v1/obj/probe.csproj.nuget.dgspec.json",
+      "bytes": 21527,
+      "sha256": "7f81074e6dd37b20b08dc60f260461e7fb14fc002a6dead08efc91420787e6dd",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/room-seat-failed-journal-sql-probe-source-v1/obj/probe.csproj.nuget.g.props",
+      "bytes": 1130,
+      "sha256": "fc3164a419c5b2121a87fb47d38735c1397640d10e208c775a65a02edd6e231e",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/room-seat-failed-journal-sql-probe-source-v1/obj/probe.csproj.nuget.g.targets",
+      "bytes": 149,
+      "sha256": "b14461e0cb1be3f77fcf9fe2fdd62889325ca92523d0f606980ed59eb5c4aa1c",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/room-seat-failed-journal-sql-probe-source-v1/obj/project.assets.json",
+      "bytes": 20725,
+      "sha256": "9e902d456aeee690edb36d4e7a9357dbaf073bbc774f29401646ee81bdd2205a",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/room-seat-failed-journal-sql-probe-source-v1/obj/project.nuget.cache",
+      "bytes": 275,
+      "sha256": "74ea0637ddac0fe7fc13e14d861da783bf13390ab3faba5d96ade67a9eefaaa5",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/independent-reader-source-v3/bin/Release/net10.0/CurrentRoomSeatIndependentReaderV3.deps.json",
+      "bytes": 474,
+      "sha256": "e25abbf80b94eaaa94e5e5845b142360e0a0eb7ae7586424146190b90cfbed3c",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/independent-reader-source-v3/bin/Release/net10.0/CurrentRoomSeatIndependentReaderV3.dll",
+      "bytes": 66048,
+      "sha256": "559824dcd41a579315fcb7d9ad580e991d8ba938ae3eb755f26d3c438783e080",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/independent-reader-source-v3/bin/Release/net10.0/CurrentRoomSeatIndependentReaderV3.pdb",
+      "bytes": 23976,
+      "sha256": "32d3ad1cbfa52def8aeddebb6170c78342c5f948e51265ea30d6dd31c05c1245",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/independent-reader-source-v3/bin/Release/net10.0/CurrentRoomSeatIndependentReaderV3.runtimeconfig.json",
+      "bytes": 330,
+      "sha256": "9950d4583cfc9a106857c0d5b8a75b53e8774852b57b80bc3823a74d44a4d87f",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/independent-reader-source-v3/obj/Release/net10.0/.NETCoreApp,Version=v10.0.AssemblyAttributes.cs",
+      "bytes": 196,
+      "sha256": "f79c1ad9a9fc76110b3655f5bfb5ff4e3168e9addceff05b937c0796f0ec34eb",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/independent-reader-source-v3/obj/Release/net10.0/CurrentRoomSeatIndependentReaderV3.dll",
+      "bytes": 66048,
+      "sha256": "559824dcd41a579315fcb7d9ad580e991d8ba938ae3eb755f26d3c438783e080",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/independent-reader-source-v3/obj/Release/net10.0/CurrentRoomSeatIndependentReaderV3.pdb",
+      "bytes": 23976,
+      "sha256": "32d3ad1cbfa52def8aeddebb6170c78342c5f948e51265ea30d6dd31c05c1245",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/independent-reader-source-v3/obj/Release/net10.0/probe.AssemblyInfo.cs",
+      "bytes": 1056,
+      "sha256": "7c79fbba113b553c538f1b22e90310c73118b8967847f4b0667e8a298eac2119",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/independent-reader-source-v3/obj/Release/net10.0/probe.AssemblyInfoInputs.cache",
+      "bytes": 65,
+      "sha256": "4124b40c236d83c4a28fc4fcafbd462066abbb8e5f9b1c73b11c3ea111123043",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/independent-reader-source-v3/obj/Release/net10.0/probe.GeneratedMSBuildEditorConfig.editorconfig",
+      "bytes": 870,
+      "sha256": "8dab4ca2eca128d89f23f51a4a1a2303d2450ff75ca778aaaafbeef71a052f86",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/independent-reader-source-v3/obj/Release/net10.0/probe.GlobalUsings.g.cs",
+      "bytes": 231,
+      "sha256": "8f86a2cbf00ff3eee0bda2bc0eb5e1fc19c8544d5dc650c53d0132325956b592",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/independent-reader-source-v3/obj/Release/net10.0/probe.assets.cache",
+      "bytes": 155,
+      "sha256": "874c355fbae68343d7392637d0a6c6494cc70a027d26ba34fca72e43387521a5",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/independent-reader-source-v3/obj/Release/net10.0/probe.csproj.AssemblyReference.cache",
+      "bytes": 16769,
+      "sha256": "27dc6a9a894efc0673a416fa864efb2658004d8866ecdf0d6ba7aa3b92f81ca3",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/independent-reader-source-v3/obj/Release/net10.0/probe.csproj.CoreCompileInputs.cache",
+      "bytes": 65,
+      "sha256": "c9c1b2df3b2e58585bf956717c31550195fa31f50d4c51da3736888d21c8d8c6",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/independent-reader-source-v3/obj/Release/net10.0/probe.csproj.FileListAbsolute.txt",
+      "bytes": 2505,
+      "sha256": "b19c20ef062b4ef57e26556bae74353b5baa7c421a2a432ed2f33de930fb3b02",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/independent-reader-source-v3/obj/Release/net10.0/probe.genruntimeconfig.cache",
+      "bytes": 65,
+      "sha256": "b606ce4c8d55a5f4a39a0e1159f61f21892ff53286931d4604276fa6a601fe2b",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/independent-reader-source-v3/obj/Release/net10.0/probe.sourcelink.json",
+      "bytes": 157,
+      "sha256": "d77faa671abb9f18409300ae6e6559fc59591645adfb574585df5093119fdd1f",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/independent-reader-source-v3/obj/Release/net10.0/ref/CurrentRoomSeatIndependentReaderV3.dll",
+      "bytes": 9728,
+      "sha256": "36996bc1d46d08fdbf73a860fa457e0fc431b7f8de9458b8abbf1af528b6849b",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/independent-reader-source-v3/obj/Release/net10.0/refint/CurrentRoomSeatIndependentReaderV3.dll",
+      "bytes": 9728,
+      "sha256": "36996bc1d46d08fdbf73a860fa457e0fc431b7f8de9458b8abbf1af528b6849b",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/independent-reader-source-v3/obj/probe.csproj.nuget.dgspec.json",
+      "bytes": 21443,
+      "sha256": "c75247dc64f2d6a34fc5291486acf87ad48d34ad7a34951cc090c67c2f779b79",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/independent-reader-source-v3/obj/probe.csproj.nuget.g.props",
+      "bytes": 1130,
+      "sha256": "fc3164a419c5b2121a87fb47d38735c1397640d10e208c775a65a02edd6e231e",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/independent-reader-source-v3/obj/probe.csproj.nuget.g.targets",
+      "bytes": 149,
+      "sha256": "b14461e0cb1be3f77fcf9fe2fdd62889325ca92523d0f606980ed59eb5c4aa1c",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/independent-reader-source-v3/obj/project.assets.json",
+      "bytes": 20673,
+      "sha256": "98f99f87c05881e25e3f50f33125fdb39f374e0cf1f4dca6888171d99de4d391",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/independent-reader-source-v3/obj/project.nuget.cache",
+      "bytes": 259,
+      "sha256": "c6ce8eaebdcd4ba3582c7a062886ad06419299116a0f1a0eabb031f0fba3af7a",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/current-private-opening-only-runner-source-v1/bin/Release/net10.0/CurrentPrivateOpeningOnlyRunnerV1.deps.json",
+      "bytes": 471,
+      "sha256": "d478af37a4c91333b198ca9fff9d6b0a1508804cad319df91991f76f978ffb2f",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/current-private-opening-only-runner-source-v1/bin/Release/net10.0/CurrentPrivateOpeningOnlyRunnerV1.dll",
+      "bytes": 15360,
+      "sha256": "85abe998f0a8d62c1023badeba9a51a758d7af9c8d16fd099ec63cc0f8660d2c",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/current-private-opening-only-runner-source-v1/bin/Release/net10.0/CurrentPrivateOpeningOnlyRunnerV1.pdb",
+      "bytes": 13704,
+      "sha256": "00459471a932b96e31f65c6767f78f530b046ee12fcc2728255b91cf045ee919",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/current-private-opening-only-runner-source-v1/bin/Release/net10.0/CurrentPrivateOpeningOnlyRunnerV1.runtimeconfig.json",
+      "bytes": 330,
+      "sha256": "9950d4583cfc9a106857c0d5b8a75b53e8774852b57b80bc3823a74d44a4d87f",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/current-private-opening-only-runner-source-v1/obj/Release/net10.0/.NETCoreApp,Version=v10.0.AssemblyAttributes.cs",
+      "bytes": 196,
+      "sha256": "f79c1ad9a9fc76110b3655f5bfb5ff4e3168e9addceff05b937c0796f0ec34eb",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/current-private-opening-only-runner-source-v1/obj/Release/net10.0/CurrentPrivateOpeningOnlyRunnerV1.dll",
+      "bytes": 15360,
+      "sha256": "85abe998f0a8d62c1023badeba9a51a758d7af9c8d16fd099ec63cc0f8660d2c",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/current-private-opening-only-runner-source-v1/obj/Release/net10.0/CurrentPrivateOpeningOnlyRunnerV1.pdb",
+      "bytes": 13704,
+      "sha256": "00459471a932b96e31f65c6767f78f530b046ee12fcc2728255b91cf045ee919",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/current-private-opening-only-runner-source-v1/obj/Release/net10.0/probe.AssemblyInfo.cs",
+      "bytes": 1053,
+      "sha256": "e420cd616ae127d5c74e82b29d21d6e77ff65d9a73d5ef96c6f5ed355c7c5e60",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/current-private-opening-only-runner-source-v1/obj/Release/net10.0/probe.AssemblyInfoInputs.cache",
+      "bytes": 65,
+      "sha256": "2895dfcdaf402b35d9fa40826d56bdebdc60322593deb0b727422ea678e8ed5e",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/current-private-opening-only-runner-source-v1/obj/Release/net10.0/probe.GeneratedMSBuildEditorConfig.editorconfig",
+      "bytes": 887,
+      "sha256": "a3cb4a37bfcdb26fce5709411be536fbc9175753336877111af9877802968df6",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/current-private-opening-only-runner-source-v1/obj/Release/net10.0/probe.GlobalUsings.g.cs",
+      "bytes": 231,
+      "sha256": "8f86a2cbf00ff3eee0bda2bc0eb5e1fc19c8544d5dc650c53d0132325956b592",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/current-private-opening-only-runner-source-v1/obj/Release/net10.0/probe.assets.cache",
+      "bytes": 155,
+      "sha256": "161066e1f2998cbb71756d35660a43e2ad742ac4ee0e54cb2888492512a616d0",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/current-private-opening-only-runner-source-v1/obj/Release/net10.0/probe.csproj.AssemblyReference.cache",
+      "bytes": 16769,
+      "sha256": "5a4ee8a2b2737ff01e9e7ea4c7cbd0632d8d632942a74d99e418204d8f00d1f0",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/current-private-opening-only-runner-source-v1/obj/Release/net10.0/probe.csproj.CoreCompileInputs.cache",
+      "bytes": 65,
+      "sha256": "c9c1b2df3b2e58585bf956717c31550195fa31f50d4c51da3736888d21c8d8c6",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/current-private-opening-only-runner-source-v1/obj/Release/net10.0/probe.csproj.FileListAbsolute.txt",
+      "bytes": 2752,
+      "sha256": "8f0d27fecdfd878af703c06f45b5f28fb8d1d94693472c97bd614db49a4f7143",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/current-private-opening-only-runner-source-v1/obj/Release/net10.0/probe.genruntimeconfig.cache",
+      "bytes": 65,
+      "sha256": "ef62e15905c39365716e00933e6cf8a8fad6b6e000235666ad69b74a9563a792",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/current-private-opening-only-runner-source-v1/obj/Release/net10.0/probe.sourcelink.json",
+      "bytes": 157,
+      "sha256": "d77faa671abb9f18409300ae6e6559fc59591645adfb574585df5093119fdd1f",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/current-private-opening-only-runner-source-v1/obj/Release/net10.0/ref/CurrentPrivateOpeningOnlyRunnerV1.dll",
+      "bytes": 6656,
+      "sha256": "10f705c89b0b70412e879f5508106df649a6d0ffe9dd282b879389e2ed085ad6",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/current-private-opening-only-runner-source-v1/obj/Release/net10.0/refint/CurrentPrivateOpeningOnlyRunnerV1.dll",
+      "bytes": 6656,
+      "sha256": "10f705c89b0b70412e879f5508106df649a6d0ffe9dd282b879389e2ed085ad6",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/current-private-opening-only-runner-source-v1/obj/probe.csproj.nuget.dgspec.json",
+      "bytes": 21527,
+      "sha256": "4ca5f8d75b69e2545624c0d3d11fa087964242b939dbb93ad739fe3af7c919cc",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/current-private-opening-only-runner-source-v1/obj/probe.csproj.nuget.g.props",
+      "bytes": 1130,
+      "sha256": "fc3164a419c5b2121a87fb47d38735c1397640d10e208c775a65a02edd6e231e",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/current-private-opening-only-runner-source-v1/obj/probe.csproj.nuget.g.targets",
+      "bytes": 149,
+      "sha256": "b14461e0cb1be3f77fcf9fe2fdd62889325ca92523d0f606980ed59eb5c4aa1c",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/current-private-opening-only-runner-source-v1/obj/project.assets.json",
+      "bytes": 20723,
+      "sha256": "6a5960d58740ff99fcc1a422152dd10864cf6446d068efaca7e64a8a66e44e7f",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/current-private-opening-only-runner-source-v1/obj/project.nuget.cache",
+      "bytes": 276,
+      "sha256": "8c2c49fbe38be71d18a6e0bb1c5df4cc7e5734acb3dc06c3b20085a638b513e7",
+      "purpose": "UNUSED_REGENERABLE_OWN_HELPER_BUILD_OUTPUT_ACTUAL_EXECUTED_BITS_AND_CONTROL_METADATA_ALREADY_RETAINED"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/postpublication-current-governance-v1.json",
+      "bytes": 19272821,
+      "sha256": "62bf095c81ae5916910b337abd803e6b23823516ccffad2807d1363675583d84",
+      "purpose": "EXACT_DUPLICATE_OF_VERIFIED_CANONICAL_LOSSLESS_GOVERNANCE_GZIP"
+    }
+  ],
+  "fileCount": 121,
+  "logicalBytes": 20252887,
+  "allMeasuredFrozenRuntimeFilesUnchanged": true,
+  "all3336CurrentSourceInputsUnchanged": true,
+  "allExecutedOwnPayloadsRetainedInCanonicalArchiveAndMeasuredRuntimes": true,
+  "allSourcesTestsTheoryRowsSeedsOriginalFailuresLogsCiOriginalsAndDatabasesRetained": true,
+  "noSdkWorktreeApplicationOrInstallerCreatedOrRemoved": true,
+  "physicalApfsReclamationNotInferred": true
+}

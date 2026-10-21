@@ -24702,6 +24702,42 @@
         "Frost source-controller counterexample is issue84 and is not repaired in this batch.",
         "All original source dates, seven source deltas, 1740 printings/14293 blocks and all coverage gaps remain."
       ]
+    },
+    {
+      "id": "room-seat-journal-inputs-2026-10-22",
+      "scope": "Two-player original room-seat inputs, reserved-intent safety, actual EMPTY origin, atomic durable credentials/journal and independent orphan/tamper rejection.21 new conformance cases; current358 focus,110 original helper directions, six SQL branches40/84 and separate original private-opening9/29.",
+      "subjects": [],
+      "ruleRecords": [
+        "DOC-01-P101-B004"
+      ],
+      "status": "BOUNDED_ORIGINAL_ROOM_INPUT_ATOMICITY_FINAL_FOCUS_SQL_AND_ALL110_PASS_ORIGINAL_CHECK_FAILURES_RETAINED_FIXED_FULL_AND_PRODUCTS_OPEN",
+      "sourceManifest": {
+        "path": "docs/evidence/room-seat-journal-inputs-2026-10-22/source-manifest.json",
+        "sha256": "ed20be84a7e89927da885549b6a30bf3e6a0b7aca647fa26367ab5a67e939ae3",
+        "role": "source-manifest"
+      },
+      "auditDocument": "docs/ROOM_SEAT_JOURNAL_INPUTS_AUDIT_2026-10-22.md",
+      "validation": {
+        "newCases": 21,
+        "newMethods": 9,
+        "finalFocusCases": 358,
+        "finalFocusMethods": 279,
+        "originalOnlyCheckPassed": 13363,
+        "originalOnlyCheckFailed": 6,
+        "sqlCases": 6,
+        "sqlCommands": 40,
+        "sqlEvents": 84,
+        "sqlColdRecoveries": 41,
+        "originalPrivateOpeningCommands": 9,
+        "originalPrivateOpeningEvents": 29,
+        "wholePrintingCertified": false
+      },
+      "exclusions": [
+        "New fixed full and new native/visible/Windows evidence remain open.",
+        "Old native41 history and every old seed/command are retained, not migrated.",
+        "Frost battlefield controller issue84 remains unrepaired.",
+        "All source gaps, dates,1740 printings,14293 blocks,139 Chinese news and seven source deltas remain."
+      ]
     }
   ]
 }

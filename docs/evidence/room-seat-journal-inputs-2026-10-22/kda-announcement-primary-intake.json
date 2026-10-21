@@ -1,0 +1,175 @@
+{
+  "atUtc": "2026-10-21T18:29:10.534419+00:00",
+  "status": "CURRENT_PRIMARY_PRODUCT_FAQ_ALL_RICH_TEXT_AND_ACCORDIONS_READ_FIVE_COLLECTIBLE_IDENTITIES_REQUIRE_RECONCILIATION",
+  "sourceUrl": "https://playriftbound.com/en-us/news/announcements/product-drawing-faq/",
+  "region": "GLOBAL",
+  "language": "en-US",
+  "contentId": "8497fcb2-ceb4-4826-be44-ce9619857a45.en-us",
+  "translationId": "8497fcb2-ceb4-4826-be44-ce9619857a45_tm",
+  "declaredPublication": "2026-10-21T16:00:00.000Z",
+  "revision": "7eScETOnz4arS54IwwGOwB",
+  "title": "Riftbound x K/DA: Couture Collection Drawing FAQ",
+  "rawOriginal": "var/qa/current-whole-source-monitor-20261022/global-page-originals-v1/product-drawing-faq.html.gz",
+  "rawReceipt": "var/qa/current-whole-source-monitor-20261022/global-page-originals-v1/product-drawing-faq.receipt.json",
+  "allTenBodyAndAccordionSurfaces": [
+    {
+      "bladeIndex": 2,
+      "type": "articleRichText",
+      "body": "<h1><u>The&nbsp;</u><i><u>Riftbound x K/DA: Couture Collection</u></i><u> Drawing&nbsp;</u></h1><p>The&nbsp;<i>Riftbound x K/DA: Couture Collection</i> drawings have arrived! The FIRESTARTER era shines in this premium bundle.</p><h2>Important Details</h2><p><strong>Contents</strong>:&nbsp;The&nbsp;<i>Riftbound x K/DA: Couture Collection</i> pulls back the curtain on a new stage for K/DA—the tabletop. Unbox everything below, complete with all-new artwork by Fortiche.</p><ul><li>4 collectible Legend cards, featuring brand-new K/DA artwork<ul><li>Agony’s Embrace (Evelynn), Nine-Tailed Fox (Ahri), Rogue Assassin (Akali), Daughter of the Void (Kai’Sa)</li></ul></li><li>1 collectible Battlefield card<ul><li>Packed Amphitheater</li></ul></li><li>1 K/DA Limited Edition Playmat</li><li>1 K/DA Limited Edition Deck Box</li><li>1 pack of K/DA Limited Edition Card Sleeves&nbsp;<ul><li>75 sleeves</li></ul></li><li>4 K/DA Limited Edition D12 Metal Dice</li><li>1 FIRESTARTER KiT Keychain and User Manual<ul><li>The K/DA - FIRESTARTER KiT Keychain can be connected to your phone to play K/DA’s newest single and official music video.</li></ul></li></ul><p><strong>Cost</strong>: This product will be priced at&nbsp;$150.00 + shipping and handling.</p>"
+    },
+    {
+      "bladeIndex": 3,
+      "groupIndex": 0,
+      "type": "articleRichTextAccordion",
+      "label": "How does the drawing work?",
+      "body": "<p>Registration goes live on October 27 at 9:00 AM PT, and closes October 30 at 9:00 AM PT. If you are chosen, you will be notified via email beginning on November 3. You’ll have a 24-hour window to complete your purchase, and product shipping will begin shortly after orders are completed.</p>"
+    },
+    {
+      "bladeIndex": 3,
+      "groupIndex": 1,
+      "type": "articleRichTextAccordion",
+      "label": "What’s the schedule for the drawing?",
+      "body": "<p><meta></p><ul><li>Drawing registration opens: October 27, 9:00 AM PT</li><li>Drawing registration closes: October 30, 9:00 AM PT</li><li>Emails to first round of selectees: November 3</li></ul>"
+    },
+    {
+      "bladeIndex": 3,
+      "groupIndex": 2,
+      "type": "articleRichTextAccordion",
+      "label": "If I complete my purchase, when will my order be fulfilled?",
+      "body": "<p><meta></p><p>We expect to begin fulfilling orders within 1-3 business days after they’re placed.</p><p>(Fulfillment includes processing, packaging, and shipping orders. It doesn’t represent an expected delivery date or shipping speed.)</p>"
+    },
+    {
+      "bladeIndex": 4,
+      "type": "articleRichText",
+      "body": "<h1>The Drawing Experience&nbsp;</h1><p>Riftbound uses a drawing system for purchasing certain products from the Riot Merch Store. Here’s the details:</p><ul><li aria-level=\"1\">During the registration window, you can throw your name in the ring for the opportunity to purchase product.</li><li aria-level=\"1\">If your name is drawn, you’ll be sent a link to purchase a few days later via email. If you would like to purchase the products you selected, you’ll have a 24-hour window to do so.&nbsp;<ul><li aria-level=\"2\">The selection process is entirely random, with multiple layers to check that the chosen account is real and not fraudulent.</li></ul></li><li aria-level=\"1\">If you decide not to purchase, or the time window expires and you haven’t completed your purchase, someone new will be drawn and notified.</li><li aria-level=\"1\">Players should ensure that riotgames.com emails are not being marked as spam or filtered into the trash.</li><li aria-level=\"1\">Players should check that they have access to their account prior to the sign up period for the drawing. If not they can visit <a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://recovery.riotgames.com/\">Riot’s recovery platform</a> or submit a ticket to <a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://support-leagueoflegends.riotgames.com/hc/en/requests/new\">player support</a>.</li></ul>"
+    },
+    {
+      "bladeIndex": 5,
+      "groupIndex": 0,
+      "type": "articleRichTextAccordion",
+      "label": "What happens if my name is drawn?",
+      "body": "<p><meta><span style=\"color:#000000;font-style:normal;font-weight:400;text-decoration:none;\">If your name is chosen in the drawing, you’ll be sent a link to a shopping cart with the products that your name was drawn for. The link to purchase will work for 24 hours. If you choose not to purchase, we will move on to the next person, chosen at random.&nbsp;</span></p>"
+    },
+    {
+      "bladeIndex": 5,
+      "groupIndex": 1,
+      "type": "articleRichTextAccordion",
+      "label": "What if I’m selected for multiple products?",
+      "body": "<p><meta><span style=\"color:#000000;font-style:normal;font-weight:400;text-decoration:none;\">You are able to remove items from your shopping cart if you do not wish to purchase all products which you were drawn for. Removing an item from your cart is final and cannot be undone.</span></p>"
+    },
+    {
+      "bladeIndex": 5,
+      "groupIndex": 2,
+      "type": "articleRichTextAccordion",
+      "label": "What happens if someone is drawn but doesn’t purchase their product?",
+      "body": "<p>If a player is chosen to purchase one or more products but decides not to, that player’s chance at the bundle will be done as soon as their purchase window expires.&nbsp;</p><p>Once a player’s purchase window expires, the stock will be returned to the store and the system will do a new drawing for the product that was not purchased. This drawing will only be drawn from among people who have not yet been selected for those products. These waves will continue until the stock on the Riot Merch store is depleted.</p>"
+    },
+    {
+      "bladeIndex": 5,
+      "groupIndex": 3,
+      "type": "articleRichTextAccordion",
+      "label": "How do I receive product?",
+      "body": "<p>Once you’ve purchased the items you drew, they will begin fulfillment the day of the product’s wide release.&nbsp;</p>"
+    },
+    {
+      "bladeIndex": 5,
+      "groupIndex": 4,
+      "type": "articleRichTextAccordion",
+      "label": "How do I provide feedback or get help with any issues?",
+      "body": "<p>If you have feedback or run into issues or have questions, reach out to our <a target=\"_blank\" rel=\"noopener noreferrer\" href=\"https://support-leagueoflegends.riotgames.com/hc/en-us/requests/new\">Player Support team.</a></p>"
+    }
+  ],
+  "announcedCardSubjects": [
+    {
+      "announcementOrdinal": 1,
+      "character": "Evelynn",
+      "announcedName": "Agony’s Embrace",
+      "announcedType": "Legend",
+      "exactPrintingNumber": null,
+      "exactGalleryId": null,
+      "gameplayEffectiveDate": null,
+      "region": "GLOBAL",
+      "language": "en-US",
+      "semanticReview": "SOURCE_INTAKE_ONLY_PRINTING_AND_RULE_TEXT_UNRESOLVED",
+      "implementation": "NOT_ADOPTED_FROM_PRODUCT_DESCRIPTION",
+      "testExecution": "OPEN_PENDING_EXACT_IDENTITY",
+      "fixedCommitCi": "NOT_A_PRINTING_CERTIFICATE",
+      "productAcceptance": "OPEN",
+      "state": "OPEN"
+    },
+    {
+      "announcementOrdinal": 2,
+      "character": "Ahri",
+      "announcedName": "Nine-Tailed Fox",
+      "announcedType": "Legend",
+      "exactPrintingNumber": null,
+      "exactGalleryId": null,
+      "gameplayEffectiveDate": null,
+      "region": "GLOBAL",
+      "language": "en-US",
+      "semanticReview": "SOURCE_INTAKE_ONLY_PRINTING_AND_RULE_TEXT_UNRESOLVED",
+      "implementation": "NOT_ADOPTED_FROM_PRODUCT_DESCRIPTION",
+      "testExecution": "OPEN_PENDING_EXACT_IDENTITY",
+      "fixedCommitCi": "NOT_A_PRINTING_CERTIFICATE",
+      "productAcceptance": "OPEN",
+      "state": "OPEN"
+    },
+    {
+      "announcementOrdinal": 3,
+      "character": "Akali",
+      "announcedName": "Rogue Assassin",
+      "announcedType": "Legend",
+      "exactPrintingNumber": null,
+      "exactGalleryId": null,
+      "gameplayEffectiveDate": null,
+      "region": "GLOBAL",
+      "language": "en-US",
+      "semanticReview": "SOURCE_INTAKE_ONLY_PRINTING_AND_RULE_TEXT_UNRESOLVED",
+      "implementation": "NOT_ADOPTED_FROM_PRODUCT_DESCRIPTION",
+      "testExecution": "OPEN_PENDING_EXACT_IDENTITY",
+      "fixedCommitCi": "NOT_A_PRINTING_CERTIFICATE",
+      "productAcceptance": "OPEN",
+      "state": "OPEN"
+    },
+    {
+      "announcementOrdinal": 4,
+      "character": "Kai’Sa",
+      "announcedName": "Daughter of the Void",
+      "announcedType": "Legend",
+      "exactPrintingNumber": null,
+      "exactGalleryId": null,
+      "gameplayEffectiveDate": null,
+      "region": "GLOBAL",
+      "language": "en-US",
+      "semanticReview": "SOURCE_INTAKE_ONLY_PRINTING_AND_RULE_TEXT_UNRESOLVED",
+      "implementation": "NOT_ADOPTED_FROM_PRODUCT_DESCRIPTION",
+      "testExecution": "OPEN_PENDING_EXACT_IDENTITY",
+      "fixedCommitCi": "NOT_A_PRINTING_CERTIFICATE",
+      "productAcceptance": "OPEN",
+      "state": "OPEN"
+    },
+    {
+      "announcementOrdinal": 5,
+      "character": null,
+      "announcedName": "Packed Amphitheater",
+      "announcedType": "Battlefield",
+      "exactPrintingNumber": null,
+      "exactGalleryId": null,
+      "gameplayEffectiveDate": null,
+      "region": "GLOBAL",
+      "language": "en-US",
+      "semanticReview": "SOURCE_INTAKE_ONLY_PRINTING_AND_RULE_TEXT_UNRESOLVED",
+      "implementation": "NOT_ADOPTED_FROM_PRODUCT_DESCRIPTION",
+      "testExecution": "OPEN_PENDING_EXACT_IDENTITY",
+      "fixedCommitCi": "NOT_A_PRINTING_CERTIFICATE",
+      "productAcceptance": "OPEN",
+      "state": "OPEN"
+    }
+  ],
+  "commercialDrawingSurfacesNotGameDrawRules": true,
+  "registrationOrFulfillmentDatesNotUsedAsGameplayEffectiveDates": true,
+  "currentCn1504AndEn1408ExactRowsUnchanged": true,
+  "fiveCardsNotAssumedToExplainExistingEnEightRowGap": true,
+  "old1740CatalogPrintingUniverse139CnNewsAndAllOriginalObligationsNotReplaced": true,
+  "wholePrintingOrGoalCertified": false
+}

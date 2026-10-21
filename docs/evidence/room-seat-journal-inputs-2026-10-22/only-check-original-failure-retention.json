@@ -1,0 +1,92 @@
+{
+  "atUtc": "2026-10-21T19:15:21.814089+00:00",
+  "status": "ONLY_CHECK_COMPLETE_ORIGINAL_CASES_METHODS_AND_INPUTS_RETAINED_FAILURES_NOT_RELABELED",
+  "exitCode": 1,
+  "actualCases": 13369,
+  "actualMethods": 7530,
+  "outcomes": {
+    "Passed": 13363,
+    "Failed": 6
+  },
+  "actualFailedOrNonPassed": [
+    "Riftbound.ConformanceTests.GameHubJoinTests.OfficialDeckCanPlayPromptLegalCardReachSurrenderWinAndReplayThroughHub",
+    "Riftbound.ConformanceTests.GameHubJoinTests.SubmitIntentRejectsStaleSnapshotTickWithMatchingPromptId",
+    "Riftbound.ConformanceTests.GameHubJoinTests.SubmitIntentRejectsStalePromptStamp",
+    "Riftbound.ConformanceTests.GameHubJoinTests.SubmitDeckDuplicateClientIntentReorderedRawPayloadReplaysButChangedRawConflictsWithoutMutation",
+    "Riftbound.ConformanceTests.GameHubJoinTests.SubmitIntentPayCostWindowUsesPromptStampAndClosesRuntimeSlice",
+    "Riftbound.ConformanceTests.GameHubJoinTests.ReadyWrapperDuplicateClientIntentRawPayloadReplaysButSubmitIntentChangedRawConflictsWithoutMutation"
+  ],
+  "oldCases": 13348,
+  "oldMethods": 7521,
+  "oldExactCaseMultisetAndMethodsRetained": true,
+  "newCases": 21,
+  "newMethods": 9,
+  "newMethodNames": [
+    "Riftbound.ConformanceTests.RoomSeatJournalTests.ClientCannotInstallASeatAndItsRejectedInGameRawIntentStillReplays",
+    "Riftbound.ConformanceTests.RoomSeatJournalTests.ClientCannotRetrieveAnAcceptedServerSeatThroughItsReservedIntent",
+    "Riftbound.ConformanceTests.RoomSeatJournalTests.ConcurrentJoinsWaitForTheOriginalDurableTransitionBeforePublishingTheirSeats",
+    "Riftbound.ConformanceTests.RoomSeatJournalTests.FailedJournalDoesNotInstallAnUnrecordedSeatOrConsumeTheFirstSlot",
+    "Riftbound.ConformanceTests.RoomSeatJournalTests.IndependentRecoveryAndReplayRejectAlteredOriginalRoomSeatInputs",
+    "Riftbound.ConformanceTests.RoomSeatJournalTests.JsonbMemberOrderDoesNotChangeTheOriginalRoomSeatReplay",
+    "Riftbound.ConformanceTests.RoomSeatJournalTests.KnownLivePlayerDoesNotCreateAnotherSeatTransition",
+    "Riftbound.ConformanceTests.RoomSeatJournalTests.LaterJoinIsAnOriginalTransitionAndEveryFirstDeckHistoryReplaysFromItsActualEmptyRoom",
+    "Riftbound.ConformanceTests.RoomSeatJournalTests.PreGameClientSeatIntentCannotChangeTheRoomBeforeTheSecondPlayerJoins"
+  ],
+  "actualNewCaseIdentities": [
+    "Riftbound.ConformanceTests.RoomSeatJournalTests.ClientCannotInstallASeatAndItsRejectedInGameRawIntentStillReplays",
+    "Riftbound.ConformanceTests.RoomSeatJournalTests.ClientCannotRetrieveAnAcceptedServerSeatThroughItsReservedIntent(cold: False)",
+    "Riftbound.ConformanceTests.RoomSeatJournalTests.ClientCannotRetrieveAnAcceptedServerSeatThroughItsReservedIntent(cold: True)",
+    "Riftbound.ConformanceTests.RoomSeatJournalTests.ConcurrentJoinsWaitForTheOriginalDurableTransitionBeforePublishingTheirSeats",
+    "Riftbound.ConformanceTests.RoomSeatJournalTests.FailedJournalDoesNotInstallAnUnrecordedSeatOrConsumeTheFirstSlot",
+    "Riftbound.ConformanceTests.RoomSeatJournalTests.IndependentRecoveryAndReplayRejectAlteredOriginalRoomSeatInputs(branch: \"accepted\")",
+    "Riftbound.ConformanceTests.RoomSeatJournalTests.IndependentRecoveryAndReplayRejectAlteredOriginalRoomSeatInputs(branch: \"actor\")",
+    "Riftbound.ConformanceTests.RoomSeatJournalTests.IndependentRecoveryAndReplayRejectAlteredOriginalRoomSeatInputs(branch: \"error\")",
+    "Riftbound.ConformanceTests.RoomSeatJournalTests.IndependentRecoveryAndReplayRejectAlteredOriginalRoomSeatInputs(branch: \"event-actor\")",
+    "Riftbound.ConformanceTests.RoomSeatJournalTests.IndependentRecoveryAndReplayRejectAlteredOriginalRoomSeatInputs(branch: \"event-missing\")",
+    "Riftbound.ConformanceTests.RoomSeatJournalTests.IndependentRecoveryAndReplayRejectAlteredOriginalRoomSeatInputs(branch: \"event-slot\")",
+    "Riftbound.ConformanceTests.RoomSeatJournalTests.IndependentRecoveryAndReplayRejectAlteredOriginalRoomSeatInputs(branch: \"extra\")",
+    "Riftbound.ConformanceTests.RoomSeatJournalTests.IndependentRecoveryAndReplayRejectAlteredOriginalRoomSeatInputs(branch: \"intent\")",
+    "Riftbound.ConformanceTests.RoomSeatJournalTests.IndependentRecoveryAndReplayRejectAlteredOriginalRoomSeatInputs(branch: \"missing\")",
+    "Riftbound.ConformanceTests.RoomSeatJournalTests.IndependentRecoveryAndReplayRejectAlteredOriginalRoomSeatInputs(branch: \"sequence\")",
+    "Riftbound.ConformanceTests.RoomSeatJournalTests.IndependentRecoveryAndReplayRejectAlteredOriginalRoomSeatInputs(branch: \"slot\")",
+    "Riftbound.ConformanceTests.RoomSeatJournalTests.IndependentRecoveryAndReplayRejectAlteredOriginalRoomSeatInputs(branch: \"tick\")",
+    "Riftbound.ConformanceTests.RoomSeatJournalTests.JsonbMemberOrderDoesNotChangeTheOriginalRoomSeatReplay",
+    "Riftbound.ConformanceTests.RoomSeatJournalTests.KnownLivePlayerDoesNotCreateAnotherSeatTransition",
+    "Riftbound.ConformanceTests.RoomSeatJournalTests.LaterJoinIsAnOriginalTransitionAndEveryFirstDeckHistoryReplaysFromItsActualEmptyRoom",
+    "Riftbound.ConformanceTests.RoomSeatJournalTests.PreGameClientSeatIntentCannotChangeTheRoomBeforeTheSecondPlayerJoins"
+  ],
+  "onlyCheckTrx": {
+    "path": "var/qa/late-seat-command-inputs-20261022/only-check-v1/check/results.trx",
+    "sha256": "9afbeb39ef697c5ea39d9551ca61fa3ae4a3953b3a3e0c2b56f6aced864d7588"
+  },
+  "originalBaselineTrx": {
+    "path": "var/qa/special-trigger-damage-current-cn16-20261021/only-check-v1/check/results.trx",
+    "sha256": "a90224961f4309df1def9e197001e4224411511f87426870a8c12a8c16ad3a14"
+  },
+  "all3336SourcesAndModes1419Conformance23NativeDebugInputsStable": true,
+  "soleOriginalSeedFixtureCalibrationBeforeCheck": {
+    "path": "tests/Riftbound.ConformanceTests/OpeningRandomizationTests.cs",
+    "oldSha256": "57bab3a10d17e58584bf808df882dcc3b599e9108de76153f421e6cea29cb30c",
+    "newSha256": "57eaac961cf77d5cf07b3d2b8f4c4d6d3bcd693b04af2b1d5b9e9d13e0cae01b",
+    "allOriginalMethodsAndAssertionsRetained": true
+  },
+  "allNineOriginalFullGameSourcesExact": {
+    "tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs": "302d072ea9badc28a288928c08c04e1d606af5d9a6105e74a410b67bed72d0a3",
+    "tests/Riftbound.ConformanceTests/FullGameEndToEndTests.AttachedRuleText.cs": "9060a2f104b644c91a0582b714c1cf84920a9ec65636e968734c93a7c40b31f7",
+    "tests/Riftbound.ConformanceTests/FullGameEndToEndTests.AttackDamage.cs": "ebd30b96a75712ddc672b6ee36e9256d21db9afdaaa80c50fa4dad5831ac48b8",
+    "tests/Riftbound.ConformanceTests/FullGameEndToEndTests.CopiedAttachment.cs": "b679ac9beba8839ed89fc0ece94d57f4d5db02623ff5d7a17433653b95a4ae37",
+    "tests/Riftbound.ConformanceTests/FullGameEndToEndTests.AttachmentModes.cs": "b2367853c297452804ea2abba698d4091df56e9033b746effe89bb61de87fa39",
+    "tests/Riftbound.ConformanceTests/FullGameEndToEndTests.Azir.cs": "1264a5a522abfb7c0b69a018c924b9e7414213d476357de4a2f7dd6e7c0aa710",
+    "tests/Riftbound.ConformanceTests/FullGameEndToEndTests.Tempered.cs": "60e4a732bfba46be843c1997ed83cebd620a822cd33e2abdc2122a9a36b28830",
+    "tests/Riftbound.ConformanceTests/FullGameEndToEndTests.MovementDiscard.cs": "7d9145c135ca7c8c25756e1fb283907da93894125e0c9e0ee1d8bf034065e99a",
+    "tests/Riftbound.ConformanceTests/FullGameEndToEndTests.AbilityCounters.cs": "cb22a9f99b3c7a04b5e43b206bcd6103c354d1104d66c1afe98c65d69c0030c8"
+  },
+  "all143OriginalPublicFullMethods110Pairs11Decks424242VictoryAndReplayAssertionsRetained": true,
+  "all110OriginalPairHelperDirectionsExecutedSeparately": {
+    "path": "var/qa/late-seat-command-inputs-20261022/original-all110-pairs-owner-terminal-v1.json",
+    "sha256": "2c9e7325047392c24966bad10372ebcaf8d5bf60e64f10ad1d0908f188704845"
+  },
+  "failureCorrectionsAndTheirTargetedRetestPending": true,
+  "noSecondCheck": true,
+  "newFixedFullNativeProductAndPhysicalWindows": "OPEN"
+}

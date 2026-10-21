@@ -1,0 +1,3104 @@
+{
+  "atUtc": "2026-10-21T19:40:29.264757+00:00",
+  "archive": {
+    "path": "docs/evidence/room-seat-journal-inputs-2026-10-22/original-execution-and-source-records.tar.gz",
+    "sha256": "8cb512f5405e715956b24634104811d7101691b75f1f9da69e8f18124d01c068"
+  },
+  "members": [
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/card-originals-v1/cn-page-01.json.gz",
+      "bytes": 15383,
+      "sha256": "4f5fb3a53c50f5be50750851bb6cac63a2c87be155b70e01c18f69adda2cf5a7"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/card-originals-v1/cn-page-01.json.receipt.json",
+      "bytes": 908,
+      "sha256": "5be1a91bd41cf3d7815bbc8e627228b61c68e6b7180d5de1cbfffd8bed8f1ce0"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/card-originals-v1/cn-page-02.json.gz",
+      "bytes": 14555,
+      "sha256": "fc1382fad7007f5716ee2c9567b59c9d6c759b708798794516df7f9ee4a78a8d"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/card-originals-v1/cn-page-02.json.receipt.json",
+      "bytes": 908,
+      "sha256": "5f537f2820c7a2e0698497996005f551e14a9b5eaa455e7496f13698fbf14378"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/card-originals-v1/cn-page-03.json.gz",
+      "bytes": 13475,
+      "sha256": "e175b8865d946e414ef2e07232ba654f6d1e2e9b976c540bfbda03d2920bb0a5"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/card-originals-v1/cn-page-03.json.receipt.json",
+      "bytes": 908,
+      "sha256": "44996c8efe07bd6357523648fd197b274b236229c03c19c8f59fac682889648b"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/card-originals-v1/cn-page-04.json.gz",
+      "bytes": 14804,
+      "sha256": "79e9a94cb007f04eac3753c7765737646cf358129673f947feec8112391f11b2"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/card-originals-v1/cn-page-04.json.receipt.json",
+      "bytes": 908,
+      "sha256": "03a3e005c0edeaaa9836706da76dae5a83edce805b31e8f6cd20beb96be1d9c7"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/card-originals-v1/cn-page-05.json.gz",
+      "bytes": 12347,
+      "sha256": "79efff826be95bc9602d46470d5f484ab13823f9d3c5d04e5c4174085c2e41f1"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/card-originals-v1/cn-page-05.json.receipt.json",
+      "bytes": 907,
+      "sha256": "c9b826ec3eb8c7457e17c292499ccc6ea00b1906d8d1040d8d68affe444f0fb0"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/card-originals-v1/cn-page-06.json.gz",
+      "bytes": 14534,
+      "sha256": "bdda741f7490f1264d1b222d792155b1a63f7fb724e4dfb1e3d9738ed766f9bf"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/card-originals-v1/cn-page-06.json.receipt.json",
+      "bytes": 908,
+      "sha256": "a11477b8ea90dd0cec75b3990eb8c1a408a34ea6d358f23ca89608a0ee6dca20"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/card-originals-v1/cn-page-07.json.gz",
+      "bytes": 15161,
+      "sha256": "8906c2c8abd6465b384b880cdc9bd3fd1bb8a10dfb1ff05e18b9a519ea8dbaaf"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/card-originals-v1/cn-page-07.json.receipt.json",
+      "bytes": 908,
+      "sha256": "25b9fcdc25049889ab714fca979c7e63c4abab74e1d513731e2f7de0a4a4f789"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/card-originals-v1/cn-page-08.json.gz",
+      "bytes": 12805,
+      "sha256": "bba3d438ebe44d9ac08d27ce8d987cd943b3ac848c283fa6f6c10efce45dc4ee"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/card-originals-v1/cn-page-08.json.receipt.json",
+      "bytes": 908,
+      "sha256": "a933c206bf9234446884c8c7b095013acf5239796181415d79c2c950f15ec83f"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/card-originals-v1/cn-page-09.json.gz",
+      "bytes": 14573,
+      "sha256": "8e05fae7381a04efe1a1ff0e4e42ffd7371834e1c067a0ddd5318225b7f75060"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/card-originals-v1/cn-page-09.json.receipt.json",
+      "bytes": 908,
+      "sha256": "3558eddb040b7cc2bfb4529f5f9fcae6802ba168948ee1a17d4c513b818d784b"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/card-originals-v1/cn-page-10.json.gz",
+      "bytes": 13726,
+      "sha256": "60c54ec1f1d312581ef6a2413b64ae9aaf1b71c5a220e960ebf01cea638b9ef1"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/card-originals-v1/cn-page-10.json.receipt.json",
+      "bytes": 909,
+      "sha256": "2e06c30a66cc670bdb63e43b8b1802049af4b3b782c760ed07c146df23cd048b"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/card-originals-v1/cn-page-11.json.gz",
+      "bytes": 12173,
+      "sha256": "4ed345cb1db0391a93105ca408388ff03b20fb477d90ee1b7175359f4e8e2fa0"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/card-originals-v1/cn-page-11.json.receipt.json",
+      "bytes": 909,
+      "sha256": "3d57d4895db376d4828c3471e29dbf7ba84420c083db65007ba0d0c1033b15c5"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/card-originals-v1/cn-page-12.json.gz",
+      "bytes": 13079,
+      "sha256": "f7e1eced514c842823c5b610a93690024c1dce3d55da89224049f9f95553b81c"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/card-originals-v1/cn-page-12.json.receipt.json",
+      "bytes": 908,
+      "sha256": "f80a6b14eef185b4ad7ac249ded6d2df7d86a06b04edff097cde7b6f800b8086"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/card-originals-v1/cn-page-13.json.gz",
+      "bytes": 13782,
+      "sha256": "05fc7c8d110d6312dfe882545949e918cf47c441f3a49d1255858147ffbaf42a"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/card-originals-v1/cn-page-13.json.receipt.json",
+      "bytes": 909,
+      "sha256": "58319cf1f04d0848f3ab94c50c8969daf63b8dd50483d269eded49fbca98138e"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/card-originals-v1/cn-page-14.json.gz",
+      "bytes": 14368,
+      "sha256": "db0daea2bdccfbb25e5ddcc502ac65f0e454d6554e4b15b9d092fb06e49d5ef9"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/card-originals-v1/cn-page-14.json.receipt.json",
+      "bytes": 909,
+      "sha256": "12fbdc85907e79310c6a74bd4d20e60d651f697400aad72a92c57cb9a124e852"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/card-originals-v1/cn-page-15.json.gz",
+      "bytes": 13148,
+      "sha256": "396925f4c8dd6f9585be3382d611b67adef8e4355305f8f14c918508f9139ce5"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/card-originals-v1/cn-page-15.json.receipt.json",
+      "bytes": 909,
+      "sha256": "b9b49a84bf3523a20d2834bfe972ce85bcd788ca2438891f31c7298f1fc556ef"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/card-originals-v1/cn-page-16.json.gz",
+      "bytes": 1133,
+      "sha256": "ce7523204313a25497c678a44926be1c5eea132dabccb452b6de4e422604b9e6"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/card-originals-v1/cn-page-16.json.receipt.json",
+      "bytes": 907,
+      "sha256": "1ebb8626017aa44935af0b7754fe93ec106e3f0d3c0ac20218cce478eef53f5e"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/cn-rule-conditional-originals-v1/DOC-01.receipt.json",
+      "bytes": 1362,
+      "sha256": "3ca7995092ddbd6cd4996de8f8e91f399314c445924da7df184473bb4be884ef"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/cn-rule-conditional-originals-v1/DOC-02.receipt.json",
+      "bytes": 1360,
+      "sha256": "5dfdfc9c4ac4892bd1d0b5f4e3d8d841c672cf9eab39fbaeec339f9321def2e2"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/cn-rule-conditional-originals-v1/DOC-03.receipt.json",
+      "bytes": 1332,
+      "sha256": "6d5766759b314dedce59ea035bdfb763726535c48f8149eb629265a2773ca0fd"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/cn-rule-conditional-originals-v1/DOC-04.receipt.json",
+      "bytes": 1425,
+      "sha256": "614e6a4f7a164051c7f512c2a3b08e0c9d0f910f99efd58676ac2d6f632329cc"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/cn-rule-conditional-originals-v1/DOC-05.receipt.json",
+      "bytes": 1425,
+      "sha256": "21156b9c5cc72f23aec53d7cc3bfe31b3023ec1c1fcb2d91795e9d0393a10318"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/cn-rule-conditional-originals-v1/DOC-06.receipt.json",
+      "bytes": 1396,
+      "sha256": "276c0079ecca9a67ddba4379a078a406919d2c0042c1dd9251b2591e7a5df0c8"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/cn-rule-conditional-originals-v1/DOC-07.receipt.json",
+      "bytes": 1398,
+      "sha256": "c9a1c2800196911780f34dd3a65d14822927ea50e68beb425e0aead13ddbaa2a"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/cn-rule-conditional-originals-v1/DOC-08.receipt.json",
+      "bytes": 1376,
+      "sha256": "01620e4a4aa17c674d9139ec814839eb27dd0eafe880f9274618e3a8dc25103f"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/cn-rule-conditional-originals-v1/DOC-09.receipt.json",
+      "bytes": 1410,
+      "sha256": "a8993830add13579e0e4091fb58d9af04507406a13d8b71ee3debedb3cef6198"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/cn-rule-conditional-originals-v1/DOC-10.receipt.json",
+      "bytes": 1439,
+      "sha256": "eddc64ea95196d3ccf1d4e933f5678ba4aa70e94f6542efd86e0e93e49539331"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/cn-rule-conditional-originals-v1/DOC-11.receipt.json",
+      "bytes": 1327,
+      "sha256": "cd97cc442008f1cdb8eeb17e01e9a6a7ef0dce4132f84f76c90f800855fc8f04"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/cn-rule-conditional-originals-v1/DOC-12.receipt.json",
+      "bytes": 1469,
+      "sha256": "7bcad8d87912da5aa4b25a31180419cec460b4168a60f75b06a3648b46196a8d"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/cn-rule-conditional-originals-v1/DOC-13.receipt.json",
+      "bytes": 1450,
+      "sha256": "2bb2d1414bf4a52e07813a29463e70c50364445ce53a27556e69e73c79d2ecce"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/cn-rule-conditional-originals-v1/DOC-14.receipt.json",
+      "bytes": 1436,
+      "sha256": "045e88310566fecb98e551c987959ce572abfba1f2e2540f533e0fc0b6e605c8"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/cn-rule-conditional-originals-v1/DOC-15.receipt.json",
+      "bytes": 1287,
+      "sha256": "336f89ff91f88fdc78be0f9f14bee5b18438ddbe14828947033c749c817f2ee9"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/cn-rule-conditional-originals-v1/DOC-16.receipt.json",
+      "bytes": 1421,
+      "sha256": "6610ba7edbc548df65fc6675e0f7fa0895b26fa83b45e426cc84da9ced0021ef"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/cn-rule-conditional-originals-v1/current-rule-directory-original.json.gz",
+      "bytes": 1170,
+      "sha256": "1f2bde6215f790a246e955847ebd7d40926ab5a26fce36d1625061ee19ccb2ee"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/conditional-all-sixteen-cn-v1.log",
+      "bytes": 68,
+      "sha256": "19c3180a6ae70dff1eeebbabdabb5adfebdde3fe3d937f4af727b00587209352"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/conditional-all-sixteen-known-cn-rule-versions-v1.py",
+      "bytes": 5126,
+      "sha256": "9ed441c3a82948124c74a50b584c2fd8c7a0c4107b7c20c722c47b130d0a5112"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/current-cn-rule-directory-and-known-source-versions-v1.json",
+      "bytes": 25824,
+      "sha256": "b8f134e00e48a02b74b3ff391acc163789b5c494365e210a266900812bed1041"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/current-en-complete-view-source-diff-v1.json",
+      "bytes": 14094,
+      "sha256": "02edd05ba1c9500bd2969309a6a8d1792e50d700fe7d5f4ee1a533f6a5a51ab6"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/current-global-rules-hub-body-versus-recorded-version-v1.json",
+      "bytes": 951,
+      "sha256": "bf7d11267d9420f7bcdd92ab48ca503693a220a4a3f08cb519a4f53d6102d6cf"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/current-kda-product-faq-five-announced-card-source-intake-v1.json",
+      "bytes": 10909,
+      "sha256": "e50a755e09211b0069ddcfb06b4e175a3515193642b75084cf5923d4bbd733c9"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/en-curl-originals-v1/default-locale-whole.json.gz",
+      "bytes": 268831,
+      "sha256": "28256ce1c8882b2d25be04221289453643f1f1bbc97edea641e7f329597ae89b"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/en-curl-originals-v1/default-locale-whole.json.receipt.json",
+      "bytes": 980,
+      "sha256": "bf4ef803e4e208c0c79ce704152cfc0df629f83ff34effbeb033d119144e93d8"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/en-curl-originals-v1/en-gallery.html.gz",
+      "bytes": 285312,
+      "sha256": "deff526c8c9ec0565441c9f795d03aa723310e57ca614b836083485cf1f86529"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/en-curl-originals-v1/en-gallery.html.receipt.json",
+      "bytes": 850,
+      "sha256": "4f22ccf7c9f0dac320dce3249802bb5f35e9ef7e47f92c3228db30f9ef9b4c30"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/en-curl-originals-v1/en-page-0000.json.gz",
+      "bytes": 39603,
+      "sha256": "7825d7e4ba887dcb4cd682fabbfda98a915ff2153fc255c333d5e8fbb161a321"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/en-curl-originals-v1/en-page-0000.json.receipt.json",
+      "bytes": 995,
+      "sha256": "36090c43bb5156c2bba323b04c0e54d18c3ccfe32f9a2c2ca804fa26c15bf18c"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/en-curl-originals-v1/en-page-0200.json.gz",
+      "bytes": 40600,
+      "sha256": "4d84ad665f1ad081695cd31c796b49b3aea6d2be6cfecb6e125938f6d092874e"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/en-curl-originals-v1/en-page-0200.json.receipt.json",
+      "bytes": 999,
+      "sha256": "a43c5fae33e9f1758eacda59deb8f33df4fa828b7da41b981167f98f7e353208"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/en-curl-originals-v1/en-page-0400.json.gz",
+      "bytes": 39834,
+      "sha256": "1ee46d4ab8a3dd49adbef3c61ef70c5c30776519aad65544803ce6ffb3a63406"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/en-curl-originals-v1/en-page-0400.json.receipt.json",
+      "bytes": 999,
+      "sha256": "959d7e8213ba67c014b1b5487366c3cfa4c1d3dd519237bb2dfdd8531561ac0f"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/en-curl-originals-v1/en-page-0600.json.gz",
+      "bytes": 38768,
+      "sha256": "36fb65ade84ba1cbfc98504246a4339f03801d64e1aa9a36141ebe5adade5488"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/en-curl-originals-v1/en-page-0600.json.receipt.json",
+      "bytes": 999,
+      "sha256": "8a57f2a93ce765d73b4104ceb189eea4a9debc7e611321e3df025fdecd165689"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/en-curl-originals-v1/en-page-0800.json.gz",
+      "bytes": 39084,
+      "sha256": "7978efddc694920c40254837c0b5b8b753df4f0ae7a0d869abee29221f959d96"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/en-curl-originals-v1/en-page-0800.json.receipt.json",
+      "bytes": 999,
+      "sha256": "20846ed08d0ea9793b495634adbf0af8d60b0e83c2323a28a5a8fd0798e252e5"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/en-curl-originals-v1/en-page-1000.json.gz",
+      "bytes": 38901,
+      "sha256": "960bc4507b19065a1a3b0cd49b5b66daf6101258afbe7141a3bbe6021d696b6a"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/en-curl-originals-v1/en-page-1000.json.receipt.json",
+      "bytes": 1001,
+      "sha256": "b6e5fce10afd329ff44aeae6c89b5aa0df360528f60f4b74b2f04c41bab308fd"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/en-curl-originals-v1/en-page-1200.json.gz",
+      "bytes": 39387,
+      "sha256": "0f4838f119f807082bf44ba5ad1fc137a8b734ada44f60376cbd3f907a9888bd"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/en-curl-originals-v1/en-page-1200.json.receipt.json",
+      "bytes": 1001,
+      "sha256": "bf5d1e747c223679a3a9de8b95d8d8b8c0aab5b131adbd1c0539a6ce8cec1a9f"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/en-curl-originals-v1/en-page-1400.json.gz",
+      "bytes": 4665,
+      "sha256": "75d5085e16e00af8f50733118a89fabc930427336d521744b1480ee33fe2a672"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/en-curl-originals-v1/en-page-1400.json.receipt.json",
+      "bytes": 1000,
+      "sha256": "8c51b36a04726c93fdfd5013d4209ef23466ac2837108e0c16520f594a20ac03"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/en-curl-originals-v1/en-whole.json.gz",
+      "bytes": 268829,
+      "sha256": "9856980b4a1110f63510fca0bc639c3dcca8daa51fa5089e584f4bfa31e82dfb"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/en-curl-originals-v1/en-whole.json.receipt.json",
+      "bytes": 994,
+      "sha256": "258631bd79d1d9028db6fc3dc30087c4a8fb18f47704ad0128f745a126b99c4e"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/global-page-originals-v1/product-drawing-faq.html.gz",
+      "bytes": 21474,
+      "sha256": "ad4652b5b9442ebf263ffbf30f685de71cf573b63cd66a6dbfa7df9a3ef3f166"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/global-page-originals-v1/product-drawing-faq.receipt.json",
+      "bytes": 1724,
+      "sha256": "78e6d0716478fce674df2393eead863f171b924306e5ded1a73110cb8aaf5991"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/global-page-originals-v1/rules-hub.html.gz",
+      "bytes": 19280,
+      "sha256": "052fcda257f220f7060a70352e089f6214e535c6b7c5c5d4685e22a13d68fe9c"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/global-page-originals-v1/rules-hub.receipt.json",
+      "bytes": 1671,
+      "sha256": "c18363d511d01bbb46e72d5087b32cfb7a3e2b994e98ee4a53f9c4477fd6c420"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/kda-announcement-issue-dedup-original-v1.json",
+      "bytes": 10664,
+      "sha256": "aedc46bbefda46b90868112187b48586130c63f6050a01e2d3751045023481fd"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/kda-couture-five-announced-printing-obligations-issue-body-v1.md",
+      "bytes": 2015,
+      "sha256": "f78993742078b6d7e7e6081bf9d8931b7756874a41617ff00c8b67b1827ca945"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/kda-couture-five-announced-printing-obligations-issue-body-v2.md",
+      "bytes": 2105,
+      "sha256": "94520567843acc6998d6c07c28534c52c5c8f0433c7ef5ec982414361b66802e"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/kda-couture-five-announced-printings-issue-exact-readback-v1.json",
+      "bytes": 2794,
+      "sha256": "11a31994be4a4522726a32128ee9d1594ad301ead11ecbea019b87198ce661fd"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/kda-couture-five-announced-printings-scope-clarification-readback-v2.json",
+      "bytes": 3029,
+      "sha256": "f892ff4e78ce8430a0dcb3d147f0c8b4d96460a0c1494b77e29cf7988cff256b"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/kda-current-primary-banner-browser-v1.png",
+      "bytes": 102369,
+      "sha256": "4c787a0aadac0b5956cc4cf9b7cabc69802b06e0d4deee223785afc049c6b430"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/kda-current-primary-direct-image-browser-v1.png",
+      "bytes": 148060,
+      "sha256": "fc83fef06c54ec1f79b33271a2b07cc782734dfc416ccf91e37a365d9a798c96"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/kda-five-announced-names-current-gallery-candidate-reconciliation-v1.json",
+      "bytes": 69015,
+      "sha256": "4d7478509ee6ece8255c8c59bb9f0388c437faac3dd9a15634ad51d2d8e91813"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/kda-primary-header-actual-pixel-observation-v1.json",
+      "bytes": 1550,
+      "sha256": "08306f86919954cc36238083aa2053da3559c067d250112d120b97a82890e09b"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/reconcile-kda-announced-names-with-current-gallery-v1.py",
+      "bytes": 3716,
+      "sha256": "64bfa02e619a2a456f5c01293a4b1581d5377a618355de417b406d1fb10c9ba5"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/refresh-whole-current-cn-v1.py",
+      "bytes": 4831,
+      "sha256": "bd50926f62b93cb4e35d7d9af8d5178d51541c82308c6bbde07117b7b485b489"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/refresh-whole-current-en-three-views-v1.py",
+      "bytes": 6211,
+      "sha256": "6c25de3350a021f25b2662ec8c4cc158f0efafabd5a17434b21f4312e3a636f5"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/whole-current-cn-card-source-diff-v1.json",
+      "bytes": 24826,
+      "sha256": "6d95c031a2a279130f998c8ab720b304c2a983bd6adc980f58af257d75c1679d"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/whole-current-cn-v1.log",
+      "bytes": 95,
+      "sha256": "b67232908072f1a1ab458d91dbe736f976fea75d93cce33d42c9212295ec0877"
+    },
+    {
+      "path": "var/qa/current-whole-source-monitor-20261022/whole-current-en-v1.log",
+      "bytes": 412,
+      "sha256": "4b299a4d0558d345e61b3b26a0e0d4175995a400f1a503e14dd9c8d433addc36"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-be0e-late-seat-probe-owner-terminal-v1.json",
+      "bytes": 28542,
+      "sha256": "2da0ae72c033d961189d5f143898dfc6c1556cac8b681a921cabc5fd539587f0"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-be0e-late-seat-probe-v1/original-after-b-join-before-next-command-frame.json.gz",
+      "bytes": 4702,
+      "sha256": "d994eea4c1949da343a8d81e2d8bd86278348ab0aedb950514a67b97b7415e36"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-be0e-late-seat-probe-v1/original-after-first-a-deck-frame.json.gz",
+      "bytes": 4670,
+      "sha256": "f3e3fd110dedfa9b09b666988449a18f447f7772ec5b6686b267581ce9e36340"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-be0e-late-seat-probe-v1/original-after-second-b-deck-frame.json.gz",
+      "bytes": 5616,
+      "sha256": "317add748e34a982e8dc241a394ab0f1e93210f394ff0e0f5c7cf318f97bff76"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-be0e-late-seat-probe-v1/result.json",
+      "bytes": 3414,
+      "sha256": "a5168ffb44bee7084097c9126f5deaf832f63e2831e98857ebebbd16fff8d030"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-owner-v1.log",
+      "bytes": 162,
+      "sha256": "13b34b7bd4accbb3e7d7ce6b3409f1877f0548bf7e52193fa9c1271c4e3c494a"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-owner-terminal-v1.json",
+      "bytes": 101431,
+      "sha256": "807a6867b72976ee696415bb13438fc105bac773033a6c31320738152e39818b"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-owner-terminal-v2.json",
+      "bytes": 110903,
+      "sha256": "13d71f949632174ba897f11696a61e8a6beaaff315be4fb066b533a23a846837"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-False-late-False/entry-01-original-input-before-persist.json.gz",
+      "bytes": 3667,
+      "sha256": "9ed294d060c090f84331d6335c56af2a9292e95d964a1926b1c38e7390a8bf6b"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-False-late-False/entry-02-original-input-before-persist.json.gz",
+      "bytes": 4214,
+      "sha256": "f92e655e8f5f26d695a4c9797773b77bb0eec724e8583d9a955cf476959c2a62"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-False-late-False/entry-03-original-input-before-persist.json.gz",
+      "bytes": 4642,
+      "sha256": "af14994fdab4881f4abeb9914a4c261c8e90d477deed2a1fb63249d13e6e13b3"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-False-late-False/entry-04-original-input-before-persist.json.gz",
+      "bytes": 4591,
+      "sha256": "802878bfd93a385a43a07021790e244f4ea59926db29a10b71e898f639c27a5d"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-False-late-False/entry-05-original-input-before-persist.json.gz",
+      "bytes": 4633,
+      "sha256": "d3b3667ecb5fd87e187d3785a262cfa4dd385a33db56905eb66a9aac8d4dd63b"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-False-late-False/entry-06-original-input-before-persist.json.gz",
+      "bytes": 11748,
+      "sha256": "8c96eef341e53698e138c695886e1da04300af20fa7e22c81fa0ceb4d57c4ef9"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-False-late-False/entry-07-original-input-before-persist.json.gz",
+      "bytes": 10961,
+      "sha256": "e45f36b53428a707931e34bdc6451d1a45acab764fd674f68c1a9745b4929e97"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-False-late-False/entry-08-original-input-before-persist.json.gz",
+      "bytes": 15695,
+      "sha256": "a8d9174a643b2250c3a5999bb2c7403f51f5c639b32c996101403cba1abd6055"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-False-late-False/entry-09-original-input-before-persist.json.gz",
+      "bytes": 15400,
+      "sha256": "3f65ff2e22ed98bf5098659146e942f6793909b9a3f5f87dfb20c93aa3bc5a1e"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-False-late-False/history-01-original-frame.json.gz",
+      "bytes": 4423,
+      "sha256": "90b9de072d55cfb4e9df3e9b7ee068f508d0e78b6ddcc2ca511dd09fb49cf387"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-False-late-False/history-02-original-frame.json.gz",
+      "bytes": 4893,
+      "sha256": "96b22d73994bc1a5ab0638a7637c73b8e424006ac0f1f18669a8e8934375d873"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-False-late-False/history-03-original-frame.json.gz",
+      "bytes": 5751,
+      "sha256": "5d8cb7c3f16a544a0aee551beb165b33e0ef999575132deeebac0dda831dcc18"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-False-late-False/history-04-original-frame.json.gz",
+      "bytes": 5768,
+      "sha256": "6523e1f20152007684fbf66fa37626ef7da6e56cd9b8d88272401e1a452f51d0"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-False-late-False/history-05-original-frame.json.gz",
+      "bytes": 6085,
+      "sha256": "a82f699fe40a59ef706e399d9fd0fe29495e0694e781feacba04bd80d1a6b508"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-False-late-False/history-06-original-frame.json.gz",
+      "bytes": 16514,
+      "sha256": "fa76615884c6209a5b618e7d22dd17b56c3646dd136ede3e119d2bfacc7bc699"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-False-late-False/history-07-original-frame.json.gz",
+      "bytes": 17389,
+      "sha256": "a0fef95d5c266214c2d96e3e11f9c3ddc5ffdbd2c148e064d9145ab570625922"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-False-late-False/history-08-original-frame.json.gz",
+      "bytes": 21518,
+      "sha256": "bc42c43fa0aad57ac871182f0546e66dc635ff7fb27c2aa8ad39cd554132a5a7"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-False-late-False/history-09-original-frame.json.gz",
+      "bytes": 21619,
+      "sha256": "0aa4bc2fac481615cd6206efa1ba173b79550c1f7426c0dc440944f041e893c7"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-False-late-False/input-01-join.json",
+      "bytes": 65,
+      "sha256": "cfd10c4cfc1fb990d01cb8e495a25c54dca244ae1643232df6f0f73bb013cce8"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-False-late-False/input-02-join.json",
+      "bytes": 65,
+      "sha256": "46f1b1ffe63b25e5a60ea27419bd5e62fb4e11c5a310e293ae04bdc529ad3eee"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-False-late-False/input-03-client.json",
+      "bytes": 1585,
+      "sha256": "59fe534a3b9a49f9da18d261013babd32c3fdd217cedd0503858af9647076095"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-False-late-False/input-04-client.json",
+      "bytes": 1585,
+      "sha256": "56a5d344e6e8844e0f53090cca88614a3c42a8b484785aa83e6efd04fd161c6b"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-False-late-False/input-05-client.json",
+      "bytes": 89,
+      "sha256": "040bde73201af4813cdef631c32caf4120d59733795054199ae135e11c6d9463"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-False-late-False/input-06-client.json",
+      "bytes": 90,
+      "sha256": "5f63d5cdbabebc20a2acf6680640a9bfb0d565edf8daef80e5382f39b9c82a99"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-False-late-False/input-07-client.json",
+      "bytes": 116,
+      "sha256": "feffd4b28bb4e7fb7ce760726bf97e042f83c53f069a5637ddada22930597e17"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-False-late-False/input-08-client.json",
+      "bytes": 117,
+      "sha256": "740d97e828e425f06b7f1eddfdb71e31e57a544b253ae5dd9b67e188ab8a7cc9"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-False-late-False/input-client-forgery-after-start.json",
+      "bytes": 146,
+      "sha256": "4f4db1fa63268b0ae01d477185b694baee1041318e8f7dc6d8aac911e1aa886f"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-False-late-False/input-client-forgery-before-game.json",
+      "bytes": 153,
+      "sha256": "abbaf4f6816e235f5afa52b98406887e2d0d50bdaa7d1cda72842a5c99e080c2"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-False-late-False/original-final-frame.json.gz",
+      "bytes": 21619,
+      "sha256": "0aa4bc2fac481615cd6206efa1ba173b79550c1f7426c0dc440944f041e893c7"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-False-late-False/receipt.json",
+      "bytes": 16724,
+      "sha256": "c5586efd8be2ec2b1c6e5570f1ee6834c2d99aa94bb5d76ebc341c8bc3dff3b9"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-False-late-True/entry-01-original-input-before-persist.json.gz",
+      "bytes": 3667,
+      "sha256": "c823b806973af22e6cfe8dfa1143fedab7a67d5f3781c626deb5634562e2f4b0"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-False-late-True/entry-02-original-input-before-persist.json.gz",
+      "bytes": 4019,
+      "sha256": "7b1010407d25602ef85fe9606799495d073c7602467d7c7f59a300a7628cc634"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-False-late-True/entry-03-original-input-before-persist.json.gz",
+      "bytes": 4467,
+      "sha256": "4ca3cc0bd4f3a70676392a1ba9ad883c6a44f80170bd2ab042a532361ae078c7"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-False-late-True/entry-04-original-input-before-persist.json.gz",
+      "bytes": 4593,
+      "sha256": "9fc786deb2fbe8752ad263eac6d2be7f2987e7b9df09ffbd672b05ab3cf8814c"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-False-late-True/entry-05-original-input-before-persist.json.gz",
+      "bytes": 4632,
+      "sha256": "7d7a879e6867751ec771ae044dc5eaa5262916f9ec2fd604efc9266cd421ce68"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-False-late-True/entry-06-original-input-before-persist.json.gz",
+      "bytes": 11764,
+      "sha256": "d250bb669c031cd522a0b52fe88bcbc0842a787123d7bba45da883dcceb25b80"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-False-late-True/entry-07-original-input-before-persist.json.gz",
+      "bytes": 10979,
+      "sha256": "b6f802c89d5099b30f9770bf04ac2786e9d7bde6d9b149ce6fa68bb9ca27a6e4"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-False-late-True/entry-08-original-input-before-persist.json.gz",
+      "bytes": 15747,
+      "sha256": "e14443917fc0663e944db604f8e406dc2c15fb78248a784329da4767cf89e0e8"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-False-late-True/entry-09-original-input-before-persist.json.gz",
+      "bytes": 15439,
+      "sha256": "f9668f23683fab106dcaa44742e0d98b6ca3256f74ff1553f877762b1f52eb29"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-False-late-True/history-01-original-frame.json.gz",
+      "bytes": 4424,
+      "sha256": "389b6ef635d53909b3decee2117377fb829b40c5ea3c6e0c73ab17a0d30cfb5f"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-False-late-True/history-02-original-frame.json.gz",
+      "bytes": 4770,
+      "sha256": "a7a05dcc1e7a3b7bb52fbd8b894f0d02a232eae2a39b06dca269d18e182fe684"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-False-late-True/history-03-original-frame.json.gz",
+      "bytes": 5749,
+      "sha256": "ca6bb191aca24caa865a4deedce0c4cc6a3d332f7855732c31a6bab15a693c4f"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-False-late-True/history-04-original-frame.json.gz",
+      "bytes": 5767,
+      "sha256": "ea1d2e43f35d46df51913c707ea3dd84e1e4e97ec66fdb062b58e8b4e144c963"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-False-late-True/history-05-original-frame.json.gz",
+      "bytes": 6082,
+      "sha256": "c66dbdf5ae3104c14123522943edca9b700fc61a1adcee3266dd0929befd42d7"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-False-late-True/history-06-original-frame.json.gz",
+      "bytes": 16560,
+      "sha256": "8d1ca1b51af15f566a41a047cf7e0ff6f10e6223dfee9ad10fe29d6e0749e5a4"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-False-late-True/history-07-original-frame.json.gz",
+      "bytes": 17430,
+      "sha256": "499c6a4de43969d7050eb989492ec4280c5f9f2dd3cbc8a616fb9450b1bea753"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-False-late-True/history-08-original-frame.json.gz",
+      "bytes": 21569,
+      "sha256": "c7ddeef128f05042b4ebcacdc478c7a87571ac0118cebad11a2cbf40414a536c"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-False-late-True/history-09-original-frame.json.gz",
+      "bytes": 21669,
+      "sha256": "42abd7ddcd3d99aaf84480f946285a1ae28c34d837e107847d51ac2126a343e7"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-False-late-True/input-01-join.json",
+      "bytes": 65,
+      "sha256": "cfd10c4cfc1fb990d01cb8e495a25c54dca244ae1643232df6f0f73bb013cce8"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-False-late-True/input-02-client.json",
+      "bytes": 1585,
+      "sha256": "59fe534a3b9a49f9da18d261013babd32c3fdd217cedd0503858af9647076095"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-False-late-True/input-03-join.json",
+      "bytes": 65,
+      "sha256": "46f1b1ffe63b25e5a60ea27419bd5e62fb4e11c5a310e293ae04bdc529ad3eee"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-False-late-True/input-04-client.json",
+      "bytes": 1585,
+      "sha256": "56a5d344e6e8844e0f53090cca88614a3c42a8b484785aa83e6efd04fd161c6b"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-False-late-True/input-05-client.json",
+      "bytes": 89,
+      "sha256": "040bde73201af4813cdef631c32caf4120d59733795054199ae135e11c6d9463"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-False-late-True/input-06-client.json",
+      "bytes": 90,
+      "sha256": "5f63d5cdbabebc20a2acf6680640a9bfb0d565edf8daef80e5382f39b9c82a99"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-False-late-True/input-07-client.json",
+      "bytes": 116,
+      "sha256": "feffd4b28bb4e7fb7ce760726bf97e042f83c53f069a5637ddada22930597e17"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-False-late-True/input-08-client.json",
+      "bytes": 117,
+      "sha256": "740d97e828e425f06b7f1eddfdb71e31e57a544b253ae5dd9b67e188ab8a7cc9"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-False-late-True/input-client-forgery-after-start.json",
+      "bytes": 146,
+      "sha256": "4f4db1fa63268b0ae01d477185b694baee1041318e8f7dc6d8aac911e1aa886f"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-False-late-True/input-client-forgery-before-game.json",
+      "bytes": 153,
+      "sha256": "abbaf4f6816e235f5afa52b98406887e2d0d50bdaa7d1cda72842a5c99e080c2"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-False-late-True/original-final-frame.json.gz",
+      "bytes": 21669,
+      "sha256": "42abd7ddcd3d99aaf84480f946285a1ae28c34d837e107847d51ac2126a343e7"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-False-late-True/receipt.json",
+      "bytes": 16698,
+      "sha256": "c9bf4fbe444668bbf39fcf7723c8fc2fc5f9d453f69adbcafab31cbd0d703f96"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-True-late-False/entry-01-original-input-before-persist.json.gz",
+      "bytes": 3666,
+      "sha256": "e47d743a3273e92f206ae2a29b264f7bfc943cf28ea6fdb86fa7f3e73b073441"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-True-late-False/entry-02-original-input-before-persist.json.gz",
+      "bytes": 4209,
+      "sha256": "7f941f933abb8ce3615d41701bb7b4dc3cf08488ef33530d323fa992ed0f321b"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-True-late-False/entry-03-original-input-before-persist.json.gz",
+      "bytes": 4625,
+      "sha256": "5956ab5e7d9b5836acd1c25fc5e9ecf95a81c5a2d307adeb1a9eb14a04805727"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-True-late-False/entry-04-original-input-before-persist.json.gz",
+      "bytes": 4591,
+      "sha256": "d57f895548dd941a7358668b7336e79957a33e9dfc617a6651b17ad6fce26807"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-True-late-False/entry-05-original-input-before-persist.json.gz",
+      "bytes": 4619,
+      "sha256": "c6c9bde1b2321fe46f8d185860df0713be770af923efd01f98f67ef72dc37ff2"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-True-late-False/entry-06-original-input-before-persist.json.gz",
+      "bytes": 11773,
+      "sha256": "a7b74d0c614ce0458ad346c720945b37e0bd62b1134d099f250f6f95c8e8b0d3"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-True-late-False/entry-07-original-input-before-persist.json.gz",
+      "bytes": 10995,
+      "sha256": "58c8fcd119e2f1117a9110e485b534a023ac5535c1fa02298e76427e75ecfce6"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-True-late-False/entry-08-original-input-before-persist.json.gz",
+      "bytes": 15716,
+      "sha256": "c37704050b176b8fa6d29e35cf716359a1c4d466a3e02a760eee03448d3a2089"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-True-late-False/entry-09-original-input-before-persist.json.gz",
+      "bytes": 15403,
+      "sha256": "4e69b6b3e7e58b0632f489e5d0aeddcd9c571f60494b6d9954b2e822652d070c"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-True-late-False/history-01-original-frame.json.gz",
+      "bytes": 4423,
+      "sha256": "afd352b14bf4ba2421be55099b8cf995ba50056e55c12996c2bcd96273997203"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-True-late-False/history-02-original-frame.json.gz",
+      "bytes": 4893,
+      "sha256": "54b83c25e54030e41b986a605bc7dea68bc567861807353f552a057023f5f3d5"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-True-late-False/history-03-original-frame.json.gz",
+      "bytes": 5747,
+      "sha256": "e1e685b140a33177761fd0bf4492fc4b26ea8044110a46017f413180aaa5f43d"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-True-late-False/history-04-original-frame.json.gz",
+      "bytes": 5765,
+      "sha256": "4a3cbbff01dbf0666625c1706bda984ced6f16825867748e041304c869d1f889"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-True-late-False/history-05-original-frame.json.gz",
+      "bytes": 6067,
+      "sha256": "8ebe1c6ef259b3d1837c79559b85d825e687ff5eee02e7af5865aea04f39a457"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-True-late-False/history-06-original-frame.json.gz",
+      "bytes": 16682,
+      "sha256": "b5cf850ab5944877d86721edf376a586dd5779920d9c26e0cf08aea105450b50"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-True-late-False/history-07-original-frame.json.gz",
+      "bytes": 17501,
+      "sha256": "674881073d37ac27a299e2892676303609c5f038e6e69844c8758cb634c103cb"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-True-late-False/history-08-original-frame.json.gz",
+      "bytes": 21653,
+      "sha256": "0bd05429bc803d84bdd756c4daf177630c4a766881176d74cb01631f2499304b"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-True-late-False/history-09-original-frame.json.gz",
+      "bytes": 21754,
+      "sha256": "29a0d55f58e196817aaf9c0617db1d61a1b601137b535d658865a38cb93d7e65"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-True-late-False/input-01-join.json",
+      "bytes": 65,
+      "sha256": "46f1b1ffe63b25e5a60ea27419bd5e62fb4e11c5a310e293ae04bdc529ad3eee"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-True-late-False/input-02-join.json",
+      "bytes": 65,
+      "sha256": "cfd10c4cfc1fb990d01cb8e495a25c54dca244ae1643232df6f0f73bb013cce8"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-True-late-False/input-03-client.json",
+      "bytes": 1585,
+      "sha256": "56a5d344e6e8844e0f53090cca88614a3c42a8b484785aa83e6efd04fd161c6b"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-True-late-False/input-04-client.json",
+      "bytes": 1585,
+      "sha256": "59fe534a3b9a49f9da18d261013babd32c3fdd217cedd0503858af9647076095"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-True-late-False/input-05-client.json",
+      "bytes": 89,
+      "sha256": "2a05a22aa2d98e633f5cf665048f189cab7b9f9f441a9b3778160a5c83277dea"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-True-late-False/input-06-client.json",
+      "bytes": 90,
+      "sha256": "bde2f17a0bd0780f67a07b18c6d1c89a50f25cd58108662fd1b872877a98aba4"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-True-late-False/input-07-client.json",
+      "bytes": 116,
+      "sha256": "feffd4b28bb4e7fb7ce760726bf97e042f83c53f069a5637ddada22930597e17"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-True-late-False/input-08-client.json",
+      "bytes": 117,
+      "sha256": "740d97e828e425f06b7f1eddfdb71e31e57a544b253ae5dd9b67e188ab8a7cc9"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-True-late-False/input-client-forgery-after-start.json",
+      "bytes": 146,
+      "sha256": "b89bc18b82139f09fc809115d6d095844cb4ae4e6740779cc06382e244077315"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-True-late-False/input-client-forgery-before-game.json",
+      "bytes": 153,
+      "sha256": "c3de16ecced3c8410fba29d7460dde011f46a763531e1f227e2a238df59d6426"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-True-late-False/original-final-frame.json.gz",
+      "bytes": 21754,
+      "sha256": "29a0d55f58e196817aaf9c0617db1d61a1b601137b535d658865a38cb93d7e65"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-True-late-False/receipt.json",
+      "bytes": 16721,
+      "sha256": "f2ba9e4b450ecd6bd884837ca9f3046f17c6e4dcb13f79a19410ebf51b8b2b09"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-True-late-True/entry-01-original-input-before-persist.json.gz",
+      "bytes": 3666,
+      "sha256": "f9e0526172c4becf858fa9b649eb7362641cb5b4615eb16dde9034360d126fe3"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-True-late-True/entry-02-original-input-before-persist.json.gz",
+      "bytes": 4021,
+      "sha256": "5ed40386372d187670060540da9b244f14b2999e30ee05a0cc21a2e6ed5801f8"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-True-late-True/entry-03-original-input-before-persist.json.gz",
+      "bytes": 4468,
+      "sha256": "f598b7d22a24de9d74546beefef48fb256c11aaf36535a5e1163bc771a06aeed"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-True-late-True/entry-04-original-input-before-persist.json.gz",
+      "bytes": 4593,
+      "sha256": "c8576bbbf59e3b10999eeecb7a8bb6b43e1cd4deb903513aa53b9ae4ee582c41"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-True-late-True/entry-05-original-input-before-persist.json.gz",
+      "bytes": 4621,
+      "sha256": "3f3b70857a7fab8166fe8cc4ef904411b0dbe9b75e38c0d9bd3ac2392b5a3ffa"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-True-late-True/entry-06-original-input-before-persist.json.gz",
+      "bytes": 11821,
+      "sha256": "5e0c73a6df7f77dd23eb8523f2b52abbaf6605dd88daa5d437be31d93e897278"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-True-late-True/entry-07-original-input-before-persist.json.gz",
+      "bytes": 11030,
+      "sha256": "d423f287eb7cebdc2f335a7533839a43aa946b9c8d700f467dc6d5253401a135"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-True-late-True/entry-08-original-input-before-persist.json.gz",
+      "bytes": 15797,
+      "sha256": "fbab37a8ef4e4066d6eabd4cfe4756a432bb493cc297c8f477476541472d5e30"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-True-late-True/entry-09-original-input-before-persist.json.gz",
+      "bytes": 15494,
+      "sha256": "40541b663f5ed96bb33d2e8b754a05fa55f43076c0a011f358c49d2a8c7fb784"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-True-late-True/history-01-original-frame.json.gz",
+      "bytes": 4423,
+      "sha256": "e3090e648adbc94a154c506c04bf2ee7848add92cc339df04e52aa749cae50fd"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-True-late-True/history-02-original-frame.json.gz",
+      "bytes": 4771,
+      "sha256": "4beb6fa805567d0826d78087d19f0e185729795665b161bd2539e6ec12a00635"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-True-late-True/history-03-original-frame.json.gz",
+      "bytes": 5747,
+      "sha256": "1c6af13a79ad79855c785cfe8e2427f5767df31151723b3230bf4b7cc0427b0a"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-True-late-True/history-04-original-frame.json.gz",
+      "bytes": 5769,
+      "sha256": "30830500959731425e08f056782ef18abe6a28d3cb251745bd8df35158ee6d70"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-True-late-True/history-05-original-frame.json.gz",
+      "bytes": 6067,
+      "sha256": "28cffc27f26c2f09217141a23631617d10682bc1939b8c3b8800c2612a5a4207"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-True-late-True/history-06-original-frame.json.gz",
+      "bytes": 16641,
+      "sha256": "89ca6554c52bd988c2f1304813ab8dd2936888e8d5e50040457e09fa8734133f"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-True-late-True/history-07-original-frame.json.gz",
+      "bytes": 17480,
+      "sha256": "e06f23cb2ae5633086ca55b64b0c9ea50e9f3093d70f1943f8df32158830374a"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-True-late-True/history-08-original-frame.json.gz",
+      "bytes": 21629,
+      "sha256": "0639ad97359a5c12bb3c6f1a2e3a26653722c5562aeeb84eabff96f40aa6f51f"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-True-late-True/history-09-original-frame.json.gz",
+      "bytes": 21730,
+      "sha256": "9726dca52ada657ca6c1b6b01ebd158856964be591332468e8fc34070ab4f512"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-True-late-True/input-01-join.json",
+      "bytes": 65,
+      "sha256": "46f1b1ffe63b25e5a60ea27419bd5e62fb4e11c5a310e293ae04bdc529ad3eee"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-True-late-True/input-02-client.json",
+      "bytes": 1585,
+      "sha256": "56a5d344e6e8844e0f53090cca88614a3c42a8b484785aa83e6efd04fd161c6b"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-True-late-True/input-03-join.json",
+      "bytes": 65,
+      "sha256": "cfd10c4cfc1fb990d01cb8e495a25c54dca244ae1643232df6f0f73bb013cce8"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-True-late-True/input-04-client.json",
+      "bytes": 1585,
+      "sha256": "59fe534a3b9a49f9da18d261013babd32c3fdd217cedd0503858af9647076095"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-True-late-True/input-05-client.json",
+      "bytes": 89,
+      "sha256": "2a05a22aa2d98e633f5cf665048f189cab7b9f9f441a9b3778160a5c83277dea"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-True-late-True/input-06-client.json",
+      "bytes": 90,
+      "sha256": "bde2f17a0bd0780f67a07b18c6d1c89a50f25cd58108662fd1b872877a98aba4"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-True-late-True/input-07-client.json",
+      "bytes": 116,
+      "sha256": "feffd4b28bb4e7fb7ce760726bf97e042f83c53f069a5637ddada22930597e17"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-True-late-True/input-08-client.json",
+      "bytes": 117,
+      "sha256": "740d97e828e425f06b7f1eddfdb71e31e57a544b253ae5dd9b67e188ab8a7cc9"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-True-late-True/input-client-forgery-after-start.json",
+      "bytes": 146,
+      "sha256": "b89bc18b82139f09fc809115d6d095844cb4ae4e6740779cc06382e244077315"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-True-late-True/input-client-forgery-before-game.json",
+      "bytes": 153,
+      "sha256": "c3de16ecced3c8410fba29d7460dde011f46a763531e1f227e2a238df59d6426"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-True-late-True/original-final-frame.json.gz",
+      "bytes": 21730,
+      "sha256": "9726dca52ada657ca6c1b6b01ebd158856964be591332468e8fc34070ab4f512"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v1/room-seat-journal/reverse-True-late-True/receipt.json",
+      "bytes": 16698,
+      "sha256": "ba7fa8a988f17e7f4b674e10596d20cb490afda00de1fa317faa7664af0fc988"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/atomic-first-False/entry-01-original-input-before-persist.json.gz",
+      "bytes": 3665,
+      "sha256": "dc982b12a354e771d80edaca65c40f38d9c6f095fbb4b1680879bae04174a8f4"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/atomic-first-False/entry-02-original-input-before-persist.json.gz",
+      "bytes": 4210,
+      "sha256": "59fc38d4f5c29281c3f82cb290e495ac4aa2fb14cb676f6f68de863c8f009fee"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/atomic-first-False/history-01-original-frame.json.gz",
+      "bytes": 4423,
+      "sha256": "006ccf145d20371626d7d94a321f5e65fdf4db683bf780b16a0c88f364caacd5"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/atomic-first-False/history-02-original-frame.json.gz",
+      "bytes": 4889,
+      "sha256": "af7c0acb61b12949fbbf45a8f713828cab3894c12a8b32a812e1b4c4d3be1f98"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/atomic-first-False/input-01-join.json",
+      "bytes": 59,
+      "sha256": "a54b38a780b66c323d2b4210eb325ff0f7a7ba0c3bf93c6b2a88bae9faf9fc7a"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/atomic-first-False/input-02-join.json",
+      "bytes": 59,
+      "sha256": "19ef8c964751aa6fc96681c582e57d4cdeb651fe8906ee37b558511c6aab4ff2"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/atomic-first-False/original-after-rollback-frame.json.gz",
+      "bytes": 4423,
+      "sha256": "006ccf145d20371626d7d94a321f5e65fdf4db683bf780b16a0c88f364caacd5"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/atomic-first-False/original-failed-seat-input-before-transaction-rollback.json.gz",
+      "bytes": 4210,
+      "sha256": "74d882f8fc035045ec89b031b3191a4b0dda78c4203e23efd9259037ff7ea666"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/atomic-first-False/original-failing-join-input.json",
+      "bytes": 211,
+      "sha256": "3a7548a17ed9cbb9a0e659832faba2e9ea8ad50ee7d56679050db86d8b2bbd00"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/atomic-first-False/original-final-frame.json.gz",
+      "bytes": 4889,
+      "sha256": "af7c0acb61b12949fbbf45a8f713828cab3894c12a8b32a812e1b4c4d3be1f98"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/atomic-first-False/original-seven-tables-after-transaction-rollback.json",
+      "bytes": 26480,
+      "sha256": "3dd96102b62d2f1bad43add62ad65006200d3c95d1ffdab93e5b8064ba7aa99b"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/atomic-first-False/original-seven-tables-before-controlled-failure.json",
+      "bytes": 26480,
+      "sha256": "3dd96102b62d2f1bad43add62ad65006200d3c95d1ffdab93e5b8064ba7aa99b"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/atomic-first-False/receipt.json",
+      "bytes": 1152,
+      "sha256": "97c703ee9020e202d7d76c26547d3b5e927e71858bf33d7bb8072202b417ed08"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/atomic-first-True/entry-01-original-input-before-persist.json.gz",
+      "bytes": 3667,
+      "sha256": "a1017a4018f22569a85e0c31d446f2c99bead17c83ea1312169514c9a2cadf45"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/atomic-first-True/entry-02-original-input-before-persist.json.gz",
+      "bytes": 4214,
+      "sha256": "e419d145d8cde7e5d2791166c72a924870b0df1ebb91db532ff0c0e1c60ca227"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/atomic-first-True/history-01-original-frame.json.gz",
+      "bytes": 4422,
+      "sha256": "e4289c9f9f25f396c5b32543f19cec7679ea0e8ff0e80df076ec57ab62984247"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/atomic-first-True/history-02-original-frame.json.gz",
+      "bytes": 4891,
+      "sha256": "24c9507f6d23eca8aed995020d833491dd278737b88468e2c6218e6841284869"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/atomic-first-True/input-01-join.json",
+      "bytes": 59,
+      "sha256": "a54b38a780b66c323d2b4210eb325ff0f7a7ba0c3bf93c6b2a88bae9faf9fc7a"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/atomic-first-True/input-02-join.json",
+      "bytes": 59,
+      "sha256": "19ef8c964751aa6fc96681c582e57d4cdeb651fe8906ee37b558511c6aab4ff2"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/atomic-first-True/original-failed-seat-input-before-transaction-rollback.json.gz",
+      "bytes": 3667,
+      "sha256": "fffc6b48475bd679f019207c968bcf0a110fee0cba614818cde5666f8139f0f5"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/atomic-first-True/original-failing-join-input.json",
+      "bytes": 210,
+      "sha256": "66e53ed195890d36e2aa4abaaae37c07db0523aeb4a39d30b611c1153bee2e92"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/atomic-first-True/original-final-frame.json.gz",
+      "bytes": 4891,
+      "sha256": "24c9507f6d23eca8aed995020d833491dd278737b88468e2c6218e6841284869"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/atomic-first-True/original-seven-tables-after-transaction-rollback.json",
+      "bytes": 152,
+      "sha256": "e91c4796b336601aa136d205780fa386f30ee7cbf496638ad76a3ed755d5182b"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/atomic-first-True/original-seven-tables-before-controlled-failure.json",
+      "bytes": 152,
+      "sha256": "e91c4796b336601aa136d205780fa386f30ee7cbf496638ad76a3ed755d5182b"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/atomic-first-True/receipt.json",
+      "bytes": 1149,
+      "sha256": "f7125bbfab38393312fe56c10f36b04e53bd1c6b14d999f8b2e6def247d404c2"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/metadata-only-current-room-rejection.json",
+      "bytes": 4580,
+      "sha256": "2e5cdda6a806211f39ebd266e2891392a6e83d018cd1e6eeaf39b597d3f65c79"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-False-late-False/entry-01-original-input-before-persist.json.gz",
+      "bytes": 3667,
+      "sha256": "5e822b91ad5d319bae7e8c79972192e60e8e49adba39c79ff5246eeec7ecb03e"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-False-late-False/entry-02-original-input-before-persist.json.gz",
+      "bytes": 4212,
+      "sha256": "68c0a2c0be2381aa09f8c437c0f6121ea674d9eb4972f6fc6f8612987f24ab36"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-False-late-False/entry-03-original-input-before-persist.json.gz",
+      "bytes": 4643,
+      "sha256": "ec30c51e5e540683158867edf380f8e5a9d46836f635cad356ecdc30899bf3bb"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-False-late-False/entry-04-original-input-before-persist.json.gz",
+      "bytes": 4592,
+      "sha256": "accf3e94dd7f77b8f98f51df119847993a47003a5c67a2a4e8a7e8f4e8ac3ed7"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-False-late-False/entry-05-original-input-before-persist.json.gz",
+      "bytes": 4629,
+      "sha256": "8fe8aedc59e73e00533966d4c6431b20023dea8c5823fc5ccc0eab5aa6247fda"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-False-late-False/entry-06-original-input-before-persist.json.gz",
+      "bytes": 11573,
+      "sha256": "05c8f4677864737a83d25c36d2fa460bdc7bf98783ecb1a39c206d4a906157e5"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-False-late-False/entry-07-original-input-before-persist.json.gz",
+      "bytes": 11182,
+      "sha256": "d6ddef9e896107121ebd2162984744c30fbbddc731af9229416fe3da337d334d"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-False-late-False/entry-08-original-input-before-persist.json.gz",
+      "bytes": 14834,
+      "sha256": "02492a5bec21d29255eddf7a3ea8dc8d569bfd6a7e7daa38606857176943badb"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-False-late-False/entry-09-original-input-before-persist.json.gz",
+      "bytes": 14532,
+      "sha256": "3c01427877ea4326bb595f45a772ad4d71cf9d6f94fd941e5313b052463d9de0"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-False-late-False/history-01-original-frame.json.gz",
+      "bytes": 4424,
+      "sha256": "d9dcb16948926ec1db33199bb0aaf2beecedec059ab32a60ce669ac70f1a6250"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-False-late-False/history-02-original-frame.json.gz",
+      "bytes": 4893,
+      "sha256": "a6ed08a5a9db36ce7f99d31c0004a057ceed8217221c0938cae960439b010510"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-False-late-False/history-03-original-frame.json.gz",
+      "bytes": 5751,
+      "sha256": "478dfa61e560ea2b269998369a47a23042cc43f3506d8f4b374f5f63252c0904"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-False-late-False/history-04-original-frame.json.gz",
+      "bytes": 5768,
+      "sha256": "7204258fa1ed5735971721d6548bb48ced3714e1a66134399187a4d4acf2f363"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-False-late-False/history-05-original-frame.json.gz",
+      "bytes": 6082,
+      "sha256": "1b2cde464ab0451a32e11eef0de7af40d1d44e74c4d9ad74e338a2cb7fa866f4"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-False-late-False/history-06-original-frame.json.gz",
+      "bytes": 17251,
+      "sha256": "777ab23723b6403772084c7bf2ab61c01e13d98b56efc7486c4427b621aa4aa7"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-False-late-False/history-07-original-frame.json.gz",
+      "bytes": 16702,
+      "sha256": "a3d6180e97495ec29de3408c870d5836bc06db13ee7f3c02a81d5694b397753a"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-False-late-False/history-08-original-frame.json.gz",
+      "bytes": 21988,
+      "sha256": "fc3c82f292b6a2a39aa9c33c7f41865f7413ef2662d4075672220fbda6d3602c"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-False-late-False/history-09-original-frame.json.gz",
+      "bytes": 22089,
+      "sha256": "f2cb260096dc5c056a145766599cb974ec474efe3d00abe351056ac6972abb86"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-False-late-False/input-01-join.json",
+      "bytes": 65,
+      "sha256": "cfd10c4cfc1fb990d01cb8e495a25c54dca244ae1643232df6f0f73bb013cce8"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-False-late-False/input-02-join.json",
+      "bytes": 65,
+      "sha256": "46f1b1ffe63b25e5a60ea27419bd5e62fb4e11c5a310e293ae04bdc529ad3eee"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-False-late-False/input-03-client.json",
+      "bytes": 1585,
+      "sha256": "59fe534a3b9a49f9da18d261013babd32c3fdd217cedd0503858af9647076095"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-False-late-False/input-04-client.json",
+      "bytes": 1585,
+      "sha256": "56a5d344e6e8844e0f53090cca88614a3c42a8b484785aa83e6efd04fd161c6b"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-False-late-False/input-05-client.json",
+      "bytes": 89,
+      "sha256": "040bde73201af4813cdef631c32caf4120d59733795054199ae135e11c6d9463"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-False-late-False/input-06-client.json",
+      "bytes": 90,
+      "sha256": "5f63d5cdbabebc20a2acf6680640a9bfb0d565edf8daef80e5382f39b9c82a99"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-False-late-False/input-07-client.json",
+      "bytes": 116,
+      "sha256": "33955ee53c5bb9f3112ab156c15894aa0170b7f66afbc5694068a3a6c11c31c3"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-False-late-False/input-08-client.json",
+      "bytes": 117,
+      "sha256": "fca599e1f911e6185a5f5ce22215201c1ab79b38a313176f7e0cc439f2adb7b0"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-False-late-False/input-client-forgery-after-start.json",
+      "bytes": 146,
+      "sha256": "4f4db1fa63268b0ae01d477185b694baee1041318e8f7dc6d8aac911e1aa886f"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-False-late-False/input-client-forgery-before-game.json",
+      "bytes": 153,
+      "sha256": "abbaf4f6816e235f5afa52b98406887e2d0d50bdaa7d1cda72842a5c99e080c2"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-False-late-False/original-final-frame.json.gz",
+      "bytes": 22089,
+      "sha256": "f2cb260096dc5c056a145766599cb974ec474efe3d00abe351056ac6972abb86"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-False-late-False/receipt.json",
+      "bytes": 16723,
+      "sha256": "90f7e6fca0d5d206f771984ae7e682ed9c15856fb7220349267ca797a17a5020"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-False-late-True/entry-01-original-input-before-persist.json.gz",
+      "bytes": 3667,
+      "sha256": "d6a7abc02bd304480bc1e57eaa97c5aee3671bac25abcec5c67ba4332ad4f5a0"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-False-late-True/entry-02-original-input-before-persist.json.gz",
+      "bytes": 4020,
+      "sha256": "6646a8fb58242ee4b9a0e67bd5ea969816a845cac402fd268e0f2ec54b7cf699"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-False-late-True/entry-03-original-input-before-persist.json.gz",
+      "bytes": 4468,
+      "sha256": "9cf6c65008544ef7e5833c781cdf73ca5d1c77c04ea010698bb08305d1a4dca9"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-False-late-True/entry-04-original-input-before-persist.json.gz",
+      "bytes": 4591,
+      "sha256": "f7425571956884a098b31517fd22fd02fb8d7f5104f0f024b96b4228c789c66b"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-False-late-True/entry-05-original-input-before-persist.json.gz",
+      "bytes": 4630,
+      "sha256": "0688906cd54c9ab8ee479a36041fb561221171b84e159839fcc4f9018aae0ca5"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-False-late-True/entry-06-original-input-before-persist.json.gz",
+      "bytes": 11557,
+      "sha256": "b892bc08b7e3a140d7ae21a6c05e545ebcf042a85e7f14491286ce58ef4379ff"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-False-late-True/entry-07-original-input-before-persist.json.gz",
+      "bytes": 11119,
+      "sha256": "bd46306468c6612bbf69b2b55b3054827118692fe83a8b81b3e30e6e7ccb3821"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-False-late-True/entry-08-original-input-before-persist.json.gz",
+      "bytes": 14789,
+      "sha256": "69b4348592e6e840e5b39dded8ba9dfc7a11aabc5dcad39f45c6b6d1a2ccae26"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-False-late-True/entry-09-original-input-before-persist.json.gz",
+      "bytes": 14484,
+      "sha256": "f3a572577a01e8712657d20798c2bd5c3013762027aaef1821a1e49810869328"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-False-late-True/history-01-original-frame.json.gz",
+      "bytes": 4422,
+      "sha256": "9e2eba208f4e4000918dc68713acc05e6819551e8ae0254d348e2ad1bd56690a"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-False-late-True/history-02-original-frame.json.gz",
+      "bytes": 4769,
+      "sha256": "5d9cd3ee90ec001c0cc3e4fe8b15df8f701d55ca2df1029855a15dc702d6e051"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-False-late-True/history-03-original-frame.json.gz",
+      "bytes": 5748,
+      "sha256": "95583f4e020b43ef04318dc756cf4c31f8ecc8d48a215ac55790b446041589f0"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-False-late-True/history-04-original-frame.json.gz",
+      "bytes": 5769,
+      "sha256": "9da6130cdc15b0ea0fbbb8c502a37b6ca8e0aa65c240526e59ac197739ceca3a"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-False-late-True/history-05-original-frame.json.gz",
+      "bytes": 6083,
+      "sha256": "b8a155891d78ca96264a61dcf7bd845e2a2d854aaa0d138abd91dbfa8951a9b8"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-False-late-True/history-06-original-frame.json.gz",
+      "bytes": 17231,
+      "sha256": "ec3677b0ed7debe097f11dd6e11405f97ce0114ba5ffe238fba52dbb8e9d0a1e"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-False-late-True/history-07-original-frame.json.gz",
+      "bytes": 16706,
+      "sha256": "1586e84d36fb65eeb2479723240f14022d63ad3c022e2a2022b3e80731051f0e"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-False-late-True/history-08-original-frame.json.gz",
+      "bytes": 21950,
+      "sha256": "3544ae8a8be8190c36e5d92b144b19f363678c8d7979ccd80853d372855f834e"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-False-late-True/history-09-original-frame.json.gz",
+      "bytes": 22051,
+      "sha256": "c8dd1dc5a468c53b26fe7ab06cfddc6de37a0bf81935a731dad467b5de955519"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-False-late-True/input-01-join.json",
+      "bytes": 65,
+      "sha256": "cfd10c4cfc1fb990d01cb8e495a25c54dca244ae1643232df6f0f73bb013cce8"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-False-late-True/input-02-client.json",
+      "bytes": 1585,
+      "sha256": "59fe534a3b9a49f9da18d261013babd32c3fdd217cedd0503858af9647076095"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-False-late-True/input-03-join.json",
+      "bytes": 65,
+      "sha256": "46f1b1ffe63b25e5a60ea27419bd5e62fb4e11c5a310e293ae04bdc529ad3eee"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-False-late-True/input-04-client.json",
+      "bytes": 1585,
+      "sha256": "56a5d344e6e8844e0f53090cca88614a3c42a8b484785aa83e6efd04fd161c6b"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-False-late-True/input-05-client.json",
+      "bytes": 89,
+      "sha256": "040bde73201af4813cdef631c32caf4120d59733795054199ae135e11c6d9463"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-False-late-True/input-06-client.json",
+      "bytes": 90,
+      "sha256": "5f63d5cdbabebc20a2acf6680640a9bfb0d565edf8daef80e5382f39b9c82a99"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-False-late-True/input-07-client.json",
+      "bytes": 116,
+      "sha256": "33955ee53c5bb9f3112ab156c15894aa0170b7f66afbc5694068a3a6c11c31c3"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-False-late-True/input-08-client.json",
+      "bytes": 117,
+      "sha256": "fca599e1f911e6185a5f5ce22215201c1ab79b38a313176f7e0cc439f2adb7b0"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-False-late-True/input-client-forgery-after-start.json",
+      "bytes": 146,
+      "sha256": "4f4db1fa63268b0ae01d477185b694baee1041318e8f7dc6d8aac911e1aa886f"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-False-late-True/input-client-forgery-before-game.json",
+      "bytes": 153,
+      "sha256": "abbaf4f6816e235f5afa52b98406887e2d0d50bdaa7d1cda72842a5c99e080c2"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-False-late-True/original-final-frame.json.gz",
+      "bytes": 22051,
+      "sha256": "c8dd1dc5a468c53b26fe7ab06cfddc6de37a0bf81935a731dad467b5de955519"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-False-late-True/receipt.json",
+      "bytes": 16698,
+      "sha256": "d273f4de3dacb28260e745b08a08f7b425c0496b54de24259688d4d2bac668cc"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-True-late-False/entry-01-original-input-before-persist.json.gz",
+      "bytes": 3667,
+      "sha256": "04affb0be273938b89c5025bcea4524a473d1190184dc99da9730439bbc3d34d"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-True-late-False/entry-02-original-input-before-persist.json.gz",
+      "bytes": 4211,
+      "sha256": "1e95f00bf53b6944cf995e62678684ddb3d03418a454d270dfee9e7e73235aef"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-True-late-False/entry-03-original-input-before-persist.json.gz",
+      "bytes": 4627,
+      "sha256": "368cb5175e12ed6e39c943b83ff0ffe18455ebf09a567eb99676d49a5a3c8de5"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-True-late-False/entry-04-original-input-before-persist.json.gz",
+      "bytes": 4592,
+      "sha256": "6d496b5bbe32384ed568f09ddea3d13da14ad30ee9bf3d8157c676337d35c307"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-True-late-False/entry-05-original-input-before-persist.json.gz",
+      "bytes": 4620,
+      "sha256": "39c7a289697882df63e4eb9a0050b34cbf154718a477b91f7d08ec18580a5587"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-True-late-False/entry-06-original-input-before-persist.json.gz",
+      "bytes": 11544,
+      "sha256": "8066228fdbb4f625074d8abbba1eae43c75bd7d12c2c12ba877f58c24cb6168d"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-True-late-False/entry-07-original-input-before-persist.json.gz",
+      "bytes": 11166,
+      "sha256": "e3f4012d1d557de55e0caaab72be1a615aad94e8f4db6c35ec58b2e0596e4672"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-True-late-False/entry-08-original-input-before-persist.json.gz",
+      "bytes": 14878,
+      "sha256": "863834f4ebf6e34150a27f1a15d6471be7ff24c8451de05f386cf7042f69f229"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-True-late-False/entry-09-original-input-before-persist.json.gz",
+      "bytes": 14569,
+      "sha256": "7451399895eff72f3846e2316debb1e08d4b60c0c71a6da908dabc04de43fb01"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-True-late-False/history-01-original-frame.json.gz",
+      "bytes": 4421,
+      "sha256": "34439f0676acd09c2b2a507a8b218e73d9c412fd9743be8103218c50e10e6f71"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-True-late-False/history-02-original-frame.json.gz",
+      "bytes": 4893,
+      "sha256": "0008c3a8211098f4058a3d2dac34e330c8b657839cf0ccddf3ea6316fd5dcb18"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-True-late-False/history-03-original-frame.json.gz",
+      "bytes": 5747,
+      "sha256": "b1ada1e01d114c01fd1ed7687c77d7b7e7229535ae909cf7b5512039725c042a"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-True-late-False/history-04-original-frame.json.gz",
+      "bytes": 5767,
+      "sha256": "571a6dffabb37be0a2cc6cb9ba5a30e0dfabe093e4896fa91123571aadd9c9a3"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-True-late-False/history-05-original-frame.json.gz",
+      "bytes": 6068,
+      "sha256": "08b146690d699c10b5f3bc7c42b2776b0666cd301c01104789affc580f830a50"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-True-late-False/history-06-original-frame.json.gz",
+      "bytes": 17225,
+      "sha256": "fd0f1a928d84b2e817c7998ac195ee1d813ffe83346f8c43a803657e16e66cc6"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-True-late-False/history-07-original-frame.json.gz",
+      "bytes": 16700,
+      "sha256": "eb7b433119b755061b06747fd087575b80865531a60011ee52589e937b84efa2"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-True-late-False/history-08-original-frame.json.gz",
+      "bytes": 22036,
+      "sha256": "2f923b6ca130bad0686d8d6647d09586455c42361f9ab4057a0c15a6545a6227"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-True-late-False/history-09-original-frame.json.gz",
+      "bytes": 22139,
+      "sha256": "6a5212bda18460bbb8062f365acc68e432f46cf1eb3013934a4686704f76e514"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-True-late-False/input-01-join.json",
+      "bytes": 65,
+      "sha256": "46f1b1ffe63b25e5a60ea27419bd5e62fb4e11c5a310e293ae04bdc529ad3eee"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-True-late-False/input-02-join.json",
+      "bytes": 65,
+      "sha256": "cfd10c4cfc1fb990d01cb8e495a25c54dca244ae1643232df6f0f73bb013cce8"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-True-late-False/input-03-client.json",
+      "bytes": 1585,
+      "sha256": "56a5d344e6e8844e0f53090cca88614a3c42a8b484785aa83e6efd04fd161c6b"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-True-late-False/input-04-client.json",
+      "bytes": 1585,
+      "sha256": "59fe534a3b9a49f9da18d261013babd32c3fdd217cedd0503858af9647076095"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-True-late-False/input-05-client.json",
+      "bytes": 89,
+      "sha256": "2a05a22aa2d98e633f5cf665048f189cab7b9f9f441a9b3778160a5c83277dea"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-True-late-False/input-06-client.json",
+      "bytes": 90,
+      "sha256": "bde2f17a0bd0780f67a07b18c6d1c89a50f25cd58108662fd1b872877a98aba4"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-True-late-False/input-07-client.json",
+      "bytes": 116,
+      "sha256": "33955ee53c5bb9f3112ab156c15894aa0170b7f66afbc5694068a3a6c11c31c3"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-True-late-False/input-08-client.json",
+      "bytes": 117,
+      "sha256": "fca599e1f911e6185a5f5ce22215201c1ab79b38a313176f7e0cc439f2adb7b0"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-True-late-False/input-client-forgery-after-start.json",
+      "bytes": 146,
+      "sha256": "b89bc18b82139f09fc809115d6d095844cb4ae4e6740779cc06382e244077315"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-True-late-False/input-client-forgery-before-game.json",
+      "bytes": 153,
+      "sha256": "c3de16ecced3c8410fba29d7460dde011f46a763531e1f227e2a238df59d6426"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-True-late-False/original-final-frame.json.gz",
+      "bytes": 22139,
+      "sha256": "6a5212bda18460bbb8062f365acc68e432f46cf1eb3013934a4686704f76e514"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-True-late-False/receipt.json",
+      "bytes": 16723,
+      "sha256": "957f6229f03c631d113a08c5af46fbe247aa8bcb13995d124f72ef098b2419e4"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-True-late-True/entry-01-original-input-before-persist.json.gz",
+      "bytes": 3668,
+      "sha256": "cfc12be2545269c8cdab84847056c51b1a48da94cde94e6631e195204ce51bf6"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-True-late-True/entry-02-original-input-before-persist.json.gz",
+      "bytes": 4021,
+      "sha256": "073b9ff0f39b13056eb8a8eb69f8f5983df5d4c43516759d841c1a7cf79fb560"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-True-late-True/entry-03-original-input-before-persist.json.gz",
+      "bytes": 4468,
+      "sha256": "9a3926eee46beb83d4bab576cfadd4ca9ffd0bff86ac61a2832e6350bba9976b"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-True-late-True/entry-04-original-input-before-persist.json.gz",
+      "bytes": 4594,
+      "sha256": "c0fc553e28beb3ef73670a19b01ae6fca781e5661d20ae2c896f6851ca2c0aee"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-True-late-True/entry-05-original-input-before-persist.json.gz",
+      "bytes": 4622,
+      "sha256": "8d604efe3416787cd6292b35a929a9eb7cc3758091fb0edab815ea6851702bd7"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-True-late-True/entry-06-original-input-before-persist.json.gz",
+      "bytes": 11563,
+      "sha256": "c0a609a914787c165e7acc491c48d7ff86304040866305841b09fa41c79c5372"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-True-late-True/entry-07-original-input-before-persist.json.gz",
+      "bytes": 11187,
+      "sha256": "05809e795c780ce9faca7db79a35b12cddd0d75d6f26e6546fdbcfac9d14eea5"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-True-late-True/entry-08-original-input-before-persist.json.gz",
+      "bytes": 14833,
+      "sha256": "03e835e1d2bd40f35c88b9dd8cd6b824f9b6ee89c9bda44f300c0f3e1ef134e4"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-True-late-True/entry-09-original-input-before-persist.json.gz",
+      "bytes": 14519,
+      "sha256": "fbaab31e2abe0fa63f34c701a06411e88c1f6b45780cd1dd65591816b9fd6338"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-True-late-True/history-01-original-frame.json.gz",
+      "bytes": 4426,
+      "sha256": "917054751d82b248e39931fd24eb5acb9f7ff75098f3271a126532aafd5d300f"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-True-late-True/history-02-original-frame.json.gz",
+      "bytes": 4771,
+      "sha256": "d8e7836a8c33b98621a9b858ae0c80b9e35568dd1a6eee0f34db0d9512c2aad3"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-True-late-True/history-03-original-frame.json.gz",
+      "bytes": 5750,
+      "sha256": "d3253ab0468d8625dcf29b1cebafad62df79bd78e8e3d52ca1e790470a3a5e16"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-True-late-True/history-04-original-frame.json.gz",
+      "bytes": 5769,
+      "sha256": "84553d4a1e96407dc6c3a2102f33c5e5cad48a4879f7bbe3202001260ee3bf60"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-True-late-True/history-05-original-frame.json.gz",
+      "bytes": 6069,
+      "sha256": "5b35e53c64b31d6d5d0900b5467d1001d89cb64aa0318ffafdccac5f6636f703"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-True-late-True/history-06-original-frame.json.gz",
+      "bytes": 17322,
+      "sha256": "a477fb7edc3f773974ce995473ef2d6c9c4b93f87da8b2ae84ab2ff1af8dbbae"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-True-late-True/history-07-original-frame.json.gz",
+      "bytes": 16813,
+      "sha256": "58099dfcf513ddb4c1483e70b2a5c3191ed798beca5a41454394a8199d8cb56a"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-True-late-True/history-08-original-frame.json.gz",
+      "bytes": 22031,
+      "sha256": "5a335f91665c8924a6b619a9e980ec5f43e20df1ee325d44cb06dee19a23105e"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-True-late-True/history-09-original-frame.json.gz",
+      "bytes": 22129,
+      "sha256": "887333ec69ee5ac565103e9fd0bd3517d16c7aaa23959f3b6cbbe812e4da0817"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-True-late-True/input-01-join.json",
+      "bytes": 65,
+      "sha256": "46f1b1ffe63b25e5a60ea27419bd5e62fb4e11c5a310e293ae04bdc529ad3eee"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-True-late-True/input-02-client.json",
+      "bytes": 1585,
+      "sha256": "56a5d344e6e8844e0f53090cca88614a3c42a8b484785aa83e6efd04fd161c6b"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-True-late-True/input-03-join.json",
+      "bytes": 65,
+      "sha256": "cfd10c4cfc1fb990d01cb8e495a25c54dca244ae1643232df6f0f73bb013cce8"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-True-late-True/input-04-client.json",
+      "bytes": 1585,
+      "sha256": "59fe534a3b9a49f9da18d261013babd32c3fdd217cedd0503858af9647076095"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-True-late-True/input-05-client.json",
+      "bytes": 89,
+      "sha256": "2a05a22aa2d98e633f5cf665048f189cab7b9f9f441a9b3778160a5c83277dea"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-True-late-True/input-06-client.json",
+      "bytes": 90,
+      "sha256": "bde2f17a0bd0780f67a07b18c6d1c89a50f25cd58108662fd1b872877a98aba4"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-True-late-True/input-07-client.json",
+      "bytes": 116,
+      "sha256": "33955ee53c5bb9f3112ab156c15894aa0170b7f66afbc5694068a3a6c11c31c3"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-True-late-True/input-08-client.json",
+      "bytes": 117,
+      "sha256": "fca599e1f911e6185a5f5ce22215201c1ab79b38a313176f7e0cc439f2adb7b0"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-True-late-True/input-client-forgery-after-start.json",
+      "bytes": 146,
+      "sha256": "b89bc18b82139f09fc809115d6d095844cb4ae4e6740779cc06382e244077315"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-True-late-True/input-client-forgery-before-game.json",
+      "bytes": 153,
+      "sha256": "c3de16ecced3c8410fba29d7460dde011f46a763531e1f227e2a238df59d6426"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-True-late-True/original-final-frame.json.gz",
+      "bytes": 22129,
+      "sha256": "887333ec69ee5ac565103e9fd0bd3517d16c7aaa23959f3b6cbbe812e4da0817"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/reverse-True-late-True/receipt.json",
+      "bytes": 16698,
+      "sha256": "2f64b5bf76810b50b502ee3ef6c3a46630f02cf46af0e7fadea79331c13bfab6"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-sql-v2/room-seat-journal/unsupported-nonatomic-journal-rejection.json",
+      "bytes": 754,
+      "sha256": "76870239a10c54d116bd095c6ba30d5aa28d9498e099db5a62899a99ae586330"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-writer-v1.log",
+      "bytes": 92,
+      "sha256": "ff03802359cccd7af719572c5c1613036bbbaa7ff55d3a8dc3a2e79364cf9f3b"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/actual-current-room-seat-writer-v2.log",
+      "bytes": 92,
+      "sha256": "ff03802359cccd7af719572c5c1613036bbbaa7ff55d3a8dc3a2e79364cf9f3b"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/before-check-fixture-calibrations-v1/GameHubJoinTests.cs.gz",
+      "bytes": 83055,
+      "sha256": "dbb37639a96f64439beab5c825ce190a60aa1f2c196b5a3c59f87dfdc1e0b797"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/before-check-fixture-calibrations-v1/OpeningRandomizationTests.cs.gz",
+      "bytes": 5817,
+      "sha256": "dbe35414adc284b9066ac1077368c3f7d9bceba5dfe6f7491ecd3d8ea7f548e6"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/before-check-fixture-calibrations-v1/OpeningRandomnessSqlAcceptance.cs.gz",
+      "bytes": 3549,
+      "sha256": "4daeb0c301c32a1c98345cc1f2da992a704f24c82fddaa410a04d2961ace0ef2"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/before-check-fixture-calibrations-v1/original-inputs-and-bounded-calibration-plan-v1.json",
+      "bytes": 2509,
+      "sha256": "739d9c58a4497067a34e716fb7fd92eb1278aff0459de41055aa96008cfd5382"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/bounded-room-seat-journal-input-design-v1.md",
+      "bytes": 1528,
+      "sha256": "0bd2b7ee3887f0f6288b14cbbff9ae98d62ef1fe31815a4a552e2ed2b27e9789"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/build-current-be0e-late-seat-probe-v1.log",
+      "bytes": 415,
+      "sha256": "7f6497df78c0cf2654433b0a0669ac80749dc811293807578fce202846f77709"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/build-current-private-opening-only-runner-v1.log",
+      "bytes": 482,
+      "sha256": "1bd96462b58a3c185017b45655f2453138baffd9ab4c8e07abd56904114c9326"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/build-current-room-seat-independent-reader-v1.log",
+      "bytes": 449,
+      "sha256": "90966c9b75667031e4206221898dcd8224e678cc30206527131e2efe555e74a0"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/build-current-room-seat-sql-v1.log",
+      "bytes": 4637,
+      "sha256": "64b795ab7e5a195a61fff2f86927a7908be750418bab1b55d11a81f6020518d6"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/build-current-room-seat-sql-v2.log",
+      "bytes": 844,
+      "sha256": "a29e0aa70cd6032166106c1daa677eb6f5e4669a1eaa341c3c388e45bb71e503"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/build-final-current-room-seat-independent-reader-v3.log",
+      "bytes": 449,
+      "sha256": "88b14e575bb0fe99c2fd5350cf1a61bf39873c50d864088d2efcba2ddfa5c288"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/build-final-current-room-seat-sql-v1.log",
+      "bytes": 760,
+      "sha256": "72a93dfd239a36abbf5392e917b28a60a28c2fd27b0573add6498582c4aebe6c"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/build-room-seat-failed-journal-sql-probe-v1.log",
+      "bytes": 485,
+      "sha256": "3ff08e3ab243057b7565f89d1042b374595f026391c8000a15a81d54ddbad57b"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/ci7a-all-nine-original-artifacts-receipt-v1.json",
+      "bytes": 9928,
+      "sha256": "327fc7f634fe66e3bac1295d95b1b7be17c3ecb31fd24b25e5db9d5b97dc7801"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/ci7a-all11-jobs-original-v1.json.gz",
+      "bytes": 2293,
+      "sha256": "77d95007825aa83245cbed656ac0bcce132377d0c408c669d9d4b35ed30449e7"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/ci7a-backend-artifacts-original-v1.json.gz",
+      "bytes": 1443,
+      "sha256": "2fa7a89edc9507502301748924f01d80a6b6a5dd285d417b178f61dbe1bec9cd"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/ci7a-complete-originals-v1/conformance-results.zip",
+      "bytes": 3953422,
+      "sha256": "5d85ca58de86ff8b9e2ad5d609f3deaa2a6822360d7ca9f1f1446f91d88109d9"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/ci7a-complete-originals-v1/full-verification-gate-attempt-2.zip",
+      "bytes": 298,
+      "sha256": "a9bfdd997ec599d8e71aa3ff039351be039cc42f5ffc164b089e97cb9443ee7b"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/ci7a-complete-originals-v1/native-network-results.zip",
+      "bytes": 1820,
+      "sha256": "658e983579c84eab3ea4ad8ad8dad776171001496331c136acd0814465be9060"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/ci7a-complete-originals-v1/postgres-partition-0.zip",
+      "bytes": 2159649,
+      "sha256": "858713fc11778f917e6832a8f4a0bfc1487203167b6d5946528c21f39cac3445"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/ci7a-complete-originals-v1/postgres-partition-1.zip",
+      "bytes": 1826951,
+      "sha256": "d978d06e6d8c9346480baabab428801e61ab04a6200d7262e2c3b05b0c3316e9"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/ci7a-complete-originals-v1/postgres-partition-2-attempt-2.zip",
+      "bytes": 1903559,
+      "sha256": "3e448a634f369f076c7e87426349d4c8a42228095647934b814fb13198236e30"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/ci7a-complete-originals-v1/postgres-partition-3.zip",
+      "bytes": 1440588,
+      "sha256": "d6bc4d04ced6883e02224aa074049d4e18b905940a2de398b9210191cb792506"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/ci7a-complete-originals-v1/postgres-results.zip",
+      "bytes": 2245,
+      "sha256": "834b2a375222d7381229e705bcebae8b44a302996ae597124714edacfb35eb83"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/ci7a-complete-originals-v1/verification-scope.zip",
+      "bytes": 1553379,
+      "sha256": "c26bb8693e0b22c02065e11beed3192fc4648e7c2adbc46c7c128cf6e787bb58"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/ci7a-entire-full-independent-verification-v1.json",
+      "bytes": 53127,
+      "sha256": "a8e3d078500312b51ffa225f49838ed58919a6a49fe76bf46fc815d234a6a9f5"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/ci7a-original-sql-zip-member-extraction-manifest-v1.json.gz",
+      "bytes": 36978,
+      "sha256": "c15e88cdc7286ceaffda2fa5f6d3989faf41b5c8bde6fcff1076579f22d00829"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/ci7a-terminal-original-v1.json.gz",
+      "bytes": 1516,
+      "sha256": "27fbb01be15f27235669ab49e3f9904ea320d2a518bc091ce7a0fbe6a9f2d758"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/ci7a-vs-99e-original-terminal-hash-comparison-v1.json",
+      "bytes": 26798,
+      "sha256": "df73c8380e33cd9d94c0c551e1dbe358c4adc3f638deeb81cf69f553590b65e7"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/completed-fixed7a-duplicate-extraction-retirement-v1.json",
+      "bytes": 1294,
+      "sha256": "13bc63f71e2c9af977c8fb238ae4a1ef836a3ab5df56f4d005c7b8ce8971f187"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/connector-current-fixed-ci-jobs-original-v1.json.gz",
+      "bytes": 1332,
+      "sha256": "645738ab7325342c539e42d83efda0b52e23d11e51156c6f9d16d8eae55f3509"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/connector-current-fixed-ci-jobs-receipt-v1.json",
+      "bytes": 452,
+      "sha256": "4bc75377ae0b7233ba02858d4d1a5d343ca965ddc6c3ae91b497e1014cdccc61"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/corrected-original-private-opening-postgres-v2.log",
+      "bytes": 1354,
+      "sha256": "0885471931cf0a1365ecf1ae96c1a40d2854a4c7f938d4422f408d43907567a0"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/corrected-original-private-opening-real-sql-owner-terminal-v2.json",
+      "bytes": 33325,
+      "sha256": "cceda088aab111a0c30cec3d3ef40386d03419bc23d7e46b1a06594235e8b72d"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/corrected-original-private-opening-real-sql-v2.log",
+      "bytes": 263,
+      "sha256": "5c7defab7e7dc6f591f17d655584a78d0b5242212b57ce5f0925c2321d44c710"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/corrected-original-private-opening-real-sql-v2/all-seven-actual-new-room-original-sql-rows.json.gz",
+      "bytes": 52057,
+      "sha256": "7e5b38e01ad5d1a795e721732fe6e8baf0eb8b51e10699bc84ae6b71de9d5c48"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/corrected-original-private-opening-real-sql-v2/receipt.json",
+      "bytes": 3527,
+      "sha256": "82ad764c9549cfbdc10cb8c94d7ed774de3728c6dc75a82c63a4c06b9f84f248"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/current-be0e-late-seat-owner-v1.log",
+      "bytes": 91,
+      "sha256": "6f32546feb09c804fbd6b9536f27bd010096c6733b16f5eecf56ff1857f80453"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/current-be0e-late-seat-probe-frozen-v1.json",
+      "bytes": 18184,
+      "sha256": "eacceb1f47b805268890c9f1877ea5fcdaedab099a62edcb3745e326b80b4bbb"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/current-be0e-late-seat-probe-v1.log",
+      "bytes": 363,
+      "sha256": "4bc898d98b0c83ce14144cfcf6b5e62cb706c9c4324c0bab42480a0a433e8485"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/current-be0e-probe-postgres-v1.log",
+      "bytes": 1328,
+      "sha256": "a26b676e4198f3364599fd7c96ba6498c08c92d63bf1825a807e2755e20c7bc2"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/current-original-test-retention-before-sql-v1.json",
+      "bytes": 72240,
+      "sha256": "9eb90e0461c56f0adb4c90063b936f4895ddbf96df92dd6c973bb7f185e871d6"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/current-private-opening-only-runner-frozen-inputs-v1.json",
+      "bytes": 15384,
+      "sha256": "b863f429b701e1c4cd2fcbcca801ff18901a78685e19abc9dfba72142c717f90"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/current-private-opening-only-runner-source-v1/Program.cs",
+      "bytes": 2239,
+      "sha256": "9fd8567f0226ff1a5a24e63fab4915c4ba471bfd8f5bfcbbe4e0c1b0220266e8"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/current-private-opening-only-runner-source-v1/probe.csproj",
+      "bytes": 1451,
+      "sha256": "783b2d793db12d759cbc63ea07073e43558cc288221c5ba41357bd49df01d364"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/current-room-seat-engineering-source-scope-review-v1.json",
+      "bytes": 2080,
+      "sha256": "bb37a3c76c7983f1b0dcd01a0249c8f6b62d3d523030ca7e020b9aea94be0bed"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/current-room-seat-frozen-runtime-inputs-v1.json",
+      "bytes": 869972,
+      "sha256": "7feeab33e75827acc4873abc7da852e6c45ec3bfa893e3d48ac57fe8cd380c70"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/current-room-seat-frozen-runtime-inputs-v2.json",
+      "bytes": 870334,
+      "sha256": "f6debfa0a42d8e813c923d0e8bbbb969ea41cf7e87aeb1b39d7d4c3eb5d9f095"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/current-room-seat-postgres-v1.log",
+      "bytes": 1356,
+      "sha256": "b50f2fecdb1ab7f33661f2807178990dee352790ec3a9a41ea2baa1a877b4f5f"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/current-room-seat-postgres-v2.log",
+      "bytes": 3686,
+      "sha256": "5c29180d1761c986881a9e1f59468f96cad88b115b6f9be8add295cd85f99185"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/download-completed-fixed7a-nine-originals-v1.log",
+      "bytes": 598,
+      "sha256": "6eda85e4442f402d1553df52a00651d09174380cc4545d0835dc52097d805426"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/download-completed-fixed7a-nine-originals-v1.py",
+      "bytes": 4300,
+      "sha256": "8106162465d488031cebf506c173a4a35f4065cef52762241c0fc9f3f34faf2f"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/download-completed-fixedbe0e-nine-originals-v1.py",
+      "bytes": 4310,
+      "sha256": "7cabb74f1be19f446d186bf64876b386a1c56ffc92ee2104a19ff404dd3f6e61"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/exact-fixed7a-sql-ci-gate-original-v1.py",
+      "bytes": 6805,
+      "sha256": "9bba242dfdce754f4855bb3098c2a8aadae1edaa64fb4b3b840afeb2112624a0"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/exact-fixed7a-sql-manifest-original-v1.json",
+      "bytes": 5760,
+      "sha256": "813916653e2d6b333a5873a48ff08e14f3983e7f71c33ea5433510bb2d75941b"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/executed-own-probe-and-reader-bits-retention-v1.json",
+      "bytes": 5735,
+      "sha256": "b07ccd8e78e53fd43a1a60de0f322b59f7240ff278959dc3f7960556a940813b"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/executed-own-probe-and-reader-bits-v1/current-private-opening-only-runner-source-v1-CurrentPrivateOpeningOnlyRunnerV1.dll",
+      "bytes": 15360,
+      "sha256": "85abe998f0a8d62c1023badeba9a51a758d7af9c8d16fd099ec63cc0f8660d2c"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/executed-own-probe-and-reader-bits-v1/current-private-opening-only-runner-source-v1-CurrentPrivateOpeningOnlyRunnerV1.pdb",
+      "bytes": 13704,
+      "sha256": "00459471a932b96e31f65c6767f78f530b046ee12fcc2728255b91cf045ee919"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/executed-own-probe-and-reader-bits-v1/independent-reader-source-v1-CurrentRoomSeatIndependentReaderV1.dll",
+      "bytes": 52224,
+      "sha256": "55bbd52ffdc6de854d172a1fd5e71723d48dfa400ca5b7006cf89f3880b339bf"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/executed-own-probe-and-reader-bits-v1/independent-reader-source-v1-CurrentRoomSeatIndependentReaderV1.pdb",
+      "bytes": 21200,
+      "sha256": "c3842063dadb07cbfb9a8a5f23362416fea1a5ce72ff83528463452ecca3fdfc"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/executed-own-probe-and-reader-bits-v1/independent-reader-source-v3-CurrentRoomSeatIndependentReaderV3.dll",
+      "bytes": 66048,
+      "sha256": "559824dcd41a579315fcb7d9ad580e991d8ba938ae3eb755f26d3c438783e080"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/executed-own-probe-and-reader-bits-v1/independent-reader-source-v3-CurrentRoomSeatIndependentReaderV3.pdb",
+      "bytes": 23976,
+      "sha256": "32d3ad1cbfa52def8aeddebb6170c78342c5f948e51265ea30d6dd31c05c1245"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/executed-own-probe-and-reader-bits-v1/probe-source-v1-CurrentBe0eLateSeatProbeV1.dll",
+      "bytes": 30208,
+      "sha256": "18d9aa10ad77827292b8e40ebe57c0cbb8561e06209a41ccd20761e782825fa4"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/executed-own-probe-and-reader-bits-v1/probe-source-v1-CurrentBe0eLateSeatProbeV1.pdb",
+      "bytes": 15548,
+      "sha256": "91e5eab412e603bfc61a3b1fb4b5661986944c5d81df3e276d4ad4e3bed88b17"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/executed-own-probe-and-reader-bits-v1/room-seat-failed-journal-sql-probe-source-v1-CurrentRoomSeatFailedJournalSqlProbeV1.dll",
+      "bytes": 27136,
+      "sha256": "aee4bb6a1bd400220dd660c01f08110f4eafa2ed6e0673c5c8477feb2760806c"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/executed-own-probe-and-reader-bits-v1/room-seat-failed-journal-sql-probe-source-v1-CurrentRoomSeatFailedJournalSqlProbeV1.pdb",
+      "bytes": 15384,
+      "sha256": "46d578d536bc81c0b4f86eaac0165f982021cf3ca1f4e1211472d0125084dab8"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/failed-first-seat-real-sql-counterexample-owner-terminal-v1.json",
+      "bytes": 26978,
+      "sha256": "1644ed1cc22f95424a691430d941e84308ef7be260cf86b64edcd6d28186739c"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/failed-first-seat-real-sql-counterexample-postgres-v1.log",
+      "bytes": 1354,
+      "sha256": "8abbe7ddee47eb910b1278a17ccbdc6550002f74fc416c52180c6d274f39cf49"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/failed-first-seat-real-sql-counterexample-v1.log",
+      "bytes": 1561,
+      "sha256": "2e87bc820309c92ba4f032c8bacf9e5b9bcc06ee027376355f619fe305290717"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/failed-first-seat-real-sql-counterexample-v1/original-after-failed-first-seat-frame.json",
+      "bytes": 8373,
+      "sha256": "fab7ee029c958c401a8d1f3f184655245076ea333be68fa7645666ee8e3c79a7"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/failed-first-seat-real-sql-counterexample-v1/original-after-second-seat-frame.json",
+      "bytes": 45620,
+      "sha256": "4791713184219425b1bdcae8672b9125859b0ed71199d8750bd7f9dc8a740cd8"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/failed-first-seat-real-sql-counterexample-v1/original-first-join-input.json",
+      "bytes": 216,
+      "sha256": "d8ec08df745ffcb9c568dad218e76660e6c5c63149dab04d733109e4a4206d6a"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/failed-first-seat-real-sql-counterexample-v1/original-second-join-input.json",
+      "bytes": 151,
+      "sha256": "b48363d29c1393b8abde59a759f9eba474dc0d8c808564c12843bd9073da8f86"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/failed-first-seat-real-sql-counterexample-v1/receipt.json",
+      "bytes": 1560,
+      "sha256": "4007e4e5e7245682be313f3ad9696e82b5d440b700a50b6fe6e72e7de1f27004"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/final-current-atomic-room-seat-original-retention-v1.json",
+      "bytes": 7693,
+      "sha256": "653b5aca9d8af648058bb6f7218fc878841c8c88d93b451f7831bfb208ff5640"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/finite-room-seat-atomicity-and-original-fixture-plan-v1.diff",
+      "bytes": 22040,
+      "sha256": "c721c1a1cdf7ff825607e1a18a1644b0ac17b6b2c6d1ae2593913891d9242e05"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/finite-room-seat-atomicity-and-original-fixture-plan-v1.json",
+      "bytes": 3114,
+      "sha256": "a5cac29c10e242994643ad3dfb11aa077acc0678753d18ce81f9840157874ec4"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/finite-room-seat-atomicity-and-original-fixture-plan-v2.diff",
+      "bytes": 34179,
+      "sha256": "5d5db53b84b03d01106bf38b8d794453a4a08a0efb15db5e5fc4655f0403f8ef"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/finite-room-seat-atomicity-and-original-fixture-plan-v2.json",
+      "bytes": 3114,
+      "sha256": "f4d3a1fa0c92b09bb8b2196fd75c362358110e26453f20c2a3da5a9e78407665"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/finite-room-seat-atomicity-and-original-fixture-plan-v3.diff",
+      "bytes": 39627,
+      "sha256": "ec7a6bb8722306cb6851db5f9d4cb287cc93aee607ac5d671902138302868bc1"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/finite-room-seat-atomicity-and-original-fixture-plan-v3.json",
+      "bytes": 3376,
+      "sha256": "32d806c510a5194fe4bdf7f9f4d553aec4973f33fab499fd854e49f773331602"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/finite-room-seat-atomicity-applied-after-sole-check-v3.json",
+      "bytes": 3078,
+      "sha256": "2b2833d9e9576f4ae9e86bd37643f4aa101014dd5589385800b7ecba3484543d"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/finite-room-seat-atomicity-sql-plan-addon-v1.py",
+      "bytes": 1643,
+      "sha256": "5d7c7f01ab7aa2445484dcb1d97cc4371b7fce5d7e2106e8f5e34a5df4f59110"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/finite-room-seat-final-guard-plan-addon-v1.py",
+      "bytes": 1714,
+      "sha256": "42b78341ec9b1c32498a95ed4773d16464189c0163285a94ff22eb9a55fbd3f4"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/first-only-check-original-case-method-and-input-retention-v1.json",
+      "bytes": 7793,
+      "sha256": "ae30604e65ec9b1a7b9ea0a0b8a6f3cd1e4a38efa21c74e9a31bfac5f9000ed6"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/first-reserved-seat-cache-counterexample-v1.log",
+      "bytes": 373,
+      "sha256": "a23f2d106f4856daa6ba2290ea8963e0f07f2ecf43a33b62e857d464c3ab5450"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/first-reserved-seat-cache-counterexample-v1/build.log",
+      "bytes": 78,
+      "sha256": "5a492e617a50c4dacd1285c217b6db957c03828d375f8151513b389c0c14b5ac"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/first-reserved-seat-cache-counterexample-v1/discovery.log",
+      "bytes": 2017558,
+      "sha256": "4deeccb9e7d72b147549df9efc969b41664da8f0a3f129521587f943309271a4"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/first-reserved-seat-cache-counterexample-v1/focus/results.trx",
+      "bytes": 7256,
+      "sha256": "96df525c4fea1f33c9595fa65d1c639760b6df0c9116621a86e9ff44c657917e"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/first-reserved-seat-cache-counterexample-v1/focus/test.log",
+      "bytes": 833,
+      "sha256": "7030d0227d6b5089da2bfba136ae9065d6fec4d002bb6eb725bd580087f233a1"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/first-reserved-seat-cache-counterexample-v1/plan.json",
+      "bytes": 683,
+      "sha256": "7b357f82d2b7c4629d72be74d2881b3c15147ac6b3b7e6955b158a7492a01e8c"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/first-retention-verifier-overbroad-expected-loop-replacement-disposition-v1.json",
+      "bytes": 794,
+      "sha256": "0e513b2512586913e04d102ac407eb6ab8410f63dbe755d3767e7b6d35aff4fe"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/first-room-seat-focus-before-empty-room-correction-v1.json",
+      "bytes": 2387,
+      "sha256": "ee1abb44b8e791a0e68b12e1150111e493f1cbad5f9c4307dc11f9948284e0cc"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/first-room-seat-focus-original-inputs-v1/MatchRecovery.cs.gz",
+      "bytes": 132534,
+      "sha256": "7196af87467ec999cadd1da402746929af6590cb6866abc638a2a52673b88576"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/first-room-seat-focus-original-inputs-v1/MatchSession.RoomSeats.cs.gz",
+      "bytes": 2035,
+      "sha256": "699167548c25a5f80afbd3a7655628e5c332f6e3317c51f6b25e40c33eae5dda"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/first-room-seat-focus-original-inputs-v1/MatchSession.cs.gz",
+      "bytes": 137150,
+      "sha256": "76d60f8daae892e87a9ce7f263c9b1637ee9f919d2230e03eca02db90e0e72c1"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/first-room-seat-focus-original-inputs-v1/PostgresMatchRecoveryStore.cs.gz",
+      "bytes": 3344,
+      "sha256": "c976873ccd583b78152b241bcef2ed0128925ac2016787a83dfe6d91802992b7"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/first-room-seat-focus-original-inputs-v1/RoomSeatJournalTests.cs.gz",
+      "bytes": 1598,
+      "sha256": "3359f29e0d54670cf8826c038eb6883ad021c28a8f55c455ed1bab767f149cc4"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/first-room-seat-focus-v1.log",
+      "bytes": 335,
+      "sha256": "009b355f4d9f5b6b635e9779f35e5c296831cbb7a027f408226b11a7edcade25"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/first-room-seat-focus-v1/build.log",
+      "bytes": 78,
+      "sha256": "baaec5b4c9b49eb9d4b686615f3848f185c5712fdab0470f87a047df9ce0416e"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/first-room-seat-focus-v1/discovery.log",
+      "bytes": 2015085,
+      "sha256": "40feba52a65107a0e2453bc659811717cc1ecb7dd206da26b122a62802a52424"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/first-room-seat-focus-v1/focus/results.trx",
+      "bytes": 8861,
+      "sha256": "2700dbd406016775d8b8d0899034c7b009a44ceab3f58823531fc193cc84aebc"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/first-room-seat-focus-v1/focus/test.log",
+      "bytes": 796,
+      "sha256": "038fbd07a3d8b37b2f3a5d422c70e98b87bc8e160aab3d9bc084efcc053b8b3b"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/first-room-seat-focus-v1/plan.json",
+      "bytes": 768,
+      "sha256": "4562ae6bf79b74a3014733d138eca6921d1e2b8eed98b03096a4417742ecedc9"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/first-room-seat-sql-build-failure-disposition-v1.json",
+      "bytes": 633,
+      "sha256": "db2124f85be7e00a072984d75c95c76334d98f5216130941956db0a759b8b2f7"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/first-room-seat-sql-writer-before-command-type-correction-v1.cs.gz",
+      "bytes": 3545,
+      "sha256": "035488979bc3247c761785f0493866626441e834bea30b60ba29cea9c1bdcdeb"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/independent-current-room-seat-all-live-input-history-v1.json",
+      "bytes": 2139,
+      "sha256": "87e19aa430b99dfb1f238892099d124ecc1f8bac8c269e2b0f2ed9339b1b3407"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/independent-current-room-seat-all-live-input-history-v1.log",
+      "bytes": 2140,
+      "sha256": "86b0ab085b5bfeb1c627dc7103662a762489278e11b33af83b9769a95d5d7b8f"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/independent-current-room-seat-all-live-input-history-v2.json",
+      "bytes": 3199,
+      "sha256": "21f913cc9d78a3eb0f79b50b16724205c6f01db1c7ad83123e71d6f14c3ae16e"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/independent-current-room-seat-all-live-input-history-v2.log",
+      "bytes": 3200,
+      "sha256": "3446547b372149da5bf279d62d82ab66725bbe8dd2199be541844054491576f3"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/independent-reader-source-v1/Program.cs",
+      "bytes": 16471,
+      "sha256": "3e102e832da93f12cc80a848601ba5f4c00325c0424eebaa8644d9be89893ae2"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/independent-reader-source-v1/probe.csproj",
+      "bytes": 1452,
+      "sha256": "00d134ea7bbc42c9fdb206999107abfe6239baa1e1e4374b34e04d3cc5f9f2d9"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/independent-reader-source-v2/Program.cs",
+      "bytes": 20245,
+      "sha256": "073507a1733c6c0721ff1b39ab4d03a5b06210bc5d0b4287b7420536304454ec"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/independent-reader-source-v3/Program.cs",
+      "bytes": 23635,
+      "sha256": "1839fe53a9a527e01afe86b173a01c20a16c7b95d171f10138c59d7160a4416b"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/independent-reader-source-v3/probe.csproj",
+      "bytes": 1452,
+      "sha256": "e974fd741a8be9520e3dc034716edecbd668d8ec3cee9392a5dc3c2b2a470fb1"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/independent-reader-v3-final-atomic-runtime-capability-source-addendum-v1.json",
+      "bytes": 489,
+      "sha256": "c6aef8a6abe0b63e222089e0e926a98dbe30f98bba8d7bb5ed7dcff2869f67a5"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/independent-room-seat-six-case-plus-orphan-reader-extension-source-plan-v3.json",
+      "bytes": 435,
+      "sha256": "aad9f27f27a0a2aaf34ff697d33001629bdd4facb1935dc6924dc8f45aca27fd"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/independent-room-seat-six-case-reader-bounded-extension-source-plan-v2.json",
+      "bytes": 6640,
+      "sha256": "a8c3f51475277b7d73c338204036725811530ba993f45abe15ecd03f3d35e824"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/issue85-before-confirmed-second-branch-followup-v1.json",
+      "bytes": 2940,
+      "sha256": "ab6b5ea16869391398dc060c0531c29507855fed5c2ef549e47028a0b0bcb858"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/issue85-current-two-command-followup-exact-readback-v1.json",
+      "bytes": 3950,
+      "sha256": "83c84bf5ec5bb834585f832c49c3b93ffd9602de035e281cb7b9ee22d65cd7e7"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/issue85-current-two-command-sql-counterexample-body-v1.md",
+      "bytes": 1715,
+      "sha256": "07092c18791c633483056e4f7be85367e16b4d496a722a6004c5218f07c4a5b7"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/only-check-console-v1.log",
+      "bytes": 316,
+      "sha256": "b3e754c244a7c1b3dc2bd0a33b1800a82d43245cf951a74cbb2db645928738e4"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/only-check-owner-terminal-v1.json",
+      "bytes": 912,
+      "sha256": "a6ea35d56000ab84d328b8d24da262705085bd237584783db18630e843c10917"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/only-check-owner-v1.log",
+      "bytes": 1124,
+      "sha256": "81fcef8875add7a8009d8523ed495613e9fdda99c735c9aa0bfa27163deffa8d"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/only-check-plan-v1.log",
+      "bytes": 179,
+      "sha256": "27c2d581b448cafebac3a75866c709d64128fae2ad51573b2870154e61154ac6"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/only-check-plan-v1/discovery.log",
+      "bytes": 2017558,
+      "sha256": "4deeccb9e7d72b147549df9efc969b41664da8f0a3f129521587f943309271a4"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/only-check-plan-v1/plan.json",
+      "bytes": 1004350,
+      "sha256": "c7ca55699990f2c00695271a3fd3bbca402d6356d6c7984dc47008e70b23f7a8"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/only-check-start-inputs-v1.json",
+      "bytes": 1128973,
+      "sha256": "e682c8fda9d5bc0d7d18d7389dee5169735c5017a7cabf339e4ca461987fcd2a"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/only-check-v1/build.log",
+      "bytes": 78,
+      "sha256": "3c53e77934f09e25634dc76d9a38be1a4f692fcbbfd13a45096e7845325e87db"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/only-check-v1/check/results.trx",
+      "bytes": 20877209,
+      "sha256": "9afbeb39ef697c5ea39d9551ca61fa3ae4a3953b3a3e0c2b56f6aced864d7588"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/only-check-v1/check/test.log",
+      "bytes": 1383,
+      "sha256": "9b1bd8df75bef1ab5d7f110a5ebcc04ee419b11731de18727a69caff6e1f5ba5"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/only-check-v1/discovery.log",
+      "bytes": 2017558,
+      "sha256": "4deeccb9e7d72b147549df9efc969b41664da8f0a3f129521587f943309271a4"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/only-check-v1/plan.json",
+      "bytes": 1004350,
+      "sha256": "c7ca55699990f2c00695271a3fd3bbca402d6356d6c7984dc47008e70b23f7a8"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/original-all110-owner-v1.log",
+      "bytes": 89,
+      "sha256": "6fc1d670a8516e5c1d83c226944ae80cf42d1d283cfeb7aff6e000e2a9dd0224"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/original-all110-pairs-owner-terminal-v1.json",
+      "bytes": 1935,
+      "sha256": "2c9e7325047392c24966bad10372ebcaf8d5bf60e64f10ad1d0908f188704845"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/original-all110-pairs-owner-terminal-v2.json",
+      "bytes": 1935,
+      "sha256": "4479d100320b13e6d977fb6a1f833722547d555fde6a058f8cf45039af45875a"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/original-all110-pairs-result-v1.json",
+      "bytes": 17260,
+      "sha256": "668b30a915d7e3c4645a1cef862b0351c6eb5ea2f25a34429980ad77ce49e250"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/original-all110-pairs-result-v1.json.plan.json",
+      "bytes": 22820,
+      "sha256": "f54fa59a36abac381f5ed7da273c6c249f2c54040e884080c5ceef2f74538f09"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/original-all110-pairs-result-v2.json",
+      "bytes": 17260,
+      "sha256": "1b2955aceb57933066948a2150f0efd8ceecdd95929811862a567855d85983ea"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/original-all110-pairs-result-v2.json.plan.json",
+      "bytes": 22820,
+      "sha256": "f54fa59a36abac381f5ed7da273c6c249f2c54040e884080c5ceef2f74538f09"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/original-all110-pairs-v1.log",
+      "bytes": 19802,
+      "sha256": "8e91c30e7c9a6c4b6cd882a098eec4b9c013924966ff691d5d1485753412d97b"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/original-all110-pairs-v2.log",
+      "bytes": 19802,
+      "sha256": "3d676011c9a2e7e236b6b4aacc7e4437efa083494885955592d1198e72902553"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/original-only-check-inputs-before-atomicity-v3/src__Riftbound.Engine__MatchJournal.cs.gz",
+      "bytes": 916,
+      "sha256": "c359b7550a871b0fec4bffd9c34361073b8aea07373f3f95cced39c17f42ddc0"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/original-only-check-inputs-before-atomicity-v3/src__Riftbound.Engine__MatchPlayers.cs.gz",
+      "bytes": 480,
+      "sha256": "52a760838221c5aa18a0c7b3ad3d71e526326fab382859eac5421c1b81a6de85"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/original-only-check-inputs-before-atomicity-v3/src__Riftbound.Engine__MatchSession.RoomSeats.cs.gz",
+      "bytes": 2049,
+      "sha256": "ec79b1cdbdb2c06661cf614c5679475c9cf16d1b1cb38ecbcd7ad5f20a923122"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/original-only-check-inputs-before-atomicity-v3/src__Riftbound.Persistence__PostgresMatchJournal.cs.gz",
+      "bytes": 2331,
+      "sha256": "b29198b1fe6426168a33ebfdff58a5e3c5fd92d2fe163b08e7ec5b5c35ee23ad"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/original-only-check-inputs-before-atomicity-v3/src__Riftbound.Persistence__PostgresMatchPlayerStore.cs.gz",
+      "bytes": 1527,
+      "sha256": "2d061009de75ec254320b4b63b4135393a85546bfe0d4fd7a7ee9e4160133459"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/original-only-check-inputs-before-atomicity-v3/src__Riftbound.Persistence__PostgresMatchRecoveryStore.cs.gz",
+      "bytes": 3354,
+      "sha256": "ce346b66ecee698e8ffa43eb3aec869c78b02b82a169ca7765e49bd9b0f008d6"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/original-only-check-inputs-before-atomicity-v3/tests__Riftbound.ConformanceTests__GameHubJoinTests.cs.gz",
+      "bytes": 83055,
+      "sha256": "dbb37639a96f64439beab5c825ce190a60aa1f2c196b5a3c59f87dfdc1e0b797"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/original-only-check-inputs-before-atomicity-v3/tests__Riftbound.ConformanceTests__MatchRecoveryTests.cs.gz",
+      "bytes": 202201,
+      "sha256": "2618d5ed63b7ba9172ce32a13e8fbea4b97d4fd7ab8777076d3afc3eadce038a"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/original-only-check-inputs-before-atomicity-v3/tests__Riftbound.ConformanceTests__OpeningRandomizationTests.cs.gz",
+      "bytes": 5817,
+      "sha256": "dbe35414adc284b9066ac1077368c3f7d9bceba5dfe6f7491ecd3d8ea7f548e6"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/original-only-check-inputs-before-atomicity-v3/tests__Riftbound.PostgresAcceptance__OpeningRandomnessSqlAcceptance.cs.gz",
+      "bytes": 3549,
+      "sha256": "4daeb0c301c32a1c98345cc1f2da992a704f24c82fddaa410a04d2961ace0ef2"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/original-only-check-inputs-before-atomicity-v3/tests__Riftbound.PostgresAcceptance__RoomSeatJournalSqlAcceptance.cs.gz",
+      "bytes": 3745,
+      "sha256": "18dd7761a7c19de3cf65bd2996dd13270b26e99fefaae2ff14e55a43ef5540e7"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/original-opening-seed-test-before-room-origin-calibration-v1.cs.gz",
+      "bytes": 5774,
+      "sha256": "e990b9265851187aecf03c9a0e8cdd5539505cc59c57add8c43353f11b5b60fc"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/original-opening-sql-before-fixture-calibration-v1.log",
+      "bytes": 1028,
+      "sha256": "ab61d14a74f04b4219aaf4e452bce31be967183d3627c5c88d0c4d8e0c458bec"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/original-opening-sql-before-fixture-calibration-v1/all-seven-new-room-original-sql-rows-v1.json.gz",
+      "bytes": 4969,
+      "sha256": "91e616c843b977c621c28fb3bbb5b6dca738e7b2f705d4b054e8bf396b29de35"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/original-opening-sql-counterexample-postgres-v1.log",
+      "bytes": 1354,
+      "sha256": "bcd779730f8624cf85a49c4ed0a9afcd5d426ac9c59b24b85604a2a36123f114"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/original-opening-sql-two-server-input-counterexample-owner-terminal-v1.json",
+      "bytes": 25856,
+      "sha256": "bd3e4a435ba73ea6b269c2e127037cf5b867639fb1d67f6be336f77407337c04"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/original316-audit66-native-seven-table-baseline-v1.json",
+      "bytes": 23941,
+      "sha256": "d6b0bdf5ec82068c1985fd66445b0fe6a4f5dd8efb820ab83a4386725d52adf5"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/original317-audit66-native-seven-table-baseline-v1.json",
+      "bytes": 23997,
+      "sha256": "33a370cef3b3b2bd6cfd86b480eb5ddb9da80620202b0acb627c26caf60b14d2"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/original323-audit66-native-seven-table-baseline-v2.json",
+      "bytes": 24358,
+      "sha256": "38a15f6b2fed4252d6353580766117acbff63be094ad354b81bd6d55c1d6244d"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/original330-audit66-native-seven-table-baseline-v2.json",
+      "bytes": 24777,
+      "sha256": "85511d6b0486f3639f07aec26dc3f5019bef7fea8261cedeb445c15637f071a6"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/own-corrected-original-private-opening-sql-v2.py",
+      "bytes": 8052,
+      "sha256": "16dd12957e8cebf28961785b0609c81e948a4f2d586a10d8f54193bfa5fdaa4d"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/own-current-atomic-room-seat-sql-v2.py",
+      "bytes": 10098,
+      "sha256": "521eb5e1e77e5603b5d0ee2299676a679c49f9b30c57cff05ff470e9714afe27"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/own-current-be0e-late-seat-probe-v1.py",
+      "bytes": 6205,
+      "sha256": "726fd64f013a02a2af9a99582f17d7fcc8e31c0722526f238ea324a99d78e02b"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/own-current-room-seat-sql-v1.py",
+      "bytes": 7501,
+      "sha256": "5f8ce1f52cfb11063c2b85f49f5d96d4281375c6bc1843783ff3082acc4c1345"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/own-failed-first-seat-real-sql-counterexample-v1.py",
+      "bytes": 5866,
+      "sha256": "d7cff414e2a83278d70832c14880ae9c91143d633fa2a0247f202f4d698ff1d2"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/own-only-current-room-seat-check-v1.py",
+      "bytes": 3908,
+      "sha256": "a1b9adec1931682e7bf57c530d572ba4db0efe216f6251b349fb88f4d8cfcffa"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/own-original-all110-room-seat-pairs-v1.py",
+      "bytes": 3386,
+      "sha256": "c5511d42f7c114359e0386e6b85068d583aafd666e6b43c26316c8f97e073d9c"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/own-original-all110-room-seat-pairs-v2.py",
+      "bytes": 3386,
+      "sha256": "2d0a35d9bcd6428788c1c33f67c438b4e8cc647b4800b3bd3a60b16c1f7aae6b"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/own-original-opening-sql-first-input-counterexample-v1.py",
+      "bytes": 6933,
+      "sha256": "524236afc6462717fba82df4a2ea8cac7ca2f25304dc260d92a78f00e34d607e"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/plan-and-apply-finite-room-seat-atomicity-v1.py",
+      "bytes": 15594,
+      "sha256": "95d939e41ebc0a27f072b7a5de866367c6921bff2ea6ce4aa6a9b17c76aa87eb"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/plan-and-apply-finite-room-seat-atomicity-v2.py",
+      "bytes": 15735,
+      "sha256": "95fe757bbe4d4ef74384ff6b601cca3d3daca6b1e4b97e00d0c864d45ad1d7a8"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/plan-and-apply-finite-room-seat-atomicity-v3.py",
+      "bytes": 15874,
+      "sha256": "c669945df8c46fe7d14e762b8017bd0271596ef7cc9de14a56cc31bb8d494d8e"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/post-check-atomic-room-seat-focus-source-inputs-v1.json",
+      "bytes": 848465,
+      "sha256": "c5817c0ec874bc62265a47d86d29ad770f4d8b13b73c5db637c3def0fb0da465"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/post-check-atomic-room-seat-focus-v1/build.log",
+      "bytes": 78,
+      "sha256": "3f4e60d10678b511758964062638f28f2941dc5bb13c4fda13aad0b3218c9a30"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/post-check-atomic-room-seat-focus-v1/discovery.log",
+      "bytes": 2017558,
+      "sha256": "4deeccb9e7d72b147549df9efc969b41664da8f0a3f129521587f943309271a4"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/post-check-atomic-room-seat-focus-v1/focus/results.trx",
+      "bytes": 532832,
+      "sha256": "36da3fa5af6f78b3e59e6d399350303a3fdb941b9901031dea505bcad79b378f"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/post-check-atomic-room-seat-focus-v1/focus/test.log",
+      "bytes": 508,
+      "sha256": "ec3861fec356cd11031317b1857ddc0228b5db9face3148738ae76f84d246de9"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/post-check-atomic-room-seat-focus-v1/plan.json",
+      "bytes": 35346,
+      "sha256": "d7f73566c15103871e5ae76412035f38f91319c6a834a47a36be571e4acae5cb"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/post-check-atomic-room-seat-focus-v1/summary.json",
+      "bytes": 274,
+      "sha256": "b3a08345b517a2e81c5f3e3c96487794e1e2533d4fd3bf4cae4dab4a81bf1642"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/post-check-atomic-vs-original-b624-all110-terminal-hash-comparison-v1.json",
+      "bytes": 26190,
+      "sha256": "56a9c52de08bc312bf5d042d8808245356eec0995b94a45a24cd5a175d76f205"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/pre-change-current-be0e-room-input-source-retention-v1.json",
+      "bytes": 593652,
+      "sha256": "4d05da140b9a8b65217babf3db3a64bc5f2b6f69f1780d767811bbe566a3943c"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/prepare-freeze-current-room-seat-runtime-v1.log",
+      "bytes": 177,
+      "sha256": "926f1aadccef1b5bdd0e30565f80b3fa5793e3a07f0e376f1f860a3c960f7308"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/prepare-freeze-current-room-seat-runtime-v1.py",
+      "bytes": 5653,
+      "sha256": "2f140a3b1570e8976548952e11a687934ae48efc8d3184f06248a878802f126a"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/prepare-freeze-current-room-seat-runtime-v2.py",
+      "bytes": 6251,
+      "sha256": "041e901fe22f1af50c2381e47858a6bde3db6c30a88d3f3d4ed881137ddf7bc6"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/prior-room-seat-publication-v1/PROJECT_STATUS.md.gz",
+      "bytes": 82605,
+      "sha256": "4f5a5ddb297805c7bbb5c33889cd2b684b00bfe07fbddda6f60ba56ae4991f77"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/prior-room-seat-publication-v1/complete-prior-contexts-needing-current-input-refresh.json.gz",
+      "bytes": 207321,
+      "sha256": "f1d99f7c25642ed3d35c156de9b8b4e347eff4f858f0381e73b3cac10b7fa29a"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/prior-room-seat-publication-v1/current-manifest.json.gz",
+      "bytes": 362697,
+      "sha256": "f3298a311ade6048ee3dba8994531a4371638ead949f13c423d7a123e104fc16"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/prior-room-seat-publication-v1/review-decisions.json.gz",
+      "bytes": 170088,
+      "sha256": "49a51333213c3b93b0470a3be5791297c031879324b563a5758682e1987a101a"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/probe-source-v1/Program.cs",
+      "bytes": 5273,
+      "sha256": "4316eb079d05aa9e0a434e0d152c7a25e00efdb735a09bcda6f548511033a2b0"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/probe-source-v1/probe.csproj",
+      "bytes": 1489,
+      "sha256": "88c5fb7a5646e2e23d4662e996e322fffaf2138b649764a09bd15a8bfa1f8b10"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/proposed-metadata-only-seat-refusal-v1.cs",
+      "bytes": 3227,
+      "sha256": "d169e2fe12b4681d532086d07c0b5db9c6520a30bf4f372e7fb09f4d73b4abb2"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/proposed-room-seat-atomicity-sql-function-v1.cs",
+      "bytes": 11027,
+      "sha256": "0db89f384b337574ebd403ee04bde9116c4d1158dc1e4e760791a5af83b17072"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/publish-room-seat-coherent-batch-v1.py",
+      "bytes": 31632,
+      "sha256": "b0fa2d2f31302f1f3632ca20299b9666d31b73b1616431c08b1872f48ad24e15"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/reserved-seat-cache-original-counterexample-inputs-v1/MatchRecovery.cs.gz",
+      "bytes": 132581,
+      "sha256": "055bf5aff3a263bda1a068e19596ab1cdae6790bae5f9b27dbcf1d62def9615b"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/reserved-seat-cache-original-counterexample-inputs-v1/MatchSession.RoomSeats.cs.gz",
+      "bytes": 2049,
+      "sha256": "ec79b1cdbdb2c06661cf614c5679475c9cf16d1b1cb38ecbcd7ad5f20a923122"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/reserved-seat-cache-original-counterexample-inputs-v1/MatchSession.cs.gz",
+      "bytes": 137150,
+      "sha256": "76d60f8daae892e87a9ce7f263c9b1637ee9f919d2230e03eca02db90e0e72c1"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/reserved-seat-cache-original-counterexample-inputs-v1/RoomSeatJournalTests.cs.gz",
+      "bytes": 3953,
+      "sha256": "fad8d064ea5b2835ea8a3648b5dfb23b8c5bf0127dedef7ca098acaef54a960a"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/reserved-seat-cache-original-counterexample-inputs-v1/RoomSeatRecoveryValidator.cs.gz",
+      "bytes": 1060,
+      "sha256": "04196e60bf7bde8942cff2fda91b4d4531c2e059d1b6113e858b0d9346fd50a1"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/reserved-seat-cache-two-original-counterexamples-v1.json",
+      "bytes": 3004,
+      "sha256": "a832139882b490dfd7b72737a3d5d19f2cbc257e0598128fceb7cd680638ee6b"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/room-seat-failed-journal-probe-frozen-inputs-v1.json",
+      "bytes": 14576,
+      "sha256": "0725a02e9f45b3ab89ebabfb9a6438e5396a778b1100a97ad90a1ab6ddcc5f65"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/room-seat-failed-journal-sql-probe-source-v1/Program.cs",
+      "bytes": 5507,
+      "sha256": "ec7995a94eb44f5f1d1ad0abe830c039f60efba148a135db4024d2376db3d813"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/room-seat-failed-journal-sql-probe-source-v1/probe.csproj",
+      "bytes": 1456,
+      "sha256": "6dca72beec38ae89d9e0d98a3c3273c0e073cb5536a8441a827e89f5a0b8f793"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/room-seat-focus-v2.log",
+      "bytes": 412,
+      "sha256": "1dd239afad5c4065d49f675268c8785cc9297bb356b7b9eaddf68210f8b9c6f8"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/room-seat-focus-v2/build.log",
+      "bytes": 78,
+      "sha256": "b55f6fbdc2e56ff9da173b0a50615220fb68e6f2c13b92e7e98f6627c7a0a5b0"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/room-seat-focus-v2/discovery.log",
+      "bytes": 2015085,
+      "sha256": "40feba52a65107a0e2453bc659811717cc1ecb7dd206da26b122a62802a52424"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/room-seat-focus-v2/focus/results.trx",
+      "bytes": 4502,
+      "sha256": "ce269b9653a638e2b9035a1c4c39fa108590ad3745570bc82b1211288a069fb0"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/room-seat-focus-v2/focus/test.log",
+      "bytes": 492,
+      "sha256": "0a447bf490a0a397393088a23ff97e318498d3b1c6a8e3e4259a8171d8662342"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/room-seat-focus-v2/plan.json",
+      "bytes": 768,
+      "sha256": "63365216b7a75c10b92109e831f0cd901a6c2b91bd3ab9a7b51bc11894696097"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/room-seat-focus-v2/summary.json",
+      "bytes": 269,
+      "sha256": "e377cd9099b68d0ae45c47ec4e1626f1e49227b80c6195f4c86681a674091145"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/room-seat-focus-v3-original-failure-disposition-v1.json",
+      "bytes": 1305,
+      "sha256": "19274237e0a76644441dac3548792e721602c21878608bb1ac8c0fb781fb7c0a"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/room-seat-focus-v3.log",
+      "bytes": 324,
+      "sha256": "8a7e6e64be2d675b2964843fd829a11bcfffe1d8d2eaa409f42d18e5dcb78162"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/room-seat-focus-v3/build.log",
+      "bytes": 78,
+      "sha256": "b9164086ffbdb5044154d7cf1968a537de295a3f4414dc90f078d5d53a29bcdb"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/room-seat-focus-v3/discovery.log",
+      "bytes": 2017189,
+      "sha256": "cba0ab867e30d1b4c5f4c39ec0d82aae73fc649f2841b730956e5b1ea78fef77"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/room-seat-focus-v3/focus/results.trx",
+      "bytes": 50960,
+      "sha256": "1d59670dad73d081d5027b1f9048f3059ffd398d8991ac0f149240e383b7c4a5"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/room-seat-focus-v3/focus/test.log",
+      "bytes": 799,
+      "sha256": "e30d607663e1cfebe017d976ebcf6e4d77d85b0e5c9309f0e9df3171a2c04092"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/room-seat-focus-v3/plan.json",
+      "bytes": 2129,
+      "sha256": "f504012fbfafcc673b00182f8a3830680f7a7e6fcc9962f8b10f69c6894a48f9"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/room-seat-focus-v4.log",
+      "bytes": 417,
+      "sha256": "e11427186502272ff4e74fe87a178d656ecbde56245cc21411603652a9c186ce"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/room-seat-focus-v4/build.log",
+      "bytes": 78,
+      "sha256": "bd7c309556ba513cf35ef88d233c0c16fdd7e24a54c62210e122a62ef452d1c9"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/room-seat-focus-v4/discovery.log",
+      "bytes": 2017299,
+      "sha256": "ab0986fea48083e1bcb7143df4704e5cdee879b8ccc7dc7d9b6499f638e26bab"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/room-seat-focus-v4/focus/results.trx",
+      "bytes": 141810,
+      "sha256": "4f02e7d3cb6604a9270d1f037094b10da87d6507a205fdae6381feeff6857db7"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/room-seat-focus-v4/focus/test.log",
+      "bytes": 489,
+      "sha256": "30040df768f5317f5f87abc18428c43817a2a4d83a96083cff482b01b0867c80"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/room-seat-focus-v4/plan.json",
+      "bytes": 6555,
+      "sha256": "6c059493a049455dd411e7996d808b8776039188f3dd56f6d79f7a002317196a"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/room-seat-focus-v4/summary.json",
+      "bytes": 272,
+      "sha256": "c94475288263473e42ac0bab4849e9c63531c9a7b60cca08d00c38ca4e1b38cd"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/room-seat-focus-v5.log",
+      "bytes": 417,
+      "sha256": "0c4f67aec238fe2d40cd862eae01add36a9d0b8c224312e90620b8162a62cc81"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/room-seat-focus-v5/build.log",
+      "bytes": 78,
+      "sha256": "230788fe592a6a3a23eb4e80187c5ea6c6ab70fa017fcac989c3ec84a1e20c1d"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/room-seat-focus-v5/discovery.log",
+      "bytes": 2017558,
+      "sha256": "4deeccb9e7d72b147549df9efc969b41664da8f0a3f129521587f943309271a4"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/room-seat-focus-v5/focus/results.trx",
+      "bytes": 144782,
+      "sha256": "d07a1d71b83ee8d8273bf4d3b9f96e7431187c945d44529f841ef75a73e202ad"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/room-seat-focus-v5/focus/test.log",
+      "bytes": 489,
+      "sha256": "c95d3a897c3b462bfe40a2312cb566eecb12d5992c56a473fb16e270f76850b4"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/room-seat-focus-v5/plan.json",
+      "bytes": 6679,
+      "sha256": "2bf9567723dd5f045750577769558e02982f408b1cb5daba07e2315abed3a904"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/room-seat-focus-v5/summary.json",
+      "bytes": 272,
+      "sha256": "491111d6e99df7868f6310da83ae0dcf5e08f0662be96e613a780758a4418e34"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/room-seat-tests-original-v3.cs.gz",
+      "bytes": 3298,
+      "sha256": "76bb100427c9c603435ce436962788a1653698e82137954f4be9517e9cf0584f"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/second-retention-verifier-same-loop-other-method-disposition-v1.json",
+      "bytes": 378,
+      "sha256": "45fa9ea3411e133f121989a112c1d158c3960b852b6ec54b8b78b7927bf1f601"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/verification-tool-tests-v1.log",
+      "bytes": 173,
+      "sha256": "3a0a404ebcabc524541691ce8db7a4e1cc1c4c391470d610953a3ab7cef84558"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/verify-completed-fixed7a-full-originals-v1.log",
+      "bytes": 161,
+      "sha256": "20126ea1937df16b6d936cd9e38080fcfdb21c2cfc0c9488d97e11c4a0c0ba7a"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/verify-completed-fixed7a-full-originals-v1.py",
+      "bytes": 8625,
+      "sha256": "6d4ca68df4d0b2fc0ae7afdb0ec74e321f13732bcf7d4422b0649ba8e6ce3c27"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/verify-completed-fixedbe0e-full-originals-v1.py",
+      "bytes": 7930,
+      "sha256": "dcab2a72a77e27c4b9b50fc587841de44384d1e022542f396c61ed1f58198fcd"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/verify-final-atomic-room-seat-original-retention-v1.py",
+      "bytes": 10573,
+      "sha256": "b683a718f6749b2008d28536dd8717409ac0c69c53ac996566fa7c51f8980fb8"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/verify-first-only-room-seat-check-original-retention-v1.py",
+      "bytes": 5646,
+      "sha256": "129b0893e9e954f410ac2671e83ca03b7fd4f26614544c032edc508491867de5"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/verify-first-only-room-seat-check-original-retention-v2.py",
+      "bytes": 5963,
+      "sha256": "97d33c1a661635f0152049d53b786905e5ce4766ed08f8530c4f3ea7824a7e1e"
+    },
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/verify-first-only-room-seat-check-original-retention-v3.py",
+      "bytes": 6055,
+      "sha256": "5b3b5e8d8d9e7b85cdde585c00c7c2558506427a07f0d70fe7510b8a8bf03007"
+    }
+  ],
+  "existingIdenticalOlderArchiveMembersNotDuplicated": [
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/only-check-plan-v1/build.log",
+      "sha256": "8dfcfd4981b66558f4b908285cf4950fc381aff8b1edf344bb0668439bbeb434",
+      "existingArchiveMember": "var/qa/special-trigger-damage-current-cn16-20261021/current-special-trigger-sql-build-v2.log",
+      "existingArchiveMap": {
+        "path": "docs/evidence/special-trigger-damage-current-cn16-2026-10-22/archive-map.json",
+        "sha256": "c1f0bada4938b3caeb95f9331bee00401b84eecad8b40c363e441a96409989ed"
+      }
+    }
+  ],
+  "operationalExclusionsRetainedLocally": [
+    {
+      "path": "var/qa/late-seat-command-inputs-20261022/publish-room-seat-owner-v1.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "reason": "OPERATIONAL_OUTPUT_RETAINED_LOCALLY"
+    }
+  ],
+  "allMemberBytesHashesAndClosedSetVerified": true,
+  "applicationsInstallersSdksAndFrozenRuntimeDependenciesNotDuplicated": true
+}

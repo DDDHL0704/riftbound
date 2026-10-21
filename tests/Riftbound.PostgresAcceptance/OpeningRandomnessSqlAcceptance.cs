@@ -26,8 +26,14 @@ internal static class OpeningRandomnessSqlAcceptance
         foreach (var player in new[] { "alice", "bob" })
             tokens[player] = (await session.EnsurePlayerAsync(player, default)).ReconnectToken;
         var waiting = await Load();
-        Check(waiting.IsConsistent && waiting.Commands.Count == 0 && waiting.CurrentTick == 0,
-            "Fresh production room must persist before its first command.");
+        Check(waiting.IsConsistent && waiting.Commands.Count == 2 && waiting.CurrentTick == 2
+            && waiting.Commands.All(c => c.Accepted && c.CommandType == "ROOM_SEAT")
+            && waiting.Commands.Select(c => c.PlayerId).SequenceEqual(new[] { "alice", "bob" })
+            && waiting.Commands.Select(c => c.CompletedTick).SequenceEqual(new long[] { 1, 2 }),
+            "Fresh production room must persist both original server registrations before client commands.");
+        const int originalServerRegistrations = 2;
+        Check(waiting.ReplayInitialState is { Status: MatchStatuses.Empty, Seats.Count: 0, CardObjects.Count: 0 },
+            "Both original room inputs must replay from the actual empty room.");
         var initial = waiting.AuthoritativeState!; var current = initial; var seed = waiting.OpeningSeed;
         Check(seed != 0 && initial.Seed == seed && initial.CardObjects.Count == 0 && initial.Status == MatchStatuses.Seating,
             "Real private entropy must bind the original empty SEATING input.");
@@ -76,8 +82,8 @@ internal static class OpeningRandomnessSqlAcceptance
         var final = await Load();
         await File.WriteAllTextAsync(Path.Combine(output, "receipt.json"), JsonSerializer.Serialize(new {
             status = "REAL_POSTGRES_PRIVATE_OPENING_SEED_COLD_FULL_ORIGINAL_REPLAY_TAMPER_AND_PROJECTION_PASS",
-            room, submitted, events = final.Events.Count, originalTick = initial.Tick, originalCards = initial.CardObjects.Count,
-            originalSeedSha256 = seedHash, privateSeedRecordedBeforeFirstCommand = true,
+            room, submitted, originalServerRegistrations, allJournalCommands = final.Commands.Count, events = final.Events.Count, originalTick = initial.Tick, originalCards = initial.CardObjects.Count,
+            originalSeedSha256 = seedHash, privateSeedRecordedWithFirstServerRegistration = true, privateSeedRecordedBeforeFirstClientCommand = true,
             allFourOpeningConsumers = true, coldCheckpoints = checks, tamperRejections = tampered,
             originalSeedAndAcceptedHistoryNeverRewritten = true, finalHash = MatchStateHasher.Hash(current),
             ruleInputs = current.RuleInputs, databaseRoomRetained = true,
@@ -100,9 +106,9 @@ internal static class OpeningRandomnessSqlAcceptance
             var frame = await Load();
             Check(frame.IsConsistent, string.Join("; ", frame.ValidationErrors));
             Check(frame.OpeningSeed == seed && frame.AuthoritativeState!.Seed == seed
-                && frame.Commands.Count == submitted && MatchStateHasher.Hash(frame.AuthoritativeState) == MatchStateHasher.Hash(current),
+                && frame.Commands.Count == originalServerRegistrations + submitted && MatchStateHasher.Hash(frame.AuthoritativeState) == MatchStateHasher.Hash(current),
                 "SQL must retain exact private seed, accepted commands and authoritative state.");
-            if (submitted > 0)
+            if (originalServerRegistrations + submitted > 0)
             {
                 Check(frame.ReplayInitialState!.Seed == seed && frame.ReplayInitialState.CardObjects.Count == 0,
                     "Replay must begin at the actual original empty input.");

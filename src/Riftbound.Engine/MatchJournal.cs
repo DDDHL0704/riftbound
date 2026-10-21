@@ -63,6 +63,13 @@ public interface IMatchJournal
     ValueTask RecordAsync(MatchJournalEntry entry, CancellationToken cancellationToken);
 }
 
+// Durable player credentials and the original room input must commit together.
+public interface IMatchRoomSeatJournal : IMatchJournal
+{
+    ValueTask RecordRoomSeatAsync(MatchJournalEntry entry, string reconnectTokenHash,
+        CancellationToken cancellationToken);
+}
+
 public sealed class NoopMatchJournal : IMatchJournal
 {
     public static NoopMatchJournal Instance { get; } = new();

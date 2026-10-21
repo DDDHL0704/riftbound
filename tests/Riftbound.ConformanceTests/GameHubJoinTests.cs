@@ -1702,7 +1702,7 @@ public sealed partial class GameHubJoinTests
         Assert.Equal(2, acceptedClients.GroupClient.Snapshots.Count);
         Assert.Equal(2, acceptedClients.GroupClient.Prompts.Count);
         var acceptedJournalCount = journal.Entries.Count;
-        var readyEntry = Assert.Single(journal.Entries);
+        var readyEntry = SingleClientEntryAfterRoomSeats(journal);
         Assert.Equal("alice", readyEntry.PlayerId);
         Assert.Equal("ready-same", readyEntry.ClientIntentId);
         Assert.Equal("READY", readyEntry.CommandType);
@@ -2212,8 +2212,8 @@ public sealed partial class GameHubJoinTests
             .Select(prompt => string.Join("|", prompt.Actions))
             .ToArray();
         var acceptedJournalCount = journal.Entries.Count;
-        Assert.Equal(1, acceptedJournalCount);
-        var submitEntry = Assert.Single(journal.Entries);
+        Assert.Equal(3, acceptedJournalCount);
+        var submitEntry = SingleClientEntryAfterRoomSeats(journal);
         Assert.Equal(roomId, submitEntry.RoomId);
         Assert.Equal("P1", submitEntry.PlayerId);
         Assert.Equal("SUBMIT_DECK", submitEntry.CommandType);
@@ -4123,7 +4123,7 @@ public sealed partial class GameHubJoinTests
         var choices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(metadata["paymentChoices"]);
         Assert.Contains(choices, choice => string.Equals(choice.Id, "SPEND_MANA:1", StringComparison.Ordinal));
         var seedJournalCount = journal.Entries.Count;
-        var seededEntry = Assert.Single(journal.Entries);
+        var seededEntry = SingleClientEntryAfterRoomSeats(journal);
         var seededStateHash = MatchStateHasher.Hash(seededEntry.AuthoritativeState);
         var seededPromptsHash = MatchStateHasher.HashValue(ResolutionResult.BuildPrompts(seededEntry.AuthoritativeState));
         var seededSnapshotsHash = MatchStateHasher.HashValue(ResolutionResult.BuildSnapshots(seededEntry.AuthoritativeState));
@@ -5685,7 +5685,7 @@ public sealed partial class GameHubJoinTests
         Assert.False(string.IsNullOrWhiteSpace(prompt.PromptId));
         Assert.True(prompt.SnapshotTick.HasValue);
         var seedJournalCount = journal.Entries.Count;
-        var seededEntry = Assert.Single(journal.Entries);
+        var seededEntry = SingleClientEntryAfterRoomSeats(journal);
         var seededStateHash = MatchStateHasher.Hash(seededEntry.AuthoritativeState);
         var seededPromptsHash = MatchStateHasher.HashValue(ResolutionResult.BuildPrompts(seededEntry.AuthoritativeState));
         var seededSnapshotsHash = MatchStateHasher.HashValue(ResolutionResult.BuildSnapshots(seededEntry.AuthoritativeState));
@@ -5814,7 +5814,7 @@ public sealed partial class GameHubJoinTests
         Assert.False(string.IsNullOrWhiteSpace(prompt.PromptId));
         Assert.True(prompt.SnapshotTick.HasValue);
         var seedJournalCount = journal.Entries.Count;
-        var seededEntry = Assert.Single(journal.Entries);
+        var seededEntry = SingleClientEntryAfterRoomSeats(journal);
         var seededStateHash = MatchStateHasher.Hash(seededEntry.AuthoritativeState);
         var seededPromptsHash = MatchStateHasher.HashValue(ResolutionResult.BuildPrompts(seededEntry.AuthoritativeState));
         var seededSnapshotsHash = MatchStateHasher.HashValue(ResolutionResult.BuildSnapshots(seededEntry.AuthoritativeState));
@@ -16572,6 +16572,33 @@ public sealed partial class GameHubJoinTests
         });
     }
 
+    private static MatchJournalEntry SingleClientEntryAfterRoomSeats(RecordingMatchJournal journal)
+    {
+        Assert.Equal(3, journal.Entries.Count);
+        for (var index = 0; index < 2; index++)
+        {
+            var seat = index == 0 ? "P1" : "P2";
+            var entry = journal.Entries[index];
+            Assert.Equal("ROOM_SEAT", entry.CommandType);
+            Assert.Equal("room-seat:" + seat, entry.ClientIntentId);
+            Assert.True(entry.Accepted); Assert.Null(entry.ErrorMessage);
+            Assert.Equal(index + 1, entry.CompletedTick);
+            Assert.Equal(index + 1, entry.CompletedEventSequence);
+            Assert.Equal(index + 1, entry.AuthoritativeState.Seats.Count);
+            Assert.Equal(seat, entry.AuthoritativeState.Seats[entry.PlayerId]);
+            var raw = Assert.IsType<JsonElement>(entry.RawCommand);
+            Assert.Equal(3, raw.EnumerateObject().Count());
+            Assert.Equal("ROOM_SEAT", raw.GetProperty("cmdType").GetString());
+            Assert.Equal(entry.PlayerId, raw.GetProperty("playerId").GetString());
+            Assert.Equal(seat, raw.GetProperty("seat").GetString());
+            var seated = Assert.Single(entry.Events);
+            Assert.Equal("PLAYER_SEATED", seated.Kind); Assert.Equal(2, seated.Payload.Count);
+            Assert.Equal(entry.PlayerId, Assert.IsType<string>(seated.Payload["playerId"]));
+            Assert.Equal(seat, Assert.IsType<string>(seated.Payload["seat"]));
+        }
+        return Assert.Single(journal.Entries.Skip(2));
+    }
+
     private sealed record OfficialOpeningState(
         InMemoryMatchSessionRegistry Registry,
         string ActivePlayerId,
@@ -16586,13 +16613,7 @@ public sealed partial class GameHubJoinTests
         var catalog = await OfficialCardCatalog.LoadDefaultAsync(CancellationToken.None);
         var p1Deck = BuildValidDeck(catalog);
         var p2Deck = BuildValidDeck(catalog);
-        var replayInitialState = MatchReplayInitialStateBuilder.FromSeats(
-            roomId,
-            new Dictionary<string, string>(StringComparer.Ordinal)
-            {
-                ["P1"] = "P1",
-                ["P2"] = "P2"
-            });
+        var replayInitialState = MatchState.Create(roomId);
         var registry = new InMemoryMatchSessionRegistry(new CoreRuleEngine(), journal);
         await CreateHub(new RecordingHubClients(), new RecordingGroupManager(), "connection-1", registry, authenticatedHandle: "P1")
             .JoinRoom(roomId, "P1");
@@ -17758,6 +17779,14 @@ public sealed partial class GameHubJoinTests
         {
             Saved.Add(new SavedPlayer(roomId, playerId, seat, reconnectTokenHash));
             return ValueTask.CompletedTask;
+        }
+
+        public async ValueTask CommitRoomSeatAsync(MatchJournalEntry entry, string reconnectTokenHash,
+            IMatchJournal journal, CancellationToken cancellationToken)
+        {
+            await SavePlayerSessionAsync(entry.RoomId, entry.PlayerId, entry.AuthoritativeState.Seats[entry.PlayerId],
+                reconnectTokenHash, cancellationToken, entry.OpeningSeed);
+            await journal.RecordAsync(entry, cancellationToken);
         }
 
         public ValueTask<bool> HasReconnectTokenHashAsync(

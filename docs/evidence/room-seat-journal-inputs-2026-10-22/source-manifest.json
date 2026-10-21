@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "id": "room-seat-journal-inputs-2026-10-22",
+  "atUtc": "2026-10-21T19:40:29.276842+00:00",
+  "region": "CN",
+  "language": "zh-CN",
+  "applicableAsOf": "2026-10-22",
+  "adoptedCoreEffectiveDate": "2026-10-16",
+  "parentCommit": "be0e7a88d86e191d87404488a8ecc4777411dfb7",
+  "declaredUncommittedBatch": true,
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "e7455edc32d43f8253a9d0c6fedb83c347bebafbef064f9b8dffaaabc4b4d266",
+    "implementationSha256": "b3fcaa0f6b485f24485687b7425c48435247288f23712b25f89d61dda1132e45",
+    "identitySha256": "47e17f3592b33de6c9398fdbb31fa08c6d647b6e77abb93f0f913ab8b37d284e"
+  },
+  "currentSourceReview": {
+    "path": "docs/evidence/room-seat-journal-inputs-2026-10-22/current-exact-source-review.json",
+    "sha256": "bb37a3c76c7983f1b0dcd01a0249c8f6b62d3d523030ca7e020b9aea94be0bed"
+  },
+  "archive": {
+    "path": "docs/evidence/room-seat-journal-inputs-2026-10-22/original-execution-and-source-records.tar.gz",
+    "sha256": "8cb512f5405e715956b24634104811d7101691b75f1f9da69e8f18124d01c068"
+  },
+  "archiveMap": {
+    "path": "docs/evidence/room-seat-journal-inputs-2026-10-22/archive-map.json",
+    "sha256": "5022546db990fcd93fa037652f4d125152c13219cdcaaa65141f617e49c04375"
+  },
+  "scope": "Two-player original room-seat inputs, reserved-intent safety, actual EMPTY origin, atomic durable credentials/journal and independent orphan/tamper rejection.21 new conformance cases; current358 focus,110 original helper directions, six SQL branches40/84 and separate original private-opening9/29.",
+  "allOriginalPublicationEffectiveAndAcquisitionDatesAndSevenDeltasRetained": true,
+  "fullScopeRetained": {
+    "printings": 1740,
+    "ruleBlocks": 14293,
+    "cnRows": 1504,
+    "enRows": 1408,
+    "enReported": 1416,
+    "enGap": 8,
+    "active": 1035,
+    "outsideActive": 705,
+    "cnDispositions": 236,
+    "cnNews": 139,
+    "sourceDeltas": 7
+  },
+  "originalSoleCheck": {
+    "cases": 13369,
+    "methods": 7530,
+    "passed": 13363,
+    "failed": 6,
+    "skipped": 0,
+    "noSecondCheck": true
+  },
+  "newFixedFullAndCurrentCandidateNativeVisiblePhysicalWindows": "PENDING_SEPARATELY",
+  "semanticCoverageCertified": false
+}

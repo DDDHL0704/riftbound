@@ -38,7 +38,6 @@ public sealed class PostgresMatchRecoveryStore(NpgsqlDataSource dataSource) : IM
             inputErrors.Add("stored match rule input identity/version is missing or differs from running inputs");
         await ValidateStoredRuleInputsAsync(connection, roomId, inputErrors, cancellationToken).ConfigureAwait(false);
         MatchState? authoritativeState = null;
-        var invalidStatePayload = false;
         try
         {
             authoritativeState = await LoadAuthoritativeStateAsync(
@@ -46,17 +45,10 @@ public sealed class PostgresMatchRecoveryStore(NpgsqlDataSource dataSource) : IM
         }
         catch (JsonException)
         {
-            invalidStatePayload = true;
             inputErrors.Add("authoritative state has an invalid or missing recorded rule input identity/payload");
         }
-        // Seats can be saved before a new waiting room's first command. Use
-        // its explicitly recorded identity, never invent inputs for old games
-        // or replace a damaged authoritative payload.
-        if (authoritativeState is null && !invalidStatePayload && commands.Count == 0
-            && metadata.CurrentTick == 0 && metadata.LastEventSequence == 0
-            && RuleInputIdentity.IsCurrent(metadata.RuleInputs) && openingSeed is not null)
-            authoritativeState = (await LoadReplayInitialStateAsync(connection, roomId, openingSeed.Value, cancellationToken).ConfigureAwait(false))
-                with { RuleInputs = metadata.RuleInputs };
+        // Every production seat is now an original atomic journal input.
+        // Metadata alone cannot manufacture a seat or migrate a development room.
         if (authoritativeState is null)
             inputErrors.Add("stored match requires authoritative state with recorded rule input identity");
         if (authoritativeState is not null && openingSeed is not null && authoritativeState.Seed != openingSeed
@@ -64,7 +56,8 @@ public sealed class PostgresMatchRecoveryStore(NpgsqlDataSource dataSource) : IM
                 || command.CommandType.StartsWith("DEV_SEED_SCENARIO:", StringComparison.Ordinal)))
             inputErrors.Add("authoritative state seed differs from recorded opening seed");
         var replayInitialState = authoritativeState is not null && commands.Count > 0 && openingSeed is not null
-            ? (await LoadReplayInitialStateAsync(connection, roomId, openingSeed.Value, cancellationToken).ConfigureAwait(false))
+            ? (await LoadReplayInitialStateAsync(connection, roomId, openingSeed.Value, cancellationToken,
+                commands[0].Accepted && commands[0].CommandType == MatchSession.RoomSeatCommandType).ConfigureAwait(false))
                 with { RuleInputs = metadata.RuleInputs }
             : null;
         var spectatorReplayFrame = authoritativeState is null
@@ -252,8 +245,12 @@ public sealed class PostgresMatchRecoveryStore(NpgsqlDataSource dataSource) : IM
         NpgsqlConnection connection,
         string roomId,
         long openingSeed,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        bool recordedRoomSeats = false)
     {
+        if (recordedRoomSeats)
+            return MatchState.Create(roomId) with { Seed = openingSeed };
+
         const string sql = """
             select player_id, seat
             from match_players

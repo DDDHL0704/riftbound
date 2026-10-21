@@ -1,0 +1,1953 @@
+{
+  "atUtc": "2026-10-21T18:45:56.463211+00:00",
+  "status": "FIVE_ANNOUNCED_NAMES_RECONCILED_WITH_THIRTEEN_EXISTING_NAMED_GALLERY_ROWS_PRECISE_COUTURE_PRINTINGS_STILL_OPEN",
+  "region": "GLOBAL",
+  "language": "en-US",
+  "freshWholeGalleryOriginal": {
+    "path": "var/qa/current-whole-source-monitor-20261022/en-curl-originals-v1/en-whole.json.gz",
+    "sha256": "9856980b4a1110f63510fca0bc639c3dcca8daa51fa5089e584f4bfa31e82dfb"
+  },
+  "originalReceipt": {
+    "path": "var/qa/current-whole-source-monitor-20261022/en-curl-originals-v1/en-whole.json.receipt.json",
+    "sha256": "258631bd79d1d9028db6fc3dc30087c4a8fb18f47704ad0128f745a126b99c4e"
+  },
+  "actualAcquisitionStartedAtUtc": "2026-10-21T18:22:21.629528+00:00",
+  "actualAcquisitionReceivedAtUtc": "2026-10-21T18:22:27.831250+00:00",
+  "announcementIntake": {
+    "path": "var/qa/current-whole-source-monitor-20261022/current-kda-product-faq-five-announced-card-source-intake-v1.json",
+    "sha256": "e50a755e09211b0069ddcfb06b4e175a3515193642b75084cf5923d4bbd733c9"
+  },
+  "actualPrimaryPixelsObservation": {
+    "path": "var/qa/current-whole-source-monitor-20261022/kda-primary-header-actual-pixel-observation-v1.json",
+    "sha256": "08306f86919954cc36238083aa2053da3559c067d250112d120b97a82890e09b"
+  },
+  "reportedGalleryCount": 1416,
+  "returnedGalleryCount": 1408,
+  "originalEightRowGapStillOpen": true,
+  "subjects": [
+    {
+      "announcedCharacter": "Evelynn",
+      "announcedName": "Agony's Embrace",
+      "announcedType": "legend",
+      "nameComparison": "Exact official English name, only typographic apostrophe normalized; no translation or printing identity merge",
+      "currentReturnedSameNameAndTypeRows": [
+        {
+          "id": "rad-175-167",
+          "collectorNumber": 175,
+          "name": "Agony's Embrace",
+          "set": {
+            "label": "Card Set",
+            "value": {
+              "id": "RAD",
+              "label": "Radiance"
+            }
+          },
+          "cardType": {
+            "label": "Card Type",
+            "type": [
+              {
+                "id": "legend",
+                "label": "Legend",
+                "icon": {
+                  "type": "image",
+                  "provider": "sanity",
+                  "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/59e98d14f83125c88880af1d61213e3aef941370-64x64.png?accountingTag=RB",
+                  "dimensions": {
+                    "width": 64,
+                    "height": 64,
+                    "aspectRatio": 1
+                  },
+                  "mimeType": "image/png"
+                }
+              }
+            ]
+          },
+          "publicCode": "RAD-175/167",
+          "rarity": {
+            "label": "Rarity",
+            "value": {
+              "id": "showcase",
+              "label": "Showcase",
+              "icon": {
+                "type": "image",
+                "provider": "sanity",
+                "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/a0e92b9edf3291fa62c9b35ffd6363de0d7947c0-376x426.png?accountingTag=RB",
+                "dimensions": {
+                  "width": 376,
+                  "height": 426,
+                  "aspectRatio": 0.8826291079812206
+                },
+                "colors": {
+                  "primary": "#B89D3B",
+                  "secondary": "#333229",
+                  "label": "#4F472B"
+                },
+                "mimeType": "image/png"
+              }
+            }
+          },
+          "domain": {
+            "label": "Domain",
+            "values": [
+              {
+                "id": "body",
+                "label": "Body",
+                "icon": {
+                  "type": "image",
+                  "provider": "sanity",
+                  "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/7a5533034de5870808347bc4b296f0029bdd8eea-64x64.png?accountingTag=RB",
+                  "dimensions": {
+                    "width": 64,
+                    "height": 64,
+                    "aspectRatio": 1
+                  },
+                  "colors": {
+                    "primary": "#221A11",
+                    "secondary": "#F9EADC",
+                    "label": "#000000"
+                  },
+                  "mimeType": "image/png"
+                }
+              },
+              {
+                "id": "chaos",
+                "label": "Chaos",
+                "icon": {
+                  "type": "image",
+                  "provider": "sanity",
+                  "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/597ddb82be59e87b467c52bb10204f02c2005d06-64x64.png?accountingTag=RB",
+                  "dimensions": {
+                    "width": 64,
+                    "height": 64,
+                    "aspectRatio": 1
+                  },
+                  "colors": {
+                    "primary": "#100B16",
+                    "secondary": "#EDD6FF",
+                    "label": "#000000"
+                  },
+                  "mimeType": "image/png"
+                }
+              }
+            ]
+          },
+          "cardImage": {
+            "type": "image",
+            "provider": "sanity",
+            "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/37ac535445b224fa28f6e27b0d733474a38e369c-744x1039.png?accountingTag=RB",
+            "accessibilityText": "Riftbound Legend: Agony's Embrace. Once each turn, when you play a card from face down, draw 1. Then, if it's not your turn, discard 1.",
+            "dimensions": {
+              "width": 744,
+              "height": 1039,
+              "aspectRatio": 0.7160731472569779
+            },
+            "colors": {
+              "primary": "#272448",
+              "secondary": "#F9DCF7",
+              "label": "#09071D"
+            },
+            "mimeType": "image/png"
+          },
+          "orientation": "portrait",
+          "illustrator": {
+            "label": "Artist",
+            "values": [
+              {
+                "id": "suzaki",
+                "label": "Suzaki",
+                "icon": {
+                  "type": "image",
+                  "provider": "web",
+                  "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/artist.svg"
+                }
+              }
+            ]
+          },
+          "text": {
+            "label": "Ability",
+            "richText": {
+              "type": "html",
+              "body": "<p>Once each turn, when you play a card from face down, draw 1. Then, if it's not your turn, discard 1.</p>"
+            }
+          },
+          "tags": {
+            "label": "Tags",
+            "tags": [
+              "Evelynn"
+            ]
+          }
+        },
+        {
+          "id": "rad-153-167",
+          "collectorNumber": 153,
+          "name": "Agony's Embrace",
+          "set": {
+            "label": "Card Set",
+            "value": {
+              "id": "RAD",
+              "label": "Radiance"
+            }
+          },
+          "cardType": {
+            "label": "Card Type",
+            "type": [
+              {
+                "id": "legend",
+                "label": "Legend",
+                "icon": {
+                  "type": "image",
+                  "provider": "sanity",
+                  "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/59e98d14f83125c88880af1d61213e3aef941370-64x64.png?accountingTag=RB",
+                  "dimensions": {
+                    "width": 64,
+                    "height": 64,
+                    "aspectRatio": 1
+                  },
+                  "mimeType": "image/png"
+                }
+              }
+            ]
+          },
+          "publicCode": "RAD-153/167",
+          "rarity": {
+            "label": "Rarity",
+            "value": {
+              "id": "rare",
+              "label": "Rare",
+              "icon": {
+                "type": "image",
+                "provider": "sanity",
+                "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/d90078e1ec2ef7cbcbba2be86da1b192c389581a-429x425.png?accountingTag=RB",
+                "dimensions": {
+                  "width": 429,
+                  "height": 425,
+                  "aspectRatio": 1.0094117647058825
+                },
+                "colors": {
+                  "primary": "#B881A9",
+                  "secondary": "#332932",
+                  "label": "#804570"
+                },
+                "mimeType": "image/png"
+              }
+            }
+          },
+          "domain": {
+            "label": "Domain",
+            "values": [
+              {
+                "id": "body",
+                "label": "Body",
+                "icon": {
+                  "type": "image",
+                  "provider": "sanity",
+                  "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/7a5533034de5870808347bc4b296f0029bdd8eea-64x64.png?accountingTag=RB",
+                  "dimensions": {
+                    "width": 64,
+                    "height": 64,
+                    "aspectRatio": 1
+                  },
+                  "colors": {
+                    "primary": "#221A11",
+                    "secondary": "#F9EADC",
+                    "label": "#000000"
+                  },
+                  "mimeType": "image/png"
+                }
+              },
+              {
+                "id": "chaos",
+                "label": "Chaos",
+                "icon": {
+                  "type": "image",
+                  "provider": "sanity",
+                  "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/597ddb82be59e87b467c52bb10204f02c2005d06-64x64.png?accountingTag=RB",
+                  "dimensions": {
+                    "width": 64,
+                    "height": 64,
+                    "aspectRatio": 1
+                  },
+                  "colors": {
+                    "primary": "#100B16",
+                    "secondary": "#EDD6FF",
+                    "label": "#000000"
+                  },
+                  "mimeType": "image/png"
+                }
+              }
+            ]
+          },
+          "cardImage": {
+            "type": "image",
+            "provider": "sanity",
+            "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/ca217b57d0e8d2e04e7a35105deaa6be17e854f0-744x1039.png?accountingTag=RB",
+            "accessibilityText": "Riftbound Legend: Agony's Embrace. Once each turn, when you play a card from face down, draw 1. Then, if it's not your turn, discard 1.",
+            "dimensions": {
+              "width": 744,
+              "height": 1039,
+              "aspectRatio": 0.7160731472569779
+            },
+            "colors": {
+              "primary": "#23121F",
+              "secondary": "#F9E0DC",
+              "label": "#000000"
+            },
+            "mimeType": "image/png"
+          },
+          "orientation": "portrait",
+          "illustrator": {
+            "label": "Artist",
+            "values": [
+              {
+                "id": "envarstudio",
+                "label": "Envar Studio",
+                "icon": {
+                  "type": "image",
+                  "provider": "web",
+                  "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/artist.svg"
+                }
+              }
+            ]
+          },
+          "text": {
+            "label": "Ability",
+            "richText": {
+              "type": "html",
+              "body": "<p>Once each turn, when you play a card from face down, draw 1. Then, if it's not your turn, discard 1.</p>"
+            }
+          },
+          "tags": {
+            "label": "Tags",
+            "tags": [
+              "Evelynn"
+            ]
+          }
+        }
+      ],
+      "currentReturnedExactIds": [
+        "rad-175-167",
+        "rad-153-167"
+      ],
+      "currentReturnedPublicCodes": [
+        "RAD-175/167",
+        "RAD-153/167"
+      ],
+      "announcedCouturePrintingAssignedToExistingId": false,
+      "preciseAnnouncedPrintingIdentity": "OPEN",
+      "rulesIdentityLegalityAndEffectiveDate": "OPEN_NOT_INFERRED_FROM_BASE_NAME_OR_SHOPPING_DATE"
+    },
+    {
+      "announcedCharacter": "Ahri",
+      "announcedName": "Nine-Tailed Fox",
+      "announcedType": "legend",
+      "nameComparison": "Exact official English name, only typographic apostrophe normalized; no translation or printing identity merge",
+      "currentReturnedSameNameAndTypeRows": [
+        {
+          "id": "ogn-303-star-298",
+          "collectorNumber": 303,
+          "name": "Nine-Tailed Fox",
+          "set": {
+            "label": "Card Set",
+            "value": {
+              "id": "OGN",
+              "label": "Origins"
+            }
+          },
+          "cardType": {
+            "label": "Card Type",
+            "type": [
+              {
+                "id": "legend",
+                "label": "Legend",
+                "icon": {
+                  "type": "image",
+                  "provider": "sanity",
+                  "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/59e98d14f83125c88880af1d61213e3aef941370-64x64.png?accountingTag=RB",
+                  "dimensions": {
+                    "width": 64,
+                    "height": 64,
+                    "aspectRatio": 1
+                  },
+                  "mimeType": "image/png"
+                }
+              }
+            ]
+          },
+          "publicCode": "OGN-303*/298",
+          "rarity": {
+            "label": "Rarity",
+            "value": {
+              "id": "showcase",
+              "label": "Showcase",
+              "icon": {
+                "type": "image",
+                "provider": "sanity",
+                "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/a0e92b9edf3291fa62c9b35ffd6363de0d7947c0-376x426.png?accountingTag=RB",
+                "dimensions": {
+                  "width": 376,
+                  "height": 426,
+                  "aspectRatio": 0.8826291079812206
+                },
+                "colors": {
+                  "primary": "#B89D3B",
+                  "secondary": "#333229",
+                  "label": "#4F472B"
+                },
+                "mimeType": "image/png"
+              }
+            }
+          },
+          "domain": {
+            "label": "Domain",
+            "values": [
+              {
+                "id": "calm",
+                "label": "Calm",
+                "icon": {
+                  "type": "image",
+                  "provider": "sanity",
+                  "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/b9ef2f5b74841ad11f3629aa381a76ac0187d007-64x64.png?accountingTag=RB",
+                  "dimensions": {
+                    "width": 64,
+                    "height": 64,
+                    "aspectRatio": 1
+                  },
+                  "colors": {
+                    "primary": "#152311",
+                    "secondary": "#E0FFD6",
+                    "label": "#080808"
+                  },
+                  "mimeType": "image/png"
+                }
+              },
+              {
+                "id": "mind",
+                "label": "Mind",
+                "icon": {
+                  "type": "image",
+                  "provider": "sanity",
+                  "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/17ab95a6bd052085b6803d846a287f625f347288-64x64.png?accountingTag=RB",
+                  "dimensions": {
+                    "width": 64,
+                    "height": 64,
+                    "aspectRatio": 1
+                  },
+                  "colors": {
+                    "primary": "#0C1418",
+                    "secondary": "#D6F0FF",
+                    "label": "#000000"
+                  },
+                  "mimeType": "image/png"
+                }
+              }
+            ]
+          },
+          "cardImage": {
+            "type": "image",
+            "provider": "sanity",
+            "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/e5fe571a8f09c0a9e76345ec32b446480f54617c-1488x2078.png?accountingTag=RB",
+            "accessibilityText": "Riftbound Legend: Nine-Tailed Fox. When an enemy unit attacks a battlefield you control, give it -1 [S] this turn, to a minimum of 1 [S].",
+            "dimensions": {
+              "width": 1488,
+              "height": 2078,
+              "aspectRatio": 0.7160731472569779
+            },
+            "colors": {
+              "primary": "#422E21",
+              "secondary": "#F9E8DC",
+              "label": "#160C06"
+            },
+            "mimeType": "image/png"
+          },
+          "orientation": "portrait",
+          "illustrator": {
+            "label": "Artist",
+            "values": [
+              {
+                "id": "airipan",
+                "label": "Airi Pan",
+                "icon": {
+                  "type": "image",
+                  "provider": "web",
+                  "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/artist.svg"
+                }
+              }
+            ]
+          },
+          "text": {
+            "label": "Ability",
+            "richText": {
+              "type": "html",
+              "body": "<p>When an enemy unit attacks a battlefield you control, give it -1 :rb_might: this turn, to a minimum of 1 :rb_might:.</p>"
+            }
+          },
+          "tags": {
+            "label": "Tags",
+            "tags": [
+              "Ahri"
+            ]
+          }
+        },
+        {
+          "id": "ogn-303-298",
+          "collectorNumber": 303,
+          "name": "Nine-Tailed Fox",
+          "set": {
+            "label": "Card Set",
+            "value": {
+              "id": "OGN",
+              "label": "Origins"
+            }
+          },
+          "cardType": {
+            "label": "Card Type",
+            "type": [
+              {
+                "id": "legend",
+                "label": "Legend",
+                "icon": {
+                  "type": "image",
+                  "provider": "sanity",
+                  "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/59e98d14f83125c88880af1d61213e3aef941370-64x64.png?accountingTag=RB",
+                  "dimensions": {
+                    "width": 64,
+                    "height": 64,
+                    "aspectRatio": 1
+                  },
+                  "mimeType": "image/png"
+                }
+              }
+            ]
+          },
+          "publicCode": "OGN-303/298",
+          "rarity": {
+            "label": "Rarity",
+            "value": {
+              "id": "showcase",
+              "label": "Showcase",
+              "icon": {
+                "type": "image",
+                "provider": "sanity",
+                "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/a0e92b9edf3291fa62c9b35ffd6363de0d7947c0-376x426.png?accountingTag=RB",
+                "dimensions": {
+                  "width": 376,
+                  "height": 426,
+                  "aspectRatio": 0.8826291079812206
+                },
+                "colors": {
+                  "primary": "#B89D3B",
+                  "secondary": "#333229",
+                  "label": "#4F472B"
+                },
+                "mimeType": "image/png"
+              }
+            }
+          },
+          "domain": {
+            "label": "Domain",
+            "values": [
+              {
+                "id": "calm",
+                "label": "Calm",
+                "icon": {
+                  "type": "image",
+                  "provider": "sanity",
+                  "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/b9ef2f5b74841ad11f3629aa381a76ac0187d007-64x64.png?accountingTag=RB",
+                  "dimensions": {
+                    "width": 64,
+                    "height": 64,
+                    "aspectRatio": 1
+                  },
+                  "colors": {
+                    "primary": "#152311",
+                    "secondary": "#E0FFD6",
+                    "label": "#080808"
+                  },
+                  "mimeType": "image/png"
+                }
+              },
+              {
+                "id": "mind",
+                "label": "Mind",
+                "icon": {
+                  "type": "image",
+                  "provider": "sanity",
+                  "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/17ab95a6bd052085b6803d846a287f625f347288-64x64.png?accountingTag=RB",
+                  "dimensions": {
+                    "width": 64,
+                    "height": 64,
+                    "aspectRatio": 1
+                  },
+                  "colors": {
+                    "primary": "#0C1418",
+                    "secondary": "#D6F0FF",
+                    "label": "#000000"
+                  },
+                  "mimeType": "image/png"
+                }
+              }
+            ]
+          },
+          "cardImage": {
+            "type": "image",
+            "provider": "sanity",
+            "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/dc89c6a2415debd5bf504ed46843f5dcc1d9b815-1488x2078.png?accountingTag=RB",
+            "accessibilityText": "Riftbound Legend: Nine-Tailed Fox. When an enemy unit attacks a battlefield you control, give it -1 [S] this turn, to a minimum of 1 [S].",
+            "dimensions": {
+              "width": 1488,
+              "height": 2078,
+              "aspectRatio": 0.7160731472569779
+            },
+            "colors": {
+              "primary": "#463123",
+              "secondary": "#F9E8DC",
+              "label": "#1B0F07"
+            },
+            "mimeType": "image/png"
+          },
+          "orientation": "portrait",
+          "illustrator": {
+            "label": "Artist",
+            "values": [
+              {
+                "id": "airipan",
+                "label": "Airi Pan",
+                "icon": {
+                  "type": "image",
+                  "provider": "web",
+                  "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/artist.svg"
+                }
+              }
+            ]
+          },
+          "text": {
+            "label": "Ability",
+            "richText": {
+              "type": "html",
+              "body": "<p>When an enemy unit attacks a battlefield you control, give it -1 :rb_might: this turn, to a minimum of 1 :rb_might:.</p>"
+            }
+          },
+          "tags": {
+            "label": "Tags",
+            "tags": [
+              "Ahri"
+            ]
+          }
+        },
+        {
+          "id": "ogn-255-298",
+          "collectorNumber": 255,
+          "name": "Nine-Tailed Fox",
+          "set": {
+            "label": "Card Set",
+            "value": {
+              "id": "OGN",
+              "label": "Origins"
+            }
+          },
+          "cardType": {
+            "label": "Card Type",
+            "type": [
+              {
+                "id": "legend",
+                "label": "Legend",
+                "icon": {
+                  "type": "image",
+                  "provider": "sanity",
+                  "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/59e98d14f83125c88880af1d61213e3aef941370-64x64.png?accountingTag=RB",
+                  "dimensions": {
+                    "width": 64,
+                    "height": 64,
+                    "aspectRatio": 1
+                  },
+                  "mimeType": "image/png"
+                }
+              }
+            ]
+          },
+          "publicCode": "OGN-255/298",
+          "rarity": {
+            "label": "Rarity",
+            "value": {
+              "id": "rare",
+              "label": "Rare",
+              "icon": {
+                "type": "image",
+                "provider": "sanity",
+                "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/d90078e1ec2ef7cbcbba2be86da1b192c389581a-429x425.png?accountingTag=RB",
+                "dimensions": {
+                  "width": 429,
+                  "height": 425,
+                  "aspectRatio": 1.0094117647058825
+                },
+                "colors": {
+                  "primary": "#B881A9",
+                  "secondary": "#332932",
+                  "label": "#804570"
+                },
+                "mimeType": "image/png"
+              }
+            }
+          },
+          "domain": {
+            "label": "Domain",
+            "values": [
+              {
+                "id": "calm",
+                "label": "Calm",
+                "icon": {
+                  "type": "image",
+                  "provider": "sanity",
+                  "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/b9ef2f5b74841ad11f3629aa381a76ac0187d007-64x64.png?accountingTag=RB",
+                  "dimensions": {
+                    "width": 64,
+                    "height": 64,
+                    "aspectRatio": 1
+                  },
+                  "colors": {
+                    "primary": "#152311",
+                    "secondary": "#E0FFD6",
+                    "label": "#080808"
+                  },
+                  "mimeType": "image/png"
+                }
+              },
+              {
+                "id": "mind",
+                "label": "Mind",
+                "icon": {
+                  "type": "image",
+                  "provider": "sanity",
+                  "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/17ab95a6bd052085b6803d846a287f625f347288-64x64.png?accountingTag=RB",
+                  "dimensions": {
+                    "width": 64,
+                    "height": 64,
+                    "aspectRatio": 1
+                  },
+                  "colors": {
+                    "primary": "#0C1418",
+                    "secondary": "#D6F0FF",
+                    "label": "#000000"
+                  },
+                  "mimeType": "image/png"
+                }
+              }
+            ]
+          },
+          "cardImage": {
+            "type": "image",
+            "provider": "sanity",
+            "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/56457c7986d3f140b7123a988149cc30a83493a7-744x1039.png?accountingTag=RB",
+            "accessibilityText": "Riftbound Legend: Nine-Tailed Fox. When an enemy unit attacks a battlefield you control, give it -1 [S] this turn, to a minimum of 1 [S].",
+            "dimensions": {
+              "width": 744,
+              "height": 1039,
+              "aspectRatio": 0.7160731472569779
+            },
+            "colors": {
+              "primary": "#613136",
+              "secondary": "#F9DCE3",
+              "label": "#3B0F14"
+            },
+            "mimeType": "image/png"
+          },
+          "orientation": "portrait",
+          "illustrator": {
+            "label": "Artist",
+            "values": [
+              {
+                "id": "envarstudio",
+                "label": "Envar Studio",
+                "icon": {
+                  "type": "image",
+                  "provider": "web",
+                  "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/artist.svg"
+                }
+              }
+            ]
+          },
+          "text": {
+            "label": "Ability",
+            "richText": {
+              "type": "html",
+              "body": "<p>When an enemy unit attacks a battlefield you control, give it -1 :rb_might: this turn, to a minimum of 1 :rb_might:.</p>"
+            }
+          },
+          "tags": {
+            "label": "Tags",
+            "tags": [
+              "Ahri"
+            ]
+          }
+        }
+      ],
+      "currentReturnedExactIds": [
+        "ogn-303-star-298",
+        "ogn-303-298",
+        "ogn-255-298"
+      ],
+      "currentReturnedPublicCodes": [
+        "OGN-303*/298",
+        "OGN-303/298",
+        "OGN-255/298"
+      ],
+      "announcedCouturePrintingAssignedToExistingId": false,
+      "preciseAnnouncedPrintingIdentity": "OPEN",
+      "rulesIdentityLegalityAndEffectiveDate": "OPEN_NOT_INFERRED_FROM_BASE_NAME_OR_SHOPPING_DATE"
+    },
+    {
+      "announcedCharacter": "Akali",
+      "announcedName": "Rogue Assassin",
+      "announcedType": "legend",
+      "nameComparison": "Exact official English name, only typographic apostrophe normalized; no translation or printing identity merge",
+      "currentReturnedSameNameAndTypeRows": [
+        {
+          "id": "ven-139-166",
+          "collectorNumber": 139,
+          "name": "Rogue Assassin",
+          "set": {
+            "label": "Card Set",
+            "value": {
+              "id": "VEN",
+              "label": "Vendetta"
+            }
+          },
+          "cardType": {
+            "label": "Card Type",
+            "type": [
+              {
+                "id": "legend",
+                "label": "Legend",
+                "icon": {
+                  "type": "image",
+                  "provider": "sanity",
+                  "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/59e98d14f83125c88880af1d61213e3aef941370-64x64.png?accountingTag=RB",
+                  "dimensions": {
+                    "width": 64,
+                    "height": 64,
+                    "aspectRatio": 1
+                  },
+                  "mimeType": "image/png"
+                }
+              }
+            ]
+          },
+          "publicCode": "VEN-139/166",
+          "rarity": {
+            "label": "Rarity",
+            "value": {
+              "id": "rare",
+              "label": "Rare",
+              "icon": {
+                "type": "image",
+                "provider": "sanity",
+                "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/d90078e1ec2ef7cbcbba2be86da1b192c389581a-429x425.png?accountingTag=RB",
+                "dimensions": {
+                  "width": 429,
+                  "height": 425,
+                  "aspectRatio": 1.0094117647058825
+                },
+                "colors": {
+                  "primary": "#B881A9",
+                  "secondary": "#332932",
+                  "label": "#804570"
+                },
+                "mimeType": "image/png"
+              }
+            }
+          },
+          "domain": {
+            "label": "Domain",
+            "values": [
+              {
+                "id": "fury",
+                "label": "Fury",
+                "icon": {
+                  "type": "image",
+                  "provider": "sanity",
+                  "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/5aeb4bfd203b5d265902f65aa5afae7da1682eaa-64x64.png?accountingTag=RB",
+                  "dimensions": {
+                    "width": 64,
+                    "height": 64,
+                    "aspectRatio": 1
+                  },
+                  "colors": {
+                    "primary": "#1A0D0E",
+                    "secondary": "#F9DCDE",
+                    "label": "#000000"
+                  },
+                  "mimeType": "image/png"
+                }
+              },
+              {
+                "id": "calm",
+                "label": "Calm",
+                "icon": {
+                  "type": "image",
+                  "provider": "sanity",
+                  "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/b9ef2f5b74841ad11f3629aa381a76ac0187d007-64x64.png?accountingTag=RB",
+                  "dimensions": {
+                    "width": 64,
+                    "height": 64,
+                    "aspectRatio": 1
+                  },
+                  "colors": {
+                    "primary": "#152311",
+                    "secondary": "#E0FFD6",
+                    "label": "#080808"
+                  },
+                  "mimeType": "image/png"
+                }
+              }
+            ]
+          },
+          "cardImage": {
+            "type": "image",
+            "provider": "sanity",
+            "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/0d53b477ed43fb9bbed84858443a606b2b51a2b5-744x1039.png?accountingTag=RB",
+            "accessibilityText": "Riftbound Legend: Rogue Assassin. [Empower] [3][A] ([3][A]: Empower this. Use only if not Empowered.)\n[Action][>] [T]: If it's your turn, move a friendly unit in a showdown to base and if I'm [Empowered], ready it.",
+            "dimensions": {
+              "width": 744,
+              "height": 1039,
+              "aspectRatio": 0.7160731472569779
+            },
+            "colors": {
+              "primary": "#132110",
+              "secondary": "#DCE1F9",
+              "label": "#000000"
+            },
+            "mimeType": "image/png"
+          },
+          "orientation": "portrait",
+          "illustrator": {
+            "label": "Artist",
+            "values": [
+              {
+                "id": "envarstudio",
+                "label": "Envar Studio",
+                "icon": {
+                  "type": "image",
+                  "provider": "web",
+                  "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/artist.svg"
+                }
+              }
+            ]
+          },
+          "text": {
+            "label": "Ability",
+            "richText": {
+              "type": "html",
+              "body": "<p>[Empower] :rb_energy_3::rb_rune_rainbow: (:rb_energy_3::rb_rune_rainbow:: Empower this. Use only if not Empowered.)<br />[Action][&gt;] :rb_exhaust:: If it's your turn, move a friendly unit in a showdown to base and if I'm [Empowered], ready it.</p>"
+            }
+          },
+          "tags": {
+            "label": "Tags",
+            "tags": [
+              "Akali"
+            ]
+          }
+        },
+        {
+          "id": "ven-189-166",
+          "collectorNumber": 189,
+          "name": "Rogue Assassin",
+          "set": {
+            "label": "Card Set",
+            "value": {
+              "id": "VEN",
+              "label": "Vendetta"
+            }
+          },
+          "cardType": {
+            "label": "Card Type",
+            "type": [
+              {
+                "id": "legend",
+                "label": "Legend",
+                "icon": {
+                  "type": "image",
+                  "provider": "sanity",
+                  "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/59e98d14f83125c88880af1d61213e3aef941370-64x64.png?accountingTag=RB",
+                  "dimensions": {
+                    "width": 64,
+                    "height": 64,
+                    "aspectRatio": 1
+                  },
+                  "mimeType": "image/png"
+                }
+              }
+            ]
+          },
+          "publicCode": "VEN-189/166",
+          "rarity": {
+            "label": "Rarity",
+            "value": {
+              "id": "showcase",
+              "label": "Showcase",
+              "icon": {
+                "type": "image",
+                "provider": "sanity",
+                "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/a0e92b9edf3291fa62c9b35ffd6363de0d7947c0-376x426.png?accountingTag=RB",
+                "dimensions": {
+                  "width": 376,
+                  "height": 426,
+                  "aspectRatio": 0.8826291079812206
+                },
+                "colors": {
+                  "primary": "#B89D3B",
+                  "secondary": "#333229",
+                  "label": "#4F472B"
+                },
+                "mimeType": "image/png"
+              }
+            }
+          },
+          "domain": {
+            "label": "Domain",
+            "values": [
+              {
+                "id": "fury",
+                "label": "Fury",
+                "icon": {
+                  "type": "image",
+                  "provider": "sanity",
+                  "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/5aeb4bfd203b5d265902f65aa5afae7da1682eaa-64x64.png?accountingTag=RB",
+                  "dimensions": {
+                    "width": 64,
+                    "height": 64,
+                    "aspectRatio": 1
+                  },
+                  "colors": {
+                    "primary": "#1A0D0E",
+                    "secondary": "#F9DCDE",
+                    "label": "#000000"
+                  },
+                  "mimeType": "image/png"
+                }
+              },
+              {
+                "id": "calm",
+                "label": "Calm",
+                "icon": {
+                  "type": "image",
+                  "provider": "sanity",
+                  "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/b9ef2f5b74841ad11f3629aa381a76ac0187d007-64x64.png?accountingTag=RB",
+                  "dimensions": {
+                    "width": 64,
+                    "height": 64,
+                    "aspectRatio": 1
+                  },
+                  "colors": {
+                    "primary": "#152311",
+                    "secondary": "#E0FFD6",
+                    "label": "#080808"
+                  },
+                  "mimeType": "image/png"
+                }
+              }
+            ]
+          },
+          "cardImage": {
+            "type": "image",
+            "provider": "sanity",
+            "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/7b0ec31df147b40bbb83c40644252b48a7619593-744x1039.png?accountingTag=RB",
+            "accessibilityText": "Riftbound Legend: Rogue Assassin. [Empower] [3][A]\n[Action][>] [T]: If it's your turn, move a friendly unit in a showdown to base and if I'm [Empowered], ready it.",
+            "dimensions": {
+              "width": 744,
+              "height": 1039,
+              "aspectRatio": 0.7160731472569779
+            },
+            "colors": {
+              "primary": "#251216",
+              "secondary": "#F9E8DC",
+              "label": "#000000"
+            },
+            "mimeType": "image/png"
+          },
+          "orientation": "portrait",
+          "illustrator": {
+            "label": "Artist",
+            "values": [
+              {
+                "id": "jessicaoyhenart",
+                "label": "Jessica Oyhenart",
+                "icon": {
+                  "type": "image",
+                  "provider": "web",
+                  "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/artist.svg"
+                }
+              }
+            ]
+          },
+          "text": {
+            "label": "Ability",
+            "richText": {
+              "type": "html",
+              "body": "<p>[Empower] :rb_energy_3::rb_rune_rainbow:<br />[Action][&gt;] :rb_exhaust:: If it's your turn, move a friendly unit in a showdown to base and if I'm [Empowered], ready it.</p>"
+            }
+          },
+          "tags": {
+            "label": "Tags",
+            "tags": [
+              "Akali"
+            ]
+          }
+        },
+        {
+          "id": "ven-189-star-166",
+          "collectorNumber": 189,
+          "name": "Rogue Assassin",
+          "set": {
+            "label": "Card Set",
+            "value": {
+              "id": "VEN",
+              "label": "Vendetta"
+            }
+          },
+          "cardType": {
+            "label": "Card Type",
+            "type": [
+              {
+                "id": "legend",
+                "label": "Legend",
+                "icon": {
+                  "type": "image",
+                  "provider": "sanity",
+                  "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/59e98d14f83125c88880af1d61213e3aef941370-64x64.png?accountingTag=RB",
+                  "dimensions": {
+                    "width": 64,
+                    "height": 64,
+                    "aspectRatio": 1
+                  },
+                  "mimeType": "image/png"
+                }
+              }
+            ]
+          },
+          "publicCode": "VEN-189*/166",
+          "rarity": {
+            "label": "Rarity",
+            "value": {
+              "id": "showcase",
+              "label": "Showcase",
+              "icon": {
+                "type": "image",
+                "provider": "sanity",
+                "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/a0e92b9edf3291fa62c9b35ffd6363de0d7947c0-376x426.png?accountingTag=RB",
+                "dimensions": {
+                  "width": 376,
+                  "height": 426,
+                  "aspectRatio": 0.8826291079812206
+                },
+                "colors": {
+                  "primary": "#B89D3B",
+                  "secondary": "#333229",
+                  "label": "#4F472B"
+                },
+                "mimeType": "image/png"
+              }
+            }
+          },
+          "domain": {
+            "label": "Domain",
+            "values": [
+              {
+                "id": "fury",
+                "label": "Fury",
+                "icon": {
+                  "type": "image",
+                  "provider": "sanity",
+                  "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/5aeb4bfd203b5d265902f65aa5afae7da1682eaa-64x64.png?accountingTag=RB",
+                  "dimensions": {
+                    "width": 64,
+                    "height": 64,
+                    "aspectRatio": 1
+                  },
+                  "colors": {
+                    "primary": "#1A0D0E",
+                    "secondary": "#F9DCDE",
+                    "label": "#000000"
+                  },
+                  "mimeType": "image/png"
+                }
+              },
+              {
+                "id": "calm",
+                "label": "Calm",
+                "icon": {
+                  "type": "image",
+                  "provider": "sanity",
+                  "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/b9ef2f5b74841ad11f3629aa381a76ac0187d007-64x64.png?accountingTag=RB",
+                  "dimensions": {
+                    "width": 64,
+                    "height": 64,
+                    "aspectRatio": 1
+                  },
+                  "colors": {
+                    "primary": "#152311",
+                    "secondary": "#E0FFD6",
+                    "label": "#080808"
+                  },
+                  "mimeType": "image/png"
+                }
+              }
+            ]
+          },
+          "cardImage": {
+            "type": "image",
+            "provider": "sanity",
+            "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/d8262e7b24f26d1c9a18b13166d009aaf573e059-744x1039.png?accountingTag=RB",
+            "accessibilityText": "Riftbound Legend: Rogue Assassin. [Empower] [3][A]\n[Action][>] [T]: If it's your turn, move a friendly unit in a showdown to base and if I'm [Empowered], ready it.",
+            "dimensions": {
+              "width": 744,
+              "height": 1039,
+              "aspectRatio": 0.7160731472569779
+            },
+            "colors": {
+              "primary": "#251215",
+              "secondary": "#F9E8DC",
+              "label": "#000000"
+            },
+            "mimeType": "image/png"
+          },
+          "orientation": "portrait",
+          "illustrator": {
+            "label": "Artist",
+            "values": [
+              {
+                "id": "jessicaoyhenart",
+                "label": "Jessica Oyhenart",
+                "icon": {
+                  "type": "image",
+                  "provider": "web",
+                  "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/artist.svg"
+                }
+              }
+            ]
+          },
+          "text": {
+            "label": "Ability",
+            "richText": {
+              "type": "html",
+              "body": "<p>[Empower] :rb_energy_3::rb_rune_rainbow:<br />[Action][&gt;] :rb_exhaust:: If it's your turn, move a friendly unit in a showdown to base and if I'm [Empowered], ready it.</p>"
+            }
+          },
+          "tags": {
+            "label": "Tags",
+            "tags": [
+              "Akali"
+            ]
+          }
+        }
+      ],
+      "currentReturnedExactIds": [
+        "ven-139-166",
+        "ven-189-166",
+        "ven-189-star-166"
+      ],
+      "currentReturnedPublicCodes": [
+        "VEN-139/166",
+        "VEN-189/166",
+        "VEN-189*/166"
+      ],
+      "announcedCouturePrintingAssignedToExistingId": false,
+      "preciseAnnouncedPrintingIdentity": "OPEN",
+      "rulesIdentityLegalityAndEffectiveDate": "OPEN_NOT_INFERRED_FROM_BASE_NAME_OR_SHOPPING_DATE"
+    },
+    {
+      "announcedCharacter": "Kai'Sa",
+      "announcedName": "Daughter of the Void",
+      "announcedType": "legend",
+      "nameComparison": "Exact official English name, only typographic apostrophe normalized; no translation or printing identity merge",
+      "currentReturnedSameNameAndTypeRows": [
+        {
+          "id": "ogn-247-298",
+          "collectorNumber": 247,
+          "name": "Daughter of the Void",
+          "set": {
+            "label": "Card Set",
+            "value": {
+              "id": "OGN",
+              "label": "Origins"
+            }
+          },
+          "cardType": {
+            "label": "Card Type",
+            "type": [
+              {
+                "id": "legend",
+                "label": "Legend",
+                "icon": {
+                  "type": "image",
+                  "provider": "sanity",
+                  "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/59e98d14f83125c88880af1d61213e3aef941370-64x64.png?accountingTag=RB",
+                  "dimensions": {
+                    "width": 64,
+                    "height": 64,
+                    "aspectRatio": 1
+                  },
+                  "mimeType": "image/png"
+                }
+              }
+            ]
+          },
+          "publicCode": "OGN-247/298",
+          "rarity": {
+            "label": "Rarity",
+            "value": {
+              "id": "rare",
+              "label": "Rare",
+              "icon": {
+                "type": "image",
+                "provider": "sanity",
+                "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/d90078e1ec2ef7cbcbba2be86da1b192c389581a-429x425.png?accountingTag=RB",
+                "dimensions": {
+                  "width": 429,
+                  "height": 425,
+                  "aspectRatio": 1.0094117647058825
+                },
+                "colors": {
+                  "primary": "#B881A9",
+                  "secondary": "#332932",
+                  "label": "#804570"
+                },
+                "mimeType": "image/png"
+              }
+            }
+          },
+          "domain": {
+            "label": "Domain",
+            "values": [
+              {
+                "id": "fury",
+                "label": "Fury",
+                "icon": {
+                  "type": "image",
+                  "provider": "sanity",
+                  "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/5aeb4bfd203b5d265902f65aa5afae7da1682eaa-64x64.png?accountingTag=RB",
+                  "dimensions": {
+                    "width": 64,
+                    "height": 64,
+                    "aspectRatio": 1
+                  },
+                  "colors": {
+                    "primary": "#1A0D0E",
+                    "secondary": "#F9DCDE",
+                    "label": "#000000"
+                  },
+                  "mimeType": "image/png"
+                }
+              },
+              {
+                "id": "mind",
+                "label": "Mind",
+                "icon": {
+                  "type": "image",
+                  "provider": "sanity",
+                  "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/17ab95a6bd052085b6803d846a287f625f347288-64x64.png?accountingTag=RB",
+                  "dimensions": {
+                    "width": 64,
+                    "height": 64,
+                    "aspectRatio": 1
+                  },
+                  "colors": {
+                    "primary": "#0C1418",
+                    "secondary": "#D6F0FF",
+                    "label": "#000000"
+                  },
+                  "mimeType": "image/png"
+                }
+              }
+            ]
+          },
+          "cardImage": {
+            "type": "image",
+            "provider": "sanity",
+            "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/3ea826277086945a2cdfda4e41b771075aa8b15b-744x1039.png?accountingTag=RB",
+            "accessibilityText": "Riftbound Legend: Daughter of the Void. [T]: [Reaction] — [Add] [C]. Use only to play spells. (Abilities that add resources can't be reacted to.)",
+            "dimensions": {
+              "width": 744,
+              "height": 1039,
+              "aspectRatio": 0.7160731472569779
+            },
+            "colors": {
+              "primary": "#231217",
+              "secondary": "#F9EEDC",
+              "label": "#000000"
+            },
+            "mimeType": "image/png"
+          },
+          "orientation": "portrait",
+          "illustrator": {
+            "label": "Artist",
+            "values": [
+              {
+                "id": "kudosproductions",
+                "label": "Kudos Productions",
+                "icon": {
+                  "type": "image",
+                  "provider": "web",
+                  "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/artist.svg"
+                }
+              }
+            ]
+          },
+          "text": {
+            "label": "Ability",
+            "richText": {
+              "type": "html",
+              "body": "<p>:rb_exhaust:: [Reaction] — [Add] :rb_rune_rainbow:. Use only to play spells. (Abilities that add resources can't be reacted to.)</p>"
+            }
+          },
+          "tags": {
+            "label": "Tags",
+            "tags": [
+              "Kai'Sa"
+            ]
+          }
+        },
+        {
+          "id": "ogn-299-star-298",
+          "collectorNumber": 299,
+          "name": "Daughter of the Void",
+          "set": {
+            "label": "Card Set",
+            "value": {
+              "id": "OGN",
+              "label": "Origins"
+            }
+          },
+          "cardType": {
+            "label": "Card Type",
+            "type": [
+              {
+                "id": "legend",
+                "label": "Legend",
+                "icon": {
+                  "type": "image",
+                  "provider": "sanity",
+                  "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/59e98d14f83125c88880af1d61213e3aef941370-64x64.png?accountingTag=RB",
+                  "dimensions": {
+                    "width": 64,
+                    "height": 64,
+                    "aspectRatio": 1
+                  },
+                  "mimeType": "image/png"
+                }
+              }
+            ]
+          },
+          "publicCode": "OGN-299*/298",
+          "rarity": {
+            "label": "Rarity",
+            "value": {
+              "id": "showcase",
+              "label": "Showcase",
+              "icon": {
+                "type": "image",
+                "provider": "sanity",
+                "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/a0e92b9edf3291fa62c9b35ffd6363de0d7947c0-376x426.png?accountingTag=RB",
+                "dimensions": {
+                  "width": 376,
+                  "height": 426,
+                  "aspectRatio": 0.8826291079812206
+                },
+                "colors": {
+                  "primary": "#B89D3B",
+                  "secondary": "#333229",
+                  "label": "#4F472B"
+                },
+                "mimeType": "image/png"
+              }
+            }
+          },
+          "domain": {
+            "label": "Domain",
+            "values": [
+              {
+                "id": "fury",
+                "label": "Fury",
+                "icon": {
+                  "type": "image",
+                  "provider": "sanity",
+                  "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/5aeb4bfd203b5d265902f65aa5afae7da1682eaa-64x64.png?accountingTag=RB",
+                  "dimensions": {
+                    "width": 64,
+                    "height": 64,
+                    "aspectRatio": 1
+                  },
+                  "colors": {
+                    "primary": "#1A0D0E",
+                    "secondary": "#F9DCDE",
+                    "label": "#000000"
+                  },
+                  "mimeType": "image/png"
+                }
+              },
+              {
+                "id": "mind",
+                "label": "Mind",
+                "icon": {
+                  "type": "image",
+                  "provider": "sanity",
+                  "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/17ab95a6bd052085b6803d846a287f625f347288-64x64.png?accountingTag=RB",
+                  "dimensions": {
+                    "width": 64,
+                    "height": 64,
+                    "aspectRatio": 1
+                  },
+                  "colors": {
+                    "primary": "#0C1418",
+                    "secondary": "#D6F0FF",
+                    "label": "#000000"
+                  },
+                  "mimeType": "image/png"
+                }
+              }
+            ]
+          },
+          "cardImage": {
+            "type": "image",
+            "provider": "sanity",
+            "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/ae8e68af43400f61f7391c0a6ee339fd718a7540-1488x2078.png?accountingTag=RB",
+            "accessibilityText": "Riftbound Legend: Daughter of the Void. [T]: [Reaction] — [Add] [C]. Use only to play spells. (Abilities that add resources can't be reacted to.)",
+            "dimensions": {
+              "width": 1488,
+              "height": 2078,
+              "aspectRatio": 0.7160731472569779
+            },
+            "colors": {
+              "primary": "#110811",
+              "secondary": "#FFD6FA",
+              "label": "#000000"
+            },
+            "mimeType": "image/png"
+          },
+          "orientation": "portrait",
+          "illustrator": {
+            "label": "Artist",
+            "values": [
+              {
+                "id": "jasonchan",
+                "label": "Jason Chan",
+                "icon": {
+                  "type": "image",
+                  "provider": "web",
+                  "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/artist.svg"
+                }
+              }
+            ]
+          },
+          "text": {
+            "label": "Ability",
+            "richText": {
+              "type": "html",
+              "body": "<p>:rb_exhaust:: [Reaction] — [Add] :rb_rune_rainbow:. Use only to play spells. (Abilities that add resources can't be reacted to.)</p>"
+            }
+          },
+          "tags": {
+            "label": "Tags",
+            "tags": [
+              "Kai'Sa"
+            ]
+          }
+        },
+        {
+          "id": "ogn-299-298",
+          "collectorNumber": 299,
+          "name": "Daughter of the Void",
+          "set": {
+            "label": "Card Set",
+            "value": {
+              "id": "OGN",
+              "label": "Origins"
+            }
+          },
+          "cardType": {
+            "label": "Card Type",
+            "type": [
+              {
+                "id": "legend",
+                "label": "Legend",
+                "icon": {
+                  "type": "image",
+                  "provider": "sanity",
+                  "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/59e98d14f83125c88880af1d61213e3aef941370-64x64.png?accountingTag=RB",
+                  "dimensions": {
+                    "width": 64,
+                    "height": 64,
+                    "aspectRatio": 1
+                  },
+                  "mimeType": "image/png"
+                }
+              }
+            ]
+          },
+          "publicCode": "OGN-299/298",
+          "rarity": {
+            "label": "Rarity",
+            "value": {
+              "id": "showcase",
+              "label": "Showcase",
+              "icon": {
+                "type": "image",
+                "provider": "sanity",
+                "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/a0e92b9edf3291fa62c9b35ffd6363de0d7947c0-376x426.png?accountingTag=RB",
+                "dimensions": {
+                  "width": 376,
+                  "height": 426,
+                  "aspectRatio": 0.8826291079812206
+                },
+                "colors": {
+                  "primary": "#B89D3B",
+                  "secondary": "#333229",
+                  "label": "#4F472B"
+                },
+                "mimeType": "image/png"
+              }
+            }
+          },
+          "domain": {
+            "label": "Domain",
+            "values": [
+              {
+                "id": "fury",
+                "label": "Fury",
+                "icon": {
+                  "type": "image",
+                  "provider": "sanity",
+                  "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/5aeb4bfd203b5d265902f65aa5afae7da1682eaa-64x64.png?accountingTag=RB",
+                  "dimensions": {
+                    "width": 64,
+                    "height": 64,
+                    "aspectRatio": 1
+                  },
+                  "colors": {
+                    "primary": "#1A0D0E",
+                    "secondary": "#F9DCDE",
+                    "label": "#000000"
+                  },
+                  "mimeType": "image/png"
+                }
+              },
+              {
+                "id": "mind",
+                "label": "Mind",
+                "icon": {
+                  "type": "image",
+                  "provider": "sanity",
+                  "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/17ab95a6bd052085b6803d846a287f625f347288-64x64.png?accountingTag=RB",
+                  "dimensions": {
+                    "width": 64,
+                    "height": 64,
+                    "aspectRatio": 1
+                  },
+                  "colors": {
+                    "primary": "#0C1418",
+                    "secondary": "#D6F0FF",
+                    "label": "#000000"
+                  },
+                  "mimeType": "image/png"
+                }
+              }
+            ]
+          },
+          "cardImage": {
+            "type": "image",
+            "provider": "sanity",
+            "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/57e13462b8fea9a5cfa1b424d3ad3005f37b00ad-1488x2078.png?accountingTag=RB",
+            "accessibilityText": "Riftbound Legend: Daughter of the Void. [T]: [Reaction] — [Add] [C]. Use only to play spells. (Abilities that add resources can't be reacted to.)",
+            "dimensions": {
+              "width": 1488,
+              "height": 2078,
+              "aspectRatio": 0.7160731472569779
+            },
+            "colors": {
+              "primary": "#0F0811",
+              "secondary": "#FFD6F9",
+              "label": "#000000"
+            },
+            "mimeType": "image/png"
+          },
+          "orientation": "portrait",
+          "illustrator": {
+            "label": "Artist",
+            "values": [
+              {
+                "id": "jasonchan",
+                "label": "Jason Chan",
+                "icon": {
+                  "type": "image",
+                  "provider": "web",
+                  "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/artist.svg"
+                }
+              }
+            ]
+          },
+          "text": {
+            "label": "Ability",
+            "richText": {
+              "type": "html",
+              "body": "<p>:rb_exhaust:: [Reaction] — [Add] :rb_rune_rainbow:. Use only to play spells. (Abilities that add resources can't be reacted to.)</p>"
+            }
+          },
+          "tags": {
+            "label": "Tags",
+            "tags": [
+              "Kai'Sa"
+            ]
+          }
+        }
+      ],
+      "currentReturnedExactIds": [
+        "ogn-247-298",
+        "ogn-299-star-298",
+        "ogn-299-298"
+      ],
+      "currentReturnedPublicCodes": [
+        "OGN-247/298",
+        "OGN-299*/298",
+        "OGN-299/298"
+      ],
+      "announcedCouturePrintingAssignedToExistingId": false,
+      "preciseAnnouncedPrintingIdentity": "OPEN",
+      "rulesIdentityLegalityAndEffectiveDate": "OPEN_NOT_INFERRED_FROM_BASE_NAME_OR_SHOPPING_DATE"
+    },
+    {
+      "announcedCharacter": null,
+      "announcedName": "Packed Amphitheater",
+      "announcedType": "battlefield",
+      "nameComparison": "Exact official English name, only typographic apostrophe normalized; no translation or printing identity merge",
+      "currentReturnedSameNameAndTypeRows": [
+        {
+          "id": "rad-164-167",
+          "collectorNumber": 164,
+          "name": "Packed Amphitheater",
+          "set": {
+            "label": "Card Set",
+            "value": {
+              "id": "RAD",
+              "label": "Radiance"
+            }
+          },
+          "cardType": {
+            "label": "Card Type",
+            "type": [
+              {
+                "id": "battlefield",
+                "label": "Battlefield",
+                "icon": {
+                  "type": "image",
+                  "provider": "sanity",
+                  "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/1f37eb1bed2605bdaab8270a9dc4396cad746522-64x64.png?accountingTag=RB",
+                  "dimensions": {
+                    "width": 64,
+                    "height": 64,
+                    "aspectRatio": 1
+                  },
+                  "mimeType": "image/png"
+                }
+              }
+            ]
+          },
+          "publicCode": "RAD-164/167",
+          "rarity": {
+            "label": "Rarity",
+            "value": {
+              "id": "uncommon",
+              "label": "Uncommon",
+              "icon": {
+                "type": "image",
+                "provider": "sanity",
+                "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/808205a0f070e479107a7655e622fe15a356275b-480x410.png?accountingTag=RB",
+                "dimensions": {
+                  "width": 480,
+                  "height": 410,
+                  "aspectRatio": 1.170731707317073
+                },
+                "colors": {
+                  "primary": "#41B4B8",
+                  "secondary": "#293331",
+                  "label": "#122021"
+                },
+                "mimeType": "image/png"
+              }
+            }
+          },
+          "domain": {
+            "label": "Domain",
+            "values": [
+              {
+                "id": "colorless",
+                "label": "Colorless"
+              }
+            ]
+          },
+          "cardImage": {
+            "type": "image",
+            "provider": "sanity",
+            "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/f4b396780dd7a5aa1be43f763265f308ee0fe665-1039x744.png?accountingTag=RB",
+            "accessibilityText": "Riftbound Battlefield: Packed Amphitheater. Champion units here have +1 [S].",
+            "dimensions": {
+              "width": 1039,
+              "height": 744,
+              "aspectRatio": 1.396505376344086
+            },
+            "colors": {
+              "primary": "#4E272A",
+              "secondary": "#F9E5DC",
+              "label": "#24090B"
+            },
+            "mimeType": "image/png"
+          },
+          "orientation": "landscape",
+          "illustrator": {
+            "label": "Artist",
+            "values": [
+              {
+                "id": "grafitstudio",
+                "label": "Grafit Studio",
+                "icon": {
+                  "type": "image",
+                  "provider": "web",
+                  "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/artist.svg"
+                }
+              }
+            ]
+          },
+          "text": {
+            "label": "Ability",
+            "richText": {
+              "type": "html",
+              "body": "<p>Champion units here have +1 :rb_might:.</p>"
+            }
+          }
+        },
+        {
+          "id": "rad-184-167",
+          "collectorNumber": 184,
+          "name": "Packed Amphitheater",
+          "set": {
+            "label": "Card Set",
+            "value": {
+              "id": "RAD",
+              "label": "Radiance"
+            }
+          },
+          "cardType": {
+            "label": "Card Type",
+            "type": [
+              {
+                "id": "battlefield",
+                "label": "Battlefield",
+                "icon": {
+                  "type": "image",
+                  "provider": "sanity",
+                  "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/1f37eb1bed2605bdaab8270a9dc4396cad746522-64x64.png?accountingTag=RB",
+                  "dimensions": {
+                    "width": 64,
+                    "height": 64,
+                    "aspectRatio": 1
+                  },
+                  "mimeType": "image/png"
+                }
+              }
+            ]
+          },
+          "publicCode": "RAD-184/167",
+          "rarity": {
+            "label": "Rarity",
+            "value": {
+              "id": "showcase",
+              "label": "Showcase",
+              "icon": {
+                "type": "image",
+                "provider": "sanity",
+                "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/a0e92b9edf3291fa62c9b35ffd6363de0d7947c0-376x426.png?accountingTag=RB",
+                "dimensions": {
+                  "width": 376,
+                  "height": 426,
+                  "aspectRatio": 0.8826291079812206
+                },
+                "colors": {
+                  "primary": "#B89D3B",
+                  "secondary": "#333229",
+                  "label": "#4F472B"
+                },
+                "mimeType": "image/png"
+              }
+            }
+          },
+          "domain": {
+            "label": "Domain",
+            "values": [
+              {
+                "id": "colorless",
+                "label": "Colorless"
+              }
+            ]
+          },
+          "cardImage": {
+            "type": "image",
+            "provider": "sanity",
+            "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/game_data_live/a6d9ad1a2a165e5e6b5cb1e7d8133e544cf9b0b1-1039x744.png?accountingTag=RB",
+            "accessibilityText": "Riftbound Battlefield: Packed Amphitheater. Champion units here have +1 [S].",
+            "dimensions": {
+              "width": 1039,
+              "height": 744,
+              "aspectRatio": 1.396505376344086
+            },
+            "colors": {
+              "primary": "#532A38",
+              "secondary": "#F9F7DC",
+              "label": "#2A0B16"
+            },
+            "mimeType": "image/png"
+          },
+          "orientation": "landscape",
+          "illustrator": {
+            "label": "Artist",
+            "values": [
+              {
+                "id": "fishartstudio",
+                "label": "Fish Art Studio",
+                "icon": {
+                  "type": "image",
+                  "provider": "web",
+                  "url": "https://assetcdn.rgpub.io/public/live/riot-shared/player-experiences/riot-glyphs/rb/latest/artist.svg"
+                }
+              }
+            ]
+          },
+          "text": {
+            "label": "Ability",
+            "richText": {
+              "type": "html",
+              "body": "<p>Champion units here have +1 :rb_might:.</p>"
+            }
+          }
+        }
+      ],
+      "currentReturnedExactIds": [
+        "rad-164-167",
+        "rad-184-167"
+      ],
+      "currentReturnedPublicCodes": [
+        "RAD-164/167",
+        "RAD-184/167"
+      ],
+      "announcedCouturePrintingAssignedToExistingId": false,
+      "preciseAnnouncedPrintingIdentity": "OPEN",
+      "rulesIdentityLegalityAndEffectiveDate": "OPEN_NOT_INFERRED_FROM_BASE_NAME_OR_SHOPPING_DATE"
+    }
+  ],
+  "allReturnedRowsWithForticheIllustratorMetadata": [
+    "ogn-265-298",
+    "ogn-273-298"
+  ],
+  "noForticheMetadataIsNotProofThatACollectiblePrintingIsUnavailableOrAbsent": true,
+  "fiveAnnouncedSubjectsNotAssumedToExplainTheEightGalleryGap": true,
+  "allExisting1740PrintingsAnd139ChineseNewsScopeRetained": true,
+  "noGameplayCatalogInputsSourceDatesOrExistingCertificationClaimsChanged": true,
+  "wholePrintingOrGoalCertified": false
+}

@@ -226,6 +226,10 @@
     {
       "id": "special-trigger-damage-bonus",
       "sourceType": "SpecialTriggerDamageBonusSqlAcceptance"
+    },
+    {
+      "id": "room-seat-journal",
+      "sourceType": "RoomSeatJournalSqlAcceptance"
     }
   ]
 }

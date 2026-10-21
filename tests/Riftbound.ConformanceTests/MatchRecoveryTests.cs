@@ -176650,6 +176650,14 @@ public sealed class MatchRecoveryTests
             return ValueTask.CompletedTask;
         }
 
+        public async ValueTask CommitRoomSeatAsync(MatchJournalEntry entry, string reconnectTokenHash,
+            IMatchJournal journal, CancellationToken cancellationToken)
+        {
+            await SavePlayerSessionAsync(entry.RoomId, entry.PlayerId, entry.AuthoritativeState.Seats[entry.PlayerId],
+                reconnectTokenHash, cancellationToken, entry.OpeningSeed);
+            await journal.RecordAsync(entry, cancellationToken);
+        }
+
         public ValueTask<bool> HasReconnectTokenHashAsync(
             string roomId,
             string playerId,

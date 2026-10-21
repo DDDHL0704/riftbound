@@ -1,0 +1,30 @@
+{
+  "atUtc": "2026-10-21T19:40:27.720406+00:00",
+  "status": "BOUNDED_TWO_PLAYER_ROOM_INPUT_ENGINEERING_INVARIANT_NOT_NEW_OFFICIAL_GAME_RULE",
+  "region": "CN",
+  "language": "zh-CN",
+  "applicableAsOf": "2026-10-22",
+  "adoptedCoreEffectiveDate": "2026-10-16",
+  "ruleRecords": [
+    {
+      "id": "DOC-01-P101-B004",
+      "textSha256": "c951d4112bd9dfad973d1493555301098d9e9feb8f570625746a3c0ea7a1afd3",
+      "role": "TWO_PLAYER_FORMAT_CONTEXT_ONLY_NOT_OFFICIAL_SQL_JOURNAL_REQUIREMENT"
+    }
+  ],
+  "invariant": "Original server seat registration, actor and assigned seat must be durably recorded before publication and replay from the actual EMPTY room and original private seed. Credential metadata and the complete journal transition commit in one database transaction.",
+  "implementationBoundary": "One finite room-seat store/journal operation, serial command gate, reserved intent namespace and independent seat/event schema guard; no card parser, gameplay DSL, catalog adoption or old-development-game migration.",
+  "failureBoundary": "First/second actual SQL journal failure rolls back every original row. Unsupported durable composition fails before any write. Matching current metadata without original journal/state is rejected rather than turned into an implicit seat.",
+  "sourceScope": "CN1504, EN1408/1416, all16 known CN documents and GLOBAL hub body compared with latest separately registered versions; existing source dates and gaps retained. New GLOBAL K/DA announcement handled in a distinct supplement.",
+  "actualCurrentRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "e7455edc32d43f8253a9d0c6fedb83c347bebafbef064f9b8dffaaabc4b4d266",
+    "implementationSha256": "b3fcaa0f6b485f24485687b7425c48435247288f23712b25f89d61dda1132e45",
+    "identitySha256": "47e17f3592b33de6c9398fdbb31fa08c6d647b6e77abb93f0f913ab8b37d284e"
+  },
+  "soleCheckRetainedAsFailed": true,
+  "wholePrintingOrGoalCertified": false
+}

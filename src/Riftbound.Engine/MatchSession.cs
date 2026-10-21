@@ -17305,31 +17305,7 @@ public sealed partial class MatchSession : IMatchSession
 
             seats[normalizedPlayerId] = NextOpenSeat();
             reconnectTokens[normalizedPlayerId] = NewReconnectToken();
-            state = state with
-            {
-                ActivePlayerId = seats.ContainsKey(state.ActivePlayerId) ? state.ActivePlayerId : normalizedPlayerId,
-                TurnPlayerId = seats.ContainsKey(state.TurnPlayerId) ? state.TurnPlayerId : normalizedPlayerId,
-                Seats = new Dictionary<string, string>(seats),
-                Status = state.Status == MatchStatuses.InProgress
-                    ? MatchStatuses.InProgress
-                    : MatchStatuses.Seating,
-                Phase = state.Status == MatchStatuses.InProgress ? state.Phase : MatchPhases.Room,
-                TimingState = state.Status == MatchStatuses.InProgress ? state.TimingState : TimingStates.Room,
-                ReadyPlayerIds = state.ReadyPlayerIds
-                    .Where(seats.ContainsKey)
-                    .OrderBy(readyPlayerId => readyPlayerId, StringComparer.Ordinal)
-                    .ToArray(),
-                RunePools = RunePoolsForSeats(state.RunePools, seats.Keys),
-                PlayerZones = PlayerZonesForSeats(state.PlayerZones, seats.Keys),
-                PlayerScores = PlayerScoresForSeats(state.PlayerScores, seats.Keys),
-                PlayerExperience = PlayerExperienceForSeats(state.PlayerExperience, seats.Keys),
-                PlayerCardsPlayedThisTurn = PlayerCardsPlayedThisTurnForSeats(state.PlayerCardsPlayedThisTurn, seats.Keys),
-                PlayerDecklists = PlayerDecklistsForSeats(state.PlayerDecklists, seats.Keys),
-                MulliganCompletedPlayerIds = state.MulliganCompletedPlayerIds
-                    .Where(seats.ContainsKey)
-                    .OrderBy(mulliganPlayerId => mulliganPlayerId, StringComparer.Ordinal)
-                    .ToArray()
-            };
+            state = StateWithRoomSeats(state, seats, normalizedPlayerId);
             return PlayerSessionFor(normalizedPlayerId);
         }
     }
@@ -17338,22 +17314,8 @@ public sealed partial class MatchSession : IMatchSession
         string playerId,
         CancellationToken cancellationToken)
     {
-        var normalizedPlayerId = NormalizePlayerId(playerId);
-        lock (seatGate)
-        {
-            if (seats.ContainsKey(normalizedPlayerId)
-                && (!reconnectTokens.TryGetValue(normalizedPlayerId, out var liveToken)
-                    || string.IsNullOrWhiteSpace(liveToken)))
-            {
-                throw new MatchSessionException(
-                    ErrorCodes.InvalidReconnectToken,
-                    "已有玩家重连需要提供重连令牌。");
-            }
-        }
-
-        var playerSession = EnsurePlayer(normalizedPlayerId);
-        await PersistPlayerSessionAsync(playerSession, cancellationToken).ConfigureAwait(false);
-        return playerSession;
+        var registered = await RegisterPlayerAsync(playerId, cancellationToken).ConfigureAwait(false);
+        return registered.Player;
     }
 
     public PlayerSessionDto ReconnectPlayer(string playerId, string reconnectToken)
@@ -18655,7 +18617,10 @@ public sealed partial class MatchSession : IMatchSession
                 "客户端行动编号不能为空。");
         }
 
-        return clientIntentId.Trim();
+        var normalized = clientIntentId.Trim();
+        if (normalized.StartsWith("room-seat:", StringComparison.Ordinal))
+            throw new MatchSessionException(ErrorCodes.ClientIntentConflict, ClientIntentConflictMessage);
+        return normalized;
     }
 
     private static string NormalizeScenarioId(string scenarioId)

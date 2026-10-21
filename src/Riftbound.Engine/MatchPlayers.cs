@@ -13,6 +13,9 @@ public interface IMatchPlayerStore
         CancellationToken cancellationToken,
         long openingSeed = 0);
 
+    ValueTask CommitRoomSeatAsync(MatchJournalEntry entry, string reconnectTokenHash,
+        IMatchJournal journal, CancellationToken cancellationToken);
+
     ValueTask<bool> HasReconnectTokenHashAsync(
         string roomId,
         string playerId,
@@ -27,6 +30,10 @@ public sealed class NoopMatchPlayerStore : IMatchPlayerStore
     private NoopMatchPlayerStore()
     {
     }
+
+    public ValueTask CommitRoomSeatAsync(MatchJournalEntry entry, string reconnectTokenHash,
+        IMatchJournal journal, CancellationToken cancellationToken)
+        => journal.RecordAsync(entry, cancellationToken);
 
     public ValueTask SavePlayerSessionAsync(
         string roomId,
