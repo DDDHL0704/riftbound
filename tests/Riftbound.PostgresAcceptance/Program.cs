@@ -38,8 +38,9 @@ var conditionalCounterPaymentOnly = args.SequenceEqual(new[] { "--conditional-co
 var reversalTargetChoiceOnly = args.SequenceEqual(new[] { "--reversal-target-choice-only" });
 var spellRemakeDeclarationOnly = args.SequenceEqual(new[] { "--spell-remake-declaration-only" });
 var candlelitPrivateLookOnly = args.SequenceEqual(new[] { "--candlelit-private-look-only" });
+var candlelitObservedPendingOnly = args.SequenceEqual(new[] { "--candlelit-observed-pending-only" });
 var pakaDualTypeRevealOnly = args.SequenceEqual(new[] { "--paka-dual-type-reveal-only" });
-if (args.Length != 0 && !openingRandomnessOnly && !optionalCostsOnly && !battlefieldPlayRecoveryOnly && !battlefieldPlayDamageOnly && !banishEffectPlayOnly && !hereLocationOnly && !fateWeaverOnly && !multiControllerOrderOnly && !emptyObservedRepeatOnly && !observedPlayWindowOnly && !ravenbloomPutHandOnly && !attachedPredictOnly && !copiedLastBreathOnly && !copiedDuelOnly && !empoweredInsightOnly && !pakaRevealOnly && !emptyRevealFollowupOnly && !pakaDualTypeRevealOnly && !hweiMoveDiscardTypesOnly && !destructionGraveyardOnly && !conditionalCounterPaymentOnly && !reversalTargetChoiceOnly && !spellRemakeDeclarationOnly && !candlelitPrivateLookOnly && !partition.IsPartition) throw new ArgumentException("Unknown PostgreSQL acceptance selector.");
+if (args.Length != 0 && !openingRandomnessOnly && !optionalCostsOnly && !battlefieldPlayRecoveryOnly && !battlefieldPlayDamageOnly && !banishEffectPlayOnly && !hereLocationOnly && !fateWeaverOnly && !multiControllerOrderOnly && !emptyObservedRepeatOnly && !observedPlayWindowOnly && !ravenbloomPutHandOnly && !attachedPredictOnly && !copiedLastBreathOnly && !copiedDuelOnly && !empoweredInsightOnly && !pakaRevealOnly && !emptyRevealFollowupOnly && !pakaDualTypeRevealOnly && !hweiMoveDiscardTypesOnly && !destructionGraveyardOnly && !conditionalCounterPaymentOnly && !reversalTargetChoiceOnly && !spellRemakeDeclarationOnly && !candlelitPrivateLookOnly && !candlelitObservedPendingOnly && !partition.IsPartition) throw new ArgumentException("Unknown PostgreSQL acceptance selector.");
 var json = new JsonSerializerOptions(JsonSerializerDefaults.Web) { WriteIndented = true };
 await using var dataSource = NpgsqlDataSource.Create(connectionString);
 await using (var connection = await dataSource.OpenConnectionAsync()) {
@@ -47,6 +48,12 @@ await using (var connection = await dataSource.OpenConnectionAsync()) {
         await using var command = new NpgsqlCommand(await File.ReadAllTextAsync(path), connection);
         await command.ExecuteNonQueryAsync();
     }
+}
+if (candlelitObservedPendingOnly)
+{
+    await CandlelitPrivateLookSqlAcceptance.RunObservedAsync(dataSource, Path.Combine(output, "candlelit-observed-pending"));
+    Console.WriteLine("SCOPED_POSTGRES_ONLY: candlelit-observed-pending; the retained complete SQL suite was not requested.");
+    return;
 }
 if (candlelitPrivateLookOnly)
 {

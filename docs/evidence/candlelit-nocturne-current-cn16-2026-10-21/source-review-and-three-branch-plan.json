@@ -1,0 +1,430 @@
+{
+  "recordedAtUtc": "2026-10-21T00:33:14.730045+00:00",
+  "status": "CURRENT_SOURCE_REVIEW_AND_BOUNDED_OBLIGATION_PLAN_BEFORE_SQL_CHANGES_NOT_TEST_OR_CI_COMPLETION",
+  "region": "CN",
+  "language": "zh-CN",
+  "observedAsOf": "2026-10-21",
+  "adoptedCoreEffectiveAsOf": "2026-10-16",
+  "fixedBackgroundCandidate": "39eacb2e22ce365c2d56750382518bfcd1bdf32a",
+  "intakeOriginalPath": "var/qa/fixed-39eacb2e-candlelit-pending-20261021/current-pending-source-intake-original-v2.json",
+  "intakeSha256": "426276a96816898653662044300f8cf9c45803c9c687b32e76ef94507bf7130b",
+  "exactOriginalRules": [
+    {
+      "id": "DOC-01-P040-B012",
+      "document": "DOC-01",
+      "page": 40,
+      "clauseAnchors": [
+        "329"
+      ],
+      "text": "329.       被打出的卡牌、指示物与技能,在成为已确认的结算链项目 之前,会先以待处理项目的状态加入结算链。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P041-B002",
+      "document": "DOC-01",
+      "page": 41,
+      "clauseAnchors": [
+        "334"
+      ],
+      "text": "334.         每当玩家执行一个或多个会产生任务的行动时,应参考 HOT FEPR(任务后确-执-让-结)流程:处理未决任务(Handle\n             Outstanding Tasks);然后确认(Finalize)、执行(Execute)、让过(Pass)、结算(Resolve)。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P041-B009",
+      "document": "DOC-01",
+      "page": 41,
+      "clauseAnchors": [
+        "336.1"
+      ],
+      "text": "336.1.            在依顺序进行 FEPR 流程期间,可能会有更多的结算链项目变为待处理结算链项目 。此类效果需按生成它们的同\n                  一 FEPR 流程进行处理。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P041-B011",
+      "document": "DOC-01",
+      "page": 41,
+      "clauseAnchors": [
+        "337.1"
+      ],
+      "text": "337.1.            如果有至少一个结算链项目处于待处理状态,则其中最早的待处理结算链项目 的控制者必须完成打出该待处理项目\n                  的所有步骤,直到其成为已确认项目或离开结算链。\n                       想获取更多有关确认结算链项目的信息,请查阅规则 349.打出卡牌。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P041-B013",
+      "document": "DOC-01",
+      "page": 41,
+      "clauseAnchors": [
+        "337.1.b"
+      ],
+      "text": "337.1.b.               结算链项目会按照被添加到结算链的顺序进行确认。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P041-B014",
+      "document": "DOC-01",
+      "page": 41,
+      "clauseAnchors": [
+        "337.2"
+      ],
+      "text": "337.2.            如果在结算链项目完成确认后,该项目为单位、装备或获得资源的技能,则会立即结算——进入步骤 4:结算。\n                       想获取更多有关信息,请查阅规则 349.打出卡牌。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P041-B015",
+      "document": "DOC-01",
+      "page": 41,
+      "clauseAnchors": [
+        "337.3"
+      ],
+      "text": "337.3.            如果在结算链项目完成确认后,仍有待处理的结算链项目,则返回步骤 1:确认。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P041-B016",
+      "document": "DOC-01",
+      "page": 41,
+      "clauseAnchors": [
+        "337.4"
+      ],
+      "text": "337.4.            如果在结算链项目完成确认后,结算链上不再有需要确认的项目,则结算链上的下一个项目的控制者将获得优先行\n                  动权 。进入步骤 2:执行。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P058-B006",
+      "document": "DOC-01",
+      "page": 58,
+      "clauseAnchors": [
+        "370"
+      ],
+      "text": "370.         替换效果 会改变游戏的标准流程,包括其他卡牌的执行结果。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P058-B007",
+      "document": "DOC-01",
+      "page": 58,
+      "clauseAnchors": [
+        "370.1"
+      ],
+      "text": "370.1.           替换效果 会应用于所有符合其应用条件的事件或指示。替换效果 会明确说明事件或指示将在何等情况下受到替代。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P058-B008",
+      "document": "DOC-01",
+      "page": 58,
+      "clauseAnchors": [
+        "370.1.a"
+      ],
+      "text": "370.1.a.              事件是指因执行游戏行动或游戏物体状态发生改变而产生的单一瞬间。\n                           举例:由单位被摧毁所产生的瞬间是一个事件,该事件可以被游戏效果引用,甚至可以被完全\n                           跳过。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P058-B012",
+      "document": "DOC-01",
+      "page": 58,
+      "clauseAnchors": [
+        "370.1.a.2"
+      ],
+      "text": "370.1.a.2.                 只有当多个事件都是由同一个游戏行动或状态变化引起时,这些事件才能同时发生。\n                                 举例:一张法术牌的部分效果为“在战场上摧毁最多两名单位”。当该法术结算时,被\n                                 选作目标的单位会同时被摧毁,因为它们的摧毁皆由同一个游戏行动造成。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P058-B014",
+      "document": "DOC-01",
+      "page": 58,
+      "clauseAnchors": [
+        "370.1.b"
+      ],
+      "text": "370.1.b.              当替换效果生效时,会用一个或多个游戏行动或事件来替换符合条件的事件,或用另一条指示替换符合条\n                      件的指示。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P059-B001",
+      "document": "DOC-01",
+      "page": 59,
+      "clauseAnchors": [
+        "370.1.c"
+      ],
+      "text": "370.1.c.               替换效果 会在任何符合条件的事件实际发生前生效。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P059-B002",
+      "document": "DOC-01",
+      "page": 59,
+      "clauseAnchors": [
+        "370.1.c.1"
+      ],
+      "text": "370.1.c.1.                  如果游戏物体的替换效果适用于该游戏物体在隐秘区域中时发生的事件,则该效果会改为在该\n                            事件发生的同时对其生效并替换该事件。替换事件仍会按照生成该事件的指示所规定的顺序发\n                            生,而原事件若遭替换,就不会发生。\n                                 举例:“魔腾 - 惊魂夜”的部分描述为:“当你从牌堆顶部查看或展示我时,你可以选择\n                                 将我放逐。若如此做,则你可以选择支付[A]打出我。”由于魔腾的替换效果会替换\n                                 他处于隐秘区域时发生的事件,因此,当玩家从主牌堆顶部查看或展示该卡牌时,这\n                                 个替换效果会在该事件发生的同时对其生效。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P059-B004",
+      "document": "DOC-01",
+      "page": 59,
+      "clauseAnchors": [
+        "370.2"
+      ],
+      "text": "370.2.            替换效果 对一个事件或替换该事件的游戏行动 或事件只会生效一次。\n                       举例:玩家打出了一个法术,其描述为:“你控制的装备在本回合内变为 1[M]的装备单位。”当该法术结算\n                       时,该玩家控制着两件“中娅沙漏”。如果其中一件被摧毁,则两边的替换效果都会生效。无论该玩家让哪\n                       个替换效果先生效,该替换效果都不会再次生效。当所选的替换效果实际生效时,该效果会摧毁效果来源\n                       那件“中娅沙漏”,如此便会产生一个可供另一件“中娅沙漏”替换效果生效的事件。待针对原本摧毁事件和\n                       针对后续替换事件的两个替换效果均生效后,便不可继续再让这些效果反复生效。此时,替换效果最后生\n                       效的“中娅沙漏”会被摧毁。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P059-B009",
+      "document": "DOC-01",
+      "page": 59,
+      "clauseAnchors": [
+        "371.2"
+      ],
+      "text": "371.2.            如果替换效果说明玩家“可以选择”应用该替换效果,则该玩家可以选择是否要让其生效。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P059-B010",
+      "document": "DOC-01",
+      "page": 59,
+      "clauseAnchors": [
+        "371.2.a"
+      ],
+      "text": "371.2.a.               当某个可以应用替换效果的事件发生时,控制该替换效果的玩家可以选择是否要让该替换效果对该事件生\n                       效。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P059-B012",
+      "document": "DOC-01",
+      "page": 59,
+      "clauseAnchors": [
+        "372"
+      ],
+      "text": "372.         如果针对同一事件产生多个替换效果,则在执行时,由受影响物体的控制者来决定替换效果的生效顺序。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P059-B013",
+      "document": "DOC-01",
+      "page": 59,
+      "clauseAnchors": [
+        "372.1"
+      ],
+      "text": "372.1.            如果受影响的是玩家,则由该玩家决定替换效果的生效顺序。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P064-B002",
+      "document": "DOC-01",
+      "page": 64,
+      "clauseAnchors": [
+        "383.3.d"
+      ],
+      "text": "383.3.d.           如果同一时间有多个触发式技能被触发,则由控制技能的玩家选择它们放置到结算链的顺序。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P064-B003",
+      "document": "DOC-01",
+      "page": 64,
+      "clauseAnchors": [
+        "383.3.d.1"
+      ],
+      "text": "383.3.d.1.              如果同时触发的多个触发式技能由多个不同玩家控制,则从回合玩家开始,随后按照回合顺\n                        序 ,每名玩家依次将自己的触发式技能 放置到结算链 。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P082-B002",
+      "document": "DOC-01",
+      "page": 82,
+      "clauseAnchors": [
+        "432.1.c"
+      ],
+      "text": "432.1.c.               如果游戏指示要求玩家查看或展示玩家主牌堆中的卡牌,且数量超过主牌堆剩余卡牌的数量,则该玩家尽\n                       可能查看或展示最大数量的卡牌,但不需要执行“燃尽”,随后正常进行指示的剩余部分。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P082-B003",
+      "document": "DOC-01",
+      "page": 82,
+      "clauseAnchors": [
+        "432.1.c.1"
+      ],
+      "text": "432.1.c.1.                  如果查看或展示的卡牌张数不足以进行对查看或展示卡牌执行的后续行动,则撤销指示的后续\n                            部分。即使后续指示需要使查看或展示的卡牌改变区域,这种情况也不会导致燃尽。\n                                 提示:卡牌在被查看或展示时,视为其处于“原始位置”。在这种情况下,其原始位置\n                                 为主牌堆。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-12-P007-B003",
+      "document": "DOC-12",
+      "page": 7,
+      "clauseAnchors": [],
+      "text": "虚空遁地兽\n[新文本]\n当你征服一处战场时,你可以选择让我变为休眠状态,以此展示你主牌堆顶部的两张牌。你可以\n选择放逐其中一张,然后将其打出。回收其余的卡牌。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-16-P006-B002",
+      "document": "DOC-16",
+      "page": 6,
+      "clauseAnchors": [],
+      "text": "魔腾 - 惊魂夜\n[新文本]\n[游走](我可以向其他战场进行移动。)\n你查看或展示主牌堆顶部的卡牌并看到我时,可以选择将我放逐。如选择放逐,则你可以选择支\n付[A]将我打出。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    }
+  ],
+  "fiveAdditionalCompletePhysicalPagesActuallyViewed": [
+    {
+      "doc": "DOC-01",
+      "physicalPage": 58,
+      "renderPath": "var/qa/fixed-39eacb2e-candlelit-pending-20261021/current-rule-full-pages-v1/DOC-01-p58.png",
+      "renderSha256": "b2754e66e024d1dbb742032f67abf7de1ca7ed1270be71d602e117fb7e998cd7"
+    },
+    {
+      "doc": "DOC-01",
+      "physicalPage": 59,
+      "renderPath": "var/qa/fixed-39eacb2e-candlelit-pending-20261021/current-rule-full-pages-v1/DOC-01-p59.png",
+      "renderSha256": "670fe42b537c5ae01e447cc2dd1a837ff725221b735d07a2a239a159d5d359d1"
+    },
+    {
+      "doc": "DOC-01",
+      "physicalPage": 64,
+      "renderPath": "var/qa/fixed-39eacb2e-candlelit-pending-20261021/current-rule-full-pages-v1/DOC-01-p64.png",
+      "renderSha256": "cb0b368e9476c75a6279df477c030427439f714f4eb9065c256b94ea1c9ce067"
+    },
+    {
+      "doc": "DOC-12",
+      "physicalPage": 7,
+      "renderPath": "var/qa/fixed-39eacb2e-candlelit-pending-20261021/current-rule-full-pages-v1/DOC-12-p7.png",
+      "renderSha256": "92d2d4e57bd93ae002b6f7c9da2a8ec9376b6776fd261d799f6d51d91b1589dc"
+    },
+    {
+      "doc": "DOC-16",
+      "physicalPage": 6,
+      "renderPath": "var/qa/fixed-39eacb2e-candlelit-pending-20261021/current-rule-full-pages-v1/DOC-16-p6.png",
+      "renderSha256": "7bf80bbcf97d3845377d9255fb2829d3280a2331d956da8d56957a0235e93bcd"
+    }
+  ],
+  "printedFacesActuallyViewed": [
+    {
+      "path": "var/qa/fixed-39eacb2e-candlelit-pending-20261021/nocturne-current-official-face.png",
+      "sha256": "d88665beee2e0d7e41065b585b388026cb27987df4f79fa04d34e3b6f4eaed53",
+      "printedOldTextDoesNotOverrideApplicableErrata": true
+    },
+    {
+      "path": "var/qa/fixed-39eacb2e-candlelit-pending-20261021/reksai-current-official-face.png",
+      "sha256": "a5bdb9fe4411d2dd38c99ad22ead6dd990e2602c7815cd39a5611b25d93445f4",
+      "printedOldTextDoesNotOverrideApplicableErrata": true
+    }
+  ],
+  "existingParentScopeSourceReviewRetained": {
+    "path": "var/qa/candlelit-current-cn16-recertification-20261021/current-candlelit-source-clause-and-visual-review-plan-v1.json",
+    "sha256": "9e40d513a658b5cbc4e04334dedec7221be433c176c10ab63730c2076999929b"
+  },
+  "nocturneCurrentApiAllRawKeysAndNullsExactToOct14": true,
+  "legendApiPrintedTextVsEffectiveCatalog": {
+    "exactPrinting": "SFD·187/221",
+    "apiId": 33285,
+    "currentApiErrataEmpty": true,
+    "effectiveCatalogTextBackedByStillAvailableOfficialDoc12Page7Record3": true,
+    "officialRawApiOct16Reference": "docs/evidence/granted-origin-haste-2026-10-16/reksai-api-current-raw.json",
+    "newSourceChangeNotInferredFromKnownPrintedApiMismatch": true,
+    "sourceDeletedOrSemanticsSilentlyReverted": false
+  },
+  "correctionToPreviousW32Prose": {
+    "actualSecondPrimaryDocument": "DOC-02 is tournament rules, not FAQ",
+    "previousW32SourceUrlsAndHashesWereCorrectAndRemainUnmodified": true,
+    "noNewFaqReviewClaimFromThreePrimaryDocumentRechecks": true
+  },
+  "plannedBoundedBranches": [
+    {
+      "id": "CANDLELIT_CN16_NOCTURNE_ORIGINAL_SET_0",
+      "printing": [
+        "OGN·291/298",
+        "OGN·194/298"
+      ],
+      "acceptOriginalObservedNocturnes": 0,
+      "semanticSourceReview": "REVIEWED_FOR_ORIGINAL_SET_AND_EXISTING_PENDING_CONFIRMATION_ONLY",
+      "test": "TODO",
+      "fixedCommitCi": "OPEN",
+      "productAcceptance": "OPEN"
+    },
+    {
+      "id": "CANDLELIT_CN16_NOCTURNE_ORIGINAL_SET_1",
+      "printing": [
+        "OGN·291/298",
+        "OGN·194/298"
+      ],
+      "acceptOriginalObservedNocturnes": 1,
+      "semanticSourceReview": "REVIEWED_FOR_ORIGINAL_SET_AND_EXISTING_PENDING_CONFIRMATION_ONLY",
+      "test": "TODO",
+      "fixedCommitCi": "OPEN",
+      "productAcceptance": "OPEN"
+    },
+    {
+      "id": "CANDLELIT_CN16_NOCTURNE_ORIGINAL_SET_2",
+      "printing": [
+        "OGN·291/298",
+        "OGN·194/298"
+      ],
+      "acceptOriginalObservedNocturnes": 2,
+      "semanticSourceReview": "REVIEWED_FOR_ORIGINAL_SET_AND_EXISTING_PENDING_CONFIRMATION_ONLY",
+      "test": "TODO",
+      "fixedCommitCi": "OPEN",
+      "productAcceptance": "OPEN"
+    }
+  ],
+  "separateOpenObligations": [
+    "Initial order selection rights between simultaneously observed replacement effects are not certified merely by testing the captured insertion order",
+    "Simultaneous legend cost/finalization and both selected resolution orders need their own original SQL and product proof",
+    "Reaction changes original deck before conquest ability resolves",
+    "Other consumers, printings, rules, source gaps, visible hardware pair and physical Windows"
+  ],
+  "wholePrintingOrWholeAuditCertification": false,
+  "allOriginalFiveBranchesAll49SqlIdsAndAllConformanceMethodsTheoryAndFullGamesRetained": true
+}

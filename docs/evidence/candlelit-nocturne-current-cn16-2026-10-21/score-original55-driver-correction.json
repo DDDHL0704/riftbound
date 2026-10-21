@@ -1,0 +1,90 @@
+{
+  "atUtc": "2026-10-21T00:58:13.780940+00:00",
+  "actualOriginalFixed39ePrefixCommands": 52,
+  "actualOriginalNativeCommands": 3,
+  "actualRoomBeforeScoreCommands": 55,
+  "actualOriginalPhysicalBattlefieldCardNos": [
+    "OGN\u00b7275/298",
+    "OGN\u00b7277/298"
+  ],
+  "failureBeforeAnyNewScoreCommand": "Expected OGN278 selection, but original random opening selected OGN275 and OGN277 from the unchanged three-battlefield legal deck",
+  "unchangedOriginalPrefixFixtureSha256": "f566e012152924e697af83e718594a9dc2dfbfedc1b9af43e6003dcf56719260",
+  "newBoundedScoreSourceChangesOnlyTwoOgn278LiteralSourceGuardsToOgn277": true,
+  "allOriginal17Actions14TurnsOneConquestSevenHoldsEightPointNonemptyDeckAndNoSurrenderAssertionsByteExact": true,
+  "originalSourceSha256": "e714e86e3422c1212bd74a31e360ade5f525e8de4dbb9628b7a71accb5c58348",
+  "newSourceSha256": "572dd8d20defa9461cfa7a17cbb9315f3d6f0919486e1d9a06b2c629b96ee184",
+  "actualCurrentFrozenProjectReferences": [
+    {
+      "name": "Microsoft.AspNetCore.Connections.Abstractions.dll",
+      "sha256": "7f279e0b78d0652ad9b053b25e80cc7f186b36cc1de1e32d24105bff9a98c0f3"
+    },
+    {
+      "name": "Microsoft.AspNetCore.Http.Connections.Client.dll",
+      "sha256": "08e97e198d957f7fd5de7fee7d6409155e1ac6565a8d3c0926b090c8591e3036"
+    },
+    {
+      "name": "Microsoft.AspNetCore.Http.Connections.Common.dll",
+      "sha256": "4446d96d3d88fe38498187a8f3c342ba97d9a0d7914e309555b528ae7e294499"
+    },
+    {
+      "name": "Microsoft.AspNetCore.SignalR.Client.Core.dll",
+      "sha256": "feaa6dbd94bb63e1dcdfa9013032f6fcf7133bf8457c69b4bef24fc9537ab544"
+    },
+    {
+      "name": "Microsoft.AspNetCore.SignalR.Client.dll",
+      "sha256": "85b7b98f638a0e1d021b8d99ea4f1411dc9cb0bbc9aa3b90476abde58004e8ee"
+    },
+    {
+      "name": "Microsoft.AspNetCore.SignalR.Common.dll",
+      "sha256": "550058f27f5577e20184a0e0d198c90c87079b45dffab170423f6fe030c0687d"
+    },
+    {
+      "name": "Microsoft.AspNetCore.SignalR.Protocols.Json.dll",
+      "sha256": "337bd529119666700dcbfceb2395ef28d25f3735e52cb2e513e600a2fcf1ffb7"
+    },
+    {
+      "name": "Microsoft.Extensions.DependencyInjection.Abstractions.dll",
+      "sha256": "67fa4325000db017dc0c35829b416f024f042d24efb868bcf17a895ee6500a93"
+    },
+    {
+      "name": "Microsoft.Extensions.DependencyInjection.dll",
+      "sha256": "158761ce778e799949f3a3060c461b1055bb35f1f5a65eff0e42397849f09ecd"
+    },
+    {
+      "name": "Microsoft.Extensions.Features.dll",
+      "sha256": "75dd3372396a3b06bfb7b3b0d92ffd7e87e53efe61429eccc8970d8983c9ebc0"
+    },
+    {
+      "name": "Microsoft.Extensions.Logging.Abstractions.dll",
+      "sha256": "bb853130f5afaf335be7858d661f8212ec653835100f5a4e3aa2c66a4d4f685d"
+    },
+    {
+      "name": "Microsoft.Extensions.Logging.dll",
+      "sha256": "b2cfba2e05ee89a91e9bc9cf112468a5f4fa05d1a77ea81c131ea656f3d133c2"
+    },
+    {
+      "name": "Microsoft.Extensions.Options.dll",
+      "sha256": "5e01894cbc0661bacb8ca8f485a40d5ee4e02f28fef58007668a0276431b4693"
+    },
+    {
+      "name": "Microsoft.Extensions.Primitives.dll",
+      "sha256": "446ff16e903e7479558816e213a3adee9a1c1adad65a56d853801b10933e29d7"
+    },
+    {
+      "name": "System.IO.Pipelines.dll",
+      "sha256": "86d0f5bfaaf1b2ab19331b543a736d87b5b58e72158f4ded282122b2e6665f83"
+    },
+    {
+      "name": "Riftbound.Contracts.dll",
+      "sha256": "6d20e3d96ad42ab984dab507b0a741730740f7571f425f6b4db88002d2f79cad"
+    }
+  ],
+  "actualReferenceCount": 16,
+  "original55CommandsSeedBlankOpeningAndAllFiveCiNativeProcessLogsRetained": true,
+  "noAcceptedNativeActionReplayOrOldMatchMigration": true,
+  "wholeBackAlleyOrWholeAuditCertification": false,
+  "preparationIncorrectLiteralPathAnd17ReferenceCountPreconditionsRetainedAsSetupFailures": true,
+  "firstBuildMissingProjectLogRetainedNotExecution": true,
+  "backAlleyFaceActuallyViewedAndCurrentApiAllNormalizedFieldsExact": true,
+  "boundedSourceInterpretation": "Printed trigger requires movement from this battlefield elsewhere. Planned move enters from BASE; subsequent holds do not move the unit."
+}

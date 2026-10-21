@@ -24145,6 +24145,63 @@
         "New fixed49 full and final visible paired hardware and physical Windows",
         "All retained official source gaps, later changes and full-scope obligations"
       ]
+    },
+    {
+      "id": "candlelit-nocturne-current-cn16-three-original-set-sql-2026-10-21",
+      "scope": "CN16 exact OGN291/OGN194 original observation pair, zero/one/two accepted banish decisions, retained-only subset/order, and already captured earliest confirmation with one generic power per original unit. Initial simultaneous replacement order rights, decline/unaffordable play, other consumers and whole printings remain open.",
+      "subjects": [
+        "OGN-291/298",
+        "OGN-194/298"
+      ],
+      "ruleRecords": [
+        "DOC-01-P040-B012",
+        "DOC-01-P041-B002",
+        "DOC-01-P041-B009",
+        "DOC-01-P041-B011",
+        "DOC-01-P041-B013",
+        "DOC-01-P041-B014",
+        "DOC-01-P041-B015",
+        "DOC-01-P041-B016",
+        "DOC-01-P058-B006",
+        "DOC-01-P058-B007",
+        "DOC-01-P058-B008",
+        "DOC-01-P058-B012",
+        "DOC-01-P058-B014",
+        "DOC-01-P059-B001",
+        "DOC-01-P059-B002",
+        "DOC-01-P059-B004",
+        "DOC-01-P059-B009",
+        "DOC-01-P059-B010",
+        "DOC-01-P082-B002",
+        "DOC-01-P082-B003",
+        "DOC-16-P006-B002"
+      ],
+      "pendingRuleRecords": [],
+      "status": "BOUNDED_CURRENT_SOURCE_SQL3_27_73_INDEPENDENT_HISTORY_ONLY_CHECK13219_PASS_FIXED_FULL_PRODUCT_OPEN",
+      "sourceManifest": {
+        "path": "docs/evidence/candlelit-nocturne-current-cn16-2026-10-21/source-manifest.json",
+        "sha256": "70519d77f3d6dc62c0cd957f8206fef130f5b36bc09253931c3ef8d1b5dfd4f3",
+        "role": "source-manifest"
+      },
+      "auditDocument": "docs/CANDLELIT_NOCTURNE_CURRENT_CN16_SQL_AUDIT_2026-10-21.md",
+      "validation": {
+        "focusCases": 81,
+        "focusMethods": 51,
+        "sqlBranches": 3,
+        "commands": 27,
+        "events": 73,
+        "checkCases": 13219,
+        "checkMethods": 7501,
+        "newConformanceMethodsOrRows": 0,
+        "all49SqlIdsAndOrderRetained": true,
+        "wholeCardCertification": false
+      },
+      "exclusions": [
+        "Initial simultaneous replacement choice ordering rights",
+        "Decline/unaffordable pending permissions and other look/reveal consumers",
+        "Simultaneous legend order prototype, reactions, other printings/full semantics",
+        "Final fixed full, visible hardware pair, physical Windows and all original source gaps"
+      ]
     }
   ]
 }

@@ -1,0 +1,90 @@
+{
+  "atUtc": "2026-10-21T01:13:40.268337+00:00",
+  "status": "PASS_FIXED39E_CI_EXPORTED_HEADLESS_PAIR_COLD_NATIVE3_NORMAL_SCORE17_NETWORK15_INDEPENDENT_SQL72_BOUNDED_NOT_VISIBLE_WINDOWS_OR_FULL_CI",
+  "fixedCommit": "39eacb2e22ce365c2d56750382518bfcd1bdf32a",
+  "fixedCiRun": 39520536954,
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+    "implementationSha256": "10fa816ab26556e87758ec27b3c68ebf1dfcf3e93598d5ea2ef3e64061d6e4b4",
+    "identitySha256": "a44aaf0b6417c5e9edf4a7bddec3e388dfac629de8d2fcd4c83db18d90baeb7d"
+  },
+  "actualScope": {
+    "ordinaryGatewayOpeningCommands": 52,
+    "ciExportedProductionInteractionSubmitCommands": 3,
+    "ordinaryGatewayNormalScoreContinuationCommands": 17,
+    "wholeOriginalRoomCommands": 72,
+    "events": 474,
+    "authoritativeHistoricalStates": 72,
+    "privateSnapshots": 140,
+    "privatePrompts": 140,
+    "score": [
+      8,
+      0
+    ],
+    "finalTurn": 42,
+    "finalNonemptyMainDeckCounts": [
+      15,
+      13
+    ],
+    "normalScoreConquestPoints": 1,
+    "normalScoreHoldPoints": 7,
+    "originalBlankOpeningAndPrivateSeedNotRewritten": true,
+    "noSurrenderBurnoutOrAcceptedActionRepeat": true,
+    "sameTwoExportedMainProcessesAcrossOwnApiColdRestart": true,
+    "allFiveExportedMainProcessesNaturalExit0NoErrorsAndPtyDrained": true,
+    "networkUnauthorizedRejections": 15,
+    "networkPrivateLeaks": 0,
+    "networkSocketLossCanonicalAuthenticatedRestoreAndWrongTokenGuard": true
+  },
+  "actualSelectedOriginalBattlefields": [
+    "OGN\u00b7275/298",
+    "OGN\u00b7277/298"
+  ],
+  "score277SourceOnlyTwoGuardLiteralsDifferAndOriginal17AssertionsRetained": true,
+  "driverFailuresRetainedSeparately": [
+    "assumed OGN278 selected before any score action",
+    "helper project construction and omitted production gateway source before execution",
+    "net10 overlay in net8 network runner before any new network room",
+    "independent readers waiting on failed owner readiness without SQL rerun"
+  ],
+  "allOriginal246AuditAnd53NativeSevenTablesExactFinalNetworkBoundary": true,
+  "actualNativeRoomsRetainedAtStop": 54,
+  "onlyOwnedApiPostgresAndBoundIdleAssertionsNormallyStopped": true,
+  "currentCheckContinuesIndependentlyWithFrozenRootInputs": true,
+  "strictSourceEvidenceAndAllHistoricalPassingScopesRemainBounded": true,
+  "completeFixedCi": "PENDING_ACTUAL_TERMINAL",
+  "visibleDualClientsAndHardwareInputs": "OPEN",
+  "physicalWindows": "OPEN",
+  "allOfficialSemantics": "OPEN",
+  "wholeGoalReady": false,
+  "readbackSources": [
+    {
+      "path": "var/qa/fixed-39eacb2e-candlelit-pending-20261021/same-original72-network-owner-terminal-v1.json",
+      "sha256": "08ba02cf08a720c1d5116899b30df9f75d72cbeb5185a4b8bae9277332c1acd3"
+    },
+    {
+      "path": "var/qa/fixed-39eacb2e-candlelit-pending-20261021/live-current-ci-main-owner-terminal-v2.json",
+      "sha256": "f3d0307e9723d1ea96036852172540eaea6e80c72d61624508c56b131c121354"
+    },
+    {
+      "path": "var/qa/fixed-39eacb2e-candlelit-pending-20261021/independent-fixed39e-native-history-run-v3.json",
+      "sha256": "9cd3f16a658984bb8c468fbe20e63315589c3661dc5c33938c2fc9305217958c"
+    },
+    {
+      "path": "var/qa/fixed-39eacb2e-candlelit-pending-20261021/independent-fixed39e-native-history-result-v3.json",
+      "sha256": "d47151361fbe792a82bc7bc9e362581bf563e81974f503957069b1d8c1c97853"
+    },
+    {
+      "path": "var/qa/fixed-39eacb2e-candlelit-pending-20261021/fixed39e-original55-score-premise-failure-and-explicit277-driver-v1.json",
+      "sha256": "386400b74b17e7cd167b91f88985a3b335a686bf3c10bfb01c95fe33a74659af"
+    },
+    {
+      "path": "var/qa/fixed-39eacb2e-candlelit-pending-20261021/network-framework-overlay-failure-and-original22-restoration-v1.json",
+      "sha256": "e6bb6eeaf503d100feb2916cfa5b3f69c18d360c02a722c315160f8daf19b26c"
+    }
+  ]
+}

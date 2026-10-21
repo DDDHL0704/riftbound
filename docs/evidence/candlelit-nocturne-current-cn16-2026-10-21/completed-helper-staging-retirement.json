@@ -1,0 +1,151 @@
+{
+  "atUtc": "2026-10-21T01:16:30.749522+00:00",
+  "status": "COMPLETED_OWN_HELPER_BUILD_STAGING_RETIRED_FROZEN_EXECUTIONS_SOURCES_AND_FAILURES_RETAINED",
+  "items": [
+    {
+      "path": "var/qa/fixed-39eacb2e-candlelit-pending-20261021/independent-nocturne-reader-source-v1/bin",
+      "fileCount": 4,
+      "logicalBytes": 72468,
+      "fileHashes": {
+        "Release/net10.0/CurrentCandlelitNocturneIndependentSqlReaderV1.deps.json": "d3a831a407ef704de16f0b1e33b92ec0a5ce6d49b548a9d72e30303b188e360e",
+        "Release/net10.0/CurrentCandlelitNocturneIndependentSqlReaderV1.pdb": "8371efc36fd05db9fd9cc98f9a616bdc2f26cea461d2e5c8e7c5cd2e0feefec1",
+        "Release/net10.0/CurrentCandlelitNocturneIndependentSqlReaderV1.runtimeconfig.json": "9950d4583cfc9a106857c0d5b8a75b53e8774852b57b80bc3823a74d44a4d87f",
+        "Release/net10.0/CurrentCandlelitNocturneIndependentSqlReaderV1.dll": "28170a77c1e47847dc04e9745d50765bd90592df26afb03105a8f40ed6a3380f"
+      },
+      "actuallyExecutedImmutableRuntimeRetained": "var/qa/fixed-39eacb2e-candlelit-pending-20261021/independent-nocturne-reader-runtime-v1"
+    },
+    {
+      "path": "var/qa/fixed-39eacb2e-candlelit-pending-20261021/independent-nocturne-reader-source-v1/obj",
+      "fileCount": 20,
+      "logicalBytes": 164660,
+      "fileHashes": {
+        "probe.csproj.nuget.g.targets": "b14461e0cb1be3f77fcf9fe2fdd62889325ca92523d0f606980ed59eb5c4aa1c",
+        "project.nuget.cache": "dac53d382bc9e451bd21257e16ec8cbd4d873389cf5ac9af69f1edd6224387a2",
+        "probe.csproj.nuget.dgspec.json": "6c89cde00aac028cbe87c4c8daa82c3352793b3d582c0e8e23471d2e78eda1ac",
+        "probe.csproj.nuget.g.props": "fc3164a419c5b2121a87fb47d38735c1397640d10e208c775a65a02edd6e231e",
+        "project.assets.json": "00d1205f3ade3b1bb550c469a3211f6e5c3bd32fe13de496de3a44bd88d4b439",
+        "Release/net10.0/probe.GeneratedMSBuildEditorConfig.editorconfig": "e149511e4058c365651f48fe58aef1793eeb70a80b0b42aeaebfdb326d1ae05d",
+        "Release/net10.0/probe.GlobalUsings.g.cs": "8f86a2cbf00ff3eee0bda2bc0eb5e1fc19c8544d5dc650c53d0132325956b592",
+        "Release/net10.0/probe.csproj.CoreCompileInputs.cache": "31e99cc1771108861993249bc96a3cba2a357450724367f190ee017d52562b96",
+        "Release/net10.0/probe.csproj.AssemblyReference.cache": "3e4f942b44f74a4713fd3dc79aff126ca97754616602f350eeb1c70afc89ab0c",
+        "Release/net10.0/.NETCoreApp,Version=v10.0.AssemblyAttributes.cs": "f79c1ad9a9fc76110b3655f5bfb5ff4e3168e9addceff05b937c0796f0ec34eb",
+        "Release/net10.0/CurrentCandlelitNocturneIndependentSqlReaderV1.pdb": "8371efc36fd05db9fd9cc98f9a616bdc2f26cea461d2e5c8e7c5cd2e0feefec1",
+        "Release/net10.0/probe.assets.cache": "8ad7958d2f15532558bb4b5ba8b3ac93d6bf2f8efa1fe5bec1e28cc2d855424f",
+        "Release/net10.0/probe.AssemblyInfo.cs": "371c3fd7b993dfc585a10dcd21c70c9249dd6d2977eb5d8d98a70acd5a8233ff",
+        "Release/net10.0/CurrentCandlelitNocturneIndependentSqlReaderV1.dll": "28170a77c1e47847dc04e9745d50765bd90592df26afb03105a8f40ed6a3380f",
+        "Release/net10.0/probe.csproj.FileListAbsolute.txt": "55ca44de597dc5cdc9aae0522b4f52d74133694cc4862a5308ce624925f209b6",
+        "Release/net10.0/probe.genruntimeconfig.cache": "1f6e1f043336cbef78a87876b839a0e9cacb9d04d8d47524b57670091c633986",
+        "Release/net10.0/probe.sourcelink.json": "d3942e058e00d0f8d94c2edb4c2dde639d26becf72cb0afd21ddfc5fafdfee91",
+        "Release/net10.0/probe.AssemblyInfoInputs.cache": "0442cbb6e3856753ec1bed417a53ec4c39c3598c85a8a61844be911eb8c9e8fc",
+        "Release/net10.0/ref/CurrentCandlelitNocturneIndependentSqlReaderV1.dll": "f5f4008b04834edb0c85c0f7c1ef326b97b55d74e5d5259b571478c747f06f3d",
+        "Release/net10.0/refint/CurrentCandlelitNocturneIndependentSqlReaderV1.dll": "f5f4008b04834edb0c85c0f7c1ef326b97b55d74e5d5259b571478c747f06f3d"
+      },
+      "actuallyExecutedImmutableRuntimeRetained": "var/qa/fixed-39eacb2e-candlelit-pending-20261021/independent-nocturne-reader-runtime-v1"
+    },
+    {
+      "path": "var/qa/fixed-39eacb2e-candlelit-pending-20261021/fixed39e-native-history-reader-source-v1/bin",
+      "fileCount": 4,
+      "logicalBytes": 69033,
+      "fileHashes": {
+        "Release/net10.0/Fixed39eNativeHistoryReaderV1.runtimeconfig.json": "9950d4583cfc9a106857c0d5b8a75b53e8774852b57b80bc3823a74d44a4d87f",
+        "Release/net10.0/Fixed39eNativeHistoryReaderV1.dll": "b97a985615150ebb13faafc35ce572b39dfcb49b42d84730bf9c1ea2c56d18ff",
+        "Release/net10.0/Fixed39eNativeHistoryReaderV1.deps.json": "38923c6399bc24df2be71b85a30dd5c7f5f899c9378fa5c05c2cbceefeeff712",
+        "Release/net10.0/Fixed39eNativeHistoryReaderV1.pdb": "a6b7c149e6d03f3dbd2cda862aaa3cab2e7a89bd8c4986392c1c794f9348588a"
+      },
+      "actuallyExecutedImmutableRuntimeRetained": "var/qa/fixed-39eacb2e-candlelit-pending-20261021/fixed39e-native-history-reader-runtime-v1"
+    },
+    {
+      "path": "var/qa/fixed-39eacb2e-candlelit-pending-20261021/fixed39e-native-history-reader-source-v1/obj",
+      "fileCount": 20,
+      "logicalBytes": 144069,
+      "fileHashes": {
+        "probe.csproj.nuget.g.targets": "b14461e0cb1be3f77fcf9fe2fdd62889325ca92523d0f606980ed59eb5c4aa1c",
+        "project.nuget.cache": "f56d0721fb7395bb095e2d575898f71c075c41a8b9ab5b62395dbbf22f0aaf51",
+        "probe.csproj.nuget.dgspec.json": "73594d1cd199206c09e36c521686bd68344b624a154c6504eceae9a9f470db0e",
+        "probe.csproj.nuget.g.props": "fc3164a419c5b2121a87fb47d38735c1397640d10e208c775a65a02edd6e231e",
+        "project.assets.json": "64a862075e66f5e06b36b60eb6f650e10cc52714a337073254726573828c5878",
+        "Release/net10.0/probe.GeneratedMSBuildEditorConfig.editorconfig": "3761efd3c6c0edaacb68918c3194831711790b27d746c521a813f6328480a8ea",
+        "Release/net10.0/probe.GlobalUsings.g.cs": "8f86a2cbf00ff3eee0bda2bc0eb5e1fc19c8544d5dc650c53d0132325956b592",
+        "Release/net10.0/probe.csproj.CoreCompileInputs.cache": "c6a87675e41eaadde72aff8e28f6f5bdc0421b2ea0b9f38b0a52909721499fcc",
+        "Release/net10.0/probe.csproj.AssemblyReference.cache": "fbfe2f60090c306ffe45cd0a91d744d624c4cdf08894212e64fced638569f1ed",
+        "Release/net10.0/Fixed39eNativeHistoryReaderV1.dll": "b97a985615150ebb13faafc35ce572b39dfcb49b42d84730bf9c1ea2c56d18ff",
+        "Release/net10.0/.NETCoreApp,Version=v10.0.AssemblyAttributes.cs": "f79c1ad9a9fc76110b3655f5bfb5ff4e3168e9addceff05b937c0796f0ec34eb",
+        "Release/net10.0/Fixed39eNativeHistoryReaderV1.pdb": "a6b7c149e6d03f3dbd2cda862aaa3cab2e7a89bd8c4986392c1c794f9348588a",
+        "Release/net10.0/probe.assets.cache": "169368d20f78c922ef46e10e50a375fbba8227be400d0bfa8e32a54ac5fce88e",
+        "Release/net10.0/probe.AssemblyInfo.cs": "480e687a91f479bd8ba55fb496dd441872eae5fd81587866afdfba9306d612d1",
+        "Release/net10.0/probe.csproj.FileListAbsolute.txt": "4b2ce4c48f710849dc897840a4d64686cec695889a92dbebada0ff617d67c298",
+        "Release/net10.0/probe.genruntimeconfig.cache": "3a88ce26dcde79ba17b068f334bb9b40ade9e122f8aee787e7dfc30433609670",
+        "Release/net10.0/probe.sourcelink.json": "d3942e058e00d0f8d94c2edb4c2dde639d26becf72cb0afd21ddfc5fafdfee91",
+        "Release/net10.0/probe.AssemblyInfoInputs.cache": "5223970991e798116cbb3f236dd02351d50b14696553ff3c22e569c430ff41fa",
+        "Release/net10.0/ref/Fixed39eNativeHistoryReaderV1.dll": "bb0b3dc5ab70910fa36f2266c84ac0a8f96d09719a537b2a7e93ca0597abc37f",
+        "Release/net10.0/refint/Fixed39eNativeHistoryReaderV1.dll": "bb0b3dc5ab70910fa36f2266c84ac0a8f96d09719a537b2a7e93ca0597abc37f"
+      },
+      "actuallyExecutedImmutableRuntimeRetained": "var/qa/fixed-39eacb2e-candlelit-pending-20261021/fixed39e-native-history-reader-runtime-v1"
+    },
+    {
+      "path": "var/qa/fixed-39eacb2e-candlelit-pending-20261021/explicit-original-back-alley-score-source-v1/bin",
+      "fileCount": 21,
+      "logicalBytes": 1487908,
+      "fileHashes": {
+        "Release/net10.0/Microsoft.AspNetCore.Connections.Abstractions.dll": "7f279e0b78d0652ad9b053b25e80cc7f186b36cc1de1e32d24105bff9a98c0f3",
+        "Release/net10.0/Microsoft.AspNetCore.Http.Connections.Client.dll": "08e97e198d957f7fd5de7fee7d6409155e1ac6565a8d3c0926b090c8591e3036",
+        "Release/net10.0/Fixed39eOriginalBackAlleyScoreV1.deps.json": "6d69458ddcbcf24c0f5efd633ec31a6562b3af54b40f3ba785859eb32d3c1bb6",
+        "Release/net10.0/Microsoft.Extensions.Logging.dll": "b2cfba2e05ee89a91e9bc9cf112468a5f4fa05d1a77ea81c131ea656f3d133c2",
+        "Release/net10.0/Riftbound.Contracts.pdb": "c99eb4879c818f7149cd33492ff828b919c66a7fcd1e2c1cbbea8154b6b633b4",
+        "Release/net10.0/Microsoft.AspNetCore.Http.Connections.Common.dll": "4446d96d3d88fe38498187a8f3c342ba97d9a0d7914e309555b528ae7e294499",
+        "Release/net10.0/Microsoft.Extensions.Logging.Abstractions.dll": "bb853130f5afaf335be7858d661f8212ec653835100f5a4e3aa2c66a4d4f685d",
+        "Release/net10.0/Fixed39eOriginalBackAlleyScoreV1": "52d0bb9f2b10093c8095e89821913e3a21eb49919e6b6322cd9ce9e082f1d5e9",
+        "Release/net10.0/Microsoft.AspNetCore.SignalR.Protocols.Json.dll": "337bd529119666700dcbfceb2395ef28d25f3735e52cb2e513e600a2fcf1ffb7",
+        "Release/net10.0/Microsoft.AspNetCore.SignalR.Client.dll": "85b7b98f638a0e1d021b8d99ea4f1411dc9cb0bbc9aa3b90476abde58004e8ee",
+        "Release/net10.0/Microsoft.Extensions.Primitives.dll": "446ff16e903e7479558816e213a3adee9a1c1adad65a56d853801b10933e29d7",
+        "Release/net10.0/Microsoft.Extensions.DependencyInjection.dll": "158761ce778e799949f3a3060c461b1055bb35f1f5a65eff0e42397849f09ecd",
+        "Release/net10.0/Microsoft.AspNetCore.SignalR.Common.dll": "550058f27f5577e20184a0e0d198c90c87079b45dffab170423f6fe030c0687d",
+        "Release/net10.0/Riftbound.Contracts.dll": "6d20e3d96ad42ab984dab507b0a741730740f7571f425f6b4db88002d2f79cad",
+        "Release/net10.0/Microsoft.Extensions.Options.dll": "5e01894cbc0661bacb8ca8f485a40d5ee4e02f28fef58007668a0276431b4693",
+        "Release/net10.0/Fixed39eOriginalBackAlleyScoreV1.pdb": "3dc1033bd87fdcebfd8902b1e2f036b5dd986a0fe4eb53e532a278fe84e118b9",
+        "Release/net10.0/Microsoft.Extensions.Features.dll": "75dd3372396a3b06bfb7b3b0d92ffd7e87e53efe61429eccc8970d8983c9ebc0",
+        "Release/net10.0/Microsoft.Extensions.DependencyInjection.Abstractions.dll": "67fa4325000db017dc0c35829b416f024f042d24efb868bcf17a895ee6500a93",
+        "Release/net10.0/Microsoft.AspNetCore.SignalR.Client.Core.dll": "feaa6dbd94bb63e1dcdfa9013032f6fcf7133bf8457c69b4bef24fc9537ab544",
+        "Release/net10.0/Fixed39eOriginalBackAlleyScoreV1.dll": "13dd3d81d3d9bab43a3e31759e1fb09d3c012c43ccf0948b69fbc614ea32e997",
+        "Release/net10.0/Fixed39eOriginalBackAlleyScoreV1.runtimeconfig.json": "9950d4583cfc9a106857c0d5b8a75b53e8774852b57b80bc3823a74d44a4d87f"
+      },
+      "actuallyExecutedImmutableRuntimeRetained": "var/qa/fixed-39eacb2e-candlelit-pending-20261021/explicit-original-back-alley-score-runtime-v1"
+    },
+    {
+      "path": "var/qa/fixed-39eacb2e-candlelit-pending-20261021/explicit-original-back-alley-score-source-v1/obj",
+      "fileCount": 22,
+      "logicalBytes": 290956,
+      "fileHashes": {
+        "probe.csproj.nuget.g.targets": "b14461e0cb1be3f77fcf9fe2fdd62889325ca92523d0f606980ed59eb5c4aa1c",
+        "project.nuget.cache": "f0be88ec197ab7e0139cae1b9acaa1e17e94ab159899b50472a0f375206603f4",
+        "probe.csproj.nuget.dgspec.json": "427aa7843fadf0a9d23a47b80583fd9d320304a4a95d87e4f9f9b922bdce87d4",
+        "probe.csproj.nuget.g.props": "fc3164a419c5b2121a87fb47d38735c1397640d10e208c775a65a02edd6e231e",
+        "project.assets.json": "6caee8bd1aba5567e7c7fc835c71381c13f052bdc5b70fbdaa59a46fad8cc3b3",
+        "Release/net10.0/probe.GeneratedMSBuildEditorConfig.editorconfig": "663df6fdfc21333ad4da66e431ddaeb3fa906bdd6019a5d3cc8dd659ad219812",
+        "Release/net10.0/probe.GlobalUsings.g.cs": "8f86a2cbf00ff3eee0bda2bc0eb5e1fc19c8544d5dc650c53d0132325956b592",
+        "Release/net10.0/apphost": "52d0bb9f2b10093c8095e89821913e3a21eb49919e6b6322cd9ce9e082f1d5e9",
+        "Release/net10.0/probe.csproj.CoreCompileInputs.cache": "026ebfd0be50ab2956fde55e46b0e35a5d9f0aba3d345c6684ef85f11b8f3974",
+        "Release/net10.0/probe.csproj.Up2Date": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "Release/net10.0/probe.csproj.AssemblyReference.cache": "f53ad168fff85649c64bac3748ba767611bd260c7b60e06464ebe6c5a4057a58",
+        "Release/net10.0/.NETCoreApp,Version=v10.0.AssemblyAttributes.cs": "f79c1ad9a9fc76110b3655f5bfb5ff4e3168e9addceff05b937c0796f0ec34eb",
+        "Release/net10.0/Fixed39eOriginalBackAlleyScoreV1.pdb": "3dc1033bd87fdcebfd8902b1e2f036b5dd986a0fe4eb53e532a278fe84e118b9",
+        "Release/net10.0/probe.assets.cache": "348a14544d49475e77399eaaea325f539d555a48b5b7cea58b47468410f2f68f",
+        "Release/net10.0/probe.AssemblyInfo.cs": "859ee42c69e647aa81f582dbc075d599d83e502eb8ac9bd66427128fd07ca17f",
+        "Release/net10.0/probe.csproj.FileListAbsolute.txt": "0df91cc8ae13e6215a666ede8b06bee142bf18a014cf8ea16d1476ee9f3ec589",
+        "Release/net10.0/probe.genruntimeconfig.cache": "7be60f88d88fd6f4460d7c7f1d277b522e93abf2c1750356efcfbecab4e51b9c",
+        "Release/net10.0/Fixed39eOriginalBackAlleyScoreV1.dll": "13dd3d81d3d9bab43a3e31759e1fb09d3c012c43ccf0948b69fbc614ea32e997",
+        "Release/net10.0/probe.sourcelink.json": "d3942e058e00d0f8d94c2edb4c2dde639d26becf72cb0afd21ddfc5fafdfee91",
+        "Release/net10.0/probe.AssemblyInfoInputs.cache": "8418c45fe3b0cf1f6c691e7cb96995cf47985111b18604abc5d9fce7146392a8",
+        "Release/net10.0/ref/Fixed39eOriginalBackAlleyScoreV1.dll": "13eddf43868541c625ffa47025b16c617bf1a242ee2b1d69c89d1f8b1031ea2d",
+        "Release/net10.0/refint/Fixed39eOriginalBackAlleyScoreV1.dll": "13eddf43868541c625ffa47025b16c617bf1a242ee2b1d69c89d1f8b1031ea2d"
+      },
+      "actuallyExecutedImmutableRuntimeRetained": "var/qa/fixed-39eacb2e-candlelit-pending-20261021/explicit-original-back-alley-score-runtime-v1"
+    }
+  ],
+  "logicalBytes": 2229094,
+  "sourceProjectActualFrozenExecutionAndEveryOriginalFailureLogRetained": true,
+  "rootCheck3319Sources1419Conformance23NativeInputsExactBeforeCleanup": true,
+  "noRootBuildOrSharedSdkAndNoRunningVerificationRemoved": true,
+  "rootCheckAllInputHashesStillExactAfterCleanup": true,
+  "physicalApfsSavingsNotInferred": true
+}

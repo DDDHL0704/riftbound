@@ -1,0 +1,59 @@
+{
+  "status": "PASS_INDEPENDENT_CURRENT_CN16_THREE_NOCTURNE_ORIGINAL_SET_ALL_SQL_HISTORY_PRIVATE_FIELDS_AND_EXPLICIT_INITIAL_REPLAY",
+  "rooms": [
+    "candlelit-private-look-085e48b12a614476a8dc373fecb07adc",
+    "candlelit-private-look-fec42e1596e040a8a080c99a4f66a146",
+    "candlelit-private-look-07e71407096b49fd9b38c88e44aa81f3"
+  ],
+  "cases": 3,
+  "commands": 27,
+  "events": 73,
+  "authoritativeHistoricalStates": 27,
+  "privateSnapshots": 54,
+  "privatePrompts": 54,
+  "independentStructuralRejections": 15,
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d",
+    "implementationSha256": "10fa816ab26556e87758ec27b3c68ebf1dfcf3e93598d5ea2ef3e64061d6e4b4",
+    "identitySha256": "a44aaf0b6417c5e9edf4a7bddec3e388dfac629de8d2fcd4c83db18d90baeb7d"
+  },
+  "results": [
+    {
+      "branch": "nocturne-zero",
+      "room": "candlelit-private-look-085e48b12a614476a8dc373fecb07adc",
+      "commands": 9,
+      "events": 21,
+      "states": 9,
+      "snapshots": 18,
+      "prompts": 18,
+      "allFieldsAndOriginalActionEventReplayExact": true
+    },
+    {
+      "branch": "nocturne-one",
+      "room": "candlelit-private-look-fec42e1596e040a8a080c99a4f66a146",
+      "commands": 9,
+      "events": 25,
+      "states": 9,
+      "snapshots": 18,
+      "prompts": 18,
+      "allFieldsAndOriginalActionEventReplayExact": true
+    },
+    {
+      "branch": "nocturne-two",
+      "room": "candlelit-private-look-07e71407096b49fd9b38c88e44aa81f3",
+      "commands": 9,
+      "events": 27,
+      "states": 9,
+      "snapshots": 18,
+      "prompts": 18,
+      "allFieldsAndOriginalActionEventReplayExact": true
+    }
+  ],
+  "actualReadOnlyConnection": true,
+  "originalBlankReplayMetadataNotRewritten": true,
+  "visibleNormalOpeningWindowsOrWholePrintingAcceptance": false
+}
