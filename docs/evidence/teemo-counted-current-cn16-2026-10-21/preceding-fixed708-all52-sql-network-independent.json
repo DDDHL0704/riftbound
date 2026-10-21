@@ -1,0 +1,1309 @@
+{
+  "atUtc": "2026-10-21T11:20:07.693749+00:00",
+  "status": "FIXED708_COMPLETE52_SQL_AND_NETWORK_ORIGINALS_INDEPENDENT_GATE_PASS_RULES_FULL_TERMINAL_SEPARATE",
+  "runId": 39564582452,
+  "fixedCommit": "708a3558040f9acd4c66122a00db8ca085f460cf",
+  "actualRunAtRead": {
+    "conclusion": "",
+    "headSha": "708a3558040f9acd4c66122a00db8ca085f460cf",
+    "jobs": [
+      {
+        "completedAt": "2026-10-21T07:49:01Z",
+        "conclusion": "success",
+        "databaseId": 119103685955,
+        "name": "scope",
+        "startedAt": "2026-10-21T07:48:27Z",
+        "status": "completed",
+        "steps": [
+          {
+            "completedAt": "2026-10-21T07:48:29Z",
+            "conclusion": "success",
+            "name": "Set up job",
+            "number": 1,
+            "startedAt": "2026-10-21T07:48:28Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-21T07:48:54Z",
+            "conclusion": "success",
+            "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "number": 2,
+            "startedAt": "2026-10-21T07:48:29Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-21T07:48:55Z",
+            "conclusion": "success",
+            "name": "Verification safeguards",
+            "number": 3,
+            "startedAt": "2026-10-21T07:48:54Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-21T07:48:56Z",
+            "conclusion": "success",
+            "name": "Determine scope from fixed Git inputs",
+            "number": 4,
+            "startedAt": "2026-10-21T07:48:55Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-21T07:48:57Z",
+            "conclusion": "success",
+            "name": "Source-index and governance integrity",
+            "number": 5,
+            "startedAt": "2026-10-21T07:48:56Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-21T07:48:57Z",
+            "conclusion": "success",
+            "name": "Check committed diff formatting",
+            "number": 6,
+            "startedAt": "2026-10-21T07:48:57Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-21T07:48:59Z",
+            "conclusion": "success",
+            "name": "Run actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a",
+            "number": 7,
+            "startedAt": "2026-10-21T07:48:57Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-21T07:48:59Z",
+            "conclusion": "success",
+            "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "number": 14,
+            "startedAt": "2026-10-21T07:48:59Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-21T07:48:59Z",
+            "conclusion": "success",
+            "name": "Complete job",
+            "number": 15,
+            "startedAt": "2026-10-21T07:48:59Z",
+            "status": "completed"
+          }
+        ],
+        "url": "https://github.com/DDDHL0704/riftbound/actions/runs/39564582452/job/119103685955"
+      },
+      {
+        "completedAt": "0001-01-01T00:00:00Z",
+        "conclusion": "",
+        "databaseId": 119103920106,
+        "name": "rule_suite",
+        "startedAt": "2026-10-21T07:49:04Z",
+        "status": "in_progress",
+        "steps": [
+          {
+            "completedAt": "2026-10-21T07:49:06Z",
+            "conclusion": "success",
+            "name": "Set up job",
+            "number": 1,
+            "startedAt": "2026-10-21T07:49:05Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-21T07:49:20Z",
+            "conclusion": "success",
+            "name": "Initialize containers",
+            "number": 2,
+            "startedAt": "2026-10-21T07:49:06Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-21T07:49:45Z",
+            "conclusion": "success",
+            "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "number": 3,
+            "startedAt": "2026-10-21T07:49:20Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-21T07:49:46Z",
+            "conclusion": "success",
+            "name": "Run actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68",
+            "number": 4,
+            "startedAt": "2026-10-21T07:49:45Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-21T07:49:48Z",
+            "conclusion": "success",
+            "name": "Test runner coverage safeguards",
+            "number": 5,
+            "startedAt": "2026-10-21T07:49:46Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-21T07:49:48Z",
+            "conclusion": "success",
+            "name": "Record the fixed rule suite commit",
+            "number": 6,
+            "startedAt": "2026-10-21T07:49:48Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "0001-01-01T00:00:00Z",
+            "conclusion": "",
+            "name": "Complete rule suite with checked process shards",
+            "number": 7,
+            "startedAt": "2026-10-21T07:49:48Z",
+            "status": "in_progress"
+          },
+          {
+            "completedAt": "0001-01-01T00:00:00Z",
+            "conclusion": "",
+            "name": "Run actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a",
+            "number": 8,
+            "startedAt": "0001-01-01T00:00:00Z",
+            "status": "pending"
+          },
+          {
+            "completedAt": "0001-01-01T00:00:00Z",
+            "conclusion": "",
+            "name": "Post Run actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68",
+            "number": 14,
+            "startedAt": "0001-01-01T00:00:00Z",
+            "status": "pending"
+          },
+          {
+            "completedAt": "0001-01-01T00:00:00Z",
+            "conclusion": "",
+            "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "number": 15,
+            "startedAt": "0001-01-01T00:00:00Z",
+            "status": "pending"
+          },
+          {
+            "completedAt": "0001-01-01T00:00:00Z",
+            "conclusion": "",
+            "name": "Stop containers",
+            "number": 16,
+            "startedAt": "0001-01-01T00:00:00Z",
+            "status": "pending"
+          }
+        ],
+        "url": "https://github.com/DDDHL0704/riftbound/actions/runs/39564582452/job/119103920106"
+      },
+      {
+        "completedAt": "2026-10-21T07:50:40Z",
+        "conclusion": "success",
+        "databaseId": 119103920115,
+        "name": "native_network",
+        "startedAt": "2026-10-21T07:49:04Z",
+        "status": "completed",
+        "steps": [
+          {
+            "completedAt": "2026-10-21T07:49:06Z",
+            "conclusion": "success",
+            "name": "Set up job",
+            "number": 1,
+            "startedAt": "2026-10-21T07:49:05Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-21T07:49:32Z",
+            "conclusion": "success",
+            "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "number": 2,
+            "startedAt": "2026-10-21T07:49:06Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-21T07:49:49Z",
+            "conclusion": "success",
+            "name": "Run actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68",
+            "number": 3,
+            "startedAt": "2026-10-21T07:49:32Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-21T07:49:49Z",
+            "conclusion": "success",
+            "name": "Record the fixed native network commit",
+            "number": 4,
+            "startedAt": "2026-10-21T07:49:49Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-21T07:50:37Z",
+            "conclusion": "success",
+            "name": "Native client connection recovery",
+            "number": 5,
+            "startedAt": "2026-10-21T07:49:49Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-21T07:50:38Z",
+            "conclusion": "success",
+            "name": "Run actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a",
+            "number": 6,
+            "startedAt": "2026-10-21T07:50:37Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-21T07:50:38Z",
+            "conclusion": "success",
+            "name": "Post Run actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68",
+            "number": 11,
+            "startedAt": "2026-10-21T07:50:38Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-21T07:50:38Z",
+            "conclusion": "success",
+            "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "number": 12,
+            "startedAt": "2026-10-21T07:50:38Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-21T07:50:38Z",
+            "conclusion": "success",
+            "name": "Complete job",
+            "number": 13,
+            "startedAt": "2026-10-21T07:50:38Z",
+            "status": "completed"
+          }
+        ],
+        "url": "https://github.com/DDDHL0704/riftbound/actions/runs/39564582452/job/119103920115"
+      },
+      {
+        "completedAt": "2026-10-21T07:52:08Z",
+        "conclusion": "success",
+        "databaseId": 119103920132,
+        "name": "desktop (macos-latest)",
+        "startedAt": "2026-10-21T07:49:05Z",
+        "status": "completed",
+        "steps": [
+          {
+            "completedAt": "2026-10-21T07:49:06Z",
+            "conclusion": "success",
+            "name": "Set up job",
+            "number": 1,
+            "startedAt": "2026-10-21T07:49:05Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-21T07:49:06Z",
+            "conclusion": "skipped",
+            "name": "Documentation-only scope; packaging not executed",
+            "number": 2,
+            "startedAt": "2026-10-21T07:49:06Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-21T07:49:39Z",
+            "conclusion": "success",
+            "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "number": 3,
+            "startedAt": "2026-10-21T07:49:06Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-21T07:50:02Z",
+            "conclusion": "success",
+            "name": "Run actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68",
+            "number": 4,
+            "startedAt": "2026-10-21T07:49:39Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-21T07:51:58Z",
+            "conclusion": "success",
+            "name": "Run python3 clients/godot/tools/ci-desktop.py",
+            "number": 5,
+            "startedAt": "2026-10-21T07:50:02Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-21T07:52:02Z",
+            "conclusion": "success",
+            "name": "Run actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a",
+            "number": 6,
+            "startedAt": "2026-10-21T07:51:58Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-21T07:52:03Z",
+            "conclusion": "success",
+            "name": "Post Run actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68",
+            "number": 11,
+            "startedAt": "2026-10-21T07:52:03Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-21T07:52:03Z",
+            "conclusion": "success",
+            "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "number": 12,
+            "startedAt": "2026-10-21T07:52:03Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-21T07:52:05Z",
+            "conclusion": "success",
+            "name": "Complete job",
+            "number": 13,
+            "startedAt": "2026-10-21T07:52:03Z",
+            "status": "completed"
+          }
+        ],
+        "url": "https://github.com/DDDHL0704/riftbound/actions/runs/39564582452/job/119103920132"
+      },
+      {
+        "completedAt": "2026-10-21T10:58:51Z",
+        "conclusion": "success",
+        "databaseId": 119103920175,
+        "name": "postgres_partitions (0)",
+        "startedAt": "2026-10-21T07:49:04Z",
+        "status": "completed",
+        "steps": [
+          {
+            "completedAt": "2026-10-21T07:49:05Z",
+            "conclusion": "success",
+            "name": "Set up job",
+            "number": 1,
+            "startedAt": "2026-10-21T07:49:04Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-21T07:49:20Z",
+            "conclusion": "success",
+            "name": "Initialize containers",
+            "number": 2,
+            "startedAt": "2026-10-21T07:49:05Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-21T07:49:44Z",
+            "conclusion": "success",
+            "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "number": 3,
+            "startedAt": "2026-10-21T07:49:20Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-21T07:49:45Z",
+            "conclusion": "success",
+            "name": "Run actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68",
+            "number": 4,
+            "startedAt": "2026-10-21T07:49:44Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-21T07:49:45Z",
+            "conclusion": "success",
+            "name": "Record the fixed PostgreSQL and network commit",
+            "number": 5,
+            "startedAt": "2026-10-21T07:49:45Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-21T10:58:47Z",
+            "conclusion": "success",
+            "name": "Real PostgreSQL complete checked partition",
+            "number": 6,
+            "startedAt": "2026-10-21T07:49:45Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-21T10:58:48Z",
+            "conclusion": "success",
+            "name": "Run actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a",
+            "number": 7,
+            "startedAt": "2026-10-21T10:58:47Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-21T10:58:49Z",
+            "conclusion": "success",
+            "name": "Post Run actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68",
+            "number": 12,
+            "startedAt": "2026-10-21T10:58:48Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-21T10:58:49Z",
+            "conclusion": "success",
+            "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "number": 13,
+            "startedAt": "2026-10-21T10:58:49Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-21T10:58:49Z",
+            "conclusion": "success",
+            "name": "Stop containers",
+            "number": 14,
+            "startedAt": "2026-10-21T10:58:49Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-21T10:58:49Z",
+            "conclusion": "success",
+            "name": "Complete job",
+            "number": 15,
+            "startedAt": "2026-10-21T10:58:49Z",
+            "status": "completed"
+          }
+        ],
+        "url": "https://github.com/DDDHL0704/riftbound/actions/runs/39564582452/job/119103920175"
+      },
+      {
+        "completedAt": "2026-10-21T09:27:30Z",
+        "conclusion": "success",
+        "databaseId": 119103920182,
+        "name": "postgres_partitions (2)",
+        "startedAt": "2026-10-21T07:49:03Z",
+        "status": "completed",
+        "steps": [
+          {
+            "completedAt": "2026-10-21T07:49:05Z",
+            "conclusion": "success",
+            "name": "Set up job",
+            "number": 1,
+            "startedAt": "2026-10-21T07:49:04Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-21T07:49:21Z",
+            "conclusion": "success",
+            "name": "Initialize containers",
+            "number": 2,
+            "startedAt": "2026-10-21T07:49:05Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-21T07:49:43Z",
+            "conclusion": "success",
+            "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "number": 3,
+            "startedAt": "2026-10-21T07:49:21Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-21T07:49:56Z",
+            "conclusion": "success",
+            "name": "Run actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68",
+            "number": 4,
+            "startedAt": "2026-10-21T07:49:43Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-21T07:49:56Z",
+            "conclusion": "success",
+            "name": "Record the fixed PostgreSQL and network commit",
+            "number": 5,
+            "startedAt": "2026-10-21T07:49:56Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-21T09:27:27Z",
+            "conclusion": "success",
+            "name": "Real PostgreSQL complete checked partition",
+            "number": 6,
+            "startedAt": "2026-10-21T07:49:56Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-21T09:27:28Z",
+            "conclusion": "success",
+            "name": "Run actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a",
+            "number": 7,
+            "startedAt": "2026-10-21T09:27:27Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-21T09:27:28Z",
+            "conclusion": "success",
+            "name": "Post Run actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68",
+            "number": 12,
+            "startedAt": "2026-10-21T09:27:28Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-21T09:27:28Z",
+            "conclusion": "success",
+            "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "number": 13,
+            "startedAt": "2026-10-21T09:27:28Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-21T09:27:28Z",
+            "conclusion": "success",
+            "name": "Stop containers",
+            "number": 14,
+            "startedAt": "2026-10-21T09:27:28Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-21T09:27:28Z",
+            "conclusion": "success",
+            "name": "Complete job",
+            "number": 15,
+            "startedAt": "2026-10-21T09:27:28Z",
+            "status": "completed"
+          }
+        ],
+        "url": "https://github.com/DDDHL0704/riftbound/actions/runs/39564582452/job/119103920182"
+      },
+      {
+        "completedAt": "2026-10-21T08:48:18Z",
+        "conclusion": "success",
+        "databaseId": 119103920255,
+        "name": "postgres_partitions (1)",
+        "startedAt": "2026-10-21T07:49:03Z",
+        "status": "completed",
+        "steps": [
+          {
+            "completedAt": "2026-10-21T07:49:06Z",
+            "conclusion": "success",
+            "name": "Set up job",
+            "number": 1,
+            "startedAt": "2026-10-21T07:49:04Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-21T07:49:25Z",
+            "conclusion": "success",
+            "name": "Initialize containers",
+            "number": 2,
+            "startedAt": "2026-10-21T07:49:06Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-21T07:49:49Z",
+            "conclusion": "success",
+            "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "number": 3,
+            "startedAt": "2026-10-21T07:49:25Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-21T07:49:51Z",
+            "conclusion": "success",
+            "name": "Run actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68",
+            "number": 4,
+            "startedAt": "2026-10-21T07:49:49Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-21T07:49:51Z",
+            "conclusion": "success",
+            "name": "Record the fixed PostgreSQL and network commit",
+            "number": 5,
+            "startedAt": "2026-10-21T07:49:51Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-21T08:48:15Z",
+            "conclusion": "success",
+            "name": "Real PostgreSQL complete checked partition",
+            "number": 6,
+            "startedAt": "2026-10-21T07:49:51Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-21T08:48:16Z",
+            "conclusion": "success",
+            "name": "Run actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a",
+            "number": 7,
+            "startedAt": "2026-10-21T08:48:15Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-21T08:48:16Z",
+            "conclusion": "success",
+            "name": "Post Run actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68",
+            "number": 12,
+            "startedAt": "2026-10-21T08:48:16Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-21T08:48:16Z",
+            "conclusion": "success",
+            "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "number": 13,
+            "startedAt": "2026-10-21T08:48:16Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-21T08:48:16Z",
+            "conclusion": "success",
+            "name": "Stop containers",
+            "number": 14,
+            "startedAt": "2026-10-21T08:48:16Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-21T08:48:16Z",
+            "conclusion": "success",
+            "name": "Complete job",
+            "number": 15,
+            "startedAt": "2026-10-21T08:48:16Z",
+            "status": "completed"
+          }
+        ],
+        "url": "https://github.com/DDDHL0704/riftbound/actions/runs/39564582452/job/119103920255"
+      },
+      {
+        "completedAt": "2026-10-21T08:47:49Z",
+        "conclusion": "success",
+        "databaseId": 119103920289,
+        "name": "postgres_partitions (3)",
+        "startedAt": "2026-10-21T07:49:04Z",
+        "status": "completed",
+        "steps": [
+          {
+            "completedAt": "2026-10-21T07:49:07Z",
+            "conclusion": "success",
+            "name": "Set up job",
+            "number": 1,
+            "startedAt": "2026-10-21T07:49:05Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-21T07:49:29Z",
+            "conclusion": "success",
+            "name": "Initialize containers",
+            "number": 2,
+            "startedAt": "2026-10-21T07:49:07Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-21T07:49:46Z",
+            "conclusion": "success",
+            "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "number": 3,
+            "startedAt": "2026-10-21T07:49:29Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-21T07:50:07Z",
+            "conclusion": "success",
+            "name": "Run actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68",
+            "number": 4,
+            "startedAt": "2026-10-21T07:49:46Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-21T07:50:07Z",
+            "conclusion": "success",
+            "name": "Record the fixed PostgreSQL and network commit",
+            "number": 5,
+            "startedAt": "2026-10-21T07:50:07Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-21T08:47:45Z",
+            "conclusion": "success",
+            "name": "Real PostgreSQL complete checked partition",
+            "number": 6,
+            "startedAt": "2026-10-21T07:50:07Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-21T08:47:46Z",
+            "conclusion": "success",
+            "name": "Run actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a",
+            "number": 7,
+            "startedAt": "2026-10-21T08:47:45Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-21T08:47:46Z",
+            "conclusion": "success",
+            "name": "Post Run actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68",
+            "number": 12,
+            "startedAt": "2026-10-21T08:47:46Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-21T08:47:47Z",
+            "conclusion": "success",
+            "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "number": 13,
+            "startedAt": "2026-10-21T08:47:46Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-21T08:47:47Z",
+            "conclusion": "success",
+            "name": "Stop containers",
+            "number": 14,
+            "startedAt": "2026-10-21T08:47:47Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-21T08:47:47Z",
+            "conclusion": "success",
+            "name": "Complete job",
+            "number": 15,
+            "startedAt": "2026-10-21T08:47:47Z",
+            "status": "completed"
+          }
+        ],
+        "url": "https://github.com/DDDHL0704/riftbound/actions/runs/39564582452/job/119103920289"
+      },
+      {
+        "completedAt": "2026-10-21T07:52:19Z",
+        "conclusion": "success",
+        "databaseId": 119103920293,
+        "name": "desktop (windows-latest)",
+        "startedAt": "2026-10-21T07:49:05Z",
+        "status": "completed",
+        "steps": [
+          {
+            "completedAt": "2026-10-21T07:49:10Z",
+            "conclusion": "success",
+            "name": "Set up job",
+            "number": 1,
+            "startedAt": "2026-10-21T07:49:06Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-21T07:49:10Z",
+            "conclusion": "skipped",
+            "name": "Documentation-only scope; packaging not executed",
+            "number": 2,
+            "startedAt": "2026-10-21T07:49:10Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-21T07:49:49Z",
+            "conclusion": "success",
+            "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "number": 3,
+            "startedAt": "2026-10-21T07:49:10Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-21T07:50:40Z",
+            "conclusion": "success",
+            "name": "Run actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68",
+            "number": 4,
+            "startedAt": "2026-10-21T07:49:49Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-21T07:52:12Z",
+            "conclusion": "success",
+            "name": "Run python3 clients/godot/tools/ci-desktop.py",
+            "number": 5,
+            "startedAt": "2026-10-21T07:50:40Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-21T07:52:14Z",
+            "conclusion": "success",
+            "name": "Run actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a",
+            "number": 6,
+            "startedAt": "2026-10-21T07:52:12Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-21T07:52:15Z",
+            "conclusion": "success",
+            "name": "Post Run actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68",
+            "number": 11,
+            "startedAt": "2026-10-21T07:52:14Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-21T07:52:17Z",
+            "conclusion": "success",
+            "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "number": 12,
+            "startedAt": "2026-10-21T07:52:15Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-21T07:52:17Z",
+            "conclusion": "success",
+            "name": "Complete job",
+            "number": 13,
+            "startedAt": "2026-10-21T07:52:17Z",
+            "status": "completed"
+          }
+        ],
+        "url": "https://github.com/DDDHL0704/riftbound/actions/runs/39564582452/job/119103920293"
+      },
+      {
+        "completedAt": "2026-10-21T10:59:22Z",
+        "conclusion": "success",
+        "databaseId": 119183384192,
+        "name": "postgres",
+        "startedAt": "2026-10-21T10:58:54Z",
+        "status": "completed",
+        "steps": [
+          {
+            "completedAt": "2026-10-21T10:58:56Z",
+            "conclusion": "success",
+            "name": "Set up job",
+            "number": 1,
+            "startedAt": "2026-10-21T10:58:55Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-21T10:59:18Z",
+            "conclusion": "success",
+            "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "number": 2,
+            "startedAt": "2026-10-21T10:58:56Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-21T10:59:19Z",
+            "conclusion": "success",
+            "name": "Run actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131",
+            "number": 3,
+            "startedAt": "2026-10-21T10:59:18Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-21T10:59:19Z",
+            "conclusion": "success",
+            "name": "Require every fixed SQL case and native network result",
+            "number": 4,
+            "startedAt": "2026-10-21T10:59:19Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-21T10:59:20Z",
+            "conclusion": "success",
+            "name": "Run actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a",
+            "number": 5,
+            "startedAt": "2026-10-21T10:59:19Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-21T10:59:20Z",
+            "conclusion": "success",
+            "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+            "number": 10,
+            "startedAt": "2026-10-21T10:59:20Z",
+            "status": "completed"
+          },
+          {
+            "completedAt": "2026-10-21T10:59:20Z",
+            "conclusion": "success",
+            "name": "Complete job",
+            "number": 11,
+            "startedAt": "2026-10-21T10:59:20Z",
+            "status": "completed"
+          }
+        ],
+        "url": "https://github.com/DDDHL0704/riftbound/actions/runs/39564582452/job/119183384192"
+      }
+    ],
+    "status": "in_progress"
+  },
+  "sql": {
+    "status": "FIXED_COMMIT_ALL_SQL_PARTITIONS_AND_NATIVE_NETWORK_PASS",
+    "fixedCommit": "708a3558040f9acd4c66122a00db8ca085f460cf",
+    "manifestSha256": "c4c89c1566c81ad82a13c6aa66be630a4e50ce6de5be84bfca92b98645682484",
+    "caseCount": 52,
+    "orderedDefaultCases": [
+      "private-opening",
+      "created-token-ready",
+      "core-opening",
+      "battle-history",
+      "masked-attendant",
+      "granted-predict",
+      "printed-predict",
+      "sivir-optional",
+      "rune-destination",
+      "sivir-payment",
+      "conquest-token",
+      "recycled-card-boon",
+      "recycle-boon-lifecycle",
+      "attached-recycle-lifecycle",
+      "typed-play-history",
+      "porobot",
+      "typed-play-history-causal",
+      "clairvoyance",
+      "insight-repeat",
+      "combat-assignment",
+      "confirmed-play-origin",
+      "physical-origin-cost",
+      "granted-origin-haste",
+      "opponent-battlefield-control",
+      "optional-sacrifice",
+      "granted-token-haste",
+      "optional-costs",
+      "battlefield-play-recovery",
+      "battlefield-play-damage",
+      "banish-effect-play",
+      "here-location-control",
+      "fate-weaver",
+      "multi-controller-trigger-order",
+      "empty-observed-repeat",
+      "observed-play-window",
+      "ravenbloom-put-hand",
+      "attached-predict",
+      "copied-last-breath-insight",
+      "copied-duel-insight",
+      "empowered-insight",
+      "paka-move-reveal",
+      "empty-reveal-followup",
+      "paka-dual-type-reveal",
+      "hwei-move-discard-types",
+      "destruction-graveyard",
+      "conditional-counter-payment",
+      "reversal-target-choice",
+      "spell-remake-declaration",
+      "candlelit-private-look",
+      "candlelit-legend-pending",
+      "revealed-hand-prompt-order",
+      "battlefield-spell-damage"
+    ],
+    "partitionCount": 4,
+    "partitions": [
+      {
+        "partitionIndex": 0,
+        "cases": [
+          "private-opening",
+          "masked-attendant",
+          "rune-destination",
+          "recycle-boon-lifecycle",
+          "typed-play-history-causal",
+          "confirmed-play-origin",
+          "optional-sacrifice",
+          "battlefield-play-damage",
+          "multi-controller-trigger-order",
+          "attached-predict",
+          "paka-move-reveal",
+          "destruction-graveyard",
+          "candlelit-private-look"
+        ],
+        "receiptSha256": "99135e9a10cf19dfe9064566219e3f7f435cbe788468095b5a0e0ffefe4446b4",
+        "runtimeAssemblies": [
+          {
+            "file": "Riftbound.PostgresAcceptance.dll",
+            "sha256": "c7928c41133e3135fa67e9f486ee15a9cd9d506e3fff4020b86d5d35c2aba96d",
+            "mvid": "a4ad5ea2-9e93-417b-a915-e1fb3cbb3707"
+          },
+          {
+            "file": "Riftbound.Engine.dll",
+            "sha256": "c632eafd9d8caddc9bdd8107e011c76aaf7a560a34c7b573d6892ce4890bc496",
+            "mvid": "2bd302f3-9c60-4cb4-ba11-ae9b22f6b49d"
+          },
+          {
+            "file": "Riftbound.Contracts.dll",
+            "sha256": "284329ef083a8d8ae3983c92b27d8b725a7af60d4e57dda84f2799d29ee1a37f",
+            "mvid": "1d57ca70-422d-45d9-b957-38b4cae94e89"
+          },
+          {
+            "file": "Riftbound.CardCatalog.dll",
+            "sha256": "190272c2f2f9a92560818d1b1f1d0f2c021d05ed39a5e56e43a414487d8c5c86",
+            "mvid": "2bf4328b-1437-40e2-8d5a-ae4f081754e6"
+          },
+          {
+            "file": "Riftbound.Persistence.dll",
+            "sha256": "a8cbc4062badda0d50e6febb4eddc82dd0a31da04dc84026819750d2456dc5a3",
+            "mvid": "542d4a15-0edb-4fd8-be42-36b4de0bc1e2"
+          }
+        ],
+        "actualRuleInputs": {
+          "schemaVersion": 1,
+          "region": "CN",
+          "language": "zh-CN",
+          "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+          "catalogSha256": "a940e5f8bcd5e1ead68a85c7f983e530333d6179a4b8429ed1f8fe2ee20b8397",
+          "implementationSha256": "2b92ec7c076dea7523f68dd1e31c8068bb14611e5f1a770f5c2ab72025227a15",
+          "identitySha256": "4fdb182d93ddfd98c925d2392be8087d4de126e5e4c359a0160b1ea1ba79f6f4"
+        }
+      },
+      {
+        "partitionIndex": 1,
+        "cases": [
+          "created-token-ready",
+          "granted-predict",
+          "sivir-payment",
+          "attached-recycle-lifecycle",
+          "clairvoyance",
+          "physical-origin-cost",
+          "granted-token-haste",
+          "banish-effect-play",
+          "empty-observed-repeat",
+          "copied-last-breath-insight",
+          "empty-reveal-followup",
+          "conditional-counter-payment",
+          "candlelit-legend-pending"
+        ],
+        "receiptSha256": "c7cf638dcd2592852fde59e31f7f37283e9636f074035e1fdff50fc4a347a81a",
+        "runtimeAssemblies": [
+          {
+            "file": "Riftbound.PostgresAcceptance.dll",
+            "sha256": "c7928c41133e3135fa67e9f486ee15a9cd9d506e3fff4020b86d5d35c2aba96d",
+            "mvid": "a4ad5ea2-9e93-417b-a915-e1fb3cbb3707"
+          },
+          {
+            "file": "Riftbound.Engine.dll",
+            "sha256": "c632eafd9d8caddc9bdd8107e011c76aaf7a560a34c7b573d6892ce4890bc496",
+            "mvid": "2bd302f3-9c60-4cb4-ba11-ae9b22f6b49d"
+          },
+          {
+            "file": "Riftbound.Contracts.dll",
+            "sha256": "284329ef083a8d8ae3983c92b27d8b725a7af60d4e57dda84f2799d29ee1a37f",
+            "mvid": "1d57ca70-422d-45d9-b957-38b4cae94e89"
+          },
+          {
+            "file": "Riftbound.CardCatalog.dll",
+            "sha256": "190272c2f2f9a92560818d1b1f1d0f2c021d05ed39a5e56e43a414487d8c5c86",
+            "mvid": "2bf4328b-1437-40e2-8d5a-ae4f081754e6"
+          },
+          {
+            "file": "Riftbound.Persistence.dll",
+            "sha256": "a8cbc4062badda0d50e6febb4eddc82dd0a31da04dc84026819750d2456dc5a3",
+            "mvid": "542d4a15-0edb-4fd8-be42-36b4de0bc1e2"
+          }
+        ],
+        "actualRuleInputs": {
+          "schemaVersion": 1,
+          "region": "CN",
+          "language": "zh-CN",
+          "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+          "catalogSha256": "a940e5f8bcd5e1ead68a85c7f983e530333d6179a4b8429ed1f8fe2ee20b8397",
+          "implementationSha256": "2b92ec7c076dea7523f68dd1e31c8068bb14611e5f1a770f5c2ab72025227a15",
+          "identitySha256": "4fdb182d93ddfd98c925d2392be8087d4de126e5e4c359a0160b1ea1ba79f6f4"
+        }
+      },
+      {
+        "partitionIndex": 2,
+        "cases": [
+          "core-opening",
+          "printed-predict",
+          "conquest-token",
+          "typed-play-history",
+          "insight-repeat",
+          "granted-origin-haste",
+          "optional-costs",
+          "here-location-control",
+          "observed-play-window",
+          "copied-duel-insight",
+          "paka-dual-type-reveal",
+          "reversal-target-choice",
+          "revealed-hand-prompt-order"
+        ],
+        "receiptSha256": "5741674f0c45be7a60babbe3f031444f7ad9095611879acd355046eeda842f74",
+        "runtimeAssemblies": [
+          {
+            "file": "Riftbound.PostgresAcceptance.dll",
+            "sha256": "c7928c41133e3135fa67e9f486ee15a9cd9d506e3fff4020b86d5d35c2aba96d",
+            "mvid": "a4ad5ea2-9e93-417b-a915-e1fb3cbb3707"
+          },
+          {
+            "file": "Riftbound.Engine.dll",
+            "sha256": "c632eafd9d8caddc9bdd8107e011c76aaf7a560a34c7b573d6892ce4890bc496",
+            "mvid": "2bd302f3-9c60-4cb4-ba11-ae9b22f6b49d"
+          },
+          {
+            "file": "Riftbound.Contracts.dll",
+            "sha256": "284329ef083a8d8ae3983c92b27d8b725a7af60d4e57dda84f2799d29ee1a37f",
+            "mvid": "1d57ca70-422d-45d9-b957-38b4cae94e89"
+          },
+          {
+            "file": "Riftbound.CardCatalog.dll",
+            "sha256": "190272c2f2f9a92560818d1b1f1d0f2c021d05ed39a5e56e43a414487d8c5c86",
+            "mvid": "2bf4328b-1437-40e2-8d5a-ae4f081754e6"
+          },
+          {
+            "file": "Riftbound.Persistence.dll",
+            "sha256": "a8cbc4062badda0d50e6febb4eddc82dd0a31da04dc84026819750d2456dc5a3",
+            "mvid": "542d4a15-0edb-4fd8-be42-36b4de0bc1e2"
+          }
+        ],
+        "actualRuleInputs": {
+          "schemaVersion": 1,
+          "region": "CN",
+          "language": "zh-CN",
+          "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+          "catalogSha256": "a940e5f8bcd5e1ead68a85c7f983e530333d6179a4b8429ed1f8fe2ee20b8397",
+          "implementationSha256": "2b92ec7c076dea7523f68dd1e31c8068bb14611e5f1a770f5c2ab72025227a15",
+          "identitySha256": "4fdb182d93ddfd98c925d2392be8087d4de126e5e4c359a0160b1ea1ba79f6f4"
+        }
+      },
+      {
+        "partitionIndex": 3,
+        "cases": [
+          "battle-history",
+          "sivir-optional",
+          "recycled-card-boon",
+          "porobot",
+          "combat-assignment",
+          "opponent-battlefield-control",
+          "battlefield-play-recovery",
+          "fate-weaver",
+          "ravenbloom-put-hand",
+          "empowered-insight",
+          "hwei-move-discard-types",
+          "spell-remake-declaration",
+          "battlefield-spell-damage"
+        ],
+        "receiptSha256": "58c86b3d467e2a44d90017dfba75bd16f3ffe4d3546c28dea6e644fbc34a9aef",
+        "runtimeAssemblies": [
+          {
+            "file": "Riftbound.PostgresAcceptance.dll",
+            "sha256": "c7928c41133e3135fa67e9f486ee15a9cd9d506e3fff4020b86d5d35c2aba96d",
+            "mvid": "a4ad5ea2-9e93-417b-a915-e1fb3cbb3707"
+          },
+          {
+            "file": "Riftbound.Engine.dll",
+            "sha256": "c632eafd9d8caddc9bdd8107e011c76aaf7a560a34c7b573d6892ce4890bc496",
+            "mvid": "2bd302f3-9c60-4cb4-ba11-ae9b22f6b49d"
+          },
+          {
+            "file": "Riftbound.Contracts.dll",
+            "sha256": "284329ef083a8d8ae3983c92b27d8b725a7af60d4e57dda84f2799d29ee1a37f",
+            "mvid": "1d57ca70-422d-45d9-b957-38b4cae94e89"
+          },
+          {
+            "file": "Riftbound.CardCatalog.dll",
+            "sha256": "190272c2f2f9a92560818d1b1f1d0f2c021d05ed39a5e56e43a414487d8c5c86",
+            "mvid": "2bf4328b-1437-40e2-8d5a-ae4f081754e6"
+          },
+          {
+            "file": "Riftbound.Persistence.dll",
+            "sha256": "a8cbc4062badda0d50e6febb4eddc82dd0a31da04dc84026819750d2456dc5a3",
+            "mvid": "542d4a15-0edb-4fd8-be42-36b4de0bc1e2"
+          }
+        ],
+        "actualRuleInputs": {
+          "schemaVersion": 1,
+          "region": "CN",
+          "language": "zh-CN",
+          "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+          "catalogSha256": "a940e5f8bcd5e1ead68a85c7f983e530333d6179a4b8429ed1f8fe2ee20b8397",
+          "implementationSha256": "2b92ec7c076dea7523f68dd1e31c8068bb14611e5f1a770f5c2ab72025227a15",
+          "identitySha256": "4fdb182d93ddfd98c925d2392be8087d4de126e5e4c359a0160b1ea1ba79f6f4"
+        }
+      }
+    ],
+    "jobs": {
+      "scope": "success",
+      "postgres_partitions": "success",
+      "native_network": "success"
+    },
+    "nativeVisibleOrWholeRuleCertification": false
+  },
+  "network": {
+    "room": "NETWORK-d83c0aa3aa35",
+    "rejectedActions": 15,
+    "identities": [
+      "ANONYMOUS",
+      "FAILED_KEY",
+      "OTHER_HANDLE"
+    ],
+    "leakedPrivateMessages": 0,
+    "validReconnectTokenWasSupplied": true
+  },
+  "exactOld52ManifestSha256": "c4c89c1566c81ad82a13c6aa66be630a4e50ce6de5be84bfca92b98645682484",
+  "exactFixedSqlGateSourceSha256": "9bba242dfdce754f4855bb3098c2a8aadae1edaa64fb4b3b840afeb2112624a0",
+  "originalSevenVerificationArtifacts": [
+    {
+      "name": "postgres-partition-0",
+      "id": 12339723401,
+      "path": "var/qa/teemo-counted-damage-current-cn16-20261021/ci708-complete-originals-v1/postgres-partition-0.zip",
+      "bytes": 1902443,
+      "sha256": "4c9a8dc7e4ef33ef3011b13b6bfcd5401dce398a4425338e52f52547aed63523",
+      "backendDigest": "sha256:4c9a8dc7e4ef33ef3011b13b6bfcd5401dce398a4425338e52f52547aed63523",
+      "allZipCrcVerified": true,
+      "validExistingDownloadReused": true,
+      "recoveryAttempts": []
+    },
+    {
+      "name": "postgres-partition-1",
+      "id": 12332526399,
+      "path": "var/qa/teemo-counted-damage-current-cn16-20261021/ci708-complete-originals-v1/postgres-partition-1-attempt-2.zip",
+      "bytes": 1197944,
+      "sha256": "654e22c78e7e5397748a162362d621ee7a53cf5c30a64b28d52b495cd96ee17a",
+      "backendDigest": "sha256:654e22c78e7e5397748a162362d621ee7a53cf5c30a64b28d52b495cd96ee17a",
+      "allZipCrcVerified": true,
+      "validExistingDownloadReused": false,
+      "recoveryAttempts": [
+        {
+          "attempt": 2,
+          "exitCode": 0,
+          "path": "var/qa/teemo-counted-damage-current-cn16-20261021/ci708-complete-originals-v1/postgres-partition-1-attempt-2.zip",
+          "bytes": 1197944,
+          "sha256": "654e22c78e7e5397748a162362d621ee7a53cf5c30a64b28d52b495cd96ee17a",
+          "stderr": ""
+        }
+      ]
+    },
+    {
+      "name": "postgres-partition-2",
+      "id": 12333844675,
+      "path": "var/qa/teemo-counted-damage-current-cn16-20261021/ci708-complete-originals-v1/postgres-partition-2.zip",
+      "bytes": 1260654,
+      "sha256": "216b48dd1fb0bc9a13e588c8069ef29ffe77e72f2d8fbd5c7d8dfee23a9aef3c",
+      "backendDigest": "sha256:216b48dd1fb0bc9a13e588c8069ef29ffe77e72f2d8fbd5c7d8dfee23a9aef3c",
+      "allZipCrcVerified": true,
+      "validExistingDownloadReused": true,
+      "recoveryAttempts": []
+    },
+    {
+      "name": "postgres-partition-3",
+      "id": 12332538048,
+      "path": "var/qa/teemo-counted-damage-current-cn16-20261021/ci708-complete-originals-v1/postgres-partition-3.zip",
+      "bytes": 1439773,
+      "sha256": "41b57aee80728db38b89900ea7f767163f3982028de827330963d8f28191dc43",
+      "backendDigest": "sha256:41b57aee80728db38b89900ea7f767163f3982028de827330963d8f28191dc43",
+      "allZipCrcVerified": true,
+      "validExistingDownloadReused": true,
+      "recoveryAttempts": []
+    },
+    {
+      "name": "postgres-results",
+      "id": 12340678117,
+      "path": "var/qa/teemo-counted-damage-current-cn16-20261021/ci708-complete-originals-v1/postgres-results.zip",
+      "bytes": 2196,
+      "sha256": "cccca8b43d38663b3756a7eef12ed25abe737324fd30c8a6f538447ce14efa6d",
+      "backendDigest": "sha256:cccca8b43d38663b3756a7eef12ed25abe737324fd30c8a6f538447ce14efa6d",
+      "allZipCrcVerified": true,
+      "validExistingDownloadReused": true,
+      "recoveryAttempts": []
+    },
+    {
+      "name": "native-network-results",
+      "id": 12328224683,
+      "path": "var/qa/teemo-counted-damage-current-cn16-20261021/ci708-complete-originals-v1/native-network-results.zip",
+      "bytes": 1824,
+      "sha256": "119c9c211c21c54c43664343aee739cf2cd364b847cdbe524cb5b164c1571847",
+      "backendDigest": "sha256:119c9c211c21c54c43664343aee739cf2cd364b847cdbe524cb5b164c1571847",
+      "allZipCrcVerified": true,
+      "validExistingDownloadReused": true,
+      "recoveryAttempts": []
+    },
+    {
+      "name": "verification-scope",
+      "id": 12329237261,
+      "path": "var/qa/teemo-counted-damage-current-cn16-20261021/ci708-complete-originals-v1/verification-scope-attempt-2.zip",
+      "bytes": 1531268,
+      "sha256": "d9a0c484761b82df847ff28f0ca45c957df0bd4d0474b37bcfb1dcd76132ecce",
+      "backendDigest": "sha256:d9a0c484761b82df847ff28f0ca45c957df0bd4d0474b37bcfb1dcd76132ecce",
+      "allZipCrcVerified": true,
+      "validExistingDownloadReused": false,
+      "recoveryAttempts": [
+        {
+          "attempt": 2,
+          "exitCode": 0,
+          "path": "var/qa/teemo-counted-damage-current-cn16-20261021/ci708-complete-originals-v1/verification-scope-attempt-2.zip",
+          "bytes": 1531268,
+          "sha256": "d9a0c484761b82df847ff28f0ca45c957df0bd4d0474b37bcfb1dcd76132ecce",
+          "stderr": ""
+        }
+      ]
+    }
+  ],
+  "currentRoot54ManifestNotSubstituted": true,
+  "nativeInstallersNotRedownloaded": true,
+  "currentN36FullOrWholePrintingCertification": false
+}

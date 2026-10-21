@@ -1,0 +1,226 @@
+{
+  "atUtc": "2026-10-21T11:38:33.525696+00:00",
+  "status": "EXPLICIT_TWO_PRIOR_FINDING_IMPLEMENTATION_TEST_FOLLOWUPS_CI_PRODUCT_STILL_OPEN_OLD_WHOLE_OBJECTS_RETAINED",
+  "records": [
+    {
+      "review": "exhausted-reksai-current-cn16-2026-10-21",
+      "branch": "supporting-teemo-four-current-official-errata-not-adopted",
+      "oldCompleteBranch": {
+        "id": "supporting-teemo-four-current-official-errata-not-adopted",
+        "sourceRefs": [
+          "OGN-121/298",
+          "OGN-121A/298",
+          "SFD-230/221",
+          "SFD-230*/221",
+          "DOC-16-P009-B004",
+          "DOC-16-P009-B005"
+        ],
+        "state": "OPEN",
+        "sourceManifest": {
+          "path": "docs/evidence/exhausted-reksai-current-cn16-2026-10-21/source-manifest.json",
+          "sha256": "c19153125d36499c811f78afb8373ce5f89dccf903f8a6571c51972694818212",
+          "role": "source-manifest"
+        },
+        "findingEvidence": {
+          "path": "docs/evidence/exhausted-reksai-current-cn16-2026-10-21/separate-open-teemo-source-and-positive-damage-findings.json",
+          "sha256": "f76a20285cbc36b9b6cf4412ca33c4771f03812fdfba25cf02304ad67688b57b"
+        },
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/81#issuecomment-6311998222",
+        "semanticReview": {
+          "state": "EXACT_CURRENT_SOURCE_ADOPTION_GAP_OR_POSITIVE_DAMAGE_COUNTEREXAMPLE_CONFIRMED_NOT_FIXED"
+        },
+        "implementation": {
+          "state": "OPEN_UNCHANGED_CURRENT_GAMEPLAY"
+        },
+        "testExecution": {
+          "state": "SOURCE_EVIDENCE_AND_EIGHT_ACTUAL_COMMAND_COUNTEREXAMPLES_NOT_IMPLEMENTATION_PASS"
+        },
+        "fixedCommitCi": {
+          "state": "OPEN"
+        },
+        "productAcceptance": {
+          "state": "OPEN"
+        },
+        "decision": {
+          "state": "OPEN",
+          "reason": "Four exact runtime text gaps and four positive-count missing bonuses require separate fixes; four zero-count controls already match. No current branch certification."
+        },
+        "wholePrintingCertified": false
+      },
+      "currentCompleteBranch": {
+        "id": "supporting-teemo-four-current-official-errata-not-adopted",
+        "sourceRefs": [
+          "OGN-121/298",
+          "OGN-121A/298",
+          "SFD-230/221",
+          "SFD-230*/221",
+          "DOC-16-P009-B004",
+          "DOC-16-P009-B005"
+        ],
+        "state": "OPEN",
+        "sourceManifest": {
+          "path": "docs/evidence/exhausted-reksai-current-cn16-2026-10-21/source-manifest.json",
+          "sha256": "c19153125d36499c811f78afb8373ce5f89dccf903f8a6571c51972694818212",
+          "role": "source-manifest"
+        },
+        "findingEvidence": {
+          "path": "docs/evidence/exhausted-reksai-current-cn16-2026-10-21/separate-open-teemo-source-and-positive-damage-findings.json",
+          "sha256": "f76a20285cbc36b9b6cf4412ca33c4771f03812fdfba25cf02304ad67688b57b"
+        },
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/81#issuecomment-6311998222",
+        "semanticReview": {
+          "state": "BOUNDED_CURRENT_SOURCE_REVIEW_WITH_EXPLICIT_REMEDIATION_FOLLOWUP",
+          "wholeClauseOrPrintingCertified": false
+        },
+        "implementation": {
+          "state": "FOUR_EXACT_EFFECTIVE_TEXT_FIELDS_ADOPTED",
+          "currentEvidence": {
+            "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/source-manifest.json",
+            "sha256": "8bb7e3baee6d63b923709d91b3c597385b330ee7a1fe02cdc802dcaa5ad3e381",
+            "role": "source-manifest"
+          }
+        },
+        "testExecution": {
+          "state": "FOUR_CURRENT_SOURCE_ADOPTION_THEORY_ROWS_PASS",
+          "currentEvidence": {
+            "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/source-manifest.json",
+            "sha256": "8bb7e3baee6d63b923709d91b3c597385b330ee7a1fe02cdc802dcaa5ad3e381",
+            "role": "source-manifest"
+          }
+        },
+        "fixedCommitCi": {
+          "state": "PENDING_NEW_FIXED_FULL"
+        },
+        "productAcceptance": {
+          "state": "OPEN"
+        },
+        "decision": {
+          "state": "OPEN",
+          "reason": "The previously recorded finding now has bounded current implementation/test evidence; new fixed full and current visible/Windows acceptance remain OPEN."
+        },
+        "wholePrintingCertified": false,
+        "currentBoundedFollowupSourceManifest": {
+          "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/source-manifest.json",
+          "sha256": "8bb7e3baee6d63b923709d91b3c597385b330ee7a1fe02cdc802dcaa5ad3e381",
+          "role": "source-manifest"
+        }
+      },
+      "originalSourceManifestAndFindingEvidenceRetained": true,
+      "wholePrintingOrClauseCertified": false
+    },
+    {
+      "review": "exhausted-reksai-current-cn16-2026-10-21",
+      "branch": "supporting-teemo-positive-counted-defense-omits-void-local-bonus",
+      "oldCompleteBranch": {
+        "id": "supporting-teemo-positive-counted-defense-omits-void-local-bonus",
+        "sourceRefs": [
+          "OGN-121/298",
+          "OGN-121A/298",
+          "SFD-230/221",
+          "SFD-230*/221",
+          "OGN-296/298",
+          "DOC-16-P012-B006",
+          "DOC-01-P106-B009",
+          "DOC-01-P106-B013",
+          "DOC-01-P106-B017"
+        ],
+        "state": "OPEN",
+        "sourceManifest": {
+          "path": "docs/evidence/exhausted-reksai-current-cn16-2026-10-21/source-manifest.json",
+          "sha256": "c19153125d36499c811f78afb8373ce5f89dccf903f8a6571c51972694818212",
+          "role": "source-manifest"
+        },
+        "findingEvidence": {
+          "path": "docs/evidence/exhausted-reksai-current-cn16-2026-10-21/separate-open-teemo-source-and-positive-damage-findings.json",
+          "sha256": "f76a20285cbc36b9b6cf4412ca33c4771f03812fdfba25cf02304ad67688b57b"
+        },
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/81#issuecomment-6311998222",
+        "semanticReview": {
+          "state": "EXACT_CURRENT_SOURCE_ADOPTION_GAP_OR_POSITIVE_DAMAGE_COUNTEREXAMPLE_CONFIRMED_NOT_FIXED"
+        },
+        "implementation": {
+          "state": "OPEN_UNCHANGED_CURRENT_GAMEPLAY"
+        },
+        "testExecution": {
+          "state": "SOURCE_EVIDENCE_AND_EIGHT_ACTUAL_COMMAND_COUNTEREXAMPLES_NOT_IMPLEMENTATION_PASS"
+        },
+        "fixedCommitCi": {
+          "state": "OPEN"
+        },
+        "productAcceptance": {
+          "state": "OPEN"
+        },
+        "decision": {
+          "state": "OPEN",
+          "reason": "Four exact runtime text gaps and four positive-count missing bonuses require separate fixes; four zero-count controls already match. No current branch certification."
+        },
+        "wholePrintingCertified": false
+      },
+      "currentCompleteBranch": {
+        "id": "supporting-teemo-positive-counted-defense-omits-void-local-bonus",
+        "sourceRefs": [
+          "OGN-121/298",
+          "OGN-121A/298",
+          "SFD-230/221",
+          "SFD-230*/221",
+          "OGN-296/298",
+          "DOC-16-P012-B006",
+          "DOC-01-P106-B009",
+          "DOC-01-P106-B013",
+          "DOC-01-P106-B017"
+        ],
+        "state": "OPEN",
+        "sourceManifest": {
+          "path": "docs/evidence/exhausted-reksai-current-cn16-2026-10-21/source-manifest.json",
+          "sha256": "c19153125d36499c811f78afb8373ce5f89dccf903f8a6571c51972694818212",
+          "role": "source-manifest"
+        },
+        "findingEvidence": {
+          "path": "docs/evidence/exhausted-reksai-current-cn16-2026-10-21/separate-open-teemo-source-and-positive-damage-findings.json",
+          "sha256": "f76a20285cbc36b9b6cf4412ca33c4771f03812fdfba25cf02304ad67688b57b"
+        },
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/81#issuecomment-6311998222",
+        "semanticReview": {
+          "state": "BOUNDED_CURRENT_SOURCE_REVIEW_WITH_EXPLICIT_REMEDIATION_FOLLOWUP",
+          "wholeClauseOrPrintingCertified": false
+        },
+        "implementation": {
+          "state": "SHARED_POSITIVE_COUNTED_ACTION_LOCAL_BONUS_APPLIED_ZERO_GUARD_RETAINED",
+          "currentEvidence": {
+            "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/source-manifest.json",
+            "sha256": "8bb7e3baee6d63b923709d91b3c597385b330ee7a1fe02cdc802dcaa5ad3e381",
+            "role": "source-manifest"
+          }
+        },
+        "testExecution": {
+          "state": "FOUR_ONE_COUNT_PRINTINGS_ACTUAL_COMMANDS_AND_REAL_SQL_PLUS_ALL_ZERO_TWO_COUNT_BRANCHES_PASS",
+          "currentEvidence": {
+            "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/source-manifest.json",
+            "sha256": "8bb7e3baee6d63b923709d91b3c597385b330ee7a1fe02cdc802dcaa5ad3e381",
+            "role": "source-manifest"
+          }
+        },
+        "fixedCommitCi": {
+          "state": "PENDING_NEW_FIXED_FULL"
+        },
+        "productAcceptance": {
+          "state": "OPEN"
+        },
+        "decision": {
+          "state": "OPEN",
+          "reason": "The previously recorded finding now has bounded current implementation/test evidence; new fixed full and current visible/Windows acceptance remain OPEN."
+        },
+        "wholePrintingCertified": false,
+        "currentBoundedFollowupSourceManifest": {
+          "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/source-manifest.json",
+          "sha256": "8bb7e3baee6d63b923709d91b3c597385b330ee7a1fe02cdc802dcaa5ad3e381",
+          "role": "source-manifest"
+        }
+      },
+      "originalSourceManifestAndFindingEvidenceRetained": true,
+      "wholePrintingOrClauseCertified": false
+    }
+  ],
+  "oldCompleteParentContextsRetainedInOriginalArchive": true,
+  "oldOriginalEvidenceNeverRelabeledAsCurrentPass": true
+}

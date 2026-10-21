@@ -1,0 +1,63 @@
+{
+  "atUtc": "2026-10-21T11:41:51.452475+00:00",
+  "status": "INDEPENDENT_CURRENT_TEEMO_SOURCE_ARCHIVE_CONTEXT_STAGE_GATE_AND_ORIGINAL_TEST_SQL_RETENTION_PASS",
+  "all156OldReviewObjectsExact": true,
+  "all31UnaffectedContextsWholeObjectsExact": true,
+  "fortyCurrentInputRefreshesVerifiedWithWholeOldObjects": true,
+  "twoPriorFindingCurrentStageUpdatesExplicitOldEvidenceAndSourceRefsPreserved": true,
+  "all245OldGateFieldsStatesOrderExact243WholeObjectsExact": true,
+  "allOldSourcesDatesScopeDeltasCoverageAndNewsExact": true,
+  "allOriginal53SqlObjectsOrderAndSourceClassesExactOnly54Append": true,
+  "allArchiveMembersExactAndClosedSetVerified": true,
+  "archiveMembers": 323,
+  "archiveBytes": 13025348,
+  "archive": {
+    "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/completed-teemo-counted-and-open-annie-originals.tar.xz",
+    "sha256": "ebe422fdaca303a55cf2d609f7ce5aa5f3dcdcdb29aaa638be4fffc8cc0ede0b"
+  },
+  "all3328FinalSourceHashesAndModesExact": true,
+  "onlyOneCheckAndOnlyTwoSourceVerificationCalibrations": true,
+  "newFixedFullVisiblePhysicalWindowsAndWholePrintingCertification": "OPEN",
+  "all16975OriginalObligationIdsRetained": true,
+  "newObligations": [
+    "BRANCH:teemo-counted-current-cn16-2026-10-21:supporting-own-on-field-annie-one-count-teemo-defense-global-skill-bonus-omitted",
+    "BRANCH:teemo-counted-current-cn16-2026-10-21:teemo-ogn-121-actual-defend-choice-void-count-0",
+    "BRANCH:teemo-counted-current-cn16-2026-10-21:teemo-ogn-121-actual-defend-choice-void-count-1",
+    "BRANCH:teemo-counted-current-cn16-2026-10-21:teemo-ogn-121-actual-defend-choice-void-count-2",
+    "BRANCH:teemo-counted-current-cn16-2026-10-21:teemo-ogn-121-exact-current-official-defend-erratum-adoption",
+    "BRANCH:teemo-counted-current-cn16-2026-10-21:teemo-ogn-121a-actual-defend-choice-void-count-0",
+    "BRANCH:teemo-counted-current-cn16-2026-10-21:teemo-ogn-121a-actual-defend-choice-void-count-1",
+    "BRANCH:teemo-counted-current-cn16-2026-10-21:teemo-ogn-121a-actual-defend-choice-void-count-2",
+    "BRANCH:teemo-counted-current-cn16-2026-10-21:teemo-ogn-121a-exact-current-official-defend-erratum-adoption",
+    "BRANCH:teemo-counted-current-cn16-2026-10-21:teemo-sfd-230-actual-defend-choice-void-count-0",
+    "BRANCH:teemo-counted-current-cn16-2026-10-21:teemo-sfd-230-actual-defend-choice-void-count-1",
+    "BRANCH:teemo-counted-current-cn16-2026-10-21:teemo-sfd-230-actual-defend-choice-void-count-2",
+    "BRANCH:teemo-counted-current-cn16-2026-10-21:teemo-sfd-230-exact-current-official-defend-erratum-adoption",
+    "BRANCH:teemo-counted-current-cn16-2026-10-21:teemo-sfd-230-star-actual-defend-choice-void-count-0",
+    "BRANCH:teemo-counted-current-cn16-2026-10-21:teemo-sfd-230-star-actual-defend-choice-void-count-1",
+    "BRANCH:teemo-counted-current-cn16-2026-10-21:teemo-sfd-230-star-actual-defend-choice-void-count-2",
+    "BRANCH:teemo-counted-current-cn16-2026-10-21:teemo-sfd-230-star-exact-current-official-defend-erratum-adoption"
+  ],
+  "currentObligations": 16992,
+  "newBoundedBranches": 16,
+  "newSeparateOpenSourceFindingBranches": 1,
+  "semanticCoverageCertified": false,
+  "toolTests": 74,
+  "toolTestLog": {
+    "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/postpublication-all-python-tests.log",
+    "sha256": "072fa8708836aaea858c1c65f512995deee9c6df6f4f5dfa4bff4ceada97da6c"
+  },
+  "originalGovernanceOutput": {
+    "rawBytes": 18741723,
+    "rawSha256": "c75bcc0466d76d629c6efcbde50f9fdcc27f9fa5204dc1ead3bb2c1c7ff8d016",
+    "losslessGzip": {
+      "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/postpublication-current-governance-original.json.gz",
+      "sha256": "24c8988ab554df0d625eb38474d0c1358ef4c761a87ef3c8abdcc7a2b4e33655"
+    },
+    "plainRetiredAfterExactLosslessVerification": true
+  },
+  "verifierSource": {
+    "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/independent-publication-verifier.py",
+    "sha256": "fef73434ded24bd42b71e22fa277fd3092898639d44d082b71ed5ca175f14e12"
+  }
+}

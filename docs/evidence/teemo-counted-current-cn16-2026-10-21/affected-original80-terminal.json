@@ -1,0 +1,17 @@
+{
+  "startedAtUtc": "2026-10-21T10:11:14.178017+00:00",
+  "finishedAtUtc": "2026-10-21T10:16:29.348688+00:00",
+  "command": [
+    "/Users/dinghaolin/.dotnet/dotnet",
+    "exec",
+    "--depsfile",
+    "/Users/dinghaolin/MyProjects/riftbound/var/qa/teemo-counted-damage-current-cn16-20261021/current-counted-runtime-v1/Riftbound.PostgresAcceptance.deps.json",
+    "--runtimeconfig",
+    "/Users/dinghaolin/MyProjects/riftbound/var/qa/teemo-counted-damage-current-cn16-20261021/current-counted-runtime-v1/Riftbound.PostgresAcceptance.runtimeconfig.json",
+    "/Users/dinghaolin/MyProjects/riftbound/var/qa/teemo-counted-damage-current-cn16-20261021/current-counted-runtime-v1/CurrentTeemoAffectedOriginalPairRunnerV1.dll",
+    "/Users/dinghaolin/MyProjects/riftbound/var/qa/teemo-counted-damage-current-cn16-20261021/affected-original-pairs-result-v1.json"
+  ],
+  "exitCode": 0,
+  "allFrozenRuntimeFilesStable": true,
+  "originalHelperVictoryReplaySeedAnd110PairAssertionsRetained": true
+}

@@ -278,6 +278,10 @@ public sealed class AhriCombatMightTests
         foreach (var printing in new[] { "OGN·235/298", "SFD·237/221", "SFD·237*/221" })
             errata[printing] = ("{{预知}}（当你打出我时，查看主牌堆顶部的一张牌，你可以选择将其回收。）\n每当你回收任意数量的卡牌时，给予一名友方单位增益。（如果该单位未拥有增益，则获得一个{{S}}+1增益。符文不被视为卡牌。）",
                 "{{预知}}（当你打出我时，查看主牌堆顶部的一张牌，你可以选择将其回收。）\n每当你将任意数量的卡牌回收到自己的主牌堆时，给予一名友方单位增益。（如果该单位未拥有增益，则获得一个{{S}}+1增益。符文不被视为卡牌。）");
+        // DOC-16-P009-B004/B005: four exact Teemo printings keep the archived old text.
+        foreach (var printing in new[] { "OGN·121/298", "OGN·121a/298", "SFD·230/221", "SFD·230*/221" })
+            errata[printing] = ("{{待命}}（支付{{A}}正面朝下放置此牌，之后可支付{{0}}将其当作反应牌打出。）\n当我防守一处战场、或从正面朝下的{{待命}}状态中打出时，展示你主牌堆顶部的五张牌，当中每有一张带有{{待命}}技能的卡牌，就对此处的一名敌方单位造成1点伤害，然后将展示的牌回收。",
+                "{{待命}}（支付{{A}}正面朝下放置此牌，之后可支付{{0}}将其当作反应牌打出。）\n当我防守时，选择一名此处的敌方单位，展示你主牌堆顶部的五张牌。当中每有一张带有{{待命}}技能的卡牌，便对该单位造成1点伤害，然后将展示的牌回收。");
         foreach (var card in historical.Cards)
         {
             var actual = current.Cards.Single(c => c.CardNo == card.CardNo);

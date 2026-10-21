@@ -97,12 +97,12 @@
     },
     "active": {
       "path": "data/official/card-catalog.zh-CN.json",
-      "sha256": "f9b2394507ef8e35846d16e5fc1c2a767766757476bfe4a17a3cddc18df509de",
+      "sha256": "438a9ca8723a3b83ebedc6a928af80001bd1f093c53e8ff423437565897842b8",
       "role": "current-runtime-active-catalog"
     },
     "reviews": {
       "path": "docs/evidence/rules-reaudit-2026-10-11/review-decisions.json",
-      "sha256": "37ed86f2f19d7d47cd1fb194440e7d6d39d09f0fd46cb28fa0b8239bd070b2e5",
+      "sha256": "7d2b71d970437c42c9abce68911b3e6f0e9422b84454017c9cf3ff5f32d73c62",
       "role": "reviews"
     },
     "summary": {
@@ -2074,7 +2074,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "0724598002046a0ba0a74a2649685b595ddc55ace0bdf69008853b584b6f5da3"
+          "sha256": "f089c62032c01ab57c2bd1c19a788c095bf91126b14f631e54cab013f3847951"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
@@ -2687,7 +2687,7 @@
       "ciState": "PENDING",
       "ciReceipts": [],
       "evidenceCommit": "03f88a7ee1b109b2cb906fbdc457316f93c08fda",
-      "currentImplementationCommit": "2b83ed2e6243f9e73cd92269f549867f02ea98ea",
+      "currentImplementationCommit": "25c628e74b25ea13f02602bae0d1056cc5b190ae",
       "currentImplementationIncludesUncommittedChanges": true,
       "lastFixedCiFailure": {
         "path": "docs/evidence/granted-predict-2026-10-15/full-ci-c74853be-failed.json",
@@ -3081,6 +3081,11 @@
         "path": "docs/evidence/void-gate-selected-battlefield-2026-10-21/forty-four-current-input-only-context-refresh.json",
         "sha256": "5923a92b1e0ec469b398a47fa2e08487ef11a308b9b3164c09976a57b75f46c1",
         "role": "current-input-refresh"
+      },
+      "currentTeemoCountedInputRefresh": {
+        "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/forty-current-input-context-refresh.json",
+        "sha256": "ca3edeb2cbd456c80578784f33d70705e73e4ab2c0eaf79c89719196b923e1d6",
+        "role": "current-input-refresh"
       }
     },
     "printed-predict-permanent-entry-2026-10-15": {
@@ -3111,7 +3116,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "0724598002046a0ba0a74a2649685b595ddc55ace0bdf69008853b584b6f5da3"
+          "sha256": "f089c62032c01ab57c2bd1c19a788c095bf91126b14f631e54cab013f3847951"
         },
         {
           "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
@@ -3719,7 +3724,7 @@
         }
       ],
       "evidenceCommit": "74353e405fd2242ece0bae05972f209950b2c9de",
-      "currentImplementationCommit": "2b83ed2e6243f9e73cd92269f549867f02ea98ea",
+      "currentImplementationCommit": "25c628e74b25ea13f02602bae0d1056cc5b190ae",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -4127,6 +4132,11 @@
         "path": "docs/evidence/void-gate-selected-battlefield-2026-10-21/forty-four-current-input-only-context-refresh.json",
         "sha256": "5923a92b1e0ec469b398a47fa2e08487ef11a308b9b3164c09976a57b75f46c1",
         "role": "current-input-refresh"
+      },
+      "currentTeemoCountedInputRefresh": {
+        "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/forty-current-input-context-refresh.json",
+        "sha256": "ca3edeb2cbd456c80578784f33d70705e73e4ab2c0eaf79c89719196b923e1d6",
+        "role": "current-input-refresh"
       }
     },
     "sivir-optional-rune-recycle-2026-10-15": {
@@ -4141,7 +4151,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "0724598002046a0ba0a74a2649685b595ddc55ace0bdf69008853b584b6f5da3"
+          "sha256": "f089c62032c01ab57c2bd1c19a788c095bf91126b14f631e54cab013f3847951"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.Insight.cs",
@@ -4503,7 +4513,7 @@
         }
       ],
       "evidenceCommit": "7649d573f884ffd7517a502f7eebe01d0aa186c4",
-      "currentImplementationCommit": "2b83ed2e6243f9e73cd92269f549867f02ea98ea",
+      "currentImplementationCommit": "25c628e74b25ea13f02602bae0d1056cc5b190ae",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -4900,6 +4910,11 @@
         "path": "docs/evidence/void-gate-selected-battlefield-2026-10-21/forty-four-current-input-only-context-refresh.json",
         "sha256": "5923a92b1e0ec469b398a47fa2e08487ef11a308b9b3164c09976a57b75f46c1",
         "role": "current-input-refresh"
+      },
+      "currentTeemoCountedInputRefresh": {
+        "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/forty-current-input-context-refresh.json",
+        "sha256": "ca3edeb2cbd456c80578784f33d70705e73e4ab2c0eaf79c89719196b923e1d6",
+        "role": "current-input-refresh"
       }
     },
     "battlefield-conquer-rune-destination-2026-10-15": {
@@ -4918,7 +4933,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "0724598002046a0ba0a74a2649685b595ddc55ace0bdf69008853b584b6f5da3"
+          "sha256": "f089c62032c01ab57c2bd1c19a788c095bf91126b14f631e54cab013f3847951"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.Conquest.cs",
@@ -5065,7 +5080,7 @@
         }
       ],
       "evidenceCommit": "dd8884ba1e443138264b9b0e971ab8da3c5480ee",
-      "currentImplementationCommit": "2b83ed2e6243f9e73cd92269f549867f02ea98ea",
+      "currentImplementationCommit": "25c628e74b25ea13f02602bae0d1056cc5b190ae",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -5398,6 +5413,11 @@
         "path": "docs/evidence/void-gate-selected-battlefield-2026-10-21/forty-four-current-input-only-context-refresh.json",
         "sha256": "5923a92b1e0ec469b398a47fa2e08487ef11a308b9b3164c09976a57b75f46c1",
         "role": "current-input-refresh"
+      },
+      "currentTeemoCountedInputRefresh": {
+        "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/forty-current-input-context-refresh.json",
+        "sha256": "ca3edeb2cbd456c80578784f33d70705e73e4ab2c0eaf79c89719196b923e1d6",
+        "role": "current-input-refresh"
       }
     },
     "sivir-payment-trigger-and-ward-event-2026-10-15": {
@@ -5424,7 +5444,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "0724598002046a0ba0a74a2649685b595ddc55ace0bdf69008853b584b6f5da3"
+          "sha256": "f089c62032c01ab57c2bd1c19a788c095bf91126b14f631e54cab013f3847951"
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
@@ -5610,7 +5630,7 @@
         }
       ],
       "evidenceCommit": "00420e2a2b453918e611812d18fda9f62632e15f",
-      "currentImplementationCommit": "2b83ed2e6243f9e73cd92269f549867f02ea98ea",
+      "currentImplementationCommit": "25c628e74b25ea13f02602bae0d1056cc5b190ae",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -5938,6 +5958,11 @@
         "path": "docs/evidence/void-gate-selected-battlefield-2026-10-21/forty-four-current-input-only-context-refresh.json",
         "sha256": "5923a92b1e0ec469b398a47fa2e08487ef11a308b9b3164c09976a57b75f46c1",
         "role": "current-input-refresh"
+      },
+      "currentTeemoCountedInputRefresh": {
+        "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/forty-current-input-context-refresh.json",
+        "sha256": "ca3edeb2cbd456c80578784f33d70705e73e4ab2c0eaf79c89719196b923e1d6",
+        "role": "current-input-refresh"
       }
     },
     "unit-conquest-gold-response-2026-10-15": {
@@ -5952,7 +5977,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "0724598002046a0ba0a74a2649685b595ddc55ace0bdf69008853b584b6f5da3"
+          "sha256": "f089c62032c01ab57c2bd1c19a788c095bf91126b14f631e54cab013f3847951"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
@@ -6191,7 +6216,7 @@
         }
       ],
       "evidenceCommit": "eb3c4281c94c8d41d315cd574bdfa597cd10c30b",
-      "currentImplementationCommit": "2b83ed2e6243f9e73cd92269f549867f02ea98ea",
+      "currentImplementationCommit": "25c628e74b25ea13f02602bae0d1056cc5b190ae",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -6552,6 +6577,11 @@
         "path": "docs/evidence/void-gate-selected-battlefield-2026-10-21/forty-four-current-input-only-context-refresh.json",
         "sha256": "5923a92b1e0ec469b398a47fa2e08487ef11a308b9b3164c09976a57b75f46c1",
         "role": "current-input-refresh"
+      },
+      "currentTeemoCountedInputRefresh": {
+        "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/forty-current-input-context-refresh.json",
+        "sha256": "ca3edeb2cbd456c80578784f33d70705e73e4ab2c0eaf79c89719196b923e1d6",
+        "role": "current-input-refresh"
       }
     },
     "own-main-deck-recycle-card-boon-2026-10-15": {
@@ -6594,7 +6624,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "0724598002046a0ba0a74a2649685b595ddc55ace0bdf69008853b584b6f5da3"
+          "sha256": "f089c62032c01ab57c2bd1c19a788c095bf91126b14f631e54cab013f3847951"
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
@@ -7274,7 +7304,7 @@
         }
       ],
       "evidenceCommit": "a0406e1d878598b3c0fd88f5bfa7f9831d6a2cc6",
-      "currentImplementationCommit": "2b83ed2e6243f9e73cd92269f549867f02ea98ea",
+      "currentImplementationCommit": "25c628e74b25ea13f02602bae0d1056cc5b190ae",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -7630,6 +7660,11 @@
       "currentVoidSelectedFieldInputRefresh": {
         "path": "docs/evidence/void-gate-selected-battlefield-2026-10-21/forty-four-current-input-only-context-refresh.json",
         "sha256": "5923a92b1e0ec469b398a47fa2e08487ef11a308b9b3164c09976a57b75f46c1",
+        "role": "current-input-refresh"
+      },
+      "currentTeemoCountedInputRefresh": {
+        "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/forty-current-input-context-refresh.json",
+        "sha256": "ca3edeb2cbd456c80578784f33d70705e73e4ab2c0eaf79c89719196b923e1d6",
         "role": "current-input-refresh"
       }
     },
@@ -9111,7 +9146,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "0724598002046a0ba0a74a2649685b595ddc55ace0bdf69008853b584b6f5da3"
+          "sha256": "f089c62032c01ab57c2bd1c19a788c095bf91126b14f631e54cab013f3847951"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.SpellCompletion.cs",
@@ -9172,7 +9207,7 @@
         }
       ],
       "evidenceCommit": "342187cb732ea37a616d3fb125be6e9e5096ead1",
-      "currentImplementationCommit": "2b83ed2e6243f9e73cd92269f549867f02ea98ea",
+      "currentImplementationCommit": "25c628e74b25ea13f02602bae0d1056cc5b190ae",
       "currentImplementationIncludesUncommittedChanges": true,
       "branches": [
         {
@@ -9636,6 +9671,11 @@
         "path": "docs/evidence/void-gate-selected-battlefield-2026-10-21/forty-four-current-input-only-context-refresh.json",
         "sha256": "5923a92b1e0ec469b398a47fa2e08487ef11a308b9b3164c09976a57b75f46c1",
         "role": "current-input-refresh"
+      },
+      "currentTeemoCountedInputRefresh": {
+        "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/forty-current-input-context-refresh.json",
+        "sha256": "ca3edeb2cbd456c80578784f33d70705e73e4ab2c0eaf79c89719196b923e1d6",
+        "role": "current-input-refresh"
       }
     },
     "porobot-source-play-other-equipment-conditional-draw-2026-10-15": {
@@ -9650,7 +9690,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "0724598002046a0ba0a74a2649685b595ddc55ace0bdf69008853b584b6f5da3"
+          "sha256": "f089c62032c01ab57c2bd1c19a788c095bf91126b14f631e54cab013f3847951"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.PermanentConfirmation.cs",
@@ -9719,7 +9759,7 @@
         }
       ],
       "evidenceCommit": "339c6168f704684477354365988d7448cb0e7a10",
-      "currentImplementationCommit": "2b83ed2e6243f9e73cd92269f549867f02ea98ea",
+      "currentImplementationCommit": "25c628e74b25ea13f02602bae0d1056cc5b190ae",
       "currentImplementationIncludesUncommittedChanges": true,
       "ciState": "PENDING",
       "ciReceipts": [
@@ -10237,6 +10277,11 @@
         "path": "docs/evidence/void-gate-selected-battlefield-2026-10-21/forty-four-current-input-only-context-refresh.json",
         "sha256": "5923a92b1e0ec469b398a47fa2e08487ef11a308b9b3164c09976a57b75f46c1",
         "role": "current-input-refresh"
+      },
+      "currentTeemoCountedInputRefresh": {
+        "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/forty-current-input-context-refresh.json",
+        "sha256": "ca3edeb2cbd456c80578784f33d70705e73e4ab2c0eaf79c89719196b923e1d6",
+        "role": "current-input-refresh"
       }
     },
     "typed-card-play-history-causal-production-recovery-2026-10-15": {
@@ -10584,7 +10629,7 @@
     },
     "counted-insight-post-choice-draw-clairvoyance-2026-10-15": {
       "evidenceCommit": "6bc546259eed61d5988bf8e8df5081cd8502c614",
-      "currentImplementationCommit": "2b83ed2e6243f9e73cd92269f549867f02ea98ea",
+      "currentImplementationCommit": "25c628e74b25ea13f02602bae0d1056cc5b190ae",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Base commit plus explicitly uncommitted gameplay/test inputs; own fixed CI remains pending. Earlier6bc full cannot certify this new gameplay batch.",
       "ciState": "PENDING",
@@ -10604,7 +10649,7 @@
         },
         {
           "path": "data/official/card-catalog.zh-CN.json",
-          "sha256": "f9b2394507ef8e35846d16e5fc1c2a767766757476bfe4a17a3cddc18df509de"
+          "sha256": "438a9ca8723a3b83ebedc6a928af80001bd1f093c53e8ff423437565897842b8"
         }
       ],
       "evidence": [
@@ -10982,6 +11027,11 @@
       "currentVoidSelectedFieldInputRefresh": {
         "path": "docs/evidence/void-gate-selected-battlefield-2026-10-21/forty-four-current-input-only-context-refresh.json",
         "sha256": "5923a92b1e0ec469b398a47fa2e08487ef11a308b9b3164c09976a57b75f46c1",
+        "role": "current-input-refresh"
+      },
+      "currentTeemoCountedInputRefresh": {
+        "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/forty-current-input-context-refresh.json",
+        "sha256": "ca3edeb2cbd456c80578784f33d70705e73e4ab2c0eaf79c89719196b923e1d6",
         "role": "current-input-refresh"
       }
     },
@@ -11867,7 +11917,7 @@
     },
     "combat-event-journal-wire-and-single-defender-choice-2026-10-15": {
       "evidenceCommit": "9e426a31386aefa980bf2d48f02b237098cb2914",
-      "currentImplementationCommit": "2b83ed2e6243f9e73cd92269f549867f02ea98ea",
+      "currentImplementationCommit": "25c628e74b25ea13f02602bae0d1056cc5b190ae",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact9e base plus explicitly hashed current journal/combat/native-fixture verification inputs; old full does not cover this repair.",
       "ciState": "PENDING",
@@ -11879,7 +11929,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "0724598002046a0ba0a74a2649685b595ddc55ace0bdf69008853b584b6f5da3"
+          "sha256": "f089c62032c01ab57c2bd1c19a788c095bf91126b14f631e54cab013f3847951"
         },
         {
           "path": "clients/godot/scripts/ClientCommandSerializer.cs",
@@ -12314,11 +12364,16 @@
         "path": "docs/evidence/void-gate-selected-battlefield-2026-10-21/forty-four-current-input-only-context-refresh.json",
         "sha256": "5923a92b1e0ec469b398a47fa2e08487ef11a308b9b3164c09976a57b75f46c1",
         "role": "current-input-refresh"
+      },
+      "currentTeemoCountedInputRefresh": {
+        "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/forty-current-input-context-refresh.json",
+        "sha256": "ca3edeb2cbd456c80578784f33d70705e73e4ab2c0eaf79c89719196b923e1d6",
+        "role": "current-input-refresh"
       }
     },
     "combat-declaration-provenance-and-single-eligible-unit-conquest-2026-10-15": {
       "evidenceCommit": "0cbee9e22c81bec21ea416fdb45dc1c16f78e7d4",
-      "currentImplementationCommit": "2b83ed2e6243f9e73cd92269f549867f02ea98ea",
+      "currentImplementationCommit": "25c628e74b25ea13f02602bae0d1056cc5b190ae",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact0cbee failed base plus two explicitly pinned source repairs and new verification/source-intake evidence; new fixed SHA required.",
       "ciState": "PENDING",
@@ -12330,7 +12385,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "0724598002046a0ba0a74a2649685b595ddc55ace0bdf69008853b584b6f5da3"
+          "sha256": "f089c62032c01ab57c2bd1c19a788c095bf91126b14f631e54cab013f3847951"
         }
       ],
       "evidence": [
@@ -12720,11 +12775,16 @@
         "path": "docs/evidence/void-gate-selected-battlefield-2026-10-21/forty-four-current-input-only-context-refresh.json",
         "sha256": "5923a92b1e0ec469b398a47fa2e08487ef11a308b9b3164c09976a57b75f46c1",
         "role": "current-input-refresh"
+      },
+      "currentTeemoCountedInputRefresh": {
+        "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/forty-current-input-context-refresh.json",
+        "sha256": "ca3edeb2cbd456c80578784f33d70705e73e4ab2c0eaf79c89719196b923e1d6",
+        "role": "current-input-refresh"
       }
     },
     "optional-mana-trigger-native-and-natural-declaration-order-2026-10-15": {
       "evidenceCommit": "d1c2b4d351ca32862ee52ab7bc45cd7d581fca2c",
-      "currentImplementationCommit": "2b83ed2e6243f9e73cd92269f549867f02ea98ea",
+      "currentImplementationCommit": "25c628e74b25ea13f02602bae0d1056cc5b190ae",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact d1 actual full-success/native-failure base plus three pinned source repairs, new verification and source readback; new fixed SHA required.",
       "ciState": "PENDING",
@@ -12736,7 +12796,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "0724598002046a0ba0a74a2649685b595ddc55ace0bdf69008853b584b6f5da3"
+          "sha256": "f089c62032c01ab57c2bd1c19a788c095bf91126b14f631e54cab013f3847951"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
@@ -13131,11 +13191,16 @@
         "path": "docs/evidence/void-gate-selected-battlefield-2026-10-21/forty-four-current-input-only-context-refresh.json",
         "sha256": "5923a92b1e0ec469b398a47fa2e08487ef11a308b9b3164c09976a57b75f46c1",
         "role": "current-input-refresh"
+      },
+      "currentTeemoCountedInputRefresh": {
+        "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/forty-current-input-context-refresh.json",
+        "sha256": "ca3edeb2cbd456c80578784f33d70705e73e4ab2c0eaf79c89719196b923e1d6",
+        "role": "current-input-refresh"
       }
     },
     "cn16-confirmed-play-origin-and-required-causal-fact-2026-10-16": {
       "evidenceCommit": "56d1ee2eed9dcbf48ed54175867cd93ac58d92d8",
-      "currentImplementationCommit": "2b83ed2e6243f9e73cd92269f549867f02ea98ea",
+      "currentImplementationCommit": "25c628e74b25ea13f02602bae0d1056cc5b190ae",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact56 baseline plus explicitly pinned CN16 source selection and bounded confirmed hand-origin repair; new fixed SHA required.",
       "ciState": "PENDING",
@@ -13147,7 +13212,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "0724598002046a0ba0a74a2649685b595ddc55ace0bdf69008853b584b6f5da3"
+          "sha256": "f089c62032c01ab57c2bd1c19a788c095bf91126b14f631e54cab013f3847951"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
@@ -13693,11 +13758,16 @@
         "path": "docs/evidence/void-gate-selected-battlefield-2026-10-21/forty-four-current-input-only-context-refresh.json",
         "sha256": "5923a92b1e0ec469b398a47fa2e08487ef11a308b9b3164c09976a57b75f46c1",
         "role": "current-input-refresh"
+      },
+      "currentTeemoCountedInputRefresh": {
+        "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/forty-current-input-context-refresh.json",
+        "sha256": "ca3edeb2cbd456c80578784f33d70705e73e4ab2c0eaf79c89719196b923e1d6",
+        "role": "current-input-refresh"
       }
     },
     "physical-origin-self-cost-reduction-2026-10-16": {
       "evidenceCommit": "903cbca2becfd9b142a6b6a86d77b8fbf3d080ef",
-      "currentImplementationCommit": "2b83ed2e6243f9e73cd92269f549867f02ea98ea",
+      "currentImplementationCommit": "25c628e74b25ea13f02602bae0d1056cc5b190ae",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact903 baseline plus pinned3engine changes and new8cases/SQL fixtures; fixed newSHA required.",
       "ciState": "PENDING",
@@ -13709,7 +13779,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "0724598002046a0ba0a74a2649685b595ddc55ace0bdf69008853b584b6f5da3"
+          "sha256": "f089c62032c01ab57c2bd1c19a788c095bf91126b14f631e54cab013f3847951"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.PlayManaCost.cs",
@@ -14186,11 +14256,16 @@
         "path": "docs/evidence/void-gate-selected-battlefield-2026-10-21/forty-four-current-input-only-context-refresh.json",
         "sha256": "5923a92b1e0ec469b398a47fa2e08487ef11a308b9b3164c09976a57b75f46c1",
         "role": "current-input-refresh"
+      },
+      "currentTeemoCountedInputRefresh": {
+        "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/forty-current-input-context-refresh.json",
+        "sha256": "ca3edeb2cbd456c80578784f33d70705e73e4ab2c0eaf79c89719196b923e1d6",
+        "role": "current-input-refresh"
       }
     },
     "granted-origin-haste-and-paid-entry-replacement-2026-10-16": {
       "evidenceCommit": "4ad7fe204adee28c4138f18bdde4c4cbcdea21f0",
-      "currentImplementationCommit": "2b83ed2e6243f9e73cd92269f549867f02ea98ea",
+      "currentImplementationCommit": "25c628e74b25ea13f02602bae0d1056cc5b190ae",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact4ad7 baseline plus pinned5engine inputs,24cases, native readback and73SQL. NewfixedSHA full required. Printed-Haste dispatch restored after the singlecheck;213 current focus passed. Prior SQL/native exact inputs remain pre-repair, not relabeled.",
       "ciState": "PENDING",
@@ -14206,7 +14281,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "0724598002046a0ba0a74a2649685b595ddc55ace0bdf69008853b584b6f5da3"
+          "sha256": "f089c62032c01ab57c2bd1c19a788c095bf91126b14f631e54cab013f3847951"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
@@ -14736,11 +14811,16 @@
         "path": "docs/evidence/void-gate-selected-battlefield-2026-10-21/forty-four-current-input-only-context-refresh.json",
         "sha256": "5923a92b1e0ec469b398a47fa2e08487ef11a308b9b3164c09976a57b75f46c1",
         "role": "current-input-refresh"
+      },
+      "currentTeemoCountedInputRefresh": {
+        "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/forty-current-input-context-refresh.json",
+        "sha256": "ca3edeb2cbd456c80578784f33d70705e73e4ab2c0eaf79c89719196b923e1d6",
+        "role": "current-input-refresh"
       }
     },
     "opponent-battlefield-current-control-entry-2026-10-16": {
       "evidenceCommit": "3ced0126ac20a07c2909e7b44f3733a9e3aa044a",
-      "currentImplementationCommit": "2b83ed2e6243f9e73cd92269f549867f02ea98ea",
+      "currentImplementationCommit": "25c628e74b25ea13f02602bae0d1056cc5b190ae",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact3ced baseline plus pinned Core fix and29new cases/3methods; old72 product and prior fixedfull evidence are separately bounded. New fixed SHA full required.",
       "ciState": "PENDING",
@@ -14748,7 +14828,7 @@
       "implementation": [
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "0724598002046a0ba0a74a2649685b595ddc55ace0bdf69008853b584b6f5da3"
+          "sha256": "f089c62032c01ab57c2bd1c19a788c095bf91126b14f631e54cab013f3847951"
         }
       ],
       "verificationSources": [
@@ -15155,11 +15235,16 @@
         "path": "docs/evidence/void-gate-selected-battlefield-2026-10-21/forty-four-current-input-only-context-refresh.json",
         "sha256": "5923a92b1e0ec469b398a47fa2e08487ef11a308b9b3164c09976a57b75f46c1",
         "role": "current-input-refresh"
+      },
+      "currentTeemoCountedInputRefresh": {
+        "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/forty-current-input-context-refresh.json",
+        "sha256": "ca3edeb2cbd456c80578784f33d70705e73e4ab2c0eaf79c89719196b923e1d6",
+        "role": "current-input-refresh"
       }
     },
     "optional-sacrifice-printed-cost-and-paid-entry-2026-10-16": {
       "evidenceCommit": "8d7571c5a5572b1ed542a5ff1d8eaeb533bac1bc",
-      "currentImplementationCommit": "2b83ed2e6243f9e73cd92269f549867f02ea98ea",
+      "currentImplementationCommit": "25c628e74b25ea13f02602bae0d1056cc5b190ae",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Fixed8d baseline plus exact15 executable/fixture patch files. Earlier full8d,113 old review dictionaries, source dates and original143/110/424242 remain retained. New candidate full required.",
       "ciState": "PENDING",
@@ -15171,7 +15256,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "0724598002046a0ba0a74a2649685b595ddc55ace0bdf69008853b584b6f5da3"
+          "sha256": "f089c62032c01ab57c2bd1c19a788c095bf91126b14f631e54cab013f3847951"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.PlayManaCost.cs",
@@ -15706,11 +15791,16 @@
         "path": "docs/evidence/void-gate-selected-battlefield-2026-10-21/forty-four-current-input-only-context-refresh.json",
         "sha256": "5923a92b1e0ec469b398a47fa2e08487ef11a308b9b3164c09976a57b75f46c1",
         "role": "current-input-refresh"
+      },
+      "currentTeemoCountedInputRefresh": {
+        "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/forty-current-input-context-refresh.json",
+        "sha256": "ca3edeb2cbd456c80578784f33d70705e73e4ab2c0eaf79c89719196b923e1d6",
+        "role": "current-input-refresh"
       }
     },
     "granted-colorless-token-haste-payment-2026-10-16": {
       "evidenceCommit": "daf394e20997ebdb028e91ba9fdfe6c24eb492eb",
-      "currentImplementationCommit": "2b83ed2e6243f9e73cd92269f549867f02ea98ea",
+      "currentImplementationCommit": "25c628e74b25ea13f02602bae0d1056cc5b190ae",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Fixeddaf baseline plus exact13 current executable/test/fixture patch files; historical daf full12136/7372 and77SQL do not cover the patch.",
       "ciState": "PENDING",
@@ -15718,7 +15808,7 @@
       "implementation": [
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "0724598002046a0ba0a74a2649685b595ddc55ace0bdf69008853b584b6f5da3"
+          "sha256": "f089c62032c01ab57c2bd1c19a788c095bf91126b14f631e54cab013f3847951"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.PlayKeywords.cs",
@@ -16256,6 +16346,11 @@
         "path": "docs/evidence/void-gate-selected-battlefield-2026-10-21/forty-four-current-input-only-context-refresh.json",
         "sha256": "5923a92b1e0ec469b398a47fa2e08487ef11a308b9b3164c09976a57b75f46c1",
         "role": "current-input-refresh"
+      },
+      "currentTeemoCountedInputRefresh": {
+        "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/forty-current-input-context-refresh.json",
+        "sha256": "ca3edeb2cbd456c80578784f33d70705e73e4ab2c0eaf79c89719196b923e1d6",
+        "role": "current-input-refresh"
       }
     },
     "native-rule-choice-prompts-2026-10-16": {
@@ -16643,7 +16738,7 @@
     },
     "sand-soldier-embedded-ready-2026-10-17": {
       "evidenceCommit": "8ca4080c9431b981db051a5adad18dace5d85dd5",
-      "currentImplementationCommit": "2b83ed2e6243f9e73cd92269f549867f02ea98ea",
+      "currentImplementationCommit": "25c628e74b25ea13f02602bae0d1056cc5b190ae",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Fixed8ca source baseline (gameplay5ed) plus explicit current implementation/test/fixture inputs. Prior5ed full/native and local pre-caption SQL are not relabeled as this final candidate.",
       "ciState": "PENDING",
@@ -16675,7 +16770,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "0724598002046a0ba0a74a2649685b595ddc55ace0bdf69008853b584b6f5da3"
+          "sha256": "f089c62032c01ab57c2bd1c19a788c095bf91126b14f631e54cab013f3847951"
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
@@ -17301,6 +17396,11 @@
       "currentVoidSelectedFieldInputRefresh": {
         "path": "docs/evidence/void-gate-selected-battlefield-2026-10-21/forty-four-current-input-only-context-refresh.json",
         "sha256": "5923a92b1e0ec469b398a47fa2e08487ef11a308b9b3164c09976a57b75f46c1",
+        "role": "current-input-refresh"
+      },
+      "currentTeemoCountedInputRefresh": {
+        "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/forty-current-input-context-refresh.json",
+        "sha256": "ca3edeb2cbd456c80578784f33d70705e73e4ab2c0eaf79c89719196b923e1d6",
         "role": "current-input-refresh"
       }
     },
@@ -17979,7 +18079,7 @@
     },
     "duel-chain-origins-cold-recovery-2026-10-17": {
       "evidenceCommit": "42c89230105573e39ffaf524a7dc21f24d520d4b",
-      "currentImplementationCommit": "2b83ed2e6243f9e73cd92269f549867f02ea98ea",
+      "currentImplementationCommit": "25c628e74b25ea13f02602bae0d1056cc5b190ae",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Base42 plus exact changed implementation/test pins; fixed067 full is a retained failure, not current success.",
       "ciState": "PENDING",
@@ -17987,7 +18087,7 @@
       "implementation": [
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "0724598002046a0ba0a74a2649685b595ddc55ace0bdf69008853b584b6f5da3"
+          "sha256": "f089c62032c01ab57c2bd1c19a788c095bf91126b14f631e54cab013f3847951"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.TriggerHandoff.cs",
@@ -18445,12 +18545,17 @@
         "path": "docs/evidence/void-gate-selected-battlefield-2026-10-21/forty-four-current-input-only-context-refresh.json",
         "sha256": "5923a92b1e0ec469b398a47fa2e08487ef11a308b9b3164c09976a57b75f46c1",
         "role": "current-input-refresh"
+      },
+      "currentTeemoCountedInputRefresh": {
+        "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/forty-current-input-context-refresh.json",
+        "sha256": "ca3edeb2cbd456c80578784f33d70705e73e4ab2c0eaf79c89719196b923e1d6",
+        "role": "current-input-refresh"
       }
     },
     "merfolk-battlefield-play-damage-here-2026-10-17": {
       "evidenceCommit": "4fca367eaab1dd198ffde839b23461c058a2b470",
       "evidenceCommitScope": "Previous fixed baseline only. This review source includes uncommitted positive damage changes and does not claim that4fca tested them.",
-      "currentImplementationCommit": "2b83ed2e6243f9e73cd92269f549867f02ea98ea",
+      "currentImplementationCommit": "25c628e74b25ea13f02602bae0d1056cc5b190ae",
       "currentImplementationIncludesUncommittedChanges": true,
       "ciState": "PENDING",
       "ciReceipts": [],
@@ -18485,7 +18590,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "0724598002046a0ba0a74a2649685b595ddc55ace0bdf69008853b584b6f5da3"
+          "sha256": "f089c62032c01ab57c2bd1c19a788c095bf91126b14f631e54cab013f3847951"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
@@ -18967,12 +19072,17 @@
         "path": "docs/evidence/void-gate-selected-battlefield-2026-10-21/forty-four-current-input-only-context-refresh.json",
         "sha256": "5923a92b1e0ec469b398a47fa2e08487ef11a308b9b3164c09976a57b75f46c1",
         "role": "current-input-refresh"
+      },
+      "currentTeemoCountedInputRefresh": {
+        "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/forty-current-input-context-refresh.json",
+        "sha256": "ca3edeb2cbd456c80578784f33d70705e73e4ab2c0eaf79c89719196b923e1d6",
+        "role": "current-input-refresh"
       }
     },
     "banish-owner-effect-play-2026-10-18": {
       "evidenceCommit": "62bf7afc7a59bc743e1e578712e156686666c060",
       "evidenceCommitScope": "Previous fixed62bf baseline only. Later Hunting Rhythm source, fixture and SQL changes are uncommitted and are not covered by62bf.",
-      "currentImplementationCommit": "2b83ed2e6243f9e73cd92269f549867f02ea98ea",
+      "currentImplementationCommit": "25c628e74b25ea13f02602bae0d1056cc5b190ae",
       "currentImplementationIncludesUncommittedChanges": true,
       "ciState": "PENDING",
       "ciReceipts": [],
@@ -18995,7 +19105,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "0724598002046a0ba0a74a2649685b595ddc55ace0bdf69008853b584b6f5da3"
+          "sha256": "f089c62032c01ab57c2bd1c19a788c095bf91126b14f631e54cab013f3847951"
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
@@ -19504,12 +19614,17 @@
         "path": "docs/evidence/void-gate-selected-battlefield-2026-10-21/forty-four-current-input-only-context-refresh.json",
         "sha256": "5923a92b1e0ec469b398a47fa2e08487ef11a308b9b3164c09976a57b75f46c1",
         "role": "current-input-refresh"
+      },
+      "currentTeemoCountedInputRefresh": {
+        "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/forty-current-input-context-refresh.json",
+        "sha256": "ca3edeb2cbd456c80578784f33d70705e73e4ab2c0eaf79c89719196b923e1d6",
+        "role": "current-input-refresh"
       }
     },
     "permanent-here-location-control-2026-10-18": {
       "evidenceCommit": "c69aef543b7bb46a987719cc77cd77ea49782527",
       "evidenceCommitScope": "Previous c69 fixed full/native baseline only; later uncommitted Here inputs are separately pinned and not covered by c69.",
-      "currentImplementationCommit": "2b83ed2e6243f9e73cd92269f549867f02ea98ea",
+      "currentImplementationCommit": "25c628e74b25ea13f02602bae0d1056cc5b190ae",
       "currentImplementationIncludesUncommittedChanges": true,
       "ciState": "PENDING",
       "ciReceipts": [],
@@ -19528,7 +19643,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "0724598002046a0ba0a74a2649685b595ddc55ace0bdf69008853b584b6f5da3"
+          "sha256": "f089c62032c01ab57c2bd1c19a788c095bf91126b14f631e54cab013f3847951"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
@@ -19991,12 +20106,17 @@
         "path": "docs/evidence/void-gate-selected-battlefield-2026-10-21/forty-four-current-input-only-context-refresh.json",
         "sha256": "5923a92b1e0ec469b398a47fa2e08487ef11a308b9b3164c09976a57b75f46c1",
         "role": "current-input-refresh"
+      },
+      "currentTeemoCountedInputRefresh": {
+        "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/forty-current-input-context-refresh.json",
+        "sha256": "ca3edeb2cbd456c80578784f33d70705e73e4ab2c0eaf79c89719196b923e1d6",
+        "role": "current-input-refresh"
       }
     },
     "rengar-unit-play-confirmation-order-recovery-2026-10-18": {
       "evidenceCommit": "a5d01ad0577e992ab19029424159a4c9acee1385",
       "evidenceCommitScope": "Original a5d native semantic red and prior source/test baseline only; current authored/compiled inputs are separately pinned and not covered by a5d.",
-      "currentImplementationCommit": "2b83ed2e6243f9e73cd92269f549867f02ea98ea",
+      "currentImplementationCommit": "25c628e74b25ea13f02602bae0d1056cc5b190ae",
       "currentImplementationIncludesUncommittedChanges": true,
       "ciState": "PENDING",
       "ciReceipts": [],
@@ -20011,7 +20131,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "0724598002046a0ba0a74a2649685b595ddc55ace0bdf69008853b584b6f5da3"
+          "sha256": "f089c62032c01ab57c2bd1c19a788c095bf91126b14f631e54cab013f3847951"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEntryTriggers.cs",
@@ -20571,12 +20691,17 @@
         "path": "docs/evidence/void-gate-selected-battlefield-2026-10-21/forty-four-current-input-only-context-refresh.json",
         "sha256": "5923a92b1e0ec469b398a47fa2e08487ef11a308b9b3164c09976a57b75f46c1",
         "role": "current-input-refresh"
+      },
+      "currentTeemoCountedInputRefresh": {
+        "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/forty-current-input-context-refresh.json",
+        "sha256": "ca3edeb2cbd456c80578784f33d70705e73e4ab2c0eaf79c89719196b923e1d6",
+        "role": "current-input-refresh"
       }
     },
     "deferred-trigger-command-chronology-2026-10-18": {
       "evidenceCommit": "b18272e8e4ad0ed01523aebc9f592e19623f46c9",
       "evidenceCommitScope": "Prior fixed b182 full/native preparation only. Current authored/actual compiled chronology inputs are independently pinned, not covered by the base commit.",
-      "currentImplementationCommit": "2b83ed2e6243f9e73cd92269f549867f02ea98ea",
+      "currentImplementationCommit": "25c628e74b25ea13f02602bae0d1056cc5b190ae",
       "currentImplementationIncludesUncommittedChanges": true,
       "ciState": "PENDING",
       "ciReceipts": [],
@@ -20595,7 +20720,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "0724598002046a0ba0a74a2649685b595ddc55ace0bdf69008853b584b6f5da3"
+          "sha256": "f089c62032c01ab57c2bd1c19a788c095bf91126b14f631e54cab013f3847951"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
@@ -21108,12 +21233,17 @@
         "path": "docs/evidence/void-gate-selected-battlefield-2026-10-21/forty-four-current-input-only-context-refresh.json",
         "sha256": "5923a92b1e0ec469b398a47fa2e08487ef11a308b9b3164c09976a57b75f46c1",
         "role": "current-input-refresh"
+      },
+      "currentTeemoCountedInputRefresh": {
+        "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/forty-current-input-context-refresh.json",
+        "sha256": "ca3edeb2cbd456c80578784f33d70705e73e4ab2c0eaf79c89719196b923e1d6",
+        "role": "current-input-refresh"
       }
     },
     "sole-trigger-choice-controller-2026-10-18": {
       "evidenceCommit": "fc106dcf29d996e09994d582378bdf4d8472618b",
       "evidenceCommitScope": "Prior fixed fc evidence only. Current WIP source revision and actual compiled modules independently pinned; source equality is not compiled identity equality.",
-      "currentImplementationCommit": "2b83ed2e6243f9e73cd92269f549867f02ea98ea",
+      "currentImplementationCommit": "25c628e74b25ea13f02602bae0d1056cc5b190ae",
       "currentImplementationIncludesUncommittedChanges": true,
       "ciState": "PENDING",
       "ciReceipts": [],
@@ -21128,7 +21258,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "0724598002046a0ba0a74a2649685b595ddc55ace0bdf69008853b584b6f5da3"
+          "sha256": "f089c62032c01ab57c2bd1c19a788c095bf91126b14f631e54cab013f3847951"
         },
         {
           "path": "src/Riftbound.Engine/TriggerQueueRecoveryRules.cs",
@@ -21628,6 +21758,11 @@
       "currentVoidSelectedFieldInputRefresh": {
         "path": "docs/evidence/void-gate-selected-battlefield-2026-10-21/forty-four-current-input-only-context-refresh.json",
         "sha256": "5923a92b1e0ec469b398a47fa2e08487ef11a308b9b3164c09976a57b75f46c1",
+        "role": "current-input-refresh"
+      },
+      "currentTeemoCountedInputRefresh": {
+        "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/forty-current-input-context-refresh.json",
+        "sha256": "ca3edeb2cbd456c80578784f33d70705e73e4ab2c0eaf79c89719196b923e1d6",
         "role": "current-input-refresh"
       }
     },
@@ -22192,7 +22327,7 @@
     "multi-controller-neutral-trigger-order-2026-10-18": {
       "evidenceCommit": "f199451ae6ceb135fa4fe4eafcba03e73ec9b99d",
       "evidenceCommitScope": "Actual fixedf199 Release5d3a ordinary red and pre-fix Debug81c2 only. Current WIP417 and fixed candidate inputs/data are independently pinned; source equality is not executing binary equality.",
-      "currentImplementationCommit": "2b83ed2e6243f9e73cd92269f549867f02ea98ea",
+      "currentImplementationCommit": "25c628e74b25ea13f02602bae0d1056cc5b190ae",
       "currentImplementationIncludesUncommittedChanges": true,
       "currentInputRevision": "816510de29c4c161efef9bf564db861cb2de5d2ac71519413d56d39ede7268bb",
       "ciState": "PENDING",
@@ -22200,7 +22335,7 @@
       "implementation": [
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "0724598002046a0ba0a74a2649685b595ddc55ace0bdf69008853b584b6f5da3",
+          "sha256": "f089c62032c01ab57c2bd1c19a788c095bf91126b14f631e54cab013f3847951",
           "role": "implementation"
         },
         {
@@ -22786,6 +22921,11 @@
       "currentVoidSelectedFieldInputRefresh": {
         "path": "docs/evidence/void-gate-selected-battlefield-2026-10-21/forty-four-current-input-only-context-refresh.json",
         "sha256": "5923a92b1e0ec469b398a47fa2e08487ef11a308b9b3164c09976a57b75f46c1",
+        "role": "current-input-refresh"
+      },
+      "currentTeemoCountedInputRefresh": {
+        "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/forty-current-input-context-refresh.json",
+        "sha256": "ca3edeb2cbd456c80578784f33d70705e73e4ab2c0eaf79c89719196b923e1d6",
         "role": "current-input-refresh"
       }
     },
@@ -24234,7 +24374,7 @@
     "ravenbloom-put-hand-2026-10-18": {
       "evidenceCommit": "21e505c32e29e1595251ccd571d80d176b95c98c",
       "evidenceCommitScope": "Actual current uncommitted Debug8e6/combined15660 is independently bound to SQL and Conformance. Prior semantic-only a2c and fixed21 Release56b/combinedb263 are separate. Actual fixed8c full cancelled by3h timeout is never promoted to success.",
-      "currentImplementationCommit": "2b83ed2e6243f9e73cd92269f549867f02ea98ea",
+      "currentImplementationCommit": "25c628e74b25ea13f02602bae0d1056cc5b190ae",
       "currentImplementationIncludesUncommittedChanges": true,
       "currentInputRevision": "816510de29c4c161efef9bf564db861cb2de5d2ac71519413d56d39ede7268bb",
       "ciState": "PENDING",
@@ -24242,7 +24382,7 @@
       "implementation": [
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "0724598002046a0ba0a74a2649685b595ddc55ace0bdf69008853b584b6f5da3",
+          "sha256": "f089c62032c01ab57c2bd1c19a788c095bf91126b14f631e54cab013f3847951",
           "role": "implementation"
         },
         {
@@ -24979,6 +25119,11 @@
       "currentVoidSelectedFieldInputRefresh": {
         "path": "docs/evidence/void-gate-selected-battlefield-2026-10-21/forty-four-current-input-only-context-refresh.json",
         "sha256": "5923a92b1e0ec469b398a47fa2e08487ef11a308b9b3164c09976a57b75f46c1",
+        "role": "current-input-refresh"
+      },
+      "currentTeemoCountedInputRefresh": {
+        "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/forty-current-input-context-refresh.json",
+        "sha256": "ca3edeb2cbd456c80578784f33d70705e73e4ab2c0eaf79c89719196b923e1d6",
         "role": "current-input-refresh"
       }
     },
@@ -25762,7 +25907,7 @@
     "copied-last-breath-insight-2026-10-19": {
       "evidenceCommit": "447cf56b79fb3bc68c8b47254dadf46f8ca15c05",
       "evidenceCommitScope": "Actual precommit Debug a97015 / combined e2e37f binds274 scoped cases, SQL, original116 games and the single check. Old Debug3b782 / combined d1494d exact ordinary red evidence is separate from fixed a9 Release49. Added test assemblies are recorded separately; prior full receipts do not certify the current Q7 product.",
-      "currentImplementationCommit": "2b83ed2e6243f9e73cd92269f549867f02ea98ea",
+      "currentImplementationCommit": "25c628e74b25ea13f02602bae0d1056cc5b190ae",
       "currentImplementationIncludesUncommittedChanges": true,
       "currentInputRevision": "816510de29c4c161efef9bf564db861cb2de5d2ac71519413d56d39ede7268bb",
       "ciState": "PENDING",
@@ -25788,7 +25933,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "0724598002046a0ba0a74a2649685b595ddc55ace0bdf69008853b584b6f5da3",
+          "sha256": "f089c62032c01ab57c2bd1c19a788c095bf91126b14f631e54cab013f3847951",
           "role": "implementation"
         },
         {
@@ -26801,6 +26946,11 @@
       "currentVoidSelectedFieldInputRefresh": {
         "path": "docs/evidence/void-gate-selected-battlefield-2026-10-21/forty-four-current-input-only-context-refresh.json",
         "sha256": "5923a92b1e0ec469b398a47fa2e08487ef11a308b9b3164c09976a57b75f46c1",
+        "role": "current-input-refresh"
+      },
+      "currentTeemoCountedInputRefresh": {
+        "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/forty-current-input-context-refresh.json",
+        "sha256": "ca3edeb2cbd456c80578784f33d70705e73e4ab2c0eaf79c89719196b923e1d6",
         "role": "current-input-refresh"
       }
     },
@@ -28314,7 +28464,7 @@
     },
     "empowered-insight-2026-10-19": {
       "evidenceCommit": "c6af0a41d28326b7dd2ec18b9b1a3d176a6a2b99",
-      "currentImplementationCommit": "2b83ed2e6243f9e73cd92269f549867f02ea98ea",
+      "currentImplementationCommit": "25c628e74b25ea13f02602bae0d1056cc5b190ae",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Actual uncommitted N9 Debug6993 identity:79directed,12ordinary,12realSQL,6earlyoriginal,onecheck12862pass14metadataexpectationfailures; all14resolvedby438distinctpassingfocusidentities over439executions. Ten non-test modules byte-exact; only four rule DLLs are shared with frozen SQL runtime. New fixed Release/full and current visible/Windows gates remain separate.",
       "currentInputRevision": "816510de29c4c161efef9bf564db861cb2de5d2ac71519413d56d39ede7268bb",
@@ -28331,7 +28481,7 @@
       "implementation": [
         {
           "path": "data/official/card-catalog.zh-CN.json",
-          "sha256": "f9b2394507ef8e35846d16e5fc1c2a767766757476bfe4a17a3cddc18df509de",
+          "sha256": "438a9ca8723a3b83ebedc6a928af80001bd1f093c53e8ff423437565897842b8",
           "role": "implementation"
         },
         {
@@ -29397,11 +29547,16 @@
         "path": "docs/evidence/void-gate-selected-battlefield-2026-10-21/forty-four-current-input-only-context-refresh.json",
         "sha256": "5923a92b1e0ec469b398a47fa2e08487ef11a308b9b3164c09976a57b75f46c1",
         "role": "current-input-refresh"
+      },
+      "currentTeemoCountedInputRefresh": {
+        "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/forty-current-input-context-refresh.json",
+        "sha256": "ca3edeb2cbd456c80578784f33d70705e73e4ab2c0eaf79c89719196b923e1d6",
+        "role": "current-input-refresh"
       }
     },
     "pakaa-native-move-reveal-2026-10-19": {
       "evidenceCommit": "c5199fda52ad2417e6372e2a0731e3f52f604077",
-      "currentImplementationCommit": "2b83ed2e6243f9e73cd92269f549867f02ea98ea",
+      "currentImplementationCommit": "25c628e74b25ea13f02602bae0d1056cc5b190ae",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Actual N11 uncommitted Debug identity bound to42 new cases,10 ordinary and10 real SQL branches, independent original read-only full replay and single check plus exact metadata focus; not c519 runtime or new fixed Release/product acceptance.",
       "currentInputRevision": "816510de29c4c161efef9bf564db861cb2de5d2ac71519413d56d39ede7268bb",
@@ -29418,7 +29573,7 @@
       "implementation": [
         {
           "path": "data/official/card-catalog.zh-CN.json",
-          "sha256": "f9b2394507ef8e35846d16e5fc1c2a767766757476bfe4a17a3cddc18df509de",
+          "sha256": "438a9ca8723a3b83ebedc6a928af80001bd1f093c53e8ff423437565897842b8",
           "role": "implementation"
         },
         {
@@ -30873,6 +31028,11 @@
       "currentVoidSelectedFieldInputRefresh": {
         "path": "docs/evidence/void-gate-selected-battlefield-2026-10-21/forty-four-current-input-only-context-refresh.json",
         "sha256": "5923a92b1e0ec469b398a47fa2e08487ef11a308b9b3164c09976a57b75f46c1",
+        "role": "current-input-refresh"
+      },
+      "currentTeemoCountedInputRefresh": {
+        "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/forty-current-input-context-refresh.json",
+        "sha256": "ca3edeb2cbd456c80578784f33d70705e73e4ab2c0eaf79c89719196b923e1d6",
         "role": "current-input-refresh"
       }
     },
@@ -32728,7 +32888,7 @@
     },
     "hwei-move-draw-discard-all-printed-types-2026-10-20": {
       "evidenceCommit": "b294bb150d877b3399cd9e120bbaec5c75e353cf",
-      "currentImplementationCommit": "2b83ed2e6243f9e73cd92269f549867f02ea98ea",
+      "currentImplementationCommit": "25c628e74b25ea13f02602bae0d1056cc5b190ae",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Baseb294 plus declared uncommitted Hwei sources/tests/SQL. Actual local Debugdb884 and Releasef4a are separate from older797f native and future fixed commit modules.",
       "currentInputRevision": "816510de29c4c161efef9bf564db861cb2de5d2ac71519413d56d39ede7268bb",
@@ -32780,7 +32940,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "0724598002046a0ba0a74a2649685b595ddc55ace0bdf69008853b584b6f5da3",
+          "sha256": "f089c62032c01ab57c2bd1c19a788c095bf91126b14f631e54cab013f3847951",
           "role": "implementation"
         },
         {
@@ -33322,11 +33482,16 @@
         "path": "docs/evidence/void-gate-selected-battlefield-2026-10-21/forty-four-current-input-only-context-refresh.json",
         "sha256": "5923a92b1e0ec469b398a47fa2e08487ef11a308b9b3164c09976a57b75f46c1",
         "role": "current-input-refresh"
+      },
+      "currentTeemoCountedInputRefresh": {
+        "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/forty-current-input-context-refresh.json",
+        "sha256": "ca3edeb2cbd456c80578784f33d70705e73e4ab2c0eaf79c89719196b923e1d6",
+        "role": "current-input-refresh"
       }
     },
     "destruction-attribution-delayed-skill-graveyard-play-2026-10-20": {
       "evidenceCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
-      "currentImplementationCommit": "2b83ed2e6243f9e73cd92269f549867f02ea98ea",
+      "currentImplementationCommit": "25c628e74b25ea13f02602bae0d1056cc5b190ae",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Base08fd plus declared uncommitted source/test/SQL/CI inputs. Actual precommit Debug and Release evidence distinct from old08fd native and future fixed modules.",
       "currentInputRevision": "816510de29c4c161efef9bf564db861cb2de5d2ac71519413d56d39ede7268bb",
@@ -33398,7 +33563,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "0724598002046a0ba0a74a2649685b595ddc55ace0bdf69008853b584b6f5da3",
+          "sha256": "f089c62032c01ab57c2bd1c19a788c095bf91126b14f631e54cab013f3847951",
           "role": "implementation"
         },
         {
@@ -34588,11 +34753,16 @@
         "path": "docs/evidence/void-gate-selected-battlefield-2026-10-21/forty-four-current-input-only-context-refresh.json",
         "sha256": "5923a92b1e0ec469b398a47fa2e08487ef11a308b9b3164c09976a57b75f46c1",
         "role": "current-input-refresh"
+      },
+      "currentTeemoCountedInputRefresh": {
+        "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/forty-current-input-context-refresh.json",
+        "sha256": "ca3edeb2cbd456c80578784f33d70705e73e4ab2c0eaf79c89719196b923e1d6",
+        "role": "current-input-refresh"
       }
     },
     "graveyard-source-reference-occupation-and-original-generation-2026-10-20": {
       "evidenceCommit": "e262ebf164e448cc9738d94db8e557f302cfc295",
-      "currentImplementationCommit": "2b83ed2e6243f9e73cd92269f549867f02ea98ea",
+      "currentImplementationCommit": "25c628e74b25ea13f02602bae0d1056cc5b190ae",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Basee262 plus exact declared source/test inputs. Prior e262 Release/native remains a separate version.",
       "currentInputRevision": "816510de29c4c161efef9bf564db861cb2de5d2ac71519413d56d39ede7268bb",
@@ -34609,7 +34779,7 @@
       "implementation": [
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "0724598002046a0ba0a74a2649685b595ddc55ace0bdf69008853b584b6f5da3",
+          "sha256": "f089c62032c01ab57c2bd1c19a788c095bf91126b14f631e54cab013f3847951",
           "role": "implementation"
         },
         {
@@ -35134,6 +35304,11 @@
         "path": "docs/evidence/void-gate-selected-battlefield-2026-10-21/forty-four-current-input-only-context-refresh.json",
         "sha256": "5923a92b1e0ec469b398a47fa2e08487ef11a308b9b3164c09976a57b75f46c1",
         "role": "current-input-refresh"
+      },
+      "currentTeemoCountedInputRefresh": {
+        "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/forty-current-input-context-refresh.json",
+        "sha256": "ca3edeb2cbd456c80578784f33d70705e73e4ab2c0eaf79c89719196b923e1d6",
+        "role": "current-input-refresh"
       }
     },
     "native-offline-start-same-server-preconstructed-retry-2026-10-20": {
@@ -35305,7 +35480,7 @@
     },
     "conditional-counter-target-controller-mana-and-printed-echo-2026-10-20": {
       "evidenceCommit": "48e7ff8702dc43a1b5a3991365d87068506ae137",
-      "currentImplementationCommit": "2b83ed2e6243f9e73cd92269f549867f02ea98ea",
+      "currentImplementationCommit": "25c628e74b25ea13f02602bae0d1056cc5b190ae",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Base48 plus declared conditional-counter implementation/tests/presentation. Historical sole check63e, pre-wording Release19d and current Release713 are distinct actual identities.",
       "currentInputRevision": "816510de29c4c161efef9bf564db861cb2de5d2ac71519413d56d39ede7268bb",
@@ -35328,7 +35503,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "0724598002046a0ba0a74a2649685b595ddc55ace0bdf69008853b584b6f5da3",
+          "sha256": "f089c62032c01ab57c2bd1c19a788c095bf91126b14f631e54cab013f3847951",
           "role": "implementation"
         },
         {
@@ -35930,6 +36105,11 @@
         "path": "docs/evidence/void-gate-selected-battlefield-2026-10-21/forty-four-current-input-only-context-refresh.json",
         "sha256": "5923a92b1e0ec469b398a47fa2e08487ef11a308b9b3164c09976a57b75f46c1",
         "role": "current-input-refresh"
+      },
+      "currentTeemoCountedInputRefresh": {
+        "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/forty-current-input-context-refresh.json",
+        "sha256": "ca3edeb2cbd456c80578784f33d70705e73e4ab2c0eaf79c89719196b923e1d6",
+        "role": "current-input-refresh"
       }
     },
     "native-signalr-dependency-and-runtime-patch-2026-10-20": {
@@ -36115,7 +36295,7 @@
     },
     "reversal-optional-target-choices-and-shared-control-2026-10-20": {
       "evidenceCommit": "43d5b84e867eb09ca0570ed8774832ce70b04d87",
-      "currentImplementationCommit": "2b83ed2e6243f9e73cd92269f549867f02ea98ea",
+      "currentImplementationCommit": "25c628e74b25ea13f02602bae0d1056cc5b190ae",
       "currentImplementationIncludesUncommittedChanges": true,
       "currentInputRevision": "816510de29c4c161efef9bf564db861cb2de5d2ac71519413d56d39ede7268bb",
       "ciState": "PENDING",
@@ -36138,7 +36318,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "0724598002046a0ba0a74a2649685b595ddc55ace0bdf69008853b584b6f5da3",
+          "sha256": "f089c62032c01ab57c2bd1c19a788c095bf91126b14f631e54cab013f3847951",
           "role": "implementation"
         },
         {
@@ -36727,6 +36907,11 @@
       "currentVoidSelectedFieldInputRefresh": {
         "path": "docs/evidence/void-gate-selected-battlefield-2026-10-21/forty-four-current-input-only-context-refresh.json",
         "sha256": "5923a92b1e0ec469b398a47fa2e08487ef11a308b9b3164c09976a57b75f46c1",
+        "role": "current-input-refresh"
+      },
+      "currentTeemoCountedInputRefresh": {
+        "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/forty-current-input-context-refresh.json",
+        "sha256": "ca3edeb2cbd456c80578784f33d70705e73e4ab2c0eaf79c89719196b923e1d6",
         "role": "current-input-refresh"
       }
     },
@@ -38712,7 +38897,7 @@
     },
     "optional-observed-revealed-hand-current-cn16-2026-10-21": {
       "evidenceCommit": "646783cc05bb48ce19d69fc1c2fff50969438134",
-      "currentImplementationCommit": "2b83ed2e6243f9e73cd92269f549867f02ea98ea",
+      "currentImplementationCommit": "25c628e74b25ea13f02602bae0d1056cc5b190ae",
       "currentImplementationIncludesUncommittedChanges": true,
       "ciState": "PENDING",
       "ciReceipts": [],
@@ -38733,7 +38918,7 @@
         },
         {
           "path": "data/official/card-catalog.zh-CN.json",
-          "sha256": "f9b2394507ef8e35846d16e5fc1c2a767766757476bfe4a17a3cddc18df509de",
+          "sha256": "438a9ca8723a3b83ebedc6a928af80001bd1f093c53e8ff423437565897842b8",
           "role": "implementation"
         }
       ],
@@ -39102,11 +39287,16 @@
         "path": "docs/evidence/void-gate-selected-battlefield-2026-10-21/forty-four-current-input-only-context-refresh.json",
         "sha256": "5923a92b1e0ec469b398a47fa2e08487ef11a308b9b3164c09976a57b75f46c1",
         "role": "current-input-refresh"
+      },
+      "currentTeemoCountedInputRefresh": {
+        "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/forty-current-input-context-refresh.json",
+        "sha256": "ca3edeb2cbd456c80578784f33d70705e73e4ab2c0eaf79c89719196b923e1d6",
+        "role": "current-input-refresh"
       }
     },
     "void-gate-selected-battlefield-current-cn16-2026-10-21": {
       "evidenceCommit": "2b83ed2e6243f9e73cd92269f549867f02ea98ea",
-      "currentImplementationCommit": "2b83ed2e6243f9e73cd92269f549867f02ea98ea",
+      "currentImplementationCommit": "25c628e74b25ea13f02602bae0d1056cc5b190ae",
       "currentImplementationIncludesUncommittedChanges": true,
       "ciState": "PENDING",
       "ciReceipts": [],
@@ -39122,7 +39312,7 @@
       "implementation": [
         {
           "path": "data/official/card-catalog.zh-CN.json",
-          "sha256": "f9b2394507ef8e35846d16e5fc1c2a767766757476bfe4a17a3cddc18df509de",
+          "sha256": "438a9ca8723a3b83ebedc6a928af80001bd1f093c53e8ff423437565897842b8",
           "role": "implementation"
         },
         {
@@ -39142,7 +39332,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "0724598002046a0ba0a74a2649685b595ddc55ace0bdf69008853b584b6f5da3",
+          "sha256": "f089c62032c01ab57c2bd1c19a788c095bf91126b14f631e54cab013f3847951",
           "role": "implementation"
         }
       ],
@@ -39503,11 +39693,16 @@
             "USER_WINDOWS_RUNTIME"
           ]
         }
-      ]
+      ],
+      "currentTeemoCountedInputRefresh": {
+        "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/forty-current-input-context-refresh.json",
+        "sha256": "ca3edeb2cbd456c80578784f33d70705e73e4ab2c0eaf79c89719196b923e1d6",
+        "role": "current-input-refresh"
+      }
     },
     "exhausted-reksai-current-cn16-2026-10-21": {
       "evidenceCommit": "708a3558040f9acd4c66122a00db8ca085f460cf",
-      "currentImplementationCommit": "708a3558040f9acd4c66122a00db8ca085f460cf",
+      "currentImplementationCommit": "25c628e74b25ea13f02602bae0d1056cc5b190ae",
       "currentImplementationIncludesUncommittedChanges": true,
       "ciState": "PENDING",
       "ciReceipts": [],
@@ -39548,12 +39743,12 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "0724598002046a0ba0a74a2649685b595ddc55ace0bdf69008853b584b6f5da3",
+          "sha256": "f089c62032c01ab57c2bd1c19a788c095bf91126b14f631e54cab013f3847951",
           "role": "implementation"
         },
         {
           "path": "data/official/card-catalog.zh-CN.json",
-          "sha256": "f9b2394507ef8e35846d16e5fc1c2a767766757476bfe4a17a3cddc18df509de",
+          "sha256": "438a9ca8723a3b83ebedc6a928af80001bd1f093c53e8ff423437565897842b8",
           "role": "implementation"
         }
       ],
@@ -39829,25 +40024,41 @@
           },
           "issue": "https://github.com/DDDHL0704/riftbound/issues/81#issuecomment-6311998222",
           "semanticReview": {
-            "state": "EXACT_CURRENT_SOURCE_ADOPTION_GAP_OR_POSITIVE_DAMAGE_COUNTEREXAMPLE_CONFIRMED_NOT_FIXED"
+            "state": "BOUNDED_CURRENT_SOURCE_REVIEW_WITH_EXPLICIT_REMEDIATION_FOLLOWUP",
+            "wholeClauseOrPrintingCertified": false
           },
           "implementation": {
-            "state": "OPEN_UNCHANGED_CURRENT_GAMEPLAY"
+            "state": "FOUR_EXACT_EFFECTIVE_TEXT_FIELDS_ADOPTED",
+            "currentEvidence": {
+              "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/source-manifest.json",
+              "sha256": "8bb7e3baee6d63b923709d91b3c597385b330ee7a1fe02cdc802dcaa5ad3e381",
+              "role": "source-manifest"
+            }
           },
           "testExecution": {
-            "state": "SOURCE_EVIDENCE_AND_EIGHT_ACTUAL_COMMAND_COUNTEREXAMPLES_NOT_IMPLEMENTATION_PASS"
+            "state": "FOUR_CURRENT_SOURCE_ADOPTION_THEORY_ROWS_PASS",
+            "currentEvidence": {
+              "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/source-manifest.json",
+              "sha256": "8bb7e3baee6d63b923709d91b3c597385b330ee7a1fe02cdc802dcaa5ad3e381",
+              "role": "source-manifest"
+            }
           },
           "fixedCommitCi": {
-            "state": "OPEN"
+            "state": "PENDING_NEW_FIXED_FULL"
           },
           "productAcceptance": {
             "state": "OPEN"
           },
           "decision": {
             "state": "OPEN",
-            "reason": "Four exact runtime text gaps and four positive-count missing bonuses require separate fixes; four zero-count controls already match. No current branch certification."
+            "reason": "The previously recorded finding now has bounded current implementation/test evidence; new fixed full and current visible/Windows acceptance remain OPEN."
           },
-          "wholePrintingCertified": false
+          "wholePrintingCertified": false,
+          "currentBoundedFollowupSourceManifest": {
+            "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/source-manifest.json",
+            "sha256": "8bb7e3baee6d63b923709d91b3c597385b330ee7a1fe02cdc802dcaa5ad3e381",
+            "role": "source-manifest"
+          }
         },
         {
           "id": "supporting-teemo-positive-counted-defense-omits-void-local-bonus",
@@ -39874,13 +40085,1019 @@
           },
           "issue": "https://github.com/DDDHL0704/riftbound/issues/81#issuecomment-6311998222",
           "semanticReview": {
-            "state": "EXACT_CURRENT_SOURCE_ADOPTION_GAP_OR_POSITIVE_DAMAGE_COUNTEREXAMPLE_CONFIRMED_NOT_FIXED"
+            "state": "BOUNDED_CURRENT_SOURCE_REVIEW_WITH_EXPLICIT_REMEDIATION_FOLLOWUP",
+            "wholeClauseOrPrintingCertified": false
           },
           "implementation": {
-            "state": "OPEN_UNCHANGED_CURRENT_GAMEPLAY"
+            "state": "SHARED_POSITIVE_COUNTED_ACTION_LOCAL_BONUS_APPLIED_ZERO_GUARD_RETAINED",
+            "currentEvidence": {
+              "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/source-manifest.json",
+              "sha256": "8bb7e3baee6d63b923709d91b3c597385b330ee7a1fe02cdc802dcaa5ad3e381",
+              "role": "source-manifest"
+            }
           },
           "testExecution": {
-            "state": "SOURCE_EVIDENCE_AND_EIGHT_ACTUAL_COMMAND_COUNTEREXAMPLES_NOT_IMPLEMENTATION_PASS"
+            "state": "FOUR_ONE_COUNT_PRINTINGS_ACTUAL_COMMANDS_AND_REAL_SQL_PLUS_ALL_ZERO_TWO_COUNT_BRANCHES_PASS",
+            "currentEvidence": {
+              "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/source-manifest.json",
+              "sha256": "8bb7e3baee6d63b923709d91b3c597385b330ee7a1fe02cdc802dcaa5ad3e381",
+              "role": "source-manifest"
+            }
+          },
+          "fixedCommitCi": {
+            "state": "PENDING_NEW_FIXED_FULL"
+          },
+          "productAcceptance": {
+            "state": "OPEN"
+          },
+          "decision": {
+            "state": "OPEN",
+            "reason": "The previously recorded finding now has bounded current implementation/test evidence; new fixed full and current visible/Windows acceptance remain OPEN."
+          },
+          "wholePrintingCertified": false,
+          "currentBoundedFollowupSourceManifest": {
+            "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/source-manifest.json",
+            "sha256": "8bb7e3baee6d63b923709d91b3c597385b330ee7a1fe02cdc802dcaa5ad3e381",
+            "role": "source-manifest"
+          }
+        }
+      ],
+      "currentTeemoCountedInputRefresh": {
+        "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/forty-current-input-context-refresh.json",
+        "sha256": "ca3edeb2cbd456c80578784f33d70705e73e4ab2c0eaf79c89719196b923e1d6",
+        "role": "current-input-refresh"
+      }
+    },
+    "teemo-counted-current-cn16-2026-10-21": {
+      "evidenceCommit": "25c628e74b25ea13f02602bae0d1056cc5b190ae",
+      "currentImplementationCommit": "25c628e74b25ea13f02602bae0d1056cc5b190ae",
+      "currentImplementationIncludesUncommittedChanges": true,
+      "ciState": "PENDING",
+      "ciReceipts": [],
+      "region": "CN",
+      "language": "zh-CN",
+      "applicableAsOf": "2026-10-21",
+      "adoptedCoreEffectiveDate": "2026-10-16",
+      "sourceManifest": {
+        "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/source-manifest.json",
+        "sha256": "8bb7e3baee6d63b923709d91b3c597385b330ee7a1fe02cdc802dcaa5ad3e381",
+        "role": "source-manifest"
+      },
+      "implementation": [
+        {
+          "path": "data/official/card-catalog.zh-CN.json",
+          "sha256": "438a9ca8723a3b83ebedc6a928af80001bd1f093c53e8ff423437565897842b8",
+          "role": "implementation"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "sha256": "f089c62032c01ab57c2bd1c19a788c095bf91126b14f631e54cab013f3847951",
+          "role": "implementation"
+        },
+        {
+          "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+          "sha256": "c4e6be8d733ac6b4575a9bf6e99d1be2b886063d84ae59f69549a896f184c5bd",
+          "role": "implementation"
+        },
+        {
+          "path": "src/Riftbound.Engine/BattlefieldLocalRules.cs",
+          "sha256": "601080a057d0e96dbcd706cca2719428d5cf13b2e3dd0f8e86b0fbb88c4d266b",
+          "role": "implementation"
+        },
+        {
+          "path": "src/Riftbound.Engine/StandbyRules.cs",
+          "sha256": "0d89e74e4ce08d0a1479739db16fad133bb90f0f965d66ced7ffb7c477a4e865",
+          "role": "implementation"
+        },
+        {
+          "path": "src/Riftbound.Engine/RuleInputIdentity.cs",
+          "sha256": "3313b202b3d0399a56d48a57177e2652ad566c44158fa45d6db607615d0ae446",
+          "role": "implementation"
+        },
+        {
+          "path": "src/Riftbound.CardCatalog/OfficialCardCatalog.cs",
+          "sha256": "efb2abf583a27ca1c8b85a90b8ea1ff7c453dc5e20c7cb0af798f285f4bd6546",
+          "role": "implementation"
+        },
+        {
+          "path": "src/Riftbound.CardCatalog/ReviewedCardErrata.cs",
+          "sha256": "e1ccc54102d3b62e09a2d563a36b13d2e8f66a984102fe0b1ab567fa6642ebbd",
+          "role": "implementation"
+        }
+      ],
+      "verificationSources": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/CurrentTeemoCountedDamageTests.cs",
+          "sha256": "7e57b16414f36d67cb6c6f5fdfa41f64d6b8fcd7f2023476b29c68d5283d1da6",
+          "role": "verification-source"
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/StandbyDefendTeemoTests.cs",
+          "sha256": "813cd8eaa060d8ae78eb1a237c2403cc6bb59c2656ecbb4bd40b645f9729da45",
+          "role": "verification-source"
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/AhriCombatMightTests.cs",
+          "sha256": "0fb240ab8c1bdb98ee07ff9f875eefaa6523bd52ef018a9add5cef1982c325c8",
+          "role": "verification-source"
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/Cn16RuleInputSelectionTests.cs",
+          "sha256": "a01b9d6f7b3c2ae2058aa7b02d554bb608ca294f6f542e35fd90a5ca0bba1a5f",
+          "role": "verification-source"
+        },
+        {
+          "path": "tests/Riftbound.PostgresAcceptance/TeemoCountedDamageSqlAcceptance.cs",
+          "sha256": "f055ffbbac4fba89815d29dcec7a859b1a5fd0b96002f2baffae02b697baba66",
+          "role": "verification-source"
+        },
+        {
+          "path": "tests/Riftbound.PostgresAcceptance/Program.cs",
+          "sha256": "cd9ff66462cc2f045fbf653878510ac0d9e7f39b54edd154acb636092dcb40c2",
+          "role": "verification-source"
+        },
+        {
+          "path": "tests/Riftbound.PostgresAcceptance/SqlAcceptanceCases.json",
+          "sha256": "342ec965272cce90842d00401cdc52606d6aaffee7ff541f5a2695337b26ea20",
+          "role": "verification-source"
+        },
+        {
+          "path": "scripts/tests/test_sql_ci_gate.py",
+          "sha256": "ff1f203193c2bb57c25aa6e5433d00c5cc29c21e81572a99fe7f0d7d720e9e42",
+          "role": "verification-source"
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/final-focus-executed-distinct-scope.json",
+          "sha256": "acfce087075e3b730fd1597ca4a19d9fa6d91dddb560b02b27520a17d4d9f8dc",
+          "role": "focus"
+        },
+        {
+          "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/check-original-case-method-and-input-retention.json",
+          "sha256": "293256dcad625de5f229ae945418d2941083bed6167386d961e1688e3fa59780",
+          "role": "check"
+        },
+        {
+          "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/real-twelve-sql-terminal.json",
+          "sha256": "68f542b6d09307b8335b234ad512c6fdccb66f11087dfe93112bc78a94615b5e",
+          "role": "sql"
+        },
+        {
+          "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/independent-all-history-and-original-replay.json",
+          "sha256": "7188891ed5adecd0e5d7d67bcc145e90615fbb56e996168fb3b1b0cc4ac2e656",
+          "role": "independent-sql"
+        }
+      ],
+      "branches": [
+        {
+          "id": "teemo-ogn-121-exact-current-official-defend-erratum-adoption",
+          "sourceRefs": [
+            "OGN-121/298",
+            "DOC-16-P009-B004",
+            "DOC-16-P009-B005"
+          ],
+          "boundedCase": {
+            "exactPrinting": "OGN-121/298",
+            "onlyEffectiveCardTextAdopted": true,
+            "standbyPlayTriggerNotReintroduced": true
+          },
+          "state": "RECORDED",
+          "sourceManifest": {
+            "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/source-manifest.json",
+            "sha256": "8bb7e3baee6d63b923709d91b3c597385b330ee7a1fe02cdc802dcaa5ad3e381",
+            "role": "source-manifest"
+          },
+          "semanticReview": {
+            "state": "BOUNDED_CURRENT_PRIMARY_SOURCE_REVIEW_DERIVED_TWO_COUNT_EXPECTATION_EXPLICIT",
+            "wholeClauseOrPrintingCertified": false
+          },
+          "implementation": {
+            "state": "FOUR_EXACT_EFFECTIVE_TEXT_FIELDS_AND_EXISTING_SHARED_POSITIVE_COUNTED_LOCAL_BONUS"
+          },
+          "testExecution": {
+            "state": "CURRENT_FOCUS_REAL_SQL_COLD_DEDUP_INDEPENDENT_ALL_HISTORY_ORIGINAL_REPLAY_AND_FORGERY_PASS"
+          },
+          "fixedCommitCi": {
+            "state": "PENDING_NEW_FIXED_FULL"
+          },
+          "productAcceptance": {
+            "state": "OPEN"
+          },
+          "decision": {
+            "state": "OPEN",
+            "reason": "Bounded source/implementation/testing evidence still requires new fixed full and current product acceptance; other semantic branches remain open."
+          },
+          "wholePrintingCertified": false,
+          "existingAcceptanceGateDependencies": [
+            "DECK_OBSERVATION_FAMILY_ALL_APPLICABLE_CONSUMERS",
+            "FIXED_CURRENT_CANDIDATE_FULL",
+            "USER_WINDOWS_RUNTIME"
+          ]
+        },
+        {
+          "id": "teemo-ogn-121-actual-defend-choice-void-count-0",
+          "sourceRefs": [
+            "OGN-121/298",
+            "OGN-296/298",
+            "DOC-01-P013-B003",
+            "DOC-01-P013-B005",
+            "DOC-01-P106-B013",
+            "DOC-01-P106-B014",
+            "DOC-01-P106-B017",
+            "DOC-16-P012-B006"
+          ],
+          "boundedCase": {
+            "exactPrinting": "OGN-121/298",
+            "printedStandbyCount": 0,
+            "expectedDamage": 0,
+            "damageActions": 0,
+            "actualMoveChoiceAndTwoPriorityCommands": true,
+            "twoCountExpectationIsCombinedRuleInterpretation": false
+          },
+          "state": "RECORDED",
+          "sourceManifest": {
+            "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/source-manifest.json",
+            "sha256": "8bb7e3baee6d63b923709d91b3c597385b330ee7a1fe02cdc802dcaa5ad3e381",
+            "role": "source-manifest"
+          },
+          "semanticReview": {
+            "state": "BOUNDED_CURRENT_PRIMARY_SOURCE_REVIEW_DERIVED_TWO_COUNT_EXPECTATION_EXPLICIT",
+            "wholeClauseOrPrintingCertified": false
+          },
+          "implementation": {
+            "state": "FOUR_EXACT_EFFECTIVE_TEXT_FIELDS_AND_EXISTING_SHARED_POSITIVE_COUNTED_LOCAL_BONUS"
+          },
+          "testExecution": {
+            "state": "CURRENT_FOCUS_REAL_SQL_COLD_DEDUP_INDEPENDENT_ALL_HISTORY_ORIGINAL_REPLAY_AND_FORGERY_PASS"
+          },
+          "fixedCommitCi": {
+            "state": "PENDING_NEW_FIXED_FULL"
+          },
+          "productAcceptance": {
+            "state": "OPEN"
+          },
+          "decision": {
+            "state": "OPEN",
+            "reason": "Bounded source/implementation/testing evidence still requires new fixed full and current product acceptance; other semantic branches remain open."
+          },
+          "wholePrintingCertified": false,
+          "existingAcceptanceGateDependencies": [
+            "DECK_OBSERVATION_FAMILY_ALL_APPLICABLE_CONSUMERS",
+            "FIXED_CURRENT_CANDIDATE_FULL",
+            "USER_WINDOWS_RUNTIME"
+          ]
+        },
+        {
+          "id": "teemo-ogn-121-actual-defend-choice-void-count-1",
+          "sourceRefs": [
+            "OGN-121/298",
+            "OGN-296/298",
+            "DOC-01-P013-B003",
+            "DOC-01-P013-B005",
+            "DOC-01-P106-B013",
+            "DOC-01-P106-B014",
+            "DOC-01-P106-B017",
+            "DOC-16-P012-B006"
+          ],
+          "boundedCase": {
+            "exactPrinting": "OGN-121/298",
+            "printedStandbyCount": 1,
+            "expectedDamage": 2,
+            "damageActions": 1,
+            "actualMoveChoiceAndTwoPriorityCommands": true,
+            "twoCountExpectationIsCombinedRuleInterpretation": false
+          },
+          "state": "RECORDED",
+          "sourceManifest": {
+            "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/source-manifest.json",
+            "sha256": "8bb7e3baee6d63b923709d91b3c597385b330ee7a1fe02cdc802dcaa5ad3e381",
+            "role": "source-manifest"
+          },
+          "semanticReview": {
+            "state": "BOUNDED_CURRENT_PRIMARY_SOURCE_REVIEW_DERIVED_TWO_COUNT_EXPECTATION_EXPLICIT",
+            "wholeClauseOrPrintingCertified": false
+          },
+          "implementation": {
+            "state": "FOUR_EXACT_EFFECTIVE_TEXT_FIELDS_AND_EXISTING_SHARED_POSITIVE_COUNTED_LOCAL_BONUS"
+          },
+          "testExecution": {
+            "state": "CURRENT_FOCUS_REAL_SQL_COLD_DEDUP_INDEPENDENT_ALL_HISTORY_ORIGINAL_REPLAY_AND_FORGERY_PASS"
+          },
+          "fixedCommitCi": {
+            "state": "PENDING_NEW_FIXED_FULL"
+          },
+          "productAcceptance": {
+            "state": "OPEN"
+          },
+          "decision": {
+            "state": "OPEN",
+            "reason": "Bounded source/implementation/testing evidence still requires new fixed full and current product acceptance; other semantic branches remain open."
+          },
+          "wholePrintingCertified": false,
+          "existingAcceptanceGateDependencies": [
+            "DECK_OBSERVATION_FAMILY_ALL_APPLICABLE_CONSUMERS",
+            "FIXED_CURRENT_CANDIDATE_FULL",
+            "USER_WINDOWS_RUNTIME"
+          ]
+        },
+        {
+          "id": "teemo-ogn-121-actual-defend-choice-void-count-2",
+          "sourceRefs": [
+            "OGN-121/298",
+            "OGN-296/298",
+            "DOC-01-P013-B003",
+            "DOC-01-P013-B005",
+            "DOC-01-P106-B013",
+            "DOC-01-P106-B014",
+            "DOC-01-P106-B017",
+            "DOC-16-P012-B006"
+          ],
+          "boundedCase": {
+            "exactPrinting": "OGN-121/298",
+            "printedStandbyCount": 2,
+            "expectedDamage": 3,
+            "damageActions": 1,
+            "actualMoveChoiceAndTwoPriorityCommands": true,
+            "twoCountExpectationIsCombinedRuleInterpretation": true
+          },
+          "state": "RECORDED",
+          "sourceManifest": {
+            "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/source-manifest.json",
+            "sha256": "8bb7e3baee6d63b923709d91b3c597385b330ee7a1fe02cdc802dcaa5ad3e381",
+            "role": "source-manifest"
+          },
+          "semanticReview": {
+            "state": "BOUNDED_CURRENT_PRIMARY_SOURCE_REVIEW_DERIVED_TWO_COUNT_EXPECTATION_EXPLICIT",
+            "wholeClauseOrPrintingCertified": false
+          },
+          "implementation": {
+            "state": "FOUR_EXACT_EFFECTIVE_TEXT_FIELDS_AND_EXISTING_SHARED_POSITIVE_COUNTED_LOCAL_BONUS"
+          },
+          "testExecution": {
+            "state": "CURRENT_FOCUS_REAL_SQL_COLD_DEDUP_INDEPENDENT_ALL_HISTORY_ORIGINAL_REPLAY_AND_FORGERY_PASS"
+          },
+          "fixedCommitCi": {
+            "state": "PENDING_NEW_FIXED_FULL"
+          },
+          "productAcceptance": {
+            "state": "OPEN"
+          },
+          "decision": {
+            "state": "OPEN",
+            "reason": "Bounded source/implementation/testing evidence still requires new fixed full and current product acceptance; other semantic branches remain open."
+          },
+          "wholePrintingCertified": false,
+          "existingAcceptanceGateDependencies": [
+            "DECK_OBSERVATION_FAMILY_ALL_APPLICABLE_CONSUMERS",
+            "FIXED_CURRENT_CANDIDATE_FULL",
+            "USER_WINDOWS_RUNTIME"
+          ]
+        },
+        {
+          "id": "teemo-ogn-121a-exact-current-official-defend-erratum-adoption",
+          "sourceRefs": [
+            "OGN-121A/298",
+            "DOC-16-P009-B004",
+            "DOC-16-P009-B005"
+          ],
+          "boundedCase": {
+            "exactPrinting": "OGN-121A/298",
+            "onlyEffectiveCardTextAdopted": true,
+            "standbyPlayTriggerNotReintroduced": true
+          },
+          "state": "RECORDED",
+          "sourceManifest": {
+            "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/source-manifest.json",
+            "sha256": "8bb7e3baee6d63b923709d91b3c597385b330ee7a1fe02cdc802dcaa5ad3e381",
+            "role": "source-manifest"
+          },
+          "semanticReview": {
+            "state": "BOUNDED_CURRENT_PRIMARY_SOURCE_REVIEW_DERIVED_TWO_COUNT_EXPECTATION_EXPLICIT",
+            "wholeClauseOrPrintingCertified": false
+          },
+          "implementation": {
+            "state": "FOUR_EXACT_EFFECTIVE_TEXT_FIELDS_AND_EXISTING_SHARED_POSITIVE_COUNTED_LOCAL_BONUS"
+          },
+          "testExecution": {
+            "state": "CURRENT_FOCUS_REAL_SQL_COLD_DEDUP_INDEPENDENT_ALL_HISTORY_ORIGINAL_REPLAY_AND_FORGERY_PASS"
+          },
+          "fixedCommitCi": {
+            "state": "PENDING_NEW_FIXED_FULL"
+          },
+          "productAcceptance": {
+            "state": "OPEN"
+          },
+          "decision": {
+            "state": "OPEN",
+            "reason": "Bounded source/implementation/testing evidence still requires new fixed full and current product acceptance; other semantic branches remain open."
+          },
+          "wholePrintingCertified": false,
+          "existingAcceptanceGateDependencies": [
+            "DECK_OBSERVATION_FAMILY_ALL_APPLICABLE_CONSUMERS",
+            "FIXED_CURRENT_CANDIDATE_FULL",
+            "USER_WINDOWS_RUNTIME"
+          ]
+        },
+        {
+          "id": "teemo-ogn-121a-actual-defend-choice-void-count-0",
+          "sourceRefs": [
+            "OGN-121A/298",
+            "OGN-296/298",
+            "DOC-01-P013-B003",
+            "DOC-01-P013-B005",
+            "DOC-01-P106-B013",
+            "DOC-01-P106-B014",
+            "DOC-01-P106-B017",
+            "DOC-16-P012-B006"
+          ],
+          "boundedCase": {
+            "exactPrinting": "OGN-121A/298",
+            "printedStandbyCount": 0,
+            "expectedDamage": 0,
+            "damageActions": 0,
+            "actualMoveChoiceAndTwoPriorityCommands": true,
+            "twoCountExpectationIsCombinedRuleInterpretation": false
+          },
+          "state": "RECORDED",
+          "sourceManifest": {
+            "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/source-manifest.json",
+            "sha256": "8bb7e3baee6d63b923709d91b3c597385b330ee7a1fe02cdc802dcaa5ad3e381",
+            "role": "source-manifest"
+          },
+          "semanticReview": {
+            "state": "BOUNDED_CURRENT_PRIMARY_SOURCE_REVIEW_DERIVED_TWO_COUNT_EXPECTATION_EXPLICIT",
+            "wholeClauseOrPrintingCertified": false
+          },
+          "implementation": {
+            "state": "FOUR_EXACT_EFFECTIVE_TEXT_FIELDS_AND_EXISTING_SHARED_POSITIVE_COUNTED_LOCAL_BONUS"
+          },
+          "testExecution": {
+            "state": "CURRENT_FOCUS_REAL_SQL_COLD_DEDUP_INDEPENDENT_ALL_HISTORY_ORIGINAL_REPLAY_AND_FORGERY_PASS"
+          },
+          "fixedCommitCi": {
+            "state": "PENDING_NEW_FIXED_FULL"
+          },
+          "productAcceptance": {
+            "state": "OPEN"
+          },
+          "decision": {
+            "state": "OPEN",
+            "reason": "Bounded source/implementation/testing evidence still requires new fixed full and current product acceptance; other semantic branches remain open."
+          },
+          "wholePrintingCertified": false,
+          "existingAcceptanceGateDependencies": [
+            "DECK_OBSERVATION_FAMILY_ALL_APPLICABLE_CONSUMERS",
+            "FIXED_CURRENT_CANDIDATE_FULL",
+            "USER_WINDOWS_RUNTIME"
+          ]
+        },
+        {
+          "id": "teemo-ogn-121a-actual-defend-choice-void-count-1",
+          "sourceRefs": [
+            "OGN-121A/298",
+            "OGN-296/298",
+            "DOC-01-P013-B003",
+            "DOC-01-P013-B005",
+            "DOC-01-P106-B013",
+            "DOC-01-P106-B014",
+            "DOC-01-P106-B017",
+            "DOC-16-P012-B006"
+          ],
+          "boundedCase": {
+            "exactPrinting": "OGN-121A/298",
+            "printedStandbyCount": 1,
+            "expectedDamage": 2,
+            "damageActions": 1,
+            "actualMoveChoiceAndTwoPriorityCommands": true,
+            "twoCountExpectationIsCombinedRuleInterpretation": false
+          },
+          "state": "RECORDED",
+          "sourceManifest": {
+            "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/source-manifest.json",
+            "sha256": "8bb7e3baee6d63b923709d91b3c597385b330ee7a1fe02cdc802dcaa5ad3e381",
+            "role": "source-manifest"
+          },
+          "semanticReview": {
+            "state": "BOUNDED_CURRENT_PRIMARY_SOURCE_REVIEW_DERIVED_TWO_COUNT_EXPECTATION_EXPLICIT",
+            "wholeClauseOrPrintingCertified": false
+          },
+          "implementation": {
+            "state": "FOUR_EXACT_EFFECTIVE_TEXT_FIELDS_AND_EXISTING_SHARED_POSITIVE_COUNTED_LOCAL_BONUS"
+          },
+          "testExecution": {
+            "state": "CURRENT_FOCUS_REAL_SQL_COLD_DEDUP_INDEPENDENT_ALL_HISTORY_ORIGINAL_REPLAY_AND_FORGERY_PASS"
+          },
+          "fixedCommitCi": {
+            "state": "PENDING_NEW_FIXED_FULL"
+          },
+          "productAcceptance": {
+            "state": "OPEN"
+          },
+          "decision": {
+            "state": "OPEN",
+            "reason": "Bounded source/implementation/testing evidence still requires new fixed full and current product acceptance; other semantic branches remain open."
+          },
+          "wholePrintingCertified": false,
+          "existingAcceptanceGateDependencies": [
+            "DECK_OBSERVATION_FAMILY_ALL_APPLICABLE_CONSUMERS",
+            "FIXED_CURRENT_CANDIDATE_FULL",
+            "USER_WINDOWS_RUNTIME"
+          ]
+        },
+        {
+          "id": "teemo-ogn-121a-actual-defend-choice-void-count-2",
+          "sourceRefs": [
+            "OGN-121A/298",
+            "OGN-296/298",
+            "DOC-01-P013-B003",
+            "DOC-01-P013-B005",
+            "DOC-01-P106-B013",
+            "DOC-01-P106-B014",
+            "DOC-01-P106-B017",
+            "DOC-16-P012-B006"
+          ],
+          "boundedCase": {
+            "exactPrinting": "OGN-121A/298",
+            "printedStandbyCount": 2,
+            "expectedDamage": 3,
+            "damageActions": 1,
+            "actualMoveChoiceAndTwoPriorityCommands": true,
+            "twoCountExpectationIsCombinedRuleInterpretation": true
+          },
+          "state": "RECORDED",
+          "sourceManifest": {
+            "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/source-manifest.json",
+            "sha256": "8bb7e3baee6d63b923709d91b3c597385b330ee7a1fe02cdc802dcaa5ad3e381",
+            "role": "source-manifest"
+          },
+          "semanticReview": {
+            "state": "BOUNDED_CURRENT_PRIMARY_SOURCE_REVIEW_DERIVED_TWO_COUNT_EXPECTATION_EXPLICIT",
+            "wholeClauseOrPrintingCertified": false
+          },
+          "implementation": {
+            "state": "FOUR_EXACT_EFFECTIVE_TEXT_FIELDS_AND_EXISTING_SHARED_POSITIVE_COUNTED_LOCAL_BONUS"
+          },
+          "testExecution": {
+            "state": "CURRENT_FOCUS_REAL_SQL_COLD_DEDUP_INDEPENDENT_ALL_HISTORY_ORIGINAL_REPLAY_AND_FORGERY_PASS"
+          },
+          "fixedCommitCi": {
+            "state": "PENDING_NEW_FIXED_FULL"
+          },
+          "productAcceptance": {
+            "state": "OPEN"
+          },
+          "decision": {
+            "state": "OPEN",
+            "reason": "Bounded source/implementation/testing evidence still requires new fixed full and current product acceptance; other semantic branches remain open."
+          },
+          "wholePrintingCertified": false,
+          "existingAcceptanceGateDependencies": [
+            "DECK_OBSERVATION_FAMILY_ALL_APPLICABLE_CONSUMERS",
+            "FIXED_CURRENT_CANDIDATE_FULL",
+            "USER_WINDOWS_RUNTIME"
+          ]
+        },
+        {
+          "id": "teemo-sfd-230-exact-current-official-defend-erratum-adoption",
+          "sourceRefs": [
+            "SFD-230/221",
+            "DOC-16-P009-B004",
+            "DOC-16-P009-B005"
+          ],
+          "boundedCase": {
+            "exactPrinting": "SFD-230/221",
+            "onlyEffectiveCardTextAdopted": true,
+            "standbyPlayTriggerNotReintroduced": true
+          },
+          "state": "RECORDED",
+          "sourceManifest": {
+            "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/source-manifest.json",
+            "sha256": "8bb7e3baee6d63b923709d91b3c597385b330ee7a1fe02cdc802dcaa5ad3e381",
+            "role": "source-manifest"
+          },
+          "semanticReview": {
+            "state": "BOUNDED_CURRENT_PRIMARY_SOURCE_REVIEW_DERIVED_TWO_COUNT_EXPECTATION_EXPLICIT",
+            "wholeClauseOrPrintingCertified": false
+          },
+          "implementation": {
+            "state": "FOUR_EXACT_EFFECTIVE_TEXT_FIELDS_AND_EXISTING_SHARED_POSITIVE_COUNTED_LOCAL_BONUS"
+          },
+          "testExecution": {
+            "state": "CURRENT_FOCUS_REAL_SQL_COLD_DEDUP_INDEPENDENT_ALL_HISTORY_ORIGINAL_REPLAY_AND_FORGERY_PASS"
+          },
+          "fixedCommitCi": {
+            "state": "PENDING_NEW_FIXED_FULL"
+          },
+          "productAcceptance": {
+            "state": "OPEN"
+          },
+          "decision": {
+            "state": "OPEN",
+            "reason": "Bounded source/implementation/testing evidence still requires new fixed full and current product acceptance; other semantic branches remain open."
+          },
+          "wholePrintingCertified": false,
+          "existingAcceptanceGateDependencies": [
+            "DECK_OBSERVATION_FAMILY_ALL_APPLICABLE_CONSUMERS",
+            "FIXED_CURRENT_CANDIDATE_FULL",
+            "USER_WINDOWS_RUNTIME"
+          ]
+        },
+        {
+          "id": "teemo-sfd-230-actual-defend-choice-void-count-0",
+          "sourceRefs": [
+            "SFD-230/221",
+            "OGN-296/298",
+            "DOC-01-P013-B003",
+            "DOC-01-P013-B005",
+            "DOC-01-P106-B013",
+            "DOC-01-P106-B014",
+            "DOC-01-P106-B017",
+            "DOC-16-P012-B006"
+          ],
+          "boundedCase": {
+            "exactPrinting": "SFD-230/221",
+            "printedStandbyCount": 0,
+            "expectedDamage": 0,
+            "damageActions": 0,
+            "actualMoveChoiceAndTwoPriorityCommands": true,
+            "twoCountExpectationIsCombinedRuleInterpretation": false
+          },
+          "state": "RECORDED",
+          "sourceManifest": {
+            "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/source-manifest.json",
+            "sha256": "8bb7e3baee6d63b923709d91b3c597385b330ee7a1fe02cdc802dcaa5ad3e381",
+            "role": "source-manifest"
+          },
+          "semanticReview": {
+            "state": "BOUNDED_CURRENT_PRIMARY_SOURCE_REVIEW_DERIVED_TWO_COUNT_EXPECTATION_EXPLICIT",
+            "wholeClauseOrPrintingCertified": false
+          },
+          "implementation": {
+            "state": "FOUR_EXACT_EFFECTIVE_TEXT_FIELDS_AND_EXISTING_SHARED_POSITIVE_COUNTED_LOCAL_BONUS"
+          },
+          "testExecution": {
+            "state": "CURRENT_FOCUS_REAL_SQL_COLD_DEDUP_INDEPENDENT_ALL_HISTORY_ORIGINAL_REPLAY_AND_FORGERY_PASS"
+          },
+          "fixedCommitCi": {
+            "state": "PENDING_NEW_FIXED_FULL"
+          },
+          "productAcceptance": {
+            "state": "OPEN"
+          },
+          "decision": {
+            "state": "OPEN",
+            "reason": "Bounded source/implementation/testing evidence still requires new fixed full and current product acceptance; other semantic branches remain open."
+          },
+          "wholePrintingCertified": false,
+          "existingAcceptanceGateDependencies": [
+            "DECK_OBSERVATION_FAMILY_ALL_APPLICABLE_CONSUMERS",
+            "FIXED_CURRENT_CANDIDATE_FULL",
+            "USER_WINDOWS_RUNTIME"
+          ]
+        },
+        {
+          "id": "teemo-sfd-230-actual-defend-choice-void-count-1",
+          "sourceRefs": [
+            "SFD-230/221",
+            "OGN-296/298",
+            "DOC-01-P013-B003",
+            "DOC-01-P013-B005",
+            "DOC-01-P106-B013",
+            "DOC-01-P106-B014",
+            "DOC-01-P106-B017",
+            "DOC-16-P012-B006"
+          ],
+          "boundedCase": {
+            "exactPrinting": "SFD-230/221",
+            "printedStandbyCount": 1,
+            "expectedDamage": 2,
+            "damageActions": 1,
+            "actualMoveChoiceAndTwoPriorityCommands": true,
+            "twoCountExpectationIsCombinedRuleInterpretation": false
+          },
+          "state": "RECORDED",
+          "sourceManifest": {
+            "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/source-manifest.json",
+            "sha256": "8bb7e3baee6d63b923709d91b3c597385b330ee7a1fe02cdc802dcaa5ad3e381",
+            "role": "source-manifest"
+          },
+          "semanticReview": {
+            "state": "BOUNDED_CURRENT_PRIMARY_SOURCE_REVIEW_DERIVED_TWO_COUNT_EXPECTATION_EXPLICIT",
+            "wholeClauseOrPrintingCertified": false
+          },
+          "implementation": {
+            "state": "FOUR_EXACT_EFFECTIVE_TEXT_FIELDS_AND_EXISTING_SHARED_POSITIVE_COUNTED_LOCAL_BONUS"
+          },
+          "testExecution": {
+            "state": "CURRENT_FOCUS_REAL_SQL_COLD_DEDUP_INDEPENDENT_ALL_HISTORY_ORIGINAL_REPLAY_AND_FORGERY_PASS"
+          },
+          "fixedCommitCi": {
+            "state": "PENDING_NEW_FIXED_FULL"
+          },
+          "productAcceptance": {
+            "state": "OPEN"
+          },
+          "decision": {
+            "state": "OPEN",
+            "reason": "Bounded source/implementation/testing evidence still requires new fixed full and current product acceptance; other semantic branches remain open."
+          },
+          "wholePrintingCertified": false,
+          "existingAcceptanceGateDependencies": [
+            "DECK_OBSERVATION_FAMILY_ALL_APPLICABLE_CONSUMERS",
+            "FIXED_CURRENT_CANDIDATE_FULL",
+            "USER_WINDOWS_RUNTIME"
+          ]
+        },
+        {
+          "id": "teemo-sfd-230-actual-defend-choice-void-count-2",
+          "sourceRefs": [
+            "SFD-230/221",
+            "OGN-296/298",
+            "DOC-01-P013-B003",
+            "DOC-01-P013-B005",
+            "DOC-01-P106-B013",
+            "DOC-01-P106-B014",
+            "DOC-01-P106-B017",
+            "DOC-16-P012-B006"
+          ],
+          "boundedCase": {
+            "exactPrinting": "SFD-230/221",
+            "printedStandbyCount": 2,
+            "expectedDamage": 3,
+            "damageActions": 1,
+            "actualMoveChoiceAndTwoPriorityCommands": true,
+            "twoCountExpectationIsCombinedRuleInterpretation": true
+          },
+          "state": "RECORDED",
+          "sourceManifest": {
+            "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/source-manifest.json",
+            "sha256": "8bb7e3baee6d63b923709d91b3c597385b330ee7a1fe02cdc802dcaa5ad3e381",
+            "role": "source-manifest"
+          },
+          "semanticReview": {
+            "state": "BOUNDED_CURRENT_PRIMARY_SOURCE_REVIEW_DERIVED_TWO_COUNT_EXPECTATION_EXPLICIT",
+            "wholeClauseOrPrintingCertified": false
+          },
+          "implementation": {
+            "state": "FOUR_EXACT_EFFECTIVE_TEXT_FIELDS_AND_EXISTING_SHARED_POSITIVE_COUNTED_LOCAL_BONUS"
+          },
+          "testExecution": {
+            "state": "CURRENT_FOCUS_REAL_SQL_COLD_DEDUP_INDEPENDENT_ALL_HISTORY_ORIGINAL_REPLAY_AND_FORGERY_PASS"
+          },
+          "fixedCommitCi": {
+            "state": "PENDING_NEW_FIXED_FULL"
+          },
+          "productAcceptance": {
+            "state": "OPEN"
+          },
+          "decision": {
+            "state": "OPEN",
+            "reason": "Bounded source/implementation/testing evidence still requires new fixed full and current product acceptance; other semantic branches remain open."
+          },
+          "wholePrintingCertified": false,
+          "existingAcceptanceGateDependencies": [
+            "DECK_OBSERVATION_FAMILY_ALL_APPLICABLE_CONSUMERS",
+            "FIXED_CURRENT_CANDIDATE_FULL",
+            "USER_WINDOWS_RUNTIME"
+          ]
+        },
+        {
+          "id": "teemo-sfd-230-star-exact-current-official-defend-erratum-adoption",
+          "sourceRefs": [
+            "SFD-230*/221",
+            "DOC-16-P009-B004",
+            "DOC-16-P009-B005"
+          ],
+          "boundedCase": {
+            "exactPrinting": "SFD-230*/221",
+            "onlyEffectiveCardTextAdopted": true,
+            "standbyPlayTriggerNotReintroduced": true
+          },
+          "state": "RECORDED",
+          "sourceManifest": {
+            "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/source-manifest.json",
+            "sha256": "8bb7e3baee6d63b923709d91b3c597385b330ee7a1fe02cdc802dcaa5ad3e381",
+            "role": "source-manifest"
+          },
+          "semanticReview": {
+            "state": "BOUNDED_CURRENT_PRIMARY_SOURCE_REVIEW_DERIVED_TWO_COUNT_EXPECTATION_EXPLICIT",
+            "wholeClauseOrPrintingCertified": false
+          },
+          "implementation": {
+            "state": "FOUR_EXACT_EFFECTIVE_TEXT_FIELDS_AND_EXISTING_SHARED_POSITIVE_COUNTED_LOCAL_BONUS"
+          },
+          "testExecution": {
+            "state": "CURRENT_FOCUS_REAL_SQL_COLD_DEDUP_INDEPENDENT_ALL_HISTORY_ORIGINAL_REPLAY_AND_FORGERY_PASS"
+          },
+          "fixedCommitCi": {
+            "state": "PENDING_NEW_FIXED_FULL"
+          },
+          "productAcceptance": {
+            "state": "OPEN"
+          },
+          "decision": {
+            "state": "OPEN",
+            "reason": "Bounded source/implementation/testing evidence still requires new fixed full and current product acceptance; other semantic branches remain open."
+          },
+          "wholePrintingCertified": false,
+          "existingAcceptanceGateDependencies": [
+            "DECK_OBSERVATION_FAMILY_ALL_APPLICABLE_CONSUMERS",
+            "FIXED_CURRENT_CANDIDATE_FULL",
+            "USER_WINDOWS_RUNTIME"
+          ]
+        },
+        {
+          "id": "teemo-sfd-230-star-actual-defend-choice-void-count-0",
+          "sourceRefs": [
+            "SFD-230*/221",
+            "OGN-296/298",
+            "DOC-01-P013-B003",
+            "DOC-01-P013-B005",
+            "DOC-01-P106-B013",
+            "DOC-01-P106-B014",
+            "DOC-01-P106-B017",
+            "DOC-16-P012-B006"
+          ],
+          "boundedCase": {
+            "exactPrinting": "SFD-230*/221",
+            "printedStandbyCount": 0,
+            "expectedDamage": 0,
+            "damageActions": 0,
+            "actualMoveChoiceAndTwoPriorityCommands": true,
+            "twoCountExpectationIsCombinedRuleInterpretation": false
+          },
+          "state": "RECORDED",
+          "sourceManifest": {
+            "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/source-manifest.json",
+            "sha256": "8bb7e3baee6d63b923709d91b3c597385b330ee7a1fe02cdc802dcaa5ad3e381",
+            "role": "source-manifest"
+          },
+          "semanticReview": {
+            "state": "BOUNDED_CURRENT_PRIMARY_SOURCE_REVIEW_DERIVED_TWO_COUNT_EXPECTATION_EXPLICIT",
+            "wholeClauseOrPrintingCertified": false
+          },
+          "implementation": {
+            "state": "FOUR_EXACT_EFFECTIVE_TEXT_FIELDS_AND_EXISTING_SHARED_POSITIVE_COUNTED_LOCAL_BONUS"
+          },
+          "testExecution": {
+            "state": "CURRENT_FOCUS_REAL_SQL_COLD_DEDUP_INDEPENDENT_ALL_HISTORY_ORIGINAL_REPLAY_AND_FORGERY_PASS"
+          },
+          "fixedCommitCi": {
+            "state": "PENDING_NEW_FIXED_FULL"
+          },
+          "productAcceptance": {
+            "state": "OPEN"
+          },
+          "decision": {
+            "state": "OPEN",
+            "reason": "Bounded source/implementation/testing evidence still requires new fixed full and current product acceptance; other semantic branches remain open."
+          },
+          "wholePrintingCertified": false,
+          "existingAcceptanceGateDependencies": [
+            "DECK_OBSERVATION_FAMILY_ALL_APPLICABLE_CONSUMERS",
+            "FIXED_CURRENT_CANDIDATE_FULL",
+            "USER_WINDOWS_RUNTIME"
+          ]
+        },
+        {
+          "id": "teemo-sfd-230-star-actual-defend-choice-void-count-1",
+          "sourceRefs": [
+            "SFD-230*/221",
+            "OGN-296/298",
+            "DOC-01-P013-B003",
+            "DOC-01-P013-B005",
+            "DOC-01-P106-B013",
+            "DOC-01-P106-B014",
+            "DOC-01-P106-B017",
+            "DOC-16-P012-B006"
+          ],
+          "boundedCase": {
+            "exactPrinting": "SFD-230*/221",
+            "printedStandbyCount": 1,
+            "expectedDamage": 2,
+            "damageActions": 1,
+            "actualMoveChoiceAndTwoPriorityCommands": true,
+            "twoCountExpectationIsCombinedRuleInterpretation": false
+          },
+          "state": "RECORDED",
+          "sourceManifest": {
+            "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/source-manifest.json",
+            "sha256": "8bb7e3baee6d63b923709d91b3c597385b330ee7a1fe02cdc802dcaa5ad3e381",
+            "role": "source-manifest"
+          },
+          "semanticReview": {
+            "state": "BOUNDED_CURRENT_PRIMARY_SOURCE_REVIEW_DERIVED_TWO_COUNT_EXPECTATION_EXPLICIT",
+            "wholeClauseOrPrintingCertified": false
+          },
+          "implementation": {
+            "state": "FOUR_EXACT_EFFECTIVE_TEXT_FIELDS_AND_EXISTING_SHARED_POSITIVE_COUNTED_LOCAL_BONUS"
+          },
+          "testExecution": {
+            "state": "CURRENT_FOCUS_REAL_SQL_COLD_DEDUP_INDEPENDENT_ALL_HISTORY_ORIGINAL_REPLAY_AND_FORGERY_PASS"
+          },
+          "fixedCommitCi": {
+            "state": "PENDING_NEW_FIXED_FULL"
+          },
+          "productAcceptance": {
+            "state": "OPEN"
+          },
+          "decision": {
+            "state": "OPEN",
+            "reason": "Bounded source/implementation/testing evidence still requires new fixed full and current product acceptance; other semantic branches remain open."
+          },
+          "wholePrintingCertified": false,
+          "existingAcceptanceGateDependencies": [
+            "DECK_OBSERVATION_FAMILY_ALL_APPLICABLE_CONSUMERS",
+            "FIXED_CURRENT_CANDIDATE_FULL",
+            "USER_WINDOWS_RUNTIME"
+          ]
+        },
+        {
+          "id": "teemo-sfd-230-star-actual-defend-choice-void-count-2",
+          "sourceRefs": [
+            "SFD-230*/221",
+            "OGN-296/298",
+            "DOC-01-P013-B003",
+            "DOC-01-P013-B005",
+            "DOC-01-P106-B013",
+            "DOC-01-P106-B014",
+            "DOC-01-P106-B017",
+            "DOC-16-P012-B006"
+          ],
+          "boundedCase": {
+            "exactPrinting": "SFD-230*/221",
+            "printedStandbyCount": 2,
+            "expectedDamage": 3,
+            "damageActions": 1,
+            "actualMoveChoiceAndTwoPriorityCommands": true,
+            "twoCountExpectationIsCombinedRuleInterpretation": true
+          },
+          "state": "RECORDED",
+          "sourceManifest": {
+            "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/source-manifest.json",
+            "sha256": "8bb7e3baee6d63b923709d91b3c597385b330ee7a1fe02cdc802dcaa5ad3e381",
+            "role": "source-manifest"
+          },
+          "semanticReview": {
+            "state": "BOUNDED_CURRENT_PRIMARY_SOURCE_REVIEW_DERIVED_TWO_COUNT_EXPECTATION_EXPLICIT",
+            "wholeClauseOrPrintingCertified": false
+          },
+          "implementation": {
+            "state": "FOUR_EXACT_EFFECTIVE_TEXT_FIELDS_AND_EXISTING_SHARED_POSITIVE_COUNTED_LOCAL_BONUS"
+          },
+          "testExecution": {
+            "state": "CURRENT_FOCUS_REAL_SQL_COLD_DEDUP_INDEPENDENT_ALL_HISTORY_ORIGINAL_REPLAY_AND_FORGERY_PASS"
+          },
+          "fixedCommitCi": {
+            "state": "PENDING_NEW_FIXED_FULL"
+          },
+          "productAcceptance": {
+            "state": "OPEN"
+          },
+          "decision": {
+            "state": "OPEN",
+            "reason": "Bounded source/implementation/testing evidence still requires new fixed full and current product acceptance; other semantic branches remain open."
+          },
+          "wholePrintingCertified": false,
+          "existingAcceptanceGateDependencies": [
+            "DECK_OBSERVATION_FAMILY_ALL_APPLICABLE_CONSUMERS",
+            "FIXED_CURRENT_CANDIDATE_FULL",
+            "USER_WINDOWS_RUNTIME"
+          ]
+        },
+        {
+          "id": "supporting-own-on-field-annie-one-count-teemo-defense-global-skill-bonus-omitted",
+          "sourceRefs": [
+            "OGS-001/024",
+            "OGN-121/298",
+            "DOC-01-P106-B013",
+            "DOC-01-P106-B014",
+            "DOC-01-P106-B017"
+          ],
+          "issue": "https://github.com/DDDHL0704/riftbound/issues/83",
+          "boundedCase": {
+            "matchingZeroOtherControllerAndHandControls": 5,
+            "positiveOwnOnFieldOneCountCounterexample": 1,
+            "actualAcceptedCommands": 24,
+            "expectedDamage": 2,
+            "actualDamage": 1,
+            "newFixOrWholePrintingCertified": false
+          },
+          "state": "OPEN",
+          "sourceManifest": {
+            "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/source-manifest.json",
+            "sha256": "8bb7e3baee6d63b923709d91b3c597385b330ee7a1fe02cdc802dcaa5ad3e381",
+            "role": "source-manifest"
+          },
+          "semanticReview": {
+            "state": "ONE_EXACT_CURRENT_COUNTEREXAMPLE_WITH_FIVE_MATCHING_CONTROLS"
+          },
+          "implementation": {
+            "state": "OPEN_NO_GLOBAL_ANNIE_FIX"
+          },
+          "testExecution": {
+            "state": "SIX_ACTUAL_CASES24COMMANDS_COUNTEREXAMPLE_NOT_IMPLEMENTATION_PASS"
           },
           "fixedCommitCi": {
             "state": "OPEN"
@@ -39890,7 +41107,7 @@
           },
           "decision": {
             "state": "OPEN",
-            "reason": "Four exact runtime text gaps and four positive-count missing bonuses require separate fixes; four zero-count controls already match. No current branch certification."
+            "reason": "Own-on-field Annie count1 expected2 actual1 requires a separate source-grounded shared modifier fix."
           },
           "wholePrintingCertified": false
         }
@@ -40027,6 +41244,11 @@
       "currentSupportingTeemoTwoSeparateOpenSourceDamageFindings": {
         "path": "docs/evidence/exhausted-reksai-current-cn16-2026-10-21/separate-open-teemo-source-and-positive-damage-findings.json",
         "sha256": "f76a20285cbc36b9b6cf4412ca33c4771f03812fdfba25cf02304ad67688b57b"
+      },
+      "currentTeemoBoundedFollowupAndSeparateOpenAnnie": {
+        "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/source-manifest.json",
+        "sha256": "8bb7e3baee6d63b923709d91b3c597385b330ee7a1fe02cdc802dcaa5ad3e381",
+        "role": "source-manifest"
       }
     },
     {
@@ -40070,6 +41292,11 @@
       "currentExhaustedReksaiFourIntegratedSqlBranches": {
         "path": "docs/evidence/exhausted-reksai-current-cn16-2026-10-21/source-manifest.json",
         "sha256": "c19153125d36499c811f78afb8373ce5f89dccf903f8a6571c51972694818212",
+        "role": "source-manifest"
+      },
+      "currentTeemoCountedDefenseBoundedSqlBranches": {
+        "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/source-manifest.json",
+        "sha256": "8bb7e3baee6d63b923709d91b3c597385b330ee7a1fe02cdc802dcaa5ad3e381",
         "role": "source-manifest"
       }
     },
@@ -52912,5 +54139,14 @@
     "path": "docs/evidence/exhausted-reksai-current-cn16-2026-10-21/preceding-fixed708-headless-ci-native-subscope.json",
     "sha256": "772100b11ffe27f15512519c7702238c8a7f88b22f65ee0400657157a3289aff",
     "role": "preceding-fixed-headless-native-subscope"
+  },
+  "currentTeemoCountedAndSeparateAnnieInputChange": {
+    "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/source-manifest.json",
+    "sha256": "8bb7e3baee6d63b923709d91b3c597385b330ee7a1fe02cdc802dcaa5ad3e381",
+    "role": "source-manifest"
+  },
+  "currentTeemoPriorFindingStageFollowups": {
+    "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/two-prior-findings-explicit-current-stage-followups.json",
+    "sha256": "4b5f2fe6c6d38794b1bef49cd12d2e0a0adfd66741d2c87c3be47f6e7c8f8fc1"
   }
 }

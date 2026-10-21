@@ -31602,6 +31602,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         var remainingViewed=ObserveDeckCards(state,playerZones,cardObjects,stackItem,stackItem.ControllerId,viewedCardIds,"REVEAL",0,events);
 
+        // A zero count performs no damage action (715.4). For a performed
+        // counted action, apply its local bonus before damage prevention.
         if (damageAmount > 0)
         {
             foreach (var targetObjectId in stackItem.TargetObjectIds)
@@ -31615,7 +31617,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     cardObjects,
                     stackItem.ControllerId,
                     targetObjectId,
-                    damageAmount,
+                    ApplyBattlefieldTargetSpellSkillDamageBonus(state, targetObjectId, damageAmount),
                     damageTriggeredDestroyTargetObjectIds,
                     preventDamage,
                     preventionEffectId);

@@ -1,0 +1,23 @@
+{
+  "atUtc": "2026-10-21T10:46:28.530419+00:00",
+  "status": "RETIRED_ONLY_COMPLETED_HELPER_REGENERABLE_BUILD_STAGING_AFTER_EXECUTED_DLL_PDB_BYTE_CHECK",
+  "directories": [
+    "var/qa/teemo-counted-damage-current-cn16-20261021/counterexample-source-v1/bin",
+    "var/qa/teemo-counted-damage-current-cn16-20261021/counterexample-source-v1/obj",
+    "var/qa/teemo-counted-damage-current-cn16-20261021/current-counted-independent-reader-source-v1/bin",
+    "var/qa/teemo-counted-damage-current-cn16-20261021/current-counted-independent-reader-source-v1/obj",
+    "var/qa/teemo-counted-damage-current-cn16-20261021/affected-original-pair-source-v1/bin",
+    "var/qa/teemo-counted-damage-current-cn16-20261021/affected-original-pair-source-v1/obj",
+    "var/qa/teemo-counted-damage-current-cn16-20261021/current-counted-independent-reader-source-v2/bin",
+    "var/qa/teemo-counted-damage-current-cn16-20261021/current-counted-independent-reader-source-v2/obj",
+    "var/qa/teemo-counted-damage-current-cn16-20261021/supporting-annie-counterexample-source-v1/bin",
+    "var/qa/teemo-counted-damage-current-cn16-20261021/supporting-annie-counterexample-source-v1/obj"
+  ],
+  "directoryCount": 10,
+  "fileCount": 120,
+  "logicalBytes": 960152,
+  "manifest": "var/qa/teemo-counted-damage-current-cn16-20261021/completed-current-five-helper-generated-staging-manifest-v1.json.gz",
+  "sourceAndFrozenExecutedRuntimesAndFailuresAndDatabaseRetained": true,
+  "activeCheckRootRuntimeAndNativeAppsNotTouched": true,
+  "physicalReclaimedBytesNotInferred": true
+}

@@ -24439,6 +24439,74 @@
         "New fixed commit full CI and current visible/hardware paired controls, physical Windows and final-candidate product acceptance",
         "Both separate Teemo catalog-adoption and positive counted-damage gaps remain unimplemented; zero-count controls already match, broader count/zero/prevention semantics OPEN"
       ]
+    },
+    {
+      "id": "teemo-counted-current-cn16-2026-10-21",
+      "scope": "Only four exact current Teemo source adoptions and actual counted defense on Void Gate with0/1/2 printed Hidden; separate6-case Annie counterexample remains OPEN. Full current product, other damage semantics and whole printings are not certified.",
+      "subjects": [
+        "OGN-121/298",
+        "OGN-121A/298",
+        "SFD-230/221",
+        "SFD-230*/221",
+        "OGN-296/298",
+        "OGS-001/024"
+      ],
+      "ruleRecords": [
+        "DOC-01-P013-B003",
+        "DOC-01-P013-B004",
+        "DOC-01-P013-B005",
+        "DOC-16-P009-B004",
+        "DOC-16-P009-B005",
+        "DOC-16-P012-B006",
+        "DOC-16-P012-B007",
+        "DOC-01-P106-B009",
+        "DOC-01-P106-B010",
+        "DOC-01-P106-B013",
+        "DOC-01-P106-B014",
+        "DOC-01-P106-B017"
+      ],
+      "pendingRuleRecords": [
+        "DOC-01-P106-B011",
+        "DOC-01-P106-B012",
+        "DOC-01-P106-B015",
+        "DOC-01-P106-B016",
+        "DOC-01-P106-B018"
+      ],
+      "status": "BOUNDED_TEEMO_SQL48_152_CHECK13252PASS_2SOURCE_EXPECTATIONS_FOCUS77_PASS_NEW_FULL_PRODUCT_OPEN_ANNIE_OPEN",
+      "sourceManifest": {
+        "path": "docs/evidence/teemo-counted-current-cn16-2026-10-21/source-manifest.json",
+        "sha256": "8bb7e3baee6d63b923709d91b3c597385b330ee7a1fe02cdc802dcaa5ad3e381",
+        "role": "source-manifest"
+      },
+      "auditDocument": "docs/TEEMO_COUNTED_CURRENT_CN16_AUDIT_2026-10-21.md",
+      "validation": {
+        "newConformanceCases": 16,
+        "newConformanceMethods": 2,
+        "distinctFocusCases": 180,
+        "distinctFocusMethods": 74,
+        "checkCases": 13254,
+        "checkMethods": 7510,
+        "checkPassed": 13252,
+        "checkFailed": 2,
+        "postCheckRemediationFocusCases": 77,
+        "postCheckRemediationFocusMethods": 26,
+        "sqlCases": 12,
+        "sqlCommands": 48,
+        "sqlEvents": 152,
+        "sqlColdRecoveries": 48,
+        "affectedOriginalPairDirections": 80,
+        "separateOpenAnnieCases": 6,
+        "allOriginal53Sql143FullMethodsAndSourceTheoriesRetained": true,
+        "wholeCardCertification": false
+      },
+      "exclusions": [
+        "Whole printings or all possible top-five counts are not certified; bounded execution is counts0/1/2.",
+        "All other source departure, reentry, copied or granted trigger and target movement branches retain separate scope.",
+        "Global controller bonus on a single counted defense has the separate confirmed Annie#83 counterexample; no global fix is claimed.",
+        "Rabadon armament positive bonus, prevention/replacement/resistance and all other damage consumers remain separately open; adjacent passing tests do not certify their complete semantics.",
+        "Current new fixed full, visible paired native controls/reconnect/normal scoring/full replay and physical Windows remain open.",
+        "All source gaps, original dates,143 original full-game methods,110 pairs,11 decks,seed424242 and assertions are retained."
+      ]
     }
   ]
 }

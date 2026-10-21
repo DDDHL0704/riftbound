@@ -214,6 +214,10 @@
     {
       "id": "exhausted-legend-confirmation",
       "sourceType": "ExhaustedLegendConfirmationSqlAcceptance"
+    },
+    {
+      "id": "teemo-counted-damage",
+      "sourceType": "TeemoCountedDamageSqlAcceptance"
     }
   ]
 }

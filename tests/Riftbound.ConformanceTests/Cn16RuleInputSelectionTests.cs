@@ -11,6 +11,7 @@ public sealed class Cn16RuleInputSelectionTests
     private const string PriorAuthority = "b3c0ed37468d6b2567c475e602c9d7c89a48a671454a0d1e29180374f0aec9a3";
     private const string PriorCn16Catalog = "eef90d99a6c88fbbf1763e94b733656254ffcd2a266000545595607a9b8ab76d";
     private const string PriorBoneErratumCatalog = "d5dbe0401fc52312c0f9033702b8090ff4063499db878706317dc259d051ac29";
+    private const string PriorVoidErratumCatalog = "a940e5f8bcd5e1ead68a85c7f983e530333d6179a4b8429ed1f8fe2ee20b8397";
 
     [Fact]
     public void ActualPackagedInputsSelectTheCurrentCnCoreWithoutCertifyingAllItsSemantics()
@@ -35,8 +36,8 @@ public sealed class Cn16RuleInputSelectionTests
         Assert.Equal(1504, scope.GetProperty("cardQa").GetProperty("entries").GetInt32());
         Assert.Equal("0f5f933ced955f89b9046eb66bf07f62b4d827464b23669b8af6a009b2fc784c", scope.GetProperty("cardQa").GetProperty("sha256").GetString());
         Assert.NotEqual(PriorAuthority, RuleInputIdentity.Current.AuthoritySha256);
-        // Exact UNL-139/219 and OGN·296/298 current errata; authority and scope remain unchanged.
-        Assert.Equal("a940e5f8bcd5e1ead68a85c7f983e530333d6179a4b8429ed1f8fe2ee20b8397", RuleInputIdentity.Current.CatalogSha256);
+        // Exact UNL-139/219, OGN·296/298 and four DOC-16-P009-B004 Teemo errata; authority/scope unchanged.
+        Assert.Equal("e7455edc32d43f8253a9d0c6fedb83c347bebafbef064f9b8dffaaabc4b4d266", RuleInputIdentity.Current.CatalogSha256);
     }
 
     [Fact]
@@ -60,7 +61,7 @@ public sealed class Cn16RuleInputSelectionTests
     {
         var current = RuleInputIdentity.Current;
         foreach (var catalog in new[] {
-            "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9", PriorCn16Catalog, PriorBoneErratumCatalog })
+            "9706138cf5ec1795ad41dc689632603bb0530807f81420362fc3fe770d2874e9", PriorCn16Catalog, PriorBoneErratumCatalog, PriorVoidErratumCatalog })
         {
             var prior = new RuleInputIdentity(1, "CN", "zh-CN", current.AuthoritySha256,
                 catalog, current.ImplementationSha256);

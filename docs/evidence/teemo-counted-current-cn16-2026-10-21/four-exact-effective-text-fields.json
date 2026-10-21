@@ -1,0 +1,27 @@
+{
+  "atUtc": "2026-10-21T09:58:29.211047+00:00",
+  "exactFieldChanges": [
+    [
+      33334,
+      "cardEffect"
+    ],
+    [
+      33335,
+      "cardEffect"
+    ],
+    [
+      31342,
+      "cardEffect"
+    ],
+    [
+      31343,
+      "cardEffect"
+    ]
+  ],
+  "upstreamRawSnapshotUnchanged": true,
+  "beforeSha256": "f9b2394507ef8e35846d16e5fc1c2a767766757476bfe4a17a3cddc18df509de",
+  "afterSha256": "438a9ca8723a3b83ebedc6a928af80001bd1f093c53e8ff423437565897842b8",
+  "source": "DOC-16-P009-B004/B005 and current API explicit errata",
+  "allOtherFieldsAndNullsExactlyRetained": true,
+  "earlierPreparationFailure": "First preparer assumed the projected active catalog exposes the errata member. KeyError occurred before its write; corrected preparer takes explicit errata from pinned complete official raw rows."
+}
