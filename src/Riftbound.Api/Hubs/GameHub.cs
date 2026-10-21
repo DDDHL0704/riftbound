@@ -233,7 +233,7 @@ public sealed class GameHub(
             0,
             playerSession));
 
-        await SendSnapshotAndPrompt(session, roomId, normalizedPlayerId);
+        await SendRoomJoinedViews(session, roomId, normalizedPlayerId);
         return new CreatePublicMatchResultDto(match, playerSession);
     }
 
@@ -281,7 +281,7 @@ public sealed class GameHub(
             0,
             playerSession));
 
-        await SendSnapshotAndPrompt(session, roomId, normalizedPlayerId);
+        await SendRoomJoinedViews(session, roomId, normalizedPlayerId);
     }
 
     public async Task Reconnect(string roomId, string playerId, string reconnectToken)
@@ -343,19 +343,31 @@ public sealed class GameHub(
         }
     }
 
-    private async Task SendSnapshotAndPrompt(IMatchSession session, string roomId, string playerId)
+    private async Task SendRoomJoinedViews(IMatchSession session, string roomId, string playerId)
+    {
+        await SendSnapshotAndPrompt(session, roomId, playerId);
+        foreach (var otherPlayerId in session.SnapshotFor(playerId).Players.Keys.Where(id => id != playerId))
+        {
+            await SendSnapshotAndPrompt(session, roomId, otherPlayerId,
+                Clients.Group(PlayerGroup(roomId, otherPlayerId)));
+        }
+    }
+
+    private async Task SendSnapshotAndPrompt(IMatchSession session, string roomId, string playerId,
+        IGameClient? recipient = null)
     {
         var snapshot = session.SnapshotFor(playerId);
         var prompt = session.PromptFor(playerId);
+        recipient ??= Clients.Caller;
 
-        await Clients.Caller.Snapshot(new WsServerMessage(
+        await recipient.Snapshot(new WsServerMessage(
             MessageType.SNAPSHOT,
             roomId,
             playerId,
             snapshot.Tick,
             snapshot));
 
-        await Clients.Caller.Prompt(new WsServerMessage(
+        await recipient.Prompt(new WsServerMessage(
             MessageType.PROMPT,
             roomId,
             playerId,

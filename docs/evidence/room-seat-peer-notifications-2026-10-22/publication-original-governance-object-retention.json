@@ -1,0 +1,18 @@
+{
+  "atUtc": "2026-10-21T21:51:53.811934+00:00",
+  "allCompleteOldReviewContextGateAndDeltaObjectsExact": true,
+  "oldReviews": 162,
+  "oldContexts": 77,
+  "oldGates": 250,
+  "oldDeltas": 7,
+  "originalObligationCount": 17114,
+  "newBranches": 10,
+  "expectedRemainingObligations": 17124,
+  "noExistingSourceOrImplementationContextRebindingNeeded": true,
+  "originalCompleteManifestReviewsAndStatusInArchive": true,
+  "baselineGovernance": {
+    "path": "docs/evidence/room-seat-journal-inputs-2026-10-22/final-governance.json.gz",
+    "sha256": "8b6abb5df9411c41893dfa96a7de534446b185c9a42dc598c2821fc226ba12c1"
+  },
+  "semanticCoverageCertified": false
+}

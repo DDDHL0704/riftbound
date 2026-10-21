@@ -1,0 +1,8 @@
+{
+  "status": "EXACT_TITLE_COMPLETE_BODY_LABELS_OPEN_STATE_READBACK_PASS",
+  "issue": 87,
+  "url": "https://github.com/DDDHL0704/riftbound/issues/87",
+  "readbackSha256": "daa82e198ef635c27874220fc715921de8a27fdfad937737a6923832b2110f62",
+  "onlyFinalNewlineNormalizationUsedForFullBodyComparison": true,
+  "noIssueClosedOrExistingDiscussionRewritten": true
+}

@@ -24738,6 +24738,48 @@
         "Frost battlefield controller issue84 remains unrepaired.",
         "All source gaps, dates,1740 printings,14293 blocks,139 Chinese news and seven source deltas remain."
       ]
+    },
+    {
+      "id": "room-seat-peer-notifications-2026-10-22",
+      "scope": "Successful room entry publishes fresh per-viewer snapshots/prompts to the existing seated peer, preserving caller behavior, stale-prompt rejection, private groups and all original history. Engineering transport contract, not a new printed card rule.",
+      "subjects": [],
+      "ruleRecords": [
+        "DOC-01-P101-B004"
+      ],
+      "status": "BOUNDED_API_PEER_VIEW_FOCUS_SOLE_CHECK_REAL_NETWORK_INDEPENDENT_HISTORY_REPLAY_PASS_NEW_FIXED_FULL_AND_PRODUCTS_OPEN",
+      "sourceManifest": {
+        "path": "docs/evidence/room-seat-peer-notifications-2026-10-22/source-manifest.json",
+        "sha256": "5d1fd427f03ef06177f828eb48f8e4d6e9e95ea371e638373ccca9d97e38ae40",
+        "role": "source-manifest"
+      },
+      "auditDocument": "docs/ROOM_SEAT_PEER_NOTIFICATIONS_AUDIT_2026-10-22.md",
+      "validation": {
+        "newCases": 10,
+        "newMethods": 4,
+        "focusCases": 307,
+        "focusMethods": 256,
+        "onlyCheckCases": 13379,
+        "onlyCheckMethods": 7534,
+        "onlyCheckBeforeSqlFixtureCorrectionAndWithoutSqlConnection": true,
+        "finalRealSqlFocusCases": 326,
+        "finalRealSqlFocusMethods": 263,
+        "original13SqlTamperCasesActuallyExecuted": true,
+        "networkOriginalRejectedActions": 15,
+        "networkLeakedPrivateMessages": 0,
+        "newNetworkRooms": 2,
+        "sqlCommands": 3,
+        "sqlEvents": 3,
+        "authorityHistories": 3,
+        "privateSnapshots": 4,
+        "privatePrompts": 4,
+        "wholePrintingCertified": false
+      },
+      "exclusions": [
+        "Actual CI exported full default-Main pair, cold restart, ordinary score and full historical replay remain new-candidate product gates.",
+        "Visible native controls and paired windows, and physical Windows remain separate OPEN.",
+        "Old native41 history failure and fixed9633 peer failure remain original, not migrated or rewritten.",
+        "Frost issue84 is read-only planned, not implemented in this batch; all source gaps and original scope retained."
+      ]
     }
   ]
 }

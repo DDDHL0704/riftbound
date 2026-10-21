@@ -1,0 +1,20 @@
+{
+  "command": [
+    "python3",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "scripts/tests",
+    "-v"
+  ],
+  "startedAtUtc": "2026-10-21T21:52:22.482070+00:00",
+  "finishedAtUtc": "2026-10-21T21:52:24.877155+00:00",
+  "exitCode": 0,
+  "actualTests": 74,
+  "allPassed": true,
+  "originalOutputSha256": "61e7b87311075f0416436167c13fb6b4fdfc5d16fceb40c6ed60a0b54ed9e390",
+  "compressedPath": "docs/evidence/room-seat-peer-notifications-2026-10-22/verification-tools-74-tests.log.gz",
+  "compressedSha256": "1280d90dbde028a2e5c5385c760ef7080051997e23b876d927305bd379805a26",
+  "semanticCoverageCertified": false
+}

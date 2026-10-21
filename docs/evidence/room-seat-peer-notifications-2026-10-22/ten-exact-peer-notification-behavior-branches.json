@@ -1,0 +1,424 @@
+{
+  "branches": [
+    {
+      "id": "peer-view-d4fb5360c881faeacef5",
+      "sourceRefs": [
+        "DOC-01-P101-B004"
+      ],
+      "state": "RECORDED",
+      "sourceManifest": {
+        "path": "docs/evidence/room-seat-peer-notifications-2026-10-22/source-manifest.json",
+        "sha256": "5d1fd427f03ef06177f828eb48f8e4d6e9e95ea371e638373ccca9d97e38ae40",
+        "role": "source-manifest"
+      },
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.GameHubJoinTests.RoomSeatPeerDeliveryUsesActualSeatedIdentityInEitherOrder(firstActor: \"alice\", secondActor: \"bob\")",
+        "formatClauseIsContextOnly": true,
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/87"
+      },
+      "semanticReview": {
+        "state": "BOUNDED_ENGINEERING_VIEW_FRESHNESS_AND_PRIVACY_NOT_CARD_RULE_CERTIFICATION"
+      },
+      "implementation": {
+        "state": "SUCCESSFUL_ROOM_JOIN_REFRESHES_EACH_SEATED_PEER_THROUGH_OWN_PRIVATE_PLAYER_GROUP"
+      },
+      "testExecution": {
+        "state": "FOCUS307_SOLE_CHECK13379_BEFORE_SQL_FIXTURE_CALIBRATION_THEN_FINAL_REAL_SQL326_ORIGINAL15_NETWORK_GUARDS_AND_INDEPENDENT_TWO_ROOM_HISTORY_REPLAY_PASS"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_CURRENT_FIXED_DEFAULT_MAIN_PAIR_SCORE_REPLAY_VISIBLE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Local API/connection-library evidence does not close fixed full or current native product gates."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "peer-view-fcad699527ddbddfcb30",
+      "sourceRefs": [
+        "DOC-01-P101-B004"
+      ],
+      "state": "RECORDED",
+      "sourceManifest": {
+        "path": "docs/evidence/room-seat-peer-notifications-2026-10-22/source-manifest.json",
+        "sha256": "5d1fd427f03ef06177f828eb48f8e4d6e9e95ea371e638373ccca9d97e38ae40",
+        "role": "source-manifest"
+      },
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.GameHubJoinTests.RoomSeatPeerDeliveryUsesActualSeatedIdentityInEitherOrder(firstActor: \"bob\", secondActor: \"alice\")",
+        "formatClauseIsContextOnly": true,
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/87"
+      },
+      "semanticReview": {
+        "state": "BOUNDED_ENGINEERING_VIEW_FRESHNESS_AND_PRIVACY_NOT_CARD_RULE_CERTIFICATION"
+      },
+      "implementation": {
+        "state": "SUCCESSFUL_ROOM_JOIN_REFRESHES_EACH_SEATED_PEER_THROUGH_OWN_PRIVATE_PLAYER_GROUP"
+      },
+      "testExecution": {
+        "state": "FOCUS307_SOLE_CHECK13379_BEFORE_SQL_FIXTURE_CALIBRATION_THEN_FINAL_REAL_SQL326_ORIGINAL15_NETWORK_GUARDS_AND_INDEPENDENT_TWO_ROOM_HISTORY_REPLAY_PASS"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_CURRENT_FIXED_DEFAULT_MAIN_PAIR_SCORE_REPLAY_VISIBLE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Local API/connection-library evidence does not close fixed full or current native product gates."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "peer-view-2f19c547230ac5660ddc",
+      "sourceRefs": [
+        "DOC-01-P101-B004"
+      ],
+      "state": "RECORDED",
+      "sourceManifest": {
+        "path": "docs/evidence/room-seat-peer-notifications-2026-10-22/source-manifest.json",
+        "sha256": "5d1fd427f03ef06177f828eb48f8e4d6e9e95ea371e638373ccca9d97e38ae40",
+        "role": "source-manifest"
+      },
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.GameHubJoinTests.RoomSeatPeerReceivesCurrentPrivateViewsWithoutRequestingSnapshot(publicRoom: False, deckBeforeOpponent: False)",
+        "formatClauseIsContextOnly": true,
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/87"
+      },
+      "semanticReview": {
+        "state": "BOUNDED_ENGINEERING_VIEW_FRESHNESS_AND_PRIVACY_NOT_CARD_RULE_CERTIFICATION"
+      },
+      "implementation": {
+        "state": "SUCCESSFUL_ROOM_JOIN_REFRESHES_EACH_SEATED_PEER_THROUGH_OWN_PRIVATE_PLAYER_GROUP"
+      },
+      "testExecution": {
+        "state": "FOCUS307_SOLE_CHECK13379_BEFORE_SQL_FIXTURE_CALIBRATION_THEN_FINAL_REAL_SQL326_ORIGINAL15_NETWORK_GUARDS_AND_INDEPENDENT_TWO_ROOM_HISTORY_REPLAY_PASS"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_CURRENT_FIXED_DEFAULT_MAIN_PAIR_SCORE_REPLAY_VISIBLE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Local API/connection-library evidence does not close fixed full or current native product gates."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "peer-view-b98fa706f503c14dfe81",
+      "sourceRefs": [
+        "DOC-01-P101-B004"
+      ],
+      "state": "RECORDED",
+      "sourceManifest": {
+        "path": "docs/evidence/room-seat-peer-notifications-2026-10-22/source-manifest.json",
+        "sha256": "5d1fd427f03ef06177f828eb48f8e4d6e9e95ea371e638373ccca9d97e38ae40",
+        "role": "source-manifest"
+      },
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.GameHubJoinTests.RoomSeatPeerReceivesCurrentPrivateViewsWithoutRequestingSnapshot(publicRoom: False, deckBeforeOpponent: True)",
+        "formatClauseIsContextOnly": true,
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/87"
+      },
+      "semanticReview": {
+        "state": "BOUNDED_ENGINEERING_VIEW_FRESHNESS_AND_PRIVACY_NOT_CARD_RULE_CERTIFICATION"
+      },
+      "implementation": {
+        "state": "SUCCESSFUL_ROOM_JOIN_REFRESHES_EACH_SEATED_PEER_THROUGH_OWN_PRIVATE_PLAYER_GROUP"
+      },
+      "testExecution": {
+        "state": "FOCUS307_SOLE_CHECK13379_BEFORE_SQL_FIXTURE_CALIBRATION_THEN_FINAL_REAL_SQL326_ORIGINAL15_NETWORK_GUARDS_AND_INDEPENDENT_TWO_ROOM_HISTORY_REPLAY_PASS"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_CURRENT_FIXED_DEFAULT_MAIN_PAIR_SCORE_REPLAY_VISIBLE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Local API/connection-library evidence does not close fixed full or current native product gates."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "peer-view-b00f5f885bf8c1becdc5",
+      "sourceRefs": [
+        "DOC-01-P101-B004"
+      ],
+      "state": "RECORDED",
+      "sourceManifest": {
+        "path": "docs/evidence/room-seat-peer-notifications-2026-10-22/source-manifest.json",
+        "sha256": "5d1fd427f03ef06177f828eb48f8e4d6e9e95ea371e638373ccca9d97e38ae40",
+        "role": "source-manifest"
+      },
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.GameHubJoinTests.RoomSeatPeerReceivesCurrentPrivateViewsWithoutRequestingSnapshot(publicRoom: True, deckBeforeOpponent: False)",
+        "formatClauseIsContextOnly": true,
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/87"
+      },
+      "semanticReview": {
+        "state": "BOUNDED_ENGINEERING_VIEW_FRESHNESS_AND_PRIVACY_NOT_CARD_RULE_CERTIFICATION"
+      },
+      "implementation": {
+        "state": "SUCCESSFUL_ROOM_JOIN_REFRESHES_EACH_SEATED_PEER_THROUGH_OWN_PRIVATE_PLAYER_GROUP"
+      },
+      "testExecution": {
+        "state": "FOCUS307_SOLE_CHECK13379_BEFORE_SQL_FIXTURE_CALIBRATION_THEN_FINAL_REAL_SQL326_ORIGINAL15_NETWORK_GUARDS_AND_INDEPENDENT_TWO_ROOM_HISTORY_REPLAY_PASS"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_CURRENT_FIXED_DEFAULT_MAIN_PAIR_SCORE_REPLAY_VISIBLE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Local API/connection-library evidence does not close fixed full or current native product gates."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "peer-view-e95120e76a2877b8bc9a",
+      "sourceRefs": [
+        "DOC-01-P101-B004"
+      ],
+      "state": "RECORDED",
+      "sourceManifest": {
+        "path": "docs/evidence/room-seat-peer-notifications-2026-10-22/source-manifest.json",
+        "sha256": "5d1fd427f03ef06177f828eb48f8e4d6e9e95ea371e638373ccca9d97e38ae40",
+        "role": "source-manifest"
+      },
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.GameHubJoinTests.RoomSeatPeerReceivesCurrentPrivateViewsWithoutRequestingSnapshot(publicRoom: True, deckBeforeOpponent: True)",
+        "formatClauseIsContextOnly": true,
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/87"
+      },
+      "semanticReview": {
+        "state": "BOUNDED_ENGINEERING_VIEW_FRESHNESS_AND_PRIVACY_NOT_CARD_RULE_CERTIFICATION"
+      },
+      "implementation": {
+        "state": "SUCCESSFUL_ROOM_JOIN_REFRESHES_EACH_SEATED_PEER_THROUGH_OWN_PRIVATE_PLAYER_GROUP"
+      },
+      "testExecution": {
+        "state": "FOCUS307_SOLE_CHECK13379_BEFORE_SQL_FIXTURE_CALIBRATION_THEN_FINAL_REAL_SQL326_ORIGINAL15_NETWORK_GUARDS_AND_INDEPENDENT_TWO_ROOM_HISTORY_REPLAY_PASS"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_CURRENT_FIXED_DEFAULT_MAIN_PAIR_SCORE_REPLAY_VISIBLE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Local API/connection-library evidence does not close fixed full or current native product gates."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "peer-view-726060458ab067d6b9b3",
+      "sourceRefs": [
+        "DOC-01-P101-B004"
+      ],
+      "state": "RECORDED",
+      "sourceManifest": {
+        "path": "docs/evidence/room-seat-peer-notifications-2026-10-22/source-manifest.json",
+        "sha256": "5d1fd427f03ef06177f828eb48f8e4d6e9e95ea371e638373ccca9d97e38ae40",
+        "role": "source-manifest"
+      },
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.GameHubJoinTests.RoomSeatPeerRefreshKeepsEachExistingPlayersHiddenHandAndDeckPrivate",
+        "formatClauseIsContextOnly": true,
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/87"
+      },
+      "semanticReview": {
+        "state": "BOUNDED_ENGINEERING_VIEW_FRESHNESS_AND_PRIVACY_NOT_CARD_RULE_CERTIFICATION"
+      },
+      "implementation": {
+        "state": "SUCCESSFUL_ROOM_JOIN_REFRESHES_EACH_SEATED_PEER_THROUGH_OWN_PRIVATE_PLAYER_GROUP"
+      },
+      "testExecution": {
+        "state": "FOCUS307_SOLE_CHECK13379_BEFORE_SQL_FIXTURE_CALIBRATION_THEN_FINAL_REAL_SQL326_ORIGINAL15_NETWORK_GUARDS_AND_INDEPENDENT_TWO_ROOM_HISTORY_REPLAY_PASS"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_CURRENT_FIXED_DEFAULT_MAIN_PAIR_SCORE_REPLAY_VISIBLE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Local API/connection-library evidence does not close fixed full or current native product gates."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "peer-view-cfe76cd0b4979d8178d3",
+      "sourceRefs": [
+        "DOC-01-P101-B004"
+      ],
+      "state": "RECORDED",
+      "sourceManifest": {
+        "path": "docs/evidence/room-seat-peer-notifications-2026-10-22/source-manifest.json",
+        "sha256": "5d1fd427f03ef06177f828eb48f8e4d6e9e95ea371e638373ccca9d97e38ae40",
+        "role": "source-manifest"
+      },
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.GameHubJoinTests.RoomSeatPeerViewsAreNotPublishedForRejectedJoin(rejection: \"identity\")",
+        "formatClauseIsContextOnly": true,
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/87"
+      },
+      "semanticReview": {
+        "state": "BOUNDED_ENGINEERING_VIEW_FRESHNESS_AND_PRIVACY_NOT_CARD_RULE_CERTIFICATION"
+      },
+      "implementation": {
+        "state": "SUCCESSFUL_ROOM_JOIN_REFRESHES_EACH_SEATED_PEER_THROUGH_OWN_PRIVATE_PLAYER_GROUP"
+      },
+      "testExecution": {
+        "state": "FOCUS307_SOLE_CHECK13379_BEFORE_SQL_FIXTURE_CALIBRATION_THEN_FINAL_REAL_SQL326_ORIGINAL15_NETWORK_GUARDS_AND_INDEPENDENT_TWO_ROOM_HISTORY_REPLAY_PASS"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_CURRENT_FIXED_DEFAULT_MAIN_PAIR_SCORE_REPLAY_VISIBLE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Local API/connection-library evidence does not close fixed full or current native product gates."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "peer-view-5aad1aa67016307073bd",
+      "sourceRefs": [
+        "DOC-01-P101-B004"
+      ],
+      "state": "RECORDED",
+      "sourceManifest": {
+        "path": "docs/evidence/room-seat-peer-notifications-2026-10-22/source-manifest.json",
+        "sha256": "5d1fd427f03ef06177f828eb48f8e4d6e9e95ea371e638373ccca9d97e38ae40",
+        "role": "source-manifest"
+      },
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.GameHubJoinTests.RoomSeatPeerViewsAreNotPublishedForRejectedJoin(rejection: \"third\")",
+        "formatClauseIsContextOnly": true,
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/87"
+      },
+      "semanticReview": {
+        "state": "BOUNDED_ENGINEERING_VIEW_FRESHNESS_AND_PRIVACY_NOT_CARD_RULE_CERTIFICATION"
+      },
+      "implementation": {
+        "state": "SUCCESSFUL_ROOM_JOIN_REFRESHES_EACH_SEATED_PEER_THROUGH_OWN_PRIVATE_PLAYER_GROUP"
+      },
+      "testExecution": {
+        "state": "FOCUS307_SOLE_CHECK13379_BEFORE_SQL_FIXTURE_CALIBRATION_THEN_FINAL_REAL_SQL326_ORIGINAL15_NETWORK_GUARDS_AND_INDEPENDENT_TWO_ROOM_HISTORY_REPLAY_PASS"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_CURRENT_FIXED_DEFAULT_MAIN_PAIR_SCORE_REPLAY_VISIBLE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Local API/connection-library evidence does not close fixed full or current native product gates."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "peer-view-1410a3cbff21945e493b",
+      "sourceRefs": [
+        "DOC-01-P101-B004"
+      ],
+      "state": "RECORDED",
+      "sourceManifest": {
+        "path": "docs/evidence/room-seat-peer-notifications-2026-10-22/source-manifest.json",
+        "sha256": "5d1fd427f03ef06177f828eb48f8e4d6e9e95ea371e638373ccca9d97e38ae40",
+        "role": "source-manifest"
+      },
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.GameHubJoinTests.RoomSeatPeerViewsAreNotPublishedForRejectedJoin(rejection: \"unauthenticated\")",
+        "formatClauseIsContextOnly": true,
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/87"
+      },
+      "semanticReview": {
+        "state": "BOUNDED_ENGINEERING_VIEW_FRESHNESS_AND_PRIVACY_NOT_CARD_RULE_CERTIFICATION"
+      },
+      "implementation": {
+        "state": "SUCCESSFUL_ROOM_JOIN_REFRESHES_EACH_SEATED_PEER_THROUGH_OWN_PRIVATE_PLAYER_GROUP"
+      },
+      "testExecution": {
+        "state": "FOCUS307_SOLE_CHECK13379_BEFORE_SQL_FIXTURE_CALIBRATION_THEN_FINAL_REAL_SQL326_ORIGINAL15_NETWORK_GUARDS_AND_INDEPENDENT_TWO_ROOM_HISTORY_REPLAY_PASS"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_CURRENT_FIXED_DEFAULT_MAIN_PAIR_SCORE_REPLAY_VISIBLE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Local API/connection-library evidence does not close fixed full or current native product gates."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    }
+  ]
+}

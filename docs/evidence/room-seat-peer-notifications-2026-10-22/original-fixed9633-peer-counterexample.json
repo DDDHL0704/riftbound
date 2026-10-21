@@ -1,0 +1,32 @@
+{
+  "status": "CONFIRMED_FIXED9633_PEER_WIRE_TICK1_VS_DURABLE_TICK2_WITH_ALL_ORIGINAL_INPUT_HISTORY_AND_REPLAY_PASS",
+  "room": "N27-RETARGET-371369567B",
+  "fixedCommit": "96334b9d9ef6fc15faf3d2eb265552482664cbd3",
+  "commands": 3,
+  "acceptedServerSeats": 2,
+  "rejectedOriginalClientIntents": 1,
+  "events": 2,
+  "authorityHistories": 2,
+  "privateHistories": {
+    "snapshots": 3,
+    "action_prompts": 3
+  },
+  "everyOriginalCommandReplayed": 3,
+  "allEightOriginalWireMessagesRetained": true,
+  "firstPlayerDeliveredTick": 1,
+  "durableFirstPlayerTick": 2,
+  "secondPlayerDeliveredTick": 2,
+  "originalPrivateSeedAndEmptyOriginUnmodified": true,
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "e7455edc32d43f8253a9d0c6fedb83c347bebafbef064f9b8dffaaabc4b4d266",
+    "implementationSha256": "d27cc43743e684905ca5cdde2768a1cd594eacf24aa0575dfb867f32bfae3257",
+    "identitySha256": "7035a5a51abc2a8f4dd3e3ed7d35b62c3f59698b62f15406e202f35acc9a6567"
+  },
+  "actualReadOnlyConnection": true,
+  "noWriterRerunOrOldMatchMigration": true,
+  "fullProductVisibleAndWindowsAcceptance": false
+}

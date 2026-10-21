@@ -1,0 +1,88 @@
+{
+  "observedAtUtc": "2026-10-21T21:02:46.358Z",
+  "officialParentFaqUrl": "https://playriftbound.com/en-us/news/announcements/product-drawing-faq/",
+  "officialRelatedVideoUrl": "https://www.youtube.com/watch?v=n-53EjaNrdU",
+  "videoId": "n-53EjaNrdU",
+  "actualObservedTitle": "Bring the Heat: Riftbound x K/DA Couture Collection Cards, Featuring Art by Fortiche",
+  "actualObservedPublisher": "Riftbound",
+  "browserDisplayedPublicationDate": "2026-10-22",
+  "browserDisplayedDateIsNotIndependentlyVerifiedUtcPublicationOrGameEffectiveDate": true,
+  "savedOriginalFiles": [
+    {
+      "name": "first-ax-id-capture-attempt.js",
+      "bytes": 1456,
+      "sha256": "96eb8328dc2cd0b61a85dc87a038fb0364be70810994572a0a3f2389509217d2"
+    },
+    {
+      "name": "first-capture-navigation-mismatch.json",
+      "bytes": 417,
+      "sha256": "c2aba23e93a16944c931fae1f3f93bae1eda4c142910d19d575147713a23e3d3"
+    },
+    {
+      "name": "official-video-0046-card.png",
+      "bytes": 111469,
+      "sha256": "b06fbe2083b8719ad9724b9cdd9a4fe7685855c84d85832e5f60aee361e06620"
+    },
+    {
+      "name": "official-video-0048-card.png",
+      "bytes": 79939,
+      "sha256": "3f0625b9c6005518e0ea44778b57dbfda7ac86a9c8ea20e2fa8f78beebe8647c"
+    },
+    {
+      "name": "official-video-0049-verified-card.png",
+      "bytes": 46889,
+      "sha256": "f5182ace8a088c8f62a1ff1cf48562d2b7e9a0994b55da3a8306409eacb0f6b3"
+    },
+    {
+      "name": "official-video-0050-akali.png",
+      "bytes": 66842,
+      "sha256": "c21d170e5c8e45e4db1b10e55cf823841ac6619e98329b50b4b2eb45d8f65bbb"
+    },
+    {
+      "name": "official-video-0051-verified-source.png",
+      "bytes": 105816,
+      "sha256": "a4bcb6ba6b00ad0ee18517b0401e5ca14981077e4c99b3d4b0444ec672f4c391"
+    },
+    {
+      "name": "official-video-expanded-primary-description.ax.txt",
+      "bytes": 38706,
+      "sha256": "f2b3d6c99ce63829f08bd4957f272800f096acb2753bc22b92b1cc9afd6f70a4"
+    },
+    {
+      "name": "official-video-observations.ndjson",
+      "bytes": 981,
+      "sha256": "6188c5e0c70453e8963a1f4d95ce69517a19df8724b1dcb400d59915d121f399"
+    },
+    {
+      "name": "verified-source-capture-helper.js",
+      "bytes": 1942,
+      "sha256": "c4ec6bb0e228a1d3a24b6402adf7976e3a47d16227865292bacc787d5b6cea43"
+    }
+  ],
+  "confirmedBoundedObservations": [
+    "Official FAQ links this video.",
+    "Official video and expanded description show4Legend cards and1Battlefield,with Fortiche art.",
+    "Observed 50-second near-full Rogue Assassin card and collected paused source frames;49-second verified capture is a white transition,not a readable card."
+  ],
+  "unverifiedCandidateOnly": {
+    "subject": "Akali / Rogue Assassin",
+    "possibleFooter": "KDA 004/005 EN",
+    "reason": "Small footer pixels need a clearer original or independent exact printing source; not an assigned catalog/API identity."
+  },
+  "unknown": [
+    "Exact printed IDs for all5 and corresponding official catalog/API identity.",
+    "Complete readable rules text of each Couture printing.",
+    "Regional legality and game-effective dates."
+  ],
+  "allFiveExistingExactPrintingApplicabilityGatesRemainOpen": true,
+  "notAssumedToExplainEightUnreturnedEnglishRows": true,
+  "noNewPrintingUniverseCountOrRuntimeCatalogAdoption": true,
+  "operationalLimits": {
+    "embedPlayerConfigurationErrorNotBypassed": true,
+    "oneNumericAxCaptureAttemptNavigatedToUnrelatedVideoAndFailedBeforeImageRetention": true,
+    "sourceTitleIdPausedStateAndTimeGuardsAdded": true,
+    "voiceSearchPopupCancelledNoMicrophonePermissionGranted": true,
+    "noRemoteVideoOrImageDownloaded": true
+  },
+  "sourceSemanticOrProductCertification": false
+}

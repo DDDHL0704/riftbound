@@ -1,0 +1,87 @@
+{
+  "atUtc": "2026-10-21T20:09:36.157371+00:00",
+  "fixedCommit": "96334b9d9ef6fc15faf3d2eb265552482664cbd3",
+  "fixedCiRun": 39665645745,
+  "lockAtStart": {
+    "atUtc": "2026-10-21T20:09:36.179437+00:00",
+    "roots": [
+      {
+        "rootLocked": true,
+        "sessions": [
+          true
+        ]
+      }
+    ],
+    "missingValuesRemainUnknown": true
+  },
+  "records": [
+    {
+      "label": "a",
+      "ownNativePid": 37443,
+      "returnCode": 0,
+      "defaultMainBootMarker": true,
+      "officialCatalogBootMarker": true,
+      "noGodotErrorOrUnhandledException": true,
+      "log": "current-native-default-headless-a.log",
+      "logSha256": "46f171672cac8069a2212553ea13815bcab2c712f1ea9b41842f4cccead24178",
+      "outsideCheckoutCwd": "/tmp",
+      "exactArguments": [
+        "/Users/dinghaolin/MyProjects/riftbound/var/qa/fixed9633-early-native-20261022/Riftbound-A.app/Contents/MacOS/\u7b26\u6587\u6218\u573a",
+        "--headless",
+        "--max-fps",
+        "60",
+        "--quit-after",
+        "120",
+        "--",
+        "--riftbound-ephemeral-session",
+        "--riftbound-server=http://127.0.0.1:15847",
+        "--riftbound-session-file=/Users/dinghaolin/MyProjects/riftbound/var/qa/fixed9633-early-native-20261022/never-written-default-headless-a-session.json"
+      ],
+      "ephemeralNoProfileWritten": true,
+      "all373OriginalCiManagedAndPckFilesStillExact": true,
+      "deepStrictSignaturePass": true
+    },
+    {
+      "label": "b",
+      "ownNativePid": 37474,
+      "returnCode": 0,
+      "defaultMainBootMarker": true,
+      "officialCatalogBootMarker": true,
+      "noGodotErrorOrUnhandledException": true,
+      "log": "current-native-default-headless-b.log",
+      "logSha256": "46f171672cac8069a2212553ea13815bcab2c712f1ea9b41842f4cccead24178",
+      "outsideCheckoutCwd": "/tmp",
+      "exactArguments": [
+        "/Users/dinghaolin/MyProjects/riftbound/var/qa/fixed9633-early-native-20261022/Riftbound-B.app/Contents/MacOS/\u7b26\u6587\u6218\u573a",
+        "--headless",
+        "--max-fps",
+        "60",
+        "--quit-after",
+        "120",
+        "--",
+        "--riftbound-ephemeral-session",
+        "--riftbound-server=http://127.0.0.1:15847",
+        "--riftbound-session-file=/Users/dinghaolin/MyProjects/riftbound/var/qa/fixed9633-early-native-20261022/never-written-default-headless-b-session.json"
+      ],
+      "ephemeralNoProfileWritten": true,
+      "all373OriginalCiManagedAndPckFilesStillExact": true,
+      "deepStrictSignaturePass": true
+    }
+  ],
+  "notVisibleControlsOrPairedGameAcceptance": true,
+  "physicalWindows": "OPEN",
+  "status": "CURRENT_FIXED_DEFAULT_MAIN_HEADLESS_BOOT_PASS",
+  "finishedAtUtc": "2026-10-21T20:09:45.428511+00:00",
+  "lockAtEnd": {
+    "atUtc": "2026-10-21T20:09:45.450727+00:00",
+    "roots": [
+      {
+        "rootLocked": true,
+        "sessions": [
+          true
+        ]
+      }
+    ],
+    "missingValuesRemainUnknown": true
+  }
+}

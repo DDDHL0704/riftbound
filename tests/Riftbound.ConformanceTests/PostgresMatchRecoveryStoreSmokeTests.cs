@@ -459,12 +459,16 @@ public sealed class PostgresMatchRecoveryStoreSmokeTests
         try
         {
             var playerStore=new PostgresMatchPlayerStore(dataSource);
-            await playerStore.SavePlayerSessionAsync(roomId,"alice","P1",ReconnectTokenHasher.Hash("token-a"),default);
-            await playerStore.SavePlayerSessionAsync(roomId,"bob","P2",ReconnectTokenHasher.Hash("token-b"),default);
             var journal=new PostgresMatchJournal(dataSource);var store=new PostgresMatchRecoveryStore(dataSource);
+            var seating=new MatchSession(roomId,new CoreRuleEngine(),journal,playerStore);
+            await seating.EnsurePlayerAsync("alice",default);
+            await seating.EnsurePlayerAsync("bob",default);
             var waiting=await store.LoadAsync(roomId,default);
             Assert.NotNull(waiting);Assert.True(waiting.IsConsistent,string.Join("; ",waiting.ValidationErrors));
             Assert.Equal(RuleInputIdentity.Current,waiting.AuthoritativeState!.RuleInputs);
+            Assert.Equal(2,waiting.Commands.Count);
+            Assert.All(waiting.Commands,c=>Assert.Equal("ROOM_SEAT",c.CommandType));
+            Assert.Empty(waiting.ReplayInitialState!.Seats);
             var session=MatchSession.Restore(waiting,new CoreRuleEngine(),journal,playerStore);
             var result=await session.ReadyAsync("alice","identity-ready",RawCommand("READY"),default);
             Assert.True(result.Accepted,result.ErrorMessage);

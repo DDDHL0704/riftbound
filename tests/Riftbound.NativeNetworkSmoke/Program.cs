@@ -93,6 +93,78 @@ await rejected.Task.WaitAsync(deadline.Token);
 if (client.IsConnected || recoveryCalls != 2 || errors.IsEmpty)
     throw new InvalidOperationException("Rejected recovery incorrectly became actionable.");
 Console.WriteLine("Native network recovery passed: socket loss, authenticated room restore, fresh snapshot, rejected-token guard.");
+await VerifyRoomSeatPeerPushAsync(url, handle, key);
+
+static async Task VerifyRoomSeatPeerPushAsync(string url, string originalActor, string originalKey)
+{
+    using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(20));
+    var ct = timeout.Token;
+    var suffix = Guid.NewGuid().ToString("N");
+    var room = "NETWORK-SEAT-" + suffix[..12];
+    var peerActor = "seatpeer" + suffix[..12];
+    var peerKey = "room-seat-private-key-" + suffix;
+    await using var first = new RiftboundGameHubClient(url);
+    await using var second = new RiftboundGameHubClient(url);
+    var firstMessages = Channel.CreateUnbounded<WsServerMessage>();
+    var secondMessages = Channel.CreateUnbounded<WsServerMessage>();
+    first.ServerMessageReceived += (_, message) => firstMessages.Writer.TryWrite(message);
+    second.ServerMessageReceived += (_, message) => secondMessages.Writer.TryWrite(message);
+    await first.StartAsync(ct);
+    if (!(await first.AuthenticateAsync(originalActor, originalKey, ct)).Authenticated)
+        throw new InvalidOperationException("Original network identity could not authenticate for peer publication.");
+    await first.JoinRoomAsync(room, originalActor, null, ct);
+    var original = await ReadViews(firstMessages.Reader, originalActor.ToLowerInvariant(), 1);
+    if (original.SnapshotTick != 1 || original.Players != 1)
+        throw new InvalidOperationException("First real room seat must retain its original one-player view.");
+    await second.StartAsync(ct);
+    if (!(await second.AuthenticateAsync(peerActor, peerKey, ct)).Authenticated)
+        throw new InvalidOperationException("Second real peer could not authenticate.");
+    await second.JoinRoomAsync(room, peerActor, null, ct);
+    var refreshedFirst = ReadViews(firstMessages.Reader, originalActor.ToLowerInvariant(), 2);
+    var joinedSecond = ReadViews(secondMessages.Reader, peerActor, 2);
+    var current = await Task.WhenAll(refreshedFirst, joinedSecond);
+    if (current.Any(v => v.SnapshotTick != 2 || v.Players != 2))
+        throw new InvalidOperationException("Both real peers must receive their latest two-player private views without requesting snapshots.");
+    Console.WriteLine("Native room-seat peer publication passed: first player tick1, both private viewers tick2; no RequestSnapshot or command retry.");
+    Console.WriteLine("NATIVE_ROOM_SEAT_PEER_EVIDENCE " + JsonSerializer.Serialize(new
+    {
+        room, firstPlayerOriginalTick = original.SnapshotTick,
+        firstPlayerRefreshedTick = current[0].SnapshotTick, secondPlayerTick = current[1].SnapshotTick,
+        privateViewers = 2, explicitSnapshotRequests = 0, commandRetries = 0,
+        originalOnePlayerViewRetained = true, bothPrivateViewersRefreshed = true,
+        wrongViewerMessages = 0, reconnectTokensAndPlayerKeysAbsentFromPrivateViews = true
+    }));
+
+    async Task<(long SnapshotTick, int Players)> ReadViews(ChannelReader<WsServerMessage> messages, string actor, long minimumTick)
+    {
+        long snapshotTick = -1, promptTick = -1;
+        var players = 0;
+        while (snapshotTick < minimumTick || promptTick < minimumTick)
+        {
+            var message = await messages.ReadAsync(ct);
+            if (message.Type == MessageType.ERROR)
+                throw new InvalidOperationException("Room-seat peer publication produced a real server error.");
+            if (message.Type is not (MessageType.SNAPSHOT or MessageType.PROMPT)) continue;
+            if (message.RoomId != room || message.PlayerId != actor || message.Payload is not JsonElement payload)
+                throw new InvalidOperationException("Private room-seat view crossed room or authenticated viewer boundaries.");
+            var text = payload.GetRawText();
+            if (text.Contains(originalKey, StringComparison.Ordinal) || text.Contains(peerKey, StringComparison.Ordinal)
+                || payload.TryGetProperty("reconnectToken", out _) || payload.TryGetProperty("openingSeed", out _))
+                throw new InvalidOperationException("Credentials or private seed appeared in a room-seat view.");
+            if (message.Type == MessageType.SNAPSHOT)
+            {
+                snapshotTick = payload.GetProperty("tick").GetInt64();
+                players = payload.GetProperty("players").EnumerateObject().Count();
+            }
+            else promptTick = payload.GetProperty("snapshotTick").GetInt64();
+            if ((message.Type == MessageType.SNAPSHOT ? snapshotTick : promptTick) != message.ServerTick)
+                throw new InvalidOperationException("Room-seat private payload and envelope ticks differ.");
+        }
+        if (snapshotTick != promptTick)
+            throw new InvalidOperationException("Room-seat snapshot and prompt must describe the same current tick.");
+        return (snapshotTick, players);
+    }
+}
 
 static async Task VerifyRoomIdentityBoundaryAsync(string url, string room, string actor, string token, CancellationToken ct)
 {
