@@ -9,13 +9,16 @@ import {
   type ObjectAction,
   type Selection,
 } from "../game/actions";
-import { cardInfo, cardName, COLOR_HEX } from "../game/cards";
-import type { GameObject, Prompt, Snapshot, SnapshotPlayer, TableBattlefield } from "../game/types";
+import { cardInfo, cardName, COLOR_HEX, paymentChoiceLabel } from "../game/cards";
+import type { Choice, GameObject, Prompt, Snapshot, SnapshotPlayer, TableBattlefield } from "../game/types";
 import { Card, type CardMark } from "./Card";
 import { ChainArrows, Dock } from "./Overlay";
 import { Rail } from "./Rail";
 
-type Pick = { action: ObjectAction; sel: Selection; step: number };
+/** `group` holds extra units moving together with the source (one destination, CN 144.3). */
+type Pick = { action: ObjectAction; sel: Selection; step: number; group: string[] };
+
+const GROUP = "__unit:";
 
 /** Crowded rows overlap their cards instead of wrapping, so the table never grows past the viewport. */
 function crowd(count: number, roomy: number, cardWidth: number, available: number): CSSProperties {
@@ -79,17 +82,42 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
   }, []);
 
   const currentStep: ActionStep | undefined = pick ? pick.action.steps[pick.step] : undefined;
+  const moveOf = (id: string) => actions.get(id)?.find((a) => a.cmdType === "MOVE_UNIT");
+  const grouping = pick?.action.cmdType === "MOVE_UNIT" && currentStep?.role === "destination";
+  // While moving, every other unit that can move may join; destinations narrow to shared ones.
+  const peers = useMemo(
+    () => (grouping ? [...actions.keys()].filter((id) => id !== pick!.action.sourceObjectId && moveOf(id)) : []),
+    [grouping, actions, pick], // eslint-disable-line react-hooks/exhaustive-deps
+  );
+  const stepChoices = useMemo(() => {
+    const choices = currentStep?.choices ?? [];
+    if (!grouping || !pick?.group.length) return choices;
+    return choices.filter((c) =>
+      pick.group.every((id) => (moveOf(id)?.requirement?.destinationChoices ?? []).some((d: { id: string }) => d.id === c.id)),
+    );
+  }, [currentStep, grouping, pick]); // eslint-disable-line react-hooks/exhaustive-deps
   const legal = useMemo(() => {
     const map = new Map<string, string>();
-    for (const choice of currentStep?.choices ?? []) {
+    for (const choice of stepChoices) {
       if (pick?.sel.targets.includes(choice.id)) continue;
       for (const id of choiceObjectIds(choice)) map.set(id, choice.id);
     }
+    for (const id of peers) map.set(id, GROUP + id);
     return map;
-  }, [currentStep, pick]);
+  }, [stepChoices, peers, pick]);
 
   const submitPick = (p: Pick) => {
     setPick(null);
+    if (p.action.cmdType === "MOVE_UNIT" && p.group.length && p.sel.destination) {
+      // A group move names its units and destination; each unit keeps its own origin.
+      void client.submit({
+        cmdType: "MOVE_UNIT",
+        sourceObjectId: p.action.sourceObjectId,
+        sourceObjectIds: [p.action.sourceObjectId, ...p.group],
+        destination: p.sel.destination,
+      });
+      return;
+    }
     void client.submit(buildCommand(p.action, p.sel));
   };
 
@@ -106,6 +134,11 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
 
   const choose = (choiceId: string) => {
     if (!pick || !currentStep) return;
+    if (choiceId.startsWith(GROUP)) {
+      const id = choiceId.slice(GROUP.length);
+      setPick({ ...pick, group: pick.group.includes(id) ? pick.group.filter((x) => x !== id) : [...pick.group, id] });
+      return;
+    }
     const sel: Selection = { ...pick.sel, targets: [...pick.sel.targets] };
     if (currentStep.role === "destination") sel.destination = choiceId;
     else sel.targets.push(choiceId);
@@ -119,7 +152,7 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
 
   const start = (action: ObjectAction) => {
     setMenuFor(null);
-    const p: Pick = { action, sel: { targets: [], optionalCosts: [...action.presetCosts] }, step: 0 };
+    const p: Pick = { action, sel: { targets: [], optionalCosts: [...action.presetCosts] }, step: 0, group: [] };
     if (action.steps.length === 0 && action.optionalCosts.length === 0) submitPick(p);
     else setPick(p);
   };
@@ -156,9 +189,10 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
   const marksFor = (id: string): CardMark[] => {
     const o = objects[id];
     const marks: CardMark[] = [];
-    if (menuFor === id || pick?.action.sourceObjectId === id || mulligan.includes(id) || pick?.sel.targets.includes(id))
+    const inGroup = Boolean(pick?.group.includes(id));
+    if (menuFor === id || pick?.action.sourceObjectId === id || mulligan.includes(id) || pick?.sel.targets.includes(id) || inGroup)
       marks.push("selected");
-    if (pick && legal.has(id)) marks.push("legal");
+    if (pick && legal.has(id) && !inGroup) marks.push("legal");
     if (!pick && actions.has(id)) marks.push("playable");
     if (o?.isAttacking) marks.push("attacking");
     if (o?.isDefending) marks.push("defending");
@@ -248,6 +282,11 @@ export function Table({ state, snapshot, prompt }: { state: ClientState; snapsho
           <PickBar
             pick={pick}
             step={currentStep}
+            choices={stepChoices}
+            peers={peers.length}
+            extraPower={(dest) =>
+              Number(pick.action.candidate.metadata?.powerPerExtraUnitByDestination?.[dest] ?? 0) * pick.group.length
+            }
             objects={objects}
             onChoose={choose}
             onSkip={skipStep}
@@ -472,6 +511,9 @@ function ActionMenu({ actions, onPick, onClose }: { actions: ObjectAction[]; onP
 type PickBarProps = {
   pick: Pick;
   step?: ActionStep;
+  choices: Choice[];
+  peers: number;
+  extraPower: (destinationId: string) => number;
   objects: Record<string, GameObject>;
   onChoose: (id: string) => void;
   onSkip: () => void;
@@ -487,16 +529,7 @@ function choiceName(id: string, label: string, objects: Record<string, GameObjec
   return o ? cardName(o.cardNo) : label;
 }
 
-/** Rune payment choices arrive labelled by card number; name the rune instead. */
-function costLabel(id: string, label: string, objects: Record<string, GameObject>) {
-  const tail = id.split(":").pop() ?? id;
-  const o = objects[id] ?? objects[tail];
-  if (!o) return label;
-  const verb = label.split(/[：:]/)[0];
-  return `${verb}：${cardName(o.cardNo)}`;
-}
-
-function PickBar({ pick, step, objects, onChoose, onSkip, onToggleCost, onConfirm, onCancel }: PickBarProps) {
+function PickBar({ pick, step, choices, peers, extraPower, objects, onChoose, onSkip, onToggleCost, onConfirm, onCancel }: PickBarProps) {
   const src = objects[pick.action.sourceObjectId];
   return (
     <div className="pickbar" onClick={(e) => e.stopPropagation()} role="dialog" aria-label="选择">
@@ -506,14 +539,23 @@ function PickBar({ pick, step, objects, onChoose, onSkip, onToggleCost, onConfir
       {step ? (
         <>
           <p className="pickbar__hint">{step.label}。可直接点击场上发光的卡牌或区域。</p>
+          {pick.action.cmdType === "MOVE_UNIT" && peers > 0 && (
+            <p className="pickbar__hint">
+              {pick.group.length
+                ? `将一起移动 ${pick.group.length + 1} 个单位；再点单位可加入或取消。`
+                : "也可以先点其他发光的单位，让它们一起移动到同一个位置。"}
+            </p>
+          )}
           <div className="pickbar__choices">
-            {step.choices
+            {choices
               .filter((c) => !pick.sel.targets.includes(c.id))
               .map((c) => (
                 <button key={c.id} className="chip" onClick={() => onChoose(c.id)}>
                   {choiceName(c.id, c.label, objects)}
+                  {extraPower(c.id) > 0 && <span className="chip__cost">+{extraPower(c.id)} 符能</span>}
                 </button>
               ))}
+            {choices.length === 0 && <span className="muted small">所选单位没有共同的目的地。</span>}
             {!step.required && (
               <button className="chip chip--quiet" onClick={onSkip}>
                 不选
@@ -535,7 +577,7 @@ function PickBar({ pick, step, objects, onChoose, onSkip, onToggleCost, onConfir
             {pick.action.optionalCosts.map((c) => (
               <label key={c.id} className="chip chip--toggle">
                 <input type="checkbox" checked={pick.sel.optionalCosts.includes(c.id)} onChange={() => onToggleCost(c.id)} />
-                {costLabel(c.id, c.label, objects)}
+                {paymentChoiceLabel(c.id, c.label, objects)}
               </label>
             ))}
           </div>

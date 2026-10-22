@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { client, type ClientState } from "../net/client";
-import { cardName } from "../game/cards";
+import { cardName, paymentChoiceLabel } from "../game/cards";
 import { enabledCandidate } from "../game/actions";
 import type { Candidate, Choice, GameObject, Prompt, Snapshot } from "../game/types";
 import { Card, EffectText } from "./Card";
@@ -44,11 +44,11 @@ export function Rail({ state, snapshot, prompt, objects, mulligan, onHover, prev
       <div className="rail__panel">
         {type === "MULLIGAN" && actionable && <MulliganPanel prompt={prompt!} selected={mulligan} objects={objects} />}
         {type === "BATTLE_DECLARATION" && <BattlePanel prompt={prompt} objects={objects} />}
-        {type === "ASSIGN_COMBAT_DAMAGE" && <DamagePanel prompt={prompt} objects={objects} />}
+        {type === "ASSIGN_COMBAT_DAMAGE" && <DamagePanel prompt={prompt} objects={objects} kind="combat" />}
+        {enabledCandidate(prompt, "ASSIGN_EFFECT_DAMAGE") && <DamagePanel prompt={prompt} objects={objects} kind="effect" />}
         {type === "ORDER_TRIGGERS" && <TriggerPanel prompt={prompt} objects={objects} />}
-        {(type === "HAND_CHOICE" || type === "CARD_CHOICE" || type === "PAY_COST") && (
-          <ChoicePanel prompt={prompt} objects={objects} onHover={onHover} />
-        )}
+        {(type === "HAND_CHOICE" || type === "CARD_CHOICE") && <ChoicePanel prompt={prompt} objects={objects} onHover={onHover} />}
+        {enabledCandidate(prompt, "PAY_COST") && <PayPanel prompt={prompt} objects={objects} />}
         <GenericPanel prompt={prompt} />
       </div>
 
@@ -109,10 +109,30 @@ function fillByIndex(byIndex: Record<string, Choice[]> | undefined, count: numbe
 function BattlePanel({ prompt, objects }: { prompt: Prompt | null; objects: Record<string, GameObject> }) {
   const cand = enabledCandidate(prompt, "DECLARE_BATTLE");
   const req = cand?.metadata?.sourceRequirements?.[0];
+  const [targets, setTargets] = useState<string[]>([]);
+  const [costs, setCosts] = useState<string[]>([]);
+  useEffect(() => {
+    setTargets([]);
+    setCosts([]);
+  }, [prompt?.promptId]);
   if (!cand || !req) return null;
+  // Every unit at a contested battlefield fights (the server rejects partial declarations),
+  // so participants are listed, not chosen.
   const attackers = fillByIndex(req.attackerChoicesByIndex, req.maxAttackerCount ?? req.minAttackerCount);
   const defenders = fillByIndex(req.targetChoicesByIndex, req.maxDefenderCount ?? req.minDefenderCount);
   const battlefieldId: string | undefined = req.battlefieldChoices?.[0]?.id;
+  const required: string[] = req.requiredOptionalCosts ?? [];
+  const minTargets = Number(req.minBattlefieldTargetCount ?? 0);
+  const maxTargets = Number(req.maxBattlefieldTargetCount ?? 0);
+  const targetChoices: Choice[] = [];
+  for (const list of Object.values((req.battlefieldTargetChoicesByIndex ?? {}) as Record<string, Choice[]>))
+    for (const c of list) if (!targetChoices.some((x) => x.id === c.id)) targetChoices.push(c);
+  const extraCosts: Choice[] = [];
+  for (const c of [...(req.optionalCostChoices ?? []), ...(req.paymentResourceChoices ?? [])] as Choice[])
+    if (!required.includes(c.id) && !extraCosts.some((x) => x.id === c.id)) extraCosts.push(c);
+  const toggle = (list: string[], id: string, max = Infinity) =>
+    list.includes(id) ? list.filter((x) => x !== id) : max === 1 ? [id] : list.length < max ? [...list, id] : list;
+
   return (
     <div className="panel panel--battle">
       <p className="panel__title">{nameOf(battlefieldId ?? "", objects, "战场")}</p>
@@ -126,15 +146,49 @@ function BattlePanel({ prompt, objects }: { prompt: Prompt | null; objects: Reco
           <ul>{defenders.map((id) => <li key={id}>{nameOf(id, objects)}（{objects[id]?.effectivePower ?? "?"}）</li>)}</ul>
         </div>
       </div>
+      {maxTargets > 0 && targetChoices.length > 0 && (
+        <div className="panel__group">
+          <p className="small">
+            进攻触发目标{req.battlefieldTargetScope ? `（${req.battlefieldTargetScope}）` : ""}
+            {minTargets === 0 ? "，可不选" : `，需选 ${minTargets} 个`}
+          </p>
+          <div className="choices">
+            {targetChoices.map((c) => (
+              <button
+                key={c.id}
+                className={`chip${targets.includes(c.id) ? " chip--on" : ""}`}
+                onClick={() => setTargets((cur) => toggle(cur, c.id, maxTargets))}
+              >
+                {nameOf(c.id, objects, c.label)}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+      {extraCosts.length > 0 && (
+        <div className="panel__group">
+          <p className="small">可选费用</p>
+          <div className="choices">
+            {extraCosts.map((c) => (
+              <label key={c.id} className="chip chip--toggle">
+                <input type="checkbox" checked={costs.includes(c.id)} onChange={() => setCosts((cur) => toggle(cur, c.id))} />
+                {paymentChoiceLabel(c.id, c.label, objects)}
+              </label>
+            ))}
+          </div>
+        </div>
+      )}
       <button
         className="btn btn--primary btn--wide"
+        disabled={targets.length < minTargets}
         onClick={() =>
           void client.submit({
             cmdType: "DECLARE_BATTLE",
             battlefieldId,
             attackerObjectIds: attackers,
             defenderObjectIds: defenders,
-            optionalCosts: req.requiredOptionalCosts ?? [],
+            optionalCosts: [...required, ...costs],
+            ...(targets.length ? { battlefieldTargetObjectIds: targets } : {}),
           })
         }
       >
@@ -145,9 +199,10 @@ function BattlePanel({ prompt, objects }: { prompt: Prompt | null; objects: Reco
 }
 
 type Assignment = { sourceObjectId: string; targetObjectId: string; damage: number };
+type Required = { sourceObjectId: string; damage: number; legalTargetObjectIds: string[] };
 
-function suggestAssignments(md: Record<string, any>): Assignment[] {
-  const required: { sourceObjectId: string; damage: number; legalTargetObjectIds: string[] }[] = md.requiredAssignments ?? [];
+function suggestCombat(md: Record<string, any>): Assignment[] {
+  const required: Required[] = md.requiredAssignments ?? [];
   const want: Record<string, number> = { ...(md.suggestedDamageByTarget ?? {}) };
   const out: Assignment[] = [];
   for (const r of required) {
@@ -171,38 +226,56 @@ function suggestAssignments(md: Record<string, any>): Assignment[] {
   return out;
 }
 
-function DamagePanel({ prompt, objects }: { prompt: Prompt | null; objects: Record<string, GameObject> }) {
-  const cand = enabledCandidate(prompt, "ASSIGN_COMBAT_DAMAGE");
+/** Effect damage must hit exactly `minimumAssignedTargets` targets with at least 1 each. */
+function suggestEffect(md: Record<string, any>): Assignment[] {
+  const r: Required | undefined = md.requiredAssignments?.[0];
+  if (!r) return [];
+  const count = Math.min(Number(md.minimumAssignedTargets ?? 1), r.legalTargetObjectIds.length, r.damage);
+  const out = r.legalTargetObjectIds.slice(0, count).map((t) => ({ sourceObjectId: r.sourceObjectId, targetObjectId: t, damage: 1 }));
+  if (out[0]) out[0].damage += r.damage - out.length;
+  return out;
+}
+
+function DamagePanel({ prompt, objects, kind }: { prompt: Prompt | null; objects: Record<string, GameObject>; kind: "combat" | "effect" }) {
+  const action = kind === "combat" ? "ASSIGN_COMBAT_DAMAGE" : "ASSIGN_EFFECT_DAMAGE";
+  const cand = enabledCandidate(prompt, action);
   const md = cand?.metadata;
   const [plan, setPlan] = useState<Assignment[]>([]);
   useEffect(() => {
-    setPlan(md ? suggestAssignments(md) : []);
+    setPlan(md ? (kind === "combat" ? suggestCombat(md) : suggestEffect(md)) : []);
   }, [prompt?.promptId]); // eslint-disable-line react-hooks/exhaustive-deps
-  if (!cand || !md) return null;
-  const required: { sourceObjectId: string; damage: number; legalTargetObjectIds: string[] }[] = md.requiredAssignments ?? [];
+  if (!cand || !md || md.assignmentState === "WAIT") return null;
+  const required: Required[] = md.requiredAssignments ?? [];
   const lethal: Record<string, number> = md.lethalDamageThreshold ?? {};
   const existing: Record<string, number> = md.existingDamage ?? {};
+  const targetCount = Number(md.minimumAssignedTargets ?? 0);
 
   const amount = (s: string, t: string) => plan.find((a) => a.sourceObjectId === s && a.targetObjectId === t)?.damage ?? 0;
   const bump = (s: string, t: string, delta: number, total: number) => {
     setPlan((cur) => {
       const used = cur.filter((a) => a.sourceObjectId === s).reduce((n, a) => n + a.damage, 0);
-      const now = amount(s, t);
+      const now = cur.find((a) => a.sourceObjectId === s && a.targetObjectId === t)?.damage ?? 0;
       const next = Math.max(0, now + delta);
       if (delta > 0 && used >= total) return cur;
       const rest = cur.filter((a) => !(a.sourceObjectId === s && a.targetObjectId === t));
       return next > 0 ? [...rest, { sourceObjectId: s, targetObjectId: t, damage: next }] : rest;
     });
   };
-  const complete = required.every((r) => plan.filter((a) => a.sourceObjectId === r.sourceObjectId).reduce((n, a) => n + a.damage, 0) === r.damage);
+  const used = (s: string) => plan.filter((a) => a.sourceObjectId === s).reduce((n, a) => n + a.damage, 0);
+  const totalsOk = required.every((r) => used(r.sourceObjectId) === r.damage);
+  const targetsOk = kind === "combat" || plan.filter((a) => a.damage > 0).length === targetCount;
 
   return (
     <div className="panel panel--damage">
       {md.assignmentGuidance && <p className="muted small">{md.assignmentGuidance}</p>}
+      {kind === "effect" && targetCount > 0 && (
+        <p className={`small${targetsOk ? "" : " warn"}`}>需要正好分给 {targetCount} 个目标，每个至少 1 点。</p>
+      )}
       {required.map((r) => (
         <div key={r.sourceObjectId} className="dmg">
           <p className="dmg__src">
             {nameOf(r.sourceObjectId, objects)} 造成 <b>{r.damage}</b> 点
+            {used(r.sourceObjectId) !== r.damage && <span className="warn small">（还剩 {r.damage - used(r.sourceObjectId)} 点）</span>}
           </p>
           {r.legalTargetObjectIds.map((t) => (
             <div key={t} className="dmg__row">
@@ -221,14 +294,13 @@ function DamagePanel({ prompt, objects }: { prompt: Prompt | null; objects: Reco
       ))}
       <button
         className="btn btn--primary btn--wide"
-        disabled={!complete}
+        disabled={!totalsOk || !targetsOk}
         onClick={() =>
-          void client.submit({
-            cmdType: "ASSIGN_COMBAT_DAMAGE",
-            battleId: md.battleId,
-            battlefieldId: md.battlefieldId,
-            assignments: plan.filter((a) => a.damage > 0),
-          })
+          void client.submit(
+            kind === "combat"
+              ? { cmdType: action, battleId: md.battleId, battlefieldId: md.battlefieldId, assignments: plan.filter((a) => a.damage > 0) }
+              : { cmdType: action, stackItemId: md.stackItemId, assignments: plan.filter((a) => a.damage > 0) },
+          )
         }
       >
         确认伤害分配
@@ -278,8 +350,7 @@ function TriggerPanel({ prompt, objects }: { prompt: Prompt | null; objects: Rec
 }
 
 function ChoicePanel({ prompt, objects, onHover }: { prompt: Prompt | null; objects: Record<string, GameObject>; onHover: RailProps["onHover"] }) {
-  const cand: Candidate | undefined =
-    enabledCandidate(prompt, "CHOOSE_HAND_CARDS") ?? enabledCandidate(prompt, "CHOOSE_CARDS") ?? enabledCandidate(prompt, "PAY_COST");
+  const cand: Candidate | undefined = enabledCandidate(prompt, "CHOOSE_HAND_CARDS") ?? enabledCandidate(prompt, "CHOOSE_CARDS");
   const [picked, setPicked] = useState<string[]>([]);
   useEffect(() => setPicked([]), [prompt?.promptId]);
   const choices = useMemo(() => {
@@ -289,20 +360,14 @@ function ChoicePanel({ prompt, objects, onHover }: { prompt: Prompt | null; obje
   }, [cand]);
   if (!cand) return null;
   const md = cand.metadata ?? {};
-  const isPay = cand.action === "PAY_COST";
   const steps = cand.selectionSteps ?? [];
-  const min = isPay ? (steps.some((s) => s.required) ? 1 : 0) : Number(md.requiredCount ?? 0);
-  const max = isPay ? 1 : Number(md.maxCount ?? steps.length ?? 1);
+  const min = Number(md.requiredCount ?? 0);
+  const max = Number(md.maxCount ?? steps.length ?? 1);
   const toggle = (id: string) =>
     setPicked((cur) => (cur.includes(id) ? cur.filter((x) => x !== id) : max === 1 ? [id] : cur.length < max ? [...cur, id] : cur));
 
-  const submit = () => {
-    if (isPay) {
-      void client.submit({ cmdType: "PAY_COST", paymentId: md.paymentId, paymentWindow: md.paymentWindow, paymentChoiceIds: picked });
-    } else {
-      void client.submit({ cmdType: cand.action, choiceId: md.choiceId, choiceWindow: md.choiceWindow, chosenObjectIds: picked });
-    }
-  };
+  const submit = () =>
+    void client.submit({ cmdType: cand.action, choiceId: md.choiceId, choiceWindow: md.choiceWindow, chosenObjectIds: picked });
 
   return (
     <div className="panel">
@@ -331,6 +396,67 @@ function ChoicePanel({ prompt, objects, onHover }: { prompt: Prompt | null; obje
       <button className="btn btn--primary btn--wide" disabled={picked.length < min} onClick={submit}>
         {picked.length === 0 && min === 0 ? "不选择，继续" : `确认（${picked.length}）`}
       </button>
+    </div>
+  );
+}
+
+/**
+ * Payment windows come in two shapes. With selection steps the player picks one option
+ * (pay / decline / a rule choice), optionally adding rune recycles. Without steps the player
+ * pays every listed spend item and may add rune recycles to raise power.
+ */
+function PayPanel({ prompt, objects }: { prompt: Prompt | null; objects: Record<string, GameObject> }) {
+  const cand = enabledCandidate(prompt, "PAY_COST");
+  const [recycles, setRecycles] = useState<string[]>([]);
+  useEffect(() => setRecycles([]), [prompt?.promptId]);
+  if (!cand) return null;
+  const md = cand.metadata ?? {};
+  if (md.serverPaymentState === "WAIT") return null;
+  const steps = cand.selectionSteps ?? [];
+  const spend: Choice[] = md.paymentChoices ?? [];
+  const recycleOptions: Choice[] = steps.length
+    ? (steps.slice(1).flatMap((s) => s.choices) as Choice[]).filter((c, i, all) => all.findIndex((x) => x.id === c.id) === i)
+    : md.paymentResourceChoices ?? [];
+  const cost = md.cost as { mana?: number; power?: number; powerByTrait?: Record<string, number> } | undefined;
+  const pay = (ids: string[]) =>
+    void client.submit({ cmdType: "PAY_COST", paymentId: md.paymentId, paymentWindow: md.paymentWindow, paymentChoiceIds: [...ids, ...recycles] });
+  const toggle = (id: string) => setRecycles((cur) => (cur.includes(id) ? cur.filter((x) => x !== id) : [...cur, id]));
+
+  return (
+    <div className="panel">
+      {cost && (cost.mana || cost.power) ? (
+        <p className="small">
+          需要支付
+          {cost.mana ? <span className="sym sym--mana">{cost.mana}</span> : null}
+          {cost.power ? ` ${cost.power} 符能` : ""}
+        </p>
+      ) : null}
+      {recycleOptions.length > 0 && (
+        <div className="panel__group">
+          <p className="small">可回收符文来支付符能：</p>
+          <div className="choices">
+            {recycleOptions.map((c) => (
+              <label key={c.id} className="chip chip--toggle">
+                <input type="checkbox" checked={recycles.includes(c.id)} onChange={() => toggle(c.id)} />
+                {paymentChoiceLabel(c.id, c.label, objects)}
+              </label>
+            ))}
+          </div>
+        </div>
+      )}
+      {steps.length ? (
+        <div className="tempo">
+          {steps[0].choices.map((c) => (
+            <button key={c.id} className={`btn btn--wide${/DECLINE/.test(c.id) ? "" : " btn--primary"}`} onClick={() => pay([c.id])}>
+              {c.label}
+            </button>
+          ))}
+        </div>
+      ) : (
+        <button className="btn btn--primary btn--wide" onClick={() => pay(spend.map((c) => c.id))}>
+          {spend.length ? spend.map((c) => c.label).join("，") : "确认支付"}
+        </button>
+      )}
     </div>
   );
 }

@@ -27,26 +27,49 @@ export type ClientState = {
   lastEvents: GameEvent[];
 };
 
-const SAVED_KEY = "riftbound.web.session";
+// The room seat lives in sessionStorage so two tabs can hold two different players;
+// handle keys and the last login live in localStorage so a name keeps its identity.
+const SESSION_KEY = "riftbound.web.session";
+const LAST_KEY = "riftbound.web.last";
+const KEYS_KEY = "riftbound.web.keys";
 
 type Saved = { server: string; handle: string; key: string; roomId?: string; reconnectToken?: string };
 
-function loadSaved(): Saved | null {
+function readJson<T>(storage: () => Storage, key: string): T | null {
   try {
-    const raw = localStorage.getItem(SAVED_KEY);
-    return raw ? (JSON.parse(raw) as Saved) : null;
+    const raw = storage().getItem(key);
+    return raw ? (JSON.parse(raw) as T) : null;
   } catch {
     return null;
   }
 }
 
-function save(saved: Saved | null) {
+function writeJson(storage: () => Storage, key: string, value: unknown) {
   try {
-    if (saved) localStorage.setItem(SAVED_KEY, JSON.stringify(saved));
-    else localStorage.removeItem(SAVED_KEY);
+    if (value == null) storage().removeItem(key);
+    else storage().setItem(key, JSON.stringify(value));
   } catch {
     /* storage unavailable: the session simply won't survive a reload */
   }
+}
+
+function keyFor(handle: string) {
+  return readJson<Record<string, string>>(() => localStorage, KEYS_KEY)?.[handle];
+}
+
+function loadSaved(): Saved | null {
+  const session = readJson<Saved>(() => sessionStorage, SESSION_KEY);
+  if (session) return session;
+  const last = readJson<{ server: string; handle: string }>(() => localStorage, LAST_KEY);
+  return last ? { ...last, key: keyFor(last.handle) ?? "" } : null;
+}
+
+function save(saved: Saved | null) {
+  writeJson(() => sessionStorage, SESSION_KEY, saved);
+  if (!saved) return;
+  writeJson(() => localStorage, LAST_KEY, { server: saved.server, handle: saved.handle });
+  const keys = readJson<Record<string, string>>(() => localStorage, KEYS_KEY) ?? {};
+  writeJson(() => localStorage, KEYS_KEY, { ...keys, [saved.handle]: saved.key });
 }
 
 function randomKey() {
@@ -121,7 +144,7 @@ export class GameClient {
   async connect(server: string, handle: string) {
     const saved = loadSaved();
     const normalized = handle.trim();
-    this.key = saved && saved.handle === normalized && saved.key ? saved.key : randomKey();
+    this.key = keyFor(normalized) || randomKey();
     this.set({ phase: "connecting", server, handle: normalized, connectionNote: "" });
 
     await this.connection?.stop().catch(() => undefined);

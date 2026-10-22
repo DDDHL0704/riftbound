@@ -146,6 +146,10 @@ button {
   border-color: var(--legal);
   background: rgba(243, 231, 180, 0.12);
 }
+.chip__cost {
+  color: var(--brass);
+  font-size: 12px;
+}
 .chip--quiet {
   color: var(--muted);
 }
@@ -1231,6 +1235,13 @@ button {
 }
 .panel p {
   margin: 0;
+}
+.panel__group {
+  display: grid;
+  gap: 6px;
+}
+.warn {
+  color: var(--ember);
 }
 .panel__title {
   font-family: var(--font-display);

@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from "react";
-import type { CardInfo } from "./types";
+import type { CardInfo, GameObject } from "./types";
 
 let cards: Record<string, CardInfo> = {};
 let loaded = false;
@@ -90,4 +90,11 @@ export function isUnit(tags: string[] | undefined) {
 export function colorOf(tags: string[] | undefined) {
   const tag = tags?.find((t) => t.startsWith("COLOR:") && t !== "COLOR:colorless");
   return tag ? tag.slice(6) : "colorless";
+}
+
+/** Rune payment choices arrive labelled by card number ("回收符文支付：OGN·089/298"); name the rune instead. */
+export function paymentChoiceLabel(id: string, label: string, objects: Record<string, GameObject>) {
+  const tail = id.split(":").pop() ?? id;
+  const o = objects[id] ?? objects[tail];
+  return o ? `${label.split(/[：:]/)[0]}：${cardName(o.cardNo)}` : label;
 }
