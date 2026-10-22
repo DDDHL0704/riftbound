@@ -1,0 +1,45 @@
+# 符文战场 Web 对战页
+
+浏览器里的 1v1 对战客户端，直接连接现有服务端 `src/Riftbound.Api` 的 SignalR `/hubs/game`。服务端负责合法性、费用、结算与计分；本客户端只渲染快照，并按提示里服务端给出的 `commandTemplate` 组装玩家意图后提交。
+
+## 运行
+
+先启动内存模式后端（见仓库根 README）：
+
+```sh
+ASPNETCORE_ENVIRONMENT=Development ASPNETCORE_URLS=http://127.0.0.1:5088 \
+ConnectionStrings__Riftbound="" dotnet run --project src/Riftbound.Api
+```
+
+再启动本客户端（端口 5176，处于后端开发环境 CORS 允许的 5173–5179 范围内）：
+
+```sh
+cd clients/web
+npm install
+npm run dev
+```
+
+打开 http://127.0.0.1:5176 。双人测试时用两个浏览器（或一个普通窗口加一个无痕窗口）各自登录不同的玩家名。服务器地址可在登录页修改，或用 `?server=` 参数指定。
+
+`npm run dev` / `npm run build` 会先从 `data/official/card-catalog.zh-CN.json` 生成 `public/cards.json`（卡名、费用、效果文本与卡图地址）。
+
+## 已覆盖的对战流程
+
+- 登录（玩家名 + 本地生成的密钥）、快速匹配、创建/加入房间、公开房间列表
+- 选择预组卡组、准备、起手调度
+- 主行动：横置/回收符文（含一键横置全部）、打出卡牌（目标、入场位置、可选附加费用、回收符文补足符能）、移动单位、技能与传奇技能
+- 优先权与法术对决让过、结束回合
+- 声明战斗、分配战斗伤害、触发排序、选择手牌/卡牌、支付费用
+- 结算链与目标箭头、卡牌预览、对局记录、计分轨、胜负结算、刷新页面后自动重连
+
+## 结构
+
+| 路径 | 职责 |
+|---|---|
+| `src/net/client.ts` | SignalR 连接、身份认证、房间、意图提交与断线重连 |
+| `src/game/actions.ts` | 把提示候选转为按卡牌归类的操作，并按命令模板组装命令 |
+| `src/ui/Table.tsx` | 对战桌面：双方区域、战场、手牌、选择流程 |
+| `src/ui/Rail.tsx` | 右侧栏：当前提示与专用面板、卡牌预览、结算链、记录 |
+| `src/ui/Overlay.tsx` | 桌面旁的行动按钮与结算链目标箭头 |
+
+布局参考了 Rift Atlas 模拟器的公开截图（镜像双方、中央战场、侧栏预览与结算链、目标箭头），没有使用其素材或规则。
