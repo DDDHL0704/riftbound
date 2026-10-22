@@ -1,0 +1,20 @@
+{
+  "atUtc": "2026-10-22T22:26:58.462503+00:00",
+  "oldReviews": 168,
+  "oldContexts": 83,
+  "oldGates": 269,
+  "oldDeltas": 7,
+  "oldRemainingIds": 17384,
+  "newBehaviorBranches": 5,
+  "newGate": 1,
+  "currentRemainingObligations": 17390,
+  "currentReviews": 169,
+  "currentContexts": 84,
+  "currentGates": 270,
+  "completeOldContextsArchived": 83,
+  "refreshedCurrentImplementationPins": 38,
+  "otherWholeContextObjectsUnchanged": 45,
+  "allOldReviewsGatesDeltasScopeOptionalVerificationReferencesAndSourceDatesRetained": true,
+  "noCardLedgerIndexOrRuntimeCatalogChange": true,
+  "semanticCoverageCertified": false
+}

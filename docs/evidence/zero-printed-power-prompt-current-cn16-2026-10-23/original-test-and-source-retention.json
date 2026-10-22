@@ -1,0 +1,51 @@
+{
+  "atUtc": "2026-10-22T22:26:38.272206+00:00",
+  "status": "PASS_BOUNDED_ZERO_PROMPT_ALL_ORIGINAL_TEST_AND_SOURCE_RETENTION",
+  "baseCommit": "a68bfcf9684c328e999d2a57ec8c6e360528c8a9",
+  "newCases": 5,
+  "newMethods": 2,
+  "focusedCases": 131,
+  "focusedMethods": 50,
+  "affectedOriginalCompleteGames": [
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameDeclinesSeaMonsterHookMultiEligibleCardChoiceAndScoreVictoryActionLogReplaysToFinalStateHash",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameResolvesCandlelitSanctumConquerRevealRecycleAndScoreVictoryActionLogReplaysToFinalStateHash",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameResolvesPiltoverAcademyHeldNextSpellEchoAndScoreVictoryActionLogReplaysToFinalStateHash",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameResolvesSeaMonsterHookActivatedAbilityAndScoreVictoryActionLogReplaysToFinalStateHash",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameResolvesSeaMonsterHookMultiEligibleCardChoiceAndScoreVictoryActionLogReplaysToFinalStateHash",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameResolvesSeaMonsterHookNoEligibleTopFiveRecycleAndScoreVictoryActionLogReplaysToFinalStateHash"
+  ],
+  "originalCompleteGameCases": 6,
+  "soleCheckCases": 13638,
+  "soleCheckMethods": 7602,
+  "allPrior13633CheckCases7600MethodsRetainedPlusFiveCasesTwoMethodsOnly": true,
+  "all3374SourceHashesModesAndCapturedConformanceNativeRuntimeInputsStable": true,
+  "all1819OriginalConformanceFilesByteExact": true,
+  "allNineOriginalCompleteGameSourcesByteExact": {
+    "tests/Riftbound.ConformanceTests/FullGameEndToEndTests.AbilityCounters.cs": "cb22a9f99b3c7a04b5e43b206bcd6103c354d1104d66c1afe98c65d69c0030c8",
+    "tests/Riftbound.ConformanceTests/FullGameEndToEndTests.AttachedRuleText.cs": "9060a2f104b644c91a0582b714c1cf84920a9ec65636e968734c93a7c40b31f7",
+    "tests/Riftbound.ConformanceTests/FullGameEndToEndTests.AttachmentModes.cs": "b2367853c297452804ea2abba698d4091df56e9033b746effe89bb61de87fa39",
+    "tests/Riftbound.ConformanceTests/FullGameEndToEndTests.AttackDamage.cs": "ebd30b96a75712ddc672b6ee36e9256d21db9afdaaa80c50fa4dad5831ac48b8",
+    "tests/Riftbound.ConformanceTests/FullGameEndToEndTests.Azir.cs": "1264a5a522abfb7c0b69a018c924b9e7414213d476357de4a2f7dd6e7c0aa710",
+    "tests/Riftbound.ConformanceTests/FullGameEndToEndTests.CopiedAttachment.cs": "b679ac9beba8839ed89fc0ece94d57f4d5db02623ff5d7a17433653b95a4ae37",
+    "tests/Riftbound.ConformanceTests/FullGameEndToEndTests.MovementDiscard.cs": "7d9145c135ca7c8c25756e1fb283907da93894125e0c9e0ee1d8bf034065e99a",
+    "tests/Riftbound.ConformanceTests/FullGameEndToEndTests.Tempered.cs": "60e4a732bfba46be843c1997ed83cebd620a822cd33e2abdc2122a9a36b28830",
+    "tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs": "1fd8423eeb7f46ae10096ac260c2c1b380a34d714bcbdc73cbc90bc9926519ac"
+  },
+  "all143OriginalMethods151Cases110Pairs11DecksSeed424242VictoryAndReplayAssertionsRetained": true,
+  "originalRedFiveCasesTwoFailuresThreePassNotRelabeled": true,
+  "serverMalformedAllocationRefusalPreserved": true,
+  "actualDebugInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "0aa8f812dc6f561f9fb1996381bae9821bd54d069f3ad26be7fe669baae9ae6c",
+    "implementationSha256": "9781207885019eb7cefce14c055354e71f0b5e4f19f762d9223b3067b7d0de8b",
+    "identitySha256": "e9958528d7551b4f6297b9167373c60c07ac413e2e12c5a8426e89e7b3a1a8b4"
+  },
+  "expectedNextFixedFullCases": 13787,
+  "expectedNextFixedFullMethods": 7743,
+  "all62SqlCaseObjectsAndOrderUntouched": true,
+  "newFixedFullAndProducts": "OPEN",
+  "wholePrintingOrGoalCertified": false
+}

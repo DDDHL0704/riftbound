@@ -1,0 +1,51 @@
+{
+  "status": "ORIGINAL_RED_FIVE_CASES_TWO_EXPECTED_ZERO_ALLOCATION_FAILURES_THREE_PASS_RETAINED",
+  "cases": [
+    {
+      "name": "Riftbound.ConformanceTests.ZeroPrintedPowerPromptTests.ZeroPrintedPowerOffersNoEmptyTraitAllocationWhileNormalFlowAndEchoPayTheirActualCosts(flow: False, echo: True, mana: 2, power: 0)",
+      "outcome": "Failed",
+      "message": "Assert.Empty() Failure: Collection was not empty\nCollection: [ActionPromptChoiceDto { Id = PRINTED_POWER:, Label = 卡面费用：, Reason = 选择支付卡面符能的特性，彩虹符能可补足不足部分, ObjectIds =  }]"
+    },
+    {
+      "name": "Riftbound.ConformanceTests.ZeroPrintedPowerPromptTests.ZeroPrintedPowerOffersNoEmptyTraitAllocationWhileNormalFlowAndEchoPayTheirActualCosts(flow: True, echo: False, mana: 2, power: 1)",
+      "outcome": "Passed",
+      "message": null
+    },
+    {
+      "name": "Riftbound.ConformanceTests.ZeroPrintedPowerPromptTests.ZeroPrintedPowerOffersNoEmptyTraitAllocationWhileNormalFlowAndEchoPayTheirActualCosts(flow: True, echo: True, mana: 3, power: 1)",
+      "outcome": "Passed",
+      "message": null
+    },
+    {
+      "name": "Riftbound.ConformanceTests.ZeroPrintedPowerPromptTests.AnExplicitEmptyAllocationForZeroPrintedPowerStillRejectsWithoutChangingAnyState",
+      "outcome": "Passed",
+      "message": null
+    },
+    {
+      "name": "Riftbound.ConformanceTests.ZeroPrintedPowerPromptTests.ZeroPrintedPowerOffersNoEmptyTraitAllocationWhileNormalFlowAndEchoPayTheirActualCosts(flow: False, echo: False, mana: 1, power: 0)",
+      "outcome": "Failed",
+      "message": "Assert.Empty() Failure: Collection was not empty\nCollection: [ActionPromptChoiceDto { Id = PRINTED_POWER:, Label = 卡面费用：, Reason = 选择支付卡面符能的特性，彩虹符能可补足不足部分, ObjectIds =  }]"
+    }
+  ],
+  "trxSha256": "3404cb9dbedb0eabf40fc643cdf79400669868ec051d1bf0f7f08d8b2a559c40",
+  "runtimeFiles": {
+    "Riftbound.ConformanceTests.dll": {
+      "sha256": "445f41be98eec26b664d4a66020f6eed9be08ebbe80b3c302863f6e99f7fe8e9",
+      "retained": "var/qa/zero-printed-power-prompt-current-cn16-20261023/original-red-executed-runtime-preimage-v1/Riftbound.ConformanceTests.dll"
+    },
+    "Riftbound.ConformanceTests.pdb": {
+      "sha256": "c1635ec1dc8b0cdbca90b06bd8a06e1b3b6247b9ba241ce87c3cfcfbfe46b48d",
+      "retained": "var/qa/zero-printed-power-prompt-current-cn16-20261023/original-red-executed-runtime-preimage-v1/Riftbound.ConformanceTests.pdb"
+    },
+    "Riftbound.Engine.dll": {
+      "sha256": "b25130d16c9bb107e9ea010c837ef03c68ed0ee39a14d4d543ebe005cfcb3af9",
+      "retained": "var/qa/zero-printed-power-prompt-current-cn16-20261023/original-red-executed-runtime-preimage-v1/Riftbound.Engine.dll"
+    },
+    "Riftbound.Engine.pdb": {
+      "sha256": "1406f2c7c4d1eb41aa01375faf57f0eb022bfaeafde78c0683fea64431e19c34",
+      "retained": "var/qa/zero-printed-power-prompt-current-cn16-20261023/original-red-executed-runtime-preimage-v1/Riftbound.Engine.pdb"
+    }
+  },
+  "serverMalformedAllocationRefusalAndBothFlowCostControlsAlreadyPass": true,
+  "allOriginalConformanceSourceFilesUntouched": true
+}

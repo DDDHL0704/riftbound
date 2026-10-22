@@ -1,0 +1,9 @@
+{
+  "atUtc": "2026-10-22T22:30:16.228345+00:00",
+  "originalVersion2FailedBeforeReadingOrComparingObligations": true,
+  "cause": "Replacing the new governance output suffix also changed the unchanged preceding baseline filename; that v2 baseline does not exist.",
+  "correctedPriorBaseline": "var/qa/deck-look-draw-graveyard-current-cn16-20261022/final-coherent-current-governance-v1.json",
+  "currentGovernanceOutput": "var/qa/zero-printed-power-prompt-current-cn16-20261023/final-coherent-current-governance-v2.json",
+  "allExpected17384OriginalIdsPlusFiveBranchesOneGateAssertionsRetained": true,
+  "noGameplaySourceOrOriginalEvidenceMutation": true
+}

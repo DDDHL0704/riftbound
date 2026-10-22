@@ -1,0 +1,56 @@
+{
+  "atUtc": "2026-10-22T22:29:23.233519+00:00",
+  "status": "CORRECTED_ONLY_NEW_GATE_MISSING_REQUIRED_SCHEMA_FIELD_ORIGINAL_FAILURE_RETAINED",
+  "originalFailure": {
+    "path": "var/qa/zero-printed-power-prompt-current-cn16-20261023/final-coherent-current-governance-v1.json",
+    "sha256": "e7535d3114f7c3693e721eebd9148f42deaa9601d2262a7ba720d6b274f77687",
+    "errors": [
+      "KeyError: 'requirement'"
+    ]
+  },
+  "beforeManifest": {
+    "path": "docs/evidence/zero-printed-power-prompt-current-cn16-2026-10-23/original-publication-manifest-before-gate-schema-correction.json.gz",
+    "sha256": "6874048061b89b25188ea97b64fd3e694dfeda1b301397c2c40a238f4c9d34ef",
+    "uncompressedSha256": "24b2e9c4d6d58f25890039f56458db4f966f69cf7ad2d8f28c6337d57c4dae7d"
+  },
+  "beforeGate": {
+    "id": "ZERO_PRINTED_POWER_PROMPT_CURRENT_FIXED_MAIN_AND_PRODUCTS",
+    "state": "OPEN",
+    "scope": "CN VEN-156 zero-power prompt, normal/Flow/Echo real costs and malformed input refusal",
+    "sourceManifest": {
+      "path": "docs/evidence/zero-printed-power-prompt-current-cn16-2026-10-23/source-manifest.json",
+      "sha256": "54444ac2352f029a26d7b32ab5a5405d15231af110be85367e90d6840ed193e7",
+      "role": "source-manifest"
+    },
+    "issue": "https://github.com/DDDHL0704/riftbound/issues/95",
+    "semanticReview": "BOUNDED",
+    "implementation": "SHARED_PROMPT_GUARD_ONLY",
+    "testExecution": "FIVE_NEW_131_FOCUS_SIX_ORIGINAL_GAMES_SOLE_CHECK13638",
+    "fixedCommitCi": "OPEN_NEW_FIXED_FULL",
+    "productAcceptance": "OPEN_NEW_FIXED_MAIN_PAIR_NETWORK_NORMAL_SCORE_REPLAY_OS_HARDWARE_AND_PHYSICAL_WINDOWS",
+    "wholePrintingCertified": false
+  },
+  "afterGate": {
+    "id": "ZERO_PRINTED_POWER_PROMPT_CURRENT_FIXED_MAIN_AND_PRODUCTS",
+    "state": "OPEN",
+    "scope": "CN VEN-156 zero-power prompt, normal/Flow/Echo real costs and malformed input refusal",
+    "sourceManifest": {
+      "path": "docs/evidence/zero-printed-power-prompt-current-cn16-2026-10-23/source-manifest.json",
+      "sha256": "54444ac2352f029a26d7b32ab5a5405d15231af110be85367e90d6840ed193e7",
+      "role": "source-manifest"
+    },
+    "issue": "https://github.com/DDDHL0704/riftbound/issues/95",
+    "semanticReview": "BOUNDED",
+    "implementation": "SHARED_PROMPT_GUARD_ONLY",
+    "testExecution": "FIVE_NEW_131_FOCUS_SIX_ORIGINAL_GAMES_SOLE_CHECK13638",
+    "fixedCommitCi": "OPEN_NEW_FIXED_FULL",
+    "productAcceptance": "OPEN_NEW_FIXED_MAIN_PAIR_NETWORK_NORMAL_SCORE_REPLAY_OS_HARDWARE_AND_PHYSICAL_WINDOWS",
+    "wholePrintingCertified": false,
+    "requirement": "On the new fixed zero-power prompt candidate, independently verify the complete original full CI and actual default Main normal/Flow/Echo costs, malformed allocation refusal, paired recovery, network reconnect, normal score finish and full original replay. Keep SDK production controls, CI own GPU viewports, OS hardware input and physical Windows acceptance separately attributed. Prior a68bf proofs do not certify this changed implementation."
+  },
+  "onlyNewGateRequirementAdded": true,
+  "gameplayAndCheckSourceInputsUnchanged": true,
+  "originalCheckNotRerunOrRelabeled": true,
+  "old269GatesAndAllOtherManifestFieldsUnchanged": true,
+  "wholePrintingOrGoalCertified": false
+}

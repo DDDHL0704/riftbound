@@ -14285,7 +14285,7 @@ internal static class ActionPromptBuilder
     }
 
     private static IReadOnlyList<ActionPromptChoiceDto> PrintedPowerChoices(CardBehaviorDefinition behavior)
-        => PrintedPowerCostRules.ForPlay(behavior).Traits.Count < 2 ? [] :
+        => PrintedPowerCostRules.ForPlay(behavior) is not { Amount: > 0, Traits.Count: >= 2 } ? [] :
             PrintedPowerCostRules.AllocationsForPlay(behavior).Select(allocation => new ActionPromptChoiceDto(
                 PrintedPowerCostRules.ChoiceId(allocation),
                 "卡面费用：" + string.Join(" + ", allocation.Select(x => $"{x.Value} {RuneTraitLabel(x.Key)}符能")),

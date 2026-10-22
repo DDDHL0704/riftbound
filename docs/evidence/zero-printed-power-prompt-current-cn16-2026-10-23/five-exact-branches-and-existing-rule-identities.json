@@ -1,0 +1,421 @@
+{
+  "atUtc": "2026-10-22T21:38:55.567268+00:00",
+  "region": "CN",
+  "language": "zh-CN",
+  "reviewDate": "2026-10-23",
+  "coreEffectiveDate": "2026-10-16",
+  "issue": 95,
+  "cases": [
+    {
+      "id": "CN16-ZERO-POWER-PROMPT-6BC6FE478CD15E2A",
+      "actualExecutedCase": "Riftbound.ConformanceTests.ZeroPrintedPowerPromptTests.ZeroPrintedPowerOffersNoEmptyTraitAllocationWhileNormalFlowAndEchoPayTheirActualCosts(flow: False, echo: True, mana: 2, power: 0)",
+      "method": "Riftbound.ConformanceTests.ZeroPrintedPowerPromptTests.ZeroPrintedPowerOffersNoEmptyTraitAllocationWhileNormalFlowAndEchoPayTheirActualCosts",
+      "exactPrintingSubjects": [
+        "VEN-156"
+      ],
+      "existingCanonicalRuleIds": [
+        "CN-d6fd7140f106f9b5-P010-B006",
+        "CN-d6fd7140f106f9b5-P010-B007",
+        "CN-d6fd7140f106f9b5-P010-B008",
+        "CN-d6fd7140f106f9b5-P014-B014",
+        "CN-d6fd7140f106f9b5-P014-B015",
+        "CN-d6fd7140f106f9b5-P014-B017",
+        "CN-d6fd7140f106f9b5-P014-B018",
+        "CN-d6fd7140f106f9b5-P014-B019",
+        "CN-d6fd7140f106f9b5-P014-B020",
+        "CN-d6fd7140f106f9b5-P127-B002",
+        "CN-d6fd7140f106f9b5-P127-B003",
+        "CN-d6fd7140f106f9b5-P127-B012",
+        "CN-d6fd7140f106f9b5-P122-B017",
+        "CN-d6fd7140f106f9b5-P122-B019",
+        "CN-d6fd7140f106f9b5-P122-B023",
+        "CN-d6fd7140f106f9b5-P122-B024",
+        "CN-d6fd7140f106f9b5-P122-B025"
+      ],
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "CN16-ZERO-POWER-PROMPT-E19D0D6625C479A2",
+      "actualExecutedCase": "Riftbound.ConformanceTests.ZeroPrintedPowerPromptTests.ZeroPrintedPowerOffersNoEmptyTraitAllocationWhileNormalFlowAndEchoPayTheirActualCosts(flow: True, echo: True, mana: 3, power: 1)",
+      "method": "Riftbound.ConformanceTests.ZeroPrintedPowerPromptTests.ZeroPrintedPowerOffersNoEmptyTraitAllocationWhileNormalFlowAndEchoPayTheirActualCosts",
+      "exactPrintingSubjects": [
+        "VEN-156"
+      ],
+      "existingCanonicalRuleIds": [
+        "CN-d6fd7140f106f9b5-P010-B006",
+        "CN-d6fd7140f106f9b5-P010-B007",
+        "CN-d6fd7140f106f9b5-P010-B008",
+        "CN-d6fd7140f106f9b5-P014-B014",
+        "CN-d6fd7140f106f9b5-P014-B015",
+        "CN-d6fd7140f106f9b5-P014-B017",
+        "CN-d6fd7140f106f9b5-P014-B018",
+        "CN-d6fd7140f106f9b5-P014-B019",
+        "CN-d6fd7140f106f9b5-P014-B020",
+        "CN-d6fd7140f106f9b5-P127-B002",
+        "CN-d6fd7140f106f9b5-P127-B003",
+        "CN-d6fd7140f106f9b5-P127-B012",
+        "CN-d6fd7140f106f9b5-P122-B017",
+        "CN-d6fd7140f106f9b5-P122-B019",
+        "CN-d6fd7140f106f9b5-P122-B023",
+        "CN-d6fd7140f106f9b5-P122-B024",
+        "CN-d6fd7140f106f9b5-P122-B025"
+      ],
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "CN16-ZERO-POWER-PROMPT-7AFF56EB9ECD3656",
+      "actualExecutedCase": "Riftbound.ConformanceTests.ZeroPrintedPowerPromptTests.ZeroPrintedPowerOffersNoEmptyTraitAllocationWhileNormalFlowAndEchoPayTheirActualCosts(flow: True, echo: False, mana: 2, power: 1)",
+      "method": "Riftbound.ConformanceTests.ZeroPrintedPowerPromptTests.ZeroPrintedPowerOffersNoEmptyTraitAllocationWhileNormalFlowAndEchoPayTheirActualCosts",
+      "exactPrintingSubjects": [
+        "VEN-156"
+      ],
+      "existingCanonicalRuleIds": [
+        "CN-d6fd7140f106f9b5-P010-B006",
+        "CN-d6fd7140f106f9b5-P010-B007",
+        "CN-d6fd7140f106f9b5-P010-B008",
+        "CN-d6fd7140f106f9b5-P014-B014",
+        "CN-d6fd7140f106f9b5-P014-B015",
+        "CN-d6fd7140f106f9b5-P014-B017",
+        "CN-d6fd7140f106f9b5-P014-B018",
+        "CN-d6fd7140f106f9b5-P014-B019",
+        "CN-d6fd7140f106f9b5-P014-B020",
+        "CN-d6fd7140f106f9b5-P127-B002",
+        "CN-d6fd7140f106f9b5-P127-B003",
+        "CN-d6fd7140f106f9b5-P127-B012"
+      ],
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "CN16-ZERO-POWER-PROMPT-8A1786B0A9911852",
+      "actualExecutedCase": "Riftbound.ConformanceTests.ZeroPrintedPowerPromptTests.AnExplicitEmptyAllocationForZeroPrintedPowerStillRejectsWithoutChangingAnyState",
+      "method": "Riftbound.ConformanceTests.ZeroPrintedPowerPromptTests.AnExplicitEmptyAllocationForZeroPrintedPowerStillRejectsWithoutChangingAnyState",
+      "exactPrintingSubjects": [
+        "VEN-156"
+      ],
+      "existingCanonicalRuleIds": [
+        "CN-d6fd7140f106f9b5-P010-B006",
+        "CN-d6fd7140f106f9b5-P010-B007",
+        "CN-d6fd7140f106f9b5-P010-B008",
+        "CN-d6fd7140f106f9b5-P014-B014",
+        "CN-d6fd7140f106f9b5-P014-B015",
+        "CN-d6fd7140f106f9b5-P014-B017",
+        "CN-d6fd7140f106f9b5-P014-B018",
+        "CN-d6fd7140f106f9b5-P014-B019",
+        "CN-d6fd7140f106f9b5-P014-B020",
+        "CN-d6fd7140f106f9b5-P127-B002",
+        "CN-d6fd7140f106f9b5-P127-B003",
+        "CN-d6fd7140f106f9b5-P127-B012"
+      ],
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "CN16-ZERO-POWER-PROMPT-85E30A2AB66CDDC0",
+      "actualExecutedCase": "Riftbound.ConformanceTests.ZeroPrintedPowerPromptTests.ZeroPrintedPowerOffersNoEmptyTraitAllocationWhileNormalFlowAndEchoPayTheirActualCosts(flow: False, echo: False, mana: 1, power: 0)",
+      "method": "Riftbound.ConformanceTests.ZeroPrintedPowerPromptTests.ZeroPrintedPowerOffersNoEmptyTraitAllocationWhileNormalFlowAndEchoPayTheirActualCosts",
+      "exactPrintingSubjects": [
+        "VEN-156"
+      ],
+      "existingCanonicalRuleIds": [
+        "CN-d6fd7140f106f9b5-P010-B006",
+        "CN-d6fd7140f106f9b5-P010-B007",
+        "CN-d6fd7140f106f9b5-P010-B008",
+        "CN-d6fd7140f106f9b5-P014-B014",
+        "CN-d6fd7140f106f9b5-P014-B015",
+        "CN-d6fd7140f106f9b5-P014-B017",
+        "CN-d6fd7140f106f9b5-P014-B018",
+        "CN-d6fd7140f106f9b5-P014-B019",
+        "CN-d6fd7140f106f9b5-P014-B020",
+        "CN-d6fd7140f106f9b5-P127-B002",
+        "CN-d6fd7140f106f9b5-P127-B003",
+        "CN-d6fd7140f106f9b5-P127-B012"
+      ],
+      "wholePrintingCertified": false
+    }
+  ],
+  "newMethods": [
+    "Riftbound.ConformanceTests.ZeroPrintedPowerPromptTests.AnExplicitEmptyAllocationForZeroPrintedPowerStillRejectsWithoutChangingAnyState",
+    "Riftbound.ConformanceTests.ZeroPrintedPowerPromptTests.ZeroPrintedPowerOffersNoEmptyTraitAllocationWhileNormalFlowAndEchoPayTheirActualCosts"
+  ],
+  "sourceRuleRecords": [
+    {
+      "id": "CN-d6fd7140f106f9b5-P010-B006",
+      "sourceRecord": {
+        "id": "DOC-01-P010-B006",
+        "document": "DOC-01",
+        "page": 10,
+        "clauseAnchors": [
+          "131.3"
+        ],
+        "text": "131.3.          符能 费用",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      },
+      "existingTextHash": "087ba66c1e19de2020ed8b410bface9f5d7caedffc25cc2ba97d0c07c7c11bae"
+    },
+    {
+      "id": "CN-d6fd7140f106f9b5-P010-B007",
+      "sourceRecord": {
+        "id": "DOC-01-P010-B007",
+        "document": "DOC-01",
+        "page": 10,
+        "clauseAnchors": [
+          "131.3.a"
+        ],
+        "text": "131.3.a.                卡面左上角费用处纵向列出的符号。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      },
+      "existingTextHash": "cf52a1e05f729f232f0aaae34b1c8f1d350d0a0f96b5bd7c3e3422e1483122a8"
+    },
+    {
+      "id": "CN-d6fd7140f106f9b5-P010-B008",
+      "sourceRecord": {
+        "id": "DOC-01-P010-B008",
+        "document": "DOC-01",
+        "page": 10,
+        "clauseAnchors": [
+          "131.3.b"
+        ],
+        "text": "131.3.b.                并非每张卡牌都具有符能费用。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      },
+      "existingTextHash": "ea067bce9c865829bc1e98d77acef4f58b503a91ba426d1ac9350ca01158e8d2"
+    },
+    {
+      "id": "CN-d6fd7140f106f9b5-P014-B014",
+      "sourceRecord": {
+        "id": "DOC-01-P014-B014",
+        "document": "DOC-01",
+        "page": 14,
+        "clauseAnchors": [
+          "135.2.e.5"
+        ],
+        "text": "135.2.e.5.            一点任意特性的符能,以一个旋转的彩虹符号来表示。其缩写为[A]。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      },
+      "existingTextHash": "16aff960c60f51cffc3cbb0d56e788a2eb493bc7e746fcf1e9b533d8172eacab"
+    },
+    {
+      "id": "CN-d6fd7140f106f9b5-P014-B015",
+      "sourceRecord": {
+        "id": "DOC-01-P014-B015",
+        "document": "DOC-01",
+        "page": 14,
+        "clauseAnchors": [
+          "135.2.e.5.a"
+        ],
+        "text": "135.2.e.5.a.                 当[A]需要作为费用支付时,可以用任何特性的符能支付。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      },
+      "existingTextHash": "ea8069eef2d97030a65f13cb0a43fd74642f7badf716e96d38592f9688bd98b7"
+    },
+    {
+      "id": "CN-d6fd7140f106f9b5-P014-B017",
+      "sourceRecord": {
+        "id": "DOC-01-P014-B017",
+        "document": "DOC-01",
+        "page": 14,
+        "clauseAnchors": [
+          "135.2.e.6"
+        ],
+        "text": "135.2.e.6.            与卡牌自身特性对应的特性符能不以符号表示,但其在本规则中的呈现方式与其他符号无异。\n                      其缩写为[C]。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      },
+      "existingTextHash": "4629d956d018b0fea26ff13a9c6fc72a28b5fe5f83189689d028204bf700cca8"
+    },
+    {
+      "id": "CN-d6fd7140f106f9b5-P014-B018",
+      "sourceRecord": {
+        "id": "DOC-01-P014-B018",
+        "document": "DOC-01",
+        "page": 14,
+        "clauseAnchors": [
+          "135.2.e.6.a"
+        ],
+        "text": "135.2.e.6.a.                 当缩写[C]作为提示文本印在卡牌上时,该缩写默认代表该牌的主要特性,但其含义\n                             依然是“此卡牌特性的 1 点符能”。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      },
+      "existingTextHash": "05db36ad60060d99ff4e0d90b027e4ffc561328489c450fc054391ef8340cdea"
+    },
+    {
+      "id": "CN-d6fd7140f106f9b5-P014-B019",
+      "sourceRecord": {
+        "id": "DOC-01-P014-B019",
+        "document": "DOC-01",
+        "page": 14,
+        "clauseAnchors": [
+          "135.2.e.6.b"
+        ],
+        "text": "135.2.e.6.b.                 如果卡牌没有特性,则缩写[C]将按[A]处理。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      },
+      "existingTextHash": "4760ff2a0e5ef60a6891e14356a0b1bafdd0e5791af97a7fcba068257cb9902f"
+    },
+    {
+      "id": "CN-d6fd7140f106f9b5-P014-B020",
+      "sourceRecord": {
+        "id": "DOC-01-P014-B020",
+        "document": "DOC-01",
+        "page": 14,
+        "clauseAnchors": [
+          "135.2.e.6.c"
+        ],
+        "text": "135.2.e.6.c.                 如果卡牌拥有多个特性,则缩写[C]视为该卡牌对应特性的符能。\n                                  举例:“距破之舞”是“翠意”与“混沌”法术。其费用为[1]和[C]。该费用中的符",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      },
+      "existingTextHash": "f22cfe1e92c2f08e6a22e28078d6a0ffb650e5d3d64a312b71595bb41363f054"
+    },
+    {
+      "id": "CN-d6fd7140f106f9b5-P127-B002",
+      "sourceRecord": {
+        "id": "DOC-01-P127-B002",
+        "document": "DOC-01",
+        "page": 127,
+        "clauseAnchors": [
+          "829"
+        ],
+        "text": "829.         流转",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      },
+      "existingTextHash": "c13db283b49d6319b03aaf44af5dfdf31a67f45d8dab0fbcfcfb83f9c7e80d0c"
+    },
+    {
+      "id": "CN-d6fd7140f106f9b5-P127-B003",
+      "sourceRecord": {
+        "id": "DOC-01-P127-B003",
+        "document": "DOC-01",
+        "page": 127,
+        "clauseAnchors": [
+          "829.1"
+        ],
+        "text": "829.1.            [流转]是一种被动技能关键词。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      },
+      "existingTextHash": "466d3465ba1dbe3d9c66dc733f39705cfbb91dcadbe9674626f9e8ac776426e1"
+    },
+    {
+      "id": "CN-d6fd7140f106f9b5-P127-B012",
+      "sourceRecord": {
+        "id": "DOC-01-P127-B012",
+        "document": "DOC-01",
+        "page": 127,
+        "clauseAnchors": [
+          "829.2"
+        ],
+        "text": "829.2.            [流转],以及法术是否拥有[流转],是该法术的一个特性,其他游戏效果可以检查或引用该特性。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      },
+      "existingTextHash": "6d6162d7326c162fb0cf55d86fee7d5933408fa3a6df3e7e4e4e29c445c3d549"
+    },
+    {
+      "id": "CN-d6fd7140f106f9b5-P122-B017",
+      "sourceRecord": {
+        "id": "DOC-01-P122-B017",
+        "document": "DOC-01",
+        "page": 122,
+        "clauseAnchors": [
+          "820.1"
+        ],
+        "text": "820.1.            [回响]是一种可选额外费用关键词。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      },
+      "existingTextHash": "ae3bc134298953f549e0f04744fd035c39b8ba92b4056b4fc19125876ac48a65"
+    },
+    {
+      "id": "CN-d6fd7140f106f9b5-P122-B019",
+      "sourceRecord": {
+        "id": "DOC-01-P122-B019",
+        "document": "DOC-01",
+        "page": 122,
+        "clauseAnchors": [
+          "820.1.b"
+        ],
+        "text": "820.1.b.               [回响]是一种可选费用,玩家可以支付该费用以再次执行其法术和技能的效果。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      },
+      "existingTextHash": "4445b67cef46ed1efcd3555cf059d767d3fb4c32fb0176eb4026e8da2c072c6d"
+    },
+    {
+      "id": "CN-d6fd7140f106f9b5-P122-B023",
+      "sourceRecord": {
+        "id": "DOC-01-P122-B023",
+        "document": "DOC-01",
+        "page": 122,
+        "clauseAnchors": [
+          "820.1.c.3"
+        ],
+        "text": "820.1.c.3.                  每个[回响]费用仅可支付一次。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      },
+      "existingTextHash": "45071a7c009ac4ba4377b14ee5ad64a1c9a65ba3806d356d845e3452e1b6fb43"
+    },
+    {
+      "id": "CN-d6fd7140f106f9b5-P122-B024",
+      "sourceRecord": {
+        "id": "DOC-01-P122-B024",
+        "document": "DOC-01",
+        "page": 122,
+        "clauseAnchors": [
+          "820.1.d"
+        ],
+        "text": "820.1.d.               [回响]为以下功能的简称:“打出此法术/技能时,你可以选择支付[费用]作为额外费用,若如此做,在结\n                       算时额外执行一次此结算链项目的指示。”",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      },
+      "existingTextHash": "043090d6c042d1e32cd81c70c8ca106272956221a443bc9b02bdef3e7a55da8b"
+    },
+    {
+      "id": "CN-d6fd7140f106f9b5-P122-B025",
+      "sourceRecord": {
+        "id": "DOC-01-P122-B025",
+        "document": "DOC-01",
+        "page": 122,
+        "clauseAnchors": [
+          "820.1.d.1"
+        ],
+        "text": "820.1.d.1.                  支付了额外费用后,该法术或技能在结算时,其效果将额外执行一次。\n                                 举例:“沙漠召唤”是一张拥有[回响][2]的法术,且描述为“打出一名 2[M]的‘黄沙士\n                                  兵’。”如果其控制者在打出时支付了[回响]费用,则该卡牌打出“黄沙士兵”的指示将执\n                                  行两次,如同卡牌描述为“打出一名 2[M]的‘黄沙士兵’。打出一名 2[M]的“黄沙士\n                                  兵 ”。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      },
+      "existingTextHash": "fe223c2f875d2f83bb231e8e4075d8b5dec93f27317641514dd6d3c4bdc11e34"
+    }
+  ],
+  "allExisting14293RuleIdsRetained": true,
+  "onlyKnownRuntimeConsumerZeroPowerAndMultipleTraits": "VEN·156",
+  "runtimeCatalogAndAll1740PrintingIdentitiesUnchanged": true,
+  "noNewSourceVersionDelta": true,
+  "wholeRuleOrPrintingCertified": false,
+  "refinedAtUtc": "2026-10-22T22:15:23.717548+00:00",
+  "priorTwelveRecordPreparationRetainedUnchanged": "var/qa/zero-printed-power-prompt-current-cn16-20261023/five-exact-executed-branches-and-existing-source-identities-v1.json",
+  "onlyEchoTrueControlCasesReceiveFiveAdditionalExactCurrent820SourceRefs": true
+}

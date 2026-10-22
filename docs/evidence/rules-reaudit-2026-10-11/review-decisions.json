@@ -25249,6 +25249,56 @@
         "All original red executions, fixture preparation failures and owner/probe errors retained",
         "No old development-game migration or accepted-history rewrite"
       ]
+    },
+    {
+      "id": "zero-printed-power-prompt-current-cn16-2026-10-23",
+      "scope": "CN API37859 VEN-156: zero printed power exposes no empty trait-allocation option. Normal, Echo, Flow and Flow+Echo retain actual authoritative costs. Explicit malformed empty allocation remains rejected. Positive multi-trait printed costs and Flow generic power retain prior behavior.",
+      "subjects": [
+        "VEN-156"
+      ],
+      "ruleRecords": [
+        "CN-d6fd7140f106f9b5-P010-B006",
+        "CN-d6fd7140f106f9b5-P010-B007",
+        "CN-d6fd7140f106f9b5-P010-B008",
+        "CN-d6fd7140f106f9b5-P014-B014",
+        "CN-d6fd7140f106f9b5-P014-B015",
+        "CN-d6fd7140f106f9b5-P014-B017",
+        "CN-d6fd7140f106f9b5-P014-B018",
+        "CN-d6fd7140f106f9b5-P014-B019",
+        "CN-d6fd7140f106f9b5-P014-B020",
+        "CN-d6fd7140f106f9b5-P127-B002",
+        "CN-d6fd7140f106f9b5-P127-B003",
+        "CN-d6fd7140f106f9b5-P127-B012",
+        "CN-d6fd7140f106f9b5-P122-B017",
+        "CN-d6fd7140f106f9b5-P122-B019",
+        "CN-d6fd7140f106f9b5-P122-B023",
+        "CN-d6fd7140f106f9b5-P122-B024",
+        "CN-d6fd7140f106f9b5-P122-B025"
+      ],
+      "status": "BOUNDED_ZERO_POWER_PROMPT_COST_AND_REFUSAL_PASS_NEW_FIXED_FULL_PRODUCTS_OPEN",
+      "sourceManifest": {
+        "path": "docs/evidence/zero-printed-power-prompt-current-cn16-2026-10-23/source-manifest.json",
+        "sha256": "54444ac2352f029a26d7b32ab5a5405d15231af110be85367e90d6840ed193e7",
+        "role": "source-manifest"
+      },
+      "auditDocument": "docs/ZERO_PRINTED_POWER_PROMPT_CURRENT_CN16_AUDIT_2026-10-23.md",
+      "validation": {
+        "newCases": 5,
+        "newMethods": 2,
+        "soleCheckCases": 13638,
+        "soleCheckMethods": 7602,
+        "focusedCases": 131,
+        "focusedMethods": 50,
+        "originalFullGameMethods": 6,
+        "wholeCardCertification": false
+      },
+      "exclusions": [
+        "Whole printing and distinct GLOBAL printing remain uncertified",
+        "All prior sources and seven source deltas retained",
+        "Prior a68bf native proofs remain on their original RIF3b84 input, not new Debug e995",
+        "New fixed full, current native, OS hardware input and physical Windows remain separate",
+        "Original malformed request and all owner/helper failures retained; accepted histories and seeds unchanged"
+      ]
     }
   ]
 }

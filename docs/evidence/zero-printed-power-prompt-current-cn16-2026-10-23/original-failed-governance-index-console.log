@@ -1,0 +1,10 @@
+{
+  "governanceValid": false,
+  "semanticCoverageCertified": false,
+  "errors": [
+    "KeyError: 'requirement'"
+  ],
+  "warnings": [],
+  "checkerSha256": "eeffde1cc6b111780d56a4744201c233ee4e25bfcb24325c86959f2bdf8e6e66",
+  "remainingObligationCount": 0
+}

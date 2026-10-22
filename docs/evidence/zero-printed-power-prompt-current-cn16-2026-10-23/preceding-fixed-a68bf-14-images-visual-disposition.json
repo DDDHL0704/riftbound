@@ -1,0 +1,178 @@
+{
+  "atUtc": "2026-10-22T20:42:53.769391+00:00",
+  "status": "ACTUALLY_READ_TWELVE_CURRENT_CI_PAIR_GPU_VIEWPORTS_AND_TWO_LOCAL_SOURCE_PRODUCTION_COMPOSERS",
+  "fixedCommit": "a68bfcf9684c328e999d2a57ec8c6e360528c8a9",
+  "owner": "var/qa/fixeda68bf-early-native-20261023/flow-ci-main-v1/actual-current-production-controls-and-ci-pair-owner-terminal-v5.json",
+  "ownerSha256": "25f5eb500e9d30844bfc9d70e4e4f45751cfad5376590650f2e4f2149b1ae5d0",
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "0aa8f812dc6f561f9fb1996381bae9821bd54d069f3ad26be7fe669baae9ae6c",
+    "implementationSha256": "21df9708a7c9dfd6ccc4ae41a6df2dfbbcd67b1cfc7877d0b8e0d8a93ccf23d8",
+    "identitySha256": "3b842ce10486d75ca9bf14f5844b5d787241ed050ccba05952abfed256c41dcd"
+  },
+  "lockAtStart": {
+    "atUtc": "2026-10-22T20:35:48.366948+00:00",
+    "roots": [
+      {
+        "rootLocked": true,
+        "sessions": [
+          true
+        ]
+      }
+    ],
+    "missingValuesRemainUnknown": true
+  },
+  "lockAtEnd": {
+    "atUtc": "2026-10-22T20:38:13.286803+00:00",
+    "roots": [
+      {
+        "rootLocked": true,
+        "sessions": [
+          true
+        ]
+      }
+    ],
+    "missingValuesRemainUnknown": true
+  },
+  "images": [
+    {
+      "path": "/Users/dinghaolin/MyProjects/riftbound/var/qa/fixeda68bf-early-native-20261023/flow-ci-main-v1/normal-actual-controls-v5/before-parent-a-actual-own-viewport.png",
+      "sha256": "f78ac5247aeaee6543ef79ea5fe0453de00c4661160df8920361797a846ac683",
+      "actualPixelsRead": true,
+      "route": "actual-current-CI-export-default-Main-own-GPU-viewport",
+      "branch": "normal",
+      "role": "a",
+      "stage": "before-parent-a"
+    },
+    {
+      "path": "/Users/dinghaolin/MyProjects/riftbound/var/qa/fixeda68bf-early-native-20261023/flow-ci-main-v1/normal-actual-controls-v5/before-parent-b-actual-own-viewport.png",
+      "sha256": "9fd1ad7e5c07b060f9c6b5f65a613ac9d4331ca77f3a62cbd43e225fbfc36a69",
+      "actualPixelsRead": true,
+      "route": "actual-current-CI-export-default-Main-own-GPU-viewport",
+      "branch": "normal",
+      "role": "b",
+      "stage": "before-parent-b"
+    },
+    {
+      "path": "/Users/dinghaolin/MyProjects/riftbound/var/qa/fixeda68bf-early-native-20261023/flow-ci-main-v1/normal-actual-controls-v5/private-draw-choice-a-actual-own-viewport.png",
+      "sha256": "976dc3a2a13d735ff968875943ef84ff3a0b1722738d70468fa2369fe3491aa7",
+      "actualPixelsRead": true,
+      "route": "actual-current-CI-export-default-Main-own-GPU-viewport",
+      "branch": "normal",
+      "role": "a",
+      "stage": "private-draw-choice-a"
+    },
+    {
+      "path": "/Users/dinghaolin/MyProjects/riftbound/var/qa/fixeda68bf-early-native-20261023/flow-ci-main-v1/normal-actual-controls-v5/private-draw-choice-b-actual-own-viewport.png",
+      "sha256": "c52e4acbf29a7e6eeb818d29d9b30967656fa8a529669e136c0dcc9d31bed972",
+      "actualPixelsRead": true,
+      "route": "actual-current-CI-export-default-Main-own-GPU-viewport",
+      "branch": "normal",
+      "role": "b",
+      "stage": "private-draw-choice-b"
+    },
+    {
+      "path": "/Users/dinghaolin/MyProjects/riftbound/var/qa/fixeda68bf-early-native-20261023/flow-ci-main-v1/normal-actual-controls-v5/completed-original-spell-a-actual-own-viewport.png",
+      "sha256": "88b4473b3b406589596132e2f5dd9e40618836949d694aff4b4b46ce45090227",
+      "actualPixelsRead": true,
+      "route": "actual-current-CI-export-default-Main-own-GPU-viewport",
+      "branch": "normal",
+      "role": "a",
+      "stage": "completed-original-spell-a"
+    },
+    {
+      "path": "/Users/dinghaolin/MyProjects/riftbound/var/qa/fixeda68bf-early-native-20261023/flow-ci-main-v1/normal-actual-controls-v5/completed-original-spell-b-actual-own-viewport.png",
+      "sha256": "7f28ff02b8937421fcd8db4bdac24ce4976559fc8f025d6404e9076ddd04ae64",
+      "actualPixelsRead": true,
+      "route": "actual-current-CI-export-default-Main-own-GPU-viewport",
+      "branch": "normal",
+      "role": "b",
+      "stage": "completed-original-spell-b"
+    },
+    {
+      "path": "var/qa/fixeda68bf-early-native-20261023/flow-ci-main-v1/normal-actual-controls-v5/play-parent-actual-production-controls/actual-production-play-composer-before-confirm.png",
+      "sha256": "b1776f29af02634e36dd9fa18937e7524f4b41d639858c4b3dfac3b6c520eec9",
+      "actualPixelsRead": true,
+      "route": "current-exact-source-single-local-SDK-production-Main-native-play-composer-real-backend-quote",
+      "branch": "normal"
+    },
+    {
+      "path": "/Users/dinghaolin/MyProjects/riftbound/var/qa/fixeda68bf-early-native-20261023/flow-ci-main-v1/flow-actual-controls-v5/before-parent-a-actual-own-viewport.png",
+      "sha256": "79b93bdbab603f0c51df667abc00a1707ea45da23d45a52449b55ef008b61aa0",
+      "actualPixelsRead": true,
+      "route": "actual-current-CI-export-default-Main-own-GPU-viewport",
+      "branch": "flow",
+      "role": "a",
+      "stage": "before-parent-a"
+    },
+    {
+      "path": "/Users/dinghaolin/MyProjects/riftbound/var/qa/fixeda68bf-early-native-20261023/flow-ci-main-v1/flow-actual-controls-v5/before-parent-b-actual-own-viewport.png",
+      "sha256": "ac6c28a1b52382be7956aa9e3b6cd523c5d0ff17309c0d393705b5601140aad8",
+      "actualPixelsRead": true,
+      "route": "actual-current-CI-export-default-Main-own-GPU-viewport",
+      "branch": "flow",
+      "role": "b",
+      "stage": "before-parent-b"
+    },
+    {
+      "path": "/Users/dinghaolin/MyProjects/riftbound/var/qa/fixeda68bf-early-native-20261023/flow-ci-main-v1/flow-actual-controls-v5/private-draw-choice-a-actual-own-viewport.png",
+      "sha256": "3697149e45fe2e3fe243efed71d0a5a3122ca2c670ecf7cf66ace7053bc6327b",
+      "actualPixelsRead": true,
+      "route": "actual-current-CI-export-default-Main-own-GPU-viewport",
+      "branch": "flow",
+      "role": "a",
+      "stage": "private-draw-choice-a"
+    },
+    {
+      "path": "/Users/dinghaolin/MyProjects/riftbound/var/qa/fixeda68bf-early-native-20261023/flow-ci-main-v1/flow-actual-controls-v5/private-draw-choice-b-actual-own-viewport.png",
+      "sha256": "2116fc720322ce523b3509be044f88928b9fdd212313c3701445d8284eb3dfc3",
+      "actualPixelsRead": true,
+      "route": "actual-current-CI-export-default-Main-own-GPU-viewport",
+      "branch": "flow",
+      "role": "b",
+      "stage": "private-draw-choice-b"
+    },
+    {
+      "path": "/Users/dinghaolin/MyProjects/riftbound/var/qa/fixeda68bf-early-native-20261023/flow-ci-main-v1/flow-actual-controls-v5/completed-original-spell-a-actual-own-viewport.png",
+      "sha256": "de1c10af930efd27e44c7c8c72d8a000b602e80c08f45cd82614d2d8a0fe8c8c",
+      "actualPixelsRead": true,
+      "route": "actual-current-CI-export-default-Main-own-GPU-viewport",
+      "branch": "flow",
+      "role": "a",
+      "stage": "completed-original-spell-a"
+    },
+    {
+      "path": "/Users/dinghaolin/MyProjects/riftbound/var/qa/fixeda68bf-early-native-20261023/flow-ci-main-v1/flow-actual-controls-v5/completed-original-spell-b-actual-own-viewport.png",
+      "sha256": "d844293573f99607ddd7d8074b1bc36d54ae2cd58b2faf5339430a23c3abd4e3",
+      "actualPixelsRead": true,
+      "route": "actual-current-CI-export-default-Main-own-GPU-viewport",
+      "branch": "flow",
+      "role": "b",
+      "stage": "completed-original-spell-b"
+    },
+    {
+      "path": "var/qa/fixeda68bf-early-native-20261023/flow-ci-main-v1/flow-actual-controls-v5/play-parent-actual-production-controls/actual-production-play-composer-before-confirm.png",
+      "sha256": "f027a713e589044a106042c1f55bb39ead02d81c01cd9a5c4aae152f6145c270",
+      "actualPixelsRead": true,
+      "route": "current-exact-source-single-local-SDK-production-Main-native-play-composer-real-backend-quote",
+      "branch": "flow"
+    }
+  ],
+  "boundedObservations": {
+    "normalBefore": "A sees its parent hand face, B sees one card back",
+    "normalPrivateChoice": "A sees three private named choices and selection controls, B waits without those choices",
+    "normalFinal": "A has one drawn card, deck4, graveyard3; B sees only one opponent hand back",
+    "flowBefore": "A hand empty, own graveyard1, play action available",
+    "flowComposer": "Origin explicitly Flow from graveyard, final2mana plus1ANYpower, printed1mana and0power; current quote enables actual confirm",
+    "flowPrivateChoice": "A sees the three private card names, B waits without them",
+    "flowFinal": "A hand1, deck4, graveyard2, banished1; B sees one opponent hand back"
+  },
+  "genericSmokeOriginalMalformedZeroAllocationRefusalPreserved": true,
+  "ciExportedPathOverridesDeniedAndNotDisabled": true,
+  "currentSdkControlsNotClaimedCiExportedEntry": true,
+  "osHardwareInputAndPhysicalWindowsIndependentOpen": true,
+  "allPrintingOrGlobalGoalCertified": false
+}
