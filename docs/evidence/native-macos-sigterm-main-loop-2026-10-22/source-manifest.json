@@ -1,0 +1,82 @@
+{
+  "schemaVersion": 1,
+  "id": "native-macos-sigterm-main-loop-2026-10-22",
+  "atUtc": "2026-10-22T08:27:28.281849+00:00",
+  "scopeKind": "NATIVE_MACOS_PROCESS_LIFECYCLE_ONLY_NOT_CARD_OR_CLAUSE_SEMANTIC_REVIEW",
+  "region": "CN",
+  "language": "zh-CN",
+  "applicableAsOf": "2026-10-22",
+  "adoptedCoreEffectiveDate": "2026-10-16",
+  "baseCommit": "68ba1c5b63f52266323928da85bd75060e7e8fee",
+  "issue": "https://github.com/DDDHL0704/riftbound/issues/90",
+  "implementation": [
+    {
+      "path": "clients/godot/scripts/Main.cs",
+      "sha256": "7ab2e7ea8e668ff803a42ff48ebd6aa2b393e57ff1f8deff31825b9f58c000f0",
+      "role": "implementation"
+    }
+  ],
+  "verificationSources": [
+    {
+      "path": "clients/godot/tools/ci-desktop.py",
+      "sha256": "377f6e7086e6b8ee2d1612dfc97b075e4e736b9e6370e2b64588cb15a1e71024",
+      "role": "verification-source"
+    }
+  ],
+  "existingOfficialGameSourceManifest": {
+    "path": "docs/evidence/main-initial-snapshot-reconnect-2026-10-22/source-manifest.json",
+    "sha256": "83a0d6cbf535ebef6ef08ed4878aff023da98a309acc88b1d6294f3cef102c90",
+    "role": "source-manifest"
+  },
+  "gameCardRuleFaqSourceDatesUniverseAndSevenDeltasRetained": true,
+  "newGameSourceVersionOrRuntimeCatalogAdopted": false,
+  "softwarePrimaryDocumentation": {
+    "path": "docs/evidence/native-macos-sigterm-main-loop-2026-10-22/primary-runtime-software-source-readback.json",
+    "sha256": "2d542b71a4c5c05d35237053a1b8012413060254f067227264e609be7b814fcf"
+  },
+  "originalRealMainFailure": {
+    "path": "docs/evidence/native-macos-sigterm-main-loop-2026-10-22/original-fixed68-exported-main-regression-red.json",
+    "sha256": "0722c2544c6d5635f54c0311e5569be8cf641a7002b0a9e505e2461e77f0a343"
+  },
+  "localStandaloneNaturalAndSigterm": {
+    "path": "docs/evidence/native-macos-sigterm-main-loop-2026-10-22/local-exported-main-natural-and-sigterm.json",
+    "sha256": "09b88dd50e7ac5ba4311c44ac5d8cdf1f5b95786c2e372c968a5df3f0614fbb4"
+  },
+  "localConnectedRealPgPair": {
+    "path": "docs/evidence/native-macos-sigterm-main-loop-2026-10-22/local-connected-pair-real-postgres-cold-restore-and-sigterm.json",
+    "sha256": "6515820c1f4821594142faf062fb41b7ae0008c3f2b525397848d0bff0221f5d"
+  },
+  "finalSoleCheck": {
+    "path": "docs/evidence/native-macos-sigterm-main-loop-2026-10-22/final-original-test-and-input-retention.json",
+    "sha256": "bed11283fd54aca043cd292c517157bbdc4d44027ecfc064cb147547ad9650d8"
+  },
+  "precedingFixed267abCompleteFull": {
+    "path": "docs/evidence/native-macos-sigterm-main-loop-2026-10-22/preceding-fixed267ab-complete-full.json",
+    "sha256": "528ddb88f42de685db9c04ce75f71fa09285092a714844c733f64d71dbe15151"
+  },
+  "precedingFixed68ba1BoundedNative": {
+    "path": "docs/evidence/native-macos-sigterm-main-loop-2026-10-22/preceding-fixed68ba1-native-normal-score-original-replay-and-open-sigterm.json",
+    "sha256": "95ddbea99f2adbd0f06806273e8373ce31680e14644124fc35fb1f351277992d"
+  },
+  "currentFixedFullExpectedCases": 13598,
+  "currentFixedFullExpectedMethods": 7691,
+  "currentFixedSqlCases": 59,
+  "noNewConformanceMethodsCasesOrDeletedTheoryRows": true,
+  "newExportedMacosSigtermIntegrationGate": true,
+  "originalCheckControllerInterruptedNotRelabeledNormalExit": true,
+  "oneOriginalTestProcessKernelExitZeroAndOriginalReportVerifyPostvalidationResumed": true,
+  "missingOriginalToolSummaryNotFabricatedAndNoSecondCheck": true,
+  "newFixedFullActualCiNativeVisibleAndPhysicalWindows": "OPEN",
+  "all165Reviews80ContextIdentities251GatesSevenDeltas17182ObligationsRetained": true,
+  "expectedRemainingObligations": 17183,
+  "all1740Printings14293Rules705OutsideEightEnglishGap139CnNewsAndKdaGatesRemain": true,
+  "archive": {
+    "path": "docs/evidence/native-macos-sigterm-main-loop-2026-10-22/original-execution-and-bounded-native-records.tar.gz",
+    "sha256": "45968cba9c4fd720bdad4f4c55515e85d597adcc9c6bb1f7501c9081574b287b"
+  },
+  "archiveMap": {
+    "path": "docs/evidence/native-macos-sigterm-main-loop-2026-10-22/archive-map.json",
+    "sha256": "2e6dd2acc687c1e4f33212f06f150da01bc11517e6329c0f0019f7fb123404dc"
+  },
+  "semanticCoverageCertified": false
+}

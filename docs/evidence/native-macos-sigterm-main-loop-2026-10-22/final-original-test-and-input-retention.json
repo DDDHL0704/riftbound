@@ -1,0 +1,84 @@
+{
+  "atUtc": "2026-10-22T08:24:55.675133+00:00",
+  "status": "SOLE_MACOS_SIGTERM_CHECK13449_CASES7550_METHODS_ALL_PASS_EXACT_ORIGINAL_TEST_IDENTITIES_AND_NATIVE_INTEGRATION_VERIFIED",
+  "baseCommit": "68ba1c5b63f52266323928da85bd75060e7e8fee",
+  "actualCases": 13449,
+  "actualMethods": 7550,
+  "actualOutcomes": {
+    "Passed": 13449
+  },
+  "originalCaseNameMultisetAndMethodSetExactNoAddedOrRemovedConformanceTests": true,
+  "all1804OriginalConformanceFilesAndTheoryRowsNineFullSources143Methods151Cases110Pairs11Decks424242AndVictoryReplayAssertionsRetained": true,
+  "checkDoesNotClaimAll143FullGamesExecuted": true,
+  "focusCases": 668,
+  "focusMethods": 380,
+  "toolingTests": 74,
+  "nativeBuildZeroWarningsErrors": true,
+  "originalRealExportedMainRegressionExit": -6,
+  "localExportedMainNaturalAndSigtermPassed": true,
+  "originalCheckControllerInterruptedNotRelabeledNormalExit": true,
+  "originalOneTestProcessKernelExitZeroAndUnchangedOriginalReportVerifyGuardsActuallyResumed": true,
+  "originalToolSummaryMissingNotFabricatedNoSecondCheck": true,
+  "originalCheckPostvalidation": {
+    "path": "var/qa/native-main-loop-sigterm-20261022/resumed-original-check-postvalidation-terminal-v1.json",
+    "sha256": "1b9e4f45c810efae2aca506d28f17a916cd7867fe8dd36623bd61f0fa7f19523"
+  },
+  "localPairRealPgColdRestoreAndBothSigtermClean": true,
+  "originalLabCommands": 7,
+  "originalLabEvents": 24,
+  "original345AuditAndOther83NativeSevenTablesExact": true,
+  "original59SqlObjectsOrderProgramAnd15NetworkGuardsSourceExact": true,
+  "all3344SourceModes1419Conformance23NativeStable": true,
+  "actualFourLoadedAssembliesAndRuleInputs": {
+    "baseDirectory": "/Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/bin/Debug/net10.0/",
+    "actualRuleInputs": {
+      "schemaVersion": 1,
+      "region": "CN",
+      "language": "zh-CN",
+      "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+      "catalogSha256": "e7455edc32d43f8253a9d0c6fedb83c347bebafbef064f9b8dffaaabc4b4d266",
+      "implementationSha256": "a035a6f96a509c31fe3521f0271b2a43d87702c569e9579918fa3db2770ca7b9",
+      "identitySha256": "22ee518c0b37a9660e52a6d123273a898783d46565517f7f36e0d073b958f990"
+    },
+    "hasRoomSeatReplay": true,
+    "hasAtomicSeatCommit": true,
+    "assemblies": [
+      {
+        "name": "Riftbound.Engine",
+        "path": "/Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/bin/Debug/net10.0/Riftbound.Engine.dll",
+        "mvid": "b61c9574-93c0-48a3-b6b6-6615a1ca551c",
+        "sha256": "ced2d09d27eafa1ee1a53e6d0c9e45c2622f8873710b8af697e1a6a78b22021d"
+      },
+      {
+        "name": "Riftbound.Contracts",
+        "path": "/Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/bin/Debug/net10.0/Riftbound.Contracts.dll",
+        "mvid": "c9496ef0-aaec-47ec-908b-72095e480a24",
+        "sha256": "01c0d434c20798d7622b039a3c2ed527d683c2656d3ad5b7ee4aafa629e2559f"
+      },
+      {
+        "name": "Riftbound.CardCatalog",
+        "path": "/Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/bin/Debug/net10.0/Riftbound.CardCatalog.dll",
+        "mvid": "21f836ca-f748-4b55-aa62-31a5b16f6b88",
+        "sha256": "7e7421e0e14a141c803ea6f57cd979fa3113d0e02c511bdaa2af0eab349b0c3c"
+      },
+      {
+        "name": "Riftbound.Persistence",
+        "path": "/Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/bin/Debug/net10.0/Riftbound.Persistence.dll",
+        "mvid": "48d67dea-8751-403b-a964-6e2d6562b99a",
+        "sha256": "9704f6b9360594028186ade12a31fa71174a5d335353e060dcedf35b60b29f61"
+      }
+    ]
+  },
+  "soleCheckTrx": {
+    "path": "var/qa/native-main-loop-sigterm-20261022/sole-check-v1/check/results.trx",
+    "sha256": "2ced42c27f28c8b719881beade9ddf0c4fd3844c145dc0af01a656484d5732ab"
+  },
+  "originalBaselineTrx": {
+    "path": "var/qa/main-initial-snapshot-reconnect-race-20261022/only-check-v1/check/results.trx",
+    "sha256": "45c7fe19fb560197e542c47c3ee8b62e5dfd48e4b6b71605ddff29beb215d5a6"
+  },
+  "nativeCandidateIsExplicitlyLocalUncommittedNotNewFixedCiPackage": true,
+  "newFixedFullActualCiNativeVisiblePairAndPhysicalWindows": "OPEN",
+  "noNewGameSemanticReviewOrSourceUniverseChange": true,
+  "wholePrintingOrGoalCertified": false
+}

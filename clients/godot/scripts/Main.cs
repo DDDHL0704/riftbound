@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
@@ -48,6 +49,8 @@ public partial class Main : Control
 
     private static readonly JsonSerializerOptions ClientJsonOptions = CreateClientJsonOptions();
     private readonly CancellationTokenSource _shutdown = new();
+    private PosixSignalRegistration? _terminationSignal;
+    private int _terminationRequested;
     private PlayerSessionStore _sessionStore = new();
     private readonly List<PreconstructedDeck> _decks = [];
     private readonly List<PublicMatchDto> _publicMatches = [];
@@ -133,6 +136,14 @@ public partial class Main : Control
 
     public override async void _Ready()
     {
+        if (OperatingSystem.IsMacOS())
+        {
+            _terminationSignal = PosixSignalRegistration.Create(PosixSignal.SIGTERM, context =>
+            {
+                context.Cancel = true;
+                Interlocked.Exchange(ref _terminationRequested, 1);
+            });
+        }
         if (OS.GetCmdlineUserArgs().Contains("--riftbound-play-card-proof"))
         {
             GetTree().CallDeferred(SceneTree.MethodName.ChangeSceneToFile, "res://scenes/debug/PlayCardOverlayProof.tscn");
@@ -208,6 +219,7 @@ public partial class Main : Control
     public override void _ExitTree()
     {
         _isShuttingDown = true;
+        _terminationSignal?.Dispose();
         _shutdown.Cancel();
         _playCostPreviewCancellation?.Dispose();
         ReleaseRuntimeUiResources();
@@ -3855,6 +3867,12 @@ public partial class Main : Control
 
     public override void _Process(double delta)
     {
+        if (Interlocked.Exchange(ref _terminationRequested, 0) != 0)
+        {
+            GD.Print("[Riftbound] Termination requested; exiting through Godot.");
+            GetTree().Quit();
+            return;
+        }
         _imageRefreshElapsed += delta;
         if (_isShuttingDown || _imageRefreshElapsed < 0.2
             || Interlocked.Exchange(ref _imageRefreshRequested, 0) == 0) return;

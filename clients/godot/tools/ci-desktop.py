@@ -64,6 +64,57 @@ def run(args, log, timeout=600, cwd=ROOT):
     return text
 
 
+def verify_macos_sigterm_shutdown(executable, log, cwd):
+    import errno
+    import pty
+    import select
+    import signal
+    import time
+
+    command = [str(executable), "--headless", "--max-fps", "60", "--quit-after", "3600", "--",
+               "--riftbound-ephemeral-session", "--riftbound-server=http://127.0.0.1:1"]
+    master, slave = pty.openpty()
+    output = bytearray()
+    process = None
+    sent = False
+    try:
+        process = subprocess.Popen(command, cwd=cwd, stdin=subprocess.DEVNULL, stdout=slave, stderr=slave)
+        os.close(slave)
+        slave = -1
+        deadline = time.monotonic() + 90
+        while True:
+            if time.monotonic() > deadline:
+                raise TimeoutError("Exported Main did not boot and exit after SIGTERM within 90 seconds")
+            if select.select([master], [], [], 0.1)[0]:
+                try:
+                    block = os.read(master, 65536)
+                except OSError as error:
+                    if error.errno != errno.EIO:
+                        raise
+                    break
+                if not block:
+                    break
+                output.extend(block)
+            if not sent and b"Client booted." in output and re.search(rb"Official catalog loaded: [1-9]\d* cards\.", output):
+                process.send_signal(signal.SIGTERM)
+                sent = True
+        exit_code = process.wait(timeout=5)
+    finally:
+        if process is not None and process.poll() is None:
+            process.kill()
+            process.wait(timeout=5)
+        if slave >= 0:
+            os.close(slave)
+        os.close(master)
+        log.write_bytes(output)
+    text = output.decode("utf-8", errors="replace")
+    if (not sent or exit_code != 0 or "Termination requested; exiting through Godot." not in text
+            or re.search(r"ERROR:|Unhandled exception|libc\+\+abi: terminating", text)):
+        print(text)
+        raise RuntimeError(f"Exported Main SIGTERM shutdown failed (exit {exit_code}); see {log.name}")
+    print("macOS: exported Main SIGTERM exited through the Godot loop without errors.")
+
+
 def main():
     platform = sys.platform
     if platform not in EDITOR:
@@ -127,6 +178,8 @@ def main():
     if "Client booted." not in boot or not re.search(r"Official catalog loaded: [1-9]\d* cards\.", boot):
         print(boot)
         raise RuntimeError("Exported native client or bundled catalog did not initialize")
+    if platform == "darwin":
+        verify_macos_sigterm_shutdown(executable, logs / "exported-sigterm.log", tools_dir)
     print(f"{platform}: exported native client and bundled catalog initialized successfully.")
 
 

@@ -1,0 +1,12 @@
+{
+  "atUtc": "2026-10-22T07:16:32.764867+00:00",
+  "fixedCommit": "68ba1c5b63f52266323928da85bd75060e7e8fee",
+  "actualExecutable": "/Users/dinghaolin/MyProjects/riftbound/var/qa/fixed68ba1-early-native-20261022/Riftbound-A.app/Contents/MacOS/\u7b26\u6587\u6218\u573a",
+  "actualExecutableSha256": "0d5765577345b3e894f81c312bcaaa03b8e881466cb52b1ec48da8b215eec53b",
+  "guardSourceSha256": "097267238c051c6e52bc7492c9615bf403dd2b36449c066dcf34c73cba1762d7",
+  "onlyGuardChangedNotProductionMain": true,
+  "status": "EXPECTED_ORIGINAL_EXPORTED_MAIN_SIGTERM_RED",
+  "error": "Exported Main SIGTERM shutdown failed (exit -6); see original-fixed68ba1-exported-main-sigterm-regression-red-v2.log",
+  "originalLogSha256": "32e8b07d5f22ed89a0324e72063b9cd2600f4f6e56eac16242b44b18cf4e14b6",
+  "cppStaticStringErrorPresent": true
+}
