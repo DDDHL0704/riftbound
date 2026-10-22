@@ -1,0 +1,125 @@
+{
+  "atUtc": "2026-10-22T19:25:48.702864+00:00",
+  "status": "ACTUAL_FIVE_PRIMARY_PRODUCT_IMAGES_VISUALLY_READ_WITH_SIX_PRECISE_EN_IDENTITIES_ONLY",
+  "images": [
+    {
+      "path": "docs/evidence/global-2026-drawings-source-supplement-2026-10-23/official-product-image-01.jpg",
+      "sha256": "a7df8f62e3fd8e2b755c6510e0f9eb60da7c6f2805e6a532e9ed4f19b954b9f2",
+      "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/ddcf8b5b7b587cf960ef53d5420928b856884c5c-2234x1257.jpg",
+      "rawBytes": 513474,
+      "actuallyVisuallyRead": true,
+      "sourceImageIndex": 1
+    },
+    {
+      "path": "docs/evidence/global-2026-drawings-source-supplement-2026-10-23/official-product-image-02.jpg",
+      "sha256": "305275f8f9a0f2014e8096244080f34632cf2e4c5ba8af68484e922937801383",
+      "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/74f003439be52d41236c41b5cc06550cb6257bc5-1327x1220.jpg",
+      "rawBytes": 259835,
+      "actuallyVisuallyRead": true,
+      "sourceImageIndex": 2
+    },
+    {
+      "path": "docs/evidence/global-2026-drawings-source-supplement-2026-10-23/official-product-image-03.jpg",
+      "sha256": "282ac2f3787b428c947492606cd1f2f48ba0e6329a3b63a3e597ee5a79550d86",
+      "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/c81340b874ad8ff22fe2d23481479649e8e09db3-2560x1440.jpg",
+      "rawBytes": 239639,
+      "actuallyVisuallyRead": true,
+      "sourceImageIndex": 3
+    },
+    {
+      "path": "docs/evidence/global-2026-drawings-source-supplement-2026-10-23/official-product-image-04.jpg",
+      "sha256": "82f4b0e830f02e34e3bff50f4d91a341cbf9a875e042885b83779ec6758fcef0",
+      "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/cce8b4c4764176c8e352bb0c74558b1f5a4a2af8-3840x2160.jpg",
+      "rawBytes": 400011,
+      "actuallyVisuallyRead": true,
+      "sourceImageIndex": 4
+    },
+    {
+      "path": "docs/evidence/global-2026-drawings-source-supplement-2026-10-23/official-product-image-05.jpg",
+      "sha256": "52d64ac385e0ffd588c1f653df8bfb82291e4cfdbfb0793f3aee1ebae4cd2758",
+      "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/fdf97284fecd92386fac4a3a5fc7c881a931d302-1039x489.jpg",
+      "rawBytes": 50474,
+      "actuallyVisuallyRead": true,
+      "sourceImageIndex": 5
+    }
+  ],
+  "sixClearlyObservedEnglishPrintingIdentities": [
+    {
+      "product": "T1 2025 Worlds Champion Player Bundle",
+      "announcedCharacter": "Ambessa",
+      "announcedName": "The Wolf",
+      "observedPrintedIdentity": "T1A-001/005",
+      "observedPrintedLanguage": "EN",
+      "observedCardType": "CHAMPION_UNIT",
+      "sourceImageIndex": 2,
+      "gameEffectiveDate": null,
+      "individualPrintingPublicationDate": null
+    },
+    {
+      "product": "T1 2025 Worlds Champion Player Bundle",
+      "announcedCharacter": "Xin Zhao",
+      "announcedName": "Vigilant",
+      "observedPrintedIdentity": "T1A-002/005",
+      "observedPrintedLanguage": "EN",
+      "observedCardType": "CHAMPION_UNIT",
+      "sourceImageIndex": 2,
+      "gameEffectiveDate": null,
+      "individualPrintingPublicationDate": null
+    },
+    {
+      "product": "T1 2025 Worlds Champion Player Bundle",
+      "announcedCharacter": "Galio",
+      "announcedName": "Indefatigable",
+      "observedPrintedIdentity": "T1A-003/005",
+      "observedPrintedLanguage": "EN",
+      "observedCardType": "CHAMPION_UNIT",
+      "sourceImageIndex": 2,
+      "gameEffectiveDate": null,
+      "individualPrintingPublicationDate": null
+    },
+    {
+      "product": "T1 2025 Worlds Champion Player Bundle",
+      "announcedCharacter": "Miss Fortune",
+      "announcedName": "Buccaneer",
+      "observedPrintedIdentity": "T1A-004/005",
+      "observedPrintedLanguage": "EN",
+      "observedCardType": "CHAMPION_UNIT",
+      "sourceImageIndex": 2,
+      "gameEffectiveDate": null,
+      "individualPrintingPublicationDate": null
+    },
+    {
+      "product": "T1 2025 Worlds Champion Player Bundle",
+      "announcedCharacter": "Seraphine",
+      "announcedName": "Not Alone",
+      "observedPrintedIdentity": "T1A-005/005",
+      "observedPrintedLanguage": "EN",
+      "observedCardType": "CHAMPION_UNIT",
+      "sourceImageIndex": 2,
+      "gameEffectiveDate": null,
+      "individualPrintingPublicationDate": null
+    },
+    {
+      "product": "Gift of the Rift",
+      "announcedCharacter": "Akali",
+      "announcedName": "Rogue Assassin",
+      "observedPrintedIdentity": "VEN-139a/166",
+      "observedPrintedLanguage": "EN",
+      "observedPrintedTreatment": "P",
+      "observedCardType": "LEGEND",
+      "sourceImageIndex": 5,
+      "gameEffectiveDate": null,
+      "individualPrintingPublicationDate": null
+    }
+  ],
+  "scopes": {
+    "image1": "K/DA product and five named card faces visible; bottom exact printing identifiers not certified from this composite. Original five K/DA gates remain unchanged.",
+    "image2": "All five T1A English card faces, identities001/005 through005/005, names and champion-unit type actually read. No Chinese or Korean faces shown.",
+    "image3": "Worlds product shows Yasuo legend and three host-city battlefield faces. Small exact printed identifiers and complete battlefield rule text not certified.",
+    "image4": "Gift product box only; no rune printing faces or Chinese Kennen face present.",
+    "image5": "Gift English Akali Rogue Assassin legend face clearly shows VEN139a/166, P, EN. It is distinct from the registered baseVEN139/166."
+  },
+  "noGenerativeImageEnhancementOrArtworkGuess": true,
+  "individualDatesNotInferredFromCopyrightFilenameOrArticlePublication": true,
+  "wholePrintingCertified": false
+}

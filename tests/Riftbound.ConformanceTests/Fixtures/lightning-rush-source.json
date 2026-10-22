@@ -1,0 +1,67 @@
+{
+  "region": "CN",
+  "language": "zh-CN",
+  "ledgerIdentity": "VEN-156",
+  "apiId": 37859,
+  "printedImageCardNo": "VEN·156/166 SC",
+  "separateGlobalIdentity": "VEN-156/166",
+  "publicationDate": null,
+  "effectiveDate": null,
+  "currentCoreEffectiveDate": "2026-10-16",
+  "source": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+  "rowCanonicalSortedCompactUtf8Sha256": "049508b53db67fd69036060253f077cb20151df98792c9df91fc91260636ff42",
+  "rawApiCard": {
+    "id": 37859,
+    "cardCategoryList": [
+      "exclusive_spell"
+    ],
+    "cardCategoryNameList": [
+      "专属法术"
+    ],
+    "cardNo": "VEN·156",
+    "cardName": "奥义！雷铠",
+    "subTitle": "",
+    "extendType": null,
+    "extendTypeName": "",
+    "cardColorList": [
+      "purple",
+      "yellow"
+    ],
+    "hero": "凯南",
+    "region": "",
+    "tag": "",
+    "artist": "Kudos Productions",
+    "cardEffect": "查看你主牌堆顶部的三张牌。你可以选择指定其中一张，并抽取该卡牌。将其余卡牌放进你的废牌堆。\n{{流转2A}}（你可以选择支付此牌的流转费用，以此将其从你的废牌堆中打出。然后将其放逐。）",
+    "flavorText": "“疾如风！”\n——凯南",
+    "energy": 1,
+    "returnEnergy": null,
+    "power": null,
+    "productCodeList": [
+      "VEN(标准补充包)",
+      "VEN(进阶补充包)"
+    ],
+    "productNameList": [
+      "化神争锋 标准补充包",
+      "化神争锋 进阶补充包"
+    ],
+    "cardQaList": null,
+    "craftLevel": 0,
+    "rarity": "rune_core",
+    "rarityName": "史诗",
+    "extendRarity": "base_inscript",
+    "extendRarityName": "平卡",
+    "frontImage": "https://cdn.playloltcg.com/lol/card/20260709/dd4789796ed94e549485963bcd9af6cb.png",
+    "backImage": "",
+    "listSort": 1827,
+    "status": 1,
+    "cardGroupLimit": null,
+    "isPreview": false,
+    "errata": "",
+    "otherDesc": 0
+  },
+  "printedFlowCost": {
+    "mana": 2,
+    "anyPower": 1
+  },
+  "cardSpecificQa": null
+}

@@ -642,6 +642,8 @@ public sealed record TargetedPowerAbilityContext(string AbilityId, string Source
 public sealed record StackItemState
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public FlowPlayReceipt? FlowPlay { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public ObservedDeckPlayContext? ObservedDeckPlay {get;init;}
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public ObservedDeckPlayPermission? ObservedPlayPermission {get;init;}
@@ -4384,7 +4386,7 @@ public sealed record MatchState
                 item.TimingContext,
                 item.TargetGenerations,
                 item.SourceConfirmed,
-                item.EffectPlayCompleted) { ObservedDeckPlay=item.ObservedDeckPlay, ObservedPlayPermission=item.ObservedPlayPermission, EndAbility = item.EndAbility, DestroyDeckPlay = item.DestroyDeckPlay, DeckPlayPendingCard = item.DeckPlayPendingCard, DeckPlayReflexive = item.DeckPlayReflexive, DeckPlaySequence = item.DeckPlaySequence, TurnUnitPlayBoon = item.TurnUnitPlayBoon, ResolutionDamageChoice = item.ResolutionDamageChoice, StandbyObserver = item.StandbyObserver, PlayedFromStandby = item.PlayedFromStandby, PlayedFromHand = item.PlayedFromHand, MovementFollowUp = item.MovementFollowUp, SourceReplay = item.SourceReplay, SourceReplayDecisionCompleted = item.SourceReplayDecisionCompleted, PermanentPlayTargetsPending = item.PermanentPlayTargetsPending, EmpowerActivation = item.EmpowerActivation, TargetedPowerAbility = item.TargetedPowerAbility, DamageDistribution = item.DamageDistribution, AttachmentObserver = item.AttachmentObserver, Tempered = item.Tempered, LegendAttachment = item.LegendAttachment, AzirMovement = item.AzirMovement, Equip = item.Equip, TriggerCost = item.TriggerCost, TokenEntryPlan = item.TokenEntryPlan, CompletedRepeatExecutions = item.CompletedRepeatExecutions, ReflexiveCopy = item.ReflexiveCopy, CreatedTokenReady = item.CreatedTokenReady, SelfCopySource = item.SelfCopySource, PermanentPlaySource = item.PermanentPlaySource, UnitEntryContext = item.UnitEntryContext, UnitPlayMight = item.UnitPlayMight, SourcePlayDraw = item.SourcePlayDraw, HeldContext = item.HeldContext, RepeatExecutions = item.RepeatExecutions, MovementDestinations = item.MovementDestinations, TargetStackSources = item.TargetStackSources, CompletedHandExecutions = item.CompletedHandExecutions, CompletedDeckExecutions = item.CompletedDeckExecutions, DeckChoiceCompleted = item.DeckChoiceCompleted, InsightCompleted = item.InsightCompleted, InsightContext = item.InsightContext, SivirRuneRecycle = item.SivirRuneRecycle, ConquestToken = item.ConquestToken, DeathRevealContext = item.DeathRevealContext, DeathObserver = item.DeathObserver, MovementObserver = item.MovementObserver, FieldContext = item.FieldContext, LastBreathMight = item.LastBreathMight, DelayedDestruction = item.DelayedDestruction, DamageDestruction = item.DamageDestruction, GraveyardPlay = item.GraveyardPlay, MightySkill = item.MightySkill, BattlefieldConquestMight = item.BattlefieldConquestMight, LegendConquest = item.LegendConquest, UnitConquest = item.UnitConquest, ReflexiveDuel = item.ReflexiveDuel, BeginningRecycle = item.BeginningRecycle, BeginningDraw = item.BeginningDraw, EphemeralStart = item.EphemeralStart, BattlefieldStart = item.BattlefieldStart, LocationDamage = item.LocationDamage, SpellContext = item.SpellContext, RecastContext = item.RecastContext, AfterPlayRecycle = item.AfterPlayRecycle, RecycledUnit = item.RecycledUnit, PlayCost = item.PlayCost })
+                item.EffectPlayCompleted) { FlowPlay=item.FlowPlay, ObservedDeckPlay=item.ObservedDeckPlay, ObservedPlayPermission=item.ObservedPlayPermission, EndAbility = item.EndAbility, DestroyDeckPlay = item.DestroyDeckPlay, DeckPlayPendingCard = item.DeckPlayPendingCard, DeckPlayReflexive = item.DeckPlayReflexive, DeckPlaySequence = item.DeckPlaySequence, TurnUnitPlayBoon = item.TurnUnitPlayBoon, ResolutionDamageChoice = item.ResolutionDamageChoice, StandbyObserver = item.StandbyObserver, PlayedFromStandby = item.PlayedFromStandby, PlayedFromHand = item.PlayedFromHand, MovementFollowUp = item.MovementFollowUp, SourceReplay = item.SourceReplay, SourceReplayDecisionCompleted = item.SourceReplayDecisionCompleted, PermanentPlayTargetsPending = item.PermanentPlayTargetsPending, EmpowerActivation = item.EmpowerActivation, TargetedPowerAbility = item.TargetedPowerAbility, DamageDistribution = item.DamageDistribution, AttachmentObserver = item.AttachmentObserver, Tempered = item.Tempered, LegendAttachment = item.LegendAttachment, AzirMovement = item.AzirMovement, Equip = item.Equip, TriggerCost = item.TriggerCost, TokenEntryPlan = item.TokenEntryPlan, CompletedRepeatExecutions = item.CompletedRepeatExecutions, ReflexiveCopy = item.ReflexiveCopy, CreatedTokenReady = item.CreatedTokenReady, SelfCopySource = item.SelfCopySource, PermanentPlaySource = item.PermanentPlaySource, UnitEntryContext = item.UnitEntryContext, UnitPlayMight = item.UnitPlayMight, SourcePlayDraw = item.SourcePlayDraw, HeldContext = item.HeldContext, RepeatExecutions = item.RepeatExecutions, MovementDestinations = item.MovementDestinations, TargetStackSources = item.TargetStackSources, CompletedHandExecutions = item.CompletedHandExecutions, CompletedDeckExecutions = item.CompletedDeckExecutions, DeckChoiceCompleted = item.DeckChoiceCompleted, InsightCompleted = item.InsightCompleted, InsightContext = item.InsightContext, SivirRuneRecycle = item.SivirRuneRecycle, ConquestToken = item.ConquestToken, DeathRevealContext = item.DeathRevealContext, DeathObserver = item.DeathObserver, MovementObserver = item.MovementObserver, FieldContext = item.FieldContext, LastBreathMight = item.LastBreathMight, DelayedDestruction = item.DelayedDestruction, DamageDestruction = item.DamageDestruction, GraveyardPlay = item.GraveyardPlay, MightySkill = item.MightySkill, BattlefieldConquestMight = item.BattlefieldConquestMight, LegendConquest = item.LegendConquest, UnitConquest = item.UnitConquest, ReflexiveDuel = item.ReflexiveDuel, BeginningRecycle = item.BeginningRecycle, BeginningDraw = item.BeginningDraw, EphemeralStart = item.EphemeralStart, BattlefieldStart = item.BattlefieldStart, LocationDamage = item.LocationDamage, SpellContext = item.SpellContext, RecastContext = item.RecastContext, AfterPlayRecycle = item.AfterPlayRecycle, RecycledUnit = item.RecycledUnit, PlayCost = item.PlayCost })
             .ToArray();
     }
 
@@ -5417,6 +5419,7 @@ public sealed record ResolutionResult(
         if (!hiddenSource && item.SourceReplay is not null) view["sourceReplay"] = item.SourceReplay;
         if (!hiddenSource && item.ResolutionDamageChoice is not null) view["resolutionDamageChoice"] = item.ResolutionDamageChoice;
         if (!hiddenSource && item.TurnUnitPlayBoon is not null) view["turnUnitPlayBoon"] = item.TurnUnitPlayBoon;
+        if (!hiddenSource && item.FlowPlay is not null) view["playedWithFlow"] = true;
         if (!hiddenSource && item.DeckPlayPendingCard is not null) view["deckPlayPendingCard"] = item.DeckPlayPendingCard;
         if (item.DeckPlayReflexive is { } deckReflexive) {
             // The captured card may since have entered a private zone. Keep the
@@ -14282,8 +14285,8 @@ internal static class ActionPromptBuilder
     }
 
     private static IReadOnlyList<ActionPromptChoiceDto> PrintedPowerChoices(CardBehaviorDefinition behavior)
-        => PrintedPowerCostRules.ForCard(behavior.IgnorePrintedPowerCost ? "" : behavior.CardNo).Traits.Count < 2 ? [] :
-            PrintedPowerCostRules.Allocations(behavior.IgnorePrintedPowerCost ? "" : behavior.CardNo).Select(allocation => new ActionPromptChoiceDto(
+        => PrintedPowerCostRules.ForPlay(behavior).Traits.Count < 2 ? [] :
+            PrintedPowerCostRules.AllocationsForPlay(behavior).Select(allocation => new ActionPromptChoiceDto(
                 PrintedPowerCostRules.ChoiceId(allocation),
                 "卡面费用：" + string.Join(" + ", allocation.Select(x => $"{x.Value} {RuneTraitLabel(x.Key)}符能")),
                 "选择支付卡面符能的特性，彩虹符能可补足不足部分")).ToArray();
@@ -14343,7 +14346,7 @@ internal static class ActionPromptBuilder
         foreach (var echo in EchoCostRules.SupportsRepeatResolution(behavior) ? EchoCostRules.Available(state, playerId, behavior) : [])
         {
             var mana = Math.Max(0, echo.Mana - echoReduction);
-            PrintedPowerCostRules.TrySelect(behavior.IgnorePrintedPowerCost ? "" : behavior.CardNo, null, echoPool,
+            PrintedPowerCostRules.TrySelectForPlay(behavior, null, echoPool,
                 echo.GenericPower, echo.TypedPower, out var generic, out var typed, EchoCostRules.PrintedCosts([echo]));
             if (runePool.Mana < PromptMinimumManaCost(state, playerId, behavior, sourceObjectId, mana)
                 || !PaymentCostRules.CanPayPowerCost(echoPool, generic, typed)) continue;
@@ -14707,9 +14710,9 @@ internal static class ActionPromptBuilder
         var requirements = new List<PlayCardPowerPaymentRequirement>();
         void AddRequirement(int genericPowerCost, IReadOnlyDictionary<string, int>? powerCostByTrait = null)
         {
-            var printed = PrintedPowerCostRules.ForCard(behavior.IgnorePrintedPowerCost ? "" : behavior.CardNo);
+            var printed = PrintedPowerCostRules.ForPlay(behavior);
             genericPowerCost += (printed.Traits.Count == 0 ? printed.Amount : 0) + PromptMaximumWardPower(state, playerId, behavior);
-            foreach (var allocation in PrintedPowerCostRules.Allocations(behavior.IgnorePrintedPowerCost ? "" : behavior.CardNo))
+            foreach (var allocation in PrintedPowerCostRules.AllocationsForPlay(behavior))
             {
                 var normalizedPowerCostByTrait = PrintedPowerCostRules.Combine(allocation, PaymentCostRules.NormalizePowerCostByTrait(
                     powerCostByTrait ?? new Dictionary<string, int>(StringComparer.Ordinal)));
@@ -14913,7 +14916,7 @@ internal static class ActionPromptBuilder
         };
         var extraTyped = string.IsNullOrWhiteSpace(trait) ? new Dictionary<string, int>()
             : new Dictionary<string, int> { [trait] = amount };
-        PrintedPowerCostRules.TrySelect(behavior.IgnorePrintedPowerCost ? "" : behavior.CardNo, null, available,
+        PrintedPowerCostRules.TrySelectForPlay(behavior, null, available,
             string.IsNullOrWhiteSpace(trait) ? amount : 0, extraTyped, out var generic, out var typed);
         return PaymentCostRules.CanPayPowerCost(available, generic, typed);
     }
@@ -15119,7 +15122,7 @@ internal static class ActionPromptBuilder
         string? sourceObjectId = null)
     {
         return PromptMaximumWardPower(state, playerId, behavior) > 0
-            || PrintedPowerCostRules.ForCard(behavior.IgnorePrintedPowerCost ? "" : behavior.CardNo).Amount > 0
+            || PrintedPowerCostRules.ForPlay(behavior).Amount > 0
             || EchoCostRules.Available(state, playerId, behavior).Any(cost => cost.GenericPower > 0
                 || cost.TypedPower.Count > 0 || cost.PrintedCardNo is not null)
             || behavior.DamageAmountFromOptionalPowerCost
@@ -16260,7 +16263,7 @@ internal static class ActionPromptBuilder
             sourceObjectId,
             minimumManaCost);
 
-        PrintedPowerCostRules.TrySelect(behavior.IgnorePrintedPowerCost ? "" : behavior.CardNo, null, runePool, CoreRuleEngine.SourceReplayPowerCost(state, playerId), new Dictionary<string, int>(),
+        PrintedPowerCostRules.TrySelectForPlay(behavior, null, runePool, CoreRuleEngine.SourceReplayPowerCost(state, playerId), new Dictionary<string, int>(),
             out var printedGenericCost, out var printedTypedCost);
         if (behavior.MaySacrificeUnitForPrintedCostReduction
             && AffordableOptionalSacrificePlayCosts(state, playerId, behavior, sourceObjectId).MinBy(cost => cost.Mana.Total) is { } sacrifice)
@@ -16278,14 +16281,14 @@ internal static class ActionPromptBuilder
             ["cardNo"] = behavior.CardNo,
             ["displayName"] = behavior.DisplayName,
             ["sourceZone"] = state.PendingEffectPlay?.SourceZone
-                ?? (behavior.StandbyPlayFrom is not null ? "STANDBY" : state.PlayerZones[playerId].ChampionZone.Contains(sourceObjectId, StringComparer.Ordinal) ? "CHAMPION" : "HAND"),
+                ?? (behavior.AppliedFlowCost is not null ? "GRAVEYARD" : behavior.StandbyPlayFrom is not null ? "STANDBY" : state.PlayerZones[playerId].ChampionZone.Contains(sourceObjectId, StringComparer.Ordinal) ? "CHAMPION" : "HAND"),
             ["mode"] = string.IsNullOrWhiteSpace(behavior.Mode) ? null : behavior.Mode,
             ["modeLabel"] = PlayCardModeLabel(behavior.Mode),
             ["manaCost"] = behavior.ManaCost,
             ["minimumManaCost"] = minimumManaCost,
             ["minimumPrintedPowerShortfall"] = printedPowerShortfall,
             ["printedPowerCost"] = PrintedPowerCostRules.ForCard(behavior.CardNo).Amount,
-            ["effectPlayReason"] = behavior.StandbyPlayFrom is not null ? "从待命打出：免基础费用，额外费用另计；遵守原战场限制" : state.PendingEffectPlay is { } effectPlay ? CoreRuleEngine.EffectPlayReason(effectPlay) : null,
+            ["effectPlayReason"] = behavior.AppliedFlowCost is not null ? "流转：从废牌堆支付替代基础费用打出；离开结算链时改为放逐" : behavior.StandbyPlayFrom is not null ? "从待命打出：免基础费用，额外费用另计；遵守原战场限制" : state.PendingEffectPlay is { } effectPlay ? CoreRuleEngine.EffectPlayReason(effectPlay) : null,
             ["printedPowerTraits"] = PrintedPowerCostRules.ForCard(behavior.IgnorePrintedPowerCost ? "" : behavior.CardNo).Traits,
             ["printedPowerChoices"] = PrintedPowerChoices(behavior),
             ["availableRainbowPower"] = runePool.Power,
@@ -18651,6 +18654,9 @@ public sealed partial class MatchSession : IMatchSession
         return scenarioId switch
         {
             "basic-play" => BuildBasicPlayScenario(current, seed),
+            "lightning-rush-normal" or "lightning-rush-flow" or "lightning-rush-flow-empty" or "lightning-rush-flow-echo"
+                or "lightning-rush-observed" or "lightning-rush-flow-counter" or "lightning-rush-flow-return-counter" or "lightning-rush-flow-control"
+                => BuildLightningRushScenario(current, seed, scenarioId["lightning-rush-".Length..]),
             "deck-pending-reinforcements" => BuildDeckPendingScenario(current, seed, "OGN·062/298"),
             "deck-pending-void-rush" => BuildDeckPendingScenario(current, seed, "SFD·188/221"),
             "deck-pending-blind-fury" => BuildDeckPendingScenario(current, seed, "OGN·025/298"),

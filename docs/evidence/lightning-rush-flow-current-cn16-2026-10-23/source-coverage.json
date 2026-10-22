@@ -1,0 +1,455 @@
+{
+  "date": "2026-10-15",
+  "snapshotId": "source-refresh-20261015T113103Z",
+  "confirmedAt": "2026-10-15T11:31:28.177096+00:00",
+  "goalStatus": "IN_PROGRESS_NOT_READY",
+  "semanticCoverageCertified": false,
+  "counts": {
+    "cnOfficialPrintings": 1504,
+    "enReturnedPrintings": 1408,
+    "enReportedTotal": 1416,
+    "enSourceCountGap": 8,
+    "combinedExactPrintingNumbers": 1740,
+    "activeCatalogEntries": 1037,
+    "outsideActiveCatalog": 703,
+    "cnQaFields": 1504,
+    "cnNonemptyQaFields": 0
+  },
+  "currentCardLedger": {
+    "path": "docs/evidence/lightning-rush-flow-current-cn16-2026-10-23/all-card-ledger.json",
+    "sha256": "3c3b8ac57a85abaa94034e54cfe2bf6360ff707b7ae33ab5ec33ebfb49eb4989",
+    "role": "current-card-ledger"
+  },
+  "currentCnCatalog": {
+    "path": "data/official/upstream/2026-10-15/source-refresh-20261015T113103Z/card-catalog.zh-CN.json",
+    "sha256": "7ba4cfc2310d92c05e8868641dbc83054871e7d3c6f3a735c1ef16c26a7158e3"
+  },
+  "currentCnQa": {
+    "path": "docs/evidence/source-listing-2026-10-15/card-qa-bound.zh-CN.json",
+    "sha256": "a8f13a0fcb2e79d5e02ca8aaa5cb00f2a419d81e190b56c12104e3558246a4d6"
+  },
+  "currentEnCatalog": {
+    "path": "data/official/upstream/2026-10-15/source-refresh-20261015T113103Z/card-gallery.en-US.json",
+    "sha256": "0f921e3d5feda2ecdbf366c3af940efb5021fd7fc5d154a3d92851156824be43"
+  },
+  "delta": {
+    "path": "docs/evidence/source-listing-2026-10-15/card-source-intake.json",
+    "sha256": "56904b903d3e86e69e956dec3dab5c64acee011db88a2b8afd6cb52ef905b0ca"
+  },
+  "note": "Retain all original1740 structured printing IDs/dates,36 historical documents14293 blocks, English8 source gap,236 CN source-version dispositions and5 temporal deltas. Add8 unresolved official-image number candidates plus same-number stamp/SP obligations without claiming a complete1748 universe or runtime adoption. Source39 visuals and fixed797f locked evidence remain bounded; whole cards, global texts/CN precedence, current visible product and physical Windows stay OPEN.",
+  "previousCoverage": {
+    "path": "docs/evidence/clairvoyance-2026-10-15/source-coverage.json",
+    "sha256": "d58a2aaf7261315c9ba2c3a5f54b9205c849036056edd72b4bb47e704b54c6c1"
+  },
+  "currentSemanticsCertified": false,
+  "ruleReferencesRetainedWithIndependentByteBodyRefresh": {
+    "originalVersionsAndDates": {
+      "confirmedUnchangedRuleLedger": {
+        "path": "docs/evidence/rules-reaudit-2026-10-11/all-rule-ledger.json",
+        "sha256": "af5d3738a9df06b3087f454726396a906b7d73dea5ccbc9fd9080985b5287297",
+        "atCommit": "4a2b4d4659ae36f18e4ab104efd2f1523d04b602"
+      },
+      "confirmedUnchangedCnCorpus": {
+        "path": "docs/evidence/rules-reaudit-2026-10-11/official-corpus.json",
+        "sha256": "b97836ed4e1c5c6e13a08e443011a0a96e4549a30613afa6dd01e21c440f382f",
+        "atCommit": "4a2b4d4659ae36f18e4ab104efd2f1523d04b602"
+      },
+      "confirmedUnchangedCnRuleManifest": {
+        "path": "data/official/upstream/2026-10-12/rules-manifest.json",
+        "sha256": "3159cb279c6bf3c50ca1c3a99335e6f1dc343ef4cbf3a6f18ab68dec0e1d4302",
+        "atCommit": "4a2b4d4659ae36f18e4ab104efd2f1523d04b602"
+      },
+      "confirmedUnchangedGlobalRules": {
+        "path": "data/official/upstream/2026-10-12/global-rules-sources.json",
+        "sha256": "972d7d268d2198565dd0a0df21821610c31b2e75c5e07a406cedde0e312f000c",
+        "atCommit": "4a2b4d4659ae36f18e4ab104efd2f1523d04b602"
+      }
+    },
+    "currentRefresh": {
+      "path": "docs/evidence/source-listing-2026-10-15/whole-rule-summary.json",
+      "sha256": "4e8fa67ffa3b34be6ac8deaef327423714c7a9263b7c017a5d70205b47b3fa3b"
+    }
+  },
+  "retainedPriorActiveBindingUpdate": {
+    "date": "2026-10-15",
+    "previousCoverageManifest": {
+      "path": "docs/evidence/porobot-2026-10-15/source-coverage.json",
+      "sha256": "f5aa9ed421740174410b0b5bc256be8ebe447eff2a0dd8df4aaaf88bd1083c59"
+    },
+    "sourceFetchDatesUnchanged": true,
+    "rawSourceUniverseUnchanged": true,
+    "exactPrinting": "VEN·056",
+    "currentRuntimeEntries": 1033,
+    "note": "Separate active binding view; frozen source snapshots and their dates remain unchanged."
+  },
+  "previousApplicabilityEvidence": {
+    "futureCoreEffective": "2026-10-16",
+    "newGallerySet": "RAD",
+    "runtimePreviewPromotion": false,
+    "catalogRefreshDoesNotCertifyRuleDocumentCurrency": true,
+    "previewEvidence": {
+      "basis": "EN API has no explicit isPreview field; preview disposition is inferred from RAD set and independently matched CN isPreview=true records. Not an EN API preview flag.",
+      "newEnglishRecords": [
+        {
+          "enId": "rad-010-167",
+          "publicCode": "RAD-010/167",
+          "cnId": 38330,
+          "cnCardNo": "RAD·010/167",
+          "cnIsPreview": true,
+          "enSet": "RAD"
+        },
+        {
+          "enId": "rad-011-167",
+          "publicCode": "RAD-011/167",
+          "cnId": 38331,
+          "cnCardNo": "RAD·011/167",
+          "cnIsPreview": true,
+          "enSet": "RAD"
+        },
+        {
+          "enId": "rad-022-167",
+          "publicCode": "RAD-022/167",
+          "cnId": 38344,
+          "cnCardNo": "RAD·022/167",
+          "cnIsPreview": true,
+          "enSet": "RAD"
+        },
+        {
+          "enId": "rad-031-167",
+          "publicCode": "RAD-031/167",
+          "cnId": 38354,
+          "cnCardNo": "RAD·031/167",
+          "cnIsPreview": true,
+          "enSet": "RAD"
+        },
+        {
+          "enId": "rad-032-167",
+          "publicCode": "RAD-032/167",
+          "cnId": 38355,
+          "cnCardNo": "RAD·032/167",
+          "cnIsPreview": true,
+          "enSet": "RAD"
+        },
+        {
+          "enId": "rad-042-167",
+          "publicCode": "RAD-042/167",
+          "cnId": 38365,
+          "cnCardNo": "RAD·042/167",
+          "cnIsPreview": true,
+          "enSet": "RAD"
+        },
+        {
+          "enId": "rad-042a-167",
+          "publicCode": "RAD-042a/167",
+          "cnId": 38366,
+          "cnCardNo": "RAD·042a/167",
+          "cnIsPreview": true,
+          "enSet": "RAD"
+        },
+        {
+          "enId": "rad-053-167",
+          "publicCode": "RAD-053/167",
+          "cnId": 38379,
+          "cnCardNo": "RAD·053/167",
+          "cnIsPreview": true,
+          "enSet": "RAD"
+        },
+        {
+          "enId": "rad-054-167",
+          "publicCode": "RAD-054/167",
+          "cnId": 38380,
+          "cnCardNo": "RAD·054/167",
+          "cnIsPreview": true,
+          "enSet": "RAD"
+        },
+        {
+          "enId": "rad-065-167",
+          "publicCode": "RAD-065/167",
+          "cnId": 38392,
+          "cnCardNo": "RAD·065/167",
+          "cnIsPreview": true,
+          "enSet": "RAD"
+        },
+        {
+          "enId": "rad-065a-167",
+          "publicCode": "RAD-065a/167",
+          "cnId": 38393,
+          "cnCardNo": "RAD·065a/167",
+          "cnIsPreview": true,
+          "enSet": "RAD"
+        },
+        {
+          "enId": "rad-066-167",
+          "publicCode": "RAD-066/167",
+          "cnId": 38394,
+          "cnCardNo": "RAD·066/167",
+          "cnIsPreview": true,
+          "enSet": "RAD"
+        },
+        {
+          "enId": "rad-078-167",
+          "publicCode": "RAD-078/167",
+          "cnId": 38407,
+          "cnCardNo": "RAD·078/167",
+          "cnIsPreview": true,
+          "enSet": "RAD"
+        },
+        {
+          "enId": "rad-080-167",
+          "publicCode": "RAD-080/167",
+          "cnId": 38409,
+          "cnCardNo": "RAD·080/167",
+          "cnIsPreview": true,
+          "enSet": "RAD"
+        },
+        {
+          "enId": "rad-092-167",
+          "publicCode": "RAD-092/167",
+          "cnId": 38424,
+          "cnCardNo": "RAD·092/167",
+          "cnIsPreview": true,
+          "enSet": "RAD"
+        },
+        {
+          "enId": "rad-094-167",
+          "publicCode": "RAD-094/167",
+          "cnId": 38426,
+          "cnCardNo": "RAD·094/167",
+          "cnIsPreview": true,
+          "enSet": "RAD"
+        },
+        {
+          "enId": "rad-103-167",
+          "publicCode": "RAD-103/167",
+          "cnId": 38435,
+          "cnCardNo": "RAD·103/167",
+          "cnIsPreview": true,
+          "enSet": "RAD"
+        },
+        {
+          "enId": "rad-104-167",
+          "publicCode": "RAD-104/167",
+          "cnId": 38436,
+          "cnCardNo": "RAD·104/167",
+          "cnIsPreview": true,
+          "enSet": "RAD"
+        },
+        {
+          "enId": "rad-113-167",
+          "publicCode": "RAD-113/167",
+          "cnId": 38447,
+          "cnCardNo": "RAD·113/167",
+          "cnIsPreview": true,
+          "enSet": "RAD"
+        },
+        {
+          "enId": "rad-123-167",
+          "publicCode": "RAD-123/167",
+          "cnId": 38458,
+          "cnCardNo": "RAD·123/167",
+          "cnIsPreview": true,
+          "enSet": "RAD"
+        },
+        {
+          "enId": "rad-124-167",
+          "publicCode": "RAD-124/167",
+          "cnId": 38459,
+          "cnCardNo": "RAD·124/167",
+          "cnIsPreview": true,
+          "enSet": "RAD"
+        },
+        {
+          "enId": "rad-134-167",
+          "publicCode": "RAD-134/167",
+          "cnId": 38470,
+          "cnCardNo": "RAD·134/167",
+          "cnIsPreview": true,
+          "enSet": "RAD"
+        },
+        {
+          "enId": "rad-135-167",
+          "publicCode": "RAD-135/167",
+          "cnId": 38471,
+          "cnCardNo": "RAD·135/167",
+          "cnIsPreview": true,
+          "enSet": "RAD"
+        },
+        {
+          "enId": "rad-149-167",
+          "publicCode": "RAD-149/167",
+          "cnId": 38487,
+          "cnCardNo": "RAD·149/167",
+          "cnIsPreview": true,
+          "enSet": "RAD"
+        },
+        {
+          "enId": "rad-173-167",
+          "publicCode": "RAD-173/167",
+          "cnId": 38517,
+          "cnCardNo": "RAD·173/167",
+          "cnIsPreview": true,
+          "enSet": "RAD"
+        },
+        {
+          "enId": "rad-177-167",
+          "publicCode": "RAD-177/167",
+          "cnId": 38524,
+          "cnCardNo": "RAD·177/167",
+          "cnIsPreview": true,
+          "enSet": "RAD"
+        }
+      ]
+    }
+  },
+  "applicability": {
+    "currentIndexScope": "CN/2026-10-15",
+    "newExactPrintingIds": [
+      39725,
+      39726
+    ],
+    "newCnRecordsIsPreview": true,
+    "firstPublicationDate": null,
+    "effectiveDate": null,
+    "runtimePreviewPromotion": false,
+    "titleChangedOct16RuleDisposition": "OPEN",
+    "historicalScope": {
+      "path": "docs/evidence/source-listing-2026-10-15/prior-certification-scope.json",
+      "sha256": "339f4b842f0b721f895d01626639d757284bc8ddbbd8d8766a0900eaea9af5dd"
+    },
+    "englishPreviewFlag": "No explicit EN preview flag inferred; preserve raw source and regional/date review."
+  },
+  "previousRuntimeBindingCoverage": {
+    "path": "docs/evidence/empowered-insight-2026-10-19/source-coverage.json",
+    "sha256": "671908c4d6aebf0f54ec325112e8c3dfdfb6e37ad1a3fac296813aa6f31012d8",
+    "role": "current-card-coverage"
+  },
+  "activeRuntimeCatalog": {
+    "path": "data/official/card-catalog.zh-CN.json",
+    "sha256": "843866377ecc2d1dce607600ee45182e8d2bffc74ed7eeea8037b50a63ee885c",
+    "role": "current-runtime-active-catalog"
+  },
+  "retainedPriorRuntimeBindingUpdate": {
+    "recordedAtUtc": "2026-10-19T01:15:58.725407+00:00",
+    "kind": "EXPLICIT_ONE_RUNTIME_REGISTRATION_BINDING_ONLY",
+    "originalSourceDateRetained": "2026-10-15",
+    "allSourceAcquisitionAndConfirmationDatesRetained": true,
+    "original1033Current1034": "VEN·047 added only",
+    "ordinaryScopeStill": "CN/zh-CN applicable2026-10-16",
+    "noImplicitSemanticOrTournamentEligibilityPromotion": true
+  },
+  "runtimeBindingUpdate": {
+    "recordedAtUtc": "2026-10-22T19:53:36.293852+00:00",
+    "sourceDateAndSourceUniverseUnchanged": true,
+    "newExactRuntimeRegistration": "VEN·156",
+    "exactCnApiId": 37859,
+    "individualPublicationAndEffectiveDates": null,
+    "newReviewCertifications": 0,
+    "priorRuntimeRows": 1036,
+    "currentRuntimeRows": 1037,
+    "allExisting1740PrintingIdsAndSourceVersionsAndConfirmationDatesRetained": true,
+    "sourceManifest": {
+      "path": "docs/evidence/lightning-rush-flow-current-cn16-2026-10-23/source-manifest.json",
+      "sha256": "f3dfdd7e0420f4333a1fb40b04404456eb93e48a4afe2820814924b1b71e6486",
+      "role": "source-manifest"
+    }
+  },
+  "scopedReviewDecisions": {
+    "path": "docs/evidence/rules-reaudit-2026-10-11/review-decisions.json",
+    "sha256": "c3f5fd36da5007700c6b0d5570c45d05fbb870d3a13a2bf2aaf04ef7408a6e1b"
+  },
+  "currentScopedReviewDecisions": {
+    "path": "docs/evidence/rules-reaudit-2026-10-11/review-decisions.json",
+    "sha256": "2423a8502ba06dcb457d0f1ec46d9ff7dec44473c93569fe0fdfea5b8ea49eaa",
+    "role": "reviews"
+  },
+  "priorDisclosureAuditCoverage": {
+    "path": "docs/evidence/pakaa-move-reveal-2026-10-19/source-coverage.json",
+    "sha256": "b30698199e94cdbcc21016c89c751f27818ab734e72eff8945108173eacfe1a0",
+    "role": "current-card-coverage"
+  },
+  "currentDisclosureAndSourceVersionAudit": {
+    "path": "docs/evidence/public-reveal-wording-2026-10-19/source-manifest.json",
+    "sha256": "63e7409d774f44cfa68c2eb559f8cf9f0e97dfae3b20402d7d28be0f22e4e86c",
+    "role": "source-manifest"
+  },
+  "priorEmptyRevealAuditCoverage": {
+    "path": "docs/evidence/public-reveal-wording-2026-10-19/source-coverage.json",
+    "sha256": "091ddc22d30754cbc98017a9375236bea188f88781fa4dd7b85a9c701704d864",
+    "role": "current-card-coverage"
+  },
+  "currentInitialEmptyRevealAudit": {
+    "path": "docs/evidence/empty-reveal-followup-2026-10-19/source-manifest.json",
+    "sha256": "33c8a345821dd255d7bcb3e9e0ef3da0b93edb198dfac739683aa625e4951176",
+    "role": "source-manifest"
+  },
+  "priorRadianceVisualCoverage": {
+    "path": "docs/evidence/empty-reveal-followup-2026-10-19/source-coverage.json",
+    "sha256": "1c5b19832b71afdbdc73d03a90cf29f2fc5ed4354f3b941fc705b2259a7d770e",
+    "role": "current-card-coverage"
+  },
+  "currentRadianceVisualReadback": {
+    "path": "docs/evidence/radiance-visual-readback-2026-10-19/source-manifest.json",
+    "sha256": "4eab22d206f8c5c81ce82dd7e506e4d3a41a5ea9475e15d23e6ffd8222b9abda",
+    "role": "source-manifest"
+  },
+  "supplementalUnmatchedPrintingCandidates": {
+    "path": "docs/evidence/radiance-visual-readback-2026-10-19/supplemental-printing-obligations.json",
+    "sha256": "fe26a1f77257f07a7d346754c353593fb51f54c00e0741531b48bf15085a91c0",
+    "role": "supplemental-printing-obligations"
+  },
+  "previousWildClawRuntimeBindingCoverage": {
+    "path": "docs/evidence/radiance-visual-readback-2026-10-19/source-coverage.json",
+    "sha256": "a0291d0b3847aec9cecc85f84ae590e3de4cd0150d10ca586e2d32a857bcca82",
+    "role": "current-card-coverage"
+  },
+  "priorRuntimeBindingUpdateBeforeWildClaw": {
+    "recordedAtUtc": "2026-10-19T07:56:43.713494+00:00",
+    "sourceDateAndSourceUniverseUnchanged": true,
+    "newExactRuntimeRegistration": "VEN·033",
+    "newReviewCertifications": 0,
+    "priorRuntimeRows": 1034,
+    "currentRuntimeRows": 1035,
+    "allExisting1740PrintingIdsAndSourceVersionsAndConfirmationDatesRetained": true
+  },
+  "previousCurrentScopedReviewDecisionsBeforeWildClaw": {
+    "path": "docs/evidence/rules-reaudit-2026-10-11/review-decisions.json",
+    "sha256": "217ba8dcdce76d14a75431b3a03a249b865163289c0c9f539c55b6588e86fc36",
+    "role": "current-scoped-review-decisions"
+  },
+  "currentWildClawScopedSourceManifest": {
+    "path": "docs/evidence/wild-claw-reflexive-current-cn16-2026-10-22/source-manifest.json",
+    "sha256": "d06d4d3d217dfec28cb1943fbafeadb366fb91e718b4adc6c6c5b8295488e0d1",
+    "role": "source-manifest"
+  },
+  "previousLightningRushRuntimeBindingCoverage": {
+    "path": "docs/evidence/wild-claw-reflexive-current-cn16-2026-10-22/source-coverage.json",
+    "sha256": "be5a25b83ab6c26536301978bb1af4555ff78a8a7c5d6ee018120e4eff6993fc",
+    "role": "current-card-coverage"
+  },
+  "priorRuntimeBindingUpdateBeforeLightningRush": {
+    "recordedAtUtc": "2026-10-22T15:53:04.545628+00:00",
+    "sourceDateAndSourceUniverseUnchanged": true,
+    "newExactRuntimeRegistration": "VEN·089",
+    "exactCnApiId": 37785,
+    "individualPublicationAndEffectiveDates": null,
+    "newReviewCertifications": 0,
+    "priorRuntimeRows": 1035,
+    "currentRuntimeRows": 1036,
+    "allExisting1740PrintingIdsAndSourceVersionsAndConfirmationDatesRetained": true,
+    "sourceManifest": {
+      "path": "docs/evidence/wild-claw-reflexive-current-cn16-2026-10-22/source-manifest.json",
+      "sha256": "d06d4d3d217dfec28cb1943fbafeadb366fb91e718b4adc6c6c5b8295488e0d1",
+      "role": "source-manifest"
+    }
+  },
+  "previousCurrentScopedReviewDecisionsBeforeLightningRush": {
+    "path": "docs/evidence/rules-reaudit-2026-10-11/review-decisions.json",
+    "sha256": "7f489191c56f202336464596488af37e5206cde9d0313560c3f8cae6a8f352b1",
+    "role": "reviews"
+  },
+  "currentLightningRushScopedSourceManifest": {
+    "path": "docs/evidence/lightning-rush-flow-current-cn16-2026-10-23/source-manifest.json",
+    "sha256": "f3dfdd7e0420f4333a1fb40b04404456eb93e48a4afe2820814924b1b71e6486",
+    "role": "source-manifest"
+  }
+}

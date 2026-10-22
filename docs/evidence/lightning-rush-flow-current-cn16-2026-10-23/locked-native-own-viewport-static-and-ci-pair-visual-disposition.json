@@ -1,0 +1,66 @@
+{
+  "atUtc": "2026-10-22T19:39:41.456030+00:00",
+  "status": "ACTUAL_LOCKED_NATIVE_GPU_OWN_VIEWPORTS_VISUALLY_READ_BOUNDED_ONLY",
+  "sourceTerminal": "var/qa/deck-look-draw-graveyard-current-cn16-20261022/locked-fixed5edb-ci-pair-original-final-viewports-v1/actual-locked-fixed-ci-pair-own-viewports-terminal-v1.json",
+  "actualImages": [
+    {
+      "path": "var/qa/deck-look-draw-graveyard-current-cn16-20261022/locked-native-own-viewport-probe-v1/actual-focused-trigger-overlay.png",
+      "sha256": "0c64a894d3c9e0c9363725ecee51e66687d074f1039fd3fd322afea6de5a8209",
+      "bytes": 47699,
+      "actuallyVisuallyRead": true
+    },
+    {
+      "path": "var/qa/deck-look-draw-graveyard-current-cn16-20261022/locked-fixed5edb-ci-pair-original-final-viewports-v1/actual-native-a-original-final.png",
+      "sha256": "5cf598923f30e1586d3ba0bd54ef835b8531d19941aec97a40fc55d57a58ebc2",
+      "bytes": 353729,
+      "actuallyVisuallyRead": true
+    },
+    {
+      "path": "var/qa/deck-look-draw-graveyard-current-cn16-20261022/locked-fixed5edb-ci-pair-original-final-viewports-v1/actual-native-b-original-final.png",
+      "sha256": "d9bfbf46b08974c835fa7f4e7e2dd3f717b110e881c736bd549b84a2c8a866f0",
+      "bytes": 214081,
+      "actuallyVisuallyRead": true
+    },
+    {
+      "path": "var/qa/deck-look-draw-graveyard-current-cn16-20261022/locked-fixed5edb-ci-pair-original-final-viewports-v1/actual-native-b-original-final-result.png",
+      "sha256": "9c82f02c3f602d52678320a1751355ed907c7d4e8c5ffcbd7be91c38ae1219b8",
+      "bytes": 355208,
+      "actuallyVisuallyRead": true
+    }
+  ],
+  "findings": [
+    "Existing trigger overlay rendered via actual non-headless AppleM4 OpenGL/Metal compatibility renderer while start/end lock observations are true. This static fixture only establishes the own-viewport capture path.",
+    "Both original fixed5edb1 CI-exported defaultMain clients simultaneously restored the same completed original66-command405-event game from the existing real database. A shows victory8:0, B shows defeat0:8, both turn34, reason reach victory score, with the ReturnToLobby button inside the modal.",
+    "The first B image still had pending card-art textures; its separate final-result image actually displays loaded card art. Both original images are retained; no image was generated or edited.",
+    "No new room or gameplay input was submitted. Original authority, seed, empty replay origin and all complete accepted history remain exact. Only matches.updated_at and match_players.reconnect_token_hash/updated_at changed for the one restored room. All422audit and other98native rooms retain all seven tables."
+  ],
+  "allImagesComeFromClientOwnViewportNotOsDesktopScreenCapture": true,
+  "originalPixelBytesUnmodified": true,
+  "lockAtStart": {
+    "atUtc": "2026-10-22T19:36:21.568694+00:00",
+    "roots": [
+      {
+        "rootLocked": true,
+        "sessions": [
+          true
+        ]
+      }
+    ],
+    "missingValuesRemainUnknown": true
+  },
+  "lockAtEnd": {
+    "atUtc": "2026-10-22T19:37:26.266113+00:00",
+    "roots": [
+      {
+        "rootLocked": true,
+        "sessions": [
+          true
+        ]
+      }
+    ],
+    "missingValuesRemainUnknown": true
+  },
+  "currentNewLightningRushCandidateNotCertifiedByOldFixed5edbImages": true,
+  "physicalDesktopInputVisiblePairAndPhysicalWindowsStillOpen": true,
+  "noNewAppInstallerSdkOrDatabaseCopies": true
+}

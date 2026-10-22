@@ -56,6 +56,7 @@ public static partial class KeywordParser
         "法盾",
         "待命",
         "回响",
+        "流转",
         "伏击",
         "装配",
         "灵便",

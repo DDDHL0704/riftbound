@@ -23119,6 +23119,7 @@ public static partial class MatchRecoveryValidator
             ValidateSourceReplayStackViews(view.Snapshot.Stack, authoritativeState, errors);
             ValidateResolutionDamageChoiceViews(view.Snapshot.Stack, authoritativeState, errors);
             ValidateDeckPlayPendingCardViews(view.Snapshot.Stack, authoritativeState, errors);
+            ValidateFlowPlayViews(view.Snapshot.Stack, authoritativeState, errors);
             ValidateTurnUnitPlayBoonViews(view.Snapshot, authoritativeState, errors);
             ValidateBattlefieldConquestMightStackViews(view.Snapshot.Stack, authoritativeState, errors, $"snapshot for {view.PlayerId}");
             ValidateMightySkillStackViews(view.Snapshot.Stack, authoritativeState, errors, $"snapshot for {view.PlayerId}");
@@ -23825,6 +23826,7 @@ public static partial class MatchRecoveryValidator
             && !CoreRuleEngine.ValidRecyclingChoice(state, recycling)) errors.Add("invalid recycling cost choice");
         foreach (var item in state.StackItems)
         {
+            if (!CoreRuleEngine.ValidFlowPlay(state, item)) errors.Add("invalid flow play receipt");
             if (item.RecycledUnit is not null && !CoreRuleEngine.ValidRecycledUnit(item)) errors.Add("invalid recycled unit receipt");
             if (item.RecastContext is { } context ? !CoreRuleEngine.ValidRecastContext(context, item.EffectKind, item.CardNo)
                 : item.EffectKind == CoreRuleEngine.RecastTriggerEffect) errors.Add("invalid effect-play trigger context");
@@ -24083,6 +24085,21 @@ public static partial class MatchRecoveryValidator
                     errors.Add("public target controller damage alternative choice differs from authoritative state");
             }
             catch (JsonException) { errors.Add("invalid public target controller damage alternative choice"); }
+        }
+    }
+
+    private static void ValidateFlowPlayViews(IReadOnlyList<object?> payloads, MatchState state, List<string> errors)
+    {
+        foreach (var payload in payloads)
+        {
+            TryReadObjectString(payload, "stackItemId", out var id);
+            var expected = state.StackItems.FirstOrDefault(i => i.StackItemId == id)?.FlowPlay is not null;
+            var json = JsonSerializer.SerializeToElement(payload);
+            if (json.ValueKind != JsonValueKind.Object) continue;
+            var present = json.TryGetProperty("playedWithFlow", out var flag);
+            if (present != expected || present && flag.ValueKind != JsonValueKind.True)
+                errors.Add("public flow play marker differs from authoritative state");
+            if (json.TryGetProperty("flowPlay", out _)) errors.Add("public flow play exposes private generation receipt");
         }
     }
 
@@ -32164,6 +32181,7 @@ public static partial class MatchRecoveryValidator
         ValidateSourceReplayStackViews(stackItems, authoritativeState, errors);
         ValidateResolutionDamageChoiceViews(stackItems, authoritativeState, errors);
         ValidateDeckPlayPendingCardViews(stackItems, authoritativeState, errors);
+        ValidateFlowPlayViews(stackItems, authoritativeState, errors);
         ValidateBattlefieldConquestMightStackViews(stackItems, authoritativeState, errors, "spectator replay frame");
         ValidateMightySkillStackViews(stackItems, authoritativeState, errors, "spectator replay frame");
         ValidateRepeatDestinationViews(stackItems, authoritativeState, errors, "spectator replay frame");

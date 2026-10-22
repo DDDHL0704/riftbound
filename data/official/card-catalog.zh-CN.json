@@ -2,7 +2,7 @@
   "source": "https://playloltcg.com/card.html",
   "api": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
   "fetchedAt": "2026-04-27",
-  "total": 1036,
+  "total": 1037,
   "cards": [
     {
       "id": 31005,
@@ -42991,6 +42991,55 @@
       "isPreview": false,
       "errata": "",
       "otherDesc": 0
+    },
+    {
+      "id": 37859,
+      "cardCategoryList": [
+        "exclusive_spell"
+      ],
+      "cardCategoryNameList": [
+        "专属法术"
+      ],
+      "cardNo": "VEN·156",
+      "cardName": "奥义！雷铠",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "purple",
+        "yellow"
+      ],
+      "hero": "凯南",
+      "region": "",
+      "tag": "",
+      "artist": "Kudos Productions",
+      "cardEffect": "查看你主牌堆顶部的三张牌。你可以选择指定其中一张，并抽取该卡牌。将其余卡牌放进你的废牌堆。\n{{流转2A}}（你可以选择支付此牌的流转费用，以此将其从你的废牌堆中打出。然后将其放逐。）",
+      "flavorText": "“疾如风！”\n——凯南",
+      "energy": 1,
+      "returnEnergy": null,
+      "power": null,
+      "productCodeList": [
+        "VEN(标准补充包)",
+        "VEN(进阶补充包)"
+      ],
+      "productNameList": [
+        "化神争锋 标准补充包",
+        "化神争锋 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_core",
+      "rarityName": "史诗",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260709/dd4789796ed94e549485963bcd9af6cb.png",
+      "backImage": "",
+      "listSort": 1827,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
     }
   ],
   "scopedAdditions": [
@@ -43456,6 +43505,21 @@
       "printedFaceIdentity": "VEN·089/166 SC",
       "separateGlobalPrintingIdentityNotMerged": "VEN-089/166",
       "reason": "Exact current official unit-or-gear deck play and optional reflexive empowerment consumer, implementation in progress under issue92. Existing1035 entries and whole1740 scope retained. No whole-card or source-wide certification; stacking exceptions, new fixed full and products remain independently OPEN."
+    },
+    {
+      "cardNo": "VEN·156",
+      "source": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "fetchedAtUtc": "2026-10-22T17:00:59.051885+00:00",
+      "sourceId": 37859,
+      "sourceRecordSha256": "049508b53db67fd69036060253f077cb20151df98792c9df91fc91260636ff42",
+      "sourceRecordHashEncoding": "UTF-8 JSON sorted keys, compact separators, ensure_ascii=false",
+      "language": "zh-CN",
+      "region": "CN",
+      "publicationDate": null,
+      "effectiveDate": null,
+      "printedFaceIdentity": "VEN·156/166 SC",
+      "separateGlobalPrintingIdentityNotMerged": "VEN-156/166",
+      "reason": "Exact current private deck look, optional selected draw and unchosen direct graveyard consumer with Flow2A; in progress under issue93. Existing1036 entries and all1740 printing scope retained. Whole printing, other14 Flow consumers, current fixed full and product acceptance remain OPEN."
     }
   ]
 }

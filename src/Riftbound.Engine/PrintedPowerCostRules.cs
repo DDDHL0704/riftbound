@@ -18,9 +18,18 @@ public static class PrintedPowerCostRules
     public static Cost ForCard(string cardNo)
         => Costs.Value.TryGetValue(cardNo, out var cost) ? cost : new(0, []);
 
+    public static Cost ForPlay(CardBehaviorDefinition behavior)
+        => behavior.AppliedFlowCost is { } flow ? new(flow.Power, flow.Traits)
+            : ForCard(behavior.IgnorePrintedPowerCost ? "" : behavior.CardNo);
+
     public static IReadOnlyList<IReadOnlyDictionary<string, int>> Allocations(string cardNo)
+        => Allocations(ForCard(cardNo));
+
+    public static IReadOnlyList<IReadOnlyDictionary<string, int>> AllocationsForPlay(CardBehaviorDefinition behavior)
+        => Allocations(ForPlay(behavior));
+
+    private static IReadOnlyList<IReadOnlyDictionary<string, int>> Allocations(Cost cost)
     {
-        var cost = ForCard(cardNo);
         if (cost.Amount == 0 || cost.Traits.Count == 0) return [new Dictionary<string, int>()];
         var results = new List<IReadOnlyDictionary<string, int>>();
         var current = new Dictionary<string, int>(StringComparer.Ordinal);
@@ -50,10 +59,19 @@ public static class PrintedPowerCostRules
     public static bool TrySelect(string cardNo, string? choice, RunePool pool, int extraGeneric,
         IReadOnlyDictionary<string, int> extraTyped, out int generic, out IReadOnlyDictionary<string, int> typed,
         IReadOnlyList<string>? additionalPrintedCosts = null)
+        => TrySelect(ForCard(cardNo), choice, pool, extraGeneric, extraTyped, out generic, out typed, additionalPrintedCosts);
+
+    public static bool TrySelectForPlay(CardBehaviorDefinition behavior, string? choice, RunePool pool, int extraGeneric,
+        IReadOnlyDictionary<string, int> extraTyped, out int generic, out IReadOnlyDictionary<string, int> typed,
+        IReadOnlyList<string>? additionalPrintedCosts = null)
+        => TrySelect(ForPlay(behavior), choice, pool, extraGeneric, extraTyped, out generic, out typed, additionalPrintedCosts);
+
+    private static bool TrySelect(Cost cost, string? choice, RunePool pool, int extraGeneric,
+        IReadOnlyDictionary<string, int> extraTyped, out int generic, out IReadOnlyDictionary<string, int> typed,
+        IReadOnlyList<string>? additionalPrintedCosts)
     {
-        var cost = ForCard(cardNo);
         generic = extraGeneric + (cost.Traits.Count == 0 ? cost.Amount : 0);
-        var allocations = Allocations(cardNo);
+        var allocations = Allocations(cost);
         if (choice is not null)
         {
             allocations = allocations.Where(a => cost.Amount > 0 && string.Equals(ChoiceId(a), choice, StringComparison.Ordinal)).ToArray();

@@ -1,0 +1,154 @@
+{
+  "status": "PASS_INDEPENDENT_ORIGINAL_LIGHTNING_RUSH_SQL_SEVEN_TABLES_ALL_PREFIXES_AND_ACTUAL_REFUSALS",
+  "actualReadOnlyConnection": true,
+  "actualLoadedFourAssemblies": {
+    "baseDirectory": "/Users/dinghaolin/MyProjects/riftbound/var/qa/deck-look-draw-graveyard-current-cn16-20261022/current-rule-sql62-runtime-v1/",
+    "actualRuleInputs": {
+      "schemaVersion": 1,
+      "region": "CN",
+      "language": "zh-CN",
+      "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+      "catalogSha256": "0aa8f812dc6f561f9fb1996381bae9821bd54d069f3ad26be7fe669baae9ae6c",
+      "implementationSha256": "4a3b36c60352fc004e6ebac20ed1157f95732831b192c53f1c364733ce0aec07",
+      "identitySha256": "a185bb0b9cbe33d0dfe15fee94acef916bcfa18dfe8ac982029321152f2328a0"
+    },
+    "assemblies": [
+      {
+        "name": "Riftbound.Engine",
+        "path": "/Users/dinghaolin/MyProjects/riftbound/var/qa/deck-look-draw-graveyard-current-cn16-20261022/current-rule-sql62-runtime-v1/Riftbound.Engine.dll",
+        "sha256": "d7d58fc745d98262599e2c156f3bd7c59d68612351dae11c646819c7b9a9317f",
+        "mvid": "1188b211-a52a-497d-8a8b-856794872ae8"
+      },
+      {
+        "name": "Riftbound.Contracts",
+        "path": "/Users/dinghaolin/MyProjects/riftbound/var/qa/deck-look-draw-graveyard-current-cn16-20261022/current-rule-sql62-runtime-v1/Riftbound.Contracts.dll",
+        "sha256": "84cb8383f1d9263e6b30a479b0d7c92bb783ee6f0fb2101e0d90ffb0865909f9",
+        "mvid": "3941e8f9-507b-428b-b513-a645920744e1"
+      },
+      {
+        "name": "Riftbound.CardCatalog",
+        "path": "/Users/dinghaolin/MyProjects/riftbound/var/qa/deck-look-draw-graveyard-current-cn16-20261022/current-rule-sql62-runtime-v1/Riftbound.CardCatalog.dll",
+        "sha256": "dfa7a691a455afb914cd543ca48f670417c4797bde06b241aa094c93ff9b350e",
+        "mvid": "d40ed27d-69ab-48a3-8c76-b19ebe078fc0"
+      },
+      {
+        "name": "Riftbound.Persistence",
+        "path": "/Users/dinghaolin/MyProjects/riftbound/var/qa/deck-look-draw-graveyard-current-cn16-20261022/current-rule-sql62-runtime-v1/Riftbound.Persistence.dll",
+        "sha256": "d3d311488833d8fb8f922effbb46ab0ebeda35f95bdacf5ca5295164a87ada43",
+        "mvid": "520921a7-9ae0-4b8c-a35c-368ca77de588"
+      }
+    ]
+  },
+  "totals": {
+    "rooms": 12,
+    "commands": 79,
+    "events": 149,
+    "authority": 79,
+    "snapshots": 146,
+    "prompts": 146,
+    "originalPrefixReplays": 79,
+    "nativeEquivalentReplays": 0,
+    "actualRefusals": 4
+  },
+  "rooms": [
+    {
+      "branch": "echo-flow",
+      "room": "lightning-rush-flow-2ed30772cfa44e31ad5450a66903b17f",
+      "commands": 8,
+      "events": 20,
+      "originalOpeningSeed": 830082837108322702,
+      "deliberateTamperRefused": false
+    },
+    {
+      "branch": "empty-flow",
+      "room": "lightning-rush-flow-389ef22396b54d688997faa589bd328c",
+      "commands": 6,
+      "events": 9,
+      "originalOpeningSeed": 8333557215649606287,
+      "deliberateTamperRefused": false
+    },
+    {
+      "branch": "flow-counter",
+      "room": "lightning-rush-flow-99689e1e4de04eed9d4f15e3aa8031c2",
+      "commands": 8,
+      "events": 14,
+      "originalOpeningSeed": -7443732699762526009,
+      "deliberateTamperRefused": false
+    },
+    {
+      "branch": "flow-return-counter",
+      "room": "lightning-rush-flow-efd7e9a4f98a4f96bd6bb559ec9621d5",
+      "commands": 9,
+      "events": 17,
+      "originalOpeningSeed": -1911773220412021496,
+      "deliberateTamperRefused": false
+    },
+    {
+      "branch": "flow",
+      "room": "lightning-rush-flow-3973c87ab87344ff97ff604671ad076a",
+      "commands": 7,
+      "events": 14,
+      "originalOpeningSeed": -4655709154395177497,
+      "deliberateTamperRefused": false
+    },
+    {
+      "branch": "normal-decline",
+      "room": "lightning-rush-flow-8bb9161d36e240729553241899c016cf",
+      "commands": 7,
+      "events": 13,
+      "originalOpeningSeed": -533612120077926269,
+      "deliberateTamperRefused": false
+    },
+    {
+      "branch": "normal-draw",
+      "room": "lightning-rush-flow-25a29e38091540c68d681293e845878b",
+      "commands": 7,
+      "events": 14,
+      "originalOpeningSeed": 3878708650919309365,
+      "deliberateTamperRefused": false
+    },
+    {
+      "branch": "observed",
+      "room": "lightning-rush-flow-89174b2dd8e04eba9092c1a8f5ba76cc",
+      "commands": 9,
+      "events": 20,
+      "originalOpeningSeed": 8140121728242197236,
+      "deliberateTamperRefused": false
+    },
+    {
+      "branch": "reject-choice-context",
+      "room": "lightning-rush-flow-c8228143ce284b638e0637d680e9cc1a",
+      "commands": 6,
+      "events": 10,
+      "originalOpeningSeed": 2305434622981985348,
+      "deliberateTamperRefused": true
+    },
+    {
+      "branch": "reject-generation",
+      "room": "lightning-rush-flow-6dbd13ba6d634794bc062e0476262c48",
+      "commands": 4,
+      "events": 6,
+      "originalOpeningSeed": -4254422532221867435,
+      "deliberateTamperRefused": true
+    },
+    {
+      "branch": "reject-missing-flow",
+      "room": "lightning-rush-flow-7d7ebc88a9924a5cac3ec0d1cf398053",
+      "commands": 4,
+      "events": 6,
+      "originalOpeningSeed": -3945961182123234546,
+      "deliberateTamperRefused": true
+    },
+    {
+      "branch": "reject-old-catalog",
+      "room": "lightning-rush-flow-202e9a50bb684d08b3faa1577cbd7ca6",
+      "commands": 4,
+      "events": 6,
+      "originalOpeningSeed": 7373955883628038935,
+      "deliberateTamperRefused": true
+    }
+  ],
+  "actualNativeCommandsAreOfflineControlAndReplayEquivalenceNotLiveSubmission": false,
+  "previousFailedCandidatesNotPromoted": true,
+  "visiblePairPhysicalWindowsAndWholePrintingRemainOpen": true
+}

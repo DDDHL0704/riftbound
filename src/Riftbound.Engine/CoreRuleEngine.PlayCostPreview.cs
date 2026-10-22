@@ -36,6 +36,9 @@ public sealed partial class CoreRuleEngine
         if (EffectPlayIgnoresAllCosts(state, playerId))
             Adjust("效果忽略一切费用", -plan.Behavior.ManaCost, -PrintedPowerCostRules.ForCard(plan.Behavior.CardNo).Amount);
         else if (state.PendingEffectPlay is { } effect && effect.IgnoreBaseMana) Adjust("效果忽略基础法力", -plan.Behavior.ManaCost);
+        if (plan.Behavior.AppliedFlowCost is { } flow)
+            Adjust("流转替代费用", flow.Mana - plan.Behavior.ManaCost,
+                flow.Power - PrintedPowerCostRules.ForCard(plan.Behavior.CardNo).Amount);
         Adjust("额外费用", plan.AdditionalManaCost, plan.OptionalPowerCost);
         Adjust("卡牌减费", -plan.CostReductionMana);
         Adjust("所选额外费用带来的减免", -plan.OptionalCostManaReduction, -plan.OptionalCostPowerReduction);

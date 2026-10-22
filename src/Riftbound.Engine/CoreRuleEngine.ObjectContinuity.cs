@@ -18,6 +18,9 @@ public sealed partial class CoreRuleEngine
             var crossedZone = previousLocations.TryGetValue(id, out var oldLocation)
                 && nextLocations.TryGetValue(id, out var newLocation)
                 && oldLocation != newLocation
+                // CN108.1/124: the chain is one common zone. Transferring
+                // control of a spell does not move its physical card.
+                && !(oldLocation.Zone == "STACK" && newLocation.Zone == "STACK")
                 && (!IsIdentityFieldZone(oldLocation.Zone) || !IsIdentityFieldZone(newLocation.Zone));
             var generation = Math.Max(card.ObjectGeneration, checked(previous.ObjectGeneration + (crossedZone ? 1 : 0)));
             var movementCount = nextLocations.TryGetValue(id, out var nextLocation) && nextLocation.Zone is "BASE" or "BATTLEFIELD"

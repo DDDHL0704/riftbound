@@ -7,6 +7,7 @@ public sealed partial class CoreRuleEngine
     internal static CardBehaviorDefinition PlaySourceKeywordBehavior(
         MatchState state, string player, string source, CardBehaviorDefinition behavior)
     {
+        behavior = FlowPlayBehavior(state, player, source, behavior);
         if (!behavior.PlaysSourceToBaseAsUnit
             || CardPermissionKeywordRules.HasSourceKeyword(behavior, CardPermissionKeywordNames.Haste)
             || !state.CardObjects.TryGetValue(source, out var card) || card.CardNo != behavior.CardNo

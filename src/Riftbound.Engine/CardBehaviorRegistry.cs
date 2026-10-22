@@ -288,7 +288,10 @@ public sealed record CardBehaviorDefinition(
     bool GrantsHasteToFriendlyUnitsPlayedOutsideHand = false,
     IReadOnlyList<string>? GrantedHastePowerTraits = null,
     bool MaySacrificeUnitForPrintedCostReduction = false,
-    bool DeckPlayOptionalReflexiveEmpower = false)
+    bool DeckPlayOptionalReflexiveEmpower = false,
+    bool GravesUnselectedMainDeckLookCards = false,
+    FlowCostSpec? FlowCost = null,
+    FlowCostSpec? AppliedFlowCost = null)
 {
     public bool PerformsInsight => InsightCount > 0;
 }
@@ -1278,6 +1281,19 @@ public static class CardBehaviorRegistry
             DrawsSelectedMainDeckTarget: true,
             MainDeckSelectionIsDraw: false,
             RecyclesUnselectedMainDeckLookCards: true),
+        new(
+            "VEN·156",
+            "奥义！雷铠",
+            1,
+            "LIGHTNING_RUSH_DRAW_ONE_GRAVE_REST",
+            0,
+            1,
+            TargetScope: CardTargetScopes.FriendlyMainDeckCard,
+            MinTargetCount: 0,
+            MainDeckLookCount: 3,
+            DrawsSelectedMainDeckTarget: true,
+            GravesUnselectedMainDeckLookCards: true,
+            FlowCost: new(2, 1, [])),
         new(
             "UNL-032/219",
             "龙虎双雄",

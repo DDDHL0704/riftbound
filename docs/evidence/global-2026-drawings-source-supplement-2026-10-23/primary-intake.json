@@ -1,0 +1,117 @@
+{
+  "atUtc": "2026-10-22T19:17:27.604096+00:00",
+  "status": "THREE_ACTUAL_PRIMARY_ARTICLE_BODY_AND_ALL_FAQ_ACCORDION_CONTENT_INTAKE_ONLY",
+  "region": "GLOBAL",
+  "language": "en-US",
+  "reviewDate": "2026-10-23",
+  "originalArchive": {
+    "path": "var/qa/global-2026-drawings-source-20261023/three-original-http-pages-v1.jsonl.gz",
+    "sha256": "f8f275d8807aa99859f2693f963b0bbeb2cfe7a5f4dbf4a6f5f7747124483388",
+    "bytes": 78341
+  },
+  "articles": [
+    {
+      "url": "https://playriftbound.com/en-us/rules-hub/",
+      "resolvedUrl": "https://playriftbound.com/en-us/rules-hub/",
+      "startedAtUtc": "2026-10-22T19:17:25.890654+00:00",
+      "acquiredAtUtc": "2026-10-22T19:17:27.593571+00:00",
+      "httpStatus": 200,
+      "headers": {
+        "Cache-Control": "public,max-age=0,must-revalidate",
+        "Content-Type": "text/html; charset=utf-8",
+        "Date": "Thu, 22 Oct 2026 19:17:26 GMT",
+        "Etag": "\"148sn2je24z33mo\""
+      },
+      "rawBytes": 144740,
+      "rawSha256": "dba23ad8f76f571768f5da8ce477184ce43357701484d43fe973f8f942979d4d",
+      "title": "Rules Hub",
+      "declaredPublicationUtc": "2026-07-17T00:30:00.000Z",
+      "contentId": "e109cbb2-6cef-4944-ae28-1830fc9fa21f.en-us",
+      "revision": "T4xYXIZ0qoV31nY2YA0myb",
+      "bodyHtmlSha256": "d04dcdfc4db6d108b516e6705123e83174d5893e7ce384b5f20dd917cc9f232d",
+      "text": "Below is a collection of Riftbound’s latest rules documents. If you’re ever curious about Riftbounds current rules, regulations, systems and practices, let the below documents be your guide.\n\nAre you wanting to learn Riftbound? Go here instead. The below documents are useful in the way that a car manual is useful when you’re learning to drive. Which is to say, it is useful for some, but probably not yet useful for others.\n\nConstructed Format Legality\n\nLast updated: September 18, 2026\n\nAll sets currently produced for Riftbound are legal to be played in sanctioned tournaments at your local game store as well as at larger tournaments. Starting in 2028, we intend to introduce rotation of legal sets for play in Standard Constructed (our primary constructed format.)\n\nThe following are banned from play in sanctioned Constructed tournaments:\n\n\n\nCards\n\nCalled Shot\n\nEkko, Recurrent\n\nDraven, Vanquisher\n\nFight or Flight\n\nScrapheap\n\nStealthy Pursuer\n\nStacked Deck\n\nBattlefields\n\nThe Arena’s Greatest\n\nAspirant’s Climb\n\nDreaming Tree\n\nObelisk of Power\n\nReaver’s Row\n\n2v2 Constructed Legality\n\nLast updated: September 18, 2026\n\nAs above, all sets currently produced for Riftbound are legal to be played in sanctioned tournaments.\n\n\n\nLegends\n\nMaster Yi, Wuju Bladesman\n\nCards\n\nCalled Shot\n\nEkko, Recurrent\n\nDraven Vanquisher\n\nFight or Flight\n\nScrapheap\n\nStealthy Pursuer\n\nStacked Deck\n\nBattlefields\n\nThe Arena’s Greatest\n\nAspirant’s Climb\n\nDreaming Tree\n\nObelisk of Power\n\nReaver’s Row\n\nCore Rules\n\nThe Core Rules are the engine that drives a Riftbound game. This document covers deckbuilding rules, timing and resolution of cards and abilities, order of effects, and all the other little rules that define the flow of a game.\n\nCore Rules (last updated: October 9, 2026)\n\nTournament Rules\n\nThe Tournament Rules outline the guidelines for running Riftbound tournaments and deckbuilding guidelines to the Riftbound experience that occur when taking part in an official event.\n\nThe Tournament Rules also provide additional guidance for running tournaments and adjudicating issues that arise during play.\n\nTournament Rules (last updated: October 9, 2026)\n\nPatch Notes\n\nPatch Note articles answer questions and explain the rules and interactions you’ll commonly encounter.\n\nCore Rules Patch Notes\n\nSpiritforged Patch Notes\n\nUnleashed Patch Notes\n\nVendetta Patch Notes\n\nRadiance Patch Notes\n\nErrata\n\nWith new sets, we issue updates to the rules text on Riftbound cards, called ‘errata.’ Here are the past updates to the rules text for the printed cards.\n\nOrigins Errata\n\nSpiritforged Errata\n\nUnleashed Errata\n\nVendetta Errata\n\nRadiance Errata\n\nJudges\n\nAre you interested in becoming a Riftbound judge and helping grow the Riftbound community? Judges are one of the backbones of a TCG community helping run events at store and Regional levels.\n\nTake UVS’s judge test and get certified!",
+      "links": [
+        "https://riftbound.leagueoflegends.com/en-us/news/rules-and-releases/how-to-play-get-started/",
+        "https://cmsassets.rgpub.io/sanity/files/dsfx7636/news_live/5c7946f7c3b8c6e0faff85ab6dadc6d2e721ea94.pdf",
+        "https://cmsassets.rgpub.io/sanity/files/dsfx7636/news_live/861752822d217edf37d9febaeaf77a7d924c1bb6.pdf",
+        "https://cmsassets.rgpub.io/sanity/files/dsfx7636/news_live/861752822d217edf37d9febaeaf77a7d924c1bb6.pdf",
+        "https://riftbound.leagueoflegends.com/en-us/news/rules-and-releases/riftbound-core-rules-patch-notes/",
+        "https://riftbound.leagueoflegends.com/en-us/news/rules-and-releases/riftbound-core-rules-spiritforged-patch-notes/",
+        "https://riftbound.leagueoflegends.com/en-us/news/rules-and-releases/riftbound-core-rules-unleashed-patch-notes/",
+        "https://playriftbound.com/en-us/news/announcements/core-rules-vendetta-patch-notes",
+        "https://playriftbound.com/en-us/news/announcements/core-rules-radiance-patch-notes-effective-october-16-2026/",
+        "https://riftbound.leagueoflegends.com/en-us/news/rules-and-releases/riftbound-origins-card-errata/",
+        "https://riftbound.leagueoflegends.com/en-us/news/rules-and-releases/riftbound-spiritforged-errata/",
+        "https://playriftbound.com/en-us/news/rules-and-releases/unleashed-errata-updates/",
+        "https://playriftbound.com/en-us/news/announcements/vendetta-errata-updates",
+        "https://playriftbound.com/en-us/news/announcements/radiance-errata-updates",
+        "https://locator.riftbound.uvsgames.com/settings/account-management"
+      ],
+      "registeredBaselineUrl": "https://playriftbound.com/en-us/rules-hub/",
+      "registeredExactBodyHtmlEqual": true
+    },
+    {
+      "url": "https://playriftbound.com/en-us/news/announcements/riftbounds-2026-drawings/",
+      "resolvedUrl": "https://playriftbound.com/en-us/news/announcements/riftbounds-2026-drawings/",
+      "startedAtUtc": "2026-10-22T19:17:25.893677+00:00",
+      "acquiredAtUtc": "2026-10-22T19:17:27.360282+00:00",
+      "httpStatus": 200,
+      "headers": {
+        "Cache-Control": "public,max-age=0,must-revalidate",
+        "Content-Type": "text/html; charset=utf-8",
+        "Date": "Thu, 22 Oct 2026 19:17:27 GMT",
+        "Etag": "\"uij30rxhab385t\""
+      },
+      "rawBytes": 150659,
+      "rawSha256": "230f3f816d86befb36aee27d9b7f4503256a94b7c7070d61d800487aef64a24c",
+      "title": "Riftbound’s 2026 Drawings",
+      "declaredPublicationUtc": "2026-10-22T16:00:00.000Z",
+      "contentId": "2c4ad6a6-a651-4c4b-a16b-2af14ba3244f.en-us",
+      "revision": "dC3eKSQix16zjLL9Q7Dwck",
+      "bodyHtmlSha256": "9aeacb7bee9810da5d7cefef8da4098d3e70cdbd6405d93d7d22a5b27d96674b",
+      "text": "We’re about to wrap up 2026, which comes with three new products for Riftbound. Here’s everything you need to know about each bundle and how to buy them.\n\nImportant note: some of these products will be available at in-person events! Check the “Purchase Details” sections for more info. (If there are more details to share closer to each event, the Riftbound social channels will announce them.)\n\n[IMAGE: visual review required]\n\nRiftbound x K/DA Couture Collection\n\nThe Riftbound x K/DA: Couture Collection pulls back the curtain on a new stage for K/DA—the tabletop. Unbox collectible Legends and a Battlefield celebrating the FIRESTARTER era, complete with all-new artwork by Fortiche.\n\nContents\n\n4 collectible Legend cards, featuring brand-new K/DA artwork.\n\nAgony’s Embrace (Evelynn), Nine-Tailed Fox (Ahri), Rogue Assassin (Akali), Daughter of the Void (Kai’Sa).\n\n1 collectible Battlefield card.\n\nPacked Amphitheater.\n\n1 K/DA Limited Edition Playmat.\n\n1 K/DA Limited Edition Deck Box.\n\n1 pack of K/DA Limited Edition Card Sleeves.\n\n4 K/DA Limited Edition D12 Metal Dice.\n\n1 FIRESTARTER KiT Keychain and User Manual.\n\nThe K/DA - FIRESTARTER KiT Keychain can be connected to your phone to play K/DA’s newest single and official music video.\n\nCost: $150.00 + shipping and handling.\n\nLanguages: English and Chinese.\n\nPurchase Details\n\nThe Riftbound x K/DA Couture Collection will be available via online drawing, where you can enter for the chance to purchase it from the Riot Games Merch store. If you are selected from drawing, you’ll be notified via email, and you’ll have a 24-hour window to complete your purchase.\n\nDrawing registration opens: October 27, 9:00 AM PT\n\nDrawing registration closes: October 30, 9:00 AM PT\n\nEmails to first round of selectees: November 3\n\nFulfillment of online purchases will begin within 1-3 business days after orders are placed.\n\nThe Riftbound x K/DA Couture Collection will also be available to purchase on-site at Convergence Fest, December 11-13.\n\nT1 2025 Worlds Champion Player Bundle\n\nThe League of Legends World Championship has just begun, and we’ve got new esports-themed bundles to celebrate.\n\nThe T1 2025 Worlds Champion Player Bundle honors the 2025 winners with Champion cards chosen by Doran, Oner, Faker, Gumayusi, and Keria. (These are the same cards as in the T1 2025 Worlds Champion Signature Edition, with different Alt Arts.) Play or collect them—with limited-edition accessories—and celebrate their place in League history.\n\n[IMAGE: visual review required]\n\nContents\n\n5 collectible Champion cards, featuring official T1 Worlds 2025 skin splash art.\n\nAmbessa The Wolf, Xin Zhao The Vigilant, Galio Indefatigable, Miss Fortune Buccaneer, and Seraphine Not Alone.\n\n1 T1 Worlds Champion Deck Box.\n\n1 T1 Worlds Champion Card Binder.\n\n1 pack of T1 Worlds Champion Card Sleeves.\n\n1 T1 Worlds Champion D12 Dice.\n\nEach bundle has a chance to contain a rare gold dice variant.\n\nCost: $70.00 + shipping and handling.\n\nLanguages: English, Chinese, Korean.\n\nPurchase Details\n\nThe T1 2025 Worlds Champion Player Bundle will be available at on-site merch stores for Worlds Quarterfinals (Allen, Texas), Semifinals (Allen, Texas), and Worlds Fan Fest (New York City, New York) throughout November.\n\nIt will also be available via online drawing. Enter for the chance to purchase it from the Riot Games Merch store. If you are selected from drawing, you’ll be notified via email, and you’ll have a 24-hour window to complete your purchase.\n\nDrawing registration opens: November 13, 9:00 AM PT\n\nDrawing registration closes: November 16, 9:00 AM PT\n\nEmails to first round of selectees: November 17\n\nFulfillment of purchases will begin in mid-December.\n\nRiftbound x Worlds 2026 Edition\n\nAll things League collide in the Riftbound x Worlds 2026 Edition. Celebrate the peak of League of Legends competition with an Alt Art Yasuo promo card, 3 Battlefield promo cards with custom art of each North American host city, and Worlds-themed accessories.\n\n[IMAGE: visual review required]\n\nContents\n\n1 collectible Legend promo card, featuring new art exclusively for Worlds.\n\nUnforgiven (Yasuo).\n\n3 collectible Battlefield promo cards, featuring art of each Worlds 2026 host city.\n\nLos Angeles, Allen, and New York City.\n\n1 Worlds 2026 Deck Box.\n\n1 pack of Worlds 2026 Foil Card Sleeves.\n\nCost: $80.00 + shipping and handling.\n\nLanguages: English.\n\nPurchase Details\n\nThe Riftbound x Worlds 2026 Edition will be available at on-site merch stores for Worlds Quarterfinals (Allen, Texas), Semifinals (Allen, Texas), and Worlds Fan Fest (New York City, New York) throughout November.\n\nThe Worlds 2026 Edition will also be available via online drawing. When purchased online, it will include the Worlds Unvaulted Capsule 2026, an in-game item redeemable in League of Legends.\n\nWhen the online drawing opens, enter for the chance to purchase from the Riot Games Merch store. If you are selected from drawing, you’ll be notified via email, and you’ll have a 24-hour window to complete your purchase.\n\nDrawing registration opens: November 13, 9:00 AM PT\n\nDrawing registration closes: November 16, 9:00 AM PT\n\nEmails to first round of selectees: November 17\n\nFulfillment of online purchases will begin in mid-December.\n\nGift of the Rift Bundle\n\nThe Gift of the Rift Bundle celebrates the first year of Riftbound in style! It includes Booster Packs from Riftbound’s first five sets, seasonal accessories, and an Alt Art Akali promo card, exclusive to the English version.\n\n[IMAGE: visual review required]\n\nContents\n\n16 Booster Packs.\n\n3 Origins, 3 Spiritforged, 3 Unleashed, 3 Vendetta, and 4 Radiance Booster Packs.\n\n36 Runes, featuring a foil treatment.\n\n6 Order, 6 Chaos, 6 Fury, 6 Calm, 6 Mind, and 6 Body.\n\n1 collectible Legend promo card.\n\nRogue Assassin (Akali), exclusive to the English version.\n\n1 pack of Akali Card Sleeves.\n\nFeaturing art from the Akali promo card, exclusive to the English version.\n\n1 Card Storage Box.\n\nHolds 2000 cards.\n\nCost: $109\n\nLanguages: English (with exclusive Akali promo), Chinese (with exclusive Kennen promo).\n\nPurchase Details\n\nThis product will be sold via your Local Game Store and other retailers. It’ll be available starting December 4, just in time for the holidays!\n\n[IMAGE: visual review required]",
+      "links": [
+        "https://x.com/playriftbound",
+        "https://merch.riotgames.com ",
+        "https://convergencefest.riotgames.com/en-us/",
+        "https://merch.riotgames.com ",
+        "https://merch.riotgames.com "
+      ],
+      "registeredBaselineUrl": null,
+      "registeredExactBodyHtmlEqual": null
+    },
+    {
+      "url": "https://playriftbound.com/en-us/news/announcements/product-drawing-faq/",
+      "resolvedUrl": "https://playriftbound.com/en-us/news/announcements/product-drawing-faq/",
+      "startedAtUtc": "2026-10-22T19:17:25.898501+00:00",
+      "acquiredAtUtc": "2026-10-22T19:17:27.371736+00:00",
+      "httpStatus": 200,
+      "headers": {
+        "Cache-Control": "public,max-age=0,must-revalidate",
+        "Content-Type": "text/html; charset=utf-8",
+        "Date": "Thu, 22 Oct 2026 19:17:26 GMT",
+        "Etag": "\"f0rjrvriny3g1p\""
+      },
+      "rawBytes": 160847,
+      "rawSha256": "8cfee6b9c41e9b116ddf722eb202aed6a2d472d43376c803af3e5e1888d08943",
+      "title": "Riftbound x K/DA: Couture Collection Drawing FAQ",
+      "declaredPublicationUtc": "2026-10-21T16:00:00.000Z",
+      "contentId": "8497fcb2-ceb4-4826-be44-ce9619857a45.en-us",
+      "revision": "7eScETOnz4arS54IwwGOwB",
+      "bodyHtmlSha256": "182bc9bd43cad4a447b8f7ff54d92a406fbfc0645d7cecb2f3979fd7f6116a6c",
+      "text": "The Riftbound x K/DA: Couture Collection Drawing \n\nThe Riftbound x K/DA: Couture Collection drawings have arrived! The FIRESTARTER era shines in this premium bundle.\n\nImportant Details\n\nContents: The Riftbound x K/DA: Couture Collection pulls back the curtain on a new stage for K/DA—the tabletop. Unbox everything below, complete with all-new artwork by Fortiche.\n\n4 collectible Legend cards, featuring brand-new K/DA artwork\n\nAgony’s Embrace (Evelynn), Nine-Tailed Fox (Ahri), Rogue Assassin (Akali), Daughter of the Void (Kai’Sa)\n\n1 collectible Battlefield card\n\nPacked Amphitheater\n\n1 K/DA Limited Edition Playmat\n\n1 K/DA Limited Edition Deck Box\n\n1 pack of K/DA Limited Edition Card Sleeves \n\n75 sleeves\n\n4 K/DA Limited Edition D12 Metal Dice\n\n1 FIRESTARTER KiT Keychain and User Manual\n\nThe K/DA - FIRESTARTER KiT Keychain can be connected to your phone to play K/DA’s newest single and official music video.\n\nCost: This product will be priced at $150.00 + shipping and handling.\n\n\nHow does the drawing work?\n\n\nRegistration goes live on October 27 at 9:00 AM PT, and closes October 30 at 9:00 AM PT. If you are chosen, you will be notified via email beginning on November 3. You’ll have a 24-hour window to complete your purchase, and product shipping will begin shortly after orders are completed.\n\n\nWhat’s the schedule for the drawing?\n\n\n\n\nDrawing registration opens: October 27, 9:00 AM PT\n\nDrawing registration closes: October 30, 9:00 AM PT\n\nEmails to first round of selectees: November 3\n\n\nIf I complete my purchase, when will my order be fulfilled?\n\n\n\n\nWe expect to begin fulfilling orders within 1-3 business days after they’re placed.\n\n(Fulfillment includes processing, packaging, and shipping orders. It doesn’t represent an expected delivery date or shipping speed.)\n\n\nThe Drawing Experience \n\nRiftbound uses a drawing system for purchasing certain products from the Riot Merch Store. Here’s the details:\n\nDuring the registration window, you can throw your name in the ring for the opportunity to purchase product.\n\nIf your name is drawn, you’ll be sent a link to purchase a few days later via email. If you would like to purchase the products you selected, you’ll have a 24-hour window to do so. \n\nThe selection process is entirely random, with multiple layers to check that the chosen account is real and not fraudulent.\n\nIf you decide not to purchase, or the time window expires and you haven’t completed your purchase, someone new will be drawn and notified.\n\nPlayers should ensure that riotgames.com emails are not being marked as spam or filtered into the trash.\n\nPlayers should check that they have access to their account prior to the sign up period for the drawing. If not they can visit Riot’s recovery platform or submit a ticket to player support.\n\n\nWhat happens if my name is drawn?\n\n\nIf your name is chosen in the drawing, you’ll be sent a link to a shopping cart with the products that your name was drawn for. The link to purchase will work for 24 hours. If you choose not to purchase, we will move on to the next person, chosen at random. \n\n\nWhat if I’m selected for multiple products?\n\n\nYou are able to remove items from your shopping cart if you do not wish to purchase all products which you were drawn for. Removing an item from your cart is final and cannot be undone.\n\n\nWhat happens if someone is drawn but doesn’t purchase their product?\n\n\nIf a player is chosen to purchase one or more products but decides not to, that player’s chance at the bundle will be done as soon as their purchase window expires. \n\nOnce a player’s purchase window expires, the stock will be returned to the store and the system will do a new drawing for the product that was not purchased. This drawing will only be drawn from among people who have not yet been selected for those products. These waves will continue until the stock on the Riot Merch store is depleted.\n\n\nHow do I receive product?\n\n\nOnce you’ve purchased the items you drew, they will begin fulfillment the day of the product’s wide release. \n\n\nHow do I provide feedback or get help with any issues?\n\n\nIf you have feedback or run into issues or have questions, reach out to our Player Support team.",
+      "links": [
+        "https://recovery.riotgames.com/",
+        "https://support-leagueoflegends.riotgames.com/hc/en/requests/new",
+        "https://support-leagueoflegends.riotgames.com/hc/en-us/requests/new"
+      ],
+      "registeredBaselineUrl": null,
+      "registeredExactBodyHtmlEqual": null
+    }
+  ],
+  "newDrawingsSourceNotPreviouslyRegisteredInKnownRulesSet": true,
+  "noRuntimeSourceOrCurrentCheckInputChanged": true,
+  "publicationPurchaseShippingAndGameEffectiveDatesDistinct": true,
+  "allExisting1740IdsEightGalleryGapAnd139CnNewsRetained": true,
+  "semanticCoverageCertified": false
+}

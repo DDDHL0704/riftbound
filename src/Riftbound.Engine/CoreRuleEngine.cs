@@ -3561,7 +3561,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 LastStandbyPlay = behavior.StandbyPlayFrom, ObjectGeneration = hidden.ObjectGeneration + 1,
                 Tags = hidden.Tags.Where(tag => tag != CardObjectTags.Standby).ToArray() };
         }
-        if (state.PendingEffectPlay is { SourceZone: not ("HAND" or "STACK") }
+        if ((state.PendingEffectPlay is { SourceZone: not ("HAND" or "STACK") } || behavior.AppliedFlowCost is not null)
             && cardObjects.TryGetValue(command.SourceObjectId, out var replayed)
             && PrintedCardFactory.TryRestoreOutsidePlay(replayed, replayed.OwnerId ?? intent.PlayerId, out var printedReplay))
             cardObjects[command.SourceObjectId] = printedReplay with { ObjectGeneration = replayed.ObjectGeneration, ControllerId = intent.PlayerId };
@@ -3629,6 +3629,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             timingContext: StackTimingContextForNewStackItem(state)) { PlayedFromHand = state.PlayerZones.Values.Any(z => z.Hand.Contains(command.SourceObjectId, StringComparer.Ordinal)),
                 PlayedFromStandby = behavior.StandbyPlayFrom, RepeatExecutions = plan.RepeatExecutions, MovementDestinations = command.MovementDestinations,
                 AfterPlayRecycle = RecycleInstructionFor(state),
+                FlowPlay = FlowReceipt(state, intent.PlayerId, command.SourceObjectId, behavior),
                 PlayCost = IsSpellPlayBehavior(behavior) ? new(cardObjects.TryGetValue(command.SourceObjectId, out var playedSource) ? EffectiveCardManaCost(playedSource, behavior) : behavior.ManaCost, plan.TotalManaCost) : null,
                 TargetStackSources = state.StackItems.Where(item => (plan.RepeatExecutions?.SelectMany(e => e.TargetObjectIds) ?? targetObjectIds)
                     .Contains(item.StackItemId, StringComparer.Ordinal)).ToDictionary(item => item.StackItemId, item => item.SourceObjectId, StringComparer.Ordinal) };
@@ -3720,6 +3721,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             || PrintedCardFactory.TryCreate(command.SourceObjectId, intent.PlayerId, command.CardNo, out historySource))
             events[0] = CaptureCardPlayHistory(events[0], historySource, intent.PlayerId,
                 stackItem.StackItemId, false, "STACK");
+        if (stackItem.FlowPlay is not null)
+            events[0] = events[0] with { Payload = new Dictionary<string, object?>(events[0].Payload) {
+                ["playedWithFlow"] = true, ["sourceZone"] = "GRAVEYARD" } };
         if (behavior.StandbyPlayFrom is not null)
         {
             events.Insert(0, new("CARD_REVEALED", "从待命状态打出", new Dictionary<string, object?> {
@@ -18984,7 +18988,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             currentPool,
             state.CardObjects,
             recycledPaymentRuneObjectIds);
-        if (!PrintedPowerCostRules.TrySelect(behavior.IgnorePrintedPowerCost ? "" : behavior.CardNo, printedPowerChoices.SingleOrDefault(),
+        if (!PrintedPowerCostRules.TrySelectForPlay(behavior, printedPowerChoices.SingleOrDefault(),
                 paymentAdjustedPool, extraPowerCost + spellshieldTaxPower + SourceReplayPowerCost(state, intent.PlayerId), extraPowerCostByTrait, out var totalGenericPowerCost, out var totalPowerCostByTrait, echoPrintedCosts))
         {
             rejection = Reject(state, "Invalid printed power allocation.", ErrorCodes.InvalidTarget);
@@ -21478,7 +21482,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         playerZones[playerId] = zones with
         {
             ChampionZone = RemoveFromZone(zones.ChampionZone, sourceObjectId),
-            Graveyard = state.PendingEffectPlay?.SourceZone == "GRAVEYARD" ? RemoveFromZone(zones.Graveyard, sourceObjectId) : zones.Graveyard,
+            Graveyard = state.PendingEffectPlay?.SourceZone == "GRAVEYARD" || FlowPlaySources(state, playerId).Contains(sourceObjectId)
+                ? RemoveFromZone(zones.Graveyard, sourceObjectId) : zones.Graveyard,
             Banished = state.PendingEffectPlay?.SourceZone == "BANISHED" ? RemoveFromZone(zones.Banished, sourceObjectId) : zones.Banished,
             MainDeck = state.PendingEffectPlay?.SourceZone == "MAIN_DECK" ? RemoveFromZone(zones.MainDeck, sourceObjectId) : zones.MainDeck,
             Hand = zones.Hand
@@ -28370,6 +28375,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     private static string MoveStackSpellToOwnerZone(Dictionary<string, PlayerZones> zones,
         Dictionary<string, CardObjectState> cards, StackItemState item, string destination)
     {
+        destination = FlowStackExitDestination(cards, item, destination);
         var card = cards.GetValueOrDefault(item.SourceObjectId) ?? new CardObjectState(item.SourceObjectId, cardNo: item.CardNo);
         var owner = NonFieldDestinationOwner(zones, card, item.ControllerId);
         var own = zones[owner];
@@ -28423,6 +28429,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             ? CardCounteredStackItemDestinationZones.Hand
             : CardCounteredStackItemDestinationZones.Graveyard;
 
+        destinationZone = FlowStackExitDestination(cardObjects, targetStackItem, destinationZone);
         var destinationOwner = MoveStackSpellToOwnerZone(playerZones, cardObjects, targetStackItem, destinationZone);
 
         counteredEvent = new GameEvent(
@@ -31828,12 +31835,13 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     private static RecycleResult DrawSelectedMainDeckTargetsAndRecycleRest(
         MatchState state,
         Dictionary<string, PlayerZones> playerZones,
-        IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        Dictionary<string, CardObjectState> cardObjects,
         string playerId,
         string sourceObjectId,
         IReadOnlyList<string> selectedObjectIds,
         int lookCount,
-        bool recycleUnselectedCards)
+        bool recycleUnselectedCards,
+        bool graveUnselectedCards = false)
     {
         var events = new List<GameEvent>();
         var rngCursor = state.RngCursor;
@@ -31849,7 +31857,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             .Distinct(StringComparer.Ordinal)
             .ToArray();
 
-        var unselectedCardIds = recycleUnselectedCards
+        var unselectedCardIds = recycleUnselectedCards || graveUnselectedCards
             ? viewedCardIds
                 .Where(cardId => !selectedCardIds.Contains(cardId, StringComparer.Ordinal))
                 .ToArray()
@@ -31864,11 +31872,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             .Concat(unselectedCardIds)
             .ToHashSet(StringComparer.Ordinal);
         var randomizedRecycledCardIds = RandomizeForMainDeckBottom(
-            unselectedCardIds,
+            graveUnselectedCards ? [] : unselectedCardIds,
             state.Seed,
             rngCursor,
             sourceObjectId);
-        if (unselectedCardIds.Length > 1)
+        if (!graveUnselectedCards && unselectedCardIds.Length > 1)
         {
             rngCursor++;
         }
@@ -31894,6 +31902,21 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["drawTriggerSources"] = CaptureDrawTriggerSources(state with { PlayerZones = playerZones }, playerId),
                     ["count"] = selectedCardIds.Length
                 }));
+        }
+
+        // A direct deck-to-graveyard instruction is neither discarding,
+        // destruction nor recycling. Its newly public cards leave the deck
+        // after the selected draw, without consuming the shuffle cursor.
+        if (graveUnselectedCards && unselectedCardIds.Length > 0)
+        {
+            playerZones[playerId] = playerZones[playerId] with {
+                Graveyard = playerZones[playerId].Graveyard.Concat(unselectedCardIds).ToArray() };
+            foreach (var id in unselectedCardIds)
+                ResetCardOutsidePlay(playerZones, cardObjects, id, cardObjects[id], playerId);
+            events.Add(new("CARDS_PUT_IN_GRAVEYARD", "将未抽取的牌放进废牌堆", new Dictionary<string, object?> {
+                ["playerId"] = playerId, ["sourceObjectId"] = sourceObjectId,
+                ["cardIds"] = unselectedCardIds, ["count"] = unselectedCardIds.Length,
+                ["sourceZone"] = "MAIN_DECK", ["destinationZone"] = "GRAVEYARD" }));
         }
 
         if (randomizedRecycledCardIds.Count > 0)

@@ -1,0 +1,61 @@
+{
+  "recordedAtUtc": "2026-10-22T17:40:26.978040+00:00",
+  "region": "CN",
+  "language": "zh-CN",
+  "reviewDate": "2026-10-23",
+  "coreEffectiveDate": "2026-10-16",
+  "exactCnApiId": 37859,
+  "cnLedgerIdentity": "VEN-156",
+  "printedFaceIdentity": "VEN·156/166 SC",
+  "separateGlobalIdentity": "VEN-156/166",
+  "latestSourceReadbacks": [
+    {
+      "path": "var/qa/current-cn-source-readback-20261023/current-complete-cn-full-row-and-qa-readback-v1.json",
+      "sha256": "ac810606ea344625b1928b913dd90d01be69d879154e8a5142c7c4f2adac5d7b"
+    },
+    {
+      "path": "var/qa/current-cn-source-readback-20261023/current-cn-rule-directory-and-known-source-versions-v1.json",
+      "sha256": "5b7287efc0d1e3456be73cf9a58166193a1fe1326216ce607b328453b53fe219"
+    }
+  ],
+  "coreFlowPrimary": {
+    "url": "https://cdn.playloltcg.com/lol/2026/10/2026-10-10/a21ead876c6b44d6abe386b6ae54ea28.pdf",
+    "path": "var/qa/cn-effective-20261016/whole-rule-source-readback/CN/DOC-01.pdf",
+    "sha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11",
+    "physicalPage": 127,
+    "actualRenderedPage": {
+      "path": "var/qa/deck-look-draw-graveyard-current-cn16-20261022/current-doc01-physical-page127-flow.png",
+      "sha256": "1d090ac008c66e1a283ccc73431088772715d8183e69ca3d7c2105e3647226b2"
+    },
+    "actuallyVisuallyRead": true,
+    "clauses": "829 through829.2",
+    "textExtract": "829.         流转\n\n\n829.1.            [流转]是一种被动技能关键词。\n\n829.1.a.              [流转]会出现在法术上。\n\n829.1.b.              该关键词为以下功能的简称：“你可以选择支付此牌的流转费用，将其从你的废牌堆中打出。然后将其放\n                      逐。”\n\n829.1.b.1.                  以这种方式放逐该法术，是一种延迟替换效果。如果该法术在成为已确认的结算链项目后将离\n                            开结算链，且离开结算链并非由其自身执行所指示，则改为将其放逐。\n                                 想获取更多有关信息，请查阅规则 367.替换效果。\n                                 想获取更多有关信息，请查阅规则 390.延迟技能。\n\n829.1.b.2.                  支付一个法术的流转费用以将其打出，不会改变该法术可被打出的时机，且除了能打出该法术\n                            的区域之外，也不会改变它的其他打出权限。\n\n829.1.c.              [流转]的格式为“流转[费用]”。\n\n829.1.c.1.                  该费用是一种替代费用，会取代该法术在确认时需支付的基础费用。\n\n829.1.c.2.                  [流转]费用可能包含资源费用和非资源费用。\n\n829.1.c.3.                  如果一个法术拥有多个费用不同的[流转]关键词，则其控制者可以在打出该法术时选择其中一\n                            项费用。\n\n829.2.            [流转]，以及法术是否拥有[流转]，是该法术的一个特性，其他游戏效果可以检查或引用该特性。\n\n",
+    "delayedReplacementAfterConfirmedNotOwnInstruction": true,
+    "doesNotGrantTimingOrOtherPermission": true,
+    "alternativeCostReplacesBaseCost": true,
+    "nonResourceCostsAndMultipleFlowCostsAreOutsideThisOneConsumerImplementation": true
+  },
+  "remainingFaqPhysicalPagesActuallyRead": [
+    1,
+    3,
+    4
+  ],
+  "faqReadScope": "New bounded visual observations separate from prior N46 pages8/10/22; no wholeFAQ certification or resolved tiny-image printing identity",
+  "faqFindings": [
+    "p1 later core overrides conflicting older FAQ; A one any power and C one of card traits",
+    "p3 empowered Mel negative-Might replacement and Extortion local minimum1",
+    "p4 uncounterable targeted by counter legally but counter/return replacement does not occur; paid control transfer still applies; remake any number of targets/modes, other choices unchanged"
+  ],
+  "freshEnglishExactFaceVerification": false,
+  "registeredEnglishSnapshotCrossReference": {
+    "id": "ven-156-166",
+    "publicCode": "VEN-156/166",
+    "name": "Lightning Rush",
+    "signature": "Kennen",
+    "keyword": "Flow",
+    "role": "Terminology only; separate GLOBAL printing, not new current CN authority"
+  },
+  "original112SourceRecordsStillRetained": true,
+  "old14293LedgerRuleIdsAndAllFullObligationsNotReplaced": true,
+  "noWholeCardCertification": true
+}

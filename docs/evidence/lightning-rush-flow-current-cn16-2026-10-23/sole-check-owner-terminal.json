@@ -1,0 +1,41 @@
+{
+  "status": "PASS_SOLE_COHERENT_LIGHTNING_RUSH_CHECK13633_CASES7600_METHODS",
+  "startedAtUtc": "2026-10-22T18:59:45.061132+00:00",
+  "baseCommit": "5edb12e57576358f3ef4a9f9d6da92c313f12437",
+  "actualCommand": [
+    "python3",
+    "scripts/test-rules.py",
+    "check",
+    "--output",
+    "/Users/dinghaolin/MyProjects/riftbound/var/qa/deck-look-draw-graveyard-current-cn16-20261022/sole-check-v1"
+  ],
+  "sourceInputs": 3373,
+  "runtimeInputCounts": {
+    "Conformance": 1421,
+    "Native": 23
+  },
+  "startManifestSha256": "0f28d1b2b3cfacd425fd0e72fb4b88c9b6445899cdc38577577e44eebf086d47",
+  "exitCode": 0,
+  "summary": {
+    "status": "PASSED",
+    "profile": "check",
+    "seconds": 3079.32,
+    "total": 13633,
+    "caseParityVerified": false,
+    "shards": [
+      {
+        "shard": "check",
+        "total": 13633,
+        "passed": 13633,
+        "failed": 0,
+        "notExecuted": 0,
+        "seconds": 3075.26
+      }
+    ]
+  },
+  "allOriginal13557CheckCaseNamesAnd7577MethodsRetainedPlus76Cases23MethodsOnly": true,
+  "trxSha256": "7951746092da7ad2c4398d8a3993aad5c31bace960ed26c7651ebf44af8b751a",
+  "finishedAtUtc": "2026-10-22T19:51:04.633702+00:00",
+  "all3373SourceHashesAndModesStable": true,
+  "allCapturedConformanceAndNativeRuntimeInputsStable": true
+}

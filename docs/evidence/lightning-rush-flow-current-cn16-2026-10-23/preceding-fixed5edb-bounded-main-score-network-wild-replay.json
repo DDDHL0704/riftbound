@@ -1,0 +1,105 @@
+{
+  "recordedAtUtc": "2026-10-22T17:35:19.488137+00:00",
+  "status": "PASS_BOUNDED_FIXED5EDB1_CURRENT_RELEASE_DEFAULT_MAIN_NORMAL_SCORE_NETWORK_TWO_WILD_BRANCHES_AND_ORIGINAL_REPLAYS",
+  "fixedCommit": "5edb12e57576358f3ef4a9f9d6da92c313f12437",
+  "fixedCiRun": 39810044243,
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "b04ddc91471924f8ba19913d50b87094089804271ef272f292c98bbcfd102298",
+    "implementationSha256": "a85984340bf0e7df34e2062d0508d4b210a33c3587b40a8aeedd7c4eadcefcaf",
+    "identitySha256": "1f41dfa037b4d84f25375f723968f7022d31629d5feb5777e1259df5e4674ccf"
+  },
+  "evidence": {
+    "ordinaryWriter": {
+      "path": "var/qa/fixed5edb1-early-native-20261023/ordinary-ci-pair-v1/live-current-ci-main-owner-terminal-v5.json",
+      "sha256": "9aa1e89ff9b61d485f740fd5d8ab595ef4c1411f323bc77c2536b96a6848f465"
+    },
+    "ordinaryIndependent": {
+      "path": "var/qa/fixed5edb1-early-native-20261023/ordinary-ci-pair-v1/independent-fixed5edb1-native-history-result-v4.json",
+      "sha256": "560557d950e93f6faf6ace90b1820217b09ae0c0c5f6c011535c4725ec022476"
+    },
+    "ordinaryIndependentOwner": {
+      "path": "var/qa/fixed5edb1-early-native-20261023/ordinary-ci-pair-v1/independent-fixed5edb1-native-history-run-v4.json",
+      "sha256": "87dfb656cf36173f1f09135ecce259d87ca595424d3c64ad9cc7d86bfe99c599"
+    },
+    "networkIndependent": {
+      "path": "var/qa/fixed5edb1-early-native-20261023/ordinary-ci-pair-v1/independent-fixed5edb1-two-network-result-v2.json",
+      "sha256": "598bc77ee9c67578237f501e701cec34022952a4006eea44eeeb92f667e4efbd"
+    },
+    "networkIndependentOwner": {
+      "path": "var/qa/fixed5edb1-early-native-20261023/ordinary-ci-pair-v1/independent-fixed5edb1-two-network-owner-terminal-v2.json",
+      "sha256": "349d133f8eef2c210feac7878ca4270e3d54c3402e959112897052410d28f1fb"
+    },
+    "wildWriter": {
+      "path": "var/qa/fixed5edb1-early-native-20261023/wild-claw-ci-main-v1/two-current-native-wild-claw-main-owner-terminal-v2.json",
+      "sha256": "83d21e74fe8a4eee476e397c3f211cf2c0f2c662f6a451deab51b1d8486676d2"
+    },
+    "wildIndependent": {
+      "path": "var/qa/fixed5edb1-early-native-20261023/wild-claw-ci-main-v1/independent-current-main-two-wild-originals-result-v3.json",
+      "sha256": "401bf55727b2d6141aaa0d2b376eabd28d4f475addefdcacbcfc9938eb00d3d0"
+    },
+    "wildIndependentOwner": {
+      "path": "var/qa/fixed5edb1-early-native-20261023/wild-claw-ci-main-v1/independent-current-main-originals-readonly-owner-terminal-v3.json",
+      "sha256": "310d549ca37054ea7b24e12300c8ce9c5290fbf1f3c4e1196a63a4aa74fc87a1"
+    },
+    "frozenComposition": {
+      "path": "var/qa/fixed5edb1-early-native-20261023/frozen-fixed5edb1-native-composition-v1.json",
+      "sha256": "4c6a64ca584d27dcf82bfa25ebbc344d4856c94a9cb49a75dcf21f64ee17c232"
+    }
+  },
+  "actualTotals": {
+    "freshRooms": 5,
+    "originalAcceptedCommands": 91,
+    "originalEvents": 462,
+    "originalAuthorityHistories": 91,
+    "storedPrivateSnapshots": 173,
+    "storedPrivatePrompts": 173,
+    "productionMainSubmittedCommands": 13,
+    "wildControlledPairedColdStages": 8
+  },
+  "ordinary": {
+    "room": "N27-RETARGET-EAAB9DDBA9",
+    "score": [
+      8,
+      0
+    ],
+    "turn": 34,
+    "all66CompleteOriginalPrefixes": true,
+    "allOriginalFieldsNullOmissionsAndValuesExact": true,
+    "gatewayAndExplicitDevPreparationsNotClaimedNativeGameplay": true
+  },
+  "network": {
+    "original15RejectionsZeroPrivateLeaksAndReconnectGuards": true,
+    "newPeerDriverNoManualSnapshotRequestOrRetryOnlyWithinItsScope": true,
+    "defaultMainAutomaticRequestSnapshotNotDenied": true,
+    "legacyHumanStatusLabel": "FIXED008a0",
+    "labelDisposition": "Copied formatter label is stale; exact actual loaded5edb source/runtime SHA/MVID and RuleInputIdentity independently measured and all original SQL/network rows and frames checked. Original result is retained byte for byte, no corrected fabricated replacement."
+  },
+  "wild": {
+    "unit": {
+      "commands": 11,
+      "events": 27
+    },
+    "gear": {
+      "commands": 11,
+      "events": 27
+    },
+    "actualNativeInputs": 10,
+    "originalPrefixReplays": 22,
+    "pairedColdStages": 8,
+    "controlledDevelopmentPositionsNotOrdinaryOpenings": true,
+    "samePairPidsOnlyWithinEachColdStageNotAcrossActionStages": true,
+    "independentReaderFailedV1SingleSeatAndV2CheckpointPrivacyOriginalsNotPromoted": true
+  },
+  "all397AuditAndOriginal99NativeSevenTablesUnchangedByFinalReadOnlyReader": true,
+  "ownedApiAndPostgresStopped": true,
+  "soleN46CheckOriginalOneCatalogPinFailureRetainedNotRelabelledPass": true,
+  "fixedCompleteFullCi": "OPEN_RUNNING_SEPARATE",
+  "visiblePairedWindows": "OPEN",
+  "physicalWindows": "OPEN",
+  "wholePrintingAndAllOfficialAudit": "OPEN",
+  "newInstallerSdkRuntimeOrDatabaseCopies": 0
+}

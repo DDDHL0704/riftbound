@@ -246,6 +246,10 @@
     {
       "id": "wild-claw-reflexive",
       "sourceType": "WildClawReflexiveSqlAcceptance"
+    },
+    {
+      "id": "lightning-rush-flow",
+      "sourceType": "LightningRushFlowSqlAcceptance"
     }
   ]
 }

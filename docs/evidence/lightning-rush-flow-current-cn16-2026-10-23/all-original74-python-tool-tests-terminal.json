@@ -1,0 +1,8 @@
+{
+  "atUtc": "2026-10-22T18:58:49.794749+00:00",
+  "exitCode": 0,
+  "actualTests": 74,
+  "originalConsolePath": "var/qa/deck-look-draw-graveyard-current-cn16-20261022/all-existing-python-tool-tests-original-console-v1.log",
+  "originalConsoleSha256": "0213ccceb4bffc9f91989ff00d29eb7ed45532aaae52cd9bdbac390b48699d8e",
+  "sqlManifest62CountAndExactIdentityTestExecuted": true
+}

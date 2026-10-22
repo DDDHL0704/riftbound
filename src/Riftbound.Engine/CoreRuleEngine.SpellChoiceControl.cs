@@ -193,8 +193,10 @@ public sealed partial class CoreRuleEngine
     private static bool HasRemakableSpellDeclaration(StackItemState spell, SpellExecutionState execution, bool targetsOnly)
     {
         if (!CardBehaviorRegistry.TryGetByEffectKind(execution.EffectKind, out var behavior)) return false;
-        return behavior.RequiredTargetCount > 0 || behavior.AnyNumberOfTargets
-            || behavior.UsesFriendlyBattlefieldUnitCountAsMaxTargetCount
+        // CN355.10.a: choosing a hidden deck card during resolution is not
+        // a casting target declaration and cannot be remade on control change.
+        return !IsDeferredDeckChoice(behavior) && (behavior.RequiredTargetCount > 0 || behavior.AnyNumberOfTargets
+            || behavior.UsesFriendlyBattlefieldUnitCountAsMaxTargetCount)
             || IsStandbyReactionStackItem(behavior, spell)
             || !targetsOnly && (behavior.CommandedMovement is not null || behavior.MovesTargetsToChosenLocation
                 || behavior.MovesTargetsSequentially

@@ -1,0 +1,23 @@
+{
+  "status": "PASS_ALL17291_OLD_OBLIGATION_IDS_PLUS76_BEHAVIORS_AND17_SEPARATE_SOURCE_GATES_ONLY",
+  "oldRemainingObligations": 17291,
+  "newBehaviorBranches": 76,
+  "newSourceGates": 17,
+  "currentRemainingObligations": 17384,
+  "currentReviews": 168,
+  "currentContexts": 83,
+  "currentGates": 269,
+  "existingSevenVersionDeltasExact": true,
+  "allOldReviewObjectsAndGatesAndDatesAndScopeExact": true,
+  "all82CompleteOldContextsArchived": true,
+  "only69CurrentImplementationInputPinsRefreshed": true,
+  "other13WholeContextObjectsAndAllOptionalVerificationRefsExact": true,
+  "original1740CatalogIndexAnd14293RuleIdentitiesNotReplaced": true,
+  "sixNewPreciseImagePrintingsAndElevenFurtherGroupsSupplementedNotMergedOrDropped": true,
+  "allOriginalCardStatusesAndSourceVersionsAndDatesExact": true,
+  "onlyRuntimeBindingVEN156Added": true,
+  "allNewBehaviorDecisionStatesOpen": true,
+  "semanticCoverageCertified": false,
+  "newFixedFullAndNativeProductsAndWholeGoalRemainOpen": true,
+  "governanceOutputSha256": "254eba1efeaa10929382dc8ac36a125632e4b2e8d02dbf0490258a26b9399007"
+}

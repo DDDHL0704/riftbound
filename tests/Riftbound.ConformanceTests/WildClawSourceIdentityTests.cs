@@ -75,9 +75,12 @@ public sealed class WildClawSourceIdentityTests
     public async Task OneNewFunctionalIdentityPreservesEveryPriorFunctionalUnitIdAndMembership()
     {
         var catalog = await OfficialCardCatalog.LoadDefaultAsync();
-        var oldCards = catalog.Cards.Where(c => c.CardNo != WildClawPendingReflexiveTests.WildClaw).ToArray();
-        Assert.Equal(1035, oldCards.Length); Assert.Equal(1036, catalog.Cards.Count);
-        var oldUnits = FunctionalUnitBuilder.Build(oldCards); var currentUnits = FunctionalUnitBuilder.Build(catalog.Cards);
+        // Preserve this original N46 comparison exactly. The subsequent CN156
+        // addition has its own full1036-to1037 retention test.
+        var wildClawScope = catalog.Cards.Where(c => c.CardNo != "VEN·156").ToArray();
+        var oldCards = wildClawScope.Where(c => c.CardNo != WildClawPendingReflexiveTests.WildClaw).ToArray();
+        Assert.Equal(1035, oldCards.Length); Assert.Equal(1036, wildClawScope.Length);
+        var oldUnits = FunctionalUnitBuilder.Build(oldCards); var currentUnits = FunctionalUnitBuilder.Build(wildClawScope);
         Assert.Equal(834, oldUnits.Count); Assert.Equal(835, currentUnits.Count);
         foreach (var old in oldUnits) {
             var current = Assert.Single(currentUnits, c => c.Id == old.Id);

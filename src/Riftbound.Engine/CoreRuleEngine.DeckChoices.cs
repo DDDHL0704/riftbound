@@ -85,7 +85,7 @@ public sealed partial class CoreRuleEngine
         var result = behavior.RecyclesSelectedMainDeckTargets
             ? RecycleSelectedMainDeckTargets(state,zones, cards,item.ControllerId,item.SourceObjectId,selected,remainingCount)
             : DrawSelectedMainDeckTargetsAndRecycleRest(state, zones, cards, item.ControllerId, item.SourceObjectId,
-                selected, remainingCount, behavior.RecyclesUnselectedMainDeckLookCards);
+                selected, remainingCount, behavior.RecyclesUnselectedMainDeckLookCards, behavior.GravesUnselectedMainDeckLookCards);
         var events = revealEvents.Concat(result.Events.Select(e => e.Kind == "CARDS_RECYCLED"
             ? e with { Payload = e.Payload.Where(field => field.Key != "cardIds").ToDictionary(field => field.Key, field => field.Value) }
             : e)).ToList();
