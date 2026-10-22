@@ -1,0 +1,88 @@
+{
+  "atUtc": "2026-10-22T12:20:51.656628+00:00",
+  "status": "PASS_FIXED008_CI_MAIN_ORDINARY_NORMAL_SCORE_NETWORK_AND_TWO_COMPLETED_PENDING_DECK_BRANCHES_INDEPENDENT_ORIGINAL_REPLAY_WITH_PRIOR_FAILURES_RETAINED",
+  "fixedCommit": "008a064047aa746e579396a79fba6c9950842023",
+  "fixedCiRun": 39771927157,
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "e7455edc32d43f8253a9d0c6fedb83c347bebafbef064f9b8dffaaabc4b4d266",
+    "implementationSha256": "0ab2d064d42dff599d4ff33c3641c7ab72a02458779c31036fa1fa0fede312a1",
+    "identitySha256": "881a7ef6e95aed7773c8eb880a914ed3c5377888f76fc4c36b559c0105cabbaf"
+  },
+  "ordinaryNormalScore": {
+    "commands": 65,
+    "events": 396,
+    "score": [
+      8,
+      0
+    ],
+    "authority": 65,
+    "snapshots": 125,
+    "prompts": 125,
+    "actualNativeCommands": 3,
+    "sameTwoProcessesColdReconnectAndConnectedSigterm": true
+  },
+  "twoNetworkRooms": {
+    "commands": 3,
+    "events": 3,
+    "authority": 3,
+    "snapshots": 4,
+    "prompts": 4,
+    "fifteenRejectsZeroLeaksAndPeerTick2NoExplicitRefresh": true
+  },
+  "twoCompletedPendingDeckBranches": {
+    "commands": 24,
+    "events": 82,
+    "actualNativeCommands": 12,
+    "perBranchThreeColdStages": true,
+    "samePairWithinEachColdDifferentPairsAcrossActionStages": true,
+    "oneLiveProcessPerActor": true,
+    "exactBranches": [
+      "reinforcements",
+      "bright-future"
+    ],
+    "noNocturnePaidOrDeclineOrWholeCardCertificationFromTheseTwoBranches": true
+  },
+  "originalDuplicateActorFailedPartial": {
+    "room": "N45-DECK-E57ED57F79",
+    "commands": 7,
+    "events": 17,
+    "actualNativeCommands": 1,
+    "productStatus": "FAILED_QA_DUPLICATE_ACTOR_OLD_TOKEN_REJECTED_AND_SHARED_PROFILE_CLEARED",
+    "wholeOriginalReplayStatus": "PASS_VALID_UNCHANGED_PARTIAL_GAME",
+    "noMissingTokenReissueOrResetOrPassRelabel": true
+  },
+  "independentAllThreePendingRooms": {
+    "commands": 31,
+    "events": 99,
+    "authority": 31,
+    "snapshots": 59,
+    "prompts": 59,
+    "native": 13,
+    "originalPrefixReplays": 31
+  },
+  "all369Audit94NativeSevenTablesExactAndOwnApiPostgresStopped": true,
+  "allPrevious88NativePreservedAcrossNewOrdinaryNetworkAndThreePendingRooms": true,
+  "actualLockedStateOnlyAsObservedInEachReceiptNotClaimedContinuously": true,
+  "precedingFixed55CompleteFull": {
+    "commit": "55fdbabf8731fec795c26584985bd31cc0bcca32",
+    "run": 39748320406,
+    "cases": 13598,
+    "methods": 7691,
+    "sql": 59,
+    "all11Success": true,
+    "proofSha256": "46e83c2e5f9fbf2887f25223742bc9b70c4f426cb1e6aaeeaa5aff6995278bc1"
+  },
+  "current008CompleteFullStillPending": true,
+  "visiblePairedHardwareWindowsAndWholeScopeStillOpen": true,
+  "onlyLatest008AppsAndOneInstallerEachOsRetained": true,
+  "receipts": {
+    "var/qa/fixed008a0-early-native-20261022/pending-parent-ci-pair-v2/two-current-native-deck-consumers-owner-terminal-v3.json": "6a0224b981cfc4b17d78c06a08b208d1f3c65dbe6f9c9ecbbb776c5822eeb034",
+    "var/qa/fixed008a0-early-native-20261022/pending-parent-ci-pair-v2/independent-pending-native-original-result-v1.json": "d4daba3c3a321b7d07ce415690256bb5280ee9f66b5e7b5b5b48aea8142f20d7",
+    "var/qa/fixed008a0-early-native-20261022/pending-parent-ci-pair-v2/independent-pending-native-owner-terminal-v1.json": "c9c054e89336d13d9452582d9998d5f8b02ba22de851d82a1a202c667e9e8687",
+    "var/qa/fixed008a0-early-native-20261022/fixed008a0-default-main-normal-score-network-original-replay-closure-v1.json": "3c3c85f2febcc72e36e7fd3f1e7ea739273df99834e289dc553ce9b222b99cbd"
+  }
+}

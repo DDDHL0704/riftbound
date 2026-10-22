@@ -1,0 +1,112 @@
+{
+  "atUtc": "2026-10-22T13:04:12.517588+00:00",
+  "allTwelvePhysicalPagesActuallyVisuallyInspected": [
+    {
+      "document": "DOC-03",
+      "physicalPage": 1,
+      "pdfSha256": "8643a1f637346c94bc2b716c8773611136af30338cc0b49a87c1126b2e31de73",
+      "png": "var/qa/wild-claw-reflexive-current-cn16-20261022/doc-03-current-page-1.png",
+      "pngSha256": "be9b0bef8bb1c4686e175540f7d9dcbd089ed1364aceb16a72210bed50318b21",
+      "visualReviewPending": true
+    },
+    {
+      "document": "DOC-03",
+      "physicalPage": 2,
+      "pdfSha256": "8643a1f637346c94bc2b716c8773611136af30338cc0b49a87c1126b2e31de73",
+      "png": "var/qa/wild-claw-reflexive-current-cn16-20261022/doc-03-current-page-2.png",
+      "pngSha256": "8b6e97ac0711e0c835c879185448006c2c5bc886caa1b3149312871058d1305e",
+      "visualReviewPending": true
+    },
+    {
+      "document": "DOC-03",
+      "physicalPage": 3,
+      "pdfSha256": "8643a1f637346c94bc2b716c8773611136af30338cc0b49a87c1126b2e31de73",
+      "png": "var/qa/wild-claw-reflexive-current-cn16-20261022/doc-03-current-page-3.png",
+      "pngSha256": "67e9986e37b6a06eab0428ef70d4a7779d728ba65a166fd20cc2ae6e3fc636d5",
+      "visualReviewPending": true
+    },
+    {
+      "document": "DOC-03",
+      "physicalPage": 4,
+      "pdfSha256": "8643a1f637346c94bc2b716c8773611136af30338cc0b49a87c1126b2e31de73",
+      "png": "var/qa/wild-claw-reflexive-current-cn16-20261022/doc-03-current-page-4.png",
+      "pngSha256": "4964e0cd133dfa31c19cab288535cf63464295cc3a6e78b8868ee9c5a40640f4",
+      "visualReviewPending": true
+    },
+    {
+      "document": "DOC-07",
+      "physicalPage": 1,
+      "pdfSha256": "425625f2e1a0747358ac23f3f700cae813922fba4ee7b7455343038a1621bb5b",
+      "png": "var/qa/wild-claw-reflexive-current-cn16-20261022/doc-07-current-page-1.png",
+      "pngSha256": "c17568f06811c25847570157bf8fc340eac3486e236b9716e592af1e496555be",
+      "visualReviewPending": true
+    },
+    {
+      "document": "DOC-07",
+      "physicalPage": 2,
+      "pdfSha256": "425625f2e1a0747358ac23f3f700cae813922fba4ee7b7455343038a1621bb5b",
+      "png": "var/qa/wild-claw-reflexive-current-cn16-20261022/doc-07-current-page-2.png",
+      "pngSha256": "a7e42bcb08916c5c24ff30ef0d2bae90028f9655965a57a0917207ac4fdc2cde",
+      "visualReviewPending": true
+    },
+    {
+      "document": "DOC-07",
+      "physicalPage": 3,
+      "pdfSha256": "425625f2e1a0747358ac23f3f700cae813922fba4ee7b7455343038a1621bb5b",
+      "png": "var/qa/wild-claw-reflexive-current-cn16-20261022/doc-07-current-page-3.png",
+      "pngSha256": "bda2148adfd7360aae8b3e919a8b857e09380e1216ef9ffd30cd5f80cd481764",
+      "visualReviewPending": true
+    },
+    {
+      "document": "DOC-07",
+      "physicalPage": 4,
+      "pdfSha256": "425625f2e1a0747358ac23f3f700cae813922fba4ee7b7455343038a1621bb5b",
+      "png": "var/qa/wild-claw-reflexive-current-cn16-20261022/doc-07-current-page-4.png",
+      "pngSha256": "97ff5a26eeb015d945a766ddefd36d74eae5c7ef9eb84f27bec05e69ac6788f7",
+      "visualReviewPending": true
+    },
+    {
+      "document": "DOC-07",
+      "physicalPage": 5,
+      "pdfSha256": "425625f2e1a0747358ac23f3f700cae813922fba4ee7b7455343038a1621bb5b",
+      "png": "var/qa/wild-claw-reflexive-current-cn16-20261022/doc-07-current-page-5.png",
+      "pngSha256": "d2ca79453aac405b3db94dff76db6000e502ccf5cdaf59afb22464155098b8ea",
+      "visualReviewPending": true
+    },
+    {
+      "document": "DOC-07",
+      "physicalPage": 6,
+      "pdfSha256": "425625f2e1a0747358ac23f3f700cae813922fba4ee7b7455343038a1621bb5b",
+      "png": "var/qa/wild-claw-reflexive-current-cn16-20261022/doc-07-current-page-6.png",
+      "pngSha256": "27c7d96c7892561151582573d66ae4123fddf052cdfa16bc59a8d0eb9ee6ea03",
+      "visualReviewPending": true
+    },
+    {
+      "document": "DOC-07",
+      "physicalPage": 7,
+      "pdfSha256": "425625f2e1a0747358ac23f3f700cae813922fba4ee7b7455343038a1621bb5b",
+      "png": "var/qa/wild-claw-reflexive-current-cn16-20261022/doc-07-current-page-7.png",
+      "pngSha256": "efed3f991fe47ecfcee0447407fc327d4352caf7a9cf2758a23eea96d57f8af1",
+      "visualReviewPending": true
+    },
+    {
+      "document": "DOC-07",
+      "physicalPage": 8,
+      "pdfSha256": "425625f2e1a0747358ac23f3f700cae813922fba4ee7b7455343038a1621bb5b",
+      "png": "var/qa/wild-claw-reflexive-current-cn16-20261022/doc-07-current-page-8.png",
+      "pngSha256": "57c10370731d8aca0bc297a3dbad4a00a95259df6d5ef12fd2490b4acecf7d1d",
+      "visualReviewPending": true
+    }
+  ],
+  "doc03FourRadianceEntries": [
+    "厄努克牛群",
+    "禁忌秘术",
+    "妮蔻 - 完美伪装",
+    "最终抚慰"
+  ],
+  "doc07EightPagesIncludeOlderSetAndVendettaEntries": true,
+  "exactWildClawNotAnEntryInEitherEntireDocument": true,
+  "scopeOnlyTheseTwoCurrentErrataDocumentsNotAll139NewsOrWholeFaq": true,
+  "currentWildFaceAndApiNoErrataStillUsedWithCurrentCore": true,
+  "noDatesOrSourceVersionsRewritten": true
+}

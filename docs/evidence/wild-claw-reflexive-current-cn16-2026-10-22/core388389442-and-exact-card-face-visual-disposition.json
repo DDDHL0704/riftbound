@@ -1,0 +1,44 @@
+{
+  "atUtc": "2026-10-22T12:39:30.492534+00:00",
+  "actualCompletePrimaryPagesVisuallyInspected": [
+    {
+      "document": "DOC-01",
+      "physicalPage": 67,
+      "sourceSha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11",
+      "pngSha256": "b1a3a96b90f4fd33e231b75796bbede61e9bcd35fa4839f5b4b2a1e4b779d595"
+    },
+    {
+      "document": "DOC-01",
+      "physicalPage": 88,
+      "sourceSha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11",
+      "pngSha256": "e761fce460b563189692d8432348dde4b86a3d6863b42bb2cea17d7d9dfebc92"
+    }
+  ],
+  "exactOfficialCnFace": {
+    "apiId": 37785,
+    "apiCardNo": "VEN·089",
+    "printedNumber": "VEN·089/166 SC",
+    "imageSha256": "07ba2aa568305f88ccbb357ad633cc9d604e0dd60d4d5871ce3fe64332e77821",
+    "mana": 7,
+    "bodyPowerCost": 1,
+    "type": "法术",
+    "selectedTypes": [
+      "单位",
+      "装备"
+    ],
+    "manaReduction": 5,
+    "lookCount": 5
+  },
+  "facts": [
+    "The reflexive creates an independent pending ability; only its first chain-entry step happens during parent resolution.",
+    "442 states empowerment is a field-object status, ordinarily binary, and permits explicit stacking exceptions.",
+    "Printed optional wording precedes perform once, not the effect after the colon; both API and face agree on this placement.",
+    "API uses one unit-or-gear classifier while face uses one card; identity and required types are otherwise exact."
+  ],
+  "reasonedInterpretationNotCardSpecificFaq": [
+    "Offer optional creation as a parent instruction; do not silently move the choice to finalization as in the different388.4 example.",
+    "Exact referent continuity, empty selection and multi-empower exceptions still require focused source/implementation review."
+  ],
+  "faqPages8_10_22StillPendingVisualReview": true,
+  "noRuntimeCardAdoptionOrWholePrintingCertification": true
+}

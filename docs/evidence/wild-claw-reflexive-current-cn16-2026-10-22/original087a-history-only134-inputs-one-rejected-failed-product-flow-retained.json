@@ -1,0 +1,192 @@
+{
+  "status": "PASS_INDEPENDENT_SQL61_ORIGINAL_HISTORY_NATIVE_EQUIVALENCE_AND_DECLARED_REFUSALS",
+  "actualReadOnlyConnection": true,
+  "actualLoadedFourAssemblies": {
+    "baseDirectory": "/Users/dinghaolin/MyProjects/riftbound/var/qa/wild-claw-reflexive-current-cn16-20261022/current-rule-sql61-runtime-v1/",
+    "actualRuleInputs": {
+      "schemaVersion": 1,
+      "region": "CN",
+      "language": "zh-CN",
+      "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+      "catalogSha256": "b04ddc91471924f8ba19913d50b87094089804271ef272f292c98bbcfd102298",
+      "implementationSha256": "13f79f59cadd75b87fbb2a03672524ee13901709ec7aeaf9ac368bc0deab61fb",
+      "identitySha256": "087a5f6122cae2f4217fafe1aaf4c9c276dce3d202b8bcdf4d54d391127e02a6"
+    },
+    "assemblies": [
+      {
+        "name": "Riftbound.Engine",
+        "path": "/Users/dinghaolin/MyProjects/riftbound/var/qa/wild-claw-reflexive-current-cn16-20261022/current-rule-sql61-runtime-v1/Riftbound.Engine.dll",
+        "mvid": "147c0f6b-9b3d-43f5-8ec9-1808643c392d",
+        "sha256": "2a6c09fd5c7acffc1074121791bce009537dee6d2dac2321ddddd8d2e2c005a5"
+      },
+      {
+        "name": "Riftbound.Contracts",
+        "path": "/Users/dinghaolin/MyProjects/riftbound/var/qa/wild-claw-reflexive-current-cn16-20261022/current-rule-sql61-runtime-v1/Riftbound.Contracts.dll",
+        "mvid": "bdbc9411-c599-40a4-9a5b-2626922f7520",
+        "sha256": "437705f3c59a1e59d20c412d43013c7be68fcd309abd0857c234970c4636fd69"
+      },
+      {
+        "name": "Riftbound.CardCatalog",
+        "path": "/Users/dinghaolin/MyProjects/riftbound/var/qa/wild-claw-reflexive-current-cn16-20261022/current-rule-sql61-runtime-v1/Riftbound.CardCatalog.dll",
+        "mvid": "6eeec678-0cb2-4452-adba-1e5ed7cdce08",
+        "sha256": "50aa9f381008b8050d0bcfc9c3d2ac25efa7a37e27295eab594243fb70999ea4"
+      },
+      {
+        "name": "Riftbound.Persistence",
+        "path": "/Users/dinghaolin/MyProjects/riftbound/var/qa/wild-claw-reflexive-current-cn16-20261022/current-rule-sql61-runtime-v1/Riftbound.Persistence.dll",
+        "mvid": "f7968a5e-b124-42a2-b5d4-fe34a8b71b76",
+        "sha256": "6f9ee3e2c4bad82831dc345357e27ccb9756dc4f090f265f06c7c358b57b2eb1"
+      }
+    ]
+  },
+  "totals": {
+    "commands": 134,
+    "events": 317,
+    "authority": 133,
+    "snapshots": 255,
+    "prompts": 255,
+    "native": 0,
+    "originalPrefixReplays": 134,
+    "actualCorruptRoomRefusals": 0
+  },
+  "rooms": [
+    {
+      "room": "wild-claw-reflexive-8d0ff3705d434a65a9b4aa74a5a18c9f",
+      "branch": "decline-card",
+      "originalCommands": 10,
+      "originalEvents": 20,
+      "actualCorruptRoomRefused": false,
+      "originalHistoryReplayBeforeDeliberateTamperStillExact": true,
+      "originalProductFlowPassed": true,
+      "acceptedCommands": 10,
+      "rejectedOriginalCommands": 0,
+      "noAcceptedHistoryRewriteOrDatabaseWrite": true
+    },
+    {
+      "room": "wild-claw-reflexive-6fa40acad22f492e9c9aec23f3a52585",
+      "branch": "echo",
+      "originalCommands": 16,
+      "originalEvents": 45,
+      "actualCorruptRoomRefused": false,
+      "originalHistoryReplayBeforeDeliberateTamperStillExact": true,
+      "originalProductFlowPassed": true,
+      "acceptedCommands": 16,
+      "rejectedOriginalCommands": 0,
+      "noAcceptedHistoryRewriteOrDatabaseWrite": true
+    },
+    {
+      "room": "wild-claw-reflexive-9e65aab1799b4114b48f98cf17aea257",
+      "branch": "empty",
+      "originalCommands": 9,
+      "originalEvents": 16,
+      "actualCorruptRoomRefused": false,
+      "originalHistoryReplayBeforeDeliberateTamperStillExact": true,
+      "originalProductFlowPassed": true,
+      "acceptedCommands": 9,
+      "rejectedOriginalCommands": 0,
+      "noAcceptedHistoryRewriteOrDatabaseWrite": true
+    },
+    {
+      "room": "wild-claw-reflexive-62c03fd2552d4c81ab7906fc87df7b83",
+      "branch": "gear",
+      "originalCommands": 11,
+      "originalEvents": 27,
+      "actualCorruptRoomRefused": false,
+      "originalHistoryReplayBeforeDeliberateTamperStillExact": true,
+      "originalProductFlowPassed": true,
+      "acceptedCommands": 11,
+      "rejectedOriginalCommands": 0,
+      "noAcceptedHistoryRewriteOrDatabaseWrite": true
+    },
+    {
+      "room": "wild-claw-reflexive-359ba9055d014c329b5ef6badc2bc676",
+      "branch": "no-create",
+      "originalCommands": 9,
+      "originalEvents": 21,
+      "actualCorruptRoomRefused": false,
+      "originalHistoryReplayBeforeDeliberateTamperStillExact": true,
+      "originalProductFlowPassed": true,
+      "acceptedCommands": 9,
+      "rejectedOriginalCommands": 0,
+      "noAcceptedHistoryRewriteOrDatabaseWrite": true
+    },
+    {
+      "room": "wild-claw-reflexive-534f642697a141d5b462c0ddb9c52ba5",
+      "branch": "observed-first-paid",
+      "originalCommands": 13,
+      "originalEvents": 33,
+      "actualCorruptRoomRefused": false,
+      "originalHistoryReplayBeforeDeliberateTamperStillExact": true,
+      "originalProductFlowPassed": true,
+      "acceptedCommands": 13,
+      "rejectedOriginalCommands": 0,
+      "noAcceptedHistoryRewriteOrDatabaseWrite": true
+    },
+    {
+      "room": "wild-claw-reflexive-1af707750f4a4a4ca44b948962902d6f",
+      "branch": "observed-second-declined",
+      "originalCommands": 17,
+      "originalEvents": 41,
+      "actualCorruptRoomRefused": false,
+      "originalHistoryReplayBeforeDeliberateTamperStillExact": true,
+      "originalProductFlowPassed": true,
+      "acceptedCommands": 17,
+      "rejectedOriginalCommands": 0,
+      "noAcceptedHistoryRewriteOrDatabaseWrite": true
+    },
+    {
+      "room": "wild-claw-reflexive-3a3dfb7e04494acca1ffcd8fcadab71b",
+      "branch": "recall",
+      "originalCommands": 14,
+      "originalEvents": 34,
+      "actualCorruptRoomRefused": false,
+      "originalHistoryReplayBeforeDeliberateTamperStillExact": true,
+      "originalProductFlowPassed": true,
+      "acceptedCommands": 14,
+      "rejectedOriginalCommands": 0,
+      "noAcceptedHistoryRewriteOrDatabaseWrite": true
+    },
+    {
+      "room": "wild-claw-reflexive-742fc7906fec45339490b19ef4750571",
+      "branch": "original-failed-reentry-partial",
+      "originalCommands": 13,
+      "originalEvents": 30,
+      "actualCorruptRoomRefused": false,
+      "originalHistoryReplayBeforeDeliberateTamperStillExact": true,
+      "originalProductFlowPassed": false,
+      "acceptedCommands": 12,
+      "rejectedOriginalCommands": 1,
+      "noAcceptedHistoryRewriteOrDatabaseWrite": true
+    },
+    {
+      "room": "wild-claw-reflexive-9682111ff23d40038312043226800d9c",
+      "branch": "unit",
+      "originalCommands": 11,
+      "originalEvents": 27,
+      "actualCorruptRoomRefused": false,
+      "originalHistoryReplayBeforeDeliberateTamperStillExact": true,
+      "originalProductFlowPassed": true,
+      "acceptedCommands": 11,
+      "rejectedOriginalCommands": 0,
+      "noAcceptedHistoryRewriteOrDatabaseWrite": true
+    },
+    {
+      "room": "wild-claw-reflexive-1f0c802b8b8149ecb7382b65e2bdf574",
+      "branch": "unpayable",
+      "originalCommands": 11,
+      "originalEvents": 23,
+      "actualCorruptRoomRefused": false,
+      "originalHistoryReplayBeforeDeliberateTamperStillExact": true,
+      "originalProductFlowPassed": true,
+      "acceptedCommands": 11,
+      "rejectedOriginalCommands": 0,
+      "noAcceptedHistoryRewriteOrDatabaseWrite": true
+    }
+  ],
+  "nativePacketBackendReadbackReplaysEquivalentOriginalRawNoNewLiveSubmission": true,
+  "allOriginalFieldsNullConditionalOmissionsAndRowKeysRetained": true,
+  "originalSeedAndEmptyOpeningRetained": true,
+  "originalPrivateViewsIndependentlyScannedFromOriginalVisibleZoneMembership": true,
+  "failedProductFlowsNotPromotedByHistoryValidity": true,
+  "fixedFullVisiblePairedWindowsAndWholeCardCertification": false
+}

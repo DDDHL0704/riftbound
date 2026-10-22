@@ -177,6 +177,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             // Mighty observers capture bindings. The final pass is idempotent
             // and also binds stack items created by those observers.
             collected = ApplyObjectContinuity(state, collected);
+            collected = RecordDeckPlayReflexiveCard(state, collected);
+            collected = AdvanceDeckPlayReflexives(collected);
             collected = DeferCompanionPermanentPlayOrdering(state, collected);
             collected = QueueTurnUnitPlayBoons(state, collected);
             collected = QueueStandbyPlayedObservers(collected);
@@ -24372,6 +24374,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         if (stackItem.UnitPlayMight is not null) return ResolveUnitPlayMight(state, stackItem);
         if (stackItem.SourcePlayDraw is not null) return ResolveSourcePlayDraw(state, stackItem);
         if (stackItem.CreatedTokenReady is not null) return ResolveCreatedTokenReady(state, stackItem);
+        if (stackItem.DeckPlayReflexive is not null) return ResolveDeckPlayReflexive(state, stackItem);
         if (stackItem.ReflexiveCopy is not null) return ResolveReflexiveCopy(state, stackItem);
         if (stackItem.DeathRevealContext is not null) return stackItem.CompletedHandExecutions > 0 ? NoopStackResolutionResult(state) : BeginRevealedHandChoice(state, stackItem, DeathRevealChoiceSpec);
         if (stackItem.RecastContext is not null) return stackItem.EffectPlayCompleted ? NoopStackResolutionResult(state) : BeginRecastPlay(state, stackItem);

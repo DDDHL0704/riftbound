@@ -5,7 +5,7 @@ namespace Riftbound.Engine;
 internal static class StackObjectRules
 {
     internal static bool IsAbility(StackItemState item)
-        => item.DamageDestruction is not null || item.GraveyardPlay is not null
+        => item.DeckPlayReflexive is not null || item.DamageDestruction is not null || item.GraveyardPlay is not null
             || item.EndAbility is not null || item.StandbyObserver is not null || item.EmpowerActivation is not null || item.AzirMovement is not null || item.Equip is not null || item.Tempered is not null
             || item.AttachmentObserver is not null || item.LegendAttachment is not null
             || item.UnitEntryContext is not null || item.ReflexiveCopy is not null || item.CreatedTokenReady is not null
@@ -28,6 +28,7 @@ internal static class StackObjectRules
 
     internal static bool CanChoose(MatchState state, string id, bool allowAbilities)
         => state.StackItems.FirstOrDefault(item => item.StackItemId == id) is { } item
+            && item.DeckPlayReflexive is not { Confirmed: false }
             && (IsSpell(item) || allowAbilities && IsAbility(item));
 
     // A reentered card has the same transport ID but is a different game object

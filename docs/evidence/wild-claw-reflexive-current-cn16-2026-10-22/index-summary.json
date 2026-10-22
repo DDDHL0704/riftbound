@@ -1,0 +1,76 @@
+{
+  "cnOfficialPrintings": 1504,
+  "enReturnedPrintings": 1408,
+  "enReportedTotal": 1416,
+  "enSourceCountGap": 8,
+  "combinedExactPrintingNumbers": 1740,
+  "activeCatalogEntries": 1036,
+  "outsideActiveCatalog": 704,
+  "cnQaFields": 1504,
+  "cnNonemptyQaFields": 0,
+  "date": "2026-10-15",
+  "sourceDocuments": 36,
+  "sourceBlocks": 14293,
+  "verifiedByIndexing": 0,
+  "goalStatus": "IN_PROGRESS_NOT_READY",
+  "sourceFetchErrors": [],
+  "previousSummary": {
+    "path": "docs/evidence/clairvoyance-2026-10-15/index-summary.json",
+    "sha256": "4fd6a14e988f4b248c77ff0568d98b75e141516ccd4df7f76777ee027bdb68c8"
+  },
+  "currentSourceIntake": {
+    "path": "docs/evidence/source-listing-2026-10-15/card-source-intake.json",
+    "sha256": "56904b903d3e86e69e956dec3dab5c64acee011db88a2b8afd6cb52ef905b0ca"
+  },
+  "activeRuntimeOrRuleInputsChanged": true,
+  "retainedPriorActiveBindingUpdate": {
+    "date": "2026-10-15",
+    "previousSummary": {
+      "path": "docs/evidence/porobot-2026-10-15/index-summary.json",
+      "sha256": "e2a765505f376e71a02f2957a5781dde3c7748074baf617489ab3e8a49f40e30"
+    },
+    "sourceDatesUnchanged": true,
+    "wholeUniverseUnchanged": true
+  },
+  "previousRuntimeBindingSummary": {
+    "path": "docs/evidence/empowered-insight-2026-10-19/index-summary.json",
+    "sha256": "89f08bacd6140cae8a0d32dee02bbabde782670e13e31f4f4cd4c3d31468d226",
+    "role": "current-card-summary"
+  },
+  "retainedPriorRuntimeBindingUpdate": {
+    "recordedAtUtc": "2026-10-19T01:15:58.725407+00:00",
+    "sourceDateAndSourceUniverseUnchanged": true,
+    "newExactRuntimeRegistration": "VEN·047",
+    "newReviewCertifications": 0
+  },
+  "runtimeBindingUpdate": {
+    "recordedAtUtc": "2026-10-22T15:53:04.545628+00:00",
+    "sourceDateAndSourceUniverseUnchanged": true,
+    "newExactRuntimeRegistration": "VEN·089",
+    "exactCnApiId": 37785,
+    "individualPublicationAndEffectiveDates": null,
+    "newReviewCertifications": 0,
+    "priorRuntimeRows": 1035,
+    "currentRuntimeRows": 1036,
+    "allExisting1740PrintingIdsAndSourceVersionsAndConfirmationDatesRetained": true,
+    "sourceManifest": {
+      "path": "docs/evidence/wild-claw-reflexive-current-cn16-2026-10-22/source-manifest.json",
+      "sha256": "d06d4d3d217dfec28cb1943fbafeadb366fb91e718b4adc6c6c5b8295488e0d1",
+      "role": "source-manifest"
+    }
+  },
+  "previousWildClawRuntimeBindingSummary": {
+    "path": "docs/evidence/pakaa-move-reveal-2026-10-19/index-summary.json",
+    "sha256": "5c6d5c40bf45da32af1ca1c472adbc56740ee25ab7da6ebac14a8fece529ce58",
+    "role": "current-card-summary"
+  },
+  "priorRuntimeBindingUpdateBeforeWildClaw": {
+    "recordedAtUtc": "2026-10-19T07:56:43.713494+00:00",
+    "sourceDateAndSourceUniverseUnchanged": true,
+    "newExactRuntimeRegistration": "VEN·033",
+    "newReviewCertifications": 0,
+    "priorRuntimeRows": 1034,
+    "currentRuntimeRows": 1035,
+    "allExisting1740PrintingIdsAndSourceVersionsAndConfirmationDatesRetained": true
+  }
+}

@@ -1,0 +1,349 @@
+{
+  "schemaVersion": 1,
+  "id": "wild-claw-reflexive-current-cn16-2026-10-22",
+  "atUtc": "2026-10-22T15:53:04.370568+00:00",
+  "region": "CN",
+  "language": "zh-CN",
+  "applicableAsOf": "2026-10-22",
+  "adoptedCoreEffectiveDate": "2026-10-16",
+  "baseCommit": "008a064047aa746e579396a79fba6c9950842023",
+  "issue": "https://github.com/DDDHL0704/riftbound/issues/92",
+  "scope": "CN API37785 / ledger VEN-089 Wild Claw only: bounded unit-or-gear deck play, optional untargeted reflexive creation, pending confirmation and original-object empower; current core388/389/442, response order, recovery and original-log security. Whole printing, multi-layer empower, merchant transfer and other regional identities remain open.",
+  "exactPrintings": [
+    "VEN-089"
+  ],
+  "exactSourceApiId": 37785,
+  "runtimeCardNo": "VEN·089",
+  "printedFace": "VEN·089/166 SC",
+  "separateGlobalPrintingNotReviewed": "VEN-089/166",
+  "exactCurrentApiRowCanonicalSha256": "af4d9f71f3d77b27a4cc8a258ee961d0ab4eb546eb99bd26db48a12840578d9f",
+  "rowHashEncoding": "JSON_SORT_KEYS_COMPACT_SEPARATORS_UTF8_ENSURE_ASCII_FALSE",
+  "currentRawRowAcquiredAtUtc": "2026-10-22T11:51:39.419003+00:00",
+  "exactPerPrintingPublicationDate": null,
+  "exactPerPrintingEffectiveDate": null,
+  "optionalCreationBeforeColon": "EXPLICIT_TEXT_INTERPRETATION_NOT_A_WILD_CLAW_SPECIFIC_OFFICIAL_FAQ",
+  "sourceRuleRecords": [
+    "DOC-01-P008-B012",
+    "DOC-01-P008-B013",
+    "DOC-01-P010-B006",
+    "DOC-01-P010-B007",
+    "DOC-01-P010-B008",
+    "DOC-01-P014-B009",
+    "DOC-01-P014-B010",
+    "DOC-01-P014-B011",
+    "DOC-01-P014-B012",
+    "DOC-01-P014-B013",
+    "DOC-01-P014-B014",
+    "DOC-01-P014-B015",
+    "DOC-01-P014-B016",
+    "DOC-01-P014-B017",
+    "DOC-01-P014-B018",
+    "DOC-01-P014-B019",
+    "DOC-01-P014-B020",
+    "DOC-01-P015-B003",
+    "DOC-01-P015-B004",
+    "DOC-01-P015-B005",
+    "DOC-01-P041-B011",
+    "DOC-01-P041-B012",
+    "DOC-01-P041-B013",
+    "DOC-01-P041-B014",
+    "DOC-01-P041-B015",
+    "DOC-01-P041-B016",
+    "DOC-01-P044-B009",
+    "DOC-01-P044-B010",
+    "DOC-01-P044-B011",
+    "DOC-01-P044-B012",
+    "DOC-01-P054-B010",
+    "DOC-01-P054-B011",
+    "DOC-01-P055-B002",
+    "DOC-01-P055-B005",
+    "DOC-01-P067-B008",
+    "DOC-01-P067-B009",
+    "DOC-01-P067-B010",
+    "DOC-01-P067-B011",
+    "DOC-01-P067-B012",
+    "DOC-01-P067-B013",
+    "DOC-01-P067-B015",
+    "DOC-01-P067-B016",
+    "DOC-01-P068-B017",
+    "DOC-01-P069-B005",
+    "DOC-01-P069-B006",
+    "DOC-01-P069-B008",
+    "DOC-01-P069-B009",
+    "DOC-01-P069-B011",
+    "DOC-01-P069-B012",
+    "DOC-01-P069-B013",
+    "DOC-01-P069-B014",
+    "DOC-01-P069-B015",
+    "DOC-01-P069-B016",
+    "DOC-01-P069-B017",
+    "DOC-01-P088-B009",
+    "DOC-01-P088-B010",
+    "DOC-01-P088-B011",
+    "DOC-01-P088-B012",
+    "DOC-01-P088-B013",
+    "DOC-01-P088-B014",
+    "DOC-01-P088-B015",
+    "DOC-01-P088-B016",
+    "DOC-01-P088-B017"
+  ],
+  "exactCurrentPrimaryRuleTextSha256": "084d37f8593aff87a12fc98046af115025de329b7f291ccc11b456f6c3dbe5aa",
+  "currentCoreSha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11",
+  "coreUrl": "https://cdn.playloltcg.com/lol/2026/10/2026-10-10/a21ead876c6b44d6abe386b6ae54ea28.pdf",
+  "coreSourceUpdatedDate": "2026-10-10",
+  "cardFaceUrl": "https://cdn.playloltcg.com/lol/card/20260709/fc0e42be0aa74091a258b79a8fc0831c.png",
+  "cardFaceSha256": "07ba2aa568305f88ccbb357ad633cc9d604e0dd60d4d5871ce3fe64332e77821",
+  "currentCompleteCn1504FullRowsAndNullQaUnchanged": true,
+  "all16KnownDocumentsRetained": true,
+  "faq22PagesOnly8_10_22VisuallyRead": true,
+  "all12ErrataPagesVisuallyReadNoWildEntry": true,
+  "faqPage8Historical387_1_bCitationRetainedNotSilentlyRenumbered": true,
+  "individualDatesNotInferredFromUrlSetReleaseAcquisitionOrHttpDate": true,
+  "oldRuntimeCatalogRawSha256": "438a9ca8723a3b83ebedc6a928af80001bd1f093c53e8ff423437565897842b8",
+  "newRuntimeCatalogRawSha256": "e9e574d6651ec0e4bcde68618438559336872371ffbdc5931283cea77ff9204e",
+  "onlyOnePreviouslyKnownSourcePrintingAddedToRuntime": true,
+  "newSourceVersionDeltaClaimed": false,
+  "implementation": [
+    {
+      "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+      "sha256": "12c0633e2979e24fded3a81c9c373221f54256e8ae2e876c3c8fee112dda62ac",
+      "role": "implementation"
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.DeckPlayReflexive.cs",
+      "sha256": "7c38143d86067451c80e9a55a212f8e2aa831c9f7e98d966663bf710ee54d144",
+      "role": "implementation"
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.DeckPlaySequence.cs",
+      "sha256": "2c73f9fb0395625801e53929964d7d6d46174ac23586209b0ea91c99147d7d34",
+      "role": "implementation"
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.DeckObservation.cs",
+      "sha256": "16f96f2145ec373f7ea10f9f4d80989c2c1da70403f378d70d1013dc444eb6ca",
+      "role": "implementation"
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.EffectPlay.cs",
+      "sha256": "c13116bfa3cc6d4347dbab956bb6cfa427bfa4215d05cb7725b29e19813d381b",
+      "role": "implementation"
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.Recast.cs",
+      "sha256": "112ac456de650090f9fb96c49151d36c24d03d43953a60bc7e6f3d07eb6ad75f",
+      "role": "implementation"
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+      "sha256": "860dbac1d183d7b096ebec9c0f0c6b6206dcab9a07b0e331d0c106d007ad0006",
+      "role": "implementation"
+    },
+    {
+      "path": "src/Riftbound.Engine/EmpowerRules.cs",
+      "sha256": "5076719bc294f492421005b875053dce9d8f3e283671ceab608f1451268e3378",
+      "role": "implementation"
+    },
+    {
+      "path": "src/Riftbound.Engine/StackObjectRules.cs",
+      "sha256": "87d1b62556aa3ef67cbf4b0357bdd343bc3827d31ac74fc080201feaa4ce1f0a",
+      "role": "implementation"
+    },
+    {
+      "path": "src/Riftbound.Engine/MatchRecovery.cs",
+      "sha256": "b98b44182143d3b47c50a6b07e07148c99e22b514c5bd0689636c76889084568",
+      "role": "implementation"
+    },
+    {
+      "path": "src/Riftbound.Engine/MatchSession.cs",
+      "sha256": "075349052b4c7f0f880647b70d487c3e7b667a08f7327bd26f977b80809415a0",
+      "role": "implementation"
+    },
+    {
+      "path": "src/Riftbound.Engine/MatchSession.WildClawScenario.cs",
+      "sha256": "ed2eb0fe1481d9fbbdc1922d329c0d2053581d0ef641be4c19c6f1753ccfb1ba",
+      "role": "implementation"
+    },
+    {
+      "path": "clients/godot/scripts/ui/MatchPhasePresentation.cs",
+      "sha256": "627b97aad343dba68463ecd605ce04caeb1485800ba6eb23ee8a44ba39688092",
+      "role": "implementation"
+    },
+    {
+      "path": "data/official/card-catalog.zh-CN.json",
+      "sha256": "e9e574d6651ec0e4bcde68618438559336872371ffbdc5931283cea77ff9204e",
+      "role": "implementation"
+    }
+  ],
+  "verificationSources": [
+    {
+      "path": "tests/Riftbound.ConformanceTests/WildClawPendingReflexiveTests.cs",
+      "sha256": "d048b97dc6dadea105bafd57acb7b76d5c08f19ffa2c10274a6e28836c2f80a8",
+      "role": "verification-source"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/WildClawReflexiveBoundaryTests.cs",
+      "sha256": "bb5ca7cbc3c6bef2f2b283f836341db19b4e5c2ab31066b030126f448f8f058a",
+      "role": "verification-source"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/WildClawReflexiveRecoveryTests.cs",
+      "sha256": "53c9797950517851116ad6d7821a09631d0bbb0edd1ee2597d365519e4460044",
+      "role": "verification-source"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/WildClawSourceIdentityTests.cs",
+      "sha256": "7a62ee28f1a0079f245d6b51070e70fcaa8d3a7b12ae625b47f3ae677e6c717f",
+      "role": "verification-source"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/Fixtures/wild-claw-source.json",
+      "sha256": "b60b89e04d11e9e75db59ff7266ac1af6b62663abe38400078c3a85b7c49088d",
+      "role": "verification-source"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/CardCatalogBaselineTests.cs",
+      "sha256": "e29b7e7b8176b53053b74fa4ff1da6e69f558a4db9e2dad3f13d80693fe25221",
+      "role": "verification-source"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/VendettaAmbushTests.cs",
+      "sha256": "fe2d833b1b372c784a45be72fd75568376bd3f107e4d8438cf223746c1e52264",
+      "role": "verification-source"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/AhriCombatMightTests.cs",
+      "sha256": "202479acda296f6827eadc984c9f8799468b2ded4b92892c059d47227e136e18",
+      "role": "verification-source"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/Cn16RuleInputSelectionTests.cs",
+      "sha256": "5c021edaed449f904dde4c31821c2fa1b5fca4baa269e8942c0f702f68750834",
+      "role": "verification-source"
+    },
+    {
+      "path": "tests/Riftbound.PostgresAcceptance/WildClawReflexiveSqlAcceptance.cs",
+      "sha256": "d5d309fd04644a1e04e6665877e84ca188492a3c405b27f14202a249657459fa",
+      "role": "verification-source"
+    },
+    {
+      "path": "tests/Riftbound.PostgresAcceptance/Program.cs",
+      "sha256": "e44768cf5371452f03d077215c703eb4a39629356ade9d75349a44687b2ca685",
+      "role": "verification-source"
+    },
+    {
+      "path": "tests/Riftbound.PostgresAcceptance/SqlAcceptanceCases.json",
+      "sha256": "e9c5e8cac3e59e22e23718c47b0472956ddae3bb23f5bdba8a120e77b4091f07",
+      "role": "verification-source"
+    },
+    {
+      "path": "scripts/tests/test_sql_ci_gate.py",
+      "sha256": "39f017726033bc783584ee074e708070986c03d674f86b745deb59751fb66cf3",
+      "role": "verification-source"
+    },
+    {
+      "path": "clients/godot/scripts/debug/WildClawInteractionProof.cs",
+      "sha256": "4d1cb1df742b853d136c9eb7bba8c62b05fe2d784c20f8c4219ca7b269a15732",
+      "role": "verification-source"
+    },
+    {
+      "path": "clients/godot/scenes/debug/WildClawInteractionProof.tscn",
+      "sha256": "18960ef511c712a67b790faeb286d31498f3b7f70f25852b78e7804b5c038702",
+      "role": "verification-source"
+    }
+  ],
+  "actualDebugAndSqlRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "b04ddc91471924f8ba19913d50b87094089804271ef272f292c98bbcfd102298",
+    "implementationSha256": "4873dbe4eb59606c1fbff2ce08c9fcf498e50f051f499058dff2d29c05425b3d",
+    "identitySha256": "33cf2afb68d494c5a3401ce84880ed18c20efb77aa39397adb05b0a549feb446"
+  },
+  "soleCheckCases": 13557,
+  "soleCheckMethods": 7577,
+  "soleCheckOutcomes": {
+    "Passed": 13556,
+    "Failed": 1
+  },
+  "originalSoleCheckFailureBeforeOneExpectedCatalogPinCorrectionNotCurrentGreen": true,
+  "postCheckExactPinFocusCases": 7,
+  "postCheckExactPinFocusMethods": 7,
+  "finalFocusedCases": 795,
+  "finalFocusedMethods": 439,
+  "newCases": 57,
+  "newMethods": 17,
+  "affectedOriginalFullGameMethods": [
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameResolvesCandlelitSanctumConquerRevealRecycleAndScoreVictoryActionLogReplaysToFinalStateHash",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameResolvesPiltoverAcademyHeldNextSpellEchoAndScoreVictoryActionLogReplaysToFinalStateHash",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameResolvesSeaMonsterHookActivatedAbilityAndScoreVictoryActionLogReplaysToFinalStateHash",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameResolvesSeaMonsterHookMultiEligibleCardChoiceAndScoreVictoryActionLogReplaysToFinalStateHash",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameResolvesSeaMonsterHookNoEligibleTopFiveRecycleAndScoreVictoryActionLogReplaysToFinalStateHash"
+  ],
+  "actualIndependentFinalSql": {
+    "commands": 194,
+    "events": 462,
+    "authority": 194,
+    "snapshots": 371,
+    "prompts": 371,
+    "native": 43,
+    "originalPrefixReplays": 194,
+    "actualCorruptRoomRefusals": 4
+  },
+  "originalFailed087aSqlHistoryOnly": {
+    "commands": 134,
+    "accepted": 133,
+    "rejected": 1,
+    "failedProductFlowStillFailed": true
+  },
+  "actualHeadlessProductionControls": 43,
+  "actualOwnerHeadings": 38,
+  "nativeRawPacketsExactlyOriginalSqlIntentsNotNewLiveSubmission": true,
+  "nativeAssemblyEmptyLoadedLocationRetainedMvidMatchesExplicitDiskCandidateNotClaimedDirectMemorySha": true,
+  "nextFixedFullExpectedCases": 13706,
+  "nextFixedFullExpectedMethods": 7718,
+  "sqlManifestCases": 61,
+  "wholeScopeRetained": {
+    "printings": 1740,
+    "ruleRecords": 14293,
+    "activeCatalog": 1036,
+    "outsideActive": 704,
+    "cnRows": 1504,
+    "enGap": 8,
+    "cnNews": 139,
+    "kdaExactPrintingGates": 5
+  },
+  "relatedOutsideActiveCnPrintingsRemainOpen": [
+    {
+      "id": "VEN-082",
+      "api": 37776,
+      "cardNo": "VEN·082",
+      "scope": "unempower and transfer to legend/unit/gear"
+    },
+    {
+      "id": "VEN-134",
+      "api": 37834,
+      "cardNo": "VEN·134",
+      "scope": "explicit multi-empower cap and layer removal"
+    },
+    {
+      "id": "VEN-185",
+      "api": 37888,
+      "cardNo": "VEN·185",
+      "scope": "separate exact printing, explicit multi-empower cap and layer removal"
+    }
+  ],
+  "expectedRemainingObligations": 17291,
+  "originalFinite70DeckConsumersAllRetainedRuntime54Outside16NotSemanticCertification": true,
+  "newFixedFullCurrentNativePairScoreReplayVisibleAndPhysicalWindows": "OPEN",
+  "semanticCoverageCertified": false,
+  "archive": {
+    "path": "docs/evidence/wild-claw-reflexive-current-cn16-2026-10-22/original-bounded-execution-records.tar.gz",
+    "sha256": "12a3143e059333d1ee613901dce6bd4062e87d01b9bb068f902e9b5b29539198"
+  },
+  "archiveMap": {
+    "path": "docs/evidence/wild-claw-reflexive-current-cn16-2026-10-22/archive-map.json",
+    "sha256": "2ead88662c505bb852b2657487f7a580a5c13d30e9a706f29ba3d945e979baf8"
+  }
+}

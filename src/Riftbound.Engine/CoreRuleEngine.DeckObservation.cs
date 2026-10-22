@@ -88,6 +88,7 @@ public sealed partial class CoreRuleEngine
                     && sequence.Queue[pending.OrderIndex].ExecutionIndex >= c.Instruction.ExecutionIndex);
                 var previous = stack.FindLastIndex(s => s.StackItemId == parentId
                     || s.DeckPlayPendingCard?.ParentStackItemId == parentId
+                    || s.DeckPlayReflexive?.ParentStackItemId == parentId
                     || s.ObservedDeckPlay?.Instruction.Parent.StackItemId == parentId);
                 stack.Insert(nextOriginal >= 0 ? nextOriginal : previous >= 0 ? previous + 1 : detachedInsertIndex++, slot);
             }
@@ -119,6 +120,7 @@ public sealed partial class CoreRuleEngine
 
     private static ObservedDeckPlayContext? NextObservedDeckPlay(MatchState state,PendingEffectPlayState? suspended)
         => (state.ObservedDeckPlays??[]).FirstOrDefault(c=>CompleteObservationShape(c) && !state.StackItems.Any(s=>s.StackItemId==c.Instruction.Parent.StackItemId)
+            && !state.StackItems.TakeWhile(s => s.ObservedDeckPlay?.Id != c.Id).Any(s => s.DeckPlayReflexive is { Confirmed: false })
             && (suspended is null || suspended.Parent.StackItemId==c.Instruction.Parent.StackItemId)
             && !(suspended?.Parent.DeckPlaySequence is { } sequence && sequence.PlayIndex < sequence.Queue.Count
                 && sequence.Queue[sequence.PlayIndex].ExecutionIndex < c.Instruction.ExecutionIndex));

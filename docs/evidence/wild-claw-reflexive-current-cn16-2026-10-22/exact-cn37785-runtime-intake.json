@@ -1,0 +1,61 @@
+{
+  "atUtc": "2026-10-22T13:04:12.575939+00:00",
+  "beforeCatalogSha256": "438a9ca8723a3b83ebedc6a928af80001bd1f093c53e8ff423437565897842b8",
+  "afterCatalogSha256": "e9e574d6651ec0e4bcde68618438559336872371ffbdc5931283cea77ff9204e",
+  "exactCurrentApiRow": {
+    "id": 37785,
+    "cardCategoryList": [
+      "spell"
+    ],
+    "cardCategoryNameList": [
+      "法术"
+    ],
+    "cardNo": "VEN·089",
+    "cardName": "狂野钩爪",
+    "subTitle": "",
+    "extendType": null,
+    "extendTypeName": "",
+    "cardColorList": [
+      "orange"
+    ],
+    "hero": "",
+    "region": "",
+    "tag": "",
+    "artist": "Kudos Productions",
+    "cardEffect": "查看你主牌堆顶部的五张牌。你可以选择从中放逐一个单位或装备，将其法力费用减少{{5}}后打出。回收其余的卡牌。然后你可以选择进行一次：强化该牌。（如果其未被强化，则变为已强化状态。）",
+    "flavorText": "",
+    "energy": 7,
+    "returnEnergy": 1,
+    "power": null,
+    "productCodeList": [
+      "VEN(标准补充包)",
+      "VEN(进阶补充包)"
+    ],
+    "productNameList": [
+      "化神争锋 标准补充包",
+      "化神争锋 进阶补充包"
+    ],
+    "cardQaList": null,
+    "craftLevel": 0,
+    "rarity": "rune_shard",
+    "rarityName": "稀有",
+    "extendRarity": "base_inscript",
+    "extendRarityName": "平卡",
+    "frontImage": "https://cdn.playloltcg.com/lol/card/20260709/fc0e42be0aa74091a258b79a8fc0831c.png",
+    "backImage": "",
+    "listSort": 1901,
+    "status": 1,
+    "cardGroupLimit": null,
+    "isPreview": false,
+    "errata": "",
+    "otherDesc": 0
+  },
+  "currentAcquisitionAtUtc": "2026-10-22T11:51:39.419003+00:00",
+  "recordSha256": "af4d9f71f3d77b27a4cc8a258ee961d0ab4eb546eb99bd26db48a12840578d9f",
+  "allOriginal1035CardObjectsAndScopedAdditionsExact": true,
+  "onlyOneNewCnEntryGlobalSeparate": true,
+  "runtimeCountNow1036OutsideActiveNow704EntireUniverse1740Retained": true,
+  "existingCurrentManifestStillPendingCoherentFinalInputRefresh": true,
+  "newSourceVersionNotClaimedForKnownUnchangedSource": true,
+  "implementationAndTestsStillInProgressNotCertified": true
+}

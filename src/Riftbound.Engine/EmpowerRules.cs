@@ -115,8 +115,12 @@ public sealed partial class CoreRuleEngine
     private static StackResolutionResult ResolveEmpowerStack(MatchState state, StackItemState item)
     {
         if (!EmpowerRules.Valid(state, item)) throw new InvalidOperationException("Invalid captured empower activation.");
-        var c = item.EmpowerActivation!;
-        if (!state.CardObjects.TryGetValue(c.Source.ObjectId, out var source) || source.ObjectGeneration != c.Source.Generation
+        return ApplyEmpowerAction(state, item.EmpowerActivation!.Source);
+    }
+
+    private static StackResolutionResult ApplyEmpowerAction(MatchState state, ObjectBinding binding)
+    {
+        if (!state.CardObjects.TryGetValue(binding.ObjectId, out var source) || source.ObjectGeneration != binding.Generation
             || !IsObjectOnField(state.PlayerZones, source.ObjectId) || source.IsEmpowered) return NoopStackResolutionResult(state);
         var cards = state.CardObjects.ToDictionary(p => p.Key, p => p.Value); cards[source.ObjectId] = source with { IsEmpowered = true };
         var payload = new Dictionary<string, object?> {
@@ -125,6 +129,6 @@ public sealed partial class CoreRuleEngine
             EffectiveFieldControllerId(state.PlayerZones, source.ObjectId, source), "EMPOWERED");
         if (insights.Count > 0) payload["insightTriggerContexts"] = insights;
         return NoopStackResolutionResult(state) with { CardObjects = cards,
-            Events = [new("OBJECT_EMPOWERED", "单位变为已强化状态", payload)] };
+            Events = [new("OBJECT_EMPOWERED", source.Tags.Contains(CardObjectTags.UnitCard) ? "单位变为已强化状态" : "物体变为已强化状态", payload)] };
     }
 }

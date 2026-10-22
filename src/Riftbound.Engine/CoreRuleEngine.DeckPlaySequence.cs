@@ -37,7 +37,9 @@ public sealed partial class CoreRuleEngine
     private static string[] DeckPlayLegalSelection(MatchState state, StackItemState item, DeckPlaySequenceContext c, string owner)
     {
         TryGetEffectPlayDefinition(item, out var definition);
-        return c.Viewed[owner].Select(card => card.ObjectId).Where(id => c.Kind is not ("SINGLE_PRIVATE_UNIT_PLAY" or "SINGLE_PRIVATE_LIMITED_UNIT_PLAY" or "SINGLE_REVEAL_UNTIL_UNIT")
+        return c.Viewed[owner].Select(card => card.ObjectId).Where(id => c.Kind == "SINGLE_PRIVATE_UNIT_OR_GEAR_PLAY"
+            ? state.CardObjects[id].Tags.Contains(CardObjectTags.UnitCard) || state.CardObjects[id].Tags.Contains(CardObjectTags.EquipmentCard)
+            : c.Kind is not ("SINGLE_PRIVATE_UNIT_PLAY" or "SINGLE_PRIVATE_LIMITED_UNIT_PLAY" or "SINGLE_REVEAL_UNTIL_UNIT")
             || state.CardObjects[id].Tags.Contains(CardObjectTags.UnitCard)
                 && (c.Kind != "SINGLE_PRIVATE_LIMITED_UNIT_PLAY" || definition.DeckPlayMaximumUnitMight is { } maximum
                     && state.CardObjects[id].Power <= maximum)).ToArray();
@@ -148,6 +150,12 @@ public sealed partial class CoreRuleEngine
             state = state with { PlayerZones = zones, CardObjects = cards, StackItems = stack,
                 ObjectLocations = DeckPlayLocations(state, zones, stack) };
         }
+        if (definition.DeckPlayOptionalReflexiveEmpower)
+        {
+            var created = CreateDeckPlayReflexive(state, item with { DeckPlaySequence = c }, c);
+            state = created.State;
+            events.AddRange(created.Events);
+        }
         if (c.ExecutionIndex + 1 < item.EffectRepeatCount)
         {
             var count = DeckPlayLookCount(definition);
@@ -172,7 +180,7 @@ public sealed partial class CoreRuleEngine
             var again = BeginDeckPlaySequence(state, item with { DeckPlaySequence = c }, definition);
             return again with { Events = events.Concat(again.Events).ToArray() };
         }
-        if (c.Queue.Count == 0)
+        if (c.Queue.Count == 0 && !state.StackItems.Any(s => s.DeckPlayReflexive?.ParentStackItemId == item.StackItemId))
             return ResolveStackItemEffect(state, item with { DeckPlaySequence = c, EffectPlayCompleted = true });
         StackResolutionResult? completed = null;
         if (!c.ParentCompleted)
@@ -191,7 +199,7 @@ public sealed partial class CoreRuleEngine
                 ["effectKind"] = item.EffectKind, ["cardNo"] = item.CardNo, ["targetObjectIds"] = item.TargetObjectIds }));
         }
         item = item with { DeckPlaySequence = c, EffectPlayCompleted = true };
-        var pending = DeckPlayPending(item, c);
+        var pending = c.PlayIndex < c.Queue.Count ? DeckPlayPending(item, c) : null;
         return (completed ?? NoopStackResolutionResult(state)) with { PendingEffectPlay = pending, Events = events };
     }
 

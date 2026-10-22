@@ -51,8 +51,9 @@ var roomSeatJournalOnly = args.SequenceEqual(new[] { "--room-seat-journal-only" 
 var battlefieldStartControllerOnly = args.SequenceEqual(new[] { "--battlefield-start-controller-only" });
 var battlefieldStartLabYouOnly = args.SequenceEqual(new[] { "--battlefield-start-lab-you-only" });
 var deckPendingParentOnly = args.SequenceEqual(new[] { "--deck-pending-parent-only" });
+var wildClawReflexiveOnly = args.SequenceEqual(new[] { "--wild-claw-reflexive-only" });
 var pakaDualTypeRevealOnly = args.SequenceEqual(new[] { "--paka-dual-type-reveal-only" });
-if (args.Length != 0 && !openingRandomnessOnly && !optionalCostsOnly && !battlefieldPlayRecoveryOnly && !battlefieldPlayDamageOnly && !banishEffectPlayOnly && !hereLocationOnly && !fateWeaverOnly && !multiControllerOrderOnly && !emptyObservedRepeatOnly && !observedPlayWindowOnly && !ravenbloomPutHandOnly && !attachedPredictOnly && !copiedLastBreathOnly && !copiedDuelOnly && !empoweredInsightOnly && !pakaRevealOnly && !emptyRevealFollowupOnly && !pakaDualTypeRevealOnly && !hweiMoveDiscardTypesOnly && !destructionGraveyardOnly && !conditionalCounterPaymentOnly && !reversalTargetChoiceOnly && !spellRemakeDeclarationOnly && !candlelitPrivateLookOnly && !candlelitObservedPendingOnly && !candlelitOptionalObservedOnly && !candlelitLegendPendingOnly && !revealedHandPromptOrderOnly && !battlefieldSpellDamageOnly && !exhaustedLegendConfirmationOnly && !teemoCountedDamageOnly && !controllerDamageBonusOnly && !specialTriggerDamageBonusOnly && !roomSeatJournalOnly && !battlefieldStartControllerOnly && !battlefieldStartLabYouOnly && !deckPendingParentOnly && !partition.IsPartition) throw new ArgumentException("Unknown PostgreSQL acceptance selector.");
+if (args.Length != 0 && !openingRandomnessOnly && !optionalCostsOnly && !battlefieldPlayRecoveryOnly && !battlefieldPlayDamageOnly && !banishEffectPlayOnly && !hereLocationOnly && !fateWeaverOnly && !multiControllerOrderOnly && !emptyObservedRepeatOnly && !observedPlayWindowOnly && !ravenbloomPutHandOnly && !attachedPredictOnly && !copiedLastBreathOnly && !copiedDuelOnly && !empoweredInsightOnly && !pakaRevealOnly && !emptyRevealFollowupOnly && !pakaDualTypeRevealOnly && !hweiMoveDiscardTypesOnly && !destructionGraveyardOnly && !conditionalCounterPaymentOnly && !reversalTargetChoiceOnly && !spellRemakeDeclarationOnly && !candlelitPrivateLookOnly && !candlelitObservedPendingOnly && !candlelitOptionalObservedOnly && !candlelitLegendPendingOnly && !revealedHandPromptOrderOnly && !battlefieldSpellDamageOnly && !exhaustedLegendConfirmationOnly && !teemoCountedDamageOnly && !controllerDamageBonusOnly && !specialTriggerDamageBonusOnly && !roomSeatJournalOnly && !battlefieldStartControllerOnly && !battlefieldStartLabYouOnly && !deckPendingParentOnly && !wildClawReflexiveOnly && !partition.IsPartition) throw new ArgumentException("Unknown PostgreSQL acceptance selector.");
 var json = new JsonSerializerOptions(JsonSerializerDefaults.Web) { WriteIndented = true };
 await using var dataSource = NpgsqlDataSource.Create(connectionString);
 await using (var connection = await dataSource.OpenConnectionAsync()) {
@@ -60,6 +61,12 @@ await using (var connection = await dataSource.OpenConnectionAsync()) {
         await using var command = new NpgsqlCommand(await File.ReadAllTextAsync(path), connection);
         await command.ExecuteNonQueryAsync();
     }
+}
+if (wildClawReflexiveOnly)
+{
+    await WildClawReflexiveSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "wild-claw-reflexive"));
+    Console.WriteLine("SCOPED_POSTGRES_ONLY: wild-claw-reflexive; original complete SQL suite not selected.");
+    return;
 }
 if (deckPendingParentOnly)
 {
@@ -466,5 +473,6 @@ await partition.RunAsync("battlefield-start-controller", () => BattlefieldStartC
 await partition.RunAsync("battlefield-start-lab-you", () => BattlefieldStartLabYouSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "battlefield-start-lab-you")));
 
 await partition.RunAsync("deck-pending-parent", () => DeckPendingParentSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "deck-pending-parent")));
+await partition.RunAsync("wild-claw-reflexive", () => WildClawReflexiveSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "wild-claw-reflexive")));
 
 await partition.CompleteAsync(output);

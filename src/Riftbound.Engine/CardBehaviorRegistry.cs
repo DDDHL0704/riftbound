@@ -287,7 +287,8 @@ public sealed record CardBehaviorDefinition(
     bool CreatedBaseUnitTokensCopySource = false,
     bool GrantsHasteToFriendlyUnitsPlayedOutsideHand = false,
     IReadOnlyList<string>? GrantedHastePowerTraits = null,
-    bool MaySacrificeUnitForPrintedCostReduction = false)
+    bool MaySacrificeUnitForPrintedCostReduction = false,
+    bool DeckPlayOptionalReflexiveEmpower = false)
 {
     public bool PerformsInsight => InsightCount > 0;
 }
@@ -1303,6 +1304,20 @@ public static class CardBehaviorRegistry
             DeckPlayKind: "SINGLE_PRIVATE_UNIT_PLAY",
             EffectPlayManaReduction: 5,
             EffectPlayOptional: true),
+        new(
+            "VEN·089",
+            "狂野钩爪",
+            7,
+            "WILD_CLAW_LOOK_PLAY_REDUCED_PERMANENT_REFLEXIVE_EMPOWER",
+            0,
+            0,
+            TargetScope: CardTargetScopes.FriendlyMainDeckCard,
+            MinTargetCount: 0,
+            MainDeckLookCount: 5,
+            DeckPlayKind: "SINGLE_PRIVATE_UNIT_OR_GEAR_PLAY",
+            EffectPlayManaReduction: 5,
+            EffectPlayOptional: true,
+            DeckPlayOptionalReflexiveEmpower: true),
         new(
             "OGN·048/298",
             "冥想",

@@ -1,0 +1,1457 @@
+{
+  "atUtc": "2026-10-22T14:53:36.701623+00:00",
+  "baseCommit": "008a064047aa746e579396a79fba6c9950842023",
+  "region": "CN",
+  "language": "zh-CN",
+  "applicableAsOf": "2026-10-22",
+  "coreEffectiveDate": "2026-10-16",
+  "coreSha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11",
+  "exactCnLedgerPrinting": "VEN-089",
+  "runtimeCardNo": "VEN·089",
+  "sourceApiId": 37785,
+  "printedFaceIdentity": "VEN·089/166 SC",
+  "separateGlobalLedgerIdentityNotReviewed": "VEN-089/166",
+  "sourceRuleRecords": [
+    {
+      "id": "DOC-01-P008-B012",
+      "document": "DOC-01",
+      "page": 8,
+      "clauseAnchors": [
+        "124.1"
+      ],
+      "text": "124.1.         每当一个游戏物体从一个区域移动到另一个非场地区域,或从一个非场地区域移动到另一个区域后,其身上的所有\n               临时状态 将停止追踪。\n                    举例:\n                    伤害将被清除。\n                    计数标将被移除。\n                    临时给予的关键词效果将不再提供。\n                    状态将被清除。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P008-B013",
+      "document": "DOC-01",
+      "page": 8,
+      "clauseAnchors": [
+        "124.2"
+      ],
+      "text": "124.2.         游戏物体 可能具有的状态如下(非详尽列举):\n                    已贴附、进攻中、拥有增益、被放逐、受控制、防守中、已强化、已装配、休眠、正面朝下、活跃、被替\n                    换、被展示、晕眩,以及任何已应用的效果层效果。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P010-B006",
+      "document": "DOC-01",
+      "page": 10,
+      "clauseAnchors": [
+        "131.3"
+      ],
+      "text": "131.3.          符能 费用",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P010-B007",
+      "document": "DOC-01",
+      "page": 10,
+      "clauseAnchors": [
+        "131.3.a"
+      ],
+      "text": "131.3.a.                卡面左上角费用处纵向列出的符号。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P010-B008",
+      "document": "DOC-01",
+      "page": 10,
+      "clauseAnchors": [
+        "131.3.b"
+      ],
+      "text": "131.3.b.                并非每张卡牌都具有符能费用。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P014-B009",
+      "document": "DOC-01",
+      "page": 14,
+      "clauseAnchors": [
+        "135.2.e"
+      ],
+      "text": "135.2.e.       符号",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P014-B010",
+      "document": "DOC-01",
+      "page": 14,
+      "clauseAnchors": [
+        "135.2.e.1"
+      ],
+      "text": "135.2.e.1.            规则文本有时会包含表达游戏概念的符号。每个符号都有对应的缩写,用于在书面文本中表示\n                      该符号。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P014-B011",
+      "document": "DOC-01",
+      "page": 14,
+      "clauseAnchors": [
+        "135.2.e.2"
+      ],
+      "text": "135.2.e.2.            让常驻牌进入休眠状态 的费用,由“休眠符号”表示,该符号形似卡牌的横置。其缩写为[E]。\n                      (先前有些规则信息曾使用[T]作为其缩写。)",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P014-B012",
+      "document": "DOC-01",
+      "page": 14,
+      "clauseAnchors": [
+        "135.2.e.3"
+      ],
+      "text": "135.2.e.3.            代表战力的“战力符号”采用了剑与盾的图案。其缩写为[M]。(先前有些规则信息曾使用[S]作为\n                      其缩写。)",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P014-B013",
+      "document": "DOC-01",
+      "page": 14,
+      "clauseAnchors": [
+        "135.2.e.4"
+      ],
+      "text": "135.2.e.4.            特定特性的符能拥有专属的特性符号和相应缩写。\n                           想获取更多有关信息,请查阅规则 134.特性。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P014-B014",
+      "document": "DOC-01",
+      "page": 14,
+      "clauseAnchors": [
+        "135.2.e.5"
+      ],
+      "text": "135.2.e.5.            一点任意特性的符能,以一个旋转的彩虹符号来表示。其缩写为[A]。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P014-B015",
+      "document": "DOC-01",
+      "page": 14,
+      "clauseAnchors": [
+        "135.2.e.5.a"
+      ],
+      "text": "135.2.e.5.a.                 当[A]需要作为费用支付时,可以用任何特性的符能支付。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P014-B016",
+      "document": "DOC-01",
+      "page": 14,
+      "clauseAnchors": [
+        "135.2.e.5.b"
+      ],
+      "text": "135.2.e.5.b.                 当玩家的符文池获得[A]后,[A]可用于支付任意特性的符能费用。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P014-B017",
+      "document": "DOC-01",
+      "page": 14,
+      "clauseAnchors": [
+        "135.2.e.6"
+      ],
+      "text": "135.2.e.6.            与卡牌自身特性对应的特性符能不以符号表示,但其在本规则中的呈现方式与其他符号无异。\n                      其缩写为[C]。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P014-B018",
+      "document": "DOC-01",
+      "page": 14,
+      "clauseAnchors": [
+        "135.2.e.6.a"
+      ],
+      "text": "135.2.e.6.a.                 当缩写[C]作为提示文本印在卡牌上时,该缩写默认代表该牌的主要特性,但其含义\n                             依然是“此卡牌特性的 1 点符能”。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P014-B019",
+      "document": "DOC-01",
+      "page": 14,
+      "clauseAnchors": [
+        "135.2.e.6.b"
+      ],
+      "text": "135.2.e.6.b.                 如果卡牌没有特性,则缩写[C]将按[A]处理。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P014-B020",
+      "document": "DOC-01",
+      "page": 14,
+      "clauseAnchors": [
+        "135.2.e.6.c"
+      ],
+      "text": "135.2.e.6.c.                 如果卡牌拥有多个特性,则缩写[C]视为该卡牌对应特性的符能。\n                                  举例:“距破之舞”是“翠意”与“混沌”法术。其费用为[1]和[C]。该费用中的符",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P015-B003",
+      "document": "DOC-01",
+      "page": 15,
+      "clauseAnchors": [
+        "135.2.e.7"
+      ],
+      "text": "135.2.e.7.                        与技能相关的关键词会以[>]符号进行标注。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P015-B004",
+      "document": "DOC-01",
+      "page": 15,
+      "clauseAnchors": [
+        "135.2.e.7.a"
+      ],
+      "text": "135.2.e.7.a.                           此类关键词可能是依赖性关键词,如[鼓舞][>]和[等级][>],可能是带有关键词触发条\n                                       件的触发式技能,如[绝念],也可能是与技能相关的权限性关键词,如[迅捷][>]和[反\n                                       应][>]。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P015-B005",
+      "document": "DOC-01",
+      "page": 15,
+      "clauseAnchors": [
+        "135.2.e.7.b"
+      ],
+      "text": "135.2.e.7.b.                           位于[>]之后的任何指示或技能,都会受到位于[>]之前的关键词的修正。如果是依赖\n                                       性关键词,则表示该指示或技能在满足条件前处于未激活状态;如果是关键词触发式\n                                       技能,则表示该指示或技能为关键词的触发效果;如果是权限性关键词,则表示该指\n                                       示或技能将获得该关键词所赋予的权限。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P041-B011",
+      "document": "DOC-01",
+      "page": 41,
+      "clauseAnchors": [
+        "337.1"
+      ],
+      "text": "337.1.            如果有至少一个结算链项目处于待处理状态,则其中最早的待处理结算链项目 的控制者必须完成打出该待处理项目\n                  的所有步骤,直到其成为已确认项目或离开结算链。\n                       想获取更多有关确认结算链项目的信息,请查阅规则 349.打出卡牌。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P041-B012",
+      "document": "DOC-01",
+      "page": 41,
+      "clauseAnchors": [
+        "337.1.a"
+      ],
+      "text": "337.1.a.               在结算链上对项目进行确认不会让过优先行动权。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P041-B013",
+      "document": "DOC-01",
+      "page": 41,
+      "clauseAnchors": [
+        "337.1.b"
+      ],
+      "text": "337.1.b.               结算链项目会按照被添加到结算链的顺序进行确认。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P041-B014",
+      "document": "DOC-01",
+      "page": 41,
+      "clauseAnchors": [
+        "337.2"
+      ],
+      "text": "337.2.            如果在结算链项目完成确认后,该项目为单位、装备或获得资源的技能,则会立即结算——进入步骤 4:结算。\n                       想获取更多有关信息,请查阅规则 349.打出卡牌。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P041-B015",
+      "document": "DOC-01",
+      "page": 41,
+      "clauseAnchors": [
+        "337.3"
+      ],
+      "text": "337.3.            如果在结算链项目完成确认后,仍有待处理的结算链项目,则返回步骤 1:确认。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P041-B016",
+      "document": "DOC-01",
+      "page": 41,
+      "clauseAnchors": [
+        "337.4"
+      ],
+      "text": "337.4.            如果在结算链项目完成确认后,结算链上不再有需要确认的项目,则结算链上的下一个项目的控制者将获得优先行\n                  动权 。进入步骤 2:执行。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P044-B009",
+      "document": "DOC-01",
+      "page": 44,
+      "clauseAnchors": [
+        "354.1"
+      ],
+      "text": "354.1.            这样一来,回合便会进入闭环状态。\n                        想获取更多有关信息,请查阅规则 307.回合状态。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P044-B010",
+      "document": "DOC-01",
+      "page": 44,
+      "clauseAnchors": [
+        "354.2"
+      ],
+      "text": "354.2.            此结算链项目变为待处理,等待确认流程完成(步骤 2-5)",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P044-B011",
+      "document": "DOC-01",
+      "page": 44,
+      "clauseAnchors": [
+        "354.3"
+      ],
+      "text": "354.3.            如果当前有其他卡牌效果或技能正在结算,则继续进行其结算,然后再推进本过程的任何后续步骤。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P044-B012",
+      "document": "DOC-01",
+      "page": 44,
+      "clauseAnchors": [
+        "354.4"
+      ],
+      "text": "354.4.            如果有未决任务或是当前正在处理的任务,则需要先完成此类任务,然后再推进本流程。\n                       想获取更多有关任务的信息,请查阅规则 332。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P054-B010",
+      "document": "DOC-01",
+      "page": 54,
+      "clauseAnchors": [
+        "359.3.e.14"
+      ],
+      "text": "359.3.e.14.     有些指示可能会引用受卡牌中其他指示影响的游戏物体,或是引用在其他指示中执行的游戏行\n                动。这些被引用和引用的指示称为“关联指示”。\n                     举例:“暗刃”的效果为“摧毁战场上的一名单位。让其控制者抽两张牌。”第二条指示\n                    中的“其”指的是第一条指示中的单位,因此该法术的两条指示是相互关联的。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P054-B011",
+      "document": "DOC-01",
+      "page": 54,
+      "clauseAnchors": [
+        "359.3.e.14.a"
+      ],
+      "text": "359.3.e.14.a.       须先完成前置关联指示的执行或撤销,才能执行后续关联指示。如果此前置关联指示\n                    被无视,则后续关联指示也会被无视。如果某个前置关联指示的任意目标被无视,则",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P055-B002",
+      "document": "DOC-01",
+      "page": 55,
+      "clauseAnchors": [
+        "359.3.e.14.b"
+      ],
+      "text": "359.3.e.14.b.          如果在前置关联指示中执行的游戏行动被撤销,后续的关联指示并不会受影响(除非\n                       后续关联指示直接引用了该游戏行动)。如果某条指示的执行所触发的事件被替换或\n                       跳过,或者由于被无视以外的其他原因无法执行该游戏行动,则该指示会被撤销。\n                           举例:“暗刃”的效果为“摧毁战场上的一名单位。让其控制者抽两张牌。”该\n                           效果分为两条指示:摧毁该单位,以及目标单位的控制者抽两张牌。后续\n                           关联指示并未直接引用任何行动,因此即使前置关联指示中的摧毁行动被\n                           撤销,该后续关联指示仍会执行。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P055-B005",
+      "document": "DOC-01",
+      "page": 55,
+      "clauseAnchors": [
+        "359.3.e.14.c"
+      ],
+      "text": "359.3.e.14.c.          以这种方式引用游戏行动时,仅指该游戏行动以及其作用的物体或玩家,而不指其执\n                       行时的具体情况。\n                           举例:一个法术的效果为“对战场上的一名敌方单位造成 3 点伤害。若如此\n                           做,则为与该单位同一位置的你控制的单位移除伤害。”如果部分而非全部\n                           伤害被抵挡,则后续关联指示仍会执行。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P067-B008",
+      "document": "DOC-01",
+      "page": 67,
+      "clauseAnchors": [
+        "388.1"
+      ],
+      "text": "388.1.            内嵌式触发 通常会表述为“进行 N 次:”或“执行以下效果:”。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P067-B009",
+      "document": "DOC-01",
+      "page": 67,
+      "clauseAnchors": [
+        "388.1.a"
+      ],
+      "text": "388.1.a.                如出现“进行 N 次”的表述,此类内嵌式触发在条件满足时会被放入结算链 N 次。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P067-B010",
+      "document": "DOC-01",
+      "page": 67,
+      "clauseAnchors": [
+        "388.1.b"
+      ],
+      "text": "388.1.b.                如出现“执行以下效果(中的 X 项):”的表述,该效果将指定在满足条件时,哪些相关的内嵌式触发会加\n                        入结算链。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P067-B011",
+      "document": "DOC-01",
+      "page": 67,
+      "clauseAnchors": [
+        "388.2"
+      ],
+      "text": "388.2.            如果内嵌式触发具有条件,则条件的表述会写在效果之前。如果技能描述中没有条件的表述,则内嵌式触发始终会\n                  被放入结算链。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P067-B012",
+      "document": "DOC-01",
+      "page": 67,
+      "clauseAnchors": [
+        "388.3"
+      ],
+      "text": "388.3.            如果内嵌式触发具有条件,则条件的表述会遵循与触发式技能相同的格式。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P067-B013",
+      "document": "DOC-01",
+      "page": 67,
+      "clauseAnchors": [
+        "388.4"
+      ],
+      "text": "388.4.            如果内嵌式触发的效果的开头部分指示 “你可以选择”或“该玩家可以选择”,则其来源的控制者在确认阶段选择是否\n                  执行该内嵌式触发。\n                        举例:“涌泉之恨”是一张法术牌,其部分描述为:“然后,如果该单位战力不高于 3,则进行一次:你可以\n                        选择支付[A],以此将此牌从废牌堆中打出。”该内嵌式触发会在该法术结算时加入结算链,随后,在确认\n                        该内嵌式触发时,其控制者将决定是否执行该效果。如果选择不执行,则该效果将从结算链中移除。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P067-B015",
+      "document": "DOC-01",
+      "page": 67,
+      "clauseAnchors": [
+        "389.1"
+      ],
+      "text": "389.1.            创造一个新技能,并将其作为待处理项目放入结算链。\n                       想获取更多有关信息,请查阅规则 399.打出或激活技能。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P067-B016",
+      "document": "DOC-01",
+      "page": 67,
+      "clauseAnchors": [
+        "389.2"
+      ],
+      "text": "389.2.            如果一个内嵌式触发创造了多个待处理项目,则每个待处理项目会按顺序创造,但除了将其放入结算链这一首要步\n                  骤外,不会执行其他步骤。\n                        想获取更多有关信息,请查阅规则 399.打出或激活技能。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P068-B017",
+      "document": "DOC-01",
+      "page": 68,
+      "clauseAnchors": [
+        "395.1"
+      ],
+      "text": "395.1.              组件技能 可以通过直接引用其他技能 ,或引用被其他技能 影响或提及的游戏物体 ,来关联同一技能组合中的其他技\n                    能。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P069-B005",
+      "document": "DOC-01",
+      "page": 69,
+      "clauseAnchors": [
+        "401.1"
+      ],
+      "text": "401.1.          当技能完成打出步骤后,它会像法术一样变为已确认的结算链项目 。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P069-B006",
+      "document": "DOC-01",
+      "page": 69,
+      "clauseAnchors": [
+        "401.2"
+      ],
+      "text": "401.2.          当[获得]资源效果的技能确认后,它会像打出单位或装备一样立即结算。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P069-B008",
+      "document": "DOC-01",
+      "page": 69,
+      "clauseAnchors": [
+        "402.1"
+      ],
+      "text": "402.1.          将代表该主动或触发式技能的待处理项目放入结算链。需要强调的是,尽管没有卡牌代表此结算链项目,此操作仍\n                会创建一个闭环状态。\n                     想获取更多有关信息,请查阅规则 349.打出卡牌。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P069-B009",
+      "document": "DOC-01",
+      "page": 69,
+      "clauseAnchors": [
+        "402.2"
+      ],
+      "text": "402.2.          如果当前正在结算一个游戏效果,则继续结算,而不是继续以下步骤。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P069-B011",
+      "document": "DOC-01",
+      "page": 69,
+      "clauseAnchors": [
+        "403.1"
+      ],
+      "text": "403.1.          如果触发式技能效果的前半部分是“你可以选择”或“其可以选择”,则该技能的控制者需要决定是否发动该触发式技\n                能。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P069-B012",
+      "document": "DOC-01",
+      "page": 69,
+      "clauseAnchors": [
+        "403.1.a"
+      ],
+      "text": "403.1.a.               如果该玩家选择此刻不发动该触发式技能,则该技能将从结算链中移除。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P069-B013",
+      "document": "DOC-01",
+      "page": 69,
+      "clauseAnchors": [
+        "403.2"
+      ],
+      "text": "403.2.          做出此技能所需的全部选择,如目标、模式或其他相关的决定。\n                     想获取更多有关信息,请查阅规则 349.打出卡牌。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P069-B014",
+      "document": "DOC-01",
+      "page": 69,
+      "clauseAnchors": [
+        "403.3"
+      ],
+      "text": "403.3.          如果一个主动技能没有合法的选项,则无法激活。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P069-B015",
+      "document": "DOC-01",
+      "page": 69,
+      "clauseAnchors": [
+        "403.4"
+      ],
+      "text": "403.4.          如果已经放入结算链的触发式技能没有足够的选项来做出合法选择,则立即将其从结算链中移除。该技能不再是待\n                处理项目 ,但也不会成为已确认的结算链项目 。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P069-B016",
+      "document": "DOC-01",
+      "page": 69,
+      "clauseAnchors": [
+        "403.4.a"
+      ],
+      "text": "403.4.a.               这并不等于技能被无效化。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P069-B017",
+      "document": "DOC-01",
+      "page": 69,
+      "clauseAnchors": [
+        "403.4.b"
+      ],
+      "text": "403.4.b.               如果存在合法的选项,则技能的控制者必须进行选择。控制者不能拒绝执行这个触发阶段。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P088-B009",
+      "document": "DOC-01",
+      "page": 88,
+      "clauseAnchors": [
+        "442.1"
+      ],
+      "text": "442.1.              强化 指的是使一个或多个游戏物体 变为已强化 状态的行动。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P088-B010",
+      "document": "DOC-01",
+      "page": 88,
+      "clauseAnchors": [
+        "442.1.a"
+      ],
+      "text": "442.1.a.                 已强化 是一种二元状态——一个游戏物体 要么处于已强化 状态,要么不处于已强化状态。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P088-B011",
+      "document": "DOC-01",
+      "page": 88,
+      "clauseAnchors": [
+        "442.1.b"
+      ],
+      "text": "442.1.b.                 处于已强化状态的游戏物体无法再被强化。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P088-B012",
+      "document": "DOC-01",
+      "page": 88,
+      "clauseAnchors": [
+        "442.1.c"
+      ],
+      "text": "442.1.c.                 如果一个已经处于已强化状态的游戏物体被指示强化,则不会发生任何额外情况。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P088-B013",
+      "document": "DOC-01",
+      "page": 88,
+      "clauseAnchors": [
+        "442.1.c.1"
+      ],
+      "text": "442.1.c.1.                    某些效果可能会给予游戏物体权限让其可以多次强化。此类效果可以无视这一限制。对于这些\n                              游戏物体,已强化 并非二元状态,而是可叠加的状态。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P088-B014",
+      "document": "DOC-01",
+      "page": 88,
+      "clauseAnchors": [
+        "442.2"
+      ],
+      "text": "442.2.              “已强化”是场上游戏物体的一种状态,可以被其他游戏效果和技能引用。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P088-B015",
+      "document": "DOC-01",
+      "page": 88,
+      "clauseAnchors": [
+        "442.2.a"
+      ],
+      "text": "442.2.a.                 当一个游戏物体因强化游戏行动而变为已强化状态时,该事件同样可以被游戏效果和技能引用。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P088-B016",
+      "document": "DOC-01",
+      "page": 88,
+      "clauseAnchors": [
+        "442.3"
+      ],
+      "text": "442.3.              强化 是一种限定行动 。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P088-B017",
+      "document": "DOC-01",
+      "page": 88,
+      "clauseAnchors": [
+        "442.3.a"
+      ],
+      "text": "442.3.a.                 玩家只能在游戏效果的指示下才能强化游戏物体。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    }
+  ],
+  "sourceRuleRecordIds": [
+    "DOC-01-P008-B012",
+    "DOC-01-P008-B013",
+    "DOC-01-P010-B006",
+    "DOC-01-P010-B007",
+    "DOC-01-P010-B008",
+    "DOC-01-P014-B009",
+    "DOC-01-P014-B010",
+    "DOC-01-P014-B011",
+    "DOC-01-P014-B012",
+    "DOC-01-P014-B013",
+    "DOC-01-P014-B014",
+    "DOC-01-P014-B015",
+    "DOC-01-P014-B016",
+    "DOC-01-P014-B017",
+    "DOC-01-P014-B018",
+    "DOC-01-P014-B019",
+    "DOC-01-P014-B020",
+    "DOC-01-P015-B003",
+    "DOC-01-P015-B004",
+    "DOC-01-P015-B005",
+    "DOC-01-P041-B011",
+    "DOC-01-P041-B012",
+    "DOC-01-P041-B013",
+    "DOC-01-P041-B014",
+    "DOC-01-P041-B015",
+    "DOC-01-P041-B016",
+    "DOC-01-P044-B009",
+    "DOC-01-P044-B010",
+    "DOC-01-P044-B011",
+    "DOC-01-P044-B012",
+    "DOC-01-P054-B010",
+    "DOC-01-P054-B011",
+    "DOC-01-P055-B002",
+    "DOC-01-P055-B005",
+    "DOC-01-P067-B008",
+    "DOC-01-P067-B009",
+    "DOC-01-P067-B010",
+    "DOC-01-P067-B011",
+    "DOC-01-P067-B012",
+    "DOC-01-P067-B013",
+    "DOC-01-P067-B015",
+    "DOC-01-P067-B016",
+    "DOC-01-P068-B017",
+    "DOC-01-P069-B005",
+    "DOC-01-P069-B006",
+    "DOC-01-P069-B008",
+    "DOC-01-P069-B009",
+    "DOC-01-P069-B011",
+    "DOC-01-P069-B012",
+    "DOC-01-P069-B013",
+    "DOC-01-P069-B014",
+    "DOC-01-P069-B015",
+    "DOC-01-P069-B016",
+    "DOC-01-P069-B017",
+    "DOC-01-P088-B009",
+    "DOC-01-P088-B010",
+    "DOC-01-P088-B011",
+    "DOC-01-P088-B012",
+    "DOC-01-P088-B013",
+    "DOC-01-P088-B014",
+    "DOC-01-P088-B015",
+    "DOC-01-P088-B016",
+    "DOC-01-P088-B017"
+  ],
+  "sourceRuleTextsSha256": "084d37f8593aff87a12fc98046af115025de329b7f291ccc11b456f6c3dbe5aa",
+  "normalization": "NFKC, remove whitespace and zero-width-space only; originals preserved",
+  "primaryTextUnmatched": [],
+  "cases": [
+    {
+      "id": "wild-claw-reflexive-001",
+      "actualExecutedCase": "Riftbound.ConformanceTests.WildClawPendingReflexiveTests.EchoInterleavesPendingCardsAndReflexivesButFinishesAllConfirmationBeforeAnyEmpowerResolves",
+      "exactPrintingSubjects": [
+        "VEN-089"
+      ],
+      "region": "CN",
+      "language": "zh-CN",
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "wild-claw-reflexive-002",
+      "actualExecutedCase": "Riftbound.ConformanceTests.WildClawPendingReflexiveTests.EmptyDeckOrDeclinedCardStillMakesOnlyTheSeparatelyChosenReflexiveWithoutBurnout(empty: False, create: False)",
+      "exactPrintingSubjects": [
+        "VEN-089"
+      ],
+      "region": "CN",
+      "language": "zh-CN",
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "wild-claw-reflexive-003",
+      "actualExecutedCase": "Riftbound.ConformanceTests.WildClawPendingReflexiveTests.EmptyDeckOrDeclinedCardStillMakesOnlyTheSeparatelyChosenReflexiveWithoutBurnout(empty: False, create: True)",
+      "exactPrintingSubjects": [
+        "VEN-089"
+      ],
+      "region": "CN",
+      "language": "zh-CN",
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "wild-claw-reflexive-004",
+      "actualExecutedCase": "Riftbound.ConformanceTests.WildClawPendingReflexiveTests.EmptyDeckOrDeclinedCardStillMakesOnlyTheSeparatelyChosenReflexiveWithoutBurnout(empty: True, create: False)",
+      "exactPrintingSubjects": [
+        "VEN-089"
+      ],
+      "region": "CN",
+      "language": "zh-CN",
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "wild-claw-reflexive-005",
+      "actualExecutedCase": "Riftbound.ConformanceTests.WildClawPendingReflexiveTests.EmptyDeckOrDeclinedCardStillMakesOnlyTheSeparatelyChosenReflexiveWithoutBurnout(empty: True, create: True)",
+      "exactPrintingSubjects": [
+        "VEN-089"
+      ],
+      "region": "CN",
+      "language": "zh-CN",
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "wild-claw-reflexive-006",
+      "actualExecutedCase": "Riftbound.ConformanceTests.WildClawPendingReflexiveTests.OptionalCreationIsIndependentAndEmpowersOnlyAfterTheActualPermanentPlay(card: \"OGN·096/298\", create: False)",
+      "exactPrintingSubjects": [
+        "VEN-089"
+      ],
+      "region": "CN",
+      "language": "zh-CN",
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "wild-claw-reflexive-007",
+      "actualExecutedCase": "Riftbound.ConformanceTests.WildClawPendingReflexiveTests.OptionalCreationIsIndependentAndEmpowersOnlyAfterTheActualPermanentPlay(card: \"OGN·096/298\", create: True)",
+      "exactPrintingSubjects": [
+        "VEN-089"
+      ],
+      "region": "CN",
+      "language": "zh-CN",
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "wild-claw-reflexive-008",
+      "actualExecutedCase": "Riftbound.ConformanceTests.WildClawPendingReflexiveTests.OptionalCreationIsIndependentAndEmpowersOnlyAfterTheActualPermanentPlay(card: \"SFD·042/221\", create: False)",
+      "exactPrintingSubjects": [
+        "VEN-089"
+      ],
+      "region": "CN",
+      "language": "zh-CN",
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "wild-claw-reflexive-009",
+      "actualExecutedCase": "Riftbound.ConformanceTests.WildClawPendingReflexiveTests.OptionalCreationIsIndependentAndEmpowersOnlyAfterTheActualPermanentPlay(card: \"SFD·042/221\", create: True)",
+      "exactPrintingSubjects": [
+        "VEN-089"
+      ],
+      "region": "CN",
+      "language": "zh-CN",
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "wild-claw-reflexive-010",
+      "actualExecutedCase": "Riftbound.ConformanceTests.WildClawPendingReflexiveTests.PrivateUnitOrGearSelectionStagesTheCardBeforeTheParentOffersOptionalReflexiveCreation(selectedCard: \"OGN·096/298\")",
+      "exactPrintingSubjects": [
+        "VEN-089"
+      ],
+      "region": "CN",
+      "language": "zh-CN",
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "wild-claw-reflexive-011",
+      "actualExecutedCase": "Riftbound.ConformanceTests.WildClawPendingReflexiveTests.PrivateUnitOrGearSelectionStagesTheCardBeforeTheParentOffersOptionalReflexiveCreation(selectedCard: \"SFD·042/221\")",
+      "exactPrintingSubjects": [
+        "VEN-089"
+      ],
+      "region": "CN",
+      "language": "zh-CN",
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "wild-claw-reflexive-012",
+      "actualExecutedCase": "Riftbound.ConformanceTests.WildClawReflexiveBoundaryTests.ASpellOnlyCounterOrCounterRequiringAChosenTargetCannotUseTheAbilitiesUntargetedReference(counter: \"OGN·064/298\")",
+      "exactPrintingSubjects": [
+        "VEN-089"
+      ],
+      "region": "CN",
+      "language": "zh-CN",
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "wild-claw-reflexive-013",
+      "actualExecutedCase": "Riftbound.ConformanceTests.WildClawReflexiveBoundaryTests.ASpellOnlyCounterOrCounterRequiringAChosenTargetCannotUseTheAbilitiesUntargetedReference(counter: \"SFD·045/221\")",
+      "exactPrintingSubjects": [
+        "VEN-089"
+      ],
+      "region": "CN",
+      "language": "zh-CN",
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "wild-claw-reflexive-014",
+      "actualExecutedCase": "Riftbound.ConformanceTests.WildClawReflexiveBoundaryTests.ASpellOnlyCounterOrCounterRequiringAChosenTargetCannotUseTheAbilitiesUntargetedReference(counter: \"UNL-106/219\")",
+      "exactPrintingSubjects": [
+        "VEN-089"
+      ],
+      "region": "CN",
+      "language": "zh-CN",
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "wild-claw-reflexive-015",
+      "actualExecutedCase": "Riftbound.ConformanceTests.WildClawReflexiveBoundaryTests.ActualRecallOrBanishReentryCannotMakeTheOldAbilityEmpowerANewObject(response: \"OGN·104/298\", reenter: False)",
+      "exactPrintingSubjects": [
+        "VEN-089"
+      ],
+      "region": "CN",
+      "language": "zh-CN",
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "wild-claw-reflexive-016",
+      "actualExecutedCase": "Riftbound.ConformanceTests.WildClawReflexiveBoundaryTests.ActualRecallOrBanishReentryCannotMakeTheOldAbilityEmpowerANewObject(response: \"UNL-184/219\", reenter: True)",
+      "exactPrintingSubjects": [
+        "VEN-089"
+      ],
+      "region": "CN",
+      "language": "zh-CN",
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "wild-claw-reflexive-017",
+      "actualExecutedCase": "Riftbound.ConformanceTests.WildClawReflexiveBoundaryTests.FiveManaReductionDoesNotWaiveTheSelectedUnitsRealMandatoryEquipmentReturnCost",
+      "exactPrintingSubjects": [
+        "VEN-089"
+      ],
+      "region": "CN",
+      "language": "zh-CN",
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "wild-claw-reflexive-018",
+      "actualExecutedCase": "Riftbound.ConformanceTests.WildClawReflexiveBoundaryTests.InsufficientPrintedPowerReturnsTheRealPendingCardToBanishAndLeavesTheIndependentAbilityWithoutAnEffect",
+      "exactPrintingSubjects": [
+        "VEN-089"
+      ],
+      "region": "CN",
+      "language": "zh-CN",
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "wild-claw-reflexive-019",
+      "actualExecutedCase": "Riftbound.ConformanceTests.WildClawReflexiveBoundaryTests.LaterObservationCannotOvertakeAnEarlierReflexiveAndAnEmptySecondSelectionDoesNotEmpowerIt(playObserved: False)",
+      "exactPrintingSubjects": [
+        "VEN-089"
+      ],
+      "region": "CN",
+      "language": "zh-CN",
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "wild-claw-reflexive-020",
+      "actualExecutedCase": "Riftbound.ConformanceTests.WildClawReflexiveBoundaryTests.LaterObservationCannotOvertakeAnEarlierReflexiveAndAnEmptySecondSelectionDoesNotEmpowerIt(playObserved: True)",
+      "exactPrintingSubjects": [
+        "VEN-089"
+      ],
+      "region": "CN",
+      "language": "zh-CN",
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "wild-claw-reflexive-021",
+      "actualExecutedCase": "Riftbound.ConformanceTests.WildClawReflexiveBoundaryTests.NonTargetedEmpowerDoesNotAskForWardOrAdditionalResources(card: \"SFD·037/221\")",
+      "exactPrintingSubjects": [
+        "VEN-089"
+      ],
+      "region": "CN",
+      "language": "zh-CN",
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "wild-claw-reflexive-022",
+      "actualExecutedCase": "Riftbound.ConformanceTests.WildClawReflexiveBoundaryTests.NonTargetedEmpowerDoesNotAskForWardOrAdditionalResources(card: \"SFD·042/221\")",
+      "exactPrintingSubjects": [
+        "VEN-089"
+      ],
+      "region": "CN",
+      "language": "zh-CN",
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "wild-claw-reflexive-023",
+      "actualExecutedCase": "Riftbound.ConformanceTests.WildClawReflexiveBoundaryTests.SameExecutionObservationIsConfirmedFirstAndNeverBecomesTheNormalSelectionsReflexiveReference(playObserved: False)",
+      "exactPrintingSubjects": [
+        "VEN-089"
+      ],
+      "region": "CN",
+      "language": "zh-CN",
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "wild-claw-reflexive-024",
+      "actualExecutedCase": "Riftbound.ConformanceTests.WildClawReflexiveBoundaryTests.SameExecutionObservationIsConfirmedFirstAndNeverBecomesTheNormalSelectionsReflexiveReference(playObserved: True)",
+      "exactPrintingSubjects": [
+        "VEN-089"
+      ],
+      "region": "CN",
+      "language": "zh-CN",
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "wild-claw-reflexive-025",
+      "actualExecutedCase": "Riftbound.ConformanceTests.WildClawReflexiveRecoveryTests.BothPlayersAndSpectatorRejectForgedOrExtraPublicReflexivePayloads(mutation: \"confirmation\")",
+      "exactPrintingSubjects": [
+        "VEN-089"
+      ],
+      "region": "CN",
+      "language": "zh-CN",
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "wild-claw-reflexive-026",
+      "actualExecutedCase": "Riftbound.ConformanceTests.WildClawReflexiveRecoveryTests.BothPlayersAndSpectatorRejectForgedOrExtraPublicReflexivePayloads(mutation: \"execution\")",
+      "exactPrintingSubjects": [
+        "VEN-089"
+      ],
+      "region": "CN",
+      "language": "zh-CN",
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "wild-claw-reflexive-027",
+      "actualExecutedCase": "Riftbound.ConformanceTests.WildClawReflexiveRecoveryTests.BothPlayersAndSpectatorRejectForgedOrExtraPublicReflexivePayloads(mutation: \"malformed\")",
+      "exactPrintingSubjects": [
+        "VEN-089"
+      ],
+      "region": "CN",
+      "language": "zh-CN",
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "wild-claw-reflexive-028",
+      "actualExecutedCase": "Riftbound.ConformanceTests.WildClawReflexiveRecoveryTests.BothPlayersAndSpectatorRejectForgedOrExtraPublicReflexivePayloads(mutation: \"missing\")",
+      "exactPrintingSubjects": [
+        "VEN-089"
+      ],
+      "region": "CN",
+      "language": "zh-CN",
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "wild-claw-reflexive-029",
+      "actualExecutedCase": "Riftbound.ConformanceTests.WildClawReflexiveRecoveryTests.BothPlayersAndSpectatorRejectForgedOrExtraPublicReflexivePayloads(mutation: \"omitted-confirmation\")",
+      "exactPrintingSubjects": [
+        "VEN-089"
+      ],
+      "region": "CN",
+      "language": "zh-CN",
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "wild-claw-reflexive-030",
+      "actualExecutedCase": "Riftbound.ConformanceTests.WildClawReflexiveRecoveryTests.BothPlayersAndSpectatorRejectForgedOrExtraPublicReflexivePayloads(mutation: \"private-reference-injected\")",
+      "exactPrintingSubjects": [
+        "VEN-089"
+      ],
+      "region": "CN",
+      "language": "zh-CN",
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "wild-claw-reflexive-031",
+      "actualExecutedCase": "Riftbound.ConformanceTests.WildClawReflexiveRecoveryTests.IndependentRecoveryRejectsMalformedOrForgedPendingReflexivesBeforeTheRealCardConfirms(mutation: \"before-card\")",
+      "exactPrintingSubjects": [
+        "VEN-089"
+      ],
+      "region": "CN",
+      "language": "zh-CN",
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "wild-claw-reflexive-032",
+      "actualExecutedCase": "Riftbound.ConformanceTests.WildClawReflexiveRecoveryTests.IndependentRecoveryRejectsMalformedOrForgedPendingReflexivesBeforeTheRealCardConfirms(mutation: \"early-confirmed\")",
+      "exactPrintingSubjects": [
+        "VEN-089"
+      ],
+      "region": "CN",
+      "language": "zh-CN",
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "wild-claw-reflexive-033",
+      "actualExecutedCase": "Riftbound.ConformanceTests.WildClawReflexiveRecoveryTests.IndependentRecoveryRejectsMalformedOrForgedPendingReflexivesBeforeTheRealCardConfirms(mutation: \"early-played\")",
+      "exactPrintingSubjects": [
+        "VEN-089"
+      ],
+      "region": "CN",
+      "language": "zh-CN",
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "wild-claw-reflexive-034",
+      "actualExecutedCase": "Riftbound.ConformanceTests.WildClawReflexiveRecoveryTests.IndependentRecoveryRejectsMalformedOrForgedPendingReflexivesBeforeTheRealCardConfirms(mutation: \"future-execution\")",
+      "exactPrintingSubjects": [
+        "VEN-089"
+      ],
+      "region": "CN",
+      "language": "zh-CN",
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "wild-claw-reflexive-035",
+      "actualExecutedCase": "Riftbound.ConformanceTests.WildClawReflexiveRecoveryTests.IndependentRecoveryRejectsMalformedOrForgedPendingReflexivesBeforeTheRealCardConfirms(mutation: \"missing-context\")",
+      "exactPrintingSubjects": [
+        "VEN-089"
+      ],
+      "region": "CN",
+      "language": "zh-CN",
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "wild-claw-reflexive-036",
+      "actualExecutedCase": "Riftbound.ConformanceTests.WildClawReflexiveRecoveryTests.IndependentRecoveryRejectsMalformedOrForgedPendingReflexivesBeforeTheRealCardConfirms(mutation: \"missing-selected\")",
+      "exactPrintingSubjects": [
+        "VEN-089"
+      ],
+      "region": "CN",
+      "language": "zh-CN",
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "wild-claw-reflexive-037",
+      "actualExecutedCase": "Riftbound.ConformanceTests.WildClawReflexiveRecoveryTests.IndependentRecoveryRejectsMalformedOrForgedPendingReflexivesBeforeTheRealCardConfirms(mutation: \"negative-execution\")",
+      "exactPrintingSubjects": [
+        "VEN-089"
+      ],
+      "region": "CN",
+      "language": "zh-CN",
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "wild-claw-reflexive-038",
+      "actualExecutedCase": "Riftbound.ConformanceTests.WildClawReflexiveRecoveryTests.IndependentRecoveryRejectsMalformedOrForgedPendingReflexivesBeforeTheRealCardConfirms(mutation: \"null-card\")",
+      "exactPrintingSubjects": [
+        "VEN-089"
+      ],
+      "region": "CN",
+      "language": "zh-CN",
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "wild-claw-reflexive-039",
+      "actualExecutedCase": "Riftbound.ConformanceTests.WildClawReflexiveRecoveryTests.IndependentRecoveryRejectsMalformedOrForgedPendingReflexivesBeforeTheRealCardConfirms(mutation: \"null-selected-binding\")",
+      "exactPrintingSubjects": [
+        "VEN-089"
+      ],
+      "region": "CN",
+      "language": "zh-CN",
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "wild-claw-reflexive-040",
+      "actualExecutedCase": "Riftbound.ConformanceTests.WildClawReflexiveRecoveryTests.IndependentRecoveryRejectsMalformedOrForgedPendingReflexivesBeforeTheRealCardConfirms(mutation: \"null-selected-id\")",
+      "exactPrintingSubjects": [
+        "VEN-089"
+      ],
+      "region": "CN",
+      "language": "zh-CN",
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "wild-claw-reflexive-041",
+      "actualExecutedCase": "Riftbound.ConformanceTests.WildClawReflexiveRecoveryTests.IndependentRecoveryRejectsMalformedOrForgedPendingReflexivesBeforeTheRealCardConfirms(mutation: \"null-source\")",
+      "exactPrintingSubjects": [
+        "VEN-089"
+      ],
+      "region": "CN",
+      "language": "zh-CN",
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "wild-claw-reflexive-042",
+      "actualExecutedCase": "Riftbound.ConformanceTests.WildClawReflexiveRecoveryTests.IndependentRecoveryRejectsMalformedOrForgedPendingReflexivesBeforeTheRealCardConfirms(mutation: \"null-source-id\")",
+      "exactPrintingSubjects": [
+        "VEN-089"
+      ],
+      "region": "CN",
+      "language": "zh-CN",
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "wild-claw-reflexive-043",
+      "actualExecutedCase": "Riftbound.ConformanceTests.WildClawReflexiveRecoveryTests.IndependentRecoveryRejectsMalformedOrForgedPendingReflexivesBeforeTheRealCardConfirms(mutation: \"selected-before-generation\")",
+      "exactPrintingSubjects": [
+        "VEN-089"
+      ],
+      "region": "CN",
+      "language": "zh-CN",
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "wild-claw-reflexive-044",
+      "actualExecutedCase": "Riftbound.ConformanceTests.WildClawReflexiveRecoveryTests.IndependentRecoveryRejectsMalformedOrForgedPendingReflexivesBeforeTheRealCardConfirms(mutation: \"selected-card\")",
+      "exactPrintingSubjects": [
+        "VEN-089"
+      ],
+      "region": "CN",
+      "language": "zh-CN",
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "wild-claw-reflexive-045",
+      "actualExecutedCase": "Riftbound.ConformanceTests.WildClawReflexiveRecoveryTests.IndependentRecoveryRejectsMalformedOrForgedPendingReflexivesBeforeTheRealCardConfirms(mutation: \"selected-generation\")",
+      "exactPrintingSubjects": [
+        "VEN-089"
+      ],
+      "region": "CN",
+      "language": "zh-CN",
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "wild-claw-reflexive-046",
+      "actualExecutedCase": "Riftbound.ConformanceTests.WildClawReflexiveRecoveryTests.IndependentRecoveryRejectsMalformedOrForgedPendingReflexivesBeforeTheRealCardConfirms(mutation: \"selected-owner\")",
+      "exactPrintingSubjects": [
+        "VEN-089"
+      ],
+      "region": "CN",
+      "language": "zh-CN",
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "wild-claw-reflexive-047",
+      "actualExecutedCase": "Riftbound.ConformanceTests.WildClawReflexiveRecoveryTests.IndependentRecoveryRejectsMalformedOrForgedPendingReflexivesBeforeTheRealCardConfirms(mutation: \"selected-spell\")",
+      "exactPrintingSubjects": [
+        "VEN-089"
+      ],
+      "region": "CN",
+      "language": "zh-CN",
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "wild-claw-reflexive-048",
+      "actualExecutedCase": "Riftbound.ConformanceTests.WildClawReflexiveRecoveryTests.IndependentRecoveryRejectsMalformedOrForgedPendingReflexivesBeforeTheRealCardConfirms(mutation: \"source-generation\")",
+      "exactPrintingSubjects": [
+        "VEN-089"
+      ],
+      "region": "CN",
+      "language": "zh-CN",
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "wild-claw-reflexive-049",
+      "actualExecutedCase": "Riftbound.ConformanceTests.WildClawReflexiveRecoveryTests.IndependentRecoveryRejectsMalformedOrForgedPendingReflexivesBeforeTheRealCardConfirms(mutation: \"target-injected\")",
+      "exactPrintingSubjects": [
+        "VEN-089"
+      ],
+      "region": "CN",
+      "language": "zh-CN",
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "wild-claw-reflexive-050",
+      "actualExecutedCase": "Riftbound.ConformanceTests.WildClawReflexiveRecoveryTests.IndependentRecoveryRejectsMalformedOrForgedPendingReflexivesBeforeTheRealCardConfirms(mutation: \"wrong-card\")",
+      "exactPrintingSubjects": [
+        "VEN-089"
+      ],
+      "region": "CN",
+      "language": "zh-CN",
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "wild-claw-reflexive-051",
+      "actualExecutedCase": "Riftbound.ConformanceTests.WildClawReflexiveRecoveryTests.IndependentRecoveryRejectsMalformedOrForgedPendingReflexivesBeforeTheRealCardConfirms(mutation: \"wrong-controller\")",
+      "exactPrintingSubjects": [
+        "VEN-089"
+      ],
+      "region": "CN",
+      "language": "zh-CN",
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "wild-claw-reflexive-052",
+      "actualExecutedCase": "Riftbound.ConformanceTests.WildClawReflexiveRecoveryTests.IndependentRecoveryRejectsMalformedOrForgedPendingReflexivesBeforeTheRealCardConfirms(mutation: \"wrong-effect\")",
+      "exactPrintingSubjects": [
+        "VEN-089"
+      ],
+      "region": "CN",
+      "language": "zh-CN",
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "wild-claw-reflexive-053",
+      "actualExecutedCase": "Riftbound.ConformanceTests.WildClawReflexiveRecoveryTests.IndependentRecoveryRejectsMalformedOrForgedPendingReflexivesBeforeTheRealCardConfirms(mutation: \"wrong-source\")",
+      "exactPrintingSubjects": [
+        "VEN-089"
+      ],
+      "region": "CN",
+      "language": "zh-CN",
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "wild-claw-reflexive-054",
+      "actualExecutedCase": "Riftbound.ConformanceTests.WildClawSourceIdentityTests.ActualPrevious1035CatalogIdentityCannotBeRelabelledAsTheCurrentInputsOrReplayedAsAnOldDevelopmentGame",
+      "exactPrintingSubjects": [
+        "VEN-089"
+      ],
+      "region": "CN",
+      "language": "zh-CN",
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "wild-claw-reflexive-055",
+      "actualExecutedCase": "Riftbound.ConformanceTests.WildClawSourceIdentityTests.DeclaredReentryPositionHasAPhysicalBattlefieldAndKeepsTheEarlierReflexiveBinding",
+      "exactPrintingSubjects": [
+        "VEN-089"
+      ],
+      "region": "CN",
+      "language": "zh-CN",
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "wild-claw-reflexive-056",
+      "actualExecutedCase": "Riftbound.ConformanceTests.WildClawSourceIdentityTests.ExactCn37785HasItsOwnPrintingAndPrintedOrangePowerInAdditionToTheSevenMana",
+      "exactPrintingSubjects": [
+        "VEN-089"
+      ],
+      "region": "CN",
+      "language": "zh-CN",
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "wild-claw-reflexive-057",
+      "actualExecutedCase": "Riftbound.ConformanceTests.WildClawSourceIdentityTests.OneNewFunctionalIdentityPreservesEveryPriorFunctionalUnitIdAndMembership",
+      "exactPrintingSubjects": [
+        "VEN-089"
+      ],
+      "region": "CN",
+      "language": "zh-CN",
+      "wholePrintingCertified": false
+    }
+  ],
+  "newMethods": [
+    "Riftbound.ConformanceTests.WildClawPendingReflexiveTests.EchoInterleavesPendingCardsAndReflexivesButFinishesAllConfirmationBeforeAnyEmpowerResolves",
+    "Riftbound.ConformanceTests.WildClawPendingReflexiveTests.EmptyDeckOrDeclinedCardStillMakesOnlyTheSeparatelyChosenReflexiveWithoutBurnout",
+    "Riftbound.ConformanceTests.WildClawPendingReflexiveTests.OptionalCreationIsIndependentAndEmpowersOnlyAfterTheActualPermanentPlay",
+    "Riftbound.ConformanceTests.WildClawPendingReflexiveTests.PrivateUnitOrGearSelectionStagesTheCardBeforeTheParentOffersOptionalReflexiveCreation",
+    "Riftbound.ConformanceTests.WildClawReflexiveBoundaryTests.ASpellOnlyCounterOrCounterRequiringAChosenTargetCannotUseTheAbilitiesUntargetedReference",
+    "Riftbound.ConformanceTests.WildClawReflexiveBoundaryTests.ActualRecallOrBanishReentryCannotMakeTheOldAbilityEmpowerANewObject",
+    "Riftbound.ConformanceTests.WildClawReflexiveBoundaryTests.FiveManaReductionDoesNotWaiveTheSelectedUnitsRealMandatoryEquipmentReturnCost",
+    "Riftbound.ConformanceTests.WildClawReflexiveBoundaryTests.InsufficientPrintedPowerReturnsTheRealPendingCardToBanishAndLeavesTheIndependentAbilityWithoutAnEffect",
+    "Riftbound.ConformanceTests.WildClawReflexiveBoundaryTests.LaterObservationCannotOvertakeAnEarlierReflexiveAndAnEmptySecondSelectionDoesNotEmpowerIt",
+    "Riftbound.ConformanceTests.WildClawReflexiveBoundaryTests.NonTargetedEmpowerDoesNotAskForWardOrAdditionalResources",
+    "Riftbound.ConformanceTests.WildClawReflexiveBoundaryTests.SameExecutionObservationIsConfirmedFirstAndNeverBecomesTheNormalSelectionsReflexiveReference",
+    "Riftbound.ConformanceTests.WildClawReflexiveRecoveryTests.BothPlayersAndSpectatorRejectForgedOrExtraPublicReflexivePayloads",
+    "Riftbound.ConformanceTests.WildClawReflexiveRecoveryTests.IndependentRecoveryRejectsMalformedOrForgedPendingReflexivesBeforeTheRealCardConfirms",
+    "Riftbound.ConformanceTests.WildClawSourceIdentityTests.ActualPrevious1035CatalogIdentityCannotBeRelabelledAsTheCurrentInputsOrReplayedAsAnOldDevelopmentGame",
+    "Riftbound.ConformanceTests.WildClawSourceIdentityTests.DeclaredReentryPositionHasAPhysicalBattlefieldAndKeepsTheEarlierReflexiveBinding",
+    "Riftbound.ConformanceTests.WildClawSourceIdentityTests.ExactCn37785HasItsOwnPrintingAndPrintedOrangePowerInAdditionToTheSevenMana",
+    "Riftbound.ConformanceTests.WildClawSourceIdentityTests.OneNewFunctionalIdentityPreservesEveryPriorFunctionalUnitIdAndMembership"
+  ],
+  "newCases": 57,
+  "newMethodCount": 17,
+  "actualFinalFocusCases": 795,
+  "actualFinalFocusMethods": 439,
+  "actualTrxSha256": "847d56ddb2b805ba375698cc1f39c5f746ad3a01d7b36554e108b87e0d9f441a",
+  "wholeCardCertified": false,
+  "relatedOutsideActiveCnPrintingsRemainOpen": [
+    {
+      "id": "VEN-082",
+      "api": 37776,
+      "cardNo": "VEN·082",
+      "scope": "unempower and transfer to legend/unit/gear"
+    },
+    {
+      "id": "VEN-134",
+      "api": 37834,
+      "cardNo": "VEN·134",
+      "scope": "explicit multi-empower cap and layer removal"
+    },
+    {
+      "id": "VEN-185",
+      "api": 37888,
+      "cardNo": "VEN·185",
+      "scope": "separate exact printing, explicit multi-empower cap and layer removal"
+    }
+  ]
+}

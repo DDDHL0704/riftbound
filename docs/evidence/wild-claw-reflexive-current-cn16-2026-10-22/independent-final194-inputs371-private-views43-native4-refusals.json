@@ -1,0 +1,264 @@
+{
+  "status": "PASS_INDEPENDENT_SQL61_ORIGINAL_HISTORY_NATIVE_EQUIVALENCE_AND_DECLARED_REFUSALS",
+  "actualReadOnlyConnection": true,
+  "actualLoadedFourAssemblies": {
+    "baseDirectory": "/Users/dinghaolin/MyProjects/riftbound/var/qa/wild-claw-reflexive-current-cn16-20261022/post-preparation-corrected-candidate-v2/current-rule-sql61-runtime-v1/",
+    "actualRuleInputs": {
+      "schemaVersion": 1,
+      "region": "CN",
+      "language": "zh-CN",
+      "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+      "catalogSha256": "b04ddc91471924f8ba19913d50b87094089804271ef272f292c98bbcfd102298",
+      "implementationSha256": "4873dbe4eb59606c1fbff2ce08c9fcf498e50f051f499058dff2d29c05425b3d",
+      "identitySha256": "33cf2afb68d494c5a3401ce84880ed18c20efb77aa39397adb05b0a549feb446"
+    },
+    "assemblies": [
+      {
+        "name": "Riftbound.Engine",
+        "path": "/Users/dinghaolin/MyProjects/riftbound/var/qa/wild-claw-reflexive-current-cn16-20261022/post-preparation-corrected-candidate-v2/current-rule-sql61-runtime-v1/Riftbound.Engine.dll",
+        "mvid": "4e4c2d02-a419-4f62-bfe3-2501ca2ab655",
+        "sha256": "275e7f6bd115f11024d9c11a0753edc1b937f8cddfe321568ede19639651ca35"
+      },
+      {
+        "name": "Riftbound.Contracts",
+        "path": "/Users/dinghaolin/MyProjects/riftbound/var/qa/wild-claw-reflexive-current-cn16-20261022/post-preparation-corrected-candidate-v2/current-rule-sql61-runtime-v1/Riftbound.Contracts.dll",
+        "mvid": "bdbc9411-c599-40a4-9a5b-2626922f7520",
+        "sha256": "437705f3c59a1e59d20c412d43013c7be68fcd309abd0857c234970c4636fd69"
+      },
+      {
+        "name": "Riftbound.CardCatalog",
+        "path": "/Users/dinghaolin/MyProjects/riftbound/var/qa/wild-claw-reflexive-current-cn16-20261022/post-preparation-corrected-candidate-v2/current-rule-sql61-runtime-v1/Riftbound.CardCatalog.dll",
+        "mvid": "6eeec678-0cb2-4452-adba-1e5ed7cdce08",
+        "sha256": "50aa9f381008b8050d0bcfc9c3d2ac25efa7a37e27295eab594243fb70999ea4"
+      },
+      {
+        "name": "Riftbound.Persistence",
+        "path": "/Users/dinghaolin/MyProjects/riftbound/var/qa/wild-claw-reflexive-current-cn16-20261022/post-preparation-corrected-candidate-v2/current-rule-sql61-runtime-v1/Riftbound.Persistence.dll",
+        "mvid": "f7968a5e-b124-42a2-b5d4-fe34a8b71b76",
+        "sha256": "6f9ee3e2c4bad82831dc345357e27ccb9756dc4f090f265f06c7c358b57b2eb1"
+      }
+    ]
+  },
+  "totals": {
+    "commands": 194,
+    "events": 462,
+    "authority": 194,
+    "snapshots": 371,
+    "prompts": 371,
+    "native": 43,
+    "originalPrefixReplays": 194,
+    "actualCorruptRoomRefusals": 4
+  },
+  "rooms": [
+    {
+      "room": "wild-claw-reflexive-06ba04bc889c477384fbc3d6f3cbf544",
+      "branch": "decline-card",
+      "originalCommands": 10,
+      "originalEvents": 20,
+      "actualCorruptRoomRefused": false,
+      "originalHistoryReplayBeforeDeliberateTamperStillExact": true,
+      "originalProductFlowPassed": true,
+      "acceptedCommands": 10,
+      "rejectedOriginalCommands": 0,
+      "noAcceptedHistoryRewriteOrDatabaseWrite": true
+    },
+    {
+      "room": "wild-claw-reflexive-fc5b54ca30074b89963973cb341863d2",
+      "branch": "echo",
+      "originalCommands": 16,
+      "originalEvents": 45,
+      "actualCorruptRoomRefused": false,
+      "originalHistoryReplayBeforeDeliberateTamperStillExact": true,
+      "originalProductFlowPassed": true,
+      "acceptedCommands": 16,
+      "rejectedOriginalCommands": 0,
+      "noAcceptedHistoryRewriteOrDatabaseWrite": true
+    },
+    {
+      "room": "wild-claw-reflexive-eb16c45d4cf2466fbc6629ec7647edf1",
+      "branch": "empty",
+      "originalCommands": 9,
+      "originalEvents": 16,
+      "actualCorruptRoomRefused": false,
+      "originalHistoryReplayBeforeDeliberateTamperStillExact": true,
+      "originalProductFlowPassed": true,
+      "acceptedCommands": 9,
+      "rejectedOriginalCommands": 0,
+      "noAcceptedHistoryRewriteOrDatabaseWrite": true
+    },
+    {
+      "room": "wild-claw-reflexive-207b7a59351e44628be9ff5da8f74d87",
+      "branch": "gear",
+      "originalCommands": 11,
+      "originalEvents": 27,
+      "actualCorruptRoomRefused": false,
+      "originalHistoryReplayBeforeDeliberateTamperStillExact": true,
+      "originalProductFlowPassed": true,
+      "acceptedCommands": 11,
+      "rejectedOriginalCommands": 0,
+      "noAcceptedHistoryRewriteOrDatabaseWrite": true
+    },
+    {
+      "room": "wild-claw-reflexive-7b4f4cf7b267455782b471bcdb79335d",
+      "branch": "insight",
+      "originalCommands": 15,
+      "originalEvents": 37,
+      "actualCorruptRoomRefused": false,
+      "originalHistoryReplayBeforeDeliberateTamperStillExact": true,
+      "originalProductFlowPassed": true,
+      "acceptedCommands": 15,
+      "rejectedOriginalCommands": 0,
+      "noAcceptedHistoryRewriteOrDatabaseWrite": true
+    },
+    {
+      "room": "wild-claw-reflexive-960a55086c34452bbbc3c4584ba179b8",
+      "branch": "mandatory",
+      "originalCommands": 11,
+      "originalEvents": 28,
+      "actualCorruptRoomRefused": false,
+      "originalHistoryReplayBeforeDeliberateTamperStillExact": true,
+      "originalProductFlowPassed": true,
+      "acceptedCommands": 11,
+      "rejectedOriginalCommands": 0,
+      "noAcceptedHistoryRewriteOrDatabaseWrite": true
+    },
+    {
+      "room": "wild-claw-reflexive-0f2221065cb540e1a9e74dec0e948fa0",
+      "branch": "no-create",
+      "originalCommands": 9,
+      "originalEvents": 21,
+      "actualCorruptRoomRefused": false,
+      "originalHistoryReplayBeforeDeliberateTamperStillExact": true,
+      "originalProductFlowPassed": true,
+      "acceptedCommands": 9,
+      "rejectedOriginalCommands": 0,
+      "noAcceptedHistoryRewriteOrDatabaseWrite": true
+    },
+    {
+      "room": "wild-claw-reflexive-eca79de5edee4a749d02c9973c06ce40",
+      "branch": "observed-first-paid",
+      "originalCommands": 13,
+      "originalEvents": 33,
+      "actualCorruptRoomRefused": false,
+      "originalHistoryReplayBeforeDeliberateTamperStillExact": true,
+      "originalProductFlowPassed": true,
+      "acceptedCommands": 13,
+      "rejectedOriginalCommands": 0,
+      "noAcceptedHistoryRewriteOrDatabaseWrite": true
+    },
+    {
+      "room": "wild-claw-reflexive-fc13d26823f44476b517d5e045d8bf5b",
+      "branch": "observed-second-declined",
+      "originalCommands": 17,
+      "originalEvents": 41,
+      "actualCorruptRoomRefused": false,
+      "originalHistoryReplayBeforeDeliberateTamperStillExact": true,
+      "originalProductFlowPassed": true,
+      "acceptedCommands": 17,
+      "rejectedOriginalCommands": 0,
+      "noAcceptedHistoryRewriteOrDatabaseWrite": true
+    },
+    {
+      "room": "wild-claw-reflexive-952fed4315344130ac0170de4f191e1a",
+      "branch": "recall",
+      "originalCommands": 14,
+      "originalEvents": 34,
+      "actualCorruptRoomRefused": false,
+      "originalHistoryReplayBeforeDeliberateTamperStillExact": true,
+      "originalProductFlowPassed": true,
+      "acceptedCommands": 14,
+      "rejectedOriginalCommands": 0,
+      "noAcceptedHistoryRewriteOrDatabaseWrite": true
+    },
+    {
+      "room": "wild-claw-reflexive-5a1b7b2cc5f94a31a2ee40a5046bfdf5",
+      "branch": "reentry",
+      "originalCommands": 15,
+      "originalEvents": 38,
+      "actualCorruptRoomRefused": false,
+      "originalHistoryReplayBeforeDeliberateTamperStillExact": true,
+      "originalProductFlowPassed": true,
+      "acceptedCommands": 15,
+      "rejectedOriginalCommands": 0,
+      "noAcceptedHistoryRewriteOrDatabaseWrite": true
+    },
+    {
+      "room": "wild-claw-reflexive-11f17ab789f5425f95a43b228be720b4",
+      "branch": "reject-coordinated-generation",
+      "originalCommands": 8,
+      "originalEvents": 18,
+      "actualCorruptRoomRefused": true,
+      "originalHistoryReplayBeforeDeliberateTamperStillExact": true,
+      "originalProductFlowPassed": false,
+      "acceptedCommands": 8,
+      "rejectedOriginalCommands": 0,
+      "noAcceptedHistoryRewriteOrDatabaseWrite": true
+    },
+    {
+      "room": "wild-claw-reflexive-c1c80afaca494e1faed69b0e2b58b169",
+      "branch": "reject-early-confirmation",
+      "originalCommands": 8,
+      "originalEvents": 18,
+      "actualCorruptRoomRefused": true,
+      "originalHistoryReplayBeforeDeliberateTamperStillExact": true,
+      "originalProductFlowPassed": false,
+      "acceptedCommands": 8,
+      "rejectedOriginalCommands": 0,
+      "noAcceptedHistoryRewriteOrDatabaseWrite": true
+    },
+    {
+      "room": "wild-claw-reflexive-93bba44fe2784a65b4a41d9cfa1b29b4",
+      "branch": "reject-missing-ability",
+      "originalCommands": 8,
+      "originalEvents": 18,
+      "actualCorruptRoomRefused": true,
+      "originalHistoryReplayBeforeDeliberateTamperStillExact": true,
+      "originalProductFlowPassed": false,
+      "acceptedCommands": 8,
+      "rejectedOriginalCommands": 0,
+      "noAcceptedHistoryRewriteOrDatabaseWrite": true
+    },
+    {
+      "room": "wild-claw-reflexive-39f1b8b0cf10426f8a8347ef55bab0c2",
+      "branch": "reject-old-catalog",
+      "originalCommands": 8,
+      "originalEvents": 18,
+      "actualCorruptRoomRefused": true,
+      "originalHistoryReplayBeforeDeliberateTamperStillExact": true,
+      "originalProductFlowPassed": false,
+      "acceptedCommands": 8,
+      "rejectedOriginalCommands": 0,
+      "noAcceptedHistoryRewriteOrDatabaseWrite": true
+    },
+    {
+      "room": "wild-claw-reflexive-e9c095c0d88c4c1cb3079650d0d77f61",
+      "branch": "unit",
+      "originalCommands": 11,
+      "originalEvents": 27,
+      "actualCorruptRoomRefused": false,
+      "originalHistoryReplayBeforeDeliberateTamperStillExact": true,
+      "originalProductFlowPassed": true,
+      "acceptedCommands": 11,
+      "rejectedOriginalCommands": 0,
+      "noAcceptedHistoryRewriteOrDatabaseWrite": true
+    },
+    {
+      "room": "wild-claw-reflexive-ca975ce5cfc54ff2a97fcc0554dbba63",
+      "branch": "unpayable",
+      "originalCommands": 11,
+      "originalEvents": 23,
+      "actualCorruptRoomRefused": false,
+      "originalHistoryReplayBeforeDeliberateTamperStillExact": true,
+      "originalProductFlowPassed": true,
+      "acceptedCommands": 11,
+      "rejectedOriginalCommands": 0,
+      "noAcceptedHistoryRewriteOrDatabaseWrite": true
+    }
+  ],
+  "nativePacketBackendReadbackReplaysEquivalentOriginalRawNoNewLiveSubmission": true,
+  "allOriginalFieldsNullConditionalOmissionsAndRowKeysRetained": true,
+  "originalSeedAndEmptyOpeningRetained": true,
+  "originalPrivateViewsIndependentlyScannedFromOriginalVisibleZoneMembership": true,
+  "failedProductFlowsNotPromotedByHistoryValidity": true,
+  "fixedFullVisiblePairedWindowsAndWholeCardCertification": false
+}

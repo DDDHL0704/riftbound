@@ -77,13 +77,14 @@ internal static class MatchPhasePresentation
             var counterMana = Text(replacement, "choiceKind") == "COUNTER_TARGET_MANA_PAYMENT";
             var tokenHaste = Text(replacement, "choiceKind") == "TOKEN_HASTE_PAYMENT";
             var observedBanish = Text(replacement, "choiceKind") == "DECK_OBSERVATION_BANISH";
+            var createEmpower = Text(replacement, "choiceKind") == "DECK_REFLEXIVE_CREATE";
             var publicObservation = observedBanish && Text(replacement, "deckObservationKind") == "REVEAL";
             var movement = Text(replacement, "choiceKind") == "MOVEMENT_SELECTION";
             var groupedTargets = Text(replacement, "choiceKind") == "TARGET_GROUP";
             var firstDeath = Text(replacement, "choiceKind") == "FIRST_DEATH_OCCURRENCE";
-            title = spellChoices ? "法术结算 · 重新选择" : counterMana ? "法术结算 · 付款选择" : tokenHaste ? "指示物急速 · 支付选择" : observedBanish ? publicObservation ? "展示牌库 · 放逐选择" : "查看牌库 · 放逐选择" : movement ? "法术结算 · 选择移动单位" : groupedTargets ? "法术结算 · 重选目标" : firstDeath ? "首次死亡 · 选择事件" : "摧毁替换 · 等待选择";
+            title = spellChoices ? "法术结算 · 重新选择" : counterMana ? "法术结算 · 付款选择" : tokenHaste ? "指示物急速 · 支付选择" : createEmpower ? "内嵌强化 · 创建选择": observedBanish ? publicObservation ? "展示牌库 · 放逐选择" : "查看牌库 · 放逐选择" : movement ? "法术结算 · 选择移动单位" : groupedTargets ? "法术结算 · 重选目标" : firstDeath ? "首次死亡 · 选择事件" : "摧毁替换 · 等待选择";
             actorLine = $"{Side(Text(replacement, "playerId"))}完成选择";
-            detail = spellChoices ? "按服务端提示保留原选择，或重新选择后确认；重新选择时，保留的选择也必须合法。" : counterMana ? "按服务端提示支付法力以保留目标法术；也可先产费，或不支付并尝试无效化。" : tokenHaste ? "在单位进场前，按服务端提示选择支付、放弃或先产费；确认后继续打出该单位。" : observedBanish ? (publicObservation ? "这张牌已向双方展示。" : "") + "选择是否放逐这张牌；原效果完成后，可按提示支付符能打出。" : movement ? "选择你控制的一名合法单位，移动至效果指定的战场。" : groupedTargets ? "从原目标中移除单位，直到剩余目标满足要求，再确认结算。不能新增目标。" : firstDeath ? "选择同时被摧毁的一名单位，作为本回合首次死亡技能的触发事件。"
+            detail = spellChoices ? "按服务端提示保留原选择，或重新选择后确认；重新选择时，保留的选择也必须合法。" : counterMana ? "按服务端提示支付法力以保留目标法术；也可先产费，或不支付并尝试无效化。" : tokenHaste ? "在单位进场前，按服务端提示选择支付、放弃或先产费；确认后继续打出该单位。" : createEmpower ? "决定是否创建独立的强化技能；原法术完成并确认待处理项目后，该技能才可等待响应与结算。": observedBanish ? (publicObservation ? "这张牌已向双方展示。" : "") + "选择是否放逐这张牌；原效果完成后，可按提示支付符能打出。" : movement ? "选择你控制的一名合法单位，移动至效果指定的战场。" : groupedTargets ? "从原目标中移除单位，直到剩余目标满足要求，再确认结算。不能新增目标。" : firstDeath ? "选择同时被摧毁的一名单位，作为本回合首次死亡技能的触发事件。"
                 : "选择先执行的替换及对象；可选费用可先产费，强制替换不能放弃。";
             hint = "确认后继续原结算；选择期间不能插入其他行动。";
             activeWindow = true;

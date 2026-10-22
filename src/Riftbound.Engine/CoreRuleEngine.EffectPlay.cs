@@ -66,6 +66,8 @@ public sealed partial class CoreRuleEngine
     private static bool EffectPlaySourceMatches(CardObjectState card, CardBehaviorDefinition definition)
         => CardBehaviorRegistry.GetAll().Any(b => b.CardNo == card.CardNo && (definition.EffectPlayAllowsAnyCard
             ? b.PlaysSourceToBaseAsUnit || b.PlaysSourceToBaseAsEquipment || IsSpellPlayBehavior(b)
+            : definition.DeckPlayKind == "SINGLE_PRIVATE_UNIT_OR_GEAR_PLAY"
+            ? b.PlaysSourceToBaseAsUnit || b.PlaysSourceToBaseAsEquipment
             : b.PlaysSourceToBaseAsUnit));
 
     internal static bool IsPubliclyRevealedDeckCard(MatchState state, string id)

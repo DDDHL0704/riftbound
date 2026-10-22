@@ -24000,6 +24000,7 @@ public static partial class MatchRecoveryValidator
             if (!CoreRuleEngine.ValidDestroyDeckPlayContext(state, deckItem)) errors.Add("invalid destroy deck play context");
             if (!CoreRuleEngine.ValidDeckPlaySequence(state, deckItem)) errors.Add("invalid deck play sequence");
             if (!CoreRuleEngine.ValidDeckPlayPendingCard(state, deckItem)) errors.Add("invalid deck pending card");
+            if (!CoreRuleEngine.ValidDeckPlayReflexive(state, deckItem)) errors.Add("invalid deck play reflexive ability");
         }
         foreach (var trigger in state.TriggerQueue)
             if (!CoreRuleEngine.ValidEndTrigger(state, trigger)) errors.Add("invalid end-step trigger");
@@ -24091,6 +24092,8 @@ public static partial class MatchRecoveryValidator
         {
             TryReadObjectString(payload, "stackItemId", out var id);
             var expected = state.StackItems.FirstOrDefault(i => i.StackItemId == id)?.DeckPlayPendingCard;
+            var capturedReflexive = state.StackItems.FirstOrDefault(i => i.StackItemId == id)?.DeckPlayReflexive;
+            var expectedReflexive = capturedReflexive is null ? null : new DeckPlayReflexiveView(capturedReflexive.ExecutionIndex, capturedReflexive.Confirmed);
             try
             {
                 var json = JsonSerializer.SerializeToElement(payload);
@@ -24099,6 +24102,10 @@ public static partial class MatchRecoveryValidator
                     ? raw.Deserialize<DeckPlayPendingCardContext>(new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) : null;
                 if (MatchStateHasher.HashValue(actual) != MatchStateHasher.HashValue(expected))
                     errors.Add("public deck pending card differs from authoritative state");
+                var actualReflexive = json.TryGetProperty("deckPlayReflexive", out var reflexive) && reflexive.ValueKind != JsonValueKind.Null
+                    ? reflexive.Deserialize<DeckPlayReflexiveView>(new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) : null;
+                if (MatchStateHasher.HashValue(actualReflexive) != MatchStateHasher.HashValue(expectedReflexive))
+                    errors.Add("public deck play reflexive differs from authoritative state");
             }
             catch (JsonException) { errors.Add("invalid public deck pending card"); }
         }

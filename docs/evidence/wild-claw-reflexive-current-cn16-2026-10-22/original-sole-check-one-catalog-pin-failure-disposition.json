@@ -1,0 +1,42 @@
+{
+  "atUtc": "2026-10-22T15:45:44.863528+00:00",
+  "status": "ACTUAL_SOLE_CHECK13556_PASS_ONE_EXACT_CURRENT_CATALOG_EXPECTATION_FAILURE_ALL57_NEW_CASES_PASS",
+  "actualCases": 13557,
+  "actualOutcomes": {
+    "Passed": 13556,
+    "Failed": 1
+  },
+  "originalFailedCase": "Riftbound.ConformanceTests.Cn16RuleInputSelectionTests.ActualPackagedInputsSelectTheCurrentCnCoreWithoutCertifyingAllItsSemantics",
+  "actualOriginalException": "Assert.Equal() Failure: Strings differ\n           ↓ (pos 0)\nExpected: \"e7455edc32d43f8253a9d0c6fedb83c347bebafbe\"···\nActual:   \"b04ddc91471924f8ba19913d50b87094089804271\"···\n           ↑ (pos 0)",
+  "originalTrxSha256": "7a417aa39bd0509da73b25220e758be72ba84b2e244ab36886b262e4c30ab13a",
+  "originalSource": {
+    "path": "var/qa/wild-claw-reflexive-current-cn16-20261022/actual-sole-check-failed-current-catalog-pin-original-source.cs",
+    "sha256": "a01b9d6f7b3c2ae2058aa7b02d554bb608ca294f6f542e35fd90a5ca0bba1a5f"
+  },
+  "actualExecutedUniqueConformancePreimages": {
+    "path": "var/qa/wild-claw-reflexive-current-cn16-20261022/actual-sole-check-executed-conformance-unique-assembly-preimages-v1.tar.gz",
+    "sha256": "69bf40561f50b0b327b83e6eaff375899f6543240e4d3b2cb39001a74d0e8d33",
+    "files": [
+      {
+        "path": "tests/Riftbound.ConformanceTests/bin/Debug/net10.0/Riftbound.ConformanceTests.dll",
+        "bytes": 24936960,
+        "sha256": "4b749003f8cec67e079351918738fc4ec071079c9cdb4c7a38f16a2757794ec3",
+        "archiveMember": "tests/Riftbound.ConformanceTests/bin/Debug/net10.0/Riftbound.ConformanceTests.dll"
+      },
+      {
+        "path": "tests/Riftbound.ConformanceTests/bin/Debug/net10.0/Riftbound.ConformanceTests.pdb",
+        "bytes": 4223400,
+        "sha256": "8f5c10670e622cfe09b9638ce07e7d08ec1936a61af82fa70bf251e80f50a69a",
+        "archiveMember": "tests/Riftbound.ConformanceTests/bin/Debug/net10.0/Riftbound.ConformanceTests.pdb"
+      }
+    ]
+  },
+  "expectedOld1035CatalogContentSha256": "e7455edc32d43f8253a9d0c6fedb83c347bebafbef064f9b8dffaaabc4b4d266",
+  "actualExact1036CatalogContentSha256": "b04ddc91471924f8ba19913d50b87094089804271ef272f292c98bbcfd102298",
+  "catalogOnlyNewCn37785RawApiRowAll1035PriorObjectsExact": "exact-cn37785-runtime-catalog-intake-in-progress-v1.json",
+  "authorityAndRuntimeScopeUnchanged": true,
+  "noNewRuntimeFailureObservedInThisSoleCheck": true,
+  "correctionStillPending": "Only the exact expected current catalog literal and its explanatory comment; retain every original historical refusal and all methods/Theory/assertions",
+  "noSecondCheck": true,
+  "unexecutedExpectedPassPublicationDraftWillBeCorrectedBeforeAnyTrackedPublication": true
+}
