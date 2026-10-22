@@ -1,0 +1,20 @@
+{
+  "atUtc": "2026-10-22T05:38:12.436796+00:00",
+  "oldReviews": 165,
+  "oldContexts": 80,
+  "oldGates": 250,
+  "oldDeltas": 7,
+  "oldRemainingIds": 17181,
+  "newProductGates": 1,
+  "newSemanticReviews": 0,
+  "newBehaviorBranchesInsideExistingSemanticReviews": 0,
+  "expectedRemainingObligations": 17182,
+  "fourCompleteOldContextsArchived76WholeObjectsExact": true,
+  "allOriginalOptionalVerificationSourcePresenceAndValuesExact": true,
+  "allOldReviewsGatesDeltasAndCertificationScopeExact": true,
+  "baselineGovernance": {
+    "path": "docs/evidence/lab-start-you-current-cn16-2026-10-22/final-governance.json.gz",
+    "sha256": "331bf130533494dd79043199d08310989e77e8672bc93e77904b6a73ef2198a3"
+  },
+  "semanticCoverageCertified": false
+}

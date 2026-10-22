@@ -1,0 +1,139 @@
+{
+  "schemaVersion": 1,
+  "id": "main-initial-snapshot-reconnect-2026-10-22",
+  "atUtc": "2026-10-22T05:38:12.274417+00:00",
+  "scopeKind": "NATIVE_CLIENT_TRANSPORT_PRODUCT_FLOW_NOT_NEW_CARD_OR_RULE_REVIEW",
+  "region": "CN",
+  "language": "zh-CN",
+  "applicableAsOf": "2026-10-22",
+  "adoptedCoreEffectiveDate": "2026-10-16",
+  "existingCoreSha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11",
+  "sourceScope": "Initial Join/Reconnect followed by RequestSnapshot must stay bound to the captured hub, connection ID, room and authenticated actor. Current automatic restore is retained; no command retry, rule change or accepted-history migration.",
+  "exactPrintingOrRuleSemanticExpansion": false,
+  "currentCnKnown16Documents": {
+    "path": "docs/evidence/main-initial-snapshot-reconnect-2026-10-22/current-all16-cn-rule-version-readback.json",
+    "sha256": "8bd94455a62da957b32bf7eb5e4ed8e5bc3d939c1765da404deaea7ae3d611a7"
+  },
+  "globalExistingHubKdaAndPdfsObservationOnly": {
+    "path": "docs/evidence/main-initial-snapshot-reconnect-2026-10-22/current-global-hub-existing-kda-and-pdfs-readback.json",
+    "sha256": "248a8f96d58c0664580039f86b0b514638fc09b923911fc76ef7862cee79cce4"
+  },
+  "allPreviousSourcePublicationEffectiveAcquisitionRegionAndIdentityDatesRetained": true,
+  "newSourceDeltaDetected": false,
+  "baseCommit": "267ab4f0690436d57cd45277e44c8bb5ee5ef6f0",
+  "issue": "https://github.com/DDDHL0704/riftbound/issues/89",
+  "implementation": [
+    {
+      "path": "clients/godot/scripts/Main.cs",
+      "sha256": "bbe21cf447ac4922e9b75e3dc52bc8df4f9a9d0499a06e99a4b6f09e2b280a7e",
+      "role": "implementation"
+    },
+    {
+      "path": "clients/godot/scripts/RiftboundGameHubClient.cs",
+      "sha256": "45f41d9bb75d74b0732e197e3d5a13ef153dcdc29cc97634c5e7ba25a61580cb",
+      "role": "implementation"
+    },
+    {
+      "path": "clients/godot/scripts/RoomSnapshotRequest.cs",
+      "sha256": "5404b91a6d33dca2f618dc7df759a649d3921f2477672d79982791a82971a869",
+      "role": "implementation"
+    }
+  ],
+  "verificationSources": [
+    {
+      "path": "tests/Riftbound.ConformanceTests/RoomSnapshotRequestTests.cs",
+      "sha256": "916d1f86d2623aeede157b49d856feaeee9357a9e13010c4bee77ba87a33c352",
+      "role": "verification-source"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj",
+      "sha256": "0ed38f9e0b8f8447a43f39b80a9293cd61f78fe8cb152d7c9addfb88f9463506",
+      "role": "verification-source"
+    },
+    {
+      "path": "tests/Riftbound.NativeNetworkSmoke/Program.cs",
+      "sha256": "28aab62c4a411d09863badfdcb4b6ffc3aad703e635b991d02efbab1833629ea",
+      "role": "verification-source"
+    }
+  ],
+  "actualDebugLoadedInputIdentity": {
+    "baseDirectory": "/Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/bin/Debug/net10.0/",
+    "actualRuleInputs": {
+      "schemaVersion": 1,
+      "region": "CN",
+      "language": "zh-CN",
+      "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+      "catalogSha256": "e7455edc32d43f8253a9d0c6fedb83c347bebafbef064f9b8dffaaabc4b4d266",
+      "implementationSha256": "af553f549f440d7dd1ef0b47570e5764c0901786a925aca2c1768fe4646c6b8d",
+      "identitySha256": "ad2110c5934ffef016f16478e3153ddf0e804ce8df10c28ee646dcc09b5d5e75"
+    },
+    "hasRoomSeatReplay": true,
+    "hasAtomicSeatCommit": true,
+    "assemblies": [
+      {
+        "name": "Riftbound.Engine",
+        "path": "/Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/bin/Debug/net10.0/Riftbound.Engine.dll",
+        "mvid": "fb135b4d-d07a-4a84-8c82-33dab2ab2ce6",
+        "sha256": "fc3b3fdd1df141dcdef137ac7daa996be30e8be68b79e65304921450a485a7d5"
+      },
+      {
+        "name": "Riftbound.Contracts",
+        "path": "/Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/bin/Debug/net10.0/Riftbound.Contracts.dll",
+        "mvid": "ce36e1ae-495c-4865-9284-f3c32b59df72",
+        "sha256": "16022238dbc0fbd164aab2d30c1f1a97a0b910bc100ebde0ab25ae6124dd3754"
+      },
+      {
+        "name": "Riftbound.CardCatalog",
+        "path": "/Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/bin/Debug/net10.0/Riftbound.CardCatalog.dll",
+        "mvid": "6cacf0ac-e436-4354-a781-194c95ca7ed2",
+        "sha256": "730568eb0c78a61c3c9ceac2fc8be4a11af85464ff66231e236ea583d44c97ac"
+      },
+      {
+        "name": "Riftbound.Persistence",
+        "path": "/Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/bin/Debug/net10.0/Riftbound.Persistence.dll",
+        "mvid": "cebc088d-87b1-457f-bb58-60f1e4677b57",
+        "sha256": "676f22015ab1ca5bd690ee80788b7b26dd71bc4c3915c67dd2e66a2e6d7826f6"
+      }
+    ]
+  },
+  "soleCheck": {
+    "path": "docs/evidence/main-initial-snapshot-reconnect-2026-10-22/final-original-test-and-input-retention.json",
+    "sha256": "0bef1bebecc1d8100a23c8659807081fa3da34e2be9a75a2a3b3b81671d0d748"
+  },
+  "originalActualNativeCounterexample": {
+    "path": "docs/evidence/main-initial-snapshot-reconnect-2026-10-22/actual-fixed267ab-native-counterexample.json",
+    "sha256": "96f211c7df9ad71ea9348cda56a2d4b2d01b0cb9ebbeef3ef99e7bd6eb87ba44"
+  },
+  "extractedLegacy13Cases5Pass8FailIsSeparateFromOriginalActualNativeMain": {
+    "path": "docs/evidence/main-initial-snapshot-reconnect-2026-10-22/original-extracted-legacy-flow-red.json",
+    "sha256": "d5d984e80fddf380e5576c61d9062508f1a20946fc63c5c325a84977cb34989c"
+  },
+  "precedingFixed267abBoundedProducts": {
+    "path": "docs/evidence/main-initial-snapshot-reconnect-2026-10-22/preceding-fixed267ab-native-main-network-paid-lab-and-race-closure.json",
+    "sha256": "54e97849c940207bf85ef43ba92372c61e4c987400aa9910e1f3705f3ab3a947"
+  },
+  "original59SqlExecutionIdentitiesAnd15NetworkRejectionGuardsByteExact": true,
+  "currentFixedFullExpectedCases": 13598,
+  "currentFixedFullExpectedMethods": 7691,
+  "newFixedFullAndActualCiDefaultMainNativeRaceRepair": "OPEN",
+  "visibleHardwarePairAndPhysicalWindows": "OPEN",
+  "allOld165Reviews80Contexts250GatesSevenDeltas1740Printings14293Rules705OutsideEightEnglishGap139CnNewsAndKdaGatesRetained": true,
+  "archive": {
+    "path": "docs/evidence/main-initial-snapshot-reconnect-2026-10-22/original-execution-and-native-records.tar.gz",
+    "sha256": "e05436006d3c3d31f44b0b8ecbdf0a933ac8419598dbf587985db35b59ec8624"
+  },
+  "archiveMap": {
+    "path": "docs/evidence/main-initial-snapshot-reconnect-2026-10-22/archive-map.json",
+    "sha256": "fe438992bfe616cb6c951f60f343ebaf5e29e5e56c8b6abad31d49950093b961"
+  },
+  "semanticCoverageCertified": false,
+  "sameContentPdfIndependentApfsSharing": {
+    "path": "docs/evidence/main-initial-snapshot-reconnect-2026-10-22/same-content-official-pdf-apfs-sharing.json.gz",
+    "sha256": "cd8b304bdfd8f70b8af774680f156368647dbf8c8919644c90e2a87d281a54da"
+  },
+  "tenCompletedOldFixedWorktreesRetirement": {
+    "path": "docs/evidence/main-initial-snapshot-reconnect-2026-10-22/completed-old-fixed-worktree-retirement.json.gz",
+    "sha256": "6d2d959839ed38a8c78a029c224a368fb0779ba718c4847edf990aca05b40ce2"
+  },
+  "physicalDiskReclamationNotInferredFromLogicalClonedBytes": true
+}

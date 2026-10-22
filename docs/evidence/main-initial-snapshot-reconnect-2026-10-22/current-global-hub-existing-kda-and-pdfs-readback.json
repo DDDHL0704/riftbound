@@ -1,0 +1,142 @@
+{
+  "atUtc": "2026-10-22T04:49:42.692552+00:00",
+  "status": "FRESH_EXISTING_GLOBAL_RULES_HUB_AND_ALREADY_REGISTERED_KDA_DRAW_FAQ_COMPLETE_RICH_TEXT_AND_ACCORDION_PLUS_TWO_PDF_READBACK",
+  "articleExtractorSourceSha256": "6e9b0b7d7818e521381faf26b78c4dcc6ce7c45713c7822841e57210a72011ed",
+  "pages": [
+    {
+      "url": "https://playriftbound.com/en-us/rules-hub/",
+      "resolvedUrl": "https://playriftbound.com/en-us/rules-hub/",
+      "startedAtUtc": "2026-10-22T04:49:29.360391+00:00",
+      "receivedAtUtc": "2026-10-22T04:49:35.580224+00:00",
+      "region": "GLOBAL",
+      "pageLocale": "en-us",
+      "language": "en-US",
+      "httpStatus": 200,
+      "responseHeaders": {
+        "Content-Type": "text/html; charset=utf-8",
+        "Date": "Thu, 22 Oct 2026 04:49:35 GMT",
+        "Etag": "\"148sn2je24z33mo\""
+      },
+      "rawBytes": 144740,
+      "rawSha256": "dba23ad8f76f571768f5da8ce477184ce43357701484d43fe973f8f942979d4d",
+      "original": "var/qa/main-initial-snapshot-reconnect-race-20261022/global-source-readback-v1/rules-hub.html.gz",
+      "originalCompressedSha256": "0936a6a490522f086714973c7418d3dc754035e60430d169ca742c2b5e6ff58e",
+      "sameRawHtmlReusedWithoutDuplicate": false,
+      "fullOriginalHtmlLocalOnlyNotRepublished": true,
+      "exactContentId": "e109cbb2-6cef-4944-ae28-1830fc9fa21f.en-us",
+      "exactRevision": "T4xYXIZ0qoV31nY2YA0myb",
+      "declaredPublication": "2026-07-17T00:30:00.000Z",
+      "sameExactContentIdAndRevisionAsRegistered": true,
+      "title": "Rules Hub",
+      "allRichTextAndAccordionSurfaces": 1,
+      "allRichTextAndAccordionStructuredValuesExactPrevious": true,
+      "completePrimaryBodySha256": "d04dcdfc4db6d108b516e6705123e83174d5893e7ce384b5f20dd917cc9f232d",
+      "sameCompletePrimaryBodyAsPreviouslyRegistered": true,
+      "allPrimaryBodyLinks": [
+        "https://riftbound.leagueoflegends.com/en-us/news/rules-and-releases/how-to-play-get-started/",
+        "https://cmsassets.rgpub.io/sanity/files/dsfx7636/news_live/5c7946f7c3b8c6e0faff85ab6dadc6d2e721ea94.pdf",
+        "https://cmsassets.rgpub.io/sanity/files/dsfx7636/news_live/861752822d217edf37d9febaeaf77a7d924c1bb6.pdf",
+        "https://cmsassets.rgpub.io/sanity/files/dsfx7636/news_live/861752822d217edf37d9febaeaf77a7d924c1bb6.pdf",
+        "https://riftbound.leagueoflegends.com/en-us/news/rules-and-releases/riftbound-core-rules-patch-notes/",
+        "https://riftbound.leagueoflegends.com/en-us/news/rules-and-releases/riftbound-core-rules-spiritforged-patch-notes/",
+        "https://riftbound.leagueoflegends.com/en-us/news/rules-and-releases/riftbound-core-rules-unleashed-patch-notes/",
+        "https://playriftbound.com/en-us/news/announcements/core-rules-vendetta-patch-notes",
+        "https://playriftbound.com/en-us/news/announcements/core-rules-radiance-patch-notes-effective-october-16-2026/",
+        "https://riftbound.leagueoflegends.com/en-us/news/rules-and-releases/riftbound-origins-card-errata/",
+        "https://riftbound.leagueoflegends.com/en-us/news/rules-and-releases/riftbound-spiritforged-errata/",
+        "https://playriftbound.com/en-us/news/rules-and-releases/unleashed-errata-updates/",
+        "https://playriftbound.com/en-us/news/announcements/vendetta-errata-updates",
+        "https://playriftbound.com/en-us/news/announcements/radiance-errata-updates",
+        "https://locator.riftbound.uvsgames.com/settings/account-management"
+      ],
+      "noGameEffectiveDatePrintingLanguageRegionalLegalityOrCatalogAdoptionInferred": true,
+      "allOriginalPrintingUniverseAndKnownGapsRetained": true
+    },
+    {
+      "url": "https://playriftbound.com/en-us/news/announcements/product-drawing-faq/",
+      "resolvedUrl": "https://playriftbound.com/en-us/news/announcements/product-drawing-faq/",
+      "startedAtUtc": "2026-10-22T04:49:29.361405+00:00",
+      "receivedAtUtc": "2026-10-22T04:49:30.572342+00:00",
+      "region": "GLOBAL",
+      "pageLocale": "en-us",
+      "language": "en-US",
+      "httpStatus": 200,
+      "responseHeaders": {
+        "Content-Type": "text/html; charset=utf-8",
+        "Date": "Thu, 22 Oct 2026 04:49:30 GMT",
+        "Etag": "\"f20gv2onn63g7w\""
+      },
+      "rawBytes": 161068,
+      "rawSha256": "6869d1c66899332d8195ad52d11c38235cab19b1d8cea0b9577a8d7a559175ee",
+      "original": "var/qa/main-initial-snapshot-reconnect-race-20261022/global-source-readback-v1/product-drawing-faq.html.gz",
+      "originalCompressedSha256": "42459edf4ca2efcef8a3dee2a4c623e1a3cf84782d647f791226e07c4838231f",
+      "sameRawHtmlReusedWithoutDuplicate": false,
+      "fullOriginalHtmlLocalOnlyNotRepublished": true,
+      "exactContentId": "8497fcb2-ceb4-4826-be44-ce9619857a45.en-us",
+      "exactRevision": "7eScETOnz4arS54IwwGOwB",
+      "declaredPublication": "2026-10-21T16:00:00.000Z",
+      "sameExactContentIdAndRevisionAsRegistered": true,
+      "title": "Riftbound x K/DA: Couture Collection Drawing FAQ",
+      "allRichTextAndAccordionSurfaces": 10,
+      "allRichTextAndAccordionStructuredValuesExactPrevious": true,
+      "completePrimaryBodySha256": "182bc9bd43cad4a447b8f7ff54d92a406fbfc0645d7cecb2f3979fd7f6116a6c",
+      "sameCompletePrimaryBodyAsPreviouslyRegistered": true,
+      "allPrimaryBodyLinks": [
+        "https://recovery.riotgames.com/",
+        "https://support-leagueoflegends.riotgames.com/hc/en/requests/new",
+        "https://support-leagueoflegends.riotgames.com/hc/en-us/requests/new"
+      ],
+      "noGameEffectiveDatePrintingLanguageRegionalLegalityOrCatalogAdoptionInferred": true,
+      "allOriginalPrintingUniverseAndKnownGapsRetained": true
+    }
+  ],
+  "pdfs": [
+    {
+      "url": "https://cmsassets.rgpub.io/sanity/files/dsfx7636/news_live/5c7946f7c3b8c6e0faff85ab6dadc6d2e721ea94.pdf",
+      "startedAtUtc": "2026-10-22T04:49:35.586045+00:00",
+      "receivedAtUtc": "2026-10-22T04:49:36.743927+00:00",
+      "region": "GLOBAL",
+      "language": "en-US",
+      "httpStatus": 200,
+      "responseHeaders": {
+        "Last-Modified": "Fri, 09 Oct 2026 22:04:12 GMT",
+        "ETag": "\"6c4eee8bbea60dd1b248f3c41b6324a2\"",
+        "Content-Type": "application/pdf",
+        "Date": "Thu, 22 Oct 2026 04:49:35 GMT"
+      },
+      "bytes": 1612011,
+      "sha256": "94d41fee86f88b61c4157c0389c0595d990b98e5b42555c99d9f649ee64d1fec",
+      "sameAllOriginalPdfBytesAsRegistered": true,
+      "exactOriginalPath": "var/official/2026-10-11/global/47e8549240944d69",
+      "equalPdfNotDuplicatedOnDisk": true,
+      "originalPublicationEffectiveAndConfirmationDatesNotRewritten": true
+    },
+    {
+      "url": "https://cmsassets.rgpub.io/sanity/files/dsfx7636/news_live/861752822d217edf37d9febaeaf77a7d924c1bb6.pdf",
+      "startedAtUtc": "2026-10-22T04:49:36.758671+00:00",
+      "receivedAtUtc": "2026-10-22T04:49:42.684139+00:00",
+      "region": "GLOBAL",
+      "language": "en-US",
+      "httpStatus": 200,
+      "responseHeaders": {
+        "Last-Modified": "Wed, 07 Oct 2026 19:46:55 GMT",
+        "ETag": "\"3e070b8436c09a0122ab19125d3145d6\"",
+        "Content-Type": "application/pdf",
+        "Date": "Thu, 22 Oct 2026 04:49:37 GMT"
+      },
+      "bytes": 17509551,
+      "sha256": "ce07da4fb632526afbbce7f058287a57e7444fa6bde17b0938ff52ce3fab3d07",
+      "sameAllOriginalPdfBytesAsRegistered": true,
+      "exactOriginalPath": "var/official/2026-10-11/global/d8b23473f2405dd2",
+      "equalPdfNotDuplicatedOnDisk": true,
+      "originalPublicationEffectiveAndConfirmationDatesNotRewritten": true
+    }
+  ],
+  "alreadyRegisteredKdaSourceManifest": "docs/evidence/room-seat-journal-inputs-2026-10-22/global-kda-couture-source-supplement.json",
+  "alreadyRegisteredFiveExactPrintingApplicabilityGatesRemainOpen": true,
+  "noDuplicateNewFaqGateOrSourceDeltaFromRediscoveringKnownUrl": true,
+  "pageChromeOrRelatedCarouselChangesAreNotPrimaryRuleRevision": true,
+  "old1740Printings14293Rules705OutsideEightEnglishGap139CnNewsAndSevenSourceDeltasRetained": true,
+  "runtimeCatalogAuthorityAndRootTrackedManifestNotMutatedByReadback": true,
+  "semanticCoverageCertified": false
+}

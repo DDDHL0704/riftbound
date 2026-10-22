@@ -1315,33 +1315,35 @@ public partial class Main : Control
 
     private async Task JoinCurrentRoomAndRequestSnapshotAsync(bool useReconnectToken)
     {
-        if (!IsConnected() || string.IsNullOrWhiteSpace(_authenticatedHandle))
+        var hub = _hub;
+        var playerId = _authenticatedHandle;
+        if (hub is null || !hub.IsConnected || string.IsNullOrWhiteSpace(playerId))
         {
             AppendLog("[color=yellow]Join skipped: not connected/authenticated.[/color]");
             return;
         }
 
+        var roomId = _session.RoomId;
+        var connectionId = hub.ConnectionId;
         var reconnectToken = _session.ReconnectToken;
-        if (useReconnectToken && !string.IsNullOrWhiteSpace(reconnectToken))
+        var reconnect = useReconnectToken && !string.IsNullOrWhiteSpace(reconnectToken);
+        Func<Task> join = reconnect
+            ? () => hub.ReconnectAsync(roomId, playerId, reconnectToken!, _shutdown.Token)
+            : () => hub.JoinRoomAsync(roomId, playerId, null, _shutdown.Token);
+        var completed = await RoomSnapshotRequest.RunAsync(
+            join,
+            () => hub.RequestSnapshotAsync(roomId, playerId, _shutdown.Token),
+            () => ReferenceEquals(_hub, hub) && hub.IsConnected && hub.ConnectionId == connectionId
+                && _session.RoomId == roomId && _authenticatedHandle == playerId);
+        if (!completed)
         {
-            await _hub!.ReconnectAsync(
-                _session.RoomId,
-                _authenticatedHandle,
-                reconnectToken,
-                _shutdown.Token);
-            AppendLog($"Reconnect requested: room={_session.RoomId}, player={_authenticatedHandle}.");
-        }
-        else
-        {
-            await _hub!.JoinRoomAsync(
-                _session.RoomId,
-                _authenticatedHandle,
-                null,
-                _shutdown.Token);
-            AppendLog($"JoinRoom requested: room={_session.RoomId}, player={_authenticatedHandle}.");
+            AppendLog("[color=yellow]连接或房间已更新，结束先前的快照请求。[/color]");
+            return;
         }
 
-        await _hub!.RequestSnapshotAsync(_session.RoomId, _authenticatedHandle, _shutdown.Token);
+        AppendLog(reconnect
+            ? $"Reconnect requested: room={roomId}, player={playerId}."
+            : $"JoinRoom requested: room={roomId}, player={playerId}.");
         AppendLog("RequestSnapshot submitted.");
     }
 

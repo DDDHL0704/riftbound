@@ -1,0 +1,33 @@
+{
+  "atUtc": "2026-10-22T05:40:37.169952+00:00",
+  "status": "PUBLISHED_CURRENT_MAIN_SNAPSHOT_TRANSPORT_GOVERNANCE_VALID_ALL_17181_ORIGINAL_IDS_RETAINED_PLUS_ONE_PRODUCT_GATE",
+  "governanceValid": true,
+  "semanticCoverageCertified": false,
+  "reviews": 165,
+  "contexts": 80,
+  "gates": 251,
+  "sourceDeltas": 7,
+  "remainingObligations": 17182,
+  "allOriginal165ReviewsBytes250GateObjectsSevenDeltasCertificationScopeAndInputsExact": true,
+  "fourCurrentMainImplementationPinsExplicitlyRefreshed76WholeContextsExact": true,
+  "allOldOptionalVerificationSourcePresenceAndValuesExact": true,
+  "newTransportGate13ActualCaseIdentitiesNotCardOrClauseReview": true,
+  "allOriginalTestMethodsTheoryRows143Full151Cases110Pairs11Decks424242AssertionsRetained": true,
+  "onlyCheckCases": 13449,
+  "onlyCheckMethods": 7550,
+  "newCases": 13,
+  "newMethods": 7,
+  "all3344Sources1419Conformance23NativeDebugStableDuringCheck": true,
+  "allArchiveRowsAndMemberHashesIndependentlyVerified": true,
+  "toolTests": {
+    "actualTests": 74,
+    "actualTerminalExitCode": 0,
+    "allPassed": true,
+    "gameplayInputChangesAfterOnlyCheck": false
+  },
+  "tenClosedOldWorktreesOriginalGitSourceAndOriginalExecutionRecordsPreservedBeforeRetirement": true,
+  "oldRuntimeDirectoriesNowRetiredNotClaimedStillDirectlyExecutable": true,
+  "latestNativePairAndOneInstallerPerOsOriginalDbAndAllSourceUniverseRetained": true,
+  "newFixedFullCiDefaultMainColdRepairVisibleAndWindows": "OPEN",
+  "wholePrintingOrGoalComplete": false
+}

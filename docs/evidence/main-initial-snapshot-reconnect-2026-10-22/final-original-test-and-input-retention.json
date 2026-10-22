@@ -1,0 +1,107 @@
+{
+  "atUtc": "2026-10-22T05:36:13.078685+00:00",
+  "status": "SOLE_CLIENT_INITIAL_SNAPSHOT_CHECK13449_CASES7550_METHODS_ALL_PASS_OLD13436_7543_EXACT_PLUS13_7",
+  "baseCommit": "267ab4f0690436d57cd45277e44c8bb5ee5ef6f0",
+  "actualCases": 13449,
+  "actualMethods": 7550,
+  "outcomes": {
+    "Passed": 13449
+  },
+  "originalCases": 13436,
+  "originalMethods": 7543,
+  "oldExactCaseMultisetAndMethodsRetained": true,
+  "newCases": 13,
+  "newMethods": 7,
+  "newCaseNames": [
+    "Riftbound.ConformanceTests.RoomSnapshotRequestTests.CompletedJoinCannotRefreshAReplacedConnectionOrTarget(changedPart: \"client\")",
+    "Riftbound.ConformanceTests.RoomSnapshotRequestTests.CompletedJoinCannotRefreshAReplacedConnectionOrTarget(changedPart: \"connection\")",
+    "Riftbound.ConformanceTests.RoomSnapshotRequestTests.CompletedJoinCannotRefreshAReplacedConnectionOrTarget(changedPart: \"player\")",
+    "Riftbound.ConformanceTests.RoomSnapshotRequestTests.CompletedJoinCannotRefreshAReplacedConnectionOrTarget(changedPart: \"room\")",
+    "Riftbound.ConformanceTests.RoomSnapshotRequestTests.ConnectionLostBeforeOrDuringJoinDoesNotRequestAnObsoleteSnapshot(duringJoin: False)",
+    "Riftbound.ConformanceTests.RoomSnapshotRequestTests.ConnectionLostBeforeOrDuringJoinDoesNotRequestAnObsoleteSnapshot(duringJoin: True)",
+    "Riftbound.ConformanceTests.RoomSnapshotRequestTests.CurrentJoinRequestsExactlyOneSnapshotAfterJoining",
+    "Riftbound.ConformanceTests.RoomSnapshotRequestTests.InFlightSnapshotInterruptedByLossOrFastReconnectDoesNotRetry(alreadyRestored: False)",
+    "Riftbound.ConformanceTests.RoomSnapshotRequestTests.InFlightSnapshotInterruptedByLossOrFastReconnectDoesNotRetry(alreadyRestored: True)",
+    "Riftbound.ConformanceTests.RoomSnapshotRequestTests.InvalidOperationOnCurrentActiveConnectionStillPropagates",
+    "Riftbound.ConformanceTests.RoomSnapshotRequestTests.ServerRejectionStillPropagatesWhenConnectionChanges(connected: False)",
+    "Riftbound.ConformanceTests.RoomSnapshotRequestTests.ServerRejectionStillPropagatesWhenConnectionChanges(connected: True)",
+    "Riftbound.ConformanceTests.RoomSnapshotRequestTests.SnapshotCancellationKeepsTheOriginalCancellationToken"
+  ],
+  "newMethodNames": [
+    "Riftbound.ConformanceTests.RoomSnapshotRequestTests.CompletedJoinCannotRefreshAReplacedConnectionOrTarget",
+    "Riftbound.ConformanceTests.RoomSnapshotRequestTests.ConnectionLostBeforeOrDuringJoinDoesNotRequestAnObsoleteSnapshot",
+    "Riftbound.ConformanceTests.RoomSnapshotRequestTests.CurrentJoinRequestsExactlyOneSnapshotAfterJoining",
+    "Riftbound.ConformanceTests.RoomSnapshotRequestTests.InFlightSnapshotInterruptedByLossOrFastReconnectDoesNotRetry",
+    "Riftbound.ConformanceTests.RoomSnapshotRequestTests.InvalidOperationOnCurrentActiveConnectionStillPropagates",
+    "Riftbound.ConformanceTests.RoomSnapshotRequestTests.ServerRejectionStillPropagatesWhenConnectionChanges",
+    "Riftbound.ConformanceTests.RoomSnapshotRequestTests.SnapshotCancellationKeepsTheOriginalCancellationToken"
+  ],
+  "legacyExtractedFlowOriginalOutcomes": {
+    "Passed": 5,
+    "Failed": 8
+  },
+  "legacyOriginalCaseMultisetExactCurrent": true,
+  "finalAdjacentCases": 647,
+  "finalAdjacentSelectedMethods": 372,
+  "focusWholeSuiteDiscoveredMethods": 7691,
+  "all1803OriginalConformanceFilesExceptOneExactCompileLinkAdditionUnchanged": true,
+  "all509OriginalCSharpAndAllOldMethodsTheoryRowsAssertionsByteExact": true,
+  "allNineFullSources143Methods151Cases110Pairs11Decks424242AndVictoryReplayAssertionsRetained": true,
+  "currentCheckDoesNotClaimAll143FullGamesExecuted": true,
+  "original59SqlObjectsOrderClassesAndOriginalNetwork15GuardsSourceByteExact": true,
+  "onlyCheckTrx": {
+    "path": "var/qa/main-initial-snapshot-reconnect-race-20261022/only-check-v1/check/results.trx",
+    "sha256": "45c7fe19fb560197e542c47c3ee8b62e5dfd48e4b6b71605ddff29beb215d5a6"
+  },
+  "originalBaselineTrx": {
+    "path": "var/qa/battlefield-start-you-lab-20261022/only-check-v1/check/results.trx",
+    "sha256": "65ce103c1eefeb3815e4e5786ea338433d416b3a7cb8acd2fa11db864bdd8f2a"
+  },
+  "all3344SourceModes1419Conformance23NativeDebugStable": true,
+  "onlyOneCheckForThisCoherentBatch": true,
+  "noDatabaseConnectionInLocalCheck": true,
+  "actualFourLoadedDebugAssembliesAndRuleInputs": {
+    "baseDirectory": "/Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/bin/Debug/net10.0/",
+    "actualRuleInputs": {
+      "schemaVersion": 1,
+      "region": "CN",
+      "language": "zh-CN",
+      "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+      "catalogSha256": "e7455edc32d43f8253a9d0c6fedb83c347bebafbef064f9b8dffaaabc4b4d266",
+      "implementationSha256": "af553f549f440d7dd1ef0b47570e5764c0901786a925aca2c1768fe4646c6b8d",
+      "identitySha256": "ad2110c5934ffef016f16478e3153ddf0e804ce8df10c28ee646dcc09b5d5e75"
+    },
+    "hasRoomSeatReplay": true,
+    "hasAtomicSeatCommit": true,
+    "assemblies": [
+      {
+        "name": "Riftbound.Engine",
+        "path": "/Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/bin/Debug/net10.0/Riftbound.Engine.dll",
+        "mvid": "fb135b4d-d07a-4a84-8c82-33dab2ab2ce6",
+        "sha256": "fc3b3fdd1df141dcdef137ac7daa996be30e8be68b79e65304921450a485a7d5"
+      },
+      {
+        "name": "Riftbound.Contracts",
+        "path": "/Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/bin/Debug/net10.0/Riftbound.Contracts.dll",
+        "mvid": "ce36e1ae-495c-4865-9284-f3c32b59df72",
+        "sha256": "16022238dbc0fbd164aab2d30c1f1a97a0b910bc100ebde0ab25ae6124dd3754"
+      },
+      {
+        "name": "Riftbound.CardCatalog",
+        "path": "/Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/bin/Debug/net10.0/Riftbound.CardCatalog.dll",
+        "mvid": "6cacf0ac-e436-4354-a781-194c95ca7ed2",
+        "sha256": "730568eb0c78a61c3c9ceac2fc8be4a11af85464ff66231e236ea583d44c97ac"
+      },
+      {
+        "name": "Riftbound.Persistence",
+        "path": "/Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.ConformanceTests/bin/Debug/net10.0/Riftbound.Persistence.dll",
+        "mvid": "cebc088d-87b1-457f-bb58-60f1e4677b57",
+        "sha256": "676f22015ab1ca5bd690ee80788b7b26dd71bc4c3915c67dd2e66a2e6d7826f6"
+      }
+    ]
+  },
+  "separate20WebObservationsNotLocallyCertified": true,
+  "newFixedFullActualCiExportNativeColdRaceRepairVisibleAndWindows": "OPEN",
+  "currentTransportBugDoesNotCreateCardOrClauseSemanticCertification": true,
+  "wholePrintingOrGoalCertified": false
+}

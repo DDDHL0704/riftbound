@@ -11788,7 +11788,7 @@
     },
     "targeted-insight-repeat-declarations-and-native-wire-2026-10-15": {
       "evidenceCommit": "9e426a31386aefa980bf2d48f02b237098cb2914",
-      "currentImplementationCommit": "f4704291ff87c99b1599d93f0fc71700f0433cae",
+      "currentImplementationCommit": "267ab4f0690436d57cd45277e44c8bb5ee5ef6f0",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact base plus explicit new uncommitted targeted rule/client/test inputs; old full cannot certify these inputs.",
       "ciState": "PENDING",
@@ -11815,7 +11815,7 @@
         },
         {
           "path": "clients/godot/scripts/Main.cs",
-          "sha256": "f5901d4e65e8cda068e4066b5a9a7c0be3335746767d0704f01f4be51df1430c"
+          "sha256": "bbe21cf447ac4922e9b75e3dc52bc8df4f9a9d0499a06e99a4b6f09e2b280a7e"
         },
         {
           "path": "clients/godot/scripts/ClientCommandSerializer.cs",
@@ -12254,6 +12254,17 @@
         "path": "docs/evidence/canonical-room-identity-2026-10-21/source-manifest.json",
         "sha256": "2933ff079c75dd22861e9889f9518155f5f6838140f0901e5a0b8071845733c7",
         "role": "current-canonical-account-platform-input-change"
+      },
+      "currentInitialSnapshotInputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/main-initial-snapshot-reconnect-2026-10-22/source-manifest.json",
+          "sha256": "83a0d6cbf535ebef6ef08ed4878aff023da98a309acc88b1d6294f3cef102c90",
+          "role": "source-manifest"
+        },
+        "onlyCurrentImplementationPinsAndExplicitPendingStateRefreshed": true,
+        "allOriginalSourceEvidenceBranchesAndVerificationRefsRetained": true,
+        "newFixedFullAndCurrentProducts": "OPEN",
+        "noAdditionalPriorCardOrRuleCertification": true
       }
     },
     "combat-event-journal-wire-and-single-defender-choice-2026-10-15": {
@@ -24917,7 +24928,7 @@
     "observed-source-native-ui-2026-10-18": {
       "evidenceCommit": "8c6d569e7be024b278cda46c09c262f061e53ab8",
       "evidenceCommitScope": "Prior fixed8c Release d4 visible46/282/normal8:0 is separate. Current uncommitted Debug bad341/combined47228 and actual native client modules pinned independently. Fixed48 CI cancelled by3h timeout, never full success.",
-      "currentImplementationCommit": "7a2fa5b1bfc2551466fc7464dc579f4baf807357",
+      "currentImplementationCommit": "267ab4f0690436d57cd45277e44c8bb5ee5ef6f0",
       "currentImplementationIncludesUncommittedChanges": true,
       "currentInputRevision": "816510de29c4c161efef9bf564db861cb2de5d2ac71519413d56d39ede7268bb",
       "ciState": "PENDING",
@@ -24930,7 +24941,7 @@
         },
         {
           "path": "clients/godot/scripts/Main.cs",
-          "sha256": "f5901d4e65e8cda068e4066b5a9a7c0be3335746767d0704f01f4be51df1430c",
+          "sha256": "bbe21cf447ac4922e9b75e3dc52bc8df4f9a9d0499a06e99a4b6f09e2b280a7e",
           "role": "implementation"
         },
         {
@@ -25359,6 +25370,17 @@
         "allOriginalVerificationSourceReferencesAndEvidenceRetained": true,
         "newFixedFullAndProducts": "OPEN",
         "noAdditionalWholePriorFindingSemanticCertification": true
+      },
+      "currentInitialSnapshotInputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/main-initial-snapshot-reconnect-2026-10-22/source-manifest.json",
+          "sha256": "83a0d6cbf535ebef6ef08ed4878aff023da98a309acc88b1d6294f3cef102c90",
+          "role": "source-manifest"
+        },
+        "onlyCurrentImplementationPinsAndExplicitPendingStateRefreshed": true,
+        "allOriginalSourceEvidenceBranchesAndVerificationRefsRetained": true,
+        "newFixedFullAndCurrentProducts": "OPEN",
+        "noAdditionalPriorCardOrRuleCertification": true
       }
     },
     "ravenbloom-put-hand-2026-10-18": {
@@ -32193,7 +32215,7 @@
     },
     "observed-disclosure-wording-and-stale-native-smoke-2026-10-19": {
       "evidenceCommit": "6d9aee51e5259313b319ad555f8f44572563b3df",
-      "currentImplementationCommit": "7a2fa5b1bfc2551466fc7464dc579f4baf807357",
+      "currentImplementationCommit": "267ab4f0690436d57cd45277e44c8bb5ee5ef6f0",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Actual precommit N12 Debug identity in32 controlled and12 ordinary cases and one check; prior fixed6d9 actual Release acceptance is separate. New native source fix is not yet a native execution certificate.",
       "currentInputRevision": "816510de29c4c161efef9bf564db861cb2de5d2ac71519413d56d39ede7268bb",
@@ -32235,7 +32257,7 @@
         },
         {
           "path": "clients/godot/scripts/Main.cs",
-          "sha256": "f5901d4e65e8cda068e4066b5a9a7c0be3335746767d0704f01f4be51df1430c",
+          "sha256": "bbe21cf447ac4922e9b75e3dc52bc8df4f9a9d0499a06e99a4b6f09e2b280a7e",
           "role": "implementation"
         }
       ],
@@ -33015,6 +33037,17 @@
         "allOriginalVerificationSourceReferencesAndEvidenceRetained": true,
         "newFixedFullAndProducts": "OPEN",
         "noAdditionalWholePriorFindingSemanticCertification": true
+      },
+      "currentInitialSnapshotInputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/main-initial-snapshot-reconnect-2026-10-22/source-manifest.json",
+          "sha256": "83a0d6cbf535ebef6ef08ed4878aff023da98a309acc88b1d6294f3cef102c90",
+          "role": "source-manifest"
+        },
+        "onlyCurrentImplementationPinsAndExplicitPendingStateRefreshed": true,
+        "allOriginalSourceEvidenceBranchesAndVerificationRefsRetained": true,
+        "newFixedFullAndCurrentProducts": "OPEN",
+        "noAdditionalPriorCardOrRuleCertification": true
       }
     },
     "initial-empty-reveal-followup-specific432-2026-10-19": {
@@ -36556,7 +36589,7 @@
     },
     "native-offline-start-same-server-preconstructed-retry-2026-10-20": {
       "evidenceCommit": "9a57068e986850a5e86bbeb9d0bbb2a92f44b7b4",
-      "currentImplementationCommit": "f4704291ff87c99b1599d93f0fc71700f0433cae",
+      "currentImplementationCommit": "267ab4f0690436d57cd45277e44c8bb5ee5ef6f0",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Fixed9a actual negative and preceding native score; base9a plus one Main source change for this check. No new compiled Main acceptance claimed.",
       "currentInputRevision": "816510de29c4c161efef9bf564db861cb2de5d2ac71519413d56d39ede7268bb",
@@ -36573,7 +36606,7 @@
       "implementation": [
         {
           "path": "clients/godot/scripts/Main.cs",
-          "sha256": "f5901d4e65e8cda068e4066b5a9a7c0be3335746767d0704f01f4be51df1430c",
+          "sha256": "bbe21cf447ac4922e9b75e3dc52bc8df4f9a9d0499a06e99a4b6f09e2b280a7e",
           "role": "implementation"
         }
       ],
@@ -36719,6 +36752,17 @@
         "path": "docs/evidence/canonical-room-identity-2026-10-21/source-manifest.json",
         "sha256": "2933ff079c75dd22861e9889f9518155f5f6838140f0901e5a0b8071845733c7",
         "role": "current-canonical-account-platform-input-change"
+      },
+      "currentInitialSnapshotInputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/main-initial-snapshot-reconnect-2026-10-22/source-manifest.json",
+          "sha256": "83a0d6cbf535ebef6ef08ed4878aff023da98a309acc88b1d6294f3cef102c90",
+          "role": "source-manifest"
+        },
+        "onlyCurrentImplementationPinsAndExplicitPendingStateRefreshed": true,
+        "allOriginalSourceEvidenceBranchesAndVerificationRefsRetained": true,
+        "newFixedFullAndCurrentProducts": "OPEN",
+        "noAdditionalPriorCardOrRuleCertification": true
       }
     },
     "conditional-counter-target-controller-mana-and-printed-echo-2026-10-20": {
@@ -65868,6 +65912,278 @@
       "productAcceptance": "SEPARATE",
       "notAssumedToBeOneOfEightUnreturnedEnglishRows": true,
       "wholePrintingCertified": false
+    },
+    {
+      "id": "NATIVE_INITIAL_ROOM_SNAPSHOT_RECONNECT_RACE",
+      "state": "OPEN",
+      "region": "CN",
+      "language": "zh-CN",
+      "sourceManifest": {
+        "path": "docs/evidence/main-initial-snapshot-reconnect-2026-10-22/source-manifest.json",
+        "sha256": "83a0d6cbf535ebef6ef08ed4878aff023da98a309acc88b1d6294f3cef102c90",
+        "role": "source-manifest"
+      },
+      "issue": "https://github.com/DDDHL0704/riftbound/issues/89",
+      "requirement": "Verify this fixed client in its actual CI default Main during initial room entry interrupted by automatic reconnect, including changed connection epoch or target and in-flight snapshot. Preserve active-operation failures, server rejection, cancellation, original auth/private guards and no command retries. Finish current full, normal score and original replay; visible paired controls and real Windows remain separate.",
+      "semanticReview": "CLIENT_TRANSPORT_ONLY_NO_NEW_CARD_OR_RULE_CERTIFICATION",
+      "implementation": [
+        {
+          "path": "clients/godot/scripts/Main.cs",
+          "sha256": "bbe21cf447ac4922e9b75e3dc52bc8df4f9a9d0499a06e99a4b6f09e2b280a7e",
+          "role": "implementation"
+        },
+        {
+          "path": "clients/godot/scripts/RiftboundGameHubClient.cs",
+          "sha256": "45f41d9bb75d74b0732e197e3d5a13ef153dcdc29cc97634c5e7ba25a61580cb",
+          "role": "implementation"
+        },
+        {
+          "path": "clients/godot/scripts/RoomSnapshotRequest.cs",
+          "sha256": "5404b91a6d33dca2f618dc7df759a649d3921f2477672d79982791a82971a869",
+          "role": "implementation"
+        }
+      ],
+      "verificationSources": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/RoomSnapshotRequestTests.cs",
+          "sha256": "916d1f86d2623aeede157b49d856feaeee9357a9e13010c4bee77ba87a33c352",
+          "role": "verification-source"
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/Riftbound.ConformanceTests.csproj",
+          "sha256": "0ed38f9e0b8f8447a43f39b80a9293cd61f78fe8cb152d7c9addfb88f9463506",
+          "role": "verification-source"
+        },
+        {
+          "path": "tests/Riftbound.NativeNetworkSmoke/Program.cs",
+          "sha256": "28aab62c4a411d09863badfdcb4b6ffc3aad703e635b991d02efbab1833629ea",
+          "role": "verification-source"
+        }
+      ],
+      "testExecution": {
+        "newCases": 13,
+        "newMethods": 7,
+        "legacyActualPassed": 5,
+        "legacyActualFailed": 8,
+        "finalFocusCases": 647,
+        "finalFocusSelectedMethods": 372,
+        "onlyCheckCases": 13449,
+        "onlyCheckMethods": 7550,
+        "allOriginalCasesTheoryRowsAndAssertionsRetained": true
+      },
+      "behaviorCases": [
+        {
+          "id": "INITIAL_SNAPSHOT_CASE_01",
+          "actualExecutedCase": "Riftbound.ConformanceTests.RoomSnapshotRequestTests.CompletedJoinCannotRefreshAReplacedConnectionOrTarget(changedPart: \"client\")",
+          "sourceVersion": {
+            "baseCommit": "267ab4f0690436d57cd45277e44c8bb5ee5ef6f0",
+            "currentImplementationSha256": {
+              "clients/godot/scripts/Main.cs": "bbe21cf447ac4922e9b75e3dc52bc8df4f9a9d0499a06e99a4b6f09e2b280a7e",
+              "clients/godot/scripts/RiftboundGameHubClient.cs": "45f41d9bb75d74b0732e197e3d5a13ef153dcdc29cc97634c5e7ba25a61580cb",
+              "clients/godot/scripts/RoomSnapshotRequest.cs": "5404b91a6d33dca2f618dc7df759a649d3921f2477672d79982791a82971a869"
+            }
+          },
+          "semanticReview": "NOT_A_CARD_RULE_SEMANTIC_REVIEW",
+          "testExecution": "ACTUAL_PASS_NEW13_FINAL647_AND_SOLE13449",
+          "fixedCommitCi": "PENDING_NEW_FIXED_FULL",
+          "productAcceptance": "OPEN_NEW_ACTUAL_CI_DEFAULT_MAIN_RECONNECT"
+        },
+        {
+          "id": "INITIAL_SNAPSHOT_CASE_02",
+          "actualExecutedCase": "Riftbound.ConformanceTests.RoomSnapshotRequestTests.CompletedJoinCannotRefreshAReplacedConnectionOrTarget(changedPart: \"connection\")",
+          "sourceVersion": {
+            "baseCommit": "267ab4f0690436d57cd45277e44c8bb5ee5ef6f0",
+            "currentImplementationSha256": {
+              "clients/godot/scripts/Main.cs": "bbe21cf447ac4922e9b75e3dc52bc8df4f9a9d0499a06e99a4b6f09e2b280a7e",
+              "clients/godot/scripts/RiftboundGameHubClient.cs": "45f41d9bb75d74b0732e197e3d5a13ef153dcdc29cc97634c5e7ba25a61580cb",
+              "clients/godot/scripts/RoomSnapshotRequest.cs": "5404b91a6d33dca2f618dc7df759a649d3921f2477672d79982791a82971a869"
+            }
+          },
+          "semanticReview": "NOT_A_CARD_RULE_SEMANTIC_REVIEW",
+          "testExecution": "ACTUAL_PASS_NEW13_FINAL647_AND_SOLE13449",
+          "fixedCommitCi": "PENDING_NEW_FIXED_FULL",
+          "productAcceptance": "OPEN_NEW_ACTUAL_CI_DEFAULT_MAIN_RECONNECT"
+        },
+        {
+          "id": "INITIAL_SNAPSHOT_CASE_03",
+          "actualExecutedCase": "Riftbound.ConformanceTests.RoomSnapshotRequestTests.CompletedJoinCannotRefreshAReplacedConnectionOrTarget(changedPart: \"player\")",
+          "sourceVersion": {
+            "baseCommit": "267ab4f0690436d57cd45277e44c8bb5ee5ef6f0",
+            "currentImplementationSha256": {
+              "clients/godot/scripts/Main.cs": "bbe21cf447ac4922e9b75e3dc52bc8df4f9a9d0499a06e99a4b6f09e2b280a7e",
+              "clients/godot/scripts/RiftboundGameHubClient.cs": "45f41d9bb75d74b0732e197e3d5a13ef153dcdc29cc97634c5e7ba25a61580cb",
+              "clients/godot/scripts/RoomSnapshotRequest.cs": "5404b91a6d33dca2f618dc7df759a649d3921f2477672d79982791a82971a869"
+            }
+          },
+          "semanticReview": "NOT_A_CARD_RULE_SEMANTIC_REVIEW",
+          "testExecution": "ACTUAL_PASS_NEW13_FINAL647_AND_SOLE13449",
+          "fixedCommitCi": "PENDING_NEW_FIXED_FULL",
+          "productAcceptance": "OPEN_NEW_ACTUAL_CI_DEFAULT_MAIN_RECONNECT"
+        },
+        {
+          "id": "INITIAL_SNAPSHOT_CASE_04",
+          "actualExecutedCase": "Riftbound.ConformanceTests.RoomSnapshotRequestTests.CompletedJoinCannotRefreshAReplacedConnectionOrTarget(changedPart: \"room\")",
+          "sourceVersion": {
+            "baseCommit": "267ab4f0690436d57cd45277e44c8bb5ee5ef6f0",
+            "currentImplementationSha256": {
+              "clients/godot/scripts/Main.cs": "bbe21cf447ac4922e9b75e3dc52bc8df4f9a9d0499a06e99a4b6f09e2b280a7e",
+              "clients/godot/scripts/RiftboundGameHubClient.cs": "45f41d9bb75d74b0732e197e3d5a13ef153dcdc29cc97634c5e7ba25a61580cb",
+              "clients/godot/scripts/RoomSnapshotRequest.cs": "5404b91a6d33dca2f618dc7df759a649d3921f2477672d79982791a82971a869"
+            }
+          },
+          "semanticReview": "NOT_A_CARD_RULE_SEMANTIC_REVIEW",
+          "testExecution": "ACTUAL_PASS_NEW13_FINAL647_AND_SOLE13449",
+          "fixedCommitCi": "PENDING_NEW_FIXED_FULL",
+          "productAcceptance": "OPEN_NEW_ACTUAL_CI_DEFAULT_MAIN_RECONNECT"
+        },
+        {
+          "id": "INITIAL_SNAPSHOT_CASE_05",
+          "actualExecutedCase": "Riftbound.ConformanceTests.RoomSnapshotRequestTests.ConnectionLostBeforeOrDuringJoinDoesNotRequestAnObsoleteSnapshot(duringJoin: False)",
+          "sourceVersion": {
+            "baseCommit": "267ab4f0690436d57cd45277e44c8bb5ee5ef6f0",
+            "currentImplementationSha256": {
+              "clients/godot/scripts/Main.cs": "bbe21cf447ac4922e9b75e3dc52bc8df4f9a9d0499a06e99a4b6f09e2b280a7e",
+              "clients/godot/scripts/RiftboundGameHubClient.cs": "45f41d9bb75d74b0732e197e3d5a13ef153dcdc29cc97634c5e7ba25a61580cb",
+              "clients/godot/scripts/RoomSnapshotRequest.cs": "5404b91a6d33dca2f618dc7df759a649d3921f2477672d79982791a82971a869"
+            }
+          },
+          "semanticReview": "NOT_A_CARD_RULE_SEMANTIC_REVIEW",
+          "testExecution": "ACTUAL_PASS_NEW13_FINAL647_AND_SOLE13449",
+          "fixedCommitCi": "PENDING_NEW_FIXED_FULL",
+          "productAcceptance": "OPEN_NEW_ACTUAL_CI_DEFAULT_MAIN_RECONNECT"
+        },
+        {
+          "id": "INITIAL_SNAPSHOT_CASE_06",
+          "actualExecutedCase": "Riftbound.ConformanceTests.RoomSnapshotRequestTests.ConnectionLostBeforeOrDuringJoinDoesNotRequestAnObsoleteSnapshot(duringJoin: True)",
+          "sourceVersion": {
+            "baseCommit": "267ab4f0690436d57cd45277e44c8bb5ee5ef6f0",
+            "currentImplementationSha256": {
+              "clients/godot/scripts/Main.cs": "bbe21cf447ac4922e9b75e3dc52bc8df4f9a9d0499a06e99a4b6f09e2b280a7e",
+              "clients/godot/scripts/RiftboundGameHubClient.cs": "45f41d9bb75d74b0732e197e3d5a13ef153dcdc29cc97634c5e7ba25a61580cb",
+              "clients/godot/scripts/RoomSnapshotRequest.cs": "5404b91a6d33dca2f618dc7df759a649d3921f2477672d79982791a82971a869"
+            }
+          },
+          "semanticReview": "NOT_A_CARD_RULE_SEMANTIC_REVIEW",
+          "testExecution": "ACTUAL_PASS_NEW13_FINAL647_AND_SOLE13449",
+          "fixedCommitCi": "PENDING_NEW_FIXED_FULL",
+          "productAcceptance": "OPEN_NEW_ACTUAL_CI_DEFAULT_MAIN_RECONNECT"
+        },
+        {
+          "id": "INITIAL_SNAPSHOT_CASE_07",
+          "actualExecutedCase": "Riftbound.ConformanceTests.RoomSnapshotRequestTests.CurrentJoinRequestsExactlyOneSnapshotAfterJoining",
+          "sourceVersion": {
+            "baseCommit": "267ab4f0690436d57cd45277e44c8bb5ee5ef6f0",
+            "currentImplementationSha256": {
+              "clients/godot/scripts/Main.cs": "bbe21cf447ac4922e9b75e3dc52bc8df4f9a9d0499a06e99a4b6f09e2b280a7e",
+              "clients/godot/scripts/RiftboundGameHubClient.cs": "45f41d9bb75d74b0732e197e3d5a13ef153dcdc29cc97634c5e7ba25a61580cb",
+              "clients/godot/scripts/RoomSnapshotRequest.cs": "5404b91a6d33dca2f618dc7df759a649d3921f2477672d79982791a82971a869"
+            }
+          },
+          "semanticReview": "NOT_A_CARD_RULE_SEMANTIC_REVIEW",
+          "testExecution": "ACTUAL_PASS_NEW13_FINAL647_AND_SOLE13449",
+          "fixedCommitCi": "PENDING_NEW_FIXED_FULL",
+          "productAcceptance": "OPEN_NEW_ACTUAL_CI_DEFAULT_MAIN_RECONNECT"
+        },
+        {
+          "id": "INITIAL_SNAPSHOT_CASE_08",
+          "actualExecutedCase": "Riftbound.ConformanceTests.RoomSnapshotRequestTests.InFlightSnapshotInterruptedByLossOrFastReconnectDoesNotRetry(alreadyRestored: False)",
+          "sourceVersion": {
+            "baseCommit": "267ab4f0690436d57cd45277e44c8bb5ee5ef6f0",
+            "currentImplementationSha256": {
+              "clients/godot/scripts/Main.cs": "bbe21cf447ac4922e9b75e3dc52bc8df4f9a9d0499a06e99a4b6f09e2b280a7e",
+              "clients/godot/scripts/RiftboundGameHubClient.cs": "45f41d9bb75d74b0732e197e3d5a13ef153dcdc29cc97634c5e7ba25a61580cb",
+              "clients/godot/scripts/RoomSnapshotRequest.cs": "5404b91a6d33dca2f618dc7df759a649d3921f2477672d79982791a82971a869"
+            }
+          },
+          "semanticReview": "NOT_A_CARD_RULE_SEMANTIC_REVIEW",
+          "testExecution": "ACTUAL_PASS_NEW13_FINAL647_AND_SOLE13449",
+          "fixedCommitCi": "PENDING_NEW_FIXED_FULL",
+          "productAcceptance": "OPEN_NEW_ACTUAL_CI_DEFAULT_MAIN_RECONNECT"
+        },
+        {
+          "id": "INITIAL_SNAPSHOT_CASE_09",
+          "actualExecutedCase": "Riftbound.ConformanceTests.RoomSnapshotRequestTests.InFlightSnapshotInterruptedByLossOrFastReconnectDoesNotRetry(alreadyRestored: True)",
+          "sourceVersion": {
+            "baseCommit": "267ab4f0690436d57cd45277e44c8bb5ee5ef6f0",
+            "currentImplementationSha256": {
+              "clients/godot/scripts/Main.cs": "bbe21cf447ac4922e9b75e3dc52bc8df4f9a9d0499a06e99a4b6f09e2b280a7e",
+              "clients/godot/scripts/RiftboundGameHubClient.cs": "45f41d9bb75d74b0732e197e3d5a13ef153dcdc29cc97634c5e7ba25a61580cb",
+              "clients/godot/scripts/RoomSnapshotRequest.cs": "5404b91a6d33dca2f618dc7df759a649d3921f2477672d79982791a82971a869"
+            }
+          },
+          "semanticReview": "NOT_A_CARD_RULE_SEMANTIC_REVIEW",
+          "testExecution": "ACTUAL_PASS_NEW13_FINAL647_AND_SOLE13449",
+          "fixedCommitCi": "PENDING_NEW_FIXED_FULL",
+          "productAcceptance": "OPEN_NEW_ACTUAL_CI_DEFAULT_MAIN_RECONNECT"
+        },
+        {
+          "id": "INITIAL_SNAPSHOT_CASE_10",
+          "actualExecutedCase": "Riftbound.ConformanceTests.RoomSnapshotRequestTests.InvalidOperationOnCurrentActiveConnectionStillPropagates",
+          "sourceVersion": {
+            "baseCommit": "267ab4f0690436d57cd45277e44c8bb5ee5ef6f0",
+            "currentImplementationSha256": {
+              "clients/godot/scripts/Main.cs": "bbe21cf447ac4922e9b75e3dc52bc8df4f9a9d0499a06e99a4b6f09e2b280a7e",
+              "clients/godot/scripts/RiftboundGameHubClient.cs": "45f41d9bb75d74b0732e197e3d5a13ef153dcdc29cc97634c5e7ba25a61580cb",
+              "clients/godot/scripts/RoomSnapshotRequest.cs": "5404b91a6d33dca2f618dc7df759a649d3921f2477672d79982791a82971a869"
+            }
+          },
+          "semanticReview": "NOT_A_CARD_RULE_SEMANTIC_REVIEW",
+          "testExecution": "ACTUAL_PASS_NEW13_FINAL647_AND_SOLE13449",
+          "fixedCommitCi": "PENDING_NEW_FIXED_FULL",
+          "productAcceptance": "OPEN_NEW_ACTUAL_CI_DEFAULT_MAIN_RECONNECT"
+        },
+        {
+          "id": "INITIAL_SNAPSHOT_CASE_11",
+          "actualExecutedCase": "Riftbound.ConformanceTests.RoomSnapshotRequestTests.ServerRejectionStillPropagatesWhenConnectionChanges(connected: False)",
+          "sourceVersion": {
+            "baseCommit": "267ab4f0690436d57cd45277e44c8bb5ee5ef6f0",
+            "currentImplementationSha256": {
+              "clients/godot/scripts/Main.cs": "bbe21cf447ac4922e9b75e3dc52bc8df4f9a9d0499a06e99a4b6f09e2b280a7e",
+              "clients/godot/scripts/RiftboundGameHubClient.cs": "45f41d9bb75d74b0732e197e3d5a13ef153dcdc29cc97634c5e7ba25a61580cb",
+              "clients/godot/scripts/RoomSnapshotRequest.cs": "5404b91a6d33dca2f618dc7df759a649d3921f2477672d79982791a82971a869"
+            }
+          },
+          "semanticReview": "NOT_A_CARD_RULE_SEMANTIC_REVIEW",
+          "testExecution": "ACTUAL_PASS_NEW13_FINAL647_AND_SOLE13449",
+          "fixedCommitCi": "PENDING_NEW_FIXED_FULL",
+          "productAcceptance": "OPEN_NEW_ACTUAL_CI_DEFAULT_MAIN_RECONNECT"
+        },
+        {
+          "id": "INITIAL_SNAPSHOT_CASE_12",
+          "actualExecutedCase": "Riftbound.ConformanceTests.RoomSnapshotRequestTests.ServerRejectionStillPropagatesWhenConnectionChanges(connected: True)",
+          "sourceVersion": {
+            "baseCommit": "267ab4f0690436d57cd45277e44c8bb5ee5ef6f0",
+            "currentImplementationSha256": {
+              "clients/godot/scripts/Main.cs": "bbe21cf447ac4922e9b75e3dc52bc8df4f9a9d0499a06e99a4b6f09e2b280a7e",
+              "clients/godot/scripts/RiftboundGameHubClient.cs": "45f41d9bb75d74b0732e197e3d5a13ef153dcdc29cc97634c5e7ba25a61580cb",
+              "clients/godot/scripts/RoomSnapshotRequest.cs": "5404b91a6d33dca2f618dc7df759a649d3921f2477672d79982791a82971a869"
+            }
+          },
+          "semanticReview": "NOT_A_CARD_RULE_SEMANTIC_REVIEW",
+          "testExecution": "ACTUAL_PASS_NEW13_FINAL647_AND_SOLE13449",
+          "fixedCommitCi": "PENDING_NEW_FIXED_FULL",
+          "productAcceptance": "OPEN_NEW_ACTUAL_CI_DEFAULT_MAIN_RECONNECT"
+        },
+        {
+          "id": "INITIAL_SNAPSHOT_CASE_13",
+          "actualExecutedCase": "Riftbound.ConformanceTests.RoomSnapshotRequestTests.SnapshotCancellationKeepsTheOriginalCancellationToken",
+          "sourceVersion": {
+            "baseCommit": "267ab4f0690436d57cd45277e44c8bb5ee5ef6f0",
+            "currentImplementationSha256": {
+              "clients/godot/scripts/Main.cs": "bbe21cf447ac4922e9b75e3dc52bc8df4f9a9d0499a06e99a4b6f09e2b280a7e",
+              "clients/godot/scripts/RiftboundGameHubClient.cs": "45f41d9bb75d74b0732e197e3d5a13ef153dcdc29cc97634c5e7ba25a61580cb",
+              "clients/godot/scripts/RoomSnapshotRequest.cs": "5404b91a6d33dca2f618dc7df759a649d3921f2477672d79982791a82971a869"
+            }
+          },
+          "semanticReview": "NOT_A_CARD_RULE_SEMANTIC_REVIEW",
+          "testExecution": "ACTUAL_PASS_NEW13_FINAL647_AND_SOLE13449",
+          "fixedCommitCi": "PENDING_NEW_FIXED_FULL",
+          "productAcceptance": "OPEN_NEW_ACTUAL_CI_DEFAULT_MAIN_RECONNECT"
+        }
+      ],
+      "fixedCommitCi": "PENDING_NEW_FIXED_FULL",
+      "productAcceptance": "OPEN",
+      "wholePrintingCertified": false
     }
   ],
   "note": "Current inventory and remaining obligations, with independently dated rule sources and separately recorded source deltas. No source fetch or semantic certification by this checker.",
@@ -66549,5 +66865,23 @@
       "path": "docs/evidence/lab-start-you-current-cn16-2026-10-22/current-complete-cn1504-readback.json",
       "sha256": "54ad605921ffb010719e6f5c038816e932ebe21434c59e8dff63d9810c0beb53"
     }
+  },
+  "currentNativeInitialSnapshotReconnectInputChange": {
+    "sourceManifest": {
+      "path": "docs/evidence/main-initial-snapshot-reconnect-2026-10-22/source-manifest.json",
+      "sha256": "83a0d6cbf535ebef6ef08ed4878aff023da98a309acc88b1d6294f3cef102c90",
+      "role": "source-manifest"
+    },
+    "auditDocument": "docs/MAIN_INITIAL_SNAPSHOT_RECONNECT_AUDIT_2026-10-22.md",
+    "onlyOneNewProductGateNoNewSemanticReview": true,
+    "all165OldReviews80ContextIdentities250GatesSevenDeltasAnd17181ObligationsRetained": true,
+    "fourCurrentImplementationPinRefreshes76WholeContextsExact": true,
+    "expectedRemainingObligations": 17182,
+    "newFixedFullCurrentNativeRepairVisibleAndWindows": "OPEN",
+    "wholePrintingOrGoalComplete": false
+  },
+  "precedingFixed267abBoundedNativeMainNetworkPaidLabAndRealSnapshotRace": {
+    "path": "docs/evidence/main-initial-snapshot-reconnect-2026-10-22/preceding-fixed267ab-native-main-network-paid-lab-and-race-closure.json",
+    "sha256": "54e97849c940207bf85ef43ba92372c61e4c987400aa9910e1f3705f3ab3a947"
   }
 }

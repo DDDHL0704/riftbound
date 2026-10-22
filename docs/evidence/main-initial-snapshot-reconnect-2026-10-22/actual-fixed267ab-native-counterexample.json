@@ -1,0 +1,60 @@
+{
+  "atUtc": "2026-10-22T04:10:58.266183+00:00",
+  "status": "CONFIRMED_ACTUAL_FIXED267AB_CI_DEFAULT_MAIN_INITIAL_JOIN_SNAPSHOT_INTERLEAVES_TRANSPORT_RECONNECT_GD_ERROR_DESPITE_ZERO_EXIT",
+  "fixedCommit": "267ab4f0690436d57cd45277e44c8bb5ee5ef6f0",
+  "ciRunId": 39715300747,
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "e7455edc32d43f8253a9d0c6fedb83c347bebafbef064f9b8dffaaabc4b4d266",
+    "implementationSha256": "db62c6f1e54daebd15c86619049962594c73493032a6a01f662efca7f92190c0",
+    "identitySha256": "8e7a9711bfcf6d4c0cdbc9f36911a55c1c4c7e9dd2b56e6340100c5dd95b6e88"
+  },
+  "room": "N42-LAB-7343E40A8B",
+  "originalFourInputsTenEventsPreserved": true,
+  "ownedApiAndPgStopped": true,
+  "allOriginal345AuditAnd79OtherNativeSevenTablesExact": true,
+  "bothActualNativeProcessesExitZero": true,
+  "nativeErrorLog": {
+    "path": "var/qa/fixed267ab-early-native-20261022/current267ab-pty-ci-native-lab-observe-b-v2.log",
+    "sha256": "14c860200e7a03dd6db6ec45286fd6ced31ac0492e4ff40e381f433e1d465652",
+    "label": "lab-observe-b",
+    "actualErrorType": "System.InvalidOperationException",
+    "actualMessage": "The 'InvokeCoreAsync' method cannot be called if the connection is not active",
+    "stackSource": "Main.JoinCurrentRoomAndRequestSnapshotAsync:1344 -> ConnectAndRequestSnapshotAsync:1011"
+  },
+  "sanitizedMarkerOrder": [
+    {
+      "line": 24,
+      "marker": "Reconnecting:"
+    },
+    {
+      "line": 27,
+      "marker": "InvokeCoreAsync"
+    },
+    {
+      "line": 28,
+      "marker": "InvokeCoreAsync"
+    },
+    {
+      "line": 30,
+      "marker": "InvokeCoreAsync"
+    },
+    {
+      "line": 31,
+      "marker": "InvokeCoreAsync"
+    },
+    {
+      "line": 68,
+      "marker": "Connection and session restored."
+    }
+  ],
+  "rootMainByteExactFixedCiSourceSha256": "f5901d4e65e8cda068e4066b5a9a7c0be3335746767d0704f01f4be51df1430c",
+  "subsequentSameOriginalLabPaidNativeThreeCommandsAndIndependentSevenHistory13PrivateEachPassedButDoesNotRelabelOriginalColdFailure": true,
+  "serverAndReplayNotTheObservedFailure": "Existing original frame/game-state stayed exact; initial client request lacks ownership/readiness recheck across await.",
+  "currentNativeColdAcceptance": "FAILED_OPEN_REPAIR",
+  "visibleHardwareAndWindowsAcceptance": "OPEN",
+  "wholePrintingOrGoalCertified": false
+}

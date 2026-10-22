@@ -27,6 +27,8 @@ public sealed class RiftboundGameHubClient : IAsyncDisposable
 
     public bool IsConnected => connection.State == HubConnectionState.Connected && !restoringSession;
 
+    public string? ConnectionId => connection.ConnectionId;
+
     public event Func<Task>? RestoreSession;
 
     public event Action<string>? StatusChanged;
