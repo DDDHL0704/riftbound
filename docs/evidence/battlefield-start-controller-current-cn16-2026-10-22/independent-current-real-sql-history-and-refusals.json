@@ -1,0 +1,97 @@
+{
+  "status": "PASS_INDEPENDENT_REAL_SQL22_ORIGINAL_HISTORIES39_PRIVATE_SNAPSHOTS39_PROMPTS_AND_FOUR_ACTUAL_REFUSALS",
+  "histories": 22,
+  "snapshots": 39,
+  "prompts": 39,
+  "eventCount": 63,
+  "refused": 4,
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "e7455edc32d43f8253a9d0c6fedb83c347bebafbef064f9b8dffaaabc4b4d266",
+    "implementationSha256": "574fdd1e9edf114c9d3f2cb390f1db1a504e23675fc9816a3a008c509cf0c273",
+    "identitySha256": "2915d8c8f078ee0ed9f086b77546296826cd5c0043ec02befbdad304152e6851"
+  },
+  "results": [
+    {
+      "room": "battlefield-start-controller-2a14bbb13c8c452386b507ffe8fb23f3",
+      "branch": "normal",
+      "originalInputs": 6,
+      "actualIndependentHistoryReplays": 6,
+      "rejectionErrors": []
+    },
+    {
+      "room": "battlefield-start-controller-4c8238219eeb4f7ca03eaf50da6c886e",
+      "branch": "actor-and-context",
+      "originalInputs": 4,
+      "actualIndependentHistoryReplays": 4,
+      "rejectionErrors": [
+        "captured battlefield start controller or source differs from its original trigger birth"
+      ]
+    },
+    {
+      "room": "battlefield-start-controller-68444582094040e58c6d69eb96e35643",
+      "branch": "actor-context-and-event",
+      "originalInputs": 4,
+      "actualIndependentHistoryReplays": 4,
+      "rejectionErrors": [
+        "action-log replay audit failed: command original-3 replayed event 6 payload hash e1bb7cefbfe75b24fb832b51a086807fc5a01bb4ab7a4acb6aae489ff769fe1d but recovered event sequence 9 payload hash 55f2f08e6c4ee08c28dd1cbfe6718b64b7393ed2b3179dd49e079f7d2f7ba83d",
+        "action-log replay audit failed: replayed final state hash da74caaf886c21de4b82b060e3556d4cdaaed00b3df03273823b613bb28e9981 does not match expected 587361f72f73ec09e9c64c9df9346da37e8656547310a4d16898a84f8ff83981"
+      ]
+    },
+    {
+      "room": "battlefield-start-controller-0bfa157b373a45508340000b5cf6a69f",
+      "branch": "no-history",
+      "originalInputs": 4,
+      "actualIndependentHistoryReplays": 4,
+      "rejectionErrors": [
+        "captured battlefield start requires one original journaled trigger birth"
+      ]
+    },
+    {
+      "room": "battlefield-start-controller-04190433f3504931ba27ea0623216a74",
+      "branch": "wrong-inputs",
+      "originalInputs": 4,
+      "actualIndependentHistoryReplays": 4,
+      "rejectionErrors": [
+        "action-log final rule input identity is missing or differs from running inputs",
+        "action-log initial rule input identity is missing or differs from running inputs",
+        "action-log command rule input identity is missing or differs from running inputs"
+      ]
+    }
+  ],
+  "baseDirectory": "/Users/dinghaolin/MyProjects/riftbound/var/qa/battlefield-start-controller-20261022/battlefield-controller-real-sql-runtime-v3/",
+  "actualLoadedAssemblies": [
+    {
+      "name": "Riftbound.Engine",
+      "path": "/Users/dinghaolin/MyProjects/riftbound/var/qa/battlefield-start-controller-20261022/battlefield-controller-real-sql-runtime-v3/Riftbound.Engine.dll",
+      "mvid": "28df6151-ad19-4565-888f-3a2b0d978683",
+      "sha256": "0cf2ad40b488f280774c3a1812252c4d6adda543d5a4fed0055766eea761f084"
+    },
+    {
+      "name": "Riftbound.Contracts",
+      "path": "/Users/dinghaolin/MyProjects/riftbound/var/qa/battlefield-start-controller-20261022/battlefield-controller-real-sql-runtime-v3/Riftbound.Contracts.dll",
+      "mvid": "600729eb-f62a-4131-853f-f589da625285",
+      "sha256": "320d3b68b183ec697597ab24533bc19072120cde9400443e857cf6107f8e1127"
+    },
+    {
+      "name": "Riftbound.CardCatalog",
+      "path": "/Users/dinghaolin/MyProjects/riftbound/var/qa/battlefield-start-controller-20261022/battlefield-controller-real-sql-runtime-v3/Riftbound.CardCatalog.dll",
+      "mvid": "dc971b45-7e80-41aa-88bf-867dc328946f",
+      "sha256": "b40d00a70af05e8154f567a363a5592370aa4f2839302868b7d3f1e180e9ca9b"
+    },
+    {
+      "name": "Riftbound.Persistence",
+      "path": "/Users/dinghaolin/MyProjects/riftbound/var/qa/battlefield-start-controller-20261022/battlefield-controller-real-sql-runtime-v3/Riftbound.Persistence.dll",
+      "mvid": "50f2bf22-44b2-49f3-bcce-62885c22b7db",
+      "sha256": "e9ca4d6f65955fb90e9434b7041dea8794ea0adcb58f587f399e29a65c788446"
+    }
+  ],
+  "actualReadOnlyConnection": true,
+  "allSevenActualTablesRetainOriginalNormalOrDeliberatelyCorruptedOutcome": true,
+  "everyOriginalPrePersistInputAndColdPrefixReplayed": true,
+  "controlledScenarioNotOrdinaryFullMatch": true,
+  "visibleNativeAndWindowsAcceptance": false
+}

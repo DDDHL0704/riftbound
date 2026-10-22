@@ -1,0 +1,28 @@
+{
+  "atUtc": "2026-10-21T23:37:26.020301+00:00",
+  "status": "ADDITIONAL_READONLY_SEMANTIC_REVIEW_CLAUSE190_6_D_CLEAR_NO_UNCONTROLLED_YOU_FALLBACK_EXECUTION_STILL_OPEN",
+  "sourceManifest": {
+    "path": "var/qa/battlefield-start-controller-20261022/two-exact-start-battlefield-source-and-core-readback-v1.json",
+    "sha256": "9b4102fafc30cad2bb215076717e89ecdae176f2db39395b353ff3eada1f04b7"
+  },
+  "region": "CN",
+  "language": "zh-CN",
+  "applicableAsOf": "2026-10-22",
+  "primaryCoreSha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11",
+  "clause190_6_c": {
+    "sourceRecord": "DOC-01-P029-B009",
+    "textSha256": "a3626fbd76e0519b456bb5a0017f6d4ef209226e8b7a96edca6cb33d4f09047b",
+    "meaning": "A specifically instructed choosing player controls that ability; it is not the uncontrolled-you clause."
+  },
+  "clause190_6_d": {
+    "sourceRecord": "DOC-01-P029-B010",
+    "textSha256": "d21b4eada0f9a326a66aa4aa558fa9b0520efbe23a1b16bd088c55b932059608",
+    "meaning": "Battlefield ability you refers to battlefield controller; if no controller it refers to nobody and corresponding instructions are ignored."
+  },
+  "boundedUncontrolledDuskRoseSemanticDisposition": "Do not turn the generic uncontrolled-skill actor fallback into a you-controller for Dusk Rose. Existing controller==turn eligibility is retained.",
+  "independentDedicatedUncontrolledDuskRoseExecutionEvidence": "OPEN_NOT_CLAIMED_FROM_FROST_32_MATRIX",
+  "postBirthSourceControlAndExistingDuskRoseDrawNeedsItsOwnCompleteLkiAnd191_5Review": "OPEN_NO_ADDITIONAL_CERTIFICATION_INFERRED",
+  "originalPlansSourceUncertaintyRetainedRatherThanRewritten": true,
+  "rootSourceAndCurrentCheckInputsChanged": false,
+  "newWholeCardOrClauseCertification": false
+}

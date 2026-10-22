@@ -1,0 +1,60 @@
+{
+  "atUtc": "2026-10-22T00:26:13.415946+00:00",
+  "status": "CANONICAL_N41_ALL163_OLD_REVIEWS250_GATES7_DELTAS_78_OLD_COMPLETE_CONTEXTS_EXPLICIT50_REFRESH_AND17124_OLD_IDS_PLUS32_VERIFIED",
+  "oldReviewsExact": 163,
+  "oldCompleteContextsPreserved": 78,
+  "explicitCurrentInputRefreshes": 50,
+  "otherContextsExact": 28,
+  "oldGatesExact": 250,
+  "oldDeltasExact": 7,
+  "newReviews": 164,
+  "newContexts": 79,
+  "newRemainingObligationCount": 17156,
+  "old17124IdsRetained": true,
+  "onlyNew32BoundedBranchIds": true,
+  "allOriginal143FullMethods110Pairs11Decks424242TheoryAndVictoryReplayAssertionsRetained": true,
+  "allArchiveMemberBytesHashesAndClosedSetVerified": true,
+  "archiveMemberCount": 412,
+  "archiveBytes": 24083794,
+  "identicalPreviousArchiveReuse": 13,
+  "tenActualExecutedOwnSqlReaderBitsRetained": true,
+  "current3340SourceHashesAndModesStable": true,
+  "finalVerificationOnlyCase58InputDelta": {
+    "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/final-verification-case58-count-calibration-and-input-delta.json",
+    "sha256": "3b997fc56eed70cf113a236faf25972faba8911329674c6f71101ee278011cc5"
+  },
+  "all74PythonVerificationMethodsPassAfterOnlyLiteral58AndExactNewIdCalibration": true,
+  "actualSoleCheck": {
+    "cases": 13411,
+    "methods": 7540,
+    "passed": 13410,
+    "failed": 1,
+    "newCases": 32,
+    "newMethods": 6,
+    "originalP79FailureNeverRelabeled": true
+  },
+  "finalFocusAfterOnlyTestPriorityCalibration": {
+    "cases": 388,
+    "methods": 291,
+    "passed": 388
+  },
+  "actualRealSql": {
+    "inputs": 22,
+    "coldRecoveries": 22,
+    "independentHistory": 22,
+    "snapshots": 39,
+    "prompts": 39,
+    "events": 63,
+    "refusals": 4
+  },
+  "preceding4014Native76_495_147_147NotCurrentOrVisible": true,
+  "original9633FailedFullPreserved": true,
+  "governanceOriginalRawSha256": "ce8d3ea8af8dd1285ab91f015afeddaff6827078432bbe556dee567dc1809601",
+  "canonicalGovernance": {
+    "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/final-governance.json.gz",
+    "sha256": "d213f807526e5fc63baa6f3332805811c8825e214ccef2224b7caf51a93859c6"
+  },
+  "semanticCoverageCertified": false,
+  "newFixedFullCurrentNativeVisibleAndPhysicalWindows": "OPEN",
+  "wholePrintingOrGoalCertified": false
+}

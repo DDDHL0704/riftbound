@@ -2,7 +2,8 @@ using Riftbound.Contracts;
 
 namespace Riftbound.Engine;
 
-public sealed record BattlefieldStartContext(string CardNo, string BattlefieldObjectId, int Damage, long SourceGeneration, int DrawCount = 0);
+public sealed record BattlefieldStartContext(string CardNo, string BattlefieldObjectId, int Damage, long SourceGeneration,
+    int DrawCount = 0, string? ControllerId = null);
 
 public sealed partial class CoreRuleEngine
 {
@@ -23,9 +24,11 @@ public sealed partial class CoreRuleEngine
                 && drawSpec.DestroyCount == 1 ? drawSpec.DrawCount!.Value : 0;
             if (damage == 0 && draw == 0) continue;
             var effect = draw > 0 ? BattlefieldStartDrawEffect : BattlefieldStartDamageEffect;
-            var context = new BattlefieldStartContext(source.CardNo!, id, damage, source.ObjectGeneration, draw);
+            var controller = source.ControllerId ?? state.TurnPlayerId;
+            var context = new BattlefieldStartContext(source.CardNo!, id, damage, source.ObjectGeneration, draw, controller);
+            if (!ValidBattlefieldStart(state, context, effect, controller, id)) continue;
             var trigger = new TriggerQueueItemState($"start-{state.TurnNumber}-{state.Tick}-{id}",
-                state.TurnPlayerId, id, effect, "TURN_START_BEGAN") { BattlefieldStart = context };
+                controller, id, effect, "TURN_START_BEGAN") { BattlefieldStart = context };
             queue.Add(trigger);
             events.Add(BuildTriggerQueuedEvent(trigger));
         }
@@ -47,7 +50,8 @@ public sealed partial class CoreRuleEngine
     {
         if (context is null) return effect is not (BattlefieldStartDamageEffect or BattlefieldStartDrawEffect);
         return ValidBattlefieldStartDefinition(context, effect, cardNo) && state.TurnStartStep == "SCORE"
-            && state.Phase == MatchPhases.TurnStart && controller == state.TurnPlayerId
+            && state.Phase == MatchPhases.TurnStart && state.Seats.ContainsKey(controller)
+            && context.ControllerId == controller
             && source == context.BattlefieldObjectId
             && state.CardObjects.TryGetValue(context.BattlefieldObjectId, out var field) && IsBattlefieldCardObject(field);
     }

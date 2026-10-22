@@ -102,7 +102,7 @@
     },
     "reviews": {
       "path": "docs/evidence/rules-reaudit-2026-10-11/review-decisions.json",
-      "sha256": "e50843099f4c33817686da00f0bfe3cd7aee39cffd73d8a6d9997252b03df738",
+      "sha256": "1a44e1a3c1b54c40816c2021e8b94797cc11aa949c9f4fe5eb4610882689e733",
       "role": "reviews"
     },
     "summary": {
@@ -247,7 +247,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "a17dd4208ba2ace7b1bc25de080ab7d75be9f76b92e6abfee12504b260b756b9"
+          "sha256": "f519e42f34f15cd382bd8c51833b02ee0e9cc205efcd0b5505d8681f2bd1acbf"
         }
       ],
       "branches": [
@@ -375,7 +375,7 @@
         }
       ],
       "evidenceCommit": "e54f3084662e2c2e00c521d232b4a11baaea7d91",
-      "currentImplementationCommit": "be0e7a88d86e191d87404488a8ecc4777411dfb7",
+      "currentImplementationCommit": "401470234dcd9dc4d72fe89dd79e99187096277f",
       "currentImplementationIncludesUncommittedChanges": true,
       "revalidationReason": "New bounded shared single-friendly-unit preflight; prior fixed CI does not cover current input. Original scopes/evidence retained, current full and product remain required.",
       "implementationPinUpdates": [
@@ -609,6 +609,17 @@
         "oldSourceEvidenceVerificationPinsBranchesAndCiClaimsRetained": true,
         "newFixedFullAndProducts": "OPEN",
         "notAnAdditionalSemanticReviewOfPriorFindingsOrPrintings": true
+      },
+      "currentBattlefieldControllerInputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+          "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+          "role": "source-manifest"
+        },
+        "onlyCurrentImplementationRefsAndExplicitPendingStateRefreshed": true,
+        "oldCompleteContextSourceEvidenceBranchesAndReceiptsRetained": true,
+        "newFixedFullAndProducts": "OPEN",
+        "noAdditionalWholePriorFindingSemanticCertification": true
       }
     },
     "candlelit-conquest-private-look-recycle-order-2026-10-14": {
@@ -631,7 +642,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "a17dd4208ba2ace7b1bc25de080ab7d75be9f76b92e6abfee12504b260b756b9"
+          "sha256": "f519e42f34f15cd382bd8c51833b02ee0e9cc205efcd0b5505d8681f2bd1acbf"
         }
       ],
       "branches": [
@@ -920,7 +931,7 @@
         }
       ],
       "evidenceCommit": "e61745f5cc704f2aa0326d84f22416e04ecbf139",
-      "currentImplementationCommit": "be0e7a88d86e191d87404488a8ecc4777411dfb7",
+      "currentImplementationCommit": "401470234dcd9dc4d72fe89dd79e99187096277f",
       "currentImplementationIncludesUncommittedChanges": true,
       "revalidationReason": "New bounded shared single-friendly-unit preflight; prior fixed CI does not cover current input. Original scopes/evidence retained, current full and product remain required.",
       "implementationPinUpdates": [
@@ -1181,6 +1192,17 @@
         "oldSourceEvidenceVerificationPinsBranchesAndCiClaimsRetained": true,
         "newFixedFullAndProducts": "OPEN",
         "notAnAdditionalSemanticReviewOfPriorFindingsOrPrintings": true
+      },
+      "currentBattlefieldControllerInputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+          "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+          "role": "source-manifest"
+        },
+        "onlyCurrentImplementationRefsAndExplicitPendingStateRefreshed": true,
+        "oldCompleteContextSourceEvidenceBranchesAndReceiptsRetained": true,
+        "newFixedFullAndProducts": "OPEN",
+        "noAdditionalWholePriorFindingSemanticCertification": true
       }
     },
     "masked-attendant-reflexive-self-copy-2026-10-14": {
@@ -1207,11 +1229,11 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "a17dd4208ba2ace7b1bc25de080ab7d75be9f76b92e6abfee12504b260b756b9"
+          "sha256": "f519e42f34f15cd382bd8c51833b02ee0e9cc205efcd0b5505d8681f2bd1acbf"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "c2db10d274e9db3a9944249b876d4e059a4a342c800f221172262647c6ee55bd"
+          "sha256": "5eaedf68094ad576df889b999598129e049c58db8829a443f4fbc2df8cfd8fe8"
         },
         {
           "path": "src/Riftbound.CardCatalog/ReviewedCardErrata.cs",
@@ -1821,7 +1843,7 @@
         }
       ],
       "evidenceCommit": "03f88a7ee1b109b2cb906fbdc457316f93c08fda",
-      "currentImplementationCommit": "be0e7a88d86e191d87404488a8ecc4777411dfb7",
+      "currentImplementationCommit": "401470234dcd9dc4d72fe89dd79e99187096277f",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -2077,6 +2099,17 @@
         "oldSourceEvidenceVerificationPinsBranchesAndCiClaimsRetained": true,
         "newFixedFullAndProducts": "OPEN",
         "notAnAdditionalSemanticReviewOfPriorFindingsOrPrintings": true
+      },
+      "currentBattlefieldControllerInputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+          "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+          "role": "source-manifest"
+        },
+        "onlyCurrentImplementationRefsAndExplicitPendingStateRefreshed": true,
+        "oldCompleteContextSourceEvidenceBranchesAndReceiptsRetained": true,
+        "newFixedFullAndProducts": "OPEN",
+        "noAdditionalWholePriorFindingSemanticCertification": true
       }
     },
     "static-granted-predict-entry-2026-10-15": {
@@ -2103,7 +2136,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "a17dd4208ba2ace7b1bc25de080ab7d75be9f76b92e6abfee12504b260b756b9"
+          "sha256": "f519e42f34f15cd382bd8c51833b02ee0e9cc205efcd0b5505d8681f2bd1acbf"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
@@ -2111,7 +2144,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "c2db10d274e9db3a9944249b876d4e059a4a342c800f221172262647c6ee55bd"
+          "sha256": "5eaedf68094ad576df889b999598129e049c58db8829a443f4fbc2df8cfd8fe8"
         },
         {
           "path": "src/Riftbound.Engine/OfficialPrintedTimingRules.cs",
@@ -2720,7 +2753,7 @@
       "ciState": "PENDING",
       "ciReceipts": [],
       "evidenceCommit": "03f88a7ee1b109b2cb906fbdc457316f93c08fda",
-      "currentImplementationCommit": "be0e7a88d86e191d87404488a8ecc4777411dfb7",
+      "currentImplementationCommit": "401470234dcd9dc4d72fe89dd79e99187096277f",
       "currentImplementationIncludesUncommittedChanges": true,
       "lastFixedCiFailure": {
         "path": "docs/evidence/granted-predict-2026-10-15/full-ci-c74853be-failed.json",
@@ -3130,6 +3163,17 @@
         "oldSourceEvidenceVerificationPinsBranchesAndCiClaimsRetained": true,
         "newFixedFullAndProducts": "OPEN",
         "notAnAdditionalSemanticReviewOfPriorFindingsOrPrintings": true
+      },
+      "currentBattlefieldControllerInputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+          "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+          "role": "source-manifest"
+        },
+        "onlyCurrentImplementationRefsAndExplicitPendingStateRefreshed": true,
+        "oldCompleteContextSourceEvidenceBranchesAndReceiptsRetained": true,
+        "newFixedFullAndProducts": "OPEN",
+        "noAdditionalWholePriorFindingSemanticCertification": true
       }
     },
     "printed-predict-permanent-entry-2026-10-15": {
@@ -3156,7 +3200,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "a17dd4208ba2ace7b1bc25de080ab7d75be9f76b92e6abfee12504b260b756b9"
+          "sha256": "f519e42f34f15cd382bd8c51833b02ee0e9cc205efcd0b5505d8681f2bd1acbf"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
@@ -3768,7 +3812,7 @@
         }
       ],
       "evidenceCommit": "74353e405fd2242ece0bae05972f209950b2c9de",
-      "currentImplementationCommit": "be0e7a88d86e191d87404488a8ecc4777411dfb7",
+      "currentImplementationCommit": "401470234dcd9dc4d72fe89dd79e99187096277f",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -4192,6 +4236,17 @@
         "oldSourceEvidenceVerificationPinsBranchesAndCiClaimsRetained": true,
         "newFixedFullAndProducts": "OPEN",
         "notAnAdditionalSemanticReviewOfPriorFindingsOrPrintings": true
+      },
+      "currentBattlefieldControllerInputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+          "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+          "role": "source-manifest"
+        },
+        "onlyCurrentImplementationRefsAndExplicitPendingStateRefreshed": true,
+        "oldCompleteContextSourceEvidenceBranchesAndReceiptsRetained": true,
+        "newFixedFullAndProducts": "OPEN",
+        "noAdditionalWholePriorFindingSemanticCertification": true
       }
     },
     "sivir-optional-rune-recycle-2026-10-15": {
@@ -4234,11 +4289,11 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "c2db10d274e9db3a9944249b876d4e059a4a342c800f221172262647c6ee55bd"
+          "sha256": "5eaedf68094ad576df889b999598129e049c58db8829a443f4fbc2df8cfd8fe8"
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "a17dd4208ba2ace7b1bc25de080ab7d75be9f76b92e6abfee12504b260b756b9"
+          "sha256": "f519e42f34f15cd382bd8c51833b02ee0e9cc205efcd0b5505d8681f2bd1acbf"
         },
         {
           "path": "src/Riftbound.Engine/StackObjectRules.cs",
@@ -4568,7 +4623,7 @@
         }
       ],
       "evidenceCommit": "7649d573f884ffd7517a502f7eebe01d0aa186c4",
-      "currentImplementationCommit": "be0e7a88d86e191d87404488a8ecc4777411dfb7",
+      "currentImplementationCommit": "401470234dcd9dc4d72fe89dd79e99187096277f",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -4981,6 +5036,17 @@
         "oldSourceEvidenceVerificationPinsBranchesAndCiClaimsRetained": true,
         "newFixedFullAndProducts": "OPEN",
         "notAnAdditionalSemanticReviewOfPriorFindingsOrPrintings": true
+      },
+      "currentBattlefieldControllerInputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+          "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+          "role": "source-manifest"
+        },
+        "onlyCurrentImplementationRefsAndExplicitPendingStateRefreshed": true,
+        "oldCompleteContextSourceEvidenceBranchesAndReceiptsRetained": true,
+        "newFixedFullAndProducts": "OPEN",
+        "noAdditionalWholePriorFindingSemanticCertification": true
       }
     },
     "battlefield-conquer-rune-destination-2026-10-15": {
@@ -5514,7 +5580,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "a17dd4208ba2ace7b1bc25de080ab7d75be9f76b92e6abfee12504b260b756b9"
+          "sha256": "f519e42f34f15cd382bd8c51833b02ee0e9cc205efcd0b5505d8681f2bd1acbf"
         }
       ],
       "branches": [
@@ -5696,7 +5762,7 @@
         }
       ],
       "evidenceCommit": "00420e2a2b453918e611812d18fda9f62632e15f",
-      "currentImplementationCommit": "be0e7a88d86e191d87404488a8ecc4777411dfb7",
+      "currentImplementationCommit": "401470234dcd9dc4d72fe89dd79e99187096277f",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -6040,6 +6106,17 @@
         "oldSourceEvidenceVerificationPinsBranchesAndCiClaimsRetained": true,
         "newFixedFullAndProducts": "OPEN",
         "notAnAdditionalSemanticReviewOfPriorFindingsOrPrintings": true
+      },
+      "currentBattlefieldControllerInputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+          "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+          "role": "source-manifest"
+        },
+        "onlyCurrentImplementationRefsAndExplicitPendingStateRefreshed": true,
+        "oldCompleteContextSourceEvidenceBranchesAndReceiptsRetained": true,
+        "newFixedFullAndProducts": "OPEN",
+        "noAdditionalWholePriorFindingSemanticCertification": true
       }
     },
     "unit-conquest-gold-response-2026-10-15": {
@@ -6058,11 +6135,11 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "c2db10d274e9db3a9944249b876d4e059a4a342c800f221172262647c6ee55bd"
+          "sha256": "5eaedf68094ad576df889b999598129e049c58db8829a443f4fbc2df8cfd8fe8"
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "a17dd4208ba2ace7b1bc25de080ab7d75be9f76b92e6abfee12504b260b756b9"
+          "sha256": "f519e42f34f15cd382bd8c51833b02ee0e9cc205efcd0b5505d8681f2bd1acbf"
         },
         {
           "path": "src/Riftbound.Engine/StackObjectRules.cs",
@@ -6293,7 +6370,7 @@
         }
       ],
       "evidenceCommit": "eb3c4281c94c8d41d315cd574bdfa597cd10c30b",
-      "currentImplementationCommit": "be0e7a88d86e191d87404488a8ecc4777411dfb7",
+      "currentImplementationCommit": "401470234dcd9dc4d72fe89dd79e99187096277f",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -6670,6 +6747,17 @@
         "oldSourceEvidenceVerificationPinsBranchesAndCiClaimsRetained": true,
         "newFixedFullAndProducts": "OPEN",
         "notAnAdditionalSemanticReviewOfPriorFindingsOrPrintings": true
+      },
+      "currentBattlefieldControllerInputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+          "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+          "role": "source-manifest"
+        },
+        "onlyCurrentImplementationRefsAndExplicitPendingStateRefreshed": true,
+        "oldCompleteContextSourceEvidenceBranchesAndReceiptsRetained": true,
+        "newFixedFullAndProducts": "OPEN",
+        "noAdditionalWholePriorFindingSemanticCertification": true
       }
     },
     "own-main-deck-recycle-card-boon-2026-10-15": {
@@ -6716,7 +6804,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "a17dd4208ba2ace7b1bc25de080ab7d75be9f76b92e6abfee12504b260b756b9"
+          "sha256": "f519e42f34f15cd382bd8c51833b02ee0e9cc205efcd0b5505d8681f2bd1acbf"
         }
       ],
       "branches": [
@@ -7392,7 +7480,7 @@
         }
       ],
       "evidenceCommit": "a0406e1d878598b3c0fd88f5bfa7f9831d6a2cc6",
-      "currentImplementationCommit": "be0e7a88d86e191d87404488a8ecc4777411dfb7",
+      "currentImplementationCommit": "401470234dcd9dc4d72fe89dd79e99187096277f",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -7765,6 +7853,17 @@
         "oldSourceEvidenceVerificationPinsBranchesAndCiClaimsRetained": true,
         "newFixedFullAndProducts": "OPEN",
         "notAnAdditionalSemanticReviewOfPriorFindingsOrPrintings": true
+      },
+      "currentBattlefieldControllerInputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+          "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+          "role": "source-manifest"
+        },
+        "onlyCurrentImplementationRefsAndExplicitPendingStateRefreshed": true,
+        "oldCompleteContextSourceEvidenceBranchesAndReceiptsRetained": true,
+        "newFixedFullAndProducts": "OPEN",
+        "noAdditionalWholePriorFindingSemanticCertification": true
       }
     },
     "copied-recycle-boon-ceased-source-2026-10-15": {
@@ -9257,11 +9356,11 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "c2db10d274e9db3a9944249b876d4e059a4a342c800f221172262647c6ee55bd"
+          "sha256": "5eaedf68094ad576df889b999598129e049c58db8829a443f4fbc2df8cfd8fe8"
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "a17dd4208ba2ace7b1bc25de080ab7d75be9f76b92e6abfee12504b260b756b9"
+          "sha256": "f519e42f34f15cd382bd8c51833b02ee0e9cc205efcd0b5505d8681f2bd1acbf"
         }
       ],
       "evidence": [
@@ -9306,7 +9405,7 @@
         }
       ],
       "evidenceCommit": "342187cb732ea37a616d3fb125be6e9e5096ead1",
-      "currentImplementationCommit": "be0e7a88d86e191d87404488a8ecc4777411dfb7",
+      "currentImplementationCommit": "401470234dcd9dc4d72fe89dd79e99187096277f",
       "currentImplementationIncludesUncommittedChanges": true,
       "branches": [
         {
@@ -9786,6 +9885,17 @@
         "oldSourceEvidenceVerificationPinsBranchesAndCiClaimsRetained": true,
         "newFixedFullAndProducts": "OPEN",
         "notAnAdditionalSemanticReviewOfPriorFindingsOrPrintings": true
+      },
+      "currentBattlefieldControllerInputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+          "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+          "role": "source-manifest"
+        },
+        "onlyCurrentImplementationRefsAndExplicitPendingStateRefreshed": true,
+        "oldCompleteContextSourceEvidenceBranchesAndReceiptsRetained": true,
+        "newFixedFullAndProducts": "OPEN",
+        "noAdditionalWholePriorFindingSemanticCertification": true
       }
     },
     "porobot-source-play-other-equipment-conditional-draw-2026-10-15": {
@@ -9812,11 +9922,11 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "c2db10d274e9db3a9944249b876d4e059a4a342c800f221172262647c6ee55bd"
+          "sha256": "5eaedf68094ad576df889b999598129e049c58db8829a443f4fbc2df8cfd8fe8"
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "a17dd4208ba2ace7b1bc25de080ab7d75be9f76b92e6abfee12504b260b756b9"
+          "sha256": "f519e42f34f15cd382bd8c51833b02ee0e9cc205efcd0b5505d8681f2bd1acbf"
         },
         {
           "path": "src/Riftbound.CardCatalog/RuleTextParsers.cs",
@@ -9869,7 +9979,7 @@
         }
       ],
       "evidenceCommit": "339c6168f704684477354365988d7448cb0e7a10",
-      "currentImplementationCommit": "be0e7a88d86e191d87404488a8ecc4777411dfb7",
+      "currentImplementationCommit": "401470234dcd9dc4d72fe89dd79e99187096277f",
       "currentImplementationIncludesUncommittedChanges": true,
       "ciState": "PENDING",
       "ciReceipts": [
@@ -10403,11 +10513,22 @@
         "oldSourceEvidenceVerificationPinsBranchesAndCiClaimsRetained": true,
         "newFixedFullAndProducts": "OPEN",
         "notAnAdditionalSemanticReviewOfPriorFindingsOrPrintings": true
+      },
+      "currentBattlefieldControllerInputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+          "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+          "role": "source-manifest"
+        },
+        "onlyCurrentImplementationRefsAndExplicitPendingStateRefreshed": true,
+        "oldCompleteContextSourceEvidenceBranchesAndReceiptsRetained": true,
+        "newFixedFullAndProducts": "OPEN",
+        "noAdditionalWholePriorFindingSemanticCertification": true
       }
     },
     "typed-card-play-history-causal-production-recovery-2026-10-15": {
       "evidenceCommit": "6bc546259eed61d5988bf8e8df5081cd8502c614",
-      "currentImplementationCommit": "be0e7a88d86e191d87404488a8ecc4777411dfb7",
+      "currentImplementationCommit": "401470234dcd9dc4d72fe89dd79e99187096277f",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact6bc fullCI/45SQL/case-method-pair preservation verified. Current workingtree has newer counted Insight/catalog dependencies; this prior full is not current gameplay coverage.",
       "ciState": "PENDING",
@@ -10426,11 +10547,11 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "a17dd4208ba2ace7b1bc25de080ab7d75be9f76b92e6abfee12504b260b756b9"
+          "sha256": "f519e42f34f15cd382bd8c51833b02ee0e9cc205efcd0b5505d8681f2bd1acbf"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "c2db10d274e9db3a9944249b876d4e059a4a342c800f221172262647c6ee55bd"
+          "sha256": "5eaedf68094ad576df889b999598129e049c58db8829a443f4fbc2df8cfd8fe8"
         },
         {
           "path": "src/Riftbound.Persistence/PostgresMatchRecoveryStore.cs",
@@ -10757,6 +10878,17 @@
         "oldSourceEvidenceVerificationPinsBranchesAndCiClaimsRetained": true,
         "newFixedFullAndProducts": "OPEN",
         "notAnAdditionalSemanticReviewOfPriorFindingsOrPrintings": true
+      },
+      "currentBattlefieldControllerInputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+          "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+          "role": "source-manifest"
+        },
+        "onlyCurrentImplementationRefsAndExplicitPendingStateRefreshed": true,
+        "oldCompleteContextSourceEvidenceBranchesAndReceiptsRetained": true,
+        "newFixedFullAndProducts": "OPEN",
+        "noAdditionalWholePriorFindingSemanticCertification": true
       }
     },
     "counted-insight-post-choice-draw-clairvoyance-2026-10-15": {
@@ -12049,7 +12181,7 @@
     },
     "combat-event-journal-wire-and-single-defender-choice-2026-10-15": {
       "evidenceCommit": "9e426a31386aefa980bf2d48f02b237098cb2914",
-      "currentImplementationCommit": "be0e7a88d86e191d87404488a8ecc4777411dfb7",
+      "currentImplementationCommit": "401470234dcd9dc4d72fe89dd79e99187096277f",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact9e base plus explicitly hashed current journal/combat/native-fixture verification inputs; old full does not cover this repair.",
       "ciState": "PENDING",
@@ -12057,7 +12189,7 @@
       "implementation": [
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "a17dd4208ba2ace7b1bc25de080ab7d75be9f76b92e6abfee12504b260b756b9"
+          "sha256": "f519e42f34f15cd382bd8c51833b02ee0e9cc205efcd0b5505d8681f2bd1acbf"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
@@ -12512,6 +12644,17 @@
         "oldSourceEvidenceVerificationPinsBranchesAndCiClaimsRetained": true,
         "newFixedFullAndProducts": "OPEN",
         "notAnAdditionalSemanticReviewOfPriorFindingsOrPrintings": true
+      },
+      "currentBattlefieldControllerInputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+          "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+          "role": "source-manifest"
+        },
+        "onlyCurrentImplementationRefsAndExplicitPendingStateRefreshed": true,
+        "oldCompleteContextSourceEvidenceBranchesAndReceiptsRetained": true,
+        "newFixedFullAndProducts": "OPEN",
+        "noAdditionalWholePriorFindingSemanticCertification": true
       }
     },
     "combat-declaration-provenance-and-single-eligible-unit-conquest-2026-10-15": {
@@ -12927,7 +13070,7 @@
     },
     "optional-mana-trigger-native-and-natural-declaration-order-2026-10-15": {
       "evidenceCommit": "d1c2b4d351ca32862ee52ab7bc45cd7d581fca2c",
-      "currentImplementationCommit": "be0e7a88d86e191d87404488a8ecc4777411dfb7",
+      "currentImplementationCommit": "401470234dcd9dc4d72fe89dd79e99187096277f",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact d1 actual full-success/native-failure base plus three pinned source repairs, new verification and source readback; new fixed SHA required.",
       "ciState": "PENDING",
@@ -12943,7 +13086,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "c2db10d274e9db3a9944249b876d4e059a4a342c800f221172262647c6ee55bd"
+          "sha256": "5eaedf68094ad576df889b999598129e049c58db8829a443f4fbc2df8cfd8fe8"
         }
       ],
       "evidence": [
@@ -13350,11 +13493,22 @@
         "oldSourceEvidenceVerificationPinsBranchesAndCiClaimsRetained": true,
         "newFixedFullAndProducts": "OPEN",
         "notAnAdditionalSemanticReviewOfPriorFindingsOrPrintings": true
+      },
+      "currentBattlefieldControllerInputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+          "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+          "role": "source-manifest"
+        },
+        "onlyCurrentImplementationRefsAndExplicitPendingStateRefreshed": true,
+        "oldCompleteContextSourceEvidenceBranchesAndReceiptsRetained": true,
+        "newFixedFullAndProducts": "OPEN",
+        "noAdditionalWholePriorFindingSemanticCertification": true
       }
     },
     "cn16-confirmed-play-origin-and-required-causal-fact-2026-10-16": {
       "evidenceCommit": "56d1ee2eed9dcbf48ed54175867cd93ac58d92d8",
-      "currentImplementationCommit": "be0e7a88d86e191d87404488a8ecc4777411dfb7",
+      "currentImplementationCommit": "401470234dcd9dc4d72fe89dd79e99187096277f",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact56 baseline plus explicitly pinned CN16 source selection and bounded confirmed hand-origin repair; new fixed SHA required.",
       "ciState": "PENDING",
@@ -13370,7 +13524,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "c2db10d274e9db3a9944249b876d4e059a4a342c800f221172262647c6ee55bd"
+          "sha256": "5eaedf68094ad576df889b999598129e049c58db8829a443f4fbc2df8cfd8fe8"
         },
         {
           "path": "data/official/rule-input-scope.json",
@@ -13928,6 +14082,17 @@
         "oldSourceEvidenceVerificationPinsBranchesAndCiClaimsRetained": true,
         "newFixedFullAndProducts": "OPEN",
         "notAnAdditionalSemanticReviewOfPriorFindingsOrPrintings": true
+      },
+      "currentBattlefieldControllerInputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+          "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+          "role": "source-manifest"
+        },
+        "onlyCurrentImplementationRefsAndExplicitPendingStateRefreshed": true,
+        "oldCompleteContextSourceEvidenceBranchesAndReceiptsRetained": true,
+        "newFixedFullAndProducts": "OPEN",
+        "noAdditionalWholePriorFindingSemanticCertification": true
       }
     },
     "physical-origin-self-cost-reduction-2026-10-16": {
@@ -14430,7 +14595,7 @@
     },
     "granted-origin-haste-and-paid-entry-replacement-2026-10-16": {
       "evidenceCommit": "4ad7fe204adee28c4138f18bdde4c4cbcdea21f0",
-      "currentImplementationCommit": "be0e7a88d86e191d87404488a8ecc4777411dfb7",
+      "currentImplementationCommit": "401470234dcd9dc4d72fe89dd79e99187096277f",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact4ad7 baseline plus pinned5engine inputs,24cases, native readback and73SQL. NewfixedSHA full required. Printed-Haste dispatch restored after the singlecheck;213 current focus passed. Prior SQL/native exact inputs remain pre-repair, not relabeled.",
       "ciState": "PENDING",
@@ -14450,7 +14615,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "c2db10d274e9db3a9944249b876d4e059a4a342c800f221172262647c6ee55bd"
+          "sha256": "5eaedf68094ad576df889b999598129e049c58db8829a443f4fbc2df8cfd8fe8"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.PlayKeywords.cs",
@@ -14992,6 +15157,17 @@
         "oldSourceEvidenceVerificationPinsBranchesAndCiClaimsRetained": true,
         "newFixedFullAndProducts": "OPEN",
         "notAnAdditionalSemanticReviewOfPriorFindingsOrPrintings": true
+      },
+      "currentBattlefieldControllerInputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+          "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+          "role": "source-manifest"
+        },
+        "onlyCurrentImplementationRefsAndExplicitPendingStateRefreshed": true,
+        "oldCompleteContextSourceEvidenceBranchesAndReceiptsRetained": true,
+        "newFixedFullAndProducts": "OPEN",
+        "noAdditionalWholePriorFindingSemanticCertification": true
       }
     },
     "opponent-battlefield-current-control-entry-2026-10-16": {
@@ -15420,7 +15596,7 @@
     },
     "optional-sacrifice-printed-cost-and-paid-entry-2026-10-16": {
       "evidenceCommit": "8d7571c5a5572b1ed542a5ff1d8eaeb533bac1bc",
-      "currentImplementationCommit": "be0e7a88d86e191d87404488a8ecc4777411dfb7",
+      "currentImplementationCommit": "401470234dcd9dc4d72fe89dd79e99187096277f",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Fixed8d baseline plus exact15 executable/fixture patch files. Earlier full8d,113 old review dictionaries, source dates and original143/110/424242 remain retained. New candidate full required.",
       "ciState": "PENDING",
@@ -15452,7 +15628,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "c2db10d274e9db3a9944249b876d4e059a4a342c800f221172262647c6ee55bd"
+          "sha256": "5eaedf68094ad576df889b999598129e049c58db8829a443f4fbc2df8cfd8fe8"
         },
         {
           "path": "src/Riftbound.Api/Riftbound.Api.csproj",
@@ -15983,11 +16159,22 @@
         "oldSourceEvidenceVerificationPinsBranchesAndCiClaimsRetained": true,
         "newFixedFullAndProducts": "OPEN",
         "notAnAdditionalSemanticReviewOfPriorFindingsOrPrintings": true
+      },
+      "currentBattlefieldControllerInputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+          "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+          "role": "source-manifest"
+        },
+        "onlyCurrentImplementationRefsAndExplicitPendingStateRefreshed": true,
+        "oldCompleteContextSourceEvidenceBranchesAndReceiptsRetained": true,
+        "newFixedFullAndProducts": "OPEN",
+        "noAdditionalWholePriorFindingSemanticCertification": true
       }
     },
     "granted-colorless-token-haste-payment-2026-10-16": {
       "evidenceCommit": "daf394e20997ebdb028e91ba9fdfe6c24eb492eb",
-      "currentImplementationCommit": "be0e7a88d86e191d87404488a8ecc4777411dfb7",
+      "currentImplementationCommit": "401470234dcd9dc4d72fe89dd79e99187096277f",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Fixeddaf baseline plus exact13 current executable/test/fixture patch files; historical daf full12136/7372 and77SQL do not cover the patch.",
       "ciState": "PENDING",
@@ -16015,7 +16202,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "c2db10d274e9db3a9944249b876d4e059a4a342c800f221172262647c6ee55bd"
+          "sha256": "5eaedf68094ad576df889b999598129e049c58db8829a443f4fbc2df8cfd8fe8"
         }
       ],
       "verificationSources": [
@@ -16549,11 +16736,22 @@
         "oldSourceEvidenceVerificationPinsBranchesAndCiClaimsRetained": true,
         "newFixedFullAndProducts": "OPEN",
         "notAnAdditionalSemanticReviewOfPriorFindingsOrPrintings": true
+      },
+      "currentBattlefieldControllerInputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+          "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+          "role": "source-manifest"
+        },
+        "onlyCurrentImplementationRefsAndExplicitPendingStateRefreshed": true,
+        "oldCompleteContextSourceEvidenceBranchesAndReceiptsRetained": true,
+        "newFixedFullAndProducts": "OPEN",
+        "noAdditionalWholePriorFindingSemanticCertification": true
       }
     },
     "native-rule-choice-prompts-2026-10-16": {
       "evidenceCommit": "65092fcdea323f9f4b435a91344f76e838fb21b4",
-      "currentImplementationCommit": "be0e7a88d86e191d87404488a8ecc4777411dfb7",
+      "currentImplementationCommit": "401470234dcd9dc4d72fe89dd79e99187096277f",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Fixed650 baseline plus exact two implementation and four verification inputs. Fixed650 full does not cover these uncommitted prompt changes.",
       "ciState": "PENDING",
@@ -16561,7 +16759,7 @@
       "implementation": [
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "c2db10d274e9db3a9944249b876d4e059a4a342c800f221172262647c6ee55bd"
+          "sha256": "5eaedf68094ad576df889b999598129e049c58db8829a443f4fbc2df8cfd8fe8"
         },
         {
           "path": "clients/godot/scripts/ui/MatchPhasePresentation.cs",
@@ -16943,11 +17141,22 @@
         "oldSourceEvidenceVerificationPinsBranchesAndCiClaimsRetained": true,
         "newFixedFullAndProducts": "OPEN",
         "notAnAdditionalSemanticReviewOfPriorFindingsOrPrintings": true
+      },
+      "currentBattlefieldControllerInputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+          "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+          "role": "source-manifest"
+        },
+        "onlyCurrentImplementationRefsAndExplicitPendingStateRefreshed": true,
+        "oldCompleteContextSourceEvidenceBranchesAndReceiptsRetained": true,
+        "newFixedFullAndProducts": "OPEN",
+        "noAdditionalWholePriorFindingSemanticCertification": true
       }
     },
     "sand-soldier-embedded-ready-2026-10-17": {
       "evidenceCommit": "8ca4080c9431b981db051a5adad18dace5d85dd5",
-      "currentImplementationCommit": "be0e7a88d86e191d87404488a8ecc4777411dfb7",
+      "currentImplementationCommit": "401470234dcd9dc4d72fe89dd79e99187096277f",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Fixed8ca source baseline (gameplay5ed) plus explicit current implementation/test/fixture inputs. Prior5ed full/native and local pre-caption SQL are not relabeled as this final candidate.",
       "ciState": "PENDING",
@@ -16983,11 +17192,11 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "a17dd4208ba2ace7b1bc25de080ab7d75be9f76b92e6abfee12504b260b756b9"
+          "sha256": "f519e42f34f15cd382bd8c51833b02ee0e9cc205efcd0b5505d8681f2bd1acbf"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "c2db10d274e9db3a9944249b876d4e059a4a342c800f221172262647c6ee55bd"
+          "sha256": "5eaedf68094ad576df889b999598129e049c58db8829a443f4fbc2df8cfd8fe8"
         },
         {
           "path": "src/Riftbound.Engine/StackObjectRules.cs",
@@ -17622,11 +17831,22 @@
         "oldSourceEvidenceVerificationPinsBranchesAndCiClaimsRetained": true,
         "newFixedFullAndProducts": "OPEN",
         "notAnAdditionalSemanticReviewOfPriorFindingsOrPrintings": true
+      },
+      "currentBattlefieldControllerInputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+          "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+          "role": "source-manifest"
+        },
+        "onlyCurrentImplementationRefsAndExplicitPendingStateRefreshed": true,
+        "oldCompleteContextSourceEvidenceBranchesAndReceiptsRetained": true,
+        "newFixedFullAndProducts": "OPEN",
+        "noAdditionalWholePriorFindingSemanticCertification": true
       }
     },
     "opening-randomness-2026-10-17": {
       "evidenceCommit": "a6ccf1952141c69ed4b3cde94695f983c1c28db8",
-      "currentImplementationCommit": "be0e7a88d86e191d87404488a8ecc4777411dfb7",
+      "currentImplementationCommit": "401470234dcd9dc4d72fe89dd79e99187096277f",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Base plus current explicit implementation/test inputs. Prior39 native/CI is historical and not relabeled current.",
       "ciState": "PENDING",
@@ -17642,11 +17862,11 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "a17dd4208ba2ace7b1bc25de080ab7d75be9f76b92e6abfee12504b260b756b9"
+          "sha256": "f519e42f34f15cd382bd8c51833b02ee0e9cc205efcd0b5505d8681f2bd1acbf"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "c2db10d274e9db3a9944249b876d4e059a4a342c800f221172262647c6ee55bd"
+          "sha256": "5eaedf68094ad576df889b999598129e049c58db8829a443f4fbc2df8cfd8fe8"
         },
         {
           "path": "src/Riftbound.Persistence/PostgresMatchJournal.cs",
@@ -18306,11 +18526,22 @@
         "oldSourceEvidenceVerificationPinsBranchesAndCiClaimsRetained": true,
         "newFixedFullAndProducts": "OPEN",
         "notAnAdditionalSemanticReviewOfPriorFindingsOrPrintings": true
+      },
+      "currentBattlefieldControllerInputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+          "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+          "role": "source-manifest"
+        },
+        "onlyCurrentImplementationRefsAndExplicitPendingStateRefreshed": true,
+        "oldCompleteContextSourceEvidenceBranchesAndReceiptsRetained": true,
+        "newFixedFullAndProducts": "OPEN",
+        "noAdditionalWholePriorFindingSemanticCertification": true
       }
     },
     "duel-chain-origins-cold-recovery-2026-10-17": {
       "evidenceCommit": "42c89230105573e39ffaf524a7dc21f24d520d4b",
-      "currentImplementationCommit": "be0e7a88d86e191d87404488a8ecc4777411dfb7",
+      "currentImplementationCommit": "401470234dcd9dc4d72fe89dd79e99187096277f",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Base42 plus exact changed implementation/test pins; fixed067 full is a retained failure, not current success.",
       "ciState": "PENDING",
@@ -18330,11 +18561,11 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "c2db10d274e9db3a9944249b876d4e059a4a342c800f221172262647c6ee55bd"
+          "sha256": "5eaedf68094ad576df889b999598129e049c58db8829a443f4fbc2df8cfd8fe8"
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "a17dd4208ba2ace7b1bc25de080ab7d75be9f76b92e6abfee12504b260b756b9"
+          "sha256": "f519e42f34f15cd382bd8c51833b02ee0e9cc205efcd0b5505d8681f2bd1acbf"
         }
       ],
       "verificationSources": [
@@ -18792,12 +19023,23 @@
         "oldSourceEvidenceVerificationPinsBranchesAndCiClaimsRetained": true,
         "newFixedFullAndProducts": "OPEN",
         "notAnAdditionalSemanticReviewOfPriorFindingsOrPrintings": true
+      },
+      "currentBattlefieldControllerInputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+          "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+          "role": "source-manifest"
+        },
+        "onlyCurrentImplementationRefsAndExplicitPendingStateRefreshed": true,
+        "oldCompleteContextSourceEvidenceBranchesAndReceiptsRetained": true,
+        "newFixedFullAndProducts": "OPEN",
+        "noAdditionalWholePriorFindingSemanticCertification": true
       }
     },
     "merfolk-battlefield-play-damage-here-2026-10-17": {
       "evidenceCommit": "4fca367eaab1dd198ffde839b23461c058a2b470",
       "evidenceCommitScope": "Previous fixed baseline only. This review source includes uncommitted positive damage changes and does not claim that4fca tested them.",
-      "currentImplementationCommit": "be0e7a88d86e191d87404488a8ecc4777411dfb7",
+      "currentImplementationCommit": "401470234dcd9dc4d72fe89dd79e99187096277f",
       "currentImplementationIncludesUncommittedChanges": true,
       "ciState": "PENDING",
       "ciReceipts": [],
@@ -18836,11 +19078,11 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "c2db10d274e9db3a9944249b876d4e059a4a342c800f221172262647c6ee55bd"
+          "sha256": "5eaedf68094ad576df889b999598129e049c58db8829a443f4fbc2df8cfd8fe8"
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "a17dd4208ba2ace7b1bc25de080ab7d75be9f76b92e6abfee12504b260b756b9"
+          "sha256": "f519e42f34f15cd382bd8c51833b02ee0e9cc205efcd0b5505d8681f2bd1acbf"
         },
         {
           "path": "src/Riftbound.Engine/PermanentPlayTriggerRecoveryRules.cs",
@@ -19330,12 +19572,23 @@
         "oldSourceEvidenceVerificationPinsBranchesAndCiClaimsRetained": true,
         "newFixedFullAndProducts": "OPEN",
         "notAnAdditionalSemanticReviewOfPriorFindingsOrPrintings": true
+      },
+      "currentBattlefieldControllerInputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+          "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+          "role": "source-manifest"
+        },
+        "onlyCurrentImplementationRefsAndExplicitPendingStateRefreshed": true,
+        "oldCompleteContextSourceEvidenceBranchesAndReceiptsRetained": true,
+        "newFixedFullAndProducts": "OPEN",
+        "noAdditionalWholePriorFindingSemanticCertification": true
       }
     },
     "banish-owner-effect-play-2026-10-18": {
       "evidenceCommit": "62bf7afc7a59bc743e1e578712e156686666c060",
       "evidenceCommitScope": "Previous fixed62bf baseline only. Later Hunting Rhythm source, fixture and SQL changes are uncommitted and are not covered by62bf.",
-      "currentImplementationCommit": "be0e7a88d86e191d87404488a8ecc4777411dfb7",
+      "currentImplementationCommit": "401470234dcd9dc4d72fe89dd79e99187096277f",
       "currentImplementationIncludesUncommittedChanges": true,
       "ciState": "PENDING",
       "ciReceipts": [],
@@ -19362,11 +19615,11 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "a17dd4208ba2ace7b1bc25de080ab7d75be9f76b92e6abfee12504b260b756b9"
+          "sha256": "f519e42f34f15cd382bd8c51833b02ee0e9cc205efcd0b5505d8681f2bd1acbf"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "c2db10d274e9db3a9944249b876d4e059a4a342c800f221172262647c6ee55bd"
+          "sha256": "5eaedf68094ad576df889b999598129e049c58db8829a443f4fbc2df8cfd8fe8"
         },
         {
           "path": "src/Riftbound.Engine/BanishPlayRecoveryRules.cs",
@@ -19883,12 +20136,23 @@
         "oldSourceEvidenceVerificationPinsBranchesAndCiClaimsRetained": true,
         "newFixedFullAndProducts": "OPEN",
         "notAnAdditionalSemanticReviewOfPriorFindingsOrPrintings": true
+      },
+      "currentBattlefieldControllerInputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+          "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+          "role": "source-manifest"
+        },
+        "onlyCurrentImplementationRefsAndExplicitPendingStateRefreshed": true,
+        "oldCompleteContextSourceEvidenceBranchesAndReceiptsRetained": true,
+        "newFixedFullAndProducts": "OPEN",
+        "noAdditionalWholePriorFindingSemanticCertification": true
       }
     },
     "permanent-here-location-control-2026-10-18": {
       "evidenceCommit": "c69aef543b7bb46a987719cc77cd77ea49782527",
       "evidenceCommitScope": "Previous c69 fixed full/native baseline only; later uncommitted Here inputs are separately pinned and not covered by c69.",
-      "currentImplementationCommit": "be0e7a88d86e191d87404488a8ecc4777411dfb7",
+      "currentImplementationCommit": "401470234dcd9dc4d72fe89dd79e99187096277f",
       "currentImplementationIncludesUncommittedChanges": true,
       "ciState": "PENDING",
       "ciReceipts": [],
@@ -19911,7 +20175,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "c2db10d274e9db3a9944249b876d4e059a4a342c800f221172262647c6ee55bd"
+          "sha256": "5eaedf68094ad576df889b999598129e049c58db8829a443f4fbc2df8cfd8fe8"
         },
         {
           "path": "src/Riftbound.Engine/PermanentPlayTriggerRecoveryRules.cs",
@@ -20386,12 +20650,23 @@
         "oldSourceEvidenceVerificationPinsBranchesAndCiClaimsRetained": true,
         "newFixedFullAndProducts": "OPEN",
         "notAnAdditionalSemanticReviewOfPriorFindingsOrPrintings": true
+      },
+      "currentBattlefieldControllerInputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+          "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+          "role": "source-manifest"
+        },
+        "onlyCurrentImplementationRefsAndExplicitPendingStateRefreshed": true,
+        "oldCompleteContextSourceEvidenceBranchesAndReceiptsRetained": true,
+        "newFixedFullAndProducts": "OPEN",
+        "noAdditionalWholePriorFindingSemanticCertification": true
       }
     },
     "rengar-unit-play-confirmation-order-recovery-2026-10-18": {
       "evidenceCommit": "a5d01ad0577e992ab19029424159a4c9acee1385",
       "evidenceCommitScope": "Original a5d native semantic red and prior source/test baseline only; current authored/compiled inputs are separately pinned and not covered by a5d.",
-      "currentImplementationCommit": "be0e7a88d86e191d87404488a8ecc4777411dfb7",
+      "currentImplementationCommit": "401470234dcd9dc4d72fe89dd79e99187096277f",
       "currentImplementationIncludesUncommittedChanges": true,
       "ciState": "PENDING",
       "ciReceipts": [],
@@ -20434,11 +20709,11 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "c2db10d274e9db3a9944249b876d4e059a4a342c800f221172262647c6ee55bd"
+          "sha256": "5eaedf68094ad576df889b999598129e049c58db8829a443f4fbc2df8cfd8fe8"
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "a17dd4208ba2ace7b1bc25de080ab7d75be9f76b92e6abfee12504b260b756b9"
+          "sha256": "f519e42f34f15cd382bd8c51833b02ee0e9cc205efcd0b5505d8681f2bd1acbf"
         },
         {
           "path": "src/Riftbound.Engine/PermanentPlayTriggerRecoveryRules.cs",
@@ -20982,12 +21257,23 @@
         "oldSourceEvidenceVerificationPinsBranchesAndCiClaimsRetained": true,
         "newFixedFullAndProducts": "OPEN",
         "notAnAdditionalSemanticReviewOfPriorFindingsOrPrintings": true
+      },
+      "currentBattlefieldControllerInputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+          "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+          "role": "source-manifest"
+        },
+        "onlyCurrentImplementationRefsAndExplicitPendingStateRefreshed": true,
+        "oldCompleteContextSourceEvidenceBranchesAndReceiptsRetained": true,
+        "newFixedFullAndProducts": "OPEN",
+        "noAdditionalWholePriorFindingSemanticCertification": true
       }
     },
     "deferred-trigger-command-chronology-2026-10-18": {
       "evidenceCommit": "b18272e8e4ad0ed01523aebc9f592e19623f46c9",
       "evidenceCommitScope": "Prior fixed b182 full/native preparation only. Current authored/actual compiled chronology inputs are independently pinned, not covered by the base commit.",
-      "currentImplementationCommit": "be0e7a88d86e191d87404488a8ecc4777411dfb7",
+      "currentImplementationCommit": "401470234dcd9dc4d72fe89dd79e99187096277f",
       "currentImplementationIncludesUncommittedChanges": true,
       "ciState": "PENDING",
       "ciReceipts": [],
@@ -21010,11 +21296,11 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "c2db10d274e9db3a9944249b876d4e059a4a342c800f221172262647c6ee55bd"
+          "sha256": "5eaedf68094ad576df889b999598129e049c58db8829a443f4fbc2df8cfd8fe8"
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "a17dd4208ba2ace7b1bc25de080ab7d75be9f76b92e6abfee12504b260b756b9"
+          "sha256": "f519e42f34f15cd382bd8c51833b02ee0e9cc205efcd0b5505d8681f2bd1acbf"
         },
         {
           "path": "src/Riftbound.Engine/RengarPlayRecoveryRules.cs",
@@ -21535,12 +21821,23 @@
         "oldSourceEvidenceVerificationPinsBranchesAndCiClaimsRetained": true,
         "newFixedFullAndProducts": "OPEN",
         "notAnAdditionalSemanticReviewOfPriorFindingsOrPrintings": true
+      },
+      "currentBattlefieldControllerInputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+          "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+          "role": "source-manifest"
+        },
+        "onlyCurrentImplementationRefsAndExplicitPendingStateRefreshed": true,
+        "oldCompleteContextSourceEvidenceBranchesAndReceiptsRetained": true,
+        "newFixedFullAndProducts": "OPEN",
+        "noAdditionalWholePriorFindingSemanticCertification": true
       }
     },
     "sole-trigger-choice-controller-2026-10-18": {
       "evidenceCommit": "fc106dcf29d996e09994d582378bdf4d8472618b",
       "evidenceCommitScope": "Prior fixed fc evidence only. Current WIP source revision and actual compiled modules independently pinned; source equality is not compiled identity equality.",
-      "currentImplementationCommit": "be0e7a88d86e191d87404488a8ecc4777411dfb7",
+      "currentImplementationCommit": "401470234dcd9dc4d72fe89dd79e99187096277f",
       "currentImplementationIncludesUncommittedChanges": true,
       "ciState": "PENDING",
       "ciReceipts": [],
@@ -21551,7 +21848,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "c2db10d274e9db3a9944249b876d4e059a4a342c800f221172262647c6ee55bd"
+          "sha256": "5eaedf68094ad576df889b999598129e049c58db8829a443f4fbc2df8cfd8fe8"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
@@ -22072,12 +22369,23 @@
         "oldSourceEvidenceVerificationPinsBranchesAndCiClaimsRetained": true,
         "newFixedFullAndProducts": "OPEN",
         "notAnAdditionalSemanticReviewOfPriorFindingsOrPrintings": true
+      },
+      "currentBattlefieldControllerInputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+          "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+          "role": "source-manifest"
+        },
+        "onlyCurrentImplementationRefsAndExplicitPendingStateRefreshed": true,
+        "oldCompleteContextSourceEvidenceBranchesAndReceiptsRetained": true,
+        "newFixedFullAndProducts": "OPEN",
+        "noAdditionalWholePriorFindingSemanticCertification": true
       }
     },
     "fate-weaver-private-spell-choice-2026-10-18": {
       "evidenceCommit": "91b87e4fbcb3baae1e82020df1e393d6a268b8b2",
       "evidenceCommitScope": "Original fixed91 red/product evidence only; current WIP exact source and independently measured actual executing modules separately pinned.",
-      "currentImplementationCommit": "be0e7a88d86e191d87404488a8ecc4777411dfb7",
+      "currentImplementationCommit": "401470234dcd9dc4d72fe89dd79e99187096277f",
       "currentImplementationIncludesUncommittedChanges": true,
       "currentInputRevision": "816510de29c4c161efef9bf564db861cb2de5d2ac71519413d56d39ede7268bb",
       "ciState": "PENDING",
@@ -22093,7 +22401,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "a17dd4208ba2ace7b1bc25de080ab7d75be9f76b92e6abfee12504b260b756b9"
+          "sha256": "f519e42f34f15cd382bd8c51833b02ee0e9cc205efcd0b5505d8681f2bd1acbf"
         }
       ],
       "verificationSources": [
@@ -22641,12 +22949,23 @@
         "oldSourceEvidenceVerificationPinsBranchesAndCiClaimsRetained": true,
         "newFixedFullAndProducts": "OPEN",
         "notAnAdditionalSemanticReviewOfPriorFindingsOrPrintings": true
+      },
+      "currentBattlefieldControllerInputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+          "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+          "role": "source-manifest"
+        },
+        "onlyCurrentImplementationRefsAndExplicitPendingStateRefreshed": true,
+        "oldCompleteContextSourceEvidenceBranchesAndReceiptsRetained": true,
+        "newFixedFullAndProducts": "OPEN",
+        "noAdditionalWholePriorFindingSemanticCertification": true
       }
     },
     "multi-controller-neutral-trigger-order-2026-10-18": {
       "evidenceCommit": "f199451ae6ceb135fa4fe4eafcba03e73ec9b99d",
       "evidenceCommitScope": "Actual fixedf199 Release5d3a ordinary red and pre-fix Debug81c2 only. Current WIP417 and fixed candidate inputs/data are independently pinned; source equality is not executing binary equality.",
-      "currentImplementationCommit": "be0e7a88d86e191d87404488a8ecc4777411dfb7",
+      "currentImplementationCommit": "401470234dcd9dc4d72fe89dd79e99187096277f",
       "currentImplementationIncludesUncommittedChanges": true,
       "currentInputRevision": "816510de29c4c161efef9bf564db861cb2de5d2ac71519413d56d39ede7268bb",
       "ciState": "PENDING",
@@ -22664,12 +22983,12 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "c2db10d274e9db3a9944249b876d4e059a4a342c800f221172262647c6ee55bd",
+          "sha256": "5eaedf68094ad576df889b999598129e049c58db8829a443f4fbc2df8cfd8fe8",
           "role": "implementation"
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "a17dd4208ba2ace7b1bc25de080ab7d75be9f76b92e6abfee12504b260b756b9",
+          "sha256": "f519e42f34f15cd382bd8c51833b02ee0e9cc205efcd0b5505d8681f2bd1acbf",
           "role": "implementation"
         },
         {
@@ -23257,12 +23576,23 @@
         "oldSourceEvidenceVerificationPinsBranchesAndCiClaimsRetained": true,
         "newFixedFullAndProducts": "OPEN",
         "notAnAdditionalSemanticReviewOfPriorFindingsOrPrintings": true
+      },
+      "currentBattlefieldControllerInputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+          "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+          "role": "source-manifest"
+        },
+        "onlyCurrentImplementationRefsAndExplicitPendingStateRefreshed": true,
+        "oldCompleteContextSourceEvidenceBranchesAndReceiptsRetained": true,
+        "newFixedFullAndProducts": "OPEN",
+        "noAdditionalWholePriorFindingSemanticCertification": true
       }
     },
     "empty-observed-deck-paid-repeat-2026-10-18": {
       "evidenceCommit": "46a990fefc65805116d45480d2880cb6861fdc58",
       "evidenceCommitScope": "Fixed46 actual Release d21fa804 red and separately verified current Debug c4ecf67f implementation. Fixed46 visible8:0 is an older implementation baseline, not new empty-view certification.",
-      "currentImplementationCommit": "be0e7a88d86e191d87404488a8ecc4777411dfb7",
+      "currentImplementationCommit": "401470234dcd9dc4d72fe89dd79e99187096277f",
       "currentImplementationIncludesUncommittedChanges": true,
       "currentInputRevision": "816510de29c4c161efef9bf564db861cb2de5d2ac71519413d56d39ede7268bb",
       "ciState": "PENDING",
@@ -23280,7 +23610,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "a17dd4208ba2ace7b1bc25de080ab7d75be9f76b92e6abfee12504b260b756b9",
+          "sha256": "f519e42f34f15cd382bd8c51833b02ee0e9cc205efcd0b5505d8681f2bd1acbf",
           "role": "implementation"
         }
       ],
@@ -23759,12 +24089,23 @@
         "oldSourceEvidenceVerificationPinsBranchesAndCiClaimsRetained": true,
         "newFixedFullAndProducts": "OPEN",
         "notAnAdditionalSemanticReviewOfPriorFindingsOrPrintings": true
+      },
+      "currentBattlefieldControllerInputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+          "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+          "role": "source-manifest"
+        },
+        "onlyCurrentImplementationRefsAndExplicitPendingStateRefreshed": true,
+        "oldCompleteContextSourceEvidenceBranchesAndReceiptsRetained": true,
+        "newFixedFullAndProducts": "OPEN",
+        "noAdditionalWholePriorFindingSemanticCertification": true
       }
     },
     "observed-deck-play-final-window-2026-10-18": {
       "evidenceCommit": "48c6ae96903807322cbba5dff3f1513fe8632917",
       "evidenceCommitScope": "Actual fixed48 Release87 native red and independently bound pre-fix Debug4f0 and corrected Debug525. Prior46 full is a separate older baseline, not this fix.",
-      "currentImplementationCommit": "be0e7a88d86e191d87404488a8ecc4777411dfb7",
+      "currentImplementationCommit": "401470234dcd9dc4d72fe89dd79e99187096277f",
       "currentImplementationIncludesUncommittedChanges": true,
       "currentInputRevision": "816510de29c4c161efef9bf564db861cb2de5d2ac71519413d56d39ede7268bb",
       "ciState": "PENDING",
@@ -23787,7 +24128,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "a17dd4208ba2ace7b1bc25de080ab7d75be9f76b92e6abfee12504b260b756b9",
+          "sha256": "f519e42f34f15cd382bd8c51833b02ee0e9cc205efcd0b5505d8681f2bd1acbf",
           "role": "implementation"
         }
       ],
@@ -24307,12 +24648,23 @@
         "oldSourceEvidenceVerificationPinsBranchesAndCiClaimsRetained": true,
         "newFixedFullAndProducts": "OPEN",
         "notAnAdditionalSemanticReviewOfPriorFindingsOrPrintings": true
+      },
+      "currentBattlefieldControllerInputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+          "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+          "role": "source-manifest"
+        },
+        "onlyCurrentImplementationRefsAndExplicitPendingStateRefreshed": true,
+        "oldCompleteContextSourceEvidenceBranchesAndReceiptsRetained": true,
+        "newFixedFullAndProducts": "OPEN",
+        "noAdditionalWholePriorFindingSemanticCertification": true
       }
     },
     "observed-source-native-ui-2026-10-18": {
       "evidenceCommit": "8c6d569e7be024b278cda46c09c262f061e53ab8",
       "evidenceCommitScope": "Prior fixed8c Release d4 visible46/282/normal8:0 is separate. Current uncommitted Debug bad341/combined47228 and actual native client modules pinned independently. Fixed48 CI cancelled by3h timeout, never full success.",
-      "currentImplementationCommit": "be0e7a88d86e191d87404488a8ecc4777411dfb7",
+      "currentImplementationCommit": "401470234dcd9dc4d72fe89dd79e99187096277f",
       "currentImplementationIncludesUncommittedChanges": true,
       "currentInputRevision": "816510de29c4c161efef9bf564db861cb2de5d2ac71519413d56d39ede7268bb",
       "ciState": "PENDING",
@@ -24320,7 +24672,7 @@
       "implementation": [
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "c2db10d274e9db3a9944249b876d4e059a4a342c800f221172262647c6ee55bd",
+          "sha256": "5eaedf68094ad576df889b999598129e049c58db8829a443f4fbc2df8cfd8fe8",
           "role": "implementation"
         },
         {
@@ -24732,12 +25084,23 @@
         "oldSourceEvidenceVerificationPinsBranchesAndCiClaimsRetained": true,
         "newFixedFullAndProducts": "OPEN",
         "notAnAdditionalSemanticReviewOfPriorFindingsOrPrintings": true
+      },
+      "currentBattlefieldControllerInputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+          "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+          "role": "source-manifest"
+        },
+        "onlyCurrentImplementationRefsAndExplicitPendingStateRefreshed": true,
+        "oldCompleteContextSourceEvidenceBranchesAndReceiptsRetained": true,
+        "newFixedFullAndProducts": "OPEN",
+        "noAdditionalWholePriorFindingSemanticCertification": true
       }
     },
     "ravenbloom-put-hand-2026-10-18": {
       "evidenceCommit": "21e505c32e29e1595251ccd571d80d176b95c98c",
       "evidenceCommitScope": "Actual current uncommitted Debug8e6/combined15660 is independently bound to SQL and Conformance. Prior semantic-only a2c and fixed21 Release56b/combinedb263 are separate. Actual fixed8c full cancelled by3h timeout is never promoted to success.",
-      "currentImplementationCommit": "be0e7a88d86e191d87404488a8ecc4777411dfb7",
+      "currentImplementationCommit": "401470234dcd9dc4d72fe89dd79e99187096277f",
       "currentImplementationIncludesUncommittedChanges": true,
       "currentInputRevision": "816510de29c4c161efef9bf564db861cb2de5d2ac71519413d56d39ede7268bb",
       "ciState": "PENDING",
@@ -24750,7 +25113,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "c2db10d274e9db3a9944249b876d4e059a4a342c800f221172262647c6ee55bd",
+          "sha256": "5eaedf68094ad576df889b999598129e049c58db8829a443f4fbc2df8cfd8fe8",
           "role": "implementation"
         },
         {
@@ -24760,7 +25123,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "a17dd4208ba2ace7b1bc25de080ab7d75be9f76b92e6abfee12504b260b756b9",
+          "sha256": "f519e42f34f15cd382bd8c51833b02ee0e9cc205efcd0b5505d8681f2bd1acbf",
           "role": "implementation"
         }
       ],
@@ -25499,12 +25862,23 @@
         "oldSourceEvidenceVerificationPinsBranchesAndCiClaimsRetained": true,
         "newFixedFullAndProducts": "OPEN",
         "notAnAdditionalSemanticReviewOfPriorFindingsOrPrintings": true
+      },
+      "currentBattlefieldControllerInputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+          "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+          "role": "source-manifest"
+        },
+        "onlyCurrentImplementationRefsAndExplicitPendingStateRefreshed": true,
+        "oldCompleteContextSourceEvidenceBranchesAndReceiptsRetained": true,
+        "newFixedFullAndProducts": "OPEN",
+        "noAdditionalWholePriorFindingSemanticCertification": true
       }
     },
     "copied-predict-2026-10-18": {
       "evidenceCommit": "6c9632f155bacff654acceb70ce42ee15e9b681f",
       "evidenceCommitScope": "Actual precommit Debug2c3a3/combined67084 current core bound to SQL/final152/original116/singlecheck. Actual old6c Debug7d564/combined6bbcc is separate from prior uncommittedDebug8e6 and prior6c Release83. Previous fixed21 full verified12659/7495/101SQLpaths93receipts is a prior baseline only.",
-      "currentImplementationCommit": "be0e7a88d86e191d87404488a8ecc4777411dfb7",
+      "currentImplementationCommit": "401470234dcd9dc4d72fe89dd79e99187096277f",
       "currentImplementationIncludesUncommittedChanges": true,
       "currentInputRevision": "816510de29c4c161efef9bf564db861cb2de5d2ac71519413d56d39ede7268bb",
       "ciState": "PENDING",
@@ -25530,7 +25904,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "a17dd4208ba2ace7b1bc25de080ab7d75be9f76b92e6abfee12504b260b756b9",
+          "sha256": "f519e42f34f15cd382bd8c51833b02ee0e9cc205efcd0b5505d8681f2bd1acbf",
           "role": "implementation"
         }
       ],
@@ -26287,12 +26661,23 @@
         "oldSourceEvidenceVerificationPinsBranchesAndCiClaimsRetained": true,
         "newFixedFullAndProducts": "OPEN",
         "notAnAdditionalSemanticReviewOfPriorFindingsOrPrintings": true
+      },
+      "currentBattlefieldControllerInputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+          "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+          "role": "source-manifest"
+        },
+        "onlyCurrentImplementationRefsAndExplicitPendingStateRefreshed": true,
+        "oldCompleteContextSourceEvidenceBranchesAndReceiptsRetained": true,
+        "newFixedFullAndProducts": "OPEN",
+        "noAdditionalWholePriorFindingSemanticCertification": true
       }
     },
     "copied-last-breath-insight-2026-10-19": {
       "evidenceCommit": "447cf56b79fb3bc68c8b47254dadf46f8ca15c05",
       "evidenceCommitScope": "Actual precommit Debug a97015 / combined e2e37f binds274 scoped cases, SQL, original116 games and the single check. Old Debug3b782 / combined d1494d exact ordinary red evidence is separate from fixed a9 Release49. Added test assemblies are recorded separately; prior full receipts do not certify the current Q7 product.",
-      "currentImplementationCommit": "be0e7a88d86e191d87404488a8ecc4777411dfb7",
+      "currentImplementationCommit": "401470234dcd9dc4d72fe89dd79e99187096277f",
       "currentImplementationIncludesUncommittedChanges": true,
       "currentInputRevision": "816510de29c4c161efef9bf564db861cb2de5d2ac71519413d56d39ede7268bb",
       "ciState": "PENDING",
@@ -26323,12 +26708,12 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "a17dd4208ba2ace7b1bc25de080ab7d75be9f76b92e6abfee12504b260b756b9",
+          "sha256": "f519e42f34f15cd382bd8c51833b02ee0e9cc205efcd0b5505d8681f2bd1acbf",
           "role": "implementation"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "c2db10d274e9db3a9944249b876d4e059a4a342c800f221172262647c6ee55bd",
+          "sha256": "5eaedf68094ad576df889b999598129e049c58db8829a443f4fbc2df8cfd8fe8",
           "role": "implementation"
         },
         {
@@ -27348,11 +27733,22 @@
         "oldSourceEvidenceVerificationPinsBranchesAndCiClaimsRetained": true,
         "newFixedFullAndProducts": "OPEN",
         "notAnAdditionalSemanticReviewOfPriorFindingsOrPrintings": true
+      },
+      "currentBattlefieldControllerInputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+          "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+          "role": "source-manifest"
+        },
+        "onlyCurrentImplementationRefsAndExplicitPendingStateRefreshed": true,
+        "oldCompleteContextSourceEvidenceBranchesAndReceiptsRetained": true,
+        "newFixedFullAndProducts": "OPEN",
+        "noAdditionalWholePriorFindingSemanticCertification": true
       }
     },
     "copied-duel-insight-2026-10-19": {
       "evidenceCommit": "3d690c3511ee8f96e57bad87c2e34691a3148e30",
-      "currentImplementationCommit": "be0e7a88d86e191d87404488a8ecc4777411dfb7",
+      "currentImplementationCommit": "401470234dcd9dc4d72fe89dd79e99187096277f",
       "evidenceCommitScope": "Uncommitted actual Debug70ce scoped201,ordinary16,SQL8,original116 and one check12781pass4diagnosticexpectationfailures,repairedby32focusonbyteidenticalCore.TestDLL/PDBphase separatelypinned.Fixed3d Release24e locked native is separate; its actual full failed on original driver. New fixed full pending.",
       "currentImplementationIncludesUncommittedChanges": true,
       "currentInputRevision": "816510de29c4c161efef9bf564db861cb2de5d2ac71519413d56d39ede7268bb",
@@ -27374,12 +27770,12 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "a17dd4208ba2ace7b1bc25de080ab7d75be9f76b92e6abfee12504b260b756b9",
+          "sha256": "f519e42f34f15cd382bd8c51833b02ee0e9cc205efcd0b5505d8681f2bd1acbf",
           "role": "implementation"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "c2db10d274e9db3a9944249b876d4e059a4a342c800f221172262647c6ee55bd",
+          "sha256": "5eaedf68094ad576df889b999598129e049c58db8829a443f4fbc2df8cfd8fe8",
           "role": "implementation"
         },
         {
@@ -28384,11 +28780,22 @@
         "oldSourceEvidenceVerificationPinsBranchesAndCiClaimsRetained": true,
         "newFixedFullAndProducts": "OPEN",
         "notAnAdditionalSemanticReviewOfPriorFindingsOrPrintings": true
+      },
+      "currentBattlefieldControllerInputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+          "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+          "role": "source-manifest"
+        },
+        "onlyCurrentImplementationRefsAndExplicitPendingStateRefreshed": true,
+        "oldCompleteContextSourceEvidenceBranchesAndReceiptsRetained": true,
+        "newFixedFullAndProducts": "OPEN",
+        "noAdditionalWholePriorFindingSemanticCertification": true
       }
     },
     "private-opening-resource-driver-2026-10-19": {
       "evidenceCommit": "3d690c3511ee8f96e57bad87c2e34691a3148e30",
-      "currentImplementationCommit": "f0593b1648a7fd4437b7d7512429f517d86bdda2",
+      "currentImplementationCommit": "401470234dcd9dc4d72fe89dd79e99187096277f",
       "evidenceCommitScope": "Uncommitted actual Debug70ce scoped201,ordinary16,SQL8,original116 and one check12781pass4diagnosticexpectationfailures,repairedby32focusonbyteidenticalCore.TestDLL/PDBphase separatelypinned.Fixed3d Release24e locked native is separate; its actual full failed on original driver. New fixed full pending.",
       "currentImplementationIncludesUncommittedChanges": true,
       "currentInputRevision": "816510de29c4c161efef9bf564db861cb2de5d2ac71519413d56d39ede7268bb",
@@ -28405,7 +28812,7 @@
       "implementation": [
         {
           "path": "tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs",
-          "sha256": "302d072ea9badc28a288928c08c04e1d606af5d9a6105e74a410b67bed72d0a3",
+          "sha256": "68808755dce3b89c3b03bee63799ece13123d70585eaa96a728269c22ae04da4",
           "role": "implementation"
         }
       ],
@@ -28867,11 +29274,22 @@
         "path": "docs/evidence/deck-play-ordered-jsonb-2026-10-21/seven-context-current-input-refresh.json",
         "sha256": "7f2ad7305e8cd40241920908918564c2d731d4b728c557db559a6311f82217ee",
         "role": "current-input-refresh"
+      },
+      "currentBattlefieldControllerInputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+          "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+          "role": "source-manifest"
+        },
+        "onlyCurrentImplementationRefsAndExplicitPendingStateRefreshed": true,
+        "oldCompleteContextSourceEvidenceBranchesAndReceiptsRetained": true,
+        "newFixedFullAndProducts": "OPEN",
+        "noAdditionalWholePriorFindingSemanticCertification": true
       }
     },
     "empowered-insight-2026-10-19": {
       "evidenceCommit": "c6af0a41d28326b7dd2ec18b9b1a3d176a6a2b99",
-      "currentImplementationCommit": "be0e7a88d86e191d87404488a8ecc4777411dfb7",
+      "currentImplementationCommit": "401470234dcd9dc4d72fe89dd79e99187096277f",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Actual uncommitted N9 Debug6993 identity:79directed,12ordinary,12realSQL,6earlyoriginal,onecheck12862pass14metadataexpectationfailures; all14resolvedby438distinctpassingfocusidentities over439executions. Ten non-test modules byte-exact; only four rule DLLs are shared with frozen SQL runtime. New fixed Release/full and current visible/Windows gates remain separate.",
       "currentInputRevision": "816510de29c4c161efef9bf564db861cb2de5d2ac71519413d56d39ede7268bb",
@@ -28908,12 +29326,12 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "a17dd4208ba2ace7b1bc25de080ab7d75be9f76b92e6abfee12504b260b756b9",
+          "sha256": "f519e42f34f15cd382bd8c51833b02ee0e9cc205efcd0b5505d8681f2bd1acbf",
           "role": "implementation"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "c2db10d274e9db3a9944249b876d4e059a4a342c800f221172262647c6ee55bd",
+          "sha256": "5eaedf68094ad576df889b999598129e049c58db8829a443f4fbc2df8cfd8fe8",
           "role": "implementation"
         }
       ],
@@ -29970,6 +30388,17 @@
         "oldSourceEvidenceVerificationPinsBranchesAndCiClaimsRetained": true,
         "newFixedFullAndProducts": "OPEN",
         "notAnAdditionalSemanticReviewOfPriorFindingsOrPrintings": true
+      },
+      "currentBattlefieldControllerInputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+          "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+          "role": "source-manifest"
+        },
+        "onlyCurrentImplementationRefsAndExplicitPendingStateRefreshed": true,
+        "oldCompleteContextSourceEvidenceBranchesAndReceiptsRetained": true,
+        "newFixedFullAndProducts": "OPEN",
+        "noAdditionalWholePriorFindingSemanticCertification": true
       }
     },
     "pakaa-native-move-reveal-2026-10-19": {
@@ -31456,7 +31885,7 @@
     },
     "observed-disclosure-wording-and-stale-native-smoke-2026-10-19": {
       "evidenceCommit": "6d9aee51e5259313b319ad555f8f44572563b3df",
-      "currentImplementationCommit": "be0e7a88d86e191d87404488a8ecc4777411dfb7",
+      "currentImplementationCommit": "401470234dcd9dc4d72fe89dd79e99187096277f",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Actual precommit N12 Debug identity in32 controlled and12 ordinary cases and one check; prior fixed6d9 actual Release acceptance is separate. New native source fix is not yet a native execution certificate.",
       "currentInputRevision": "816510de29c4c161efef9bf564db861cb2de5d2ac71519413d56d39ede7268bb",
@@ -31483,12 +31912,12 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "c2db10d274e9db3a9944249b876d4e059a4a342c800f221172262647c6ee55bd",
+          "sha256": "5eaedf68094ad576df889b999598129e049c58db8829a443f4fbc2df8cfd8fe8",
           "role": "implementation"
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "a17dd4208ba2ace7b1bc25de080ab7d75be9f76b92e6abfee12504b260b756b9",
+          "sha256": "f519e42f34f15cd382bd8c51833b02ee0e9cc205efcd0b5505d8681f2bd1acbf",
           "role": "implementation"
         },
         {
@@ -32256,6 +32685,17 @@
         "oldSourceEvidenceVerificationPinsBranchesAndCiClaimsRetained": true,
         "newFixedFullAndProducts": "OPEN",
         "notAnAdditionalSemanticReviewOfPriorFindingsOrPrintings": true
+      },
+      "currentBattlefieldControllerInputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+          "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+          "role": "source-manifest"
+        },
+        "onlyCurrentImplementationRefsAndExplicitPendingStateRefreshed": true,
+        "oldCompleteContextSourceEvidenceBranchesAndReceiptsRetained": true,
+        "newFixedFullAndProducts": "OPEN",
+        "noAdditionalWholePriorFindingSemanticCertification": true
       }
     },
     "initial-empty-reveal-followup-specific432-2026-10-19": {
@@ -33317,7 +33757,7 @@
     },
     "hwei-move-draw-discard-all-printed-types-2026-10-20": {
       "evidenceCommit": "b294bb150d877b3399cd9e120bbaec5c75e353cf",
-      "currentImplementationCommit": "be0e7a88d86e191d87404488a8ecc4777411dfb7",
+      "currentImplementationCommit": "401470234dcd9dc4d72fe89dd79e99187096277f",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Baseb294 plus declared uncommitted Hwei sources/tests/SQL. Actual local Debugdb884 and Releasef4a are separate from older797f native and future fixed commit modules.",
       "currentInputRevision": "816510de29c4c161efef9bf564db861cb2de5d2ac71519413d56d39ede7268bb",
@@ -33374,7 +33814,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "a17dd4208ba2ace7b1bc25de080ab7d75be9f76b92e6abfee12504b260b756b9",
+          "sha256": "f519e42f34f15cd382bd8c51833b02ee0e9cc205efcd0b5505d8681f2bd1acbf",
           "role": "implementation"
         }
       ],
@@ -33927,11 +34367,22 @@
         "oldSourceEvidenceVerificationPinsBranchesAndCiClaimsRetained": true,
         "newFixedFullAndProducts": "OPEN",
         "notAnAdditionalSemanticReviewOfPriorFindingsOrPrintings": true
+      },
+      "currentBattlefieldControllerInputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+          "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+          "role": "source-manifest"
+        },
+        "onlyCurrentImplementationRefsAndExplicitPendingStateRefreshed": true,
+        "oldCompleteContextSourceEvidenceBranchesAndReceiptsRetained": true,
+        "newFixedFullAndProducts": "OPEN",
+        "noAdditionalWholePriorFindingSemanticCertification": true
       }
     },
     "destruction-attribution-delayed-skill-graveyard-play-2026-10-20": {
       "evidenceCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
-      "currentImplementationCommit": "be0e7a88d86e191d87404488a8ecc4777411dfb7",
+      "currentImplementationCommit": "401470234dcd9dc4d72fe89dd79e99187096277f",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Base08fd plus declared uncommitted source/test/SQL/CI inputs. Actual precommit Debug and Release evidence distinct from old08fd native and future fixed modules.",
       "currentInputRevision": "816510de29c4c161efef9bf564db861cb2de5d2ac71519413d56d39ede7268bb",
@@ -34013,12 +34464,12 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "a17dd4208ba2ace7b1bc25de080ab7d75be9f76b92e6abfee12504b260b756b9",
+          "sha256": "f519e42f34f15cd382bd8c51833b02ee0e9cc205efcd0b5505d8681f2bd1acbf",
           "role": "implementation"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "c2db10d274e9db3a9944249b876d4e059a4a342c800f221172262647c6ee55bd",
+          "sha256": "5eaedf68094ad576df889b999598129e049c58db8829a443f4fbc2df8cfd8fe8",
           "role": "implementation"
         }
       ],
@@ -35209,6 +35660,17 @@
         "oldSourceEvidenceVerificationPinsBranchesAndCiClaimsRetained": true,
         "newFixedFullAndProducts": "OPEN",
         "notAnAdditionalSemanticReviewOfPriorFindingsOrPrintings": true
+      },
+      "currentBattlefieldControllerInputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+          "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+          "role": "source-manifest"
+        },
+        "onlyCurrentImplementationRefsAndExplicitPendingStateRefreshed": true,
+        "oldCompleteContextSourceEvidenceBranchesAndReceiptsRetained": true,
+        "newFixedFullAndProducts": "OPEN",
+        "noAdditionalWholePriorFindingSemanticCertification": true
       }
     },
     "graveyard-source-reference-occupation-and-original-generation-2026-10-20": {
@@ -35931,7 +36393,7 @@
     },
     "conditional-counter-target-controller-mana-and-printed-echo-2026-10-20": {
       "evidenceCommit": "48e7ff8702dc43a1b5a3991365d87068506ae137",
-      "currentImplementationCommit": "be0e7a88d86e191d87404488a8ecc4777411dfb7",
+      "currentImplementationCommit": "401470234dcd9dc4d72fe89dd79e99187096277f",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Base48 plus declared conditional-counter implementation/tests/presentation. Historical sole check63e, pre-wording Release19d and current Release713 are distinct actual identities.",
       "currentInputRevision": "816510de29c4c161efef9bf564db861cb2de5d2ac71519413d56d39ede7268bb",
@@ -35969,7 +36431,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "c2db10d274e9db3a9944249b876d4e059a4a342c800f221172262647c6ee55bd",
+          "sha256": "5eaedf68094ad576df889b999598129e049c58db8829a443f4fbc2df8cfd8fe8",
           "role": "implementation"
         },
         {
@@ -36572,6 +37034,17 @@
         "oldSourceEvidenceVerificationPinsBranchesAndCiClaimsRetained": true,
         "newFixedFullAndProducts": "OPEN",
         "notAnAdditionalSemanticReviewOfPriorFindingsOrPrintings": true
+      },
+      "currentBattlefieldControllerInputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+          "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+          "role": "source-manifest"
+        },
+        "onlyCurrentImplementationRefsAndExplicitPendingStateRefreshed": true,
+        "oldCompleteContextSourceEvidenceBranchesAndReceiptsRetained": true,
+        "newFixedFullAndProducts": "OPEN",
+        "noAdditionalWholePriorFindingSemanticCertification": true
       }
     },
     "native-signalr-dependency-and-runtime-patch-2026-10-20": {
@@ -38264,7 +38737,7 @@
     },
     "candlelit-current-cn16-five-private-look-sql-2026-10-21": {
       "evidenceCommit": "c2bea309e2b73cdd730f57bf8761bb04a6c42ce8",
-      "currentImplementationCommit": "be0e7a88d86e191d87404488a8ecc4777411dfb7",
+      "currentImplementationCommit": "401470234dcd9dc4d72fe89dd79e99187096277f",
       "currentImplementationIncludesUncommittedChanges": true,
       "ciState": "PENDING",
       "ciReceipts": [],
@@ -38300,7 +38773,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "a17dd4208ba2ace7b1bc25de080ab7d75be9f76b92e6abfee12504b260b756b9",
+          "sha256": "f519e42f34f15cd382bd8c51833b02ee0e9cc205efcd0b5505d8681f2bd1acbf",
           "role": "implementation"
         },
         {
@@ -38817,11 +39290,22 @@
         "oldSourceEvidenceVerificationPinsBranchesAndCiClaimsRetained": true,
         "newFixedFullAndProducts": "OPEN",
         "notAnAdditionalSemanticReviewOfPriorFindingsOrPrintings": true
+      },
+      "currentBattlefieldControllerInputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+          "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+          "role": "source-manifest"
+        },
+        "onlyCurrentImplementationRefsAndExplicitPendingStateRefreshed": true,
+        "oldCompleteContextSourceEvidenceBranchesAndReceiptsRetained": true,
+        "newFixedFullAndProducts": "OPEN",
+        "noAdditionalWholePriorFindingSemanticCertification": true
       }
     },
     "candlelit-nocturne-current-cn16-three-original-set-sql-2026-10-21": {
       "evidenceCommit": "39eacb2e22ce365c2d56750382518bfcd1bdf32a",
-      "currentImplementationCommit": "be0e7a88d86e191d87404488a8ecc4777411dfb7",
+      "currentImplementationCommit": "401470234dcd9dc4d72fe89dd79e99187096277f",
       "currentImplementationIncludesUncommittedChanges": true,
       "ciState": "PENDING",
       "ciReceipts": [],
@@ -38857,7 +39341,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "a17dd4208ba2ace7b1bc25de080ab7d75be9f76b92e6abfee12504b260b756b9",
+          "sha256": "f519e42f34f15cd382bd8c51833b02ee0e9cc205efcd0b5505d8681f2bd1acbf",
           "role": "implementation"
         },
         {
@@ -39099,11 +39583,22 @@
         "oldSourceEvidenceVerificationPinsBranchesAndCiClaimsRetained": true,
         "newFixedFullAndProducts": "OPEN",
         "notAnAdditionalSemanticReviewOfPriorFindingsOrPrintings": true
+      },
+      "currentBattlefieldControllerInputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+          "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+          "role": "source-manifest"
+        },
+        "onlyCurrentImplementationRefsAndExplicitPendingStateRefreshed": true,
+        "oldCompleteContextSourceEvidenceBranchesAndReceiptsRetained": true,
+        "newFixedFullAndProducts": "OPEN",
+        "noAdditionalWholePriorFindingSemanticCertification": true
       }
     },
     "deck-play-ordered-jsonb-current-cn16-2026-10-21": {
       "evidenceCommit": "f0593b1648a7fd4437b7d7512429f517d86bdda2",
-      "currentImplementationCommit": "be0e7a88d86e191d87404488a8ecc4777411dfb7",
+      "currentImplementationCommit": "401470234dcd9dc4d72fe89dd79e99187096277f",
       "currentImplementationIncludesUncommittedChanges": true,
       "ciState": "PENDING",
       "ciReceipts": [],
@@ -39129,7 +39624,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "a17dd4208ba2ace7b1bc25de080ab7d75be9f76b92e6abfee12504b260b756b9",
+          "sha256": "f519e42f34f15cd382bd8c51833b02ee0e9cc205efcd0b5505d8681f2bd1acbf",
           "role": "implementation"
         },
         {
@@ -39388,6 +39883,17 @@
         "oldSourceEvidenceVerificationPinsBranchesAndCiClaimsRetained": true,
         "newFixedFullAndProducts": "OPEN",
         "notAnAdditionalSemanticReviewOfPriorFindingsOrPrintings": true
+      },
+      "currentBattlefieldControllerInputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+          "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+          "role": "source-manifest"
+        },
+        "onlyCurrentImplementationRefsAndExplicitPendingStateRefreshed": true,
+        "oldCompleteContextSourceEvidenceBranchesAndReceiptsRetained": true,
+        "newFixedFullAndProducts": "OPEN",
+        "noAdditionalWholePriorFindingSemanticCertification": true
       }
     },
     "optional-observed-revealed-hand-current-cn16-2026-10-21": {
@@ -40197,7 +40703,7 @@
     },
     "exhausted-reksai-current-cn16-2026-10-21": {
       "evidenceCommit": "708a3558040f9acd4c66122a00db8ca085f460cf",
-      "currentImplementationCommit": "be0e7a88d86e191d87404488a8ecc4777411dfb7",
+      "currentImplementationCommit": "401470234dcd9dc4d72fe89dd79e99187096277f",
       "currentImplementationIncludesUncommittedChanges": true,
       "ciState": "PENDING",
       "ciReceipts": [],
@@ -40233,7 +40739,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "a17dd4208ba2ace7b1bc25de080ab7d75be9f76b92e6abfee12504b260b756b9",
+          "sha256": "f519e42f34f15cd382bd8c51833b02ee0e9cc205efcd0b5505d8681f2bd1acbf",
           "role": "implementation"
         },
         {
@@ -40632,6 +41138,17 @@
         "oldSourceEvidenceVerificationPinsBranchesAndCiClaimsRetained": true,
         "newFixedFullAndProducts": "OPEN",
         "notAnAdditionalSemanticReviewOfPriorFindingsOrPrintings": true
+      },
+      "currentBattlefieldControllerInputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+          "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+          "role": "source-manifest"
+        },
+        "onlyCurrentImplementationRefsAndExplicitPendingStateRefreshed": true,
+        "oldCompleteContextSourceEvidenceBranchesAndReceiptsRetained": true,
+        "newFixedFullAndProducts": "OPEN",
+        "noAdditionalWholePriorFindingSemanticCertification": true
       }
     },
     "teemo-counted-current-cn16-2026-10-21": {
@@ -47393,7 +47910,7 @@
     },
     "frost-controlled-start-source-finding-2026-10-22": {
       "evidenceCommit": "7a334e7c1cab701d9506b6cf94f3f3a86d316ef8",
-      "currentImplementationCommit": "be0e7a88d86e191d87404488a8ecc4777411dfb7",
+      "currentImplementationCommit": "401470234dcd9dc4d72fe89dd79e99187096277f",
       "currentImplementationIncludesUncommittedChanges": true,
       "ciState": "PENDING",
       "ciReceipts": [],
@@ -47410,12 +47927,12 @@
       "implementation": [
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.BattlefieldStart.cs",
-          "sha256": "886a2f98c9f52c60943676537c059ec146a6f14a78a1359a42b6b8c94946b871",
+          "sha256": "344d63c837d996f6436f22b5dac312c969ff83ffecdee73e3531f2471c3fc88d",
           "role": "implementation"
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "a17dd4208ba2ace7b1bc25de080ab7d75be9f76b92e6abfee12504b260b756b9",
+          "sha256": "f519e42f34f15cd382bd8c51833b02ee0e9cc205efcd0b5505d8681f2bd1acbf",
           "role": "implementation"
         }
       ],
@@ -47497,11 +48014,34 @@
         "oldSourceEvidenceVerificationPinsBranchesAndCiClaimsRetained": true,
         "newFixedFullAndProducts": "OPEN",
         "notAnAdditionalSemanticReviewOfPriorFindingsOrPrintings": true
+      },
+      "currentBattlefieldControllerInputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+          "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+          "role": "source-manifest"
+        },
+        "onlyCurrentImplementationRefsAndExplicitPendingStateRefreshed": true,
+        "oldCompleteContextSourceEvidenceBranchesAndReceiptsRetained": true,
+        "newFixedFullAndProducts": "OPEN",
+        "noAdditionalWholePriorFindingSemanticCertification": true
+      },
+      "currentBoundedControllerRepairFollowup": {
+        "review": "battlefield-start-controller-current-cn16-2026-10-22",
+        "sourceManifest": {
+          "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+          "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+          "role": "source-manifest"
+        },
+        "originalCounterexampleAndIssue84Retained": true,
+        "localBoundedImplementationAndTestsAndActualSql": "PASS",
+        "newFixedFullAndCurrentProducts": "OPEN",
+        "wholeFindingOrGoalClosed": false
       }
     },
     "native-late-seat-historical-replay-finding-2026-10-22": {
       "evidenceCommit": "7a334e7c1cab701d9506b6cf94f3f3a86d316ef8",
-      "currentImplementationCommit": "be0e7a88d86e191d87404488a8ecc4777411dfb7",
+      "currentImplementationCommit": "401470234dcd9dc4d72fe89dd79e99187096277f",
       "currentImplementationIncludesUncommittedChanges": true,
       "ciState": "PENDING",
       "ciReceipts": [],
@@ -47518,12 +48058,12 @@
       "implementation": [
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "c2db10d274e9db3a9944249b876d4e059a4a342c800f221172262647c6ee55bd",
+          "sha256": "5eaedf68094ad576df889b999598129e049c58db8829a443f4fbc2df8cfd8fe8",
           "role": "implementation"
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "a17dd4208ba2ace7b1bc25de080ab7d75be9f76b92e6abfee12504b260b756b9",
+          "sha256": "f519e42f34f15cd382bd8c51833b02ee0e9cc205efcd0b5505d8681f2bd1acbf",
           "role": "implementation"
         },
         {
@@ -47628,11 +48168,22 @@
         "currentBoundedImplementationFocusSqlAndAll110": "PASS",
         "newFixedFullAndCurrentProducts": "OPEN",
         "wholeFindingOrGoalClosed": false
+      },
+      "currentBattlefieldControllerInputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+          "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+          "role": "source-manifest"
+        },
+        "onlyCurrentImplementationRefsAndExplicitPendingStateRefreshed": true,
+        "oldCompleteContextSourceEvidenceBranchesAndReceiptsRetained": true,
+        "newFixedFullAndProducts": "OPEN",
+        "noAdditionalWholePriorFindingSemanticCertification": true
       }
     },
     "room-seat-journal-inputs-2026-10-22": {
       "evidenceCommit": "be0e7a88d86e191d87404488a8ecc4777411dfb7",
-      "currentImplementationCommit": "be0e7a88d86e191d87404488a8ecc4777411dfb7",
+      "currentImplementationCommit": "401470234dcd9dc4d72fe89dd79e99187096277f",
       "currentImplementationIncludesUncommittedChanges": true,
       "ciState": "PENDING",
       "ciReceipts": [],
@@ -47648,7 +48199,7 @@
       "implementation": [
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "c2db10d274e9db3a9944249b876d4e059a4a342c800f221172262647c6ee55bd",
+          "sha256": "5eaedf68094ad576df889b999598129e049c58db8829a443f4fbc2df8cfd8fe8",
           "role": "implementation"
         },
         {
@@ -47663,7 +48214,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
-          "sha256": "a17dd4208ba2ace7b1bc25de080ab7d75be9f76b92e6abfee12504b260b756b9",
+          "sha256": "f519e42f34f15cd382bd8c51833b02ee0e9cc205efcd0b5505d8681f2bd1acbf",
           "role": "implementation"
         },
         {
@@ -48675,7 +49226,18 @@
           "sha256": "4479d100320b13e6d977fb6a1f833722547d555fde6a058f8cf45039af45875a",
           "role": "original-pair-helpers"
         }
-      ]
+      ],
+      "currentBattlefieldControllerInputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+          "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+          "role": "source-manifest"
+        },
+        "onlyCurrentImplementationRefsAndExplicitPendingStateRefreshed": true,
+        "oldCompleteContextSourceEvidenceBranchesAndReceiptsRetained": true,
+        "newFixedFullAndProducts": "OPEN",
+        "noAdditionalWholePriorFindingSemanticCertification": true
+      }
     },
     "room-seat-peer-notifications-2026-10-22": {
       "evidenceCommit": "96334b9d9ef6fc15faf3d2eb265552482664cbd3",
@@ -49160,6 +49722,1683 @@
           "role": "independent-sql-history-replay"
         }
       ]
+    },
+    "battlefield-start-controller-current-cn16-2026-10-22": {
+      "evidenceCommit": "401470234dcd9dc4d72fe89dd79e99187096277f",
+      "currentImplementationCommit": "401470234dcd9dc4d72fe89dd79e99187096277f",
+      "currentImplementationIncludesUncommittedChanges": true,
+      "ciState": "PENDING",
+      "ciReceipts": [],
+      "region": "CN",
+      "language": "zh-CN",
+      "applicableAsOf": "2026-10-22",
+      "adoptedCoreEffectiveDate": "2026-10-16",
+      "sourceManifest": {
+        "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+        "role": "source-manifest"
+      },
+      "implementation": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.BattlefieldStart.cs",
+          "sha256": "344d63c837d996f6436f22b5dac312c969ff83ffecdee73e3531f2471c3fc88d",
+          "role": "implementation"
+        },
+        {
+          "path": "src/Riftbound.Engine/BattlefieldStartRecoveryRules.cs",
+          "sha256": "bbf017e44d00b81d0259e6ce9ae4cca04b7e723804b4f59dc127203e9e96fb80",
+          "role": "implementation"
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.cs",
+          "sha256": "f519e42f34f15cd382bd8c51833b02ee0e9cc205efcd0b5505d8681f2bd1acbf",
+          "role": "implementation"
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchSession.cs",
+          "sha256": "5eaedf68094ad576df889b999598129e049c58db8829a443f4fbc2df8cfd8fe8",
+          "role": "implementation"
+        }
+      ],
+      "verificationSources": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/BattlefieldStartControllerTests.cs",
+          "sha256": "2d6d75a8c30a0c9e5442d3885d1720354a57be1c6030454f32553d917fe5b99f",
+          "role": "verification-source"
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/FrostHoldTests.cs",
+          "sha256": "62dc381060e2aeb7a8c8d216f41938f3d8bb4d772a5b0054d3b8f982f7e083e0",
+          "role": "verification-source"
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/DuskRoseLabStartTests.cs",
+          "sha256": "68e73df143abe2bc973ec9b39bcc10d074b291880aa0787e8ec37d3297a48b27",
+          "role": "verification-source"
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs",
+          "sha256": "68808755dce3b89c3b03bee63799ece13123d70585eaa96a728269c22ae04da4",
+          "role": "verification-source"
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/GameHubJoinTests.cs",
+          "sha256": "28b140ee283b27b4a7792b34702def7f964276634ae2a0252709a64dfeaf9424",
+          "role": "verification-source"
+        },
+        {
+          "path": "tests/Riftbound.PostgresAcceptance/BattlefieldStartControllerSqlAcceptance.cs",
+          "sha256": "12603bf7d3f4d28c895bef14425f66ff9f750f0f9d3ee09fd506e8b9de2068b6",
+          "role": "verification-source"
+        },
+        {
+          "path": "tests/Riftbound.PostgresAcceptance/Program.cs",
+          "sha256": "38caa59ca62cf398724ddae45fdc6ce213cafb6e4199231cb145c0ad9010e4a0",
+          "role": "verification-source"
+        },
+        {
+          "path": "tests/Riftbound.PostgresAcceptance/SqlAcceptanceCases.json",
+          "sha256": "4daf6ffe0fd609df05dc6a8573c88b2cab2406a98c3ddb5eb3eb7d9a197dffea",
+          "role": "verification-source"
+        },
+        {
+          "path": "scripts/tests/test_sql_ci_gate.py",
+          "sha256": "78c8abef05827eef40ff7a74d228f35c66a95813faf40cf5d424c6071f3e8111",
+          "role": "verification-source"
+        }
+      ],
+      "branches": [
+        {
+          "id": "bf-start-ba294957f2d3c2a988f5be09",
+          "sourceRefs": [
+            "UNL-212/219",
+            "DOC-01-P029-B006",
+            "DOC-01-P029-B007",
+            "DOC-01-P029-B008",
+            "DOC-01-P029-B009",
+            "DOC-01-P029-B010",
+            "DOC-01-P030-B007",
+            "DOC-01-P030-B010"
+          ],
+          "sourceManifest": {
+            "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+            "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+            "role": "source-manifest"
+          },
+          "state": "RECORDED",
+          "boundedCase": {
+            "actualExecutedCase": "Riftbound.ConformanceTests.BattlefieldStartControllerTests.CapturedActorDeterminesFriendlyDamageAndWhichElderCanDestroy(fieldController: \"P1\", targetController: \"P2\", elderController: \"P1\", destroyed: True)",
+            "issue": "https://github.com/DDDHL0704/riftbound/issues/84",
+            "actualNewMatrixIsFrostOnlyDuskRoseExistingAdjacentEligibilityNotExpanded": true
+          },
+          "semanticReview": {
+            "state": "BOUNDED_CURRENT_CN190_6_191_5_CONTROLLER_AND_ORIGINAL_BIRTH_REVIEW"
+          },
+          "implementation": {
+            "state": "CAPTURED_ACTOR_AND_INDEPENDENT_LITERAL_ORIGINAL_JOURNAL_AND_STRICT_REPLAY_VALIDATION"
+          },
+          "testExecution": {
+            "state": "ACTUAL32_NEW_ORIGINAL_SOLE13411_CHECK_ONE_OLD_P79_PRIORITY_FAILURE_RETAINED_THEN_TEST_ONLY_CALIBRATION_FINAL388_FOCUS_TWO_ORIGINAL_FULL_AND_REAL_SQL22_COLD22_INDEPENDENT22_39_39_FOUR_REFUSALS_PASS"
+          },
+          "fixedCommitCi": {
+            "state": "PENDING_NEW_FIXED_FULL"
+          },
+          "productAcceptance": {
+            "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_RECONNECT_SCORE_HISTORY_VISIBLE_AND_PHYSICAL_WINDOWS"
+          },
+          "decision": {
+            "state": "OPEN",
+            "reason": "Bounded local behavior passes; new fixed full and actual current product acceptance remain required."
+          },
+          "wholePrintingCertified": false,
+          "existingAcceptanceGateDependencies": [
+            "FIXED_CURRENT_CANDIDATE_FULL",
+            "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+            "USER_WINDOWS_RUNTIME"
+          ]
+        },
+        {
+          "id": "bf-start-36e32e2c3c6cca0b38e44972",
+          "sourceRefs": [
+            "UNL-212/219",
+            "DOC-01-P029-B006",
+            "DOC-01-P029-B007",
+            "DOC-01-P029-B008",
+            "DOC-01-P029-B009",
+            "DOC-01-P029-B010",
+            "DOC-01-P030-B007",
+            "DOC-01-P030-B010"
+          ],
+          "sourceManifest": {
+            "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+            "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+            "role": "source-manifest"
+          },
+          "state": "RECORDED",
+          "boundedCase": {
+            "actualExecutedCase": "Riftbound.ConformanceTests.BattlefieldStartControllerTests.CapturedActorDeterminesFriendlyDamageAndWhichElderCanDestroy(fieldController: \"P2\", targetController: \"P1\", elderController: \"P2\", destroyed: True)",
+            "issue": "https://github.com/DDDHL0704/riftbound/issues/84",
+            "actualNewMatrixIsFrostOnlyDuskRoseExistingAdjacentEligibilityNotExpanded": true
+          },
+          "semanticReview": {
+            "state": "BOUNDED_CURRENT_CN190_6_191_5_CONTROLLER_AND_ORIGINAL_BIRTH_REVIEW"
+          },
+          "implementation": {
+            "state": "CAPTURED_ACTOR_AND_INDEPENDENT_LITERAL_ORIGINAL_JOURNAL_AND_STRICT_REPLAY_VALIDATION"
+          },
+          "testExecution": {
+            "state": "ACTUAL32_NEW_ORIGINAL_SOLE13411_CHECK_ONE_OLD_P79_PRIORITY_FAILURE_RETAINED_THEN_TEST_ONLY_CALIBRATION_FINAL388_FOCUS_TWO_ORIGINAL_FULL_AND_REAL_SQL22_COLD22_INDEPENDENT22_39_39_FOUR_REFUSALS_PASS"
+          },
+          "fixedCommitCi": {
+            "state": "PENDING_NEW_FIXED_FULL"
+          },
+          "productAcceptance": {
+            "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_RECONNECT_SCORE_HISTORY_VISIBLE_AND_PHYSICAL_WINDOWS"
+          },
+          "decision": {
+            "state": "OPEN",
+            "reason": "Bounded local behavior passes; new fixed full and actual current product acceptance remain required."
+          },
+          "wholePrintingCertified": false,
+          "existingAcceptanceGateDependencies": [
+            "FIXED_CURRENT_CANDIDATE_FULL",
+            "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+            "USER_WINDOWS_RUNTIME"
+          ]
+        },
+        {
+          "id": "bf-start-58968385a019cc923ae7d845",
+          "sourceRefs": [
+            "UNL-212/219",
+            "DOC-01-P029-B006",
+            "DOC-01-P029-B007",
+            "DOC-01-P029-B008",
+            "DOC-01-P029-B009",
+            "DOC-01-P029-B010",
+            "DOC-01-P030-B007",
+            "DOC-01-P030-B010"
+          ],
+          "sourceManifest": {
+            "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+            "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+            "role": "source-manifest"
+          },
+          "state": "RECORDED",
+          "boundedCase": {
+            "actualExecutedCase": "Riftbound.ConformanceTests.BattlefieldStartControllerTests.CapturedActorDeterminesFriendlyDamageAndWhichElderCanDestroy(fieldController: \"P2\", targetController: \"P2\", elderController: \"P1\", destroyed: False)",
+            "issue": "https://github.com/DDDHL0704/riftbound/issues/84",
+            "actualNewMatrixIsFrostOnlyDuskRoseExistingAdjacentEligibilityNotExpanded": true
+          },
+          "semanticReview": {
+            "state": "BOUNDED_CURRENT_CN190_6_191_5_CONTROLLER_AND_ORIGINAL_BIRTH_REVIEW"
+          },
+          "implementation": {
+            "state": "CAPTURED_ACTOR_AND_INDEPENDENT_LITERAL_ORIGINAL_JOURNAL_AND_STRICT_REPLAY_VALIDATION"
+          },
+          "testExecution": {
+            "state": "ACTUAL32_NEW_ORIGINAL_SOLE13411_CHECK_ONE_OLD_P79_PRIORITY_FAILURE_RETAINED_THEN_TEST_ONLY_CALIBRATION_FINAL388_FOCUS_TWO_ORIGINAL_FULL_AND_REAL_SQL22_COLD22_INDEPENDENT22_39_39_FOUR_REFUSALS_PASS"
+          },
+          "fixedCommitCi": {
+            "state": "PENDING_NEW_FIXED_FULL"
+          },
+          "productAcceptance": {
+            "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_RECONNECT_SCORE_HISTORY_VISIBLE_AND_PHYSICAL_WINDOWS"
+          },
+          "decision": {
+            "state": "OPEN",
+            "reason": "Bounded local behavior passes; new fixed full and actual current product acceptance remain required."
+          },
+          "wholePrintingCertified": false,
+          "existingAcceptanceGateDependencies": [
+            "FIXED_CURRENT_CANDIDATE_FULL",
+            "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+            "USER_WINDOWS_RUNTIME"
+          ]
+        },
+        {
+          "id": "bf-start-543ada08a976a39a633f4ef3",
+          "sourceRefs": [
+            "UNL-212/219",
+            "DOC-01-P029-B006",
+            "DOC-01-P029-B007",
+            "DOC-01-P029-B008",
+            "DOC-01-P029-B009",
+            "DOC-01-P029-B010",
+            "DOC-01-P030-B007",
+            "DOC-01-P030-B010"
+          ],
+          "sourceManifest": {
+            "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+            "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+            "role": "source-manifest"
+          },
+          "state": "RECORDED",
+          "boundedCase": {
+            "actualExecutedCase": "Riftbound.ConformanceTests.BattlefieldStartControllerTests.CapturedActorDeterminesFriendlyDamageAndWhichElderCanDestroy(fieldController: null, targetController: \"P2\", elderController: \"P1\", destroyed: True)",
+            "issue": "https://github.com/DDDHL0704/riftbound/issues/84",
+            "actualNewMatrixIsFrostOnlyDuskRoseExistingAdjacentEligibilityNotExpanded": true
+          },
+          "semanticReview": {
+            "state": "BOUNDED_CURRENT_CN190_6_191_5_CONTROLLER_AND_ORIGINAL_BIRTH_REVIEW"
+          },
+          "implementation": {
+            "state": "CAPTURED_ACTOR_AND_INDEPENDENT_LITERAL_ORIGINAL_JOURNAL_AND_STRICT_REPLAY_VALIDATION"
+          },
+          "testExecution": {
+            "state": "ACTUAL32_NEW_ORIGINAL_SOLE13411_CHECK_ONE_OLD_P79_PRIORITY_FAILURE_RETAINED_THEN_TEST_ONLY_CALIBRATION_FINAL388_FOCUS_TWO_ORIGINAL_FULL_AND_REAL_SQL22_COLD22_INDEPENDENT22_39_39_FOUR_REFUSALS_PASS"
+          },
+          "fixedCommitCi": {
+            "state": "PENDING_NEW_FIXED_FULL"
+          },
+          "productAcceptance": {
+            "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_RECONNECT_SCORE_HISTORY_VISIBLE_AND_PHYSICAL_WINDOWS"
+          },
+          "decision": {
+            "state": "OPEN",
+            "reason": "Bounded local behavior passes; new fixed full and actual current product acceptance remain required."
+          },
+          "wholePrintingCertified": false,
+          "existingAcceptanceGateDependencies": [
+            "FIXED_CURRENT_CANDIDATE_FULL",
+            "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+            "USER_WINDOWS_RUNTIME"
+          ]
+        },
+        {
+          "id": "bf-start-7e307c3f8c50431a4dc5b8d8",
+          "sourceRefs": [
+            "UNL-212/219",
+            "DOC-01-P029-B006",
+            "DOC-01-P029-B007",
+            "DOC-01-P029-B008",
+            "DOC-01-P029-B009",
+            "DOC-01-P029-B010",
+            "DOC-01-P030-B007",
+            "DOC-01-P030-B010"
+          ],
+          "sourceManifest": {
+            "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+            "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+            "role": "source-manifest"
+          },
+          "state": "RECORDED",
+          "boundedCase": {
+            "actualExecutedCase": "Riftbound.ConformanceTests.BattlefieldStartControllerTests.CapturedControllerMustMatchForBothPrivateViewsAndSpectator",
+            "issue": "https://github.com/DDDHL0704/riftbound/issues/84",
+            "actualNewMatrixIsFrostOnlyDuskRoseExistingAdjacentEligibilityNotExpanded": true
+          },
+          "semanticReview": {
+            "state": "BOUNDED_CURRENT_CN190_6_191_5_CONTROLLER_AND_ORIGINAL_BIRTH_REVIEW"
+          },
+          "implementation": {
+            "state": "CAPTURED_ACTOR_AND_INDEPENDENT_LITERAL_ORIGINAL_JOURNAL_AND_STRICT_REPLAY_VALIDATION"
+          },
+          "testExecution": {
+            "state": "ACTUAL32_NEW_ORIGINAL_SOLE13411_CHECK_ONE_OLD_P79_PRIORITY_FAILURE_RETAINED_THEN_TEST_ONLY_CALIBRATION_FINAL388_FOCUS_TWO_ORIGINAL_FULL_AND_REAL_SQL22_COLD22_INDEPENDENT22_39_39_FOUR_REFUSALS_PASS"
+          },
+          "fixedCommitCi": {
+            "state": "PENDING_NEW_FIXED_FULL"
+          },
+          "productAcceptance": {
+            "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_RECONNECT_SCORE_HISTORY_VISIBLE_AND_PHYSICAL_WINDOWS"
+          },
+          "decision": {
+            "state": "OPEN",
+            "reason": "Bounded local behavior passes; new fixed full and actual current product acceptance remain required."
+          },
+          "wholePrintingCertified": false,
+          "existingAcceptanceGateDependencies": [
+            "FIXED_CURRENT_CANDIDATE_FULL",
+            "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+            "USER_WINDOWS_RUNTIME"
+          ]
+        },
+        {
+          "id": "bf-start-161242476cb4c97bb53fa3a6",
+          "sourceRefs": [
+            "UNL-212/219",
+            "DOC-01-P029-B006",
+            "DOC-01-P029-B007",
+            "DOC-01-P029-B008",
+            "DOC-01-P029-B009",
+            "DOC-01-P029-B010",
+            "DOC-01-P030-B007",
+            "DOC-01-P030-B010"
+          ],
+          "sourceManifest": {
+            "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+            "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+            "role": "source-manifest"
+          },
+          "state": "RECORDED",
+          "boundedCase": {
+            "actualExecutedCase": "Riftbound.ConformanceTests.BattlefieldStartControllerTests.DifferentControllersOrderOnlyTheirOwnCapturedFieldTriggers",
+            "issue": "https://github.com/DDDHL0704/riftbound/issues/84",
+            "actualNewMatrixIsFrostOnlyDuskRoseExistingAdjacentEligibilityNotExpanded": true
+          },
+          "semanticReview": {
+            "state": "BOUNDED_CURRENT_CN190_6_191_5_CONTROLLER_AND_ORIGINAL_BIRTH_REVIEW"
+          },
+          "implementation": {
+            "state": "CAPTURED_ACTOR_AND_INDEPENDENT_LITERAL_ORIGINAL_JOURNAL_AND_STRICT_REPLAY_VALIDATION"
+          },
+          "testExecution": {
+            "state": "ACTUAL32_NEW_ORIGINAL_SOLE13411_CHECK_ONE_OLD_P79_PRIORITY_FAILURE_RETAINED_THEN_TEST_ONLY_CALIBRATION_FINAL388_FOCUS_TWO_ORIGINAL_FULL_AND_REAL_SQL22_COLD22_INDEPENDENT22_39_39_FOUR_REFUSALS_PASS"
+          },
+          "fixedCommitCi": {
+            "state": "PENDING_NEW_FIXED_FULL"
+          },
+          "productAcceptance": {
+            "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_RECONNECT_SCORE_HISTORY_VISIBLE_AND_PHYSICAL_WINDOWS"
+          },
+          "decision": {
+            "state": "OPEN",
+            "reason": "Bounded local behavior passes; new fixed full and actual current product acceptance remain required."
+          },
+          "wholePrintingCertified": false,
+          "existingAcceptanceGateDependencies": [
+            "FIXED_CURRENT_CANDIDATE_FULL",
+            "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+            "USER_WINDOWS_RUNTIME"
+          ]
+        },
+        {
+          "id": "bf-start-9496704f6186c5d98b67d4ab",
+          "sourceRefs": [
+            "UNL-212/219",
+            "DOC-01-P029-B006",
+            "DOC-01-P029-B007",
+            "DOC-01-P029-B008",
+            "DOC-01-P029-B009",
+            "DOC-01-P029-B010",
+            "DOC-01-P030-B007",
+            "DOC-01-P030-B010"
+          ],
+          "sourceManifest": {
+            "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+            "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+            "role": "source-manifest"
+          },
+          "state": "RECORDED",
+          "boundedCase": {
+            "actualExecutedCase": "Riftbound.ConformanceTests.BattlefieldStartControllerTests.OriginalTriggerBirthAndStrictReplayRejectEvenConsistentlyForgedControllers(branch: \"actor\")",
+            "issue": "https://github.com/DDDHL0704/riftbound/issues/84",
+            "actualNewMatrixIsFrostOnlyDuskRoseExistingAdjacentEligibilityNotExpanded": true
+          },
+          "semanticReview": {
+            "state": "BOUNDED_CURRENT_CN190_6_191_5_CONTROLLER_AND_ORIGINAL_BIRTH_REVIEW"
+          },
+          "implementation": {
+            "state": "CAPTURED_ACTOR_AND_INDEPENDENT_LITERAL_ORIGINAL_JOURNAL_AND_STRICT_REPLAY_VALIDATION"
+          },
+          "testExecution": {
+            "state": "ACTUAL32_NEW_ORIGINAL_SOLE13411_CHECK_ONE_OLD_P79_PRIORITY_FAILURE_RETAINED_THEN_TEST_ONLY_CALIBRATION_FINAL388_FOCUS_TWO_ORIGINAL_FULL_AND_REAL_SQL22_COLD22_INDEPENDENT22_39_39_FOUR_REFUSALS_PASS"
+          },
+          "fixedCommitCi": {
+            "state": "PENDING_NEW_FIXED_FULL"
+          },
+          "productAcceptance": {
+            "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_RECONNECT_SCORE_HISTORY_VISIBLE_AND_PHYSICAL_WINDOWS"
+          },
+          "decision": {
+            "state": "OPEN",
+            "reason": "Bounded local behavior passes; new fixed full and actual current product acceptance remain required."
+          },
+          "wholePrintingCertified": false,
+          "existingAcceptanceGateDependencies": [
+            "FIXED_CURRENT_CANDIDATE_FULL",
+            "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+            "USER_WINDOWS_RUNTIME"
+          ]
+        },
+        {
+          "id": "bf-start-bfd77a46e9f7efc007229ca3",
+          "sourceRefs": [
+            "UNL-212/219",
+            "DOC-01-P029-B006",
+            "DOC-01-P029-B007",
+            "DOC-01-P029-B008",
+            "DOC-01-P029-B009",
+            "DOC-01-P029-B010",
+            "DOC-01-P030-B007",
+            "DOC-01-P030-B010"
+          ],
+          "sourceManifest": {
+            "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+            "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+            "role": "source-manifest"
+          },
+          "state": "RECORDED",
+          "boundedCase": {
+            "actualExecutedCase": "Riftbound.ConformanceTests.BattlefieldStartControllerTests.OriginalTriggerBirthAndStrictReplayRejectEvenConsistentlyForgedControllers(branch: \"both\")",
+            "issue": "https://github.com/DDDHL0704/riftbound/issues/84",
+            "actualNewMatrixIsFrostOnlyDuskRoseExistingAdjacentEligibilityNotExpanded": true
+          },
+          "semanticReview": {
+            "state": "BOUNDED_CURRENT_CN190_6_191_5_CONTROLLER_AND_ORIGINAL_BIRTH_REVIEW"
+          },
+          "implementation": {
+            "state": "CAPTURED_ACTOR_AND_INDEPENDENT_LITERAL_ORIGINAL_JOURNAL_AND_STRICT_REPLAY_VALIDATION"
+          },
+          "testExecution": {
+            "state": "ACTUAL32_NEW_ORIGINAL_SOLE13411_CHECK_ONE_OLD_P79_PRIORITY_FAILURE_RETAINED_THEN_TEST_ONLY_CALIBRATION_FINAL388_FOCUS_TWO_ORIGINAL_FULL_AND_REAL_SQL22_COLD22_INDEPENDENT22_39_39_FOUR_REFUSALS_PASS"
+          },
+          "fixedCommitCi": {
+            "state": "PENDING_NEW_FIXED_FULL"
+          },
+          "productAcceptance": {
+            "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_RECONNECT_SCORE_HISTORY_VISIBLE_AND_PHYSICAL_WINDOWS"
+          },
+          "decision": {
+            "state": "OPEN",
+            "reason": "Bounded local behavior passes; new fixed full and actual current product acceptance remain required."
+          },
+          "wholePrintingCertified": false,
+          "existingAcceptanceGateDependencies": [
+            "FIXED_CURRENT_CANDIDATE_FULL",
+            "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+            "USER_WINDOWS_RUNTIME"
+          ]
+        },
+        {
+          "id": "bf-start-23a972e38a68a78c09ce58ef",
+          "sourceRefs": [
+            "UNL-212/219",
+            "DOC-01-P029-B006",
+            "DOC-01-P029-B007",
+            "DOC-01-P029-B008",
+            "DOC-01-P029-B009",
+            "DOC-01-P029-B010",
+            "DOC-01-P030-B007",
+            "DOC-01-P030-B010"
+          ],
+          "sourceManifest": {
+            "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+            "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+            "role": "source-manifest"
+          },
+          "state": "RECORDED",
+          "boundedCase": {
+            "actualExecutedCase": "Riftbound.ConformanceTests.BattlefieldStartControllerTests.OriginalTriggerBirthAndStrictReplayRejectEvenConsistentlyForgedControllers(branch: \"context\")",
+            "issue": "https://github.com/DDDHL0704/riftbound/issues/84",
+            "actualNewMatrixIsFrostOnlyDuskRoseExistingAdjacentEligibilityNotExpanded": true
+          },
+          "semanticReview": {
+            "state": "BOUNDED_CURRENT_CN190_6_191_5_CONTROLLER_AND_ORIGINAL_BIRTH_REVIEW"
+          },
+          "implementation": {
+            "state": "CAPTURED_ACTOR_AND_INDEPENDENT_LITERAL_ORIGINAL_JOURNAL_AND_STRICT_REPLAY_VALIDATION"
+          },
+          "testExecution": {
+            "state": "ACTUAL32_NEW_ORIGINAL_SOLE13411_CHECK_ONE_OLD_P79_PRIORITY_FAILURE_RETAINED_THEN_TEST_ONLY_CALIBRATION_FINAL388_FOCUS_TWO_ORIGINAL_FULL_AND_REAL_SQL22_COLD22_INDEPENDENT22_39_39_FOUR_REFUSALS_PASS"
+          },
+          "fixedCommitCi": {
+            "state": "PENDING_NEW_FIXED_FULL"
+          },
+          "productAcceptance": {
+            "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_RECONNECT_SCORE_HISTORY_VISIBLE_AND_PHYSICAL_WINDOWS"
+          },
+          "decision": {
+            "state": "OPEN",
+            "reason": "Bounded local behavior passes; new fixed full and actual current product acceptance remain required."
+          },
+          "wholePrintingCertified": false,
+          "existingAcceptanceGateDependencies": [
+            "FIXED_CURRENT_CANDIDATE_FULL",
+            "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+            "USER_WINDOWS_RUNTIME"
+          ]
+        },
+        {
+          "id": "bf-start-6cb066a3c4c0496ec06f1c3f",
+          "sourceRefs": [
+            "UNL-212/219",
+            "DOC-01-P029-B006",
+            "DOC-01-P029-B007",
+            "DOC-01-P029-B008",
+            "DOC-01-P029-B009",
+            "DOC-01-P029-B010",
+            "DOC-01-P030-B007",
+            "DOC-01-P030-B010"
+          ],
+          "sourceManifest": {
+            "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+            "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+            "role": "source-manifest"
+          },
+          "state": "RECORDED",
+          "boundedCase": {
+            "actualExecutedCase": "Riftbound.ConformanceTests.BattlefieldStartControllerTests.OriginalTriggerBirthAndStrictReplayRejectEvenConsistentlyForgedControllers(branch: \"duplicate-origin\")",
+            "issue": "https://github.com/DDDHL0704/riftbound/issues/84",
+            "actualNewMatrixIsFrostOnlyDuskRoseExistingAdjacentEligibilityNotExpanded": true
+          },
+          "semanticReview": {
+            "state": "BOUNDED_CURRENT_CN190_6_191_5_CONTROLLER_AND_ORIGINAL_BIRTH_REVIEW"
+          },
+          "implementation": {
+            "state": "CAPTURED_ACTOR_AND_INDEPENDENT_LITERAL_ORIGINAL_JOURNAL_AND_STRICT_REPLAY_VALIDATION"
+          },
+          "testExecution": {
+            "state": "ACTUAL32_NEW_ORIGINAL_SOLE13411_CHECK_ONE_OLD_P79_PRIORITY_FAILURE_RETAINED_THEN_TEST_ONLY_CALIBRATION_FINAL388_FOCUS_TWO_ORIGINAL_FULL_AND_REAL_SQL22_COLD22_INDEPENDENT22_39_39_FOUR_REFUSALS_PASS"
+          },
+          "fixedCommitCi": {
+            "state": "PENDING_NEW_FIXED_FULL"
+          },
+          "productAcceptance": {
+            "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_RECONNECT_SCORE_HISTORY_VISIBLE_AND_PHYSICAL_WINDOWS"
+          },
+          "decision": {
+            "state": "OPEN",
+            "reason": "Bounded local behavior passes; new fixed full and actual current product acceptance remain required."
+          },
+          "wholePrintingCertified": false,
+          "existingAcceptanceGateDependencies": [
+            "FIXED_CURRENT_CANDIDATE_FULL",
+            "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+            "USER_WINDOWS_RUNTIME"
+          ]
+        },
+        {
+          "id": "bf-start-1133c3b58b193d86a4e2ac83",
+          "sourceRefs": [
+            "UNL-212/219",
+            "DOC-01-P029-B006",
+            "DOC-01-P029-B007",
+            "DOC-01-P029-B008",
+            "DOC-01-P029-B009",
+            "DOC-01-P029-B010",
+            "DOC-01-P030-B007",
+            "DOC-01-P030-B010"
+          ],
+          "sourceManifest": {
+            "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+            "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+            "role": "source-manifest"
+          },
+          "state": "RECORDED",
+          "boundedCase": {
+            "actualExecutedCase": "Riftbound.ConformanceTests.BattlefieldStartControllerTests.OriginalTriggerBirthAndStrictReplayRejectEvenConsistentlyForgedControllers(branch: \"event\")",
+            "issue": "https://github.com/DDDHL0704/riftbound/issues/84",
+            "actualNewMatrixIsFrostOnlyDuskRoseExistingAdjacentEligibilityNotExpanded": true
+          },
+          "semanticReview": {
+            "state": "BOUNDED_CURRENT_CN190_6_191_5_CONTROLLER_AND_ORIGINAL_BIRTH_REVIEW"
+          },
+          "implementation": {
+            "state": "CAPTURED_ACTOR_AND_INDEPENDENT_LITERAL_ORIGINAL_JOURNAL_AND_STRICT_REPLAY_VALIDATION"
+          },
+          "testExecution": {
+            "state": "ACTUAL32_NEW_ORIGINAL_SOLE13411_CHECK_ONE_OLD_P79_PRIORITY_FAILURE_RETAINED_THEN_TEST_ONLY_CALIBRATION_FINAL388_FOCUS_TWO_ORIGINAL_FULL_AND_REAL_SQL22_COLD22_INDEPENDENT22_39_39_FOUR_REFUSALS_PASS"
+          },
+          "fixedCommitCi": {
+            "state": "PENDING_NEW_FIXED_FULL"
+          },
+          "productAcceptance": {
+            "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_RECONNECT_SCORE_HISTORY_VISIBLE_AND_PHYSICAL_WINDOWS"
+          },
+          "decision": {
+            "state": "OPEN",
+            "reason": "Bounded local behavior passes; new fixed full and actual current product acceptance remain required."
+          },
+          "wholePrintingCertified": false,
+          "existingAcceptanceGateDependencies": [
+            "FIXED_CURRENT_CANDIDATE_FULL",
+            "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+            "USER_WINDOWS_RUNTIME"
+          ]
+        },
+        {
+          "id": "bf-start-e88f98dcdaa22160dc2d8040",
+          "sourceRefs": [
+            "UNL-212/219",
+            "DOC-01-P029-B006",
+            "DOC-01-P029-B007",
+            "DOC-01-P029-B008",
+            "DOC-01-P029-B009",
+            "DOC-01-P029-B010",
+            "DOC-01-P030-B007",
+            "DOC-01-P030-B010"
+          ],
+          "sourceManifest": {
+            "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+            "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+            "role": "source-manifest"
+          },
+          "state": "RECORDED",
+          "boundedCase": {
+            "actualExecutedCase": "Riftbound.ConformanceTests.BattlefieldStartControllerTests.OriginalTriggerBirthAndStrictReplayRejectEvenConsistentlyForgedControllers(branch: \"event-and-both\")",
+            "issue": "https://github.com/DDDHL0704/riftbound/issues/84",
+            "actualNewMatrixIsFrostOnlyDuskRoseExistingAdjacentEligibilityNotExpanded": true
+          },
+          "semanticReview": {
+            "state": "BOUNDED_CURRENT_CN190_6_191_5_CONTROLLER_AND_ORIGINAL_BIRTH_REVIEW"
+          },
+          "implementation": {
+            "state": "CAPTURED_ACTOR_AND_INDEPENDENT_LITERAL_ORIGINAL_JOURNAL_AND_STRICT_REPLAY_VALIDATION"
+          },
+          "testExecution": {
+            "state": "ACTUAL32_NEW_ORIGINAL_SOLE13411_CHECK_ONE_OLD_P79_PRIORITY_FAILURE_RETAINED_THEN_TEST_ONLY_CALIBRATION_FINAL388_FOCUS_TWO_ORIGINAL_FULL_AND_REAL_SQL22_COLD22_INDEPENDENT22_39_39_FOUR_REFUSALS_PASS"
+          },
+          "fixedCommitCi": {
+            "state": "PENDING_NEW_FIXED_FULL"
+          },
+          "productAcceptance": {
+            "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_RECONNECT_SCORE_HISTORY_VISIBLE_AND_PHYSICAL_WINDOWS"
+          },
+          "decision": {
+            "state": "OPEN",
+            "reason": "Bounded local behavior passes; new fixed full and actual current product acceptance remain required."
+          },
+          "wholePrintingCertified": false,
+          "existingAcceptanceGateDependencies": [
+            "FIXED_CURRENT_CANDIDATE_FULL",
+            "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+            "USER_WINDOWS_RUNTIME"
+          ]
+        },
+        {
+          "id": "bf-start-7cf536398ab699236f820e5f",
+          "sourceRefs": [
+            "UNL-212/219",
+            "DOC-01-P029-B006",
+            "DOC-01-P029-B007",
+            "DOC-01-P029-B008",
+            "DOC-01-P029-B009",
+            "DOC-01-P029-B010",
+            "DOC-01-P030-B007",
+            "DOC-01-P030-B010"
+          ],
+          "sourceManifest": {
+            "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+            "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+            "role": "source-manifest"
+          },
+          "state": "RECORDED",
+          "boundedCase": {
+            "actualExecutedCase": "Riftbound.ConformanceTests.BattlefieldStartControllerTests.OriginalTriggerBirthAndStrictReplayRejectEvenConsistentlyForgedControllers(branch: \"missing-controller\")",
+            "issue": "https://github.com/DDDHL0704/riftbound/issues/84",
+            "actualNewMatrixIsFrostOnlyDuskRoseExistingAdjacentEligibilityNotExpanded": true
+          },
+          "semanticReview": {
+            "state": "BOUNDED_CURRENT_CN190_6_191_5_CONTROLLER_AND_ORIGINAL_BIRTH_REVIEW"
+          },
+          "implementation": {
+            "state": "CAPTURED_ACTOR_AND_INDEPENDENT_LITERAL_ORIGINAL_JOURNAL_AND_STRICT_REPLAY_VALIDATION"
+          },
+          "testExecution": {
+            "state": "ACTUAL32_NEW_ORIGINAL_SOLE13411_CHECK_ONE_OLD_P79_PRIORITY_FAILURE_RETAINED_THEN_TEST_ONLY_CALIBRATION_FINAL388_FOCUS_TWO_ORIGINAL_FULL_AND_REAL_SQL22_COLD22_INDEPENDENT22_39_39_FOUR_REFUSALS_PASS"
+          },
+          "fixedCommitCi": {
+            "state": "PENDING_NEW_FIXED_FULL"
+          },
+          "productAcceptance": {
+            "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_RECONNECT_SCORE_HISTORY_VISIBLE_AND_PHYSICAL_WINDOWS"
+          },
+          "decision": {
+            "state": "OPEN",
+            "reason": "Bounded local behavior passes; new fixed full and actual current product acceptance remain required."
+          },
+          "wholePrintingCertified": false,
+          "existingAcceptanceGateDependencies": [
+            "FIXED_CURRENT_CANDIDATE_FULL",
+            "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+            "USER_WINDOWS_RUNTIME"
+          ]
+        },
+        {
+          "id": "bf-start-598bd1665e1a101d32f28d7e",
+          "sourceRefs": [
+            "UNL-212/219",
+            "DOC-01-P029-B006",
+            "DOC-01-P029-B007",
+            "DOC-01-P029-B008",
+            "DOC-01-P029-B009",
+            "DOC-01-P029-B010",
+            "DOC-01-P030-B007",
+            "DOC-01-P030-B010"
+          ],
+          "sourceManifest": {
+            "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+            "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+            "role": "source-manifest"
+          },
+          "state": "RECORDED",
+          "boundedCase": {
+            "actualExecutedCase": "Riftbound.ConformanceTests.BattlefieldStartControllerTests.OriginalTriggerBirthAndStrictReplayRejectEvenConsistentlyForgedControllers(branch: \"missing-origin\")",
+            "issue": "https://github.com/DDDHL0704/riftbound/issues/84",
+            "actualNewMatrixIsFrostOnlyDuskRoseExistingAdjacentEligibilityNotExpanded": true
+          },
+          "semanticReview": {
+            "state": "BOUNDED_CURRENT_CN190_6_191_5_CONTROLLER_AND_ORIGINAL_BIRTH_REVIEW"
+          },
+          "implementation": {
+            "state": "CAPTURED_ACTOR_AND_INDEPENDENT_LITERAL_ORIGINAL_JOURNAL_AND_STRICT_REPLAY_VALIDATION"
+          },
+          "testExecution": {
+            "state": "ACTUAL32_NEW_ORIGINAL_SOLE13411_CHECK_ONE_OLD_P79_PRIORITY_FAILURE_RETAINED_THEN_TEST_ONLY_CALIBRATION_FINAL388_FOCUS_TWO_ORIGINAL_FULL_AND_REAL_SQL22_COLD22_INDEPENDENT22_39_39_FOUR_REFUSALS_PASS"
+          },
+          "fixedCommitCi": {
+            "state": "PENDING_NEW_FIXED_FULL"
+          },
+          "productAcceptance": {
+            "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_RECONNECT_SCORE_HISTORY_VISIBLE_AND_PHYSICAL_WINDOWS"
+          },
+          "decision": {
+            "state": "OPEN",
+            "reason": "Bounded local behavior passes; new fixed full and actual current product acceptance remain required."
+          },
+          "wholePrintingCertified": false,
+          "existingAcceptanceGateDependencies": [
+            "FIXED_CURRENT_CANDIDATE_FULL",
+            "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+            "USER_WINDOWS_RUNTIME"
+          ]
+        },
+        {
+          "id": "bf-start-0047b681fea0c1bfdd48ff25",
+          "sourceRefs": [
+            "UNL-212/219",
+            "DOC-01-P029-B006",
+            "DOC-01-P029-B007",
+            "DOC-01-P029-B008",
+            "DOC-01-P029-B009",
+            "DOC-01-P029-B010",
+            "DOC-01-P030-B007",
+            "DOC-01-P030-B010"
+          ],
+          "sourceManifest": {
+            "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+            "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+            "role": "source-manifest"
+          },
+          "state": "RECORDED",
+          "boundedCase": {
+            "actualExecutedCase": "Riftbound.ConformanceTests.BattlefieldStartControllerTests.OriginalTriggerBirthAndStrictReplayRejectEvenConsistentlyForgedControllers(branch: \"no-history\")",
+            "issue": "https://github.com/DDDHL0704/riftbound/issues/84",
+            "actualNewMatrixIsFrostOnlyDuskRoseExistingAdjacentEligibilityNotExpanded": true
+          },
+          "semanticReview": {
+            "state": "BOUNDED_CURRENT_CN190_6_191_5_CONTROLLER_AND_ORIGINAL_BIRTH_REVIEW"
+          },
+          "implementation": {
+            "state": "CAPTURED_ACTOR_AND_INDEPENDENT_LITERAL_ORIGINAL_JOURNAL_AND_STRICT_REPLAY_VALIDATION"
+          },
+          "testExecution": {
+            "state": "ACTUAL32_NEW_ORIGINAL_SOLE13411_CHECK_ONE_OLD_P79_PRIORITY_FAILURE_RETAINED_THEN_TEST_ONLY_CALIBRATION_FINAL388_FOCUS_TWO_ORIGINAL_FULL_AND_REAL_SQL22_COLD22_INDEPENDENT22_39_39_FOUR_REFUSALS_PASS"
+          },
+          "fixedCommitCi": {
+            "state": "PENDING_NEW_FIXED_FULL"
+          },
+          "productAcceptance": {
+            "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_RECONNECT_SCORE_HISTORY_VISIBLE_AND_PHYSICAL_WINDOWS"
+          },
+          "decision": {
+            "state": "OPEN",
+            "reason": "Bounded local behavior passes; new fixed full and actual current product acceptance remain required."
+          },
+          "wholePrintingCertified": false,
+          "existingAcceptanceGateDependencies": [
+            "FIXED_CURRENT_CANDIDATE_FULL",
+            "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+            "USER_WINDOWS_RUNTIME"
+          ]
+        },
+        {
+          "id": "bf-start-5c84ef5793dae8069acc9fdf",
+          "sourceRefs": [
+            "UNL-212/219",
+            "DOC-01-P029-B006",
+            "DOC-01-P029-B007",
+            "DOC-01-P029-B008",
+            "DOC-01-P029-B009",
+            "DOC-01-P029-B010",
+            "DOC-01-P030-B007",
+            "DOC-01-P030-B010"
+          ],
+          "sourceManifest": {
+            "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+            "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+            "role": "source-manifest"
+          },
+          "state": "RECORDED",
+          "boundedCase": {
+            "actualExecutedCase": "Riftbound.ConformanceTests.BattlefieldStartControllerTests.PrintedEachPlayerTimingUsesFieldControllerAndOnlyUncontrolledFallsBackToTurn(turn: \"P1\", physicalOwner: \"P1\", fieldController: \"P1\", expectedActor: \"P1\")",
+            "issue": "https://github.com/DDDHL0704/riftbound/issues/84",
+            "actualNewMatrixIsFrostOnlyDuskRoseExistingAdjacentEligibilityNotExpanded": true
+          },
+          "semanticReview": {
+            "state": "BOUNDED_CURRENT_CN190_6_191_5_CONTROLLER_AND_ORIGINAL_BIRTH_REVIEW"
+          },
+          "implementation": {
+            "state": "CAPTURED_ACTOR_AND_INDEPENDENT_LITERAL_ORIGINAL_JOURNAL_AND_STRICT_REPLAY_VALIDATION"
+          },
+          "testExecution": {
+            "state": "ACTUAL32_NEW_ORIGINAL_SOLE13411_CHECK_ONE_OLD_P79_PRIORITY_FAILURE_RETAINED_THEN_TEST_ONLY_CALIBRATION_FINAL388_FOCUS_TWO_ORIGINAL_FULL_AND_REAL_SQL22_COLD22_INDEPENDENT22_39_39_FOUR_REFUSALS_PASS"
+          },
+          "fixedCommitCi": {
+            "state": "PENDING_NEW_FIXED_FULL"
+          },
+          "productAcceptance": {
+            "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_RECONNECT_SCORE_HISTORY_VISIBLE_AND_PHYSICAL_WINDOWS"
+          },
+          "decision": {
+            "state": "OPEN",
+            "reason": "Bounded local behavior passes; new fixed full and actual current product acceptance remain required."
+          },
+          "wholePrintingCertified": false,
+          "existingAcceptanceGateDependencies": [
+            "FIXED_CURRENT_CANDIDATE_FULL",
+            "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+            "USER_WINDOWS_RUNTIME"
+          ]
+        },
+        {
+          "id": "bf-start-ec9add524bbda61d73026d7b",
+          "sourceRefs": [
+            "UNL-212/219",
+            "DOC-01-P029-B006",
+            "DOC-01-P029-B007",
+            "DOC-01-P029-B008",
+            "DOC-01-P029-B009",
+            "DOC-01-P029-B010",
+            "DOC-01-P030-B007",
+            "DOC-01-P030-B010"
+          ],
+          "sourceManifest": {
+            "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+            "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+            "role": "source-manifest"
+          },
+          "state": "RECORDED",
+          "boundedCase": {
+            "actualExecutedCase": "Riftbound.ConformanceTests.BattlefieldStartControllerTests.PrintedEachPlayerTimingUsesFieldControllerAndOnlyUncontrolledFallsBackToTurn(turn: \"P1\", physicalOwner: \"P1\", fieldController: \"P2\", expectedActor: \"P2\")",
+            "issue": "https://github.com/DDDHL0704/riftbound/issues/84",
+            "actualNewMatrixIsFrostOnlyDuskRoseExistingAdjacentEligibilityNotExpanded": true
+          },
+          "semanticReview": {
+            "state": "BOUNDED_CURRENT_CN190_6_191_5_CONTROLLER_AND_ORIGINAL_BIRTH_REVIEW"
+          },
+          "implementation": {
+            "state": "CAPTURED_ACTOR_AND_INDEPENDENT_LITERAL_ORIGINAL_JOURNAL_AND_STRICT_REPLAY_VALIDATION"
+          },
+          "testExecution": {
+            "state": "ACTUAL32_NEW_ORIGINAL_SOLE13411_CHECK_ONE_OLD_P79_PRIORITY_FAILURE_RETAINED_THEN_TEST_ONLY_CALIBRATION_FINAL388_FOCUS_TWO_ORIGINAL_FULL_AND_REAL_SQL22_COLD22_INDEPENDENT22_39_39_FOUR_REFUSALS_PASS"
+          },
+          "fixedCommitCi": {
+            "state": "PENDING_NEW_FIXED_FULL"
+          },
+          "productAcceptance": {
+            "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_RECONNECT_SCORE_HISTORY_VISIBLE_AND_PHYSICAL_WINDOWS"
+          },
+          "decision": {
+            "state": "OPEN",
+            "reason": "Bounded local behavior passes; new fixed full and actual current product acceptance remain required."
+          },
+          "wholePrintingCertified": false,
+          "existingAcceptanceGateDependencies": [
+            "FIXED_CURRENT_CANDIDATE_FULL",
+            "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+            "USER_WINDOWS_RUNTIME"
+          ]
+        },
+        {
+          "id": "bf-start-cd3875ab0fe22035fbdf0644",
+          "sourceRefs": [
+            "UNL-212/219",
+            "DOC-01-P029-B006",
+            "DOC-01-P029-B007",
+            "DOC-01-P029-B008",
+            "DOC-01-P029-B009",
+            "DOC-01-P029-B010",
+            "DOC-01-P030-B007",
+            "DOC-01-P030-B010"
+          ],
+          "sourceManifest": {
+            "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+            "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+            "role": "source-manifest"
+          },
+          "state": "RECORDED",
+          "boundedCase": {
+            "actualExecutedCase": "Riftbound.ConformanceTests.BattlefieldStartControllerTests.PrintedEachPlayerTimingUsesFieldControllerAndOnlyUncontrolledFallsBackToTurn(turn: \"P1\", physicalOwner: \"P1\", fieldController: null, expectedActor: \"P1\")",
+            "issue": "https://github.com/DDDHL0704/riftbound/issues/84",
+            "actualNewMatrixIsFrostOnlyDuskRoseExistingAdjacentEligibilityNotExpanded": true
+          },
+          "semanticReview": {
+            "state": "BOUNDED_CURRENT_CN190_6_191_5_CONTROLLER_AND_ORIGINAL_BIRTH_REVIEW"
+          },
+          "implementation": {
+            "state": "CAPTURED_ACTOR_AND_INDEPENDENT_LITERAL_ORIGINAL_JOURNAL_AND_STRICT_REPLAY_VALIDATION"
+          },
+          "testExecution": {
+            "state": "ACTUAL32_NEW_ORIGINAL_SOLE13411_CHECK_ONE_OLD_P79_PRIORITY_FAILURE_RETAINED_THEN_TEST_ONLY_CALIBRATION_FINAL388_FOCUS_TWO_ORIGINAL_FULL_AND_REAL_SQL22_COLD22_INDEPENDENT22_39_39_FOUR_REFUSALS_PASS"
+          },
+          "fixedCommitCi": {
+            "state": "PENDING_NEW_FIXED_FULL"
+          },
+          "productAcceptance": {
+            "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_RECONNECT_SCORE_HISTORY_VISIBLE_AND_PHYSICAL_WINDOWS"
+          },
+          "decision": {
+            "state": "OPEN",
+            "reason": "Bounded local behavior passes; new fixed full and actual current product acceptance remain required."
+          },
+          "wholePrintingCertified": false,
+          "existingAcceptanceGateDependencies": [
+            "FIXED_CURRENT_CANDIDATE_FULL",
+            "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+            "USER_WINDOWS_RUNTIME"
+          ]
+        },
+        {
+          "id": "bf-start-1ca1752775b1442fd6362919",
+          "sourceRefs": [
+            "UNL-212/219",
+            "DOC-01-P029-B006",
+            "DOC-01-P029-B007",
+            "DOC-01-P029-B008",
+            "DOC-01-P029-B009",
+            "DOC-01-P029-B010",
+            "DOC-01-P030-B007",
+            "DOC-01-P030-B010"
+          ],
+          "sourceManifest": {
+            "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+            "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+            "role": "source-manifest"
+          },
+          "state": "RECORDED",
+          "boundedCase": {
+            "actualExecutedCase": "Riftbound.ConformanceTests.BattlefieldStartControllerTests.PrintedEachPlayerTimingUsesFieldControllerAndOnlyUncontrolledFallsBackToTurn(turn: \"P1\", physicalOwner: \"P2\", fieldController: \"P1\", expectedActor: \"P1\")",
+            "issue": "https://github.com/DDDHL0704/riftbound/issues/84",
+            "actualNewMatrixIsFrostOnlyDuskRoseExistingAdjacentEligibilityNotExpanded": true
+          },
+          "semanticReview": {
+            "state": "BOUNDED_CURRENT_CN190_6_191_5_CONTROLLER_AND_ORIGINAL_BIRTH_REVIEW"
+          },
+          "implementation": {
+            "state": "CAPTURED_ACTOR_AND_INDEPENDENT_LITERAL_ORIGINAL_JOURNAL_AND_STRICT_REPLAY_VALIDATION"
+          },
+          "testExecution": {
+            "state": "ACTUAL32_NEW_ORIGINAL_SOLE13411_CHECK_ONE_OLD_P79_PRIORITY_FAILURE_RETAINED_THEN_TEST_ONLY_CALIBRATION_FINAL388_FOCUS_TWO_ORIGINAL_FULL_AND_REAL_SQL22_COLD22_INDEPENDENT22_39_39_FOUR_REFUSALS_PASS"
+          },
+          "fixedCommitCi": {
+            "state": "PENDING_NEW_FIXED_FULL"
+          },
+          "productAcceptance": {
+            "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_RECONNECT_SCORE_HISTORY_VISIBLE_AND_PHYSICAL_WINDOWS"
+          },
+          "decision": {
+            "state": "OPEN",
+            "reason": "Bounded local behavior passes; new fixed full and actual current product acceptance remain required."
+          },
+          "wholePrintingCertified": false,
+          "existingAcceptanceGateDependencies": [
+            "FIXED_CURRENT_CANDIDATE_FULL",
+            "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+            "USER_WINDOWS_RUNTIME"
+          ]
+        },
+        {
+          "id": "bf-start-d05793855b5bae22e2ce9a83",
+          "sourceRefs": [
+            "UNL-212/219",
+            "DOC-01-P029-B006",
+            "DOC-01-P029-B007",
+            "DOC-01-P029-B008",
+            "DOC-01-P029-B009",
+            "DOC-01-P029-B010",
+            "DOC-01-P030-B007",
+            "DOC-01-P030-B010"
+          ],
+          "sourceManifest": {
+            "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+            "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+            "role": "source-manifest"
+          },
+          "state": "RECORDED",
+          "boundedCase": {
+            "actualExecutedCase": "Riftbound.ConformanceTests.BattlefieldStartControllerTests.PrintedEachPlayerTimingUsesFieldControllerAndOnlyUncontrolledFallsBackToTurn(turn: \"P1\", physicalOwner: \"P2\", fieldController: \"P2\", expectedActor: \"P2\")",
+            "issue": "https://github.com/DDDHL0704/riftbound/issues/84",
+            "actualNewMatrixIsFrostOnlyDuskRoseExistingAdjacentEligibilityNotExpanded": true
+          },
+          "semanticReview": {
+            "state": "BOUNDED_CURRENT_CN190_6_191_5_CONTROLLER_AND_ORIGINAL_BIRTH_REVIEW"
+          },
+          "implementation": {
+            "state": "CAPTURED_ACTOR_AND_INDEPENDENT_LITERAL_ORIGINAL_JOURNAL_AND_STRICT_REPLAY_VALIDATION"
+          },
+          "testExecution": {
+            "state": "ACTUAL32_NEW_ORIGINAL_SOLE13411_CHECK_ONE_OLD_P79_PRIORITY_FAILURE_RETAINED_THEN_TEST_ONLY_CALIBRATION_FINAL388_FOCUS_TWO_ORIGINAL_FULL_AND_REAL_SQL22_COLD22_INDEPENDENT22_39_39_FOUR_REFUSALS_PASS"
+          },
+          "fixedCommitCi": {
+            "state": "PENDING_NEW_FIXED_FULL"
+          },
+          "productAcceptance": {
+            "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_RECONNECT_SCORE_HISTORY_VISIBLE_AND_PHYSICAL_WINDOWS"
+          },
+          "decision": {
+            "state": "OPEN",
+            "reason": "Bounded local behavior passes; new fixed full and actual current product acceptance remain required."
+          },
+          "wholePrintingCertified": false,
+          "existingAcceptanceGateDependencies": [
+            "FIXED_CURRENT_CANDIDATE_FULL",
+            "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+            "USER_WINDOWS_RUNTIME"
+          ]
+        },
+        {
+          "id": "bf-start-07ca7f5626c6d41c277c9c3c",
+          "sourceRefs": [
+            "UNL-212/219",
+            "DOC-01-P029-B006",
+            "DOC-01-P029-B007",
+            "DOC-01-P029-B008",
+            "DOC-01-P029-B009",
+            "DOC-01-P029-B010",
+            "DOC-01-P030-B007",
+            "DOC-01-P030-B010"
+          ],
+          "sourceManifest": {
+            "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+            "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+            "role": "source-manifest"
+          },
+          "state": "RECORDED",
+          "boundedCase": {
+            "actualExecutedCase": "Riftbound.ConformanceTests.BattlefieldStartControllerTests.PrintedEachPlayerTimingUsesFieldControllerAndOnlyUncontrolledFallsBackToTurn(turn: \"P1\", physicalOwner: \"P2\", fieldController: null, expectedActor: \"P1\")",
+            "issue": "https://github.com/DDDHL0704/riftbound/issues/84",
+            "actualNewMatrixIsFrostOnlyDuskRoseExistingAdjacentEligibilityNotExpanded": true
+          },
+          "semanticReview": {
+            "state": "BOUNDED_CURRENT_CN190_6_191_5_CONTROLLER_AND_ORIGINAL_BIRTH_REVIEW"
+          },
+          "implementation": {
+            "state": "CAPTURED_ACTOR_AND_INDEPENDENT_LITERAL_ORIGINAL_JOURNAL_AND_STRICT_REPLAY_VALIDATION"
+          },
+          "testExecution": {
+            "state": "ACTUAL32_NEW_ORIGINAL_SOLE13411_CHECK_ONE_OLD_P79_PRIORITY_FAILURE_RETAINED_THEN_TEST_ONLY_CALIBRATION_FINAL388_FOCUS_TWO_ORIGINAL_FULL_AND_REAL_SQL22_COLD22_INDEPENDENT22_39_39_FOUR_REFUSALS_PASS"
+          },
+          "fixedCommitCi": {
+            "state": "PENDING_NEW_FIXED_FULL"
+          },
+          "productAcceptance": {
+            "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_RECONNECT_SCORE_HISTORY_VISIBLE_AND_PHYSICAL_WINDOWS"
+          },
+          "decision": {
+            "state": "OPEN",
+            "reason": "Bounded local behavior passes; new fixed full and actual current product acceptance remain required."
+          },
+          "wholePrintingCertified": false,
+          "existingAcceptanceGateDependencies": [
+            "FIXED_CURRENT_CANDIDATE_FULL",
+            "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+            "USER_WINDOWS_RUNTIME"
+          ]
+        },
+        {
+          "id": "bf-start-e86a0158d6b7126d6916ef49",
+          "sourceRefs": [
+            "UNL-212/219",
+            "DOC-01-P029-B006",
+            "DOC-01-P029-B007",
+            "DOC-01-P029-B008",
+            "DOC-01-P029-B009",
+            "DOC-01-P029-B010",
+            "DOC-01-P030-B007",
+            "DOC-01-P030-B010"
+          ],
+          "sourceManifest": {
+            "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+            "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+            "role": "source-manifest"
+          },
+          "state": "RECORDED",
+          "boundedCase": {
+            "actualExecutedCase": "Riftbound.ConformanceTests.BattlefieldStartControllerTests.PrintedEachPlayerTimingUsesFieldControllerAndOnlyUncontrolledFallsBackToTurn(turn: \"P2\", physicalOwner: \"P1\", fieldController: \"P1\", expectedActor: \"P1\")",
+            "issue": "https://github.com/DDDHL0704/riftbound/issues/84",
+            "actualNewMatrixIsFrostOnlyDuskRoseExistingAdjacentEligibilityNotExpanded": true
+          },
+          "semanticReview": {
+            "state": "BOUNDED_CURRENT_CN190_6_191_5_CONTROLLER_AND_ORIGINAL_BIRTH_REVIEW"
+          },
+          "implementation": {
+            "state": "CAPTURED_ACTOR_AND_INDEPENDENT_LITERAL_ORIGINAL_JOURNAL_AND_STRICT_REPLAY_VALIDATION"
+          },
+          "testExecution": {
+            "state": "ACTUAL32_NEW_ORIGINAL_SOLE13411_CHECK_ONE_OLD_P79_PRIORITY_FAILURE_RETAINED_THEN_TEST_ONLY_CALIBRATION_FINAL388_FOCUS_TWO_ORIGINAL_FULL_AND_REAL_SQL22_COLD22_INDEPENDENT22_39_39_FOUR_REFUSALS_PASS"
+          },
+          "fixedCommitCi": {
+            "state": "PENDING_NEW_FIXED_FULL"
+          },
+          "productAcceptance": {
+            "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_RECONNECT_SCORE_HISTORY_VISIBLE_AND_PHYSICAL_WINDOWS"
+          },
+          "decision": {
+            "state": "OPEN",
+            "reason": "Bounded local behavior passes; new fixed full and actual current product acceptance remain required."
+          },
+          "wholePrintingCertified": false,
+          "existingAcceptanceGateDependencies": [
+            "FIXED_CURRENT_CANDIDATE_FULL",
+            "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+            "USER_WINDOWS_RUNTIME"
+          ]
+        },
+        {
+          "id": "bf-start-d061581704932b97a4e74d3b",
+          "sourceRefs": [
+            "UNL-212/219",
+            "DOC-01-P029-B006",
+            "DOC-01-P029-B007",
+            "DOC-01-P029-B008",
+            "DOC-01-P029-B009",
+            "DOC-01-P029-B010",
+            "DOC-01-P030-B007",
+            "DOC-01-P030-B010"
+          ],
+          "sourceManifest": {
+            "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+            "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+            "role": "source-manifest"
+          },
+          "state": "RECORDED",
+          "boundedCase": {
+            "actualExecutedCase": "Riftbound.ConformanceTests.BattlefieldStartControllerTests.PrintedEachPlayerTimingUsesFieldControllerAndOnlyUncontrolledFallsBackToTurn(turn: \"P2\", physicalOwner: \"P1\", fieldController: \"P2\", expectedActor: \"P2\")",
+            "issue": "https://github.com/DDDHL0704/riftbound/issues/84",
+            "actualNewMatrixIsFrostOnlyDuskRoseExistingAdjacentEligibilityNotExpanded": true
+          },
+          "semanticReview": {
+            "state": "BOUNDED_CURRENT_CN190_6_191_5_CONTROLLER_AND_ORIGINAL_BIRTH_REVIEW"
+          },
+          "implementation": {
+            "state": "CAPTURED_ACTOR_AND_INDEPENDENT_LITERAL_ORIGINAL_JOURNAL_AND_STRICT_REPLAY_VALIDATION"
+          },
+          "testExecution": {
+            "state": "ACTUAL32_NEW_ORIGINAL_SOLE13411_CHECK_ONE_OLD_P79_PRIORITY_FAILURE_RETAINED_THEN_TEST_ONLY_CALIBRATION_FINAL388_FOCUS_TWO_ORIGINAL_FULL_AND_REAL_SQL22_COLD22_INDEPENDENT22_39_39_FOUR_REFUSALS_PASS"
+          },
+          "fixedCommitCi": {
+            "state": "PENDING_NEW_FIXED_FULL"
+          },
+          "productAcceptance": {
+            "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_RECONNECT_SCORE_HISTORY_VISIBLE_AND_PHYSICAL_WINDOWS"
+          },
+          "decision": {
+            "state": "OPEN",
+            "reason": "Bounded local behavior passes; new fixed full and actual current product acceptance remain required."
+          },
+          "wholePrintingCertified": false,
+          "existingAcceptanceGateDependencies": [
+            "FIXED_CURRENT_CANDIDATE_FULL",
+            "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+            "USER_WINDOWS_RUNTIME"
+          ]
+        },
+        {
+          "id": "bf-start-0801f88c0a46e5294df73281",
+          "sourceRefs": [
+            "UNL-212/219",
+            "DOC-01-P029-B006",
+            "DOC-01-P029-B007",
+            "DOC-01-P029-B008",
+            "DOC-01-P029-B009",
+            "DOC-01-P029-B010",
+            "DOC-01-P030-B007",
+            "DOC-01-P030-B010"
+          ],
+          "sourceManifest": {
+            "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+            "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+            "role": "source-manifest"
+          },
+          "state": "RECORDED",
+          "boundedCase": {
+            "actualExecutedCase": "Riftbound.ConformanceTests.BattlefieldStartControllerTests.PrintedEachPlayerTimingUsesFieldControllerAndOnlyUncontrolledFallsBackToTurn(turn: \"P2\", physicalOwner: \"P1\", fieldController: null, expectedActor: \"P2\")",
+            "issue": "https://github.com/DDDHL0704/riftbound/issues/84",
+            "actualNewMatrixIsFrostOnlyDuskRoseExistingAdjacentEligibilityNotExpanded": true
+          },
+          "semanticReview": {
+            "state": "BOUNDED_CURRENT_CN190_6_191_5_CONTROLLER_AND_ORIGINAL_BIRTH_REVIEW"
+          },
+          "implementation": {
+            "state": "CAPTURED_ACTOR_AND_INDEPENDENT_LITERAL_ORIGINAL_JOURNAL_AND_STRICT_REPLAY_VALIDATION"
+          },
+          "testExecution": {
+            "state": "ACTUAL32_NEW_ORIGINAL_SOLE13411_CHECK_ONE_OLD_P79_PRIORITY_FAILURE_RETAINED_THEN_TEST_ONLY_CALIBRATION_FINAL388_FOCUS_TWO_ORIGINAL_FULL_AND_REAL_SQL22_COLD22_INDEPENDENT22_39_39_FOUR_REFUSALS_PASS"
+          },
+          "fixedCommitCi": {
+            "state": "PENDING_NEW_FIXED_FULL"
+          },
+          "productAcceptance": {
+            "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_RECONNECT_SCORE_HISTORY_VISIBLE_AND_PHYSICAL_WINDOWS"
+          },
+          "decision": {
+            "state": "OPEN",
+            "reason": "Bounded local behavior passes; new fixed full and actual current product acceptance remain required."
+          },
+          "wholePrintingCertified": false,
+          "existingAcceptanceGateDependencies": [
+            "FIXED_CURRENT_CANDIDATE_FULL",
+            "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+            "USER_WINDOWS_RUNTIME"
+          ]
+        },
+        {
+          "id": "bf-start-16ea9f8e670ba59f9cfd09e9",
+          "sourceRefs": [
+            "UNL-212/219",
+            "DOC-01-P029-B006",
+            "DOC-01-P029-B007",
+            "DOC-01-P029-B008",
+            "DOC-01-P029-B009",
+            "DOC-01-P029-B010",
+            "DOC-01-P030-B007",
+            "DOC-01-P030-B010"
+          ],
+          "sourceManifest": {
+            "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+            "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+            "role": "source-manifest"
+          },
+          "state": "RECORDED",
+          "boundedCase": {
+            "actualExecutedCase": "Riftbound.ConformanceTests.BattlefieldStartControllerTests.PrintedEachPlayerTimingUsesFieldControllerAndOnlyUncontrolledFallsBackToTurn(turn: \"P2\", physicalOwner: \"P2\", fieldController: \"P1\", expectedActor: \"P1\")",
+            "issue": "https://github.com/DDDHL0704/riftbound/issues/84",
+            "actualNewMatrixIsFrostOnlyDuskRoseExistingAdjacentEligibilityNotExpanded": true
+          },
+          "semanticReview": {
+            "state": "BOUNDED_CURRENT_CN190_6_191_5_CONTROLLER_AND_ORIGINAL_BIRTH_REVIEW"
+          },
+          "implementation": {
+            "state": "CAPTURED_ACTOR_AND_INDEPENDENT_LITERAL_ORIGINAL_JOURNAL_AND_STRICT_REPLAY_VALIDATION"
+          },
+          "testExecution": {
+            "state": "ACTUAL32_NEW_ORIGINAL_SOLE13411_CHECK_ONE_OLD_P79_PRIORITY_FAILURE_RETAINED_THEN_TEST_ONLY_CALIBRATION_FINAL388_FOCUS_TWO_ORIGINAL_FULL_AND_REAL_SQL22_COLD22_INDEPENDENT22_39_39_FOUR_REFUSALS_PASS"
+          },
+          "fixedCommitCi": {
+            "state": "PENDING_NEW_FIXED_FULL"
+          },
+          "productAcceptance": {
+            "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_RECONNECT_SCORE_HISTORY_VISIBLE_AND_PHYSICAL_WINDOWS"
+          },
+          "decision": {
+            "state": "OPEN",
+            "reason": "Bounded local behavior passes; new fixed full and actual current product acceptance remain required."
+          },
+          "wholePrintingCertified": false,
+          "existingAcceptanceGateDependencies": [
+            "FIXED_CURRENT_CANDIDATE_FULL",
+            "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+            "USER_WINDOWS_RUNTIME"
+          ]
+        },
+        {
+          "id": "bf-start-415c74794830cbbfc89cae4f",
+          "sourceRefs": [
+            "UNL-212/219",
+            "DOC-01-P029-B006",
+            "DOC-01-P029-B007",
+            "DOC-01-P029-B008",
+            "DOC-01-P029-B009",
+            "DOC-01-P029-B010",
+            "DOC-01-P030-B007",
+            "DOC-01-P030-B010"
+          ],
+          "sourceManifest": {
+            "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+            "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+            "role": "source-manifest"
+          },
+          "state": "RECORDED",
+          "boundedCase": {
+            "actualExecutedCase": "Riftbound.ConformanceTests.BattlefieldStartControllerTests.PrintedEachPlayerTimingUsesFieldControllerAndOnlyUncontrolledFallsBackToTurn(turn: \"P2\", physicalOwner: \"P2\", fieldController: \"P2\", expectedActor: \"P2\")",
+            "issue": "https://github.com/DDDHL0704/riftbound/issues/84",
+            "actualNewMatrixIsFrostOnlyDuskRoseExistingAdjacentEligibilityNotExpanded": true
+          },
+          "semanticReview": {
+            "state": "BOUNDED_CURRENT_CN190_6_191_5_CONTROLLER_AND_ORIGINAL_BIRTH_REVIEW"
+          },
+          "implementation": {
+            "state": "CAPTURED_ACTOR_AND_INDEPENDENT_LITERAL_ORIGINAL_JOURNAL_AND_STRICT_REPLAY_VALIDATION"
+          },
+          "testExecution": {
+            "state": "ACTUAL32_NEW_ORIGINAL_SOLE13411_CHECK_ONE_OLD_P79_PRIORITY_FAILURE_RETAINED_THEN_TEST_ONLY_CALIBRATION_FINAL388_FOCUS_TWO_ORIGINAL_FULL_AND_REAL_SQL22_COLD22_INDEPENDENT22_39_39_FOUR_REFUSALS_PASS"
+          },
+          "fixedCommitCi": {
+            "state": "PENDING_NEW_FIXED_FULL"
+          },
+          "productAcceptance": {
+            "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_RECONNECT_SCORE_HISTORY_VISIBLE_AND_PHYSICAL_WINDOWS"
+          },
+          "decision": {
+            "state": "OPEN",
+            "reason": "Bounded local behavior passes; new fixed full and actual current product acceptance remain required."
+          },
+          "wholePrintingCertified": false,
+          "existingAcceptanceGateDependencies": [
+            "FIXED_CURRENT_CANDIDATE_FULL",
+            "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+            "USER_WINDOWS_RUNTIME"
+          ]
+        },
+        {
+          "id": "bf-start-1d1e025e7da28829ca20a7d5",
+          "sourceRefs": [
+            "UNL-212/219",
+            "DOC-01-P029-B006",
+            "DOC-01-P029-B007",
+            "DOC-01-P029-B008",
+            "DOC-01-P029-B009",
+            "DOC-01-P029-B010",
+            "DOC-01-P030-B007",
+            "DOC-01-P030-B010"
+          ],
+          "sourceManifest": {
+            "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+            "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+            "role": "source-manifest"
+          },
+          "state": "RECORDED",
+          "boundedCase": {
+            "actualExecutedCase": "Riftbound.ConformanceTests.BattlefieldStartControllerTests.PrintedEachPlayerTimingUsesFieldControllerAndOnlyUncontrolledFallsBackToTurn(turn: \"P2\", physicalOwner: \"P2\", fieldController: null, expectedActor: \"P2\")",
+            "issue": "https://github.com/DDDHL0704/riftbound/issues/84",
+            "actualNewMatrixIsFrostOnlyDuskRoseExistingAdjacentEligibilityNotExpanded": true
+          },
+          "semanticReview": {
+            "state": "BOUNDED_CURRENT_CN190_6_191_5_CONTROLLER_AND_ORIGINAL_BIRTH_REVIEW"
+          },
+          "implementation": {
+            "state": "CAPTURED_ACTOR_AND_INDEPENDENT_LITERAL_ORIGINAL_JOURNAL_AND_STRICT_REPLAY_VALIDATION"
+          },
+          "testExecution": {
+            "state": "ACTUAL32_NEW_ORIGINAL_SOLE13411_CHECK_ONE_OLD_P79_PRIORITY_FAILURE_RETAINED_THEN_TEST_ONLY_CALIBRATION_FINAL388_FOCUS_TWO_ORIGINAL_FULL_AND_REAL_SQL22_COLD22_INDEPENDENT22_39_39_FOUR_REFUSALS_PASS"
+          },
+          "fixedCommitCi": {
+            "state": "PENDING_NEW_FIXED_FULL"
+          },
+          "productAcceptance": {
+            "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_RECONNECT_SCORE_HISTORY_VISIBLE_AND_PHYSICAL_WINDOWS"
+          },
+          "decision": {
+            "state": "OPEN",
+            "reason": "Bounded local behavior passes; new fixed full and actual current product acceptance remain required."
+          },
+          "wholePrintingCertified": false,
+          "existingAcceptanceGateDependencies": [
+            "FIXED_CURRENT_CANDIDATE_FULL",
+            "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+            "USER_WINDOWS_RUNTIME"
+          ]
+        },
+        {
+          "id": "bf-start-e10fd58649c5a323a472f8f7",
+          "sourceRefs": [
+            "UNL-212/219",
+            "DOC-01-P029-B006",
+            "DOC-01-P029-B007",
+            "DOC-01-P029-B008",
+            "DOC-01-P029-B009",
+            "DOC-01-P029-B010",
+            "DOC-01-P030-B007",
+            "DOC-01-P030-B010"
+          ],
+          "sourceManifest": {
+            "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+            "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+            "role": "source-manifest"
+          },
+          "state": "RECORDED",
+          "boundedCase": {
+            "actualExecutedCase": "Riftbound.ConformanceTests.BattlefieldStartControllerTests.PureSourceControlChangeOrNewGenerationDoesNotTransferExistingSkill(nextController: \"P1\", changeCardAndGeneration: False)",
+            "issue": "https://github.com/DDDHL0704/riftbound/issues/84",
+            "actualNewMatrixIsFrostOnlyDuskRoseExistingAdjacentEligibilityNotExpanded": true
+          },
+          "semanticReview": {
+            "state": "BOUNDED_CURRENT_CN190_6_191_5_CONTROLLER_AND_ORIGINAL_BIRTH_REVIEW"
+          },
+          "implementation": {
+            "state": "CAPTURED_ACTOR_AND_INDEPENDENT_LITERAL_ORIGINAL_JOURNAL_AND_STRICT_REPLAY_VALIDATION"
+          },
+          "testExecution": {
+            "state": "ACTUAL32_NEW_ORIGINAL_SOLE13411_CHECK_ONE_OLD_P79_PRIORITY_FAILURE_RETAINED_THEN_TEST_ONLY_CALIBRATION_FINAL388_FOCUS_TWO_ORIGINAL_FULL_AND_REAL_SQL22_COLD22_INDEPENDENT22_39_39_FOUR_REFUSALS_PASS"
+          },
+          "fixedCommitCi": {
+            "state": "PENDING_NEW_FIXED_FULL"
+          },
+          "productAcceptance": {
+            "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_RECONNECT_SCORE_HISTORY_VISIBLE_AND_PHYSICAL_WINDOWS"
+          },
+          "decision": {
+            "state": "OPEN",
+            "reason": "Bounded local behavior passes; new fixed full and actual current product acceptance remain required."
+          },
+          "wholePrintingCertified": false,
+          "existingAcceptanceGateDependencies": [
+            "FIXED_CURRENT_CANDIDATE_FULL",
+            "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+            "USER_WINDOWS_RUNTIME"
+          ]
+        },
+        {
+          "id": "bf-start-d1e48390e44e90a95b1d5304",
+          "sourceRefs": [
+            "UNL-212/219",
+            "DOC-01-P029-B006",
+            "DOC-01-P029-B007",
+            "DOC-01-P029-B008",
+            "DOC-01-P029-B009",
+            "DOC-01-P029-B010",
+            "DOC-01-P030-B007",
+            "DOC-01-P030-B010"
+          ],
+          "sourceManifest": {
+            "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+            "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+            "role": "source-manifest"
+          },
+          "state": "RECORDED",
+          "boundedCase": {
+            "actualExecutedCase": "Riftbound.ConformanceTests.BattlefieldStartControllerTests.PureSourceControlChangeOrNewGenerationDoesNotTransferExistingSkill(nextController: \"P1\", changeCardAndGeneration: True)",
+            "issue": "https://github.com/DDDHL0704/riftbound/issues/84",
+            "actualNewMatrixIsFrostOnlyDuskRoseExistingAdjacentEligibilityNotExpanded": true
+          },
+          "semanticReview": {
+            "state": "BOUNDED_CURRENT_CN190_6_191_5_CONTROLLER_AND_ORIGINAL_BIRTH_REVIEW"
+          },
+          "implementation": {
+            "state": "CAPTURED_ACTOR_AND_INDEPENDENT_LITERAL_ORIGINAL_JOURNAL_AND_STRICT_REPLAY_VALIDATION"
+          },
+          "testExecution": {
+            "state": "ACTUAL32_NEW_ORIGINAL_SOLE13411_CHECK_ONE_OLD_P79_PRIORITY_FAILURE_RETAINED_THEN_TEST_ONLY_CALIBRATION_FINAL388_FOCUS_TWO_ORIGINAL_FULL_AND_REAL_SQL22_COLD22_INDEPENDENT22_39_39_FOUR_REFUSALS_PASS"
+          },
+          "fixedCommitCi": {
+            "state": "PENDING_NEW_FIXED_FULL"
+          },
+          "productAcceptance": {
+            "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_RECONNECT_SCORE_HISTORY_VISIBLE_AND_PHYSICAL_WINDOWS"
+          },
+          "decision": {
+            "state": "OPEN",
+            "reason": "Bounded local behavior passes; new fixed full and actual current product acceptance remain required."
+          },
+          "wholePrintingCertified": false,
+          "existingAcceptanceGateDependencies": [
+            "FIXED_CURRENT_CANDIDATE_FULL",
+            "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+            "USER_WINDOWS_RUNTIME"
+          ]
+        },
+        {
+          "id": "bf-start-6acec8dd3614197cee13dce1",
+          "sourceRefs": [
+            "UNL-212/219",
+            "DOC-01-P029-B006",
+            "DOC-01-P029-B007",
+            "DOC-01-P029-B008",
+            "DOC-01-P029-B009",
+            "DOC-01-P029-B010",
+            "DOC-01-P030-B007",
+            "DOC-01-P030-B010"
+          ],
+          "sourceManifest": {
+            "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+            "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+            "role": "source-manifest"
+          },
+          "state": "RECORDED",
+          "boundedCase": {
+            "actualExecutedCase": "Riftbound.ConformanceTests.BattlefieldStartControllerTests.PureSourceControlChangeOrNewGenerationDoesNotTransferExistingSkill(nextController: \"P2\", changeCardAndGeneration: False)",
+            "issue": "https://github.com/DDDHL0704/riftbound/issues/84",
+            "actualNewMatrixIsFrostOnlyDuskRoseExistingAdjacentEligibilityNotExpanded": true
+          },
+          "semanticReview": {
+            "state": "BOUNDED_CURRENT_CN190_6_191_5_CONTROLLER_AND_ORIGINAL_BIRTH_REVIEW"
+          },
+          "implementation": {
+            "state": "CAPTURED_ACTOR_AND_INDEPENDENT_LITERAL_ORIGINAL_JOURNAL_AND_STRICT_REPLAY_VALIDATION"
+          },
+          "testExecution": {
+            "state": "ACTUAL32_NEW_ORIGINAL_SOLE13411_CHECK_ONE_OLD_P79_PRIORITY_FAILURE_RETAINED_THEN_TEST_ONLY_CALIBRATION_FINAL388_FOCUS_TWO_ORIGINAL_FULL_AND_REAL_SQL22_COLD22_INDEPENDENT22_39_39_FOUR_REFUSALS_PASS"
+          },
+          "fixedCommitCi": {
+            "state": "PENDING_NEW_FIXED_FULL"
+          },
+          "productAcceptance": {
+            "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_RECONNECT_SCORE_HISTORY_VISIBLE_AND_PHYSICAL_WINDOWS"
+          },
+          "decision": {
+            "state": "OPEN",
+            "reason": "Bounded local behavior passes; new fixed full and actual current product acceptance remain required."
+          },
+          "wholePrintingCertified": false,
+          "existingAcceptanceGateDependencies": [
+            "FIXED_CURRENT_CANDIDATE_FULL",
+            "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+            "USER_WINDOWS_RUNTIME"
+          ]
+        },
+        {
+          "id": "bf-start-9192182ab0d4fafc6d5f754e",
+          "sourceRefs": [
+            "UNL-212/219",
+            "DOC-01-P029-B006",
+            "DOC-01-P029-B007",
+            "DOC-01-P029-B008",
+            "DOC-01-P029-B009",
+            "DOC-01-P029-B010",
+            "DOC-01-P030-B007",
+            "DOC-01-P030-B010"
+          ],
+          "sourceManifest": {
+            "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+            "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+            "role": "source-manifest"
+          },
+          "state": "RECORDED",
+          "boundedCase": {
+            "actualExecutedCase": "Riftbound.ConformanceTests.BattlefieldStartControllerTests.PureSourceControlChangeOrNewGenerationDoesNotTransferExistingSkill(nextController: null, changeCardAndGeneration: False)",
+            "issue": "https://github.com/DDDHL0704/riftbound/issues/84",
+            "actualNewMatrixIsFrostOnlyDuskRoseExistingAdjacentEligibilityNotExpanded": true
+          },
+          "semanticReview": {
+            "state": "BOUNDED_CURRENT_CN190_6_191_5_CONTROLLER_AND_ORIGINAL_BIRTH_REVIEW"
+          },
+          "implementation": {
+            "state": "CAPTURED_ACTOR_AND_INDEPENDENT_LITERAL_ORIGINAL_JOURNAL_AND_STRICT_REPLAY_VALIDATION"
+          },
+          "testExecution": {
+            "state": "ACTUAL32_NEW_ORIGINAL_SOLE13411_CHECK_ONE_OLD_P79_PRIORITY_FAILURE_RETAINED_THEN_TEST_ONLY_CALIBRATION_FINAL388_FOCUS_TWO_ORIGINAL_FULL_AND_REAL_SQL22_COLD22_INDEPENDENT22_39_39_FOUR_REFUSALS_PASS"
+          },
+          "fixedCommitCi": {
+            "state": "PENDING_NEW_FIXED_FULL"
+          },
+          "productAcceptance": {
+            "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_RECONNECT_SCORE_HISTORY_VISIBLE_AND_PHYSICAL_WINDOWS"
+          },
+          "decision": {
+            "state": "OPEN",
+            "reason": "Bounded local behavior passes; new fixed full and actual current product acceptance remain required."
+          },
+          "wholePrintingCertified": false,
+          "existingAcceptanceGateDependencies": [
+            "FIXED_CURRENT_CANDIDATE_FULL",
+            "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+            "USER_WINDOWS_RUNTIME"
+          ]
+        },
+        {
+          "id": "bf-start-d8c99172d9e951fc2c145692",
+          "sourceRefs": [
+            "UNL-212/219",
+            "DOC-01-P029-B006",
+            "DOC-01-P029-B007",
+            "DOC-01-P029-B008",
+            "DOC-01-P029-B009",
+            "DOC-01-P029-B010",
+            "DOC-01-P030-B007",
+            "DOC-01-P030-B010"
+          ],
+          "sourceManifest": {
+            "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+            "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+            "role": "source-manifest"
+          },
+          "state": "RECORDED",
+          "boundedCase": {
+            "actualExecutedCase": "Riftbound.ConformanceTests.BattlefieldStartControllerTests.PureSourceControlChangeOrNewGenerationDoesNotTransferExistingSkill(nextController: null, changeCardAndGeneration: True)",
+            "issue": "https://github.com/DDDHL0704/riftbound/issues/84",
+            "actualNewMatrixIsFrostOnlyDuskRoseExistingAdjacentEligibilityNotExpanded": true
+          },
+          "semanticReview": {
+            "state": "BOUNDED_CURRENT_CN190_6_191_5_CONTROLLER_AND_ORIGINAL_BIRTH_REVIEW"
+          },
+          "implementation": {
+            "state": "CAPTURED_ACTOR_AND_INDEPENDENT_LITERAL_ORIGINAL_JOURNAL_AND_STRICT_REPLAY_VALIDATION"
+          },
+          "testExecution": {
+            "state": "ACTUAL32_NEW_ORIGINAL_SOLE13411_CHECK_ONE_OLD_P79_PRIORITY_FAILURE_RETAINED_THEN_TEST_ONLY_CALIBRATION_FINAL388_FOCUS_TWO_ORIGINAL_FULL_AND_REAL_SQL22_COLD22_INDEPENDENT22_39_39_FOUR_REFUSALS_PASS"
+          },
+          "fixedCommitCi": {
+            "state": "PENDING_NEW_FIXED_FULL"
+          },
+          "productAcceptance": {
+            "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_RECONNECT_SCORE_HISTORY_VISIBLE_AND_PHYSICAL_WINDOWS"
+          },
+          "decision": {
+            "state": "OPEN",
+            "reason": "Bounded local behavior passes; new fixed full and actual current product acceptance remain required."
+          },
+          "wholePrintingCertified": false,
+          "existingAcceptanceGateDependencies": [
+            "FIXED_CURRENT_CANDIDATE_FULL",
+            "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+            "USER_WINDOWS_RUNTIME"
+          ]
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/final-original-test-and-input-retention.json",
+          "sha256": "ed658d1384fef05f0832311ec78e800672ff00f29809d842bc7efce4f731e152",
+          "role": "focus-check-and-retention"
+        },
+        {
+          "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/independent-current-real-sql-history-and-refusals.json",
+          "sha256": "ab042d4dc62a3ea0bf7971bae436e8e2badaa8f0a589c5c21e7d7a1dce666e43",
+          "role": "independent-sql-history-refusals"
+        },
+        {
+          "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/final-verification-case58-count-calibration-and-input-delta.json",
+          "sha256": "3b997fc56eed70cf113a236faf25972faba8911329674c6f71101ee278011cc5",
+          "role": "verification-fixture-calibration"
+        }
+      ],
+      "currentVerificationOnlyInputCalibration": {
+        "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/final-verification-case58-count-calibration-and-input-delta.json",
+        "sha256": "3b997fc56eed70cf113a236faf25972faba8911329674c6f71101ee278011cc5",
+        "role": "verification-fixture-calibration"
+      }
     }
   },
   "acceptanceGates": [
@@ -62451,5 +64690,47 @@
     "allFiveExistingExactPrintingApplicabilityGatesRemainOpen": true,
     "noNewPrintingUniverseOrEightRowGalleryGapMerge": true,
     "runtimeCatalogNotAdopted": true
+  },
+  "currentBattlefieldStartControllerInputChange": {
+    "sourceManifest": {
+      "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+      "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+      "role": "source-manifest"
+    },
+    "auditDocument": "docs/BATTLEFIELD_START_CONTROLLER_CURRENT_CN16_AUDIT_2026-10-22.md",
+    "issue": "https://github.com/DDDHL0704/riftbound/issues/84",
+    "onlyNewBoundedBranches": 32,
+    "all163OldReviews250GatesAndSevenDeltasExact": true,
+    "all78OldCompleteContextsInOriginalArchive50ExplicitInputRefreshes": true,
+    "original17124RemainingIdsMustRemain": true,
+    "expectedRemainingObligations": 17156,
+    "newFixedFullAndCurrentProducts": "OPEN",
+    "wholePrintingOrGoalComplete": false,
+    "finalVerificationOnlyInputCalibration": {
+      "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/final-verification-case58-count-calibration-and-input-delta.json",
+      "sha256": "3b997fc56eed70cf113a236faf25972faba8911329674c6f71101ee278011cc5",
+      "role": "verification-fixture-calibration"
+    }
+  },
+  "precedingFixed4014BoundedLockedNativePairScoreAndAllHistoryReplay": {
+    "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/preceding-fixed4014-locked-native-pair-normal-score-and-replay.json",
+    "sha256": "151c8b6433ba8913311e4ff96a83ae0bf8327efd43b0d14702ea7a18f49b0137"
+  },
+  "precedingFixed9633ActualCompleteFailureAnd57SqlReadback": {
+    "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/preceding-fixed9633-complete-original-failure-and57-sql.json",
+    "sha256": "53d39d0e5067cd7c538f253b2f13537a082258ad7ae16629944df81844927a0f"
+  },
+  "additionalGlobalRegionalReleaseDateSourceReadback": {
+    "source": {
+      "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/additional-global-regional-release-date-source-supplement.json",
+      "sha256": "44feac174e07fbe0b3612ebc1edec01b3c23cdbc0b51bcafea2c730491c278bb"
+    },
+    "all705OutsideActivePrintingApplicabilityStillOpen": true,
+    "noRuntimeAdoptionOrRuleEffectiveDateInference": true,
+    "originalSourceUniverseAndCn139NewsScopeUnchanged": true
+  },
+  "precedingFixed4014ObservedCiStateBeforeCurrentPublication": {
+    "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/preceding-fixed4014-original-ci-state-before-publication.json.gz",
+    "sha256": "7838459cfe82730e7012facc2a9ec5ef41005e48c0ec6431dbb5a9925dbf5511"
   }
 }

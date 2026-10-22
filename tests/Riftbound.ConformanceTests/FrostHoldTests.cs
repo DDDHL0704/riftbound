@@ -48,13 +48,18 @@ public sealed class FrostHoldTests
         s = At(s, "F", fieldController, "BATTLEFIELD", "F");
         var opened = await Start(s);
         Assert.Single(opened.State.StackItems);
-        Assert.Equal("P1", opened.State.StackItems[0].ControllerId);
+        Assert.Equal(fieldController, opened.State.StackItems[0].ControllerId);
         // Isolated response-state mutation tests resolution-time location lookup.
         // Actual reaction command coverage is separate and must not be inferred here.
         var incoming = At(opened.State, "TARGET", "P2", "BATTLEFIELD", "F");
         Restore(incoming);
         var resolved = await Top(incoming);
-        Assert.Contains("TARGET", resolved.State.PlayerZones["P2"].Graveyard);
+        if (fieldController == "P1") Assert.Contains("TARGET", resolved.State.PlayerZones["P2"].Graveyard);
+        else {
+            Assert.Contains("TARGET", resolved.State.PlayerZones["P2"].Battlefields);
+            Assert.Equal(1, resolved.State.CardObjects["TARGET"].Damage);
+            Assert.Equal(new[] { "P2" }, resolved.State.CardObjects["TARGET"].DamageMarkedByPlayerIds);
+        }
         Restore(resolved.State);
     }
     [Theory]
@@ -92,7 +97,7 @@ public sealed class FrostHoldTests
         var s = Position();
         s = OfficialHoldSequenceTests.AddUnit(s, "OTHER-TARGET", "OGN·001/298", "OTHER", "P2");
         s = s with { CardObjects = new Dictionary<string,CardObjectState>(s.CardObjects) {
-            ["OTHER"] = s.CardObjects["OTHER"] with { CardNo = "UNL-212/219" },
+            ["OTHER"] = s.CardObjects["OTHER"] with { CardNo = "UNL-212/219", ControllerId = "P1" },
             ["OTHER-TARGET"] = s.CardObjects["OTHER-TARGET"] with { Power = 8 } } };
         var opened = await Start(s);
         Assert.Equal(2, opened.State.TriggerQueue.Count); Assert.Empty(opened.State.StackItems);
@@ -116,9 +121,9 @@ public sealed class FrostHoldTests
     {
         var s = Position(); s = At(s, "TARGET", "P1", "BATTLEFIELD", "F");
         s = s with { TurnPlayerId = "P2", ActivePlayerId = "P2" };
-        var opened = await Start(s); Assert.Equal("P2", Assert.Single(opened.State.StackItems).ControllerId);
+        var opened = await Start(s); Assert.Equal("P1", Assert.Single(opened.State.StackItems).ControllerId);
         var done = await Top(opened.State);
-        Assert.Equal(new[]{"P2"}, done.State.CardObjects["TARGET"].DamageMarkedByPlayerIds); Restore(done.State);
+        Assert.Equal(new[]{"P1"}, done.State.CardObjects["TARGET"].DamageMarkedByPlayerIds); Restore(done.State);
     }
     [Theory]
     [InlineData("global")] [InlineData("next")] [InlineData("immune")]

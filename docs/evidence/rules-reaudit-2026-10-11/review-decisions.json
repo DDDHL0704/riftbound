@@ -24780,6 +24780,71 @@
         "Old native41 history failure and fixed9633 peer failure remain original, not migrated or rewritten.",
         "Frost issue84 is read-only planned, not implemented in this batch; all source gaps and original scope retained."
       ]
+    },
+    {
+      "id": "battlefield-start-controller-current-cn16-2026-10-22",
+      "scope": "Two existing battlefield-start consumers: capture controlled field actor, use turn actor only for uncontrolled Frost, keep original skill actor after source changes, independently validate literal finite definitions and original journal birth/replay. Existing Dusk Rose your-start eligibility is unchanged. Clause190.6.d establishes no you-referent when uncontrolled; dedicated execution and post-birth source/LKI coverage remain OPEN.",
+      "subjects": [
+        "UNL-212/219",
+        "UNL-209/219"
+      ],
+      "ruleRecords": [
+        "DOC-01-P029-B006",
+        "DOC-01-P029-B007",
+        "DOC-01-P029-B008",
+        "DOC-01-P029-B009",
+        "DOC-01-P029-B010",
+        "DOC-01-P030-B007",
+        "DOC-01-P030-B010"
+      ],
+      "status": "BOUNDED_CURRENT_CN_SOURCE_CONTROLLER_CAPTURE_FINAL_FOCUS_PASS_ORIGINAL_SOLE_CHECK_P79_FAILURE_RETAINED_REAL_SQL_INDEPENDENT_HISTORY_PASS_NEW_FIXED_FULL_PRODUCTS_OPEN",
+      "sourceManifest": {
+        "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+        "role": "source-manifest"
+      },
+      "auditDocument": "docs/BATTLEFIELD_START_CONTROLLER_CURRENT_CN16_AUDIT_2026-10-22.md",
+      "validation": {
+        "newCases": 32,
+        "newMethods": 6,
+        "finalAdjacentCases": 388,
+        "finalAdjacentMethods": 291,
+        "affectedOriginalFullGameMethods": 2,
+        "onlyCheckCases": 13411,
+        "onlyCheckMethods": 7540,
+        "originalOnlyCheckOutcomes": {
+          "Passed": 13410,
+          "Failed": 1
+        },
+        "originalP79FailureRetainedThenOnlyPriorityOrderCalibrated": true,
+        "sqlCase58OnlyNewFiveBranches": true,
+        "sqlInputs": 22,
+        "sqlColdRecoveries": 22,
+        "independentAuthorityHistories": 22,
+        "independentPrivateSnapshots": 39,
+        "independentPrivatePrompts": 39,
+        "independentEvents": 63,
+        "actualCorruptOrWrongVersionRefusals": 4,
+        "wholePrintingCertified": false,
+        "postRegistrationPythonVerificationFixture": {
+          "originalMethods": 74,
+          "originalOutcome": "73PASS_1_OLD57COUNT_FAILURE_RETAINED",
+          "finalOutcome": "74PASS",
+          "onlyLiteral58AndExactNewCaseIdentityAdded": true,
+          "allOtherMethodsAndAssertionsRetained": true,
+          "evidence": {
+            "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/final-verification-case58-count-calibration-and-input-delta.json",
+            "sha256": "3b997fc56eed70cf113a236faf25972faba8911329674c6f71101ee278011cc5",
+            "role": "verification-fixture-calibration"
+          }
+        }
+      },
+      "exclusions": [
+        "Uncontrolled Dusk Rose timing, copied or transferred battlefield abilities beyond implemented consumers, outside-active705, all source gaps and whole printings remain OPEN.",
+        "Recorded controlled SQL scenes are not ordinary full matches or visible native acceptance.",
+        "New fixed full and current native/network/normal-score/full-history/visible/physical Windows gates remain independent.",
+        "Original SQL v1 scenario and v2 event-reader oracle failures, all accepted inputs and old CI9633 failure remain original."
+      ]
     }
   ]
 }

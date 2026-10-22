@@ -1,0 +1,36 @@
+{
+  "atUtc": "2026-10-22T00:28:21.992231+00:00",
+  "files": 3,
+  "logicalBytes": 58269851,
+  "originalRawRows": [
+    {
+      "path": "var/qa/battlefield-start-controller-20261022/postpublication-current-governance-v1.json",
+      "bytes": 19316632,
+      "sha256": "2eda6ab5eb86fe8f4abf94a4f7ea751bbe398b1e445c92b650cd1b606469cbc4",
+      "byteExactRetainedGzip": {
+        "path": "var/qa/battlefield-start-controller-20261022/postpublication-original-before-input-bindings-governance-v1.json.gz",
+        "sha256": "43b1b938cb87b5f3c06aae7fe918f3285aa6ad3e0a935067f97ec27afdaf5604"
+      }
+    },
+    {
+      "path": "var/qa/battlefield-start-controller-20261022/postpublication-current-governance-v2.json",
+      "bytes": 19475490,
+      "sha256": "6b73dec285a4535607b98db633901d1433f4afbbd6e9a2a14f3a06f284ff18a6",
+      "byteExactRetainedGzip": {
+        "path": "var/qa/battlefield-start-controller-20261022/postpublication-original-pre-sql-test-calibration-governance-v2.json.gz",
+        "sha256": "74540699476fe651450904dff3353525d93b319f96a1669241a54ca84860f01b"
+      }
+    },
+    {
+      "path": "var/qa/battlefield-start-controller-20261022/postpublication-current-governance-v3.json",
+      "bytes": 19477729,
+      "sha256": "ce8d3ea8af8dd1285ab91f015afeddaff6827078432bbe556dee567dc1809601",
+      "byteExactRetainedGzip": {
+        "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/final-governance.json.gz",
+        "sha256": "d213f807526e5fc63baa6f3332805811c8825e214ccef2224b7caf51a93859c6"
+      }
+    }
+  ],
+  "allOriginalFailuresAndFinalResultPreservedByteExactCompressed": true,
+  "physicalApfsBytesNotInferred": true
+}

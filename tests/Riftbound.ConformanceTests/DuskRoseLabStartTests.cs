@@ -175,7 +175,7 @@ public sealed class DuskRoseLabStartTests
     {
         var s=OfficialHoldSequenceTests.AddUnit(Position(),"X","OGN·001/298","OTHER","P2");
         s=s with {CardObjects=new Dictionary<string,CardObjectState>(s.CardObjects) {
-            ["OTHER"]=s.CardObjects["OTHER"] with {CardNo="UNL-212/219"},["X"]=s.CardObjects["X"] with {Power=8}}};
+            ["OTHER"]=s.CardObjects["OTHER"] with {CardNo="UNL-212/219",ControllerId="P1"},["X"]=s.CardObjects["X"] with {Power=8}}};
         var opened=await Start(s);Assert.Equal(2,opened.State.TriggerQueue.Count);
         var ids=opened.State.TriggerQueue.Select(t=>t.TriggerId).ToArray();if(reverse)Array.Reverse(ids);
         var ordered=await Act(opened.State,"P1",new OrderTriggersCommand(OrderedTriggerIds:ids));

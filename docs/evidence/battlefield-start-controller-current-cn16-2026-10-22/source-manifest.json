@@ -1,0 +1,95 @@
+{
+  "schemaVersion": 1,
+  "id": "battlefield-start-controller-current-cn16-2026-10-22",
+  "atUtc": "2026-10-22T00:12:37.582803+00:00",
+  "region": "CN",
+  "language": "zh-CN",
+  "applicableAsOf": "2026-10-22",
+  "adoptedCoreEffectiveDate": "2026-10-16",
+  "scope": "Two existing battlefield-start consumers: capture controlled field actor, use turn actor only for uncontrolled Frost, keep original skill actor after source changes, independently validate literal finite definitions and original journal birth/replay. Existing Dusk Rose your-start eligibility is unchanged. Clause190.6.d establishes no you-referent when uncontrolled; dedicated execution and post-birth source/LKI coverage remain OPEN.",
+  "exactPrintings": [
+    "UNL-212/219",
+    "UNL-209/219"
+  ],
+  "exactApiIds": [
+    34765,
+    34762
+  ],
+  "exactRuleRecords": [
+    "DOC-01-P029-B006",
+    "DOC-01-P029-B007",
+    "DOC-01-P029-B008",
+    "DOC-01-P029-B009",
+    "DOC-01-P029-B010",
+    "DOC-01-P030-B007",
+    "DOC-01-P030-B010"
+  ],
+  "currentSourceReadback": {
+    "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/current-exact-two-source-and-core-readback.json",
+    "sha256": "9b4102fafc30cad2bb215076717e89ecdae176f2db39395b353ff3eada1f04b7"
+  },
+  "all16SourceVersions": {
+    "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/current-all16-rule-version-readback.json",
+    "sha256": "e3abb216c7c2bcf0fd5fe421eeb2a959e29f98715e0f56d77517e16d59ec5574"
+  },
+  "primaryCoreSha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11",
+  "corePublicationOriginalUpdatedDate": "2026-10-10",
+  "coreEffectiveDateFromExistingOfficialTitle": "2026-10-16",
+  "exactCardPublicationAndEffectiveDatesIndependentlyConfirmed": false,
+  "exactCardCompleteRowsAndQaNullsUnchanged": true,
+  "onlyCheckNoDatabaseConnectionProvided": true,
+  "realSqlExecutionIsDedicatedNewCase58OnlyOriginal57AwaitNewFixedFull": true,
+  "allOldSourceAcquisitionPublicationEffectiveAndRegionDatesRetained": true,
+  "currentBoundedTwoCardAnd16RuleSourceVersionChangesDetected": false,
+  "additional1906CDSemanticDisposition": {
+    "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/additional1906-c-d-semantic-disposition.json",
+    "sha256": "b94d08be3a3def93b51cb1e20a69d68f4f37a8b04a9f8ad886d0e06598a0c605"
+  },
+  "laterSourceDeltasRemainSevenUnmodified": true,
+  "wholeScopeRetained": {
+    "printings": 1740,
+    "ruleRecords": 14293,
+    "activeCatalog": 1035,
+    "outsideActive": 705,
+    "CNRawRows": 1504,
+    "ENReturned": 1408,
+    "ENReported": 1416,
+    "ENUnreturnedGap": 8,
+    "CNOfficialNewsScope": 139,
+    "globalKdaFiveExactPrintingApplicabilityGates": "OPEN"
+  },
+  "implementationStrategy": "Existing finite shared flow and independent recovery guard; no general DSL, provenance payload schema expansion or legacy match migration. Existing recorded Frost scenario gains only its actually referenced missing second battlefield.",
+  "actualDebugRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "e7455edc32d43f8253a9d0c6fedb83c347bebafbef064f9b8dffaaabc4b4d266",
+    "implementationSha256": "34b4179bd4d6f29ea95a17c60822e67baf07f2b964f24b918d2676d31c52631d",
+    "identitySha256": "0b4bc93562905de62142069d5ca6a62bb46a376925c0390ba0e79ed0da3297f5"
+  },
+  "actualReleaseSqlRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "e7455edc32d43f8253a9d0c6fedb83c347bebafbef064f9b8dffaaabc4b4d266",
+    "implementationSha256": "574fdd1e9edf114c9d3f2cb390f1db1a504e23675fc9816a3a008c509cf0c273",
+    "identitySha256": "2915d8c8f078ee0ed9f086b77546296826cd5c0043ec02befbdad304152e6851"
+  },
+  "archive": {
+    "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/original-execution-and-source-records.tar.gz",
+    "sha256": "faec6957a85b3b448639d9733f27e76b201c5ecc293677629b8ff7cfb8e155f1"
+  },
+  "archiveMap": {
+    "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/archive-map.json",
+    "sha256": "f5055bdce083052b347e5346b0d38e3fede091b026cc9f6a3e2d8daeb4a6e09f"
+  },
+  "newFixedFullAndNativeVisiblePhysicalWindows": "OPEN",
+  "semanticCoverageCertified": false,
+  "additionalGlobalRegionalReleaseDateSupplement": {
+    "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/additional-global-regional-release-date-source-supplement.json",
+    "sha256": "44feac174e07fbe0b3612ebc1edec01b3c23cdbc0b51bcafea2c730491c278bb"
+  },
+  "noGlobalDateSourceRevisionChangeClaimedWithoutPriorRawComparison": true
+}

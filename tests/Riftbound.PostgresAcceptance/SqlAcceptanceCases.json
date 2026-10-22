@@ -230,6 +230,10 @@
     {
       "id": "room-seat-journal",
       "sourceType": "RoomSeatJournalSqlAcceptance"
+    },
+    {
+      "id": "battlefield-start-controller",
+      "sourceType": "BattlefieldStartControllerSqlAcceptance"
     }
   ]
 }

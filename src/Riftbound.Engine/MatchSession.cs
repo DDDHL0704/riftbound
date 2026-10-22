@@ -22835,7 +22835,7 @@ public sealed partial class MatchSession : IMatchSession
                 [seed.P2] = Zones(
                     mainDeck: ["P2-MAIN-001"],
                     runeDeck: ["P2-RUNE-001", "P2-RUNE-002", "P2-RUNE-003"],
-                    battlefields: ["P2-BATTLEFIELD-FROST-SURVIVOR"],
+                    battlefields: ["P2-BATTLEFIELD-FROST-OTHER", "P2-BATTLEFIELD-FROST-SURVIVOR"],
                     legendZone: ["P2-LEGEND-001"],
                     championZone: ["P2-CHAMPION-001"])
             },
@@ -22858,6 +22858,12 @@ public sealed partial class MatchSession : IMatchSession
                     power: 2,
                     tags: [CardObjectTags.UnitCard],
                     ownerId: seed.P2,
+                    controllerId: seed.P2),
+                ["P2-BATTLEFIELD-FROST-OTHER"] = new(
+                    "P2-BATTLEFIELD-FROST-OTHER",
+                    cardNo: "OGN\u00b7278/298",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: seed.P2,
                     controllerId: seed.P2)
             });
 
@@ -22868,6 +22874,7 @@ public sealed partial class MatchSession : IMatchSession
                 ["P1-BATTLEFIELD-FROST-HOLD"] = new(seed.P1, "BATTLEFIELD", "P1-BATTLEFIELD-FROST-HOLD"),
                 ["P1-BATTLEFIELD-FROST-FALLING"] = new(seed.P1, "BATTLEFIELD", "P1-BATTLEFIELD-FROST-HOLD"),
                 ["P2-BATTLEFIELD-FROST-SURVIVOR"] = new(seed.P2, "BATTLEFIELD", "P2-BATTLEFIELD-FROST-OTHER"),
+                ["P2-BATTLEFIELD-FROST-OTHER"] = new(seed.P2, "BATTLEFIELD", "P2-BATTLEFIELD-FROST-OTHER"),
                 ["P2-MAIN-001"] = new(seed.P2, "MAIN_DECK"),
                 ["P2-RUNE-001"] = new(seed.P2, "RUNE_DECK"),
                 ["P2-RUNE-002"] = new(seed.P2, "RUNE_DECK"),

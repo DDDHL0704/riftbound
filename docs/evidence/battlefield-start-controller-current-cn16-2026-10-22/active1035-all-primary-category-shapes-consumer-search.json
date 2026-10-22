@@ -1,0 +1,196 @@
+{
+  "atUtc": "2026-10-21T22:40:45.301108+00:00",
+  "source": "data/official/card-catalog.zh-CN.json",
+  "sourceSha256": "438a9ca8723a3b83ebedc6a928af80001bd1f093c53e8ff423437565897842b8",
+  "allActiveRows": 1035,
+  "singleCategoryRows": 1011,
+  "listCategoryRows": 24,
+  "all24ListShapesReadAndRetainedNotSourceGaps": true,
+  "listRows": [
+    {
+      "id": 37918,
+      "cardNo": "VEN·SP3",
+      "categories": [
+        "hero_unit"
+      ]
+    },
+    {
+      "id": 37702,
+      "cardNo": "VEN·017",
+      "categories": [
+        "hero_unit"
+      ]
+    },
+    {
+      "id": 37889,
+      "cardNo": "VEN·186",
+      "categories": [
+        "hero_unit"
+      ]
+    },
+    {
+      "id": 37823,
+      "cardNo": "VEN·123",
+      "categories": [
+        "unit"
+      ]
+    },
+    {
+      "id": 37882,
+      "cardNo": "VEN·179",
+      "categories": [
+        "hero_unit"
+      ]
+    },
+    {
+      "id": 37886,
+      "cardNo": "VEN·183",
+      "categories": [
+        "hero_unit"
+      ]
+    },
+    {
+      "id": 37839,
+      "cardNo": "VEN·137",
+      "categories": [
+        "equipment"
+      ]
+    },
+    {
+      "id": 37686,
+      "cardNo": "VEN·001",
+      "categories": [
+        "unit"
+      ]
+    },
+    {
+      "id": 37699,
+      "cardNo": "VEN·014",
+      "categories": [
+        "unit"
+      ]
+    },
+    {
+      "id": 37718,
+      "cardNo": "VEN·030",
+      "categories": [
+        "unit"
+      ]
+    },
+    {
+      "id": 37768,
+      "cardNo": "VEN·074",
+      "categories": [
+        "unit"
+      ]
+    },
+    {
+      "id": 37762,
+      "cardNo": "VEN·069",
+      "categories": [
+        "hero_unit"
+      ]
+    },
+    {
+      "id": 37763,
+      "cardNo": "VEN·069a",
+      "categories": [
+        "hero_unit"
+      ]
+    },
+    {
+      "id": 38298,
+      "cardNo": "VEN·069b",
+      "categories": [
+        "hero_unit"
+      ]
+    },
+    {
+      "id": 37855,
+      "cardNo": "VEN·152",
+      "categories": [
+        "exclusive_spell"
+      ]
+    },
+    {
+      "id": 37731,
+      "cardNo": "VEN·042",
+      "categories": [
+        "hero_unit"
+      ]
+    },
+    {
+      "id": 37732,
+      "cardNo": "VEN·042a",
+      "categories": [
+        "hero_unit"
+      ]
+    },
+    {
+      "id": 37840,
+      "cardNo": "VEN·138",
+      "categories": [
+        "hero_unit"
+      ]
+    },
+    {
+      "id": 37841,
+      "cardNo": "VEN·138a",
+      "categories": [
+        "hero_unit"
+      ]
+    },
+    {
+      "id": 37873,
+      "cardNo": "VEN·170",
+      "categories": [
+        "hero_unit"
+      ]
+    },
+    {
+      "id": 37943,
+      "cardNo": "VEN·058",
+      "categories": [
+        "unit",
+        "equipment"
+      ]
+    },
+    {
+      "id": 37747,
+      "cardNo": "VEN·056",
+      "categories": [
+        "spell"
+      ]
+    },
+    {
+      "id": 37738,
+      "cardNo": "VEN·047",
+      "categories": [
+        "unit"
+      ]
+    },
+    {
+      "id": 37721,
+      "cardNo": "VEN·033",
+      "categories": [
+        "unit"
+      ]
+    }
+  ],
+  "allBattlefieldStartDamageOrDestroyConsumersAcrossBothShapes": [
+    {
+      "id": 34762,
+      "cardNo": "UNL-209/219",
+      "name": "暮色玫瑰实验室",
+      "text": "在你的开始阶段开始时，你可以选择摧毁一名此处由你控制的单位，以此抽一张牌。（此行动在得分前进行。）"
+    },
+    {
+      "id": 34765,
+      "cardNo": "UNL-212/219",
+      "name": "冰霜要塞",
+      "text": "在每名玩家各自的开始阶段开始时，对此处的所有单位造成1点伤害。（此行动在得分前进行。）"
+    }
+  ],
+  "independentLiteralExpectedFrostDamageOneAndLabDrawOneNotProductionSpecDerived": true,
+  "wholePrintingAndOutsideActiveCertification": false
+}

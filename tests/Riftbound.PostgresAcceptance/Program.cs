@@ -48,8 +48,9 @@ var teemoCountedDamageOnly = args.SequenceEqual(new[] { "--teemo-counted-damage-
 var controllerDamageBonusOnly = args.SequenceEqual(new[] { "--controller-damage-bonus-only" });
 var specialTriggerDamageBonusOnly = args.SequenceEqual(new[] { "--special-trigger-damage-bonus-only" });
 var roomSeatJournalOnly = args.SequenceEqual(new[] { "--room-seat-journal-only" });
+var battlefieldStartControllerOnly = args.SequenceEqual(new[] { "--battlefield-start-controller-only" });
 var pakaDualTypeRevealOnly = args.SequenceEqual(new[] { "--paka-dual-type-reveal-only" });
-if (args.Length != 0 && !openingRandomnessOnly && !optionalCostsOnly && !battlefieldPlayRecoveryOnly && !battlefieldPlayDamageOnly && !banishEffectPlayOnly && !hereLocationOnly && !fateWeaverOnly && !multiControllerOrderOnly && !emptyObservedRepeatOnly && !observedPlayWindowOnly && !ravenbloomPutHandOnly && !attachedPredictOnly && !copiedLastBreathOnly && !copiedDuelOnly && !empoweredInsightOnly && !pakaRevealOnly && !emptyRevealFollowupOnly && !pakaDualTypeRevealOnly && !hweiMoveDiscardTypesOnly && !destructionGraveyardOnly && !conditionalCounterPaymentOnly && !reversalTargetChoiceOnly && !spellRemakeDeclarationOnly && !candlelitPrivateLookOnly && !candlelitObservedPendingOnly && !candlelitOptionalObservedOnly && !candlelitLegendPendingOnly && !revealedHandPromptOrderOnly && !battlefieldSpellDamageOnly && !exhaustedLegendConfirmationOnly && !teemoCountedDamageOnly && !controllerDamageBonusOnly && !specialTriggerDamageBonusOnly && !roomSeatJournalOnly && !partition.IsPartition) throw new ArgumentException("Unknown PostgreSQL acceptance selector.");
+if (args.Length != 0 && !openingRandomnessOnly && !optionalCostsOnly && !battlefieldPlayRecoveryOnly && !battlefieldPlayDamageOnly && !banishEffectPlayOnly && !hereLocationOnly && !fateWeaverOnly && !multiControllerOrderOnly && !emptyObservedRepeatOnly && !observedPlayWindowOnly && !ravenbloomPutHandOnly && !attachedPredictOnly && !copiedLastBreathOnly && !copiedDuelOnly && !empoweredInsightOnly && !pakaRevealOnly && !emptyRevealFollowupOnly && !pakaDualTypeRevealOnly && !hweiMoveDiscardTypesOnly && !destructionGraveyardOnly && !conditionalCounterPaymentOnly && !reversalTargetChoiceOnly && !spellRemakeDeclarationOnly && !candlelitPrivateLookOnly && !candlelitObservedPendingOnly && !candlelitOptionalObservedOnly && !candlelitLegendPendingOnly && !revealedHandPromptOrderOnly && !battlefieldSpellDamageOnly && !exhaustedLegendConfirmationOnly && !teemoCountedDamageOnly && !controllerDamageBonusOnly && !specialTriggerDamageBonusOnly && !roomSeatJournalOnly && !battlefieldStartControllerOnly && !partition.IsPartition) throw new ArgumentException("Unknown PostgreSQL acceptance selector.");
 var json = new JsonSerializerOptions(JsonSerializerDefaults.Web) { WriteIndented = true };
 await using var dataSource = NpgsqlDataSource.Create(connectionString);
 await using (var connection = await dataSource.OpenConnectionAsync()) {
@@ -57,6 +58,12 @@ await using (var connection = await dataSource.OpenConnectionAsync()) {
         await using var command = new NpgsqlCommand(await File.ReadAllTextAsync(path), connection);
         await command.ExecuteNonQueryAsync();
     }
+}
+if (battlefieldStartControllerOnly)
+{
+    await BattlefieldStartControllerSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "battlefield-start-controller"));
+    Console.WriteLine("SCOPED_POSTGRES_ONLY: battlefield-start-controller; the retained complete SQL suite was not requested.");
+    return;
 }
 if (roomSeatJournalOnly)
 {
@@ -439,5 +446,7 @@ await partition.RunAsync("controller-damage-bonus", () => ControllerDamageBonusS
 await partition.RunAsync("special-trigger-damage-bonus", () => SpecialTriggerDamageBonusSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "special-trigger-damage-bonus")));
 
 await partition.RunAsync("room-seat-journal", () => RoomSeatJournalSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "room-seat-journal")));
+
+await partition.RunAsync("battlefield-start-controller", () => BattlefieldStartControllerSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "battlefield-start-controller")));
 
 await partition.CompleteAsync(output);

@@ -11981,7 +11981,7 @@ public sealed partial class GameHubJoinTests
         Assert.Empty(endTurnClients.CallerClient.Errors);
         var endTurnEvents = EventsFor(endTurnClients).ToList();
         Assert.DoesNotContain(endTurnEvents, e => e.Kind == "DAMAGE_APPLIED");
-        foreach (var (player, connection) in new[]{("P2", "connection-2"), ("P1", "connection-1")})
+        foreach (var (player, connection) in new[]{("P1", "connection-1"), ("P2", "connection-2")})
         {
             var responseClients = new RecordingHubClients();
             await CreateHub(responseClients, new RecordingGroupManager(), connection, registry, authenticatedHandle: player)

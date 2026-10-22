@@ -1,0 +1,12 @@
+{
+  "atUtc": "2026-10-21T23:25:51.069113+00:00",
+  "status": "ONLY_VERIFIED_FINISHED_DUPLICATE_COMPOSITIONS_AND_READER_BUILD_CACHES_RETIRED",
+  "files": 228,
+  "logicalBytes": 27477930,
+  "retainedExecutedOwnBits": 10,
+  "originalHashManifest": "var/qa/battlefield-start-controller-20261022/verified-finished-duplicate-and-reader-cache-originals-v1.json.gz",
+  "originalSqlV1AndCurrentSqlV3FrozenRuntimesRemain": true,
+  "rootSourcesCurrentCheckInputsOriginalFailuresAndAllDatabasesUntouched": true,
+  "historicalRetiredRuntimePathsNotClaimedStillPresent": true,
+  "physicalApfsBytesNotInferred": true
+}

@@ -140,6 +140,9 @@ public static class MatchActionLogReplayer
             inputErrors.Add("action-log command rule input identity is missing or differs from running inputs");
         if (inputErrors.Count > 0) return inputErrors;
 
+        var startErrors = BattlefieldStartRecoveryRules.ValidateOriginalTriggers(recovery);
+        if (startErrors.Count > 0) return startErrors;
+
         if (recovery.Commands.Count == 0)
         {
             return recovery.AuthoritativeState is { } waiting && waiting.Seed != recovery.OpeningSeed
@@ -24270,11 +24273,11 @@ public static partial class MatchRecoveryValidator
         foreach (var item in state.StackItems)
             if (!CoreRuleEngine.ValidEquipContext(item)) errors.Add("invalid captured equip ability");
         foreach (var item in state.StackItems)
-            if (!CoreRuleEngine.ValidBattlefieldStart(state, item.BattlefieldStart, item.EffectKind, item.ControllerId, item.SourceObjectId, item.CardNo)
+            if (!BattlefieldStartRecoveryRules.Valid(state, item.BattlefieldStart, item.EffectKind, item.ControllerId, item.SourceObjectId, item.CardNo)
                 || item.BattlefieldStart is not null && (item.TargetObjectIds.Count != 0 || item.SourceConfirmed))
                 errors.Add("invalid captured battlefield start ability");
         foreach (var item in state.TriggerQueue)
-            if (!CoreRuleEngine.ValidBattlefieldStart(state, item.BattlefieldStart, item.EffectKind, item.ControllerId, item.SourceObjectId)
+            if (!BattlefieldStartRecoveryRules.Valid(state, item.BattlefieldStart, item.EffectKind, item.ControllerId, item.SourceObjectId)
                 || item.BattlefieldStart is not null && item.TriggeredByEventKind != "TURN_START_BEGAN")
                 errors.Add("invalid captured battlefield start trigger");
         foreach (var item in state.StackItems)

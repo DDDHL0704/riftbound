@@ -62,7 +62,7 @@ class SqlCiGateTests(unittest.TestCase):
 
     def test_exact_all_default_cases_including_original_core_are_required_once(self):
         result = self.verify()
-        self.assertEqual(57, result['caseCount'])
+        self.assertEqual(58, result['caseCount'])
         self.assertEqual(self.ids, result['orderedDefaultCases'])
         self.assertEqual(1, self.ids.count('core-opening'))
         self.assertEqual('conditional-counter-payment', self.ids[45])
@@ -77,6 +77,7 @@ class SqlCiGateTests(unittest.TestCase):
         self.assertEqual('controller-damage-bonus', self.ids[54])
         self.assertEqual('special-trigger-damage-bonus', self.ids[55])
         self.assertEqual('room-seat-journal', self.ids[56])
+        self.assertEqual('battlefield-start-controller', self.ids[57])
 
     def test_every_failed_cancelled_skipped_or_missing_child_fails_closed(self):
         for values in itertools.product(['success', 'failure', 'cancelled', 'skipped', ''], repeat=3):

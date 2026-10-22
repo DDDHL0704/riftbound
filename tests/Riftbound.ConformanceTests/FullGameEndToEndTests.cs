@@ -6655,6 +6655,7 @@ public sealed partial class FullGameEndToEndTests
             result.State,
             "P1",
             FrostHoldBattlefieldTurnStartDamageCardNo);
+        Assert.Equal("P1", beforeTurnStart.State.CardObjects[battlefieldObjectId].ControllerId);
         var p1TargetObjectId = FindBattlefieldUnitByCardNo(
             beforeTurnStart.State,
             "P1",
@@ -6674,7 +6675,7 @@ public sealed partial class FullGameEndToEndTests
         var triggerEvent = Assert.Single(result.Events, gameEvent =>
             string.Equals(gameEvent.Kind, "BATTLEFIELD_TRIGGER_RESOLVED", StringComparison.Ordinal)
             && string.Equals(gameEvent.Payload["trigger"] as string, TriggerKinds.BattlefieldTurnStartDamageAllUnits, StringComparison.Ordinal));
-        Assert.Equal("P2", triggerEvent.Payload["playerId"]);
+        Assert.Equal("P1", triggerEvent.Payload["playerId"]);
         Assert.Equal([battlefieldObjectId], Assert.IsAssignableFrom<IReadOnlyList<string>>(triggerEvent.Payload["sourceObjectIds"]));
         Assert.Equal(expectedTargetObjectIds, Assert.IsAssignableFrom<IReadOnlyList<string>>(triggerEvent.Payload["targetObjectIds"]));
         Assert.Equal(1, triggerEvent.Payload["damage"]);

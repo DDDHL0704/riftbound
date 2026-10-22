@@ -1,0 +1,1572 @@
+{
+  "branches": [
+    {
+      "id": "bf-start-ba294957f2d3c2a988f5be09",
+      "sourceRefs": [
+        "UNL-212/219",
+        "DOC-01-P029-B006",
+        "DOC-01-P029-B007",
+        "DOC-01-P029-B008",
+        "DOC-01-P029-B009",
+        "DOC-01-P029-B010",
+        "DOC-01-P030-B007",
+        "DOC-01-P030-B010"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.BattlefieldStartControllerTests.CapturedActorDeterminesFriendlyDamageAndWhichElderCanDestroy(fieldController: \"P1\", targetController: \"P2\", elderController: \"P1\", destroyed: True)",
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/84",
+        "actualNewMatrixIsFrostOnlyDuskRoseExistingAdjacentEligibilityNotExpanded": true
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CURRENT_CN190_6_191_5_CONTROLLER_AND_ORIGINAL_BIRTH_REVIEW"
+      },
+      "implementation": {
+        "state": "CAPTURED_ACTOR_AND_INDEPENDENT_LITERAL_ORIGINAL_JOURNAL_AND_STRICT_REPLAY_VALIDATION"
+      },
+      "testExecution": {
+        "state": "ACTUAL32_NEW_ORIGINAL_SOLE13411_CHECK_ONE_OLD_P79_PRIORITY_FAILURE_RETAINED_THEN_TEST_ONLY_CALIBRATION_FINAL388_FOCUS_TWO_ORIGINAL_FULL_AND_REAL_SQL22_COLD22_INDEPENDENT22_39_39_FOUR_REFUSALS_PASS"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_RECONNECT_SCORE_HISTORY_VISIBLE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded local behavior passes; new fixed full and actual current product acceptance remain required."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "bf-start-36e32e2c3c6cca0b38e44972",
+      "sourceRefs": [
+        "UNL-212/219",
+        "DOC-01-P029-B006",
+        "DOC-01-P029-B007",
+        "DOC-01-P029-B008",
+        "DOC-01-P029-B009",
+        "DOC-01-P029-B010",
+        "DOC-01-P030-B007",
+        "DOC-01-P030-B010"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.BattlefieldStartControllerTests.CapturedActorDeterminesFriendlyDamageAndWhichElderCanDestroy(fieldController: \"P2\", targetController: \"P1\", elderController: \"P2\", destroyed: True)",
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/84",
+        "actualNewMatrixIsFrostOnlyDuskRoseExistingAdjacentEligibilityNotExpanded": true
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CURRENT_CN190_6_191_5_CONTROLLER_AND_ORIGINAL_BIRTH_REVIEW"
+      },
+      "implementation": {
+        "state": "CAPTURED_ACTOR_AND_INDEPENDENT_LITERAL_ORIGINAL_JOURNAL_AND_STRICT_REPLAY_VALIDATION"
+      },
+      "testExecution": {
+        "state": "ACTUAL32_NEW_ORIGINAL_SOLE13411_CHECK_ONE_OLD_P79_PRIORITY_FAILURE_RETAINED_THEN_TEST_ONLY_CALIBRATION_FINAL388_FOCUS_TWO_ORIGINAL_FULL_AND_REAL_SQL22_COLD22_INDEPENDENT22_39_39_FOUR_REFUSALS_PASS"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_RECONNECT_SCORE_HISTORY_VISIBLE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded local behavior passes; new fixed full and actual current product acceptance remain required."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "bf-start-58968385a019cc923ae7d845",
+      "sourceRefs": [
+        "UNL-212/219",
+        "DOC-01-P029-B006",
+        "DOC-01-P029-B007",
+        "DOC-01-P029-B008",
+        "DOC-01-P029-B009",
+        "DOC-01-P029-B010",
+        "DOC-01-P030-B007",
+        "DOC-01-P030-B010"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.BattlefieldStartControllerTests.CapturedActorDeterminesFriendlyDamageAndWhichElderCanDestroy(fieldController: \"P2\", targetController: \"P2\", elderController: \"P1\", destroyed: False)",
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/84",
+        "actualNewMatrixIsFrostOnlyDuskRoseExistingAdjacentEligibilityNotExpanded": true
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CURRENT_CN190_6_191_5_CONTROLLER_AND_ORIGINAL_BIRTH_REVIEW"
+      },
+      "implementation": {
+        "state": "CAPTURED_ACTOR_AND_INDEPENDENT_LITERAL_ORIGINAL_JOURNAL_AND_STRICT_REPLAY_VALIDATION"
+      },
+      "testExecution": {
+        "state": "ACTUAL32_NEW_ORIGINAL_SOLE13411_CHECK_ONE_OLD_P79_PRIORITY_FAILURE_RETAINED_THEN_TEST_ONLY_CALIBRATION_FINAL388_FOCUS_TWO_ORIGINAL_FULL_AND_REAL_SQL22_COLD22_INDEPENDENT22_39_39_FOUR_REFUSALS_PASS"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_RECONNECT_SCORE_HISTORY_VISIBLE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded local behavior passes; new fixed full and actual current product acceptance remain required."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "bf-start-543ada08a976a39a633f4ef3",
+      "sourceRefs": [
+        "UNL-212/219",
+        "DOC-01-P029-B006",
+        "DOC-01-P029-B007",
+        "DOC-01-P029-B008",
+        "DOC-01-P029-B009",
+        "DOC-01-P029-B010",
+        "DOC-01-P030-B007",
+        "DOC-01-P030-B010"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.BattlefieldStartControllerTests.CapturedActorDeterminesFriendlyDamageAndWhichElderCanDestroy(fieldController: null, targetController: \"P2\", elderController: \"P1\", destroyed: True)",
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/84",
+        "actualNewMatrixIsFrostOnlyDuskRoseExistingAdjacentEligibilityNotExpanded": true
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CURRENT_CN190_6_191_5_CONTROLLER_AND_ORIGINAL_BIRTH_REVIEW"
+      },
+      "implementation": {
+        "state": "CAPTURED_ACTOR_AND_INDEPENDENT_LITERAL_ORIGINAL_JOURNAL_AND_STRICT_REPLAY_VALIDATION"
+      },
+      "testExecution": {
+        "state": "ACTUAL32_NEW_ORIGINAL_SOLE13411_CHECK_ONE_OLD_P79_PRIORITY_FAILURE_RETAINED_THEN_TEST_ONLY_CALIBRATION_FINAL388_FOCUS_TWO_ORIGINAL_FULL_AND_REAL_SQL22_COLD22_INDEPENDENT22_39_39_FOUR_REFUSALS_PASS"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_RECONNECT_SCORE_HISTORY_VISIBLE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded local behavior passes; new fixed full and actual current product acceptance remain required."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "bf-start-7e307c3f8c50431a4dc5b8d8",
+      "sourceRefs": [
+        "UNL-212/219",
+        "DOC-01-P029-B006",
+        "DOC-01-P029-B007",
+        "DOC-01-P029-B008",
+        "DOC-01-P029-B009",
+        "DOC-01-P029-B010",
+        "DOC-01-P030-B007",
+        "DOC-01-P030-B010"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.BattlefieldStartControllerTests.CapturedControllerMustMatchForBothPrivateViewsAndSpectator",
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/84",
+        "actualNewMatrixIsFrostOnlyDuskRoseExistingAdjacentEligibilityNotExpanded": true
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CURRENT_CN190_6_191_5_CONTROLLER_AND_ORIGINAL_BIRTH_REVIEW"
+      },
+      "implementation": {
+        "state": "CAPTURED_ACTOR_AND_INDEPENDENT_LITERAL_ORIGINAL_JOURNAL_AND_STRICT_REPLAY_VALIDATION"
+      },
+      "testExecution": {
+        "state": "ACTUAL32_NEW_ORIGINAL_SOLE13411_CHECK_ONE_OLD_P79_PRIORITY_FAILURE_RETAINED_THEN_TEST_ONLY_CALIBRATION_FINAL388_FOCUS_TWO_ORIGINAL_FULL_AND_REAL_SQL22_COLD22_INDEPENDENT22_39_39_FOUR_REFUSALS_PASS"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_RECONNECT_SCORE_HISTORY_VISIBLE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded local behavior passes; new fixed full and actual current product acceptance remain required."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "bf-start-161242476cb4c97bb53fa3a6",
+      "sourceRefs": [
+        "UNL-212/219",
+        "DOC-01-P029-B006",
+        "DOC-01-P029-B007",
+        "DOC-01-P029-B008",
+        "DOC-01-P029-B009",
+        "DOC-01-P029-B010",
+        "DOC-01-P030-B007",
+        "DOC-01-P030-B010"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.BattlefieldStartControllerTests.DifferentControllersOrderOnlyTheirOwnCapturedFieldTriggers",
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/84",
+        "actualNewMatrixIsFrostOnlyDuskRoseExistingAdjacentEligibilityNotExpanded": true
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CURRENT_CN190_6_191_5_CONTROLLER_AND_ORIGINAL_BIRTH_REVIEW"
+      },
+      "implementation": {
+        "state": "CAPTURED_ACTOR_AND_INDEPENDENT_LITERAL_ORIGINAL_JOURNAL_AND_STRICT_REPLAY_VALIDATION"
+      },
+      "testExecution": {
+        "state": "ACTUAL32_NEW_ORIGINAL_SOLE13411_CHECK_ONE_OLD_P79_PRIORITY_FAILURE_RETAINED_THEN_TEST_ONLY_CALIBRATION_FINAL388_FOCUS_TWO_ORIGINAL_FULL_AND_REAL_SQL22_COLD22_INDEPENDENT22_39_39_FOUR_REFUSALS_PASS"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_RECONNECT_SCORE_HISTORY_VISIBLE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded local behavior passes; new fixed full and actual current product acceptance remain required."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "bf-start-9496704f6186c5d98b67d4ab",
+      "sourceRefs": [
+        "UNL-212/219",
+        "DOC-01-P029-B006",
+        "DOC-01-P029-B007",
+        "DOC-01-P029-B008",
+        "DOC-01-P029-B009",
+        "DOC-01-P029-B010",
+        "DOC-01-P030-B007",
+        "DOC-01-P030-B010"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.BattlefieldStartControllerTests.OriginalTriggerBirthAndStrictReplayRejectEvenConsistentlyForgedControllers(branch: \"actor\")",
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/84",
+        "actualNewMatrixIsFrostOnlyDuskRoseExistingAdjacentEligibilityNotExpanded": true
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CURRENT_CN190_6_191_5_CONTROLLER_AND_ORIGINAL_BIRTH_REVIEW"
+      },
+      "implementation": {
+        "state": "CAPTURED_ACTOR_AND_INDEPENDENT_LITERAL_ORIGINAL_JOURNAL_AND_STRICT_REPLAY_VALIDATION"
+      },
+      "testExecution": {
+        "state": "ACTUAL32_NEW_ORIGINAL_SOLE13411_CHECK_ONE_OLD_P79_PRIORITY_FAILURE_RETAINED_THEN_TEST_ONLY_CALIBRATION_FINAL388_FOCUS_TWO_ORIGINAL_FULL_AND_REAL_SQL22_COLD22_INDEPENDENT22_39_39_FOUR_REFUSALS_PASS"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_RECONNECT_SCORE_HISTORY_VISIBLE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded local behavior passes; new fixed full and actual current product acceptance remain required."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "bf-start-bfd77a46e9f7efc007229ca3",
+      "sourceRefs": [
+        "UNL-212/219",
+        "DOC-01-P029-B006",
+        "DOC-01-P029-B007",
+        "DOC-01-P029-B008",
+        "DOC-01-P029-B009",
+        "DOC-01-P029-B010",
+        "DOC-01-P030-B007",
+        "DOC-01-P030-B010"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.BattlefieldStartControllerTests.OriginalTriggerBirthAndStrictReplayRejectEvenConsistentlyForgedControllers(branch: \"both\")",
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/84",
+        "actualNewMatrixIsFrostOnlyDuskRoseExistingAdjacentEligibilityNotExpanded": true
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CURRENT_CN190_6_191_5_CONTROLLER_AND_ORIGINAL_BIRTH_REVIEW"
+      },
+      "implementation": {
+        "state": "CAPTURED_ACTOR_AND_INDEPENDENT_LITERAL_ORIGINAL_JOURNAL_AND_STRICT_REPLAY_VALIDATION"
+      },
+      "testExecution": {
+        "state": "ACTUAL32_NEW_ORIGINAL_SOLE13411_CHECK_ONE_OLD_P79_PRIORITY_FAILURE_RETAINED_THEN_TEST_ONLY_CALIBRATION_FINAL388_FOCUS_TWO_ORIGINAL_FULL_AND_REAL_SQL22_COLD22_INDEPENDENT22_39_39_FOUR_REFUSALS_PASS"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_RECONNECT_SCORE_HISTORY_VISIBLE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded local behavior passes; new fixed full and actual current product acceptance remain required."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "bf-start-23a972e38a68a78c09ce58ef",
+      "sourceRefs": [
+        "UNL-212/219",
+        "DOC-01-P029-B006",
+        "DOC-01-P029-B007",
+        "DOC-01-P029-B008",
+        "DOC-01-P029-B009",
+        "DOC-01-P029-B010",
+        "DOC-01-P030-B007",
+        "DOC-01-P030-B010"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.BattlefieldStartControllerTests.OriginalTriggerBirthAndStrictReplayRejectEvenConsistentlyForgedControllers(branch: \"context\")",
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/84",
+        "actualNewMatrixIsFrostOnlyDuskRoseExistingAdjacentEligibilityNotExpanded": true
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CURRENT_CN190_6_191_5_CONTROLLER_AND_ORIGINAL_BIRTH_REVIEW"
+      },
+      "implementation": {
+        "state": "CAPTURED_ACTOR_AND_INDEPENDENT_LITERAL_ORIGINAL_JOURNAL_AND_STRICT_REPLAY_VALIDATION"
+      },
+      "testExecution": {
+        "state": "ACTUAL32_NEW_ORIGINAL_SOLE13411_CHECK_ONE_OLD_P79_PRIORITY_FAILURE_RETAINED_THEN_TEST_ONLY_CALIBRATION_FINAL388_FOCUS_TWO_ORIGINAL_FULL_AND_REAL_SQL22_COLD22_INDEPENDENT22_39_39_FOUR_REFUSALS_PASS"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_RECONNECT_SCORE_HISTORY_VISIBLE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded local behavior passes; new fixed full and actual current product acceptance remain required."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "bf-start-6cb066a3c4c0496ec06f1c3f",
+      "sourceRefs": [
+        "UNL-212/219",
+        "DOC-01-P029-B006",
+        "DOC-01-P029-B007",
+        "DOC-01-P029-B008",
+        "DOC-01-P029-B009",
+        "DOC-01-P029-B010",
+        "DOC-01-P030-B007",
+        "DOC-01-P030-B010"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.BattlefieldStartControllerTests.OriginalTriggerBirthAndStrictReplayRejectEvenConsistentlyForgedControllers(branch: \"duplicate-origin\")",
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/84",
+        "actualNewMatrixIsFrostOnlyDuskRoseExistingAdjacentEligibilityNotExpanded": true
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CURRENT_CN190_6_191_5_CONTROLLER_AND_ORIGINAL_BIRTH_REVIEW"
+      },
+      "implementation": {
+        "state": "CAPTURED_ACTOR_AND_INDEPENDENT_LITERAL_ORIGINAL_JOURNAL_AND_STRICT_REPLAY_VALIDATION"
+      },
+      "testExecution": {
+        "state": "ACTUAL32_NEW_ORIGINAL_SOLE13411_CHECK_ONE_OLD_P79_PRIORITY_FAILURE_RETAINED_THEN_TEST_ONLY_CALIBRATION_FINAL388_FOCUS_TWO_ORIGINAL_FULL_AND_REAL_SQL22_COLD22_INDEPENDENT22_39_39_FOUR_REFUSALS_PASS"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_RECONNECT_SCORE_HISTORY_VISIBLE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded local behavior passes; new fixed full and actual current product acceptance remain required."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "bf-start-1133c3b58b193d86a4e2ac83",
+      "sourceRefs": [
+        "UNL-212/219",
+        "DOC-01-P029-B006",
+        "DOC-01-P029-B007",
+        "DOC-01-P029-B008",
+        "DOC-01-P029-B009",
+        "DOC-01-P029-B010",
+        "DOC-01-P030-B007",
+        "DOC-01-P030-B010"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.BattlefieldStartControllerTests.OriginalTriggerBirthAndStrictReplayRejectEvenConsistentlyForgedControllers(branch: \"event\")",
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/84",
+        "actualNewMatrixIsFrostOnlyDuskRoseExistingAdjacentEligibilityNotExpanded": true
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CURRENT_CN190_6_191_5_CONTROLLER_AND_ORIGINAL_BIRTH_REVIEW"
+      },
+      "implementation": {
+        "state": "CAPTURED_ACTOR_AND_INDEPENDENT_LITERAL_ORIGINAL_JOURNAL_AND_STRICT_REPLAY_VALIDATION"
+      },
+      "testExecution": {
+        "state": "ACTUAL32_NEW_ORIGINAL_SOLE13411_CHECK_ONE_OLD_P79_PRIORITY_FAILURE_RETAINED_THEN_TEST_ONLY_CALIBRATION_FINAL388_FOCUS_TWO_ORIGINAL_FULL_AND_REAL_SQL22_COLD22_INDEPENDENT22_39_39_FOUR_REFUSALS_PASS"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_RECONNECT_SCORE_HISTORY_VISIBLE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded local behavior passes; new fixed full and actual current product acceptance remain required."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "bf-start-e88f98dcdaa22160dc2d8040",
+      "sourceRefs": [
+        "UNL-212/219",
+        "DOC-01-P029-B006",
+        "DOC-01-P029-B007",
+        "DOC-01-P029-B008",
+        "DOC-01-P029-B009",
+        "DOC-01-P029-B010",
+        "DOC-01-P030-B007",
+        "DOC-01-P030-B010"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.BattlefieldStartControllerTests.OriginalTriggerBirthAndStrictReplayRejectEvenConsistentlyForgedControllers(branch: \"event-and-both\")",
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/84",
+        "actualNewMatrixIsFrostOnlyDuskRoseExistingAdjacentEligibilityNotExpanded": true
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CURRENT_CN190_6_191_5_CONTROLLER_AND_ORIGINAL_BIRTH_REVIEW"
+      },
+      "implementation": {
+        "state": "CAPTURED_ACTOR_AND_INDEPENDENT_LITERAL_ORIGINAL_JOURNAL_AND_STRICT_REPLAY_VALIDATION"
+      },
+      "testExecution": {
+        "state": "ACTUAL32_NEW_ORIGINAL_SOLE13411_CHECK_ONE_OLD_P79_PRIORITY_FAILURE_RETAINED_THEN_TEST_ONLY_CALIBRATION_FINAL388_FOCUS_TWO_ORIGINAL_FULL_AND_REAL_SQL22_COLD22_INDEPENDENT22_39_39_FOUR_REFUSALS_PASS"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_RECONNECT_SCORE_HISTORY_VISIBLE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded local behavior passes; new fixed full and actual current product acceptance remain required."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "bf-start-7cf536398ab699236f820e5f",
+      "sourceRefs": [
+        "UNL-212/219",
+        "DOC-01-P029-B006",
+        "DOC-01-P029-B007",
+        "DOC-01-P029-B008",
+        "DOC-01-P029-B009",
+        "DOC-01-P029-B010",
+        "DOC-01-P030-B007",
+        "DOC-01-P030-B010"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.BattlefieldStartControllerTests.OriginalTriggerBirthAndStrictReplayRejectEvenConsistentlyForgedControllers(branch: \"missing-controller\")",
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/84",
+        "actualNewMatrixIsFrostOnlyDuskRoseExistingAdjacentEligibilityNotExpanded": true
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CURRENT_CN190_6_191_5_CONTROLLER_AND_ORIGINAL_BIRTH_REVIEW"
+      },
+      "implementation": {
+        "state": "CAPTURED_ACTOR_AND_INDEPENDENT_LITERAL_ORIGINAL_JOURNAL_AND_STRICT_REPLAY_VALIDATION"
+      },
+      "testExecution": {
+        "state": "ACTUAL32_NEW_ORIGINAL_SOLE13411_CHECK_ONE_OLD_P79_PRIORITY_FAILURE_RETAINED_THEN_TEST_ONLY_CALIBRATION_FINAL388_FOCUS_TWO_ORIGINAL_FULL_AND_REAL_SQL22_COLD22_INDEPENDENT22_39_39_FOUR_REFUSALS_PASS"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_RECONNECT_SCORE_HISTORY_VISIBLE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded local behavior passes; new fixed full and actual current product acceptance remain required."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "bf-start-598bd1665e1a101d32f28d7e",
+      "sourceRefs": [
+        "UNL-212/219",
+        "DOC-01-P029-B006",
+        "DOC-01-P029-B007",
+        "DOC-01-P029-B008",
+        "DOC-01-P029-B009",
+        "DOC-01-P029-B010",
+        "DOC-01-P030-B007",
+        "DOC-01-P030-B010"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.BattlefieldStartControllerTests.OriginalTriggerBirthAndStrictReplayRejectEvenConsistentlyForgedControllers(branch: \"missing-origin\")",
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/84",
+        "actualNewMatrixIsFrostOnlyDuskRoseExistingAdjacentEligibilityNotExpanded": true
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CURRENT_CN190_6_191_5_CONTROLLER_AND_ORIGINAL_BIRTH_REVIEW"
+      },
+      "implementation": {
+        "state": "CAPTURED_ACTOR_AND_INDEPENDENT_LITERAL_ORIGINAL_JOURNAL_AND_STRICT_REPLAY_VALIDATION"
+      },
+      "testExecution": {
+        "state": "ACTUAL32_NEW_ORIGINAL_SOLE13411_CHECK_ONE_OLD_P79_PRIORITY_FAILURE_RETAINED_THEN_TEST_ONLY_CALIBRATION_FINAL388_FOCUS_TWO_ORIGINAL_FULL_AND_REAL_SQL22_COLD22_INDEPENDENT22_39_39_FOUR_REFUSALS_PASS"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_RECONNECT_SCORE_HISTORY_VISIBLE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded local behavior passes; new fixed full and actual current product acceptance remain required."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "bf-start-0047b681fea0c1bfdd48ff25",
+      "sourceRefs": [
+        "UNL-212/219",
+        "DOC-01-P029-B006",
+        "DOC-01-P029-B007",
+        "DOC-01-P029-B008",
+        "DOC-01-P029-B009",
+        "DOC-01-P029-B010",
+        "DOC-01-P030-B007",
+        "DOC-01-P030-B010"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.BattlefieldStartControllerTests.OriginalTriggerBirthAndStrictReplayRejectEvenConsistentlyForgedControllers(branch: \"no-history\")",
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/84",
+        "actualNewMatrixIsFrostOnlyDuskRoseExistingAdjacentEligibilityNotExpanded": true
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CURRENT_CN190_6_191_5_CONTROLLER_AND_ORIGINAL_BIRTH_REVIEW"
+      },
+      "implementation": {
+        "state": "CAPTURED_ACTOR_AND_INDEPENDENT_LITERAL_ORIGINAL_JOURNAL_AND_STRICT_REPLAY_VALIDATION"
+      },
+      "testExecution": {
+        "state": "ACTUAL32_NEW_ORIGINAL_SOLE13411_CHECK_ONE_OLD_P79_PRIORITY_FAILURE_RETAINED_THEN_TEST_ONLY_CALIBRATION_FINAL388_FOCUS_TWO_ORIGINAL_FULL_AND_REAL_SQL22_COLD22_INDEPENDENT22_39_39_FOUR_REFUSALS_PASS"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_RECONNECT_SCORE_HISTORY_VISIBLE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded local behavior passes; new fixed full and actual current product acceptance remain required."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "bf-start-5c84ef5793dae8069acc9fdf",
+      "sourceRefs": [
+        "UNL-212/219",
+        "DOC-01-P029-B006",
+        "DOC-01-P029-B007",
+        "DOC-01-P029-B008",
+        "DOC-01-P029-B009",
+        "DOC-01-P029-B010",
+        "DOC-01-P030-B007",
+        "DOC-01-P030-B010"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.BattlefieldStartControllerTests.PrintedEachPlayerTimingUsesFieldControllerAndOnlyUncontrolledFallsBackToTurn(turn: \"P1\", physicalOwner: \"P1\", fieldController: \"P1\", expectedActor: \"P1\")",
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/84",
+        "actualNewMatrixIsFrostOnlyDuskRoseExistingAdjacentEligibilityNotExpanded": true
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CURRENT_CN190_6_191_5_CONTROLLER_AND_ORIGINAL_BIRTH_REVIEW"
+      },
+      "implementation": {
+        "state": "CAPTURED_ACTOR_AND_INDEPENDENT_LITERAL_ORIGINAL_JOURNAL_AND_STRICT_REPLAY_VALIDATION"
+      },
+      "testExecution": {
+        "state": "ACTUAL32_NEW_ORIGINAL_SOLE13411_CHECK_ONE_OLD_P79_PRIORITY_FAILURE_RETAINED_THEN_TEST_ONLY_CALIBRATION_FINAL388_FOCUS_TWO_ORIGINAL_FULL_AND_REAL_SQL22_COLD22_INDEPENDENT22_39_39_FOUR_REFUSALS_PASS"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_RECONNECT_SCORE_HISTORY_VISIBLE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded local behavior passes; new fixed full and actual current product acceptance remain required."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "bf-start-ec9add524bbda61d73026d7b",
+      "sourceRefs": [
+        "UNL-212/219",
+        "DOC-01-P029-B006",
+        "DOC-01-P029-B007",
+        "DOC-01-P029-B008",
+        "DOC-01-P029-B009",
+        "DOC-01-P029-B010",
+        "DOC-01-P030-B007",
+        "DOC-01-P030-B010"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.BattlefieldStartControllerTests.PrintedEachPlayerTimingUsesFieldControllerAndOnlyUncontrolledFallsBackToTurn(turn: \"P1\", physicalOwner: \"P1\", fieldController: \"P2\", expectedActor: \"P2\")",
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/84",
+        "actualNewMatrixIsFrostOnlyDuskRoseExistingAdjacentEligibilityNotExpanded": true
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CURRENT_CN190_6_191_5_CONTROLLER_AND_ORIGINAL_BIRTH_REVIEW"
+      },
+      "implementation": {
+        "state": "CAPTURED_ACTOR_AND_INDEPENDENT_LITERAL_ORIGINAL_JOURNAL_AND_STRICT_REPLAY_VALIDATION"
+      },
+      "testExecution": {
+        "state": "ACTUAL32_NEW_ORIGINAL_SOLE13411_CHECK_ONE_OLD_P79_PRIORITY_FAILURE_RETAINED_THEN_TEST_ONLY_CALIBRATION_FINAL388_FOCUS_TWO_ORIGINAL_FULL_AND_REAL_SQL22_COLD22_INDEPENDENT22_39_39_FOUR_REFUSALS_PASS"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_RECONNECT_SCORE_HISTORY_VISIBLE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded local behavior passes; new fixed full and actual current product acceptance remain required."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "bf-start-cd3875ab0fe22035fbdf0644",
+      "sourceRefs": [
+        "UNL-212/219",
+        "DOC-01-P029-B006",
+        "DOC-01-P029-B007",
+        "DOC-01-P029-B008",
+        "DOC-01-P029-B009",
+        "DOC-01-P029-B010",
+        "DOC-01-P030-B007",
+        "DOC-01-P030-B010"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.BattlefieldStartControllerTests.PrintedEachPlayerTimingUsesFieldControllerAndOnlyUncontrolledFallsBackToTurn(turn: \"P1\", physicalOwner: \"P1\", fieldController: null, expectedActor: \"P1\")",
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/84",
+        "actualNewMatrixIsFrostOnlyDuskRoseExistingAdjacentEligibilityNotExpanded": true
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CURRENT_CN190_6_191_5_CONTROLLER_AND_ORIGINAL_BIRTH_REVIEW"
+      },
+      "implementation": {
+        "state": "CAPTURED_ACTOR_AND_INDEPENDENT_LITERAL_ORIGINAL_JOURNAL_AND_STRICT_REPLAY_VALIDATION"
+      },
+      "testExecution": {
+        "state": "ACTUAL32_NEW_ORIGINAL_SOLE13411_CHECK_ONE_OLD_P79_PRIORITY_FAILURE_RETAINED_THEN_TEST_ONLY_CALIBRATION_FINAL388_FOCUS_TWO_ORIGINAL_FULL_AND_REAL_SQL22_COLD22_INDEPENDENT22_39_39_FOUR_REFUSALS_PASS"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_RECONNECT_SCORE_HISTORY_VISIBLE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded local behavior passes; new fixed full and actual current product acceptance remain required."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "bf-start-1ca1752775b1442fd6362919",
+      "sourceRefs": [
+        "UNL-212/219",
+        "DOC-01-P029-B006",
+        "DOC-01-P029-B007",
+        "DOC-01-P029-B008",
+        "DOC-01-P029-B009",
+        "DOC-01-P029-B010",
+        "DOC-01-P030-B007",
+        "DOC-01-P030-B010"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.BattlefieldStartControllerTests.PrintedEachPlayerTimingUsesFieldControllerAndOnlyUncontrolledFallsBackToTurn(turn: \"P1\", physicalOwner: \"P2\", fieldController: \"P1\", expectedActor: \"P1\")",
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/84",
+        "actualNewMatrixIsFrostOnlyDuskRoseExistingAdjacentEligibilityNotExpanded": true
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CURRENT_CN190_6_191_5_CONTROLLER_AND_ORIGINAL_BIRTH_REVIEW"
+      },
+      "implementation": {
+        "state": "CAPTURED_ACTOR_AND_INDEPENDENT_LITERAL_ORIGINAL_JOURNAL_AND_STRICT_REPLAY_VALIDATION"
+      },
+      "testExecution": {
+        "state": "ACTUAL32_NEW_ORIGINAL_SOLE13411_CHECK_ONE_OLD_P79_PRIORITY_FAILURE_RETAINED_THEN_TEST_ONLY_CALIBRATION_FINAL388_FOCUS_TWO_ORIGINAL_FULL_AND_REAL_SQL22_COLD22_INDEPENDENT22_39_39_FOUR_REFUSALS_PASS"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_RECONNECT_SCORE_HISTORY_VISIBLE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded local behavior passes; new fixed full and actual current product acceptance remain required."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "bf-start-d05793855b5bae22e2ce9a83",
+      "sourceRefs": [
+        "UNL-212/219",
+        "DOC-01-P029-B006",
+        "DOC-01-P029-B007",
+        "DOC-01-P029-B008",
+        "DOC-01-P029-B009",
+        "DOC-01-P029-B010",
+        "DOC-01-P030-B007",
+        "DOC-01-P030-B010"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.BattlefieldStartControllerTests.PrintedEachPlayerTimingUsesFieldControllerAndOnlyUncontrolledFallsBackToTurn(turn: \"P1\", physicalOwner: \"P2\", fieldController: \"P2\", expectedActor: \"P2\")",
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/84",
+        "actualNewMatrixIsFrostOnlyDuskRoseExistingAdjacentEligibilityNotExpanded": true
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CURRENT_CN190_6_191_5_CONTROLLER_AND_ORIGINAL_BIRTH_REVIEW"
+      },
+      "implementation": {
+        "state": "CAPTURED_ACTOR_AND_INDEPENDENT_LITERAL_ORIGINAL_JOURNAL_AND_STRICT_REPLAY_VALIDATION"
+      },
+      "testExecution": {
+        "state": "ACTUAL32_NEW_ORIGINAL_SOLE13411_CHECK_ONE_OLD_P79_PRIORITY_FAILURE_RETAINED_THEN_TEST_ONLY_CALIBRATION_FINAL388_FOCUS_TWO_ORIGINAL_FULL_AND_REAL_SQL22_COLD22_INDEPENDENT22_39_39_FOUR_REFUSALS_PASS"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_RECONNECT_SCORE_HISTORY_VISIBLE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded local behavior passes; new fixed full and actual current product acceptance remain required."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "bf-start-07ca7f5626c6d41c277c9c3c",
+      "sourceRefs": [
+        "UNL-212/219",
+        "DOC-01-P029-B006",
+        "DOC-01-P029-B007",
+        "DOC-01-P029-B008",
+        "DOC-01-P029-B009",
+        "DOC-01-P029-B010",
+        "DOC-01-P030-B007",
+        "DOC-01-P030-B010"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.BattlefieldStartControllerTests.PrintedEachPlayerTimingUsesFieldControllerAndOnlyUncontrolledFallsBackToTurn(turn: \"P1\", physicalOwner: \"P2\", fieldController: null, expectedActor: \"P1\")",
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/84",
+        "actualNewMatrixIsFrostOnlyDuskRoseExistingAdjacentEligibilityNotExpanded": true
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CURRENT_CN190_6_191_5_CONTROLLER_AND_ORIGINAL_BIRTH_REVIEW"
+      },
+      "implementation": {
+        "state": "CAPTURED_ACTOR_AND_INDEPENDENT_LITERAL_ORIGINAL_JOURNAL_AND_STRICT_REPLAY_VALIDATION"
+      },
+      "testExecution": {
+        "state": "ACTUAL32_NEW_ORIGINAL_SOLE13411_CHECK_ONE_OLD_P79_PRIORITY_FAILURE_RETAINED_THEN_TEST_ONLY_CALIBRATION_FINAL388_FOCUS_TWO_ORIGINAL_FULL_AND_REAL_SQL22_COLD22_INDEPENDENT22_39_39_FOUR_REFUSALS_PASS"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_RECONNECT_SCORE_HISTORY_VISIBLE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded local behavior passes; new fixed full and actual current product acceptance remain required."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "bf-start-e86a0158d6b7126d6916ef49",
+      "sourceRefs": [
+        "UNL-212/219",
+        "DOC-01-P029-B006",
+        "DOC-01-P029-B007",
+        "DOC-01-P029-B008",
+        "DOC-01-P029-B009",
+        "DOC-01-P029-B010",
+        "DOC-01-P030-B007",
+        "DOC-01-P030-B010"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.BattlefieldStartControllerTests.PrintedEachPlayerTimingUsesFieldControllerAndOnlyUncontrolledFallsBackToTurn(turn: \"P2\", physicalOwner: \"P1\", fieldController: \"P1\", expectedActor: \"P1\")",
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/84",
+        "actualNewMatrixIsFrostOnlyDuskRoseExistingAdjacentEligibilityNotExpanded": true
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CURRENT_CN190_6_191_5_CONTROLLER_AND_ORIGINAL_BIRTH_REVIEW"
+      },
+      "implementation": {
+        "state": "CAPTURED_ACTOR_AND_INDEPENDENT_LITERAL_ORIGINAL_JOURNAL_AND_STRICT_REPLAY_VALIDATION"
+      },
+      "testExecution": {
+        "state": "ACTUAL32_NEW_ORIGINAL_SOLE13411_CHECK_ONE_OLD_P79_PRIORITY_FAILURE_RETAINED_THEN_TEST_ONLY_CALIBRATION_FINAL388_FOCUS_TWO_ORIGINAL_FULL_AND_REAL_SQL22_COLD22_INDEPENDENT22_39_39_FOUR_REFUSALS_PASS"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_RECONNECT_SCORE_HISTORY_VISIBLE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded local behavior passes; new fixed full and actual current product acceptance remain required."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "bf-start-d061581704932b97a4e74d3b",
+      "sourceRefs": [
+        "UNL-212/219",
+        "DOC-01-P029-B006",
+        "DOC-01-P029-B007",
+        "DOC-01-P029-B008",
+        "DOC-01-P029-B009",
+        "DOC-01-P029-B010",
+        "DOC-01-P030-B007",
+        "DOC-01-P030-B010"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.BattlefieldStartControllerTests.PrintedEachPlayerTimingUsesFieldControllerAndOnlyUncontrolledFallsBackToTurn(turn: \"P2\", physicalOwner: \"P1\", fieldController: \"P2\", expectedActor: \"P2\")",
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/84",
+        "actualNewMatrixIsFrostOnlyDuskRoseExistingAdjacentEligibilityNotExpanded": true
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CURRENT_CN190_6_191_5_CONTROLLER_AND_ORIGINAL_BIRTH_REVIEW"
+      },
+      "implementation": {
+        "state": "CAPTURED_ACTOR_AND_INDEPENDENT_LITERAL_ORIGINAL_JOURNAL_AND_STRICT_REPLAY_VALIDATION"
+      },
+      "testExecution": {
+        "state": "ACTUAL32_NEW_ORIGINAL_SOLE13411_CHECK_ONE_OLD_P79_PRIORITY_FAILURE_RETAINED_THEN_TEST_ONLY_CALIBRATION_FINAL388_FOCUS_TWO_ORIGINAL_FULL_AND_REAL_SQL22_COLD22_INDEPENDENT22_39_39_FOUR_REFUSALS_PASS"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_RECONNECT_SCORE_HISTORY_VISIBLE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded local behavior passes; new fixed full and actual current product acceptance remain required."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "bf-start-0801f88c0a46e5294df73281",
+      "sourceRefs": [
+        "UNL-212/219",
+        "DOC-01-P029-B006",
+        "DOC-01-P029-B007",
+        "DOC-01-P029-B008",
+        "DOC-01-P029-B009",
+        "DOC-01-P029-B010",
+        "DOC-01-P030-B007",
+        "DOC-01-P030-B010"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.BattlefieldStartControllerTests.PrintedEachPlayerTimingUsesFieldControllerAndOnlyUncontrolledFallsBackToTurn(turn: \"P2\", physicalOwner: \"P1\", fieldController: null, expectedActor: \"P2\")",
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/84",
+        "actualNewMatrixIsFrostOnlyDuskRoseExistingAdjacentEligibilityNotExpanded": true
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CURRENT_CN190_6_191_5_CONTROLLER_AND_ORIGINAL_BIRTH_REVIEW"
+      },
+      "implementation": {
+        "state": "CAPTURED_ACTOR_AND_INDEPENDENT_LITERAL_ORIGINAL_JOURNAL_AND_STRICT_REPLAY_VALIDATION"
+      },
+      "testExecution": {
+        "state": "ACTUAL32_NEW_ORIGINAL_SOLE13411_CHECK_ONE_OLD_P79_PRIORITY_FAILURE_RETAINED_THEN_TEST_ONLY_CALIBRATION_FINAL388_FOCUS_TWO_ORIGINAL_FULL_AND_REAL_SQL22_COLD22_INDEPENDENT22_39_39_FOUR_REFUSALS_PASS"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_RECONNECT_SCORE_HISTORY_VISIBLE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded local behavior passes; new fixed full and actual current product acceptance remain required."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "bf-start-16ea9f8e670ba59f9cfd09e9",
+      "sourceRefs": [
+        "UNL-212/219",
+        "DOC-01-P029-B006",
+        "DOC-01-P029-B007",
+        "DOC-01-P029-B008",
+        "DOC-01-P029-B009",
+        "DOC-01-P029-B010",
+        "DOC-01-P030-B007",
+        "DOC-01-P030-B010"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.BattlefieldStartControllerTests.PrintedEachPlayerTimingUsesFieldControllerAndOnlyUncontrolledFallsBackToTurn(turn: \"P2\", physicalOwner: \"P2\", fieldController: \"P1\", expectedActor: \"P1\")",
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/84",
+        "actualNewMatrixIsFrostOnlyDuskRoseExistingAdjacentEligibilityNotExpanded": true
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CURRENT_CN190_6_191_5_CONTROLLER_AND_ORIGINAL_BIRTH_REVIEW"
+      },
+      "implementation": {
+        "state": "CAPTURED_ACTOR_AND_INDEPENDENT_LITERAL_ORIGINAL_JOURNAL_AND_STRICT_REPLAY_VALIDATION"
+      },
+      "testExecution": {
+        "state": "ACTUAL32_NEW_ORIGINAL_SOLE13411_CHECK_ONE_OLD_P79_PRIORITY_FAILURE_RETAINED_THEN_TEST_ONLY_CALIBRATION_FINAL388_FOCUS_TWO_ORIGINAL_FULL_AND_REAL_SQL22_COLD22_INDEPENDENT22_39_39_FOUR_REFUSALS_PASS"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_RECONNECT_SCORE_HISTORY_VISIBLE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded local behavior passes; new fixed full and actual current product acceptance remain required."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "bf-start-415c74794830cbbfc89cae4f",
+      "sourceRefs": [
+        "UNL-212/219",
+        "DOC-01-P029-B006",
+        "DOC-01-P029-B007",
+        "DOC-01-P029-B008",
+        "DOC-01-P029-B009",
+        "DOC-01-P029-B010",
+        "DOC-01-P030-B007",
+        "DOC-01-P030-B010"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.BattlefieldStartControllerTests.PrintedEachPlayerTimingUsesFieldControllerAndOnlyUncontrolledFallsBackToTurn(turn: \"P2\", physicalOwner: \"P2\", fieldController: \"P2\", expectedActor: \"P2\")",
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/84",
+        "actualNewMatrixIsFrostOnlyDuskRoseExistingAdjacentEligibilityNotExpanded": true
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CURRENT_CN190_6_191_5_CONTROLLER_AND_ORIGINAL_BIRTH_REVIEW"
+      },
+      "implementation": {
+        "state": "CAPTURED_ACTOR_AND_INDEPENDENT_LITERAL_ORIGINAL_JOURNAL_AND_STRICT_REPLAY_VALIDATION"
+      },
+      "testExecution": {
+        "state": "ACTUAL32_NEW_ORIGINAL_SOLE13411_CHECK_ONE_OLD_P79_PRIORITY_FAILURE_RETAINED_THEN_TEST_ONLY_CALIBRATION_FINAL388_FOCUS_TWO_ORIGINAL_FULL_AND_REAL_SQL22_COLD22_INDEPENDENT22_39_39_FOUR_REFUSALS_PASS"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_RECONNECT_SCORE_HISTORY_VISIBLE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded local behavior passes; new fixed full and actual current product acceptance remain required."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "bf-start-1d1e025e7da28829ca20a7d5",
+      "sourceRefs": [
+        "UNL-212/219",
+        "DOC-01-P029-B006",
+        "DOC-01-P029-B007",
+        "DOC-01-P029-B008",
+        "DOC-01-P029-B009",
+        "DOC-01-P029-B010",
+        "DOC-01-P030-B007",
+        "DOC-01-P030-B010"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.BattlefieldStartControllerTests.PrintedEachPlayerTimingUsesFieldControllerAndOnlyUncontrolledFallsBackToTurn(turn: \"P2\", physicalOwner: \"P2\", fieldController: null, expectedActor: \"P2\")",
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/84",
+        "actualNewMatrixIsFrostOnlyDuskRoseExistingAdjacentEligibilityNotExpanded": true
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CURRENT_CN190_6_191_5_CONTROLLER_AND_ORIGINAL_BIRTH_REVIEW"
+      },
+      "implementation": {
+        "state": "CAPTURED_ACTOR_AND_INDEPENDENT_LITERAL_ORIGINAL_JOURNAL_AND_STRICT_REPLAY_VALIDATION"
+      },
+      "testExecution": {
+        "state": "ACTUAL32_NEW_ORIGINAL_SOLE13411_CHECK_ONE_OLD_P79_PRIORITY_FAILURE_RETAINED_THEN_TEST_ONLY_CALIBRATION_FINAL388_FOCUS_TWO_ORIGINAL_FULL_AND_REAL_SQL22_COLD22_INDEPENDENT22_39_39_FOUR_REFUSALS_PASS"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_RECONNECT_SCORE_HISTORY_VISIBLE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded local behavior passes; new fixed full and actual current product acceptance remain required."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "bf-start-e10fd58649c5a323a472f8f7",
+      "sourceRefs": [
+        "UNL-212/219",
+        "DOC-01-P029-B006",
+        "DOC-01-P029-B007",
+        "DOC-01-P029-B008",
+        "DOC-01-P029-B009",
+        "DOC-01-P029-B010",
+        "DOC-01-P030-B007",
+        "DOC-01-P030-B010"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.BattlefieldStartControllerTests.PureSourceControlChangeOrNewGenerationDoesNotTransferExistingSkill(nextController: \"P1\", changeCardAndGeneration: False)",
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/84",
+        "actualNewMatrixIsFrostOnlyDuskRoseExistingAdjacentEligibilityNotExpanded": true
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CURRENT_CN190_6_191_5_CONTROLLER_AND_ORIGINAL_BIRTH_REVIEW"
+      },
+      "implementation": {
+        "state": "CAPTURED_ACTOR_AND_INDEPENDENT_LITERAL_ORIGINAL_JOURNAL_AND_STRICT_REPLAY_VALIDATION"
+      },
+      "testExecution": {
+        "state": "ACTUAL32_NEW_ORIGINAL_SOLE13411_CHECK_ONE_OLD_P79_PRIORITY_FAILURE_RETAINED_THEN_TEST_ONLY_CALIBRATION_FINAL388_FOCUS_TWO_ORIGINAL_FULL_AND_REAL_SQL22_COLD22_INDEPENDENT22_39_39_FOUR_REFUSALS_PASS"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_RECONNECT_SCORE_HISTORY_VISIBLE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded local behavior passes; new fixed full and actual current product acceptance remain required."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "bf-start-d1e48390e44e90a95b1d5304",
+      "sourceRefs": [
+        "UNL-212/219",
+        "DOC-01-P029-B006",
+        "DOC-01-P029-B007",
+        "DOC-01-P029-B008",
+        "DOC-01-P029-B009",
+        "DOC-01-P029-B010",
+        "DOC-01-P030-B007",
+        "DOC-01-P030-B010"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.BattlefieldStartControllerTests.PureSourceControlChangeOrNewGenerationDoesNotTransferExistingSkill(nextController: \"P1\", changeCardAndGeneration: True)",
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/84",
+        "actualNewMatrixIsFrostOnlyDuskRoseExistingAdjacentEligibilityNotExpanded": true
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CURRENT_CN190_6_191_5_CONTROLLER_AND_ORIGINAL_BIRTH_REVIEW"
+      },
+      "implementation": {
+        "state": "CAPTURED_ACTOR_AND_INDEPENDENT_LITERAL_ORIGINAL_JOURNAL_AND_STRICT_REPLAY_VALIDATION"
+      },
+      "testExecution": {
+        "state": "ACTUAL32_NEW_ORIGINAL_SOLE13411_CHECK_ONE_OLD_P79_PRIORITY_FAILURE_RETAINED_THEN_TEST_ONLY_CALIBRATION_FINAL388_FOCUS_TWO_ORIGINAL_FULL_AND_REAL_SQL22_COLD22_INDEPENDENT22_39_39_FOUR_REFUSALS_PASS"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_RECONNECT_SCORE_HISTORY_VISIBLE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded local behavior passes; new fixed full and actual current product acceptance remain required."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "bf-start-6acec8dd3614197cee13dce1",
+      "sourceRefs": [
+        "UNL-212/219",
+        "DOC-01-P029-B006",
+        "DOC-01-P029-B007",
+        "DOC-01-P029-B008",
+        "DOC-01-P029-B009",
+        "DOC-01-P029-B010",
+        "DOC-01-P030-B007",
+        "DOC-01-P030-B010"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.BattlefieldStartControllerTests.PureSourceControlChangeOrNewGenerationDoesNotTransferExistingSkill(nextController: \"P2\", changeCardAndGeneration: False)",
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/84",
+        "actualNewMatrixIsFrostOnlyDuskRoseExistingAdjacentEligibilityNotExpanded": true
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CURRENT_CN190_6_191_5_CONTROLLER_AND_ORIGINAL_BIRTH_REVIEW"
+      },
+      "implementation": {
+        "state": "CAPTURED_ACTOR_AND_INDEPENDENT_LITERAL_ORIGINAL_JOURNAL_AND_STRICT_REPLAY_VALIDATION"
+      },
+      "testExecution": {
+        "state": "ACTUAL32_NEW_ORIGINAL_SOLE13411_CHECK_ONE_OLD_P79_PRIORITY_FAILURE_RETAINED_THEN_TEST_ONLY_CALIBRATION_FINAL388_FOCUS_TWO_ORIGINAL_FULL_AND_REAL_SQL22_COLD22_INDEPENDENT22_39_39_FOUR_REFUSALS_PASS"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_RECONNECT_SCORE_HISTORY_VISIBLE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded local behavior passes; new fixed full and actual current product acceptance remain required."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "bf-start-9192182ab0d4fafc6d5f754e",
+      "sourceRefs": [
+        "UNL-212/219",
+        "DOC-01-P029-B006",
+        "DOC-01-P029-B007",
+        "DOC-01-P029-B008",
+        "DOC-01-P029-B009",
+        "DOC-01-P029-B010",
+        "DOC-01-P030-B007",
+        "DOC-01-P030-B010"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.BattlefieldStartControllerTests.PureSourceControlChangeOrNewGenerationDoesNotTransferExistingSkill(nextController: null, changeCardAndGeneration: False)",
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/84",
+        "actualNewMatrixIsFrostOnlyDuskRoseExistingAdjacentEligibilityNotExpanded": true
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CURRENT_CN190_6_191_5_CONTROLLER_AND_ORIGINAL_BIRTH_REVIEW"
+      },
+      "implementation": {
+        "state": "CAPTURED_ACTOR_AND_INDEPENDENT_LITERAL_ORIGINAL_JOURNAL_AND_STRICT_REPLAY_VALIDATION"
+      },
+      "testExecution": {
+        "state": "ACTUAL32_NEW_ORIGINAL_SOLE13411_CHECK_ONE_OLD_P79_PRIORITY_FAILURE_RETAINED_THEN_TEST_ONLY_CALIBRATION_FINAL388_FOCUS_TWO_ORIGINAL_FULL_AND_REAL_SQL22_COLD22_INDEPENDENT22_39_39_FOUR_REFUSALS_PASS"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_RECONNECT_SCORE_HISTORY_VISIBLE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded local behavior passes; new fixed full and actual current product acceptance remain required."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "bf-start-d8c99172d9e951fc2c145692",
+      "sourceRefs": [
+        "UNL-212/219",
+        "DOC-01-P029-B006",
+        "DOC-01-P029-B007",
+        "DOC-01-P029-B008",
+        "DOC-01-P029-B009",
+        "DOC-01-P029-B010",
+        "DOC-01-P030-B007",
+        "DOC-01-P030-B010"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "ca1068975d56b7b7cc6f728dad0c5863c9e36d85598cda1f666aa4bdfbe449af",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.BattlefieldStartControllerTests.PureSourceControlChangeOrNewGenerationDoesNotTransferExistingSkill(nextController: null, changeCardAndGeneration: True)",
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/84",
+        "actualNewMatrixIsFrostOnlyDuskRoseExistingAdjacentEligibilityNotExpanded": true
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CURRENT_CN190_6_191_5_CONTROLLER_AND_ORIGINAL_BIRTH_REVIEW"
+      },
+      "implementation": {
+        "state": "CAPTURED_ACTOR_AND_INDEPENDENT_LITERAL_ORIGINAL_JOURNAL_AND_STRICT_REPLAY_VALIDATION"
+      },
+      "testExecution": {
+        "state": "ACTUAL32_NEW_ORIGINAL_SOLE13411_CHECK_ONE_OLD_P79_PRIORITY_FAILURE_RETAINED_THEN_TEST_ONLY_CALIBRATION_FINAL388_FOCUS_TWO_ORIGINAL_FULL_AND_REAL_SQL22_COLD22_INDEPENDENT22_39_39_FOUR_REFUSALS_PASS"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_RECONNECT_SCORE_HISTORY_VISIBLE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded local behavior passes; new fixed full and actual current product acceptance remain required."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    }
+  ]
+}
