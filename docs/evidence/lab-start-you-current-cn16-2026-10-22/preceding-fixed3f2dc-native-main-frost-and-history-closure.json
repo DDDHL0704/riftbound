@@ -1,0 +1,242 @@
+{
+  "atUtc": "2026-10-22T01:18:45.716219+00:00",
+  "status": "EARLY_FIXED3f2dc_ACTUAL_CI_NATIVE_MAIN_AND_CONTROLLED_FROST_ORIGINAL_SQL_HISTORY_REPLAY_VERIFIED_NOT_WHOLE_FULL_OR_VISIBLE_OR_WINDOWS",
+  "fixedCommit": "3f2dc4025834ec649d786646c2d2e72f3483a1d5",
+  "runId": 39700268504,
+  "rootAndRemoteExactCleanAtEndOfThisCandidateAcceptance": true,
+  "api": "Local publish of exact252 current source/build files,46 physical runtime files; not a CI-exported API binary.",
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "e7455edc32d43f8253a9d0c6fedb83c347bebafbef064f9b8dffaaabc4b4d266",
+    "implementationSha256": "cdab800dcd6a991e4fe31ef08257eed856291ae81914249b096dcee7bb7735a8",
+    "identitySha256": "c84397d6277d445f8d052fcfa2972d7d73acfe15e62ea3f37fd5d379ca9c0fcf"
+  },
+  "ordinaryMain": {
+    "room": "N27-RETARGET-C3999B0297",
+    "commands": 71,
+    "events": 389,
+    "finalTurn": 27,
+    "winningScore": 8,
+    "losingScore": 0,
+    "actualDefaultMainProcesses": 5,
+    "actualNativeInteractionControllerSubmissions": 3,
+    "originalNormalGatewayActionsRetained": 17,
+    "additionalRequiredCourt275HeldPriorityPasses": 12,
+    "resolvedCourtMinions": 6,
+    "authorityHistories": 71,
+    "privateSnapshots": 137,
+    "privatePrompts": 137,
+    "wholeOriginalEmptySeedAndEveryHistoricalStateAndEventsReplay": true,
+    "noSurrenderOrDeckOut": true,
+    "firstFailed42Input178EventCheckpointAndAllLogsPreserved": true
+  },
+  "network": {
+    "rooms": [
+      "NETWORK-SEAT-222aede7ac42",
+      "NETWORK-ec8ce1d43e9e"
+    ],
+    "originalSecurityRejects": 15,
+    "privateLeaks": 0,
+    "freshPeerExplicitRequests": 0,
+    "freshPeerCommandRetries": 0,
+    "independentCommands": 3,
+    "independentAuthorityHistories": 3,
+    "independentSnapshots": 4,
+    "independentPrompts": 4,
+    "allSevenTablesAndFullReplay": true
+  },
+  "controlledFrost": {
+    "room": "N41-FROST-8BE189C8F0",
+    "existingRecordedScenario": "battlefield-turn-start-damage",
+    "commands": 6,
+    "events": 23,
+    "authorityHistories": 6,
+    "privateSnapshots": 11,
+    "privatePrompts": 11,
+    "nativePassActors": [
+      "qa64678a069e88e6",
+      "qa64678b644fc6bc"
+    ],
+    "capturedActor": "qa64678a069e88e6",
+    "turnActor": "qa64678b644fc6bc",
+    "coldRestoredOriginalCapturedController": true,
+    "independentFullOriginalHistoryAndReplay": true,
+    "ordinaryFullGameClaim": false,
+    "firstJournalTypeSuffixVerificationFailureFourInputsTenEventsPreserved": true
+  },
+  "lastAllOriginalAuditRooms": 338,
+  "lastAllOriginalNativeRooms": 76,
+  "allSevenTablesUnchangedInFinalReadOnlyPass": true,
+  "ownApiAndDedicatedPgStopped": true,
+  "actualLockBoundaryObservations": {
+    "defaultMainBootStart": {
+      "atUtc": "2026-10-22T00:50:37.738298+00:00",
+      "roots": [
+        {
+          "rootLocked": true,
+          "sessions": [
+            true
+          ]
+        }
+      ],
+      "missingValuesRemainUnknown": true
+    },
+    "defaultMainBootEnd": {
+      "atUtc": "2026-10-22T00:50:46.035681+00:00",
+      "roots": [
+        {
+          "rootLocked": true,
+          "sessions": [
+            true
+          ]
+        }
+      ],
+      "missingValuesRemainUnknown": true
+    },
+    "originalNativeThreeStart": {
+      "atUtc": "2026-10-22T00:52:55.914392+00:00",
+      "roots": [
+        {
+          "rootLocked": true,
+          "sessions": [
+            true
+          ]
+        }
+      ],
+      "missingValuesRemainUnknown": true
+    },
+    "originalNativeThreeEnd": {
+      "atUtc": "2026-10-22T00:55:32.286522+00:00",
+      "roots": [
+        {
+          "rootLocked": true,
+          "sessions": [
+            true
+          ]
+        }
+      ],
+      "missingValuesRemainUnknown": true
+    },
+    "sameOriginalScoreResumeStart": {
+      "atUtc": "2026-10-22T01:00:31.897710+00:00",
+      "roots": [
+        {
+          "rootLocked": false,
+          "sessions": []
+        }
+      ],
+      "missingValuesRemainUnknown": true
+    },
+    "sameOriginalScoreResumeEnd": {
+      "atUtc": "2026-10-22T01:02:26.471559+00:00",
+      "roots": [
+        {
+          "rootLocked": false,
+          "sessions": []
+        }
+      ],
+      "missingValuesRemainUnknown": true
+    },
+    "networkReadStart": {
+      "atUtc": "2026-10-22T01:02:57.760396+00:00",
+      "roots": [
+        {
+          "rootLocked": false,
+          "sessions": []
+        }
+      ],
+      "missingValuesRemainUnknown": true
+    },
+    "networkReadEnd": {
+      "atUtc": "2026-10-22T01:03:39.517513+00:00",
+      "roots": [
+        {
+          "rootLocked": false,
+          "sessions": []
+        }
+      ],
+      "missingValuesRemainUnknown": true
+    },
+    "controlledFrostStart": {
+      "atUtc": "2026-10-22T01:10:24.985089+00:00",
+      "roots": [
+        {
+          "rootLocked": false,
+          "sessions": []
+        }
+      ],
+      "missingValuesRemainUnknown": true
+    },
+    "controlledFrostEnd": {
+      "atUtc": "2026-10-22T01:12:16.985765+00:00",
+      "roots": [
+        {
+          "rootLocked": false,
+          "sessions": []
+        }
+      ],
+      "missingValuesRemainUnknown": true
+    },
+    "controlledReadStart": {
+      "atUtc": "2026-10-22T01:12:28.853820+00:00",
+      "roots": [
+        {
+          "rootLocked": false,
+          "sessions": []
+        }
+      ],
+      "missingValuesRemainUnknown": true
+    },
+    "controlledReadEnd": {
+      "atUtc": "2026-10-22T01:13:33.644990+00:00",
+      "roots": [
+        {
+          "rootLocked": false,
+          "sessions": []
+        }
+      ],
+      "missingValuesRemainUnknown": true
+    }
+  },
+  "notClaimedContinuouslyLocked": true,
+  "missingSessionLockObservationsRemainUnknown": true,
+  "requiresNoDesktopOrHardwareInputTools": true,
+  "receiptSha256": {
+    "native-app-inputs.json": "2fd911d8f8920eb408ab28d2d28c2318f93a91e7522da415d8c48231d4a797ca",
+    "current-native-headless-boot-verification.json": "693a92e61d75da8e4bafb0274decf3dae94c3a380ca13104e601d9ddd79af121",
+    "frozen-fixed3f2dc-native-composition-v1.json": "a3c8f5e327dc2216bd1c28bd04e9d909dd2f0eea9e5b528eafd075c3cfa8cf7e",
+    "fixed3f2dc-actual-loaded-path-sha-mvid-and-input-identity-v1.json": "2c053423d46de4fd1240882c23363414910a0cfbe4b659c4cd9bd8ee8cab5597",
+    "current-fixed-native-download-original-result-v1.json": "0315620b0618bfe6fb01adc277bc22b127d2bbe408aabcc5e757a293521f72b3",
+    "superseded-fixed4014-native-pair-and-two-archives-retirement-v1.json": "c33b5d6ac87db41a4a393a5d350ae54550066c73a1a5749feb51eecc1508922d",
+    "same-original275-finite-score-and-independent-reader-source-calibration-v1.json": "a0c78d0cf1d79c3de2df3ba1b5e3cb41e2e480ef5e19941795df7dd5567a2d74",
+    "31518-current-native-court-source-intake-v1.json": "a142098148968aea5f04271d2c16ce0ba6dd622d25a341c2e87836e3784c9ab7",
+    "live-current-ci-main-owner-terminal-v3.json": "d9b60b61a5c7fdfa3c45e8b159a693a1765eaf26c7345809147838f9682af551",
+    "live-current-ci-main-owner-terminal-v4.json": "a58fe2b8b9ed29723adc2f4ee1b6280530e50f580b161dad7f5eaadf2e12e29c",
+    "independent-fixed3f2dc-native-history-run-v3.json": "96a2c958e4ad796eb62dcbcd193862ab8ba967ba113d7ac6b4866511ed41046e",
+    "independent-fixed3f2dc-native-history-run-v4.json": "a6803065c8e459f02942a2b00cb664a9dbf5710a45395b6b84da8831dae55383",
+    "independent-fixed3f2dc-native-history-result-v4.json": "5b46f468a41654cfac20b24a0af437e8d99d882f89fa03d039a20e705a37606f",
+    "independent-fixed3f2dc-two-network-owner-terminal-v2.json": "5ecaa574cbc48d23ddfacba025ea3de3176f2d054875bd6bb65a6e2ce24a040d",
+    "independent-fixed3f2dc-two-network-result-v2.json": "996e35d8186ceca93ecf60caba01df0a174fda373f3af1f516102fa1563858ee",
+    "controlled-frost-native-owner-terminal-v1.json": "c326bc2bfd202b5e7d72d0fa349bdac9e45d8bf256a235140fbf076ae713be4d",
+    "same-original-controlled-frost-journal-identity-calibration-v2.json": "7fe5ce54cfad6d62a41ac1859e7d7479d60420b5b0eed2ee17b766f4880ef9ff",
+    "controlled-frost-native-owner-terminal-v2.json": "6489814be59ed626273d6ede4989701615014a92a53af97cd7dff7aa2fc6bb7f",
+    "controlled-frost-native-independent-owner-terminal-v2.json": "8041517bdb36365597eee71a653f3d82cd648c61d41c3a8cb1fb7c1efd14f3df",
+    "controlled-frost-native-independent-result-v2.json": "ac8046398a7261bb67777abff9b96fb2d04580364f163fa25b981b79f8a88843",
+    "finished-own-native-build-output-retirement-v1.json": "0624339589fec7440a9a09093542c687bc31e7b1d7c27bfffad0c41c6b5c20fe"
+  },
+  "storage": {
+    "onlyLatestUsableA_BAndOneArchivePerOs": true,
+    "supersededOldNativeLogicalBytesRetired": 945969396,
+    "finishedOwnBuildLogicalBytesRetired": 1690898,
+    "executedOwnDllPdbRetained": 10,
+    "physicalApfsBytesNotInferred": true
+  },
+  "completeFixedFullCi": "PENDING_ACTUAL_TERMINAL",
+  "visibleHardwareControlsAndPair": "OPEN",
+  "physicalWindows": "OPEN",
+  "wholeCardOrClauseCertification": false,
+  "goalComplete": false
+}

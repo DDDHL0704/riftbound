@@ -1,0 +1,1215 @@
+{
+  "atUtc": "2026-10-22T03:02:56.736902+00:00",
+  "archive": {
+    "path": "docs/evidence/lab-start-you-current-cn16-2026-10-22/original-execution-and-source-records.tar.gz",
+    "sha256": "fbefed79687e137758afee6625ba1d107147a6257dcc0227a169c008728929a3"
+  },
+  "members": [
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/34762-source-intake-v1.json",
+      "bytes": 2386,
+      "sha256": "ea0e862a2597245b9a411a8da25b8335d5395652fdb139cbcc233a5de1d35a68"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/BattlefieldStartLabYouSqlAcceptance.preinstall-v1.cs",
+      "bytes": 18124,
+      "sha256": "18d0876fde4ac9eeda7efe37d02065920ef43e38e2c9b54e5a5bee0e6af9c616"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/Program.cs.first-pre-execution-source-v1.gz",
+      "bytes": 2378,
+      "sha256": "38ce1ea4546f8c32766ebe01166381b5abb16ab0972a651aee4a92d2ce3769b5"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/actual-ci-retry-20261022T013359.json",
+      "bytes": 83556,
+      "sha256": "41eb62623d37358f108d06775d6066f92abfe275933a5cf5a552ddb1f3252c50"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/all-independent-tool-tests-before-check-v1.log",
+      "bytes": 8514,
+      "sha256": "17c9206a0cf4bcdac72a3f45acbdbf77f7b57d612291178d2e348958ab119e54"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/archive-preceding-fixed3f2dc-native-originals-v1.py",
+      "bytes": 3606,
+      "sha256": "4a412afb9c51c07a601ff1659aed6b975f6c0c8752e6c6a80ee81dae3529002d"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/broken-original-lab-real-sql-source-v1/Program.cs",
+      "bytes": 5644,
+      "sha256": "ae911f9a485b11bf6d55ef9309a4dd0e498e673dedb947ded7f2a5d177caca19"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/broken-original-lab-real-sql-source-v1/probe.csproj",
+      "bytes": 1509,
+      "sha256": "94f327346fc3bf615706bdc6b28c50f0a86b08e5e9a8e44c95810ee7589d497e"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/ci3f2dc-all-nine-original-artifacts-receipt-v1.json",
+      "bytes": 9612,
+      "sha256": "857d59e5b7e7cfa926772cc88edc6192f5c60cb1bc3c41397b50f85d984875fe"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/ci3f2dc-all11-jobs-original-v1.json.gz",
+      "bytes": 2291,
+      "sha256": "6b34887d39ee1f4d8a2d67d238dc7b93b9c8608e90e8a10f1075cb07e6e18934"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/ci3f2dc-backend-artifacts-original-v1.json.gz",
+      "bytes": 1420,
+      "sha256": "bddc36120573e0c4eef64da04f25f5644b977ee67aa34e40617a0d758a4aad23"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/ci3f2dc-entire-full-independent-verification-v1.json",
+      "bytes": 50210,
+      "sha256": "945224c3093d9e303be3a3c2577d25aeea6def2b7aa561eb9929efc6fa5113e8"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/ci3f2dc-original-sql-zip-members-v1.json.gz",
+      "bytes": 58379,
+      "sha256": "5044b672ded3fb4a33f3dfd59ef7b3343492c6cfff1649ec84af81c0aac01135"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/ci3f2dc-terminal-original-v1.json.gz",
+      "bytes": 1530,
+      "sha256": "785a04e7008060c7b289f7c3e3de12e97d0e0d5ada03cdd5276e5342fafd7b0e"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/ci3f2dc-verified-duplicate-sql-extraction-retirement-v1.json",
+      "bytes": 249,
+      "sha256": "9cdfe72937ad132d192dfd92fd48cfc81bc17920bb084d9bdb1165293b2bf602"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/cn-rule-conditional-originals-v1/DOC-01.receipt.json",
+      "bytes": 1362,
+      "sha256": "ce30e00fac6a78444eb5bfa903edffeae77f67a17552806e9b43b7ca53fbfd72"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/cn-rule-conditional-originals-v1/DOC-02.receipt.json",
+      "bytes": 1361,
+      "sha256": "e2068c44112ec6fb972aabecc8e4ca017d232f94fc831fea4ed986b78965cc46"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/cn-rule-conditional-originals-v1/DOC-03.receipt.json",
+      "bytes": 1332,
+      "sha256": "57736d95a109fd5ee650c31784fa6439d42e028db141cc68ca5742580d789b6a"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/cn-rule-conditional-originals-v1/DOC-04.receipt.json",
+      "bytes": 1343,
+      "sha256": "993a5bf9eacb066707458d752c46944ef5c78a796d79eada2aa16c2cae8e2809"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/cn-rule-conditional-originals-v1/DOC-05.receipt.json",
+      "bytes": 1343,
+      "sha256": "89b783ca84b3b114fb66499bf1091a163771f548be02b6be11b013f1d465dd13"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/cn-rule-conditional-originals-v1/DOC-06.receipt.json",
+      "bytes": 1314,
+      "sha256": "8d4cb130d301d2d1c556bdb7e244b280623916f4d9e6f8b5efd352d003e597bb"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/cn-rule-conditional-originals-v1/DOC-07.receipt.json",
+      "bytes": 1316,
+      "sha256": "164fe33a1624161aef0b7f1a8320bb83098fd59905197f470376d1273c5d9947"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/cn-rule-conditional-originals-v1/DOC-08.receipt.json",
+      "bytes": 1376,
+      "sha256": "ef6152b594a091738a02c7dac51b167584adbfc4a1cdc21bbfbe2d8944fecfec"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/cn-rule-conditional-originals-v1/DOC-09.receipt.json",
+      "bytes": 1410,
+      "sha256": "53a05e90567fff4ceaa1fe6ba4e996378ab41b311a3571270e655653970349bf"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/cn-rule-conditional-originals-v1/DOC-10.receipt.json",
+      "bytes": 1439,
+      "sha256": "d7c9e56bd8c8b5651f16f6c9b263a2f90e41296327e96e500926f6d08e5fcf38"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/cn-rule-conditional-originals-v1/DOC-11.receipt.json",
+      "bytes": 1326,
+      "sha256": "c938374c48418941fd0251504038527a901ba0d2974a494ac0821571d2d34f70"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/cn-rule-conditional-originals-v1/DOC-12.receipt.json",
+      "bytes": 1469,
+      "sha256": "7ec007fcd544543054cad7f1067db7b5ba4379c1bd6c30ca249fa1d5b2f6b299"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/cn-rule-conditional-originals-v1/DOC-13.receipt.json",
+      "bytes": 1368,
+      "sha256": "32de97888d7026b8a36b927309d8cc27e24e25738b0af3649002dcce8856f0dc"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/cn-rule-conditional-originals-v1/DOC-14.receipt.json",
+      "bytes": 1354,
+      "sha256": "554c69e8df78f1a775a66cfd296c21be1da28ed8c6056af6c1f78f4c9f3c5b93"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/cn-rule-conditional-originals-v1/DOC-15.receipt.json",
+      "bytes": 1286,
+      "sha256": "36214594f718813b195b611a007f16256249d7f0a0106c3b7bb841e721f1c464"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/cn-rule-conditional-originals-v1/DOC-16.receipt.json",
+      "bytes": 1420,
+      "sha256": "226115e789a8ee52ef123ed57633629143257e1d10c170ae1c1866de8c426a34"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/cn-rule-conditional-originals-v1/current-rule-directory-original.json.gz",
+      "bytes": 1172,
+      "sha256": "fe02c97ac27f37c30fbfa2fedf67715a37b3b45a50758af99f624779c75dda1b"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/complete-original79-contexts-before-lab-you-v1.json.gz",
+      "bytes": 289737,
+      "sha256": "9f6c97fd2ece391bf97398774c2768e7e0e0e620ab2f8128a6b447abf1927113"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/completed-fixed3f2dc-downloader-derivation-v1.json",
+      "bytes": 434,
+      "sha256": "1f330b43433014aa9d89e07ff8b98192df8f94a130e26e9dd5877f4e9aa1c150"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/conditional-all-sixteen-known-cn-rule-versions-v1.py",
+      "bytes": 5168,
+      "sha256": "cf462ba11d580c5c3649765e38a1ef10347fd51bd700de8144953f3cb93cef8a"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/counter-diagnostic-pre-execution-build-and-binding-corrections-v1.json",
+      "bytes": 1233,
+      "sha256": "b1eb6c68e59ca3c242f7bd14de560bf90ed2a56438600adafcbabe8495e3816f"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/current-34762-complete-response-v1.json.gz",
+      "bytes": 782,
+      "sha256": "99277d038cdb1be7f2561c1adf65c097f6f82cd536b0447faa9c27f0304763fb"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/current-cn-rule-directory-and-known-source-versions-v1.json",
+      "bytes": 25278,
+      "sha256": "e97fcadb2fb156f6617129b17a8b2e766e5c4435250b45e8b0fadb200a9bd8f7"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/current-existing-context-pin-change-readback-before-publication-v1.json",
+      "bytes": 48972,
+      "sha256": "2365c8af13bebca47b4fcdc44b960f9ad64bb028dd985ed36f895b9dba1c3e24"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/current-existing-context-pin-change-readback-before-publication-v2.json",
+      "bytes": 13785,
+      "sha256": "356cc7e88f4029953761fd4703669f2d1ad24b815902b0f61b280bf4501395df"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/current-lab-you-sql59-frozen-inputs-v1.json",
+      "bytes": 15288,
+      "sha256": "d7a172dc1421b2654f2bac27dcf08322ad15fe66692b7bcd08769f2aec8be236"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/current-lab-you-sql59-frozen-inputs-v2.json",
+      "bytes": 865569,
+      "sha256": "fa77d731440adda2768897907f3a21533d0bc32b6c6b4f4f0cd30a4502369f2c"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/current-lab-you-sql59-owner-terminal-v1.json",
+      "bytes": 46063,
+      "sha256": "c1acd8049b235ccba318cc1fb9ae798d61fbb7c483fc64a30f2a412f55ee854b"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/current-lab-you-sql59-postgres-v1.log",
+      "bytes": 1283,
+      "sha256": "77e83c5b692794a7fadf1fc9656c982071e28f1a8a058774bfd4e1ce1b128d24"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/current-lab-you-sql59-v1.log",
+      "bytes": 627,
+      "sha256": "d23874179862098f9abb952823d339675f5202d03f0b6423dbfcb8d2edfce894"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/download-completed-fixed3f2dc-nine-originals-v1.py",
+      "bytes": 4339,
+      "sha256": "25bda0ba6c2d65122a81066b4ccb324f6547ab2955bccae8cd1cbb5e1e7be61b"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/exact-fixed3f2dc-sql-manifest-original-v1.json",
+      "bytes": 6094,
+      "sha256": "4daf6ffe0fd609df05dc6a8573c88b2cab2406a98c3ddb5eb3eb7d9a197dffea"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/exact-lab-source-and-core-you-readback-v1.json",
+      "bytes": 6744,
+      "sha256": "7b7ca335d07bbd9ee6154c85c2997499898961d82b30bc51407caad5bc43efa2"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/final-all-hub-start-native-and-two-original-full-v4/build.log",
+      "bytes": 78,
+      "sha256": "360662738f51603eab4be0d9498ad45c2ca184dfd6f981ed48e97fc36c2306a9"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/final-all-hub-start-native-and-two-original-full-v4/discovery.log",
+      "bytes": 2028875,
+      "sha256": "871c18f1e0ebc513a91d26b1e938c3bd260d6d482b5f4b748ee6550499f6794e"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/final-all-hub-start-native-and-two-original-full-v4/focus/results.trx",
+      "bytes": 587552,
+      "sha256": "ac487b4f2de1ac47d19713807c8459b7be62ef72a3f74530d92d97049094c03e"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/final-all-hub-start-native-and-two-original-full-v4/focus/test.log",
+      "bytes": 524,
+      "sha256": "2f2079f8cab16bf75f43af88f0c2b980b08d7192bfde28b1182ed9507c28d6cf"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/final-all-hub-start-native-and-two-original-full-v4/plan.json",
+      "bytes": 35905,
+      "sha256": "f570dca889d5605e59a4ce1b276424d2d71dde4b1f3d36bbcb4f5b84069fad04"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/final-all-hub-start-native-and-two-original-full-v4/summary.json",
+      "bytes": 276,
+      "sha256": "c7945b32a3c2f65281724658e3bfc11b0345664432fe59b5379dea0ba5aa7572"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/final-only-check-original-retention-v1.json",
+      "bytes": 10295,
+      "sha256": "a187b2c92945629390095f0a33fa0fc93797b464023fdd69432ec1dceb164dfc"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/first-lab-you-build-failure-source-v1.json",
+      "bytes": 457,
+      "sha256": "0ec5f13308c052c6eb15ec95c53264df762a9dbf804de1f1368197558fb08676"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/fixed3f2dc-current-jobs-2026-10-22T023823.json.gz",
+      "bytes": 2236,
+      "sha256": "08ab1f616e51c38a3e795ae64b678da50553153cade30b0769a26af6b937ebd3"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/focus-lab-you-and-start-adjacent-v3/build.log",
+      "bytes": 78,
+      "sha256": "b275c08aea31b52544e9aa6cdda2ddc98fbe93ab9b525e5928d606c1ecbc9564"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/focus-lab-you-and-start-adjacent-v3/discovery.log",
+      "bytes": 2028875,
+      "sha256": "871c18f1e0ebc513a91d26b1e938c3bd260d6d482b5f4b748ee6550499f6794e"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/focus-lab-you-and-start-adjacent-v3/focus/results.trx",
+      "bytes": 133421,
+      "sha256": "883b65bf209128cdac96e6322f41c8a736d2571e49ce3338ef6675e004668911"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/focus-lab-you-and-start-adjacent-v3/focus/test.log",
+      "bytes": 508,
+      "sha256": "3a7db7a95f6771dab8fe712dd33339c2a0c3ead3a996b7d6bbfd338a36a5a3ec"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/focus-lab-you-and-start-adjacent-v3/plan.json",
+      "bytes": 3872,
+      "sha256": "87f4247fb3cd93dd13744d4fd4122bbce332e109fe0bd5ca563fd4b2900a29cc"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/focus-lab-you-and-start-adjacent-v3/summary.json",
+      "bytes": 273,
+      "sha256": "c65a4269dc3b26099817eefd2dac2f0a12a50a4967ff9d5b03bb164753c43d7f"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/focus-lab-you-initial-v1/build.log",
+      "bytes": 4208,
+      "sha256": "6048f1e8df7fc7e5f96b5ea92c8a3dc76b43219efbd147d5851f9f7dc7485a33"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/focus-lab-you-initial-v2/build.log",
+      "bytes": 78,
+      "sha256": "64fc185f0334b45493c21006a068775606b7468540a222b1ea98ab669cb654b5"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/focus-lab-you-initial-v2/discovery.log",
+      "bytes": 2028875,
+      "sha256": "871c18f1e0ebc513a91d26b1e938c3bd260d6d482b5f4b748ee6550499f6794e"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/focus-lab-you-initial-v2/focus/results.trx",
+      "bytes": 58515,
+      "sha256": "1a8c1b7c8f536f1e0706101da75f894e0e42ffe2fa36746313b8230b386e467c"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/focus-lab-you-initial-v2/focus/test.log",
+      "bytes": 2189,
+      "sha256": "7fdcbcb876bd55f423a46601834991fa25e6c114eefa6f673b2ca38f9e6cd78b"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/focus-lab-you-initial-v2/plan.json",
+      "bytes": 906,
+      "sha256": "62b06884f635c77f78df6a9aa8f77f5dd89605741844c1131c10c0dbb40777a8"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/independent-lab-you-controller-reader-source-v1/Program.cs",
+      "bytes": 16875,
+      "sha256": "25504823b1dcbafa9227be04fddbea495074b6762aab0158aed4fdbc740eeb73"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/independent-lab-you-controller-reader-source-v1/probe.csproj",
+      "bytes": 1493,
+      "sha256": "5421c9f5f7fa464930f40ab9e0776610e39361714a4de80a3fad19903e59a699"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/independent-lab-you-sql-owner-terminal-v1.json",
+      "bytes": 40849,
+      "sha256": "2feb03f1fbbd4bde7ac6071533e73542be9222068a4f809401850a128e15179b"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/independent-lab-you-sql-postgres-v1.log",
+      "bytes": 1277,
+      "sha256": "fa2585a78c09bf6831a238527d7da1cac3c7af0e157f695c7d13a7409f8f5233"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/independent-lab-you-sql-result-v1.json",
+      "bytes": 4820,
+      "sha256": "0ff6e036f4b7c8c641afa37eeb958638b9ae1a89c8d322a80fd403fc9861237e"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/independent-lab-you-sql-v1.log",
+      "bytes": 409,
+      "sha256": "e0f90e951199952844245a2d8d176f1369a46d9371714a5e303d78b5be9873d5"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/independent32-lab-source-preparation-v1.json",
+      "bytes": 561,
+      "sha256": "38be29d77f84a20e99e6b7f553502d0e90909e54ce4225185fc81b5de5966428"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/lab-missing-field-issue-body-v1.md",
+      "bytes": 2036,
+      "sha256": "afe72936066318e1ba93e86543388bc185c72ccd08b61e7906d63f17274474c8"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/lab-missing-field-issue-create-result-v1.json",
+      "bytes": 556,
+      "sha256": "6392a1c9ac81a3ae2c719815dee82fc74864aff34556f695fb0d504cd06a749f"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/lab-missing-field-issue-exact-readback-v1.json",
+      "bytes": 2820,
+      "sha256": "8f2dac230529f90fc5744cf662071eec9e5a740a49770b027a6d10511429a45a"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/missing-lab-physical-field-existing-issue-search-v1.json",
+      "bytes": 117,
+      "sha256": "2774e8ac312f649ab394834afd07c3868cc6b677eb1f3dc67c9d721d3542b256"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/only-check-console-v1.log",
+      "bytes": 435,
+      "sha256": "12dd17cca0004d211afd83dba9ae0193127707246d55a7ded36dcfb70df28fef"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/only-check-owner-terminal-v1.json",
+      "bytes": 1335,
+      "sha256": "66f8b8ed9e4bd8f4519e263bb146702613387083b3c239d4268c8e1c178a2a5b"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/only-check-start-inputs-v1.json",
+      "bytes": 1131273,
+      "sha256": "8157f3b1b19b703dbfa4308d56f736998667c30de029db9c6e241ef98cb1bbc9"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/only-check-v1/build.log",
+      "bytes": 78,
+      "sha256": "888f9d981c459152f04717aec1a625956f7bda7920772ab12e665cf2140c179f"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/only-check-v1/check/results.trx",
+      "bytes": 20842737,
+      "sha256": "65ce103c1eefeb3815e4e5786ea338433d416b3a7cb8acd2fa11db864bdd8f2a"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/only-check-v1/check/test.log",
+      "bytes": 489,
+      "sha256": "172fbbf62b9f9db97c75c2f6dda29a4ccb0556e7c8f8a13ce4275455725f09dd"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/only-check-v1/discovery.log",
+      "bytes": 2028875,
+      "sha256": "871c18f1e0ebc513a91d26b1e938c3bd260d6d482b5f4b748ee6550499f6794e"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/only-check-v1/plan.json",
+      "bytes": 1006009,
+      "sha256": "423c07e80bbb611e286557fb5c10785e2c9f5192fc4c7c7b2a2613a9622fc1e2"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/only-check-v1/summary.json",
+      "bytes": 286,
+      "sha256": "58fe526f2dd8057297df0e18bd9ba547acd5f0b55ab03b621030bbd0818404e2"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/original-before-lab-you-all-conformance-files-retention-v2.json.gz",
+      "bytes": 95406,
+      "sha256": "a6a6bc33877987257713b6b383fecbf0fae553ece69ad00f588acc29f7ea8202"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/original-before-lab-you-all-conformance-source-retention-v1.json.gz",
+      "bytes": 26942,
+      "sha256": "27e3cfca68bb895c16a7f294c501b206516fff174b78d5ed1f19e636426cd39c"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/original-broken-lab-real-sql-v1/entry-01-original-before-persist.json.gz",
+      "bytes": 3679,
+      "sha256": "8ac0d247bd77ac5703b3cf60ea68f49a6f6025563244f7f40fe059a3a714bd93"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/original-broken-lab-real-sql-v1/entry-02-original-before-persist.json.gz",
+      "bytes": 4233,
+      "sha256": "1a7e8881fe9e5dc6ade49fd5fed70d11b914a5e40b8d0780d5c939ddbc7b8bca"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/original-broken-lab-real-sql-v1/entry-03-original-before-persist.json.gz",
+      "bytes": 9895,
+      "sha256": "2660e354bdbc67f851c3f8b5e1cd37f38c09be5fb93295f48193c66f912afb73"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/original-broken-lab-real-sql-v1/original-broken-lab-all-seven-tables.json.gz",
+      "bytes": 13782,
+      "sha256": "b4a08d13b200eb393eab0e063f6972d3f6b8d6c7e7b196db26330a8864657465"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/original-broken-lab-real-sql-v1/original-broken-lab-three-input-frame.json.gz",
+      "bytes": 13286,
+      "sha256": "3d8cf5a45cc6ae141cbdb0c350e961dbec75ee02574c7b8f5a83a8c48f77cd1d"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/original-broken-lab-real-sql-v1/original-real-sql-counterexample.json",
+      "bytes": 1300,
+      "sha256": "2beb34c1e061f1161c1e93e9c1c9fffd5c08dbba8bb8a2ebd8e9c2e69443c855"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/original-broken-lab-sql-owner-terminal-v1.json",
+      "bytes": 34486,
+      "sha256": "b15de2900435410df86f800fbaa4c10364069a08622f2aa03b83d733870c7fa8"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/original-broken-lab-sql-postgres-v2.log",
+      "bytes": 1281,
+      "sha256": "f60505d8fad969bd9ad8394b7a5a57e249a5b6e9a5e8c08a720c608a6f0092b4"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/original-broken-lab-sql-v1.log",
+      "bytes": 78,
+      "sha256": "a687785292ea760569e721f9f83058ab23378f894bf1f913936b07ce0f9c9751"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/original-lab-you-first-build-source-v1.cs.gz",
+      "bytes": 3391,
+      "sha256": "5c9f92daef620c4b4e354cd8866574cbde78bc5ffd74d4ea14bf9ed48d282763"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/own-current-lab-you-sql59-v1.py",
+      "bytes": 7038,
+      "sha256": "0561dbf3bc0a0bd4de820b24e8f59d3eadf0202d9a7a35843c99f681be656f61"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/own-independent-lab-you-sql-v1.py",
+      "bytes": 7174,
+      "sha256": "512736b3e7ca0b5561aa8e350bff445df86ce8464d7af4ba54a76882a19bd651"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/own-original-broken-lab-real-sql-v1.py",
+      "bytes": 7095,
+      "sha256": "6dd2e0382e19a7c69ecc11bfd5e57dd55e0733f6e2d95c3d4a83876bb0182e03"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/own-original-broken-lab-real-sql-v1.py.first-pre-execution-source-v1.gz",
+      "bytes": 2914,
+      "sha256": "3cb9a327477338c8346191111d7e0300adf153ebdaf69ed20782727f506782d4"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/parallel-web-commit-during-original-frozen-check-observation-v1.json",
+      "bytes": 1937,
+      "sha256": "85b83e2dab16ef7d02b9e820a7ba678207e01b5808feb829419bbf45f1d4dade"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/preceding-fixed3f2dc-native-original-archive-map-v1.json",
+      "bytes": 56438,
+      "sha256": "be1966710e713779f1f82b448947906b5ed1dd5ff8809a66caf56eb67daa67a8"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/preceding-fixed3f2dc-native-originals-v1.zip",
+      "bytes": 1780183,
+      "sha256": "fcc0d9d20c38a67d3e1cbbb7fc82cff5543696374cdc8533e82b19e92b63aeb9"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/prepare-and-own-only-lab-you-check-v1.py",
+      "bytes": 6518,
+      "sha256": "4936a92372a6f408f3c851a5bb8bebf5eb179ed6474dc05db7b0833bd44e2fd9"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/prior-lab-you-publication-v1/PROJECT_STATUS.md.gz",
+      "bytes": 84662,
+      "sha256": "01cce0e61182413bd28767ce619f1bee257f5794610debd910dd764fa0243322"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/prior-lab-you-publication-v1/current-manifest.json.gz",
+      "bytes": 391294,
+      "sha256": "7b98072cabfa0b44c18e75318514acc45b91de931e1dd994e8609e5d2faf2b96"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/prior-lab-you-publication-v1/review-decisions.json.gz",
+      "bytes": 171997,
+      "sha256": "9632d737a984f7a1f60bc0c739a8b995b4232778b4060469f3cbc04f536066e3"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/publish-lab-you-coherent-batch-v1.py",
+      "bytes": 26534,
+      "sha256": "cf8a30b53f278e97d03e65cf8f4206bae8c2b7e31e41c1dcf6705cd84020931a"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/actor-and-context/actual-all-seven-tables-after-deliberate-tamper.json.gz",
+      "bytes": 20973,
+      "sha256": "e61358256aa3777569ef08ee9176709b4880b52a0c6d21a0036ce53120d4c0ae"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/actor-and-context/actual-rejected-frame-after-deliberate-tamper.json.gz",
+      "bytes": 10182,
+      "sha256": "09d1611100b48f59704855dc4d64408e916cd47d586f1153cdac9bd442d35ae5"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/actor-and-context/entry-01-original-before-persist.json.gz",
+      "bytes": 3674,
+      "sha256": "dbddaf376e9f24c6afef8cf2839b8ecbbef402597ca5b57034a4c7bb8f374a72"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/actor-and-context/entry-02-original-before-persist.json.gz",
+      "bytes": 4232,
+      "sha256": "507b86e02452be0ea10bf100a2541b1808ab6582e68ca9252b64f45e0a7bea54"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/actor-and-context/entry-03-original-before-persist.json.gz",
+      "bytes": 11070,
+      "sha256": "c0abe7dbf0f6d7526985b891b7bd468588fa77ecea9fdfd47a2816ea147d4ff2"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/actor-and-context/entry-04-original-before-persist.json.gz",
+      "bytes": 8768,
+      "sha256": "afb00227e795b61fefe24be2c03af1d2152cee955e1b2ab70059151238ab998a"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/actor-and-context/entry-05-original-before-persist.json.gz",
+      "bytes": 6953,
+      "sha256": "61e805ea7171dd0ee6b6db6822d5309b7d3cc00fac55678dcc3dd519625c6208"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/actor-and-context/original-active-frame-before-any-tamper.json.gz",
+      "bytes": 10177,
+      "sha256": "7f94ae6878d77be65b0ae955a207f3c828f5d2df08292739083b036523ceb7c1"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/actor-and-context/original-all-seven-tables-before-any-tamper.json.gz",
+      "bytes": 20948,
+      "sha256": "070511a76052aa65bc5c204dec37e6c31f51afaf3f00d197564b1ba356e83858"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/actor-and-context/prefix-01-original-frame.json.gz",
+      "bytes": 4436,
+      "sha256": "ad1ecc3c09cb8a70a50d5f38d6c4a9e1f6717df1c4629cf489dd792bd791c331"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/actor-and-context/prefix-02-original-frame.json.gz",
+      "bytes": 4930,
+      "sha256": "63f5389551290acecf40ddc9f4ad01baec95026530d796157661e4ed43999c85"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/actor-and-context/prefix-03-original-frame.json.gz",
+      "bytes": 14398,
+      "sha256": "b9de64eed940c2bb1aeebcc8def6e715bcc769b83343666e2cd81fc71af6e301"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/actor-and-context/prefix-04-original-frame.json.gz",
+      "bytes": 13227,
+      "sha256": "bd30336e2065444e0df2c6b04e897dfdbfda780523130f93722a939f58d0cc44"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/actor-and-context/prefix-05-original-frame.json.gz",
+      "bytes": 10177,
+      "sha256": "7f94ae6878d77be65b0ae955a207f3c828f5d2df08292739083b036523ceb7c1"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/actor-and-context/receipt.json",
+      "bytes": 976,
+      "sha256": "37f376b520cc2b2db8c49212397099bddbb2b8ff1264c2f3a4cb948b6acf28de"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/actor-context-and-event/actual-all-seven-tables-after-deliberate-tamper.json.gz",
+      "bytes": 20985,
+      "sha256": "9125b434dd4e5e3a9e65295870467220b31e9743769a1b261ee6b55324ac1bde"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/actor-context-and-event/actual-refusal-errors.json",
+      "bytes": 479,
+      "sha256": "ce39bee45e76eba77fc08bec99218d7da006e74c302446840c91a9f6ebbf9038"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/actor-context-and-event/actual-rejected-frame-after-deliberate-tamper.json.gz",
+      "bytes": 10186,
+      "sha256": "72095ea0993bb248aa4132419c2b0b23f6d83353ea751fd53471e8121923ca70"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/actor-context-and-event/entry-01-original-before-persist.json.gz",
+      "bytes": 3675,
+      "sha256": "b4790a41a4816a925b75e8b19f24093f5872d566b2c54d12547efe6da7ba399b"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/actor-context-and-event/entry-02-original-before-persist.json.gz",
+      "bytes": 4230,
+      "sha256": "2d26fa8f8cb4f13be800bc0b62ab32ea74e9e4e01998781e3ce8ce2886caad70"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/actor-context-and-event/entry-03-original-before-persist.json.gz",
+      "bytes": 11070,
+      "sha256": "415fe8f42c85b5ed96aa126fad9ba659639e675e143815f58e62184a2a2d857f"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/actor-context-and-event/entry-04-original-before-persist.json.gz",
+      "bytes": 8770,
+      "sha256": "9e16305b580fcf4f6a25bd27e959ad87df3bc7cb625d556f6427b3d0ce6896c1"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/actor-context-and-event/entry-05-original-before-persist.json.gz",
+      "bytes": 6953,
+      "sha256": "28f7c3c920446ca6608c5c3168c1a5aa98157ca278e2c9f52f4c4e8a9eeb627e"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/actor-context-and-event/original-active-frame-before-any-tamper.json.gz",
+      "bytes": 10179,
+      "sha256": "73510315de60aa825aac7c79c05cee8325a4d3be8edcbd74536d2641cef43174"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/actor-context-and-event/original-all-seven-tables-before-any-tamper.json.gz",
+      "bytes": 20958,
+      "sha256": "0cf6ea4b8fdc6b34e4afaf401433bffbc27f3c207f059d299d8eb6c34efd9414"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/actor-context-and-event/prefix-01-original-frame.json.gz",
+      "bytes": 4434,
+      "sha256": "ad0cb35c80d5a8de017f77287ae0c125360c38a914a634c2b70d2b0a23d74342"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/actor-context-and-event/prefix-02-original-frame.json.gz",
+      "bytes": 4927,
+      "sha256": "893f56f802fccc8ec572293cb59d46af54c1a883a466b0df2a6b2925967ef220"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/actor-context-and-event/prefix-03-original-frame.json.gz",
+      "bytes": 14402,
+      "sha256": "dde80d44a175e15d1f448b5081973dd7dd6e47e8301d4a4abc3c1b9ad7cfe598"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/actor-context-and-event/prefix-04-original-frame.json.gz",
+      "bytes": 13228,
+      "sha256": "b6ae263d3824b62eca364c28866b3199f549ddc81fd01439dc991ca889b55a02"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/actor-context-and-event/prefix-05-original-frame.json.gz",
+      "bytes": 10179,
+      "sha256": "73510315de60aa825aac7c79c05cee8325a4d3be8edcbd74536d2641cef43174"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/actor-context-and-event/receipt.json",
+      "bytes": 983,
+      "sha256": "dfe0a5416c1c84aa30dac75d369e0f8c197c5679d4f38e1ea7455742ec602504"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/decline/entry-01-original-before-persist.json.gz",
+      "bytes": 3674,
+      "sha256": "a183455b81ca93fbbf5ac0e97f6fb00217ee1d198390abdeb69a523ece4aabdb"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/decline/entry-02-original-before-persist.json.gz",
+      "bytes": 4232,
+      "sha256": "74275db2ea6a9ae21701a0a97d80375d2188e6455b8f2864e03f7d7d93548b72"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/decline/entry-03-original-before-persist.json.gz",
+      "bytes": 11071,
+      "sha256": "3357dccc0f0bd18281debe8bd06e72bada2a2d4c38dcfad59cb9ddb73b206e42"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/decline/entry-04-original-before-persist.json.gz",
+      "bytes": 8767,
+      "sha256": "9de7c306e2cc56a052e1d24ab6254970cbf1e2905896300d1ff009ecdb7a11ed"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/decline/entry-05-original-before-persist.json.gz",
+      "bytes": 11055,
+      "sha256": "018549bf6c46365cdaa759d6590c608a081154af82cbf94f3073028d9431012d"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/decline/original-all-seven-tables-after-normal-resolution.json.gz",
+      "bytes": 28105,
+      "sha256": "891ffa7e6581ae92420e8816d71c2fdc6f4ed72b4e9977a20928d65b02e61f39"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/decline/original-final-resolved-frame.json.gz",
+      "bytes": 15844,
+      "sha256": "be68b63dbb8f0ea499c4c52a1809e0f33dd7c867744c15582d1487d5da865d49"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/decline/prefix-01-original-frame.json.gz",
+      "bytes": 4434,
+      "sha256": "74d70b1e229ee56a0bbabf47d817c5e719a78f4246dad014d4caee6ea1221f93"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/decline/prefix-02-original-frame.json.gz",
+      "bytes": 4926,
+      "sha256": "68459150e9a03dfab8a58b1af4cbd6e02f0924649236f8ab85c87c21c97370b7"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/decline/prefix-03-original-frame.json.gz",
+      "bytes": 14399,
+      "sha256": "d84fbaa2747ea55449f65b63bf4c4d9123439a28722f5f430864367b62d6964d"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/decline/prefix-04-original-frame.json.gz",
+      "bytes": 13228,
+      "sha256": "60a64969c1681665967027b5658a788ff371b548f9bc82b47da9e02b2a6c2d12"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/decline/prefix-05-original-frame.json.gz",
+      "bytes": 15844,
+      "sha256": "be68b63dbb8f0ea499c4c52a1809e0f33dd7c867744c15582d1487d5da865d49"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/decline/receipt.json",
+      "bytes": 967,
+      "sha256": "909ae6f9616ecf67c05c34365ff4a56e084194861bec8c0acb740ccb7c7a8e1b"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/no-history/actual-all-seven-tables-after-deliberate-tamper.json.gz",
+      "bytes": 19077,
+      "sha256": "d0ae6049fc22326444c4c5b3f5852cf6ca51fcf35a58949838a5f76f67f9c00b"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/no-history/actual-rejected-frame-after-deliberate-tamper.json.gz",
+      "bytes": 7753,
+      "sha256": "8039adc447822288740ba6b7c6ca49a90d516eab9f966015045a08047ae6d652"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/no-history/entry-01-original-before-persist.json.gz",
+      "bytes": 3673,
+      "sha256": "bc85af6d3eaddf8c7cc98326b83cc26eda906fdfe513231154e6a0d210a4a0ce"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/no-history/entry-02-original-before-persist.json.gz",
+      "bytes": 4230,
+      "sha256": "eab3714a0152bfda6f184c08fb1fc95b26faf2ccfb464bfd839058f230392ddf"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/no-history/entry-03-original-before-persist.json.gz",
+      "bytes": 11071,
+      "sha256": "6ef5e83f94c06db77130d1f57acbc104da7757b892e49e75fff2a6513ca36569"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/no-history/entry-04-original-before-persist.json.gz",
+      "bytes": 8769,
+      "sha256": "01a94816096c8032b8837cdbb1adbb16b514ce5d2579e284dd881d1cfa39863f"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/no-history/entry-05-original-before-persist.json.gz",
+      "bytes": 6951,
+      "sha256": "223c9a29769efa05113d746edfdb16d2e8fcc64f0e64050d2d1e196470bdadfd"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/no-history/original-active-frame-before-any-tamper.json.gz",
+      "bytes": 10174,
+      "sha256": "cc36ffaf8d991410cdbe9b086323662eba3196e46246555a434b37e1cebb4dcd"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/no-history/original-all-seven-tables-before-any-tamper.json.gz",
+      "bytes": 20943,
+      "sha256": "55e88b79d8dd17a32c5be625ed04ce1e633d0fb437d77d0c8b51d385c62b379a"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/no-history/prefix-01-original-frame.json.gz",
+      "bytes": 4434,
+      "sha256": "874682596a45934792598f66a7643657bc7e671eaf910587d502e31cd7efb408"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/no-history/prefix-02-original-frame.json.gz",
+      "bytes": 4926,
+      "sha256": "75ef9d23bdd264cb91037e904010ddd8e53370fe21003bc1825bde95a6817f37"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/no-history/prefix-03-original-frame.json.gz",
+      "bytes": 14398,
+      "sha256": "2e5d164849d02f07026be88dd0712d425de0b9c7f15666cf375a7cbb6c62c3b5"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/no-history/prefix-04-original-frame.json.gz",
+      "bytes": 13227,
+      "sha256": "8f760f921067af0bbefa1128b7576ffcd9b4aabc305442ee33fd7cc1b518b7fe"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/no-history/prefix-05-original-frame.json.gz",
+      "bytes": 10174,
+      "sha256": "cc36ffaf8d991410cdbe9b086323662eba3196e46246555a434b37e1cebb4dcd"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/no-history/receipt.json",
+      "bytes": 968,
+      "sha256": "0eb25cbbbd357db47fea44fa1a582bbbf82a5c8d3e3a28ec2841e89b6565d7d7"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/normal/entry-01-original-before-persist.json.gz",
+      "bytes": 3674,
+      "sha256": "eb9b0b416046ea156ba672df30cac5f324ed4347f9be6b26681c008ed5312cfe"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/normal/entry-02-original-before-persist.json.gz",
+      "bytes": 4230,
+      "sha256": "e4cb9c311f6156c8a43b7d62bfdc97b2f2c1d345487d3e34f5332bb71b5c1b66"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/normal/entry-03-original-before-persist.json.gz",
+      "bytes": 11068,
+      "sha256": "f250d7389b5c0a10f6f2d03bafebb92861c9b7ed63fe4ee034da93335215b119"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/normal/entry-04-original-before-persist.json.gz",
+      "bytes": 8768,
+      "sha256": "841be5a883fc882e0d6ba4b3f99eee21d6252cdd6fe6d609ff78dd652d3f3d36"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/normal/entry-05-original-before-persist.json.gz",
+      "bytes": 6951,
+      "sha256": "eb58d9dd2b256892f892830306d8a6cf8bdd445ae9529a20f4b088b9af945245"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/normal/entry-06-original-before-persist.json.gz",
+      "bytes": 6743,
+      "sha256": "55cc227c240fa2e4b0d644e648c4134169284020c34bd07ce2a5bcb06b0e5b1f"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/normal/entry-07-original-before-persist.json.gz",
+      "bytes": 11194,
+      "sha256": "8eb8c3c3d5fc219591c99e6728d277e4200117ef7c5c04161ed1f7266f5aa71e"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/normal/original-active-frame-before-any-tamper.json.gz",
+      "bytes": 10173,
+      "sha256": "4d96ff7b40d9798ceda9066918d34c413c63b2e6182cf8a8ab1b3f1de2c5d995"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/normal/original-all-seven-tables-after-normal-resolution.json.gz",
+      "bytes": 31264,
+      "sha256": "a693530d73d8cf5b24906a8a16ac330fdbd3fb3757af8a04684c26f960ddbcce"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/normal/original-all-seven-tables-before-any-tamper.json.gz",
+      "bytes": 20986,
+      "sha256": "ffa0f0fd858f6933d8959d4cd1812c751834098b3e4fa8e0836647bda82703f1"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/normal/original-final-resolved-frame.json.gz",
+      "bytes": 16627,
+      "sha256": "3623c660b3067ec879295468ec65928eaf36e9757531d0a630dcf515c35bba11"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/normal/prefix-01-original-frame.json.gz",
+      "bytes": 4433,
+      "sha256": "c28094735d3528b4c7ef7075a2a2016b6246011dc26f62e67a3bbaea5ff4ab7f"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/normal/prefix-02-original-frame.json.gz",
+      "bytes": 4927,
+      "sha256": "2010c3b13999cba9cf1e763ab7919ffae147a2bda30007af264746f25430e499"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/normal/prefix-03-original-frame.json.gz",
+      "bytes": 14398,
+      "sha256": "5bc9319b18b9fa3b5c40313688316ebb9cbcc5b79468616e21be8e9221975997"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/normal/prefix-04-original-frame.json.gz",
+      "bytes": 13225,
+      "sha256": "f19f697f3ebe6f28549e90e97f0e25f1f35e313f6fc04c55426072b2b31bebb3"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/normal/prefix-05-original-frame.json.gz",
+      "bytes": 10173,
+      "sha256": "4d96ff7b40d9798ceda9066918d34c413c63b2e6182cf8a8ab1b3f1de2c5d995"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/normal/prefix-06-original-frame.json.gz",
+      "bytes": 10267,
+      "sha256": "a5167aa1c8d866d0810a19e05d343bc174722108884d4e706897983271d3e0ca"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/normal/prefix-07-original-frame.json.gz",
+      "bytes": 16627,
+      "sha256": "3623c660b3067ec879295468ec65928eaf36e9757531d0a630dcf515c35bba11"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/normal/receipt.json",
+      "bytes": 966,
+      "sha256": "19887cda6f7ee78c031e8cfc2ee2e0f4405b4470e36a604f0df0ffc77cc1d93a"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/wrong-inputs/actual-all-seven-tables-after-deliberate-tamper.json.gz",
+      "bytes": 20894,
+      "sha256": "e9290153aa44ea63d16aba63a358095c1decc527adfdba5f2ef75f6986f65f39"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/wrong-inputs/actual-rejected-frame-after-deliberate-tamper.json.gz",
+      "bytes": 10244,
+      "sha256": "9e7f04c180b191c5694105d83b5b517bcab042707b68e1702df2e7f0a31c0233"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/wrong-inputs/entry-01-original-before-persist.json.gz",
+      "bytes": 3675,
+      "sha256": "c6cef28aef377aeb5c2346c71ae27fc6af8c84befa70c354de1e11ea3ae77987"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/wrong-inputs/entry-02-original-before-persist.json.gz",
+      "bytes": 4231,
+      "sha256": "3f4eb972bf5fe10c9f557fe62b6b7edf1b7a9023c6a96f4e2888f580be967889"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/wrong-inputs/entry-03-original-before-persist.json.gz",
+      "bytes": 11069,
+      "sha256": "f04da61a10c5fc6fef45e27d63688d41b3a6abc6b583d9aa59c3fd8cc18f7ede"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/wrong-inputs/entry-04-original-before-persist.json.gz",
+      "bytes": 8767,
+      "sha256": "d896ead231eda32ba82ad18ca071ad1e608104bffaa9eb7a1637c3d5ff99f15a"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/wrong-inputs/entry-05-original-before-persist.json.gz",
+      "bytes": 6952,
+      "sha256": "dc6867fd72dc3e3efcd4e970c7868205182e6b1a2036155d68b690766add13c0"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/wrong-inputs/original-active-frame-before-any-tamper.json.gz",
+      "bytes": 10176,
+      "sha256": "e0a376420585f7c7c039201e2072086c45456dfb92f2adfa55c4418f79419f1d"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/wrong-inputs/original-all-seven-tables-before-any-tamper.json.gz",
+      "bytes": 20937,
+      "sha256": "e5b38b2df8eba03d8dd8828e849553b08cb0f856de7972466a1c10a0151ae7c4"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/wrong-inputs/prefix-01-original-frame.json.gz",
+      "bytes": 4432,
+      "sha256": "918c4711635ca57f761289815e46efe2fcd395efee2bdf85deb0140d3105e21d"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/wrong-inputs/prefix-02-original-frame.json.gz",
+      "bytes": 4924,
+      "sha256": "6687e933e2414826fb93ea838a56b92f6f385ffac14792fede534b5d0a0bdc4e"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/wrong-inputs/prefix-03-original-frame.json.gz",
+      "bytes": 14400,
+      "sha256": "f10bc78d0770ef05f25cfcbc801c3871b393a6bf79364591cf391fe25de4a458"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/wrong-inputs/prefix-04-original-frame.json.gz",
+      "bytes": 13226,
+      "sha256": "aa68f34c96c0cf112d7e36aac3b0a7cdcc439068cdbc26368af0847152933dc2"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/wrong-inputs/prefix-05-original-frame.json.gz",
+      "bytes": 10176,
+      "sha256": "e0a376420585f7c7c039201e2072086c45456dfb92f2adfa55c4418f79419f1d"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/wrong-inputs/receipt.json",
+      "bytes": 971,
+      "sha256": "72460db72b2bce0389fdfe1ded81337c6bb505b4500b41fc96f9d468d2b115b3"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/refresh-exact-lab-you-source-v1.py",
+      "bytes": 4392,
+      "sha256": "0df6d65d321181cc067f18eb306759631b2a777c595440b4aa1564045437bd67"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/sql59-and-independent-tool-identity-installation-v1.json",
+      "bytes": 734,
+      "sha256": "395ef4a77837baac3b2c1ffae27d34e5b739791ac032da36d4334565888b42bd"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/twenty-five-exact-lab-you-behavior-branch-preparation-v1.json",
+      "bytes": 7735,
+      "sha256": "a04c2fbb3e980301f6644d9cb2bfd8677638870ebbf90d4e4c5fbb65750dab54"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/twenty-five-exact-lab-you-behavior-branch-preparation-v2.json",
+      "bytes": 8696,
+      "sha256": "3bc8498c7e0b5014e23fb36065ecb0e9a30acfeaa4f90d28a706ca5af849ec23"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/verify-completed-fixed3f2dc-full-originals-v1.py",
+      "bytes": 10502,
+      "sha256": "1ae40d5663d3a933289721238230ac9227f8496a2afb2f7be0d052e89ec9da65"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/verify-only-lab-you-check-and-original-retention-v1.py",
+      "bytes": 8334,
+      "sha256": "c686df0853a8d4cb58e251861a2ac4765d7b0ad08b9f7b0331cd23d8f37b8955"
+    },
+    {
+      "path": "var/qa/global-gallery-cross-locale-20261022/acquire-all-nine-advertised-gallery-locales-v1.py",
+      "bytes": 5386,
+      "sha256": "e603c102fa03d1e3c42ba6c60381daad34c002a8f10a482c759aee8b9af67a9e"
+    },
+    {
+      "path": "var/qa/global-gallery-cross-locale-20261022/acquire-complete-cn1504-current-source-v1.py",
+      "bytes": 4219,
+      "sha256": "f2abe6e02150f834972793862d023d0f175394ed01af3f11c07c8df43695b13a"
+    },
+    {
+      "path": "var/qa/global-gallery-cross-locale-20261022/all-nine-locale-whole-window-source-readback-v1.json",
+      "bytes": 281899,
+      "sha256": "66f694961980bd3425afd3c144c14c0a9d9f831e6ee509c99d733fcf80e397ad"
+    },
+    {
+      "path": "var/qa/global-gallery-cross-locale-20261022/current-complete-cn-full-row-and-qa-readback-v1.json",
+      "bytes": 25702,
+      "sha256": "54ad605921ffb010719e6f5c038816e932ebe21434c59e8dff63d9810c0beb53"
+    },
+    {
+      "path": "var/qa/global-gallery-cross-locale-20261022/current-complete-cn-original-pages-v1.jsonl.gz",
+      "bytes": 198003,
+      "sha256": "c410a1e900fb858c2ba530d9814be8ca70e2fbb8d36f0c60a5f0b6254e28f161"
+    },
+    {
+      "path": "var/qa/global-gallery-cross-locale-20261022/current-gallery-ssr-locale-and-count-readback-v1.json",
+      "bytes": 2892,
+      "sha256": "81fb1c23d6d4796ccc91144447eb3bb76b5ca00f9518ee785cc34ec121b027c4"
+    },
+    {
+      "path": "var/qa/global-gallery-cross-locale-20261022/next-finite-ven089-observe-play-source-preparation-v1.json",
+      "bytes": 8642,
+      "sha256": "ec74a7c752f171b678939326ba8348e9acf471d7e6e20406b6f2fd110d4e5b56"
+    },
+    {
+      "path": "var/qa/global-gallery-cross-locale-20261022/nine-locale-existing-kayn-and-eight-gap-disposition-v1.json",
+      "bytes": 36571,
+      "sha256": "f8572da539caa224218a22508f7bcd57e039ddc86a7114c283d8d09ef05e949c"
+    },
+    {
+      "path": "var/qa/global-gallery-cross-locale-20261022/nine-locale-original-full-responses-v1.jsonl.gz",
+      "bytes": 2654548,
+      "sha256": "f1ec2f3633f50c7b89c4e1fa9da10e0f0cdbb1be5b49c71a20373d571eba3489"
+    },
+    {
+      "path": "var/qa/global-gallery-cross-locale-20261022/official-current-gallery-ssr-original-v1.html.gz",
+      "bytes": 285311,
+      "sha256": "a5ad27dbf9e3009b6a971938c1209c47751c2da0996e94d51eeb9e8b60aa60e8"
+    }
+  ],
+  "existingIdenticalOlderArchiveMembersNotDuplicated": [
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/exact-fixed3f2dc-sql-ci-gate-original-v1.py",
+      "sha256": "9bba242dfdce754f4855bb3098c2a8aadae1edaa64fb4b3b840afeb2112624a0",
+      "existingArchiveMember": "var/qa/room-seat-peer-notifications-20261022/exact-fixed9633-sql-ci-gate-original-v3.py",
+      "existingArchiveMap": {
+        "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/archive-map.json",
+        "sha256": "f5055bdce083052b347e5346b0d38e3fede091b026cc9f6a3e2d8daeb4a6e09f"
+      }
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/actor-and-context/actual-refusal-errors.json",
+      "sha256": "5f0d72201df4f1474a1879144f8bfaf252b9d6c7500562cf6b2d89754f205748",
+      "existingArchiveMember": "var/qa/battlefield-start-controller-20261022/actual-current-battlefield-controller-real-sql-v3/battlefield-start-controller/actor-and-context/actual-refusal-errors.json",
+      "existingArchiveMap": {
+        "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/archive-map.json",
+        "sha256": "f5055bdce083052b347e5346b0d38e3fede091b026cc9f6a3e2d8daeb4a6e09f"
+      }
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/no-history/actual-refusal-errors.json",
+      "sha256": "3026ea15059764a667fb970b10bf3cc5df2bdf6df7d383a403768f3774f11822",
+      "existingArchiveMember": "var/qa/battlefield-start-controller-20261022/actual-current-battlefield-controller-real-sql-v3/battlefield-start-controller/no-history/actual-refusal-errors.json",
+      "existingArchiveMap": {
+        "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/archive-map.json",
+        "sha256": "f5055bdce083052b347e5346b0d38e3fede091b026cc9f6a3e2d8daeb4a6e09f"
+      }
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/real-sql-lab-you-v1/battlefield-start-lab-you/wrong-inputs/actual-refusal-errors.json",
+      "sha256": "960c3ae81370300dc070d3d50d464dcf5e4c1a0bd8bac9fe0cf180111ed678aa",
+      "existingArchiveMember": "var/qa/battlefield-start-controller-20261022/actual-current-battlefield-controller-real-sql-v3/battlefield-start-controller/wrong-inputs/actual-refusal-errors.json",
+      "existingArchiveMap": {
+        "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/archive-map.json",
+        "sha256": "f5055bdce083052b347e5346b0d38e3fede091b026cc9f6a3e2d8daeb4a6e09f"
+      }
+    }
+  ],
+  "localOnlyOriginalVerificationZipsAndPrivateExclusions": [
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/ci3f2dc-complete-originals-v1/conformance-results.zip",
+      "bytes": 3979721,
+      "sha256": "53dc3ffcfd916ef320870cfd6d435db1341d327ab8c149a5a106d30862a06b6f",
+      "reason": "SOLE_ORIGINAL_BACKEND_VERIFICATION_ZIP_RETAINED_LOCALLY_AND_DIGEST_RECEIPT_PUBLISHED_NO_SECOND_ARCHIVE_COPY"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/ci3f2dc-complete-originals-v1/full-verification-gate.zip",
+      "bytes": 298,
+      "sha256": "6d7eb8e63026acee548496498a6a4950542d1cad4bcbfa4aa45c670b842fa276",
+      "reason": "SOLE_ORIGINAL_BACKEND_VERIFICATION_ZIP_RETAINED_LOCALLY_AND_DIGEST_RECEIPT_PUBLISHED_NO_SECOND_ARCHIVE_COPY"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/ci3f2dc-complete-originals-v1/native-network-results.zip",
+      "bytes": 2119,
+      "sha256": "8408d08f62231ef7c1b840d380ec9af4421f753e6fe3e30957178dabab9b7d27",
+      "reason": "SOLE_ORIGINAL_BACKEND_VERIFICATION_ZIP_RETAINED_LOCALLY_AND_DIGEST_RECEIPT_PUBLISHED_NO_SECOND_ARCHIVE_COPY"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/ci3f2dc-complete-originals-v1/postgres-partition-0.zip",
+      "bytes": 3079681,
+      "sha256": "f4f5645d5859b34342080442fb0542cafce005bfdfdcdbd66b4a69f05250564d",
+      "reason": "SOLE_ORIGINAL_BACKEND_VERIFICATION_ZIP_RETAINED_LOCALLY_AND_DIGEST_RECEIPT_PUBLISHED_NO_SECOND_ARCHIVE_COPY"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/ci3f2dc-complete-originals-v1/postgres-partition-1.zip",
+      "bytes": 2471736,
+      "sha256": "27be580a0c2f94fb9e1f37cee06eb7d1a1bbf89c331e5453a242b35b375c1b29",
+      "reason": "SOLE_ORIGINAL_BACKEND_VERIFICATION_ZIP_RETAINED_LOCALLY_AND_DIGEST_RECEIPT_PUBLISHED_NO_SECOND_ARCHIVE_COPY"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/ci3f2dc-complete-originals-v1/postgres-partition-2.zip",
+      "bytes": 1904780,
+      "sha256": "e6016266249b8af8c3356674b2a1d57769f2f9694072d30e173634d378b42f1d",
+      "reason": "SOLE_ORIGINAL_BACKEND_VERIFICATION_ZIP_RETAINED_LOCALLY_AND_DIGEST_RECEIPT_PUBLISHED_NO_SECOND_ARCHIVE_COPY"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/ci3f2dc-complete-originals-v1/postgres-partition-3.zip",
+      "bytes": 2651573,
+      "sha256": "00771ad8276d58ad346bc4a7c7311c37d833aed9e013d03c1a7e9b1c46700102",
+      "reason": "SOLE_ORIGINAL_BACKEND_VERIFICATION_ZIP_RETAINED_LOCALLY_AND_DIGEST_RECEIPT_PUBLISHED_NO_SECOND_ARCHIVE_COPY"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/ci3f2dc-complete-originals-v1/postgres-results.zip",
+      "bytes": 2293,
+      "sha256": "a3f023e802cff3810eaacf5dbd748d6786bfe881ae2091a133ab98cf744c073d",
+      "reason": "SOLE_ORIGINAL_BACKEND_VERIFICATION_ZIP_RETAINED_LOCALLY_AND_DIGEST_RECEIPT_PUBLISHED_NO_SECOND_ARCHIVE_COPY"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/ci3f2dc-complete-originals-v1/verification-scope.zip",
+      "bytes": 1603618,
+      "sha256": "29638d861e2e78354dc8979150c767dfec2244ca70eec5dc3d575ce7dcdf4919",
+      "reason": "SOLE_ORIGINAL_BACKEND_VERIFICATION_ZIP_RETAINED_LOCALLY_AND_DIGEST_RECEIPT_PUBLISHED_NO_SECOND_ARCHIVE_COPY"
+    }
+  ],
+  "allBytesHashesAndClosedSetVerified": true,
+  "applicationsInstallersSdksAndFrozenRuntimeDependenciesNotDuplicated": true
+}

@@ -22903,7 +22903,7 @@ public sealed partial class MatchSession : IMatchSession
                 [seed.P2] = Zones(
                     mainDeck: ["P2-ROSE-DRAW-001", "P2-NORMAL-DRAW-001"],
                     runeDeck: ["P2-RUNE-001", "P2-RUNE-002", "P2-RUNE-003"],
-                    battlefields: ["P2-BATTLEFIELD-AAA-OFFSITE", "P2-BATTLEFIELD-ROSE-LAB", "P2-BATTLEFIELD-ROSE-SACRIFICE"],
+                    battlefields: ["P2-BATTLEFIELD-AAA-OFFSITE", "P2-BATTLEFIELD-ROSE-LAB", "P2-BATTLEFIELD-ROSE-SACRIFICE", "P2-OTHER"],
                     legendZone: ["P2-LEGEND-001"],
                     championZone: ["P2-CHAMPION-001"])
             },
@@ -22918,6 +22918,12 @@ public sealed partial class MatchSession : IMatchSession
                 ["P2-BATTLEFIELD-ROSE-LAB"] = new(
                     "P2-BATTLEFIELD-ROSE-LAB",
                     cardNo: "UNL-209/219",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
+                    ownerId: seed.P2,
+                    controllerId: seed.P2),
+                ["P2-OTHER"] = new(
+                    "P2-OTHER",
+                    cardNo: "OGN\u00b7278/298",
                     tags: [P6TokenFactoryCatalog.BattlefieldCardTag],
                     ownerId: seed.P2,
                     controllerId: seed.P2),
@@ -22942,6 +22948,7 @@ public sealed partial class MatchSession : IMatchSession
             ObjectLocations = new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
             {
                 ["P2-BATTLEFIELD-AAA-OFFSITE"] = new(seed.P2, "BATTLEFIELD", "P2-OTHER"),
+                ["P2-OTHER"] = new(seed.P2, "BATTLEFIELD", "P2-OTHER"),
                 ["P2-BATTLEFIELD-ROSE-LAB"] = new(seed.P2, "BATTLEFIELD", "P2-BATTLEFIELD-ROSE-LAB"),
                 ["P2-BATTLEFIELD-ROSE-SACRIFICE"] = new(seed.P2, "BATTLEFIELD", "P2-BATTLEFIELD-ROSE-LAB"),
                 ["P2-ROSE-DRAW-001"] = new(seed.P2, "MAIN_DECK"),

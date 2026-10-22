@@ -1,0 +1,78 @@
+{
+  "url": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+  "request": {
+    "pageNum": 1,
+    "pageSize": 100,
+    "searchContent": "暮色玫瑰实验室",
+    "cardCategoryList": [],
+    "cardColorList": [],
+    "rarityList": [],
+    "productCodeList": []
+  },
+  "startedAtUtc": "2026-10-22T01:19:02.788759+00:00",
+  "receivedAtUtc": "2026-10-22T01:19:02.917595+00:00",
+  "httpStatus": 200,
+  "responseHeaders": {
+    "Date": "Thu, 22 Oct 2026 01:19:02 GMT",
+    "Content-Type": "application/json"
+  },
+  "originalRawBytes": 1164,
+  "originalRawSha256": "6e21c5325608c398ef3c0c9a00d1f556b6a21836eb2d3247d3106ad51b94873c",
+  "original": "var/qa/battlefield-start-you-lab-20261022/current-34762-complete-response-v1.json.gz",
+  "compressedSha256": "99277d038cdb1be7f2561c1adf65c097f6f82cd536b0447faa9c27f0304763fb",
+  "exactId": 34762,
+  "region": "CN",
+  "language": "zh-CN",
+  "currentCompleteRow": {
+    "id": 34762,
+    "cardCategoryList": [
+      "battlefield"
+    ],
+    "cardCategoryNameList": [
+      "战场"
+    ],
+    "cardNo": "UNL-209/219",
+    "cardName": "暮色玫瑰实验室",
+    "subTitle": "",
+    "extendType": null,
+    "extendTypeName": "",
+    "cardColorList": [
+      "colorless"
+    ],
+    "hero": "",
+    "region": "",
+    "tag": "",
+    "artist": "Envar Studio",
+    "cardEffect": "在你的开始阶段开始时，你可以选择摧毁一名此处由你控制的单位，以此抽一张牌。（此行动在得分前进行。）",
+    "flavorText": "",
+    "energy": null,
+    "returnEnergy": null,
+    "power": null,
+    "productCodeList": [
+      "UNL(进阶补充包)",
+      "UNL(标准补充包)"
+    ],
+    "productNameList": [
+      "破限系列 进阶补充包",
+      "破限系列 基础补充包"
+    ],
+    "cardQaList": null,
+    "craftLevel": 0,
+    "rarity": "rune_glimmer",
+    "rarityName": "不凡",
+    "extendRarity": "base_inscript",
+    "extendRarityName": "平卡",
+    "frontImage": "https://cdn.playloltcg.com/lol/card/20260320/dcb640fe080b4c4786535f890fe7f188.webp",
+    "backImage": "",
+    "listSort": 1262,
+    "status": 1,
+    "cardGroupLimit": null,
+    "isPreview": false,
+    "errata": "",
+    "otherDesc": 0
+  },
+  "allKeysValuesNullsAndQaExactLatestRegistered": true,
+  "allKeysValuesNullsAndQaExactCn16": true,
+  "publicationOrEffectiveDateNotInferredFromFetch": true,
+  "semanticCertification": false
+}

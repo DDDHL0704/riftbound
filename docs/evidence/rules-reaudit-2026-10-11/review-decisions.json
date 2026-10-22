@@ -24845,6 +24845,59 @@
         "New fixed full and current native/network/normal-score/full-history/visible/physical Windows gates remain independent.",
         "Original SQL v1 scenario and v2 event-reader oracle failures, all accepted inputs and old CI9633 failure remain original."
       ]
+    },
+    {
+      "id": "lab-start-you-current-cn16-2026-10-22",
+      "scope": "UNL-209/219 exact Lab: dedicated uncontrolled/other-controller your-start eligibility, physical owner versus captured actor, sacrifice/decline leading instruction cost, original trigger journal and strict replay. Existing production semantics retained. Only the existing recorded Lab development scenario receives its missing physical offsite battlefield.",
+      "subjects": [
+        "UNL-209/219"
+      ],
+      "ruleRecords": [
+        "DOC-01-P029-B006",
+        "DOC-01-P029-B007",
+        "DOC-01-P029-B010",
+        "DOC-01-P030-B006",
+        "DOC-01-P030-B007",
+        "DOC-01-P030-B010",
+        "DOC-01-P030-B011",
+        "DOC-01-P030-B012",
+        "DOC-01-P030-B013",
+        "DOC-01-P032-B002"
+      ],
+      "status": "BOUNDED_CURRENT_CN_LAB_YOU_EXISTING_RULES_DEDICATED_EXECUTION_AND_RECORDED_SCENE_REPAIR_SOLE_CHECK_AND_SQL_PASS_NEW_FIXED_FULL_PRODUCTS_OPEN",
+      "sourceManifest": {
+        "path": "docs/evidence/lab-start-you-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "8d6f36beb210f7560307f893c5def81ae77e54af65a60a649e3a3ea2d5a7b90d",
+        "role": "source-manifest"
+      },
+      "auditDocument": "docs/LAB_START_YOU_CURRENT_CN16_AUDIT_2026-10-22.md",
+      "validation": {
+        "newCases": 25,
+        "newMethods": 3,
+        "finalAdjacentCases": 392,
+        "finalAdjacentMethods": 285,
+        "affectedOriginalFullGameMethods": 2,
+        "onlyCheckCases": 13436,
+        "onlyCheckMethods": 7543,
+        "originalOnlyCheckOutcomes": {
+          "Passed": 13436
+        },
+        "sqlCase59OnlySixNewControlledBranches": true,
+        "sqlInputs": 32,
+        "sqlColdRecoveries": 32,
+        "independentAuthorityHistories": 32,
+        "independentPrivateSnapshots": 58,
+        "independentPrivatePrompts": 58,
+        "independentEvents": 91,
+        "actualCorruptOrWrongVersionRefusals": 4,
+        "wholePrintingCertified": false
+      },
+      "exclusions": [
+        "Specific chooser190.6.c, general last-known-information/copies and other consumers remain OPEN.",
+        "Recorded controlled scenes and prior fixed3f2dc native proof do not certify this new candidate or visible/Windows acceptance.",
+        "All source gaps, outside-active705, eight English gap,139news,KDA exact identities and whole1740 universe remain.",
+        "Original first compile failure,16pass9failure,three-input missing-field SQL room and all historical failed CIs remain unchanged."
+      ]
     }
   ]
 }

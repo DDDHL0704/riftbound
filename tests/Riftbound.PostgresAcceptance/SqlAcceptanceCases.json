@@ -234,6 +234,10 @@
     {
       "id": "battlefield-start-controller",
       "sourceType": "BattlefieldStartControllerSqlAcceptance"
+    },
+    {
+      "id": "battlefield-start-lab-you",
+      "sourceType": "BattlefieldStartLabYouSqlAcceptance"
     }
   ]
 }

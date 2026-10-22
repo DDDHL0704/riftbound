@@ -1,0 +1,55 @@
+{
+  "atUtc": "2026-10-22T03:08:16.001692+00:00",
+  "purpose": "Only completed old-counterexample and independent SQL reader regenerable build output retired after execution; actual four DLL/PDB retained. Their original external bin paths no longer exist.",
+  "files": 48,
+  "logicalBytes": 379571,
+  "allPerFileOriginalHashesAndModes": "var/qa/battlefield-start-you-lab-20261022/finished-own-lab-build-output-file-manifest-v1.json.gz",
+  "retainedActualExecutedBits": [
+    {
+      "originalPath": "var/qa/battlefield-start-you-lab-20261022/broken-original-lab-real-sql-source-v1/bin/Release/net10.0/BrokenOriginalLabRealSqlV1.dll",
+      "retainedPath": "var/qa/battlefield-start-you-lab-20261022/executed-own-lab-readers-v1/BrokenOriginalLabRealSqlV1.dll",
+      "sha256": "fd022c21ef9da86fee30b4edde6a261cccd1399c1e8e32a235ec85c1861eaa4d",
+      "bytes": 27136
+    },
+    {
+      "originalPath": "var/qa/battlefield-start-you-lab-20261022/broken-original-lab-real-sql-source-v1/bin/Release/net10.0/BrokenOriginalLabRealSqlV1.pdb",
+      "retainedPath": "var/qa/battlefield-start-you-lab-20261022/executed-own-lab-readers-v1/BrokenOriginalLabRealSqlV1.pdb",
+      "sha256": "030ef6b7c17b24ba195f92a572c2df1141e7ab7504a4e829bba242969aff60ac",
+      "bytes": 16220
+    },
+    {
+      "originalPath": "var/qa/battlefield-start-you-lab-20261022/independent-lab-you-controller-reader-source-v1/bin/Release/net10.0/IndependentLabYouControllerReaderV1.dll",
+      "retainedPath": "var/qa/battlefield-start-you-lab-20261022/executed-own-lab-readers-v1/IndependentLabYouControllerReaderV1.dll",
+      "sha256": "0e4a5efd458f6384f0628bafe33cc4338f1871917797a767e0f7a72206cc3fbf",
+      "bytes": 45056
+    },
+    {
+      "originalPath": "var/qa/battlefield-start-you-lab-20261022/independent-lab-you-controller-reader-source-v1/bin/Release/net10.0/IndependentLabYouControllerReaderV1.pdb",
+      "retainedPath": "var/qa/battlefield-start-you-lab-20261022/executed-own-lab-readers-v1/IndependentLabYouControllerReaderV1.pdb",
+      "sha256": "f2539293f17aab7307128e5e86b9480a61b4e3449a8bafa31de2daa019d2bc2a",
+      "bytes": 20844
+    }
+  ],
+  "allSourceAndProjectFilesRetained": [
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/broken-original-lab-real-sql-source-v1/probe.csproj",
+      "sha256": "94f327346fc3bf615706bdc6b28c50f0a86b08e5e9a8e44c95810ee7589d497e"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/broken-original-lab-real-sql-source-v1/Program.cs",
+      "sha256": "ae911f9a485b11bf6d55ef9309a4dd0e498e673dedb947ded7f2a5d177caca19"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/independent-lab-you-controller-reader-source-v1/probe.csproj",
+      "sha256": "5421c9f5f7fa464930f40ab9e0776610e39361714a4de80a3fad19903e59a699"
+    },
+    {
+      "path": "var/qa/battlefield-start-you-lab-20261022/independent-lab-you-controller-reader-source-v1/Program.cs",
+      "sha256": "25504823b1dcbafa9227be04fddbea495074b6762aab0158aed4fdbc740eeb73"
+    }
+  ],
+  "all89CurrentAnd48OriginalFrozenRuntimesUnchanged": true,
+  "root1419ConformanceAnd23NativeDebugNotTouched": true,
+  "sourceTestsOriginsDatabaseAndAllLogsNotDeleted": true,
+  "physicalApfsReclaimNotInferred": true
+}

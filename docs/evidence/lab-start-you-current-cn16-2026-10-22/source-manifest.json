@@ -1,0 +1,164 @@
+{
+  "schemaVersion": 1,
+  "id": "lab-start-you-current-cn16-2026-10-22",
+  "atUtc": "2026-10-22T03:02:56.747738+00:00",
+  "region": "CN",
+  "language": "zh-CN",
+  "applicableAsOf": "2026-10-22",
+  "adoptedCoreEffectiveDate": "2026-10-16",
+  "scope": "UNL-209/219 exact Lab: dedicated uncontrolled/other-controller your-start eligibility, physical owner versus captured actor, sacrifice/decline leading instruction cost, original trigger journal and strict replay. Existing production semantics retained. Only the existing recorded Lab development scenario receives its missing physical offsite battlefield.",
+  "exactPrintings": [
+    "UNL-209/219"
+  ],
+  "exactApiIds": [
+    34762
+  ],
+  "exactCompleteOfficialRow": {
+    "id": 34762,
+    "cardCategoryList": [
+      "battlefield"
+    ],
+    "cardCategoryNameList": [
+      "战场"
+    ],
+    "cardNo": "UNL-209/219",
+    "cardName": "暮色玫瑰实验室",
+    "subTitle": "",
+    "extendType": null,
+    "extendTypeName": "",
+    "cardColorList": [
+      "colorless"
+    ],
+    "hero": "",
+    "region": "",
+    "tag": "",
+    "artist": "Envar Studio",
+    "cardEffect": "在你的开始阶段开始时，你可以选择摧毁一名此处由你控制的单位，以此抽一张牌。（此行动在得分前进行。）",
+    "flavorText": "",
+    "energy": null,
+    "returnEnergy": null,
+    "power": null,
+    "productCodeList": [
+      "UNL(进阶补充包)",
+      "UNL(标准补充包)"
+    ],
+    "productNameList": [
+      "破限系列 进阶补充包",
+      "破限系列 基础补充包"
+    ],
+    "cardQaList": null,
+    "craftLevel": 0,
+    "rarity": "rune_glimmer",
+    "rarityName": "不凡",
+    "extendRarity": "base_inscript",
+    "extendRarityName": "平卡",
+    "frontImage": "https://cdn.playloltcg.com/lol/card/20260320/dcb640fe080b4c4786535f890fe7f188.webp",
+    "backImage": "",
+    "listSort": 1262,
+    "status": 1,
+    "cardGroupLimit": null,
+    "isPreview": false,
+    "errata": "",
+    "otherDesc": 0
+  },
+  "exactRuleRecords": [
+    "DOC-01-P029-B006",
+    "DOC-01-P029-B007",
+    "DOC-01-P029-B010",
+    "DOC-01-P030-B006",
+    "DOC-01-P030-B007",
+    "DOC-01-P030-B010",
+    "DOC-01-P030-B011",
+    "DOC-01-P030-B012",
+    "DOC-01-P030-B013",
+    "DOC-01-P032-B002"
+  ],
+  "exactCurrentPrimaryRuleTextSha256": {
+    "DOC-01-P029-B006": "c453e7c3f0cc353fc59e08b6c93080bfd3611a68ba621055098450b8dba3d78a",
+    "DOC-01-P029-B007": "296bb8793557557d260bb6e3ddcb4e17e548e629e80dacd2a3536f4ba289c220",
+    "DOC-01-P029-B010": "d21b4eada0f9a326a66aa4aa558fa9b0520efbe23a1b16bd088c55b932059608",
+    "DOC-01-P030-B006": "1742337bc0596a83c7c85ecfd2b09bf98388a8988a6baf6ba9827559bcb0867c",
+    "DOC-01-P030-B007": "7b6c2c1d08f859f7da806fa1131e6e003d646f9d9b1711141a48d84c3c72a280",
+    "DOC-01-P030-B010": "4708793247d25e2d066881c2b1fab609c7dcc7d70329f581c79bb72308f6060c",
+    "DOC-01-P030-B011": "b0766b8633cc05fb94d8abae52f4267aac5eb92d240a58a8214e0a8f56ccbc2c",
+    "DOC-01-P030-B012": "48c3b8d43cb1fd64e4c60c0da2de41320eb39d688144460eea5e2b28abfc073f",
+    "DOC-01-P030-B013": "bc3f11a275559558580e28067784d85824e50473af936481e6e36b33f299d83e",
+    "DOC-01-P032-B002": "7eb3ef0666a495f8bb2da954ec957c0f32e56fd4cfad7b2c319636bba8c7ecb8"
+  },
+  "currentSourceReadback": {
+    "path": "docs/evidence/lab-start-you-current-cn16-2026-10-22/current-exact-lab-source-intake.json",
+    "sha256": "ea0e862a2597245b9a411a8da25b8335d5395652fdb139cbcc233a5de1d35a68"
+  },
+  "all16SourceVersions": {
+    "path": "docs/evidence/lab-start-you-current-cn16-2026-10-22/current-all16-rule-version-readback.json",
+    "sha256": "e97fcadb2fb156f6617129b17a8b2e766e5c4435250b45e8b0fadb200a9bd8f7"
+  },
+  "primaryCoreSha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11",
+  "corePublicationOriginalUpdatedDate": "2026-10-10",
+  "coreEffectiveDateFromExistingOfficialTitle": "2026-10-16",
+  "exactCardPublicationAndEffectiveDatesIndependentlyConfirmed": false,
+  "allOldSourceAcquisitionPublicationEffectiveAndRegionDatesRetained": true,
+  "currentBoundedLabAnd16RuleSourceVersionChangesDetected": false,
+  "actualDebugRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "e7455edc32d43f8253a9d0c6fedb83c347bebafbef064f9b8dffaaabc4b4d266",
+    "implementationSha256": "bd15ff84a821f72e35037975bad7d20e2ca2edb895fb5775007fa7bd90022534",
+    "identitySha256": "a61cbe75b00bfcdc8975462363535200b527ea60f81f340b7e91c50f8c2e746a"
+  },
+  "actualReleaseSqlRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "e7455edc32d43f8253a9d0c6fedb83c347bebafbef064f9b8dffaaabc4b4d266",
+    "implementationSha256": "ca7d3bff3645fb819b2d3c56fcb93c0a6ebcc8e58defb3e515d2a5a361f5aea2",
+    "identitySha256": "8bc8ab3ddc82fe592b87d5694668ac7c1aa7e9ee1022b9b413498cef8fb32cf2"
+  },
+  "onlyCheckNoDatabaseConnectionProvided": true,
+  "dedicatedNewSql59ActualInputs": 32,
+  "dedicatedNewSql59ActualColdRecoveries": 32,
+  "original58SqlIdentitiesUnmodifiedAwaitNewFixedFullWith59": true,
+  "wholeScopeRetained": {
+    "printings": 1740,
+    "ruleRecords": 14293,
+    "activeCatalog": 1035,
+    "outsideActive": 705,
+    "CNRawRows": 1504,
+    "ENReturned": 1408,
+    "ENReported": 1416,
+    "ENUnreturnedGap": 8,
+    "CNOfficialNewsScope": 139,
+    "globalKdaFiveExactPrintingApplicabilityGates": "OPEN"
+  },
+  "freshNineLocaleSourceObservationWithoutCatalogOrSourceUniverseAdoption": {
+    "path": "docs/evidence/lab-start-you-current-cn16-2026-10-22/current-nine-locale-gallery-source-readback.json",
+    "sha256": "66f694961980bd3425afd3c144c14c0a9d9f831e6ee509c99d733fcf80e397ad"
+  },
+  "knownExtraKaynFiveLocalesHasExistingIssue66AndTwoUnchangedGates": {
+    "path": "docs/evidence/lab-start-you-current-cn16-2026-10-22/existing-regional-kayn-and-eight-gap-disposition.json",
+    "sha256": "f8572da539caa224218a22508f7bcd57e039ddc86a7114c283d8d09ef05e949c"
+  },
+  "allCn1504CompleteRowsAndQaUnchanged": {
+    "path": "docs/evidence/lab-start-you-current-cn16-2026-10-22/current-complete-cn1504-readback.json",
+    "sha256": "54ad605921ffb010719e6f5c038816e932ebe21434c59e8dff63d9810c0beb53"
+  },
+  "specificChooser1906CGeneralLkiCopiedAbilitiesOtherConsumersAndWholePrinting": "OPEN",
+  "originalThreeInputBrokenSqlRoomNotRewrittenOrMigrated": true,
+  "separateConcurrentWebNotValidatedByOriginalFrozenRuleCheck": {
+    "path": "docs/evidence/lab-start-you-current-cn16-2026-10-22/parallel-web-commit-scope-boundary.json",
+    "sha256": "85b83e2dab16ef7d02b9e820a7ba678207e01b5808feb829419bbf45f1d4dade"
+  },
+  "archive": {
+    "path": "docs/evidence/lab-start-you-current-cn16-2026-10-22/original-execution-and-source-records.tar.gz",
+    "sha256": "fbefed79687e137758afee6625ba1d107147a6257dcc0227a169c008728929a3"
+  },
+  "archiveMap": {
+    "path": "docs/evidence/lab-start-you-current-cn16-2026-10-22/archive-map.json",
+    "sha256": "ca6a5ec75e1d41f4330c30109f5310bff5d3fc5a6bb8b241c6668613ae67aabf"
+  },
+  "newFixedFullAndCurrentNativeVisiblePhysicalWindows": "OPEN",
+  "semanticCoverageCertified": false
+}

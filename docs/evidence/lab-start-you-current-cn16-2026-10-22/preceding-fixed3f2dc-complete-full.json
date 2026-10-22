@@ -1,0 +1,964 @@
+{
+  "atUtc": "2026-10-22T02:54:15.822523+00:00",
+  "status": "FIXED3F2DC_ALL11_SUCCESS13560_CASES7681_METHODS_INDEPENDENT58_SQL_ORIGINAL_NETWORK_AND_PEER_VIEWS_VERIFIED",
+  "fixedCommit": "3f2dc4025834ec649d786646c2d2e72f3483a1d5",
+  "runId": 39700268504,
+  "jobs": {
+    "scope": "success",
+    "postgres_partitions (2)": "success",
+    "rule_suite": "success",
+    "desktop (windows-latest)": "success",
+    "desktop (macos-latest)": "success",
+    "postgres_partitions (3)": "success",
+    "postgres_partitions (0)": "success",
+    "native_network": "success",
+    "postgres_partitions (1)": "success",
+    "postgres": "success",
+    "rules": "success"
+  },
+  "actualCases": 13560,
+  "actualMethods": 7681,
+  "actualOutcomes": {
+    "Passed": 13560
+  },
+  "original13528Cases7675MethodsExactRetainedPlus32Cases6Methods": true,
+  "priorActualCompleteEvidenceSha256": "6194fd02136404e9ec82aa571086c9defcc0325658603c221327a063003d66cf",
+  "original9633FailedRunAndN41LocalP79FailureNotRelabeled": true,
+  "addedCaseNames": [
+    "Riftbound.ConformanceTests.BattlefieldStartControllerTests.CapturedActorDeterminesFriendlyDamageAndWhichElderCanDestroy(fieldController: \"P1\", targetController: \"P2\", elderController: \"P1\", destroyed: True)",
+    "Riftbound.ConformanceTests.BattlefieldStartControllerTests.CapturedActorDeterminesFriendlyDamageAndWhichElderCanDestroy(fieldController: \"P2\", targetController: \"P1\", elderController: \"P2\", destroyed: True)",
+    "Riftbound.ConformanceTests.BattlefieldStartControllerTests.CapturedActorDeterminesFriendlyDamageAndWhichElderCanDestroy(fieldController: \"P2\", targetController: \"P2\", elderController: \"P1\", destroyed: False)",
+    "Riftbound.ConformanceTests.BattlefieldStartControllerTests.CapturedActorDeterminesFriendlyDamageAndWhichElderCanDestroy(fieldController: null, targetController: \"P2\", elderController: \"P1\", destroyed: True)",
+    "Riftbound.ConformanceTests.BattlefieldStartControllerTests.CapturedControllerMustMatchForBothPrivateViewsAndSpectator",
+    "Riftbound.ConformanceTests.BattlefieldStartControllerTests.DifferentControllersOrderOnlyTheirOwnCapturedFieldTriggers",
+    "Riftbound.ConformanceTests.BattlefieldStartControllerTests.OriginalTriggerBirthAndStrictReplayRejectEvenConsistentlyForgedControllers(branch: \"actor\")",
+    "Riftbound.ConformanceTests.BattlefieldStartControllerTests.OriginalTriggerBirthAndStrictReplayRejectEvenConsistentlyForgedControllers(branch: \"both\")",
+    "Riftbound.ConformanceTests.BattlefieldStartControllerTests.OriginalTriggerBirthAndStrictReplayRejectEvenConsistentlyForgedControllers(branch: \"context\")",
+    "Riftbound.ConformanceTests.BattlefieldStartControllerTests.OriginalTriggerBirthAndStrictReplayRejectEvenConsistentlyForgedControllers(branch: \"duplicate-origin\")",
+    "Riftbound.ConformanceTests.BattlefieldStartControllerTests.OriginalTriggerBirthAndStrictReplayRejectEvenConsistentlyForgedControllers(branch: \"event\")",
+    "Riftbound.ConformanceTests.BattlefieldStartControllerTests.OriginalTriggerBirthAndStrictReplayRejectEvenConsistentlyForgedControllers(branch: \"event-and-both\")",
+    "Riftbound.ConformanceTests.BattlefieldStartControllerTests.OriginalTriggerBirthAndStrictReplayRejectEvenConsistentlyForgedControllers(branch: \"missing-controller\")",
+    "Riftbound.ConformanceTests.BattlefieldStartControllerTests.OriginalTriggerBirthAndStrictReplayRejectEvenConsistentlyForgedControllers(branch: \"missing-origin\")",
+    "Riftbound.ConformanceTests.BattlefieldStartControllerTests.OriginalTriggerBirthAndStrictReplayRejectEvenConsistentlyForgedControllers(branch: \"no-history\")",
+    "Riftbound.ConformanceTests.BattlefieldStartControllerTests.PrintedEachPlayerTimingUsesFieldControllerAndOnlyUncontrolledFallsBackToTurn(turn: \"P1\", physicalOwner: \"P1\", fieldController: \"P1\", expectedActor: \"P1\")",
+    "Riftbound.ConformanceTests.BattlefieldStartControllerTests.PrintedEachPlayerTimingUsesFieldControllerAndOnlyUncontrolledFallsBackToTurn(turn: \"P1\", physicalOwner: \"P1\", fieldController: \"P2\", expectedActor: \"P2\")",
+    "Riftbound.ConformanceTests.BattlefieldStartControllerTests.PrintedEachPlayerTimingUsesFieldControllerAndOnlyUncontrolledFallsBackToTurn(turn: \"P1\", physicalOwner: \"P1\", fieldController: null, expectedActor: \"P1\")",
+    "Riftbound.ConformanceTests.BattlefieldStartControllerTests.PrintedEachPlayerTimingUsesFieldControllerAndOnlyUncontrolledFallsBackToTurn(turn: \"P1\", physicalOwner: \"P2\", fieldController: \"P1\", expectedActor: \"P1\")",
+    "Riftbound.ConformanceTests.BattlefieldStartControllerTests.PrintedEachPlayerTimingUsesFieldControllerAndOnlyUncontrolledFallsBackToTurn(turn: \"P1\", physicalOwner: \"P2\", fieldController: \"P2\", expectedActor: \"P2\")",
+    "Riftbound.ConformanceTests.BattlefieldStartControllerTests.PrintedEachPlayerTimingUsesFieldControllerAndOnlyUncontrolledFallsBackToTurn(turn: \"P1\", physicalOwner: \"P2\", fieldController: null, expectedActor: \"P1\")",
+    "Riftbound.ConformanceTests.BattlefieldStartControllerTests.PrintedEachPlayerTimingUsesFieldControllerAndOnlyUncontrolledFallsBackToTurn(turn: \"P2\", physicalOwner: \"P1\", fieldController: \"P1\", expectedActor: \"P1\")",
+    "Riftbound.ConformanceTests.BattlefieldStartControllerTests.PrintedEachPlayerTimingUsesFieldControllerAndOnlyUncontrolledFallsBackToTurn(turn: \"P2\", physicalOwner: \"P1\", fieldController: \"P2\", expectedActor: \"P2\")",
+    "Riftbound.ConformanceTests.BattlefieldStartControllerTests.PrintedEachPlayerTimingUsesFieldControllerAndOnlyUncontrolledFallsBackToTurn(turn: \"P2\", physicalOwner: \"P1\", fieldController: null, expectedActor: \"P2\")",
+    "Riftbound.ConformanceTests.BattlefieldStartControllerTests.PrintedEachPlayerTimingUsesFieldControllerAndOnlyUncontrolledFallsBackToTurn(turn: \"P2\", physicalOwner: \"P2\", fieldController: \"P1\", expectedActor: \"P1\")",
+    "Riftbound.ConformanceTests.BattlefieldStartControllerTests.PrintedEachPlayerTimingUsesFieldControllerAndOnlyUncontrolledFallsBackToTurn(turn: \"P2\", physicalOwner: \"P2\", fieldController: \"P2\", expectedActor: \"P2\")",
+    "Riftbound.ConformanceTests.BattlefieldStartControllerTests.PrintedEachPlayerTimingUsesFieldControllerAndOnlyUncontrolledFallsBackToTurn(turn: \"P2\", physicalOwner: \"P2\", fieldController: null, expectedActor: \"P2\")",
+    "Riftbound.ConformanceTests.BattlefieldStartControllerTests.PureSourceControlChangeOrNewGenerationDoesNotTransferExistingSkill(nextController: \"P1\", changeCardAndGeneration: False)",
+    "Riftbound.ConformanceTests.BattlefieldStartControllerTests.PureSourceControlChangeOrNewGenerationDoesNotTransferExistingSkill(nextController: \"P1\", changeCardAndGeneration: True)",
+    "Riftbound.ConformanceTests.BattlefieldStartControllerTests.PureSourceControlChangeOrNewGenerationDoesNotTransferExistingSkill(nextController: \"P2\", changeCardAndGeneration: False)",
+    "Riftbound.ConformanceTests.BattlefieldStartControllerTests.PureSourceControlChangeOrNewGenerationDoesNotTransferExistingSkill(nextController: null, changeCardAndGeneration: False)",
+    "Riftbound.ConformanceTests.BattlefieldStartControllerTests.PureSourceControlChangeOrNewGenerationDoesNotTransferExistingSkill(nextController: null, changeCardAndGeneration: True)"
+  ],
+  "addedMethodNames": [
+    "Riftbound.ConformanceTests.BattlefieldStartControllerTests.CapturedActorDeterminesFriendlyDamageAndWhichElderCanDestroy",
+    "Riftbound.ConformanceTests.BattlefieldStartControllerTests.CapturedControllerMustMatchForBothPrivateViewsAndSpectator",
+    "Riftbound.ConformanceTests.BattlefieldStartControllerTests.DifferentControllersOrderOnlyTheirOwnCapturedFieldTriggers",
+    "Riftbound.ConformanceTests.BattlefieldStartControllerTests.OriginalTriggerBirthAndStrictReplayRejectEvenConsistentlyForgedControllers",
+    "Riftbound.ConformanceTests.BattlefieldStartControllerTests.PrintedEachPlayerTimingUsesFieldControllerAndOnlyUncontrolledFallsBackToTurn",
+    "Riftbound.ConformanceTests.BattlefieldStartControllerTests.PureSourceControlChangeOrNewGenerationDoesNotTransferExistingSkill"
+  ],
+  "fullGameMethods": 143,
+  "fullGameCases": 151,
+  "matrix": {
+    "seed": 424242,
+    "deckCount": 11,
+    "pairCount": 110,
+    "completed": {
+      "jhin-lowcurve-vs-kaisa-red-control": "8f31b4841d339a79b9f3bc5f9a1d8c91b0882bfdbc8ddf9093402a5ba76f5f73",
+      "jhin-lowcurve-vs-kaisa-red-tempo": "27d2778a77bd5f03351f840b970d87554bd0fbcd009151af159af61e89892447",
+      "jhin-lowcurve-vs-lillia-lowcurve": "78654314aab804b0b6ea1b86683082c3c6cb149d81b30772c32c18e881a8c26f",
+      "jhin-lowcurve-vs-poppy-demacia": "7201a1073b656a93d4f2837a77ecafba6e1bdd11c42260c6102dced6cc75a26f",
+      "jhin-lowcurve-vs-poppy-standby": "adbc9566983befa6827dd50b1fbeef4c460f4c6cfed64365a32fce98486ec8ab",
+      "jhin-lowcurve-vs-rumble-armaments": "6b25241852ef42f3fcaad5fc6085b387247b6e1c00a97e0d640d7bc74c297d0a",
+      "jhin-lowcurve-vs-rumble-lowcurve": "9064cbab7e67cd368c2b07a6f834a0323ece8929e6455a0d1e44122c3bfde108",
+      "jhin-lowcurve-vs-vex-battlefields": "029d5ab97987571518a9cc4f21814db44f37488b6e9c11d7bcc9f7613dfdaa69",
+      "jhin-lowcurve-vs-vex-response": "4bef47ff5c9bc881e160618fa7f0a74f2316c12b9f14dcbe02e60d65f56a27bb",
+      "jhin-lowcurve-vs-vex-spells": "c5c70ce079b19972d0e2a56016cb3a376fe7733ee849b86b85485d7124f2557e",
+      "kaisa-red-control-vs-jhin-lowcurve": "6a5f5f4ddcc3186d1b28e7d99916d2561a1b7cf30bd15254fea04da1a1fddb1b",
+      "kaisa-red-control-vs-kaisa-red-tempo": "4413aae1277eb9514c2db50c71f48258ef0b8e20824e5219e0744b13fb584dc3",
+      "kaisa-red-control-vs-lillia-lowcurve": "df42810df9c1c8c5f11cb1bfe9872dcbb60e5c05ce5d5b47c416d64d28627bfd",
+      "kaisa-red-control-vs-poppy-demacia": "beb559a10dc7129667f48944016c222f7c43a9e3d9941e681b214c8e53a7cbea",
+      "kaisa-red-control-vs-poppy-standby": "938b398346d322d820e10daa47a205fe6cfe32500f294b0e3f52e58c10794b1c",
+      "kaisa-red-control-vs-rumble-armaments": "38999cc5d5120cf5242be468715e0b5083e43dda8022aa44fd657eacb5535fd4",
+      "kaisa-red-control-vs-rumble-lowcurve": "755a655578ebd0b140a6d1f7a25d181df75b01638e72ef1ac2aeb5fd378b87d6",
+      "kaisa-red-control-vs-vex-battlefields": "ddaa5984a58651c7e888d1f5d95ced5994505ebce5b64ccaa3d502098637551c",
+      "kaisa-red-control-vs-vex-response": "7ab267a29233179cefbbf30bbc3284c982d51201c6849aa795e77802102be322",
+      "kaisa-red-control-vs-vex-spells": "785427cc83d0f8a8d2817466f1484613b4e88e09a50db7bfc30bd45de22be9aa",
+      "kaisa-red-tempo-vs-jhin-lowcurve": "2d6c0c72a6f6be3d4001dcecad9369b9b7639139cab3957e82f5ffebc417f8bc",
+      "kaisa-red-tempo-vs-kaisa-red-control": "87a30329508a2618159ea147f05f2f4e6da67ec6cbbf8588554c161c29912b6d",
+      "kaisa-red-tempo-vs-lillia-lowcurve": "6f2de2d2d3b0f803bc4eb166a949afe9ae9c6ee122679479d285de98f4d2ad35",
+      "kaisa-red-tempo-vs-poppy-demacia": "5fa0d4a40dee76b300720eb7fc0e256225b379d7e509deff07e9b7178dce1cc0",
+      "kaisa-red-tempo-vs-poppy-standby": "bb01738e19bbeaac7b9229a71cc5df8f03bc7bbdf6b20f38074608ba7290e204",
+      "kaisa-red-tempo-vs-rumble-armaments": "d5b36c3e4e177948bf4b86c2081dedefd1b25411db2b6730a5dd062edde77cad",
+      "kaisa-red-tempo-vs-rumble-lowcurve": "df29c709a134c729fbb780a66f26719a41b744d28e57d8c167fe4010b9f9db44",
+      "kaisa-red-tempo-vs-vex-battlefields": "d45d86e6f583e249d3b21b5964e659cb76b9454145e2ee6dd180a738ef592edf",
+      "kaisa-red-tempo-vs-vex-response": "ea8962e4e4a4d371d0f577d228d96a9d81c545eb2f506e506d13f214350b6c07",
+      "kaisa-red-tempo-vs-vex-spells": "0881b116229a142fa108212b50419054552c3a8165c1d298b0e2efdada3d8d8e",
+      "lillia-lowcurve-vs-jhin-lowcurve": "6892aae3f14dfafd730969200f28f1c51e9e7aafeab686374be2239b3e07fce6",
+      "lillia-lowcurve-vs-kaisa-red-control": "88ba5524eb9fb519e424f6993cde6a707165e0f2a3a79c5fde71c00d350c23d1",
+      "lillia-lowcurve-vs-kaisa-red-tempo": "d107665039907d8aded8642debfa6575faac36279745007bc73239eee0b46323",
+      "lillia-lowcurve-vs-poppy-demacia": "7a3feb5317a97fdd069dfba39d60b7e6631d1fd480a0d0c9d50ab27c1b775902",
+      "lillia-lowcurve-vs-poppy-standby": "dd316103c59dd61ad6f1ba32d4f1d45bd01888f4756da2fd715a6b6be34238b4",
+      "lillia-lowcurve-vs-rumble-armaments": "df7d3ec665c1da8d4a7d7faabb4a86400dfebd2a23fd0cef95295a45b61819f0",
+      "lillia-lowcurve-vs-rumble-lowcurve": "fdc597fb5d244508a446aaa1acb458e557605b092df4e859d3d8060140968c94",
+      "lillia-lowcurve-vs-vex-battlefields": "5cd77e89be22ed92140cdb79a810f4aaad1ba9e8a8794f30e48b803da9a6234a",
+      "lillia-lowcurve-vs-vex-response": "4abfd7f8b4e68a80dca373f6612cfddbea19588edc4f3f44dac6cc15bf596ea7",
+      "lillia-lowcurve-vs-vex-spells": "e695a18cb04c9971ec06a410b0cf6dcfc53682136e85f97f4ae5c9d4628be764",
+      "poppy-demacia-vs-jhin-lowcurve": "6d83ebe8584151167994d6feb4b9cc69175225b479a0c1af9a6c735c3f51b9d0",
+      "poppy-demacia-vs-kaisa-red-control": "2c2651102f26ef80c90061c6b22226bf077d7f486cdce4baf36c7a39819f8166",
+      "poppy-demacia-vs-kaisa-red-tempo": "e4dbbdecf6dd076fb230ac53b446f82df1e7cf9cff04f78d60b50e65ea3e6351",
+      "poppy-demacia-vs-lillia-lowcurve": "34942acf186e6d5d5556fb7b303b39efd5a7c31b185c610c6d6ae41cba2fbaf8",
+      "poppy-demacia-vs-poppy-standby": "c9c6e34134002ef3b24b6fdb45891470f3bebfc07b69fe329596da885a405ff4",
+      "poppy-demacia-vs-rumble-armaments": "fba83d31e78f250cfc5c9cd28bda9c78d09a0020443cc7404a883f40dc494922",
+      "poppy-demacia-vs-rumble-lowcurve": "a4177e9d3c4e97a66c1b4d6e945717e454f7a015fc5e833846e0f63027d80c28",
+      "poppy-demacia-vs-vex-battlefields": "0bd8081e900d394120eb0dacbeba78461577802439cbe13fc282ea30f7438710",
+      "poppy-demacia-vs-vex-response": "b1e72f60deda94d1e980fb417a956207e0cef169ce96b8a5e37d2dc0fd0c5618",
+      "poppy-demacia-vs-vex-spells": "a1db0c03172148eaeccaf577b5fe14f1d2a879476b2425d4302457d1990af8bb",
+      "poppy-standby-vs-jhin-lowcurve": "fca3cac6666a1bdaf430611d729d503cc65cd764b7fada62a997a23d97294313",
+      "poppy-standby-vs-kaisa-red-control": "51c14e267169ba3938bafeb4bb4e9f36aa8805241e960359e8b7a09c2e9c558e",
+      "poppy-standby-vs-kaisa-red-tempo": "3062989fa307f203325cfe678ebe28ac37ae1272b27b38cc9dc2175bd4121916",
+      "poppy-standby-vs-lillia-lowcurve": "145b40bcc20481b0f737b253dff44be4bb4eaca10d9fdf14c9ea8912d4816e52",
+      "poppy-standby-vs-poppy-demacia": "20e9a5c06a2a2b5b2a41528c9dbdd89f599fe61258f5f78472b420c23556bbda",
+      "poppy-standby-vs-rumble-armaments": "81ab35cf2405a8b7a17be951e783ae19f8048777dbcafdfc1053ab239c091772",
+      "poppy-standby-vs-rumble-lowcurve": "327cb1cf07656b567824078be63cceb8e33017e5ab45cc76fafae1c4fd6a1c85",
+      "poppy-standby-vs-vex-battlefields": "2f1ca821503d0632f69efcca5a525f138bf9469e52b84b835751369a57334415",
+      "poppy-standby-vs-vex-response": "c469fce97e24334577478bb93d156f1590f263b3df3d7f89e7b514d8d05b7025",
+      "poppy-standby-vs-vex-spells": "ce783a3ee6604b00bec74aef5a7952ede8e0457c9a610773f51568f11314aaf4",
+      "rumble-armaments-vs-jhin-lowcurve": "9c96be1e884a07322ff36761c813d0ae362e348b58d027e6f669662cb624e464",
+      "rumble-armaments-vs-kaisa-red-control": "3a17144343b4129ec135ec9223a4ace9dadbe0d0076a98d5e0cc421c05eb5597",
+      "rumble-armaments-vs-kaisa-red-tempo": "a28d14e9a0353cb73134e9f7061ce8dbc84e92fc3e6680d67368ece256deb1ab",
+      "rumble-armaments-vs-lillia-lowcurve": "90a15a34e14d93615b2d56ffce865945f83883f4815fca0065340419f9e90621",
+      "rumble-armaments-vs-poppy-demacia": "111b3b28678e9757b1d0d1792013bbc6da989f126fd29b47c1ccd0cca163ff87",
+      "rumble-armaments-vs-poppy-standby": "eb46cc7d5163494143c0452692dd6b58918d31439b1dc1a480471f7b4c0154ef",
+      "rumble-armaments-vs-rumble-lowcurve": "10e071d5005c48b40bfd10a6b73f9bbc09085b72266a13263439667818ccafc6",
+      "rumble-armaments-vs-vex-battlefields": "babf5e372692b8fa073c950b019c4e30d075f220f9b5548ba3810e1ecf379af9",
+      "rumble-armaments-vs-vex-response": "8dcbc3fc76495b68744500c0c66e11b6609b1219e1865a51710b1e914be67b32",
+      "rumble-armaments-vs-vex-spells": "9ab77bf2f3ae8e4cd90c09c600bb1817d6b8b93530aaa3f95b71873c6b927733",
+      "rumble-lowcurve-vs-jhin-lowcurve": "dfbee33cce15a1855a6ccfccd0c592e9bc98c44c2147fb8126bdfc095d00907e",
+      "rumble-lowcurve-vs-kaisa-red-control": "d6ef6a97796eba3493916c5625307d2e0adb5c17222ddff6d84cf9f7ca6b74cb",
+      "rumble-lowcurve-vs-kaisa-red-tempo": "0d05a5566fd0379f7b27ce44dc7904c7f5a5e8b50790b87d2771d327e030221d",
+      "rumble-lowcurve-vs-lillia-lowcurve": "a3d5a7ec471feae8d7c3dc7ea77449274896d7fbe293d0ee49bab35891b44c0a",
+      "rumble-lowcurve-vs-poppy-demacia": "b0821b43808ce653cf62b7212b7442bb82fe1a031fadfdfedeb00dca78d229eb",
+      "rumble-lowcurve-vs-poppy-standby": "02d5da240768136f2cef465d095bb9f5482abf1dffe59da2da08c1e801e1c748",
+      "rumble-lowcurve-vs-rumble-armaments": "8cec2e5b56366bf056c61e93670e9fb19190f3287e7811cdd7b975a6b9d57991",
+      "rumble-lowcurve-vs-vex-battlefields": "dd1762e5554f2f4076ef1b9bd8088ed15b647b4b948373d2299a81ca70219991",
+      "rumble-lowcurve-vs-vex-response": "cd5063ed199578f8ee8d201b488b4357df02fbc15e7e4e37c59c5ac528693427",
+      "rumble-lowcurve-vs-vex-spells": "4b9f8a5b827a22840849a665c0b5dfc7294f651896e490815172d4aa54e8c23c",
+      "vex-battlefields-vs-jhin-lowcurve": "d305388bd1fc281d9b9cc6273cf3892c07ce43746ea659b20a5f0bd8829ffd06",
+      "vex-battlefields-vs-kaisa-red-control": "3ac631fb8d254adde8d0e219fc4f41aacabf4e6b08b74bcf15c71470431ba4c2",
+      "vex-battlefields-vs-kaisa-red-tempo": "ddba21cec12e95d863365c2720eec01312c24cd374b8f462d8f1c315f7f3c3d7",
+      "vex-battlefields-vs-lillia-lowcurve": "2a50acf18f7b2dc36ddf4433736d4024002d49502d6e290cafb1274709a0a1d6",
+      "vex-battlefields-vs-poppy-demacia": "fe596e57960d8b55eaec8e4c3800c53e7b788705c4765d01726b7dac96c17f78",
+      "vex-battlefields-vs-poppy-standby": "00a540106412675caa551cc85a234380c03bebeaef35bffa474ea5e9a7f90771",
+      "vex-battlefields-vs-rumble-armaments": "dca49439a4e4e820b567e379fd237cb0ed617100db9b3b2a199fd02b4d704ecf",
+      "vex-battlefields-vs-rumble-lowcurve": "5258fc2ba20e84fd693490050b144557276dbd664c07359d40f615f701456e89",
+      "vex-battlefields-vs-vex-response": "e765bd93a1da1a470784fbb8319d9bc3150d916483ccf7b43c94e857d19806d5",
+      "vex-battlefields-vs-vex-spells": "e803c4d6b4f442869adc2234dba5481a02214f8686c9c5da050133dcb6d953eb",
+      "vex-response-vs-jhin-lowcurve": "b749dc372bb9da4d1023c1412eac6fe6ec31ad7cc219aaec46cd276fcf1432b6",
+      "vex-response-vs-kaisa-red-control": "eee392b0f1aa60fc74386c787c02fb918b282222007c5f7d4aedb5c4428079c8",
+      "vex-response-vs-kaisa-red-tempo": "cbdda4957d8669f0bd5671abf925b80149c5006ae7b33f7ec34c21870757faed",
+      "vex-response-vs-lillia-lowcurve": "f3dc8f43b79ff4c10e19783a657caaa8f58698ed6cb3bd3a3ccad455d84bfb55",
+      "vex-response-vs-poppy-demacia": "f4d1abe5334c89c415f70069df8bbfd02fe54c88528e33d0fddc1890ab40ed5b",
+      "vex-response-vs-poppy-standby": "ce6fcfa998b715f09fc46bd9ead512a6b805edce2baa2f0d9833cb76307eeb6e",
+      "vex-response-vs-rumble-armaments": "9985f63501cb63962caa015272d3800fde7d2da304a0f5cdc65289b027987849",
+      "vex-response-vs-rumble-lowcurve": "a68fc864296421ba143361f1e68b073d95441f2dda8aca17d9ff9a253c9e23a8",
+      "vex-response-vs-vex-battlefields": "450906fc3b4f1ad8cc036c889a5d3f2964e72e3e5ccb736e2f15b62e74b8c6a5",
+      "vex-response-vs-vex-spells": "e910b4f7ebe2f152eaf2218b5716d262a8e21ac95a1797a443dba2f5e9fa3c48",
+      "vex-spells-vs-jhin-lowcurve": "2fd1163d81db6b1b8e28478c4e0904102444bfd178a0c3bf74b19d21aaf6b1d2",
+      "vex-spells-vs-kaisa-red-control": "125d852397d2c8812b09ecba0234acd5ff62021a2ecc27848e6757f0f3e496ff",
+      "vex-spells-vs-kaisa-red-tempo": "8c0e95f34bd843dd900fe9bc03845200a4fd8146e952a65d63514de6859ce971",
+      "vex-spells-vs-lillia-lowcurve": "21c03343452a9f00043add8d951ea091b7c33cc267ea4fc1acf72f0fff5e8648",
+      "vex-spells-vs-poppy-demacia": "cd7cf6abffce3666cf831308f1bbf13f566e139dd54db6e7e55d520460142db6",
+      "vex-spells-vs-poppy-standby": "cbc8974539a5de5ccf7e26fe9ce8b1b5192a7e47214fab9905960c9321238a89",
+      "vex-spells-vs-rumble-armaments": "897072dabf8e42b78617df95d9df3e33f5fe7ec760780ead8749fd862c8fc2e0",
+      "vex-spells-vs-rumble-lowcurve": "0156b4003f5c3bd7df2a61dda682d0d37b8e461538a2367f06dcef48fe5529fa",
+      "vex-spells-vs-vex-battlefields": "0c9a9756e57ba258aeec9ce62313d742d51de06906d90b5688d06506f9ea22a9",
+      "vex-spells-vs-vex-response": "7f930fcade49b46268aac773b0279a18a66a93c4664815b3a842a16adc4abbab"
+    }
+  },
+  "allOriginal110PairIds11Decks424242AndVictoryReplayAssertionsRetained": true,
+  "trxSha256": {
+    "ci-rules/games-1/results.trx": "93c80612a7e756d06eb8533bfedbf57eba173f15fb74d7efaca4e2639e6cc0d4",
+    "ci-rules/games-2/results.trx": "eb9d4e4d1b03443f4aa197986703be6c1a90503c2185bf1f79d17ff917dda87f",
+    "ci-rules/games-3/results.trx": "aef6fab2adcbf097bc2452e2a22c4205ceda0d100c1eabf2128223d4e5d30411",
+    "ci-rules/games-4/results.trx": "256492f34a2431327e6ee964a8ed4f020e5a52f33b3a41a969318903b39fd66c",
+    "ci-rules/rules/results.trx": "f2b97ce138c45a045e6a9c6672716d4b650c87f49e7f794aa63260bdc8b31777"
+  },
+  "sql": {
+    "status": "FIXED_COMMIT_ALL_SQL_PARTITIONS_AND_NATIVE_NETWORK_PASS",
+    "fixedCommit": "3f2dc4025834ec649d786646c2d2e72f3483a1d5",
+    "manifestSha256": "4daf6ffe0fd609df05dc6a8573c88b2cab2406a98c3ddb5eb3eb7d9a197dffea",
+    "caseCount": 58,
+    "orderedDefaultCases": [
+      "private-opening",
+      "created-token-ready",
+      "core-opening",
+      "battle-history",
+      "masked-attendant",
+      "granted-predict",
+      "printed-predict",
+      "sivir-optional",
+      "rune-destination",
+      "sivir-payment",
+      "conquest-token",
+      "recycled-card-boon",
+      "recycle-boon-lifecycle",
+      "attached-recycle-lifecycle",
+      "typed-play-history",
+      "porobot",
+      "typed-play-history-causal",
+      "clairvoyance",
+      "insight-repeat",
+      "combat-assignment",
+      "confirmed-play-origin",
+      "physical-origin-cost",
+      "granted-origin-haste",
+      "opponent-battlefield-control",
+      "optional-sacrifice",
+      "granted-token-haste",
+      "optional-costs",
+      "battlefield-play-recovery",
+      "battlefield-play-damage",
+      "banish-effect-play",
+      "here-location-control",
+      "fate-weaver",
+      "multi-controller-trigger-order",
+      "empty-observed-repeat",
+      "observed-play-window",
+      "ravenbloom-put-hand",
+      "attached-predict",
+      "copied-last-breath-insight",
+      "copied-duel-insight",
+      "empowered-insight",
+      "paka-move-reveal",
+      "empty-reveal-followup",
+      "paka-dual-type-reveal",
+      "hwei-move-discard-types",
+      "destruction-graveyard",
+      "conditional-counter-payment",
+      "reversal-target-choice",
+      "spell-remake-declaration",
+      "candlelit-private-look",
+      "candlelit-legend-pending",
+      "revealed-hand-prompt-order",
+      "battlefield-spell-damage",
+      "exhausted-legend-confirmation",
+      "teemo-counted-damage",
+      "controller-damage-bonus",
+      "special-trigger-damage-bonus",
+      "room-seat-journal",
+      "battlefield-start-controller"
+    ],
+    "partitionCount": 4,
+    "partitions": [
+      {
+        "partitionIndex": 0,
+        "cases": [
+          "private-opening",
+          "masked-attendant",
+          "rune-destination",
+          "recycle-boon-lifecycle",
+          "typed-play-history-causal",
+          "confirmed-play-origin",
+          "optional-sacrifice",
+          "battlefield-play-damage",
+          "multi-controller-trigger-order",
+          "attached-predict",
+          "paka-move-reveal",
+          "destruction-graveyard",
+          "candlelit-private-look",
+          "exhausted-legend-confirmation",
+          "room-seat-journal"
+        ],
+        "receiptSha256": "f0e26c8df15e9ec01bfeffc603122141f2231610fdf5c2872ee8e53ade351445",
+        "runtimeAssemblies": [
+          {
+            "file": "Riftbound.PostgresAcceptance.dll",
+            "sha256": "790e7e753914d9ddb664031e71be3cd05f71cfd2e344d2aae385122be3a87689",
+            "mvid": "b0e0efac-9117-4f95-bf6d-9c1fee7ece75"
+          },
+          {
+            "file": "Riftbound.Engine.dll",
+            "sha256": "68fd64c4ba7f21a69f8197443a7484a04755760aabe94ebc072b54fc03a4cd01",
+            "mvid": "54eccdb7-8124-47d8-8812-59b91c87d13a"
+          },
+          {
+            "file": "Riftbound.Contracts.dll",
+            "sha256": "7545134f3d1b1a8232734720513b17a1bc968deac27374b397b86e7e0f666aa0",
+            "mvid": "1b11b11e-9981-40b6-9a22-36d6b36a918c"
+          },
+          {
+            "file": "Riftbound.CardCatalog.dll",
+            "sha256": "e83d6c8abeaed6451acbe418899203008bd5c7846f8b53ca7e57a13358068fc8",
+            "mvid": "f8f50c46-57b9-40a2-9b9f-c2943e3845ed"
+          },
+          {
+            "file": "Riftbound.Persistence.dll",
+            "sha256": "4781425f8b887dd6413d037e9a210918926815ea72b5cc790f34adaff445057e",
+            "mvid": "28fffe48-b0a4-4252-9423-b29f83b57a68"
+          }
+        ],
+        "actualRuleInputs": {
+          "schemaVersion": 1,
+          "region": "CN",
+          "language": "zh-CN",
+          "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+          "catalogSha256": "e7455edc32d43f8253a9d0c6fedb83c347bebafbef064f9b8dffaaabc4b4d266",
+          "implementationSha256": "504372b19f2c3767295d1e82e68320fdfada61e416262aa3c5efdb508c4c101d",
+          "identitySha256": "20bd796b46b84f2d50ce2302418993010efe24f118a6d00503f16ebb7bc6e87b"
+        }
+      },
+      {
+        "partitionIndex": 1,
+        "cases": [
+          "created-token-ready",
+          "granted-predict",
+          "sivir-payment",
+          "attached-recycle-lifecycle",
+          "clairvoyance",
+          "physical-origin-cost",
+          "granted-token-haste",
+          "banish-effect-play",
+          "empty-observed-repeat",
+          "copied-last-breath-insight",
+          "empty-reveal-followup",
+          "conditional-counter-payment",
+          "candlelit-legend-pending",
+          "teemo-counted-damage",
+          "battlefield-start-controller"
+        ],
+        "receiptSha256": "f3b349af6ac24452cd5255f8866d74c0553c49a8aa059fae47d26794d4c3c3b3",
+        "runtimeAssemblies": [
+          {
+            "file": "Riftbound.PostgresAcceptance.dll",
+            "sha256": "790e7e753914d9ddb664031e71be3cd05f71cfd2e344d2aae385122be3a87689",
+            "mvid": "b0e0efac-9117-4f95-bf6d-9c1fee7ece75"
+          },
+          {
+            "file": "Riftbound.Engine.dll",
+            "sha256": "68fd64c4ba7f21a69f8197443a7484a04755760aabe94ebc072b54fc03a4cd01",
+            "mvid": "54eccdb7-8124-47d8-8812-59b91c87d13a"
+          },
+          {
+            "file": "Riftbound.Contracts.dll",
+            "sha256": "7545134f3d1b1a8232734720513b17a1bc968deac27374b397b86e7e0f666aa0",
+            "mvid": "1b11b11e-9981-40b6-9a22-36d6b36a918c"
+          },
+          {
+            "file": "Riftbound.CardCatalog.dll",
+            "sha256": "e83d6c8abeaed6451acbe418899203008bd5c7846f8b53ca7e57a13358068fc8",
+            "mvid": "f8f50c46-57b9-40a2-9b9f-c2943e3845ed"
+          },
+          {
+            "file": "Riftbound.Persistence.dll",
+            "sha256": "4781425f8b887dd6413d037e9a210918926815ea72b5cc790f34adaff445057e",
+            "mvid": "28fffe48-b0a4-4252-9423-b29f83b57a68"
+          }
+        ],
+        "actualRuleInputs": {
+          "schemaVersion": 1,
+          "region": "CN",
+          "language": "zh-CN",
+          "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+          "catalogSha256": "e7455edc32d43f8253a9d0c6fedb83c347bebafbef064f9b8dffaaabc4b4d266",
+          "implementationSha256": "504372b19f2c3767295d1e82e68320fdfada61e416262aa3c5efdb508c4c101d",
+          "identitySha256": "20bd796b46b84f2d50ce2302418993010efe24f118a6d00503f16ebb7bc6e87b"
+        }
+      },
+      {
+        "partitionIndex": 2,
+        "cases": [
+          "core-opening",
+          "printed-predict",
+          "conquest-token",
+          "typed-play-history",
+          "insight-repeat",
+          "granted-origin-haste",
+          "optional-costs",
+          "here-location-control",
+          "observed-play-window",
+          "copied-duel-insight",
+          "paka-dual-type-reveal",
+          "reversal-target-choice",
+          "revealed-hand-prompt-order",
+          "controller-damage-bonus"
+        ],
+        "receiptSha256": "fe035bcafcdad350897d86f0211077c85084b69eb9454c9bf0d46b9822adc5bf",
+        "runtimeAssemblies": [
+          {
+            "file": "Riftbound.PostgresAcceptance.dll",
+            "sha256": "790e7e753914d9ddb664031e71be3cd05f71cfd2e344d2aae385122be3a87689",
+            "mvid": "b0e0efac-9117-4f95-bf6d-9c1fee7ece75"
+          },
+          {
+            "file": "Riftbound.Engine.dll",
+            "sha256": "68fd64c4ba7f21a69f8197443a7484a04755760aabe94ebc072b54fc03a4cd01",
+            "mvid": "54eccdb7-8124-47d8-8812-59b91c87d13a"
+          },
+          {
+            "file": "Riftbound.Contracts.dll",
+            "sha256": "7545134f3d1b1a8232734720513b17a1bc968deac27374b397b86e7e0f666aa0",
+            "mvid": "1b11b11e-9981-40b6-9a22-36d6b36a918c"
+          },
+          {
+            "file": "Riftbound.CardCatalog.dll",
+            "sha256": "e83d6c8abeaed6451acbe418899203008bd5c7846f8b53ca7e57a13358068fc8",
+            "mvid": "f8f50c46-57b9-40a2-9b9f-c2943e3845ed"
+          },
+          {
+            "file": "Riftbound.Persistence.dll",
+            "sha256": "4781425f8b887dd6413d037e9a210918926815ea72b5cc790f34adaff445057e",
+            "mvid": "28fffe48-b0a4-4252-9423-b29f83b57a68"
+          }
+        ],
+        "actualRuleInputs": {
+          "schemaVersion": 1,
+          "region": "CN",
+          "language": "zh-CN",
+          "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+          "catalogSha256": "e7455edc32d43f8253a9d0c6fedb83c347bebafbef064f9b8dffaaabc4b4d266",
+          "implementationSha256": "504372b19f2c3767295d1e82e68320fdfada61e416262aa3c5efdb508c4c101d",
+          "identitySha256": "20bd796b46b84f2d50ce2302418993010efe24f118a6d00503f16ebb7bc6e87b"
+        }
+      },
+      {
+        "partitionIndex": 3,
+        "cases": [
+          "battle-history",
+          "sivir-optional",
+          "recycled-card-boon",
+          "porobot",
+          "combat-assignment",
+          "opponent-battlefield-control",
+          "battlefield-play-recovery",
+          "fate-weaver",
+          "ravenbloom-put-hand",
+          "empowered-insight",
+          "hwei-move-discard-types",
+          "spell-remake-declaration",
+          "battlefield-spell-damage",
+          "special-trigger-damage-bonus"
+        ],
+        "receiptSha256": "d46bba93098234408c40a8a53c91a29989b51765678457e7affd966bf10de3d7",
+        "runtimeAssemblies": [
+          {
+            "file": "Riftbound.PostgresAcceptance.dll",
+            "sha256": "790e7e753914d9ddb664031e71be3cd05f71cfd2e344d2aae385122be3a87689",
+            "mvid": "b0e0efac-9117-4f95-bf6d-9c1fee7ece75"
+          },
+          {
+            "file": "Riftbound.Engine.dll",
+            "sha256": "68fd64c4ba7f21a69f8197443a7484a04755760aabe94ebc072b54fc03a4cd01",
+            "mvid": "54eccdb7-8124-47d8-8812-59b91c87d13a"
+          },
+          {
+            "file": "Riftbound.Contracts.dll",
+            "sha256": "7545134f3d1b1a8232734720513b17a1bc968deac27374b397b86e7e0f666aa0",
+            "mvid": "1b11b11e-9981-40b6-9a22-36d6b36a918c"
+          },
+          {
+            "file": "Riftbound.CardCatalog.dll",
+            "sha256": "e83d6c8abeaed6451acbe418899203008bd5c7846f8b53ca7e57a13358068fc8",
+            "mvid": "f8f50c46-57b9-40a2-9b9f-c2943e3845ed"
+          },
+          {
+            "file": "Riftbound.Persistence.dll",
+            "sha256": "4781425f8b887dd6413d037e9a210918926815ea72b5cc790f34adaff445057e",
+            "mvid": "28fffe48-b0a4-4252-9423-b29f83b57a68"
+          }
+        ],
+        "actualRuleInputs": {
+          "schemaVersion": 1,
+          "region": "CN",
+          "language": "zh-CN",
+          "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+          "catalogSha256": "e7455edc32d43f8253a9d0c6fedb83c347bebafbef064f9b8dffaaabc4b4d266",
+          "implementationSha256": "504372b19f2c3767295d1e82e68320fdfada61e416262aa3c5efdb508c4c101d",
+          "identitySha256": "20bd796b46b84f2d50ce2302418993010efe24f118a6d00503f16ebb7bc6e87b"
+        }
+      }
+    ],
+    "jobs": {
+      "scope": "success",
+      "postgres_partitions": "success",
+      "native_network": "success"
+    },
+    "nativeVisibleOrWholeRuleCertification": false
+  },
+  "original57SqlCaseObjectsAndOrderExactOnly58Added": true,
+  "originalNetwork": {
+    "room": "NETWORK-3c5b401d2c0f",
+    "rejectedActions": 15,
+    "identities": [
+      "ANONYMOUS",
+      "FAILED_KEY",
+      "OTHER_HANDLE"
+    ],
+    "leakedPrivateMessages": 0,
+    "validReconnectTokenWasSupplied": true
+  },
+  "newPeerViews": {
+    "room": "NETWORK-SEAT-4a65b3824996",
+    "firstPlayerOriginalTick": 1,
+    "firstPlayerRefreshedTick": 2,
+    "secondPlayerTick": 2,
+    "privateViewers": 2,
+    "explicitSnapshotRequests": 0,
+    "commandRetries": 0,
+    "originalOnePlayerViewRetained": true,
+    "bothPrivateViewersRefreshed": true,
+    "wrongViewerMessages": 0,
+    "reconnectTokensAndPlayerKeysAbsentFromPrivateViews": true
+  },
+  "artifacts": [
+    {
+      "name": "postgres-partition-0",
+      "id": 12395489028,
+      "path": "/Users/dinghaolin/MyProjects/riftbound/var/qa/battlefield-start-you-lab-20261022/ci3f2dc-complete-originals-v1/postgres-partition-0.zip",
+      "bytes": 3079681,
+      "sha256": "f4f5645d5859b34342080442fb0542cafce005bfdfdcdbd66b4a69f05250564d",
+      "backendDigest": "sha256:f4f5645d5859b34342080442fb0542cafce005bfdfdcdbd66b4a69f05250564d",
+      "allZipCrcVerified": true,
+      "attempts": [
+        {
+          "attempt": 1,
+          "returnCode": 0,
+          "bytes": 3079681,
+          "sha256": "f4f5645d5859b34342080442fb0542cafce005bfdfdcdbd66b4a69f05250564d",
+          "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "backendSizeAndDigestMatch": true
+        }
+      ]
+    },
+    {
+      "name": "postgres-partition-1",
+      "id": 12398036229,
+      "path": "/Users/dinghaolin/MyProjects/riftbound/var/qa/battlefield-start-you-lab-20261022/ci3f2dc-complete-originals-v1/postgres-partition-1.zip",
+      "bytes": 2471736,
+      "sha256": "27be580a0c2f94fb9e1f37cee06eb7d1a1bbf89c331e5453a242b35b375c1b29",
+      "backendDigest": "sha256:27be580a0c2f94fb9e1f37cee06eb7d1a1bbf89c331e5453a242b35b375c1b29",
+      "allZipCrcVerified": true,
+      "attempts": [
+        {
+          "attempt": 1,
+          "returnCode": 0,
+          "bytes": 2471736,
+          "sha256": "27be580a0c2f94fb9e1f37cee06eb7d1a1bbf89c331e5453a242b35b375c1b29",
+          "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "backendSizeAndDigestMatch": true
+        }
+      ]
+    },
+    {
+      "name": "postgres-partition-2",
+      "id": 12394743926,
+      "path": "/Users/dinghaolin/MyProjects/riftbound/var/qa/battlefield-start-you-lab-20261022/ci3f2dc-complete-originals-v1/postgres-partition-2.zip",
+      "bytes": 1904780,
+      "sha256": "e6016266249b8af8c3356674b2a1d57769f2f9694072d30e173634d378b42f1d",
+      "backendDigest": "sha256:e6016266249b8af8c3356674b2a1d57769f2f9694072d30e173634d378b42f1d",
+      "allZipCrcVerified": true,
+      "attempts": [
+        {
+          "attempt": 1,
+          "returnCode": 0,
+          "bytes": 1904780,
+          "sha256": "e6016266249b8af8c3356674b2a1d57769f2f9694072d30e173634d378b42f1d",
+          "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "backendSizeAndDigestMatch": true
+        }
+      ]
+    },
+    {
+      "name": "postgres-partition-3",
+      "id": 12396340368,
+      "path": "/Users/dinghaolin/MyProjects/riftbound/var/qa/battlefield-start-you-lab-20261022/ci3f2dc-complete-originals-v1/postgres-partition-3.zip",
+      "bytes": 2651573,
+      "sha256": "00771ad8276d58ad346bc4a7c7311c37d833aed9e013d03c1a7e9b1c46700102",
+      "backendDigest": "sha256:00771ad8276d58ad346bc4a7c7311c37d833aed9e013d03c1a7e9b1c46700102",
+      "allZipCrcVerified": true,
+      "attempts": [
+        {
+          "attempt": 1,
+          "returnCode": 0,
+          "bytes": 2651573,
+          "sha256": "00771ad8276d58ad346bc4a7c7311c37d833aed9e013d03c1a7e9b1c46700102",
+          "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "backendSizeAndDigestMatch": true
+        }
+      ]
+    },
+    {
+      "name": "postgres-results",
+      "id": 12398160075,
+      "path": "/Users/dinghaolin/MyProjects/riftbound/var/qa/battlefield-start-you-lab-20261022/ci3f2dc-complete-originals-v1/postgres-results.zip",
+      "bytes": 2293,
+      "sha256": "a3f023e802cff3810eaacf5dbd748d6786bfe881ae2091a133ab98cf744c073d",
+      "backendDigest": "sha256:a3f023e802cff3810eaacf5dbd748d6786bfe881ae2091a133ab98cf744c073d",
+      "allZipCrcVerified": true,
+      "attempts": [
+        {
+          "attempt": 1,
+          "returnCode": 0,
+          "bytes": 2293,
+          "sha256": "a3f023e802cff3810eaacf5dbd748d6786bfe881ae2091a133ab98cf744c073d",
+          "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "backendSizeAndDigestMatch": true
+        }
+      ]
+    },
+    {
+      "name": "native-network-results",
+      "id": 12391809386,
+      "path": "/Users/dinghaolin/MyProjects/riftbound/var/qa/battlefield-start-you-lab-20261022/ci3f2dc-complete-originals-v1/native-network-results.zip",
+      "bytes": 2119,
+      "sha256": "8408d08f62231ef7c1b840d380ec9af4421f753e6fe3e30957178dabab9b7d27",
+      "backendDigest": "sha256:8408d08f62231ef7c1b840d380ec9af4421f753e6fe3e30957178dabab9b7d27",
+      "allZipCrcVerified": true,
+      "attempts": [
+        {
+          "attempt": 1,
+          "returnCode": 0,
+          "bytes": 2119,
+          "sha256": "8408d08f62231ef7c1b840d380ec9af4421f753e6fe3e30957178dabab9b7d27",
+          "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "backendSizeAndDigestMatch": true
+        }
+      ]
+    },
+    {
+      "name": "verification-scope",
+      "id": 12391978323,
+      "path": "/Users/dinghaolin/MyProjects/riftbound/var/qa/battlefield-start-you-lab-20261022/ci3f2dc-complete-originals-v1/verification-scope.zip",
+      "bytes": 1603618,
+      "sha256": "29638d861e2e78354dc8979150c767dfec2244ca70eec5dc3d575ce7dcdf4919",
+      "backendDigest": "sha256:29638d861e2e78354dc8979150c767dfec2244ca70eec5dc3d575ce7dcdf4919",
+      "allZipCrcVerified": true,
+      "attempts": [
+        {
+          "attempt": 1,
+          "returnCode": 0,
+          "bytes": 1603618,
+          "sha256": "29638d861e2e78354dc8979150c767dfec2244ca70eec5dc3d575ce7dcdf4919",
+          "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "backendSizeAndDigestMatch": true
+        }
+      ]
+    },
+    {
+      "name": "conformance-results",
+      "id": 12396484540,
+      "path": "/Users/dinghaolin/MyProjects/riftbound/var/qa/battlefield-start-you-lab-20261022/ci3f2dc-complete-originals-v1/conformance-results.zip",
+      "bytes": 3979721,
+      "sha256": "53dc3ffcfd916ef320870cfd6d435db1341d327ab8c149a5a106d30862a06b6f",
+      "backendDigest": "sha256:53dc3ffcfd916ef320870cfd6d435db1341d327ab8c149a5a106d30862a06b6f",
+      "allZipCrcVerified": true,
+      "attempts": [
+        {
+          "attempt": 1,
+          "returnCode": 0,
+          "bytes": 3979721,
+          "sha256": "53dc3ffcfd916ef320870cfd6d435db1341d327ab8c149a5a106d30862a06b6f",
+          "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "backendSizeAndDigestMatch": true
+        }
+      ]
+    },
+    {
+      "name": "full-verification-gate",
+      "id": 12397068423,
+      "path": "/Users/dinghaolin/MyProjects/riftbound/var/qa/battlefield-start-you-lab-20261022/ci3f2dc-complete-originals-v1/full-verification-gate.zip",
+      "bytes": 298,
+      "sha256": "6d7eb8e63026acee548496498a6a4950542d1cad4bcbfa4aa45c670b842fa276",
+      "backendDigest": "sha256:6d7eb8e63026acee548496498a6a4950542d1cad4bcbfa4aa45c670b842fa276",
+      "allZipCrcVerified": true,
+      "attempts": [
+        {
+          "attempt": 1,
+          "returnCode": 0,
+          "bytes": 298,
+          "sha256": "6d7eb8e63026acee548496498a6a4950542d1cad4bcbfa4aa45c670b842fa276",
+          "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "backendSizeAndDigestMatch": true
+        }
+      ]
+    }
+  ],
+  "scopeDecision": {
+    "full": true,
+    "reason": "Executable input, unknown path or non-regular documentation",
+    "event": "push",
+    "headSha": "3f2dc4025834ec649d786646c2d2e72f3483a1d5",
+    "baseSha": "401470234dcd9dc4d72fe89dd79e99187096277f",
+    "changes": [
+      {
+        "path": "docs/BATTLEFIELD_START_CONTROLLER_CURRENT_CN16_AUDIT_2026-10-22.md",
+        "oldMode": "000000",
+        "newMode": "100644",
+        "status": "A"
+      },
+      {
+        "path": "docs/PROJECT_STATUS.md",
+        "oldMode": "100644",
+        "newMode": "100644",
+        "status": "M"
+      },
+      {
+        "path": "docs/audit/current-manifest.json",
+        "oldMode": "100644",
+        "newMode": "100644",
+        "status": "M"
+      },
+      {
+        "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/active1035-all-primary-category-shapes-consumer-search.json",
+        "oldMode": "000000",
+        "newMode": "100644",
+        "status": "A"
+      },
+      {
+        "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/additional-global-regional-release-date-source-supplement.json",
+        "oldMode": "000000",
+        "newMode": "100644",
+        "status": "A"
+      },
+      {
+        "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/additional1906-c-d-semantic-disposition.json",
+        "oldMode": "000000",
+        "newMode": "100644",
+        "status": "A"
+      },
+      {
+        "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/archive-map.json",
+        "oldMode": "000000",
+        "newMode": "100644",
+        "status": "A"
+      },
+      {
+        "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/complete-prior-contexts-current-input-refresh.json.gz",
+        "oldMode": "000000",
+        "newMode": "100644",
+        "status": "A"
+      },
+      {
+        "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/current-all16-rule-version-readback.json",
+        "oldMode": "000000",
+        "newMode": "100644",
+        "status": "A"
+      },
+      {
+        "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/current-exact-two-source-and-core-readback.json",
+        "oldMode": "000000",
+        "newMode": "100644",
+        "status": "A"
+      },
+      {
+        "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/current-real-sql-original-writer.json",
+        "oldMode": "000000",
+        "newMode": "100644",
+        "status": "A"
+      },
+      {
+        "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/final-governance.json.gz",
+        "oldMode": "000000",
+        "newMode": "100644",
+        "status": "A"
+      },
+      {
+        "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/final-original-test-and-input-retention.json",
+        "oldMode": "000000",
+        "newMode": "100644",
+        "status": "A"
+      },
+      {
+        "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/final-verification-case58-count-calibration-and-input-delta.json",
+        "oldMode": "000000",
+        "newMode": "100644",
+        "status": "A"
+      },
+      {
+        "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/independent-current-real-sql-history-and-refusals.json",
+        "oldMode": "000000",
+        "newMode": "100644",
+        "status": "A"
+      },
+      {
+        "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/independent-publication-and-retention-verification.json",
+        "oldMode": "000000",
+        "newMode": "100644",
+        "status": "A"
+      },
+      {
+        "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/original-execution-and-source-records.tar.gz",
+        "oldMode": "000000",
+        "newMode": "100644",
+        "status": "A"
+      },
+      {
+        "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/preceding-fixed4014-locked-native-pair-normal-score-and-replay.json",
+        "oldMode": "000000",
+        "newMode": "100644",
+        "status": "A"
+      },
+      {
+        "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/preceding-fixed4014-original-ci-state-before-publication.json.gz",
+        "oldMode": "000000",
+        "newMode": "100644",
+        "status": "A"
+      },
+      {
+        "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/preceding-fixed9633-complete-original-failure-and57-sql.json",
+        "oldMode": "000000",
+        "newMode": "100644",
+        "status": "A"
+      },
+      {
+        "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/publication-completion-archive-map.json",
+        "oldMode": "000000",
+        "newMode": "100644",
+        "status": "A"
+      },
+      {
+        "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/publication-completion-original-records.tar.gz",
+        "oldMode": "000000",
+        "newMode": "100644",
+        "status": "A"
+      },
+      {
+        "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/publication-original-governance-object-retention.json",
+        "oldMode": "000000",
+        "newMode": "100644",
+        "status": "A"
+      },
+      {
+        "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/retained-cn1504-en1408-start-word-candidate-search.json",
+        "oldMode": "000000",
+        "newMode": "100644",
+        "status": "A"
+      },
+      {
+        "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/source-manifest.json",
+        "oldMode": "000000",
+        "newMode": "100644",
+        "status": "A"
+      },
+      {
+        "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/space-verified-finished-duplicate-retirement.json",
+        "oldMode": "000000",
+        "newMode": "100644",
+        "status": "A"
+      },
+      {
+        "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/thirty-two-exact-controller-behavior-branches.json",
+        "oldMode": "000000",
+        "newMode": "100644",
+        "status": "A"
+      },
+      {
+        "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/verified-duplicate-governance-plaintext-retirement.json",
+        "oldMode": "000000",
+        "newMode": "100644",
+        "status": "A"
+      },
+      {
+        "path": "docs/evidence/rules-reaudit-2026-10-11/review-decisions.json",
+        "oldMode": "100644",
+        "newMode": "100644",
+        "status": "M"
+      },
+      {
+        "path": "scripts/tests/test_sql_ci_gate.py",
+        "oldMode": "100644",
+        "newMode": "100644",
+        "status": "M"
+      },
+      {
+        "path": "src/Riftbound.Engine/BattlefieldStartRecoveryRules.cs",
+        "oldMode": "000000",
+        "newMode": "100644",
+        "status": "A"
+      },
+      {
+        "path": "src/Riftbound.Engine/CoreRuleEngine.BattlefieldStart.cs",
+        "oldMode": "100644",
+        "newMode": "100644",
+        "status": "M"
+      },
+      {
+        "path": "src/Riftbound.Engine/MatchRecovery.cs",
+        "oldMode": "100644",
+        "newMode": "100644",
+        "status": "M"
+      },
+      {
+        "path": "src/Riftbound.Engine/MatchSession.cs",
+        "oldMode": "100644",
+        "newMode": "100644",
+        "status": "M"
+      },
+      {
+        "path": "tests/Riftbound.ConformanceTests/BattlefieldStartControllerTests.cs",
+        "oldMode": "000000",
+        "newMode": "100644",
+        "status": "A"
+      },
+      {
+        "path": "tests/Riftbound.ConformanceTests/DuskRoseLabStartTests.cs",
+        "oldMode": "100644",
+        "newMode": "100644",
+        "status": "M"
+      },
+      {
+        "path": "tests/Riftbound.ConformanceTests/FrostHoldTests.cs",
+        "oldMode": "100644",
+        "newMode": "100644",
+        "status": "M"
+      },
+      {
+        "path": "tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs",
+        "oldMode": "100644",
+        "newMode": "100644",
+        "status": "M"
+      },
+      {
+        "path": "tests/Riftbound.ConformanceTests/GameHubJoinTests.cs",
+        "oldMode": "100644",
+        "newMode": "100644",
+        "status": "M"
+      },
+      {
+        "path": "tests/Riftbound.PostgresAcceptance/BattlefieldStartControllerSqlAcceptance.cs",
+        "oldMode": "000000",
+        "newMode": "100644",
+        "status": "A"
+      },
+      {
+        "path": "tests/Riftbound.PostgresAcceptance/Program.cs",
+        "oldMode": "100644",
+        "newMode": "100644",
+        "status": "M"
+      },
+      {
+        "path": "tests/Riftbound.PostgresAcceptance/SqlAcceptanceCases.json",
+        "oldMode": "100644",
+        "newMode": "100644",
+        "status": "M"
+      }
+    ],
+    "selectorSha256": "94d6c361bf474b35171cb15d17f2406146fd015cc7b3f885c2dab0b6fdf01db9",
+    "ruleAndPackagingExecution": "REQUIRED"
+  },
+  "originalSqlZipMembers": "var/qa/battlefield-start-you-lab-20261022/ci3f2dc-original-sql-zip-members-v1.json.gz",
+  "exactTargetSqlGateSourceSha256": "9bba242dfdce754f4855bb3098c2a8aadae1edaa64fb4b3b840afeb2112624a0",
+  "uncommittedLabYou25AndSql59NotCoveredByFixed3f2dc": true,
+  "separateConcurrentWebCommitNotCovered": true,
+  "visibleHardwarePairAndPhysicalWindowsRemainSeparate": true,
+  "wholePrintingOrGoalCertified": false
+}

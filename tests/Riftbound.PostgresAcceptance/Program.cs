@@ -49,8 +49,9 @@ var controllerDamageBonusOnly = args.SequenceEqual(new[] { "--controller-damage-
 var specialTriggerDamageBonusOnly = args.SequenceEqual(new[] { "--special-trigger-damage-bonus-only" });
 var roomSeatJournalOnly = args.SequenceEqual(new[] { "--room-seat-journal-only" });
 var battlefieldStartControllerOnly = args.SequenceEqual(new[] { "--battlefield-start-controller-only" });
+var battlefieldStartLabYouOnly = args.SequenceEqual(new[] { "--battlefield-start-lab-you-only" });
 var pakaDualTypeRevealOnly = args.SequenceEqual(new[] { "--paka-dual-type-reveal-only" });
-if (args.Length != 0 && !openingRandomnessOnly && !optionalCostsOnly && !battlefieldPlayRecoveryOnly && !battlefieldPlayDamageOnly && !banishEffectPlayOnly && !hereLocationOnly && !fateWeaverOnly && !multiControllerOrderOnly && !emptyObservedRepeatOnly && !observedPlayWindowOnly && !ravenbloomPutHandOnly && !attachedPredictOnly && !copiedLastBreathOnly && !copiedDuelOnly && !empoweredInsightOnly && !pakaRevealOnly && !emptyRevealFollowupOnly && !pakaDualTypeRevealOnly && !hweiMoveDiscardTypesOnly && !destructionGraveyardOnly && !conditionalCounterPaymentOnly && !reversalTargetChoiceOnly && !spellRemakeDeclarationOnly && !candlelitPrivateLookOnly && !candlelitObservedPendingOnly && !candlelitOptionalObservedOnly && !candlelitLegendPendingOnly && !revealedHandPromptOrderOnly && !battlefieldSpellDamageOnly && !exhaustedLegendConfirmationOnly && !teemoCountedDamageOnly && !controllerDamageBonusOnly && !specialTriggerDamageBonusOnly && !roomSeatJournalOnly && !battlefieldStartControllerOnly && !partition.IsPartition) throw new ArgumentException("Unknown PostgreSQL acceptance selector.");
+if (args.Length != 0 && !openingRandomnessOnly && !optionalCostsOnly && !battlefieldPlayRecoveryOnly && !battlefieldPlayDamageOnly && !banishEffectPlayOnly && !hereLocationOnly && !fateWeaverOnly && !multiControllerOrderOnly && !emptyObservedRepeatOnly && !observedPlayWindowOnly && !ravenbloomPutHandOnly && !attachedPredictOnly && !copiedLastBreathOnly && !copiedDuelOnly && !empoweredInsightOnly && !pakaRevealOnly && !emptyRevealFollowupOnly && !pakaDualTypeRevealOnly && !hweiMoveDiscardTypesOnly && !destructionGraveyardOnly && !conditionalCounterPaymentOnly && !reversalTargetChoiceOnly && !spellRemakeDeclarationOnly && !candlelitPrivateLookOnly && !candlelitObservedPendingOnly && !candlelitOptionalObservedOnly && !candlelitLegendPendingOnly && !revealedHandPromptOrderOnly && !battlefieldSpellDamageOnly && !exhaustedLegendConfirmationOnly && !teemoCountedDamageOnly && !controllerDamageBonusOnly && !specialTriggerDamageBonusOnly && !roomSeatJournalOnly && !battlefieldStartControllerOnly && !battlefieldStartLabYouOnly && !partition.IsPartition) throw new ArgumentException("Unknown PostgreSQL acceptance selector.");
 var json = new JsonSerializerOptions(JsonSerializerDefaults.Web) { WriteIndented = true };
 await using var dataSource = NpgsqlDataSource.Create(connectionString);
 await using (var connection = await dataSource.OpenConnectionAsync()) {
@@ -58,6 +59,12 @@ await using (var connection = await dataSource.OpenConnectionAsync()) {
         await using var command = new NpgsqlCommand(await File.ReadAllTextAsync(path), connection);
         await command.ExecuteNonQueryAsync();
     }
+}
+if (battlefieldStartLabYouOnly)
+{
+    await BattlefieldStartLabYouSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "battlefield-start-lab-you"));
+    Console.WriteLine("SCOPED_POSTGRES_ONLY: battlefield-start-lab-you; the retained complete SQL suite was not requested.");
+    return;
 }
 if (battlefieldStartControllerOnly)
 {
@@ -448,5 +455,7 @@ await partition.RunAsync("special-trigger-damage-bonus", () => SpecialTriggerDam
 await partition.RunAsync("room-seat-journal", () => RoomSeatJournalSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "room-seat-journal")));
 
 await partition.RunAsync("battlefield-start-controller", () => BattlefieldStartControllerSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "battlefield-start-controller")));
+
+await partition.RunAsync("battlefield-start-lab-you", () => BattlefieldStartLabYouSqlAcceptance.RunAsync(dataSource, Path.Combine(output, "battlefield-start-lab-you")));
 
 await partition.CompleteAsync(output);

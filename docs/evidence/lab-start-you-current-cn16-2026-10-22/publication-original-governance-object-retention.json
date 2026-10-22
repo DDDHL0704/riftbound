@@ -1,0 +1,20 @@
+{
+  "atUtc": "2026-10-22T03:04:36.711628+00:00",
+  "oldReviews": 164,
+  "oldContexts": 79,
+  "oldGates": 250,
+  "oldDeltas": 7,
+  "oldRemainingIds": 17156,
+  "newBranches": 25,
+  "expectedRemainingObligations": 17181,
+  "explicitImplementationPinRefreshedContexts": 34,
+  "otherCompleteContextsExact": 45,
+  "allOldReviewsGatesDeltasAndCertificationScopeExact": true,
+  "allOldCompleteContextsSavedBeforeRefresh": true,
+  "originalVerificationSourceReferencesExact": true,
+  "baselineGovernance": {
+    "path": "docs/evidence/battlefield-start-controller-current-cn16-2026-10-22/final-governance.json.gz",
+    "sha256": "d213f807526e5fc63baa6f3332805811c8825e214ccef2224b7caf51a93859c6"
+  },
+  "semanticCoverageCertified": false
+}
