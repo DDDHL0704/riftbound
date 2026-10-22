@@ -1,0 +1,18 @@
+{
+  "status": "FAILED_SOLE_PENDING_PARENT_CHECK_ORIGINALS_RETAINED",
+  "startedAtUtc": "2026-10-22T10:18:28.540036+00:00",
+  "baseCommit": "55fdbabf8731fec795c26584985bd31cc0bcca32",
+  "command": [
+    "python3",
+    "scripts/test-rules.py",
+    "check",
+    "--output",
+    "/Users/dinghaolin/MyProjects/riftbound/var/qa/deck-play-pending-before-parent-20261022/sole-check-v1"
+  ],
+  "startManifestSha256": "6b873818b93469def5e4fcd50817d4f673ed4a7505765b8fc11b297778f8907f",
+  "testRunnerPid": 56889,
+  "exitCode": 1,
+  "finishedAtUtc": "2026-10-22T11:11:03.221962+00:00",
+  "all3350SourcesAndModesStable": true,
+  "all1419ConformanceAnd22NativeRuntimeInputsStable": true
+}

@@ -1,0 +1,32 @@
+[
+  {
+    "kind": "negative-index",
+    "threw": false,
+    "errors": [
+      "event stream is empty but match last event sequence is 45",
+      "invalid observed deck play permission",
+      "invalid deck pending card",
+      "invalid deck pending card"
+    ]
+  },
+  {
+    "kind": "null-queue",
+    "threw": false,
+    "errors": [
+      "event stream is empty but match last event sequence is 45",
+      "invalid observed deck play permission",
+      "invalid deck pending card",
+      "invalid deck pending card"
+    ]
+  },
+  {
+    "kind": "null-entry",
+    "threw": false,
+    "errors": [
+      "event stream is empty but match last event sequence is 45",
+      "invalid observed deck play permission",
+      "invalid deck pending card",
+      "invalid deck pending card"
+    ]
+  }
+]

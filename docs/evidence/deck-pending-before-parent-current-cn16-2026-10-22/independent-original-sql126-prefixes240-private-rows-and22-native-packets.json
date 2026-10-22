@@ -1,0 +1,168 @@
+{
+  "status": "PASS_INDEPENDENT_SQL60_ALL126_ORIGINAL_PREFIXES22_NATIVE_PACKETS_AND_FOUR_ACTUAL_REFUSALS",
+  "actualReadOnlyConnection": true,
+  "actualLoadedFourAssemblies": {
+    "baseDirectory": "/Users/dinghaolin/MyProjects/riftbound/var/qa/deck-play-pending-before-parent-20261022/post-check-corrected-candidate-v1/current-rule-sql60-runtime-v1/",
+    "actualRuleInputs": {
+      "schemaVersion": 1,
+      "region": "CN",
+      "language": "zh-CN",
+      "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+      "catalogSha256": "e7455edc32d43f8253a9d0c6fedb83c347bebafbef064f9b8dffaaabc4b4d266",
+      "implementationSha256": "d9e4e3aabee317b0bfaee1f8fe4ddff8a7740e62a3dc5406f216c6db9c0dec93",
+      "identitySha256": "f309075f8e3a10f10922c309e7ed74cbce5c7a1ffa86f0e1c6cfe9a76cdeb6f3"
+    },
+    "assemblies": [
+      {
+        "name": "Riftbound.Engine",
+        "path": "/Users/dinghaolin/MyProjects/riftbound/var/qa/deck-play-pending-before-parent-20261022/post-check-corrected-candidate-v1/current-rule-sql60-runtime-v1/Riftbound.Engine.dll",
+        "mvid": "0d557c3f-c3a9-4998-af63-4951a407d58d",
+        "sha256": "ad3f83fe3b6a2f35a415aa58f8293ca4446af108cde632d97d9c894abc075209"
+      },
+      {
+        "name": "Riftbound.Contracts",
+        "path": "/Users/dinghaolin/MyProjects/riftbound/var/qa/deck-play-pending-before-parent-20261022/post-check-corrected-candidate-v1/current-rule-sql60-runtime-v1/Riftbound.Contracts.dll",
+        "mvid": "ddf50106-a8ac-4fda-9a50-0ebd1fe74ed0",
+        "sha256": "5a4528dfc7877367cbc4dcadcbbecd90bd5b511987e5132a92bb7b763273e487"
+      },
+      {
+        "name": "Riftbound.CardCatalog",
+        "path": "/Users/dinghaolin/MyProjects/riftbound/var/qa/deck-play-pending-before-parent-20261022/post-check-corrected-candidate-v1/current-rule-sql60-runtime-v1/Riftbound.CardCatalog.dll",
+        "mvid": "91148c3c-7946-4fd9-9553-abd056a6f113",
+        "sha256": "509474df647e55def51841e644533c443784e293a6e80dcb4950af5e97896a5f"
+      },
+      {
+        "name": "Riftbound.Persistence",
+        "path": "/Users/dinghaolin/MyProjects/riftbound/var/qa/deck-play-pending-before-parent-20261022/post-check-corrected-candidate-v1/current-rule-sql60-runtime-v1/Riftbound.Persistence.dll",
+        "mvid": "b0918fe9-e105-41ac-b5d9-ba98a26fa140",
+        "sha256": "91cac1efd34edde6805db162bf261be7e3dd968613ba55aa2d68e62959434e72"
+      }
+    ]
+  },
+  "totals": {
+    "commands": 126,
+    "events": 384,
+    "authority": 126,
+    "snapshots": 240,
+    "prompts": 240,
+    "native": 22,
+    "originalPrefixReplays": 126,
+    "actualCorruptRoomRefusals": 4
+  },
+  "rooms": [
+    {
+      "room": "deck-pending-parent-c83e0b7319d34aac8b62b97f664db664",
+      "branch": "blind-fury",
+      "originalCommands": 10,
+      "originalEvents": 31,
+      "actualCorruptRoomRefused": false,
+      "originalHistoryReplayBeforeDeliberateTamperStillExact": true,
+      "noAcceptedHistoryRewriteOrDatabaseWrite": true
+    },
+    {
+      "room": "deck-pending-parent-b2ba01e0bbcd45a9be4b1b7031214585",
+      "branch": "bright-future",
+      "originalCommands": 14,
+      "originalEvents": 51,
+      "actualCorruptRoomRefused": false,
+      "originalHistoryReplayBeforeDeliberateTamperStillExact": true,
+      "noAcceptedHistoryRewriteOrDatabaseWrite": true
+    },
+    {
+      "room": "deck-pending-parent-d6d676f486a241b1850ff3e236d5cbeb",
+      "branch": "bright-future-observed-declined",
+      "originalCommands": 16,
+      "originalEvents": 54,
+      "actualCorruptRoomRefused": false,
+      "originalHistoryReplayBeforeDeliberateTamperStillExact": true,
+      "noAcceptedHistoryRewriteOrDatabaseWrite": true
+    },
+    {
+      "room": "deck-pending-parent-598f52dd1e0d4b7da07736c5c5b2cdc5",
+      "branch": "bright-future-observed-paid",
+      "originalCommands": 16,
+      "originalEvents": 57,
+      "actualCorruptRoomRefused": false,
+      "originalHistoryReplayBeforeDeliberateTamperStillExact": true,
+      "noAcceptedHistoryRewriteOrDatabaseWrite": true
+    },
+    {
+      "room": "deck-pending-parent-1495a1aecf574b9aaa00f1bf51dfafb9",
+      "branch": "reinforcements",
+      "originalCommands": 10,
+      "originalEvents": 31,
+      "actualCorruptRoomRefused": false,
+      "originalHistoryReplayBeforeDeliberateTamperStillExact": true,
+      "noAcceptedHistoryRewriteOrDatabaseWrite": true
+    },
+    {
+      "room": "deck-pending-parent-63a6c0fe7821416f9ae01efe02937c51",
+      "branch": "reinforcements-observed-declined",
+      "originalCommands": 11,
+      "originalEvents": 28,
+      "actualCorruptRoomRefused": false,
+      "originalHistoryReplayBeforeDeliberateTamperStillExact": true,
+      "noAcceptedHistoryRewriteOrDatabaseWrite": true
+    },
+    {
+      "room": "deck-pending-parent-4982c37973484f10b3f82a67818f593e",
+      "branch": "reinforcements-observed-paid",
+      "originalCommands": 11,
+      "originalEvents": 31,
+      "actualCorruptRoomRefused": false,
+      "originalHistoryReplayBeforeDeliberateTamperStillExact": true,
+      "noAcceptedHistoryRewriteOrDatabaseWrite": true
+    },
+    {
+      "room": "deck-pending-parent-4ff97ca5cb07448ebddf9359c73e9a59",
+      "branch": "reinforcements-reject-coordinated-generation",
+      "originalCommands": 7,
+      "originalEvents": 17,
+      "actualCorruptRoomRefused": true,
+      "originalHistoryReplayBeforeDeliberateTamperStillExact": true,
+      "noAcceptedHistoryRewriteOrDatabaseWrite": true
+    },
+    {
+      "room": "deck-pending-parent-bc2b11fdd3cc4142bf8bb923cf3de48c",
+      "branch": "reinforcements-reject-missing-slot",
+      "originalCommands": 7,
+      "originalEvents": 17,
+      "actualCorruptRoomRefused": true,
+      "originalHistoryReplayBeforeDeliberateTamperStillExact": true,
+      "noAcceptedHistoryRewriteOrDatabaseWrite": true
+    },
+    {
+      "room": "deck-pending-parent-55c2387137424de88bd9362e11780c50",
+      "branch": "reinforcements-reject-premature-parent",
+      "originalCommands": 7,
+      "originalEvents": 17,
+      "actualCorruptRoomRefused": true,
+      "originalHistoryReplayBeforeDeliberateTamperStillExact": true,
+      "noAcceptedHistoryRewriteOrDatabaseWrite": true
+    },
+    {
+      "room": "deck-pending-parent-23cc072cc4584b08b4b64803d6329289",
+      "branch": "reinforcements-reject-wrong-identity",
+      "originalCommands": 7,
+      "originalEvents": 17,
+      "actualCorruptRoomRefused": true,
+      "originalHistoryReplayBeforeDeliberateTamperStillExact": true,
+      "noAcceptedHistoryRewriteOrDatabaseWrite": true
+    },
+    {
+      "room": "deck-pending-parent-d404f3af699f4891befb11ac77e6531f",
+      "branch": "void-rush",
+      "originalCommands": 10,
+      "originalEvents": 33,
+      "actualCorruptRoomRefused": false,
+      "originalHistoryReplayBeforeDeliberateTamperStillExact": true,
+      "noAcceptedHistoryRewriteOrDatabaseWrite": true
+    }
+  ],
+  "normalRooms": 8,
+  "deliberatelyCorruptRefusedRooms": 4,
+  "nativePacketBackendReadbackReplaysEquivalentOriginalRawNoNewLiveSubmission": true,
+  "allOriginalFieldsNullConditionalOmissionsAndRowKeysRetained": true,
+  "originalSeedAndEmptyOpeningRetained": true,
+  "fixedFullVisiblePairedWindowsAndWholeCardCertification": false
+}

@@ -1,0 +1,15 @@
+{
+  "atUtc": "2026-10-22T11:33:34.070416+00:00",
+  "oldReviews": 165,
+  "oldContexts": 80,
+  "oldGates": 252,
+  "oldDeltas": 7,
+  "oldRemainingIds": 17183,
+  "newBehaviorBranches": 51,
+  "expectedRemainingObligations": 17234,
+  "completeOldContextsArchived": 80,
+  "explicitCurrentInputRefreshedContexts": 64,
+  "otherWholeContextObjectsExact": 16,
+  "allOriginalReviewsGatesDeltasCertificationScopeAndOptionalVerificationSourcePresenceValuesExact": true,
+  "semanticCoverageCertified": false
+}

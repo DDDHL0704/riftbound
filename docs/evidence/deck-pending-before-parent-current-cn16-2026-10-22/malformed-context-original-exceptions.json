@@ -1,0 +1,20 @@
+[
+  {
+    "kind": "negative-index",
+    "threw": true,
+    "type": "System.ArgumentOutOfRangeException",
+    "message": "Index was out of range. Must be non-negative and less than the size of the collection. (Parameter \u0027index\u0027)"
+  },
+  {
+    "kind": "null-queue",
+    "threw": true,
+    "type": "System.NullReferenceException",
+    "message": "Object reference not set to an instance of an object."
+  },
+  {
+    "kind": "null-entry",
+    "threw": true,
+    "type": "System.NullReferenceException",
+    "message": "Object reference not set to an instance of an object."
+  }
+]

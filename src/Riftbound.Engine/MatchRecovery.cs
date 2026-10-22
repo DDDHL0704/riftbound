@@ -27179,7 +27179,8 @@ public static partial class MatchRecoveryValidator
         if (authoritativeState.PendingCardChoice is not null)
         {
             var choice = authoritativeState.PendingCardChoice;
-            var parent = authoritativeState.StackItems.LastOrDefault();
+            var parent = choice.DeckContext is not null ? CoreRuleEngine.DeckPlayChoiceParent(authoritativeState, choice)
+                : authoritativeState.StackItems.LastOrDefault();
             var capturedDeckSource = choice.DeckContext is not null
                 && CoreRuleEngine.ValidDeckPlayChoice(authoritativeState, choice)
                 && parent!.SourceObjectId == choice.SourceObjectId

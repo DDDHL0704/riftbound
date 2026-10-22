@@ -1,0 +1,18 @@
+{
+  "atUtc": "2026-10-22T11:17:17.571125+00:00",
+  "originalSoleCheckOutcome": {
+    "passed": 13496,
+    "failed": 1,
+    "total": 13497
+  },
+  "onlyFourSourceInputsChangedAfterOriginalCheck": [
+    "src/Riftbound.Engine/CoreRuleEngine.DeckObservation.cs",
+    "src/Riftbound.Engine/CoreRuleEngine.DeckPlaySequence.cs",
+    "tests/Riftbound.ConformanceTests/DeckPlayPendingBeforeParentTests.cs",
+    "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-berserk-impulse-play-opponent-top-unit.fixture.json"
+  ],
+  "allOther3346SourceBytesAndAllOriginalTestMethodsTheoryAssertionsRetained": true,
+  "corrections": "Two shared validation-shape guards, three new independent malformed-context cases, exact original fixture event node reorder only.",
+  "finalFocusAndNewFixedFullRequiredBeforeFinalCandidateClaims": true,
+  "noSecondCheck": true
+}

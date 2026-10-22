@@ -71,7 +71,7 @@ public sealed partial class CoreRuleEngine
     internal static bool IsPubliclyRevealedDeckCard(MatchState state, string id)
         => state.DeckObservationView is {Public:true} v && v.Cards.TryGetValue(id,out var observedGeneration)
             && state.CardObjects.TryGetValue(id,out var observedCard) && observedCard.ObjectGeneration==observedGeneration
-            || state.StackItems.LastOrDefault() is { DeckPlaySequence: { } sequence } item && DeckPlaySequenceReveals(item)
+            || state.StackItems.LastOrDefault(i => i.DeckPlaySequence is not null) is { DeckPlaySequence: { } sequence } item && DeckPlaySequenceReveals(item)
             && sequence.Viewed.Values.SelectMany(v => v).Any(binding => binding.ObjectId == id
                 && state.CardObjects.TryGetValue(id, out var card) && card.ObjectGeneration == binding.Generation);
 

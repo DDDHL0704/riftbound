@@ -1,0 +1,2769 @@
+{
+  "branches": [
+    {
+      "id": "deck-pending-7c9d9579829e68d4df79aaac",
+      "sourceRefs": [
+        "OGN-062/298",
+        "OGN-194/298",
+        "DOC-01-P041-B010",
+        "DOC-01-P041-B011",
+        "DOC-01-P041-B012",
+        "DOC-01-P041-B013",
+        "DOC-01-P041-B014",
+        "DOC-01-P041-B015",
+        "DOC-01-P041-B016",
+        "DOC-01-P044-B008",
+        "DOC-01-P044-B009",
+        "DOC-01-P044-B010",
+        "DOC-01-P044-B011",
+        "DOC-01-P044-B012",
+        "DOC-01-P059-B002"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/deck-pending-before-parent-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "d9d420b09fde81fcd516a57b368090cc8b6419d96d1d5c8e27fd48ec759e984c",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.ASecondExecutionObservationCannotJumpAheadOfTheFirstExecutionsPendingCards(card: \"OGN·062/298\", playObserved: False)",
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/91"
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CN337_354_PENDING_BEFORE_PARENT_AND_LATER_OBSERVATION_INSERTION_ORDER"
+      },
+      "implementation": {
+        "state": "FINITE_SHARED_PENDING_SLOTS_CAPTURED_PARENT_RESUME_AND_EXECUTION_ORDER_NO_DSL_OR_OLD_GAME_MIGRATION"
+      },
+      "testExecution": {
+        "state": "ACTUAL_FINAL51_NEW10_METHODS_FOCUS280_126_FIVE_ORIGINAL_FULL_GAMES_FRESH_SQL126_COLD126_NATIVE22_ORIGINAL_PREFIX_READBACK_ORIGINAL_SOLE_CHECK13496_PASS_ONE_FAILURE_RETAINED"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_NORMAL_SCORE_COMPLETE_REPLAY_VISIBLE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded source and execution evidence only; fixed full and necessary products remain independent. No whole-card certification."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "deck-pending-b7dce684fdba2316f1d369d5",
+      "sourceRefs": [
+        "OGN-062/298",
+        "OGN-194/298",
+        "DOC-01-P041-B010",
+        "DOC-01-P041-B011",
+        "DOC-01-P041-B012",
+        "DOC-01-P041-B013",
+        "DOC-01-P041-B014",
+        "DOC-01-P041-B015",
+        "DOC-01-P041-B016",
+        "DOC-01-P044-B008",
+        "DOC-01-P044-B009",
+        "DOC-01-P044-B010",
+        "DOC-01-P044-B011",
+        "DOC-01-P044-B012",
+        "DOC-01-P059-B002"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/deck-pending-before-parent-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "d9d420b09fde81fcd516a57b368090cc8b6419d96d1d5c8e27fd48ec759e984c",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.ASecondExecutionObservationCannotJumpAheadOfTheFirstExecutionsPendingCards(card: \"OGN·062/298\", playObserved: True)",
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/91"
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CN337_354_PENDING_BEFORE_PARENT_AND_LATER_OBSERVATION_INSERTION_ORDER"
+      },
+      "implementation": {
+        "state": "FINITE_SHARED_PENDING_SLOTS_CAPTURED_PARENT_RESUME_AND_EXECUTION_ORDER_NO_DSL_OR_OLD_GAME_MIGRATION"
+      },
+      "testExecution": {
+        "state": "ACTUAL_FINAL51_NEW10_METHODS_FOCUS280_126_FIVE_ORIGINAL_FULL_GAMES_FRESH_SQL126_COLD126_NATIVE22_ORIGINAL_PREFIX_READBACK_ORIGINAL_SOLE_CHECK13496_PASS_ONE_FAILURE_RETAINED"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_NORMAL_SCORE_COMPLETE_REPLAY_VISIBLE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded source and execution evidence only; fixed full and necessary products remain independent. No whole-card certification."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "deck-pending-8aedebbce4c1410763660665",
+      "sourceRefs": [
+        "OGN-115/298",
+        "OGN-194/298",
+        "DOC-01-P041-B010",
+        "DOC-01-P041-B011",
+        "DOC-01-P041-B012",
+        "DOC-01-P041-B013",
+        "DOC-01-P041-B014",
+        "DOC-01-P041-B015",
+        "DOC-01-P041-B016",
+        "DOC-01-P044-B008",
+        "DOC-01-P044-B009",
+        "DOC-01-P044-B010",
+        "DOC-01-P044-B011",
+        "DOC-01-P044-B012",
+        "DOC-01-P059-B002"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/deck-pending-before-parent-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "d9d420b09fde81fcd516a57b368090cc8b6419d96d1d5c8e27fd48ec759e984c",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.ASecondExecutionObservationCannotJumpAheadOfTheFirstExecutionsPendingCards(card: \"OGN·115/298\", playObserved: False)",
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/91"
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CN337_354_PENDING_BEFORE_PARENT_AND_LATER_OBSERVATION_INSERTION_ORDER"
+      },
+      "implementation": {
+        "state": "FINITE_SHARED_PENDING_SLOTS_CAPTURED_PARENT_RESUME_AND_EXECUTION_ORDER_NO_DSL_OR_OLD_GAME_MIGRATION"
+      },
+      "testExecution": {
+        "state": "ACTUAL_FINAL51_NEW10_METHODS_FOCUS280_126_FIVE_ORIGINAL_FULL_GAMES_FRESH_SQL126_COLD126_NATIVE22_ORIGINAL_PREFIX_READBACK_ORIGINAL_SOLE_CHECK13496_PASS_ONE_FAILURE_RETAINED"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_NORMAL_SCORE_COMPLETE_REPLAY_VISIBLE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded source and execution evidence only; fixed full and necessary products remain independent. No whole-card certification."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "deck-pending-737801fc9a84577ca7ebd02e",
+      "sourceRefs": [
+        "OGN-115/298",
+        "OGN-194/298",
+        "DOC-01-P041-B010",
+        "DOC-01-P041-B011",
+        "DOC-01-P041-B012",
+        "DOC-01-P041-B013",
+        "DOC-01-P041-B014",
+        "DOC-01-P041-B015",
+        "DOC-01-P041-B016",
+        "DOC-01-P044-B008",
+        "DOC-01-P044-B009",
+        "DOC-01-P044-B010",
+        "DOC-01-P044-B011",
+        "DOC-01-P044-B012",
+        "DOC-01-P059-B002"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/deck-pending-before-parent-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "d9d420b09fde81fcd516a57b368090cc8b6419d96d1d5c8e27fd48ec759e984c",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.ASecondExecutionObservationCannotJumpAheadOfTheFirstExecutionsPendingCards(card: \"OGN·115/298\", playObserved: True)",
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/91"
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CN337_354_PENDING_BEFORE_PARENT_AND_LATER_OBSERVATION_INSERTION_ORDER"
+      },
+      "implementation": {
+        "state": "FINITE_SHARED_PENDING_SLOTS_CAPTURED_PARENT_RESUME_AND_EXECUTION_ORDER_NO_DSL_OR_OLD_GAME_MIGRATION"
+      },
+      "testExecution": {
+        "state": "ACTUAL_FINAL51_NEW10_METHODS_FOCUS280_126_FIVE_ORIGINAL_FULL_GAMES_FRESH_SQL126_COLD126_NATIVE22_ORIGINAL_PREFIX_READBACK_ORIGINAL_SOLE_CHECK13496_PASS_ONE_FAILURE_RETAINED"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_NORMAL_SCORE_COMPLETE_REPLAY_VISIBLE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded source and execution evidence only; fixed full and necessary products remain independent. No whole-card certification."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "deck-pending-5afe353b5040af81ca3d5ec0",
+      "sourceRefs": [
+        "OGN-115/298",
+        "DOC-01-P041-B010",
+        "DOC-01-P041-B011",
+        "DOC-01-P041-B012",
+        "DOC-01-P041-B013",
+        "DOC-01-P041-B014",
+        "DOC-01-P041-B015",
+        "DOC-01-P041-B016",
+        "DOC-01-P044-B008",
+        "DOC-01-P044-B009",
+        "DOC-01-P044-B010",
+        "DOC-01-P044-B011",
+        "DOC-01-P044-B012",
+        "DOC-01-P059-B002"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/deck-pending-before-parent-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "d9d420b09fde81fcd516a57b368090cc8b6419d96d1d5c8e27fd48ec759e984c",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.BrightFutureFinishesAllBanishAndRecycleSelectionsBeforeItsFirstPlayInstruction",
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/91"
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CN337_354_PENDING_BEFORE_PARENT_AND_LATER_OBSERVATION_INSERTION_ORDER"
+      },
+      "implementation": {
+        "state": "FINITE_SHARED_PENDING_SLOTS_CAPTURED_PARENT_RESUME_AND_EXECUTION_ORDER_NO_DSL_OR_OLD_GAME_MIGRATION"
+      },
+      "testExecution": {
+        "state": "ACTUAL_FINAL51_NEW10_METHODS_FOCUS280_126_FIVE_ORIGINAL_FULL_GAMES_FRESH_SQL126_COLD126_NATIVE22_ORIGINAL_PREFIX_READBACK_ORIGINAL_SOLE_CHECK13496_PASS_ONE_FAILURE_RETAINED"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_NORMAL_SCORE_COMPLETE_REPLAY_VISIBLE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded source and execution evidence only; fixed full and necessary products remain independent. No whole-card certification."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "deck-pending-ea43a3e77c0e106817ecc803",
+      "sourceRefs": [
+        "OGN-062/298",
+        "DOC-01-P041-B010",
+        "DOC-01-P041-B011",
+        "DOC-01-P041-B012",
+        "DOC-01-P041-B013",
+        "DOC-01-P041-B014",
+        "DOC-01-P041-B015",
+        "DOC-01-P041-B016",
+        "DOC-01-P044-B008",
+        "DOC-01-P044-B009",
+        "DOC-01-P044-B010",
+        "DOC-01-P044-B011",
+        "DOC-01-P044-B012",
+        "DOC-01-P059-B002"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/deck-pending-before-parent-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "d9d420b09fde81fcd516a57b368090cc8b6419d96d1d5c8e27fd48ec759e984c",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.ColdRecoveryRejectsIndependentlyForgedPendingChildrenWhileTheParentStillResolves(mutation: \"duplicate-slot\")",
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/91"
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CN337_354_PENDING_BEFORE_PARENT_AND_LATER_OBSERVATION_INSERTION_ORDER"
+      },
+      "implementation": {
+        "state": "FINITE_SHARED_PENDING_SLOTS_CAPTURED_PARENT_RESUME_AND_EXECUTION_ORDER_NO_DSL_OR_OLD_GAME_MIGRATION"
+      },
+      "testExecution": {
+        "state": "ACTUAL_FINAL51_NEW10_METHODS_FOCUS280_126_FIVE_ORIGINAL_FULL_GAMES_FRESH_SQL126_COLD126_NATIVE22_ORIGINAL_PREFIX_READBACK_ORIGINAL_SOLE_CHECK13496_PASS_ONE_FAILURE_RETAINED"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_NORMAL_SCORE_COMPLETE_REPLAY_VISIBLE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded source and execution evidence only; fixed full and necessary products remain independent. No whole-card certification."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "deck-pending-0dee01c632b613127111ec19",
+      "sourceRefs": [
+        "OGN-062/298",
+        "DOC-01-P041-B010",
+        "DOC-01-P041-B011",
+        "DOC-01-P041-B012",
+        "DOC-01-P041-B013",
+        "DOC-01-P041-B014",
+        "DOC-01-P041-B015",
+        "DOC-01-P041-B016",
+        "DOC-01-P044-B008",
+        "DOC-01-P044-B009",
+        "DOC-01-P044-B010",
+        "DOC-01-P044-B011",
+        "DOC-01-P044-B012",
+        "DOC-01-P059-B002"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/deck-pending-before-parent-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "d9d420b09fde81fcd516a57b368090cc8b6419d96d1d5c8e27fd48ec759e984c",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.ColdRecoveryRejectsIndependentlyForgedPendingChildrenWhileTheParentStillResolves(mutation: \"missing-parent\")",
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/91"
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CN337_354_PENDING_BEFORE_PARENT_AND_LATER_OBSERVATION_INSERTION_ORDER"
+      },
+      "implementation": {
+        "state": "FINITE_SHARED_PENDING_SLOTS_CAPTURED_PARENT_RESUME_AND_EXECUTION_ORDER_NO_DSL_OR_OLD_GAME_MIGRATION"
+      },
+      "testExecution": {
+        "state": "ACTUAL_FINAL51_NEW10_METHODS_FOCUS280_126_FIVE_ORIGINAL_FULL_GAMES_FRESH_SQL126_COLD126_NATIVE22_ORIGINAL_PREFIX_READBACK_ORIGINAL_SOLE_CHECK13496_PASS_ONE_FAILURE_RETAINED"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_NORMAL_SCORE_COMPLETE_REPLAY_VISIBLE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded source and execution evidence only; fixed full and necessary products remain independent. No whole-card certification."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "deck-pending-0a1fc5b4bfa5d8daab9e0502",
+      "sourceRefs": [
+        "OGN-062/298",
+        "DOC-01-P041-B010",
+        "DOC-01-P041-B011",
+        "DOC-01-P041-B012",
+        "DOC-01-P041-B013",
+        "DOC-01-P041-B014",
+        "DOC-01-P041-B015",
+        "DOC-01-P041-B016",
+        "DOC-01-P044-B008",
+        "DOC-01-P044-B009",
+        "DOC-01-P044-B010",
+        "DOC-01-P044-B011",
+        "DOC-01-P044-B012",
+        "DOC-01-P059-B002"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/deck-pending-before-parent-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "d9d420b09fde81fcd516a57b368090cc8b6419d96d1d5c8e27fd48ec759e984c",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.ColdRecoveryRejectsIndependentlyForgedPendingChildrenWhileTheParentStillResolves(mutation: \"missing-slot\")",
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/91"
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CN337_354_PENDING_BEFORE_PARENT_AND_LATER_OBSERVATION_INSERTION_ORDER"
+      },
+      "implementation": {
+        "state": "FINITE_SHARED_PENDING_SLOTS_CAPTURED_PARENT_RESUME_AND_EXECUTION_ORDER_NO_DSL_OR_OLD_GAME_MIGRATION"
+      },
+      "testExecution": {
+        "state": "ACTUAL_FINAL51_NEW10_METHODS_FOCUS280_126_FIVE_ORIGINAL_FULL_GAMES_FRESH_SQL126_COLD126_NATIVE22_ORIGINAL_PREFIX_READBACK_ORIGINAL_SOLE_CHECK13496_PASS_ONE_FAILURE_RETAINED"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_NORMAL_SCORE_COMPLETE_REPLAY_VISIBLE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded source and execution evidence only; fixed full and necessary products remain independent. No whole-card certification."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "deck-pending-6a4d54b58a35d9c2bea0c267",
+      "sourceRefs": [
+        "OGN-062/298",
+        "DOC-01-P041-B010",
+        "DOC-01-P041-B011",
+        "DOC-01-P041-B012",
+        "DOC-01-P041-B013",
+        "DOC-01-P041-B014",
+        "DOC-01-P041-B015",
+        "DOC-01-P041-B016",
+        "DOC-01-P044-B008",
+        "DOC-01-P044-B009",
+        "DOC-01-P044-B010",
+        "DOC-01-P044-B011",
+        "DOC-01-P044-B012",
+        "DOC-01-P059-B002"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/deck-pending-before-parent-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "d9d420b09fde81fcd516a57b368090cc8b6419d96d1d5c8e27fd48ec759e984c",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.ColdRecoveryRejectsIndependentlyForgedPendingChildrenWhileTheParentStillResolves(mutation: \"parent-choice\")",
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/91"
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CN337_354_PENDING_BEFORE_PARENT_AND_LATER_OBSERVATION_INSERTION_ORDER"
+      },
+      "implementation": {
+        "state": "FINITE_SHARED_PENDING_SLOTS_CAPTURED_PARENT_RESUME_AND_EXECUTION_ORDER_NO_DSL_OR_OLD_GAME_MIGRATION"
+      },
+      "testExecution": {
+        "state": "ACTUAL_FINAL51_NEW10_METHODS_FOCUS280_126_FIVE_ORIGINAL_FULL_GAMES_FRESH_SQL126_COLD126_NATIVE22_ORIGINAL_PREFIX_READBACK_ORIGINAL_SOLE_CHECK13496_PASS_ONE_FAILURE_RETAINED"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_NORMAL_SCORE_COMPLETE_REPLAY_VISIBLE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded source and execution evidence only; fixed full and necessary products remain independent. No whole-card certification."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "deck-pending-9ecc7afa0e906f6111e37cbf",
+      "sourceRefs": [
+        "OGN-062/298",
+        "DOC-01-P041-B010",
+        "DOC-01-P041-B011",
+        "DOC-01-P041-B012",
+        "DOC-01-P041-B013",
+        "DOC-01-P041-B014",
+        "DOC-01-P041-B015",
+        "DOC-01-P041-B016",
+        "DOC-01-P044-B008",
+        "DOC-01-P044-B009",
+        "DOC-01-P044-B010",
+        "DOC-01-P044-B011",
+        "DOC-01-P044-B012",
+        "DOC-01-P059-B002"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/deck-pending-before-parent-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "d9d420b09fde81fcd516a57b368090cc8b6419d96d1d5c8e27fd48ec759e984c",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.ColdRecoveryRejectsIndependentlyForgedPendingChildrenWhileTheParentStillResolves(mutation: \"parent-completed\")",
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/91"
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CN337_354_PENDING_BEFORE_PARENT_AND_LATER_OBSERVATION_INSERTION_ORDER"
+      },
+      "implementation": {
+        "state": "FINITE_SHARED_PENDING_SLOTS_CAPTURED_PARENT_RESUME_AND_EXECUTION_ORDER_NO_DSL_OR_OLD_GAME_MIGRATION"
+      },
+      "testExecution": {
+        "state": "ACTUAL_FINAL51_NEW10_METHODS_FOCUS280_126_FIVE_ORIGINAL_FULL_GAMES_FRESH_SQL126_COLD126_NATIVE22_ORIGINAL_PREFIX_READBACK_ORIGINAL_SOLE_CHECK13496_PASS_ONE_FAILURE_RETAINED"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_NORMAL_SCORE_COMPLETE_REPLAY_VISIBLE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded source and execution evidence only; fixed full and necessary products remain independent. No whole-card certification."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "deck-pending-7914bc88f69a4e7a4e1d5e0c",
+      "sourceRefs": [
+        "OGN-062/298",
+        "DOC-01-P041-B010",
+        "DOC-01-P041-B011",
+        "DOC-01-P041-B012",
+        "DOC-01-P041-B013",
+        "DOC-01-P041-B014",
+        "DOC-01-P041-B015",
+        "DOC-01-P041-B016",
+        "DOC-01-P044-B008",
+        "DOC-01-P044-B009",
+        "DOC-01-P044-B010",
+        "DOC-01-P044-B011",
+        "DOC-01-P044-B012",
+        "DOC-01-P059-B002"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/deck-pending-before-parent-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "d9d420b09fde81fcd516a57b368090cc8b6419d96d1d5c8e27fd48ec759e984c",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.ColdRecoveryRejectsIndependentlyForgedPendingChildrenWhileTheParentStillResolves(mutation: \"parent-effect-completed\")",
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/91"
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CN337_354_PENDING_BEFORE_PARENT_AND_LATER_OBSERVATION_INSERTION_ORDER"
+      },
+      "implementation": {
+        "state": "FINITE_SHARED_PENDING_SLOTS_CAPTURED_PARENT_RESUME_AND_EXECUTION_ORDER_NO_DSL_OR_OLD_GAME_MIGRATION"
+      },
+      "testExecution": {
+        "state": "ACTUAL_FINAL51_NEW10_METHODS_FOCUS280_126_FIVE_ORIGINAL_FULL_GAMES_FRESH_SQL126_COLD126_NATIVE22_ORIGINAL_PREFIX_READBACK_ORIGINAL_SOLE_CHECK13496_PASS_ONE_FAILURE_RETAINED"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_NORMAL_SCORE_COMPLETE_REPLAY_VISIBLE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded source and execution evidence only; fixed full and necessary products remain independent. No whole-card certification."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "deck-pending-607da39bb8677d5ce59112c4",
+      "sourceRefs": [
+        "OGN-062/298",
+        "DOC-01-P041-B010",
+        "DOC-01-P041-B011",
+        "DOC-01-P041-B012",
+        "DOC-01-P041-B013",
+        "DOC-01-P041-B014",
+        "DOC-01-P041-B015",
+        "DOC-01-P041-B016",
+        "DOC-01-P044-B008",
+        "DOC-01-P044-B009",
+        "DOC-01-P044-B010",
+        "DOC-01-P044-B011",
+        "DOC-01-P044-B012",
+        "DOC-01-P059-B002"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/deck-pending-before-parent-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "d9d420b09fde81fcd516a57b368090cc8b6419d96d1d5c8e27fd48ec759e984c",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.ColdRecoveryRejectsIndependentlyForgedPendingChildrenWhileTheParentStillResolves(mutation: \"queue-before-banish\")",
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/91"
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CN337_354_PENDING_BEFORE_PARENT_AND_LATER_OBSERVATION_INSERTION_ORDER"
+      },
+      "implementation": {
+        "state": "FINITE_SHARED_PENDING_SLOTS_CAPTURED_PARENT_RESUME_AND_EXECUTION_ORDER_NO_DSL_OR_OLD_GAME_MIGRATION"
+      },
+      "testExecution": {
+        "state": "ACTUAL_FINAL51_NEW10_METHODS_FOCUS280_126_FIVE_ORIGINAL_FULL_GAMES_FRESH_SQL126_COLD126_NATIVE22_ORIGINAL_PREFIX_READBACK_ORIGINAL_SOLE_CHECK13496_PASS_ONE_FAILURE_RETAINED"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_NORMAL_SCORE_COMPLETE_REPLAY_VISIBLE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded source and execution evidence only; fixed full and necessary products remain independent. No whole-card certification."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "deck-pending-0ef14b233e466222cc621c1e",
+      "sourceRefs": [
+        "OGN-062/298",
+        "DOC-01-P041-B010",
+        "DOC-01-P041-B011",
+        "DOC-01-P041-B012",
+        "DOC-01-P041-B013",
+        "DOC-01-P041-B014",
+        "DOC-01-P041-B015",
+        "DOC-01-P041-B016",
+        "DOC-01-P044-B008",
+        "DOC-01-P044-B009",
+        "DOC-01-P044-B010",
+        "DOC-01-P044-B011",
+        "DOC-01-P044-B012",
+        "DOC-01-P059-B002"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/deck-pending-before-parent-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "d9d420b09fde81fcd516a57b368090cc8b6419d96d1d5c8e27fd48ec759e984c",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.ColdRecoveryRejectsIndependentlyForgedPendingChildrenWhileTheParentStillResolves(mutation: \"queue-card\")",
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/91"
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CN337_354_PENDING_BEFORE_PARENT_AND_LATER_OBSERVATION_INSERTION_ORDER"
+      },
+      "implementation": {
+        "state": "FINITE_SHARED_PENDING_SLOTS_CAPTURED_PARENT_RESUME_AND_EXECUTION_ORDER_NO_DSL_OR_OLD_GAME_MIGRATION"
+      },
+      "testExecution": {
+        "state": "ACTUAL_FINAL51_NEW10_METHODS_FOCUS280_126_FIVE_ORIGINAL_FULL_GAMES_FRESH_SQL126_COLD126_NATIVE22_ORIGINAL_PREFIX_READBACK_ORIGINAL_SOLE_CHECK13496_PASS_ONE_FAILURE_RETAINED"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_NORMAL_SCORE_COMPLETE_REPLAY_VISIBLE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded source and execution evidence only; fixed full and necessary products remain independent. No whole-card certification."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "deck-pending-0840794ec2010ae64cfa71ca",
+      "sourceRefs": [
+        "OGN-062/298",
+        "DOC-01-P041-B010",
+        "DOC-01-P041-B011",
+        "DOC-01-P041-B012",
+        "DOC-01-P041-B013",
+        "DOC-01-P041-B014",
+        "DOC-01-P041-B015",
+        "DOC-01-P041-B016",
+        "DOC-01-P044-B008",
+        "DOC-01-P044-B009",
+        "DOC-01-P044-B010",
+        "DOC-01-P044-B011",
+        "DOC-01-P044-B012",
+        "DOC-01-P059-B002"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/deck-pending-before-parent-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "d9d420b09fde81fcd516a57b368090cc8b6419d96d1d5c8e27fd48ec759e984c",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.ColdRecoveryRejectsIndependentlyForgedPendingChildrenWhileTheParentStillResolves(mutation: \"queue-execution\")",
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/91"
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CN337_354_PENDING_BEFORE_PARENT_AND_LATER_OBSERVATION_INSERTION_ORDER"
+      },
+      "implementation": {
+        "state": "FINITE_SHARED_PENDING_SLOTS_CAPTURED_PARENT_RESUME_AND_EXECUTION_ORDER_NO_DSL_OR_OLD_GAME_MIGRATION"
+      },
+      "testExecution": {
+        "state": "ACTUAL_FINAL51_NEW10_METHODS_FOCUS280_126_FIVE_ORIGINAL_FULL_GAMES_FRESH_SQL126_COLD126_NATIVE22_ORIGINAL_PREFIX_READBACK_ORIGINAL_SOLE_CHECK13496_PASS_ONE_FAILURE_RETAINED"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_NORMAL_SCORE_COMPLETE_REPLAY_VISIBLE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded source and execution evidence only; fixed full and necessary products remain independent. No whole-card certification."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "deck-pending-943af442b239e7c17327f6fe",
+      "sourceRefs": [
+        "OGN-062/298",
+        "DOC-01-P041-B010",
+        "DOC-01-P041-B011",
+        "DOC-01-P041-B012",
+        "DOC-01-P041-B013",
+        "DOC-01-P041-B014",
+        "DOC-01-P041-B015",
+        "DOC-01-P041-B016",
+        "DOC-01-P044-B008",
+        "DOC-01-P044-B009",
+        "DOC-01-P044-B010",
+        "DOC-01-P044-B011",
+        "DOC-01-P044-B012",
+        "DOC-01-P059-B002"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/deck-pending-before-parent-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "d9d420b09fde81fcd516a57b368090cc8b6419d96d1d5c8e27fd48ec759e984c",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.ColdRecoveryRejectsIndependentlyForgedPendingChildrenWhileTheParentStillResolves(mutation: \"queue-generation\")",
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/91"
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CN337_354_PENDING_BEFORE_PARENT_AND_LATER_OBSERVATION_INSERTION_ORDER"
+      },
+      "implementation": {
+        "state": "FINITE_SHARED_PENDING_SLOTS_CAPTURED_PARENT_RESUME_AND_EXECUTION_ORDER_NO_DSL_OR_OLD_GAME_MIGRATION"
+      },
+      "testExecution": {
+        "state": "ACTUAL_FINAL51_NEW10_METHODS_FOCUS280_126_FIVE_ORIGINAL_FULL_GAMES_FRESH_SQL126_COLD126_NATIVE22_ORIGINAL_PREFIX_READBACK_ORIGINAL_SOLE_CHECK13496_PASS_ONE_FAILURE_RETAINED"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_NORMAL_SCORE_COMPLETE_REPLAY_VISIBLE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded source and execution evidence only; fixed full and necessary products remain independent. No whole-card certification."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "deck-pending-93e4b3b435cc1f4bfadd3833",
+      "sourceRefs": [
+        "OGN-062/298",
+        "DOC-01-P041-B010",
+        "DOC-01-P041-B011",
+        "DOC-01-P041-B012",
+        "DOC-01-P041-B013",
+        "DOC-01-P041-B014",
+        "DOC-01-P041-B015",
+        "DOC-01-P041-B016",
+        "DOC-01-P044-B008",
+        "DOC-01-P044-B009",
+        "DOC-01-P044-B010",
+        "DOC-01-P044-B011",
+        "DOC-01-P044-B012",
+        "DOC-01-P059-B002"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/deck-pending-before-parent-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "d9d420b09fde81fcd516a57b368090cc8b6419d96d1d5c8e27fd48ec759e984c",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.ColdRecoveryRejectsIndependentlyForgedPendingChildrenWhileTheParentStillResolves(mutation: \"queue-missing\")",
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/91"
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CN337_354_PENDING_BEFORE_PARENT_AND_LATER_OBSERVATION_INSERTION_ORDER"
+      },
+      "implementation": {
+        "state": "FINITE_SHARED_PENDING_SLOTS_CAPTURED_PARENT_RESUME_AND_EXECUTION_ORDER_NO_DSL_OR_OLD_GAME_MIGRATION"
+      },
+      "testExecution": {
+        "state": "ACTUAL_FINAL51_NEW10_METHODS_FOCUS280_126_FIVE_ORIGINAL_FULL_GAMES_FRESH_SQL126_COLD126_NATIVE22_ORIGINAL_PREFIX_READBACK_ORIGINAL_SOLE_CHECK13496_PASS_ONE_FAILURE_RETAINED"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_NORMAL_SCORE_COMPLETE_REPLAY_VISIBLE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded source and execution evidence only; fixed full and necessary products remain independent. No whole-card certification."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "deck-pending-9c502052a109b0bff20c0412",
+      "sourceRefs": [
+        "OGN-062/298",
+        "DOC-01-P041-B010",
+        "DOC-01-P041-B011",
+        "DOC-01-P041-B012",
+        "DOC-01-P041-B013",
+        "DOC-01-P041-B014",
+        "DOC-01-P041-B015",
+        "DOC-01-P041-B016",
+        "DOC-01-P044-B008",
+        "DOC-01-P044-B009",
+        "DOC-01-P044-B010",
+        "DOC-01-P044-B011",
+        "DOC-01-P044-B012",
+        "DOC-01-P059-B002"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/deck-pending-before-parent-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "d9d420b09fde81fcd516a57b368090cc8b6419d96d1d5c8e27fd48ec759e984c",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.ColdRecoveryRejectsIndependentlyForgedPendingChildrenWhileTheParentStillResolves(mutation: \"slot-actor\")",
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/91"
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CN337_354_PENDING_BEFORE_PARENT_AND_LATER_OBSERVATION_INSERTION_ORDER"
+      },
+      "implementation": {
+        "state": "FINITE_SHARED_PENDING_SLOTS_CAPTURED_PARENT_RESUME_AND_EXECUTION_ORDER_NO_DSL_OR_OLD_GAME_MIGRATION"
+      },
+      "testExecution": {
+        "state": "ACTUAL_FINAL51_NEW10_METHODS_FOCUS280_126_FIVE_ORIGINAL_FULL_GAMES_FRESH_SQL126_COLD126_NATIVE22_ORIGINAL_PREFIX_READBACK_ORIGINAL_SOLE_CHECK13496_PASS_ONE_FAILURE_RETAINED"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_NORMAL_SCORE_COMPLETE_REPLAY_VISIBLE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded source and execution evidence only; fixed full and necessary products remain independent. No whole-card certification."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "deck-pending-0b05ccf5ee78e547ad49ca34",
+      "sourceRefs": [
+        "OGN-062/298",
+        "DOC-01-P041-B010",
+        "DOC-01-P041-B011",
+        "DOC-01-P041-B012",
+        "DOC-01-P041-B013",
+        "DOC-01-P041-B014",
+        "DOC-01-P041-B015",
+        "DOC-01-P041-B016",
+        "DOC-01-P044-B008",
+        "DOC-01-P044-B009",
+        "DOC-01-P044-B010",
+        "DOC-01-P044-B011",
+        "DOC-01-P044-B012",
+        "DOC-01-P059-B002"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/deck-pending-before-parent-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "d9d420b09fde81fcd516a57b368090cc8b6419d96d1d5c8e27fd48ec759e984c",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.ColdRecoveryRejectsIndependentlyForgedPendingChildrenWhileTheParentStillResolves(mutation: \"slot-before-parent\")",
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/91"
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CN337_354_PENDING_BEFORE_PARENT_AND_LATER_OBSERVATION_INSERTION_ORDER"
+      },
+      "implementation": {
+        "state": "FINITE_SHARED_PENDING_SLOTS_CAPTURED_PARENT_RESUME_AND_EXECUTION_ORDER_NO_DSL_OR_OLD_GAME_MIGRATION"
+      },
+      "testExecution": {
+        "state": "ACTUAL_FINAL51_NEW10_METHODS_FOCUS280_126_FIVE_ORIGINAL_FULL_GAMES_FRESH_SQL126_COLD126_NATIVE22_ORIGINAL_PREFIX_READBACK_ORIGINAL_SOLE_CHECK13496_PASS_ONE_FAILURE_RETAINED"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_NORMAL_SCORE_COMPLETE_REPLAY_VISIBLE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded source and execution evidence only; fixed full and necessary products remain independent. No whole-card certification."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "deck-pending-80078dc2027036a14ae53a91",
+      "sourceRefs": [
+        "OGN-062/298",
+        "DOC-01-P041-B010",
+        "DOC-01-P041-B011",
+        "DOC-01-P041-B012",
+        "DOC-01-P041-B013",
+        "DOC-01-P041-B014",
+        "DOC-01-P041-B015",
+        "DOC-01-P041-B016",
+        "DOC-01-P044-B008",
+        "DOC-01-P044-B009",
+        "DOC-01-P044-B010",
+        "DOC-01-P044-B011",
+        "DOC-01-P044-B012",
+        "DOC-01-P059-B002"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/deck-pending-before-parent-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "d9d420b09fde81fcd516a57b368090cc8b6419d96d1d5c8e27fd48ec759e984c",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.ColdRecoveryRejectsIndependentlyForgedPendingChildrenWhileTheParentStillResolves(mutation: \"slot-card\")",
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/91"
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CN337_354_PENDING_BEFORE_PARENT_AND_LATER_OBSERVATION_INSERTION_ORDER"
+      },
+      "implementation": {
+        "state": "FINITE_SHARED_PENDING_SLOTS_CAPTURED_PARENT_RESUME_AND_EXECUTION_ORDER_NO_DSL_OR_OLD_GAME_MIGRATION"
+      },
+      "testExecution": {
+        "state": "ACTUAL_FINAL51_NEW10_METHODS_FOCUS280_126_FIVE_ORIGINAL_FULL_GAMES_FRESH_SQL126_COLD126_NATIVE22_ORIGINAL_PREFIX_READBACK_ORIGINAL_SOLE_CHECK13496_PASS_ONE_FAILURE_RETAINED"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_NORMAL_SCORE_COMPLETE_REPLAY_VISIBLE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded source and execution evidence only; fixed full and necessary products remain independent. No whole-card certification."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "deck-pending-c0aab755fd62153863a44211",
+      "sourceRefs": [
+        "OGN-062/298",
+        "DOC-01-P041-B010",
+        "DOC-01-P041-B011",
+        "DOC-01-P041-B012",
+        "DOC-01-P041-B013",
+        "DOC-01-P041-B014",
+        "DOC-01-P041-B015",
+        "DOC-01-P041-B016",
+        "DOC-01-P044-B008",
+        "DOC-01-P044-B009",
+        "DOC-01-P044-B010",
+        "DOC-01-P044-B011",
+        "DOC-01-P044-B012",
+        "DOC-01-P059-B002"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/deck-pending-before-parent-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "d9d420b09fde81fcd516a57b368090cc8b6419d96d1d5c8e27fd48ec759e984c",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.ColdRecoveryRejectsIndependentlyForgedPendingChildrenWhileTheParentStillResolves(mutation: \"slot-confirmed\")",
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/91"
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CN337_354_PENDING_BEFORE_PARENT_AND_LATER_OBSERVATION_INSERTION_ORDER"
+      },
+      "implementation": {
+        "state": "FINITE_SHARED_PENDING_SLOTS_CAPTURED_PARENT_RESUME_AND_EXECUTION_ORDER_NO_DSL_OR_OLD_GAME_MIGRATION"
+      },
+      "testExecution": {
+        "state": "ACTUAL_FINAL51_NEW10_METHODS_FOCUS280_126_FIVE_ORIGINAL_FULL_GAMES_FRESH_SQL126_COLD126_NATIVE22_ORIGINAL_PREFIX_READBACK_ORIGINAL_SOLE_CHECK13496_PASS_ONE_FAILURE_RETAINED"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_NORMAL_SCORE_COMPLETE_REPLAY_VISIBLE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded source and execution evidence only; fixed full and necessary products remain independent. No whole-card certification."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "deck-pending-a0eb22e4ae55526fbdb81b74",
+      "sourceRefs": [
+        "OGN-062/298",
+        "DOC-01-P041-B010",
+        "DOC-01-P041-B011",
+        "DOC-01-P041-B012",
+        "DOC-01-P041-B013",
+        "DOC-01-P041-B014",
+        "DOC-01-P041-B015",
+        "DOC-01-P041-B016",
+        "DOC-01-P044-B008",
+        "DOC-01-P044-B009",
+        "DOC-01-P044-B010",
+        "DOC-01-P044-B011",
+        "DOC-01-P044-B012",
+        "DOC-01-P059-B002"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/deck-pending-before-parent-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "d9d420b09fde81fcd516a57b368090cc8b6419d96d1d5c8e27fd48ec759e984c",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.ColdRecoveryRejectsIndependentlyForgedPendingChildrenWhileTheParentStillResolves(mutation: \"slot-generation\")",
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/91"
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CN337_354_PENDING_BEFORE_PARENT_AND_LATER_OBSERVATION_INSERTION_ORDER"
+      },
+      "implementation": {
+        "state": "FINITE_SHARED_PENDING_SLOTS_CAPTURED_PARENT_RESUME_AND_EXECUTION_ORDER_NO_DSL_OR_OLD_GAME_MIGRATION"
+      },
+      "testExecution": {
+        "state": "ACTUAL_FINAL51_NEW10_METHODS_FOCUS280_126_FIVE_ORIGINAL_FULL_GAMES_FRESH_SQL126_COLD126_NATIVE22_ORIGINAL_PREFIX_READBACK_ORIGINAL_SOLE_CHECK13496_PASS_ONE_FAILURE_RETAINED"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_NORMAL_SCORE_COMPLETE_REPLAY_VISIBLE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded source and execution evidence only; fixed full and necessary products remain independent. No whole-card certification."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "deck-pending-954047aa61bda28afedf4738",
+      "sourceRefs": [
+        "OGN-062/298",
+        "DOC-01-P041-B010",
+        "DOC-01-P041-B011",
+        "DOC-01-P041-B012",
+        "DOC-01-P041-B013",
+        "DOC-01-P041-B014",
+        "DOC-01-P041-B015",
+        "DOC-01-P041-B016",
+        "DOC-01-P044-B008",
+        "DOC-01-P044-B009",
+        "DOC-01-P044-B010",
+        "DOC-01-P044-B011",
+        "DOC-01-P044-B012",
+        "DOC-01-P059-B002"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/deck-pending-before-parent-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "d9d420b09fde81fcd516a57b368090cc8b6419d96d1d5c8e27fd48ec759e984c",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.ColdRecoveryRejectsIndependentlyForgedPendingChildrenWhileTheParentStillResolves(mutation: \"slot-order\")",
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/91"
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CN337_354_PENDING_BEFORE_PARENT_AND_LATER_OBSERVATION_INSERTION_ORDER"
+      },
+      "implementation": {
+        "state": "FINITE_SHARED_PENDING_SLOTS_CAPTURED_PARENT_RESUME_AND_EXECUTION_ORDER_NO_DSL_OR_OLD_GAME_MIGRATION"
+      },
+      "testExecution": {
+        "state": "ACTUAL_FINAL51_NEW10_METHODS_FOCUS280_126_FIVE_ORIGINAL_FULL_GAMES_FRESH_SQL126_COLD126_NATIVE22_ORIGINAL_PREFIX_READBACK_ORIGINAL_SOLE_CHECK13496_PASS_ONE_FAILURE_RETAINED"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_NORMAL_SCORE_COMPLETE_REPLAY_VISIBLE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded source and execution evidence only; fixed full and necessary products remain independent. No whole-card certification."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "deck-pending-84fdc43c3ba784d94e8bcddb",
+      "sourceRefs": [
+        "OGN-062/298",
+        "DOC-01-P041-B010",
+        "DOC-01-P041-B011",
+        "DOC-01-P041-B012",
+        "DOC-01-P041-B013",
+        "DOC-01-P041-B014",
+        "DOC-01-P041-B015",
+        "DOC-01-P041-B016",
+        "DOC-01-P044-B008",
+        "DOC-01-P044-B009",
+        "DOC-01-P044-B010",
+        "DOC-01-P044-B011",
+        "DOC-01-P044-B012",
+        "DOC-01-P059-B002"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/deck-pending-before-parent-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "d9d420b09fde81fcd516a57b368090cc8b6419d96d1d5c8e27fd48ec759e984c",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.ColdRecoveryRejectsIndependentlyForgedPendingChildrenWhileTheParentStillResolves(mutation: \"slot-owner\")",
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/91"
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CN337_354_PENDING_BEFORE_PARENT_AND_LATER_OBSERVATION_INSERTION_ORDER"
+      },
+      "implementation": {
+        "state": "FINITE_SHARED_PENDING_SLOTS_CAPTURED_PARENT_RESUME_AND_EXECUTION_ORDER_NO_DSL_OR_OLD_GAME_MIGRATION"
+      },
+      "testExecution": {
+        "state": "ACTUAL_FINAL51_NEW10_METHODS_FOCUS280_126_FIVE_ORIGINAL_FULL_GAMES_FRESH_SQL126_COLD126_NATIVE22_ORIGINAL_PREFIX_READBACK_ORIGINAL_SOLE_CHECK13496_PASS_ONE_FAILURE_RETAINED"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_NORMAL_SCORE_COMPLETE_REPLAY_VISIBLE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded source and execution evidence only; fixed full and necessary products remain independent. No whole-card certification."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "deck-pending-dbc0d6a6a133ce669bcebfe5",
+      "sourceRefs": [
+        "OGN-062/298",
+        "DOC-01-P041-B010",
+        "DOC-01-P041-B011",
+        "DOC-01-P041-B012",
+        "DOC-01-P041-B013",
+        "DOC-01-P041-B014",
+        "DOC-01-P041-B015",
+        "DOC-01-P041-B016",
+        "DOC-01-P044-B008",
+        "DOC-01-P044-B009",
+        "DOC-01-P044-B010",
+        "DOC-01-P044-B011",
+        "DOC-01-P044-B012",
+        "DOC-01-P059-B002"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/deck-pending-before-parent-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "d9d420b09fde81fcd516a57b368090cc8b6419d96d1d5c8e27fd48ec759e984c",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.ColdRecoveryRejectsIndependentlyForgedPendingChildrenWhileTheParentStillResolves(mutation: \"slot-parent\")",
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/91"
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CN337_354_PENDING_BEFORE_PARENT_AND_LATER_OBSERVATION_INSERTION_ORDER"
+      },
+      "implementation": {
+        "state": "FINITE_SHARED_PENDING_SLOTS_CAPTURED_PARENT_RESUME_AND_EXECUTION_ORDER_NO_DSL_OR_OLD_GAME_MIGRATION"
+      },
+      "testExecution": {
+        "state": "ACTUAL_FINAL51_NEW10_METHODS_FOCUS280_126_FIVE_ORIGINAL_FULL_GAMES_FRESH_SQL126_COLD126_NATIVE22_ORIGINAL_PREFIX_READBACK_ORIGINAL_SOLE_CHECK13496_PASS_ONE_FAILURE_RETAINED"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_NORMAL_SCORE_COMPLETE_REPLAY_VISIBLE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded source and execution evidence only; fixed full and necessary products remain independent. No whole-card certification."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "deck-pending-e4a7a430cbc9aefd65d5eda7",
+      "sourceRefs": [
+        "OGN-062/298",
+        "DOC-01-P041-B010",
+        "DOC-01-P041-B011",
+        "DOC-01-P041-B012",
+        "DOC-01-P041-B013",
+        "DOC-01-P041-B014",
+        "DOC-01-P041-B015",
+        "DOC-01-P041-B016",
+        "DOC-01-P044-B008",
+        "DOC-01-P044-B009",
+        "DOC-01-P044-B010",
+        "DOC-01-P044-B011",
+        "DOC-01-P044-B012",
+        "DOC-01-P059-B002"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/deck-pending-before-parent-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "d9d420b09fde81fcd516a57b368090cc8b6419d96d1d5c8e27fd48ec759e984c",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.DecliningEitherExecutionDoesNotRemoveOrDuplicateTheOtherPendingCard(card: \"OGN·062/298\", declineFirst: False)",
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/91"
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CN337_354_PENDING_BEFORE_PARENT_AND_LATER_OBSERVATION_INSERTION_ORDER"
+      },
+      "implementation": {
+        "state": "FINITE_SHARED_PENDING_SLOTS_CAPTURED_PARENT_RESUME_AND_EXECUTION_ORDER_NO_DSL_OR_OLD_GAME_MIGRATION"
+      },
+      "testExecution": {
+        "state": "ACTUAL_FINAL51_NEW10_METHODS_FOCUS280_126_FIVE_ORIGINAL_FULL_GAMES_FRESH_SQL126_COLD126_NATIVE22_ORIGINAL_PREFIX_READBACK_ORIGINAL_SOLE_CHECK13496_PASS_ONE_FAILURE_RETAINED"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_NORMAL_SCORE_COMPLETE_REPLAY_VISIBLE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded source and execution evidence only; fixed full and necessary products remain independent. No whole-card certification."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "deck-pending-a961939a7caf8c72bd66aec2",
+      "sourceRefs": [
+        "OGN-062/298",
+        "DOC-01-P041-B010",
+        "DOC-01-P041-B011",
+        "DOC-01-P041-B012",
+        "DOC-01-P041-B013",
+        "DOC-01-P041-B014",
+        "DOC-01-P041-B015",
+        "DOC-01-P041-B016",
+        "DOC-01-P044-B008",
+        "DOC-01-P044-B009",
+        "DOC-01-P044-B010",
+        "DOC-01-P044-B011",
+        "DOC-01-P044-B012",
+        "DOC-01-P059-B002"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/deck-pending-before-parent-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "d9d420b09fde81fcd516a57b368090cc8b6419d96d1d5c8e27fd48ec759e984c",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.DecliningEitherExecutionDoesNotRemoveOrDuplicateTheOtherPendingCard(card: \"OGN·062/298\", declineFirst: True)",
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/91"
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CN337_354_PENDING_BEFORE_PARENT_AND_LATER_OBSERVATION_INSERTION_ORDER"
+      },
+      "implementation": {
+        "state": "FINITE_SHARED_PENDING_SLOTS_CAPTURED_PARENT_RESUME_AND_EXECUTION_ORDER_NO_DSL_OR_OLD_GAME_MIGRATION"
+      },
+      "testExecution": {
+        "state": "ACTUAL_FINAL51_NEW10_METHODS_FOCUS280_126_FIVE_ORIGINAL_FULL_GAMES_FRESH_SQL126_COLD126_NATIVE22_ORIGINAL_PREFIX_READBACK_ORIGINAL_SOLE_CHECK13496_PASS_ONE_FAILURE_RETAINED"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_NORMAL_SCORE_COMPLETE_REPLAY_VISIBLE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded source and execution evidence only; fixed full and necessary products remain independent. No whole-card certification."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "deck-pending-37fb63a1ba14acf693088adf",
+      "sourceRefs": [
+        "SFD-188/221",
+        "DOC-01-P041-B010",
+        "DOC-01-P041-B011",
+        "DOC-01-P041-B012",
+        "DOC-01-P041-B013",
+        "DOC-01-P041-B014",
+        "DOC-01-P041-B015",
+        "DOC-01-P041-B016",
+        "DOC-01-P044-B008",
+        "DOC-01-P044-B009",
+        "DOC-01-P044-B010",
+        "DOC-01-P044-B011",
+        "DOC-01-P044-B012",
+        "DOC-01-P059-B002"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/deck-pending-before-parent-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "d9d420b09fde81fcd516a57b368090cc8b6419d96d1d5c8e27fd48ec759e984c",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.DecliningEitherExecutionDoesNotRemoveOrDuplicateTheOtherPendingCard(card: \"SFD·188/221\", declineFirst: False)",
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/91"
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CN337_354_PENDING_BEFORE_PARENT_AND_LATER_OBSERVATION_INSERTION_ORDER"
+      },
+      "implementation": {
+        "state": "FINITE_SHARED_PENDING_SLOTS_CAPTURED_PARENT_RESUME_AND_EXECUTION_ORDER_NO_DSL_OR_OLD_GAME_MIGRATION"
+      },
+      "testExecution": {
+        "state": "ACTUAL_FINAL51_NEW10_METHODS_FOCUS280_126_FIVE_ORIGINAL_FULL_GAMES_FRESH_SQL126_COLD126_NATIVE22_ORIGINAL_PREFIX_READBACK_ORIGINAL_SOLE_CHECK13496_PASS_ONE_FAILURE_RETAINED"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_NORMAL_SCORE_COMPLETE_REPLAY_VISIBLE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded source and execution evidence only; fixed full and necessary products remain independent. No whole-card certification."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "deck-pending-d1a40622a6769e7c42ca9331",
+      "sourceRefs": [
+        "SFD-188/221",
+        "DOC-01-P041-B010",
+        "DOC-01-P041-B011",
+        "DOC-01-P041-B012",
+        "DOC-01-P041-B013",
+        "DOC-01-P041-B014",
+        "DOC-01-P041-B015",
+        "DOC-01-P041-B016",
+        "DOC-01-P044-B008",
+        "DOC-01-P044-B009",
+        "DOC-01-P044-B010",
+        "DOC-01-P044-B011",
+        "DOC-01-P044-B012",
+        "DOC-01-P059-B002"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/deck-pending-before-parent-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "d9d420b09fde81fcd516a57b368090cc8b6419d96d1d5c8e27fd48ec759e984c",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.DecliningEitherExecutionDoesNotRemoveOrDuplicateTheOtherPendingCard(card: \"SFD·188/221\", declineFirst: True)",
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/91"
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CN337_354_PENDING_BEFORE_PARENT_AND_LATER_OBSERVATION_INSERTION_ORDER"
+      },
+      "implementation": {
+        "state": "FINITE_SHARED_PENDING_SLOTS_CAPTURED_PARENT_RESUME_AND_EXECUTION_ORDER_NO_DSL_OR_OLD_GAME_MIGRATION"
+      },
+      "testExecution": {
+        "state": "ACTUAL_FINAL51_NEW10_METHODS_FOCUS280_126_FIVE_ORIGINAL_FULL_GAMES_FRESH_SQL126_COLD126_NATIVE22_ORIGINAL_PREFIX_READBACK_ORIGINAL_SOLE_CHECK13496_PASS_ONE_FAILURE_RETAINED"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_NORMAL_SCORE_COMPLETE_REPLAY_VISIBLE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded source and execution evidence only; fixed full and necessary products remain independent. No whole-card certification."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "deck-pending-3413ec078e689d973d745c38",
+      "sourceRefs": [
+        "OGN-025/298",
+        "DOC-01-P041-B010",
+        "DOC-01-P041-B011",
+        "DOC-01-P041-B012",
+        "DOC-01-P041-B013",
+        "DOC-01-P041-B014",
+        "DOC-01-P041-B015",
+        "DOC-01-P041-B016",
+        "DOC-01-P044-B008",
+        "DOC-01-P044-B009",
+        "DOC-01-P044-B010",
+        "DOC-01-P044-B011",
+        "DOC-01-P044-B012",
+        "DOC-01-P059-B002"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/deck-pending-before-parent-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "d9d420b09fde81fcd516a57b368090cc8b6419d96d1d5c8e27fd48ec759e984c",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.FirstExecutionCreatesPendingCardsBeforeTheRepeatedParentContinues(card: \"OGN·025/298\")",
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/91"
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CN337_354_PENDING_BEFORE_PARENT_AND_LATER_OBSERVATION_INSERTION_ORDER"
+      },
+      "implementation": {
+        "state": "FINITE_SHARED_PENDING_SLOTS_CAPTURED_PARENT_RESUME_AND_EXECUTION_ORDER_NO_DSL_OR_OLD_GAME_MIGRATION"
+      },
+      "testExecution": {
+        "state": "ACTUAL_FINAL51_NEW10_METHODS_FOCUS280_126_FIVE_ORIGINAL_FULL_GAMES_FRESH_SQL126_COLD126_NATIVE22_ORIGINAL_PREFIX_READBACK_ORIGINAL_SOLE_CHECK13496_PASS_ONE_FAILURE_RETAINED"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_NORMAL_SCORE_COMPLETE_REPLAY_VISIBLE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded source and execution evidence only; fixed full and necessary products remain independent. No whole-card certification."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "deck-pending-4ef91bc19e9cafc322731f66",
+      "sourceRefs": [
+        "OGN-062/298",
+        "DOC-01-P041-B010",
+        "DOC-01-P041-B011",
+        "DOC-01-P041-B012",
+        "DOC-01-P041-B013",
+        "DOC-01-P041-B014",
+        "DOC-01-P041-B015",
+        "DOC-01-P041-B016",
+        "DOC-01-P044-B008",
+        "DOC-01-P044-B009",
+        "DOC-01-P044-B010",
+        "DOC-01-P044-B011",
+        "DOC-01-P044-B012",
+        "DOC-01-P059-B002"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/deck-pending-before-parent-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "d9d420b09fde81fcd516a57b368090cc8b6419d96d1d5c8e27fd48ec759e984c",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.FirstExecutionCreatesPendingCardsBeforeTheRepeatedParentContinues(card: \"OGN·062/298\")",
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/91"
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CN337_354_PENDING_BEFORE_PARENT_AND_LATER_OBSERVATION_INSERTION_ORDER"
+      },
+      "implementation": {
+        "state": "FINITE_SHARED_PENDING_SLOTS_CAPTURED_PARENT_RESUME_AND_EXECUTION_ORDER_NO_DSL_OR_OLD_GAME_MIGRATION"
+      },
+      "testExecution": {
+        "state": "ACTUAL_FINAL51_NEW10_METHODS_FOCUS280_126_FIVE_ORIGINAL_FULL_GAMES_FRESH_SQL126_COLD126_NATIVE22_ORIGINAL_PREFIX_READBACK_ORIGINAL_SOLE_CHECK13496_PASS_ONE_FAILURE_RETAINED"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_NORMAL_SCORE_COMPLETE_REPLAY_VISIBLE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded source and execution evidence only; fixed full and necessary products remain independent. No whole-card certification."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "deck-pending-a353e5c83206829482937f58",
+      "sourceRefs": [
+        "OGN-115/298",
+        "DOC-01-P041-B010",
+        "DOC-01-P041-B011",
+        "DOC-01-P041-B012",
+        "DOC-01-P041-B013",
+        "DOC-01-P041-B014",
+        "DOC-01-P041-B015",
+        "DOC-01-P041-B016",
+        "DOC-01-P044-B008",
+        "DOC-01-P044-B009",
+        "DOC-01-P044-B010",
+        "DOC-01-P044-B011",
+        "DOC-01-P044-B012",
+        "DOC-01-P059-B002"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/deck-pending-before-parent-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "d9d420b09fde81fcd516a57b368090cc8b6419d96d1d5c8e27fd48ec759e984c",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.FirstExecutionCreatesPendingCardsBeforeTheRepeatedParentContinues(card: \"OGN·115/298\")",
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/91"
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CN337_354_PENDING_BEFORE_PARENT_AND_LATER_OBSERVATION_INSERTION_ORDER"
+      },
+      "implementation": {
+        "state": "FINITE_SHARED_PENDING_SLOTS_CAPTURED_PARENT_RESUME_AND_EXECUTION_ORDER_NO_DSL_OR_OLD_GAME_MIGRATION"
+      },
+      "testExecution": {
+        "state": "ACTUAL_FINAL51_NEW10_METHODS_FOCUS280_126_FIVE_ORIGINAL_FULL_GAMES_FRESH_SQL126_COLD126_NATIVE22_ORIGINAL_PREFIX_READBACK_ORIGINAL_SOLE_CHECK13496_PASS_ONE_FAILURE_RETAINED"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_NORMAL_SCORE_COMPLETE_REPLAY_VISIBLE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded source and execution evidence only; fixed full and necessary products remain independent. No whole-card certification."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "deck-pending-77ddea2144fc1a6612ace41d",
+      "sourceRefs": [
+        "SFD-188/221",
+        "DOC-01-P041-B010",
+        "DOC-01-P041-B011",
+        "DOC-01-P041-B012",
+        "DOC-01-P041-B013",
+        "DOC-01-P041-B014",
+        "DOC-01-P041-B015",
+        "DOC-01-P041-B016",
+        "DOC-01-P044-B008",
+        "DOC-01-P044-B009",
+        "DOC-01-P044-B010",
+        "DOC-01-P044-B011",
+        "DOC-01-P044-B012",
+        "DOC-01-P059-B002"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/deck-pending-before-parent-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "d9d420b09fde81fcd516a57b368090cc8b6419d96d1d5c8e27fd48ec759e984c",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.FirstExecutionCreatesPendingCardsBeforeTheRepeatedParentContinues(card: \"SFD·188/221\")",
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/91"
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CN337_354_PENDING_BEFORE_PARENT_AND_LATER_OBSERVATION_INSERTION_ORDER"
+      },
+      "implementation": {
+        "state": "FINITE_SHARED_PENDING_SLOTS_CAPTURED_PARENT_RESUME_AND_EXECUTION_ORDER_NO_DSL_OR_OLD_GAME_MIGRATION"
+      },
+      "testExecution": {
+        "state": "ACTUAL_FINAL51_NEW10_METHODS_FOCUS280_126_FIVE_ORIGINAL_FULL_GAMES_FRESH_SQL126_COLD126_NATIVE22_ORIGINAL_PREFIX_READBACK_ORIGINAL_SOLE_CHECK13496_PASS_ONE_FAILURE_RETAINED"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_NORMAL_SCORE_COMPLETE_REPLAY_VISIBLE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded source and execution evidence only; fixed full and necessary products remain independent. No whole-card certification."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "deck-pending-8d010897bd7c9ead4284b3b9",
+      "sourceRefs": [
+        "OGN-062/298",
+        "DOC-01-P041-B010",
+        "DOC-01-P041-B011",
+        "DOC-01-P041-B012",
+        "DOC-01-P041-B013",
+        "DOC-01-P041-B014",
+        "DOC-01-P041-B015",
+        "DOC-01-P041-B016",
+        "DOC-01-P044-B008",
+        "DOC-01-P044-B009",
+        "DOC-01-P044-B010",
+        "DOC-01-P044-B011",
+        "DOC-01-P044-B012",
+        "DOC-01-P059-B002"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/deck-pending-before-parent-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "d9d420b09fde81fcd516a57b368090cc8b6419d96d1d5c8e27fd48ec759e984c",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.NeitherPlayerMayPlayOrPassThePendingChildBeforeTheParentChoiceFinishes(player: \"P1\", pass: False)",
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/91"
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CN337_354_PENDING_BEFORE_PARENT_AND_LATER_OBSERVATION_INSERTION_ORDER"
+      },
+      "implementation": {
+        "state": "FINITE_SHARED_PENDING_SLOTS_CAPTURED_PARENT_RESUME_AND_EXECUTION_ORDER_NO_DSL_OR_OLD_GAME_MIGRATION"
+      },
+      "testExecution": {
+        "state": "ACTUAL_FINAL51_NEW10_METHODS_FOCUS280_126_FIVE_ORIGINAL_FULL_GAMES_FRESH_SQL126_COLD126_NATIVE22_ORIGINAL_PREFIX_READBACK_ORIGINAL_SOLE_CHECK13496_PASS_ONE_FAILURE_RETAINED"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_NORMAL_SCORE_COMPLETE_REPLAY_VISIBLE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded source and execution evidence only; fixed full and necessary products remain independent. No whole-card certification."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "deck-pending-eb8eab313ff247cf1237a141",
+      "sourceRefs": [
+        "OGN-062/298",
+        "DOC-01-P041-B010",
+        "DOC-01-P041-B011",
+        "DOC-01-P041-B012",
+        "DOC-01-P041-B013",
+        "DOC-01-P041-B014",
+        "DOC-01-P041-B015",
+        "DOC-01-P041-B016",
+        "DOC-01-P044-B008",
+        "DOC-01-P044-B009",
+        "DOC-01-P044-B010",
+        "DOC-01-P044-B011",
+        "DOC-01-P044-B012",
+        "DOC-01-P059-B002"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/deck-pending-before-parent-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "d9d420b09fde81fcd516a57b368090cc8b6419d96d1d5c8e27fd48ec759e984c",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.NeitherPlayerMayPlayOrPassThePendingChildBeforeTheParentChoiceFinishes(player: \"P1\", pass: True)",
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/91"
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CN337_354_PENDING_BEFORE_PARENT_AND_LATER_OBSERVATION_INSERTION_ORDER"
+      },
+      "implementation": {
+        "state": "FINITE_SHARED_PENDING_SLOTS_CAPTURED_PARENT_RESUME_AND_EXECUTION_ORDER_NO_DSL_OR_OLD_GAME_MIGRATION"
+      },
+      "testExecution": {
+        "state": "ACTUAL_FINAL51_NEW10_METHODS_FOCUS280_126_FIVE_ORIGINAL_FULL_GAMES_FRESH_SQL126_COLD126_NATIVE22_ORIGINAL_PREFIX_READBACK_ORIGINAL_SOLE_CHECK13496_PASS_ONE_FAILURE_RETAINED"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_NORMAL_SCORE_COMPLETE_REPLAY_VISIBLE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded source and execution evidence only; fixed full and necessary products remain independent. No whole-card certification."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "deck-pending-e41cde4fd17c4ff817d580e8",
+      "sourceRefs": [
+        "OGN-062/298",
+        "DOC-01-P041-B010",
+        "DOC-01-P041-B011",
+        "DOC-01-P041-B012",
+        "DOC-01-P041-B013",
+        "DOC-01-P041-B014",
+        "DOC-01-P041-B015",
+        "DOC-01-P041-B016",
+        "DOC-01-P044-B008",
+        "DOC-01-P044-B009",
+        "DOC-01-P044-B010",
+        "DOC-01-P044-B011",
+        "DOC-01-P044-B012",
+        "DOC-01-P059-B002"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/deck-pending-before-parent-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "d9d420b09fde81fcd516a57b368090cc8b6419d96d1d5c8e27fd48ec759e984c",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.NeitherPlayerMayPlayOrPassThePendingChildBeforeTheParentChoiceFinishes(player: \"P2\", pass: False)",
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/91"
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CN337_354_PENDING_BEFORE_PARENT_AND_LATER_OBSERVATION_INSERTION_ORDER"
+      },
+      "implementation": {
+        "state": "FINITE_SHARED_PENDING_SLOTS_CAPTURED_PARENT_RESUME_AND_EXECUTION_ORDER_NO_DSL_OR_OLD_GAME_MIGRATION"
+      },
+      "testExecution": {
+        "state": "ACTUAL_FINAL51_NEW10_METHODS_FOCUS280_126_FIVE_ORIGINAL_FULL_GAMES_FRESH_SQL126_COLD126_NATIVE22_ORIGINAL_PREFIX_READBACK_ORIGINAL_SOLE_CHECK13496_PASS_ONE_FAILURE_RETAINED"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_NORMAL_SCORE_COMPLETE_REPLAY_VISIBLE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded source and execution evidence only; fixed full and necessary products remain independent. No whole-card certification."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "deck-pending-f6e20b351efd93da46d781c2",
+      "sourceRefs": [
+        "OGN-062/298",
+        "DOC-01-P041-B010",
+        "DOC-01-P041-B011",
+        "DOC-01-P041-B012",
+        "DOC-01-P041-B013",
+        "DOC-01-P041-B014",
+        "DOC-01-P041-B015",
+        "DOC-01-P041-B016",
+        "DOC-01-P044-B008",
+        "DOC-01-P044-B009",
+        "DOC-01-P044-B010",
+        "DOC-01-P044-B011",
+        "DOC-01-P044-B012",
+        "DOC-01-P059-B002"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/deck-pending-before-parent-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "d9d420b09fde81fcd516a57b368090cc8b6419d96d1d5c8e27fd48ec759e984c",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.NeitherPlayerMayPlayOrPassThePendingChildBeforeTheParentChoiceFinishes(player: \"P2\", pass: True)",
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/91"
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CN337_354_PENDING_BEFORE_PARENT_AND_LATER_OBSERVATION_INSERTION_ORDER"
+      },
+      "implementation": {
+        "state": "FINITE_SHARED_PENDING_SLOTS_CAPTURED_PARENT_RESUME_AND_EXECUTION_ORDER_NO_DSL_OR_OLD_GAME_MIGRATION"
+      },
+      "testExecution": {
+        "state": "ACTUAL_FINAL51_NEW10_METHODS_FOCUS280_126_FIVE_ORIGINAL_FULL_GAMES_FRESH_SQL126_COLD126_NATIVE22_ORIGINAL_PREFIX_READBACK_ORIGINAL_SOLE_CHECK13496_PASS_ONE_FAILURE_RETAINED"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_NORMAL_SCORE_COMPLETE_REPLAY_VISIBLE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded source and execution evidence only; fixed full and necessary products remain independent. No whole-card certification."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "deck-pending-81fa53a37d9524c72b476e11",
+      "sourceRefs": [
+        "OGN-025/298",
+        "DOC-01-P041-B010",
+        "DOC-01-P041-B011",
+        "DOC-01-P041-B012",
+        "DOC-01-P041-B013",
+        "DOC-01-P041-B014",
+        "DOC-01-P041-B015",
+        "DOC-01-P041-B016",
+        "DOC-01-P044-B008",
+        "DOC-01-P044-B009",
+        "DOC-01-P044-B010",
+        "DOC-01-P044-B011",
+        "DOC-01-P044-B012",
+        "DOC-01-P059-B002"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/deck-pending-before-parent-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "d9d420b09fde81fcd516a57b368090cc8b6419d96d1d5c8e27fd48ec759e984c",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.PendingCardsStayUnconfirmedUntilTheCapturedParentFinishesThenPlayInInsertionOrder(card: \"OGN·025/298\")",
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/91"
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CN337_354_PENDING_BEFORE_PARENT_AND_LATER_OBSERVATION_INSERTION_ORDER"
+      },
+      "implementation": {
+        "state": "FINITE_SHARED_PENDING_SLOTS_CAPTURED_PARENT_RESUME_AND_EXECUTION_ORDER_NO_DSL_OR_OLD_GAME_MIGRATION"
+      },
+      "testExecution": {
+        "state": "ACTUAL_FINAL51_NEW10_METHODS_FOCUS280_126_FIVE_ORIGINAL_FULL_GAMES_FRESH_SQL126_COLD126_NATIVE22_ORIGINAL_PREFIX_READBACK_ORIGINAL_SOLE_CHECK13496_PASS_ONE_FAILURE_RETAINED"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_NORMAL_SCORE_COMPLETE_REPLAY_VISIBLE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded source and execution evidence only; fixed full and necessary products remain independent. No whole-card certification."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "deck-pending-7d7cc5ef5c0ef26a30f38b77",
+      "sourceRefs": [
+        "OGN-062/298",
+        "DOC-01-P041-B010",
+        "DOC-01-P041-B011",
+        "DOC-01-P041-B012",
+        "DOC-01-P041-B013",
+        "DOC-01-P041-B014",
+        "DOC-01-P041-B015",
+        "DOC-01-P041-B016",
+        "DOC-01-P044-B008",
+        "DOC-01-P044-B009",
+        "DOC-01-P044-B010",
+        "DOC-01-P044-B011",
+        "DOC-01-P044-B012",
+        "DOC-01-P059-B002"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/deck-pending-before-parent-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "d9d420b09fde81fcd516a57b368090cc8b6419d96d1d5c8e27fd48ec759e984c",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.PendingCardsStayUnconfirmedUntilTheCapturedParentFinishesThenPlayInInsertionOrder(card: \"OGN·062/298\")",
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/91"
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CN337_354_PENDING_BEFORE_PARENT_AND_LATER_OBSERVATION_INSERTION_ORDER"
+      },
+      "implementation": {
+        "state": "FINITE_SHARED_PENDING_SLOTS_CAPTURED_PARENT_RESUME_AND_EXECUTION_ORDER_NO_DSL_OR_OLD_GAME_MIGRATION"
+      },
+      "testExecution": {
+        "state": "ACTUAL_FINAL51_NEW10_METHODS_FOCUS280_126_FIVE_ORIGINAL_FULL_GAMES_FRESH_SQL126_COLD126_NATIVE22_ORIGINAL_PREFIX_READBACK_ORIGINAL_SOLE_CHECK13496_PASS_ONE_FAILURE_RETAINED"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_NORMAL_SCORE_COMPLETE_REPLAY_VISIBLE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded source and execution evidence only; fixed full and necessary products remain independent. No whole-card certification."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "deck-pending-38a9a2426324ae83fad98f3b",
+      "sourceRefs": [
+        "OGN-115/298",
+        "DOC-01-P041-B010",
+        "DOC-01-P041-B011",
+        "DOC-01-P041-B012",
+        "DOC-01-P041-B013",
+        "DOC-01-P041-B014",
+        "DOC-01-P041-B015",
+        "DOC-01-P041-B016",
+        "DOC-01-P044-B008",
+        "DOC-01-P044-B009",
+        "DOC-01-P044-B010",
+        "DOC-01-P044-B011",
+        "DOC-01-P044-B012",
+        "DOC-01-P059-B002"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/deck-pending-before-parent-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "d9d420b09fde81fcd516a57b368090cc8b6419d96d1d5c8e27fd48ec759e984c",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.PendingCardsStayUnconfirmedUntilTheCapturedParentFinishesThenPlayInInsertionOrder(card: \"OGN·115/298\")",
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/91"
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CN337_354_PENDING_BEFORE_PARENT_AND_LATER_OBSERVATION_INSERTION_ORDER"
+      },
+      "implementation": {
+        "state": "FINITE_SHARED_PENDING_SLOTS_CAPTURED_PARENT_RESUME_AND_EXECUTION_ORDER_NO_DSL_OR_OLD_GAME_MIGRATION"
+      },
+      "testExecution": {
+        "state": "ACTUAL_FINAL51_NEW10_METHODS_FOCUS280_126_FIVE_ORIGINAL_FULL_GAMES_FRESH_SQL126_COLD126_NATIVE22_ORIGINAL_PREFIX_READBACK_ORIGINAL_SOLE_CHECK13496_PASS_ONE_FAILURE_RETAINED"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_NORMAL_SCORE_COMPLETE_REPLAY_VISIBLE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded source and execution evidence only; fixed full and necessary products remain independent. No whole-card certification."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "deck-pending-d1c21b246282233669afcc29",
+      "sourceRefs": [
+        "SFD-188/221",
+        "DOC-01-P041-B010",
+        "DOC-01-P041-B011",
+        "DOC-01-P041-B012",
+        "DOC-01-P041-B013",
+        "DOC-01-P041-B014",
+        "DOC-01-P041-B015",
+        "DOC-01-P041-B016",
+        "DOC-01-P044-B008",
+        "DOC-01-P044-B009",
+        "DOC-01-P044-B010",
+        "DOC-01-P044-B011",
+        "DOC-01-P044-B012",
+        "DOC-01-P059-B002"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/deck-pending-before-parent-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "d9d420b09fde81fcd516a57b368090cc8b6419d96d1d5c8e27fd48ec759e984c",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.PendingCardsStayUnconfirmedUntilTheCapturedParentFinishesThenPlayInInsertionOrder(card: \"SFD·188/221\")",
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/91"
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CN337_354_PENDING_BEFORE_PARENT_AND_LATER_OBSERVATION_INSERTION_ORDER"
+      },
+      "implementation": {
+        "state": "FINITE_SHARED_PENDING_SLOTS_CAPTURED_PARENT_RESUME_AND_EXECUTION_ORDER_NO_DSL_OR_OLD_GAME_MIGRATION"
+      },
+      "testExecution": {
+        "state": "ACTUAL_FINAL51_NEW10_METHODS_FOCUS280_126_FIVE_ORIGINAL_FULL_GAMES_FRESH_SQL126_COLD126_NATIVE22_ORIGINAL_PREFIX_READBACK_ORIGINAL_SOLE_CHECK13496_PASS_ONE_FAILURE_RETAINED"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_NORMAL_SCORE_COMPLETE_REPLAY_VISIBLE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded source and execution evidence only; fixed full and necessary products remain independent. No whole-card certification."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "deck-pending-794e8bbfd41819d1d0930942",
+      "sourceRefs": [
+        "OGN-062/298",
+        "OGN-194/298",
+        "DOC-01-P041-B010",
+        "DOC-01-P041-B011",
+        "DOC-01-P041-B012",
+        "DOC-01-P041-B013",
+        "DOC-01-P041-B014",
+        "DOC-01-P041-B015",
+        "DOC-01-P041-B016",
+        "DOC-01-P044-B008",
+        "DOC-01-P044-B009",
+        "DOC-01-P044-B010",
+        "DOC-01-P044-B011",
+        "DOC-01-P044-B012",
+        "DOC-01-P059-B002"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/deck-pending-before-parent-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "d9d420b09fde81fcd516a57b368090cc8b6419d96d1d5c8e27fd48ec759e984c",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.RecoveryRejectsAnOtherwiseMatchingLaterObservationPermissionBeforeTheEarlierCard(card: \"OGN·062/298\")",
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/91"
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CN337_354_PENDING_BEFORE_PARENT_AND_LATER_OBSERVATION_INSERTION_ORDER"
+      },
+      "implementation": {
+        "state": "FINITE_SHARED_PENDING_SLOTS_CAPTURED_PARENT_RESUME_AND_EXECUTION_ORDER_NO_DSL_OR_OLD_GAME_MIGRATION"
+      },
+      "testExecution": {
+        "state": "ACTUAL_FINAL51_NEW10_METHODS_FOCUS280_126_FIVE_ORIGINAL_FULL_GAMES_FRESH_SQL126_COLD126_NATIVE22_ORIGINAL_PREFIX_READBACK_ORIGINAL_SOLE_CHECK13496_PASS_ONE_FAILURE_RETAINED"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_NORMAL_SCORE_COMPLETE_REPLAY_VISIBLE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded source and execution evidence only; fixed full and necessary products remain independent. No whole-card certification."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "deck-pending-59ce99a778665b5ffece276c",
+      "sourceRefs": [
+        "OGN-115/298",
+        "OGN-194/298",
+        "DOC-01-P041-B010",
+        "DOC-01-P041-B011",
+        "DOC-01-P041-B012",
+        "DOC-01-P041-B013",
+        "DOC-01-P041-B014",
+        "DOC-01-P041-B015",
+        "DOC-01-P041-B016",
+        "DOC-01-P044-B008",
+        "DOC-01-P044-B009",
+        "DOC-01-P044-B010",
+        "DOC-01-P044-B011",
+        "DOC-01-P044-B012",
+        "DOC-01-P059-B002"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/deck-pending-before-parent-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "d9d420b09fde81fcd516a57b368090cc8b6419d96d1d5c8e27fd48ec759e984c",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.RecoveryRejectsAnOtherwiseMatchingLaterObservationPermissionBeforeTheEarlierCard(card: \"OGN·115/298\")",
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/91"
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CN337_354_PENDING_BEFORE_PARENT_AND_LATER_OBSERVATION_INSERTION_ORDER"
+      },
+      "implementation": {
+        "state": "FINITE_SHARED_PENDING_SLOTS_CAPTURED_PARENT_RESUME_AND_EXECUTION_ORDER_NO_DSL_OR_OLD_GAME_MIGRATION"
+      },
+      "testExecution": {
+        "state": "ACTUAL_FINAL51_NEW10_METHODS_FOCUS280_126_FIVE_ORIGINAL_FULL_GAMES_FRESH_SQL126_COLD126_NATIVE22_ORIGINAL_PREFIX_READBACK_ORIGINAL_SOLE_CHECK13496_PASS_ONE_FAILURE_RETAINED"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_NORMAL_SCORE_COMPLETE_REPLAY_VISIBLE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded source and execution evidence only; fixed full and necessary products remain independent. No whole-card certification."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "deck-pending-c06a431a130c2139db6da3a3",
+      "sourceRefs": [
+        "OGN-115/298",
+        "OGN-194/298",
+        "DOC-01-P041-B010",
+        "DOC-01-P041-B011",
+        "DOC-01-P041-B012",
+        "DOC-01-P041-B013",
+        "DOC-01-P041-B014",
+        "DOC-01-P041-B015",
+        "DOC-01-P041-B016",
+        "DOC-01-P044-B008",
+        "DOC-01-P044-B009",
+        "DOC-01-P044-B010",
+        "DOC-01-P044-B011",
+        "DOC-01-P044-B012",
+        "DOC-01-P059-B002"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/deck-pending-before-parent-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "d9d420b09fde81fcd516a57b368090cc8b6419d96d1d5c8e27fd48ec759e984c",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.RecoveryRejectsMalformedSuspendedDeckQueuesBeforeInspectingTheirOrder(mutation: \"negative-index\")",
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/91"
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CN337_354_PENDING_BEFORE_PARENT_AND_LATER_OBSERVATION_INSERTION_ORDER"
+      },
+      "implementation": {
+        "state": "FINITE_SHARED_PENDING_SLOTS_CAPTURED_PARENT_RESUME_AND_EXECUTION_ORDER_NO_DSL_OR_OLD_GAME_MIGRATION"
+      },
+      "testExecution": {
+        "state": "ACTUAL_FINAL51_NEW10_METHODS_FOCUS280_126_FIVE_ORIGINAL_FULL_GAMES_FRESH_SQL126_COLD126_NATIVE22_ORIGINAL_PREFIX_READBACK_ORIGINAL_SOLE_CHECK13496_PASS_ONE_FAILURE_RETAINED"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_NORMAL_SCORE_COMPLETE_REPLAY_VISIBLE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded source and execution evidence only; fixed full and necessary products remain independent. No whole-card certification."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "deck-pending-af9c4d0fc67594180874c2b1",
+      "sourceRefs": [
+        "OGN-115/298",
+        "OGN-194/298",
+        "DOC-01-P041-B010",
+        "DOC-01-P041-B011",
+        "DOC-01-P041-B012",
+        "DOC-01-P041-B013",
+        "DOC-01-P041-B014",
+        "DOC-01-P041-B015",
+        "DOC-01-P041-B016",
+        "DOC-01-P044-B008",
+        "DOC-01-P044-B009",
+        "DOC-01-P044-B010",
+        "DOC-01-P044-B011",
+        "DOC-01-P044-B012",
+        "DOC-01-P059-B002"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/deck-pending-before-parent-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "d9d420b09fde81fcd516a57b368090cc8b6419d96d1d5c8e27fd48ec759e984c",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.RecoveryRejectsMalformedSuspendedDeckQueuesBeforeInspectingTheirOrder(mutation: \"null-entry\")",
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/91"
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CN337_354_PENDING_BEFORE_PARENT_AND_LATER_OBSERVATION_INSERTION_ORDER"
+      },
+      "implementation": {
+        "state": "FINITE_SHARED_PENDING_SLOTS_CAPTURED_PARENT_RESUME_AND_EXECUTION_ORDER_NO_DSL_OR_OLD_GAME_MIGRATION"
+      },
+      "testExecution": {
+        "state": "ACTUAL_FINAL51_NEW10_METHODS_FOCUS280_126_FIVE_ORIGINAL_FULL_GAMES_FRESH_SQL126_COLD126_NATIVE22_ORIGINAL_PREFIX_READBACK_ORIGINAL_SOLE_CHECK13496_PASS_ONE_FAILURE_RETAINED"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_NORMAL_SCORE_COMPLETE_REPLAY_VISIBLE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded source and execution evidence only; fixed full and necessary products remain independent. No whole-card certification."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "deck-pending-7608068675a2dc2b8a8bb8f5",
+      "sourceRefs": [
+        "OGN-115/298",
+        "OGN-194/298",
+        "DOC-01-P041-B010",
+        "DOC-01-P041-B011",
+        "DOC-01-P041-B012",
+        "DOC-01-P041-B013",
+        "DOC-01-P041-B014",
+        "DOC-01-P041-B015",
+        "DOC-01-P041-B016",
+        "DOC-01-P044-B008",
+        "DOC-01-P044-B009",
+        "DOC-01-P044-B010",
+        "DOC-01-P044-B011",
+        "DOC-01-P044-B012",
+        "DOC-01-P059-B002"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/deck-pending-before-parent-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "d9d420b09fde81fcd516a57b368090cc8b6419d96d1d5c8e27fd48ec759e984c",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.RecoveryRejectsMalformedSuspendedDeckQueuesBeforeInspectingTheirOrder(mutation: \"null-queue\")",
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/91"
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CN337_354_PENDING_BEFORE_PARENT_AND_LATER_OBSERVATION_INSERTION_ORDER"
+      },
+      "implementation": {
+        "state": "FINITE_SHARED_PENDING_SLOTS_CAPTURED_PARENT_RESUME_AND_EXECUTION_ORDER_NO_DSL_OR_OLD_GAME_MIGRATION"
+      },
+      "testExecution": {
+        "state": "ACTUAL_FINAL51_NEW10_METHODS_FOCUS280_126_FIVE_ORIGINAL_FULL_GAMES_FRESH_SQL126_COLD126_NATIVE22_ORIGINAL_PREFIX_READBACK_ORIGINAL_SOLE_CHECK13496_PASS_ONE_FAILURE_RETAINED"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_NORMAL_SCORE_COMPLETE_REPLAY_VISIBLE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded source and execution evidence only; fixed full and necessary products remain independent. No whole-card certification."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "deck-pending-c8b746e370d6726cfb1ebedd",
+      "sourceRefs": [
+        "OGN-025/298",
+        "DOC-01-P041-B010",
+        "DOC-01-P041-B011",
+        "DOC-01-P041-B012",
+        "DOC-01-P041-B013",
+        "DOC-01-P041-B014",
+        "DOC-01-P041-B015",
+        "DOC-01-P041-B016",
+        "DOC-01-P044-B008",
+        "DOC-01-P044-B009",
+        "DOC-01-P044-B010",
+        "DOC-01-P044-B011",
+        "DOC-01-P044-B012",
+        "DOC-01-P059-B002"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/deck-pending-before-parent-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "d9d420b09fde81fcd516a57b368090cc8b6419d96d1d5c8e27fd48ec759e984c",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingScenarioTests.DeclaredControlledPositionUsesTheActualDeckSequenceAndRecordsItsExplicitSetup(branch: \"blind-fury\", card: \"OGN·025/298\", observed: False)",
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/91"
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CN337_354_PENDING_BEFORE_PARENT_AND_LATER_OBSERVATION_INSERTION_ORDER"
+      },
+      "implementation": {
+        "state": "FINITE_SHARED_PENDING_SLOTS_CAPTURED_PARENT_RESUME_AND_EXECUTION_ORDER_NO_DSL_OR_OLD_GAME_MIGRATION"
+      },
+      "testExecution": {
+        "state": "ACTUAL_FINAL51_NEW10_METHODS_FOCUS280_126_FIVE_ORIGINAL_FULL_GAMES_FRESH_SQL126_COLD126_NATIVE22_ORIGINAL_PREFIX_READBACK_ORIGINAL_SOLE_CHECK13496_PASS_ONE_FAILURE_RETAINED"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_NORMAL_SCORE_COMPLETE_REPLAY_VISIBLE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded source and execution evidence only; fixed full and necessary products remain independent. No whole-card certification."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "deck-pending-80309095fc899525de29da47",
+      "sourceRefs": [
+        "OGN-115/298",
+        "DOC-01-P041-B010",
+        "DOC-01-P041-B011",
+        "DOC-01-P041-B012",
+        "DOC-01-P041-B013",
+        "DOC-01-P041-B014",
+        "DOC-01-P041-B015",
+        "DOC-01-P041-B016",
+        "DOC-01-P044-B008",
+        "DOC-01-P044-B009",
+        "DOC-01-P044-B010",
+        "DOC-01-P044-B011",
+        "DOC-01-P044-B012",
+        "DOC-01-P059-B002"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/deck-pending-before-parent-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "d9d420b09fde81fcd516a57b368090cc8b6419d96d1d5c8e27fd48ec759e984c",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingScenarioTests.DeclaredControlledPositionUsesTheActualDeckSequenceAndRecordsItsExplicitSetup(branch: \"bright-future\", card: \"OGN·115/298\", observed: False)",
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/91"
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CN337_354_PENDING_BEFORE_PARENT_AND_LATER_OBSERVATION_INSERTION_ORDER"
+      },
+      "implementation": {
+        "state": "FINITE_SHARED_PENDING_SLOTS_CAPTURED_PARENT_RESUME_AND_EXECUTION_ORDER_NO_DSL_OR_OLD_GAME_MIGRATION"
+      },
+      "testExecution": {
+        "state": "ACTUAL_FINAL51_NEW10_METHODS_FOCUS280_126_FIVE_ORIGINAL_FULL_GAMES_FRESH_SQL126_COLD126_NATIVE22_ORIGINAL_PREFIX_READBACK_ORIGINAL_SOLE_CHECK13496_PASS_ONE_FAILURE_RETAINED"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_NORMAL_SCORE_COMPLETE_REPLAY_VISIBLE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded source and execution evidence only; fixed full and necessary products remain independent. No whole-card certification."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "deck-pending-5eb38dfa7154ec5e1fa1b89f",
+      "sourceRefs": [
+        "OGN-115/298",
+        "OGN-194/298",
+        "DOC-01-P041-B010",
+        "DOC-01-P041-B011",
+        "DOC-01-P041-B012",
+        "DOC-01-P041-B013",
+        "DOC-01-P041-B014",
+        "DOC-01-P041-B015",
+        "DOC-01-P041-B016",
+        "DOC-01-P044-B008",
+        "DOC-01-P044-B009",
+        "DOC-01-P044-B010",
+        "DOC-01-P044-B011",
+        "DOC-01-P044-B012",
+        "DOC-01-P059-B002"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/deck-pending-before-parent-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "d9d420b09fde81fcd516a57b368090cc8b6419d96d1d5c8e27fd48ec759e984c",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingScenarioTests.DeclaredControlledPositionUsesTheActualDeckSequenceAndRecordsItsExplicitSetup(branch: \"bright-future-observed\", card: \"OGN·115/298\", observed: True)",
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/91"
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CN337_354_PENDING_BEFORE_PARENT_AND_LATER_OBSERVATION_INSERTION_ORDER"
+      },
+      "implementation": {
+        "state": "FINITE_SHARED_PENDING_SLOTS_CAPTURED_PARENT_RESUME_AND_EXECUTION_ORDER_NO_DSL_OR_OLD_GAME_MIGRATION"
+      },
+      "testExecution": {
+        "state": "ACTUAL_FINAL51_NEW10_METHODS_FOCUS280_126_FIVE_ORIGINAL_FULL_GAMES_FRESH_SQL126_COLD126_NATIVE22_ORIGINAL_PREFIX_READBACK_ORIGINAL_SOLE_CHECK13496_PASS_ONE_FAILURE_RETAINED"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_NORMAL_SCORE_COMPLETE_REPLAY_VISIBLE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded source and execution evidence only; fixed full and necessary products remain independent. No whole-card certification."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "deck-pending-1cd8fddd6650e937775f6537",
+      "sourceRefs": [
+        "OGN-062/298",
+        "DOC-01-P041-B010",
+        "DOC-01-P041-B011",
+        "DOC-01-P041-B012",
+        "DOC-01-P041-B013",
+        "DOC-01-P041-B014",
+        "DOC-01-P041-B015",
+        "DOC-01-P041-B016",
+        "DOC-01-P044-B008",
+        "DOC-01-P044-B009",
+        "DOC-01-P044-B010",
+        "DOC-01-P044-B011",
+        "DOC-01-P044-B012",
+        "DOC-01-P059-B002"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/deck-pending-before-parent-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "d9d420b09fde81fcd516a57b368090cc8b6419d96d1d5c8e27fd48ec759e984c",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingScenarioTests.DeclaredControlledPositionUsesTheActualDeckSequenceAndRecordsItsExplicitSetup(branch: \"reinforcements\", card: \"OGN·062/298\", observed: False)",
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/91"
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CN337_354_PENDING_BEFORE_PARENT_AND_LATER_OBSERVATION_INSERTION_ORDER"
+      },
+      "implementation": {
+        "state": "FINITE_SHARED_PENDING_SLOTS_CAPTURED_PARENT_RESUME_AND_EXECUTION_ORDER_NO_DSL_OR_OLD_GAME_MIGRATION"
+      },
+      "testExecution": {
+        "state": "ACTUAL_FINAL51_NEW10_METHODS_FOCUS280_126_FIVE_ORIGINAL_FULL_GAMES_FRESH_SQL126_COLD126_NATIVE22_ORIGINAL_PREFIX_READBACK_ORIGINAL_SOLE_CHECK13496_PASS_ONE_FAILURE_RETAINED"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_NORMAL_SCORE_COMPLETE_REPLAY_VISIBLE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded source and execution evidence only; fixed full and necessary products remain independent. No whole-card certification."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "deck-pending-f7243139959a77c21f6237c1",
+      "sourceRefs": [
+        "OGN-062/298",
+        "OGN-194/298",
+        "DOC-01-P041-B010",
+        "DOC-01-P041-B011",
+        "DOC-01-P041-B012",
+        "DOC-01-P041-B013",
+        "DOC-01-P041-B014",
+        "DOC-01-P041-B015",
+        "DOC-01-P041-B016",
+        "DOC-01-P044-B008",
+        "DOC-01-P044-B009",
+        "DOC-01-P044-B010",
+        "DOC-01-P044-B011",
+        "DOC-01-P044-B012",
+        "DOC-01-P059-B002"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/deck-pending-before-parent-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "d9d420b09fde81fcd516a57b368090cc8b6419d96d1d5c8e27fd48ec759e984c",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingScenarioTests.DeclaredControlledPositionUsesTheActualDeckSequenceAndRecordsItsExplicitSetup(branch: \"reinforcements-observed\", card: \"OGN·062/298\", observed: True)",
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/91"
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CN337_354_PENDING_BEFORE_PARENT_AND_LATER_OBSERVATION_INSERTION_ORDER"
+      },
+      "implementation": {
+        "state": "FINITE_SHARED_PENDING_SLOTS_CAPTURED_PARENT_RESUME_AND_EXECUTION_ORDER_NO_DSL_OR_OLD_GAME_MIGRATION"
+      },
+      "testExecution": {
+        "state": "ACTUAL_FINAL51_NEW10_METHODS_FOCUS280_126_FIVE_ORIGINAL_FULL_GAMES_FRESH_SQL126_COLD126_NATIVE22_ORIGINAL_PREFIX_READBACK_ORIGINAL_SOLE_CHECK13496_PASS_ONE_FAILURE_RETAINED"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_NORMAL_SCORE_COMPLETE_REPLAY_VISIBLE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded source and execution evidence only; fixed full and necessary products remain independent. No whole-card certification."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    },
+    {
+      "id": "deck-pending-faabe69cddd3b809cd0c58b7",
+      "sourceRefs": [
+        "SFD-188/221",
+        "DOC-01-P041-B010",
+        "DOC-01-P041-B011",
+        "DOC-01-P041-B012",
+        "DOC-01-P041-B013",
+        "DOC-01-P041-B014",
+        "DOC-01-P041-B015",
+        "DOC-01-P041-B016",
+        "DOC-01-P044-B008",
+        "DOC-01-P044-B009",
+        "DOC-01-P044-B010",
+        "DOC-01-P044-B011",
+        "DOC-01-P044-B012",
+        "DOC-01-P059-B002"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/deck-pending-before-parent-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "d9d420b09fde81fcd516a57b368090cc8b6419d96d1d5c8e27fd48ec759e984c",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingScenarioTests.DeclaredControlledPositionUsesTheActualDeckSequenceAndRecordsItsExplicitSetup(branch: \"void-rush\", card: \"SFD·188/221\", observed: False)",
+        "issue": "https://github.com/DDDHL0704/riftbound/issues/91"
+      },
+      "semanticReview": {
+        "state": "BOUNDED_CN337_354_PENDING_BEFORE_PARENT_AND_LATER_OBSERVATION_INSERTION_ORDER"
+      },
+      "implementation": {
+        "state": "FINITE_SHARED_PENDING_SLOTS_CAPTURED_PARENT_RESUME_AND_EXECUTION_ORDER_NO_DSL_OR_OLD_GAME_MIGRATION"
+      },
+      "testExecution": {
+        "state": "ACTUAL_FINAL51_NEW10_METHODS_FOCUS280_126_FIVE_ORIGINAL_FULL_GAMES_FRESH_SQL126_COLD126_NATIVE22_ORIGINAL_PREFIX_READBACK_ORIGINAL_SOLE_CHECK13496_PASS_ONE_FAILURE_RETAINED"
+      },
+      "fixedCommitCi": {
+        "state": "PENDING_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_CANDIDATE_NATIVE_PAIR_NORMAL_SCORE_COMPLETE_REPLAY_VISIBLE_AND_PHYSICAL_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded source and execution evidence only; fixed full and necessary products remain independent. No whole-card certification."
+      },
+      "wholePrintingCertified": false,
+      "existingAcceptanceGateDependencies": [
+        "FIXED_CURRENT_CANDIDATE_FULL",
+        "VISIBLE_PAIRED_SQL_NETWORK_SCORE_REPLAY",
+        "USER_WINDOWS_RUNTIME"
+      ]
+    }
+  ]
+}

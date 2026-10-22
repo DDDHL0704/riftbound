@@ -238,6 +238,10 @@
     {
       "id": "battlefield-start-lab-you",
       "sourceType": "BattlefieldStartLabYouSqlAcceptance"
+    },
+    {
+      "id": "deck-pending-parent",
+      "sourceType": "DeckPendingParentSqlAcceptance"
     }
   ]
 }

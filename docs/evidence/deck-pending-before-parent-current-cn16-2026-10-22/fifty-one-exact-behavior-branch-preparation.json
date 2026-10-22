@@ -1,0 +1,482 @@
+{
+  "atUtc": "2026-10-22T11:29:58.789166+00:00",
+  "sourceRegion": "CN",
+  "sourceLanguage": "zh-CN",
+  "applicableAsOf": "2026-10-22",
+  "adoptedCoreEffectiveDate": "2026-10-16",
+  "sourceRuleRecordIds": [
+    "DOC-01-P041-B010",
+    "DOC-01-P041-B011",
+    "DOC-01-P041-B012",
+    "DOC-01-P041-B013",
+    "DOC-01-P041-B014",
+    "DOC-01-P041-B015",
+    "DOC-01-P041-B016",
+    "DOC-01-P044-B008",
+    "DOC-01-P044-B009",
+    "DOC-01-P044-B010",
+    "DOC-01-P044-B011",
+    "DOC-01-P044-B012",
+    "DOC-01-P059-B002"
+  ],
+  "sourceRuleTextsSha256": "7f635fe7cc76ea4ffcdd492949a58348e2dd316bf569359528df4d0c6b3424a5",
+  "everyOriginalIndexedClauseTextNfkcWhitespaceNormalizedExactCurrentPrimaryPdfText": true,
+  "sourcePrimaryPdfSha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11",
+  "cases": [
+    {
+      "id": "deck-pending-7c9d9579829e68d4df79aaac",
+      "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.ASecondExecutionObservationCannotJumpAheadOfTheFirstExecutionsPendingCards(card: \"OGN·062/298\", playObserved: False)",
+      "exactPrintingSubjects": [
+        "OGN-062/298",
+        "OGN-194/298"
+      ],
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "deck-pending-b7dce684fdba2316f1d369d5",
+      "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.ASecondExecutionObservationCannotJumpAheadOfTheFirstExecutionsPendingCards(card: \"OGN·062/298\", playObserved: True)",
+      "exactPrintingSubjects": [
+        "OGN-062/298",
+        "OGN-194/298"
+      ],
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "deck-pending-8aedebbce4c1410763660665",
+      "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.ASecondExecutionObservationCannotJumpAheadOfTheFirstExecutionsPendingCards(card: \"OGN·115/298\", playObserved: False)",
+      "exactPrintingSubjects": [
+        "OGN-115/298",
+        "OGN-194/298"
+      ],
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "deck-pending-737801fc9a84577ca7ebd02e",
+      "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.ASecondExecutionObservationCannotJumpAheadOfTheFirstExecutionsPendingCards(card: \"OGN·115/298\", playObserved: True)",
+      "exactPrintingSubjects": [
+        "OGN-115/298",
+        "OGN-194/298"
+      ],
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "deck-pending-5afe353b5040af81ca3d5ec0",
+      "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.BrightFutureFinishesAllBanishAndRecycleSelectionsBeforeItsFirstPlayInstruction",
+      "exactPrintingSubjects": [
+        "OGN-115/298"
+      ],
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "deck-pending-ea43a3e77c0e106817ecc803",
+      "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.ColdRecoveryRejectsIndependentlyForgedPendingChildrenWhileTheParentStillResolves(mutation: \"duplicate-slot\")",
+      "exactPrintingSubjects": [
+        "OGN-062/298"
+      ],
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "deck-pending-0dee01c632b613127111ec19",
+      "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.ColdRecoveryRejectsIndependentlyForgedPendingChildrenWhileTheParentStillResolves(mutation: \"missing-parent\")",
+      "exactPrintingSubjects": [
+        "OGN-062/298"
+      ],
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "deck-pending-0a1fc5b4bfa5d8daab9e0502",
+      "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.ColdRecoveryRejectsIndependentlyForgedPendingChildrenWhileTheParentStillResolves(mutation: \"missing-slot\")",
+      "exactPrintingSubjects": [
+        "OGN-062/298"
+      ],
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "deck-pending-6a4d54b58a35d9c2bea0c267",
+      "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.ColdRecoveryRejectsIndependentlyForgedPendingChildrenWhileTheParentStillResolves(mutation: \"parent-choice\")",
+      "exactPrintingSubjects": [
+        "OGN-062/298"
+      ],
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "deck-pending-9ecc7afa0e906f6111e37cbf",
+      "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.ColdRecoveryRejectsIndependentlyForgedPendingChildrenWhileTheParentStillResolves(mutation: \"parent-completed\")",
+      "exactPrintingSubjects": [
+        "OGN-062/298"
+      ],
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "deck-pending-7914bc88f69a4e7a4e1d5e0c",
+      "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.ColdRecoveryRejectsIndependentlyForgedPendingChildrenWhileTheParentStillResolves(mutation: \"parent-effect-completed\")",
+      "exactPrintingSubjects": [
+        "OGN-062/298"
+      ],
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "deck-pending-607da39bb8677d5ce59112c4",
+      "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.ColdRecoveryRejectsIndependentlyForgedPendingChildrenWhileTheParentStillResolves(mutation: \"queue-before-banish\")",
+      "exactPrintingSubjects": [
+        "OGN-062/298"
+      ],
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "deck-pending-0ef14b233e466222cc621c1e",
+      "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.ColdRecoveryRejectsIndependentlyForgedPendingChildrenWhileTheParentStillResolves(mutation: \"queue-card\")",
+      "exactPrintingSubjects": [
+        "OGN-062/298"
+      ],
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "deck-pending-0840794ec2010ae64cfa71ca",
+      "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.ColdRecoveryRejectsIndependentlyForgedPendingChildrenWhileTheParentStillResolves(mutation: \"queue-execution\")",
+      "exactPrintingSubjects": [
+        "OGN-062/298"
+      ],
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "deck-pending-943af442b239e7c17327f6fe",
+      "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.ColdRecoveryRejectsIndependentlyForgedPendingChildrenWhileTheParentStillResolves(mutation: \"queue-generation\")",
+      "exactPrintingSubjects": [
+        "OGN-062/298"
+      ],
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "deck-pending-93e4b3b435cc1f4bfadd3833",
+      "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.ColdRecoveryRejectsIndependentlyForgedPendingChildrenWhileTheParentStillResolves(mutation: \"queue-missing\")",
+      "exactPrintingSubjects": [
+        "OGN-062/298"
+      ],
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "deck-pending-9c502052a109b0bff20c0412",
+      "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.ColdRecoveryRejectsIndependentlyForgedPendingChildrenWhileTheParentStillResolves(mutation: \"slot-actor\")",
+      "exactPrintingSubjects": [
+        "OGN-062/298"
+      ],
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "deck-pending-0b05ccf5ee78e547ad49ca34",
+      "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.ColdRecoveryRejectsIndependentlyForgedPendingChildrenWhileTheParentStillResolves(mutation: \"slot-before-parent\")",
+      "exactPrintingSubjects": [
+        "OGN-062/298"
+      ],
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "deck-pending-80078dc2027036a14ae53a91",
+      "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.ColdRecoveryRejectsIndependentlyForgedPendingChildrenWhileTheParentStillResolves(mutation: \"slot-card\")",
+      "exactPrintingSubjects": [
+        "OGN-062/298"
+      ],
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "deck-pending-c0aab755fd62153863a44211",
+      "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.ColdRecoveryRejectsIndependentlyForgedPendingChildrenWhileTheParentStillResolves(mutation: \"slot-confirmed\")",
+      "exactPrintingSubjects": [
+        "OGN-062/298"
+      ],
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "deck-pending-a0eb22e4ae55526fbdb81b74",
+      "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.ColdRecoveryRejectsIndependentlyForgedPendingChildrenWhileTheParentStillResolves(mutation: \"slot-generation\")",
+      "exactPrintingSubjects": [
+        "OGN-062/298"
+      ],
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "deck-pending-954047aa61bda28afedf4738",
+      "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.ColdRecoveryRejectsIndependentlyForgedPendingChildrenWhileTheParentStillResolves(mutation: \"slot-order\")",
+      "exactPrintingSubjects": [
+        "OGN-062/298"
+      ],
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "deck-pending-84fdc43c3ba784d94e8bcddb",
+      "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.ColdRecoveryRejectsIndependentlyForgedPendingChildrenWhileTheParentStillResolves(mutation: \"slot-owner\")",
+      "exactPrintingSubjects": [
+        "OGN-062/298"
+      ],
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "deck-pending-dbc0d6a6a133ce669bcebfe5",
+      "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.ColdRecoveryRejectsIndependentlyForgedPendingChildrenWhileTheParentStillResolves(mutation: \"slot-parent\")",
+      "exactPrintingSubjects": [
+        "OGN-062/298"
+      ],
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "deck-pending-e4a7a430cbc9aefd65d5eda7",
+      "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.DecliningEitherExecutionDoesNotRemoveOrDuplicateTheOtherPendingCard(card: \"OGN·062/298\", declineFirst: False)",
+      "exactPrintingSubjects": [
+        "OGN-062/298"
+      ],
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "deck-pending-a961939a7caf8c72bd66aec2",
+      "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.DecliningEitherExecutionDoesNotRemoveOrDuplicateTheOtherPendingCard(card: \"OGN·062/298\", declineFirst: True)",
+      "exactPrintingSubjects": [
+        "OGN-062/298"
+      ],
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "deck-pending-37fb63a1ba14acf693088adf",
+      "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.DecliningEitherExecutionDoesNotRemoveOrDuplicateTheOtherPendingCard(card: \"SFD·188/221\", declineFirst: False)",
+      "exactPrintingSubjects": [
+        "SFD-188/221"
+      ],
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "deck-pending-d1a40622a6769e7c42ca9331",
+      "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.DecliningEitherExecutionDoesNotRemoveOrDuplicateTheOtherPendingCard(card: \"SFD·188/221\", declineFirst: True)",
+      "exactPrintingSubjects": [
+        "SFD-188/221"
+      ],
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "deck-pending-3413ec078e689d973d745c38",
+      "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.FirstExecutionCreatesPendingCardsBeforeTheRepeatedParentContinues(card: \"OGN·025/298\")",
+      "exactPrintingSubjects": [
+        "OGN-025/298"
+      ],
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "deck-pending-4ef91bc19e9cafc322731f66",
+      "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.FirstExecutionCreatesPendingCardsBeforeTheRepeatedParentContinues(card: \"OGN·062/298\")",
+      "exactPrintingSubjects": [
+        "OGN-062/298"
+      ],
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "deck-pending-a353e5c83206829482937f58",
+      "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.FirstExecutionCreatesPendingCardsBeforeTheRepeatedParentContinues(card: \"OGN·115/298\")",
+      "exactPrintingSubjects": [
+        "OGN-115/298"
+      ],
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "deck-pending-77ddea2144fc1a6612ace41d",
+      "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.FirstExecutionCreatesPendingCardsBeforeTheRepeatedParentContinues(card: \"SFD·188/221\")",
+      "exactPrintingSubjects": [
+        "SFD-188/221"
+      ],
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "deck-pending-8d010897bd7c9ead4284b3b9",
+      "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.NeitherPlayerMayPlayOrPassThePendingChildBeforeTheParentChoiceFinishes(player: \"P1\", pass: False)",
+      "exactPrintingSubjects": [
+        "OGN-062/298"
+      ],
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "deck-pending-eb8eab313ff247cf1237a141",
+      "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.NeitherPlayerMayPlayOrPassThePendingChildBeforeTheParentChoiceFinishes(player: \"P1\", pass: True)",
+      "exactPrintingSubjects": [
+        "OGN-062/298"
+      ],
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "deck-pending-e41cde4fd17c4ff817d580e8",
+      "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.NeitherPlayerMayPlayOrPassThePendingChildBeforeTheParentChoiceFinishes(player: \"P2\", pass: False)",
+      "exactPrintingSubjects": [
+        "OGN-062/298"
+      ],
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "deck-pending-f6e20b351efd93da46d781c2",
+      "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.NeitherPlayerMayPlayOrPassThePendingChildBeforeTheParentChoiceFinishes(player: \"P2\", pass: True)",
+      "exactPrintingSubjects": [
+        "OGN-062/298"
+      ],
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "deck-pending-81fa53a37d9524c72b476e11",
+      "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.PendingCardsStayUnconfirmedUntilTheCapturedParentFinishesThenPlayInInsertionOrder(card: \"OGN·025/298\")",
+      "exactPrintingSubjects": [
+        "OGN-025/298"
+      ],
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "deck-pending-7d7cc5ef5c0ef26a30f38b77",
+      "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.PendingCardsStayUnconfirmedUntilTheCapturedParentFinishesThenPlayInInsertionOrder(card: \"OGN·062/298\")",
+      "exactPrintingSubjects": [
+        "OGN-062/298"
+      ],
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "deck-pending-38a9a2426324ae83fad98f3b",
+      "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.PendingCardsStayUnconfirmedUntilTheCapturedParentFinishesThenPlayInInsertionOrder(card: \"OGN·115/298\")",
+      "exactPrintingSubjects": [
+        "OGN-115/298"
+      ],
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "deck-pending-d1c21b246282233669afcc29",
+      "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.PendingCardsStayUnconfirmedUntilTheCapturedParentFinishesThenPlayInInsertionOrder(card: \"SFD·188/221\")",
+      "exactPrintingSubjects": [
+        "SFD-188/221"
+      ],
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "deck-pending-794e8bbfd41819d1d0930942",
+      "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.RecoveryRejectsAnOtherwiseMatchingLaterObservationPermissionBeforeTheEarlierCard(card: \"OGN·062/298\")",
+      "exactPrintingSubjects": [
+        "OGN-062/298",
+        "OGN-194/298"
+      ],
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "deck-pending-59ce99a778665b5ffece276c",
+      "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.RecoveryRejectsAnOtherwiseMatchingLaterObservationPermissionBeforeTheEarlierCard(card: \"OGN·115/298\")",
+      "exactPrintingSubjects": [
+        "OGN-115/298",
+        "OGN-194/298"
+      ],
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "deck-pending-c06a431a130c2139db6da3a3",
+      "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.RecoveryRejectsMalformedSuspendedDeckQueuesBeforeInspectingTheirOrder(mutation: \"negative-index\")",
+      "exactPrintingSubjects": [
+        "OGN-115/298",
+        "OGN-194/298"
+      ],
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "deck-pending-af9c4d0fc67594180874c2b1",
+      "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.RecoveryRejectsMalformedSuspendedDeckQueuesBeforeInspectingTheirOrder(mutation: \"null-entry\")",
+      "exactPrintingSubjects": [
+        "OGN-115/298",
+        "OGN-194/298"
+      ],
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "deck-pending-7608068675a2dc2b8a8bb8f5",
+      "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.RecoveryRejectsMalformedSuspendedDeckQueuesBeforeInspectingTheirOrder(mutation: \"null-queue\")",
+      "exactPrintingSubjects": [
+        "OGN-115/298",
+        "OGN-194/298"
+      ],
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "deck-pending-c8b746e370d6726cfb1ebedd",
+      "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingScenarioTests.DeclaredControlledPositionUsesTheActualDeckSequenceAndRecordsItsExplicitSetup(branch: \"blind-fury\", card: \"OGN·025/298\", observed: False)",
+      "exactPrintingSubjects": [
+        "OGN-025/298"
+      ],
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "deck-pending-80309095fc899525de29da47",
+      "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingScenarioTests.DeclaredControlledPositionUsesTheActualDeckSequenceAndRecordsItsExplicitSetup(branch: \"bright-future\", card: \"OGN·115/298\", observed: False)",
+      "exactPrintingSubjects": [
+        "OGN-115/298"
+      ],
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "deck-pending-5eb38dfa7154ec5e1fa1b89f",
+      "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingScenarioTests.DeclaredControlledPositionUsesTheActualDeckSequenceAndRecordsItsExplicitSetup(branch: \"bright-future-observed\", card: \"OGN·115/298\", observed: True)",
+      "exactPrintingSubjects": [
+        "OGN-115/298",
+        "OGN-194/298"
+      ],
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "deck-pending-1cd8fddd6650e937775f6537",
+      "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingScenarioTests.DeclaredControlledPositionUsesTheActualDeckSequenceAndRecordsItsExplicitSetup(branch: \"reinforcements\", card: \"OGN·062/298\", observed: False)",
+      "exactPrintingSubjects": [
+        "OGN-062/298"
+      ],
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "deck-pending-f7243139959a77c21f6237c1",
+      "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingScenarioTests.DeclaredControlledPositionUsesTheActualDeckSequenceAndRecordsItsExplicitSetup(branch: \"reinforcements-observed\", card: \"OGN·062/298\", observed: True)",
+      "exactPrintingSubjects": [
+        "OGN-062/298",
+        "OGN-194/298"
+      ],
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "deck-pending-faabe69cddd3b809cd0c58b7",
+      "actualExecutedCase": "Riftbound.ConformanceTests.DeckPlayPendingScenarioTests.DeclaredControlledPositionUsesTheActualDeckSequenceAndRecordsItsExplicitSetup(branch: \"void-rush\", card: \"SFD·188/221\", observed: False)",
+      "exactPrintingSubjects": [
+        "SFD-188/221"
+      ],
+      "wholePrintingCertified": false
+    }
+  ],
+  "newMethods": [
+    "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.ASecondExecutionObservationCannotJumpAheadOfTheFirstExecutionsPendingCards",
+    "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.BrightFutureFinishesAllBanishAndRecycleSelectionsBeforeItsFirstPlayInstruction",
+    "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.ColdRecoveryRejectsIndependentlyForgedPendingChildrenWhileTheParentStillResolves",
+    "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.DecliningEitherExecutionDoesNotRemoveOrDuplicateTheOtherPendingCard",
+    "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.FirstExecutionCreatesPendingCardsBeforeTheRepeatedParentContinues",
+    "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.NeitherPlayerMayPlayOrPassThePendingChildBeforeTheParentChoiceFinishes",
+    "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.PendingCardsStayUnconfirmedUntilTheCapturedParentFinishesThenPlayInInsertionOrder",
+    "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.RecoveryRejectsAnOtherwiseMatchingLaterObservationPermissionBeforeTheEarlierCard",
+    "Riftbound.ConformanceTests.DeckPlayPendingBeforeParentTests.RecoveryRejectsMalformedSuspendedDeckQueuesBeforeInspectingTheirOrder",
+    "Riftbound.ConformanceTests.DeckPlayPendingScenarioTests.DeclaredControlledPositionUsesTheActualDeckSequenceAndRecordsItsExplicitSetup"
+  ],
+  "exactTrxSha256": "40fae1120251f09a685c0f76d85c14446e227cc5e5414456d6a03ed71e8c7530",
+  "original165Reviews80Contexts252Gates7Deltas17183ObligationsMustRemain": true,
+  "expectedNewCaseObligations": 51,
+  "expectedRemainingObligations": 17234,
+  "semanticCoverageCertified": false,
+  "original48CaseIdsExactRetained": true,
+  "threeAddedMalformedContextRecoveryCases": true,
+  "originalSoleCheck13496PassOneFixtureFailureNotRelabeledAsGreen": true,
+  "finalFocusedCases": 280,
+  "finalFocusedMethods": 126,
+  "newFixedFullCases": 13649,
+  "newFixedFullMethods": 7701,
+  "sourceAndNativeAndSqlFinalInputsMustUsePostCorrectionIdentity": true,
+  "exactPrintingSubjectMappingCorrection": {
+    "beforePreparationSha256": "dda4f69e54a1b07a6b7c6073fc753d3c375417923cde9446bd36fb13a5e83f95",
+    "caseId": "deck-pending-5afe353b5040af81ca3d5ec0",
+    "before": [
+      "OGN-062/298"
+    ],
+    "after": [
+      "OGN-115/298"
+    ],
+    "reason": "The parameterless test explicitly starts OGN115 Bright Future; the draft fallback mapped it to Reinforcements. Original case id and test source/execution unchanged."
+  }
+}

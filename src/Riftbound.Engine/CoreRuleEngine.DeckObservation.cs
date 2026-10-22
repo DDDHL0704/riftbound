@@ -74,7 +74,24 @@ public sealed partial class CoreRuleEngine
             CardBehaviorRegistry.TryGetByCardNo(c.CardNo,out var definition);
             var slot=new StackItemState(c.Id,c.Instruction.PlayerId,id,definition.EffectKind,c.CardNo) {ObservedDeckPlay=c};
             var parentIndex=stack.FindIndex(s=>s.StackItemId==observed.Instruction.Parent.StackItemId);
-            stack.Insert(parentIndex<0?detachedInsertIndex++:parentIndex,slot);
+            var parentId = observed.Instruction.Parent.StackItemId;
+            var pendingParent = result.State.PendingEffectPlay?.Parent.ObservedPlayPermission?.Suspended?.Parent
+                ?? result.State.PendingEffectPlay?.Parent;
+            var sequence = pendingParent?.StackItemId == parentId ? pendingParent.DeckPlaySequence
+                : stack.FirstOrDefault(s => s.StackItemId == parentId)?.DeckPlaySequence;
+            if (sequence is not null)
+            {
+                // Observation precedes the original play instructions in the same
+                // execution, but cannot overtake an earlier execution's cards.
+                var nextOriginal = stack.FindIndex(s => s.DeckPlayPendingCard is { } pending
+                    && pending.ParentStackItemId == parentId && pending.OrderIndex < sequence.Queue.Count
+                    && sequence.Queue[pending.OrderIndex].ExecutionIndex >= c.Instruction.ExecutionIndex);
+                var previous = stack.FindLastIndex(s => s.StackItemId == parentId
+                    || s.DeckPlayPendingCard?.ParentStackItemId == parentId
+                    || s.ObservedDeckPlay?.Instruction.Parent.StackItemId == parentId);
+                stack.Insert(nextOriginal >= 0 ? nextOriginal : previous >= 0 ? previous + 1 : detachedInsertIndex++, slot);
+            }
+            else stack.Insert(parentIndex<0?detachedInsertIndex++:parentIndex,slot);
         }
         var next=result.State with {PlayerZones=zones,CardObjects=cards,StackItems=stack,ObservedDeckPlays=contexts,
             ObjectLocations=ReconcileObjectLocations(result.State.ObjectLocations,zones)};
@@ -102,7 +119,9 @@ public sealed partial class CoreRuleEngine
 
     private static ObservedDeckPlayContext? NextObservedDeckPlay(MatchState state,PendingEffectPlayState? suspended)
         => (state.ObservedDeckPlays??[]).FirstOrDefault(c=>CompleteObservationShape(c) && !state.StackItems.Any(s=>s.StackItemId==c.Instruction.Parent.StackItemId)
-            && (suspended is null || suspended.Parent.StackItemId==c.Instruction.Parent.StackItemId));
+            && (suspended is null || suspended.Parent.StackItemId==c.Instruction.Parent.StackItemId)
+            && !(suspended?.Parent.DeckPlaySequence is { } sequence && sequence.PlayIndex < sequence.Queue.Count
+                && sequence.Queue[sequence.PlayIndex].ExecutionIndex < c.Instruction.ExecutionIndex));
 
     private static bool CompleteObservationShape(ObservedDeckPlayContext? c)
         => c?.Card is not null && c.Instruction?.Parent is not null && c.Instruction.Seen is not null
@@ -241,8 +260,13 @@ public sealed partial class CoreRuleEngine
     {
         if(pending.Parent.ObservedPlayPermission is not { } p)return pending.Parent.EffectKind!=ObservedDeckPlayEffect;
         var c=p.Context;
-        if(c is null || !ValidObservedDeckPlay(state,c) || !(state.ObservedDeckPlays??[]).Any(x=>MatchStateHasher.HashValue(x)==MatchStateHasher.HashValue(c))
-            || NextObservedDeckPlay(state,p.Suspended)?.Id!=c.Id
+        if(c is null || !ValidObservedDeckPlay(state,c) || !(state.ObservedDeckPlays??[]).Any(x=>MatchStateHasher.HashValue(x)==MatchStateHasher.HashValue(c)))return false;
+        // Validate the suspended permission before inspecting its ordered queue.
+        // Recovery must reject malformed indices and entries without dereferencing them.
+        if(p.Suspended is { } suspended && (suspended.Parent is null
+            || suspended.Parent.StackItemId!=c.Instruction.Parent.StackItemId
+            || !ValidDeckPlayPending(state with {PendingEffectPlay=suspended},suspended)))return false;
+        if(NextObservedDeckPlay(state,p.Suspended)?.Id!=c.Id
             || pending.PlayerId!=c.Instruction.PlayerId || pending.ChoiceId!="OBSERVED-PLAY:"+c.Id
             || pending.Parent.StackItemId!="OBSERVED-PERMISSION:"+c.Id || pending.Parent.SourceObjectId!=c.Card.ObjectId
             || pending.Parent.ControllerId!=pending.PlayerId || pending.Parent.CardNo!=c.CardNo || pending.Parent.EffectKind!=ObservedDeckPlayEffect
@@ -250,7 +274,6 @@ public sealed partial class CoreRuleEngine
             || !pending.IgnoreBaseMana || !pending.IgnoreBasePower || pending.IgnoreAllCosts || pending.ManaReduction!=0
             || !pending.Optional || pending.DestinationPolicy!="" || pending.RevealedHand is not null || pending.ViewedCardIds is not null
             || !state.StackItems.Any(s=>s.ObservedDeckPlay?.Id==c.Id && ValidObservedDeckSlot(state,s)))return false;
-        return p.Suspended is null || p.Suspended.Parent.StackItemId==c.Instruction.Parent.StackItemId
-            && ValidDeckPlayPending(state with {PendingEffectPlay=p.Suspended},p.Suspended);
+        return true;
     }
 }

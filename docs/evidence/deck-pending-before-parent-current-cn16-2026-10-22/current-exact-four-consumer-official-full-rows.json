@@ -1,0 +1,250 @@
+{
+  "atUtc": "2026-10-22T09:38:16.650165+00:00",
+  "current1504AllFullRowsAndQaUnchangedReceipt": "var/qa/wild-claw-current-cn16-20261022/current-complete-cn-full-row-and-qa-readback-v1.json",
+  "sourceArchiveSha256": "7345d06fc59523fc1703b4fa4e60c995d0060f3864ac1d355c1f63febf57978a",
+  "cards": [
+    {
+      "id": 33286,
+      "cardNo": "SFD·188/221",
+      "cardName": "虚空猛冲",
+      "fullRow": {
+        "id": 33286,
+        "cardCategoryList": [
+          "exclusive_spell"
+        ],
+        "cardCategoryNameList": [
+          "专属法术"
+        ],
+        "cardNo": "SFD·188/221",
+        "cardName": "虚空猛冲",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "red",
+          "yellow"
+        ],
+        "hero": "雷克塞",
+        "region": "",
+        "tag": "",
+        "artist": "Kudos Productions",
+        "cardEffect": "展示你主牌堆顶部的两张牌。你可以选择其中一张，将其费用减少{{2}}后打出。抽取其中未以此方式打出的卡牌。",
+        "flavorText": "",
+        "energy": 2,
+        "returnEnergy": 1,
+        "power": null,
+        "productCodeList": [
+          "SFD(标准补充包)",
+          "SFD(进阶补充包)"
+        ],
+        "productNameList": [
+          "铸魂淬炼 标准补充包",
+          "铸魂淬炼 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_core",
+        "rarityName": "史诗",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20251217/b478472e661d4a9994693e654b18932e.png",
+        "backImage": "",
+        "listSort": 787,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "展示你主牌堆顶部的两张牌。你可以选择放逐其中一张，然后将其打出，其费用减少{{2}}。抽取其中未被放逐的卡牌。",
+        "otherDesc": 0
+      },
+      "fullRowSha256": "ec440c95a784359390d0b0a26fbd4353ef94ce2e763a5b27d2eaa02fad8dfce5",
+      "sourceUrl": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "receivedAtUtc": "2026-10-22T09:17:02.976444+00:00",
+      "publicationDate": null,
+      "effectiveDate": null,
+      "region": "CN",
+      "language": "zh-CN"
+    },
+    {
+      "id": 31231,
+      "cardNo": "OGN·025/298",
+      "cardName": "暴怒冲动",
+      "fullRow": {
+        "id": 31231,
+        "cardCategoryList": [
+          "spell"
+        ],
+        "cardCategoryNameList": [
+          "法术"
+        ],
+        "cardNo": "OGN·025/298",
+        "cardName": "暴怒冲动",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "red"
+        ],
+        "hero": "",
+        "region": "",
+        "tag": "",
+        "artist": "Six More Vodka",
+        "cardEffect": "{{迅捷}}（可在你的回合或法术对决中打出。）\n每名对手展示其主牌堆顶部的一张牌。你从中选择一张，并当作自己的牌打出，无视费用，然后回收其余的卡牌。",
+        "flavorText": "",
+        "energy": 4,
+        "returnEnergy": 2,
+        "power": null,
+        "productCodeList": [
+          "OGN(标准补充包)",
+          "OGN(进阶补充包)"
+        ],
+        "productNameList": [
+          "起源 标准补充包",
+          "起源 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_shard",
+        "rarityName": "稀有",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/3657cbabf8d142b795a736d7d7fe66b9.png",
+        "backImage": "",
+        "listSort": 474,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "{{迅捷}}（可在你的回合或法术对决中打出。）\n每名对手展示其主牌堆顶部的一张牌。你从中选择一张，将其放逐，然后当作自己的牌打出，无视费用。然后回收其余的卡牌。",
+        "otherDesc": 0
+      },
+      "fullRowSha256": "64e76142d3ce0486232967e4e44902d02b5f468757388c4a43ba38ed143f11a1",
+      "sourceUrl": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "receivedAtUtc": "2026-10-22T09:17:02.976444+00:00",
+      "publicationDate": null,
+      "effectiveDate": null,
+      "region": "CN",
+      "language": "zh-CN"
+    },
+    {
+      "id": 31274,
+      "cardNo": "OGN·062/298",
+      "cardName": "增援",
+      "fullRow": {
+        "id": 31274,
+        "cardCategoryList": [
+          "spell"
+        ],
+        "cardCategoryNameList": [
+          "法术"
+        ],
+        "cardNo": "OGN·062/298",
+        "cardName": "增援",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "green"
+        ],
+        "hero": "",
+        "region": "",
+        "tag": "",
+        "artist": "Kudos Productions",
+        "cardEffect": "查看主牌堆顶部的五张牌，你可以从中选择一名单位，将它的法力费用减少{{5}}后打出，然后回收其余卡牌。",
+        "flavorText": "",
+        "energy": 5,
+        "returnEnergy": null,
+        "power": null,
+        "productCodeList": [
+          "OGN(标准补充包)",
+          "OGN(进阶补充包)"
+        ],
+        "productNameList": [
+          "起源 标准补充包",
+          "起源 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_glimmer",
+        "rarityName": "不凡",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/cbd1fc82207e4154bdfff0ecf6a900d1.png",
+        "backImage": "",
+        "listSort": 431,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "查看你主牌堆顶部的五张牌。你可以选择从中放逐一名单位，然后将其打出，其费用减少{{5}}。回收其余的卡牌。",
+        "otherDesc": 0
+      },
+      "fullRowSha256": "874861a559cd1dd1e95fdf49d0aceb6ceed347dcfd048ed7c5775837ea2728b0",
+      "sourceUrl": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "receivedAtUtc": "2026-10-22T09:17:02.976444+00:00",
+      "publicationDate": null,
+      "effectiveDate": null,
+      "region": "CN",
+      "language": "zh-CN"
+    },
+    {
+      "id": 31334,
+      "cardNo": "OGN·115/298",
+      "cardName": "光明未来",
+      "fullRow": {
+        "id": 31334,
+        "cardCategoryList": [
+          "spell"
+        ],
+        "cardCategoryNameList": [
+          "法术"
+        ],
+        "cardNo": "OGN·115/298",
+        "cardName": "光明未来",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "blue"
+        ],
+        "hero": "",
+        "region": "",
+        "tag": "",
+        "artist": "Kudos Productions",
+        "cardEffect": "每名玩家可以查看主牌堆顶部的五张牌，从中选择一张，然后回收其余的卡牌。从下一名玩家开始，每名玩家打出这些卡牌，并无视其法力费用（仍需支付所有符能费用）。",
+        "flavorText": "",
+        "energy": 5,
+        "returnEnergy": 1,
+        "power": null,
+        "productCodeList": [
+          "OGN(标准补充包)",
+          "OGN(进阶补充包)"
+        ],
+        "productNameList": [
+          "起源 标准补充包",
+          "起源 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_shard",
+        "rarityName": "稀有",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/062aadedf7ed44d2aa9720979ed798df.png",
+        "backImage": "",
+        "listSort": 371,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "每名玩家查看其主牌堆顶部的五张牌，放逐其中一张，然后回收其余的卡牌。从下一名玩家开始，每名玩家打出这些被放逐的卡牌，无视其法力费用。（仍需支付所有符能费用。）",
+        "otherDesc": 0
+      },
+      "fullRowSha256": "a93f6ff426f8cd0a5ae0cc57e4efbef2204509ce0b4b8c5a5f5fc22865225cdf",
+      "sourceUrl": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "receivedAtUtc": "2026-10-22T09:17:02.976444+00:00",
+      "publicationDate": null,
+      "effectiveDate": null,
+      "region": "CN",
+      "language": "zh-CN"
+    }
+  ],
+  "appliesToRepeatedDeckPlayStagingOnlyNotWholeCard": true,
+  "wildClawCatalogNotAdopted": true
+}

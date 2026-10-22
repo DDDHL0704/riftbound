@@ -25460,10 +25460,10 @@ public sealed partial class FullGameEndToEndTests
                         Assert.Equal(observedGeneration,result.State.CardObjects[objectId].ObjectGeneration);
                         Assert.Contains(objectId,exposedStringValues);
                     }
-                    else if (result.State.StackItems.LastOrDefault()?.DeckPlaySequence is { Kind: "OPPONENT_REVEAL_PLAY" or "SINGLE_PUBLIC_PLAY" } revealed
+                    else if (result.State.StackItems.SingleOrDefault(i => i.StackItemId == result.State.PendingCardChoice?.DeckContext?.StackItemId)
+                        is { DeckPlaySequence: { Kind: "OPPONENT_REVEAL_PLAY" or "SINGLE_PUBLIC_PLAY" } revealed } parent
                         && revealed.Viewed.TryGetValue(playerId, out var cards) && cards.FirstOrDefault(c => c.ObjectId == objectId) is { } binding)
                     {
-                        var parent = result.State.StackItems.Last();
                         if (revealed.Kind == "OPPONENT_REVEAL_PLAY") { Assert.Equal("OGN·025/298", parent.CardNo); Assert.Single(cards); }
                         else { Assert.Contains(parent.CardNo, new[]{"SFD·188/221","SFD·187/221","SFD·243/221","SFD·170/221","SFD·170a/221"}); Assert.True(cards.Count <= 2); }
                         Assert.Equal(parent.ControllerId, revealed.ControllerId);

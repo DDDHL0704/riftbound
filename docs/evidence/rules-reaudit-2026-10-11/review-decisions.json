@@ -24898,6 +24898,68 @@
         "All source gaps, outside-active705, eight English gap,139news,KDA exact identities and whole1740 universe remain.",
         "Original first compile failure,16pass9failure,three-input missing-field SQL room and all historical failed CIs remain unchanged."
       ]
+    },
+    {
+      "id": "deck-pending-before-parent-current-cn16-2026-10-22",
+      "scope": "Current two-seat instructed deck plays enter real pending stack slots before the resolving parent continues. Preserve parent completion, insertion-order confirmation, optional decline, private observation, repeats and later observed permissions. Only these bounded branches are reviewed; Wild Claw is not registered.",
+      "subjects": [
+        "OGN-025/298",
+        "OGN-062/298",
+        "OGN-115/298",
+        "SFD-188/221",
+        "OGN-194/298"
+      ],
+      "ruleRecords": [
+        "DOC-01-P041-B010",
+        "DOC-01-P041-B011",
+        "DOC-01-P041-B012",
+        "DOC-01-P041-B013",
+        "DOC-01-P041-B014",
+        "DOC-01-P041-B015",
+        "DOC-01-P041-B016",
+        "DOC-01-P044-B008",
+        "DOC-01-P044-B009",
+        "DOC-01-P044-B010",
+        "DOC-01-P044-B011",
+        "DOC-01-P044-B012",
+        "DOC-01-P059-B002"
+      ],
+      "status": "BOUNDED_CURRENT_CN_PENDING_BEFORE_PARENT_SOURCE_TEST_SQL_NATIVE_READBACK_PASS_NEW_FIXED_FULL_AND_PRODUCTS_OPEN",
+      "sourceManifest": {
+        "path": "docs/evidence/deck-pending-before-parent-current-cn16-2026-10-22/source-manifest.json",
+        "sha256": "d9d420b09fde81fcd516a57b368090cc8b6419d96d1d5c8e27fd48ec759e984c",
+        "role": "source-manifest"
+      },
+      "auditDocument": "docs/DECK_PENDING_BEFORE_PARENT_CURRENT_CN16_AUDIT_2026-10-22.md",
+      "validation": {
+        "newCases": 51,
+        "newMethods": 10,
+        "onlyCheckCases": 13497,
+        "onlyCheckMethods": 7559,
+        "onlyCheckOutcomes": {
+          "Passed": 13496,
+          "Failed": 1
+        },
+        "originalCheckBeforeFourFinalCorrections": true,
+        "finalFocusedCases": 280,
+        "finalFocusedMethods": 126,
+        "affectedOriginalFullGameMethods": 5,
+        "sqlInputs": 126,
+        "sqlColdRecoveries": 126,
+        "independentAuthorityHistories": 126,
+        "independentPrivateSnapshots": 240,
+        "independentPrivatePrompts": 240,
+        "independentEvents": 384,
+        "actualCorruptRoomRefusals": 4,
+        "actualHeadlessNativeControlWindows": 22,
+        "wholePrintingCertified": false
+      },
+      "exclusions": [
+        "Wild Claw, its optional reflexive empowerment creation/confirmation and all unreviewed consumers remain OPEN.",
+        "Declared controlled positions and headless controls do not certify ordinary deck construction, visible paired windows, physical Windows or new fixed full.",
+        "All original1740 printings14293 rules705 outside-active8English139newsKDA5 and source gaps remain.",
+        "Original compilation, focus, fixture and first native-QA failures remain recorded; no original execution is relabeled."
+      ]
     }
   ]
 }

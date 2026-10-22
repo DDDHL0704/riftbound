@@ -18643,6 +18643,12 @@ public sealed partial class MatchSession : IMatchSession
         return scenarioId switch
         {
             "basic-play" => BuildBasicPlayScenario(current, seed),
+            "deck-pending-reinforcements" => BuildDeckPendingScenario(current, seed, "OGN·062/298"),
+            "deck-pending-void-rush" => BuildDeckPendingScenario(current, seed, "SFD·188/221"),
+            "deck-pending-blind-fury" => BuildDeckPendingScenario(current, seed, "OGN·025/298"),
+            "deck-pending-bright-future" => BuildDeckPendingScenario(current, seed, "OGN·115/298"),
+            "deck-pending-reinforcements-observed" => BuildDeckPendingScenario(current, seed, "OGN·062/298", true),
+            "deck-pending-bright-future-observed" => BuildDeckPendingScenario(current, seed, "OGN·115/298", true),
             "native-play-confirmation" => BuildNativePlayConfirmationScenario(current, seed),
             "official-resource-costs" => BuildOfficialResourceCostsScenario(current, seed),
             "royal-attendant-legend-mode" => BuildRoyalAttendantLegendModeScenario(current, seed),

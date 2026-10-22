@@ -1,0 +1,19 @@
+{
+  "atUtc": "2026-10-22T11:21:17.566145+00:00",
+  "beforeFrozenOriginal": "/Users/dinghaolin/MyProjects/riftbound/var/qa/deck-play-pending-before-parent-20261022/independent-observed-malformed-context-review-v1.json",
+  "beforeAllThreeThrew": true,
+  "afterFreshCurrentSqlFrame": "/Users/dinghaolin/MyProjects/riftbound/var/qa/deck-play-pending-before-parent-20261022/post-check-corrected-candidate-v1/independent-observed-malformed-context-review-v2.json",
+  "afterAllThreeReturnExplicitRecoveryErrorsWithoutException": true,
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "e7455edc32d43f8253a9d0c6fedb83c347bebafbef064f9b8dffaaabc4b4d266",
+    "implementationSha256": "d9e4e3aabee317b0bfaee1f8fe4ddff8a7740e62a3dc5406f216c6db9c0dec93",
+    "identitySha256": "f309075f8e3a10f10922c309e7ed74cbce5c7a1ffa86f0e1c6cfe9a76cdeb6f3"
+  },
+  "oldOriginalRoomAndRuleIdentityNotMigratedOrRewritten": true,
+  "sameSmallIndependentReaderOnlyRuntimeDepsAndFreshOriginalFrameRebound": true,
+  "readerDllSha256": "67d8a366f0528204cecac63c5eb2805015d53c390edbeb0af0777b672f30209b"
+}

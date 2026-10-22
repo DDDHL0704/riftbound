@@ -215,9 +215,9 @@
       "CARDS_REVEALED",
       "CARD_CHOICE_REQUESTED",
       "CARD_BANISHED",
+      "STACK_ITEM_PENDING",
       "CARD_CHOICE_RESOLVED",
       "EFFECT_PLAY_REQUESTED",
-      "STACK_ITEM_PENDING",
       "STACK_ITEM_RESOLVED",
       "CARD_PLAYED",
       "COST_PAID",
@@ -265,13 +265,13 @@
         "kind": "CARD_BANISHED"
       },
       {
+        "kind": "STACK_ITEM_PENDING"
+      },
+      {
         "kind": "CARD_CHOICE_RESOLVED"
       },
       {
         "kind": "EFFECT_PLAY_REQUESTED"
-      },
-      {
-        "kind": "STACK_ITEM_PENDING"
       },
       {
         "kind": "STACK_ITEM_RESOLVED"

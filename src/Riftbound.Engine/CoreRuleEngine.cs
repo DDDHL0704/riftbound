@@ -19263,7 +19263,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             BuildCorePrompts(nextState));
     }
 
-    private static ResolutionResult ResolvePassPriority(MatchState state, PlayerIntent intent, bool confirmPermanent = false, bool forceResolve = false)
+    private static ResolutionResult ResolvePassPriority(MatchState state, PlayerIntent intent, bool confirmPermanent = false,
+        bool forceResolve = false, string? resolvingStackItemId = null)
     {
         var passedPlayerIds = state.PassedPriorityPlayerIds
             .Concat([intent.PlayerId])
@@ -19293,9 +19294,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 return ResolveBattleResponsePriorityPassed(state, intent, events);
             }
 
-            var resolvedItem = state.StackItems[^1];
+            // A resolving deck instruction may have already placed unconfirmed cards
+            // above itself. Finish that captured parent before confirming any child.
+            var resolvedItem = resolvingStackItemId is null ? state.StackItems[^1]
+                : state.StackItems.Single(s => s.StackItemId == resolvingStackItemId);
             pendingBattlefieldTaskCausePlayerId = resolvedItem.ControllerId;
-            var remainingStack = state.StackItems.Take(state.StackItems.Count - 1).ToArray();
+            var remainingStack = state.StackItems.Where(s => s.StackItemId != resolvedItem.StackItemId).ToArray();
             var stackResolution = ResolveStackItemEffect(state, resolvedItem, confirmPermanent);
             var stackResolutionEvents = stackResolution.Events.ToList();
             var resolvedStack = stackResolution.StackItems ?? remainingStack;
