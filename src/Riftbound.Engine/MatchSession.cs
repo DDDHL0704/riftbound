@@ -11727,11 +11727,7 @@ internal static class ActionPromptBuilder
     private static IReadOnlyList<ActionPromptChoiceDto> ActivateAbilityPaymentResourceChoices(
         MatchState state, string playerId, int totalPower, IReadOnlyDictionary<string, int> powerCostByTrait)
     {
-        var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
-            ? currentPool
-            : RunePool.Empty;
-        if (PaymentCostRules.CanPayPowerCost(runePool, totalPower, powerCostByTrait)
-            || !state.PlayerZones.TryGetValue(playerId, out var zones))
+        if (!state.PlayerZones.TryGetValue(playerId, out var zones))
         {
             return [];
         }
@@ -11741,7 +11737,6 @@ internal static class ActionPromptBuilder
             .Where(objectId => RecycleRuneCanHelpActivateAbilityPowerCost(
                 state,
                 objectId,
-                runePool,
                 totalPower,
                 powerCostByTrait))
             .OrderBy(objectId => objectId, StringComparer.Ordinal)
@@ -11760,7 +11755,6 @@ internal static class ActionPromptBuilder
     private static bool RecycleRuneCanHelpActivateAbilityPowerCost(
         MatchState state,
         string runeObjectId,
-        RunePool runePool,
         int genericPowerCost,
         IReadOnlyDictionary<string, int> powerCostByTrait)
     {
@@ -11770,9 +11764,7 @@ internal static class ActionPromptBuilder
             return false;
         }
 
-        if (powerCostByTrait.TryGetValue(runeTrait, out var requiredTraitPower)
-            && (!runePool.PowerByTrait.TryGetValue(runeTrait, out var availableTraitPower)
-                || availableTraitPower < requiredTraitPower))
+        if (powerCostByTrait.GetValueOrDefault(runeTrait) > 0)
         {
             return true;
         }
@@ -12363,14 +12355,6 @@ internal static class ActionPromptBuilder
         string playerId,
         AssembleEquipmentProfile assembleProfile)
     {
-        var runePool = state.RunePools.TryGetValue(playerId, out var currentPool)
-            ? currentPool
-            : RunePool.Empty;
-        if (CanPayAssembleEquipmentCost(state, playerId, runePool, assembleProfile))
-        {
-            return [];
-        }
-
         if (!state.PlayerZones.TryGetValue(playerId, out var zones))
         {
             return [];
@@ -14726,7 +14710,6 @@ internal static class ActionPromptBuilder
                 .Where(objectId => PlayCardRecycleRuneCanHelpPowerPayment(
                     state,
                     objectId,
-                    runePool,
                     paymentRequirements))
                 .OrderBy(objectId => objectId, StringComparer.Ordinal)
                 .Select(objectId =>
@@ -14760,8 +14743,7 @@ internal static class ActionPromptBuilder
             {
                 var normalizedPowerCostByTrait = PrintedPowerCostRules.Combine(allocation, PaymentCostRules.NormalizePowerCostByTrait(
                     powerCostByTrait ?? new Dictionary<string, int>(StringComparer.Ordinal)));
-                if ((genericPowerCost <= 0 && normalizedPowerCostByTrait.Count == 0)
-                    || PaymentCostRules.CanPayPowerCost(runePool, genericPowerCost, normalizedPowerCostByTrait))
+                if (genericPowerCost <= 0 && normalizedPowerCostByTrait.Count == 0)
                 {
                     continue;
                 }
@@ -14879,7 +14861,6 @@ internal static class ActionPromptBuilder
     private static bool PlayCardRecycleRuneCanHelpPowerPayment(
         MatchState state,
         string runeObjectId,
-        RunePool runePool,
         IReadOnlyList<PlayCardPowerPaymentRequirement> requirements)
     {
         if (!state.CardObjects.TryGetValue(runeObjectId, out var runeState)
@@ -14888,14 +14869,8 @@ internal static class ActionPromptBuilder
             return false;
         }
 
-        var powerByTrait = runePool.PowerByTrait.ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
-        powerByTrait[runeTrait] = powerByTrait.TryGetValue(runeTrait, out var existing)
-            ? existing + BasicRuneRecyclePowerGain
-            : BasicRuneRecyclePowerGain;
-        var adjustedPool = new RunePool(runePool.Mana, runePool.Power, powerByTrait);
         return requirements.Any(requirement =>
-            PaymentCostRules.PowerDeficit(adjustedPool, requirement.GenericPowerCost, requirement.PowerCostByTrait)
-                < PaymentCostRules.PowerDeficit(runePool, requirement.GenericPowerCost, requirement.PowerCostByTrait));
+            requirement.GenericPowerCost > 0 || requirement.PowerCostByTrait.GetValueOrDefault(runeTrait) > 0);
     }
 
     private static IReadOnlyDictionary<string, int> PlayCardPaymentResourcePowerByTraitForBehavior(
