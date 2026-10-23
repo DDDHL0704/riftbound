@@ -41,6 +41,11 @@ def build(root, ledger):
     cn = {normalized(c['cardNo']): c for c in source['cn']['cards']}
     if len(cn) != len(source['cn']['cards']):
         raise ValueError('Duplicate CN printing identity')
+    runtime_path = root/'data/official/card-catalog.zh-CN.json'
+    runtime = json.loads(runtime_path.read_text()) if runtime_path.is_file() else None
+    active = {normalized(c['cardNo']) for c in runtime['cards']} if runtime else None
+    if runtime and len(active) != len(runtime['cards']):
+        raise ValueError('Duplicate runtime printing identity')
     groups, mapping = {}, {}
     for printing in source['cards']['records']:
         identity = printing['id']
@@ -61,7 +66,7 @@ def build(root, ledger):
             mappingBasis=proof, applicability='UNKNOWN_PENDING_REGIONAL_EFFECTIVE_DISPOSITION',
             state='UNREVIEWED', wholeCardCertified=False, activePrintings=[]))
         group['printings'].append(identity)
-        if printing.get('activeCardNo'):
+        if (active is not None and identity in active) or (active is None and printing.get('activeCardNo')):
             group['activePrintings'].append(identity)
         mapping[identity] = key
     seen = set()
@@ -82,7 +87,9 @@ def build(root, ledger):
             raise ValueError('Fixed-candidate whole-card certification adapter not yet implemented')
     rows = sorted(groups.values(), key=lambda x: x['functionId'])
     return dict(schemaVersion=1, semanticCoverageCertified=False,
-        scope=ledger['scope'], counts=dict(retainedPrintings=len(mapping), provisionalFunctionGroups=len(rows),
+        scope=ledger['scope'], runtimeCatalog=dict(path=str(runtime_path.relative_to(root)),
+        sha256=hashlib.sha256(runtime_path.read_bytes()).hexdigest(), entries=len(active),
+        outsideRetainedBase=sorted(active-set(mapping))) if active is not None else None, counts=dict(retainedPrintings=len(mapping), provisionalFunctionGroups=len(rows),
         unresolvedMappingPrintings=sum(len(g['printings']) for g in rows if g['mappingBasis'] != 'SAME_CN_NUMERIC_FAMILY_AND_EXACT_SEMANTIC_FIELDS'),
         applicableFunctionCount=None, certifiedWholeCards=0, uncertifiedFunctionGroups=len(rows),
         states=dict(Counter(g['state'] for g in rows))),

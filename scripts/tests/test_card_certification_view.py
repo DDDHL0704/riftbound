@@ -41,6 +41,16 @@ class CardViewTests(unittest.TestCase):
         self.assertEqual(0, r['counts']['certifiedWholeCards'])
         self.assertEqual({'VEN-003', 'VEN-003A', 'SFD-999'}, {p for c in r['functions'] for p in c['printings']})
 
+    def test_current_runtime_activation_is_visible_without_rewriting_retained_sources(self):
+        path = self.root/'data/official/card-catalog.zh-CN.json'; path.parent.mkdir(parents=True)
+        path.write_text(json.dumps(dict(cards=[dict(cardNo='VEN·003a'), dict(cardNo='NEW·001')])))
+        result = cards.build(self.root, self.ledger)
+        self.assertEqual(2, result['runtimeCatalog']['entries'])
+        self.assertEqual(['NEW-001'], result['runtimeCatalog']['outsideRetainedBase'])
+        self.assertEqual(['VEN-003A'], [p for c in result['functions'] for p in c['activePrintings']])
+        self.assertEqual(3, result['counts']['retainedPrintings'])
+        self.assertEqual(0, result['counts']['certifiedWholeCards'])
+
     def test_same_name_different_text_or_missing_fields_cannot_merge(self):
         for changed in ({**self.cn[1], 'cardEffect':'Draw two.'},
                         {k:v for k,v in self.cn[1].items() if k != 'cardEffect'}):

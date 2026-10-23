@@ -469,7 +469,7 @@ def retained_implementation_baseline(root, manifest):
     """Authenticate historical pins without claiming unchanged current code."""
     config_path = root/'docs/audit/legacy-source-baseline.json'
     if not config_path.exists():
-        return None, None
+        return None, None, None
     if config_path.is_symlink():
         raise ValueError('Retained baseline must be a regular configuration')
     config = json.loads(config_path.read_text())
@@ -487,6 +487,8 @@ def retained_implementation_baseline(root, manifest):
     raw = historical(manifest_path)
     if hashlib.sha256(raw).hexdigest() != config['manifestSha256'] or json.loads(raw) != manifest:
         raise ValueError('Retained baseline manifest changed; a new source review is required')
+    if config.get('retainedInputRoles', []) not in ([], ['active']):
+        raise ValueError('Only the historical active-catalog role may use a retained input')
     cache = {}
     def verify(ref):
         path = ref['path']
@@ -495,18 +497,41 @@ def retained_implementation_baseline(root, manifest):
         if path not in cache:
             cache[path] = hashlib.sha256(historical(path)).hexdigest()
         return cache[path] == ref['sha256']
-    return config, verify
+    return config, verify, historical
 
 
 def current_audit(root, manifest):
     if manifest.get('schemaVersion') != 1:
         raise ValueError('Unsupported current audit manifest schema')
-    retained, verify_retained = retained_implementation_baseline(root, manifest)
+    retained, verify_retained, read_retained = retained_implementation_baseline(root, manifest)
     changed_contexts = []
     scope = manifest['certificationScope']
     if manifest.get('semanticCoverageCertified') is not False or scope.get('allOfficialObligationsRetained') is not True:
         raise ValueError('Index manifest cannot certify semantics or discard official obligations')
-    data = {key: read_pin(root, ref) for key, ref in manifest['inputs'].items()}
+    data, runtime_catalog_delta = {}, None
+    for key, ref in manifest['inputs'].items():
+        if retained is None or key not in retained.get('retainedInputRoles', []):
+            data[key] = read_pin(root, ref)
+            continue
+        raw = read_retained(ref['path'])
+        if hashlib.sha256(raw).hexdigest() != ref['sha256']:
+            raise ValueError('Retained source input hash mismatch: '+key)
+        data[key] = json.loads(raw)
+        path = (root/ref['path']).resolve()
+        if not path.is_relative_to(root.resolve()) or not path.is_file() or (root/ref['path']).is_symlink():
+            raise ValueError('Missing or escaped current runtime catalog')
+        current_raw = path.read_bytes()
+        current = json.loads(current_raw)
+        before = {number(c['cardNo']) for c in data[key]['cards']}
+        after = {number(c['cardNo']) for c in current['cards']}
+        if len(after) != len(current['cards']):
+            raise ValueError('Duplicate current runtime catalog printing')
+        runtime_catalog_delta = dict(path=ref['path'], retainedCommit=retained['commit'],
+            retainedSha256=ref['sha256'], currentSha256=hashlib.sha256(current_raw).hexdigest(),
+            retainedEntries=len(before), currentEntries=len(after),
+            addedPrintings=sorted(after-before), removedPrintings=sorted(before-after),
+            wholeCardCertification=False)
+
     required = {'cards','rules','corpus','reviews','summary','cn','en','global','qa','active'}
     if set(data) != required:
         raise ValueError('Current manifest input roles differ: '+str(sorted(set(data)^required)))
@@ -593,6 +618,8 @@ def current_audit(root, manifest):
                     result['errors'].append('Missing or dangling behavior branch source: '+identity)
                 branches.append(branch)
             covered = covered and not result['errors'] and context['ciState'] == 'VERIFIED'
+            if runtime_catalog_delta and runtime_catalog_delta['currentSha256'] != runtime_catalog_delta['retainedSha256']:
+                covered = False
             for branch in branches:
                 row = branch_obligation(branch,context,covered,evidence,scope,cards,rules,corpus)
                 branch_rows.append(dict(id='BRANCH:'+identity+':'+row['id'],kind='BEHAVIOR_BRANCH',
@@ -635,6 +662,7 @@ def current_audit(root, manifest):
     result['errors'].extend(check_documents(root))
     result.update(governanceValid=not result['errors'],executionScope='CURRENT_MANIFEST_INDEX_AND_REMAINING_OBLIGATIONS_ONLY',
                   retainedImplementationBaseline=retained, changedImplementationContexts=changed_contexts,
+                  runtimeCatalogDelta=runtime_catalog_delta,
                   certificationScope=scope, historicalReviewPinCount=len(historical['reviews']),
                   currentReviewCount=len(reviews), recordedStatusStrings=len({r.get('status') for r in raw_reviews.values()}),
                   cardCoverageManifest=manifest['cardCoverageManifest'], inputManifest=manifest,

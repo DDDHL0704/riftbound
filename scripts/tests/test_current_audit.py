@@ -212,6 +212,26 @@ class CurrentAuditTests(unittest.TestCase):
         self.assertFalse(result['governanceValid'])
         self.assertTrue(any('implementation pin mismatch' in e for e in result['errors']))
 
+    def test_retained_catalog_reports_current_promotions_and_invalidates_old_candidate(self):
+        self.verified_branch(); config = self.retain_current_fixture()
+        config['retainedInputRoles'] = ['active']
+        (self.root/'docs/audit/legacy-source-baseline.json').write_text(json.dumps(config))
+        before = self.check()
+        self.assertTrue(before['governanceValid'], before['errors'])
+        active = copy.deepcopy(self.data['active'])
+        active['cards'].append(dict(cardNo='VEN·003'))
+        (self.root/'active.json').write_text(json.dumps(active))
+        result = self.check()
+        self.assertTrue(result['governanceValid'], result['errors'])
+        self.assertEqual(['VEN-003'], result['runtimeCatalogDelta']['addedPrintings'])
+        self.assertEqual(len(active['cards']), result['runtimeCatalogDelta']['currentEntries'])
+        self.assertEqual([r['id'] for r in before['remainingObligations']], [r['id'] for r in result['remainingObligations']])
+        self.assertFalse(result['reviewView'][0]['fixedCommitCi']['currentImplementationCovered'])
+        self.assertEqual({'OPEN': 1}, result['branchObligationStates'])
+        (self.root/'cn.json').write_text('{}')
+        with self.assertRaisesRegex(ValueError, 'hash mismatch'):
+            self.check()
+
     def test_unavailable_retained_commit_and_hash_are_not_passes(self):
         self.verified_branch(); config = self.retain_current_fixture()
         path = self.root/'docs/audit/legacy-source-baseline.json'
