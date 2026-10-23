@@ -34,5 +34,6 @@
     <Compile Include="../Riftbound.NativeNetworkSmoke/VenEmpoweredSelfSqlAudit.cs" Link="VenEmpoweredSelfSqlAudit.cs" />
     <Compile Include="../Riftbound.PostgresAcceptance/VenEmpoweredSelfSqlAcceptance.cs" Link="VenEmpoweredSelfSqlAcceptance.cs" />
     <Compile Include="../Riftbound.PostgresAcceptance/LoggedQaRoomBirthAssertions.cs" Link="LoggedQaRoomBirthAssertions.cs" />
+    <Compile Include="../Riftbound.PostgresAcceptance/PaymentReconnectEvidence.cs" Link="PaymentReconnectEvidence.cs" />
   </ItemGroup>
 </Project>

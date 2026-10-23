@@ -6,7 +6,7 @@
 |---|---|---|
 | 原固定候选，整体未过 | `cbcf5c24` / 不可变tag `backend-related-20261024-a2` | [Actions 39998674123](https://github.com/DDDHL0704/riftbound/actions/runs/39998674123)的scope实际SHA/tree/index一致；SQL分区2原FAIL已留原件并另作后继修复。scope/旧native_network/双平台desktop及SQL分区3最后读取为成功，full/SQL0/1最后读取仍运行；未据旧快照推断终态。原related_network作业虽绿且有两次实际API PID，**六房重启后均0 Joined、各两条INVALID_RECONNECT_TOKEN，不能证明成功重连**。原ZIP/绿receipt保留，[纠正合同](CI_BACKEND_ACCEPTANCE_CONTRACT.md) |
 | 下一批源码与入口，尚未封板/调度 | SQL终局窄修复；N4/S4/N5/S5/N6/S6/N8/Lux/N9；新接C7及两张Plank精确依赖 | 根目录1052/语义SHA `3bf8afc4…`；组合原运行**885/888、3 FAIL、0skip**，18533跟踪输入不变。三红均为新增卡的目录统计基线，逐卡核对后仅这三项另跑**3/3**；原885/888不改记888绿。C7机制54例、五消费者66例、N9的51例及所选S6/邻接例均在原运行通过。API/Postgres/公共driver构建过，公共CI工具58/58、重连永久纯守卫根47/47；现接76 SQL/八组重启，非真实门禁通过 |
-| 重连证据回修 | ②C5/C6/C7修复80f80b3c已接；③四点窄修已交待接，④N3/N9完整出生入口已接 | 公共CI新增逐阶段逐房真实双人RECONNECT Joined守卫，实际拒绝A2六份重启后原trace；新阶段不得复用旧成功文件。SQL只允许本房updated_at及原两身份的实际Joined token hash/updated_at轮换；恢复、重复命令和tamper另采七表严格不变基线。N3/N9的Joined完整envelope/唯一性及故意Error精确配对、C7/N9未授权SQL字段数字原文比较仍补修中；各叶齐前不封候选，真PG/API重启仍待Actions |
+| 重连证据回修 | ②C5/C6/C7修复80f80b3c已接；③027/a15支付窄修已接，根54+原RoomSeat21合计75/75、七工程构建过，④N3/N9完整出生入口已接 | 公共CI新增逐阶段逐房真实双人RECONNECT Joined守卫，实际拒绝A2六份重启后原trace；新阶段不得复用旧成功文件。SQL只允许本房updated_at及原两身份的实际Joined token hash/updated_at轮换；恢复、重复命令和tamper另采七表严格不变基线。N3/N9的Joined完整envelope/唯一性及故意Error精确配对、C7 bb438数字原文修复已接（根C7 50+N9消费者51另跑101/101），N9同类修复仍待补件；各叶齐前不封候选，真PG/API重启仍待Actions |
 | 共同接点与下一队列 | C8复制摧毁替换实例、S7移动费用/有界数量/容量报价；N9专用入口 | [已审接点](parallel/SHARED_BACKEND_CONTRACTS_2026-10-24.md)。C8/S7仍独立开发；N9原4256入口退回后的2127完整出生/回手/揭示叶已便携接入并完成四工程构建；网络叶窄守卫补修待回交，来源64纯控制/RoomSeat及内存配方不充根真实门禁。VEN011/027/073装备下半部仅④报告来源缺口，①尚未独立核图，未登记机制或整卡完成 |
 
 | 历史固定输入 | 结果与边界 |
