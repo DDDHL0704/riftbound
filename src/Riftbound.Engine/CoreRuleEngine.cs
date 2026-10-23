@@ -3587,7 +3587,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             behavior.EffectKind,
             command.CardNo,
             targetObjectIds,
-            behavior.DamageAmountFromOptionalPowerCost ? plan.OptionalPowerCost : behavior.DamageAmount,
+            behavior.DamageAmount,
             plan.EffectRepeatCount,
             plan.OptionalCosts,
             playedAfterAnotherCardThisTurn: ControllerPlayedAnotherCardThisTurn(state, intent.PlayerId),
@@ -18449,6 +18449,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
 
         var normalizedCommandOptionalCosts = NormalizeOptionalCosts(command.OptionalCosts);
+        if (behavior.DamageAmountFromOptionalPowerCost
+            && normalizedCommandOptionalCosts.Any(cost => cost.StartsWith("SPEND_POWER:", StringComparison.Ordinal)))
+        {
+            rejection = Reject(state, "此指令的符能数量须在结算时选择和支付。", ErrorCodes.InvalidTarget);
+            return false;
+        }
         var optionalCostReductionChoices = normalizedCommandOptionalCosts.Where(IsOptionalCostReductionChoice).ToArray();
         normalizedCommandOptionalCosts = normalizedCommandOptionalCosts.Where(cost => !IsOptionalCostReductionChoice(cost)).ToArray();
         var printedPowerChoices = normalizedCommandOptionalCosts
@@ -22543,25 +22549,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         }
 
         if (normalizedOptionalCosts.Count == 1
-            && behavior.DamageAmountFromOptionalPowerCost
-            && TryParseSpendPowerOptionalCost(normalizedOptionalCosts[0], out var powerCost, out var powerTrait))
-        {
-            if (string.IsNullOrWhiteSpace(powerTrait))
-            {
-                extraPowerCost = powerCost;
-            }
-            else
-            {
-                extraPowerCostByTrait = new Dictionary<string, int>(StringComparer.Ordinal)
-                {
-                    [powerTrait] = powerCost
-                };
-            }
-
-            return true;
-        }
-
-        if (normalizedOptionalCosts.Count == 1
             && behavior.OptionalExperienceCost > 0
             && behavior.ManaReductionIfExperiencePaid > 0
             && TryParseSpendExperienceOptionalCost(normalizedOptionalCosts[0], out var spendExperienceCost)
@@ -25251,7 +25238,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         else if (behavior.SelectedBattlefieldEffect is not null)
         {
             var locations = (resolvedObjectLocations ?? state.ObjectLocations).ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
-            ResolveSelectedBattlefieldEffect(state, playerZones, cardObjects, locations, behavior, stackItem, events,
+            ResolveSelectedBattlefieldEffect(state, playerZones, cardObjects, locations, runePools, behavior, stackItem, events,
                 damageTriggeredDestroyTargetObjectIds, preventDamageFromThisStackItem);
             resolvedObjectLocations = ReconcileObjectLocations(locations, playerZones);
         }

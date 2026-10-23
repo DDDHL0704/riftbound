@@ -4586,13 +4586,26 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.False(result.Accepted);
-        Assert.Equal(ErrorCodes.InsufficientCost, result.ErrorCode);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(new RunePool(1, 2), result.State.RunePools["P1"]);
         Assert.Equal(["P1-SPELL-BULLET-TIME"], result.State.PlayerZones["P1"].Hand);
         Assert.Equal(0, result.State.CardObjects["P2-BULLET-TIME-UNIT-001"].Damage);
         Assert.Empty(result.State.StackItems);
+        // CN204.3.a: unavailable quantities are rejected at the actual instruction,
+        // rather than preventing the spell's otherwise affordable declaration.
+        var played = await new CoreRuleEngine().ResolveAsync(state,
+            new("bullet-time-declare-before-instruction", "P1", CommandTypes.PlayCard),
+            new PlayCardCommand("P1-SPELL-BULLET-TIME", "OGN·268/298", [SelectedBattlefieldFixture.Field]), default);
+        Assert.True(played.Accepted, played.ErrorMessage);
+        var payment = await InstructionPowerPaymentTimingTests.ToPayment(played.State);
+        var unavailable = await InstructionPowerPaymentTimingTests.Pay(payment, "SPEND_POWER:3");
+        Assert.False(unavailable.Accepted);
+        Assert.Empty(unavailable.Events);
+        Assert.Equal(MatchStateHasher.Hash(payment), MatchStateHasher.Hash(unavailable.State));
+        Assert.Equal(2, unavailable.State.RunePools["P1"].TotalPower);
+        Assert.Equal(0, unavailable.State.CardObjects["P2-BULLET-TIME-UNIT-001"].Damage);
     }
 
     [Fact]
