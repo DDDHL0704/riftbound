@@ -2,7 +2,7 @@
   "source": "https://playloltcg.com/card.html",
   "api": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
   "fetchedAt": "2026-04-27",
-  "total": 1052,
+  "total": 1053,
   "cards": [
     {
       "id": 31005,
@@ -43760,6 +43760,54 @@
       "isPreview": false,
       "errata": "",
       "otherDesc": 0
+    },
+    {
+      "id": 37720,
+      "cardCategoryList": [
+        "unit"
+      ],
+      "cardCategoryNameList": [
+        "单位"
+      ],
+      "cardNo": "VEN·032",
+      "cardName": "霜衣狼母",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "green"
+      ],
+      "hero": "",
+      "region": "弗雷尔卓德",
+      "tag": "犬形",
+      "artist": "Caravan Studio",
+      "cardEffect": "{{强化12}}。你每控制一枚符文，此技能的费用便减少{{1}}。（支付此费用：强化我。仅在未强化时可用。）\n{{已强化>}} 我获得{{S}}+3。",
+      "flavorText": "很少有人敢向护崽的霜衣狼母靠近一步。能活着靠近两步的，更是一个也没有。",
+      "energy": 3,
+      "returnEnergy": null,
+      "power": 3,
+      "productCodeList": [
+        "VEN(标准补充包)",
+        "VEN(进阶补充包)"
+      ],
+      "productNameList": [
+        "化神争锋 标准补充包",
+        "化神争锋 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_glimmer",
+      "rarityName": "不凡",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260717/11d50cf986d946dea73040f997b98aa5.png",
+      "backImage": "",
+      "listSort": 1966,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
     }
   ],
   "scopedAdditions": [
@@ -44464,6 +44512,21 @@
       "printedFaceIdentity": "VEN·070/166 SC",
       "separateGlobalPrintingIdentityNotMerged": "VEN-070/166",
       "reason": "Exact CN empowered self-unit consumer reusing existing mana activation, conditional self Might, Ward, Steadfast and Roam mechanisms. Focused conformance and whole-card fixed-candidate certification remain separate."
+    },
+    {
+      "cardNo": "VEN·032",
+      "source": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "fetchedAtUtc": "2026-10-23T20:50:28.701860+00:00",
+      "sourceId": 37720,
+      "sourceRecordSha256": "cce147fbc2f6b2a9ccdd5334de85a52cb089a1b4a15a3c41acf20404d8f8deaf",
+      "sourceRecordHashEncoding": "UTF-8 JSON sorted keys compact separators ensure_ascii=false",
+      "language": "zh-CN",
+      "region": "CN",
+      "publicationDate": null,
+      "effectiveDate": null,
+      "printedFaceIdentity": "VEN·032/166 SC",
+      "separateGlobalPrintingIdentityNotMerged": "VEN-032/166",
+      "reason": "Exact CN empowered self-unit consumer reusing current mana-per-controlled-field-rune activation and permanent self Might mechanisms; source/semantic/backend gates remain separate."
     }
   ]
 }
