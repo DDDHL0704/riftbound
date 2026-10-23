@@ -29,6 +29,8 @@
 
 ④历史修正守卫接点已审阅：允许只在 `AssertNoHiddenZoneLeak` 的 Boon 历史检查后调用独立 `OrdinaryPlayPrivacyAssertions.CheckHistoricalModifiers`。仅能核准精确原POWER修正的公开旧代际出处，独立核对原文、Resolved/Finalized打出记录、effectId、ledger及金额/顺序，并保留伪造/错代际/额外隐藏字段的拒绝反例；当前仅批准接点，实现随完整L2交付审阅，不放宽原扫描或改历史。玩家栈视图的同语义精确恢复字段校验仍归④。
 
+④N2目标确认接点按表达式分配：拥有 PermanentPlayTargets/HasPendingPermanentPlayAbility 的目标时序，以及 `TryBuildPlayCardPlan` 中 `HasValidTargetEffectAdditionalCostTargets` 外围的已延后目标guard；不改③支付段。`CanPromptTargetEffectAdditionalCost` 末尾目标存在性谓词归④，前面的法力/符能/资源候选表达式归③。已审阅的负向历史守卫扩展仅限精确两行中文“可选蓝色额外费用；已支付时一名单位本回合-N”的无下限分支；仍核对有符号应用算术、旧代际/原play，保留minimum=0及无snapshot/chosen-negative要求，配同构伪造、未支付协调伪造原日志拒绝和后续增益/到期反例。不授权通用负向/有下限豁免或改支付/伤害；实现待N2完整交付。
+
 ④负责正常源码形式的卡牌注册/目录增量，由①实际合并；其他线的新增注册如有冲突先交明确增量。②③发现共享缺陷须连同完整实现和测试交付。仅①维护 AGENTS、目标、治理、测试工作流、状态、认证视图与公共 CI 工具；其他线提供简短增量，不独立重建全来源审计。
 
 每开发线同时一个主要工作包、最多一个待集成批次。开发线只提交/推送自己的分支；①重新核对远端及并发改动后审阅/集成/发布 main，不 force/reset。发生真实接口/来源变化、冲突、共同阻塞或严重回归时向①发一次请求，其余完整批次一次交付（源码 SHA、基线、实际测试/未通过项、轻量台账、原件位置及需对方动作），不普通互报、ACK或催问，不直接相互派工。①按实际关联批次集中集成，跨线相同固定输入复用，仅补组合差异。
