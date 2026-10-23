@@ -220,17 +220,36 @@ internal static class DamageDoublingCombatKeywordSqlAcceptance
         Check(!duplicate.Accepted && duplicate.ErrorCode == result.ErrorCode && await Digest(run.Source, run.Room) == digest,
             "Repeating the rejected intent on this same session must not append another row.");
         Check(ReferenceEquals(session, run.Session), "Do not swap the rejecting session before the legal follow-up.");
-        await run.Submit("p2", new SurrenderCommand(), cold: false);
+        var surrendered = await run.Submit("p2", new SurrenderCommand(), cold: false);
         Check(ReferenceEquals(session, run.Session) && run.State.Status == MatchStatuses.Finished
-            && !run.State.BattleState.IsActive, "The rejecting real PostgreSQL session must itself accept surrender and clear partial combat.");
+            && run.State.WinnerPlayerId == run.P1,
+            "The rejecting real PostgreSQL session must itself accept surrender and award the opponent the win.");
+        // CN650/651.1 ends this two-player match; its captured battle remains history.
+        Check(Same(run.State.BattleState, before.BattleState)
+            && !run.State.UntilEndOfTurnEffects.Any(e => e.StartsWith("BATTLE_DAMAGE_ASSIGNMENT_LEDGER:", StringComparison.Ordinal)),
+            "Surrender must preserve the battle history and clear unfinished damage-assignment ledger markers.");
+        Check(surrendered.Events.Count == 1 && surrendered.Events[0].Kind == "MATCH_WON"
+            && Equals(surrendered.Events[0].Payload.GetValueOrDefault("winnerPlayerId"), run.P1)
+            && Equals(surrendered.Events[0].Payload.GetValueOrDefault("surrenderedPlayerId"), run.P2)
+            && Equals(surrendered.Events[0].Payload.GetValueOrDefault("reason"), "SURRENDER")
+            && surrendered.Prompts.Values.All(p => !p.Actionable && p.Actions.SequenceEqual(new[] { "WAIT" })
+                && p.View?.Type == "MATCH_RESULT")
+            && surrendered.Snapshots.Values.All(s => Equals(s.Timing.GetValueOrDefault("winnerPlayerId"), run.P1)),
+            "The terminal event, both result views and non-actionable prompts must agree on the surrender winner.");
         var frame = await run.Cold("same-rejecting-session-surrender");
         Check(frame.Commands.Count == original.Commands.Count + 2 && frame.Commands.Count(c => !c.Accepted) == 1
-            && frame.Commands[^1].CommandType == CommandTypes.Surrender && frame.Commands[^1].Accepted,
+            && frame.Commands[^1].CommandType == CommandTypes.Surrender && frame.Commands[^1].Accepted
+            && Same(frame.Commands.Take(original.Commands.Count).ToArray(), original.Commands)
+            && Same(frame.Commands[^2], rejected.Commands[^1])
+            && frame.Events.Count == rejected.Events.Count + 1
+            && Same(frame.Events.Take(rejected.Events.Count).ToArray(), rejected.Events),
             "Original SQL order must be accepted prefix, numeric rejection, then legal surrender.");
         await Write(run.Output, "numeric-rejection.json", new {
             result.ErrorCode, result.ErrorMessage, sameSessionFollowUp = true, repeatedRejectionAppendedNoRows = true,
             rejectedEvents = result.Events.Count, rejectedTick = before.Tick, finalTick = run.State.Tick,
             acceptedPrefixRetained = true, completeOriginalReplayMatched = true,
+            winnerPlayerId = run.State.WinnerPlayerId, terminalPromptsNonActionable = true,
+            battleHistoryRetained = true, unfinishedAssignmentLedgerCleared = true,
             scope = "Representation-boundary QA; not an ordinary deck reaching this Might."
         });
     }
