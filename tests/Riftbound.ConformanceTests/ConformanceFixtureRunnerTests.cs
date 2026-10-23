@@ -1361,7 +1361,7 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(fixture.Expected.EventKinds, result.EventKinds);
         Assert.Equal(MatchStatuses.Finished, result.FinalState.Status);
         Assert.Equal("P1", result.FinalState.WinnerPlayerId);
-        Assert.Equal(8, result.FinalState.PlayerScores["P1"]);
+        Assert.Equal(9, result.FinalState.PlayerScores["P1"]);
         Assert.Equal(0, result.FinalState.PlayerScores["P2"]);
         Assert.Equal("TURN_START", result.FinalState.Phase);
         Assert.Empty(result.FinalState.PlayerZones["P2"].MainDeck);

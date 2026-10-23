@@ -1,0 +1,52 @@
+{
+  "atUtc": "2026-10-23T05:34:31.026395+00:00",
+  "status": "ONE_CHECK13670_EXECUTED_13669_PASS_ONE_STALE_EXPECTATION_FAIL_SOURCE_REPAIRED_FOCUS153_PASS_FIXED_FULL_PENDING",
+  "baseCommit": "5c27863d806afd9e78726a1ded30c5a55b52bdc5",
+  "originalCheckExecutorExitCode": 1,
+  "originalCheckCases": 13670,
+  "originalCheckMethods": 7622,
+  "originalCheckPassed": 13669,
+  "originalCheckFailed": 1,
+  "originalCheckSkipped": 0,
+  "originalCheckTrxSha256": "9d78a62057afde8cacb7eeb19421abccfcb096a6e4e5dc6134be7fe17ba77d89",
+  "originalCheckNeverRewrittenAsPassed": true,
+  "original13658Plus12CaseMultisetExactlyRetained": true,
+  "newTwelveCasesAlreadyPassedInOriginalCheckAndRepairFocus": true,
+  "repairFocusCases": 153,
+  "repairFocusMethods": 72,
+  "repairFocusTrxSha256": "25498d556e84fa620b7bd604e5126dc117c3ef02c86898c5de7c3bb14f15c36f",
+  "calibratedOriginalFact": "Riftbound.ConformanceTests.ConformanceFixtureRunnerTests.CoreRuleEngineAppliesRepeatedBurnoutWinImmediately",
+  "originalMethodAndAllAssertionsPreservedExceptOneSourceDirected8To9Literal": true,
+  "originalSeedInitialStateCommandsAndHistoricalNotesRetained": true,
+  "sourceChangesAfterOriginalCheck": [
+    "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+    "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-turn-start-burnout-empty-graveyard-wins.fixture.json"
+  ],
+  "allOther3381SourceHashesAndAllModesUnchanged": true,
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "0aa8f812dc6f561f9fb1996381bae9821bd54d069f3ad26be7fe669baae9ae6c",
+    "implementationSha256": "6b7f2a3d2bec813ff86a9fca1f33731c10d27acfa4604c3b287776e7dd5be4c2",
+    "identitySha256": "9e42abbc51b0ee1f9feb1f2f705ec713856b148b994a8cddffbc5ef54b2d3faa"
+  },
+  "allFourActual9e42CoreBinariesUnchangedBySourceExpectationRepair": true,
+  "actualPostBuildObservation": {
+    "path": "/Users/dinghaolin/MyProjects/riftbound/var/qa/first-burnout-action-completion-current-cn16-20261023/sole-check-actual-post-build-input-observation-v1.json",
+    "sha256": "a46af14eb68aa1f4ce06b8d1d208dab3a8f10767fcf07c4cc99fd3707686c478"
+  },
+  "originalPreBuildRuntimeGuardFailureRetained": true,
+  "earlier940eFocusSqlAndActual9e42CheckSqlRemainDistinct": true,
+  "soleOriginalCheckExecutionCount": 1,
+  "noSecondCheckOrCaseDeletionOrSkippedRows": true,
+  "nextFixedFullRequired": {
+    "cases": 13819,
+    "methods": 7763,
+    "sqlCases": 64
+  },
+  "knownSourceFailure99AndAllProducts": "OPEN",
+  "allGreenCheckClaimed": false,
+  "wholePrintingOrGoalCertified": false
+}

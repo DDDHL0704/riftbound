@@ -233,7 +233,7 @@ public sealed partial class CoreRuleEngine
                 var called = CallRunes(zones, cards, item.ControllerId, spec.RuneCallCount!.Value);
                 events.Add(new("RUNES_CALLED", "关联放逐完成后召出符文", new Dictionary<string, object?>
                     { ["playerId"] = item.ControllerId, ["count"] = called.CalledRuneObjectIds.Count, ["runeObjectIds"] = called.CalledRuneObjectIds.ToArray() }));
-                var draw = ApplyDrawToPlayer(state, zones, state.PlayerScores, item.ControllerId, spec.DrawCount!.Value, state.RngCursor, events);
+                var draw = ApplyDrawToPlayer(state, zones, state.PlayerScores, item.ControllerId, spec.DrawCount!.Value, state.RngCursor, events, deferNormalVictory: true);
                 result = result with { PlayerScores = draw.PlayerScores, WinnerPlayerId = draw.WinnerPlayerId, RngCursor = draw.RngCursor };
             }
             else groups.Add(new(item.SourceObjectId, context.SourceGeneration, item.ControllerId, references));
@@ -273,7 +273,7 @@ public sealed partial class CoreRuleEngine
         }
         else if (spec.DrawCount is > 0)
         {
-            var draw = ApplyDrawToPlayer(state, zones, state.PlayerScores, item.ControllerId, spec.DrawCount.Value, state.RngCursor, events);
+            var draw = ApplyDrawToPlayer(state, zones, state.PlayerScores, item.ControllerId, spec.DrawCount.Value, state.RngCursor, events, deferNormalVictory: true);
             result = result with { PlayerScores = draw.PlayerScores, WinnerPlayerId = draw.WinnerPlayerId, RngCursor = draw.RngCursor };
         }
         var payload = new Dictionary<string, object?> { ["playerId"] = item.ControllerId,

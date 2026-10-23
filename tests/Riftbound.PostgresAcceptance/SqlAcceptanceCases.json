@@ -254,6 +254,10 @@
     {
       "id": "final-conquest-score",
       "sourceType": "FinalConquestScoreSqlAcceptance"
+    },
+    {
+      "id": "burnout-action-completion",
+      "sourceType": "BurnoutActionCompletionSqlAcceptance"
     }
   ]
 }

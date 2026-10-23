@@ -1,0 +1,48 @@
+{
+  "startedAtUtc": "2026-10-23T02:46:50.214382+00:00",
+  "finishedAtUtc": "2026-10-23T02:46:50.370792+00:00",
+  "region": "CN",
+  "language": "zh-CN",
+  "applicableAsOf": "2026-10-23",
+  "core": {
+    "url": "https://cdn.playloltcg.com/lol/2026/10/2026-10-10/a21ead876c6b44d6abe386b6ae54ea28.pdf",
+    "status": 304,
+    "headers": {
+      "Etag": "\"fd4b064bd191585ab9789505ddc7c416\"",
+      "Content-Type": "application/pdf",
+      "Content-Disposition": "inline",
+      "Date": "Sat, 10 Oct 2026 00:27:22 GMT",
+      "Server": "tencent-cos",
+      "x-cos-hash-crc64ecma": "624345148193381469",
+      "x-cos-request-id": "NmFjOTg2NmFfOGEyZjY4MDlfOGQ3OF8yMTIzNzRhYw==",
+      "x-cos-server-side-encryption": "AES256",
+      "x-cos-storage-class": "MAZ_STANDARD",
+      "x-cosindex-replication-status": "Complete",
+      "Age": "1130129",
+      "X-NWS-LOG-UUID": "9192373800731367598",
+      "Connection": "close",
+      "X-Cache-Lookup": "Cache Hit",
+      "Cross-Origin-Resource-Policy": "cross-origin"
+    },
+    "retainedBodyPath": "var/qa/cn-effective-20261016/whole-rule-source-readback/CN/DOC-01.pdf",
+    "sha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11",
+    "effectiveDate": "2026-10-16",
+    "unchangedPdfNotDuplicated": true
+  },
+  "directory": {
+    "url": "https://lol-api.playloltcg.com/xcx/gameRule/getGameRuleList",
+    "status": 200,
+    "headers": {
+      "Date": "Fri, 23 Oct 2026 02:46:50 GMT",
+      "Content-Type": "application/json",
+      "Content-Length": "117",
+      "Connection": "close",
+      "Set-Cookie": "tgw_l7_route=a4fe7c6424f83788b23b8fe585c1bdfd; Expires=Fri, 23-Oct-2026 02:47:20 GMT; Path=/; sameSite=None; Secure",
+      "X-Frame-Options": "SAMEORIGIN"
+    },
+    "rawSha256": "c687b4c6f39fbf692af748fb1a9d693fb3d55cfdc43709e44beff9f69040e8ce",
+    "priorRawSha256": "b8601894abc20fc224190b883991206c1b9a9ca7ec83f898b520603a191fa414",
+    "completeRowComparisonPending": true
+  },
+  "prior16KnownDocumentsAnd1740Printings14293ClausesRetained": true
+}

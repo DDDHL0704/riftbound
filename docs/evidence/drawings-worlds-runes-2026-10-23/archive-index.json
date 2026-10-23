@@ -1,0 +1,71 @@
+{
+  "schemaVersion": 1,
+  "members": [
+    {
+      "path": "acquire-worlds-failed-v1.py",
+      "bytes": 2434,
+      "sha256": "5de721fb9da5671c01fd8d67b66e571c2164648a8b8f0f969dcec2818d4e126b"
+    },
+    {
+      "path": "acquire-worlds-failed-v2.py",
+      "bytes": 3428,
+      "sha256": "9c18fbb451a22d3bd725132103a1550b34256d4b9363156faacd3594ba0888cd"
+    },
+    {
+      "path": "acquire-worlds.py",
+      "bytes": 3484,
+      "sha256": "72e1db8d9a4cc6ae371671c8e6218475a0a4b4ea3e4b8fdbf51e557683efa104"
+    },
+    {
+      "path": "catalog-candidates.json",
+      "bytes": 135465,
+      "sha256": "deecb375a1e789208b62c110470ee7acae3f34631817d3566e9221df41cdadd2"
+    },
+    {
+      "path": "parser-failures-retained.json",
+      "bytes": 952,
+      "sha256": "4704f80d6d73bdb7205576cb798a8f8f204be0088e33a1d53c62feb23879e02f"
+    },
+    {
+      "path": "worlds-esports-en-failed-parser-v1.html",
+      "bytes": 194342,
+      "sha256": "f3b65106c4e955d9ed88ab24b1cc726bbe34d77fe82fe21a526c81822615e034"
+    },
+    {
+      "path": "worlds-esports-en.html",
+      "bytes": 194342,
+      "sha256": "f3b65106c4e955d9ed88ab24b1cc726bbe34d77fe82fe21a526c81822615e034"
+    },
+    {
+      "path": "worlds-esports-en.literal-body.html",
+      "bytes": 8134,
+      "sha256": "b8eb5d40e75585d5dddf8f32a861ab6cf1fe4b25aa6ec133639c074b373db84d"
+    },
+    {
+      "path": "worlds-esports-en.parsed-v3.json",
+      "bytes": 21264,
+      "sha256": "63efe52381f0efdddfea0825f0eb342f2728153a97f7064ec050bb243bbc839c"
+    },
+    {
+      "path": "worlds-esports-en.receipt.json",
+      "bytes": 5442,
+      "sha256": "0db2ccbbda25fb2618c517087a83e7eed04c07b272a27fce5ecc6d28041df5bb"
+    },
+    {
+      "path": "worlds-esports-product.jpg",
+      "bytes": 136672,
+      "sha256": "35c7f79d3af3b4d3534b314a06e9b6cedf7e436f04c8b00cf4c14c965f8fcfbc"
+    },
+    {
+      "path": "worlds-esports-product.receipt.json",
+      "bytes": 1690,
+      "sha256": "98fd79b8145276f5088f23507c84817cc5dffb2063517017df095c904dbeaad9"
+    },
+    {
+      "path": "package-evidence.py",
+      "bytes": 10647,
+      "sha256": "b4303fb9f0d1c342f3d9ce0710da70fd280486e6b6561963a95d3a8742a43902"
+    }
+  ],
+  "verifiedMembers": 13
+}

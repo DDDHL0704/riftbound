@@ -1,0 +1,114 @@
+{
+  "schemaVersion": 1,
+  "id": "drawings-worlds-runes-parallel-20261023",
+  "reviewDate": "2026-10-23",
+  "originalGateCount": 17,
+  "closedGates": 0,
+  "exactNewPrintingIdentities": 0,
+  "semanticCoverageCertified": false,
+  "runtimeAdoption": false,
+  "artifacts": [
+    {
+      "path": "archive-index.json",
+      "sha256": "5a3469155c56ac3df8bdc1a554d8d4c45b5035fd3c232d2f4a80c0007ec96cf8",
+      "bytes": 2194
+    },
+    {
+      "path": "original-captures.tar.xz",
+      "sha256": "4d88368fc092a48896b42cd479b0bc0dc62b351c8919f75c7fae7938c21a409c",
+      "bytes": 189052
+    },
+    {
+      "path": "report.json",
+      "sha256": "83371bea7b32327e493d4a4cfeb1b8913f603650714122750656e9d92a733ab7",
+      "bytes": 20480
+    }
+  ],
+  "reusedLocalOnlyImages": [
+    {
+      "ordinal": 1,
+      "url": "https://mmecoa.qpic.cn/mmecoa_jpg/QD913GwJEgBlmnpB24jJ1u7TlEQLsxxbpKpMujmCTCiaSFIHYuAqNESsDrJWcErT8k6VrTTPjekpPnmQECaH22J1nhlcOia3mouTanIIlEv9s/640?wx_fmt=jpeg&from=appmsg",
+      "localOriginalPath": "/Users/dinghaolin/MyProjects/riftbound/var/qa/official-news-body-20261016/complete-image-acquisition/bec00aba28d99ebd9d6bdcce.source",
+      "sha256": "97ad57bdbf9a8a335e0d9b1c1492672030cd8bb9892d2db2c011018f35079e1f",
+      "bytes": 755046,
+      "dimensions": {
+        "width": 1080,
+        "height": 6171,
+        "format": "JPEG",
+        "frames": 1
+      },
+      "actuallyViewed": true,
+      "displayLimit": "First image resized by viewer from1080x6171 to1050x6000; no tiny card-footer certification.",
+      "scopedObservation": "Regional tournament, Piltover Forge attendance card, Jayce prizes and event performers; not Gift product contents.",
+      "originalBytesReusedLocallyNotIncludedAgainInThisArchive": true
+    },
+    {
+      "ordinal": 2,
+      "url": "https://mmecoa.qpic.cn/mmecoa_jpg/QD913GwJEgA1zrvUory7tdickmfon4maujQMnr00eIcs8iawOEvibd0icpbfM8hoExMBib0FXrqW9L6aFZmCpKquPMFAT8nhQkRBMDia6HwbXAP4c/640?wx_fmt=jpeg&from=appmsg",
+      "localOriginalPath": "/Users/dinghaolin/MyProjects/riftbound/var/qa/official-news-body-20261016/complete-image-acquisition/927646cd074347a0e77cb0a5.source",
+      "sha256": "6ee99e21e6e5e0b0a50325d88dad005b306ac2a43d62dab2afae383ebf6b4a03",
+      "bytes": 197183,
+      "dimensions": {
+        "width": 1080,
+        "height": 1898,
+        "format": "JPEG",
+        "frames": 1
+      },
+      "actuallyViewed": true,
+      "displayLimit": null,
+      "scopedObservation": "Exhibition player lineup; no Gift product or rune printing faces.",
+      "originalBytesReusedLocallyNotIncludedAgainInThisArchive": true
+    },
+    {
+      "ordinal": 3,
+      "url": "https://mmecoa.qpic.cn/mmecoa_jpg/QD913GwJEgAQB6cD0ibCTwExFqL2bleCxyNckSw0iaBhA4uAxVJMwUxicDNTc1k2sNkuClribZef6BkNXvMfMPevPgT95tiayTiblHVI7ErsQPnD4/640?wx_fmt=jpeg&from=appmsg",
+      "localOriginalPath": "/Users/dinghaolin/MyProjects/riftbound/var/qa/official-news-body-20261016/complete-image-acquisition/b12bb18419a3d246d5f3d801.source",
+      "sha256": "ed293ebb0bf5930b1a12116050d3b2eea970bcf5fe2aebe99f0fdfbfd4ea8338",
+      "bytes": 382164,
+      "dimensions": {
+        "width": 1080,
+        "height": 4254,
+        "format": "JPEG",
+        "frames": 1
+      },
+      "actuallyViewed": true,
+      "displayLimit": null,
+      "scopedObservation": "Resonance event, Mystic Vortex attendance card, Jayce prizes and event awards; not Gift product contents.",
+      "originalBytesReusedLocallyNotIncludedAgainInThisArchive": true
+    },
+    {
+      "ordinal": 4,
+      "url": "https://mmecoa.qpic.cn/mmecoa_jpg/QD913GwJEgDgOeboia4vByUZDv6UOe5wKTm7qH8ozuM4Ficwqa54LTVk1ias1HPLKAdD74f21pJX9WdGunRG96ibJuOlX2M2QXcafagJLTOmcmo/640?wx_fmt=jpeg&from=appmsg",
+      "localOriginalPath": "/Users/dinghaolin/MyProjects/riftbound/var/qa/official-news-body-20261016/complete-image-acquisition/d0bd85cceba3ae768327d367.source",
+      "sha256": "f6521d174814df01db9fe8ffc64c761575e4f1b7f2d16608af14e0ac921bd868",
+      "bytes": 316465,
+      "dimensions": {
+        "width": 1080,
+        "height": 2334,
+        "format": "JPEG",
+        "frames": 1
+      },
+      "actuallyViewed": true,
+      "displayLimit": null,
+      "scopedObservation": "Explicit 2025 Worlds champion SIGNATURE limited collection drawing; not Player Bundle.",
+      "originalBytesReusedLocallyNotIncludedAgainInThisArchive": true
+    },
+    {
+      "ordinal": 5,
+      "url": "https://mmecoa.qpic.cn/sz_mmecoa_jpg/QD913GwJEgDkeeUenKWEeZPVeSdbDO2EIMQWhjpuFicskDTkD9YQBTRCLPIdrMyjdYU4wh8PQsbUpNGiclaK5G6UUYYeXa3B32mx8UumxjG2w/640?wx_fmt=jpeg&from=appmsg",
+      "localOriginalPath": "/Users/dinghaolin/MyProjects/riftbound/var/qa/official-news-body-20261016/complete-image-acquisition/fcc9948a503a2872e886f3ce.source",
+      "sha256": "bdaf56c660b36e56f136cf1f0f6c099e6135eaec9f82c7b8a446bd7de884e698",
+      "bytes": 353726,
+      "dimensions": {
+        "width": 1080,
+        "height": 2801,
+        "format": "JPEG",
+        "frames": 1
+      },
+      "actuallyViewed": true,
+      "displayLimit": null,
+      "scopedObservation": "Venue entry and visitor activity QA; no Gift product or rune printing faces.",
+      "originalBytesReusedLocallyNotIncludedAgainInThisArchive": true
+    }
+  ]
+}

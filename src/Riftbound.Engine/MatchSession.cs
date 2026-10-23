@@ -18656,6 +18656,9 @@ public sealed partial class MatchSession : IMatchSession
         return scenarioId switch
         {
             "basic-play" => BuildBasicPlayScenario(current, seed),
+            "burnout-action-conquest" or "burnout-action-draw-two" or "burnout-action-second-burnout"
+                or "burnout-action-hwei" or "burnout-action-portal-tie"
+                => BuildBurnoutActionScenario(current, seed, scenarioId["burnout-action-".Length..]),
             "final-conquest-draw" or "final-conquest-win" or "final-conquest-burnout"
                 or "final-conquest-brush" or "final-conquest-combat"
                 => BuildFinalConquestScenario(current, seed, scenarioId["final-conquest-".Length..]),

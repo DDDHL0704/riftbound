@@ -1,0 +1,47 @@
+{
+  "atUtc": "2026-10-23T04:03:24.971647+00:00",
+  "archives": [
+    {
+      "path": "docs/evidence/drawings-parallel-source-2026-10-23/original-captures.tar.xz",
+      "bytes": 997016,
+      "sha256": "02c88dc4b997a58cb3f1f6b8c4a6cbcaf4f47cf14e08b8a229a46911fa562e9a",
+      "actualMembers": 33,
+      "originalCaptureReconstructionChecks": 0,
+      "exactClosedMemberSetNoTraversalOrLinks": true
+    },
+    {
+      "path": "docs/evidence/drawings-cn-candidates-2026-10-23/original-captures.tar.xz",
+      "bytes": 1861644,
+      "sha256": "330b34ec2ad37d677fcb4d41fd93c2315a29ebe79a17c9c22da25c3129d2d589",
+      "actualMembers": 19,
+      "originalCaptureReconstructionChecks": 19,
+      "exactClosedMemberSetNoTraversalOrLinks": true
+    },
+    {
+      "path": "docs/evidence/drawings-worlds-runes-2026-10-23/original-captures.tar.xz",
+      "bytes": 189052,
+      "sha256": "4d88368fc092a48896b42cd479b0bc0dc62b351c8919f75c7fae7938c21a409c",
+      "actualMembers": 13,
+      "originalCaptureReconstructionChecks": 0,
+      "exactClosedMemberSetNoTraversalOrLinks": true
+    },
+    {
+      "path": "docs/evidence/gallery-json-type-conflict-2026-10-23/validation-captures.tar.xz",
+      "bytes": 5204,
+      "sha256": "ca046bd89b047793d05a52d5f94df836ab559f847c927178e75bd5059939e4b9",
+      "actualMembers": 3,
+      "originalCaptureReconstructionChecks": 0,
+      "exactClosedMemberSetNoTraversalOrLinks": true
+    },
+    {
+      "path": "docs/evidence/gallery-capture-duplicate-members-2026-10-23/validation-captures.tar.xz",
+      "bytes": 6188,
+      "sha256": "a6039fa45abcaa96a74f4c11ab3ba95de7a6e691af406af99dcc96a668f7e586",
+      "actualMembers": 8,
+      "originalCaptureReconstructionChecks": 0,
+      "exactClosedMemberSetNoTraversalOrLinks": true
+    }
+  ],
+  "allMembersActuallyRead": true,
+  "notPixelOrWholeSourceCertification": true
+}

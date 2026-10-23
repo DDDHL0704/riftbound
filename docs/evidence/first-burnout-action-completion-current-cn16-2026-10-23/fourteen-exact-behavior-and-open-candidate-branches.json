@@ -1,0 +1,837 @@
+{
+  "branches": [
+    {
+      "id": "CN16-FIRST-BURNOUT-4E07BF1EB8C29D3A",
+      "sourceRefs": [
+        "OGN-296/298",
+        "OGN-280/298",
+        "SFD-125/221",
+        "CN-d6fd7140f106f9b5-P033-B009",
+        "CN-d6fd7140f106f9b5-P038-B014",
+        "CN-d6fd7140f106f9b5-P038-B018",
+        "CN-d6fd7140f106f9b5-P038-B019",
+        "CN-d6fd7140f106f9b5-P038-B020",
+        "CN-d6fd7140f106f9b5-P038-B021",
+        "CN-d6fd7140f106f9b5-P038-B022",
+        "CN-d6fd7140f106f9b5-P039-B003",
+        "CN-d6fd7140f106f9b5-P039-B009",
+        "CN-d6fd7140f106f9b5-P072-B010",
+        "CN-d6fd7140f106f9b5-P081-B020",
+        "CN-d6fd7140f106f9b5-P082-B004",
+        "CN-d6fd7140f106f9b5-P082-B005",
+        "CN-d6fd7140f106f9b5-P082-B006",
+        "CN-d6fd7140f106f9b5-P082-B007",
+        "CN-d6fd7140f106f9b5-P082-B008",
+        "CN-d6fd7140f106f9b5-P082-B009",
+        "CN-d6fd7140f106f9b5-P082-B010",
+        "CN-d6fd7140f106f9b5-P082-B011",
+        "CN-d6fd7140f106f9b5-P082-B012",
+        "CN-d6fd7140f106f9b5-P082-B013",
+        "CN-d6fd7140f106f9b5-P096-B018"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/first-burnout-action-completion-current-cn16-2026-10-23/source-manifest.json",
+        "sha256": "ea03d3ae180cd8920684640d3951a9047b0030ee772ce8fc98cff5831cf288d9",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.BurnoutActionCompletionTests.AFirstRecyclableBurnoutCompletesTheOriginalDrawBeforeNormalVictory(ownScore: 7, opponentScore: 6, opponentWins: False)",
+        "method": "Riftbound.ConformanceTests.BurnoutActionCompletionTests.AFirstRecyclableBurnoutCompletesTheOriginalDrawBeforeNormalVictory"
+      },
+      "semanticReview": {
+        "state": "BOUNDED_FIRST_BURNOUT_ACTION_AND_PARENT_COMPLETION",
+        "wholeCardCertified": false
+      },
+      "implementation": {
+        "state": "SHARED_DRAW_AND_EXPLICIT_PARENT_COMPLETION_BOUNDARIES"
+      },
+      "testExecution": {
+        "state": "12NEW_PASS_402FOCUS_NINE_ORIGINAL_GAMES_CHECK13669_PASS_ONE_OLD_EXPECTATION_FAIL_SOURCE_REPAIRED_FOCUS153_PASS_FIXED_FULL_OPEN"
+      },
+      "fixedCommitCi": {
+        "state": "OPEN_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_MAIN_PAIR_NETWORK_SCORE_REPLAY_OS_HARDWARE_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded executed behavior; fixed full, exact consumers and required current product acceptance remain separate."
+      },
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "CN16-FIRST-BURNOUT-A443C140995D36CC",
+      "sourceRefs": [
+        "OGN-071/298",
+        "CN-d6fd7140f106f9b5-P033-B009",
+        "CN-d6fd7140f106f9b5-P038-B014",
+        "CN-d6fd7140f106f9b5-P038-B018",
+        "CN-d6fd7140f106f9b5-P038-B019",
+        "CN-d6fd7140f106f9b5-P038-B020",
+        "CN-d6fd7140f106f9b5-P038-B021",
+        "CN-d6fd7140f106f9b5-P038-B022",
+        "CN-d6fd7140f106f9b5-P039-B003",
+        "CN-d6fd7140f106f9b5-P039-B009",
+        "CN-d6fd7140f106f9b5-P072-B010",
+        "CN-d6fd7140f106f9b5-P081-B020",
+        "CN-d6fd7140f106f9b5-P082-B004",
+        "CN-d6fd7140f106f9b5-P082-B005",
+        "CN-d6fd7140f106f9b5-P082-B006",
+        "CN-d6fd7140f106f9b5-P082-B007",
+        "CN-d6fd7140f106f9b5-P082-B008",
+        "CN-d6fd7140f106f9b5-P082-B009",
+        "CN-d6fd7140f106f9b5-P082-B010",
+        "CN-d6fd7140f106f9b5-P082-B011",
+        "CN-d6fd7140f106f9b5-P082-B012",
+        "CN-d6fd7140f106f9b5-P082-B013",
+        "CN-d6fd7140f106f9b5-P096-B018"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/first-burnout-action-completion-current-cn16-2026-10-23/source-manifest.json",
+        "sha256": "ea03d3ae180cd8920684640d3951a9047b0030ee772ce8fc98cff5831cf288d9",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.BurnoutActionCompletionTests.BothPlayersFirstBurnoutsCanCreateATieWithoutAnyIntermediateWinner",
+        "method": "Riftbound.ConformanceTests.BurnoutActionCompletionTests.BothPlayersFirstBurnoutsCanCreateATieWithoutAnyIntermediateWinner"
+      },
+      "semanticReview": {
+        "state": "BOUNDED_FIRST_BURNOUT_ACTION_AND_PARENT_COMPLETION",
+        "wholeCardCertified": false
+      },
+      "implementation": {
+        "state": "SHARED_DRAW_AND_EXPLICIT_PARENT_COMPLETION_BOUNDARIES"
+      },
+      "testExecution": {
+        "state": "12NEW_PASS_402FOCUS_NINE_ORIGINAL_GAMES_CHECK13669_PASS_ONE_OLD_EXPECTATION_FAIL_SOURCE_REPAIRED_FOCUS153_PASS_FIXED_FULL_OPEN"
+      },
+      "fixedCommitCi": {
+        "state": "OPEN_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_MAIN_PAIR_NETWORK_SCORE_REPLAY_OS_HARDWARE_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded executed behavior; fixed full, exact consumers and required current product acceptance remain separate."
+      },
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "CN16-FIRST-BURNOUT-F41B318692580F42",
+      "sourceRefs": [
+        "UNL-080/219",
+        "OGN-083/298",
+        "CN-d6fd7140f106f9b5-P033-B009",
+        "CN-d6fd7140f106f9b5-P038-B014",
+        "CN-d6fd7140f106f9b5-P038-B018",
+        "CN-d6fd7140f106f9b5-P038-B019",
+        "CN-d6fd7140f106f9b5-P038-B020",
+        "CN-d6fd7140f106f9b5-P038-B021",
+        "CN-d6fd7140f106f9b5-P038-B022",
+        "CN-d6fd7140f106f9b5-P039-B003",
+        "CN-d6fd7140f106f9b5-P039-B009",
+        "CN-d6fd7140f106f9b5-P072-B010",
+        "CN-d6fd7140f106f9b5-P081-B020",
+        "CN-d6fd7140f106f9b5-P082-B004",
+        "CN-d6fd7140f106f9b5-P082-B005",
+        "CN-d6fd7140f106f9b5-P082-B006",
+        "CN-d6fd7140f106f9b5-P082-B007",
+        "CN-d6fd7140f106f9b5-P082-B008",
+        "CN-d6fd7140f106f9b5-P082-B009",
+        "CN-d6fd7140f106f9b5-P082-B010",
+        "CN-d6fd7140f106f9b5-P082-B011",
+        "CN-d6fd7140f106f9b5-P082-B012",
+        "CN-d6fd7140f106f9b5-P082-B013",
+        "CN-d6fd7140f106f9b5-P096-B018"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/first-burnout-action-completion-current-cn16-2026-10-23/source-manifest.json",
+        "sha256": "ea03d3ae180cd8920684640d3951a9047b0030ee772ce8fc98cff5831cf288d9",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.BurnoutActionCompletionTests.AFirstBurnoutAtEightWaitsForTheParentsRequiredDiscard(recyclableCards: 3)",
+        "method": "Riftbound.ConformanceTests.BurnoutActionCompletionTests.AFirstBurnoutAtEightWaitsForTheParentsRequiredDiscard"
+      },
+      "semanticReview": {
+        "state": "BOUNDED_FIRST_BURNOUT_ACTION_AND_PARENT_COMPLETION",
+        "wholeCardCertified": false
+      },
+      "implementation": {
+        "state": "SHARED_DRAW_AND_EXPLICIT_PARENT_COMPLETION_BOUNDARIES"
+      },
+      "testExecution": {
+        "state": "12NEW_PASS_402FOCUS_NINE_ORIGINAL_GAMES_CHECK13669_PASS_ONE_OLD_EXPECTATION_FAIL_SOURCE_REPAIRED_FOCUS153_PASS_FIXED_FULL_OPEN"
+      },
+      "fixedCommitCi": {
+        "state": "OPEN_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_MAIN_PAIR_NETWORK_SCORE_REPLAY_OS_HARDWARE_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded executed behavior; fixed full, exact consumers and required current product acceptance remain separate."
+      },
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "CN16-FIRST-BURNOUT-1CD0299004D155A4",
+      "sourceRefs": [
+        "VEN-056",
+        "CN-d6fd7140f106f9b5-P033-B009",
+        "CN-d6fd7140f106f9b5-P038-B014",
+        "CN-d6fd7140f106f9b5-P038-B018",
+        "CN-d6fd7140f106f9b5-P038-B019",
+        "CN-d6fd7140f106f9b5-P038-B020",
+        "CN-d6fd7140f106f9b5-P038-B021",
+        "CN-d6fd7140f106f9b5-P038-B022",
+        "CN-d6fd7140f106f9b5-P039-B003",
+        "CN-d6fd7140f106f9b5-P039-B009",
+        "CN-d6fd7140f106f9b5-P072-B010",
+        "CN-d6fd7140f106f9b5-P081-B020",
+        "CN-d6fd7140f106f9b5-P082-B004",
+        "CN-d6fd7140f106f9b5-P082-B005",
+        "CN-d6fd7140f106f9b5-P082-B006",
+        "CN-d6fd7140f106f9b5-P082-B007",
+        "CN-d6fd7140f106f9b5-P082-B008",
+        "CN-d6fd7140f106f9b5-P082-B009",
+        "CN-d6fd7140f106f9b5-P082-B010",
+        "CN-d6fd7140f106f9b5-P082-B011",
+        "CN-d6fd7140f106f9b5-P082-B012",
+        "CN-d6fd7140f106f9b5-P082-B013",
+        "CN-d6fd7140f106f9b5-P096-B018"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/first-burnout-action-completion-current-cn16-2026-10-23/source-manifest.json",
+        "sha256": "ea03d3ae180cd8920684640d3951a9047b0030ee772ce8fc98cff5831cf288d9",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.InsightRepeatTests.AFirstRecyclableBurnoutWaitsForEveryPaidEchoExecutionBeforeNormalVictory",
+        "method": "Riftbound.ConformanceTests.InsightRepeatTests.AFirstRecyclableBurnoutWaitsForEveryPaidEchoExecutionBeforeNormalVictory"
+      },
+      "semanticReview": {
+        "state": "BOUNDED_FIRST_BURNOUT_ACTION_AND_PARENT_COMPLETION",
+        "wholeCardCertified": false
+      },
+      "implementation": {
+        "state": "SHARED_DRAW_AND_EXPLICIT_PARENT_COMPLETION_BOUNDARIES"
+      },
+      "testExecution": {
+        "state": "12NEW_PASS_402FOCUS_NINE_ORIGINAL_GAMES_CHECK13669_PASS_ONE_OLD_EXPECTATION_FAIL_SOURCE_REPAIRED_FOCUS153_PASS_FIXED_FULL_OPEN"
+      },
+      "fixedCommitCi": {
+        "state": "OPEN_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_MAIN_PAIR_NETWORK_SCORE_REPLAY_OS_HARDWARE_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded executed behavior; fixed full, exact consumers and required current product acceptance remain separate."
+      },
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "CN16-FIRST-BURNOUT-B98A33E97273EE93",
+      "sourceRefs": [
+        "OGN-296/298",
+        "OGN-280/298",
+        "SFD-125/221",
+        "CN-d6fd7140f106f9b5-P033-B009",
+        "CN-d6fd7140f106f9b5-P038-B014",
+        "CN-d6fd7140f106f9b5-P038-B018",
+        "CN-d6fd7140f106f9b5-P038-B019",
+        "CN-d6fd7140f106f9b5-P038-B020",
+        "CN-d6fd7140f106f9b5-P038-B021",
+        "CN-d6fd7140f106f9b5-P038-B022",
+        "CN-d6fd7140f106f9b5-P039-B003",
+        "CN-d6fd7140f106f9b5-P039-B009",
+        "CN-d6fd7140f106f9b5-P072-B010",
+        "CN-d6fd7140f106f9b5-P081-B020",
+        "CN-d6fd7140f106f9b5-P082-B004",
+        "CN-d6fd7140f106f9b5-P082-B005",
+        "CN-d6fd7140f106f9b5-P082-B006",
+        "CN-d6fd7140f106f9b5-P082-B007",
+        "CN-d6fd7140f106f9b5-P082-B008",
+        "CN-d6fd7140f106f9b5-P082-B009",
+        "CN-d6fd7140f106f9b5-P082-B010",
+        "CN-d6fd7140f106f9b5-P082-B011",
+        "CN-d6fd7140f106f9b5-P082-B012",
+        "CN-d6fd7140f106f9b5-P082-B013",
+        "CN-d6fd7140f106f9b5-P096-B018"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/first-burnout-action-completion-current-cn16-2026-10-23/source-manifest.json",
+        "sha256": "ea03d3ae180cd8920684640d3951a9047b0030ee772ce8fc98cff5831cf288d9",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.BurnoutActionCompletionTests.AFirstRecyclableBurnoutCompletesTheOriginalDrawBeforeNormalVictory(ownScore: 7, opponentScore: 7, opponentWins: True)",
+        "method": "Riftbound.ConformanceTests.BurnoutActionCompletionTests.AFirstRecyclableBurnoutCompletesTheOriginalDrawBeforeNormalVictory"
+      },
+      "semanticReview": {
+        "state": "BOUNDED_FIRST_BURNOUT_ACTION_AND_PARENT_COMPLETION",
+        "wholeCardCertified": false
+      },
+      "implementation": {
+        "state": "SHARED_DRAW_AND_EXPLICIT_PARENT_COMPLETION_BOUNDARIES"
+      },
+      "testExecution": {
+        "state": "12NEW_PASS_402FOCUS_NINE_ORIGINAL_GAMES_CHECK13669_PASS_ONE_OLD_EXPECTATION_FAIL_SOURCE_REPAIRED_FOCUS153_PASS_FIXED_FULL_OPEN"
+      },
+      "fixedCommitCi": {
+        "state": "OPEN_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_MAIN_PAIR_NETWORK_SCORE_REPLAY_OS_HARDWARE_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded executed behavior; fixed full, exact consumers and required current product acceptance remain separate."
+      },
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "CN16-FIRST-BURNOUT-8225C182F10312F2",
+      "sourceRefs": [
+        "UNL-080/219",
+        "OGN-083/298",
+        "CN-d6fd7140f106f9b5-P033-B009",
+        "CN-d6fd7140f106f9b5-P038-B014",
+        "CN-d6fd7140f106f9b5-P038-B018",
+        "CN-d6fd7140f106f9b5-P038-B019",
+        "CN-d6fd7140f106f9b5-P038-B020",
+        "CN-d6fd7140f106f9b5-P038-B021",
+        "CN-d6fd7140f106f9b5-P038-B022",
+        "CN-d6fd7140f106f9b5-P039-B003",
+        "CN-d6fd7140f106f9b5-P039-B009",
+        "CN-d6fd7140f106f9b5-P072-B010",
+        "CN-d6fd7140f106f9b5-P081-B020",
+        "CN-d6fd7140f106f9b5-P082-B004",
+        "CN-d6fd7140f106f9b5-P082-B005",
+        "CN-d6fd7140f106f9b5-P082-B006",
+        "CN-d6fd7140f106f9b5-P082-B007",
+        "CN-d6fd7140f106f9b5-P082-B008",
+        "CN-d6fd7140f106f9b5-P082-B009",
+        "CN-d6fd7140f106f9b5-P082-B010",
+        "CN-d6fd7140f106f9b5-P082-B011",
+        "CN-d6fd7140f106f9b5-P082-B012",
+        "CN-d6fd7140f106f9b5-P082-B013",
+        "CN-d6fd7140f106f9b5-P096-B018"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/first-burnout-action-completion-current-cn16-2026-10-23/source-manifest.json",
+        "sha256": "ea03d3ae180cd8920684640d3951a9047b0030ee772ce8fc98cff5831cf288d9",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.BurnoutActionCompletionTests.AFirstBurnoutAtEightWaitsForTheParentsRequiredDiscard(recyclableCards: 1)",
+        "method": "Riftbound.ConformanceTests.BurnoutActionCompletionTests.AFirstBurnoutAtEightWaitsForTheParentsRequiredDiscard"
+      },
+      "semanticReview": {
+        "state": "BOUNDED_FIRST_BURNOUT_ACTION_AND_PARENT_COMPLETION",
+        "wholeCardCertified": false
+      },
+      "implementation": {
+        "state": "SHARED_DRAW_AND_EXPLICIT_PARENT_COMPLETION_BOUNDARIES"
+      },
+      "testExecution": {
+        "state": "12NEW_PASS_402FOCUS_NINE_ORIGINAL_GAMES_CHECK13669_PASS_ONE_OLD_EXPECTATION_FAIL_SOURCE_REPAIRED_FOCUS153_PASS_FIXED_FULL_OPEN"
+      },
+      "fixedCommitCi": {
+        "state": "OPEN_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_MAIN_PAIR_NETWORK_SCORE_REPLAY_OS_HARDWARE_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded executed behavior; fixed full, exact consumers and required current product acceptance remain separate."
+      },
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "CN16-FIRST-BURNOUT-682AE06D2A3FAD4C",
+      "sourceRefs": [
+        "OGN-296/298",
+        "OGN-280/298",
+        "SFD-125/221",
+        "CN-d6fd7140f106f9b5-P033-B009",
+        "CN-d6fd7140f106f9b5-P038-B014",
+        "CN-d6fd7140f106f9b5-P038-B018",
+        "CN-d6fd7140f106f9b5-P038-B019",
+        "CN-d6fd7140f106f9b5-P038-B020",
+        "CN-d6fd7140f106f9b5-P038-B021",
+        "CN-d6fd7140f106f9b5-P038-B022",
+        "CN-d6fd7140f106f9b5-P039-B003",
+        "CN-d6fd7140f106f9b5-P039-B009",
+        "CN-d6fd7140f106f9b5-P072-B010",
+        "CN-d6fd7140f106f9b5-P081-B020",
+        "CN-d6fd7140f106f9b5-P082-B004",
+        "CN-d6fd7140f106f9b5-P082-B005",
+        "CN-d6fd7140f106f9b5-P082-B006",
+        "CN-d6fd7140f106f9b5-P082-B007",
+        "CN-d6fd7140f106f9b5-P082-B008",
+        "CN-d6fd7140f106f9b5-P082-B009",
+        "CN-d6fd7140f106f9b5-P082-B010",
+        "CN-d6fd7140f106f9b5-P082-B011",
+        "CN-d6fd7140f106f9b5-P082-B012",
+        "CN-d6fd7140f106f9b5-P082-B013",
+        "CN-d6fd7140f106f9b5-P096-B018"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/first-burnout-action-completion-current-cn16-2026-10-23/source-manifest.json",
+        "sha256": "ea03d3ae180cd8920684640d3951a9047b0030ee772ce8fc98cff5831cf288d9",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.BurnoutActionCompletionTests.AFirstRecyclableBurnoutCompletesTheOriginalDrawBeforeNormalVictory(ownScore: 8, opponentScore: 8, opponentWins: True)",
+        "method": "Riftbound.ConformanceTests.BurnoutActionCompletionTests.AFirstRecyclableBurnoutCompletesTheOriginalDrawBeforeNormalVictory"
+      },
+      "semanticReview": {
+        "state": "BOUNDED_FIRST_BURNOUT_ACTION_AND_PARENT_COMPLETION",
+        "wholeCardCertified": false
+      },
+      "implementation": {
+        "state": "SHARED_DRAW_AND_EXPLICIT_PARENT_COMPLETION_BOUNDARIES"
+      },
+      "testExecution": {
+        "state": "12NEW_PASS_402FOCUS_NINE_ORIGINAL_GAMES_CHECK13669_PASS_ONE_OLD_EXPECTATION_FAIL_SOURCE_REPAIRED_FOCUS153_PASS_FIXED_FULL_OPEN"
+      },
+      "fixedCommitCi": {
+        "state": "OPEN_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_MAIN_PAIR_NETWORK_SCORE_REPLAY_OS_HARDWARE_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded executed behavior; fixed full, exact consumers and required current product acceptance remain separate."
+      },
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "CN16-FIRST-BURNOUT-8F0AE16E36151CEB",
+      "sourceRefs": [
+        "OGN-296/298",
+        "OGN-280/298",
+        "SFD-125/221",
+        "CN-d6fd7140f106f9b5-P033-B009",
+        "CN-d6fd7140f106f9b5-P038-B014",
+        "CN-d6fd7140f106f9b5-P038-B018",
+        "CN-d6fd7140f106f9b5-P038-B019",
+        "CN-d6fd7140f106f9b5-P038-B020",
+        "CN-d6fd7140f106f9b5-P038-B021",
+        "CN-d6fd7140f106f9b5-P038-B022",
+        "CN-d6fd7140f106f9b5-P039-B003",
+        "CN-d6fd7140f106f9b5-P039-B009",
+        "CN-d6fd7140f106f9b5-P072-B010",
+        "CN-d6fd7140f106f9b5-P081-B020",
+        "CN-d6fd7140f106f9b5-P082-B004",
+        "CN-d6fd7140f106f9b5-P082-B005",
+        "CN-d6fd7140f106f9b5-P082-B006",
+        "CN-d6fd7140f106f9b5-P082-B007",
+        "CN-d6fd7140f106f9b5-P082-B008",
+        "CN-d6fd7140f106f9b5-P082-B009",
+        "CN-d6fd7140f106f9b5-P082-B010",
+        "CN-d6fd7140f106f9b5-P082-B011",
+        "CN-d6fd7140f106f9b5-P082-B012",
+        "CN-d6fd7140f106f9b5-P082-B013",
+        "CN-d6fd7140f106f9b5-P096-B018"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/first-burnout-action-completion-current-cn16-2026-10-23/source-manifest.json",
+        "sha256": "ea03d3ae180cd8920684640d3951a9047b0030ee772ce8fc98cff5831cf288d9",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.BurnoutActionCompletionTests.AFirstRecyclableBurnoutCompletesTheOriginalDrawBeforeNormalVictory(ownScore: 7, opponentScore: 0, opponentWins: False)",
+        "method": "Riftbound.ConformanceTests.BurnoutActionCompletionTests.AFirstRecyclableBurnoutCompletesTheOriginalDrawBeforeNormalVictory"
+      },
+      "semanticReview": {
+        "state": "BOUNDED_FIRST_BURNOUT_ACTION_AND_PARENT_COMPLETION",
+        "wholeCardCertified": false
+      },
+      "implementation": {
+        "state": "SHARED_DRAW_AND_EXPLICIT_PARENT_COMPLETION_BOUNDARIES"
+      },
+      "testExecution": {
+        "state": "12NEW_PASS_402FOCUS_NINE_ORIGINAL_GAMES_CHECK13669_PASS_ONE_OLD_EXPECTATION_FAIL_SOURCE_REPAIRED_FOCUS153_PASS_FIXED_FULL_OPEN"
+      },
+      "fixedCommitCi": {
+        "state": "OPEN_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_MAIN_PAIR_NETWORK_SCORE_REPLAY_OS_HARDWARE_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded executed behavior; fixed full, exact consumers and required current product acceptance remain separate."
+      },
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "CN16-FIRST-BURNOUT-3636062E12F7CBCB",
+      "sourceRefs": [
+        "OGN-083/298",
+        "CN-d6fd7140f106f9b5-P033-B009",
+        "CN-d6fd7140f106f9b5-P038-B014",
+        "CN-d6fd7140f106f9b5-P038-B018",
+        "CN-d6fd7140f106f9b5-P038-B019",
+        "CN-d6fd7140f106f9b5-P038-B020",
+        "CN-d6fd7140f106f9b5-P038-B021",
+        "CN-d6fd7140f106f9b5-P038-B022",
+        "CN-d6fd7140f106f9b5-P039-B003",
+        "CN-d6fd7140f106f9b5-P039-B009",
+        "CN-d6fd7140f106f9b5-P072-B010",
+        "CN-d6fd7140f106f9b5-P081-B020",
+        "CN-d6fd7140f106f9b5-P082-B004",
+        "CN-d6fd7140f106f9b5-P082-B005",
+        "CN-d6fd7140f106f9b5-P082-B006",
+        "CN-d6fd7140f106f9b5-P082-B007",
+        "CN-d6fd7140f106f9b5-P082-B008",
+        "CN-d6fd7140f106f9b5-P082-B009",
+        "CN-d6fd7140f106f9b5-P082-B010",
+        "CN-d6fd7140f106f9b5-P082-B011",
+        "CN-d6fd7140f106f9b5-P082-B012",
+        "CN-d6fd7140f106f9b5-P082-B013",
+        "CN-d6fd7140f106f9b5-P096-B018"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/first-burnout-action-completion-current-cn16-2026-10-23/source-manifest.json",
+        "sha256": "ea03d3ae180cd8920684640d3951a9047b0030ee772ce8fc98cff5831cf288d9",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.BurnoutActionCompletionTests.OnePrintedDrawTwoCompletesUntilItsOwnSubsequentBurnoutWinsImmediately(recyclableCards: 1, opponentScore: 9, cardsDrawn: 1, burnoutCount: 2)",
+        "method": "Riftbound.ConformanceTests.BurnoutActionCompletionTests.OnePrintedDrawTwoCompletesUntilItsOwnSubsequentBurnoutWinsImmediately"
+      },
+      "semanticReview": {
+        "state": "BOUNDED_FIRST_BURNOUT_ACTION_AND_PARENT_COMPLETION",
+        "wholeCardCertified": false
+      },
+      "implementation": {
+        "state": "SHARED_DRAW_AND_EXPLICIT_PARENT_COMPLETION_BOUNDARIES"
+      },
+      "testExecution": {
+        "state": "12NEW_PASS_402FOCUS_NINE_ORIGINAL_GAMES_CHECK13669_PASS_ONE_OLD_EXPECTATION_FAIL_SOURCE_REPAIRED_FOCUS153_PASS_FIXED_FULL_OPEN"
+      },
+      "fixedCommitCi": {
+        "state": "OPEN_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_MAIN_PAIR_NETWORK_SCORE_REPLAY_OS_HARDWARE_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded executed behavior; fixed full, exact consumers and required current product acceptance remain separate."
+      },
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "CN16-FIRST-BURNOUT-EC17D07340A5E25C",
+      "sourceRefs": [
+        "OGN-083/298",
+        "CN-d6fd7140f106f9b5-P033-B009",
+        "CN-d6fd7140f106f9b5-P038-B014",
+        "CN-d6fd7140f106f9b5-P038-B018",
+        "CN-d6fd7140f106f9b5-P038-B019",
+        "CN-d6fd7140f106f9b5-P038-B020",
+        "CN-d6fd7140f106f9b5-P038-B021",
+        "CN-d6fd7140f106f9b5-P038-B022",
+        "CN-d6fd7140f106f9b5-P039-B003",
+        "CN-d6fd7140f106f9b5-P039-B009",
+        "CN-d6fd7140f106f9b5-P072-B010",
+        "CN-d6fd7140f106f9b5-P081-B020",
+        "CN-d6fd7140f106f9b5-P082-B004",
+        "CN-d6fd7140f106f9b5-P082-B005",
+        "CN-d6fd7140f106f9b5-P082-B006",
+        "CN-d6fd7140f106f9b5-P082-B007",
+        "CN-d6fd7140f106f9b5-P082-B008",
+        "CN-d6fd7140f106f9b5-P082-B009",
+        "CN-d6fd7140f106f9b5-P082-B010",
+        "CN-d6fd7140f106f9b5-P082-B011",
+        "CN-d6fd7140f106f9b5-P082-B012",
+        "CN-d6fd7140f106f9b5-P082-B013",
+        "CN-d6fd7140f106f9b5-P096-B018"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/first-burnout-action-completion-current-cn16-2026-10-23/source-manifest.json",
+        "sha256": "ea03d3ae180cd8920684640d3951a9047b0030ee772ce8fc98cff5831cf288d9",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.BurnoutActionCompletionTests.NormalVictoryAfterTheCompletedTopParentPrecedesAnyLowerChainResponse",
+        "method": "Riftbound.ConformanceTests.BurnoutActionCompletionTests.NormalVictoryAfterTheCompletedTopParentPrecedesAnyLowerChainResponse"
+      },
+      "semanticReview": {
+        "state": "BOUNDED_FIRST_BURNOUT_ACTION_AND_PARENT_COMPLETION",
+        "wholeCardCertified": false
+      },
+      "implementation": {
+        "state": "SHARED_DRAW_AND_EXPLICIT_PARENT_COMPLETION_BOUNDARIES"
+      },
+      "testExecution": {
+        "state": "12NEW_PASS_402FOCUS_NINE_ORIGINAL_GAMES_CHECK13669_PASS_ONE_OLD_EXPECTATION_FAIL_SOURCE_REPAIRED_FOCUS153_PASS_FIXED_FULL_OPEN"
+      },
+      "fixedCommitCi": {
+        "state": "OPEN_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_MAIN_PAIR_NETWORK_SCORE_REPLAY_OS_HARDWARE_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded executed behavior; fixed full, exact consumers and required current product acceptance remain separate."
+      },
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "CN16-FIRST-BURNOUT-1F0DE5B96F37B19B",
+      "sourceRefs": [
+        "OGN-083/298",
+        "CN-d6fd7140f106f9b5-P033-B009",
+        "CN-d6fd7140f106f9b5-P038-B014",
+        "CN-d6fd7140f106f9b5-P038-B018",
+        "CN-d6fd7140f106f9b5-P038-B019",
+        "CN-d6fd7140f106f9b5-P038-B020",
+        "CN-d6fd7140f106f9b5-P038-B021",
+        "CN-d6fd7140f106f9b5-P038-B022",
+        "CN-d6fd7140f106f9b5-P039-B003",
+        "CN-d6fd7140f106f9b5-P039-B009",
+        "CN-d6fd7140f106f9b5-P072-B010",
+        "CN-d6fd7140f106f9b5-P081-B020",
+        "CN-d6fd7140f106f9b5-P082-B004",
+        "CN-d6fd7140f106f9b5-P082-B005",
+        "CN-d6fd7140f106f9b5-P082-B006",
+        "CN-d6fd7140f106f9b5-P082-B007",
+        "CN-d6fd7140f106f9b5-P082-B008",
+        "CN-d6fd7140f106f9b5-P082-B009",
+        "CN-d6fd7140f106f9b5-P082-B010",
+        "CN-d6fd7140f106f9b5-P082-B011",
+        "CN-d6fd7140f106f9b5-P082-B012",
+        "CN-d6fd7140f106f9b5-P082-B013",
+        "CN-d6fd7140f106f9b5-P096-B018"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/first-burnout-action-completion-current-cn16-2026-10-23/source-manifest.json",
+        "sha256": "ea03d3ae180cd8920684640d3951a9047b0030ee772ce8fc98cff5831cf288d9",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.BurnoutActionCompletionTests.OnePrintedDrawTwoCompletesUntilItsOwnSubsequentBurnoutWinsImmediately(recyclableCards: 3, opponentScore: 8, cardsDrawn: 2, burnoutCount: 1)",
+        "method": "Riftbound.ConformanceTests.BurnoutActionCompletionTests.OnePrintedDrawTwoCompletesUntilItsOwnSubsequentBurnoutWinsImmediately"
+      },
+      "semanticReview": {
+        "state": "BOUNDED_FIRST_BURNOUT_ACTION_AND_PARENT_COMPLETION",
+        "wholeCardCertified": false
+      },
+      "implementation": {
+        "state": "SHARED_DRAW_AND_EXPLICIT_PARENT_COMPLETION_BOUNDARIES"
+      },
+      "testExecution": {
+        "state": "12NEW_PASS_402FOCUS_NINE_ORIGINAL_GAMES_CHECK13669_PASS_ONE_OLD_EXPECTATION_FAIL_SOURCE_REPAIRED_FOCUS153_PASS_FIXED_FULL_OPEN"
+      },
+      "fixedCommitCi": {
+        "state": "OPEN_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_MAIN_PAIR_NETWORK_SCORE_REPLAY_OS_HARDWARE_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded executed behavior; fixed full, exact consumers and required current product acceptance remain separate."
+      },
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "CN16-FIRST-BURNOUT-EF918F22CC37380C",
+      "sourceRefs": [
+        "OGN-296/298",
+        "OGN-280/298",
+        "SFD-125/221",
+        "CN-d6fd7140f106f9b5-P033-B009",
+        "CN-d6fd7140f106f9b5-P038-B014",
+        "CN-d6fd7140f106f9b5-P038-B018",
+        "CN-d6fd7140f106f9b5-P038-B019",
+        "CN-d6fd7140f106f9b5-P038-B020",
+        "CN-d6fd7140f106f9b5-P038-B021",
+        "CN-d6fd7140f106f9b5-P038-B022",
+        "CN-d6fd7140f106f9b5-P039-B003",
+        "CN-d6fd7140f106f9b5-P039-B009",
+        "CN-d6fd7140f106f9b5-P072-B010",
+        "CN-d6fd7140f106f9b5-P081-B020",
+        "CN-d6fd7140f106f9b5-P082-B004",
+        "CN-d6fd7140f106f9b5-P082-B005",
+        "CN-d6fd7140f106f9b5-P082-B006",
+        "CN-d6fd7140f106f9b5-P082-B007",
+        "CN-d6fd7140f106f9b5-P082-B008",
+        "CN-d6fd7140f106f9b5-P082-B009",
+        "CN-d6fd7140f106f9b5-P082-B010",
+        "CN-d6fd7140f106f9b5-P082-B011",
+        "CN-d6fd7140f106f9b5-P082-B012",
+        "CN-d6fd7140f106f9b5-P082-B013",
+        "CN-d6fd7140f106f9b5-P096-B018"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/first-burnout-action-completion-current-cn16-2026-10-23/source-manifest.json",
+        "sha256": "ea03d3ae180cd8920684640d3951a9047b0030ee772ce8fc98cff5831cf288d9",
+        "role": "source-manifest"
+      },
+      "state": "RECORDED",
+      "boundedCase": {
+        "actualExecutedCase": "Riftbound.ConformanceTests.BurnoutActionCompletionTests.AConquestBelowTheFinalPointDoesNotAttemptTheReplacementDrawOrBurnout",
+        "method": "Riftbound.ConformanceTests.BurnoutActionCompletionTests.AConquestBelowTheFinalPointDoesNotAttemptTheReplacementDrawOrBurnout"
+      },
+      "semanticReview": {
+        "state": "BOUNDED_FIRST_BURNOUT_ACTION_AND_PARENT_COMPLETION",
+        "wholeCardCertified": false
+      },
+      "implementation": {
+        "state": "SHARED_DRAW_AND_EXPLICIT_PARENT_COMPLETION_BOUNDARIES"
+      },
+      "testExecution": {
+        "state": "12NEW_PASS_402FOCUS_NINE_ORIGINAL_GAMES_CHECK13669_PASS_ONE_OLD_EXPECTATION_FAIL_SOURCE_REPAIRED_FOCUS153_PASS_FIXED_FULL_OPEN"
+      },
+      "fixedCommitCi": {
+        "state": "OPEN_NEW_FIXED_FULL"
+      },
+      "productAcceptance": {
+        "state": "OPEN_NEW_FIXED_MAIN_PAIR_NETWORK_SCORE_REPLAY_OS_HARDWARE_WINDOWS"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Bounded executed behavior; fixed full, exact consumers and required current product acceptance remain separate."
+      },
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "CN16-FIRST-BURNOUT-SHARED_DRAW_35_CONSUMER_BRANCH_MAPPING",
+      "sourceRefs": [
+        "CN-d6fd7140f106f9b5-P033-B009",
+        "CN-d6fd7140f106f9b5-P038-B014",
+        "CN-d6fd7140f106f9b5-P038-B018",
+        "CN-d6fd7140f106f9b5-P038-B019",
+        "CN-d6fd7140f106f9b5-P038-B020",
+        "CN-d6fd7140f106f9b5-P038-B021",
+        "CN-d6fd7140f106f9b5-P038-B022",
+        "CN-d6fd7140f106f9b5-P039-B003",
+        "CN-d6fd7140f106f9b5-P039-B009",
+        "CN-d6fd7140f106f9b5-P072-B010",
+        "CN-d6fd7140f106f9b5-P081-B020",
+        "CN-d6fd7140f106f9b5-P082-B004",
+        "CN-d6fd7140f106f9b5-P082-B005",
+        "CN-d6fd7140f106f9b5-P082-B006",
+        "CN-d6fd7140f106f9b5-P082-B007",
+        "CN-d6fd7140f106f9b5-P082-B008",
+        "CN-d6fd7140f106f9b5-P082-B009",
+        "CN-d6fd7140f106f9b5-P082-B010",
+        "CN-d6fd7140f106f9b5-P082-B011",
+        "CN-d6fd7140f106f9b5-P082-B012",
+        "CN-d6fd7140f106f9b5-P082-B013",
+        "CN-d6fd7140f106f9b5-P096-B018"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/first-burnout-action-completion-current-cn16-2026-10-23/source-manifest.json",
+        "sha256": "ea03d3ae180cd8920684640d3951a9047b0030ee772ce8fc98cff5831cf288d9",
+        "role": "source-manifest"
+      },
+      "semanticReview": {
+        "state": "OPEN_REQUIRES_EXACT_BRANCH_PROOF",
+        "wholeCardCertified": false
+      },
+      "implementation": {
+        "state": "NO_UNPROVEN_GLOBAL_REWRITE"
+      },
+      "testExecution": {
+        "state": "OPEN_NO_COUNTEREXAMPLE_OR_COMPLETE_CONSUMER_PROOF"
+      },
+      "fixedCommitCi": {
+        "state": "SEPARATE"
+      },
+      "productAcceptance": {
+        "state": "OPEN"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "35 static call sites require exact current printing/branch mapping and corresponding semantic execution proof; adjacent green tests do not certify every caller."
+      },
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "CN16-FIRST-BURNOUT-INNER_CLEANUP_NORMAL_VICTORY_SOURCE_FAILURE99",
+      "sourceRefs": [
+        "CN-d6fd7140f106f9b5-P033-B009",
+        "CN-d6fd7140f106f9b5-P038-B014",
+        "CN-d6fd7140f106f9b5-P038-B018",
+        "CN-d6fd7140f106f9b5-P038-B019",
+        "CN-d6fd7140f106f9b5-P038-B020",
+        "CN-d6fd7140f106f9b5-P038-B021",
+        "CN-d6fd7140f106f9b5-P038-B022",
+        "CN-d6fd7140f106f9b5-P039-B003",
+        "CN-d6fd7140f106f9b5-P039-B009",
+        "CN-d6fd7140f106f9b5-P072-B010",
+        "CN-d6fd7140f106f9b5-P081-B020",
+        "CN-d6fd7140f106f9b5-P082-B004",
+        "CN-d6fd7140f106f9b5-P082-B005",
+        "CN-d6fd7140f106f9b5-P082-B006",
+        "CN-d6fd7140f106f9b5-P082-B007",
+        "CN-d6fd7140f106f9b5-P082-B008",
+        "CN-d6fd7140f106f9b5-P082-B009",
+        "CN-d6fd7140f106f9b5-P082-B010",
+        "CN-d6fd7140f106f9b5-P082-B011",
+        "CN-d6fd7140f106f9b5-P082-B012",
+        "CN-d6fd7140f106f9b5-P082-B013",
+        "CN-d6fd7140f106f9b5-P096-B018",
+        "OGN-109/298",
+        "OGS-022/024",
+        "OGN-047/298"
+      ],
+      "sourceManifest": {
+        "path": "docs/evidence/first-burnout-action-completion-current-cn16-2026-10-23/source-manifest.json",
+        "sha256": "ea03d3ae180cd8920684640d3951a9047b0030ee772ce8fc98cff5831cf288d9",
+        "role": "source-manifest"
+      },
+      "semanticReview": {
+        "state": "REPRODUCED_CURRENT_SOURCE_FAILURE99",
+        "wholeCardCertified": false
+      },
+      "implementation": {
+        "state": "OPEN_INNER_CLEANUP_BEFORE_NORMAL_WIN"
+      },
+      "testExecution": {
+        "state": "INDEPENDENT4_CASES3_CONTROLS1_SOURCE_RED_ALL18_ORIGINAL_COMMAND_EVENT_REPLAY_MATCH"
+      },
+      "fixedCommitCi": {
+        "state": "SEPARATE"
+      },
+      "productAcceptance": {
+        "state": "OPEN"
+      },
+      "decision": {
+        "state": "OPEN",
+        "reason": "Issue99 independently reproduces normal score-victory cleanup order failure using originally undamaged Mundo and six accepted damage/draw commands:3 controls pass,1 source-red; all original journals replay. Immediate remainder and whole inner cleanup semantics remain unreviewed. Must repair before family certification."
+      },
+      "wholePrintingCertified": false,
+      "sourceFailureEvidence": {
+        "path": "docs/evidence/first-burnout-action-completion-current-cn16-2026-10-23/known-inner-cleanup-source-failure99-oracle.json",
+        "sha256": "0d603956d4ffcd41fc7733e2408a7dc1b019cf9f628077a5b36f95c6dc6e8eb3"
+      }
+    }
+  ]
+}

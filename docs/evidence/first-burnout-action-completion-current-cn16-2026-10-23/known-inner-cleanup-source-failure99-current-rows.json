@@ -1,0 +1,38 @@
+{
+  "atUtc": "2026-10-23T05:02:18.277684+00:00",
+  "region": "CN",
+  "language": "zh-CN",
+  "applicableAsOf": "2026-10-23",
+  "adoptedCoreEffectiveDate": "2026-10-16",
+  "sourceRows": [
+    {
+      "apiId": 31327,
+      "exactPrinting": "OGN·109/298",
+      "cardName": "蒙多医生",
+      "cardEffect": "提升我的战力，数值等同于你废牌堆的卡牌数量。\n在你的回合开始阶段，从废牌堆中回收三张牌。",
+      "cardQaList": null,
+      "completeOriginalRowCanonicalSha256": "a313183715ca9edbf4500d583b33b35270dd77ca88f8edc9e2485a7b3e979c00",
+      "completeFullRowKeysTypesNullsArraysSameAsRetained1504": true
+    },
+    {
+      "apiId": 31601,
+      "exactPrinting": "OGS·022/024",
+      "cardName": "终极闪光",
+      "cardEffect": "{{迅捷}}（可在你的回合或法术对决中打出。）\n对一名单位造成8点伤害。",
+      "cardQaList": null,
+      "completeOriginalRowCanonicalSha256": "7cc12a81afeedf88e1206980ff1eb047a062cd4b2e6b6a45e410d7cff0626cd2",
+      "completeFullRowKeysTypesNullsArraysSameAsRetained1504": true
+    }
+  ],
+  "coreSha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11",
+  "exactCoreClauses": [
+    "303.1",
+    "321",
+    "323.1",
+    "323.4",
+    "359.3.d",
+    "432.2.d",
+    "474"
+  ],
+  "sourceObservationOnlyNoCounterexampleClaimYet": true
+}

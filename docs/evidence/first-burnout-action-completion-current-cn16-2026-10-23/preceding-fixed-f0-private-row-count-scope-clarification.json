@@ -1,0 +1,28 @@
+{
+  "atUtc": "2026-10-23T04:24:38.653310+00:00",
+  "classification": "COUNT_AGGREGATION_SCOPE_CLARIFICATION_ORIGINAL_HISTORY_UNCHANGED",
+  "originalIncorrectCommentary": "双方各147份私有记录",
+  "correction": "147 total rows in snapshots and147 total rows in action_prompts, each summed across both historical viewers; these are not147 per actor.",
+  "ordinaryActualPerViewerRows": {
+    "snapshots": {
+      "totalAcrossBothViewers": 147,
+      "roleA": 74,
+      "roleB": 73
+    },
+    "action_prompts": {
+      "totalAcrossBothViewers": 147,
+      "roleA": 74,
+      "roleB": 73
+    }
+  },
+  "acceptedCommands": 76,
+  "finalActualTick": 75,
+  "commandIndexIsNotAssumedEqualToTick": true,
+  "readyAndMulliganTickSpansRetained": true,
+  "controlledSixScope": "80 total rows in snapshots and80 total rows in action_prompts across all six rooms and both viewers.",
+  "allNineScope": "231 total snapshot rows and231 total prompt rows across nine rooms and all actual viewers; never231 per actor.",
+  "structuredOriginalResultsRemainByteUnchanged": true,
+  "noGameplayOrReaderRerun": true,
+  "originalRowsSha256": "6ac9e943fa67295875f1b2390b774841d660912fc7cd466eb48940790857de79",
+  "boundedAggregateSha256": "bde3fc5ef336841d60edbe954c1c3a004db93ad7228935fba080320eadb33397"
+}

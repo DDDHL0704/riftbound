@@ -1,0 +1,84 @@
+{
+  "atUtc": "2026-10-23T04:18:28.573717+00:00",
+  "status": "BOUNDED_FIXED_F0_NINE_FRESH_ORIGINAL_ROOMS_SQL_NATIVE_CONTROLS_GPU_RECOVERY_NETWORK_NORMAL_SCORE_AND_INDEPENDENT_REPLAY_PASS_PRODUCTS_REMAIN_SEPARATE",
+  "fixedCommit": "f0f4efc54f53af3e0b9043473af365392a243a82",
+  "fixedCiRun": 39888194599,
+  "actualReleaseRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "0aa8f812dc6f561f9fb1996381bae9821bd54d069f3ad26be7fe669baae9ae6c",
+    "implementationSha256": "c301e037e535c7cd6634b0d79b30081ef893ce180c4d29e4e3024a393ce2df04",
+    "identitySha256": "f6a8c5a5d869de225aff84106ad7d0bb0f2cbf13c2efd6585bd9bbf381ee29b8"
+  },
+  "newRealRooms": 9,
+  "controlledRooms": 6,
+  "ordinaryOpeningRooms": 1,
+  "networkOnlyServerSeatRooms": 2,
+  "commands": 122,
+  "events": 614,
+  "authorityHistories": 122,
+  "privateSnapshots": 231,
+  "privatePrompts": 231,
+  "sixControlledCompleteOriginalPrefixesActuallyReplayed": 43,
+  "ordinary76WholeOriginalJournalAndEveryAuthorityReplayed": true,
+  "networkOriginalPrefixesActuallyReplayed": 3,
+  "cleanActualSdkProductionControlSubmissions": 27,
+  "oneEarlierResourceIncompleteMoveExcludedFromCleanNativeCount": true,
+  "sdkGpuPairedColdStages": 18,
+  "sdkOriginalViewportImages": 72,
+  "distinctActualViewportImagesVisuallyRead": 7,
+  "ordinaryFinalTurn": 44,
+  "ordinaryWinningScore": 8,
+  "ordinaryLosingScore": 0,
+  "noSurrenderInAllNineOriginalRooms": true,
+  "networkRejectedActions": 15,
+  "networkLeakedPrivateMessages": 0,
+  "peerSeatPrivateViewsTick1To2WithoutExplicitSnapshotRequestsOrRetries": true,
+  "evidence": [
+    {
+      "path": "var/qa/fixedf0f4efc5-early-native-20261023/independent-six-native-readonly-v1/independent-six-originals-readonly-owner-terminal-v1.json",
+      "sha256": "2ec0858fa67b405298820153fa724633a3b2be77267ff4a7e58c7b59bb7ac291"
+    },
+    {
+      "path": "var/qa/fixedf0f4efc5-early-native-20261023/independent-six-native-readonly-v1/owner-console-only-four-versus-six-label-disposition-v1.json",
+      "sha256": "b01e9f2850af63f6a52234214860a2a44cb908a70c39fceeb40e863b8641efc3"
+    },
+    {
+      "path": "var/qa/fixedf0f4efc5-early-native-20261023/ordinary-ci-pair-v2/current-ordinary-score-network-owner-terminal-v1.json",
+      "sha256": "cc7f5734d8bac8f8daab976a15c7b46cdf90226c5237348a13e6b0303a9ff21d"
+    },
+    {
+      "path": "var/qa/fixedf0f4efc5-early-native-20261023/ordinary-ci-pair-v2/independent-current-ordinary-and-network-owner-terminal-v2.json",
+      "sha256": "4a942d5eced0585b3eb8853f8cb46f7c800503a420b9974763e8cf70dd14955e"
+    },
+    {
+      "path": "var/qa/fixedf0f4efc5-early-native-20261023/ordinary-readonly-owner-stale-count-failure-and-retained-pass-resume-v2.json",
+      "sha256": "c6230881437a32316e9f92ccb45939bf5575bcda2bd27a8b548792a72f208dc4"
+    },
+    {
+      "path": "var/qa/fixedf0f4efc5-early-native-20261023/five-additional-original-sdk-viewport-images-actually-read-v2.json",
+      "sha256": "ba6b6d4ee5ea01d4e74a39abbd8ee4cf5494a3cd97fef05736c9fa75bf1186ef"
+    },
+    {
+      "path": "var/qa/fixedf0f4efc5-early-native-20261023/current-native-headless-boot-and-sigterm-verification-v1.json",
+      "sha256": "70afd3fb72308cb8131a889c0b21a92af951a071b315713e42fb42e431e0d5f3"
+    },
+    {
+      "path": "var/qa/fixedf0f4efc5-early-native-20261023/preceding-f248-app-and-installer-retirement-v1.json",
+      "sha256": "5eb024cfb2f70387b522f311707d62dad08cdff4ab525bee51faa70f32ca24bb"
+    }
+  ],
+  "allOriginalFailuresAndAcceptedPrefixesRetained": true,
+  "sdkProductionControlsAndOwnGpuViewsNotCiExportedEntryOrOsHardware": true,
+  "ciExported373PayloadBootAndTerminationSeparate": true,
+  "ciExportedPostMoveOwnGpuFailureRemainsOpen": true,
+  "currentLockAttribution": "Per-run actual observations retained; these f0 runs do not establish a new locked-screen acceptance merely from the user request.",
+  "physicalWindows": "OPEN",
+  "osHardwareKeyboardMouse": "OPEN",
+  "fullCi": "PENDING_SEPARATE_INDEPENDENT_TERMINAL",
+  "doesNotCertifyNew940eN50Inputs": true,
+  "wholePrintingCertified": false,
+  "goalComplete": false
+}

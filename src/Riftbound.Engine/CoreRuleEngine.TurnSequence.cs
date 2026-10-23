@@ -86,7 +86,7 @@ public sealed partial class CoreRuleEngine
                     state = state with { PlayerZones = zones, ObjectLocations = locations, TurnStartStep = "DRAW" };
                     break;
                 case "DRAW":
-                    var draw = DrawOne(state, player, zones[player]);
+                    var draw = DrawCards(state, player, zones[player], 1);
                     zones[player] = zones[player] with { MainDeck = draw.MainDeck, Graveyard = draw.Graveyard,
                         Hand = zones[player].Hand.Concat(draw.DrawnCards).ToArray() };
                     events.AddRange(BuildTurnStartEvents(state, 0, draw, []).Where(e => e.Kind is not

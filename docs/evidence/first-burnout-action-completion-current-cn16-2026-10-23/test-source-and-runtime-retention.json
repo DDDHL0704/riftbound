@@ -1,0 +1,57 @@
+{
+  "atUtc": "2026-10-23T05:41:09.997821+00:00",
+  "baseCommit": "5c27863d806afd9e78726a1ded30c5a55b52bdc5",
+  "newCases": 12,
+  "newMethods": 7,
+  "focusCases": 402,
+  "focusMethods": 209,
+  "actualNineOriginalFullMethods": [
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.DistinctOfficialLowCurveDecksReachScoreVictoryAfterRealBattleThroughServerPrompts",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgamePaysVayneConquestReturnAndScoreVictoryActionLogReplaysToFinalStateHash",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameRejectsDefensiveReckonerArenaHeldActivateConquestAndReplaysScoreVictoryActionLogReplaysToFinalStateHash",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameResolvesCandlelitSanctumConquerRevealRecycleAndScoreVictoryActionLogReplaysToFinalStateHash",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameResolvesCrimsonSignetTreantConquestRepeatAndScoreVictoryActionLogReplaysToFinalStateHash",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameResolvesPiltoverAcademyHeldNextSpellEchoAndScoreVictoryActionLogReplaysToFinalStateHash",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDecksResolveWinningScoreIncreaseAndScoreVictoryActionLogReplaysToFinalStateHash",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialLowCurveDecksReachScoreVictoryAfterRealBattleThroughServerPrompts",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.StandbyHeavyOfficialLowCurveDecksReachScoreVictoryAfterRealBattleThroughServerPrompts"
+  ],
+  "soleCheckCases": 13670,
+  "soleCheckMethods": 7622,
+  "allOriginal13658Cases7615MethodsRetained": true,
+  "originalConformanceFiles": 1822,
+  "all1822FilesPresent1819ByteExactAndThreeDocumentedSourceCalibrations": true,
+  "changedOriginalFiles": [
+    "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+    "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-turn-start-burnout-empty-graveyard-wins.fixture.json",
+    "tests/Riftbound.ConformanceTests/InsightRepeatTests.cs"
+  ],
+  "originalCheckPassed": 13669,
+  "originalCheckFailed": 1,
+  "originalCheckSkipped": 0,
+  "sourceRepairFocusedCases": 153,
+  "sourceRepairFocusedMethods": 72,
+  "originalCheckStatusRemainsFailed": true,
+  "noSecondCheck": true,
+  "all143OriginalCompleteMethods151Cases110Pairs11DecksSeed424242AndVictoryReplayAssertionsRetained": true,
+  "sourceInputCount": 3383,
+  "all3381OtherSourceHashesAndAllModesStableAfterTwoTestOnlyCalibrations": true,
+  "allOriginal63SqlCaseObjectsAndOrderRetainedPlusOne": true,
+  "actualDebugRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "0aa8f812dc6f561f9fb1996381bae9821bd54d069f3ad26be7fe669baae9ae6c",
+    "implementationSha256": "6b7f2a3d2bec813ff86a9fca1f33731c10d27acfa4604c3b287776e7dd5be4c2",
+    "identitySha256": "9e42abbc51b0ee1f9feb1f2f705ec713856b148b994a8cddffbc5ef54b2d3faa"
+  },
+  "nextFixedFullExpected": {
+    "cases": 13819,
+    "methods": 7763,
+    "sqlCases": 64
+  },
+  "noSerializedPendingWinFlagOrOldMatchMigrationOrDsl": true,
+  "wholePrintingCertified": false,
+  "goalComplete": false
+}

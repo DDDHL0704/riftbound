@@ -1,5 +1,7 @@
 """Reconcile current official gallery views without importing historical cards."""
 
+import json
+
 
 def merge_gallery_views(views):
     if not views:
@@ -8,6 +10,7 @@ def merge_gallery_views(views):
     if type(total) is not int or total < 0:
         raise ValueError('Invalid reported gallery count')
     merged = {}
+    contents = {}
     summaries = []
     identities = []
     for view in views:
@@ -18,8 +21,13 @@ def merge_gallery_views(views):
             identity = card.get('id')
             if not isinstance(identity, str) or not identity:
                 raise ValueError('Current gallery record has no exact identity')
-            if identity in merged and merged[identity] != card:
+            # Python equality merges True with 1 (including nested fields).
+            # Compare JSON content while ignoring object member order only.
+            content = json.dumps(card, sort_keys=True, ensure_ascii=False,
+                                 separators=(',', ':'), allow_nan=False)
+            if identity in contents and contents[identity] != content:
                 raise ValueError('Conflicting current gallery identity: ' + identity)
+            contents[identity] = content
             merged[identity] = card
             counts[identity] = counts.get(identity, 0) + 1
         identities.append(set(counts))

@@ -10,6 +10,47 @@ public sealed class InsightRepeatTests
 {
     private const string Card = "VEN·056";
 
+    [Fact]
+    public async Task AFirstRecyclableBurnoutWaitsForEveryPaidEchoExecutionBeforeNormalVictory()
+    {
+        var initial = Position(deckCards: 0) with {
+            PlayerScores = new Dictionary<string, int> { ["P1"] = 0, ["P2"] = 7 } };
+        var ids = Enumerable.Range(0, 4).Select(i => "REFILL"+i).ToArray();
+        var cards = initial.CardObjects.ToDictionary();
+        var locations = initial.ObjectLocations.ToDictionary();
+        foreach (var id in ids)
+        {
+            cards[id] = HweiMoveDiscardTypesTests.Card(id, "OGN·083/298");
+            locations[id] = new("P1", "GRAVEYARD");
+        }
+        initial = initial with { CardObjects = cards, ObjectLocations = locations,
+            PlayerZones = new Dictionary<string, PlayerZones>(initial.PlayerZones) {
+                ["P1"] = initial.PlayerZones["P1"] with { Graveyard = ids } } };
+        var driver = DeckObservationPlayTests.Driver(initial, "first-burnout-completes-paid-echo");
+        await driver.Act("P1", new PlayCardCommand("SPELL", Card, [], OptionalCosts: ["ECHO"]));
+        await driver.Top();
+        Assert.Equal(8, driver.State.PlayerScores["P2"]);
+        Assert.Equal(2, driver.State.PlayerZones["P1"].Hand.Count);
+        Assert.NotNull(driver.State.PendingCardChoice);
+        Assert.Equal(MatchStatuses.InProgress, driver.State.Status);
+        Assert.Null(driver.State.WinnerPlayerId);
+        Assert.DoesNotContain(driver.Events(), e => e.Event.Kind == "MATCH_WON");
+        while (driver.State.PendingCardChoice is { } choice)
+            await driver.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow,
+                choice.ChoiceWindow == "INSIGHT_ORDER" ? choice.ContextObjectIds : []));
+        Assert.Equal(ids.Order(), driver.State.PlayerZones["P1"].Hand.Order());
+        Assert.Equal(8, driver.State.PlayerScores["P2"]);
+        Assert.Equal("P2", driver.State.WinnerPlayerId);
+        Assert.Equal(MatchStatuses.Finished, driver.State.Status);
+        Assert.Single(driver.State.CardPlays.Finalized);
+        Assert.Single(driver.State.CardPlays.Resolved);
+        Assert.Single(driver.Events(), e => e.Event.Kind == "BURNOUT_APPLIED");
+        Assert.Equal(2, driver.Events().Count(e => e.Event.Kind == "SPELL_EXECUTION_COMPLETED"));
+        Assert.Equal(2, driver.Events().Count(e => e.Event.Kind == "CARD_DRAWN"));
+        Assert.Single(driver.Events(), e => e.Event.Kind == "MATCH_WON");
+        await RideTheWindCurrentMovementTests.Replay(initial, driver);
+    }
+
     [Theory]
     [InlineData(1)]
     [InlineData(2)]
@@ -108,7 +149,8 @@ public sealed class InsightRepeatTests
             await driver.Act("P1", new ChooseCardsCommand(choice.ChoiceId, choice.ChoiceWindow,
                 choice.ChoiceWindow == "INSIGHT_ORDER" ? choice.ContextObjectIds : []));
         Assert.Equal(MatchStatuses.Finished, driver.State.Status); Assert.Equal("P2", driver.State.WinnerPlayerId);
-        Assert.Equal(8, driver.State.PlayerScores["P2"]); Assert.Empty(driver.State.StackItems);
+        // CN 432.3.c.1: the first burnout reaches 8; the subsequent one wins immediately at 9.
+        Assert.Equal(9, driver.State.PlayerScores["P2"]); Assert.Empty(driver.State.StackItems);
         Assert.Equal(count, driver.State.PlayerZones["P1"].Hand.Count);
         Assert.Single(driver.State.CardPlays.Finalized); Assert.Single(driver.State.CardPlays.Resolved);
         Assert.Equal(count < 2 ? 1 : 2, driver.Events().Count(e => e.Event.Kind == "SPELL_EXECUTION_COMPLETED"));

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "fixtureId": "p2-preflight-turn-start-burnout-empty-graveyard-wins",
-  "description": "When turn start draw triggers burnout with an empty graveyard, burnout repeats until the opponent reaches the winning score and wins immediately.",
+  "description": "CN core effective 2026-10-16: empty deck and graveyard make the first burnout award point8 and continue the original draw; the subsequent burnout awards point9 and wins immediately.",
   "source": "manual-pdf-faq-preflight",
   "auditStatus": "RULE_AUDITED",
   "rulesVersion": "rules-260330",
@@ -17,6 +17,11 @@
       "source": "《符文战场》核心规则_260330.pdf",
       "locator": "p31 rule 323.1; p67 rule 431.3.b",
       "note": "清理会检查获胜分，但燃尽得分达到获胜条件时立即获胜，无需等待清理发生。"
+    },
+    {
+          "source": "https://cdn.playloltcg.com/lol/2026/10/2026-10-10/a21ead876c6b44d6abe386b6ae54ea28.pdf",
+          "locator": "CN/zh-CN current2026-10-23, effective2026-10-16; 303.1,414.4.c,432.2.d,432.3.c.1,474; SHA-256 d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11",
+          "note": "仅校准本受控空牌堆/空废牌堆的首次与后续燃尽期望：初始P1为7分，首次8分仍继续，后续9分立即获胜。原方法、全部断言、原种子2603302012、初态及历史来源/version元数据保留；历史RULE_AUDITED标签不作为当前全量认证。"
     }
   ],
   "roomId": "p2-preflight-burnout-win-room",
@@ -76,11 +81,13 @@
       "TURN_START_BEGAN",
       "RUNES_CALLED",
       "BURNOUT_APPLIED",
+      "BURNOUT_APPLIED",
       "MATCH_WON"
     ],
     "events": [
       { "kind": "TURN_START_BEGAN" },
       { "kind": "RUNES_CALLED" },
+      { "kind": "BURNOUT_APPLIED" },
       { "kind": "BURNOUT_APPLIED" },
       { "kind": "MATCH_WON" }
     ],
@@ -96,7 +103,7 @@
       "timingState": "NEUTRAL_CLOSED",
       "winnerPlayerId": "P1",
       "scores": {
-        "P1": 8,
+        "P1": 9,
         "P2": 0
       },
       "runePools": {

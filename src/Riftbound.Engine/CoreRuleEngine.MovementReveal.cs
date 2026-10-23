@@ -32,7 +32,7 @@ public sealed partial class CoreRuleEngine
             {
                 var drawState = state with { PlayerZones = zones, CardObjects = cards,
                     ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, zones) };
-                var draw = ApplyDrawToPlayer(drawState, zones, state.PlayerScores, player, 1, state.RngCursor, events);
+                var draw = ApplyDrawToPlayer(drawState, zones, state.PlayerScores, player, 1, state.RngCursor, events, deferNormalVictory: true);
                 result = result with { PlayerScores = draw.PlayerScores, WinnerPlayerId = draw.WinnerPlayerId, RngCursor = draw.RngCursor };
             }
         }

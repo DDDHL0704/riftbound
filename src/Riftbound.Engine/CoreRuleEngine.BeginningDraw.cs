@@ -71,7 +71,7 @@ public sealed partial class CoreRuleEngine
                 ["playerId"] = item.ControllerId, ["sourceObjectId"] = item.SourceObjectId, ["sourceCardNo"] = context.CardNo,
                 ["trigger"] = context.Kind == "HAND_BELOW_TWO" ? "JINX_TURN_START_DRAW_IF_HAND_BELOW_TWO" : "MUSHROOM_BEGINNING_DRAW",
                 ["drawCount"] = 1, ["beforeScoring"] = true }) };
-        var draw = ApplyDrawToPlayer(state, zones, NormalizeScoresForSeats(state), item.ControllerId, 1, state.RngCursor, events);
+        var draw = ApplyDrawToPlayer(state, zones, NormalizeScoresForSeats(state), item.ControllerId, 1, state.RngCursor, events, deferNormalVictory: true);
         return NoopStackResolutionResult(state) with { PlayerZones = zones, PlayerScores = draw.PlayerScores,
             WinnerPlayerId = draw.WinnerPlayerId, RngCursor = draw.RngCursor, Events = events,
             ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, zones) };

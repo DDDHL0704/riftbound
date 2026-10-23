@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "id": "parallel-drawings-regional-source-20261023",
+  "reviewDate": "2026-10-23",
+  "priorSourceManifest": {
+    "path": "docs/evidence/global-2026-drawings-source-supplement-2026-10-23/source-manifest.json",
+    "sha256": "50e65039f8240c12b70a1ea73675ff5b9af1518aba76120442c879e32028ba05"
+  },
+  "original17GateSource": {
+    "path": "docs/evidence/global-2026-drawings-source-supplement-2026-10-23/seventeen-new-source-obligations.json",
+    "sha256": "3a13cafbaf1528f8830b7ede578c8dfbb8fb25d0053d01ea145e8d621c8a397b"
+  },
+  "scope": "Five observed KR preview printings are additional language evidence inside existing five T1 groups; all17 original groups remain OPEN.",
+  "observedNewExactLanguageFaces": 5,
+  "newCatalogEntries": 0,
+  "semanticCoverageCertified": false,
+  "runtimeAdoption": false,
+  "artifacts": [
+    {
+      "path": "report.json",
+      "sha256": "dc5757ba14e2d19cb53a659b01f6ad82eab3738f2e6dc3f1e59a8eb9d95b855a",
+      "bytes": 26915
+    },
+    {
+      "path": "archive-index.json",
+      "sha256": "c619f9e817c4a502a94e4ce1437fab203183fe11297f43896f2b1d4695cb2498",
+      "bytes": 5603
+    },
+    {
+      "path": "original-captures.tar.xz",
+      "sha256": "02c88dc4b997a58cb3f1f6b8c4a6cbcaf4f47cf14e08b8a229a46911fa562e9a",
+      "bytes": 997016
+    }
+  ]
+}

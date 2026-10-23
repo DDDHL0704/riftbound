@@ -123,10 +123,19 @@ def diagnose_partition(parent, children):
 
 
 def read_capture(path):
+    def unique_members(pairs):
+        result = {}
+        for key, value in pairs:
+            if key in result:
+                raise ValueError('Duplicate JSON object member: ' + key)
+            result[key] = value
+        return result
+
     raw = path.read_bytes()
     payload = gzip.decompress(raw) if path.suffix == '.gz' else raw
-    return json.loads(payload), dict(path=str(path), archiveSha256=hashlib.sha256(raw).hexdigest(),
-                                    rawSha256=hashlib.sha256(payload).hexdigest())
+    return json.loads(payload, object_pairs_hook=unique_members), dict(
+        path=str(path), archiveSha256=hashlib.sha256(raw).hexdigest(),
+        rawSha256=hashlib.sha256(payload).hexdigest())
 
 
 def main():

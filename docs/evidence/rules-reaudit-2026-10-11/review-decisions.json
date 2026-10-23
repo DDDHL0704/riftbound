@@ -25366,6 +25366,76 @@
         "New fixed full/current products, OS hardware input and physical Windows remain separate",
         "All original failures, source dates, accepted histories and private seeds retained"
       ]
+    },
+    {
+      "id": "first-burnout-action-completion-current-cn16-2026-10-23",
+      "scope": "CN16 first recyclable burnout completes its original draw and suspended parent; subsequent burnout retains immediate victory; ordinary score checks after completed top parent precede lower chain response in the executed branches. Current internal lethal cleanup is independently source-failing issue99 and remains OPEN. Exact Hwei mandatory discard, printed draw2, existing preselected Portal CARDS tie and runtime-granted paid Insight Echo only; consumer mapping and reproduced inner-cleanup victory-order issue99 remain OPEN.",
+      "subjects": [
+        "OGN-047/298",
+        "OGN-071/298",
+        "OGN-083/298",
+        "OGN-109/298",
+        "OGN-280/298",
+        "OGN-296/298",
+        "OGS-022/024",
+        "SFD-125/221",
+        "UNL-080/219",
+        "VEN-056"
+      ],
+      "ruleRecords": [
+        "CN-d6fd7140f106f9b5-P033-B009",
+        "CN-d6fd7140f106f9b5-P038-B014",
+        "CN-d6fd7140f106f9b5-P038-B018",
+        "CN-d6fd7140f106f9b5-P038-B019",
+        "CN-d6fd7140f106f9b5-P038-B020",
+        "CN-d6fd7140f106f9b5-P038-B021",
+        "CN-d6fd7140f106f9b5-P038-B022",
+        "CN-d6fd7140f106f9b5-P039-B003",
+        "CN-d6fd7140f106f9b5-P039-B009",
+        "CN-d6fd7140f106f9b5-P072-B010",
+        "CN-d6fd7140f106f9b5-P081-B020",
+        "CN-d6fd7140f106f9b5-P082-B004",
+        "CN-d6fd7140f106f9b5-P082-B005",
+        "CN-d6fd7140f106f9b5-P082-B006",
+        "CN-d6fd7140f106f9b5-P082-B007",
+        "CN-d6fd7140f106f9b5-P082-B008",
+        "CN-d6fd7140f106f9b5-P082-B009",
+        "CN-d6fd7140f106f9b5-P082-B010",
+        "CN-d6fd7140f106f9b5-P082-B011",
+        "CN-d6fd7140f106f9b5-P082-B012",
+        "CN-d6fd7140f106f9b5-P082-B013",
+        "CN-d6fd7140f106f9b5-P096-B018"
+      ],
+      "status": "BOUNDED_BRANCH_PASS_CHECK_ONE_EXPECTATION_FAILURE_REPAIRED_FOCUS_KNOWN_INNER_CLEANUP_SOURCE_FAILURE99_FULL_PRODUCTS_OPEN",
+      "sourceManifest": {
+        "path": "docs/evidence/first-burnout-action-completion-current-cn16-2026-10-23/source-manifest.json",
+        "sha256": "ea03d3ae180cd8920684640d3951a9047b0030ee772ce8fc98cff5831cf288d9",
+        "role": "source-manifest"
+      },
+      "auditDocument": "docs/FIRST_BURNOUT_ACTION_COMPLETION_CURRENT_CN16_AUDIT_2026-10-23.md",
+      "validation": {
+        "newCases": 12,
+        "newMethods": 7,
+        "soleCheckCases": 13670,
+        "soleCheckMethods": 7622,
+        "soleCheckPassed": 13669,
+        "soleCheckFailed": 1,
+        "soleCheckSkipped": 0,
+        "repairFocusedCases": 153,
+        "repairFocusedMethods": 72,
+        "checkIsAllGreen": false,
+        "focusedCases": 402,
+        "focusedMethods": 209,
+        "originalFullGameMethods": 9,
+        "wholeCardCertification": false
+      },
+      "exclusions": [
+        "35 static callers are not whole-consumer certification",
+        "Current inner cleanup normal-win ordering is a reproduced issue99 source failure; no whole cleanup or card certification",
+        "Portal preselected branch does not certify mode ownership; Insight paid granted Echo is not printed inherent Echo",
+        "Prior fixed f0 Release native and CI do not certify new Debug or next fixed commit",
+        "OS hardware and physical Windows remain independently OPEN"
+      ]
     }
   ]
 }

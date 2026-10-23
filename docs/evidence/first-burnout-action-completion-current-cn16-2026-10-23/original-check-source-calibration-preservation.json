@@ -1,0 +1,15 @@
+{
+  "atUtc": "2026-10-23T05:23:45.864688+00:00",
+  "reason": "Actual sole check13670 retained:13669pass/1failure. First burnout score8 must complete original draw; subsequent burnout9 immediately wins under current CN432.3.c.1.",
+  "methodUnchangedExceptExactlyOne8To9Literal": true,
+  "originalMethodSha256": "e8708f8f58ed86b3880e4eb5e1c298e36ec4ccfd6f86c18631f2ee94106df0b2",
+  "currentMethodSha256": "99aee7218142f29ca73a6139ecb7529b7ddcc45fa28076297947469784ec34d1",
+  "originalAllAssertionsAndMethodFactPreserved": true,
+  "originalSeed": 2603302012,
+  "initialStateAndAllOtherCommandsUnchanged": true,
+  "historicalRulesVersionAndFaqAndSourceNotesRetained": true,
+  "expectedExactTwoBurnoutEventsAndScore9StrengthenSourceExpectation": true,
+  "originalCheckNeverRewrittenAsPassed": true,
+  "repairFocusAndNextFixedFullRequired": true,
+  "secondUnchangedCheckNotPlanned": true
+}

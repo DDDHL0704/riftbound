@@ -1,0 +1,492 @@
+{
+  "schemaVersion": 1,
+  "reviewDate": "2026-10-23",
+  "recordedAtUtc": "2026-10-23T02:36:38.365435+00:00",
+  "scope": "Four existing Worlds source groups and six Gift foil-rune groups; all17 original Drawings gates retained.",
+  "sources": {
+    "originalDrawingsManifest": {
+      "path": "docs/evidence/global-2026-drawings-source-supplement-2026-10-23/source-manifest.json",
+      "sha256": "50e65039f8240c12b70a1ea73675ff5b9af1518aba76120442c879e32028ba05",
+      "bytes": 11332
+    },
+    "originalGateSource": {
+      "path": "docs/evidence/global-2026-drawings-source-supplement-2026-10-23/seventeen-new-source-obligations.json",
+      "sha256": "3a13cafbaf1528f8830b7ede578c8dfbb8fb25d0053d01ea145e8d621c8a397b",
+      "bytes": 29319
+    },
+    "originalEnglishGallery": {
+      "path": "docs/evidence/source-round-2026-10-21/originals/en-after-full-rows-checker-adapter-v1.json",
+      "sha256": "9dc226a71cc03e16dc7868735741f65df640c3f4f86da354371cce81e449f4e1",
+      "bytes": 3835675
+    },
+    "sameDayCompleteGalleryComparison": {
+      "path": "docs/evidence/en-gallery-gap-parallel-2026-10-23/source-manifest.json",
+      "sha256": "225b8510789e1fe8e1377d738879c10f9e8e7958255faacd10665dba47c666d8",
+      "bytes": 1283
+    }
+  },
+  "currentWorldsArticle": {
+    "url": "https://lolesports.com/en-US/news/introducing-the-worlds-2026-merch-collection",
+    "httpStatus": 200,
+    "acquiredAtUtc": "2026-10-23T02:31:37.363051+00:00",
+    "rawSha256": "f3b65106c4e955d9ed88ab24b1cc726bbe34d77fe82fe21a526c81822615e034",
+    "bodySha256": "b8eb5d40e75585d5dddf8f32a861ab6cf1fe4b25aa6ec133639c074b373db84d",
+    "declaredPublicationDate": "2026-10-07",
+    "firstImagePublicationIndependentlyConfirmed": null,
+    "gameEffectiveDate": null,
+    "literalBodyRootPreserved": true,
+    "fullArticleLinks": [
+      "https://merch.riotgames.com/product/worlds-unlocked-2026-collectors-edition/?utm_source=pr&utm_medium=announcement&utm_campaign=worlds26",
+      "https://merch.riotgames.com",
+      "http://hufworldwide.com",
+      "https://merch.riotgames.com",
+      "https://lolesports.com/en-US/lolesports/news/worlds-2026-primer"
+    ],
+    "announcedCities": [
+      "Los Angeles",
+      "Dallas",
+      "New York City"
+    ],
+    "otherParagraphStageCities": [
+      "Los Angeles",
+      "Allen, TX",
+      "Brooklyn, NY"
+    ],
+    "productContents": "Yasuo legend promo, three host-city battlefield promos, deckbox, foiled card sleeves and ecommerce-only game capsule.",
+    "noDedicatedRiftboundProductPageLinkedInArticle": true,
+    "commercialEventAvailabilityNotGameplayEffectiveDate": true
+  },
+  "currentWorldsProductImage": {
+    "url": "https://cmsassets.rgpub.io/sanity/images/dsfx7636/news_live/33854d00271d487306fc7021e85bae1de74e3055-1920x1080.jpg",
+    "rawSha256": "35c7f79d3af3b4d3534b314a06e9b6cedf7e436f04c8b00cf4c14c965f8fcfbc",
+    "rawBytes": 136672,
+    "dimensions": [
+      1920,
+      1080
+    ],
+    "actuallyViewed": true,
+    "earlierDrawingsImage": {
+      "path": "docs/evidence/global-2026-drawings-source-supplement-2026-10-23/official-product-image-03.jpg",
+      "sha256": "282ac2f3787b428c947492606cd1f2f48ba0e6329a3b63a3e597ee5a79550d86",
+      "bytes": 239639
+    },
+    "bytesDifferFromEarlierDrawingsImage": true,
+    "observation": "Same visible product layout, three battlefield artwork/title/city panels and Yasuo legend; smaller image does not resolve tiny printing identifiers.",
+    "exactPrintingIdentifiers": null,
+    "completePrintedRulesIndependentlyCertified": false
+  },
+  "worldsCandidates": [
+    {
+      "title": "Black Market",
+      "baseGalleryCandidateIds": [
+        "rad-158-167"
+      ],
+      "galleryPublicCodes": [
+        "RAD-158/167"
+      ],
+      "printedCity": "BROOKLYN",
+      "exactProductPrintingMappingConfirmed": false
+    },
+    {
+      "title": "Cosmic Vista",
+      "baseGalleryCandidateIds": [
+        "rad-160-167"
+      ],
+      "galleryPublicCodes": [
+        "RAD-160/167"
+      ],
+      "printedCity": "LOS ANGELES",
+      "exactProductPrintingMappingConfirmed": false
+    },
+    {
+      "title": "Hunters' Circle",
+      "baseGalleryCandidateIds": [
+        "rad-163-167"
+      ],
+      "galleryPublicCodes": [
+        "RAD-163/167"
+      ],
+      "printedCity": "ALLEN",
+      "exactProductPrintingMappingConfirmed": false
+    },
+    {
+      "title": "Unforgiven",
+      "baseGalleryCandidateIds": [
+        "ogn-259-298",
+        "ogn-305-298",
+        "ogn-305-star-298"
+      ],
+      "galleryPublicCodes": [
+        "OGN-259/298",
+        "OGN-305/298",
+        "OGN-305*/298"
+      ],
+      "printedCity": null,
+      "exactProductPrintingMappingConfirmed": false
+    }
+  ],
+  "previousObservationCorrection": {
+    "commit": "14c6fca7",
+    "incorrectTitle": "Victory Circle",
+    "correctedTitle": "Hunters' Circle",
+    "reason": "Assistant visual transcription error, corrected by rereading original2560x1440 image.",
+    "correctedReport": {
+      "path": "docs/evidence/drawings-parallel-source-2026-10-23/report.json",
+      "sha256": "dc5757ba14e2d19cb53a659b01f6ad82eab3738f2e6dc3f1e59a8eb9d95b855a",
+      "bytes": 26915
+    },
+    "originalSourcesAnd17GateIdsUnchanged": true
+  },
+  "runeCandidates": [
+    {
+      "name": "Order Rune",
+      "candidateIds": [
+        "rad-r06",
+        "rad-r06a",
+        "ogn-214a-298",
+        "ogn-214-298",
+        "ven-r06"
+      ],
+      "productPrintingMapping": "UNKNOWN",
+      "foilTreatmentMapping": "UNKNOWN",
+      "exactLanguageMapping": "UNKNOWN"
+    },
+    {
+      "name": "Chaos Rune",
+      "candidateIds": [
+        "rad-r05",
+        "rad-r05a",
+        "ogn-166-298",
+        "ogn-166a-298",
+        "ven-r05"
+      ],
+      "productPrintingMapping": "UNKNOWN",
+      "foilTreatmentMapping": "UNKNOWN",
+      "exactLanguageMapping": "UNKNOWN"
+    },
+    {
+      "name": "Fury Rune",
+      "candidateIds": [
+        "rad-r01a",
+        "rad-r01",
+        "ogn-007-298",
+        "ogn-007a-298",
+        "ven-r01"
+      ],
+      "productPrintingMapping": "UNKNOWN",
+      "foilTreatmentMapping": "UNKNOWN",
+      "exactLanguageMapping": "UNKNOWN"
+    },
+    {
+      "name": "Calm Rune",
+      "candidateIds": [
+        "rad-r02",
+        "rad-r02a",
+        "ogn-042-298",
+        "ogn-042a-298",
+        "ven-r02"
+      ],
+      "productPrintingMapping": "UNKNOWN",
+      "foilTreatmentMapping": "UNKNOWN",
+      "exactLanguageMapping": "UNKNOWN"
+    },
+    {
+      "name": "Mind Rune",
+      "candidateIds": [
+        "rad-r03a",
+        "rad-r03",
+        "ogn-089a-298",
+        "ogn-089-298",
+        "ven-r03"
+      ],
+      "productPrintingMapping": "UNKNOWN",
+      "foilTreatmentMapping": "UNKNOWN",
+      "exactLanguageMapping": "UNKNOWN"
+    },
+    {
+      "name": "Body Rune",
+      "candidateIds": [
+        "rad-r04",
+        "rad-r04a",
+        "ogn-126a-298",
+        "ogn-126-298",
+        "ven-r04"
+      ],
+      "productPrintingMapping": "UNKNOWN",
+      "foilTreatmentMapping": "UNKNOWN",
+      "exactLanguageMapping": "UNKNOWN"
+    }
+  ],
+  "runeCandidateLimit": "30 pre-existing same-name gallery records are candidates only; no assumption that any is a Gift foil printing, and no inference that product copies are new identities.",
+  "priorChineseAnniversaryCandidate": {
+    "url": "https://mp.weixin.qq.com/s/kU9sVsIRwPAh-6Iu7Geh0A",
+    "newsId": "CN-NEWS-ae48165f6885bf86",
+    "listingDeclaredDate": "2026-08-09",
+    "priorReadbackIndex": {
+      "path": "docs/evidence/source-round-2026-10-21/originals/news-reparsed-v2/all-current-news-original-readback-v2.json",
+      "sha256": "418843e50dc24ac9d5e64cfac223d7fa9ae5b9f873cfaaa1929da5636899ef3c",
+      "bytes": 695436
+    },
+    "priorImageIndex": {
+      "path": "docs/evidence/news-body-source-observation-2026-10-16/all-known-news-img-acquisition.json",
+      "sha256": "3c36c08b4c97277409cb28476847074f0ef705f8961097c680b0a5b9c77aab8a",
+      "bytes": 1471554
+    },
+    "refreshedToday": false,
+    "priorArticleRecord": {
+      "id": "CN-NEWS-ae48165f6885bf86",
+      "url": "https://mp.weixin.qq.com/s/kU9sVsIRwPAh-6Iu7Geh0A",
+      "originalAcquisitionStatus": "SOURCE_EXTRACTION_GAP_WITH_ORIGINAL_RESPONSE_RETAINED",
+      "originalReceipt": {
+        "path": "var/qa/source-round-20261021/news/CN-NEWS-ae48165f6885bf86.receipt.json",
+        "sha256": "9a0e999831974f2516282bb86faadc927238a6b305983fe9e3e0f62f6d2b06d2"
+      },
+      "allListingRows": [
+        {
+          "name": "一周年庆典｜8月29-30日，武汉见！",
+          "image": "https://cdn.playloltcg.com/lol/2026/08/2026-08-09/bf90d89372a9455c84a925e4d6f5b7a6.png",
+          "pushDate": "2026-08-09",
+          "jumpType": "h5",
+          "appId": "",
+          "jumpUrl": "https://mp.weixin.qq.com/s/kU9sVsIRwPAh-6Iu7Geh0A",
+          "sort": 149
+        }
+      ],
+      "roundApplicableAsOf": "2026-10-21",
+      "region": "CN",
+      "language": "zh-CN",
+      "firstPublicationIndependentlyConfirmed": null,
+      "effectiveDateIndependentlyConfirmed": null,
+      "sourceApplicabilityAndSemanticReview": "OPEN",
+      "originalAcquisitionAndFailuresNeverRewritten": true,
+      "rawOriginalPath": "var/qa/source-round-20261021/news/CN-NEWS-ae48165f6885bf86.html.gz",
+      "rawOriginalSha256": "48507858ca46b06d545797864c08cba27d0e0930272f1e2cc103dbf51ccae940",
+      "rawOriginalBytes": 3457918,
+      "status": "READONLY_COMPLETE_LITERAL_ROOT_EXTRACTED_FROM_SAME_ORIGINAL_BYTES_NOT_CERTIFICATION",
+      "literalRootSha256": "8054a794dc15db3c80e91dd784747d4808d76c9678d1f75bd98984f4858d6d1e",
+      "literalRootCharacters": 2499,
+      "bodyTextSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bodyTextCharacters": 0,
+      "images": [
+        {
+          "url": "https://mmecoa.qpic.cn/mmecoa_jpg/QD913GwJEgBlmnpB24jJ1u7TlEQLsxxbpKpMujmCTCiaSFIHYuAqNESsDrJWcErT8k6VrTTPjekpPnmQECaH22J1nhlcOia3mouTanIIlEv9s/640?wx_fmt=jpeg&from=appmsg",
+          "data-src": "https://mmecoa.qpic.cn/mmecoa_jpg/QD913GwJEgBlmnpB24jJ1u7TlEQLsxxbpKpMujmCTCiaSFIHYuAqNESsDrJWcErT8k6VrTTPjekpPnmQECaH22J1nhlcOia3mouTanIIlEv9s/640?wx_fmt=jpeg&from=appmsg",
+          "data-type": "jpeg",
+          "data-w": "1080",
+          "data-ratio": "5.713888888888889"
+        },
+        {
+          "url": "https://mmecoa.qpic.cn/mmecoa_jpg/QD913GwJEgA1zrvUory7tdickmfon4maujQMnr00eIcs8iawOEvibd0icpbfM8hoExMBib0FXrqW9L6aFZmCpKquPMFAT8nhQkRBMDia6HwbXAP4c/640?wx_fmt=jpeg&from=appmsg",
+          "data-src": "https://mmecoa.qpic.cn/mmecoa_jpg/QD913GwJEgA1zrvUory7tdickmfon4maujQMnr00eIcs8iawOEvibd0icpbfM8hoExMBib0FXrqW9L6aFZmCpKquPMFAT8nhQkRBMDia6HwbXAP4c/640?wx_fmt=jpeg&from=appmsg",
+          "data-type": "jpeg",
+          "data-w": "1080",
+          "data-ratio": "1.7574074074074073"
+        },
+        {
+          "url": "https://mmecoa.qpic.cn/mmecoa_jpg/QD913GwJEgAQB6cD0ibCTwExFqL2bleCxyNckSw0iaBhA4uAxVJMwUxicDNTc1k2sNkuClribZef6BkNXvMfMPevPgT95tiayTiblHVI7ErsQPnD4/640?wx_fmt=jpeg&from=appmsg",
+          "data-src": "https://mmecoa.qpic.cn/mmecoa_jpg/QD913GwJEgAQB6cD0ibCTwExFqL2bleCxyNckSw0iaBhA4uAxVJMwUxicDNTc1k2sNkuClribZef6BkNXvMfMPevPgT95tiayTiblHVI7ErsQPnD4/640?wx_fmt=jpeg&from=appmsg",
+          "data-type": "jpeg",
+          "data-w": "1080",
+          "data-ratio": "3.938888888888889"
+        },
+        {
+          "url": "https://mmecoa.qpic.cn/mmecoa_jpg/QD913GwJEgDgOeboia4vByUZDv6UOe5wKTm7qH8ozuM4Ficwqa54LTVk1ias1HPLKAdD74f21pJX9WdGunRG96ibJuOlX2M2QXcafagJLTOmcmo/640?wx_fmt=jpeg&from=appmsg",
+          "data-src": "https://mmecoa.qpic.cn/mmecoa_jpg/QD913GwJEgDgOeboia4vByUZDv6UOe5wKTm7qH8ozuM4Ficwqa54LTVk1ias1HPLKAdD74f21pJX9WdGunRG96ibJuOlX2M2QXcafagJLTOmcmo/640?wx_fmt=jpeg&from=appmsg",
+          "data-type": "jpeg",
+          "data-w": "1080",
+          "data-ratio": "2.161111111111111"
+        },
+        {
+          "url": "https://mmecoa.qpic.cn/sz_mmecoa_jpg/QD913GwJEgDkeeUenKWEeZPVeSdbDO2EIMQWhjpuFicskDTkD9YQBTRCLPIdrMyjdYU4wh8PQsbUpNGiclaK5G6UUYYeXa3B32mx8UumxjG2w/640?wx_fmt=jpeg&from=appmsg",
+          "data-src": "https://mmecoa.qpic.cn/sz_mmecoa_jpg/QD913GwJEgDkeeUenKWEeZPVeSdbDO2EIMQWhjpuFicskDTkD9YQBTRCLPIdrMyjdYU4wh8PQsbUpNGiclaK5G6UUYYeXa3B32mx8UumxjG2w/640?wx_fmt=jpeg&from=appmsg",
+          "data-type": "jpeg",
+          "data-w": "1080",
+          "data-ratio": "2.5935185185185183"
+        }
+      ],
+      "links": [],
+      "articleRootFoundAndClosed": true,
+      "bodyTextPath": "var/qa/source-round-20261021/news-reparsed-v2/CN-NEWS-ae48165f6885bf86.body.txt.gz",
+      "priorRawPath": "var/qa/official-news-body-20261016/remaining-110/CN-NEWS-ae48165f6885bf86.html",
+      "priorRawSha256": "e2f1ea7b671e28a14b6334ee9286ca052c626bb92cf0dc73fa76f52cd376d1f3",
+      "literalRootMatchesPrior": true,
+      "bodyTextMatchesPrior": true,
+      "imagesAllAttributesAndOrderMatchPrior": true,
+      "linksAndOrderMatchPrior": true
+    },
+    "actualImageObservations": [
+      {
+        "ordinal": 1,
+        "url": "https://mmecoa.qpic.cn/mmecoa_jpg/QD913GwJEgBlmnpB24jJ1u7TlEQLsxxbpKpMujmCTCiaSFIHYuAqNESsDrJWcErT8k6VrTTPjekpPnmQECaH22J1nhlcOia3mouTanIIlEv9s/640?wx_fmt=jpeg&from=appmsg",
+        "localOriginalPath": "/Users/dinghaolin/MyProjects/riftbound/var/qa/official-news-body-20261016/complete-image-acquisition/bec00aba28d99ebd9d6bdcce.source",
+        "sha256": "97ad57bdbf9a8a335e0d9b1c1492672030cd8bb9892d2db2c011018f35079e1f",
+        "bytes": 755046,
+        "dimensions": {
+          "width": 1080,
+          "height": 6171,
+          "format": "JPEG",
+          "frames": 1
+        },
+        "actuallyViewed": true,
+        "displayLimit": "First image resized by viewer from1080x6171 to1050x6000; no tiny card-footer certification.",
+        "scopedObservation": "Regional tournament, Piltover Forge attendance card, Jayce prizes and event performers; not Gift product contents.",
+        "originalBytesReusedLocallyNotIncludedAgainInThisArchive": true
+      },
+      {
+        "ordinal": 2,
+        "url": "https://mmecoa.qpic.cn/mmecoa_jpg/QD913GwJEgA1zrvUory7tdickmfon4maujQMnr00eIcs8iawOEvibd0icpbfM8hoExMBib0FXrqW9L6aFZmCpKquPMFAT8nhQkRBMDia6HwbXAP4c/640?wx_fmt=jpeg&from=appmsg",
+        "localOriginalPath": "/Users/dinghaolin/MyProjects/riftbound/var/qa/official-news-body-20261016/complete-image-acquisition/927646cd074347a0e77cb0a5.source",
+        "sha256": "6ee99e21e6e5e0b0a50325d88dad005b306ac2a43d62dab2afae383ebf6b4a03",
+        "bytes": 197183,
+        "dimensions": {
+          "width": 1080,
+          "height": 1898,
+          "format": "JPEG",
+          "frames": 1
+        },
+        "actuallyViewed": true,
+        "displayLimit": null,
+        "scopedObservation": "Exhibition player lineup; no Gift product or rune printing faces.",
+        "originalBytesReusedLocallyNotIncludedAgainInThisArchive": true
+      },
+      {
+        "ordinal": 3,
+        "url": "https://mmecoa.qpic.cn/mmecoa_jpg/QD913GwJEgAQB6cD0ibCTwExFqL2bleCxyNckSw0iaBhA4uAxVJMwUxicDNTc1k2sNkuClribZef6BkNXvMfMPevPgT95tiayTiblHVI7ErsQPnD4/640?wx_fmt=jpeg&from=appmsg",
+        "localOriginalPath": "/Users/dinghaolin/MyProjects/riftbound/var/qa/official-news-body-20261016/complete-image-acquisition/b12bb18419a3d246d5f3d801.source",
+        "sha256": "ed293ebb0bf5930b1a12116050d3b2eea970bcf5fe2aebe99f0fdfbfd4ea8338",
+        "bytes": 382164,
+        "dimensions": {
+          "width": 1080,
+          "height": 4254,
+          "format": "JPEG",
+          "frames": 1
+        },
+        "actuallyViewed": true,
+        "displayLimit": null,
+        "scopedObservation": "Resonance event, Mystic Vortex attendance card, Jayce prizes and event awards; not Gift product contents.",
+        "originalBytesReusedLocallyNotIncludedAgainInThisArchive": true
+      },
+      {
+        "ordinal": 4,
+        "url": "https://mmecoa.qpic.cn/mmecoa_jpg/QD913GwJEgDgOeboia4vByUZDv6UOe5wKTm7qH8ozuM4Ficwqa54LTVk1ias1HPLKAdD74f21pJX9WdGunRG96ibJuOlX2M2QXcafagJLTOmcmo/640?wx_fmt=jpeg&from=appmsg",
+        "localOriginalPath": "/Users/dinghaolin/MyProjects/riftbound/var/qa/official-news-body-20261016/complete-image-acquisition/d0bd85cceba3ae768327d367.source",
+        "sha256": "f6521d174814df01db9fe8ffc64c761575e4f1b7f2d16608af14e0ac921bd868",
+        "bytes": 316465,
+        "dimensions": {
+          "width": 1080,
+          "height": 2334,
+          "format": "JPEG",
+          "frames": 1
+        },
+        "actuallyViewed": true,
+        "displayLimit": null,
+        "scopedObservation": "Explicit 2025 Worlds champion SIGNATURE limited collection drawing; not Player Bundle.",
+        "originalBytesReusedLocallyNotIncludedAgainInThisArchive": true
+      },
+      {
+        "ordinal": 5,
+        "url": "https://mmecoa.qpic.cn/sz_mmecoa_jpg/QD913GwJEgDkeeUenKWEeZPVeSdbDO2EIMQWhjpuFicskDTkD9YQBTRCLPIdrMyjdYU4wh8PQsbUpNGiclaK5G6UUYYeXa3B32mx8UumxjG2w/640?wx_fmt=jpeg&from=appmsg",
+        "localOriginalPath": "/Users/dinghaolin/MyProjects/riftbound/var/qa/official-news-body-20261016/complete-image-acquisition/fcc9948a503a2872e886f3ce.source",
+        "sha256": "bdaf56c660b36e56f136cf1f0f6c099e6135eaec9f82c7b8a446bd7de884e698",
+        "bytes": 353726,
+        "dimensions": {
+          "width": 1080,
+          "height": 2801,
+          "format": "JPEG",
+          "frames": 1
+        },
+        "actuallyViewed": true,
+        "displayLimit": null,
+        "scopedObservation": "Venue entry and visitor activity QA; no Gift product or rune printing faces.",
+        "originalBytesReusedLocallyNotIncludedAgainInThisArchive": true
+      }
+    ],
+    "result": "All five prior article images scoped visually read; event anniversary material does not establish Gift product, Chinese Player printing, or six foil-rune identities.",
+    "fullCardSemanticsAndEventRuleReview": false
+  },
+  "gateDispositions": [
+    {
+      "id": "GLOBAL_DRAWINGS2026_GIFT_RIFT_CN_KENNEN_EXACT_PRINTING_APPLICABILITY_20261023",
+      "state": "OPEN"
+    },
+    {
+      "id": "GLOBAL_DRAWINGS2026_GIFT_RIFT_EN_AKALI_EXACT_PRINTING_APPLICABILITY_20261023",
+      "state": "OPEN"
+    },
+    {
+      "id": "GLOBAL_DRAWINGS2026_GIFT_RIFT_FOIL_BODY_EXACT_PRINTING_APPLICABILITY_20261023",
+      "state": "OPEN"
+    },
+    {
+      "id": "GLOBAL_DRAWINGS2026_GIFT_RIFT_FOIL_CALM_EXACT_PRINTING_APPLICABILITY_20261023",
+      "state": "OPEN"
+    },
+    {
+      "id": "GLOBAL_DRAWINGS2026_GIFT_RIFT_FOIL_CHAOS_EXACT_PRINTING_APPLICABILITY_20261023",
+      "state": "OPEN"
+    },
+    {
+      "id": "GLOBAL_DRAWINGS2026_GIFT_RIFT_FOIL_FURY_EXACT_PRINTING_APPLICABILITY_20261023",
+      "state": "OPEN"
+    },
+    {
+      "id": "GLOBAL_DRAWINGS2026_GIFT_RIFT_FOIL_MIND_EXACT_PRINTING_APPLICABILITY_20261023",
+      "state": "OPEN"
+    },
+    {
+      "id": "GLOBAL_DRAWINGS2026_GIFT_RIFT_FOIL_ORDER_EXACT_PRINTING_APPLICABILITY_20261023",
+      "state": "OPEN"
+    },
+    {
+      "id": "GLOBAL_DRAWINGS2026_T1_PLAYER_AMBESSA_EXACT_PRINTING_APPLICABILITY_20261023",
+      "state": "OPEN"
+    },
+    {
+      "id": "GLOBAL_DRAWINGS2026_T1_PLAYER_GALIO_EXACT_PRINTING_APPLICABILITY_20261023",
+      "state": "OPEN"
+    },
+    {
+      "id": "GLOBAL_DRAWINGS2026_T1_PLAYER_MISS_FORTUNE_EXACT_PRINTING_APPLICABILITY_20261023",
+      "state": "OPEN"
+    },
+    {
+      "id": "GLOBAL_DRAWINGS2026_T1_PLAYER_SERAPHINE_EXACT_PRINTING_APPLICABILITY_20261023",
+      "state": "OPEN"
+    },
+    {
+      "id": "GLOBAL_DRAWINGS2026_T1_PLAYER_XIN_ZHAO_EXACT_PRINTING_APPLICABILITY_20261023",
+      "state": "OPEN"
+    },
+    {
+      "id": "GLOBAL_DRAWINGS2026_WORLDS2026_ALLEN_BATTLEFIELD_EXACT_PRINTING_APPLICABILITY_20261023",
+      "state": "OPEN"
+    },
+    {
+      "id": "GLOBAL_DRAWINGS2026_WORLDS2026_LOS_ANGELES_BATTLEFIELD_EXACT_PRINTING_APPLICABILITY_20261023",
+      "state": "OPEN"
+    },
+    {
+      "id": "GLOBAL_DRAWINGS2026_WORLDS2026_NEW_YORK_CITY_BATTLEFIELD_EXACT_PRINTING_APPLICABILITY_20261023",
+      "state": "OPEN"
+    },
+    {
+      "id": "GLOBAL_DRAWINGS2026_WORLDS2026_YASUO_EXACT_PRINTING_APPLICABILITY_20261023",
+      "state": "OPEN"
+    }
+  ],
+  "newCatalogEntries": 0,
+  "original1740CardsAnd14293RulesUnchanged": true,
+  "englishEightSourceGapRemainsOpen": true,
+  "runtimeAdoption": false,
+  "semanticCoverageCertified": false,
+  "validation": {
+    "rawHttpAndImageHashesVerified": true,
+    "literalBodyExactCharacterSliceVerified": true,
+    "selectedCatalogRecordsAllFieldsPreserved": true,
+    "localReusedImageHashesVerified": 5,
+    "oldFailedParserCapturesRetained": true,
+    "gameTestsRun": false,
+    "sqlRun": false,
+    "nativeRun": false
+  }
+}

@@ -3099,7 +3099,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             intent.PlayerId,
             pendingChoice.DrawCount,
             state.RngCursor,
-            events);
+            events,
+            deferNormalVictory: true);
         if (pendingChoice.EffectKind == TriggerKinds.BattlefieldConquerDiscardDraw)
         {
             events.Add(new GameEvent("BATTLEFIELD_TRIGGER_RESOLVED", "征服战场：已弃置所选手牌并抽牌",
@@ -3123,6 +3124,15 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ["chosenCount"] = submittedObjectIds.Length,
                 ["drawCount"] = pendingChoice.DrawCount
             }));
+
+        // This required choice completes its suspended parent instruction.
+        // CN 323.1 checks the resulting scores before other cleanup or response.
+        if (drawApplication.WinnerPlayerId is null
+            && WinningPlayerId(drawApplication.PlayerScores, EffectiveWinningScore(playerZones, cardObjects)) is { } choiceWinner)
+        {
+            drawApplication = drawApplication with { WinnerPlayerId = choiceWinner };
+            events.Add(BuildScoreVictoryEvent(choiceWinner, EffectiveWinningScore(playerZones, cardObjects)));
+        }
 
         var nextState = state with
         {
@@ -15588,7 +15598,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         List<GameEvent> events,
         out DrawApplicationResult drawApplication,
         out IReadOnlyList<string> nextUntilEndOfTurnEffects,
-        out PendingPaymentState? pendingPayment)
+        out PendingPaymentState? pendingPayment,
+        bool deferNormalVictory = false)
     {
         drawApplication = new DrawApplicationResult(playerScores, null, rngCursor);
         nextUntilEndOfTurnEffects = untilEndOfTurnEffects;
@@ -15626,7 +15637,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             events,
             out drawApplication,
             out nextUntilEndOfTurnEffects,
-            out pendingPayment);
+            out pendingPayment,
+            deferNormalVictory: deferNormalVictory);
     }
 
     private static bool TryResolveUnitConquestTriggerSpecs(
@@ -15646,7 +15658,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         List<GameEvent> events,
         out DrawApplicationResult drawApplication,
         out IReadOnlyList<string> nextUntilEndOfTurnEffects,
-        out PendingPaymentState? pendingPayment)
+        out PendingPaymentState? pendingPayment,
+        bool deferNormalVictory = false)
     {
         drawApplication = new DrawApplicationResult(playerScores, null, rngCursor);
         nextUntilEndOfTurnEffects = untilEndOfTurnEffects;
@@ -15687,7 +15700,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     events,
                     out var unitDrawApplication,
                     out var unitUntilEndOfTurnEffects,
-                    out var unitPendingPayment))
+                    out var unitPendingPayment,
+                    deferNormalVictory: deferNormalVictory))
                 {
                     continue;
                 }
@@ -15697,7 +15711,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 nextRngCursor = unitDrawApplication.RngCursor;
                 nextUntilEndOfTurnEffects = unitUntilEndOfTurnEffects;
                 pendingPayment ??= unitPendingPayment;
-                if (pendingPayment is not null)
+                if (pendingPayment is not null || winnerPlayerId is not null)
                 {
                     drawApplication = new DrawApplicationResult(nextPlayerScores, winnerPlayerId, nextRngCursor);
                     return true;
@@ -15726,7 +15740,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         List<GameEvent> events,
         out DrawApplicationResult drawApplication,
         out IReadOnlyList<string> nextUntilEndOfTurnEffects,
-        out PendingPaymentState? pendingPayment)
+        out PendingPaymentState? pendingPayment,
+        bool deferNormalVictory = false)
     {
         drawApplication = new DrawApplicationResult(playerScores, null, rngCursor);
         nextUntilEndOfTurnEffects = untilEndOfTurnEffects;
@@ -15901,7 +15916,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 playerId,
                 drawCount,
                 nextRngCursor,
-                events);
+                events,
+                deferNormalVictory: deferNormalVictory);
             nextPlayerScores = drawResult.PlayerScores;
             winnerPlayerId = drawResult.WinnerPlayerId ?? winnerPlayerId;
             nextRngCursor = drawResult.RngCursor;
@@ -15933,7 +15949,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     playerId,
                     drawCount,
                     nextRngCursor,
-                    events);
+                    events,
+                    deferNormalVictory: deferNormalVictory);
                 nextPlayerScores = drawResult.PlayerScores;
                 winnerPlayerId = drawResult.WinnerPlayerId ?? winnerPlayerId;
                 nextRngCursor = drawResult.RngCursor;
@@ -19324,8 +19341,21 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 : ReconcileObjectLocations(state.ObjectLocations, resolvedPlayerZones);
             var postStackCleanupEvents = new List<GameEvent>();
             var resolvedDestroyedUnitOwnerIds = stackResolution.DestroyedUnitOwnerIds;
-            if (stackResolution.WinnerPlayerId is null && stackResolution.PendingCardChoice is null
-                && stackResolution.PendingEffectPlay is null && stackResolution.PendingPayment?.ResolvingStackItemId is null)
+            var canRunPostStackCleanup = stackResolution.PendingHandChoice is null
+                && stackResolution.PendingCardChoice is null && stackResolution.PendingEffectPlay is null
+                && stackResolution.PendingPayment?.ResolvingStackItemId is null
+                && !(confirmPermanent && state.PendingEffectPlay is not null);
+            // CN 319.5/321/323.1: finish this parent, then check victory before
+            // lethal cleanup. Lower chain items do not postpone this cleanup.
+            if (stackResolution.WinnerPlayerId is null && canRunPostStackCleanup
+                && WinningPlayerId(stackResolution.PlayerScores,
+                    EffectiveWinningScore(resolvedPlayerZones, resolvedCardObjects)) is { } normalWinner)
+            {
+                stackResolution = stackResolution with { WinnerPlayerId = normalWinner };
+                stackResolutionEvents.Add(BuildScoreVictoryEvent(normalWinner,
+                    EffectiveWinningScore(resolvedPlayerZones, resolvedCardObjects)));
+            }
+            if (stackResolution.WinnerPlayerId is null && canRunPostStackCleanup)
             {
                 var postStackCleanup = RunStateBasedCleanupLoop(state with { PlayerScores = stackResolution.PlayerScores, PlayerExperience = stackResolution.PlayerExperience },
                     resolvedPlayerZones,
@@ -24774,7 +24804,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     stackItem.ControllerId,
                     conditionalSourceDrawCount,
                     rngCursor,
-                    events);
+                    events,
+                    deferNormalVictory: true);
                 playerScores = drawApplication.PlayerScores;
                 winnerPlayerId = drawApplication.WinnerPlayerId;
                 rngCursor = drawApplication.RngCursor;
@@ -24789,7 +24820,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     stackItem.ControllerId,
                     optionalSourceDrawCount,
                     rngCursor,
-                    events);
+                    events,
+                    deferNormalVictory: true);
                 playerScores = drawApplication.PlayerScores;
                 winnerPlayerId = drawApplication.WinnerPlayerId;
                 rngCursor = drawApplication.RngCursor;
@@ -24855,7 +24887,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 stackItem.ControllerId,
                 behavior.LevelDrawOnPlayCount,
                 rngCursor,
-                events);
+                events,
+                deferNormalVictory: true);
             playerScores = drawApplication.PlayerScores;
             winnerPlayerId = drawApplication.WinnerPlayerId;
             rngCursor = drawApplication.RngCursor;
@@ -24987,7 +25020,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     stackItem.ControllerId,
                     behavior.SourceBoonDrawCount,
                     rngCursor,
-                    events);
+                    events,
+                    deferNormalVictory: true);
                 playerScores = drawApplication.PlayerScores;
                 winnerPlayerId = drawApplication.WinnerPlayerId;
                 rngCursor = drawApplication.RngCursor;
@@ -25130,7 +25164,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     drawPlayerId,
                     behavior.DrawCount * stackItem.EffectRepeatCount,
                     rngCursor,
-                    events);
+                    events,
+                    deferNormalVictory: true);
                 playerScores = drawApplication.PlayerScores;
                 winnerPlayerId = drawApplication.WinnerPlayerId;
                 rngCursor = drawApplication.RngCursor;
@@ -25223,7 +25258,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                             drawPlayerId,
                             preRuneDrawCount * stackItem.EffectRepeatCount,
                             rngCursor,
-                            events);
+                            events,
+                            deferNormalVictory: true);
                         playerScores = drawApplication.PlayerScores;
                         winnerPlayerId = drawApplication.WinnerPlayerId;
                         rngCursor = drawApplication.RngCursor;
@@ -25671,7 +25707,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     drawPlayerId,
                     perPlayerDrawCount * stackItem.EffectRepeatCount,
                     rngCursor,
-                    events);
+                    events,
+                    deferNormalVictory: true);
                 playerScores = drawApplication.PlayerScores;
                 winnerPlayerId = drawApplication.WinnerPlayerId;
                 rngCursor = drawApplication.RngCursor;
@@ -26607,7 +26644,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                                     sadPoroLastBreathDrawPlayerId,
                                     UnitLastBreathDrawIfAloneDrawCount(targetState.CardNo),
                                     rngCursor,
-                                    events);
+                                    events,
+                                    deferNormalVictory: true);
                                 playerScores = drawApplication.PlayerScores;
                                 winnerPlayerId = drawApplication.WinnerPlayerId ?? winnerPlayerId;
                                 rngCursor = drawApplication.RngCursor;
@@ -26630,7 +26668,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                                     loyalPoroLastBreathDrawPlayerId,
                                     UnitLastBreathDrawIfNotAloneDrawCount(targetState.CardNo),
                                     rngCursor,
-                                    events);
+                                    events,
+                                    deferNormalVictory: true);
                                 playerScores = drawApplication.PlayerScores;
                                 winnerPlayerId = drawApplication.WinnerPlayerId ?? winnerPlayerId;
                                 rngCursor = drawApplication.RngCursor;
@@ -26978,7 +27017,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     drawPlayerId,
                     drawCount * stackItem.EffectRepeatCount,
                     rngCursor,
-                    events);
+                    events,
+                    deferNormalVictory: true);
                 playerScores = drawApplication.PlayerScores;
                 winnerPlayerId = drawApplication.WinnerPlayerId;
                 rngCursor = drawApplication.RngCursor;
@@ -27174,7 +27214,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             stackItem.ControllerId,
             1,
             state.RngCursor,
-            events);
+            events,
+            deferNormalVictory: true);
 
         return new StackResolutionResult(
             playerZones,
@@ -27490,7 +27531,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             stackItem.ControllerId,
             drawCount,
             state.RngCursor,
-            events);
+            events,
+            deferNormalVictory: true);
 
         return new StackResolutionResult(
             playerZones,
@@ -27868,7 +27910,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             stackItem.ControllerId,
             drawCount,
             rngCursor,
-            events);
+            events,
+            deferNormalVictory: true);
 
         return new StackResolutionResult(
             playerZones,
@@ -33847,7 +33890,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             .ToArray();
     }
 
-    private static DrawResult DrawCards(MatchState state, string playerId, PlayerZones zones, int drawCount)
+    private static DrawResult DrawCards(MatchState state, string playerId, PlayerZones zones, int drawCount,
+        bool deferNormalVictory = false)
     {
         DrawResult result = new(
             zones.MainDeck,
@@ -33871,7 +33915,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     RngCursor = result.RngCursor
                 },
                 playerId,
-                currentZones);
+                currentZones,
+                burnouts.Count);
             drawnCards.AddRange(result.DrawnCards);
             burnouts.AddRange(result.Burnouts);
             currentZones = currentZones with
@@ -33884,7 +33929,9 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         return result with
         {
             DrawnCards = drawnCards.ToArray(),
-            Burnouts = burnouts.ToArray()
+            Burnouts = burnouts.ToArray(),
+            WinnerPlayerId = result.WinnerPlayerId
+                ?? (deferNormalVictory ? null : WinningPlayerId(result.PlayerScores, result.WinningScore))
         };
     }
 
@@ -33895,7 +33942,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         string playerId,
         int drawCount,
         long rngCursor,
-        List<GameEvent> events)
+        List<GameEvent> events,
+        bool deferNormalVictory = false)
     {
         if (drawCount <= 0
             || !playerZones.TryGetValue(playerId, out var drawPlayerZones))
@@ -33912,7 +33960,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             drawState,
             playerId,
             drawPlayerZones,
-            drawCount);
+            drawCount,
+            deferNormalVictory);
         drawPlayerZones = drawPlayerZones with
         {
             MainDeck = drawResult.MainDeck,
@@ -33945,6 +33994,19 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 }));
         }
 
+        if (drawResult.DrawnCards.Count > 0 || drawResult.WinnerPlayerId is null)
+        {
+            events.Add(new GameEvent(
+                "CARD_DRAWN",
+                $"{playerId} 抽 {drawResult.DrawnCards.Count} 张牌",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = playerId,
+                    ["count"] = drawResult.DrawnCards.Count,
+                    ["drawTriggerSources"] = CaptureDrawTriggerSources(state, playerId)
+                }));
+        }
+
         if (drawResult.WinnerPlayerId is not null)
         {
             events.Add(new GameEvent(
@@ -33955,18 +34017,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["winnerPlayerId"] = drawResult.WinnerPlayerId,
                     ["winningScore"] = drawResult.WinningScore
                 }));
-            return events;
         }
-
-        events.Add(new GameEvent(
-            "CARD_DRAWN",
-            $"{playerId} 抽 {drawResult.DrawnCards.Count} 张牌",
-            new Dictionary<string, object?>
-            {
-                ["playerId"] = playerId,
-                ["count"] = drawResult.DrawnCards.Count,
-                ["drawTriggerSources"] = CaptureDrawTriggerSources(state, playerId)
-            }));
         return events;
     }
 
@@ -34780,7 +34831,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             && state.TurnNumber == turnPlayerIndex + 1;
     }
 
-    private static DrawResult DrawOne(MatchState state, string playerId, PlayerZones zones)
+    private static DrawResult DrawOne(MatchState state, string playerId, PlayerZones zones, int priorBurnoutCount)
     {
         var playerScores = NormalizeScoresForSeats(state);
         var mainDeck = zones.MainDeck.ToList();
@@ -34835,7 +34886,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
             playerScores[opponentId] = playerScores.TryGetValue(opponentId, out var score) ? score + 1 : 1;
             burnouts.Add(new BurnoutResult(opponentId, playerScores[opponentId]));
-            winnerPlayerId = WinningPlayerId(playerScores, EffectiveWinningScore(state));
+            // CN 432.2.d completes the first replacement's remaining draw.
+            // Only a subsequent burnout in this same draw instruction can win
+            // immediately, without reaching its ordinary cleanup boundary.
+            if (priorBurnoutCount + burnouts.Count > 1)
+                winnerPlayerId = WinningPlayerId(playerScores, EffectiveWinningScore(state));
         }
 
         return new DrawResult(
@@ -34848,6 +34903,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             rngCursor,
             EffectiveWinningScore(state));
     }
+
+    private static GameEvent BuildScoreVictoryEvent(string winnerPlayerId, int winningScore)
+        => new("MATCH_WON", $"{winnerPlayerId} 达到获胜分数并获胜",
+            new Dictionary<string, object?> { ["winnerPlayerId"] = winnerPlayerId, ["winningScore"] = winningScore });
 
     private static string? WinningPlayerId(IReadOnlyDictionary<string, int> playerScores, int winningScore)
     {
@@ -35094,6 +35153,19 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 }));
         }
 
+        if (drawResult.DrawnCards.Count > 0 || drawResult.WinnerPlayerId is null)
+        {
+            events.Add(new GameEvent(
+                "CARD_DRAWN",
+                $"{state.TurnPlayerId} 抽 {drawResult.DrawnCards.Count} 张牌",
+                new Dictionary<string, object?>
+                {
+                    ["playerId"] = state.TurnPlayerId,
+                    ["drawTriggerSources"] = CaptureDrawTriggerSources(state, state.TurnPlayerId),
+                    ["count"] = drawResult.DrawnCards.Count
+                }));
+        }
+
         if (drawResult.WinnerPlayerId is not null)
         {
             if (!events.Any(gameEvent => string.Equals(gameEvent.Kind, "MATCH_WON", StringComparison.Ordinal)))
@@ -35111,15 +35183,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return events;
         }
 
-        events.Add(new GameEvent(
-            "CARD_DRAWN",
-            $"{state.TurnPlayerId} 抽 {drawResult.DrawnCards.Count} 张牌",
-            new Dictionary<string, object?>
-            {
-                ["playerId"] = state.TurnPlayerId,
-                ["drawTriggerSources"] = CaptureDrawTriggerSources(state, state.TurnPlayerId),
-                ["count"] = drawResult.DrawnCards.Count
-            }));
         events.Add(new GameEvent(
             "RUNE_POOL_CLEARED",
             "所有玩家的符文池已清空",

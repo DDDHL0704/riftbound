@@ -39,6 +39,31 @@ class GalleryCoverageTests(unittest.TestCase):
                 gallery.merge_gallery_views([view('page', [dict(id='A', text='old', flags=[])]),
                     view('whole', [changed])])
 
+    def test_json_type_conflicts_are_not_hidden_by_python_numeric_equality(self):
+        for before, after in [(True, 1), (False, 0), (1, 1.0)]:
+            for records in [
+                [view('page', [dict(id='A', details=[dict(value=before)])]),
+                 view('whole', [dict(id='A', details=[dict(value=after)])])],
+                [view('page', [dict(id='A', details=[dict(value=before)]),
+                               dict(id='A', details=[dict(value=after)])])]]:
+                with self.subTest(before=before, after=after, views=len(records)), \
+                     self.assertRaisesRegex(ValueError, 'Conflicting'):
+                    gallery.merge_gallery_views(records)
+
+    def test_object_member_order_does_not_create_a_content_conflict(self):
+        a = dict(id='A', details=dict(enabled=True, cost=1, optional=None))
+        b = dict(details=dict(optional=None, cost=1, enabled=True), id='A')
+        rows, receipt = gallery.merge_gallery_views([
+            view('page', [a, b], 1), view('whole', [b], 1)])
+        self.assertEqual([a], rows)
+        self.assertEqual({'A': 2}, receipt['views'][0]['identicalDuplicateIds'])
+        self.assertEqual(0, receipt['reportedMinusReturned'])
+
+    def test_nonfinite_row_values_cannot_form_a_valid_gallery_observation(self):
+        for value in [float('nan'), float('inf'), -float('inf')]:
+            with self.subTest(value=value), self.assertRaises(ValueError):
+                gallery.merge_gallery_views([view('page', [dict(id='A', value=value)], 1)])
+
     def test_reported_count_drift_fails_before_claiming_a_complete_collection(self):
         with self.assertRaisesRegex(ValueError, 'count changed'):
             gallery.merge_gallery_views([view('page', [dict(id='A')], 2),

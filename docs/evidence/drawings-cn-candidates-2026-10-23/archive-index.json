@@ -1,0 +1,181 @@
+{
+  "archive": "original-captures.tar.xz",
+  "archiveBytes": 1861644,
+  "archiveSha256": "330b34ec2ad37d677fcb4d41fd93c2315a29ebe79a17c9c22da25c3129d2d589",
+  "allMembersVerified": true,
+  "allOriginalCapturesReconstructedByteExact": true,
+  "representation": "HTML and JSON HTTP bytes stored directly so shared page scripts compress together; original gzip captures were independently reconstructed with gzip.compress(raw,mtime=0) and verified byte-exact. Receipts keep original hashes.",
+  "members": [
+    {
+      "originalCapturePath": "CN-NEWS-170222472b44ce17.html.gz",
+      "originalCaptureBytes": 769261,
+      "originalCaptureSha256": "ec7606bd1cbe8ed77375f69dc549a999f3ec975c81a9f5f1d6b3991980c1e6b1",
+      "archiveMember": "CN-NEWS-170222472b44ce17.html",
+      "memberBytes": 3447744,
+      "memberSha256": "d2f72c6d03ce893d115a4557ff404da11a2a0e1d0d9184ca2153873518609cc2",
+      "captureEncoding": "gzip-mtime0"
+    },
+    {
+      "originalCapturePath": "CN-NEWS-170222472b44ce17.receipt.json",
+      "originalCaptureBytes": 4474,
+      "originalCaptureSha256": "608550b5be99df0d0fc57f29e4eee5a89fae4ba12f72772ee319faae9df54abb",
+      "archiveMember": "CN-NEWS-170222472b44ce17.receipt.json",
+      "memberBytes": 4474,
+      "memberSha256": "608550b5be99df0d0fc57f29e4eee5a89fae4ba12f72772ee319faae9df54abb",
+      "captureEncoding": "identity"
+    },
+    {
+      "originalCapturePath": "CN-NEWS-55b818df90047879.html.gz",
+      "originalCaptureBytes": 769059,
+      "originalCaptureSha256": "a4894e99cfa64dfd537dbefcfb107dafbc7fc74eb636bc094836eec463e8b838",
+      "archiveMember": "CN-NEWS-55b818df90047879.html",
+      "memberBytes": 3447426,
+      "memberSha256": "24ef87d0888909a8a40126a0af22b28f7fd610dbe7744a1e386158cc02cdc14d",
+      "captureEncoding": "gzip-mtime0"
+    },
+    {
+      "originalCapturePath": "CN-NEWS-55b818df90047879.receipt.json",
+      "originalCaptureBytes": 4456,
+      "originalCaptureSha256": "84a8b486d0a17a7f6ff93fc5bb424974302c58f4736d3ff8af9b1903f8f2dbbd",
+      "archiveMember": "CN-NEWS-55b818df90047879.receipt.json",
+      "memberBytes": 4456,
+      "memberSha256": "84a8b486d0a17a7f6ff93fc5bb424974302c58f4736d3ff8af9b1903f8f2dbbd",
+      "captureEncoding": "identity"
+    },
+    {
+      "originalCapturePath": "CN-NEWS-dffe0ec68d88b953.html.gz",
+      "originalCaptureBytes": 772784,
+      "originalCaptureSha256": "a9c00f51dbee17369449845790d5ab8425ae2e2379bdb12a908c7fd4ba180ab5",
+      "archiveMember": "CN-NEWS-dffe0ec68d88b953.html",
+      "memberBytes": 3463678,
+      "memberSha256": "12246961be3986f61bf1a12fdd0845bade941c475d99d45b3387b3af033d2229",
+      "captureEncoding": "gzip-mtime0"
+    },
+    {
+      "originalCapturePath": "CN-NEWS-dffe0ec68d88b953.receipt.json",
+      "originalCaptureBytes": 6935,
+      "originalCaptureSha256": "f572a1774f6c6fe8c765c602a9534e94dddbf3dbff5710178ff118a258409842",
+      "archiveMember": "CN-NEWS-dffe0ec68d88b953.receipt.json",
+      "memberBytes": 6935,
+      "memberSha256": "f572a1774f6c6fe8c765c602a9534e94dddbf3dbff5710178ff118a258409842",
+      "captureEncoding": "identity"
+    },
+    {
+      "originalCapturePath": "independent-verification.json",
+      "originalCaptureBytes": 7446,
+      "originalCaptureSha256": "5b4478abbc3725b7211d2b52c1ccc85f4a6aca3879767f3b1f723806ff01111e",
+      "archiveMember": "independent-verification.json",
+      "memberBytes": 7446,
+      "memberSha256": "5b4478abbc3725b7211d2b52c1ccc85f4a6aca3879767f3b1f723806ff01111e",
+      "captureEncoding": "identity"
+    },
+    {
+      "originalCapturePath": "kennen-filtered-api.json.gz",
+      "originalCaptureBytes": 1090,
+      "originalCaptureSha256": "47dcd3e601764dfb086d13b30268337aa7d760b18cdd03e5071673c6d40d0d39",
+      "archiveMember": "kennen-filtered-api.json",
+      "memberBytes": 4147,
+      "memberSha256": "839e4848ddfe99fc08d403be0fd38159d68cd4d6f3fb1e76d8fb4cee8161b1f6",
+      "captureEncoding": "gzip-mtime0"
+    },
+    {
+      "originalCapturePath": "kennen-filtered-api.receipt.json",
+      "originalCaptureBytes": 6733,
+      "originalCaptureSha256": "37a17dd14e292e82f04617fc37bd4be17ed5f4ff6e705b76c2a86b8c67db1ea1",
+      "archiveMember": "kennen-filtered-api.receipt.json",
+      "memberBytes": 6733,
+      "memberSha256": "37a17dd14e292e82f04617fc37bd4be17ed5f4ff6e705b76c2a86b8c67db1ea1",
+      "captureEncoding": "identity"
+    },
+    {
+      "originalCapturePath": "official-cn-38299.png",
+      "originalCaptureBytes": 496342,
+      "originalCaptureSha256": "04e60fef9485d8848cebda6b45e55303985eca81ebdc1dacc0b6ffea145f0f31",
+      "archiveMember": "official-cn-38299.png",
+      "memberBytes": 496342,
+      "memberSha256": "04e60fef9485d8848cebda6b45e55303985eca81ebdc1dacc0b6ffea145f0f31",
+      "captureEncoding": "identity"
+    },
+    {
+      "originalCapturePath": "official-cn-38299.receipt.json",
+      "originalCaptureBytes": 1387,
+      "originalCaptureSha256": "9df01661d3eebbbe584cc085c821e51d1b3827fc22197bb0d77fef1301548d1b",
+      "archiveMember": "official-cn-38299.receipt.json",
+      "memberBytes": 1387,
+      "memberSha256": "9df01661d3eebbbe584cc085c821e51d1b3827fc22197bb0d77fef1301548d1b",
+      "captureEncoding": "identity"
+    },
+    {
+      "originalCapturePath": "parse-articles-v3.py.source",
+      "originalCaptureBytes": 2272,
+      "originalCaptureSha256": "5a50c9f1fe3ac7f1f50e5b2fbfa9c1940c9e9f7dbf214366f1ea37cedede80cc",
+      "archiveMember": "parse-articles-v3.py.source",
+      "memberBytes": 2272,
+      "memberSha256": "5a50c9f1fe3ac7f1f50e5b2fbfa9c1940c9e9f7dbf214366f1ea37cedede80cc",
+      "captureEncoding": "identity"
+    },
+    {
+      "originalCapturePath": "refresh-selected-sources.py",
+      "originalCaptureBytes": 4118,
+      "originalCaptureSha256": "1c19c796d62755e0ce590b6b593f8bdde008c583fb17ef35613b017490b96588",
+      "archiveMember": "refresh-selected-sources.py",
+      "memberBytes": 4118,
+      "memberSha256": "1c19c796d62755e0ce590b6b593f8bdde008c583fb17ef35613b017490b96588",
+      "captureEncoding": "identity"
+    },
+    {
+      "originalCapturePath": "refresh-summary.json",
+      "originalCaptureBytes": 1852,
+      "originalCaptureSha256": "7dfea3ecd212ee723488db5f8be8115c5162cf139234727f2052e3c7ff7b7798",
+      "archiveMember": "refresh-summary.json",
+      "memberBytes": 1852,
+      "memberSha256": "7dfea3ecd212ee723488db5f8be8115c5162cf139234727f2052e3c7ff7b7798",
+      "captureEncoding": "identity"
+    },
+    {
+      "originalCapturePath": "refresh.log",
+      "originalCaptureBytes": 247,
+      "originalCaptureSha256": "d1cfdb4c6635bf43e5f0f48d2148c7704247c046a30df9cf656c5afb26edb80d",
+      "archiveMember": "refresh.log",
+      "memberBytes": 247,
+      "memberSha256": "d1cfdb4c6635bf43e5f0f48d2148c7704247c046a30df9cf656c5afb26edb80d",
+      "captureEncoding": "identity"
+    },
+    {
+      "originalCapturePath": "reparse-retained-news-originals-readonly-v2.py.source",
+      "originalCaptureBytes": 6523,
+      "originalCaptureSha256": "125357d5a948880d62ed27d627a8b72e68dc4b07296aa6453a1cc32645a2ba47",
+      "archiveMember": "reparse-retained-news-originals-readonly-v2.py.source",
+      "memberBytes": 6523,
+      "memberSha256": "125357d5a948880d62ed27d627a8b72e68dc4b07296aa6453a1cc32645a2ba47",
+      "captureEncoding": "identity"
+    },
+    {
+      "originalCapturePath": "prior-CN-NEWS-55b818df90047879-image01.jpg",
+      "originalCaptureBytes": 372675,
+      "originalCaptureSha256": "1ef0264cfc3f5530e0fd4ac4118d5dc14acfe0a7845d88c605a8b13dfc9edfd6",
+      "archiveMember": "prior-CN-NEWS-55b818df90047879-image01.jpg",
+      "memberBytes": 372675,
+      "memberSha256": "1ef0264cfc3f5530e0fd4ac4118d5dc14acfe0a7845d88c605a8b13dfc9edfd6",
+      "captureEncoding": "identity"
+    },
+    {
+      "originalCapturePath": "prior-CN-NEWS-170222472b44ce17-image01.jpg",
+      "originalCaptureBytes": 418309,
+      "originalCaptureSha256": "ffd7241c45fc04fd1f51891d1106613636bfb87dcd9075d310bdb100be6a5d3f",
+      "archiveMember": "prior-CN-NEWS-170222472b44ce17-image01.jpg",
+      "memberBytes": 418309,
+      "memberSha256": "ffd7241c45fc04fd1f51891d1106613636bfb87dcd9075d310bdb100be6a5d3f",
+      "captureEncoding": "identity"
+    },
+    {
+      "originalCapturePath": "prior-CN-NEWS-dffe0ec68d88b953-image01.jpg",
+      "originalCaptureBytes": 215197,
+      "originalCaptureSha256": "889f85cfe85a00b8b86eb394e372ac9f81b8269ee89a3fe4ec260ffc5a14cb45",
+      "archiveMember": "prior-CN-NEWS-dffe0ec68d88b953-image01.jpg",
+      "memberBytes": 215197,
+      "memberSha256": "889f85cfe85a00b8b86eb394e372ac9f81b8269ee89a3fe4ec260ffc5a14cb45",
+      "captureEncoding": "identity"
+    }
+  ]
+}

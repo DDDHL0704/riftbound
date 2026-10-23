@@ -162,7 +162,7 @@ public sealed partial class CoreRuleEngine
                 break;
             case "CONQUEST_UNIT":
                 TryResolveNaturalUnitConquestTriggerSpecs(state, zones, cards, pools, scores, effects, player, field,
-                    [item.SourceObjectId], 0, rng, events, out var conquestDraw, out var conquestEffects, out payment);
+                    [item.SourceObjectId], 0, rng, events, out var conquestDraw, out var conquestEffects, out payment, deferNormalVictory: true);
                 scores = conquestDraw.PlayerScores; winner = conquestDraw.WinnerPlayerId; rng = conquestDraw.RngCursor;
                 effects = conquestEffects;
                 break;
@@ -235,7 +235,7 @@ public sealed partial class CoreRuleEngine
 
         void Draw(int count)
         {
-            var draw = ApplyDrawToPlayer(state, zones, scores, player, count, rng, events);
+            var draw = ApplyDrawToPlayer(state, zones, scores, player, count, rng, events, deferNormalVictory: true);
             scores = draw.PlayerScores; rng = draw.RngCursor; winner = draw.WinnerPlayerId;
         }
         void ReturnToHand(string id)
