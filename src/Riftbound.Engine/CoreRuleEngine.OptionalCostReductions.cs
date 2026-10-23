@@ -191,7 +191,8 @@ public sealed partial class CoreRuleEngine
             IReadOnlyList<string> costs = sacrifice is null ? normalized : normalized.Append(sacrifice).ToArray();
             var total = CalculatePlayManaCost(state, player, behavior, price.Mana, optionalReduction,
                 costs, sourceObjectId: source, componentEchoReduction: echoReduction);
-            if (availablePool.Mana < total.Total) continue;
+            if (PaymentCostRules.AvailableMana(availablePool, IsSpellPlayBehavior(behavior)
+                    ? ManaPaymentPurpose.PlaySpell : ManaPaymentPurpose.Other) < total.Total) continue;
             PrintedPowerCostRules.TrySelectForPlay(behavior, null, availablePool,
                 price.GenericPower + SourceReplayPowerCost(state, player), price.TypedPower,
                 out var totalGeneric, out var totalTyped);
