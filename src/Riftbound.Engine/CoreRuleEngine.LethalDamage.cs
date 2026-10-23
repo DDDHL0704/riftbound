@@ -22,4 +22,14 @@ public sealed partial class CoreRuleEngine
                 ? target.DamageMarkedByPlayerIds?.Contains(assigningPlayer) == true ? 0 : System.Math.Min(1, ordinary)
                 : ordinary;
     }
+
+    private static int CombatBudgetForLethalDamage(CardObjectState target, int requiredDamage)
+        // CN 467.2.c.4.a/c.5: choose the least original budget whose modified
+        // assignment is lethal. Damage application still applies the modifier once.
+        => target.UntilEndOfTurnEffects.Contains(DamageReceivedDoubledThisTurnEffectId, System.StringComparer.Ordinal)
+            // A pending prevention is a separate replacement interaction; doubling
+            // alone cannot justify reducing its existing assignment requirement.
+            && !target.UntilEndOfTurnEffects.Contains(PreventNextDamageThisTurnEffectId, System.StringComparer.Ordinal)
+            ? requiredDamage / 2 + requiredDamage % 2
+            : requiredDamage;
 }
