@@ -450,6 +450,12 @@ public static class CardBehaviorRegistry
 {
     private static readonly CardBehaviorDefinition[] RawDefinitions =
     [
+        new("VEN·052", "惑心转意", 1, "VEN_MODAL_REACTION_RETURN_FRIENDLY_UNIT", 0, 1,
+            TargetScope: CardTargetScopes.FriendlyUnit, TargetRequiredTag: CardObjectTags.UnitCard,
+            Mode: "RETURN_FRIENDLY_UNIT", ReturnsTargetToHand: true, CanPlayDuringPriority: true),
+        new("VEN·052", "惑心转意", 1, "VEN_MODAL_REACTION_ENEMY_POWER_MINUS_2", 0, 1,
+            TargetScope: CardTargetScopes.EnemyUnit, TargetRequiredTag: CardObjectTags.UnitCard,
+            Mode: "ENEMY_UNIT_POWER_MINUS_2", PowerModifierAmount: -2, CanPlayDuringPriority: true),
         new("VEN·012", "表里杀缭乱", 3, "VEN_FLOW_READY_UNIT_TEMP_ASSAULT_3", 0, 1,
             StatusEffectId: "COMBAT_KEYWORD:强攻3", TargetScope: CardTargetScopes.AnyUnit,
             TargetRequiredTag: CardObjectTags.UnitCard, ReadiesTarget: true,

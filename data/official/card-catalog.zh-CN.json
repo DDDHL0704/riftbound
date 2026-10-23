@@ -2,7 +2,7 @@
   "source": "https://playloltcg.com/card.html",
   "api": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
   "fetchedAt": "2026-04-27",
-  "total": 1045,
+  "total": 1046,
   "cards": [
     {
       "id": 31005,
@@ -43424,6 +43424,54 @@
       "isPreview": false,
       "errata": "",
       "otherDesc": 0
+    },
+    {
+      "id": 37743,
+      "cardCategoryList": [
+        "spell"
+      ],
+      "cardCategoryNameList": [
+        "法术"
+      ],
+      "cardNo": "VEN·052",
+      "cardName": "惑心转意",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "blue"
+      ],
+      "hero": "",
+      "region": "",
+      "tag": "",
+      "artist": "小牛设计",
+      "cardEffect": "{{反应}}（可在任意时机打出，甚至先于其他法术和技能的结算。）\n选择一个效果 —\n- 让一名友方单位返回其所属的手牌。\n- 给予一名敌方单位在本回合内{{S}}-2。",
+      "flavorText": "“无所作为，徒留后悔。”\n——梅尔",
+      "energy": 1,
+      "returnEnergy": 1,
+      "power": null,
+      "productCodeList": [
+        "VEN(标准补充包)",
+        "VEN(进阶补充包)"
+      ],
+      "productNameList": [
+        "化神争锋 标准补充包",
+        "化神争锋 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_dust",
+      "rarityName": "普通",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260710/516a1f7174f94f2fb9e1d709f5e4b431.png",
+      "backImage": "",
+      "listSort": 1943,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
     }
   ],
   "scopedAdditions": [
@@ -44024,6 +44072,21 @@
       "printedFaceIdentity": "VEN·012/166 SC",
       "separateGlobalPrintingIdentityNotMerged": "VEN-012/166",
       "reason": "Exact CN Flow consumer composed from ready-unit and temporary Assault grants. Registration and focused evidence are not whole-card certification."
+    },
+    {
+      "cardNo": "VEN·052",
+      "source": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "fetchedAtUtc": "2026-10-23T15:12:46.490342+00:00",
+      "sourceId": 37743,
+      "sourceRecordSha256": "723ef71b05615b68068e9f563b0b621b8b1acaf9d230981b53f85a4ab524653c",
+      "sourceRecordHashEncoding": "UTF-8 JSON sorted keys, compact separators, ensure_ascii=false",
+      "language": "zh-CN",
+      "region": "CN",
+      "publicationDate": null,
+      "effectiveDate": null,
+      "printedFaceIdentity": "VEN·052/166 SC",
+      "separateGlobalPrintingIdentityNotMerged": "VEN-052/166",
+      "reason": "Exact CN two-mode reaction consumer, friendly owner-hand return or enemy unfloored temporary Might reduction; registration is not whole-card certification."
     }
   ]
 }

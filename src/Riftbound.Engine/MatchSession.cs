@@ -15045,6 +15045,8 @@ internal static class ActionPromptBuilder
             "READY_LEGEND" => "活跃传奇",
             "EXHAUST_LEGEND" => "休眠传奇",
             "BATTLEFIELD_UNIT_POWER_MINUS_4" => "战场单位战力 -4",
+            "RETURN_FRIENDLY_UNIT" => "让一名友方单位返回其拥有者的手牌",
+            "ENEMY_UNIT_POWER_MINUS_2" => "让一名敌方单位本回合战力 -2",
             "DRAW_1" => "抽 1 张",
             "SELF_BOON" => "给予我增益",
             "DAMAGE_2" => "造成 2 点伤害",
