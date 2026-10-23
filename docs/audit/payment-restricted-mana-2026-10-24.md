@@ -1,0 +1,13 @@
+# S6：Lux 受限法力的符文池生命周期
+- 身份：仅 CN/zh-CN `OGS·014/024`、`VEN·SP6` 已核对的同技能；精确目录依赖 `e729ab7d`（本树 raw/运行目录均1041），不同副标题OGS006为负控；不扩整卡或其他Lux。
+- 卡源：[官方API](https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb)，2026-10-23T17:47:04Z取得，SHA `4dfaf40eda6e4f7b0a09624693c32f8f42933859fe12a9b1027a564a6aba44e2`；两精确印次均限定用途，出版/生效日未给出，不推断。
+- 规则：[当前CN核心PDF](https://cdn.playloltcg.com/lol/2026/10/2026-10-10/a21ead876c6b44d6abe386b6ae54ea28.pdf)，同次取得SHA `d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11`；CN166–168/430：资源入池、反应获取不交权，每次主阶段开始/回合结束清空所有玩家池。
+- 语义：普通反应窗口/支付中均可获取；`SpellOnlyMana`独立保留至正常清池，来源离场不撤销；不再使用临时资源立即清除或“不必要获取”禁令；实际法术费用优先用受限余额。
+- 权威：PaymentPlan用途由真实出牌行为决定，默认Other；单位、独立技能和结算指令不能花此余额。ctor/with/相邻资源与移动/相等哈希/私有及旁观视图/恢复均覆盖，负数/溢出/数值字符串不洗白，超范围原子拒绝。
+- 契约：quote原位置参数不变；body可选AvailableSpellOnlyMana/RemainingSpellOnlyMana是该行动已获授权的AvailableMana/RemainingMana子集；非Spell可用子集0、不可支付剩余null，钱包实际余额独立；无客户端目的字段或页面改动。
+- 源码：规则/测试 `84e9ccd0`，原行校准及独立验收 `ba57eb17665eb0dec84a61e988b394ddbe9bfbf8`；两有限QA名经①批准，保留current.RuleInputs、敌方战场controller及真实factory，只从实际空房/入座/DEV_SEED日志生成。
+- 固定验证：`ba57eb17`上185方法/657例 **657 PASS、0 FAIL、0跳过**，与前次657个TRX名称多重集严格一致；真实出生/逐步冷恢复/完整原日志/双人清池/用途/混合/同会话拒绝后EndTurn/一致伪造拒绝均含；仅定向/受影响回归。
+- 实载：Engine SHA `18a2c8cd300af9ed2b2baeb4fc10f5ff8de0530dafeaecde5dda7074f62ec6d9`，MVID `dbd14626-ca2c-4ef4-b9a2-2456c0896f9b`，info `+ba57eb17`；入口与两个测试进程实载身份一致，目录1041；原件 `var/qa/payment-restricted-mana-20261024/fixed-ba57eb17-v13/` 及 `acceptance-entry-ba57eb17-v3/`。
+- 原件：initial red/focus-v1/v2、mechanism-v4（102/111）、fixed-84e9ccd0-v10（656/657）及各driver失败原TRX全留；7项旧Lux预期和1项旧replacement行按上述来源校准，全部原方法/数据行保留；FullGame字节SHA仍`1fd8423eeb7f46ae10096ac260c2c1b380a34d714bcbdc73cbc90bc9926519ac`，见ignored original-source/original-retention.json。
+- 远端入口：`tests/Riftbound.RestrictedManaAcceptance`已build/help/identity通过；`sql→prepare→API start→play→verify before-restart→实际stop/restart→recover→verify after-restart→finish→verify final→API stop→tamper`；独立数据库/GUID房间，两精确印次，七表/私有视图/原intent幂等与6种SQL篡改含shape-coherent完整出生回放拒绝；这些重型阶段本机未执行。
+- 状态：L2机制包已具源码/定向证据，含目录注册依赖的候选CI仍保守full；提交推送不等于集成或验收，待①Actions实际SQL/双连接/进程重启/check/full与受影响原完整局，当前冻结候选不混入；净整卡认证增量0，整个后端Goal仍ACTIVE。
