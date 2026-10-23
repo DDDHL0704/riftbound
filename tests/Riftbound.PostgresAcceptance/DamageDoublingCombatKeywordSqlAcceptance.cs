@@ -83,7 +83,10 @@ internal static class DamageDoublingCombatKeywordSqlAcceptance
         {
             var kind = item.GetProperty("kind").GetString()!;
             var room = item.GetProperty("room").GetString()!;
+            var digest = await NetworkReconnectSqlEvidence.VerifyAsync(source, output, kind, room, stage,
+                item.GetProperty("p1").GetString()!, item.GetProperty("p2").GetString()!);
             var frame = await LoadAndAudit(source, room);
+            Check(await Digest(source, room) == digest, "Pure original-birth replay and registry recovery must preserve all seven tables exactly.");
             var state = frame.AuthoritativeState!;
             CheckBoundary(state, kind, item.GetProperty("p1").GetString()!, item.GetProperty("p2").GetString()!);
             Check(frame.Commands.Count == item.GetProperty("expectedAcceptedCommands").GetInt32() + 1
@@ -95,20 +98,12 @@ internal static class DamageDoublingCombatKeywordSqlAcceptance
                 "The persisted stale rejection must not advance tick or emit an event.");
             Check(frame.Commands.All(c => Same(c.RuleInputs, state.RuleInputs))
                 && Same(item.GetProperty("ruleInputs"), state.RuleInputs), "Fresh SQL/API histories must retain their current recorded RuleInputs.");
-            var digest = await Digest(source, room);
-            if (stage == "after-restart")
-            {
-                using var before = JsonDocument.Parse(await File.ReadAllBytesAsync(Path.Combine(output, "sql-before-restart.json")));
-                var prior = before.RootElement.GetProperty("cases").EnumerateArray()
-                    .Single(c => c.GetProperty("room").GetString() == room);
-                Check(prior.GetProperty("sevenTableDigest").GetString() == digest,
-                    "Actual API restart, reconnect and duplicate completion must leave all seven SQL tables unchanged.");
-            }
             await Write(output, kind + "-original-commands.json", frame.Commands);
             await Write(output, kind + "-original-events.json", frame.Events);
             reports.Add(new { kind, room, commands = frame.Commands.Count, events = frame.Events.Count,
                 finalHash = MatchStateHasher.Hash(state), sevenTableDigest = digest,
-                originalReplayMatched = true, actualRegistryRecoveryMatched = true });
+                originalReplayMatched = true, actualRegistryRecoveryMatched = true, boundedActualJoinedTokenRotationMatched = true,
+                strictPostReconnectDuplicateMatched = stage == "after-restart" });
         }
         await Write(output, "sql-" + stage + ".json", new {
             status = "REAL_API_C5_C6_SQL_ORIGINAL_REPLAY_PASS", stage, cases = reports,
@@ -180,6 +175,7 @@ internal static class DamageDoublingCombatKeywordSqlAcceptance
             }
             Check(await Digest(source, room) == digest, "Temporary tampering must restore every SQL row exactly.");
             await LoadAndAudit(source, room);
+            Check(await Digest(source, room) == digest, "Post-tamper pure recovery must preserve the restored seven-table baseline exactly.");
             reports.Add(new { kind, room, shapeConsistent, rejection, originalAcceptedRowsNeverRewritten = true,
                 originalSevenTableDigestRestored = true });
         }

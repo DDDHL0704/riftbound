@@ -170,7 +170,11 @@ internal static class EmpoweredTargetReplacementSqlAcceptance
         var reports = new List<object>();
         foreach (var item in fixture.RootElement.GetProperty("cases").EnumerateArray()) {
             var c = new Case(item.GetProperty("mechanism").GetString()!, item.GetProperty("target").GetString()!, item.GetProperty("cardNo").GetString()!);
-            var room = item.GetProperty("room").GetString()!; var frame = await LoadAndAudit(source, room);
+            var room = item.GetProperty("room").GetString()!;
+            var digest = await NetworkReconnectSqlEvidence.VerifyAsync(source, output, c.Key, room, stage,
+                item.GetProperty("p1").GetString()!, item.GetProperty("p2").GetString()!);
+            var frame = await LoadAndAudit(source, room);
+            Check(await Digest(source, room) == digest, "Pure original-birth replay and registry recovery must preserve all seven tables exactly.");
             CheckBoundary(frame.AuthoritativeState!, c, item.GetProperty("p1").GetString()!, item.GetProperty("p2").GetString()!);
             Check(frame.Commands.Count == item.GetProperty("expectedAcceptedCommands").GetInt32() + 1
                 && frame.Commands.Count(cmd => !cmd.Accepted) == 1 && !frame.Commands[^1].Accepted
@@ -179,18 +183,12 @@ internal static class EmpoweredTargetReplacementSqlAcceptance
                 "Keep exactly the genuine seat/seed/action prefix and one zero-event stale rejection.");
             Check(frame.Commands.All(cmd => Same(cmd.RuleInputs, frame.AuthoritativeState!.RuleInputs))
                 && Same(item.GetProperty("ruleInputs"), frame.AuthoritativeState!.RuleInputs), "Never rebind old accepted RuleInputs to a new runtime.");
-            var digest = await Digest(source, room);
-            if (stage == "after-restart") {
-                using var before = JsonDocument.Parse(await File.ReadAllBytesAsync(Path.Combine(output, "sql-before-restart.json")));
-                var prior = before.RootElement.GetProperty("cases").EnumerateArray().Single(row => row.GetProperty("room").GetString() == room);
-                Check(prior.GetProperty("sevenTableDigest").GetString() == digest,
-                    "Actual process restart, reconnect and duplicate must not rewrite any of seven SQL tables.");
-            }
             await Write(output, c.Key + "-original-commands.json", frame.Commands);
             await Write(output, c.Key + "-original-events.json", frame.Events);
             reports.Add(new { c.Kind, c.CardNo, room, commands = frame.Commands.Count, events = frame.Events.Count,
                 sevenTableDigest = digest, finalHash = MatchStateHasher.Hash(frame.AuthoritativeState!), originalBirthReplayMatched = true,
-                actualRegistryRecoveryMatched = true });
+                actualRegistryRecoveryMatched = true, boundedActualJoinedTokenRotationMatched = true,
+                strictPostReconnectDuplicateMatched = stage == "after-restart" });
         }
         await Write(output, "sql-" + stage + ".json", new { status = "REAL_C7_NETWORK_SQL_ORIGINAL_BIRTH_PASS", stage, cases = reports,
             scope = "Four finite QA rooms only. A true API restart requires the external runner's two process identities; this helper does not manage a server." });
@@ -246,6 +244,7 @@ internal static class EmpoweredTargetReplacementSqlAcceptance
                 finally { foreach (var row in rows) await UpdatePayload(source, room, row, row.Payload); }
                 Check(await Digest(source, room) == digest, "Restore every temporary QA SQL row exactly.");
                 await LoadAndAudit(source, room);
+                Check(await Digest(source, room) == digest, "Post-tamper pure recovery must preserve the restored seven-table baseline exactly.");
                 reports.Add(new { c.Kind, c.CardNo, room, mode, shapeConsistent, rejection,
                     originalAcceptedCommandsNeverRewritten = true, originalSevenTableDigestRestored = true });
             }
