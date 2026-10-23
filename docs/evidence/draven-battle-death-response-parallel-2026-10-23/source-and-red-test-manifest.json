@@ -1,0 +1,1685 @@
+{
+  "status": "SOURCE_RED_DEATH_SCORE_14_AND_INDEPENDENT_VOID_GATE_DAMAGE_2",
+  "atUtc": "2026-10-23T08:20:50.826326+00:00",
+  "baseCommit": "dd084dfd0ffb81a33d43581e47aa974a140703c0",
+  "region": "CN",
+  "language": "zh-CN",
+  "coreEffectiveDate": "2026-10-16",
+  "peerOverlay": {
+    "atUtc": "2026-10-23T06:53:49.777592+00:00",
+    "savedBranchHead": "36f7195f7ce16402236d0b8e905d70c97dc96217",
+    "overlaySource": "/Users/dinghaolin/MyProjects/riftbound/var/qa/battle-result-continuation-n52-20261023/peer-fixed-n52-first45-v1.tar.gz",
+    "overlaySha256": "a13b965f76e99ab2c6b3ebfa5d65638d53f71aa4e770cc1eaf7206daab54161a",
+    "inputRole": "N51 source plus first N52 shared continuation that passed45; not committed or whole verified",
+    "files": [
+      {
+        "path": "src/Riftbound.Engine/BattleResultRecoveryRules.cs",
+        "beforeSha256": null,
+        "afterSha256": "6196373ecb6fb5c52a9b523a838048949c9d4a999de80a3f04e555d664907372"
+      },
+      {
+        "path": "src/Riftbound.Engine/CoreRuleEngine.BattleResponseCleanup.cs",
+        "beforeSha256": "b733efda64821fd825a2c369b63cb05fb93c802974677a61b6165f808236e733",
+        "afterSha256": "d40b423023e0b7d8f5dd1f01a47ff197c703d8afc96522a528937ed0cbae1a28"
+      },
+      {
+        "path": "src/Riftbound.Engine/CoreRuleEngine.BattleResultContinuation.cs",
+        "beforeSha256": null,
+        "afterSha256": "cf0f94c35bad28617a80bbd8ff720cf5c1cdf55e5a48935601696bc4b8b9041f"
+      },
+      {
+        "path": "src/Riftbound.Engine/CoreRuleEngine.BattleWinTriggers.cs",
+        "beforeSha256": "a7ef81940a8882452fdf34ac7adbbfb8a47a518585ddddb13318d3eef91d5f4c",
+        "afterSha256": "a7ef81940a8882452fdf34ac7adbbfb8a47a518585ddddb13318d3eef91d5f4c"
+      },
+      {
+        "path": "src/Riftbound.Engine/CoreRuleEngine.Conquest.cs",
+        "beforeSha256": "e0e460a99309ef3c519a16f204fcef0f97ffbea360bbe4835cee7b74e19a3b07",
+        "afterSha256": "e0e460a99309ef3c519a16f204fcef0f97ffbea360bbe4835cee7b74e19a3b07"
+      },
+      {
+        "path": "src/Riftbound.Engine/CoreRuleEngine.KhazixBattleWin.cs",
+        "beforeSha256": "daf437d44f947077899a54369a1b69ae886b0b1dc3add0a5a6aebf3c2b4610c4",
+        "afterSha256": "daf437d44f947077899a54369a1b69ae886b0b1dc3add0a5a6aebf3c2b4610c4"
+      },
+      {
+        "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+        "beforeSha256": "4b2251dfeae61a554a29ed97b60c155e2729b3e0e7c5852ce2bc1917a4e7e09b",
+        "afterSha256": "a80bc1805ba530cbb4302be8c83df48e5d13a97910e56c45850fd6c9bc35b7f5"
+      },
+      {
+        "path": "src/Riftbound.Engine/MatchRecovery.cs",
+        "beforeSha256": "2c1990334f99623ba77e5d550e419eacdcfa14fe916039efd40fde30df99193b",
+        "afterSha256": "e52bc19c545d7798834948b4c9ada522064267f4ceb4a0e9feba624a3725def6"
+      },
+      {
+        "path": "src/Riftbound.Engine/MatchSession.VictoryCleanupScenario.cs",
+        "beforeSha256": null,
+        "afterSha256": "e49c905f70d267851dd51f95e5ce70a1baa1ecadc8c17d750715ba3c8993c2fb"
+      },
+      {
+        "path": "src/Riftbound.Engine/MatchSession.cs",
+        "beforeSha256": "7dea07e944571abad1a71d92f2f4b280755f60f8144fa7fca3fc109393feb7b2",
+        "afterSha256": "ffa880e6267a88d70a16e1a73328e9b7d5601978fbc040df56d198afe7525ee5"
+      },
+      {
+        "path": "tests/Riftbound.ConformanceTests/BurnoutVictoryBeforeCleanupTests.cs",
+        "beforeSha256": null,
+        "afterSha256": "f1aa6d661db70f5de5fb23a1b760b312ce764b3bf4455c41498ace65cefa83f2"
+      },
+      {
+        "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+        "beforeSha256": "eb6e744566c740507794fc850948ea56216296349ef60ba81bfdeb5fd22fad96",
+        "afterSha256": "eb6e744566c740507794fc850948ea56216296349ef60ba81bfdeb5fd22fad96"
+      },
+      {
+        "path": "tests/Riftbound.ConformanceTests/OfficialBattleWinConsumerTests.cs",
+        "beforeSha256": "5ee6afb3db023b596d89cd364e704adf4aa790346083c4a5ff2c9719155accda",
+        "afterSha256": "8072f9abd2977bf0253ec0fd0bf362ce6515db12ba5db937625e8e89afc11775"
+      },
+      {
+        "path": "tests/Riftbound.ConformanceTests/OfficialDravenBattleWinTimingTests.cs",
+        "beforeSha256": "5a0ad23725ec41fae7b9ce976cf0945c49224e9267b7fdb5615affae9891c777",
+        "afterSha256": "1ea9a25f581cb6bf2afbaa4b16f70ff50cb6b72f07fd8dafe2cbdf5765b361de"
+      },
+      {
+        "path": "tests/Riftbound.ConformanceTests/OfficialGarenConquestBattlefieldCountTests.cs",
+        "beforeSha256": "41f91095c1364f6660adf95092ef88e99ee6e821866baffc277dbd7546f6955d",
+        "afterSha256": "41f91095c1364f6660adf95092ef88e99ee6e821866baffc277dbd7546f6955d"
+      },
+      {
+        "path": "tests/Riftbound.ConformanceTests/OfficialKhazixBattleWinTests.cs",
+        "beforeSha256": "9324aece669b04b815c7b1f83449763e269690a6d767385238df3c48c07bdf68",
+        "afterSha256": "9324aece669b04b815c7b1f83449763e269690a6d767385238df3c48c07bdf68"
+      },
+      {
+        "path": "tests/Riftbound.PostgresAcceptance/Program.cs",
+        "beforeSha256": "b097335f2d2b8f2ad8571ac87cd9e52bffecc6e22aca7f2cc52f4e250c3247e3",
+        "afterSha256": "9097f646f2e8cde201541cdf56ad4d9a71e8330bd93cf7362cbe0402181069df"
+      },
+      {
+        "path": "tests/Riftbound.PostgresAcceptance/SqlAcceptanceCases.json",
+        "beforeSha256": "c9bd1ff9520c659da32c5bfc7acdf0257578339ca9e6be47fe874a2f563a01ba",
+        "afterSha256": "ec5942c55213c0a77bbe52c0829e40cbe968c3a397a70844b6b35cb70fdbf63e"
+      },
+      {
+        "path": "tests/Riftbound.PostgresAcceptance/VictoryCleanupGarenSqlAcceptance.cs",
+        "beforeSha256": null,
+        "afterSha256": "be91787c33a2911c97cf21b544fbc00c6875ac3c111184abb32088dc496f8712"
+      }
+    ],
+    "sharedFilesRemainUnstagedAndMustNotBeCommittedByThisChat": true,
+    "ownDravenScorePreparationRetained": true
+  },
+  "all19SharedInputsUnchanged": true,
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "0aa8f812dc6f561f9fb1996381bae9821bd54d069f3ad26be7fe669baae9ae6c",
+    "implementationSha256": "ef9e67cf04c4a4c8e50b5835b3c361e749d408e9f998d720bc583527852d225b",
+    "identitySha256": "41e6ec8723076c3892326297012ba69d278b7233694ae12ab2af1d0a325b2945"
+  },
+  "testAssemblySha256": "f79060631d5dd99096bf10ec29dadcc18e71bdf861ff7465a7d1da6ad707f7c4",
+  "source": {
+    "path": "tests/Riftbound.ConformanceTests/OfficialDravenBattleDeathScoreTests.cs",
+    "sha256": "24fed2f6e2e53f78f5d80e0d0db9270a94b08899885ad1b3facfeef112fa64e0"
+  },
+  "consumer": {
+    "path": "src/Riftbound.Engine/CoreRuleEngine.DravenBattleDeathScore.cs",
+    "sha256": "4d91d2fc2cbe05a1334ae904bffb8886319cd9bd4646a1fab990c17b0914950d",
+    "unchangedFromCommit": "dd084dfd",
+    "sharedCallSites": 0
+  },
+  "originalRuns": {
+    "focus-v1": {
+      "sha256": "a346c176040406de45160ac547d4c61d37113c3da2126e038a7be6536a171e4b",
+      "counters": {
+        "total": "18",
+        "executed": "18",
+        "passed": "4",
+        "failed": "14",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      },
+      "cases": [
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot(cardNo: \"SFD·148a/221\", scenario: \"spell-battle-death\")",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot(cardNo: \"SFD·148/221\", scenario: \"spell-battle-death\")",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot(cardNo: \"SFD·148a/221\", scenario: \"spell-outside-battle\")",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot(cardNo: \"SFD·148/221\", scenario: \"defender-winning-point\")",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot(cardNo: \"SFD·148/221\", scenario: \"attacker-death\")",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ReactionCardsKeepTheRealBattleResponseWindowBeforeDamageAndDeath(cardNo: \"SFD·148/221\", castResponses: True)",
+          "outcome": "Failed",
+          "failure": "Assert.Contains() Failure: Filter not matched in collection\nCollection: [GameEvent { Kind = UNIT_MOVED_TO_BATTLEFIELD, Description = P1 将单位移动到战场, Payload = System.Collections.Generic.Dictionary`2[System.String,System.Object], ObjectRefs =  }, GameEvent { Kind = BATTLEFIELD_CONTESTED, Description = 战场进入争夺状态, Payload = System.Collections.Generic.Dictionary`2[System.String,System.Object], ObjectRefs =  }, GameEvent { Kind = SPELL_DUEL_STARTED, Description = 争夺战场触发法术对决, Payload = System.Collections.Generic.Dictionary`2[System.String,System.Object], ObjectRefs =  }, GameEvent { Kind = BATTLE_ROLES_ESTABLISHED, Description = 确立进攻和防守身份, Payload = System.Collections.Generic.Dictionary`2[System.String,System.Object], ObjectRefs =  }, GameEvent { Kind = FOCUS_PASSED, Description = P1 让过焦点, Payload = System.Collections.Generic.Dictionary`2[System.String,System.Object], ObjectRefs =  }, ···]"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ReactionCardsKeepTheRealBattleResponseWindowBeforeDamageAndDeath(cardNo: \"SFD·148/221\", castResponses: False)",
+          "outcome": "Failed",
+          "failure": "Assert.Contains() Failure: Filter not matched in collection\nCollection: [GameEvent { Kind = UNIT_MOVED_TO_BATTLEFIELD, Description = P1 将单位移动到战场, Payload = System.Collections.Generic.Dictionary`2[System.String,System.Object], ObjectRefs =  }, GameEvent { Kind = BATTLEFIELD_CONTESTED, Description = 战场进入争夺状态, Payload = System.Collections.Generic.Dictionary`2[System.String,System.Object], ObjectRefs =  }, GameEvent { Kind = SPELL_DUEL_STARTED, Description = 争夺战场触发法术对决, Payload = System.Collections.Generic.Dictionary`2[System.String,System.Object], ObjectRefs =  }, GameEvent { Kind = BATTLE_ROLES_ESTABLISHED, Description = 确立进攻和防守身份, Payload = System.Collections.Generic.Dictionary`2[System.String,System.Object], ObjectRefs =  }, GameEvent { Kind = FOCUS_PASSED, Description = P1 让过焦点, Payload = System.Collections.Generic.Dictionary`2[System.String,System.Object], ObjectRefs =  }, ···]"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot(cardNo: \"SFD·148/221\", scenario: \"mutual-death\")",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot(cardNo: \"SFD·148a/221\", scenario: \"attacker-death\")",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot(cardNo: \"SFD·148a/221\", scenario: \"defender-winning-point\")",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot(cardNo: \"SFD·148/221\", scenario: \"defender-death\")",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot(cardNo: \"SFD·148a/221\", scenario: \"zhonya-replacement\")",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot(cardNo: \"SFD·148a/221\", scenario: \"defender-death\")",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot(cardNo: \"SFD·148/221\", scenario: \"zhonya-replacement\")",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot(cardNo: \"SFD·148/221\", scenario: \"spell-outside-battle\")",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ReactionCardsKeepTheRealBattleResponseWindowBeforeDamageAndDeath(cardNo: \"SFD·148a/221\", castResponses: True)",
+          "outcome": "Failed",
+          "failure": "Assert.Contains() Failure: Filter not matched in collection\nCollection: [GameEvent { Kind = UNIT_MOVED_TO_BATTLEFIELD, Description = P1 将单位移动到战场, Payload = System.Collections.Generic.Dictionary`2[System.String,System.Object], ObjectRefs =  }, GameEvent { Kind = BATTLEFIELD_CONTESTED, Description = 战场进入争夺状态, Payload = System.Collections.Generic.Dictionary`2[System.String,System.Object], ObjectRefs =  }, GameEvent { Kind = SPELL_DUEL_STARTED, Description = 争夺战场触发法术对决, Payload = System.Collections.Generic.Dictionary`2[System.String,System.Object], ObjectRefs =  }, GameEvent { Kind = BATTLE_ROLES_ESTABLISHED, Description = 确立进攻和防守身份, Payload = System.Collections.Generic.Dictionary`2[System.String,System.Object], ObjectRefs =  }, GameEvent { Kind = FOCUS_PASSED, Description = P1 让过焦点, Payload = System.Collections.Generic.Dictionary`2[System.String,System.Object], ObjectRefs =  }, ···]"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ReactionCardsKeepTheRealBattleResponseWindowBeforeDamageAndDeath(cardNo: \"SFD·148a/221\", castResponses: False)",
+          "outcome": "Failed",
+          "failure": "Assert.Contains() Failure: Filter not matched in collection\nCollection: [GameEvent { Kind = UNIT_MOVED_TO_BATTLEFIELD, Description = P1 将单位移动到战场, Payload = System.Collections.Generic.Dictionary`2[System.String,System.Object], ObjectRefs =  }, GameEvent { Kind = BATTLEFIELD_CONTESTED, Description = 战场进入争夺状态, Payload = System.Collections.Generic.Dictionary`2[System.String,System.Object], ObjectRefs =  }, GameEvent { Kind = SPELL_DUEL_STARTED, Description = 争夺战场触发法术对决, Payload = System.Collections.Generic.Dictionary`2[System.String,System.Object], ObjectRefs =  }, GameEvent { Kind = BATTLE_ROLES_ESTABLISHED, Description = 确立进攻和防守身份, Payload = System.Collections.Generic.Dictionary`2[System.String,System.Object], ObjectRefs =  }, GameEvent { Kind = FOCUS_PASSED, Description = P1 让过焦点, Payload = System.Collections.Generic.Dictionary`2[System.String,System.Object], ObjectRefs =  }, ···]"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot(cardNo: \"SFD·148a/221\", scenario: \"mutual-death\")",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+        }
+      ]
+    },
+    "focus-v2": {
+      "sha256": "2576148cafa6598b07f224d353955600602b19dd0a9c464433b9d7ee7c080041",
+      "counters": {
+        "total": "18",
+        "executed": "18",
+        "passed": "4",
+        "failed": "14",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      },
+      "cases": [
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ReactionCardsRemainAvailableDuringTheInitialBattleDuelBeforeDamage(cardNo: \"SFD·148/221\", castResponses: True)",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Values differ\nExpected: 3\nActual:   2"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot(cardNo: \"SFD·148/221\", scenario: \"defender-winning-point\")",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ReactionCardsRemainAvailableDuringTheInitialBattleDuelBeforeDamage(cardNo: \"SFD·148/221\", castResponses: False)",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot(cardNo: \"SFD·148a/221\", scenario: \"defender-death\")",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot(cardNo: \"SFD·148a/221\", scenario: \"attacker-death\")",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot(cardNo: \"SFD·148a/221\", scenario: \"spell-battle-death\")",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot(cardNo: \"SFD·148a/221\", scenario: \"zhonya-replacement\")",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot(cardNo: \"SFD·148/221\", scenario: \"attacker-death\")",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot(cardNo: \"SFD·148/221\", scenario: \"defender-death\")",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot(cardNo: \"SFD·148a/221\", scenario: \"defender-winning-point\")",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ReactionCardsRemainAvailableDuringTheInitialBattleDuelBeforeDamage(cardNo: \"SFD·148a/221\", castResponses: True)",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Values differ\nExpected: 3\nActual:   2"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot(cardNo: \"SFD·148a/221\", scenario: \"spell-outside-battle\")",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ReactionCardsRemainAvailableDuringTheInitialBattleDuelBeforeDamage(cardNo: \"SFD·148a/221\", castResponses: False)",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot(cardNo: \"SFD·148/221\", scenario: \"mutual-death\")",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot(cardNo: \"SFD·148a/221\", scenario: \"mutual-death\")",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot(cardNo: \"SFD·148/221\", scenario: \"spell-outside-battle\")",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot(cardNo: \"SFD·148/221\", scenario: \"zhonya-replacement\")",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot(cardNo: \"SFD·148/221\", scenario: \"spell-battle-death\")",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+        }
+      ]
+    },
+    "focus-v3": {
+      "sha256": "dc415c6f3299f03338b06220ea64034e80997ca3117ec067b949b8637d8c7576",
+      "counters": {
+        "total": "20",
+        "executed": "20",
+        "passed": "4",
+        "failed": "16",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      },
+      "cases": [
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot(cardNo: \"SFD·148/221\", scenario: \"defender-winning-point\")",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot(cardNo: \"SFD·148a/221\", scenario: \"defender-death\")",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot(cardNo: \"SFD·148a/221\", scenario: \"spell-outside-battle\")",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot(cardNo: \"SFD·148/221\", scenario: \"attacker-death\")",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot(cardNo: \"SFD·148a/221\", scenario: \"zhonya-replacement\")",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot(cardNo: \"SFD·148/221\", scenario: \"defender-death\")",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot(cardNo: \"SFD·148a/221\", scenario: \"mutual-death\")",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot(cardNo: \"SFD·148a/221\", scenario: \"defender-winning-point\")",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.VoidGateErratumAddsOneToUntargetedReactionDamageBeforeDeath(cardNo: \"SFD·148/221\")",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Values differ\nExpected: 3\nActual:   2"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot(cardNo: \"SFD·148a/221\", scenario: \"attacker-death\")",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.VoidGateErratumAddsOneToUntargetedReactionDamageBeforeDeath(cardNo: \"SFD·148a/221\")",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Values differ\nExpected: 3\nActual:   2"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot(cardNo: \"SFD·148a/221\", scenario: \"spell-battle-death\")",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ReactionCardsRemainAvailableDuringTheInitialBattleDuelBeforeDamage(cardNo: \"SFD·148a/221\", castResponses: False)",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ReactionCardsRemainAvailableDuringTheInitialBattleDuelBeforeDamage(cardNo: \"SFD·148/221\", castResponses: False)",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot(cardNo: \"SFD·148/221\", scenario: \"spell-battle-death\")",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ReactionCardsRemainAvailableDuringTheInitialBattleDuelBeforeDamage(cardNo: \"SFD·148a/221\", castResponses: True)",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot(cardNo: \"SFD·148/221\", scenario: \"zhonya-replacement\")",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot(cardNo: \"SFD·148/221\", scenario: \"spell-outside-battle\")",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot(cardNo: \"SFD·148/221\", scenario: \"mutual-death\")",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ReactionCardsRemainAvailableDuringTheInitialBattleDuelBeforeDamage(cardNo: \"SFD·148/221\", castResponses: True)",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+        }
+      ]
+    },
+    "damage-adjacent-v3": {
+      "sha256": "875ab4fc6504495c3e67d10798ac4ebb9c53cddadd33442b24cc6724aad1d510",
+      "counters": {
+        "total": "57",
+        "executed": "57",
+        "passed": "57",
+        "failed": "0",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      },
+      "cases": [
+        {
+          "name": "Riftbound.ConformanceTests.CurrentVoidGateErratumTests.CurrentOfficialTextKeepsSpellDamageBonusForUnitAndBattlefieldSelections(battlefieldSelection: False)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.OfficialStarfallExampleAddsControllerBonusPerTargetAndLocalBonusOnlyAtItsTarget(copies: 1, local: True)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedSkillUsesItsControllersCurrentFieldSources(zone: \"GRAVEYARD\", controller: \"P2\", copies: 1, expected: 1)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.SelectedBattlefieldDoesNotDoubleTheSharedControllerOrLocalBonus(copies: 0, local: False)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedSkillUsesItsControllersCurrentFieldSources(zone: \"BASE\", controller: \"P2\", copies: 0, expected: 1)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedDefendAddsControllerAndLocalBonusesOnceAndPreservesNoActionAtZero(printing: \"SFD·230/221\", count: 2, local: True)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentVoidGateErratumTests.CurrentOfficialTextKeepsSpellDamageBonusForUnitAndBattlefieldSelections(battlefieldSelection: True)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.ActivatedXerathSkillAddsCurrentControllerAndTargetLocalBonuses(copies: 1, local: True)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.ActivatedXerathSkillAddsCurrentControllerAndTargetLocalBonuses(copies: 0, local: False)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedDefendAddsControllerAndLocalBonusesOnceAndPreservesNoActionAtZero(printing: \"OGN·121a/298\", count: 1, local: True)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.SelectedBattlefieldDoesNotDoubleTheSharedControllerOrLocalBonus(copies: 2, local: False)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedDefendAddsControllerAndLocalBonusesOnceAndPreservesNoActionAtZero(printing: \"OGN·121/298\", count: 1, local: True)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentVoidGateErratumTests.FirestormRequiresExactlyOneRealBattlefieldBeforeSpending(selection: \"NONE\")",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.SelectedBattlefieldDoesNotDoubleTheSharedControllerOrLocalBonus(copies: 1, local: False)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedDefendAddsControllerAndLocalBonusesOnceAndPreservesNoActionAtZero(printing: \"SFD·230*/221\", count: 2, local: True)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.ActivatedXerathSkillAddsCurrentControllerAndTargetLocalBonuses(copies: 0, local: True)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedDefendAddsControllerAndLocalBonusesOnceAndPreservesNoActionAtZero(printing: \"OGN·121/298\", count: 2, local: True)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.SelectedBattlefieldDoesNotDoubleTheSharedControllerOrLocalBonus(copies: 0, local: True)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.ActivatedXerathSkillAddsCurrentControllerAndTargetLocalBonuses(copies: 2, local: True)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedDefendAddsControllerAndLocalBonusesOnceAndPreservesNoActionAtZero(printing: \"OGN·121/298\", count: 1, local: False)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedSkillUsesItsControllersCurrentFieldSources(zone: \"BASE\", controller: \"P2\", copies: 2, expected: 3)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedDefendAddsControllerAndLocalBonusesOnceAndPreservesNoActionAtZero(printing: \"OGN·121/298\", count: 0, local: True)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.OfficialStarfallExampleAddsControllerBonusPerTargetAndLocalBonusOnlyAtItsTarget(copies: 2, local: False)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedDefendAddsControllerAndLocalBonusesOnceAndPreservesNoActionAtZero(printing: \"SFD·230*/221\", count: 2, local: False)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedDefendAddsControllerAndLocalBonusesOnceAndPreservesNoActionAtZero(printing: \"OGN·121/298\", count: 0, local: False)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedDefendAddsControllerAndLocalBonusesOnceAndPreservesNoActionAtZero(printing: \"SFD·230/221\", count: 0, local: True)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.OfficialStarfallExampleAddsControllerBonusPerTargetAndLocalBonusOnlyAtItsTarget(copies: 0, local: False)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedDefendAddsControllerAndLocalBonusesOnceAndPreservesNoActionAtZero(printing: \"OGN·121a/298\", count: 0, local: True)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedDefendAddsControllerAndLocalBonusesOnceAndPreservesNoActionAtZero(printing: \"SFD·230*/221\", count: 0, local: False)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedDefendAddsControllerAndLocalBonusesOnceAndPreservesNoActionAtZero(printing: \"SFD·230/221\", count: 1, local: False)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedDefendAddsControllerAndLocalBonusesOnceAndPreservesNoActionAtZero(printing: \"OGN·121a/298\", count: 2, local: True)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.OfficialStarfallExampleAddsControllerBonusPerTargetAndLocalBonusOnlyAtItsTarget(copies: 2, local: True)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.OfficialStarfallExampleAddsControllerBonusPerTargetAndLocalBonusOnlyAtItsTarget(copies: 0, local: True)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.SelectedBattlefieldDoesNotDoubleTheSharedControllerOrLocalBonus(copies: 1, local: True)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedDefendAddsControllerAndLocalBonusesOnceAndPreservesNoActionAtZero(printing: \"OGN·121a/298\", count: 1, local: False)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedDefendAddsControllerAndLocalBonusesOnceAndPreservesNoActionAtZero(printing: \"SFD·230/221\", count: 0, local: False)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentVoidGateErratumTests.FirestormRequiresExactlyOneRealBattlefieldBeforeSpending(selection: \"UNIT\")",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedDefendAddsControllerAndLocalBonusesOnceAndPreservesNoActionAtZero(printing: \"OGN·121/298\", count: 2, local: False)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedSkillUsesItsControllersCurrentFieldSources(zone: \"BASE\", controller: \"P1\", copies: 1, expected: 1)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedSkillUsesItsControllersCurrentFieldSources(zone: \"BASE\", controller: \"P2\", copies: 1, expected: 2)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentVoidGateErratumTests.FirestormCanSelectAnotherOrEmptyBattlefieldWithoutLeakingDamage(empty: True)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.ActivatedXerathSkillAddsCurrentControllerAndTargetLocalBonuses(copies: 2, local: False)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedDefendAddsControllerAndLocalBonusesOnceAndPreservesNoActionAtZero(printing: \"OGN·121a/298\", count: 0, local: False)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentVoidGateErratumTests.FirestormCanSelectAnotherOrEmptyBattlefieldWithoutLeakingDamage(empty: False)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.ActualResponseSacrificeRemovesBonusBeforeTheOriginalSpellResolves",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.ActivatedXerathSkillAddsCurrentControllerAndTargetLocalBonuses(copies: 1, local: False)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedSkillUsesItsControllersCurrentFieldSources(zone: \"BATTLEFIELD\", controller: \"P2\", copies: 1, expected: 2)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentVoidGateErratumTests.FirestormRequiresExactlyOneRealBattlefieldBeforeSpending(selection: \"BOTH\")",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.SelectedBattlefieldDoesNotDoubleTheSharedControllerOrLocalBonus(copies: 2, local: True)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedDefendAddsControllerAndLocalBonusesOnceAndPreservesNoActionAtZero(printing: \"SFD·230*/221\", count: 1, local: True)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedDefendAddsControllerAndLocalBonusesOnceAndPreservesNoActionAtZero(printing: \"SFD·230*/221\", count: 0, local: True)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.OfficialStarfallExampleAddsControllerBonusPerTargetAndLocalBonusOnlyAtItsTarget(copies: 1, local: False)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedDefendAddsControllerAndLocalBonusesOnceAndPreservesNoActionAtZero(printing: \"SFD·230/221\", count: 1, local: True)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedDefendAddsControllerAndLocalBonusesOnceAndPreservesNoActionAtZero(printing: \"SFD·230*/221\", count: 1, local: False)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedDefendAddsControllerAndLocalBonusesOnceAndPreservesNoActionAtZero(printing: \"SFD·230/221\", count: 2, local: False)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedDefendAddsControllerAndLocalBonusesOnceAndPreservesNoActionAtZero(printing: \"OGN·121a/298\", count: 2, local: False)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedSkillUsesItsControllersCurrentFieldSources(zone: \"HAND\", controller: \"P2\", copies: 1, expected: 1)",
+          "outcome": "Passed",
+          "failure": null
+        }
+      ]
+    }
+  },
+  "finalOriginalHistories": [
+    {
+      "caseId": "SFD-148-221-attacker-death",
+      "scenario": "attacker-death",
+      "commands": 4,
+      "events": 14,
+      "prefixes": 4,
+      "failure": "EqualException: Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+    },
+    {
+      "caseId": "SFD-148-221-defender-death",
+      "scenario": "defender-death",
+      "commands": 4,
+      "events": 16,
+      "prefixes": 4,
+      "failure": "EqualException: Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+    },
+    {
+      "caseId": "SFD-148-221-defender-winning-point",
+      "scenario": "defender-winning-point",
+      "commands": 4,
+      "events": 17,
+      "prefixes": 4,
+      "failure": "EqualException: Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+    },
+    {
+      "caseId": "SFD-148-221-mutual-death",
+      "scenario": "mutual-death",
+      "commands": 4,
+      "events": 15,
+      "prefixes": 4,
+      "failure": "EqualException: Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+    },
+    {
+      "caseId": "SFD-148-221-response-damage-death",
+      "scenario": "response-damage-death",
+      "commands": 11,
+      "events": 27,
+      "prefixes": 11,
+      "failure": "EqualException: Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+    },
+    {
+      "caseId": "SFD-148-221-response-pass-death",
+      "scenario": "response-pass-death",
+      "commands": 4,
+      "events": 14,
+      "prefixes": 4,
+      "failure": "EqualException: Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+    },
+    {
+      "caseId": "SFD-148-221-response-void-gate-damage",
+      "scenario": "response-void-gate-damage",
+      "commands": 6,
+      "events": 15,
+      "prefixes": 6,
+      "failure": "EqualException: Assert.Equal() Failure: Values differ\nExpected: 3\nActual:   2"
+    },
+    {
+      "caseId": "SFD-148-221-spell-battle-death",
+      "scenario": "spell-battle-death",
+      "commands": 5,
+      "events": 13,
+      "prefixes": 5,
+      "failure": "EqualException: Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+    },
+    {
+      "caseId": "SFD-148-221-spell-outside-battle",
+      "scenario": "spell-outside-battle",
+      "commands": 3,
+      "events": 9,
+      "prefixes": 3,
+      "failure": null
+    },
+    {
+      "caseId": "SFD-148-221-zhonya-replacement",
+      "scenario": "zhonya-replacement",
+      "commands": 5,
+      "events": 19,
+      "prefixes": 5,
+      "failure": null
+    },
+    {
+      "caseId": "SFD-148a-221-attacker-death",
+      "scenario": "attacker-death",
+      "commands": 4,
+      "events": 14,
+      "prefixes": 4,
+      "failure": "EqualException: Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+    },
+    {
+      "caseId": "SFD-148a-221-defender-death",
+      "scenario": "defender-death",
+      "commands": 4,
+      "events": 16,
+      "prefixes": 4,
+      "failure": "EqualException: Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+    },
+    {
+      "caseId": "SFD-148a-221-defender-winning-point",
+      "scenario": "defender-winning-point",
+      "commands": 4,
+      "events": 17,
+      "prefixes": 4,
+      "failure": "EqualException: Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+    },
+    {
+      "caseId": "SFD-148a-221-mutual-death",
+      "scenario": "mutual-death",
+      "commands": 4,
+      "events": 15,
+      "prefixes": 4,
+      "failure": "EqualException: Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+    },
+    {
+      "caseId": "SFD-148a-221-response-damage-death",
+      "scenario": "response-damage-death",
+      "commands": 11,
+      "events": 27,
+      "prefixes": 11,
+      "failure": "EqualException: Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+    },
+    {
+      "caseId": "SFD-148a-221-response-pass-death",
+      "scenario": "response-pass-death",
+      "commands": 4,
+      "events": 14,
+      "prefixes": 4,
+      "failure": "EqualException: Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+    },
+    {
+      "caseId": "SFD-148a-221-response-void-gate-damage",
+      "scenario": "response-void-gate-damage",
+      "commands": 6,
+      "events": 15,
+      "prefixes": 6,
+      "failure": "EqualException: Assert.Equal() Failure: Values differ\nExpected: 3\nActual:   2"
+    },
+    {
+      "caseId": "SFD-148a-221-spell-battle-death",
+      "scenario": "spell-battle-death",
+      "commands": 5,
+      "events": 13,
+      "prefixes": 5,
+      "failure": "EqualException: Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+    },
+    {
+      "caseId": "SFD-148a-221-spell-outside-battle",
+      "scenario": "spell-outside-battle",
+      "commands": 3,
+      "events": 9,
+      "prefixes": 3,
+      "failure": null
+    },
+    {
+      "caseId": "SFD-148a-221-zhonya-replacement",
+      "scenario": "zhonya-replacement",
+      "commands": 5,
+      "events": 19,
+      "prefixes": 5,
+      "failure": null
+    }
+  ],
+  "cases": 20,
+  "methods": 3,
+  "passed": 4,
+  "deathScoreCases": 18,
+  "deathScoreSourceFailures": 14,
+  "deathScoreCommands": 88,
+  "deathScoreEvents": 288,
+  "independentDamageCases": 2,
+  "independentDamageSourceFailures": 2,
+  "independentDamageCommands": 12,
+  "independentDamageEvents": 30,
+  "originalCommands": 100,
+  "accepted": 100,
+  "originalPrefixReplays": 100,
+  "originalEvents": 318,
+  "damageAdjacentPassed": 57,
+  "seed": 424242,
+  "prior14GameplayEqualExcludingOnly": [
+    "implementationSha256",
+    "identitySha256",
+    "recordedAt",
+    "rulesetVersion"
+  ],
+  "originalIdentityValuesRetained": true,
+  "originalV1FourWrongWindowPremiseFailuresAreNotEngineBugs": true,
+  "originalV2TwoDamageFailuresDidNotReachDeath": true,
+  "freshCompleteSourceRows": [
+    {
+      "id": 31351,
+      "cardCategoryList": [
+        "spell"
+      ],
+      "cardCategoryNameList": [
+        "法术"
+      ],
+      "cardNo": "OGN·127/298",
+      "cardName": "加农炮幕",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "orange"
+      ],
+      "hero": "",
+      "region": "",
+      "tag": "",
+      "artist": "Kudos Productions",
+      "cardEffect": "{{反应}}（可在任意时机打出，甚至先于其他法术和技能的结算。）\n对战斗中的所有敌方单位各造成2点伤害。",
+      "flavorText": "只要大炮够多，就不需要瞄准。",
+      "energy": 2,
+      "returnEnergy": 1,
+      "power": null,
+      "productCodeList": [
+        "OGS",
+        "OGN(进阶补充包)",
+        "OGN(进阶补充包)"
+      ],
+      "productNameList": [
+        "起源 试炼之地",
+        "起源 进阶补充包",
+        "起源 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_dust",
+      "rarityName": "普通",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/91abacfdfbde41ef8cee18fa3f465c4c.png",
+      "backImage": "",
+      "listSort": 354,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    {
+      "id": 31522,
+      "cardCategoryList": [
+        "battlefield"
+      ],
+      "cardCategoryNameList": [
+        "战场"
+      ],
+      "cardNo": "OGN·278/298",
+      "cardName": "班德尔树",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "colorless"
+      ],
+      "hero": "",
+      "region": "",
+      "tag": "",
+      "artist": "Kudos Productions",
+      "cardEffect": "你可以选择在此处额外布置一张{{待命}}卡牌。",
+      "flavorText": "它生长在班德尔城的正中心，保护着上古神话中的约德尔人。",
+      "energy": null,
+      "returnEnergy": null,
+      "power": null,
+      "productCodeList": [
+        "OGN(标准补充包)",
+        "OGN(进阶补充包)"
+      ],
+      "productNameList": [
+        "起源 标准补充包",
+        "起源 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_glimmer",
+      "rarityName": "不凡",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/327788d7d62442bf99a2f5374fa405d5.png",
+      "backImage": "",
+      "listSort": 183,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    }
+  ],
+  "currentVoidGateErratum": {
+    "currentRow": {
+      "id": 31542,
+      "cardCategoryList": [
+        "battlefield"
+      ],
+      "cardCategoryNameList": [
+        "战场"
+      ],
+      "cardNo": "OGN·296/298",
+      "cardName": "虚空之门",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "colorless"
+      ],
+      "hero": "",
+      "region": "",
+      "tag": "",
+      "artist": "Envar Studio",
+      "cardEffect": "以此处的单位作为目标的法术或技能，造成的伤害+1（每段伤害都+1）。",
+      "flavorText": "艾卡西亚的法师们自取灭亡，但他们的回响直到今天仍在人们耳畔萦绕。",
+      "energy": null,
+      "returnEnergy": null,
+      "power": null,
+      "productCodeList": [
+        "OGS",
+        "OGN(进阶补充包)",
+        "OGN(进阶补充包)"
+      ],
+      "productNameList": [
+        "起源 试炼之地",
+        "起源 进阶补充包",
+        "起源 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_glimmer",
+      "rarityName": "不凡",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/eb2789a75d9547c1ae31fe36fd5198b2.png",
+      "backImage": "",
+      "listSort": 163,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "法术和技能对此处的单位造成的伤害+1（每段伤害都+1）。",
+      "otherDesc": 0
+    },
+    "originalResponse": "var/qa/draven-battle-death-score-20261023/sources-v1/current-虚空之门-original-v1.json.gz",
+    "independentFailure": "Untargeted Cannon Barrage deals 2 at Void Gate, expected 3 under current erratum. Do not count this as a death-score execution.",
+    "sourcePointer": "CoreRuleEngine.cs ResolveDamageAmount target null -> ApplyDamageToEnemyCombatUnits uses common damageAmount without per-unit battlefield bonus.",
+    "n52Boundary": "Two actual Cannon Barrage cards killed a 4-power source at 2+2; this only proved captured draw survives destruction, not correct AoE damage."
+  },
+  "deathHotFeprIntegrationStillOpen": true,
+  "noExtraCheckOrFull": true,
+  "noDatabaseExecution": true,
+  "fullGameAcceptanceDeferredUntilIntegration": true,
+  "backendGoalComplete": false,
+  "sharedIntegrationOwner": "01a16770-8c1b-7da2-872b-a8ec5ae77413",
+  "archive": {
+    "path": "docs/evidence/draven-battle-death-response-parallel-2026-10-23/original-tests-fixed-inputs-and-sources-v1.tar.gz",
+    "sha256": "e2e23b31f564173170a154a2b24f93f5de2c6d78bd5f5b1023f5609afed6b9fe",
+    "members": [
+      {
+        "path": "docs/DRAVEN_BATTLE_DEATH_RESPONSE_PARALLEL_2026-10-23.md",
+        "bytes": 4291,
+        "sha256": "abcf05728140c9b341038dd0a5731a7fb05747920beb4f52efeb6888ba4cd9dc"
+      },
+      {
+        "path": "docs/evidence/draven-battle-death-score-parallel-2026-10-23/source-and-red-test-manifest.json",
+        "bytes": 68207,
+        "sha256": "feba15e5f272b736a8203815f13d755e84df2a9f1a0a51458361782e6eeb07ee"
+      },
+      {
+        "path": "inputs/applied-peer-fixed-n52-first45-v1.json",
+        "bytes": 5327,
+        "sha256": "296287f60cbe583c3a7be8e572df6213b53ee8f497cba3abc31688df6cb86384"
+      },
+      {
+        "path": "inputs/peer-fixed-n52-first45-v1.tar.gz",
+        "bytes": 746306,
+        "sha256": "a13b965f76e99ab2c6b3ebfa5d65638d53f71aa4e770cc1eaf7206daab54161a"
+      },
+      {
+        "path": "src/Riftbound.Engine/CoreRuleEngine.DravenBattleDeathScore.cs",
+        "bytes": 5276,
+        "sha256": "4d91d2fc2cbe05a1334ae904bffb8886319cd9bd4646a1fab990c17b0914950d"
+      },
+      {
+        "path": "tests/Riftbound.ConformanceTests/OfficialDravenBattleDeathScoreTests.cs",
+        "bytes": 14974,
+        "sha256": "24fed2f6e2e53f78f5d80e0d0db9270a94b08899885ad1b3facfeef112fa64e0"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/damage-adjacent-v3.log",
+        "bytes": 466,
+        "sha256": "b72f4beca4941d6778d18a0d9e051357877d65aa7402ba6f46096add0fbe52ef"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/damage-adjacent-v3/build.log",
+        "bytes": 78,
+        "sha256": "5850ad13de9df46844433e995346f1205d6f6bcfad0a4f3bf1ae3730780b409d"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/damage-adjacent-v3/discovery.log",
+        "bytes": 2091100,
+        "sha256": "aaf42492cf2b74008827f84bd8740e65c3dd5af67faebf7e7da49522ef80dd60"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/damage-adjacent-v3/focus/results.trx",
+        "bytes": 97594,
+        "sha256": "875ab4fc6504495c3e67d10798ac4ebb9c53cddadd33442b24cc6724aad1d510"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/damage-adjacent-v3/focus/test.log",
+        "bytes": 582,
+        "sha256": "20802c0569bb07284512a3c581622e6eb78f3bb1954fbad7c655a21744b09640"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/damage-adjacent-v3/plan.json",
+        "bytes": 1804,
+        "sha256": "54c40870c5278eb7178f849e790885e08e220e5bf9a8097aca72556e0d56afca"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/damage-adjacent-v3/summary.json",
+        "bytes": 273,
+        "sha256": "f380dbd6fb50e738c765b81585de1a68a0e8c6d3a0abf521fec7f4f64d6f8ad7"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/focus-v1/build.log",
+        "bytes": 78,
+        "sha256": "73e352428ba3b9d72af11fa19e33e47e19e3e27a1a52903e52d14ac58fbeae7f"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/focus-v1/discovery.log",
+        "bytes": 2090789,
+        "sha256": "6520ece02fc9b3d44f3c7c2048d94435948cf1a7f5bcf9cf28f0c25f9ba9a7db"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/focus-v1/focus/results.trx",
+        "bytes": 69283,
+        "sha256": "a346c176040406de45160ac547d4c61d37113c3da2126e038a7be6536a171e4b"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/focus-v1/focus/test.log",
+        "bytes": 3721,
+        "sha256": "136e889f786094259b72900568af50615ddf346c2d1c9c1fc80ec0c6f2ffb764"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/focus-v1/plan.json",
+        "bytes": 832,
+        "sha256": "5e786612ec7b450a2d8906f1078d84f17eafad10344ec13f91d4b7c84d527bf9"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/focus-v1/test-source.cs",
+        "bytes": 13455,
+        "sha256": "f5166551da9073e67cbd4cba3669f0a437f22372cfa2edbf76dc979585d8dab9"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/focus-v2.log",
+        "bytes": 399,
+        "sha256": "c2168fcbbb5d6e2a6c0564e25f0668b53616dc943095ecb59fa50ccdfe3b94ef"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/focus-v2/build.log",
+        "bytes": 78,
+        "sha256": "25514da9bf72d0ee5526a0426b29602c5c9c09178da393de5e6428efa4725bff"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/focus-v2/discovery.log",
+        "bytes": 2090797,
+        "sha256": "874c819ad206aa75f7b153c258997d8ea17a8ca3e1df4910839518862482883d"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/focus-v2/focus/results.trx",
+        "bytes": 62139,
+        "sha256": "2576148cafa6598b07f224d353955600602b19dd0a9c464433b9d7ee7c080041"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/focus-v2/focus/test.log",
+        "bytes": 3729,
+        "sha256": "03c16624ceae6ee488c0ad03a6484d8a570555ebf97e556b4a00d8b0c9554131"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/focus-v2/plan.json",
+        "bytes": 834,
+        "sha256": "9f4c640d85c13a3cc16c13291d13df51551ea49f9b8d89a9a3cf4f379cf442de"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/focus-v2/test-source.cs",
+        "bytes": 13941,
+        "sha256": "92634bbfec65cc0e8a3bcfd1cc89b2fa097db9da003fd392aee16ec0b638b75b"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/focus-v3.log",
+        "bytes": 399,
+        "sha256": "d4d73f828815ac728d5e97873f19ceedc73b6a193edbda8baa47835ba562fa30"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/focus-v3/build.log",
+        "bytes": 78,
+        "sha256": "07409b9af6ff51c8487683230f68efcaaec0a34f6da43aedaaa0ae3746800374"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/focus-v3/discovery.log",
+        "bytes": 2091100,
+        "sha256": "aaf42492cf2b74008827f84bd8740e65c3dd5af67faebf7e7da49522ef80dd60"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/focus-v3/focus/results.trx",
+        "bytes": 69446,
+        "sha256": "dc415c6f3299f03338b06220ea64034e80997ca3117ec067b949b8637d8c7576"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/focus-v3/focus/test.log",
+        "bytes": 4094,
+        "sha256": "b2b89ceb0a9e2035e67e8b634b4301516883e3422d97df5932699544a0060942"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/focus-v3/plan.json",
+        "bytes": 968,
+        "sha256": "92cfb2b56dc5118fe2e555803f693459a1fed9db78d07c174b631d65c181668b"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/focus-v3/test-source.cs",
+        "bytes": 14974,
+        "sha256": "24fed2f6e2e53f78f5d80e0d0db9270a94b08899885ad1b3facfeef112fa64e0"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/inspect-results.py",
+        "bytes": 1566,
+        "sha256": "c6c6417103ac6cd4febb08884976061ca5203f0d7c05e4f2a53fdb3a0a9917de"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/inspected-final-v3.json",
+        "bytes": 4678,
+        "sha256": "30d943716397295725ffb6a06710784866f39931dbfdca4c95921e694daee905"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/original-v1/SFD-148-221-attacker-death.json.gz",
+        "bytes": 35359,
+        "sha256": "e4033425556aee431d8f71b5b0024b35db21f2883bdee8c3255c6632bc758933"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/original-v1/SFD-148-221-defender-death.json.gz",
+        "bytes": 37036,
+        "sha256": "353cb7e0d0cf175ec15614cfb9d06475e03ab1f6deebe441f1e5ef3bd4f89ec2"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/original-v1/SFD-148-221-defender-winning-point.json.gz",
+        "bytes": 31976,
+        "sha256": "64d774bcd8ba8877df89f18b02a3af353a3ef71ee8cba37a57d45416ef519bcd"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/original-v1/SFD-148-221-mutual-death.json.gz",
+        "bytes": 35464,
+        "sha256": "236245f0bf6ef4bce31f9252acf64eb36df74d40be410ad376540870255a0359"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/original-v1/SFD-148-221-response-damage-death.json.gz",
+        "bytes": 38125,
+        "sha256": "c4f79ea55a1cc5c4f9020acd170eff9c38ead3bbbf7e9fac7df5d3118be18747"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/original-v1/SFD-148-221-response-pass-death.json.gz",
+        "bytes": 38121,
+        "sha256": "81d7da02b0a9f86a82084deee1fa5ec1bfd83f950f1799a954aede34e78b23e8"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/original-v1/SFD-148-221-spell-battle-death.json.gz",
+        "bytes": 37366,
+        "sha256": "ace8269fb8838aec12c3330600b6eb8ef3434041cecabf3d5ad76491e9ac3843"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/original-v1/SFD-148-221-spell-outside-battle.json.gz",
+        "bytes": 21764,
+        "sha256": "108be2f83f293ca084fa91ca215e91e38599abd2f5c78eeb5aa3e9291ced5159"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/original-v1/SFD-148-221-zhonya-replacement.json.gz",
+        "bytes": 46743,
+        "sha256": "1853bf7713b4b78cd292bc48f6fe59652baca68a1d5cbc71104743588b90fea6"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/original-v1/SFD-148a-221-attacker-death.json.gz",
+        "bytes": 35361,
+        "sha256": "a60b0da0e8c0afa0f179d56170d59c41e3230d7155d28fb02258aa16a30227af"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/original-v1/SFD-148a-221-defender-death.json.gz",
+        "bytes": 37034,
+        "sha256": "f0da62397d7152726338a6e8f860195b3a4eeb06965d6705f838f2db73f6916f"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/original-v1/SFD-148a-221-defender-winning-point.json.gz",
+        "bytes": 31997,
+        "sha256": "cbfbc7bfba84909ed989082c27bd1b2cfc6044999b425071416fec2cae6b5860"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/original-v1/SFD-148a-221-mutual-death.json.gz",
+        "bytes": 35467,
+        "sha256": "f1f73bbff0e706fbcd0323a82bf53be1300a71e43c857584ef5d72b830678492"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/original-v1/SFD-148a-221-response-damage-death.json.gz",
+        "bytes": 38136,
+        "sha256": "df60be7aea0633c9dc5fe711816f444b6d2710df2a655711ca9fcbba985b4171"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/original-v1/SFD-148a-221-response-pass-death.json.gz",
+        "bytes": 38131,
+        "sha256": "9b28bdd81c56c697076b8a43459b09d41b6b84821ac4a017bb047075faa525c2"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/original-v1/SFD-148a-221-spell-battle-death.json.gz",
+        "bytes": 37372,
+        "sha256": "f6d4cea04b87eb3b4002dc47b59e50e6b27d7efa71caca2d9508ebba0b8ce48e"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/original-v1/SFD-148a-221-spell-outside-battle.json.gz",
+        "bytes": 21761,
+        "sha256": "d026ffbdcde252e8d213342bffb1ac60fdde3009cd2dd950798a54fd09d5e513"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/original-v1/SFD-148a-221-zhonya-replacement.json.gz",
+        "bytes": 46752,
+        "sha256": "7f989d961efe6e1a82c405f90d64373e3568d68d89a4de9d4b0ca8be1d843729"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/original-v2/SFD-148-221-attacker-death.json.gz",
+        "bytes": 35359,
+        "sha256": "5af42447c3d966a909e95756224fe7f50089dfff251c5b82752c834e4e637707"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/original-v2/SFD-148-221-defender-death.json.gz",
+        "bytes": 37036,
+        "sha256": "f5c0c723e4b4c248ae33c0f5e261a17926f024eedb84596c634e68459e8f27a6"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/original-v2/SFD-148-221-defender-winning-point.json.gz",
+        "bytes": 31976,
+        "sha256": "96228ab4e226058096e107989423a9c600e73138ebf7f3005703bb895a79f75c"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/original-v2/SFD-148-221-mutual-death.json.gz",
+        "bytes": 35465,
+        "sha256": "04b75b57d0f6806ab131973ed0e04c1999c3c87b03027a143a54884bbb10acf0"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/original-v2/SFD-148-221-response-damage-death.json.gz",
+        "bytes": 49568,
+        "sha256": "dbb74b3d85b51a476bdad366068c96137a4fc328ea693d23406b51a0f9a36949"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/original-v2/SFD-148-221-response-pass-death.json.gz",
+        "bytes": 37977,
+        "sha256": "af313e7fedf61237ce1242d2bc48045f08b6f3b810e70b63c6bf78ed13201d41"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/original-v2/SFD-148-221-spell-battle-death.json.gz",
+        "bytes": 37370,
+        "sha256": "a1621598ab8cf00fe6d81da04dec5e6939b97c54b926dee7db1af1348f3a8450"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/original-v2/SFD-148-221-spell-outside-battle.json.gz",
+        "bytes": 21763,
+        "sha256": "451bb12f62939b5710b9140b0a3460539ff6a4bcbedb789cf27f332c7f7c8c65"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/original-v2/SFD-148-221-zhonya-replacement.json.gz",
+        "bytes": 46744,
+        "sha256": "3df362c7e954b21ce91228ed2c80c1217fa2b2aa5368bb2f58ad0b3b31ad5708"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/original-v2/SFD-148a-221-attacker-death.json.gz",
+        "bytes": 35360,
+        "sha256": "c86702e23f668cb2996723953cd662be6b27a3906815e2d66dd0c7341d05fd20"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/original-v2/SFD-148a-221-defender-death.json.gz",
+        "bytes": 37035,
+        "sha256": "cabf226d929924d5c0d61e0570a706427b2bd0ec9ef9d24a8e538a66c7580a12"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/original-v2/SFD-148a-221-defender-winning-point.json.gz",
+        "bytes": 31998,
+        "sha256": "5262d6d12d57be34fbd43349048b948652c6c82abc6cd47f0eb7bb630a505474"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/original-v2/SFD-148a-221-mutual-death.json.gz",
+        "bytes": 35467,
+        "sha256": "045a861fcb88e4e6ab0b681b55e9d648451c49d4473829c962171f89184c0ccd"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/original-v2/SFD-148a-221-response-damage-death.json.gz",
+        "bytes": 49594,
+        "sha256": "1bcaa69e6bf74982a2ffefc9c559d6ec4b137cf6ac1afd992b8e87665b196ff0"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/original-v2/SFD-148a-221-response-pass-death.json.gz",
+        "bytes": 37990,
+        "sha256": "6881c05c6e54eaedae9902a9dba40b0ac26e1a2833cae4b9b2768bf7063ff52b"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/original-v2/SFD-148a-221-spell-battle-death.json.gz",
+        "bytes": 37372,
+        "sha256": "aba4e1d3b5d15c34a3bfcbcbb7c1cb236ff341c1a431e2468002b3266a529692"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/original-v2/SFD-148a-221-spell-outside-battle.json.gz",
+        "bytes": 21761,
+        "sha256": "b69f91c81dd6fd74fb5e7343c09350bcdea338d78795b14a3650acdaf7be2ed4"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/original-v2/SFD-148a-221-zhonya-replacement.json.gz",
+        "bytes": 46747,
+        "sha256": "b3182329a276fc7da204ec79ae7350e1f85a1e6db75ea8fb758ec3677820fea1"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/original-v3/SFD-148-221-attacker-death.json.gz",
+        "bytes": 35361,
+        "sha256": "4372a7a4c241591e418ba2ee1abde543994a6a0872f21521943a6aafef03a827"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/original-v3/SFD-148-221-defender-death.json.gz",
+        "bytes": 37034,
+        "sha256": "a78437ee7d3c7c957d5d5b839fedf60be501ae08664561ad7bc8fabd79e1954e"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/original-v3/SFD-148-221-defender-winning-point.json.gz",
+        "bytes": 31976,
+        "sha256": "ae2f5bfedb69a87c8545d0b340ae454d7eaac17985e6da470db00b93b57459e1"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/original-v3/SFD-148-221-mutual-death.json.gz",
+        "bytes": 35464,
+        "sha256": "4b235b6affec528274aad7c1bbb5df41e9339425f9b0a0c3d51f3f2d4d3684ff"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/original-v3/SFD-148-221-response-damage-death.json.gz",
+        "bytes": 88718,
+        "sha256": "3b6397596b4b8a63a934d56d6fe66db8ed702f3f6ca3e289688a48a0a06e6342"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/original-v3/SFD-148-221-response-pass-death.json.gz",
+        "bytes": 37977,
+        "sha256": "8ce07a5c59f2927be8a473b341ad5b4e3feee3a52dcca142d285d9522354e812"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/original-v3/SFD-148-221-response-void-gate-damage.json.gz",
+        "bytes": 49626,
+        "sha256": "12ef6b0745dd846f25942dfef4e37af20ab3ea0f8fbbfddd1493c69054b076a6"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/original-v3/SFD-148-221-spell-battle-death.json.gz",
+        "bytes": 37369,
+        "sha256": "4037d549aaf2ffc757ccad56c40fc0abe1c95271ceb55900a4e4e94e7e33a707"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/original-v3/SFD-148-221-spell-outside-battle.json.gz",
+        "bytes": 21764,
+        "sha256": "d80f036b0a1fb5fe539310cb94dddd5f1bac5f2a5c0d5031c2cb55caa65fdcf1"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/original-v3/SFD-148-221-zhonya-replacement.json.gz",
+        "bytes": 46743,
+        "sha256": "8a73a31afc690c2709001bf6858d6e1a76fc9ce9dfd7d970e23d26a6d4969e70"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/original-v3/SFD-148a-221-attacker-death.json.gz",
+        "bytes": 35362,
+        "sha256": "cacc10d3eb9fc36605a213d4506cfb3f18227c554be1056bb4fafed6824e0008"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/original-v3/SFD-148a-221-defender-death.json.gz",
+        "bytes": 37034,
+        "sha256": "530942c90688b3f3a1016fd6e32f74bb363ce62e0ad2f90ce76aab8db330cee2"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/original-v3/SFD-148a-221-defender-winning-point.json.gz",
+        "bytes": 31997,
+        "sha256": "6687e5a63812be49c22fd676777c8f6b5dfc3868dd50dd25f3f871985b2ac7e3"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/original-v3/SFD-148a-221-mutual-death.json.gz",
+        "bytes": 35467,
+        "sha256": "fb8e1eb7e6aaf85709ee6f02a6805e160cc27fe8aa592c8476464c0e1208c941"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/original-v3/SFD-148a-221-response-damage-death.json.gz",
+        "bytes": 88725,
+        "sha256": "983ce72c7be107945958f2e57e5d36d2061a4a60eb191b4a562d0cbecb13ee09"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/original-v3/SFD-148a-221-response-pass-death.json.gz",
+        "bytes": 37991,
+        "sha256": "7e20f78cd108fa8dd385d4a7d6b94fe1a770d92a06e751441d96fd7179231f00"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/original-v3/SFD-148a-221-response-void-gate-damage.json.gz",
+        "bytes": 49647,
+        "sha256": "75e1c970e149bb6583238be9d1e334180be8face5944633e3aee2a26e7b77530"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/original-v3/SFD-148a-221-spell-battle-death.json.gz",
+        "bytes": 37372,
+        "sha256": "c48a0c74535b9fde7dd80d75af958d42325f4c4c6dddc87a1f02fcea61cc77a3"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/original-v3/SFD-148a-221-spell-outside-battle.json.gz",
+        "bytes": 21761,
+        "sha256": "34972597e5173a780e41f6bf63870ec6380b28b1747c390eaa7309079a168d19"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/original-v3/SFD-148a-221-zhonya-replacement.json.gz",
+        "bytes": 46748,
+        "sha256": "8265a48cbdc66b1f5fe360f51e110ae14f4040590852cf7884267500485ab07d"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/package-proof-v1.py",
+        "bytes": 7139,
+        "sha256": "f1cd99a9bb07980ec2e73cc698fda593b1245bf66104c91e44decb51f26e4d7c"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/refresh-sources-v1.py",
+        "bytes": 2267,
+        "sha256": "0bdbeaf81c6c47df043260c55e279d014b7b53c6a18e0bf00a7628eededf11f6"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/refresh-sources-v2.py",
+        "bytes": 2267,
+        "sha256": "08fcb7633d22d44c7b9ba7586ebcfef3aac42e0cbb67ec5f233d972058dd18a4"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/refresh-sources-v3.py",
+        "bytes": 2267,
+        "sha256": "d950f9a87475e6a967765b1d65258ec505420fdbffc644d58017d6aad43e072e"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/response-and-task-order-clauses-v1.json",
+        "bytes": 32684,
+        "sha256": "0b4b20768d54de7fb91f30b9e617f2e35a12710c4ee207fc8407534fba13d003"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/sources-v1/current-加农炮幕-original-v1.json.gz",
+        "bytes": 1276,
+        "sha256": "59e0e0061ea4a207ed238b7757bd49fc03a989f07b46275fdf8e803a30309699"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/sources-v1/extra-rows.json",
+        "bytes": 1328,
+        "sha256": "af6d071a12dd713b363e8765d9799c8c3534d50149307da9ac1740301d032b2d"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/sources-v2/current-加农炮幕-original-v1.json.gz",
+        "bytes": 1274,
+        "sha256": "e637b350c3d7842444fa25ed90c515a7795989ead9522320d0169b01022b9c16"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/sources-v2/extra-rows.json",
+        "bytes": 1328,
+        "sha256": "af6d071a12dd713b363e8765d9799c8c3534d50149307da9ac1740301d032b2d"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/sources-v3/current-班德尔树-original-v1.json.gz",
+        "bytes": 1333,
+        "sha256": "9c201b88cf6518fa9c74a49a149e0e8eda7b7e40e5c347f735335266ccdf3081"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/sources-v3/extra-rows.json",
+        "bytes": 1259,
+        "sha256": "fb1088679ff78a4892809039b2ad506fb7f24be62e222078ba4ac3bddd748505"
+      },
+      {
+        "path": "var/qa/draven-battle-death-response-20261023/void-gate-current-erratum-binding-v1.json",
+        "bytes": 2035,
+        "sha256": "51c846695ced7f05b97adaaa0390585c5f824c850a158e78a9f77828784bce10"
+      },
+      {
+        "path": "var/qa/draven-battle-death-score-20261023/captured-death-core-and-judge-clauses-v1.json",
+        "bytes": 26853,
+        "sha256": "2d3e5dcc260bad5998dfb53d191ae5bdf897cd0c4ae55a9131644eea5a9a972e"
+      },
+      {
+        "path": "var/qa/draven-battle-death-score-20261023/current-sfd-judge-faq-http-v1.json",
+        "bytes": 1256,
+        "sha256": "0a86e84699fe1b7462e6e14b3cd58de3444002900d906711be86869df1899cef"
+      },
+      {
+        "path": "var/qa/draven-battle-death-score-20261023/sources-v1/current-虚空之门-original-v1.json.gz",
+        "bytes": 1289,
+        "sha256": "427bec3c2f861db53cdb0d529dfc2781c18885eb37df05aab94a4acac7f7d792"
+      },
+      {
+        "path": "var/qa/draven-battle-win-score-20261023/current-core304-http-original-v1.json",
+        "bytes": 1112,
+        "sha256": "795089423c09471b682c2650ee6b94a60b2553bf046c4fdef6e1131bec97508e"
+      }
+    ]
+  }
+}
