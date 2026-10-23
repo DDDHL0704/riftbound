@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "scope": {
+    "region": "CN",
+    "language": "zh-CN",
+    "applicability": "REQUIRES_EXACT_SOURCE_DISPOSITION",
+    "sourceManifest": {
+      "path": "docs/audit/current-manifest.json",
+      "sha256": "e17fec8eeb043d3efffcfd518ab0cb3f2801cca3479e858f4d95b6b9ee57873f"
+    }
+  },
+  "sources": {
+    "cards": {
+      "path": "docs/evidence/lightning-rush-flow-current-cn16-2026-10-23/all-card-ledger.json",
+      "sha256": "3c3b8ac57a85abaa94034e54cfe2bf6360ff707b7ae33ab5ec33ebfb49eb4989",
+      "role": "current-card-ledger"
+    },
+    "cn": {
+      "path": "data/official/upstream/2026-10-16/source-refresh-20261015T160523Z/card-catalog.zh-CN.json",
+      "sha256": "4f6a981a51d95e395820c1980f734645e1a5b56e454dbb8758ac3ce331162624"
+    },
+    "en": {
+      "path": "data/official/upstream/2026-10-16/source-refresh-20261015T160523Z/card-gallery.en-US.json",
+      "sha256": "4392c13622cff66c32d0a31b63919af9522e16991883758df79cdbfd20daa289"
+    }
+  },
+  "certifications": [],
+  "note": "Whole-card decisions only. Scoped mechanism increments do not certify whole cards. Unknown applicability and unmapped printings remain in the view."
+}

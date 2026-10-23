@@ -58,11 +58,12 @@ class FullCiGateTests(unittest.TestCase):
         condition = "always() && !cancelled() && (needs.scope.result != 'success' || needs.scope.outputs.full != 'false')"
         for name in ['rule_suite', 'postgres_partitions']:
             self.assertIn('    needs: scope\n', jobs[name])
-            self.assertIn(condition, jobs[name])
+            required = condition if name == 'rule_suite' else condition.replace('outputs.full', 'outputs.sql')
+            self.assertIn(required, jobs[name])
             self.assertIn('github.sha', jobs[name])
             self.assertIn('timeout-minutes: 360', jobs[name])
         self.assertIn('    needs: scope\n', jobs['native_network'])
-        self.assertIn(condition, jobs['native_network'])
+        self.assertIn(condition.replace('outputs.full', 'outputs.network'), jobs['native_network'])
         self.assertIn('    needs: [scope, postgres_partitions, native_network]\n', jobs['postgres'])
         self.assertIn('python3 scripts/sql-ci-gate.py', jobs['postgres'])
         self.assertIn('    needs: [scope, rule_suite, postgres]\n', jobs['rules'])
@@ -88,6 +89,16 @@ class FullCiGateTests(unittest.TestCase):
         self.assertLess(jobs['native_network'].index('dotnet build src/Riftbound.Api'), jobs['native_network'].index('dotnet run --project src/Riftbound.Api --no-build'))
         self.assertIn('name: postgres-results', jobs['postgres'])
         self.assertIn('var/qa/ci-postgres/', jobs['postgres_partitions'])
+
+    def test_scoped_ci_is_separate_and_full_gate_and_schedules_remain_complete(self):
+        text = (ROOT / '.github/workflows/native-desktop.yml').read_text()
+        self.assertIn("cron: '0 18 * * 1-6'", text)
+        self.assertIn("cron: '0 18 * * 0'", text)
+        self.assertIn('python3 scripts/run-scoped-ci.py', text)
+        self.assertIn('Complete rule matrix was NOT executed', text)
+        self.assertIn("&& 90 || 7", text)
+        self.assertIn('python3 scripts/test-rules.py full --output var/qa/ci-rules', text)
+        self.assertNotIn('continue-on-error', text)
 
     def test_full_jobs_do_not_downgrade_errors_or_conditionally_skip_real_gates(self):
         text = (ROOT / '.github/workflows/native-desktop.yml').read_text()

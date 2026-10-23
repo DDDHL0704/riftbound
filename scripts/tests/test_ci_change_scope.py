@@ -115,6 +115,28 @@ class ScopeTests(unittest.TestCase):
             with self.subTest(raw=raw), self.assertRaises(ValueError):
                 scope.parse_changes(raw)
 
+    def test_safe_new_tests_and_backend_changes_have_explicit_bounded_tiers(self):
+        def change(path, status='M', old='100644', new='100644'):
+            return dict(path=path, status=status, oldMode=old, newMode=new)
+        c = change('tests/Riftbound.ConformanceTests/NewConsumerTests.cs', 'A', '000000')
+        l1 = scope.tier_details([c])
+        self.assertEqual(('L1', 'focus', ['NewConsumerTests']), (l1['tier'], l1['profile'], l1['matches']))
+        self.assertFalse(l1['full']); self.assertFalse(l1['sql'])
+        l2 = scope.tier_details([c, change('src/Riftbound.Engine/CoreRuleEngine.cs')])
+        self.assertEqual(('L2', 'check'), (l2['tier'], l2['profile']))
+        self.assertTrue(l2['sql']); self.assertTrue(l2['network']); self.assertFalse(l2['full'])
+        for unsafe in [change(c['path']), change('tests/Riftbound.ConformanceTests/FullGameEndToEndTests.NewTests.cs', 'A', '000000'),
+                       change('src/Riftbound.Engine/Rule.cs', 'D', '100644', '000000'),
+                       change('src/Riftbound.Engine/Rule.cs', new='120000'),
+                       change('data/official/card-catalog.zh-CN.json'), change('scripts/test-rules.py')]:
+            with self.subTest(unsafe=unsafe): self.assertTrue(scope.tier_details([unsafe])['full'])
+        self.assertTrue(scope.tier_details([c, change('unknown.txt')])['full'])
+
+    def test_nightly_and_manual_never_inherit_scoped_shortcuts(self):
+        head = self.git('rev-parse', 'HEAD')
+        for event in ['schedule', 'workflow_dispatch']:
+            self.assertTrue(scope.decide(event, {'before': self.base}, head, self.repo)['full'])
+
     def test_cli_unreadable_event_emits_full_in_github_output(self):
         event = self.repo / 'event.json'
         event.write_text('invalid json')
@@ -125,7 +147,10 @@ class ScopeTests(unittest.TestCase):
                         '--github-output', str(github_output)], check=True,
                        stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.assertTrue(json.loads(output.read_text())['full'])
-        self.assertEqual('full=true\n', github_output.read_text())
+        flags = dict(line.split('=', 1) for line in github_output.read_text().splitlines())
+        self.assertEqual('true', flags['full'])
+        self.assertEqual('L3', flags['tier'])
+        self.assertTrue(all(flags[k] == 'true' for k in ['sql', 'network', 'packaging']))
 
 
 if __name__ == '__main__':

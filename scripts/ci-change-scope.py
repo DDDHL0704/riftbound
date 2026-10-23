@@ -11,6 +11,7 @@ import subprocess
 ROOT = Path(__file__).resolve().parents[1]
 DOCUMENTATION = frozenset({
     'AGENTS.md', 'README.md', 'GLOSSARY.md',
+    'docs/BACKEND_RULES_GOAL_2026-10-23.md',
     'docs/START_HERE.md', 'docs/PROJECT_GOVERNANCE.md',
     'docs/PROJECT_STATUS.md', 'docs/development-audit-status.md',
     'docs/REPOSITORY_AUDIT_2026-10-12.md',
@@ -80,6 +81,34 @@ def classify(changes):
     return False, 'Only explicitly reviewed documentation paths changed'
 
 
+def tier_details(changes):
+    """First conservative tier map. No self-declared L1 or unchecked card exemption."""
+    full, reason = classify(changes)
+    if not full:
+        return dict(tier='DOCS', full=False, profile='none', sql=False, network=False, packaging=False,
+                    matches=[], reason=reason)
+    fallback = dict(tier='L3', full=True, profile='full', sql=True, network=True, packaging=True,
+                    matches=[], reason='Unknown, broad or unsafe input requires complete verification')
+    if not changes or any(c['oldMode'] not in {'000000', '100644'} or c['newMode'] != '100644'
+                          or c['status'] not in {'A', 'M'} for c in changes):
+        return fallback
+    code = [c for c in changes if c['path'] not in DOCUMENTATION]
+    # New independent test classes have no runtime impact. Existing tests or game
+    # matrices may remove coverage and are never eligible for this L1 shortcut.
+    test = re.compile(r'tests/Riftbound\.ConformanceTests/([A-Za-z_][A-Za-z0-9_]*Tests)\.cs')
+    if code and all(c['status'] == 'A' and test.fullmatch(c['path']) and 'FullGame' not in c['path'] for c in code):
+        return dict(tier='L1', full=False, profile='focus', sql=False, network=False, packaging=False,
+                    matches=[test.fullmatch(c['path'])[1] for c in code],
+                    reason='Only new independent conformance test classes; runtime unchanged')
+    runtime = ('src/Riftbound.Engine/', 'src/Riftbound.Contracts/', 'src/Riftbound.Persistence/', 'src/Riftbound.Api/')
+    if code and any(c['path'].startswith(runtime) for c in code) and all(
+        c['path'].startswith(runtime) and c['path'].endswith('.cs')
+        or test.fullmatch(c['path']) and 'FullGame' not in c['path'] for c in code):
+        return dict(tier='L2', full=False, profile='check', sql=True, network=True, packaging=False,
+                    matches=[], reason='Known backend mechanism paths: integration check plus all SQL/network gates')
+    return fallback
+
+
 def git(repo, *args):
     return subprocess.check_output(['git', *args], cwd=repo, stderr=subprocess.PIPE)
 
@@ -92,7 +121,7 @@ def decide(event_name, event, head, repo=ROOT, allow_fetch=False):
             raise ValueError('Invalid event envelope')
         if not SHA.fullmatch(head or '') or git(repo, 'rev-parse', 'HEAD').decode().strip() != head:
             raise ValueError('Checkout does not match the fixed head')
-        if event_name == 'workflow_dispatch':
+        if event_name in {'workflow_dispatch', 'schedule'}:
             result['reason'] = 'Manual integration gate always runs full'
             return result
         if event_name == 'push':
@@ -116,7 +145,7 @@ def decide(event_name, event, head, repo=ROOT, allow_fetch=False):
         git(repo, 'merge-base', '--is-ancestor', base, head)
         changes = parse_changes(git(repo, 'diff', '--raw', '--no-renames', '-z', base, head))
         result.update(changes=changes)
-        result['full'], result['reason'] = classify(changes)
+        result.update(tier_details(changes))
     except (OSError, ValueError, TypeError, AttributeError, subprocess.SubprocessError) as error:
         result['full'] = True
         result['reason'] = 'Cannot safely determine change scope: '+type(error).__name__
@@ -139,13 +168,17 @@ def main():
     except (OSError, ValueError):
         result = dict(full=True, reason='Unreadable event; require full verification',
                       headSha=args.head, baseSha=None, changes=[])
+    if 'tier' not in result:
+        result.update(tier='L3', profile='full', sql=True, network=True, packaging=True, matches=[])
     result['selectorSha256'] = hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
-    result['ruleAndPackagingExecution'] = 'REQUIRED' if result['full'] else 'NOT_RUN_DOCUMENTATION_ONLY'
+    result['ruleAndPackagingExecution'] = 'COMPLETE_REQUIRED' if result['full'] else ('NOT_RUN_DOCUMENTATION_ONLY' if result['tier'] == 'DOCS' else 'SCOPED_ONLY_FULL_NOT_RUN')
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(result, indent=2)+'\n')
     if args.github_output:
         with args.github_output.open('a') as stream:
-            stream.write('full='+str(result['full']).lower()+'\n')
+            for key in ['full', 'sql', 'network', 'packaging']:
+                stream.write(key+'='+str(result[key]).lower()+'\n')
+            stream.write('tier='+result['tier']+'\n')
     print(json.dumps(result))
 
 

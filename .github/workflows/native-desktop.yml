@@ -5,6 +5,9 @@ on:
     branches: [main, 'codex/native-platform-*']
   pull_request:
   workflow_dispatch:
+  schedule:
+    - cron: '0 18 * * 1-6' # 02:00 Asia/Shanghai, daily full
+    - cron: '0 18 * * 0'   # weekly L3, longer artifact retention
 
 permissions:
   contents: read
@@ -19,6 +22,10 @@ jobs:
     timeout-minutes: 5
     outputs:
       full: ${{ steps.select.outputs.full }}
+      tier: ${{ steps.select.outputs.tier }}
+      sql: ${{ steps.select.outputs.sql }}
+      network: ${{ steps.select.outputs.network }}
+      packaging: ${{ steps.select.outputs.packaging }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
@@ -63,7 +70,37 @@ jobs:
         with:
           name: verification-scope
           path: var/qa/ci-scope/
-          retention-days: 30
+          retention-days: ${{ (github.event_name == 'workflow_dispatch' || github.event.schedule == '0 18 * * 0') && 90 || 30 }}
+
+  scoped_rules:
+    needs: scope
+    if: ${{ needs.scope.result == 'success' && (needs.scope.outputs.tier == 'L1' || needs.scope.outputs.tier == 'L2') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          fetch-depth: 2
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6
+        with:
+          dotnet-version: |
+            8.0.x
+            10.0.x
+      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
+        with:
+          name: verification-scope
+          path: var/qa/fixed-scope
+      - name: Reproduce Git scope and execute focused or integration checks
+        run: python3 scripts/run-scoped-ci.py --decision var/qa/fixed-scope/decision.json --output var/qa/ci-scoped
+      - name: State bounded execution
+        if: always()
+        run: echo 'Scoped backend verification. Complete rule matrix was NOT executed; SQL/network jobs retain their own required outcomes.' >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: always()
+        with:
+          name: scoped-conformance-results
+          path: var/qa/ci-scoped/
+          retention-days: 7
 
   rule_suite:
     needs: scope
@@ -112,12 +149,12 @@ jobs:
           path: |
             var/qa/ci-rules/
             var/qa/ci-rule-suite-commit.txt
-          retention-days: 7
+          retention-days: ${{ (github.event_name == 'workflow_dispatch' || github.event.schedule == '0 18 * * 0') && 90 || 7 }}
 
   postgres_partitions:
     needs: scope
     # A failed or missing selector still executes the complete fixed inputs.
-    if: ${{ always() && !cancelled() && (needs.scope.result != 'success' || needs.scope.outputs.full != 'false') }}
+    if: ${{ always() && !cancelled() && (needs.scope.result != 'success' || needs.scope.outputs.sql != 'false') }}
     strategy:
       fail-fast: false
       matrix:
@@ -165,11 +202,11 @@ jobs:
           path: |
             var/qa/ci-postgres/
             var/qa/ci-postgres-partition-commit.txt
-          retention-days: 7
+          retention-days: ${{ (github.event_name == 'workflow_dispatch' || github.event.schedule == '0 18 * * 0') && 90 || 7 }}
 
   native_network:
     needs: scope
-    if: ${{ always() && !cancelled() && (needs.scope.result != 'success' || needs.scope.outputs.full != 'false') }}
+    if: ${{ always() && !cancelled() && (needs.scope.result != 'success' || needs.scope.outputs.network != 'false') }}
     runs-on: ubuntu-latest
     timeout-minutes: 40
     concurrency:
@@ -208,11 +245,11 @@ jobs:
         with:
           name: native-network-results
           path: var/qa/ci-native-network/
-          retention-days: 7
+          retention-days: ${{ (github.event_name == 'workflow_dispatch' || github.event.schedule == '0 18 * * 0') && 90 || 7 }}
 
   postgres:
     needs: [scope, postgres_partitions, native_network]
-    if: ${{ always() && (needs.scope.result != 'success' || needs.scope.outputs.full != 'false') }}
+    if: ${{ always() && (needs.scope.result != 'success' || needs.scope.outputs.sql != 'false') }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     concurrency:
@@ -242,7 +279,7 @@ jobs:
         with:
           name: postgres-results
           path: var/qa/ci-sql-gate/
-          retention-days: 7
+          retention-days: ${{ (github.event_name == 'workflow_dispatch' || github.event.schedule == '0 18 * * 0') && 90 || 7 }}
 
   rules:
     needs: [scope, rule_suite, postgres]
@@ -270,7 +307,7 @@ jobs:
         with:
           name: full-verification-gate
           path: var/qa/ci-full-gate/
-          retention-days: 7
+          retention-days: ${{ (github.event_name == 'workflow_dispatch' || github.event.schedule == '0 18 * * 0') && 90 || 7 }}
 
   desktop:
     needs: scope
@@ -281,33 +318,33 @@ jobs:
       matrix:
         os: [macos-latest, windows-latest]
     # Documentation checks need no native runner or packaging tool downloads.
-    runs-on: ${{ needs.scope.result == 'success' && needs.scope.outputs.full == 'false' && 'ubuntu-latest' || matrix.os }}
+    runs-on: ${{ needs.scope.result == 'success' && needs.scope.outputs.packaging == 'false' && 'ubuntu-latest' || matrix.os }}
     timeout-minutes: 40
     concurrency:
-      group: desktop-${{ github.ref }}-${{ github.sha }}-${{ matrix.os }}-${{ needs.scope.result == 'success' && needs.scope.outputs.full == 'false' && github.run_id || 'full' }}
+      group: desktop-${{ github.ref }}-${{ github.sha }}-${{ matrix.os }}-${{ needs.scope.result == 'success' && needs.scope.outputs.packaging == 'false' && github.run_id || 'full' }}
       cancel-in-progress: true
     steps:
-      - name: Documentation-only scope; packaging not executed
-        if: ${{ needs.scope.result == 'success' && needs.scope.outputs.full == 'false' }}
-        run: echo 'Documentation-only verification. Desktop packaging was not executed. See verification-scope.' >> "$GITHUB_STEP_SUMMARY"
+      - name: Selected scope; packaging not executed
+        if: ${{ needs.scope.result == 'success' && needs.scope.outputs.packaging == 'false' }}
+        run: echo 'Scoped verification. Desktop packaging was not executed. See verification-scope.' >> "$GITHUB_STEP_SUMMARY"
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-        if: ${{ needs.scope.result != 'success' || needs.scope.outputs.full != 'false' }}
+        if: ${{ needs.scope.result != 'success' || needs.scope.outputs.packaging != 'false' }}
       - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6
-        if: ${{ needs.scope.result != 'success' || needs.scope.outputs.full != 'false' }}
+        if: ${{ needs.scope.result != 'success' || needs.scope.outputs.packaging != 'false' }}
         with:
           dotnet-version: |
             8.0.x
             10.0.x
       - run: python3 clients/godot/tools/ci-desktop.py
-        if: ${{ needs.scope.result != 'success' || needs.scope.outputs.full != 'false' }}
+        if: ${{ needs.scope.result != 'success' || needs.scope.outputs.packaging != 'false' }}
         shell: bash
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
-        if: ${{ always() && (needs.scope.result != 'success' || needs.scope.outputs.full != 'false') }}
+        if: ${{ always() && (needs.scope.result != 'success' || needs.scope.outputs.packaging != 'false') }}
         with:
           name: native-${{ matrix.os }}
           path: |
             clients/godot/exports/ci-logs/
             clients/godot/exports/macos/Riftbound.zip
             clients/godot/exports/windows/Riftbound-windows-x64.zip
-          retention-days: 7
+          retention-days: ${{ (github.event_name == 'workflow_dispatch' || github.event.schedule == '0 18 * * 0') && 90 || 7 }}
           compression-level: 0
