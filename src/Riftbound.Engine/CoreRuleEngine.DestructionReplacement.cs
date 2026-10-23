@@ -40,10 +40,12 @@ public sealed partial class CoreRuleEngine
         var scope = new DestructionReplacementScope(frame);
         var remaining = candidates.Where(id => IsObjectOnField(zones, id)).ToHashSet(StringComparer.Ordinal);
         var localRecallSources = cards.Values.Where(source => source.Tags.Contains(CardObjectTags.UnitCard)
-            && FieldObjectTypeRules.IsVisibleUnit(source) && IsObjectOnField(zones, source.ObjectId)
-            && CardReplacementSpecRules.TryGetReplacement(source.CardNo,
-                CardReplacementSpecRules.IsOtherFriendlyLowerPowerUnitHereDestroyedRecallExhaustedReplacement, out _))
-            .ToDictionary(source => source.ObjectId, source => source.ObjectGeneration, StringComparer.Ordinal);
+            && FieldObjectTypeRules.IsVisibleUnit(source) && IsObjectOnField(zones, source.ObjectId))
+            .SelectMany(source => AttachedRuleTextRules.Instances(zones, cards, source)
+                .Where(rule => CardReplacementSpecRules.TryGetReplacement(rule.CardNo,
+                    CardReplacementSpecRules.IsOtherFriendlyLowerPowerUnitHereDestroyedRecallExhaustedReplacement, out _))
+                .Select(rule => new CapturedLocalRecallSource(new(source.ObjectId, source.ObjectGeneration), rule)))
+            .ToArray();
         var startedLocalSources = new HashSet<string>(StringComparer.Ordinal);
         frame.DestructionCandidates = frame.DestructionCandidates.Concat(candidates).ToHashSet(StringComparer.Ordinal);
         frame.CurrentDestructions = remaining.ToHashSet(StringComparer.Ordinal);
@@ -121,6 +123,7 @@ public sealed partial class CoreRuleEngine
     }
 
     private sealed record CapturedDestructionOption(DestructionOption Option, long TargetGeneration);
+    private sealed record CapturedLocalRecallSource(ObjectBinding Source, RuleTextInstance Rule);
 
     // CN 370.3–370.4/373.2: sources present before the event may apply while
     // awaiting their simultaneous deaths. A prior replacement can relocate a
@@ -128,7 +131,7 @@ public sealed partial class CoreRuleEngine
     private static IReadOnlyList<CapturedDestructionOption> CaptureLocalDestructionRecalls(
         MatchState state, IReadOnlyDictionary<string, PlayerZones> zones, IReadOnlyDictionary<string, CardObjectState> cards,
         IReadOnlyDictionary<string, ObjectLocationState> locations, IEnumerable<string> targets,
-        IReadOnlyDictionary<string, long> sources)
+        IReadOnlyList<CapturedLocalRecallSource> sources)
     {
         var result = new List<CapturedDestructionOption>();
         var context = state with { PlayerZones = zones, CardObjects = cards, ObjectLocations = locations };
@@ -136,20 +139,24 @@ public sealed partial class CoreRuleEngine
             if (!cards.TryGetValue(id, out var target)) continue;
             if (!target.Tags.Contains(CardObjectTags.UnitCard) || !FieldObjectTypeRules.IsVisibleUnit(target)) continue;
             var controller = EffectiveFieldControllerId(zones, id, target);
-            foreach (var source in cards.Values.OrderBy(c => c.ObjectId, StringComparer.Ordinal)) {
-                if (!sources.TryGetValue(source.ObjectId, out var generation) || generation != source.ObjectGeneration
-                    || !IsObjectOnField(zones, source.ObjectId)
+            foreach (var captured in sources.OrderBy(c => c.Source.ObjectId, StringComparer.Ordinal)
+                .ThenBy(c => c.Rule.Id, StringComparer.Ordinal)) {
+                if (!cards.TryGetValue(captured.Source.ObjectId, out var source)
+                    || source.ObjectGeneration != captured.Source.Generation || !IsObjectOnField(zones, source.ObjectId)
                     || source.ObjectId == id || !source.Tags.Contains(CardObjectTags.UnitCard)
                     || !FieldObjectTypeRules.IsVisibleUnit(source)
                     || EffectiveFieldControllerId(zones, source.ObjectId, source) != controller
                     || !IsSameFieldLocation(zones, locations, id, source.ObjectId)
-                    || !CardReplacementSpecRules.TryGetReplacement(source.CardNo,
-                        CardReplacementSpecRules.IsOtherFriendlyLowerPowerUnitHereDestroyedRecallExhaustedReplacement, out _)
+                    || !AttachedRuleTextRules.Instances(zones, cards, source).Any(rule => rule == captured.Rule)
                     || ResolveCurrentFieldUnitPower(context, source) <= ResolveCurrentFieldUnitPower(context, target)) continue;
-                var sourceName = CardBehaviorRegistry.TryGetByCardNo(source.CardNo!, out var card) ? card.DisplayName : source.CardNo;
-                result.Add(new(new(new($"LOCAL_RECALL:{id}:{source.ObjectId}",
-                    $"{sourceName}（{source.ObjectId}）：移除 {id} 的伤害并休眠召回", [id, source.ObjectId]),
-                    id, source.ObjectId, "LOCAL_RECALL", $"LOCAL_RECALL:{source.ObjectId}:{source.ObjectGeneration}", source.CardNo!), target.ObjectGeneration));
+                var sourceName = CardBehaviorRegistry.TryGetByCardNo(captured.Rule.CardNo, out var card) ? card.DisplayName : captured.Rule.CardNo;
+                var optionId = $"LOCAL_RECALL:{id}:{source.ObjectId}"
+                    + (captured.Rule.Origin is null ? "" : ":" + captured.Rule.Id);
+                var copiedLabel = captured.Rule.Origin is null ? "" : $"（复制文本：{captured.Rule.Origin.Equipment.ObjectId}）";
+                result.Add(new(new(new(optionId,
+                    $"{sourceName}（{source.ObjectId}）{copiedLabel}：移除 {id} 的伤害并休眠召回", [id, source.ObjectId]),
+                    id, source.ObjectId, "LOCAL_RECALL", $"LOCAL_RECALL:{source.ObjectId}:{source.ObjectGeneration}:{captured.Rule.Id}",
+                    captured.Rule.CardNo), target.ObjectGeneration));
             }
         }
         return result;
