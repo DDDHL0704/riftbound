@@ -4643,22 +4643,22 @@ public sealed class ConformanceFixtureRunnerTests
         };
         state = SelectedBattlefieldFixture.WithExplicitFields(state);
 
-        var result = await new CoreRuleEngine().ResolveAsync(
+        var observed = await InstructionPaymentOriginalP7Assertions.Execute(
             state,
             new PlayerIntent("intent-bullet-time-red-power", "P1", "PLAY_CARD"),
             new PlayCardCommand(
                 "P1-SPELL-BULLET-TIME",
                 "OGN·268/298",
                 [SelectedBattlefieldFixture.Field],
-                OptionalCosts: ["SPEND_POWER:red:2"]),
-            CancellationToken.None);
+                OptionalCosts: ["SPEND_POWER:red:2"]));
+        var result = observed.Final;
 
         Assert.True(result.Accepted);
         Assert.Equal(0, result.State.RunePools["P1"].Mana);
         Assert.Equal(0, result.State.RunePools["P1"].Power);
         Assert.Equal(1, result.State.RunePools["P1"].PowerByTrait[RuneTrait.Blue]);
         Assert.False(result.State.RunePools["P1"].PowerByTrait.ContainsKey(RuneTrait.Red));
-        Assert.Equal(2, Assert.Single(result.State.StackItems).DamageAmount);
+        Assert.Equal(2, result.State.CardObjects["P2-BULLET-TIME-UNIT-001"].Damage);
         var costEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
         Assert.Equal(2, costEvent.Payload["power"]);
         var powerByTrait = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(costEvent.Payload["powerByTrait"]);
@@ -4666,7 +4666,7 @@ public sealed class ConformanceFixtureRunnerTests
     }
 
     [Fact]
-    public void P7PlayCardPromptOffersSpendPowerAmountsByAvailableTraitPower()
+    public async Task P7PlayCardPromptOffersSpendPowerAmountsByAvailableTraitPower()
     {
         var state = PunishmentState(mana: 1) with
         {
@@ -4715,12 +4715,21 @@ public sealed class ConformanceFixtureRunnerTests
                 sourceRequirement["optionalCostChoices"])
             .ToArray();
 
-        Assert.Contains(optionalCostChoices, choice => string.Equals(choice.Id, "SPEND_POWER:1", StringComparison.Ordinal));
-        Assert.Contains(optionalCostChoices, choice => string.Equals(choice.Id, "SPEND_POWER:2", StringComparison.Ordinal));
-        Assert.Contains(optionalCostChoices, choice => string.Equals(choice.Id, "SPEND_POWER:red:1", StringComparison.Ordinal));
-        Assert.Contains(optionalCostChoices, choice => string.Equals(choice.Id, "SPEND_POWER:red:2", StringComparison.Ordinal));
-        Assert.DoesNotContain(optionalCostChoices, choice => string.Equals(choice.Id, "SPEND_POWER:3", StringComparison.Ordinal));
-        Assert.DoesNotContain(optionalCostChoices, choice => string.Equals(choice.Id, "SPEND_POWER:red:3", StringComparison.Ordinal));
+        Assert.DoesNotContain(optionalCostChoices, choice => choice.Id.StartsWith("SPEND_POWER:", StringComparison.Ordinal));
+        var played = await new CoreRuleEngine().ResolveAsync(state,
+            new("p7-trait-amount-current-play", "P1", CommandTypes.PlayCard),
+            new PlayCardCommand("P1-SPELL-BULLET-TIME", "OGN·268/298", [SelectedBattlefieldFixture.Field]), default);
+        Assert.True(played.Accepted, played.ErrorMessage);
+        var payment = await InstructionPowerPaymentTimingTests.ToPayment(played.State);
+        // Retain the historical method and original amount/trait boundaries;
+        // CN204.3.a exposes these choices at the resolving instruction.
+        var amounts = payment.PendingRuleChoice!.Request.Options;
+        Assert.Contains(amounts, choice => string.Equals(choice.Id, "SPEND_POWER:1", StringComparison.Ordinal));
+        Assert.Contains(amounts, choice => string.Equals(choice.Id, "SPEND_POWER:2", StringComparison.Ordinal));
+        Assert.Contains(amounts, choice => string.Equals(choice.Id, "SPEND_POWER:red:1", StringComparison.Ordinal));
+        Assert.Contains(amounts, choice => string.Equals(choice.Id, "SPEND_POWER:red:2", StringComparison.Ordinal));
+        Assert.DoesNotContain(amounts, choice => string.Equals(choice.Id, "SPEND_POWER:3", StringComparison.Ordinal));
+        Assert.DoesNotContain(amounts, choice => string.Equals(choice.Id, "SPEND_POWER:red:3", StringComparison.Ordinal));
     }
 
     [Fact]
@@ -4768,12 +4777,21 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.False(result.Accepted);
-        Assert.Equal(ErrorCodes.InsufficientCost, result.ErrorCode);
+        Assert.Equal(ErrorCodes.InvalidTarget, result.ErrorCode);
         Assert.Empty(result.Events);
         Assert.Equal(0, result.State.Tick);
         Assert.Equal(3, result.State.RunePools["P1"].PowerByTrait[RuneTrait.Blue]);
         Assert.Equal(["P1-SPELL-BULLET-TIME"], result.State.PlayerZones["P1"].Hand);
         Assert.Empty(result.State.StackItems);
+        var opened = await InstructionPaymentOriginalP7Assertions.Open(state,
+            new("p7-missing-trait-current-timing", "P1", CommandTypes.PlayCard),
+            new PlayCardCommand("P1-SPELL-BULLET-TIME", "OGN·268/298", [SelectedBattlefieldFixture.Field], OptionalCosts: ["SPEND_POWER:red:2"]));
+        Assert.DoesNotContain(opened.Window.PendingRuleChoice!.Request.Options, o => o.Id == "SPEND_POWER:red:2");
+        var rejected = await InstructionPowerPaymentTimingTests.Pay(opened.Window, "SPEND_POWER:red:2");
+        Assert.False(rejected.Accepted); Assert.Equal(ErrorCodes.InvalidTarget, rejected.ErrorCode); Assert.Empty(rejected.Events);
+        Assert.Equal(MatchStateHasher.Hash(opened.Window), MatchStateHasher.Hash(rejected.State));
+        Assert.Equal(3, rejected.State.RunePools["P1"].PowerByTrait[RuneTrait.Blue]);
+        Assert.Equal(0, rejected.State.CardObjects["P2-BULLET-TIME-UNIT-001"].Damage);
     }
 
     [Fact]
@@ -4841,22 +4859,21 @@ public sealed class ConformanceFixtureRunnerTests
             Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(metadata["sourceRequirements"]));
         var optionalCostChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
             sourceRequirement["optionalCostChoices"]);
-        Assert.Contains(optionalCostChoices, choice => string.Equals(choice.Id, "SPEND_POWER:1", StringComparison.Ordinal));
-        Assert.Contains(optionalCostChoices, choice => string.Equals(choice.Id, "SPEND_POWER:red:1", StringComparison.Ordinal));
+        Assert.DoesNotContain(optionalCostChoices, choice => choice.Id.StartsWith("SPEND_POWER:", StringComparison.Ordinal));
         Assert.Contains(optionalCostChoices, choice => string.Equals(choice.Id, paymentResourceAction, StringComparison.Ordinal));
         var paymentResourceChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
             sourceRequirement["paymentResourceChoices"]);
         Assert.Contains(paymentResourceChoices, choice => string.Equals(choice.Id, paymentResourceAction, StringComparison.Ordinal));
 
-        var result = await new CoreRuleEngine().ResolveAsync(
+        var observed = await InstructionPaymentOriginalP7Assertions.Execute(
             state,
             new PlayerIntent("intent-bullet-time-recycle-rune-payment", "P1", "PLAY_CARD"),
             new PlayCardCommand(
                 "P1-SPELL-BULLET-TIME",
                 "OGN·268/298",
                 [SelectedBattlefieldFixture.Field],
-                OptionalCosts: [paymentResourceAction, "SPEND_POWER:red:1"]),
-            CancellationToken.None);
+                OptionalCosts: [paymentResourceAction, "SPEND_POWER:red:1"]));
+        var result = observed.Final;
 
         Assert.True(result.Accepted, result.ErrorMessage);
         Assert.DoesNotContain(runeObjectId, result.State.PlayerZones["P1"].Base);
@@ -4865,13 +4882,14 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.False(result.State.CardObjects[runeObjectId].IsExhausted);
         Assert.Equal(0, result.State.RunePools["P1"].Mana);
         Assert.False(result.State.RunePools["P1"].PowerByTrait.ContainsKey(RuneTrait.Red));
-        Assert.Equal(1, Assert.Single(result.State.StackItems).DamageAmount);
-        var recycledEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "RUNE_RECYCLED", StringComparison.Ordinal));
+        Assert.Equal(1, result.State.CardObjects["P2-BULLET-TIME-UNIT-001"].Damage);
+        var recycledEvent = Assert.Single(observed.Declaration.Events, gameEvent => string.Equals(gameEvent.Kind, "RUNE_RECYCLED", StringComparison.Ordinal));
         Assert.Equal("PLAY_CARD", recycledEvent.Payload["paymentWindow"]);
         var costEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
-        Assert.Equal(["SPEND_POWER:red:1"], Assert.IsType<string[]>(costEvent.Payload["optionalCosts"]));
-        Assert.Equal([paymentResourceAction], Assert.IsType<string[]>(costEvent.Payload["paymentResourceActions"]));
-        Assert.Equal([runeObjectId], Assert.IsType<string[]>(costEvent.Payload["recycledRuneObjectIds"]));
+        Assert.Equal(["SPEND_POWER:red:1"], Assert.IsType<string[]>(costEvent.Payload["paymentChoiceIds"]));
+        var resourceCost = InstructionPaymentOriginalP7Assertions.DeclarationCost(observed);
+        Assert.Equal([paymentResourceAction], Assert.IsType<string[]>(resourceCost.Payload["paymentResourceActions"]));
+        Assert.Equal([runeObjectId], Assert.IsType<string[]>(resourceCost.Payload["recycledRuneObjectIds"]));
     }
 
     [Fact]
@@ -4944,21 +4962,21 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Contains(paymentResourceChoices, choice => string.Equals(choice.Id, paymentResourceAction, StringComparison.Ordinal));
         Assert.DoesNotContain(paymentResourceChoices, choice => string.Equals(choice.Id, dirtyPaymentResourceAction, StringComparison.Ordinal));
 
-        var result = await new CoreRuleEngine().ResolveAsync(
+        var observed = await InstructionPaymentOriginalP7Assertions.Execute(
             state,
             new PlayerIntent("intent-bullet-time-legacy-recycle-rune-payment", "P1", "PLAY_CARD"),
             new PlayCardCommand(
                 "P1-SPELL-BULLET-TIME",
                 "OGN·268/298",
                 [SelectedBattlefieldFixture.Field],
-                OptionalCosts: [paymentResourceAction, "SPEND_POWER:red:1"]),
-            CancellationToken.None);
+                OptionalCosts: [paymentResourceAction, "SPEND_POWER:red:1"]));
+        var result = observed.Final;
 
         Assert.True(result.Accepted, result.ErrorMessage);
         Assert.Equal([dirtyRuneObjectId], result.State.PlayerZones["P1"].Base);
         Assert.Equal(["P1-RUNE-BOTTOM-LEGACY", runeObjectId], result.State.PlayerZones["P1"].RuneDeck);
-        Assert.Equal(1, Assert.Single(result.State.StackItems).DamageAmount);
-        var costEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.Equal(1, result.State.CardObjects["P2-BULLET-TIME-UNIT-001"].Damage);
+        var costEvent = InstructionPaymentOriginalP7Assertions.DeclarationCost(observed);
         Assert.Equal([paymentResourceAction], Assert.IsType<string[]>(costEvent.Payload["paymentResourceActions"]));
         Assert.Equal([runeObjectId], Assert.IsType<string[]>(costEvent.Payload["recycledRuneObjectIds"]));
     }
@@ -5035,7 +5053,7 @@ public sealed class ConformanceFixtureRunnerTests
         var optionalCostChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
                 sourceRequirement["optionalCostChoices"])
             .ToArray();
-        Assert.Contains(optionalCostChoices, choice => string.Equals(choice.Id, "SPEND_POWER:red:2", StringComparison.Ordinal));
+        Assert.DoesNotContain(optionalCostChoices, choice => choice.Id.StartsWith("SPEND_POWER:", StringComparison.Ordinal));
         Assert.Contains(optionalCostChoices, choice => string.Equals(choice.Id, paymentResourceAction, StringComparison.Ordinal));
         var paymentResourceChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
                 sourceRequirement["paymentResourceChoices"])
@@ -5049,25 +5067,26 @@ public sealed class ConformanceFixtureRunnerTests
             sourceRequirement["availablePowerByTraitWithPaymentResources"]);
         Assert.Equal(2, availablePowerByTraitWithPaymentResources[RuneTrait.Red]);
 
-        var result = await new CoreRuleEngine().ResolveAsync(
+        var observed = await InstructionPaymentOriginalP7Assertions.Execute(
             state,
             new PlayerIntent("intent-bullet-time-partial-recycle-rune-payment", "P1", "PLAY_CARD"),
             new PlayCardCommand(
                 "P1-SPELL-BULLET-TIME",
                 "OGN·268/298",
                 [SelectedBattlefieldFixture.Field],
-                OptionalCosts: [paymentResourceAction, "SPEND_POWER:red:2"]),
-            CancellationToken.None);
+                OptionalCosts: [paymentResourceAction, "SPEND_POWER:red:2"]));
+        var result = observed.Final;
 
         Assert.True(result.Accepted, result.ErrorMessage);
         Assert.DoesNotContain(runeObjectId, result.State.PlayerZones["P1"].Base);
         Assert.Equal(["P1-RUNE-BOTTOM-001", runeObjectId], result.State.PlayerZones["P1"].RuneDeck);
         Assert.False(result.State.RunePools["P1"].PowerByTrait.ContainsKey(RuneTrait.Red));
-        Assert.Equal(2, Assert.Single(result.State.StackItems).DamageAmount);
+        Assert.Equal(2, result.State.CardObjects["P2-BULLET-TIME-UNIT-001"].Damage);
         var costEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
-        Assert.Equal(["SPEND_POWER:red:2"], Assert.IsType<string[]>(costEvent.Payload["optionalCosts"]));
-        Assert.Equal([paymentResourceAction], Assert.IsType<string[]>(costEvent.Payload["paymentResourceActions"]));
-        Assert.Equal([runeObjectId], Assert.IsType<string[]>(costEvent.Payload["recycledRuneObjectIds"]));
+        Assert.Equal(["SPEND_POWER:red:2"], Assert.IsType<string[]>(costEvent.Payload["paymentChoiceIds"]));
+        var resourceCost = InstructionPaymentOriginalP7Assertions.DeclarationCost(observed);
+        Assert.Equal([paymentResourceAction], Assert.IsType<string[]>(resourceCost.Payload["paymentResourceActions"]));
+        Assert.Equal([runeObjectId], Assert.IsType<string[]>(resourceCost.Payload["recycledRuneObjectIds"]));
     }
 
     [Fact]
@@ -5167,26 +5186,37 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.False(rejected.Accepted);
-        Assert.Equal(ErrorCodes.InsufficientCost, rejected.ErrorCode);
+        Assert.Equal(ErrorCodes.InvalidTarget, rejected.ErrorCode);
         Assert.Equal([redRuneObjectId, blueRuneObjectId], rejected.State.PlayerZones["P1"].Base);
         Assert.Equal(1, rejected.State.RunePools["P1"].PowerByTrait[RuneTrait.Red]);
         Assert.Empty(rejected.Events);
+        var opened = await InstructionPaymentOriginalP7Assertions.Open(state,
+            new("p7-mismatched-trait-current-timing", "P1", CommandTypes.PlayCard),
+            new PlayCardCommand("P1-SPELL-BULLET-TIME", "OGN·268/298", [SelectedBattlefieldFixture.Field],
+                OptionalCosts: [bluePaymentResourceAction, "SPEND_POWER:red:2"]));
+        Assert.DoesNotContain(opened.Window.PendingRuleChoice!.Request.Options, o => o.Id == "SPEND_POWER:red:2");
+        var unpaid = await InstructionPowerPaymentTimingTests.Pay(opened.Window, "SPEND_POWER:red:2");
+        Assert.False(unpaid.Accepted); Assert.Equal(ErrorCodes.InvalidTarget, unpaid.ErrorCode); Assert.Empty(unpaid.Events);
+        Assert.Equal(MatchStateHasher.Hash(opened.Window), MatchStateHasher.Hash(unpaid.State));
+        Assert.Equal(1, unpaid.State.RunePools["P1"].PowerByTrait[RuneTrait.Red]);
+        Assert.Equal(1, unpaid.State.RunePools["P1"].PowerByTrait[RuneTrait.Blue]);
+        Assert.Contains(blueRuneObjectId, unpaid.State.PlayerZones["P1"].RuneDeck);
 
-        var accepted = await new CoreRuleEngine().ResolveAsync(
+        var observed = await InstructionPaymentOriginalP7Assertions.Execute(
             state,
             new PlayerIntent("intent-bullet-time-matching-recycle-rune-payment", "P1", "PLAY_CARD"),
             new PlayCardCommand(
                 "P1-SPELL-BULLET-TIME",
                 "OGN·268/298",
                 [SelectedBattlefieldFixture.Field],
-                OptionalCosts: [redPaymentResourceAction, "SPEND_POWER:red:2"]),
-            CancellationToken.None);
+                OptionalCosts: [redPaymentResourceAction, "SPEND_POWER:red:2"]));
+        var accepted = observed.Final;
 
         Assert.True(accepted.Accepted, accepted.ErrorMessage);
         Assert.DoesNotContain(redRuneObjectId, accepted.State.PlayerZones["P1"].Base);
         Assert.Contains(blueRuneObjectId, accepted.State.PlayerZones["P1"].Base);
-        Assert.Equal(2, Assert.Single(accepted.State.StackItems).DamageAmount);
-        var costEvent = Assert.Single(accepted.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
+        Assert.Equal(2, accepted.State.CardObjects["P2-BULLET-TIME-UNIT-001"].Damage);
+        var costEvent = InstructionPaymentOriginalP7Assertions.DeclarationCost(observed);
         Assert.Equal([redPaymentResourceAction], Assert.IsType<string[]>(costEvent.Payload["paymentResourceActions"]));
     }
 
@@ -5273,7 +5303,7 @@ public sealed class ConformanceFixtureRunnerTests
                 sourceRequirement["optionalCostChoices"])
             .Select(choice => choice.Id)
             .ToArray();
-        Assert.Contains("SPEND_POWER:2", optionalCostChoices);
+        Assert.DoesNotContain(optionalCostChoices, id => id.StartsWith("SPEND_POWER:", StringComparison.Ordinal));
         Assert.Contains(redPaymentResourceAction, optionalCostChoices);
         Assert.Contains(bluePaymentResourceAction, optionalCostChoices);
         Assert.Equal(1, Assert.IsType<int>(sourceRequirement["availablePower"]));
@@ -5283,15 +5313,15 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(2, availablePowerByTraitWithPaymentResources[RuneTrait.Red]);
         Assert.Equal(1, availablePowerByTraitWithPaymentResources[RuneTrait.Blue]);
 
-        var accepted = await new CoreRuleEngine().ResolveAsync(
+        var observed = await InstructionPaymentOriginalP7Assertions.Execute(
             state,
             new PlayerIntent("intent-bullet-time-generic-mixed-recycle-rune-payment", "P1", "PLAY_CARD"),
             new PlayCardCommand(
                 "P1-SPELL-BULLET-TIME",
                 "OGN·268/298",
                 [SelectedBattlefieldFixture.Field],
-                OptionalCosts: [bluePaymentResourceAction, "SPEND_POWER:2"]),
-            CancellationToken.None);
+                OptionalCosts: [bluePaymentResourceAction, "SPEND_POWER:2"]));
+        var accepted = observed.Final;
 
         Assert.True(accepted.Accepted, accepted.ErrorMessage);
         Assert.Contains(redRuneObjectId, accepted.State.PlayerZones["P1"].Base);
@@ -5299,11 +5329,12 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(["P1-RUNE-BOTTOM-001", blueRuneObjectId], accepted.State.PlayerZones["P1"].RuneDeck);
         Assert.False(accepted.State.RunePools["P1"].PowerByTrait.ContainsKey(RuneTrait.Red));
         Assert.False(accepted.State.RunePools["P1"].PowerByTrait.ContainsKey(RuneTrait.Blue));
-        Assert.Equal(2, Assert.Single(accepted.State.StackItems).DamageAmount);
+        Assert.Equal(2, accepted.State.CardObjects["P2-BULLET-TIME-UNIT-001"].Damage);
         var costEvent = Assert.Single(accepted.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
-        Assert.Equal(["SPEND_POWER:2"], Assert.IsType<string[]>(costEvent.Payload["optionalCosts"]));
-        Assert.Equal([bluePaymentResourceAction], Assert.IsType<string[]>(costEvent.Payload["paymentResourceActions"]));
-        Assert.Equal([blueRuneObjectId], Assert.IsType<string[]>(costEvent.Payload["recycledRuneObjectIds"]));
+        Assert.Equal(["SPEND_POWER:2"], Assert.IsType<string[]>(costEvent.Payload["paymentChoiceIds"]));
+        var resourceCost = InstructionPaymentOriginalP7Assertions.DeclarationCost(observed);
+        Assert.Equal([bluePaymentResourceAction], Assert.IsType<string[]>(resourceCost.Payload["paymentResourceActions"]));
+        Assert.Equal([blueRuneObjectId], Assert.IsType<string[]>(resourceCost.Payload["recycledRuneObjectIds"]));
     }
 
     [Fact]
@@ -5388,28 +5419,29 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(0, Assert.IsType<int>(sourceRequirement["availablePower"]));
         Assert.Equal(2, Assert.IsType<int>(sourceRequirement["availablePowerWithPaymentResources"]));
 
-        var result = await new CoreRuleEngine().ResolveAsync(
+        var observed = await InstructionPaymentOriginalP7Assertions.Execute(
             state,
             new PlayerIntent("intent-bullet-time-double-recycle-rune-payment", "P1", "PLAY_CARD"),
             new PlayCardCommand(
                 "P1-SPELL-BULLET-TIME",
                 "OGN·268/298",
                 [SelectedBattlefieldFixture.Field],
-                OptionalCosts: [firstPaymentResourceAction, secondPaymentResourceAction, "SPEND_POWER:red:2"]),
-            CancellationToken.None);
+                OptionalCosts: [firstPaymentResourceAction, secondPaymentResourceAction, "SPEND_POWER:red:2"]));
+        var result = observed.Final;
 
         Assert.True(result.Accepted, result.ErrorMessage);
         Assert.Empty(result.State.PlayerZones["P1"].Base);
         Assert.Equal(["P1-RUNE-BOTTOM-001", firstRuneObjectId, secondRuneObjectId], result.State.PlayerZones["P1"].RuneDeck);
         Assert.False(result.State.RunePools["P1"].PowerByTrait.ContainsKey(RuneTrait.Red));
-        Assert.Equal(2, Assert.Single(result.State.StackItems).DamageAmount);
-        Assert.Equal(2, result.Events.Count(gameEvent => string.Equals(gameEvent.Kind, "RUNE_RECYCLED", StringComparison.Ordinal)));
+        Assert.Equal(2, result.State.CardObjects["P2-BULLET-TIME-UNIT-001"].Damage);
+        Assert.Equal(2, observed.Declaration.Events.Count(gameEvent => string.Equals(gameEvent.Kind, "RUNE_RECYCLED", StringComparison.Ordinal)));
         var costEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
-        Assert.Equal(["SPEND_POWER:red:2"], Assert.IsType<string[]>(costEvent.Payload["optionalCosts"]));
+        Assert.Equal(["SPEND_POWER:red:2"], Assert.IsType<string[]>(costEvent.Payload["paymentChoiceIds"]));
+        var resourceCost = InstructionPaymentOriginalP7Assertions.DeclarationCost(observed);
         Assert.Equal(
             [firstPaymentResourceAction, secondPaymentResourceAction],
-            Assert.IsType<string[]>(costEvent.Payload["paymentResourceActions"]));
-        Assert.Equal([firstRuneObjectId, secondRuneObjectId], Assert.IsType<string[]>(costEvent.Payload["recycledRuneObjectIds"]));
+            Assert.IsType<string[]>(resourceCost.Payload["paymentResourceActions"]));
+        Assert.Equal([firstRuneObjectId, secondRuneObjectId], Assert.IsType<string[]>(resourceCost.Payload["recycledRuneObjectIds"]));
     }
 
     [Fact]
@@ -5499,15 +5531,15 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(RuneTrait.Red, Assert.IsType<string>(paymentResourcePowerByChoice[secondPaymentResourceAction]["trait"]));
         Assert.Equal(1, Assert.IsType<int>(paymentResourcePowerByChoice[secondPaymentResourceAction]["power"]));
 
-        var result = await new CoreRuleEngine().ResolveAsync(
+        var observed = await InstructionPaymentOriginalP7Assertions.Execute(
             state,
             new PlayerIntent("intent-bullet-time-over-recycle-rune-payment", "P1", "PLAY_CARD"),
             new PlayCardCommand(
                 "P1-SPELL-BULLET-TIME",
                 "OGN·268/298",
                 [SelectedBattlefieldFixture.Field],
-                OptionalCosts: [firstPaymentResourceAction, secondPaymentResourceAction, "SPEND_POWER:red:2"]),
-            CancellationToken.None);
+                OptionalCosts: [firstPaymentResourceAction, secondPaymentResourceAction, "SPEND_POWER:red:2"]));
+        var result = observed.Final;
 
         // Retain the historical method identity and original failure. CN 164.2.b,
         // 166-167, 357.1.a and 430 allow acquiring more power than the actual cost.
@@ -5517,11 +5549,12 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(["P1-RUNE-BOTTOM-001", firstRuneObjectId, secondRuneObjectId], result.State.PlayerZones["P1"].RuneDeck);
         Assert.Equal(0, result.State.RunePools["P1"].Mana);
         Assert.Equal(1, result.State.RunePools["P1"].PowerByTrait[RuneTrait.Red]);
-        Assert.Equal(2, Assert.Single(result.State.StackItems).DamageAmount);
+        Assert.Equal(2, result.State.CardObjects["P2-BULLET-TIME-UNIT-001"].Damage);
         var paid = Assert.Single(result.Events, gameEvent => gameEvent.Kind == "COST_PAID");
         Assert.Equal(2, paid.Payload["totalPowerCost"]);
-        Assert.Equal([firstPaymentResourceAction, secondPaymentResourceAction], Assert.IsType<string[]>(paid.Payload["paymentResourceActions"]));
-        Assert.Equal([firstRuneObjectId, secondRuneObjectId], result.Events.Where(gameEvent => gameEvent.Kind == "RUNE_RECYCLED")
+        var resourceCost = InstructionPaymentOriginalP7Assertions.DeclarationCost(observed);
+        Assert.Equal([firstPaymentResourceAction, secondPaymentResourceAction], Assert.IsType<string[]>(resourceCost.Payload["paymentResourceActions"]));
+        Assert.Equal([firstRuneObjectId, secondRuneObjectId], observed.Declaration.Events.Where(gameEvent => gameEvent.Kind == "RUNE_RECYCLED")
             .Select(gameEvent => Assert.IsType<string>(gameEvent.Payload["sourceObjectId"])));
     }
 
