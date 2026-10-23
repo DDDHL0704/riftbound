@@ -5,6 +5,9 @@ using Xunit;
 
 namespace Riftbound.ConformanceTests;
 
+// S6 source calibration: retained all original methods/rows. Current CN166-168
+// and Lux text keep restricted surplus in the pool until its normal boundary.
+// Original source/failures: var/qa/payment-restricted-mana-20261024/{original-source,mechanism-v4}.
 public sealed class LuxResourceSkillTests
 {
     private const string LuxObjectId = "P1-LUX";
@@ -28,7 +31,7 @@ public sealed class LuxResourceSkillTests
         Assert.Equal(P4ActivatedAbilityCatalog.LuxCardNo, ability.SourceCardNo);
         Assert.Equal(P4ActivatedAbilityCatalog.LuxResourceAbilityEffectKind, ability.EffectKind);
         Assert.True(ability.IsResourceSkill);
-        Assert.True(ability.PaymentOnlyResource);
+        Assert.False(ability.PaymentOnlyResource);
         Assert.True(ability.ReactionSpeed);
         Assert.True(ability.ExhaustsSourceAsCost);
         Assert.Equal(P4ActivatedAbilityCatalog.LuxGeneratedMana, ability.GeneratedMana);
@@ -59,7 +62,7 @@ public sealed class LuxResourceSkillTests
             matchSessionSource,
             StringComparison.Ordinal);
         Assert.Contains("P4ActivatedAbilityCatalog.IsSourceCardNoForAbilityId", coreRuleEngineSource, StringComparison.Ordinal);
-        Assert.Contains("P4ActivatedAbilityCatalog.IsSourceCardNoForAbilityId", matchSessionSource, StringComparison.Ordinal);
+        Assert.Contains("CoreRuleEngine.CanUseLuxSpellOnlyResourceSource", matchSessionSource, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -83,7 +86,7 @@ public sealed class LuxResourceSkillTests
         var paymentResourcePowerByChoice = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyDictionary<string, object?>>>(
             sourceRequirement["paymentResourcePowerByChoice"]);
         Assert.Equal(P4ActivatedAbilityCatalog.LuxGeneratedMana, paymentResourcePowerByChoice[LuxResourceAction]["mana"]);
-        Assert.Equal(true, paymentResourcePowerByChoice[LuxResourceAction]["paymentOnly"]);
+        Assert.Equal(false, paymentResourcePowerByChoice[LuxResourceAction]["paymentOnly"]);
         Assert.Equal(true, paymentResourcePowerByChoice[LuxResourceAction]["spellOnly"]);
         Assert.Equal(P4ActivatedAbilityCatalog.LuxSpellOnlyResourceRestriction, paymentResourcePowerByChoice[LuxResourceAction]["resourceRestriction"]);
         Assert.Equal(0, sourceRequirement["availableMana"]);
@@ -121,7 +124,7 @@ public sealed class LuxResourceSkillTests
 
         Assert.True(result.Accepted, result.ErrorMessage);
         Assert.True(result.State.CardObjects[LuxObjectId].IsExhausted);
-        Assert.Equal(RunePool.Empty, result.State.RunePools["P1"]);
+        Assert.Equal(new RunePool(0, 0, spellOnlyMana: 1), result.State.RunePools["P1"]);
         var stackItem = Assert.Single(result.State.StackItems);
         Assert.Equal(SpellObjectId, stackItem.SourceObjectId);
         Assert.Equal(BulletTimeCardNo, stackItem.CardNo);
@@ -131,8 +134,6 @@ public sealed class LuxResourceSkillTests
                 "ABILITY_ACTIVATED",
                 "UNIT_EXHAUSTED",
                 "MANA_GAINED",
-                "TEMPORARY_PAYMENT_RESOURCE_SPENT",
-                "TEMPORARY_PAYMENT_RESOURCE_CLEARED",
                 "COST_PAID",
                 "STACK_ITEM_ADDED"
             ],
@@ -144,12 +145,9 @@ public sealed class LuxResourceSkillTests
         Assert.Equal(true, activatedEvent.Payload["generatedResourceCannotBeTargetedAsResponse"]);
         var manaEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "MANA_GAINED", StringComparison.Ordinal));
         Assert.Equal(P4ActivatedAbilityCatalog.LuxGeneratedMana, manaEvent.Payload["mana"]);
-        Assert.Equal(P4ActivatedAbilityCatalog.LuxGeneratedMana, manaEvent.Payload["manaAfter"]);
-        var spendEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "TEMPORARY_PAYMENT_RESOURCE_SPENT", StringComparison.Ordinal));
-        Assert.Equal(1, spendEvent.Payload["consumedMana"]);
-        Assert.Equal(1, spendEvent.Payload["remainingMana"]);
-        var cleanupEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "TEMPORARY_PAYMENT_RESOURCE_CLEARED", StringComparison.Ordinal));
-        Assert.Equal(1, cleanupEvent.Payload["remainingManaBeforeCleanup"]);
+        Assert.Equal(0, manaEvent.Payload["manaAfter"]);
+        Assert.Equal(2, manaEvent.Payload["spellOnlyManaAfter"]);
+        Assert.DoesNotContain(result.Events, e => e.Kind.StartsWith("TEMPORARY_PAYMENT_RESOURCE_"));
 
         var costEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
         Assert.Equal([LuxResourceAction], Assert.IsType<string[]>(costEvent.Payload["paymentResourceActions"]));
@@ -159,6 +157,9 @@ public sealed class LuxResourceSkillTests
         Assert.Equal(1, costEvent.Payload["luxSpellOnlyConsumedMana"]);
         Assert.Equal(1, costEvent.Payload["luxSpellOnlyRemainingMana"]);
         Assert.Equal(0, costEvent.Payload["remainingMana"]);
+        Assert.Equal(1, costEvent.Payload["spellOnlyManaSpent"]);
+        Assert.Equal(0, costEvent.Payload["ordinaryManaSpent"]);
+        Assert.Equal(1, costEvent.Payload["remainingSpellOnlyMana"]);
     }
 
     [Fact]
@@ -195,10 +196,6 @@ public sealed class LuxResourceSkillTests
                 "ABILITY_ACTIVATED",
                 "UNIT_EXHAUSTED",
                 "MANA_GAINED",
-                "TEMPORARY_PAYMENT_RESOURCE_SPENT",
-                "TEMPORARY_PAYMENT_RESOURCE_CLEARED",
-                "TEMPORARY_PAYMENT_RESOURCE_SPENT",
-                "TEMPORARY_PAYMENT_RESOURCE_CLEARED",
                 "COST_PAID",
                 "STACK_ITEM_ADDED"
             ],
@@ -223,39 +220,19 @@ public sealed class LuxResourceSkillTests
         {
             Assert.Equal(P4ActivatedAbilityCatalog.LuxGeneratedMana, gameEvent.Payload["mana"]);
             Assert.Equal(P4ActivatedAbilityCatalog.LuxGeneratedMana, gameEvent.Payload["generatedMana"]);
-            Assert.Equal(true, gameEvent.Payload["paymentOnly"]);
+            Assert.Equal(false, gameEvent.Payload["paymentOnly"]);
             Assert.Equal(true, gameEvent.Payload["spellOnly"]);
             Assert.Equal(P4ActivatedAbilityCatalog.LuxSpellOnlyResourceRestriction, gameEvent.Payload["resourceRestriction"]);
         });
-        Assert.Equal([4, 6], manaEvents.Select(gameEvent => Assert.IsType<int>(gameEvent.Payload["manaAfter"])).ToArray());
-
-        var spendEvents = result.Events
-            .Where(gameEvent => string.Equals(gameEvent.Kind, "TEMPORARY_PAYMENT_RESOURCE_SPENT", StringComparison.Ordinal))
-            .ToArray();
-        Assert.Equal(luxSourceObjectIds, spendEvents.Select(gameEvent => Assert.IsType<string>(gameEvent.Payload["sourceObjectId"])).ToArray());
-        Assert.All(spendEvents, gameEvent =>
-        {
-            Assert.Equal(P4ActivatedAbilityCatalog.LuxGeneratedMana, gameEvent.Payload["consumedMana"]);
-            Assert.Equal(0, gameEvent.Payload["remainingMana"]);
-            Assert.Equal(true, gameEvent.Payload["paymentOnly"]);
-            Assert.Equal(true, gameEvent.Payload["spellOnly"]);
-            Assert.Equal(P4ActivatedAbilityCatalog.LuxSpellOnlyResourceRestriction, gameEvent.Payload["resourceRestriction"]);
-        });
-
-        var cleanupEvents = result.Events
-            .Where(gameEvent => string.Equals(gameEvent.Kind, "TEMPORARY_PAYMENT_RESOURCE_CLEARED", StringComparison.Ordinal))
-            .ToArray();
-        Assert.Equal(luxSourceObjectIds, cleanupEvents.Select(gameEvent => Assert.IsType<string>(gameEvent.Payload["sourceObjectId"])).ToArray());
-        Assert.All(cleanupEvents, gameEvent =>
-        {
-            Assert.Equal(0, gameEvent.Payload["remainingManaBeforeCleanup"]);
-            Assert.Equal(true, gameEvent.Payload["paymentOnly"]);
-            Assert.Equal(true, gameEvent.Payload["spellOnly"]);
-        });
+        Assert.Equal([2, 2], manaEvents.Select(e => Assert.IsType<int>(e.Payload["manaAfter"])).ToArray());
+        Assert.Equal([2, 4], manaEvents.Select(e => Assert.IsType<int>(e.Payload["spellOnlyManaAfter"])).ToArray());
+        Assert.DoesNotContain(result.Events, e => e.Kind.StartsWith("TEMPORARY_PAYMENT_RESOURCE_"));
 
         var costEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
         Assert.Equal(6, costEvent.Payload["baseMana"]);
         Assert.Equal(6, costEvent.Payload["mana"]);
+        Assert.Equal(4, costEvent.Payload["spellOnlyManaSpent"]);
+        Assert.Equal(2, costEvent.Payload["ordinaryManaSpent"]);
         Assert.Equal(luxResourceActions, Assert.IsType<string[]>(costEvent.Payload["paymentResourceActions"]));
         Assert.Equal(luxResourceActions, Assert.IsType<string[]>(costEvent.Payload["luxSpellOnlyResourceActions"]));
         Assert.Equal(luxSourceObjectIds, Assert.IsType<string[]>(costEvent.Payload["luxSpellOnlyResourceSourceObjectIds"]));
@@ -465,6 +442,17 @@ public sealed class LuxResourceSkillTests
             command,
             CancellationToken.None);
 
+        // Preserve the original row: CN166-168/430 permits voluntary gain even
+        // when ordinary mana already covers this spell. Only its use is restricted.
+        if (caseName == "unnecessary-resource")
+        {
+            Assert.True(result.Accepted, result.ErrorMessage);
+            Assert.True(result.State.CardObjects[LuxObjectId].IsExhausted);
+            Assert.Equal(new RunePool(1, 0, spellOnlyMana: 1), result.State.RunePools["P1"]);
+            Assert.Single(result.Events, e => e.Kind == "MANA_GAINED");
+            Assert.DoesNotContain(result.Events, e => e.Kind.StartsWith("TEMPORARY_PAYMENT_RESOURCE_"));
+            return;
+        }
         Assert.False(result.Accepted);
         Assert.Empty(result.Events);
         Assert.Equal(initialHash, MatchStateHasher.Hash(result.State));
@@ -605,7 +593,7 @@ public sealed class LuxResourceSkillTests
         StackItemState? expectedStackItem = null)
     {
         Assert.True(result.State.CardObjects[LuxObjectId].IsExhausted);
-        Assert.Equal(RunePool.Empty, result.State.RunePools["P1"]);
+        Assert.Equal(new RunePool(0, 0, spellOnlyMana: 1), result.State.RunePools["P1"]);
         RetiredPaymentLedgerTests.AssertNoLedger(result.State);
         Assert.Empty(result.State.PlayerZones["P1"].Hand);
 
@@ -638,14 +626,11 @@ public sealed class LuxResourceSkillTests
                     "ABILITY_ACTIVATED",
                     "UNIT_EXHAUSTED",
                     "MANA_GAINED",
-                    "TEMPORARY_PAYMENT_RESOURCE_SPENT",
-                    "TEMPORARY_PAYMENT_RESOURCE_CLEARED",
-                    "COST_PAID",
+                            "COST_PAID",
                     "STACK_ITEM_ADDED"
                 ],
                 result.Events.Select(gameEvent => gameEvent.Kind));
-            Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "TEMPORARY_PAYMENT_RESOURCE_SPENT", StringComparison.Ordinal));
-            Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "TEMPORARY_PAYMENT_RESOURCE_CLEARED", StringComparison.Ordinal));
+            Assert.DoesNotContain(result.Events, e => e.Kind.StartsWith("TEMPORARY_PAYMENT_RESOURCE_"));
             var costEvent = Assert.Single(result.Events, gameEvent => string.Equals(gameEvent.Kind, "COST_PAID", StringComparison.Ordinal));
             Assert.Equal([LuxResourceAction], Assert.IsType<string[]>(costEvent.Payload["paymentResourceActions"]));
             Assert.Equal([LuxResourceAction], Assert.IsType<string[]>(costEvent.Payload["luxSpellOnlyResourceActions"]));
