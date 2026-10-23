@@ -1,4 +1,6 @@
 using System.Text.Json;
+using System.Reflection;
+using System.Security.Cryptography;
 using Riftbound.Contracts;
 using Riftbound.Engine;
 using Xunit;
@@ -14,6 +16,19 @@ public sealed class RestrictedManaQaBirthTests
     [InlineData("sp6", "VEN·SP6")]
     public async Task OriginalRoomBirthAndEveryRestrictedResourceCheckpointColdReplay(string kind, string card)
     {
+        if (Environment.GetEnvironmentVariable("RIFTBOUND_RESTRICTED_MANA_EVIDENCE") is { Length: > 0 } output)
+        {
+            Directory.CreateDirectory(output);
+            var assembly = typeof(CoreRuleEngine).Assembly;
+            var sha = Convert.ToHexString(SHA256.HashData(await File.ReadAllBytesAsync(assembly.Location))).ToLowerInvariant();
+            var copied = Path.Combine(AppContext.BaseDirectory, "Riftbound.Engine.dll");
+            Assert.Equal(sha, Convert.ToHexString(SHA256.HashData(await File.ReadAllBytesAsync(copied))).ToLowerInvariant());
+            await File.WriteAllTextAsync(Path.Combine(output, "test-runtime-" + kind + ".json"), JsonSerializer.Serialize(new {
+                processId = Environment.ProcessId, baseDirectory = AppContext.BaseDirectory, assemblyPath = assembly.Location,
+                mvid = assembly.ManifestModule.ModuleVersionId,
+                informationalVersion = assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion,
+                sha256 = sha, ruleInputs = RuleInputIdentity.Current }, Web));
+        }
         var journal = new Journal(); var room = "restricted-original-birth-" + kind;
         var session = new MatchSession(room, new CoreRuleEngine(), journal);
         await session.EnsurePlayerAsync("P1", default); await Cold();
@@ -77,7 +92,7 @@ public sealed class RestrictedManaQaBirthTests
             var duplicate = await session.SubmitAsync(player, id, command, raw, default);
             Assert.Equal(accepted, duplicate.Accepted); Assert.Equal(count, journal.Entries.Count);
             FullGameEndToEndTests.AssertNoHiddenZoneLeak(result);
-            await Cold();
+            if (accepted) await Cold();
         }
         Task Choose(string option)
         {
