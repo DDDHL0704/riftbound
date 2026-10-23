@@ -1,4 +1,6 @@
 using System.Collections.Concurrent;
+using System.Data;
+using System.Data.Common;
 using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
@@ -35,16 +37,25 @@ internal sealed class PaymentReconnectEvidence : IAsyncDisposable
         var tokens = File.Exists(path) ? JsonSerializer.Deserialize<Dictionary<string, string>>(await File.ReadAllTextAsync(path), Json)!
             : mode == "play" ? initial : throw new InvalidOperationException("Missing actual Joined tokens from the preceding phase.");
         Check(tokens.Keys.Order().SequenceEqual(initial.Keys.Order()), "Keep exactly the fixture's two identities.");
-        var source = NpgsqlDataSource.Create(Environment.GetEnvironmentVariable("ConnectionStrings__Riftbound")
+        var source = AcceptanceSource(Environment.GetEnvironmentVariable("ConnectionStrings__Riftbound")
             ?? throw new ArgumentException("Network audit requires the same dedicated ConnectionStrings__Riftbound for exact read-only SQL evidence."));
         var audit = new PaymentReconnectEvidence(source, room, folder, mode, tokens);
         audit.before = await Capture(source, room); return audit;
     }
 
+    internal static NpgsqlDataSource AcceptanceSource(string connectionString)
+    {
+        var settings = new NpgsqlConnectionStringBuilder(connectionString);
+        Check(settings.Database == "riftbound_acceptance" && settings.Host is "127.0.0.1" or "localhost",
+            "Use the dedicated loopback riftbound_acceptance database; no shared application database is allowed.");
+        return NpgsqlDataSource.Create(connectionString);
+    }
+
     internal bool Observe(string recipient, string method, WsServerMessage message)
     {
         if (method is not ("Joined" or "Error")) return true;
-        if (message.RoomId != room || message.Payload is not JsonElement payload || payload.ValueKind != JsonValueKind.Object)
+        if (message.Type != (method == "Joined" ? MessageType.RECONNECT : MessageType.ERROR)
+            || message.RoomId != room || message.Payload is not JsonElement payload || payload.ValueKind != JsonValueKind.Object)
         { failures.Enqueue("Invalid Joined/Error envelope."); return false; }
         if (method == "Joined")
         {
@@ -112,18 +123,28 @@ internal sealed class PaymentReconnectEvidence : IAsyncDisposable
     internal static async Task<Rows> Capture(NpgsqlDataSource source, string room)
     {
         await using var connection = await source.OpenConnectionAsync();
+        return await Capture(connection, room);
+    }
+    internal static async Task<Rows> Capture(DbConnection connection, string room)
+    {
+        await using var transaction = await connection.BeginTransactionAsync(IsolationLevel.RepeatableRead);
+        await using (var readOnly = Command("SET TRANSACTION READ ONLY")) await readOnly.ExecuteNonQueryAsync();
         var start = await Now(); var rows = new Dictionary<string, JsonArray>();
         foreach (var table in Tables) rows[table] = await Read(table, "=");
         var otherMatches = await Read("matches", "<>"); var otherPlayers = await Read("match_players", "<>");
-        return new(start, await Now(), rows, otherMatches, otherPlayers);
+        var finish = await Now(); await transaction.CommitAsync();
+        return new(start, finish, rows, otherMatches, otherPlayers);
         async Task<JsonArray> Read(string table, string relation)
         {
-            await using var command = new NpgsqlCommand($"select row_to_json(t)::text from {table} t where match_id {relation} @room order by row_to_json(t)::text", connection);
-            command.Parameters.AddWithValue("room", room); await using var reader = await command.ExecuteReaderAsync(); var result = new JsonArray();
+            await using var command = Command($"select row_to_json(t)::text from {table} t where match_id {relation} @room order by row_to_json(t)::text");
+            var parameter = command.CreateParameter(); parameter.ParameterName = "room"; parameter.Value = room; command.Parameters.Add(parameter);
+            await using var reader = await command.ExecuteReaderAsync(); var result = new JsonArray();
             while (await reader.ReadAsync()) result.Add(JsonNode.Parse(reader.GetString(0))); return result;
         }
         async Task<DateTimeOffset> Now()
-        { await using var query = new NpgsqlCommand("select clock_timestamp()", connection); return new DateTimeOffset((DateTime)(await query.ExecuteScalarAsync())!); }
+        { await using var query = Command("select clock_timestamp()"); return new DateTimeOffset((DateTime)(await query.ExecuteScalarAsync())!); }
+        DbCommand Command(string sql)
+        { var command = connection.CreateCommand(); command.Transaction = transaction; command.CommandText = sql; return command; }
     }
     internal static void ValidateExact(Rows before, Rows after, bool includeOtherRooms = true)
     {
@@ -133,6 +154,8 @@ internal sealed class PaymentReconnectEvidence : IAsyncDisposable
     internal static void ValidateRotation(Rotation proof)
     {
         var before = proof.Before; var after = proof.After;
+        Check(before.Started <= before.Finished && before.Finished <= after.Started && after.Started <= after.Finished,
+            "Keep two ordered, non-overlapping SQL captures.");
         foreach (var table in Tables.Except(["matches", "match_players"]))
             Check(EqualJson(before.Tables[table], after.Tables[table]), "Reconnect changed gameplay table " + table);
         Check(EqualJson(before.OtherMatches, after.OtherMatches) && EqualJson(before.OtherPlayers, after.OtherPlayers), "Reconnect changed another room/player.");
@@ -148,14 +171,18 @@ internal sealed class PaymentReconnectEvidence : IAsyncDisposable
                 && row["reconnect_token_hash"]!.GetValue<string>() == proof.JoinedHashes[player]
                 && proof.SuppliedHashes[player] != proof.JoinedHashes[player], "SQL must bind each actual returned new token and retire its old hash.");
         }
+        Check(Updated(after.Tables["matches"][0]!) == newPlayers.Values.Max(Updated),
+            "The room timestamp must identify the same last transaction as the later player session save.");
         void Compare(JsonNode old, JsonNode current, string[] allowed)
         {
             var first = old.DeepClone().AsObject(); var second = current.DeepClone().AsObject();
             foreach (var field in allowed) Check(first.Remove(field) && second.Remove(field), "Missing required authentication column " + field);
             Check(EqualJson(first, second), "Reconnect changed a protected column.");
-            var updated = DateTimeOffset.Parse(current["updated_at"]!.GetValue<string>(), CultureInfo.InvariantCulture);
-            Check(updated >= before.Started && updated <= after.Finished, "Authentication update must fall inside the measured SQL reconnect interval.");
+            var updated = Updated(current);
+            Check(updated > Updated(old), "Each authentication timestamp must advance.");
+            Check(updated >= before.Finished && updated <= after.Started, "Authentication update must fall between the completed before-capture and the started after-capture.");
         }
+        static DateTimeOffset Updated(JsonNode row) => DateTimeOffset.Parse(row["updated_at"]!.GetValue<string>(), CultureInfo.InvariantCulture);
         static Dictionary<string, JsonNode> Players(Rows rows) => rows.Tables["match_players"].Select(r => r!)
             .ToDictionary(r => r["player_id"]!.GetValue<string>(), r => r, StringComparer.Ordinal);
     }
