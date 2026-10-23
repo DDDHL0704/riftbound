@@ -80,7 +80,8 @@ public sealed class ReksaiHasteReadyRedPaymentTests
         var paymentResourceChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
                 sourceRequirement["paymentResourceChoices"])
             .ToArray();
-        Assert.Equal([$"RECYCLE_RUNE:{RedRuneObjectId}"], paymentResourceChoices.Select(choice => choice.Id).ToArray());
+        // CN 430 allows voluntary green acquisition while the haste fee remains red.
+        Assert.Equal([$"RECYCLE_RUNE:{GreenRuneObjectId}", $"RECYCLE_RUNE:{RedRuneObjectId}"], paymentResourceChoices.Select(choice => choice.Id).ToArray());
         Assert.DoesNotContain(
             paymentResourceChoices,
             choice => choice.Id.StartsWith("TEMP_PAYMENT_RESOURCE:", StringComparison.Ordinal));
@@ -88,6 +89,7 @@ public sealed class ReksaiHasteReadyRedPaymentTests
         var paymentResourcePowerByChoice = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyDictionary<string, object?>>>(
             sourceRequirement["paymentResourcePowerByChoice"]);
         Assert.Equal(RuneTrait.Red, paymentResourcePowerByChoice[$"RECYCLE_RUNE:{RedRuneObjectId}"]["trait"]);
+        Assert.Equal(RuneTrait.Green, paymentResourcePowerByChoice[$"RECYCLE_RUNE:{GreenRuneObjectId}"]["trait"]);
 
         var availablePowerByTrait = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(
             sourceRequirement["availablePowerByTrait"]);
@@ -95,6 +97,7 @@ public sealed class ReksaiHasteReadyRedPaymentTests
         var availablePowerByTraitWithPaymentResources = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(
             sourceRequirement["availablePowerByTraitWithPaymentResources"]);
         Assert.Equal(1, availablePowerByTraitWithPaymentResources[RuneTrait.Red]);
+        Assert.Equal(1, availablePowerByTraitWithPaymentResources[RuneTrait.Green]);
     }
 
     [Fact]
@@ -118,7 +121,10 @@ public sealed class ReksaiHasteReadyRedPaymentTests
         var paymentResourceChoices = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(
                 sourceRequirement["paymentResourceChoices"])
             .ToArray();
-        Assert.Empty(paymentResourceChoices);
+        Assert.Equal([$"RECYCLE_RUNE:{GreenRuneObjectId}"], paymentResourceChoices.Select(choice => choice.Id).ToArray());
+        var powerByTrait = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(sourceRequirement["availablePowerByTraitWithPaymentResources"]);
+        Assert.Equal(1, powerByTrait[RuneTrait.Green]);
+        Assert.DoesNotContain(RuneTrait.Red, powerByTrait.Keys);
     }
 
     [Theory]

@@ -6350,16 +6350,17 @@ public sealed partial class GameHubJoinTests
             sourceRequirement["paymentResourceChoices"])
             .Select(choice => choice.Id)
             .ToArray();
-        Assert.DoesNotContain(bluePaymentResourceAction, paymentResourceChoices);
+        // CN 430 permits voluntary blue acquisition; only purple can pay this haste fee.
+        Assert.Contains(bluePaymentResourceAction, paymentResourceChoices);
         Assert.Contains(purplePaymentResourceAction, paymentResourceChoices);
-        Assert.Equal(2, Assert.IsType<int>(sourceRequirement["availablePowerWithPaymentResources"]));
+        Assert.Equal(3, Assert.IsType<int>(sourceRequirement["availablePowerWithPaymentResources"]));
         var availablePowerByTraitWithPaymentResources = Assert.IsAssignableFrom<IReadOnlyDictionary<string, int>>(
             sourceRequirement["availablePowerByTraitWithPaymentResources"]);
-        Assert.DoesNotContain(RuneTrait.Blue, availablePowerByTraitWithPaymentResources.Keys);
+        Assert.Equal(1, availablePowerByTraitWithPaymentResources[RuneTrait.Blue]);
         Assert.Equal(1, availablePowerByTraitWithPaymentResources[RuneTrait.Purple]);
         var paymentResourcePowerByChoice = Assert.IsAssignableFrom<IReadOnlyDictionary<string, IReadOnlyDictionary<string, object?>>>(
             sourceRequirement["paymentResourcePowerByChoice"]);
-        Assert.DoesNotContain(bluePaymentResourceAction, paymentResourcePowerByChoice.Keys);
+        Assert.Equal(RuneTrait.Blue, Assert.IsType<string>(paymentResourcePowerByChoice[bluePaymentResourceAction]["trait"]));
         Assert.Equal(RuneTrait.Purple, Assert.IsType<string>(paymentResourcePowerByChoice[purplePaymentResourceAction]["trait"]));
 
         var rejectedClients = new RecordingHubClients();
