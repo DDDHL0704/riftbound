@@ -450,6 +450,10 @@ public static class CardBehaviorRegistry
 {
     private static readonly CardBehaviorDefinition[] RawDefinitions =
     [
+        new("VEN·086", "普朗克", 6, "GANGPLANK_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 6, SourceUnitTags: "海盗"),
+        new("VEN·181", "普朗克", 6, "GANGPLANK_PLAY_UNIT", 0, 0,
+            PlaysSourceToBaseAsUnit: true, SourceUnitPower: 6, SourceUnitTags: "海盗"),
         new("VEN·043", "钢爪", 1, "STEELCLAW_EMPOWER_PLAY_UNIT", 0, 0,
             PlaysSourceToBaseAsUnit: true, SourceUnitPower: 0, SourceUnitTags: "猫科|法盾"),
         new("VEN·050", "凶暴的岩熊", 4, "FEROCIOUS_ROCKBEAR_EMPOWER_PLAY_UNIT", 0, 0,
