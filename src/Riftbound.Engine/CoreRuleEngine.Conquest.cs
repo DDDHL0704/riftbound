@@ -222,8 +222,11 @@ public sealed partial class CoreRuleEngine
             assignedOverkillDamageToEnemyUnits,
             events, untilEndOfTurnEffects);
 
+        var garenControlledUnitCount = CountControlledUnitsAtBattlefield(
+            playerZones, cardObjects, ReconcileObjectLocations(state.ObjectLocations, playerZones),
+            playerId, battlefieldId);
         if (winnerPlayerId is null
-            && CountControlledBattlefieldUnits(playerZones, cardObjects, playerId) >= 4
+            && garenControlledUnitCount >= 4
             && TryGetGarenIntroLegendCardNo(playerZones, cardObjects, playerId, out var garenLegendCardNo))
         {
             events.Add(new GameEvent(
@@ -236,7 +239,7 @@ public sealed partial class CoreRuleEngine
                     ["trigger"] = "BATTLEFIELD_CONQUERED_DRAW_TWO",
                     ["sourceObjectId"] = sourceObjectId,
                     ["battlefieldId"] = battlefieldId,
-                    ["controlledBattlefieldUnitCount"] = CountControlledBattlefieldUnits(playerZones, cardObjects, playerId)
+                    ["controlledBattlefieldUnitCount"] = garenControlledUnitCount
                 }));
             var drawApplication = ApplyDrawToPlayer(
                 state,

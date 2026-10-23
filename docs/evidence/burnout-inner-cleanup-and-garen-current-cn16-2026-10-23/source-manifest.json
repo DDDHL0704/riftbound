@@ -1,0 +1,711 @@
+{
+  "schemaVersion": 1,
+  "id": "burnout-inner-cleanup-and-garen-current-cn16-2026-10-23",
+  "recordedAtUtc": "2026-10-23T07:45:20.588709+00:00",
+  "baseCommit": "0469327e01010ba67e366432510a401d0cbbe8ac",
+  "region": "CN",
+  "language": "zh-CN",
+  "applicableAsOf": "2026-10-23",
+  "core": {
+    "url": "https://cdn.playloltcg.com/lol/2026/10/2026-10-10/a21ead876c6b44d6abe386b6ae54ea28.pdf",
+    "startedAtUtc": "2026-10-23T05:47:34.636718+00:00",
+    "receivedAtUtc": "2026-10-23T05:47:34.718690+00:00",
+    "httpStatus": 304,
+    "responseHeaders": {
+      "Etag": "\"fd4b064bd191585ab9789505ddc7c416\"",
+      "Content-Type": "application/pdf",
+      "Content-Disposition": "inline",
+      "Date": "Sat, 10 Oct 2026 00:35:26 GMT",
+      "Server": "tencent-cos",
+      "x-cos-hash-crc64ecma": "624345148193381469",
+      "x-cos-request-id": "NmFjOTg4NGVfNWRkNGI0MDlfMmMyZl8yMWE5NTdmMA==",
+      "x-cos-server-side-encryption": "AES256",
+      "x-cos-storage-class": "MAZ_STANDARD",
+      "x-cosindex-replication-status": "Complete",
+      "X-NWS-LOG-UUID": "17089841608613669784",
+      "Connection": "close",
+      "X-Cache-Lookup": "Cache Hit",
+      "Cross-Origin-Resource-Policy": "cross-origin"
+    },
+    "retainedBodyPath": "var/qa/cn-effective-20261016/whole-rule-source-readback/CN/DOC-01.pdf",
+    "retainedBodySha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11",
+    "requestHeaders": {
+      "If-None-Match": "\"fd4b064bd191585ab9789505ddc7c416\""
+    },
+    "effectiveDate": "2026-10-16",
+    "publishedDate": "2026-10-10",
+    "wholeDocumentOriginalBytesVerified": true
+  },
+  "exactPrintings": [
+    {
+      "apiId": 33372,
+      "exactPrinting": "SFD·R03",
+      "cardName": "灵光符文",
+      "completeOriginalRowCanonicalSha256": "46a6090c0eaded0a06c2605a642b39c06ca763d72b3142b83b41a06f3892bd6d",
+      "cardEffect": "",
+      "cardQaList": null
+    },
+    {
+      "apiId": 31601,
+      "exactPrinting": "OGS·022/024",
+      "cardName": "终极闪光",
+      "completeOriginalRowCanonicalSha256": "7cc12a81afeedf88e1206980ff1eb047a062cd4b2e6b6a45e410d7cff0626cd2",
+      "cardEffect": "{{迅捷}}（可在你的回合或法术对决中打出。）\n对一名单位造成8点伤害。",
+      "cardQaList": null
+    },
+    {
+      "apiId": 31602,
+      "exactPrinting": "OGS·023/024",
+      "cardName": "德玛西亚之力",
+      "completeOriginalRowCanonicalSha256": "0130a78b2076b2fbea6cd1a1ebc676367c085bf9844aad31e2241afdee69e8c6",
+      "cardEffect": "当你征服一处战场时，如果你在该战场上拥有不少于四名单位，则抽两张牌。",
+      "cardQaList": null
+    },
+    {
+      "apiId": 31259,
+      "exactPrinting": "OGN·047/298",
+      "cardName": "御衡守念",
+      "completeOriginalRowCanonicalSha256": "5d08570d0bde13fef8a51037e35abee6ce781f38e932942798d9ed51ae9375ab",
+      "cardEffect": "{{迅捷}}（可在你的回合或法术对决中打出。）\n如果对手得分距离胜利得分不超过3分，则此法术的费用减少{{2}}。\n抽一张牌，然后召出一枚休眠的符文。",
+      "cardQaList": null
+    },
+    {
+      "apiId": 31284,
+      "exactPrinting": "OGN·071/298",
+      "cardName": "次元门狂欢",
+      "completeOriginalRowCanonicalSha256": "8bee457fbe0ed5719be914a04ca42cc640de112626da9360a5fce7da074e9d7f",
+      "cardEffect": "让除你之外的其他玩家选择“卡牌”或“符文”。\n每有一名玩家选择“卡牌”，你和该玩家便各抽一张牌；\n每有一名玩家选择“符文”，你和该玩家便召出一枚休眠的符文。",
+      "cardQaList": null
+    },
+    {
+      "apiId": 31299,
+      "exactPrinting": "OGN·083/298",
+      "cardName": "借鉴历史",
+      "completeOriginalRowCanonicalSha256": "5bb29ad3eed45d51c55cb823a92dcc15b70a21b22c5d54075bda7a68530f8d69",
+      "cardEffect": "{{待命}}（支付{{A}}正面朝下放置此牌，之后可支付{{0}}将其当作反应牌打出。）\n{{反应}}（可在任意时机打出，甚至先于其他法术和技能的结算。）\n抽两张牌。",
+      "cardQaList": null
+    },
+    {
+      "apiId": 31327,
+      "exactPrinting": "OGN·109/298",
+      "cardName": "蒙多医生",
+      "completeOriginalRowCanonicalSha256": "a313183715ca9edbf4500d583b33b35270dd77ca88f8edc9e2485a7b3e979c00",
+      "cardEffect": "提升我的战力，数值等同于你废牌堆的卡牌数量。\n在你的回合开始阶段，从废牌堆中回收三张牌。",
+      "cardQaList": null
+    },
+    {
+      "apiId": 31366,
+      "exactPrinting": "OGN·142/298",
+      "cardName": "山脉亚龙",
+      "completeOriginalRowCanonicalSha256": "3d7df34c99825cc01e65f9a52d57dc854e14b24d3cb6dd0d05cc0efcbb6faefe",
+      "cardEffect": "",
+      "cardQaList": null
+    },
+    {
+      "apiId": 31457,
+      "exactPrinting": "OGN·219/298",
+      "cardName": "先锋中士",
+      "completeOriginalRowCanonicalSha256": "479b499e69dd770aabe5ef602ea601d4010ab6adcc2f72520ff9c89fd9ae6be1",
+      "cardEffect": "",
+      "cardQaList": null
+    },
+    {
+      "apiId": 31522,
+      "exactPrinting": "OGN·278/298",
+      "cardName": "班德尔树",
+      "completeOriginalRowCanonicalSha256": "54e82a5d2cf94d66a2f3fec3deac2b97ad0418c715c102d396ea6dce3d458e28",
+      "cardEffect": "你可以选择在此处额外布置一张{{待命}}卡牌。",
+      "cardQaList": null
+    },
+    {
+      "apiId": 31525,
+      "exactPrinting": "OGN·280/298",
+      "cardName": "帝柳之林",
+      "completeOriginalRowCanonicalSha256": "d89a8b2383cf6abf0ff1be8e2de02e1567d9bda693d8dcb3cc763d6fff88a927",
+      "cardEffect": "当你据守此处时，抽一张牌。",
+      "cardQaList": null
+    },
+    {
+      "apiId": 31540,
+      "exactPrinting": "OGN·294/298",
+      "cardName": "崔法利兵营",
+      "completeOriginalRowCanonicalSha256": "7f2725067867217656d8476b67c6f5ec53c7f175b2ea582d2d9ed1c4350dbed2",
+      "cardEffect": "此处的所有单位获得{{S}}+1。（包括进攻方单位。）",
+      "cardQaList": null
+    },
+    {
+      "apiId": 31542,
+      "exactPrinting": "OGN·296/298",
+      "cardName": "虚空之门",
+      "completeOriginalRowCanonicalSha256": "9fa932ab5a4c0e77e7c0364527fc4c2b57362d6aa021e51c5640fd0dbe69dbd4",
+      "cardEffect": "以此处的单位作为目标的法术或技能，造成的伤害+1（每段伤害都+1）。",
+      "cardQaList": null
+    }
+  ],
+  "completeOriginalAcquisition": {
+    "atUtc": "2026-10-23T05:47:34.719089+00:00",
+    "region": "CN",
+    "language": "zh-CN",
+    "applicableAsOf": "2026-10-23",
+    "core": {
+      "url": "https://cdn.playloltcg.com/lol/2026/10/2026-10-10/a21ead876c6b44d6abe386b6ae54ea28.pdf",
+      "startedAtUtc": "2026-10-23T05:47:34.636718+00:00",
+      "receivedAtUtc": "2026-10-23T05:47:34.718690+00:00",
+      "httpStatus": 304,
+      "responseHeaders": {
+        "Etag": "\"fd4b064bd191585ab9789505ddc7c416\"",
+        "Content-Type": "application/pdf",
+        "Content-Disposition": "inline",
+        "Date": "Sat, 10 Oct 2026 00:35:26 GMT",
+        "Server": "tencent-cos",
+        "x-cos-hash-crc64ecma": "624345148193381469",
+        "x-cos-request-id": "NmFjOTg4NGVfNWRkNGI0MDlfMmMyZl8yMWE5NTdmMA==",
+        "x-cos-server-side-encryption": "AES256",
+        "x-cos-storage-class": "MAZ_STANDARD",
+        "x-cosindex-replication-status": "Complete",
+        "X-NWS-LOG-UUID": "17089841608613669784",
+        "Connection": "close",
+        "X-Cache-Lookup": "Cache Hit",
+        "Cross-Origin-Resource-Policy": "cross-origin"
+      },
+      "retainedBodyPath": "var/qa/cn-effective-20261016/whole-rule-source-readback/CN/DOC-01.pdf",
+      "retainedBodySha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11",
+      "requestHeaders": {
+        "If-None-Match": "\"fd4b064bd191585ab9789505ddc7c416\""
+      },
+      "effectiveDate": "2026-10-16",
+      "publishedDate": "2026-10-10",
+      "wholeDocumentOriginalBytesVerified": true
+    },
+    "exactPrintings": [
+      {
+        "apiId": 33372,
+        "exactPrinting": "SFD·R03",
+        "cardName": "灵光符文",
+        "completeOriginalRowCanonicalSha256": "46a6090c0eaded0a06c2605a642b39c06ca763d72b3142b83b41a06f3892bd6d",
+        "cardEffect": "",
+        "cardQaList": null
+      },
+      {
+        "apiId": 31601,
+        "exactPrinting": "OGS·022/024",
+        "cardName": "终极闪光",
+        "completeOriginalRowCanonicalSha256": "7cc12a81afeedf88e1206980ff1eb047a062cd4b2e6b6a45e410d7cff0626cd2",
+        "cardEffect": "{{迅捷}}（可在你的回合或法术对决中打出。）\n对一名单位造成8点伤害。",
+        "cardQaList": null
+      },
+      {
+        "apiId": 31602,
+        "exactPrinting": "OGS·023/024",
+        "cardName": "德玛西亚之力",
+        "completeOriginalRowCanonicalSha256": "0130a78b2076b2fbea6cd1a1ebc676367c085bf9844aad31e2241afdee69e8c6",
+        "cardEffect": "当你征服一处战场时，如果你在该战场上拥有不少于四名单位，则抽两张牌。",
+        "cardQaList": null
+      },
+      {
+        "apiId": 31259,
+        "exactPrinting": "OGN·047/298",
+        "cardName": "御衡守念",
+        "completeOriginalRowCanonicalSha256": "5d08570d0bde13fef8a51037e35abee6ce781f38e932942798d9ed51ae9375ab",
+        "cardEffect": "{{迅捷}}（可在你的回合或法术对决中打出。）\n如果对手得分距离胜利得分不超过3分，则此法术的费用减少{{2}}。\n抽一张牌，然后召出一枚休眠的符文。",
+        "cardQaList": null
+      },
+      {
+        "apiId": 31284,
+        "exactPrinting": "OGN·071/298",
+        "cardName": "次元门狂欢",
+        "completeOriginalRowCanonicalSha256": "8bee457fbe0ed5719be914a04ca42cc640de112626da9360a5fce7da074e9d7f",
+        "cardEffect": "让除你之外的其他玩家选择“卡牌”或“符文”。\n每有一名玩家选择“卡牌”，你和该玩家便各抽一张牌；\n每有一名玩家选择“符文”，你和该玩家便召出一枚休眠的符文。",
+        "cardQaList": null
+      },
+      {
+        "apiId": 31299,
+        "exactPrinting": "OGN·083/298",
+        "cardName": "借鉴历史",
+        "completeOriginalRowCanonicalSha256": "5bb29ad3eed45d51c55cb823a92dcc15b70a21b22c5d54075bda7a68530f8d69",
+        "cardEffect": "{{待命}}（支付{{A}}正面朝下放置此牌，之后可支付{{0}}将其当作反应牌打出。）\n{{反应}}（可在任意时机打出，甚至先于其他法术和技能的结算。）\n抽两张牌。",
+        "cardQaList": null
+      },
+      {
+        "apiId": 31327,
+        "exactPrinting": "OGN·109/298",
+        "cardName": "蒙多医生",
+        "completeOriginalRowCanonicalSha256": "a313183715ca9edbf4500d583b33b35270dd77ca88f8edc9e2485a7b3e979c00",
+        "cardEffect": "提升我的战力，数值等同于你废牌堆的卡牌数量。\n在你的回合开始阶段，从废牌堆中回收三张牌。",
+        "cardQaList": null
+      },
+      {
+        "apiId": 31366,
+        "exactPrinting": "OGN·142/298",
+        "cardName": "山脉亚龙",
+        "completeOriginalRowCanonicalSha256": "3d7df34c99825cc01e65f9a52d57dc854e14b24d3cb6dd0d05cc0efcbb6faefe",
+        "cardEffect": "",
+        "cardQaList": null
+      },
+      {
+        "apiId": 31457,
+        "exactPrinting": "OGN·219/298",
+        "cardName": "先锋中士",
+        "completeOriginalRowCanonicalSha256": "479b499e69dd770aabe5ef602ea601d4010ab6adcc2f72520ff9c89fd9ae6be1",
+        "cardEffect": "",
+        "cardQaList": null
+      },
+      {
+        "apiId": 31522,
+        "exactPrinting": "OGN·278/298",
+        "cardName": "班德尔树",
+        "completeOriginalRowCanonicalSha256": "54e82a5d2cf94d66a2f3fec3deac2b97ad0418c715c102d396ea6dce3d458e28",
+        "cardEffect": "你可以选择在此处额外布置一张{{待命}}卡牌。",
+        "cardQaList": null
+      },
+      {
+        "apiId": 31525,
+        "exactPrinting": "OGN·280/298",
+        "cardName": "帝柳之林",
+        "completeOriginalRowCanonicalSha256": "d89a8b2383cf6abf0ff1be8e2de02e1567d9bda693d8dcb3cc763d6fff88a927",
+        "cardEffect": "当你据守此处时，抽一张牌。",
+        "cardQaList": null
+      },
+      {
+        "apiId": 31540,
+        "exactPrinting": "OGN·294/298",
+        "cardName": "崔法利兵营",
+        "completeOriginalRowCanonicalSha256": "7f2725067867217656d8476b67c6f5ec53c7f175b2ea582d2d9ed1c4350dbed2",
+        "cardEffect": "此处的所有单位获得{{S}}+1。（包括进攻方单位。）",
+        "cardQaList": null
+      },
+      {
+        "apiId": 31542,
+        "exactPrinting": "OGN·296/298",
+        "cardName": "虚空之门",
+        "completeOriginalRowCanonicalSha256": "9fa932ab5a4c0e77e7c0364527fc4c2b57362d6aa021e51c5640fd0dbe69dbd4",
+        "cardEffect": "以此处的单位作为目标的法术或技能，造成的伤害+1（每段伤害都+1）。",
+        "cardQaList": null
+      }
+    ],
+    "fullQueries": [
+      {
+        "term": "借鉴历史",
+        "path": "var/qa/burnout-inner-cleanup-and-garen-current-cn16-20261023/official-full-query-055b4458a970-original-v1.json.gz",
+        "sha256": "ab4ef602366c60a0d8db97bef0cecca9ffdf0d0c5b14cb56dfefbc344079061d",
+        "returnedRows": 1,
+        "allCompleteRowsKeysJsonTypesNullsAndArrayOrderEqualToRetained1504": true,
+        "changedApiIds": [],
+        "ids": [
+          31299
+        ]
+      },
+      {
+        "term": "先锋中士",
+        "path": "var/qa/burnout-inner-cleanup-and-garen-current-cn16-20261023/official-full-query-24ea1bc9e96b-original-v1.json.gz",
+        "sha256": "1db1960441657fd8613239f54d1f94f420a537263c9e727639b11f2304f6ae42",
+        "returnedRows": 1,
+        "allCompleteRowsKeysJsonTypesNullsAndArrayOrderEqualToRetained1504": true,
+        "changedApiIds": [],
+        "ids": [
+          31457
+        ]
+      },
+      {
+        "term": "山脉亚龙",
+        "path": "var/qa/burnout-inner-cleanup-and-garen-current-cn16-20261023/official-full-query-7be5cd35f562-original-v1.json.gz",
+        "sha256": "9387fc4b9f069d5392f9a98e772bf301dbd0a2bd6d522bf2836a37f134a0e686",
+        "returnedRows": 1,
+        "allCompleteRowsKeysJsonTypesNullsAndArrayOrderEqualToRetained1504": true,
+        "changedApiIds": [],
+        "ids": [
+          31366
+        ]
+      },
+      {
+        "term": "崔法利兵营",
+        "path": "var/qa/burnout-inner-cleanup-and-garen-current-cn16-20261023/official-full-query-90dc705655c1-original-v1.json.gz",
+        "sha256": "141f4936bf1b6f808d7f08d3cf36b17d488728fe4770803194b19a0385c38027",
+        "returnedRows": 1,
+        "allCompleteRowsKeysJsonTypesNullsAndArrayOrderEqualToRetained1504": true,
+        "changedApiIds": [],
+        "ids": [
+          31540
+        ]
+      },
+      {
+        "term": "帝柳之林",
+        "path": "var/qa/burnout-inner-cleanup-and-garen-current-cn16-20261023/official-full-query-d89ef0ba87b7-original-v1.json.gz",
+        "sha256": "0304d61f0f5e2db77bb4b387c4a2274bb3fde3be326123a11f39a2752f57f167",
+        "returnedRows": 1,
+        "allCompleteRowsKeysJsonTypesNullsAndArrayOrderEqualToRetained1504": true,
+        "changedApiIds": [],
+        "ids": [
+          31525
+        ]
+      },
+      {
+        "term": "御衡守念",
+        "path": "var/qa/burnout-inner-cleanup-and-garen-current-cn16-20261023/official-full-query-e899a4a0cbb5-original-v1.json.gz",
+        "sha256": "6551b7cdefce0e8f6bcfd326bfd624a47c64f25ee54cf5a7596861819b7ad0b8",
+        "returnedRows": 1,
+        "allCompleteRowsKeysJsonTypesNullsAndArrayOrderEqualToRetained1504": true,
+        "changedApiIds": [],
+        "ids": [
+          31259
+        ]
+      },
+      {
+        "term": "德玛西亚之力",
+        "path": "var/qa/burnout-inner-cleanup-and-garen-current-cn16-20261023/official-full-query-5a989f7ed646-original-v1.json.gz",
+        "sha256": "3aa7269bf9b950b9139bacee0205567f62826d49cd451d8fbd4d77934e3eb5d4",
+        "returnedRows": 1,
+        "allCompleteRowsKeysJsonTypesNullsAndArrayOrderEqualToRetained1504": true,
+        "changedApiIds": [],
+        "ids": [
+          31602
+        ]
+      },
+      {
+        "term": "次元门狂欢",
+        "path": "var/qa/burnout-inner-cleanup-and-garen-current-cn16-20261023/official-full-query-b30ee5c907e5-original-v1.json.gz",
+        "sha256": "5286b47f3129eb81f4a1a901a0b5ff094258127e08039d03843bc6b999cc6415",
+        "returnedRows": 1,
+        "allCompleteRowsKeysJsonTypesNullsAndArrayOrderEqualToRetained1504": true,
+        "changedApiIds": [],
+        "ids": [
+          31284
+        ]
+      },
+      {
+        "term": "灵光符文",
+        "path": "var/qa/burnout-inner-cleanup-and-garen-current-cn16-20261023/official-full-query-dff8d3c110bc-original-v1.json.gz",
+        "sha256": "678e365760358acf9ce6682f6436e076d9365050b5dae204309431656cdf1354",
+        "returnedRows": 13,
+        "allCompleteRowsKeysJsonTypesNullsAndArrayOrderEqualToRetained1504": true,
+        "changedApiIds": [],
+        "ids": [
+          40288,
+          40289,
+          37912,
+          37929,
+          37963,
+          34808,
+          34809,
+          33372,
+          33373,
+          33374,
+          31305,
+          31306,
+          31307
+        ]
+      },
+      {
+        "term": "班德尔树",
+        "path": "var/qa/burnout-inner-cleanup-and-garen-current-cn16-20261023/official-full-query-00e32a42ae51-original-v1.json.gz",
+        "sha256": "b3e56e84f4d7ec0a49996ed50bb447c719e494728f5f1782ad39565011f2ce16",
+        "returnedRows": 2,
+        "allCompleteRowsKeysJsonTypesNullsAndArrayOrderEqualToRetained1504": true,
+        "changedApiIds": [],
+        "ids": [
+          31522,
+          31523
+        ]
+      },
+      {
+        "term": "终极闪光",
+        "path": "var/qa/burnout-inner-cleanup-and-garen-current-cn16-20261023/official-full-query-a599a1e3bde2-original-v1.json.gz",
+        "sha256": "196c80874100e22d5dda0720ed030bd727c920fb5c7c47503a5ceecee6ab5b28",
+        "returnedRows": 1,
+        "allCompleteRowsKeysJsonTypesNullsAndArrayOrderEqualToRetained1504": true,
+        "changedApiIds": [],
+        "ids": [
+          31601
+        ]
+      },
+      {
+        "term": "蒙多医生",
+        "path": "var/qa/burnout-inner-cleanup-and-garen-current-cn16-20261023/official-full-query-047065f8875e-original-v1.json.gz",
+        "sha256": "1979c7d321dcf73e9d2f113335814c8fbd3ef0bf651cf84883f16ad3d3e7f1bf",
+        "returnedRows": 1,
+        "allCompleteRowsKeysJsonTypesNullsAndArrayOrderEqualToRetained1504": true,
+        "changedApiIds": [],
+        "ids": [
+          31327
+        ]
+      },
+      {
+        "term": "虚空之门",
+        "path": "var/qa/burnout-inner-cleanup-and-garen-current-cn16-20261023/official-full-query-3e9c568feb21-original-v1.json.gz",
+        "sha256": "792ca013f899aed944757ef96dca4ce47db90c6b42ffd90d2267c51d3c04616c",
+        "returnedRows": 1,
+        "allCompleteRowsKeysJsonTypesNullsAndArrayOrderEqualToRetained1504": true,
+        "changedApiIds": [],
+        "ids": [
+          31542
+        ]
+      }
+    ],
+    "retainedComplete1504OriginalPath": "var/qa/current-cn-source-readback-20261023/current-complete-cn-original-pages-v1.jsonl.gz",
+    "retainedComplete1504OriginalSha256": "4dd5dc34fe84eef878a336f8d61462310e8aa67699f0ac851c7180b3e367b45d",
+    "allExactPrintingsAndFullReturnedRowsEqual": true,
+    "notFreshWhole1504Acquisition": true,
+    "individualCardPublicationEffectiveDatesUnknown": true,
+    "wholePrintingCertified": false
+  },
+  "rules": [
+    {
+      "id": "DOC-01-P038-B020",
+      "document": "DOC-01",
+      "page": 38,
+      "clauseAnchors": [
+        "321"
+      ],
+      "text": "321.       同样,在结算链项目结算 期间,不会发生清理。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P038-B021",
+      "document": "DOC-01",
+      "page": 38,
+      "clauseAnchors": [
+        "321.1"
+      ],
+      "text": "321.1.          如果在结算链项目结算 期间发生了满足清理条件的事件,则将该次清理列入未决任务。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P039-B003",
+      "document": "DOC-01",
+      "page": 39,
+      "clauseAnchors": [
+        "323.1"
+      ],
+      "text": "323.1.          1.如果一名玩家的分数大于或等于胜利得分,且高于所有对手,则该玩家获胜。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P039-B009",
+      "document": "DOC-01",
+      "page": 39,
+      "clauseAnchors": [
+        "323.4"
+      ],
+      "text": "323.4.          3a.所有被标记了致命伤害的单位视为被摧毁,并将置于其所属者的废牌堆。\n                      想获取更多有关致命伤害的信息,请查阅规则 142.4.。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P082-B009",
+      "document": "DOC-01",
+      "page": 82,
+      "clauseAnchors": [
+        "432.3"
+      ],
+      "text": "432.3.            玩家的主牌堆可能在执行燃尽后仍然为空,这通常是因为其废牌堆同样为空。当其尝试再次执行原本触发燃尽的行\n                  动时,将再次触发燃尽。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P082-B010",
+      "document": "DOC-01",
+      "page": 82,
+      "clauseAnchors": [
+        "432.3.a"
+      ],
+      "text": "432.3.a.               除非有其他效果干预,否则这一过程将使该玩家持续执行燃尽,每次令一名对手获得 1 分,直至一名对手\n                       到达胜利得分、赢得游戏。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P082-B011",
+      "document": "DOC-01",
+      "page": 82,
+      "clauseAnchors": [
+        "432.3.b"
+      ],
+      "text": "432.3.b.               在第一个燃尽按顺序处理后获得的分数无法通过任何方式替换或阻止。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P082-B012",
+      "document": "DOC-01",
+      "page": 82,
+      "clauseAnchors": [
+        "432.3.c"
+      ],
+      "text": "432.3.c.               在按顺序处理第一个燃尽后获得的分数,如果使玩家的得分达到或超过该模式的胜利得分,并且该玩家的\n                       得分高于所有对手,则该玩家将获胜。\n                            举例:如果玩家的牌堆和废牌堆均为空,且将要抽一张牌,该玩家会开始反复燃尽。在首次燃\n                            尽结算后,任何后续燃尽只要让某位玩家的得分超过胜利得分,并且高于所有对手,该玩家就\n                            会赢得游戏。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    },
+    {
+      "id": "DOC-01-P082-B013",
+      "document": "DOC-01",
+      "page": 82,
+      "clauseAnchors": [
+        "432.3.c.1"
+      ],
+      "text": "432.3.c.1.                  该玩家立即获胜,无需等待清理发生。",
+      "reviewStatus": "NOT_REVIEWED",
+      "implementation": [],
+      "tests": []
+    }
+  ],
+  "sourceRuleRecords": [
+    "CN-d6fd7140f106f9b5-P038-B020",
+    "CN-d6fd7140f106f9b5-P038-B021",
+    "CN-d6fd7140f106f9b5-P039-B003",
+    "CN-d6fd7140f106f9b5-P039-B009",
+    "CN-d6fd7140f106f9b5-P082-B009",
+    "CN-d6fd7140f106f9b5-P082-B010",
+    "CN-d6fd7140f106f9b5-P082-B011",
+    "CN-d6fd7140f106f9b5-P082-B012",
+    "CN-d6fd7140f106f9b5-P082-B013"
+  ],
+  "scope": "CN16 ordinary victory precedes inner lethal cleanup after the parent finishes; tied/low-score cleanup remains; Garen counts only controlled units at the conquered battlefield. Bounded CoreRules positions, not whole cards or ordinary-deck certification.",
+  "implementation": [
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+      "sha256": "e0f98459bb4edb1954db5c60795a6d6eed66b1f7927cc118110b840631fc910d",
+      "role": "implementation"
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.Conquest.cs",
+      "sha256": "e0e460a99309ef3c519a16f204fcef0f97ffbea360bbe4835cee7b74e19a3b07",
+      "role": "implementation"
+    },
+    {
+      "path": "src/Riftbound.Engine/MatchSession.cs",
+      "sha256": "7f775f9189cba797c81cf5682061db38384a61c27760e20fadb6c284e7ce0cf5",
+      "role": "implementation"
+    },
+    {
+      "path": "src/Riftbound.Engine/MatchSession.VictoryCleanupScenario.cs",
+      "sha256": "e49c905f70d267851dd51f95e5ce70a1baa1ecadc8c17d750715ba3c8993c2fb",
+      "role": "implementation"
+    }
+  ],
+  "verificationSources": [
+    {
+      "path": "tests/Riftbound.ConformanceTests/BurnoutVictoryBeforeCleanupTests.cs",
+      "sha256": "f1aa6d661db70f5de5fb23a1b760b312ce764b3bf4455c41498ace65cefa83f2",
+      "role": "verification-source"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/OfficialGarenConquestBattlefieldCountTests.cs",
+      "sha256": "41f91095c1364f6660adf95092ef88e99ee6e821866baffc277dbd7546f6955d",
+      "role": "verification-source"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+      "sha256": "eb6e744566c740507794fc850948ea56216296349ef60ba81bfdeb5fd22fad96",
+      "role": "verification-source"
+    },
+    {
+      "path": "tests/Riftbound.PostgresAcceptance/VictoryCleanupGarenSqlAcceptance.cs",
+      "sha256": "be91787c33a2911c97cf21b544fbc00c6875ac3c111184abb32088dc496f8712",
+      "role": "verification-source"
+    },
+    {
+      "path": "tests/Riftbound.PostgresAcceptance/Program.cs",
+      "sha256": "9097f646f2e8cde201541cdf56ad4d9a71e8330bd93cf7362cbe0402181069df",
+      "role": "verification-source"
+    },
+    {
+      "path": "tests/Riftbound.PostgresAcceptance/SqlAcceptanceCases.json",
+      "sha256": "ec5942c55213c0a77bbe52c0829e40cbe968c3a397a70844b6b35cb70fdbf63e",
+      "role": "verification-source"
+    },
+    {
+      "path": "scripts/tests/test_sql_ci_gate.py",
+      "sha256": "d3fa9c0bce226cec2c27365d48b1f2dd7d0912ab084e39aaa4595e4395f13c08",
+      "role": "verification-source"
+    }
+  ],
+  "focus": {
+    "cases": 502,
+    "methods": 260,
+    "originalFullGames": 9,
+    "actualRuleInputs": {
+      "schemaVersion": 1,
+      "region": "CN",
+      "language": "zh-CN",
+      "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+      "catalogSha256": "0aa8f812dc6f561f9fb1996381bae9821bd54d069f3ad26be7fe669baae9ae6c",
+      "implementationSha256": "3efeb19cbdb5744c62f2b8c51ed7e09e233f71eda59255dd9f7be0c81353d9e7",
+      "identitySha256": "6e0b5834e4f78af58996e11894a04721c635efdefca8088d7c116adc516c3df4"
+    }
+  },
+  "check": {
+    "cases": 13678,
+    "methods": 7625,
+    "failed": 0,
+    "skipped": 0,
+    "soleExecution": true,
+    "actualRuleInputs": {
+      "schemaVersion": 1,
+      "region": "CN",
+      "language": "zh-CN",
+      "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+      "catalogSha256": "0aa8f812dc6f561f9fb1996381bae9821bd54d069f3ad26be7fe669baae9ae6c",
+      "implementationSha256": "1cadeb78420ad6e2243c601503a8818eb85d9421e31f7a521aadceeafa1ad96b",
+      "identitySha256": "ff43b67e7f224f89a5892fe614c74f9363effd856d1aaaeaea9ba0a8ad513b3c"
+    }
+  },
+  "sql": {
+    "totals": {
+      "commands": 51,
+      "events": 115,
+      "authority": 51,
+      "snapshots": 95,
+      "prompts": 95,
+      "prefixReplays": 51,
+      "actualForgeryRefusals": 1
+    },
+    "actualRuleInputs": {
+      "schemaVersion": 1,
+      "region": "CN",
+      "language": "zh-CN",
+      "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+      "catalogSha256": "0aa8f812dc6f561f9fb1996381bae9821bd54d069f3ad26be7fe669baae9ae6c",
+      "implementationSha256": "3efeb19cbdb5744c62f2b8c51ed7e09e233f71eda59255dd9f7be0c81353d9e7",
+      "identitySha256": "6e0b5834e4f78af58996e11894a04721c635efdefca8088d7c116adc516c3df4"
+    },
+    "forgedMundoRejectedByStructuralDamageMarkerCheck": true,
+    "structurallyConsistentCoordinatedForgeryClaimed": false
+  },
+  "sourceInputsSameButSeparateRuntimeIdentities": true,
+  "originalFiles": 1823,
+  "originalByteIdentical": 1822,
+  "changedOriginalFile": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+  "allOriginalMethodsTheoryRowsFullGameMatrixSeedsAndAssertionsRetained": true,
+  "oldSql64CompleteObjectsAndOrderRetained": true,
+  "newSqlCaseCount": 65,
+  "newCases": 8,
+  "newMethods": 3,
+  "expectedNextFull": {
+    "cases": 13827,
+    "methods": 7766,
+    "sqlCases": 65
+  },
+  "newFixedFullAndBackendAcceptance": "OPEN",
+  "original1740Printings14293RulesAllSourceGapsRetained": true,
+  "semanticCoverageCertified": false,
+  "archives": [
+    {
+      "path": "docs/evidence/burnout-inner-cleanup-and-garen-current-cn16-2026-10-23/original-sources-and-test-results.tar.gz",
+      "sha256": "7c385c3d666eeef7be3739845cffde43a25ca69fc12312079f0409a0e7c38d17"
+    },
+    {
+      "path": "docs/evidence/burnout-inner-cleanup-and-garen-current-cn16-2026-10-23/archive-index.json",
+      "sha256": "43a475c84990447df7e82882f28e3230e1513bec9df442a55e6a59afeb6301f8"
+    }
+  ]
+}

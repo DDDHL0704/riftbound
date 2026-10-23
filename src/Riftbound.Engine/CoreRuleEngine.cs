@@ -26986,7 +26986,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         // CN 321: repeats belong to one resolving item; lethal cleanup waits
         // until its last instruction. Explicit destroy instructions still execute.
-        if (!deferCompletion && sourceReplayChoice is null)
+        // A first burnout can leave ordinary victory pending until the parent
+        // finishes. CN 323.1 then precedes 323.4 at the outer boundary; this
+        // inner cleanup must not destroy units before that victory check.
+        if (!deferCompletion && sourceReplayChoice is null && winnerPlayerId is null
+            && WinningPlayerId(playerScores, EffectiveWinningScore(playerZones, cardObjects)) is null)
         {
             var lethalCleanupObjectLocations = ReconcileObjectLocations(resolvedObjectLocations ?? state.ObjectLocations, playerZones);
             var lethalCleanup = RunStateBasedCleanupLoop(state with { PlayerScores = playerScores, PlayerExperience = playerExperience, UntilEndOfTurnEffects = untilEndOfTurnEffects },

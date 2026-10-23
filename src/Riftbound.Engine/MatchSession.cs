@@ -18656,6 +18656,10 @@ public sealed partial class MatchSession : IMatchSession
         return scenarioId switch
         {
             "basic-play" => BuildBasicPlayScenario(current, seed),
+            "victory-cleanup-garen-one" or "victory-cleanup-garen-four"
+                or "victory-cleanup-healthy-low" or "victory-cleanup-healthy-win"
+                or "victory-cleanup-wounded-low" or "victory-cleanup-wounded-win"
+                => BuildVictoryCleanupScenario(current, seed, scenarioId["victory-cleanup-".Length..]),
             "burnout-action-conquest" or "burnout-action-draw-two" or "burnout-action-second-burnout"
                 or "burnout-action-hwei" or "burnout-action-portal-tie"
                 => BuildBurnoutActionScenario(current, seed, scenarioId["burnout-action-".Length..]),

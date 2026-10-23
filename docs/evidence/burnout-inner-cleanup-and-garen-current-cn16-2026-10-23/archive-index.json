@@ -1,0 +1,238 @@
+{
+  "archive": {
+    "path": "docs/evidence/burnout-inner-cleanup-and-garen-current-cn16-2026-10-23/original-sources-and-test-results.tar.gz",
+    "sha256": "7c385c3d666eeef7be3739845cffde43a25ca69fc12312079f0409a0e7c38d17"
+  },
+  "members": [
+    {
+      "path": "actual-v3-eight-original-cases-source-red-terminal-v1.json",
+      "bytes": 2970,
+      "sha256": "9f30697521a5a8e9f1863d8970d37a7362d98c2f1cab223f69a3cb19057a440d"
+    },
+    {
+      "path": "current-exact-thirteen-printings-and-core-source-manifest-v1.json",
+      "bytes": 12448,
+      "sha256": "0a57b1a3b73af9b34216a63321065c4888d67f83cfcc7b79b3f6b9e8d7e56e5e"
+    },
+    {
+      "path": "current-official-core-conditional-acquisition-original-v1.json",
+      "bytes": 1266,
+      "sha256": "82a97308b3a5a733d97e8ee6dccdf130ce7a024c6520e241abef5bb3686cb3e5"
+    },
+    {
+      "path": "final-shared-cleanup-and-nine-original-games-focus-owner-terminal-v1.json",
+      "bytes": 2776,
+      "sha256": "3d31b03b53670e67f3fab71d5695b458afde125612904f689b226c0217e1239a"
+    },
+    {
+      "path": "final-shared-cleanup-and-nine-original-games-focus-start-v1.json.gz",
+      "bytes": 176987,
+      "sha256": "ad83fb2c65592347c9ada208be1ea386b8cbc5fb6be60b7f9d28efb833335cbf"
+    },
+    {
+      "path": "final-shared-cleanup-and-nine-original-games-focus-v5/build.log",
+      "bytes": 78,
+      "sha256": "2a1a2bdce6c6635f0a3b52138ef0fd2e35919c3c14f2da5f6fe47a58b32e4ca9"
+    },
+    {
+      "path": "final-shared-cleanup-and-nine-original-games-focus-v5/discovery.log",
+      "bytes": 2067844,
+      "sha256": "b7b139d39ac27eb5bccadd190b5b1f1dd724c10d2ac6a888b2acf70186b674a2"
+    },
+    {
+      "path": "final-shared-cleanup-and-nine-original-games-focus-v5/focus/results.trx",
+      "bytes": 765815,
+      "sha256": "cad07220d465d1b26b2b7e11e380af6a12fc4e69cb43b4759f02bb065967adad"
+    },
+    {
+      "path": "final-shared-cleanup-and-nine-original-games-focus-v5/focus/test.log",
+      "bytes": 549,
+      "sha256": "5e2e01d8b7a7302acdd990b0e6fa26824ab405cf9bd71193b72f7f152dda3c3f"
+    },
+    {
+      "path": "final-shared-cleanup-and-nine-original-games-focus-v5/plan.json",
+      "bytes": 63275,
+      "sha256": "8613a11a37b41476a3d6b7d845c1c873c0a186e910fd0593c2602d02a2f44c12"
+    },
+    {
+      "path": "final-shared-cleanup-and-nine-original-games-focus-v5/summary.json",
+      "bytes": 278,
+      "sha256": "2f872b2fc22f4d7a722a24fd9dcd321c93b51d82395a9c9fd81e396562e510d1"
+    },
+    {
+      "path": "frozen-sole-check-v1/build.log",
+      "bytes": 78,
+      "sha256": "b78ed30a0949ab84e256f94fbe0b712d5bb0601a94d14fa75091c4168e8a8eb5"
+    },
+    {
+      "path": "frozen-sole-check-v1/check/results.trx",
+      "bytes": 22256798,
+      "sha256": "1c87221e9f3b2b3ae30c635a8f5f28edd2ab189b3c8d454492207fb62a7c483e"
+    },
+    {
+      "path": "frozen-sole-check-v1/check/test.log",
+      "bytes": 554,
+      "sha256": "e74b9279c64e39aceee90f15b7c3df69410f21c783b964a78f3dd0b52476a515"
+    },
+    {
+      "path": "frozen-sole-check-v1/discovery.log",
+      "bytes": 2067882,
+      "sha256": "14d654b9c160efd5c4a8041e7a3e04577d079c387a680f341741bee55d32ba6b"
+    },
+    {
+      "path": "frozen-sole-check-v1/plan.json",
+      "bytes": 1017569,
+      "sha256": "ead02485bf8f7bd49a2a51bbeecd4601599d773856acff45cc6744223a3309bf"
+    },
+    {
+      "path": "frozen-sole-check-v1/summary.json",
+      "bytes": 286,
+      "sha256": "b0c891fe7121d1ecf005b00dce86143220d8f5248588af153df05bdc4c77aa15"
+    },
+    {
+      "path": "independent-seven-cleanup-garen-sql-originals-readonly-owner-terminal-v3.json",
+      "bytes": 37283,
+      "sha256": "1ba9b43488ebd61351101d563a56bb4a035ad982d1835f6da3a06eac8b47c67a"
+    },
+    {
+      "path": "independent-seven-cleanup-garen-sql-originals-readonly-result-v3.json",
+      "bytes": 4311,
+      "sha256": "7c6f0e24dbbe1c4ef6163be58d36cb4e7c7260023c83d951a979ec42b27d2395"
+    },
+    {
+      "path": "n51-parent-and-all1823-conformance-inputs-before-changes-v1.json.gz",
+      "bytes": 96412,
+      "sha256": "8ef02bf35bf626ec29d94e698b2ff2175e3fcc54bb583ccc764018f9ef1f26e7"
+    },
+    {
+      "path": "new-owner-python-tools-v1.log",
+      "bytes": 10506,
+      "sha256": "2eb4b4d70bc5079a80cdce4e7f1f1eb98bba2760102520134d6c7f3e5d50e2da"
+    },
+    {
+      "path": "official-full-query-00e32a42ae51-original-v1.json.gz",
+      "bytes": 1376,
+      "sha256": "b3e56e84f4d7ec0a49996ed50bb447c719e494728f5f1782ad39565011f2ce16"
+    },
+    {
+      "path": "official-full-query-047065f8875e-original-v1.json.gz",
+      "bytes": 1309,
+      "sha256": "1979c7d321dcf73e9d2f113335814c8fbd3ef0bf651cf84883f16ad3d3e7f1bf"
+    },
+    {
+      "path": "official-full-query-055b4458a970-original-v1.json.gz",
+      "bytes": 1375,
+      "sha256": "ab4ef602366c60a0d8db97bef0cecca9ffdf0d0c5b14cb56dfefbc344079061d"
+    },
+    {
+      "path": "official-full-query-24ea1bc9e96b-original-v1.json.gz",
+      "bytes": 1234,
+      "sha256": "1db1960441657fd8613239f54d1f94f420a537263c9e727639b11f2304f6ae42"
+    },
+    {
+      "path": "official-full-query-3e9c568feb21-original-v1.json.gz",
+      "bytes": 1335,
+      "sha256": "792ca013f899aed944757ef96dca4ce47db90c6b42ffd90d2267c51d3c04616c"
+    },
+    {
+      "path": "official-full-query-5a989f7ed646-original-v1.json.gz",
+      "bytes": 1224,
+      "sha256": "3aa7269bf9b950b9139bacee0205567f62826d49cd451d8fbd4d77934e3eb5d4"
+    },
+    {
+      "path": "official-full-query-7be5cd35f562-original-v1.json.gz",
+      "bytes": 1325,
+      "sha256": "9387fc4b9f069d5392f9a98e772bf301dbd0a2bd6d522bf2836a37f134a0e686"
+    },
+    {
+      "path": "official-full-query-90dc705655c1-original-v1.json.gz",
+      "bytes": 1307,
+      "sha256": "141f4936bf1b6f808d7f08d3cf36b17d488728fe4770803194b19a0385c38027"
+    },
+    {
+      "path": "official-full-query-a599a1e3bde2-original-v1.json.gz",
+      "bytes": 1228,
+      "sha256": "196c80874100e22d5dda0720ed030bd727c920fb5c7c47503a5ceecee6ab5b28"
+    },
+    {
+      "path": "official-full-query-b30ee5c907e5-original-v1.json.gz",
+      "bytes": 1284,
+      "sha256": "5286b47f3129eb81f4a1a901a0b5ff094258127e08039d03843bc6b999cc6415"
+    },
+    {
+      "path": "official-full-query-d89ef0ba87b7-original-v1.json.gz",
+      "bytes": 1255,
+      "sha256": "0304d61f0f5e2db77bb4b387c4a2274bb3fde3be326123a11f39a2752f57f167"
+    },
+    {
+      "path": "official-full-query-dff8d3c110bc-original-v1.json.gz",
+      "bytes": 2041,
+      "sha256": "678e365760358acf9ce6682f6436e076d9365050b5dae204309431656cdf1354"
+    },
+    {
+      "path": "official-full-query-e899a4a0cbb5-original-v1.json.gz",
+      "bytes": 1346,
+      "sha256": "6551b7cdefce0e8f6bcfd326bfd624a47c64f25ee54cf5a7596861819b7ad0b8"
+    },
+    {
+      "path": "original-inner-cleanup-red-and-integrated-garen-focus-v3/build.log",
+      "bytes": 78,
+      "sha256": "cc783219a3569351552e2fdc9a29be34484e8cae4e962f2db7b1dafc88d5f302"
+    },
+    {
+      "path": "original-inner-cleanup-red-and-integrated-garen-focus-v3/discovery.log",
+      "bytes": 2067844,
+      "sha256": "b7b139d39ac27eb5bccadd190b5b1f1dd724c10d2ac6a888b2acf70186b674a2"
+    },
+    {
+      "path": "original-inner-cleanup-red-and-integrated-garen-focus-v3/focus/results.trx",
+      "bytes": 15752,
+      "sha256": "d73bf2f50eb4f64450cf1cab44eb35fc1879d3764dec753c23c784261372afec"
+    },
+    {
+      "path": "original-inner-cleanup-red-and-integrated-garen-focus-v3/focus/test.log",
+      "bytes": 748,
+      "sha256": "bcdb58748db8a7e7f8f88f4d16ad0acc08849f319da1dae4b2e271e2e5bed4f3"
+    },
+    {
+      "path": "original-inner-cleanup-red-and-integrated-garen-focus-v3/plan.json",
+      "bytes": 1009,
+      "sha256": "2056ea2a7bcefa8b34039c30997e6e6667a1f70aa4d4e9e27aaebb1cebd79d2c"
+    },
+    {
+      "path": "original-reader-failure-scope-and-no-false-structural-pass-v1.json",
+      "bytes": 653,
+      "sha256": "5ed4162a1ca1cc16e0ac43679a8c9eb2cc709b2a2d8d4c637afbf7dc295efe4e"
+    },
+    {
+      "path": "publication-index-source-verification-v2.json",
+      "bytes": 180,
+      "sha256": "a4a7cea27f30e4f67e63e93302d27c1ce50d0540a7e978d87edbb3f870fb7ab1"
+    },
+    {
+      "path": "publish-n51-v1.log",
+      "bytes": 564,
+      "sha256": "d5f4c2f805528892bc91cb083e76072752d28ffd13c83d29e076939f656edc1b"
+    },
+    {
+      "path": "sole-check-frozen-candidate-start-v1.json.gz",
+      "bytes": 172099,
+      "sha256": "0a8250eea89ecec35022bf8753e754f292f439df62ebbefc76a34cf58aff6c4b"
+    },
+    {
+      "path": "sole-check-frozen-original-console-v1.log",
+      "bytes": 461,
+      "sha256": "faf259e25d37bb7f83533588754ad5b3b7f0fa4be98e33ef03232b663a05344d"
+    },
+    {
+      "path": "sole-check-frozen-owner-terminal-v1.json",
+      "bytes": 2889,
+      "sha256": "998c6ff64d26e3f985ae251305946697841e6228244953a933414b312bdb2dab"
+    },
+    {
+      "path": "sole-check-frozen-runtime-identity-v1.json",
+      "bytes": 2125,
+      "sha256": "8f0609005f04ffd115c3e2a0ab1af77e8275b1c1a87d9a6ff287e4a91d051225"
+    }
+  ]
+}

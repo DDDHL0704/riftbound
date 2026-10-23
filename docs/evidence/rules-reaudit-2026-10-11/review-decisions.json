@@ -25436,6 +25436,43 @@
         "Prior fixed f0 Release native and CI do not certify new Debug or next fixed commit",
         "OS hardware and physical Windows remain independently OPEN"
       ]
+    },
+    {
+      "id": "burnout-inner-cleanup-and-garen-current-cn16-2026-10-23",
+      "scope": "CN16 ordinary victory precedes inner lethal cleanup after the parent finishes; tied/low-score cleanup remains; Garen counts only controlled units at the conquered battlefield. Bounded CoreRules positions, not whole cards or ordinary-deck certification.",
+      "subjects": [
+        "SFD-R03",
+        "OGS-022/024",
+        "OGS-023/024",
+        "OGN-047/298",
+        "OGN-071/298",
+        "OGN-083/298",
+        "OGN-109/298",
+        "OGN-142/298",
+        "OGN-219/298",
+        "OGN-278/298",
+        "OGN-280/298",
+        "OGN-294/298",
+        "OGN-296/298"
+      ],
+      "ruleRecords": [
+        "CN-d6fd7140f106f9b5-P038-B020",
+        "CN-d6fd7140f106f9b5-P038-B021",
+        "CN-d6fd7140f106f9b5-P039-B003",
+        "CN-d6fd7140f106f9b5-P039-B009",
+        "CN-d6fd7140f106f9b5-P082-B009",
+        "CN-d6fd7140f106f9b5-P082-B010",
+        "CN-d6fd7140f106f9b5-P082-B011",
+        "CN-d6fd7140f106f9b5-P082-B012",
+        "CN-d6fd7140f106f9b5-P082-B013"
+      ],
+      "status": "BOUNDED_FOCUS_CHECK_SQL_PASS_FIXED_FULL_AND_BACKEND_OPEN",
+      "sourceManifest": {
+        "path": "docs/evidence/burnout-inner-cleanup-and-garen-current-cn16-2026-10-23/source-manifest.json",
+        "sha256": "6449be64fc3d7fd968d0186b6a6e589cbd6676da9f50e7dd9055a1979782baa9",
+        "role": "source-manifest"
+      },
+      "auditDocument": "docs/BURNOUT_INNER_CLEANUP_GAREN_CURRENT_CN16_AUDIT_2026-10-23.md"
     }
   ]
 }

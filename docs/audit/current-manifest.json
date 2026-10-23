@@ -59,8 +59,8 @@
     }
   },
   "cardCoverageManifest": {
-    "path": "docs/evidence/first-burnout-action-completion-current-cn16-2026-10-23/source-coverage.json",
-    "sha256": "67eee6eab5be2c56821a69a91a3544319b123aed7b4f07644b66558bc39980ba",
+    "path": "docs/evidence/burnout-inner-cleanup-and-garen-current-cn16-2026-10-23/source-coverage.json",
+    "sha256": "26e297cdeffe6a0021a382e07f60e6fae9d238424cb88e2a2462612b9164319d",
     "role": "current-card-coverage"
   },
   "inputs": {
@@ -102,7 +102,7 @@
     },
     "reviews": {
       "path": "docs/evidence/rules-reaudit-2026-10-11/review-decisions.json",
-      "sha256": "bd74b3dfa59391a2dd7e79f990f68b10f10d6c5bbd5c0680aa9c46f117fc013d",
+      "sha256": "b8341fdd87e6c7a247f4d2200e8d5ecf28ca7df6b3782240fe4ca0966628dbc3",
       "role": "reviews"
     },
     "summary": {
@@ -666,7 +666,7 @@
       "implementation": [
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.Conquest.cs",
-          "sha256": "87c139a46b4bfa61701b8bbd714635e38707091ff49b068f643fb2f15c01e0d3"
+          "sha256": "e0e460a99309ef3c519a16f204fcef0f97ffbea360bbe4835cee7b74e19a3b07"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.InsightTriggers.cs",
@@ -971,7 +971,7 @@
         }
       ],
       "evidenceCommit": "e61745f5cc704f2aa0326d84f22416e04ecbf139",
-      "currentImplementationCommit": "5c27863d806afd9e78726a1ded30c5a55b52bdc5",
+      "currentImplementationCommit": "0469327e01010ba67e366432510a401d0cbbe8ac",
       "currentImplementationIncludesUncommittedChanges": true,
       "revalidationReason": "New bounded shared single-friendly-unit preflight; prior fixed CI does not cover current input. Original scopes/evidence retained, current full and product remain required.",
       "implementationPinUpdates": [
@@ -1283,6 +1283,15 @@
         "onlyCurrentInputPinsNotWholeSemanticCertification": true,
         "allPriorEvidenceAndOptionalVerificationReferencesRetained": true,
         "newFixedFullAndProducts": "OPEN"
+      },
+      "currentN51InputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/burnout-inner-cleanup-and-garen-current-cn16-2026-10-23/source-manifest.json",
+          "sha256": "6449be64fc3d7fd968d0186b6a6e589cbd6676da9f50e7dd9055a1979782baa9",
+          "role": "source-manifest"
+        },
+        "priorEvidenceRetained": true,
+        "semanticCertification": false
       }
     },
     "masked-attendant-reflexive-self-copy-2026-10-14": {
@@ -1313,7 +1322,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "7dea07e944571abad1a71d92f2f4b280755f60f8144fa7fca3fc109393feb7b2"
+          "sha256": "7f775f9189cba797c81cf5682061db38384a61c27760e20fadb6c284e7ce0cf5"
         },
         {
           "path": "src/Riftbound.CardCatalog/ReviewedCardErrata.cs",
@@ -1923,7 +1932,7 @@
         }
       ],
       "evidenceCommit": "03f88a7ee1b109b2cb906fbdc457316f93c08fda",
-      "currentImplementationCommit": "5c27863d806afd9e78726a1ded30c5a55b52bdc5",
+      "currentImplementationCommit": "0469327e01010ba67e366432510a401d0cbbe8ac",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -2261,6 +2270,15 @@
         "onlyCurrentInputPinsNotWholeSemanticCertification": true,
         "allPriorEvidenceAndOptionalVerificationReferencesRetained": true,
         "newFixedFullAndProducts": "OPEN"
+      },
+      "currentN51InputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/burnout-inner-cleanup-and-garen-current-cn16-2026-10-23/source-manifest.json",
+          "sha256": "6449be64fc3d7fd968d0186b6a6e589cbd6676da9f50e7dd9055a1979782baa9",
+          "role": "source-manifest"
+        },
+        "priorEvidenceRetained": true,
+        "semanticCertification": false
       }
     },
     "static-granted-predict-entry-2026-10-15": {
@@ -2291,11 +2309,11 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "4b2251dfeae61a554a29ed97b60c155e2729b3e0e7c5852ce2bc1917a4e7e09b"
+          "sha256": "e0f98459bb4edb1954db5c60795a6d6eed66b1f7927cc118110b840631fc910d"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "7dea07e944571abad1a71d92f2f4b280755f60f8144fa7fca3fc109393feb7b2"
+          "sha256": "7f775f9189cba797c81cf5682061db38384a61c27760e20fadb6c284e7ce0cf5"
         },
         {
           "path": "src/Riftbound.Engine/OfficialPrintedTimingRules.cs",
@@ -2904,7 +2922,7 @@
       "ciState": "PENDING",
       "ciReceipts": [],
       "evidenceCommit": "03f88a7ee1b109b2cb906fbdc457316f93c08fda",
-      "currentImplementationCommit": "5c27863d806afd9e78726a1ded30c5a55b52bdc5",
+      "currentImplementationCommit": "0469327e01010ba67e366432510a401d0cbbe8ac",
       "currentImplementationIncludesUncommittedChanges": true,
       "lastFixedCiFailure": {
         "path": "docs/evidence/granted-predict-2026-10-15/full-ci-c74853be-failed.json",
@@ -3396,6 +3414,15 @@
         "onlyCurrentInputPinsNotWholeSemanticCertification": true,
         "allPriorEvidenceAndOptionalVerificationReferencesRetained": true,
         "newFixedFullAndProducts": "OPEN"
+      },
+      "currentN51InputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/burnout-inner-cleanup-and-garen-current-cn16-2026-10-23/source-manifest.json",
+          "sha256": "6449be64fc3d7fd968d0186b6a6e589cbd6676da9f50e7dd9055a1979782baa9",
+          "role": "source-manifest"
+        },
+        "priorEvidenceRetained": true,
+        "semanticCertification": false
       }
     },
     "printed-predict-permanent-entry-2026-10-15": {
@@ -3426,7 +3453,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "4b2251dfeae61a554a29ed97b60c155e2729b3e0e7c5852ce2bc1917a4e7e09b"
+          "sha256": "e0f98459bb4edb1954db5c60795a6d6eed66b1f7927cc118110b840631fc910d"
         },
         {
           "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
@@ -4034,7 +4061,7 @@
         }
       ],
       "evidenceCommit": "74353e405fd2242ece0bae05972f209950b2c9de",
-      "currentImplementationCommit": "5c27863d806afd9e78726a1ded30c5a55b52bdc5",
+      "currentImplementationCommit": "0469327e01010ba67e366432510a401d0cbbe8ac",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -4519,6 +4546,15 @@
         "onlyCurrentInputPinsNotWholeSemanticCertification": true,
         "allPriorEvidenceAndOptionalVerificationReferencesRetained": true,
         "newFixedFullAndProducts": "OPEN"
+      },
+      "currentN51InputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/burnout-inner-cleanup-and-garen-current-cn16-2026-10-23/source-manifest.json",
+          "sha256": "6449be64fc3d7fd968d0186b6a6e589cbd6676da9f50e7dd9055a1979782baa9",
+          "role": "source-manifest"
+        },
+        "priorEvidenceRetained": true,
+        "semanticCertification": false
       }
     },
     "sivir-optional-rune-recycle-2026-10-15": {
@@ -4533,7 +4569,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "4b2251dfeae61a554a29ed97b60c155e2729b3e0e7c5852ce2bc1917a4e7e09b"
+          "sha256": "e0f98459bb4edb1954db5c60795a6d6eed66b1f7927cc118110b840631fc910d"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.Insight.cs",
@@ -4561,7 +4597,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "7dea07e944571abad1a71d92f2f4b280755f60f8144fa7fca3fc109393feb7b2"
+          "sha256": "7f775f9189cba797c81cf5682061db38384a61c27760e20fadb6c284e7ce0cf5"
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
@@ -4895,7 +4931,7 @@
         }
       ],
       "evidenceCommit": "7649d573f884ffd7517a502f7eebe01d0aa186c4",
-      "currentImplementationCommit": "5c27863d806afd9e78726a1ded30c5a55b52bdc5",
+      "currentImplementationCommit": "0469327e01010ba67e366432510a401d0cbbe8ac",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -5390,6 +5426,15 @@
         "onlyCurrentInputPinsNotWholeSemanticCertification": true,
         "allPriorEvidenceAndOptionalVerificationReferencesRetained": true,
         "newFixedFullAndProducts": "OPEN"
+      },
+      "currentN51InputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/burnout-inner-cleanup-and-garen-current-cn16-2026-10-23/source-manifest.json",
+          "sha256": "6449be64fc3d7fd968d0186b6a6e589cbd6676da9f50e7dd9055a1979782baa9",
+          "role": "source-manifest"
+        },
+        "priorEvidenceRetained": true,
+        "semanticCertification": false
       }
     },
     "battlefield-conquer-rune-destination-2026-10-15": {
@@ -5408,11 +5453,11 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "4b2251dfeae61a554a29ed97b60c155e2729b3e0e7c5852ce2bc1917a4e7e09b"
+          "sha256": "e0f98459bb4edb1954db5c60795a6d6eed66b1f7927cc118110b840631fc910d"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.Conquest.cs",
-          "sha256": "87c139a46b4bfa61701b8bbd714635e38707091ff49b068f643fb2f15c01e0d3"
+          "sha256": "e0e460a99309ef3c519a16f204fcef0f97ffbea360bbe4835cee7b74e19a3b07"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.SivirRuneRecycle.cs",
@@ -5555,7 +5600,7 @@
         }
       ],
       "evidenceCommit": "dd8884ba1e443138264b9b0e971ab8da3c5480ee",
-      "currentImplementationCommit": "5c27863d806afd9e78726a1ded30c5a55b52bdc5",
+      "currentImplementationCommit": "0469327e01010ba67e366432510a401d0cbbe8ac",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -5943,6 +5988,15 @@
         "onlyCurrentInputPinsNotWholeSemanticCertification": true,
         "allPriorEvidenceAndOptionalVerificationReferencesRetained": true,
         "newFixedFullAndProducts": "OPEN"
+      },
+      "currentN51InputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/burnout-inner-cleanup-and-garen-current-cn16-2026-10-23/source-manifest.json",
+          "sha256": "6449be64fc3d7fd968d0186b6a6e589cbd6676da9f50e7dd9055a1979782baa9",
+          "role": "source-manifest"
+        },
+        "priorEvidenceRetained": true,
+        "semanticCertification": false
       }
     },
     "sivir-payment-trigger-and-ward-event-2026-10-15": {
@@ -5969,7 +6023,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "4b2251dfeae61a554a29ed97b60c155e2729b3e0e7c5852ce2bc1917a4e7e09b"
+          "sha256": "e0f98459bb4edb1954db5c60795a6d6eed66b1f7927cc118110b840631fc910d"
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
@@ -6155,7 +6209,7 @@
         }
       ],
       "evidenceCommit": "00420e2a2b453918e611812d18fda9f62632e15f",
-      "currentImplementationCommit": "5c27863d806afd9e78726a1ded30c5a55b52bdc5",
+      "currentImplementationCommit": "0469327e01010ba67e366432510a401d0cbbe8ac",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -6560,6 +6614,15 @@
         "onlyCurrentInputPinsNotWholeSemanticCertification": true,
         "allPriorEvidenceAndOptionalVerificationReferencesRetained": true,
         "newFixedFullAndProducts": "OPEN"
+      },
+      "currentN51InputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/burnout-inner-cleanup-and-garen-current-cn16-2026-10-23/source-manifest.json",
+          "sha256": "6449be64fc3d7fd968d0186b6a6e589cbd6676da9f50e7dd9055a1979782baa9",
+          "role": "source-manifest"
+        },
+        "priorEvidenceRetained": true,
+        "semanticCertification": false
       }
     },
     "unit-conquest-gold-response-2026-10-15": {
@@ -6570,15 +6633,15 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.Conquest.cs",
-          "sha256": "87c139a46b4bfa61701b8bbd714635e38707091ff49b068f643fb2f15c01e0d3"
+          "sha256": "e0e460a99309ef3c519a16f204fcef0f97ffbea360bbe4835cee7b74e19a3b07"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "4b2251dfeae61a554a29ed97b60c155e2729b3e0e7c5852ce2bc1917a4e7e09b"
+          "sha256": "e0f98459bb4edb1954db5c60795a6d6eed66b1f7927cc118110b840631fc910d"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "7dea07e944571abad1a71d92f2f4b280755f60f8144fa7fca3fc109393feb7b2"
+          "sha256": "7f775f9189cba797c81cf5682061db38384a61c27760e20fadb6c284e7ce0cf5"
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
@@ -6813,7 +6876,7 @@
         }
       ],
       "evidenceCommit": "eb3c4281c94c8d41d315cd574bdfa597cd10c30b",
-      "currentImplementationCommit": "5c27863d806afd9e78726a1ded30c5a55b52bdc5",
+      "currentImplementationCommit": "0469327e01010ba67e366432510a401d0cbbe8ac",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -7272,6 +7335,15 @@
         "onlyCurrentInputPinsNotWholeSemanticCertification": true,
         "allPriorEvidenceAndOptionalVerificationReferencesRetained": true,
         "newFixedFullAndProducts": "OPEN"
+      },
+      "currentN51InputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/burnout-inner-cleanup-and-garen-current-cn16-2026-10-23/source-manifest.json",
+          "sha256": "6449be64fc3d7fd968d0186b6a6e589cbd6676da9f50e7dd9055a1979782baa9",
+          "role": "source-manifest"
+        },
+        "priorEvidenceRetained": true,
+        "semanticCertification": false
       }
     },
     "own-main-deck-recycle-card-boon-2026-10-15": {
@@ -7314,7 +7386,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "4b2251dfeae61a554a29ed97b60c155e2729b3e0e7c5852ce2bc1917a4e7e09b"
+          "sha256": "e0f98459bb4edb1954db5c60795a6d6eed66b1f7927cc118110b840631fc910d"
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
@@ -7994,7 +8066,7 @@
         }
       ],
       "evidenceCommit": "a0406e1d878598b3c0fd88f5bfa7f9831d6a2cc6",
-      "currentImplementationCommit": "5c27863d806afd9e78726a1ded30c5a55b52bdc5",
+      "currentImplementationCommit": "0469327e01010ba67e366432510a401d0cbbe8ac",
       "currentImplementationIncludesUncommittedChanges": true,
       "implementationPinUpdates": [
         {
@@ -8428,6 +8500,15 @@
         "onlyCurrentInputPinsNotWholeSemanticCertification": true,
         "allPriorEvidenceAndOptionalVerificationReferencesRetained": true,
         "newFixedFullAndProducts": "OPEN"
+      },
+      "currentN51InputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/burnout-inner-cleanup-and-garen-current-cn16-2026-10-23/source-manifest.json",
+          "sha256": "6449be64fc3d7fd968d0186b6a6e589cbd6676da9f50e7dd9055a1979782baa9",
+          "role": "source-manifest"
+        },
+        "priorEvidenceRetained": true,
+        "semanticCertification": false
       }
     },
     "copied-recycle-boon-ceased-source-2026-10-15": {
@@ -9918,7 +9999,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "4b2251dfeae61a554a29ed97b60c155e2729b3e0e7c5852ce2bc1917a4e7e09b"
+          "sha256": "e0f98459bb4edb1954db5c60795a6d6eed66b1f7927cc118110b840631fc910d"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.SpellCompletion.cs",
@@ -9930,7 +10011,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "7dea07e944571abad1a71d92f2f4b280755f60f8144fa7fca3fc109393feb7b2"
+          "sha256": "7f775f9189cba797c81cf5682061db38384a61c27760e20fadb6c284e7ce0cf5"
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
@@ -9979,7 +10060,7 @@
         }
       ],
       "evidenceCommit": "342187cb732ea37a616d3fb125be6e9e5096ead1",
-      "currentImplementationCommit": "5c27863d806afd9e78726a1ded30c5a55b52bdc5",
+      "currentImplementationCommit": "0469327e01010ba67e366432510a401d0cbbe8ac",
       "currentImplementationIncludesUncommittedChanges": true,
       "branches": [
         {
@@ -10541,6 +10622,15 @@
         "onlyCurrentInputPinsNotWholeSemanticCertification": true,
         "allPriorEvidenceAndOptionalVerificationReferencesRetained": true,
         "newFixedFullAndProducts": "OPEN"
+      },
+      "currentN51InputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/burnout-inner-cleanup-and-garen-current-cn16-2026-10-23/source-manifest.json",
+          "sha256": "6449be64fc3d7fd968d0186b6a6e589cbd6676da9f50e7dd9055a1979782baa9",
+          "role": "source-manifest"
+        },
+        "priorEvidenceRetained": true,
+        "semanticCertification": false
       }
     },
     "porobot-source-play-other-equipment-conditional-draw-2026-10-15": {
@@ -10555,7 +10645,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "4b2251dfeae61a554a29ed97b60c155e2729b3e0e7c5852ce2bc1917a4e7e09b"
+          "sha256": "e0f98459bb4edb1954db5c60795a6d6eed66b1f7927cc118110b840631fc910d"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.PermanentConfirmation.cs",
@@ -10567,7 +10657,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "7dea07e944571abad1a71d92f2f4b280755f60f8144fa7fca3fc109393feb7b2"
+          "sha256": "7f775f9189cba797c81cf5682061db38384a61c27760e20fadb6c284e7ce0cf5"
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
@@ -10624,7 +10714,7 @@
         }
       ],
       "evidenceCommit": "339c6168f704684477354365988d7448cb0e7a10",
-      "currentImplementationCommit": "5c27863d806afd9e78726a1ded30c5a55b52bdc5",
+      "currentImplementationCommit": "0469327e01010ba67e366432510a401d0cbbe8ac",
       "currentImplementationIncludesUncommittedChanges": true,
       "ciState": "PENDING",
       "ciReceipts": [
@@ -11240,11 +11330,20 @@
         "onlyCurrentInputPinsNotWholeSemanticCertification": true,
         "allPriorEvidenceAndOptionalVerificationReferencesRetained": true,
         "newFixedFullAndProducts": "OPEN"
+      },
+      "currentN51InputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/burnout-inner-cleanup-and-garen-current-cn16-2026-10-23/source-manifest.json",
+          "sha256": "6449be64fc3d7fd968d0186b6a6e589cbd6676da9f50e7dd9055a1979782baa9",
+          "role": "source-manifest"
+        },
+        "priorEvidenceRetained": true,
+        "semanticCertification": false
       }
     },
     "typed-card-play-history-causal-production-recovery-2026-10-15": {
       "evidenceCommit": "6bc546259eed61d5988bf8e8df5081cd8502c614",
-      "currentImplementationCommit": "5c27863d806afd9e78726a1ded30c5a55b52bdc5",
+      "currentImplementationCommit": "0469327e01010ba67e366432510a401d0cbbe8ac",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact6bc fullCI/45SQL/case-method-pair preservation verified. Current workingtree has newer counted Insight/catalog dependencies; this prior full is not current gameplay coverage.",
       "ciState": "PENDING",
@@ -11267,7 +11366,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "7dea07e944571abad1a71d92f2f4b280755f60f8144fa7fca3fc109393feb7b2"
+          "sha256": "7f775f9189cba797c81cf5682061db38384a61c27760e20fadb6c284e7ce0cf5"
         },
         {
           "path": "src/Riftbound.Persistence/PostgresMatchRecoveryStore.cs",
@@ -11676,6 +11775,15 @@
         "onlyCurrentInputPinsNotWholeSemanticCertification": true,
         "allPriorEvidenceAndOptionalVerificationReferencesRetained": true,
         "newFixedFullAndProducts": "OPEN"
+      },
+      "currentN51InputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/burnout-inner-cleanup-and-garen-current-cn16-2026-10-23/source-manifest.json",
+          "sha256": "6449be64fc3d7fd968d0186b6a6e589cbd6676da9f50e7dd9055a1979782baa9",
+          "role": "source-manifest"
+        },
+        "priorEvidenceRetained": true,
+        "semanticCertification": false
       }
     },
     "counted-insight-post-choice-draw-clairvoyance-2026-10-15": {
@@ -13048,7 +13156,7 @@
     },
     "combat-event-journal-wire-and-single-defender-choice-2026-10-15": {
       "evidenceCommit": "9e426a31386aefa980bf2d48f02b237098cb2914",
-      "currentImplementationCommit": "5c27863d806afd9e78726a1ded30c5a55b52bdc5",
+      "currentImplementationCommit": "0469327e01010ba67e366432510a401d0cbbe8ac",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact9e base plus explicitly hashed current journal/combat/native-fixture verification inputs; old full does not cover this repair.",
       "ciState": "PENDING",
@@ -13060,7 +13168,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "4b2251dfeae61a554a29ed97b60c155e2729b3e0e7c5852ce2bc1917a4e7e09b"
+          "sha256": "e0f98459bb4edb1954db5c60795a6d6eed66b1f7927cc118110b840631fc910d"
         },
         {
           "path": "clients/godot/scripts/ClientCommandSerializer.cs",
@@ -13572,11 +13680,20 @@
         "onlyCurrentInputPinsNotWholeSemanticCertification": true,
         "allPriorEvidenceAndOptionalVerificationReferencesRetained": true,
         "newFixedFullAndProducts": "OPEN"
+      },
+      "currentN51InputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/burnout-inner-cleanup-and-garen-current-cn16-2026-10-23/source-manifest.json",
+          "sha256": "6449be64fc3d7fd968d0186b6a6e589cbd6676da9f50e7dd9055a1979782baa9",
+          "role": "source-manifest"
+        },
+        "priorEvidenceRetained": true,
+        "semanticCertification": false
       }
     },
     "combat-declaration-provenance-and-single-eligible-unit-conquest-2026-10-15": {
       "evidenceCommit": "0cbee9e22c81bec21ea416fdb45dc1c16f78e7d4",
-      "currentImplementationCommit": "5c27863d806afd9e78726a1ded30c5a55b52bdc5",
+      "currentImplementationCommit": "0469327e01010ba67e366432510a401d0cbbe8ac",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact0cbee failed base plus two explicitly pinned source repairs and new verification/source-intake evidence; new fixed SHA required.",
       "ciState": "PENDING",
@@ -13584,11 +13701,11 @@
       "implementation": [
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.Conquest.cs",
-          "sha256": "87c139a46b4bfa61701b8bbd714635e38707091ff49b068f643fb2f15c01e0d3"
+          "sha256": "e0e460a99309ef3c519a16f204fcef0f97ffbea360bbe4835cee7b74e19a3b07"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "4b2251dfeae61a554a29ed97b60c155e2729b3e0e7c5852ce2bc1917a4e7e09b"
+          "sha256": "e0f98459bb4edb1954db5c60795a6d6eed66b1f7927cc118110b840631fc910d"
         }
       ],
       "evidence": [
@@ -14033,11 +14150,20 @@
         "onlyCurrentInputPinsNotWholeSemanticCertification": true,
         "allPriorEvidenceAndOptionalVerificationReferencesRetained": true,
         "newFixedFullAndProducts": "OPEN"
+      },
+      "currentN51InputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/burnout-inner-cleanup-and-garen-current-cn16-2026-10-23/source-manifest.json",
+          "sha256": "6449be64fc3d7fd968d0186b6a6e589cbd6676da9f50e7dd9055a1979782baa9",
+          "role": "source-manifest"
+        },
+        "priorEvidenceRetained": true,
+        "semanticCertification": false
       }
     },
     "optional-mana-trigger-native-and-natural-declaration-order-2026-10-15": {
       "evidenceCommit": "d1c2b4d351ca32862ee52ab7bc45cd7d581fca2c",
-      "currentImplementationCommit": "5c27863d806afd9e78726a1ded30c5a55b52bdc5",
+      "currentImplementationCommit": "0469327e01010ba67e366432510a401d0cbbe8ac",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact d1 actual full-success/native-failure base plus three pinned source repairs, new verification and source readback; new fixed SHA required.",
       "ciState": "PENDING",
@@ -14049,11 +14175,11 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "4b2251dfeae61a554a29ed97b60c155e2729b3e0e7c5852ce2bc1917a4e7e09b"
+          "sha256": "e0f98459bb4edb1954db5c60795a6d6eed66b1f7927cc118110b840631fc910d"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "7dea07e944571abad1a71d92f2f4b280755f60f8144fa7fca3fc109393feb7b2"
+          "sha256": "7f775f9189cba797c81cf5682061db38384a61c27760e20fadb6c284e7ce0cf5"
         }
       ],
       "evidence": [
@@ -14542,11 +14668,20 @@
         "onlyCurrentInputPinsNotWholeSemanticCertification": true,
         "allPriorEvidenceAndOptionalVerificationReferencesRetained": true,
         "newFixedFullAndProducts": "OPEN"
+      },
+      "currentN51InputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/burnout-inner-cleanup-and-garen-current-cn16-2026-10-23/source-manifest.json",
+          "sha256": "6449be64fc3d7fd968d0186b6a6e589cbd6676da9f50e7dd9055a1979782baa9",
+          "role": "source-manifest"
+        },
+        "priorEvidenceRetained": true,
+        "semanticCertification": false
       }
     },
     "cn16-confirmed-play-origin-and-required-causal-fact-2026-10-16": {
       "evidenceCommit": "56d1ee2eed9dcbf48ed54175867cd93ac58d92d8",
-      "currentImplementationCommit": "5c27863d806afd9e78726a1ded30c5a55b52bdc5",
+      "currentImplementationCommit": "0469327e01010ba67e366432510a401d0cbbe8ac",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact56 baseline plus explicitly pinned CN16 source selection and bounded confirmed hand-origin repair; new fixed SHA required.",
       "ciState": "PENDING",
@@ -14558,11 +14693,11 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "4b2251dfeae61a554a29ed97b60c155e2729b3e0e7c5852ce2bc1917a4e7e09b"
+          "sha256": "e0f98459bb4edb1954db5c60795a6d6eed66b1f7927cc118110b840631fc910d"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "7dea07e944571abad1a71d92f2f4b280755f60f8144fa7fca3fc109393feb7b2"
+          "sha256": "7f775f9189cba797c81cf5682061db38384a61c27760e20fadb6c284e7ce0cf5"
         },
         {
           "path": "data/official/rule-input-scope.json",
@@ -15202,11 +15337,20 @@
         "onlyCurrentInputPinsNotWholeSemanticCertification": true,
         "allPriorEvidenceAndOptionalVerificationReferencesRetained": true,
         "newFixedFullAndProducts": "OPEN"
+      },
+      "currentN51InputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/burnout-inner-cleanup-and-garen-current-cn16-2026-10-23/source-manifest.json",
+          "sha256": "6449be64fc3d7fd968d0186b6a6e589cbd6676da9f50e7dd9055a1979782baa9",
+          "role": "source-manifest"
+        },
+        "priorEvidenceRetained": true,
+        "semanticCertification": false
       }
     },
     "physical-origin-self-cost-reduction-2026-10-16": {
       "evidenceCommit": "903cbca2becfd9b142a6b6a86d77b8fbf3d080ef",
-      "currentImplementationCommit": "5c27863d806afd9e78726a1ded30c5a55b52bdc5",
+      "currentImplementationCommit": "0469327e01010ba67e366432510a401d0cbbe8ac",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact903 baseline plus pinned3engine changes and new8cases/SQL fixtures; fixed newSHA required.",
       "ciState": "PENDING",
@@ -15218,7 +15362,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "4b2251dfeae61a554a29ed97b60c155e2729b3e0e7c5852ce2bc1917a4e7e09b"
+          "sha256": "e0f98459bb4edb1954db5c60795a6d6eed66b1f7927cc118110b840631fc910d"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.PlayManaCost.cs",
@@ -15750,11 +15894,20 @@
         "onlyCurrentInputPinsNotWholeSemanticCertification": true,
         "allPriorEvidenceAndOptionalVerificationReferencesRetained": true,
         "newFixedFullAndProducts": "OPEN"
+      },
+      "currentN51InputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/burnout-inner-cleanup-and-garen-current-cn16-2026-10-23/source-manifest.json",
+          "sha256": "6449be64fc3d7fd968d0186b6a6e589cbd6676da9f50e7dd9055a1979782baa9",
+          "role": "source-manifest"
+        },
+        "priorEvidenceRetained": true,
+        "semanticCertification": false
       }
     },
     "granted-origin-haste-and-paid-entry-replacement-2026-10-16": {
       "evidenceCommit": "4ad7fe204adee28c4138f18bdde4c4cbcdea21f0",
-      "currentImplementationCommit": "5c27863d806afd9e78726a1ded30c5a55b52bdc5",
+      "currentImplementationCommit": "0469327e01010ba67e366432510a401d0cbbe8ac",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact4ad7 baseline plus pinned5engine inputs,24cases, native readback and73SQL. NewfixedSHA full required. Printed-Haste dispatch restored after the singlecheck;213 current focus passed. Prior SQL/native exact inputs remain pre-repair, not relabeled.",
       "ciState": "PENDING",
@@ -15770,11 +15923,11 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "4b2251dfeae61a554a29ed97b60c155e2729b3e0e7c5852ce2bc1917a4e7e09b"
+          "sha256": "e0f98459bb4edb1954db5c60795a6d6eed66b1f7927cc118110b840631fc910d"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "7dea07e944571abad1a71d92f2f4b280755f60f8144fa7fca3fc109393feb7b2"
+          "sha256": "7f775f9189cba797c81cf5682061db38384a61c27760e20fadb6c284e7ce0cf5"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.PlayKeywords.cs",
@@ -16398,11 +16551,20 @@
         "onlyCurrentInputPinsNotWholeSemanticCertification": true,
         "allPriorEvidenceAndOptionalVerificationReferencesRetained": true,
         "newFixedFullAndProducts": "OPEN"
+      },
+      "currentN51InputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/burnout-inner-cleanup-and-garen-current-cn16-2026-10-23/source-manifest.json",
+          "sha256": "6449be64fc3d7fd968d0186b6a6e589cbd6676da9f50e7dd9055a1979782baa9",
+          "role": "source-manifest"
+        },
+        "priorEvidenceRetained": true,
+        "semanticCertification": false
       }
     },
     "opponent-battlefield-current-control-entry-2026-10-16": {
       "evidenceCommit": "3ced0126ac20a07c2909e7b44f3733a9e3aa044a",
-      "currentImplementationCommit": "5c27863d806afd9e78726a1ded30c5a55b52bdc5",
+      "currentImplementationCommit": "0469327e01010ba67e366432510a401d0cbbe8ac",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Exact3ced baseline plus pinned Core fix and29new cases/3methods; old72 product and prior fixedfull evidence are separately bounded. New fixed SHA full required.",
       "ciState": "PENDING",
@@ -16410,7 +16572,7 @@
       "implementation": [
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "4b2251dfeae61a554a29ed97b60c155e2729b3e0e7c5852ce2bc1917a4e7e09b"
+          "sha256": "e0f98459bb4edb1954db5c60795a6d6eed66b1f7927cc118110b840631fc910d"
         }
       ],
       "verificationSources": [
@@ -16872,11 +17034,20 @@
         "onlyCurrentInputPinsNotWholeSemanticCertification": true,
         "allPriorEvidenceAndOptionalVerificationReferencesRetained": true,
         "newFixedFullAndProducts": "OPEN"
+      },
+      "currentN51InputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/burnout-inner-cleanup-and-garen-current-cn16-2026-10-23/source-manifest.json",
+          "sha256": "6449be64fc3d7fd968d0186b6a6e589cbd6676da9f50e7dd9055a1979782baa9",
+          "role": "source-manifest"
+        },
+        "priorEvidenceRetained": true,
+        "semanticCertification": false
       }
     },
     "optional-sacrifice-printed-cost-and-paid-entry-2026-10-16": {
       "evidenceCommit": "8d7571c5a5572b1ed542a5ff1d8eaeb533bac1bc",
-      "currentImplementationCommit": "5c27863d806afd9e78726a1ded30c5a55b52bdc5",
+      "currentImplementationCommit": "0469327e01010ba67e366432510a401d0cbbe8ac",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Fixed8d baseline plus exact15 executable/fixture patch files. Earlier full8d,113 old review dictionaries, source dates and original143/110/424242 remain retained. New candidate full required.",
       "ciState": "PENDING",
@@ -16888,7 +17059,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "4b2251dfeae61a554a29ed97b60c155e2729b3e0e7c5852ce2bc1917a4e7e09b"
+          "sha256": "e0f98459bb4edb1954db5c60795a6d6eed66b1f7927cc118110b840631fc910d"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.PlayManaCost.cs",
@@ -16908,7 +17079,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "7dea07e944571abad1a71d92f2f4b280755f60f8144fa7fca3fc109393feb7b2"
+          "sha256": "7f775f9189cba797c81cf5682061db38384a61c27760e20fadb6c284e7ce0cf5"
         },
         {
           "path": "src/Riftbound.Api/Riftbound.Api.csproj",
@@ -17521,11 +17692,20 @@
         "onlyCurrentInputPinsNotWholeSemanticCertification": true,
         "allPriorEvidenceAndOptionalVerificationReferencesRetained": true,
         "newFixedFullAndProducts": "OPEN"
+      },
+      "currentN51InputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/burnout-inner-cleanup-and-garen-current-cn16-2026-10-23/source-manifest.json",
+          "sha256": "6449be64fc3d7fd968d0186b6a6e589cbd6676da9f50e7dd9055a1979782baa9",
+          "role": "source-manifest"
+        },
+        "priorEvidenceRetained": true,
+        "semanticCertification": false
       }
     },
     "granted-colorless-token-haste-payment-2026-10-16": {
       "evidenceCommit": "daf394e20997ebdb028e91ba9fdfe6c24eb492eb",
-      "currentImplementationCommit": "5c27863d806afd9e78726a1ded30c5a55b52bdc5",
+      "currentImplementationCommit": "0469327e01010ba67e366432510a401d0cbbe8ac",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Fixeddaf baseline plus exact13 current executable/test/fixture patch files; historical daf full12136/7372 and77SQL do not cover the patch.",
       "ciState": "PENDING",
@@ -17533,7 +17713,7 @@
       "implementation": [
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "4b2251dfeae61a554a29ed97b60c155e2729b3e0e7c5852ce2bc1917a4e7e09b"
+          "sha256": "e0f98459bb4edb1954db5c60795a6d6eed66b1f7927cc118110b840631fc910d"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.PlayKeywords.cs",
@@ -17553,7 +17733,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "7dea07e944571abad1a71d92f2f4b280755f60f8144fa7fca3fc109393feb7b2"
+          "sha256": "7f775f9189cba797c81cf5682061db38384a61c27760e20fadb6c284e7ce0cf5"
         }
       ],
       "verificationSources": [
@@ -18169,11 +18349,20 @@
         "onlyCurrentInputPinsNotWholeSemanticCertification": true,
         "allPriorEvidenceAndOptionalVerificationReferencesRetained": true,
         "newFixedFullAndProducts": "OPEN"
+      },
+      "currentN51InputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/burnout-inner-cleanup-and-garen-current-cn16-2026-10-23/source-manifest.json",
+          "sha256": "6449be64fc3d7fd968d0186b6a6e589cbd6676da9f50e7dd9055a1979782baa9",
+          "role": "source-manifest"
+        },
+        "priorEvidenceRetained": true,
+        "semanticCertification": false
       }
     },
     "native-rule-choice-prompts-2026-10-16": {
       "evidenceCommit": "65092fcdea323f9f4b435a91344f76e838fb21b4",
-      "currentImplementationCommit": "5c27863d806afd9e78726a1ded30c5a55b52bdc5",
+      "currentImplementationCommit": "0469327e01010ba67e366432510a401d0cbbe8ac",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Fixed650 baseline plus exact two implementation and four verification inputs. Fixed650 full does not cover these uncommitted prompt changes.",
       "ciState": "PENDING",
@@ -18181,7 +18370,7 @@
       "implementation": [
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "7dea07e944571abad1a71d92f2f4b280755f60f8144fa7fca3fc109393feb7b2"
+          "sha256": "7f775f9189cba797c81cf5682061db38384a61c27760e20fadb6c284e7ce0cf5"
         },
         {
           "path": "clients/godot/scripts/ui/MatchPhasePresentation.cs",
@@ -18645,11 +18834,20 @@
         "onlyCurrentInputPinsNotWholeSemanticCertification": true,
         "allPriorEvidenceAndOptionalVerificationReferencesRetained": true,
         "newFixedFullAndProducts": "OPEN"
+      },
+      "currentN51InputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/burnout-inner-cleanup-and-garen-current-cn16-2026-10-23/source-manifest.json",
+          "sha256": "6449be64fc3d7fd968d0186b6a6e589cbd6676da9f50e7dd9055a1979782baa9",
+          "role": "source-manifest"
+        },
+        "priorEvidenceRetained": true,
+        "semanticCertification": false
       }
     },
     "sand-soldier-embedded-ready-2026-10-17": {
       "evidenceCommit": "8ca4080c9431b981db051a5adad18dace5d85dd5",
-      "currentImplementationCommit": "5c27863d806afd9e78726a1ded30c5a55b52bdc5",
+      "currentImplementationCommit": "0469327e01010ba67e366432510a401d0cbbe8ac",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Fixed8ca source baseline (gameplay5ed) plus explicit current implementation/test/fixture inputs. Prior5ed full/native and local pre-caption SQL are not relabeled as this final candidate.",
       "ciState": "PENDING",
@@ -18681,7 +18879,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "4b2251dfeae61a554a29ed97b60c155e2729b3e0e7c5852ce2bc1917a4e7e09b"
+          "sha256": "e0f98459bb4edb1954db5c60795a6d6eed66b1f7927cc118110b840631fc910d"
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
@@ -18689,7 +18887,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "7dea07e944571abad1a71d92f2f4b280755f60f8144fa7fca3fc109393feb7b2"
+          "sha256": "7f775f9189cba797c81cf5682061db38384a61c27760e20fadb6c284e7ce0cf5"
         },
         {
           "path": "src/Riftbound.Engine/StackObjectRules.cs",
@@ -19406,11 +19604,20 @@
         "onlyCurrentInputPinsNotWholeSemanticCertification": true,
         "allPriorEvidenceAndOptionalVerificationReferencesRetained": true,
         "newFixedFullAndProducts": "OPEN"
+      },
+      "currentN51InputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/burnout-inner-cleanup-and-garen-current-cn16-2026-10-23/source-manifest.json",
+          "sha256": "6449be64fc3d7fd968d0186b6a6e589cbd6676da9f50e7dd9055a1979782baa9",
+          "role": "source-manifest"
+        },
+        "priorEvidenceRetained": true,
+        "semanticCertification": false
       }
     },
     "opening-randomness-2026-10-17": {
       "evidenceCommit": "a6ccf1952141c69ed4b3cde94695f983c1c28db8",
-      "currentImplementationCommit": "5c27863d806afd9e78726a1ded30c5a55b52bdc5",
+      "currentImplementationCommit": "0469327e01010ba67e366432510a401d0cbbe8ac",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Base plus current explicit implementation/test inputs. Prior39 native/CI is historical and not relabeled current.",
       "ciState": "PENDING",
@@ -19430,7 +19637,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "7dea07e944571abad1a71d92f2f4b280755f60f8144fa7fca3fc109393feb7b2"
+          "sha256": "7f775f9189cba797c81cf5682061db38384a61c27760e20fadb6c284e7ce0cf5"
         },
         {
           "path": "src/Riftbound.Persistence/PostgresMatchJournal.cs",
@@ -20172,11 +20379,20 @@
         "onlyCurrentInputPinsNotWholeSemanticCertification": true,
         "allPriorEvidenceAndOptionalVerificationReferencesRetained": true,
         "newFixedFullAndProducts": "OPEN"
+      },
+      "currentN51InputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/burnout-inner-cleanup-and-garen-current-cn16-2026-10-23/source-manifest.json",
+          "sha256": "6449be64fc3d7fd968d0186b6a6e589cbd6676da9f50e7dd9055a1979782baa9",
+          "role": "source-manifest"
+        },
+        "priorEvidenceRetained": true,
+        "semanticCertification": false
       }
     },
     "duel-chain-origins-cold-recovery-2026-10-17": {
       "evidenceCommit": "42c89230105573e39ffaf524a7dc21f24d520d4b",
-      "currentImplementationCommit": "5c27863d806afd9e78726a1ded30c5a55b52bdc5",
+      "currentImplementationCommit": "0469327e01010ba67e366432510a401d0cbbe8ac",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Base42 plus exact changed implementation/test pins; fixed067 full is a retained failure, not current success.",
       "ciState": "PENDING",
@@ -20184,7 +20400,7 @@
       "implementation": [
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "4b2251dfeae61a554a29ed97b60c155e2729b3e0e7c5852ce2bc1917a4e7e09b"
+          "sha256": "e0f98459bb4edb1954db5c60795a6d6eed66b1f7927cc118110b840631fc910d"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.TriggerHandoff.cs",
@@ -20196,7 +20412,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "7dea07e944571abad1a71d92f2f4b280755f60f8144fa7fca3fc109393feb7b2"
+          "sha256": "7f775f9189cba797c81cf5682061db38384a61c27760e20fadb6c284e7ce0cf5"
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
@@ -20740,12 +20956,21 @@
         "onlyCurrentInputPinsNotWholeSemanticCertification": true,
         "allPriorEvidenceAndOptionalVerificationReferencesRetained": true,
         "newFixedFullAndProducts": "OPEN"
+      },
+      "currentN51InputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/burnout-inner-cleanup-and-garen-current-cn16-2026-10-23/source-manifest.json",
+          "sha256": "6449be64fc3d7fd968d0186b6a6e589cbd6676da9f50e7dd9055a1979782baa9",
+          "role": "source-manifest"
+        },
+        "priorEvidenceRetained": true,
+        "semanticCertification": false
       }
     },
     "merfolk-battlefield-play-damage-here-2026-10-17": {
       "evidenceCommit": "4fca367eaab1dd198ffde839b23461c058a2b470",
       "evidenceCommitScope": "Previous fixed baseline only. This review source includes uncommitted positive damage changes and does not claim that4fca tested them.",
-      "currentImplementationCommit": "5c27863d806afd9e78726a1ded30c5a55b52bdc5",
+      "currentImplementationCommit": "0469327e01010ba67e366432510a401d0cbbe8ac",
       "currentImplementationIncludesUncommittedChanges": true,
       "ciState": "PENDING",
       "ciReceipts": [],
@@ -20780,11 +21005,11 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "4b2251dfeae61a554a29ed97b60c155e2729b3e0e7c5852ce2bc1917a4e7e09b"
+          "sha256": "e0f98459bb4edb1954db5c60795a6d6eed66b1f7927cc118110b840631fc910d"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "7dea07e944571abad1a71d92f2f4b280755f60f8144fa7fca3fc109393feb7b2"
+          "sha256": "7f775f9189cba797c81cf5682061db38384a61c27760e20fadb6c284e7ce0cf5"
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
@@ -21360,12 +21585,21 @@
         "onlyCurrentInputPinsNotWholeSemanticCertification": true,
         "allPriorEvidenceAndOptionalVerificationReferencesRetained": true,
         "newFixedFullAndProducts": "OPEN"
+      },
+      "currentN51InputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/burnout-inner-cleanup-and-garen-current-cn16-2026-10-23/source-manifest.json",
+          "sha256": "6449be64fc3d7fd968d0186b6a6e589cbd6676da9f50e7dd9055a1979782baa9",
+          "role": "source-manifest"
+        },
+        "priorEvidenceRetained": true,
+        "semanticCertification": false
       }
     },
     "banish-owner-effect-play-2026-10-18": {
       "evidenceCommit": "62bf7afc7a59bc743e1e578712e156686666c060",
       "evidenceCommitScope": "Previous fixed62bf baseline only. Later Hunting Rhythm source, fixture and SQL changes are uncommitted and are not covered by62bf.",
-      "currentImplementationCommit": "5c27863d806afd9e78726a1ded30c5a55b52bdc5",
+      "currentImplementationCommit": "0469327e01010ba67e366432510a401d0cbbe8ac",
       "currentImplementationIncludesUncommittedChanges": true,
       "ciState": "PENDING",
       "ciReceipts": [],
@@ -21388,7 +21622,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "4b2251dfeae61a554a29ed97b60c155e2729b3e0e7c5852ce2bc1917a4e7e09b"
+          "sha256": "e0f98459bb4edb1954db5c60795a6d6eed66b1f7927cc118110b840631fc910d"
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
@@ -21396,7 +21630,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "7dea07e944571abad1a71d92f2f4b280755f60f8144fa7fca3fc109393feb7b2"
+          "sha256": "7f775f9189cba797c81cf5682061db38384a61c27760e20fadb6c284e7ce0cf5"
         },
         {
           "path": "src/Riftbound.Engine/BanishPlayRecoveryRules.cs",
@@ -21995,12 +22229,21 @@
         "onlyCurrentInputPinsNotWholeSemanticCertification": true,
         "allPriorEvidenceAndOptionalVerificationReferencesRetained": true,
         "newFixedFullAndProducts": "OPEN"
+      },
+      "currentN51InputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/burnout-inner-cleanup-and-garen-current-cn16-2026-10-23/source-manifest.json",
+          "sha256": "6449be64fc3d7fd968d0186b6a6e589cbd6676da9f50e7dd9055a1979782baa9",
+          "role": "source-manifest"
+        },
+        "priorEvidenceRetained": true,
+        "semanticCertification": false
       }
     },
     "permanent-here-location-control-2026-10-18": {
       "evidenceCommit": "c69aef543b7bb46a987719cc77cd77ea49782527",
       "evidenceCommitScope": "Previous c69 fixed full/native baseline only; later uncommitted Here inputs are separately pinned and not covered by c69.",
-      "currentImplementationCommit": "5c27863d806afd9e78726a1ded30c5a55b52bdc5",
+      "currentImplementationCommit": "0469327e01010ba67e366432510a401d0cbbe8ac",
       "currentImplementationIncludesUncommittedChanges": true,
       "ciState": "PENDING",
       "ciReceipts": [],
@@ -22019,11 +22262,11 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "4b2251dfeae61a554a29ed97b60c155e2729b3e0e7c5852ce2bc1917a4e7e09b"
+          "sha256": "e0f98459bb4edb1954db5c60795a6d6eed66b1f7927cc118110b840631fc910d"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "7dea07e944571abad1a71d92f2f4b280755f60f8144fa7fca3fc109393feb7b2"
+          "sha256": "7f775f9189cba797c81cf5682061db38384a61c27760e20fadb6c284e7ce0cf5"
         },
         {
           "path": "src/Riftbound.Engine/PermanentPlayTriggerRecoveryRules.cs",
@@ -22580,12 +22823,21 @@
         "onlyCurrentInputPinsNotWholeSemanticCertification": true,
         "allPriorEvidenceAndOptionalVerificationReferencesRetained": true,
         "newFixedFullAndProducts": "OPEN"
+      },
+      "currentN51InputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/burnout-inner-cleanup-and-garen-current-cn16-2026-10-23/source-manifest.json",
+          "sha256": "6449be64fc3d7fd968d0186b6a6e589cbd6676da9f50e7dd9055a1979782baa9",
+          "role": "source-manifest"
+        },
+        "priorEvidenceRetained": true,
+        "semanticCertification": false
       }
     },
     "rengar-unit-play-confirmation-order-recovery-2026-10-18": {
       "evidenceCommit": "a5d01ad0577e992ab19029424159a4c9acee1385",
       "evidenceCommitScope": "Original a5d native semantic red and prior source/test baseline only; current authored/compiled inputs are separately pinned and not covered by a5d.",
-      "currentImplementationCommit": "5c27863d806afd9e78726a1ded30c5a55b52bdc5",
+      "currentImplementationCommit": "0469327e01010ba67e366432510a401d0cbbe8ac",
       "currentImplementationIncludesUncommittedChanges": true,
       "ciState": "PENDING",
       "ciReceipts": [],
@@ -22600,7 +22852,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "4b2251dfeae61a554a29ed97b60c155e2729b3e0e7c5852ce2bc1917a4e7e09b"
+          "sha256": "e0f98459bb4edb1954db5c60795a6d6eed66b1f7927cc118110b840631fc910d"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.UnitEntryTriggers.cs",
@@ -22628,7 +22880,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "7dea07e944571abad1a71d92f2f4b280755f60f8144fa7fca3fc109393feb7b2"
+          "sha256": "7f775f9189cba797c81cf5682061db38384a61c27760e20fadb6c284e7ce0cf5"
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
@@ -23258,12 +23510,21 @@
         "onlyCurrentInputPinsNotWholeSemanticCertification": true,
         "allPriorEvidenceAndOptionalVerificationReferencesRetained": true,
         "newFixedFullAndProducts": "OPEN"
+      },
+      "currentN51InputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/burnout-inner-cleanup-and-garen-current-cn16-2026-10-23/source-manifest.json",
+          "sha256": "6449be64fc3d7fd968d0186b6a6e589cbd6676da9f50e7dd9055a1979782baa9",
+          "role": "source-manifest"
+        },
+        "priorEvidenceRetained": true,
+        "semanticCertification": false
       }
     },
     "deferred-trigger-command-chronology-2026-10-18": {
       "evidenceCommit": "b18272e8e4ad0ed01523aebc9f592e19623f46c9",
       "evidenceCommitScope": "Prior fixed b182 full/native preparation only. Current authored/actual compiled chronology inputs are independently pinned, not covered by the base commit.",
-      "currentImplementationCommit": "5c27863d806afd9e78726a1ded30c5a55b52bdc5",
+      "currentImplementationCommit": "0469327e01010ba67e366432510a401d0cbbe8ac",
       "currentImplementationIncludesUncommittedChanges": true,
       "ciState": "PENDING",
       "ciReceipts": [],
@@ -23282,11 +23543,11 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "4b2251dfeae61a554a29ed97b60c155e2729b3e0e7c5852ce2bc1917a4e7e09b"
+          "sha256": "e0f98459bb4edb1954db5c60795a6d6eed66b1f7927cc118110b840631fc910d"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "7dea07e944571abad1a71d92f2f4b280755f60f8144fa7fca3fc109393feb7b2"
+          "sha256": "7f775f9189cba797c81cf5682061db38384a61c27760e20fadb6c284e7ce0cf5"
         },
         {
           "path": "src/Riftbound.Engine/MatchRecovery.cs",
@@ -23893,12 +24154,21 @@
         "onlyCurrentInputPinsNotWholeSemanticCertification": true,
         "allPriorEvidenceAndOptionalVerificationReferencesRetained": true,
         "newFixedFullAndProducts": "OPEN"
+      },
+      "currentN51InputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/burnout-inner-cleanup-and-garen-current-cn16-2026-10-23/source-manifest.json",
+          "sha256": "6449be64fc3d7fd968d0186b6a6e589cbd6676da9f50e7dd9055a1979782baa9",
+          "role": "source-manifest"
+        },
+        "priorEvidenceRetained": true,
+        "semanticCertification": false
       }
     },
     "sole-trigger-choice-controller-2026-10-18": {
       "evidenceCommit": "fc106dcf29d996e09994d582378bdf4d8472618b",
       "evidenceCommitScope": "Prior fixed fc evidence only. Current WIP source revision and actual compiled modules independently pinned; source equality is not compiled identity equality.",
-      "currentImplementationCommit": "5c27863d806afd9e78726a1ded30c5a55b52bdc5",
+      "currentImplementationCommit": "0469327e01010ba67e366432510a401d0cbbe8ac",
       "currentImplementationIncludesUncommittedChanges": true,
       "ciState": "PENDING",
       "ciReceipts": [],
@@ -23909,11 +24179,11 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "7dea07e944571abad1a71d92f2f4b280755f60f8144fa7fca3fc109393feb7b2"
+          "sha256": "7f775f9189cba797c81cf5682061db38384a61c27760e20fadb6c284e7ce0cf5"
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "4b2251dfeae61a554a29ed97b60c155e2729b3e0e7c5852ce2bc1917a4e7e09b"
+          "sha256": "e0f98459bb4edb1954db5c60795a6d6eed66b1f7927cc118110b840631fc910d"
         },
         {
           "path": "src/Riftbound.Engine/TriggerQueueRecoveryRules.cs",
@@ -24512,6 +24782,15 @@
         "onlyCurrentInputPinsNotWholeSemanticCertification": true,
         "allPriorEvidenceAndOptionalVerificationReferencesRetained": true,
         "newFixedFullAndProducts": "OPEN"
+      },
+      "currentN51InputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/burnout-inner-cleanup-and-garen-current-cn16-2026-10-23/source-manifest.json",
+          "sha256": "6449be64fc3d7fd968d0186b6a6e589cbd6676da9f50e7dd9055a1979782baa9",
+          "role": "source-manifest"
+        },
+        "priorEvidenceRetained": true,
+        "semanticCertification": false
       }
     },
     "fate-weaver-private-spell-choice-2026-10-18": {
@@ -25127,7 +25406,7 @@
     "multi-controller-neutral-trigger-order-2026-10-18": {
       "evidenceCommit": "f199451ae6ceb135fa4fe4eafcba03e73ec9b99d",
       "evidenceCommitScope": "Actual fixedf199 Release5d3a ordinary red and pre-fix Debug81c2 only. Current WIP417 and fixed candidate inputs/data are independently pinned; source equality is not executing binary equality.",
-      "currentImplementationCommit": "5c27863d806afd9e78726a1ded30c5a55b52bdc5",
+      "currentImplementationCommit": "0469327e01010ba67e366432510a401d0cbbe8ac",
       "currentImplementationIncludesUncommittedChanges": true,
       "currentInputRevision": "816510de29c4c161efef9bf564db861cb2de5d2ac71519413d56d39ede7268bb",
       "ciState": "PENDING",
@@ -25135,7 +25414,7 @@
       "implementation": [
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "4b2251dfeae61a554a29ed97b60c155e2729b3e0e7c5852ce2bc1917a4e7e09b",
+          "sha256": "e0f98459bb4edb1954db5c60795a6d6eed66b1f7927cc118110b840631fc910d",
           "role": "implementation"
         },
         {
@@ -25145,7 +25424,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "7dea07e944571abad1a71d92f2f4b280755f60f8144fa7fca3fc109393feb7b2",
+          "sha256": "7f775f9189cba797c81cf5682061db38384a61c27760e20fadb6c284e7ce0cf5",
           "role": "implementation"
         },
         {
@@ -25820,6 +26099,15 @@
         "onlyCurrentInputPinsNotWholeSemanticCertification": true,
         "allPriorEvidenceAndOptionalVerificationReferencesRetained": true,
         "newFixedFullAndProducts": "OPEN"
+      },
+      "currentN51InputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/burnout-inner-cleanup-and-garen-current-cn16-2026-10-23/source-manifest.json",
+          "sha256": "6449be64fc3d7fd968d0186b6a6e589cbd6676da9f50e7dd9055a1979782baa9",
+          "role": "source-manifest"
+        },
+        "priorEvidenceRetained": true,
+        "semanticCertification": false
       }
     },
     "empty-observed-deck-paid-repeat-2026-10-18": {
@@ -26957,7 +27245,7 @@
     "observed-source-native-ui-2026-10-18": {
       "evidenceCommit": "8c6d569e7be024b278cda46c09c262f061e53ab8",
       "evidenceCommitScope": "Prior fixed8c Release d4 visible46/282/normal8:0 is separate. Current uncommitted Debug bad341/combined47228 and actual native client modules pinned independently. Fixed48 CI cancelled by3h timeout, never full success.",
-      "currentImplementationCommit": "5c27863d806afd9e78726a1ded30c5a55b52bdc5",
+      "currentImplementationCommit": "0469327e01010ba67e366432510a401d0cbbe8ac",
       "currentImplementationIncludesUncommittedChanges": true,
       "currentInputRevision": "816510de29c4c161efef9bf564db861cb2de5d2ac71519413d56d39ede7268bb",
       "ciState": "PENDING",
@@ -26965,7 +27253,7 @@
       "implementation": [
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "7dea07e944571abad1a71d92f2f4b280755f60f8144fa7fca3fc109393feb7b2",
+          "sha256": "7f775f9189cba797c81cf5682061db38384a61c27760e20fadb6c284e7ce0cf5",
           "role": "implementation"
         },
         {
@@ -27479,12 +27767,21 @@
         "onlyCurrentInputPinsNotWholeSemanticCertification": true,
         "allPriorEvidenceAndOptionalVerificationReferencesRetained": true,
         "newFixedFullAndProducts": "OPEN"
+      },
+      "currentN51InputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/burnout-inner-cleanup-and-garen-current-cn16-2026-10-23/source-manifest.json",
+          "sha256": "6449be64fc3d7fd968d0186b6a6e589cbd6676da9f50e7dd9055a1979782baa9",
+          "role": "source-manifest"
+        },
+        "priorEvidenceRetained": true,
+        "semanticCertification": false
       }
     },
     "ravenbloom-put-hand-2026-10-18": {
       "evidenceCommit": "21e505c32e29e1595251ccd571d80d176b95c98c",
       "evidenceCommitScope": "Actual current uncommitted Debug8e6/combined15660 is independently bound to SQL and Conformance. Prior semantic-only a2c and fixed21 Release56b/combinedb263 are separate. Actual fixed8c full cancelled by3h timeout is never promoted to success.",
-      "currentImplementationCommit": "5c27863d806afd9e78726a1ded30c5a55b52bdc5",
+      "currentImplementationCommit": "0469327e01010ba67e366432510a401d0cbbe8ac",
       "currentImplementationIncludesUncommittedChanges": true,
       "currentInputRevision": "816510de29c4c161efef9bf564db861cb2de5d2ac71519413d56d39ede7268bb",
       "ciState": "PENDING",
@@ -27492,12 +27789,12 @@
       "implementation": [
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "4b2251dfeae61a554a29ed97b60c155e2729b3e0e7c5852ce2bc1917a4e7e09b",
+          "sha256": "e0f98459bb4edb1954db5c60795a6d6eed66b1f7927cc118110b840631fc910d",
           "role": "implementation"
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "7dea07e944571abad1a71d92f2f4b280755f60f8144fa7fca3fc109393feb7b2",
+          "sha256": "7f775f9189cba797c81cf5682061db38384a61c27760e20fadb6c284e7ce0cf5",
           "role": "implementation"
         },
         {
@@ -28328,6 +28625,15 @@
         "onlyCurrentInputPinsNotWholeSemanticCertification": true,
         "allPriorEvidenceAndOptionalVerificationReferencesRetained": true,
         "newFixedFullAndProducts": "OPEN"
+      },
+      "currentN51InputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/burnout-inner-cleanup-and-garen-current-cn16-2026-10-23/source-manifest.json",
+          "sha256": "6449be64fc3d7fd968d0186b6a6e589cbd6676da9f50e7dd9055a1979782baa9",
+          "role": "source-manifest"
+        },
+        "priorEvidenceRetained": true,
+        "semanticCertification": false
       }
     },
     "copied-predict-2026-10-18": {
@@ -29162,7 +29468,7 @@
     "copied-last-breath-insight-2026-10-19": {
       "evidenceCommit": "447cf56b79fb3bc68c8b47254dadf46f8ca15c05",
       "evidenceCommitScope": "Actual precommit Debug a97015 / combined e2e37f binds274 scoped cases, SQL, original116 games and the single check. Old Debug3b782 / combined d1494d exact ordinary red evidence is separate from fixed a9 Release49. Added test assemblies are recorded separately; prior full receipts do not certify the current Q7 product.",
-      "currentImplementationCommit": "5c27863d806afd9e78726a1ded30c5a55b52bdc5",
+      "currentImplementationCommit": "0469327e01010ba67e366432510a401d0cbbe8ac",
       "currentImplementationIncludesUncommittedChanges": true,
       "currentInputRevision": "816510de29c4c161efef9bf564db861cb2de5d2ac71519413d56d39ede7268bb",
       "ciState": "PENDING",
@@ -29188,7 +29494,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "4b2251dfeae61a554a29ed97b60c155e2729b3e0e7c5852ce2bc1917a4e7e09b",
+          "sha256": "e0f98459bb4edb1954db5c60795a6d6eed66b1f7927cc118110b840631fc910d",
           "role": "implementation"
         },
         {
@@ -29198,7 +29504,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "7dea07e944571abad1a71d92f2f4b280755f60f8144fa7fca3fc109393feb7b2",
+          "sha256": "7f775f9189cba797c81cf5682061db38384a61c27760e20fadb6c284e7ce0cf5",
           "role": "implementation"
         },
         {
@@ -30300,11 +30606,20 @@
         "onlyCurrentInputPinsNotWholeSemanticCertification": true,
         "allPriorEvidenceAndOptionalVerificationReferencesRetained": true,
         "newFixedFullAndProducts": "OPEN"
+      },
+      "currentN51InputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/burnout-inner-cleanup-and-garen-current-cn16-2026-10-23/source-manifest.json",
+          "sha256": "6449be64fc3d7fd968d0186b6a6e589cbd6676da9f50e7dd9055a1979782baa9",
+          "role": "source-manifest"
+        },
+        "priorEvidenceRetained": true,
+        "semanticCertification": false
       }
     },
     "copied-duel-insight-2026-10-19": {
       "evidenceCommit": "3d690c3511ee8f96e57bad87c2e34691a3148e30",
-      "currentImplementationCommit": "5c27863d806afd9e78726a1ded30c5a55b52bdc5",
+      "currentImplementationCommit": "0469327e01010ba67e366432510a401d0cbbe8ac",
       "evidenceCommitScope": "Uncommitted actual Debug70ce scoped201,ordinary16,SQL8,original116 and one check12781pass4diagnosticexpectationfailures,repairedby32focusonbyteidenticalCore.TestDLL/PDBphase separatelypinned.Fixed3d Release24e locked native is separate; its actual full failed on original driver. New fixed full pending.",
       "currentImplementationIncludesUncommittedChanges": true,
       "currentInputRevision": "816510de29c4c161efef9bf564db861cb2de5d2ac71519413d56d39ede7268bb",
@@ -30331,7 +30646,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "7dea07e944571abad1a71d92f2f4b280755f60f8144fa7fca3fc109393feb7b2",
+          "sha256": "7f775f9189cba797c81cf5682061db38384a61c27760e20fadb6c284e7ce0cf5",
           "role": "implementation"
         },
         {
@@ -31418,6 +31733,15 @@
         "onlyCurrentInputPinsNotWholeSemanticCertification": true,
         "allPriorEvidenceAndOptionalVerificationReferencesRetained": true,
         "newFixedFullAndProducts": "OPEN"
+      },
+      "currentN51InputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/burnout-inner-cleanup-and-garen-current-cn16-2026-10-23/source-manifest.json",
+          "sha256": "6449be64fc3d7fd968d0186b6a6e589cbd6676da9f50e7dd9055a1979782baa9",
+          "role": "source-manifest"
+        },
+        "priorEvidenceRetained": true,
+        "semanticCertification": false
       }
     },
     "private-opening-resource-driver-2026-10-19": {
@@ -31926,7 +32250,7 @@
     },
     "empowered-insight-2026-10-19": {
       "evidenceCommit": "c6af0a41d28326b7dd2ec18b9b1a3d176a6a2b99",
-      "currentImplementationCommit": "5c27863d806afd9e78726a1ded30c5a55b52bdc5",
+      "currentImplementationCommit": "0469327e01010ba67e366432510a401d0cbbe8ac",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Actual uncommitted N9 Debug6993 identity:79directed,12ordinary,12realSQL,6earlyoriginal,onecheck12862pass14metadataexpectationfailures; all14resolvedby438distinctpassingfocusidentities over439executions. Ten non-test modules byte-exact; only four rule DLLs are shared with frozen SQL runtime. New fixed Release/full and current visible/Windows gates remain separate.",
       "currentInputRevision": "816510de29c4c161efef9bf564db861cb2de5d2ac71519413d56d39ede7268bb",
@@ -31968,7 +32292,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "7dea07e944571abad1a71d92f2f4b280755f60f8144fa7fca3fc109393feb7b2",
+          "sha256": "7f775f9189cba797c81cf5682061db38384a61c27760e20fadb6c284e7ce0cf5",
           "role": "implementation"
         }
       ],
@@ -33107,6 +33431,15 @@
         "onlyCurrentInputPinsNotWholeSemanticCertification": true,
         "allPriorEvidenceAndOptionalVerificationReferencesRetained": true,
         "newFixedFullAndProducts": "OPEN"
+      },
+      "currentN51InputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/burnout-inner-cleanup-and-garen-current-cn16-2026-10-23/source-manifest.json",
+          "sha256": "6449be64fc3d7fd968d0186b6a6e589cbd6676da9f50e7dd9055a1979782baa9",
+          "role": "source-manifest"
+        },
+        "priorEvidenceRetained": true,
+        "semanticCertification": false
       }
     },
     "pakaa-native-move-reveal-2026-10-19": {
@@ -34633,7 +34966,7 @@
     },
     "observed-disclosure-wording-and-stale-native-smoke-2026-10-19": {
       "evidenceCommit": "6d9aee51e5259313b319ad555f8f44572563b3df",
-      "currentImplementationCommit": "5c27863d806afd9e78726a1ded30c5a55b52bdc5",
+      "currentImplementationCommit": "0469327e01010ba67e366432510a401d0cbbe8ac",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Actual precommit N12 Debug identity in32 controlled and12 ordinary cases and one check; prior fixed6d9 actual Release acceptance is separate. New native source fix is not yet a native execution certificate.",
       "currentInputRevision": "816510de29c4c161efef9bf564db861cb2de5d2ac71519413d56d39ede7268bb",
@@ -34660,7 +34993,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "7dea07e944571abad1a71d92f2f4b280755f60f8144fa7fca3fc109393feb7b2",
+          "sha256": "7f775f9189cba797c81cf5682061db38384a61c27760e20fadb6c284e7ce0cf5",
           "role": "implementation"
         },
         {
@@ -35535,6 +35868,15 @@
         "onlyCurrentInputPinsNotWholeSemanticCertification": true,
         "allPriorEvidenceAndOptionalVerificationReferencesRetained": true,
         "newFixedFullAndProducts": "OPEN"
+      },
+      "currentN51InputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/burnout-inner-cleanup-and-garen-current-cn16-2026-10-23/source-manifest.json",
+          "sha256": "6449be64fc3d7fd968d0186b6a6e589cbd6676da9f50e7dd9055a1979782baa9",
+          "role": "source-manifest"
+        },
+        "priorEvidenceRetained": true,
+        "semanticCertification": false
       }
     },
     "initial-empty-reveal-followup-specific432-2026-10-19": {
@@ -36616,7 +36958,7 @@
     },
     "hwei-move-draw-discard-all-printed-types-2026-10-20": {
       "evidenceCommit": "b294bb150d877b3399cd9e120bbaec5c75e353cf",
-      "currentImplementationCommit": "5c27863d806afd9e78726a1ded30c5a55b52bdc5",
+      "currentImplementationCommit": "0469327e01010ba67e366432510a401d0cbbe8ac",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Baseb294 plus declared uncommitted Hwei sources/tests/SQL. Actual local Debugdb884 and Releasef4a are separate from older797f native and future fixed commit modules.",
       "currentInputRevision": "816510de29c4c161efef9bf564db861cb2de5d2ac71519413d56d39ede7268bb",
@@ -36668,7 +37010,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "4b2251dfeae61a554a29ed97b60c155e2729b3e0e7c5852ce2bc1917a4e7e09b",
+          "sha256": "e0f98459bb4edb1954db5c60795a6d6eed66b1f7927cc118110b840631fc910d",
           "role": "implementation"
         },
         {
@@ -37287,11 +37629,20 @@
         "onlyCurrentInputPinsNotWholeSemanticCertification": true,
         "allPriorEvidenceAndOptionalVerificationReferencesRetained": true,
         "newFixedFullAndProducts": "OPEN"
+      },
+      "currentN51InputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/burnout-inner-cleanup-and-garen-current-cn16-2026-10-23/source-manifest.json",
+          "sha256": "6449be64fc3d7fd968d0186b6a6e589cbd6676da9f50e7dd9055a1979782baa9",
+          "role": "source-manifest"
+        },
+        "priorEvidenceRetained": true,
+        "semanticCertification": false
       }
     },
     "destruction-attribution-delayed-skill-graveyard-play-2026-10-20": {
       "evidenceCommit": "08fd25c0dc643f9120b529f039feed69beffc251",
-      "currentImplementationCommit": "5c27863d806afd9e78726a1ded30c5a55b52bdc5",
+      "currentImplementationCommit": "0469327e01010ba67e366432510a401d0cbbe8ac",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Base08fd plus declared uncommitted source/test/SQL/CI inputs. Actual precommit Debug and Release evidence distinct from old08fd native and future fixed modules.",
       "currentInputRevision": "816510de29c4c161efef9bf564db861cb2de5d2ac71519413d56d39ede7268bb",
@@ -37363,7 +37714,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "4b2251dfeae61a554a29ed97b60c155e2729b3e0e7c5852ce2bc1917a4e7e09b",
+          "sha256": "e0f98459bb4edb1954db5c60795a6d6eed66b1f7927cc118110b840631fc910d",
           "role": "implementation"
         },
         {
@@ -37378,7 +37729,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "7dea07e944571abad1a71d92f2f4b280755f60f8144fa7fca3fc109393feb7b2",
+          "sha256": "7f775f9189cba797c81cf5682061db38384a61c27760e20fadb6c284e7ce0cf5",
           "role": "implementation"
         }
       ],
@@ -38651,11 +39002,20 @@
         "onlyCurrentInputPinsNotWholeSemanticCertification": true,
         "allPriorEvidenceAndOptionalVerificationReferencesRetained": true,
         "newFixedFullAndProducts": "OPEN"
+      },
+      "currentN51InputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/burnout-inner-cleanup-and-garen-current-cn16-2026-10-23/source-manifest.json",
+          "sha256": "6449be64fc3d7fd968d0186b6a6e589cbd6676da9f50e7dd9055a1979782baa9",
+          "role": "source-manifest"
+        },
+        "priorEvidenceRetained": true,
+        "semanticCertification": false
       }
     },
     "graveyard-source-reference-occupation-and-original-generation-2026-10-20": {
       "evidenceCommit": "e262ebf164e448cc9738d94db8e557f302cfc295",
-      "currentImplementationCommit": "5c27863d806afd9e78726a1ded30c5a55b52bdc5",
+      "currentImplementationCommit": "0469327e01010ba67e366432510a401d0cbbe8ac",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Basee262 plus exact declared source/test inputs. Prior e262 Release/native remains a separate version.",
       "currentInputRevision": "816510de29c4c161efef9bf564db861cb2de5d2ac71519413d56d39ede7268bb",
@@ -38672,7 +39032,7 @@
       "implementation": [
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "4b2251dfeae61a554a29ed97b60c155e2729b3e0e7c5852ce2bc1917a4e7e09b",
+          "sha256": "e0f98459bb4edb1954db5c60795a6d6eed66b1f7927cc118110b840631fc910d",
           "role": "implementation"
         },
         {
@@ -39252,6 +39612,15 @@
         "onlyCurrentInputPinsNotWholeSemanticCertification": true,
         "allPriorEvidenceAndOptionalVerificationReferencesRetained": true,
         "newFixedFullAndProducts": "OPEN"
+      },
+      "currentN51InputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/burnout-inner-cleanup-and-garen-current-cn16-2026-10-23/source-manifest.json",
+          "sha256": "6449be64fc3d7fd968d0186b6a6e589cbd6676da9f50e7dd9055a1979782baa9",
+          "role": "source-manifest"
+        },
+        "priorEvidenceRetained": true,
+        "semanticCertification": false
       }
     },
     "native-offline-start-same-server-preconstructed-retry-2026-10-20": {
@@ -39443,7 +39812,7 @@
     },
     "conditional-counter-target-controller-mana-and-printed-echo-2026-10-20": {
       "evidenceCommit": "48e7ff8702dc43a1b5a3991365d87068506ae137",
-      "currentImplementationCommit": "5c27863d806afd9e78726a1ded30c5a55b52bdc5",
+      "currentImplementationCommit": "0469327e01010ba67e366432510a401d0cbbe8ac",
       "currentImplementationIncludesUncommittedChanges": true,
       "evidenceCommitScope": "Base48 plus declared conditional-counter implementation/tests/presentation. Historical sole check63e, pre-wording Release19d and current Release713 are distinct actual identities.",
       "currentInputRevision": "816510de29c4c161efef9bf564db861cb2de5d2ac71519413d56d39ede7268bb",
@@ -39466,7 +39835,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "4b2251dfeae61a554a29ed97b60c155e2729b3e0e7c5852ce2bc1917a4e7e09b",
+          "sha256": "e0f98459bb4edb1954db5c60795a6d6eed66b1f7927cc118110b840631fc910d",
           "role": "implementation"
         },
         {
@@ -39481,7 +39850,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "7dea07e944571abad1a71d92f2f4b280755f60f8144fa7fca3fc109393feb7b2",
+          "sha256": "7f775f9189cba797c81cf5682061db38384a61c27760e20fadb6c284e7ce0cf5",
           "role": "implementation"
         },
         {
@@ -40166,6 +40535,15 @@
         "onlyCurrentInputPinsNotWholeSemanticCertification": true,
         "allPriorEvidenceAndOptionalVerificationReferencesRetained": true,
         "newFixedFullAndProducts": "OPEN"
+      },
+      "currentN51InputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/burnout-inner-cleanup-and-garen-current-cn16-2026-10-23/source-manifest.json",
+          "sha256": "6449be64fc3d7fd968d0186b6a6e589cbd6676da9f50e7dd9055a1979782baa9",
+          "role": "source-manifest"
+        },
+        "priorEvidenceRetained": true,
+        "semanticCertification": false
       }
     },
     "native-signalr-dependency-and-runtime-patch-2026-10-20": {
@@ -40351,7 +40729,7 @@
     },
     "reversal-optional-target-choices-and-shared-control-2026-10-20": {
       "evidenceCommit": "43d5b84e867eb09ca0570ed8774832ce70b04d87",
-      "currentImplementationCommit": "5c27863d806afd9e78726a1ded30c5a55b52bdc5",
+      "currentImplementationCommit": "0469327e01010ba67e366432510a401d0cbbe8ac",
       "currentImplementationIncludesUncommittedChanges": true,
       "currentInputRevision": "816510de29c4c161efef9bf564db861cb2de5d2ac71519413d56d39ede7268bb",
       "ciState": "PENDING",
@@ -40374,7 +40752,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "4b2251dfeae61a554a29ed97b60c155e2729b3e0e7c5852ce2bc1917a4e7e09b",
+          "sha256": "e0f98459bb4edb1954db5c60795a6d6eed66b1f7927cc118110b840631fc910d",
           "role": "implementation"
         },
         {
@@ -41019,6 +41397,15 @@
         "onlyCurrentInputPinsNotWholeSemanticCertification": true,
         "allPriorEvidenceAndOptionalVerificationReferencesRetained": true,
         "newFixedFullAndProducts": "OPEN"
+      },
+      "currentN51InputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/burnout-inner-cleanup-and-garen-current-cn16-2026-10-23/source-manifest.json",
+          "sha256": "6449be64fc3d7fd968d0186b6a6e589cbd6676da9f50e7dd9055a1979782baa9",
+          "role": "source-manifest"
+        },
+        "priorEvidenceRetained": true,
+        "semanticCertification": false
       }
     },
     "native-spell-choice-presentation-and-original-sql-driver-2026-10-20": {
@@ -41948,7 +42335,7 @@
     },
     "candlelit-current-cn16-five-private-look-sql-2026-10-21": {
       "evidenceCommit": "c2bea309e2b73cdd730f57bf8761bb04a6c42ce8",
-      "currentImplementationCommit": "5c27863d806afd9e78726a1ded30c5a55b52bdc5",
+      "currentImplementationCommit": "0469327e01010ba67e366432510a401d0cbbe8ac",
       "currentImplementationIncludesUncommittedChanges": true,
       "ciState": "PENDING",
       "ciReceipts": [],
@@ -41964,7 +42351,7 @@
       "implementation": [
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.Conquest.cs",
-          "sha256": "87c139a46b4bfa61701b8bbd714635e38707091ff49b068f643fb2f15c01e0d3",
+          "sha256": "e0e460a99309ef3c519a16f204fcef0f97ffbea360bbe4835cee7b74e19a3b07",
           "role": "implementation"
         },
         {
@@ -42552,11 +42939,20 @@
         "onlyCurrentInputPinsNotWholeSemanticCertification": true,
         "allPriorEvidenceAndOptionalVerificationReferencesRetained": true,
         "newFixedFullAndProducts": "OPEN"
+      },
+      "currentN51InputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/burnout-inner-cleanup-and-garen-current-cn16-2026-10-23/source-manifest.json",
+          "sha256": "6449be64fc3d7fd968d0186b6a6e589cbd6676da9f50e7dd9055a1979782baa9",
+          "role": "source-manifest"
+        },
+        "priorEvidenceRetained": true,
+        "semanticCertification": false
       }
     },
     "candlelit-nocturne-current-cn16-three-original-set-sql-2026-10-21": {
       "evidenceCommit": "39eacb2e22ce365c2d56750382518bfcd1bdf32a",
-      "currentImplementationCommit": "5c27863d806afd9e78726a1ded30c5a55b52bdc5",
+      "currentImplementationCommit": "0469327e01010ba67e366432510a401d0cbbe8ac",
       "currentImplementationIncludesUncommittedChanges": true,
       "ciState": "PENDING",
       "ciReceipts": [],
@@ -42572,7 +42968,7 @@
       "implementation": [
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.Conquest.cs",
-          "sha256": "87c139a46b4bfa61701b8bbd714635e38707091ff49b068f643fb2f15c01e0d3",
+          "sha256": "e0e460a99309ef3c519a16f204fcef0f97ffbea360bbe4835cee7b74e19a3b07",
           "role": "implementation"
         },
         {
@@ -42885,6 +43281,15 @@
         "onlyCurrentInputPinsNotWholeSemanticCertification": true,
         "allPriorEvidenceAndOptionalVerificationReferencesRetained": true,
         "newFixedFullAndProducts": "OPEN"
+      },
+      "currentN51InputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/burnout-inner-cleanup-and-garen-current-cn16-2026-10-23/source-manifest.json",
+          "sha256": "6449be64fc3d7fd968d0186b6a6e589cbd6676da9f50e7dd9055a1979782baa9",
+          "role": "source-manifest"
+        },
+        "priorEvidenceRetained": true,
+        "semanticCertification": false
       }
     },
     "deck-play-ordered-jsonb-current-cn16-2026-10-21": {
@@ -43648,7 +44053,7 @@
     },
     "void-gate-selected-battlefield-current-cn16-2026-10-21": {
       "evidenceCommit": "2b83ed2e6243f9e73cd92269f549867f02ea98ea",
-      "currentImplementationCommit": "5c27863d806afd9e78726a1ded30c5a55b52bdc5",
+      "currentImplementationCommit": "0469327e01010ba67e366432510a401d0cbbe8ac",
       "currentImplementationIncludesUncommittedChanges": true,
       "ciState": "PENDING",
       "ciReceipts": [],
@@ -43684,7 +44089,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "4b2251dfeae61a554a29ed97b60c155e2729b3e0e7c5852ce2bc1917a4e7e09b",
+          "sha256": "e0f98459bb4edb1954db5c60795a6d6eed66b1f7927cc118110b840631fc910d",
           "role": "implementation"
         }
       ],
@@ -44100,11 +44505,20 @@
         "onlyCurrentInputPinsNotWholeSemanticCertification": true,
         "allPriorEvidenceAndOptionalVerificationReferencesRetained": true,
         "newFixedFullAndProducts": "OPEN"
+      },
+      "currentN51InputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/burnout-inner-cleanup-and-garen-current-cn16-2026-10-23/source-manifest.json",
+          "sha256": "6449be64fc3d7fd968d0186b6a6e589cbd6676da9f50e7dd9055a1979782baa9",
+          "role": "source-manifest"
+        },
+        "priorEvidenceRetained": true,
+        "semanticCertification": false
       }
     },
     "exhausted-reksai-current-cn16-2026-10-21": {
       "evidenceCommit": "708a3558040f9acd4c66122a00db8ca085f460cf",
-      "currentImplementationCommit": "5c27863d806afd9e78726a1ded30c5a55b52bdc5",
+      "currentImplementationCommit": "0469327e01010ba67e366432510a401d0cbbe8ac",
       "currentImplementationIncludesUncommittedChanges": true,
       "ciState": "PENDING",
       "ciReceipts": [],
@@ -44145,7 +44559,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "4b2251dfeae61a554a29ed97b60c155e2729b3e0e7c5852ce2bc1917a4e7e09b",
+          "sha256": "e0f98459bb4edb1954db5c60795a6d6eed66b1f7927cc118110b840631fc910d",
           "role": "implementation"
         },
         {
@@ -44600,11 +45014,20 @@
         "onlyCurrentInputPinsNotWholeSemanticCertification": true,
         "allPriorEvidenceAndOptionalVerificationReferencesRetained": true,
         "newFixedFullAndProducts": "OPEN"
+      },
+      "currentN51InputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/burnout-inner-cleanup-and-garen-current-cn16-2026-10-23/source-manifest.json",
+          "sha256": "6449be64fc3d7fd968d0186b6a6e589cbd6676da9f50e7dd9055a1979782baa9",
+          "role": "source-manifest"
+        },
+        "priorEvidenceRetained": true,
+        "semanticCertification": false
       }
     },
     "teemo-counted-current-cn16-2026-10-21": {
       "evidenceCommit": "25c628e74b25ea13f02602bae0d1056cc5b190ae",
-      "currentImplementationCommit": "5c27863d806afd9e78726a1ded30c5a55b52bdc5",
+      "currentImplementationCommit": "0469327e01010ba67e366432510a401d0cbbe8ac",
       "currentImplementationIncludesUncommittedChanges": true,
       "ciState": "PENDING",
       "ciReceipts": [],
@@ -44625,7 +45048,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "4b2251dfeae61a554a29ed97b60c155e2729b3e0e7c5852ce2bc1917a4e7e09b",
+          "sha256": "e0f98459bb4edb1954db5c60795a6d6eed66b1f7927cc118110b840631fc910d",
           "role": "implementation"
         },
         {
@@ -45656,11 +46079,20 @@
         "onlyCurrentInputPinsNotWholeSemanticCertification": true,
         "allPriorEvidenceAndOptionalVerificationReferencesRetained": true,
         "newFixedFullAndProducts": "OPEN"
+      },
+      "currentN51InputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/burnout-inner-cleanup-and-garen-current-cn16-2026-10-23/source-manifest.json",
+          "sha256": "6449be64fc3d7fd968d0186b6a6e589cbd6676da9f50e7dd9055a1979782baa9",
+          "role": "source-manifest"
+        },
+        "priorEvidenceRetained": true,
+        "semanticCertification": false
       }
     },
     "controller-damage-current-cn16-2026-10-21": {
       "evidenceCommit": "99e20b4f0640d7b32adbfb9e7dc0c7661b22d37a",
-      "currentImplementationCommit": "5c27863d806afd9e78726a1ded30c5a55b52bdc5",
+      "currentImplementationCommit": "0469327e01010ba67e366432510a401d0cbbe8ac",
       "currentImplementationIncludesUncommittedChanges": true,
       "ciState": "PENDING",
       "ciReceipts": [],
@@ -45676,7 +46108,7 @@
       "implementation": [
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "4b2251dfeae61a554a29ed97b60c155e2729b3e0e7c5852ce2bc1917a4e7e09b",
+          "sha256": "e0f98459bb4edb1954db5c60795a6d6eed66b1f7927cc118110b840631fc910d",
           "role": "implementation"
         },
         {
@@ -48846,11 +49278,20 @@
         "onlyCurrentInputPinsNotWholeSemanticCertification": true,
         "allPriorEvidenceAndOptionalVerificationReferencesRetained": true,
         "newFixedFullAndProducts": "OPEN"
+      },
+      "currentN51InputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/burnout-inner-cleanup-and-garen-current-cn16-2026-10-23/source-manifest.json",
+          "sha256": "6449be64fc3d7fd968d0186b6a6e589cbd6676da9f50e7dd9055a1979782baa9",
+          "role": "source-manifest"
+        },
+        "priorEvidenceRetained": true,
+        "semanticCertification": false
       }
     },
     "special-trigger-damage-current-cn16-2026-10-22": {
       "evidenceCommit": "7a334e7c1cab701d9506b6cf94f3f3a86d316ef8",
-      "currentImplementationCommit": "5c27863d806afd9e78726a1ded30c5a55b52bdc5",
+      "currentImplementationCommit": "0469327e01010ba67e366432510a401d0cbbe8ac",
       "currentImplementationIncludesUncommittedChanges": true,
       "ciState": "PENDING",
       "ciReceipts": [],
@@ -48877,7 +49318,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "4b2251dfeae61a554a29ed97b60c155e2729b3e0e7c5852ce2bc1917a4e7e09b",
+          "sha256": "e0f98459bb4edb1954db5c60795a6d6eed66b1f7927cc118110b840631fc910d",
           "role": "implementation"
         }
       ],
@@ -51507,6 +51948,15 @@
         "onlyCurrentInputPinsNotWholeSemanticCertification": true,
         "allPriorEvidenceAndOptionalVerificationReferencesRetained": true,
         "newFixedFullAndProducts": "OPEN"
+      },
+      "currentN51InputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/burnout-inner-cleanup-and-garen-current-cn16-2026-10-23/source-manifest.json",
+          "sha256": "6449be64fc3d7fd968d0186b6a6e589cbd6676da9f50e7dd9055a1979782baa9",
+          "role": "source-manifest"
+        },
+        "priorEvidenceRetained": true,
+        "semanticCertification": false
       }
     },
     "frost-controlled-start-source-finding-2026-10-22": {
@@ -51682,7 +52132,7 @@
     },
     "native-late-seat-historical-replay-finding-2026-10-22": {
       "evidenceCommit": "7a334e7c1cab701d9506b6cf94f3f3a86d316ef8",
-      "currentImplementationCommit": "5c27863d806afd9e78726a1ded30c5a55b52bdc5",
+      "currentImplementationCommit": "0469327e01010ba67e366432510a401d0cbbe8ac",
       "currentImplementationIncludesUncommittedChanges": true,
       "ciState": "PENDING",
       "ciReceipts": [],
@@ -51699,7 +52149,7 @@
       "implementation": [
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "7dea07e944571abad1a71d92f2f4b280755f60f8144fa7fca3fc109393feb7b2",
+          "sha256": "7f775f9189cba797c81cf5682061db38384a61c27760e20fadb6c284e7ce0cf5",
           "role": "implementation"
         },
         {
@@ -51891,11 +52341,20 @@
         "onlyCurrentInputPinsNotWholeSemanticCertification": true,
         "allPriorEvidenceAndOptionalVerificationReferencesRetained": true,
         "newFixedFullAndProducts": "OPEN"
+      },
+      "currentN51InputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/burnout-inner-cleanup-and-garen-current-cn16-2026-10-23/source-manifest.json",
+          "sha256": "6449be64fc3d7fd968d0186b6a6e589cbd6676da9f50e7dd9055a1979782baa9",
+          "role": "source-manifest"
+        },
+        "priorEvidenceRetained": true,
+        "semanticCertification": false
       }
     },
     "room-seat-journal-inputs-2026-10-22": {
       "evidenceCommit": "be0e7a88d86e191d87404488a8ecc4777411dfb7",
-      "currentImplementationCommit": "5c27863d806afd9e78726a1ded30c5a55b52bdc5",
+      "currentImplementationCommit": "0469327e01010ba67e366432510a401d0cbbe8ac",
       "currentImplementationIncludesUncommittedChanges": true,
       "ciState": "PENDING",
       "ciReceipts": [],
@@ -51911,7 +52370,7 @@
       "implementation": [
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "7dea07e944571abad1a71d92f2f4b280755f60f8144fa7fca3fc109393feb7b2",
+          "sha256": "7f775f9189cba797c81cf5682061db38384a61c27760e20fadb6c284e7ce0cf5",
           "role": "implementation"
         },
         {
@@ -53020,6 +53479,15 @@
         "onlyCurrentInputPinsNotWholeSemanticCertification": true,
         "allPriorEvidenceAndOptionalVerificationReferencesRetained": true,
         "newFixedFullAndProducts": "OPEN"
+      },
+      "currentN51InputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/burnout-inner-cleanup-and-garen-current-cn16-2026-10-23/source-manifest.json",
+          "sha256": "6449be64fc3d7fd968d0186b6a6e589cbd6676da9f50e7dd9055a1979782baa9",
+          "role": "source-manifest"
+        },
+        "priorEvidenceRetained": true,
+        "semanticCertification": false
       }
     },
     "room-seat-peer-notifications-2026-10-22": {
@@ -53508,7 +53976,7 @@
     },
     "battlefield-start-controller-current-cn16-2026-10-22": {
       "evidenceCommit": "401470234dcd9dc4d72fe89dd79e99187096277f",
-      "currentImplementationCommit": "5c27863d806afd9e78726a1ded30c5a55b52bdc5",
+      "currentImplementationCommit": "0469327e01010ba67e366432510a401d0cbbe8ac",
       "currentImplementationIncludesUncommittedChanges": true,
       "ciState": "PENDING",
       "ciReceipts": [],
@@ -53539,7 +54007,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "7dea07e944571abad1a71d92f2f4b280755f60f8144fa7fca3fc109393feb7b2",
+          "sha256": "7f775f9189cba797c81cf5682061db38384a61c27760e20fadb6c284e7ce0cf5",
           "role": "implementation"
         }
       ],
@@ -55252,11 +55720,20 @@
         "onlyCurrentInputPinsNotWholeSemanticCertification": true,
         "allPriorEvidenceAndOptionalVerificationReferencesRetained": true,
         "newFixedFullAndProducts": "OPEN"
+      },
+      "currentN51InputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/burnout-inner-cleanup-and-garen-current-cn16-2026-10-23/source-manifest.json",
+          "sha256": "6449be64fc3d7fd968d0186b6a6e589cbd6676da9f50e7dd9055a1979782baa9",
+          "role": "source-manifest"
+        },
+        "priorEvidenceRetained": true,
+        "semanticCertification": false
       }
     },
     "lab-start-you-current-cn16-2026-10-22": {
       "evidenceCommit": "3f2dc4025834ec649d786646c2d2e72f3483a1d5",
-      "currentImplementationCommit": "5c27863d806afd9e78726a1ded30c5a55b52bdc5",
+      "currentImplementationCommit": "0469327e01010ba67e366432510a401d0cbbe8ac",
       "currentImplementationIncludesUncommittedChanges": true,
       "ciState": "PENDING",
       "ciReceipts": [],
@@ -55287,7 +55764,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "7dea07e944571abad1a71d92f2f4b280755f60f8144fa7fca3fc109393feb7b2",
+          "sha256": "7f775f9189cba797c81cf5682061db38384a61c27760e20fadb6c284e7ce0cf5",
           "role": "implementation"
         }
       ],
@@ -56711,11 +57188,20 @@
         "onlyCurrentInputPinsNotWholeSemanticCertification": true,
         "allPriorEvidenceAndOptionalVerificationReferencesRetained": true,
         "newFixedFullAndProducts": "OPEN"
+      },
+      "currentN51InputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/burnout-inner-cleanup-and-garen-current-cn16-2026-10-23/source-manifest.json",
+          "sha256": "6449be64fc3d7fd968d0186b6a6e589cbd6676da9f50e7dd9055a1979782baa9",
+          "role": "source-manifest"
+        },
+        "priorEvidenceRetained": true,
+        "semanticCertification": false
       }
     },
     "deck-pending-before-parent-current-cn16-2026-10-22": {
       "evidenceCommit": "55fdbabf8731fec795c26584985bd31cc0bcca32",
-      "currentImplementationCommit": "5c27863d806afd9e78726a1ded30c5a55b52bdc5",
+      "currentImplementationCommit": "0469327e01010ba67e366432510a401d0cbbe8ac",
       "currentImplementationIncludesUncommittedChanges": true,
       "ciState": "PENDING",
       "ciReceipts": [],
@@ -56746,7 +57232,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "4b2251dfeae61a554a29ed97b60c155e2729b3e0e7c5852ce2bc1917a4e7e09b",
+          "sha256": "e0f98459bb4edb1954db5c60795a6d6eed66b1f7927cc118110b840631fc910d",
           "role": "implementation"
         },
         {
@@ -56756,7 +57242,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "7dea07e944571abad1a71d92f2f4b280755f60f8144fa7fca3fc109393feb7b2",
+          "sha256": "7f775f9189cba797c81cf5682061db38384a61c27760e20fadb6c284e7ce0cf5",
           "role": "implementation"
         },
         {
@@ -59665,11 +60151,20 @@
         "onlyCurrentInputPinsNotWholeSemanticCertification": true,
         "allPriorEvidenceAndOptionalVerificationReferencesRetained": true,
         "newFixedFullAndProducts": "OPEN"
+      },
+      "currentN51InputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/burnout-inner-cleanup-and-garen-current-cn16-2026-10-23/source-manifest.json",
+          "sha256": "6449be64fc3d7fd968d0186b6a6e589cbd6676da9f50e7dd9055a1979782baa9",
+          "role": "source-manifest"
+        },
+        "priorEvidenceRetained": true,
+        "semanticCertification": false
       }
     },
     "wild-claw-reflexive-current-cn16-2026-10-22": {
       "evidenceCommit": "008a064047aa746e579396a79fba6c9950842023",
-      "currentImplementationCommit": "5c27863d806afd9e78726a1ded30c5a55b52bdc5",
+      "currentImplementationCommit": "0469327e01010ba67e366432510a401d0cbbe8ac",
       "currentImplementationIncludesUncommittedChanges": true,
       "ciState": "PENDING",
       "ciReceipts": [],
@@ -59715,7 +60210,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "4b2251dfeae61a554a29ed97b60c155e2729b3e0e7c5852ce2bc1917a4e7e09b",
+          "sha256": "e0f98459bb4edb1954db5c60795a6d6eed66b1f7927cc118110b840631fc910d",
           "role": "implementation"
         },
         {
@@ -59735,7 +60230,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "7dea07e944571abad1a71d92f2f4b280755f60f8144fa7fca3fc109393feb7b2",
+          "sha256": "7f775f9189cba797c81cf5682061db38384a61c27760e20fadb6c284e7ce0cf5",
           "role": "implementation"
         },
         {
@@ -65817,11 +66312,20 @@
         "onlyCurrentInputPinsNotWholeSemanticCertification": true,
         "allPriorEvidenceAndOptionalVerificationReferencesRetained": true,
         "newFixedFullAndProducts": "OPEN"
+      },
+      "currentN51InputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/burnout-inner-cleanup-and-garen-current-cn16-2026-10-23/source-manifest.json",
+          "sha256": "6449be64fc3d7fd968d0186b6a6e589cbd6676da9f50e7dd9055a1979782baa9",
+          "role": "source-manifest"
+        },
+        "priorEvidenceRetained": true,
+        "semanticCertification": false
       }
     },
     "lightning-rush-flow-current-cn16-2026-10-23": {
       "evidenceCommit": "5edb12e57576358f3ef4a9f9d6da92c313f12437",
-      "currentImplementationCommit": "5c27863d806afd9e78726a1ded30c5a55b52bdc5",
+      "currentImplementationCommit": "0469327e01010ba67e366432510a401d0cbbe8ac",
       "currentImplementationIncludesUncommittedChanges": true,
       "ciState": "PENDING",
       "ciReceipts": [],
@@ -65897,7 +66401,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "4b2251dfeae61a554a29ed97b60c155e2729b3e0e7c5852ce2bc1917a4e7e09b",
+          "sha256": "e0f98459bb4edb1954db5c60795a6d6eed66b1f7927cc118110b840631fc910d",
           "role": "implementation"
         },
         {
@@ -65912,7 +66416,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "7dea07e944571abad1a71d92f2f4b280755f60f8144fa7fca3fc109393feb7b2",
+          "sha256": "7f775f9189cba797c81cf5682061db38384a61c27760e20fadb6c284e7ce0cf5",
           "role": "implementation"
         },
         {
@@ -76048,11 +76552,20 @@
         "onlyCurrentInputPinsNotWholeSemanticCertification": true,
         "allPriorEvidenceAndOptionalVerificationReferencesRetained": true,
         "newFixedFullAndProducts": "OPEN"
+      },
+      "currentN51InputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/burnout-inner-cleanup-and-garen-current-cn16-2026-10-23/source-manifest.json",
+          "sha256": "6449be64fc3d7fd968d0186b6a6e589cbd6676da9f50e7dd9055a1979782baa9",
+          "role": "source-manifest"
+        },
+        "priorEvidenceRetained": true,
+        "semanticCertification": false
       }
     },
     "zero-printed-power-prompt-current-cn16-2026-10-23": {
       "evidenceCommit": "a68bfcf9684c328e999d2a57ec8c6e360528c8a9",
-      "currentImplementationCommit": "5c27863d806afd9e78726a1ded30c5a55b52bdc5",
+      "currentImplementationCommit": "0469327e01010ba67e366432510a401d0cbbe8ac",
       "currentImplementationIncludesUncommittedChanges": true,
       "ciState": "PENDING",
       "ciReceipts": [],
@@ -76068,7 +76581,7 @@
       "implementation": [
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "7dea07e944571abad1a71d92f2f4b280755f60f8144fa7fca3fc109393feb7b2",
+          "sha256": "7f775f9189cba797c81cf5682061db38384a61c27760e20fadb6c284e7ce0cf5",
           "role": "implementation"
         }
       ],
@@ -76367,11 +76880,20 @@
         "onlyCurrentInputPinsNotWholeSemanticCertification": true,
         "allPriorEvidenceAndOptionalVerificationReferencesRetained": true,
         "newFixedFullAndProducts": "OPEN"
+      },
+      "currentN51InputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/burnout-inner-cleanup-and-garen-current-cn16-2026-10-23/source-manifest.json",
+          "sha256": "6449be64fc3d7fd968d0186b6a6e589cbd6676da9f50e7dd9055a1979782baa9",
+          "role": "source-manifest"
+        },
+        "priorEvidenceRetained": true,
+        "semanticCertification": false
       }
     },
     "final-conquest-score-current-cn16-2026-10-23": {
       "evidenceCommit": "f248d7774aca8776d288bb5d702e0b545b116a7e",
-      "currentImplementationCommit": "5c27863d806afd9e78726a1ded30c5a55b52bdc5",
+      "currentImplementationCommit": "0469327e01010ba67e366432510a401d0cbbe8ac",
       "currentImplementationIncludesUncommittedChanges": true,
       "ciState": "PENDING",
       "ciReceipts": [],
@@ -76387,7 +76909,7 @@
       "implementation": [
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "4b2251dfeae61a554a29ed97b60c155e2729b3e0e7c5852ce2bc1917a4e7e09b",
+          "sha256": "e0f98459bb4edb1954db5c60795a6d6eed66b1f7927cc118110b840631fc910d",
           "role": "implementation"
         },
         {
@@ -76397,7 +76919,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "7dea07e944571abad1a71d92f2f4b280755f60f8144fa7fca3fc109393feb7b2",
+          "sha256": "7f775f9189cba797c81cf5682061db38384a61c27760e20fadb6c284e7ce0cf5",
           "role": "implementation"
         },
         {
@@ -77419,11 +77941,20 @@
         "onlyCurrentInputPinsNotWholeSemanticCertification": true,
         "allPriorEvidenceAndOptionalVerificationReferencesRetained": true,
         "newFixedFullAndProducts": "OPEN"
+      },
+      "currentN51InputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/burnout-inner-cleanup-and-garen-current-cn16-2026-10-23/source-manifest.json",
+          "sha256": "6449be64fc3d7fd968d0186b6a6e589cbd6676da9f50e7dd9055a1979782baa9",
+          "role": "source-manifest"
+        },
+        "priorEvidenceRetained": true,
+        "semanticCertification": false
       }
     },
     "first-burnout-action-completion-current-cn16-2026-10-23": {
       "evidenceCommit": "5c27863d806afd9e78726a1ded30c5a55b52bdc5",
-      "currentImplementationCommit": "5c27863d806afd9e78726a1ded30c5a55b52bdc5",
+      "currentImplementationCommit": "0469327e01010ba67e366432510a401d0cbbe8ac",
       "currentImplementationIncludesUncommittedChanges": true,
       "ciState": "PENDING",
       "ciReceipts": [],
@@ -77459,7 +77990,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.Conquest.cs",
-          "sha256": "87c139a46b4bfa61701b8bbd714635e38707091ff49b068f643fb2f15c01e0d3",
+          "sha256": "e0e460a99309ef3c519a16f204fcef0f97ffbea360bbe4835cee7b74e19a3b07",
           "role": "implementation"
         },
         {
@@ -77504,7 +78035,7 @@
         },
         {
           "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
-          "sha256": "4b2251dfeae61a554a29ed97b60c155e2729b3e0e7c5852ce2bc1917a4e7e09b",
+          "sha256": "e0f98459bb4edb1954db5c60795a6d6eed66b1f7927cc118110b840631fc910d",
           "role": "implementation"
         },
         {
@@ -77514,7 +78045,7 @@
         },
         {
           "path": "src/Riftbound.Engine/MatchSession.cs",
-          "sha256": "7dea07e944571abad1a71d92f2f4b280755f60f8144fa7fca3fc109393feb7b2",
+          "sha256": "7f775f9189cba797c81cf5682061db38384a61c27760e20fadb6c284e7ce0cf5",
           "role": "implementation"
         }
       ],
@@ -78410,6 +78941,316 @@
           "path": "docs/evidence/first-burnout-action-completion-current-cn16-2026-10-23/preceding-fixed-f0-nine-rooms-bounded-native.json",
           "sha256": "bde3fc5ef336841d60edbe954c1c3a004db93ad7228935fba080320eadb33397",
           "role": "prior-fixed-native-only"
+        }
+      ],
+      "currentN51InputRefresh": {
+        "sourceManifest": {
+          "path": "docs/evidence/burnout-inner-cleanup-and-garen-current-cn16-2026-10-23/source-manifest.json",
+          "sha256": "6449be64fc3d7fd968d0186b6a6e589cbd6676da9f50e7dd9055a1979782baa9",
+          "role": "source-manifest"
+        },
+        "priorEvidenceRetained": true,
+        "semanticCertification": false
+      }
+    },
+    "burnout-inner-cleanup-and-garen-current-cn16-2026-10-23": {
+      "evidenceCommit": "0469327e01010ba67e366432510a401d0cbbe8ac",
+      "currentImplementationCommit": "0469327e01010ba67e366432510a401d0cbbe8ac",
+      "currentImplementationIncludesUncommittedChanges": true,
+      "ciState": "PENDING",
+      "ciReceipts": [],
+      "implementation": [
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "sha256": "e0f98459bb4edb1954db5c60795a6d6eed66b1f7927cc118110b840631fc910d",
+          "role": "implementation"
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.Conquest.cs",
+          "sha256": "e0e460a99309ef3c519a16f204fcef0f97ffbea360bbe4835cee7b74e19a3b07",
+          "role": "implementation"
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchSession.cs",
+          "sha256": "7f775f9189cba797c81cf5682061db38384a61c27760e20fadb6c284e7ce0cf5",
+          "role": "implementation"
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchSession.VictoryCleanupScenario.cs",
+          "sha256": "e49c905f70d267851dd51f95e5ce70a1baa1ecadc8c17d750715ba3c8993c2fb",
+          "role": "implementation"
+        }
+      ],
+      "verificationSources": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/BurnoutVictoryBeforeCleanupTests.cs",
+          "sha256": "f1aa6d661db70f5de5fb23a1b760b312ce764b3bf4455c41498ace65cefa83f2",
+          "role": "verification-source"
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/OfficialGarenConquestBattlefieldCountTests.cs",
+          "sha256": "41f91095c1364f6660adf95092ef88e99ee6e821866baffc277dbd7546f6955d",
+          "role": "verification-source"
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+          "sha256": "eb6e744566c740507794fc850948ea56216296349ef60ba81bfdeb5fd22fad96",
+          "role": "verification-source"
+        },
+        {
+          "path": "tests/Riftbound.PostgresAcceptance/VictoryCleanupGarenSqlAcceptance.cs",
+          "sha256": "be91787c33a2911c97cf21b544fbc00c6875ac3c111184abb32088dc496f8712",
+          "role": "verification-source"
+        },
+        {
+          "path": "tests/Riftbound.PostgresAcceptance/Program.cs",
+          "sha256": "9097f646f2e8cde201541cdf56ad4d9a71e8330bd93cf7362cbe0402181069df",
+          "role": "verification-source"
+        },
+        {
+          "path": "tests/Riftbound.PostgresAcceptance/SqlAcceptanceCases.json",
+          "sha256": "ec5942c55213c0a77bbe52c0829e40cbe968c3a397a70844b6b35cb70fdbf63e",
+          "role": "verification-source"
+        },
+        {
+          "path": "scripts/tests/test_sql_ci_gate.py",
+          "sha256": "d3fa9c0bce226cec2c27365d48b1f2dd7d0912ab084e39aaa4595e4395f13c08",
+          "role": "verification-source"
+        }
+      ],
+      "branches": [
+        {
+          "id": "N51-D54FD5F04349AC7D",
+          "sourceRefs": [
+            "CN-d6fd7140f106f9b5-P038-B020",
+            "CN-d6fd7140f106f9b5-P038-B021",
+            "CN-d6fd7140f106f9b5-P039-B003",
+            "CN-d6fd7140f106f9b5-P039-B009",
+            "CN-d6fd7140f106f9b5-P082-B009",
+            "CN-d6fd7140f106f9b5-P082-B010",
+            "CN-d6fd7140f106f9b5-P082-B011",
+            "CN-d6fd7140f106f9b5-P082-B012",
+            "CN-d6fd7140f106f9b5-P082-B013",
+            "OGN-109/298",
+            "OGN-047/298",
+            "OGN-071/298",
+            "OGS-022/024"
+          ],
+          "actualExecutedCase": "Riftbound.ConformanceTests.BurnoutVictoryBeforeCleanupTests.FirstBurnoutFinishesDrawAndRuneCallBeforeVictoryOrLethalCleanup(woundedByRealSpell: True, opponentScore: 6)",
+          "sourceManifest": {
+            "path": "docs/evidence/burnout-inner-cleanup-and-garen-current-cn16-2026-10-23/source-manifest.json",
+            "sha256": "6449be64fc3d7fd968d0186b6a6e589cbd6676da9f50e7dd9055a1979782baa9",
+            "role": "source-manifest"
+          },
+          "decision": {
+            "state": "OPEN",
+            "reason": "Bounded execution passed; exact fixed full and remaining backend acceptance are separate."
+          },
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "N51-2D7F5630DC03D0DE",
+          "sourceRefs": [
+            "CN-d6fd7140f106f9b5-P038-B020",
+            "CN-d6fd7140f106f9b5-P038-B021",
+            "CN-d6fd7140f106f9b5-P039-B003",
+            "CN-d6fd7140f106f9b5-P039-B009",
+            "CN-d6fd7140f106f9b5-P082-B009",
+            "CN-d6fd7140f106f9b5-P082-B010",
+            "CN-d6fd7140f106f9b5-P082-B011",
+            "CN-d6fd7140f106f9b5-P082-B012",
+            "CN-d6fd7140f106f9b5-P082-B013",
+            "OGN-109/298",
+            "OGN-047/298",
+            "OGN-071/298",
+            "OGS-022/024"
+          ],
+          "actualExecutedCase": "Riftbound.ConformanceTests.BurnoutVictoryBeforeCleanupTests.FirstBurnoutFinishesDrawAndRuneCallBeforeVictoryOrLethalCleanup(woundedByRealSpell: True, opponentScore: 7)",
+          "sourceManifest": {
+            "path": "docs/evidence/burnout-inner-cleanup-and-garen-current-cn16-2026-10-23/source-manifest.json",
+            "sha256": "6449be64fc3d7fd968d0186b6a6e589cbd6676da9f50e7dd9055a1979782baa9",
+            "role": "source-manifest"
+          },
+          "decision": {
+            "state": "OPEN",
+            "reason": "Bounded execution passed; exact fixed full and remaining backend acceptance are separate."
+          },
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "N51-1ABC50DD569A3407",
+          "sourceRefs": [
+            "CN-d6fd7140f106f9b5-P038-B020",
+            "CN-d6fd7140f106f9b5-P038-B021",
+            "CN-d6fd7140f106f9b5-P039-B003",
+            "CN-d6fd7140f106f9b5-P039-B009",
+            "CN-d6fd7140f106f9b5-P082-B009",
+            "CN-d6fd7140f106f9b5-P082-B010",
+            "CN-d6fd7140f106f9b5-P082-B011",
+            "CN-d6fd7140f106f9b5-P082-B012",
+            "CN-d6fd7140f106f9b5-P082-B013",
+            "OGN-109/298",
+            "OGN-047/298",
+            "OGN-071/298",
+            "OGS-022/024"
+          ],
+          "actualExecutedCase": "Riftbound.ConformanceTests.BurnoutVictoryBeforeCleanupTests.FirstBurnoutFinishesDrawAndRuneCallBeforeVictoryOrLethalCleanup(woundedByRealSpell: False, opponentScore: 6)",
+          "sourceManifest": {
+            "path": "docs/evidence/burnout-inner-cleanup-and-garen-current-cn16-2026-10-23/source-manifest.json",
+            "sha256": "6449be64fc3d7fd968d0186b6a6e589cbd6676da9f50e7dd9055a1979782baa9",
+            "role": "source-manifest"
+          },
+          "decision": {
+            "state": "OPEN",
+            "reason": "Bounded execution passed; exact fixed full and remaining backend acceptance are separate."
+          },
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "N51-3B5CE41BE914B81D",
+          "sourceRefs": [
+            "CN-d6fd7140f106f9b5-P038-B020",
+            "CN-d6fd7140f106f9b5-P038-B021",
+            "CN-d6fd7140f106f9b5-P039-B003",
+            "CN-d6fd7140f106f9b5-P039-B009",
+            "CN-d6fd7140f106f9b5-P082-B009",
+            "CN-d6fd7140f106f9b5-P082-B010",
+            "CN-d6fd7140f106f9b5-P082-B011",
+            "CN-d6fd7140f106f9b5-P082-B012",
+            "CN-d6fd7140f106f9b5-P082-B013",
+            "OGS-023/024"
+          ],
+          "actualExecutedCase": "Riftbound.ConformanceTests.OfficialGarenConquestBattlefieldCountTests.GarenCountsOnlyUnitsAtTheConqueredBattlefieldAndOriginalActionsReplay(movingCount: 1, expectedDraw: 0)",
+          "sourceManifest": {
+            "path": "docs/evidence/burnout-inner-cleanup-and-garen-current-cn16-2026-10-23/source-manifest.json",
+            "sha256": "6449be64fc3d7fd968d0186b6a6e589cbd6676da9f50e7dd9055a1979782baa9",
+            "role": "source-manifest"
+          },
+          "decision": {
+            "state": "OPEN",
+            "reason": "Bounded execution passed; exact fixed full and remaining backend acceptance are separate."
+          },
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "N51-66A3A6E8931FE9D4",
+          "sourceRefs": [
+            "CN-d6fd7140f106f9b5-P038-B020",
+            "CN-d6fd7140f106f9b5-P038-B021",
+            "CN-d6fd7140f106f9b5-P039-B003",
+            "CN-d6fd7140f106f9b5-P039-B009",
+            "CN-d6fd7140f106f9b5-P082-B009",
+            "CN-d6fd7140f106f9b5-P082-B010",
+            "CN-d6fd7140f106f9b5-P082-B011",
+            "CN-d6fd7140f106f9b5-P082-B012",
+            "CN-d6fd7140f106f9b5-P082-B013",
+            "OGN-109/298",
+            "OGN-047/298",
+            "OGN-071/298",
+            "OGS-022/024"
+          ],
+          "actualExecutedCase": "Riftbound.ConformanceTests.BurnoutVictoryBeforeCleanupTests.FirstBurnoutFinishesDrawAndRuneCallBeforeVictoryOrLethalCleanup(woundedByRealSpell: False, opponentScore: 7)",
+          "sourceManifest": {
+            "path": "docs/evidence/burnout-inner-cleanup-and-garen-current-cn16-2026-10-23/source-manifest.json",
+            "sha256": "6449be64fc3d7fd968d0186b6a6e589cbd6676da9f50e7dd9055a1979782baa9",
+            "role": "source-manifest"
+          },
+          "decision": {
+            "state": "OPEN",
+            "reason": "Bounded execution passed; exact fixed full and remaining backend acceptance are separate."
+          },
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "N51-D719836397F66135",
+          "sourceRefs": [
+            "CN-d6fd7140f106f9b5-P038-B020",
+            "CN-d6fd7140f106f9b5-P038-B021",
+            "CN-d6fd7140f106f9b5-P039-B003",
+            "CN-d6fd7140f106f9b5-P039-B009",
+            "CN-d6fd7140f106f9b5-P082-B009",
+            "CN-d6fd7140f106f9b5-P082-B010",
+            "CN-d6fd7140f106f9b5-P082-B011",
+            "CN-d6fd7140f106f9b5-P082-B012",
+            "CN-d6fd7140f106f9b5-P082-B013",
+            "OGS-023/024"
+          ],
+          "actualExecutedCase": "Riftbound.ConformanceTests.OfficialGarenConquestBattlefieldCountTests.GarenCountsOnlyUnitsAtTheConqueredBattlefieldAndOriginalActionsReplay(movingCount: 4, expectedDraw: 2)",
+          "sourceManifest": {
+            "path": "docs/evidence/burnout-inner-cleanup-and-garen-current-cn16-2026-10-23/source-manifest.json",
+            "sha256": "6449be64fc3d7fd968d0186b6a6e589cbd6676da9f50e7dd9055a1979782baa9",
+            "role": "source-manifest"
+          },
+          "decision": {
+            "state": "OPEN",
+            "reason": "Bounded execution passed; exact fixed full and remaining backend acceptance are separate."
+          },
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "N51-974631ABDE1E81E7",
+          "sourceRefs": [
+            "CN-d6fd7140f106f9b5-P038-B020",
+            "CN-d6fd7140f106f9b5-P038-B021",
+            "CN-d6fd7140f106f9b5-P039-B003",
+            "CN-d6fd7140f106f9b5-P039-B009",
+            "CN-d6fd7140f106f9b5-P082-B009",
+            "CN-d6fd7140f106f9b5-P082-B010",
+            "CN-d6fd7140f106f9b5-P082-B011",
+            "CN-d6fd7140f106f9b5-P082-B012",
+            "CN-d6fd7140f106f9b5-P082-B013",
+            "OGN-109/298",
+            "OGN-047/298",
+            "OGN-071/298",
+            "OGS-022/024"
+          ],
+          "actualExecutedCase": "Riftbound.ConformanceTests.BurnoutVictoryBeforeCleanupTests.TiedFirstBurnoutsStillPerformNormalLethalCleanupAfterBothDraws(woundedByRealSpell: False)",
+          "sourceManifest": {
+            "path": "docs/evidence/burnout-inner-cleanup-and-garen-current-cn16-2026-10-23/source-manifest.json",
+            "sha256": "6449be64fc3d7fd968d0186b6a6e589cbd6676da9f50e7dd9055a1979782baa9",
+            "role": "source-manifest"
+          },
+          "decision": {
+            "state": "OPEN",
+            "reason": "Bounded execution passed; exact fixed full and remaining backend acceptance are separate."
+          },
+          "wholePrintingCertified": false
+        },
+        {
+          "id": "N51-907B658FC6AB280F",
+          "sourceRefs": [
+            "CN-d6fd7140f106f9b5-P038-B020",
+            "CN-d6fd7140f106f9b5-P038-B021",
+            "CN-d6fd7140f106f9b5-P039-B003",
+            "CN-d6fd7140f106f9b5-P039-B009",
+            "CN-d6fd7140f106f9b5-P082-B009",
+            "CN-d6fd7140f106f9b5-P082-B010",
+            "CN-d6fd7140f106f9b5-P082-B011",
+            "CN-d6fd7140f106f9b5-P082-B012",
+            "CN-d6fd7140f106f9b5-P082-B013",
+            "OGN-109/298",
+            "OGN-047/298",
+            "OGN-071/298",
+            "OGS-022/024"
+          ],
+          "actualExecutedCase": "Riftbound.ConformanceTests.BurnoutVictoryBeforeCleanupTests.TiedFirstBurnoutsStillPerformNormalLethalCleanupAfterBothDraws(woundedByRealSpell: True)",
+          "sourceManifest": {
+            "path": "docs/evidence/burnout-inner-cleanup-and-garen-current-cn16-2026-10-23/source-manifest.json",
+            "sha256": "6449be64fc3d7fd968d0186b6a6e589cbd6676da9f50e7dd9055a1979782baa9",
+            "role": "source-manifest"
+          },
+          "decision": {
+            "state": "OPEN",
+            "reason": "Bounded execution passed; exact fixed full and remaining backend acceptance are separate."
+          },
+          "wholePrintingCertified": false
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/evidence/burnout-inner-cleanup-and-garen-current-cn16-2026-10-23/source-manifest.json",
+          "sha256": "6449be64fc3d7fd968d0186b6a6e589cbd6676da9f50e7dd9055a1979782baa9",
+          "role": "source-manifest"
         }
       ]
     }
@@ -92033,6 +92874,16 @@
       "fixedCommitCi": "OPEN_NEW_FIXED_FULL",
       "productAcceptance": "OPEN_CURRENT_FIXED_MAIN_AND_REQUIRED_PRODUCTS",
       "wholePrintingCertified": false
+    },
+    {
+      "id": "N51_CURRENT_FIXED_BACKEND_FULL_AND_NETWORK_RECOVERY",
+      "state": "OPEN",
+      "requirement": "Fixed full13827/7766, all65 SQL, API/SignalR permission/hidden information, reconnect/restart, normal score end and original full-history replay; client hardware deferred with original identities retained.",
+      "sourceManifest": {
+        "path": "docs/evidence/burnout-inner-cleanup-and-garen-current-cn16-2026-10-23/source-manifest.json",
+        "sha256": "6449be64fc3d7fd968d0186b6a6e589cbd6676da9f50e7dd9055a1979782baa9",
+        "role": "source-manifest"
+      }
     }
   ],
   "note": "Current inventory and remaining obligations, with independently dated rule sources and separately recorded source deltas. No source fetch or semantic certification by this checker.",
@@ -93177,6 +94028,22 @@
     "actualExactIdentities": 1408,
     "unknownIdentityGap": 8,
     "noActualOfficialDuplicateKeysOrTypeDeltaObservedFromSyntheticCases": true,
+    "semanticCoverageCertified": false
+  },
+  "currentN51BurnoutCleanupAndGaren": {
+    "sourceManifest": {
+      "path": "docs/evidence/burnout-inner-cleanup-and-garen-current-cn16-2026-10-23/source-manifest.json",
+      "sha256": "6449be64fc3d7fd968d0186b6a6e589cbd6676da9f50e7dd9055a1979782baa9",
+      "role": "source-manifest"
+    },
+    "newBehaviorBranches": 8,
+    "newGate": 1,
+    "expectedRemainingObligations": 17435,
+    "allOriginal17426IdentitiesRetained": true,
+    "originalSourceGapsAndReviewsPreserved": true,
+    "activeMainThread": "01a16770-8c1b-7da2-872b-a8ec5ae77413",
+    "activeParallelThread": "01a16771-220b-7e83-91c6-44acf6dfe4b0",
+    "goalStatus": "ACTIVE",
     "semanticCoverageCertified": false
   }
 }

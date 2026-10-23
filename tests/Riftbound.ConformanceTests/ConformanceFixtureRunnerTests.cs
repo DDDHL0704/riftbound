@@ -36348,91 +36348,62 @@ public sealed class ConformanceFixtureRunnerTests
     [Fact]
     public async Task P79LegendTriggerGarenDrawsTwoOnConquerWithFourBattlefieldUnits()
     {
+        var attackers = new[]
+        {
+            "P1-BATTLEFIELD-ATTACKER", "P1-BATTLEFIELD-SUPPORT-001",
+            "P1-BATTLEFIELD-SUPPORT-002", "P1-BATTLEFIELD-SUPPORT-003"
+        };
+        var cards = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
+        {
+            ["P1-BATTLEFIELD-ATTACKER"] = OfficialGarenConquestBattlefieldCountTests.Printed("P1-BATTLEFIELD-ATTACKER", "OGN·142/298", "P1"),
+            ["P1-LEGEND-GAREN"] = OfficialGarenConquestBattlefieldCountTests.Printed("P1-LEGEND-GAREN", "OGS·023/024", "P1"),
+            ["P1-GAREN-DRAW-001"] = OfficialGarenConquestBattlefieldCountTests.Printed("P1-GAREN-DRAW-001", "OGN·142/298", "P1"),
+            ["P1-GAREN-DRAW-002"] = OfficialGarenConquestBattlefieldCountTests.Printed("P1-GAREN-DRAW-002", "OGN·142/298", "P1"),
+            ["P2-BATTLEFIELD-DEFENDER"] = OfficialGarenConquestBattlefieldCountTests.Printed("P2-BATTLEFIELD-DEFENDER", "OGN·219/298", "P2"),
+            ["GAREN-BATTLEFIELD"] = OfficialGarenConquestBattlefieldCountTests.Printed("GAREN-BATTLEFIELD", "OGN·296/298", "P2") with { ControllerId = "P2" }
+        };
+        var locations = new Dictionary<string, ObjectLocationState>(StringComparer.Ordinal)
+        {
+            ["P1-LEGEND-GAREN"] = new("P1", "LEGEND"),
+            ["P1-GAREN-DRAW-001"] = new("P1", "MAIN_DECK"),
+            ["P1-GAREN-DRAW-002"] = new("P1", "MAIN_DECK"),
+            ["P2-BATTLEFIELD-DEFENDER"] = new("P2", "BATTLEFIELD", "GAREN-BATTLEFIELD"),
+            ["GAREN-BATTLEFIELD"] = new("P2", "BATTLEFIELD", "GAREN-BATTLEFIELD")
+        };
+        foreach (var id in attackers)
+        {
+            if (id != "P1-BATTLEFIELD-ATTACKER")
+                cards[id] = OfficialGarenConquestBattlefieldCountTests.Printed(id, "OGN·219/298", "P1");
+            locations[id] = new("P1", "BASE");
+        }
         var state = PunishmentState(mana: 0) with
         {
             PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
             {
                 ["P1"] = PlayerZones.Empty with
                 {
-                    Battlefields =
-                    [
-                        "P1-BATTLEFIELD-ATTACKER",
-                        "P1-BATTLEFIELD-SUPPORT-001",
-                        "P1-BATTLEFIELD-SUPPORT-002",
-                        "P1-BATTLEFIELD-SUPPORT-003"
-                    ],
-                    LegendZone = ["P1-LEGEND-GAREN"],
+                    Base = attackers, LegendZone = ["P1-LEGEND-GAREN"],
                     MainDeck = ["P1-GAREN-DRAW-001", "P1-GAREN-DRAW-002"]
                 },
-                ["P2"] = PlayerZones.Empty with
-                {
-                    Battlefields = ["P2-BATTLEFIELD-DEFENDER"]
-                }
+                ["P2"] = PlayerZones.Empty with { Battlefields = ["GAREN-BATTLEFIELD", "P2-BATTLEFIELD-DEFENDER"] }
             },
-            CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
-            {
-                ["P1-BATTLEFIELD-ATTACKER"] = new(
-                    "P1-BATTLEFIELD-ATTACKER",
-                    cardNo: "SFD·125/221",
-                    power: 4,
-                    tags: [CardObjectTags.UnitCard, CardResourceKeywordNames.Hunt],
-                    ownerId: "P1",
-                    controllerId: "P1"),
-                ["P1-BATTLEFIELD-SUPPORT-001"] = new(
-                    "P1-BATTLEFIELD-SUPPORT-001",
-                    power: 1,
-                    tags: [CardObjectTags.UnitCard],
-                    ownerId: "P1",
-                    controllerId: "P1"),
-                ["P1-BATTLEFIELD-SUPPORT-002"] = new(
-                    "P1-BATTLEFIELD-SUPPORT-002",
-                    power: 1,
-                    tags: [CardObjectTags.UnitCard],
-                    ownerId: "P1",
-                    controllerId: "P1"),
-                ["P1-BATTLEFIELD-SUPPORT-003"] = new(
-                    "P1-BATTLEFIELD-SUPPORT-003",
-                    power: 1,
-                    tags: [CardObjectTags.UnitCard],
-                    ownerId: "P1",
-                    controllerId: "P1"),
-                ["P1-LEGEND-GAREN"] = new(
-                    "P1-LEGEND-GAREN",
-                    cardNo: "OGS·023/024",
-                    ownerId: "P1",
-                    controllerId: "P1"),
-                ["P1-GAREN-DRAW-001"] = new(
-                    "P1-GAREN-DRAW-001",
-                    ownerId: "P1",
-                    controllerId: "P1",
-                    power: 3,
-                    tags: [CardObjectTags.UnitCard]),
-                ["P1-GAREN-DRAW-002"] = new(
-                    "P1-GAREN-DRAW-002",
-                    cardNo: "SFD·126/221",
-                    ownerId: "P1",
-                    controllerId: "P1",
-                    power: 2,
-                    tags: [CardObjectTags.UnitCard]),
-                ["P2-BATTLEFIELD-DEFENDER"] = new(
-                    "P2-BATTLEFIELD-DEFENDER",
-                    cardNo: "SFD·125/221",
-                    power: 1,
-                    tags: [CardObjectTags.UnitCard],
-                    ownerId: "P2",
-                    controllerId: "P2")
-            }
+            CardObjects = cards,
+            ObjectLocations = locations
         };
-
+        var moved = await OfficialGraveyardRecastTests.Act(state, "P1",
+            new MoveUnitCommand(attackers[0], "BASE", "BATTLEFIELD:GAREN-BATTLEFIELD", [], attackers));
+        var firstPass = await OfficialGraveyardRecastTests.Act(moved.State, "P1", new PassFocusCommand());
+        var secondPass = await OfficialGraveyardRecastTests.Act(firstPass.State, "P2", new PassFocusCommand());
         var result = await new CoreRuleEngine().ResolveAsync(
-            state,
+            secondPass.State,
             new PlayerIntent("intent-p7-9-garen-trigger-conquer", "P1", "DECLARE_BATTLE"),
             new DeclareBattleCommand(
-                "BATTLEFIELD:P1-MAIN",
-                ["P1-BATTLEFIELD-ATTACKER"],
+                "GAREN-BATTLEFIELD",
+                attackers,
                 ["P2-BATTLEFIELD-DEFENDER"],
                 ["COMBAT_ASSIGNMENT"]),
             CancellationToken.None);
+        result = await CombatTestDriver.FinishAsync(result);
 
         Assert.True(result.Accepted);
         Assert.Equal(["P1-GAREN-DRAW-001", "P1-GAREN-DRAW-002"], result.State.PlayerZones["P1"].Hand);

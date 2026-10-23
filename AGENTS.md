@@ -1,5 +1,7 @@
 # Riftbound Project Agent Guide
 
+Current phase (2026-10-23): follow [BACKEND_RULES_GOAL](docs/BACKEND_RULES_GOAL_2026-10-23.md). Complete all applicable server rules and real SQL/API/network/recovery/replay acceptance first. Client feature, packaging iteration, visible paired desktop and Windows hardware work are deferred to the later client phase, preserving their identities, OPEN states and existing CI/tests; they do not block this backend phase. This current instruction overrides the timing of older full-product native requirements below. The user removed the old Goal; the main thread verified no active Goal and created the new backend-phase Goal without a token budget.
+
 ## Current scope and entry points
 
 - Work in this repository, /Users/dinghaolin/MyProjects/riftbound. The product is the Godot .NET macOS / Windows client with a server-authoritative engine; React DevUi is a debug and protocol client.

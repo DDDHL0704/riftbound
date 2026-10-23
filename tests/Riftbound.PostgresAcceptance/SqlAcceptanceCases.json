@@ -258,6 +258,10 @@
     {
       "id": "burnout-action-completion",
       "sourceType": "BurnoutActionCompletionSqlAcceptance"
+    },
+    {
+      "id": "victory-cleanup-garen",
+      "sourceType": "VictoryCleanupGarenSqlAcceptance"
     }
   ]
 }
