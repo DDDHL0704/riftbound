@@ -14410,6 +14410,7 @@ internal static class ActionPromptBuilder
         }
 
         choices.AddRange(PlayCardDiscardHandManaReductionOptionalCostChoices(state, playerId, behavior, sourceObjectId));
+        choices.AddRange(PlayCardDiscardHandDamageOptionalCostChoices(state, playerId, behavior, sourceObjectId));
 
         if (behavior.DamageAmountFromOptionalPowerCost && effectivePowerWithRecycle > 0)
         {
@@ -14518,6 +14519,24 @@ internal static class ActionPromptBuilder
             .Select(objectId => new ActionPromptChoiceDto(
                 $"DISCARD_HAND_CARD:{objectId}",
                 $"弃置 {PromptHandCardLabel(state, objectId)}：费用减少 {behavior.ManaReductionIfDiscardHandCardOptionalCost}",
+                $"{behavior.DisplayName}的可选额外费用"))
+            .ToArray();
+    }
+
+    private static IReadOnlyList<ActionPromptChoiceDto> PlayCardDiscardHandDamageOptionalCostChoices(
+        MatchState state,
+        string playerId,
+        CardBehaviorDefinition behavior,
+        string? sourceObjectId)
+    {
+        if (behavior.DamageAmountIfDiscardHandCardOptionalCost <= 0
+            || !state.PlayerZones.TryGetValue(playerId, out var zones)) return [];
+
+        return zones.Hand
+            .Where(objectId => CanPromptDiscardHandCardAsOptionalCost(state, playerId, sourceObjectId, objectId))
+            .Select(objectId => new ActionPromptChoiceDto(
+                $"DISCARD_HAND_CARD:{objectId}",
+                $"弃置 {PromptHandCardLabel(state, objectId)}：改为造成 {behavior.DamageAmountIfDiscardHandCardOptionalCost} 点伤害",
                 $"{behavior.DisplayName}的可选额外费用"))
             .ToArray();
     }

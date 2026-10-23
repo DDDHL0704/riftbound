@@ -2,7 +2,7 @@
   "source": "https://playloltcg.com/card.html",
   "api": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
   "fetchedAt": "2026-04-27",
-  "total": 1056,
+  "total": 1057,
   "cards": [
     {
       "id": 31005,
@@ -43952,6 +43952,54 @@
       "isPreview": false,
       "errata": "",
       "otherDesc": 0
+    },
+    {
+      "id": 37693,
+      "cardCategoryList": [
+        "spell"
+      ],
+      "cardCategoryNameList": [
+        "法术"
+      ],
+      "cardNo": "VEN·008",
+      "cardName": "无情打击",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "red"
+      ],
+      "hero": "",
+      "region": "",
+      "tag": "",
+      "artist": "Kudos Productions",
+      "cardEffect": "{{迅捷}}（可在你的回合或法术对决中打出。）\n你可以选择弃置一张手牌，作为打出此牌的额外费用。\n对战场上的一名单位造成3点伤害。如果你支付了该额外费用，则改为对其造成5点伤害。",
+      "flavorText": "既已选择摧毁，那就不要留情。",
+      "energy": 3,
+      "returnEnergy": null,
+      "power": null,
+      "productCodeList": [
+        "VEN(标准补充包)",
+        "VEN(进阶补充包)"
+      ],
+      "productNameList": [
+        "化神争锋 标准补充包",
+        "化神争锋 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_dust",
+      "rarityName": "普通",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260716/29bd038b4bdb466397f8d6271fc03fa7.png",
+      "backImage": "",
+      "listSort": 1993,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
     }
   ],
   "scopedAdditions": [
@@ -44716,6 +44764,21 @@
       "printedFaceIdentity": "VEN·072/166 SC",
       "separateGlobalPrintingIdentityNotMerged": "VEN-072/166",
       "reason": "Exact CN conditional Might consumer; semantic implementation and backend gates remain separate from registration."
+    },
+    {
+      "cardNo": "VEN·008",
+      "source": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "fetchedAtUtc": "2026-10-23T21:38:02.957156+00:00",
+      "sourceId": 37693,
+      "sourceRecordSha256": "9027dd01da9b155351cb8f3457ead78d0faae6d4ee036296c9bb462f0f992f8b",
+      "sourceRecordHashEncoding": "UTF-8 JSON sorted keys compact separators ensure_ascii=false",
+      "language": "zh-CN",
+      "region": "CN",
+      "publicationDate": null,
+      "effectiveDate": null,
+      "printedFaceIdentity": "VEN·008/166 SC",
+      "separateGlobalPrintingIdentityNotMerged": "VEN-008/166",
+      "reason": "Exact CN optional discard consumer under semantic development; registration is not whole-card certification."
     }
   ]
 }
