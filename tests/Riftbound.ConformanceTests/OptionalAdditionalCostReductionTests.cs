@@ -681,8 +681,8 @@ public sealed class OptionalAdditionalCostReductionTests
         var full = new PlayCardCommand("CARD", "OGN·268/298", ["FIELD"], OptionalCosts: ["SPEND_POWER:1"]);
         var command = full with { OptionalCosts = ["SPEND_POWER:1", "OPTIONAL_COST_REDUCTION:EZREAL:0:ADDITIONAL:POWER-any"] };
         var candidate = Assert.Single(ResolutionResult.BuildPrompts(initial)["P1"].Candidates!, c => c.Action == CommandTypes.PlayCard);
-        Assert.Contains(candidate.OptionalCosts!, choice => choice.Id == "SPEND_POWER:1");
-        Assert.DoesNotContain(candidate.OptionalCosts!, choice => choice.Id.StartsWith("OPTIONAL_COST_REDUCTION:", StringComparison.Ordinal));
+        Assert.DoesNotContain(candidate.OptionalCosts ?? [], choice => choice.Id == "SPEND_POWER:1");
+        Assert.DoesNotContain(candidate.OptionalCosts ?? [], choice => choice.Id.StartsWith("OPTIONAL_COST_REDUCTION:", StringComparison.Ordinal));
         Assert.False(engine.PreviewPlayCard(initial, "P1", PlayCostPreviewTests.Request(initial, command)).IsValid);
         var before = MatchStateHasher.Hash(initial);
         var played = await engine.ResolveAsync(initial, new("variable-cost-original-amount", "P1", command.CmdType), command, default);

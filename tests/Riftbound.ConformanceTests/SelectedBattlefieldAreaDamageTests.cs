@@ -137,16 +137,20 @@ public sealed class SelectedBattlefieldAreaDamageTests
                     "friendly-unit" => Targets(field, "P1-BASE"),
                     _ => targets
                 };
-                await Act(invalid == "wrong-player" ? "P2" : "P1", new PlayCardCommand("SPELL", card, targets,
-                    OptionalCosts: card == "OGN·268/298" ? ["SPEND_POWER:3"] : null), false, invalid);
+                await Act(invalid == "wrong-player" ? "P2" : "P1", new PlayCardCommand("SPELL", card, targets), false, invalid);
                 return;
             }
-            await Act("P1", new PlayCardCommand("SPELL", card, targets,
-                OptionalCosts: card == "OGN·268/298" ? ["SPEND_POWER:3"] : null));
+            await Act("P1", new PlayCardCommand("SPELL", card, targets));
             await RepeatAcceptedSubmission();
             Assert.NotNull(state.PriorityPlayerId);
             await Act(state.PriorityPlayerId!, new PassPriorityCommand());
             await Act(state.PriorityPlayerId!, new PassPriorityCommand());
+            if (card == "OGN·268/298")
+            {
+                var request = Assert.IsType<RuleChoiceContinuation>(state.PendingRuleChoice).Request;
+                Assert.Equal("INSTRUCTION_POWER_PAYMENT", request.Kind);
+                await Act(request.PlayerId, new PayCostCommand(request.Id, "RULE_REPLACEMENT", ["SPEND_POWER:3"]));
+            }
             if (kind.StartsWith("movement-", StringComparison.Ordinal))
             {
                 Assert.Contains("P1-BASE", state.PlayerZones["P1"].Battlefields);
