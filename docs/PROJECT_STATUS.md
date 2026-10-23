@@ -6,6 +6,8 @@
 
 新通用入口阻塞由③修复：N15另发现旧OGN264亦会把原raw `targetObjectIds=["","  "]`经Mapper过滤成合法typed `[]`后接受付款/入栈，而严格恢复拒绝原日志。①用A4等价生产/目录源码独立Mac最小复现：合法`[]`结构检查无误；坏目标正常请求accepted、扣2法力/3事件/1日志；坏目标的stale请求虽PROMPT_EXPIRED/0事件，仍写1条坏raw并同样出现两条恢复结构错误。故须在MatchSession既有prejournal入口检查原raw required-array，Core typed拒绝或放宽恢复均不能修复。显式中盘正控不证明完整出生回放，Mac/MVID不是A4 Linux；原件另存、A4固定输入/原作业不改，独立窄修优先于继续功能接入，B1成员不扩，发布继续禁止。
 
+另有直接typed调用的`raw=null`持久化缺口保持OPEN：③原出生前缀8命令后第9条合法PLAY_CARD实际accepted，原9条日志仅报缺少PLAY_CARD raw；①核原件/源码，未独立重跑。原控制权三Theory使用NoopMatchJournal，须保留其控制权语义。本批仅修raw JSON object内目标数组，不因测试兼容称null持久化安全，也不合成raw、改恢复或按journal类型旁路；后续另审真实调用方原wire与持久化入口契约。当前src可见GameHub与replay两调用均携带原raw，尚未证实外部typed/null路径；本批修复不能表述为所有PLAY_CARD raw入口已封闭。
+
 | 位置 | 固定输入 / 批次 | 已确认状态 / 主责 |
 |---|---|---|
 | 当前验收：A3两项失败窄修A4 | 不可变ref `backend-related-20261024-a4`；[封板成员](audit/backend-related-20261024-a4.json) | 功能边界仍93a3b117，Engine/目录与A3逐字相同，1052/3bf8afc4；只纳入scope预算0322857d及S3自洽篡改验收04042a90和必要守卫/元数据。76 SQL/四分区、八组network、full与desktop门禁不减；后续C8/S7/N10–N14/C9/C10/容量提示全部排除。以tag解析完整SHA核对实际checkout，当前尚未有远端通过结果，不复用不同输入的旧绿；A3剩余有价值作业保留 |
