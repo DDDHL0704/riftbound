@@ -34,7 +34,8 @@
 
 
 | C9 控制召回贴附组 | 第二独立实红：OGN203把host移P2 BASE但GA仍贴附且留P1 HOME；719.3真实组位置被破坏，GA同位置guard正确。批准118c02bd单行：TryGainControlOfTargetToBase写回controlledTargetState后调用现有RecallAttachedGroupToBase；保留gear owner/controller/耗竭/代际/revision、旧无贴附结果、S7 caller已付池，不扩其他控制/标准移动/费用或新move事件。当前C9可变6文件，A3不混；GA+Song实际共同位置/唯一zone/cold/原日志待交，旧C8控制证明不追认为拓扑通过 |
-| N12 条件正Might | ④exact CN37766/VEN072，图b961d91与record ff3bae已核；原3例2过1红，真实强化目标RequestedDelta应4而实际2。批准CardBehaviorDefinition末尾nullable PowerModifierAmountIfTargetEmpowered=null，VEN072固定2/4；仅ResolvePowerModifierAmount固定量返回支路读取当前合法绑定目标.IsEmpowered，原动态量分支/默认值/目标代际/位置/条件/费用/时机/事件和C7守卫不变。真实Howl在未结算Empower上方仍2、已结算4，回手代际不能重绑；pending/幂等/原日志/伪造及完整消费者包待交。无cardNo分支/DTO/全局条件或clock扩展；同Core大文件C9 control方法由②拥有 |
+| C9 有限QA入口 | ②获批55行私有factory SHA953b658e：仅guardian-angel-single / double / lethal-last-breath / control-group四完整id，其他输入throw；HOST精确OGN210/OGN096/SFD173，全部单位/装备/法术HAND、HOME显式P1控制、canonical对象/真实符文，seed424242/turn5及70普通法力/六色10标QA，保留current.RuleInputs/ObjectLocations。公共dispatcher/Program/SQL清单/source links由①后续接，当前A3不混；实际两席→DEV→play/assemble/替换、control共位/冷恢复/原日志待完整交付，非自然开局或整卡认证 |
+| N12 条件正Might | ④exact CN37766/VEN072，图b961d91与record ff3bae已核；原3例2过1红，真实强化目标RequestedDelta应4而实际2。批准CardBehaviorDefinition末尾nullable PowerModifierAmountIfTargetEmpowered=null，VEN072固定2/4；仅ResolvePowerModifierAmount固定量返回支路读取当前合法绑定目标.IsEmpowered，原动态量分支/默认值/目标代际/位置/条件/费用/时机/事件和C7守卫不变。普通合法未强化目标得2，已完成强化后得4；普通Empower待决priority closed，Howl须timing-window拒绝/源留手/stack不变，撤回此前非法叠放假设，不增effect-play例外。回手代际不能重绑；pending/幂等/原日志/伪造及完整消费者包待交。无cardNo分支/DTO/全局条件或clock扩展；同Core大文件C9 control方法由②拥有 |
 
 C7须保留旧floor/负历史守卫；失效的已选目标不能回退为对新代际的普通动作。受影响物体控制者决定同事件替换顺序，每实例一次；swap先锁差值，-0/不可执行行动没有替换。私下保留原动作与替换规则双源，公开不泄露witness；+3归因须有来源及下游断言。S6清池遵从所有玩家的正常主阶段开始/回合结束边界；混合池报价/实付/剩余一致，负数/溢出/伪造不能被归一化洗白。全原日志出生审计、拒绝回滚及原测试守卫均保持。
 
