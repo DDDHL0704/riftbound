@@ -1,8 +1,8 @@
 # Riftbound Project Agent Guide
 
-Current phase (2026-10-23): follow [BACKEND_RULES_GOAL](docs/BACKEND_RULES_GOAL_2026-10-23.md). Complete all applicable server rules and real SQL/API/network/recovery/replay acceptance first. Client feature, packaging iteration, visible paired desktop and Windows hardware work are deferred to the later client phase, preserving their identities, OPEN states and existing CI/tests; they do not block this backend phase. This current instruction overrides the timing of older full-product native requirements below. The user removed the old Goal; the main thread verified no active Goal and created the new backend-phase Goal without a token budget.
+Current phase: [BACKEND_RULES_GOAL](docs/BACKEND_RULES_GOAL_2026-10-23.md). Keep the existing ACTIVE Goal and all applicable official backend rules in scope. Client development, packaging iteration, visible desktop pairs and Windows hardware acceptance remain OPEN for the later client phase; retain existing tests and CI.
 
-Current collaboration (2026-10-23): each window owns implementation and tests for an agreed rule module, including explicitly assigned shared-file hooks; the main window does not permanently own every Engine file. Send immediate messages only for material interface/source changes, ownership conflicts, blockers or serious regressions; otherwise deliver one complete batch with patch, evidence and open items, without acknowledgement loops. Current N54/death-module boundaries and completion requirements are in the goal document; preserve running frozen inputs and the original active Goal.
+Current collaboration: two existing windows each own one complete mechanism module and assigned shared hooks. Main owns governance and integration. Notify only interface/source changes, conflicts, blockers or serious regressions immediately; otherwise send one complete delivery without acknowledgement loops. Do not wake stopped chats or create extra windows.
 
 ## Current scope and entry points
 
@@ -20,7 +20,7 @@ Current collaboration (2026-10-23): each window owns implementation and tests fo
 ## Rule authority and trust
 
 - Official regional card text, rules, FAQ/QA, errata and restriction documents are authorities. Record URL, content hash, publication/effective dates, language, region and exact scope.
-- Downloaded data/official is a snapshot, not proof that the live site is unchanged. Refresh applicable official sources before gameplay changes; mark inaccessible/future-effective versions explicitly.
+- Downloaded data/official is a snapshot, not proof that the live site is unchanged. Reuse verified source identity and applicability when unchanged; check relevant new announcements/errata and final effective boundaries. Mark inaccessible or unverified applicability UNKNOWN; never infer RAD is future-effective.
 - September and earlier rule implementations and green/coverage claims have no default trust. Re-certify the exact scope against current applicable official sources. Keep October scoped evidence within its stated scope.
 - Community platforms, TTS, old Java and generated planning documents are references only. Registration, implemented, RepresentativeRulePass, counts and CI green do not certify whole-card semantics.
 - Generic keywords, timing, costs, zones/information, lifecycle and triggers belong in shared engine flow. Avoid card-specific bypasses.
@@ -49,14 +49,15 @@ Current collaboration (2026-10-23): each window owns implementation and tests fo
 
 ## Validation and delivery
 
-- Develop with python3 scripts/test-rules.py focus <domain> and affected adjacent tests. Run one check at a coherent batch end. Use full for broad changes, integration and final acceptance; do not repeat it for an unchanged input.
-- Code CI retains the complete suite and packaging gates. Ordinary rules start in the first wave; all methods/cases and the full preconstructed matrix remain.
-- Only an explicit reviewed documentation path list may use light CI. Official data, fixture, build configuration, scripts, unknown paths and uncertain diffs default to full.
-- CI verifies a fixed commit; continue the next batch independently. Local parallel verification uses a fixed separate checkout. Do not edit or rebuild the source/bin being tested.
-- Record commit/input hashes, source versions, profile, environment, TRX and matrix identities. An earlier full run is a baseline, not current-HEAD evidence.
-- Native controls, network/reconnect, visible paired clients, Windows runtime and database execution are separate gates. Returning without a database connection is not database validation.
-- Run git diff --check and appropriate checks before each coherent commit/push. Do not create a full-regression bookkeeping loop for documentation-only evidence updates.
-- Never mark READY or complete the official audit from a local batch or all-green tests.
+- Apply L1/L2/L3 in docs/RULE_TEST_WORKFLOW.md. L1 is an isolated consumer of an already verified mechanism; shared timing, legality/permissions, hidden information, events/serialization, persistence/recovery, new mechanisms or uncertain impact require L2 or full.
+- L1: source, focused and affected regression plus legal/illegal/boundary assertions and one compact ledger row. Accumulate check/full in daily integration/nightly CI. L2: module focus, adjacent domains, affected original games and one check per actual integration batch; verify affected SQL/API/restart/replay and security in that batch. L3: weekly milestone/candidate complete backend acceptance.
+- Current CI classification is NOT yet implemented: keep required full checks and truthful statuses until conservative classification and its own tests are in place. Never rename a partial result full or skip a failing/unknown gate.
+- Preserve all original methods/Theory rows, 143 full-game methods/151 cases, 110 ordered pairs, 11 decks, seed 424242 and victory/replay assertions. Source-corrected expectations retain original failures and rationale.
+- Reuse results only for identical verified fixed inputs; integration adds actual differences. Do not edit running frozen source/bin. A previous full is a baseline, not current certification.
+- Put new large logs/TRX/SQL output/binaries in ignored local output or CI artifacts, not Git. Git keeps source/tests, compact provenance/results and retrievable paths/run IDs. Preserve committed historical evidence and useful original failures. A hash alone is not an accessible artifact.
+- Whole-card certification covers every effect/keyword/applicable branch and mechanism interaction with official evidence and executable semantic assertions. Registry/test counts and old obligation totals are not completion rates.
+- Run git diff --check and appropriate checks; commit/push coherent batches under existing authorization. Do not repeat unchanged full verification or generate cumulative evidence copies for every batch.
+- Only the latest fixed candidate with all applicable source/semantic/backend gates closed can finish the backend Goal. Never infer READY from a local batch or green CI.
 
 ## Future page design
 

@@ -1,8 +1,18 @@
 # 规则开发测试工作流
 
-2026-10-23 当前验证范围见 [全部后端规则阶段目标](BACKEND_RULES_GOAL_2026-10-23.md)。focus/每批一次check/固定提交后台full及全部原方法、Theory、配对、种子和断言保留；真实PostgreSQL、API/SignalR会话、网络重连、恢复安全、完整对局与原日志回放为当前后端验收。客户端功能/打包迭代、可见桌面与Windows实机为后续阶段待办，保留旧身份/状态和既有完整CI，当前不为每批另做原生验收。不因锁屏停工，不修改正在验证的固定源/bin。以下历史范围记录不改写。
+2026-10-23 当前范围见 [后端目标](BACKEND_RULES_GOAL_2026-10-23.md)。本页替换旧“所有批次check/full/全套归档”的频率；最终质量与原测试范围不变。历史版本见e9bdfd0d。
 
-开发中优先获得与本次改动相关的反馈。完整对局矩阵保留在代码 CI、集成和最终验收；明确治理文档白名单使用轻量检查。
+## 风险分级与实际状态
+
+| 等级 | 判定 | 必需验证与记录 |
+|---|---|---|
+| L1 | 已验证机制上的独立卡牌接入或局部修复，影响已明确 | 源码、定向+受影响回归、合法/非法/边界；一行台账。累计check并入每日集成，full并入夜间 |
+| L2 | 共享时序、权限/合法性、隐藏信息、事件/序列化、恢复/持久化、新机制或影响不明 | 完整机制模块定向+相邻域+受影响原完整对局；每实际集成批次一次check；按受影响层补SQL/API/SignalR/进程重启/原日志。安全/隐藏信息/幂等/拒绝不变性本批验证 |
+| L3 | 每周里程碑、候选或发布/阶段完成 | 最新固定候选完整后端验收，全部原测试/11牌组110配对/seed424242、真实SQL、双玩家网络、权限、恢复、持久化后发布、完整原日志、正常/异常终局 |
+
+**CI分级尚未实现。** 当前ci-change-scope仅支持精确治理文档豁免，代码/未知仍full；现有稳定必需检查和所有测试照实运行。下一工具批次实现保守判定及门禁反例，复用现有分片；不能凭自报L1跳过共享机制风险。未执行/失败/缺证据标待验证，不改名假绿。
+
+同固定输入跨窗口复用完成结果，仅补真实集成差异。冻结源/bin不可改写。新大日志/TRX/SQL/二进制只放ignored本地或CI artifacts；Git保留简短来源/测试/提交/结果/可取回路径，不再逐卡生成全库manifest和压缩包。保存策略见[治理](PROJECT_GOVERNANCE.md)。
 
 ## 日常入口
 
@@ -14,8 +24,8 @@
 | `python3 scripts/test-rules.py focus payment` | 费用、符文、资源、金币和法盾案例 | 修改支付逻辑时 |
 | `python3 scripts/test-rules.py focus --match OfficialMechanicalRecastTests` | 明确指定的测试名；可重复 `--match` | 复现及修复具体问题 |
 | `python3 scripts/test-rules.py focus --include-games --match PreconstructedCatalogDecks` | 显式选取匹配的完整对局，仍校验实际方法覆盖 | 只需复核特定完整对局或测量瓶颈时 |
-| `python3 scripts/test-rules.py check` | 完整非 FullGameEndToEnd 测试集，加两条指定完整对局冒烟 | 一个连贯批次的默认收尾检查 |
-| `python3 scripts/test-rules.py full` | 所有实时发现的测试，并行分进程执行 | 广泛跨规则改动、集成与发布验收、CI |
+| `python3 scripts/test-rules.py check` | 完整非 FullGameEndToEnd 测试集，加两条指定完整对局冒烟 | L2实际集成批次收尾，或L1每日累计 |
+| `python3 scripts/test-rules.py full` | 所有实时发现的测试，并行分进程执行 | 夜间、L3里程碑/候选；当前代码CI仍full |
 
 其他域为 `triggers`、`combat`、`recovery`。域匹配是可检查的用例筛选，不是自动证明源代码依赖完整；修改相邻机制时加跑对应域，未知或广泛影响时使用 `check` / `full`。不能用 `focus` 的结果宣称整套规则完成。
 
@@ -23,7 +33,7 @@
 
 ## 锁屏期间继续执行
 
-2026-10-18 用户确认：锁屏不暂停审计目标。继续使用上述focus、每批一次check和后台固定提交full；真实PostgreSQL、原生网络客户端连接/重连、原始日志回放及Godot无窗口控件检查可在后台执行。可见窗口操作与Windows实机保留独立状态，解锁后从已有检查点补验，不把无窗口通过标为可见验收。
+2026-10-18 用户确认：锁屏不暂停审计目标。继续按上述L1/L2/L3节奏执行；真实PostgreSQL、原生网络客户端连接/重连、原始日志回放及Godot无窗口控件检查可在后台执行。可见窗口操作与Windows实机保留独立状态，解锁后从已有检查点补验，不把无窗口通过标为可见验收。
 
 冻结执行目录的 `.deps.json` 和 `.runtimeconfig.json` 保留为独立文件，可使用 APFS 写时复制。实际采集 `AppContext.BaseDirectory`、已加载规则程序集的路径、SHA-256、MVID 和 `RuleInputIdentity`，核对其与本候选一致。本轮实测 `.deps.json` 链回旧候选会使 .NET 加载旧目录中的程序集；仅核对目录内文件哈希不足以证明执行了新候选。
 
@@ -37,7 +47,7 @@ macOS长步骤可使用`caffeinate -i -w <本轮后台进程PID>`临时阻止空
 2. 主要瓶颈是 `FullGameEndToEndTests` 中同一测试类串行运行的完整对局。全量将该类按方法分到独立进程，其他测试保持原来的 xUnit 类间并发。
 3. 用实际 TRX 耗时平衡进程；无本机历史时使用 `scripts/rule-test-timings.json`。耗时数据只影响调度，不控制测试是否纳入；新增测试即使没有历史耗时也必须执行。
 4. 默认并发不超过 4 个进程，可用 `--jobs 2` 降低机器负载。完整预组交叉对局仍保留同一测试身份；其全部双向配对最多两场并行，每场独立状态、固定原种子、journal、胜利与回放检查。实际完成配对集合必须与全部期望配对完全相等，TRX 输出每场最终状态哈希。没有删对局、减少随机种子或删除断言。
-5. 开发过程中 `focus` → 连贯批次一次 `check` → 必要时 `full`；代码 CI 保留完整测试。普通规则首批启动，同时尽早启动最长对局；只改变调度，不改变纳入范围。不要为同一个无变化输入反复跑完整矩阵。
+5. 开发按上述分级执行；L2每实际集成批次一次check，L1每日累计，夜间/L3完整回归；CI分级实现前代码CI仍保留full。普通规则首批启动，同时尽早启动最长对局；只改变调度，不改变纳入范围。不要为同一个无变化输入反复跑完整矩阵。
 
 ## 防止提速掩盖失败
 
@@ -67,17 +77,17 @@ python3 scripts/test-rules.py full --jobs 4 \
 
 本次实测和限制见 [性能验证记录](RULE_TEST_SPEED_2026-10-09.md)。
 
-2026-10-12 用户确认：连贯批次默认一次 `check`，固定提交的代码 CI 在后台执行 `full`，可继续下一批开发；明确文档白名单走轻量检查。广泛影响、集成与最终候选仍执行完整验收。单个矩阵的并行实测记录在 [本轮提速记录](RULE_TEST_SPEED_2026-10-12.md)。`focus` 默认继续排除完整对局，只有显式 `--include-games` 才允许匹配的完整对局进入计划。
+`focus` 默认排除完整对局，只有显式 `--include-games` 才允许匹配的完整对局进入计划。单矩阵分片实测见 [历史提速记录](RULE_TEST_SPEED_2026-10-12.md)，该历史默认频率由本页分级替换。
 
 ## 后台 CI 与轻量文档检查
 
 完整 CI 验证固定提交，记录 run ID、输入/程序集哈希、真实 TRX 和方法/用例/配对身份。开发可继续；本地并行必须使用独立固定 checkout，不能修改正在执行的源文件或 bin。被取消或未完成的运行不能标为通过。
 
-真实 SQL 按 `tests/Riftbound.PostgresAcceptance/SqlAcceptanceCases.json` 的有序执行身份分为四片，每片使用独立 PostgreSQL 服务；2026-10-20 为原43个助手、原核心开局及新增销毁族助手共45项。无参数入口仍执行全部默认项，`--ci-partition INDEX 4` 仅执行对应片，`--ci-partition-plan` 只打印计划，命名 `--...-only` 入口仍是限定验证。执行清单不表示整卡或语义认证范围。
+真实 SQL 按 `tests/Riftbound.PostgresAcceptance/SqlAcceptanceCases.json` 的有序执行身份分为四片，每片使用独立 PostgreSQL 服务；用例数以该固定提交实际清单为准。无参数入口仍执行全部默认项，`--ci-partition INDEX 4` 仅执行对应片，`--ci-partition-plan` 只打印计划，命名 `--...-only` 入口仍是限定验证。执行清单不表示整卡或语义认证范围。
 
 规则全量、四片 SQL 和独立原生网络任务均在首波启动。稳定 `postgres` 检查要求四份固定提交/清单身份、有序完整用例、实际执行及产物哈希收据，并要求网络任务成功；稳定 `rules` 检查继续汇总全部子任务。缺片、重复、错版、篡改、失败、取消或跳过均不能被记为完整通过。本机单片、计划或门禁单元测试不替代实际四片终态；六小时上限导致取消的旧轮次保留原失败及未完成证据。
 
-scripts/ci-change-scope.py 只豁免逐项核查过的精确治理文档路径，不使用 docs/ 或 *.md 通配。docs/DEPLOYMENT.md、docs/evidence、官方数据、fixture、打包文档、脚本、构建配置及未知路径仍 full；缺基线、类型/执行位变化及不确定差异同样 full。范围判定失败时完整任务仍会运行。纯文档工作流不会取消此前代码的完整任务；不同代码 SHA 的验收也独立，仅相同 SHA 的重复任务可取消重复。
+当前尚未升级的 scripts/ci-change-scope.py 只豁免逐项核查过的精确治理文档路径，不使用 docs/ 或 *.md 通配。docs/DEPLOYMENT.md、docs/evidence、官方数据、fixture、打包文档、脚本、构建配置及未知路径仍 full；缺基线、类型/执行位变化及不确定差异同样 full。范围判定失败时完整任务仍会运行。纯文档工作流不会取消此前代码的完整任务；不同代码 SHA 的验收也独立，仅相同 SHA 的重复任务可取消重复。
 
 轻量 CI 执行 Python 验证工具检查、固定差异格式、当前治理引用及来源索引完整性，报告规则/打包未执行。来源检查默认读取 docs/audit/current-manifest.json，核对当前卡牌、保留原确认日期的规则索引、限定审查和来源增量，不下载官网、不执行游戏、不提升 semanticCoverageCertified。显式 --date 2026-10-11 单独检查历史索引，不能替代当前 manifest。来源变化必须登记增量与影响，不静默改变冻结分母。
 
@@ -87,7 +97,7 @@ python3 scripts/audit/check-project-governance.py --output var/qa/current-govern
 python3 scripts/audit/check-project-governance.py --date 2026-10-11
 ```
 
-轻量成功与上一完整基线分开记录。最终发布候选仍等待完整回归与相应原生、双客户端及 Windows 验收；后续需要真实 Postgres 证据时必须明确提供连接并验证实际执行。
+轻量成功与上一完整基线分开记录。最终后端候选须等待L3完整后端验收；可见桌面及Windows实机保留后续客户端OPEN；后续需要真实 Postgres 证据时必须明确提供连接并验证实际执行。
 
 浅 checkout 中若多提交 push 的中间祖先不可确定，即使可取得 base，也保守执行 full；不会把历史不完整当作文档豁免。只有范围任务成功且明确返回 false 才跳过完整任务，任何空/异常输出仍 full。
 
