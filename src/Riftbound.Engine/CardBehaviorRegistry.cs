@@ -7788,10 +7788,8 @@ public static class CardBehaviorRegistry
             "BLOOD_RUSH_OVERWHELM_2",
             0,
             1,
-            StatusEffectId: "OVERWHELM_2",
-            TargetScope: CardTargetScopes.AnyUnit,
-            PowerModifierAmount: 2,
-            PowerModifierConditionKind: CardPowerModifierConditionKinds.TargetIsAttacking),
+            StatusEffectId: "COMBAT_KEYWORD:强攻2",
+            TargetScope: CardTargetScopes.AnyUnit),
         new(
             "UNL-010/219",
             "强能冲拳",
