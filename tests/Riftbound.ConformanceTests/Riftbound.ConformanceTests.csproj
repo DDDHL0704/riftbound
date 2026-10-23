@@ -21,5 +21,7 @@
     <Compile Include="../../clients/godot/scripts/DamageAssignmentModels.cs" Link="Native/DamageAssignmentModels.cs" />
     <Compile Include="../../clients/godot/scripts/ClientCommandSerializer.cs" Link="Native/ClientCommandSerializer.cs" />
     <Compile Include="../../clients/godot/scripts/RoomSnapshotRequest.cs" Link="Native/RoomSnapshotRequest.cs" />
+    <Compile Include="../Riftbound.NativeNetworkSmoke/NetworkReconnectSqlCapture.cs" Link="Acceptance/NetworkReconnectSqlCapture.cs" />
+    <Compile Include="../Riftbound.PostgresAcceptance/NetworkReconnectSqlEvidence.cs" Link="Acceptance/NetworkReconnectSqlEvidence.cs" />
   </ItemGroup>
 </Project>

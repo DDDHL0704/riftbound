@@ -51,7 +51,7 @@ internal static class NetworkReconnectSqlEvidence
         return digest;
     }
 
-    private static void CheckTrace(JsonElement observed, string room, string p1, string p2)
+    internal static void CheckTrace(JsonElement observed, string room, string p1, string p2)
     {
         var recover = observed.GetProperty("recover").GetBoolean();
         var expected = observed.GetProperty("expectedErrors").EnumerateArray().ToArray();
@@ -87,7 +87,7 @@ internal static class NetworkReconnectSqlEvidence
         }
     }
 
-    private static void CheckReconnectRows(JsonElement observed, string room, string p1, string p2)
+    internal static void CheckReconnectRows(JsonElement observed, string room, string p1, string p2)
     {
         var before = observed.GetProperty("beforeReconnect"); var after = observed.GetProperty("afterReconnect");
         _ = CapturedDigest(before); _ = CapturedDigest(after);
