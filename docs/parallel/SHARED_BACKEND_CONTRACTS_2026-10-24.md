@@ -5,7 +5,7 @@
 | 接点 | 主责 / 已审范围 |
 |---|---|
 | C7 目标行动替换 | ②：显式真实选择、当前代际且可执行的STUN/负Might/RETURN原子规划；PowerModifierLedgerEntry可空私有ChosenActionReplacement，独立于旧ChosenNegativeMight；一个临时occurrence序列及现有RuleChoice复用，无新StackItem/Repeats/continuation序列化 |
-| C7 精确消费者/profile | ④：CN37984 / VEN·086与37985 / VEN·181；`EmpoweredTargetReplacementSpec(IReadOnlyList<string> ActionKinds, int MightBonus)`，`EmpowerParser.TargetReplacements(text)`。v1只0/1个完整复合条款，三动作共一替换实例、bonus3；身份来自既有独立规则文本实例，不用数组下标造身份，不改caster-side接口 |
+| C7 精确消费者/profile | ④已交`d93d2b1f`：CN37984 / VEN·086与37985 / VEN·181；`EmpoweredTargetReplacementSpec(IReadOnlyList<string> ActionKinds, int MightBonus)`，`EmpowerParser.TargetReplacements(text)`。①核对来源/原Parser字节保留，已转②五文件依赖（1045→1047，排除来源线1049全局预期）。v1只0/1个完整复合条款，三动作共一替换实例、bonus3；身份来自既有独立规则文本实例，不用数组下标造身份。来源82/82仅前置1049输入，②实际替换/恢复与④完整消费者语义仍OPEN |
 | S5/C7 SelectedBattlefield | ③S5 `007a72da`已交、待审；②后续只在实际该方法上给instructionState追加已付局部RunePools快照、既有Might调用追加chosen proof，保持付款/逐次执行/DamageAmount/伤害死亡顺序 |
 | S6 受限法力 | ③：RunePool.SpellOnlyMana默认0，Mana/Power含义不变；构造/保留/Normalize/Equals/hash/状态/公共资源投影/严格恢复；PaymentPlan明确服务端确认的PlaySpell用途，其他用途默认不得消耗；最小跨partial字段保留，不改别线算法 |
 | S6 精确目录依赖 | ④已交`16f1e19f`，①已核API/记录/卡图及原目录行；为③的`d430fa77`制成三文件补丁（1040→1041），已转③，实际S6验证待回交。本线1047全局数量与依赖缺失辅助类的新测试不移入③；源2/2来自未提交Plank的1049输入，不能冒充独立输入通过。当前候选不接此印次 |
