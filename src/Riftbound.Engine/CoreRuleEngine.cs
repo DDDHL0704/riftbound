@@ -25712,13 +25712,14 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     && cardObjects.TryGetValue(firstTargetObjectId, out var currentFirstTargetStateForModifier))
                 {
                     var modifiedFirstTargetState = ApplyPowerModifier(
-                        state with { PlayerZones = playerZones, CardObjects = cardObjects },
+                        state with { PlayerZones = playerZones, CardObjects = cardObjects, RunePools = runePools },
                         currentFirstTargetStateForModifier,
                         behavior,
                         stackItem,
                         firstTargetObjectId,
                         behavior.PowerModifierAmount,
-                        out var powerEvent);
+                        out var powerEvent,
+                        CaptureChosenActionTarget(state with { CardObjects = cardObjects }, stackItem, firstTargetObjectId));
                     cardObjects[firstTargetObjectId] = modifiedFirstTargetState;
                     events.Add(powerEvent);
                 }
@@ -25958,13 +25959,14 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 if (firstPowerDelta != 0)
                 {
                     var nextFirstTargetState = ApplyPowerModifier(
-                        state with { PlayerZones = playerZones, CardObjects = cardObjects },
+                        state with { PlayerZones = playerZones, CardObjects = cardObjects, RunePools = runePools },
                         firstTargetState,
                         behavior,
                         stackItem,
                         firstTargetObjectId,
                         firstPowerDelta,
-                        out var firstPowerEvent);
+                        out var firstPowerEvent,
+                        CaptureChosenActionTarget(state with { CardObjects = cardObjects }, stackItem, firstTargetObjectId));
                     cardObjects[firstTargetObjectId] = nextFirstTargetState;
                     events.Add(firstPowerEvent);
                 }
@@ -25972,13 +25974,14 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 if (secondPowerDelta != 0)
                 {
                     var nextSecondTargetState = ApplyPowerModifier(
-                        state with { PlayerZones = playerZones, CardObjects = cardObjects },
+                        state with { PlayerZones = playerZones, CardObjects = cardObjects, RunePools = runePools },
                         secondTargetState,
                         behavior,
                         stackItem,
                         secondTargetObjectId,
                         secondPowerDelta,
-                        out var secondPowerEvent);
+                        out var secondPowerEvent,
+                        CaptureChosenActionTarget(state with { CardObjects = cardObjects }, stackItem, secondTargetObjectId));
                     cardObjects[secondTargetObjectId] = nextSecondTargetState;
                     events.Add(secondPowerEvent);
                 }
@@ -26220,6 +26223,20 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     {
                         var primaryStatusEffectId = statusEffectIds[0];
                         if (behavior.ReturnsTargetToHandIfAlreadyHasStatusEffect
+                            && targetState.UntilEndOfTurnEffects.Contains(primaryStatusEffectId, StringComparer.Ordinal))
+                        {
+                            var returnState = state with { PlayerZones = playerZones, CardObjects = cardObjects, RunePools = runePools };
+                            if (CanExecuteReturn(returnState, targetState)
+                                && ResolveChosenActionReplacement(returnState, stackItem, targetState,
+                                    CaptureChosenActionTarget(returnState, stackItem, targetObjectId),
+                                    EmpoweredTargetReplacementRules.ReturnToHand) is { } selectedReturn)
+                            {
+                                cardObjects[targetObjectId] = selectedReturn.Target;
+                                if (selectedReturn.Event is { } changed) events.Add(changed);
+                                continue;
+                            }
+                        }
+                        if (behavior.ReturnsTargetToHandIfAlreadyHasStatusEffect
                             && targetState.UntilEndOfTurnEffects.Contains(primaryStatusEffectId, StringComparer.Ordinal)
                             && TryReturnTargetToHand(playerZones, cardObjects, targetObjectId, out var statusReturnOwnerPlayerId, out _))
                         {
@@ -26267,6 +26284,20 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                         foreach (var statusEffectId in statusEffectIds)
                         {
                             if (statusEffectId == "STUNNED" && !CanExecuteStun(targetState)) continue;
+                            if (statusEffectId == "STUNNED")
+                            {
+                                var currentCards = cardObjects.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
+                                currentCards[targetObjectId] = targetState;
+                                var stunState = state with { PlayerZones = playerZones, CardObjects = currentCards, RunePools = runePools };
+                                if (ResolveChosenActionReplacement(stunState, stackItem, targetState,
+                                    CaptureChosenActionTarget(stunState, stackItem, targetObjectId),
+                                    EmpoweredTargetReplacementRules.Stun) is { } selectedStun)
+                                {
+                                    targetState = selectedStun.Target;
+                                    if (selectedStun.Event is { } changed) events.Add(changed);
+                                    continue;
+                                }
+                            }
                             var appliedStatusEffectId = DamageDoublingApplications.NextEffectId(targetState,
                                 TemporaryCombatKeywordRules.AppliedEffectId(targetState, statusEffectId));
                             targetState = targetState with
@@ -26324,13 +26355,14 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                         && PowerModifierConditionApplies(targetState, behavior))
                     {
                         targetState = ApplyPowerModifier(
-                            state with { PlayerZones = playerZones, CardObjects = cardObjects },
+                            state with { PlayerZones = playerZones, CardObjects = cardObjects, RunePools = runePools },
                             targetState,
                             behavior,
                             stackItem,
                             targetObjectId,
                             powerModifierAmount,
-                            out var powerEvent);
+                            out var powerEvent,
+                            CaptureChosenActionTarget(state with { CardObjects = cardObjects }, stackItem, targetObjectId));
                         events.Add(powerEvent);
                     }
 
@@ -26553,6 +26585,23 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                         }
 
                         continue;
+                    }
+
+                    if (behavior.ReturnsTargetToHand)
+                    {
+                        var originalOwner = targetState.OwnerId;
+                        var returnState = state with { PlayerZones = playerZones, CardObjects = cardObjects, RunePools = runePools };
+                        if (CanExecuteReturn(returnState, targetState)
+                            && ResolveChosenActionReplacement(returnState, stackItem, targetState,
+                                CaptureChosenActionTarget(returnState, stackItem, targetObjectId),
+                                EmpoweredTargetReplacementRules.ReturnToHand) is { } selectedReturn)
+                        {
+                            cardObjects[targetObjectId] = selectedReturn.Target;
+                            if (selectedReturn.Event is { } changed) events.Add(changed);
+                            ResolveIndependentReturnOwnerRuneInstruction(playerZones, cardObjects, behavior,
+                                stackItem, originalOwner, events);
+                            continue;
+                        }
                     }
 
                     if (behavior.ReturnsTargetToHand
@@ -28140,7 +28189,14 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     ["reason"] = "TARGET_NO_LONGER_LEGAL"
                 }));
         }
-        else
+        else if (ResolveChosenActionReplacement(state with { PlayerZones = playerZones, CardObjects = cardObjects },
+            stackItem, targetState, CaptureChosenActionTarget(state, stackItem, targetObjectId),
+            EmpoweredTargetReplacementRules.Stun) is { } selectedStun)
+        {
+            cardObjects[targetObjectId] = selectedStun.Target;
+            if (selectedStun.Event is { } changed) events.Add(changed);
+        }
+        else if (CanExecuteStun(targetState))
         {
             var nextEffects = targetState.UntilEndOfTurnEffects
                 .Concat(["STUNNED"])
@@ -30753,8 +30809,14 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         StackItemState stackItem,
         string targetObjectId,
         int powerModifierAmount,
-        out GameEvent powerEvent)
+        out GameEvent powerEvent,
+        ChosenActionTarget? chosen = null)
     {
+        if (chosen is { IsCurrent: false }) {
+            powerEvent = new("ABILITY_NO_EFFECT", "选中的目标已不是原游戏物体",
+                new Dictionary<string, object?> { ["stackItemId"] = stackItem.StackItemId, ["reason"] = "TARGET_GENERATION_CHANGED" });
+            return targetState;
+        }
         var previousPower = targetState.Power;
         var appliedPowerDelta = powerModifierAmount;
         var minimumPower = powerModifierAmount < 0 ? behavior.MinimumPowerAfterModifier : 0;
@@ -30771,6 +30833,20 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             // reduction including aura/role bonuses, then retain that arithmetic
             // modifier if the unit later leaves the aura (Spiritforged FAQ).
             appliedPowerDelta = Math.Max(powerModifierAmount, -Math.Max(0, might - minimumPower));
+        }
+        if (appliedPowerDelta < 0 && chosen is not null)
+        {
+            if (powerState is null) throw new InvalidOperationException("Chosen action replacement requires the current rule state.");
+            var currentCards = powerState.CardObjects.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
+            currentCards[targetObjectId] = targetState;
+            var selected = ResolveChosenActionReplacement(powerState with { CardObjects = currentCards }, stackItem,
+                targetState, chosen, EmpoweredTargetReplacementRules.NegativeMight, powerModifierAmount,
+                appliedPowerDelta, minimumPower, snapshotMight);
+            if (selected is not null) {
+                powerEvent = selected.Event ?? new("ABILITY_NO_EFFECT", "选中的目标已失效",
+                    new Dictionary<string, object?> { ["stackItemId"] = stackItem.StackItemId, ["reason"] = "TARGET_GENERATION_CHANGED" });
+                return selected.Target;
+            }
         }
         var replacement = appliedPowerDelta < 0 ? EmpoweredSpellRules.Replace(powerState, stackItem, targetState, powerModifierAmount) : null;
         if (replacement is not null) {

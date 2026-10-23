@@ -26,7 +26,10 @@ public sealed partial class CoreRuleEngine
         var publicIds = zones.Values.SelectMany(z => z.Base.Concat(z.Battlefields).Concat(z.Graveyard)
             .Concat(z.Banished).Concat(z.LegendZone).Concat(z.ChampionZone)).ToHashSet(StringComparer.Ordinal);
         var visible = cards.Where(p => publicIds.Contains(p.Key) && !p.Value.IsFaceDown)
-            .ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal);
+            .ToDictionary(p => p.Key, p => p.Value with {
+                UntilEndOfTurnPowerModifiers = p.Value.UntilEndOfTurnPowerModifiers
+                    .Select(modifier => modifier with { ChosenActionReplacement = null }).ToArray()
+            }, StringComparer.Ordinal);
         string[] Field(IReadOnlyList<string> ids) => ids.Where(visible.ContainsKey).ToArray();
         var publicZones = zones.ToDictionary(p => p.Key, p => new PlayerZones([], [], [],
             Field(p.Value.Base), Field(p.Value.Battlefields), p.Value.Graveyard.ToArray(), Field(p.Value.Banished),

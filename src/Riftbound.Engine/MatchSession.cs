@@ -463,6 +463,9 @@ public sealed record PowerModifierLedgerEntry
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public ChosenNegativeMightContext? ChosenNegativeMight { get; init; }
 
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public ChosenActionReplacementContext? ChosenActionReplacement { get; init; }
+
     private static string NormalizeText(string? value)
     {
         return string.IsNullOrWhiteSpace(value) ? string.Empty : value.Trim();

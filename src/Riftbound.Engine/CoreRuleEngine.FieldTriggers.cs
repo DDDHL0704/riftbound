@@ -295,7 +295,8 @@ public sealed partial class CoreRuleEngine
                 var behavior = new CardBehaviorDefinition(item.CardNo, "战斗身份触发", 0, item.EffectKind, 0, 1,
                     TargetScope: CardTargetScopes.EnemyUnit, PowerModifierAmount: spec.PowerDelta!.Value,
                     MinimumPowerAfterModifier: spec.MinimumPowerAfterModifier!.Value);
-                cards[target] = ApplyPowerModifier(state, card, behavior, item, target, spec.PowerDelta.Value, out var modified);
+                cards[target] = ApplyPowerModifier(state, card, behavior, item, target, spec.PowerDelta.Value,
+                    out var modified, CaptureChosenActionTarget(state, item, target));
                 events.Add(modified);
             }
             else if (item.FieldContext.Kind == "RECYCLE_BOON")
