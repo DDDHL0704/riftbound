@@ -32,6 +32,10 @@
 
 | C9 GA已贴附宿主摧毁替换 | ②五文件proposal b5c45075获批：OfficialArmamentDefinition可选ReplacesHostDestruction默认false、现38条中仅SFD051 true/来源追加（其他37条原文和顺序保留）；RuleInputIdentity纳入flag；新ReplacementKinds常量，无DTO/event kind。Core仅DestructionOptions/ApplyDestructionOption，按当前同位置贴附及host/gear代际/revision为独立强制实例；宿主当前controller，不限gear owner，宿主为效果源/召回source、granting gear为被摧毁目标。复用nested gear destruction及inherited-chain used set；旧GEAR分支含义不变。CN图fde3a9e/373.2+374+719.1已核，原1红1对照。多GA/真伤害/异控制/GA+Zhonya/Soraka与C8组/待决恢复和伪造待交；718.6无注册动画路径时仅标representation/恢复约束，不虚构RAD实际指令或CN适用性 |
 
+
+| C9 控制召回贴附组 | 第二独立实红：OGN203把host移P2 BASE但GA仍贴附且留P1 HOME；719.3真实组位置被破坏，GA同位置guard正确。批准118c02bd单行：TryGainControlOfTargetToBase写回controlledTargetState后调用现有RecallAttachedGroupToBase；保留gear owner/controller/耗竭/代际/revision、旧无贴附结果、S7 caller已付池，不扩其他控制/标准移动/费用或新move事件。当前C9可变6文件，A3不混；GA+Song实际共同位置/唯一zone/cold/原日志待交，旧C8控制证明不追认为拓扑通过 |
+| N12 条件正Might | ④exact CN37766/VEN072，图b961d91与record ff3bae已核；原3例2过1红，真实强化目标RequestedDelta应4而实际2。批准CardBehaviorDefinition末尾nullable PowerModifierAmountIfTargetEmpowered=null，VEN072固定2/4；仅ResolvePowerModifierAmount固定量返回支路读取当前合法绑定目标.IsEmpowered，原动态量分支/默认值/目标代际/位置/条件/费用/时机/事件和C7守卫不变。真实Howl在未结算Empower上方仍2、已结算4，回手代际不能重绑；pending/幂等/原日志/伪造及完整消费者包待交。无cardNo分支/DTO/全局条件或clock扩展；同Core大文件C9 control方法由②拥有 |
+
 C7须保留旧floor/负历史守卫；失效的已选目标不能回退为对新代际的普通动作。受影响物体控制者决定同事件替换顺序，每实例一次；swap先锁差值，-0/不可执行行动没有替换。私下保留原动作与替换规则双源，公开不泄露witness；+3归因须有来源及下游断言。S6清池遵从所有玩家的正常主阶段开始/回合结束边界；混合池报价/实付/剩余一致，负数/溢出/伪造不能被归一化洗白。全原日志出生审计、拒绝回滚及原测试守卫均保持。
 
 核对的既有CN核心SHA `d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11`：C7 370.2/372，S6 166–168/430；VEN FAQ SHA `59bd828207564540aa3c9885f9dfc39764034f633eb6fb84d49440c9edef4742`。S6 API原响应SHA `4dfaf40eda6e4f7b0a09624693c32f8f42933859fe12a9b1027a564a6aba44e2`。这些是所审输入，非全官网最新/整卡认证。①原件：`var/qa/related-backend-integration-20261024-v3/{c7-contract-review-v1.json,restricted-mana-shared-contract-review-v1.json}`。
