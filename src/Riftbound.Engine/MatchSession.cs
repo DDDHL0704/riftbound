@@ -18438,6 +18438,8 @@ public sealed partial class MatchSession : IMatchSession
             "basic-play" => BuildBasicPlayScenario(current, seed),
             "ven-flow-combat-normal" or "ven-flow-combat-flow"
                 => BuildVenFlowCombatKeywordScenario(current, seed, scenarioId.EndsWith("-flow", StringComparison.Ordinal)),
+            "damage-doubling-combat-keywords" or "damage-doubling-overflow" or "damage-marked-overflow"
+                => BuildDamageDoublingCombatKeywordScenario(current, seed, scenarioId),
             "selected-damage-bullet" or "selected-damage-bullet-gate"
                 or "selected-damage-drop" or "selected-damage-drop-gate"
                 or "selected-damage-crescent" or "selected-damage-crescent-gate"
