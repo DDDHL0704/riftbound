@@ -20,7 +20,9 @@ internal static class RestrictedManaNetworkAcceptance
         using var fixture = JsonDocument.Parse(await File.ReadAllBytesAsync(Path.Combine(folder, "network-fixture.json"), token));
         var root = fixture.RootElement; var room = root.GetProperty("room").GetString()!;
         var actor = root.GetProperty("actor").GetString()!; var peer = root.GetProperty("peer").GetString()!;
-        var players = root.GetProperty("tokens").EnumerateObject().ToDictionary(p => p.Name, p => p.Value.GetString()!);
+        var initialTokens = root.GetProperty("tokens").EnumerateObject().ToDictionary(p => p.Name, p => p.Value.GetString()!);
+        await using var audit = await PaymentReconnectEvidence.Begin(room, folder, mode, initialTokens);
+        var players = audit.Tokens;
         var snapshots = new ConcurrentDictionary<string, JsonElement>(); var prompts = new ConcurrentDictionary<string, ActionPromptDto>();
         var traces = new ConcurrentQueue<object>(); var connections = new Dictionary<string, HubConnection>();
         try
@@ -33,6 +35,7 @@ internal static class RestrictedManaNetworkAcceptance
                 foreach (var method in new[] { "Joined", "Snapshot", "Prompt", "Events", "Error" })
                     client.On<WsServerMessage>(method, message => {
                         traces.Enqueue(new { recipient = player, method, message });
+                        if (!audit.Observe(player, method, message)) deadline.Cancel();
                         if (message.Payload is not JsonElement payload) return;
                         if (method == "Snapshot") snapshots[player] = payload.Clone();
                         if (method == "Prompt") prompts[player] = payload.Deserialize<ActionPromptDto>(json)!;
@@ -40,9 +43,9 @@ internal static class RestrictedManaNetworkAcceptance
                 await client.StartAsync(token);
                 var auth = await client.InvokeAsync<AuthResultDto>("Authenticate", player, "restricted-key-" + player, token);
                 Check(auth.Authenticated, "Restricted-mana authentication failed.");
-                await client.InvokeAsync("Reconnect", room, player, reconnect, token); await client.InvokeAsync("RequestSnapshot", room, player, token);
+                await client.InvokeAsync("Reconnect", room, player, reconnect, token); await audit.RequireJoined(player, token); await client.InvokeAsync("RequestSnapshot", room, player, token);
             }
-            await Views();
+            await Views(); await audit.Connected();
             if (mode == "play")
             {
                 Check(!snapshots[peer].GetRawText().Contains("QA-FIRST", StringComparison.Ordinal)
@@ -56,13 +59,13 @@ internal static class RestrictedManaNetworkAcceptance
                 await Submit(actor, "restricted-first-pass-a", Raw(actor, new PassPriorityCommand()));
                 await Submit(peer, "restricted-peer-gain", Raw(peer, new ActivateAbilityCommand("QA-PEER-LUX", P4ActivatedAbilityCatalog.LuxResourceAbilityId, [])));
                 await Submit(peer, "restricted-first-pass-b", Raw(peer, new PassPriorityCommand()));
-                var bad = await connections[actor].InvokeAsync<CommandReceiptDto>("SubmitIntent", room, actor, "restricted-unavailable", Payment("SPEND_POWER:99"), token);
+                var bad = await audit.Reject(actor, actor, ErrorCodes.InvalidTarget, () => connections[actor].InvokeAsync<CommandReceiptDto>("SubmitIntent", room, actor, "restricted-unavailable", Payment("SPEND_POWER:99"), token), token);
                 Check(!bad.Accepted && bad.ErrorCode == ErrorCodes.InvalidTarget, "An unavailable instruction quantity must reject.");
                 var resource = Choices().Single(id => id.StartsWith("RESOURCE:QA-SECOND-LUX:")); var rawResource = Payment(resource);
-                var forbidden = await connections[peer].InvokeAsync<CommandReceiptDto>("SubmitIntent", room, actor, "restricted-peer-spoof", rawResource, token);
+                var forbidden = await audit.Reject(peer, actor, ErrorCodes.IdentityMismatch, () => connections[peer].InvokeAsync<CommandReceiptDto>("SubmitIntent", room, actor, "restricted-peer-spoof", rawResource, token), token);
                 Check(!forbidden.Accepted, "A peer cannot acquire or spend resources as the resolving controller.");
                 var receipt = await Submit(actor, "restricted-instruction-resource", rawResource);
-                var stale = await connections[actor].InvokeAsync<CommandReceiptDto>("SubmitIntent", room, actor, "restricted-old-prompt", rawResource, token);
+                var stale = await audit.Reject(actor, actor, ErrorCodes.PromptExpired, () => connections[actor].InvokeAsync<CommandReceiptDto>("SubmitIntent", room, actor, "restricted-old-prompt", rawResource, token), token);
                 Check(!stale.Accepted && stale.ErrorCode == ErrorCodes.PromptExpired && stale.ServerTick == receipt.ServerTick,
                     "An old resource prompt cannot be reused under another intent.");
                 Check(!Choices().Any(id => id.StartsWith("SPEND_MANA:") || id == "SPEND_POWER:1"), "Restricted mana cannot pay the power instruction.");
@@ -81,8 +84,8 @@ internal static class RestrictedManaNetworkAcceptance
                     Check(JsonNode.DeepEquals(JsonNode.Parse(before.GetProperty("prompts").GetProperty(player).GetRawText()), JsonSerializer.SerializeToNode(prompts[player], json)),
                         "Actual process restart changed the resource continuation choices.");
                 }
-                var duplicate = await connections[actor].InvokeAsync<CommandReceiptDto>("SubmitIntent", room, actor,
-                    "restricted-instruction-resource", before.GetProperty("rawResource"), token);
+                var duplicate = await audit.WithoutWrites("duplicate-" + prompts[actor].SnapshotTick, () => connections[actor].InvokeAsync<CommandReceiptDto>("SubmitIntent", room, actor,
+                    "restricted-instruction-resource", before.GetProperty("rawResource"), token));
                 Check(duplicate.Accepted && duplicate.ServerTick == before.GetProperty("tick").GetInt64(), "A cold duplicate must return the old resource receipt.");
             }
             else
@@ -100,9 +103,9 @@ internal static class RestrictedManaNetworkAcceptance
                 Check(!denied.CanPay && denied.Cost is { AvailableMana: 1, AvailableSpellOnlyMana: 0, RemainingSpellOnlyMana: null },
                     "Unit payment must not count the actor's two restricted mana.");
                 var unitRaw = Raw(actor, unit); var tick = prompts[actor].SnapshotTick;
-                var refusal = await connections[actor].InvokeAsync<CommandReceiptDto>("SubmitIntent", room, actor, "restricted-unit-rejected", unitRaw, token);
+                var refusal = await audit.Reject(actor, actor, ErrorCodes.InsufficientCost, () => connections[actor].InvokeAsync<CommandReceiptDto>("SubmitIntent", room, actor, "restricted-unit-rejected", unitRaw, token), token);
                 Check(!refusal.Accepted && refusal.ErrorCode == ErrorCodes.InsufficientCost && refusal.ServerTick == tick, "The server must independently reject the actual unit command.");
-                var duplicate = await connections[actor].InvokeAsync<CommandReceiptDto>("SubmitIntent", room, actor, "restricted-unit-rejected", unitRaw, token);
+                var duplicate = await audit.WithoutWrites("duplicate-" + prompts[actor].SnapshotTick, () => audit.Reject(actor, actor, ErrorCodes.InsufficientCost, () => connections[actor].InvokeAsync<CommandReceiptDto>("SubmitIntent", room, actor, "restricted-unit-rejected", unitRaw, token), token));
                 Check(!duplicate.Accepted && duplicate.ServerTick == tick, "A rejected unit intent must retain its original cached receipt.");
                 Check(PoolAmount(actor, "spellOnlyMana") == 2 && PoolAmount(peer, "spellOnlyMana") == 2, "Both genuine balances must remain positive before turn end.");
                 await Save(folder, "network-before-clear.json", new { snapshots, prompts, quote, denied, refusal, duplicate });
@@ -112,10 +115,13 @@ internal static class RestrictedManaNetworkAcceptance
                 Check(snapshots[actor].GetProperty("timing").GetProperty("phase").GetString() == MatchPhases.Main
                     && snapshots[actor].GetProperty("activePlayerId").GetString() == peer, "The match must normally enter the opponent's main phase.");
             }
+            await audit.Complete();
             await Save(folder, "network-" + mode + ".json", new { status = "REAL_SIGNALR_RESTRICTED_MANA_PASS", room, mode,
                 snapshots, prompts, traces = traces.ToArray(), scope = "Original room seats and finite QA position; restart driven externally. No ordinary-opening, UI or whole-card certification." });
         }
-        finally { foreach (var client in connections.Values) await client.DisposeAsync(); }
+        finally {
+            await File.WriteAllTextAsync(Path.Combine(folder, "network-trace-" + (mode) + ".json"), JsonSerializer.Serialize(traces.ToArray(), json));
+ foreach (var client in connections.Values) await client.DisposeAsync(); }
 
         int PoolAmount(string player, string key)
         {
@@ -146,7 +152,7 @@ internal static class RestrictedManaNetworkAcceptance
         async Task Views(long? tick = null)
         {
             while (players.Keys.Any(player => !snapshots.TryGetValue(player, out var snapshot) || !prompts.TryGetValue(player, out var prompt)
-                || tick is not null && (snapshot.GetProperty("tick").GetInt64() != tick || prompt.SnapshotTick != tick))) await Task.Delay(20, token);
+                || tick is not null && (snapshot.GetProperty("tick").GetInt64() != tick || prompt.SnapshotTick != tick))) { audit.Healthy(); await Task.Delay(20, token); }
             foreach (var snapshot in snapshots.Values) Check(!snapshot.GetRawText().Contains("reconnectToken", StringComparison.Ordinal)
                 && !snapshot.GetRawText().Contains("openingSeed", StringComparison.Ordinal), "Server-only authentication or opening data escaped.");
         }

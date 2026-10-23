@@ -126,11 +126,7 @@ internal static class PaymentResourceSurplusSqlAcceptance
             rows.Append(table).Append('\n').Append((string)(await query.ExecuteScalarAsync())!).Append('\n');
         }
         var digest = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(rows.ToString()))).ToLowerInvariant();
-        if (stage == "after-restart") {
-            using var previous = JsonDocument.Parse(await File.ReadAllBytesAsync(Path.Combine(output, "sql-before-restart.json")));
-            Check(previous.RootElement.GetProperty("sevenTableDigest").GetString() == digest,
-                "Actual API restart, reconnect and duplicate submission must not change any row in the seven tables.");
-        }
+        await PaymentReconnectEvidence.VerifyCheckpoint(source, room, output, stage);
         await File.WriteAllTextAsync(Path.Combine(output, "sql-" + stage + ".json"), JsonSerializer.Serialize(new {
             status = "REAL_API_PAYMENT_SURPLUS_SQL_AND_ORIGINAL_REPLAY_PASS", stage, room, commands = frame.Commands.Count,
             events = frame.Events.Count, finalHash = MatchStateHasher.Hash(state), sevenTableDigest = digest,

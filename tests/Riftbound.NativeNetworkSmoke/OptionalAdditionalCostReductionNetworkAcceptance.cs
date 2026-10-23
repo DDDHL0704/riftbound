@@ -25,7 +25,9 @@ internal static class OptionalAdditionalCostReductionNetworkAcceptance
         var room = root.GetProperty("room").GetString()!;
         var actor = root.GetProperty("actor").GetString()!;
         var kind = root.GetProperty("expectedKind").GetString()!;
-        var players = root.GetProperty("tokens").EnumerateObject().ToDictionary(pair => pair.Name, pair => pair.Value.GetString()!);
+        var initialTokens = root.GetProperty("tokens").EnumerateObject().ToDictionary(pair => pair.Name, pair => pair.Value.GetString()!);
+        await using var audit = await PaymentReconnectEvidence.Begin(room, output, recover ? "recover" : "play", initialTokens);
+        var players = audit.Tokens;
         var snapshots = new ConcurrentDictionary<string, JsonElement>();
         var prompts = new ConcurrentDictionary<string, ActionPromptDto>();
         var traces = new ConcurrentQueue<object>();
@@ -40,6 +42,7 @@ internal static class OptionalAdditionalCostReductionNetworkAcceptance
                 foreach (var method in new[] { "Joined", "Snapshot", "Prompt", "Events", "Error" })
                     client.On<WsServerMessage>(method, message => {
                         traces.Enqueue(new { recipient = player, method, message });
+                        if (!audit.Observe(player, method, message)) deadline.Cancel();
                         if (message.Payload is not JsonElement payload) return;
                         if (method == "Snapshot") snapshots[player] = payload.Clone();
                         if (method == "Prompt") prompts[player] = payload.Deserialize<ActionPromptDto>(json)!;
@@ -47,10 +50,10 @@ internal static class OptionalAdditionalCostReductionNetworkAcceptance
                 await client.StartAsync(token);
                 var auth = await client.InvokeAsync<AuthResultDto>("Authenticate", player, "optional-cost-key-" + player, token);
                 Check(auth.Authenticated, "Dedicated optional-cost audit authentication failed.");
-                await client.InvokeAsync("Reconnect", room, player, reconnect, token);
+                await client.InvokeAsync("Reconnect", room, player, reconnect, token); await audit.RequireJoined(player, token);
                 await client.InvokeAsync("RequestSnapshot", room, player, token);
             }
-            await WaitForViews();
+            await WaitForViews(); await audit.Connected();
             if (!recover)
             {
                 var opponent = players.Keys.Single(player => player != actor);
@@ -90,19 +93,19 @@ internal static class OptionalAdditionalCostReductionNetworkAcceptance
                 Check(quote.CanPay && quote.Cost!.Mana == root.GetProperty("expectedMana").GetInt32()
                     && quote.Cost.GenericPower == 0 && quote.Cost.PowerByTrait.Count == 0 && quote.Cost.RemainingMana == 0,
                     "The live quote must retain base mana and reduce only the declared optional fee.");
-                var bad = await connections[actor].InvokeAsync<CommandReceiptDto>("SubmitIntent", room, actor,
-                    "invalid-optional-generation", CurrentRaw("forgedCommand"), token);
+                var bad = await audit.Reject(actor, actor, ErrorCodes.InvalidTarget, () => connections[actor].InvokeAsync<CommandReceiptDto>("SubmitIntent", room, actor,
+                    "invalid-optional-generation", CurrentRaw("forgedCommand"), token), token);
                 Check(!bad.Accepted && bad.ErrorCode == ErrorCodes.InvalidTarget && bad.ServerTick == prompts[actor].SnapshotTick,
                     "The actual API must reject a forged generation without advancing state.");
-                var forbidden = await connections[opponent].InvokeAsync<CommandReceiptDto>("SubmitIntent", room, actor,
-                    "wrong-optional-actor", raw, token);
+                var forbidden = await audit.Reject(opponent, actor, ErrorCodes.IdentityMismatch, () => connections[opponent].InvokeAsync<CommandReceiptDto>("SubmitIntent", room, actor,
+                    "wrong-optional-actor", raw, token), token);
                 Check(!forbidden.Accepted, "A peer cannot submit another actor's discount choice.");
                 var receipt = await connections[actor].InvokeAsync<CommandReceiptDto>("SubmitIntent", room, actor,
                     "network-optional-play", raw, token);
                 Check(receipt.Accepted, receipt.Message);
                 await WaitForViews(receipt.ServerTick);
-                var stale = await connections[actor].InvokeAsync<CommandReceiptDto>("SubmitIntent", room, actor,
-                    "network-optional-stale", raw, token);
+                var stale = await audit.Reject(actor, actor, ErrorCodes.PromptExpired, () => connections[actor].InvokeAsync<CommandReceiptDto>("SubmitIntent", room, actor,
+                    "network-optional-stale", raw, token), token);
                 Check(!stale.Accepted && stale.ErrorCode == ErrorCodes.PromptExpired && stale.ServerTick == receipt.ServerTick,
                     "A stale discount selection must not charge resources or resolve another effect.");
                 await File.WriteAllTextAsync(Path.Combine(output, "network-resume.json"), JsonSerializer.Serialize(new {
@@ -120,16 +123,19 @@ internal static class OptionalAdditionalCostReductionNetworkAcceptance
                     Check(JsonNode.DeepEquals(JsonNode.Parse(before.GetProperty("prompts").GetProperty(player).GetRawText()),
                         JsonSerializer.SerializeToNode(prompts[player], json)), "Actual API restart changed a cost prompt or captured origin.");
                 }
-                var duplicate = await connections[actor].InvokeAsync<CommandReceiptDto>("SubmitIntent", room, actor,
-                    "network-optional-play", before.GetProperty("raw"), token);
+                var duplicate = await audit.WithoutWrites("duplicate-" + prompts[actor].SnapshotTick, () => connections[actor].InvokeAsync<CommandReceiptDto>("SubmitIntent", room, actor,
+                    "network-optional-play", before.GetProperty("raw"), token));
                 Check(duplicate.Accepted && duplicate.ServerTick == before.GetProperty("tick").GetInt64(),
                     "A cold duplicate must return the original accepted payment.");
             }
+            await audit.Complete();
             await File.WriteAllTextAsync(Path.Combine(output, recover ? "network-after-restart.json" : "network-before-restart.json"),
                 JsonSerializer.Serialize(new { status = "REAL_DUAL_PLAYER_SIGNALR_OPTIONAL_REDUCTION_PASS", kind, room, recover,
                     snapshots, prompts, traces = traces.ToArray(), scope = "Actual authenticated API; opaque printed/copied choices, quote, invalid generation, peer/stale rejection, private origins and same original intent after process restart. No whole-card or UI certification." }, json), token);
         }
-        finally { foreach (var connection in connections.Values) await connection.DisposeAsync(); }
+        finally {
+            await File.WriteAllTextAsync(Path.Combine(output, "network-trace-" + (recover ? "recover" : "play") + ".json"), JsonSerializer.Serialize(traces.ToArray(), json));
+ foreach (var connection in connections.Values) await connection.DisposeAsync(); }
 
         JsonElement CurrentRaw(string property)
         {
@@ -142,7 +148,7 @@ internal static class OptionalAdditionalCostReductionNetworkAcceptance
             while (players.Keys.Any(player => !snapshots.TryGetValue(player, out var snapshot)
                 || !prompts.TryGetValue(player, out var prompt) || tick is not null
                 && (snapshot.GetProperty("tick").GetInt64() != tick || prompt.SnapshotTick != tick)))
-                await Task.Delay(20, token);
+                { audit.Healthy(); await Task.Delay(20, token); }
             foreach (var snapshot in snapshots.Values)
                 Check(!snapshot.GetRawText().Contains("reconnectToken", StringComparison.Ordinal)
                     && !snapshot.GetRawText().Contains("openingSeed", StringComparison.Ordinal), "Server-only identity data escaped in a snapshot.");
