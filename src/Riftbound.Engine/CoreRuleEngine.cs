@@ -14039,14 +14039,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 combatKeyword));
         keywordBonus = Math.Max(
             keywordBonus,
-            ResolveSameBattlefieldOtherFriendlyUnitsKeywordBonus(
-                state,
-                playerZones,
-                objectId,
-                cardObject,
-                combatKeyword));
-        keywordBonus = Math.Max(
-            keywordBonus,
             ResolveBattlefieldKeywordStaticAuraBonus(
                 state,
                 playerZones,
@@ -14061,6 +14053,14 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 objectId,
                 cardObject,
                 combatKeyword));
+        // Each other friendly unit's local aura is an independent grant
+        // (CN 807.2 / 814.2), separate from the recipient's own keyword layer.
+        keywordBonus += ResolveSameBattlefieldOtherFriendlyUnitsKeywordBonus(
+            state,
+            playerZones,
+            objectId,
+            cardObject,
+            combatKeyword);
         if (isAttacking)
         {
             keywordBonus += CountLucianLegendEquipmentAssaultBonus(state, playerZones, objectId);
@@ -14477,7 +14477,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 .Where(StaticAuraSpecRules.IsSameBattlefieldOtherFriendlyKeywordStaticAura)
                 .Where(aura => SameBattlefieldOtherFriendlyKeywordStaticAuraAppliesToParticipant(aura, cardObject)))
             {
-                bonus = Math.Max(bonus, GrantedCombatKeywordAmount(aura, combatKeyword));
+                bonus += GrantedCombatKeywordAmount(aura, combatKeyword);
             }
         }
 
