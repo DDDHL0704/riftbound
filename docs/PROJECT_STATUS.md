@@ -4,10 +4,10 @@
 
 | 位置 | 固定输入 / 批次 | 已确认状态 / 主责 |
 |---|---|---|
-| 待调度候选 | 不可变tag `backend-related-20261024-a2` | 代码边界`a6f64df0`：旧8项窄修复+C5+C6+N3；加N3 `b97a5799`、C5/C6 `903c7ede`日志化QA入口及①CI glue；[成员清单](audit/backend-related-20261024-a2.json)与[执行合同](CI_BACKEND_ACCEPTANCE_CONTRACT.md)。封板后以完整SHA调度Actions，实际checkout回执必须匹配 |
+| 当前候选验证中 | `cbcf5c24` / 不可变tag `backend-related-20261024-a2` | 代码边界`a6f64df0`：旧8项窄修复+C5+C6+N3；加N3 `b97a5799`、C5/C6 `903c7ede`日志化QA入口及①CI glue；[成员清单](audit/backend-related-20261024-a2.json)与[执行合同](CI_BACKEND_ACCEPTANCE_CONTRACT.md)。已实际调度[Actions 39998674123](https://github.com/DDDHL0704/riftbound/actions/runs/39998674123)，scope实际SHA/tree/index与本地封板一致；scope/旧native_network通过，full/四SQL/related_network/desktop待终态 |
 | 已有定向 / 入口检查 | `a6f64df0`组合654/654，含6个原完整局 | 新API/Postgres/公共驱动build通过；116项Python工具测试通过；治理valid但语义未认证。未执行本机新重型验收；这些结果不代替候选远端门禁 |
 | 下一批队列 | N4 `c7abd6ae`；S4 `1e08030b`/`9e2a0d06`；N5 `f11a7871`；S5 `007a72da`/`d430fa77`；N6 `3cfda19e` | 完整交付待审，排除本候选。三线继续独立包，不等full；失败修复优先并交回主责 |
-| 共同接点 | 普朗克目标侧替换 / 指令结算费用 | ②C7先提交共同契约设计，④后续精确注册；③S5复用现有RuleChoiceContinuation及已分配SelectedBattlefield局部费用接缝。均排除本候选 |
+| 共同接点 | 普朗克目标侧替换 / 指令结算费用 | ①已审C7/profile与S6受限法力最小共享契约，[实际接点分配](parallel/SHARED_BACKEND_CONTRACTS_2026-10-24.md)；③S5局部付款/pools保留。均排除本候选 |
 
 | 历史固定输入 | 结果与边界 |
 |---|---|
