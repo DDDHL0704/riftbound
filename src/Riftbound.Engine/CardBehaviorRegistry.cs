@@ -450,6 +450,10 @@ public static class CardBehaviorRegistry
 {
     private static readonly CardBehaviorDefinition[] RawDefinitions =
     [
+        new("VEN·012", "表里杀缭乱", 3, "VEN_FLOW_READY_UNIT_TEMP_ASSAULT_3", 0, 1,
+            StatusEffectId: "COMBAT_KEYWORD:强攻3", TargetScope: CardTargetScopes.AnyUnit,
+            TargetRequiredTag: CardObjectTags.UnitCard, ReadiesTarget: true,
+            FlowCost: new(3, 1, [RuneTrait.Red])),
         new("VEN·120", "雷霆之怒 玛萨", 4, "MARZA_PLAY_UNIT_OPTIONAL_STUN_ENEMY_BATTLEFIELD", 0, 1,
             TargetScope: CardTargetScopes.EnemyBattlefieldUnit, TargetRequiredTag: CardObjectTags.UnitCard,
             MinTargetCount: 0, StatusEffectId: "STUNNED", PlaysSourceToBaseAsUnit: true,

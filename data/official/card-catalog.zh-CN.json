@@ -2,7 +2,7 @@
   "source": "https://playloltcg.com/card.html",
   "api": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
   "fetchedAt": "2026-04-27",
-  "total": 1044,
+  "total": 1045,
   "cards": [
     {
       "id": 31005,
@@ -43376,6 +43376,54 @@
       "isPreview": false,
       "errata": "",
       "otherDesc": 0
+    },
+    {
+      "id": 37697,
+      "cardCategoryList": [
+        "spell"
+      ],
+      "cardCategoryNameList": [
+        "法术"
+      ],
+      "cardNo": "VEN·012",
+      "cardName": "表里杀缭乱",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "red"
+      ],
+      "hero": "",
+      "region": "",
+      "tag": "",
+      "artist": "莺之歌",
+      "cardEffect": "让一名单位变为活跃状态，并给予其在本回合内{{强攻3}}。（如果其为进攻方，则{{S}}+3。）\n{{流转3红色}}（你可以选择支付此牌的流转费用，以此将其从你的废牌堆中打出。然后将其放逐。）",
+      "flavorText": "哪怕只是缺了一点，都成不了艺术。",
+      "energy": 3,
+      "returnEnergy": 1,
+      "power": null,
+      "productCodeList": [
+        "VEN(标准补充包)",
+        "VEN(进阶补充包)"
+      ],
+      "productNameList": [
+        "化神争锋 标准补充包",
+        "化神争锋 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_glimmer",
+      "rarityName": "不凡",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260710/76e1dc422a394f3d84f699b6961d5c43.png",
+      "backImage": "",
+      "listSort": 1989,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
     }
   ],
   "scopedAdditions": [
@@ -43961,6 +44009,21 @@
       "printedFaceIdentity": "VEN·120/166 SC",
       "separateGlobalPrintingIdentityNotMerged": "VEN-120/166",
       "reason": "Exact CN optional additional-cost conditional post-entry target consumer. New mapping is not whole-card certification; shared conditional target timing under L2 review."
+    },
+    {
+      "cardNo": "VEN·012",
+      "source": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "fetchedAtUtc": "2026-10-23T14:29:10.662464+00:00",
+      "sourceId": 37697,
+      "sourceRecordSha256": "a0c46c50d144154b521b7f5bfb69114d69e0641d1489c1d5b9d7a19029925fed",
+      "sourceRecordHashEncoding": "UTF-8 JSON sorted keys, compact separators, ensure_ascii=false",
+      "language": "zh-CN",
+      "region": "CN",
+      "publicationDate": null,
+      "effectiveDate": null,
+      "printedFaceIdentity": "VEN·012/166 SC",
+      "separateGlobalPrintingIdentityNotMerged": "VEN-012/166",
+      "reason": "Exact CN Flow consumer composed from ready-unit and temporary Assault grants. Registration and focused evidence are not whole-card certification."
     }
   ]
 }
