@@ -5062,15 +5062,7 @@ public sealed record ResolutionResult(
     }
 
     internal static IReadOnlyDictionary<string, int> BattleLethalDamageThresholdFor(MatchState state, BattleState battle)
-    {
-        return BattleParticipantObjectIds(battle)
-            .ToDictionary(
-                objectId => objectId,
-                objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
-                    ? UnitMovementRules.CannotTakeDamage(cardObject) ? 0 : Math.Max(0, BattleEffectivePowerFor(state, battle, objectId) - cardObject.Damage)
-                    : 0,
-                StringComparer.Ordinal);
-    }
+        => CoreRuleEngine.BuildCombatLethalDamageThreshold(state, battle);
 
     internal static IReadOnlyList<IReadOnlyDictionary<string, object?>> BattleRequiredAssignmentsFor(MatchState state, BattleState battle)
     {

@@ -23689,6 +23689,7 @@ public static partial class MatchRecoveryValidator
         if (battleDeclarations > 0 && (battleDeclarations != 1
             || !CoreRuleEngine.TryReadBattleResponseDeclarationContext(state, string.Empty, out _)))
             errors.Add("invalid battle response declaration");
+        if (!CoreRuleEngine.ValidBattleDamageAssignmentLedger(state)) errors.Add("invalid combat damage assignment ledger");
         if (!CoreRuleEngine.ValidMovementDiscardChoice(state)) errors.Add("invalid movement discard continuation");
         if (!CoreRuleEngine.ValidMovementDiscardState(state)) errors.Add("invalid movement discard inline bindings");
         foreach (var trigger in state.TriggerQueue)

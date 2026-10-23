@@ -2190,7 +2190,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     {
         assignments = [];
         var marker = state.UntilEndOfTurnEffects.FirstOrDefault(effectId =>
-            effectId.StartsWith(BattleDamageAssignmentLedgerPrefix, StringComparison.Ordinal));
+            effectId?.StartsWith(BattleDamageAssignmentLedgerPrefix, StringComparison.Ordinal) == true);
         if (string.IsNullOrWhiteSpace(marker))
         {
             return false;
@@ -2208,11 +2208,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 return false;
             }
 
-            assignments = parsed.Assignments
-                .Where(assignment => !string.IsNullOrWhiteSpace(assignment.SourceObjectId)
-                    && !string.IsNullOrWhiteSpace(assignment.TargetObjectId)
-                    && assignment.Damage > 0)
-                .ToArray();
+            if (parsed.Assignments is null || parsed.Assignments.Count == 0
+                || parsed.Assignments.Any(assignment => assignment is null
+                    || string.IsNullOrWhiteSpace(assignment.SourceObjectId)
+                    || string.IsNullOrWhiteSpace(assignment.TargetObjectId)
+                    || assignment.Damage <= 0)) return false;
+            assignments = parsed.Assignments.ToArray();
             return true;
         }
         catch (FormatException)
@@ -2223,6 +2224,21 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             return false;
         }
+    }
+
+    internal static bool ValidBattleDamageAssignmentLedger(MatchState state)
+    {
+        var markers = state.UntilEndOfTurnEffects.Count(effect => effect?.StartsWith(BattleDamageAssignmentLedgerPrefix, StringComparison.Ordinal) == true);
+        if (markers == 0) return true;
+        var battle = state.BattleState;
+        return markers == 1 && battle.IsActive && battle.AttackerObjectIds.Count > 0 && battle.DefenderObjectIds.Count > 0
+            && battle.AttackerObjectIds.Concat(battle.DefenderObjectIds).All(state.CardObjects.ContainsKey)
+            && TryReadBattleDamageAssignmentLedger(state, battle, out var assignments)
+            && ValidateCombatDamageAssignmentsForSources(state, battle, assignments,
+                BattleDamageAssignmentRequiredSourceIdsForSide(state, battle, battle.AttackerObjectIds)).Accepted
+            && HasOpenBattleDamageAssignmentWindow(state)
+            && BattleDamageAssigningPlayerId(state, battle, assignments) == BattleDefendingPlayerId(state, battle)
+            && state.ActivePlayerId == BattleDefendingPlayerId(state, battle);
     }
 
     private static IReadOnlyList<string> SetBattleDamageAssignmentLedgerMarker(
@@ -2549,7 +2565,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             .ToArray();
     }
 
-    private static IReadOnlyDictionary<string, int> BuildCombatLethalDamageThreshold(MatchState state, BattleState battle)
+    internal static IReadOnlyDictionary<string, int> BuildCombatLethalDamageThreshold(MatchState state, BattleState battle)
     {
         return battle.AttackerObjectIds
             .Concat(battle.DefenderObjectIds)
@@ -2557,12 +2573,17 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             .ToDictionary(
                 objectId => objectId,
                 objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
-                    ? RequiredLethalDamage(state, cardObject,
-                        ResolveAssignmentBattleCombatPower(state, battle, objectId, out _, out _, damageContribution: false),
-                        battle.AttackerObjectIds.Contains(objectId) ? BattleDefendingPlayerId(state, battle) : BattleAttackingPlayerId(state, battle))
+                    ? CombatBudgetForLethalDamage(cardObject, CombatRequiredMarkedDamage(state, battle, objectId))
                     : 0,
                 StringComparer.Ordinal);
     }
+
+    private static int CombatRequiredMarkedDamage(MatchState state, BattleState battle, string objectId)
+        => state.CardObjects.TryGetValue(objectId, out var cardObject)
+            ? RequiredLethalDamage(state, cardObject,
+                ResolveAssignmentBattleCombatPower(state, battle, objectId, out _, out _, damageContribution: false),
+                battle.AttackerObjectIds.Contains(objectId) ? BattleDefendingPlayerId(state, battle) : BattleAttackingPlayerId(state, battle))
+            : 0;
 
     private static int ResolveAssignmentBattleCombatPower(
         MatchState state,
@@ -12651,7 +12672,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     var lethalDamage = RequiredLethalDamage(state with { CardObjects = cardObjects, PlayerZones = playerZones }, defenderState, defenderCombatPower, intent.PlayerId);
                     var damageAmount = defenderIndex == defenderAssignments.Count - 1
                         ? remainingAttackerDamage
-                        : Math.Min(remainingAttackerDamage, lethalDamage);
+                        : Math.Min(remainingAttackerDamage, CombatBudgetForLethalDamage(defenderState, lethalDamage));
                     if (damageAmount <= 0)
                     {
                         continue;
@@ -12733,7 +12754,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     var lethalDamage = RequiredLethalDamage(state with { CardObjects = cardObjects, PlayerZones = playerZones }, targetAttackerState, targetAttackerCombatPower, defendingPlayerId);
                     var damageAmount = attackerIndex == attackerAssignments.Count - 1
                         ? remainingDefenderDamage
-                        : Math.Min(remainingDefenderDamage, lethalDamage);
+                        : Math.Min(remainingDefenderDamage, CombatBudgetForLethalDamage(targetAttackerState, lethalDamage));
                     if (damageAmount <= 0)
                     {
                         continue;
@@ -12773,7 +12794,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 .Where(assignment => attackerObjectIds.Contains(assignment.SourceObjectId, StringComparer.Ordinal)
                     && !UnitMovementRules.CannotTakeDamage(cardObjects[assignment.TargetObjectId]))
                 .GroupBy(assignment => assignment.TargetObjectId)
-                .Sum(group => Math.Max(0, group.Sum(assignment => assignment.Damage) - submittedDamage.LethalThreshold.GetValueOrDefault(group.Key)));
+                // Preserve the existing excess-damage input independently of the
+                // newly reduced budget threshold. Modified excess needs its own ruling.
+                .Sum(group => Math.Max(0, group.Sum(assignment => assignment.Damage)
+                    - CombatRequiredMarkedDamage(submittedDamage.State, submittedDamage.Battle, group.Key)));
         }
 
         var combatStackItem = new StackItemState(
@@ -21250,7 +21274,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         {
             Tick = state.Tick + 1,
             Status = MatchStatuses.Finished,
-            WinnerPlayerId = winnerPlayerId
+            WinnerPlayerId = winnerPlayerId,
+            UntilEndOfTurnEffects = ClearBattleDamageAssignmentLedgerMarkers(state.UntilEndOfTurnEffects)
         };
         var winningScore = EffectiveWinningScore(state);
         var events = new[]
