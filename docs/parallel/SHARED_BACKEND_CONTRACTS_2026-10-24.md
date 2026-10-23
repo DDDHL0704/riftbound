@@ -76,7 +76,15 @@ N16有限抵挡由②shared primary、④exact source/registration/consumer；�
 
 contract须解释实例来源/target generation/remaining/expiry、叠加与partial/double/unpreventable、零伤不耗、控制变更、source离场/target换代、轮末、选择中断冻结checkpoint/preview/一次提交消耗及多recipient继续；若相关439替换/换回继承状态，须与124普通非field reset区别核源。public不能借历史源泄露当前hidden手牌/牌堆身份；recovery独立拒绝缺项/重复/负数/溢出/已耗复活/错代际/协调投影伪造并保留原日志。
 
+N16补充原件已核：v6独立8例0/8、86命令220事件；v7独立2例0/2、29命令69事件及12实际JSON frame，不与v5合成一次40例。v7授予牌实际回收到hidden主牌堆、代际2→3时target仍0；已授予的until-turn效果应绑定正确target代际/期限，不依赖物理授予牌当前区域/代际，私有实例仍须由原接受grant/resolution历史独立证明。公开剩余值或来源引用不能查回current hidden source ID；若需公开来源，先给安全历史引用的exact contract，不能改写原commands/events/RuleInputs或全局放宽隐私排除。v7 JSON解码后authoritative state续跑、旧validator/双view/cold duplicate/显式中盘初态原journal replay已核；P2与当前spectator projection未含私有source ID，不扩大为历史全spectator隐私或尚不存在的有限池schema/正常出生/PG/API证明。true例最终target1是错误旧伤害导致后续死亡，原回收检查点仍target0。根只核读原件，未复跑；review在ignored `n16-source-lifecycle-intake-v1/review-v1.json`，新state/marker/排序continuation仍未批准。
+
+N16战斗接点以同SHA DOC01现行467.2.c.1/.4.a/.5/.10为准，非旧注释465。①已看原PDF完整93–94页：分配与造成伤害是两步，相关被动/替换在分配时应用，造成时不能再翻倍；受影响目标当前控制者依372选真正同时适用替换的顺序。原例raw池3、目标2Might、抵挡2＋莲花陷阱，正文最终assigned4/taken2或assigned6/taken4须保留其区别，不能把assigned数重写raw池或据此预批协议。免疫伤害和下一次抵挡是否免强制分配也不能混同。v8独立2例0/2，真实两种创建顺序都未给P2选择；v9独立3/3仅none/sole有限/sole翻倍确定性控制，不合计为一次运行或有限池认证。法术3伤下先抵挡7再翻倍与先翻倍再抵挡的残余4/1只是待实现的条款推导，当前旧状态并无该字段；不能因即时伤害均0跳过有状态差异的选择。②提案须覆盖assignment合法性/提示/原子提交与dealing只应用一次、预览/拒绝不耗预算，零或单一replacement不制造排序窗；无新field/marker/continuation批准。
+
+S5任意符能分配作为③后续独立接口包，排除A5及冻结B1，先交exact提案而非直接扩大公共DTO。固定ff300895的实际Session/Web十选项各自JSON cold/原日志replay，初态wild1/blue2/red2、实际施放后支付2只有三种剩余钱包；按DOC01 135.2.e.5.a-b/166/445.1-2可用任意特性支付的五种分配中，wild+red及blue+red各1的两种无法表达。现有路径扣款总量正确，不能描述为错扣或多扣；这不证明其他付款窗口同样缺失。提案限ChooseInstructionPowerPayment及必要的原RuleChoice/payment-plan接点，说明金额与分色选择、零额/混色/不足/大数有界菜单、每次Echo独立当前池、预览checkpoint/一次提交/取消或非法输入不变、COST_PAID及同一固定实现的request hash/cold/duplicate/原日志审计；与根S5/C7已付快照及S6受限法力保持一致。不得静默改既有choice ID含义、重写原历史/RuleInputs或放宽恢复守卫；旧原件和原测试意图保留。当前ImplementationSha256按实际MVID固定，跨重建版本对局兼容不属目标，新版本不得冒充已回放旧identity。无新serialized field/marker、通用自动付款算法或其他窗口改动批准，review在ignored `s5-power-allocation-contract-intake-v1/review-v1.json`。
+
 C11原v3独立19个接受命令重入同代际同场DEFEND实际入链2次，期望1，仍在已分配RecordBattleDuelRoles范围；first-role记忆按battle+generation+role保留，不以新controller/场上移走重置，也不覆盖C10原声明PublicObjectBindings。新代际/另一角色/下一场合法首次须保留；算法仍待proposal。
+
+C11额外仅分配两处私有接点：ResolveCoreAsync.Complete的stage addition调用给CollectResolutionEffects追加completed.Events.Count，首调用不改；CollectResolutionEffects加可选int roleEventOffset=0，仅转交RecordBattleDuelRoles，collection顺序与其他语句保持。根核隔离原件tick16的BATTLE_ROLE_ACQUIRED实际公开order4及两个已知内部事件后续移除路径，不能用过滤前Count冒充持久order。此为既有Tick＋命令内公开零基order坐标，Record只排除CapturedMightInstruction与INTERNAL_CARD_PLAY_COMPLETION并加既有前stage公开数；不增clock/DTO/事件字段、不改已接受历史。完整提案仍须独立核初始/advanced多stage、两内部marker及重入的实际接受事件坐标，marker/schema/全部算法未获批；原件与限定在ignored `c11-role-coordinate-hook-intake-v1/review-v1.json`。
 
 N16/C11不进A4/冻结B1/待封raw-object+S4窄候选；无新本地heavy/CI或运行规则变动，净整卡0。根治理文档仅登记分工。
 
