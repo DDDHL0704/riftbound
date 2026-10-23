@@ -1,0 +1,1472 @@
+{
+  "status": "SOURCE_RED_DRAVEN_BATTLE_DEATH_OPPONENT_SCORE_UNWIRED",
+  "atUtc": "2026-10-23T08:01:28.872827+00:00",
+  "baseCommit": "bedd4ac6cbcfe4d7700c96b0c4ea3e5a9191586c",
+  "region": "CN",
+  "language": "zh-CN",
+  "coreEffectiveDate": "2026-10-16",
+  "peerOverlay": {
+    "atUtc": "2026-10-23T06:53:49.777592+00:00",
+    "savedBranchHead": "36f7195f7ce16402236d0b8e905d70c97dc96217",
+    "overlaySource": "/Users/dinghaolin/MyProjects/riftbound/var/qa/battle-result-continuation-n52-20261023/peer-fixed-n52-first45-v1.tar.gz",
+    "overlaySha256": "a13b965f76e99ab2c6b3ebfa5d65638d53f71aa4e770cc1eaf7206daab54161a",
+    "inputRole": "N51 source plus first N52 shared continuation that passed45; not committed or whole verified",
+    "files": [
+      {
+        "path": "src/Riftbound.Engine/BattleResultRecoveryRules.cs",
+        "beforeSha256": null,
+        "afterSha256": "6196373ecb6fb5c52a9b523a838048949c9d4a999de80a3f04e555d664907372"
+      },
+      {
+        "path": "src/Riftbound.Engine/CoreRuleEngine.BattleResponseCleanup.cs",
+        "beforeSha256": "b733efda64821fd825a2c369b63cb05fb93c802974677a61b6165f808236e733",
+        "afterSha256": "d40b423023e0b7d8f5dd1f01a47ff197c703d8afc96522a528937ed0cbae1a28"
+      },
+      {
+        "path": "src/Riftbound.Engine/CoreRuleEngine.BattleResultContinuation.cs",
+        "beforeSha256": null,
+        "afterSha256": "cf0f94c35bad28617a80bbd8ff720cf5c1cdf55e5a48935601696bc4b8b9041f"
+      },
+      {
+        "path": "src/Riftbound.Engine/CoreRuleEngine.BattleWinTriggers.cs",
+        "beforeSha256": "a7ef81940a8882452fdf34ac7adbbfb8a47a518585ddddb13318d3eef91d5f4c",
+        "afterSha256": "a7ef81940a8882452fdf34ac7adbbfb8a47a518585ddddb13318d3eef91d5f4c"
+      },
+      {
+        "path": "src/Riftbound.Engine/CoreRuleEngine.Conquest.cs",
+        "beforeSha256": "e0e460a99309ef3c519a16f204fcef0f97ffbea360bbe4835cee7b74e19a3b07",
+        "afterSha256": "e0e460a99309ef3c519a16f204fcef0f97ffbea360bbe4835cee7b74e19a3b07"
+      },
+      {
+        "path": "src/Riftbound.Engine/CoreRuleEngine.KhazixBattleWin.cs",
+        "beforeSha256": "daf437d44f947077899a54369a1b69ae886b0b1dc3add0a5a6aebf3c2b4610c4",
+        "afterSha256": "daf437d44f947077899a54369a1b69ae886b0b1dc3add0a5a6aebf3c2b4610c4"
+      },
+      {
+        "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+        "beforeSha256": "4b2251dfeae61a554a29ed97b60c155e2729b3e0e7c5852ce2bc1917a4e7e09b",
+        "afterSha256": "a80bc1805ba530cbb4302be8c83df48e5d13a97910e56c45850fd6c9bc35b7f5"
+      },
+      {
+        "path": "src/Riftbound.Engine/MatchRecovery.cs",
+        "beforeSha256": "2c1990334f99623ba77e5d550e419eacdcfa14fe916039efd40fde30df99193b",
+        "afterSha256": "e52bc19c545d7798834948b4c9ada522064267f4ceb4a0e9feba624a3725def6"
+      },
+      {
+        "path": "src/Riftbound.Engine/MatchSession.VictoryCleanupScenario.cs",
+        "beforeSha256": null,
+        "afterSha256": "e49c905f70d267851dd51f95e5ce70a1baa1ecadc8c17d750715ba3c8993c2fb"
+      },
+      {
+        "path": "src/Riftbound.Engine/MatchSession.cs",
+        "beforeSha256": "7dea07e944571abad1a71d92f2f4b280755f60f8144fa7fca3fc109393feb7b2",
+        "afterSha256": "ffa880e6267a88d70a16e1a73328e9b7d5601978fbc040df56d198afe7525ee5"
+      },
+      {
+        "path": "tests/Riftbound.ConformanceTests/BurnoutVictoryBeforeCleanupTests.cs",
+        "beforeSha256": null,
+        "afterSha256": "f1aa6d661db70f5de5fb23a1b760b312ce764b3bf4455c41498ace65cefa83f2"
+      },
+      {
+        "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+        "beforeSha256": "eb6e744566c740507794fc850948ea56216296349ef60ba81bfdeb5fd22fad96",
+        "afterSha256": "eb6e744566c740507794fc850948ea56216296349ef60ba81bfdeb5fd22fad96"
+      },
+      {
+        "path": "tests/Riftbound.ConformanceTests/OfficialBattleWinConsumerTests.cs",
+        "beforeSha256": "5ee6afb3db023b596d89cd364e704adf4aa790346083c4a5ff2c9719155accda",
+        "afterSha256": "8072f9abd2977bf0253ec0fd0bf362ce6515db12ba5db937625e8e89afc11775"
+      },
+      {
+        "path": "tests/Riftbound.ConformanceTests/OfficialDravenBattleWinTimingTests.cs",
+        "beforeSha256": "5a0ad23725ec41fae7b9ce976cf0945c49224e9267b7fdb5615affae9891c777",
+        "afterSha256": "1ea9a25f581cb6bf2afbaa4b16f70ff50cb6b72f07fd8dafe2cbdf5765b361de"
+      },
+      {
+        "path": "tests/Riftbound.ConformanceTests/OfficialGarenConquestBattlefieldCountTests.cs",
+        "beforeSha256": "41f91095c1364f6660adf95092ef88e99ee6e821866baffc277dbd7546f6955d",
+        "afterSha256": "41f91095c1364f6660adf95092ef88e99ee6e821866baffc277dbd7546f6955d"
+      },
+      {
+        "path": "tests/Riftbound.ConformanceTests/OfficialKhazixBattleWinTests.cs",
+        "beforeSha256": "9324aece669b04b815c7b1f83449763e269690a6d767385238df3c48c07bdf68",
+        "afterSha256": "9324aece669b04b815c7b1f83449763e269690a6d767385238df3c48c07bdf68"
+      },
+      {
+        "path": "tests/Riftbound.PostgresAcceptance/Program.cs",
+        "beforeSha256": "b097335f2d2b8f2ad8571ac87cd9e52bffecc6e22aca7f2cc52f4e250c3247e3",
+        "afterSha256": "9097f646f2e8cde201541cdf56ad4d9a71e8330bd93cf7362cbe0402181069df"
+      },
+      {
+        "path": "tests/Riftbound.PostgresAcceptance/SqlAcceptanceCases.json",
+        "beforeSha256": "c9bd1ff9520c659da32c5bfc7acdf0257578339ca9e6be47fe874a2f563a01ba",
+        "afterSha256": "ec5942c55213c0a77bbe52c0829e40cbe968c3a397a70844b6b35cb70fdbf63e"
+      },
+      {
+        "path": "tests/Riftbound.PostgresAcceptance/VictoryCleanupGarenSqlAcceptance.cs",
+        "beforeSha256": null,
+        "afterSha256": "be91787c33a2911c97cf21b544fbc00c6875ac3c111184abb32088dc496f8712"
+      }
+    ],
+    "sharedFilesRemainUnstagedAndMustNotBeCommittedByThisChat": true,
+    "ownDravenScorePreparationRetained": true
+  },
+  "all19SharedInputsUnchanged": true,
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "0aa8f812dc6f561f9fb1996381bae9821bd54d069f3ad26be7fe669baae9ae6c",
+    "implementationSha256": "c36987e648c98f0625aeeb310ebf5ee651e25c962d7d3d3c40c89c574e9abaf1",
+    "identitySha256": "76e99f9e6fa39e5a1c59ddae54ff8b5f668a6b02dc28f52947fd50c708d57973"
+  },
+  "testAssemblySha256": "f6475dca1147790087427379b05d25a14f6a2875e0f9c0634a31cd0da40ab06f",
+  "source": {
+    "path": "tests/Riftbound.ConformanceTests/OfficialDravenBattleDeathScoreTests.cs",
+    "sha256": "107cdd3d7bd6e697e0e0d5a2298c43f950dc9938181eabe68871145547ab25b0"
+  },
+  "consumer": {
+    "path": "src/Riftbound.Engine/CoreRuleEngine.DravenBattleDeathScore.cs",
+    "sha256": "4d91d2fc2cbe05a1334ae904bffb8886319cd9bd4646a1fab990c17b0914950d",
+    "sharedCallSites": 0
+  },
+  "originalRuns": {
+    "focus-v1": {
+      "sha256": "edbfdd0281304503dddc3837b05cb6c6b226a0b84b066e44be73c3579d919bf6",
+      "counters": {
+        "total": "14",
+        "executed": "14",
+        "passed": "4",
+        "failed": "10",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      },
+      "cases": [
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot(cardNo: \"SFD·148a/221\", scenario: \"attacker-death\")",
+          "method": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot(cardNo: \"SFD·148a/221\", scenario: \"zhonya-replacement\")",
+          "method": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot(cardNo: \"SFD·148a/221\", scenario: \"defender-winning-point\")",
+          "method": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot(cardNo: \"SFD·148/221\", scenario: \"attacker-death\")",
+          "method": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot(cardNo: \"SFD·148a/221\", scenario: \"spell-battle-death\")",
+          "method": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot(cardNo: \"SFD·148a/221\", scenario: \"spell-outside-battle\")",
+          "method": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot(cardNo: \"SFD·148a/221\", scenario: \"mutual-death\")",
+          "method": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot(cardNo: \"SFD·148/221\", scenario: \"defender-death\")",
+          "method": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot(cardNo: \"SFD·148/221\", scenario: \"zhonya-replacement\")",
+          "method": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot(cardNo: \"SFD·148/221\", scenario: \"spell-outside-battle\")",
+          "method": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot(cardNo: \"SFD·148/221\", scenario: \"mutual-death\")",
+          "method": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot(cardNo: \"SFD·148a/221\", scenario: \"defender-death\")",
+          "method": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot(cardNo: \"SFD·148/221\", scenario: \"spell-battle-death\")",
+          "method": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot(cardNo: \"SFD·148/221\", scenario: \"defender-winning-point\")",
+          "method": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+        }
+      ]
+    },
+    "focus-and-adjacent-v2": {
+      "sha256": "af3b0fd9dfd20eb5b9b90d70488e71b993858b35399da5df1a0b3734927869bb",
+      "counters": {
+        "total": "46",
+        "executed": "46",
+        "passed": "36",
+        "failed": "10",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      },
+      "cases": [
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot(cardNo: \"SFD·148a/221\", scenario: \"attacker-death\")",
+          "method": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.DeathObserverAuditTests.EveryDeathTriggersOnceEvenWhenTwoUnitsDieTogether(no: \"UNL-068/219\")",
+          "method": "Riftbound.ConformanceTests.DeathObserverAuditTests.EveryDeathTriggersOnceEvenWhenTwoUnitsDieTogether",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.ZhonyasHourglassGuardTests.ZhonyasHourglassPlayCardRejectsInvalidInputsWithoutMutation(sourceObjectId: \"P2-EQUIPMENT-ZHONYAS-HOURGLASS\", targetObjectId: \"\", mana: 2, expectedErrorCode: \"CARD_NOT_IN_HAND\")",
+          "method": "Riftbound.ConformanceTests.ZhonyasHourglassGuardTests.ZhonyasHourglassPlayCardRejectsInvalidInputsWithoutMutation",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot(cardNo: \"SFD·148/221\", scenario: \"spell-battle-death\")",
+          "method": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.DeathObserverAuditTests.DeathBelongsToControllerNotOwner",
+          "method": "Riftbound.ConformanceTests.DeathObserverAuditTests.DeathBelongsToControllerNotOwner",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot(cardNo: \"SFD·148a/221\", scenario: \"zhonya-replacement\")",
+          "method": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot(cardNo: \"SFD·148/221\", scenario: \"mutual-death\")",
+          "method": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.ZhonyasHourglassGuardTests.ZhonyasHourglassPlayCardRejectsInvalidInputsWithoutMutation(sourceObjectId: \"P1-EQUIPMENT-ZHONYAS-HOURGLASS\", targetObjectId: \"P1-TARGET-UNIT\", mana: 2, expectedErrorCode: \"INVALID_TARGET\")",
+          "method": "Riftbound.ConformanceTests.ZhonyasHourglassGuardTests.ZhonyasHourglassPlayCardRejectsInvalidInputsWithoutMutation",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.DeathObserverAuditTests.ObserverDyingInTheSameActionDoesNotTrigger(no: \"UNL-068/219\")",
+          "method": "Riftbound.ConformanceTests.DeathObserverAuditTests.ObserverDyingInTheSameActionDoesNotTrigger",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.DeathObserverAuditTests.FirstDeathLedgerBelongsToControllerAndDoesNotDependOnObserverBeingPresent",
+          "method": "Riftbound.ConformanceTests.DeathObserverAuditTests.FirstDeathLedgerBelongsToControllerAndDoesNotDependOnObserverBeingPresent",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot(cardNo: \"SFD·148a/221\", scenario: \"mutual-death\")",
+          "method": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot(cardNo: \"SFD·148a/221\", scenario: \"spell-outside-battle\")",
+          "method": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.DeathObserverAuditTests.EarnedTriggerSurvivesSourceLeavingOrChangingController(no: \"ARC-006/006\")",
+          "method": "Riftbound.ConformanceTests.DeathObserverAuditTests.EarnedTriggerSurvivesSourceLeavingOrChangingController",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot(cardNo: \"SFD·148/221\", scenario: \"zhonya-replacement\")",
+          "method": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.DeathObserverAuditTests.ObserverDyingInTheSameActionDoesNotTrigger(no: \"ARC-006/006\")",
+          "method": "Riftbound.ConformanceTests.DeathObserverAuditTests.ObserverDyingInTheSameActionDoesNotTrigger",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot(cardNo: \"SFD·148a/221\", scenario: \"defender-winning-point\")",
+          "method": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.ZhonyasHourglassGuardTests.ZhonyasHourglassReplacementDestroysSourceAndRecallsFriendlyUnitInsteadOfDestroyingIt",
+          "method": "Riftbound.ConformanceTests.ZhonyasHourglassGuardTests.ZhonyasHourglassReplacementDestroysSourceAndRecallsFriendlyUnitInsteadOfDestroyingIt",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.ZhonyasHourglassGuardTests.ZhonyasHourglassReplacementIgnoresFaceDownAndOpponentSources",
+          "method": "Riftbound.ConformanceTests.ZhonyasHourglassGuardTests.ZhonyasHourglassReplacementIgnoresFaceDownAndOpponentSources",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot(cardNo: \"SFD·148/221\", scenario: \"attacker-death\")",
+          "method": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.ZhonyasHourglassGuardTests.ZhonyasHourglassPlayCardRejectsInvalidInputsWithoutMutation(sourceObjectId: \"P1-FACE-DOWN-STANDBY-ZHONYAS\", targetObjectId: \"\", mana: 2, expectedErrorCode: \"CARD_NOT_IN_HAND\")",
+          "method": "Riftbound.ConformanceTests.ZhonyasHourglassGuardTests.ZhonyasHourglassPlayCardRejectsInvalidInputsWithoutMutation",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.DeathObserverAuditTests.AnimatedGoldAndFollowingDeathKeepFirstDeathAndRecovery",
+          "method": "Riftbound.ConformanceTests.DeathObserverAuditTests.AnimatedGoldAndFollowingDeathKeepFirstDeathAndRecovery",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.DeathObserverAuditTests.CapturedDeathRejectsTamperingAndSurvivesVictimChangingZones",
+          "method": "Riftbound.ConformanceTests.DeathObserverAuditTests.CapturedDeathRejectsTamperingAndSurvivesVictimChangingZones",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot(cardNo: \"SFD·148a/221\", scenario: \"spell-battle-death\")",
+          "method": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot(cardNo: \"SFD·148/221\", scenario: \"defender-winning-point\")",
+          "method": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.DeathObserverAuditTests.EveryDeathTriggersOnceEvenWhenTwoUnitsDieTogether(no: \"UNL-129/219\")",
+          "method": "Riftbound.ConformanceTests.DeathObserverAuditTests.EveryDeathTriggersOnceEvenWhenTwoUnitsDieTogether",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.ZhonyasHourglassGuardTests.ZhonyasHourglassMainActionPlayCardPromptExposesNoTargets",
+          "method": "Riftbound.ConformanceTests.ZhonyasHourglassGuardTests.ZhonyasHourglassMainActionPlayCardPromptExposesNoTargets",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.ZhonyasHourglassGuardTests.ZhonyasHourglassPlayCardRejectsInvalidInputsWithoutMutation(sourceObjectId: \"P1-BASE-ZHONYAS-HOURGLASS\", targetObjectId: \"\", mana: 2, expectedErrorCode: \"CARD_NOT_IN_HAND\")",
+          "method": "Riftbound.ConformanceTests.ZhonyasHourglassGuardTests.ZhonyasHourglassPlayCardRejectsInvalidInputsWithoutMutation",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.DeathObserverAuditTests.EveryDeathTriggersOnceEvenWhenTwoUnitsDieTogether(no: \"ARC-006/006\")",
+          "method": "Riftbound.ConformanceTests.DeathObserverAuditTests.EveryDeathTriggersOnceEvenWhenTwoUnitsDieTogether",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.ZhonyasHourglassGuardTests.ZhonyasHourglassPlayCardRejectsInvalidInputsWithoutMutation(sourceObjectId: \"P1-EQUIPMENT-ZHONYAS-HOURGLASS\", targetObjectId: \"\", mana: 1, expectedErrorCode: \"INSUFFICIENT_COST\")",
+          "method": "Riftbound.ConformanceTests.ZhonyasHourglassGuardTests.ZhonyasHourglassPlayCardRejectsInvalidInputsWithoutMutation",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.DeathObserverAuditTests.CentaurCannotBuffANewIncarnation",
+          "method": "Riftbound.ConformanceTests.DeathObserverAuditTests.CentaurCannotBuffANewIncarnation",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.ZhonyasHourglassGuardTests.ZhonyasHourglassPlayCardStalePromptReplayAfterPermanentConfirmationUsesRejectedCacheWithoutMutation",
+          "method": "Riftbound.ConformanceTests.ZhonyasHourglassGuardTests.ZhonyasHourglassPlayCardStalePromptReplayAfterPermanentConfirmationUsesRejectedCacheWithoutMutation",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot(cardNo: \"SFD·148/221\", scenario: \"spell-outside-battle\")",
+          "method": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.DeathObserverAuditTests.ObserverDyingInTheSameActionDoesNotTrigger(no: \"OGN·118/298\")",
+          "method": "Riftbound.ConformanceTests.DeathObserverAuditTests.ObserverDyingInTheSameActionDoesNotTrigger",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.DeathObserverAuditTests.DisappearedObserverKeepsItsEarnedSkillsAndPublicContextCannotBeForged",
+          "method": "Riftbound.ConformanceTests.DeathObserverAuditTests.DisappearedObserverKeepsItsEarnedSkillsAndPublicContextCannotBeForged",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.DeathObserverAuditTests.ViktorUsesSharedTokenReplacementBeforeEnteringPlay",
+          "method": "Riftbound.ConformanceTests.DeathObserverAuditTests.ViktorUsesSharedTokenReplacementBeforeEnteringPlay",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.DeathObserverAuditTests.NestedResourceDeathTriggersObserverBeforeItsOuterDeath",
+          "method": "Riftbound.ConformanceTests.DeathObserverAuditTests.NestedResourceDeathTriggersObserverBeforeItsOuterDeath",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.ZhonyasHourglassGuardTests.ZhonyasHourglassPlayCardWithNoTargetsConfirmsDirectlyToBase",
+          "method": "Riftbound.ConformanceTests.ZhonyasHourglassGuardTests.ZhonyasHourglassPlayCardWithNoTargetsConfirmsDirectlyToBase",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.DeathObserverAuditTests.ObserverDyingInTheSameActionDoesNotTrigger(no: \"UNL-129/219\")",
+          "method": "Riftbound.ConformanceTests.DeathObserverAuditTests.ObserverDyingInTheSameActionDoesNotTrigger",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot(cardNo: \"SFD·148a/221\", scenario: \"defender-death\")",
+          "method": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.DeathObserverAuditTests.PlayerAndSpectatorViewsRecoverMultipleTokenDeathObservers",
+          "method": "Riftbound.ConformanceTests.DeathObserverAuditTests.PlayerAndSpectatorViewsRecoverMultipleTokenDeathObservers",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot(cardNo: \"SFD·148/221\", scenario: \"defender-death\")",
+          "method": "Riftbound.ConformanceTests.OfficialDravenBattleDeathScoreTests.ActualDeathDuringBattleScoresForAnOpponentBeforeControlButReplacedDeathDoesNot",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.DeathObserverAuditTests.FirstSimultaneousDeathIsChosenAndResumesAfterRecovery(victim: \"D\")",
+          "method": "Riftbound.ConformanceTests.DeathObserverAuditTests.FirstSimultaneousDeathIsChosenAndResumesAfterRecovery",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.DeathObserverAuditTests.FirstSimultaneousDeathIsChosenAndResumesAfterRecovery(victim: \"D2\")",
+          "method": "Riftbound.ConformanceTests.DeathObserverAuditTests.FirstSimultaneousDeathIsChosenAndResumesAfterRecovery",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.DeathObserverAuditTests.EarnedTriggerSurvivesSourceLeavingOrChangingController(no: \"UNL-129/219\")",
+          "method": "Riftbound.ConformanceTests.DeathObserverAuditTests.EarnedTriggerSurvivesSourceLeavingOrChangingController",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.DeathObserverAuditTests.EarnedTriggerSurvivesSourceLeavingOrChangingController(no: \"OGN·118/298\")",
+          "method": "Riftbound.ConformanceTests.DeathObserverAuditTests.EarnedTriggerSurvivesSourceLeavingOrChangingController",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.DeathObserverAuditTests.RetiredStackRecordCannotBypassRejectionByChangingEffectKind",
+          "method": "Riftbound.ConformanceTests.DeathObserverAuditTests.RetiredStackRecordCannotBypassRejectionByChangingEffectKind",
+          "outcome": "Passed",
+          "failure": null
+        }
+      ]
+    }
+  },
+  "finalOriginalHistories": [
+    {
+      "caseId": "SFD-148-221-attacker-death",
+      "scenario": "attacker-death",
+      "commands": 4,
+      "events": 14,
+      "originalPrefixReplays": 4,
+      "sha256": "fc5d2f0b690176aeab355f2a5e567b3b55118b03dbdb84e7673f640867079332",
+      "failure": "EqualException: Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+    },
+    {
+      "caseId": "SFD-148-221-defender-death",
+      "scenario": "defender-death",
+      "commands": 4,
+      "events": 16,
+      "originalPrefixReplays": 4,
+      "sha256": "7d9f038738bc6559288d276461f40b4128d159c1efb468be9673ecf8507e33ea",
+      "failure": "EqualException: Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+    },
+    {
+      "caseId": "SFD-148-221-defender-winning-point",
+      "scenario": "defender-winning-point",
+      "commands": 4,
+      "events": 17,
+      "originalPrefixReplays": 4,
+      "sha256": "58509b8e7615f130fd45018e805d937e718906089671edb8b1b81781af5faa2d",
+      "failure": "EqualException: Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+    },
+    {
+      "caseId": "SFD-148-221-mutual-death",
+      "scenario": "mutual-death",
+      "commands": 4,
+      "events": 15,
+      "originalPrefixReplays": 4,
+      "sha256": "bea3bee40477824be68276c0df153dc6e36df17577a62e95cb54a5518c2d13bc",
+      "failure": "EqualException: Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+    },
+    {
+      "caseId": "SFD-148-221-spell-battle-death",
+      "scenario": "spell-battle-death",
+      "commands": 5,
+      "events": 13,
+      "originalPrefixReplays": 5,
+      "sha256": "ec10052adfa3290410e535606c8eb4dc30788a21850af6df9da7bb78a3926dba",
+      "failure": "EqualException: Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+    },
+    {
+      "caseId": "SFD-148-221-spell-outside-battle",
+      "scenario": "spell-outside-battle",
+      "commands": 3,
+      "events": 9,
+      "originalPrefixReplays": 3,
+      "sha256": "56c2685a475a1edebf653b1a20b547df93cfe6466d54b19918349af7f2d57aa4",
+      "failure": null
+    },
+    {
+      "caseId": "SFD-148-221-zhonya-replacement",
+      "scenario": "zhonya-replacement",
+      "commands": 5,
+      "events": 19,
+      "originalPrefixReplays": 5,
+      "sha256": "e0679f88bbc39fabca4e3e2bc82faf58971f68f202ad480afcb452e12f9de85c",
+      "failure": null
+    },
+    {
+      "caseId": "SFD-148a-221-attacker-death",
+      "scenario": "attacker-death",
+      "commands": 4,
+      "events": 14,
+      "originalPrefixReplays": 4,
+      "sha256": "194eac9c1c4e38294ddf6732e8139909559faa6454ace8ff1c56202b7b793f43",
+      "failure": "EqualException: Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+    },
+    {
+      "caseId": "SFD-148a-221-defender-death",
+      "scenario": "defender-death",
+      "commands": 4,
+      "events": 16,
+      "originalPrefixReplays": 4,
+      "sha256": "fefba30f9ad0d2919a4dcc68aa9783cc532f6b3f25bfd09e3cb4cf6cf62c7a10",
+      "failure": "EqualException: Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+    },
+    {
+      "caseId": "SFD-148a-221-defender-winning-point",
+      "scenario": "defender-winning-point",
+      "commands": 4,
+      "events": 17,
+      "originalPrefixReplays": 4,
+      "sha256": "060736996f40859afc66be06c369e87bb10cd6ac193ed5be4182a3ad94729364",
+      "failure": "EqualException: Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+    },
+    {
+      "caseId": "SFD-148a-221-mutual-death",
+      "scenario": "mutual-death",
+      "commands": 4,
+      "events": 15,
+      "originalPrefixReplays": 4,
+      "sha256": "f50b411dc469c54d2f5fe66a8c4d70c4567f0f2c74a3f37feabc1b18617258c8",
+      "failure": "EqualException: Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+    },
+    {
+      "caseId": "SFD-148a-221-spell-battle-death",
+      "scenario": "spell-battle-death",
+      "commands": 5,
+      "events": 13,
+      "originalPrefixReplays": 5,
+      "sha256": "8b6cdf19b05cf156446395a6afe66a0980855e6234fbf06dbbc728c2561b0d35",
+      "failure": "EqualException: Assert.Equal() Failure: Values differ\nExpected: 1\nActual:   0"
+    },
+    {
+      "caseId": "SFD-148a-221-spell-outside-battle",
+      "scenario": "spell-outside-battle",
+      "commands": 3,
+      "events": 9,
+      "originalPrefixReplays": 3,
+      "sha256": "0a0acb0edda64e8a634fe9bacd9c4f3e1dc9924c47b9f07c258b025527c2d444",
+      "failure": null
+    },
+    {
+      "caseId": "SFD-148a-221-zhonya-replacement",
+      "scenario": "zhonya-replacement",
+      "commands": 5,
+      "events": 19,
+      "originalPrefixReplays": 5,
+      "sha256": "b0a55eb950d6ffbe9ac4b603224383bc044a663a151f0d64fff64c9f20d8131e",
+      "failure": null
+    }
+  ],
+  "cases": 14,
+  "methods": 1,
+  "passed": 4,
+  "sourceFailures": 10,
+  "originalCommands": 58,
+  "accepted": 58,
+  "originalPrefixReplays": 58,
+  "originalEvents": 206,
+  "adjacentDeathObserverPassed": 22,
+  "adjacentZhonyaPassed": 10,
+  "seed": 424242,
+  "freshCompleteSourceRows": [
+    {
+      "id": 31291,
+      "cardCategoryList": [
+        "equipment"
+      ],
+      "cardCategoryNameList": [
+        "装备"
+      ],
+      "cardNo": "OGN·077/298",
+      "cardName": "中娅沙漏",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "green"
+      ],
+      "hero": "",
+      "region": "",
+      "tag": "",
+      "artist": "Kudos Productions",
+      "cardEffect": "{{待命}}（支付{{A}}正面朝下放置此牌，之后可支付{{0}}将其当作反应牌打出。）\n下一次当友方单位被摧毁时，改为将此牌摧毁，然后以休眠状态将该单位召回。（把该单位送回基地，此行动不算作移动。）",
+      "flavorText": "",
+      "energy": 2,
+      "returnEnergy": null,
+      "power": null,
+      "productCodeList": [
+        "OGN(标准补充包)",
+        "OGN(进阶补充包)"
+      ],
+      "productNameList": [
+        "起源 标准补充包",
+        "起源 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_shard",
+      "rarityName": "稀有",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/80cce2ba0e97442a8539b6045bf3b9c4.png",
+      "backImage": "",
+      "listSort": 414,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "{{待命}}（支付{{A}}正面朝下放置此牌，之后可支付{{0}}将其当作反应牌打出。）\n如果一名友方单位被摧毁，则改为将此牌摧毁。移除该单位所受伤害，让其进入休眠状态，并将其召回。（把该单位送回基地，此行动不算作移动。）",
+      "otherDesc": 0
+    },
+    {
+      "id": 31457,
+      "cardCategoryList": [
+        "unit"
+      ],
+      "cardCategoryNameList": [
+        "单位"
+      ],
+      "cardNo": "OGN·219/298",
+      "cardName": "先锋中士",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "yellow"
+      ],
+      "hero": "",
+      "region": "德玛西亚",
+      "tag": "精锐",
+      "artist": "Six More Vodka",
+      "cardEffect": "",
+      "flavorText": "他知道自己的命令：坚守阵线，否则功亏一篑。",
+      "energy": 4,
+      "returnEnergy": null,
+      "power": 4,
+      "productCodeList": [
+        "OGS",
+        "OGN(进阶补充包)",
+        "OGN(进阶补充包)"
+      ],
+      "productNameList": [
+        "起源 试炼之地",
+        "起源 进阶补充包",
+        "起源 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_dust",
+      "rarityName": "普通",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/4a035936d2624fd49991f2a9520fb018.png",
+      "backImage": "",
+      "listSort": 248,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    {
+      "id": 31366,
+      "cardCategoryList": [
+        "unit"
+      ],
+      "cardCategoryNameList": [
+        "单位"
+      ],
+      "cardNo": "OGN·142/298",
+      "cardName": "山脉亚龙",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "orange"
+      ],
+      "hero": "",
+      "region": "",
+      "tag": "龙",
+      "artist": "Kudos Productions",
+      "cardEffect": "",
+      "flavorText": "千百年来，学者们从未在巨龙行为学的问题上达成共识，除了一条：若在近距离观察到巨龙……还是先跑吧。",
+      "energy": 9,
+      "returnEnergy": null,
+      "power": 10,
+      "productCodeList": [
+        "OGS",
+        "OGN(英雄预组 李青)",
+        "OGN(标准补充包)",
+        "OGN(进阶补充包)"
+      ],
+      "productNameList": [
+        "起源 试炼之地",
+        "起源 英雄预组 李青",
+        "起源 标准补充包",
+        "起源 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_glimmer",
+      "rarityName": "不凡",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/70eb8e9ea12f4c888f17ec3195be7f37.png",
+      "backImage": "",
+      "listSort": 339,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    {
+      "id": 33240,
+      "cardCategoryList": [
+        "hero_unit"
+      ],
+      "cardCategoryNameList": [
+        "英雄单位"
+      ],
+      "cardNo": "SFD·148/221",
+      "cardName": "德莱文",
+      "subTitle": "艺高胆大",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "purple"
+      ],
+      "hero": "德莱文",
+      "region": "诺克萨斯",
+      "tag": "",
+      "artist": "Six More Vodka",
+      "cardEffect": "{{法盾}}（对手必须支付{{A}}才能将我选作法术或技能的目标。）\n每回合首次，当我赢得战斗时，你获得1分。\n当我在战斗中被摧毁时，选择一名对手，让其获得1分。\"",
+      "flavorText": "",
+      "energy": 6,
+      "returnEnergy": 1,
+      "power": 6,
+      "productCodeList": [
+        "SFD(标准补充包)",
+        "SFD(进阶补充包)"
+      ],
+      "productNameList": [
+        "铸魂淬炼 标准补充包",
+        "铸魂淬炼 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_core",
+      "rarityName": "史诗",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20251217/d065a0877b6f413384a7273ddf2f502a.png",
+      "backImage": "",
+      "listSort": 833,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    {
+      "id": 33241,
+      "cardCategoryList": [
+        "hero_unit"
+      ],
+      "cardCategoryNameList": [
+        "英雄单位"
+      ],
+      "cardNo": "SFD·148a/221",
+      "cardName": "德莱文",
+      "subTitle": "艺高胆大",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "purple"
+      ],
+      "hero": "德莱文",
+      "region": "诺克萨斯",
+      "tag": "",
+      "artist": "League Splash Team",
+      "cardEffect": "{{法盾}}（对手必须支付{{A}}才能将我选作法术或技能的目标。）\n每回合首次，当我赢得战斗时，你获得1分。\n当我在战斗中被摧毁时，选择一名对手，让其获得1分。\"",
+      "flavorText": "",
+      "energy": 6,
+      "returnEnergy": 1,
+      "power": 6,
+      "productCodeList": [
+        "SFD(标准补充包)",
+        "SFD(进阶补充包)"
+      ],
+      "productNameList": [
+        "铸魂淬炼 标准补充包",
+        "铸魂淬炼 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_legend",
+      "rarityName": "异画",
+      "extendRarity": "legacy_etching",
+      "extendRarityName": "异画",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20251217/492d174b2b604a98af8491f604c8c63c.png",
+      "backImage": "",
+      "listSort": 832,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    {
+      "id": 31449,
+      "cardCategoryList": [
+        "spell"
+      ],
+      "cardCategoryNameList": [
+        "法术"
+      ],
+      "cardNo": "OGN·213/298",
+      "cardName": "暗刃",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "yellow"
+      ],
+      "hero": "",
+      "region": "",
+      "tag": "",
+      "artist": "Rafael Zanchetin",
+      "cardEffect": "{{待命}}（支付{{A}}正面朝下放置此牌，之后可支付{{0}}将其当作反应牌打出。）\n{{迅捷}}（可在你的回合或法术对决中打出。）\n摧毁战场中的一名单位，然后让其控制者抽两张牌。",
+      "flavorText": "并非每一条诺克萨斯法令都需要大声宣读。",
+      "energy": 2,
+      "returnEnergy": 1,
+      "power": null,
+      "productCodeList": [
+        "OGN(英雄预组 维克托)",
+        "OGN(标准补充包)",
+        "OGN(进阶补充包)"
+      ],
+      "productNameList": [
+        "起源 英雄预组 维克托",
+        "起源 标准补充包",
+        "起源 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_dust",
+      "rarityName": "普通",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/e15f793d36e64cb19b4cb90f636ff0b8.png",
+      "backImage": "",
+      "listSort": 256,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    {
+      "id": 31347,
+      "cardCategoryList": [
+        "unit"
+      ],
+      "cardCategoryNameList": [
+        "单位"
+      ],
+      "cardNo": "OGN·125/298",
+      "cardName": "比尔吉沃特恶霸",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "orange"
+      ],
+      "hero": "",
+      "region": "比尔吉沃特",
+      "tag": "",
+      "artist": "Envar Studio",
+      "cardEffect": "如果我拥有增益，则我获得{{游走}}。（我可以向其他战场进行移动。）",
+      "flavorText": "还有地方要去，还有人要抓。",
+      "energy": 6,
+      "returnEnergy": null,
+      "power": 6,
+      "productCodeList": [
+        "OGN(英雄预组 李青)",
+        "OGN(标准补充包)",
+        "OGN(进阶补充包)"
+      ],
+      "productNameList": [
+        "起源 英雄预组 李青",
+        "起源 标准补充包",
+        "起源 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_dust",
+      "rarityName": "普通",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/f1bfe3b423b84060b668fb6b36a62520.png",
+      "backImage": "",
+      "listSort": 358,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    {
+      "id": 31405,
+      "cardCategoryList": [
+        "unit"
+      ],
+      "cardCategoryNameList": [
+        "单位"
+      ],
+      "cardNo": "OGN·175/298",
+      "cardName": "船坞潜伏者",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "purple"
+      ],
+      "hero": "",
+      "region": "比尔吉沃特",
+      "tag": "海盗",
+      "artist": "Six More Vodka",
+      "cardEffect": "",
+      "flavorText": "她说自己是“码头海盗”时，笑的人很多，活下来的却没几个。",
+      "energy": 3,
+      "returnEnergy": null,
+      "power": 3,
+      "productCodeList": [
+        "OGN(标准补充包)",
+        "OGN(进阶补充包)"
+      ],
+      "productNameList": [
+        "起源 标准补充包",
+        "起源 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_dust",
+      "rarityName": "普通",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/45d20da29a37445fb2afe6933a37a7c4.png",
+      "backImage": "",
+      "listSort": 300,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
+    },
+    {
+      "id": 31542,
+      "cardCategoryList": [
+        "battlefield"
+      ],
+      "cardCategoryNameList": [
+        "战场"
+      ],
+      "cardNo": "OGN·296/298",
+      "cardName": "虚空之门",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "colorless"
+      ],
+      "hero": "",
+      "region": "",
+      "tag": "",
+      "artist": "Envar Studio",
+      "cardEffect": "以此处的单位作为目标的法术或技能，造成的伤害+1（每段伤害都+1）。",
+      "flavorText": "艾卡西亚的法师们自取灭亡，但他们的回响直到今天仍在人们耳畔萦绕。",
+      "energy": null,
+      "returnEnergy": null,
+      "power": null,
+      "productCodeList": [
+        "OGS",
+        "OGN(进阶补充包)",
+        "OGN(进阶补充包)"
+      ],
+      "productNameList": [
+        "起源 试炼之地",
+        "起源 进阶补充包",
+        "起源 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_glimmer",
+      "rarityName": "不凡",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/eb2789a75d9547c1ae31fe36fd5198b2.png",
+      "backImage": "",
+      "listSort": 163,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "法术和技能对此处的单位造成的伤害+1（每段伤害都+1）。",
+      "otherDesc": 0
+    }
+  ],
+  "liveOfficialJudgeFAQ": {
+    "url": "https://cdn.playloltcg.com/lol/2026/04/2026-04-15/铸魂淬炼系列_裁判FAQ.pdf",
+    "requestedUrl": "https://cdn.playloltcg.com/lol/2026/04/2026-04-15/%E9%93%B8%E9%AD%82%E6%B7%AC%E7%82%BC%E7%B3%BB%E5%88%97_%E8%A3%81%E5%88%A4FAQ.pdf",
+    "startedAtUtc": "2026-10-23T07:47:31.191914+00:00",
+    "receivedAtUtc": "2026-10-23T07:47:38.763294+00:00",
+    "httpStatus": 200,
+    "headers": {
+      "Etag": "\"6ae198cde1a07cb013fe16c5f426ba13\"",
+      "Content-Type": "application/pdf",
+      "Content-Disposition": "inline",
+      "Date": "Fri, 18 Sep 2026 03:03:13 GMT",
+      "Server": "tencent-cos",
+      "x-cos-hash-crc64ecma": "10765278584194819298",
+      "x-cos-request-id": "NmFhY2E5ZjFfOTUyYzY4MDlfNDcxMV8xZDU4NDIxOA==",
+      "x-cos-server-side-encryption": "AES256",
+      "x-cos-storage-class": "MAZ_STANDARD",
+      "x-cosindex-replication-status": "Complete",
+      "X-Cache-Lookup": "Cache Hit",
+      "Last-Modified": "Wed, 15 Apr 2026 03:22:45 GMT",
+      "Age": "0",
+      "Content-Length": "25623614",
+      "Accept-Ranges": "bytes",
+      "X-NWS-LOG-UUID": "7357809840854874179",
+      "Connection": "close",
+      "Cross-Origin-Resource-Policy": "cross-origin"
+    },
+    "sha256": "16eeeea28baeeee2dae3765876c609f79cc77fdbdd6928d73f1b8fa5d5c277bc",
+    "bytes": 25623614
+  },
+  "largeSourceBodyPreservedLocallyOutsideArchive": "/Users/dinghaolin/MyProjects/.worktrees/riftbound-parallel-official-audit-20261023/var/qa/draven-battle-death-score-20261023/current-sfd-judge-faq-original-v1.pdf",
+  "sourceClause": "DOC-14-P025-B004; DOC-01 429.1.a.1.b and 808.1.d.1",
+  "normalVictoryAndHotFeprIntegrationStillOpen": true,
+  "noExtraCheckOrFull": true,
+  "noDatabaseExecution": true,
+  "fullGameAcceptanceDeferredUntilIntegration": true,
+  "allEarlierSourcesTestsSeedsAndFailuresPreserved": true,
+  "backendGoalComplete": false,
+  "sharedIntegrationOwner": "01a16770-8c1b-7da2-872b-a8ec5ae77413",
+  "parallelThread": "01a16771-220b-7e83-91c6-44acf6dfe4b0",
+  "archive": {
+    "path": "docs/evidence/draven-battle-death-score-parallel-2026-10-23/original-tests-fixed-inputs-and-sources-v1.tar.gz",
+    "sha256": "856b2dc2e973105a1b0819b592d1f1a7ca5c0e113884e880114c6162320aeaa2",
+    "members": [
+      {
+        "path": "docs/DRAVEN_BATTLE_DEATH_SCORE_PARALLEL_2026-10-23.md",
+        "bytes": 3648,
+        "sha256": "66b6fa6dc00b2126795ce649eefecc3e43e299542a707f9edbbed505271e30e7"
+      },
+      {
+        "path": "inputs/applied-peer-fixed-n52-first45-v1.json",
+        "bytes": 5327,
+        "sha256": "296287f60cbe583c3a7be8e572df6213b53ee8f497cba3abc31688df6cb86384"
+      },
+      {
+        "path": "inputs/peer-fixed-n52-first45-v1.tar.gz",
+        "bytes": 746306,
+        "sha256": "a13b965f76e99ab2c6b3ebfa5d65638d53f71aa4e770cc1eaf7206daab54161a"
+      },
+      {
+        "path": "src/Riftbound.Engine/CoreRuleEngine.DravenBattleDeathScore.cs",
+        "bytes": 5276,
+        "sha256": "4d91d2fc2cbe05a1334ae904bffb8886319cd9bd4646a1fab990c17b0914950d"
+      },
+      {
+        "path": "tests/Riftbound.ConformanceTests/OfficialDravenBattleDeathScoreTests.cs",
+        "bytes": 11034,
+        "sha256": "107cdd3d7bd6e697e0e0d5a2298c43f950dc9938181eabe68871145547ab25b0"
+      },
+      {
+        "path": "var/qa/draven-battle-death-score-20261023/captured-death-core-and-judge-clauses-v1.json",
+        "bytes": 26853,
+        "sha256": "2d3e5dcc260bad5998dfb53d191ae5bdf897cd0c4ae55a9131644eea5a9a972e"
+      },
+      {
+        "path": "var/qa/draven-battle-death-score-20261023/current-sfd-judge-faq-http-v1.json",
+        "bytes": 1256,
+        "sha256": "0a86e84699fe1b7462e6e14b3cd58de3444002900d906711be86869df1899cef"
+      },
+      {
+        "path": "var/qa/draven-battle-death-score-20261023/focus-and-adjacent-v2/build.log",
+        "bytes": 78,
+        "sha256": "a08fb54de2539c09b5eb912dcf369c61f9b6a184f24557c2dbe7fe402885182c"
+      },
+      {
+        "path": "var/qa/draven-battle-death-score-20261023/focus-and-adjacent-v2/consumer-source.cs",
+        "bytes": 5276,
+        "sha256": "4d91d2fc2cbe05a1334ae904bffb8886319cd9bd4646a1fab990c17b0914950d"
+      },
+      {
+        "path": "var/qa/draven-battle-death-score-20261023/focus-and-adjacent-v2/discovery.log",
+        "bytes": 2090077,
+        "sha256": "491e1354d4fb69b63008952468205270647ca74de8b775830c47f11308a2a9c9"
+      },
+      {
+        "path": "var/qa/draven-battle-death-score-20261023/focus-and-adjacent-v2/focus/results.trx",
+        "bytes": 101453,
+        "sha256": "af3b0fd9dfd20eb5b9b90d70488e71b993858b35399da5df1a0b3734927869bb"
+      },
+      {
+        "path": "var/qa/draven-battle-death-score-20261023/focus-and-adjacent-v2/focus/test.log",
+        "bytes": 2895,
+        "sha256": "b19e417e1102ecd6db7acad38c911a172383e738ffb1914ebdcbffe2a177bfc0"
+      },
+      {
+        "path": "var/qa/draven-battle-death-score-20261023/focus-and-adjacent-v2/plan.json",
+        "bytes": 3214,
+        "sha256": "c2487055d1967e303f983dc86702b607f50b91c9486246b25d6e8cb50461275a"
+      },
+      {
+        "path": "var/qa/draven-battle-death-score-20261023/focus-and-adjacent-v2/test-source.cs",
+        "bytes": 11034,
+        "sha256": "107cdd3d7bd6e697e0e0d5a2298c43f950dc9938181eabe68871145547ab25b0"
+      },
+      {
+        "path": "var/qa/draven-battle-death-score-20261023/focus-v1/build.log",
+        "bytes": 78,
+        "sha256": "ae5f17c57b7aa31c25a8698531ba2e3784ed914134b92bcd3ee7530f084c1d90"
+      },
+      {
+        "path": "var/qa/draven-battle-death-score-20261023/focus-v1/discovery.log",
+        "bytes": 2090077,
+        "sha256": "491e1354d4fb69b63008952468205270647ca74de8b775830c47f11308a2a9c9"
+      },
+      {
+        "path": "var/qa/draven-battle-death-score-20261023/focus-v1/focus/results.trx",
+        "bytes": 50155,
+        "sha256": "edbfdd0281304503dddc3837b05cb6c6b226a0b84b066e44be73c3579d919bf6"
+      },
+      {
+        "path": "var/qa/draven-battle-death-score-20261023/focus-v1/focus/test.log",
+        "bytes": 2882,
+        "sha256": "c404766541b382929750dba5d9c1513f163bae58f5744e1d87fb659aedd91441"
+      },
+      {
+        "path": "var/qa/draven-battle-death-score-20261023/focus-v1/plan.json",
+        "bytes": 693,
+        "sha256": "be5be6968821f69f0867ae45a0d93a34340523e0b9c0c30f3c7810401868b487"
+      },
+      {
+        "path": "var/qa/draven-battle-death-score-20261023/focus-v1/test-source.cs",
+        "bytes": 11034,
+        "sha256": "107cdd3d7bd6e697e0e0d5a2298c43f950dc9938181eabe68871145547ab25b0"
+      },
+      {
+        "path": "var/qa/draven-battle-death-score-20261023/original-v1/SFD-148-221-attacker-death.json.gz",
+        "bytes": 35375,
+        "sha256": "06f778daa6586409697f3c699508ec0f86c63894d807bdb4e35b983710463180"
+      },
+      {
+        "path": "var/qa/draven-battle-death-score-20261023/original-v1/SFD-148-221-defender-death.json.gz",
+        "bytes": 37047,
+        "sha256": "6f8db16d79c951daab93a03408a0b5b8ca097761d51a85cfc1b1cf64807191e9"
+      },
+      {
+        "path": "var/qa/draven-battle-death-score-20261023/original-v1/SFD-148-221-defender-winning-point.json.gz",
+        "bytes": 31991,
+        "sha256": "c112c35d43e1f0e81e683709f5e758fd1b4cbc6080dfe4881b6a561128967d33"
+      },
+      {
+        "path": "var/qa/draven-battle-death-score-20261023/original-v1/SFD-148-221-mutual-death.json.gz",
+        "bytes": 35478,
+        "sha256": "5fa98f83140149ff30a6bb3e09183c49ea790480e78575097cbd0bd526d0cc9c"
+      },
+      {
+        "path": "var/qa/draven-battle-death-score-20261023/original-v1/SFD-148-221-spell-battle-death.json.gz",
+        "bytes": 37385,
+        "sha256": "dc27751801752ce1d0271940eb1e795bd2e08e544ac2cce0cfca60290d634b18"
+      },
+      {
+        "path": "var/qa/draven-battle-death-score-20261023/original-v1/SFD-148-221-spell-outside-battle.json.gz",
+        "bytes": 21774,
+        "sha256": "3ea7385f92f2307e6f26bddfa719256facf0819d86ac87fa857830e6c0bfbcb7"
+      },
+      {
+        "path": "var/qa/draven-battle-death-score-20261023/original-v1/SFD-148-221-zhonya-replacement.json.gz",
+        "bytes": 46762,
+        "sha256": "0bd0b943ae27aa78b7737f94736ddaeabbb1ccb4ea18f97bff66973b3bbdc782"
+      },
+      {
+        "path": "var/qa/draven-battle-death-score-20261023/original-v1/SFD-148a-221-attacker-death.json.gz",
+        "bytes": 35378,
+        "sha256": "07333a8c4df8f15706402bc5569367367a5f6b433818a8a330ceb3a552eca76d"
+      },
+      {
+        "path": "var/qa/draven-battle-death-score-20261023/original-v1/SFD-148a-221-defender-death.json.gz",
+        "bytes": 37049,
+        "sha256": "614fdbaff142222ce0f06b579fb17198aba9f6f3a596c3f5d02af8111df0c64f"
+      },
+      {
+        "path": "var/qa/draven-battle-death-score-20261023/original-v1/SFD-148a-221-defender-winning-point.json.gz",
+        "bytes": 32012,
+        "sha256": "3c037fac3d1278c651246faba5481c238978ef15b5aa7e9dbcbb3f5aff173916"
+      },
+      {
+        "path": "var/qa/draven-battle-death-score-20261023/original-v1/SFD-148a-221-mutual-death.json.gz",
+        "bytes": 35481,
+        "sha256": "c678b9e1acdc7271bdc51e6275e252050380f80f20aa53d542f0d3f9af440b51"
+      },
+      {
+        "path": "var/qa/draven-battle-death-score-20261023/original-v1/SFD-148a-221-spell-battle-death.json.gz",
+        "bytes": 37386,
+        "sha256": "5d1c2ccea95bbec99f887732b96639fec619aadfdb3db7c471b0df56def1dac0"
+      },
+      {
+        "path": "var/qa/draven-battle-death-score-20261023/original-v1/SFD-148a-221-spell-outside-battle.json.gz",
+        "bytes": 21771,
+        "sha256": "f6e5ab92ecbed48a1ce1dd4190576b37693e075f033f9e88f3f778965f77d70d"
+      },
+      {
+        "path": "var/qa/draven-battle-death-score-20261023/original-v1/SFD-148a-221-zhonya-replacement.json.gz",
+        "bytes": 46766,
+        "sha256": "9d6eca76675ecb077980a3db6fe1b899c1a3a137c66885d37006d86d952dfecb"
+      },
+      {
+        "path": "var/qa/draven-battle-death-score-20261023/original-v2/SFD-148-221-attacker-death.json.gz",
+        "bytes": 35373,
+        "sha256": "fc5d2f0b690176aeab355f2a5e567b3b55118b03dbdb84e7673f640867079332"
+      },
+      {
+        "path": "var/qa/draven-battle-death-score-20261023/original-v2/SFD-148-221-defender-death.json.gz",
+        "bytes": 37039,
+        "sha256": "7d9f038738bc6559288d276461f40b4128d159c1efb468be9673ecf8507e33ea"
+      },
+      {
+        "path": "var/qa/draven-battle-death-score-20261023/original-v2/SFD-148-221-defender-winning-point.json.gz",
+        "bytes": 31980,
+        "sha256": "58509b8e7615f130fd45018e805d937e718906089671edb8b1b81781af5faa2d"
+      },
+      {
+        "path": "var/qa/draven-battle-death-score-20261023/original-v2/SFD-148-221-mutual-death.json.gz",
+        "bytes": 35469,
+        "sha256": "bea3bee40477824be68276c0df153dc6e36df17577a62e95cb54a5518c2d13bc"
+      },
+      {
+        "path": "var/qa/draven-battle-death-score-20261023/original-v2/SFD-148-221-spell-battle-death.json.gz",
+        "bytes": 37378,
+        "sha256": "ec10052adfa3290410e535606c8eb4dc30788a21850af6df9da7bb78a3926dba"
+      },
+      {
+        "path": "var/qa/draven-battle-death-score-20261023/original-v2/SFD-148-221-spell-outside-battle.json.gz",
+        "bytes": 21768,
+        "sha256": "56c2685a475a1edebf653b1a20b547df93cfe6466d54b19918349af7f2d57aa4"
+      },
+      {
+        "path": "var/qa/draven-battle-death-score-20261023/original-v2/SFD-148-221-zhonya-replacement.json.gz",
+        "bytes": 46749,
+        "sha256": "e0679f88bbc39fabca4e3e2bc82faf58971f68f202ad480afcb452e12f9de85c"
+      },
+      {
+        "path": "var/qa/draven-battle-death-score-20261023/original-v2/SFD-148a-221-attacker-death.json.gz",
+        "bytes": 35367,
+        "sha256": "194eac9c1c4e38294ddf6732e8139909559faa6454ace8ff1c56202b7b793f43"
+      },
+      {
+        "path": "var/qa/draven-battle-death-score-20261023/original-v2/SFD-148a-221-defender-death.json.gz",
+        "bytes": 37040,
+        "sha256": "fefba30f9ad0d2919a4dcc68aa9783cc532f6b3f25bfd09e3cb4cf6cf62c7a10"
+      },
+      {
+        "path": "var/qa/draven-battle-death-score-20261023/original-v2/SFD-148a-221-defender-winning-point.json.gz",
+        "bytes": 32002,
+        "sha256": "060736996f40859afc66be06c369e87bb10cd6ac193ed5be4182a3ad94729364"
+      },
+      {
+        "path": "var/qa/draven-battle-death-score-20261023/original-v2/SFD-148a-221-mutual-death.json.gz",
+        "bytes": 35473,
+        "sha256": "f50b411dc469c54d2f5fe66a8c4d70c4567f0f2c74a3f37feabc1b18617258c8"
+      },
+      {
+        "path": "var/qa/draven-battle-death-score-20261023/original-v2/SFD-148a-221-spell-battle-death.json.gz",
+        "bytes": 37378,
+        "sha256": "8b6cdf19b05cf156446395a6afe66a0980855e6234fbf06dbbc728c2561b0d35"
+      },
+      {
+        "path": "var/qa/draven-battle-death-score-20261023/original-v2/SFD-148a-221-spell-outside-battle.json.gz",
+        "bytes": 21765,
+        "sha256": "0a0acb0edda64e8a634fe9bacd9c4f3e1dc9924c47b9f07c258b025527c2d444"
+      },
+      {
+        "path": "var/qa/draven-battle-death-score-20261023/original-v2/SFD-148a-221-zhonya-replacement.json.gz",
+        "bytes": 46753,
+        "sha256": "b0a55eb950d6ffbe9ac4b603224383bc044a663a151f0d64fff64c9f20d8131e"
+      },
+      {
+        "path": "var/qa/draven-battle-death-score-20261023/package-proof-v1.py",
+        "bytes": 6889,
+        "sha256": "60514ad80fa2b9e121c48f0a7a20066f34aafbd0f6bd96e145e21a85ca68acbe"
+      },
+      {
+        "path": "var/qa/draven-battle-death-score-20261023/refresh-sources-v1.py",
+        "bytes": 2323,
+        "sha256": "d5344240efbfd88edb539e2b14c9d3cdeabc5c4c0ec145f800df1ad50bc0860b"
+      },
+      {
+        "path": "var/qa/draven-battle-death-score-20261023/sources-v1/current-中娅沙漏-original-v1.json.gz",
+        "bytes": 1387,
+        "sha256": "84ea5599bc592affb5ff97db3ce2cf5992005de728a83a0cc7efe710d9a27462"
+      },
+      {
+        "path": "var/qa/draven-battle-death-score-20261023/sources-v1/current-先锋中士-original-v1.json.gz",
+        "bytes": 1189,
+        "sha256": "891f35309f9a58ce4f65dd3c7fd41614147e4f27456305ca6e71b6f7ecea711f"
+      },
+      {
+        "path": "var/qa/draven-battle-death-score-20261023/sources-v1/current-山脉亚龙-original-v1.json.gz",
+        "bytes": 1280,
+        "sha256": "7d63f490623afc35cb3322dc37c81c76f135c9e4e532a0040b93b11a25e906b7"
+      },
+      {
+        "path": "var/qa/draven-battle-death-score-20261023/sources-v1/current-德莱文-original-v1.json.gz",
+        "bytes": 2581,
+        "sha256": "0880fc7e9d517af61a94dfb10e16ef871d62e4c2f57c836fe94d6118eb2e99cd"
+      },
+      {
+        "path": "var/qa/draven-battle-death-score-20261023/sources-v1/current-暗刃-original-v1.json.gz",
+        "bytes": 1376,
+        "sha256": "4e17735214d394945d34f42ac3430ed58980f9998c6d2dad69b1ed2fb6e23200"
+      },
+      {
+        "path": "var/qa/draven-battle-death-score-20261023/sources-v1/current-比尔吉沃特恶霸-original-v1.json.gz",
+        "bytes": 1247,
+        "sha256": "4b31439103f91ee8e0beef153fb65df73b660c6f5d7ff1686ad320aabcd19baa"
+      },
+      {
+        "path": "var/qa/draven-battle-death-score-20261023/sources-v1/current-船坞潜伏者-original-v1.json.gz",
+        "bytes": 1196,
+        "sha256": "9ee31a7745c44ab01b0c445678223043b95ed4ada41758968f29a3b92951dfc3"
+      },
+      {
+        "path": "var/qa/draven-battle-death-score-20261023/sources-v1/current-虚空之门-original-v1.json.gz",
+        "bytes": 1289,
+        "sha256": "427bec3c2f861db53cdb0d529dfc2781c18885eb37df05aab94a4acac7f7d792"
+      },
+      {
+        "path": "var/qa/draven-battle-death-score-20261023/sources-v1/extra-rows.json",
+        "bytes": 12390,
+        "sha256": "d490fc6e4b3ff09307aa3f8fe4a8134f34e7634f631c494524d23bd3decf8302"
+      },
+      {
+        "path": "var/qa/draven-battle-win-score-20261023/current-core304-http-original-v1.json",
+        "bytes": 1112,
+        "sha256": "795089423c09471b682c2650ee6b94a60b2553bf046c4fdef6e1131bec97508e"
+      }
+    ]
+  }
+}
