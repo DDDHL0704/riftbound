@@ -18,7 +18,7 @@ public sealed class SelectedBattlefieldAreaDamageTests
 
     [Theory]
     [MemberData(nameof(DamageCases))]
-    public Task CurrentAdvertisedSubmissionCannotDamageEnemiesAtTwoDifferentBattlefields(
+    public Task SelectedBattlefieldSubmissionCannotDamageEnemiesAtTwoDifferentBattlefields(
         string card, bool gate, bool annie) => Run("scope", card, gate, annie, true);
 
     [Theory]
@@ -26,9 +26,9 @@ public sealed class SelectedBattlefieldAreaDamageTests
     public Task SingleOccupiedBattlefieldIsolatesGlobalAndLocalDamageBonuses(
         string card, bool gate, bool annie) => Run("bonus", card, gate, annie, false);
 
-    // The field is appended to the existing target selection, as a proposed protocol binding.
-    // Rejection is preserved separately from actual damage failures; it alone does not prove
-    // that this is the only valid wire representation of the official field choice.
+    // Canonical integration contract: Bullet [field], Drop [baseUnit, field],
+    // Crescent [field, enemyUnitAtField]. The pre-integration probe bytes and failures
+    // are preserved in the source-red evidence archive committed before this adaptation.
     [Theory]
     [InlineData("OGN·268/298", "A")]
     [InlineData("OGN·268/298", "B")]
@@ -44,6 +44,25 @@ public sealed class SelectedBattlefieldAreaDamageTests
     [InlineData(true)]
     public Task CompletedThunderingDropMoveNamesAnActualBattlefield(bool secondOccupied) =>
         Run(secondOccupied ? "movement-wide" : "movement-narrow", "OGN·250/298", false, false, secondOccupied);
+
+    public static IEnumerable<object[]> IllegalCases()
+    {
+        foreach (var card in new[] { "OGN·268/298", "OGN·250/298", "UNL-072/219" })
+        foreach (var invalid in new[] { "no-field", "unknown-field", "base-as-field", "extra-target",
+            "duplicate-target", "wrong-player", "stale-prompt", "stale-tick" })
+            yield return [card, invalid];
+        yield return ["OGN·268/298", "unit-as-field"];
+        yield return ["OGN·250/298", "enemy-base"];
+        yield return ["OGN·250/298", "field-unit"];
+        yield return ["UNL-072/219", "wrong-field"];
+        yield return ["UNL-072/219", "base-unit"];
+        yield return ["UNL-072/219", "friendly-unit"];
+    }
+
+    [Theory]
+    [MemberData(nameof(IllegalCases))]
+    public Task InvalidCanonicalSelectionsAndAuthorityCannotMutateStateOrPrivateViews(string card, string invalid) =>
+        Run("invalid-" + invalid, card, true, true, true);
 
     private static async Task Run(string kind, string card, bool gate, bool annie, bool secondOccupied, string field = "A")
     {
@@ -86,13 +105,45 @@ public sealed class SelectedBattlefieldAreaDamageTests
         var json = new JsonSerializerOptions(JsonSerializerDefaults.Web);
         var prompts = new List<object>();
         var submissions = new List<object>();
+        var duplicates = new List<object>();
+        var initialPrompt = session.PromptFor("P1");
+        string? lastIntent = null;
+        GameCommand? lastCommand = null;
+        JsonElement lastRaw = default;
         string? failure = null;
         try
         {
-            string[] unitTargets = card switch { "OGN·250/298" => ["P1-BASE"], "UNL-072/219" => [field == "A" ? "P2-A1" : "P2-B"], _ => [] };
-            var targets = kind == "explicit-target" ? unitTargets.Concat([field]).ToArray() : unitTargets;
+            var unit = card == "OGN·250/298" ? "P1-BASE" : field == "A" ? "P2-A1" : "P2-B";
+            string[] Targets(string battlefield, string target) => card switch
+            {
+                "OGN·250/298" => [target, battlefield], "UNL-072/219" => [battlefield, target], _ => [battlefield]
+            };
+            var targets = Targets(field, unit);
+            if (kind.StartsWith("invalid-", StringComparison.Ordinal))
+            {
+                var invalid = kind[8..];
+                targets = invalid switch
+                {
+                    "no-field" => card == "OGN·268/298" ? [] : [unit],
+                    "unknown-field" => Targets("UNKNOWN-FIELD", unit),
+                    "base-as-field" => Targets("P2-BASE", unit),
+                    "unit-as-field" => Targets("P2-A1", unit),
+                    "extra-target" => targets.Concat(["P2-BASE"]).ToArray(),
+                    "duplicate-target" => targets.Concat([targets[0]]).ToArray(),
+                    "enemy-base" => Targets(field, "P2-BASE"),
+                    "field-unit" => Targets(field, "P2-A1"),
+                    "wrong-field" => Targets("B", "P2-A1"),
+                    "base-unit" => Targets(field, "P2-BASE"),
+                    "friendly-unit" => Targets(field, "P1-BASE"),
+                    _ => targets
+                };
+                await Act(invalid == "wrong-player" ? "P2" : "P1", new PlayCardCommand("SPELL", card, targets,
+                    OptionalCosts: card == "OGN·268/298" ? ["SPEND_POWER:3"] : null), false, invalid);
+                return;
+            }
             await Act("P1", new PlayCardCommand("SPELL", card, targets,
                 OptionalCosts: card == "OGN·268/298" ? ["SPEND_POWER:3"] : null));
+            await RepeatAcceptedSubmission();
             Assert.NotNull(state.PriorityPlayerId);
             await Act(state.PriorityPlayerId!, new PassPriorityCommand());
             await Act(state.PriorityPlayerId!, new PassPriorityCommand());
@@ -101,7 +152,8 @@ public sealed class SelectedBattlefieldAreaDamageTests
                 Assert.Contains("P1-BASE", state.PlayerZones["P1"].Battlefields);
                 Assert.Equal("BATTLEFIELD", state.ObjectLocations["P1-BASE"].Zone);
                 Assert.NotNull(state.ObjectLocations["P1-BASE"].BattlefieldObjectId);
-                Assert.Contains(state.ObjectLocations["P1-BASE"].BattlefieldObjectId, new[] { "A", "B" });
+                Assert.Equal(field, state.ObjectLocations["P1-BASE"].BattlefieldObjectId);
+                AssertCanonicalPrompt();
                 return;
             }
             var damage = journal.Entries.SelectMany(e => e.Events).Where(e => e.Kind == "DAMAGE_APPLIED"
@@ -126,6 +178,7 @@ public sealed class SelectedBattlefieldAreaDamageTests
             }
             if (kind == "explicit-target" && card == "OGN·250/298")
                 Assert.Equal(field, state.ObjectLocations["P1-BASE"].BattlefieldObjectId);
+            AssertCanonicalPrompt();
         }
         catch (Exception e) { failure = e.GetType().Name + ": " + e.Message; throw; }
         finally
@@ -148,11 +201,11 @@ public sealed class SelectedBattlefieldAreaDamageTests
                 Directory.CreateDirectory(folder);
                 using var output = new GZipStream(File.Open(Path.Combine(folder, caseId + ".json.gz"), FileMode.CreateNew), CompressionLevel.Optimal);
                 JsonSerializer.Serialize(output, new { caseId, kind, card, gate, annie, secondOccupied, field, initial, states,
-                    prompts, submissions, entries = journal.Entries, commands, events, originalPrefixReplayCount = commands.Length, failure }, json);
+                    prompts, submissions, duplicates, entries = journal.Entries, commands, events, originalPrefixReplayCount = commands.Length, failure }, json);
             }
         }
 
-        async Task Act(string player, GameCommand command)
+        async Task Act(string player, GameCommand command, bool expectedAccepted = true, string? invalid = null)
         {
             var beforeState = MatchStateHasher.Hash(state);
             var beforePrompts = new[] { session.PromptFor("P1"), session.PromptFor("P2") };
@@ -161,8 +214,12 @@ public sealed class SelectedBattlefieldAreaDamageTests
             var raw = JsonSerializer.SerializeToNode(command, command.GetType(), json)!.AsObject();
             raw["promptId"] = session.PromptFor(player).PromptId;
             raw["snapshotTick"] = state.Tick;
-            var result = await session.SubmitAsync(player, "selected-aoe-" + journal.Entries.Count,
-                command, JsonSerializer.SerializeToElement(raw, json), default);
+            if (invalid == "stale-prompt") raw["promptId"] = "STALE-PROMPT";
+            if (invalid == "stale-tick") raw["snapshotTick"] = state.Tick - 1;
+            lastIntent = "selected-aoe-" + journal.Entries.Count;
+            lastCommand = command;
+            lastRaw = JsonSerializer.SerializeToElement(raw, json);
+            var result = await session.SubmitAsync(player, lastIntent, command, lastRaw, default);
             state = result.State;
             states.Add(state);
             submissions.Add(new { result.Accepted, result.ErrorCode, result.ErrorMessage, beforeState,
@@ -174,7 +231,54 @@ public sealed class SelectedBattlefieldAreaDamageTests
                 Assert.Equal(MatchStateHasher.HashValue(beforePrompts), MatchStateHasher.HashValue(new[] { session.PromptFor("P1"), session.PromptFor("P2") }));
                 Assert.Equal(MatchStateHasher.HashValue(beforeViews), MatchStateHasher.HashValue(new[] { session.SnapshotFor("P1"), session.SnapshotFor("P2") }));
             }
+            Assert.True(result.Accepted == expectedAccepted, result.ErrorMessage ?? "Unexpected accepted invalid command");
+        }
+
+        async Task RepeatAcceptedSubmission()
+        {
+            var hash = MatchStateHasher.Hash(state);
+            var promptHash = MatchStateHasher.HashValue(new[] { session.PromptFor("P1"), session.PromptFor("P2") });
+            var viewHash = MatchStateHasher.HashValue(new[] { session.SnapshotFor("P1"), session.SnapshotFor("P2") });
+            var count = journal.Entries.Count;
+            Assert.NotNull(lastIntent);
+            Assert.NotNull(lastCommand);
+            var result = await session.SubmitAsync("P1", lastIntent, lastCommand, lastRaw, default);
+            duplicates.Add(new { clientIntentId = lastIntent, rawCommand = lastRaw, result.Accepted, result.ErrorCode,
+                journalBefore = count, journalAfter = journal.Entries.Count, beforeState = hash,
+                afterState = MatchStateHasher.Hash(result.State) });
             Assert.True(result.Accepted, result.ErrorMessage);
+            Assert.Equal(hash, MatchStateHasher.Hash(result.State));
+            Assert.Equal(count, journal.Entries.Count);
+            Assert.Equal(promptHash, MatchStateHasher.HashValue(new[] { session.PromptFor("P1"), session.PromptFor("P2") }));
+            Assert.Equal(viewHash, MatchStateHasher.HashValue(new[] { session.SnapshotFor("P1"), session.SnapshotFor("P2") }));
+        }
+
+        void AssertCanonicalPrompt()
+        {
+            var prompt = JsonSerializer.SerializeToElement(initialPrompt, json);
+            var candidate = prompt.GetProperty("candidates").EnumerateArray().Single(c => c.GetProperty("action").GetString() == "PLAY_CARD");
+            var requirement = candidate.GetProperty("metadata").GetProperty("sourceRequirements").EnumerateArray()
+                .Single(r => r.GetProperty("sourceObjectId").GetString() == "SPELL");
+            var count = card == "OGN·268/298" ? 1 : 2;
+            Assert.Equal(count, requirement.GetProperty("minTargetCount").GetInt32());
+            Assert.Equal(count, requirement.GetProperty("maxTargetCount").GetInt32());
+            var index = card == "OGN·250/298" ? "1" : "0";
+            var fields = requirement.GetProperty("targetChoicesByIndex").GetProperty(index).EnumerateArray()
+                .Select(choice => choice.GetProperty("id").GetString()).Order().ToArray();
+            Assert.Contains(field, fields);
+            Assert.All(fields, id => Assert.Contains(id, new[] { "A", "B" }));
+            if (card != "UNL-072/219" || secondOccupied)
+                Assert.Equal(new[] { "A", "B" }, fields);
+            if (card != "OGN·268/298")
+            {
+                var unitIndex = card == "OGN·250/298" ? "0" : "1";
+                var units = requirement.GetProperty("targetChoicesByIndex").GetProperty(unitIndex).EnumerateArray()
+                    .Select(choice => choice.GetProperty("id").GetString()).Order().ToArray();
+                string[] expectedUnits = card == "OGN·250/298"
+                    ? annie ? ["ANNIE", "P1-BASE"] : ["P1-BASE"]
+                    : secondOccupied ? ["P2-A1", "P2-A2", "P2-B"] : ["P2-A1", "P2-A2"];
+                Assert.Equal(expectedUnits, units);
+            }
         }
     }
 
