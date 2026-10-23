@@ -292,7 +292,8 @@ public sealed record CardBehaviorDefinition(
     FlowCostSpec? AppliedFlowCost = null,
     bool MayReduceOtherCardOptionalAdditionalCostByOneManaOrPower = false,
     int? PowerModifierAmountIfTargetEmpowered = null,
-    int DamageAmountIfDiscardHandCardOptionalCost = 0)
+    int DamageAmountIfDiscardHandCardOptionalCost = 0,
+    int ExtraDamagePerSameNameInControllerGraveyard = 0)
 {
     public bool PerformsInsight => InsightCount > 0;
 }
@@ -474,6 +475,9 @@ public static class CardBehaviorRegistry
         new("VEN·008", "无情打击", 3, "VEN_008_OPTIONAL_DISCARD_DAMAGE", 3, 1,
             TargetScope: CardTargetScopes.BattlefieldUnit, CanPlayDuringSpellDuel: true,
             DamageAmountIfDiscardHandCardOptionalCost: 5),
+        new("VEN·010", "蚀骨诅咒", 2, "VEN_010_GRAVEYARD_SAME_NAME_DAMAGE", 2, 1,
+            TargetScope: CardTargetScopes.BattlefieldUnit, CanPlayDuringSpellDuel: true,
+            ExtraDamagePerSameNameInControllerGraveyard: 1),
         new("VEN·052", "惑心转意", 1, "VEN_MODAL_REACTION_RETURN_FRIENDLY_UNIT", 0, 1,
             TargetScope: CardTargetScopes.FriendlyUnit, TargetRequiredTag: CardObjectTags.UnitCard,
             Mode: "RETURN_FRIENDLY_UNIT", ReturnsTargetToHand: true, CanPlayDuringPriority: true),

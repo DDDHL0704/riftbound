@@ -2,7 +2,7 @@
   "source": "https://playloltcg.com/card.html",
   "api": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
   "fetchedAt": "2026-04-27",
-  "total": 1057,
+  "total": 1058,
   "cards": [
     {
       "id": 31005,
@@ -44000,6 +44000,54 @@
       "isPreview": false,
       "errata": "",
       "otherDesc": 0
+    },
+    {
+      "id": 37695,
+      "cardCategoryList": [
+        "spell"
+      ],
+      "cardCategoryNameList": [
+        "法术"
+      ],
+      "cardNo": "VEN·010",
+      "cardName": "蚀骨诅咒",
+      "subTitle": "",
+      "extendType": null,
+      "extendTypeName": "",
+      "cardColorList": [
+        "red"
+      ],
+      "hero": "",
+      "region": "",
+      "tag": "",
+      "artist": "Kudos Productions",
+      "cardEffect": "{{迅捷}}（可在你的回合或法术对决中打出。）\n对战场上的一名单位造成2点伤害。你的废牌堆中每有一张此牌的同名卡牌，此牌便造成1点额外伤害。",
+      "flavorText": "“那是啥？！”\n——常见遗言",
+      "energy": 2,
+      "returnEnergy": null,
+      "power": null,
+      "productCodeList": [
+        "VEN(标准补充包)",
+        "VEN(进阶补充包)"
+      ],
+      "productNameList": [
+        "化神争锋 标准补充包",
+        "化神争锋 进阶补充包"
+      ],
+      "cardQaList": null,
+      "craftLevel": 0,
+      "rarity": "rune_glimmer",
+      "rarityName": "不凡",
+      "extendRarity": "base_inscript",
+      "extendRarityName": "平卡",
+      "frontImage": "https://cdn.playloltcg.com/lol/card/20260716/c026ee8cfd8a46d5bf7933740066125f.png",
+      "backImage": "",
+      "listSort": 1991,
+      "status": 1,
+      "cardGroupLimit": null,
+      "isPreview": false,
+      "errata": "",
+      "otherDesc": 0
     }
   ],
   "scopedAdditions": [
@@ -44779,6 +44827,21 @@
       "printedFaceIdentity": "VEN·008/166 SC",
       "separateGlobalPrintingIdentityNotMerged": "VEN-008/166",
       "reason": "Exact CN optional discard consumer under semantic development; registration is not whole-card certification."
+    },
+    {
+      "cardNo": "VEN·010",
+      "source": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+      "fetchedAtUtc": "2026-10-23T21:59:17.237369+00:00",
+      "sourceId": 37695,
+      "sourceRecordSha256": "3c0278c3307f660a859184fb0ee82c9affece5c8dc59a0fe6e40573631cfd9a4",
+      "sourceRecordHashEncoding": "UTF-8 JSON sorted keys compact separators ensure_ascii=false",
+      "language": "zh-CN",
+      "region": "CN",
+      "publicationDate": null,
+      "effectiveDate": null,
+      "printedFaceIdentity": "VEN·010/166 SC",
+      "separateGlobalPrintingIdentityNotMerged": "VEN-010/166",
+      "reason": "Exact CN resolution-time same-name graveyard damage consumer under development; registration is not whole-card certification."
     }
   ]
 }

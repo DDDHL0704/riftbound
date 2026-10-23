@@ -33833,6 +33833,14 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             damageAmount = stackItem.DamageAmount > 0 ? stackItem.DamageAmount : behavior.DamageAmount;
         }
 
+        if (behavior.ExtraDamagePerSameNameInControllerGraveyard > 0
+            && state.PlayerZones.TryGetValue(stackItem.ControllerId, out var controllerZones))
+        {
+            var count = controllerZones.Graveyard.Count(id => state.CardObjects.TryGetValue(id, out var card)
+                && OfficialCardSourceIdentityGroups.SameKnownName(stackItem.CardNo, card.CardNo));
+            damageAmount = checked(damageAmount + checked(behavior.ExtraDamagePerSameNameInControllerGraveyard * count));
+        }
+
         if (!IsSpellPlayBehavior(behavior) && !stackItem.SourceConfirmed)
         {
             return damageAmount;
@@ -33843,6 +33851,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         // not be converted into damage by a numeric bonus.
         if (damageAmount == 0 && !behavior.DamageAmountFromTargetMarkedDamage
             && !behavior.DamageAmountFromFirstTargetManaCost && !behavior.DamageAmountFromOptionalPowerCost
+            && behavior.ExtraDamagePerSameNameInControllerGraveyard <= 0
             && behavior.DamageAmount == 0 && behavior.ConditionalDamageAmount == 0)
             return 0;
 
