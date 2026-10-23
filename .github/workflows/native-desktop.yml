@@ -31,6 +31,18 @@ jobs:
           python3 scripts/ci-change-scope.py
           --event "$GITHUB_EVENT_PATH" --head "$GITHUB_SHA"
           --output var/qa/ci-scope/decision.json --github-output "$GITHUB_OUTPUT"
+      - name: Make retained audit commit available without rewriting evidence
+        run: |
+          python3 - <<'PYBASELINE'
+          import json, re, subprocess
+          from pathlib import Path
+          path = Path('docs/audit/legacy-source-baseline.json')
+          if path.exists():
+              commit = json.loads(path.read_text())['commit']
+              assert re.fullmatch(r'[0-9a-f]{40}', commit)
+              if subprocess.run(['git', 'cat-file', '-e', commit+'^{commit}'], stderr=subprocess.DEVNULL).returncode:
+                  subprocess.run(['git', 'fetch', '--no-tags', '--depth=1', 'origin', commit], check=True, timeout=120)
+          PYBASELINE
       - name: Source-index and governance integrity
         run: python3 scripts/audit/check-project-governance.py --output var/qa/ci-scope/governance.json
       - name: Check committed diff formatting

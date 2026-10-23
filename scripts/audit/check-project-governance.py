@@ -14,6 +14,7 @@ import json
 from pathlib import Path
 import re
 import sys
+import subprocess
 from urllib.parse import unquote, urlsplit
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -464,9 +465,44 @@ def branch_obligation(branch, context, covered, evidence, scope, cards, rules, c
                 wholePrintingCertified=False,globalCertification=False)
 
 
+def retained_implementation_baseline(root, manifest):
+    """Authenticate historical pins without claiming unchanged current code."""
+    config_path = root/'docs/audit/legacy-source-baseline.json'
+    if not config_path.exists():
+        return None, None
+    if config_path.is_symlink():
+        raise ValueError('Retained baseline must be a regular configuration')
+    config = json.loads(config_path.read_text())
+    commit = config.get('commit', '')
+    manifest_path = 'docs/audit/current-manifest.json'
+    if (config.get('schemaVersion') != 1 or not re.fullmatch(r'[0-9a-f]{40}', commit)
+            or not HASH.fullmatch(config.get('manifestSha256', ''))):
+        raise ValueError('Invalid retained implementation baseline identity')
+    def historical(path):
+        try:
+            return subprocess.check_output(['git', 'show', commit+':'+path], cwd=root,
+                                           stderr=subprocess.PIPE)
+        except subprocess.CalledProcessError as error:
+            raise ValueError('Retained baseline unavailable or missing file: '+path) from error
+    raw = historical(manifest_path)
+    if hashlib.sha256(raw).hexdigest() != config['manifestSha256'] or json.loads(raw) != manifest:
+        raise ValueError('Retained baseline manifest changed; a new source review is required')
+    cache = {}
+    def verify(ref):
+        path = ref['path']
+        if Path(path).is_absolute() or '..' in Path(path).parts or not HASH.fullmatch(ref['sha256']):
+            return False
+        if path not in cache:
+            cache[path] = hashlib.sha256(historical(path)).hexdigest()
+        return cache[path] == ref['sha256']
+    return config, verify
+
+
 def current_audit(root, manifest):
     if manifest.get('schemaVersion') != 1:
         raise ValueError('Unsupported current audit manifest schema')
+    retained, verify_retained = retained_implementation_baseline(root, manifest)
+    changed_contexts = []
     scope = manifest['certificationScope']
     if manifest.get('semanticCoverageCertified') is not False or scope.get('allOfficialObligationsRetained') is not True:
         raise ValueError('Index manifest cannot certify semantics or discard official obligations')
@@ -539,10 +575,17 @@ def current_audit(root, manifest):
                     covered = True
             if context['ciState'] == 'VERIFIED' and not context['ciReceipts']:
                 result['errors'].append('Verified CI has no exact commit receipt: '+identity)
+            implementation_unchanged = True
             for ref in context['implementation']:
-                path=(root/ref['path']).resolve()
-                if not path.is_relative_to(root.resolve()) or not path.is_file() or hashlib.sha256(path.read_bytes()).hexdigest()!=ref['sha256']:
+                path = (root/ref['path']).resolve()
+                safe = path.is_relative_to(root.resolve()) and not (root/ref['path']).is_symlink()
+                matches = safe and path.is_file() and hashlib.sha256(path.read_bytes()).hexdigest() == ref['sha256']
+                implementation_unchanged = implementation_unchanged and matches
+                if not safe or (verify_retained is not None and not verify_retained(ref)) or (verify_retained is None and not matches):
                     result['errors'].append('Scoped implementation pin mismatch: '+ref['path'])
+            if not implementation_unchanged:
+                changed_contexts.append(identity)
+                covered = False
             if len({b['id'] for b in context['branches']}) != len(context['branches']) or not context['implementation']:
                 result['errors'].append('Duplicate behavior branch or missing implementation context: '+identity)
             for branch in context['branches']:
@@ -591,6 +634,7 @@ def current_audit(root, manifest):
                                               manifest['inputs']['cn'], set(cards))
     result['errors'].extend(check_documents(root))
     result.update(governanceValid=not result['errors'],executionScope='CURRENT_MANIFEST_INDEX_AND_REMAINING_OBLIGATIONS_ONLY',
+                  retainedImplementationBaseline=retained, changedImplementationContexts=changed_contexts,
                   certificationScope=scope, historicalReviewPinCount=len(historical['reviews']),
                   currentReviewCount=len(reviews), recordedStatusStrings=len({r.get('status') for r in raw_reviews.values()}),
                   cardCoverageManifest=manifest['cardCoverageManifest'], inputManifest=manifest,

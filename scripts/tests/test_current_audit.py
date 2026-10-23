@@ -1,6 +1,7 @@
 import copy
 import hashlib
 import json
+import subprocess
 from pathlib import Path
 import unittest
 
@@ -170,6 +171,56 @@ class CurrentAuditTests(unittest.TestCase):
             evidenceCommit='a'*40,currentImplementationCommit='a'*40)
         self.manifest['reviewContexts']={'partial':context}
         return branch,context,code
+
+    def retain_current_fixture(self):
+        manifest = self.root/'docs/audit/current-manifest.json'
+        manifest.parent.mkdir(parents=True, exist_ok=True)
+        manifest.write_text(json.dumps(self.manifest))
+        def git(*args):
+            return subprocess.check_output(['git', *args], cwd=self.root, stderr=subprocess.PIPE).decode().strip()
+        git('init', '-q'); git('config', 'user.name', 'Audit Test'); git('config', 'user.email', 'audit@example.invalid')
+        git('add', '.'); git('commit', '-qm', 'Retained source fixture')
+        config = dict(schemaVersion=1, commit=git('rev-parse', 'HEAD'),
+                      manifestSha256=hashlib.sha256(manifest.read_bytes()).hexdigest())
+        (self.root/'docs/audit/legacy-source-baseline.json').write_text(json.dumps(config))
+        return config
+
+    def test_retained_source_change_reopens_branch_without_rewriting_history(self):
+        _, _, code = self.verified_branch()
+        config = self.retain_current_fixture()
+        before = self.check()
+        self.assertTrue(before['governanceValid'], before['errors'])
+        self.assertEqual({'VERIFIED': 1}, before['branchObligationStates'])
+        code.write_text('class Changed {}')
+        after = self.check()
+        self.assertTrue(after['governanceValid'], after['errors'])
+        self.assertEqual(config, after['retainedImplementationBaseline'])
+        self.assertEqual(['partial'], after['changedImplementationContexts'])
+        self.assertEqual({'OPEN': 1}, after['branchObligationStates'])
+        self.assertFalse(after['reviewView'][0]['fixedCommitCi']['currentImplementationCovered'])
+        self.assertEqual([r['id'] for r in before['remainingObligations']],
+                         [r['id'] for r in after['remainingObligations']])
+        self.assertFalse(after['semanticCoverageCertified'])
+
+    def test_retained_source_cannot_hide_rewritten_manifest_or_bad_pin(self):
+        self.verified_branch(); self.retain_current_fixture()
+        self.manifest['reviewContexts']['partial']['implementation'][0]['sha256'] = '0'*64
+        with self.assertRaisesRegex(ValueError, 'baseline manifest changed'):
+            self.check()
+        self.retain_current_fixture()
+        result = self.check()
+        self.assertFalse(result['governanceValid'])
+        self.assertTrue(any('implementation pin mismatch' in e for e in result['errors']))
+
+    def test_unavailable_retained_commit_and_hash_are_not_passes(self):
+        self.verified_branch(); config = self.retain_current_fixture()
+        path = self.root/'docs/audit/legacy-source-baseline.json'
+        config['commit'] = '0'*40; path.write_text(json.dumps(config))
+        with self.assertRaisesRegex(ValueError, 'baseline unavailable'):
+            self.check()
+        config['commit'] = 'bad'; path.write_text(json.dumps(config))
+        with self.assertRaisesRegex(ValueError, 'baseline identity'):
+            self.check()
 
     def test_finite_branch_closes_without_dropping_identities_or_certifying_whole_card(self):
         branch,_,_=self.verified_branch()
