@@ -39,7 +39,12 @@ public sealed partial class CoreRuleEngine
         var frame = RuleChoices.Value ?? throw new InvalidOperationException("Destruction requires a rule command context.");
         var scope = new DestructionReplacementScope(frame);
         var remaining = candidates.Where(id => IsObjectOnField(zones, id)).ToHashSet(StringComparer.Ordinal);
-        var localRecalls = CaptureLocalDestructionRecalls(state, zones, cards, locations ?? state.ObjectLocations, remaining);
+        var localRecallSources = cards.Values.Where(source => source.Tags.Contains(CardObjectTags.UnitCard)
+            && FieldObjectTypeRules.IsVisibleUnit(source) && IsObjectOnField(zones, source.ObjectId)
+            && CardReplacementSpecRules.TryGetReplacement(source.CardNo,
+                CardReplacementSpecRules.IsOtherFriendlyLowerPowerUnitHereDestroyedRecallExhaustedReplacement, out _))
+            .ToDictionary(source => source.ObjectId, source => source.ObjectGeneration, StringComparer.Ordinal);
+        var startedLocalSources = new HashSet<string>(StringComparer.Ordinal);
         frame.DestructionCandidates = frame.DestructionCandidates.Concat(candidates).ToHashSet(StringComparer.Ordinal);
         frame.CurrentDestructions = remaining.ToHashSet(StringComparer.Ordinal);
         frame.CurrentDestructionBatch = frame.DestructionBatchSequence++;
@@ -51,21 +56,34 @@ public sealed partial class CoreRuleEngine
         try {
             foreach (var player in zones.Keys.OrderBy(p => p == state.TurnPlayerId ? 0 : 1).ThenBy(p => p, StringComparer.Ordinal)) {
                 var declinedOptional = false;
+                IReadOnlyList<CapturedDestructionOption>? activeLocalGroup = null;
                 while (true) {
                     remaining.RemoveWhere(id => !IsObjectOnField(zones, id));
+                    // CN 373.2: evaluate an unstarted source where it is now.
+                    // Once selected, its whole simultaneous group finishes in
+                    // that context before another replacement can intervene.
+                    var localRecalls = activeLocalGroup ?? CaptureLocalDestructionRecalls(state, zones, cards,
+                        ReconcileObjectLocations(locations ?? state.ObjectLocations, zones), remaining, localRecallSources)
+                        .Where(c => !startedLocalSources.Contains(c.Option.EffectKey)).ToArray();
                     var options = new List<DestructionOption>();
                     var canPayOptional = false;
                     foreach (var target in remaining.Order(StringComparer.Ordinal)) {
                         if (!cards.TryGetValue(target, out var unit) || EffectiveFieldControllerId(zones, target, unit) != player) continue;
-                        var candidatesForTarget = DestructionOptions(state, zones, cards, pools, target, player,
-                            causesByTarget?.GetValueOrDefault(target) ?? cause, battlefieldId, locations ?? state.ObjectLocations, declinedOptional, out var optionalAvailable);
+                        IReadOnlyList<DestructionOption> candidatesForTarget = [];
+                        if (activeLocalGroup is null) {
+                            candidatesForTarget = DestructionOptions(state, zones, cards, pools, target, player,
+                                causesByTarget?.GetValueOrDefault(target) ?? cause, battlefieldId, locations ?? state.ObjectLocations, declinedOptional, out var optionalAvailable);
+                            canPayOptional |= optionalAvailable;
+                        }
                         foreach (var candidate in candidatesForTarget.Concat(localRecalls
                             .Where(c => c.Option.Target == target && c.TargetGeneration == unit.ObjectGeneration).Select(c => c.Option)))
                             if (!frame.AppliedDestructionReplacements.Contains(candidate.EffectKey)) options.Add(candidate);
-                        canPayOptional |= optionalAvailable;
                     }
                     var resources = canPayOptional ? ReplacementResourceActions(ReplacementResourceContext(state, zones, cards, pools, player), player) : [];
-                    if (options.Count + resources.Count == 0) break;
+                    if (options.Count + resources.Count == 0) {
+                        if (activeLocalGroup is not null) { activeLocalGroup = null; continue; }
+                        break;
+                    }
                     var optional = options.Any(o => o.Optional) || resources.Count > 0;
                     string selected;
                     if (options.Count == 1 && !optional) selected = options[0].Choice.Id;
@@ -82,6 +100,10 @@ public sealed partial class CoreRuleEngine
                         continue;
                     }
                     var option = options.Single(o => o.Choice.Id == selected);
+                    if (option.Kind == "LOCAL_RECALL" && activeLocalGroup is null) {
+                        startedLocalSources.Add(option.EffectKey);
+                        activeLocalGroup = localRecalls.Where(c => c.Option.EffectKey == option.EffectKey).ToArray();
+                    }
                     var unitBefore = cards[option.Target];
                     var previousChain = frame.AppliedDestructionReplacements;
                     frame.AppliedDestructionReplacements = new(previousChain, StringComparer.Ordinal) { option.EffectKey };
@@ -100,11 +122,13 @@ public sealed partial class CoreRuleEngine
 
     private sealed record CapturedDestructionOption(DestructionOption Option, long TargetGeneration);
 
-    // CN 370.3–370.4: capture applicability for this simultaneous event, before
-    // replacements can remove or recall a source. Nested events capture afresh.
+    // CN 370.3–370.4/373.2: sources present before the event may apply while
+    // awaiting their simultaneous deaths. A prior replacement can relocate a
+    // source before its own group begins; freeze its targets only at that point.
     private static IReadOnlyList<CapturedDestructionOption> CaptureLocalDestructionRecalls(
         MatchState state, IReadOnlyDictionary<string, PlayerZones> zones, IReadOnlyDictionary<string, CardObjectState> cards,
-        IReadOnlyDictionary<string, ObjectLocationState> locations, IEnumerable<string> targets)
+        IReadOnlyDictionary<string, ObjectLocationState> locations, IEnumerable<string> targets,
+        IReadOnlyDictionary<string, long> sources)
     {
         var result = new List<CapturedDestructionOption>();
         var context = state with { PlayerZones = zones, CardObjects = cards, ObjectLocations = locations };
@@ -113,7 +137,9 @@ public sealed partial class CoreRuleEngine
             if (!target.Tags.Contains(CardObjectTags.UnitCard) || !FieldObjectTypeRules.IsVisibleUnit(target)) continue;
             var controller = EffectiveFieldControllerId(zones, id, target);
             foreach (var source in cards.Values.OrderBy(c => c.ObjectId, StringComparer.Ordinal)) {
-                if (source.ObjectId == id || !source.Tags.Contains(CardObjectTags.UnitCard)
+                if (!sources.TryGetValue(source.ObjectId, out var generation) || generation != source.ObjectGeneration
+                    || !IsObjectOnField(zones, source.ObjectId)
+                    || source.ObjectId == id || !source.Tags.Contains(CardObjectTags.UnitCard)
                     || !FieldObjectTypeRules.IsVisibleUnit(source)
                     || EffectiveFieldControllerId(zones, source.ObjectId, source) != controller
                     || !IsSameFieldLocation(zones, locations, id, source.ObjectId)
