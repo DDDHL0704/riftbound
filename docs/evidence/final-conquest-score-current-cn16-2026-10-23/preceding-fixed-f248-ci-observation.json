@@ -1,0 +1,48 @@
+{
+  "atUtc": "2026-10-23T01:44:23.958704+00:00",
+  "status": "ACTUAL_OBSERVATION_NOT_INDEPENDENT_COMPLETE_FULL_CERTIFICATION",
+  "fixedCommit": "f248d7774aca8776d288bb5d702e0b545b116a7e",
+  "runId": 39866108629,
+  "actualRunStatus": "in_progress",
+  "actualRunConclusion": "",
+  "jobs": {
+    "scope": {
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "native_network": {
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "desktop (windows-latest)": {
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "rule_suite": {
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "postgres_partitions (1)": {
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "postgres_partitions (0)": {
+      "status": "in_progress",
+      "conclusion": ""
+    },
+    "postgres_partitions (2)": {
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "desktop (macos-latest)": {
+      "status": "completed",
+      "conclusion": "success"
+    },
+    "postgres_partitions (3)": {
+      "status": "completed",
+      "conclusion": "success"
+    }
+  },
+  "url": "https://github.com/DDDHL0704/riftbound/actions/runs/39866108629",
+  "doesNotCertifyFull": true
+}

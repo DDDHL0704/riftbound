@@ -1,0 +1,711 @@
+{
+  "atUtc": "2026-10-23T00:08:07.355203+00:00",
+  "region": "CN",
+  "language": "zh-CN",
+  "reviewDate": "2026-10-23",
+  "adoptedCoreEffectiveDate": "2026-10-16",
+  "status": "SAME_TWELVE_CURRENT_EXACT_PRINTING_FULL_ROWS_AND_QA",
+  "registeredBaseline": {
+    "path": "data/official/upstream/2026-10-16/source-refresh-20261015T160523Z/card-catalog.zh-CN.json",
+    "sha256": "4f6a981a51d95e395820c1980f734645e1a5b56e454dbb8758ac3ce331162624"
+  },
+  "originalQueries": {
+    "path": "var/qa/final-conquest-score-current-cn16-20261023/current-twelve-exact-card-source-original-queries-v1.json.gz",
+    "sha256": "97d7eefef54eb4e467671981b61f593199c481bf43fef256a1245a14c35ed061"
+  },
+  "exactRows": [
+    {
+      "apiId": 33215,
+      "exactRegionalCardNo": "SFD·125/221",
+      "row": {
+        "id": 33215,
+        "cardCategoryList": [
+          "unit"
+        ],
+        "cardCategoryNameList": [
+          "单位"
+        ],
+        "cardNo": "SFD·125/221",
+        "cardName": "大力仙灵",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "purple"
+        ],
+        "hero": "",
+        "region": "艾欧尼亚",
+        "tag": "仙灵",
+        "artist": "Kudos Productions",
+        "cardEffect": "当我移动到一处战场时，你可以选择支付{{紫色}}，将你控制的另一名单位移动到相同的战场。",
+        "flavorText": "这么软的软着陆，真是没想到。",
+        "energy": 4,
+        "returnEnergy": null,
+        "power": 4,
+        "productCodeList": [
+          "SFD(标准补充包)",
+          "SFD(进阶补充包)"
+        ],
+        "productNameList": [
+          "铸魂淬炼 标准补充包",
+          "铸魂淬炼 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_dust",
+        "rarityName": "普通",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20251217/c5bd33e8b95644239b384f657ce5f40d.png",
+        "backImage": "",
+        "listSort": 858,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "individualPublicationDate": null,
+      "individualEffectiveDate": null,
+      "allFieldsNullsAndPresenceExactlyRegistered": true,
+      "canonicalRowSha256": "f4dd5b4e6f0c3e3cda40733f4b6502fb075a9140c31bf817502fc527f98bbf25"
+    },
+    {
+      "apiId": 33171,
+      "exactRegionalCardNo": "SFD·088/221",
+      "row": {
+        "id": 33171,
+        "cardCategoryList": [
+          "hero_unit"
+        ],
+        "cardCategoryNameList": [
+          "英雄单位"
+        ],
+        "cardNo": "SFD·088/221",
+        "cardName": "烈娜塔·戈拉斯克",
+        "subTitle": "幕后主脑",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "blue"
+        ],
+        "hero": "烈娜塔·戈拉斯克",
+        "region": "祖安",
+        "tag": "",
+        "artist": "League Splash Team",
+        "cardEffect": "支付{{1}}和{{蓝色}}：抽一张牌。\n支付{{4}}和{{蓝色}}{{蓝色}}{{蓝色}}{{蓝色}}，{{横置}}：获得1分。\n只有我位于战场时，才能使用我的技能。",
+        "flavorText": "“先有牺牲，才有进步。只是很少有人愿意牺牲。”",
+        "energy": 5,
+        "returnEnergy": null,
+        "power": 4,
+        "productCodeList": [
+          "SFD(标准补充包)",
+          "SFD(进阶补充包)"
+        ],
+        "productNameList": [
+          "铸魂淬炼 标准补充包",
+          "铸魂淬炼 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_core",
+        "rarityName": "史诗",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20251217/7d4d70e9b62344fea6a57c8467a2c907.png",
+        "backImage": "",
+        "listSort": 902,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "individualPublicationDate": null,
+      "individualEffectiveDate": null,
+      "allFieldsNullsAndPresenceExactlyRegistered": true,
+      "canonicalRowSha256": "2d33b74798ec385a593beb25c0e1726998059791bb17d73365f058ff0f1683c1"
+    },
+    {
+      "apiId": 31264,
+      "exactRegionalCardNo": "OGN·052/298",
+      "row": {
+        "id": 31264,
+        "cardCategoryList": [
+          "unit"
+        ],
+        "cardCategoryNameList": [
+          "单位"
+        ],
+        "cardNo": "OGN·052/298",
+        "cardName": "强强魄罗",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "green"
+        ],
+        "hero": "",
+        "region": "",
+        "tag": "魄罗",
+        "artist": "Six More Vodka",
+        "cardEffect": "{{坚守}}（如果我是防守方，则{{S}}+1。）",
+        "flavorText": "很适合他。",
+        "energy": 2,
+        "returnEnergy": null,
+        "power": 2,
+        "productCodeList": [
+          "OGS",
+          "OGN(英雄预组 李青)",
+          "OGN(标准补充包)",
+          "OGN(进阶补充包)"
+        ],
+        "productNameList": [
+          "起源 试炼之地",
+          "起源 英雄预组 李青",
+          "起源 标准补充包",
+          "起源 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_dust",
+        "rarityName": "普通",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/fe49bdd708ef44daa8fac82ee04794cf.png",
+        "backImage": "",
+        "listSort": 441,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "individualPublicationDate": null,
+      "individualEffectiveDate": null,
+      "allFieldsNullsAndPresenceExactlyRegistered": true,
+      "canonicalRowSha256": "63ee0af22b7f6dc88e495f475a01be78758838d922690c25726be07da9b8b696"
+    },
+    {
+      "apiId": 31208,
+      "exactRegionalCardNo": "OGN·004/298",
+      "row": {
+        "id": 31208,
+        "cardCategoryList": [
+          "spell"
+        ],
+        "cardCategoryNameList": [
+          "法术"
+        ],
+        "cardNo": "OGN·004/298",
+        "cardName": "顺劈",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "red"
+        ],
+        "hero": "",
+        "region": "",
+        "tag": "",
+        "artist": "Kudos Productions",
+        "cardEffect": "{{迅捷}}（可在你的回合或法术对决中打出。）\n让一名单位本回合内获得{{强攻3}}。（如果它是进攻方，则{{S}}+3。）",
+        "flavorText": "“不进攻的话，就永远不会赢。”",
+        "energy": 1,
+        "returnEnergy": null,
+        "power": null,
+        "productCodeList": [
+          "OGN(标准补充包)",
+          "OGN(进阶补充包)"
+        ],
+        "productNameList": [
+          "起源 标准补充包",
+          "起源 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_dust",
+        "rarityName": "普通",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/931d80cfd84f40bdb94fa500e6213465.png",
+        "backImage": "",
+        "listSort": 497,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "individualPublicationDate": null,
+      "individualEffectiveDate": null,
+      "allFieldsNullsAndPresenceExactlyRegistered": true,
+      "canonicalRowSha256": "7fe3b0cd943c8acfea319ce7a569c9436d2b5084a44678c275b7ad3400b917a9"
+    },
+    {
+      "apiId": 31299,
+      "exactRegionalCardNo": "OGN·083/298",
+      "row": {
+        "id": 31299,
+        "cardCategoryList": [
+          "spell"
+        ],
+        "cardCategoryNameList": [
+          "法术"
+        ],
+        "cardNo": "OGN·083/298",
+        "cardName": "借鉴历史",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "blue"
+        ],
+        "hero": "",
+        "region": "",
+        "tag": "",
+        "artist": "Kudos Productions",
+        "cardEffect": "{{待命}}（支付{{A}}正面朝下放置此牌，之后可支付{{0}}将其当作反应牌打出。）\n{{反应}}（可在任意时机打出，甚至先于其他法术和技能的结算。）\n抽两张牌。",
+        "flavorText": "",
+        "energy": 4,
+        "returnEnergy": null,
+        "power": null,
+        "productCodeList": [
+          "OGN(英雄预组 维克托)",
+          "OGN(标准补充包)",
+          "OGN(进阶补充包)",
+          "SFD(英雄预组 兰博)"
+        ],
+        "productNameList": [
+          "起源 英雄预组 维克托",
+          "起源 标准补充包",
+          "起源 进阶补充包",
+          "铸魂淬炼 英雄预组 兰博"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_dust",
+        "rarityName": "普通",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/5bae64f236e94afd8128f6592edf1861.png",
+        "backImage": "",
+        "listSort": 406,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "individualPublicationDate": null,
+      "individualEffectiveDate": null,
+      "allFieldsNullsAndPresenceExactlyRegistered": true,
+      "canonicalRowSha256": "5bb29ad3eed45d51c55cb823a92dcc15b70a21b22c5d54075bda7a68530f8d69"
+    },
+    {
+      "apiId": 31314,
+      "exactRegionalCardNo": "OGN·096/298",
+      "row": {
+        "id": 31314,
+        "cardCategoryList": [
+          "unit"
+        ],
+        "cardCategoryNameList": [
+          "单位"
+        ],
+        "cardNo": "OGN·096/298",
+        "cardName": "警觉的哨兵",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "blue"
+        ],
+        "hero": "",
+        "region": "弗雷尔卓德",
+        "tag": "",
+        "artist": "Six More Vodka",
+        "cardEffect": "{{绝念}}—抽一张牌。（当我被摧毁后，发动此效果。）",
+        "flavorText": "他也许再也回不了家了。但正因为有他，那家才依然存在。",
+        "energy": 2,
+        "returnEnergy": null,
+        "power": 1,
+        "productCodeList": [
+          "OGN(标准补充包)",
+          "OGN(进阶补充包)"
+        ],
+        "productNameList": [
+          "起源 标准补充包",
+          "起源 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_dust",
+        "rarityName": "普通",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/4e4ca59b4f3b45fbb619a3410532aabb.png",
+        "backImage": "",
+        "listSort": 391,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "individualPublicationDate": null,
+      "individualEffectiveDate": null,
+      "allFieldsNullsAndPresenceExactlyRegistered": true,
+      "canonicalRowSha256": "01ff74b20a61e36123d049c0092fb8a0c4be73868b5d7ef8415f8284d50f1044"
+    },
+    {
+      "apiId": 37952,
+      "exactRegionalCardNo": "OGN·276/298",
+      "row": {
+        "id": 37952,
+        "cardCategoryList": [
+          "battlefield"
+        ],
+        "cardCategoryNameList": [
+          "战场"
+        ],
+        "cardNo": "OGN·276/298",
+        "cardName": "攀圣长阶",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "colorless"
+        ],
+        "hero": "",
+        "region": "",
+        "tag": "",
+        "artist": "Polar Engine Studio",
+        "cardEffect": "使赢得游戏所需的分数+1。",
+        "flavorText": "攀登高峰，须有强大的意志——以及充足的时间。",
+        "energy": null,
+        "returnEnergy": null,
+        "power": null,
+        "productCodeList": [
+          "OGN(标准补充包)",
+          "OGN(进阶补充包)"
+        ],
+        "productNameList": [
+          "起源 标准补充包",
+          "起源 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_glimmer",
+        "rarityName": "不凡",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260812/3359c703b58a45ff9dc2d10cf0142b9a.png",
+        "backImage": "",
+        "listSort": 186,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 1
+      },
+      "individualPublicationDate": null,
+      "individualEffectiveDate": null,
+      "allFieldsNullsAndPresenceExactlyRegistered": true,
+      "canonicalRowSha256": "37acd8219b6fb044a780584d1a59223a12bf678e1323fa90c06d78b1f05de271"
+    },
+    {
+      "apiId": 31525,
+      "exactRegionalCardNo": "OGN·280/298",
+      "row": {
+        "id": 31525,
+        "cardCategoryList": [
+          "battlefield"
+        ],
+        "cardCategoryNameList": [
+          "战场"
+        ],
+        "cardNo": "OGN·280/298",
+        "cardName": "帝柳之林",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "colorless"
+        ],
+        "hero": "",
+        "region": "",
+        "tag": "",
+        "artist": "Kudos Productions",
+        "cardEffect": "当你据守此处时，抽一张牌。",
+        "flavorText": "荒野的馈赠随处可见，想拿到手却不容易。",
+        "energy": null,
+        "returnEnergy": null,
+        "power": null,
+        "productCodeList": [
+          "OGN(英雄预组 李青)",
+          "OGN(标准补充包)",
+          "OGN(进阶补充包)"
+        ],
+        "productNameList": [
+          "起源 英雄预组 李青",
+          "起源 标准补充包",
+          "起源 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_glimmer",
+        "rarityName": "不凡",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/f9eb320af430462fb0bc4711e29860a0.png",
+        "backImage": "",
+        "listSort": 180,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "individualPublicationDate": null,
+      "individualEffectiveDate": null,
+      "allFieldsNullsAndPresenceExactlyRegistered": true,
+      "canonicalRowSha256": "d89a8b2383cf6abf0ff1be8e2de02e1567d9bda693d8dcb3cc763d6fff88a927"
+    },
+    {
+      "apiId": 31527,
+      "exactRegionalCardNo": "OGN·282/298",
+      "row": {
+        "id": 31527,
+        "cardCategoryList": [
+          "battlefield"
+        ],
+        "cardCategoryNameList": [
+          "战场"
+        ],
+        "cardNo": "OGN·282/298",
+        "cardName": "希拉娜修道院",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "colorless"
+        ],
+        "hero": "",
+        "region": "",
+        "tag": "",
+        "artist": "Six More Vodka",
+        "cardEffect": "当你征服此处时，你可以选择消耗一个增益，以此抽一张牌。",
+        "flavorText": "训练的第一步，就是忘掉你自以为是的观念。",
+        "energy": null,
+        "returnEnergy": null,
+        "power": null,
+        "productCodeList": [
+          "OGN(英雄预组 李青)",
+          "OGN(标准补充包)",
+          "OGN(进阶补充包)"
+        ],
+        "productNameList": [
+          "起源 英雄预组 李青",
+          "起源 标准补充包",
+          "起源 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_glimmer",
+        "rarityName": "不凡",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/f790096f9b6e40fc9c7aac5800d2dcb3.png",
+        "backImage": "",
+        "listSort": 178,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "individualPublicationDate": null,
+      "individualEffectiveDate": null,
+      "allFieldsNullsAndPresenceExactlyRegistered": true,
+      "canonicalRowSha256": "1710cf9bc174479db05f5140c689ab1a2a01bb82b65c1084918c9cd3a20dbc35"
+    },
+    {
+      "apiId": 31542,
+      "exactRegionalCardNo": "OGN·296/298",
+      "row": {
+        "id": 31542,
+        "cardCategoryList": [
+          "battlefield"
+        ],
+        "cardCategoryNameList": [
+          "战场"
+        ],
+        "cardNo": "OGN·296/298",
+        "cardName": "虚空之门",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "colorless"
+        ],
+        "hero": "",
+        "region": "",
+        "tag": "",
+        "artist": "Envar Studio",
+        "cardEffect": "以此处的单位作为目标的法术或技能，造成的伤害+1（每段伤害都+1）。",
+        "flavorText": "艾卡西亚的法师们自取灭亡，但他们的回响直到今天仍在人们耳畔萦绕。",
+        "energy": null,
+        "returnEnergy": null,
+        "power": null,
+        "productCodeList": [
+          "OGS",
+          "OGN(进阶补充包)",
+          "OGN(进阶补充包)"
+        ],
+        "productNameList": [
+          "起源 试炼之地",
+          "起源 进阶补充包",
+          "起源 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_glimmer",
+        "rarityName": "不凡",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/eb2789a75d9547c1ae31fe36fd5198b2.png",
+        "backImage": "",
+        "listSort": 163,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "法术和技能对此处的单位造成的伤害+1（每段伤害都+1）。",
+        "otherDesc": 0
+      },
+      "individualPublicationDate": null,
+      "individualEffectiveDate": null,
+      "allFieldsNullsAndPresenceExactlyRegistered": true,
+      "canonicalRowSha256": "9fa932ab5a4c0e77e7c0364527fc4c2b57362d6aa021e51c5640fd0dbe69dbd4"
+    },
+    {
+      "apiId": 31544,
+      "exactRegionalCardNo": "OGN·298/298",
+      "row": {
+        "id": 31544,
+        "cardCategoryList": [
+          "battlefield"
+        ],
+        "cardCategoryNameList": [
+          "战场"
+        ],
+        "cardNo": "OGN·298/298",
+        "cardName": "祖安地沟",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "colorless"
+        ],
+        "hero": "",
+        "region": "",
+        "tag": "",
+        "artist": "Envar Studio",
+        "cardEffect": "当你征服此处时，弃置一张手牌，然后抽一张牌。",
+        "flavorText": "在祖安，就连地下藏身处都有自己的地下藏身处。",
+        "energy": null,
+        "returnEnergy": null,
+        "power": null,
+        "productCodeList": [
+          "OGN(英雄预组 金克丝)",
+          "OGN(标准补充包)",
+          "OGN(进阶补充包)"
+        ],
+        "productNameList": [
+          "起源 英雄预组 金克丝",
+          "起源 标准补充包",
+          "起源 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_glimmer",
+        "rarityName": "不凡",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/2ae7260e334046298114b7f51ad87eb7.png",
+        "backImage": "",
+        "listSort": 161,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "individualPublicationDate": null,
+      "individualEffectiveDate": null,
+      "allFieldsNullsAndPresenceExactlyRegistered": true,
+      "canonicalRowSha256": "45d961aa1ec20062d9a2d50b66794adc8a53afe80ec72e2914c727cfff74a081"
+    },
+    {
+      "apiId": 35176,
+      "exactRegionalCardNo": "UNL·T03",
+      "row": {
+        "id": 35176,
+        "cardCategoryList": [
+          "indicator_battlefield"
+        ],
+        "cardCategoryNameList": [
+          "指示物战场"
+        ],
+        "cardNo": "UNL·T03",
+        "cardName": "草丛",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "colorless"
+        ],
+        "hero": "",
+        "region": "",
+        "tag": "",
+        "artist": "Kudos Productions",
+        "cardEffect": "此处的“鸟类”、“猫科”、“犬形”、“魄罗”属性单位和艾翁单位获得{{S}}+1。\n当你在此处得分时，你可以选择使用被此牌替代的战场来替代此牌。",
+        "flavorText": "",
+        "energy": null,
+        "returnEnergy": null,
+        "power": null,
+        "productCodeList": [
+          "UNL(进阶补充包)",
+          "UNL(标准补充包)"
+        ],
+        "productNameList": [
+          "破限系列 进阶补充包",
+          "破限系列 基础补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_dust",
+        "rarityName": "普通",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260319/9873502d4be74252b98fe3230a70dda9.webp",
+        "backImage": "",
+        "listSort": 1206,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": true,
+        "errata": "",
+        "otherDesc": 0
+      },
+      "individualPublicationDate": null,
+      "individualEffectiveDate": null,
+      "allFieldsNullsAndPresenceExactlyRegistered": true,
+      "canonicalRowSha256": "0df759c4437f4fefb3043c261adc91df99dec320f02ae45ddf3727b9783ba9c1"
+    }
+  ],
+  "changes": [],
+  "all1740OriginalPrintingAnd14293RuleObligationsRetained": true,
+  "noRuntimeRegistrationOrCardCatalogMutation": true,
+  "notWhole1504OrAllKnownSixteenRefetched": true,
+  "wholePrintingOrGoalCertified": false
+}

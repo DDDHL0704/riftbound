@@ -25299,6 +25299,73 @@
         "New fixed full, current native, OS hardware input and physical Windows remain separate",
         "Original malformed request and all owner/helper failures retained; accepted histories and seeds unchanged"
       ]
+    },
+    {
+      "id": "final-conquest-score-current-cn16-2026-10-23",
+      "scope": "Current CN16 final conquest point action and draw replacement, actual score threshold, first/subsequent scoring markers, combat/noncombat callers, hold/direct-point exemptions and Brush return; exact private DECLARE_BATTLE candidate order survives JSONB player dictionary reordering. First-burnout cleanup issue98 and whole draw/cleanup/card families remain open.",
+      "subjects": [
+        "SFD-125/221",
+        "SFD-088/221",
+        "OGN-052/298",
+        "OGN-004/298",
+        "OGN-083/298",
+        "OGN-096/298",
+        "OGN-276/298",
+        "OGN-280/298",
+        "OGN-282/298",
+        "OGN-296/298",
+        "OGN-298/298",
+        "UNL-T03"
+      ],
+      "ruleRecords": [
+        "CN-d6fd7140f106f9b5-P095-B022",
+        "CN-d6fd7140f106f9b5-P096-B003",
+        "CN-d6fd7140f106f9b5-P096-B007",
+        "CN-d6fd7140f106f9b5-P096-B011",
+        "CN-d6fd7140f106f9b5-P096-B012",
+        "CN-d6fd7140f106f9b5-P096-B013",
+        "CN-d6fd7140f106f9b5-P096-B014",
+        "CN-d6fd7140f106f9b5-P096-B018",
+        "CN-d6fd7140f106f9b5-P096-B015",
+        "CN-d6fd7140f106f9b5-P096-B017",
+        "CN-d6fd7140f106f9b5-P033-B009",
+        "CN-d6fd7140f106f9b5-P072-B010",
+        "CN-d6fd7140f106f9b5-P082-B006",
+        "CN-d6fd7140f106f9b5-P082-B007",
+        "CN-d6fd7140f106f9b5-P082-B008",
+        "CN-d6fd7140f106f9b5-P082-B009",
+        "CN-d6fd7140f106f9b5-P082-B012",
+        "CN-d6fd7140f106f9b5-P082-B013",
+        "CN-d6fd7140f106f9b5-P072-B001",
+        "CN-d6fd7140f106f9b5-P072-B002",
+        "CN-d6fd7140f106f9b5-P096-B006",
+        "CN-d6fd7140f106f9b5-P096-B016",
+        "CN-d6fd7140f106f9b5-P095-B023"
+      ],
+      "status": "BOUNDED_FINAL_CONQUEST_DRAW_AND_EXACT_PRIVATE_PROMPT_ORDER_PASS_NEW_FULL_PRODUCTS_OPEN",
+      "sourceManifest": {
+        "path": "docs/evidence/final-conquest-score-current-cn16-2026-10-23/source-manifest.json",
+        "sha256": "76a993ddb8619e95b6b39edc1eedce3af211bb8eb8941db351f2d46888c3e0b7",
+        "role": "source-manifest"
+      },
+      "auditDocument": "docs/FINAL_CONQUEST_SCORE_CURRENT_CN16_AUDIT_2026-10-23.md",
+      "validation": {
+        "newCases": 20,
+        "newMethods": 13,
+        "soleCheckCases": 13658,
+        "soleCheckMethods": 7615,
+        "focusedCases": 102,
+        "focusedMethods": 81,
+        "originalFullGameMethods": 6,
+        "wholeCardCertification": false
+      },
+      "exclusions": [
+        "Entire draw/cleanup family and first-burnout issue98 remain open",
+        "Distinct GLOBAL printings and all whole printings remain uncertified",
+        "Prior fixed f248 Release18b native proofs do not certify new Debug2ba",
+        "New fixed full/current products, OS hardware input and physical Windows remain separate",
+        "All original failures, source dates, accepted histories and private seeds retained"
+      ]
     }
   ]
 }

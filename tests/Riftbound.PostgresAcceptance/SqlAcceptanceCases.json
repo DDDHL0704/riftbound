@@ -250,6 +250,10 @@
     {
       "id": "lightning-rush-flow",
       "sourceType": "LightningRushFlowSqlAcceptance"
+    },
+    {
+      "id": "final-conquest-score",
+      "sourceType": "FinalConquestScoreSqlAcceptance"
     }
   ]
 }

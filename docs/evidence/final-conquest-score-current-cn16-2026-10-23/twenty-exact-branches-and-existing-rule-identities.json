@@ -1,0 +1,869 @@
+{
+  "atUtc": "2026-10-23T00:55:24.431884+00:00",
+  "region": "CN",
+  "language": "zh-CN",
+  "reviewDate": "2026-10-23",
+  "coreEffectiveDate": "2026-10-16",
+  "issues": [
+    "https://github.com/DDDHL0704/riftbound/issues/96",
+    "https://github.com/DDDHL0704/riftbound/issues/97"
+  ],
+  "cases": [
+    {
+      "id": "CN16-FINAL-CONQUEST-SCORE-8D66A051F825AE2A",
+      "actualExecutedCase": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.DeclareBattleChoicesRemainExactWhenZoneDictionaryOrderChanges(reversedZones: False)",
+      "method": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.DeclareBattleChoicesRemainExactWhenZoneDictionaryOrderChanges",
+      "exactPrintingSubjects": [
+        "OGN-296/298",
+        "OGN-280/298",
+        "SFD-125/221",
+        "OGN-004/298"
+      ],
+      "existingCanonicalRuleIds": [],
+      "semanticScope": "TECHNICAL_PRIVATE_PROMPT_DESTINATION_AND_STEP_ORDER_STABLE_NOT_WHOLE_CARD_SEMANTICS",
+      "technicalProductContract": true,
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "CN16-FINAL-CONQUEST-SCORE-800B4802C1372065",
+      "actualExecutedCase": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.TiedScoresAlreadyAboveTheThresholdStillReplaceAnIncompleteConquest(score: 8)",
+      "method": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.TiedScoresAlreadyAboveTheThresholdStillReplaceAnIncompleteConquest",
+      "exactPrintingSubjects": [
+        "OGN-296/298",
+        "OGN-280/298",
+        "SFD-125/221",
+        "OGN-004/298"
+      ],
+      "existingCanonicalRuleIds": [
+        "CN-d6fd7140f106f9b5-P095-B022",
+        "CN-d6fd7140f106f9b5-P096-B003",
+        "CN-d6fd7140f106f9b5-P096-B007",
+        "CN-d6fd7140f106f9b5-P096-B011",
+        "CN-d6fd7140f106f9b5-P096-B012",
+        "CN-d6fd7140f106f9b5-P096-B013",
+        "CN-d6fd7140f106f9b5-P096-B014",
+        "CN-d6fd7140f106f9b5-P096-B018"
+      ],
+      "semanticScope": "BOUNDED_CURRENT_CN16_LAST_CONQUEST_POINT_ACTION_DRAW_AND_REPLAY",
+      "technicalProductContract": false,
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "CN16-FINAL-CONQUEST-SCORE-7AC4D1DB3E6CBA74",
+      "actualExecutedCase": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.BrushMayReturnAfterTheScoringActionEvenWhenItsPointBecameADraw(accept: False)",
+      "method": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.BrushMayReturnAfterTheScoringActionEvenWhenItsPointBecameADraw",
+      "exactPrintingSubjects": [
+        "UNL-T03",
+        "OGN-280/298",
+        "SFD-125/221",
+        "OGN-004/298",
+        "OGN-282/298"
+      ],
+      "existingCanonicalRuleIds": [
+        "CN-d6fd7140f106f9b5-P095-B022",
+        "CN-d6fd7140f106f9b5-P096-B003",
+        "CN-d6fd7140f106f9b5-P096-B007",
+        "CN-d6fd7140f106f9b5-P096-B011",
+        "CN-d6fd7140f106f9b5-P096-B012",
+        "CN-d6fd7140f106f9b5-P096-B013",
+        "CN-d6fd7140f106f9b5-P096-B014",
+        "CN-d6fd7140f106f9b5-P096-B018",
+        "CN-d6fd7140f106f9b5-P096-B015",
+        "CN-d6fd7140f106f9b5-P096-B017"
+      ],
+      "semanticScope": "BOUNDED_CURRENT_CN16_LAST_CONQUEST_POINT_ACTION_DRAW_AND_REPLAY",
+      "technicalProductContract": false,
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "CN16-FINAL-CONQUEST-SCORE-7CE8C4AE9D007496",
+      "actualExecutedCase": "Riftbound.ConformanceTests.FinalConquestPointTests.AConquestBelowTheFinalPointStillGainsTheOrdinaryPoint",
+      "method": "Riftbound.ConformanceTests.FinalConquestPointTests.AConquestBelowTheFinalPointStillGainsTheOrdinaryPoint",
+      "exactPrintingSubjects": [
+        "OGN-296/298",
+        "OGN-280/298",
+        "SFD-125/221",
+        "OGN-004/298"
+      ],
+      "existingCanonicalRuleIds": [
+        "CN-d6fd7140f106f9b5-P095-B022",
+        "CN-d6fd7140f106f9b5-P096-B003",
+        "CN-d6fd7140f106f9b5-P096-B007",
+        "CN-d6fd7140f106f9b5-P096-B011",
+        "CN-d6fd7140f106f9b5-P096-B012",
+        "CN-d6fd7140f106f9b5-P096-B013",
+        "CN-d6fd7140f106f9b5-P096-B014",
+        "CN-d6fd7140f106f9b5-P096-B018"
+      ],
+      "semanticScope": "BOUNDED_CURRENT_CN16_LAST_CONQUEST_POINT_ACTION_DRAW_AND_REPLAY",
+      "technicalProductContract": false,
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "CN16-FINAL-CONQUEST-SCORE-AC97CBD20A1A53F2",
+      "actualExecutedCase": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.DeclareBattleChoicesRemainExactWhenZoneDictionaryOrderChanges(reversedZones: True)",
+      "method": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.DeclareBattleChoicesRemainExactWhenZoneDictionaryOrderChanges",
+      "exactPrintingSubjects": [
+        "OGN-296/298",
+        "OGN-280/298",
+        "SFD-125/221",
+        "OGN-004/298"
+      ],
+      "existingCanonicalRuleIds": [],
+      "semanticScope": "TECHNICAL_PRIVATE_PROMPT_DESTINATION_AND_STEP_ORDER_STABLE_NOT_WHOLE_CARD_SEMANTICS",
+      "technicalProductContract": true,
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "CN16-FINAL-CONQUEST-SCORE-6DF0D9AFE58893C6",
+      "actualExecutedCase": "Riftbound.ConformanceTests.FinalConquestPointTests.ConquestAtSevenDrawsInsteadUnlessEveryOtherBattlefieldAlreadyScoredThisTurn(otherScored: False)",
+      "method": "Riftbound.ConformanceTests.FinalConquestPointTests.ConquestAtSevenDrawsInsteadUnlessEveryOtherBattlefieldAlreadyScoredThisTurn",
+      "exactPrintingSubjects": [
+        "OGN-296/298",
+        "OGN-280/298",
+        "SFD-125/221",
+        "OGN-004/298"
+      ],
+      "existingCanonicalRuleIds": [
+        "CN-d6fd7140f106f9b5-P095-B022",
+        "CN-d6fd7140f106f9b5-P096-B003",
+        "CN-d6fd7140f106f9b5-P096-B007",
+        "CN-d6fd7140f106f9b5-P096-B011",
+        "CN-d6fd7140f106f9b5-P096-B012",
+        "CN-d6fd7140f106f9b5-P096-B013",
+        "CN-d6fd7140f106f9b5-P096-B014",
+        "CN-d6fd7140f106f9b5-P096-B018"
+      ],
+      "semanticScope": "BOUNDED_CURRENT_CN16_LAST_CONQUEST_POINT_ACTION_DRAW_AND_REPLAY",
+      "technicalProductContract": false,
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "CN16-FINAL-CONQUEST-SCORE-7F1ACADD1027E2ED",
+      "actualExecutedCase": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.TiedScoresAlreadyAboveTheThresholdStillReplaceAnIncompleteConquest(score: 9)",
+      "method": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.TiedScoresAlreadyAboveTheThresholdStillReplaceAnIncompleteConquest",
+      "exactPrintingSubjects": [
+        "OGN-296/298",
+        "OGN-280/298",
+        "SFD-125/221",
+        "OGN-004/298"
+      ],
+      "existingCanonicalRuleIds": [
+        "CN-d6fd7140f106f9b5-P095-B022",
+        "CN-d6fd7140f106f9b5-P096-B003",
+        "CN-d6fd7140f106f9b5-P096-B007",
+        "CN-d6fd7140f106f9b5-P096-B011",
+        "CN-d6fd7140f106f9b5-P096-B012",
+        "CN-d6fd7140f106f9b5-P096-B013",
+        "CN-d6fd7140f106f9b5-P096-B014",
+        "CN-d6fd7140f106f9b5-P096-B018"
+      ],
+      "semanticScope": "BOUNDED_CURRENT_CN16_LAST_CONQUEST_POINT_ACTION_DRAW_AND_REPLAY",
+      "technicalProductContract": false,
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "CN16-FINAL-CONQUEST-SCORE-2AF28CAC20C0DD08",
+      "actualExecutedCase": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.ReplacementDrawUsesRealBurnoutRecycleRngAndTheOpponentsPossibleWin(opponentWins: True)",
+      "method": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.ReplacementDrawUsesRealBurnoutRecycleRngAndTheOpponentsPossibleWin",
+      "exactPrintingSubjects": [
+        "OGN-296/298",
+        "OGN-280/298",
+        "SFD-125/221",
+        "OGN-004/298"
+      ],
+      "existingCanonicalRuleIds": [
+        "CN-d6fd7140f106f9b5-P095-B022",
+        "CN-d6fd7140f106f9b5-P096-B003",
+        "CN-d6fd7140f106f9b5-P096-B007",
+        "CN-d6fd7140f106f9b5-P096-B011",
+        "CN-d6fd7140f106f9b5-P096-B012",
+        "CN-d6fd7140f106f9b5-P096-B013",
+        "CN-d6fd7140f106f9b5-P096-B014",
+        "CN-d6fd7140f106f9b5-P096-B018",
+        "CN-d6fd7140f106f9b5-P033-B009",
+        "CN-d6fd7140f106f9b5-P072-B010",
+        "CN-d6fd7140f106f9b5-P082-B006",
+        "CN-d6fd7140f106f9b5-P082-B007",
+        "CN-d6fd7140f106f9b5-P082-B008",
+        "CN-d6fd7140f106f9b5-P082-B009",
+        "CN-d6fd7140f106f9b5-P082-B012",
+        "CN-d6fd7140f106f9b5-P082-B013"
+      ],
+      "semanticScope": "BOUNDED_CURRENT_CN16_LAST_CONQUEST_POINT_ACTION_DRAW_AND_REPLAY",
+      "technicalProductContract": false,
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "CN16-FINAL-CONQUEST-SCORE-DC4994A4B4E70037",
+      "actualExecutedCase": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.TheOtherPlayersScoreMarkerCannotSupplyMyMissingBattlefield",
+      "method": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.TheOtherPlayersScoreMarkerCannotSupplyMyMissingBattlefield",
+      "exactPrintingSubjects": [
+        "OGN-296/298",
+        "OGN-280/298",
+        "SFD-125/221",
+        "OGN-004/298"
+      ],
+      "existingCanonicalRuleIds": [
+        "CN-d6fd7140f106f9b5-P095-B022",
+        "CN-d6fd7140f106f9b5-P096-B003",
+        "CN-d6fd7140f106f9b5-P096-B007",
+        "CN-d6fd7140f106f9b5-P096-B011",
+        "CN-d6fd7140f106f9b5-P096-B012",
+        "CN-d6fd7140f106f9b5-P096-B013",
+        "CN-d6fd7140f106f9b5-P096-B014",
+        "CN-d6fd7140f106f9b5-P096-B018"
+      ],
+      "semanticScope": "BOUNDED_CURRENT_CN16_LAST_CONQUEST_POINT_ACTION_DRAW_AND_REPLAY",
+      "technicalProductContract": false,
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "CN16-FINAL-CONQUEST-SCORE-0272BAD502852207",
+      "actualExecutedCase": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.ReplacementDrawFinishesBeforeZaunsConquestDiscardAndDraw",
+      "method": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.ReplacementDrawFinishesBeforeZaunsConquestDiscardAndDraw",
+      "exactPrintingSubjects": [
+        "OGN-298/298",
+        "OGN-280/298",
+        "SFD-125/221",
+        "OGN-004/298"
+      ],
+      "existingCanonicalRuleIds": [
+        "CN-d6fd7140f106f9b5-P095-B022",
+        "CN-d6fd7140f106f9b5-P096-B003",
+        "CN-d6fd7140f106f9b5-P096-B007",
+        "CN-d6fd7140f106f9b5-P096-B011",
+        "CN-d6fd7140f106f9b5-P096-B012",
+        "CN-d6fd7140f106f9b5-P096-B013",
+        "CN-d6fd7140f106f9b5-P096-B014",
+        "CN-d6fd7140f106f9b5-P096-B018",
+        "CN-d6fd7140f106f9b5-P096-B015",
+        "CN-d6fd7140f106f9b5-P096-B017",
+        "CN-d6fd7140f106f9b5-P072-B001",
+        "CN-d6fd7140f106f9b5-P072-B002"
+      ],
+      "semanticScope": "BOUNDED_CURRENT_CN16_LAST_CONQUEST_POINT_ACTION_DRAW_AND_REPLAY",
+      "technicalProductContract": false,
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "CN16-FINAL-CONQUEST-SCORE-359DBF9C958330E5",
+      "actualExecutedCase": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.ActualCombatConquestUsesTheSameLastPointReplacement",
+      "method": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.ActualCombatConquestUsesTheSameLastPointReplacement",
+      "exactPrintingSubjects": [
+        "OGN-296/298",
+        "OGN-280/298",
+        "SFD-125/221",
+        "OGN-004/298"
+      ],
+      "existingCanonicalRuleIds": [
+        "CN-d6fd7140f106f9b5-P095-B022",
+        "CN-d6fd7140f106f9b5-P096-B003",
+        "CN-d6fd7140f106f9b5-P096-B007",
+        "CN-d6fd7140f106f9b5-P096-B011",
+        "CN-d6fd7140f106f9b5-P096-B012",
+        "CN-d6fd7140f106f9b5-P096-B013",
+        "CN-d6fd7140f106f9b5-P096-B014",
+        "CN-d6fd7140f106f9b5-P096-B018",
+        "CN-d6fd7140f106f9b5-P096-B015",
+        "CN-d6fd7140f106f9b5-P096-B017"
+      ],
+      "semanticScope": "BOUNDED_CURRENT_CN16_LAST_CONQUEST_POINT_ACTION_DRAW_AND_REPLAY",
+      "technicalProductContract": false,
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "CN16-FINAL-CONQUEST-SCORE-2C858B20ECEE8B77",
+      "actualExecutedCase": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.AnAlreadyRecordedConquestAwardsNeitherAnotherPointNorAnotherReplacementDraw",
+      "method": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.AnAlreadyRecordedConquestAwardsNeitherAnotherPointNorAnotherReplacementDraw",
+      "exactPrintingSubjects": [
+        "OGN-296/298",
+        "OGN-280/298",
+        "SFD-125/221",
+        "OGN-004/298"
+      ],
+      "existingCanonicalRuleIds": [
+        "CN-d6fd7140f106f9b5-P095-B022",
+        "CN-d6fd7140f106f9b5-P096-B003",
+        "CN-d6fd7140f106f9b5-P096-B007",
+        "CN-d6fd7140f106f9b5-P096-B011",
+        "CN-d6fd7140f106f9b5-P096-B012",
+        "CN-d6fd7140f106f9b5-P096-B013",
+        "CN-d6fd7140f106f9b5-P096-B014",
+        "CN-d6fd7140f106f9b5-P096-B018"
+      ],
+      "semanticScope": "BOUNDED_CURRENT_CN16_LAST_CONQUEST_POINT_ACTION_DRAW_AND_REPLAY",
+      "technicalProductContract": false,
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "CN16-FINAL-CONQUEST-SCORE-95BDF40472DA8D4E",
+      "actualExecutedCase": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.BrushMayReturnAfterTheScoringActionEvenWhenItsPointBecameADraw(accept: True)",
+      "method": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.BrushMayReturnAfterTheScoringActionEvenWhenItsPointBecameADraw",
+      "exactPrintingSubjects": [
+        "UNL-T03",
+        "OGN-280/298",
+        "SFD-125/221",
+        "OGN-004/298",
+        "OGN-282/298"
+      ],
+      "existingCanonicalRuleIds": [
+        "CN-d6fd7140f106f9b5-P095-B022",
+        "CN-d6fd7140f106f9b5-P096-B003",
+        "CN-d6fd7140f106f9b5-P096-B007",
+        "CN-d6fd7140f106f9b5-P096-B011",
+        "CN-d6fd7140f106f9b5-P096-B012",
+        "CN-d6fd7140f106f9b5-P096-B013",
+        "CN-d6fd7140f106f9b5-P096-B014",
+        "CN-d6fd7140f106f9b5-P096-B018",
+        "CN-d6fd7140f106f9b5-P096-B015",
+        "CN-d6fd7140f106f9b5-P096-B017"
+      ],
+      "semanticScope": "BOUNDED_CURRENT_CN16_LAST_CONQUEST_POINT_ACTION_DRAW_AND_REPLAY",
+      "technicalProductContract": false,
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "CN16-FINAL-CONQUEST-SCORE-4FD4D41E46A880ED",
+      "actualExecutedCase": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.HighroadUsesTheActualNinePointThreshold(score: 7, otherScored: False, expectedScore: 8, draws: False)",
+      "method": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.HighroadUsesTheActualNinePointThreshold",
+      "exactPrintingSubjects": [
+        "OGN-296/298",
+        "OGN-276/298",
+        "SFD-125/221",
+        "OGN-004/298"
+      ],
+      "existingCanonicalRuleIds": [
+        "CN-d6fd7140f106f9b5-P095-B022",
+        "CN-d6fd7140f106f9b5-P096-B003",
+        "CN-d6fd7140f106f9b5-P096-B007",
+        "CN-d6fd7140f106f9b5-P096-B011",
+        "CN-d6fd7140f106f9b5-P096-B012",
+        "CN-d6fd7140f106f9b5-P096-B013",
+        "CN-d6fd7140f106f9b5-P096-B014",
+        "CN-d6fd7140f106f9b5-P096-B018"
+      ],
+      "semanticScope": "BOUNDED_CURRENT_CN16_LAST_CONQUEST_POINT_ACTION_DRAW_AND_REPLAY",
+      "technicalProductContract": false,
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "CN16-FINAL-CONQUEST-SCORE-F08C19BDD38A6E65",
+      "actualExecutedCase": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.HighroadUsesTheActualNinePointThreshold(score: 8, otherScored: True, expectedScore: 9, draws: False)",
+      "method": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.HighroadUsesTheActualNinePointThreshold",
+      "exactPrintingSubjects": [
+        "OGN-296/298",
+        "OGN-276/298",
+        "SFD-125/221",
+        "OGN-004/298"
+      ],
+      "existingCanonicalRuleIds": [
+        "CN-d6fd7140f106f9b5-P095-B022",
+        "CN-d6fd7140f106f9b5-P096-B003",
+        "CN-d6fd7140f106f9b5-P096-B007",
+        "CN-d6fd7140f106f9b5-P096-B011",
+        "CN-d6fd7140f106f9b5-P096-B012",
+        "CN-d6fd7140f106f9b5-P096-B013",
+        "CN-d6fd7140f106f9b5-P096-B014",
+        "CN-d6fd7140f106f9b5-P096-B018"
+      ],
+      "semanticScope": "BOUNDED_CURRENT_CN16_LAST_CONQUEST_POINT_ACTION_DRAW_AND_REPLAY",
+      "technicalProductContract": false,
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "CN16-FINAL-CONQUEST-SCORE-946C27C826937384",
+      "actualExecutedCase": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.AReplacedConquestCanStillWinByHoldingOnTheNextTurn",
+      "method": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.AReplacedConquestCanStillWinByHoldingOnTheNextTurn",
+      "exactPrintingSubjects": [
+        "OGN-296/298",
+        "OGN-280/298",
+        "SFD-125/221",
+        "OGN-004/298"
+      ],
+      "existingCanonicalRuleIds": [
+        "CN-d6fd7140f106f9b5-P095-B022",
+        "CN-d6fd7140f106f9b5-P096-B003",
+        "CN-d6fd7140f106f9b5-P096-B007",
+        "CN-d6fd7140f106f9b5-P096-B011",
+        "CN-d6fd7140f106f9b5-P096-B012",
+        "CN-d6fd7140f106f9b5-P096-B013",
+        "CN-d6fd7140f106f9b5-P096-B014",
+        "CN-d6fd7140f106f9b5-P096-B018",
+        "CN-d6fd7140f106f9b5-P096-B006",
+        "CN-d6fd7140f106f9b5-P096-B016"
+      ],
+      "semanticScope": "BOUNDED_CURRENT_CN16_LAST_CONQUEST_POINT_ACTION_DRAW_AND_REPLAY",
+      "technicalProductContract": false,
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "CN16-FINAL-CONQUEST-SCORE-970148762BDDE6A3",
+      "actualExecutedCase": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.ReplacementDrawUsesRealBurnoutRecycleRngAndTheOpponentsPossibleWin(opponentWins: False)",
+      "method": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.ReplacementDrawUsesRealBurnoutRecycleRngAndTheOpponentsPossibleWin",
+      "exactPrintingSubjects": [
+        "OGN-296/298",
+        "OGN-280/298",
+        "SFD-125/221",
+        "OGN-004/298"
+      ],
+      "existingCanonicalRuleIds": [
+        "CN-d6fd7140f106f9b5-P095-B022",
+        "CN-d6fd7140f106f9b5-P096-B003",
+        "CN-d6fd7140f106f9b5-P096-B007",
+        "CN-d6fd7140f106f9b5-P096-B011",
+        "CN-d6fd7140f106f9b5-P096-B012",
+        "CN-d6fd7140f106f9b5-P096-B013",
+        "CN-d6fd7140f106f9b5-P096-B014",
+        "CN-d6fd7140f106f9b5-P096-B018",
+        "CN-d6fd7140f106f9b5-P033-B009",
+        "CN-d6fd7140f106f9b5-P072-B010",
+        "CN-d6fd7140f106f9b5-P082-B006",
+        "CN-d6fd7140f106f9b5-P082-B007",
+        "CN-d6fd7140f106f9b5-P082-B008"
+      ],
+      "semanticScope": "BOUNDED_CURRENT_CN16_LAST_CONQUEST_POINT_ACTION_DRAW_AND_REPLAY",
+      "technicalProductContract": false,
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "CN16-FINAL-CONQUEST-SCORE-05F9188D6584C791",
+      "actualExecutedCase": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.HighroadUsesTheActualNinePointThreshold(score: 8, otherScored: False, expectedScore: 8, draws: True)",
+      "method": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.HighroadUsesTheActualNinePointThreshold",
+      "exactPrintingSubjects": [
+        "OGN-296/298",
+        "OGN-276/298",
+        "SFD-125/221",
+        "OGN-004/298"
+      ],
+      "existingCanonicalRuleIds": [
+        "CN-d6fd7140f106f9b5-P095-B022",
+        "CN-d6fd7140f106f9b5-P096-B003",
+        "CN-d6fd7140f106f9b5-P096-B007",
+        "CN-d6fd7140f106f9b5-P096-B011",
+        "CN-d6fd7140f106f9b5-P096-B012",
+        "CN-d6fd7140f106f9b5-P096-B013",
+        "CN-d6fd7140f106f9b5-P096-B014",
+        "CN-d6fd7140f106f9b5-P096-B018"
+      ],
+      "semanticScope": "BOUNDED_CURRENT_CN16_LAST_CONQUEST_POINT_ACTION_DRAW_AND_REPLAY",
+      "technicalProductContract": false,
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "CN16-FINAL-CONQUEST-SCORE-92324EA6B2671770",
+      "actualExecutedCase": "Riftbound.ConformanceTests.FinalConquestPointTests.ConquestAtSevenDrawsInsteadUnlessEveryOtherBattlefieldAlreadyScoredThisTurn(otherScored: True)",
+      "method": "Riftbound.ConformanceTests.FinalConquestPointTests.ConquestAtSevenDrawsInsteadUnlessEveryOtherBattlefieldAlreadyScoredThisTurn",
+      "exactPrintingSubjects": [
+        "OGN-296/298",
+        "OGN-280/298",
+        "SFD-125/221",
+        "OGN-004/298"
+      ],
+      "existingCanonicalRuleIds": [
+        "CN-d6fd7140f106f9b5-P095-B022",
+        "CN-d6fd7140f106f9b5-P096-B003",
+        "CN-d6fd7140f106f9b5-P096-B007",
+        "CN-d6fd7140f106f9b5-P096-B011",
+        "CN-d6fd7140f106f9b5-P096-B012",
+        "CN-d6fd7140f106f9b5-P096-B013",
+        "CN-d6fd7140f106f9b5-P096-B014",
+        "CN-d6fd7140f106f9b5-P096-B018"
+      ],
+      "semanticScope": "BOUNDED_CURRENT_CN16_LAST_CONQUEST_POINT_ACTION_DRAW_AND_REPLAY",
+      "technicalProductContract": false,
+      "wholePrintingCertified": false
+    },
+    {
+      "id": "CN16-FINAL-CONQUEST-SCORE-B8278FD97FAE543D",
+      "actualExecutedCase": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.DirectAbilityPointsDoNotRequireScoringEveryBattlefield",
+      "method": "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.DirectAbilityPointsDoNotRequireScoringEveryBattlefield",
+      "exactPrintingSubjects": [
+        "OGN-296/298",
+        "OGN-280/298",
+        "SFD-125/221",
+        "OGN-004/298",
+        "SFD-088/221"
+      ],
+      "existingCanonicalRuleIds": [
+        "CN-d6fd7140f106f9b5-P095-B022",
+        "CN-d6fd7140f106f9b5-P096-B003",
+        "CN-d6fd7140f106f9b5-P096-B007",
+        "CN-d6fd7140f106f9b5-P096-B011",
+        "CN-d6fd7140f106f9b5-P096-B012",
+        "CN-d6fd7140f106f9b5-P096-B013",
+        "CN-d6fd7140f106f9b5-P096-B014",
+        "CN-d6fd7140f106f9b5-P096-B018",
+        "CN-d6fd7140f106f9b5-P095-B023"
+      ],
+      "semanticScope": "BOUNDED_CURRENT_CN16_LAST_CONQUEST_POINT_ACTION_DRAW_AND_REPLAY",
+      "technicalProductContract": false,
+      "wholePrintingCertified": false
+    }
+  ],
+  "newMethods": [
+    "Riftbound.ConformanceTests.FinalConquestPointTests.AConquestBelowTheFinalPointStillGainsTheOrdinaryPoint",
+    "Riftbound.ConformanceTests.FinalConquestPointTests.ConquestAtSevenDrawsInsteadUnlessEveryOtherBattlefieldAlreadyScoredThisTurn",
+    "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.AReplacedConquestCanStillWinByHoldingOnTheNextTurn",
+    "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.ActualCombatConquestUsesTheSameLastPointReplacement",
+    "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.AnAlreadyRecordedConquestAwardsNeitherAnotherPointNorAnotherReplacementDraw",
+    "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.BrushMayReturnAfterTheScoringActionEvenWhenItsPointBecameADraw",
+    "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.DeclareBattleChoicesRemainExactWhenZoneDictionaryOrderChanges",
+    "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.DirectAbilityPointsDoNotRequireScoringEveryBattlefield",
+    "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.HighroadUsesTheActualNinePointThreshold",
+    "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.ReplacementDrawFinishesBeforeZaunsConquestDiscardAndDraw",
+    "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.ReplacementDrawUsesRealBurnoutRecycleRngAndTheOpponentsPossibleWin",
+    "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.TheOtherPlayersScoreMarkerCannotSupplyMyMissingBattlefield",
+    "Riftbound.ConformanceTests.FinalConquestScoreLifecycleTests.TiedScoresAlreadyAboveTheThresholdStillReplaceAnIncompleteConquest"
+  ],
+  "sourceRuleRecords": [
+    {
+      "existingCanonicalId": "CN-d6fd7140f106f9b5-P095-B022",
+      "sourceRecord": {
+        "id": "DOC-01-P095-B022",
+        "document": "DOC-01",
+        "page": 95,
+        "clauseAnchors": [
+          "470.1"
+        ],
+        "text": "470.1.           得分行动 与获得分数 是两个不同的过程。得分行动 可能会让玩家获得分数 ,但两者没有必然联系。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      }
+    },
+    {
+      "existingCanonicalId": "CN-d6fd7140f106f9b5-P096-B003",
+      "sourceRecord": {
+        "id": "DOC-01-P096-B003",
+        "document": "DOC-01",
+        "page": 96,
+        "clauseAnchors": [
+          "471.1"
+        ],
+        "text": "471.1.             征服: 玩家获得一处战场 的控制权 (该战场必须是玩家尚未在本回合得分 的场地)。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      }
+    },
+    {
+      "existingCanonicalId": "CN-d6fd7140f106f9b5-P096-B007",
+      "sourceRecord": {
+        "id": "DOC-01-P096-B007",
+        "document": "DOC-01",
+        "page": 96,
+        "clauseAnchors": [
+          "472"
+        ],
+        "text": "472.         每个回合,玩家只能通过征服和据守从每个战场获得一分。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      }
+    },
+    {
+      "existingCanonicalId": "CN-d6fd7140f106f9b5-P096-B011",
+      "sourceRecord": {
+        "id": "DOC-01-P096-B011",
+        "document": "DOC-01",
+        "page": 96,
+        "clauseAnchors": [
+          "473.1.a.1"
+        ],
+        "text": "473.1.a.1.                   注意,只有通过征服获得的分数才会受到此限制。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      }
+    },
+    {
+      "existingCanonicalId": "CN-d6fd7140f106f9b5-P096-B012",
+      "sourceRecord": {
+        "id": "DOC-01-P096-B012",
+        "document": "DOC-01",
+        "page": 96,
+        "clauseAnchors": [
+          "473.1.b"
+        ],
+        "text": "473.1.b.               当玩家试图通过征服获得分数,且其当前总分数为当前游戏模式胜利得分 减 1 或更高时,会发生以下情\n                       况:",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      }
+    },
+    {
+      "existingCanonicalId": "CN-d6fd7140f106f9b5-P096-B013",
+      "sourceRecord": {
+        "id": "DOC-01-P096-B013",
+        "document": "DOC-01",
+        "page": 96,
+        "clauseAnchors": [
+          "473.1.b.1"
+        ],
+        "text": "473.1.b.1.                   如果该玩家在本回合已在每个战场得分,则该玩家获得最后一分。如果该玩家在本回合尚未在\n                             每个战场得分,则该玩家改为抽一张牌。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      }
+    },
+    {
+      "existingCanonicalId": "CN-d6fd7140f106f9b5-P096-B014",
+      "sourceRecord": {
+        "id": "DOC-01-P096-B014",
+        "document": "DOC-01",
+        "page": 96,
+        "clauseAnchors": [
+          "473.2"
+        ],
+        "text": "473.2.             在得分的战场上触发得分技能。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      }
+    },
+    {
+      "existingCanonicalId": "CN-d6fd7140f106f9b5-P096-B018",
+      "sourceRecord": {
+        "id": "DOC-01-P096-B018",
+        "document": "DOC-01",
+        "page": 96,
+        "clauseAnchors": [
+          "474"
+        ],
+        "text": "474.         当清理发生时,如果玩家累计的分数大于或等于其游戏模式的胜利得分,且分数高于所有对手,则该玩家赢得游戏。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      }
+    },
+    {
+      "existingCanonicalId": "CN-d6fd7140f106f9b5-P096-B015",
+      "sourceRecord": {
+        "id": "DOC-01-P096-B015",
+        "document": "DOC-01",
+        "page": 96,
+        "clauseAnchors": [
+          "473.2.a"
+        ],
+        "text": "473.2.a.               在被征服的战场上触发征服技能。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      }
+    },
+    {
+      "existingCanonicalId": "CN-d6fd7140f106f9b5-P096-B017",
+      "sourceRecord": {
+        "id": "DOC-01-P096-B017",
+        "document": "DOC-01",
+        "page": 96,
+        "clauseAnchors": [
+          "473.2.c"
+        ],
+        "text": "473.2.c.               这些技能仅会在战场得分时触发;即每名玩家每回合仅能触发一次。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      }
+    },
+    {
+      "existingCanonicalId": "CN-d6fd7140f106f9b5-P033-B009",
+      "sourceRecord": {
+        "id": "DOC-01-P033-B009",
+        "document": "DOC-01",
+        "page": 33,
+        "clauseAnchors": [
+          "303.1"
+        ],
+        "text": "303.1.            任何性质的游戏行动,同一时间内仅可进行一个,且必须完整执行。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      }
+    },
+    {
+      "existingCanonicalId": "CN-d6fd7140f106f9b5-P072-B010",
+      "sourceRecord": {
+        "id": "DOC-01-P072-B010",
+        "document": "DOC-01",
+        "page": 72,
+        "clauseAnchors": [
+          "414.4.c"
+        ],
+        "text": "414.4.c.             抽取完成抽牌行动所需的其余卡牌。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      }
+    },
+    {
+      "existingCanonicalId": "CN-d6fd7140f106f9b5-P082-B006",
+      "sourceRecord": {
+        "id": "DOC-01-P082-B006",
+        "document": "DOC-01",
+        "page": 82,
+        "clauseAnchors": [
+          "432.2.b"
+        ],
+        "text": "432.2.b.               将废牌堆的卡牌回收至主牌堆。\n                            提示:当多张卡牌同时被回收至主牌堆时,必须先行洗匀。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      }
+    },
+    {
+      "existingCanonicalId": "CN-d6fd7140f106f9b5-P082-B007",
+      "sourceRecord": {
+        "id": "DOC-01-P082-B007",
+        "document": "DOC-01",
+        "page": 82,
+        "clauseAnchors": [
+          "432.2.c"
+        ],
+        "text": "432.2.c.               选择一名对手,使其获得 1 分。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      }
+    },
+    {
+      "existingCanonicalId": "CN-d6fd7140f106f9b5-P082-B008",
+      "sourceRecord": {
+        "id": "DOC-01-P082-B008",
+        "document": "DOC-01",
+        "page": 82,
+        "clauseAnchors": [
+          "432.2.d"
+        ],
+        "text": "432.2.d.               完成原本让自己触发燃尽的剩余行动。\n                            举例:一名玩家在主牌堆耗尽的情况下,在抽牌步骤尝试抽取一张卡牌,因此触发燃尽。该玩\n                            家转而将废牌堆回收后放入主牌堆,照常洗匀;然后选择一名对手,使其获得 1 分;最后,该\n                            玩家抽一张牌。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      }
+    },
+    {
+      "existingCanonicalId": "CN-d6fd7140f106f9b5-P082-B009",
+      "sourceRecord": {
+        "id": "DOC-01-P082-B009",
+        "document": "DOC-01",
+        "page": 82,
+        "clauseAnchors": [
+          "432.3"
+        ],
+        "text": "432.3.            玩家的主牌堆可能在执行燃尽后仍然为空,这通常是因为其废牌堆同样为空。当其尝试再次执行原本触发燃尽的行\n                  动时,将再次触发燃尽。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      }
+    },
+    {
+      "existingCanonicalId": "CN-d6fd7140f106f9b5-P082-B012",
+      "sourceRecord": {
+        "id": "DOC-01-P082-B012",
+        "document": "DOC-01",
+        "page": 82,
+        "clauseAnchors": [
+          "432.3.c"
+        ],
+        "text": "432.3.c.               在按顺序处理第一个燃尽后获得的分数,如果使玩家的得分达到或超过该模式的胜利得分,并且该玩家的\n                       得分高于所有对手,则该玩家将获胜。\n                            举例:如果玩家的牌堆和废牌堆均为空,且将要抽一张牌,该玩家会开始反复燃尽。在首次燃\n                            尽结算后,任何后续燃尽只要让某位玩家的得分超过胜利得分,并且高于所有对手,该玩家就\n                            会赢得游戏。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      }
+    },
+    {
+      "existingCanonicalId": "CN-d6fd7140f106f9b5-P082-B013",
+      "sourceRecord": {
+        "id": "DOC-01-P082-B013",
+        "document": "DOC-01",
+        "page": 82,
+        "clauseAnchors": [
+          "432.3.c.1"
+        ],
+        "text": "432.3.c.1.                  该玩家立即获胜,无需等待清理发生。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      }
+    },
+    {
+      "existingCanonicalId": "CN-d6fd7140f106f9b5-P072-B001",
+      "sourceRecord": {
+        "id": "DOC-01-P072-B001",
+        "document": "DOC-01",
+        "page": 72,
+        "clauseAnchors": [
+          "414.1"
+        ],
+        "text": "414.1.          抽一张牌 是指从某区域拿取一张牌,并将其添加到玩家的手牌 中。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      }
+    },
+    {
+      "existingCanonicalId": "CN-d6fd7140f106f9b5-P072-B002",
+      "sourceRecord": {
+        "id": "DOC-01-P072-B002",
+        "document": "DOC-01",
+        "page": 72,
+        "clauseAnchors": [
+          "414.1.a"
+        ],
+        "text": "414.1.a.             除非另有说明,否则抽牌即为从主牌堆的顶部抽取卡牌。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      }
+    },
+    {
+      "existingCanonicalId": "CN-d6fd7140f106f9b5-P096-B006",
+      "sourceRecord": {
+        "id": "DOC-01-P096-B006",
+        "document": "DOC-01",
+        "page": 96,
+        "clauseAnchors": [
+          "471.2"
+        ],
+        "text": "471.2.             据守: 玩家保持一处战场 的控制权 (该战场必须是玩家尚未在本回合开始阶段得分 的场地)。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      }
+    },
+    {
+      "existingCanonicalId": "CN-d6fd7140f106f9b5-P096-B016",
+      "sourceRecord": {
+        "id": "DOC-01-P096-B016",
+        "document": "DOC-01",
+        "page": 96,
+        "clauseAnchors": [
+          "473.2.b"
+        ],
+        "text": "473.2.b.               在被据守的战场上触发据守技能。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      }
+    },
+    {
+      "existingCanonicalId": "CN-d6fd7140f106f9b5-P095-B023",
+      "sourceRecord": {
+        "id": "DOC-01-P095-B023",
+        "document": "DOC-01",
+        "page": 95,
+        "clauseAnchors": [
+          "470.2"
+        ],
+        "text": "470.2.           卡牌文本将以如下方式描述获得分数的过程:“获得 X 分”或者“获得的分数+X”。此处的“获得分数”并不是指得分行\n                 动 这一过程。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      }
+    }
+  ],
+  "allExisting14293RuleIdsAnd1740PrintingIdsRetained": true,
+  "currentFirstBurnoutGapSeparateOpenIssue": "https://github.com/DDDHL0704/riftbound/issues/98",
+  "wholeRuleOrPrintingCertified": false
+}

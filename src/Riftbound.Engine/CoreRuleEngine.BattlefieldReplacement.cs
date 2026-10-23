@@ -19,7 +19,8 @@ public sealed partial class CoreRuleEngine
         var queue = result.State.TriggerQueue.ToList(); var events = result.Events.ToList();
         foreach (var (ev, index) in result.Events.Select((e, i) => (e, i)))
         {
-            if (ev.Kind != "SCORE_GAINED" || ev.Payload.GetValueOrDefault("battlefieldReturnContext") is not HeldTriggerContext context) continue;
+            if (ev.Kind is not ("SCORE_GAINED" or "BATTLEFIELD_SCORE_REPLACED_BY_DRAW")
+                || ev.Payload.GetValueOrDefault("battlefieldReturnContext") is not HeldTriggerContext context) continue;
             var trigger = new TriggerQueueItemState($"brush-return-{result.State.Tick}-{index}-{context.BattlefieldObjectId}",
                 (string)ev.Payload["playerId"]!, context.BattlefieldObjectId, "HOLD_BRUSH_RETURN", "BATTLEFIELD_SCORED") { HeldContext = context };
             queue.Add(trigger); events.Add(BuildTriggerQueuedEvent(trigger));

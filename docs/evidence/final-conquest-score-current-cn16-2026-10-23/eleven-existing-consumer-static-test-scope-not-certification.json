@@ -1,0 +1,1168 @@
+{
+  "atUtc": "2026-10-23T01:16:30.156233+00:00",
+  "status": "READ_ONLY_ELEVEN_CURRENT_EXACT_CONSUMERS_EXISTING_TEST_SCOPE_NOT_CERTIFICATION",
+  "currentExactSourceReadback": {
+    "path": "var/qa/deck-consumer-eleven-source-current-cn16-20261023/current-eleven-exact-source-rows-v1.json",
+    "sha256": "7a108014bf16c61dad4420cc57b2d57c15cec1ce844f1fe2969772cb2e610650"
+  },
+  "precedingFixedF248BaselineTrx": {
+    "path": "var/qa/zero-printed-power-prompt-current-cn16-20261023/sole-check-v1/check/results.trx",
+    "sha256": "679e99c909a8219bb63f66c603f3f449b5f53ea8af325c335f64b0c728e3ea75"
+  },
+  "records": [
+    {
+      "apiId": 31434,
+      "exactRegionalCardNo": "OGN·200/298",
+      "exactCurrentRowSha256": "54e2864dd077ec4e79cf187a21285e8f58fd60e6b199614604179f71baaefe51",
+      "currentSourceText": "当我进攻时，展示你符文牌堆顶部的一张牌，然后将其回收。根据展示的符文特性执行以下效果：\n{{红色}}—对此处的一名敌方单位造成2点伤害，并对此处所有其他敌方单位造成1点伤害。\n{{蓝色}}—抽一张牌。\n{{黄色}}—眩晕一名敌方单位。",
+      "existingUnifiedPrintingObligation": "CARD:OGN-200/298",
+      "registration": {
+        "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+        "sha256": "dbf41f2b9ca4ac543a1407e5a7d1f0217fa7c7673d354b322f8b9c2a839784bf",
+        "literalLineNumbers": [
+          4856
+        ],
+        "registrationIsNotBehaviorCertification": true
+      },
+      "literalMentionFixtures": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ogn-twisted-fate-rune-reveal-static.fixture.json",
+          "sha256": "6b01ad0fd26d3e8a517e5051ba227ce796bce1e7754dfd28f589b0e7414f6f41",
+          "fixtureId": "p2-preflight-play-ogn-twisted-fate-rune-reveal-static",
+          "historicalAuditStatus": "RULE_AUDITED",
+          "description": "OGN 200 Twisted Fate enters as a hero unit while attack rune reveal branches are deferred.",
+          "commands": 1,
+          "sourceTextNotes": [
+            {
+              "source": "data/official/card-catalog.zh-CN.json",
+              "locator": "OGN·200/298 崔斯特",
+              "note": "官方卡面：费用 4；英雄单位；战力 4；进攻时展示符文牌堆顶部一张牌并回收，根据红/蓝/黄执行伤害、抽牌或眩晕。当前 fixture 覆盖普通主阶段从手牌打出后成为基地单位对象；进攻触发、符文展示/回收、颜色分支、伤害、抽牌和眩晕路径暂缓。"
+            }
+          ],
+          "scopeDoesNotFollowFromHistoricalAuditStatus": true
+        }
+      ],
+      "selectedExistingTestSourceFiles": [],
+      "precedingFixedF248BaselineSelectedClassCases": [],
+      "selectedClassCasesAreNotAllExactPrintingSemantics": true,
+      "wholePrintingCertified": false,
+      "implementationAndWholeSemanticReview": "OPEN_REQUIRES_BRANCH_REVIEW"
+    },
+    {
+      "apiId": 33090,
+      "exactRegionalCardNo": "SFD·018/221",
+      "exactCurrentRowSha256": "85c78ce45ca0f2be9c5b6be7436d23b0e556b60c60e0bcd61759f854e9956e5d",
+      "currentSourceText": "当你要展示某个牌堆的卡牌时，先查看其顶部的第一张牌，你可以选择将其回收。然后继续展示这些卡牌。",
+      "existingUnifiedPrintingObligation": "CARD:SFD-018/221",
+      "registration": {
+        "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+        "sha256": "dbf41f2b9ca4ac543a1407e5a7d1f0217fa7c7673d354b322f8b9c2a839784bf",
+        "literalLineNumbers": [
+          3931
+        ],
+        "registrationIsNotBehaviorCertification": true
+      },
+      "literalMentionFixtures": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/Fixtures/card-play-history-actual-opening-339c.json",
+          "sha256": "f3c2a8495ee9dd9eef80badba6222c9f0d9ea49ec19eacb1d62ff4ddb9b12317",
+          "fixtureId": null,
+          "historicalAuditStatus": null,
+          "description": null,
+          "commands": 0,
+          "sourceTextNotes": [],
+          "scopeDoesNotFollowFromHistoricalAuditStatus": true
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/Fixtures/fate-weaver-bright-future-opening.json",
+          "sha256": "509b893005d275b232ae560ac9726827a5fc060870cdf4c1819fdb54a3da9610",
+          "fixtureId": null,
+          "historicalAuditStatus": null,
+          "description": null,
+          "commands": 0,
+          "sourceTextNotes": [],
+          "scopeDoesNotFollowFromHistoricalAuditStatus": true
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/Fixtures/private-opening-unfundable-first-unit.json",
+          "sha256": "905c44355e6382bfa7f53ecb0cc6816927872c22be54db40bd8a91ad43535d4e",
+          "fixtureId": null,
+          "historicalAuditStatus": null,
+          "description": null,
+          "commands": 0,
+          "sourceTextNotes": [],
+          "scopeDoesNotFollowFromHistoricalAuditStatus": true
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/Fixtures/preconstructed-original-4fca-inputs.json",
+          "sha256": "242e8dc256809454c82b03b11397b8b35477f1d07ff6bd13bfd7e3dfb1c610aa",
+          "fixtureId": null,
+          "historicalAuditStatus": null,
+          "description": null,
+          "commands": 0,
+          "sourceTextNotes": [],
+          "scopeDoesNotFollowFromHistoricalAuditStatus": true
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/Fixtures/battlefield-base-merfolk.json",
+          "sha256": "30a333defda40a95ecd248295c21d42652cd3d0fd16e5c959ed385b17b097e90",
+          "fixtureId": null,
+          "historicalAuditStatus": null,
+          "description": null,
+          "commands": 0,
+          "sourceTextNotes": [],
+          "scopeDoesNotFollowFromHistoricalAuditStatus": true
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/Fixtures/copied-last-breath-insight-openings.json",
+          "sha256": "7ab69f6f67a5a85609528390ea4e6df2e90681eb49f6b0027a5c5b83ac60bdc7",
+          "fixtureId": null,
+          "historicalAuditStatus": null,
+          "description": null,
+          "commands": 0,
+          "sourceTextNotes": [],
+          "scopeDoesNotFollowFromHistoricalAuditStatus": true
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-voidling-seedling-vanilla-unit.fixture.json",
+          "sha256": "bbd3a2281e337004bb4fc42e6843060a39cc7a989ca4184c74351ac89f93990e",
+          "fixtureId": "p2-preflight-play-voidling-seedling-vanilla-unit",
+          "historicalAuditStatus": "RULE_AUDITED",
+          "description": "Voidling Seedling enters as a unit object while its deck-reveal replacement effect is deferred.",
+          "commands": 1,
+          "sourceTextNotes": [
+            {
+              "source": "data/official/card-catalog.zh-CN.json",
+              "locator": "SFD·018/221 虚空兽苗",
+              "note": "官方卡面：费用 2；单位；战力 2；当展示牌堆卡牌前先查看顶部第一张，可选择回收，再继续展示。当前 fixture 覆盖普通主阶段打出后成为控制者基地单位对象；展示牌堆替代/回收路径暂缓。"
+            }
+          ],
+          "scopeDoesNotFollowFromHistoricalAuditStatus": true
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/Fixtures/copied-duel-insight-openings.json",
+          "sha256": "94af0592ead664cdea35ed1e256c951bdbfdea2cf4c09578a45173328eb1c209",
+          "fixtureId": null,
+          "historicalAuditStatus": null,
+          "description": null,
+          "commands": 0,
+          "sourceTextNotes": [],
+          "scopeDoesNotFollowFromHistoricalAuditStatus": true
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/Fixtures/empowered-insight-openings.json",
+          "sha256": "43f7e223e7e7718624e809520778eb378f478cda70f85f145b29e51d9c3375ca",
+          "fixtureId": null,
+          "historicalAuditStatus": null,
+          "description": null,
+          "commands": 0,
+          "sourceTextNotes": [],
+          "scopeDoesNotFollowFromHistoricalAuditStatus": true
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/Fixtures/destruction-graveyard-openings.json",
+          "sha256": "1e7a49ec5adffd8e22fcaaf89dbb7e663e0970e8bcac3748785c3ff9bf696b03",
+          "fixtureId": null,
+          "historicalAuditStatus": null,
+          "description": null,
+          "commands": 0,
+          "sourceTextNotes": [],
+          "scopeDoesNotFollowFromHistoricalAuditStatus": true
+        }
+      ],
+      "selectedExistingTestSourceFiles": [],
+      "precedingFixedF248BaselineSelectedClassCases": [],
+      "selectedClassCasesAreNotAllExactPrintingSemantics": true,
+      "wholePrintingCertified": false,
+      "implementationAndWholeSemanticReview": "OPEN_REQUIRES_BRANCH_REVIEW"
+    },
+    {
+      "apiId": 33117,
+      "exactRegionalCardNo": "SFD·041/221",
+      "exactCurrentRowSha256": "3aa2dab5c317c349229ee907cced615aef4fb5d32d4312207465b8c6b2d10157",
+      "currentSourceText": "当我移动时，展示你主牌堆顶部的一张牌。如果是一张装备牌，则抽取该卡牌，否则将其回收。",
+      "existingUnifiedPrintingObligation": "CARD:SFD-041/221",
+      "registration": {
+        "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+        "sha256": "dbf41f2b9ca4ac543a1407e5a7d1f0217fa7c7673d354b322f8b9c2a839784bf",
+        "literalLineNumbers": [
+          6134
+        ],
+        "registrationIsNotBehaviorCertification": true
+      },
+      "literalMentionFixtures": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-apprentice-blacksmith-move-reveal-static.fixture.json",
+          "sha256": "ee7fc60ae7df2b5e7a4cc91ba0fb5cdcd92feb4d30b779517120faf49ababb9f",
+          "fixtureId": "p2-preflight-play-apprentice-blacksmith-move-reveal-static",
+          "historicalAuditStatus": "RULE_AUDITED",
+          "description": "Apprentice Blacksmith enters as a unit while move reveal text is deferred.",
+          "commands": 1,
+          "sourceTextNotes": [
+            {
+              "source": "data/official/card-catalog.zh-CN.json",
+              "locator": "SFD·041/221 学徒铁匠",
+              "note": "官方卡面：费用 2；单位；战力 2；当自身移动时，展示控制者主牌堆顶部一张牌，若为装备则抽取，否则回收。当前 fixture 覆盖普通主阶段从手牌打出后成为基地单位对象；移动触发展示、装备抽取和非装备回收路径暂缓。"
+            }
+          ],
+          "scopeDoesNotFollowFromHistoricalAuditStatus": true
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/Fixtures/p4-play-apprentice-blacksmith-target-rejected.fixture.json",
+          "sha256": "cde9efc51e0783eef785906dc43a9f77c9d70ba2652a66b3b22f6f9d7e7a0ac3",
+          "fixtureId": "p4-play-apprentice-blacksmith-target-rejected",
+          "historicalAuditStatus": "RULE_AUDITED",
+          "description": "P4 rejects Apprentice Blacksmith when an explicit target is provided for its zero-target play path.",
+          "commands": 1,
+          "sourceTextNotes": [
+            {
+              "source": "data/official/card-catalog.zh-CN.json",
+              "locator": "SFD·041/221 学徒铁匠",
+              "note": "官方卡面：费用 2；单位；战力 2；当自身移动时，展示控制者主牌堆顶部一张牌，若为装备则抽取，否则回收。当前 fixture 覆盖普通主阶段从手牌打出的 0 目标单位入场路径不应携带目标；移动触发展示、装备抽取和非装备回收路径暂缓。"
+            }
+          ],
+          "scopeDoesNotFollowFromHistoricalAuditStatus": true
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/Fixtures/preconstructed-original-4fca-inputs.json",
+          "sha256": "242e8dc256809454c82b03b11397b8b35477f1d07ff6bd13bfd7e3dfb1c610aa",
+          "fixtureId": null,
+          "historicalAuditStatus": null,
+          "description": null,
+          "commands": 0,
+          "sourceTextNotes": [],
+          "scopeDoesNotFollowFromHistoricalAuditStatus": true
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/Fixtures/attached-predict-openings.json",
+          "sha256": "cc647026e49a3c7270a61fcb9f9ad49347844513a3d598f74799a014f6674330",
+          "fixtureId": null,
+          "historicalAuditStatus": null,
+          "description": null,
+          "commands": 0,
+          "sourceTextNotes": [],
+          "scopeDoesNotFollowFromHistoricalAuditStatus": true
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/Fixtures/copied-last-breath-insight-openings.json",
+          "sha256": "7ab69f6f67a5a85609528390ea4e6df2e90681eb49f6b0027a5c5b83ac60bdc7",
+          "fixtureId": null,
+          "historicalAuditStatus": null,
+          "description": null,
+          "commands": 0,
+          "sourceTextNotes": [],
+          "scopeDoesNotFollowFromHistoricalAuditStatus": true
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/Fixtures/copied-duel-insight-openings.json",
+          "sha256": "94af0592ead664cdea35ed1e256c951bdbfdea2cf4c09578a45173328eb1c209",
+          "fixtureId": null,
+          "historicalAuditStatus": null,
+          "description": null,
+          "commands": 0,
+          "sourceTextNotes": [],
+          "scopeDoesNotFollowFromHistoricalAuditStatus": true
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/Fixtures/ravenbloom-put-hand-openings.json",
+          "sha256": "62be106e3ce7a23d8e78626cf020b595dcddf636c7a4ccedcb137783f8324732",
+          "fixtureId": null,
+          "historicalAuditStatus": null,
+          "description": null,
+          "commands": 0,
+          "sourceTextNotes": [],
+          "scopeDoesNotFollowFromHistoricalAuditStatus": true
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/Fixtures/pakaa-dual-type-openings.json",
+          "sha256": "38763c2e75acfe0d2633bc34c272dd3b7597b53b355d55f70d9d7972ab0d3984",
+          "fixtureId": null,
+          "historicalAuditStatus": null,
+          "description": null,
+          "commands": 0,
+          "sourceTextNotes": [],
+          "scopeDoesNotFollowFromHistoricalAuditStatus": true
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/Fixtures/pakaa-protector-openings.json",
+          "sha256": "8e477d1b516df3f3a537f2033da146edee03ab8ee7a47bacfd14e34d579731e6",
+          "fixtureId": null,
+          "historicalAuditStatus": null,
+          "description": null,
+          "commands": 0,
+          "sourceTextNotes": [],
+          "scopeDoesNotFollowFromHistoricalAuditStatus": true
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/Fixtures/hwei-move-discard-openings.json",
+          "sha256": "ffea62c08314aab6410325412db4b2ca7f33227dae2cf8cc6f89c4fd549d7fb7",
+          "fixtureId": null,
+          "historicalAuditStatus": null,
+          "description": null,
+          "commands": 0,
+          "sourceTextNotes": [],
+          "scopeDoesNotFollowFromHistoricalAuditStatus": true
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/Fixtures/empowered-insight-openings.json",
+          "sha256": "43f7e223e7e7718624e809520778eb378f478cda70f85f145b29e51d9c3375ca",
+          "fixtureId": null,
+          "historicalAuditStatus": null,
+          "description": null,
+          "commands": 0,
+          "sourceTextNotes": [],
+          "scopeDoesNotFollowFromHistoricalAuditStatus": true
+        }
+      ],
+      "selectedExistingTestSourceFiles": [],
+      "precedingFixedF248BaselineSelectedClassCases": [],
+      "selectedClassCasesAreNotAllExactPrintingSemantics": true,
+      "wholePrintingCertified": false,
+      "implementationAndWholeSemanticReview": "OPEN_REQUIRES_BRANCH_REVIEW"
+    },
+    {
+      "apiId": 33137,
+      "exactRegionalCardNo": "SFD·058/221",
+      "exactCurrentRowSha256": "b48a54d2c21df57646c9babb76505dd4d542fe08823e8da2878357bea1a36690",
+      "currentSourceText": "当你打出我时，或当我据守一处战场时，查看主牌堆顶部的四张牌。你可以选择从中展示一件装备，并抽取该卡牌，然后回收其余卡牌。",
+      "existingUnifiedPrintingObligation": "CARD:SFD-058/221",
+      "registration": {
+        "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+        "sha256": "dbf41f2b9ca4ac543a1407e5a7d1f0217fa7c7673d354b322f8b9c2a839784bf",
+        "literalLineNumbers": [
+          5675
+        ],
+        "registrationIsNotBehaviorCertification": true
+      },
+      "literalMentionFixtures": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/Fixtures/p4-play-sfd-058-ornn-target-rejected.fixture.json",
+          "sha256": "fea2f68b15036633d674476d6d2c9b51328ed5b7604b3d5008ea2df53a5902ea",
+          "fixtureId": "p4-play-sfd-058-ornn-target-rejected",
+          "historicalAuditStatus": "RULE_AUDITED",
+          "description": "P4 rejects SFD 058 Ornn when an explicit target is provided for its zero-target play path.",
+          "commands": 1,
+          "sourceTextNotes": [
+            {
+              "source": "data/official/card-catalog.zh-CN.json",
+              "locator": "SFD·058/221 奥恩",
+              "note": "官方卡面：费用 5；英雄单位；战力 5；当你打出我时，或当我据守一处战场时，查看主牌堆顶部的四张牌，可展示并抽取一件装备，回收其余卡牌。当前 fixture 覆盖普通主阶段从手牌打出的 0 目标单位入场路径不应携带目标；顶部查看、装备选择、抽取和回收路径暂缓。"
+            }
+          ],
+          "scopeDoesNotFollowFromHistoricalAuditStatus": true
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-sfd-058-ornn-equipment-look-static.fixture.json",
+          "sha256": "78ce68f1757f03600bb624df77fd3be307624bbf1b97942ee7e8c4fa6838e75c",
+          "fixtureId": "p2-preflight-play-sfd-058-ornn-equipment-look-static",
+          "historicalAuditStatus": "RULE_AUDITED",
+          "description": "SFD 058 Ornn enters as a unit, draws a selected top equipment, and recycles the rest of the looked cards.",
+          "commands": 4,
+          "sourceTextNotes": [
+            {
+              "source": "data/official/card-catalog.zh-CN.json",
+              "locator": "SFD·058/221 奥恩",
+              "note": "官方卡面：费用 5；英雄单位；战力 5；当控制者打出其时，或当其据守一处战场时，查看主牌堆顶部四张牌，可展示并抽取一件装备，回收其余卡牌。当前 fixture 覆盖普通主阶段从手牌打出后成为基地单位对象，选择主牌堆顶四张中的装备抽取，并回收其余被查看卡牌。"
+            }
+          ],
+          "scopeDoesNotFollowFromHistoricalAuditStatus": true
+        }
+      ],
+      "selectedExistingTestSourceFiles": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/OfficialOrnnHoldTests.cs",
+          "sha256": "94464599784a3833ee1681017266f9a0b8f34470af4c579f87d4a79ec396a8f3"
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/OfficialLegendDeckPlayTests.cs",
+          "sha256": "aca98a4b19148b3dbfc298976e7973779545b9f4ddbdd5db6f6b48a9c0586ce8"
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/OfficialReinforcementsTests.cs",
+          "sha256": "6f2752469e89b62e784facb860eaf0c451b9c8208b3fbe2bee7904009d837d33"
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/CounterHoldContinuationTests.cs",
+          "sha256": "b8f360bb5205b3772d9087286e729dd02b549a187dfc850ce8489c8e4b7060e5"
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/DeckObservationPlayTests.cs",
+          "sha256": "34ceb5e369f618a444cfee324a727b1f3a91425c13bb3dc538b9767b36d2d8a3"
+        }
+      ],
+      "precedingFixedF248BaselineSelectedClassCases": [
+        {
+          "case": "Riftbound.ConformanceTests.DeckObservationPlayTests.SurrenderDoesNotStartAnotherObservedConfirmation(beforeOriginalChoiceCompletes: True)",
+          "method": "Riftbound.ConformanceTests.DeckObservationPlayTests.SurrenderDoesNotStartAnotherObservedConfirmation",
+          "outcome": "Passed"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.DeckObservationPlayTests.ARealPredictUnitLooksOnItsAbilityAndDoesNotChooseADeckCardAtDeclaration",
+          "method": "Riftbound.ConformanceTests.DeckObservationPlayTests.ARealPredictUnitLooksOnItsAbilityAndDoesNotChooseADeckCardAtDeclaration",
+          "outcome": "Passed"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.OfficialLegendDeckPlayTests.ShortDeckFinishesWithoutInventingCards(count: 0)",
+          "method": "Riftbound.ConformanceTests.OfficialLegendDeckPlayTests.ShortDeckFinishesWithoutInventingCards",
+          "outcome": "Passed"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.OfficialLegendDeckPlayTests.DecliningAfterRevealRecyclesAllAndWithdrawsPublicVisibility",
+          "method": "Riftbound.ConformanceTests.OfficialLegendDeckPlayTests.DecliningAfterRevealRecyclesAllAndWithdrawsPublicVisibility",
+          "outcome": "Passed"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.OfficialLegendDeckPlayTests.RecoveryRejectsFreePlayWrongSourcesMissingReceiptAndOtherActor",
+          "method": "Riftbound.ConformanceTests.OfficialLegendDeckPlayTests.RecoveryRejectsFreePlayWrongSourcesMissingReceiptAndOtherActor",
+          "outcome": "Passed"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.CounterHoldContinuationTests.ProductionCommandsRecoverAndReplayEveryContinuation(scenario: \"counter\")",
+          "method": "Riftbound.ConformanceTests.CounterHoldContinuationTests.ProductionCommandsRecoverAndReplayEveryContinuation",
+          "outcome": "Passed"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.DeckObservationPlayTests.ARealCardTrickPausesForTheSeenCardsStaticBanishBeforeChoosingTheRemainingCards",
+          "method": "Riftbound.ConformanceTests.DeckObservationPlayTests.ARealCardTrickPausesForTheSeenCardsStaticBanishBeforeChoosingTheRemainingCards",
+          "outcome": "Passed"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.OfficialLegendDeckPlayTests.NoFreePlayAndNoChoiceFromBelowRevealedCards",
+          "method": "Riftbound.ConformanceTests.OfficialLegendDeckPlayTests.NoFreePlayAndNoChoiceFromBelowRevealedCards",
+          "outcome": "Passed"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.OfficialLegendDeckPlayTests.EchoStillPaysExtraCostAndChildSpellResolvesAfterRecycling",
+          "method": "Riftbound.ConformanceTests.OfficialLegendDeckPlayTests.EchoStillPaysExtraCostAndChildSpellResolvesAfterRecycling",
+          "outcome": "Passed"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.DeckObservationPlayTests.OwnPlayPermissionUsesAnyRuneDomainInsteadOfThePrintedDomain",
+          "method": "Riftbound.ConformanceTests.DeckObservationPlayTests.OwnPlayPermissionUsesAnyRuneDomainInsteadOfThePrintedDomain",
+          "outcome": "Passed"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.OfficialReinforcementsTests.SelectUnitFromTopFivePaysReducedManaAndEntersExhausted(unit: \"OGN·142/298\", remainingMana: 4)",
+          "method": "Riftbound.ConformanceTests.OfficialReinforcementsTests.SelectUnitFromTopFivePaysReducedManaAndEntersExhausted",
+          "outcome": "Passed"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.DeckObservationPlayTests.ASeenUnitMayStayInTheOriginalEffectOrRemainBanishedAfterDecliningPlay(banish: True)",
+          "method": "Riftbound.ConformanceTests.DeckObservationPlayTests.ASeenUnitMayStayInTheOriginalEffectOrRemainBanishedAfterDecliningPlay",
+          "outcome": "Passed"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.DeckObservationPlayTests.RecoveryRejectsStartingTheObservedPermissionWhileTheOriginalEffectStillNeedsAChoice",
+          "method": "Riftbound.ConformanceTests.DeckObservationPlayTests.RecoveryRejectsStartingTheObservedPermissionWhileTheOriginalEffectStillNeedsAChoice",
+          "outcome": "Passed"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.OfficialLegendDeckPlayTests.ConquestFirstOffersCostAndDoesNotRevealOrPlay(no: \"SFD·243/221\")",
+          "method": "Riftbound.ConformanceTests.OfficialLegendDeckPlayTests.ConquestFirstOffersCostAndDoesNotRevealOrPlay",
+          "outcome": "Passed"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.DeckObservationPlayTests.BothPlayersSeeARevealedUnitWhileItsStaticBanishChoiceIsPending",
+          "method": "Riftbound.ConformanceTests.DeckObservationPlayTests.BothPlayersSeeARevealedUnitWhileItsStaticBanishChoiceIsPending",
+          "outcome": "Passed"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.DeckObservationPlayTests.TeemoCountsTheOriginalRevealAndRecyclesOnlyCardsStillInTheDeck",
+          "method": "Riftbound.ConformanceTests.DeckObservationPlayTests.TeemoCountsTheOriginalRevealAndRecyclesOnlyCardsStillInTheDeck",
+          "outcome": "Passed"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.DeckObservationPlayTests.RecoveryRejectsNullCapturedObservationParentWithoutThrowing",
+          "method": "Riftbound.ConformanceTests.DeckObservationPlayTests.RecoveryRejectsNullCapturedObservationParentWithoutThrowing",
+          "outcome": "Passed"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.OfficialReinforcementsTests.SelectUnitFromTopFivePaysReducedManaAndEntersExhausted(unit: \"SFD·125/221\", remainingMana: 0)",
+          "method": "Riftbound.ConformanceTests.OfficialReinforcementsTests.SelectUnitFromTopFivePaysReducedManaAndEntersExhausted",
+          "outcome": "Passed"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.DeckObservationPlayTests.BlindFuryAllowsTheOwnerToInterceptBeforeTheOpponentsPlayPermission(banish: False)",
+          "method": "Riftbound.ConformanceTests.DeckObservationPlayTests.BlindFuryAllowsTheOwnerToInterceptBeforeTheOpponentsPlayPermission",
+          "outcome": "Passed"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.OfficialLegendDeckPlayTests.ExhaustionIsChosenBeforeResponsesAndRevealComesLater(pay: False)",
+          "method": "Riftbound.ConformanceTests.OfficialLegendDeckPlayTests.ExhaustionIsChosenBeforeResponsesAndRevealComesLater",
+          "outcome": "Passed"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.CounterHoldContinuationTests.ProductionCommandsRecoverAndReplayEveryContinuation(scenario: \"ornn\")",
+          "method": "Riftbound.ConformanceTests.CounterHoldContinuationTests.ProductionCommandsRecoverAndReplayEveryContinuation",
+          "outcome": "Passed"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.DeckObservationPlayTests.RecoveryRejectsReversingCapturedPendingHistoryOrItsPublicStackOrder(reverseHistory: True)",
+          "method": "Riftbound.ConformanceTests.DeckObservationPlayTests.RecoveryRejectsReversingCapturedPendingHistoryOrItsPublicStackOrder",
+          "outcome": "Passed"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.DeckObservationPlayTests.DianaFinishesAnEmptyLookThenCanRevealAndBanishTheNextObservedUnit",
+          "method": "Riftbound.ConformanceTests.DeckObservationPlayTests.DianaFinishesAnEmptyLookThenCanRevealAndBanishTheNextObservedUnit",
+          "outcome": "Passed"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.OfficialLegendDeckPlayTests.NormalSpellProhibitionAndExtraCostsStillApply",
+          "method": "Riftbound.ConformanceTests.OfficialLegendDeckPlayTests.NormalSpellProhibitionAndExtraCostsStillApply",
+          "outcome": "Passed"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.OfficialLegendDeckPlayTests.UnitMayEnterControlledBattlefieldAndPlayAbilityWaitsForResponses",
+          "method": "Riftbound.ConformanceTests.OfficialLegendDeckPlayTests.UnitMayEnterControlledBattlefieldAndPlayAbilityWaitsForResponses",
+          "outcome": "Passed"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.OfficialReinforcementsTests.UnitPlayedFromDeckStillQueuesItsOwnPlayAbility",
+          "method": "Riftbound.ConformanceTests.OfficialReinforcementsTests.UnitPlayedFromDeckStillQueuesItsOwnPlayAbility",
+          "outcome": "Passed"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.DeckObservationPlayTests.RecoveryRejectsForgedObservedDeckHistoryAndPlayPermission(mutation: \"actor\")",
+          "method": "Riftbound.ConformanceTests.DeckObservationPlayTests.RecoveryRejectsForgedObservedDeckHistoryAndPlayPermission",
+          "outcome": "Passed"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.DeckObservationPlayTests.BlindFuryAllowsTheOwnerToInterceptBeforeTheOpponentsPlayPermission(banish: True)",
+          "method": "Riftbound.ConformanceTests.DeckObservationPlayTests.BlindFuryAllowsTheOwnerToInterceptBeforeTheOpponentsPlayPermission",
+          "outcome": "Passed"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.DeckObservationPlayTests.AuroraStopsAtTheRevealedUnitAndUsesOnlyTheChosenPlayPermission(banish: True)",
+          "method": "Riftbound.ConformanceTests.DeckObservationPlayTests.AuroraStopsAtTheRevealedUnitAndUsesOnlyTheChosenPlayPermission",
+          "outcome": "Passed"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.DeckObservationPlayTests.AConquestLegendCanObserveAUnitWithoutReplacingItsOwnExhaustionCost",
+          "method": "Riftbound.ConformanceTests.DeckObservationPlayTests.AConquestLegendCanObserveAUnitWithoutReplacingItsOwnExhaustionCost",
+          "outcome": "Passed"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.OfficialOrnnHoldTests.OrnnHoldPrivatelyLooksAfterResponsesThenResumesTheStartPhase(card: \"SFD·058/221\", choose: True, sourceLeaves: False)",
+          "method": "Riftbound.ConformanceTests.OfficialOrnnHoldTests.OrnnHoldPrivatelyLooksAfterResponsesThenResumesTheStartPhase",
+          "outcome": "Passed"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.DeckObservationPlayTests.RecoveryRejectsChoosingALaterObservedUnitBeforeTheEarliestPendingItem",
+          "method": "Riftbound.ConformanceTests.DeckObservationPlayTests.RecoveryRejectsChoosingALaterObservedUnitBeforeTheEarliestPendingItem",
+          "outcome": "Passed"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.DeckObservationPlayTests.RecoveryRejectsForgedObservedDeckHistoryAndPlayPermission(mutation: \"duplicate\")",
+          "method": "Riftbound.ConformanceTests.DeckObservationPlayTests.RecoveryRejectsForgedObservedDeckHistoryAndPlayPermission",
+          "outcome": "Passed"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.OfficialOrnnHoldTests.OrnnHoldPrivatelyLooksAfterResponsesThenResumesTheStartPhase(card: \"SFD·058/221\", choose: False, sourceLeaves: False)",
+          "method": "Riftbound.ConformanceTests.OfficialOrnnHoldTests.OrnnHoldPrivatelyLooksAfterResponsesThenResumesTheStartPhase",
+          "outcome": "Passed"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.OfficialOrnnHoldTests.AUnitAtAnotherPlayersBattlefieldCannotTriggerFromYourHold",
+          "method": "Riftbound.ConformanceTests.OfficialOrnnHoldTests.AUnitAtAnotherPlayersBattlefieldCannotTriggerFromYourHold",
+          "outcome": "Passed"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.DeckObservationPlayTests.AuroraStopsAtTheRevealedUnitAndUsesOnlyTheChosenPlayPermission(banish: False)",
+          "method": "Riftbound.ConformanceTests.DeckObservationPlayTests.AuroraStopsAtTheRevealedUnitAndUsesOnlyTheChosenPlayPermission",
+          "outcome": "Passed"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.DeckObservationPlayTests.RecoveryRejectsForgedObservedDeckHistoryAndPlayPermission(mutation: \"permission\")",
+          "method": "Riftbound.ConformanceTests.DeckObservationPlayTests.RecoveryRejectsForgedObservedDeckHistoryAndPlayPermission",
+          "outcome": "Passed"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.OfficialLegendDeckPlayTests.ExhaustedLegendStillCapturesTriggerThenCannotConfirm",
+          "method": "Riftbound.ConformanceTests.OfficialLegendDeckPlayTests.ExhaustedLegendStillCapturesTriggerThenCannotConfirm",
+          "outcome": "Passed"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.CounterHoldContinuationTests.CounterTargetAlreadyRemovedCanRecoverButForgedBindingCannot",
+          "method": "Riftbound.ConformanceTests.CounterHoldContinuationTests.CounterTargetAlreadyRemovedCanRecoverButForgedBindingCannot",
+          "outcome": "Passed"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.OfficialLegendDeckPlayTests.ConquestFirstOffersCostAndDoesNotRevealOrPlay(no: \"SFD·187/221\")",
+          "method": "Riftbound.ConformanceTests.OfficialLegendDeckPlayTests.ConquestFirstOffersCostAndDoesNotRevealOrPlay",
+          "outcome": "Passed"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.OfficialOrnnHoldTests.OrnnHoldPrivatelyLooksAfterResponsesThenResumesTheStartPhase(card: \"SFD·058/221\", choose: True, sourceLeaves: True)",
+          "method": "Riftbound.ConformanceTests.OfficialOrnnHoldTests.OrnnHoldPrivatelyLooksAfterResponsesThenResumesTheStartPhase",
+          "outcome": "Passed"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.DeckObservationPlayTests.BrightFutureCompletesBothOriginalChoicesBeforeEitherObservedUnitIsConfirmed",
+          "method": "Riftbound.ConformanceTests.DeckObservationPlayTests.BrightFutureCompletesBothOriginalChoicesBeforeEitherObservedUnitIsConfirmed",
+          "outcome": "Passed"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.OfficialLegendDeckPlayTests.CanChooseSecondUnitEquipmentOrSpellAndPaysNormalCost(no: \"SFD·125/221\", spell: False)",
+          "method": "Riftbound.ConformanceTests.OfficialLegendDeckPlayTests.CanChooseSecondUnitEquipmentOrSpellAndPaysNormalCost",
+          "outcome": "Passed"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.DeckObservationPlayTests.RecoveryRejectsReversingCapturedPendingHistoryOrItsPublicStackOrder(reverseHistory: False)",
+          "method": "Riftbound.ConformanceTests.DeckObservationPlayTests.RecoveryRejectsReversingCapturedPendingHistoryOrItsPublicStackOrder",
+          "outcome": "Passed"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.DeckObservationPlayTests.RecoveryRejectsForgedObservedDeckHistoryAndPlayPermission(mutation: \"parent-kind\")",
+          "method": "Riftbound.ConformanceTests.DeckObservationPlayTests.RecoveryRejectsForgedObservedDeckHistoryAndPlayPermission",
+          "outcome": "Passed"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.DeckObservationPlayTests.ASeenUnitMayStayInTheOriginalEffectOrRemainBanishedAfterDecliningPlay(banish: False)",
+          "method": "Riftbound.ConformanceTests.DeckObservationPlayTests.ASeenUnitMayStayInTheOriginalEffectOrRemainBanishedAfterDecliningPlay",
+          "outcome": "Passed"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.DeckObservationPlayTests.AttackRevealCompletesItsOriginalOptionalChoiceBeforeTheObservedUnitPlays",
+          "method": "Riftbound.ConformanceTests.DeckObservationPlayTests.AttackRevealCompletesItsOriginalOptionalChoiceBeforeTheObservedUnitPlays",
+          "outcome": "Passed"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.DeckObservationPlayTests.DianaCanObserveTheSameKeptUnitAgainWhenTheRemainingInstructionRevealsIt",
+          "method": "Riftbound.ConformanceTests.DeckObservationPlayTests.DianaCanObserveTheSameKeptUnitAgainWhenTheRemainingInstructionRevealsIt",
+          "outcome": "Passed"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.DeckObservationPlayTests.AHeldEquipmentLookCanBanishAnIneligibleUnitBeforeCompletingTheOriginalFilter",
+          "method": "Riftbound.ConformanceTests.DeckObservationPlayTests.AHeldEquipmentLookCanBanishAnIneligibleUnitBeforeCompletingTheOriginalFilter",
+          "outcome": "Passed"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.DeckObservationPlayTests.InsightWithItsOnlyCardBanishedCompletesBeforeTheUnitsOwnPayment",
+          "method": "Riftbound.ConformanceTests.DeckObservationPlayTests.InsightWithItsOnlyCardBanishedCompletesBeforeTheUnitsOwnPayment",
+          "outcome": "Passed"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.DeckObservationPlayTests.SurrenderDoesNotStartAnotherObservedConfirmation(beforeOriginalChoiceCompletes: False)",
+          "method": "Riftbound.ConformanceTests.DeckObservationPlayTests.SurrenderDoesNotStartAnotherObservedConfirmation",
+          "outcome": "Passed"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.DeckObservationPlayTests.RecoveryRejectsAnObservedPermissionInjectedIntoAnOrdinaryStackSlot",
+          "method": "Riftbound.ConformanceTests.DeckObservationPlayTests.RecoveryRejectsAnObservedPermissionInjectedIntoAnOrdinaryStackSlot",
+          "outcome": "Passed"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.OfficialOrnnHoldTests.OrnnHoldPrivatelyLooksAfterResponsesThenResumesTheStartPhase(card: \"SFD·058a/221\", choose: True, sourceLeaves: False)",
+          "method": "Riftbound.ConformanceTests.OfficialOrnnHoldTests.OrnnHoldPrivatelyLooksAfterResponsesThenResumesTheStartPhase",
+          "outcome": "Passed"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.OfficialLegendDeckPlayTests.ShortDeckFinishesWithoutInventingCards(count: 1)",
+          "method": "Riftbound.ConformanceTests.OfficialLegendDeckPlayTests.ShortDeckFinishesWithoutInventingCards",
+          "outcome": "Passed"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.OfficialLegendDeckPlayTests.CanChooseSecondUnitEquipmentOrSpellAndPaysNormalCost(no: \"SFD·042/221\", spell: False)",
+          "method": "Riftbound.ConformanceTests.OfficialLegendDeckPlayTests.CanChooseSecondUnitEquipmentOrSpellAndPaysNormalCost",
+          "outcome": "Passed"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.DeckObservationPlayTests.HookKeepsItsKilledMightLimitSeparateFromTheObservedUnitsOwnPermission",
+          "method": "Riftbound.ConformanceTests.DeckObservationPlayTests.HookKeepsItsKilledMightLimitSeparateFromTheObservedUnitsOwnPermission",
+          "outcome": "Passed"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.DeckObservationPlayTests.RecoveryRejectsForgedObservedDeckHistoryAndPlayPermission(mutation: \"cost\")",
+          "method": "Riftbound.ConformanceTests.DeckObservationPlayTests.RecoveryRejectsForgedObservedDeckHistoryAndPlayPermission",
+          "outcome": "Passed"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.DeckObservationPlayTests.AFilteredSelectionRevealsTheKeptUnitBeforeDrawingAndOffersItsPermissionAgain",
+          "method": "Riftbound.ConformanceTests.DeckObservationPlayTests.AFilteredSelectionRevealsTheKeptUnitBeforeDrawingAndOffersItsPermissionAgain",
+          "outcome": "Passed"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.DeckObservationPlayTests.ALastBreathInsightUsesTheCapturedAbilityAfterRemovingOneOfItsTwoSeenCards",
+          "method": "Riftbound.ConformanceTests.DeckObservationPlayTests.ALastBreathInsightUsesTheCapturedAbilityAfterRemovingOneOfItsTwoSeenCards",
+          "outcome": "Passed"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.OfficialLegendDeckPlayTests.ExhaustionIsChosenBeforeResponsesAndRevealComesLater(pay: True)",
+          "method": "Riftbound.ConformanceTests.OfficialLegendDeckPlayTests.ExhaustionIsChosenBeforeResponsesAndRevealComesLater",
+          "outcome": "Passed"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.OfficialReinforcementsTests.MayDeclineAndCannotPickBelowTopFiveOrSkipPrintedPower",
+          "method": "Riftbound.ConformanceTests.OfficialReinforcementsTests.MayDeclineAndCannotPickBelowTopFiveOrSkipPrintedPower",
+          "outcome": "Passed"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.DeckObservationPlayTests.ObservedPendingUnitsStayAboveTheOlderSpellWhenAReactionStartedTheInsightTask",
+          "method": "Riftbound.ConformanceTests.DeckObservationPlayTests.ObservedPendingUnitsStayAboveTheOlderSpellWhenAReactionStartedTheInsightTask",
+          "outcome": "Passed"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.OfficialLegendDeckPlayTests.PaidAbilityUsesResolutionTimeDeckAndSurvivesSourceChange",
+          "method": "Riftbound.ConformanceTests.OfficialLegendDeckPlayTests.PaidAbilityUsesResolutionTimeDeckAndSurvivesSourceChange",
+          "outcome": "Passed"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.DeckObservationPlayTests.RecoveryRejectsForgedObservedDeckHistoryAndPlayPermission(mutation: \"generation\")",
+          "method": "Riftbound.ConformanceTests.DeckObservationPlayTests.RecoveryRejectsForgedObservedDeckHistoryAndPlayPermission",
+          "outcome": "Passed"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.CounterHoldContinuationTests.ProductionCommandsRecoverAndReplayEveryContinuation(scenario: \"reinforcements\")",
+          "method": "Riftbound.ConformanceTests.CounterHoldContinuationTests.ProductionCommandsRecoverAndReplayEveryContinuation",
+          "outcome": "Passed"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.DeckObservationPlayTests.OrdinaryDrawingDoesNotOfferTheUnitsDeckObservationPermission",
+          "method": "Riftbound.ConformanceTests.DeckObservationPlayTests.OrdinaryDrawingDoesNotOfferTheUnitsDeckObservationPermission",
+          "outcome": "Passed"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.DeckObservationPlayTests.ThreeObservedUnitsCanAllBeBanishedBeforeTheOriginalPutIntoHandInstruction",
+          "method": "Riftbound.ConformanceTests.DeckObservationPlayTests.ThreeObservedUnitsCanAllBeBanishedBeforeTheOriginalPutIntoHandInstruction",
+          "outcome": "Passed"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.DeckObservationPlayTests.RecoveryRejectsForgedObservedDeckHistoryAndPlayPermission(mutation: \"unseen\")",
+          "method": "Riftbound.ConformanceTests.DeckObservationPlayTests.RecoveryRejectsForgedObservedDeckHistoryAndPlayPermission",
+          "outcome": "Passed"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.DeckObservationPlayTests.AStaticBanishChoiceDoesNotRevealPrivateLookedCardsToTheOtherPlayer",
+          "method": "Riftbound.ConformanceTests.DeckObservationPlayTests.AStaticBanishChoiceDoesNotRevealPrivateLookedCardsToTheOtherPlayer",
+          "outcome": "Passed"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.OfficialLegendDeckPlayTests.CanChooseSecondUnitEquipmentOrSpellAndPaysNormalCost(no: \"OGN·048/298\", spell: True)",
+          "method": "Riftbound.ConformanceTests.OfficialLegendDeckPlayTests.CanChooseSecondUnitEquipmentOrSpellAndPaysNormalCost",
+          "outcome": "Passed"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.DeckObservationPlayTests.ADefendedBattlefieldDoesNotRecycleTheUnitAlreadyBanishedByItsOwnStaticAbility",
+          "method": "Riftbound.ConformanceTests.DeckObservationPlayTests.ADefendedBattlefieldDoesNotRecycleTheUnitAlreadyBanishedByItsOwnStaticAbility",
+          "outcome": "Passed"
+        }
+      ],
+      "selectedClassCasesAreNotAllExactPrintingSemantics": true,
+      "wholePrintingCertified": false,
+      "implementationAndWholeSemanticReview": "OPEN_REQUIRES_BRANCH_REVIEW"
+    },
+    {
+      "apiId": 33138,
+      "exactRegionalCardNo": "SFD·058a/221",
+      "exactCurrentRowSha256": "529a855e08f7bcefdb0fecb49db7c8c5b0f76458ff64d06e95b7cf680a5aacd5",
+      "currentSourceText": "当你打出我时，或当我据守一处战场时，查看主牌堆顶部的四张牌。你可以选择从中展示一件装备，并抽取该卡牌，然后回收其余卡牌。",
+      "existingUnifiedPrintingObligation": "CARD:SFD-058a/221",
+      "registration": {
+        "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+        "sha256": "dbf41f2b9ca4ac543a1407e5a7d1f0217fa7c7673d354b322f8b9c2a839784bf",
+        "literalLineNumbers": [
+          5690
+        ],
+        "registrationIsNotBehaviorCertification": true
+      },
+      "literalMentionFixtures": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/Fixtures/p4-play-sfd-058a-ornn-target-rejected.fixture.json",
+          "sha256": "6a13e65a8012fb79b0af9f0a6e583523b03a7524b0551012380b7a02bfc837cd",
+          "fixtureId": "p4-play-sfd-058a-ornn-target-rejected",
+          "historicalAuditStatus": "RULE_AUDITED",
+          "description": "P4 rejects SFD 058a Ornn when an explicit target is provided for its zero-target play path.",
+          "commands": 1,
+          "sourceTextNotes": [
+            {
+              "source": "data/official/card-catalog.zh-CN.json",
+              "locator": "SFD·058a/221 奥恩",
+              "note": "官方卡面：费用 5；英雄单位；战力 5；当你打出我时，或当我据守一处战场时，查看主牌堆顶部的四张牌，可展示并抽取一件装备，回收其余卡牌。当前 fixture 覆盖异画 A 普通主阶段从手牌打出的 0 目标单位入场路径不应携带目标；顶部查看、装备选择、抽取和回收路径暂缓。"
+            }
+          ],
+          "scopeDoesNotFollowFromHistoricalAuditStatus": true
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-sfd-058a-ornn-equipment-look-static.fixture.json",
+          "sha256": "757035fd816411a61bf9aece6896d3c00448114f7a8655bb61132c175ed022f2",
+          "fixtureId": "p2-preflight-play-sfd-058a-ornn-equipment-look-static",
+          "historicalAuditStatus": "RULE_AUDITED",
+          "description": "SFD 058a Ornn enters as a unit, draws a selected top equipment, and recycles the rest of the looked cards.",
+          "commands": 4,
+          "sourceTextNotes": [
+            {
+              "source": "data/official/card-catalog.zh-CN.json",
+              "locator": "SFD·058a/221 奥恩",
+              "note": "官方卡面：费用 5；英雄单位；战力 5；当控制者打出其时，或当其据守一处战场时，查看主牌堆顶部四张牌，可展示并抽取一件装备，回收其余卡牌。当前 fixture 覆盖普通主阶段从手牌打出后成为基地单位对象，选择主牌堆顶四张中的装备抽取，并回收其余被查看卡牌。"
+            }
+          ],
+          "scopeDoesNotFollowFromHistoricalAuditStatus": true
+        }
+      ],
+      "selectedExistingTestSourceFiles": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/OfficialOrnnHoldTests.cs",
+          "sha256": "94464599784a3833ee1681017266f9a0b8f34470af4c579f87d4a79ec396a8f3"
+        }
+      ],
+      "precedingFixedF248BaselineSelectedClassCases": [
+        {
+          "case": "Riftbound.ConformanceTests.OfficialOrnnHoldTests.OrnnHoldPrivatelyLooksAfterResponsesThenResumesTheStartPhase(card: \"SFD·058/221\", choose: True, sourceLeaves: False)",
+          "method": "Riftbound.ConformanceTests.OfficialOrnnHoldTests.OrnnHoldPrivatelyLooksAfterResponsesThenResumesTheStartPhase",
+          "outcome": "Passed"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.OfficialOrnnHoldTests.OrnnHoldPrivatelyLooksAfterResponsesThenResumesTheStartPhase(card: \"SFD·058/221\", choose: False, sourceLeaves: False)",
+          "method": "Riftbound.ConformanceTests.OfficialOrnnHoldTests.OrnnHoldPrivatelyLooksAfterResponsesThenResumesTheStartPhase",
+          "outcome": "Passed"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.OfficialOrnnHoldTests.AUnitAtAnotherPlayersBattlefieldCannotTriggerFromYourHold",
+          "method": "Riftbound.ConformanceTests.OfficialOrnnHoldTests.AUnitAtAnotherPlayersBattlefieldCannotTriggerFromYourHold",
+          "outcome": "Passed"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.OfficialOrnnHoldTests.OrnnHoldPrivatelyLooksAfterResponsesThenResumesTheStartPhase(card: \"SFD·058/221\", choose: True, sourceLeaves: True)",
+          "method": "Riftbound.ConformanceTests.OfficialOrnnHoldTests.OrnnHoldPrivatelyLooksAfterResponsesThenResumesTheStartPhase",
+          "outcome": "Passed"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.OfficialOrnnHoldTests.OrnnHoldPrivatelyLooksAfterResponsesThenResumesTheStartPhase(card: \"SFD·058a/221\", choose: True, sourceLeaves: False)",
+          "method": "Riftbound.ConformanceTests.OfficialOrnnHoldTests.OrnnHoldPrivatelyLooksAfterResponsesThenResumesTheStartPhase",
+          "outcome": "Passed"
+        }
+      ],
+      "selectedClassCasesAreNotAllExactPrintingSemantics": true,
+      "wholePrintingCertified": false,
+      "implementationAndWholeSemanticReview": "OPEN_REQUIRES_BRANCH_REVIEW"
+    },
+    {
+      "apiId": 33271,
+      "exactRegionalCardNo": "SFD·175/221",
+      "exactCurrentRowSha256": "d39ee5e6c82e1a2592e767a5c723494338e2d0d4e1ab8d1c44de3a27b98278a9",
+      "currentSourceText": "当你打出我时，让你的其他单位本回合内{{S}}+2。\n如果我从你的主牌堆中被展示，则你{{获得}}{{2}}。",
+      "existingUnifiedPrintingObligation": "CARD:SFD-175/221",
+      "registration": {
+        "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+        "sha256": "dbf41f2b9ca4ac543a1407e5a7d1f0217fa7c7673d354b322f8b9c2a839784bf",
+        "literalLineNumbers": [
+          5777
+        ],
+        "registrationIsNotBehaviorCertification": true
+      },
+      "literalMentionFixtures": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/Fixtures/p4-play-gai-beast-target-rejected.fixture.json",
+          "sha256": "c03dd85b1db600082e4299f5e0750e2752a7e09aa3ea1da1bda62247b1b0b03b",
+          "fixtureId": "p4-play-gai-beast-target-rejected",
+          "historicalAuditStatus": "RULE_AUDITED",
+          "description": "P4 rejects Gai Beast when an explicit target is provided for its zero-target play path.",
+          "commands": 1,
+          "sourceTextNotes": [
+            {
+              "source": "data/official/card-catalog.zh-CN.json",
+              "locator": "SFD·175/221 垓兽",
+              "note": "官方卡面：费用 6；单位；战力 5；当你打出我时，让你的其他单位本回合内战力 +2；如果我从你的主牌堆中被展示，则你获得 2 资源。当前 fixture 覆盖普通主阶段从手牌打出的 0 目标单位入场路径不应携带目标；其他单位本回合战力修正、主牌堆展示记忆和获得资源路径暂缓。"
+            }
+          ],
+          "scopeDoesNotFollowFromHistoricalAuditStatus": true
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-gai-beast-entry-power-static.fixture.json",
+          "sha256": "3919de659c00b35c27ae141969223b36af773d8cbf3034fce33bbe8a561e7029",
+          "fixtureId": "p2-preflight-play-gai-beast-entry-power-static",
+          "historicalAuditStatus": "RULE_AUDITED",
+          "description": "SFD 175 Gai Beast enters as a unit while its other-units power modifier and reveal resource text are deferred.",
+          "commands": 3,
+          "sourceTextNotes": [
+            {
+              "source": "data/official/card-catalog.zh-CN.json",
+              "locator": "SFD·175/221 垓兽",
+              "note": "官方卡面：费用 6；单位；战力 5；当控制者打出其时，让其他单位本回合战力 +2；如果其从主牌堆中被展示，则控制者获得 2。当前 fixture 覆盖普通主阶段从手牌打出后成为基地单位对象；其他单位本回合战力修正、主牌堆展示记忆和获得资源路径暂缓。"
+            }
+          ],
+          "scopeDoesNotFollowFromHistoricalAuditStatus": true
+        }
+      ],
+      "selectedExistingTestSourceFiles": [],
+      "precedingFixedF248BaselineSelectedClassCases": [],
+      "selectedClassCasesAreNotAllExactPrintingSemantics": true,
+      "wholePrintingCertified": false,
+      "implementationAndWholeSemanticReview": "OPEN_REQUIRES_BRANCH_REVIEW"
+    },
+    {
+      "apiId": 34579,
+      "exactRegionalCardNo": "UNL-051/219",
+      "exactCurrentRowSha256": "75b2b1c6138e30d8d75a4f1cebc599791100ad31730e68c92f5915316ca2a102",
+      "currentSourceText": "当你打出我时，或当我据守一处战场时，查看你主牌堆顶部的三张牌。你可以选择从中展示一名单位，并抽取该卡牌。回收其余的卡牌。如果你展示了一名“鸟类”、“猫科”、“犬形”或“魄罗”属性单位，则进行一次：给予一名友方单位{{增益}}。（如果其未拥有增益，则获得一个{{S}}+1增益。）",
+      "existingUnifiedPrintingObligation": "CARD:UNL-051/219",
+      "registration": {
+        "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+        "sha256": "dbf41f2b9ca4ac543a1407e5a7d1f0217fa7c7673d354b322f8b9c2a839784bf",
+        "literalLineNumbers": [
+          6999
+        ],
+        "registrationIsNotBehaviorCertification": true
+      },
+      "literalMentionFixtures": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ivern-look-unit-static.fixture.json",
+          "sha256": "0f99c5f0587382e47710a7bb06fcf7d00139a83dfb00b858a80a1a26da899dfc",
+          "fixtureId": "p2-preflight-play-ivern-look-unit-static",
+          "historicalAuditStatus": "RULE_AUDITED",
+          "description": "Ivern enters as a unit while top-three look, reveal, draw, recycle, and boon text are deferred.",
+          "commands": 3,
+          "sourceTextNotes": [
+            {
+              "source": "data/official/card-catalog.zh-CN.json",
+              "locator": "UNL-051/219 艾翁",
+              "note": "官方卡面：费用 5；英雄单位；战力 4；打出或据守战场时查看主牌堆顶部三张，可展示单位并抽取，回收其余牌；若展示鸟类、猫科、犬形或魄罗属性单位则给予友方单位增益。当前 fixture 覆盖普通主阶段从手牌打出后的源单位入场；顶部三张查看、展示/抽取、回收、属性分支和增益路径暂缓。"
+            }
+          ],
+          "scopeDoesNotFollowFromHistoricalAuditStatus": true
+        }
+      ],
+      "selectedExistingTestSourceFiles": [],
+      "precedingFixedF248BaselineSelectedClassCases": [],
+      "selectedClassCasesAreNotAllExactPrintingSemantics": true,
+      "wholePrintingCertified": false,
+      "implementationAndWholeSemanticReview": "OPEN_REQUIRES_BRANCH_REVIEW"
+    },
+    {
+      "apiId": 34580,
+      "exactRegionalCardNo": "UNL-051a/219",
+      "exactCurrentRowSha256": "d2a7c0829579adb8163002810d32b865a32e946d4c78d07c9ec6b5885d8d82b2",
+      "currentSourceText": "当你打出我时，或当我据守一处战场时，查看你主牌堆顶部的三张牌。你可以选择从中展示一名单位，并抽取该卡牌。回收其余的卡牌。如果你展示了一名“鸟类”、“猫科”、“犬形”或“魄罗”属性单位，则进行一次：给予一名友方单位{{增益}}。",
+      "existingUnifiedPrintingObligation": "CARD:UNL-051a/219",
+      "registration": {
+        "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+        "sha256": "dbf41f2b9ca4ac543a1407e5a7d1f0217fa7c7673d354b322f8b9c2a839784bf",
+        "literalLineNumbers": [
+          7030
+        ],
+        "registrationIsNotBehaviorCertification": true
+      },
+      "literalMentionFixtures": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-ivern-alt-a-look-unit-static.fixture.json",
+          "sha256": "889af0392517632b8a21205d3d58e859cb8f14066b25f055cfaf038065b00b73",
+          "fixtureId": "p2-preflight-play-ivern-alt-a-look-unit-static",
+          "historicalAuditStatus": "RULE_AUDITED",
+          "description": "Ivern alt A enters as a unit while top-three look, reveal, draw, recycle, and boon text are deferred.",
+          "commands": 3,
+          "sourceTextNotes": [
+            {
+              "source": "data/official/card-catalog.zh-CN.json",
+              "locator": "UNL-051a/219 艾翁",
+              "note": "官方卡面：费用 5；英雄单位；战力 4；打出或据守战场时查看主牌堆顶部三张，可展示单位并抽取，回收其余牌；若展示鸟类、猫科、犬形或魄罗属性单位则给予友方单位增益。当前 fixture 覆盖普通主阶段从手牌打出后的源单位入场；顶部三张查看、展示/抽取、回收、属性分支和增益路径暂缓。"
+            }
+          ],
+          "scopeDoesNotFollowFromHistoricalAuditStatus": true
+        }
+      ],
+      "selectedExistingTestSourceFiles": [],
+      "precedingFixedF248BaselineSelectedClassCases": [],
+      "selectedClassCasesAreNotAllExactPrintingSemantics": true,
+      "wholePrintingCertified": false,
+      "implementationAndWholeSemanticReview": "OPEN_REQUIRES_BRANCH_REVIEW"
+    },
+    {
+      "apiId": 34731,
+      "exactRegionalCardNo": "UNL-179/219",
+      "exactCurrentRowSha256": "8ac237d3974a02054aedde7ff7a00fa017d5c0ad43ada351d2a32b1860551f4b",
+      "currentSourceText": "当我移动至一处战场时，查看你主牌堆顶部的三张牌。你可以选择从中展示一名单位，并抽取该卡牌。回收其余的卡牌。\n{{绝念>}} 从你的手牌中打出一名单位到你的基地，无视其法力费用。（当我被摧毁后，发动此效果。仍需支付所有符能费用。）",
+      "existingUnifiedPrintingObligation": "CARD:UNL-179/219",
+      "registration": {
+        "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+        "sha256": "dbf41f2b9ca4ac543a1407e5a7d1f0217fa7c7673d354b322f8b9c2a839784bf",
+        "literalLineNumbers": [
+          7240
+        ],
+        "registrationIsNotBehaviorCertification": true
+      },
+      "literalMentionFixtures": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-rift-herald-move-last-breath-static.fixture.json",
+          "sha256": "2c11a465e3e43339062bcec56988fb9b847bad2ddf084b87dc55899c8d66f857",
+          "fixtureId": "p2-preflight-play-rift-herald-move-last-breath-static",
+          "historicalAuditStatus": "RULE_AUDITED",
+          "description": "Rift Herald enters as a unit while move-look and last-breath free-play text is deferred.",
+          "commands": 1,
+          "sourceTextNotes": [
+            {
+              "source": "data/official/card-catalog.zh-CN.json",
+              "locator": "UNL-179/219 峡谷先锋",
+              "note": "官方卡面：费用 8；单位；战力 7；移动至战场时查看主牌堆顶部三张并可展示抽取一名单位，绝念时可从手牌打出一名单位到基地并无视法力费用。当前 fixture 覆盖普通主阶段从手牌打出后的源单位入场；移动触发、顶部查看、展示抽取、回收、绝念触发、手牌单位选择、免费打出和符能费用路径暂缓。"
+            }
+          ],
+          "scopeDoesNotFollowFromHistoricalAuditStatus": true
+        }
+      ],
+      "selectedExistingTestSourceFiles": [],
+      "precedingFixedF248BaselineSelectedClassCases": [],
+      "selectedClassCasesAreNotAllExactPrintingSemantics": true,
+      "wholePrintingCertified": false,
+      "implementationAndWholeSemanticReview": "OPEN_REQUIRES_BRANCH_REVIEW"
+    },
+    {
+      "apiId": 34732,
+      "exactRegionalCardNo": "UNL-179a/219",
+      "exactCurrentRowSha256": "7a94777d5a910ee1a67bbdf4dc70acc50b8830cb128f31b7a69b029531b998de",
+      "currentSourceText": "当我移动至一处战场时，查看你主牌堆顶部的三张牌。你可以选择从中展示一名单位，并抽取该卡牌。回收其余的卡牌。\n{{绝念>}} 从你的手牌中打出一名单位到你的基地，无视其法力费用。",
+      "existingUnifiedPrintingObligation": "CARD:UNL-179a/219",
+      "registration": {
+        "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+        "sha256": "dbf41f2b9ca4ac543a1407e5a7d1f0217fa7c7673d354b322f8b9c2a839784bf",
+        "literalLineNumbers": [
+          7249
+        ],
+        "registrationIsNotBehaviorCertification": true
+      },
+      "literalMentionFixtures": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/Fixtures/p2-preflight-play-rift-herald-alt-a-move-last-breath-static.fixture.json",
+          "sha256": "0b4194886133a7da43af8b4cb8405da288e41b624f2c48885101fef9303de479",
+          "fixtureId": "p2-preflight-play-rift-herald-alt-a-move-last-breath-static",
+          "historicalAuditStatus": "RULE_AUDITED",
+          "description": "Rift Herald alt A enters as a unit while move-look and last-breath free-play text is deferred.",
+          "commands": 1,
+          "sourceTextNotes": [
+            {
+              "source": "data/official/card-catalog.zh-CN.json",
+              "locator": "UNL-179a/219 峡谷先锋",
+              "note": "官方卡面：费用 8；单位；战力 7；移动至战场时查看主牌堆顶部三张并可展示抽取一名单位，绝念时可从手牌打出一名单位到基地并无视法力费用。当前 fixture 覆盖普通主阶段从手牌打出后的源单位入场；移动触发、顶部查看、展示抽取、回收、绝念触发、手牌单位选择、免费打出和符能费用路径暂缓。"
+            }
+          ],
+          "scopeDoesNotFollowFromHistoricalAuditStatus": true
+        }
+      ],
+      "selectedExistingTestSourceFiles": [],
+      "precedingFixedF248BaselineSelectedClassCases": [],
+      "selectedClassCasesAreNotAllExactPrintingSemantics": true,
+      "wholePrintingCertified": false,
+      "implementationAndWholeSemanticReview": "OPEN_REQUIRES_BRANCH_REVIEW"
+    },
+    {
+      "apiId": 34764,
+      "exactRegionalCardNo": "UNL-211/219",
+      "exactCurrentRowSha256": "9c73174e43e9a254d913f04c745eeeade287f9398a1f69ebdafa4d4072a3eb73",
+      "currentSourceText": "若此战场受你控制，当你打出一张法术牌时，如果消耗了不低于{{4}}法力，则进行{{洞察}}。（查看你主牌堆顶部的一张牌。你可以选择将其回收。）",
+      "existingUnifiedPrintingObligation": "CARD:UNL-211/219",
+      "registration": {
+        "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+        "sha256": "dbf41f2b9ca4ac543a1407e5a7d1f0217fa7c7673d354b322f8b9c2a839784bf",
+        "literalLineNumbers": [],
+        "registrationIsNotBehaviorCertification": true
+      },
+      "literalMentionFixtures": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/Fixtures/preconstructed-original-4fca-inputs.json",
+          "sha256": "242e8dc256809454c82b03b11397b8b35477f1d07ff6bd13bfd7e3dfb1c610aa",
+          "fixtureId": null,
+          "historicalAuditStatus": null,
+          "description": null,
+          "commands": 0,
+          "sourceTextNotes": [],
+          "scopeDoesNotFollowFromHistoricalAuditStatus": true
+        }
+      ],
+      "selectedExistingTestSourceFiles": [
+        {
+          "path": "tests/Riftbound.ConformanceTests/OfficialInsightTriggerTests.cs",
+          "sha256": "20703182e950c95b2b74781432b017e2db330141888472d437555e936a68af24"
+        }
+      ],
+      "precedingFixedF248BaselineSelectedClassCases": [
+        {
+          "case": "Riftbound.ConformanceTests.OfficialInsightTriggerTests.VisionaryDestructionCostAllowsAnyRecycleSubsetAndRemainingTopOrder(recycleCount: 1)",
+          "method": "Riftbound.ConformanceTests.OfficialInsightTriggerTests.VisionaryDestructionCostAllowsAnyRecycleSubsetAndRemainingTopOrder",
+          "outcome": "Passed"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.OfficialInsightTriggerTests.LibraryWaitsForResponseThenPrivatelyKeepsOrRecycles(recycle: False)",
+          "method": "Riftbound.ConformanceTests.OfficialInsightTriggerTests.LibraryWaitsForResponseThenPrivatelyKeepsOrRecycles",
+          "outcome": "Passed"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.OfficialInsightTriggerTests.VisionaryDestructionCostAllowsAnyRecycleSubsetAndRemainingTopOrder(recycleCount: 2)",
+          "method": "Riftbound.ConformanceTests.OfficialInsightTriggerTests.VisionaryDestructionCostAllowsAnyRecycleSubsetAndRemainingTopOrder",
+          "outcome": "Passed"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.OfficialInsightTriggerTests.LibraryUsesControlVisibilityCardTypeAndActuallyPaidMana(controller: \"P2\", faceDown: False, card: \"OGN·083/298\", echo: False)",
+          "method": "Riftbound.ConformanceTests.OfficialInsightTriggerTests.LibraryUsesControlVisibilityCardTypeAndActuallyPaidMana",
+          "outcome": "Passed"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.OfficialInsightTriggerTests.EveryControlledLibraryQueuesAnIndependentTrigger",
+          "method": "Riftbound.ConformanceTests.OfficialInsightTriggerTests.EveryControlledLibraryQueuesAnIndependentTrigger",
+          "outcome": "Passed"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.OfficialInsightTriggerTests.DamageDeathTriggersButRecallReplacementDoesNot(replaced: True)",
+          "method": "Riftbound.ConformanceTests.OfficialInsightTriggerTests.DamageDeathTriggersButRecallReplacementDoesNot",
+          "outcome": "Passed"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.OfficialInsightTriggerTests.LibraryUsesControlVisibilityCardTypeAndActuallyPaidMana(controller: \"P1\", faceDown: False, card: \"SFD·125/221\", echo: False)",
+          "method": "Riftbound.ConformanceTests.OfficialInsightTriggerTests.LibraryUsesControlVisibilityCardTypeAndActuallyPaidMana",
+          "outcome": "Passed"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.OfficialInsightTriggerTests.LibraryUsesControlVisibilityCardTypeAndActuallyPaidMana(controller: \"P1\", faceDown: False, card: \"OGN·064/298\", echo: False)",
+          "method": "Riftbound.ConformanceTests.OfficialInsightTriggerTests.LibraryUsesControlVisibilityCardTypeAndActuallyPaidMana",
+          "outcome": "Passed"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.OfficialInsightTriggerTests.DamageDeathTriggersButRecallReplacementDoesNot(replaced: False)",
+          "method": "Riftbound.ConformanceTests.OfficialInsightTriggerTests.DamageDeathTriggersButRecallReplacementDoesNot",
+          "outcome": "Passed"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.OfficialInsightTriggerTests.CapturedLibrarySurvivesControlChangeAndUsesCurrentDeckTop",
+          "method": "Riftbound.ConformanceTests.OfficialInsightTriggerTests.CapturedLibrarySurvivesControlChangeAndUsesCurrentDeckTop",
+          "outcome": "Passed"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.OfficialInsightTriggerTests.LibraryUsesControlVisibilityCardTypeAndActuallyPaidMana(controller: \"P1\", faceDown: True, card: \"OGN·083/298\", echo: False)",
+          "method": "Riftbound.ConformanceTests.OfficialInsightTriggerTests.LibraryUsesControlVisibilityCardTypeAndActuallyPaidMana",
+          "outcome": "Passed"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.OfficialInsightTriggerTests.LibraryWaitsForResponseThenPrivatelyKeepsOrRecycles(recycle: True)",
+          "method": "Riftbound.ConformanceTests.OfficialInsightTriggerTests.LibraryWaitsForResponseThenPrivatelyKeepsOrRecycles",
+          "outcome": "Passed"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.OfficialInsightTriggerTests.ShortDeckInsightDoesAsMuchAsPossibleWithoutBurnout(remaining: 0)",
+          "method": "Riftbound.ConformanceTests.OfficialInsightTriggerTests.ShortDeckInsightDoesAsMuchAsPossibleWithoutBurnout",
+          "outcome": "Passed"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.OfficialInsightTriggerTests.LibraryUsesControlVisibilityCardTypeAndActuallyPaidMana(controller: \"P1\", faceDown: False, card: \"OGN·064/298\", echo: True)",
+          "method": "Riftbound.ConformanceTests.OfficialInsightTriggerTests.LibraryUsesControlVisibilityCardTypeAndActuallyPaidMana",
+          "outcome": "Passed"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.OfficialInsightTriggerTests.VisionaryDestructionCostAllowsAnyRecycleSubsetAndRemainingTopOrder(recycleCount: 0)",
+          "method": "Riftbound.ConformanceTests.OfficialInsightTriggerTests.VisionaryDestructionCostAllowsAnyRecycleSubsetAndRemainingTopOrder",
+          "outcome": "Passed"
+        },
+        {
+          "case": "Riftbound.ConformanceTests.OfficialInsightTriggerTests.ShortDeckInsightDoesAsMuchAsPossibleWithoutBurnout(remaining: 1)",
+          "method": "Riftbound.ConformanceTests.OfficialInsightTriggerTests.ShortDeckInsightDoesAsMuchAsPossibleWithoutBurnout",
+          "outcome": "Passed"
+        }
+      ],
+      "selectedClassCasesAreNotAllExactPrintingSemantics": true,
+      "wholePrintingCertified": false,
+      "implementationAndWholeSemanticReview": "OPEN_REQUIRES_BRANCH_REVIEW"
+    }
+  ],
+  "allOriginal70Consumer1740Printing14293RuleIdsRetained": true,
+  "existingVanillaOnlyAndExplicitDeferredFixtureNotesPreserved": true,
+  "selectedOrnnAndLibraryDedicatedTestsExistDespiteNoExplicitReviewSubjectLink": true,
+  "noAbsenceConclusionFromSearchOnly": true,
+  "noRootSourceBinGovernanceMutation": true,
+  "wholePrintingOrGoalCertified": false
+}

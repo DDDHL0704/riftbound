@@ -16434,8 +16434,10 @@ internal static class ActionPromptBuilder
 
     private static IEnumerable<string> PublicBattlefieldCardObjects(MatchState state)
     {
-        return state.PlayerZones.Values
-            .SelectMany(zones => zones.Battlefields)
+        return state.PlayerZones
+            .OrderBy(entry => state.Seats.GetValueOrDefault(entry.Key), StringComparer.Ordinal)
+            .ThenBy(entry => entry.Key, StringComparer.Ordinal)
+            .SelectMany(entry => entry.Value.Battlefields)
             .Where(objectId => state.CardObjects.TryGetValue(objectId, out var cardObject)
                 && IsPromptBattlefieldCardObject(cardObject));
     }
@@ -18654,6 +18656,9 @@ public sealed partial class MatchSession : IMatchSession
         return scenarioId switch
         {
             "basic-play" => BuildBasicPlayScenario(current, seed),
+            "final-conquest-draw" or "final-conquest-win" or "final-conquest-burnout"
+                or "final-conquest-brush" or "final-conquest-combat"
+                => BuildFinalConquestScenario(current, seed, scenarioId["final-conquest-".Length..]),
             "lightning-rush-normal" or "lightning-rush-flow" or "lightning-rush-flow-empty" or "lightning-rush-flow-echo"
                 or "lightning-rush-observed" or "lightning-rush-flow-counter" or "lightning-rush-flow-return-counter" or "lightning-rush-flow-control"
                 => BuildLightningRushScenario(current, seed, scenarioId["lightning-rush-".Length..]),

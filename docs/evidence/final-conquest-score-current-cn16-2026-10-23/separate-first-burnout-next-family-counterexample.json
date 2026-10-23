@@ -1,0 +1,63 @@
+{
+  "status": "REPRODUCED_FIRST_BURNOUT_WIN_STOPS_ORIGINAL_REPLACEMENT_DRAW",
+  "expectedHand": 4,
+  "actualHand": 3,
+  "expectedRemainingDeck": 2,
+  "actualRemainingDeck": 3,
+  "actualBurnouts": 1,
+  "actualOpponentScore": 8,
+  "actualWinner": "P2",
+  "originalAcceptedCommands": 3,
+  "originalReplayMatchesActualState": true,
+  "actualLoadedFourAssemblies": {
+    "baseDirectory": "/Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.PostgresAcceptance/bin/Debug/net10.0/",
+    "actualRuleInputs": {
+      "schemaVersion": 1,
+      "region": "CN",
+      "language": "zh-CN",
+      "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+      "catalogSha256": "0aa8f812dc6f561f9fb1996381bae9821bd54d069f3ad26be7fe669baae9ae6c",
+      "implementationSha256": "999cae58bc39aff6b7ea100ccce36e0d0090f749c2e47f4091f8aa700d8fcdb2",
+      "identitySha256": "2ba9066ff521e4814999b08f3ed9a994c17ba07a5a70a0d406a04675d6290f5f"
+    },
+    "assemblies": [
+      {
+        "name": "Riftbound.Engine",
+        "path": "/Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.PostgresAcceptance/bin/Debug/net10.0/Riftbound.Engine.dll",
+        "mvid": "04c303a9-2734-4923-81cd-462a36d7ca69",
+        "sha256": "e90465bd596c9bbd8a93f8c8033b1c4f3d0176d42332306898ef81a1f8ea94f5"
+      },
+      {
+        "name": "Riftbound.Contracts",
+        "path": "/Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.PostgresAcceptance/bin/Debug/net10.0/Riftbound.Contracts.dll",
+        "mvid": "dac4ef9a-2d7c-4e18-95ae-774be4344e94",
+        "sha256": "ea6d79ddc57f09a87b14d838b41ef5c0d65d6621297646bf25cbd37c963d43f1"
+      },
+      {
+        "name": "Riftbound.CardCatalog",
+        "path": "/Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.PostgresAcceptance/bin/Debug/net10.0/Riftbound.CardCatalog.dll",
+        "mvid": "dbb9c8fa-cff9-4b76-a1d7-397f183119d5",
+        "sha256": "81bd3f70b5fde958723b2c6230506d8bfd782b8220669a132c5e180b0fb676c4"
+      },
+      {
+        "name": "Riftbound.Persistence",
+        "path": "/Users/dinghaolin/MyProjects/riftbound/tests/Riftbound.PostgresAcceptance/bin/Debug/net10.0/Riftbound.Persistence.dll",
+        "mvid": "6d390e2f-e8b8-4d0d-9f7e-cff7f027da57",
+        "sha256": "8100c2347d06cea51698e541c0d13df2909af0c492d12963853d3f6c7888bf82"
+      }
+    ]
+  },
+  "primaryCoreSha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11",
+  "exactClauseAnchors": [
+    "303.1",
+    "321",
+    "414.4.c",
+    "432.2.d",
+    "432.3.c",
+    "432.3.c.1",
+    "474"
+  ],
+  "controlledPositionNotOrdinaryOpening": true,
+  "noRootSourceBinOrSqlMutation": true,
+  "notFullDrawFamilyCertification": true
+}

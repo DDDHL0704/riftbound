@@ -12890,6 +12890,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 PlayerZones = playerZones,
                 CardObjects = cardObjects,
                 PlayerScores = playerScores,
+                RngCursor = rngCursor,
                 UntilEndOfTurnEffects = untilEndOfTurnEffects
             };
             if (TryApplyBattlefieldScore(
@@ -12904,11 +12905,13 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     combatEvents,
                     out var conquestPlayerScores,
                     out var conquestWinnerPlayerId,
-                    out var conquestUntilEndOfTurnEffects))
+                    out var conquestUntilEndOfTurnEffects,
+                    out var conquestRngCursor))
             {
                 playerScores = conquestPlayerScores;
                 winnerPlayerId = conquestWinnerPlayerId ?? winnerPlayerId;
                 untilEndOfTurnEffects = conquestUntilEndOfTurnEffects;
+                rngCursor = conquestRngCursor;
             }
 
             var conquestEffects = ResolveConquestTriggerEffects(
@@ -19969,11 +19972,13 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     events,
                     out var scoredPlayerScores,
                     out var scoredWinnerPlayerId,
-                    out var scoredUntilEndOfTurnEffects))
+                    out var scoredUntilEndOfTurnEffects,
+                    out var scoredRngCursor))
             {
                 playerScores = scoredPlayerScores;
                 winnerPlayerId = scoredWinnerPlayerId;
                 untilEndOfTurnEffects = scoredUntilEndOfTurnEffects;
+                state = state with { RngCursor = scoredRngCursor };
             }
 
             state = ResolveConquestTriggerEffects(
@@ -34447,7 +34452,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     events,
                     out var scoredPlayerScores,
                     out var scoredWinnerPlayerId,
-                    out var scoredUntilEndOfTurnEffects))
+                    out var scoredUntilEndOfTurnEffects,
+                    out _))
             {
                 continue;
             }
@@ -34471,7 +34477,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
     private static bool TryApplyBattlefieldScore(
         MatchState state,
-        IReadOnlyDictionary<string, PlayerZones> playerZones,
+        Dictionary<string, PlayerZones> playerZones,
         IReadOnlyDictionary<string, CardObjectState> cardObjects,
         IReadOnlyDictionary<string, int> playerScores,
         string playerId,
@@ -34481,11 +34487,13 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         List<GameEvent> events,
         out IReadOnlyDictionary<string, int> nextPlayerScores,
         out string? winnerPlayerId,
-        out IReadOnlyList<string> nextUntilEndOfTurnEffects)
+        out IReadOnlyList<string> nextUntilEndOfTurnEffects,
+        out long nextRngCursor)
     {
         nextPlayerScores = playerScores;
         winnerPlayerId = null;
         nextUntilEndOfTurnEffects = state.UntilEndOfTurnEffects;
+        nextRngCursor = state.RngCursor;
         if (!TryGetBattlefieldCardObject(playerZones, cardObjects, battlefieldId, out var battlefieldObjectId, out _))
         {
             return false;
@@ -34513,6 +34521,37 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return false;
         }
 
+        var scoredFields = MarkBattlefieldScoredThisTurn(
+            state.UntilEndOfTurnEffects,
+            battlefieldObjectId,
+            playerId);
+        nextUntilEndOfTurnEffects = scoredFields;
+        var returnContext = P6TokenFactoryCatalog.IsBrushBattlefieldToken(cardObjects[battlefieldObjectId].CardNo)
+            ? new HeldTriggerContext(cardObjects[battlefieldObjectId].CardNo!, battlefieldObjectId,
+                "BRUSH_RETURN", 0, cardObjects[battlefieldObjectId].ObjectGeneration) : null;
+        // CN 473.1.b: the scoring action still occurs when its final conquest
+        // point is replaced by a draw. Count the current field before testing all fields.
+        if (reason == "BATTLEFIELD_CONQUERED_SCORE"
+            && playerScores.GetValueOrDefault(playerId) >= winningScore - 1
+            && playerZones.Values.SelectMany(zones => zones.Battlefields)
+                .Distinct(StringComparer.Ordinal)
+                .Any(id => cardObjects.TryGetValue(id, out var card) && IsBattlefieldCardObject(card)
+                    && !BattlefieldScoredThisTurn(scoredFields, id, playerId)))
+        {
+            events.Add(new GameEvent("BATTLEFIELD_SCORE_REPLACED_BY_DRAW", "征服的最后一分改为抽一张牌",
+                new Dictionary<string, object?> {
+                    ["playerId"] = playerId, ["reason"] = reason, ["sourceObjectId"] = battlefieldObjectId,
+                    ["battlefieldObjectId"] = battlefieldObjectId, ["count"] = 1,
+                    ["battlefieldReturnContext"] = returnContext }));
+            var draw = ApplyDrawToPlayer(state with {
+                PlayerZones = playerZones, CardObjects = cardObjects, UntilEndOfTurnEffects = nextUntilEndOfTurnEffects },
+                playerZones, playerScores, playerId, 1, state.RngCursor, events);
+            nextPlayerScores = draw.PlayerScores;
+            winnerPlayerId = draw.WinnerPlayerId;
+            nextRngCursor = draw.RngCursor;
+            return true;
+        }
+
         var mutablePlayerScores = playerZones.Keys.ToDictionary(
             scorePlayerId => scorePlayerId,
             scorePlayerId => playerScores.TryGetValue(scorePlayerId, out var score) ? score : 0,
@@ -34521,11 +34560,6 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             ? currentScore + 1
             : 1;
         winnerPlayerId = WinningPlayerId(mutablePlayerScores, winningScore);
-        nextUntilEndOfTurnEffects = MarkBattlefieldScoredThisTurn(
-            state.UntilEndOfTurnEffects,
-            battlefieldObjectId,
-            playerId);
-
         events.Add(new GameEvent(
             "SCORE_GAINED",
             $"{playerId} 获得 1 分",
@@ -34537,8 +34571,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 ["reason"] = reason,
                 ["sourceObjectId"] = battlefieldObjectId,
                 ["battlefieldObjectId"] = battlefieldObjectId,
-                ["battlefieldReturnContext"] = P6TokenFactoryCatalog.IsBrushBattlefieldToken(cardObjects[battlefieldObjectId].CardNo)
-                    ? new HeldTriggerContext(cardObjects[battlefieldObjectId].CardNo!, battlefieldObjectId, "BRUSH_RETURN", 0, cardObjects[battlefieldObjectId].ObjectGeneration) : null
+                ["battlefieldReturnContext"] = returnContext
             }));
         if (winnerPlayerId is not null)
         {

@@ -1,0 +1,61 @@
+{
+  "atUtc": "2026-10-23T01:44:23.960403+00:00",
+  "status": "PASS_BOUNDED_FINAL_CONQUEST_AND_EXACT_PRIVATE_PROMPT_ORDER_ALL_ORIGINAL_RETENTION",
+  "baseCommit": "f248d7774aca8776d288bb5d702e0b545b116a7e",
+  "newCases": 20,
+  "newMethods": 13,
+  "focusedCases": 102,
+  "focusedMethods": 81,
+  "exactSixOriginalCompleteMethods": [
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.DistinctOfficialLowCurveDecksReachScoreVictoryAfterRealBattleThroughServerPrompts",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameResolvesCandlelitSanctumConquerRevealRecycleAndScoreVictoryActionLogReplaysToFinalStateHash",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameResolvesPiltoverAcademyHeldNextSpellEchoAndScoreVictoryActionLogReplaysToFinalStateHash",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDecksResolveWinningScoreIncreaseAndScoreVictoryActionLogReplaysToFinalStateHash",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialLowCurveDecksReachScoreVictoryAfterRealBattleThroughServerPrompts",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.StandbyHeavyOfficialLowCurveDecksReachScoreVictoryAfterRealBattleThroughServerPrompts"
+  ],
+  "soleCheckCases": 13658,
+  "soleCheckMethods": 7615,
+  "allPrior13638CheckCases7602MethodsRetainedPlus20Cases13MethodsOnly": true,
+  "all3378SourcesModesAndCapturedRuntimeInputsStable": true,
+  "all1820OriginalConformanceFilesByteExact": true,
+  "allNineFullGameSourceHashes": {
+    "tests/Riftbound.ConformanceTests/FullGameEndToEndTests.AbilityCounters.cs": "cb22a9f99b3c7a04b5e43b206bcd6103c354d1104d66c1afe98c65d69c0030c8",
+    "tests/Riftbound.ConformanceTests/FullGameEndToEndTests.AttachedRuleText.cs": "9060a2f104b644c91a0582b714c1cf84920a9ec65636e968734c93a7c40b31f7",
+    "tests/Riftbound.ConformanceTests/FullGameEndToEndTests.AttachmentModes.cs": "b2367853c297452804ea2abba698d4091df56e9033b746effe89bb61de87fa39",
+    "tests/Riftbound.ConformanceTests/FullGameEndToEndTests.AttackDamage.cs": "ebd30b96a75712ddc672b6ee36e9256d21db9afdaaa80c50fa4dad5831ac48b8",
+    "tests/Riftbound.ConformanceTests/FullGameEndToEndTests.Azir.cs": "1264a5a522abfb7c0b69a018c924b9e7414213d476357de4a2f7dd6e7c0aa710",
+    "tests/Riftbound.ConformanceTests/FullGameEndToEndTests.CopiedAttachment.cs": "b679ac9beba8839ed89fc0ece94d57f4d5db02623ff5d7a17433653b95a4ae37",
+    "tests/Riftbound.ConformanceTests/FullGameEndToEndTests.MovementDiscard.cs": "7d9145c135ca7c8c25756e1fb283907da93894125e0c9e0ee1d8bf034065e99a",
+    "tests/Riftbound.ConformanceTests/FullGameEndToEndTests.Tempered.cs": "60e4a732bfba46be843c1997ed83cebd620a822cd33e2abdc2122a9a36b28830",
+    "tests/Riftbound.ConformanceTests/FullGameEndToEndTests.cs": "1fd8423eeb7f46ae10096ac260c2c1b380a34d714bcbdc73cbc90bc9926519ac"
+  },
+  "all143OriginalMethods151Cases110Pairs11DecksSeed424242VictoryReplayAssertionsRetained": true,
+  "originalScoreAndJsonbRedFailuresAndTestSetupFailuresRetained": true,
+  "actualDebugRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "0aa8f812dc6f561f9fb1996381bae9821bd54d069f3ad26be7fe669baae9ae6c",
+    "implementationSha256": "999cae58bc39aff6b7ea100ccce36e0d0090f749c2e47f4091f8aa700d8fcdb2",
+    "identitySha256": "2ba9066ff521e4814999b08f3ed9a994c17ba07a5a70a0d406a04675d6290f5f"
+  },
+  "originalE81SevenRoomsRemainFailedProjectionNotRewritten": true,
+  "current2baSevenRoomsIndependentOriginalSql": {
+    "commands": 49,
+    "events": 129,
+    "authority": 49,
+    "snapshots": 91,
+    "prompts": 91,
+    "prefixReplays": 49,
+    "actualForgeryRefusals": 1
+  },
+  "allOriginal62SqlCaseObjectsAndOrderRetainedPlusOne": true,
+  "expectedNextFixedFullCases": 13807,
+  "expectedNextFixedFullMethods": 7756,
+  "expectedSqlCases": 63,
+  "firstBurnoutCleanupIssue98StillOpen": true,
+  "currentFixedFullAndProducts": "OPEN",
+  "wholePrintingOrGoalCertified": false
+}

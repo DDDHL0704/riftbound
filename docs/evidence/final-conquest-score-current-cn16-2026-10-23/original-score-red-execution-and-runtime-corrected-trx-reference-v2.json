@@ -1,0 +1,73 @@
+{
+  "atUtc": "2026-10-22T23:42:45.344580+00:00",
+  "baseCommit": "f248d7774aca8776d288bb5d702e0b545b116a7e",
+  "cases": 3,
+  "failed": 1,
+  "passed": 2,
+  "failures": [
+    "Riftbound.ConformanceTests.FinalConquestPointTests.ConquestAtSevenDrawsInsteadUnlessEveryOtherBattlefieldAlreadyScoredThisTurn(otherScored: False)"
+  ],
+  "trxSha256": "d5e92475d220cab4a15bba5d81f9b8cd2fb88fb4e8d90f686975d3f4b72694f7",
+  "executedOwnAssemblies": {
+    "Riftbound.Api.dll": {
+      "sha256": "d21765bfce3eda263134aa5116842678e6b4905d2ca64ca6fff1b84c050325ac",
+      "bytes": 121344
+    },
+    "Riftbound.Api.pdb": {
+      "sha256": "a955a1642ed78b4903685616d87d262c9d48028aef17eaf0a58602e10bc508f7",
+      "bytes": 44856
+    },
+    "Riftbound.CardCatalog.dll": {
+      "sha256": "81bd3f70b5fde958723b2c6230506d8bfd782b8220669a132c5e180b0fb676c4",
+      "bytes": 347136
+    },
+    "Riftbound.CardCatalog.pdb": {
+      "sha256": "99aeaa0049ad2b7aace28b73855f13d1e708331c78ba84ecd9ce914bef86e652",
+      "bytes": 68836
+    },
+    "Riftbound.ConformanceTests.dll": {
+      "sha256": "3dc232e8d43c03a30a3efd6a06f4767039a9d0b92a1d5e8416a43923b2099d6f",
+      "bytes": 25007616
+    },
+    "Riftbound.ConformanceTests.pdb": {
+      "sha256": "d4edffcf7e0736496f4bc575522ed685e5401e1086f012f7758f285bf71c8ae2",
+      "bytes": 4236188
+    },
+    "Riftbound.Contracts.dll": {
+      "sha256": "ea6d79ddc57f09a87b14d838b41ef5c0d65d6621297646bf25cbd37c963d43f1",
+      "bytes": 345088
+    },
+    "Riftbound.Contracts.pdb": {
+      "sha256": "5b7f927966033f39023f567b282a20d0c37cbe1d9201b3dbddf6e5a44bff9593",
+      "bytes": 57344
+    },
+    "Riftbound.Engine.dll": {
+      "sha256": "6e8dc3e948ee2844191eb85bb642631a61e9ccf8262f72f7c28da3d0ee6824be",
+      "bytes": 4779008
+    },
+    "Riftbound.Engine.pdb": {
+      "sha256": "5faee0e4cfc7160ca8947d4f2b81f744685df96b4ec861e34f22a608a2efa6d1",
+      "bytes": 1033344
+    },
+    "Riftbound.Persistence.dll": {
+      "sha256": "2712b71a164e9d9e42df8baf884fb348a54dc06b437428c5583c09f64507ae0d",
+      "bytes": 120832
+    },
+    "Riftbound.Persistence.pdb": {
+      "sha256": "10ceebaeb9e294186017d46e39f9bb78d135ff5a2b88d3fbb2b294a13450cb5d",
+      "bytes": 47256
+    }
+  },
+  "noProductionMutationBeforeRed": true,
+  "actualCurrentCorePhysicalPage096ReadByModel": true,
+  "coreRenderSha256": "4c547473e432dfc3b75cd6e1e307dfb6a3bce74245c0905b57cf850302e031d1",
+  "ruleConclusion": "CN effective2026-10-16 473.1.b.1: final conquest point replaced by draw unless every battlefield scored this turn; scoring action and conquest skills remain separate.",
+  "wholePrintingOrGoalCertified": false,
+  "originalMetadataFieldCorrection": {
+    "originalReceipt": "var/qa/final-conquest-score-current-cn16-20261023/original-red-confirmed-and-executed-inputs-v1.json",
+    "originalReceiptSha256": "249eebcc9be27e986626f78df09d8236022270ed5f31cb744c10ad3db9543766",
+    "originalMislabeledTrxSha256WasActualAssembly": "Riftbound.Persistence.pdb",
+    "onlyTrxHashLabelCorrected": true,
+    "noRuleTestSourceExecutionOrOracleChanged": true
+  }
+}

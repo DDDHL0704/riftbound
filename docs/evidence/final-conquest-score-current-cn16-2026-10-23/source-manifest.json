@@ -1,0 +1,646 @@
+{
+  "schemaVersion": 1,
+  "id": "final-conquest-score-current-cn16-2026-10-23",
+  "atUtc": "2026-10-23T01:44:42.345221+00:00",
+  "region": "CN",
+  "language": "zh-CN",
+  "applicableAsOf": "2026-10-23",
+  "adoptedCoreEffectiveDate": "2026-10-16",
+  "baseCommit": "f248d7774aca8776d288bb5d702e0b545b116a7e",
+  "issues": [
+    "https://github.com/DDDHL0704/riftbound/issues/96",
+    "https://github.com/DDDHL0704/riftbound/issues/97"
+  ],
+  "scope": "Current CN16 final conquest point action and draw replacement, actual score threshold, first/subsequent scoring markers, combat/noncombat callers, hold/direct-point exemptions and Brush return; exact private DECLARE_BATTLE candidate order survives JSONB player dictionary reordering. First-burnout cleanup issue98 and whole draw/cleanup/card families remain open.",
+  "exactPrintings": [
+    "SFD-125/221",
+    "SFD-088/221",
+    "OGN-052/298",
+    "OGN-004/298",
+    "OGN-083/298",
+    "OGN-096/298",
+    "OGN-276/298",
+    "OGN-280/298",
+    "OGN-282/298",
+    "OGN-296/298",
+    "OGN-298/298",
+    "UNL-T03"
+  ],
+  "individualPrintingDatesRemainNull": [
+    {
+      "existingPrintingId": "SFD-125/221",
+      "actualRegionalCardNo": "SFD·125/221",
+      "actualApiId": 33215,
+      "canonicalRowSha256": "f4dd5b4e6f0c3e3cda40733f4b6502fb075a9140c31bf817502fc527f98bbf25",
+      "individualPublicationDate": null,
+      "individualEffectiveDate": null,
+      "wholePrintingCertified": false
+    },
+    {
+      "existingPrintingId": "SFD-088/221",
+      "actualRegionalCardNo": "SFD·088/221",
+      "actualApiId": 33171,
+      "canonicalRowSha256": "2d33b74798ec385a593beb25c0e1726998059791bb17d73365f058ff0f1683c1",
+      "individualPublicationDate": null,
+      "individualEffectiveDate": null,
+      "wholePrintingCertified": false
+    },
+    {
+      "existingPrintingId": "OGN-052/298",
+      "actualRegionalCardNo": "OGN·052/298",
+      "actualApiId": 31264,
+      "canonicalRowSha256": "63ee0af22b7f6dc88e495f475a01be78758838d922690c25726be07da9b8b696",
+      "individualPublicationDate": null,
+      "individualEffectiveDate": null,
+      "wholePrintingCertified": false
+    },
+    {
+      "existingPrintingId": "OGN-004/298",
+      "actualRegionalCardNo": "OGN·004/298",
+      "actualApiId": 31208,
+      "canonicalRowSha256": "7fe3b0cd943c8acfea319ce7a569c9436d2b5084a44678c275b7ad3400b917a9",
+      "individualPublicationDate": null,
+      "individualEffectiveDate": null,
+      "wholePrintingCertified": false
+    },
+    {
+      "existingPrintingId": "OGN-083/298",
+      "actualRegionalCardNo": "OGN·083/298",
+      "actualApiId": 31299,
+      "canonicalRowSha256": "5bb29ad3eed45d51c55cb823a92dcc15b70a21b22c5d54075bda7a68530f8d69",
+      "individualPublicationDate": null,
+      "individualEffectiveDate": null,
+      "wholePrintingCertified": false
+    },
+    {
+      "existingPrintingId": "OGN-096/298",
+      "actualRegionalCardNo": "OGN·096/298",
+      "actualApiId": 31314,
+      "canonicalRowSha256": "01ff74b20a61e36123d049c0092fb8a0c4be73868b5d7ef8415f8284d50f1044",
+      "individualPublicationDate": null,
+      "individualEffectiveDate": null,
+      "wholePrintingCertified": false
+    },
+    {
+      "existingPrintingId": "OGN-276/298",
+      "actualRegionalCardNo": "OGN·276/298",
+      "actualApiId": 37952,
+      "canonicalRowSha256": "37acd8219b6fb044a780584d1a59223a12bf678e1323fa90c06d78b1f05de271",
+      "individualPublicationDate": null,
+      "individualEffectiveDate": null,
+      "wholePrintingCertified": false
+    },
+    {
+      "existingPrintingId": "OGN-280/298",
+      "actualRegionalCardNo": "OGN·280/298",
+      "actualApiId": 31525,
+      "canonicalRowSha256": "d89a8b2383cf6abf0ff1be8e2de02e1567d9bda693d8dcb3cc763d6fff88a927",
+      "individualPublicationDate": null,
+      "individualEffectiveDate": null,
+      "wholePrintingCertified": false
+    },
+    {
+      "existingPrintingId": "OGN-282/298",
+      "actualRegionalCardNo": "OGN·282/298",
+      "actualApiId": 31527,
+      "canonicalRowSha256": "1710cf9bc174479db05f5140c689ab1a2a01bb82b65c1084918c9cd3a20dbc35",
+      "individualPublicationDate": null,
+      "individualEffectiveDate": null,
+      "wholePrintingCertified": false
+    },
+    {
+      "existingPrintingId": "OGN-296/298",
+      "actualRegionalCardNo": "OGN·296/298",
+      "actualApiId": 31542,
+      "canonicalRowSha256": "9fa932ab5a4c0e77e7c0364527fc4c2b57362d6aa021e51c5640fd0dbe69dbd4",
+      "individualPublicationDate": null,
+      "individualEffectiveDate": null,
+      "wholePrintingCertified": false
+    },
+    {
+      "existingPrintingId": "OGN-298/298",
+      "actualRegionalCardNo": "OGN·298/298",
+      "actualApiId": 31544,
+      "canonicalRowSha256": "45d961aa1ec20062d9a2d50b66794adc8a53afe80ec72e2914c727cfff74a081",
+      "individualPublicationDate": null,
+      "individualEffectiveDate": null,
+      "wholePrintingCertified": false
+    },
+    {
+      "existingPrintingId": "UNL-T03",
+      "actualRegionalCardNo": "UNL·T03",
+      "actualApiId": 35176,
+      "canonicalRowSha256": "0df759c4437f4fefb3043c261adc91df99dec320f02ae45ddf3727b9783ba9c1",
+      "individualPublicationDate": null,
+      "individualEffectiveDate": null,
+      "wholePrintingCertified": false
+    }
+  ],
+  "currentCore": {
+    "url": "https://cdn.playloltcg.com/lol/2026/10/2026-10-10/a21ead876c6b44d6abe386b6ae54ea28.pdf",
+    "acquiredAtUtc": "2026-10-22T23:40:22.301550+00:00",
+    "httpStatus": 304,
+    "responseHeaders": {
+      "Etag": "\"fd4b064bd191585ab9789505ddc7c416\"",
+      "Content-Type": "application/pdf",
+      "Content-Disposition": "inline",
+      "Date": "Sat, 10 Oct 2026 00:27:22 GMT",
+      "Server": "tencent-cos",
+      "x-cos-hash-crc64ecma": "624345148193381469",
+      "x-cos-request-id": "NmFjOTg2NmFfOGEyZjY4MDlfOGQ3OF8yMTIzNzRhYw==",
+      "x-cos-server-side-encryption": "AES256",
+      "x-cos-storage-class": "MAZ_STANDARD",
+      "x-cosindex-replication-status": "Complete",
+      "Age": "1118941",
+      "X-NWS-LOG-UUID": "15810917470960840802",
+      "Connection": "close",
+      "X-Cache-Lookup": "Cache Hit",
+      "Cross-Origin-Resource-Policy": "cross-origin"
+    },
+    "sha256": "d6fd7140f106f9b5b3dc0d5817fd040110fe870a6da9ee335ba7f4f70f892d11",
+    "existingBytesPath": "var/qa/cn-effective-20261016/whole-rule-source-readback/CN/DOC-01.pdf",
+    "existingBytesVerified": true,
+    "actualNewPayloadRead": false,
+    "sameRegisteredContent": true,
+    "updatedDate": "2026-10-10",
+    "effectiveDate": "2026-10-16",
+    "unchangedPdfNotDuplicated": true
+  },
+  "currentKnownDirectory": {
+    "url": "https://lol-api.playloltcg.com/xcx/gameRule/getGameRuleList",
+    "httpStatus": 200,
+    "rawSha256": "b8601894abc20fc224190b883991206c1b9a9ca7ec83f898b520603a191fa414",
+    "rawBytes": 4527,
+    "originalArchive": "var/qa/final-conquest-score-current-cn16-20261023/current-rule-directory-original-v1.json.gz",
+    "archiveSha256": "3e42b741d3813ccf5419fcc148555c338b6e2dd59156154ffb17358a7385b69e",
+    "all14CompleteRowsFieldsNullsOrderEqual": true,
+    "rowCount": 14,
+    "allOriginalSixteenKnownDocumentsRetained": true
+  },
+  "sourceRuleRecords": [
+    {
+      "existingCanonicalId": "CN-d6fd7140f106f9b5-P095-B022",
+      "sourceRecord": {
+        "id": "DOC-01-P095-B022",
+        "document": "DOC-01",
+        "page": 95,
+        "clauseAnchors": [
+          "470.1"
+        ],
+        "text": "470.1.           得分行动 与获得分数 是两个不同的过程。得分行动 可能会让玩家获得分数 ,但两者没有必然联系。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      }
+    },
+    {
+      "existingCanonicalId": "CN-d6fd7140f106f9b5-P096-B003",
+      "sourceRecord": {
+        "id": "DOC-01-P096-B003",
+        "document": "DOC-01",
+        "page": 96,
+        "clauseAnchors": [
+          "471.1"
+        ],
+        "text": "471.1.             征服: 玩家获得一处战场 的控制权 (该战场必须是玩家尚未在本回合得分 的场地)。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      }
+    },
+    {
+      "existingCanonicalId": "CN-d6fd7140f106f9b5-P096-B007",
+      "sourceRecord": {
+        "id": "DOC-01-P096-B007",
+        "document": "DOC-01",
+        "page": 96,
+        "clauseAnchors": [
+          "472"
+        ],
+        "text": "472.         每个回合,玩家只能通过征服和据守从每个战场获得一分。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      }
+    },
+    {
+      "existingCanonicalId": "CN-d6fd7140f106f9b5-P096-B011",
+      "sourceRecord": {
+        "id": "DOC-01-P096-B011",
+        "document": "DOC-01",
+        "page": 96,
+        "clauseAnchors": [
+          "473.1.a.1"
+        ],
+        "text": "473.1.a.1.                   注意,只有通过征服获得的分数才会受到此限制。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      }
+    },
+    {
+      "existingCanonicalId": "CN-d6fd7140f106f9b5-P096-B012",
+      "sourceRecord": {
+        "id": "DOC-01-P096-B012",
+        "document": "DOC-01",
+        "page": 96,
+        "clauseAnchors": [
+          "473.1.b"
+        ],
+        "text": "473.1.b.               当玩家试图通过征服获得分数,且其当前总分数为当前游戏模式胜利得分 减 1 或更高时,会发生以下情\n                       况:",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      }
+    },
+    {
+      "existingCanonicalId": "CN-d6fd7140f106f9b5-P096-B013",
+      "sourceRecord": {
+        "id": "DOC-01-P096-B013",
+        "document": "DOC-01",
+        "page": 96,
+        "clauseAnchors": [
+          "473.1.b.1"
+        ],
+        "text": "473.1.b.1.                   如果该玩家在本回合已在每个战场得分,则该玩家获得最后一分。如果该玩家在本回合尚未在\n                             每个战场得分,则该玩家改为抽一张牌。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      }
+    },
+    {
+      "existingCanonicalId": "CN-d6fd7140f106f9b5-P096-B014",
+      "sourceRecord": {
+        "id": "DOC-01-P096-B014",
+        "document": "DOC-01",
+        "page": 96,
+        "clauseAnchors": [
+          "473.2"
+        ],
+        "text": "473.2.             在得分的战场上触发得分技能。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      }
+    },
+    {
+      "existingCanonicalId": "CN-d6fd7140f106f9b5-P096-B018",
+      "sourceRecord": {
+        "id": "DOC-01-P096-B018",
+        "document": "DOC-01",
+        "page": 96,
+        "clauseAnchors": [
+          "474"
+        ],
+        "text": "474.         当清理发生时,如果玩家累计的分数大于或等于其游戏模式的胜利得分,且分数高于所有对手,则该玩家赢得游戏。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      }
+    },
+    {
+      "existingCanonicalId": "CN-d6fd7140f106f9b5-P096-B015",
+      "sourceRecord": {
+        "id": "DOC-01-P096-B015",
+        "document": "DOC-01",
+        "page": 96,
+        "clauseAnchors": [
+          "473.2.a"
+        ],
+        "text": "473.2.a.               在被征服的战场上触发征服技能。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      }
+    },
+    {
+      "existingCanonicalId": "CN-d6fd7140f106f9b5-P096-B017",
+      "sourceRecord": {
+        "id": "DOC-01-P096-B017",
+        "document": "DOC-01",
+        "page": 96,
+        "clauseAnchors": [
+          "473.2.c"
+        ],
+        "text": "473.2.c.               这些技能仅会在战场得分时触发;即每名玩家每回合仅能触发一次。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      }
+    },
+    {
+      "existingCanonicalId": "CN-d6fd7140f106f9b5-P033-B009",
+      "sourceRecord": {
+        "id": "DOC-01-P033-B009",
+        "document": "DOC-01",
+        "page": 33,
+        "clauseAnchors": [
+          "303.1"
+        ],
+        "text": "303.1.            任何性质的游戏行动,同一时间内仅可进行一个,且必须完整执行。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      }
+    },
+    {
+      "existingCanonicalId": "CN-d6fd7140f106f9b5-P072-B010",
+      "sourceRecord": {
+        "id": "DOC-01-P072-B010",
+        "document": "DOC-01",
+        "page": 72,
+        "clauseAnchors": [
+          "414.4.c"
+        ],
+        "text": "414.4.c.             抽取完成抽牌行动所需的其余卡牌。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      }
+    },
+    {
+      "existingCanonicalId": "CN-d6fd7140f106f9b5-P082-B006",
+      "sourceRecord": {
+        "id": "DOC-01-P082-B006",
+        "document": "DOC-01",
+        "page": 82,
+        "clauseAnchors": [
+          "432.2.b"
+        ],
+        "text": "432.2.b.               将废牌堆的卡牌回收至主牌堆。\n                            提示:当多张卡牌同时被回收至主牌堆时,必须先行洗匀。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      }
+    },
+    {
+      "existingCanonicalId": "CN-d6fd7140f106f9b5-P082-B007",
+      "sourceRecord": {
+        "id": "DOC-01-P082-B007",
+        "document": "DOC-01",
+        "page": 82,
+        "clauseAnchors": [
+          "432.2.c"
+        ],
+        "text": "432.2.c.               选择一名对手,使其获得 1 分。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      }
+    },
+    {
+      "existingCanonicalId": "CN-d6fd7140f106f9b5-P082-B008",
+      "sourceRecord": {
+        "id": "DOC-01-P082-B008",
+        "document": "DOC-01",
+        "page": 82,
+        "clauseAnchors": [
+          "432.2.d"
+        ],
+        "text": "432.2.d.               完成原本让自己触发燃尽的剩余行动。\n                            举例:一名玩家在主牌堆耗尽的情况下,在抽牌步骤尝试抽取一张卡牌,因此触发燃尽。该玩\n                            家转而将废牌堆回收后放入主牌堆,照常洗匀;然后选择一名对手,使其获得 1 分;最后,该\n                            玩家抽一张牌。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      }
+    },
+    {
+      "existingCanonicalId": "CN-d6fd7140f106f9b5-P082-B009",
+      "sourceRecord": {
+        "id": "DOC-01-P082-B009",
+        "document": "DOC-01",
+        "page": 82,
+        "clauseAnchors": [
+          "432.3"
+        ],
+        "text": "432.3.            玩家的主牌堆可能在执行燃尽后仍然为空,这通常是因为其废牌堆同样为空。当其尝试再次执行原本触发燃尽的行\n                  动时,将再次触发燃尽。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      }
+    },
+    {
+      "existingCanonicalId": "CN-d6fd7140f106f9b5-P082-B012",
+      "sourceRecord": {
+        "id": "DOC-01-P082-B012",
+        "document": "DOC-01",
+        "page": 82,
+        "clauseAnchors": [
+          "432.3.c"
+        ],
+        "text": "432.3.c.               在按顺序处理第一个燃尽后获得的分数,如果使玩家的得分达到或超过该模式的胜利得分,并且该玩家的\n                       得分高于所有对手,则该玩家将获胜。\n                            举例:如果玩家的牌堆和废牌堆均为空,且将要抽一张牌,该玩家会开始反复燃尽。在首次燃\n                            尽结算后,任何后续燃尽只要让某位玩家的得分超过胜利得分,并且高于所有对手,该玩家就\n                            会赢得游戏。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      }
+    },
+    {
+      "existingCanonicalId": "CN-d6fd7140f106f9b5-P082-B013",
+      "sourceRecord": {
+        "id": "DOC-01-P082-B013",
+        "document": "DOC-01",
+        "page": 82,
+        "clauseAnchors": [
+          "432.3.c.1"
+        ],
+        "text": "432.3.c.1.                  该玩家立即获胜,无需等待清理发生。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      }
+    },
+    {
+      "existingCanonicalId": "CN-d6fd7140f106f9b5-P072-B001",
+      "sourceRecord": {
+        "id": "DOC-01-P072-B001",
+        "document": "DOC-01",
+        "page": 72,
+        "clauseAnchors": [
+          "414.1"
+        ],
+        "text": "414.1.          抽一张牌 是指从某区域拿取一张牌,并将其添加到玩家的手牌 中。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      }
+    },
+    {
+      "existingCanonicalId": "CN-d6fd7140f106f9b5-P072-B002",
+      "sourceRecord": {
+        "id": "DOC-01-P072-B002",
+        "document": "DOC-01",
+        "page": 72,
+        "clauseAnchors": [
+          "414.1.a"
+        ],
+        "text": "414.1.a.             除非另有说明,否则抽牌即为从主牌堆的顶部抽取卡牌。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      }
+    },
+    {
+      "existingCanonicalId": "CN-d6fd7140f106f9b5-P096-B006",
+      "sourceRecord": {
+        "id": "DOC-01-P096-B006",
+        "document": "DOC-01",
+        "page": 96,
+        "clauseAnchors": [
+          "471.2"
+        ],
+        "text": "471.2.             据守: 玩家保持一处战场 的控制权 (该战场必须是玩家尚未在本回合开始阶段得分 的场地)。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      }
+    },
+    {
+      "existingCanonicalId": "CN-d6fd7140f106f9b5-P096-B016",
+      "sourceRecord": {
+        "id": "DOC-01-P096-B016",
+        "document": "DOC-01",
+        "page": 96,
+        "clauseAnchors": [
+          "473.2.b"
+        ],
+        "text": "473.2.b.               在被据守的战场上触发据守技能。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      }
+    },
+    {
+      "existingCanonicalId": "CN-d6fd7140f106f9b5-P095-B023",
+      "sourceRecord": {
+        "id": "DOC-01-P095-B023",
+        "document": "DOC-01",
+        "page": 95,
+        "clauseAnchors": [
+          "470.2"
+        ],
+        "text": "470.2.           卡牌文本将以如下方式描述获得分数的过程:“获得 X 分”或者“获得的分数+X”。此处的“获得分数”并不是指得分行\n                 动 这一过程。",
+        "reviewStatus": "NOT_REVIEWED",
+        "implementation": [],
+        "tests": []
+      }
+    }
+  ],
+  "implementation": [
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+      "sha256": "1057291f996f33a4716d367e861348ae0f0a333f3e9b6ecb8a4ec032ec50af7d",
+      "role": "implementation"
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.BattlefieldReplacement.cs",
+      "sha256": "5542c4a1d5b92ac6a2fd71104a2a0cda767cf0d55e4f8de878444278c3cae079",
+      "role": "implementation"
+    },
+    {
+      "path": "src/Riftbound.Engine/MatchSession.cs",
+      "sha256": "65b46837c3842e8d669d91021046dc00b428323ca9aa010285f2ac1dc37a7aa3",
+      "role": "implementation"
+    },
+    {
+      "path": "src/Riftbound.Engine/MatchSession.FinalConquestScenario.cs",
+      "sha256": "dd9cd83bbb275054916a946da5ae4cfc50d48d57a2a0b33e204d2b3181d14e3e",
+      "role": "implementation"
+    }
+  ],
+  "verificationSources": [
+    {
+      "path": "tests/Riftbound.ConformanceTests/FinalConquestPointTests.cs",
+      "sha256": "33f4ceba17a1ec5c94ba5b4ca55e86d75b093a7d18140aec098373267b219785",
+      "role": "verification-source"
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/FinalConquestScoreLifecycleTests.cs",
+      "sha256": "c019bb9f978d6027342c43aebbce8c421ecabd99015d864caf7541a753de0e02",
+      "role": "verification-source"
+    },
+    {
+      "path": "tests/Riftbound.PostgresAcceptance/FinalConquestScoreSqlAcceptance.cs",
+      "sha256": "935157e60d5658f37f08df3e3b8a4947838a9f97f0f598bd25d1792e7b1da8ea",
+      "role": "verification-source"
+    },
+    {
+      "path": "tests/Riftbound.PostgresAcceptance/Program.cs",
+      "sha256": "358c6b5d523fcb4bceb9adeac1ed7ad4e5fb451d6dee5023afe8236be0a7cc4b",
+      "role": "verification-source"
+    },
+    {
+      "path": "tests/Riftbound.PostgresAcceptance/SqlAcceptanceCases.json",
+      "sha256": "af5b6c75a7e4e405a90a8188818d3fd9fdd65a31e4df85d90d64b2e25a811d88",
+      "role": "verification-source"
+    },
+    {
+      "path": "scripts/tests/test_sql_ci_gate.py",
+      "sha256": "d86062dd3c312c97bec8a15ecb8808d99c05b8448235df2f9d08e3f8e8f9c946",
+      "role": "verification-source"
+    }
+  ],
+  "actualDebugRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "0aa8f812dc6f561f9fb1996381bae9821bd54d069f3ad26be7fe669baae9ae6c",
+    "implementationSha256": "999cae58bc39aff6b7ea100ccce36e0d0090f749c2e47f4091f8aa700d8fcdb2",
+    "identitySha256": "2ba9066ff521e4814999b08f3ed9a994c17ba07a5a70a0d406a04675d6290f5f"
+  },
+  "currentSql": {
+    "commands": 49,
+    "events": 129,
+    "authority": 49,
+    "snapshots": 91,
+    "prompts": 91,
+    "prefixReplays": 49,
+    "actualForgeryRefusals": 1
+  },
+  "sourceUniverse1740And14293AndRuntime1037Unchanged": true,
+  "sourceVersionDeltasUnchanged": 7,
+  "soleCheckCases": 13658,
+  "soleCheckMethods": 7615,
+  "focusCases": 102,
+  "focusMethods": 81,
+  "sixOriginalFullGameMethods": [
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.DistinctOfficialLowCurveDecksReachScoreVictoryAfterRealBattleThroughServerPrompts",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameResolvesCandlelitSanctumConquerRevealRecycleAndScoreVictoryActionLogReplaysToFinalStateHash",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDeckMidgameResolvesPiltoverAcademyHeldNextSpellEchoAndScoreVictoryActionLogReplaysToFinalStateHash",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialDecksResolveWinningScoreIncreaseAndScoreVictoryActionLogReplaysToFinalStateHash",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.OfficialLowCurveDecksReachScoreVictoryAfterRealBattleThroughServerPrompts",
+    "Riftbound.ConformanceTests.FullGameEndToEndTests.StandbyHeavyOfficialLowCurveDecksReachScoreVictoryAfterRealBattleThroughServerPrompts"
+  ],
+  "newCases": 20,
+  "newMethods": 13,
+  "expectedNextFixedFullCases": 13807,
+  "expectedNextFixedFullMethods": 7756,
+  "expectedSqlCases": 63,
+  "expectedRemainingObligations": 17411,
+  "priorFixedNativeRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "0aa8f812dc6f561f9fb1996381bae9821bd54d069f3ad26be7fe669baae9ae6c",
+    "implementationSha256": "3e57d1aa8e8132c3e9e6eb3a13b4d654a9479d36bd733b112b14eeaac92ac0d8",
+    "identitySha256": "18b1e240a29f0eab44071cd4ee2de16a428db660f1a1a632ecf18c875e4c9d74"
+  },
+  "priorFixedNativeDoesNotCertifyChangedInputs": true,
+  "nextFirstBurnoutCleanupIssue": "https://github.com/DDDHL0704/riftbound/issues/98",
+  "firstBurnoutOriginalCounterexampleRetained": true,
+  "newFixedFullAndNativeProducts": "OPEN",
+  "wholePrintingCertified": false,
+  "semanticCoverageCertified": false,
+  "archive": {
+    "path": "docs/evidence/final-conquest-score-current-cn16-2026-10-23/original-bounded-check-native-sql-and-failure-evidence.tar.gz",
+    "sha256": "c7fcb288a879b829818916c16b6ee24f1436482db64f545a6bca8cddf231dd98"
+  },
+  "archiveMap": {
+    "path": "docs/evidence/final-conquest-score-current-cn16-2026-10-23/archive-map.json",
+    "sha256": "6bf8a80b436e09b7b14d7236b8736da50ee04feb5aa5a2602f8c8f47e963d7db"
+  },
+  "separateElevenExistingConsumerTestScopePreparationNotCertification": {
+    "path": "docs/evidence/final-conquest-score-current-cn16-2026-10-23/eleven-existing-consumer-static-test-scope-not-certification.json",
+    "sha256": "d47c81ac86a7aa77d1a9fec3a053492d50497429598611f9a4ed864edb9d961f"
+  }
+}
