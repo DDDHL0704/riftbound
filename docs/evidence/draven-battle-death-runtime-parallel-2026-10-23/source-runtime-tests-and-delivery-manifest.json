@@ -1,0 +1,3340 @@
+{
+  "status": "SCOPED_RUNTIME_IMPLEMENTED_TESTED_PATCH_DELIVERY",
+  "region": "CN",
+  "language": "zh-CN",
+  "reviewDate": "2026-10-23",
+  "baseCommit": "622c3ec69108e5902682273fbb224feebc4dac48",
+  "baselineOverlay": {
+    "baseCommit": "622c3ec69108e5902682273fbb224feebc4dac48",
+    "N54Overlay": "2d574969320d7f035198579128291e82c5a6bde3f9e82732e02d8d60c29644ae",
+    "members": [
+      {
+        "path": "src/Riftbound.Engine/CoreRuleEngine.DravenBattleDeathScore.cs",
+        "bytes": 5276,
+        "sha256": "4d91d2fc2cbe05a1334ae904bffb8886319cd9bd4646a1fab990c17b0914950d"
+      },
+      {
+        "path": "src/Riftbound.Engine/CoreRuleEngine.DeathObservers.cs",
+        "bytes": 11757,
+        "sha256": "dfa72bbe25bd0e1874f0657bf0e1eebc3af9d6cc880c4a1800895be868e6847b"
+      },
+      {
+        "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+        "bytes": 1551910,
+        "sha256": "dae9a965e3b90fcd292b9ecdb9288f6e89a1bc44deda356c21024101180306e8"
+      },
+      {
+        "path": "src/Riftbound.Engine/MatchSession.cs",
+        "bytes": 1160497,
+        "sha256": "94d8e6c738fee3af24cefca0c101a366c26fb70cefb8ed2c7db882a471b23e93"
+      },
+      {
+        "path": "src/Riftbound.Engine/MatchRecovery.cs",
+        "bytes": 1399475,
+        "sha256": "cb54da79fc9fa8a6a0fd61a2d6385fe616b4702ddcfa5c863f1c3829cf93098e"
+      },
+      {
+        "path": "src/Riftbound.Engine/CoreRuleEngine.BattleResultContinuation.cs",
+        "bytes": 14471,
+        "sha256": "346ff15b2a87257054fdde2950479d4858886f308a88a8904324fe74e46c3347"
+      },
+      {
+        "path": "src/Riftbound.Engine/BattleResultRecoveryRules.cs",
+        "bytes": 9403,
+        "sha256": "d19f706a78809eb85f0abdc79fb1c276546fd2cab5905a076a940dad08f8c6e0"
+      },
+      {
+        "path": "src/Riftbound.Engine/CoreRuleEngine.BattleResponseCleanup.cs",
+        "bytes": 5888,
+        "sha256": "12972a0913e5f7a4b154a4ceea8408dae2a2f8acf042cbf34ad1c9aca8bb6924"
+      },
+      {
+        "path": "src/Riftbound.Engine/CoreRuleEngine.FieldTriggers.cs",
+        "bytes": 29366,
+        "sha256": "ed4dbb210df81d7002111b70935c1e9a5915670c507bfc85288615bafaf55e15"
+      },
+      {
+        "path": "src/Riftbound.Engine/CoreRuleEngine.RuleChoices.cs",
+        "bytes": 9253,
+        "sha256": "24636c9ae71e94f179b3d356d54bb0be854a15fb54f7b0a7d191a15c80b37163"
+      },
+      {
+        "path": "src/Riftbound.Engine/CoreRuleEngine.DestructionReplacement.cs",
+        "bytes": 24027,
+        "sha256": "57fe1fd3f394f46a19a3e69bf5a57d55536418f7eaa116a606380595782470a6"
+      },
+      {
+        "path": "src/Riftbound.Engine/CoreRuleEngine.TriggerChronology.cs",
+        "bytes": 2823,
+        "sha256": "30f4d3620b6935f6d7f4571182edaefb9bc7a073132714902cc456de3b7dca1a"
+      },
+      {
+        "path": "src/Riftbound.Engine/CoreRuleEngine.TriggerHandoff.cs",
+        "bytes": 6958,
+        "sha256": "9b4855a0a07f772774e7d71a020cd7c27cf1b040365c2da0f89dcc40f36721f6"
+      },
+      {
+        "path": "src/Riftbound.Engine/TriggerQueueRecoveryRules.cs",
+        "bytes": 2567,
+        "sha256": "d448c76cab02968ec1908713e0e52c0e2103d47fb07f1a9fcaab952997d5ce86"
+      }
+    ]
+  },
+  "delivery": "Decompress complete-module-only.patch.gz and apply with git apply to the received N52/N53 plus six-source N54 v1 base; this evidence commit is not a replacement for applying the runtime patch.",
+  "changedFiles": [
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.DravenBattleDeathScore.cs",
+      "beforeSha256": "4d91d2fc2cbe05a1334ae904bffb8886319cd9bd4646a1fab990c17b0914950d",
+      "afterSha256": "f543c89a9ef8eebe43faf573bc3ae40208056fc7db939bc9297a2c9eddee6e2d",
+      "bytes": 7921
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.DeathObservers.cs",
+      "beforeSha256": "dfa72bbe25bd0e1874f0657bf0e1eebc3af9d6cc880c4a1800895be868e6847b",
+      "afterSha256": "68f4fbf9241716937087c6291f30f346dbd7573356ac48a0a30e42042482750f",
+      "bytes": 13169
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+      "beforeSha256": "dae9a965e3b90fcd292b9ecdb9288f6e89a1bc44deda356c21024101180306e8",
+      "afterSha256": "bc05e6caf761f625e184dd2f6eb473ec57e159064e353a14710aea707b1d9ed3",
+      "bytes": 1552696
+    },
+    {
+      "path": "src/Riftbound.Engine/MatchSession.cs",
+      "beforeSha256": "94d8e6c738fee3af24cefca0c101a366c26fb70cefb8ed2c7db882a471b23e93",
+      "afterSha256": "020dc4f4fd7985088c36bfc250d8bee554827029ee52cfc6f3550b9f482d1123",
+      "bytes": 1162125
+    },
+    {
+      "path": "src/Riftbound.Engine/MatchRecovery.cs",
+      "beforeSha256": "cb54da79fc9fa8a6a0fd61a2d6385fe616b4702ddcfa5c863f1c3829cf93098e",
+      "afterSha256": "0d5a5133a778b2667d43abad9a7d12cb99e174d517deb39fdc92c893a8c38ef8",
+      "bytes": 1400602
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.BattleResultContinuation.cs",
+      "beforeSha256": "346ff15b2a87257054fdde2950479d4858886f308a88a8904324fe74e46c3347",
+      "afterSha256": "9755be7db991d5b9735f510546922ce939aaed8887fdd316271479270fd2f272",
+      "bytes": 15881
+    },
+    {
+      "path": "src/Riftbound.Engine/BattleResultRecoveryRules.cs",
+      "beforeSha256": "d19f706a78809eb85f0abdc79fb1c276546fd2cab5905a076a940dad08f8c6e0",
+      "afterSha256": "0ad93af42b9a0db795b875664bee8a39d8e1ac0a1935c947f4b9f2fb0f426689",
+      "bytes": 9683
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.FieldTriggers.cs",
+      "beforeSha256": "ed4dbb210df81d7002111b70935c1e9a5915670c507bfc85288615bafaf55e15",
+      "afterSha256": "662b6818abb346d21607136e6c845bc879e5cb7384e023fe36d5c45ae0b43a85",
+      "bytes": 29532
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.RuleChoices.cs",
+      "beforeSha256": "24636c9ae71e94f179b3d356d54bb0be854a15fb54f7b0a7d191a15c80b37163",
+      "afterSha256": "b1e71ee42bf53d23a62e9c99a31bd8b73a862f9edd7655851f4815946ff50bdb",
+      "bytes": 9465
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.DestructionReplacement.cs",
+      "beforeSha256": "57fe1fd3f394f46a19a3e69bf5a57d55536418f7eaa116a606380595782470a6",
+      "afterSha256": "07263d46d46cb4833837ee1d6cb148ba8540a9b8bf2b4dd94b7039771e2069ef",
+      "bytes": 24304
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.TriggerChronology.cs",
+      "beforeSha256": "30f4d3620b6935f6d7f4571182edaefb9bc7a073132714902cc456de3b7dca1a",
+      "afterSha256": "2b94c32fe65843e0fcc824c24302c4969ddfedc58bab6ae05db8c23873ecadc3",
+      "bytes": 3256
+    },
+    {
+      "path": "src/Riftbound.Engine/CoreRuleEngine.TriggerHandoff.cs",
+      "beforeSha256": "9b4855a0a07f772774e7d71a020cd7c27cf1b040365c2da0f89dcc40f36721f6",
+      "afterSha256": "36daa1cd0a0f350710f1fba0116eeaf4b8b223a01e7a5ceb47b1b1fb2a6465e4",
+      "bytes": 6990
+    },
+    {
+      "path": "src/Riftbound.Engine/TriggerQueueRecoveryRules.cs",
+      "beforeSha256": "d448c76cab02968ec1908713e0e52c0e2103d47fb07f1a9fcaab952997d5ce86",
+      "afterSha256": "9f8b0a9257ef488692bb2b35ea619b822c646bdf7cebb0b8f9b8777913d43d69",
+      "bytes": 2640
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/OfficialDravenBattleWinScoreTests.cs",
+      "beforeSha256": "e51aaa05dca25cbf208df9951e8e570fd91dd4ae57fd06f0585f96609f38210b",
+      "afterSha256": "74c1dfeac9629b79509041f5db39574ee8e4d43932b90cb3164a5b93477c8f67",
+      "bytes": 12299
+    },
+    {
+      "path": "src/Riftbound.Engine/DravenBattleDeathRecoveryRules.cs",
+      "beforeSha256": null,
+      "afterSha256": "2df585c3a0d04ba76d84a65acf755ae263e867a9e0df8e766034bce693aab63d",
+      "bytes": 8722
+    },
+    {
+      "path": "src/Riftbound.Engine/MatchSession.DravenBattleDeathScenario.cs",
+      "beforeSha256": null,
+      "afterSha256": "bc0d3ac65632bec8dfd7528e8824dffb696576a65798f3cc1f26e371217c0ea1",
+      "bytes": 3016
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/DravenBattleDeathRecoveryTests.cs",
+      "beforeSha256": null,
+      "afterSha256": "acb9693dd4a2f463bfc318b0b3f1431cef1b087e8e2b7e791706606e56b9a646",
+      "bytes": 19382
+    },
+    {
+      "path": "tests/Riftbound.ConformanceTests/DravenDeathAndWinOrderTests.cs",
+      "beforeSha256": null,
+      "afterSha256": "ada355026ae2399bbf7812e4c8dddccb53634df9fb3c8e2dbf79ea8075fc3a6c",
+      "bytes": 7374
+    }
+  ],
+  "patch": {
+    "path": "docs/evidence/draven-battle-death-runtime-parallel-2026-10-23/complete-module-only.patch.gz",
+    "sha256": "8db1a3020891b9ec5d888931d677875dc60b1e79cec1374b360f01ea859471fd",
+    "bytes": 20059,
+    "exactBeforeApplyAndAfterBytesVerified": true,
+    "encoding": "gzip",
+    "uncompressedSha256": "1d06dfe76fd0bf7c1790332c512a1844ee0a753189b9646fdb23f4185023a171",
+    "uncompressedBytes": 100353,
+    "applyCommand": "gzip -dc complete-module-only.patch.gz | git apply"
+  },
+  "officialSources": {
+    "originalResponsePath": "/Users/dinghaolin/MyProjects/riftbound/var/qa/current-cn-source-readback-20261023/current-complete-cn-original-pages-v1.jsonl.gz",
+    "originalCompressedSha256": "4dd5dc34fe84eef878a336f8d61462310e8aa67699f0ac851c7180b3e367b45d",
+    "apiUrl": "https://lol-api.playloltcg.com/xcx/card/searchCardCraftWeb",
+    "rows": [
+      {
+        "id": 34641,
+        "cardCategoryList": [
+          "spell"
+        ],
+        "cardCategoryNameList": [
+          "法术"
+        ],
+        "cardNo": "UNL-103/219",
+        "cardName": "处置命令",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "orange"
+        ],
+        "hero": "",
+        "region": "",
+        "tag": "",
+        "artist": "Kudos Productions",
+        "cardEffect": "{{反应}}（可在任意时机打出，甚至先于其他法术和技能的结算。）\n从下列中选择一个 —\n— 从对手的废牌堆里总共选择最多三张牌。让其拥有者将其回收。\n— 抽一张牌。",
+        "flavorText": "“天亮前清理干净，不该问的别问。”",
+        "energy": 2,
+        "returnEnergy": null,
+        "power": null,
+        "productCodeList": [
+          "UNL(进阶补充包)",
+          "UNL(标准补充包)"
+        ],
+        "productNameList": [
+          "破限系列 进阶补充包",
+          "破限系列 基础补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_glimmer",
+        "rarityName": "不凡",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260325/f7a67b912e6346c5ab6c37bce7b6e977.webp",
+        "backImage": "",
+        "listSort": 1383,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      {
+        "id": 34759,
+        "cardCategoryList": [
+          "battlefield"
+        ],
+        "cardCategoryNameList": [
+          "战场"
+        ],
+        "cardNo": "UNL-206/219",
+        "cardName": "鲜血祭坛",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "colorless"
+        ],
+        "hero": "",
+        "region": "",
+        "tag": "",
+        "artist": "Kudos Productions",
+        "cardEffect": "如果此处的一名单位在战斗中被摧毁，其控制者可以选择支付{{A}}{{A}}{{A}}，以此改为移除其所受伤害、将其变为休眠状态、并将其召回。",
+        "flavorText": "",
+        "energy": null,
+        "returnEnergy": null,
+        "power": null,
+        "productCodeList": [
+          "UNL(进阶补充包)",
+          "UNL(标准补充包)"
+        ],
+        "productNameList": [
+          "破限系列 进阶补充包",
+          "破限系列 基础补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_glimmer",
+        "rarityName": "不凡",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260328/4a9ceade8ae24844894c32d8b55ccc18.webp",
+        "backImage": "",
+        "listSort": 1265,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      {
+        "id": 33240,
+        "cardCategoryList": [
+          "hero_unit"
+        ],
+        "cardCategoryNameList": [
+          "英雄单位"
+        ],
+        "cardNo": "SFD·148/221",
+        "cardName": "德莱文",
+        "subTitle": "艺高胆大",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "purple"
+        ],
+        "hero": "德莱文",
+        "region": "诺克萨斯",
+        "tag": "",
+        "artist": "Six More Vodka",
+        "cardEffect": "{{法盾}}（对手必须支付{{A}}才能将我选作法术或技能的目标。）\n每回合首次，当我赢得战斗时，你获得1分。\n当我在战斗中被摧毁时，选择一名对手，让其获得1分。\"",
+        "flavorText": "",
+        "energy": 6,
+        "returnEnergy": 1,
+        "power": 6,
+        "productCodeList": [
+          "SFD(标准补充包)",
+          "SFD(进阶补充包)"
+        ],
+        "productNameList": [
+          "铸魂淬炼 标准补充包",
+          "铸魂淬炼 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_core",
+        "rarityName": "史诗",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20251217/d065a0877b6f413384a7273ddf2f502a.png",
+        "backImage": "",
+        "listSort": 833,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      {
+        "id": 33241,
+        "cardCategoryList": [
+          "hero_unit"
+        ],
+        "cardCategoryNameList": [
+          "英雄单位"
+        ],
+        "cardNo": "SFD·148a/221",
+        "cardName": "德莱文",
+        "subTitle": "艺高胆大",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "purple"
+        ],
+        "hero": "德莱文",
+        "region": "诺克萨斯",
+        "tag": "",
+        "artist": "League Splash Team",
+        "cardEffect": "{{法盾}}（对手必须支付{{A}}才能将我选作法术或技能的目标。）\n每回合首次，当我赢得战斗时，你获得1分。\n当我在战斗中被摧毁时，选择一名对手，让其获得1分。\"",
+        "flavorText": "",
+        "energy": 6,
+        "returnEnergy": 1,
+        "power": 6,
+        "productCodeList": [
+          "SFD(标准补充包)",
+          "SFD(进阶补充包)"
+        ],
+        "productNameList": [
+          "铸魂淬炼 标准补充包",
+          "铸魂淬炼 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_legend",
+        "rarityName": "异画",
+        "extendRarity": "legacy_etching",
+        "extendRarityName": "异画",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20251217/492d174b2b604a98af8491f604c8c63c.png",
+        "backImage": "",
+        "listSort": 832,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      {
+        "id": 33283,
+        "cardCategoryList": [
+          "legendary"
+        ],
+        "cardCategoryNameList": [
+          "传奇"
+        ],
+        "cardNo": "SFD·185/221",
+        "cardName": "荣耀行刑官",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "red",
+          "purple"
+        ],
+        "hero": "德莱文",
+        "region": "",
+        "tag": "",
+        "artist": "Pandart Studio",
+        "cardEffect": "当你赢得一场战斗时，抽一张牌。（若战斗结束后只剩下你的单位，则视为你赢得战斗。）",
+        "flavorText": "",
+        "energy": null,
+        "returnEnergy": null,
+        "power": null,
+        "productCodeList": [
+          "SFD(标准补充包)",
+          "SFD(进阶补充包)"
+        ],
+        "productNameList": [
+          "铸魂淬炼 标准补充包",
+          "铸魂淬炼 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_shard",
+        "rarityName": "稀有",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20251217/4997008d95e9413eb3866356b55a6776.png",
+        "backImage": "",
+        "listSort": 790,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      {
+        "id": 31291,
+        "cardCategoryList": [
+          "equipment"
+        ],
+        "cardCategoryNameList": [
+          "装备"
+        ],
+        "cardNo": "OGN·077/298",
+        "cardName": "中娅沙漏",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "green"
+        ],
+        "hero": "",
+        "region": "",
+        "tag": "",
+        "artist": "Kudos Productions",
+        "cardEffect": "{{待命}}（支付{{A}}正面朝下放置此牌，之后可支付{{0}}将其当作反应牌打出。）\n下一次当友方单位被摧毁时，改为将此牌摧毁，然后以休眠状态将该单位召回。（把该单位送回基地，此行动不算作移动。）",
+        "flavorText": "",
+        "energy": 2,
+        "returnEnergy": null,
+        "power": null,
+        "productCodeList": [
+          "OGN(标准补充包)",
+          "OGN(进阶补充包)"
+        ],
+        "productNameList": [
+          "起源 标准补充包",
+          "起源 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_shard",
+        "rarityName": "稀有",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/80cce2ba0e97442a8539b6045bf3b9c4.png",
+        "backImage": "",
+        "listSort": 414,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "{{待命}}（支付{{A}}正面朝下放置此牌，之后可支付{{0}}将其当作反应牌打出。）\n如果一名友方单位被摧毁，则改为将此牌摧毁。移除该单位所受伤害，让其进入休眠状态，并将其召回。（把该单位送回基地，此行动不算作移动。）",
+        "otherDesc": 0
+      }
+    ]
+  },
+  "testRuns": {
+    "first-wiring-focus-v1": {
+      "counters": {
+        "total": "36",
+        "executed": "36",
+        "passed": "36",
+        "failed": "0",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      },
+      "trxPath": "var/qa/draven-death-runtime-20261023/first-wiring-focus-v1/focus/results.trx",
+      "trxSha256": "fa777660f6e5a979c6a8e7e5ca0ea8386951d3a1e16f95b9a4390ffa5e9a4707"
+    },
+    "recovery-focus-v1": {
+      "counters": {
+        "total": "29",
+        "executed": "29",
+        "passed": "0",
+        "failed": "29",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      },
+      "trxPath": "var/qa/draven-death-runtime-20261023/recovery-focus-v1/focus/results.trx",
+      "trxSha256": "3a1bb40e395bb0f8f6935a86b99c32d30eefafbc784f27f7679b202d545407da"
+    },
+    "recovery-focus-v2": {
+      "counters": {
+        "total": "29",
+        "executed": "29",
+        "passed": "25",
+        "failed": "4",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      },
+      "trxPath": "var/qa/draven-death-runtime-20261023/recovery-focus-v2/focus/results.trx",
+      "trxSha256": "29a32f1de4fa4250c242805dfcce9e43ca4d92ab539d8f9c8626ccbe94ea0d21"
+    },
+    "recovery-focus-v3": {
+      "counters": {
+        "total": "65",
+        "executed": "65",
+        "passed": "65",
+        "failed": "0",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      },
+      "trxPath": "var/qa/draven-death-runtime-20261023/recovery-focus-v3/focus/results.trx",
+      "trxSha256": "a516eef7a868fdf5499c242e37faa088b02daf8e2fb4eb7f5659a5ab7651fe40"
+    },
+    "altar-focus-v1": {
+      "counters": {
+        "total": "4",
+        "executed": "4",
+        "passed": "0",
+        "failed": "4",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      },
+      "trxPath": "var/qa/draven-death-runtime-20261023/altar-focus-v1/focus/results.trx",
+      "trxSha256": "f6ec7c8410298940919929d77884f8a704ee7baaa808747c452290b2d382c81f"
+    },
+    "altar-focus-v2": {
+      "counters": {
+        "total": "4",
+        "executed": "4",
+        "passed": "0",
+        "failed": "4",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      },
+      "trxPath": "var/qa/draven-death-runtime-20261023/altar-focus-v2/focus/results.trx",
+      "trxSha256": "3c750be1a493a2cc03de1df1b78635ba3072aed8374b834193675ea5ba49fb5c"
+    },
+    "altar-focus-v3": {
+      "counters": {
+        "total": "4",
+        "executed": "4",
+        "passed": "2",
+        "failed": "2",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      },
+      "trxPath": "var/qa/draven-death-runtime-20261023/altar-focus-v3/focus/results.trx",
+      "trxSha256": "8377a27056a4f42c8571965e993d579aca2f0970b694b06dd4c22f0570e8e457"
+    },
+    "recovery-focus-v4": {
+      "counters": {
+        "total": "84",
+        "executed": "84",
+        "passed": "84",
+        "failed": "0",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      },
+      "trxPath": "var/qa/draven-death-runtime-20261023/recovery-focus-v4/focus/results.trx",
+      "trxSha256": "535fbbcb23b0b5f159a287ba1eeb201f661ff679192f725a6000aaa294df1363"
+    },
+    "adjacent-focus-v1": {
+      "counters": {
+        "total": "314",
+        "executed": "314",
+        "passed": "309",
+        "failed": "5",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      },
+      "trxPath": "var/qa/draven-death-runtime-20261023/adjacent-focus-v1/focus/results.trx",
+      "trxSha256": "7cfc32811e8c9c7d61a67c7b58d2b3a90de0a4c9605991cff310400347a006f3"
+    },
+    "win-calibration-focus-v1": {
+      "counters": {
+        "total": "18",
+        "executed": "18",
+        "passed": "18",
+        "failed": "0",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      },
+      "trxPath": "var/qa/draven-death-runtime-20261023/win-calibration-focus-v1/focus/results.trx",
+      "trxSha256": "38e6deddbb2e40a9a25a22f5020e7479079932d96b831a83413e84203d7648b3"
+    },
+    "same-controller-focus-v1": {
+      "counters": {
+        "total": "4",
+        "executed": "4",
+        "passed": "4",
+        "failed": "0",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      },
+      "trxPath": "var/qa/draven-death-runtime-20261023/same-controller-focus-v1/focus/results.trx",
+      "trxSha256": "3f89053f462d1c07a9b35867ea6397612fe8532a03c41f1f5a9056fd5601c2e2"
+    }
+  },
+  "originalHistories": {
+    "recovery-original-v4": {
+      "histories": 33,
+      "inputs": 336,
+      "accepted": 330,
+      "rejected": 6,
+      "events": 821,
+      "originalPrefixReplayCount": 336
+    },
+    "complete-death-v4": {
+      "histories": 20,
+      "inputs": 142,
+      "accepted": 142,
+      "rejected": 0,
+      "events": 432,
+      "originalPrefixReplayCount": 142
+    },
+    "complete-mutual-v4": {
+      "histories": 16,
+      "inputs": 160,
+      "accepted": 160,
+      "rejected": 0,
+      "events": 464,
+      "originalPrefixReplayCount": 160
+    },
+    "win-calibrated-original-v1": {
+      "histories": 18,
+      "inputs": 110,
+      "accepted": 110,
+      "rejected": 0,
+      "events": 392,
+      "originalPrefixReplayCount": 110
+    },
+    "same-controller-original-v1": {
+      "histories": 4,
+      "inputs": 40,
+      "accepted": 40,
+      "rejected": 0,
+      "events": 140,
+      "originalPrefixReplayCount": 40
+    }
+  },
+  "adjacentDisposition": {
+    "original314Passed": 309,
+    "original314Failed": 5,
+    "dravenOriginal18RecheckedPassed": 18,
+    "originalThreeFullGamesPassed": true,
+    "remainingMainOwnedN54Fixture": "LocalDestructionRecallTests.LethalSpellDamageUsesTheSameRecall: expected 1 actual 2 from current Void Gate +1. This module does not edit that N54 fixture."
+  },
+  "network": {
+    "status": "PASS_SIX_REAL_SIGNALR_SQL_ROOMS_WITH_ACTUAL_API_RESTART",
+    "rooms": [
+      "DRAVEN-DEATH-NET-02974f5b279a",
+      "DRAVEN-DEATH-NET-3f0c064fe27d",
+      "DRAVEN-DEATH-NET-4d90ed924645",
+      "DRAVEN-DEATH-NET-57150fc95881",
+      "DRAVEN-DEATH-NET-59e334750ee9",
+      "DRAVEN-DEATH-NET-ff204580e90a"
+    ],
+    "finalCommands": 83,
+    "finalEvents": 193,
+    "sevenTableCounts": {
+      "matches": 6,
+      "snapshots": 148,
+      "command_log": 83,
+      "game_events": 193,
+      "match_players": 12,
+      "action_prompts": 148,
+      "state_snapshots": 77
+    },
+    "negativeNetworkIntents": 18,
+    "actualProcessRestart": true,
+    "ownPostgresStopped": true,
+    "allSourceRuntimeInputsStable": true,
+    "actualLoadedInputs": {
+      "baseDirectory": "/Users/dinghaolin/MyProjects/.worktrees/riftbound-parallel-official-audit-20261023/var/qa/draven-death-runtime-20261023/network-driver-v1/bin/Debug/net10.0/",
+      "actualRuleInputs": {
+        "SchemaVersion": 1,
+        "Region": "CN",
+        "Language": "zh-CN",
+        "AuthoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+        "CatalogSha256": "0aa8f812dc6f561f9fb1996381bae9821bd54d069f3ad26be7fe669baae9ae6c",
+        "ImplementationSha256": "9a0bcedf02cb52c9587d1aba5fb3191b71dfbbdeea43a976a089d007730959b9",
+        "IdentitySha256": "38d4b6c5be1f835615e36668cdba80cc69e693f2e8e48503e13288fb0ed2a617"
+      },
+      "assemblies": [
+        {
+          "name": "Riftbound.Engine",
+          "path": "/Users/dinghaolin/MyProjects/.worktrees/riftbound-parallel-official-audit-20261023/var/qa/draven-death-runtime-20261023/network-driver-v1/bin/Debug/net10.0/Riftbound.Engine.dll",
+          "mvid": "948f7bc8-5949-448e-abe4-0ac9f5b1cf3d",
+          "sha256": "0185346b5621d676e8aab2b2aa67d7c16fa299ac7b97575f31a37b186fe61760"
+        },
+        {
+          "name": "Riftbound.Contracts",
+          "path": "/Users/dinghaolin/MyProjects/.worktrees/riftbound-parallel-official-audit-20261023/var/qa/draven-death-runtime-20261023/network-driver-v1/bin/Debug/net10.0/Riftbound.Contracts.dll",
+          "mvid": "4f0b3b8f-f785-468f-b9a2-41ff1ceb767c",
+          "sha256": "3fb848f15e4853fbc1cc0104561f27a58dc4ca8a4ea3d50fdbcd48a19e3c6ea9"
+        },
+        {
+          "name": "Riftbound.CardCatalog",
+          "path": "/Users/dinghaolin/MyProjects/.worktrees/riftbound-parallel-official-audit-20261023/var/qa/draven-death-runtime-20261023/network-driver-v1/bin/Debug/net10.0/Riftbound.CardCatalog.dll",
+          "mvid": "36d891e2-7e89-4e87-9fb8-518e4fdba747",
+          "sha256": "03f384e9a13249710e70e4bd92e099b5c4aa8129ec6782e249c9200bf9342376"
+        },
+        {
+          "name": "Riftbound.Persistence",
+          "path": "/Users/dinghaolin/MyProjects/.worktrees/riftbound-parallel-official-audit-20261023/var/qa/draven-death-runtime-20261023/network-driver-v1/bin/Debug/net10.0/Riftbound.Persistence.dll",
+          "mvid": "8a913256-fedf-41b5-b859-bfdccb93453c",
+          "sha256": "40628c6f67aed22d7779571af9875faf3537b6ebee406117ec72a73cb9d0c649"
+        }
+      ]
+    },
+    "independentOriginalPrefixReplays": 83,
+    "allOriginalSevenTableRowsUnchanged": true
+  },
+  "apiDependencyGraphActualLoadedInputs": {
+    "baseDirectory": "/Users/dinghaolin/MyProjects/.worktrees/riftbound-parallel-official-audit-20261023/var/qa/draven-death-runtime-20261023/fixed-api-runtime-v1/",
+    "actualRuleInputs": {
+      "schemaVersion": 1,
+      "region": "CN",
+      "language": "zh-CN",
+      "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+      "catalogSha256": "0aa8f812dc6f561f9fb1996381bae9821bd54d069f3ad26be7fe669baae9ae6c",
+      "implementationSha256": "9a0bcedf02cb52c9587d1aba5fb3191b71dfbbdeea43a976a089d007730959b9",
+      "identitySha256": "38d4b6c5be1f835615e36668cdba80cc69e693f2e8e48503e13288fb0ed2a617"
+    },
+    "hasRoomSeatReplay": true,
+    "hasAtomicSeatCommit": true,
+    "assemblies": [
+      {
+        "name": "Riftbound.Engine",
+        "path": "/Users/dinghaolin/MyProjects/.worktrees/riftbound-parallel-official-audit-20261023/var/qa/draven-death-runtime-20261023/fixed-api-runtime-v1/Riftbound.Engine.dll",
+        "mvid": "948f7bc8-5949-448e-abe4-0ac9f5b1cf3d",
+        "sha256": "0185346b5621d676e8aab2b2aa67d7c16fa299ac7b97575f31a37b186fe61760"
+      },
+      {
+        "name": "Riftbound.Contracts",
+        "path": "/Users/dinghaolin/MyProjects/.worktrees/riftbound-parallel-official-audit-20261023/var/qa/draven-death-runtime-20261023/fixed-api-runtime-v1/Riftbound.Contracts.dll",
+        "mvid": "4f0b3b8f-f785-468f-b9a2-41ff1ceb767c",
+        "sha256": "3fb848f15e4853fbc1cc0104561f27a58dc4ca8a4ea3d50fdbcd48a19e3c6ea9"
+      },
+      {
+        "name": "Riftbound.CardCatalog",
+        "path": "/Users/dinghaolin/MyProjects/.worktrees/riftbound-parallel-official-audit-20261023/var/qa/draven-death-runtime-20261023/fixed-api-runtime-v1/Riftbound.CardCatalog.dll",
+        "mvid": "36d891e2-7e89-4e87-9fb8-518e4fdba747",
+        "sha256": "03f384e9a13249710e70e4bd92e099b5c4aa8129ec6782e249c9200bf9342376"
+      },
+      {
+        "name": "Riftbound.Persistence",
+        "path": "/Users/dinghaolin/MyProjects/.worktrees/riftbound-parallel-official-audit-20261023/var/qa/draven-death-runtime-20261023/fixed-api-runtime-v1/Riftbound.Persistence.dll",
+        "mvid": "8a913256-fedf-41b5-b859-bfdccb93453c",
+        "sha256": "40628c6f67aed22d7779571af9875faf3537b6ebee406117ec72a73cb9d0c649"
+      }
+    ]
+  },
+  "noExtraCheckOrFull": true,
+  "wholeCardCertified": false,
+  "fullBackendComplete": false,
+  "goalStatus": "ACTIVE",
+  "archive": {
+    "path": "docs/evidence/draven-battle-death-runtime-parallel-2026-10-23/original-tests-source-patch-and-network-v3.tar.gz",
+    "bytes": 18219107,
+    "sha256": "2fb1fcd0bae2e80b8274a0986832dcbcb31927d2379987662dbf2a1dd9726751",
+    "members": [
+      {
+        "path": "after/src/Riftbound.Engine/BattleResultRecoveryRules.cs",
+        "bytes": 9683,
+        "sha256": "0ad93af42b9a0db795b875664bee8a39d8e1ac0a1935c947f4b9f2fb0f426689"
+      },
+      {
+        "path": "after/src/Riftbound.Engine/CoreRuleEngine.BattleResultContinuation.cs",
+        "bytes": 15881,
+        "sha256": "9755be7db991d5b9735f510546922ce939aaed8887fdd316271479270fd2f272"
+      },
+      {
+        "path": "after/src/Riftbound.Engine/CoreRuleEngine.DeathObservers.cs",
+        "bytes": 13169,
+        "sha256": "68f4fbf9241716937087c6291f30f346dbd7573356ac48a0a30e42042482750f"
+      },
+      {
+        "path": "after/src/Riftbound.Engine/CoreRuleEngine.DestructionReplacement.cs",
+        "bytes": 24304,
+        "sha256": "07263d46d46cb4833837ee1d6cb148ba8540a9b8bf2b4dd94b7039771e2069ef"
+      },
+      {
+        "path": "after/src/Riftbound.Engine/CoreRuleEngine.DravenBattleDeathScore.cs",
+        "bytes": 7921,
+        "sha256": "f543c89a9ef8eebe43faf573bc3ae40208056fc7db939bc9297a2c9eddee6e2d"
+      },
+      {
+        "path": "after/src/Riftbound.Engine/CoreRuleEngine.FieldTriggers.cs",
+        "bytes": 29532,
+        "sha256": "662b6818abb346d21607136e6c845bc879e5cb7384e023fe36d5c45ae0b43a85"
+      },
+      {
+        "path": "after/src/Riftbound.Engine/CoreRuleEngine.RuleChoices.cs",
+        "bytes": 9465,
+        "sha256": "b1e71ee42bf53d23a62e9c99a31bd8b73a862f9edd7655851f4815946ff50bdb"
+      },
+      {
+        "path": "after/src/Riftbound.Engine/CoreRuleEngine.TriggerChronology.cs",
+        "bytes": 3256,
+        "sha256": "2b94c32fe65843e0fcc824c24302c4969ddfedc58bab6ae05db8c23873ecadc3"
+      },
+      {
+        "path": "after/src/Riftbound.Engine/CoreRuleEngine.TriggerHandoff.cs",
+        "bytes": 6990,
+        "sha256": "36daa1cd0a0f350710f1fba0116eeaf4b8b223a01e7a5ceb47b1b1fb2a6465e4"
+      },
+      {
+        "path": "after/src/Riftbound.Engine/CoreRuleEngine.cs",
+        "bytes": 1552696,
+        "sha256": "bc05e6caf761f625e184dd2f6eb473ec57e159064e353a14710aea707b1d9ed3"
+      },
+      {
+        "path": "after/src/Riftbound.Engine/DravenBattleDeathRecoveryRules.cs",
+        "bytes": 8722,
+        "sha256": "2df585c3a0d04ba76d84a65acf755ae263e867a9e0df8e766034bce693aab63d"
+      },
+      {
+        "path": "after/src/Riftbound.Engine/MatchRecovery.cs",
+        "bytes": 1400602,
+        "sha256": "0d5a5133a778b2667d43abad9a7d12cb99e174d517deb39fdc92c893a8c38ef8"
+      },
+      {
+        "path": "after/src/Riftbound.Engine/MatchSession.DravenBattleDeathScenario.cs",
+        "bytes": 3016,
+        "sha256": "bc0d3ac65632bec8dfd7528e8824dffb696576a65798f3cc1f26e371217c0ea1"
+      },
+      {
+        "path": "after/src/Riftbound.Engine/MatchSession.cs",
+        "bytes": 1162125,
+        "sha256": "020dc4f4fd7985088c36bfc250d8bee554827029ee52cfc6f3550b9f482d1123"
+      },
+      {
+        "path": "after/src/Riftbound.Engine/TriggerQueueRecoveryRules.cs",
+        "bytes": 2640,
+        "sha256": "9f8b0a9257ef488692bb2b35ea619b822c646bdf7cebb0b8f9b8777913d43d69"
+      },
+      {
+        "path": "after/tests/Riftbound.ConformanceTests/DravenBattleDeathRecoveryTests.cs",
+        "bytes": 19382,
+        "sha256": "acb9693dd4a2f463bfc318b0b3f1431cef1b087e8e2b7e791706606e56b9a646"
+      },
+      {
+        "path": "after/tests/Riftbound.ConformanceTests/DravenDeathAndWinOrderTests.cs",
+        "bytes": 7374,
+        "sha256": "ada355026ae2399bbf7812e4c8dddccb53634df9fb3c8e2dbf79ea8075fc3a6c"
+      },
+      {
+        "path": "after/tests/Riftbound.ConformanceTests/OfficialDravenBattleWinScoreTests.cs",
+        "bytes": 12299,
+        "sha256": "74c1dfeac9629b79509041f5db39574ee8e4d43932b90cb3164a5b93477c8f67"
+      },
+      {
+        "path": "before/src/Riftbound.Engine/BattleResultRecoveryRules.cs",
+        "bytes": 9403,
+        "sha256": "d19f706a78809eb85f0abdc79fb1c276546fd2cab5905a076a940dad08f8c6e0"
+      },
+      {
+        "path": "before/src/Riftbound.Engine/CoreRuleEngine.BattleResultContinuation.cs",
+        "bytes": 14471,
+        "sha256": "346ff15b2a87257054fdde2950479d4858886f308a88a8904324fe74e46c3347"
+      },
+      {
+        "path": "before/src/Riftbound.Engine/CoreRuleEngine.DeathObservers.cs",
+        "bytes": 11757,
+        "sha256": "dfa72bbe25bd0e1874f0657bf0e1eebc3af9d6cc880c4a1800895be868e6847b"
+      },
+      {
+        "path": "before/src/Riftbound.Engine/CoreRuleEngine.DestructionReplacement.cs",
+        "bytes": 24027,
+        "sha256": "57fe1fd3f394f46a19a3e69bf5a57d55536418f7eaa116a606380595782470a6"
+      },
+      {
+        "path": "before/src/Riftbound.Engine/CoreRuleEngine.DravenBattleDeathScore.cs",
+        "bytes": 5276,
+        "sha256": "4d91d2fc2cbe05a1334ae904bffb8886319cd9bd4646a1fab990c17b0914950d"
+      },
+      {
+        "path": "before/src/Riftbound.Engine/CoreRuleEngine.FieldTriggers.cs",
+        "bytes": 29366,
+        "sha256": "ed4dbb210df81d7002111b70935c1e9a5915670c507bfc85288615bafaf55e15"
+      },
+      {
+        "path": "before/src/Riftbound.Engine/CoreRuleEngine.RuleChoices.cs",
+        "bytes": 9253,
+        "sha256": "24636c9ae71e94f179b3d356d54bb0be854a15fb54f7b0a7d191a15c80b37163"
+      },
+      {
+        "path": "before/src/Riftbound.Engine/CoreRuleEngine.TriggerChronology.cs",
+        "bytes": 2823,
+        "sha256": "30f4d3620b6935f6d7f4571182edaefb9bc7a073132714902cc456de3b7dca1a"
+      },
+      {
+        "path": "before/src/Riftbound.Engine/CoreRuleEngine.TriggerHandoff.cs",
+        "bytes": 6958,
+        "sha256": "9b4855a0a07f772774e7d71a020cd7c27cf1b040365c2da0f89dcc40f36721f6"
+      },
+      {
+        "path": "before/src/Riftbound.Engine/CoreRuleEngine.cs",
+        "bytes": 1551910,
+        "sha256": "dae9a965e3b90fcd292b9ecdb9288f6e89a1bc44deda356c21024101180306e8"
+      },
+      {
+        "path": "before/src/Riftbound.Engine/MatchRecovery.cs",
+        "bytes": 1399475,
+        "sha256": "cb54da79fc9fa8a6a0fd61a2d6385fe616b4702ddcfa5c863f1c3829cf93098e"
+      },
+      {
+        "path": "before/src/Riftbound.Engine/MatchSession.cs",
+        "bytes": 1160497,
+        "sha256": "94d8e6c738fee3af24cefca0c101a366c26fb70cefb8ed2c7db882a471b23e93"
+      },
+      {
+        "path": "before/src/Riftbound.Engine/TriggerQueueRecoveryRules.cs",
+        "bytes": 2567,
+        "sha256": "d448c76cab02968ec1908713e0e52c0e2103d47fb07f1a9fcaab952997d5ce86"
+      },
+      {
+        "path": "before/tests/Riftbound.ConformanceTests/OfficialDravenBattleWinScoreTests.cs",
+        "bytes": 11207,
+        "sha256": "e51aaa05dca25cbf208df9951e8e570fd91dd4ae57fd06f0585f96609f38210b"
+      },
+      {
+        "path": "complete-module-only.patch",
+        "bytes": 100353,
+        "sha256": "1d06dfe76fd0bf7c1790332c512a1844ee0a753189b9646fdb23f4185023a171"
+      },
+      {
+        "path": "prior-source-manifests/docs/evidence/draven-battle-death-response-parallel-2026-10-23/source-and-red-test-manifest.json",
+        "bytes": 82943,
+        "sha256": "7483f64f68983d0115faf315ace5ad911920359fe474363bd64b4833819fbc2b"
+      },
+      {
+        "path": "prior-source-manifests/docs/evidence/draven-battle-death-score-parallel-2026-10-23/source-and-red-test-manifest.json",
+        "bytes": 68207,
+        "sha256": "feba15e5f272b736a8203815f13d755e84df2a9f1a0a51458361782e6eeb07ee"
+      },
+      {
+        "path": "prior-source-manifests/docs/evidence/draven-mutual-death-parallel-2026-10-23/source-and-red-test-manifest.json",
+        "bytes": 50911,
+        "sha256": "d5644ec71fa998a6234c654a15c34f75fa9b814182efba64f0dadde8998ab75d"
+      },
+      {
+        "path": "qa/OfficialDravenBattleWinScoreTests.before.cs.txt",
+        "bytes": 11207,
+        "sha256": "e51aaa05dca25cbf208df9951e8e570fd91dd4ae57fd06f0585f96609f38210b"
+      },
+      {
+        "path": "qa/adjacent-focus-v1.log",
+        "bytes": 403,
+        "sha256": "ea0d8e4ae4d0f8faea0e295e22a7248fa90fdae1096400da1f2c64a5d4f9f61e"
+      },
+      {
+        "path": "qa/adjacent-focus-v1/build.log",
+        "bytes": 78,
+        "sha256": "888f9d981c459152f04717aec1a625956f7bda7920772ab12e665cf2140c179f"
+      },
+      {
+        "path": "qa/adjacent-focus-v1/discovery.log",
+        "bytes": 2117821,
+        "sha256": "efd2fc58782ed42883820d8d9fd1c2b7f0871e7957d721de2d93b46dc88cefdc"
+      },
+      {
+        "path": "qa/adjacent-focus-v1/focus/results.trx",
+        "bytes": 544155,
+        "sha256": "7cfc32811e8c9c7d61a67c7b58d2b3a90de0a4c9605991cff310400347a006f3"
+      },
+      {
+        "path": "qa/adjacent-focus-v1/focus/test.log",
+        "bytes": 1534,
+        "sha256": "ec5346d548f418f882246b6917b85b74ad3f0932654992f72206b785f3fd13a4"
+      },
+      {
+        "path": "qa/adjacent-focus-v1/plan.json",
+        "bytes": 13739,
+        "sha256": "2d3d31514001ff2b7bc32791cb5175d988dec6417c896c0c93ee01c57c355c64"
+      },
+      {
+        "path": "qa/altar-focus-v1.log",
+        "bytes": 395,
+        "sha256": "c2e0448e1ff5f363b18526b196b6a3a3313cfdcb9f4e23070001b94fdb3d82df"
+      },
+      {
+        "path": "qa/altar-focus-v1/build.log",
+        "bytes": 78,
+        "sha256": "8581d513e3544f383eb5a7057daa59cce3a37d035774a853501c15a068bcd9ce"
+      },
+      {
+        "path": "qa/altar-focus-v1/discovery.log",
+        "bytes": 2117821,
+        "sha256": "efd2fc58782ed42883820d8d9fd1c2b7f0871e7957d721de2d93b46dc88cefdc"
+      },
+      {
+        "path": "qa/altar-focus-v1/focus/results.trx",
+        "bytes": 22165,
+        "sha256": "f6ec7c8410298940919929d77884f8a704ee7baaa808747c452290b2d382c81f"
+      },
+      {
+        "path": "qa/altar-focus-v1/focus/test.log",
+        "bytes": 1263,
+        "sha256": "0f93d73e69feeebe5c08970347b625a0b6763ceae9194ca7acb7627db18ee95b"
+      },
+      {
+        "path": "qa/altar-focus-v1/plan.json",
+        "bytes": 677,
+        "sha256": "6b0937ba3eb41a5aba6a0c8a034e055a73e7366de5229124792636a47526148c"
+      },
+      {
+        "path": "qa/altar-focus-v2.log",
+        "bytes": 395,
+        "sha256": "767465a47e10ee30eda58693ef8958faf2c98532993a1e05790a03f1f7ed2ddd"
+      },
+      {
+        "path": "qa/altar-focus-v2/build.log",
+        "bytes": 78,
+        "sha256": "1cad5b49b470e7c1319daf035d472cd8a45e7ea9ac33986939789f5a09d593b9"
+      },
+      {
+        "path": "qa/altar-focus-v2/discovery.log",
+        "bytes": 2117821,
+        "sha256": "efd2fc58782ed42883820d8d9fd1c2b7f0871e7957d721de2d93b46dc88cefdc"
+      },
+      {
+        "path": "qa/altar-focus-v2/focus/results.trx",
+        "bytes": 22165,
+        "sha256": "3c750be1a493a2cc03de1df1b78635ba3072aed8374b834193675ea5ba49fb5c"
+      },
+      {
+        "path": "qa/altar-focus-v2/focus/test.log",
+        "bytes": 1263,
+        "sha256": "d676a7a9b55e558fd974c4ebb6ae76e0a17f78806508e96cf1aaf09ab4d7deb1"
+      },
+      {
+        "path": "qa/altar-focus-v2/plan.json",
+        "bytes": 677,
+        "sha256": "a335c460fad44e1fdc235131e3854241f2c00765308bb458b41daff363954855"
+      },
+      {
+        "path": "qa/altar-focus-v3.log",
+        "bytes": 395,
+        "sha256": "1e02d9d09ddf633d1d1acbbf87a478fb3c8ab9f3f61a0ca5cf43645858f1e78e"
+      },
+      {
+        "path": "qa/altar-focus-v3/build.log",
+        "bytes": 78,
+        "sha256": "78df79c69d25dd555618787dbaf9797da6017cce773db6114dad9587ec77b9d3"
+      },
+      {
+        "path": "qa/altar-focus-v3/discovery.log",
+        "bytes": 2117821,
+        "sha256": "efd2fc58782ed42883820d8d9fd1c2b7f0871e7957d721de2d93b46dc88cefdc"
+      },
+      {
+        "path": "qa/altar-focus-v3/focus/results.trx",
+        "bytes": 13110,
+        "sha256": "8377a27056a4f42c8571965e993d579aca2f0970b694b06dd4c22f0570e8e457"
+      },
+      {
+        "path": "qa/altar-focus-v3/focus/test.log",
+        "bytes": 917,
+        "sha256": "6822d914ce562d816c3bf4c46b0371d8e679360934abf7bc3cbdf04a96342927"
+      },
+      {
+        "path": "qa/altar-focus-v3/plan.json",
+        "bytes": 677,
+        "sha256": "5316cfb2d253aed3e5b1ee0d98a6001baef6ebefbef655d58c0913bc9e3f2de3"
+      },
+      {
+        "path": "qa/altar-original-v2/failure-40aa0d0c3d1f4f20a64f464c6b5edb10.json.gz",
+        "bytes": 54818,
+        "sha256": "324a187745eef13ee871323dfafd64ae2a66177c3d0f04fec8cc4b993094f873"
+      },
+      {
+        "path": "qa/altar-original-v2/failure-5c9c68234d784e2987de0e55369fbbcb.json.gz",
+        "bytes": 54870,
+        "sha256": "25078911add864ec6b1e87a36c46c40785f21cb010ae28c91b3962968b41ddfc"
+      },
+      {
+        "path": "qa/altar-original-v2/failure-a171b37caa0e4bfca6eaa4ce232c4bef.json.gz",
+        "bytes": 54818,
+        "sha256": "23ce9520fe09472bcc88d61596ea4ec6c6b712048674b4591c4f82f6a33d42ea"
+      },
+      {
+        "path": "qa/altar-original-v2/failure-ea055f94429c46cda2136dd6571401aa.json.gz",
+        "bytes": 54870,
+        "sha256": "d766e367c7271e98f75091f6a4203c1a5427f2235337cd94e5ca89b22bc58c79"
+      },
+      {
+        "path": "qa/altar-original-v3/altar-False-True.json.gz",
+        "bytes": 63432,
+        "sha256": "f65d09cb9b71d541a5d4f2ae6945251845652e58a335abd628ec8ff0addf828d"
+      },
+      {
+        "path": "qa/altar-original-v3/altar-True-True.json.gz",
+        "bytes": 63485,
+        "sha256": "08b1abd4f2255a37ff85ec9afc76053d03a92482a7e1afa245915ae2d867c44b"
+      },
+      {
+        "path": "qa/altar-original-v3/failure-1e0b2b6c636a4487b62836e1cf51c2c6.json.gz",
+        "bytes": 62014,
+        "sha256": "bb466be9c3cc3c4c6cb908f362761cc3f762e3c378db90d0d731e0d9ffc99854"
+      },
+      {
+        "path": "qa/altar-original-v3/failure-3d5381847b2d4564b132395c7306a7c1.json.gz",
+        "bytes": 61964,
+        "sha256": "bccf4c0957ef18e1f2821d08d219da532b8a8a3892330759dd28490b6e225801"
+      },
+      {
+        "path": "qa/api-build-v1.log",
+        "bytes": 933,
+        "sha256": "cda9cef81f4cff52eb7f213eaec28952b8a3cda37bae9eda2a4ce57a15bd839c"
+      },
+      {
+        "path": "qa/api-dependency-graph-loaded-inputs-v1.json",
+        "bytes": 1953,
+        "sha256": "d7d48cbb460705063f94ed72b954628e0b00acd6e3e6efe10b7f56bbecae1b6c"
+      },
+      {
+        "path": "qa/api-own-0-v1.log",
+        "bytes": 69584,
+        "sha256": "9ca9988bb17a6d20e91a949b681c25514b0f4e70694bcbc9f789d8623983c048"
+      },
+      {
+        "path": "qa/api-own-1-v1.log",
+        "bytes": 48699,
+        "sha256": "a89b04d2b47b3c18cda65a0dcfd5e7e3f5ff447d2784cdaf151ca51bb1a8a444"
+      },
+      {
+        "path": "qa/apply-runtime-step1.py",
+        "bytes": 9066,
+        "sha256": "313c7138264bd830fe034f28b218a0de02067dc1fe75b816462af0cfa99d5a88"
+      },
+      {
+        "path": "qa/apply-runtime-step2.py",
+        "bytes": 3142,
+        "sha256": "555b562b3a1dfd8ff1095f1df3d28fb8df0a8d8dba17cbf8c0c9fbe90284626e"
+      },
+      {
+        "path": "qa/apply-runtime-step3.py",
+        "bytes": 6939,
+        "sha256": "504a1e7ea6a28cc206098f193e0a825072ec709cd1df4e860b2c8f0a1284749b"
+      },
+      {
+        "path": "qa/before-death-module-v1.json",
+        "bytes": 2786,
+        "sha256": "46280573f420c1086951f32bd8ee8f662959ded33dbe51f0b5a224f75ea1d4d4"
+      },
+      {
+        "path": "qa/before-death-module-v1.tar.gz",
+        "bytes": 488025,
+        "sha256": "48cd81fbf441c04df42c16ee1e3e6e0a0f4757d27dd2907deeb495ec0c2f6d9d"
+      },
+      {
+        "path": "qa/complete-death-v4/SFD-148-221-attacker-death.json.gz",
+        "bytes": 57427,
+        "sha256": "d4e28e3e38307ac3a9ec27848f934b4f70bd12ed0d12d45aa28a984481f03bf4"
+      },
+      {
+        "path": "qa/complete-death-v4/SFD-148-221-defender-death.json.gz",
+        "bytes": 60975,
+        "sha256": "66170287904ad8f986f4cfe7f85661294838a295c02fdfeca3a34ad5d928a0d1"
+      },
+      {
+        "path": "qa/complete-death-v4/SFD-148-221-defender-winning-point.json.gz",
+        "bytes": 55707,
+        "sha256": "aa401c919460560e3ce522bb9886b351de44f56623746898fe4c3da8f275a5c8"
+      },
+      {
+        "path": "qa/complete-death-v4/SFD-148-221-mutual-death.json.gz",
+        "bytes": 57447,
+        "sha256": "79fcb5d7ae40d3fb63a4e31b03871b1166eaa485c4956f2fcb55b6779617deba"
+      },
+      {
+        "path": "qa/complete-death-v4/SFD-148-221-response-damage-death.json.gz",
+        "bytes": 111275,
+        "sha256": "1a8528af18dc1fec39f73af0a15e3fc157bc9dea12ce839204fae149e627cd6f"
+      },
+      {
+        "path": "qa/complete-death-v4/SFD-148-221-response-pass-death.json.gz",
+        "bytes": 63504,
+        "sha256": "1ba7e6c8e2bce3902cab810da57fd4e5415c2d8316720793509245b85e6a9fe8"
+      },
+      {
+        "path": "qa/complete-death-v4/SFD-148-221-response-void-gate-damage.json.gz",
+        "bytes": 49581,
+        "sha256": "550b354ffab5bfa7655fb7a6e50b7f1e9acd62d696acb2af19daea84c7471525"
+      },
+      {
+        "path": "qa/complete-death-v4/SFD-148-221-spell-battle-death.json.gz",
+        "bytes": 59478,
+        "sha256": "fe3004ca15f16b7ea85f12de2f95700db33892c7acb2b04c988405eb2143e4ee"
+      },
+      {
+        "path": "qa/complete-death-v4/SFD-148-221-spell-outside-battle.json.gz",
+        "bytes": 21775,
+        "sha256": "dab78d672ba47258ecd30b3a3d294ffd9aabc2ff4b64f09842663dd51db8c489"
+      },
+      {
+        "path": "qa/complete-death-v4/SFD-148-221-zhonya-replacement.json.gz",
+        "bytes": 46757,
+        "sha256": "675a3fa3c85cfa4e1e26c8db975b62a31812fb345e0f7b07bc65f3eeba8b2f97"
+      },
+      {
+        "path": "qa/complete-death-v4/SFD-148a-221-attacker-death.json.gz",
+        "bytes": 57473,
+        "sha256": "3e3febeff17d1e974e9efb67a17a86f7cfa6606716565444720d03fa46f10c34"
+      },
+      {
+        "path": "qa/complete-death-v4/SFD-148a-221-defender-death.json.gz",
+        "bytes": 60899,
+        "sha256": "aa6d7e0de21d9a9050dec05305dedd74236e7f529e626c2663bf6ad5ed555103"
+      },
+      {
+        "path": "qa/complete-death-v4/SFD-148a-221-defender-winning-point.json.gz",
+        "bytes": 55733,
+        "sha256": "ef171d5b6bca3a6c0f2ea0dc6d4ea93db3dc5998160c7bad124c272051ece461"
+      },
+      {
+        "path": "qa/complete-death-v4/SFD-148a-221-mutual-death.json.gz",
+        "bytes": 57472,
+        "sha256": "c09980a28e74726c29216ee244c3e0065530479d4d162e391949c94a01e6a003"
+      },
+      {
+        "path": "qa/complete-death-v4/SFD-148a-221-response-damage-death.json.gz",
+        "bytes": 111283,
+        "sha256": "2c6ee5b27acfbb6d2635f16696cb10d9c8328c765b32879e4fc4ed741f23b732"
+      },
+      {
+        "path": "qa/complete-death-v4/SFD-148a-221-response-pass-death.json.gz",
+        "bytes": 63428,
+        "sha256": "a5eba3f572a8bfe3fca3cb7de165368476f7d8a4b90208d02bbc5a52394a4e8f"
+      },
+      {
+        "path": "qa/complete-death-v4/SFD-148a-221-response-void-gate-damage.json.gz",
+        "bytes": 49601,
+        "sha256": "55a8c3f9da36ef94fb508f3afaa43232125386440bbb964aaf13cb21493c16f4"
+      },
+      {
+        "path": "qa/complete-death-v4/SFD-148a-221-spell-battle-death.json.gz",
+        "bytes": 59454,
+        "sha256": "53ea8b630ad4109e979c7739404e95d144a30965321c03a882bd626762d041af"
+      },
+      {
+        "path": "qa/complete-death-v4/SFD-148a-221-spell-outside-battle.json.gz",
+        "bytes": 21771,
+        "sha256": "ad0ce766789ab34d46901fdcedac11ee0c079c6867b96612c3c7d6e98c8bf8b3"
+      },
+      {
+        "path": "qa/complete-death-v4/SFD-148a-221-zhonya-replacement.json.gz",
+        "bytes": 46761,
+        "sha256": "b5f3bb6d8849951ae2a213872c5fe49e5690e68cf5dbb12fa89f72c5756992c6"
+      },
+      {
+        "path": "qa/complete-mutual-v4/SFD-148-221-SFD-148-221-P1-0.json.gz",
+        "bytes": 65108,
+        "sha256": "f38dff6a8c95caa38a68bc2bbaa937cc1950105b58e79e71b948d147752a350f"
+      },
+      {
+        "path": "qa/complete-mutual-v4/SFD-148-221-SFD-148-221-P1-7.json.gz",
+        "bytes": 53915,
+        "sha256": "b7d0532e4aafebb61cb46449fa0ff7bd02fe50619cba64bc1c82b9c011cc66af"
+      },
+      {
+        "path": "qa/complete-mutual-v4/SFD-148-221-SFD-148-221-P2-0.json.gz",
+        "bytes": 64673,
+        "sha256": "5b751b4a1765c4ee98d809201a2db8ba46a6a8274904ea515c3e37a4ef0173f1"
+      },
+      {
+        "path": "qa/complete-mutual-v4/SFD-148-221-SFD-148-221-P2-7.json.gz",
+        "bytes": 53540,
+        "sha256": "6ea6cfe9f271690b8922471bf26b8aa8b29fa6fdce97521812a410a3184f31fd"
+      },
+      {
+        "path": "qa/complete-mutual-v4/SFD-148-221-SFD-148a-221-P1-0.json.gz",
+        "bytes": 65499,
+        "sha256": "86793607f020f03d3771eab24d0702b06fa28665354c19e5480cb36aa6406ece"
+      },
+      {
+        "path": "qa/complete-mutual-v4/SFD-148-221-SFD-148a-221-P1-7.json.gz",
+        "bytes": 54091,
+        "sha256": "941bb4360b56df2702fbfb43a904b26ba50f31d9109c75c1a1dc7d2b3e825a40"
+      },
+      {
+        "path": "qa/complete-mutual-v4/SFD-148-221-SFD-148a-221-P2-0.json.gz",
+        "bytes": 64806,
+        "sha256": "d6f8a1ffc460215b00652b67c5a4309b29d611d3d67b46d07e72e57cb9937735"
+      },
+      {
+        "path": "qa/complete-mutual-v4/SFD-148-221-SFD-148a-221-P2-7.json.gz",
+        "bytes": 53472,
+        "sha256": "7245cc45f29d3a97379d084a143b2d17d7b10f99de1e325ca007711fab51bba1"
+      },
+      {
+        "path": "qa/complete-mutual-v4/SFD-148a-221-SFD-148-221-P1-0.json.gz",
+        "bytes": 65313,
+        "sha256": "43843de4e5481c8065f8944fbcdc613e48bbc3bf008118ced02ee869ee48680e"
+      },
+      {
+        "path": "qa/complete-mutual-v4/SFD-148a-221-SFD-148-221-P1-7.json.gz",
+        "bytes": 54044,
+        "sha256": "608bca9fa641ff096dd7d53f013312e4eb9a286e415bb0d97b24765957a3d7af"
+      },
+      {
+        "path": "qa/complete-mutual-v4/SFD-148a-221-SFD-148-221-P2-0.json.gz",
+        "bytes": 64763,
+        "sha256": "f440a6cda193a8a3f09aea1592a664e1a976f868f054e692c552b9dfee6ad32d"
+      },
+      {
+        "path": "qa/complete-mutual-v4/SFD-148a-221-SFD-148-221-P2-7.json.gz",
+        "bytes": 53444,
+        "sha256": "6736d5877c7b41e3cb6e4970789293a3f8adde43fff1f088f888ebfad8b338a1"
+      },
+      {
+        "path": "qa/complete-mutual-v4/SFD-148a-221-SFD-148a-221-P1-0.json.gz",
+        "bytes": 65436,
+        "sha256": "b8db81c0f3bb37889a75e07b5f21b348dcfb66c838f807f8a981b0cf39bf8663"
+      },
+      {
+        "path": "qa/complete-mutual-v4/SFD-148a-221-SFD-148a-221-P1-7.json.gz",
+        "bytes": 54031,
+        "sha256": "86378fd77dbce14e22b09d1101487381e46a0c0484a50d0488d99b00c3d2a14b"
+      },
+      {
+        "path": "qa/complete-mutual-v4/SFD-148a-221-SFD-148a-221-P2-0.json.gz",
+        "bytes": 64810,
+        "sha256": "4356773a0667cb18f22e16481dcc81542c4bdd62f070f121cbe69bff07aa9999"
+      },
+      {
+        "path": "qa/complete-mutual-v4/SFD-148a-221-SFD-148a-221-P2-7.json.gz",
+        "bytes": 53598,
+        "sha256": "b963c70c87545083d7a8a280b412d3f4a133329abc41df2a49aa12dd6e10f86c"
+      },
+      {
+        "path": "qa/convert-cold-fixture-v2.py",
+        "bytes": 4217,
+        "sha256": "d8c986a04c1f8bd01a7bce7af3a6f24d4b8834923f0c08e4edbe43500fe49893"
+      },
+      {
+        "path": "qa/exact-timing-clauses-v1.json",
+        "bytes": 27311,
+        "sha256": "7a94a691ddf14b24c6dae178c9d87a609616fa0f150e6e54082b6c81e981f1be"
+      },
+      {
+        "path": "qa/first-wiring-death-v1/SFD-148-221-attacker-death.json.gz",
+        "bytes": 57326,
+        "sha256": "2df94110047a86f140354015895e143530fb2ddcf4133202f751f6bfb2a75fc8"
+      },
+      {
+        "path": "qa/first-wiring-death-v1/SFD-148-221-defender-death.json.gz",
+        "bytes": 60917,
+        "sha256": "dabfcdae044e3fa88c4cf165694e7690832d3460c765fae13d9c71835e142a8d"
+      },
+      {
+        "path": "qa/first-wiring-death-v1/SFD-148-221-defender-winning-point.json.gz",
+        "bytes": 55615,
+        "sha256": "f9442ad612e09b25a57596c716d2dbb9eb17bc720ba15139a940720871a25730"
+      },
+      {
+        "path": "qa/first-wiring-death-v1/SFD-148-221-mutual-death.json.gz",
+        "bytes": 57188,
+        "sha256": "9ffd6b57c2c592f8f9a6444c1faf838dc22914660edeef1831744d66a7b56d09"
+      },
+      {
+        "path": "qa/first-wiring-death-v1/SFD-148-221-response-damage-death.json.gz",
+        "bytes": 111177,
+        "sha256": "e578f45d989de2cdcc7de4cec544a6d63685effd9a550bc603726fbb05d13b85"
+      },
+      {
+        "path": "qa/first-wiring-death-v1/SFD-148-221-response-pass-death.json.gz",
+        "bytes": 63400,
+        "sha256": "99e5d635480fb1439e63e93663da41af0f42a9f772afca618b9583cc4e2244bc"
+      },
+      {
+        "path": "qa/first-wiring-death-v1/SFD-148-221-response-void-gate-damage.json.gz",
+        "bytes": 49583,
+        "sha256": "d00d1d13f4ff06fe069c17591548a8fe875d7b316f694f6c7daaeaaf6cb58c8b"
+      },
+      {
+        "path": "qa/first-wiring-death-v1/SFD-148-221-spell-battle-death.json.gz",
+        "bytes": 59359,
+        "sha256": "0f23929fcd72a347ad08bcb4e0131eda767b539d3e69a6729dfb5f88bb263e48"
+      },
+      {
+        "path": "qa/first-wiring-death-v1/SFD-148-221-spell-outside-battle.json.gz",
+        "bytes": 21800,
+        "sha256": "bce099baa333b3de20fd993e2a223b60918ff555b366235825e9be0367872522"
+      },
+      {
+        "path": "qa/first-wiring-death-v1/SFD-148-221-zhonya-replacement.json.gz",
+        "bytes": 46765,
+        "sha256": "dc6d7c58d87624cf8c0871f67c0121d5eae181cb9160bf744ea5160b31b6667e"
+      },
+      {
+        "path": "qa/first-wiring-death-v1/SFD-148a-221-attacker-death.json.gz",
+        "bytes": 57372,
+        "sha256": "664a03704f9971aa4c5e1d7688280c65b1b8816783fa853152ebb788be123fcb"
+      },
+      {
+        "path": "qa/first-wiring-death-v1/SFD-148a-221-defender-death.json.gz",
+        "bytes": 60844,
+        "sha256": "5565689656f5ac1a3470a47aaad1366c8ec52c84bce372387ef9a68c0d5bfbd2"
+      },
+      {
+        "path": "qa/first-wiring-death-v1/SFD-148a-221-defender-winning-point.json.gz",
+        "bytes": 55635,
+        "sha256": "7dc9f458dc8e76ece24182d512c515ff53bec1b5cebbfed04830c213474f9360"
+      },
+      {
+        "path": "qa/first-wiring-death-v1/SFD-148a-221-mutual-death.json.gz",
+        "bytes": 57242,
+        "sha256": "1495ce94c9e8287fc5d28d3b4026c3cec6efe87b6d1bc876e3092c54ad7f9012"
+      },
+      {
+        "path": "qa/first-wiring-death-v1/SFD-148a-221-response-damage-death.json.gz",
+        "bytes": 111181,
+        "sha256": "d8a851c70e869ea588396180ef989c0a13f5abff6818a2928337d747ddadcae4"
+      },
+      {
+        "path": "qa/first-wiring-death-v1/SFD-148a-221-response-pass-death.json.gz",
+        "bytes": 63322,
+        "sha256": "cdb875672ce018f207a46cc0b28a01b073b78e43c2f132a704d35bd9715e2b70"
+      },
+      {
+        "path": "qa/first-wiring-death-v1/SFD-148a-221-response-void-gate-damage.json.gz",
+        "bytes": 49607,
+        "sha256": "36aba285f390f025104de636e01f6299f81eb7001b6326b882fefc36790c2ef3"
+      },
+      {
+        "path": "qa/first-wiring-death-v1/SFD-148a-221-spell-battle-death.json.gz",
+        "bytes": 59348,
+        "sha256": "cb6e948d06d3adbb751adf8cfd34ce1944c4f7f37003b0a5389e1ec4c407afa9"
+      },
+      {
+        "path": "qa/first-wiring-death-v1/SFD-148a-221-spell-outside-battle.json.gz",
+        "bytes": 21798,
+        "sha256": "4cfb637fb3cddf8c9257134db9fa6fe0bd32f3024393966400d070d4dbd21b0f"
+      },
+      {
+        "path": "qa/first-wiring-death-v1/SFD-148a-221-zhonya-replacement.json.gz",
+        "bytes": 46770,
+        "sha256": "a6fed0253cdcbf901a08bcc6ba66954cf28386b6438ddb112f8ee7bf93437bde"
+      },
+      {
+        "path": "qa/first-wiring-focus-v1.log",
+        "bytes": 461,
+        "sha256": "cf7a2672762d93fa440a105f513efa5ba89fde1af5f83f284d97ea0f6766a5ae"
+      },
+      {
+        "path": "qa/first-wiring-focus-v1/build.log",
+        "bytes": 78,
+        "sha256": "3763724d64bd3bb40e8877e6e74e5019478a53594da43662d33b66f9d0734f09"
+      },
+      {
+        "path": "qa/first-wiring-focus-v1/discovery.log",
+        "bytes": 2113003,
+        "sha256": "1d3214143c8c497f98202d0c189c27f7dc291f87b240461d24f1e5420715aa16"
+      },
+      {
+        "path": "qa/first-wiring-focus-v1/focus/results.trx",
+        "bytes": 65158,
+        "sha256": "fa777660f6e5a979c6a8e7e5ca0ea8386951d3a1e16f95b9a4390ffa5e9a4707"
+      },
+      {
+        "path": "qa/first-wiring-focus-v1/focus/test.log",
+        "bytes": 577,
+        "sha256": "2ee4a5a0272863415c966145d824b852b2714c3e2191ce93c5d2dda4c8e4525d"
+      },
+      {
+        "path": "qa/first-wiring-focus-v1/plan.json",
+        "bytes": 1139,
+        "sha256": "80c0faea4d1a6ccfb5784370b158e3fd9ea55b4f90c8f76f3a8e5c2bf9a5ac76"
+      },
+      {
+        "path": "qa/first-wiring-focus-v1/summary.json",
+        "bytes": 273,
+        "sha256": "219c0466f7a33cec92becd47a05b8e75ebf3ae948765c3009d8aad64340b1841"
+      },
+      {
+        "path": "qa/first-wiring-mutual-v1/SFD-148-221-SFD-148-221-P1-0.json.gz",
+        "bytes": 64792,
+        "sha256": "fe4190649af7bf0e70d8cd4417ad8e83f6dbe10dac37defa92ba8c0141e68ecc"
+      },
+      {
+        "path": "qa/first-wiring-mutual-v1/SFD-148-221-SFD-148-221-P1-7.json.gz",
+        "bytes": 53377,
+        "sha256": "2b256132d23a901d6c936958884aaa5bc19ee5e5f15401761c424d0a471b0c6d"
+      },
+      {
+        "path": "qa/first-wiring-mutual-v1/SFD-148-221-SFD-148-221-P2-0.json.gz",
+        "bytes": 64472,
+        "sha256": "f23c12b734f10cab95a40cebd3af3da48f3df792ad7e8ec26caa645e884cec67"
+      },
+      {
+        "path": "qa/first-wiring-mutual-v1/SFD-148-221-SFD-148-221-P2-7.json.gz",
+        "bytes": 53397,
+        "sha256": "965b0059a56a11845f37173dc06ecfb9044d82ba651f800b8a068fd1fdd642d3"
+      },
+      {
+        "path": "qa/first-wiring-mutual-v1/SFD-148-221-SFD-148a-221-P1-0.json.gz",
+        "bytes": 65398,
+        "sha256": "d1173c11dd427ab15a7da494502cef666df7998475a020e7bedc620e285cabbf"
+      },
+      {
+        "path": "qa/first-wiring-mutual-v1/SFD-148-221-SFD-148a-221-P1-7.json.gz",
+        "bytes": 53937,
+        "sha256": "6541b8f9d3dab0518ac00ea7d488e0f5fdb943700ac838a7a8ab5cf856a72df5"
+      },
+      {
+        "path": "qa/first-wiring-mutual-v1/SFD-148-221-SFD-148a-221-P2-0.json.gz",
+        "bytes": 64690,
+        "sha256": "d3f50020daee56802d07c9a5b6fa3767b5bf9bcd1af26c503af65cd03004aeea"
+      },
+      {
+        "path": "qa/first-wiring-mutual-v1/SFD-148-221-SFD-148a-221-P2-7.json.gz",
+        "bytes": 53252,
+        "sha256": "ef2a60a5db9d7bc7229e58f5a5934ff9dce6acc0d66ea8b07239c393b1c10be1"
+      },
+      {
+        "path": "qa/first-wiring-mutual-v1/SFD-148a-221-SFD-148-221-P1-0.json.gz",
+        "bytes": 65218,
+        "sha256": "81473fc2f0fa072f14b170f1f6cb5de689d78b65e7c7938b94a51fb43d4dfdf2"
+      },
+      {
+        "path": "qa/first-wiring-mutual-v1/SFD-148a-221-SFD-148-221-P1-7.json.gz",
+        "bytes": 53783,
+        "sha256": "03b35ed401b402014abd6864a5fd8682f836342fa7a48d9ca5aa853fdbc81cd6"
+      },
+      {
+        "path": "qa/first-wiring-mutual-v1/SFD-148a-221-SFD-148-221-P2-0.json.gz",
+        "bytes": 64609,
+        "sha256": "63ad441dfabf74959487de30a0df02df1fa499f5ad3dfacf5562a9067b9cf224"
+      },
+      {
+        "path": "qa/first-wiring-mutual-v1/SFD-148a-221-SFD-148-221-P2-7.json.gz",
+        "bytes": 53268,
+        "sha256": "83885f138febe6af7a9a97ba65bd7942aed31b8c478c526229e7b89672eb669c"
+      },
+      {
+        "path": "qa/first-wiring-mutual-v1/SFD-148a-221-SFD-148a-221-P1-0.json.gz",
+        "bytes": 65292,
+        "sha256": "8360376b20ee90aa950b063ac516277abc221f1bc3ac2804d11ab5788e294f3e"
+      },
+      {
+        "path": "qa/first-wiring-mutual-v1/SFD-148a-221-SFD-148a-221-P1-7.json.gz",
+        "bytes": 53862,
+        "sha256": "16d9a53e66b42a14c928e45e06eb1615a442ac63beedbd7fea3eb0f7867da3ac"
+      },
+      {
+        "path": "qa/first-wiring-mutual-v1/SFD-148a-221-SFD-148a-221-P2-0.json.gz",
+        "bytes": 64629,
+        "sha256": "b56d8196087e0b2e915edb8decb6395ae5f8461ecda1fd6be7e5634ef0ea0a9d"
+      },
+      {
+        "path": "qa/first-wiring-mutual-v1/SFD-148a-221-SFD-148a-221-P2-7.json.gz",
+        "bytes": 53413,
+        "sha256": "a9ccdd052d994acc20497942d35ab80541bbd507a395e010cd11368b3cdd7f36"
+      },
+      {
+        "path": "qa/independent-original-sql-owner-v1.json",
+        "bytes": 1492,
+        "sha256": "e7be0e16ca9017d9ef998fc1c7ab91ee9d5c0fa9115c18abcb2e3139294af5d4"
+      },
+      {
+        "path": "qa/independent-original-sql-v1.log",
+        "bytes": 51,
+        "sha256": "5116d71307fba7577ab7707d74cdf18a6a569abe54c554ed8e4f3a369134dbf5"
+      },
+      {
+        "path": "qa/independent-original-sql-v1/alt-normal-original-seven-tables.json.gz",
+        "bytes": 40383,
+        "sha256": "12b095b3bd08f13b6c666aa5e6f044b156bba0063ed597808b0b6933e3aaa2d1"
+      },
+      {
+        "path": "qa/independent-original-sql-v1/altar-original-seven-tables.json.gz",
+        "bytes": 39783,
+        "sha256": "24e0b8533631c4b5822fa015262d4f9ce1f3b2d6bdb73540b3be5e28d609c3be"
+      },
+      {
+        "path": "qa/independent-original-sql-v1/mixed-defender-original-seven-tables.json.gz",
+        "bytes": 41488,
+        "sha256": "a483707a1da8d4a6f468abe647f67a5a4e8e23e33a1b4611c9a21d3ab11978c2"
+      },
+      {
+        "path": "qa/independent-original-sql-v1/mutual-normal-original-seven-tables.json.gz",
+        "bytes": 44893,
+        "sha256": "627b568cb3f5d3f7077046a01ef222de7a5cc2d166ca10855de6aff2a86c260d"
+      },
+      {
+        "path": "qa/independent-original-sql-v1/mutual-winning-original-seven-tables.json.gz",
+        "bytes": 36725,
+        "sha256": "1b6081176248c09d9619061cd037043da9fc499374ca364f31afbeb253730187"
+      },
+      {
+        "path": "qa/independent-original-sql-v1/normal-original-seven-tables.json.gz",
+        "bytes": 42975,
+        "sha256": "cfc5ce65b1bc8bbb95ca98203c6da76208f420e584ca57ec76d5cfb9ea89fb09"
+      },
+      {
+        "path": "qa/independent-original-sql-v1/receipt.json",
+        "bytes": 4352,
+        "sha256": "58920041e91e1494e0c75c778e792d8a22ef7b39d1ca26bc925e814d9211aac7"
+      },
+      {
+        "path": "qa/independent-reader-build-v1.log",
+        "bytes": 520,
+        "sha256": "80c2393974a9e73c588c06b6cca273f32e83111a8b63bc997b34225922556682"
+      },
+      {
+        "path": "qa/independent-reader-build-v2.log",
+        "bytes": 291,
+        "sha256": "f50cc1899327a9962982fdb82d3bfaa1d2e96ec5924ac9881dc1d866c2ffba51"
+      },
+      {
+        "path": "qa/independent-reader-owner-console-v1.log",
+        "bytes": 63,
+        "sha256": "a400edad6deb44751f5058c4178400777e61d67aa068d30722315d9d5ff96e62"
+      },
+      {
+        "path": "qa/independent-sql-reader-v1/Program.cs",
+        "bytes": 4632,
+        "sha256": "f050abcae481963a47385ed14916bcc045266f54349a1a77c2c5fc3aaf62806d"
+      },
+      {
+        "path": "qa/independent-sql-reader-v1/probe.csproj",
+        "bytes": 1744,
+        "sha256": "caa15916ba4e61ea60683021daabf00931fba251f84bb26ec4c7e5d8518ff6bc"
+      },
+      {
+        "path": "qa/network-driver-build-v1.log",
+        "bytes": 1384,
+        "sha256": "9403f97c584e53fe2ccfa268965cd2d92742caab501f213b9fa1baa31d0cb046"
+      },
+      {
+        "path": "qa/network-driver-build-v2.log",
+        "bytes": 285,
+        "sha256": "50bd0e68cfb3ca50c03b98b485cccb5ea2fabd730eeae3c9039c0b08282b2062"
+      },
+      {
+        "path": "qa/network-driver-v1/Program.cs",
+        "bytes": 22498,
+        "sha256": "7f6784249251f3090b924b5650a207b5895756e49ff342faab0217f14193890e"
+      },
+      {
+        "path": "qa/network-driver-v1/probe.csproj",
+        "bytes": 1746,
+        "sha256": "214908e97745ec390a65beef5a4f91bc51b6d41cc231fd8d8e94a589518095a2"
+      },
+      {
+        "path": "qa/network-original-v1/alt-normal/post-restart-original-final-frame.json.gz",
+        "bytes": 20990,
+        "sha256": "4b83ad7097054f04d1086d4d88e7f6ee7a1c38f37135e64728d2a69202fb9000"
+      },
+      {
+        "path": "qa/network-original-v1/alt-normal/pre-restart-original-frame.json.gz",
+        "bytes": 14889,
+        "sha256": "f1ec957601b9beb8f3eeebd7c13a421262bb572c692a07bdd309c8a927b23619"
+      },
+      {
+        "path": "qa/network-original-v1/alt-normal/pre-restart-original-network-views.json.gz",
+        "bytes": 4677,
+        "sha256": "29680d88c72efc48ac81f23b773349fab176b16e61600fe77fbe23441df86f18"
+      },
+      {
+        "path": "qa/network-original-v1/alt-normal/prepare-checkpoint-01-connected.json.gz",
+        "bytes": 5154,
+        "sha256": "4c36d97e6aa76a6f9ef30843cf97681d1cd7518c3961c2c8fdff1b0a4444ce6c"
+      },
+      {
+        "path": "qa/network-original-v1/alt-normal/prepare-checkpoint-02-seed.json.gz",
+        "bytes": 14606,
+        "sha256": "a3709e5c62a049943eec50b226c3801909b5cec8bd7856a0db46c6137a1a51f1"
+      },
+      {
+        "path": "qa/network-original-v1/alt-normal/prepare-checkpoint-03-MOVE_UNIT.json.gz",
+        "bytes": 10418,
+        "sha256": "fd514c3a075119dd53befc8b91f99b5a0117bea14c17e18fe4308752fb406961"
+      },
+      {
+        "path": "qa/network-original-v1/alt-normal/prepare-checkpoint-04-PASS_FOCUS.json.gz",
+        "bytes": 14853,
+        "sha256": "9d4acd092a1a81b1a54ff56a13b55018aba39a9c519acc74dd466a8b6c456d11"
+      },
+      {
+        "path": "qa/network-original-v1/alt-normal/prepare-checkpoint-05-PASS_FOCUS.json.gz",
+        "bytes": 17369,
+        "sha256": "ccbf5fc61768bad1628751e546470f086094f051a4d5607b1f718f2cd78232a4"
+      },
+      {
+        "path": "qa/network-original-v1/alt-normal/prepare-checkpoint-06-DECLARE_BATTLE.json.gz",
+        "bytes": 16856,
+        "sha256": "d94f5f682f6bc970f52498aff88967effd9305b0f58bd5a872f2287099b42ce6"
+      },
+      {
+        "path": "qa/network-original-v1/alt-normal/prepare-checkpoint-07-CHOOSE_CARDS.json.gz",
+        "bytes": 13222,
+        "sha256": "d0873d33f3604d5dffd610b250fb6e3f2bce125738dda2ce3a1e367ae1876b26"
+      },
+      {
+        "path": "qa/network-original-v1/alt-normal/prepare-checkpoint-08-PASS_PRIORITY.json.gz",
+        "bytes": 18386,
+        "sha256": "35c7015c7d6b7763a4a00a8dd695a3e3a7a9d1523108e23b1827853e115bb46f"
+      },
+      {
+        "path": "qa/network-original-v1/alt-normal/prepare-checkpoint-09-PLAY_CARD.json.gz",
+        "bytes": 14715,
+        "sha256": "a45ad51c20d4a6380b7e371fc674cb4b615c00e3a78c2619f5638def49cfe341"
+      },
+      {
+        "path": "qa/network-original-v1/alt-normal/prepare-checkpoint-10-PASS_PRIORITY.json.gz",
+        "bytes": 14788,
+        "sha256": "fe8de87efad968761f5b86b060ffc9c714a5be664eaa3fc609e9dab27a01f128"
+      },
+      {
+        "path": "qa/network-original-v1/alt-normal/prepare-checkpoint-11-PASS_PRIORITY.json.gz",
+        "bytes": 14791,
+        "sha256": "9a3b503a3ec80fc37277113b6ec1887b39dcd0dd12aa82e226f7e7b5f8284a45"
+      },
+      {
+        "path": "qa/network-original-v1/alt-normal/prepare-checkpoint-12-reject-unauthenticated.json.gz",
+        "bytes": 14791,
+        "sha256": "9a3b503a3ec80fc37277113b6ec1887b39dcd0dd12aa82e226f7e7b5f8284a45"
+      },
+      {
+        "path": "qa/network-original-v1/alt-normal/prepare-checkpoint-13-reject-impersonation.json.gz",
+        "bytes": 14791,
+        "sha256": "9a3b503a3ec80fc37277113b6ec1887b39dcd0dd12aa82e226f7e7b5f8284a45"
+      },
+      {
+        "path": "qa/network-original-v1/alt-normal/prepare-checkpoint-14-reject-stale-tick.json.gz",
+        "bytes": 14889,
+        "sha256": "f1ec957601b9beb8f3eeebd7c13a421262bb572c692a07bdd309c8a927b23619"
+      },
+      {
+        "path": "qa/network-original-v1/alt-normal/prepare-original-wire.ndjson.gz",
+        "bytes": 41466,
+        "sha256": "0833ca416899b1de18a6fce45f777def00b8b12aa1054e5fa97bc6f1dbd35fa3"
+      },
+      {
+        "path": "qa/network-original-v1/alt-normal/prepare-receipt.json",
+        "bytes": 927,
+        "sha256": "73e425c60a4285c314e1b17b40ba4f4c6bf53aead71e23717ed84eaf4ffddda0"
+      },
+      {
+        "path": "qa/network-original-v1/alt-normal/resume-checkpoint-01-connected.json.gz",
+        "bytes": 14889,
+        "sha256": "f1ec957601b9beb8f3eeebd7c13a421262bb572c692a07bdd309c8a927b23619"
+      },
+      {
+        "path": "qa/network-original-v1/alt-normal/resume-checkpoint-02-PASS_PRIORITY.json.gz",
+        "bytes": 14956,
+        "sha256": "eea2eed03d3e2404d9bca074cffe61b7b694105e78d2361d824c72e22af93995"
+      },
+      {
+        "path": "qa/network-original-v1/alt-normal/resume-checkpoint-03-PASS_PRIORITY.json.gz",
+        "bytes": 20990,
+        "sha256": "4b83ad7097054f04d1086d4d88e7f6ee7a1c38f37135e64728d2a69202fb9000"
+      },
+      {
+        "path": "qa/network-original-v1/alt-normal/resume-original-wire.ndjson.gz",
+        "bytes": 10821,
+        "sha256": "628da9f511273fd476ebc208922f904cf6b99133811a434002c48485080ca9ba"
+      },
+      {
+        "path": "qa/network-original-v1/alt-normal/resume-receipt.json",
+        "bytes": 923,
+        "sha256": "cae5f31c28379c07c1bf5ee45af176abd2b2d06c5e0cb674f815b917675562a0"
+      },
+      {
+        "path": "qa/network-original-v1/altar/post-restart-original-final-frame.json.gz",
+        "bytes": 19894,
+        "sha256": "5547385dfbe48e21abc3d5b034145ac5e1a2a2fc03a0e3a3a160e8dde48a9ad9"
+      },
+      {
+        "path": "qa/network-original-v1/altar/pre-restart-original-frame.json.gz",
+        "bytes": 19062,
+        "sha256": "8e46b88fb0837d9ae43fec68e98951f55c34802b19e669614ecb073126c937ff"
+      },
+      {
+        "path": "qa/network-original-v1/altar/pre-restart-original-network-views.json.gz",
+        "bytes": 10540,
+        "sha256": "2e5bd91f6d4d30d9c9b27f6669972d75216584bdba40b73e3c401119d539cc92"
+      },
+      {
+        "path": "qa/network-original-v1/altar/prepare-checkpoint-01-connected.json.gz",
+        "bytes": 5150,
+        "sha256": "0b66fd8f647452e747d28b0a572567a99cc71a07f91004290eb5163b37978b2c"
+      },
+      {
+        "path": "qa/network-original-v1/altar/prepare-checkpoint-02-seed.json.gz",
+        "bytes": 14589,
+        "sha256": "97fa4d3ac4194747ad64bb6c76c59445adcbcd1eca89bfe8aa95b41e7030823b"
+      },
+      {
+        "path": "qa/network-original-v1/altar/prepare-checkpoint-03-MOVE_UNIT.json.gz",
+        "bytes": 10395,
+        "sha256": "24391b404e7fec7b7c9223d34724d7880d374ccfbd1f682ad302fafb7b34cd5a"
+      },
+      {
+        "path": "qa/network-original-v1/altar/prepare-checkpoint-04-PASS_FOCUS.json.gz",
+        "bytes": 14830,
+        "sha256": "33e15f7e4169a6a730b5d44d3d189e3522734925875b0d71c9cb5ae87a5d73c6"
+      },
+      {
+        "path": "qa/network-original-v1/altar/prepare-checkpoint-05-PASS_FOCUS.json.gz",
+        "bytes": 17356,
+        "sha256": "388c8f63d1c2c7cd789b3efc63c565b4f1c5887e2e846679ec81bd8334f23afd"
+      },
+      {
+        "path": "qa/network-original-v1/altar/prepare-checkpoint-06-DECLARE_BATTLE.json.gz",
+        "bytes": 18957,
+        "sha256": "404dfdde1eaf38c67fb58fa61961f34c053264b50cc046127db5ab58f45b52ec"
+      },
+      {
+        "path": "qa/network-original-v1/altar/prepare-checkpoint-07-reject-unauthenticated.json.gz",
+        "bytes": 18957,
+        "sha256": "404dfdde1eaf38c67fb58fa61961f34c053264b50cc046127db5ab58f45b52ec"
+      },
+      {
+        "path": "qa/network-original-v1/altar/prepare-checkpoint-08-reject-impersonation.json.gz",
+        "bytes": 18957,
+        "sha256": "404dfdde1eaf38c67fb58fa61961f34c053264b50cc046127db5ab58f45b52ec"
+      },
+      {
+        "path": "qa/network-original-v1/altar/prepare-checkpoint-09-reject-stale-tick.json.gz",
+        "bytes": 19062,
+        "sha256": "8e46b88fb0837d9ae43fec68e98951f55c34802b19e669614ecb073126c937ff"
+      },
+      {
+        "path": "qa/network-original-v1/altar/prepare-original-wire.ndjson.gz",
+        "bytes": 27467,
+        "sha256": "8246479fcdf45cd7d9052eaff290c25ebd9625628c82148e31af86de194fe783"
+      },
+      {
+        "path": "qa/network-original-v1/altar/prepare-receipt.json",
+        "bytes": 921,
+        "sha256": "de589ea280d87a1bafc0f19861a983d488c22effa411303b1b7e18df61327aac"
+      },
+      {
+        "path": "qa/network-original-v1/altar/resume-checkpoint-01-connected.json.gz",
+        "bytes": 19062,
+        "sha256": "8e46b88fb0837d9ae43fec68e98951f55c34802b19e669614ecb073126c937ff"
+      },
+      {
+        "path": "qa/network-original-v1/altar/resume-checkpoint-02-PAY_COST.json.gz",
+        "bytes": 17299,
+        "sha256": "7e9a2380caf3de74d496731d73094d7e624e11a371280f8d75abb306a5009bcf"
+      },
+      {
+        "path": "qa/network-original-v1/altar/resume-checkpoint-03-CHOOSE_CARDS.json.gz",
+        "bytes": 13646,
+        "sha256": "b913c22dfc997227c5ad94e4f69a3b594397c9fcb043cc0135bf2bce17f5b547"
+      },
+      {
+        "path": "qa/network-original-v1/altar/resume-checkpoint-04-PASS_PRIORITY.json.gz",
+        "bytes": 18822,
+        "sha256": "750717d286e84b42a91e655112a654982b633e45ad54122043bdf96029650d2f"
+      },
+      {
+        "path": "qa/network-original-v1/altar/resume-checkpoint-05-PASS_PRIORITY.json.gz",
+        "bytes": 19894,
+        "sha256": "5547385dfbe48e21abc3d5b034145ac5e1a2a2fc03a0e3a3a160e8dde48a9ad9"
+      },
+      {
+        "path": "qa/network-original-v1/altar/resume-original-wire.ndjson.gz",
+        "bytes": 28125,
+        "sha256": "2ae408361c1424ea4f8170912e30f558ee9fbfa1ecdcab6c70154c4d4e6d032f"
+      },
+      {
+        "path": "qa/network-original-v1/altar/resume-receipt.json",
+        "bytes": 919,
+        "sha256": "0465a171eb07de204a1c0ecad8fe654cce51673b89886ea35c7466aa6692d06c"
+      },
+      {
+        "path": "qa/network-original-v1/mixed-defender/post-restart-original-final-frame.json.gz",
+        "bytes": 23434,
+        "sha256": "ce813e9f4746e7cf9c9c2d62be5a6ab10d79a8682e06c834b4e634cf7018f70b"
+      },
+      {
+        "path": "qa/network-original-v1/mixed-defender/pre-restart-original-frame.json.gz",
+        "bytes": 19215,
+        "sha256": "8fc06428b036cd4e46866a89e2ba922bd6ac7eb25086d8197a04a64362c8f801"
+      },
+      {
+        "path": "qa/network-original-v1/mixed-defender/pre-restart-original-network-views.json.gz",
+        "bytes": 8232,
+        "sha256": "157b14597a6e5790f867dbe18dd8f888abcb8731e8b8a39b62a83f61f6574c53"
+      },
+      {
+        "path": "qa/network-original-v1/mixed-defender/prepare-checkpoint-01-connected.json.gz",
+        "bytes": 5155,
+        "sha256": "6cdd52b0ffba17bce163bc266e4de9bd832c5ac4baf077a67bdfd087f5109d25"
+      },
+      {
+        "path": "qa/network-original-v1/mixed-defender/prepare-checkpoint-02-seed.json.gz",
+        "bytes": 15425,
+        "sha256": "dff76e368162e962dc30e9182cfb625d5aca1b5718832728fa7ff5758a002d91"
+      },
+      {
+        "path": "qa/network-original-v1/mixed-defender/prepare-checkpoint-03-MOVE_UNIT.json.gz",
+        "bytes": 10704,
+        "sha256": "5e2d2d01bd087bbaf5274fca08f2e8f88529bb5c62faf0688dfcc6bac57040c6"
+      },
+      {
+        "path": "qa/network-original-v1/mixed-defender/prepare-checkpoint-04-PASS_FOCUS.json.gz",
+        "bytes": 15154,
+        "sha256": "6abcc88326a19ed39c28a66ee45fdefb73b28bf497cf4959bb9bf6a21c4b5f45"
+      },
+      {
+        "path": "qa/network-original-v1/mixed-defender/prepare-checkpoint-05-PASS_FOCUS.json.gz",
+        "bytes": 17696,
+        "sha256": "111b124f361235f9e0eca0a58895ac7f31e4a3a45f2a5d2edefcc2e13aaa9598"
+      },
+      {
+        "path": "qa/network-original-v1/mixed-defender/prepare-checkpoint-06-DECLARE_BATTLE.json.gz",
+        "bytes": 19119,
+        "sha256": "bf72d4c5f06f2b8461c52fe3a6d7ca6f51352d9faa07cf770ca6ad53a621248b"
+      },
+      {
+        "path": "qa/network-original-v1/mixed-defender/prepare-checkpoint-07-reject-unauthenticated.json.gz",
+        "bytes": 19119,
+        "sha256": "bf72d4c5f06f2b8461c52fe3a6d7ca6f51352d9faa07cf770ca6ad53a621248b"
+      },
+      {
+        "path": "qa/network-original-v1/mixed-defender/prepare-checkpoint-08-reject-impersonation.json.gz",
+        "bytes": 19119,
+        "sha256": "bf72d4c5f06f2b8461c52fe3a6d7ca6f51352d9faa07cf770ca6ad53a621248b"
+      },
+      {
+        "path": "qa/network-original-v1/mixed-defender/prepare-checkpoint-09-reject-stale-tick.json.gz",
+        "bytes": 19215,
+        "sha256": "8fc06428b036cd4e46866a89e2ba922bd6ac7eb25086d8197a04a64362c8f801"
+      },
+      {
+        "path": "qa/network-original-v1/mixed-defender/prepare-original-wire.ndjson.gz",
+        "bytes": 30276,
+        "sha256": "76f79eaae5b0acfb615b6c96e8b576841e4c7757a7c5ae6250fd57f930ff9905"
+      },
+      {
+        "path": "qa/network-original-v1/mixed-defender/prepare-receipt.json",
+        "bytes": 930,
+        "sha256": "d94be646b8a0d4bf7d74651ce53dacfacdca09109ff526caa7440313eff4c2f0"
+      },
+      {
+        "path": "qa/network-original-v1/mixed-defender/resume-checkpoint-01-connected.json.gz",
+        "bytes": 19215,
+        "sha256": "8fc06428b036cd4e46866a89e2ba922bd6ac7eb25086d8197a04a64362c8f801"
+      },
+      {
+        "path": "qa/network-original-v1/mixed-defender/resume-checkpoint-02-CHOOSE_CARDS.json.gz",
+        "bytes": 14801,
+        "sha256": "2502fdfba41e4001783b5243e544071631b490c7f870ec290134b0a68adf05a8"
+      },
+      {
+        "path": "qa/network-original-v1/mixed-defender/resume-checkpoint-03-PASS_PRIORITY.json.gz",
+        "bytes": 19470,
+        "sha256": "e8efd21d74a40e460c698a1f758d4886e0d2566eeb084035400f56f9ddb4c27e"
+      },
+      {
+        "path": "qa/network-original-v1/mixed-defender/resume-checkpoint-04-PASS_PRIORITY.json.gz",
+        "bytes": 19796,
+        "sha256": "54938b2e72402dffa3d773033d3239be1b131838228c2bbc63f9214635d54f2a"
+      },
+      {
+        "path": "qa/network-original-v1/mixed-defender/resume-checkpoint-05-PASS_PRIORITY.json.gz",
+        "bytes": 15306,
+        "sha256": "0001cf2dfbdbb37b1095d53029f8e749033e39793852fc317fb70868c070668c"
+      },
+      {
+        "path": "qa/network-original-v1/mixed-defender/resume-checkpoint-06-PASS_PRIORITY.json.gz",
+        "bytes": 23434,
+        "sha256": "ce813e9f4746e7cf9c9c2d62be5a6ab10d79a8682e06c834b4e634cf7018f70b"
+      },
+      {
+        "path": "qa/network-original-v1/mixed-defender/resume-original-wire.ndjson.gz",
+        "bytes": 29383,
+        "sha256": "c14c7fc49200dd2b6a49d15e69feacdc204695e70e3f855e4d3cf861f2ceeec9"
+      },
+      {
+        "path": "qa/network-original-v1/mixed-defender/resume-receipt.json",
+        "bytes": 928,
+        "sha256": "86972dd80207eb5571dcbb754ae4be1fc274496c7f45936d490cbbef2d3d4fac"
+      },
+      {
+        "path": "qa/network-original-v1/mutual-normal/post-restart-original-final-frame.json.gz",
+        "bytes": 20192,
+        "sha256": "6daeb9ff328255476bbda5b59ac21301dbea97c2033562eaf1b6c40638acb312"
+      },
+      {
+        "path": "qa/network-original-v1/mutual-normal/pre-restart-original-frame.json.gz",
+        "bytes": 17351,
+        "sha256": "04ece31efff934e1100c541cc32f873927f6be0e2a3ceea43a7582ee6c6c9832"
+      },
+      {
+        "path": "qa/network-original-v1/mutual-normal/pre-restart-original-network-views.json.gz",
+        "bytes": 7887,
+        "sha256": "bbdb3bff72957ac3a7c0ae26f2c82b8e071f41e62c126adab4e8ceabbf3bbef1"
+      },
+      {
+        "path": "qa/network-original-v1/mutual-normal/prepare-checkpoint-01-connected.json.gz",
+        "bytes": 5155,
+        "sha256": "57cd5d94fb657e4448be572caf6f84ccb6d7a8e529fd8d83bc1aacd9a894c2c1"
+      },
+      {
+        "path": "qa/network-original-v1/mutual-normal/prepare-checkpoint-02-seed.json.gz",
+        "bytes": 14572,
+        "sha256": "f1ae2c576a0ce15f91c452e9aa7b3238fcfd2770d53013575bd54fecec1cfacd"
+      },
+      {
+        "path": "qa/network-original-v1/mutual-normal/prepare-checkpoint-03-MOVE_UNIT.json.gz",
+        "bytes": 10362,
+        "sha256": "5b041e2aa5d4870b043e3c74518da27be72be00878497f0c5d35892e7e17d6b2"
+      },
+      {
+        "path": "qa/network-original-v1/mutual-normal/prepare-checkpoint-04-PASS_FOCUS.json.gz",
+        "bytes": 14795,
+        "sha256": "cfed00b4e17f1f2358564d73717284f414c8ffcf92391ea578002355831adb70"
+      },
+      {
+        "path": "qa/network-original-v1/mutual-normal/prepare-checkpoint-05-PASS_FOCUS.json.gz",
+        "bytes": 17272,
+        "sha256": "ef6e07c9fa6450ce8b9283ebbeb44207ac3e5516c0d0b4e22e8f422be22d8b80"
+      },
+      {
+        "path": "qa/network-original-v1/mutual-normal/prepare-checkpoint-06-DECLARE_BATTLE.json.gz",
+        "bytes": 16860,
+        "sha256": "9bd6dee21bcea92b97e0b0648430307e0d900832ac00ab453e8cb49d7ce55c81"
+      },
+      {
+        "path": "qa/network-original-v1/mutual-normal/prepare-checkpoint-07-ORDER_TRIGGERS.json.gz",
+        "bytes": 17245,
+        "sha256": "f7ebe6127221fca778f237f7049aef754544b914eeead7240d2f47dc59f08e88"
+      },
+      {
+        "path": "qa/network-original-v1/mutual-normal/prepare-checkpoint-08-reject-unauthenticated.json.gz",
+        "bytes": 17245,
+        "sha256": "f7ebe6127221fca778f237f7049aef754544b914eeead7240d2f47dc59f08e88"
+      },
+      {
+        "path": "qa/network-original-v1/mutual-normal/prepare-checkpoint-09-reject-impersonation.json.gz",
+        "bytes": 17245,
+        "sha256": "f7ebe6127221fca778f237f7049aef754544b914eeead7240d2f47dc59f08e88"
+      },
+      {
+        "path": "qa/network-original-v1/mutual-normal/prepare-checkpoint-10-reject-stale-tick.json.gz",
+        "bytes": 17351,
+        "sha256": "04ece31efff934e1100c541cc32f873927f6be0e2a3ceea43a7582ee6c6c9832"
+      },
+      {
+        "path": "qa/network-original-v1/mutual-normal/prepare-original-wire.ndjson.gz",
+        "bytes": 33495,
+        "sha256": "5a419f4ac1ef39a0f7639f27cdf739a706e481a94b857cb22be5b9e4ae4a64a7"
+      },
+      {
+        "path": "qa/network-original-v1/mutual-normal/prepare-receipt.json",
+        "bytes": 930,
+        "sha256": "6597bce3ee26608e6eb8bf682ab40012023b36d7c10ef67f3d56f4efd6fc3ffe"
+      },
+      {
+        "path": "qa/network-original-v1/mutual-normal/resume-checkpoint-01-connected.json.gz",
+        "bytes": 17351,
+        "sha256": "04ece31efff934e1100c541cc32f873927f6be0e2a3ceea43a7582ee6c6c9832"
+      },
+      {
+        "path": "qa/network-original-v1/mutual-normal/resume-checkpoint-02-CHOOSE_CARDS.json.gz",
+        "bytes": 17183,
+        "sha256": "7315b866b2bde3fd78a96590079a68e164b727a1ef73ac687c3ed4b0613eb000"
+      },
+      {
+        "path": "qa/network-original-v1/mutual-normal/resume-checkpoint-03-CHOOSE_CARDS.json.gz",
+        "bytes": 18917,
+        "sha256": "17d54eb0a62a318c71bd91e8cd5e4a69808fdb8e77b3fbd16831acd3752f1bb2"
+      },
+      {
+        "path": "qa/network-original-v1/mutual-normal/resume-checkpoint-04-PASS_PRIORITY.json.gz",
+        "bytes": 13962,
+        "sha256": "bbb1532cbf5bf8bcfd31fd65efa012133aa992478e0deea9e52342b1ca9b4327"
+      },
+      {
+        "path": "qa/network-original-v1/mutual-normal/resume-checkpoint-05-PASS_PRIORITY.json.gz",
+        "bytes": 14257,
+        "sha256": "3c438e89de9c8eef9ecfdfa57967d63f5af224a3e38b4c95ce6221572da79739"
+      },
+      {
+        "path": "qa/network-original-v1/mutual-normal/resume-checkpoint-06-PASS_PRIORITY.json.gz",
+        "bytes": 19362,
+        "sha256": "3a5405e7c33f26a4cd6a7facab0951078bab3bd88e4357cfaff1bbc46a3fc6fd"
+      },
+      {
+        "path": "qa/network-original-v1/mutual-normal/resume-checkpoint-07-PASS_PRIORITY.json.gz",
+        "bytes": 20192,
+        "sha256": "6daeb9ff328255476bbda5b59ac21301dbea97c2033562eaf1b6c40638acb312"
+      },
+      {
+        "path": "qa/network-original-v1/mutual-normal/resume-original-wire.ndjson.gz",
+        "bytes": 34372,
+        "sha256": "8b62ee4f9b132e3e8921ed3cea0de801f94b5d11cde54c8cb3555e46c2d417bf"
+      },
+      {
+        "path": "qa/network-original-v1/mutual-normal/resume-receipt.json",
+        "bytes": 927,
+        "sha256": "e169e76f7d8a6c7d4f9d483ca64bd653aa52cc15af440ef1f3c6ae94fcb3be06"
+      },
+      {
+        "path": "qa/network-original-v1/mutual-winning/post-restart-original-final-frame.json.gz",
+        "bytes": 13885,
+        "sha256": "2305b1e146e11558116a514fbe4cad853edb7a99cea25d59be57dedc7dd5a028"
+      },
+      {
+        "path": "qa/network-original-v1/mutual-winning/pre-restart-original-frame.json.gz",
+        "bytes": 17351,
+        "sha256": "e9db7db719599bc0a7629bf01137fc1814b15a67b9c9e9c2ae4f20aad482eadc"
+      },
+      {
+        "path": "qa/network-original-v1/mutual-winning/pre-restart-original-network-views.json.gz",
+        "bytes": 7893,
+        "sha256": "bee61737ca61cb4865e6f0b4d459cc6e357029ef0f3a769999a86efb8a3560c2"
+      },
+      {
+        "path": "qa/network-original-v1/mutual-winning/prepare-checkpoint-01-connected.json.gz",
+        "bytes": 5156,
+        "sha256": "82e88e122719585c460e4d0506e904975bd79b3eb591c19f3a6544a22b0b5d85"
+      },
+      {
+        "path": "qa/network-original-v1/mutual-winning/prepare-checkpoint-02-seed.json.gz",
+        "bytes": 14576,
+        "sha256": "f20c033d2afb4a20ebe472638252466a7589a746997374503a86556a9ebe57bd"
+      },
+      {
+        "path": "qa/network-original-v1/mutual-winning/prepare-checkpoint-03-MOVE_UNIT.json.gz",
+        "bytes": 10361,
+        "sha256": "a1602d87d7934a8ebc2b45576b47810d14ca76acae19cead29412c38194188b0"
+      },
+      {
+        "path": "qa/network-original-v1/mutual-winning/prepare-checkpoint-04-PASS_FOCUS.json.gz",
+        "bytes": 14790,
+        "sha256": "89ab716178e4a7b13aef910c3f62bbebae1c97b3e4157b42c8d9b9766661ce78"
+      },
+      {
+        "path": "qa/network-original-v1/mutual-winning/prepare-checkpoint-05-PASS_FOCUS.json.gz",
+        "bytes": 17277,
+        "sha256": "2d186268bab6b9562aeb9345831f379587e22639e6e41a8ab84b7c14247d3ab7"
+      },
+      {
+        "path": "qa/network-original-v1/mutual-winning/prepare-checkpoint-06-DECLARE_BATTLE.json.gz",
+        "bytes": 16860,
+        "sha256": "053e3fbbd76f595c8b1b91c4100371a20a13649e79f3607ccff318a4f521b7d4"
+      },
+      {
+        "path": "qa/network-original-v1/mutual-winning/prepare-checkpoint-07-ORDER_TRIGGERS.json.gz",
+        "bytes": 17245,
+        "sha256": "6638701bcdcc88129cd9658b227a379db9f830482b5f83733b8f5a612cb94aab"
+      },
+      {
+        "path": "qa/network-original-v1/mutual-winning/prepare-checkpoint-08-reject-unauthenticated.json.gz",
+        "bytes": 17245,
+        "sha256": "6638701bcdcc88129cd9658b227a379db9f830482b5f83733b8f5a612cb94aab"
+      },
+      {
+        "path": "qa/network-original-v1/mutual-winning/prepare-checkpoint-09-reject-impersonation.json.gz",
+        "bytes": 17245,
+        "sha256": "6638701bcdcc88129cd9658b227a379db9f830482b5f83733b8f5a612cb94aab"
+      },
+      {
+        "path": "qa/network-original-v1/mutual-winning/prepare-checkpoint-10-reject-stale-tick.json.gz",
+        "bytes": 17351,
+        "sha256": "e9db7db719599bc0a7629bf01137fc1814b15a67b9c9e9c2ae4f20aad482eadc"
+      },
+      {
+        "path": "qa/network-original-v1/mutual-winning/prepare-original-wire.ndjson.gz",
+        "bytes": 33657,
+        "sha256": "b258e7f3c16b1e420a8b0109d33d08b6cf1c105c034e2e5457ef95e453d4b732"
+      },
+      {
+        "path": "qa/network-original-v1/mutual-winning/prepare-receipt.json",
+        "bytes": 931,
+        "sha256": "9c97590f5754e64268bc7eb6d90eb7cc353d2d89472438de09eeac4c535b8076"
+      },
+      {
+        "path": "qa/network-original-v1/mutual-winning/resume-checkpoint-01-connected.json.gz",
+        "bytes": 17351,
+        "sha256": "e9db7db719599bc0a7629bf01137fc1814b15a67b9c9e9c2ae4f20aad482eadc"
+      },
+      {
+        "path": "qa/network-original-v1/mutual-winning/resume-checkpoint-02-CHOOSE_CARDS.json.gz",
+        "bytes": 17181,
+        "sha256": "ef1d8ae75d9632f33f1b49196c022721dfd32dea8e9b06d54bc8a93f03b14983"
+      },
+      {
+        "path": "qa/network-original-v1/mutual-winning/resume-checkpoint-03-CHOOSE_CARDS.json.gz",
+        "bytes": 18914,
+        "sha256": "ba025d91bed353ce4f917f3d9feebee3c6ef1ada99e02fa02c7cf4aed3025d7f"
+      },
+      {
+        "path": "qa/network-original-v1/mutual-winning/resume-checkpoint-04-PASS_PRIORITY.json.gz",
+        "bytes": 13960,
+        "sha256": "421c52dcc2a68e59f4678accd821b88259989c6ed0017c6e0782e8a343466153"
+      },
+      {
+        "path": "qa/network-original-v1/mutual-winning/resume-checkpoint-05-PASS_PRIORITY.json.gz",
+        "bytes": 13885,
+        "sha256": "2305b1e146e11558116a514fbe4cad853edb7a99cea25d59be57dedc7dd5a028"
+      },
+      {
+        "path": "qa/network-original-v1/mutual-winning/resume-original-wire.ndjson.gz",
+        "bytes": 23055,
+        "sha256": "0e36f92a2e1e536507b48645206809ff63a3709c66d401a4568c984b978a533f"
+      },
+      {
+        "path": "qa/network-original-v1/mutual-winning/resume-receipt.json",
+        "bytes": 928,
+        "sha256": "0f678241623cb553e923ddf28308db6e3b52ab70e368c3d538d972c4ce55e8d9"
+      },
+      {
+        "path": "qa/network-original-v1/normal/post-restart-original-final-frame.json.gz",
+        "bytes": 20977,
+        "sha256": "18a851dd057f4ea905a0ad62d269a0d783316ed02b3201cee464c1789b4cc8c7"
+      },
+      {
+        "path": "qa/network-original-v1/normal/pre-restart-original-frame.json.gz",
+        "bytes": 14882,
+        "sha256": "d7f8e4aed18debc3852316a181d55d498a4fd4297d4e337c90fe379db38ea69f"
+      },
+      {
+        "path": "qa/network-original-v1/normal/pre-restart-original-network-views.json.gz",
+        "bytes": 4675,
+        "sha256": "522da1b52a2b85fc619cf617f31d44a2c582eacff43b94ad3bcb566ff370e600"
+      },
+      {
+        "path": "qa/network-original-v1/normal/prepare-checkpoint-01-connected.json.gz",
+        "bytes": 5155,
+        "sha256": "b08619359d05654e9f552fb70a213c3a29801ef9f77af0c1090b862a9dbe1713"
+      },
+      {
+        "path": "qa/network-original-v1/normal/prepare-checkpoint-02-seed.json.gz",
+        "bytes": 14595,
+        "sha256": "e7a91c23992b5c7c506c8fff8ce13487487210735f0999d185647b545d1e18de"
+      },
+      {
+        "path": "qa/network-original-v1/normal/prepare-checkpoint-03-MOVE_UNIT.json.gz",
+        "bytes": 10405,
+        "sha256": "c83e79f1c86fd36028e498ddc7bc7a6f106045e42979e37ef5d3f92dbfbcf3ba"
+      },
+      {
+        "path": "qa/network-original-v1/normal/prepare-checkpoint-04-PASS_FOCUS.json.gz",
+        "bytes": 14843,
+        "sha256": "bce91b465b89682c2d4404ede1c01b30c6b457054b932280b7e978ae6174334f"
+      },
+      {
+        "path": "qa/network-original-v1/normal/prepare-checkpoint-05-PASS_FOCUS.json.gz",
+        "bytes": 17358,
+        "sha256": "03d0e1982f23db7a9a7ac38b9ccb6db4957b07f37f390117f7ec0aa1ce9393ac"
+      },
+      {
+        "path": "qa/network-original-v1/normal/prepare-checkpoint-06-DECLARE_BATTLE.json.gz",
+        "bytes": 16847,
+        "sha256": "8e941ceafe2a6fe4abdd8a799a87cf17606b16d13c081f4f4ce3370ea64da982"
+      },
+      {
+        "path": "qa/network-original-v1/normal/prepare-checkpoint-07-CHOOSE_CARDS.json.gz",
+        "bytes": 13213,
+        "sha256": "72740db6f212b3997b3e859208430e6b1d7a8cea223efa39a363a74108d3301a"
+      },
+      {
+        "path": "qa/network-original-v1/normal/prepare-checkpoint-08-PASS_PRIORITY.json.gz",
+        "bytes": 18371,
+        "sha256": "8d7b579695f02527886b490cccf76ddca58e87872a731b97ff3cbe967e0c8e6d"
+      },
+      {
+        "path": "qa/network-original-v1/normal/prepare-checkpoint-09-PLAY_CARD.json.gz",
+        "bytes": 14704,
+        "sha256": "1f750927785fe7c84b5385bbe1c5952900d920e2ceccde0defe8adc82c2240ed"
+      },
+      {
+        "path": "qa/network-original-v1/normal/prepare-checkpoint-10-PASS_PRIORITY.json.gz",
+        "bytes": 14778,
+        "sha256": "cd62188526d31545f933096744f9efb1be7a70a707691602611c67a7c49c2c3e"
+      },
+      {
+        "path": "qa/network-original-v1/normal/prepare-checkpoint-11-PASS_PRIORITY.json.gz",
+        "bytes": 14784,
+        "sha256": "5c535ef4f567ff6e2109a47faf086120bd6de9368fa4ed83c16c113de225f814"
+      },
+      {
+        "path": "qa/network-original-v1/normal/prepare-checkpoint-12-reject-unauthenticated.json.gz",
+        "bytes": 14784,
+        "sha256": "5c535ef4f567ff6e2109a47faf086120bd6de9368fa4ed83c16c113de225f814"
+      },
+      {
+        "path": "qa/network-original-v1/normal/prepare-checkpoint-13-reject-impersonation.json.gz",
+        "bytes": 14784,
+        "sha256": "5c535ef4f567ff6e2109a47faf086120bd6de9368fa4ed83c16c113de225f814"
+      },
+      {
+        "path": "qa/network-original-v1/normal/prepare-checkpoint-14-reject-stale-tick.json.gz",
+        "bytes": 14882,
+        "sha256": "d7f8e4aed18debc3852316a181d55d498a4fd4297d4e337c90fe379db38ea69f"
+      },
+      {
+        "path": "qa/network-original-v1/normal/prepare-original-wire.ndjson.gz",
+        "bytes": 43406,
+        "sha256": "72db9b750aa2294a6854a8fb6b3e1fee5b4606c7a430a556e2ad6c397bf499c3"
+      },
+      {
+        "path": "qa/network-original-v1/normal/prepare-receipt.json",
+        "bytes": 923,
+        "sha256": "85d047e1bfe60d603b09467c01d1667e0ab237570b54ba7b9775de53afaa0fe3"
+      },
+      {
+        "path": "qa/network-original-v1/normal/resume-checkpoint-01-connected.json.gz",
+        "bytes": 14882,
+        "sha256": "d7f8e4aed18debc3852316a181d55d498a4fd4297d4e337c90fe379db38ea69f"
+      },
+      {
+        "path": "qa/network-original-v1/normal/resume-checkpoint-02-PASS_PRIORITY.json.gz",
+        "bytes": 14947,
+        "sha256": "3ed714a989c7621ae95ed2a4ab11acf27941cb1a52b21d9af021751d020d1a45"
+      },
+      {
+        "path": "qa/network-original-v1/normal/resume-checkpoint-03-PASS_PRIORITY.json.gz",
+        "bytes": 20977,
+        "sha256": "18a851dd057f4ea905a0ad62d269a0d783316ed02b3201cee464c1789b4cc8c7"
+      },
+      {
+        "path": "qa/network-original-v1/normal/resume-original-wire.ndjson.gz",
+        "bytes": 10520,
+        "sha256": "aea0ea7918f0f6b3addba5fe783d147f7d2b51ea1cd68d4920cfd0e0318ff93e"
+      },
+      {
+        "path": "qa/network-original-v1/normal/resume-receipt.json",
+        "bytes": 919,
+        "sha256": "4b080700bf50b717108a7055c757cb5098c108343f2c10698075198ff30e078e"
+      },
+      {
+        "path": "qa/network-original-v1/prepare-receipts.json",
+        "bytes": 5864,
+        "sha256": "6b5e209e0474ae1f9a156378990a3e2add58be91a12e1737bb961f63c1462578"
+      },
+      {
+        "path": "qa/network-original-v1/resume-receipts.json",
+        "bytes": 5846,
+        "sha256": "c8cc435de20c74e0e1ed7dc6ea0238264fe12fb1d40fa930decc824fb1195fba"
+      },
+      {
+        "path": "qa/network-owner-console-v1.log",
+        "bytes": 56,
+        "sha256": "a3b61c8713029d7b7a9a47451a2cfc515bfcd33bb0ea0d7a099fd0cf040b828f"
+      },
+      {
+        "path": "qa/network-owner-terminal-v1.json",
+        "bytes": 136056,
+        "sha256": "d43b62f1c0b44e97d13383f25091f9f3c0cf9685c451356f26bc0e95d22da89b"
+      },
+      {
+        "path": "qa/network-prepare-v1.log",
+        "bytes": 4956,
+        "sha256": "c0d10ef67468d00d7ab4164905c67a8d628f5a0ec0c9eedda3bb9831d86af718"
+      },
+      {
+        "path": "qa/network-resume-v1.log",
+        "bytes": 4938,
+        "sha256": "c545e23a08a538a246433e03b782a8e5140c1d5c001b231614bbed9cfd8e5776"
+      },
+      {
+        "path": "qa/package-module-v1.py",
+        "bytes": 8011,
+        "sha256": "ba6420b5bbc6c06d8438c6336e61924c119f809266911cb28488405b972edf9c"
+      },
+      {
+        "path": "qa/package-module-v2.py",
+        "bytes": 8134,
+        "sha256": "c5c39d6660ae45bd6021e8585977e85e24dc7a0ba331aa0fa1ac18e1a35caf26"
+      },
+      {
+        "path": "qa/package-module-v3.py",
+        "bytes": 8246,
+        "sha256": "709281826125e4abba7a4435fd48f20a20f9bd1291bd7a6b81476f26e9b358b9"
+      },
+      {
+        "path": "qa/packaging-v1-superseded.json",
+        "bytes": 683,
+        "sha256": "e2eacdea87b3b3c50bd45b5bedfa4728d7e0bb92aa3326c733e5c5e793636efa"
+      },
+      {
+        "path": "qa/postgres-independent-read-v1.log",
+        "bytes": 1265,
+        "sha256": "963d61f09758ccf19604112dd7b5582be6fa2fef8028a15bac38fb42d7567a80"
+      },
+      {
+        "path": "qa/postgres-init-v1.log",
+        "bytes": 1079,
+        "sha256": "1f43847a7c4c5efecef3d8fe3dafc6749207155a83e680af2907d26c56500971"
+      },
+      {
+        "path": "qa/postgres-own-v1.log",
+        "bytes": 1276,
+        "sha256": "bf902c26375521fdae34699f1bc2679edb26d275a1fdea748ecc290ec6b0945d"
+      },
+      {
+        "path": "qa/read-original-sql-v1.py",
+        "bytes": 2321,
+        "sha256": "84fefb1752efd90c59c29e2c2008b082061b476aa44b4efc836c924d444c1688"
+      },
+      {
+        "path": "qa/recovery-fixture-v1.cs.txt",
+        "bytes": 18532,
+        "sha256": "1b0071836d4cb5ed50ee8acb1ce3c0cb5c34f4aeab152ffaf9007f0499846828"
+      },
+      {
+        "path": "qa/recovery-focus-v1.log",
+        "bytes": 401,
+        "sha256": "88d9376a3a375d693eca015783d24ec8a4a2514e8fc135943dd18250eb557398"
+      },
+      {
+        "path": "qa/recovery-focus-v1/build.log",
+        "bytes": 78,
+        "sha256": "a3601dd3659837e365d5d7bd255ce53da1d9abee16096ff4406b5382b16f89f3"
+      },
+      {
+        "path": "qa/recovery-focus-v1/discovery.log",
+        "bytes": 2117249,
+        "sha256": "4a7ada88e52230e567009b807f0d5c2971fa51a800b0a577b6bb5e7e9c6beb67"
+      },
+      {
+        "path": "qa/recovery-focus-v1/focus/results.trx",
+        "bytes": 168301,
+        "sha256": "3a1bb40e395bb0f8f6935a86b99c32d30eefafbc784f27f7679b202d545407da"
+      },
+      {
+        "path": "qa/recovery-focus-v1/focus/test.log",
+        "bytes": 5715,
+        "sha256": "e9264cb205d46635daae469d81a2e4064c459d8afdf9a4f15da7f6f6dc4f64e8"
+      },
+      {
+        "path": "qa/recovery-focus-v1/plan.json",
+        "bytes": 1172,
+        "sha256": "b4cee9ed426cd5ac9195af5f7ee4287017bf3eca3efb3065f5e0fe774811954f"
+      },
+      {
+        "path": "qa/recovery-focus-v2.log",
+        "bytes": 401,
+        "sha256": "3da5a9b51e6127a34e10054523dc2c8f4d67a3f86bddf88fa504aae4587c70d4"
+      },
+      {
+        "path": "qa/recovery-focus-v2/build.log",
+        "bytes": 78,
+        "sha256": "b0547ef2acf9a99476a32787658c1e76df8239facbdd993085add2872e6b15b3"
+      },
+      {
+        "path": "qa/recovery-focus-v2/discovery.log",
+        "bytes": 2117249,
+        "sha256": "4a7ada88e52230e567009b807f0d5c2971fa51a800b0a577b6bb5e7e9c6beb67"
+      },
+      {
+        "path": "qa/recovery-focus-v2/focus/results.trx",
+        "bytes": 59958,
+        "sha256": "29a32f1de4fa4250c242805dfcce9e43ca4d92ab539d8f9c8626ccbe94ea0d21"
+      },
+      {
+        "path": "qa/recovery-focus-v2/focus/test.log",
+        "bytes": 1313,
+        "sha256": "9af12ce895fa106742d12a34759b404de9f4d88601ef1d493ed0e7131f42e492"
+      },
+      {
+        "path": "qa/recovery-focus-v2/plan.json",
+        "bytes": 1172,
+        "sha256": "772bc93b18d8b1d9c46ba2fde7184e77f4bd3bccdbede0dd0e1c591d9fbb375a"
+      },
+      {
+        "path": "qa/recovery-focus-v3.log",
+        "bytes": 457,
+        "sha256": "386f527fa0ac05c3871a4438e070b5decd055ce430982975564ddf95d331c87f"
+      },
+      {
+        "path": "qa/recovery-focus-v3/build.log",
+        "bytes": 78,
+        "sha256": "11882dd9c01830fd08b9b7a1e70ef65ea67686e9002b95b9a83e0e8d1de72c5e"
+      },
+      {
+        "path": "qa/recovery-focus-v3/discovery.log",
+        "bytes": 2117249,
+        "sha256": "4a7ada88e52230e567009b807f0d5c2971fa51a800b0a577b6bb5e7e9c6beb67"
+      },
+      {
+        "path": "qa/recovery-focus-v3/focus/results.trx",
+        "bytes": 112180,
+        "sha256": "a516eef7a868fdf5499c242e37faa088b02daf8e2fb4eb7f5659a5ab7651fe40"
+      },
+      {
+        "path": "qa/recovery-focus-v3/focus/test.log",
+        "bytes": 573,
+        "sha256": "571cd19c61ab21fda07f4ff2ebc0e146fbdaf4ba1f0eb8ed1fd01df2d9e23917"
+      },
+      {
+        "path": "qa/recovery-focus-v3/plan.json",
+        "bytes": 1826,
+        "sha256": "cdad5f694f31380ee82d757358f0f312eff34baf3ec29a001a1c82024c7f1e4b"
+      },
+      {
+        "path": "qa/recovery-focus-v3/summary.json",
+        "bytes": 273,
+        "sha256": "f262032edcaecd65da0a216c5bf17f723e444d9fd36ebefc85ada5ccfa0ad54e"
+      },
+      {
+        "path": "qa/recovery-focus-v4.log",
+        "bytes": 458,
+        "sha256": "76cce09183ae84f1e3b1ccc2ed1fc754083b4e4568ab1e2819969f0a03977dfe"
+      },
+      {
+        "path": "qa/recovery-focus-v4/build.log",
+        "bytes": 78,
+        "sha256": "37fc748629a9b8a7bca94a6370e51b77d4e9b86611bd10b46bf6bca40c1e3fee"
+      },
+      {
+        "path": "qa/recovery-focus-v4/discovery.log",
+        "bytes": 2117821,
+        "sha256": "efd2fc58782ed42883820d8d9fd1c2b7f0871e7957d721de2d93b46dc88cefdc"
+      },
+      {
+        "path": "qa/recovery-focus-v4/focus/results.trx",
+        "bytes": 143423,
+        "sha256": "535fbbcb23b0b5f159a287ba1eeb201f661ff679192f725a6000aaa294df1363"
+      },
+      {
+        "path": "qa/recovery-focus-v4/focus/test.log",
+        "bytes": 573,
+        "sha256": "1f6d9e37bc98e64a653c3d7f1eace9a80df64b1c8ae9d4966a5dd8c134534e07"
+      },
+      {
+        "path": "qa/recovery-focus-v4/plan.json",
+        "bytes": 2406,
+        "sha256": "c7f8614d727e3a514709f009fd43448a5213ddebf89d634f3a3f62e629031a23"
+      },
+      {
+        "path": "qa/recovery-focus-v4/summary.json",
+        "bytes": 273,
+        "sha256": "5ad10fdef2654db5c6c7c45d1740c4648b9ce65c40867090638d0568e12ed246"
+      },
+      {
+        "path": "qa/recovery-original-v2/cold-False-False-0.json.gz",
+        "bytes": 78183,
+        "sha256": "fe8600ca449c3ec512cdf74cf85c7ba41c91432f8a2fc47e9a12d611311fa716"
+      },
+      {
+        "path": "qa/recovery-original-v2/cold-False-False-7.json.gz",
+        "bytes": 69323,
+        "sha256": "0daf5ead07488d197ee4799a86aa586ce6757b16c08286e0d7bb546bd984c51e"
+      },
+      {
+        "path": "qa/recovery-original-v2/cold-False-True-7.json.gz",
+        "bytes": 85673,
+        "sha256": "eeec4de2aa5c0280e8e271819d43e57e97958df6ceb6798f2b3c42b71b7c6f99"
+      },
+      {
+        "path": "qa/recovery-original-v2/cold-True-False-0.json.gz",
+        "bytes": 78230,
+        "sha256": "d059f5455fb72c5cf461da16b990d051219caec24d20acee1b0473f683bea5f4"
+      },
+      {
+        "path": "qa/recovery-original-v2/cold-True-False-7.json.gz",
+        "bytes": 69388,
+        "sha256": "1cd3dd737ddd3c7c6ebf7eb1e75d528125e8181db03fcc34c0f5f2c6acecb81a"
+      },
+      {
+        "path": "qa/recovery-original-v2/cold-True-True-7.json.gz",
+        "bytes": 85551,
+        "sha256": "aef36210ab50478e699e02b60f95177f3d37e951b1738ab3b1d551b159d31b3b"
+      },
+      {
+        "path": "qa/recovery-original-v2/forged-COORDINATED_BIRTH.json.gz",
+        "bytes": 63709,
+        "sha256": "56c79f16a453b2a2cc94fef9c0adfdeefd93fcd0a95771a6da20b4e6bbf30ebc"
+      },
+      {
+        "path": "qa/recovery-original-v2/forged-COORDINATED_DEATH.json.gz",
+        "bytes": 64019,
+        "sha256": "3d71734b8c54ce7f3ec3b795e8247caa3df5ecdb3f10ffe2ba6d0e00391351b5"
+      },
+      {
+        "path": "qa/recovery-original-v2/forged-DEATH_ID.json.gz",
+        "bytes": 63716,
+        "sha256": "a6b54065b86785cabe888853627dde1ccfe398e46d326bc557d922530ec3da29"
+      },
+      {
+        "path": "qa/recovery-original-v2/forged-DEATH_TICK.json.gz",
+        "bytes": 63702,
+        "sha256": "a3e6ef728a204c0566e304661aedd768d0b39e697c713a48c758ea79c73e1796"
+      },
+      {
+        "path": "qa/recovery-original-v2/forged-FIELD.json.gz",
+        "bytes": 63714,
+        "sha256": "e97326a36bc78b0ad253aa528c4032c5c09f5418c5bbb4e808efc25ec644c626"
+      },
+      {
+        "path": "qa/recovery-original-v2/forged-GENERATION.json.gz",
+        "bytes": 63706,
+        "sha256": "bfdb81a3d4f7b1c0627d9ca4003aed8bb0ed5d1b180bb7cddbb92d2a97f36d35"
+      },
+      {
+        "path": "qa/recovery-original-v2/forged-MISSING.json.gz",
+        "bytes": 63629,
+        "sha256": "086e2c0df5508b0e516c48e62f4be4ac92757ddf5ea525ce0224af48868f61cd"
+      },
+      {
+        "path": "qa/recovery-original-v2/forged-PRINTING.json.gz",
+        "bytes": 63759,
+        "sha256": "2e927fb64d3ea0ebd4ae0728dadd11ffe337cab01a1a39ce4c5d12a95de7be09"
+      },
+      {
+        "path": "qa/recovery-original-v2/forged-ROLE.json.gz",
+        "bytes": 63702,
+        "sha256": "d2a5891317ce6f35b7b46b0254eedb2fb2963a10b0d9ec7ed0c63c0c56dcfeed"
+      },
+      {
+        "path": "qa/recovery-original-v2/forged-SELF_RECIPIENT.json.gz",
+        "bytes": 63678,
+        "sha256": "069a515c223d2ae48facbba88a923d7e4cb128fa50a5603eb32042d20759a646"
+      },
+      {
+        "path": "qa/recovery-original-v2/forged-UNCONFIRMED_RECIPIENT.json.gz",
+        "bytes": 63699,
+        "sha256": "6c5409923c7462c9883451b3393309b7d75ba9e9a26c81a7db6f0517be9628e9"
+      },
+      {
+        "path": "qa/recovery-original-v2/recycle-private-source-False.json.gz",
+        "bytes": 102521,
+        "sha256": "ad39bff8f7b0cc7c263a90ed5d3332768011f0b395d1c63bd0ae12922ff079e9"
+      },
+      {
+        "path": "qa/recovery-original-v2/recycle-private-source-True.json.gz",
+        "bytes": 102574,
+        "sha256": "b0602d8445e01dfb632f49cf9a96828db0ced73c4562d90b1d72e2f2914355d2"
+      },
+      {
+        "path": "qa/recovery-original-v2/reject-DUPLICATE.json.gz",
+        "bytes": 85556,
+        "sha256": "6d2a61f15e6c2f23edbbd0a57c763a63855ec747d20855b7e1dcaea47b38d721"
+      },
+      {
+        "path": "qa/recovery-original-v2/reject-EARLY_PRIORITY.json.gz",
+        "bytes": 85546,
+        "sha256": "73edb8fc334614293e4073d31521f7ab7fed9de12d3c8732cf85d20d471b9bb4"
+      },
+      {
+        "path": "qa/recovery-original-v2/reject-EMPTY.json.gz",
+        "bytes": 85549,
+        "sha256": "684f8cb157fbc599ff69ff0b21db9804602d01bdf57c4f97228fce91a8b588e5"
+      },
+      {
+        "path": "qa/recovery-original-v2/reject-OTHER_CONTROLLER.json.gz",
+        "bytes": 85546,
+        "sha256": "e7ab7a7e113b462b626385341baec35344214a520fbe6eb93bab778226b27d9e"
+      },
+      {
+        "path": "qa/recovery-original-v2/reject-SELF.json.gz",
+        "bytes": 85533,
+        "sha256": "06f834c44793d7a72480df09e41355784bbef48c8c1652f19321bad45cd90d28"
+      },
+      {
+        "path": "qa/recovery-original-v2/reject-UNKNOWN.json.gz",
+        "bytes": 85537,
+        "sha256": "ad06ac9a38cb38bd34b1b1277bbceb65d8eb05ff8f03b5aacf63b4afcbc52ac6"
+      },
+      {
+        "path": "qa/recovery-original-v3/cold-False-False-0.json.gz",
+        "bytes": 78178,
+        "sha256": "9e55fd8c29647f9ec10b7f78c9f56aae5f3121c2c5da92a64564c2713456c2a7"
+      },
+      {
+        "path": "qa/recovery-original-v3/cold-False-False-7.json.gz",
+        "bytes": 69322,
+        "sha256": "5319b72d03f0b1fdc12f5f918889d195085a586b7494faa8ba28571d45dd9200"
+      },
+      {
+        "path": "qa/recovery-original-v3/cold-False-True-0.json.gz",
+        "bytes": 106904,
+        "sha256": "3c3eaa8f04f8a09faf6e433d1ff8f340b9b7a6b93e241d5619415dbafd6348c2"
+      },
+      {
+        "path": "qa/recovery-original-v3/cold-False-True-7.json.gz",
+        "bytes": 85424,
+        "sha256": "aaca5c968854b8eeb86663b57e5647a29862fa8bb1596f4c3d8001d1df5789e9"
+      },
+      {
+        "path": "qa/recovery-original-v3/cold-True-False-0.json.gz",
+        "bytes": 78229,
+        "sha256": "62603b8d1a18a3942ec51d278f434865003a9582ad92abdb3f37359bdc10d493"
+      },
+      {
+        "path": "qa/recovery-original-v3/cold-True-False-7.json.gz",
+        "bytes": 69387,
+        "sha256": "c180913a176d2da732b3ad53df9d8961b3a220da9c9515d25df9318a186e4b53"
+      },
+      {
+        "path": "qa/recovery-original-v3/cold-True-True-0.json.gz",
+        "bytes": 106921,
+        "sha256": "7d2b03c234bd16981ecd566b5e097fd860a163afbce8b0c04dfb2d0bbc3f708e"
+      },
+      {
+        "path": "qa/recovery-original-v3/cold-True-True-7.json.gz",
+        "bytes": 85452,
+        "sha256": "ac032f6f682b61555376edad7e3b35b50a83b45a700bbfe25cb2f392a250e74a"
+      },
+      {
+        "path": "qa/recovery-original-v3/forged-COORDINATED_BIRTH.json.gz",
+        "bytes": 63711,
+        "sha256": "32a69912270ef389483c3a8a213e7758f746b5a6cdada15a253d6b53d9def49a"
+      },
+      {
+        "path": "qa/recovery-original-v3/forged-COORDINATED_DEATH.json.gz",
+        "bytes": 64017,
+        "sha256": "1affcafee060abbb28bed5052c87283fc065002c9bea800d937c79e2bd38de5a"
+      },
+      {
+        "path": "qa/recovery-original-v3/forged-DEATH_ID.json.gz",
+        "bytes": 63716,
+        "sha256": "bb0b9d092337d5e48940b550f1811e00f7751887c3c0ad8a5475a52b069f39f6"
+      },
+      {
+        "path": "qa/recovery-original-v3/forged-DEATH_TICK.json.gz",
+        "bytes": 63708,
+        "sha256": "68a5866186f2dbf3dc68020cee66449b7e6cc31ceac46c5ab2220a36960e19be"
+      },
+      {
+        "path": "qa/recovery-original-v3/forged-FIELD.json.gz",
+        "bytes": 63715,
+        "sha256": "e74cbb50d006e04df3cc7be74c58071fdd387ab6120cdb289e98b4c8ac4f2c09"
+      },
+      {
+        "path": "qa/recovery-original-v3/forged-GENERATION.json.gz",
+        "bytes": 63708,
+        "sha256": "10c443f30c46f7e0b3cd1d75b04977062180ca1b87f067edce4b05c96a555331"
+      },
+      {
+        "path": "qa/recovery-original-v3/forged-MISSING.json.gz",
+        "bytes": 63629,
+        "sha256": "7818ff35ae9763ad7336f2e64ab14878840eb73623eccf47048b811ad6367fed"
+      },
+      {
+        "path": "qa/recovery-original-v3/forged-PRINTING.json.gz",
+        "bytes": 63761,
+        "sha256": "fb66206e84f8ae0d449624960b800e57723539c1ade518313a9d3734a0d75074"
+      },
+      {
+        "path": "qa/recovery-original-v3/forged-ROLE.json.gz",
+        "bytes": 63701,
+        "sha256": "0e3185a2266d18c125a3b8db32e7c89e629fd464217a560ffee3aeefbc5fc1fd"
+      },
+      {
+        "path": "qa/recovery-original-v3/forged-SELF_RECIPIENT.json.gz",
+        "bytes": 63678,
+        "sha256": "4e3e78e30a06db0379d077ef57c3a339fbc005e2ddd0e8f5e4f9fe032babe2e7"
+      },
+      {
+        "path": "qa/recovery-original-v3/forged-UNCONFIRMED_RECIPIENT.json.gz",
+        "bytes": 63702,
+        "sha256": "554e22d5fe263dfe8c105c728dd792874bda638d83de956717e7a3214b2424a0"
+      },
+      {
+        "path": "qa/recovery-original-v3/mixed-instructions-False.json.gz",
+        "bytes": 99718,
+        "sha256": "3c27531e2c3d93a71bfc9d613dbe7ac83320d142dd6f53327712d0867deae99c"
+      },
+      {
+        "path": "qa/recovery-original-v3/mixed-instructions-True.json.gz",
+        "bytes": 95956,
+        "sha256": "907a4ff4502a318019cf99be7712a56649fc21d551c69240e4e3eb58aebb2ed2"
+      },
+      {
+        "path": "qa/recovery-original-v3/recycle-private-source-False.json.gz",
+        "bytes": 102516,
+        "sha256": "9636e281ca01fbf00d3723c0078d2809f73a2ec6f886fb6e1b0dfdedaddd036f"
+      },
+      {
+        "path": "qa/recovery-original-v3/recycle-private-source-True.json.gz",
+        "bytes": 102574,
+        "sha256": "43638cf2f7dcce15ac914b1e8d210a8a8bc1883ea4a8ec446f02f704b799229e"
+      },
+      {
+        "path": "qa/recovery-original-v3/reject-DUPLICATE.json.gz",
+        "bytes": 85552,
+        "sha256": "ccbf84e8b08b5527820cb052edb0006f30ae6535e0c114008b7c2bb9620b1359"
+      },
+      {
+        "path": "qa/recovery-original-v3/reject-EARLY_PRIORITY.json.gz",
+        "bytes": 85546,
+        "sha256": "54f37e785b422dbec2178d195b673d1c1d5fa999db4ee7b1d59968e1e47a2332"
+      },
+      {
+        "path": "qa/recovery-original-v3/reject-EMPTY.json.gz",
+        "bytes": 85549,
+        "sha256": "2879b6e6f1d47da989ae7b9c458569311ecb5780c88fcabb2dafdb1ce04c7d97"
+      },
+      {
+        "path": "qa/recovery-original-v3/reject-OTHER_CONTROLLER.json.gz",
+        "bytes": 85543,
+        "sha256": "c1697586151ff52076650dea73d28eb450ed61dbaafbbca56c33f1a5dd6fb8e6"
+      },
+      {
+        "path": "qa/recovery-original-v3/reject-SELF.json.gz",
+        "bytes": 85530,
+        "sha256": "923788c23359553843621b2848dc838e487e1e9087bd811537fd969b5317549b"
+      },
+      {
+        "path": "qa/recovery-original-v3/reject-UNKNOWN.json.gz",
+        "bytes": 85535,
+        "sha256": "079a6718e23aca94fda368e5f42c3b891d029a94fcd3976d68db58f5b81c1d44"
+      },
+      {
+        "path": "qa/recovery-original-v4/altar-False-False.json.gz",
+        "bytes": 87087,
+        "sha256": "1a1e9f5d6d515609453147118a69dba22ee1a91ab8eb6d1943278f83e661ad1c"
+      },
+      {
+        "path": "qa/recovery-original-v4/altar-False-True.json.gz",
+        "bytes": 63431,
+        "sha256": "0ffdb048dc47f1def14b94020a8957f22a602dd048d422aeb289f98dbfce930f"
+      },
+      {
+        "path": "qa/recovery-original-v4/altar-True-False.json.gz",
+        "bytes": 87122,
+        "sha256": "1c95fa0de4a3d235f44e98f54fc5148e35a0b6862f1244645104ec8edcab9140"
+      },
+      {
+        "path": "qa/recovery-original-v4/altar-True-True.json.gz",
+        "bytes": 63481,
+        "sha256": "1d6b3da855d4efea55c261c78d0a3abcc4f4a9f2503c3b298fbf5eb6b72bd4b9"
+      },
+      {
+        "path": "qa/recovery-original-v4/cold-False-False-0.json.gz",
+        "bytes": 78182,
+        "sha256": "2840842ff5f64238ef601dc25d765f9409358934002aae0ca7670836eaf54975"
+      },
+      {
+        "path": "qa/recovery-original-v4/cold-False-False-7.json.gz",
+        "bytes": 69330,
+        "sha256": "38a11428a712efed8fb2b4d7efb8667754bc2e57676e3fed100e8537835ad248"
+      },
+      {
+        "path": "qa/recovery-original-v4/cold-False-True-0.json.gz",
+        "bytes": 106919,
+        "sha256": "1044e2b6fcbf276753679edb296eb09c2b3a05c3e7462d9d749bf73ce776bb80"
+      },
+      {
+        "path": "qa/recovery-original-v4/cold-False-True-7.json.gz",
+        "bytes": 85432,
+        "sha256": "cad00ef1f7b89aad029c23869154413e918126eb89e1185c15f7b2b431836236"
+      },
+      {
+        "path": "qa/recovery-original-v4/cold-True-False-0.json.gz",
+        "bytes": 78238,
+        "sha256": "0238b91494f9ff0849f3ead890150f11d1841af89bd7cda3fe984a6d25435407"
+      },
+      {
+        "path": "qa/recovery-original-v4/cold-True-False-7.json.gz",
+        "bytes": 69398,
+        "sha256": "c2a53a38b7454f17c7f931238fd72eb1702dea81b91305b5c4585a2ec7360b7d"
+      },
+      {
+        "path": "qa/recovery-original-v4/cold-True-True-0.json.gz",
+        "bytes": 106934,
+        "sha256": "b13ded55c55fb82756bdced589fa28fbee97ce48e80f39127f4a7b3f2a22644c"
+      },
+      {
+        "path": "qa/recovery-original-v4/cold-True-True-7.json.gz",
+        "bytes": 85459,
+        "sha256": "b979f0c39071504184584cc6338a224b304b5d7749e617cc4c9ec9c4bd4c45c2"
+      },
+      {
+        "path": "qa/recovery-original-v4/forged-COORDINATED_BIRTH.json.gz",
+        "bytes": 63713,
+        "sha256": "9a0a4ae3403b97d7c00eb7faf6d194394b7bbee62f1b2f0e1444151a0ea7659d"
+      },
+      {
+        "path": "qa/recovery-original-v4/forged-COORDINATED_DEATH.json.gz",
+        "bytes": 64022,
+        "sha256": "c36daf0c1adcca6a33e785878558e3cafaa06e9f7746ebe9bf366aa1958263b3"
+      },
+      {
+        "path": "qa/recovery-original-v4/forged-DEATH_ID.json.gz",
+        "bytes": 63721,
+        "sha256": "0754e82648cf60cf980b35dd5e276f6387d4a93fa5df63693c4aa879dae09311"
+      },
+      {
+        "path": "qa/recovery-original-v4/forged-DEATH_TICK.json.gz",
+        "bytes": 63703,
+        "sha256": "74cce7a7f7f76c6413a73aa08396e39e4bdd597dc21706134ba6272616fc839b"
+      },
+      {
+        "path": "qa/recovery-original-v4/forged-FIELD.json.gz",
+        "bytes": 63718,
+        "sha256": "48183aeb18385928f8af16793d7054184857895e8771f8e58bdfb0366b296b15"
+      },
+      {
+        "path": "qa/recovery-original-v4/forged-GENERATION.json.gz",
+        "bytes": 63707,
+        "sha256": "18b420f2f0dbb86579c58edf62da264a80aff13fd06ea89bfb539c8a5715271e"
+      },
+      {
+        "path": "qa/recovery-original-v4/forged-MISSING.json.gz",
+        "bytes": 63634,
+        "sha256": "4fb97ec8cd70fb9d83e5694328ba639aa295c96be62d057b4dae16081296c418"
+      },
+      {
+        "path": "qa/recovery-original-v4/forged-PRINTING.json.gz",
+        "bytes": 63763,
+        "sha256": "8c126121ba406bcad84a3c91fb51bab04667910d31c75db5fb48958ca6712f0a"
+      },
+      {
+        "path": "qa/recovery-original-v4/forged-ROLE.json.gz",
+        "bytes": 63705,
+        "sha256": "2aa2d05dd0424efc2d8704c9dad8ce57f1f53415d21a482a02767c8254185e26"
+      },
+      {
+        "path": "qa/recovery-original-v4/forged-SELF_RECIPIENT.json.gz",
+        "bytes": 63683,
+        "sha256": "ceba8cc073e22fa19fb51f457d18bd8b8e0e1634f3fdeb88825f523773f2f64e"
+      },
+      {
+        "path": "qa/recovery-original-v4/forged-UNCONFIRMED_RECIPIENT.json.gz",
+        "bytes": 63703,
+        "sha256": "eb86274a2e28402904d00d7f165a66222a1b4ab5e932241d984ec4781e4854d2"
+      },
+      {
+        "path": "qa/recovery-original-v4/mixed-instructions-False.json.gz",
+        "bytes": 99722,
+        "sha256": "83d1569d5af91b619f4e9b4be5d97cf298bb913952592c0368d99e67a318b578"
+      },
+      {
+        "path": "qa/recovery-original-v4/mixed-instructions-True.json.gz",
+        "bytes": 95969,
+        "sha256": "a67c268bcc2f50d963de4f209411c30e6b10adacbd01c82d5ae4a21035d0e177"
+      },
+      {
+        "path": "qa/recovery-original-v4/recycle-private-source-False.json.gz",
+        "bytes": 102521,
+        "sha256": "73a7a8eabf8b586810da2c8e1d1b1c810c06e73ba1da1d20308c41646728f180"
+      },
+      {
+        "path": "qa/recovery-original-v4/recycle-private-source-True.json.gz",
+        "bytes": 102545,
+        "sha256": "44fabc3ed4cd1de57f34b90512915a4785e84711cb93bc36519d286c2baf6ef5"
+      },
+      {
+        "path": "qa/recovery-original-v4/reject-DUPLICATE.json.gz",
+        "bytes": 85558,
+        "sha256": "678f5c8dce9d7ca05850c1d0dc6572fd0b56f1e65ac7d820ca72375a94e9d917"
+      },
+      {
+        "path": "qa/recovery-original-v4/reject-EARLY_PRIORITY.json.gz",
+        "bytes": 85553,
+        "sha256": "73f781012ca7f41b439592fbae52298d6f002ed75839afb17c9d5329775e43e0"
+      },
+      {
+        "path": "qa/recovery-original-v4/reject-EMPTY.json.gz",
+        "bytes": 85555,
+        "sha256": "868330e23a57a8f9ad74148b5c707a583b03e218a01240259854a98eec3274d6"
+      },
+      {
+        "path": "qa/recovery-original-v4/reject-OTHER_CONTROLLER.json.gz",
+        "bytes": 85548,
+        "sha256": "4a89a87d587de9165624f3d74683c9fbd98f67f7c84da79ba470d8689675b1bd"
+      },
+      {
+        "path": "qa/recovery-original-v4/reject-SELF.json.gz",
+        "bytes": 85535,
+        "sha256": "1e7590488d6d8907f8c2a3c1f6d23c380ff9ada87c80156fb89899ae580353c1"
+      },
+      {
+        "path": "qa/recovery-original-v4/reject-UNKNOWN.json.gz",
+        "bytes": 85541,
+        "sha256": "2b639d1ba7decd12c9fd2b02cce442e1f8b0dba915b370022cebc6ff5b3c829f"
+      },
+      {
+        "path": "qa/recovery-v1-inputs.json",
+        "bytes": 29216,
+        "sha256": "b62ccb91da8fc5edd9dfc65255fb3cb326623cf448db68427f33e9feb8c88873"
+      },
+      {
+        "path": "qa/run-own-network-v1.py",
+        "bytes": 6329,
+        "sha256": "53fc7b46b2135f558ef66eb0a028b9ea37a856561f150e0c5a65a6e8f61b4f63"
+      },
+      {
+        "path": "qa/runtime-step4-source-snapshot.json",
+        "bytes": 2026,
+        "sha256": "22f74c36fcc749f995b10eb26dba51edf2781c7b65d4f28df6be09b87d8c9062"
+      },
+      {
+        "path": "qa/same-controller-focus-v1.log",
+        "bytes": 460,
+        "sha256": "98a10d97827fd96ad72d5c79173181dfd46526cd9072c72294c1641fbda88085"
+      },
+      {
+        "path": "qa/same-controller-focus-v1/build.log",
+        "bytes": 78,
+        "sha256": "c88a94bd1b29cf184ffc8a848db8e2ce9fbca198ec8dbc9d8a7691aef93038d2"
+      },
+      {
+        "path": "qa/same-controller-focus-v1/discovery.log",
+        "bytes": 2118459,
+        "sha256": "29673d477d70fddac14838e2ad15d047a30fec4084034e936e810d6349a43830"
+      },
+      {
+        "path": "qa/same-controller-focus-v1/focus/results.trx",
+        "bytes": 8205,
+        "sha256": "3f89053f462d1c07a9b35867ea6397612fe8532a03c41f1f5a9056fd5601c2e2"
+      },
+      {
+        "path": "qa/same-controller-focus-v1/focus/test.log",
+        "bytes": 580,
+        "sha256": "ef84daf6384274b15c37ded4e5d621360ede7f648620c6526fad08b078900093"
+      },
+      {
+        "path": "qa/same-controller-focus-v1/plan.json",
+        "bytes": 662,
+        "sha256": "a61450946b7e2da5adbfbb6ef4fe8f7e9d0e076faf9cb53b3e3661e0726636b8"
+      },
+      {
+        "path": "qa/same-controller-focus-v1/summary.json",
+        "bytes": 270,
+        "sha256": "a427ff8139c480807c603ce93afc189ddb80542050b89d77e5036581e7766c9f"
+      },
+      {
+        "path": "qa/same-controller-original-v1/SFD-148-221-0.json.gz",
+        "bytes": 65636,
+        "sha256": "017d52b6e0b6936e3552a5f3546fc120c96cd2294e88ce00f801be862354f61f"
+      },
+      {
+        "path": "qa/same-controller-original-v1/SFD-148-221-7.json.gz",
+        "bytes": 52865,
+        "sha256": "fca62e534c3e474e1a0dffc55dcc4ac23b1e33a3d1f2fd4b240d951e4931801b"
+      },
+      {
+        "path": "qa/same-controller-original-v1/SFD-148a-221-0.json.gz",
+        "bytes": 65652,
+        "sha256": "d4c3c5605326c6dd16717cda6ad2e9c23aee774bac235401fda3f8f210a37305"
+      },
+      {
+        "path": "qa/same-controller-original-v1/SFD-148a-221-7.json.gz",
+        "bytes": 52878,
+        "sha256": "36798f7757781a2c932a905623f2594b6a27c319d2e9e42a4439affe47447bc5"
+      },
+      {
+        "path": "qa/tested-four-assemblies-before-api.json",
+        "bytes": 375,
+        "sha256": "9c2c7fe05736d8dbe26945512a778b996147b6f5d4a9e543dba65a93d6d24dd0"
+      },
+      {
+        "path": "qa/win-calibrated-original-v1/SFD-148-221-attacker-win.json.gz",
+        "bytes": 40328,
+        "sha256": "97dbfdee444ea8adad43dfe5a3274d573454e945a322aaf475c7a56ee447ed39"
+      },
+      {
+        "path": "qa/win-calibrated-original-v1/SFD-148-221-defeated.json.gz",
+        "bytes": 44586,
+        "sha256": "cab0848cbafe34850e7a7761c2694d5e11f5e3f2a55884df646d432b361a37cc"
+      },
+      {
+        "path": "qa/win-calibrated-original-v1/SFD-148-221-defender-win.json.gz",
+        "bytes": 37816,
+        "sha256": "f9c84f54b8a10f41bfd6797135c3d3f1a4d901231228bb4fb0b9a476aab6fc8b"
+      },
+      {
+        "path": "qa/win-calibrated-original-v1/SFD-148-221-empty-conquest.json.gz",
+        "bytes": 16239,
+        "sha256": "1f5f1f7598553096865f6bf4c930425334d6fd226d27c0d8de69b84ee18defdb"
+      },
+      {
+        "path": "qa/win-calibrated-original-v1/SFD-148-221-mutual-destruction.json.gz",
+        "bytes": 44151,
+        "sha256": "a98b942f0b63da61bc97885f199a24c465570a9990d876d5894ee6077f0510f5"
+      },
+      {
+        "path": "qa/win-calibrated-original-v1/SFD-148-221-nonparticipant.json.gz",
+        "bytes": 29518,
+        "sha256": "83cb02b0c74de6c681316d57352eb9cabc0e13c3e1085430e07da267797b6c4d"
+      },
+      {
+        "path": "qa/win-calibrated-original-v1/SFD-148-221-repeat-defender-win.json.gz",
+        "bytes": 68055,
+        "sha256": "20343ebbede8eea4558d114560482383c4247c263f2b2ecefedd263019895d24"
+      },
+      {
+        "path": "qa/win-calibrated-original-v1/SFD-148-221-winning-attacker.json.gz",
+        "bytes": 36401,
+        "sha256": "28b425f42803812d74e4450a34e5f9d20836fc8e4f61bdce13fe2deed07ad47a"
+      },
+      {
+        "path": "qa/win-calibrated-original-v1/SFD-148-221-winning-defender.json.gz",
+        "bytes": 33778,
+        "sha256": "f82b41acb429f3fa0f282ad4dccb0dbf36065f30ad0276f8b7b6cccb9286cdf2"
+      },
+      {
+        "path": "qa/win-calibrated-original-v1/SFD-148a-221-attacker-win.json.gz",
+        "bytes": 40345,
+        "sha256": "81df0105be975d0464b55bed638725785991c49b4751198d3c509ec765305507"
+      },
+      {
+        "path": "qa/win-calibrated-original-v1/SFD-148a-221-defeated.json.gz",
+        "bytes": 44545,
+        "sha256": "eb0ab7e46b5d687bf418dde8adf4d27442e32404a10ecee319691d8282b6b6f7"
+      },
+      {
+        "path": "qa/win-calibrated-original-v1/SFD-148a-221-defender-win.json.gz",
+        "bytes": 37744,
+        "sha256": "fd52c734cc0e9f4397d993ccac21a88eec67fb0726f6c9e131bba5974923e7b4"
+      },
+      {
+        "path": "qa/win-calibrated-original-v1/SFD-148a-221-empty-conquest.json.gz",
+        "bytes": 16267,
+        "sha256": "6de6bdc096e8923b23f6a7d2f2f2c69a6322ca2710052a20982173949f433b25"
+      },
+      {
+        "path": "qa/win-calibrated-original-v1/SFD-148a-221-mutual-destruction.json.gz",
+        "bytes": 44112,
+        "sha256": "5e9560139f59e78aa9f0d72509668b805c560a43cf96348a74a285f0392c4d59"
+      },
+      {
+        "path": "qa/win-calibrated-original-v1/SFD-148a-221-nonparticipant.json.gz",
+        "bytes": 29418,
+        "sha256": "3fb8bf01d8187d292b766d1cae520882ff86d03d7b8eff0960409250cc8e6edc"
+      },
+      {
+        "path": "qa/win-calibrated-original-v1/SFD-148a-221-repeat-defender-win.json.gz",
+        "bytes": 68045,
+        "sha256": "783695947c486f482fd7bfe227a7f78001ece60e7689c44dc2bce2b5f14efe58"
+      },
+      {
+        "path": "qa/win-calibrated-original-v1/SFD-148a-221-winning-attacker.json.gz",
+        "bytes": 36397,
+        "sha256": "4da7485ee0bcf3daea6263d73d2048e20c993ec5de5c447eb1b75d86bd77ce30"
+      },
+      {
+        "path": "qa/win-calibrated-original-v1/SFD-148a-221-winning-defender.json.gz",
+        "bytes": 33778,
+        "sha256": "9904eee36afce832d367469ae3c337bb4d1767af8a59087b224829c2db738d8a"
+      },
+      {
+        "path": "qa/win-calibration-focus-v1.log",
+        "bytes": 464,
+        "sha256": "6d3568b48723f6b3165baaffcc5b86dc64c0b53b237005b78cdca2ae772adf2b"
+      },
+      {
+        "path": "qa/win-calibration-focus-v1/build.log",
+        "bytes": 78,
+        "sha256": "7177c2c00be738e633f8f48eb3119456dc24a201aefd6241973d86ec059a2eba"
+      },
+      {
+        "path": "qa/win-calibration-focus-v1/discovery.log",
+        "bytes": 2117821,
+        "sha256": "efd2fc58782ed42883820d8d9fd1c2b7f0871e7957d721de2d93b46dc88cefdc"
+      },
+      {
+        "path": "qa/win-calibration-focus-v1/focus/results.trx",
+        "bytes": 32558,
+        "sha256": "38e6deddbb2e40a9a25a22f5020e7479079932d96b831a83413e84203d7648b3"
+      },
+      {
+        "path": "qa/win-calibration-focus-v1/focus/test.log",
+        "bytes": 580,
+        "sha256": "0adef420da24d956ca0039845ca9a6572ae86c2bac54ed4cbe5993d05ff93422"
+      },
+      {
+        "path": "qa/win-calibration-focus-v1/plan.json",
+        "bytes": 671,
+        "sha256": "fbeebd8227a5b9bcd8095b1fad4948319371674ebebe52d1c30daa035bb50fc7"
+      },
+      {
+        "path": "qa/win-calibration-focus-v1/summary.json",
+        "bytes": 273,
+        "sha256": "8aaa46f854e7161f954e205d253bb8f8340c107bbdc806da386d1b1e271c37b1"
+      },
+      {
+        "path": "sources/same-day-complete-api-exact-rows.json",
+        "bytes": 9307,
+        "sha256": "a390ba27ef31d6742721ed46374235ab7d77bdb34df84a66892a0a2bc59cd665"
+      },
+      {
+        "path": "unchanged-tests/tests/Riftbound.ConformanceTests/DravenBattleWinScoreRecoveryTests.cs",
+        "bytes": 12749,
+        "sha256": "56c4dac82a19336c080ddde4b261780de2153ef58718f82ced2cbe8bbb482f60"
+      },
+      {
+        "path": "unchanged-tests/tests/Riftbound.ConformanceTests/DravenMutualDeathScoreTests.cs",
+        "bytes": 10564,
+        "sha256": "813361f57a36d3923b31e7b209d2f7205b230e64c55e93ee3eed9b4b58a35dd4"
+      },
+      {
+        "path": "unchanged-tests/tests/Riftbound.ConformanceTests/OfficialDravenBattleDeathScoreTests.cs",
+        "bytes": 14974,
+        "sha256": "24fed2f6e2e53f78f5d80e0d0db9270a94b08899885ad1b3facfeef112fa64e0"
+      }
+    ]
+  }
+}
