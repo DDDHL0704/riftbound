@@ -19884,8 +19884,18 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             && !string.Equals(previousControllerId, nextControllerId, StringComparison.Ordinal)
             && !BattlefieldScoredThisTurn(state.UntilEndOfTurnEffects, battlefieldObjectId, nextControllerId))
         {
-            var sourceObjectId = occupantObjectIds.FirstOrDefault(objectId =>
-                    cardObjects.TryGetValue(objectId, out var cardObject)
+            IEnumerable<string> sourceCandidates = occupantObjectIds;
+            if (concludingBattle && state.PendingBattleResult is { } battle
+                && battle.BattlefieldId == battlefieldObjectId && battle.WinnerPlayerId == nextControllerId)
+            {
+                var declared = battle.AttackingPlayerId == nextControllerId ? battle.AttackerObjectIds : battle.DefenderObjectIds;
+                sourceCandidates = declared.Where(id => battle.PublicObjectBindings.Any(binding => binding.ObjectId == id
+                    && cardObjects.TryGetValue(id, out var current) && current.ObjectGeneration == binding.Generation))
+                    .Concat(occupantObjectIds);
+            }
+            var sourceObjectId = sourceCandidates.FirstOrDefault(objectId =>
+                    occupantObjectIds.Contains(objectId, StringComparer.Ordinal)
+                    && cardObjects.TryGetValue(objectId, out var cardObject)
                     && SourceObjectControlledByPlayerOrLegacyOwned(cardObject, nextControllerId))
                 ?? nextControllerId;
             events.Add(new GameEvent(
