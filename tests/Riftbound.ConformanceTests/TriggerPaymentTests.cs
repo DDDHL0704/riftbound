@@ -1696,7 +1696,7 @@ public sealed class TriggerPaymentTests
         return await EquipTestDriver.FinishAsync(activated);
     }
 
-    private static async Task<ResolutionResult> ResolveFioraPowerfulReadyTriggerAsync(
+    internal static async Task<ResolutionResult> ResolveFioraPowerfulReadyTriggerAsync(
         MatchState state,
         CoreRuleEngine? engine = null)
     {
@@ -2279,7 +2279,7 @@ public sealed class TriggerPaymentTests
             .ToArray();
     }
 
-    private static MatchState BuildFioraPowerfulReadyState(
+    internal static MatchState BuildFioraPowerfulReadyState(
         int yellowPower = 0,
         bool includeYellowRune = false,
         string fioraCardNo = "SFD·180/221")

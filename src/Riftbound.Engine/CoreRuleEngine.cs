@@ -10404,6 +10404,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             PassedPriorityPlayerIds = state.PassedPriorityPlayerIds
         };
 
+        nextState = RefreshMightyPaymentResources(state, nextState);
+
         var events = new List<GameEvent>
         {
             CaptureRecycleObservers(new(
@@ -10711,6 +10713,16 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             && !runeState.IsFaceDown
             && TryGetRuneTrait(runeState, out _);
     }
+
+    // CN 430: acquiring a legal rune resource is voluntary, even when its trait
+    // is unrelated to the current fee. Cost authorization still checks exact traits.
+    internal static IReadOnlyList<string> RecycleRunePaymentResourceActionIds(MatchState state, string playerId)
+        => state.PlayerZones.TryGetValue(playerId, out var zones)
+            ? zones.Base.Where(id => CanRecycleRuneForPayment(state, playerId, id)
+                && !string.IsNullOrWhiteSpace(state.CardObjects[id].CardNo))
+                .Select(id => RecycleRunePaymentOptionalCostPrefix + id)
+                .Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray()
+            : [];
 
     private static RunePool ApplyRecycleRunePaymentToPool(
         RunePool currentPool,

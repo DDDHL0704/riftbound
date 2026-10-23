@@ -58,6 +58,14 @@ internal static class PaymentResourceSurplusNetworkAcceptance
                 commandNode["snapshotTick"] = prompts[actor].SnapshotTick;
                 var raw = JsonSerializer.SerializeToElement(commandNode);
                 var command = raw.Deserialize<PlayCardCommand>(json)!;
+                var candidate = prompts[actor].Candidates!.Single(c => c.Action == CommandTypes.PlayCard);
+                var metadata = JsonSerializer.SerializeToElement(candidate.Metadata, json);
+                var requirement = metadata.GetProperty("sourceRequirements").EnumerateArray()
+                    .Single(r => r.GetProperty("sourceObjectId").GetString() == sourceId);
+                var resources = requirement.GetProperty("paymentResourceChoices").EnumerateArray()
+                    .Select(r => r.GetProperty("id").GetString()).ToHashSet(StringComparer.Ordinal);
+                Check(command.OptionalCosts!.All(resources.Contains),
+                    "The live mana-only card prompt must quote both voluntary rune acquisitions, even though neither pays a power fee.");
                 var quote = await connections[actor].InvokeAsync<PlayCostQuoteDto>("PreviewPlayCard", room,
                     new PlayCostPreviewRequestDto("network-surplus-quote", prompts[actor].PromptId!, prompts[actor].SnapshotTick!.Value, command), token);
                 Check(quote.CanPay && quote.Cost!.Mana == 2 && quote.Cost.GenericPower == 0
