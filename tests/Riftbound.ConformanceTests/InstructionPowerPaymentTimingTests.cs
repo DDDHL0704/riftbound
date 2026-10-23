@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Riftbound.Contracts;
 using Riftbound.Engine;
 using Xunit;
@@ -204,6 +205,73 @@ public sealed class InstructionPowerPaymentTimingTests
         Assert.DoesNotContain(driver.Events(), e => e.Event.Kind == "COST_PAID"
             && Equals(e.Event.Payload.GetValueOrDefault("paymentWindow"), "INSTRUCTION_POWER_PAYMENT"));
         await RideTheWindCurrentMovementTests.Replay(initial, driver);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task ExistingFiniteQaPositionColdRestoresItsInstructionResourceChoice(bool spend)
+    {
+        // Preflight for the remote SQL/SignalR fixture. Original seats and the
+        // finite QA command remain in this local journal; no database/API claim.
+        var journal = new InstructionQaJournal();
+        var session = new MatchSession("instruction-finite-qa", new CoreRuleEngine(), journal);
+        await session.EnsurePlayerAsync("P1", default); await Cold();
+        await session.EnsurePlayerAsync("P2", default); await Cold();
+        var seeded = await session.SeedScenarioAsync("P1", "instruction-finite-source", "typed-power-payment-mixed-recycle",
+            JsonSerializer.SerializeToElement(new { cmdType = "DEV_SEED_SCENARIO", scenarioId = "typed-power-payment-mixed-recycle" }), default);
+        Assert.True(seeded.Accepted, seeded.ErrorMessage); await Cold();
+        await Act("P1", new PlayCardCommand("P1-SPELL-BULLET-TIME", "OGN·268/298", ["N54-SELECTED-FIELD"]));
+        await Act(State().PriorityPlayerId!, new PassPriorityCommand());
+        await Act(State().PriorityPlayerId!, new PassPriorityCommand());
+        await Select("RECYCLE_RUNE:P1-RUNE-RED-PARTIAL-PAYMENT-001");
+        Assert.Equal(2, State().PendingRuleChoice!.Request.Preview!.RunePools["P1"].TotalPower);
+        await Select(spend ? "SPEND_POWER:2" : "SPEND_POWER:0");
+        Assert.Equal(spend ? 0 : 2, State().RunePools["P1"].TotalPower);
+        Assert.Equal(spend ? 2 : 0, State().CardObjects["P2-BULLET-TIME-UNIT-001"].Damage);
+        Assert.Equal(new[] { "ROOM_SEAT", "ROOM_SEAT", "DEV_SEED_SCENARIO:typed-power-payment-mixed-recycle" },
+            journal.Entries.Take(3).Select(e => e.CommandType));
+
+        MatchState State() => journal.Entries[^1].AuthoritativeState;
+        Task Select(string option)
+        {
+            var request = State().PendingRuleChoice!.Request;
+            return Act(request.PlayerId, new PayCostCommand(request.Id, "RULE_REPLACEMENT", [option]));
+        }
+        async Task Act(string player, GameCommand command)
+        {
+            var raw = JsonSerializer.SerializeToNode(command, command.GetType(), new JsonSerializerOptions(JsonSerializerDefaults.Web))!.AsObject();
+            raw["promptId"] = session.PromptFor(player).PromptId; raw["snapshotTick"] = State().Tick;
+            var result = await session.SubmitAsync(player, "instruction-qa-" + journal.Entries.Count, command,
+                JsonSerializer.SerializeToElement(raw), default);
+            Assert.True(result.Accepted, result.ErrorMessage); await Cold();
+        }
+        async Task Cold()
+        {
+            var last = journal.Entries[^1];
+            var commands = journal.Entries.Select(e => new RecoveredCommand(e.PlayerId, e.ClientIntentId, e.CommandType, e.RawCommand,
+                e.StartedTick, e.CompletedTick, e.StartedEventSequence, e.CompletedEventSequence, e.Accepted, e.ErrorMessage)
+                { RuleInputs = e.RuleInputs }).ToArray();
+            var events = journal.Entries.SelectMany(e => e.Events.Select((ev, i) => new RecoveredEvent(e.StartedEventSequence + i + 1,
+                e.CompletedTick, i, ev))).ToArray();
+            var views = last.Snapshots.ToDictionary(p => p.Key, p => new RecoveredPlayerView(p.Key, last.CompletedTick,
+                last.CompletedEventSequence, p.Value, last.CompletedTick, last.CompletedEventSequence, last.Prompts[p.Key]));
+            var initial = MatchState.Create(last.RoomId) with { Seed = journal.Entries[0].OpeningSeed };
+            var errors = MatchRecoveryValidator.Validate(last.RoomId, last.CompletedEventSequence, commands, events, views,
+                last.AuthoritativeState, last.CompletedTick);
+            Assert.Empty(errors);
+            var frame = new MatchRecoveryFrame(last.RoomId, last.CompletedTick, last.CompletedEventSequence, commands, events,
+                views, errors, last.AuthoritativeState, initial) { OpeningSeed = journal.Entries[0].OpeningSeed };
+            Assert.Empty(await MatchActionLogReplayer.ValidateRecoveryFrameAsync(frame, new CoreRuleEngine(), default));
+            session = MatchSession.Restore(frame, new CoreRuleEngine(), journal);
+        }
+    }
+
+    private sealed class InstructionQaJournal : IMatchJournal
+    {
+        internal List<MatchJournalEntry> Entries { get; } = [];
+        public ValueTask RecordAsync(MatchJournalEntry entry, CancellationToken cancellationToken)
+        { Entries.Add(entry); return ValueTask.CompletedTask; }
     }
 
     [Theory]
