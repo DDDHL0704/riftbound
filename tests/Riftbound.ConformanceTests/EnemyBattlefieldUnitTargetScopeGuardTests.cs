@@ -370,7 +370,7 @@ public sealed class EnemyBattlefieldUnitTargetScopeGuardTests
     [Fact]
     public async Task CrescentStrikeRejectsEnemyBattlefieldNonUnitWithoutTargetRequiredTag()
     {
-        var state = BuildCrescentState();
+        var state = SelectedBattlefieldFixture.WithExplicitFields(BuildCrescentState());
 
         var result = await new CoreRuleEngine().ResolveAsync(
             state,
@@ -378,7 +378,7 @@ public sealed class EnemyBattlefieldUnitTargetScopeGuardTests
             new PlayCardCommand(
                 "P1-SPELL-CRESCENT-STRIKE",
                 "UNL-072/219",
-                ["P2-BATTLEFIELD-EQUIPMENT"]),
+                [SelectedBattlefieldFixture.Field, "P2-BATTLEFIELD-EQUIPMENT"]),
             CancellationToken.None);
 
         AssertRejectedWithoutMutation(state, result, expectedMana: 3, expectedHand: ["P1-SPELL-CRESCENT-STRIKE"]);
@@ -609,7 +609,7 @@ public sealed class EnemyBattlefieldUnitTargetScopeGuardTests
                     CardObjectTags.SpellCard,
                     "P1",
                     manaCost: 3),
-                ["P2-BATTLEFIELD-EQUIPMENT"] = NonUnit("P2-BATTLEFIELD-EQUIPMENT", "SFD·139/221", CardObjectTags.EquipmentCard, "P2"),
+                ["P2-BATTLEFIELD-EQUIPMENT"] = NonUnit("P2-BATTLEFIELD-EQUIPMENT", "SFD·139/221", CardObjectTags.EquipmentCard, "P2") with { AttachedToObjectId = "P2-BATTLEFIELD-UNIT" },
                 ["P2-BATTLEFIELD-UNIT"] = Unit("P2-BATTLEFIELD-UNIT", ownerId: "P2", controllerId: "P2")
             });
     }

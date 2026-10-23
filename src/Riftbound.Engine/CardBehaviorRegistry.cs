@@ -30,7 +30,6 @@ public sealed record CardBehaviorDefinition(
     int DamageImmunityAfterMoves = 0,
     bool DamagesAllBattlefieldUnits = false,
     bool DamagesAllEnemyCombatUnits = false,
-    bool DamagesAllEnemyBattlefieldUnits = false,
     bool DestroysAllEquipment = false,
     int OtherEnemyBattlefieldUnitsDamageAmount = 0,
     bool ModifiesAllFriendlyUnits = false,
@@ -151,7 +150,6 @@ public sealed record CardBehaviorDefinition(
     bool GainsControlOfTargetToBase = false,
     bool GainsControlOfTargetToBattlefield = false,
     bool ExhaustsControlledTarget = false,
-    bool DamagesAllEnemyBattlefieldUnitsByFirstTargetPower = false,
     bool MovesTargetsSequentially = false,
     bool DamageAmountFromOptionalPowerCost = false,
     bool BanishesTargetThenPlaysToBase = false,
@@ -312,6 +310,8 @@ public static class CardTargetScopes
     public const string AnyUnit = "ANY_UNIT";
     public const string FriendlyUnit = "FRIENDLY_UNIT";
     public const string FriendlyUnitThenBattlefield = "FRIENDLY_UNIT_THEN_BATTLEFIELD";
+    public const string FriendlyBaseUnitThenBattlefield = "FRIENDLY_BASE_UNIT_THEN_BATTLEFIELD";
+    public const string BattlefieldThenEnemyUnit = "BATTLEFIELD_THEN_ENEMY_UNIT";
     public const string FriendlyOccupiedBattlefieldThenEnemyUnit = "FRIENDLY_OCCUPIED_BATTLEFIELD_THEN_ENEMY_UNIT";
     public const string FriendlyUnitThenFriendlyUnit = "FRIENDLY_UNIT_THEN_FRIENDLY_UNIT";
     public const string FriendlyThenEnemyUnits = "FRIENDLY_THEN_ENEMY_UNITS";
@@ -523,18 +523,20 @@ public static class CardBehaviorRegistry
             1,
             "BULLET_TIME_DAMAGE_ENEMY_BATTLEFIELD_UNITS_BY_POWER_SPENT",
             0,
-            0,
-            DamagesAllEnemyBattlefieldUnits: true,
-            DamageAmountFromOptionalPowerCost: true),
+            1,
+            TargetScope: CardTargetScopes.Battlefield,
+            DamageAmountFromOptionalPowerCost: true,
+            SelectedBattlefieldEffect: new(0, MoveOptionalEnemy: false, DamagesEnemyUnits: true)),
         new(
             "UNL-072/219",
             "新月打击",
             3,
             "CRESCENT_STRIKE_DAMAGE_TARGET_4_OTHER_ENEMY_BATTLEFIELD_1",
             4,
-            1,
-            TargetScope: CardTargetScopes.EnemyBattlefieldUnit,
-            OtherEnemyBattlefieldUnitsDamageAmount: 1),
+            2,
+            TargetScope: CardTargetScopes.BattlefieldThenEnemyUnit,
+            OtherEnemyBattlefieldUnitsDamageAmount: 1,
+            SelectedBattlefieldEffect: new(0, MoveOptionalEnemy: false, DamagesEnemyUnits: true, PrimaryEnemyTargetIndex: 1)),
         new(
             "OGN·266/298",
             "虹吸能量",
@@ -655,10 +657,11 @@ public static class CardBehaviorRegistry
             6,
             "THUNDERING_DROP_BASE_UNIT_POWER_DAMAGE_ENEMY_BATTLEFIELD_MOVE",
             0,
-            1,
-            TargetScope: CardTargetScopes.FriendlyBaseUnit,
-            MovesTargetToBattlefield: true,
-            DamagesAllEnemyBattlefieldUnitsByFirstTargetPower: true),
+            2,
+            TargetScope: CardTargetScopes.FriendlyBaseUnitThenBattlefield,
+            TargetReferencedMovement: new(0, 1, ReferenceIsBattlefield: true),
+            SelectedBattlefieldEffect: new(0, MoveOptionalEnemy: false, DamagesEnemyUnits: true,
+                BattlefieldTargetIndex: 1, DamageFromUnitTargetIndex: 0)),
         new(
             "OGN·220/298",
             "强手裂颅",

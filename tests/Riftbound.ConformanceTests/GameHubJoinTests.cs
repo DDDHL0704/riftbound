@@ -5305,7 +5305,7 @@ public sealed partial class GameHubJoinTests
                 cmdType = "PLAY_CARD",
                 sourceObjectId = "P1-SPELL-BULLET-TIME",
                 cardNo = "OGN·268/298",
-                targetObjectIds = Array.Empty<string>(),
+                targetObjectIds = new[] { SelectedBattlefieldFixture.Field },
                 optionalCosts = new[] { "SPEND_POWER:red:2" }
             }));
 
@@ -5360,7 +5360,7 @@ public sealed partial class GameHubJoinTests
               "cmdType": "PLAY_CARD",
               "sourceObjectId": "P1-SPELL-BULLET-TIME",
               "cardNo": "OGN·268/298",
-              "targetObjectIds": [],
+              "targetObjectIds": ["N54-SELECTED-FIELD"],
               "optionalCosts": ["SPEND_POWER:red:2"]
             }
             """).RootElement.Clone();
@@ -5460,7 +5460,7 @@ public sealed partial class GameHubJoinTests
               "cmdType": "PLAY_CARD",
               "sourceObjectId": "P1-SPELL-BULLET-TIME",
               "cardNo": "OGN·268/298",
-              "targetObjectIds": [],
+              "targetObjectIds": ["N54-SELECTED-FIELD"],
               "optionalCosts": ["SPEND_POWER:red:2"]
             }
             """).RootElement.Clone();
@@ -5508,7 +5508,7 @@ public sealed partial class GameHubJoinTests
         Assert.Equal("PLAY_CARD", rawCommand.GetProperty("cmdType").GetString());
         Assert.Equal("P1-SPELL-BULLET-TIME", rawCommand.GetProperty("sourceObjectId").GetString());
         Assert.Equal("OGN·268/298", rawCommand.GetProperty("cardNo").GetString());
-        Assert.Empty(rawCommand.GetProperty("targetObjectIds").EnumerateArray());
+        Assert.Equal([SelectedBattlefieldFixture.Field], rawCommand.GetProperty("targetObjectIds").EnumerateArray().Select(x => x.GetString()!).ToArray());
         Assert.Equal(
             ["SPEND_POWER:red:2"],
             rawCommand.GetProperty("optionalCosts")
@@ -5579,7 +5579,7 @@ public sealed partial class GameHubJoinTests
               "cmdType": "PLAY_CARD",
               "sourceObjectId": "P1-SPELL-BULLET-TIME",
               "cardNo": "OGN·268/298",
-              "targetObjectIds": [],
+              "targetObjectIds": ["N54-SELECTED-FIELD"],
               "optionalCosts": ["SPEND_POWER:red:2"],
               "clientNote": "changed"
             }
@@ -5649,7 +5649,7 @@ public sealed partial class GameHubJoinTests
                 cmdType = "PLAY_CARD",
                 sourceObjectId = "P1-SPELL-BULLET-TIME",
                 cardNo = "OGN·268/298",
-                targetObjectIds = Array.Empty<string>(),
+                targetObjectIds = new[] { SelectedBattlefieldFixture.Field },
                 optionalCosts = new[] { "SPEND_POWER:red:2" },
                 promptId = prompt.PromptId,
                 snapshotTick = prompt.SnapshotTick
@@ -5697,7 +5697,7 @@ public sealed partial class GameHubJoinTests
             cmdType = CommandTypes.PlayCard,
             sourceObjectId = "P1-SPELL-BULLET-TIME",
             cardNo = "OGN·268/298",
-            targetObjectIds = Array.Empty<string>(),
+            targetObjectIds = new[] { SelectedBattlefieldFixture.Field },
             optionalCosts = new[] { "SPEND_POWER:red:2" },
             promptId = stalePromptId,
             snapshotTick = prompt.SnapshotTick.Value
@@ -5763,7 +5763,7 @@ public sealed partial class GameHubJoinTests
             cmdType = CommandTypes.PlayCard,
             sourceObjectId = "P1-SPELL-BULLET-TIME",
             cardNo = "OGN·268/298",
-            targetObjectIds = Array.Empty<string>(),
+            targetObjectIds = new[] { SelectedBattlefieldFixture.Field },
             optionalCosts = new[] { "SPEND_POWER:red:1" },
             promptId = stalePromptId,
             snapshotTick = prompt.SnapshotTick.Value,
@@ -5826,7 +5826,7 @@ public sealed partial class GameHubJoinTests
             cmdType = CommandTypes.PlayCard,
             sourceObjectId = "P1-SPELL-BULLET-TIME",
             cardNo = "OGN·268/298",
-            targetObjectIds = Array.Empty<string>(),
+            targetObjectIds = new[] { SelectedBattlefieldFixture.Field },
             optionalCosts = new[] { "SPEND_POWER:red:2" },
             promptId = prompt.PromptId,
             snapshotTick = staleSnapshotTick
@@ -5892,7 +5892,7 @@ public sealed partial class GameHubJoinTests
             cmdType = CommandTypes.PlayCard,
             sourceObjectId = "P1-SPELL-BULLET-TIME",
             cardNo = "OGN·268/298",
-            targetObjectIds = Array.Empty<string>(),
+            targetObjectIds = new[] { SelectedBattlefieldFixture.Field },
             optionalCosts = new[] { "SPEND_POWER:red:1" },
             promptId = prompt.PromptId,
             snapshotTick = staleSnapshotTick,
@@ -5966,7 +5966,7 @@ public sealed partial class GameHubJoinTests
                 cmdType = "PLAY_CARD",
                 sourceObjectId = "P1-SPELL-BULLET-TIME",
                 cardNo = "OGN·268/298",
-                targetObjectIds = Array.Empty<string>(),
+                targetObjectIds = new[] { SelectedBattlefieldFixture.Field },
                 optionalCosts = new[] { paymentResourceAction, "SPEND_POWER:red:2" }
             }));
 
@@ -6044,7 +6044,7 @@ public sealed partial class GameHubJoinTests
                 cmdType = "PLAY_CARD",
                 sourceObjectId = "P1-SPELL-BULLET-TIME",
                 cardNo = "OGN·268/298",
-                targetObjectIds = Array.Empty<string>(),
+                targetObjectIds = new[] { SelectedBattlefieldFixture.Field },
                 optionalCosts = new[] { firstPaymentResourceAction, secondPaymentResourceAction, "SPEND_POWER:red:2" }
             }));
 
@@ -6117,7 +6117,7 @@ public sealed partial class GameHubJoinTests
                 cmdType = "PLAY_CARD",
                 sourceObjectId = "P1-SPELL-BULLET-TIME",
                 cardNo = "OGN·268/298",
-                targetObjectIds = Array.Empty<string>(),
+                targetObjectIds = new[] { SelectedBattlefieldFixture.Field },
                 optionalCosts = new[] { bluePaymentResourceAction, "SPEND_POWER:red:2" }
         }));
 
@@ -6132,7 +6132,7 @@ public sealed partial class GameHubJoinTests
                 cmdType = "PLAY_CARD",
                 sourceObjectId = "P1-SPELL-BULLET-TIME",
                 cardNo = "OGN·268/298",
-                targetObjectIds = Array.Empty<string>(),
+                targetObjectIds = new[] { SelectedBattlefieldFixture.Field },
                 optionalCosts = new[] { redPaymentResourceAction, "SPEND_POWER:red:2" }
             }));
 
@@ -6205,7 +6205,7 @@ public sealed partial class GameHubJoinTests
                 cmdType = "PLAY_CARD",
                 sourceObjectId = "P1-SPELL-BULLET-TIME",
                 cardNo = "OGN·268/298",
-                targetObjectIds = Array.Empty<string>(),
+                targetObjectIds = new[] { SelectedBattlefieldFixture.Field },
                 optionalCosts = new[] { bluePaymentResourceAction, "SPEND_POWER:2" }
             }));
 

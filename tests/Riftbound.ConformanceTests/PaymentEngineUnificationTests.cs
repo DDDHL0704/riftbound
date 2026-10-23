@@ -146,6 +146,7 @@ public sealed class PaymentEngineUnificationTests
                 ["P1-RUNE-BOTTOM-001"] = new("P1", "RUNE_DECK")
             }
         };
+        state = SelectedBattlefieldFixture.WithExplicitFields(state);
         var initialHash = MatchStateHasher.Hash(state);
 
         var result = await new CoreRuleEngine().ResolveAsync(
@@ -154,7 +155,7 @@ public sealed class PaymentEngineUnificationTests
             new PlayCardCommand(
                 "P1-SPELL-BULLET-TIME",
                 "OGN·268/298",
-                [],
+                [SelectedBattlefieldFixture.Field],
                 OptionalCosts: [bluePaymentResourceAction, "SPEND_POWER:red:2"]),
             CancellationToken.None);
 
@@ -182,13 +183,14 @@ public sealed class PaymentEngineUnificationTests
                     [RuneTrait.Blue] = 1
                 }));
 
+        state = SelectedBattlefieldFixture.WithExplicitFields(state);
         var result = await new CoreRuleEngine().ResolveAsync(
             state,
             new PlayerIntent("intent-play-card-payment-plan-audit", "P1", "PLAY_CARD"),
             new PlayCardCommand(
                 "P1-SPELL-BULLET-TIME",
                 "OGN·268/298",
-                [],
+                [SelectedBattlefieldFixture.Field],
                 OptionalCosts: ["SPEND_POWER:red:2"]),
             CancellationToken.None);
 

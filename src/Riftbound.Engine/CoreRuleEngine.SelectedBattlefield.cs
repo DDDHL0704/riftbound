@@ -3,7 +3,8 @@ using Riftbound.Contracts;
 namespace Riftbound.Engine;
 
 public sealed record SelectedBattlefieldEffectSpec(int EnemyPowerModifier, bool MoveOptionalEnemy,
-    int FriendlyPowerModifier = 0, bool DamagesEnemyUnits = false);
+    int FriendlyPowerModifier = 0, bool DamagesEnemyUnits = false, int BattlefieldTargetIndex = 0,
+    int? DamageFromUnitTargetIndex = null, int? PrimaryEnemyTargetIndex = null);
 
 public sealed partial class CoreRuleEngine
 {
@@ -14,9 +15,16 @@ public sealed partial class CoreRuleEngine
 
     internal static bool IsSelectedBattlefieldTargetRelationAllowed(MatchState state,
         CardBehaviorDefinition behavior, IReadOnlyList<string> targets, int index)
-        => behavior.SelectedBattlefieldEffect is null || index == 0
-            || index == 1 && targets.Count > 1 && behavior.SelectedBattlefieldEffect.MoveOptionalEnemy
-                && IsUnitMovementDestination(state, targets[1], "BATTLEFIELD:" + targets[0]);
+    {
+        if (behavior.SelectedBattlefieldEffect is not { } spec) return true;
+        if (index == spec.BattlefieldTargetIndex || index == spec.DamageFromUnitTargetIndex) return true;
+        if (targets.Count <= spec.BattlefieldTargetIndex || targets.Count <= index) return false;
+        var field = targets[spec.BattlefieldTargetIndex];
+        if (index == spec.PrimaryEnemyTargetIndex)
+            return BattlefieldLocalRules.AtUnit(state, targets[index])?.ObjectId == field;
+        return index == 1 && spec.MoveOptionalEnemy
+            && IsUnitMovementDestination(state, targets[index], "BATTLEFIELD:" + field);
+    }
 
     private static void ResolveSelectedBattlefieldEffect(MatchState state,
         Dictionary<string, PlayerZones> zones, Dictionary<string, CardObjectState> cards,
@@ -24,13 +32,21 @@ public sealed partial class CoreRuleEngine
         StackItemState item, List<GameEvent> events, ISet<string> damageTriggeredDestroyTargets,
         bool preventDamage)
     {
-        if (behavior.SelectedBattlefieldEffect is not { } spec || item.TargetObjectIds.Count == 0
-            || string.IsNullOrWhiteSpace(item.TargetObjectIds[0])) return;
-        var field = item.TargetObjectIds[0];
+        if (behavior.SelectedBattlefieldEffect is not { } spec || item.TargetObjectIds.Count <= spec.BattlefieldTargetIndex
+            || string.IsNullOrWhiteSpace(item.TargetObjectIds[spec.BattlefieldTargetIndex])) return;
+        var field = item.TargetObjectIds[spec.BattlefieldTargetIndex];
         var current = state with { PlayerZones = zones, CardObjects = cards, ObjectLocations = locations };
         if (BattlefieldLocalRules.Battlefield(current, field) is null
             || behavior.TargetScope == CardTargetScopes.FriendlyOccupiedBattlefieldThenEnemyUnit
                 && !HasFriendlyUnitAtSelectedBattlefield(current, item.ControllerId, field)) return;
+        int? unitDamageAmount = null;
+        if (spec.DamageFromUnitTargetIndex is { } unitIndex)
+        {
+            if (item.TargetObjectIds.Count <= unitIndex || string.IsNullOrWhiteSpace(item.TargetObjectIds[unitIndex])
+                || !IsLegalChosenCardTarget(current, item.ControllerId, item.TargetObjectIds[unitIndex], unitIndex,
+                    item.TargetObjectIds, PlayCardTargetScopeForBehavior(behavior), behavior)) return;
+            unitDamageAmount = Math.Max(0, ResolveCurrentFieldUnitPower(current, cards[item.TargetObjectIds[unitIndex]]));
+        }
 
         for (var repeat = 0; repeat < item.EffectRepeatCount; repeat++)
         {
@@ -43,14 +59,20 @@ public sealed partial class CoreRuleEngine
             // is collected after movement and neither pays Ward nor gets retargeted.
             var affected = cards.Keys.Where(id => BattlefieldLocalRules.AtUnit(current, id)?.ObjectId == field)
                 .Order(StringComparer.Ordinal).ToArray();
-            // Snapshot group Might before changing any aura/threshold source.
-            var powerState = current with { CardObjects = cards.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal) };
+            // Snapshot simultaneous damage bonuses and group Might before
+            // changing any member of the affected group.
+            var instructionState = current with { CardObjects = cards.ToDictionary(p => p.Key, p => p.Value, StringComparer.Ordinal) };
             foreach (var id in affected)
             {
                 if (spec.DamagesEnemyUnits && IsEnemyBattlefieldUnitObject(current, item.ControllerId, id))
                 {
+                    var amount = unitDamageAmount is { } fromUnit
+                        ? ApplySpellSkillDamageBonuses(instructionState, item.ControllerId, id, fromUnit)
+                        : spec.PrimaryEnemyTargetIndex is { } primaryIndex && id != item.TargetObjectIds[primaryIndex]
+                            ? ApplySpellSkillDamageBonuses(instructionState, item.ControllerId, id, behavior.OtherEnemyBattlefieldUnitsDamageAmount)
+                            : ResolveDamageAmount(instructionState, item, behavior, id);
                     var damage = ApplyDamageToCardObject(cards, item.ControllerId, id,
-                        ResolveDamageAmount(current, item, behavior, id), damageTriggeredDestroyTargets,
+                        amount, damageTriggeredDestroyTargets,
                         preventDamage, PreventSpellAndSkillDamageThisTurnEffectId);
                     events.Add(new("DAMAGE_APPLIED", $"{behavior.DisplayName}造成 {damage.DamageAmount} 点伤害",
                         BuildDamagePayload(item.SourceObjectId, id, damage)));
@@ -59,7 +81,7 @@ public sealed partial class CoreRuleEngine
                     ? spec.FriendlyPowerModifier : IsEnemyBattlefieldUnitObject(current, item.ControllerId, id)
                         ? spec.EnemyPowerModifier : 0;
                 if (delta == 0) continue;
-                cards[id] = ApplyPowerModifier(powerState, cards[id], behavior, item, id, delta, out var powerEvent);
+                cards[id] = ApplyPowerModifier(instructionState, cards[id], behavior, item, id, delta, out var powerEvent);
                 events.Add(powerEvent);
             }
         }

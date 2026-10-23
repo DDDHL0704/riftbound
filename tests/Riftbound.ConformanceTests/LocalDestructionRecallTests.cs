@@ -138,7 +138,16 @@ public sealed class LocalDestructionRecallTests
 
     [Fact]
     public async Task LethalSpellDamageUsesTheSameRecall()
-    {var done=await Open(PositionFor());Assert.Contains("D",done.State.PlayerZones["P2"].Base);Assert.Equal(1,done.State.CardObjects["S"].Damage);Restore(done.State);}
+    {
+        var done = await Open(PositionFor());
+        Assert.Contains("D", done.State.PlayerZones["P2"].Base);
+        Assert.Equal("OGN·296/298", done.State.CardObjects["BF"].CardNo);
+        // Gale's printed 1 damage receives Void Gate's local +1 even without a unit target.
+        Assert.Equal(2, done.State.CardObjects["S"].Damage);
+        Assert.Equal(2, Assert.Single(done.Events, e => e.Kind == "DAMAGE_APPLIED"
+            && Equals(e.Payload.GetValueOrDefault("targetObjectId"), "S")).Payload["damage"]);
+        Restore(done.State);
+    }
 
     [Fact]
     public async Task SameSourceCanProtectAgainOnALaterDestructionEvent()

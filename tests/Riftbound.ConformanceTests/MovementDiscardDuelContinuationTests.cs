@@ -45,6 +45,10 @@ public sealed class MovementDiscardDuelContinuationTests
         zones["P1"] = zones["P1"] with { Battlefields = [..zones["P1"].Battlefields, "SHADOW"] };
         if (response)
         {
+            // This branch checks focus with a surviving merchant that can then
+            // be stunned. A neutral field keeps the response's printed 1 damage;
+            // Void Gate's lethal response is covered by MovementDiscardTests.
+            cards["BF2"] = cards["BF2"] with { CardNo = "OGN·278/298" };
             cards["RESPONSE"] = new("RESPONSE", cardNo: "OGN·133/298", ownerId: "P1", controllerId: "P1", tags: [CardObjectTags.SpellCard]);
             zones["P1"] = zones["P1"] with { Hand = [..zones["P1"].Hand, "RESPONSE"] };
             locations["RESPONSE"] = new("P1", "HAND");

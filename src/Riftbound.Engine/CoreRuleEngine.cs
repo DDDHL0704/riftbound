@@ -21568,6 +21568,12 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             CardTargetScopes.FriendlyUnitThenBattlefield => targetIndex == 0
                 ? IsPlayerControlledFieldUnitObject(state, playerId, objectId)
                 : BattlefieldLocalRules.Battlefield(state, objectId) is not null,
+            CardTargetScopes.FriendlyBaseUnitThenBattlefield => targetIndex == 0
+                ? IsPlayerControlledBaseObject(state, playerId, objectId) && IsFieldUnitObject(state, objectId)
+                : BattlefieldLocalRules.Battlefield(state, objectId) is not null,
+            CardTargetScopes.BattlefieldThenEnemyUnit => targetIndex == 0
+                ? BattlefieldLocalRules.Battlefield(state, objectId) is not null
+                : IsEnemyBattlefieldUnitObject(state, playerId, objectId),
             CardTargetScopes.FriendlyOccupiedBattlefieldThenEnemyUnit => targetIndex == 0
                 ? HasFriendlyUnitAtSelectedBattlefield(state, playerId, objectId)
                 : IsEnemyFieldObject(state, playerId, objectId),
@@ -24321,6 +24327,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
     private static string DescribeTargetScope(string targetScope)
     {
+        if (targetScope == CardTargetScopes.FriendlyBaseUnitThenBattlefield) return "friendly base unit then battlefield";
+        if (targetScope == CardTargetScopes.BattlefieldThenEnemyUnit) return "battlefield then enemy unit at that battlefield";
         return string.Equals(targetScope, CardTargetScopes.AnyUnit, StringComparison.Ordinal)
             ? "unit"
             : string.Equals(targetScope, CardTargetScopes.BaseUnit, StringComparison.Ordinal)
@@ -25488,6 +25496,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             if (behavior.DamagesAllBattlefieldUnits)
             {
                 ApplyDamageToBattlefieldUnits(
+                    state,
                     playerZones,
                     cardObjects,
                     behavior,
@@ -25502,6 +25511,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         else if (behavior.DamagesAllBattlefieldUnits)
         {
             ApplyDamageToBattlefieldUnits(
+                state,
                 playerZones,
                 cardObjects,
                 behavior,
@@ -25515,19 +25525,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         else if (behavior.DamagesAllEnemyCombatUnits)
         {
             ApplyDamageToEnemyCombatUnits(
-                playerZones,
-                cardObjects,
-                behavior,
-                stackItem,
-                ResolveDamageAmount(state, stackItem, behavior),
-                events,
-                damageTriggeredDestroyTargetObjectIds,
-                preventDamageFromThisStackItem,
-                PreventSpellAndSkillDamageThisTurnEffectId);
-        }
-        else if (behavior.DamagesAllEnemyBattlefieldUnits)
-        {
-            ApplyDamageToEnemyBattlefieldUnits(
+                state,
                 playerZones,
                 cardObjects,
                 behavior,
@@ -26089,54 +26087,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 }
             }
         }
-        else if (behavior.DamagesAllEnemyBattlefieldUnitsByFirstTargetPower
-            && stackItem.TargetObjectIds.Count >= 1)
-        {
-            var firstTargetObjectId = stackItem.TargetObjectIds[0];
-            var canResolveTargetMove = IsFieldObjectControlledByZonePlayer(playerZones, cardObjects, firstTargetObjectId)
-                && (!behavior.MovesTargetToBattlefield
-                || CanMoveTargetToControllerBattlefield(
-                    playerZones,
-                    cardObjects,
-                    stackItem.ControllerId,
-                    firstTargetObjectId));
-            if (canResolveTargetMove)
-            {
-                var damageAmount = cardObjects.TryGetValue(firstTargetObjectId, out var firstTargetState)
-                    ? Math.Max(0, firstTargetState.Power)
-                    : 0;
-                ApplyDamageToEnemyBattlefieldUnits(
-                    playerZones,
-                    cardObjects,
-                    behavior,
-                    stackItem,
-                    damageAmount,
-                    events,
-                    damageTriggeredDestroyTargetObjectIds,
-                    preventDamageFromThisStackItem,
-                    PreventSpellAndSkillDamageThisTurnEffectId);
 
-                if (behavior.MovesTargetToBattlefield
-                    && TryMoveTargetToControllerBattlefield(
-                        playerZones,
-                        cardObjects,
-                        stackItem.ControllerId,
-                        firstTargetObjectId))
-                {
-                    events.Add(new GameEvent(
-                        "UNIT_MOVED_TO_BATTLEFIELD",
-                        $"{behavior.DisplayName}让单位移动到战场",
-                        new Dictionary<string, object?>
-                        {
-                            ["sourceObjectId"] = stackItem.SourceObjectId,
-                            ["targetObjectId"] = firstTargetObjectId,
-                            ["controllerId"] = stackItem.ControllerId,
-                            ["destinationZone"] = "BATTLEFIELD"
-                        }));
-                    events.Add(CaptureMovementObservers(state with { CardObjects = cardObjects }, cardObjects, firstTargetObjectId, stackItem.ControllerId, "BATTLEFIELD"));
-                }
-            }
-        }
         else if (behavior.DestroysFirstTargetAndBuffsSecondByDestroyedPower
             && stackItem.TargetObjectIds.Count >= 2)
         {
@@ -26937,20 +26888,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                     cardObjects[targetObjectId] = targetState;
                 }
 
-                if (behavior.OtherEnemyBattlefieldUnitsDamageAmount > 0)
-                {
-                    ApplyDamageToOtherEnemyBattlefieldUnits(
-                        playerZones,
-                        cardObjects,
-                        behavior,
-                        stackItem,
-                        behavior.OtherEnemyBattlefieldUnitsDamageAmount,
-                        stackItem.TargetObjectIds,
-                        events,
-                        damageTriggeredDestroyTargetObjectIds,
-                        preventDamageFromThisStackItem,
-                        PreventSpellAndSkillDamageThisTurnEffectId);
-                }
+
             }
         }
 
@@ -29082,6 +29020,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     }
 
     private static void ApplyDamageToBattlefieldUnits(
+        MatchState state,
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         Dictionary<string, CardObjectState> cardObjects,
         CardBehaviorDefinition behavior,
@@ -29097,13 +29036,19 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return;
         }
 
+        var current = state with { PlayerZones = playerZones, CardObjects = cardObjects };
         foreach (var targetObjectId in GetBattlefieldUnitObjectIds(playerZones, cardObjects))
         {
+            // Controller-wide bonuses are already included once by the caller.
+            // Each actual recipient supplies only its own battlefield modifier.
+            var targetDamage = IsSpellPlayBehavior(behavior) || stackItem.SourceConfirmed
+                ? ApplyBattlefieldTargetSpellSkillDamageBonus(current, targetObjectId, damageAmount)
+                : damageAmount;
             var damageApplication = ApplyDamageToCardObject(
                 cardObjects,
                 stackItem.ControllerId,
                 targetObjectId,
-                damageAmount,
+                targetDamage,
                 damageTriggeredDestroyTargetObjectIds,
                 preventDamage,
                 preventionEffectId);
@@ -29174,6 +29119,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     }
 
     private static void ApplyDamageToEnemyCombatUnits(
+        MatchState state,
         IReadOnlyDictionary<string, PlayerZones> playerZones,
         Dictionary<string, CardObjectState> cardObjects,
         CardBehaviorDefinition behavior,
@@ -29189,91 +29135,25 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return;
         }
 
+        var current = state with { PlayerZones = playerZones, CardObjects = cardObjects };
         foreach (var targetObjectId in GetEnemyCombatObjectIds(playerZones, cardObjects, stackItem.ControllerId))
         {
+            // Controller-wide bonuses are already included once by the caller.
+            // Each actual recipient supplies only its own battlefield modifier.
+            var targetDamage = IsSpellPlayBehavior(behavior) || stackItem.SourceConfirmed
+                ? ApplyBattlefieldTargetSpellSkillDamageBonus(current, targetObjectId, damageAmount)
+                : damageAmount;
             var damageApplication = ApplyDamageToCardObject(
                 cardObjects,
                 stackItem.ControllerId,
                 targetObjectId,
-                damageAmount,
+                targetDamage,
                 damageTriggeredDestroyTargetObjectIds,
                 preventDamage,
                 preventionEffectId);
             events.Add(new GameEvent(
                 "DAMAGE_APPLIED",
                 $"{behavior.DisplayName}造成 {damageApplication.DamageAmount} 点伤害",
-                BuildDamagePayload(stackItem.SourceObjectId, targetObjectId, damageApplication)));
-        }
-    }
-
-    private static void ApplyDamageToEnemyBattlefieldUnits(
-        IReadOnlyDictionary<string, PlayerZones> playerZones,
-        Dictionary<string, CardObjectState> cardObjects,
-        CardBehaviorDefinition behavior,
-        StackItemState stackItem,
-        int damageAmount,
-        List<GameEvent> events,
-        ISet<string> damageTriggeredDestroyTargetObjectIds,
-        bool preventDamage = false,
-        string preventionEffectId = "")
-    {
-        if (damageAmount <= 0)
-        {
-            return;
-        }
-
-        foreach (var targetObjectId in GetEnemyBattlefieldUnitObjectIds(playerZones, cardObjects, stackItem.ControllerId))
-        {
-            var damageApplication = ApplyDamageToCardObject(
-                cardObjects,
-                stackItem.ControllerId,
-                targetObjectId,
-                damageAmount,
-                damageTriggeredDestroyTargetObjectIds,
-                preventDamage,
-                preventionEffectId);
-            events.Add(new GameEvent(
-                "DAMAGE_APPLIED",
-                $"{behavior.DisplayName}造成 {damageApplication.DamageAmount} 点伤害",
-                BuildDamagePayload(stackItem.SourceObjectId, targetObjectId, damageApplication)));
-        }
-    }
-
-    private static void ApplyDamageToOtherEnemyBattlefieldUnits(
-        IReadOnlyDictionary<string, PlayerZones> playerZones,
-        Dictionary<string, CardObjectState> cardObjects,
-        CardBehaviorDefinition behavior,
-        StackItemState stackItem,
-        int damageAmount,
-        IReadOnlyCollection<string> excludedObjectIds,
-        List<GameEvent> events,
-        ISet<string> damageTriggeredDestroyTargetObjectIds,
-        bool preventDamage = false,
-        string preventionEffectId = "")
-    {
-        if (damageAmount <= 0)
-        {
-            return;
-        }
-
-        foreach (var targetObjectId in GetEnemyBattlefieldUnitObjectIds(playerZones, cardObjects, stackItem.ControllerId))
-        {
-            if (excludedObjectIds.Contains(targetObjectId, StringComparer.Ordinal))
-            {
-                continue;
-            }
-
-            var damageApplication = ApplyDamageToCardObject(
-                cardObjects,
-                stackItem.ControllerId,
-                targetObjectId,
-                damageAmount,
-                damageTriggeredDestroyTargetObjectIds,
-                preventDamage,
-                preventionEffectId);
-            events.Add(new GameEvent(
-                "DAMAGE_APPLIED",
-                $"{behavior.DisplayName}造成 {damageApplication.DamageAmount} 点溅射伤害",
                 BuildDamagePayload(stackItem.SourceObjectId, targetObjectId, damageApplication)));
         }
     }

@@ -76,7 +76,7 @@ public sealed class LuxHighCostPaidCostTriggerTests
         var result = await engine.ResolveAsync(
             state,
             new PlayerIntent("intent-lux-paid-cost-taxed-low-spell", "P1", CommandTypes.PlayCard),
-            new PlayCardCommand(LowerPrintedSpellObjectId, LowerPrintedSpellCardNo, [SpellshieldTargetObjectId]),
+            new PlayCardCommand(LowerPrintedSpellObjectId, LowerPrintedSpellCardNo, [SelectedBattlefieldFixture.Field, SpellshieldTargetObjectId]),
             CancellationToken.None);
 
         Assert.True(result.Accepted, result.ErrorMessage);
@@ -119,7 +119,7 @@ public sealed class LuxHighCostPaidCostTriggerTests
         var candidateTargetIds = Assert.IsAssignableFrom<IReadOnlyList<ActionPromptChoiceDto>>(playCandidate.Targets)
             .Select(choice => choice.Id)
             .ToArray();
-        Assert.Equal([SpellshieldTargetObjectId], candidateTargetIds);
+        Assert.Equal([SelectedBattlefieldFixture.Field, SpellshieldTargetObjectId], candidateTargetIds.Order().ToArray());
 
         var metadata = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(playCandidate.Metadata);
         var sourceRequirements = Assert.IsAssignableFrom<IEnumerable<IReadOnlyDictionary<string, object?>>>(
@@ -129,7 +129,8 @@ public sealed class LuxHighCostPaidCostTriggerTests
             requirement => string.Equals(requirement["sourceObjectId"] as string, LowerPrintedSpellObjectId, StringComparison.Ordinal));
         var targetChoicesByIndex = Assert.IsAssignableFrom<IReadOnlyDictionary<string, object?>>(
             sourceRequirement["targetChoicesByIndex"]);
-        var metadataTargetIds = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(targetChoicesByIndex["0"])
+        Assert.Equal([SelectedBattlefieldFixture.Field], Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(targetChoicesByIndex["0"]).Select(x => x.Id).ToArray());
+        var metadataTargetIds = Assert.IsAssignableFrom<IEnumerable<ActionPromptChoiceDto>>(targetChoicesByIndex["1"])
             .Select(choice => choice.Id)
             .ToArray();
         Assert.Equal([SpellshieldTargetObjectId], metadataTargetIds);
@@ -163,7 +164,7 @@ public sealed class LuxHighCostPaidCostTriggerTests
         var command = new PlayCardCommand(
             LowerPrintedSpellObjectId,
             LowerPrintedSpellCardNo,
-            [SpellshieldTargetObjectId]);
+            [SelectedBattlefieldFixture.Field, SpellshieldTargetObjectId]);
 
         var prompt = session.PromptFor("P1");
         Assert.True(prompt.Actionable);
@@ -349,7 +350,7 @@ public sealed class LuxHighCostPaidCostTriggerTests
         var result = await engine.ResolveAsync(
             state,
             new PlayerIntent("intent-lux-paid-cost-tax-rejected", "P1", CommandTypes.PlayCard),
-            new PlayCardCommand(LowerPrintedSpellObjectId, LowerPrintedSpellCardNo, [SpellshieldTargetObjectId]),
+            new PlayCardCommand(LowerPrintedSpellObjectId, LowerPrintedSpellCardNo, [SelectedBattlefieldFixture.Field, SpellshieldTargetObjectId]),
             CancellationToken.None);
 
         Assert.False(result.Accepted);
@@ -418,7 +419,7 @@ public sealed class LuxHighCostPaidCostTriggerTests
                 controllerId: "P2");
         }
 
-        return new MatchState(
+        return SelectedBattlefieldFixture.WithExplicitFields(new MatchState(
             "lux-paid-cost-room",
             81,
             1,
@@ -464,7 +465,7 @@ public sealed class LuxHighCostPaidCostTriggerTests
             {
                 ["P1"] = 0,
                 ["P2"] = 0
-            });
+            }));
     }
 
     private static JsonElement PromptScopedPlayCardRawCommand(
@@ -563,7 +564,7 @@ public sealed class LuxHighCostPaidCostTriggerTests
         Assert.Equal([LuxUnitObjectId], result.State.PlayerZones["P1"].Base);
         Assert.Equal([LuxLegendObjectId], result.State.PlayerZones["P1"].LegendZone);
         Assert.Empty(result.State.PlayerZones["P1"].Graveyard);
-        Assert.Equal([SpellshieldTargetObjectId], result.State.PlayerZones["P2"].Battlefields);
+        Assert.Equal([SpellshieldTargetObjectId, SelectedBattlefieldFixture.Field], result.State.PlayerZones["P2"].Battlefields);
         Assert.Null(result.State.PendingPayment);
         Assert.Equal("STACK", result.State.ObjectLocations[LowerPrintedSpellObjectId].Zone);
         Assert.Equal("P1", result.State.ObjectLocations[LowerPrintedSpellObjectId].PlayerId);
@@ -580,7 +581,7 @@ public sealed class LuxHighCostPaidCostTriggerTests
         var stackItem = Assert.Single(result.State.StackItems);
         Assert.Equal(LowerPrintedSpellObjectId, stackItem.SourceObjectId);
         Assert.Equal(LowerPrintedSpellCardNo, stackItem.CardNo);
-        Assert.Equal([SpellshieldTargetObjectId], stackItem.TargetObjectIds);
+        Assert.Equal([SelectedBattlefieldFixture.Field, SpellshieldTargetObjectId], stackItem.TargetObjectIds);
         Assert.Empty(stackItem.OptionalCosts);
         Assert.Equal(LowerPrintedSpellEffectKind, stackItem.EffectKind);
         Assert.Equal(4, stackItem.DamageAmount);

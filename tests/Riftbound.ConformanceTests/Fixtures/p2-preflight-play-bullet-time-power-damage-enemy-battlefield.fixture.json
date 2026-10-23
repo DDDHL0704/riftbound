@@ -18,10 +18,18 @@
       "source": "《符文战场》核心规则_260330.pdf",
       "locator": "p20 rules 164-167; p31-p35 rules 318-340; p39-p42 rules 355-356",
       "note": "符能位于玩家符文池并可用于支付费用；法术经费用、目标和结算链流程后结算；伤害记录在单位对象状态上并保留到清理。"
+    },
+    {
+      "source": "docs/SELECTED_BATTLEFIELD_AOE_N54_PARALLEL_2026-10-23.md",
+      "locator": "CN current exact OGN268 OGN250 UNL072",
+      "note": "N54 explicit single battlefield selection and actual locations; original seed, commands, effects and assertions retained with field identity added. Original pre-calibration fixture and failures archived."
     }
   ],
   "roomId": "p2-preflight-bullet-time-room",
-  "players": ["P1", "P2"],
+  "players": [
+    "P1",
+    "P2"
+  ],
   "initialState": {
     "seed": 2603302681,
     "turnNumber": 76,
@@ -34,57 +42,207 @@
       "P2": 0
     },
     "runePools": {
-      "P1": { "mana": 1, "power": 3 },
-      "P2": { "mana": 0, "power": 0 }
+      "P1": {
+        "mana": 1,
+        "power": 3
+      },
+      "P2": {
+        "mana": 0,
+        "power": 0
+      }
     },
     "players": {
       "P1": {
-        "mainDeck": ["P1-MAIN-001"],
-        "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
-        "hand": ["P1-SPELL-BULLET-TIME"],
+        "mainDeck": [
+          "P1-MAIN-001"
+        ],
+        "runeDeck": [
+          "P1-RUNE-001",
+          "P1-RUNE-002"
+        ],
+        "hand": [
+          "P1-SPELL-BULLET-TIME"
+        ],
         "base": [],
-        "battlefields": ["P1-BULLET-TIME-FRIENDLY-001"],
+        "battlefields": [
+          "P1-BULLET-TIME-FRIENDLY-001",
+          "N54-FRIENDLY-FIELD"
+        ],
         "graveyard": [],
         "banished": [],
-        "legendZone": ["P1-LEGEND-001"],
-        "championZone": ["P1-CHAMPION-001"]
+        "legendZone": [
+          "P1-LEGEND-001"
+        ],
+        "championZone": [
+          "P1-CHAMPION-001"
+        ]
       },
       "P2": {
-        "mainDeck": ["P2-MAIN-001"],
-        "runeDeck": ["P2-RUNE-001", "P2-RUNE-002"],
+        "mainDeck": [
+          "P2-MAIN-001"
+        ],
+        "runeDeck": [
+          "P2-RUNE-001",
+          "P2-RUNE-002"
+        ],
         "hand": [],
-        "base": ["P2-BULLET-TIME-BASE-001"],
-        "battlefields": ["P2-BULLET-TIME-UNIT-001", "P2-BULLET-TIME-UNIT-002"],
+        "base": [
+          "P2-BULLET-TIME-BASE-001"
+        ],
+        "battlefields": [
+          "P2-BULLET-TIME-UNIT-001",
+          "P2-BULLET-TIME-UNIT-002",
+          "N54-SELECTED-FIELD"
+        ],
         "graveyard": [],
         "banished": [],
-        "legendZone": ["P2-LEGEND-001"],
-        "championZone": ["P2-CHAMPION-001"]
+        "legendZone": [
+          "P2-LEGEND-001"
+        ],
+        "championZone": [
+          "P2-CHAMPION-001"
+        ]
       }
     },
     "cardObjects": {
       "P1-BULLET-TIME-FRIENDLY-001": {
         "damage": 0,
         "power": 4,
-        "tags": ["CARD_TYPE:UNIT"],
-        "untilEndOfTurnEffects": []
+        "tags": [
+          "CARD_TYPE:UNIT"
+        ],
+        "untilEndOfTurnEffects": [],
+        "ownerId": "P1",
+        "controllerId": "P1"
       },
       "P2-BULLET-TIME-BASE-001": {
         "damage": 0,
         "power": 4,
-        "tags": ["CARD_TYPE:UNIT"],
-        "untilEndOfTurnEffects": []
+        "tags": [
+          "CARD_TYPE:UNIT"
+        ],
+        "untilEndOfTurnEffects": [],
+        "ownerId": "P2",
+        "controllerId": "P2"
       },
       "P2-BULLET-TIME-UNIT-001": {
         "damage": 0,
         "power": 5,
-        "tags": ["CARD_TYPE:UNIT"],
-        "untilEndOfTurnEffects": []
+        "tags": [
+          "CARD_TYPE:UNIT"
+        ],
+        "untilEndOfTurnEffects": [],
+        "ownerId": "P2",
+        "controllerId": "P2"
       },
       "P2-BULLET-TIME-UNIT-002": {
         "damage": 1,
         "power": 6,
-        "tags": ["CARD_TYPE:UNIT"],
-        "untilEndOfTurnEffects": []
+        "tags": [
+          "CARD_TYPE:UNIT"
+        ],
+        "untilEndOfTurnEffects": [],
+        "ownerId": "P2",
+        "controllerId": "P2"
+      },
+      "N54-SELECTED-FIELD": {
+        "cardNo": "OGN·278/298",
+        "tags": [
+          "CARD_TYPE:BATTLEFIELD"
+        ],
+        "ownerId": "P2",
+        "controllerId": "P2"
+      },
+      "P1-SPELL-BULLET-TIME": {
+        "cardNo": "OGN·268/298",
+        "tags": [
+          "CARD_TYPE:SPELL"
+        ],
+        "ownerId": "P1",
+        "controllerId": "P1"
+      },
+      "N54-FRIENDLY-FIELD": {
+        "cardNo": "OGN·278/298",
+        "tags": [
+          "CARD_TYPE:BATTLEFIELD"
+        ],
+        "ownerId": "P1",
+        "controllerId": "P1"
+      }
+    },
+    "objectLocations": {
+      "P1-MAIN-001": {
+        "playerId": "P1",
+        "zone": "MAIN_DECK"
+      },
+      "P1-RUNE-001": {
+        "playerId": "P1",
+        "zone": "RUNE_DECK"
+      },
+      "P1-RUNE-002": {
+        "playerId": "P1",
+        "zone": "RUNE_DECK"
+      },
+      "P1-SPELL-BULLET-TIME": {
+        "playerId": "P1",
+        "zone": "HAND"
+      },
+      "P1-BULLET-TIME-FRIENDLY-001": {
+        "playerId": "P1",
+        "zone": "BATTLEFIELD",
+        "battlefieldObjectId": "N54-FRIENDLY-FIELD"
+      },
+      "P1-LEGEND-001": {
+        "playerId": "P1",
+        "zone": "LEGEND"
+      },
+      "P1-CHAMPION-001": {
+        "playerId": "P1",
+        "zone": "CHAMPION"
+      },
+      "P2-MAIN-001": {
+        "playerId": "P2",
+        "zone": "MAIN_DECK"
+      },
+      "P2-RUNE-001": {
+        "playerId": "P2",
+        "zone": "RUNE_DECK"
+      },
+      "P2-RUNE-002": {
+        "playerId": "P2",
+        "zone": "RUNE_DECK"
+      },
+      "P2-BULLET-TIME-BASE-001": {
+        "playerId": "P2",
+        "zone": "BASE"
+      },
+      "P2-BULLET-TIME-UNIT-001": {
+        "playerId": "P2",
+        "zone": "BATTLEFIELD",
+        "battlefieldObjectId": "N54-SELECTED-FIELD"
+      },
+      "P2-BULLET-TIME-UNIT-002": {
+        "playerId": "P2",
+        "zone": "BATTLEFIELD",
+        "battlefieldObjectId": "N54-SELECTED-FIELD"
+      },
+      "N54-SELECTED-FIELD": {
+        "playerId": "P2",
+        "zone": "BATTLEFIELD",
+        "battlefieldObjectId": "N54-SELECTED-FIELD"
+      },
+      "P2-LEGEND-001": {
+        "playerId": "P2",
+        "zone": "LEGEND"
+      },
+      "P2-CHAMPION-001": {
+        "playerId": "P2",
+        "zone": "CHAMPION"
+      },
+      "N54-FRIENDLY-FIELD": {
+        "playerId": "P1",
+        "zone": "BATTLEFIELD",
+        "battlefieldObjectId": "N54-FRIENDLY-FIELD"
       }
     }
   },
@@ -96,8 +254,12 @@
         "cmdType": "PLAY_CARD",
         "sourceObjectId": "P1-SPELL-BULLET-TIME",
         "cardNo": "OGN·268/298",
-        "targetObjectIds": [],
-        "optionalCosts": ["SPEND_POWER:3"]
+        "targetObjectIds": [
+          "N54-SELECTED-FIELD"
+        ],
+        "optionalCosts": [
+          "SPEND_POWER:3"
+        ]
       }
     },
     {
@@ -128,7 +290,9 @@
       "DAMAGE_APPLIED"
     ],
     "events": [
-      { "kind": "CARD_PLAYED" },
+      {
+        "kind": "CARD_PLAYED"
+      },
       {
         "kind": "COST_PAID",
         "payload": {
@@ -136,7 +300,9 @@
           "mana": 1,
           "power": 3,
           "baseMana": 1,
-          "optionalCosts": ["SPEND_POWER:3"]
+          "optionalCosts": [
+            "SPEND_POWER:3"
+          ]
         }
       },
       {
@@ -145,13 +311,21 @@
           "controllerId": "P1",
           "sourceObjectId": "P1-SPELL-BULLET-TIME",
           "cardNo": "OGN·268/298",
-          "targetObjectIds": [],
+          "targetObjectIds": [
+            "N54-SELECTED-FIELD"
+          ],
           "effectKind": "BULLET_TIME_DAMAGE_ENEMY_BATTLEFIELD_UNITS_BY_POWER_SPENT"
         }
       },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "STACK_ITEM_RESOLVED" },
+      {
+        "kind": "PRIORITY_PASSED"
+      },
+      {
+        "kind": "PRIORITY_PASSED"
+      },
+      {
+        "kind": "STACK_ITEM_RESOLVED"
+      },
       {
         "kind": "DAMAGE_APPLIED",
         "payload": {
@@ -170,8 +344,12 @@
       }
     ],
     "promptActions": {
-      "P1": ["END_TURN"],
-      "P2": ["WAIT"]
+      "P1": [
+        "END_TURN"
+      ],
+      "P2": [
+        "WAIT"
+      ]
     },
     "finalState": {
       "turnNumber": 76,
@@ -184,18 +362,35 @@
         "P2": 0
       },
       "runePools": {
-        "P1": { "mana": 0, "power": 0 },
-        "P2": { "mana": 0, "power": 0 }
+        "P1": {
+          "mana": 0,
+          "power": 0
+        },
+        "P2": {
+          "mana": 0,
+          "power": 0
+        }
       },
       "players": {
         "P1": {
           "hand": [],
-          "battlefields": ["P1-BULLET-TIME-FRIENDLY-001"],
-          "graveyard": ["P1-SPELL-BULLET-TIME"]
+          "battlefields": [
+            "P1-BULLET-TIME-FRIENDLY-001",
+            "N54-FRIENDLY-FIELD"
+          ],
+          "graveyard": [
+            "P1-SPELL-BULLET-TIME"
+          ]
         },
         "P2": {
-          "base": ["P2-BULLET-TIME-BASE-001"],
-          "battlefields": ["P2-BULLET-TIME-UNIT-001", "P2-BULLET-TIME-UNIT-002"]
+          "base": [
+            "P2-BULLET-TIME-BASE-001"
+          ],
+          "battlefields": [
+            "P2-BULLET-TIME-UNIT-001",
+            "P2-BULLET-TIME-UNIT-002",
+            "N54-SELECTED-FIELD"
+          ]
         }
       },
       "stackItems": [],
@@ -203,32 +398,50 @@
         "P1-BULLET-TIME-FRIENDLY-001": {
           "damage": 0,
           "power": 4,
-          "tags": ["CARD_TYPE:UNIT"],
+          "tags": [
+            "CARD_TYPE:UNIT"
+          ],
           "untilEndOfTurnEffects": []
         },
         "P2-BULLET-TIME-BASE-001": {
           "damage": 0,
           "power": 4,
-          "tags": ["CARD_TYPE:UNIT"],
+          "tags": [
+            "CARD_TYPE:UNIT"
+          ],
           "untilEndOfTurnEffects": []
         },
         "P2-BULLET-TIME-UNIT-001": {
           "damage": 3,
           "power": 5,
-          "tags": ["CARD_TYPE:UNIT"],
+          "tags": [
+            "CARD_TYPE:UNIT"
+          ],
           "untilEndOfTurnEffects": []
         },
         "P2-BULLET-TIME-UNIT-002": {
           "damage": 4,
           "power": 6,
-          "tags": ["CARD_TYPE:UNIT"],
+          "tags": [
+            "CARD_TYPE:UNIT"
+          ],
           "untilEndOfTurnEffects": []
         }
       }
     },
     "prompts": {
-      "P1": { "actionable": true, "actions": ["END_TURN"] },
-      "P2": { "actionable": false, "actions": ["WAIT"] }
+      "P1": {
+        "actionable": true,
+        "actions": [
+          "END_TURN"
+        ]
+      },
+      "P2": {
+        "actionable": false,
+        "actions": [
+          "WAIT"
+        ]
+      }
     }
   }
 }

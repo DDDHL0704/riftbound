@@ -115,7 +115,7 @@ public sealed class LuxResourceSkillTests
             new PlayCardCommand(
                 SpellObjectId,
                 BulletTimeCardNo,
-                [],
+                [SelectedBattlefieldFixture.Field],
                 OptionalCosts: [LuxResourceAction]),
             CancellationToken.None);
 
@@ -292,7 +292,7 @@ public sealed class LuxResourceSkillTests
         var command = new PlayCardCommand(
             SpellObjectId,
             BulletTimeCardNo,
-            [],
+            [SelectedBattlefieldFixture.Field],
             OptionalCosts: [LuxResourceAction]);
 
         var prompt = session.PromptFor("P1");
@@ -455,7 +455,7 @@ public sealed class LuxResourceSkillTests
             : new PlayCardCommand(
                 SpellObjectId,
                 BulletTimeCardNo,
-                [],
+                [SelectedBattlefieldFixture.Field],
                 OptionalCosts: caseName == "duplicate-resource" ? [LuxResourceAction, LuxResourceAction] : [LuxResourceAction]);
         var initialHash = MatchStateHasher.Hash(state);
 
@@ -505,7 +505,7 @@ public sealed class LuxResourceSkillTests
             objectLocations[SecondLuxObjectId] = new("P1", "BASE");
         }
 
-        return new MatchState(
+        return SelectedBattlefieldFixture.WithExplicitFields(new MatchState(
             roomId: "lux-resource-skill-test",
             tick: 40,
             turnNumber: 1,
@@ -543,7 +543,7 @@ public sealed class LuxResourceSkillTests
                 ["P2"] = 0
             },
             cardObjects: cardObjects,
-            objectLocations: objectLocations);
+            objectLocations: objectLocations));
     }
 
     private static JsonElement PromptScopedPlayCardRawCommand(
@@ -588,7 +588,7 @@ public sealed class LuxResourceSkillTests
         Assert.Equal(CommandTypes.PlayCard, rawCommand.GetProperty("cmdType").GetString());
         Assert.Equal(SpellObjectId, rawCommand.GetProperty("cardObjectId").GetString());
         Assert.Equal(BulletTimeCardNo, rawCommand.GetProperty("cardNo").GetString());
-        Assert.Empty(rawCommand.GetProperty("targetObjectIds").EnumerateArray());
+        Assert.Equal([SelectedBattlefieldFixture.Field], rawCommand.GetProperty("targetObjectIds").EnumerateArray().Select(x => x.GetString()!).ToArray());
         Assert.Equal(
             optionalCosts,
             rawCommand.GetProperty("optionalCosts")
@@ -612,7 +612,7 @@ public sealed class LuxResourceSkillTests
         var stackItem = Assert.Single(result.State.StackItems);
         Assert.Equal(SpellObjectId, stackItem.SourceObjectId);
         Assert.Equal(BulletTimeCardNo, stackItem.CardNo);
-        Assert.Empty(stackItem.TargetObjectIds);
+        Assert.Equal([SelectedBattlefieldFixture.Field], stackItem.TargetObjectIds);
         Assert.Empty(stackItem.OptionalCosts);
         if (expectedStackItem is not null)
         {

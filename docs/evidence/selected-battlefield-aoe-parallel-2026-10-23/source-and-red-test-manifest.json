@@ -1,0 +1,3610 @@
+{
+  "status": "SOURCE_RED_CROSS_BATTLEFIELD_DAMAGE_MISSING_GLOBAL_LOCAL_BONUSES_AND_FIELDLESS_MOVEMENT",
+  "atUtc": "2026-10-23T09:26:33.522207+00:00",
+  "baseCommit": "dd9b339adfea007310f54caba3cf735d90ea5780",
+  "region": "CN",
+  "language": "zh-CN",
+  "peerOverlay": {
+    "overlaySource": "/Users/dinghaolin/MyProjects/riftbound/var/qa/draven-battle-win-score-n53-20261023/n53-exact-main-overlay-after71-green-v1.tar.gz",
+    "overlaySha256": "4f3c3a4a772a37623efc7087c1683846e46b44da3f24228c940a87f6eb7fa892",
+    "parentReceipt": "/Users/dinghaolin/MyProjects/.worktrees/riftbound-parallel-official-audit-20261023/var/qa/battle-win-combined-20261023/applied-peer-fixed-n52-first45-v1.json",
+    "parentReceiptSha256": "296287f60cbe583c3a7be8e572df6213b53ee8f497cba3abc31688df6cb86384",
+    "priorAll19UnchangedBeforeApply": true,
+    "files": [
+      {
+        "path": "src/Riftbound.Engine/BattleResultRecoveryRules.cs",
+        "beforeSha256": "6196373ecb6fb5c52a9b523a838048949c9d4a999de80a3f04e555d664907372",
+        "afterSha256": "d19f706a78809eb85f0abdc79fb1c276546fd2cab5905a076a940dad08f8c6e0"
+      },
+      {
+        "path": "src/Riftbound.Engine/CoreRuleEngine.BattleResponseCleanup.cs",
+        "beforeSha256": "d40b423023e0b7d8f5dd1f01a47ff197c703d8afc96522a528937ed0cbae1a28",
+        "afterSha256": "12972a0913e5f7a4b154a4ceea8408dae2a2f8acf042cbf34ad1c9aca8bb6924"
+      },
+      {
+        "path": "src/Riftbound.Engine/CoreRuleEngine.BattleResultContinuation.cs",
+        "beforeSha256": "cf0f94c35bad28617a80bbd8ff720cf5c1cdf55e5a48935601696bc4b8b9041f",
+        "afterSha256": "346ff15b2a87257054fdde2950479d4858886f308a88a8904324fe74e46c3347"
+      },
+      {
+        "path": "src/Riftbound.Engine/CoreRuleEngine.BattleWinTriggers.cs",
+        "beforeSha256": "a7ef81940a8882452fdf34ac7adbbfb8a47a518585ddddb13318d3eef91d5f4c",
+        "afterSha256": "a7ef81940a8882452fdf34ac7adbbfb8a47a518585ddddb13318d3eef91d5f4c"
+      },
+      {
+        "path": "src/Riftbound.Engine/CoreRuleEngine.DravenBattleWinScore.cs",
+        "beforeSha256": "2e96b1056df6ae60ae342b90dbb7d96b4800b6f8412fce927349c793fb27135b",
+        "afterSha256": "2e96b1056df6ae60ae342b90dbb7d96b4800b6f8412fce927349c793fb27135b"
+      },
+      {
+        "path": "src/Riftbound.Engine/CoreRuleEngine.KhazixBattleWin.cs",
+        "beforeSha256": "daf437d44f947077899a54369a1b69ae886b0b1dc3add0a5a6aebf3c2b4610c4",
+        "afterSha256": "daf437d44f947077899a54369a1b69ae886b0b1dc3add0a5a6aebf3c2b4610c4"
+      },
+      {
+        "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+        "beforeSha256": "a80bc1805ba530cbb4302be8c83df48e5d13a97910e56c45850fd6c9bc35b7f5",
+        "afterSha256": "f7d4820a5dc4a2a1444b9e2997ae06f8d12798a516523aad0205680d8739388c"
+      },
+      {
+        "path": "src/Riftbound.Engine/MatchRecovery.cs",
+        "beforeSha256": "e52bc19c545d7798834948b4c9ada522064267f4ceb4a0e9feba624a3725def6",
+        "afterSha256": "cb54da79fc9fa8a6a0fd61a2d6385fe616b4702ddcfa5c863f1c3829cf93098e"
+      },
+      {
+        "path": "src/Riftbound.Engine/MatchSession.BattleResultScenario.cs",
+        "beforeSha256": null,
+        "afterSha256": "0c77391d66cf471229e5918450c34f254860f92ac8cf9f099692270b2f4dcccb"
+      },
+      {
+        "path": "src/Riftbound.Engine/MatchSession.cs",
+        "beforeSha256": "ffa880e6267a88d70a16e1a73328e9b7d5601978fbc040df56d198afe7525ee5",
+        "afterSha256": "2a4fecf88009028e2c2365a5207d543478e6a928b9be36e8cd725b2e77e49c89"
+      },
+      {
+        "path": "tests/Riftbound.ConformanceTests/DravenBattleWinScoreInteractionTests.cs",
+        "beforeSha256": "ba55d39453f2a1f526c01921070661e302a3b4c904b0ada384bab5544aa27e30",
+        "afterSha256": "e8574df96bb0b78afc2a10004d794a52c76742ca98e114b45179f6ff51e7e2d7"
+      },
+      {
+        "path": "tests/Riftbound.ConformanceTests/DravenBattleWinScoreRecoveryTests.cs",
+        "beforeSha256": null,
+        "afterSha256": "56c4dac82a19336c080ddde4b261780de2153ef58718f82ced2cbe8bbb482f60"
+      },
+      {
+        "path": "tests/Riftbound.ConformanceTests/OfficialDravenBattleWinScoreTests.cs",
+        "beforeSha256": "e51aaa05dca25cbf208df9951e8e570fd91dd4ae57fd06f0585f96609f38210b",
+        "afterSha256": "e51aaa05dca25cbf208df9951e8e570fd91dd4ae57fd06f0585f96609f38210b"
+      }
+    ],
+    "overlayManifest": {
+      "atUtc": "2026-10-23T08:20:55.305452+00:00",
+      "baseCommit": "23467a3f4976b3054c53afb75461c8d464752131",
+      "cases": 71,
+      "methods": 14,
+      "wholePrintingCertified": false,
+      "archiveSha256": "4f3c3a4a772a37623efc7087c1683846e46b44da3f24228c940a87f6eb7fa892",
+      "members": [
+        {
+          "path": "src/Riftbound.Engine/BattleResultRecoveryRules.cs",
+          "sha256": "d19f706a78809eb85f0abdc79fb1c276546fd2cab5905a076a940dad08f8c6e0",
+          "bytes": 9403
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.BattleResponseCleanup.cs",
+          "sha256": "12972a0913e5f7a4b154a4ceea8408dae2a2f8acf042cbf34ad1c9aca8bb6924",
+          "bytes": 5888
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.BattleResultContinuation.cs",
+          "sha256": "346ff15b2a87257054fdde2950479d4858886f308a88a8904324fe74e46c3347",
+          "bytes": 14471
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.BattleWinTriggers.cs",
+          "sha256": "a7ef81940a8882452fdf34ac7adbbfb8a47a518585ddddb13318d3eef91d5f4c",
+          "bytes": 5476
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.DravenBattleWinScore.cs",
+          "sha256": "2e96b1056df6ae60ae342b90dbb7d96b4800b6f8412fce927349c793fb27135b",
+          "bytes": 5677
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.KhazixBattleWin.cs",
+          "sha256": "daf437d44f947077899a54369a1b69ae886b0b1dc3add0a5a6aebf3c2b4610c4",
+          "bytes": 4294
+        },
+        {
+          "path": "src/Riftbound.Engine/CoreRuleEngine.cs",
+          "sha256": "f7d4820a5dc4a2a1444b9e2997ae06f8d12798a516523aad0205680d8739388c",
+          "bytes": 1556272
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchRecovery.cs",
+          "sha256": "cb54da79fc9fa8a6a0fd61a2d6385fe616b4702ddcfa5c863f1c3829cf93098e",
+          "bytes": 1399475
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchSession.BattleResultScenario.cs",
+          "sha256": "0c77391d66cf471229e5918450c34f254860f92ac8cf9f099692270b2f4dcccb",
+          "bytes": 2841
+        },
+        {
+          "path": "src/Riftbound.Engine/MatchSession.cs",
+          "sha256": "2a4fecf88009028e2c2365a5207d543478e6a928b9be36e8cd725b2e77e49c89",
+          "bytes": 1159818
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/DravenBattleWinScoreInteractionTests.cs",
+          "sha256": "e8574df96bb0b78afc2a10004d794a52c76742ca98e114b45179f6ff51e7e2d7",
+          "bytes": 16426
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/DravenBattleWinScoreRecoveryTests.cs",
+          "sha256": "56c4dac82a19336c080ddde4b261780de2153ef58718f82ced2cbe8bbb482f60",
+          "bytes": 12749
+        },
+        {
+          "path": "tests/Riftbound.ConformanceTests/OfficialDravenBattleWinScoreTests.cs",
+          "sha256": "e51aaa05dca25cbf208df9951e8e570fd91dd4ae57fd06f0585f96609f38210b",
+          "bytes": 11207
+        }
+      ]
+    }
+  },
+  "frozenSpecifiedInputs": {
+    "ruleInputs": {
+      "src/Riftbound.Engine/BattleResultRecoveryRules.cs": "d19f706a78809eb85f0abdc79fb1c276546fd2cab5905a076a940dad08f8c6e0",
+      "src/Riftbound.Engine/CoreRuleEngine.BattleResponseCleanup.cs": "12972a0913e5f7a4b154a4ceea8408dae2a2f8acf042cbf34ad1c9aca8bb6924",
+      "src/Riftbound.Engine/CoreRuleEngine.BattleResultContinuation.cs": "346ff15b2a87257054fdde2950479d4858886f308a88a8904324fe74e46c3347",
+      "src/Riftbound.Engine/CoreRuleEngine.BattleWinTriggers.cs": "a7ef81940a8882452fdf34ac7adbbfb8a47a518585ddddb13318d3eef91d5f4c",
+      "src/Riftbound.Engine/CoreRuleEngine.Conquest.cs": "e0e460a99309ef3c519a16f204fcef0f97ffbea360bbe4835cee7b74e19a3b07",
+      "src/Riftbound.Engine/CoreRuleEngine.KhazixBattleWin.cs": "daf437d44f947077899a54369a1b69ae886b0b1dc3add0a5a6aebf3c2b4610c4",
+      "src/Riftbound.Engine/CoreRuleEngine.cs": "f7d4820a5dc4a2a1444b9e2997ae06f8d12798a516523aad0205680d8739388c",
+      "src/Riftbound.Engine/MatchRecovery.cs": "cb54da79fc9fa8a6a0fd61a2d6385fe616b4702ddcfa5c863f1c3829cf93098e",
+      "src/Riftbound.Engine/MatchSession.VictoryCleanupScenario.cs": "e49c905f70d267851dd51f95e5ce70a1baa1ecadc8c17d750715ba3c8993c2fb",
+      "src/Riftbound.Engine/MatchSession.cs": "2a4fecf88009028e2c2365a5207d543478e6a928b9be36e8cd725b2e77e49c89",
+      "tests/Riftbound.ConformanceTests/BurnoutVictoryBeforeCleanupTests.cs": "f1aa6d661db70f5de5fb23a1b760b312ce764b3bf4455c41498ace65cefa83f2",
+      "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs": "eb6e744566c740507794fc850948ea56216296349ef60ba81bfdeb5fd22fad96",
+      "tests/Riftbound.ConformanceTests/OfficialBattleWinConsumerTests.cs": "8072f9abd2977bf0253ec0fd0bf362ce6515db12ba5db937625e8e89afc11775",
+      "tests/Riftbound.ConformanceTests/OfficialDravenBattleWinTimingTests.cs": "1ea9a25f581cb6bf2afbaa4b16f70ff50cb6b72f07fd8dafe2cbdf5765b361de",
+      "tests/Riftbound.ConformanceTests/OfficialGarenConquestBattlefieldCountTests.cs": "41f91095c1364f6660adf95092ef88e99ee6e821866baffc277dbd7546f6955d",
+      "tests/Riftbound.ConformanceTests/OfficialKhazixBattleWinTests.cs": "9324aece669b04b815c7b1f83449763e269690a6d767385238df3c48c07bdf68",
+      "tests/Riftbound.PostgresAcceptance/Program.cs": "9097f646f2e8cde201541cdf56ad4d9a71e8330bd93cf7362cbe0402181069df",
+      "tests/Riftbound.PostgresAcceptance/SqlAcceptanceCases.json": "ec5942c55213c0a77bbe52c0829e40cbe968c3a397a70844b6b35cb70fdbf63e",
+      "tests/Riftbound.PostgresAcceptance/VictoryCleanupGarenSqlAcceptance.cs": "be91787c33a2911c97cf21b544fbc00c6875ac3c111184abb32088dc496f8712",
+      "src/Riftbound.Engine/CoreRuleEngine.DravenBattleWinScore.cs": "2e96b1056df6ae60ae342b90dbb7d96b4800b6f8412fce927349c793fb27135b",
+      "src/Riftbound.Engine/MatchSession.BattleResultScenario.cs": "0c77391d66cf471229e5918450c34f254860f92ac8cf9f099692270b2f4dcccb",
+      "tests/Riftbound.ConformanceTests/DravenBattleWinScoreInteractionTests.cs": "e8574df96bb0b78afc2a10004d794a52c76742ca98e114b45179f6ff51e7e2d7",
+      "tests/Riftbound.ConformanceTests/DravenBattleWinScoreRecoveryTests.cs": "56c4dac82a19336c080ddde4b261780de2153ef58718f82ced2cbe8bbb482f60",
+      "tests/Riftbound.ConformanceTests/OfficialDravenBattleWinScoreTests.cs": "e51aaa05dca25cbf208df9951e8e570fd91dd4ae57fd06f0585f96609f38210b",
+      "tests/Riftbound.ConformanceTests/DravenBattleWinMultiSourceTests.cs": "62e8ab9528f92ecf11ef82e1b432c625110758d2c6d4f781cccfeeb46ee632b5",
+      "tests/Riftbound.ConformanceTests/DravenMutualDeathScoreTests.cs": "813361f57a36d3923b31e7b209d2f7205b230e64c55e93ee3eed9b4b58a35dd4",
+      "tests/Riftbound.ConformanceTests/VoidGateUntargetedDamageTests.cs": "2c0c316fa26323de420fa06b21d898fa717ada28f5829af150ff4b8f492cdd27",
+      "tests/Riftbound.ConformanceTests/TibbersUntargetedDamageTests.cs": "4582fa020fadb58f4cd645566cf43943511354d7988d4ffbc57bb11b5fa20a61",
+      "tests/Riftbound.ConformanceTests/SelectedBattlefieldAreaDamageTests.cs": "910326b70982a25af494a61218d5c621e0dfb4c950071f395e63d10bed964de6"
+    },
+    "count": 29
+  },
+  "all29SpecifiedInputsUnchanged": true,
+  "actualRuleInputs": {
+    "schemaVersion": 1,
+    "region": "CN",
+    "language": "zh-CN",
+    "authoritySha256": "70ccda5893a1b8b56cdceadee35e084b1e3f5b297ef64e1ce7d0cbeb141ce2d4",
+    "catalogSha256": "0aa8f812dc6f561f9fb1996381bae9821bd54d069f3ad26be7fe669baae9ae6c",
+    "implementationSha256": "74a66ab4f48833125cde851a2f6a4cf744553f1157b02c35a20de53e83c30b90",
+    "identitySha256": "b15bc92346985428951f287c5766ffde9361135f226fb26b8c0b3fe8bf8e8c10"
+  },
+  "testAssemblySha256": "739019cf99c82b65e78c000ec29701c0dff9e1c0d68f24ce97d280b5bbfb7175",
+  "source": {
+    "path": "tests/Riftbound.ConformanceTests/SelectedBattlefieldAreaDamageTests.cs",
+    "sha256": "910326b70982a25af494a61218d5c621e0dfb4c950071f395e63d10bed964de6"
+  },
+  "runs": [
+    {
+      "path": "focus-v1",
+      "counters": {
+        "total": "30",
+        "executed": "30",
+        "passed": "0",
+        "failed": "30",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      },
+      "plan": {
+        "profile": "focus",
+        "discoveredMethods": 7793,
+        "jobs": 4,
+        "includeGames": false,
+        "testAssemblySha256": "3fa2017c2cc5328d54e2b571c07f63555591060bff22eb5c0f94751135ca3df7",
+        "timings": "/Users/dinghaolin/MyProjects/.worktrees/riftbound-parallel-official-audit-20261023/scripts/rule-test-timings.json",
+        "shards": [
+          {
+            "name": "focus",
+            "methods": [
+              "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.CurrentAdvertisedSubmissionCannotDamageEnemiesAtTwoDifferentBattlefields",
+              "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.ExplicitFieldTargetSubmissionPreservesTheRequestedLocation",
+              "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.SingleOccupiedBattlefieldIsolatesGlobalAndLocalDamageBonuses"
+            ],
+            "filter": "(FullyQualifiedName~SelectedBattlefieldAreaDamageTests)&FullyQualifiedName!~Riftbound.ConformanceTests.FullGameEndToEndTests."
+          }
+        ]
+      },
+      "testCases": [
+        {
+          "name": "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.CurrentAdvertisedSubmissionCannotDamageEnemiesAtTwoDifferentBattlefields(card: \"UNL-072/219\", gate: True, annie: True)",
+          "outcome": "Failed",
+          "failure": "等待服务端处理任务队列：战场控制检查"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.SingleOccupiedBattlefieldIsolatesGlobalAndLocalDamageBonuses(card: \"OGN·268/298\", gate: True, annie: False)",
+          "outcome": "Failed",
+          "failure": "等待服务端处理任务队列：战场控制检查"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.CurrentAdvertisedSubmissionCannotDamageEnemiesAtTwoDifferentBattlefields(card: \"OGN·268/298\", gate: True, annie: False)",
+          "outcome": "Failed",
+          "failure": "等待服务端处理任务队列：战场控制检查"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.CurrentAdvertisedSubmissionCannotDamageEnemiesAtTwoDifferentBattlefields(card: \"OGN·268/298\", gate: True, annie: True)",
+          "outcome": "Failed",
+          "failure": "等待服务端处理任务队列：战场控制检查"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.CurrentAdvertisedSubmissionCannotDamageEnemiesAtTwoDifferentBattlefields(card: \"UNL-072/219\", gate: False, annie: False)",
+          "outcome": "Failed",
+          "failure": "等待服务端处理任务队列：战场控制检查"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.CurrentAdvertisedSubmissionCannotDamageEnemiesAtTwoDifferentBattlefields(card: \"UNL-072/219\", gate: True, annie: False)",
+          "outcome": "Failed",
+          "failure": "等待服务端处理任务队列：战场控制检查"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.SingleOccupiedBattlefieldIsolatesGlobalAndLocalDamageBonuses(card: \"OGN·268/298\", gate: True, annie: True)",
+          "outcome": "Failed",
+          "failure": "等待服务端处理任务队列：战场控制检查"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.ExplicitFieldTargetSubmissionPreservesTheRequestedLocation(card: \"OGN·268/298\", field: \"A\")",
+          "outcome": "Failed",
+          "failure": "等待服务端处理任务队列：战场控制检查"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.ExplicitFieldTargetSubmissionPreservesTheRequestedLocation(card: \"OGN·250/298\", field: \"A\")",
+          "outcome": "Failed",
+          "failure": "等待服务端处理任务队列：战场控制检查"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.ExplicitFieldTargetSubmissionPreservesTheRequestedLocation(card: \"OGN·250/298\", field: \"B\")",
+          "outcome": "Failed",
+          "failure": "等待服务端处理任务队列：战场控制检查"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.SingleOccupiedBattlefieldIsolatesGlobalAndLocalDamageBonuses(card: \"UNL-072/219\", gate: False, annie: False)",
+          "outcome": "Failed",
+          "failure": "等待服务端处理任务队列：战场控制检查"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.SingleOccupiedBattlefieldIsolatesGlobalAndLocalDamageBonuses(card: \"OGN·268/298\", gate: False, annie: True)",
+          "outcome": "Failed",
+          "failure": "等待服务端处理任务队列：战场控制检查"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.SingleOccupiedBattlefieldIsolatesGlobalAndLocalDamageBonuses(card: \"UNL-072/219\", gate: True, annie: True)",
+          "outcome": "Failed",
+          "failure": "等待服务端处理任务队列：战场控制检查"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.SingleOccupiedBattlefieldIsolatesGlobalAndLocalDamageBonuses(card: \"OGN·250/298\", gate: True, annie: False)",
+          "outcome": "Failed",
+          "failure": "等待服务端处理任务队列：战场控制检查"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.CurrentAdvertisedSubmissionCannotDamageEnemiesAtTwoDifferentBattlefields(card: \"OGN·250/298\", gate: False, annie: False)",
+          "outcome": "Failed",
+          "failure": "等待服务端处理任务队列：战场控制检查"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.SingleOccupiedBattlefieldIsolatesGlobalAndLocalDamageBonuses(card: \"OGN·250/298\", gate: True, annie: True)",
+          "outcome": "Failed",
+          "failure": "等待服务端处理任务队列：战场控制检查"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.SingleOccupiedBattlefieldIsolatesGlobalAndLocalDamageBonuses(card: \"UNL-072/219\", gate: False, annie: True)",
+          "outcome": "Failed",
+          "failure": "等待服务端处理任务队列：战场控制检查"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.ExplicitFieldTargetSubmissionPreservesTheRequestedLocation(card: \"UNL-072/219\", field: \"A\")",
+          "outcome": "Failed",
+          "failure": "等待服务端处理任务队列：战场控制检查"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.SingleOccupiedBattlefieldIsolatesGlobalAndLocalDamageBonuses(card: \"OGN·250/298\", gate: False, annie: True)",
+          "outcome": "Failed",
+          "failure": "等待服务端处理任务队列：战场控制检查"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.CurrentAdvertisedSubmissionCannotDamageEnemiesAtTwoDifferentBattlefields(card: \"OGN·250/298\", gate: True, annie: True)",
+          "outcome": "Failed",
+          "failure": "等待服务端处理任务队列：战场控制检查"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.CurrentAdvertisedSubmissionCannotDamageEnemiesAtTwoDifferentBattlefields(card: \"OGN·268/298\", gate: False, annie: False)",
+          "outcome": "Failed",
+          "failure": "等待服务端处理任务队列：战场控制检查"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.SingleOccupiedBattlefieldIsolatesGlobalAndLocalDamageBonuses(card: \"UNL-072/219\", gate: True, annie: False)",
+          "outcome": "Failed",
+          "failure": "等待服务端处理任务队列：战场控制检查"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.CurrentAdvertisedSubmissionCannotDamageEnemiesAtTwoDifferentBattlefields(card: \"UNL-072/219\", gate: False, annie: True)",
+          "outcome": "Failed",
+          "failure": "等待服务端处理任务队列：战场控制检查"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.CurrentAdvertisedSubmissionCannotDamageEnemiesAtTwoDifferentBattlefields(card: \"OGN·250/298\", gate: True, annie: False)",
+          "outcome": "Failed",
+          "failure": "等待服务端处理任务队列：战场控制检查"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.SingleOccupiedBattlefieldIsolatesGlobalAndLocalDamageBonuses(card: \"OGN·268/298\", gate: False, annie: False)",
+          "outcome": "Failed",
+          "failure": "等待服务端处理任务队列：战场控制检查"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.CurrentAdvertisedSubmissionCannotDamageEnemiesAtTwoDifferentBattlefields(card: \"OGN·268/298\", gate: False, annie: True)",
+          "outcome": "Failed",
+          "failure": "等待服务端处理任务队列：战场控制检查"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.ExplicitFieldTargetSubmissionPreservesTheRequestedLocation(card: \"OGN·268/298\", field: \"B\")",
+          "outcome": "Failed",
+          "failure": "等待服务端处理任务队列：战场控制检查"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.CurrentAdvertisedSubmissionCannotDamageEnemiesAtTwoDifferentBattlefields(card: \"OGN·250/298\", gate: False, annie: True)",
+          "outcome": "Failed",
+          "failure": "等待服务端处理任务队列：战场控制检查"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.SingleOccupiedBattlefieldIsolatesGlobalAndLocalDamageBonuses(card: \"OGN·250/298\", gate: False, annie: False)",
+          "outcome": "Failed",
+          "failure": "等待服务端处理任务队列：战场控制检查"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.ExplicitFieldTargetSubmissionPreservesTheRequestedLocation(card: \"UNL-072/219\", field: \"B\")",
+          "outcome": "Failed",
+          "failure": "等待服务端处理任务队列：战场控制检查"
+        }
+      ]
+    },
+    {
+      "path": "focus-v2",
+      "counters": {
+        "total": "30",
+        "executed": "30",
+        "passed": "4",
+        "failed": "26",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      },
+      "plan": {
+        "profile": "focus",
+        "discoveredMethods": 7793,
+        "jobs": 4,
+        "includeGames": false,
+        "testAssemblySha256": "b856f855197cc475838649877353d9240411cbc01c8e32973f4aef01b1c2717d",
+        "timings": "/Users/dinghaolin/MyProjects/.worktrees/riftbound-parallel-official-audit-20261023/scripts/rule-test-timings.json",
+        "shards": [
+          {
+            "name": "focus",
+            "methods": [
+              "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.CurrentAdvertisedSubmissionCannotDamageEnemiesAtTwoDifferentBattlefields",
+              "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.ExplicitFieldTargetSubmissionPreservesTheRequestedLocation",
+              "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.SingleOccupiedBattlefieldIsolatesGlobalAndLocalDamageBonuses"
+            ],
+            "filter": "(FullyQualifiedName~SelectedBattlefieldAreaDamageTests)&FullyQualifiedName!~Riftbound.ConformanceTests.FullGameEndToEndTests."
+          }
+        ]
+      },
+      "testCases": [
+        {
+          "name": "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.CurrentAdvertisedSubmissionCannotDamageEnemiesAtTwoDifferentBattlefields(card: \"OGN·268/298\", gate: True, annie: True)",
+          "outcome": "Failed",
+          "failure": "Assert.DoesNotContain() Failure: Item found in collection\n                               ↓ (pos 2)\nCollection: [\"P2-A1\", \"P2-A2\", \"P2-B\"]\nFound:      \"P2-B\""
+        },
+        {
+          "name": "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.SingleOccupiedBattlefieldIsolatesGlobalAndLocalDamageBonuses(card: \"OGN·250/298\", gate: True, annie: False)",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Values differ\nExpected: 5\nActual:   4"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.CurrentAdvertisedSubmissionCannotDamageEnemiesAtTwoDifferentBattlefields(card: \"OGN·268/298\", gate: False, annie: True)",
+          "outcome": "Failed",
+          "failure": "Assert.DoesNotContain() Failure: Item found in collection\n                               ↓ (pos 2)\nCollection: [\"P2-A1\", \"P2-A2\", \"P2-B\"]\nFound:      \"P2-B\""
+        },
+        {
+          "name": "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.SingleOccupiedBattlefieldIsolatesGlobalAndLocalDamageBonuses(card: \"UNL-072/219\", gate: False, annie: True)",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Values differ\nExpected: 2\nActual:   1"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.SingleOccupiedBattlefieldIsolatesGlobalAndLocalDamageBonuses(card: \"OGN·268/298\", gate: False, annie: False)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.CurrentAdvertisedSubmissionCannotDamageEnemiesAtTwoDifferentBattlefields(card: \"UNL-072/219\", gate: False, annie: True)",
+          "outcome": "Failed",
+          "failure": "Assert.DoesNotContain() Failure: Item found in collection\n                               ↓ (pos 2)\nCollection: [\"P2-A1\", \"P2-A2\", \"P2-B\"]\nFound:      \"P2-B\""
+        },
+        {
+          "name": "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.ExplicitFieldTargetSubmissionPreservesTheRequestedLocation(card: \"UNL-072/219\", field: \"A\")",
+          "outcome": "Failed",
+          "failure": "新月打击 requires 1 enemy battlefield unit target(s)."
+        },
+        {
+          "name": "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.ExplicitFieldTargetSubmissionPreservesTheRequestedLocation(card: \"OGN·268/298\", field: \"A\")",
+          "outcome": "Failed",
+          "failure": "弹幕时间 requires 0 battlefield unit target(s)."
+        },
+        {
+          "name": "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.CurrentAdvertisedSubmissionCannotDamageEnemiesAtTwoDifferentBattlefields(card: \"OGN·250/298\", gate: False, annie: True)",
+          "outcome": "Failed",
+          "failure": "Assert.DoesNotContain() Failure: Item found in collection\n                               ↓ (pos 2)\nCollection: [\"P2-A1\", \"P2-A2\", \"P2-B\"]\nFound:      \"P2-B\""
+        },
+        {
+          "name": "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.SingleOccupiedBattlefieldIsolatesGlobalAndLocalDamageBonuses(card: \"UNL-072/219\", gate: True, annie: True)",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Values differ\nExpected: 3\nActual:   1"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.ExplicitFieldTargetSubmissionPreservesTheRequestedLocation(card: \"OGN·250/298\", field: \"B\")",
+          "outcome": "Failed",
+          "failure": "天声震落 requires 1 friendly base unit target(s)."
+        },
+        {
+          "name": "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.ExplicitFieldTargetSubmissionPreservesTheRequestedLocation(card: \"UNL-072/219\", field: \"B\")",
+          "outcome": "Failed",
+          "failure": "新月打击 requires 1 enemy battlefield unit target(s)."
+        },
+        {
+          "name": "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.CurrentAdvertisedSubmissionCannotDamageEnemiesAtTwoDifferentBattlefields(card: \"UNL-072/219\", gate: True, annie: False)",
+          "outcome": "Failed",
+          "failure": "Assert.DoesNotContain() Failure: Item found in collection\n                               ↓ (pos 2)\nCollection: [\"P2-A1\", \"P2-A2\", \"P2-B\"]\nFound:      \"P2-B\""
+        },
+        {
+          "name": "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.CurrentAdvertisedSubmissionCannotDamageEnemiesAtTwoDifferentBattlefields(card: \"OGN·268/298\", gate: True, annie: False)",
+          "outcome": "Failed",
+          "failure": "Assert.DoesNotContain() Failure: Item found in collection\n                               ↓ (pos 2)\nCollection: [\"P2-A1\", \"P2-A2\", \"P2-B\"]\nFound:      \"P2-B\""
+        },
+        {
+          "name": "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.CurrentAdvertisedSubmissionCannotDamageEnemiesAtTwoDifferentBattlefields(card: \"UNL-072/219\", gate: False, annie: False)",
+          "outcome": "Failed",
+          "failure": "Assert.DoesNotContain() Failure: Item found in collection\n                               ↓ (pos 2)\nCollection: [\"P2-A1\", \"P2-A2\", \"P2-B\"]\nFound:      \"P2-B\""
+        },
+        {
+          "name": "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.SingleOccupiedBattlefieldIsolatesGlobalAndLocalDamageBonuses(card: \"OGN·268/298\", gate: False, annie: True)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.CurrentAdvertisedSubmissionCannotDamageEnemiesAtTwoDifferentBattlefields(card: \"UNL-072/219\", gate: True, annie: True)",
+          "outcome": "Failed",
+          "failure": "Assert.DoesNotContain() Failure: Item found in collection\n                               ↓ (pos 2)\nCollection: [\"P2-A1\", \"P2-A2\", \"P2-B\"]\nFound:      \"P2-B\""
+        },
+        {
+          "name": "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.SingleOccupiedBattlefieldIsolatesGlobalAndLocalDamageBonuses(card: \"OGN·250/298\", gate: False, annie: False)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.SingleOccupiedBattlefieldIsolatesGlobalAndLocalDamageBonuses(card: \"UNL-072/219\", gate: False, annie: False)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.SingleOccupiedBattlefieldIsolatesGlobalAndLocalDamageBonuses(card: \"OGN·250/298\", gate: False, annie: True)",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Values differ\nExpected: 5\nActual:   4"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.ExplicitFieldTargetSubmissionPreservesTheRequestedLocation(card: \"OGN·250/298\", field: \"A\")",
+          "outcome": "Failed",
+          "failure": "天声震落 requires 1 friendly base unit target(s)."
+        },
+        {
+          "name": "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.SingleOccupiedBattlefieldIsolatesGlobalAndLocalDamageBonuses(card: \"OGN·268/298\", gate: True, annie: True)",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Values differ\nExpected: 5\nActual:   4"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.CurrentAdvertisedSubmissionCannotDamageEnemiesAtTwoDifferentBattlefields(card: \"OGN·250/298\", gate: True, annie: False)",
+          "outcome": "Failed",
+          "failure": "Assert.DoesNotContain() Failure: Item found in collection\n                               ↓ (pos 2)\nCollection: [\"P2-A1\", \"P2-A2\", \"P2-B\"]\nFound:      \"P2-B\""
+        },
+        {
+          "name": "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.CurrentAdvertisedSubmissionCannotDamageEnemiesAtTwoDifferentBattlefields(card: \"OGN·250/298\", gate: False, annie: False)",
+          "outcome": "Failed",
+          "failure": "Assert.DoesNotContain() Failure: Item found in collection\n                               ↓ (pos 2)\nCollection: [\"P2-A1\", \"P2-A2\", \"P2-B\"]\nFound:      \"P2-B\""
+        },
+        {
+          "name": "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.CurrentAdvertisedSubmissionCannotDamageEnemiesAtTwoDifferentBattlefields(card: \"OGN·250/298\", gate: True, annie: True)",
+          "outcome": "Failed",
+          "failure": "Assert.DoesNotContain() Failure: Item found in collection\n                               ↓ (pos 2)\nCollection: [\"P2-A1\", \"P2-A2\", \"P2-B\"]\nFound:      \"P2-B\""
+        },
+        {
+          "name": "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.SingleOccupiedBattlefieldIsolatesGlobalAndLocalDamageBonuses(card: \"OGN·250/298\", gate: True, annie: True)",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Values differ\nExpected: 6\nActual:   4"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.CurrentAdvertisedSubmissionCannotDamageEnemiesAtTwoDifferentBattlefields(card: \"OGN·268/298\", gate: False, annie: False)",
+          "outcome": "Failed",
+          "failure": "Assert.DoesNotContain() Failure: Item found in collection\n                               ↓ (pos 2)\nCollection: [\"P2-A1\", \"P2-A2\", \"P2-B\"]\nFound:      \"P2-B\""
+        },
+        {
+          "name": "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.ExplicitFieldTargetSubmissionPreservesTheRequestedLocation(card: \"OGN·268/298\", field: \"B\")",
+          "outcome": "Failed",
+          "failure": "弹幕时间 requires 0 battlefield unit target(s)."
+        },
+        {
+          "name": "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.SingleOccupiedBattlefieldIsolatesGlobalAndLocalDamageBonuses(card: \"OGN·268/298\", gate: True, annie: False)",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Values differ\nExpected: 4\nActual:   3"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.SingleOccupiedBattlefieldIsolatesGlobalAndLocalDamageBonuses(card: \"UNL-072/219\", gate: True, annie: False)",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Values differ\nExpected: 2\nActual:   1"
+        }
+      ]
+    },
+    {
+      "path": "adjacent-v2",
+      "counters": {
+        "total": "60",
+        "executed": "60",
+        "passed": "60",
+        "failed": "0",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      },
+      "plan": {
+        "profile": "focus",
+        "discoveredMethods": 7793,
+        "jobs": 4,
+        "includeGames": false,
+        "testAssemblySha256": "b856f855197cc475838649877353d9240411cbc01c8e32973f4aef01b1c2717d",
+        "timings": "/Users/dinghaolin/MyProjects/.worktrees/riftbound-parallel-official-audit-20261023/scripts/rule-test-timings.json",
+        "shards": [
+          {
+            "name": "focus",
+            "methods": [
+              "Riftbound.ConformanceTests.ConformanceFixtureRunnerTests.CoreRuleEnginePlaysBulletTimePowerDamageEnemyBattlefield",
+              "Riftbound.ConformanceTests.ConformanceFixtureRunnerTests.CoreRuleEnginePlaysCrescentStrikeTargetPlusSplash",
+              "Riftbound.ConformanceTests.ConformanceFixtureRunnerTests.CoreRuleEnginePlaysThunderingDropBasePowerDamageMove",
+              "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.ActivatedXerathSkillAddsCurrentControllerAndTargetLocalBonuses",
+              "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.ActualResponseSacrificeRemovesBonusBeforeTheOriginalSpellResolves",
+              "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedDefendAddsControllerAndLocalBonusesOnceAndPreservesNoActionAtZero",
+              "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedSkillUsesItsControllersCurrentFieldSources",
+              "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.OfficialStarfallExampleAddsControllerBonusPerTargetAndLocalBonusOnlyAtItsTarget",
+              "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.SelectedBattlefieldDoesNotDoubleTheSharedControllerOrLocalBonus",
+              "Riftbound.ConformanceTests.CurrentVoidGateErratumTests.CurrentOfficialTextKeepsSpellDamageBonusForUnitAndBattlefieldSelections",
+              "Riftbound.ConformanceTests.CurrentVoidGateErratumTests.FirestormCanSelectAnotherOrEmptyBattlefieldWithoutLeakingDamage",
+              "Riftbound.ConformanceTests.CurrentVoidGateErratumTests.FirestormRequiresExactlyOneRealBattlefieldBeforeSpending"
+            ],
+            "filter": "(FullyQualifiedName~CoreRuleEnginePlaysBulletTimePowerDamageEnemyBattlefield|FullyQualifiedName~CoreRuleEnginePlaysThunderingDropBasePowerDamageMove|FullyQualifiedName~CoreRuleEnginePlaysCrescentStrikeTargetPlusSplash|FullyQualifiedName~CurrentControllerDamageBonusTests|FullyQualifiedName~CurrentVoidGateErratumTests)&FullyQualifiedName!~Riftbound.ConformanceTests.FullGameEndToEndTests."
+          }
+        ]
+      },
+      "testCases": [
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedDefendAddsControllerAndLocalBonusesOnceAndPreservesNoActionAtZero(printing: \"SFD·230*/221\", count: 2, local: True)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedDefendAddsControllerAndLocalBonusesOnceAndPreservesNoActionAtZero(printing: \"OGN·121a/298\", count: 1, local: False)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedDefendAddsControllerAndLocalBonusesOnceAndPreservesNoActionAtZero(printing: \"SFD·230*/221\", count: 1, local: True)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedDefendAddsControllerAndLocalBonusesOnceAndPreservesNoActionAtZero(printing: \"OGN·121a/298\", count: 2, local: False)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedDefendAddsControllerAndLocalBonusesOnceAndPreservesNoActionAtZero(printing: \"OGN·121a/298\", count: 1, local: True)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedDefendAddsControllerAndLocalBonusesOnceAndPreservesNoActionAtZero(printing: \"OGN·121/298\", count: 2, local: False)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentVoidGateErratumTests.FirestormRequiresExactlyOneRealBattlefieldBeforeSpending(selection: \"NONE\")",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.ActualResponseSacrificeRemovesBonusBeforeTheOriginalSpellResolves",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedDefendAddsControllerAndLocalBonusesOnceAndPreservesNoActionAtZero(printing: \"OGN·121/298\", count: 1, local: True)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedSkillUsesItsControllersCurrentFieldSources(zone: \"BASE\", controller: \"P2\", copies: 0, expected: 1)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedDefendAddsControllerAndLocalBonusesOnceAndPreservesNoActionAtZero(printing: \"OGN·121a/298\", count: 0, local: False)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedSkillUsesItsControllersCurrentFieldSources(zone: \"GRAVEYARD\", controller: \"P2\", copies: 1, expected: 1)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedSkillUsesItsControllersCurrentFieldSources(zone: \"BATTLEFIELD\", controller: \"P2\", copies: 1, expected: 2)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedSkillUsesItsControllersCurrentFieldSources(zone: \"BASE\", controller: \"P2\", copies: 1, expected: 2)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.SelectedBattlefieldDoesNotDoubleTheSharedControllerOrLocalBonus(copies: 1, local: False)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentVoidGateErratumTests.FirestormRequiresExactlyOneRealBattlefieldBeforeSpending(selection: \"UNIT\")",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.OfficialStarfallExampleAddsControllerBonusPerTargetAndLocalBonusOnlyAtItsTarget(copies: 2, local: False)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentVoidGateErratumTests.FirestormCanSelectAnotherOrEmptyBattlefieldWithoutLeakingDamage(empty: True)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedDefendAddsControllerAndLocalBonusesOnceAndPreservesNoActionAtZero(printing: \"SFD·230/221\", count: 2, local: True)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedDefendAddsControllerAndLocalBonusesOnceAndPreservesNoActionAtZero(printing: \"SFD·230*/221\", count: 0, local: True)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedDefendAddsControllerAndLocalBonusesOnceAndPreservesNoActionAtZero(printing: \"SFD·230*/221\", count: 0, local: False)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.ActivatedXerathSkillAddsCurrentControllerAndTargetLocalBonuses(copies: 2, local: False)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedDefendAddsControllerAndLocalBonusesOnceAndPreservesNoActionAtZero(printing: \"SFD·230*/221\", count: 2, local: False)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.OfficialStarfallExampleAddsControllerBonusPerTargetAndLocalBonusOnlyAtItsTarget(copies: 0, local: False)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedDefendAddsControllerAndLocalBonusesOnceAndPreservesNoActionAtZero(printing: \"OGN·121a/298\", count: 2, local: True)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedDefendAddsControllerAndLocalBonusesOnceAndPreservesNoActionAtZero(printing: \"OGN·121a/298\", count: 0, local: True)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentVoidGateErratumTests.FirestormRequiresExactlyOneRealBattlefieldBeforeSpending(selection: \"BOTH\")",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.ActivatedXerathSkillAddsCurrentControllerAndTargetLocalBonuses(copies: 0, local: True)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentVoidGateErratumTests.FirestormCanSelectAnotherOrEmptyBattlefieldWithoutLeakingDamage(empty: False)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.ConformanceFixtureRunnerTests.CoreRuleEnginePlaysCrescentStrikeTargetPlusSplash",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.SelectedBattlefieldDoesNotDoubleTheSharedControllerOrLocalBonus(copies: 0, local: True)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedSkillUsesItsControllersCurrentFieldSources(zone: \"BASE\", controller: \"P2\", copies: 2, expected: 3)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.ActivatedXerathSkillAddsCurrentControllerAndTargetLocalBonuses(copies: 2, local: True)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedDefendAddsControllerAndLocalBonusesOnceAndPreservesNoActionAtZero(printing: \"SFD·230/221\", count: 1, local: True)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedDefendAddsControllerAndLocalBonusesOnceAndPreservesNoActionAtZero(printing: \"OGN·121/298\", count: 0, local: True)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedDefendAddsControllerAndLocalBonusesOnceAndPreservesNoActionAtZero(printing: \"SFD·230/221\", count: 0, local: True)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedSkillUsesItsControllersCurrentFieldSources(zone: \"HAND\", controller: \"P2\", copies: 1, expected: 1)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.SelectedBattlefieldDoesNotDoubleTheSharedControllerOrLocalBonus(copies: 1, local: True)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedDefendAddsControllerAndLocalBonusesOnceAndPreservesNoActionAtZero(printing: \"OGN·121/298\", count: 0, local: False)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedDefendAddsControllerAndLocalBonusesOnceAndPreservesNoActionAtZero(printing: \"OGN·121/298\", count: 1, local: False)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.OfficialStarfallExampleAddsControllerBonusPerTargetAndLocalBonusOnlyAtItsTarget(copies: 1, local: True)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.ActivatedXerathSkillAddsCurrentControllerAndTargetLocalBonuses(copies: 1, local: False)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedDefendAddsControllerAndLocalBonusesOnceAndPreservesNoActionAtZero(printing: \"SFD·230/221\", count: 1, local: False)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.ActivatedXerathSkillAddsCurrentControllerAndTargetLocalBonuses(copies: 1, local: True)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.SelectedBattlefieldDoesNotDoubleTheSharedControllerOrLocalBonus(copies: 0, local: False)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedDefendAddsControllerAndLocalBonusesOnceAndPreservesNoActionAtZero(printing: \"SFD·230/221\", count: 0, local: False)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedDefendAddsControllerAndLocalBonusesOnceAndPreservesNoActionAtZero(printing: \"SFD·230/221\", count: 2, local: False)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.SelectedBattlefieldDoesNotDoubleTheSharedControllerOrLocalBonus(copies: 2, local: False)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedSkillUsesItsControllersCurrentFieldSources(zone: \"BASE\", controller: \"P1\", copies: 1, expected: 1)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.OfficialStarfallExampleAddsControllerBonusPerTargetAndLocalBonusOnlyAtItsTarget(copies: 2, local: True)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.ConformanceFixtureRunnerTests.CoreRuleEnginePlaysThunderingDropBasePowerDamageMove",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentVoidGateErratumTests.CurrentOfficialTextKeepsSpellDamageBonusForUnitAndBattlefieldSelections(battlefieldSelection: True)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentVoidGateErratumTests.CurrentOfficialTextKeepsSpellDamageBonusForUnitAndBattlefieldSelections(battlefieldSelection: False)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.ActivatedXerathSkillAddsCurrentControllerAndTargetLocalBonuses(copies: 0, local: False)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.OfficialStarfallExampleAddsControllerBonusPerTargetAndLocalBonusOnlyAtItsTarget(copies: 0, local: True)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.ConformanceFixtureRunnerTests.CoreRuleEnginePlaysBulletTimePowerDamageEnemyBattlefield",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedDefendAddsControllerAndLocalBonusesOnceAndPreservesNoActionAtZero(printing: \"SFD·230*/221\", count: 1, local: False)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.OfficialStarfallExampleAddsControllerBonusPerTargetAndLocalBonusOnlyAtItsTarget(copies: 1, local: False)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedDefendAddsControllerAndLocalBonusesOnceAndPreservesNoActionAtZero(printing: \"OGN·121/298\", count: 2, local: True)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.SelectedBattlefieldDoesNotDoubleTheSharedControllerOrLocalBonus(copies: 2, local: True)",
+          "outcome": "Passed",
+          "failure": null
+        }
+      ]
+    },
+    {
+      "path": "focus-and-adjacent-v3",
+      "counters": {
+        "total": "92",
+        "executed": "92",
+        "passed": "64",
+        "failed": "28",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      },
+      "plan": {
+        "profile": "focus",
+        "discoveredMethods": 7794,
+        "jobs": 4,
+        "includeGames": false,
+        "testAssemblySha256": "739019cf99c82b65e78c000ec29701c0dff9e1c0d68f24ce97d280b5bbfb7175",
+        "timings": "/Users/dinghaolin/MyProjects/.worktrees/riftbound-parallel-official-audit-20261023/scripts/rule-test-timings.json",
+        "shards": [
+          {
+            "name": "focus",
+            "methods": [
+              "Riftbound.ConformanceTests.ConformanceFixtureRunnerTests.CoreRuleEnginePlaysBulletTimePowerDamageEnemyBattlefield",
+              "Riftbound.ConformanceTests.ConformanceFixtureRunnerTests.CoreRuleEnginePlaysCrescentStrikeTargetPlusSplash",
+              "Riftbound.ConformanceTests.ConformanceFixtureRunnerTests.CoreRuleEnginePlaysThunderingDropBasePowerDamageMove",
+              "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.ActivatedXerathSkillAddsCurrentControllerAndTargetLocalBonuses",
+              "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.ActualResponseSacrificeRemovesBonusBeforeTheOriginalSpellResolves",
+              "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedDefendAddsControllerAndLocalBonusesOnceAndPreservesNoActionAtZero",
+              "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedSkillUsesItsControllersCurrentFieldSources",
+              "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.OfficialStarfallExampleAddsControllerBonusPerTargetAndLocalBonusOnlyAtItsTarget",
+              "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.SelectedBattlefieldDoesNotDoubleTheSharedControllerOrLocalBonus",
+              "Riftbound.ConformanceTests.CurrentVoidGateErratumTests.CurrentOfficialTextKeepsSpellDamageBonusForUnitAndBattlefieldSelections",
+              "Riftbound.ConformanceTests.CurrentVoidGateErratumTests.FirestormCanSelectAnotherOrEmptyBattlefieldWithoutLeakingDamage",
+              "Riftbound.ConformanceTests.CurrentVoidGateErratumTests.FirestormRequiresExactlyOneRealBattlefieldBeforeSpending",
+              "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.CompletedThunderingDropMoveNamesAnActualBattlefield",
+              "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.CurrentAdvertisedSubmissionCannotDamageEnemiesAtTwoDifferentBattlefields",
+              "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.ExplicitFieldTargetSubmissionPreservesTheRequestedLocation",
+              "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.SingleOccupiedBattlefieldIsolatesGlobalAndLocalDamageBonuses"
+            ],
+            "filter": "(FullyQualifiedName~SelectedBattlefieldAreaDamageTests|FullyQualifiedName~CoreRuleEnginePlaysBulletTimePowerDamageEnemyBattlefield|FullyQualifiedName~CoreRuleEnginePlaysThunderingDropBasePowerDamageMove|FullyQualifiedName~CoreRuleEnginePlaysCrescentStrikeTargetPlusSplash|FullyQualifiedName~CurrentControllerDamageBonusTests|FullyQualifiedName~CurrentVoidGateErratumTests)&FullyQualifiedName!~Riftbound.ConformanceTests.FullGameEndToEndTests."
+          }
+        ]
+      },
+      "testCases": [
+        {
+          "name": "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.SingleOccupiedBattlefieldIsolatesGlobalAndLocalDamageBonuses(card: \"OGN·250/298\", gate: True, annie: True)",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Values differ\nExpected: 6\nActual:   4"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedDefendAddsControllerAndLocalBonusesOnceAndPreservesNoActionAtZero(printing: \"SFD·230*/221\", count: 0, local: False)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.SelectedBattlefieldDoesNotDoubleTheSharedControllerOrLocalBonus(copies: 1, local: True)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.SingleOccupiedBattlefieldIsolatesGlobalAndLocalDamageBonuses(card: \"OGN·268/298\", gate: False, annie: False)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.SingleOccupiedBattlefieldIsolatesGlobalAndLocalDamageBonuses(card: \"OGN·250/298\", gate: False, annie: False)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.CurrentAdvertisedSubmissionCannotDamageEnemiesAtTwoDifferentBattlefields(card: \"OGN·250/298\", gate: False, annie: True)",
+          "outcome": "Failed",
+          "failure": "Assert.DoesNotContain() Failure: Item found in collection\n                               ↓ (pos 2)\nCollection: [\"P2-A1\", \"P2-A2\", \"P2-B\"]\nFound:      \"P2-B\""
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.ActualResponseSacrificeRemovesBonusBeforeTheOriginalSpellResolves",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.CurrentAdvertisedSubmissionCannotDamageEnemiesAtTwoDifferentBattlefields(card: \"UNL-072/219\", gate: True, annie: False)",
+          "outcome": "Failed",
+          "failure": "Assert.DoesNotContain() Failure: Item found in collection\n                               ↓ (pos 2)\nCollection: [\"P2-A1\", \"P2-A2\", \"P2-B\"]\nFound:      \"P2-B\""
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.OfficialStarfallExampleAddsControllerBonusPerTargetAndLocalBonusOnlyAtItsTarget(copies: 1, local: False)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.ExplicitFieldTargetSubmissionPreservesTheRequestedLocation(card: \"UNL-072/219\", field: \"B\")",
+          "outcome": "Failed",
+          "failure": "新月打击 requires 1 enemy battlefield unit target(s)."
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedDefendAddsControllerAndLocalBonusesOnceAndPreservesNoActionAtZero(printing: \"OGN·121/298\", count: 2, local: False)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentVoidGateErratumTests.CurrentOfficialTextKeepsSpellDamageBonusForUnitAndBattlefieldSelections(battlefieldSelection: True)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.ActivatedXerathSkillAddsCurrentControllerAndTargetLocalBonuses(copies: 1, local: False)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.CurrentAdvertisedSubmissionCannotDamageEnemiesAtTwoDifferentBattlefields(card: \"OGN·250/298\", gate: True, annie: True)",
+          "outcome": "Failed",
+          "failure": "Assert.DoesNotContain() Failure: Item found in collection\n                               ↓ (pos 2)\nCollection: [\"P2-A1\", \"P2-A2\", \"P2-B\"]\nFound:      \"P2-B\""
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedDefendAddsControllerAndLocalBonusesOnceAndPreservesNoActionAtZero(printing: \"SFD·230*/221\", count: 2, local: True)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.ConformanceFixtureRunnerTests.CoreRuleEnginePlaysCrescentStrikeTargetPlusSplash",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.OfficialStarfallExampleAddsControllerBonusPerTargetAndLocalBonusOnlyAtItsTarget(copies: 2, local: False)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedSkillUsesItsControllersCurrentFieldSources(zone: \"HAND\", controller: \"P2\", copies: 1, expected: 1)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.SelectedBattlefieldDoesNotDoubleTheSharedControllerOrLocalBonus(copies: 2, local: False)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedDefendAddsControllerAndLocalBonusesOnceAndPreservesNoActionAtZero(printing: \"OGN·121/298\", count: 2, local: True)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentVoidGateErratumTests.FirestormRequiresExactlyOneRealBattlefieldBeforeSpending(selection: \"BOTH\")",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.CurrentAdvertisedSubmissionCannotDamageEnemiesAtTwoDifferentBattlefields(card: \"OGN·268/298\", gate: False, annie: True)",
+          "outcome": "Failed",
+          "failure": "Assert.DoesNotContain() Failure: Item found in collection\n                               ↓ (pos 2)\nCollection: [\"P2-A1\", \"P2-A2\", \"P2-B\"]\nFound:      \"P2-B\""
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedDefendAddsControllerAndLocalBonusesOnceAndPreservesNoActionAtZero(printing: \"SFD·230/221\", count: 2, local: False)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedDefendAddsControllerAndLocalBonusesOnceAndPreservesNoActionAtZero(printing: \"OGN·121a/298\", count: 0, local: True)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.SelectedBattlefieldDoesNotDoubleTheSharedControllerOrLocalBonus(copies: 2, local: True)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedDefendAddsControllerAndLocalBonusesOnceAndPreservesNoActionAtZero(printing: \"OGN·121a/298\", count: 1, local: True)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedDefendAddsControllerAndLocalBonusesOnceAndPreservesNoActionAtZero(printing: \"SFD·230*/221\", count: 0, local: True)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.ActivatedXerathSkillAddsCurrentControllerAndTargetLocalBonuses(copies: 0, local: False)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.SingleOccupiedBattlefieldIsolatesGlobalAndLocalDamageBonuses(card: \"UNL-072/219\", gate: True, annie: False)",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Values differ\nExpected: 2\nActual:   1"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedSkillUsesItsControllersCurrentFieldSources(zone: \"BATTLEFIELD\", controller: \"P2\", copies: 1, expected: 2)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedDefendAddsControllerAndLocalBonusesOnceAndPreservesNoActionAtZero(printing: \"OGN·121a/298\", count: 2, local: True)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.CurrentAdvertisedSubmissionCannotDamageEnemiesAtTwoDifferentBattlefields(card: \"OGN·268/298\", gate: True, annie: True)",
+          "outcome": "Failed",
+          "failure": "Assert.DoesNotContain() Failure: Item found in collection\n                               ↓ (pos 2)\nCollection: [\"P2-A1\", \"P2-A2\", \"P2-B\"]\nFound:      \"P2-B\""
+        },
+        {
+          "name": "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.SingleOccupiedBattlefieldIsolatesGlobalAndLocalDamageBonuses(card: \"OGN·250/298\", gate: False, annie: True)",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Values differ\nExpected: 5\nActual:   4"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedDefendAddsControllerAndLocalBonusesOnceAndPreservesNoActionAtZero(printing: \"OGN·121a/298\", count: 2, local: False)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedDefendAddsControllerAndLocalBonusesOnceAndPreservesNoActionAtZero(printing: \"SFD·230*/221\", count: 1, local: True)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.SingleOccupiedBattlefieldIsolatesGlobalAndLocalDamageBonuses(card: \"OGN·250/298\", gate: True, annie: False)",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Values differ\nExpected: 5\nActual:   4"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.CompletedThunderingDropMoveNamesAnActualBattlefield(secondOccupied: True)",
+          "outcome": "Failed",
+          "failure": "Assert.NotNull() Failure: Value is null"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.ConformanceFixtureRunnerTests.CoreRuleEnginePlaysThunderingDropBasePowerDamageMove",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.SingleOccupiedBattlefieldIsolatesGlobalAndLocalDamageBonuses(card: \"OGN·268/298\", gate: True, annie: True)",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Values differ\nExpected: 5\nActual:   4"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedSkillUsesItsControllersCurrentFieldSources(zone: \"BASE\", controller: \"P1\", copies: 1, expected: 1)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedSkillUsesItsControllersCurrentFieldSources(zone: \"BASE\", controller: \"P2\", copies: 0, expected: 1)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.SelectedBattlefieldDoesNotDoubleTheSharedControllerOrLocalBonus(copies: 0, local: False)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.SingleOccupiedBattlefieldIsolatesGlobalAndLocalDamageBonuses(card: \"UNL-072/219\", gate: False, annie: False)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedDefendAddsControllerAndLocalBonusesOnceAndPreservesNoActionAtZero(printing: \"SFD·230/221\", count: 0, local: True)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedDefendAddsControllerAndLocalBonusesOnceAndPreservesNoActionAtZero(printing: \"OGN·121/298\", count: 0, local: False)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.SelectedBattlefieldDoesNotDoubleTheSharedControllerOrLocalBonus(copies: 1, local: False)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.ExplicitFieldTargetSubmissionPreservesTheRequestedLocation(card: \"OGN·268/298\", field: \"A\")",
+          "outcome": "Failed",
+          "failure": "弹幕时间 requires 0 battlefield unit target(s)."
+        },
+        {
+          "name": "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.ExplicitFieldTargetSubmissionPreservesTheRequestedLocation(card: \"OGN·250/298\", field: \"B\")",
+          "outcome": "Failed",
+          "failure": "天声震落 requires 1 friendly base unit target(s)."
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedSkillUsesItsControllersCurrentFieldSources(zone: \"GRAVEYARD\", controller: \"P2\", copies: 1, expected: 1)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedDefendAddsControllerAndLocalBonusesOnceAndPreservesNoActionAtZero(printing: \"SFD·230*/221\", count: 2, local: False)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.OfficialStarfallExampleAddsControllerBonusPerTargetAndLocalBonusOnlyAtItsTarget(copies: 1, local: True)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.CurrentAdvertisedSubmissionCannotDamageEnemiesAtTwoDifferentBattlefields(card: \"UNL-072/219\", gate: False, annie: False)",
+          "outcome": "Failed",
+          "failure": "Assert.DoesNotContain() Failure: Item found in collection\n                               ↓ (pos 2)\nCollection: [\"P2-A1\", \"P2-A2\", \"P2-B\"]\nFound:      \"P2-B\""
+        },
+        {
+          "name": "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.CurrentAdvertisedSubmissionCannotDamageEnemiesAtTwoDifferentBattlefields(card: \"UNL-072/219\", gate: False, annie: True)",
+          "outcome": "Failed",
+          "failure": "Assert.DoesNotContain() Failure: Item found in collection\n                               ↓ (pos 2)\nCollection: [\"P2-A1\", \"P2-A2\", \"P2-B\"]\nFound:      \"P2-B\""
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.SelectedBattlefieldDoesNotDoubleTheSharedControllerOrLocalBonus(copies: 0, local: True)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.CurrentAdvertisedSubmissionCannotDamageEnemiesAtTwoDifferentBattlefields(card: \"OGN·250/298\", gate: False, annie: False)",
+          "outcome": "Failed",
+          "failure": "Assert.DoesNotContain() Failure: Item found in collection\n                               ↓ (pos 2)\nCollection: [\"P2-A1\", \"P2-A2\", \"P2-B\"]\nFound:      \"P2-B\""
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentVoidGateErratumTests.CurrentOfficialTextKeepsSpellDamageBonusForUnitAndBattlefieldSelections(battlefieldSelection: False)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.ExplicitFieldTargetSubmissionPreservesTheRequestedLocation(card: \"UNL-072/219\", field: \"A\")",
+          "outcome": "Failed",
+          "failure": "新月打击 requires 1 enemy battlefield unit target(s)."
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.ActivatedXerathSkillAddsCurrentControllerAndTargetLocalBonuses(copies: 2, local: False)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.OfficialStarfallExampleAddsControllerBonusPerTargetAndLocalBonusOnlyAtItsTarget(copies: 2, local: True)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.CurrentAdvertisedSubmissionCannotDamageEnemiesAtTwoDifferentBattlefields(card: \"UNL-072/219\", gate: True, annie: True)",
+          "outcome": "Failed",
+          "failure": "Assert.DoesNotContain() Failure: Item found in collection\n                               ↓ (pos 2)\nCollection: [\"P2-A1\", \"P2-A2\", \"P2-B\"]\nFound:      \"P2-B\""
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedDefendAddsControllerAndLocalBonusesOnceAndPreservesNoActionAtZero(printing: \"OGN·121/298\", count: 0, local: True)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.CurrentAdvertisedSubmissionCannotDamageEnemiesAtTwoDifferentBattlefields(card: \"OGN·268/298\", gate: False, annie: False)",
+          "outcome": "Failed",
+          "failure": "Assert.DoesNotContain() Failure: Item found in collection\n                               ↓ (pos 2)\nCollection: [\"P2-A1\", \"P2-A2\", \"P2-B\"]\nFound:      \"P2-B\""
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentVoidGateErratumTests.FirestormCanSelectAnotherOrEmptyBattlefieldWithoutLeakingDamage(empty: False)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedDefendAddsControllerAndLocalBonusesOnceAndPreservesNoActionAtZero(printing: \"OGN·121a/298\", count: 0, local: False)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedDefendAddsControllerAndLocalBonusesOnceAndPreservesNoActionAtZero(printing: \"SFD·230*/221\", count: 1, local: False)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.ConformanceFixtureRunnerTests.CoreRuleEnginePlaysBulletTimePowerDamageEnemyBattlefield",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedDefendAddsControllerAndLocalBonusesOnceAndPreservesNoActionAtZero(printing: \"SFD·230/221\", count: 1, local: True)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedSkillUsesItsControllersCurrentFieldSources(zone: \"BASE\", controller: \"P2\", copies: 2, expected: 3)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.SingleOccupiedBattlefieldIsolatesGlobalAndLocalDamageBonuses(card: \"UNL-072/219\", gate: False, annie: True)",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Values differ\nExpected: 2\nActual:   1"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.ActivatedXerathSkillAddsCurrentControllerAndTargetLocalBonuses(copies: 2, local: True)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.CurrentAdvertisedSubmissionCannotDamageEnemiesAtTwoDifferentBattlefields(card: \"OGN·268/298\", gate: True, annie: False)",
+          "outcome": "Failed",
+          "failure": "Assert.DoesNotContain() Failure: Item found in collection\n                               ↓ (pos 2)\nCollection: [\"P2-A1\", \"P2-A2\", \"P2-B\"]\nFound:      \"P2-B\""
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedDefendAddsControllerAndLocalBonusesOnceAndPreservesNoActionAtZero(printing: \"OGN·121/298\", count: 1, local: False)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentVoidGateErratumTests.FirestormCanSelectAnotherOrEmptyBattlefieldWithoutLeakingDamage(empty: True)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.SingleOccupiedBattlefieldIsolatesGlobalAndLocalDamageBonuses(card: \"OGN·268/298\", gate: True, annie: False)",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Values differ\nExpected: 4\nActual:   3"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentVoidGateErratumTests.FirestormRequiresExactlyOneRealBattlefieldBeforeSpending(selection: \"NONE\")",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedDefendAddsControllerAndLocalBonusesOnceAndPreservesNoActionAtZero(printing: \"SFD·230/221\", count: 1, local: False)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.CurrentAdvertisedSubmissionCannotDamageEnemiesAtTwoDifferentBattlefields(card: \"OGN·250/298\", gate: True, annie: False)",
+          "outcome": "Failed",
+          "failure": "Assert.DoesNotContain() Failure: Item found in collection\n                               ↓ (pos 2)\nCollection: [\"P2-A1\", \"P2-A2\", \"P2-B\"]\nFound:      \"P2-B\""
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.OfficialStarfallExampleAddsControllerBonusPerTargetAndLocalBonusOnlyAtItsTarget(copies: 0, local: True)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.SingleOccupiedBattlefieldIsolatesGlobalAndLocalDamageBonuses(card: \"UNL-072/219\", gate: True, annie: True)",
+          "outcome": "Failed",
+          "failure": "Assert.Equal() Failure: Values differ\nExpected: 3\nActual:   1"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedDefendAddsControllerAndLocalBonusesOnceAndPreservesNoActionAtZero(printing: \"SFD·230/221\", count: 2, local: True)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.ExplicitFieldTargetSubmissionPreservesTheRequestedLocation(card: \"OGN·268/298\", field: \"B\")",
+          "outcome": "Failed",
+          "failure": "弹幕时间 requires 0 battlefield unit target(s)."
+        },
+        {
+          "name": "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.ExplicitFieldTargetSubmissionPreservesTheRequestedLocation(card: \"OGN·250/298\", field: \"A\")",
+          "outcome": "Failed",
+          "failure": "天声震落 requires 1 friendly base unit target(s)."
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.ActivatedXerathSkillAddsCurrentControllerAndTargetLocalBonuses(copies: 1, local: True)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.SingleOccupiedBattlefieldIsolatesGlobalAndLocalDamageBonuses(card: \"OGN·268/298\", gate: False, annie: True)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.OfficialStarfallExampleAddsControllerBonusPerTargetAndLocalBonusOnlyAtItsTarget(copies: 0, local: False)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.SelectedBattlefieldAreaDamageTests.CompletedThunderingDropMoveNamesAnActualBattlefield(secondOccupied: False)",
+          "outcome": "Failed",
+          "failure": "Assert.NotNull() Failure: Value is null"
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedSkillUsesItsControllersCurrentFieldSources(zone: \"BASE\", controller: \"P2\", copies: 1, expected: 2)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedDefendAddsControllerAndLocalBonusesOnceAndPreservesNoActionAtZero(printing: \"SFD·230/221\", count: 0, local: False)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedDefendAddsControllerAndLocalBonusesOnceAndPreservesNoActionAtZero(printing: \"OGN·121a/298\", count: 1, local: False)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentVoidGateErratumTests.FirestormRequiresExactlyOneRealBattlefieldBeforeSpending(selection: \"UNIT\")",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.CountedDefendAddsControllerAndLocalBonusesOnceAndPreservesNoActionAtZero(printing: \"OGN·121/298\", count: 1, local: True)",
+          "outcome": "Passed",
+          "failure": null
+        },
+        {
+          "name": "Riftbound.ConformanceTests.CurrentControllerDamageBonusTests.ActivatedXerathSkillAddsCurrentControllerAndTargetLocalBonuses(copies: 0, local: True)",
+          "outcome": "Passed",
+          "failure": null
+        }
+      ]
+    }
+  ],
+  "originalHistories": [
+    {
+      "version": "v1",
+      "cases": 30,
+      "commands": 30,
+      "events": 0,
+      "originalPrefixReplays": 30,
+      "accepted": 0
+    },
+    {
+      "version": "v2",
+      "cases": 30,
+      "commands": 78,
+      "events": 212,
+      "originalPrefixReplays": 78,
+      "accepted": 72
+    },
+    {
+      "version": "v3",
+      "cases": 32,
+      "commands": 84,
+      "events": 231,
+      "originalPrefixReplays": 84,
+      "accepted": 78
+    }
+  ],
+  "finalCaseResults": [
+    {
+      "caseId": "bonus-OGN-250-298-False-False-A",
+      "kind": "bonus",
+      "card": "OGN·250/298",
+      "gate": false,
+      "annie": false,
+      "field": "A",
+      "commands": 3,
+      "accepted": 3,
+      "events": 9,
+      "originalPrefixReplays": 3,
+      "damage": {
+        "P2-A1": 4,
+        "P2-A2": 4
+      },
+      "p1UnitLocation": {
+        "playerId": "P1",
+        "zone": "BATTLEFIELD",
+        "battlefieldObjectId": null
+      },
+      "failure": null
+    },
+    {
+      "caseId": "bonus-OGN-250-298-False-True-A",
+      "kind": "bonus",
+      "card": "OGN·250/298",
+      "gate": false,
+      "annie": true,
+      "field": "A",
+      "commands": 3,
+      "accepted": 3,
+      "events": 9,
+      "originalPrefixReplays": 3,
+      "damage": {
+        "P2-A1": 4,
+        "P2-A2": 4
+      },
+      "p1UnitLocation": {
+        "playerId": "P1",
+        "zone": "BATTLEFIELD",
+        "battlefieldObjectId": null
+      },
+      "failure": "EqualException: Assert.Equal() Failure: Values differ\nExpected: 5\nActual:   4"
+    },
+    {
+      "caseId": "bonus-OGN-250-298-True-False-A",
+      "kind": "bonus",
+      "card": "OGN·250/298",
+      "gate": true,
+      "annie": false,
+      "field": "A",
+      "commands": 3,
+      "accepted": 3,
+      "events": 9,
+      "originalPrefixReplays": 3,
+      "damage": {
+        "P2-A1": 4,
+        "P2-A2": 4
+      },
+      "p1UnitLocation": {
+        "playerId": "P1",
+        "zone": "BATTLEFIELD",
+        "battlefieldObjectId": null
+      },
+      "failure": "EqualException: Assert.Equal() Failure: Values differ\nExpected: 5\nActual:   4"
+    },
+    {
+      "caseId": "bonus-OGN-250-298-True-True-A",
+      "kind": "bonus",
+      "card": "OGN·250/298",
+      "gate": true,
+      "annie": true,
+      "field": "A",
+      "commands": 3,
+      "accepted": 3,
+      "events": 9,
+      "originalPrefixReplays": 3,
+      "damage": {
+        "P2-A1": 4,
+        "P2-A2": 4
+      },
+      "p1UnitLocation": {
+        "playerId": "P1",
+        "zone": "BATTLEFIELD",
+        "battlefieldObjectId": null
+      },
+      "failure": "EqualException: Assert.Equal() Failure: Values differ\nExpected: 6\nActual:   4"
+    },
+    {
+      "caseId": "bonus-OGN-268-298-False-False-A",
+      "kind": "bonus",
+      "card": "OGN·268/298",
+      "gate": false,
+      "annie": false,
+      "field": "A",
+      "commands": 3,
+      "accepted": 3,
+      "events": 8,
+      "originalPrefixReplays": 3,
+      "damage": {
+        "P2-A1": 3,
+        "P2-A2": 3
+      },
+      "p1UnitLocation": {
+        "playerId": "P1",
+        "zone": "BASE",
+        "battlefieldObjectId": null
+      },
+      "failure": null
+    },
+    {
+      "caseId": "bonus-OGN-268-298-False-True-A",
+      "kind": "bonus",
+      "card": "OGN·268/298",
+      "gate": false,
+      "annie": true,
+      "field": "A",
+      "commands": 3,
+      "accepted": 3,
+      "events": 8,
+      "originalPrefixReplays": 3,
+      "damage": {
+        "P2-A1": 4,
+        "P2-A2": 4
+      },
+      "p1UnitLocation": {
+        "playerId": "P1",
+        "zone": "BASE",
+        "battlefieldObjectId": null
+      },
+      "failure": null
+    },
+    {
+      "caseId": "bonus-OGN-268-298-True-False-A",
+      "kind": "bonus",
+      "card": "OGN·268/298",
+      "gate": true,
+      "annie": false,
+      "field": "A",
+      "commands": 3,
+      "accepted": 3,
+      "events": 8,
+      "originalPrefixReplays": 3,
+      "damage": {
+        "P2-A1": 3,
+        "P2-A2": 3
+      },
+      "p1UnitLocation": {
+        "playerId": "P1",
+        "zone": "BASE",
+        "battlefieldObjectId": null
+      },
+      "failure": "EqualException: Assert.Equal() Failure: Values differ\nExpected: 4\nActual:   3"
+    },
+    {
+      "caseId": "bonus-OGN-268-298-True-True-A",
+      "kind": "bonus",
+      "card": "OGN·268/298",
+      "gate": true,
+      "annie": true,
+      "field": "A",
+      "commands": 3,
+      "accepted": 3,
+      "events": 8,
+      "originalPrefixReplays": 3,
+      "damage": {
+        "P2-A1": 4,
+        "P2-A2": 4
+      },
+      "p1UnitLocation": {
+        "playerId": "P1",
+        "zone": "BASE",
+        "battlefieldObjectId": null
+      },
+      "failure": "EqualException: Assert.Equal() Failure: Values differ\nExpected: 5\nActual:   4"
+    },
+    {
+      "caseId": "bonus-UNL-072-219-False-False-A",
+      "kind": "bonus",
+      "card": "UNL-072/219",
+      "gate": false,
+      "annie": false,
+      "field": "A",
+      "commands": 3,
+      "accepted": 3,
+      "events": 8,
+      "originalPrefixReplays": 3,
+      "damage": {
+        "P2-A1": 4,
+        "P2-A2": 1
+      },
+      "p1UnitLocation": {
+        "playerId": "P1",
+        "zone": "BASE",
+        "battlefieldObjectId": null
+      },
+      "failure": null
+    },
+    {
+      "caseId": "bonus-UNL-072-219-False-True-A",
+      "kind": "bonus",
+      "card": "UNL-072/219",
+      "gate": false,
+      "annie": true,
+      "field": "A",
+      "commands": 3,
+      "accepted": 3,
+      "events": 8,
+      "originalPrefixReplays": 3,
+      "damage": {
+        "P2-A1": 5,
+        "P2-A2": 1
+      },
+      "p1UnitLocation": {
+        "playerId": "P1",
+        "zone": "BASE",
+        "battlefieldObjectId": null
+      },
+      "failure": "EqualException: Assert.Equal() Failure: Values differ\nExpected: 2\nActual:   1"
+    },
+    {
+      "caseId": "bonus-UNL-072-219-True-False-A",
+      "kind": "bonus",
+      "card": "UNL-072/219",
+      "gate": true,
+      "annie": false,
+      "field": "A",
+      "commands": 3,
+      "accepted": 3,
+      "events": 8,
+      "originalPrefixReplays": 3,
+      "damage": {
+        "P2-A1": 5,
+        "P2-A2": 1
+      },
+      "p1UnitLocation": {
+        "playerId": "P1",
+        "zone": "BASE",
+        "battlefieldObjectId": null
+      },
+      "failure": "EqualException: Assert.Equal() Failure: Values differ\nExpected: 2\nActual:   1"
+    },
+    {
+      "caseId": "bonus-UNL-072-219-True-True-A",
+      "kind": "bonus",
+      "card": "UNL-072/219",
+      "gate": true,
+      "annie": true,
+      "field": "A",
+      "commands": 3,
+      "accepted": 3,
+      "events": 8,
+      "originalPrefixReplays": 3,
+      "damage": {
+        "P2-A1": 6,
+        "P2-A2": 1
+      },
+      "p1UnitLocation": {
+        "playerId": "P1",
+        "zone": "BASE",
+        "battlefieldObjectId": null
+      },
+      "failure": "EqualException: Assert.Equal() Failure: Values differ\nExpected: 3\nActual:   1"
+    },
+    {
+      "caseId": "explicit-target-OGN-250-298-False-False-A",
+      "kind": "explicit-target",
+      "card": "OGN·250/298",
+      "gate": false,
+      "annie": false,
+      "field": "A",
+      "commands": 1,
+      "accepted": 0,
+      "events": 0,
+      "originalPrefixReplays": 1,
+      "damage": {},
+      "p1UnitLocation": {
+        "playerId": "P1",
+        "zone": "BASE",
+        "battlefieldObjectId": null
+      },
+      "failure": "TrueException: 天声震落 requires 1 friendly base unit target(s)."
+    },
+    {
+      "caseId": "explicit-target-OGN-250-298-False-False-B",
+      "kind": "explicit-target",
+      "card": "OGN·250/298",
+      "gate": false,
+      "annie": false,
+      "field": "B",
+      "commands": 1,
+      "accepted": 0,
+      "events": 0,
+      "originalPrefixReplays": 1,
+      "damage": {},
+      "p1UnitLocation": {
+        "playerId": "P1",
+        "zone": "BASE",
+        "battlefieldObjectId": null
+      },
+      "failure": "TrueException: 天声震落 requires 1 friendly base unit target(s)."
+    },
+    {
+      "caseId": "explicit-target-OGN-268-298-False-False-A",
+      "kind": "explicit-target",
+      "card": "OGN·268/298",
+      "gate": false,
+      "annie": false,
+      "field": "A",
+      "commands": 1,
+      "accepted": 0,
+      "events": 0,
+      "originalPrefixReplays": 1,
+      "damage": {},
+      "p1UnitLocation": {
+        "playerId": "P1",
+        "zone": "BASE",
+        "battlefieldObjectId": null
+      },
+      "failure": "TrueException: 弹幕时间 requires 0 battlefield unit target(s)."
+    },
+    {
+      "caseId": "explicit-target-OGN-268-298-False-False-B",
+      "kind": "explicit-target",
+      "card": "OGN·268/298",
+      "gate": false,
+      "annie": false,
+      "field": "B",
+      "commands": 1,
+      "accepted": 0,
+      "events": 0,
+      "originalPrefixReplays": 1,
+      "damage": {},
+      "p1UnitLocation": {
+        "playerId": "P1",
+        "zone": "BASE",
+        "battlefieldObjectId": null
+      },
+      "failure": "TrueException: 弹幕时间 requires 0 battlefield unit target(s)."
+    },
+    {
+      "caseId": "explicit-target-UNL-072-219-False-False-A",
+      "kind": "explicit-target",
+      "card": "UNL-072/219",
+      "gate": false,
+      "annie": false,
+      "field": "A",
+      "commands": 1,
+      "accepted": 0,
+      "events": 0,
+      "originalPrefixReplays": 1,
+      "damage": {},
+      "p1UnitLocation": {
+        "playerId": "P1",
+        "zone": "BASE",
+        "battlefieldObjectId": null
+      },
+      "failure": "TrueException: 新月打击 requires 1 enemy battlefield unit target(s)."
+    },
+    {
+      "caseId": "explicit-target-UNL-072-219-False-False-B",
+      "kind": "explicit-target",
+      "card": "UNL-072/219",
+      "gate": false,
+      "annie": false,
+      "field": "B",
+      "commands": 1,
+      "accepted": 0,
+      "events": 0,
+      "originalPrefixReplays": 1,
+      "damage": {},
+      "p1UnitLocation": {
+        "playerId": "P1",
+        "zone": "BASE",
+        "battlefieldObjectId": null
+      },
+      "failure": "TrueException: 新月打击 requires 1 enemy battlefield unit target(s)."
+    },
+    {
+      "caseId": "movement-narrow-OGN-250-298-False-False-A",
+      "kind": "movement-narrow",
+      "card": "OGN·250/298",
+      "gate": false,
+      "annie": false,
+      "field": "A",
+      "commands": 3,
+      "accepted": 3,
+      "events": 9,
+      "originalPrefixReplays": 3,
+      "damage": {
+        "P2-A1": 4,
+        "P2-A2": 4
+      },
+      "p1UnitLocation": {
+        "playerId": "P1",
+        "zone": "BATTLEFIELD",
+        "battlefieldObjectId": null
+      },
+      "failure": "NotNullException: Assert.NotNull() Failure: Value is null"
+    },
+    {
+      "caseId": "movement-wide-OGN-250-298-False-False-A",
+      "kind": "movement-wide",
+      "card": "OGN·250/298",
+      "gate": false,
+      "annie": false,
+      "field": "A",
+      "commands": 3,
+      "accepted": 3,
+      "events": 10,
+      "originalPrefixReplays": 3,
+      "damage": {
+        "P2-A1": 4,
+        "P2-A2": 4,
+        "P2-B": 4
+      },
+      "p1UnitLocation": {
+        "playerId": "P1",
+        "zone": "BATTLEFIELD",
+        "battlefieldObjectId": null
+      },
+      "failure": "NotNullException: Assert.NotNull() Failure: Value is null"
+    },
+    {
+      "caseId": "scope-OGN-250-298-False-False-A",
+      "kind": "scope",
+      "card": "OGN·250/298",
+      "gate": false,
+      "annie": false,
+      "field": "A",
+      "commands": 3,
+      "accepted": 3,
+      "events": 10,
+      "originalPrefixReplays": 3,
+      "damage": {
+        "P2-A1": 4,
+        "P2-A2": 4,
+        "P2-B": 4
+      },
+      "p1UnitLocation": {
+        "playerId": "P1",
+        "zone": "BATTLEFIELD",
+        "battlefieldObjectId": null
+      },
+      "failure": "DoesNotContainException: Assert.DoesNotContain() Failure: Item found in collection\n                               ↓ (pos 2)\nCollection: [\"P2-A1\", \"P2-A2\", \"P2-B\"]\nFound:      \"P2-B\""
+    },
+    {
+      "caseId": "scope-OGN-250-298-False-True-A",
+      "kind": "scope",
+      "card": "OGN·250/298",
+      "gate": false,
+      "annie": true,
+      "field": "A",
+      "commands": 3,
+      "accepted": 3,
+      "events": 10,
+      "originalPrefixReplays": 3,
+      "damage": {
+        "P2-A1": 4,
+        "P2-A2": 4,
+        "P2-B": 4
+      },
+      "p1UnitLocation": {
+        "playerId": "P1",
+        "zone": "BATTLEFIELD",
+        "battlefieldObjectId": null
+      },
+      "failure": "DoesNotContainException: Assert.DoesNotContain() Failure: Item found in collection\n                               ↓ (pos 2)\nCollection: [\"P2-A1\", \"P2-A2\", \"P2-B\"]\nFound:      \"P2-B\""
+    },
+    {
+      "caseId": "scope-OGN-250-298-True-False-A",
+      "kind": "scope",
+      "card": "OGN·250/298",
+      "gate": true,
+      "annie": false,
+      "field": "A",
+      "commands": 3,
+      "accepted": 3,
+      "events": 10,
+      "originalPrefixReplays": 3,
+      "damage": {
+        "P2-A1": 4,
+        "P2-A2": 4,
+        "P2-B": 4
+      },
+      "p1UnitLocation": {
+        "playerId": "P1",
+        "zone": "BATTLEFIELD",
+        "battlefieldObjectId": null
+      },
+      "failure": "DoesNotContainException: Assert.DoesNotContain() Failure: Item found in collection\n                               ↓ (pos 2)\nCollection: [\"P2-A1\", \"P2-A2\", \"P2-B\"]\nFound:      \"P2-B\""
+    },
+    {
+      "caseId": "scope-OGN-250-298-True-True-A",
+      "kind": "scope",
+      "card": "OGN·250/298",
+      "gate": true,
+      "annie": true,
+      "field": "A",
+      "commands": 3,
+      "accepted": 3,
+      "events": 10,
+      "originalPrefixReplays": 3,
+      "damage": {
+        "P2-A1": 4,
+        "P2-A2": 4,
+        "P2-B": 4
+      },
+      "p1UnitLocation": {
+        "playerId": "P1",
+        "zone": "BATTLEFIELD",
+        "battlefieldObjectId": null
+      },
+      "failure": "DoesNotContainException: Assert.DoesNotContain() Failure: Item found in collection\n                               ↓ (pos 2)\nCollection: [\"P2-A1\", \"P2-A2\", \"P2-B\"]\nFound:      \"P2-B\""
+    },
+    {
+      "caseId": "scope-OGN-268-298-False-False-A",
+      "kind": "scope",
+      "card": "OGN·268/298",
+      "gate": false,
+      "annie": false,
+      "field": "A",
+      "commands": 3,
+      "accepted": 3,
+      "events": 9,
+      "originalPrefixReplays": 3,
+      "damage": {
+        "P2-A1": 3,
+        "P2-A2": 3,
+        "P2-B": 3
+      },
+      "p1UnitLocation": {
+        "playerId": "P1",
+        "zone": "BASE",
+        "battlefieldObjectId": null
+      },
+      "failure": "DoesNotContainException: Assert.DoesNotContain() Failure: Item found in collection\n                               ↓ (pos 2)\nCollection: [\"P2-A1\", \"P2-A2\", \"P2-B\"]\nFound:      \"P2-B\""
+    },
+    {
+      "caseId": "scope-OGN-268-298-False-True-A",
+      "kind": "scope",
+      "card": "OGN·268/298",
+      "gate": false,
+      "annie": true,
+      "field": "A",
+      "commands": 3,
+      "accepted": 3,
+      "events": 9,
+      "originalPrefixReplays": 3,
+      "damage": {
+        "P2-A1": 4,
+        "P2-A2": 4,
+        "P2-B": 4
+      },
+      "p1UnitLocation": {
+        "playerId": "P1",
+        "zone": "BASE",
+        "battlefieldObjectId": null
+      },
+      "failure": "DoesNotContainException: Assert.DoesNotContain() Failure: Item found in collection\n                               ↓ (pos 2)\nCollection: [\"P2-A1\", \"P2-A2\", \"P2-B\"]\nFound:      \"P2-B\""
+    },
+    {
+      "caseId": "scope-OGN-268-298-True-False-A",
+      "kind": "scope",
+      "card": "OGN·268/298",
+      "gate": true,
+      "annie": false,
+      "field": "A",
+      "commands": 3,
+      "accepted": 3,
+      "events": 9,
+      "originalPrefixReplays": 3,
+      "damage": {
+        "P2-A1": 3,
+        "P2-A2": 3,
+        "P2-B": 3
+      },
+      "p1UnitLocation": {
+        "playerId": "P1",
+        "zone": "BASE",
+        "battlefieldObjectId": null
+      },
+      "failure": "DoesNotContainException: Assert.DoesNotContain() Failure: Item found in collection\n                               ↓ (pos 2)\nCollection: [\"P2-A1\", \"P2-A2\", \"P2-B\"]\nFound:      \"P2-B\""
+    },
+    {
+      "caseId": "scope-OGN-268-298-True-True-A",
+      "kind": "scope",
+      "card": "OGN·268/298",
+      "gate": true,
+      "annie": true,
+      "field": "A",
+      "commands": 3,
+      "accepted": 3,
+      "events": 9,
+      "originalPrefixReplays": 3,
+      "damage": {
+        "P2-A1": 4,
+        "P2-A2": 4,
+        "P2-B": 4
+      },
+      "p1UnitLocation": {
+        "playerId": "P1",
+        "zone": "BASE",
+        "battlefieldObjectId": null
+      },
+      "failure": "DoesNotContainException: Assert.DoesNotContain() Failure: Item found in collection\n                               ↓ (pos 2)\nCollection: [\"P2-A1\", \"P2-A2\", \"P2-B\"]\nFound:      \"P2-B\""
+    },
+    {
+      "caseId": "scope-UNL-072-219-False-False-A",
+      "kind": "scope",
+      "card": "UNL-072/219",
+      "gate": false,
+      "annie": false,
+      "field": "A",
+      "commands": 3,
+      "accepted": 3,
+      "events": 9,
+      "originalPrefixReplays": 3,
+      "damage": {
+        "P2-A1": 4,
+        "P2-A2": 1,
+        "P2-B": 1
+      },
+      "p1UnitLocation": {
+        "playerId": "P1",
+        "zone": "BASE",
+        "battlefieldObjectId": null
+      },
+      "failure": "DoesNotContainException: Assert.DoesNotContain() Failure: Item found in collection\n                               ↓ (pos 2)\nCollection: [\"P2-A1\", \"P2-A2\", \"P2-B\"]\nFound:      \"P2-B\""
+    },
+    {
+      "caseId": "scope-UNL-072-219-False-True-A",
+      "kind": "scope",
+      "card": "UNL-072/219",
+      "gate": false,
+      "annie": true,
+      "field": "A",
+      "commands": 3,
+      "accepted": 3,
+      "events": 9,
+      "originalPrefixReplays": 3,
+      "damage": {
+        "P2-A1": 5,
+        "P2-A2": 1,
+        "P2-B": 1
+      },
+      "p1UnitLocation": {
+        "playerId": "P1",
+        "zone": "BASE",
+        "battlefieldObjectId": null
+      },
+      "failure": "DoesNotContainException: Assert.DoesNotContain() Failure: Item found in collection\n                               ↓ (pos 2)\nCollection: [\"P2-A1\", \"P2-A2\", \"P2-B\"]\nFound:      \"P2-B\""
+    },
+    {
+      "caseId": "scope-UNL-072-219-True-False-A",
+      "kind": "scope",
+      "card": "UNL-072/219",
+      "gate": true,
+      "annie": false,
+      "field": "A",
+      "commands": 3,
+      "accepted": 3,
+      "events": 9,
+      "originalPrefixReplays": 3,
+      "damage": {
+        "P2-A1": 5,
+        "P2-A2": 1,
+        "P2-B": 1
+      },
+      "p1UnitLocation": {
+        "playerId": "P1",
+        "zone": "BASE",
+        "battlefieldObjectId": null
+      },
+      "failure": "DoesNotContainException: Assert.DoesNotContain() Failure: Item found in collection\n                               ↓ (pos 2)\nCollection: [\"P2-A1\", \"P2-A2\", \"P2-B\"]\nFound:      \"P2-B\""
+    },
+    {
+      "caseId": "scope-UNL-072-219-True-True-A",
+      "kind": "scope",
+      "card": "UNL-072/219",
+      "gate": true,
+      "annie": true,
+      "field": "A",
+      "commands": 3,
+      "accepted": 3,
+      "events": 9,
+      "originalPrefixReplays": 3,
+      "damage": {
+        "P2-A1": 6,
+        "P2-A2": 1,
+        "P2-B": 1
+      },
+      "p1UnitLocation": {
+        "playerId": "P1",
+        "zone": "BASE",
+        "battlefieldObjectId": null
+      },
+      "failure": "DoesNotContainException: Assert.DoesNotContain() Failure: Item found in collection\n                               ↓ (pos 2)\nCollection: [\"P2-A1\", \"P2-A2\", \"P2-B\"]\nFound:      \"P2-B\""
+    }
+  ],
+  "v2V3OriginalHistoryParity": {
+    "ignoredKeys": [
+      "recordedAt"
+    ],
+    "cases": [
+      {
+        "caseId": "bonus-OGN-250-298-False-False-A",
+        "same": {
+          "initial": true,
+          "states": true,
+          "commands": true,
+          "events": true,
+          "failure": true,
+          "prompts": true,
+          "submissions": true,
+          "entries": true
+        }
+      },
+      {
+        "caseId": "bonus-OGN-250-298-False-True-A",
+        "same": {
+          "initial": true,
+          "states": true,
+          "commands": true,
+          "events": true,
+          "failure": true,
+          "prompts": true,
+          "submissions": true,
+          "entries": true
+        }
+      },
+      {
+        "caseId": "bonus-OGN-250-298-True-False-A",
+        "same": {
+          "initial": true,
+          "states": true,
+          "commands": true,
+          "events": true,
+          "failure": true,
+          "prompts": true,
+          "submissions": true,
+          "entries": true
+        }
+      },
+      {
+        "caseId": "bonus-OGN-250-298-True-True-A",
+        "same": {
+          "initial": true,
+          "states": true,
+          "commands": true,
+          "events": true,
+          "failure": true,
+          "prompts": true,
+          "submissions": true,
+          "entries": true
+        }
+      },
+      {
+        "caseId": "bonus-OGN-268-298-False-False-A",
+        "same": {
+          "initial": true,
+          "states": true,
+          "commands": true,
+          "events": true,
+          "failure": true,
+          "prompts": true,
+          "submissions": true,
+          "entries": true
+        }
+      },
+      {
+        "caseId": "bonus-OGN-268-298-False-True-A",
+        "same": {
+          "initial": true,
+          "states": true,
+          "commands": true,
+          "events": true,
+          "failure": true,
+          "prompts": true,
+          "submissions": true,
+          "entries": true
+        }
+      },
+      {
+        "caseId": "bonus-OGN-268-298-True-False-A",
+        "same": {
+          "initial": true,
+          "states": true,
+          "commands": true,
+          "events": true,
+          "failure": true,
+          "prompts": true,
+          "submissions": true,
+          "entries": true
+        }
+      },
+      {
+        "caseId": "bonus-OGN-268-298-True-True-A",
+        "same": {
+          "initial": true,
+          "states": true,
+          "commands": true,
+          "events": true,
+          "failure": true,
+          "prompts": true,
+          "submissions": true,
+          "entries": true
+        }
+      },
+      {
+        "caseId": "bonus-UNL-072-219-False-False-A",
+        "same": {
+          "initial": true,
+          "states": true,
+          "commands": true,
+          "events": true,
+          "failure": true,
+          "prompts": true,
+          "submissions": true,
+          "entries": true
+        }
+      },
+      {
+        "caseId": "bonus-UNL-072-219-False-True-A",
+        "same": {
+          "initial": true,
+          "states": true,
+          "commands": true,
+          "events": true,
+          "failure": true,
+          "prompts": true,
+          "submissions": true,
+          "entries": true
+        }
+      },
+      {
+        "caseId": "bonus-UNL-072-219-True-False-A",
+        "same": {
+          "initial": true,
+          "states": true,
+          "commands": true,
+          "events": true,
+          "failure": true,
+          "prompts": true,
+          "submissions": true,
+          "entries": true
+        }
+      },
+      {
+        "caseId": "bonus-UNL-072-219-True-True-A",
+        "same": {
+          "initial": true,
+          "states": true,
+          "commands": true,
+          "events": true,
+          "failure": true,
+          "prompts": true,
+          "submissions": true,
+          "entries": true
+        }
+      },
+      {
+        "caseId": "explicit-target-OGN-250-298-False-False-A",
+        "same": {
+          "initial": true,
+          "states": true,
+          "commands": true,
+          "events": true,
+          "failure": true,
+          "prompts": true,
+          "submissions": true,
+          "entries": true
+        }
+      },
+      {
+        "caseId": "explicit-target-OGN-250-298-False-False-B",
+        "same": {
+          "initial": true,
+          "states": true,
+          "commands": true,
+          "events": true,
+          "failure": true,
+          "prompts": true,
+          "submissions": true,
+          "entries": true
+        }
+      },
+      {
+        "caseId": "explicit-target-OGN-268-298-False-False-A",
+        "same": {
+          "initial": true,
+          "states": true,
+          "commands": true,
+          "events": true,
+          "failure": true,
+          "prompts": true,
+          "submissions": true,
+          "entries": true
+        }
+      },
+      {
+        "caseId": "explicit-target-OGN-268-298-False-False-B",
+        "same": {
+          "initial": true,
+          "states": true,
+          "commands": true,
+          "events": true,
+          "failure": true,
+          "prompts": true,
+          "submissions": true,
+          "entries": true
+        }
+      },
+      {
+        "caseId": "explicit-target-UNL-072-219-False-False-A",
+        "same": {
+          "initial": true,
+          "states": true,
+          "commands": true,
+          "events": true,
+          "failure": true,
+          "prompts": true,
+          "submissions": true,
+          "entries": true
+        }
+      },
+      {
+        "caseId": "explicit-target-UNL-072-219-False-False-B",
+        "same": {
+          "initial": true,
+          "states": true,
+          "commands": true,
+          "events": true,
+          "failure": true,
+          "prompts": true,
+          "submissions": true,
+          "entries": true
+        }
+      },
+      {
+        "caseId": "scope-OGN-250-298-False-False-A",
+        "same": {
+          "initial": true,
+          "states": true,
+          "commands": true,
+          "events": true,
+          "failure": true,
+          "prompts": true,
+          "submissions": true,
+          "entries": true
+        }
+      },
+      {
+        "caseId": "scope-OGN-250-298-False-True-A",
+        "same": {
+          "initial": true,
+          "states": true,
+          "commands": true,
+          "events": true,
+          "failure": true,
+          "prompts": true,
+          "submissions": true,
+          "entries": true
+        }
+      },
+      {
+        "caseId": "scope-OGN-250-298-True-False-A",
+        "same": {
+          "initial": true,
+          "states": true,
+          "commands": true,
+          "events": true,
+          "failure": true,
+          "prompts": true,
+          "submissions": true,
+          "entries": true
+        }
+      },
+      {
+        "caseId": "scope-OGN-250-298-True-True-A",
+        "same": {
+          "initial": true,
+          "states": true,
+          "commands": true,
+          "events": true,
+          "failure": true,
+          "prompts": true,
+          "submissions": true,
+          "entries": true
+        }
+      },
+      {
+        "caseId": "scope-OGN-268-298-False-False-A",
+        "same": {
+          "initial": true,
+          "states": true,
+          "commands": true,
+          "events": true,
+          "failure": true,
+          "prompts": true,
+          "submissions": true,
+          "entries": true
+        }
+      },
+      {
+        "caseId": "scope-OGN-268-298-False-True-A",
+        "same": {
+          "initial": true,
+          "states": true,
+          "commands": true,
+          "events": true,
+          "failure": true,
+          "prompts": true,
+          "submissions": true,
+          "entries": true
+        }
+      },
+      {
+        "caseId": "scope-OGN-268-298-True-False-A",
+        "same": {
+          "initial": true,
+          "states": true,
+          "commands": true,
+          "events": true,
+          "failure": true,
+          "prompts": true,
+          "submissions": true,
+          "entries": true
+        }
+      },
+      {
+        "caseId": "scope-OGN-268-298-True-True-A",
+        "same": {
+          "initial": true,
+          "states": true,
+          "commands": true,
+          "events": true,
+          "failure": true,
+          "prompts": true,
+          "submissions": true,
+          "entries": true
+        }
+      },
+      {
+        "caseId": "scope-UNL-072-219-False-False-A",
+        "same": {
+          "initial": true,
+          "states": true,
+          "commands": true,
+          "events": true,
+          "failure": true,
+          "prompts": true,
+          "submissions": true,
+          "entries": true
+        }
+      },
+      {
+        "caseId": "scope-UNL-072-219-False-True-A",
+        "same": {
+          "initial": true,
+          "states": true,
+          "commands": true,
+          "events": true,
+          "failure": true,
+          "prompts": true,
+          "submissions": true,
+          "entries": true
+        }
+      },
+      {
+        "caseId": "scope-UNL-072-219-True-False-A",
+        "same": {
+          "initial": true,
+          "states": true,
+          "commands": true,
+          "events": true,
+          "failure": true,
+          "prompts": true,
+          "submissions": true,
+          "entries": true
+        }
+      },
+      {
+        "caseId": "scope-UNL-072-219-True-True-A",
+        "same": {
+          "initial": true,
+          "states": true,
+          "commands": true,
+          "events": true,
+          "failure": true,
+          "prompts": true,
+          "submissions": true,
+          "entries": true
+        }
+      }
+    ]
+  },
+  "newCases": 32,
+  "newPassedControls": 4,
+  "newSourceFailures": 22,
+  "newProtocolProbeRejections": 6,
+  "protocolRejectionsAreNotIndependentSourceDefects": true,
+  "newCommands": 84,
+  "newAccepted": 78,
+  "newRejected": 6,
+  "newEvents": 231,
+  "newOriginalPrefixReplays": 84,
+  "adjacentCasesPassed": 60,
+  "cases": 92,
+  "passed": 64,
+  "failed": 28,
+  "skipped": 0,
+  "sourceRuntimeAndNextProtocol": {
+    "baseline": "N53 immutable 13-file overlay plus N52 original 19-file overlay",
+    "sourceRows": [
+      {
+        "id": 31492,
+        "cardCategoryList": [
+          "exclusive_spell"
+        ],
+        "cardCategoryNameList": [
+          "专属法术"
+        ],
+        "cardNo": "OGN·250/298",
+        "cardName": "天声震落",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "red",
+          "orange"
+        ],
+        "hero": "沃利贝尔",
+        "region": "",
+        "tag": "",
+        "artist": "Polar Engine Studio",
+        "cardEffect": "选择你基地中的一名友方单位，对一处战场上的所有敌方单位造成等同于该友方单位战力的伤害，然后将该友方单位移动到此战场。",
+        "flavorText": "",
+        "energy": 6,
+        "returnEnergy": 2,
+        "power": null,
+        "productCodeList": [
+          "OGN(标准补充包)",
+          "OGN(进阶补充包)"
+        ],
+        "productNameList": [
+          "起源 标准补充包",
+          "起源 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_core",
+        "rarityName": "史诗",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/1e8c56da52304418b369cae0054e5ada.png",
+        "backImage": "",
+        "listSort": 213,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      {
+        "id": 31511,
+        "cardCategoryList": [
+          "exclusive_spell"
+        ],
+        "cardCategoryNameList": [
+          "专属法术"
+        ],
+        "cardNo": "OGN·268/298",
+        "cardName": "弹幕时间",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "orange",
+          "purple"
+        ],
+        "hero": "厄运小姐",
+        "region": "",
+        "tag": "",
+        "artist": "Kudos Productions",
+        "cardEffect": "{{迅捷}}（可在你的回合或法术对决中打出。）\n支付任意数量的{{A}}，对一处战场上的所有敌方单位造成等同于该数量的伤害。",
+        "flavorText": "",
+        "energy": 1,
+        "returnEnergy": null,
+        "power": null,
+        "productCodeList": [
+          "OGN(标准补充包)",
+          "OGN(进阶补充包)"
+        ],
+        "productNameList": [
+          "起源 标准补充包",
+          "起源 进阶补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_core",
+        "rarityName": "史诗",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20250731/5b6da04b01cf4a80b12c6a77d5683bcb.png",
+        "backImage": "",
+        "listSort": 194,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      },
+      {
+        "id": 34605,
+        "cardCategoryList": [
+          "spell"
+        ],
+        "cardCategoryNameList": [
+          "法术"
+        ],
+        "cardNo": "UNL-072/219",
+        "cardName": "新月打击",
+        "subTitle": "",
+        "extendType": null,
+        "extendTypeName": "",
+        "cardColorList": [
+          "blue"
+        ],
+        "hero": "",
+        "region": "",
+        "tag": "",
+        "artist": "Kudos Productions",
+        "cardEffect": "{{迅捷}}（可在你的回合或法术对决中打出。）\n选择一处战场，以及该处的一名敌方单位。对该单位造成4点伤害，并对该处的其他敌方单位各造成1点伤害。",
+        "flavorText": "月光虽冷，亦可灼人。",
+        "energy": 3,
+        "returnEnergy": 1,
+        "power": null,
+        "productCodeList": [
+          "UNL(进阶补充包)",
+          "UNL(标准补充包)"
+        ],
+        "productNameList": [
+          "破限系列 进阶补充包",
+          "破限系列 基础补充包"
+        ],
+        "cardQaList": null,
+        "craftLevel": 0,
+        "rarity": "rune_glimmer",
+        "rarityName": "不凡",
+        "extendRarity": "base_inscript",
+        "extendRarityName": "平卡",
+        "frontImage": "https://cdn.playloltcg.com/lol/card/20260319/cc88a5dd6e8f415984030ae7f50d92b1.webp",
+        "backImage": "",
+        "listSort": 1419,
+        "status": 1,
+        "cardGroupLimit": null,
+        "isPreview": false,
+        "errata": "",
+        "otherDesc": 0
+      }
+    ],
+    "runtimeMappings": [
+      {
+        "cardNo": "OGN·268/298",
+        "caller": "DamagesAllEnemyBattlefieldUnits",
+        "damageInput": "ResolveDamageAmount with no unit target, includes Annie already",
+        "helper": "ApplyDamageToEnemyBattlefieldUnits",
+        "scope": "all enemy zone-list battlefield units, no locations input"
+      },
+      {
+        "cardNo": "OGN·250/298",
+        "caller": "DamagesAllEnemyBattlefieldUnitsByFirstTargetPower",
+        "damageInput": "Math.Max(0, firstTargetState.Power), no spell global or local bonus",
+        "helper": "ApplyDamageToEnemyBattlefieldUnits",
+        "move": "TryMoveTargetToControllerBattlefield updates zone lists without destination field"
+      },
+      {
+        "cardNo": "UNL-072/219",
+        "caller": "OtherEnemyBattlefieldUnitsDamageAmount > 0",
+        "damageInput": "raw 1, no spell global or local bonus",
+        "helper": "ApplyDamageToOtherEnemyBattlefieldUnits",
+        "mainTarget": "ResolveDamageAmount targeted, global and local both correct"
+      }
+    ],
+    "nextInterfaceDecision": {
+      "fromMainThread": "01a16770-8c1b-7da2-872b-a8ec5ae77413",
+      "Bullet": [
+        "battlefield"
+      ],
+      "Crescent": [
+        "battlefield",
+        "enemyUnitAtThatField"
+      ],
+      "Drop": [
+        "friendlyBaseUnit",
+        "battlefield"
+      ],
+      "status": "planned integration interface, not the source of pre-integration failure expectations"
+    },
+    "originalProbeBinding": {
+      "Bullet": [
+        "battlefield"
+      ],
+      "Crescent": [
+        "enemyUnit",
+        "battlefield"
+      ],
+      "Drop": [
+        "friendlyBaseUnit",
+        "battlefield"
+      ],
+      "rejectionsAreProtocolObservationsNotSixIndependentSourceDefects": true
+    }
+  },
+  "noSharedRuntimeChanges": true,
+  "noExtraCheckOrFull": true,
+  "noDatabaseExecution": true,
+  "wholePrintingCertified": false,
+  "backendGoalComplete": false,
+  "archive": {
+    "path": "docs/evidence/selected-battlefield-aoe-parallel-2026-10-23/original-tests-fixed-inputs-and-sources-v1.tar.gz",
+    "sha256": "89aef9d9c3ff02af138854f632208b6c435634939c81af5f9098b81b009fd42c",
+    "members": [
+      {
+        "path": "docs/SELECTED_BATTLEFIELD_AOE_PARALLEL_2026-10-23.md",
+        "bytes": 5783,
+        "sha256": "470967613a4140a595a23c745207b4a21a5e393a243ada3cbd51a9da6de47c7c"
+      },
+      {
+        "path": "inputs/applied-n53-overlay-v1.json",
+        "bytes": 6825,
+        "sha256": "207d422d04c9affb2e8ffa3fdb95b700b9d5854c037db9595dc816e673dd3d44"
+      },
+      {
+        "path": "inputs/applied-peer-fixed-n52-first45-v1.json",
+        "bytes": 5327,
+        "sha256": "296287f60cbe583c3a7be8e572df6213b53ee8f497cba3abc31688df6cb86384"
+      },
+      {
+        "path": "inputs/n53-exact-main-overlay-after71-green-v1.tar.gz",
+        "bytes": 479432,
+        "sha256": "4f3c3a4a772a37623efc7087c1683846e46b44da3f24228c940a87f6eb7fa892"
+      },
+      {
+        "path": "inputs/peer-fixed-n52-first45-v1.tar.gz",
+        "bytes": 746306,
+        "sha256": "a13b965f76e99ab2c6b3ebfa5d65638d53f71aa4e770cc1eaf7206daab54161a"
+      },
+      {
+        "path": "src/Riftbound.Engine/BattlefieldStaticAbilitySpecRules.cs",
+        "bytes": 3614,
+        "sha256": "95c165f670bf0389bdbf86843d48077f858afd15f9cb541ee3a3a61951cf055e"
+      },
+      {
+        "path": "src/Riftbound.Engine/CardBehaviorRegistry.cs",
+        "bytes": 277093,
+        "sha256": "dbf41f2b9ca4ac543a1407e5a7d1f0217fa7c7673d354b322f8b9c2a839784bf"
+      },
+      {
+        "path": "tests/Riftbound.ConformanceTests/ConformanceFixtureRunnerTests.cs",
+        "bytes": 3270854,
+        "sha256": "eb6e744566c740507794fc850948ea56216296349ef60ba81bfdeb5fd22fad96"
+      },
+      {
+        "path": "tests/Riftbound.ConformanceTests/CurrentControllerDamageBonusTests.cs",
+        "bytes": 11106,
+        "sha256": "163cd2e7cfac69d175b2cfea8706859a2b7d94c2cb27f9d4b5f4fd1617213171"
+      },
+      {
+        "path": "tests/Riftbound.ConformanceTests/CurrentVoidGateErratumTests.cs",
+        "bytes": 5910,
+        "sha256": "74a21492919342a5ee83e9b2ad8e758b666f426cb1a7b9f24c422f41fa9e78d0"
+      },
+      {
+        "path": "tests/Riftbound.ConformanceTests/SelectedBattlefieldAreaDamageTests.cs",
+        "bytes": 10875,
+        "sha256": "910326b70982a25af494a61218d5c621e0dfb4c950071f395e63d10bed964de6"
+      },
+      {
+        "path": "var/qa/battlefield-aoe-source-scope-20261023/sources-v1/current-天声震落-original-v1.json.gz",
+        "bytes": 1259,
+        "sha256": "d05502bb28877bed1e90225a082859cefd3bb1e5930d646a46ab9d0a9232bbeb"
+      },
+      {
+        "path": "var/qa/battlefield-aoe-source-scope-20261023/sources-v1/current-弹幕时间-original-v1.json.gz",
+        "bytes": 1275,
+        "sha256": "e246f8235f65921986ba8f1afadbf7dbbca5249c286d1792bfb5d0e3b9e3c0a7"
+      },
+      {
+        "path": "var/qa/battlefield-aoe-source-scope-20261023/sources-v1/current-新月打击-original-v1.json.gz",
+        "bytes": 1284,
+        "sha256": "4ef52daa123ff873d404faf7dbbc9f5bbc78ab2122f5bdb79ef925e98f0ca4ca"
+      },
+      {
+        "path": "var/qa/battlefield-aoe-source-scope-20261023/sources-v1/extra-rows.json",
+        "bytes": 3974,
+        "sha256": "a2935dbcce73dcb0e2cd0a170e7d7b669f7ba55361c90da61580e36c0e00d512"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/adjacent-v2.log",
+        "bytes": 456,
+        "sha256": "336c67538d3e5eb2e38b615d1cb0b8a3e4bebedfa68c93f548ebef82fd397946"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/adjacent-v2/build.log",
+        "bytes": 78,
+        "sha256": "af9d6ce78db622e9dcbc4bad7407bcd5d6f8cef404e0536441ba2f6079fa8721"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/adjacent-v2/discovery.log",
+        "bytes": 2107225,
+        "sha256": "3b9aa3580a44a7b9e9267707b8bb52bfa5e328e966106257ebe30fa05ced4f26"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/adjacent-v2/focus/results.trx",
+        "bytes": 102217,
+        "sha256": "b821a2f53cf6ce381df27cf1cf4429857a85cd182e170b52f3c3fb67320ebf96"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/adjacent-v2/focus/test.log",
+        "bytes": 571,
+        "sha256": "3dede690a5bbdcd00b41be2ef22232f4f61deda50b0502db8f23365f9e4e6930"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/adjacent-v2/plan.json",
+        "bytes": 2385,
+        "sha256": "0cfd5f51b69f6a3eb86891667ba957faf354e5e1bf428fc8939656b87cd0201d"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/adjacent-v2/summary.json",
+        "bytes": 273,
+        "sha256": "659da0cab2b44c85ca54c1385cf473328cf241da13749787711d44d710ae881c"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/focus-and-adjacent-v3.log",
+        "bytes": 418,
+        "sha256": "52d7ea602732b5a4898dc088a7ef9968f321cab8d2555458c4f9d2eac8f69e3d"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/focus-and-adjacent-v3/build.log",
+        "bytes": 78,
+        "sha256": "2ceacea6b4a6b95cf8a29aa020341734ca70dfa585d0c1a084d86ccd7f7609f6"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/focus-and-adjacent-v3/discovery.log",
+        "bytes": 2107506,
+        "sha256": "d9e6ea976c0b8dd2b52989177fdffd0ec4f7e1d900da192e48bd3e4c0f6f1933"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/focus-and-adjacent-v3/focus/results.trx",
+        "bytes": 226579,
+        "sha256": "7972ec985134876b7cf81ae8732ebc56430a0b7ea022aca759f399324cadfbf5"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/focus-and-adjacent-v3/focus/test.log",
+        "bytes": 6314,
+        "sha256": "288468978c517733f40628b28219a711c6c45d8770f9dad65a2f9e242c5e7b79"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/focus-and-adjacent-v3/plan.json",
+        "bytes": 2976,
+        "sha256": "1ab0bfd872a93809c58382464e051b79c19658d088100fbdfdf2057b0f6bc11e"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/focus-and-adjacent-v3/test-source.cs",
+        "bytes": 10875,
+        "sha256": "910326b70982a25af494a61218d5c621e0dfb4c950071f395e63d10bed964de6"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/focus-v1.log",
+        "bytes": 391,
+        "sha256": "e4a6a63121adbd9c1314c59c14823959b5f4225ee0a4885bd828d2472c21f36c"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/focus-v1/build.log",
+        "bytes": 78,
+        "sha256": "e7a2ffc45f5b5a7726c7be84ecc00ca0c142bcf03227108613c66e50cc5c245e"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/focus-v1/discovery.log",
+        "bytes": 2107225,
+        "sha256": "3b9aa3580a44a7b9e9267707b8bb52bfa5e328e966106257ebe30fa05ced4f26"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/focus-v1/focus/results.trx",
+        "bytes": 141252,
+        "sha256": "036a6279bffcbe72de89a4be2b99ef41eb59ad39ef4ba012b80eace29e124905"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/focus-v1/focus/test.log",
+        "bytes": 6783,
+        "sha256": "107145892cfae7058c16af423ae55c8dddd84501f9b4604a1026b391c4075a16"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/focus-v1/plan.json",
+        "bytes": 951,
+        "sha256": "e72d210e46de780e4175ef9ff8dd64e38059a733ae551f8e007ab0c4e47295bc"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/focus-v1/test-source.cs",
+        "bytes": 9978,
+        "sha256": "850a85cb31a7e5040f793669f39651d65dd5897c510959cb99ad78dc127f8149"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/focus-v2.log",
+        "bytes": 391,
+        "sha256": "d4e13ff393ac8d837ab8fb78263dae0694fe3ae5e54894710babe3d4f90ce990"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/focus-v2/build.log",
+        "bytes": 78,
+        "sha256": "4b40f34e6ae5cf6d2faef227ff3354d4fc17ca15fb0a36808d1367f03fa98bef"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/focus-v2/discovery.log",
+        "bytes": 2107225,
+        "sha256": "3b9aa3580a44a7b9e9267707b8bb52bfa5e328e966106257ebe30fa05ced4f26"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/focus-v2/focus/results.trx",
+        "bytes": 118482,
+        "sha256": "c8c0e0e85931f68107dfa2dffcf33feed5a0f16f12abf4f158ac108b92ab0af9"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/focus-v2/focus/test.log",
+        "bytes": 5958,
+        "sha256": "7d84555adce489df880c83a316e56bb3d9649cc892c16f6e236dd4ee4bd56ea2"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/focus-v2/plan.json",
+        "bytes": 951,
+        "sha256": "4adabdb6d7e045a906b5ea52b51fc1987cdead017c29d617cd4c4155ccc7b42e"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/focus-v2/test-source.cs",
+        "bytes": 10126,
+        "sha256": "5bac7eb7980136ed1a5b0eed735696cc6e97c914a1c5b3b06af67f96d1ff1a80"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/frozen-inputs-v1.json",
+        "bytes": 3981,
+        "sha256": "92934942123c3f9216537a834fa60f958317de5886228a75c669ba384c206a54"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/frozen-inputs-v2.json",
+        "bytes": 3981,
+        "sha256": "3c02554f173a54d4d66bb7ae37384f2f38da4254bd567406e672fc2da3f9697e"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/frozen-inputs-v3.json",
+        "bytes": 3981,
+        "sha256": "087fad12defc289ae32e125bb229a49ae0df18df0e26e544898320ecefab5259"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/inspect-results-v1.py",
+        "bytes": 1836,
+        "sha256": "c1ffdc0f8bc7e7d33bb2b33670d2b0e883028fc48dbce4a52e1b6f216c24e08a"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/inspect-results-v2.py",
+        "bytes": 1836,
+        "sha256": "5c10e50a88198e2a886f26a6bab144c1c46862026b9b5a879bd16e414b628ac9"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/inspect-results-v3.log",
+        "bytes": 9042,
+        "sha256": "71b684462b4bcb1930771e94f75c0505bf724c0c26b5b6c1391b3d6bde72a8ad"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/inspect-results-v3.py",
+        "bytes": 1849,
+        "sha256": "d2f55c0def67087c43a4537fdce8cc0a96f27d8d76d6605c62eebaf3894f973b"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/original-v1/bonus-OGN-250-298-False-False-A.json.gz",
+        "bytes": 9066,
+        "sha256": "e9eb8df6a15a0b62f8e516c982b4762f0fdc6ab3a6ff68ab8690cb083f19a970"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/original-v1/bonus-OGN-250-298-False-True-A.json.gz",
+        "bytes": 9195,
+        "sha256": "20fa31b994897ec9e1e639023c0e44909842e8af2e83c8edf33786453ae3a917"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/original-v1/bonus-OGN-250-298-True-False-A.json.gz",
+        "bytes": 9079,
+        "sha256": "c358a37155c2dcc1a0038bc1b26de094041d28193e7c73680b0132cfba53a69d"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/original-v1/bonus-OGN-250-298-True-True-A.json.gz",
+        "bytes": 9228,
+        "sha256": "3adb9aa54afc64e94a2915a3fd3fa66fe2d3709d6df30887dc76020af0377f57"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/original-v1/bonus-OGN-268-298-False-False-A.json.gz",
+        "bytes": 9026,
+        "sha256": "ea76c38e39f138f44260abf6b8e2ab30bf76d6b72618399d963800bed1815bdb"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/original-v1/bonus-OGN-268-298-False-True-A.json.gz",
+        "bytes": 9240,
+        "sha256": "22c9ce0074c6fd91674dbd0ee1129a3e89faa69be66386c73b826eeb7665f44b"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/original-v1/bonus-OGN-268-298-True-False-A.json.gz",
+        "bytes": 9127,
+        "sha256": "835f89e65293baf392274e962ac0a8f38c27d0a42d44dcf457fc79d38c9ba5d1"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/original-v1/bonus-OGN-268-298-True-True-A.json.gz",
+        "bytes": 9268,
+        "sha256": "62ebc87cb248393d6f063c26bda1a0b6adf42d9411c6d0f8951170afc9db68ff"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/original-v1/bonus-UNL-072-219-False-False-A.json.gz",
+        "bytes": 8957,
+        "sha256": "082ce3cf5e563470b0fc187ada4528dc30a8b37f54b70fd510a5c74d63e81166"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/original-v1/bonus-UNL-072-219-False-True-A.json.gz",
+        "bytes": 9083,
+        "sha256": "6295f373f612929947aa60d14c397dc7a3038d235868df039bc907d91ec99e23"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/original-v1/bonus-UNL-072-219-True-False-A.json.gz",
+        "bytes": 8990,
+        "sha256": "fde6fe4c6db9884a725345e5a18f681d454c7105b548d35d3484fa4df2f038d4"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/original-v1/bonus-UNL-072-219-True-True-A.json.gz",
+        "bytes": 9146,
+        "sha256": "b6b32feb03ee4cd9f356bda4fdfa48ffc8531bf7251ad3755f02729aec112c30"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/original-v1/explicit-target-OGN-250-298-False-False-A.json.gz",
+        "bytes": 9192,
+        "sha256": "932d064db9e80e33269bde361b462628f85a25e4b62ef2aa71abf68b2ac855a4"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/original-v1/explicit-target-OGN-250-298-False-False-B.json.gz",
+        "bytes": 9195,
+        "sha256": "1d47566de1518acffe38e0375cbb3cadcb78411367e7f1f115425e49cecd2421"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/original-v1/explicit-target-OGN-268-298-False-False-A.json.gz",
+        "bytes": 9194,
+        "sha256": "215b998056588ad53aa721b0d9474724f2468369e0e2311b01ccbf6375204cc8"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/original-v1/explicit-target-OGN-268-298-False-False-B.json.gz",
+        "bytes": 9197,
+        "sha256": "49b2c768cf26b67301baee502cfaf1d9390aa888eabeb7b635a87b61394b7237"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/original-v1/explicit-target-UNL-072-219-False-False-A.json.gz",
+        "bytes": 9183,
+        "sha256": "68380e57810cfbab1d01fdcd6d11c59799ddb7edb7c2132448507494e595cd54"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/original-v1/explicit-target-UNL-072-219-False-False-B.json.gz",
+        "bytes": 9189,
+        "sha256": "9ea2cbd535a6fca4a8792b0a220bd0bf782a76bdc684c1196cf45f719f1d0147"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/original-v1/scope-OGN-250-298-False-False-A.json.gz",
+        "bytes": 9195,
+        "sha256": "d82e809683078e9c57218c5daeb9eb432f41204c9436adb5ba08f6de16b522fa"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/original-v1/scope-OGN-250-298-False-True-A.json.gz",
+        "bytes": 9648,
+        "sha256": "0f288417280cd1a35d8208f66a70762b515435eec25a2cd9d1c05d9bebf075ad"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/original-v1/scope-OGN-250-298-True-False-A.json.gz",
+        "bytes": 9213,
+        "sha256": "7da0f3dd8530aba8e8b9bb99e3050e090b2af8be3a2b7776bc49617afd5aec4f"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/original-v1/scope-OGN-250-298-True-True-A.json.gz",
+        "bytes": 9681,
+        "sha256": "f5caa7511f80f6d1c20a5759020885eb4ca9c14f2420f0b54e8c72e78e49d4ed"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/original-v1/scope-OGN-268-298-False-False-A.json.gz",
+        "bytes": 9201,
+        "sha256": "0457804e051e5dc78bf386cdca61571ed2e229f5fbc04c500b0a50eaf639fb64"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/original-v1/scope-OGN-268-298-False-True-A.json.gz",
+        "bytes": 9692,
+        "sha256": "53ece303efe650f5e8932a74c782eda4d3c5cfa2adcc1f7e770025cb6b7a5f75"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/original-v1/scope-OGN-268-298-True-False-A.json.gz",
+        "bytes": 9237,
+        "sha256": "90a21a3b359b87fb18f6e344ef78844a575e5bc5f7cda3ad4645b8de22793340"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/original-v1/scope-OGN-268-298-True-True-A.json.gz",
+        "bytes": 9727,
+        "sha256": "c9f523a30957880be8e4a0436e7499935a2b787065acfbc931db2b1cf588e921"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/original-v1/scope-UNL-072-219-False-False-A.json.gz",
+        "bytes": 9177,
+        "sha256": "1f9bbc86dc3f3907cca244965d72243e37162046809af77a8db991ea98abbdd5"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/original-v1/scope-UNL-072-219-False-True-A.json.gz",
+        "bytes": 9585,
+        "sha256": "4d60decfcfc4e3ae43cef25ddb180a780903fa5bd56d282ab6c92960cf7b11fc"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/original-v1/scope-UNL-072-219-True-False-A.json.gz",
+        "bytes": 9209,
+        "sha256": "86daa22e69a2439db4d68c5fe7e8814513c3d86a3ea2a4e0c6cb54c03ac42e30"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/original-v1/scope-UNL-072-219-True-True-A.json.gz",
+        "bytes": 9615,
+        "sha256": "1493c19293ae3b0f42a449108fc3fb12a965108d852cbfe67cf049d122208cbb"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/original-v2/bonus-OGN-250-298-False-False-A.json.gz",
+        "bytes": 36548,
+        "sha256": "46507cc7f4c882ce06e0a239283c596fe2b47c831060d3178021bc18b149f2cf"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/original-v2/bonus-OGN-250-298-False-True-A.json.gz",
+        "bytes": 38958,
+        "sha256": "02ab3b3978dac090bc53a5787ca9fe3acaf13783608b3dffb6337d4878b88ad1"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/original-v2/bonus-OGN-250-298-True-False-A.json.gz",
+        "bytes": 36549,
+        "sha256": "ec596ac96e914ce77addbaba16557baa57c9a576597a8ac6e96cbb4ce9bccf06"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/original-v2/bonus-OGN-250-298-True-True-A.json.gz",
+        "bytes": 38975,
+        "sha256": "806b27223e570e3d1e1956cad349d715dd54e5cdbe38b85a95423dfb6499fd00"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/original-v2/bonus-OGN-268-298-False-False-A.json.gz",
+        "bytes": 40201,
+        "sha256": "b048c457f9aa40559897b7784c83018f71ac23088f1977fb27758b1e9ed0195d"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/original-v2/bonus-OGN-268-298-False-True-A.json.gz",
+        "bytes": 41842,
+        "sha256": "160b1d7cae00a6918cd96240094c5cb18e0c7ed646865561ba10eb213d42732e"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/original-v2/bonus-OGN-268-298-True-False-A.json.gz",
+        "bytes": 40276,
+        "sha256": "48c6ad7356a7499706f8852b081c6632586b24c20f76380e8c3a773b1710ba45"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/original-v2/bonus-OGN-268-298-True-True-A.json.gz",
+        "bytes": 41944,
+        "sha256": "ee9303b3b2e39c53eab9224e93191980a78004cb3d1eed8030cad979b4e68a11"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/original-v2/bonus-UNL-072-219-False-False-A.json.gz",
+        "bytes": 34126,
+        "sha256": "81d76ef6c6912037ee0ec34846b776e2b6c7d4a4e19ed44d363621e7070cbd28"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/original-v2/bonus-UNL-072-219-False-True-A.json.gz",
+        "bytes": 36047,
+        "sha256": "503c2e936f4fd985276c64e4f0f0048ded1eab640aea1a15bd3a3e1e15568a8c"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/original-v2/bonus-UNL-072-219-True-False-A.json.gz",
+        "bytes": 34043,
+        "sha256": "6f6b5b8a86ab58ae26327565cf3a9d369775b764fd10010d17a0a0f25557ac67"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/original-v2/bonus-UNL-072-219-True-True-A.json.gz",
+        "bytes": 36090,
+        "sha256": "dc5b9bb38697ba89ad4421e0a5c6782fb11a746fd61ba99fcb40e21fdc429a9f"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/original-v2/explicit-target-OGN-250-298-False-False-A.json.gz",
+        "bytes": 21867,
+        "sha256": "a16ad3ed2779c52443c144cb5de86293feb9497986f2957565d75b268a30216f"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/original-v2/explicit-target-OGN-250-298-False-False-B.json.gz",
+        "bytes": 21869,
+        "sha256": "85f03d33afaea07cadb86a58a81260a2bd7417cb9d7602081c860ee4b650a431"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/original-v2/explicit-target-OGN-268-298-False-False-A.json.gz",
+        "bytes": 32124,
+        "sha256": "8ecf80dd022a5d7fa14ebadde54581f8388492d9908e4d7e4a90d864458649bd"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/original-v2/explicit-target-OGN-268-298-False-False-B.json.gz",
+        "bytes": 32124,
+        "sha256": "fc98ff6ed948f1f3c25786056e8a558c27d93781d71260b2da204b31e998acf2"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/original-v2/explicit-target-UNL-072-219-False-False-A.json.gz",
+        "bytes": 20521,
+        "sha256": "b1285fb51cad6fef23bd88b33eb8b3ee84bd740c960a07db03a3326ec3f17680"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/original-v2/explicit-target-UNL-072-219-False-False-B.json.gz",
+        "bytes": 20524,
+        "sha256": "c36a6aae1ba78ee0f0e644bbbd68590044931eb8090c3f6ca07f445dc13d4780"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/original-v2/scope-OGN-250-298-False-False-A.json.gz",
+        "bytes": 37350,
+        "sha256": "f1425ee7c6efb843d2e692b1dc6bd8c493eec1086940aa6e2ff3468e93c603a9"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/original-v2/scope-OGN-250-298-False-True-A.json.gz",
+        "bytes": 39324,
+        "sha256": "e10d7ed3a76f32e2ae3bacb9efb0633c36de679ea306eb263af1d69cb5bc6a68"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/original-v2/scope-OGN-250-298-True-False-A.json.gz",
+        "bytes": 37189,
+        "sha256": "99291b651200988d877957edeb9b0ad5f76f99b45bfc5b10ea3f4254dc098fad"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/original-v2/scope-OGN-250-298-True-True-A.json.gz",
+        "bytes": 39392,
+        "sha256": "a3de5ca04728030be2c8bcf1eee233d396e203aea9ab60a5dad12a59714e4b22"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/original-v2/scope-OGN-268-298-False-False-A.json.gz",
+        "bytes": 40655,
+        "sha256": "db7d41d730e299f7d3194ca49e03b0b9fa51ef59d61f2709281b445af0f11027"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/original-v2/scope-OGN-268-298-False-True-A.json.gz",
+        "bytes": 42015,
+        "sha256": "26825b90b5e896b5cea79e62f956f7f3dccee3966bdd2baf7b5bfaf501b43369"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/original-v2/scope-OGN-268-298-True-False-A.json.gz",
+        "bytes": 40800,
+        "sha256": "9d42a50608130bc2cc6ec9d760556fccb060fbaaaee78c81ace0416afb35f7c9"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/original-v2/scope-OGN-268-298-True-True-A.json.gz",
+        "bytes": 42106,
+        "sha256": "325ffdd676bf8d916fee0e8167f4a5eb90844f3fc980d094f75bf71226e38f31"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/original-v2/scope-UNL-072-219-False-False-A.json.gz",
+        "bytes": 34980,
+        "sha256": "8b37f4b11eb450a9d6faecd61d1e1baf5d0c42416524cd7c0ee90b3e8e6e1cf9"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/original-v2/scope-UNL-072-219-False-True-A.json.gz",
+        "bytes": 36340,
+        "sha256": "e019fbab41295a0b2058221c6deb6f55bdeeca75a4f4838c4efaf78dc98d0ab7"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/original-v2/scope-UNL-072-219-True-False-A.json.gz",
+        "bytes": 35053,
+        "sha256": "3f6a6d3b0b7fc887f126852cabfef135c871174e3efaa85e037ca6710dfe44d5"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/original-v2/scope-UNL-072-219-True-True-A.json.gz",
+        "bytes": 36396,
+        "sha256": "6013808d0597f2faaa475bfaf65c9b82c8cb5253523e6af70d47cc0b900b9f3b"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/original-v3/bonus-OGN-250-298-False-False-A.json.gz",
+        "bytes": 36547,
+        "sha256": "cd82f9fb77a82c577ad20e764f1758c66a440d4e1e2a44b74f62b011a47292ae"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/original-v3/bonus-OGN-250-298-False-True-A.json.gz",
+        "bytes": 38958,
+        "sha256": "42e54c476951fc0c9ea7384fba16d0de56aeb064154cb05fd5d60a1b06d46ad5"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/original-v3/bonus-OGN-250-298-True-False-A.json.gz",
+        "bytes": 36547,
+        "sha256": "c323e6f962a9be283719733f7642c2810d1fd6887c22ae838c866a227f98a8ba"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/original-v3/bonus-OGN-250-298-True-True-A.json.gz",
+        "bytes": 38976,
+        "sha256": "2cc6619e22d15b805bb72c950e55b024fc2dd716cff86dafdc22110ea178b827"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/original-v3/bonus-OGN-268-298-False-False-A.json.gz",
+        "bytes": 40201,
+        "sha256": "7ee90a9d90015e443a9be63dbd015adb02dfdb292aa3f6b82f758b66708b0769"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/original-v3/bonus-OGN-268-298-False-True-A.json.gz",
+        "bytes": 41843,
+        "sha256": "99e4bb327e13e1ea1daf2e494c1acd5dadc347c874151ff00a1c0d7c60f6cf32"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/original-v3/bonus-OGN-268-298-True-False-A.json.gz",
+        "bytes": 40277,
+        "sha256": "69cfdafc1e975ecddcf4f3f8f3c90390070fd7bacf9ecdbc8f14d49130215e20"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/original-v3/bonus-OGN-268-298-True-True-A.json.gz",
+        "bytes": 41945,
+        "sha256": "59cee6b196205241913438ee180435ed6ec7561331d41d0a2692848b94a4442a"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/original-v3/bonus-UNL-072-219-False-False-A.json.gz",
+        "bytes": 34116,
+        "sha256": "08ab85247f6af079af938307438f02821c54c6b80f57dbec303714079db458c4"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/original-v3/bonus-UNL-072-219-False-True-A.json.gz",
+        "bytes": 36047,
+        "sha256": "2c2eb123acf785e712322c9a71f37c02bfcceac77875f3e2c125976b1b1711d6"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/original-v3/bonus-UNL-072-219-True-False-A.json.gz",
+        "bytes": 34044,
+        "sha256": "464cb2a2d888a53f1e3284faa9e7723e427a5a0ff8e015f744848c79ef1febd2"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/original-v3/bonus-UNL-072-219-True-True-A.json.gz",
+        "bytes": 36090,
+        "sha256": "0c25d54e444036519e0916f2ad680638189ad3edf4f20b470c1321225a596faa"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/original-v3/explicit-target-OGN-250-298-False-False-A.json.gz",
+        "bytes": 21867,
+        "sha256": "0e1aef3a7d4a977d3fb09c4853343229ff6aec3565b2587ceb764771bda53fc0"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/original-v3/explicit-target-OGN-250-298-False-False-B.json.gz",
+        "bytes": 21870,
+        "sha256": "e86b141f33169387eac777117a8e7c1d9b069829c24b9f6a424aa34d5fd5144f"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/original-v3/explicit-target-OGN-268-298-False-False-A.json.gz",
+        "bytes": 32124,
+        "sha256": "f15dfedfbaeef02f202da490854b01dc9287de6b333576f1c37ede6a6834675c"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/original-v3/explicit-target-OGN-268-298-False-False-B.json.gz",
+        "bytes": 32124,
+        "sha256": "1cdc30d8881cb7385171064268285df049838fef41f7eade1b093ae728743e44"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/original-v3/explicit-target-UNL-072-219-False-False-A.json.gz",
+        "bytes": 20522,
+        "sha256": "88c849258d9a13d7e48208cef1ebb7723a97c1074ff3c400ea7cd1f8e18d5def"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/original-v3/explicit-target-UNL-072-219-False-False-B.json.gz",
+        "bytes": 20525,
+        "sha256": "d0dc1900f859e1009994c434cbe8d33608d0626aeebe36182d960277a563f214"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/original-v3/movement-narrow-OGN-250-298-False-False-A.json.gz",
+        "bytes": 36708,
+        "sha256": "c3704fdb7113289f07fea9187b64edbaacc1c526497e00e4fcc69700e81c68e8"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/original-v3/movement-wide-OGN-250-298-False-False-A.json.gz",
+        "bytes": 37311,
+        "sha256": "bc166a256a2997ff3c1e8476644d077eb676abab35c0c1ccf1505ca068ca59b7"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/original-v3/scope-OGN-250-298-False-False-A.json.gz",
+        "bytes": 37351,
+        "sha256": "0729e559a54c5959966dccf2a2c4d1f11b775b17728891c28a557f8cbfdc9033"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/original-v3/scope-OGN-250-298-False-True-A.json.gz",
+        "bytes": 39324,
+        "sha256": "f62c5ae65e9e4b09c6706109424cce34587c395eefef9ce6687562d9fb990e68"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/original-v3/scope-OGN-250-298-True-False-A.json.gz",
+        "bytes": 37191,
+        "sha256": "7d776a3388b980ea31ad217a947f9ec1a6a9cae5e29e794641ad659927f78da8"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/original-v3/scope-OGN-250-298-True-True-A.json.gz",
+        "bytes": 39393,
+        "sha256": "77ab22d018856a0681af8e82b5b4418f1d5a768aa2c4c8080a8190701ebb09d2"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/original-v3/scope-OGN-268-298-False-False-A.json.gz",
+        "bytes": 40655,
+        "sha256": "c8a1c62a7011f89bc99c799c145d10b0223978546cd7df5fe2dcc5b23025bab6"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/original-v3/scope-OGN-268-298-False-True-A.json.gz",
+        "bytes": 42016,
+        "sha256": "9a18f8169991beac3175213d1341c315f05218476ec415c9209878dca43e9f2d"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/original-v3/scope-OGN-268-298-True-False-A.json.gz",
+        "bytes": 40800,
+        "sha256": "9443fcf9828c7c841aa306b49596d84468ea219a1f378321eb8790f940f5f9ec"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/original-v3/scope-OGN-268-298-True-True-A.json.gz",
+        "bytes": 42107,
+        "sha256": "48a211a4d0cadee011e773f3b9b729ebd3b7f3f765e9c84020368871dfe7917d"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/original-v3/scope-UNL-072-219-False-False-A.json.gz",
+        "bytes": 34980,
+        "sha256": "2ae5f70349e808148181d6d81e94cccd1d55538707f17a49ce83d139072ee783"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/original-v3/scope-UNL-072-219-False-True-A.json.gz",
+        "bytes": 36341,
+        "sha256": "76d8f0aafdaf4fa3f13cc94a31d5f5cc377ee74c6b3cc7680bd20e8ace0bbdeb"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/original-v3/scope-UNL-072-219-True-False-A.json.gz",
+        "bytes": 35053,
+        "sha256": "8fd4a97f8310d0c992219cbacee981de216b629bf044af96c510461ef0160285"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/original-v3/scope-UNL-072-219-True-True-A.json.gz",
+        "bytes": 36396,
+        "sha256": "3dacd5d86d7400422beff78afd61caa7e578a101e6ca19bcbf7a850237a6b305"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/package-proof-v1.py",
+        "bytes": 6349,
+        "sha256": "a156ee3f294a15b3259ba1bdeebd4922a53277ab2212b959eb46d1bb8c6da3e6"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/refresh-sources-v1.py",
+        "bytes": 2267,
+        "sha256": "03dca95bad0584090dc6ddf39e19d748c0b2d4a1bbcb96cdc0432d6ffda091d7"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/source-runtime-and-protocol-boundaries-v1.json",
+        "bytes": 6042,
+        "sha256": "d000af77f0081fcdcddebda9dc09ca92942862faa29c469fab92fa61858ef8e3"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/sources-v1/current-山脉亚龙-original-v1.json.gz",
+        "bytes": 1282,
+        "sha256": "36a3467f8878ce1f20f8fcbe9e8bb1b02221cdde6e9f3cbaebd334e722758045"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/sources-v1/extra-rows.json",
+        "bytes": 1361,
+        "sha256": "11d00f0327b769fb9d46e08ff5bde070bfbc61d2abb022270e1724b0dda9df9f"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/v2-v3-original-history-parity.json",
+        "bytes": 8796,
+        "sha256": "c6b71069ef4643edb852156aef82e15d406ee00a24919ef7e211bd43e60298d7"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/verified-results-v1.json",
+        "bytes": 14074,
+        "sha256": "833657c4e823919987da87e86e426486fd3e1796d639d1615be87898fe04dd3a"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/verified-results-v2.json",
+        "bytes": 16608,
+        "sha256": "b68e1a9fa6db4b604d786ac5db2c111ff943b2b358afa2d38eec61933dcd335a"
+      },
+      {
+        "path": "var/qa/selected-battlefield-aoe-20261023/verified-results-v3.json",
+        "bytes": 17666,
+        "sha256": "5a15e89ba628165bfbc7af5ddb3b5c10d9b7c2a38c0fa2ffb7235076a6ca93b9"
+      },
+      {
+        "path": "var/qa/void-gate-untargeted-damage-20261023/sources-v1/current-先锋中士-original-v1.json.gz",
+        "bytes": 1189,
+        "sha256": "7a3624d011cb76ee3876a85c2941cb9689d98df8c98c360bcd789ea7ac5d90ee"
+      },
+      {
+        "path": "var/qa/void-gate-untargeted-damage-20261023/sources-v1/current-剑刃飓风-original-v1.json.gz",
+        "bytes": 1295,
+        "sha256": "6e0207dc53bc0f7b462305a0d4359a4be70731974b8c4d4d11e2905ddbdda10d"
+      },
+      {
+        "path": "var/qa/void-gate-untargeted-damage-20261023/sources-v1/current-加农炮幕-original-v1.json.gz",
+        "bytes": 1280,
+        "sha256": "9270f5379c43289198b0e4491d0a5f7dc0d0c191825e90b80ab04b3798ebee18"
+      },
+      {
+        "path": "var/qa/void-gate-untargeted-damage-20261023/sources-v1/current-安妮-original-v1.json.gz",
+        "bytes": 1731,
+        "sha256": "710f812499548cb12c61889b0d4a808bf345d540b7f1c511016b6504ee228bfd"
+      },
+      {
+        "path": "var/qa/void-gate-untargeted-damage-20261023/sources-v1/current-班德尔树-original-v1.json.gz",
+        "bytes": 1330,
+        "sha256": "4f0e20c55bf3a572488de4fa61d1fc1b6d844e468af097efcb0617a326311dfb"
+      },
+      {
+        "path": "var/qa/void-gate-untargeted-damage-20261023/sources-v1/current-船坞潜伏者-original-v1.json.gz",
+        "bytes": 1203,
+        "sha256": "33912df9eb0e179041c6ebf447b593ef70a4813c42cd0dd745840930e78213f7"
+      },
+      {
+        "path": "var/qa/void-gate-untargeted-damage-20261023/sources-v1/current-虚空之门-original-v1.json.gz",
+        "bytes": 1294,
+        "sha256": "ec31ea4b93461632f1b2bae124beddd86cdb4ea1238bcfc1ff8669f6b650004d"
+      },
+      {
+        "path": "var/qa/void-gate-untargeted-damage-20261023/sources-v1/current-过载能量-original-v1.json.gz",
+        "bytes": 1189,
+        "sha256": "2d02074a00aa541096b613bedea21c2ae2e806334262add164d192fe3071bbc3"
+      },
+      {
+        "path": "var/qa/void-gate-untargeted-damage-20261023/sources-v1/extra-rows.json",
+        "bytes": 10070,
+        "sha256": "c72bdcd45d52991c2ac538cfd32ce8267375c93e49e771f2a88b194ca57a52ea"
+      }
+    ]
+  }
+}

@@ -57,10 +57,13 @@ public sealed class MultitypeEquipmentTests
     public async Task BattlefieldDamageHitsBothPlayersAndOnlyLethalDamageDestroys(string player, int power)
     {
         var result = await Open(PositionFor("OGN·133/298", battlefield: true, power: power, controller: player));
+        Assert.Equal("OGN·296/298", result.State.CardObjects["BF"].CardNo);
+        Assert.Equal(2, Assert.Single(result.Events, e => e.Kind == "DAMAGE_APPLIED"
+            && Equals(e.Payload.GetValueOrDefault("targetObjectId"), "G1")).Payload["damage"]);
         if (power == 1) Assert.Contains("G1", result.State.PlayerZones[player].Graveyard);
         else {
             Assert.Contains("G1", result.State.PlayerZones[player].Battlefields);
-            Assert.Equal(1, result.State.CardObjects["G1"].Damage);
+            Assert.Equal(2, result.State.CardObjects["G1"].Damage);
             Assert.DoesNotContain(result.Events, e => e.Kind == "EQUIPMENT_RECALLED_TO_BASE");
         }
         Restore(result.State);

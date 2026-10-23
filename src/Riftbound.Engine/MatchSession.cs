@@ -13113,6 +13113,12 @@ internal static class ActionPromptBuilder
             CardTargetScopes.FriendlyUnitThenBattlefield => targetIndex == 0
                 ? IsPromptControlledFieldObject(state, playerId, objectId)
                 : BattlefieldLocalRules.Battlefield(state, objectId) is not null,
+            CardTargetScopes.FriendlyBaseUnitThenBattlefield => targetIndex == 0
+                ? IsPromptControlledBaseObject(state, playerId, objectId)
+                : BattlefieldLocalRules.Battlefield(state, objectId) is not null,
+            CardTargetScopes.BattlefieldThenEnemyUnit => targetIndex == 0
+                ? BattlefieldLocalRules.Battlefield(state, objectId) is not null
+                : IsPromptEnemyBattlefieldObject(state, playerId, objectId),
             CardTargetScopes.FriendlyOccupiedBattlefieldThenEnemyUnit => targetIndex == 0
                 ? CoreRuleEngine.HasFriendlyUnitAtSelectedBattlefield(state, playerId, objectId)
                 : IsPromptEnemyFieldObject(state, playerId, objectId),
@@ -16849,6 +16855,8 @@ internal static class ActionPromptBuilder
             CardTargetScopes.AnyUnit => "任意单位",
             CardTargetScopes.FriendlyUnit => "友方单位",
             CardTargetScopes.FriendlyUnitThenBattlefield => "友方单位，然后战场",
+            CardTargetScopes.FriendlyBaseUnitThenBattlefield => "友方基地单位，然后选择战场",
+            CardTargetScopes.BattlefieldThenEnemyUnit => "战场，然后选择该处的敌方单位",
             CardTargetScopes.FriendlyOccupiedBattlefieldThenEnemyUnit => "有己方单位的战场，然后可选敌方单位",
             CardTargetScopes.FriendlyUnitThenFriendlyUnit => "友方单位，然后另一个友方单位",
             CardTargetScopes.FriendlyThenEnemyUnits => "友方单位，然后敌方单位",
@@ -18687,6 +18695,10 @@ public sealed partial class MatchSession : IMatchSession
         return scenarioId switch
         {
             "basic-play" => BuildBasicPlayScenario(current, seed),
+            "selected-damage-bullet" or "selected-damage-bullet-gate"
+                or "selected-damage-drop" or "selected-damage-drop-gate"
+                or "selected-damage-crescent" or "selected-damage-crescent-gate"
+                => BuildSelectedDamageScenario(current, seed, scenarioId["selected-damage-".Length..]),
             "battle-result-nidalee" or "battle-result-enforcer"
                 or "battle-result-nidalee-burnout" or "battle-result-enforcer-burnout"
                 or "battle-result-nidalee-late-defender" or "battle-result-enforcer-late-defender"
@@ -19141,7 +19153,7 @@ public sealed partial class MatchSession : IMatchSession
 
     private static MatchState BuildTypedPowerPaymentScenario(MatchState current, DevScenarioSeed seed)
     {
-        return BuildScenarioState(
+        var scenario = BuildScenarioState(
             current,
             seed,
             2603302692,
@@ -19168,7 +19180,7 @@ public sealed partial class MatchSession : IMatchSession
                 [seed.P2] = Zones(
                     mainDeck: [],
                     runeDeck: [],
-                    battlefields: ["P2-BULLET-TIME-UNIT-001"],
+                    battlefields: ["P2-BULLET-TIME-UNIT-001", "N54-SELECTED-FIELD"],
                     legendZone: ["P2-LEGEND-001"],
                     championZone: ["P2-CHAMPION-001"])
             },
@@ -19181,6 +19193,8 @@ public sealed partial class MatchSession : IMatchSession
                     manaCost: 1,
                     ownerId: seed.P1,
                     controllerId: seed.P1),
+                ["N54-SELECTED-FIELD"] = new("N54-SELECTED-FIELD", cardNo: "OGN·278/298",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag], ownerId: seed.P2, controllerId: seed.P2),
                 ["P2-BULLET-TIME-UNIT-001"] = new(
                     "P2-BULLET-TIME-UNIT-001",
                     cardNo: "SFD·125/221",
@@ -19189,6 +19203,9 @@ public sealed partial class MatchSession : IMatchSession
                     ownerId: seed.P2,
                     controllerId: seed.P2)
             });
+        return scenario with { ObjectLocations = new Dictionary<string, ObjectLocationState> {
+            ["N54-SELECTED-FIELD"] = new(seed.P2, "BATTLEFIELD", "N54-SELECTED-FIELD"),
+            ["P2-BULLET-TIME-UNIT-001"] = new(seed.P2, "BATTLEFIELD", "N54-SELECTED-FIELD") } };
     }
 
     private static MatchState BuildPayCostWindowScenario(MatchState current, DevScenarioSeed seed)
@@ -19227,7 +19244,7 @@ public sealed partial class MatchSession : IMatchSession
 
     private static MatchState BuildTypedPowerPaymentRecycleScenario(MatchState current, DevScenarioSeed seed)
     {
-        return BuildScenarioState(
+        var scenario = BuildScenarioState(
             current,
             seed,
             2603302693,
@@ -19255,7 +19272,7 @@ public sealed partial class MatchSession : IMatchSession
                 [seed.P2] = Zones(
                     mainDeck: [],
                     runeDeck: [],
-                    battlefields: ["P2-BULLET-TIME-UNIT-001"],
+                    battlefields: ["P2-BULLET-TIME-UNIT-001", "N54-SELECTED-FIELD"],
                     legendZone: ["P2-LEGEND-001"],
                     championZone: ["P2-CHAMPION-001"])
             },
@@ -19281,6 +19298,8 @@ public sealed partial class MatchSession : IMatchSession
                     cardNo: "UNL-R02",
                     ownerId: seed.P1,
                     controllerId: seed.P1),
+                ["N54-SELECTED-FIELD"] = new("N54-SELECTED-FIELD", cardNo: "OGN·278/298",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag], ownerId: seed.P2, controllerId: seed.P2),
                 ["P2-BULLET-TIME-UNIT-001"] = new(
                     "P2-BULLET-TIME-UNIT-001",
                     cardNo: "SFD·125/221",
@@ -19289,11 +19308,14 @@ public sealed partial class MatchSession : IMatchSession
                     ownerId: seed.P2,
                     controllerId: seed.P2)
             });
+        return scenario with { ObjectLocations = new Dictionary<string, ObjectLocationState> {
+            ["N54-SELECTED-FIELD"] = new(seed.P2, "BATTLEFIELD", "N54-SELECTED-FIELD"),
+            ["P2-BULLET-TIME-UNIT-001"] = new(seed.P2, "BATTLEFIELD", "N54-SELECTED-FIELD") } };
     }
 
     private static MatchState BuildTypedPowerPaymentOverRecycleScenario(MatchState current, DevScenarioSeed seed)
     {
-        return BuildScenarioState(
+        var scenario = BuildScenarioState(
             current,
             seed,
             2603302694,
@@ -19325,7 +19347,7 @@ public sealed partial class MatchSession : IMatchSession
                 [seed.P2] = Zones(
                     mainDeck: [],
                     runeDeck: [],
-                    battlefields: ["P2-BULLET-TIME-UNIT-001"],
+                    battlefields: ["P2-BULLET-TIME-UNIT-001", "N54-SELECTED-FIELD"],
                     legendZone: ["P2-LEGEND-001"],
                     championZone: ["P2-CHAMPION-001"])
             },
@@ -19358,6 +19380,8 @@ public sealed partial class MatchSession : IMatchSession
                     cardNo: "UNL-R02",
                     ownerId: seed.P1,
                     controllerId: seed.P1),
+                ["N54-SELECTED-FIELD"] = new("N54-SELECTED-FIELD", cardNo: "OGN·278/298",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag], ownerId: seed.P2, controllerId: seed.P2),
                 ["P2-BULLET-TIME-UNIT-001"] = new(
                     "P2-BULLET-TIME-UNIT-001",
                     cardNo: "SFD·125/221",
@@ -19366,11 +19390,14 @@ public sealed partial class MatchSession : IMatchSession
                     ownerId: seed.P2,
                     controllerId: seed.P2)
             });
+        return scenario with { ObjectLocations = new Dictionary<string, ObjectLocationState> {
+            ["N54-SELECTED-FIELD"] = new(seed.P2, "BATTLEFIELD", "N54-SELECTED-FIELD"),
+            ["P2-BULLET-TIME-UNIT-001"] = new(seed.P2, "BATTLEFIELD", "N54-SELECTED-FIELD") } };
     }
 
     private static MatchState BuildTypedPowerPaymentDoubleRecycleScenario(MatchState current, DevScenarioSeed seed)
     {
-        return BuildScenarioState(
+        var scenario = BuildScenarioState(
             current,
             seed,
             2603302695,
@@ -19396,7 +19423,7 @@ public sealed partial class MatchSession : IMatchSession
                 [seed.P2] = Zones(
                     mainDeck: [],
                     runeDeck: [],
-                    battlefields: ["P2-BULLET-TIME-UNIT-001"],
+                    battlefields: ["P2-BULLET-TIME-UNIT-001", "N54-SELECTED-FIELD"],
                     legendZone: ["P2-LEGEND-001"],
                     championZone: ["P2-CHAMPION-001"])
             },
@@ -19429,6 +19456,8 @@ public sealed partial class MatchSession : IMatchSession
                     cardNo: "UNL-R02",
                     ownerId: seed.P1,
                     controllerId: seed.P1),
+                ["N54-SELECTED-FIELD"] = new("N54-SELECTED-FIELD", cardNo: "OGN·278/298",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag], ownerId: seed.P2, controllerId: seed.P2),
                 ["P2-BULLET-TIME-UNIT-001"] = new(
                     "P2-BULLET-TIME-UNIT-001",
                     cardNo: "SFD·125/221",
@@ -19437,11 +19466,14 @@ public sealed partial class MatchSession : IMatchSession
                     ownerId: seed.P2,
                     controllerId: seed.P2)
             });
+        return scenario with { ObjectLocations = new Dictionary<string, ObjectLocationState> {
+            ["N54-SELECTED-FIELD"] = new(seed.P2, "BATTLEFIELD", "N54-SELECTED-FIELD"),
+            ["P2-BULLET-TIME-UNIT-001"] = new(seed.P2, "BATTLEFIELD", "N54-SELECTED-FIELD") } };
     }
 
     private static MatchState BuildTypedPowerPaymentMixedRecycleScenario(MatchState current, DevScenarioSeed seed)
     {
-        return BuildScenarioState(
+        var scenario = BuildScenarioState(
             current,
             seed,
             2603302696,
@@ -19473,7 +19505,7 @@ public sealed partial class MatchSession : IMatchSession
                 [seed.P2] = Zones(
                     mainDeck: [],
                     runeDeck: [],
-                    battlefields: ["P2-BULLET-TIME-UNIT-001"],
+                    battlefields: ["P2-BULLET-TIME-UNIT-001", "N54-SELECTED-FIELD"],
                     legendZone: ["P2-LEGEND-001"],
                     championZone: ["P2-CHAMPION-001"])
             },
@@ -19506,6 +19538,8 @@ public sealed partial class MatchSession : IMatchSession
                     cardNo: "UNL-R02",
                     ownerId: seed.P1,
                     controllerId: seed.P1),
+                ["N54-SELECTED-FIELD"] = new("N54-SELECTED-FIELD", cardNo: "OGN·278/298",
+                    tags: [P6TokenFactoryCatalog.BattlefieldCardTag], ownerId: seed.P2, controllerId: seed.P2),
                 ["P2-BULLET-TIME-UNIT-001"] = new(
                     "P2-BULLET-TIME-UNIT-001",
                     cardNo: "SFD·125/221",
@@ -19514,6 +19548,9 @@ public sealed partial class MatchSession : IMatchSession
                     ownerId: seed.P2,
                     controllerId: seed.P2)
             });
+        return scenario with { ObjectLocations = new Dictionary<string, ObjectLocationState> {
+            ["N54-SELECTED-FIELD"] = new(seed.P2, "BATTLEFIELD", "N54-SELECTED-FIELD"),
+            ["P2-BULLET-TIME-UNIT-001"] = new(seed.P2, "BATTLEFIELD", "N54-SELECTED-FIELD") } };
     }
 
     private static MatchState BuildHastePaymentRecycleScenario(MatchState current, DevScenarioSeed seed)

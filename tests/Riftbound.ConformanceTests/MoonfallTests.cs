@@ -210,10 +210,22 @@ public sealed class MoonfallTests
         var cast = await Act(s, "P1", Command("BF", "D2"));
         var passed = await Act(cast.State, "P1", new PassPriorityCommand());
         var response = await Act(passed.State, "P2", new PlayCardCommand("RESPONSE", "OGN·133/298", []));
-        var damaged = await Top(response.State); Assert.Equal(2, damaged.State.CardObjects["D2"].Damage);
+        var damaged = await Top(response.State);
+        // BF2 inherits Void Gate: the untargeted response deals 1 + 1 there.
+        Assert.Equal("OGN·296/298", damaged.State.CardObjects["BF2"].CardNo);
+        Assert.Equal(3, damaged.State.CardObjects["D2"].Damage);
+        Assert.Contains("D2", damaged.State.PlayerZones["P2"].Battlefields);
+        Assert.Equal("BF2", damaged.State.ObjectLocations["D2"].BattlefieldObjectId);
+        Assert.Equal(2, Assert.Single(damaged.Events, e => e.Kind == "DAMAGE_APPLIED"
+            && Equals(e.Payload.GetValueOrDefault("targetObjectId"), "D2")).Payload["damage"]);
         var done = await Top(damaged.State);
         Assert.Contains("D2", done.State.PlayerZones["P2"].Graveyard);
-        Assert.Equal(2, done.State.CardObjects["D"].Power);
+        // The other unit also takes Void Gate's extra damage and dies after the
+        // same weakening. Its graveyard incarnation resets temporary modifiers.
+        Assert.Equal(2, Assert.Single(done.Events, e => e.Kind == "POWER_MODIFIED_UNTIL_END_OF_TURN"
+            && Equals(e.Payload.GetValueOrDefault("targetObjectId"), "D")).Payload["resultingPower"]);
+        Assert.Contains("D", done.State.PlayerZones["P2"].Graveyard);
+        Assert.Equal(0, done.State.CardObjects["D"].UntilEndOfTurnPowerModifier);
         var events = done.Events.ToList();
         Assert.True(events.FindIndex(e => e.Kind == "UNIT_MOVED_TO_BATTLEFIELD")
             < events.FindIndex(e => e.Kind == "POWER_MODIFIED_UNTIL_END_OF_TURN"));

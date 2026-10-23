@@ -4223,6 +4223,10 @@ public sealed class ConformanceFixtureRunnerTests
             CancellationToken.None);
 
         Assert.Empty(ConformanceFixtureRunner.CompareExpected(fixture, result));
+        Assert.True(result.FinalState.BattleState.IsActive);
+        Assert.Equal(SelectedBattlefieldFixture.Field, result.FinalState.BattleState.BattlefieldObjectId);
+        Assert.Equal("P1", result.FinalState.FocusPlayerId);
+        Assert.Equal(SelectedBattlefieldFixture.Field, result.FinalState.ObjectLocations["P1-THUNDERING-DROP-BASE-001"].BattlefieldObjectId);
         Assert.Empty(result.FinalState.PlayerZones["P1"].Base);
         Assert.Equal(["P1-THUNDERING-DROP-BASE-001"], result.FinalState.PlayerZones["P1"].Battlefields);
         Assert.Equal(3, result.FinalState.CardObjects["P2-THUNDERING-DROP-UNIT-001"].Damage);
@@ -4245,7 +4249,7 @@ public sealed class ConformanceFixtureRunnerTests
                     "P1-SPELL-THUNDERING-DROP",
                     "THUNDERING_DROP_BASE_UNIT_POWER_DAMAGE_ENEMY_BATTLEFIELD_MOVE",
                     "OGN·250/298",
-                    ["P1-DIRTY-P2-CONTROLLED-BASE-UNIT"])
+                    ["P1-DIRTY-P2-CONTROLLED-BASE-UNIT", SelectedBattlefieldFixture.Field])
             ],
             PlayerZones = new Dictionary<string, PlayerZones>(StringComparer.Ordinal)
             {
@@ -4288,6 +4292,7 @@ public sealed class ConformanceFixtureRunnerTests
                     controllerId: "P2")
             }
         };
+        state = SelectedBattlefieldFixture.WithExplicitFields(state);
         var engine = new CoreRuleEngine();
 
         var p1Pass = await engine.ResolveAsync(
@@ -4568,6 +4573,7 @@ public sealed class ConformanceFixtureRunnerTests
                 ["P2-BULLET-TIME-UNIT-001"] = new("P2-BULLET-TIME-UNIT-001", power: 5)
             }
         };
+        state = SelectedBattlefieldFixture.WithExplicitFields(state);
 
         var result = await new CoreRuleEngine().ResolveAsync(
             state,
@@ -4575,7 +4581,7 @@ public sealed class ConformanceFixtureRunnerTests
             new PlayCardCommand(
                 "P1-SPELL-BULLET-TIME",
                 "OGN·268/298",
-                [],
+                [SelectedBattlefieldFixture.Field],
                 OptionalCosts: ["SPEND_POWER:3"]),
             CancellationToken.None);
 
@@ -4622,6 +4628,7 @@ public sealed class ConformanceFixtureRunnerTests
                 ["P2-BULLET-TIME-UNIT-001"] = new("P2-BULLET-TIME-UNIT-001", power: 5)
             }
         };
+        state = SelectedBattlefieldFixture.WithExplicitFields(state);
 
         var result = await new CoreRuleEngine().ResolveAsync(
             state,
@@ -4629,7 +4636,7 @@ public sealed class ConformanceFixtureRunnerTests
             new PlayCardCommand(
                 "P1-SPELL-BULLET-TIME",
                 "OGN·268/298",
-                [],
+                [SelectedBattlefieldFixture.Field],
                 OptionalCosts: ["SPEND_POWER:red:2"]),
             CancellationToken.None);
 
@@ -4682,6 +4689,7 @@ public sealed class ConformanceFixtureRunnerTests
                 ["P2-BULLET-TIME-UNIT-001"] = new("P2-BULLET-TIME-UNIT-001", power: 5)
             }
         };
+        state = SelectedBattlefieldFixture.WithExplicitFields(state);
 
         var prompt = ResolutionResult.BuildPrompts(state)["P1"];
         var playCandidate = Assert.Single(
@@ -4734,6 +4742,7 @@ public sealed class ConformanceFixtureRunnerTests
                 ["P2-BULLET-TIME-UNIT-001"] = new("P2-BULLET-TIME-UNIT-001", power: 5)
             }
         };
+        state = SelectedBattlefieldFixture.WithExplicitFields(state);
 
         var result = await new CoreRuleEngine().ResolveAsync(
             state,
@@ -4741,7 +4750,7 @@ public sealed class ConformanceFixtureRunnerTests
             new PlayCardCommand(
                 "P1-SPELL-BULLET-TIME",
                 "OGN·268/298",
-                [],
+                [SelectedBattlefieldFixture.Field],
                 OptionalCosts: ["SPEND_POWER:red:2"]),
             CancellationToken.None);
 
@@ -4808,6 +4817,7 @@ public sealed class ConformanceFixtureRunnerTests
                 ["P2-BULLET-TIME-UNIT-001"] = new("P2", "BATTLEFIELD")
             }
         };
+        state = SelectedBattlefieldFixture.WithExplicitFields(state);
 
         var prompt = ResolutionResult.BuildPrompts(state)["P1"];
         var playCandidate = Assert.Single(
@@ -4831,7 +4841,7 @@ public sealed class ConformanceFixtureRunnerTests
             new PlayCardCommand(
                 "P1-SPELL-BULLET-TIME",
                 "OGN·268/298",
-                [],
+                [SelectedBattlefieldFixture.Field],
                 OptionalCosts: [paymentResourceAction, "SPEND_POWER:red:1"]),
             CancellationToken.None);
 
@@ -4907,6 +4917,7 @@ public sealed class ConformanceFixtureRunnerTests
                 ["P2-BULLET-TIME-UNIT-001"] = new("P2-BULLET-TIME-UNIT-001", power: 5)
             }
         };
+        state = SelectedBattlefieldFixture.WithExplicitFields(state);
 
         var prompt = ResolutionResult.BuildPrompts(state)["P1"];
         var playCandidate = Assert.Single(
@@ -4926,7 +4937,7 @@ public sealed class ConformanceFixtureRunnerTests
             new PlayCardCommand(
                 "P1-SPELL-BULLET-TIME",
                 "OGN·268/298",
-                [],
+                [SelectedBattlefieldFixture.Field],
                 OptionalCosts: [paymentResourceAction, "SPEND_POWER:red:1"]),
             CancellationToken.None);
 
@@ -4999,6 +5010,7 @@ public sealed class ConformanceFixtureRunnerTests
                 ["P2-BULLET-TIME-UNIT-001"] = new("P2", "BATTLEFIELD")
             }
         };
+        state = SelectedBattlefieldFixture.WithExplicitFields(state);
 
         var prompt = ResolutionResult.BuildPrompts(state)["P1"];
         var playCandidate = Assert.Single(
@@ -5030,7 +5042,7 @@ public sealed class ConformanceFixtureRunnerTests
             new PlayCardCommand(
                 "P1-SPELL-BULLET-TIME",
                 "OGN·268/298",
-                [],
+                [SelectedBattlefieldFixture.Field],
                 OptionalCosts: [paymentResourceAction, "SPEND_POWER:red:2"]),
             CancellationToken.None);
 
@@ -5115,6 +5127,7 @@ public sealed class ConformanceFixtureRunnerTests
                 ["P2-BULLET-TIME-UNIT-001"] = new("P2", "BATTLEFIELD")
             }
         };
+        state = SelectedBattlefieldFixture.WithExplicitFields(state);
 
         var prompt = ResolutionResult.BuildPrompts(state)["P1"];
         var playCandidate = Assert.Single(
@@ -5136,7 +5149,7 @@ public sealed class ConformanceFixtureRunnerTests
             new PlayCardCommand(
                 "P1-SPELL-BULLET-TIME",
                 "OGN·268/298",
-                [],
+                [SelectedBattlefieldFixture.Field],
                 OptionalCosts: [bluePaymentResourceAction, "SPEND_POWER:red:2"]),
             CancellationToken.None);
 
@@ -5152,7 +5165,7 @@ public sealed class ConformanceFixtureRunnerTests
             new PlayCardCommand(
                 "P1-SPELL-BULLET-TIME",
                 "OGN·268/298",
-                [],
+                [SelectedBattlefieldFixture.Field],
                 OptionalCosts: [redPaymentResourceAction, "SPEND_POWER:red:2"]),
             CancellationToken.None);
 
@@ -5234,6 +5247,7 @@ public sealed class ConformanceFixtureRunnerTests
                 ["P2-BULLET-TIME-UNIT-001"] = new("P2", "BATTLEFIELD")
             }
         };
+        state = SelectedBattlefieldFixture.WithExplicitFields(state);
 
         var prompt = ResolutionResult.BuildPrompts(state)["P1"];
         var playCandidate = Assert.Single(
@@ -5262,7 +5276,7 @@ public sealed class ConformanceFixtureRunnerTests
             new PlayCardCommand(
                 "P1-SPELL-BULLET-TIME",
                 "OGN·268/298",
-                [],
+                [SelectedBattlefieldFixture.Field],
                 OptionalCosts: [bluePaymentResourceAction, "SPEND_POWER:2"]),
             CancellationToken.None);
 
@@ -5343,6 +5357,7 @@ public sealed class ConformanceFixtureRunnerTests
                 ["P2-BULLET-TIME-UNIT-001"] = new("P2", "BATTLEFIELD")
             }
         };
+        state = SelectedBattlefieldFixture.WithExplicitFields(state);
 
         var prompt = ResolutionResult.BuildPrompts(state)["P1"];
         var playCandidate = Assert.Single(
@@ -5366,7 +5381,7 @@ public sealed class ConformanceFixtureRunnerTests
             new PlayCardCommand(
                 "P1-SPELL-BULLET-TIME",
                 "OGN·268/298",
-                [],
+                [SelectedBattlefieldFixture.Field],
                 OptionalCosts: [firstPaymentResourceAction, secondPaymentResourceAction, "SPEND_POWER:red:2"]),
             CancellationToken.None);
 
@@ -5454,6 +5469,7 @@ public sealed class ConformanceFixtureRunnerTests
                 ["P2-BULLET-TIME-UNIT-001"] = new("P2", "BATTLEFIELD")
             }
         };
+        state = SelectedBattlefieldFixture.WithExplicitFields(state);
         var initialStateHash = MatchStateHasher.Hash(state);
 
         var prompt = ResolutionResult.BuildPrompts(state)["P1"];
@@ -5476,7 +5492,7 @@ public sealed class ConformanceFixtureRunnerTests
             new PlayCardCommand(
                 "P1-SPELL-BULLET-TIME",
                 "OGN·268/298",
-                [],
+                [SelectedBattlefieldFixture.Field],
                 OptionalCosts: [firstPaymentResourceAction, secondPaymentResourceAction, "SPEND_POWER:red:2"]),
             CancellationToken.None);
 
@@ -30105,16 +30121,17 @@ public sealed class ConformanceFixtureRunnerTests
             },
             CardObjects = new Dictionary<string, CardObjectState>(StringComparer.Ordinal)
             {
-                ["P1-FRIENDLY-UNIT-001"] = new("P1-FRIENDLY-UNIT-001"),
-                ["P2-BASE-UNIT-001"] = new("P2-BASE-UNIT-001"),
-                ["P2-BATTLEFIELD-UNIT-001"] = new("P2-BATTLEFIELD-UNIT-001")
+                ["P1-FRIENDLY-UNIT-001"] = new("P1-FRIENDLY-UNIT-001", power: 4, cardNo: "OGN·219/298", tags: [CardObjectTags.UnitCard], ownerId: "P1", controllerId: "P1"),
+                ["P2-BASE-UNIT-001"] = new("P2-BASE-UNIT-001", power: 4, cardNo: "OGN·219/298", tags: [CardObjectTags.UnitCard], ownerId: "P2", controllerId: "P2"),
+                ["P2-BATTLEFIELD-UNIT-001"] = new("P2-BATTLEFIELD-UNIT-001", power: 5, cardNo: "OGN·049/298", tags: [CardObjectTags.UnitCard], ownerId: "P2", controllerId: "P2")
             }
         };
+        state = SelectedBattlefieldFixture.WithExplicitFields(state);
 
         IReadOnlyList<string>[] invalidTargets =
         [
-            ["P1-FRIENDLY-UNIT-001"],
-            ["P2-BASE-UNIT-001"]
+            [SelectedBattlefieldFixture.FriendlyField, "P1-FRIENDLY-UNIT-001"],
+            [SelectedBattlefieldFixture.Field, "P2-BASE-UNIT-001"]
         ];
 
         foreach (var targetObjectIds in invalidTargets)
@@ -30149,8 +30166,8 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(0, result.FinalState.Tick);
         Assert.Equal(new RunePool(3, 0), result.FinalState.RunePools["P1"]);
         Assert.Equal(["P1-SPELL-CRESCENT-STRIKE"], result.FinalState.PlayerZones["P1"].Hand);
-        Assert.Equal(["P1-FRIENDLY-UNIT-001"], result.FinalState.PlayerZones["P1"].Battlefields);
-        Assert.Equal(["P2-BATTLEFIELD-UNIT-001"], result.FinalState.PlayerZones["P2"].Battlefields);
+        Assert.Equal(["P1-FRIENDLY-UNIT-001", SelectedBattlefieldFixture.FriendlyField], result.FinalState.PlayerZones["P1"].Battlefields);
+        Assert.Equal(["P2-BATTLEFIELD-UNIT-001", SelectedBattlefieldFixture.Field], result.FinalState.PlayerZones["P2"].Battlefields);
         Assert.Equal(0, result.FinalState.CardObjects["P1-FRIENDLY-UNIT-001"].Damage);
         Assert.Equal(0, result.FinalState.CardObjects["P2-BATTLEFIELD-UNIT-001"].Damage);
         Assert.Empty(result.FinalState.StackItems);
@@ -30172,9 +30189,9 @@ public sealed class ConformanceFixtureRunnerTests
         Assert.Equal(0, result.FinalState.Tick);
         Assert.Equal(new RunePool(3, 0), result.FinalState.RunePools["P1"]);
         Assert.Equal(["P1-SPELL-CRESCENT-STRIKE"], result.FinalState.PlayerZones["P1"].Hand);
-        Assert.Equal(["P1-FRIENDLY-UNIT-001"], result.FinalState.PlayerZones["P1"].Battlefields);
+        Assert.Equal(["P1-FRIENDLY-UNIT-001", SelectedBattlefieldFixture.FriendlyField], result.FinalState.PlayerZones["P1"].Battlefields);
         Assert.Equal(["P2-BASE-UNIT-001"], result.FinalState.PlayerZones["P2"].Base);
-        Assert.Equal(["P2-BATTLEFIELD-UNIT-001"], result.FinalState.PlayerZones["P2"].Battlefields);
+        Assert.Equal(["P2-BATTLEFIELD-UNIT-001", SelectedBattlefieldFixture.Field], result.FinalState.PlayerZones["P2"].Battlefields);
         Assert.Equal(0, result.FinalState.CardObjects["P1-FRIENDLY-UNIT-001"].Damage);
         Assert.Equal(0, result.FinalState.CardObjects["P2-BASE-UNIT-001"].Damage);
         Assert.Equal(0, result.FinalState.CardObjects["P2-BATTLEFIELD-UNIT-001"].Damage);

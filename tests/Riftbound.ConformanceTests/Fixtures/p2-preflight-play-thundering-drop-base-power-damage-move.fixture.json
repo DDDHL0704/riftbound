@@ -18,10 +18,18 @@
       "source": "《符文战场》核心规则_260330.pdf",
       "locator": "p4-p8 rules 107-129; p14-p15 rules 142-143; p31-p35 rules 318-340; p39-p42 rules 355-356",
       "note": "基地和战场均为公开区域；单位对象可位于基地或战场并拥有战力与伤害；打出法术需要目标、费用和指示合法，并作为结算链项目在双方让过后结算。"
+    },
+    {
+      "source": "docs/SELECTED_BATTLEFIELD_AOE_N54_PARALLEL_2026-10-23.md",
+      "locator": "CN current exact OGN268 OGN250 UNL072",
+      "note": "N54 explicit single battlefield selection and actual locations; original seed, commands, effects and assertions retained with field identity added. Original pre-calibration fixture and failures archived. Actual movement into an opponent-occupied battlefield establishes the spell duel and battle roles; expect PASS_FOCUS instead of END_TURN. Preserve the original three damage/move assertions and require all added location/participant events."
     }
   ],
   "roomId": "p2-preflight-thundering-drop-room",
-  "players": ["P1", "P2"],
+  "players": [
+    "P1",
+    "P2"
+  ],
   "initialState": {
     "seed": 2603302200,
     "turnNumber": 100,
@@ -48,26 +56,54 @@
     },
     "players": {
       "P1": {
-        "mainDeck": ["P1-MAIN-001"],
-        "runeDeck": ["P1-RUNE-001", "P1-RUNE-002"],
-        "hand": ["P1-SPELL-THUNDERING-DROP"],
-        "base": ["P1-THUNDERING-DROP-BASE-001"],
+        "mainDeck": [
+          "P1-MAIN-001"
+        ],
+        "runeDeck": [
+          "P1-RUNE-001",
+          "P1-RUNE-002"
+        ],
+        "hand": [
+          "P1-SPELL-THUNDERING-DROP"
+        ],
+        "base": [
+          "P1-THUNDERING-DROP-BASE-001"
+        ],
         "battlefields": [],
         "graveyard": [],
         "banished": [],
-        "legendZone": ["P1-LEGEND-001"],
-        "championZone": ["P1-CHAMPION-001"]
+        "legendZone": [
+          "P1-LEGEND-001"
+        ],
+        "championZone": [
+          "P1-CHAMPION-001"
+        ]
       },
       "P2": {
-        "mainDeck": ["P2-MAIN-001"],
-        "runeDeck": ["P2-RUNE-001", "P2-RUNE-002"],
+        "mainDeck": [
+          "P2-MAIN-001"
+        ],
+        "runeDeck": [
+          "P2-RUNE-001",
+          "P2-RUNE-002"
+        ],
         "hand": [],
-        "base": ["P2-BASE-UNIT-001"],
-        "battlefields": ["P2-THUNDERING-DROP-UNIT-001", "P2-THUNDERING-DROP-UNIT-002"],
+        "base": [
+          "P2-BASE-UNIT-001"
+        ],
+        "battlefields": [
+          "P2-THUNDERING-DROP-UNIT-001",
+          "P2-THUNDERING-DROP-UNIT-002",
+          "N54-SELECTED-FIELD"
+        ],
         "graveyard": [],
         "banished": [],
-        "legendZone": ["P2-LEGEND-001"],
-        "championZone": ["P2-CHAMPION-001"]
+        "legendZone": [
+          "P2-LEGEND-001"
+        ],
+        "championZone": [
+          "P2-CHAMPION-001"
+        ]
       }
     },
     "cardObjects": {
@@ -76,28 +112,133 @@
         "damage": 0,
         "untilEndOfTurnPowerModifier": 0,
         "isExhausted": false,
-        "tags": ["CARD_TYPE:UNIT"]
+        "tags": [
+          "CARD_TYPE:UNIT"
+        ],
+        "ownerId": "P1",
+        "controllerId": "P1",
+        "cardNo": "OGN·175/298"
       },
       "P2-THUNDERING-DROP-UNIT-001": {
         "power": 5,
         "damage": 0,
         "untilEndOfTurnPowerModifier": 0,
         "isExhausted": false,
-        "tags": ["CARD_TYPE:UNIT"]
+        "tags": [
+          "CARD_TYPE:UNIT"
+        ],
+        "ownerId": "P2",
+        "controllerId": "P2",
+        "cardNo": "OGN·049/298"
       },
       "P2-THUNDERING-DROP-UNIT-002": {
         "power": 6,
         "damage": 1,
         "untilEndOfTurnPowerModifier": 0,
         "isExhausted": true,
-        "tags": ["CARD_TYPE:UNIT"]
+        "tags": [
+          "CARD_TYPE:UNIT"
+        ],
+        "ownerId": "P2",
+        "controllerId": "P2",
+        "cardNo": "UNL-035/219"
       },
       "P2-BASE-UNIT-001": {
         "power": 2,
         "damage": 0,
         "untilEndOfTurnPowerModifier": 0,
         "isExhausted": false,
-        "tags": ["CARD_TYPE:UNIT"]
+        "tags": [
+          "CARD_TYPE:UNIT"
+        ],
+        "ownerId": "P2",
+        "controllerId": "P2",
+        "cardNo": "UNL-003/219"
+      },
+      "N54-SELECTED-FIELD": {
+        "cardNo": "OGN·278/298",
+        "tags": [
+          "CARD_TYPE:BATTLEFIELD"
+        ],
+        "ownerId": "P2",
+        "controllerId": "P2"
+      },
+      "P1-SPELL-THUNDERING-DROP": {
+        "cardNo": "OGN·250/298",
+        "tags": [
+          "CARD_TYPE:SPELL"
+        ],
+        "ownerId": "P1",
+        "controllerId": "P1"
+      }
+    },
+    "objectLocations": {
+      "P1-MAIN-001": {
+        "playerId": "P1",
+        "zone": "MAIN_DECK"
+      },
+      "P1-RUNE-001": {
+        "playerId": "P1",
+        "zone": "RUNE_DECK"
+      },
+      "P1-RUNE-002": {
+        "playerId": "P1",
+        "zone": "RUNE_DECK"
+      },
+      "P1-SPELL-THUNDERING-DROP": {
+        "playerId": "P1",
+        "zone": "HAND"
+      },
+      "P1-THUNDERING-DROP-BASE-001": {
+        "playerId": "P1",
+        "zone": "BASE"
+      },
+      "P1-LEGEND-001": {
+        "playerId": "P1",
+        "zone": "LEGEND"
+      },
+      "P1-CHAMPION-001": {
+        "playerId": "P1",
+        "zone": "CHAMPION"
+      },
+      "P2-MAIN-001": {
+        "playerId": "P2",
+        "zone": "MAIN_DECK"
+      },
+      "P2-RUNE-001": {
+        "playerId": "P2",
+        "zone": "RUNE_DECK"
+      },
+      "P2-RUNE-002": {
+        "playerId": "P2",
+        "zone": "RUNE_DECK"
+      },
+      "P2-BASE-UNIT-001": {
+        "playerId": "P2",
+        "zone": "BASE"
+      },
+      "P2-THUNDERING-DROP-UNIT-001": {
+        "playerId": "P2",
+        "zone": "BATTLEFIELD",
+        "battlefieldObjectId": "N54-SELECTED-FIELD"
+      },
+      "P2-THUNDERING-DROP-UNIT-002": {
+        "playerId": "P2",
+        "zone": "BATTLEFIELD",
+        "battlefieldObjectId": "N54-SELECTED-FIELD"
+      },
+      "N54-SELECTED-FIELD": {
+        "playerId": "P2",
+        "zone": "BATTLEFIELD",
+        "battlefieldObjectId": "N54-SELECTED-FIELD"
+      },
+      "P2-LEGEND-001": {
+        "playerId": "P2",
+        "zone": "LEGEND"
+      },
+      "P2-CHAMPION-001": {
+        "playerId": "P2",
+        "zone": "CHAMPION"
       }
     }
   },
@@ -109,7 +250,10 @@
         "cmdType": "PLAY_CARD",
         "sourceObjectId": "P1-SPELL-THUNDERING-DROP",
         "cardNo": "OGN·250/298",
-        "targetObjectIds": ["P1-THUNDERING-DROP-BASE-001"],
+        "targetObjectIds": [
+          "P1-THUNDERING-DROP-BASE-001",
+          "N54-SELECTED-FIELD"
+        ],
         "optionalCosts": []
       }
     },
@@ -139,10 +283,15 @@
       "STACK_ITEM_RESOLVED",
       "DAMAGE_APPLIED",
       "DAMAGE_APPLIED",
-      "UNIT_MOVED_TO_BATTLEFIELD"
+      "UNIT_MOVED_TO_BATTLEFIELD",
+      "BATTLEFIELD_CONTESTED",
+      "SPELL_DUEL_STARTED",
+      "BATTLE_ROLES_ESTABLISHED"
     ],
     "events": [
-      { "kind": "CARD_PLAYED" },
+      {
+        "kind": "CARD_PLAYED"
+      },
       {
         "kind": "COST_PAID",
         "payload": {
@@ -158,13 +307,22 @@
           "controllerId": "P1",
           "sourceObjectId": "P1-SPELL-THUNDERING-DROP",
           "cardNo": "OGN·250/298",
-          "targetObjectIds": ["P1-THUNDERING-DROP-BASE-001"],
+          "targetObjectIds": [
+            "P1-THUNDERING-DROP-BASE-001",
+            "N54-SELECTED-FIELD"
+          ],
           "effectKind": "THUNDERING_DROP_BASE_UNIT_POWER_DAMAGE_ENEMY_BATTLEFIELD_MOVE"
         }
       },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "PRIORITY_PASSED" },
-      { "kind": "STACK_ITEM_RESOLVED" },
+      {
+        "kind": "PRIORITY_PASSED"
+      },
+      {
+        "kind": "PRIORITY_PASSED"
+      },
+      {
+        "kind": "STACK_ITEM_RESOLVED"
+      },
       {
         "kind": "DAMAGE_APPLIED",
         "payload": {
@@ -186,40 +344,102 @@
         "payload": {
           "sourceObjectId": "P1-SPELL-THUNDERING-DROP",
           "targetObjectId": "P1-THUNDERING-DROP-BASE-001",
-          "controllerId": "P1",
-          "destinationZone": "BATTLEFIELD"
+          "destinationZone": "BATTLEFIELD",
+          "battlefieldObjectId": "N54-SELECTED-FIELD",
+          "playerId": "P1",
+          "destination": "BATTLEFIELD:N54-SELECTED-FIELD"
+        }
+      },
+      {
+        "kind": "BATTLEFIELD_CONTESTED",
+        "payload": {
+          "battlefieldObjectId": "N54-SELECTED-FIELD",
+          "causedByPlayerId": "P1",
+          "participantControllerIds": [
+            "P1",
+            "P2"
+          ],
+          "participantObjectIds": [
+            "P1-THUNDERING-DROP-BASE-001",
+            "P2-THUNDERING-DROP-UNIT-001",
+            "P2-THUNDERING-DROP-UNIT-002"
+          ]
+        }
+      },
+      {
+        "kind": "SPELL_DUEL_STARTED",
+        "payload": {
+          "battlefieldObjectId": "N54-SELECTED-FIELD",
+          "focusPlayerId": "P1",
+          "reason": "BATTLEFIELD_CONTESTED"
+        }
+      },
+      {
+        "kind": "BATTLE_ROLES_ESTABLISHED",
+        "payload": {
+          "battlefieldId": "N54-SELECTED-FIELD",
+          "attackingPlayerId": "P1",
+          "attackerObjectIds": [
+            "P1-THUNDERING-DROP-BASE-001"
+          ],
+          "defenderObjectIds": [
+            "P2-THUNDERING-DROP-UNIT-001",
+            "P2-THUNDERING-DROP-UNIT-002"
+          ]
         }
       }
     ],
     "promptActions": {
-      "P1": ["END_TURN"],
-      "P2": ["WAIT"]
+      "P1": [
+        "PASS_FOCUS"
+      ],
+      "P2": [
+        "WAIT"
+      ]
     },
     "finalState": {
       "turnNumber": 100,
       "activePlayerId": "P1",
       "turnPlayerId": "P1",
       "phase": "MAIN",
-      "timingState": "NEUTRAL_OPEN",
+      "timingState": "SPELL_DUEL_OPEN",
       "scores": {
         "P1": 0,
         "P2": 0
       },
       "runePools": {
-        "P1": { "mana": 0, "power": 0 },
-        "P2": { "mana": 0, "power": 0 }
+        "P1": {
+          "mana": 0,
+          "power": 0
+        },
+        "P2": {
+          "mana": 0,
+          "power": 0
+        }
       },
       "players": {
         "P1": {
-          "mainDeck": ["P1-MAIN-001"],
+          "mainDeck": [
+            "P1-MAIN-001"
+          ],
           "hand": [],
           "base": [],
-          "battlefields": ["P1-THUNDERING-DROP-BASE-001"],
-          "graveyard": ["P1-SPELL-THUNDERING-DROP"]
+          "battlefields": [
+            "P1-THUNDERING-DROP-BASE-001"
+          ],
+          "graveyard": [
+            "P1-SPELL-THUNDERING-DROP"
+          ]
         },
         "P2": {
-          "base": ["P2-BASE-UNIT-001"],
-          "battlefields": ["P2-THUNDERING-DROP-UNIT-001", "P2-THUNDERING-DROP-UNIT-002"]
+          "base": [
+            "P2-BASE-UNIT-001"
+          ],
+          "battlefields": [
+            "P2-THUNDERING-DROP-UNIT-001",
+            "P2-THUNDERING-DROP-UNIT-002",
+            "N54-SELECTED-FIELD"
+          ]
         }
       },
       "cardObjects": {
@@ -227,30 +447,49 @@
           "power": 3,
           "damage": 0,
           "isExhausted": false,
-          "tags": ["CARD_TYPE:UNIT"]
+          "tags": [
+            "CARD_TYPE:UNIT"
+          ]
         },
         "P2-THUNDERING-DROP-UNIT-001": {
           "power": 5,
           "damage": 3,
-          "tags": ["CARD_TYPE:UNIT"]
+          "tags": [
+            "CARD_TYPE:UNIT"
+          ]
         },
         "P2-THUNDERING-DROP-UNIT-002": {
           "power": 6,
           "damage": 4,
           "isExhausted": true,
-          "tags": ["CARD_TYPE:UNIT"]
+          "tags": [
+            "CARD_TYPE:UNIT"
+          ]
         },
         "P2-BASE-UNIT-001": {
           "power": 2,
           "damage": 0,
-          "tags": ["CARD_TYPE:UNIT"]
+          "tags": [
+            "CARD_TYPE:UNIT"
+          ]
         }
       },
-      "stackItems": []
+      "stackItems": [],
+      "focusPlayerId": "P1"
     },
     "prompts": {
-      "P1": { "actionable": true, "actions": ["END_TURN"] },
-      "P2": { "actionable": false, "actions": ["WAIT"] }
+      "P1": {
+        "actionable": true,
+        "actions": [
+          "PASS_FOCUS"
+        ]
+      },
+      "P2": {
+        "actionable": false,
+        "actions": [
+          "WAIT"
+        ]
+      }
     }
   }
 }

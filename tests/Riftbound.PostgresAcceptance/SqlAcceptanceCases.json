@@ -270,6 +270,10 @@
     {
       "id": "draven-first-win-score",
       "sourceType": "DravenBattleWinScoreSqlAcceptance"
+    },
+    {
+      "id": "selected-field-damage",
+      "sourceType": "SelectedBattlefieldDamageSqlAcceptance"
     }
   ]
 }

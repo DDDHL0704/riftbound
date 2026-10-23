@@ -173,8 +173,7 @@ public static class CardBasicActionRules
                 || behavior.ConditionalDamageAmount > 0
                 || behavior.DamagesAllBattlefieldUnits
                 || behavior.DamagesAllEnemyCombatUnits
-                || behavior.DamagesAllEnemyBattlefieldUnits
-                || behavior.DamagesAllEnemyBattlefieldUnitsByFirstTargetPower
+                || behavior.SelectedBattlefieldEffect?.DamagesEnemyUnits == true
                 || behavior.OtherEnemyBattlefieldUnitsDamageAmount > 0
                 || behavior.DealsMutualTargetPowerDamage
                 || behavior.DealsSourceAndTargetPowerDamage
