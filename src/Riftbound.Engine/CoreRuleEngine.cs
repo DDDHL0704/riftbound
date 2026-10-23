@@ -12842,12 +12842,18 @@ public sealed partial class CoreRuleEngine : IRuleEngine
 
         var resultWinner = TryResolveBattleWinnerPlayerId(playerZones, cardObjects, attackerObjectIds,
             defenderObjectIds, defendingPlayerId, intent.PlayerId, out var capturedWinner) ? capturedWinner : null;
+        var declaredPublicBindings = TryReadBattleResponseDeclarationContext(state, battlefieldId, out var publicBattle)
+            ? publicBattle.PublicObjectBindings : null;
+        var publicBattleBindings = (declaredPublicBindings ?? [])
+            .Concat(CaptureBattlePublicBindings(state, attackerObjectIds.Concat(defenderObjectIds)))
+            .GroupBy(binding => binding.ObjectId, StringComparer.Ordinal).Select(group => group.First()).ToArray();
         var resultState = state with { Tick = state.Tick + 1, PlayerZones = playerZones, CardObjects = cardObjects,
             ObjectLocations = ReconcileObjectLocations(state.ObjectLocations, playerZones), RunePools = runePools,
             TriggerQueue = state.TriggerQueue.Concat(lethalCleanup.TriggerQueue).ToArray(), RngCursor = rngCursor,
             DestroyedUnitOwnerIdsThisTurn = MergeDestroyedUnitOwnerIds(state.DestroyedUnitOwnerIdsThisTurn, lethalCleanup.DestroyedUnitOwnerIds) };
         if (TryBeginBattleResultContinuation(resultState, battlefieldId, intent.PlayerId, defendingPlayerId,
-            resultWinner, attackerObjectIds, defenderObjectIds, assignedOverkillDamageToEnemyUnits, combatEvents, out var pendingResult))
+            resultWinner, attackerObjectIds, defenderObjectIds, assignedOverkillDamageToEnemyUnits, combatEvents, out var pendingResult,
+            publicObjectBindings: publicBattleBindings))
         {
             combatEvents.Insert(0, new GameEvent("BATTLE_DECLARED", $"{intent.PlayerId} 声明战斗",
                 new Dictionary<string, object?> { ["playerId"] = intent.PlayerId, ["battlefieldId"] = battlefieldId,
@@ -13009,7 +13015,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
         var battlefieldResolutions = AppendBattlefieldResolutionEvents(
             state.BattlefieldResolutions,
             combatEvents,
-            state.Tick + 1, cardObjects);
+            state.Tick + 1, cardObjects, publicBattleBindings);
         var battleResolutions = AppendBattleResolutionEvents(
             state.BattleResolutions,
             combatEvents,
@@ -13021,8 +13027,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             attackerObjectIds,
             defenderObjectIds,
             playerZones,
-            cardObjects, TryReadBattleResponseDeclarationContext(state, battlefieldId, out var publicBattle)
-                ? publicBattle.PublicObjectBindings : CaptureBattlePublicBindings(state, attackerObjectIds.Concat(defenderObjectIds)));
+            cardObjects, publicBattleBindings);
         untilEndOfTurnEffects = MarkPlayersWhoGainedExperienceThisTurn(untilEndOfTurnEffects, combatEvents);
         var nextState = state with
         {
@@ -13431,7 +13436,8 @@ public sealed partial class CoreRuleEngine : IRuleEngine
     private static IReadOnlyList<BattlefieldResolutionState> AppendBattlefieldResolutionEvents(
         IReadOnlyList<BattlefieldResolutionState> existing,
         IReadOnlyList<GameEvent> events,
-        long tick, IReadOnlyDictionary<string, CardObjectState> cardObjects)
+        long tick, IReadOnlyDictionary<string, CardObjectState> cardObjects,
+        IReadOnlyList<ObjectBinding>? publicObjectBindings = null)
     {
         var newResolutions = new List<BattlefieldResolutionState>();
         for (var eventIndex = 0; eventIndex < events.Count; eventIndex++)
@@ -13480,9 +13486,11 @@ public sealed partial class CoreRuleEngine : IRuleEngine
                 EventPayloadString(gameEvent, "controllerId"),
                 sourceObjectId,
                 participantObjectIds,
-                [gameEvent.Kind]) { PublicObjectBindings = participantObjectIds
-                    .Where(id => cardObjects.TryGetValue(id, out var card) && !card.IsFaceDown)
-                    .Select(id => new ObjectBinding(id, cardObjects[id].ObjectGeneration)).ToArray() });
+                [gameEvent.Kind]) { PublicObjectBindings = participantObjectIds.Select(id =>
+                    publicObjectBindings?.FirstOrDefault(binding => binding.ObjectId == id)
+                    ?? (cardObjects.TryGetValue(id, out var card) && !card.IsFaceDown
+                        ? new ObjectBinding(id, card.ObjectGeneration) : null))
+                    .Where(binding => binding is not null).Cast<ObjectBinding>().ToArray() });
         }
 
         if (newResolutions.Count == 0)
@@ -19979,6 +19987,10 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             return (state, []);
         }
 
+        var battlefieldHistoryBindings = CaptureBattlePublicBindings(state, occupantObjectIds)
+            .Concat(concludingBattle && state.PendingBattleResult is { } result && result.BattlefieldId == battlefieldObjectId
+                ? result.PublicObjectBindings : [])
+            .GroupBy(binding => binding.ObjectId, StringComparer.Ordinal).Select(group => group.First()).ToArray();
         var previousControllerId = battlefieldState.ControllerId;
         var nextControllerId = occupantControllerIds.Length == 1 ? occupantControllerIds[0] : null;
         var events = new List<GameEvent>();
@@ -20062,7 +20074,7 @@ public sealed partial class CoreRuleEngine : IRuleEngine
             BattlefieldResolutions = AppendBattlefieldResolutionEvents(
                 state.BattlefieldResolutions,
                 events,
-                state.Tick, cardObjects),
+                state.Tick, cardObjects, battlefieldHistoryBindings),
             Status = winnerPlayerId is null ? state.Status : MatchStatuses.Finished,
             WinnerPlayerId = winnerPlayerId ?? state.WinnerPlayerId
         };
